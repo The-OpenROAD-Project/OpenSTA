@@ -1,0 +1,156 @@
+Naming conventions
+
+directory - lowercase (directory)
+filename - corresponding class name without prefix (Filename)
+class - capitalized (ClassName)
+member function - lowercase/capitalized (memberFunction)
+member variable - lowercase/underscore/trailing underscore (member_variable_)
+                  Trailing underscore prevents conflict with accessor 
+                  member function name.
+function - lowercase/capitalized (functionName)
+comments - use capitalized sentences that end with periods
+
+C++ code files should use a .cc file extension
+C++ header files should use a .hh file extension
+
+Use ifdef/define's to protect headers from being read more than once.
+Name the define variable the same as the header in uppercase.
+For example, for Clock.hh
+
+  #ifndef STA_CLOCK_H
+  #define STA_CLOCK_H
+  ...
+  #endif
+
+In general it is better to for class variables to use pointers to
+objects of other classes rather than embedding the instance directly.
+This only requires that the class be declared rather than defined,
+many times breaking a dependency on another header file. 
+
+Header files that define the classes of a sub-directory allow other
+headers to have pointers to the objects without pulling in the details
+of the class definitions.  These headers are named "DirectoryClass.hh"
+where Directory is the capitalized name of the sub-directory.  
+
+Place comments describing public functions and classes in header files
+rather than code files because a consumer is more likely to have
+access to the header and that is the first place they will look.
+Comments for private functions can be in the source file.
+
+The return type of a function should be on the line before the
+function name.  Spaces should be added after commas in the argument
+list.  Split the function arguments to fit on one line.  For example:
+
+return_type 
+function(type1 arg1, type2, arg2)
+{
+}
+
+Functions should be less than one screen long.  Break long functions
+up into smaller ones.  Lines should be less than 80 characters long.
+
+Try to avoid assignments inside `if'-conditions.  For example, don't
+write this:
+
+     if ((foo = (char *) malloc (sizeof *foo)) == 0)
+       fatal ("virtual memory exhausted");
+
+instead, write this:
+
+     foo = (char *) malloc (sizeof *foo);
+     if (foo == 0)
+       fatal ("virtual memory exhausted");
+
+
+Use braces around if/for bodies that are more than one line.
+IE, 
+  if (pred)
+    for (int i = 0; i < len; i++) {  // this body should be in {}'s
+       ...
+    }
+
+Add a default clause to all switches calling switchCaseNotHandled:
+
+  switch (type) {
+  case edge_interconnect:
+    ...
+  default:
+    switchCaseNotHandled();
+  }
+
+Put return types for functions on the line before the function name:
+
+ Cell *
+ Library::findCell(char *name)
+ {
+  ...
+ }
+
+Class member functions should be grouped in public, protected and then
+private order.
+
+ class Frob
+ {
+ public:
+ protected:
+ private:
+
+ friend class Frobulator;
+ }
+
+Don't declare class variables as const.  It means any downstream code
+that accesses the member cannot modify it, which is overly
+restrictive.
+
+Never use [] to lookup a map value because it creates a key/null value
+pair if the lookup fails.  Use sta::Map::findKey instead.
+
+Avoid nested classes/enums because SWIG has trouble with them.
+
+................................................................
+Warning
+get_<object> not found
+sdf timing arc not found
+disabling timing arcs to break loops
+virtual clock with no sources (no pins)
+invalid endpoint for constrained paths
+sdf DESIGN does not match top level cell name
+set_input_delay on clk port (deprecation warning)
+link cannot resolve reference (module/cell not found)
+
+Errors
+cannot open file
+file syntax error
+cmd illegal command option combinations
+cmd extra positional args
+cmd unknown keyword option
+cmd unknown
+sdf pin not found
+
+................................................................
+
+if configure.ac changes
+ autoconf
+
+if Makefile.am changes
+ automake 
+
+Adding a new source file
+ Add header and source to source_dir/Makefile.am
+ cd source_dir; make clean
+
+Adding a new source directory
+ Add to configure.ac STA_SUBDIRS, AC_CONFIG_FILES
+ bootstrap
+ configure
+ make
+
+................................................................
+Swig notes
+
+C null pointers (zero) turn into "NULL" values in TCL.
+
+TCL "NULL" strings turn into NULL (zero) pointers in C.
+
+# TCL lexpr-funcall
+eval exec $prog $args

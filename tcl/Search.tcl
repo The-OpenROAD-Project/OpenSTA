@@ -1,0 +1,328 @@
+# OpenSTA, Static Timing Analyzer
+# Copyright (c) 2018, Parallax Software, Inc.
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+namespace eval sta {
+
+################################################################
+#
+# Search debugging/probing commands
+#
+################################################################
+
+define_cmd_args "report_arrival" {pin}
+
+proc report_arrival { pin } {
+  report_wrt_clks $pin "arrivals_clk"
+}
+
+proc report_wrt_clks { pin_arg what } {
+  set pin [get_port_pin_error "pin" $pin_arg]
+  foreach vertex [$pin vertices] {
+    if { $vertex != "NULL" } {
+      report_wrt_clk $vertex $what "NULL" "rise"
+      report_wrt_clk $vertex $what [default_arrival_clock] "rise"
+      set clk_iter [clock_iterator]
+      while {[$clk_iter has_next]} {
+	set clk [$clk_iter next]
+	report_wrt_clk $vertex $what $clk "rise"
+	report_wrt_clk $vertex $what $clk "fall"
+      }
+      $clk_iter finish
+    }
+  }
+}
+
+proc report_wrt_clk { vertex what clk clk_tr } {
+  global sta_report_default_digits
+
+  set rise [$vertex $what rise $clk $clk_tr]
+  set fall [$vertex $what fall $clk $clk_tr]
+  # Filter INF/-INF arrivals.
+  if { !([times_are_inf $rise] && [times_are_inf $fall]) } {
+    set rise_fmt [format_times $rise $sta_report_default_digits]
+    set fall_fmt [format_times $fall $sta_report_default_digits]
+    if {$clk != "NULL"} {
+      set clk_str " ([$clk name] [rise_fall_short_name $clk_tr])"
+    } else {
+      set clk_str ""
+    }
+    puts "$clk_str r $rise_fmt f $fall_fmt"
+  }
+}
+
+proc rise_fall_short_name { tr } {
+  if { $tr eq "rise" } {
+    return [rise_short_name]
+  } elseif { $tr eq "fall" } {
+    return [fall_short_name]
+  } else {
+    error "unknown transition name $tr"
+  }
+}
+
+proc times_are_inf { times } {
+  foreach time $times {
+    if { $time < 1e+10 && $time > -1e+10 } {
+      return 0
+    }
+  }
+  return 1
+}
+
+################################################################
+
+# Note that -all and -tags are intentionally "hidden".
+define_cmd_args "report_path" \
+  {[-min|-max]\
+     [-format full|full_clock|full_clock_expanded|short|end|summary]\
+     [-fields [capacitance|transition_time|input_pin|net]\
+     [-digits digits] [-no_line_splits]\
+     [> filename] [>> filename]\
+     pin ^|r|rise|v|f|fall}
+
+proc_redirect report_path {
+  parse_key_args "report_path" args keys {} \
+    flags {-max -min -all -tags} 0
+
+  if { [info exists flags(-min)] && [info exists flags(-max)] } {
+    sta_error "-min and -max cannot both be specified."
+  } elseif [info exists flags(-min)] {
+    set min_max "min"
+  } elseif [info exists flags(-max)] {
+    set min_max "max"
+  } else {
+    # Default to max path.
+    set min_max "max"
+  }
+  set report_tags [info exists flags(-tags)]
+  set report_all [info exists flags(-all)]
+
+  parse_report_path_options "report_path" args "full" 1
+  check_argc_eq2 "report_path" $args
+
+  set pin_arg [lindex $args 0]
+  set tr [parse_rise_fall_arg [lindex $args 1]]
+
+  set pin [get_port_pin_error "pin" $pin_arg]
+  if { [$pin is_hierarchical] } {
+    sta_error "pin '$pin_arg' is hierarchical."
+  } else {
+    foreach vertex [$pin vertices] {
+      if { $vertex != "NULL" } {
+	if { $report_all } {
+	  set first 1
+	  set path_iter [$vertex path_iterator $tr $min_max]
+	  while {[$path_iter has_next]} {
+	    set path [$path_iter next]
+	    if { $first }  {
+	      puts "Tag group: [$vertex tag_group_index]"
+	    } else {
+	      puts ""
+	    }
+	    if { $report_tags } {
+	      puts "Tag: [$path tag]"
+	    }
+	    report_path_cmd $path
+	    delete_path_ref $path
+	    set first 0
+	  }
+	  $path_iter finish
+	} else {
+	  set worst_path [vertex_worst_arrival_path_tr $vertex $tr $min_max]
+	  if { $worst_path != "NULL" } {
+	    if { $report_tags } {
+	      puts "Tag: [$worst_path tag]"
+	    }
+	    report_path_cmd $worst_path
+	    delete_path_ref $worst_path
+	  }
+	}
+      }
+    }
+  }
+}
+
+proc parse_rise_fall_arg { arg } {
+  if { $arg eq "r" || $arg eq "^" || $arg eq "rise" } {
+    return "rise"
+  } elseif { $arg eq "f" || $arg eq "v" || $arg eq "fall" } {
+    retur "fall"
+  } else {
+    error "unknown rise/fall transition name."
+  }
+}
+
+proc parse_report_path_options { cmd args_var default_format
+				 unknown_key_is_error } {
+  variable path_options
+  global sta_report_default_digits
+
+  upvar 1 $args_var args
+  if [info exists path_options] {
+    unset path_options
+  }
+  parse_key_args $cmd args path_options {-format -digits -fields} \
+    path_options {-no_line_splits} $unknown_key_is_error
+
+  set format $default_format
+  if [info exists path_options(-format)] {
+    set format $path_options(-format)
+    set formats {full full_clock full_clock_expanded short \
+		   end slack_only summary}
+    if { [lsearch $formats $format] == -1 } {
+      sta_error "-format $format not recognized."
+    }
+  } else {
+    set path_options(-format) $default_format
+  }
+  set_report_path_format $format
+
+  set digits $sta_report_default_digits
+  if [info exists path_options(-digits)] {
+    set digits $path_options(-digits)
+    check_positive_integer "-digits" $digits
+  }
+  set path_options(num_fmt) "%.${digits}f"
+  set_report_path_digits $digits
+
+  if { [info exists path_options(-fields)] } {
+    set fields $path_options(-fields)
+    set report_input_pin [expr [lsearch $fields "input*"] != -1]
+    set report_cap [expr [lsearch $fields "cap*"] != -1]
+    set report_net [expr [lsearch $fields "net*"] != -1]
+    set report_slew [expr [lsearch $fields "trans*"] != -1]
+  } else {
+    set report_input_pin 0
+    set report_cap 0
+    set report_net 0
+    set report_slew 0
+  }
+  set_report_path_fields $report_input_pin $report_net \
+    $report_cap $report_slew
+
+  set_report_path_no_split [info exists path_options(-no_line_splits)]
+}
+
+################################################################
+
+define_cmd_args "report_required" {pin}
+
+proc report_required { pin } {
+  report_wrt_clks $pin "requireds_clk"
+}
+
+################################################################
+
+define_cmd_args "report_slack" {pin}
+
+proc report_slack { pin } {
+  report_wrt_clks $pin "slacks_clk"
+}
+
+################################################################
+
+# Internal debugging command.
+proc report_tag_arrivals { pin } {
+  set pin [get_port_pin_error "pin" $pin]
+  foreach vertex [$pin vertices] {
+    report_tag_arrivals_cmd $vertex
+  }
+}
+
+################################################################
+
+define_hidden_cmd_args "total_negative_slack" {[-min]|[-max]}
+
+proc total_negative_slack { args } {
+  parse_key_args "total_negative_slack" args keys {} flags {-min -max}
+  check_argc_eq0 "total_negative_slack" $args
+  set min_max [parse_min_max_flags flags]
+  set tns [total_negative_slack_cmd $min_max]
+  return [time_sta_ui $tns]
+}
+
+################################################################
+
+define_hidden_cmd_args "worst_negative_slack" {[-min]|[-max]}
+
+proc worst_negative_slack { args } {
+  parse_key_args "total_negative_slack" args keys {} flags {-min -max}
+  check_argc_eq0 "worst_negative_slack" $args
+  set min_max [parse_min_max_flags flags]
+  set worst_slack [worst_slack $min_max]
+  if { $worst_slack < 0.0 } {
+    return [time_sta_ui $worst_slack]
+  } else {
+    return 0.0
+  }
+}
+
+################################################################
+#
+# Helper functions
+#
+################################################################
+
+proc parse_path_group_arg { group_names } {
+  set names {}
+  foreach name $group_names {
+    if { [is_path_group_name $name] } {
+      lappend names $name
+    } else {
+      sta_warn "unknown path group '$name'."
+    }
+  }
+  return $names
+}
+
+proc report_slew_limits { min_max all_violators verbose nosplit } {
+  if { $all_violators } {
+    set violators [pin_slew_limit_violations $min_max]
+    if { $violators != {} } {
+      puts "${min_max}_transition"
+      puts ""
+      if { $verbose } {
+	foreach pin $violators {
+	  report_slew_limit_verbose $pin $min_max
+	  puts ""
+	}
+      } else {
+	report_slew_limit_short_header
+	foreach pin $violators {
+	  report_slew_limit_short $pin $min_max
+	}
+	puts ""
+      }
+    }
+  } else {
+    set pin [pin_min_slew_limit_slack $min_max]
+    if { $pin != "NULL" } {
+      puts "${min_max}_transition"
+      puts ""
+      if { $verbose } {
+	report_slew_limit_verbose $pin $min_max
+	puts ""
+      } else {
+	report_slew_limit_short_header
+	report_slew_limit_short $pin $min_max
+	puts ""
+      }
+    }
+  }
+}
+
+# sta namespace end.
+}

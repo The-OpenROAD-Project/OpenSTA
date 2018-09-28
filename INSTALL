@@ -1,0 +1,130 @@
+# OpenSTA, Static Timing Analyzer
+# Copyright (c) 2018, Parallax Software, Inc.
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+Build requirements
+------------------
+
+Other versions may work, but these are the versions used for
+developing the code.  
+
+         from   Ubuntu  Xcode
+                 16.04   9.4
+clang                    9.1.0
+lldb                     902.0.79.7
+gcc      3.3.2   5.4.0   
+tcl      8.2     8.6     8.6.6
+autoconf 2.53    2.69    2.69
+automake 1.6.3   1.15    1.16.1
+libtool  1.4.2   2.4.6   2.4.6
+swig     1.3.28  3.0.8   3.0.12
+bison    1.35    3.04    2.3
+flex     2.5.4   2.6.0   2.5.35
+
+These packages are optional:
+
+gdb      5.3     7.11       8.0
+valgrind 1.9.6   3.11.0     N/A
+
+libz     1.1.4   1.2.5     1.2.8
+cudd             2.4.1     2.5.0
+
+Building from the git repository:
+
+git clone https://xp-dev.com/git/opensta
+set branch = master
+or
+set branch = rel_<version>
+git checkout $branch
+
+./bootstrap
+./configure [options...]
+make
+
+With no options, configure builds an optimized executable.
+The resulting executable is app/sta.
+
+configure options:
+  -h, --help              display configure help and exit
+  --enable-debug          enable debug
+  --enable-asan           enable AddressSanitizer
+  --enable-gprof          enable gprof profiling
+  --enable-gcov           enable gcov profiling
+  --enable-32bit          force 32 bit compile
+  --with-include=dirs     directories to search for include files
+  --with-lib=dirs         directories to search for libraries
+  --with-tcl=dirs         directories to search for Tcl init files
+  --with-cudd=path        use Cudd BDD package, defaults to $CUDD
+  --with-visualstudio     use Microcruft Visual Studio C++ compiler
+
+CUDD is a BDD package that is used to improve conditional timing arc
+handling.  The version used for developing the sta is 2.5.0.  It is
+available from the following url:
+
+ ftp://vlsi.colorado.edu/pub/cudd-2.5.0.tar.gz
+
+The Zlib library is an optional.  If it is used, Verilog, SDF, SPF,
+and SPEF files compressed with gzip can be read by the STA.
+
+If the configure script fails to find any of the TCL or Zlib files,
+use the --with-include, --with-lib, --with-tcl options to add directories
+to search for the files.
+
+The -help option lists the generic configure options that are not
+described above.  The default arguments to configure disable shared
+libraries. To build with shared libraries use the --enable-shared
+option.
+
+Building on Windoz
+------------------
+The Win32 API does not natively support the pthreads API.  The
+pthreads-win32 package is one way to get support for pthreads for 32
+bit builds.  It is available from www.sourceware.org/pthreads-win32.
+If the configure script does not find pthreads.h the build proceeds
+without thread support.
+
+Use a .bat file to start a cygwin shell that has its path set to
+support the Microcruft cl compiler by calling the vsvars32.bat script
+from the Visual C++ installation.
+
+tcsh-startup.bat
+  @echo off
+  call "c:\Microsoft Visual Studio 9.0\Common7\Tools\vsvars.bat"
+  set path=c:\cygwin\bin;%PATH%
+  c:\cygwin\bin\tcsh
+
+Configure and build from the shell. Note that tcl and zlib must be
+built with the Visual C++ compiler to link to the sta libraries.
+
+./bootstrap
+./configure --with-visualstudio
+# Rebuild flex/bison files because include files are different.
+make maintainer-clean
+
+Good luck and don't bother me with windoz specific issues.
+I am happy to say I haven't owned a windoz machine in 20 years.
+
+
+Submitting Bug Reports
+----------------------
+Mail bug reports to bugs@parallaxsw.com.
+All bug reports should attach a testcase, preferably in the following
+form:
+
+ A gzip'd tar file that unpacks into a directory with the same name as the tar file
+ A file named README that describes the problem
+ All commands in one .tcl file (usually run.tcl) for small cases
+ No calls to "exit"
+ No shell scripts to envoke the sta

@@ -1,0 +1,344 @@
+// OpenSTA, Static Timing Analyzer
+// Copyright (c) 2018, Parallax Software, Inc.
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#include "Machine.hh"
+#include "Fuzzy.hh"
+#include "Liberty.hh"
+#include "Network.hh"
+#include "Sdc.hh"
+#include "Graph.hh"
+#include "StaState.hh"
+#include "DcalcAnalysisPt.hh"
+#include "Corner.hh"
+#include "PathVertex.hh"
+#include "Search.hh"
+#include "CheckSlewLimits.hh"
+
+namespace sta {
+
+class PinSlewLimitSlackLess
+{
+public:
+  PinSlewLimitSlackLess(const MinMax *min_max,
+			CheckSlewLimits *check_slew_limit,
+			const StaState *sta);
+  bool operator()(Pin *pin1,
+		  Pin *pin2) const;
+
+private:
+  const MinMax *min_max_;
+  CheckSlewLimits *check_slew_limit_;
+  const StaState *sta_;
+
+};
+
+PinSlewLimitSlackLess::PinSlewLimitSlackLess(const MinMax *min_max,
+					     CheckSlewLimits *check_slew_limit,
+					     const StaState *sta) :
+  min_max_(min_max),
+  check_slew_limit_(check_slew_limit),
+  sta_(sta)
+{
+}
+
+bool
+PinSlewLimitSlackLess::operator()(Pin *pin1,
+				  Pin *pin2) const
+{
+  const Corner *corner1, *corner2;
+  const TransRiseFall *tr1, *tr2;
+  Slew slew1, slew2;
+  float limit1, limit2, slack1, slack2;
+  check_slew_limit_->checkSlews(pin1, min_max_,
+				corner1, tr1, slew1, limit1, slack1);
+  check_slew_limit_->checkSlews(pin2, min_max_,
+				corner2, tr2, slew2, limit2, slack2);
+  return slack1 < slack2
+    || (fuzzyEqual(slack1, slack2)
+	// Break ties for the sake of regression stability.
+	&& sta_->network()->pinLess(pin1, pin2));
+}
+
+////////////////////////////////////////////////////////////////
+
+CheckSlewLimits::CheckSlewLimits(const StaState *sta) :
+  sta_(sta)
+{
+}
+
+void
+CheckSlewLimits::init(const MinMax *min_max)
+{
+  const Network *network = sta_->network();
+  Cell *top_cell = network->cell(network->topInstance());
+  float top_limit;
+  bool top_limit_exists;
+  sta_->sdc()->slewLimit(top_cell, min_max,
+				 top_limit, top_limit_exists);
+  top_limit_= top_limit;
+  top_limit_exists_ = top_limit_exists;
+}
+
+void
+CheckSlewLimits::checkSlews(const Pin *pin,
+			    const MinMax *min_max,
+			    // Return values.
+			    const Corner *&corner,
+			    // Return the min slack transition.
+			    const TransRiseFall *&tr,
+			    Slew &slew,
+			    float &limit,
+			    float &slack) const
+{
+  corner = NULL;
+  tr = NULL;
+  slack = MinMax::min()->initValue();
+  Vertex *vertex, *bidirect_drvr_vertex;
+  sta_->graph()->pinVertices(pin, vertex, bidirect_drvr_vertex);
+  TransRiseFallIterator tr_iter;
+  while (tr_iter.hasNext()) {
+    TransRiseFall *tr1 = tr_iter.next();
+    float limit1;
+    bool limit1_exists;
+    findLimit(pin, vertex, tr1, min_max, limit1, limit1_exists);
+    if (limit1_exists) {
+      CornerIterator corner_iter(sta_);
+      while (corner_iter.hasNext()) {
+	Corner *corner1 = corner_iter.next();
+	checkSlew(vertex, limit1, tr1, corner1, min_max,
+		  corner, tr, slew, slack, limit);
+	if (bidirect_drvr_vertex) {
+	  findLimit(pin, bidirect_drvr_vertex, tr1, min_max,
+		    limit1, limit1_exists);
+	  if (limit1_exists) {
+	    checkSlew(bidirect_drvr_vertex, limit1, tr1, corner1, min_max,
+		      corner, tr, slew, slack, limit);
+	  }
+	}
+      }
+    }
+  }
+}
+
+void
+CheckSlewLimits::findLimit(const Pin *pin,
+			   const Vertex *vertex,
+			   const TransRiseFall *tr,
+			   const MinMax *min_max,
+			   // Return values.
+			   float &limit1,
+			   bool &limit1_exists) const
+			
+{
+  limit1_exists = false;
+  const Network *network = sta_->network();
+  Sdc *sdc = sta_->sdc();
+  bool is_clk = sta_->search()->isClock(vertex);
+  // Look for clock slew limits.
+  ClockSet clks;
+  clockDomains(vertex, clks);
+  ClockSet::Iterator clk_iter(clks);
+  while (clk_iter.hasNext()) {
+    Clock *clk = clk_iter.next();
+    PathClkOrData clk_data =  is_clk ? path_clk : path_data;
+    float clk_limit;
+    bool clk_limit_exists;
+    sdc->slewLimit(clk, tr, clk_data, min_max,
+			   clk_limit, clk_limit_exists);
+    if (clk_limit_exists
+	&& (!limit1_exists
+	    || min_max->compare(limit1, clk_limit))) {
+      // Use the tightest clock limit.
+      limit1 = clk_limit;
+      limit1_exists = true;
+    }
+  }
+  if (!limit1_exists) {
+    // Default to top ("design") limit.
+    limit1_exists = top_limit_exists_;
+    limit1 = top_limit_;
+    if (network->isTopLevelPort(pin)) {
+      Port *port = network->port(pin);
+      float port_limit;
+      bool port_limit_exists;
+      sdc->slewLimit(port, min_max, port_limit, port_limit_exists);
+      // Use the tightest limit.
+      if (port_limit_exists
+	  && (!limit1_exists
+	      || min_max->compare(limit1, port_limit))) {
+	limit1 = port_limit;
+	limit1_exists = true;
+      }
+    }
+    else {
+      float pin_limit;
+      bool pin_limit_exists;
+      sdc->slewLimit(pin, min_max,
+			     pin_limit, pin_limit_exists);
+      // Use the tightest limit.
+      if (pin_limit_exists
+	  && (!limit1_exists
+	      || min_max->compare(limit1, pin_limit))) {
+	limit1 = pin_limit;
+	limit1_exists = true;
+      }
+
+      float port_limit;
+      bool port_limit_exists;
+      LibertyPort *port = network->libertyPort(pin);
+      if (port) {
+	port->slewLimit(min_max, port_limit, port_limit_exists);
+	// Use the tightest limit.
+	if (port_limit_exists
+	    && (!limit1_exists
+		|| min_max->compare(limit1, port_limit))) {
+	  limit1 = port_limit;
+	  limit1_exists = true;
+	}
+      }
+    }
+  }
+}
+
+void
+CheckSlewLimits::clockDomains(const Vertex *vertex,
+			      // Return value.
+			      ClockSet &clks) const
+{
+  VertexPathIterator path_iter(const_cast<Vertex*>(vertex), sta_);
+  while (path_iter.hasNext()) {
+    Path *path = path_iter.next();
+    Clock *clk = path->clock(sta_);
+    if (clk)
+      clks.insert(clk);
+  }
+}
+
+void
+CheckSlewLimits::checkSlew(Vertex *vertex,
+			   float limit1,
+			   const TransRiseFall *tr1,
+			   const Corner *corner1,
+			   const MinMax *min_max,
+			   // Return values.
+			   const Corner *&corner,
+			   const TransRiseFall *&tr,
+			   Slew &slew,
+			   float &slack,
+			   float &limit) const
+{
+  const DcalcAnalysisPt *dcalc_ap = corner1->findDcalcAnalysisPt(min_max);
+  Slew slew1 = sta_->graph()->slew(vertex, tr1, dcalc_ap->index());
+  float slew2 = delayAsFloat(slew1);
+  float slack1 = (min_max == MinMax::max())
+    ? limit1 - slew2 : slew2 - limit1;
+  if (corner == NULL
+      || (slack1 < slack
+	  // Break ties for the sake of regression stability.
+	  || (fuzzyEqual(slack1, slack)
+	      && tr1->index() < tr->index()))) {
+    corner = corner1;
+    tr = tr1;
+    slew = slew1;
+    slack = slack1;
+    limit = limit1;
+  }
+}
+
+PinSeq *
+CheckSlewLimits::pinSlewLimitViolations(const MinMax *min_max)
+{
+  init(min_max);
+  const Network *network = sta_->network();
+  PinSeq *violators = new PinSeq;
+  LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
+  while (inst_iter->hasNext()) {
+    Instance *inst = inst_iter->next();
+    pinSlewLimitViolations(inst, min_max, violators);
+  }
+  delete inst_iter;
+  // Check top level ports.
+  pinSlewLimitViolations(network->topInstance(), min_max, violators);
+  sort(violators, PinSlewLimitSlackLess(min_max, this, sta_));
+  return violators;
+}
+
+void
+CheckSlewLimits::pinSlewLimitViolations(Instance *inst,
+					const MinMax *min_max,
+					PinSeq *violators)
+{
+  const Network *network = sta_->network();
+  InstancePinIterator *pin_iter = network->pinIterator(inst);
+  while (pin_iter->hasNext()) {
+    Pin *pin = pin_iter->next();
+    const Corner *corner;
+    const TransRiseFall *tr;
+    Slew slew;
+    float limit, slack;
+    checkSlews(pin, min_max, corner, tr, slew, limit, slack);
+    if (tr && slack < 0.0)
+      violators->push_back(pin);
+  }
+  delete pin_iter;
+}
+
+Pin *
+CheckSlewLimits::pinMinSlewLimitSlack(const MinMax *min_max)
+{
+  init(min_max);
+  const Network *network = sta_->network();
+  Pin *min_slack_pin = 0;
+  float min_slack = MinMax::min()->initValue();
+  LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
+  while (inst_iter->hasNext()) {
+    Instance *inst = inst_iter->next();
+    pinMinSlewLimitSlack(inst, min_max, min_slack_pin, min_slack);
+  }
+  delete inst_iter;
+  // Check top level ports.
+  pinMinSlewLimitSlack(network->topInstance(), min_max,
+		       min_slack_pin, min_slack);
+  return min_slack_pin;
+}
+
+void
+CheckSlewLimits::pinMinSlewLimitSlack(Instance *inst,
+				      const MinMax *min_max,
+				      // Return values.
+				      Pin *&min_slack_pin,
+				      float &min_slack)
+{
+  const Network *network = sta_->network();
+  InstancePinIterator *pin_iter = network->pinIterator(inst);
+  while (pin_iter->hasNext()) {
+    Pin *pin = pin_iter->next();
+    const Corner *corner;
+    const TransRiseFall *tr;
+    Slew slew;
+    float limit, slack;
+    checkSlews(pin, min_max, corner, tr, slew, limit, slack);
+    if (tr
+	&& (min_slack_pin == 0
+	    || slack < min_slack)) {
+      min_slack_pin = pin;
+      min_slack = slack;
+    }
+  }
+  delete pin_iter;
+}
+
+} // namespace

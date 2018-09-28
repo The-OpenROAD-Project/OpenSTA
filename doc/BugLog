@@ -1,0 +1,1066 @@
+Release 1.11.0 Patches
+----------------------
+2017/09/08 set_max_delay -from clk1, set_max_delay -from {clk2 clk1} overrides
+2017/09/10 exception -from clk -to clk, remove_clk
+2017/09/11 crpr after clk network changes seg fault
+2017/09/22 env var TCL_INIT_DIR overrides configure tcl init file dir
+2017/09/27 crpr after clk network changes seg fault
+2017/10/06 seg fault in PathVertex::PathVertex
+2017/10/09 set_max_delay -ignore_clock_latency read/write support
+2017/10/25 write_sdc set_port_fanout_number int
+2017/11/11 crpr pure virtual seg fault
+2017/12/06 set_annotated_transition reg_clk update setup time
+2017/12/08 set/remove_propagated_clock delay calc updates
+2017/12/13 path_delay -to latch_en_clk disables D->Q path
+2017/12/16 latch D->Q delay calc
+2017/12/16 read_verilog gzip file support
+2017/12/17 latch D->Q delay calc
+2018/01/06 clk network edit invalidate requireds for non-reg timing checks
+2018/01/08 clk network edit invalidate requireds for data checks
+2018/01/10 clk network edit invalidate requireds for gated clk checks
+2018/01/15 tighten up floating point equal tolerance
+2018/02/24 set_max_delay -to latch/D include tgt clk latency
+2018/02/25 set_max_delay report negative clk latency
+2018/03/03 incremental tns for hi fanout nets
+2018/03/06 set_max_delay -ignore_clock_latency required time
+2018/03/08 set_annotated_transition latch/D update D->Q delay
+2018/03/14 latch D->Q edges do not propagate required times
+2018/03/21 set_max_delay -ignore_clock_latency with ideal clk
+2018/03/28 set_max_delay no report for unclked check with other clked check
+2018/04/02 set_max_delay require valid endpoint
+2018/04/04 delay calc use internal pin liberty cap
+2018/04/28 set_data_check report inter-clk uncertainty and crpr
+2018/05/25 set_max_delay -ignore_clock_latency to latch
+2018/05/31 report_timing -net with many hi fanout nets slow
+2018/06/03 latch D->Q include enable exceptions
+2018/06/08 tns/wns update endpoint requireds
+
+Release 1.11.0 2017/08/18
+-------------------------
+2014/12/14 remove_from_collection lib, lib_cell, lib_pin
+2015/02/07 sim value changes update levelization
+2015/10/07 report_disable_timing, report_edge timing_enable_preset_clear_arcs
+2015/12/29 check_timing do not report no input delay for ports w/o timing check
+2016/01/14 latch d->q respect false paths -to data with enable=1
+2017/06/25 report_timing -thru clk_network_pin/report_timing seg fault
+
+Release 1.10.1 Patches
+----------------------
+2015/02/20 incr timing check dcalc not using ideal clk slew
+2015/02/21 disconnect_net speedup
+2015/03/13 set_false_path -from clk_port ignored (undo 2013/02/01 patch)
+2015/04/21 clk with high src pin drvr count speedup
+2015/05/21 set_output_delay with mcp and unclocked path seg fault
+2015/05/21 crpr with mcp -hold -from clk
+2015/05/27 crpr with cascaded gen clks
+2015/06/01 crpr with cascaded gen clks missing src path inf loop
+2015/06/10 crpr with cascaded gen clks missing src path inf loop
+2015/07/18 Search::isGenClkSrc
+2015/07/31 write_sdc timing_enable_preset_clear_arcs
+2015/08/06 find gen clk src paths when master clk is ideal
+2015/09/17 network edit with exception -thru speedup
+2015/10/07 generated clk source path respect timing_enable_preset_clear_arcs
+2015/10/29 set_clock_groups with deleted clk
+2016/02/20 ignore setup/hold timing check arc loops
+2016/06/11 set_max/min_capacitance pin
+2016/06/21 liberty include_file allow spaces in pathname
+2016/07/21 liberty template input/output_voltage, no warn for missing index_xx
+2016/09/08 incr required for set_disable_timing'd pin
+2016/09/19 exception without -to merging
+2016/09/26 set_clock_groups arg warning causes tcl error
+2016/11/03 write_sdc set_max_transition [current_design] missing space
+2016/12/08 write_sdc set_max_transition -data_path missing
+2016/12/09 set_max_transition -data_path clock
+2016/12/10 write_sdf do not escape '_'
+2016/12/11 write_sdf SETUP/HOLD data edge specifiers
+2016/12/14 get_pins/cells/nets/clocks etc handle sublist args correctly
+2016/12/17 visitPathGroupVertices
+2016/12/19 set_max_delay respect set_clock_groups
+2016/12/22 set_max_delay -to with unclked src path
+2016/12/28 write_sdf with setup/hold for data rise edge only
+2016/01/02 write_sdf ensure delay calc
+2016/01/02 write_sdf IOPATH for rise/fall only arcs
+2016/01/03 write_sdf RECOVERY, REMOVAL, WIDTH, PERIOD
+2016/01/12 latch d->q respect false paths -to data, -to enable clk
+2016/01/16 liberty infer latches when d->q arc is shared
+2017/02/22 crpr speed improvement, part 1
+2017/03/04 crpr speed improvement, part 2
+2017/05/29 exception -from clk -thru reg/clk_pin
+2017/06/21 crpr multi-thread seg fault
+2017/06/26 cascaded generated clk crpr=0.0
+2017/07/03 cascaded generated clk crpr=0.0 part 2
+2017/07/25 crpr to internal check missing last pin
+2017/07/26 incr worst slack multi-thread seg fault
+2017/07/28 crpr multi-thread seg fault
+
+Release 1.10.1 2014/12/23
+--------------------------
+2014/10/25 TCL clock cmd support
+
+Release 1.10.0 Patches
+----------------------
+2013/08/15 write_sdc -rise_through, -fall_through
+2013/08/21 get_pins wildcard matching verilog escaped names
+2013/08/21 TimingArcSet::deleteTimingArc memory references
+2013/10/18 reduce crpr memory usage
+2014/01/14 liberty string attributes allow hierarchy delimiters
+2014/01/17 all_fanout do not search thru reg clk->q
+2014/01/18 all_fanin -to bidirect, all_fanout -from bidirect
+2014/01/31 LibertyCell::minCell
+2014/01/31 get_cells escaped bus name with no hier delims
+2014/02/21 Sta::clear()/Constraints::clear() seg fault
+2014/02/23 generated clock search from master pin to source pins
+2014/03/19 make Search::ensureDownstreamClkPins public
+2014/05/22 generated clk source latency arrival paths are not clocks
+2014/06/19 write_sdc group_path support
+2014/06/22 gen clk source path do not search thru reg pre/clk arcs
+2014/10/15 PLL feedback pins count as downstream clock pins
+2014/10/20 visit path end crpr speedup
+2014/12/01 set_max_transition pin support
+2014/12/08 write_sdc set_max_transition pin
+2014/12/08 tns/wns -min before report_timing -delay_type min
+2014/12/11 set_annotated_check -clock arg
+2014/12/11 total_negative slack 0->negative->0
+2014/12/17 set_input_delay w/o -clock timing_input_port_default_clock=false
+2015/02/20 incr timing check dcalc not using ideal clk slew
+2015/02/21 disconnect_net speedup
+2015/03/13 set_false_path -from clk_port ignored (undo 2013/02/01 patch)
+2015/04/21 clk with high src pin drvr count speedup
+2015/05/21 set_output_delay with mcp and unclocked path seg fault
+2015/05/21 crpr with mcp -hold -from clk
+2015/05/27 crpr with cascaded gen clks
+2015/06/01 crpr with cascaded gen clks missing src path inf loop
+2015/06/10 crpr with cascaded gen clks missing src path inf loop
+2015/07/18 Search::isGenClkSrc
+2015/07/31 write_sdc timing_enable_preset_clear_arcs
+2015/08/06 find gen clk src paths when master clk is ideal
+2015/09/17 network edit with exception -thru speedup
+2015/10/07 generated clk source path respect timing_enable_preset_clear_arcs
+2016/02/20 ignore setup/hold timing check arc loops
+2016/06/11 set_max/min_capacitance pin
+2016/07/21 liberty template input/output_voltage, no warn for missing index_xx
+2016/09/08 incr required for set_disable_timing'd pin
+2016/09/19 exception without -to merging
+2016/09/26 set_clock_groups arg warning causes tcl error
+2016/11/03 write_sdc set_max_transition [current_design] missing space
+2016/12/08 write_sdc set_max_transition -data_path missing
+2016/12/09 set_max_transition -data_path clock
+2016/12/10 write_sdf do not escape '_'
+2016/12/11 write_sdf SETUP/HOLD data edge specifiers
+2016/12/14 get_pins/cells/nets/clocks etc handle sublist args correctly
+2016/12/17 visitPathGroupVertices
+2016/12/19 set_max_delay respect set_clock_groups
+2016/12/22 set_max_delay -to with unclked src path
+2016/12/28 write_sdf with setup/hold for data rise edge only
+2016/01/02 write_sdf ensure delay calc
+2016/01/02 write_sdf IOPATH for rise/fall only arcs
+2016/01/03 write_sdf RECOVERY, REMOVAL, WIDTH, PERIOD
+2016/01/12 latch d->q respect false paths -to data, -to enable clk
+2016/01/16 liberty infer latches when d->q arc is shared
+2017/02/22 crpr speed improvement, part 1
+2017/03/04 crpr speed improvement, part 2
+2017/05/29 exception -from clk -thru reg/clk_pin
+2017/06/21 crpr multi-thread seg fault
+2017/06/26 cascaded generated clk crpr=0.0
+2017/07/03 cascaded generated clk crpr=0.0 part 2
+2017/07/26 incr worst slack multi-thread seg fault
+2017/08/18 crpr to bidir output enabled by clk thru internal pin seg fault
+2017/09/08 set_max_delay -from clk1, set_max_delay -from {clk2 clk1} overrides
+2017/09/11 crpr after clk network changes seg fault
+2017/09/27 crpr after clk network changes seg fault
+2017/10/06 seg fault in PathVertex::PathVertex
+2017/10/09 set_max_delay -ignore_clock_latency read/write support
+2017/11/11 crpr pure virtual seg fault
+2017/12/06 set_annotated_transition reg_clk update setup time
+2017/12/08 set/remove_propagated_clock delay calc updates
+
+Release 1.10.0 2013/06/22
+-------------------------
+2011/06/01 timing_all_clocks_propagated only applies to new clocks
+2011/06/28 set_input_delay reg/clr with set_input_delay on upstream port
+2011/09/23 create_clock -waveform rise > period
+2012/02/13 report_timing -to reg report constrained clk pins
+2012/02/18 set_max_delay -from gen_clk_src -to gen_clk_root
+2012/04/13 get_attribute actual_rise/fall_transition_min/max bidirect pin
+2013/01/03 create_clock hier_input restrict to edges thru hpin
+2013/01/08 set_multicycle_path -to hier_pin invalid endpoint warning
+2013/01/11 set_timing_derate require -early or -late
+2013/02/01 set_false_path -from clk_port respected
+2013/02/03 set_data_check uses propagated clock arrival
+2013/02/03 report_timing -nworst respect -slack_lesser/greater_than
+2013/03/15 dynamic loop breaking with nested clk tree loops and crpr failed
+2013/07/26 write_sdc verilog escaped name handling
+2013/07/26 get_pins wildcard matching for verilog escaped inst bus name
+2017/07/28 crpr multi-thread seg fault
+
+Release 1.9.1 Patches
+---------------------
+2011/03/15 create_clock without -add deletes previous pin clock
+2011/03/15 get_pins instance/bus_port
+2011/03/15 write_sdc set_input_delay/set_output_delay internal pins
+2011/03/17 create_clock hierarchical_pin redefinition
+2011/03/20 crpr from virtual clock to generated clock
+2011/03/23 get_pins -hier port_name (no instance pattern)
+2011/03/25 set_clock_groups -allow_paths support
+2011/03/26 set_input_delay -add -min/max min/max's delay value
+2011/03/26 MinPulseWidthCheck::closePath stack alloc ClkInfo, Tag
+2011/03/27 write_sdc set_input_delay seg fault
+2011/03/27 set_input_delay on output, set_input_delay on input not allowed
+2011/03/28 set_output_delay -add -min/max min/max's delay value
+2011/03/31 report_timing -from clk improve run time
+2011/04/07 all_registers -rise_clock -fall_clock
+2011/04/07 all_registers set_disable_timing, set_clock_sense, set_case_analysis
+2011/04/07 set_false_path -from clk, remove_clock seg fault
+2011/04/07 write_sdc set_input_delay, set_output_delay sort
+2011/04/08 remove_data_check
+2011/04/10 get_pins -hierarchical wildcards match across divider
+2011/04/13 set_data_check memory leak
+2011/04/14 stop unclocked path propagatation at register clk pins
+2011/05/05 set analysis type graph delay annotation memory corruption
+2011/05/11 network edits with constants update endpoints
+2011/05/14 update required fanin only if changed
+2011/05/19 set_clock_latency clk|port/set_propagated_clock clk|port priority
+2011/05/22 connect pin to constant required/arrival updates
+2011/05/30 speedup SDC long object list parsing
+2011/05/30 speedup set_disable_timing lib_cell, lib_port, timing_arc
+2011/05/31 Sta::visitStartpoints, Sta::visitEndpoints
+2011/06/02 Sta::clear() leaves vertices in BfsIterators
+2011/06/03 remove_cell endpoint wns/tns not updated
+2011/06/03 tns thread lock for invalid requireds
+2011/06/04 write_sdc set_disable_timing [get_timing_arcs -filter sense]
+2011/06/07 tns updated by delete of non-endpoint pin
+2011/06/12 liberty wire timing arc leak
+2011/06/12 exception do not merge -from/-thru/-to with rise|fall qualifiers
+2011/06/12 report_path -path_type summary
+2011/06/17 required for endpoints with combinational output arcs (ram)
+2011/06/22 exception -to clk -rise/-fall
+2011/06/26 set_case_analysis that removes constant at downstream endpoint
+2011/06/29 read_sdc/source top level return/break/continue error reporting
+2011/07/03 incremental delete pin drops arrival/required updates
+2011/07/07 Network::findInstanceRelative leak
+2011/07/07 set_case_analysis that removes constant at downstream endpoint
+2011/07/12 disconnect_net net connected to multiple hierarchical pins
+2011/07/14 network edits with level changes required/arrival not updated
+2011/07/18 connect driver to driverless net check for endpoints in fanout
+2011/07/19 connect_net for bidirect pins
+2011/07/21 crpr from buffered source to unbuffered clk target
+2011/07/21 append_to_collection
+2011/07/22 exception -thru hpin; connect_net hpin
+2011/07/22 sort path ends by target clock
+2011/07/28 remove_input_delay, remove_output_delay, remove_case_analysis,
+           remove_clock_groups, remove_clock_uncertainty
+2011/07/29 multi corner only report unconstrained group once
+2011/08/06 set_max_delay -from input, timing_input_port_default_clock false
+2011/08/07 set_multicycle_path from default input arrival uses tgt clock period
+2011/08/08 Search::makeGroupPathEnds iterate over min/max instead of path_aps
+2011/08/15 set_max_delay with out -to reg/clk ignored by clk paths
+2011/08/18 create_generated_clock prop, ideal master/ideal, prop master
+2011/08/22 set_clock_sense -clocks alias for -clock
+2011/08/22 tns after incremental clock network edit
+2011/08/24 cycle accting for tgt clk edge > src period
+2011/09/03 tns arrival with multi-thread seg fault
+2011/09/07 HashSet resize thread data race
+2011/09/22 set_output_delay wrt generated clock with no source path and crpr
+2011/10/29 propagate requires thru non-reg timing check clk pins
+2011/11/03 liberty ecsm_waveform group no warning for index_1, values attributes
+2011/11/03 set_max_delay -to internal_pin after report_timing
+2011/11/29 report_timing -path_type full_clock for set_max_delay
+2011/11/30 set_false_path -from clk -to clk on reg/clk pin
+2011/12/07 create_generated_clock and create_clock on same pin
+2011/12/09 clocks do not propagate thru three_state_disable arcs
+2011/12/11 create_generated_clock -edges restricts src path transition
+2011/12/12 target clk path uses wrong early/late insertion path
+2012/01/04 ~BfsIterator() memory error
+2012/01/08 compiler warnings
+2012/01/08 all_registers -clock break combinational loops
+2012/01/08 only update arrivals when changes > fuzzyEqual
+2012/01/19 gate clk check downstream reg clk search slow
+2012/02/15 report_timing -through genclk_src_path_net
+2012/02/26 crpr high fanin clk reconvergence speedup
+2012/02/29 crpr high fanin clk reconvergence speedup2
+2012/03/05 network edit relevelization error
+2012/03/08 set_clock_groups -name is optional
+2012/03/15 tns update after report_timing -thru on pin with setup and fanout
+2012/03/15 liberty min/max_clock_tree_path parsing
+2012/04/10 create_generated_clock inst/bidirect missing insertion delay
+2012/04/10 multi-thread seg fault growing tag tables
+2012/04/12 get_attribute min/max_rise/fall_slack bidirect pin
+2012/04/26 report_timing -nworst not reporting paths to some pins
+2012/05/14 report_timing -nworst not reporting paths with crpr enabled
+2012/07/10 tns incremental update internal error
+2012/08/10 liberty ff missing cell_rise or cell_fall edge-trigger reporting
+2012/08/11 report_timing -nworst memory leak
+2012/08/11 gated clk checks missed when multi-threaded
+2012/08/24 set_input_delay no clock, timing_input_port_default_clock false
+2012/08/24 create_clock -waveform allow negative times
+2012/11/21 report_timing -from pin -through net / report_timing seg fault
+2012/12/10 remove_clock after set_clock_groups
+2013/03/09 report -from latch1/report -from latch1 -to latch2/report -to latch1
+2013/03/28 set_data_check unclocked seg fault
+2013/05/12 delete exception memory problem
+2013/06/13 verilog black box .port()
+2013/07/26 write_sdc verilog escaped name handling
+2013/07/26 get_pins wildcard matching for verilog escaped inst bus name
+2013/08/15 write_sdc -rise_through, -fall_through
+2013/08/21 get_pins wildcard matching verilog escaped names
+2013/10/03 incr tns corrupts req for false path to ram input
+2014/01/14 liberty string attributes allow hierarchy delimiters
+2014/01/17 all_fanout do not search thru reg clk->q
+2014/01/18 all_fanin -to bidirect, all_fanout -from bidirect
+2014/01/31 get_cells escaped bus name with no hier delims
+
+Release 1.9.1 2011/03/02
+------------------------
+2010/07/19 write_sdc set_timing_derate
+2010/12/21 liberty timing group sticky infered sense for multiple related ports
+2010/12/22 set_clock_sense -clock precidence over non-clock
+2011/01/03 report_timing -through hi_fanin/fanout net speedup2
+2011/02/20 report_timing -nworst with crpr missing paths
+2011/02/22 allocate_budgets with crpr
+
+Release 1.9.0 Patches
+---------------------
+2010/07/15 write_sdc set_data_check
+2010/07/17 incremental arrivals with crpr corrupt paths (no change)
+2010/07/18 incremental requireds with crpr INF (no change)
+2010/07/22 create_generated_clock pll support
+2010/07/24 report_timing -through hier_inst paths starting/ending in hier_inst
+2010/07/28 report_constraint -path_type end report path group headers
+2010/07/30 sta::remove_constraints delete filter (no change)
+2010/08/03 write_sdc set_clock_latency -clock clk pin missing space
+2010/08/11 path delay segmentation option
+2010/08/12 delay calc slews thru internal pins
+2010/08/12 create_generated_clock -pll_output keyword misspelled
+2010/08/12 create_generated_clock pll reporting time offset
+2010/08/12 create_generated_clock pll feedback search thru downstream clks
+2010/08/13 report_arrival following report_timing -from/-thru optimization
+2010/08/13 LibertyReader.cc include <ctype.h>
+2010/08/17 create_clock non-increasing -waveform
+2010/08/28 create_generated_clock master src pin is a clk src pin
+2010/08/29 get_pins internal liberty pin with dividers
+2010/09/11 report_timing -through after network edits (no change)
+2010/09/28 report paths from clk edge > period in cycle 0
+2010/10/01 incremental required times incorrect when tags change
+2010/10/04 remove_propagated_clock
+2010/10/05 generated clk src path propagates one level past clk source
+2010/10/08 all_fanin, all_fanout
+2010/10/13 create_generated_clock -add requires -master_clock
+2010/11/07 set_max_delay -from reg output propagated clk src seg fault
+2010/11/08 report_timing -thru latch_enable=1/Q, report_timing missing arrivals
+2010/11/08 crpr from unclocked input to reg clked by generated clk
+2010/11/10 Constraints::isConstrained
+2010/11/16 write_sdc generated clk -combinational
+2010/11/17 exception -thru instance does not apply to input pins
+2010/11/17 delay calc slew when pi model C2=0 fails
+2010/11/19 customer change sync
+2010/11/21 incremental Sta::arrival/required/slack speedup
+2010/11/24 merge tags with different clk insertions
+2010/11/24 report_timing -through hi_fanin/fanout net speedup
+2010/12/16 create_cell with internal pins
+2010/12/29 set_timing_derate partial option priority
+2011/01/05 findGenClkInsertionDelays() clobbers arrivals
+2011/01/13 make internal pins if from/to timing arcs
+2011/01/17 create_cell/delete_cell tie hi/low before report_timing
+2011/02/15 set_annotated_delay clk net invalidates downstream reg requireds
+
+Release 1.9.0 2010/07/06
+------------------------
+
+Release 1.8.2 Patches
+---------------------
+2009/11/23 initSta builds delay calcs and initializes elapsed time
+2009/11/24 tmp string leak
+2009/11/25 configure support init.tcl in /usr/lib/tcl8.x
+2009/12/01 get_attribute port|pin min|max_rise|fall_slack
+2009/12/07 redirect -variable var { cmds }
+2009/12/11 constraints makefile
+2009/12/15 remove_clock_latency pin
+2009/12/16 set_clock_latency -clock clk pin
+2009/12/16 link failure N^2 run time on high connectivity nets
+2009/12/19 read_sdc slow on super long continued commands
+2009/12/20 generated clock latencies not needed unless propagated
+2009/12/20 generated clock latency search hangs
+2009/12/21 network edits cause INF arrivals
+2009/12/23 vdd/gnd are invalid exception pts
+2010/01/07 set_timing_derate get_lib_cell
+2010/01/11 generated clock latency restrict search to fanin
+2010/01/18 set_multicycle_path allow zero and negative path multipliers
+2010/01/22 TCL sta::set_path_min_max for arrival/required
+2010/02/03 set_false_path -to clk overrides unclked set_max_delay -to pin
+2010/02/18 write_sdc set_disable_timing use writeGetPort
+2010/03/06 liberty include_file allow spaces
+2010/03/10 set_clock_groups memory corruption
+2010/03/30 report_timing -to, filter output port path delays
+2010/04/01 set_clock_groups do not suppress paths from clks outside groups
+2010/04/01 liberty close include files
+2010/04/28 set_max_delay ignore Search::checkDefaultArrivalPaths()
+2010/04/28 VertexEventIterator with EventFactory1 
+2010/05/13 set_propagated_clock reg_clk_pin
+2010/05/15 set_max_delay, set_multicycle_path exception merging
+2010/05/15 generated clk insertion delay paths for analysis pts
+2010/05/16 liberty slew thresholds differ for driver/load
+2010/05/19 connect_net/disconnect_net for top level ports
+2010/05/19 Search::findGenClkInsertionDelays() public
+2010/05/23 incr levelization connecting pins with no fanout
+2010/05/24 set_max_delay clk latency report format
+2010/05/25 set_max_delay -from internal_pin
+2010/05/26 set_max_delay -to internal_pin
+2010/05/28 Search::findGenClkInsertionDelays() only run once
+2010/06/02 design reload / set_max_delay -from/-to seg fault
+2010/06/03 liberty slew thresholds differ for driver/load
+2010/06/24 connect/disconnect_net with constants propagating thru the net
+2010/06/29 internal pin required times with crpr enabled
+2010/06/29 set_thread_count update components
+2010/06/30 delay calc slew accuracy when Rpi > Rd
+2010/06/30 faster incremental timing constant propagation
+2010/06/30 write_sdc set_clock_groups include exclusivity type keyword
+2010/07/01 get_timing_arcs -from or -to
+2010/07/02 disconnect/connect/disconnect pin seg fault
+2010/07/15 write_sdc set_data_check 
+2010/07/17 incremental arrivals with crpr corrupt paths 
+2010/07/18 incremental requireds with crpr INF
+2010/07/24 report_timing -through hier_inst paths starting/ending in hier_inst
+2010/07/28 report_constraint -path_type end report path group headers
+2010/07/30 sta::remove_constraints delete filter
+2010/08/03 write_sdc set_clock_latency -clock clk pin missing space
+2010/08/11 path delay segmentation option
+2010/08/11 SearchPath1 do not force event rise transitions
+2010/08/17 create_clock non-increasing -waveform
+2010/08/28 create_generated_clock master src pin is a clk src pin
+2010/08/29 get_pins internal liberty pin with dividers
+2010/09/11 report_timing -through after network edits
+2010/10/05 generated clk src path propagates one level past clk source
+2010/11/16 write_sdc generated clk -combinational
+2010/11/17 exception -thru instance does not apply to input pins
+2010/11/17 delay calc slew when pi model C2=0 fails
+2010/12/16 create_cell with internal pins
+2010/12/29 set_timing_derate partial option priority
+2011/01/05 findGenClkInsertionDelays() clobbers arrivals
+2011/01/13 make internal pins if from/to timing arcs
+2011/02/15 set_annotated_delay clk net invalidates downstream reg requireds
+2011/02/28 connect_net vss/gnd propagate constant
+2011/04/06 set_timing_disable [get_timing_arcs -from -to]
+2011/04/14 stop unclocked path propagatation at register clk pins
+2011/05/10 write_sdc set_input_delay and set_output_delay for bidir
+2011/05/11 network edits with constants update endpoints
+2011/05/22 connect pin to constant required/arrival updates
+2011/07/21 append_to_collection
+2011/08/22 set_clock_sense -clocks alias for -clock
+2011/08/24 cycle accting for tgt clk edge > src period
+2010/08/25 set_clock_sense -clock precidence over non-clock
+2011/08/26 exception do not merge -from/-thru/-to with rise|fall qualifiers
+2011/11/29 report_timing -path_type full_clock for set_max_delay
+2011/12/07 create_generated_clock and create_clock on same pin
+2011/12/09 clocks do not propagate thru three_state_disable arcs
+2011/12/09 sta::delete_all_memory fails after set_disable_timing arc
+2011/12/11 create_generated_clock -edges restricts src path transition
+2011/01/11 crpr on genclk src path seg fault
+2011/01/26 crpr on output delay wrt cascaded generated clk
+2012/02/16 crpr on output delay missing gen clk src path
+2012/02/23 crpr with cascaded generated clk
+2012/03/08 set_clock_groups -allow_paths support
+2012/03/08 set_clock_groups -name is optional
+2012/03/17 required for endpoints with combinational output arcs (ram)
+2012/04/10 create_generated_clock inst/bidirect missing insertion delay
+2012/04/13 get_attribute min/max_rise/fall_slack bidirect pin
+2012/04/13 required for unclocked inputs used as timing check clocks
+2013/03/28 set_data_check unclocked seg fault
+
+Release 1.8.2 2009/11/18
+------------------------
+2009/04/30 liberty tristate output function=1 does not force output
+2009/05/03 liberty mode values only disabled if one mode value is one
+2009/05/11 check tgt gen clk early/late src insertion delay
+2009/05/13 report_timing -full_path_expanded gen clk src latency doubled
+2009/05/14 create_generated_clock -comb -divide_by 1 req pos unate path
+2009/06/01 gen clk master search ignores constants
+2009/06/07 latch enable clk period > data clk period
+2009/08/25 report min/max delay to recovery/removal check
+2009/10/07 write_sdc create_clock -edge_shift keyword misspelled
+2009/10/23 command redirection allow ~, >filename, >>filename
+
+Release 1.8.1 Patches
+---------------------
+2009/05/06 timing_input_port_default_clock support
+2009/05/08 verilog constants of arbitrary size
+2009/06/04 report_constraint -max_transition fails for undriven outputs
+2009/06/16 verilog defparam string
+2009/06/24 write_sdc exception -from/-to rise/fall 
+2009/06/28 report_timing -full_path_expanded report cascaded gen clk src paths
+2009/07/06 write_sdc set_input_transition
+2009/07/10 report_timing following report -through inconsistent results
+2009/07/13 latch disable by constant with inconsistent setup check transition
+2009/07/14 report_timing -through latch/Q no paths when EN=0
+2009/07/16 report_timing -through -through overlapping pin sets
+2009/07/17 gen clk src rise/fall latency with EventFactory1
+2009/07/20 cascaded generated clock insertion delay source paths
+2009/07/21 windoz strtoull mia
+2009/07/21 non-unate edge warnings followed by relink seg fault
+2009/07/21 relink clear previous verilog constants
+2009/07/24 liberty timing group related_pin allow bus ranges
+2009/07/25 liberty infering multiple latches to one output
+2009/08/10 get_cells * only matches instances in current design
+2009/08/13 get_cells, get_nets, get_ports -of_objects support
+2009/08/17 set_max_delay suppress unclocked paths
+2009/08/18 ignore set_ideal_latency, set_ideal_network, set_ideal_transition
+2009/08/18 source cmd checks for incomplete cmd at end of file
+2009/08/18 verilog reader and link non-fatal errors are now warnings 
+2009/08/18 get_cells, get_nets, get_ports -of_objects support, continued
+2009/08/19 liberty bus ranges with from < to
+2009/08/21 report sdc warnings/errors with file and line number
+2009/09/21 sdc pin args support lists of lists
+2009/09/23 write_sdc create_clock -add
+2009/09/23 create_generated_clock removes previous gen clks on src pins
+2009/09/24 write_sdc clocks in definition order
+2009/09/30 set_max_delay allow negative delays
+2009/10/09 create_generated_clock multiple pin insertion delay
+2009/10/21 set_false_path -through latch_data_pin seg fault
+2009/10/21 liberty infer latches only if D->Q has both rise/fall arcs
+2009/10/21 Report::print signature clash
+2009/11/07 liberty do not infer latches for interface_timing cells
+2009/11/10 Sta::removeConstraints
+2009/11/11 set_false_path/set_multicycle_path warn invalid from/to pins
+2009/11/14 write_sdc clk to clk uncertainty
+
+Release 1.8.1 2009/05/01
+------------------------
+2009/01/18 help command not reporting some args after ">"
+2009/01/27 latch loop with constant one enable
+2009/01/29 incremental slack updates in reverse level order slow
+2009/02/06 report_timing -nworst into latch loop truncates path
+2009/03/28 check_timing generated clocks source pins downstream of master
+2009/04/28 verilog no port module ();
+2009/04/29 spef allow cap/res sections header with no elements
+2009/04/29 liberty include_file tolerate blanks
+2009/04/29 spf dspf net/inst blocks in any order
+2009/04/29 spf dspf pin/subnode defs in any order
+2009/04/29 spf unquoted design name
+2009/04/29 spf ground_net number
+2009/04/29 spf element node number
+
+Release 1.8.0 Patches
+---------------------
+2008/12/02 path delay tgt clk delay hook (xilinx)
+2008/12/08 report_timing -from clk causes INF delays
+2008/12/09 path delay tgt clk delay hook (xilinx)
+2008/12/12 dynamic loop breaking allowed in clk tree
+2008/12/18 improve common clk pessimism run time and memory
+2008/12/20 generated clock src path loop thru latch d->q
+2008/12/21 report full_clock ideal clk latency
+2009/01/08 report_arrival/required/slack after report_timing -from/thru/to
+2009/01/12 report unconstrained endpoints include unclocked checks
+2009/01/14 report unconstrained missing endpoints
+2009/01/19 common clk pessimism when min/max paths differ
+2009/01/20 set_max_delay -to respect set_false_path -to
+2009/01/26 budgeting with reduced parasitics internal error
+2009/01/30 exception -through endpoint -to clock ignored -to
+2009/02/02 report_slack endpoint only find required time once
+2009/02/04 report/exception -through hierarchical net
+2009/02/08 set_max_delay -to inst only constrain endpoint pins
+2009/02/09 connect_pin delay calc not updated if cap is same
+2009/02/12 report_timing -from clk for ideal clks uses propagated delay
+2009/02/12 make liberty internal pins with timing arcs
+2009/02/16 slow delay calc for multi-driver nets
+2009/03/07 set_max_delay -to reg_clk_pin
+2009/03/08 multiple drivers with wireload internal error
+2009/03/10 slow delay calc for multi-driver nets with wireloads
+2009/03/10 report_timing -nworst repeats with class SearchPath1
+2009/03/10 create_clock, create_generated_clock on output pins
+2009/03/10 report_timing -path_type full_clock_expanded for output delays
+2009/03/11 multiple drivers with dspef memory errors
+2009/03/16 exception -rise_to/-fall_to clock
+2009/03/17 linear delay model delay calc missing load delay
+2009/03/20 set_load -subtract_pin_load less than pin cap
+2009/03/21 sdc arg wildcard matching without get_
+2009/03/26 create_generated_clock -edge_shift
+2009/03/31 delay calc for parasitics with constant table values
+2009/04/09 verilog defparam mixed escaped and unescaped name path
+
+Release 1.8.0 2008/10/01
+------------------------
+2008/09/04 incremental cond arc unateness
+2008/09/18 set_clock_uncertainty allow negative uncertainty
+2008/09/18 create_generated_clock -divide_by 1 edges match src clk
+
+Release 1.7.2 Patches
+---------------------
+2008/03/03 incremental clk pin connect preserves clk src arrival
+2008/03/04 unclocked latch -> latch -> latch report seg fault
+2008/03/12 set_disable_timing latch enable makes d->q combinational
+2008/03/20 crpr for reconvergent clock trees
+2008/04/07 sdc more robust recognition of get_* returned objects
+2008/04/18 delete verilog modules after link
+2008/09/04 mux constant input propagation
+
+Release 1.7.2 2008/01/28
+------------------------
+2007/09/04 path delay ending at setup check has precidence
+2007/12/02 report endpoint rising/falling for reg/latch clked on both edges
+2008/01/27 sdf timing checks in ocv/bc_wc (revisited)
+2008/02/05 incremental clk pin connect
+
+Release 1.7.1 Patches
+---------------------
+2007/09/27 crpr is zero for merging clocks
+2007/09/28 report_timing -delay_type min_max min for all groups then max
+2007/10/02 report_timing -thru dynamic loop break pin
+2007/10/05 remove_clock, remove_generated_clock
+2007/10/23 liberty allow unquoted bus_naming_style
+2007/10/31 set_data_check ignore paths from unclocked regs
+2007/11/01 delay calculation failure for some parasitics
+2007/11/06 report_constraint max_transition should not default to zero
+2007/11/07 verilog defparameter constant
+2007/11/12 required times should not propagate into the clock tree
+2007/11/15 set_units command
+2007/11/15 fanout does not include parallel driver pins
+2007/11/18 set_timing_disable, get_lib_pins support cell wildcards
+2007/11/18 get_cells pattern arg is optional
+2007/11/18 get_lib_cells -of_objects
+2007/11/18 sizeof_collection
+2007/11/18 get_attribute lib_cell base_name,full_name
+2007/11/18 get_pins, get_ports, get_cells -filter and/or exprs
+2007/11/19 get_mumble etc aliases for get_mumbles
+2007/11/25 generated clock src path does not traverse non-generated clks
+2007/11/25 generated clock src latency includes path from master clk
+2007/12/02 delay calc support for nets with parallel drivers
+2007/12/07 set_disable_clock_gating_check, remove_disable_clock_gating_check
+2007/12/08 set_max_delay from internal pin
+
+Release 1.7.1 2007/08/13
+------------------------
+2007/05/01 report_timing -nworst run time, memory improvements
+2007/06/26 constants change conditional arc unateness (using cudd bdd pkg)
+
+Release 1.7.0 Patches
+---------------------
+2007/03/29 levelize bidirs based on timing_disable_internal_inout_cell_paths
+2007/04/17 verilog escaped names with escapes
+2007/04/19 sdc get_* preserve backslashes
+2007/04/25 set_clock_latency overrides set_propagated_clock
+2007/04/25 timing check dcalc used wrong ideal clk min/max slew
+2007/05/20 report_timing -group support
+2007/05/20 disconnect_pin disconnect parasitics
+2007/06/16 reduce graph memory a bit
+2007/06/18 report_timing -nworst latch loop infinite loop
+2007/06/19 clock network delay reported for latch D clk instead of enable
+2007/07/10 latch open edge crpr, crpr difference
+
+Release 1.7.0 2007/03/17
+------------------------
+2010/07/15 write_sdc set_data_check
+
+Release 1.6.2 Patches
+---------------------
+2006/12/12 verilog supply0/supply1 constant nets
+2006/12/12 report_timing -full_clock_expanded tgt clk min gen clk src path
+2006/12/14 crpr between generated clk and its source clk
+2006/12/21 clk source latency reporting for converging clks
+2007/01/09 report_timing -from latch D,E -through latch Q, -through latch
+2007/01/10 exception -rise_to -fall_to support
+2007/01/15 liberty include_file support
+2007/02/16 get_pins -hierarchical returns duplicate pins
+2007/02/18 gated clock check suppressed on unused clocks
+2007/03/01 reset_path -from/-to/-thru after report_timing -from/-to/-thru
+2007/03/04 set_opcond/driving_cell/wire_load -library allow get_libs
+2007/11/12 required times should not propagate into the clock tree
+
+Release 1.6.2 2006/12/08
+------------------------
+2006/11/13 crpr include generated propagated clk src paths
+2006/11/13 reconvergent clock/inverting non-unate clock path
+2006/11/28 set_timing_derate clock path used as data
+
+Release 1.6.1 Patches
+---------------------
+2006/10/05 crpr normal with different source/target clk edges
+2006/10/05 report_constraint transition table format
+2006/10/06 crpr with reconvergent clock paths
+2006/10/08 reconvergent clock/inverting non-unate clock path
+2006/10/08 liberty support multiple same transition arcs
+2006/10/09 latch report_timing -path_type full_clock 
+2006/10/10 set_multicycle_path -from -hold/-setup for min paths
+2006/10/12 set_max_delay -from ending at pin with no fanout not reported
+2006/10/15 set_clock_uncertainty clk edge to clk edge masks uncertainty
+2006/10/16 set_data_check cycle accounting, reporting
+2006/10/17 wire load interpolation incorrect
+2006/10/17 liberty default wire load support
+2006/10/19 sdf cond match should ignore leading spaces
+2006/10/19 set_multicycle_path -from pin/instance same priority
+2006/10/20 get_pins/nets/cells/libs/clks not found warn rather than error
+2006/10/22 oa network should not look in leaf instances for terms
+2006/10/23 data check does not include crpr
+2006/10/24 verilog allow supply0/supply1 dcl with input dcl
+2006/10/25 generated clock insertion delay only from clock paths
+2006/10/26 generated clock insertion delay only from clock paths (part 2)
+2006/11/01 latch outputs should not be taged as clocks
+2006/11/01 generated clock insertion delay only from clock paths (part 3)
+2006/11/11 latch cycle accting for multi-freq inverted clk
+2006/11/14 verilog identifiers allow $ after first character
+2006/11/14 report_timing -path_type full_clock for unclocked latch tcl error
+2006/12/07 set_clock_latency -source overrides generated clk prop src latency
+2006/12/07 gated clk nor/aoi support
+
+Release 1.6.1 2006/10/04
+------------------------
+2006/05/24 clocks propagate thru constants
+2006/05/26 delete constant pin seg fault
+2006/05/28 ocv/bc_wc required times missing
+2006/06/02 exception -thru pin priority missing
+2006/06/05 generated clk on bidirect pin uses load insertion delay
+2006/06/07 gated clock enable derived from the same clock not clocking regs
+2006/06/07 allow input arrivals on clock pins
+2006/06/12 create_generated_clock hier src pin latency missing
+2006/06/15 constraint constants override propagated constants
+2006/06/20 liberty mode support for case analysis
+2006/06/22 liberty mode missing when/sdf_cond
+2006/06/28 oa verilog -designPerMod net iterator
+2006/06/29 undo 2006/05/24 clocks propagate thru constants
+2006/06/29 report_disable_timing crash on constant propagated thru wire
+2006/07/03 common clk pessimism excessive memory/run time
+2006/07/10 set_case_analysis hierarchical pin
+2006/07/18 liberty bus cap overrides embedded pin cap defaulting
+2006/07/21 correction to patch 200606291
+2006/07/25 timing_clock_gating_propagate_enable does not effect data targets
+2006/07/26 set_case_analysis overwrite previous value
+2006/07/31 set_false_path -from clk -thru input_port ignored
+2006/08/01 report_slack after buffer insertion
+2006/08/02 liberty test_cell constant scan_enable disables scan_in/data_in arcs
+2006/08/02 all_registers -level_sensitive not returning latches
+2006/08/03 path delay required time missing clk to clk uncertainty
+2006/08/03 liberty 1x1 table interpolation seg faults
+2006/08/03 sdf allow INCREMENT as an alias for INCREMENTAL
+2006/08/03 verilog escaped names terminated with newline
+2006/08/07 spef delimiter '.' parse errors
+2006/08/07 connect_net to set_false_path -thru hier pin
+2006/08/14 sdf INCREMENTAL support
+2006/08/17 remove prop generated clk common source latency for ocv/bc_wc
+2006/08/17 report_timing -to hier pin seg fault
+2006/08/17 report_timing -thru hier pin missing report
+2006/08/18 sdf timing checks in ocv/bc_wc use the triple max value
+2006/08/21 set_data_check -hold uses min clk path
+2006/08/21 ilm on create_clock hier_pin seg faults
+2006/08/22 set_false_path -thru hier_pin should not blk paths thru shorted pins
+2006/08/23 report_disable_timing seg fault on wire arcs
+2006/08/29 exception -thru hier_pin -thru hier_pin on same net ignored
+2006/08/30 support timing_disable_cond_default_arcs variable
+2006/09/08 set_multicycle_path -hold cycle accting
+2006/09/17 set_max_delay to unclocked register internal error
+2006/09/20 sdf unescape non-divider/bus bracket chars
+2006/09/20 multicycle_path -hold ending at -thru is wrt -setup
+2006/09/22 cascaded gated clk checks reporting enable as clk
+2006/09/22 gated clk hold time cycle accounting
+2006/09/24 gated clk allow and/nand/or/nor functions
+2006/09/26 latch hold check clk edge matches liberty check, no borrowing report
+2006/09/28 set_clock_latency -source -early/-late -min/-max
+2006/09/29 read_parasitics long // comment preceeding file type
+2006/09/29 set_min_delay max delay is most restrictive
+2006/10/01 latch clk uncertainty, multi-cycle path, crpr support
+2006/10/02 set_clock_latency -source ignored for generated propagated clks
+2006/10/03 set_input/output_delay includes propagated generated clock latency
+2006/12/07 set_clock_latency -source overrides generated clk prop src latency
+
+Release 1.5.1 2006/05/16
+------------------------
+2006/03/09 set_propagated_clock should not error on virtual clocks
+2006/03/11 generated clk update order causes seg fault
+2006/03/14 suppress reg clk paths thru d->q edges
+2006/03/20 oa estimated elmore delays were not being deleted
+2006/03/21 report_timing -from/-thru/-to side-effects report_slack
+2006/03/22 cycle accting use doubles and limit small period count to 101
+2006/03/23 memory corruption in clock tree insertion delays
+2006/03/25 gate insertion causes bfs seg fault
+2006/03/29 path from floating input pin to generated clk seg fault
+2006/03/29 all_registers -data_pins does not require liberty ff/latch
+2006/03/30 total_negative_slack needs to import search variables
+2006/04/04 exception memory corruption
+2006/04/04 common clk pessimism is negative for hold checks
+2006/04/05 all_registers does not require liberty ff/latch
+2006/04/22 liberty cell binds to first definition
+2006/04/23 liberty negative_unate latch d->q arcs
+2006/05/03 report_timing -nworst should not enumerate ideal clk paths
+2006/05/04 report_disable_timing errors in oa
+2006/05/04 timing arcs not disabled by funcs constants in oa
+2006/05/08 DMP delay calc load delay wrong when C1=0
+2006/05/09 liberty tables with one entry axes seg fault
+2006/05/09 sdf empty triple seg fault
+2006/05/11 exception -from/-thru/-to support list of list args
+2006/05/14 sdf allow multiple ABSOLUTE clauses
+
+Release 1.5.0 2006/03/05
+------------------------
+2005/12/19 latch clocked by data signal seg fault
+2005/12/26 gated clock checks missing in oa
+2005/12/27 exception -thru works the same as -from
+2006/01/11 on chip variation timing check used wrong slews
+2006/01/12 get_libs ignore "lib.db:" reference
+2006/01/17 dspf first net not found seg fault
+2006/01/17 verilog repeated named connection seg fault
+2006/01/17 spf/spef error prevents reading another file
+2006/01/30 propagate driver set_annotated_transition from driver to load
+2006/01/31 set_case_analysis rising/falling support
+2006/02/11 incremental latch loop arrival update incorrect
+2006/02/13 liberty escape brackets for pins with bus names
+2006/02/14 command completion when stdin is redirected
+2006/02/22 missing non-unate clk path arrivals
+2006/02/24 liberty volt exprs with multiple ops
+2006/02/28 const latch en time given to start seg fault
+2006/03/02 support generated clock pins that are not register outputs
+
+Release 1.4.4 2005/12/08
+------------------------
+2005/10/16 get_pins/cells/nets commands respect current_instance
+2005/10/16 set_load has precedence over parasitics
+2005/10/17 oa def missing modules for filler cells
+2005/10/19 liberty slew_derate_from_library support
+2005/10/26 clk tree edit with temp multiple drivers internal error
+2005/10/26 clk latency does not apply to input arrivals with propagated clk
+2005/11/02 propagated clk latency report discontinuity
+2005/11/03 latch d->q delay calculation mia
+2005/11/04 write_sdc include clock latency
+2005/11/18 set_annotated_delay do not zero wire delays
+2005/11/19 equivalent liberty cells do not require matching port order
+2005/11/19 sdc support liberty library names with period
+2005/12/02 support generated clock -source pins that are not clock roots
+2005/12/04 reset_path removes more specific exceptions
+2005/12/06 chip variation timing checks use opposite corner data slews
+2005/12/07 include insertion delay for generated propagated clks w/exceptions 
+
+Release 1.4.3 2005/10/06
+------------------------
+2005/08/11 oa out pin missing elmore delay
+2005/08/12 liberty function "!" (prefix not) precedence
+2005/08/24 tranparent low latch cycle accting problem
+2005/08/24 latch d->q path reports latch enable as clock root
+2005/08/26 decreasing incr arrivals downstream of latch d->q not updated
+2005/08/31 set_min/max_delay -rise/-fall exceptions were merging
+2005/08/31 write_sdc set_min/max_delay -rise/-fall flags missing
+2005/09/06 write_sdc false_path, mcp -rise/-fall flags missing
+2005/09/06 set_clock_latency allow negative delay
+2005/09/06 liberty function "'" (postfix not) precedence
+2005/09/06 constants invalidate clock tree
+2005/09/09 common clk pessimism when slack is non-monotonic with arrival
+2005/09/12 delete clk tree instance internal error
+2005/09/13 report_timing -thru missing mcp paths with same -thru
+2005/09/13 reset_path missing -from/-to errors
+2005/09/13 set_min/max_delay -reset_path should remove false paths
+2005/09/15 check_timing -loops with delete/add instance
+2005/09/15 set_clock_latency for hierarchical pins
+2005/09/16 set_clock_latency for virtual clocks
+2005/09/24 disconnect/connect_net for hierarchical pins
+2005/09/24 set_disable_timing -from/-to disables timing checks
+2005/09/28 support non-alphanum chars in oa network object names
+2005/09/30 report -full_clock clk latency not reported correctly
+2005/10/03 DMP two pole delay calc INF results
+2005/10/06 oa tie hi/low pin internal error
+2005/10/06 oa bus bit pin internal error
+
+Release 1.4.2 2005/08/07
+------------------------
+2005/05/28 seg fault sorting path ends
+2005/06/13 report_timing -full_clock negative delays
+2005/06/13 clip negative slews to zero
+2005/06/14 set_input_delay for clock is insertion delay (src latency)
+2005/06/14 default oa coupling cap factor to 1.0
+2005/06/15 set_wire_load_model in oa w/o analysis pt seg fault
+2005/06/28 set_borrow_limit seg fault
+2005/06/28 report_timing -nets fanout field should always be a float
+2005/07/01 dmp_ceff_two_pole seg faults on oa
+2005/07/03 set_driving_cell fails on oa
+2005/07/05 liberty "<float> , <float>" parser error
+2005/07/14 exception -through merging endless loop
+2005/07/29 preserve set_annotated_delay across analysis_type changes
+2005/07/29 default liberty operating_condition tree_type
+2005/08/01 exception from/thru/to pattern matching
+2005/08/02 latch borrowing not propagated
+2005/08/04 write_sdc seg fault for oa db
+
+Release 1.4.1 2005/05/20
+-------------------------
+2005/05/19 latch loop required time search infinite loop
+2005/05/19 liberty related_bus_pins
+
+Release 1.3.11 2005/05/16
+-------------------------
+2005/04/12 set_max_delay -thru pins are not path endpoints
+2005/04/12 create_clock bidirect_inst_pin drives both to and from pin
+2005/04/14 set_disable_timing inst -from/-to error if pin not found
+2005/04/16 set_disable_timing inst|cell -from/-to bus
+2005/04/20 sdf allow empty timing specs
+2005/05/06 set_max_delay includes target clk prop delay, uncertainty
+2005/05/06 sdf sethld data edge spec used clk edge spec
+2005/05/07 liberty axis value comma delimiters are optional
+2005/05/08 liberty allow unquoted expressions beginning with exclamation
+2005/05/08 set_driving_cell allow -min/-max with analysis type single
+2005/05/08 sdc escaped port name mapping
+2005/05/09 read_sdf -min_type emits incorrect warning in bc_wc mode
+2005/05/12 delete parasitics reduced by delay calc
+
+Release 1.3.10 2005/04/04
+-------------------------
+2005/03/13 loading different design after graph built seg faults
+2005/03/13 verilog reader no warning for tri dcl after input dcl
+2005/03/15 buffer insertion at max logic level causes seg fault
+2005/03/21 all_registers -clock_pins seg fault
+2005/03/22 latch loop with same clock causes infinite loop
+2005/03/23 report_timing -nworst slacks incorrect for path delays
+2005/03/25 swap_cell equiv cells with cond timing arcs interchanged arcs
+2005/04/01 set_min/max_delay -from to output w/o set_output_delay
+2005/04/02 verilog reader ignore parameters
+2005/04/04 set_max_delay with hierarchical thru pin seg faults
+
+Release 1.3.9 2005/03/12
+------------------------
+2005/03/08 loading different OA DB does not try to delete parasitics
+2005/03/09 spef coupling caps were double counted
+2005/03/09 OA parasitic coupling caps caused seg fault
+2005/03/11 default input arrival clks are not propagated thru reg clk->q
+2005/03/12 OA parasitic reduction missing coupling caps
+2005/03/12 OA parasitic reduction missing input pin caps
+2005/03/12 report_slack etc error if pin not found
+
+Release 1.3.8 2005/03/04
+------------------------
+2005/03/03 SPEF name mapping only escape special characters
+2005/03/03 Verilog reader no warning for tri dcl after output dcl
+2005/03/03 report_slack etc allow [get_pins] arg
+
+Release 1.3.7 2005/02/16
+------------------------
+2005/02/11 liberty reader ignore newlines 
+2005/02/14 OA use net sig type to get power/gnd port directions
+2005/02/15 OA support multiple read_oa_db cmds in one session
+
+Release 1.3.6 2005/02/03
+------------------------
+2005/01/31 delay calc should not slew merge func sense disabled edges
+2005/02/03 OA 2.2 seg fault while finding power/gnd nets
+2005/02/03 OA 2.2 propagate constants from signal types tieHi/tieLo
+
+Release 1.3.5 2005/01/27
+------------------------
+2005/01/30 OA performance enhancements
+
+Release 1.3.3 2005/01/09
+------------------------
+2005/01/09 OA 2.2 verilog2oa top level bus port support
+
+Release 1.3.1 2004/12/15
+------------------------
+2004/12/14 liberty line continuation in quoted strings
+2004/12/15 allow current_design before link
+
+Release 1.2.17 2004/11/23
+-------------------------
+2004/11/17 liberty simple attribute allow enclosing parens
+2004/11/17 SPF allow negative integer coordinates
+2004/11/18 verilog concatenation port syntax support
+
+Release 1.2.16 2004/11/17
+-------------------------
+2004/11/16 false_path -from clk_src respected for paths using clk as data
+2004/11/16 SDF allow illegal empty PVT values from design compiler
+2004/11/17 check_timing -loops only report combinational loops
+
+Release 1.2.15 2004/11/09
+-------------------------
+2004/11/09 liberty support bus type dcls local to cell
+
+Release 1.2.13 2004/10/27
+-------------------------
+2004/10/27 disable timing arcs thru xor based on constants
+
+Release 1.2.12 2004/10/11
+-------------------------
+2004/10/06 liberty groups missing names seg fault
+2004/10/07 create_generated_clock for prev defined normal clock seg fault
+2004/10/10 create_generated_clock -multiply_by in redef ignored
+2004/10/11 report_timing -nworst over-enumerating into the ozone
+
+Release 1.2.11 2004/09/23
+-------------------------
+2004/09/22 liberty latch timing_type rising_edge check data/clr/pre funcs
+
+Release 1.2.9 2004/08/16
+------------------------
+2004/08/16 report_timing -nworst doesn't report paths of equal slack/delay
+
+Release 1.2.6 2004/06/19
+------------------------
+2004/06/19 swap_cell should invalidate driver delays/arrivals/requireds
+
+Release 1.2.5 2004/05/05
+------------------------
+2004/05/04 report_timing -nworst path delay from one fanin source
+2004/05/05 timing check graph edges on bidirect pins are from load vertex
+
+Release 1.2.4 2004/02/21
+------------------------
+2010/07/15 write_sdc set_data_check
+
+Release 1.2.2 2004/01/13
+------------------------
+2004/01/10 redefining exception subsets does not use enumeration
+2004/01/29 create_generated_clock -source pin same as clock pin seg faults
+2004/01/29 create_generated_clock require -multiply_by, -divide_by or -edges
+2004/02/05 false path ignored by path delay for unconstrained endpoint
+
+Release 1.2.1 2003/11/24
+------------------------
+2003/11/26 set_clock_uncertainty -from/-to clock lists
+2003/12/01 prevent exception expansion count overflow
+2003/12/02 set_driving_cell default -from_pin is first cell port
+2003/12/06 report_timing -through hierarchical instance seg fault
+2003/12/06 report_timing -through instance reports INF required times
+2004/01/10 levelization of loops with no root
+
+Release 1.1.8 2003/10/29
+------------------------
+2003/10/20 report_timing -nworst with multiple timing arcs between pins
+2003/10/20 report external arrival/departures wrt propagated clock
+2003/10/20 sdf sethld/recrem support
+2003/10/21 allow spef '&' and newlines in quoted strings
+2003/10/23 consider all exceptions with the same priority at an endpoint
+2003/10/27 liberty "when" expr support
+2003/10/28 create_clock -add support
+
+Release 1.1.7 2003/10/19
+------------------------
+2003/10/08 liberty parser tolerate '};' (semi after brace)
+2003/10/08 liberty parser change file errors to warnings
+2003/10/08 incremental delay calc did not enqueue vertices adjacent to roots
+2003/10/16 sdf parse and ignore retains
+2003/10/16 spef reader allow comment as first line
+
+Release 1.1.5 2003/07/11
+------------------------
+2003/06/25 set_max_delay -to clock was ignored
+2003/06/20 tmp string overflow problem
+2003/07/08 allow edif identifiers that start with ampersand
+2003/07/22 speed up exception merging by making it more incremental
+
+Release 1.1.4 2003/06/10
+------------------------
+2003/05/08 only one clock allowed on a clk src pin (sdc and allocate_budgets)
+2003/05/26 write_sdc does not use get_clocks for clk cmd args
+
+Release 1.1.3 2003/05/06
+------------------------
+2003/05/02 no set_clock_transition, set_propagated_clock on virtual clks
+2003/03/26 generated clock src pin clock undefined cycle accting uninitialized
+2003/03/26 allocate_budgets - no clocks on output ports
+2003/03/26 read_verilog - seg fault on repeated signal in wire dcl
+2003/03/25 clk tree negative unate arcs thru non-unate edges ignored
+2003/03/25 set_resistance sets slew to delay
+2003/03/08 allocate_budgets -no_driving_cells option
+2003/03/08 allocate_budgets virtual clocks for tags should never be generated
+2003/03/08 allocate_budgets don't write set_logic_zero/one on outputs
+
+Release 1.1.2 2003/03/07
+------------------------
+2003/03/06 use propagated slews at generated clock roots
+2003/03/06 Cycle accting: extend search to 1000 cycles, tighten up fuzzy 
+           tolerance, warn if 1000 cycle limit exceeded
+2003/03/05 hierarchical -through pin exceptions require the graph before def
+2003/02/19 set_logic_one/zero, set_case_analysis does not affect other pins 
+           connected to the constant's net
+2003/01/30 allocate_budgets Don't budget when arrival or departure is "INF"

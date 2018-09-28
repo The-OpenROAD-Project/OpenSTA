@@ -1,0 +1,92 @@
+*.o
+*.a
+*.lo
+*.la
+*.gcov
+*.gcda
+*.gcno
+*.rej
+*.orig
+TAGS
+*~
+\#*#
+.~lock.*#
+.DS_Store
+Makefile
+Makefile.in
+
+.libs
+.deps
+
+# /
+/build
+/configure
+/m4
+/compile
+/config.*
+/libtool
+/ltmain.sh
+/install-sh
+/missing
+/depcomp
+/ylwrap
+/aclocal.m4
+/autom4te.cache
+/stamp-h1
+/ylwrap
+
+# /app/
+/app/StaApp_wrap.cc
+/app/TclInitVar.cc
+/app/sta
+/app/sta.exe
+/app/sta.dSYM
+/app/.dirstamp
+
+# /doc/
+/doc/._Sta.docx
+/doc/.~lock.Sta.doc#
+/doc/.~lock.Sta.odt#
+
+# /liberty/
+/liberty/LibertyExprLex.cc
+/liberty/LibertyExprParse.cc
+/liberty/LibertyExprParse.h
+/liberty/LibertyLex.cc
+/liberty/LibertyParse.cc
+/liberty/LibertyParse.h
+/liberty/LibertyExprParse.hh
+/liberty/LibertyParse.hh
+
+# /parasitics/
+/parasitics/SpefLex.cc
+/parasitics/SpefParse.cc
+/parasitics/SpefParse.h
+/parasitics/SpfLex.cc
+/parasitics/SpfParse.cc
+/parasitics/SpfParse.h
+/parasitics/SpefParse.hh
+/parasitics/SpfParse.hh
+
+# /sdf/
+/sdf/SdfLex.cc
+/sdf/SdfParse.cc
+/sdf/SdfParse.h
+/sdf/SdfParse.hh
+
+# /tcl/
+/tcl/history.tcl
+/tcl/init.tcl
+
+# /test/
+/test/gmon.out
+/test/results
+
+/test_native
+
+# /verilog/
+/verilog/VerilogLex.cc
+/verilog/VerilogParse.cc
+/verilog/VerilogParse.h
+/verilog/VerilogParse.output
+/verilog/VerilogParse.hh
