@@ -146,7 +146,7 @@ TransRiseFallBoth::TransRiseFallBoth(const char *name,
 				     int sdf_triple_index,
 				     TransRiseFall *as_rise_fall) :
   name_(name),
-  short_name_(short_name),
+  short_name_(stringCopy(short_name)),
   sdf_triple_index_(sdf_triple_index),
   as_rise_fall_(as_rise_fall)
 {
@@ -180,6 +180,12 @@ TransRiseFallBoth::matches(const Transition *tr) const
 	&& tr == Transition::rise())
     || (this == fall_
 	&& tr == Transition::fall());
+}
+
+void
+TransRiseFallBoth::setShortName(const char *short_name)
+{
+  short_name_ = stringCopy(short_name);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -218,7 +224,26 @@ Transition::init()
   tr_X0_ = new Transition("X0", "X0", TransRiseFall::fall(),  9);
   tr_XZ_ = new Transition("XZ", "XZ",                  NULL, 10);
   tr_ZX_ = new Transition("ZX", "ZX",                  NULL, 11);
-  rise_fall_ = new Transition("*", "**",              NULL, -1);
+  rise_fall_ = new Transition("*", "**",               NULL, -1);
+}
+
+Transition::Transition(const char *name,
+		       const char *init_final,
+		       TransRiseFall *as_rise_fall,
+		       int sdf_triple_index) :
+  name_(stringCopy(name)),
+  init_final_(init_final),
+  as_rise_fall_(as_rise_fall),
+  sdf_triple_index_(sdf_triple_index)
+{
+  (*transition_map_)[name_] = this;
+  (*transition_map_)[init_final_] = this;
+  max_index_ = max(sdf_triple_index, max_index_);
+}
+
+Transition::~Transition()
+{
+  stringDelete(name_);
 }
 
 void
@@ -243,20 +268,6 @@ Transition::destroy()
   }
 }
 
-Transition::Transition(const char *name,
-		       const char *init_final,
-		       TransRiseFall *as_rise_fall,
-		       int sdf_triple_index) :
-  name_(name),
-  init_final_(init_final),
-  as_rise_fall_(as_rise_fall),
-  sdf_triple_index_(sdf_triple_index)
-{
-  (*transition_map_)[name_] = this;
-  (*transition_map_)[init_final_] = this;
-  max_index_ = max(sdf_triple_index, max_index_);
-}
-
 bool
 Transition::matches(const Transition *tr) const
 {
@@ -273,6 +284,12 @@ const TransRiseFallBoth *
 Transition::asRiseFallBoth() const
 {
   return reinterpret_cast<const TransRiseFallBoth*>(as_rise_fall_);
+}
+
+void
+Transition::setName(const char *name)
+{
+  name_ = stringCopy(name);
 }
 
 ////////////////////////////////////////////////////////////////

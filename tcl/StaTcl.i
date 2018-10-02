@@ -2425,6 +2425,12 @@ set_rise_fall_short_names(const char *rise_short_name,
 {
   TransRiseFall::rise()->setShortName(rise_short_name);
   TransRiseFall::fall()->setShortName(fall_short_name);
+
+  TransRiseFallBoth::rise()->setShortName(rise_short_name);
+  TransRiseFallBoth::fall()->setShortName(fall_short_name);
+
+  Transition::rise()->setName(rise_short_name);
+  Transition::fall()->setName(fall_short_name);
 }
 
 const char *

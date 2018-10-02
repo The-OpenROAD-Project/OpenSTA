@@ -93,12 +93,8 @@ Unit::asString(float value,
 	       int digits) const
 {
   // Special case INF because it blows up otherwise.
-  if (abs(value) >= INF * .1) {
-    if (value > 0.0)
-      return "INF";
-    else
-      return "-INF";
-  }
+  if (abs(value) >= INF * .1)
+    return (value > 0.0) ? "INF" : "-INF";
   else {
     float scaled_value = value / scale_;
     // prevent "-0.00" on slowaris

@@ -61,7 +61,6 @@ class LibertyCell;
 
 typedef Vector<VerilogNet*> VerilogNetSeq;
 typedef Vector<VerilogStmt*> VerilogStmtSeq;
-typedef Vector<const char*> StringSeq;
 typedef Map<const char*, VerilogDcl*, CharPtrLess> VerilogDclMap;
 typedef Vector<VerilogDclArg*> VerilogDclArgSeq;
 typedef Map<Cell*, VerilogModule*> VerilogModuleMap;

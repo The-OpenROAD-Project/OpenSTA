@@ -89,6 +89,7 @@ public:
   const char *asString() const { return short_name_; }
   const char *name() const { return name_; }
   const char *shortName() const { return short_name_; }
+  void setShortName(const char *short_name);
   int index() const { return sdf_triple_index_; }
   bool matches(const TransRiseFall *tr) const;
   bool matches(const Transition *tr) const;
@@ -138,6 +139,7 @@ public:
   static Transition *trX0() { return tr_X0_; }
   static Transition *trXZ() { return tr_XZ_; }
   static Transition *trZX() { return tr_ZX_; }
+  void setName(const char *name);
   // Matches rise and fall.
   static Transition *riseFall() { return rise_fall_; }
   const char *asString() const { return name_; }
@@ -157,6 +159,12 @@ private:
 	     const char *init_final,
 	     TransRiseFall *as_rise_fall,
 	     int sdf_triple_index);
+
+
+
+
+  ~Transition();
+
   const char *name_;
   const char *init_final_;
   TransRiseFall *as_rise_fall_;
