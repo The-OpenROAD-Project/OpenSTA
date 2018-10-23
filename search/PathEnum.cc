@@ -103,16 +103,16 @@ deleteDiversionPathEnd(Diversion *div)
 
 ////////////////////////////////////////////////////////////////
 
-PathEnum::PathEnum(int max_paths,
-		   int nworst,
+PathEnum::PathEnum(int group_count,
+		   int endpoint_count,
 		   bool unique_pins,
 		   bool cmp_slack,
 		   const MinMax *min_max,
 		   const StaState *sta) :
   StaState(sta),
   cmp_slack_(cmp_slack),
-  max_paths_(max_paths),
-  nworst_(nworst),
+  group_count_(group_count),
+  endpoint_count_(endpoint_count),
   unique_pins_(unique_pins),
   div_queue_(DiversionGreater(cmp_slack, min_max, sta->network())),
   div_count_(0),
@@ -189,7 +189,7 @@ PathEnum::findNext()
     }
 
     path_counts_[vertex]++;
-    if (path_counts_[vertex] <= nworst_) {
+    if (path_counts_[vertex] <= endpoint_count_) {
       // Add diversions for all arcs converging on the path up to the
       // diversion.
       makeDiversions(path_end, div->divPath());
@@ -199,8 +199,8 @@ PathEnum::findNext()
       break;
     }
     else {
-      // We have nworst paths for this endpoint, so we are done with it.
-      debugPrint1(debug_, "path_enum", 1, "nworst reached for %s\n",
+      // We have endpoint_count paths for this endpoint, so we are done with it.
+      debugPrint1(debug_, "path_enum", 1, "endpoint_count reached for %s\n",
 		  vertex->name(sdc_network_));
       deleteDiversionPathEnd(div);
     }
@@ -431,7 +431,7 @@ PathEnum::makeDiversion(PathEnd *div_end,
   div_queue_.push(div);
   div_count_++;
 
-  if (static_cast<int>(div_queue_.size()) > max_paths_ * 2)
+  if (static_cast<int>(div_queue_.size()) > group_count_ * 2)
     // We have more potenial paths than we will need.
     pruneDiversionQueue();
 }
@@ -442,14 +442,14 @@ PathEnum::pruneDiversionQueue()
   debugPrint0(debug_, "path_enum", 2, "prune queue\n");
   VertexPathCountMap path_counts;
   int end_count = 0;
-  // Collect nworst diversions per vertex.
+  // Collect endpoint_count diversions per vertex.
   DiversionSeq divs;
   while (!div_queue_.empty()) {
     Diversion *div = div_queue_.top();
     Vertex *vertex = div->pathEnd()->vertex(this);
-    if (end_count < max_paths_
+    if (end_count < group_count_
 	&& ((unique_pins_ && path_counts[vertex] == 0)
-	    || (!unique_pins_ && path_counts[vertex] < nworst_))) {
+	    || (!unique_pins_ && path_counts[vertex] < endpoint_count_))) {
       divs.push_back(div);
       path_counts[vertex]++;
       end_count++;

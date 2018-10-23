@@ -418,8 +418,8 @@ Search::findPathEnds(ExceptionFrom *from,
 		     ExceptionTo *to,
 		     const Corner *corner,
 		     const MinMaxAll *min_max,
-		     int max_paths,
-		     int nworst,
+		     int group_count,
+		     int endpoint_count,
 		     bool unique_pins,
 		     float slack_min,
 		     float slack_max,
@@ -454,7 +454,7 @@ Search::findPathEnds(ExceptionFrom *from,
     recovery = removal = false;
   if (!sdc_->gatedClkChecksEnabled())
     clk_gating_setup = clk_gating_hold = false;
-  path_groups_ = makePathGroups(max_paths, nworst, unique_pins,
+  path_groups_ = makePathGroups(group_count, endpoint_count, unique_pins,
 				slack_min, slack_max,
 				group_names, setup, hold,
 				recovery, removal,
@@ -3965,8 +3965,8 @@ Search::wnsSlack(Vertex *vertex,
 ////////////////////////////////////////////////////////////////
 
 PathGroups *
-Search::makePathGroups(int max_paths,
-		       int nworst,
+Search::makePathGroups(int group_count,
+		       int endpoint_count,
 		       bool unique_pins,
 		       float slack_min,
 		       float slack_max,
@@ -3978,7 +3978,7 @@ Search::makePathGroups(int max_paths,
 		       bool clk_gating_setup,
 		       bool clk_gating_hold)
 {
-  return new PathGroups(max_paths, nworst, unique_pins,
+  return new PathGroups(group_count, endpoint_count, unique_pins,
 			slack_min, slack_max,
 			group_names,
 			setup, hold,

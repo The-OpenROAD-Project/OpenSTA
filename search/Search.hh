@@ -80,8 +80,8 @@ public:
 			   ExceptionTo *to,
 			   const Corner *corner,
 			   const MinMaxAll *min_max,
-			   int max_paths,
-			   int nworst,
+			   int group_count,
+			   int endpoint_count,
 			   bool unique_pins,
 			   float slack_min,
 			   float slack_max,
@@ -485,8 +485,8 @@ protected:
   void tnsDecr(Vertex *vertex,
 	       int min_max_index);
   void tnsNotifyBefore(Vertex *vertex);
-  PathGroups *makePathGroups(int max_paths,
-			     int nworst,
+  PathGroups *makePathGroups(int group_count,
+			     int endpoint_count,
 			     bool unique_pins,
 			     float min_slack,
 			     float max_slack,
