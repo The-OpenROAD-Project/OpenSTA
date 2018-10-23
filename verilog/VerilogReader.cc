@@ -927,7 +927,8 @@ VerilogModuleInst::hasPins()
 bool
 VerilogModuleInst::namedPins()
 {
-  return pins_->size() > 0
+  return pins_
+    && pins_->size() > 0
     && (*pins_)[0]->isNamedPortRef();
 }
 
