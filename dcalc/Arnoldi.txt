@@ -1,0 +1,57 @@
+The method is used for simulation with a time-and-voltage-dependent
+current source.  But it is simpler to describe with a linear driver.
+Suppose we are given:
+  voltage nodes 1,..n initialized to V[j]=1.0
+  a resistor network described by a conductance matrix G[j,k]
+  a drive resistance from node 1 to ground, Rdrv
+  capacitance of the nodes, c[j], also written as a
+  diagonal matrix C[j,k]
+The node voltages will fall to zero with time.
+Matrix equation:
+  GV+CdV/dt = -(V[0]/Rdrv)e0
+where e0 is the unit vector (1,0,0,..0).
+Let G' be the matrix formed by taking G and adding 1/Rdrv in the
+[0,0] position.  Then we are solving  G'V + CdV/dt = 0.
+Let R be the inverse of G'.  (In implementation, R may not actually
+be formed as a matrix, instead some method of producing RV given V).
+The exact solution would diagonalize sqrt(C) R sqrt(C).
+
+The Arnoldi method takes a matrix M and a vector of interest V, and
+considers the subspace of vectors near V in terms of the action of M,
+that is, the space spanned by V, MV, MMV, etc, for a small number of
+powers.  We do this here, but instead of finding the part of MV orthogonal
+to V, we find the part of RCV that is C-orthogonal of V.  We use C
+as the metric, so the basis vectors U0, U1, U2 that we generate satisfy
+  Ui.CUj = (i==j?1:0)
+
+U0 = (1,1,..1)/sqrt(sum C)
+  representing the initial value of V, V[j] = sqrt(n)U0[j] at t=0.
+  sum(C) = C[0]+..C[n-1], so U0.C U0 = 1.
+Let:
+  W = R C U0
+  d0 = U0.C W
+  W' = W - d0 U0
+  e0 = sqrt(W'.C W')
+  U1 = W'/e0
+Then:  U0.C U0 = U1.C U1 = 1, U0.C U1 = 0, and
+  R C U0 = d0 U0 + e0 U1
+Next step:
+  W = R C U1
+  d1 = U1.C W
+  W' = W - d1 U1 - e0 U0
+  e1 = sqrt(W'.C W')
+  U2 = W'/e1
+and we have U2.C U2 = 1, U2.C U1 = U2.C U0 = 0, and
+  RC U1 = e0 U0 + d1 U1 + e1 U2
+In this way, RC, which in nonsymmetric in the original basis,
+becomes a symmetric tridiagonal matrix in the U0,U1,.. basis.
+We stop at, say, U3.  The resulting 4x4 tridiagonal matrix is
+positive definite, because it is the projection of sqrt(C)R sqrt(C)
+to a subspace.  So the eigenvalues of this small tridiagonal matrix
+are guaranteed to be positive.  This is the advantage over AWE.
+
+In the actual implementation, I remember there was some way of
+isolating the node 0 where drive resistance is attached, so that the
+tridiagonal matrix (d,e) can be recalculated without knowing Rdrv,
+and then just the first d0,e0 updated when the Rdrv is known, or 
+when Rdrv changes in a simulation.

@@ -21,6 +21,7 @@
 #include "LumpedCapDelayCalc.hh"
 #include "SimpleRCDelayCalc.hh"
 #include "DmpDelayCalc.hh"
+#include "ArnoldiDelayCalc.hh"
 #include "DelayCalc.hh"
 
 namespace sta {
@@ -37,6 +38,7 @@ registerDelayCalcs()
   registerDelayCalc("simple_rc", makeSimpleRCDelayCalc);
   registerDelayCalc("dmp_ceff_elmore", makeDmpCeffElmoreDelayCalc);
   registerDelayCalc("dmp_ceff_two_pole", makeDmpCeffTwoPoleDelayCalc);
+  registerDelayCalc("arnoldi", makeArnoldiDelayCalc);
 }
 
 void

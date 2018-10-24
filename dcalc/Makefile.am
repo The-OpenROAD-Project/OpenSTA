@@ -18,6 +18,9 @@ lib_LTLIBRARIES = libdcalc.la
 
 include_HEADERS = \
 	ArcDelayCalc.hh \
+	Arnoldi.hh \
+	ArnoldiDelayCalc.hh \
+	ArnoldiReduce.hh \
 	DelayCalc.hh \
 	DcalcAnalysisPt.hh \
 	DmpCeff.hh \
@@ -32,6 +35,8 @@ include_HEADERS = \
 
 libdcalc_la_SOURCES = \
 	ArcDelayCalc.cc \
+	ArnoldiDelayCalc.cc \
+	ArnoldiReduce.cc \
 	DcalcAnalysisPt.cc \
 	DelayCalc.cc \
 	DmpCeff.cc \
