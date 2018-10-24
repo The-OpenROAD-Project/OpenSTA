@@ -38,6 +38,8 @@ ClockGroup::isMember(const Clock *clk)
   return clks_->hasKey(const_cast<Clock*>(clk));
 }
 
+////////////////////////////////////////////////////////////////
+
 ClockGroups::ClockGroups(const char *name,
 			 bool logically_exclusive,
 			 bool physically_exclusive,
