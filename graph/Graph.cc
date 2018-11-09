@@ -924,10 +924,13 @@ Graph::delayAnnotated(Edge *edge)
   while (arc_iter->hasNext()) {
     TimingArc *arc = arc_iter->next();
     for (DcalcAPIndex ap_index = 0; ap_index < ap_count_; ap_index++) {
-      if (arcDelayAnnotated(edge, arc, ap_index))
+      if (arcDelayAnnotated(edge, arc, ap_index)) {
+	delete arc_iter;
 	return true;
+      }
     }
   }
+  delete arc_iter;
   return false;
 }
 

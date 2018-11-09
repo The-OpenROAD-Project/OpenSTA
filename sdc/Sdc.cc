@@ -2173,7 +2173,9 @@ Sdc::makeClkGroupSame(ClockGroup *group)
       Clock *clk2 = clk_iter2.next();
       if (clk1->index() <= clk2->index()) {
 	ClockPair *clk_pair = new ClockPair(clk1, clk2);
-	if (!clk_group_same_->hasKey(clk_pair))
+	if (clk_group_same_->hasKey(clk_pair))
+	  delete clk_pair;
+	else
 	  clk_group_same_->insert(clk_pair);
       }
     }
