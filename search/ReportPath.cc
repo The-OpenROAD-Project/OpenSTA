@@ -63,8 +63,8 @@ ReportField::ReportField(const char *name,
   title_(stringCopy(title)),
   left_justify_(left_justify),
   unit_(unit),
-  blank_(NULL),
-  enabled_(enabled)
+  enabled_(enabled),
+  blank_(NULL)
 {
   setWidth(width);
 }
@@ -1872,7 +1872,7 @@ ReportPath::reportStartEndPoint(const char *pt,
     result += pt;
     reportEndOfLine(result);
 
-    for (int i = 0; i < strlen(key); i++)
+    for (unsigned i = 0; i < strlen(key); i++)
       result += ' ';
 
     result += "  (";
@@ -2785,7 +2785,7 @@ ReportPath::nextArcAnnotated(const PathRef *next_path,
 {
   TimingArc *arc = expanded.prevArc(next_index);
   Edge *edge = next_path->prevEdge(arc, this);
-  return edge->arcDelayAnnotated(arc, ap_index);
+  return graph_->arcDelayAnnotated(edge, arc, ap_index);
 }
 
 char *

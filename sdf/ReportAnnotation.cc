@@ -316,7 +316,7 @@ ReportAnnotated::findCounts()
     LogicValue from_logic_value;
     bool from_logic_value_exists;
     sdc_->logicValue(from_pin, from_logic_value,
-			     from_logic_value_exists);
+		     from_logic_value_exists);
     VertexOutEdgeIterator edge_iter(from_vertex, graph_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
@@ -327,14 +327,14 @@ ReportAnnotated::findCounts()
       LogicValue to_logic_value;
       bool to_logic_value_exists;
       sdc_->logicValue(to_pin, to_logic_value,
-			       to_logic_value_exists);
+		       to_logic_value_exists);
 
       edge_count_[index]++;
 
       if (from_logic_value_exists || to_logic_value_exists)
 	edge_constant_count_[index]++;
       if (report_role_[index]) {
-	if (edge->arcDelayAnnotated()) {
+	if (graph_->delayAnnotated(edge)) {
 	  edge_annotated_count_[index]++;
 	  if (from_logic_value_exists || to_logic_value_exists)
 	    edge_constant_annotated_count_[index]++;
@@ -501,7 +501,7 @@ ReportAnnotated::reportArcs(Vertex *vertex,
     Edge *edge = edge_iter.next();
     TimingRole *role = edge->role();
     const Pin *to_pin = edge->to(graph_)->pin();
-    if (edge->arcDelayAnnotated() == report_annotated
+    if (graph_->delayAnnotated(edge) == report_annotated
 	&& report_role_[roleIndex(role, from_pin, to_pin)]) {
       const char *role_name;
       if (role->isTimingCheck())

@@ -488,6 +488,9 @@ public:
   void removeClockGroupsAsynchronous(const char *name);
   bool sameClockGroup(const Clock *clk1,
 		      const Clock *clk2);
+  // Clocks explicitly excluded by set_clock_group.
+  bool sameClockGroupExplicit(const Clock *clk1,
+			      const Clock *clk2);
   void setClockSense(PinSet *pins,
 		     ClockSet *clks,
 		     ClockSense sense);
@@ -1250,6 +1253,9 @@ protected:
   void removeClockGroups(ClockGroups *groups);
   void ensureClkGroupExclusions();;
   void makeClkGroupExclusions(ClockGroups *clk_groups);
+  void makeClkGroupExclusions1(ClockGroupSet *groups);
+  void makeClkGroupExclusions(ClockGroupSet *groups);
+  void makeClkGroupSame(ClockGroup *group);
   void clearClkGroupExclusions();
   char *makeClockGroupsName();
   void setClockSense(const Pin *pin,
@@ -1298,6 +1304,8 @@ protected:
   ClockGroupsNameMap clk_groups_name_map_;
   // clk to clk paths excluded by clock groups.
   ClockPairSet *clk_group_exclusions_;
+  // clks in the same set_clock_group set.
+  ClockPairSet *clk_group_same_;
   ClockSenseMap clk_sense_map_;
   ClockGatingCheck *clk_gating_check_;
   ClockGatingCheckMap clk_gating_check_map_;

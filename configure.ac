@@ -412,7 +412,7 @@ AC_FUNC_ERROR_AT_LINE
 
 if test $CXX = clang++; then
   # -Wno-deprecated-register to suppress warnings in flex files
-  CXXFLAGS="-std=c++11 -Wno-deprecated-register -Wcast-qual -pipe"
+  CXXFLAGS="-std=c++11 -Wall -Wno-deprecated-register -Wcast-qual"
   CXX_OPT="-O3"
   CXX_DEBUG="-g"
   CXX_ASAN="-fsanitize=address -O1 -fno-omit-frame-pointer"

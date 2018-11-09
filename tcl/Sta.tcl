@@ -99,15 +99,16 @@ proc find_timing { args } {
 
 ################################################################
 
-define_sta_cmd_args "report_clock_skew" {[-setup|-hold] \
-					   [-clock clocks] \
+define_sta_cmd_args "report_clock_skew" {[-setup|-hold]\
+					   [-clock clocks]\
+					   [-corner corner_name]]\
 					   [-digits digits]}
 
 proc_redirect report_clock_skew {
   global sta_report_default_digits
 
   parse_key_args "report_clock_skew" args \
-    keys {-clock -digits} flags {-setup -hold}
+    keys {-clock -corner -digits} flags {-setup -hold}
   check_argc_eq0 "report_clock_skew" $args
 
   if { [info exists flags(-setup)] && [info exists flags(-hold)] } {
@@ -125,13 +126,14 @@ proc_redirect report_clock_skew {
   } else {
     set clks [all_clocks]
   }
+  set corner [parse_corner_or_all keys]
   if [info exists keys(-digits)] {
     set digits $keys(-digits)
     check_positive_integer "-digits" $digits
   } else {
     set digits $sta_report_default_digits
   }
-  report_clk_skew $clks $setup_hold $digits
+  report_clk_skew $clks $corner $setup_hold $digits
 }
 
 ################################################################
@@ -141,10 +143,10 @@ define_sta_cmd_args "report_checks" \
      [-through through_list|-rise_through through_list|-fall_through through_list]\
      [-to to_list|-rise_to to_list|-fall_to to_list]\
      [-path_delay min|min_rise|min_fall|max|max_rise|max_fall|min_max]\
+     [-corner corner_name]\
      [-group_count path_count] \
      [-endpoint_count path_count]\
      [-unique_paths_to_endpoint]\
-     [-corner corner_name]\
      [-slack_max slack_max]\
      [-slack_min slack_min]\
      [-sort_by_slack]\
@@ -161,7 +163,7 @@ proc_redirect report_checks {
 
   parse_key_args "report_checks" args \
     keys {-from -rise_from -fall_from -to -rise_to -fall_to \
-	    -path_delay -group_count -endpoint_count -corner \
+	    -path_delay -corner -group_count -endpoint_count \
 	    -slack_max -slack_min -path_group} \
     flags {-sort_by_slack -unique_paths_to_endpoint} 0
 
@@ -203,6 +205,8 @@ proc_redirect report_checks {
 
   check_for_key_args $cmd args
 
+  set corner [parse_corner_or_all keys]
+
   set endpoint_count 1
   if [info exists keys(-endpoint_count)] {
     set endpoint_count $keys(-endpoint_count)
@@ -220,8 +224,6 @@ proc_redirect report_checks {
   }
 
   set unique_pins [info exists flags(-unique_paths_to_endpoint)]
-
-  set corner [parse_corner_or_all keys]
 
   set slack_min "-1e+30"
   if [info exist keys(-slack_min)] {
@@ -254,10 +256,11 @@ proc_redirect report_checks {
     }
   }
 
-  set path_ends [find_path_ends $from $thrus $to $min_max \
-		   $group_count $endpoint_count $unique_pins $corner \
+  set path_ends [find_path_ends $from $thrus $to $corner $min_max \
+		   $group_count $endpoint_count $unique_pins \
 		   $slack_min $slack_max \
-		   $sort_by_slack $groups]
+		   $sort_by_slack $groups \
+		   1 1 1 1 1 1]
   if { [$path_ends empty] } {
     if { $sta_report_unconstrained_paths } {
       puts "No paths."
@@ -274,6 +277,7 @@ proc_redirect report_checks {
 
 define_sta_cmd_args "report_check_types" \
   {[-all_violators] [-verbose]\
+     [-corner corner_name]\
      [-format slack_only|end]\
      [-max_delay] [-min_delay]\
      [-recovery] [-removal]\
@@ -286,7 +290,7 @@ define_sta_cmd_args "report_check_types" \
 proc_redirect report_check_types {
   variable path_options
 
-  parse_key_args "report_check_types" args keys {}\
+  parse_key_args "report_check_types" args keys {-corner}\
     flags {-all_violators -verbose -no_line_splits} 0
 
   set all_violators [info exists flags(-all_violators)]
@@ -304,6 +308,8 @@ proc_redirect report_check_types {
   if { [operating_condition_analysis_type] == "single" } {
     set min_max "max"
   }
+
+  set corner [parse_corner_or_all keys]
 
   if { $args == {} } {
     if { $min_max == "max" || $min_max == "min_max" } {
@@ -362,9 +368,32 @@ proc_redirect report_check_types {
     sta_error "positional arguments not supported."
   }
 
+  set corner [parse_corner_or_all keys]
+
   if { $setup || $hold || $recovery || $removal \
 	 || $clk_gating_setup || $clk_gating_hold } {
-    set path_ends [report_check_types_cmd $all_violators \
+    if { ($setup && $hold) \
+	   || ($recovery && $removal) \
+	   || ($clk_gating_setup && $clk_gating_hold) } {
+      set path_min_max "min_max"
+    } elseif { $setup || $recovery || $clk_gating_setup } {
+      set path_min_max "max"
+    } elseif { $hold || $removal || $clk_gating_hold } {
+      set path_min_max "min"
+    }
+    if { $all_violators } {
+      set group_count $sta::int_max
+      set slack_min [expr -$sta::float_inf]
+      set slack_max 0.0
+    } else {
+      set group_count 1
+      set slack_min [expr -$sta::float_inf]
+      set slack_max $sta::float_inf
+    }
+    set path_ends [find_path_ends "NULL" {} "NULL" \
+		     $corner $path_min_max $group_count 1 0 \
+		     $slack_min $slack_max \
+		     0 {} \
 		     $setup $hold \
 		     $recovery $removal \
 		     $clk_gating_setup $clk_gating_hold]
@@ -373,17 +402,17 @@ proc_redirect report_check_types {
   }
 
   if { $max_transition } {
-    report_slew_limits "max" $all_violators $verbose $nosplit
+    report_slew_limits $corner "max" $all_violators $verbose $nosplit
   }
   if { $min_transition } {
-    report_slew_limits "min" $all_violators $verbose $nosplit
+    report_slew_limits $corner "min" $all_violators $verbose $nosplit
   }
   if { $min_pulse_width } {
     if { $all_violators } {
-      set checks [min_pulse_width_violations]
+      set checks [min_pulse_width_violations $corner]
       report_mpw_checks $checks $verbose
     } else {
-      set check [min_pulse_width_check_slack]
+      set check [min_pulse_width_check_slack $corner]
       if { $check != "NULL" } {
 	report_mpw_check $check $verbose
       }
@@ -391,10 +420,10 @@ proc_redirect report_check_types {
   }
   if { $min_period } {
     if { $all_violators } {
-      set checks [min_period_violations]
+      set checks [min_period_violations $corner]
       report_min_period_checks $checks $verbose
     } else {
-      set check [min_period_check_slack]
+      set check [min_period_check_slack $corner]
       if { $check != "NULL" } {
 	report_min_period_check $check $verbose
       }
@@ -429,22 +458,24 @@ define_sta_cmd_args "report_disabled_edges" {}
 ################################################################
 
 define_sta_cmd_args "report_pulse_width_checks" \
-  {[-verbose] [-digits digits] [-no_line_splits] [pins]\
+  {[-verbose] [-corner corner_name] [-digits digits] [-no_line_splits] [pins]\
      [> filename] [>> filename]}
 
 proc_redirect report_pulse_width_checks {
   variable path_options
 
-  parse_key_args "report_pulse_width_checks" args keys {} flags {-verbose} 0
+  parse_key_args "report_pulse_width_checks" args keys {-corner} \
+    flags {-verbose} 0
   # Only -digits and -no_line_splits are respected.
   parse_report_path_options "report_pulse_width_checks" args "full" 0
   check_argc_eq0or1 "report_pulse_width_checks" $args
+  set corner [parse_corner_or_all keys]
   set verbose [info exists flags(-verbose)]
   if { [llength $args] == 1 } {
     set pins [get_port_pins_error "pins" [lindex $args 0]]
-    set checks [min_pulse_width_check_pins $pins]
+    set checks [min_pulse_width_check_pins $pins $corner]
   } else {
-    set checks [min_pulse_width_checks]
+    set checks [min_pulse_width_checks $corner]
   }
   if { $checks != {} } {
     report_mpw_checks $checks $verbose

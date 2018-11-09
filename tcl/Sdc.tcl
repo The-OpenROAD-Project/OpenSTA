@@ -2356,18 +2356,20 @@ proc set_input_transition { args } {
 ################################################################
 
 define_cmd_args "set_load" \
-  {[-rise] [-fall] [-max] [-min] [-subtract_pin_load] [-pin_load] [-wire_load]\
-     capacitance objects}
+  {[-rise] [-fall] [-max] [-min] [-corner corner] [-subtract_pin_load]\
+     [-pin_load] [-wire_load] capacitance objects}
 
 proc set_load { args } {
   parse_key_args "set_load" args keys {} \
-    flags {-rise -fall -min -max -subtract_pin_load -pin_load -wire_load}
+    flags {-rise -fall -min -max -corner -subtract_pin_load \
+	     -pin_load -wire_load}
 
   check_argc_eq2 "set_load" $args
 
   set pin_load [info exists flags(-pin_load)]
   set wire_load [info exists flags(-wire_load)]
   set subtract_pin_load [info exists flags(-subtract_pin_load)]
+  set corner [parse_corner keys]
   set min_max [parse_min_max_all_check_flags flags]
   set tr [parse_rise_fall_flags flags]
 
@@ -2399,7 +2401,7 @@ proc set_load { args } {
       sta_warn "-rise/-fall not allowed for net objects."
     }
     foreach net $nets {
-      set_net_wire_cap $net $subtract_pin_load $min_max $cap
+      set_net_wire_cap $net $subtract_pin_load $corner $min_max $cap
     }
   }
 }

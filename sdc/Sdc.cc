@@ -98,6 +98,7 @@ Sdc::Sdc(StaState *sta) :
   clk_index_(0),
   clk_insertions_(NULL),
   clk_group_exclusions_(NULL),
+  clk_group_same_(NULL),
   clk_sense_map_(network_),
   clk_gating_check_(NULL),
   input_delay_index_(0),
@@ -2082,6 +2083,7 @@ Sdc::ensureClkGroupExclusions()
 {
   if (clk_group_exclusions_ == NULL) {
     clk_group_exclusions_ = new ClockPairSet;
+    clk_group_same_ = new ClockPairSet;
     ClockGroupsNameMap::Iterator groups_iter(clk_groups_name_map_);
     while (groups_iter.hasNext()) {
       ClockGroups *clk_groups = groups_iter.next();
@@ -2096,52 +2098,83 @@ Sdc::makeClkGroupExclusions(ClockGroups *clk_groups)
   if (!(clk_groups->asynchronous()
 	&& clk_groups->allowPaths())) {
     ClockGroupSet *groups = clk_groups->groups();
-    if (groups->size() == 1) {
-      // If there is only one group all clocks not in the group
-      // are excluded.
-      ClockGroupSet::Iterator group_iter1(groups);
-      ClockGroup *group1 = group_iter1.next();
-      ClockSet *clks1 = group1->clks();
-      ClockSet::Iterator clk_iter1(clks1);
-      while (clk_iter1.hasNext()) {
-	Clock *clk1 = clk_iter1.next();
-	ClockIterator *clk_iter2 = clockIterator();
-	while (clk_iter2->hasNext()) {
-	  Clock *clk2 = clk_iter2->next();
-	  if (clk2 != clk1
-	      && !group1->isMember(clk2)) {
-	    ClockPair *clk_pair = new ClockPair(clk1, clk2);
-	    clk_group_exclusions_->insert(clk_pair);
-	  }
-	}
-	delete clk_iter2;
+    if (groups->size() == 1)
+      makeClkGroupExclusions1(groups);
+    else
+      makeClkGroupExclusions(groups);
+  }
+}
+
+// If there is only one group all clocks not in the group
+// are excluded.
+void
+Sdc::makeClkGroupExclusions1(ClockGroupSet *groups)
+{
+  ClockGroupSet::Iterator group_iter1(groups);
+  ClockGroup *group1 = group_iter1.next();
+  ClockSet *clks1 = group1->clks();
+  ClockSet::Iterator clk_iter1(clks1);
+  while (clk_iter1.hasNext()) {
+    Clock *clk1 = clk_iter1.next();
+    ClockIterator *clk_iter2 = clockIterator();
+    while (clk_iter2->hasNext()) {
+      Clock *clk2 = clk_iter2->next();
+      if (clk2 != clk1
+	  && !group1->isMember(clk2)) {
+	ClockPair *clk_pair = new ClockPair(clk1, clk2);
+	clk_group_exclusions_->insert(clk_pair);
       }
     }
-    else {
-      ClockGroupSet::Iterator group_iter1(groups);
-      while (group_iter1.hasNext()) {
-	ClockGroup *group1 = group_iter1.next();
-	ClockGroupSet::Iterator group_iter2(groups);
-	while (group_iter2.hasNext()) {
-	  ClockGroup *group2 = group_iter2.next();
-	  if (group1 != group2) {
-	    ClockSet *clks1 = group1->clks();
-	    ClockSet *clks2 = group2->clks();
-	    ClockSet::Iterator clk_iter1(clks1);
-	    while (clk_iter1.hasNext()) {
-	      Clock *clk1 = clk_iter1.next();
-	      ClockSet::Iterator clk_iter2(clks2);
-	      while (clk_iter2.hasNext()) {
-		Clock *clk2 = clk_iter2.next();
-		// ClockPair is symmetric so only add one clk1/clk2 pair.
-		if (clk1->index() < clk2->index()) {
-		  ClockPair *clk_pair = new ClockPair(clk1, clk2);
-		  clk_group_exclusions_->insert(clk_pair);
-		}
-	      }
+    delete clk_iter2;
+  }
+  makeClkGroupSame(group1);
+}
+
+void
+Sdc::makeClkGroupExclusions(ClockGroupSet *groups)
+{
+  ClockGroupSet::Iterator group_iter1(groups);
+  while (group_iter1.hasNext()) {
+    ClockGroup *group1 = group_iter1.next();
+    ClockSet *clks1 = group1->clks();
+    ClockGroupSet::Iterator group_iter2(groups);
+    while (group_iter2.hasNext()) {
+      ClockGroup *group2 = group_iter2.next();
+      if (group1 != group2) {
+	ClockSet *clks2 = group2->clks();
+	ClockSet::Iterator clk_iter1(clks1);
+	while (clk_iter1.hasNext()) {
+	  Clock *clk1 = clk_iter1.next();
+	  ClockSet::Iterator clk_iter2(clks2);
+	  while (clk_iter2.hasNext()) {
+	    Clock *clk2 = clk_iter2.next();
+	    // ClockPair is symmetric so only add one clk1/clk2 pair.
+	    if (clk1->index() < clk2->index()) {
+	      ClockPair *clk_pair = new ClockPair(clk1, clk2);
+	      clk_group_exclusions_->insert(clk_pair);
 	    }
 	  }
 	}
+      }
+    }
+    makeClkGroupSame(group1);
+  }
+}
+
+void
+Sdc::makeClkGroupSame(ClockGroup *group)
+{
+  ClockSet *clks = group->clks();
+  ClockSet::Iterator clk_iter1(clks);
+  while (clk_iter1.hasNext()) {
+    Clock *clk1 = clk_iter1.next();
+    ClockSet::Iterator clk_iter2(clks);
+    while (clk_iter2.hasNext()) {
+      Clock *clk2 = clk_iter2.next();
+      if (clk1->index() <= clk2->index()) {
+	ClockPair *clk_pair = new ClockPair(clk1, clk2);
+	if (!clk_group_same_->hasKey(clk_pair))
+	  clk_group_same_->insert(clk_pair);
       }
     }
   }
@@ -2152,14 +2185,17 @@ Sdc::clearClkGroupExclusions()
 {
   if (clk_group_exclusions_) {
     clk_group_exclusions_->deleteContents();
+    clk_group_same_->deleteContents();
     delete clk_group_exclusions_;
+    delete clk_group_same_;
     clk_group_exclusions_ = NULL;
+    clk_group_same_ = NULL;
   }
 }
 
 bool
 Sdc::sameClockGroup(const Clock *clk1,
-			    const Clock *clk2)
+		    const Clock *clk2)
 {
   if (clk1 && clk2) {
     ClockPair clk_pair(clk1, clk2);
@@ -2168,6 +2204,14 @@ Sdc::sameClockGroup(const Clock *clk1,
   }
   else
     return true;
+}
+
+bool
+Sdc::sameClockGroupExplicit(const Clock *clk1,
+			    const Clock *clk2)
+{
+  ClockPair clk_pair(clk1, clk2);
+  return clk_group_same_->hasKey(&clk_pair);
 }
 
 void

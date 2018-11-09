@@ -128,6 +128,23 @@ public:
 			       const TransRiseFall *tr,
 			       DcalcAPIndex ap_index,
 			       const ArcDelay &delay);
+  // Is timing arc delay annotated.
+  bool arcDelayAnnotated(Edge *edge,
+			 TimingArc *arc,
+			 DcalcAPIndex ap_index) const;
+  void setArcDelayAnnotated(Edge *edge,
+			    TimingArc *arc,
+			    DcalcAPIndex ap_index,
+			    bool annotated);
+  bool wireDelayAnnotated(Edge *edge,
+			  const TransRiseFall *tr,
+			  DcalcAPIndex ap_index) const;
+  void setWireDelayAnnotated(Edge *edge,
+			     const TransRiseFall *tr,
+			     DcalcAPIndex ap_index,
+			     bool annotated);
+  // True if any edge arc is annotated.
+  bool delayAnnotated(Edge *edge);
   EdgeIndex edgeCount() { return edge_count_; }
   virtual ArcIndex arcCount() { return arc_count_; }
 
@@ -205,6 +222,7 @@ protected:
   float *makeFloats(ObjectIndex count);
   void deleteFloats(float *floats,
 		    ObjectIndex count);
+  void removeDelayAnnotated(Edge *edge);
 
   VertexPool *vertices_;
   EdgePool *edges_;
@@ -216,6 +234,7 @@ protected:
   VertexIndex vertex_count_;
   EdgeIndex edge_count_;
   ArcIndex arc_count_;
+  Vector<bool> arc_delay_annotated_;
   int slew_tr_count_;
   bool have_arc_delays_;
   DcalcAPIndex ap_count_;
@@ -339,11 +358,6 @@ private:
   friend class VertexOutEdgeIterator;
 };
 
-#define max_dcalc_analysis_pt_count 4
-// One annotation bit per timing arc per delay calculation analysis point.
-#define delay_annotation_bit_count \
-  ((timing_arc_index_max + 1) * max_dcalc_analysis_pt_count)
-
 // There is one Edge between each pair of pins that has a timing
 // path between them.
 class Edge
@@ -359,20 +373,6 @@ public:
   void setTimingArcSet(TimingArcSet *set);
   ArcIndex arcDelays() const { return arc_delays_; }
   void setArcDelays(ArcIndex arc_delays);
-  // True if any timing arc delay is annotated.
-  bool arcDelayAnnotated() const;
-  // Is timing arc delay annotated.
-  bool arcDelayAnnotated(TimingArc *arc,
-			 DcalcAPIndex ap_index) const;
-  void setArcDelayAnnotated(bool annotated,
-			    TimingArc *arc,
-			    DcalcAPIndex ap_index);
-  bool wireDelayAnnotated(const TransRiseFall *tr,
-			  DcalcAPIndex ap_index) const;
-  void setWireDelayAnnotated(bool annotated,
-			     const TransRiseFall *tr,
-			     DcalcAPIndex ap_index);
-  void removeDelayAnnotated();
   bool delayAnnotationIsIncremental() const;
   void setDelayAnnotationIsIncremental(bool is_incr);
   // Edge is disabled by set_disable_timing constraint.
@@ -406,8 +406,6 @@ protected:
   VertexIndex vertex_out_next_;		// Vertex out edges doubly linked list.
   VertexIndex vertex_out_prev_;
   ArcIndex arc_delays_;
-  // Timing arcs with sdf annotation.
-  unsigned int delay_annotated_:delay_annotation_bit_count;
   unsigned int delay_annotation_is_incremental_:1;
   unsigned int is_bidirect_inst_path_:1;
   unsigned int is_bidirect_net_path_:1;

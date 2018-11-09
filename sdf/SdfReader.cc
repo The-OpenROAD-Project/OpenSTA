@@ -759,7 +759,7 @@ SdfReader::setEdgeArcDelays(Edge *edge,
       else
 	delay = *value_ptr;
       graph_->setArcDelay(edge, arc, arc_delay_index, delay);
-      edge->setArcDelayAnnotated(true, arc, arc_delay_index);
+      graph_->setArcDelayAnnotated(edge, arc, arc_delay_index, true);
       edge->setDelayAnnotationIsIncremental(is_incremental_only_);
     }
   }
@@ -809,13 +809,13 @@ SdfReader::setEdgeArcDelaysCondUse(Edge *edge,
     ArcDelay delay(*value);
     if (!is_incremental_only_ && in_incremental_)
       delay = graph_->arcDelay(edge, arc, arc_delay_index) + *value;
-    else if (edge->arcDelayAnnotated(arc, arc_delay_index)) {
+    else if (graph_->arcDelayAnnotated(edge, arc, arc_delay_index)) {
       ArcDelay prev_value = graph_->arcDelay(edge, arc, arc_delay_index);
       if (delayFuzzyGreater(prev_value, delay, min_max))
 	delay = prev_value;
     }
     graph_->setArcDelay(edge, arc, arc_delay_index, delay);
-    edge->setArcDelayAnnotated(true, arc, arc_delay_index);
+    graph_->setArcDelayAnnotated(edge, arc, arc_delay_index, true);
     edge->setDelayAnnotationIsIncremental(is_incremental_only_);
   }
 }

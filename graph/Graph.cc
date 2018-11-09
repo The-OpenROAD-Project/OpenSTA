@@ -714,6 +714,9 @@ Graph::makeArcDelayPools(ArcIndex arc_count,
       DelayPool *pool = new DelayPool(arc_count);
       arc_delays_[i] = pool;
     }
+
+    unsigned annot_size = arc_count * 1.2;
+    arc_delay_annotated_.resize(annot_size * ap_count);
   }
 }
 
@@ -743,6 +746,13 @@ Graph::makeEdgeArcDelays(Edge *edge)
 	*arc_delays++ = 0.0;
     }
     edge->setArcDelays(arc_index);
+    // Make sure there is room for delay_annotated flags.
+    unsigned max_annot_index = arc_index + (arc_count * ap_count_);
+    if (max_annot_index >= arc_delay_annotated_.size()) {
+      unsigned size = max_annot_index * 1.2;
+      arc_delay_annotated_.resize(size);
+    }
+    removeDelayAnnotated(edge);
   }
 }
 
@@ -817,6 +827,46 @@ Graph::setWireArcDelay(Edge *edge,
   }
 }
 
+bool
+Graph::arcDelayAnnotated(Edge *edge,
+			 TimingArc *arc,
+			 DcalcAPIndex ap_index) const
+{
+  int index = (edge->arcDelays() + arc->index()) * ap_count_ + ap_index;
+  return arc_delay_annotated_[index];
+}
+
+void
+Graph::setArcDelayAnnotated(Edge *edge,
+			    TimingArc *arc,
+			    DcalcAPIndex ap_index,
+			    bool annotated)
+{
+  int index = (edge->arcDelays() + arc->index()) * ap_count_ + ap_index;
+  arc_delay_annotated_[index] = annotated;
+}
+
+bool
+Graph::wireDelayAnnotated(Edge *edge,
+			  const TransRiseFall *tr,
+			  DcalcAPIndex ap_index) const
+{
+  int index = (edge->arcDelays() + TimingArcSet::wireArcIndex(tr)) * ap_count_
+    + ap_index;
+  return arc_delay_annotated_[index];
+}
+
+void
+Graph::setWireDelayAnnotated(Edge *edge,
+			     const TransRiseFall *tr,
+			     DcalcAPIndex ap_index,
+			     bool annotated)
+{
+  int index = (edge->arcDelays() + TimingArcSet::wireArcIndex(tr)) * ap_count_
+    + ap_index;
+  arc_delay_annotated_[index] = annotated;
+}
+
 // This only gets called if the analysis type changes from single
 // to bc_wc/ocv or visa versa.
 void
@@ -846,9 +896,39 @@ Graph::removeDelays()
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
       makeEdgeArcDelays(edge);
-      edge->removeDelayAnnotated();
+      removeDelayAnnotated(edge);
     }
   }
+}
+
+void
+Graph::removeDelayAnnotated(Edge *edge)
+{
+  edge->setDelayAnnotationIsIncremental(false);
+  TimingArcSet *arc_set = edge->timingArcSet();
+  TimingArcSetArcIterator *arc_iter = arc_set->timingArcIterator();
+  while (arc_iter->hasNext()) {
+    TimingArc *arc = arc_iter->next();
+    for (DcalcAPIndex ap_index = 0; ap_index < ap_count_; ap_index++) {
+      setArcDelayAnnotated(edge, arc, ap_index, false);
+    }
+  }
+  delete arc_iter;
+}
+
+bool
+Graph::delayAnnotated(Edge *edge)
+{
+  TimingArcSet *arc_set = edge->timingArcSet();
+  TimingArcSetArcIterator *arc_iter = arc_set->timingArcIterator();
+  while (arc_iter->hasNext()) {
+    TimingArc *arc = arc_iter->next();
+    for (DcalcAPIndex ap_index = 0; ap_index < ap_count_; ap_index++) {
+      if (arcDelayAnnotated(edge, arc, ap_index))
+	return true;
+    }
+  }
+  return false;
 }
 
 void
@@ -1019,7 +1099,7 @@ Graph::removeDelaySlewAnnotations()
     VertexOutEdgeIterator edge_iter(vertex, graph_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
-      edge->removeDelayAnnotated();
+      removeDelayAnnotated(edge);
     }
     vertex->removeSlewAnnotated();
   }
@@ -1272,7 +1352,6 @@ Edge::init(VertexIndex from,
   vertex_out_prev_ = 0;
   is_bidirect_inst_path_ = false;
   is_bidirect_net_path_ = false;
-  delay_annotated_ = false;
   delay_annotation_is_incremental_ = false;
   sim_timing_sense_ = timing_sense_unknown;
   is_disabled_constraint_ = false;
@@ -1293,62 +1372,6 @@ Edge::setArcDelays(ArcIndex arc_delays)
 }
 
 bool
-Edge::arcDelayAnnotated() const
-{
-  return delay_annotated_ != 0;
-}
-
-bool
-Edge::arcDelayAnnotated(TimingArc *arc,
-			DcalcAPIndex ap_index) const
-{
-  int bit_index = ap_index * arc_set_->arcCount() + arc->index();
-  if (bit_index >= delay_annotation_bit_count)
-    internalError("arc annotation bit index out of range");
-  return (delay_annotated_ & (1 << bit_index)) != 0;
-}
-
-void
-Edge::setArcDelayAnnotated(bool annotated,
-			   TimingArc *arc,
-			   DcalcAPIndex ap_index)
-{
-  int bit_index = ap_index * arc_set_->arcCount() + arc->index();
-  if (bit_index >= delay_annotation_bit_count)
-    internalError("arc annotation bit index out of range");
-  if (annotated)
-    delay_annotated_ |= (1 << bit_index);
-  else
-    delay_annotated_ &= ~(1 << bit_index);
-}
-
-bool
-Edge::wireDelayAnnotated(const TransRiseFall *tr,
-			 DcalcAPIndex ap_index) const
-{
-  int bit_index = ap_index * TimingArcSet::wireArcCount()
-    + TimingArcSet::wireArcIndex(tr);
-  if (bit_index >= delay_annotation_bit_count)
-    internalError("arc annotation bit index out of range");
-  return (delay_annotated_ & (1 << bit_index)) != 0;
-}
-
-void
-Edge::setWireDelayAnnotated(bool annotated,
-			    const TransRiseFall *tr,
-			    DcalcAPIndex ap_index)
-{
-  int bit_index = ap_index * TimingArcSet::wireArcCount()
-    + TimingArcSet::wireArcIndex(tr);
-  if (bit_index >= delay_annotation_bit_count)
-    internalError("arc annotation bit index out of range");
-  if (annotated)
-    delay_annotated_ |= (1 << bit_index);
-  else
-    delay_annotated_ &= ~(1 << bit_index);
-}
-
-bool
 Edge::delayAnnotationIsIncremental() const
 {
   return delay_annotation_is_incremental_;
@@ -1357,17 +1380,7 @@ Edge::delayAnnotationIsIncremental() const
 void
 Edge::setDelayAnnotationIsIncremental(bool is_incr)
 {
-  if (delay_annotated_ != 0
-      && is_incr != delay_annotation_is_incremental_)
-    delay_annotated_ = 0;
   delay_annotation_is_incremental_ = is_incr;
-}
-
-void
-Edge::removeDelayAnnotated()
-{
-  delay_annotated_ = 0;
-  delay_annotation_is_incremental_ = false;
 }
 
 TimingRole *

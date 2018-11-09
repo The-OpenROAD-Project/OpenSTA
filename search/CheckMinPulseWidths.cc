@@ -74,49 +74,59 @@ CheckMinPulseWidths::clear()
   checks_.deleteContentsClear();
 }
 
+////////////////////////////////////////////////////////////////
+
 class MinPulseWidthChecksVisitor : public MinPulseWidthCheckVisitor
 {
 public:
-  explicit MinPulseWidthChecksVisitor(MinPulseWidthCheckSeq &checks);
+  explicit MinPulseWidthChecksVisitor(const Corner *corner,
+				      MinPulseWidthCheckSeq &checks);
   virtual void visit(MinPulseWidthCheck &check,
 		     const StaState *sta);
 
 private:
   DISALLOW_COPY_AND_ASSIGN(MinPulseWidthChecksVisitor);
 
+  const Corner *corner_;
   MinPulseWidthCheckSeq &checks_;
 };
 
 MinPulseWidthChecksVisitor::
-MinPulseWidthChecksVisitor(MinPulseWidthCheckSeq &checks) :
+MinPulseWidthChecksVisitor(const Corner *corner,
+			   MinPulseWidthCheckSeq &checks) :
+  corner_(corner),
   checks_(checks)
 {
 }
 
 void
 MinPulseWidthChecksVisitor::visit(MinPulseWidthCheck &check,
-				  const StaState *)
+				  const StaState *sta)
 {
-  MinPulseWidthCheck *copy = new MinPulseWidthCheck(check.openPath());
-  checks_.push_back(copy);
+  if (corner_ == NULL
+      || check.corner(sta) == corner_) {
+    MinPulseWidthCheck *copy = new MinPulseWidthCheck(check.openPath());
+    checks_.push_back(copy);
+  }
 }
 
 MinPulseWidthCheckSeq &
-CheckMinPulseWidths::check()
+CheckMinPulseWidths::check(const Corner *corner)
 {
   clear();
-  MinPulseWidthChecksVisitor visitor(checks_);
+  MinPulseWidthChecksVisitor visitor(corner, checks_);
   visitMinPulseWidthChecks(&visitor);
   sort(checks_, MinPulseWidthSlackLess(sta_));
   return checks_;
 }
 
 MinPulseWidthCheckSeq &
-CheckMinPulseWidths::check(PinSeq *pins)
+CheckMinPulseWidths::check(PinSeq *pins,
+			   const Corner *corner)
 {
   clear();
   Graph *graph = sta_->graph();
-  MinPulseWidthChecksVisitor visitor(checks_);
+  MinPulseWidthChecksVisitor visitor(corner, checks_);
   PinSeq::Iterator pin_iter(pins);
   while (pin_iter.hasNext()) {
     Pin *pin = pin_iter.next();
@@ -127,49 +137,59 @@ CheckMinPulseWidths::check(PinSeq *pins)
   return checks_;
 }
 
-class MinPulseWidthViolatorsVisititor : public MinPulseWidthCheckVisitor
+////////////////////////////////////////////////////////////////
+
+class MinPulseWidthViolatorsVisitor : public MinPulseWidthCheckVisitor
 {
 public:
-  explicit MinPulseWidthViolatorsVisititor(MinPulseWidthCheckSeq &checks);
+  explicit MinPulseWidthViolatorsVisitor(const Corner *corner,
+					 MinPulseWidthCheckSeq &checks);
   virtual void visit(MinPulseWidthCheck &check,
 		     const StaState *sta);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(MinPulseWidthViolatorsVisititor);
+  DISALLOW_COPY_AND_ASSIGN(MinPulseWidthViolatorsVisitor);
 
+  const Corner *corner_;
   MinPulseWidthCheckSeq &checks_;
 };
 
-MinPulseWidthViolatorsVisititor::
-MinPulseWidthViolatorsVisititor(MinPulseWidthCheckSeq &checks) :
+MinPulseWidthViolatorsVisitor::
+MinPulseWidthViolatorsVisitor(const Corner *corner,
+			      MinPulseWidthCheckSeq &checks) :
+  corner_(corner),
   checks_(checks)
 {
 }
 
 void
-MinPulseWidthViolatorsVisititor::visit(MinPulseWidthCheck &check,
-				       const StaState *sta)
+MinPulseWidthViolatorsVisitor::visit(MinPulseWidthCheck &check,
+				     const StaState *sta)
 {
-  if (delayFuzzyLess(check.slack(sta), 0.0)) {
+  if (delayFuzzyLess(check.slack(sta), 0.0)
+      && (corner_ == NULL
+	  || check.corner(sta) == corner_)) {
     MinPulseWidthCheck *copy = new MinPulseWidthCheck(check.openPath());
     checks_.push_back(copy);
   }
 }
 
 MinPulseWidthCheckSeq &
-CheckMinPulseWidths::violations()
+CheckMinPulseWidths::violations(const Corner *corner)
 {
   clear();
-  MinPulseWidthViolatorsVisititor visitor(checks_);
+  MinPulseWidthViolatorsVisitor visitor(corner, checks_);
   visitMinPulseWidthChecks(&visitor);
   sort(checks_, MinPulseWidthSlackLess(sta_));
   return checks_;
 }
 
+////////////////////////////////////////////////////////////////
+
 class MinPulseWidthSlackVisitor : public MinPulseWidthCheckVisitor
 {
 public:
-  MinPulseWidthSlackVisitor();
+  MinPulseWidthSlackVisitor(const Corner *corner);
   virtual void visit(MinPulseWidthCheck &check,
 		     const StaState *sta);
   MinPulseWidthCheck *minSlackCheck();
@@ -177,10 +197,12 @@ public:
 private:
   DISALLOW_COPY_AND_ASSIGN(MinPulseWidthSlackVisitor);
 
+  const Corner *corner_;
   MinPulseWidthCheck *min_slack_check_;
 };
 
-MinPulseWidthSlackVisitor::MinPulseWidthSlackVisitor() :
+MinPulseWidthSlackVisitor::MinPulseWidthSlackVisitor(const Corner *corner) :
+  corner_(corner),
   min_slack_check_(NULL)
 {
 }
@@ -190,11 +212,14 @@ MinPulseWidthSlackVisitor::visit(MinPulseWidthCheck &check,
 				 const StaState *sta)
 {
   MinPulseWidthSlackLess slack_less(sta);
-  if (min_slack_check_ == NULL)
-    min_slack_check_ = check.copy();
-  else if (slack_less(&check, min_slack_check_)) {
-    delete min_slack_check_;
-    min_slack_check_ = check.copy();
+  if (corner_ == NULL
+      || check.corner(sta) == corner_) {
+    if (min_slack_check_ == NULL)
+      min_slack_check_ = check.copy();
+    else if (slack_less(&check, min_slack_check_)) {
+      delete min_slack_check_;
+      min_slack_check_ = check.copy();
+    }
   }
 }
 
@@ -205,10 +230,10 @@ MinPulseWidthSlackVisitor::minSlackCheck()
 }
 
 MinPulseWidthCheck *
-CheckMinPulseWidths::minSlackCheck()
+CheckMinPulseWidths::minSlackCheck(const Corner *corner)
 {
   clear();
-  MinPulseWidthSlackVisitor visitor;
+  MinPulseWidthSlackVisitor visitor(corner);
   visitMinPulseWidthChecks(&visitor);
   MinPulseWidthCheck *check = visitor.minSlackCheck();
   // Save check for cleanup.
@@ -450,6 +475,12 @@ Slack
 MinPulseWidthCheck::slack(const StaState *sta) const
 {
   return width(sta) - minWidth(sta);
+}
+
+Corner *
+MinPulseWidthCheck::corner(const StaState *sta) const
+{
+  return open_path_.pathAnalysisPt(sta)->corner();
 }
 
 ////////////////////////////////////////////////////////////////

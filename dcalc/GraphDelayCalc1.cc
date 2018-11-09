@@ -1202,7 +1202,7 @@ GraphDelayCalc1::initWireDelays(Vertex *drvr_vertex,
 	TransRiseFallIterator tr_iter;
 	while (tr_iter.hasNext()) {
 	  TransRiseFall *tr = tr_iter.next();
-	  if (!wire_edge->wireDelayAnnotated(tr, ap_index))
+	  if (!graph_->wireDelayAnnotated(wire_edge, tr, ap_index))
 	    graph_->setWireArcDelay(wire_edge, tr, ap_index, delay_init_value);
 	  // Init load vertex slew.
 	  if (init_load_slews
@@ -1274,7 +1274,7 @@ GraphDelayCalc1::findArcDelay(LibertyCell *drvr_cell,
     if (delayFuzzyGreater(gate_slew, drvr_slew, dcalc_ap->slewMinMax())
 	&& !drvr_vertex->slewAnnotated(drvr_tr, ap_index))
       graph_->setSlew(drvr_vertex, drvr_tr, ap_index, gate_slew);
-    if (!edge->arcDelayAnnotated(arc, ap_index)) {
+    if (!graph_->arcDelayAnnotated(edge, arc, ap_index)) {
       const ArcDelay &prev_gate_delay = graph_->arcDelay(edge,arc,ap_index);
       float gate_delay1 = delayAsFloat(gate_delay);
       float prev_gate_delay1 = delayAsFloat(prev_gate_delay);
@@ -1486,7 +1486,7 @@ GraphDelayCalc1::annotateLoadDelays(Vertex *drvr_vertex,
 	    graph_->setSlew(load_vertex, drvr_tr, ap_index, load_slew);
 	}
       }
-      if (!wire_edge->wireDelayAnnotated(drvr_tr, ap_index)) {
+      if (!graph_->wireDelayAnnotated(wire_edge, drvr_tr, ap_index)) {
 	// Multiple timing arcs with the same output transition
 	// annotate the same wire edges so they must be combined
 	// rather than set.
@@ -1570,7 +1570,7 @@ GraphDelayCalc1::findCheckEdgeDelays(Edge *edge,
       while (ap_iter.hasNext()) {
 	DcalcAnalysisPt *dcalc_ap = ap_iter.next();
 	DcalcAPIndex ap_index = dcalc_ap->index();
-	if (!edge->arcDelayAnnotated(arc, ap_index)) {
+	if (!graph_->arcDelayAnnotated(edge, arc, ap_index)) {
 	  const Pvt *pvt = sdc_->pvt(inst,dcalc_ap->constraintMinMax());
 	  if (pvt == NULL)
 	    pvt = dcalc_ap->operatingConditions();

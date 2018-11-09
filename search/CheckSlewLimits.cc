@@ -32,22 +32,26 @@ namespace sta {
 class PinSlewLimitSlackLess
 {
 public:
-  PinSlewLimitSlackLess(const MinMax *min_max,
+  PinSlewLimitSlackLess(const Corner *corner,
+			const MinMax *min_max,
 			CheckSlewLimits *check_slew_limit,
 			const StaState *sta);
   bool operator()(Pin *pin1,
 		  Pin *pin2) const;
 
 private:
+  const Corner *corner_;
   const MinMax *min_max_;
   CheckSlewLimits *check_slew_limit_;
   const StaState *sta_;
 
 };
 
-PinSlewLimitSlackLess::PinSlewLimitSlackLess(const MinMax *min_max,
+PinSlewLimitSlackLess::PinSlewLimitSlackLess(const Corner *corner,
+					     const MinMax *min_max,
 					     CheckSlewLimits *check_slew_limit,
 					     const StaState *sta) :
+  corner_(corner),
   min_max_(min_max),
   check_slew_limit_(check_slew_limit),
   sta_(sta)
@@ -62,9 +66,9 @@ PinSlewLimitSlackLess::operator()(Pin *pin1,
   const TransRiseFall *tr1, *tr2;
   Slew slew1, slew2;
   float limit1, limit2, slack1, slack2;
-  check_slew_limit_->checkSlews(pin1, min_max_,
+  check_slew_limit_->checkSlews(pin1, corner_, min_max_,
 				corner1, tr1, slew1, limit1, slack1);
-  check_slew_limit_->checkSlews(pin2, min_max_,
+  check_slew_limit_->checkSlews(pin2, corner_, min_max_,
 				corner2, tr2, slew2, limit2, slack2);
   return slack1 < slack2
     || (fuzzyEqual(slack1, slack2)
@@ -94,41 +98,71 @@ CheckSlewLimits::init(const MinMax *min_max)
 
 void
 CheckSlewLimits::checkSlews(const Pin *pin,
+			    const Corner *corner,
 			    const MinMax *min_max,
 			    // Return values.
-			    const Corner *&corner,
-			    // Return the min slack transition.
+			    const Corner *&corner1,
 			    const TransRiseFall *&tr,
 			    Slew &slew,
 			    float &limit,
 			    float &slack) const
 {
-  corner = NULL;
+  corner1 = NULL;
   tr = NULL;
   slack = MinMax::min()->initValue();
+  if (corner)
+    checkSlews1(pin, corner, min_max,
+		corner1, tr, slew, limit, slack);
+  else {
+    CornerIterator corner_iter(sta_);
+    while (corner_iter.hasNext()) {
+      const Corner *corner2 = corner_iter.next();
+      checkSlews1(pin, corner2, min_max,
+		  corner1, tr, slew, limit, slack);
+    }
+  }
+}
+
+void
+CheckSlewLimits::checkSlews1(const Pin *pin,
+			     const Corner *corner,
+			     const MinMax *min_max,
+			     // Return values.
+			     const Corner *&corner1,
+			     const TransRiseFall *&tr,
+			     Slew &slew,
+			     float &limit,
+			     float &slack) const
+{
   Vertex *vertex, *bidirect_drvr_vertex;
   sta_->graph()->pinVertices(pin, vertex, bidirect_drvr_vertex);
+  checkSlews1(vertex, corner, min_max,
+	      corner1, tr, slew, limit, slack);
+  if (bidirect_drvr_vertex)
+    checkSlews1(bidirect_drvr_vertex, corner, min_max,
+		corner1, tr, slew, limit, slack);
+}
+  
+void
+CheckSlewLimits::checkSlews1(Vertex *vertex,
+			     const Corner *corner1,
+			     const MinMax *min_max,
+			     // Return values.
+			     const Corner *&corner,
+			     const TransRiseFall *&tr,
+			     Slew &slew,
+			     float &limit,
+			     float &slack) const
+{
   TransRiseFallIterator tr_iter;
   while (tr_iter.hasNext()) {
     TransRiseFall *tr1 = tr_iter.next();
     float limit1;
     bool limit1_exists;
-    findLimit(pin, vertex, tr1, min_max, limit1, limit1_exists);
+    findLimit(vertex->pin(), vertex, tr1, min_max, limit1, limit1_exists);
     if (limit1_exists) {
-      CornerIterator corner_iter(sta_);
-      while (corner_iter.hasNext()) {
-	Corner *corner1 = corner_iter.next();
-	checkSlew(vertex, limit1, tr1, corner1, min_max,
-		  corner, tr, slew, slack, limit);
-	if (bidirect_drvr_vertex) {
-	  findLimit(pin, bidirect_drvr_vertex, tr1, min_max,
-		    limit1, limit1_exists);
-	  if (limit1_exists) {
-	    checkSlew(bidirect_drvr_vertex, limit1, tr1, corner1, min_max,
-		      corner, tr, slew, slack, limit);
-	  }
-	}
-      }
+      checkSlew(vertex, corner1, min_max, tr1, limit1,
+		corner, tr, slew, slack, limit);
     }
   }
 }
@@ -229,10 +263,10 @@ CheckSlewLimits::clockDomains(const Vertex *vertex,
 
 void
 CheckSlewLimits::checkSlew(Vertex *vertex,
-			   float limit1,
-			   const TransRiseFall *tr1,
 			   const Corner *corner1,
 			   const MinMax *min_max,
+			   const TransRiseFall *tr1,
+			   float limit1,
 			   // Return values.
 			   const Corner *&corner,
 			   const TransRiseFall *&tr,
@@ -259,7 +293,8 @@ CheckSlewLimits::checkSlew(Vertex *vertex,
 }
 
 PinSeq *
-CheckSlewLimits::pinSlewLimitViolations(const MinMax *min_max)
+CheckSlewLimits::pinSlewLimitViolations(const Corner *corner,
+					const MinMax *min_max)
 {
   init(min_max);
   const Network *network = sta_->network();
@@ -267,17 +302,18 @@ CheckSlewLimits::pinSlewLimitViolations(const MinMax *min_max)
   LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
   while (inst_iter->hasNext()) {
     Instance *inst = inst_iter->next();
-    pinSlewLimitViolations(inst, min_max, violators);
+    pinSlewLimitViolations(inst, corner, min_max, violators);
   }
   delete inst_iter;
   // Check top level ports.
-  pinSlewLimitViolations(network->topInstance(), min_max, violators);
-  sort(violators, PinSlewLimitSlackLess(min_max, this, sta_));
+  pinSlewLimitViolations(network->topInstance(), corner, min_max, violators);
+  sort(violators, PinSlewLimitSlackLess(corner, min_max, this, sta_));
   return violators;
 }
 
 void
 CheckSlewLimits::pinSlewLimitViolations(Instance *inst,
+					const Corner *corner,
 					const MinMax *min_max,
 					PinSeq *violators)
 {
@@ -285,11 +321,11 @@ CheckSlewLimits::pinSlewLimitViolations(Instance *inst,
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    const Corner *corner;
+    const Corner *corner1;
     const TransRiseFall *tr;
     Slew slew;
     float limit, slack;
-    checkSlews(pin, min_max, corner, tr, slew, limit, slack);
+    checkSlews(pin, corner, min_max, corner1, tr, slew, limit, slack );
     if (tr && slack < 0.0)
       violators->push_back(pin);
   }
@@ -297,7 +333,8 @@ CheckSlewLimits::pinSlewLimitViolations(Instance *inst,
 }
 
 Pin *
-CheckSlewLimits::pinMinSlewLimitSlack(const MinMax *min_max)
+CheckSlewLimits::pinMinSlewLimitSlack(const Corner *corner,
+				      const MinMax *min_max)
 {
   init(min_max);
   const Network *network = sta_->network();
@@ -306,17 +343,18 @@ CheckSlewLimits::pinMinSlewLimitSlack(const MinMax *min_max)
   LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
   while (inst_iter->hasNext()) {
     Instance *inst = inst_iter->next();
-    pinMinSlewLimitSlack(inst, min_max, min_slack_pin, min_slack);
+    pinMinSlewLimitSlack(inst, corner, min_max, min_slack_pin, min_slack);
   }
   delete inst_iter;
   // Check top level ports.
-  pinMinSlewLimitSlack(network->topInstance(), min_max,
+  pinMinSlewLimitSlack(network->topInstance(), corner, min_max,
 		       min_slack_pin, min_slack);
   return min_slack_pin;
 }
 
 void
 CheckSlewLimits::pinMinSlewLimitSlack(Instance *inst,
+				      const Corner *corner,
 				      const MinMax *min_max,
 				      // Return values.
 				      Pin *&min_slack_pin,
@@ -326,11 +364,11 @@ CheckSlewLimits::pinMinSlewLimitSlack(Instance *inst,
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    const Corner *corner;
+    const Corner *corner1;
     const TransRiseFall *tr;
     Slew slew;
     float limit, slack;
-    checkSlews(pin, min_max, corner, tr, slew, limit, slack);
+    checkSlews(pin, corner, min_max, corner1, tr, slew, limit, slack);
     if (tr
 	&& (min_slack_pin == 0
 	    || slack < min_slack)) {

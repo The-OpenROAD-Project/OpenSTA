@@ -43,6 +43,7 @@ verilogFlushBuffer()
 %option never-interactive
 
 %x COMMENT
+%x ATTRIBUTE
 %x QSTRING
 
 SIGN	"+"|"-"
@@ -73,6 +74,21 @@ ID_TOKEN {ID_ESCAPED_TOKEN}|{ID_ALPHA_TOKEN}
 
 <<EOF>> {
 	VerilogParse_error("unterminated comment");
+	BEGIN(INITIAL);
+	yyterminate();
+	}
+}
+
+"(*"	{ BEGIN ATTRIBUTE; }
+<ATTRIBUTE>{
+.
+
+{EOL}	{ sta::verilog_reader->incrLine(); }
+
+"*)"	{ BEGIN INITIAL; }
+
+<<EOF>> {
+	VerilogParse_error("unterminated attribute");
 	BEGIN(INITIAL);
 	yyterminate();
 	}

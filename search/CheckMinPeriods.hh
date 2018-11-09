@@ -36,9 +36,11 @@ public:
   ~CheckMinPeriods();
   void clear();
   // All violating min period checks.
-  MinPeriodCheckSeq &violations();
+  // corner=NULL checks all corners.
+  MinPeriodCheckSeq &violations(const Corner *corner);
   // Min period check with the least slack.
-  MinPeriodCheck *minSlackCheck();
+  // corner=NULL checks all corners.
+  MinPeriodCheck *minSlackCheck(const Corner *corner);
 
 protected:
   void visitMinPeriodChecks(MinPeriodCheckVisitor *visitor);

@@ -119,11 +119,12 @@ ClkSkews::ClkSkews(StaState *sta) :
 
 void
 ClkSkews::reportClkSkew(ClockSet *clks,
+			const Corner *corner,
 			const SetupHold *setup_hold,
 			int digits)
 {
   ClkSkewMap skews;
-  findClkSkew(clks, setup_hold, skews);
+  findClkSkew(clks, corner, setup_hold, skews);
 
   // Sort the clocks to report in a stable order.
   ClockSeq sorted_clks;
@@ -167,6 +168,7 @@ ClkSkews::reportClkSkew(ClockSet *clks,
 
 void
 ClkSkews::findClkSkew(ClockSet *clks,
+		      const Corner *corner,
 		      const SetupHold *setup_hold,
 		      ClkSkewMap &skews)
 {	      
@@ -184,7 +186,7 @@ ClkSkews::findClkSkew(ClockSet *clks,
 	    ? tr->asRiseFallBoth()
 	    : TransRiseFallBoth::riseFall();
 	  findClkSkewFrom(src_vertex, q_vertex, src_tr, clks,
-			  setup_hold, skews);
+			  corner, setup_hold, skews);
 	}
       }
     }
@@ -210,6 +212,7 @@ ClkSkews::findClkSkewFrom(Vertex *src_vertex,
 			  Vertex *q_vertex,
 			  TransRiseFallBoth *src_tr,
 			  ClockSet *clks,
+			  const Corner *corner,
 			  const SetupHold *setup_hold,
 			  ClkSkewMap &skews)
 {
@@ -233,7 +236,7 @@ ClkSkews::findClkSkewFrom(Vertex *src_vertex,
 	  ? tgt_tr1->asRiseFallBoth()
 	  : TransRiseFallBoth::riseFall();
 	findClkSkew(src_vertex, src_tr, tgt_vertex, tgt_tr,
-		    clks, setup_hold, skews);
+		    clks, corner, setup_hold, skews);
       }
     }
   }
@@ -245,6 +248,7 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
 		      Vertex *tgt_vertex,
 		      TransRiseFallBoth *tgt_tr,
 		      ClockSet *clks,
+		      const Corner *corner,
 		      const SetupHold *setup_hold,
 		      ClkSkewMap &skews)
 {
@@ -257,32 +261,35 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
     if (src_tr->matches(src_path->transition(this))
 	&& src_path->minMax(this) == setup_hold
 	&& clks->hasKey(src_clk)) {
-      Corner *corner = src_path->pathAnalysisPt(this)->corner();
-      VertexPathIterator tgt_iter(tgt_vertex, this);
-      while (tgt_iter.hasNext()) {
-	PathVertex *tgt_path = tgt_iter.next();
-	Clock *tgt_clk = tgt_path->clock(this);
-	if (tgt_clk == src_clk
-	    && tgt_tr->matches(tgt_path->transition(this))
-	    && tgt_path->minMax(this) == tgt_min_max
-	    && tgt_path->pathAnalysisPt(this)->corner() == corner) {
-	  ClkSkew probe(src_path, tgt_path, this);
-	  ClkSkew *clk_skew = skews.findKey(src_clk);
-	  debugPrint8(debug_, "clk_skew", 2, "%s %s %s -> %s %s %s crpr = %s skew = %s\n",
-		      network_->pathName(src_path->pin(this)),
-		      src_path->transition(this)->asString(),
-		      time_unit->asString(probe.srcLatency(this)),
-		      network_->pathName(tgt_path->pin(this)),
-		      tgt_path->transition(this)->asString(),
-		      time_unit->asString(probe.tgtLatency(this)),
-		      time_unit->asString(probe.crpr(this)),
-		      time_unit->asString(probe.skew()));
-	  if (clk_skew == NULL) {
-	    clk_skew = new ClkSkew(probe);
-	    skews[src_clk] = clk_skew;
+      Corner *src_corner = src_path->pathAnalysisPt(this)->corner();
+      if (corner == NULL
+	  || src_corner == corner) {
+	VertexPathIterator tgt_iter(tgt_vertex, this);
+	while (tgt_iter.hasNext()) {
+	  PathVertex *tgt_path = tgt_iter.next();
+	  Clock *tgt_clk = tgt_path->clock(this);
+	  if (tgt_clk == src_clk
+	      && tgt_tr->matches(tgt_path->transition(this))
+	      && tgt_path->minMax(this) == tgt_min_max
+	      && tgt_path->pathAnalysisPt(this)->corner() == src_corner) {
+	    ClkSkew probe(src_path, tgt_path, this);
+	    ClkSkew *clk_skew = skews.findKey(src_clk);
+	    debugPrint8(debug_, "clk_skew", 2, "%s %s %s -> %s %s %s crpr = %s skew = %s\n",
+			network_->pathName(src_path->pin(this)),
+			src_path->transition(this)->asString(),
+			time_unit->asString(probe.srcLatency(this)),
+			network_->pathName(tgt_path->pin(this)),
+			tgt_path->transition(this)->asString(),
+			time_unit->asString(probe.tgtLatency(this)),
+			time_unit->asString(probe.crpr(this)),
+			time_unit->asString(probe.skew()));
+	    if (clk_skew == NULL) {
+	      clk_skew = new ClkSkew(probe);
+	      skews[src_clk] = clk_skew;
+	    }
+	    else if (fuzzyGreater(probe.skew(), clk_skew->skew()))
+	      clk_skew->copy(probe);
 	  }
-	  else if (fuzzyGreater(probe.skew(), clk_skew->skew()))
-	    clk_skew->copy(probe);
 	}
       }
     }

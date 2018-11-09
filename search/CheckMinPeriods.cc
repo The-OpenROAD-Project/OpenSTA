@@ -61,17 +61,21 @@ CheckMinPeriods::clear()
 class MinPeriodViolatorsVisitor : public MinPeriodCheckVisitor
 {
 public:
-  MinPeriodViolatorsVisitor(MinPeriodCheckSeq &checks);
+  MinPeriodViolatorsVisitor(const Corner *corner,
+			    MinPeriodCheckSeq &checks);
   virtual void visit(MinPeriodCheck &check,
 		     StaState *sta);
 
 private:
   DISALLOW_COPY_AND_ASSIGN(MinPeriodViolatorsVisitor);
 
+  const Corner *corner_;
   MinPeriodCheckSeq &checks_;
 };
 
-MinPeriodViolatorsVisitor::MinPeriodViolatorsVisitor(MinPeriodCheckSeq &checks):
+MinPeriodViolatorsVisitor::MinPeriodViolatorsVisitor(const Corner *corner,
+						     MinPeriodCheckSeq &checks):
+  corner_(corner),
   checks_(checks)
 {
 }
@@ -85,10 +89,10 @@ MinPeriodViolatorsVisitor::visit(MinPeriodCheck &check,
 }
 
 MinPeriodCheckSeq &
-CheckMinPeriods::violations()
+CheckMinPeriods::violations(const Corner *corner)
 {
   clear();
-  MinPeriodViolatorsVisitor visitor(checks_);
+  MinPeriodViolatorsVisitor visitor(corner, checks_);
   visitMinPeriodChecks(&visitor);
   sort(checks_, MinPeriodSlackLess(sta_));
   return checks_;
@@ -128,10 +132,12 @@ CheckMinPeriods::visitMinPeriodChecks(Vertex *vertex,
   }
 }
 
+////////////////////////////////////////////////////////////////
+
 class MinPeriodSlackVisitor : public MinPeriodCheckVisitor
 {
 public:
-  MinPeriodSlackVisitor();
+  MinPeriodSlackVisitor(const Corner *corner);
   virtual void visit(MinPeriodCheck &check,
 		     StaState *sta);
   MinPeriodCheck *minSlackCheck();
@@ -139,10 +145,12 @@ public:
 private:
   DISALLOW_COPY_AND_ASSIGN(MinPeriodSlackVisitor);
 
+  const Corner *corner_;
   MinPeriodCheck *min_slack_check_;
 };
 
-MinPeriodSlackVisitor::MinPeriodSlackVisitor() :
+MinPeriodSlackVisitor::MinPeriodSlackVisitor(const Corner *corner) :
+  corner_(corner),
   min_slack_check_(NULL)
 {
 }
@@ -167,10 +175,10 @@ MinPeriodSlackVisitor::minSlackCheck()
 }
 
 MinPeriodCheck *
-CheckMinPeriods::minSlackCheck()
+CheckMinPeriods::minSlackCheck(const Corner *corner)
 {
   clear();
-  MinPeriodSlackVisitor visitor;
+  MinPeriodSlackVisitor visitor(corner);
   visitMinPeriodChecks(&visitor);
   MinPeriodCheck *check = visitor.minSlackCheck();
   // Save check for cleanup.

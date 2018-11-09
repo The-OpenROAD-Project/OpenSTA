@@ -173,6 +173,7 @@ public:
   // Set net wire capacitance (set_load -wire net).
   void setNetWireCap(Net *net,
 		     bool subtract_pin_load,
+		     const Corner *corner,
 		     const MinMaxAll *min_max,
 		     float cap);
   // Port external fanout (used by wireload models).
@@ -188,11 +189,13 @@ public:
   // wire_cap = annotated net capacitance + port external wire capacitance.
   void connectedCap(Pin *drvr_pin,
 		    const TransRiseFall *tr,
+		    const Corner *corner,
 		    const MinMax *min_max,
 		    float &pin_cap,
 		    float &wire_cap) const;
   void connectedCap(Net *net,
 		    const TransRiseFall *tr,
+		    const Corner *corner,
 		    const MinMax *min_max,
 		    float &pin_cap,
 		    float &wire_cap) const;
@@ -605,39 +608,53 @@ public:
 	      ClockSet &clks);
 
   // Return the pin with the min/max slew limit slack.
-  Pin *pinMinSlewLimitSlack(const MinMax *min_max);
+  // corner=NULL checks all corners.
+  Pin *pinMinSlewLimitSlack(const Corner *corner,
+			    const MinMax *min_max);
   // Return all pins with min/max slew violations.
-  PinSeq *pinSlewLimitViolations(const MinMax *min_max);
+  // corner=NULL checks all corners.
+  PinSeq *pinSlewLimitViolations(const Corner *corner,
+				 const MinMax *min_max);
   void reportSlewLimitShortHeader();
   void reportSlewLimitShort(Pin *pin,
+			    const Corner *corner,
 			    const MinMax *min_max);
   void reportSlewLimitVerbose(Pin *pin,
+			      const Corner *corner,
 			      const MinMax *min_max);
   void checkSlews(const Pin *pin,
+		  const Corner *corner,
 		  const MinMax *min_max,
 		  // Return values.
-		  const Corner *&corner,
+		  const Corner *&corner1,
 		  const TransRiseFall *&tr,
 		  Slew &slew,
 		  float &limit,
 		  float &slack);
   // Min pulse width check with the least slack.
-  MinPulseWidthCheck *minPulseWidthSlack();
+  // corner=NULL checks all corners.
+  MinPulseWidthCheck *minPulseWidthSlack(const Corner *corner);
   // All violating min pulse width checks.
-  MinPulseWidthCheckSeq &minPulseWidthViolations();
+  // corner=NULL checks all corners.
+  MinPulseWidthCheckSeq &minPulseWidthViolations(const Corner *corner);
   // Min pulse width checks for pins.
-  MinPulseWidthCheckSeq &minPulseWidthChecks(PinSeq *pins);
+  // corner=NULL checks all corners.
+  MinPulseWidthCheckSeq &minPulseWidthChecks(PinSeq *pins,
+					     const Corner *corner);
   // All min pulse width checks.
-  MinPulseWidthCheckSeq &minPulseWidthChecks();
+  // corner=NULL checks all corners.
+  MinPulseWidthCheckSeq &minPulseWidthChecks(const Corner *corner);
   void reportMpwChecks(MinPulseWidthCheckSeq *checks,
 		       bool verbose);
   void reportMpwCheck(MinPulseWidthCheck *check,
 		      bool verbose);
 
   // Min period check with the least slack.
-  MinPeriodCheck *minPeriodSlack();
+  // corner=NULL checks all corners.
+  MinPeriodCheck *minPeriodSlack(const Corner *corner);
   // All violating min period checks.
-  MinPeriodCheckSeq &minPeriodViolations();
+  // corner=NULL checks all corners.
+  MinPeriodCheckSeq &minPeriodViolations(const Corner *corner);
   void reportChecks(MinPeriodCheckSeq *checks,
 		    bool verbose);
   void reportCheck(MinPeriodCheck *check,
@@ -836,13 +853,6 @@ public:
 			   bool removal,
 			   bool clk_gating_setup,
 			   bool clk_gating_hold) __attribute__ ((deprecated));
-  PathEndSeq *reportCheckTypes(bool all_violators,
-			       bool setup,
-			       bool hold,
-			       bool recovery,
-			       bool removal,
-			       bool clock_gating_setup,
-			       bool clock_gating_hold);
   void setReportPathFormat(ReportPathFormat format);
   void setReportPathFieldOrder(StringSeq *field_names);
   void setReportPathFields(bool report_input_pin,
@@ -854,6 +864,7 @@ public:
   void setReportPathNoSplit(bool no_split);
   // Report clk skews for clks.
   void reportClkSkew(ClockSet *clks,
+		     const Corner *corner,
 		     const SetupHold *setup_hold,
 		     int digits);
   void reportPathEnds(PathEndSeq *ends);
@@ -977,10 +988,10 @@ public:
 			 TimingArc *arc,
 			 DcalcAnalysisPt *dcalc_ap);
   // Set/unset the back-annotation flag for a timing arc.
-  void setArcDelayAnnotated(bool annotated,
-			    Edge *edge,
+  void setArcDelayAnnotated(Edge *edge,
 			    TimingArc *arc,
-			    DcalcAnalysisPt *dcalc_ap);
+			    DcalcAnalysisPt *dcalc_ap,
+			    bool annotated);
   // Make sure levels are up to date and return vertex level.
   Level vertexLevel(Vertex *vertex);
   GraphLoopSeq *graphLoops();

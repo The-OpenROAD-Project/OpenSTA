@@ -106,6 +106,7 @@ protected:
 		    const char *short_name,
 		    int sdf_triple_index,
 		    TransRiseFall *as_rise_fall);
+  ~TransRiseFallBoth();
 
   const char *name_;
   const char *short_name_;

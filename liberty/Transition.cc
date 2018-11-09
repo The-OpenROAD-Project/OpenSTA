@@ -40,11 +40,6 @@ TransRiseFall::destroy()
   fall_ = NULL;
 }
 
-TransRiseFall::~TransRiseFall()
-{
-  stringDelete(short_name_);
-}
-
 TransRiseFall::TransRiseFall(const char *name,
 			     const char *short_name,
 			     int sdf_triple_index) :
@@ -54,9 +49,15 @@ TransRiseFall::TransRiseFall(const char *name,
 {
 }
 
+TransRiseFall::~TransRiseFall()
+{
+  stringDelete(short_name_);
+}
+
 void
 TransRiseFall::setShortName(const char *short_name)
 {
+  stringDelete(short_name_);
   short_name_ = stringCopy(short_name);
 }
 
@@ -152,6 +153,11 @@ TransRiseFallBoth::TransRiseFallBoth(const char *name,
 {
 }
 
+TransRiseFallBoth::~TransRiseFallBoth()
+{
+  stringDelete(short_name_);
+}
+
 TransRiseFallBoth *
 TransRiseFallBoth::find(const char *tr_str)
 {
@@ -185,6 +191,7 @@ TransRiseFallBoth::matches(const Transition *tr) const
 void
 TransRiseFallBoth::setShortName(const char *short_name)
 {
+  stringDelete(short_name_);
   short_name_ = stringCopy(short_name);
 }
 
@@ -289,6 +296,7 @@ Transition::asRiseFallBoth() const
 void
 Transition::setName(const char *name)
 {
+  stringDelete(name_);
   name_ = stringCopy(name);
 }
 

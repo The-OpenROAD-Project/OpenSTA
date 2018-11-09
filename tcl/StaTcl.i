@@ -2318,6 +2318,9 @@ private:
 
 %inline %{
 
+float float_inf = INF;
+int int_max = std::numeric_limits<int>::max();
+
 const char *
 version()
 {
@@ -3163,10 +3166,11 @@ set_port_ext_fanout_cmd(Port *port,
 void
 set_net_wire_cap(Net *net,
 		 bool subtract_pin_cap,
+		 Corner *corner,
 		 const MinMaxAll *min_max,
 		 float cap)
 {
-  Sta::sta()->setNetWireCap(net, subtract_pin_cap, min_max, cap);
+  Sta::sta()->setNetWireCap(net, subtract_pin_cap, corner, min_max, cap);
 }
 
 void
@@ -4414,15 +4418,21 @@ PathEndSeq *
 find_path_ends(ExceptionFrom *from,
 	       ExceptionThruSeq *thrus,
 	       ExceptionTo *to,
+	       Corner *corner,
 	       const MinMaxAll *delay_min_max,
 	       int group_count,
 	       int endpoint_count,
 	       bool unique_pins,
-	       Corner *corner,
 	       float slack_min,
 	       float slack_max,
 	       bool sort_by_slack,
-	       PathGroupNameSet *groups)
+	       PathGroupNameSet *groups,
+	       bool setup,
+	       bool hold,
+	       bool recovery,
+	       bool removal,
+	       bool clk_gating_setup,
+	       bool clk_gating_hold)
 {
   cmdLinkedNetwork();
   Sta *sta = Sta::sta();
@@ -4430,28 +4440,13 @@ find_path_ends(ExceptionFrom *from,
 				       corner, delay_min_max,
 				       group_count, endpoint_count, unique_pins,
 				       slack_min, slack_max,
-				       sort_by_slack, groups,
-				       true, true, // setup, hold
-				       true, true, // recovery, removal
-				       true, true); // clk gating setup, hold
+				       sort_by_slack,
+				       groups->size() ? groups : NULL,
+				       setup, hold,
+				       recovery, removal,
+				       clk_gating_setup, clk_gating_hold);
   delete groups;
   return ends;
-}
-
-PathEndSeq *
-report_check_types_cmd(bool all_violators,
-		       bool setup,
-		       bool hold,
-		       bool recovery,
-		       bool removal,
-		       bool clock_gating_setup,
-		       bool clock_gating_hold)
-{
-  cmdLinkedNetwork();
-  return Sta::sta()->reportCheckTypes(all_violators,
-				      setup, hold,
-				      recovery, removal,
-				      clock_gating_setup, clock_gating_hold);
 }
 
 void
@@ -4537,11 +4532,12 @@ report_path_cmd(Path *path)
 
 void
 report_clk_skew(ClockSet *clks,
+		const Corner *corner,
 		const SetupHold *setup_hold,
 		int digits)
 {
   cmdLinkedNetwork();
-  Sta::sta()->reportClkSkew(clks, setup_hold, digits);
+  Sta::sta()->reportClkSkew(clks, corner, setup_hold, digits);
   delete clks;
 }
 
@@ -4577,33 +4573,35 @@ group_path_pins(const char *group_path_name)
 ////////////////////////////////////////////////////////////////
 
 MinPulseWidthCheckSeq &
-min_pulse_width_violations()
+min_pulse_width_violations(const Corner *corner)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->minPulseWidthViolations();
+  return Sta::sta()->minPulseWidthViolations(corner);
 }
 
 MinPulseWidthCheckSeq &
-min_pulse_width_check_pins(PinSeq *pins)
+min_pulse_width_check_pins(PinSeq *pins,
+			   const Corner *corner)
 {
   cmdLinkedNetwork();
-  MinPulseWidthCheckSeq &checks = Sta::sta()->minPulseWidthChecks(pins);
+  Sta *sta = Sta::sta();
+  MinPulseWidthCheckSeq &checks = sta->minPulseWidthChecks(pins, corner);
   delete pins;
   return checks;
 }
 
 MinPulseWidthCheckSeq &
-min_pulse_width_checks()
+min_pulse_width_checks(const Corner *corner)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->minPulseWidthChecks();
+  return Sta::sta()->minPulseWidthChecks(corner);
 }
 
 MinPulseWidthCheck *
-min_pulse_width_check_slack()
+min_pulse_width_check_slack(const Corner *corner)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->minPulseWidthSlack();
+  return Sta::sta()->minPulseWidthSlack(corner);
 }
 
 void
@@ -4623,17 +4621,17 @@ report_mpw_check(MinPulseWidthCheck *check,
 ////////////////////////////////////////////////////////////////
 
 MinPeriodCheckSeq &
-min_period_violations()
+min_period_violations(const Corner *corner)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->minPeriodViolations();
+  return Sta::sta()->minPeriodViolations(corner);
 }
 
 MinPeriodCheck *
-min_period_check_slack()
+min_period_check_slack(const Corner *corner)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->minPeriodSlack();
+  return Sta::sta()->minPeriodSlack(corner);
 }
 
 void
@@ -4779,17 +4777,19 @@ report_delay_calc_cmd(Edge *edge,
 }
 
 Pin *
-pin_min_slew_limit_slack(const MinMax *min_max)
+pin_min_slew_limit_slack(const Corner *corner,
+			 const MinMax *min_max)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->pinMinSlewLimitSlack(min_max);
+  return Sta::sta()->pinMinSlewLimitSlack(corner, min_max);
 }
 
 PinSeq *
-pin_slew_limit_violations(const MinMax *min_max)
+pin_slew_limit_violations(const Corner *corner,
+			  const MinMax *min_max)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->pinSlewLimitViolations(min_max);
+  return Sta::sta()->pinSlewLimitViolations(corner, min_max);
 }
 
 void
@@ -4800,16 +4800,18 @@ report_slew_limit_short_header()
 
 void
 report_slew_limit_short(Pin *pin,
+			const Corner *corner,
 			const MinMax *min_max)
 {
-  Sta::sta()->reportSlewLimitShort(pin, min_max);
+  Sta::sta()->reportSlewLimitShort(pin, corner, min_max);
 }
 
 void
 report_slew_limit_verbose(Pin *pin,
+			  const Corner *corner,
 			  const MinMax *min_max)
 {
-  Sta::sta()->reportSlewLimitVerbose(pin, min_max);
+  Sta::sta()->reportSlewLimitVerbose(pin, corner, min_max);
 }
 
 EdgeSeq *
@@ -4937,13 +4939,14 @@ unset_clock_groups_asynchronous(const char *name)
   Sta::sta()->removeClockGroupsAsynchronous(name);
 }
 
+// Debugging function.
 bool
 same_clk_group(Clock *clk1,
 	       Clock *clk2)
 {
   Sta *sta = Sta::sta();
   Sdc *sdc = sta->sdc();
-  return sdc->sameClockGroup(clk1, clk2);
+  return sdc->sameClockGroupExplicit(clk1, clk2);
 }
 
 void
@@ -5725,31 +5728,34 @@ vertices()
 
 float
 capacitance(const TransRiseFall *tr,
+	    const Corner *corner,
 	    const MinMax *min_max)
 {
   cmdLinkedNetwork();
   float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, tr, min_max, pin_cap, wire_cap);
+  Sta::sta()->connectedCap(self, tr, corner, min_max, pin_cap, wire_cap);
   return pin_cap + wire_cap;
 }
 
 float
 pin_capacitance(const TransRiseFall *tr,
+		const Corner *corner,
 		const MinMax *min_max)
 {
   cmdLinkedNetwork();
   float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, tr, min_max, pin_cap, wire_cap);
+  Sta::sta()->connectedCap(self, tr, corner, min_max, pin_cap, wire_cap);
   return pin_cap;
 }
 
 float
 wire_capacitance(const TransRiseFall *tr,
+		 const Corner *corner,
 		 const MinMax *min_max)
 {
   cmdLinkedNetwork();
   float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, tr, min_max, pin_cap, wire_cap);
+  Sta::sta()->connectedCap(self, tr, corner, min_max, pin_cap, wire_cap);
   return wire_cap;
 }
 
@@ -5786,31 +5792,34 @@ bool is_ground() { return cmdLinkedNetwork()->isGround(self);}
 
 float
 capacitance(const TransRiseFall *tr,
+	    const Corner *corner,
 	    const MinMax *min_max)
 {
   cmdLinkedNetwork();
   float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, tr, min_max, pin_cap, wire_cap);
+  Sta::sta()->connectedCap(self, tr, corner, min_max, pin_cap, wire_cap);
   return pin_cap + wire_cap;
 }
 
 float
 pin_capacitance(const TransRiseFall *tr,
+		const Corner *corner,
 		const MinMax *min_max)
 {
   cmdLinkedNetwork();
   float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, tr, min_max, pin_cap, wire_cap);
+  Sta::sta()->connectedCap(self, tr, corner, min_max, pin_cap, wire_cap);
   return pin_cap;
 }
 
 float
 wire_capacitance(const TransRiseFall *tr,
+		 const Corner *corner,
 		 const MinMax *min_max)
 {
   cmdLinkedNetwork();
   float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, tr, min_max, pin_cap, wire_cap);
+  Sta::sta()->connectedCap(self, tr, corner, min_max, pin_cap, wire_cap);
   return wire_cap;
 }
 

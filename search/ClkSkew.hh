@@ -33,11 +33,13 @@ public:
   ClkSkews(StaState *sta);
   // Report clk skews for clks.
   void reportClkSkew(ClockSet *clks,
+		     const Corner *corner,
 		     const SetupHold *setup_hold,
 		     int digits);
 
 protected:
   void findClkSkew(ClockSet *clks,
+		   const Corner *corner,
 		   const SetupHold *setup_hold,
 		   ClkSkewMap &skews);
   bool hasClkPaths(Vertex *vertex,
@@ -46,6 +48,7 @@ protected:
 		       Vertex *q_vertex,
 		       TransRiseFallBoth *src_tr,
 		       ClockSet *clks,
+		       const Corner *corner,
 		       const SetupHold *setup_hold,
 		       ClkSkewMap &skews);
   void findClkSkew(Vertex *src_vertex,
@@ -53,6 +56,7 @@ protected:
 		   Vertex *tgt_vertex,
 		   TransRiseFallBoth *tgt_tr,
 		   ClockSet *clks,
+		   const Corner *corner,
 		   const SetupHold *setup_hold,
 		   ClkSkewMap &skews);
   void findFanout(Vertex *from,

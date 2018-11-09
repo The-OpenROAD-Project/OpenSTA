@@ -288,36 +288,36 @@ proc parse_path_group_arg { group_names } {
   return $names
 }
 
-proc report_slew_limits { min_max all_violators verbose nosplit } {
+proc report_slew_limits { corner min_max all_violators verbose nosplit } {
   if { $all_violators } {
-    set violators [pin_slew_limit_violations $min_max]
+    set violators [pin_slew_limit_violations $corner $min_max]
     if { $violators != {} } {
       puts "${min_max}_transition"
       puts ""
       if { $verbose } {
 	foreach pin $violators {
-	  report_slew_limit_verbose $pin $min_max
+	  report_slew_limit_verbose $pin $corner $min_max
 	  puts ""
 	}
       } else {
 	report_slew_limit_short_header
 	foreach pin $violators {
-	  report_slew_limit_short $pin $min_max
+	  report_slew_limit_short $pin $corner $min_max
 	}
 	puts ""
       }
     }
   } else {
-    set pin [pin_min_slew_limit_slack $min_max]
+    set pin [pin_min_slew_limit_slack $corner $min_max]
     if { $pin != "NULL" } {
       puts "${min_max}_transition"
       puts ""
       if { $verbose } {
-	report_slew_limit_verbose $pin $min_max
+	report_slew_limit_verbose $pin $corner $min_max
 	puts ""
       } else {
 	report_slew_limit_short_header
-	report_slew_limit_short $pin $min_max
+	report_slew_limit_short $pin $corner $min_max
 	puts ""
       }
     }

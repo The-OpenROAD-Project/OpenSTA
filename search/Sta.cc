@@ -2384,8 +2384,9 @@ Sta::findPathEnds(ExceptionFrom *from,
 {
   searchPreamble();
   return search_->findPathEnds(from, thrus, to,
-			       corner, min_max, group_count, endpoint_count, unique_pins,
-			       slack_min, slack_max, sort_by_slack, group_names,
+			       corner, min_max, group_count, endpoint_count,
+			       unique_pins, slack_min, slack_max,
+			       sort_by_slack, group_names,
 			       setup, hold,
 			       recovery, removal,
 			       clk_gating_setup, clk_gating_hold);
@@ -2462,53 +2463,6 @@ Sta::reportPath(Path *path)
   report_path_->reportPath(path);
 }
 
-PathEndSeq *
-Sta::reportCheckTypes(bool all_violators,
-		      bool setup,
-		      bool hold,
-		      bool recovery,
-		      bool removal,
-		      bool clock_gating_setup,
-		      bool clock_gating_hold)
-{
-  MinMaxAll *path_min_max = MinMaxAll::max();
-  if ((setup && hold)
-      || (recovery && removal)
-      || (clock_gating_setup && clock_gating_hold))
-    path_min_max = MinMaxAll::all();
-  else if (setup
-	   || recovery
-	   || clock_gating_setup)
-    path_min_max = MinMaxAll::max();
-  else if (hold
-	   || removal
-	   || clock_gating_hold)
-    path_min_max = MinMaxAll::min();
-  int group_count;
-  float slack_min, slack_max;
-  if (all_violators) {
-    group_count = std::numeric_limits<int>::max();
-    slack_min = -INF;
-    slack_max = 0.0;
-  }
-  else {
-    group_count = 1;
-    slack_min = -INF;
-    slack_max = INF;
-  }
-  return findPathEnds(NULL, NULL, NULL,  // from, thru, to
-		      NULL, // corner
-		      path_min_max, group_count,
-		      1, // endpoint_count
-		      false, // unique_pins
-		      slack_min, slack_max,
-		      false, // sort_by_slack
-		      NULL, // group_names
-		      setup, hold,
-		      recovery, removal,
-		      clock_gating_setup, clock_gating_hold);
-}
-
 void
 Sta::updateTiming(bool full)
 {
@@ -2520,13 +2474,14 @@ Sta::updateTiming(bool full)
 
 void
 Sta::reportClkSkew(ClockSet *clks,
+		   const Corner *corner,
 		   const SetupHold *setup_hold,
 		   int digits)
 {
   ensureClkArrivals();
   if (clk_skews_ == NULL)
     clk_skews_ = new ClkSkews(this);
-  clk_skews_->reportClkSkew(clks, setup_hold, digits);
+  clk_skews_->reportClkSkew(clks, corner, setup_hold, digits);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2966,16 +2921,16 @@ Sta::arcDelayAnnotated(Edge *edge,
 		       TimingArc *arc,
 		       DcalcAnalysisPt *dcalc_ap)
 {
-  return edge->arcDelayAnnotated(arc, dcalc_ap->index());
+  return graph_->arcDelayAnnotated(edge, arc, dcalc_ap->index());
 }
 
 void
-Sta::setArcDelayAnnotated(bool annotated,
-			  Edge *edge,
+Sta::setArcDelayAnnotated(Edge *edge,
 			  TimingArc *arc,
-			  DcalcAnalysisPt *dcalc_ap)
+			  DcalcAnalysisPt *dcalc_ap,
+			  bool annotated)
 {
-  edge->setArcDelayAnnotated(annotated, arc, dcalc_ap->index());
+  graph_->setArcDelayAnnotated(edge, arc, dcalc_ap->index(), annotated);
   Vertex *to = edge->to(graph_);
   search_->arrivalInvalid(to);
   search_->requiredInvalid(edge->from(graph_));
@@ -3159,7 +3114,7 @@ Sta::setArcDelay(Edge *edge,
     DcalcAPIndex ap_index = dcalc_ap->index();
     graph_->setArcDelay(edge, arc, ap_index, delay);
     // Don't let delay calculation clobber the value.
-    edge->setArcDelayAnnotated(true, arc, ap_index);
+    graph_->setArcDelayAnnotated(edge, arc, ap_index, true);
   }
   if (edge->role()->isTimingCheck())
     search_->requiredInvalid(edge->to(graph_));
@@ -3326,10 +3281,10 @@ Sta::setPortExtFanout(Port *port,
 void
 Sta::setNetWireCap(Net *net,
 		   bool subtract_pin_cap,
+		   const Corner *corner,
 		   const MinMaxAll *min_max,
 		   float cap)
 {
-  Corner *corner = corners_->defaultCorner();
   MinMaxIterator mm_iter(min_max);
   while (mm_iter.hasNext()) {
     MinMax *mm = mm_iter.next();
@@ -3341,6 +3296,7 @@ Sta::setNetWireCap(Net *net,
 void
 Sta::connectedCap(Pin *drvr_pin,
 		  const TransRiseFall *tr,
+		  const Corner *corner,
 		  const MinMax *min_max,
 		  float &pin_cap,
 		  float &wire_cap) const
@@ -3348,7 +3304,6 @@ Sta::connectedCap(Pin *drvr_pin,
   pin_cap = 0.0;
   wire_cap = 0.0;
   bool cap_exists = false;
-  Corner *corner = corners_->defaultCorner();
   const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
   Parasitic *parasitic;
   bool delete_parasitic;
@@ -3371,13 +3326,14 @@ Sta::connectedCap(Pin *drvr_pin,
 void
 Sta::connectedCap(Net *net,
 		  const TransRiseFall *tr,
+		  const Corner *corner,
 		  const MinMax *min_max,
 		  float &pin_cap,
 		  float &wire_cap) const
 {
   Pin *drvr_pin = findNetParasiticDrvrPin(net);
   if (drvr_pin)
-    connectedCap(drvr_pin, tr, min_max, pin_cap, wire_cap);
+    connectedCap(drvr_pin, tr, corner, min_max, pin_cap, wire_cap);
   else {
     pin_cap = 0.0;
     wire_cap = 0.0;
@@ -4707,17 +4663,19 @@ Sta::checkSlewLimitPreamble()
 }
 
 Pin *
-Sta::pinMinSlewLimitSlack(const MinMax *min_max)
+Sta::pinMinSlewLimitSlack(const Corner *corner,
+			  const MinMax *min_max)
 {
   checkSlewLimitPreamble();
-  return check_slew_limits_->pinMinSlewLimitSlack(min_max);
+  return check_slew_limits_->pinMinSlewLimitSlack(corner, min_max);
 }
 
 PinSeq *
-Sta::pinSlewLimitViolations(const MinMax *min_max)
+Sta::pinSlewLimitViolations(const Corner *corner,
+			    const MinMax *min_max)
 {
   checkSlewLimitPreamble();
-  return check_slew_limits_->pinSlewLimitViolations(min_max);
+  return check_slew_limits_->pinSlewLimitViolations(corner, min_max);
 }
 
 void
@@ -4728,34 +4686,39 @@ Sta::reportSlewLimitShortHeader()
 
 void
 Sta::reportSlewLimitShort(Pin *pin,
+			  const Corner *corner,
 			  const MinMax *min_max)
 {
-  const Corner *corner;
+  const Corner *corner1;
   const TransRiseFall *tr;
   Slew slew;
   float limit, slack;
-  check_slew_limits_->checkSlews(pin, min_max, corner, tr, slew, limit, slack);
+  check_slew_limits_->checkSlews(pin, corner, min_max,
+				 corner1, tr, slew, limit, slack);
   report_path_->reportSlewLimitShort(pin, tr, slew, limit, slack);
 }
 
 void
 Sta::reportSlewLimitVerbose(Pin *pin,
+			    const Corner *corner,
 			    const MinMax *min_max)
 {
-  const Corner *corner;
+  const Corner *corner1;
   const TransRiseFall *tr;
   Slew slew;
   float limit, slack;
-  check_slew_limits_->checkSlews(pin, min_max, corner, tr, slew, limit, slack);
-  report_path_->reportSlewLimitVerbose(pin, corner, tr, slew,
+  check_slew_limits_->checkSlews(pin, corner, min_max,
+				 corner, tr, slew, limit, slack);
+  report_path_->reportSlewLimitVerbose(pin, corner1, tr, slew,
 				       limit, slack, min_max);
 }
 
 void
 Sta::checkSlews(const Pin *pin,
+		const Corner *corner,
 		const MinMax *min_max,
 		// Return values.
-		const Corner *&corner,
+		const Corner *&corner1,
 		const TransRiseFall *&tr,
 		Slew &slew,
 		float &limit,
@@ -4763,8 +4726,8 @@ Sta::checkSlews(const Pin *pin,
 {
   checkSlewLimitPreamble();
   check_slew_limits_->init(min_max);
-  check_slew_limits_->checkSlews(pin, min_max,
-				 corner, tr, slew, limit, slack);
+  check_slew_limits_->checkSlews(pin, corner, min_max,
+				 corner1, tr, slew, limit, slack);
 }
 
 ////////////////////////////////////////////////////////////////'
@@ -4778,31 +4741,32 @@ Sta::minPulseWidthPreamble()
 }
 
 MinPulseWidthCheckSeq &
-Sta::minPulseWidthChecks(PinSeq *pins)
+Sta::minPulseWidthChecks(PinSeq *pins,
+			 const Corner *corner)
 {
   minPulseWidthPreamble();
-  return check_min_pulse_widths_->check(pins);
+  return check_min_pulse_widths_->check(pins, corner);
 }
 
 MinPulseWidthCheckSeq &
-Sta::minPulseWidthChecks()
+Sta::minPulseWidthChecks(const Corner *corner)
 {
   minPulseWidthPreamble();
-  return check_min_pulse_widths_->check();
+  return check_min_pulse_widths_->check(corner);
 }
 
 MinPulseWidthCheckSeq &
-Sta::minPulseWidthViolations()
+Sta::minPulseWidthViolations(const Corner *corner)
 {
   minPulseWidthPreamble();
-  return check_min_pulse_widths_->violations();
+  return check_min_pulse_widths_->violations(corner);
 }
 
 MinPulseWidthCheck *
-Sta::minPulseWidthSlack()
+Sta::minPulseWidthSlack(const Corner *corner)
 {
   minPulseWidthPreamble();
-  return check_min_pulse_widths_->minSlackCheck();
+  return check_min_pulse_widths_->minSlackCheck(corner);
 }
 
 void
@@ -4822,17 +4786,17 @@ Sta::reportMpwCheck(MinPulseWidthCheck *check,
 ////////////////////////////////////////////////////////////////
 
 MinPeriodCheckSeq &
-Sta::minPeriodViolations()
+Sta::minPeriodViolations(const Corner *corner)
 {
   minPeriodPreamble();
-  return check_min_periods_->violations();
+  return check_min_periods_->violations(corner);
 }
 
 MinPeriodCheck *
-Sta::minPeriodSlack()
+Sta::minPeriodSlack(const Corner *corner)
 {
   minPeriodPreamble();
-  return check_min_periods_->minSlackCheck();
+  return check_min_periods_->minSlackCheck(corner);
 }
 
 void

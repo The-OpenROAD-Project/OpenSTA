@@ -36,13 +36,18 @@ public:
   ~CheckMinPulseWidths();
   void clear();
   // Min pulse width checks for pins.
-  MinPulseWidthCheckSeq &check(PinSeq *pins);
+  // corner=NULL checks all corners.
+  MinPulseWidthCheckSeq &check(PinSeq *pins,
+			       const Corner *corner);
   // All min pulse width checks.
-  MinPulseWidthCheckSeq &check();
+  // corner=NULL checks all corners.
+  MinPulseWidthCheckSeq &check(const Corner *corner);
   // All violating min pulse width checks.
-  MinPulseWidthCheckSeq &violations();
+  // corner=NULL checks all corners.
+  MinPulseWidthCheckSeq &violations(const Corner *corner);
   // Min pulse width check with the least slack.
-  MinPulseWidthCheck *minSlackCheck();
+  // corner=NULL checks all corners.
+  MinPulseWidthCheck *minSlackCheck(const Corner *corner);
 
 protected:
   void visitMinPulseWidthChecks(MinPulseWidthCheckVisitor *visitor);
@@ -68,6 +73,7 @@ public:
   float minWidth(const StaState *sta) const;
   Slack slack(const StaState *sta) const;
   Path *openPath() { return &open_path_; }
+  Corner *corner(const StaState *sta) const;
   const Path *openPath() const { return &open_path_; }
   Arrival openArrival(const StaState *sta) const;
   void closePath(const StaState *sta,

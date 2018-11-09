@@ -324,9 +324,10 @@ proc net_connected_pins_sorted { net } {
 }
 
 proc report_net_caps { net pins digits } {
-  report_net_cap $net "Pin" "pin_capacitance" $digits
-  report_net_cap $net "Wire" "wire_capacitance" $digits
-  report_net_cap $net "Total" "capacitance" $digits
+  set corner [default_corner]
+  report_net_cap $net "Pin" "pin_capacitance" $corner $digits
+  report_net_cap $net "Wire" "wire_capacitance" $corner $digits
+  report_net_cap $net "Total" "capacitance" $corner $digits
 
   set pin_count 0
   set driver_count 0
@@ -347,11 +348,11 @@ proc report_net_caps { net pins digits } {
   puts ""
 }
 
-proc report_net_cap { net caption cap_msg digits } {
-  set cap_r_min [$net $cap_msg "rise" "min"]
-  set cap_r_max [$net $cap_msg "rise" "max"]
-  set cap_f_min [$net $cap_msg "fall" "min"]
-  set cap_f_max [$net $cap_msg "fall" "max"]
+proc report_net_cap { net caption cap_msg corner digits } {
+  set cap_r_min [$net $cap_msg "rise" $corner "min"]
+  set cap_r_max [$net $cap_msg "rise" $corner "max"]
+  set cap_f_min [$net $cap_msg "fall" $corner "min"]
+  set cap_f_max [$net $cap_msg "fall" $corner "max"]
   puts " $caption capacitance: [capacitances_str $cap_r_min $cap_r_max $cap_f_min $cap_f_max $digits]"
 }
 
