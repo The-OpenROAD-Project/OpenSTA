@@ -52,6 +52,7 @@ public:
 	     Instance *instance,
 	     ParasiticAnalysisPt *ap,
 	     bool increment,
+	     bool pin_cap_included,
 	     bool keep_coupling_caps,
 	     float coupling_cap_factor,
 	     ReduceParasiticsTo reduce_to,

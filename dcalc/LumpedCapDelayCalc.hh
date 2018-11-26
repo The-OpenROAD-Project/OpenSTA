@@ -60,13 +60,23 @@ public:
 			 // Return values.
 			 ArcDelay &wire_delay,
 			 Slew &load_slew);
-  virtual ArcDelay checkDelay(const LibertyCell *cell,
-			      TimingArc *arc,
-			      const Slew &from_slew,
-			      const Slew &to_slew,
-			      float related_out_cap,
-			      const Pvt *pvt,
-			      const DcalcAnalysisPt *dcalc_ap);
+  virtual void checkDelay(const LibertyCell *cell,
+			  TimingArc *arc,
+			  const Slew &from_slew,
+			  const Slew &to_slew,
+			  float related_out_cap,
+			  const Pvt *pvt,
+			  const DcalcAnalysisPt *dcalc_ap,
+			  // Return values.
+			  ArcDelay &margin);
+  virtual float ceff(const LibertyCell *drvr_cell,
+		     TimingArc *arc,
+		     const Slew &in_slew,
+		     float load_cap,
+		     Parasitic *drvr_parasitic,
+		     float related_out_cap,
+		     const Pvt *pvt,
+		     const DcalcAnalysisPt *dcalc_ap);
   virtual void reportGateDelay(const LibertyCell *drvr_cell,
 			       TimingArc *arc,
 			       const Slew &in_slew,

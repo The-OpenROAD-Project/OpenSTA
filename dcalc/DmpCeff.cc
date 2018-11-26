@@ -372,14 +372,15 @@ DmpAlg::gateCapDelaySlew(double ceff,
 			 double &delay,
 			 double &slew)
 {
-  float model_delay, model_slew;
+  ArcDelay model_delay;
+  Slew model_slew;
   gate_model_->gateDelay(drvr_cell_, pvt_,
 			 static_cast<float>(in_slew_),
 			 static_cast<float>(ceff),
 			 related_out_cap_,
 			 model_delay, model_slew);
-  delay = model_delay;
-  slew = model_slew;
+  delay = delayAsFloat(model_delay);
+  slew = delayAsFloat(model_slew);
 }
 
 void
@@ -1665,6 +1666,24 @@ DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
 	      dmp_alg_->name());
 }
 
+float
+DmpCeffDelayCalc::ceff(const LibertyCell *drvr_cell,
+		       TimingArc *arc,
+		       const Slew &in_slew,
+		       float load_cap,
+		       Parasitic *drvr_parasitic,
+		       float related_out_cap,
+		       const Pvt *pvt,
+		       const DcalcAnalysisPt *dcalc_ap)
+{
+  ArcDelay gate_delay;
+  Slew drvr_slew;
+  gateDelay(drvr_cell, arc, in_slew, load_cap,
+	    drvr_parasitic, related_out_cap, pvt, dcalc_ap,
+	    gate_delay, drvr_slew);
+  return ceff();
+}
+
 void
 DmpCeffDelayCalc::reportGateDelay(const LibertyCell *drvr_cell,
 				  TimingArc *arc,
@@ -1723,9 +1742,11 @@ gateModelRd(const LibertyCell *cell,
   float cap1 = static_cast<float>((c1 + c2) * .75);
   float cap2 = cap1 * 1.1F;
   float in_slew1 = static_cast<float>(in_slew);
-  float d1 = gate_model->gateDelay(cell, pvt, in_slew1, cap1, related_out_cap);
-  float d2 = gate_model->gateDelay(cell, pvt, in_slew1, cap2, related_out_cap);
-  return abs(d1 - d2) / (cap2 - cap1);
+  ArcDelay d1, d2;
+  Slew s1, s2;
+  gate_model->gateDelay(cell, pvt, in_slew1, cap1, related_out_cap, d1, s1);
+  gate_model->gateDelay(cell, pvt, in_slew1, cap2, related_out_cap, d2, s2);
+  return abs(delayAsFloat(d1) - delayAsFloat(d2)) / (cap2 - cap1);
 }
 
 void

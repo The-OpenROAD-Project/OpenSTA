@@ -40,6 +40,7 @@ enum VertexColor {
   vertex_color_black
 };
 
+typedef Pool<Delay> DelayPool;
 typedef Pool<Vertex> VertexPool;
 typedef Pool<Edge> EdgePool;
 typedef Map<const Pin*, Vertex*> PinVertexMap;

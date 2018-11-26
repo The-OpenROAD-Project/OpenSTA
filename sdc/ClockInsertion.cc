@@ -30,7 +30,7 @@ ClockInsertion::setDelay(const TransRiseFallBoth *tr,
 			 const MinMaxAll *min_max,
 			 const EarlyLateAll *early_late, float delay)
 {
-  MinMaxIterator el_iter(early_late);
+  EarlyLateIterator el_iter(early_late);
   while (el_iter.hasNext()) {
     EarlyLate *el = el_iter.next();
     delays_[el->index()].setValue(tr, min_max, delay);
@@ -73,7 +73,7 @@ ClockInsertion::setDelay(const TransRiseFall *tr,
 void
 ClockInsertion::setDelays(RiseFallMinMax *delays)
 {
-  MinMaxIterator el_iter;
+  EarlyLateIterator el_iter;
   while (el_iter.hasNext()) {
     EarlyLate *el = el_iter.next();
     delays_[el->index()].setValues(delays);

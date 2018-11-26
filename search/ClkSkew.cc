@@ -93,14 +93,14 @@ float
 ClkSkew::srcLatency(StaState *sta)
 {
   Arrival src_arrival = src_path_.arrival(sta);
-  return src_arrival - src_path_.clkEdge(sta)->time();
+  return delayAsFloat(src_arrival) - src_path_.clkEdge(sta)->time();
 }
 
 float
 ClkSkew::tgtLatency(StaState *sta)
 {
   Arrival tgt_arrival = tgt_path_.arrival(sta);
-  return tgt_arrival - tgt_path_.clkEdge(sta)->time();
+  return delayAsFloat(tgt_arrival) - tgt_path_.clkEdge(sta)->time();
 }
 
 float

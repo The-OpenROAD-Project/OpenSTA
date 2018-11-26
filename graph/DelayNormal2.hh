@@ -21,16 +21,23 @@
 
 namespace sta {
 
-// Delay values defined as class objects that hold a float value.
-// This is really a trial balloon for delay values as objects
-// instead of simple floats.
+// Delay values defined as objects that hold a float value.
 
+class Delay;
+
+// Normal distribution with early(left)/late(right) std deviations.
 class Delay
 {
 public:
   Delay();
-  Delay(float delay);
-  float delay() const { return delay_; }
+  Delay(float mean);
+  Delay(float mean,
+	float sigma_early,
+	float sigma_late);
+  float mean() const { return mean_; }
+  float sigma(const EarlyLate *early_late) const;
+  float sigmaEarly() const { return sigma_[early_index]; }
+  float sigmaLate() const { return sigma_[late_index]; }
   void operator=(const Delay &delay);
   void operator=(float delay);
   void operator+=(const Delay &delay);
@@ -47,22 +54,27 @@ public:
   bool operator<(const Delay &delay) const;
   bool operator<=(const Delay &delay) const;
 
+protected:
+  static const int early_index = 0;
+  static const int late_index = 1;
+
 private:
-  float delay_;
+  float mean_;
+  float sigma_[EarlyLate::index_count];
 };
 
 const Delay delay_zero(0.0);
 
 inline Delay
 makeDelay(float delay,
-	  float,
-	  float)
+	  float sigma_early,
+	  float sigma_late)
 {
-  return Delay(delay);
+  return Delay(delay, sigma_early, sigma_late);
 }
 
 inline float
-delayAsFloat(const Delay &delay) { return delay.delay(); }
+delayAsFloat(const Delay &delay) { return delay.mean(); }
 
 // Most non-operator functions on Delay are not defined as member
 // functions so they can be defined on floats, where there is no class
@@ -70,29 +82,12 @@ delayAsFloat(const Delay &delay) { return delay.delay(); }
 
 Delay operator+(float delay1,
 		const Delay &delay2);
-Delay operator-(float delay1,
-		const Delay &delay2);
 // Used for parallel gate delay calc.
 Delay operator/(float delay1,
 		const Delay &delay2);
 // Used for parallel gate delay calc.
-Delay operator*(const Delay &delay2,
-		float delay1);
 Delay operator*(const Delay &delay1,
 		float delay2);
-
-bool
-delayFuzzyLess(const Delay &delay1,
-	       float delay2);
-bool
-delayFuzzyLessEqual(const Delay &delay1,
-		    float delay2);
-bool
-delayFuzzyGreater(const Delay &delay1,
-		  float delay2);
-bool
-delayFuzzyGreaterEqual(const Delay &delay1,
-		       float delay2);
 
 } // namespace
 #endif

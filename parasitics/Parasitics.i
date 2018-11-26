@@ -38,6 +38,7 @@ read_parasitics_cmd(const char *filename,
 		    Instance *instance,
 		    MinMaxAll *min_max,
 		    bool increment,
+		    bool pin_cap_included,
 		    bool keep_coupling_caps,
 		    float coupling_cap_factor,
 		    ReduceParasiticsTo reduce_to,
@@ -47,9 +48,9 @@ read_parasitics_cmd(const char *filename,
 {
   cmdLinkedNetwork();
   return Sta::sta()->readParasitics(filename, instance, min_max,
-				    increment, keep_coupling_caps,
-				    coupling_cap_factor, reduce_to,
-				    delete_after_reduce,
+				    increment, pin_cap_included,
+				    keep_coupling_caps, coupling_cap_factor,
+				    reduce_to, delete_after_reduce,
 				    save, quiet);
 }
 

@@ -18,6 +18,7 @@
 #define STA_TIMING_MODEL_H
 
 #include <string>
+#include "Delay.hh"
 #include "LibertyClass.hh"
 
 namespace sta {
@@ -47,8 +48,8 @@ public:
 			 float load_cap,
 			 float related_out_cap,
 			 // Return values.
-			 float &gate_delay,
-			 float &drvr_slew) const = 0;
+			 ArcDelay &gate_delay,
+			 Slew &drvr_slew) const = 0;
   virtual void reportGateDelay(const LibertyCell *cell,
 			       const Pvt *pvt,
 			       float in_slew,
@@ -65,11 +66,13 @@ class CheckTimingModel : public TimingModel
 {
 public:
   // Timing check margin delay calculation.
-  virtual float checkDelay(const LibertyCell *cell,
-			   const Pvt *pvt,
-			   float from_slew,
-			   float to_slew,
-			   float related_out_cap) const = 0;
+  virtual void checkDelay(const LibertyCell *cell,
+			  const Pvt *pvt,
+			  float from_slew,
+			  float to_slew,
+			  float related_out_cap,
+			  // Return values.
+			  ArcDelay &margin) const = 0;
   virtual void reportCheckDelay(const LibertyCell *cell,
 				const Pvt *pvt,
 				float from_slew,

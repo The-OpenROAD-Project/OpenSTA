@@ -50,6 +50,14 @@ public:
 			 // return values
 			 ArcDelay &gate_delay,
 			 Slew &drvr_slew);
+  virtual float ceff(const LibertyCell *drvr_cell,
+		     TimingArc *arc,
+		     const Slew &in_slew,
+		     float load_cap,
+		     Parasitic *drvr_parasitic,
+		     float related_out_cap,
+		     const Pvt *pvt,
+		     const DcalcAnalysisPt *dcalc_ap);
   virtual void reportGateDelay(const LibertyCell *drvr_cell,
 			       TimingArc *arc,
 			       const Slew &in_slew,

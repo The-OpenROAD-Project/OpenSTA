@@ -44,6 +44,7 @@ readSpfFile(const char *filename,
 	    Instance *instance,
 	    ParasiticAnalysisPt *ap,
 	    bool increment,
+	    bool pin_cap_included,
 	    bool keep_coupling_caps,
 	    float coupling_cap_factor,
 	    ReduceParasiticsTo reduce_to,
@@ -58,9 +59,9 @@ readSpfFile(const char *filename,
 	    Parasitics *parasitics)
 {
   SpfReader reader(filename, stream, line, rspf, instance, ap,
-		   increment, keep_coupling_caps, coupling_cap_factor,
-		   reduce_to, delete_after_reduce, op_cond,
-		   corner, cnst_min_max, quiet,
+		   increment, pin_cap_included, keep_coupling_caps,
+		   coupling_cap_factor, reduce_to, delete_after_reduce,
+		   op_cond, corner, cnst_min_max, quiet,
 		   report, network, parasitics);
   spf_reader = &reader;
   ::spfResetScanner();
@@ -78,6 +79,7 @@ SpfReader::SpfReader(const char *filename,
 		     Instance *instance,
 		     ParasiticAnalysisPt *ap,
 		     bool increment,
+		     bool pin_cap_included,
 		     bool keep_coupling_caps,
 		     float coupling_cap_factor,
 		     ReduceParasiticsTo reduce_to,
@@ -90,7 +92,7 @@ SpfReader::SpfReader(const char *filename,
 		     Network *network,
 		     Parasitics *parasitics):
   SpfSpefReader(filename, stream, line, instance, ap, increment,
-		keep_coupling_caps, coupling_cap_factor,
+		pin_cap_included, keep_coupling_caps, coupling_cap_factor,
 		reduce_to, delete_after_reduce, op_cond, corner, cnst_min_max,
 		quiet, report, network, parasitics),
   is_rspf_(rspf),
@@ -409,7 +411,7 @@ SpfReader::netBegin(const char *net_name)
 	dspf_ = 0;
       else {
 	parasitics_->deleteParasitics(net_, ap_);
-	dspf_ = parasitics_->makeParasiticNetwork(net_, ap_);
+	dspf_ = parasitics_->makeParasiticNetwork(net_,pin_cap_included_,ap_);
       }
     }
     else {

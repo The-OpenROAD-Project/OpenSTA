@@ -68,6 +68,18 @@ PathEnd::minMax(const StaState *sta) const
   return path_.pathAnalysisPt(sta)->pathMinMax();
 }
 
+const EarlyLate *
+PathEnd::pathEarlyLate(const StaState *sta) const
+{
+  return path_.pathAnalysisPt(sta)->pathMinMax();
+}
+
+const EarlyLate *
+PathEnd::clkEarlyLate(const StaState *sta) const
+{
+  return NULL;
+}
+
 const TransRiseFall *
 PathEnd::transition(const StaState *sta) const
 {
@@ -538,6 +550,15 @@ PathEndClkConstrained::setPath(PathEnumed *path,
 {
   path_.init(path);
   crpr_valid_ = false;
+}
+
+const EarlyLate *
+PathEndClkConstrained::clkEarlyLate(const StaState *sta) const
+{
+  if (clk_path_.isNull())
+    return NULL;
+  else
+    return clk_path_.pathAnalysisPt(sta)->pathMinMax();
 }
 
 float
@@ -1565,15 +1586,15 @@ PathEndDataCheck::type() const
 Arrival
 PathEndDataCheck::requiredTimeNoCrpr(const StaState *sta) const
 {
-  float data_clk_arrival = data_clk_path_.arrival(sta);
+  Arrival data_clk_arrival = data_clk_path_.arrival(sta);
   float data_clk_time = data_clk_path_.clkEdge(sta)->time();
-  float data_clk_delay = data_clk_arrival - data_clk_time;
-  float tgt_clk_arrival = targetClkTime(sta)
+  Arrival data_clk_delay = data_clk_arrival - data_clk_time;
+  Arrival tgt_clk_arrival = targetClkTime(sta)
     + data_clk_delay
     + targetClkUncertainty(sta)
     + targetClkMcpAdjustment(sta);
 
-  float check_margin = margin(sta);
+  ArcDelay check_margin = margin(sta);
   if (checkGenericRole(sta) == TimingRole::setup())
     return tgt_clk_arrival - check_margin;
   else
@@ -1773,14 +1794,14 @@ PathEndPathDelay::sourceClkOffset(const StaState *sta) const
 float
 PathEnd::pathDelaySrcClkOffset(const PathRef &path,
 			       PathDelay *path_delay,
-			       float src_clk_arrival,
+			       Arrival src_clk_arrival,
 			       const StaState *sta)
 {
   float offset = 0.0;
   ClockEdge *clk_edge = path.clkEdge(sta);
   if (clk_edge) {
     if (path_delay->ignoreClkLatency())
-      offset = -src_clk_arrival;
+      offset = -delayAsFloat(src_clk_arrival);
     else
       // Arrival includes src clock edge time that is not counted in the
       // path delay.

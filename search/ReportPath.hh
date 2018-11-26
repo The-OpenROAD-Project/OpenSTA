@@ -307,9 +307,10 @@ protected:
 			    string &result);
   void reportClkSrcLatency(Arrival insertion,
 			   float clk_time,
+			   const EarlyLate *early_late,
 			   string &result);
   void reportPathLine(const Path *path,
-		      Arrival incr,
+		      Delay incr,
 		      Arrival time,
 		      const char *line_case,
 		      string &result);
@@ -385,27 +386,37 @@ protected:
 				string &result);
   void reportLine(const char *what,
 		  Delay total,
+		  const EarlyLate *early_late,
 		  string &result);
   void reportLineNegative(const char *what,
 			  Delay total,
+			  const EarlyLate *early_late,
 			  string &result);
   void reportLine(const char *what,
 		  Delay total,
+		  const EarlyLate *early_late,
 		  const TransRiseFall *tr,
 		  string &result);
   void reportLine(const char *what,
-		  Delay incr,
-		  Delay total,
+		  float incr,
+		  float total,
 		  string &result);
   void reportLine(const char *what,
 		  Delay incr,
 		  Delay total,
+		  const EarlyLate *early_late,
+		  string &result);
+  void reportLine(const char *what,
+		  Delay incr,
+		  Delay total,
+		  const EarlyLate *early_late,
 		  const TransRiseFall *tr,
 		  string &result);
   void reportLine(const char *what,
 		  Slew slew,
 		  Delay incr,
 		  Delay total,
+		  const EarlyLate *early_late,
 		  string &result);
   void reportLine(const char *what,
 		  float cap,
@@ -414,28 +425,45 @@ protected:
 		  Delay incr,
 		  Delay total,
 		  bool total_with_minus,
+		  const EarlyLate *early_late,
 		  const TransRiseFall *tr,
 		  const char *line_case,
 		  string &result);
   void reportLineTotal(const char *what,
 		       Delay incr,
+		       const EarlyLate *early_late,
 		       string &result);
   void reportLineTotalMinus(const char *what,
 			    Delay decr,
+			    const EarlyLate *early_late,
 			    string &result);
   void reportLineTotal1(const char *what,
 			Delay incr,
 			bool incr_with_minus,
+			const EarlyLate *early_late,
 			string &result);
   void reportDashLineTotal(string &result);
   void reportDescription(const char *what,
 			 string &result);
-  void reportSpaceFieldTime(Delay value,
-			    string &result);
-  void reportFieldTime(Delay value,
+  void reportFieldTime(float value,
+		       ReportField *field,
 		       string &result);
-  void reportFieldTimeMinus(Delay value,
+  void reportSpaceFieldTime(float value,
 			    string &result);
+  void reportSpaceFieldDelay(Delay value,
+			     const EarlyLate *early_late,
+			     string &result);
+  void reportFieldDelayMinus(Delay value,
+			     const EarlyLate *early_late,
+			     ReportField *field,
+			     string &result);
+  void reportTotalDelay(Delay value,
+			const EarlyLate *early_late,
+			string &result);
+  void reportFieldDelay(Delay value,
+			const EarlyLate *early_late,
+			ReportField *field,
+			string &result);
   void reportField(float value,
 		   ReportField *field,
 		   string &result);
@@ -520,8 +548,8 @@ protected:
   const char *plus_zero_;
   const char *minus_zero_;
 
-  static const Delay field_blank_;
-  static const Delay field_skip_;
+  static const float field_blank_;
+  static const float field_skip_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(ReportPath);

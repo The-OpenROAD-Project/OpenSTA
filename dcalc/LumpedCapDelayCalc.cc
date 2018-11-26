@@ -122,6 +122,19 @@ LumpedCapDelayCalc::inputPortDelay(const Pin *, float in_slew,
   multi_drvr_slew_factor_ = 1.0F;
 }
 
+float
+LumpedCapDelayCalc::ceff(const LibertyCell *,
+			 TimingArc *,
+			 const Slew &,
+			 float load_cap,
+			 Parasitic *,
+			 float,
+			 const Pvt *,
+			 const DcalcAnalysisPt *)
+{
+  return load_cap;
+}
+
 void
 LumpedCapDelayCalc::gateDelay(const LibertyCell *drvr_cell,
 			      TimingArc *arc,
@@ -142,7 +155,8 @@ LumpedCapDelayCalc::gateDelay(const LibertyCell *drvr_cell,
 	      units()->capacitanceUnit()->asString(load_cap),
 	      units()->capacitanceUnit()->asString(related_out_cap));
   if (model) {
-    float gate_delay1, drvr_slew1;
+    ArcDelay gate_delay1;
+    Slew drvr_slew1;
     float in_slew1 = delayAsFloat(in_slew);
     model->gateDelay(drvr_cell, pvt, in_slew1, load_cap, related_out_cap,
 		     gate_delay1, drvr_slew1);
@@ -235,23 +249,25 @@ LumpedCapDelayCalc::reportGateDelay(const LibertyCell *drvr_cell,
   }
 }
 
-ArcDelay
+void
 LumpedCapDelayCalc::checkDelay(const LibertyCell *cell,
 			       TimingArc *arc,
 			       const Slew &from_slew,
 			       const Slew &to_slew,
 			       float related_out_cap,
 			       const Pvt *pvt,
-			       const DcalcAnalysisPt *dcalc_ap)
+			       const DcalcAnalysisPt *dcalc_ap,
+			       // Return values.
+			       ArcDelay &margin)
 {
   CheckTimingModel *model = checkModel(arc, dcalc_ap);
   if (model) {
     float from_slew1 = delayAsFloat(from_slew);
     float to_slew1 = delayAsFloat(to_slew);
-    return model->checkDelay(cell, pvt, from_slew1, to_slew1, related_out_cap);
+    model->checkDelay(cell, pvt, from_slew1, to_slew1, related_out_cap, margin);
   }
   else
-    return delay_zero;
+    margin = delay_zero;
 }
 
 void

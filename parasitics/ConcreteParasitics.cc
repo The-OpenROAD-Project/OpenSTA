@@ -697,8 +697,9 @@ ConcreteCouplingCapExtPin::replaceNode(ConcreteParasiticNode *from_node,
 
 ////////////////////////////////////////////////////////////////
 
-ConcreteParasiticNetwork::ConcreteParasiticNetwork() :
-  max_node_id_(0)
+ConcreteParasiticNetwork::ConcreteParasiticNetwork(bool includes_pin_caps) :
+  max_node_id_(0),
+  includes_pin_caps_(includes_pin_caps)
 {
 }
 
@@ -783,7 +784,7 @@ ConcreteParasiticNetwork::ensureParasiticNode(Net *net,
   if (node == NULL) {
     node = new ConcreteParasiticSubNode(net, id);
     sub_nodes_[new NetId(net, id)] = node;
-    max_node_id_ = max(max_node_id_, id);
+    max_node_id_ = max((int) max_node_id_, id);
   }
   return node;
 }
@@ -1653,6 +1654,7 @@ ConcreteParasitics::findParasiticNetwork(const Pin *pin,
 
 Parasitic *
 ConcreteParasitics::makeParasiticNetwork(Net *net,
+					 bool includes_pin_caps,
 					 const ParasiticAnalysisPt *ap)
 {
   int ap_index = parasiticNetworkAnalysisPtIndex(ap);
@@ -1674,7 +1676,7 @@ ConcreteParasitics::makeParasiticNetwork(Net *net,
   ConcreteParasiticNetwork *parasitic =
     (*parasitic_network_maps_)[ap_index]->findKey(net);
   if (parasitic == NULL) {
-    parasitic = new ConcreteParasiticNetwork;
+    parasitic = new ConcreteParasiticNetwork(includes_pin_caps);
     (*(*parasitic_network_maps_)[ap_index])[net] = parasitic;
   }
   lock_.unlock();
@@ -1696,6 +1698,14 @@ ConcreteParasitics::deleteParasiticNetwork(const Net *net,
     }
     lock_.unlock();
   }
+}
+
+bool
+ConcreteParasitics::includesPinCaps(Parasitic *parasitic) const
+{
+  ConcreteParasiticNetwork *cparasitic =
+    static_cast<ConcreteParasiticNetwork*>(parasitic);
+  return cparasitic->includesPinCaps();
 }
 
 ParasiticNode *
@@ -1970,7 +1980,8 @@ ConcreteParasitics::reduceToPiPoleResidue2(Parasitic *parasitic,
 					   const MinMax *cnst_min_max,
 					   const ParasiticAnalysisPt *ap)
 {
-  return sta::reduceToPiPoleResidue2(parasitic, drvr_pin,ap->couplingCapFactor(),
+  return sta::reduceToPiPoleResidue2(parasitic, drvr_pin,
+				     ap->couplingCapFactor(),
 				     tr, op_cond, corner, cnst_min_max,
 				     ap, this);
 }

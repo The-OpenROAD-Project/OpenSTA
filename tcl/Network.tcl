@@ -251,10 +251,11 @@ define_cmd_args "report_net" \
 proc_redirect report_net {
   global sta_report_default_digits
 
-  parse_key_args "report_net" args keys {-digits -significant_digits} \
+  parse_key_args "report_net" args keys {-corner -digits -significant_digits} \
     flags {-connections -verbose -hier_pins}
   check_argc_eq1 "report_net" $args
 
+  set corner [parse_corner keys]
   set digits $sta_report_default_digits
   if { [info exists keys(-digits)] } {
       set digits $keys(-digits)
@@ -269,13 +270,13 @@ proc_redirect report_net {
   set net_path [lindex $args 0]
   set net [find_net $net_path]
   if { $net != "NULL" } {
-    report_net1 $net $connections $verbose $hier_pins $digits
+    report_net1 $net $connections $verbose $hier_pins $corner $digits
   } else {
     set pin [find_pin $net_path]
     if { $pin != "NULL" } {
       set net [$pin net]
       if { $net != "NULL" } {
-	report_net1 $net $connections $verbose $hier_pins $digits
+	report_net1 $net $connections $verbose $hier_pins $corner $digits
       } else {
 	sta_error "net $net_path not found."
       }
@@ -287,27 +288,27 @@ proc_redirect report_net {
 
 proc report_net_ { net } {
   global sta_report_default_digits
-  report_net1 $net 1 1 1 $sta_report_default_digits
+  report_net1 $net 1 1 1 $corner $sta_report_default_digits
 }
 
-proc report_net1 { net connections verbose hier_pins digits } {
+proc report_net1 { net connections verbose hier_pins corner digits } {
   puts "Net [$net path_name]"
   if {$connections} {
     set pins [net_connected_pins_sorted $net]
     if {$verbose} {
-      report_net_caps $net $pins $digits
+      report_net_caps $net $pins $corner $digits
     }
     puts "Driver pins"
-    report_net_pins $pins "is_driver" $verbose $digits
+    report_net_pins $pins "is_driver" $verbose $corner $digits
     puts ""
     puts "Load pins"
-    report_net_pins $pins "is_load" $verbose $digits
+    report_net_pins $pins "is_load" $verbose $corner $digits
     if {$hier_pins} {
       puts ""
       puts "Hierarchical pins"
-      report_net_pins $pins "is_hierarchical" $verbose $digits
+      report_net_pins $pins "is_hierarchical" $verbose $corner $digits
     }
-    report_net_other_pins $pins $verbose $digits
+    report_net_other_pins $pins $verbose $corner $digits
   }
 }
 
@@ -323,8 +324,7 @@ proc net_connected_pins_sorted { net } {
   return $pins
 }
 
-proc report_net_caps { net pins digits } {
-  set corner [default_corner]
+proc report_net_caps { net pins corner digits } {
   report_net_cap $net "Pin" "pin_capacitance" $corner $digits
   report_net_cap $net "Wire" "wire_capacitance" $corner $digits
   report_net_cap $net "Total" "capacitance" $corner $digits
@@ -356,15 +356,15 @@ proc report_net_cap { net caption cap_msg corner digits } {
   puts " $caption capacitance: [capacitances_str $cap_r_min $cap_r_max $cap_f_min $cap_f_max $digits]"
 }
 
-proc report_net_pins { pins pin_pred verbose digits } {
+proc report_net_pins { pins pin_pred verbose corner digits } {
   foreach pin $pins {
     if {[$pin $pin_pred]} {
-      report_net_pin $pin $verbose $digits
+      report_net_pin $pin $verbose $corner $digits
     }
   }
 }
 
-proc report_net_other_pins { pins verbose digits } {
+proc report_net_other_pins { pins verbose corner digits } {
   set header 0
   foreach pin $pins {
     if { !([$pin is_driver] || [$pin is_load] || [$pin is_hierarchical]) } {
@@ -373,12 +373,12 @@ proc report_net_other_pins { pins verbose digits } {
 	puts "Other pins"
 	set header 1
       }
-      report_net_pin $pin $verbose $digits
+      report_net_pin $pin $verbose $corner $digits
     }
   }
 }
 
-proc report_net_pin { pin verbose digits } {
+proc report_net_pin { pin verbose corner digits } {
   if [$pin is_leaf] {
     set cell_name [[[$pin instance] cell] name]
     puts -nonewline " [$pin path_name] [$pin direction] ($cell_name)"

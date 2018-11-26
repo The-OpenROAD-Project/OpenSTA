@@ -403,9 +403,10 @@ class ConcreteParasiticNetwork : public ParasiticNetwork,
 				 public ConcreteParasitic
 {
 public:
-  ConcreteParasiticNetwork();
+  ConcreteParasiticNetwork(bool includes_pin_caps);
   virtual ~ConcreteParasiticNetwork();
   virtual bool isParasiticNetwork() const { return true; }
+  bool includesPinCaps() const { return includes_pin_caps_; }
   ConcreteParasiticNode *ensureParasiticNode(Net *net,
 					     int id);
   ConcreteParasiticNode *findNode(const Pin *pin);
@@ -422,7 +423,8 @@ private:
 
   ConcreteParasiticSubNodeMap sub_nodes_;
   ConcreteParasiticPinNodeMap pin_nodes_;
-  int max_node_id_;
+  unsigned max_node_id_:31;
+  bool includes_pin_caps_:1;
 };
 
 } // namespace

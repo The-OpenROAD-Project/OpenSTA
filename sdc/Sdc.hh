@@ -582,10 +582,12 @@ public:
 		     const Corner *corner,
 		     const MinMax *min_max,
 		     float cap);
+  bool hasNetWireCap(Net *net) const;
   // True if driver pin net has wire capacitance.
   bool drvrPinHasWireCap(const Pin *pin);
   // Net wire capacitance (set_load -wire net).
   void drvrPinWireCap(const Pin *drvr_pin,
+		      const Corner *corner,
 		      const MinMax *min_max,
 		      // Return values.
 		      float &cap,
@@ -907,6 +909,7 @@ public:
   PinOutputDelayIterator *outputDelayVertexIterator(const Pin *vertex_pin)const;
   bool hasOutputDelay(const Pin *vertex_pin) const;
   PortExtCap *portExtCap(Port *port) const;
+  bool hasPortExtCap(Port *port) const;
   void portExtCap(Port *port,
 		  const TransRiseFall *tr,
 		  const MinMax *min_max,
@@ -1333,9 +1336,15 @@ protected:
   PinCapLimitMap pin_cap_limit_map_;
   PortFanoutLimitMap port_fanout_limit_map_;
   CellFanoutLimitMap cell_fanout_limit_map_;
-  // External parasitics on top level ports (from set_load).
-  PortExtCapMap port_cap_map_;
+  // External parasitics on top level ports.
+  //  set_load port
+  //  set_fanout_load port
+  // Indexed by corner_index.
+  PortExtCapMap *port_cap_map_;
+  // set_load net
+  // Indexed by corner_index.
   NetWireCapMap *net_wire_cap_map_;
+  // Indexed by corner_index.
   PinWireCapMap *drvr_pin_wire_cap_map_;
   NetResistanceMap net_res_map_;
   PinSet disabled_pins_;

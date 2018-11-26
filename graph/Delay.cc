@@ -14,26 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_DELAY_FLOAT_H
-#define STA_DELAY_FLOAT_H
-
-#include "MinMax.hh"
-
-// Delay values defined as floats.
+#include "Machine.hh"
+#include "StringUtil.hh"
+#include "Units.hh"
+#include "StaState.hh"
+#include "Delay.hh"
 
 namespace sta {
 
-typedef float Delay;
-
-const Delay delay_zero = 0.0;
-
-inline Delay
-makeDelay(float delay,
-	  float,
-	  float)
+const char *
+delayAsString(const Delay &delay,
+	      const Units *units)
 {
-  return delay;
+  return delayAsString(delay, units, units->timeUnit()->digits());
+}
+
+const char *
+delayAsString(const Delay &delay,
+	      const StaState *sta)
+{
+  return delayAsString(delay, sta->units(), sta->units()->timeUnit()->digits());
 }
 
 } // namespace
-#endif

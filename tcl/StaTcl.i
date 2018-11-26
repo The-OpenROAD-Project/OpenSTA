@@ -49,8 +49,6 @@
 #include "Transition.hh"
 #include "TimingRole.hh"
 #include "TimingArc.hh"
-#include "InternalPower.hh"
-#include "LeakagePower.hh"
 #include "EquivCells.hh"
 #include "Liberty.hh"
 #include "Network.hh"
@@ -77,6 +75,7 @@
 #include "SearchPred.hh"
 #include "PathAnalysisPt.hh"
 #include "ReportPath.hh"
+#include "Power.hh"
 #include "Sta.hh"
 
 namespace sta {
@@ -693,7 +692,10 @@ edgeDelayProperty(Edge *edge,
 	DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
 	ArcDelay arc_delay = sta->arcDelay(edge, arc, dcalc_ap);
 	if (!delay_exists
-	    || min_max->compare(arc_delay, delay))
+	    || ((min_max == MinMax::max()
+		 && arc_delay > delay)
+		|| (min_max == MinMax::min()
+		    && arc_delay < delay)))
 	  delay = arc_delay;
       }
     }
@@ -820,6 +822,16 @@ findEndpoints()
   VertexPinCollector visitor(pins);
   Sta::sta()->visitEndpoints(&visitor);
   return pins;
+}
+
+void
+pushPowerResultFloats(PowerResult &power,
+		      TmpFloatSeq *floats)
+{
+  floats->push_back(power.internal());
+  floats->push_back(power.switching());
+  floats->push_back(power.leakage());
+  floats->push_back(power.total());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1510,11 +1522,11 @@ using namespace sta;
 %typemap(in) EarlyLate* {
   int length;
   char *arg = Tcl_GetStringFromObj($input, &length);
-  MinMax *min_max = MinMax::find(arg);
-  if (min_max)
-    $1 = min_max;
+  EarlyLate *early_late = EarlyLate::find(arg);
+  if (early_late)
+    $1 = early_late;
   else {
-    tclError(interp, "Error: %s not min or max.", arg);
+    tclError(interp, "Error: %s not early/min or late/max.", arg);
     return TCL_ERROR;
   }
 }
@@ -1523,11 +1535,11 @@ using namespace sta;
 %typemap(in) EarlyLateAll* {
   int length;
   char *arg = Tcl_GetStringFromObj($input, &length);
-  MinMaxAll *min_max = MinMaxAll::find(arg);
-  if (min_max)
-    $1 = min_max;
+  EarlyLateAll *early_late = EarlyLateAll::find(arg);
+  if (early_late)
+    $1 = early_late;
   else {
-    tclError(interp, "Error: %s not min, max or min_max.", arg);
+    tclError(interp, "Error: %s not early/min, late/max or early_late/min_max.", arg);
     return TCL_ERROR;
   }
 }
@@ -1731,26 +1743,6 @@ using namespace sta;
 }
 
 %typemap(out) TimingArcSetArcIterator* {
-  Tcl_Obj *obj=SWIG_NewInstanceObj($1, $1_descriptor, false);
-  Tcl_SetObjResult(interp, obj);
-}
-
-%typemap(out) InternalPower* {
-  Tcl_Obj *obj=SWIG_NewInstanceObj($1, $1_descriptor, false);
-  Tcl_SetObjResult(interp, obj);
-}
-
-%typemap(out) LibertyCellInternalPowerIterator* {
-  Tcl_Obj *obj=SWIG_NewInstanceObj($1, $1_descriptor, false);
-  Tcl_SetObjResult(interp, obj);
-}
-
-%typemap(out) LeakagePower* {
-  Tcl_Obj *obj=SWIG_NewInstanceObj($1, $1_descriptor, false);
-  Tcl_SetObjResult(interp, obj);
-}
-
-%typemap(out) LibertyCellLeakagePowerIterator* {
   Tcl_Obj *obj=SWIG_NewInstanceObj($1, $1_descriptor, false);
   Tcl_SetObjResult(interp, obj);
 }
@@ -2007,34 +1999,6 @@ class CellTimingArcSetIterator
 private:
   CellTimingArcSetIterator();
   ~CellTimingArcSetIterator();
-};
-
-class InternalPower
-{
-private:
-  InternalPower();
-  ~InternalPower();
-};
-
-class LibertyCellInternalPowerIterator
-{
-private:
-  LibertyCellInternalPowerIterator();
-  ~LibertyCellInternalPowerIterator();
-};
-
-class LeakagePower
-{
-private:
-  LeakagePower();
-  ~LeakagePower();
-};
-
-class LibertyCellLeakagePowerIterator
-{
-private:
-  LibertyCellLeakagePowerIterator();
-  ~LibertyCellLeakagePowerIterator();
 };
 
 class TimingArcSetArcIterator
@@ -4814,6 +4778,50 @@ report_slew_limit_verbose(Pin *pin,
   Sta::sta()->reportSlewLimitVerbose(pin, corner, min_max);
 }
 
+////////////////////////////////////////////////////////////////
+
+TmpFloatSeq *
+design_power(const Corner *corner)
+{
+  PowerResult total, sequential, combinational, macro, pad;
+  Sta::sta()->power(corner, total, sequential, combinational, macro, pad);
+  FloatSeq *floats = new FloatSeq;
+  pushPowerResultFloats(total, floats);
+  pushPowerResultFloats(sequential, floats);
+  pushPowerResultFloats(combinational, floats);
+  pushPowerResultFloats(macro, floats);
+  pushPowerResultFloats(pad, floats);
+  return floats;
+}
+
+TmpFloatSeq *
+instance_power(Instance *inst,
+	       const Corner *corner)
+{
+  PowerResult power;
+  Sta::sta()->power(inst, corner, power);
+  FloatSeq *floats = new FloatSeq;
+  floats->push_back(power.switching());
+  floats->push_back(power.internal());
+  floats->push_back(power.leakage());
+  floats->push_back(power.total());
+  return floats;
+}
+
+float
+power_default_signal_toggle_rate()
+{
+  return Sta::sta()->power()->defaultSignalToggleRate();
+}
+
+void
+set_power_default_signal_toggle_rate(float rate)
+{
+  return Sta::sta()->power()->setDefaultSignalToggleRate(rate);
+}
+
+////////////////////////////////////////////////////////////////
+
 EdgeSeq *
 disabled_edges_sorted()
 {
@@ -5339,6 +5347,7 @@ find_cells_matching(const char *pattern,
 %extend LibertyLibrary {
 
 const char *name() { return self->name(); }
+const char *filename() { return self->filename(); }
 const char *object_name() { return self->name(); }
 
 LibertyCell *
@@ -5455,12 +5464,6 @@ liberty_port_iterator() { return self->libertyPortIterator(); }
 
 CellTimingArcSetIterator *
 timing_arc_set_iterator() { return self->timingArcSetIterator(); }
-
-LibertyCellInternalPowerIterator *
-internal_power_iterator() { return self->internalPowerIterator(); }
-
-LibertyCellLeakagePowerIterator *
-leakage_power_iterator() { return self->leakagePowerIterator(); }
 
 } // LibertyCell methods
 
@@ -5591,61 +5594,6 @@ TimingRole *role() { return self->role(); }
 %extend TimingArcSetArcIterator {
 bool has_next() { return self->hasNext(); }
 TimingArc *next() { return self->next(); }
-void finish() { delete self; }
-}
-
-%extend InternalPower {
-LibertyPort *port() { return self->port(); }
-LibertyPort *related_port() { return self->relatedPort(); }
-
-const char *
-when()
-{
-  FuncExpr *when = self->when();
-  if (when)
-    return when->asString();
-  else
-    return "";
-}
-
-float
-power(TransRiseFall *tr,
-      float in_slew,
-      float load_cap)
-{
-  Sta *sta = Sta::sta();
-  Corner *corner = sta->corners()->defaultCorner();
-  DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(MinMax::max());
-  const Pvt *pvt = dcalc_ap->operatingConditions();
-  return self->power(tr, pvt, in_slew, load_cap);
-}
-
-} // InternalPower methods
-
-%extend LibertyCellInternalPowerIterator {
-bool has_next() { return self->hasNext(); }
-InternalPower *next() { return self->next(); }
-void finish() { delete self; }
-}
-
-%extend LeakagePower {
-float power() { return self->power(); }
-
-const char *
-when()
-{
-  FuncExpr *when = self->when();
-  if (when)
-    return when->asString();
-  else
-    return "";
-}
-
-} // LeakagePower methods
-
-%extend LibertyCellLeakagePowerIterator {
-bool has_next() { return self->hasNext(); }
-LeakagePower *next() { return self->next(); }
 void finish() { delete self; }
 }
 
@@ -5954,9 +5902,31 @@ arrivals_clk(const TransRiseFall *tr,
   PathAnalysisPtIterator ap_iter(sta);
   while (ap_iter.hasNext()) {
     PathAnalysisPt *path_ap = ap_iter.next();
-    floats->push_back(delayAsFloat(sta->vertexArrival(self, tr, clk_edge, path_ap)));
+    floats->push_back(delayAsFloat(sta->vertexArrival(self, tr, clk_edge,
+						      path_ap)));
   }
   return floats;
+}
+
+StringSeq *
+arrivals_clk_delays(const TransRiseFall *tr,
+		    Clock *clk,
+		    const TransRiseFall *clk_tr,
+		    int digits)
+{
+  Sta *sta = Sta::sta();
+  StringSeq *arrivals = new StringSeq;
+  const ClockEdge *clk_edge = NULL;
+  if (clk)
+    clk_edge = clk->edge(clk_tr);
+  PathAnalysisPtIterator ap_iter(sta);
+  while (ap_iter.hasNext()) {
+    PathAnalysisPt *path_ap = ap_iter.next();
+    arrivals->push_back(delayAsString(sta->vertexArrival(self, tr, clk_edge,
+							 path_ap),
+				      sta->units(), digits));
+  }
+  return arrivals;
 }
 
 TmpFloatSeq *
@@ -5972,9 +5942,31 @@ requireds_clk(const TransRiseFall *tr,
   PathAnalysisPtIterator ap_iter(sta);
   while (ap_iter.hasNext()) {
     PathAnalysisPt *path_ap = ap_iter.next();
-    floats->push_back(delayAsFloat(sta->vertexRequired(self,tr,clk_edge,path_ap)));
+    floats->push_back(delayAsFloat(sta->vertexRequired(self, tr, clk_edge,
+						       path_ap)));
   }
   return floats;
+}
+
+StringSeq *
+requireds_clk_delays(const TransRiseFall *tr,
+		     Clock *clk,
+		     const TransRiseFall *clk_tr,
+		     int digits)
+{
+  Sta *sta = Sta::sta();
+  StringSeq *requireds = new StringSeq;
+  const ClockEdge *clk_edge = NULL;
+  if (clk)
+    clk_edge = clk->edge(clk_tr);
+  PathAnalysisPtIterator ap_iter(sta);
+  while (ap_iter.hasNext()) {
+    PathAnalysisPt *path_ap = ap_iter.next();
+    requireds->push_back(delayAsString(sta->vertexRequired(self, tr, clk_edge,
+							   path_ap),
+				       sta->units(), digits));
+  }
+  return requireds;
 }
 
 TmpFloatSeq *
@@ -6004,9 +5996,31 @@ slacks_clk(const TransRiseFall *tr,
   PathAnalysisPtIterator ap_iter(sta);
   while (ap_iter.hasNext()) {
     PathAnalysisPt *path_ap = ap_iter.next();
-    floats->push_back(delayAsFloat(sta->vertexSlack(self, tr, clk_edge, path_ap)));
+    floats->push_back(delayAsFloat(sta->vertexSlack(self, tr, clk_edge,
+						    path_ap)));
   }
   return floats;
+}
+
+StringSeq *
+slacks_clk_delays(const TransRiseFall *tr,
+		  Clock *clk,
+		  const TransRiseFall *clk_tr,
+		  int digits)
+{
+  Sta *sta = Sta::sta();
+  StringSeq *slacks = new StringSeq;
+  const ClockEdge *clk_edge = NULL;
+  if (clk)
+    clk_edge = clk->edge(clk_tr);
+  PathAnalysisPtIterator ap_iter(sta);
+  while (ap_iter.hasNext()) {
+    PathAnalysisPt *path_ap = ap_iter.next();
+    slacks->push_back(delayAsString(sta->vertexSlack(self, tr, clk_edge,
+						     path_ap),
+				    sta->units(), digits));
+  }
+  return slacks;
 }
 
 VertexPathIterator *
@@ -6070,6 +6084,21 @@ arc_delays(TimingArc *arc)
   return floats;
 }
 
+StringSeq *
+arc_delay_strings(TimingArc *arc,
+		  int digits)
+{
+  Sta *sta = Sta::sta();
+  StringSeq *delays = new StringSeq;
+  DcalcAnalysisPtIterator ap_iter(sta);
+  while (ap_iter.hasNext()) {
+    DcalcAnalysisPt *dcalc_ap = ap_iter.next();
+    delays->push_back(delayAsString(sta->arcDelay(self, arc, dcalc_ap),
+				    sta->units(), digits));
+  }
+  return delays;
+}
+
 bool
 delay_annotated(TimingArc *arc,
 		const Corner *corner,
@@ -6085,7 +6114,7 @@ arc_delay(TimingArc *arc,
 	  const MinMax *min_max)
 {
   DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
-  return Sta::sta()->arcDelay(self, arc, dcalc_ap);
+  return delayAsFloat(Sta::sta()->arcDelay(self, arc, dcalc_ap));
 }
 
 const char *

@@ -33,46 +33,5 @@ proc read_liberty { args } {
   read_liberty_cmd $filename $corner $min_max $infer_latches
 }
 
-################################################################
-
-define_hidden_cmd_args "report_lib_cell_power" {lib_cell}
-
-proc report_lib_cell_power { args } {
-  global sta_report_default_digits
-
-  check_argc_eq3 "report_internal_power" $args
-  set cells [get_lib_cells [lindex $args 0]]
-  set slew [time_ui_sta [lindex $args 1]]
-  set cap [capacitance_ui_sta [lindex $args 2]]
-
-  foreach cell $cells {
-    puts "[$cell name] Leakage Power"
-    set leakage_iter [$cell leakage_power_iterator]
-    while {[$leakage_iter has_next]} {
-      set leakage [$leakage_iter next]
-      puts "[format_power [$leakage power] 5] [$leakage when]"
-    }
-    $leakage_iter finish
-
-    puts "[$cell name] Internal Power"
-    set internal_iter [$cell internal_power_iterator]
-    while {[$internal_iter has_next]} {
-      set internal [$internal_iter next]
-      set port_name [[$internal port] name]
-      set related_port [$internal related_port]
-      if { $related_port != "NULL" } {
-	set related_port_name [$related_port name]
-      } else {
-	set related_port_name ""
-      }
-      set digits $sta_report_default_digits
-      set rise [format_power [$internal power rise $slew $cap] $digits]
-      set fall [format_power [$internal power fall $slew $cap] $digits]
-      puts "$port_name $related_port_name [rise_short_name] $rise [fall_short_name] $fall [$internal when]"
-    }
-    $internal_iter finish
-  }
-}
-
 # sta namespace end
 }

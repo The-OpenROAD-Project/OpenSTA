@@ -55,6 +55,8 @@ class SearchPred;
 class Corner;
 class ClkSkews;
 class ReportField;
+class Power;
+class PowerResult;
 
 typedef InstanceSeq::Iterator SlowDrvrIterator;
 typedef Vector<const char*> CheckError;
@@ -669,6 +671,7 @@ public:
   void reportCheck(MaxSkewCheck *check,
 		   bool verbose);
 
+  
   ////////////////////////////////////////////////////////////////
   // User visible but non SDC commands.
 
@@ -974,9 +977,11 @@ public:
   Slack vertexSlack(Vertex *vertex,
 		    const TransRiseFall *tr,
 		    const PathAnalysisPt *path_ap);
+  // Slew for one delay calc analysis pt(corner).
   Slew vertexSlew(Vertex *vertex,
 		  const TransRiseFall *tr,
 		  const DcalcAnalysisPt *dcalc_ap);
+  // Slew across all corners.
   Slew vertexSlew(Vertex *vertex,
 		  const TransRiseFall *tr,
 		  const MinMax *min_max);
@@ -1021,6 +1026,7 @@ public:
 		      Instance *instance,
 		      const MinMaxAll *min_max,
 		      bool increment,
+		      bool pin_cap_included,
 		      bool keep_coupling_caps,
 		      float coupling_cap_factor,
 		      ReduceParasiticsTo reduce_to,
@@ -1143,6 +1149,21 @@ public:
 				    Vertex *vertex,
 				    LibertyCell *to_cell);
 
+  // Power API.
+  Power *power() { return power_; }
+  const Power *power() const { return power_; }
+  void power(const Corner *corner,
+	     // Return values.
+	     PowerResult &total,
+	     PowerResult &sequential,
+  	     PowerResult &combinational,
+	     PowerResult &macro,
+	     PowerResult &pad);
+  void power(const Instance *inst,
+	     const Corner *corner,
+	     // Return values.
+	     PowerResult &result);
+
 protected:
   // Default constructors that are called by makeComponents in the Sta
   // constructor.  These can be redefined by a derived class to
@@ -1168,6 +1189,7 @@ protected:
   virtual void makeCheckMinPeriods();
   virtual void makeCheckMaxSkews();
   virtual void makeReportPath();
+  virtual void makePower();
   virtual void makeObservers();
   NetworkEdit *networkCmdEdit();
 
@@ -1254,6 +1276,7 @@ protected:
 			Corner *corner,
 			const MinMax *min_max);
   void parasiticsChangedAfter();
+  void powerPreamble();
 
   CmdNamespace cmd_namespace_;
   Instance *current_instance_;
@@ -1264,6 +1287,7 @@ protected:
   CheckMaxSkews *check_max_skews_;
   ClkSkews *clk_skews_;
   ReportPath *report_path_;
+  Power *power_;
   Tcl_Interp *tcl_interp_;
   bool link_make_black_boxes_;
   bool update_genclks_;

@@ -76,6 +76,12 @@ Unit::setDigits(int digits)
   digits_ = digits;
 }
 
+int
+Unit::width() const
+{
+  return digits_ + (suffix_ ? strlen(suffix_) : 0) + 2;
+}
+
 const char *
 Unit::asString(float value) const
 {

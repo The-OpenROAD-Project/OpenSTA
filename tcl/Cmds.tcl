@@ -1246,6 +1246,22 @@ proc parse_corner { keys_var } {
   }
 }
 
+proc parse_corner_or_default { keys_var } {
+  upvar 1 $keys_var keys
+
+  if { [info exists keys(-corner)] } {
+    set corner_name $keys(-corner)
+    set corner [find_corner $corner_name]
+    if { $corner == "NULL" } {
+      sta_error "$corner_name is not the name of process corner."
+    } else {
+      return $corner
+    }
+  } else {
+    return [default_corner]
+  }
+}
+
 proc parse_corner_or_all { keys_var } {
   upvar 1 $keys_var keys
 

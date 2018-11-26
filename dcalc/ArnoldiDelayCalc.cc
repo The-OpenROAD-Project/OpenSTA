@@ -418,7 +418,7 @@ ArnoldiDelayCalc::gateDelaySlew(const LibertyCell *drvr_cell,
       tab.table = table_model;
       tab.cell = drvr_cell;
       tab.pvt = pvt;
-      tab.in_slew = in_slew;
+      tab.in_slew = delayAsFloat(in_slew);
       tab.relcap = related_out_cap;
       ar1_ceff_delay(delay_work_, &tab, rcmodel_,
 		     _delayV, _slewV);
@@ -1303,12 +1303,14 @@ ArnoldiDelayCalc::ra_get_r(delay_work *D,
   delay_c *c = D->c;
   double slew_derate = c->slew_derate;
   double c_log = c->vlg;
-  float  c1,d1,s1;
+  float  c1;
   double tlohi,r;
   c1 = ctot;
+  ArcDelay d1;
+  Slew s1;
   tab->table->gateDelay(tab->cell, tab->pvt, tab->in_slew,
                         c1, tab->relcap, d1, s1);
-  tlohi = slew_derate*s1;
+  tlohi = slew_derate*delayAsFloat(s1);
   r = tlohi/(c_log*c1);
   if (rdelay>0.0 && r > rdelay)
     r = rdelay;
@@ -1327,10 +1329,11 @@ ArnoldiDelayCalc::ra_get_s(delay_work *D,
   double c_log = con->vlg;
   double c_smin = con->smin;
   double tlohi,smin,s;
-  float d1,s1;
+  ArcDelay d1;
+  Slew s1;
   tab->table->gateDelay(tab->cell, tab->pvt, tab->in_slew,
                         c, tab->relcap, d1, s1);
-  tlohi = slew_derate*s1;
+  tlohi = slew_derate*delayAsFloat(s1);
   smin = r*c*c_smin; // c_smin = ra_hinv((1-vhi)/vhi-log(vhi)) + log(vhi);
   if (c_log*r*c >= tlohi) {
     // printf("hit smin\n");
@@ -1360,13 +1363,13 @@ ArnoldiDelayCalc::ra_rdelay_1(timing_table *tab,
   float c2 = 0.5*c1;
   if (c1==c2)
     return 0.0;
-  float d1, s1;
+  ArcDelay d1, d2;
+  Slew s1, s2;
   tab->table->gateDelay(tab->cell, tab->pvt, tab->in_slew,
                         c1, tab->relcap, d1, s1);
-  float d2, s2;
   tab->table->gateDelay(tab->cell, tab->pvt, tab->in_slew,
                         c2, tab->relcap, d2, s2);
-  double dt50 = d1-d2;
+  double dt50 = delayAsFloat(d1)-delayAsFloat(d2);
   if (dt50 <= 0.0)
     return 0.0;
   double rdelay = dt50/(c1-c2);
@@ -1386,7 +1389,8 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
   double vlo = con->vlo;
   double ctot = mod->ctot;
   double ceff,tlohi,t50_sy,r,s,t50_sr,rdelay;
-  float  df,sf;
+  ArcDelay df;
+  Slew sf;
 
   debugPrint1(debug_, "arnoldi", 1, "\nctot=%s\n",
 	      units_->capacitanceUnit()->asString(ctot));
@@ -1422,8 +1426,8 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
 		"table slew (in_slew %s ctot %s) = %s\n",
 		units_->timeUnit()->asString(tab->in_slew),
 		units_->capacitanceUnit()->asString(ctot),
-		units_->timeUnit()->asString(sf));
-    tlohi = slew_derate*sf;
+		delayAsString(sf, units_));
+    tlohi = slew_derate*delayAsFloat(sf);
     debugPrint2(debug_, "arnoldi", 1, "tlohi %s %s\n",
 		units_->timeUnit()->asString(tlohi),
 		units_->timeUnit()->asString(tlox-thix));
@@ -1431,7 +1435,7 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
   ceff = ctot;
   tab->table->gateDelay(tab->cell, tab->pvt, tab->in_slew,
                         ceff, tab->relcap, df, sf);
-  t50_sy = df;
+  t50_sy = delayAsFloat(df);
   t50_sr = ra_solve_for_t(1.0/(r*ceff),s,0.5);
 
   // calculate s,r,mod -> t50_srmod,
@@ -1473,7 +1477,7 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
 
   tab->table->gateDelay(tab->cell, tab->pvt, tab->in_slew, ceff,
 			tab->relcap, df, sf);
-  t50_sy = df;
+  t50_sy = delayAsFloat(df);
   t50_sr = ra_solve_for_t(1.0/(r*ceff),s,0.5);
   for (j=0;j<mod->n;j++) {
     rr = delay_work_get_residues(D,j);

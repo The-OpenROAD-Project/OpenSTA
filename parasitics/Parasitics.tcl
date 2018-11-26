@@ -17,16 +17,26 @@
 namespace eval sta {
 
 define_cmd_args "read_parasitics" \
-  {[-min] [-max] [-elmore] [-path path] [-increment]\
-     [-keep_capacitive_coupling] [-coupling_reduction_factor factor]\
-     [-reduce_to pi_elmore|pi_pole_residue2] [-delete_after_reduce]\
-     [-quiet] [-save] filenames}
+  {[-min]\
+     [-max]\
+     [-elmore]\
+     [-path path]\
+     [-increment]\
+     [-pin_cap_included]\
+     [-keep_capacitive_coupling]\
+     [-coupling_reduction_factor factor]\
+     [-reduce_to pi_elmore|pi_pole_residue2]\
+     [-delete_after_reduce]\
+     [-quiet]\
+     [-save]\
+     filename}
 
 proc_redirect read_parasitics {
   # The -elmore flag is required by dc.
   parse_key_args "read_parasitics" args \
     keys {-path -coupling_reduction_factor -reduce_to} \
-    flags {-min -max -elmore -increment -keep_capacitive_coupling \
+    flags {-min -max -elmore -increment -pin_cap_included \
+	     -keep_capacitive_coupling \
 	     -delete_after_reduce -quiet -save}
   check_argc_eq1 "report_parasitics" $args
 
@@ -46,6 +56,8 @@ proc_redirect read_parasitics {
     check_positive_float "-coupling_reduction_factor" $coupling_reduction_factor
   }
   set keep_coupling_caps [info exists flags(-keep_capacitive_coupling)]
+  set pin_cap_included [info exists flags(-pin_cap_included)]
+
   set reduce_to "none"
   if [info exists keys(-reduce_to)] {
     set reduce_to $keys(-reduce_to)
@@ -56,17 +68,11 @@ proc_redirect read_parasitics {
   set delete_after_reduce [info exists flags(-delete_after_reduce)]
   set quiet [info exists flags(-quiet)]
   set save [info exists flags(-save)]
-  set filenames $args
-  set success 1
-  foreach filename $filenames {
-    if { ![read_parasitics_cmd $filename $instance $min_max $increment \
-	     $keep_coupling_caps $coupling_reduction_factor \
-	     $reduce_to $delete_after_reduce \
-	     $save $quiet] } {
-      set success 0
-    }
-  }
-  return $success
+  set filename $args
+  return [read_parasitics_cmd $filename $instance $min_max $increment \
+	    $pin_cap_included $keep_coupling_caps $coupling_reduction_factor \
+	    $reduce_to $delete_after_reduce \
+	    $save $quiet]
 }
 
 # set_pi_model [-min] [-max] drvr_pin c2 rpi c1

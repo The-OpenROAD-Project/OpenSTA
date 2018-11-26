@@ -30,15 +30,19 @@ class InternalPowerAttrs
 {
 public:
   InternalPowerAttrs();
+  ~InternalPowerAttrs();
   FuncExpr *when() const { return when_; }
   FuncExpr *&whenRef() { return when_; }
   void setModel(TransRiseFall *tr,
 		InternalPowerModel *model);
   InternalPowerModel *model(TransRiseFall *tr) const;
+  const char *relatedPgPin() const { return related_pg_pin_; }
+  void setRelatedPgPin(const char *related_pg_pin);
 
 protected:
   FuncExpr *when_;
   InternalPowerModel *models_[TransRiseFall::index_count];
+  const  char *related_pg_pin_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(InternalPowerAttrs);
@@ -56,6 +60,7 @@ public:
   LibertyPort *port() const { return port_; }
   LibertyPort *relatedPort() const { return related_port_; }
   FuncExpr *when() const { return when_; }
+  const char *relatedPgPin() const { return related_pg_pin_; }
   float power(TransRiseFall *tr,
 	      const Pvt *pvt,
 	      float in_slew,
@@ -65,6 +70,7 @@ protected:
   LibertyPort *port_;
   LibertyPort *related_port_;
   FuncExpr *when_;
+  const  char *related_pg_pin_;
   InternalPowerModel *models_[TransRiseFall::index_count];
 
 private:

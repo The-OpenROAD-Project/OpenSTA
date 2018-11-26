@@ -68,6 +68,11 @@ public:
   virtual void copyState(const StaState *sta);
   // Reset to virgin state.
   void clear();
+  // When enabled, non-critical path arrivals are pruned to improve
+  // run time and reduce memory. The side-effect is that slacks for
+  // non-critical paths on intermediate pins may be incorrect.
+  bool crprPathPruningEnabled() const;
+  void setCrprpathPruningEnabled(bool enabled);
   // Report unconstrained paths.
   bool reportUnconstrainedPaths() const { return report_unconstrained_paths_; }
   void setReportUnconstrainedPaths(bool report);
@@ -132,7 +137,7 @@ public:
 			 const MinMax *min_max,
 			 const PathAnalysisPt *path_ap) const;
   // Clock arrival at the path source/launch point.
-  float pathClkPathArrival(const Path *path) const;
+  Arrival pathClkPathArrival(const Path *path) const;
 
   PathGroup *pathGroup(const PathEnd *path_end) const;
   void deletePathGroups();
@@ -571,6 +576,7 @@ protected:
   VisitPathEnds *visit_path_ends_;
   GatedClk *gated_clk_;
   Crpr *crpr_;
+  bool crpr_path_pruning_enabled_;
   Genclks *genclks_;
 };
 

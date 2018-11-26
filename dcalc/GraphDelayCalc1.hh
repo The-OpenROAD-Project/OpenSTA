@@ -51,6 +51,10 @@ public:
   virtual float incrementalDelayTolerance();
   virtual void setIncrementalDelayTolerance(float tol);
   virtual void setObserver(DelayCalcObserver *observer);
+  // Load pin_cap + wire_cap.
+  virtual float loadCap(const Pin *drvr_pin,
+			const TransRiseFall *drvr_tr,
+			const DcalcAnalysisPt *dcalc_ap) const;
   virtual void loadCap(const Pin *drvr_pin,
 		       Parasitic *drvr_parasitic,
 		       const TransRiseFall *tr,
@@ -70,6 +74,9 @@ public:
 		       float &wire_cap,
 		       float &fanout,
 		       bool &has_set_load) const;
+  float ceff(Edge *edge,
+	     TimingArc *arc,
+	     const DcalcAnalysisPt *dcalc_ap);
 
 protected:
   void seedInvalidDelays();

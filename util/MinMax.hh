@@ -24,9 +24,12 @@ namespace sta {
 
 class MinMax;
 class MinMaxAll;
+class MinMaxIterator;
 
+// Use typedefs to make early/late functional equivalents to min/max.
 typedef MinMax EarlyLate;
 typedef MinMaxAll EarlyLateAll;
+typedef MinMaxIterator EarlyLateIterator;
 
 // Large value used for min/max initial values.
 extern const float INF;
@@ -39,8 +42,12 @@ public:
   // Singleton accessors.
   static MinMax *min() { return min_; }
   static MinMax *max() { return max_; }
+  static EarlyLate *early() { return min_; }
+  static EarlyLate *late() { return max_; }
   static int minIndex() { return min_->index_; }
+  static int earlyIndex() { return min_->index_; }
   static int maxIndex() { return max_->index_; }
+  static int lateIndex() { return min_->index_; }
   const char *asString() const { return name_; }
   int index() const { return index_; }
   float initValue() const { return init_value_; }
@@ -98,7 +105,9 @@ public:
   static void destroy();
   // Singleton accessors.
   static MinMaxAll *min() { return min_; }
+  static MinMaxAll *early() { return min_; }
   static MinMaxAll *max() { return max_; }
+  static MinMaxAll *late() { return max_; }
   static MinMaxAll *all() { return all_; }
   const char *asString() const { return name_; }
   int index() const { return index_; }

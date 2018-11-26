@@ -2356,20 +2356,19 @@ proc set_input_transition { args } {
 ################################################################
 
 define_cmd_args "set_load" \
-  {[-rise] [-fall] [-max] [-min] [-corner corner] [-subtract_pin_load]\
+  {[-rise] [-fall] [-max] [-min] [-subtract_pin_load]\
      [-pin_load] [-wire_load] capacitance objects}
 
 proc set_load { args } {
-  parse_key_args "set_load" args keys {} \
-    flags {-rise -fall -min -max -corner -subtract_pin_load \
-	     -pin_load -wire_load}
+  parse_key_args "set_load" args keys {-corner} \
+    flags {-rise -fall -min -max -subtract_pin_load  -pin_load -wire_load}\
 
   check_argc_eq2 "set_load" $args
 
   set pin_load [info exists flags(-pin_load)]
   set wire_load [info exists flags(-wire_load)]
   set subtract_pin_load [info exists flags(-subtract_pin_load)]
-  set corner [parse_corner keys]
+  set corner [parse_corner_or_default keys]
   set min_max [parse_min_max_all_check_flags flags]
   set tr [parse_rise_fall_flags flags]
 

@@ -44,7 +44,7 @@ public:
 		     const PathVertex *disable_path,
 		     MultiCyclePath *mcp,
 		     PathDelay *path_delay,
-		     float src_clk_latency,
+		     Arrival src_clk_latency,
 		     const ArcDelay &margin,
 		     // Return values.
 		     Required &required,

@@ -75,6 +75,9 @@ public:
 		       const StaState *sta);
   Vertex *vertex(const StaState *sta) const;
   const MinMax *minMax(const StaState *sta) const;
+  // Synonym for minMax().
+  const EarlyLate *pathEarlyLate(const StaState *sta) const;
+  virtual const EarlyLate *clkEarlyLate(const StaState *sta) const;
   const TransRiseFall *transition(const StaState *sta) const;
   PathAnalysisPt *pathAnalysisPt(const StaState *sta) const;
   PathAPIndex pathIndex(const StaState *sta) const;
@@ -203,7 +206,7 @@ protected:
 				 const StaState *sta);
   static float pathDelaySrcClkOffset(const PathRef &path,
 				     PathDelay *path_delay,
-				     float src_clk_arrival,
+				     Arrival src_clk_arrival,
 				     const StaState *sta);
   PathRef path_;
 
@@ -236,6 +239,7 @@ private:
 class PathEndClkConstrained : public PathEnd
 {
 public:
+  virtual const EarlyLate *clkEarlyLate(const StaState *sta) const;
   virtual float sourceClkOffset(const StaState *sta) const;
   virtual Delay sourceClkLatency(const StaState *sta) const;
   virtual Delay sourceClkInsertionDelay(const StaState *sta) const;
@@ -414,7 +418,7 @@ private:
   PathVertex disable_path_;
   PathDelay *path_delay_;
   // Source clk arrival for set_max_delay -ignore_clk_latency.
-  float src_clk_arrival_;
+  Arrival src_clk_arrival_;
 
   DISALLOW_COPY_AND_ASSIGN(PathEndLatchCheck);
 };

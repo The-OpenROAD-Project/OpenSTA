@@ -45,7 +45,7 @@ Latches::latchRequired(const Path *data_path,
 		       const PathVertex *disable_path,
 		       MultiCyclePath *mcp,
 		       PathDelay *path_delay,
-		       float src_clk_latency,
+		       Arrival src_clk_latency,
 		       const ArcDelay &margin,
 		       // Return values.
 		       Required &required,
@@ -186,7 +186,8 @@ Latches::latchBorrowInfo(const Path *data_path,
   if (borrow_limit_exists)
     max_borrow = borrow_limit;
   else
-    max_borrow = nom_pulse_width - latency_diff - crpr_diff - margin;
+    max_borrow = nom_pulse_width - delayAsFloat(latency_diff)
+      - crpr_diff - delayAsFloat(margin);
 }
 
 void
@@ -211,7 +212,7 @@ Latches::latchRequired(const Path *data_path,
 					      false);
   MultiCyclePath *mcp = dynamic_cast<MultiCyclePath*>(excpt);
   PathDelay *path_delay = dynamic_cast<PathDelay*>(excpt);
-  float src_clk_latency = 0.0;
+  Arrival src_clk_latency = 0.0;
   if (path_delay && path_delay->ignoreClkLatency())
     src_clk_latency = search_->pathClkPathArrival(data_path);
   latchRequired(data_path, enable_path, disable_path, mcp,

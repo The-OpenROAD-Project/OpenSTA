@@ -28,10 +28,13 @@
 
 namespace sta {
 
-SpfSpefReader::SpfSpefReader(const char *filename, gzFile stream, int line,
+SpfSpefReader::SpfSpefReader(const char *filename,
+			     gzFile stream,
+			     int line,
 			     Instance *instance,
 			     ParasiticAnalysisPt *ap,
 			     bool increment,
+			     bool pin_cap_included,
 			     bool keep_coupling_caps,
 			     float coupling_cap_factor,
 			     ReduceParasiticsTo reduce_to,
@@ -47,6 +50,7 @@ SpfSpefReader::SpfSpefReader(const char *filename, gzFile stream, int line,
   instance_(instance),
   ap_(ap),
   increment_(increment),
+  pin_cap_included_(pin_cap_included),
   keep_coupling_caps_(keep_coupling_caps),
   reduce_to_(reduce_to),
   delete_after_reduce_(delete_after_reduce),

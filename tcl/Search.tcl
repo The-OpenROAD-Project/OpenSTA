@@ -25,7 +25,42 @@ namespace eval sta {
 define_cmd_args "report_arrival" {pin}
 
 proc report_arrival { pin } {
-  report_wrt_clks $pin "arrivals_clk"
+  report_delays_wrt_clks $pin "arrivals_clk_delays"
+}
+
+proc report_delays_wrt_clks { pin_arg what } {
+  set pin [get_port_pin_error "pin" $pin_arg]
+  foreach vertex [$pin vertices] {
+    if { $vertex != "NULL" } {
+      report_delays_wrt_clk $vertex $what "NULL" "rise"
+      report_delays_wrt_clk $vertex $what [default_arrival_clock] "rise"
+      set clk_iter [clock_iterator]
+      while {[$clk_iter has_next]} {
+	set clk [$clk_iter next]
+	report_delays_wrt_clk $vertex $what $clk "rise"
+	report_delays_wrt_clk $vertex $what $clk "fall"
+      }
+      $clk_iter finish
+    }
+  }
+}
+
+proc report_delays_wrt_clk { vertex what clk clk_tr } {
+  global sta_report_default_digits
+
+  set rise [$vertex $what rise $clk $clk_tr $sta_report_default_digits]
+  set fall [$vertex $what fall $clk $clk_tr $sta_report_default_digits]
+  # Filter INF/-INF arrivals.
+  if { !([delays_are_inf $rise] && [delays_are_inf $fall]) } {
+    set rise_fmt [format_delays $rise]
+    set fall_fmt [format_delays $fall]
+    if {$clk != "NULL"} {
+      set clk_str " ([$clk name] [rise_fall_short_name $clk_tr])"
+    } else {
+      set clk_str ""
+    }
+    puts "$clk_str r $rise_fmt f $fall_fmt"
+  }
 }
 
 proc report_wrt_clks { pin_arg what } {
@@ -76,6 +111,16 @@ proc rise_fall_short_name { tr } {
 proc times_are_inf { times } {
   foreach time $times {
     if { $time < 1e+10 && $time > -1e+10 } {
+      return 0
+    }
+  }
+  return 1
+}
+
+proc delays_are_inf { delays } {
+  foreach delay $delays {
+    if { !([string match "INF*" $delay] \
+	     || [string match "-INF*" $delay]) } {
       return 0
     }
   }
@@ -221,7 +266,7 @@ proc parse_report_path_options { cmd args_var default_format
 define_cmd_args "report_required" {pin}
 
 proc report_required { pin } {
-  report_wrt_clks $pin "requireds_clk"
+  report_delays_wrt_clks $pin "requireds_clk_delays"
 }
 
 ################################################################
@@ -229,7 +274,7 @@ proc report_required { pin } {
 define_cmd_args "report_slack" {pin}
 
 proc report_slack { pin } {
-  report_wrt_clks $pin "slacks_clk"
+  report_delays_wrt_clks $pin "slacks_clk_delays"
 }
 
 ################################################################

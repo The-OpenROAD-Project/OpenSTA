@@ -136,9 +136,11 @@ public:
   virtual Parasitic *findParasiticNetwork(const Pin *pin,
 					  const ParasiticAnalysisPt *ap) const;
   virtual Parasitic *makeParasiticNetwork(Net *net,
+					  bool includes_pin_caps,
 					  const ParasiticAnalysisPt *ap);
   virtual void deleteParasiticNetwork(const Net *net,
 				      const ParasiticAnalysisPt *ap);
+  virtual bool includesPinCaps(Parasitic *parasitic) const;
   virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic, Net *net,
 					     int id);
   virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
@@ -194,7 +196,8 @@ public:
 			const Corner *corner,
 			const MinMax *cnst_min_max,
 			const ParasiticAnalysisPt *ap);
-  virtual void reduceToPiElmore(Parasitic *parasitic, const Net *net,
+  virtual void reduceToPiElmore(Parasitic *parasitic,
+				const Net *net,
 				const TransRiseFall *tr,
 				const OperatingConditions *op_cond,
 				const Corner *corner,
@@ -207,7 +210,8 @@ public:
 				      const Corner *corner,
 				      const MinMax *cnst_min_max,
 				      const ParasiticAnalysisPt *ap);
-  virtual void reduceToPiPoleResidue2(Parasitic *parasitic, const Net *net,
+  virtual void reduceToPiPoleResidue2(Parasitic *parasitic,
+				      const Net *net,
 				      const TransRiseFall *tr,
 				      const OperatingConditions *op_cond,
 				      const Corner *corner,

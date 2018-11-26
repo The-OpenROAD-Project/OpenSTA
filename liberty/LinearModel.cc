@@ -35,8 +35,8 @@ GateLinearModel::gateDelay(const LibertyCell *,
 			   float load_cap,
 			   float,
 			   // return values
-			   float &gate_delay,
-			   float &drvr_slew) const
+			   ArcDelay &gate_delay,
+			   Slew &drvr_slew) const
 {
   gate_delay = intrinsic_ + resistance_ * load_cap;
   drvr_slew = 0.0;
@@ -84,14 +84,15 @@ CheckLinearModel::CheckLinearModel(float intrinsic) :
 {
 }
 
-float
+void
 CheckLinearModel::checkDelay(const LibertyCell *,
 			     const Pvt *,
 			     float,
 			     float,
-			     float) const
+			     float,
+			     ArcDelay &margin) const
 {
-  return intrinsic_;
+  margin = intrinsic_;
 }
 
 void

@@ -81,6 +81,10 @@ public:
 		       float &wire_cap) const;
   // Load pin_cap + wire_cap.
   virtual float loadCap(const Pin *drvr_pin,
+			const TransRiseFall *to_tr,
+			const DcalcAnalysisPt *dcalc_ap) const;
+  // Load pin_cap + wire_cap.
+  virtual float loadCap(const Pin *drvr_pin,
 			Parasitic *drvr_parasitic,
 			const TransRiseFall *tr,
 			const DcalcAnalysisPt *dcalc_ap) const;
@@ -92,6 +96,9 @@ public:
 		       float &wire_cap,
 		       float &fanout,
 		       bool &has_set_load) const;
+  virtual float ceff(Edge *edge,
+		     TimingArc *arc,
+		     const DcalcAnalysisPt *dcalc_ap) = 0;
   // Precedence:
   //  SDF annotation
   //  Liberty library

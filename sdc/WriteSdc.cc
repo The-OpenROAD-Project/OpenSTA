@@ -632,8 +632,8 @@ void
 WriteSdc::writeClockInsertion(ClockInsertion *insert,
 			      WriteSdcObject &write_obj) const
 {
-  RiseFallMinMax *early_values = insert->delays(EarlyLate::min());
-  RiseFallMinMax *late_values = insert->delays(EarlyLate::max());
+  RiseFallMinMax *early_values = insert->delays(EarlyLate::early());
+  RiseFallMinMax *late_values = insert->delays(EarlyLate::late());
   if (early_values->equal(late_values))
     writeRiseFallMinMaxTimeCmd("set_clock_latency -source",
 			       late_values, write_obj);

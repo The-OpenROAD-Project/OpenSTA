@@ -69,15 +69,11 @@ Diversion::Diversion(PathEnd *path_end,
 
 // Default constructor required for DiversionQueue template.
 DiversionGreater::DiversionGreater() :
-  cmp_slack_(true)
+  sta_(NULL)
 {
 }
 
-DiversionGreater::DiversionGreater(bool cmp_slack,
-				   const MinMax *min_max,
-				   StaState *sta) :
-  cmp_slack_(cmp_slack),
-  min_max_(min_max),
+DiversionGreater::DiversionGreater(const StaState *sta) :
   sta_(sta)
 {
 }
@@ -114,7 +110,7 @@ PathEnum::PathEnum(int group_count,
   group_count_(group_count),
   endpoint_count_(endpoint_count),
   unique_pins_(unique_pins),
-  div_queue_(DiversionGreater(cmp_slack, min_max, sta->network())),
+  div_queue_(DiversionGreater(sta)),
   div_count_(0),
   inserts_pruned_(false),
   next_(NULL)

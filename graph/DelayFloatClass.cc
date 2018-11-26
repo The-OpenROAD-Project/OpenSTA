@@ -50,12 +50,6 @@ Delay::Delay(float delay) :
 {
 }
 
-float
-Delay::asFloat() const
-{
-  return delay_;
-}
-
 void
 Delay::operator=(const Delay &delay)
 {
@@ -274,17 +268,17 @@ operator+(float delay1,
 }
 
 Delay
+operator-(float delay1,
+	  const Delay &delay2)
+{
+  return Delay(delay1 - delayAsFloat(delay2));
+}
+
+Delay
 operator/(float delay1,
 	  const Delay &delay2)
 {
   return Delay(delay1 / delayAsFloat(delay2));
-}
-
-Delay
-operator*(float delay1,
-	  const Delay &delay2)
-{
-  return Delay(delay1 * delayAsFloat(delay2));
 }
 
 Delay
@@ -303,16 +297,26 @@ delayRatio(const Delay &delay1,
 
 const char *
 delayAsString(const Delay &delay,
-	      Units *units)
+	      const Units *units,
+	      int digits)
 {
-  return units->timeUnit()->asString(delayAsFloat(delay));
+  return units->timeUnit()->asString(delay.delay(), digits);
+}
+
+float
+delayMeanSigma(const Delay &delay,
+	       const EarlyLate *)
+{
+  return delay.delay();
 }
 
 const char *
-delayAsString(const Delay &delay,
-	      const StaState *sta)
+delayMeanSigmaString(const Delay &delay,
+		     const EarlyLate *,
+		     const Units *units,
+		     int digits)
 {
-  return delayAsString(delay, sta->units());
+  return units->timeUnit()->asString(delay.delay(), digits);
 }
 
 } // namespace

@@ -67,6 +67,7 @@
 #include "VisitPathGroupVertices.hh"
 #include "SdfWriter.hh"
 #include "Genclks.hh"
+#include "Power.hh"
 #include "Sta.hh"
 
 namespace sta {
@@ -272,6 +273,7 @@ Sta::Sta() :
   check_max_skews_(NULL),
   clk_skews_(NULL),
   report_path_(NULL),
+  power_(NULL),
   link_make_black_boxes_(true),
   update_genclks_(false)
 {
@@ -348,6 +350,8 @@ Sta::updateComponentsState()
   report_path_->copyState(this);
   if (check_timing_)
     check_timing_->copyState(this);
+  if (power_)
+    power_->copyState(this);
 }
 
 void
@@ -464,6 +468,12 @@ void
 Sta::makeReportPath()
 {
   report_path_ = new ReportPath(this);
+}
+
+void
+Sta::makePower()
+{
+  power_ = new Power(this);
 }
 
 void
@@ -3185,9 +3195,9 @@ Sta::portExtPinCap(Port *port,
   int fanout;
   bool pin_exists, wire_exists, fanout_exists;
   sdc_->portExtCap(port, tr, min_max,
-			   pin_cap, pin_exists,
-			   wire_cap, wire_exists,
-			   fanout, fanout_exists);
+		   pin_cap, pin_exists,
+		   wire_cap, wire_exists,
+		   fanout, fanout_exists);
   if (pin_exists)
     return pin_cap;
   else
@@ -3221,9 +3231,9 @@ Sta::portExtWireCap(Port *port,
   int fanout;
   bool pin_exists, wire_exists, fanout_exists;
   sdc_->portExtCap(port, tr, min_max,
-			   pin_cap, pin_exists,
-			   wire_cap, wire_exists,
-			   fanout, fanout_exists);
+		   pin_cap, pin_exists,
+		   wire_cap, wire_exists,
+		   fanout, fanout_exists);
   if (wire_exists)
     return wire_cap;
   else
@@ -3244,8 +3254,7 @@ Sta::setPortExtWireCap(Port *port,
     MinMaxIterator mm_iter(min_max);
     while (mm_iter.hasNext()) {
       MinMax *mm = mm_iter.next();
-      sdc_->setPortExtWireCap(port, subtract_pin_cap, tr1,
-				      corner, mm, cap);
+      sdc_->setPortExtWireCap(port, subtract_pin_cap, tr1, corner, mm, cap);
     }
   }
   delaysInvalidFromFanin(port);
@@ -3375,6 +3384,7 @@ Sta::readParasitics(const char *filename,
 		    Instance *instance,
 		    const MinMaxAll *min_max,
 		    bool increment,
+		    bool pin_cap_included,
 		    bool keep_coupling_caps,
 		    float coupling_cap_factor,
 		    ReduceParasiticsTo reduce_to,
@@ -3398,6 +3408,7 @@ Sta::readParasitics(const char *filename,
   const OperatingConditions *op_cond =
     sdc_->operatingConditions(cnst_min_max);
   bool success = readParasiticsFile(filename, instance, ap, increment,
+				    pin_cap_included,
 				    keep_coupling_caps, coupling_cap_factor,
 				    reduce_to, delete_after_reduce,
 				    op_cond, corner, cnst_min_max, save, quiet,
@@ -4858,6 +4869,41 @@ Sta::reportCheck(MaxSkewCheck *check,
 		 bool verbose)
 {
   report_path_->reportCheck(check, verbose);
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+Sta::powerPreamble()
+{
+  // Use arrivals to find clocking info.
+  searchPreamble();
+  search_->findAllArrivals();
+  if (power_ == NULL)
+    makePower();
+}
+
+void
+Sta::power(const Corner *corner,
+	   // Return values.
+	   PowerResult &total,
+	   PowerResult &sequential,
+	   PowerResult &combinational,
+	   PowerResult &macro,
+	   PowerResult &pad)
+{
+  powerPreamble();
+  power_->power(corner, total, sequential, combinational, macro, pad);
+}
+
+void
+Sta::power(const Instance *inst,
+	   const Corner *corner,
+	   // Return values.
+	   PowerResult &result)
+{
+  powerPreamble();
+  power_->power(inst, corner, result);
 }
 
 } // namespace

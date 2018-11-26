@@ -41,15 +41,11 @@ class DiversionGreater
 {
 public:
   DiversionGreater();
-  DiversionGreater(bool cmp_slack,
-		   const MinMax *min_max,
-		   StaState *sta);
+  DiversionGreater(const StaState *sta);
   bool operator()(Diversion *div1,
 		  Diversion *div2) const;
 
 private:
-  bool cmp_slack_;
-  const MinMax *min_max_;
   const StaState *sta_;
 };
 

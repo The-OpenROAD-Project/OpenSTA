@@ -287,6 +287,8 @@ LibertyReader::defineVisitors()
 		    &LibertyReader::visitClockGatingIntegratedCell);
   defineAttrVisitor("area", &LibertyReader::visitArea);
   defineAttrVisitor("dont_use", &LibertyReader::visitDontUse);
+  defineAttrVisitor("is_macro", &LibertyReader::visitIsMacro);
+  defineAttrVisitor("is_pad", &LibertyReader::visitIsPad);
   defineAttrVisitor("interface_timing", &LibertyReader::visitInterfaceTiming);
   defineAttrVisitor("scaling_factors", &LibertyReader::visitScalingFactors);
 
@@ -399,6 +401,8 @@ LibertyReader::defineVisitors()
 		     &LibertyReader::endRiseFallPower);
   defineGroupVisitor("rise_power", &LibertyReader::beginRisePower,
 		     &LibertyReader::endRiseFallPower);
+  defineAttrVisitor("related_power_pin", &LibertyReader::visitRelatedPowerPin);
+  defineAttrVisitor("related_pg_pin", &LibertyReader::visitRelatedPgPin);
 
   // AOCV attributes.
   defineAttrVisitor("ocv_arc_depth", &LibertyReader::visitOcvArcDepth);
@@ -417,6 +421,20 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("rf_type", &LibertyReader::visitRfType);
   defineAttrVisitor("derate_type", &LibertyReader::visitDerateType);
   defineAttrVisitor("path_type", &LibertyReader::visitPathType);
+
+  // POCV attributes.
+  defineGroupVisitor("ocv_sigma_cell_rise", &LibertyReader::beginOcvSigmaCellRise,
+		     &LibertyReader::endOcvSigmaCell);
+  defineGroupVisitor("ocv_sigma_cell_fall", &LibertyReader::beginOcvSigmaCellFall,
+		     &LibertyReader::endOcvSigmaCell);
+  defineGroupVisitor("ocv_sigma_rise_transition",
+		     &LibertyReader::beginOcvSigmaRiseTransition,
+		     &LibertyReader::endOcvSigmaTransition);
+  defineGroupVisitor("ocv_sigma_fall_transition",
+		     &LibertyReader::beginOcvSigmaFallTransition,
+		     &LibertyReader::endOcvSigmaTransition);
+  defineAttrVisitor("sigma_type", &LibertyReader::visitSigmaType);
+  defineAttrVisitor("cell_leakage_power", &LibertyReader::visitCellLeakagePower);
 }
 
 void
@@ -535,6 +553,8 @@ LibertyReader::beginLibrary(LibertyGroup *group)
     curr_scale_ = 1E-3F;
     // Default is 1;
     power_scale_ = 1;
+    // Default is fJ.
+    energy_scale_ = 1e-15;
 
     library_->units()->timeUnit()->setScale(time_scale_);
     library_->units()->capacitanceUnit()->setScale(cap_scale_);
@@ -1720,7 +1740,11 @@ void
 LibertyReader::endCell(LibertyGroup *group)
 {
   if (cell_) {
+    // Sequentials and leakage powers reference expressions outside of port definitions
+    // so they do not require LibertyFunc's.
     makeCellSequentials();
+    // Parse functions defined inside of port groups that reference other ports
+    // and replace the references with the parsed expressions.
     parseCellFuncs();
     makeLeakagePowers();
     finishPortGroups();
@@ -2128,7 +2152,8 @@ TimingGroup::makeTableModels(LibertyReader *visitor)
     TableModel *constraint = constraint_[tr_index];
     TableModel *transition = transition_[tr_index];
     if (cell || transition) {
-      models_[tr_index] = new GateTableModel(cell, transition);
+      models_[tr_index] = new GateTableModel(cell, delay_sigma_[tr_index],
+					     transition, slew_sigma_[tr_index]);
       if (timing_type_ == timing_type_clear
 	  || timing_type_ == timing_type_combinational
 	  || timing_type_ == timing_type_combinational_fall
@@ -2142,11 +2167,10 @@ TimingGroup::makeTableModels(LibertyReader *visitor)
 	  || timing_type_ == timing_type_three_state_enable
 	  || timing_type_ == timing_type_three_state_enable_fall
 	  || timing_type_ == timing_type_three_state_enable_rise) {
-	const char *tr_name = tr == TransRiseFall::rise() ? "rise" : "fall";
 	if (transition == NULL)
-	  visitor->libWarn(line_, "missing %s_transition.\n", tr_name);
+	  visitor->libWarn(line_, "missing %s_transition.\n", tr->name());
 	if (cell == NULL)
-	  visitor->libWarn(line_, "missing cell_%s.\n", tr_name);
+	  visitor->libWarn(line_, "missing cell_%s.\n", tr->name());
       }
     }
     if (constraint)
@@ -2351,6 +2375,28 @@ LibertyReader::visitDontUse(LibertyAttr *attr)
     getAttrBool(attr, dont_use, exists);
     if (exists)
       cell_->setDontUse(dont_use);
+  }
+}
+
+void
+LibertyReader::visitIsMacro(LibertyAttr *attr)
+{
+  if (cell_) {
+    bool is_macro, exists;
+    getAttrBool(attr, is_macro, exists);
+    if (exists)
+      cell_->setIsMacro(is_macro);
+  }
+}
+
+void
+LibertyReader::visitIsPad(LibertyAttr *attr)
+{
+  if (cell_) {
+    bool is_pad, exists;
+    getAttrBool(attr, is_pad, exists);
+    if (exists)
+      cell_->setIsPad(is_pad);
   }
 }
 
@@ -3705,6 +3751,7 @@ LibertyReader::beginTableModel(LibertyGroup *group,
   beginTable(group, scale);
   tr_ = tr;
   scale_factor_type_ = scale_factor_type;
+  sigma_type_ = EarlyLateAll::all();
 }
 
 void
@@ -4248,6 +4295,20 @@ LibertyReader::parseFunc(const char *func,
   return parseFuncExpr(func, cell_, error_msg, report_);
 }
 
+EarlyLateAll *
+LibertyReader::getAttrEarlyLate(LibertyAttr *attr)
+{
+  const char *value = getAttrString(attr);
+  if (stringEq(value, "early"))
+    return EarlyLateAll::min();
+  else if (stringEq(value, "late"))
+    return EarlyLateAll::max();
+  else {
+    libWarn(attr, "unknown early/late value.\n");
+    return EarlyLateAll::all();
+  }
+}
+
 ////////////////////////////////////////////////////////////////
 
 void
@@ -4356,7 +4417,7 @@ void
 LibertyReader::beginFallPower(LibertyGroup *group)
 {
   if (internal_power_)
-    beginTableModel(group, TransRiseFall::fall(), power_scale_,
+    beginTableModel(group, TransRiseFall::fall(), energy_scale_,
 		    scale_factor_internal_power);
 }
 
@@ -4364,7 +4425,7 @@ void
 LibertyReader::beginRisePower(LibertyGroup *group)
 {
   if (internal_power_)
-    beginTableModel(group, TransRiseFall::rise(), power_scale_,
+    beginTableModel(group, TransRiseFall::rise(), energy_scale_,
 		    scale_factor_internal_power);
 }
 
@@ -4376,6 +4437,26 @@ LibertyReader::endRiseFallPower(LibertyGroup *)
     internal_power_->setModel(tr_, new InternalPowerModel(table_model));
   }
   endTableModel();
+}
+
+void
+LibertyReader::visitRelatedPowerPin(LibertyAttr *attr)
+{
+  if (ports_) {
+    const char *related_power_pin = getAttrString(attr);
+    LibertyPortSeq::Iterator port_iter(ports_);
+    while (port_iter.hasNext()) {
+      LibertyPort *port = port_iter.next();
+      port->setRelatedPowerPin(stringCopy(related_power_pin));
+    }
+  }
+}
+
+void
+LibertyReader::visitRelatedPgPin(LibertyAttr *attr)
+{
+  if (internal_power_)
+    internal_power_->setRelatedPgPin(getAttrString(attr));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -4438,7 +4519,7 @@ LibertyReader::beginOcvDerateFactors(LibertyGroup *group)
 {
   if (ocv_derate_) {
     rf_type_ = TransRiseFallBoth::riseFall();
-    early_late_ = EarlyLateAll::all();
+    derate_type_ = EarlyLateAll::all();
     path_type_ = path_type_clk_and_data;
     beginTable(group, 1.0);
   }
@@ -4448,7 +4529,7 @@ void
 LibertyReader::endOcvDerateFactors(LibertyGroup *)
 {
   if (ocv_derate_) {
-    MinMaxIterator el_iter(early_late_);
+    EarlyLateIterator el_iter(derate_type_);
     while (el_iter.hasNext()) {
       EarlyLate *early_late = el_iter.next();
       TransRiseFallIterator tr_iter(rf_type_);
@@ -4483,13 +4564,7 @@ LibertyReader::visitRfType(LibertyAttr *attr)
 void
 LibertyReader::visitDerateType(LibertyAttr *attr)
 {
-  const char *derate_type = getAttrString(attr);
-  if (stringEq(derate_type, "early"))
-    early_late_ = EarlyLateAll::min();
-  else if (stringEq(derate_type, "late"))
-    early_late_ = EarlyLateAll::max();
-  else
-    libWarn(attr, "unknown derate type.\n");
+  derate_type_ = getAttrEarlyLate(attr);
 }
 
 void
@@ -4504,6 +4579,92 @@ LibertyReader::visitPathType(LibertyAttr *attr)
     path_type_ = path_type_clk_and_data;
   else
     libWarn(attr, "unknown derate type.\n");
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+LibertyReader::beginOcvSigmaCellRise(LibertyGroup *group)
+{
+  beginTimingTableModel(group, TransRiseFall::rise(), scale_factor_unknown);
+}
+
+void
+LibertyReader::beginOcvSigmaCellFall(LibertyGroup *group)
+{
+  beginTimingTableModel(group, TransRiseFall::fall(), scale_factor_unknown);
+}
+
+void
+LibertyReader::endOcvSigmaCell(LibertyGroup *group)
+{
+  if (table_) {
+    if (GateTableModel::checkAxes(table_)) {
+      TableModel *table_model = new TableModel(table_, scale_factor_type_, tr_);
+      if (sigma_type_ == EarlyLateAll::all()) {
+	timing_->setDelaySigma(tr_, EarlyLate::min(), table_model);
+	timing_->setDelaySigma(tr_, EarlyLate::max(), table_model);
+      }
+      else
+	timing_->setDelaySigma(tr_, sigma_type_->asMinMax(), table_model);
+    }
+    else {
+      libWarn(group, "unsupported model axis.\n");
+      delete table_;
+    }
+  }
+  endTableModel();
+}
+
+void
+LibertyReader::beginOcvSigmaRiseTransition(LibertyGroup *group)
+{
+  beginTimingTableModel(group, TransRiseFall::rise(), scale_factor_unknown);
+}
+
+void
+LibertyReader::beginOcvSigmaFallTransition(LibertyGroup *group)
+{
+  beginTimingTableModel(group, TransRiseFall::fall(), scale_factor_unknown);
+}
+
+void
+LibertyReader::endOcvSigmaTransition(LibertyGroup *group)
+{
+  if (table_) {
+    if (GateTableModel::checkAxes(table_)) {
+      TableModel *table_model = new TableModel(table_, scale_factor_type_, tr_);
+      if (sigma_type_ == EarlyLateAll::all()) {
+	timing_->setSlewSigma(tr_, EarlyLate::min(), table_model);
+	timing_->setSlewSigma(tr_, EarlyLate::max(), table_model);
+      }
+      else
+	timing_->setSlewSigma(tr_, sigma_type_->asMinMax(), table_model);
+    }
+    else {
+      libWarn(group, "unsupported model axis.\n");
+      delete table_;
+    }
+  }
+  endTableModel();
+}
+
+void
+LibertyReader::visitSigmaType(LibertyAttr *attr)
+{
+  sigma_type_ = getAttrEarlyLate(attr);
+}
+
+void
+LibertyReader::visitCellLeakagePower(LibertyAttr *attr)
+{
+  if (cell_) {
+    float value;
+    bool exists;
+    getAttrFloat(attr, value, exists);
+    if (exists)
+      cell_->setLeakagePower(value * power_scale_);
+  }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -4672,6 +4833,14 @@ TimingGroup::TimingGroup(int line) :
     intrinsic_exists_[tr_index] = false;
     resistance_[tr_index] = 0.0F;
     resistance_exists_[tr_index] = false;
+
+    MinMaxIterator el_iter;
+    while (el_iter.hasNext()) {
+      EarlyLate *early_late = el_iter.next();
+      int el_index = early_late->index();
+      delay_sigma_[tr_index][el_index] = NULL;
+      slew_sigma_[tr_index][el_index] = NULL;
+    }
   }
 }
 
@@ -4766,7 +4935,23 @@ TimingGroup::setTransition(TransRiseFall *tr,
   transition_[tr->index()] = model;
 }
 
-////////////////////////////////////////////////////////////////
+void
+TimingGroup::setDelaySigma(TransRiseFall *tr,
+			     EarlyLate *early_late,
+			     TableModel *model)
+{
+  delay_sigma_[tr->index()][early_late->index()] = model;
+}
+
+void
+TimingGroup::setSlewSigma(TransRiseFall *tr,
+			  EarlyLate *early_late,
+			  TableModel *model)
+{
+  slew_sigma_[tr->index()][early_late->index()] = model;
+}
+
+ ////////////////////////////////////////////////////////////////
 
 InternalPowerGroup::InternalPowerGroup(int line) :
   InternalPowerAttrs(),

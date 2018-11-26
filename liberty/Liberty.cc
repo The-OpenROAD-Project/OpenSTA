@@ -815,6 +815,8 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   liberty_library_(library),
   area_(0.0),
   dont_use_(false),
+  is_macro_(false),
+  is_pad_(false),
   has_internal_ports_(false),
   interface_timing_(false),
   clock_gate_type_(clock_gate_none),
@@ -833,7 +835,8 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   test_cell_(NULL),
   ocv_arc_depth_(0.0),
   ocv_derate_(NULL),
-  is_disabled_constraint_(false)
+  is_disabled_constraint_(false),
+  leakage_power_(0.0)
 {
 }
 
@@ -1041,6 +1044,18 @@ LibertyCell::setDontUse(bool dont_use)
 }
 
 void
+LibertyCell::setIsMacro(bool is_macro)
+{
+  is_macro_ = is_macro;
+}
+
+void
+LibertyCell::LibertyCell::setIsPad(bool is_pad)
+{
+  is_pad_ = is_pad;
+}
+
+void
 LibertyCell::setInterfaceTiming(bool value)
 {
   interface_timing_ = value;
@@ -1153,6 +1168,18 @@ LibertyCellLeakagePowerIterator *
 LibertyCell::leakagePowerIterator()
 { 
   return new LibertyCellLeakagePowerIterator(leakage_powers_);
+}
+
+float
+LibertyCell::leakagePower() const
+{
+  return leakage_power_;
+}
+
+void
+LibertyCell::setLeakagePower(float leakage)
+{
+  leakage_power_ = leakage;
 }
 
 void
@@ -1808,6 +1835,7 @@ LibertyPort::LibertyPort(LibertyCell *cell,
   min_period_(0.0),
   pulse_clk_trigger_(NULL),
   pulse_clk_sense_(NULL),
+  related_power_pin_(NULL),
   min_pulse_width_exists_(false),
   min_period_exists_(false),
   is_clk_(false),
@@ -1830,6 +1858,7 @@ LibertyPort::~LibertyPort()
   if (tristate_enable_)
     tristate_enable_->deleteSubexprs();
   delete scaled_ports_;
+  stringDelete(related_power_pin_);
 }
 
 void
@@ -2195,6 +2224,12 @@ LibertyPort::setCornerPort(LibertyPort *corner_port,
   if (ap_index >= static_cast<int>(corner_ports_.size()))
     corner_ports_.resize(ap_index + 1);
   corner_ports_[ap_index] = corner_port;
+}
+
+void
+LibertyPort::setRelatedPowerPin(const char *related_power_pin)
+{
+  related_power_pin_ = stringCopy(related_power_pin);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2686,7 +2721,7 @@ TestCell::setScanOutInv(LibertyPort *port)
 OcvDerate::OcvDerate(const char *name) :
   name_(name)
 {
-  MinMaxIterator el_iter;
+  EarlyLateIterator el_iter;
   while (el_iter.hasNext()) {
     EarlyLate *early_late = el_iter.next();
     int el_index = early_late->index();
@@ -2706,7 +2741,7 @@ OcvDerate::~OcvDerate()
   // Derating table models can be shared in multiple places in derate_;
   // Collect them in a set to avoid duplicate deletes.
   Set<Table*> models;
-  MinMaxIterator el_iter;
+  EarlyLateIterator el_iter;
   while (el_iter.hasNext()) {
     EarlyLate *early_late = el_iter.next();
     int el_index = early_late->index();

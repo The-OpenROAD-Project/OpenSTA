@@ -101,6 +101,7 @@ public:
 	 Corners *corners);
   ~Corner();
   const char *name() const { return name_; }
+  int index() const { return index_; }
   ParasiticAnalysisPt *findParasiticAnalysisPt(const MinMax *min_max) const;
   DcalcAnalysisPt *findDcalcAnalysisPt(const MinMax *min_max) const;
   PathAnalysisPt *findPathAnalysisPt(const MinMax *min_max) const;

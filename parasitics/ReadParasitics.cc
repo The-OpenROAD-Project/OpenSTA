@@ -50,6 +50,7 @@ readParasiticsFile(const char *filename,
 		   Instance *instance,
 		   ParasiticAnalysisPt *ap,
 		   bool increment,
+		   bool pin_cap_included,
 		   bool keep_coupling_caps,
 		   float coupling_cap_factor,
 		   ReduceParasiticsTo reduce_to,
@@ -72,7 +73,7 @@ readParasiticsFile(const char *filename,
     switch (file_type) {
     case parasitics_file_spef:
       success = readSpefFile(filename, stream, line_num,
-			     instance, ap, increment,
+			     instance, ap, increment, pin_cap_included,
 			     keep_coupling_caps, coupling_cap_factor,
 			     reduce_to, delete_after_reduce,
 			     op_cond, corner, cnst_min_max,
@@ -81,14 +82,16 @@ readParasiticsFile(const char *filename,
       break;
     case parasitics_file_rspf:
       success = readSpfFile(filename, stream, line_num, true, instance, ap,
-			    increment, keep_coupling_caps, coupling_cap_factor,
+			    increment, pin_cap_included,
+			    keep_coupling_caps, coupling_cap_factor,
 			    reduce_to, delete_after_reduce,
 			    op_cond, corner, cnst_min_max,
 			    save, quiet, report, network, parasitics);
       break;
     case parasitics_file_dspf:
       success = readSpfFile(filename, stream, line_num, false, instance, ap,
-			    increment, keep_coupling_caps, coupling_cap_factor,
+			    increment, pin_cap_included,
+			    keep_coupling_caps, coupling_cap_factor,
 			    reduce_to, delete_after_reduce,
 			    op_cond, corner, cnst_min_max,
 			    save, quiet, report,

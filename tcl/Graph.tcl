@@ -121,8 +121,8 @@ proc report_edge_ { edge vertex_from_name_proc vertex_to_name_proc } {
   set iter [$edge timing_arc_iterator]
   while {[$iter has_next]} {
     set arc [$iter next]
-    set delays [$edge arc_delays $arc]
-    set delays_fmt [format_times $delays $sta_report_default_digits]
+    set delays [$edge arc_delay_strings $arc $sta_report_default_digits]
+    set delays_fmt [format_delays $delays]
     set disable_reason ""
     if { [timing_arc_disabled $edge $arc] } {
       set disable_reason " disabled"
@@ -140,6 +140,18 @@ proc format_times { values digits } {
       append result ":"
     }
     append result [format_time $value $digits]
+  }
+  return $result
+}
+
+# Separate delay list elements with colons.
+proc format_delays { values } {
+  set result ""
+  foreach value $values {
+    if { $result != "" } {
+      append result ":"
+    }
+    append result $value
   }
   return $result
 }

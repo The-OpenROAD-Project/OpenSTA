@@ -54,18 +54,28 @@ public:
 			 ArcDelay &wire_delay,
 			 Slew &load_slew);
   virtual void setMultiDrvrSlewFactor(float) {}
+  virtual float ceff(const LibertyCell *drvr_cell,
+		     TimingArc *arc,
+		     const Slew &in_slew,
+		     float load_cap,
+		     Parasitic *drvr_parasitic,
+		     float related_out_cap,
+		     const Pvt *pvt,
+		     const DcalcAnalysisPt *dcalc_ap);
   virtual void inputPortDelay(const Pin *port_pin,
 			      float in_slew,
 			      const TransRiseFall *tr,
 			      Parasitic *parasitic,
 			      const DcalcAnalysisPt *dcalc_ap);
-  virtual ArcDelay checkDelay(const LibertyCell *cell,
-			      TimingArc *arc,
-			      const Slew &from_slew,
-			      const Slew &to_slew,
-			      float related_out_cap,
-			      const Pvt *pvt,
-			      const DcalcAnalysisPt *dcalc_ap);
+  virtual void checkDelay(const LibertyCell *cell,
+			  TimingArc *arc,
+			  const Slew &from_slew,
+			  const Slew &to_slew,
+			  float related_out_cap,
+			  const Pvt *pvt,
+			  const DcalcAnalysisPt *dcalc_ap,
+			  // Return values.
+			  ArcDelay &margin);
   virtual void reportGateDelay(const LibertyCell *drvr_cell,
 			       TimingArc *arc,
 			       const Slew &in_slew,

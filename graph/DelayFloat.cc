@@ -47,6 +47,12 @@ delayIsInitValue(const Delay &delay,
   return fuzzyEqual(delay, min_max->initValue());
 }
 
+float
+delayAsFloat(const Delay &delay)
+{
+  return delay;
+}
+
 bool
 delayFuzzyZero(const Delay &delay)
 {
@@ -141,16 +147,27 @@ delayRatio(const Delay &delay1,
 
 const char *
 delayAsString(const Delay &delay,
-	      Units *units)
+	      const Units *units,
+	      int digits)
 {
-  return units->timeUnit()->asString(delay);
+  return units->timeUnit()->asString(delay, digits);
+}
+
+float
+delayMeanSigma(const Delay &delay,
+	       const EarlyLate *)
+{
+  return delay;
 }
 
 const char *
-delayAsString(const Delay &delay,
-	      const StaState *sta)
+delayMeanSigmaString(const Delay &delay,
+		     const EarlyLate *,
+		     const Units *units,
+		     int digits)
 {
-  return delayAsString(delay, sta->units());
+  const Unit *unit = units->timeUnit();
+  return unit->asString(delay, digits);
 }
 
 } // namespace

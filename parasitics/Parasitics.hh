@@ -182,10 +182,13 @@ public:
   virtual Parasitic *findParasiticNetwork(const Pin *pin,
 					  const ParasiticAnalysisPt *ap) const = 0;
   virtual Parasitic *makeParasiticNetwork(Net *net,
+					  bool pin_cap_included,
 					  const ParasiticAnalysisPt *ap) = 0;
   // Delete parasitic network if it exists.
   virtual void deleteParasiticNetwork(const Net *net,
 				      const ParasiticAnalysisPt *ap) = 0;
+  // True if the parasitic network caps include pin capacitances.
+  virtual bool includesPinCaps(Parasitic *parasitic) const = 0;
   // Parasitic network component builders.
   // Make a subnode of the parasitic network net.
   virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic,

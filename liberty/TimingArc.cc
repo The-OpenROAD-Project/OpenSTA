@@ -40,29 +40,19 @@ TimingArcAttrs::TimingArcAttrs() :
   sdf_cond_end_(NULL),
   mode_name_(NULL),
   mode_value_(NULL),
-  ocv_arc_depth_(0.0)
+  ocv_arc_depth_(0.0),
+  models_{NULL, NULL},
+  model_refs_{false, false}
 {
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    int tr_index = tr->index();
-    models_[tr_index] = NULL;
-    model_refs_[tr_index] = false;
-  }
 }
 
 TimingArcAttrs::~TimingArcAttrs()
 {
-  if (sdf_cond_)
-    stringDelete(sdf_cond_);
-  if (sdf_cond_start_)
-    stringDelete(sdf_cond_start_);
-  if (sdf_cond_end_)
-    stringDelete(sdf_cond_end_);
-  if (mode_name_)
-    stringDelete(mode_name_);
-  if (mode_value_)
-    stringDelete(mode_value_);
+  stringDelete(sdf_cond_);
+  stringDelete(sdf_cond_start_);
+  stringDelete(sdf_cond_end_);
+  stringDelete(mode_name_);
+  stringDelete(mode_value_);
 }
 
 void
@@ -162,8 +152,9 @@ TimingArcSet::TimingArcSet(LibertyCell *cell,
   is_cond_default_(false),
   sdf_cond_start_(NULL),
   sdf_cond_end_(NULL),
-  mode_name_(NULL),
-  mode_value_(NULL),
+  mode_name_(stringCopy(attrs->modeName())),
+  mode_value_(stringCopy(attrs->modeValue())),
+  ocv_arc_depth_(attrs->ocvArcDepth()),
   index_(0),
   is_disabled_constraint_(false)
 {
@@ -176,14 +167,6 @@ TimingArcSet::TimingArcSet(LibertyCell *cell,
     sdf_cond_start_ = stringCopy(sdf_cond_start);
   if (sdf_cond_end)
     sdf_cond_end_ = stringCopy(sdf_cond_end);
-
-  const char *mode_name = attrs->modeName();
-  if (mode_name)
-    mode_name_ = stringCopy(mode_name);
-  const char *mode_value = attrs->modeValue();
-  if (mode_value)
-    mode_value_ = stringCopy(mode_value);
-  ocv_arc_depth_ = attrs->ocvArcDepth();
 
   init(cell);
 }

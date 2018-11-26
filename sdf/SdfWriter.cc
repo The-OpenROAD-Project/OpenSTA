@@ -419,10 +419,10 @@ SdfWriter::writeArcDelays(Edge *edge)
     TimingArc *arc = arc_iter->next();
     TransRiseFall *tr = arc->toTrans()->asRiseFall();
     ArcDelay min_delay = graph_->arcDelay(edge, arc, arc_delay_min_index_);
-    delays.setValue(tr, MinMax::min(), min_delay);
+    delays.setValue(tr, MinMax::min(), delayAsFloat(min_delay));
 
     ArcDelay max_delay = graph_->arcDelay(edge, arc, arc_delay_max_index_);
-    delays.setValue(tr, MinMax::max(), max_delay);
+    delays.setValue(tr, MinMax::max(), delayAsFloat(max_delay));
   }
   delete arc_iter;
 
@@ -682,7 +682,7 @@ SdfWriter::writeCheck(Edge *edge,
 
   ArcDelay min_delay = graph_->arcDelay(edge, arc, arc_delay_min_index_);
   ArcDelay max_delay = graph_->arcDelay(edge, arc, arc_delay_max_index_);
-  writeSdfTuple(min_delay, max_delay);
+  writeSdfTuple(delayAsFloat(min_delay), delayAsFloat(max_delay));
 
   gzprintf(stream_, ")\n");
 }

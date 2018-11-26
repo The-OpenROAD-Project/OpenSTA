@@ -19,6 +19,7 @@
 
 #include <string>
 #include "DisallowCopyAssign.hh"
+#include "MinMax.hh"
 #include "Vector.hh"
 #include "Transition.hh"
 #include "LibertyClass.hh"
@@ -45,21 +46,18 @@ class GateTableModel : public GateTimingModel
 {
 public:
   GateTableModel(TableModel *delay_model,
-		 TableModel *slew_model);
+		 TableModel *delay_sigma_models[EarlyLate::index_count],
+		 TableModel *slew_model,
+		 TableModel *slew_sigma_models[EarlyLate::index_count]);
   virtual ~GateTableModel();
   virtual void gateDelay(const LibertyCell *cell,
 			 const Pvt *pvt,
 			 float in_slew,
 			 float load_cap,
 			 float related_out_cap,
-			 // return values
-			 float &gate_delay,
-			 float &drvr_slew) const;
-  float gateDelay(const LibertyCell *cell,
-		  const Pvt *pvt,
-		  float in_slew,
-		  float load_cap,
-		  float related_out_cap) const;
+			 // Return values.
+			 ArcDelay &gate_delay,
+			 Slew &drvr_slew) const;
   virtual void reportGateDelay(const LibertyCell *cell,
 			       const Pvt *pvt,
 			       float in_slew,
@@ -115,7 +113,9 @@ protected:
   static bool checkAxis(TableAxis *axis);
 
   TableModel *delay_model_;
+  TableModel *delay_sigma_models_[EarlyLate::index_count];
   TableModel *slew_model_;
+  TableModel *slew_sigma_models_[EarlyLate::index_count];
 
 private:
   DISALLOW_COPY_AND_ASSIGN(GateTableModel);
@@ -126,11 +126,13 @@ class CheckTableModel : public CheckTimingModel
 public:
   explicit CheckTableModel(TableModel *model);
   virtual ~CheckTableModel();
-  virtual float checkDelay(const LibertyCell *cell,
-			   const Pvt *pvt,
-			   float from_slew,
-			   float to_slew,
-			   float related_out_cap) const;
+  virtual void checkDelay(const LibertyCell *cell,
+			  const Pvt *pvt,
+			  float from_slew,
+			  float to_slew,
+			  float related_out_cap,
+			  // Return values.
+			  ArcDelay &margin) const;
   virtual void reportCheckDelay(const LibertyCell *cell,
 				const Pvt *pvt,
 				float from_slew,

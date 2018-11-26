@@ -227,6 +227,7 @@ Search::Search(StaState *sta) :
 void
 Search::init(StaState *sta)
 {
+  crpr_path_pruning_enabled_ = true;
   report_unconstrained_paths_ = false;
   search_adj_ = new SearchThru(NULL, sta);
   eval_pred_ = new EvalPred(sta);
@@ -292,6 +293,7 @@ Search::~Search()
 void
 Search::clear()
 {
+  crpr_path_pruning_enabled_ = true;
   clk_arrivals_valid_ = false;
   arrivals_exist_ = false;
   arrivals_at_endpoints_exist_ = false;
@@ -313,6 +315,18 @@ Search::clear()
   deleteFilter();
   genclks_->clear();
   found_downstream_clk_pins_ = false;
+}
+
+bool
+Search::crprPathPruningEnabled() const
+{
+  return crpr_path_pruning_enabled_;
+}
+
+void
+Search::setCrprpathPruningEnabled(bool enabled)
+{
+  crpr_path_pruning_enabled_ = enabled;
 }
 
 void
@@ -1086,9 +1100,9 @@ ArrivalVisitor::visit(Vertex *vertex)
 
     visitFaninPaths(vertex);
     if (crpr_active_
+	&& search->crprPathPruningEnabled()
 	&& !has_fanin_one_)
       pruneCrprArrivals();
-
     // Insert paths that originate here but 
     if (!network->isTopLevelPort(pin)
 	&& sdc->hasInputDelay(pin))
@@ -1538,11 +1552,11 @@ Search::seedClkArrival(const Pin *pin,
   bool latency_exists;
   // Check for clk pin latency.
   sdc_->clockLatency(clk, pin, tr, min_max,
-			     latency, latency_exists);
+		     latency, latency_exists);
   if (!latency_exists) {
     // Check for clk latency (lower priority).
     sdc_->clockLatency(clk, tr, min_max,
-			       latency, latency_exists);
+		       latency, latency_exists);
     if (latency_exists) {
       // Propagated pin overrides latency on clk.
       if (sdc_->isPropagatedClock(pin)) {
@@ -1712,8 +1726,7 @@ Search::seedInputArrival(const Pin *pin,
 {
   bool has_arrival = false;
   // There can be multiple arrivals for a pin with wrt different clocks.
-  PinInputDelayIterator *arrival_iter =
-    sdc_->inputDelayVertexIterator(pin);
+  PinInputDelayIterator *arrival_iter = sdc_->inputDelayVertexIterator(pin);
   TagGroupBldr tag_bldr(true, this);
   tag_bldr.init(vertex);
   while (arrival_iter->hasNext()) {
@@ -1762,8 +1775,7 @@ Search::seedInputArrival1(const Pin *pin,
 			  TagGroupBldr *tag_bldr)
 {
   // There can be multiple arrivals for a pin with wrt different clocks.
-  PinInputDelayIterator *arrival_iter=
-    sdc_->inputDelayVertexIterator(pin);
+  PinInputDelayIterator *arrival_iter = sdc_->inputDelayVertexIterator(pin);
   while (arrival_iter->hasNext()) {
     InputDelay *input_delay = arrival_iter->next();
     Clock *input_clk = input_delay->clock();
@@ -1864,8 +1876,7 @@ Search::inputDelayRefPinArrival(Path *ref_path,
     const EarlyLate *early_late = min_max;
     // Input delays from ideal clk reference pins include clock
     // insertion delay but not latency.
-    ref_insertion = sdc_->clockInsertion(clk, clk_tr, min_max,
-						 early_late);
+    ref_insertion = sdc_->clockInsertion(clk, clk_tr, min_max, early_late);
     ref_arrival = clk_edge->time() + ref_insertion;
     ref_latency = 0.0;
   }
@@ -2311,7 +2322,7 @@ Search::clkPathArrival(const Path *clk_path,
     return clk_path->arrival(this);
 }
 
-float
+Arrival
 Search::pathClkPathArrival(const Path *path) const
 {
   PathRef src_clk_path;
@@ -2392,7 +2403,7 @@ Search::fromRegClkTag(const Pin *from_pin,
 {
   ExceptionStateSet *states = NULL;
   if (sdc_->exceptionFromStates(from_pin, from_tr, clk, clk_tr,
-					min_max, states)) {
+				min_max, states)) {
     // Hack for filter -from reg/Q.
     sdc_->filterRegQStates(to_pin, to_tr, min_max, states);
     return findTag(to_tr, path_ap, clk_info, false, NULL, false, states, true);
@@ -2535,7 +2546,7 @@ Search::thruClkInfo(PathVertex *from_path,
   float latency;
   bool exists;
   sdc_->clockLatency(from_clk, to_pin, clk_tr, min_max,
-			     latency, exists);
+		     latency, exists);
   if (exists) {
     // Latency on pin has precidence over fanin or hierarchical
     // pin latency.
@@ -2546,7 +2557,7 @@ Search::thruClkInfo(PathVertex *from_path,
   else {
     // Check for hierarchical pin latency thru edge.
     sdc_->clockLatency(edge, clk_tr, min_max,
-			       latency, exists);
+		       latency, exists);
     if (exists) {
       to_latency = latency;
       to_clk_prop = false;
@@ -2618,8 +2629,7 @@ Search::mutateTag(Tag *from_tag,
       }
     }
     // Get the set of -thru exceptions starting at to_pin/edge.
-    sdc_->exceptionThruStates(from_pin, to_pin, to_tr, min_max,
-				      new_states);
+    sdc_->exceptionThruStates(from_pin, to_pin, to_tr, min_max, new_states);
     if (new_states || state_change) {
       // Second pass to apply state changes and add updated existing
       // states to new states.
@@ -2659,8 +2669,7 @@ Search::mutateTag(Tag *from_tag,
   }
   else
     // Get the set of -thru exceptions starting at to_pin/edge.
-    sdc_->exceptionThruStates(from_pin, to_pin, to_tr, min_max,
-				      new_states);
+    sdc_->exceptionThruStates(from_pin, to_pin, to_tr, min_max, new_states);
 
   if (new_states)
     return findTag(to_tr, path_ap, to_clk_info, to_is_clk,
@@ -3058,8 +3067,8 @@ Search::timingDerate(Vertex *from_vertex,
   const Pin *pin = from_vertex->pin();
   if (role->isWire()) {
     const TransRiseFall *tr = arc->toTrans()->asRiseFall();
-    return sdc_->timingDerateNet(pin, derate_clk_data,
-					 tr, path_ap->pathMinMax());
+    return sdc_->timingDerateNet(pin, derate_clk_data, tr,
+				 path_ap->pathMinMax());
   }
   else {
     TimingDerateType derate_type;
@@ -3072,9 +3081,8 @@ Search::timingDerate(Vertex *from_vertex,
        derate_type = timing_derate_cell_delay;
        tr = arc->fromTrans()->asRiseFall();
     }
-    return sdc_->timingDerateInstance(pin, derate_type,
-					      derate_clk_data, tr,
-					      path_ap->pathMinMax());
+    return sdc_->timingDerateInstance(pin, derate_type, derate_clk_data, tr,
+				      path_ap->pathMinMax());
   }
 }
 
@@ -3536,12 +3544,13 @@ RequiredVisitor::visitFromToPath(const Pin *,
       VertexPathIterator to_iter(to_vertex, to_tr, path_ap, sta_);
       while (to_iter.hasNext()) {
 	PathVertex *to_path = to_iter.next();
-	if (tagMatchNoCrpr(to_path->tag(sta_), to_tag)) {
+	Tag *to_path_tag = to_path->tag(sta_);
+	if (tagMatchNoCrpr(to_path_tag, to_tag)) {
 	  Required to_required = to_path->required(sta_);
 	  Required from_required = to_required - arc_delay;
 	  debugPrint2(debug, "search", 3, "  to tag   %2u: %s\n",
-		      to_tag->index(),
-		      to_tag->asString(sta_));
+		      to_path_tag->index(),
+		      to_path_tag->asString(sta_));
 	  debugPrint5(debug, "search", 3, "  %s - %s = %s %s %s\n",
 		      delayAsString(to_required, sta_),
 		      delayAsString(arc_delay, sta_),
@@ -3676,7 +3685,7 @@ Search::exceptionTo(ExceptionPathType type,
       if ((type == exception_type_any
 	   || exception->type() == type)
 	  && sdc_->isCompleteTo(state, pin, tr, clk_edge, min_max,
-					match_min_max_exactly, require_to_pin)
+				match_min_max_exactly, require_to_pin)
 	  && (hi_priority_exception == NULL
 	      || priority > hi_priority
 	      || (priority == hi_priority

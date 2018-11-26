@@ -92,6 +92,19 @@ UnitDelayCalc::loadDelay(const Pin *,
   load_slew = 0.0;
 }
 
+float
+UnitDelayCalc::ceff(const LibertyCell *,
+		    TimingArc *,
+		    const Slew &,
+		    float,
+		    Parasitic *,
+		    float,
+		    const Pvt *,
+		    const DcalcAnalysisPt *)
+{
+  return 0.0;
+}
+
 void
 UnitDelayCalc::reportGateDelay(const LibertyCell *,
 			       TimingArc *,
@@ -108,16 +121,18 @@ UnitDelayCalc::reportGateDelay(const LibertyCell *,
   *result += "Slew = 0.0\n";
 }
 
-ArcDelay
+void
 UnitDelayCalc::checkDelay(const LibertyCell *,
 			  TimingArc *,
 			  const Slew &,
 			  const Slew &,
 			  float,
 			  const Pvt *,
-			  const DcalcAnalysisPt *)
+			  const DcalcAnalysisPt *,
+			  // Return values.
+			  ArcDelay &margin)
 {
-  return units_->timeUnit()->scale();
+  margin = units_->timeUnit()->scale();
 }
 
 void

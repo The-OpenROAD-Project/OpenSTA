@@ -715,6 +715,7 @@ Graph::makeArcDelayPools(ArcIndex arc_count,
       arc_delays_[i] = pool;
     }
 
+    // Leave some room for edits.
     unsigned annot_size = arc_count * 1.2;
     arc_delay_annotated_.resize(annot_size * ap_count);
   }
@@ -747,7 +748,7 @@ Graph::makeEdgeArcDelays(Edge *edge)
     }
     edge->setArcDelays(arc_index);
     // Make sure there is room for delay_annotated flags.
-    unsigned max_annot_index = arc_index + (arc_count * ap_count_);
+    unsigned max_annot_index = (arc_index + arc_count) * ap_count_;
     if (max_annot_index >= arc_delay_annotated_.size()) {
       unsigned size = max_annot_index * 1.2;
       arc_delay_annotated_.resize(size);
@@ -832,7 +833,9 @@ Graph::arcDelayAnnotated(Edge *edge,
 			 TimingArc *arc,
 			 DcalcAPIndex ap_index) const
 {
-  int index = (edge->arcDelays() + arc->index()) * ap_count_ + ap_index;
+  unsigned index = (edge->arcDelays() + arc->index()) * ap_count_ + ap_index;
+  if (index >= arc_delay_annotated_.size())
+    internalError("arc_delay_annotated array bounds exceeded");
   return arc_delay_annotated_[index];
 }
 
@@ -842,7 +845,9 @@ Graph::setArcDelayAnnotated(Edge *edge,
 			    DcalcAPIndex ap_index,
 			    bool annotated)
 {
-  int index = (edge->arcDelays() + arc->index()) * ap_count_ + ap_index;
+  unsigned index = (edge->arcDelays() + arc->index()) * ap_count_ + ap_index;
+  if (index >= arc_delay_annotated_.size())
+    internalError("arc_delay_annotated array bounds exceeded");
   arc_delay_annotated_[index] = annotated;
 }
 
@@ -851,8 +856,10 @@ Graph::wireDelayAnnotated(Edge *edge,
 			  const TransRiseFall *tr,
 			  DcalcAPIndex ap_index) const
 {
-  int index = (edge->arcDelays() + TimingArcSet::wireArcIndex(tr)) * ap_count_
+  unsigned index = (edge->arcDelays() + TimingArcSet::wireArcIndex(tr)) * ap_count_
     + ap_index;
+  if (index >= arc_delay_annotated_.size())
+    internalError("arc_delay_annotated array bounds exceeded");
   return arc_delay_annotated_[index];
 }
 
@@ -862,8 +869,10 @@ Graph::setWireDelayAnnotated(Edge *edge,
 			     DcalcAPIndex ap_index,
 			     bool annotated)
 {
-  int index = (edge->arcDelays() + TimingArcSet::wireArcIndex(tr)) * ap_count_
+  unsigned index = (edge->arcDelays() + TimingArcSet::wireArcIndex(tr)) * ap_count_
     + ap_index;
+  if (index >= arc_delay_annotated_.size())
+    internalError("arc_delay_annotated array bounds exceeded");
   arc_delay_annotated_[index] = annotated;
 }
 

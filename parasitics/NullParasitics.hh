@@ -124,7 +124,9 @@ public:
   virtual bool isParasiticNetwork(Parasitic *parasitic) const;
   virtual Parasitic *
   makeParasiticNetwork(Net *net,
+		       bool pin_cap_included,
 		       const ParasiticAnalysisPt *ap);
+  virtual bool includesPinCaps(Parasitic *parasitic) const;
   virtual void deleteParasiticNetwork(const Net *net,
 				      const ParasiticAnalysisPt *ap);
   virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
@@ -165,14 +167,16 @@ public:
   virtual ParasiticNode *otherNode(const ParasiticDevice *device,
 				   ParasiticNode *node) const;
   // Reduce parasitic network to reduce_to model.
-  virtual void reduceTo(Parasitic *parasitic, const Net *net,
+  virtual void reduceTo(Parasitic *parasitic,
+			const Net *net,
 			ReduceParasiticsTo reduce_to,
 			const TransRiseFall *tr,
 			const OperatingConditions *op_cond,
 			const Corner *corner,
 			const MinMax *cnst_min_max,
 			const ParasiticAnalysisPt *ap);
-  virtual void reduceToPiElmore(Parasitic *parasitic, const Net *net,
+  virtual void reduceToPiElmore(Parasitic *parasitic,
+				const Net *net,
 				const TransRiseFall *tr,
 				const OperatingConditions *op_cond,
 				const Corner *corner,
@@ -186,7 +190,8 @@ public:
 				      const Corner *corner,
 				      const MinMax *cnst_min_max,
 				      const ParasiticAnalysisPt *ap);
-  virtual void reduceToPiPoleResidue2(Parasitic *parasitic, const Net *net,
+  virtual void reduceToPiPoleResidue2(Parasitic *parasitic,
+				      const Net *net,
 				      const TransRiseFall *tr,
 				      const OperatingConditions *op_cond,
 				      const Corner *corner,

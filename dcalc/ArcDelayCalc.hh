@@ -86,7 +86,8 @@ public:
 			 float related_out_cap,
 			 const Pvt *pvt, const DcalcAnalysisPt *dcalc_ap,
 			 // Return values.
-			 ArcDelay &gate_delay, Slew &drvr_slew) = 0;
+			 ArcDelay &gate_delay,
+			 Slew &drvr_slew) = 0;
   // Find the wire delay and load slew of a load pin.
   // Called after inputPortDelay or gateDelay.
   virtual void loadDelay(const Pin *load_pin,
@@ -94,16 +95,27 @@ public:
 			 ArcDelay &wire_delay,
 			 Slew &load_slew) = 0;
   virtual void setMultiDrvrSlewFactor(float factor) = 0;
+  // Ceff for parasitics with pi models.
+  virtual float ceff(const LibertyCell *drvr_cell,
+		     TimingArc *arc,
+		     const Slew &in_slew,
+		     float load_cap,
+		     Parasitic *drvr_parasitic,
+		     float related_out_cap,
+		     const Pvt *pvt,
+		     const DcalcAnalysisPt *dcalc_ap) = 0;
 
   // Find the delay for a timing check arc given the arc's
   // from/clock, to/data slews and related output pin parasitic.
-  virtual ArcDelay checkDelay(const LibertyCell *drvr_cell,
-			      TimingArc *arc,
-			      const Slew &from_slew,
-			      const Slew &to_slew,
-			      float related_out_cap,
-			      const Pvt *pvt,
-			      const DcalcAnalysisPt *dcalc_ap) = 0;
+  virtual void checkDelay(const LibertyCell *drvr_cell,
+			  TimingArc *arc,
+			  const Slew &from_slew,
+			  const Slew &to_slew,
+			  float related_out_cap,
+			  const Pvt *pvt,
+			  const DcalcAnalysisPt *dcalc_ap,
+			  // Return values.
+			  ArcDelay &margin) = 0;
   // Report delay and slew calculation.
   virtual void reportGateDelay(const LibertyCell *drvr_cell,
 			       TimingArc *arc,

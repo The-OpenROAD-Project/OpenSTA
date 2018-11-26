@@ -383,6 +383,10 @@ public:
   void setArea(float area);
   bool dontUse() const { return dont_use_; }
   void setDontUse(bool dont_use);
+  bool isMacro() const { return is_macro_; }
+  void setIsMacro(bool is_macro);
+  bool isPad() const { return is_pad_; }
+  void setIsPad(bool is_pad);
   bool interfaceTiming() const { return interface_timing_; }
   void setInterfaceTiming(bool value);
   bool isClockGateLatchPosedge() const;
@@ -409,6 +413,7 @@ public:
   bool hasTimingArcs(LibertyPort *port) const;
   LibertyCellInternalPowerIterator *internalPowerIterator();
   LibertyCellLeakagePowerIterator *leakagePowerIterator();
+  float leakagePower() const;
   bool hasSequentials() const;
   CellSequentialIterator *sequentialIterator() const;
   void makeSequential(int size,
@@ -444,6 +449,7 @@ public:
   LibertyCell *cornerCell(int ap_index);
   void setCornerCell(LibertyCell *corner_cell,
 		     int ap_index);
+  void setLeakagePower(float leakage);
 
   // AOCV
   float ocvArcDepth() const;
@@ -476,6 +482,8 @@ protected:
   LibertyLibrary *liberty_library_;
   float area_;
   bool dont_use_;
+  bool is_macro_;
+  bool is_pad_;
   bool has_internal_ports_;
   bool interface_timing_;
   ClockGateType clock_gate_type_;
@@ -505,6 +513,7 @@ protected:
   OcvDerateMap ocv_derate_map_;
   bool is_disabled_constraint_;
   Vector<LibertyCell*> corner_cells_;
+  float leakage_power_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(LibertyCell);
@@ -637,6 +646,8 @@ public:
   LibertyPort *cornerPort(int ap_index);
   void setCornerPort(LibertyPort *corner_port,
 		     int ap_index);
+  const char *relatedPowerPin() const { return related_power_pin_; }
+  void setRelatedPowerPin(const char *related_power_pin);
 
   static bool equiv(const LibertyPort *port1,
 		    const LibertyPort *port2);
@@ -670,6 +681,7 @@ protected:
   float min_pulse_width_[TransRiseFall::index_count];
   TransRiseFall *pulse_clk_trigger_;
   TransRiseFall *pulse_clk_sense_;
+  const char *related_power_pin_;
   Vector<LibertyPort*> corner_ports_;
 
   unsigned int min_pulse_width_exists_:TransRiseFall::index_count;

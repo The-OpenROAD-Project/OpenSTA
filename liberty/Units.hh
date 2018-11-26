@@ -36,6 +36,7 @@ public:
   void setSuffix(const char *suffix);
   int digits() const { return digits_; }
   void setDigits(int digits);
+  int width() const;
   const char *asString(float value) const;
   const char *asString(double value) const;
   const char *asString(float value,

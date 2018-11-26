@@ -128,9 +128,9 @@ protected:
   const char *sdf_cond_end_;
   const char *mode_name_;
   const char *mode_value_;
+  float ocv_arc_depth_;
   TimingModel *models_[TransRiseFall::index_count];
   bool model_refs_[TransRiseFall::index_count];
-  float ocv_arc_depth_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(TimingArcAttrs);

@@ -32,7 +32,8 @@ public:
 			 float load_cap, float in_slew,
 			 float related_out_cap,
 			 // return values
-			 float &gate_delay, float &drvr_slew) const;
+			 ArcDelay &gate_delay,
+			 Slew &drvr_slew) const;
   virtual void reportGateDelay(const LibertyCell *cell,
 			       const Pvt *pvt,
 			       float load_cap, float in_slew,
@@ -56,10 +57,11 @@ class CheckLinearModel : public CheckTimingModel
 public:
   explicit CheckLinearModel(float intrinsic);
   // Timing check margin delay calculation.
-  virtual float checkDelay(const LibertyCell *cell,
-			   const Pvt *pvt,
-			   float from_slew, float to_slew,
-			   float related_out_cap) const;
+  virtual void checkDelay(const LibertyCell *cell,
+			  const Pvt *pvt,
+			  float from_slew, float to_slew,
+			  float related_out_cap,
+			  ArcDelay &margin) const;
   virtual void reportCheckDelay(const LibertyCell *cell,
 				const Pvt *pvt,
 				float from_slew,

@@ -93,7 +93,7 @@ Parasitics::makeWireloadNetwork(const Pin *drvr_pin,
 				const ParasiticAnalysisPt *ap)
 {
   Net *net = network_->net(drvr_pin);
-  Parasitic *parasitic = makeParasiticNetwork(net, ap);
+  Parasitic *parasitic = makeParasiticNetwork(net, false, ap);
   float wireload_cap, wireload_res;
   wireload->findWireload(fanout, op_cond, wireload_cap, wireload_res);
 

@@ -423,7 +423,8 @@ ReportPath::reportFull(const PathEndUnconstrained *end,
   reportEndOfLine(result);
 
   reportPath(end, expanded, result);
-  reportLine("data arrival time", end->dataArrivalTimeOffset(this), result);
+  reportLine("data arrival time", end->dataArrivalTimeOffset(this),
+	     end->pathEarlyLate(this), result);
   reportDashLine(result);
   result += "(Path is unconstrained)\n";
 }
@@ -542,6 +543,7 @@ ReportPath::reportFull(const PathEndLatchCheck *end,
 		       string &result)
 {
   PathExpanded expanded(end->path(), this);
+  const EarlyLate *early_late = end->pathEarlyLate(this);
   reportShort(end, expanded, result);
   PathDelay *path_delay = end->pathDelay();
   reportEndOfLine(result);
@@ -554,7 +556,8 @@ ReportPath::reportFull(const PathEndLatchCheck *end,
   }
   else
     reportSrcPath(end, expanded, result);
-  reportLine("data arrival time", end->dataArrivalTimeOffset(this), result);
+  reportLine("data arrival time", end->dataArrivalTimeOffset(this),
+	     early_late, result);
   reportEndOfLine(result);
 
   Required req_time;
@@ -565,23 +568,27 @@ ReportPath::reportFull(const PathEndLatchCheck *end,
   req_time += end->sourceClkOffset(this);
   if (path_delay) {
     float delay = path_delay->delay();
-    reportLine("max_delay", delay, delay, result);
+    reportLine("max_delay", delay, delay, early_late, result);
     if (!ignore_clk_latency) {
       if (reportClkPath()
 	  && isPropagated(end->targetClkPath()))
 	reportTgtClk(end, delay, result);
-      else
-	reportCommonClkPessimism(end, delay, result);
+      else {
+	Delay delay1(delay);
+	reportCommonClkPessimism(end, delay1, result);
+      }
     }
   }
   else
     reportTgtClk(end, result);
 
   if (borrow >= 0.0)
-    reportLine("time borrowed from endpoint", borrow, req_time, result);
+    reportLine("time borrowed from endpoint", borrow, req_time,
+	       early_late, result);
   else
-    reportLine("time given to endpoint", borrow, req_time, result);
-  reportLine("data required time", req_time, result);
+    reportLine("time given to endpoint", borrow, req_time,
+	       early_late, result);
+  reportLine("data required time", req_time, early_late, result);
   reportDashLine(result);
   reportSlack(end, result);
   if (end->checkGenericRole(this) == TimingRole::setup()
@@ -629,13 +636,14 @@ ReportPath::reportBorrowing(const PathEndLatchCheck *end,
   Delay open_latency, latency_diff, max_borrow;
   float nom_pulse_width, open_uncertainty, open_crpr, crpr_diff;
   bool borrow_limit_exists;
+  const EarlyLate *early_late = EarlyLate::late();
   end->latchBorrowInfo(this, nom_pulse_width, open_latency, latency_diff,
 		       open_uncertainty, open_crpr, crpr_diff,
 		       max_borrow, borrow_limit_exists);
   result += "Time Borrowing Information\n";
   reportDashLineTotal(result);
   if (borrow_limit_exists)
-    reportLineTotal("user max time borrow", max_borrow, result);
+    reportLineTotal("user max time borrow", max_borrow, early_late, result);
   else {
     const char *tgt_clk_name = tgtClkName(end);
     Arrival tgt_clk_width = end->targetClkWidth(this);
@@ -645,39 +653,41 @@ ReportPath::reportBorrowing(const PathEndLatchCheck *end,
 					     + strlen(tgt_clk_name) + 1,
 					     "%s nominal pulse width",
 					     tgt_clk_name);
-      reportLineTotal(width_msg, nom_pulse_width, result);
+      reportLineTotal(width_msg, nom_pulse_width, early_late, result);
       if (!delayFuzzyZero(latency_diff))
-	reportLineTotalMinus("clock latency difference", latency_diff, result);
+	reportLineTotalMinus("clock latency difference", latency_diff,
+			     early_late, result);
     }
     else {
       const char *width_msg = stringPrintTmp(strlen(" pulse width")
 					     + strlen(tgt_clk_name) + 1,
 					     "%s pulse width",
 					     tgt_clk_name);
-      reportLineTotal(width_msg, tgt_clk_width, result);
+      reportLineTotal(width_msg, tgt_clk_width, early_late, result);
     }
     ArcDelay margin = end->margin(this);
-    reportLineTotalMinus("library setup time", margin, result);
+    reportLineTotalMinus("library setup time", margin, early_late, result);
     reportDashLineTotal(result);
     if (!fuzzyZero(crpr_diff))
-      reportLineTotalMinus("CRPR difference", crpr_diff, result);
-    reportLineTotal("max time borrow", max_borrow, result);
+      reportLineTotalMinus("CRPR difference", crpr_diff, early_late, result);
+    reportLineTotal("max time borrow", max_borrow, early_late, result);
   }
   if (delayFuzzyGreater(borrow, delay_zero)
       && (!fuzzyZero(open_uncertainty)
 	  || !fuzzyZero(open_crpr))) {
     reportDashLineTotal(result);
-    reportLineTotal("actual time borrow", borrow, result);
+    reportLineTotal("actual time borrow", borrow, early_late, result);
     if (!fuzzyZero(open_uncertainty))
-      reportLineTotal("open edge uncertainty", open_uncertainty, result);
+      reportLineTotal("open edge uncertainty", open_uncertainty,
+		      early_late, result);
     if (!fuzzyZero(open_crpr))
-      reportLineTotal("open edge CRPR", open_crpr, result);
+      reportLineTotal("open edge CRPR", open_crpr, early_late, result);
     reportDashLineTotal(result);
     reportLineTotal("time given to startpoint", time_given_to_startpoint,
-		    result);
+		    early_late, result);
   }
   else
-    reportLineTotal("actual time borrow", borrow, result);
+    reportLineTotal("actual time borrow", borrow, early_late, result);
   reportDashLineTotal(result);
 }
 
@@ -727,6 +737,7 @@ ReportPath::reportFull(const PathEndPathDelay *end,
 {
   PathExpanded expanded(end->path(), this);
   reportShort(end, expanded, result);
+  const EarlyLate *early_late = end->pathEarlyLate(this);
 
   // Based on reportSrcPathArrival.
   reportEndOfLine(result);
@@ -739,7 +750,8 @@ ReportPath::reportFull(const PathEndPathDelay *end,
   }
   else
     reportSrcPath(end, expanded, result);
-  reportLine("data arrival time", end->dataArrivalTimeOffset(this), result);
+  reportLine("data arrival time", end->dataArrivalTimeOffset(this),
+	     early_late, result);
   reportEndOfLine(result);
 
   ArcDelay margin = end->margin(this);
@@ -758,7 +770,7 @@ ReportPath::reportFull(const PathEndPathDelay *end,
 				   "%s_delay",
 				   min_max_str);
   float delay = path_delay->delay();
-  reportLine(delay_msg, delay, delay, result);
+  reportLine(delay_msg, delay, delay, early_late, result);
   if (!path_delay->ignoreClkLatency()) {
     const Path *tgt_clk_path = end->targetClkPath();
     if (tgt_clk_path) {
@@ -773,7 +785,7 @@ ReportPath::reportFull(const PathEndPathDelay *end,
 	Arrival tgt_clk_arrival = delay + tgt_clk_delay;
 	if (!delayFuzzyZero(tgt_clk_delay))
 	  reportLine(clkNetworkDelayIdealProp(isPropagated(tgt_clk_path)),
-		     tgt_clk_delay, tgt_clk_arrival, result);
+		     tgt_clk_delay, tgt_clk_arrival, early_late, result);
 	reportClkUncertainty(end, tgt_clk_arrival, result);
 	reportCommonClkPessimism(end, tgt_clk_arrival, result);
       }
@@ -968,9 +980,9 @@ ReportPath::reportFull(const PathEndDataCheck *end,
     // Report the path from the clk network to the data check.
     PathExpanded clk_expanded(data_clk_path, this);
     float src_offset = end->sourceClkOffset(this);
-    float clk_delay = end->targetClkDelay(this);
-    float clk_arrival = end->targetClkArrival(this);
-    float offset = clk_arrival - clk_delay + src_offset;
+    Delay clk_delay = end->targetClkDelay(this);
+    Arrival clk_arrival = end->targetClkArrival(this);
+    float offset = delayAsFloat(clk_arrival - clk_delay + src_offset);
     reportPath5(data_clk_path, clk_expanded, clk_expanded.startIndex(),
 		clk_expanded.size() - 1,
 		data_clk_path->clkInfo(search_)->isPropagated(), false,
@@ -1030,11 +1042,12 @@ void
 ReportPath::reportEndLine(PathEnd *end,
 			  string &result)
 {
+  const EarlyLate *early_late = end->pathEarlyLate(this);
   reportDescription(pathEndpoint(end), result);
-  reportSpaceFieldTime(end->requiredTimeOffset(this), result);
-  reportSpaceFieldTime(end->dataArrivalTimeOffset(this), result);
+  reportSpaceFieldDelay(end->requiredTimeOffset(this), early_late, result);
+  reportSpaceFieldDelay(end->dataArrivalTimeOffset(this), early_late, result);
   Slack slack = end->slack(this);
-  reportSpaceFieldTime(slack, result);
+  reportSpaceFieldDelay(slack, early_late, result);
   result += (slack >= 0.0) ? " (MET)" : " (VIOLATED)";
   reportEndOfLine(result);
 }
@@ -1059,12 +1072,13 @@ ReportPath::reportSummaryLine(PathEnd *end,
 			      string &result)
 {
   PathExpanded expanded(end->path(), this);
+  const EarlyLate *early_late = end->pathEarlyLate(this);
   reportDescription(pathStartpoint(end, expanded), result);
   reportDescription(pathEndpoint(end), result);
   if (end->isUnconstrained())
-    reportSpaceFieldTime(end->dataArrivalTimeOffset(this), result);
+    reportSpaceFieldDelay(end->dataArrivalTimeOffset(this), early_late, result);
   else
-    reportSpaceFieldTime(end->slack(this), result);
+    reportSpaceFieldDelay(end->slack(this), early_late, result);
   reportEndOfLine(result);
 }
 
@@ -1131,11 +1145,12 @@ void
 ReportPath::reportSlackOnly(PathEnd *end,
 			    string &result)
 {
+  const EarlyLate *early_late = end->pathEarlyLate(this);
   reportDescription(search_->pathGroup(end)->name(), result);
   if (end->isUnconstrained())
-    reportSpaceFieldTime(end->dataArrivalTimeOffset(this), result);
+    reportSpaceFieldDelay(end->dataArrivalTimeOffset(this), early_late, result);
   else
-    reportSpaceFieldTime(end->slack(this), result);
+    reportSpaceFieldDelay(end->slack(this), early_late, result);
   reportEndOfLine(result);
 }
 
@@ -1229,9 +1244,9 @@ ReportPath::reportShort(MinPulseWidthCheck *check,
 			      hi_low);
   reportDescription(what, result);
   reportSpaceFieldTime(check->minWidth(this), result);
-  reportSpaceFieldTime(check->width(this), result);
+  reportSpaceFieldDelay(check->width(this), EarlyLate::late(), result);
   Slack slack = check->slack(this);
-  reportSpaceFieldTime(slack, result);
+  reportSpaceFieldDelay(slack, EarlyLate::early(), result);
   result += (slack >= 0.0) ? " (MET)" : " (VIOLATED)";
   reportEndOfLine(result);
 }
@@ -1249,6 +1264,7 @@ ReportPath::reportVerbose(MinPulseWidthCheck *check,
   reportEndOfLine(result);
 
   reportPathHeader(result);
+  const EarlyLate *open_el = EarlyLate::late();
   ClockEdge *open_clk_edge = check->openClkEdge(this);
   Clock *open_clk = open_clk_edge->clock();
   const char *open_clk_name = open_clk->name();
@@ -1260,15 +1276,18 @@ ReportPath::reportVerbose(MinPulseWidthCheck *check,
 					    "clock %s (%s edge)",
 					    open_clk_name,
 					    open_rise_fall);
-  reportLine(open_clk_msg, open_clk_time, open_clk_time, result);
+  reportLine(open_clk_msg, open_clk_time, open_clk_time,
+	     open_el, result);
   Arrival open_arrival = check->openArrival(this);
   bool is_prop = isPropagated(check->openPath());
   const char *clk_ideal_prop = clkNetworkDelayIdealProp(is_prop);
-  reportLine(clk_ideal_prop, check->openDelay(this), open_arrival, result);
-  reportLine(pin_name, delay_zero, open_arrival, result);
-  reportLine("open edge arrival time", open_arrival, result);
+  reportLine(clk_ideal_prop, check->openDelay(this), open_arrival,
+	     open_el, result);
+  reportLine(pin_name, delay_zero, open_arrival, open_el, result);
+  reportLine("open edge arrival time", open_arrival, open_el, result);
   reportEndOfLine(result);
 
+  const EarlyLate *close_el = EarlyLate::late();
   ClockEdge *close_clk_edge = check->closeClkEdge(this);
   Clock *close_clk = close_clk_edge->clock();
   const char *close_clk_name = close_clk->name();
@@ -1281,18 +1300,20 @@ ReportPath::reportVerbose(MinPulseWidthCheck *check,
 					     "clock %s (%s edge)",
 					     close_clk_name,
 					     close_rise_fall);
-  reportLine(close_clk_msg, close_clk_time, close_clk_time, result);
+  reportLine(close_clk_msg, close_clk_time, close_clk_time, close_el, result);
   Arrival close_arrival = check->closeArrival(this) + close_offset;
-  reportLine(clk_ideal_prop, check->closeDelay(this), close_arrival, result);
-  reportLine(pin_name, delay_zero, close_arrival, result);
+  reportLine(clk_ideal_prop, check->closeDelay(this), close_arrival,
+	     close_el, result);
+  reportLine(pin_name, delay_zero, close_arrival, close_el, result);
 
   if (sdc_->crprEnabled()) {
     float pessimism = check->commonClkPessimism(this);
     close_arrival += pessimism;
     reportLine("clock reconvergence pessimism", pessimism, close_arrival,
-	       result);
+	       close_el, result);
   }
-  reportLine("close edge arrival time", close_arrival, result);
+  reportLine("close edge arrival time", close_arrival, close_el, result);
+
   reportDashLine(result);
   float min_width = check->minWidth(this);
   const char *hi_low = mpwCheckHiLow(check);
@@ -1300,8 +1321,9 @@ ReportPath::reportVerbose(MinPulseWidthCheck *check,
 				       + strlen(hi_low) + 1,
 				       "required pulse width (%s)",
 				       hi_low);
-  reportLine(rpw_msg, min_width, result);
-  reportLine("actual pulse width", check->width(this), result);
+  reportLine(rpw_msg, min_width, EarlyLate::early(), result);
+  reportLine("actual pulse width", check->width(this),
+	     EarlyLate::early(), result);
   reportDashLine(result);
   reportSlack(check->slack(this), result);
 }
@@ -1399,10 +1421,10 @@ ReportPath::reportShort(MinPeriodCheck *check,
 {
   const char *pin_name = cmd_network_->pathName(check->pin());
   reportDescription(pin_name, result);
-  reportSpaceFieldTime(check->period(), result);
-  reportSpaceFieldTime(check->minPeriod(this), result);
+  reportSpaceFieldDelay(check->period(), EarlyLate::early(), result);
+  reportSpaceFieldDelay(check->minPeriod(this), EarlyLate::early(), result);
   Slack slack = check->slack(this);
-  reportSpaceFieldTime(slack, result);
+  reportSpaceFieldDelay(slack, EarlyLate::early(), result);
   result += (slack >= 0.0) ? " (MET)" : " (VIOLATED)";
   reportEndOfLine(result);
 }
@@ -1415,8 +1437,9 @@ ReportPath::reportVerbose(MinPeriodCheck *check, string &result)
   result += pin_name;
   reportEndOfLine(result);
 
-  reportLine("Period", check->period(), result);
-  reportLine("min_period", -check->minPeriod(this), result);
+  reportLine("Period", check->period(), EarlyLate::early(), result);
+  reportLine("min_period", -check->minPeriod(this),
+	     EarlyLate::early(), result);
   reportDashLine(result);
   reportSlack(check->slack(this), result);
 }
@@ -1513,10 +1536,10 @@ ReportPath::reportShort(MaxSkewCheck *check,
 				    check_arc->fromTrans()->asString(),
 				    check_arc->toTrans()->asString());
   reportDescription(what, result);
-  reportSpaceFieldTime(check->maxSkew(this), result);
-  reportSpaceFieldTime(check->skew(this), result);
+  reportSpaceFieldDelay(check->maxSkew(this), EarlyLate::early(), result);
+  reportSpaceFieldDelay(check->skew(this), EarlyLate::early(), result);
   Slack slack = check->slack(this);
-  reportSpaceFieldTime(slack, result);
+  reportSpaceFieldDelay(slack, EarlyLate::early(), result);
   result += (slack >= 0.0) ? " (MET)" : " (VIOLATED)";
   reportEndOfLine(result);
 }
@@ -1544,8 +1567,9 @@ ReportPath::reportVerbose(MaxSkewCheck *check,
   reportSkewClkPath("constrained pin arrival time", check->clkPath(), result);
 
   reportDashLine(result);
-  reportLine("allowable skew", check->maxSkew(this), result);
-  reportLine("actual skew", check->skew(this), result);
+  reportLine("allowable skew", check->maxSkew(this),
+	     EarlyLate::early(), result);
+  reportLine("actual skew", check->skew(this), EarlyLate::late(), result);
   reportDashLine(result);
   reportSlack(check->slack(this), result);
 }
@@ -1558,6 +1582,7 @@ ReportPath::reportSkewClkPath(const char *arrival_msg,
 {
   ClockEdge *clk_edge = clk_path->clkEdge(this);
   Clock *clk = clk_edge->clock();
+  const EarlyLate *early_late = clk_path->minMax(this);
   const TransRiseFall *clk_tr = clk_edge->transition();
   const TransRiseFall *clk_end_tr = clk_path->transition(this);
   const char *clk_name = (clk_end_tr == clk_tr)
@@ -1580,17 +1605,19 @@ ReportPath::reportSkewClkPath(const char *arrival_msg,
       Arrival insertion, latency;
       PathEnd::checkTgtClkDelay(clk_path, clk_edge, TimingRole::skew(), this,
 				insertion, latency);
-      reportClkSrcLatency(insertion, clk_time, result);
+      reportClkSrcLatency(insertion, clk_time, early_late, result);
       PathExpanded clk_expanded(clk_path, this);
       reportPath2(clk_path, clk_expanded, false, 0.0, result);
     }
   }
   else {
     reportLine(clkNetworkDelayIdealProp(is_prop), clk_delay, clk_arrival,
-	       result);
-    reportLine(descriptionField(clk_vertex), clk_arrival, clk_end_tr, result);
+	       early_late, result);
+    reportLine(descriptionField(clk_vertex), clk_arrival, early_late,
+	       clk_end_tr, result);
   }
-  reportLine(arrival_msg, search_->clkPathArrival(clk_path), result);
+  reportLine(arrival_msg, search_->clkPathArrival(clk_path),
+	     early_late, result);
   reportEndOfLine(result);
 }
 
@@ -1642,7 +1669,7 @@ ReportPath::reportSlewLimitShort(Pin *pin,
   const char *pin_name = cmd_network_->pathName(pin);
   reportDescription(pin_name, result);
   reportSpaceFieldTime(limit, result);
-  reportSpaceFieldTime(slew, result);
+  reportSpaceFieldDelay(slew, EarlyLate::late(),  result);
   reportSpaceFieldTime(slack, result);
   result += (slack >= 0.0) ? " (MET)" : " (VIOLATED)";
   reportEndOfLine(result);
@@ -1977,7 +2004,8 @@ ReportPath::reportSrcPathArrival(const PathEnd *end,
 {
   reportEndOfLine(result);
   reportSrcPath(end, expanded, result);
-  reportLine("data arrival time", end->dataArrivalTimeOffset(this), result);
+  reportLine("data arrival time", end->dataArrivalTimeOffset(this),
+	     end->pathEarlyLate(this), result);
   reportEndOfLine(result);
 }
 
@@ -2077,33 +2105,33 @@ ReportPath::reportSrcClkAndPath(const Path *path,
 	reportClkLine(clk, clk_name, clk_end_tr, clk_time, min_max, result);
  	ClkInfo *clk_info = path->tag(search_)->clkInfo();
  	if (clk_info->isPropagated())
- 	  reportClkSrcLatency(clk_insertion, clk_time, result);
+ 	  reportClkSrcLatency(clk_insertion, clk_time, early_late, result);
 	reportPath1(path, expanded, true, time_offset, result);
       }
       else if (is_prop
 	       && reportClkPath()
 	       && !(path_from_input && !input_has_ref_path)) {
- 	reportClkLine(clk, clk_name, clk_end_tr, clk_time, min_max, result);
-	reportClkSrcLatency(clk_insertion, clk_time, result);
+ 	reportClkLine(clk, clk_name, clk_end_tr, clk_time, early_late, result);
+	reportClkSrcLatency(clk_insertion, clk_time, early_late, result);
  	reportPath1(path, expanded, false, time_offset, result);
       }
       else if (clk_used_as_data) {
-	reportClkLine(clk, clk_name, clk_end_tr, clk_time, min_max, result);
+	reportClkLine(clk, clk_name, clk_end_tr, clk_time, early_late, result);
  	if (clk_insertion > 0.0)
-	  reportClkSrcLatency(clk_insertion, clk_time, result);
+	  reportClkSrcLatency(clk_insertion, clk_time, early_late, result);
 	reportPath1(path, expanded, true, time_offset, result);
       }
       else {
 	if (is_path_delay) {
 	  if (clk_delay > 0.0)
 	    reportLine(clkNetworkDelayIdealProp(is_prop), clk_delay,
-		       clk_end_time, result);
+		       clk_end_time, early_late, result);
 	}
 	else {
 	  reportClkLine(clk, clk_name, clk_end_tr, clk_time, min_max, result);
-	  float clk_arrival = clk_end_time;
+	  Arrival clk_arrival = clk_end_time;
 	  reportLine(clkNetworkDelayIdealProp(is_prop), clk_delay,
-		     clk_arrival, result);
+		     clk_arrival, early_late, result);
 	}
 	reportPath1(path, expanded, false, time_offset, result);
       }
@@ -2170,7 +2198,7 @@ ReportPath::reportTgtClk(const PathEnd *end,
     else {
       Arrival insertion = end->targetClkInsertionDelay(this);
       if (clk_path) {
-	reportClkSrcLatency(insertion, clk_time, result);
+	reportClkSrcLatency(insertion, clk_time, early_late, result);
 	PathExpanded clk_expanded(clk_path, this);
 	float insertion_offset = tgtClkInsertionOffet(clk_path, early_late,
 						      path_ap);
@@ -2182,7 +2210,7 @@ ReportPath::reportTgtClk(const PathEnd *end,
 	// Output departure.
 	Arrival clk_arrival = clk_time + clk_delay;
 	reportLine(clkNetworkDelayIdealProp(clk->isPropagated()),
-		   clk_delay, clk_arrival, result);
+		   clk_delay, clk_arrival, min_max, result);
       }
     }
     reportClkUncertainty(end, clk_arrival, result);
@@ -2190,7 +2218,7 @@ ReportPath::reportTgtClk(const PathEnd *end,
   }
   else {
     reportLine(clkNetworkDelayIdealProp(is_prop), clk_delay, clk_arrival,
-	       result);
+	       min_max, result);
     reportClkUncertainty(end, clk_arrival, result);
     reportCommonClkPessimism(end, clk_arrival, result);
     if (clk_path) {
@@ -2199,7 +2227,7 @@ ReportPath::reportTgtClk(const PathEnd *end,
 		 prev_time
 		 + end->targetClkArrival(this)
 		 + end->sourceClkOffset(this),
-		 clk_end_tr, result);
+		 min_max, clk_end_tr, result);
     }
   }
 }
@@ -2289,11 +2317,12 @@ ReportPath::reportClkLine(const Clock *clk,
 				       clk_name,
 				       rise_fall);
   if (clk->isPropagated())
-    reportLine(clk_msg, clk_time - prev_time, clk_time, result);
+    reportLine(clk_msg, clk_time - prev_time, clk_time, min_max, result);
   else {
     // Report ideal clock slew.
     float clk_slew = clk->slew(clk_tr, min_max);
-    reportLine(clk_msg, clk_slew, clk_time - prev_time, clk_time, result);
+    reportLine(clk_msg, clk_slew, clk_time - prev_time, clk_time,
+	       min_max, result);
   }
 }
 
@@ -2350,6 +2379,7 @@ ReportPath::reportGenClkSrcPath1(Clock *clk,
 {
   PathAnalysisPt *insert_ap = path_ap->insertionAnalysisPt(early_late);
   PathVertex src_path;
+  const MinMax *min_max = path_ap->pathMinMax();
   search_->genclks()->srcPath(clk, clk_pin, clk_tr, insert_ap, src_path);
   if (!src_path.isNull()) {
     ClkInfo *src_clk_info = src_path.clkInfo(search_);
@@ -2370,13 +2400,12 @@ ReportPath::reportGenClkSrcPath1(Clock *clk,
 							src_clk_tr,
 							path_ap->pathMinMax(),
 							early_late, path_ap);
-      reportClkSrcLatency(insertion, gclk_time, result);
+      reportClkSrcLatency(insertion, gclk_time, early_late, result);
     }
     PathExpanded src_expanded(&src_path, this);
     if (clk->pllOut()) {
       reportPath4(&src_path, src_expanded, skip_first_path, true,
 		  clk_used_as_data, gclk_time, result);
-      const MinMax *min_max = path_ap->pathMinMax();
       PathAnalysisPt *pll_ap=path_ap->insertionAnalysisPt(min_max->opposite());
       Arrival pll_delay = search_->genclks()->pllDelay(clk, clk_tr, pll_ap);
       size_t path_length = src_expanded.size();
@@ -2392,13 +2421,14 @@ ReportPath::reportGenClkSrcPath1(Clock *clk,
 		  clk_used_as_data, gclk_time, result);
     if (!clk->isPropagated())
       reportLine("clock network delay (ideal)", 0.0, src_path.arrival(this),
-		 result);
+		 min_max, result);
   }
   else {
     if (clk->isPropagated())
-      reportClkSrcLatency(0.0, gclk_time, result);
+      reportClkSrcLatency(0.0, gclk_time, early_late, result);
     else if (!clk_used_as_data)
-      reportLine("clock network delay (ideal)", 0.0, gclk_time, result);
+      reportLine("clock network delay (ideal)", 0.0, gclk_time,
+		 min_max, result);
   }
   return !src_path.isNull();
 }
@@ -2406,9 +2436,11 @@ ReportPath::reportGenClkSrcPath1(Clock *clk,
 void
 ReportPath::reportClkSrcLatency(Arrival insertion,
 				float clk_time,
+				const EarlyLate *early_late,
 				string &result)
 {
-  reportLine("clock source latency", insertion, clk_time + insertion, result);
+  reportLine("clock source latency", insertion, clk_time + insertion,
+	     early_late, result);
 }
 
 void
@@ -2423,7 +2455,9 @@ ReportPath::reportPathLine(const Path *path,
   const char *what = descriptionField(vertex);
   const TransRiseFall *tr = path->transition(this);
   bool is_driver = network_->isDriver(pin);
-  DcalcAnalysisPt *dcalc_ap = path->pathAnalysisPt(this)->dcalcAnalysisPt();
+  PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
+  const EarlyLate *early_late = path_ap->pathMinMax();
+  DcalcAnalysisPt *dcalc_ap = path_ap->dcalcAnalysisPt();
   DcalcAPIndex ap_index = dcalc_ap->index();
   Slew slew = graph_->slew(vertex, tr, ap_index);
   float cap = field_blank_;
@@ -2431,7 +2465,7 @@ ReportPath::reportPathLine(const Path *path,
   if (is_driver && field_capacitance_->enabled())
     cap = loadCap(pin, tr, dcalc_ap);
   reportLine(what, cap, slew, field_blank_,
-	     incr, time, false, tr, line_case, result);
+	     incr, time, false, early_late, tr, line_case, result);
 }
 
 void
@@ -2440,11 +2474,12 @@ ReportPath::reportRequired(const PathEnd *end,
 			   string &result)
 {
   Required req_time = end->requiredTimeOffset(this);
+  const EarlyLate *early_late = end->clkEarlyLate(this);
   ArcDelay margin = end->margin(this);
   if (end->minMax(this) == MinMax::max())
     margin = -margin;
-  reportLine(margin_msg, margin, req_time, result);
-  reportLine("data required time", req_time, result);
+  reportLine(margin_msg, margin, req_time, early_late, result);
+  reportLine("data required time", req_time, early_late, result);
   reportDashLine(result);
 }
 
@@ -2452,9 +2487,11 @@ void
 ReportPath::reportSlack(const PathEnd *end,
 			string &result)
 {
-  reportLine("data required time", end->requiredTimeOffset(this), result);
+  const EarlyLate *early_late = end->pathEarlyLate(this);
+  reportLine("data required time", end->requiredTimeOffset(this),
+	     early_late->opposite(), result);
   reportLineNegative("data arrival time", end->dataArrivalTimeOffset(this),
-		     result);
+		     early_late, result);
   reportDashLine(result);
   reportSlack(end->slack(this), result);
 }
@@ -2463,10 +2500,10 @@ void
 ReportPath::reportSlack(Slack slack,
 			string &result)
 {
-  if (slack < 0.0)
-    reportLine("slack (VIOLATED)", slack, result);
-  else
-    reportLine("slack (MET)", slack, result);
+  const char *msg = (slack < 0.0)
+    ? "slack (VIOLATED)"
+    : "slack (MET)";
+  reportLine(msg, slack, EarlyLate::early(), result);
 }
 
 void
@@ -2477,7 +2514,8 @@ ReportPath::reportCommonClkPessimism(const PathEnd *end,
   if (sdc_->crprEnabled()) {
     float pessimism = end->commonClkPessimism(this);
     clk_arrival += pessimism;
-    reportLine("clock reconvergence pessimism", pessimism, clk_arrival, result);
+    reportLine("clock reconvergence pessimism", pessimism, clk_arrival,
+	       end->clkEarlyLate(this), result);
   }
 }
 
@@ -2486,15 +2524,17 @@ ReportPath::reportClkUncertainty(const PathEnd *end,
 				 Arrival &clk_arrival,
 				 string &result)
 {
+  const EarlyLate *early_late = end->clkEarlyLate(this);
   float uncertainty = end->targetNonInterClkUncertainty(this);
   clk_arrival += uncertainty;
   if (uncertainty != 0.0)
-    reportLine("clock uncertainty", uncertainty, clk_arrival, result);
+    reportLine("clock uncertainty", uncertainty, clk_arrival,
+	       early_late, result);
   float inter_uncertainty = end->interClkUncertainty(this);
   clk_arrival += inter_uncertainty;
   if (inter_uncertainty != 0.0)
     reportLine("inter-clock uncertainty", inter_uncertainty, clk_arrival,
-	       result);
+	       early_late, result);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2538,6 +2578,7 @@ ReportPath::reportPath1(const Path *path,
 					 latch_time_given,
 					 latch_enable_path);
     if (!latch_enable_path.isNull()) {
+      const EarlyLate *early_late = latch_enable_path.minMax(this);
       latch_enable_time = search_->clkPathArrival(&latch_enable_path);
       if (reportClkPath()) {
 	PathExpanded enable_expanded(&latch_enable_path, this);
@@ -2548,9 +2589,10 @@ ReportPath::reportPath1(const Path *path,
       Arrival time = latch_enable_time + latch_time_given;
       Arrival incr = latch_time_given;
       if (incr >= 0.0)
-	reportLine("time given to startpoint", incr, time, result);
+	reportLine("time given to startpoint", incr, time, early_late, result);
       else
-	reportLine("time borrowed from startpoint", incr, time, result);
+	reportLine("time borrowed from startpoint", incr, time,
+		   early_late, result);
       // Override latch D arrival with enable + given.
       reportPathLine(expanded.path(0), delay_zero, time, "latch_D", result);
       bool propagated_clk = path->clkInfo(search_)->isPropagated();
@@ -2646,7 +2688,7 @@ ReportPath::reportPath5(const Path *path,
     Vertex *vertex = path1->vertex(this);
     Pin *pin = vertex->pin();
     Arrival time = path1->arrival(this) + time_offset;
-    Arrival incr(0.0);
+    float incr = 0.0;
     const char *line_case = NULL;
     bool is_clk_start = network_->isRegClkPin(pin);
     bool is_clk = path1->isClock(search_);
@@ -2671,7 +2713,8 @@ ReportPath::reportPath5(const Path *path,
 	  // from the input to the loads.  Report the wire delay on the
 	  // input pin instead.
 	  Arrival next_time = next_path->arrival(this) + time_offset;
-	  incr = next_time - time;
+	  incr = delayMeanSigma(next_time, min_max)
+	    - delayMeanSigma(time, min_max);
 	  time = next_time;
 	  line_case = "input_drive";
 	}
@@ -2718,11 +2761,13 @@ ReportPath::reportPath5(const Path *path,
 	line_case = "clk_ideal";
       }
       else if (is_clk && !is_clk_start) {
-	incr = time - prev_time;
+	incr = delayMeanSigma(time, min_max)
+	  - delayMeanSigma(prev_time, min_max);
 	line_case = "clk_prop";
       }
       else {
-	incr = time - prev_time;
+	incr = delayMeanSigma(time, min_max)
+	  - delayMeanSigma(prev_time, min_max);
 	line_case = "normal";
       }
       if (report_input_pin_
@@ -2742,7 +2787,7 @@ ReportPath::reportPath5(const Path *path,
 	if (report_net_ && is_driver) {
 	  // Capacitance field is reported on the net line.
 	  reportLine(what, field_blank_, slew, field_blank_,
-		     incr, time, false, tr, line_case, result);
+		     incr, time, false, min_max, tr, line_case, result);
 	  if (network_->isTopLevelPort(pin)) {
 	    const char *pin_name = cmd_network_->pathName(pin);
 	    what = stringPrintTmp(strlen(" (net)")
@@ -2763,12 +2808,12 @@ ReportPath::reportPath5(const Path *path,
 	  }
 	  float fanout = drvrFanout(vertex, min_max);
 	  reportLine(what, cap, field_blank_, fanout,
-		     field_blank_, field_blank_, false, NULL,
+		     field_blank_, field_blank_, false, min_max, NULL,
 		     line_case, result);
 	}
 	else
 	  reportLine(what, cap, slew, field_blank_,
-		     incr, time, false, tr, line_case, result);
+		     incr, time, false, min_max, tr, line_case, result);
 	prev_time = time;
       }
     }
@@ -2870,6 +2915,7 @@ ReportPath::reportInputExternalDelay(const Path *first_path,
   if (!pathFromClkPin(first_path, first_pin)) {
     const TransRiseFall *tr = first_path->transition(this);
     Arrival time = first_path->arrival(this) + time_offset;
+    const EarlyLate *early_late = first_path->minMax(this);
     InputDelay *input_delay = pathInputDelay(first_path);
     if (input_delay) {
       const Pin *ref_pin = input_delay->refPin();
@@ -2890,10 +2936,11 @@ ReportPath::reportInputExternalDelay(const Path *first_path,
       }
       float input_arrival =
 	input_delay->delays()->value(tr, first_path->minMax(this));
-      reportLine("input external delay", input_arrival, time, tr, result);
+      reportLine("input external delay", input_arrival, time,
+		 early_late, tr, result);
     }
     else if (network_->isTopLevelPort(first_pin))
-      reportLine("input external delay", 0.0, time, tr, result);
+      reportLine("input external delay", 0.0, time, early_late, tr, result);
   }
 }
 
@@ -2970,42 +3017,56 @@ ReportPath::reportPathHeader(string &result)
 void
 ReportPath::reportLine(const char *what,
 		       Delay total,
+		       const EarlyLate *early_late,
 		       string &result)
 {
   reportLine(what, field_blank_, field_blank_, field_blank_,
-	     field_blank_, total, false, NULL, NULL, result);
+	     field_blank_, total, false, early_late, NULL, NULL, result);
 }
 
 // Report negative total.
 void
 ReportPath::reportLineNegative(const char *what,
 			       Delay total,
+			       const EarlyLate *early_late,
 			       string &result)
 {
   reportLine(what, field_blank_, field_blank_, field_blank_,
-	     field_blank_, total, true, NULL, NULL, result);
+	     field_blank_, total, true, early_late, NULL, NULL, result);
 }
 
 // Report total, and transition suffix.
 void
 ReportPath::reportLine(const char *what,
 		       Delay total,
+		       const EarlyLate *early_late,
 		       const TransRiseFall *tr,
 		       string &result)
 {
   reportLine(what, field_blank_, field_blank_, field_blank_,
-	     field_blank_, total, false, tr, NULL, result);
+	     field_blank_, total, false, early_late, tr, NULL, result);
 }
 
 // Report increment, and total.
 void
 ReportPath::reportLine(const char *what,
-		       Delay incr,
-		       Delay total,
+		       float incr,
+		       float total,
 		       string &result)
 {
   reportLine(what, field_blank_, field_blank_, field_blank_,
-	     incr, total, false, NULL, NULL, result);
+	     incr, total, false, NULL, NULL, NULL, result);
+}
+
+void
+ReportPath::reportLine(const char *what,
+		       Delay incr,
+		       Delay total,
+		       const EarlyLate *early_late,
+		       string &result)
+{
+  reportLine(what, field_blank_, field_blank_, field_blank_,
+	     incr, total, false, early_late, NULL, NULL, result);
 }
 
 // Report increment, total, and transition suffix.
@@ -3013,11 +3074,12 @@ void
 ReportPath::reportLine(const char *what,
 		       Delay incr,
 		       Delay total,
+		       const EarlyLate *early_late,
 		       const TransRiseFall *tr,
 		       string &result)
 {
   reportLine(what, field_blank_, field_blank_, field_blank_,
-	     incr, total, false, tr, NULL, result);
+	     incr, total, false, early_late, tr, NULL, result);
 }
 
 // Report slew, increment, and total.
@@ -3026,10 +3088,11 @@ ReportPath::reportLine(const char *what,
 		       Slew slew,
 		       Delay incr,
 		       Delay total,
+		       const EarlyLate *early_late,
 		       string &result)
 {
   reportLine(what, field_blank_, slew, field_blank_,
-	     incr, total, false, NULL, NULL, result);
+	     incr, total, false, early_late, NULL, NULL, result);
 }
 
 void
@@ -3040,6 +3103,7 @@ ReportPath::reportLine(const char *what,
 		       Delay incr,
 		       Delay total,
 		       bool total_with_minus,
+		       const EarlyLate *early_late,
 		       const TransRiseFall *tr,
 		       const char *line_case,
 		       string &result)
@@ -3070,16 +3134,14 @@ ReportPath::reportLine(const char *what,
       else if (field == field_capacitance_)
 	reportField(cap, field, result);
       else if (field == field_slew_)
-	reportField(slew, field, result);
+	reportFieldDelay(slew, early_late, field, result);
       else if (field == field_incr_)
-	reportField(incr, field, result);
+	reportFieldDelay(incr, early_late, field, result);
       else if (field == field_total_) {
-	if (total == field_blank_)
-	  reportFieldBlank(field, result);
-	else if (total_with_minus)
-	  reportFieldTimeMinus(total, result);
+	if (total_with_minus)
+	  reportFieldDelayMinus(total, early_late, field, result);
 	else
-	  reportFieldTime(total, result);
+	  reportFieldDelay(total, early_late, field, result);
       }
       else if (field == field_edge_) {
 	if (tr) {
@@ -3105,32 +3167,35 @@ ReportPath::reportLine(const char *what,
 void
 ReportPath::reportLineTotal(const char *what,
 			    Delay incr,
+			    const EarlyLate *early_late,
 			    string &result)
 {
-  reportLineTotal1(what, incr, false, result);
+  reportLineTotal1(what, incr, false, early_late, result);
 }
 
 // Only the total field and always with leading minus sign.
 void
 ReportPath::reportLineTotalMinus(const char *what,
 				 Delay decr,
+				 const EarlyLate *early_late,
 				 string &result)
 {
-  reportLineTotal1(what, decr, true, result);
+  reportLineTotal1(what, decr, true, early_late, result);
 }
 
 void
 ReportPath::reportLineTotal1(const char *what,
 			     Delay incr,
 			     bool incr_with_minus,
+			     const EarlyLate *early_late,
 			     string &result)
 {
   reportDescription(what, result);
   result += ' ';
   if (incr_with_minus)
-    reportFieldTimeMinus(incr, result);
+    reportFieldDelayMinus(incr, early_late, field_total_, result);
   else
-    reportFieldTime(incr, result);
+    reportFieldDelay(incr, early_late, field_total_, result);
 
   reportEndOfLine(result);
 }
@@ -3162,35 +3227,84 @@ ReportPath::reportDescription(const char *what,
 }
 
 void
-ReportPath::reportSpaceFieldTime(Delay value,
-				 string &result)
+ReportPath::reportFieldTime(float value,
+			    ReportField *field,
+			    string &result)
 {
-  result += ' ';
-  reportFieldTime(value, result);
+  if (delayAsFloat(value) == field_blank_)
+    reportFieldBlank(field, result);
+  else {
+    const char *str = units_->timeUnit()->asString(value, digits_);
+    if (stringEq(str, minus_zero_))
+      // Filter "-0.00" fields.
+      str = plus_zero_;
+    reportField(str, field, result);
+  }
 }
 
 void
-ReportPath::reportFieldTime(Delay value,
-			    string &result)
+ReportPath::reportSpaceFieldTime(float value,
+				 string &result)
 {
-  const char *field = units_->timeUnit()->asString(delayAsFloat(value),
-						   digits_);
-  if (stringEq(field, minus_zero_))
+  result += ' ';
+  reportFieldTime(value, field_total_, result);
+}
+
+void
+ReportPath::reportSpaceFieldDelay(Delay value,
+				  const EarlyLate *early_late,
+				  string &result)
+{
+  result += ' ';
+  reportTotalDelay(value, early_late, result);
+}
+
+void
+ReportPath::reportTotalDelay(Delay value,
+			     const EarlyLate *early_late,
+			     string &result)
+{
+  const char *str = delayMeanSigmaString(value, early_late, units_, digits_);
+  if (stringEq(str, minus_zero_))
     // Filter "-0.00" fields.
-    field = plus_zero_;
-  reportField(field, field_total_, result);
+    str = plus_zero_;
+  reportField(str, field_total_, result);
 }
 
 // Total time always with leading minus sign.
 void
-ReportPath::reportFieldTimeMinus(Delay value,
-				 string &result)
+ReportPath::reportFieldDelayMinus(Delay value,
+				  const EarlyLate *early_late,
+				  ReportField *field,
+				  string &result)
 {
-  const char *field=units_->timeUnit()->asString(-delayAsFloat(value),digits_);
-  if (stringEq(field, plus_zero_))
-    // Force leading minus sign.
-    field = minus_zero_;
-  reportField(field, field_total_, result);
+  if (delayAsFloat(value) == field_blank_)
+    reportFieldBlank(field, result);
+  else {
+    float mean_sigma = delayMeanSigma(value, early_late);
+    const char *str = units_->timeUnit()->asString(-mean_sigma, digits_);
+    if (stringEq(str, plus_zero_))
+      // Force leading minus sign.
+      str = minus_zero_;
+    reportField(str, field, result);
+  }
+}
+
+void
+ReportPath::reportFieldDelay(Delay value,
+			     const EarlyLate *early_late,
+			     ReportField *field,
+			     string &result)
+{
+  if (delayAsFloat(value) == field_blank_)
+    reportFieldBlank(field, result);
+  else {
+    const char *str = delayMeanSigmaString(value, early_late, units_, digits_);
+    if (stringEq(str, minus_zero_))
+      // Filter "-0.00" fields.
+      str = plus_zero_;
+    reportField(str, field, result);
+  }
 }
 
 void

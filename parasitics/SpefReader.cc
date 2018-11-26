@@ -43,6 +43,7 @@ readSpefFile(const char *filename,
 	     Instance *instance,
 	     ParasiticAnalysisPt *ap,
 	     bool increment,
+	     bool pin_cap_included,
 	     bool keep_coupling_caps,
 	     float coupling_cap_factor,
 	     ReduceParasiticsTo reduce_to,
@@ -57,7 +58,7 @@ readSpefFile(const char *filename,
 	     Parasitics *parasitics)
 {
   SpefReader reader(filename, stream, line, instance, ap, increment,
-		    keep_coupling_caps, coupling_cap_factor,
+		    pin_cap_included, keep_coupling_caps, coupling_cap_factor,
 		    reduce_to, delete_after_reduce, op_cond, corner, 
 		    cnst_min_max, quiet, report, network, parasitics);
   spef_reader = &reader;
@@ -75,6 +76,7 @@ SpefReader::SpefReader(const char *filename,
 		       Instance *instance,
 		       ParasiticAnalysisPt *ap,
 		       bool increment,
+		       bool pin_cap_included,
 		       bool keep_coupling_caps,
 		       float coupling_cap_factor,
 		       ReduceParasiticsTo reduce_to,
@@ -86,7 +88,8 @@ SpefReader::SpefReader(const char *filename,
 		       Report *report,
 		       Network *network,
 		       Parasitics *parasitics) :
-  SpfSpefReader(filename, stream, line, instance, ap, increment,
+  SpfSpefReader(filename, stream, line, instance, ap,
+		increment, pin_cap_included,
 		keep_coupling_caps, coupling_cap_factor,
 		reduce_to, delete_after_reduce,
 		op_cond, corner, cnst_min_max, quiet,
@@ -339,7 +342,9 @@ SpefReader::dspfBegin(Net *net,
       parasitic_ = 0;
     else {
       parasitics_->deleteParasitics(net, ap_);
-      parasitic_ = parasitics_->makeParasiticNetwork(net, ap_);
+      parasitic_ = parasitics_->makeParasiticNetwork(net, pin_cap_included_,
+						     ap_);
+
     }
     net_ = net;
   }
@@ -361,8 +366,8 @@ SpefReader::dspfFinish()
       TransRiseFallIterator tr_iter;
       while (tr_iter.hasNext()) {
 	TransRiseFall *tr = tr_iter.next();
-	parasitics_->reduceTo(parasitic_, net_, reduce_to_, tr, op_cond_,
-			      corner_, cnst_min_max_, ap_);
+	parasitics_->reduceTo(parasitic_, net_, reduce_to_, tr,
+			      op_cond_, corner_, cnst_min_max_, ap_);
       }
       if (delete_after_reduce_)
 	parasitics_->deleteParasiticNetwork(net_, ap_);
