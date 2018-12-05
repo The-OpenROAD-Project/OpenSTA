@@ -14,32 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "config.h"
+
 #ifndef STA_DELAY_H
 #define STA_DELAY_H
 
-// Define one of the following:
-
-// Define DELAY_FLOAT to use the float definitions.
-#define DELAY_FLOAT
-
-// Define DELAY_FLOAT_CLASS to use the DelayClass definitions.
-//#define DELAY_FLOAT_CLASS
-
-// Define DELAY_NORMAL2 to use the DelayNormal2 definitions.
-//#define DELAY_NORMAL2
-
-#ifdef DELAY_FLOAT
+#if SSTA
+  // Delays are Normal PDFs with early/late sigma.
+  #include "DelayNormal2.hh"
+#else
+  // Delays are floats.
  #include "DelayFloat.hh"
 #endif
 
-#ifdef DELAY_FLOAT_CLASS
- #include "DelayFloatClass.hh"
-#endif
-
-#ifdef DELAY_NORMAL2
- #include "DelayNormal2.hh"
-#endif
-
+// API common to DelayFloat and DelayNormal2.
 namespace sta {
 
 class Units;
@@ -59,6 +47,13 @@ makeDelay(float delay,
 	  float sigma_late);
 float
 delayAsFloat(const Delay &delay);
+// mean late+/early- sigma
+float
+delayAsFloat(const Delay &delay,
+	     const EarlyLate *early_late);
+float
+delaySigma(const Delay &delay,
+	   const EarlyLate *early_late);
 const char *
 delayAsString(const Delay &delay,
 	      const Units *units);
@@ -69,16 +64,11 @@ const char *
 delayAsString(const Delay &delay,
 	      const Units *units,
 	      int digits);
-// mean late+/early- sigma
-// early_late = NULL returns mean.
-float
-delayMeanSigma(const Delay &delay,
-	       const EarlyLate *early_late);
 const char *
-delayMeanSigmaString(const Delay &delay,
-		     const EarlyLate *early_late,
-		     const Units *units,
-		     int digits);
+delayAsString(const Delay &delay,
+	      const EarlyLate *early_late,
+	      const Units *units,
+	      int digits);
 const Delay &
 delayInitValue(const MinMax *min_max);
 bool

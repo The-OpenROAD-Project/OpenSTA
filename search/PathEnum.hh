@@ -57,7 +57,6 @@ public:
 	   int endpoint_count,
 	   bool unique_pins,
 	   bool cmp_slack,
-	   const MinMax *min_max,
 	   const StaState *sta);
   // Insert path ends that are enumerated in slack/arrival order.
   void insert(PathEnd *path_end);

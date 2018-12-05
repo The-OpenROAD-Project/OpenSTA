@@ -55,14 +55,14 @@ class TimingRole;
 class Transition;
 class TransRiseFall;
 class TransRiseFallBoth;
+class LibertyCellSequentialIterator;
 
 typedef Vector<LibertyCell*> LibertyCellSeq;
 typedef Vector<Sequential*> SequentialSeq;
-typedef SequentialSeq::ConstIterator CellSequentialIterator;
 typedef Map<LibertyCell*, LibertyCellSeq*> LibertyCellEquivMap;
 typedef Vector<LibertyPort*> LibertyPortSeq;
 typedef Set<LibertyPort*> LibertyPortSet;
-typedef std::pair<LibertyPort*,LibertyPort*> LibertyPortPair;
+typedef std::pair<const LibertyPort*,const LibertyPort*> LibertyPortPair;
 typedef Set<LibertyCell*> LibertyCellSet;
 typedef Vector<float> FloatSeq;
 typedef Vector<FloatSeq*> FloatTable;

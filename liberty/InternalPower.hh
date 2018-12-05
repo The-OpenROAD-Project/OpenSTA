@@ -30,7 +30,8 @@ class InternalPowerAttrs
 {
 public:
   InternalPowerAttrs();
-  ~InternalPowerAttrs();
+  virtual ~InternalPowerAttrs();
+  void deleteContents();
   FuncExpr *when() const { return when_; }
   FuncExpr *&whenRef() { return when_; }
   void setModel(TransRiseFall *tr,

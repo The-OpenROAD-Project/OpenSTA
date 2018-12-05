@@ -414,9 +414,9 @@ SdfWriter::writeArcDelays(Edge *edge)
 {
   RiseFallMinMax delays;
   TimingArcSet *arc_set = edge->timingArcSet();
-  TimingArcSetArcIterator *arc_iter = arc_set->timingArcIterator();
-  while (arc_iter->hasNext()) {
-    TimingArc *arc = arc_iter->next();
+  TimingArcSetArcIterator arc_iter(arc_set);
+  while (arc_iter.hasNext()) {
+    TimingArc *arc = arc_iter.next();
     TransRiseFall *tr = arc->toTrans()->asRiseFall();
     ArcDelay min_delay = graph_->arcDelay(edge, arc, arc_delay_min_index_);
     delays.setValue(tr, MinMax::min(), delayAsFloat(min_delay));
@@ -424,7 +424,6 @@ SdfWriter::writeArcDelays(Edge *edge)
     ArcDelay max_delay = graph_->arcDelay(edge, arc, arc_delay_max_index_);
     delays.setValue(tr, MinMax::max(), delayAsFloat(max_delay));
   }
-  delete arc_iter;
 
   if (delays.hasValue(TransRiseFall::rise(), MinMax::min())
       && delays.hasValue(TransRiseFall::fall(), MinMax::min())) {
@@ -570,14 +569,13 @@ SdfWriter::writeCheck(Edge *edge,
   // Examine the arcs to see if the check requires clk or data edge specifiers.
   TimingArc *arcs[TransRiseFall::index_count][TransRiseFall::index_count] = 
     {{NULL, NULL}, {NULL, NULL}};
-  TimingArcSetArcIterator *arc_iter = arc_set->timingArcIterator();
-  while (arc_iter->hasNext()) {
-    TimingArc *arc = arc_iter->next();
+  TimingArcSetArcIterator arc_iter(arc_set);
+  while (arc_iter.hasNext()) {
+    TimingArc *arc = arc_iter.next();
     TransRiseFall *clk_tr = arc->fromTrans()->asRiseFall();
     TransRiseFall *data_tr = arc->toTrans()->asRiseFall();;
     arcs[clk_tr->index()][data_tr->index()] = arc;
   }
-  delete arc_iter;
 
   if (arcs[TransRiseFall::fallIndex()][TransRiseFall::riseIndex()] == NULL
       && arcs[TransRiseFall::fallIndex()][TransRiseFall::fallIndex()] == NULL)
@@ -587,12 +585,11 @@ SdfWriter::writeCheck(Edge *edge,
     writeEdgeCheck(edge, sdf_check, TransRiseFall::fallIndex(), arcs);
   else {
     // No special case; write all the checks with data and clock edge specifiers.
-    arc_iter = arc_set->timingArcIterator();
-    while (arc_iter->hasNext()) {
-      TimingArc *arc = arc_iter->next();
+    TimingArcSetArcIterator arc_iter(arc_set);
+    while (arc_iter.hasNext()) {
+      TimingArc *arc = arc_iter.next();
       writeCheck(edge, arc, sdf_check, true, true);
     }
-    delete arc_iter;
   }
 }
 

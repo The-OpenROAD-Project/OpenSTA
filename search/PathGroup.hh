@@ -149,8 +149,7 @@ protected:
 		    int group_count,
 		    int endpoint_count,
 		    bool unique_pins,
-		    bool cmp_slack,
-		    const MinMax *min_max);
+		    bool cmp_slack);
 
   void pushGroupPathEnds(PathEndSeq *path_ends);
   void pushUnconstrainedPathEnds(PathEndSeq *path_ends,

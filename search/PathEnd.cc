@@ -75,7 +75,7 @@ PathEnd::pathEarlyLate(const StaState *sta) const
 }
 
 const EarlyLate *
-PathEnd::clkEarlyLate(const StaState *sta) const
+PathEnd::clkEarlyLate(const StaState *) const
 {
   return NULL;
 }

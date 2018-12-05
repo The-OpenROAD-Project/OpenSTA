@@ -401,14 +401,13 @@ Sdc::removeLibertyAnnotations()
     LibertyPortPairSet::Iterator from_to_iter(disable->fromTo());
     while (from_to_iter.hasNext()) {
       LibertyPortPair *pair = from_to_iter.next();
-      LibertyPort *from = pair->first;
-      LibertyPort *to = pair->second;
-      CellTimingArcSetIterator *arc_iter = cell->timingArcSetIterator(from, to);
-      while (arc_iter->hasNext()) {
-	TimingArcSet *arc_set = arc_iter->next();
+      const LibertyPort *from = pair->first;
+      const LibertyPort *to = pair->second;
+      LibertyCellTimingArcSetIterator arc_iter(cell, from, to);
+      while (arc_iter.hasNext()) {
+	TimingArcSet *arc_set = arc_iter.next();
 	arc_set->setIsDisabledConstraint(false);
       }
-      delete arc_iter;
     }
   }
 
@@ -3704,12 +3703,11 @@ Sdc::disable(LibertyCell *cell,
   }
   if (from && to) {
     disabled_cell->setDisabledFromTo(from, to);
-    CellTimingArcSetIterator *arc_iter = cell->timingArcSetIterator(from, to);
-    while (arc_iter->hasNext()) {
-      TimingArcSet *arc_set = arc_iter->next();
+    LibertyCellTimingArcSetIterator arc_iter(cell, from, to);
+    while (arc_iter.hasNext()) {
+      TimingArcSet *arc_set = arc_iter.next();
       arc_set->setIsDisabledConstraint(true);
     }
-    delete arc_iter;
   }
   else if (from) {
     disabled_cell->setDisabledFrom(from);
@@ -3734,12 +3732,11 @@ Sdc::removeDisable(LibertyCell *cell,
   if (disabled_cell) {
     if (from && to) {
       disabled_cell->removeDisabledFromTo(from, to);
-      CellTimingArcSetIterator *arc_iter = cell->timingArcSetIterator(from, to);
-      while (arc_iter->hasNext()) {
-	TimingArcSet *arc_set = arc_iter->next();
+      LibertyCellTimingArcSetIterator arc_iter(cell, from, to);
+      while (arc_iter.hasNext()) {
+	TimingArcSet *arc_set = arc_iter.next();
 	arc_set->setIsDisabledConstraint(false);
       }
-      delete arc_iter;
     }
     else if (from) {
       disabled_cell->removeDisabledFrom(from);
@@ -4212,16 +4209,13 @@ Sdc::exceptionToInvalid(const Pin *pin)
   LibertyPort *port = network_->libertyPort(pin);
   if (port) {
     LibertyCell *cell = port->libertyCell();
-    CellTimingArcSetIterator *set_iter = cell->timingArcSetToIterator(port);
-    while (set_iter->hasNext()) {
-      TimingArcSet *set = set_iter->next();
+    LibertyCellTimingArcSetIterator set_iter(cell, NULL, port);
+    while (set_iter.hasNext()) {
+      TimingArcSet *set = set_iter.next();
       TimingRole *role = set->role();
-      if (role->genericRole() == TimingRole::regClkToQ()) {
-	delete set_iter;
+      if (role->genericRole() == TimingRole::regClkToQ())
 	return true;
-      }
     }
-    delete set_iter;
   }
   return false;
 }
@@ -4381,15 +4375,12 @@ Sdc::hasLibertyChecks(const Pin *pin)
   if (cell) {
     LibertyPort *port = network_->libertyPort(pin);
     if (port) {
-      CellTimingArcSetIterator *timing_iter=cell->timingArcSetToIterator(port);
-      while (timing_iter->hasNext()) {
-	TimingArcSet *arc_set = timing_iter->next();
-	if (arc_set->role()->isTimingCheck()) {
-	  delete timing_iter;
+      LibertyCellTimingArcSetIterator timing_iter(cell, NULL, port);
+      while (timing_iter.hasNext()) {
+	TimingArcSet *arc_set = timing_iter.next();
+	if (arc_set->role()->isTimingCheck())
 	  return true;
-	}
       }
-      delete timing_iter;
     }
   }
   return false;
@@ -6463,8 +6454,8 @@ Sdc::setEdgeDisabledInstPorts(DisabledPorts *disabled_port,
   LibertyPortPairSet::Iterator from_to_iter(disabled_port->fromTo());
   while (from_to_iter.hasNext()) {
     LibertyPortPair *pair = from_to_iter.next();
-    LibertyPort *from_port = pair->first;
-    LibertyPort *to_port = pair->second;
+    const LibertyPort *from_port = pair->first;
+    const LibertyPort *to_port = pair->second;
     Pin *from_pin = network_->findPin(inst, from_port);
     Pin *to_pin = network_->findPin(inst, to_port);
     if (from_pin && network_->direction(from_pin)->isAnyInput()

@@ -196,9 +196,9 @@ CheckMaxSkews:: visitMaxSkewChecks(Vertex *vertex,
     if (edge->role() == TimingRole::skew()) {
       Vertex *ref_vertex = edge->from(graph);
       TimingArcSet *arc_set = edge->timingArcSet();
-      TimingArcSetArcIterator *arc_iter = arc_set->timingArcIterator();
-      while (arc_iter->hasNext()) {
-	TimingArc *arc = arc_iter->next();
+      TimingArcSetArcIterator arc_iter(arc_set);
+      while (arc_iter.hasNext()) {
+	TimingArc *arc = arc_iter.next();
 	TransRiseFall *clk_tr = arc->fromTrans()->asRiseFall();
 	TransRiseFall *ref_tr = arc->toTrans()->asRiseFall();
 	VertexPathIterator clk_path_iter(vertex, clk_tr, clk_min_max, search);
@@ -218,7 +218,6 @@ CheckMaxSkews:: visitMaxSkewChecks(Vertex *vertex,
 	  }
 	}
       }
-      delete arc_iter;
     }
   }
 }

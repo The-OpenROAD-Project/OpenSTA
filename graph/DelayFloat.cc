@@ -14,14 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "config.h"
 #include "Machine.hh"
 #include "Fuzzy.hh"
 #include "Units.hh"
 #include "StaState.hh"
 #include "Delay.hh"
 
-// Conditional compilation based on delay abstraction from Delay.hh.
-#ifdef DELAY_FLOAT
+// Non-SSTA compilation.
+#if !SSTA
 
 namespace sta {
 
@@ -154,20 +155,27 @@ delayAsString(const Delay &delay,
 }
 
 float
-delayMeanSigma(const Delay &delay,
-	       const EarlyLate *)
+delayAsFloat(const Delay &delay,
+	     const EarlyLate *)
 {
   return delay;
 }
 
 const char *
-delayMeanSigmaString(const Delay &delay,
-		     const EarlyLate *,
-		     const Units *units,
-		     int digits)
+delayAsString(const Delay &delay,
+	      const EarlyLate *,
+	      const Units *units,
+	      int digits)
 {
   const Unit *unit = units->timeUnit();
   return unit->asString(delay, digits);
+}
+
+float
+delaySigma(const Delay &,
+	   const EarlyLate *)
+{
+  return 0.0;
 }
 
 } // namespace

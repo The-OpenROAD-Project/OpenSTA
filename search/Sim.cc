@@ -1114,11 +1114,10 @@ isCondDisabled(Edge *edge,
     LibertyCell *cell = network->libertyCell(inst);
     LibertyPort *from_port = network->libertyPort(from_pin);
     LibertyPort *to_port = network->libertyPort(to_pin);
-    CellTimingArcSetIterator *cond_iter =
-      cell->timingArcSetIterator(from_port, to_port);
+    LibertyCellTimingArcSetIterator cond_iter(cell, from_port, to_port);
     is_disabled = false;
-    while (cond_iter->hasNext()) {
-      TimingArcSet *cond_set = cond_iter->next();
+    while (cond_iter.hasNext()) {
+      TimingArcSet *cond_set = cond_iter.next();
       FuncExpr *cond = cond_set->cond();
       if (cond && sim->evalExpr(cond, inst) == logic_one) {
 	disable_cond = cond;
@@ -1126,7 +1125,6 @@ isCondDisabled(Edge *edge,
 	break;
       }
     }
-    delete cond_iter;
   }
 }
 

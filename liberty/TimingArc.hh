@@ -94,6 +94,7 @@ class TimingArcAttrs
 public:
   TimingArcAttrs();
   virtual ~TimingArcAttrs();
+  void deleteContents();
   TimingType timingType() const { return timing_type_; }
   void setTimingType(TimingType type);
   TimingSense timingSense() const { return timing_sense_; }
@@ -113,9 +114,6 @@ public:
   TimingModel *model(TransRiseFall *tr) const;
   void setModel(TransRiseFall *tr,
 		TimingModel *model);
-  bool modelRef(TransRiseFall *tr) const;
-  void setModelRef(TransRiseFall *tr,
-		   bool ref);
   float ocvArcDepth() const { return ocv_arc_depth_; }
   void setOcvArcDepth(float depth);
 
@@ -130,7 +128,6 @@ protected:
   const char *mode_value_;
   float ocv_arc_depth_;
   TimingModel *models_[TransRiseFall::index_count];
-  bool model_refs_[TransRiseFall::index_count];
 
 private:
   DISALLOW_COPY_AND_ASSIGN(TimingArcAttrs);
@@ -150,16 +147,6 @@ public:
 	       LibertyPort *related_out,
 	       TimingRole *role,
 	       TimingArcAttrs *attrs);
-  TimingArcSet(LibertyCell *cell,
-	       LibertyPort *from,
-	       LibertyPort *to,
-	       LibertyPort *related_out,
-	       TimingRole *role,
-	       FuncExpr *cond,
-	       const char *sdf_cond_start,
-	       const char *sdf_cond_end,
-	       const char *mode_name,
-	       const char *mode_value);
   virtual ~TimingArcSet();
   LibertyCell *libertyCell() const;
   LibertyPort *from() const { return from_; }
@@ -170,7 +157,6 @@ public:
   // Rise/fall if the arc set is rising_edge or falling_edge.
   TransRiseFall *isRisingFallingEdge() const;
   size_t arcCount() const { return arcs_.size(); }
-  TimingArcSetArcIterator *timingArcIterator() const;
   TimingArcSeq &arcs() { return arcs_; }
   // Return 1 or 2 arcs matching from transition.
   void arcsFrom(const TransRiseFall *from_tr,
@@ -217,6 +203,7 @@ public:
 
 protected:
   void init(LibertyCell *cell);
+  TimingArcSet(TimingRole *role);
 
   LibertyPort *from_;
   LibertyPort *to_;

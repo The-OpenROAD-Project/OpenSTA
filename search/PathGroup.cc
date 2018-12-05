@@ -757,7 +757,7 @@ PathGroups::makeGroupPathEnds(ExceptionTo *to,
 	group_path_iter->next(name, groups);
 	PathGroup *group = findPathGroup(name, path_min_max);
 	if (group)
-	  enumPathEnds(group, group_count, endpoint_count, unique_pins, true, path_min_max);
+	  enumPathEnds(group, group_count, endpoint_count, unique_pins, true);
       }
       delete group_path_iter;
 
@@ -766,22 +766,22 @@ PathGroups::makeGroupPathEnds(ExceptionTo *to,
 	Clock *clk = clk_iter->next();
 	PathGroup *group = findPathGroup(clk, path_min_max);
 	if (group)
-	  enumPathEnds(group, group_count, endpoint_count, unique_pins, true, path_min_max);
+	  enumPathEnds(group, group_count, endpoint_count, unique_pins, true);
       }
       delete clk_iter;
 
       PathGroup *group = unconstrained_[mm_index];
       if (group)
-	enumPathEnds(group, group_count, endpoint_count, unique_pins, false, path_min_max);
+	enumPathEnds(group, group_count, endpoint_count, unique_pins, false);
       group = path_delay_[mm_index];
       if (group)
-	enumPathEnds(group, group_count, endpoint_count, unique_pins, true, path_min_max);
+	enumPathEnds(group, group_count, endpoint_count, unique_pins, true);
       group = gated_clk_[mm_index];
       if (group)
-	enumPathEnds(group, group_count, endpoint_count, unique_pins, true, path_min_max);
+	enumPathEnds(group, group_count, endpoint_count, unique_pins, true);
       group = async_[mm_index];
       if (group)
-	enumPathEnds(group, group_count, endpoint_count, unique_pins, true, path_min_max);
+	enumPathEnds(group, group_count, endpoint_count, unique_pins, true);
     }
   }
 }
@@ -791,12 +791,11 @@ PathGroups::enumPathEnds(PathGroup *group,
 			 int group_count,
 			 int endpoint_count,
 			 bool unique_pins,
-			 bool cmp_slack,
-			 const MinMax *min_max)
+			 bool cmp_slack)
 {
   // Insert the worst max_path path ends in the group into a path
   // enumerator.
-  PathEnum path_enum(group_count, endpoint_count, unique_pins, cmp_slack, min_max, this);
+  PathEnum path_enum(group_count, endpoint_count, unique_pins, cmp_slack, this);
   PathGroupIterator *end_iter = group->iterator();
   while (end_iter->hasNext()) {
     PathEnd *end = end_iter->next();

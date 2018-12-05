@@ -28,7 +28,7 @@
 
 namespace sta {
 
-class LibertyLibraryCellIterator;
+class LibertyCellIterator;
 class LibertyCellPortIterator;
 class LibertyCellPortBitIterator;
 class LibertyPortMemberIterator;
@@ -41,34 +41,33 @@ class Debug;
 class LibertyBuilder;
 class LibertyReader;
 class OcvDerate;
+class TimingArcAttrs;
+class InternalPowerAttrs;
 
 typedef Set<Library*> LibrarySet;
 typedef Map<const char*, TableTemplate*, CharPtrLess> TableTemplateMap;
-typedef TableTemplateMap::Iterator TableTemplateIterator;
 typedef Map<const char*, BusDcl *, CharPtrLess> BusDclMap;
 typedef Map<const char*, ScaleFactors*, CharPtrLess> ScaleFactorsMap;
 typedef Map<const char*, Wireload*, CharPtrLess> WireloadMap;
 typedef Map<const char*, WireloadSelection*, CharPtrLess> WireloadSelectionMap;
 typedef Map<const char*, OperatingConditions*,
 	    CharPtrLess> OperatingConditionsMap;
-typedef OperatingConditionsMap::Iterator OperatingConditionsIterator;
 typedef Map<LibertyPort*, Sequential*> PortToSequentialMap;
 typedef Vector<TimingArcSet*> TimingArcSetSeq;
-typedef TimingArcSetSeq::ConstIterator CellTimingArcSetIterator;
 typedef Set<TimingArcSet*, TimingArcSetLess> TimingArcSetMap;
+typedef Map<LibertyPortPair*, TimingArcSetSeq*,
+	    LibertyPortPairLess> LibertyPortPairTimingArcMap;
 typedef Vector<InternalPower*> InternalPowerSeq;
-typedef InternalPowerSeq::Iterator LibertyCellInternalPowerIterator;
 typedef Vector<LeakagePower*> LeakagePowerSeq;
-typedef LeakagePowerSeq::Iterator LibertyCellLeakagePowerIterator;
-typedef Map<LibertyPort*, TimingArcSetSeq*> LibertyPortTimingArcSetSeqMap;
+typedef Map<const LibertyPort*, TimingArcSetSeq*> LibertyPortTimingArcMap;
 typedef Map<const OperatingConditions*, LibertyCell*> ScaledCellMap;
 typedef Map<const OperatingConditions*, LibertyPort*> ScaledPortMap;
 typedef Map<const char *, ModeDef*, CharPtrLess> ModeDefMap;
 typedef Map<const char *, ModeValueDef*, CharPtrLess> ModeValueMap;
 typedef Map<TimingArcSet*, LatchEnable*> LatchEnableMap;
 typedef Map<const char *, OcvDerate*, CharPtrLess> OcvDerateMap;
-typedef Map<LibertyPortPair*, TimingArcSetSeq*,
-	    LibertyPortPairLess> LibertyPortTimingArcSetMap;
+typedef Vector<TimingArcAttrs*> TimingArcAttrsSeq;
+typedef Vector<InternalPowerAttrs*> InternalPowerAttrsSeq;
 
 typedef enum {
   clock_gate_none,
@@ -132,14 +131,12 @@ public:
   LibertyCell *findLibertyCell(const char *name) const;
   void findLibertyCellsMatching(PatternMatch *pattern,
 				LibertyCellSeq *cells);
-  LibertyLibraryCellIterator *libertyCellIterator() const;
   DelayModelType delayModelType() const { return delay_model_type_; }
   void setDelayModelType(DelayModelType type);
   void addBusDcl(BusDcl *bus_dcl);
   BusDcl *findBusDcl(const char *name) const;
   void addTableTemplate(TableTemplate *tbl_template);
   TableTemplate *findTableTemplate(const char *name);
-  TableTemplateIterator *tableTemplateIterator();
   float nominalProcess() { return nominal_process_; }
   void setNominalProcess(float process);
   float nominalVoltage() const { return nominal_voltage_; }
@@ -254,7 +251,6 @@ public:
   void setDefaultWireloadSelection(WireloadSelection *selection);
 
   OperatingConditions *findOperatingConditions(const char *name);
-  OperatingConditionsIterator *operatingConditionsIterator();
   OperatingConditions *defaultOperatingConditions() const;
   void addOperatingConditions(OperatingConditions *op_cond);
   void setDefaultOperatingConditions(OperatingConditions *op_cond);
@@ -291,7 +287,7 @@ protected:
   Units *units_;
   DelayModelType delay_model_type_;
   BusDclMap bus_dcls_;
-  TableTemplateMap templates_;
+  TableTemplateMap template_map_;
   float nominal_process_;
   float nominal_voltage_;
   float nominal_temperature_;
@@ -340,21 +336,39 @@ protected:
 private:
   DISALLOW_COPY_AND_ASSIGN(LibertyLibrary);
 
-  friend class LibertyLibraryCellIterator;
+  friend class LibertyCellIterator;
+  friend class TableTemplateIterator;
+  friend class OperatingConditionsIterator;
 };
 
-class LibertyLibraryCellIterator : public Iterator<LibertyCell*>
+class LibertyCellIterator : public Iterator<LibertyCell*>
 {
 public:
-  explicit LibertyLibraryCellIterator(const LibertyLibrary *library);
+  explicit LibertyCellIterator(const LibertyLibrary *library);
   bool hasNext();
   LibertyCell *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyLibraryCellIterator);
+  DISALLOW_COPY_AND_ASSIGN(LibertyCellIterator);
 
   ConcreteCellMap::ConstIterator iter_;
 };
+
+class TableTemplateIterator : public TableTemplateMap::ConstIterator
+{
+public:
+  TableTemplateIterator(const LibertyLibrary *library) :
+    TableTemplateMap::ConstIterator(library->template_map_) {}
+};
+
+class OperatingConditionsIterator : public OperatingConditionsMap::ConstIterator
+{
+public:
+  OperatingConditionsIterator(const LibertyLibrary *library) :
+    OperatingConditionsMap::ConstIterator(library->operating_conditions_) {}
+};
+
+////////////////////////////////////////////////////////////////
 
 class LibertyCell : public ConcreteCell
 {
@@ -365,8 +379,6 @@ public:
   virtual ~LibertyCell();
   const LibertyLibrary *libertyLibrary() const { return liberty_library_; }
   LibertyLibrary *libertyLibrary() { return liberty_library_; }
-  LibertyCellPortIterator *libertyPortIterator() const;
-  LibertyCellPortBitIterator *libertyPortBitIterator() const;
   LibertyPort *findLibertyPort(const char *name) const;
   void findLibertyPortsMatching(PatternMatch *pattern,
 				LibertyPortSeq *ports) const;
@@ -395,27 +407,26 @@ public:
   bool isClockGate() const;
   void setClockGateType(ClockGateType clock_gate_type);
   virtual unsigned addTimingArcSet(TimingArcSet *set);
+  void addTimingArcAttrs(TimingArcAttrs *attrs);
   virtual void addInternalPower(InternalPower *power);
+  void addInternalPowerAttrs(InternalPowerAttrs *attrs);
   virtual void addLeakagePower(LeakagePower *power);
   // Call after cell is finished being constructed.
   virtual void finish(bool infer_latches,
 		      Report *report,
 		      Debug *debug);
+  // Internal to LibertyCellTimingArcSetIterator.
+  TimingArcSetSeq *timingArcSets(const LibertyPort *from,
+				 const LibertyPort *to) const;
   size_t timingArcSetCount() const;
   // Find a timing arc set equivalent to key.
   TimingArcSet *findTimingArcSet(TimingArcSet *key) const;
   TimingArcSet *findTimingArcSet(unsigned arc_set_index) const;
-  CellTimingArcSetIterator *timingArcSetIterator() const;
-  CellTimingArcSetIterator *timingArcSetIterator(LibertyPort *from,
-						 LibertyPort *to) const;
-  CellTimingArcSetIterator *timingArcSetFromIterator(LibertyPort *from) const;
-  CellTimingArcSetIterator *timingArcSetToIterator(LibertyPort *to) const;
   bool hasTimingArcs(LibertyPort *port) const;
-  LibertyCellInternalPowerIterator *internalPowerIterator();
-  LibertyCellLeakagePowerIterator *leakagePowerIterator();
-  float leakagePower() const;
+  InternalPowerSeq *internalPowers() const { return internal_powers_; }
+  LeakagePowerSeq *leakagePowers() const { return leakage_powers_; }
+  float leakagePower() const { return leakage_power_; }
   bool hasSequentials() const;
-  CellSequentialIterator *sequentialIterator() const;
   void makeSequential(int size,
 		      bool is_register,
 		      FuncExpr *clk,
@@ -463,7 +474,7 @@ protected:
   virtual void addPort(ConcretePort *port);
   void setHasInternalPorts(bool has_internal);
   void setLibertyLibrary(LibertyLibrary *library);
-  void deleteTimingModels();
+  void deleteTimingArcAttrs();
   void makeLatchEnables(Report *report,
 			Debug *debug);
   FuncExpr *findLatchEnableFunc(LibertyPort *data,
@@ -478,6 +489,7 @@ protected:
   void findDefaultCondArcs();
   virtual void translatePresetClrCheckRoles();
   virtual void inferLatchRoles(Debug *debug);
+  void deleteInternalPowerAttrs();
 
   LibertyLibrary *liberty_library_;
   float area_;
@@ -488,12 +500,15 @@ protected:
   bool interface_timing_;
   ClockGateType clock_gate_type_;
   TimingArcSetSeq *timing_arc_sets_;
+  // Used to find matching arc sets in equivalent cells.
   TimingArcSetMap *timing_arc_set_map_;
-  LibertyPortTimingArcSetMap *port_timing_arc_set_map_;
-  LibertyPortTimingArcSetSeqMap *timing_arc_set_from_map_;
-  LibertyPortTimingArcSetSeqMap *timing_arc_set_to_map_;
+  LibertyPortPairTimingArcMap *port_timing_arc_set_map_;
+  LibertyPortTimingArcMap *timing_arc_set_from_map_;
+  LibertyPortTimingArcMap *timing_arc_set_to_map_;
+  TimingArcAttrsSeq timing_arc_attrs_;
   bool has_infered_reg_timing_arcs_;
   InternalPowerSeq *internal_powers_;
+  InternalPowerAttrsSeq internal_power_attrs_;
   LeakagePowerSeq *leakage_powers_;
   SequentialSeq *sequentials_;
   PortToSequentialMap *port_to_seq_map_;
@@ -522,6 +537,8 @@ private:
   friend class LibertyCellPortIterator;
   friend class LibertyPort;
   friend class LibertyBuilder;
+  friend class LibertyCellTimingArcSetIterator;
+  friend class LibertyCellSequentialIterator;
 };
 
 class LibertyCellPortIterator : public Iterator<LibertyPort*>
@@ -551,11 +568,42 @@ private:
   ConcreteCellPortBitIterator *iter_;
 };
 
+class LibertyCellTimingArcSetIterator : public TimingArcSetSeq::Iterator
+{
+public:
+  LibertyCellTimingArcSetIterator(const LibertyCell *cell);
+  LibertyCellTimingArcSetIterator(const LibertyCell *cell,
+				  const LibertyPort *from,
+				  const LibertyPort *to);
+};
+
+class LibertyCellSequentialIterator : public SequentialSeq::ConstIterator
+{
+public:
+  LibertyCellSequentialIterator(const LibertyCell *cell) :
+    SequentialSeq::ConstIterator(cell->sequentials_) {}
+};
+
+class LibertyCellLeakagePowerIterator : public LeakagePowerSeq::Iterator
+{
+public:
+  LibertyCellLeakagePowerIterator(const LibertyCell *cell) :
+    LeakagePowerSeq::Iterator(cell->leakagePowers()) {}
+};
+
+class LibertyCellInternalPowerIterator : public InternalPowerSeq::Iterator
+{
+public:
+  LibertyCellInternalPowerIterator(const LibertyCell *cell) :
+    InternalPowerSeq::Iterator(cell->internalPowers()) {}
+};
+
+////////////////////////////////////////////////////////////////
+
 class LibertyPort : public ConcretePort
 {
 public:
   LibertyCell *libertyCell() const { return liberty_cell_; }
-  LibertyPortMemberIterator *libertyMemberIterator() const;
   LibertyPort *findLibertyMember(int index) const;
   LibertyPort *findLibertyBusBit(int index) const;
   float capacitance(const TransRiseFall *tr,

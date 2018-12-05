@@ -103,7 +103,6 @@ PathEnum::PathEnum(int group_count,
 		   int endpoint_count,
 		   bool unique_pins,
 		   bool cmp_slack,
-		   const MinMax *min_max,
 		   const StaState *sta) :
   StaState(sta),
   cmp_slack_(cmp_slack),

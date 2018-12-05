@@ -289,25 +289,39 @@ proc report_tag_arrivals { pin } {
 
 ################################################################
 
-define_hidden_cmd_args "total_negative_slack" {[-min]|[-max]}
+define_hidden_cmd_args "total_negative_slack" \
+  {[-corner corner] [-min]|[-max]}
 
 proc total_negative_slack { args } {
-  parse_key_args "total_negative_slack" args keys {} flags {-min -max}
+  parse_key_args "total_negative_slack" args \
+    keys {-corner} flags {-min -max}
   check_argc_eq0 "total_negative_slack" $args
   set min_max [parse_min_max_flags flags]
-  set tns [total_negative_slack_cmd $min_max]
+  if { [info exists keys(-corner)] } {
+    set corner [parse_corner_required keys]
+    set tns [total_negative_slack_corner_cmd $corner $min_max]
+  } else {
+    set tns [total_negative_slack_cmd $min_max]
+  }
   return [time_sta_ui $tns]
 }
 
 ################################################################
 
-define_hidden_cmd_args "worst_negative_slack" {[-min]|[-max]}
+define_hidden_cmd_args "worst_negative_slack" \
+  {[-corner corner] [-min]|[-max]}
 
 proc worst_negative_slack { args } {
-  parse_key_args "total_negative_slack" args keys {} flags {-min -max}
+  parse_key_args "total_negative_slack" args \
+    keys {-corner} flags {-min -max}
   check_argc_eq0 "worst_negative_slack" $args
   set min_max [parse_min_max_flags flags]
-  set worst_slack [worst_slack $min_max]
+  if { [info exists keys(-corner)] } {
+    set corner [parse_corner_required keys]
+    set worst_slack [worst_slack_corner $corner $min_max]
+  } else {
+    set worst_slack [worst_slack $min_max]
+  }
   if { $worst_slack < 0.0 } {
     return [time_sta_ui $worst_slack]
   } else {

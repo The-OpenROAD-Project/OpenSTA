@@ -66,6 +66,8 @@ public:
   const Unit *voltageUnit() const { return &voltage_unit_; }
   Unit *resistanceUnit() { return &resistance_unit_; }
   const Unit *resistanceUnit() const { return &resistance_unit_; }
+  Unit *pullingResistanceUnit() { return &pulling_resistance_unit_; }
+  const Unit *pullingResistanceUnit() const {return &pulling_resistance_unit_;}
   Unit *currentUnit() { return &current_unit_; }
   const Unit *currentUnit() const { return &current_unit_; }
   Unit *powerUnit() { return &power_unit_; }
@@ -82,6 +84,7 @@ private:
   Unit capacitance_unit_;
   Unit voltage_unit_;
   Unit resistance_unit_;
+  Unit pulling_resistance_unit_;
   Unit current_unit_;
   Unit power_unit_;
   Unit distance_unit_;

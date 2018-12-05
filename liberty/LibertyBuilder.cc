@@ -276,36 +276,28 @@ LibertyBuilder::makeCombinationalArcs(LibertyCell *cell,
     if (to_rise) {
       to_tr = TransRiseFall::rise();
       model = attrs->model(to_tr);
-      if (model) {
+      if (model)
 	makeTimingArc(arc_set, TransRiseFall::rise(), to_tr, model);
-	attrs->setModelRef(to_tr, true);
-      }
     }
     if (to_fall) {
       to_tr = TransRiseFall::fall();
       model = attrs->model(to_tr);
-      if (model) {
+      if (model)
 	makeTimingArc(arc_set, TransRiseFall::fall(), to_tr, model);
-	attrs->setModelRef(to_tr, true);
-      }
     }
     break;
   case timing_sense_negative_unate:
     if (to_fall) {
       to_tr = TransRiseFall::fall();
       model = attrs->model(to_tr);
-      if (model) {
+      if (model)
 	makeTimingArc(arc_set, TransRiseFall::rise(), to_tr, model);
-	attrs->setModelRef(to_tr, true);
-      }
     }
     if (to_rise) {
       to_tr = TransRiseFall::rise();
       model = attrs->model(to_tr);
-      if (model) {
+      if (model)
 	makeTimingArc(arc_set, TransRiseFall::fall(), to_tr, model);
-	attrs->setModelRef(to_tr, true);
-      }
     }
     break;
   case timing_sense_non_unate:
@@ -320,7 +312,6 @@ LibertyBuilder::makeCombinationalArcs(LibertyCell *cell,
       if (model) {
 	makeTimingArc(arc_set, TransRiseFall::fall(), to_tr, model);
 	makeTimingArc(arc_set, TransRiseFall::rise(), to_tr, model);
-	attrs->setModelRef(to_tr, true);
       }
     }
     if (to_rise) {
@@ -329,7 +320,6 @@ LibertyBuilder::makeCombinationalArcs(LibertyCell *cell,
       if (model) {
 	makeTimingArc(arc_set, TransRiseFall::rise(), to_tr, model);
 	makeTimingArc(arc_set, TransRiseFall::fall(), to_tr, model);
-	attrs->setModelRef(to_tr, true);
       }
     }
     break;
@@ -355,7 +345,6 @@ LibertyBuilder::makeLatchDtoQArcs(LibertyCell *cell,
     TransRiseFall *from_tr = (sense == timing_sense_negative_unate) ?
       to_tr->opposite() : to_tr;
     makeTimingArc(arc_set, from_tr, to_tr, model);
-    attrs->setModelRef(to_tr, true);
   }
   to_tr = TransRiseFall::fall();
   model = attrs->model(to_tr);
@@ -363,7 +352,6 @@ LibertyBuilder::makeLatchDtoQArcs(LibertyCell *cell,
     TransRiseFall *from_tr = (sense == timing_sense_negative_unate) ?
       to_tr->opposite() : to_tr;
     makeTimingArc(arc_set, from_tr, to_tr, model);
-    attrs->setModelRef(to_tr, true);
   }
   return arc_set;
 }
@@ -420,16 +408,12 @@ LibertyBuilder::makeFromTransitionArcs(LibertyCell *cell,
   TransRiseFall *to_tr;
   to_tr = TransRiseFall::rise();
   model = attrs->model(to_tr);
-  if (model) {
+  if (model)
     makeTimingArc(arc_set, from_tr, to_tr, model);
-    attrs->setModelRef(to_tr, true);
-  }
   to_tr = TransRiseFall::fall();
   model = attrs->model(to_tr);
-  if (model) {
+  if (model)
     makeTimingArc(arc_set, from_tr, to_tr, model);
-    attrs->setModelRef(to_tr, true);
-  }
   return arc_set;
 }
 
@@ -450,17 +434,14 @@ LibertyBuilder::makePresetClrArcs(LibertyCell *cell,
     switch (attrs->timingSense()) {
     case timing_sense_positive_unate:
       makeTimingArc(arc_set, to_tr, to_tr, model);
-      attrs->setModelRef(to_tr, true);
       break;
     case timing_sense_negative_unate:
       makeTimingArc(arc_set, opp_tr, to_tr, model);
-      attrs->setModelRef(to_tr, true);
       break;
     case timing_sense_non_unate:
     case timing_sense_unknown:
       makeTimingArc(arc_set, to_tr, to_tr, model);
       makeTimingArc(arc_set, opp_tr, to_tr, model);
-      attrs->setModelRef(to_tr, true);
       break;
     case timing_sense_none:
       break;
@@ -494,36 +475,28 @@ LibertyBuilder::makeTristateEnableArcs(LibertyCell *cell,
     if (to_rise) {
       to_tr = TransRiseFall::rise();
       model = attrs->model(to_tr);
-      if (model) {
+      if (model)
 	makeTimingArc(arc_set, Transition::rise(), Transition::trZ1(), model);
-	attrs->setModelRef(to_tr, true);
-      }
     }
     if (to_fall) {
       to_tr = TransRiseFall::fall();
       model = attrs->model(to_tr);
-      if (model) {
+      if (model)
 	makeTimingArc(arc_set, Transition::rise(), Transition::trZ0(), model);
-	attrs->setModelRef(to_tr, true);
-      }
     }
     break;
   case timing_sense_negative_unate:
     if (to_rise) {
       to_tr = TransRiseFall::rise();
       model = attrs->model(to_tr);
-      if (model) {
+      if (model)
 	makeTimingArc(arc_set, Transition::fall(), Transition::trZ1(), model);
-	attrs->setModelRef(to_tr, true);
-      }
     }
     if (to_fall) {
       to_tr = TransRiseFall::fall();
       model = attrs->model(to_tr);
-      if (model) {
+      if (model)
 	makeTimingArc(arc_set, Transition::fall(), Transition::trZ0(), model);
-	attrs->setModelRef(to_tr, true);
-      }
     }
     break;
   case timing_sense_non_unate:
@@ -534,7 +507,6 @@ LibertyBuilder::makeTristateEnableArcs(LibertyCell *cell,
       if (model) {
 	makeTimingArc(arc_set, Transition::rise(), Transition::trZ1(), model);
 	makeTimingArc(arc_set, Transition::fall(), Transition::trZ1(), model);
-	attrs->setModelRef(to_tr, true);
       }
     }
     if (to_fall) {
@@ -543,7 +515,6 @@ LibertyBuilder::makeTristateEnableArcs(LibertyCell *cell,
       if (model) {
 	makeTimingArc(arc_set, Transition::rise(), Transition::trZ0(), model);
 	makeTimingArc(arc_set, Transition::fall(), Transition::trZ0(), model);
-	attrs->setModelRef(to_tr, true);
       }
     }
     break;
@@ -577,36 +548,28 @@ LibertyBuilder::makeTristateDisableArcs(LibertyCell *cell,
     if (to_rise) {
       to_tr = TransRiseFall::rise();
       model = attrs->model(to_tr);
-      if (model) {
+      if (model)
 	makeTimingArc(arc_set, Transition::rise(), Transition::tr0Z(), model);
-	attrs->setModelRef(to_tr, true);
-      }
     }
     if (to_fall) {
       to_tr = TransRiseFall::fall();
       model = attrs->model(to_tr);
-      if (model) {
+      if (model)
 	makeTimingArc(arc_set, Transition::rise(), Transition::tr1Z(), model);
-	attrs->setModelRef(to_tr, true);
-      }
     }
     break;
   case timing_sense_negative_unate:
     if (to_rise) {
       to_tr = TransRiseFall::rise();
       model = attrs->model(to_tr);
-      if (model) {
+      if (model)
 	makeTimingArc(arc_set, Transition::fall(), Transition::tr0Z(), model);
-	attrs->setModelRef(to_tr, true);
-      }
     }
     if (to_fall) {
       to_tr = TransRiseFall::fall();
       model = attrs->model(to_tr);
-      if (model) {
+      if (model)
 	makeTimingArc(arc_set, Transition::fall(), Transition::tr1Z(), model);
-	attrs->setModelRef(to_tr, true);
-      }
     }
     break;
   case timing_sense_non_unate:
@@ -617,7 +580,6 @@ LibertyBuilder::makeTristateDisableArcs(LibertyCell *cell,
       if (model) {
 	makeTimingArc(arc_set, Transition::fall(), Transition::tr0Z(), model);
 	makeTimingArc(arc_set, Transition::rise(), Transition::tr0Z(), model);
-	attrs->setModelRef(to_tr, true);
       }
     }
     if (to_fall) {
@@ -626,7 +588,6 @@ LibertyBuilder::makeTristateDisableArcs(LibertyCell *cell,
       if (model) {
 	makeTimingArc(arc_set, Transition::fall(), Transition::tr1Z(), model);
 	makeTimingArc(arc_set, Transition::rise(), Transition::tr1Z(), model);
-	attrs->setModelRef(to_tr, true);
       }
     }
     break;

@@ -515,6 +515,7 @@ Sta::~Sta()
   delete debug_;
   delete units_;
   delete report_;
+  delete power_;
 }
 
 void
@@ -1624,15 +1625,12 @@ hasDisabledArcs(Edge *edge,
 		Graph *graph)
 {
   TimingArcSet *arc_set = edge->timingArcSet();
-  TimingArcSetArcIterator *arc_iter = arc_set->timingArcIterator();
-  while (arc_iter->hasNext()) {
-    TimingArc *arc = arc_iter->next();
-    if (!searchThru(edge, arc, graph)) {
-      delete arc_iter;
+  TimingArcSetArcIterator arc_iter(arc_set);
+  while (arc_iter.hasNext()) {
+    TimingArc *arc = arc_iter.next();
+    if (!searchThru(edge, arc, graph))
       return true;
-    }
   }
-  delete arc_iter;
   return false;
 }
 
@@ -2847,17 +2845,32 @@ Sta::totalNegativeSlack(const MinMax *min_max)
 }
 
 Slack
-Sta::worstSlack(const MinMax *min_max)
+Sta::totalNegativeSlack(const Corner *corner,
+			const MinMax *min_max)
 {
   searchPreamble();
-  return search_->worstSlack(min_max);
+  return search_->totalNegativeSlack(corner, min_max);
 }
 
-Vertex *
-Sta::worstSlackVertex(const MinMax *min_max)
+void
+Sta::worstSlack(const MinMax *min_max,
+		// Return values.
+		Slack &worst_slack,
+		Vertex *&worst_vertex)
 {
   searchPreamble();
-  return search_->worstSlackVertex(min_max);
+  return search_->worstSlack(min_max, worst_slack, worst_vertex);
+}
+
+void
+Sta::worstSlack(const Corner *corner,
+		const MinMax *min_max,
+		// Return values.
+		Slack &worst_slack,
+		Vertex *&worst_vertex)
+{
+  searchPreamble();
+  return search_->worstSlack(corner, min_max, worst_slack, worst_vertex);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3623,16 +3636,15 @@ Sta::makeInstanceAfter(Instance *inst)
 {
   LibertyCell *lib_cell = network_->libertyCell(inst);
   if (lib_cell && lib_cell->hasInternalPorts()) {
-    LibertyCellPortBitIterator *port_iter = lib_cell->libertyPortBitIterator();
-    while (port_iter->hasNext()) {
-      LibertyPort *lib_port = port_iter->next();
+    LibertyCellPortBitIterator port_iter(lib_cell);
+    while (port_iter.hasNext()) {
+      LibertyPort *lib_port = port_iter.next();
       if (lib_port->direction()->isInternal()
 	  && lib_cell->hasTimingArcs(lib_port)) {
 	Pin *pin = network_->findPin(inst, lib_port);
 	connectPinAfter(pin);
       }
     }
-    delete port_iter;
   }
 }
 
@@ -4719,7 +4731,7 @@ Sta::reportSlewLimitVerbose(Pin *pin,
   Slew slew;
   float limit, slack;
   check_slew_limits_->checkSlews(pin, corner, min_max,
-				 corner, tr, slew, limit, slack);
+				 corner1, tr, slew, limit, slack);
   report_path_->reportSlewLimitVerbose(pin, corner1, tr, slew,
 				       limit, slack, min_max);
 }

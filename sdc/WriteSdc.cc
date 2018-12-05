@@ -1059,8 +1059,8 @@ WriteSdc::writeDisabledCells() const
       LibertyPortPairSeq::Iterator pair_iter(pairs);
       while (pair_iter.hasNext()) {
 	LibertyPortPair *from_to = pair_iter.next();
-	LibertyPort *from = from_to->first;
-	LibertyPort *to = from_to->second;
+	const LibertyPort *from = from_to->first;
+	const LibertyPort *to = from_to->second;
 	fprintf(stream_, "set_disable_timing -from {%s} -to {%s} ",
 		from->name(),
 		to->name());
@@ -1151,8 +1151,8 @@ WriteSdc::writeDisabledInstances() const
       LibertyPortPairSeq::Iterator pair_iter(pairs);
       while (pair_iter.hasNext()) {
 	LibertyPortPair *from_to = pair_iter.next();
-	LibertyPort *from_port = from_to->first;
-	LibertyPort *to_port = from_to->second;
+	const LibertyPort *from_port = from_to->first;
+	const LibertyPort *to_port = from_to->second;
 	fprintf(stream_, "set_disable_timing -from {%s} -to {%s} ",
 		from_port->name(),
 		to_port->name());

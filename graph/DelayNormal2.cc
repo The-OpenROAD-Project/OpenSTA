@@ -14,16 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "config.h"
 #include <cmath> // sqrt
 #include "Machine.hh"
+#include "Error.hh"
 #include "StringUtil.hh"
 #include "Fuzzy.hh"
 #include "Units.hh"
 #include "StaState.hh"
 #include "Delay.hh"
 
-// Conditional compilation based on delay abstraction from Delay.hh.
-#ifdef DELAY_NORMAL2
+// SSTA compilation.
+#if SSTA
 
 namespace sta {
 
@@ -338,6 +340,25 @@ delayRatio(const Delay &delay1,
   return delay1.mean() / delay2.mean();
 }
 
+float
+delayAsFloat(const Delay &delay,
+	     const EarlyLate *early_late)
+{
+  if (early_late == EarlyLate::early())
+    return delay.mean() - delay.sigmaEarly();
+  else if (early_late == EarlyLate::late())
+    return delay.mean() + delay.sigmaLate();
+  else
+    internalError("unknown early/late value.");
+}
+
+float
+delaySigma(const Delay &delay,
+	   const EarlyLate *early_late)
+{
+  return delay.sigma(early_late);
+}
+
 const char *
 delayAsString(const Delay &delay,
 	      const Units *units,
@@ -360,10 +381,10 @@ delayAsString(const Delay &delay,
 }
 
 const char *
-delayMeanSigmaString(const Delay &delay,
-		     const EarlyLate *early_late,
-		     const Units *units,
-		     int digits)
+delayAsString(const Delay &delay,
+	      const EarlyLate *early_late,
+	      const Units *units,
+	      int digits)
 {
   float mean_sigma = delay.mean();
   if (early_late == EarlyLate::early())
@@ -371,18 +392,6 @@ delayMeanSigmaString(const Delay &delay,
   else if (early_late == EarlyLate::late())
     mean_sigma += delay.sigmaLate();
   return units->timeUnit()->asString(mean_sigma, digits);
-}
-
-float
-delayMeanSigma(const Delay &delay,
-	       const EarlyLate *early_late)
-{
-  if (early_late == EarlyLate::early())
-    return delay.mean() - delay.sigmaEarly();
-  else if (early_late == EarlyLate::late())
-    return delay.mean() + delay.sigmaLate();
-  else
-    return delay.mean();
 }
 
 } // namespace

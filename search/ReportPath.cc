@@ -2713,8 +2713,8 @@ ReportPath::reportPath5(const Path *path,
 	  // from the input to the loads.  Report the wire delay on the
 	  // input pin instead.
 	  Arrival next_time = next_path->arrival(this) + time_offset;
-	  incr = delayMeanSigma(next_time, min_max)
-	    - delayMeanSigma(time, min_max);
+	  incr = delayAsFloat(next_time, min_max)
+	    - delayAsFloat(time, min_max);
 	  time = next_time;
 	  line_case = "input_drive";
 	}
@@ -2761,13 +2761,13 @@ ReportPath::reportPath5(const Path *path,
 	line_case = "clk_ideal";
       }
       else if (is_clk && !is_clk_start) {
-	incr = delayMeanSigma(time, min_max)
-	  - delayMeanSigma(prev_time, min_max);
+	incr = delayAsFloat(time, min_max)
+	  - delayAsFloat(prev_time, min_max);
 	line_case = "clk_prop";
       }
       else {
-	incr = delayMeanSigma(time, min_max)
-	  - delayMeanSigma(prev_time, min_max);
+	incr = delayAsFloat(time, min_max)
+	  - delayAsFloat(prev_time, min_max);
 	line_case = "normal";
       }
       if (report_input_pin_
@@ -3264,7 +3264,7 @@ ReportPath::reportTotalDelay(Delay value,
 			     const EarlyLate *early_late,
 			     string &result)
 {
-  const char *str = delayMeanSigmaString(value, early_late, units_, digits_);
+  const char *str = delayAsString(value, early_late, units_, digits_);
   if (stringEq(str, minus_zero_))
     // Filter "-0.00" fields.
     str = plus_zero_;
@@ -3281,7 +3281,7 @@ ReportPath::reportFieldDelayMinus(Delay value,
   if (delayAsFloat(value) == field_blank_)
     reportFieldBlank(field, result);
   else {
-    float mean_sigma = delayMeanSigma(value, early_late);
+    float mean_sigma = delayAsFloat(value, early_late);
     const char *str = units_->timeUnit()->asString(-mean_sigma, digits_);
     if (stringEq(str, plus_zero_))
       // Force leading minus sign.
@@ -3299,7 +3299,7 @@ ReportPath::reportFieldDelay(Delay value,
   if (delayAsFloat(value) == field_blank_)
     reportFieldBlank(field, result);
   else {
-    const char *str = delayMeanSigmaString(value, early_late, units_, digits_);
+    const char *str = delayAsString(value, early_late, units_, digits_);
     if (stringEq(str, minus_zero_))
       // Filter "-0.00" fields.
       str = plus_zero_;

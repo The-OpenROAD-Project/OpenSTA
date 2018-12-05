@@ -87,9 +87,9 @@ findEquivCells1(const LibertyLibrary *library)
 {
   LibertyCellHashMap cell_hash;
   LibertyCellEquivMap *cell_equivs = new LibertyCellEquivMap;
-  LibertyLibraryCellIterator *cell_iter = library->libertyCellIterator();
-  while (cell_iter->hasNext()) {
-    LibertyCell *cell = cell_iter->next();
+  LibertyCellIterator cell_iter(library);
+  while (cell_iter.hasNext()) {
+    LibertyCell *cell = cell_iter.next();
     if (!cell->dontUse()) {
       bool found_equiv = false;
       unsigned hash = hashCell(cell);
@@ -121,7 +121,6 @@ findEquivCells1(const LibertyLibrary *library)
       }
     }
   }
-  delete cell_iter;
 
   LibertyCellHashMap::Iterator hash_iter(cell_hash);
   while (hash_iter.hasNext()) {
@@ -159,13 +158,13 @@ float
 cellDriveResistance(const LibertyCell *cell)
 {
   float max_drive = 0.0;
-  CellTimingArcSetIterator *set_iter = cell->timingArcSetIterator();
-  while (set_iter->hasNext()) {
-    TimingArcSet *set = set_iter->next();
+  LibertyCellTimingArcSetIterator set_iter(cell);
+  while (set_iter.hasNext()) {
+    TimingArcSet *set = set_iter.next();
     if (!set->role()->isTimingCheck()) {
-      TimingArcSetArcIterator *arc_iter = set->timingArcIterator();
-      while (arc_iter->hasNext()) {
-	TimingArc *arc = arc_iter->next();
+      TimingArcSetArcIterator arc_iter(set);
+      while (arc_iter.hasNext()) {
+	TimingArc *arc = arc_iter.next();
 	GateTimingModel *model = dynamic_cast<GateTimingModel*>(arc->model());
 	if (model) {
 	  float drive = model->driveResistance(cell, NULL);
@@ -173,10 +172,8 @@ cellDriveResistance(const LibertyCell *cell)
 	    max_drive = drive;
 	}
       }
-      delete arc_iter;
     }
   }
-  delete set_iter;
   return max_drive;
 }
 
@@ -190,14 +187,13 @@ static unsigned
 hashCellPorts(const LibertyCell *cell)
 {
   unsigned hash = 0;
-  LibertyCellPortIterator *port_iter = cell->libertyPortIterator();
-  while (port_iter->hasNext()) {
-    LibertyPort *port = port_iter->next();
+  LibertyCellPortIterator port_iter(cell);
+  while (port_iter.hasNext()) {
+    LibertyPort *port = port_iter.next();
     hash += hashPort(port);
     hash += hashFuncExpr(port->function()) * 3;
     hash += hashFuncExpr(port->tristateEnable()) * 5;
   }
-  delete port_iter;
   return hash;
 }
 
@@ -212,9 +208,9 @@ static unsigned
 hashCellSequentials(const LibertyCell *cell)
 {
   unsigned hash = 0;
-  CellSequentialIterator *seq_iter = cell->sequentialIterator();
-  while (seq_iter->hasNext()) {
-    Sequential *seq = seq_iter->next();
+  LibertyCellSequentialIterator seq_iter(cell);
+  while (seq_iter.hasNext()) {
+    Sequential *seq = seq_iter.next();
     hash += hashFuncExpr(seq->clock()) * 3;
     hash += hashFuncExpr(seq->data()) * 5;
     hash += hashPort(seq->output()) * 7;
@@ -224,7 +220,6 @@ hashCellSequentials(const LibertyCell *cell)
     hash += seq->clearPresetOutput() * 17;
     hash += seq->clearPresetOutputInv() * 19;
   }
-  delete seq_iter;
   return hash;
 }
 
@@ -275,9 +270,9 @@ equivCellPortsAndFuncs(const LibertyCell *cell1,
   if (cell1->portCount() != cell2->portCount())
     return false;
   else {
-    LibertyCellPortIterator *port_iter1 = cell1->libertyPortIterator();
-    while (port_iter1->hasNext()) {
-      LibertyPort *port1 = port_iter1->next();
+    LibertyCellPortIterator port_iter1(cell1);
+    while (port_iter1.hasNext()) {
+      LibertyPort *port1 = port_iter1.next();
       const char *name = port1->name();
       LibertyPort *port2 = cell2->findLibertyPort(name);
       if (!(port2
@@ -285,11 +280,9 @@ equivCellPortsAndFuncs(const LibertyCell *cell1,
 	    && FuncExpr::equiv(port1->function(), port2->function())
 	    && FuncExpr::equiv(port1->tristateEnable(),
 			       port2->tristateEnable()))){
-	delete port_iter1;
         return false;
       }
     }
-    delete port_iter1;
     return true;
   }
 }
@@ -301,17 +294,14 @@ equivCellPorts(const LibertyCell *cell1,
   if (cell1->portCount() != cell2->portCount())
     return false;
   else {
-    LibertyCellPortIterator *port_iter1 = cell1->libertyPortIterator();
-    while (port_iter1->hasNext()) {
-      LibertyPort *port1 = port_iter1->next();
+    LibertyCellPortIterator port_iter1(cell1);
+    while (port_iter1.hasNext()) {
+      LibertyPort *port1 = port_iter1.next();
       const char* name = port1->name();
       LibertyPort *port2 = cell2->findLibertyPort(name);
-      if (!(port2 && LibertyPort::equiv(port1, port2))) {
-	delete port_iter1;
+      if (!(port2 && LibertyPort::equiv(port1, port2)))
         return false;
-      }
     }
-    delete port_iter1;
     return true;
   }
 }
@@ -320,27 +310,20 @@ static bool
 equivCellSequentials(const LibertyCell *cell1,
 		     const LibertyCell *cell2)
 {
-  bool eq = true;
-  CellSequentialIterator *seq_iter1 = cell1->sequentialIterator();
-  CellSequentialIterator *seq_iter2 = cell2->sequentialIterator();
-  while (seq_iter1->hasNext() && seq_iter2->hasNext()) {
-    Sequential *seq1 = seq_iter1->next();
-    Sequential *seq2 = seq_iter2->next();
+  LibertyCellSequentialIterator seq_iter1(cell1);
+  LibertyCellSequentialIterator seq_iter2(cell2);
+  while (seq_iter1.hasNext() && seq_iter2.hasNext()) {
+    Sequential *seq1 = seq_iter1.next();
+    Sequential *seq2 = seq_iter2.next();
     if (!(FuncExpr::equiv(seq1->clock(), seq2->clock())
 	  && FuncExpr::equiv(seq1->data(), seq2->data())
 	  && LibertyPort::equiv(seq1->output(), seq2->output())
 	  && LibertyPort::equiv(seq1->outputInv(), seq2->outputInv())
 	  && FuncExpr::equiv(seq1->clear(), seq2->clear())
-	  && FuncExpr::equiv(seq1->preset(), seq2->preset()))) {
-      eq = false;
-      break;
-    }
+	  && FuncExpr::equiv(seq1->preset(), seq2->preset())))
+      return false;
   }
-  if (seq_iter1->hasNext() || seq_iter2->hasNext())
-    eq = false;
-  delete seq_iter1;
-  delete seq_iter2;
-  return eq;
+  return !seq_iter1.hasNext() && !seq_iter2.hasNext();
 }
 
 bool
@@ -350,16 +333,13 @@ equivCellTimingArcSets(const LibertyCell *cell1,
   if (cell1->timingArcSetCount() != cell2->timingArcSetCount())
     return false;
   else {
-    CellTimingArcSetIterator *set_iter1 = cell1->timingArcSetIterator();
-    while (set_iter1->hasNext()) {
-      TimingArcSet *set1 = set_iter1->next();
+    LibertyCellTimingArcSetIterator set_iter1(cell1);
+    while (set_iter1.hasNext()) {
+      TimingArcSet *set1 = set_iter1.next();
       TimingArcSet *set2 = cell2->findTimingArcSet(set1);
-      if (!(set2 && TimingArcSet::equiv(set1, set2))) {
-	delete set_iter1;
+      if (!(set2 && TimingArcSet::equiv(set1, set2)))
 	return false;
-      }
     }
-    delete set_iter1;
     return true;
   }
 }

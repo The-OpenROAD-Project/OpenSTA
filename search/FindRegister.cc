@@ -243,10 +243,10 @@ FindRegVisitor::findSequential(const Pin *clk_pin,
 {
   has_seqs = false;
   matches = false;
-  CellSequentialIterator *seq_iter = cell->sequentialIterator();
-  while (seq_iter->hasNext()) {
+  LibertyCellSequentialIterator seq_iter(cell);
+  while (seq_iter.hasNext()) {
     has_seqs = true;
-    Sequential *seq = seq_iter->next();
+    Sequential *seq = seq_iter.next();
     if ((seq->isRegister() && edge_triggered)
 	|| (seq->isLatch() && latches)) {
       if (clk_tr == TransRiseFallBoth::riseFall()) {
@@ -270,7 +270,6 @@ FindRegVisitor::findSequential(const Pin *clk_pin,
       }
     }
   }
-  delete seq_iter;
 }
 
 bool
@@ -281,13 +280,12 @@ FindRegVisitor::findInferedSequential(LibertyCell *cell,
 				      bool latches)
 {
   bool matches = false;
-  CellTimingArcSetIterator *set_iter = cell->timingArcSetIterator();
   const TransRiseFall *clk_tr1 = clk_tr->asRiseFall();
-  while (set_iter->hasNext()) {
-    TimingArcSet *set = set_iter->next();
-    TimingArcSetArcIterator *arc_iter = set->timingArcIterator();
-    TimingArc *arc = arc_iter->next();
-    delete arc_iter;
+  LibertyCellTimingArcSetIterator set_iter(cell);
+  while (set_iter.hasNext()) {
+    TimingArcSet *set = set_iter.next();
+    TimingArcSetArcIterator arc_iter(set);
+    TimingArc *arc = arc_iter.next();
     TransRiseFall *arc_clk_tr = arc->fromTrans()->asRiseFall();
     bool tr_matches = (clk_tr == TransRiseFallBoth::riseFall()
 		       || (arc_clk_tr == clk_tr1
@@ -304,7 +302,6 @@ FindRegVisitor::findInferedSequential(LibertyCell *cell,
       break;
     }
   }
-  delete set_iter;
   return matches;
 }
 
@@ -313,18 +310,14 @@ FindRegVisitor::hasTimingCheck(LibertyCell *cell,
 			       LibertyPort *clk,
 			       LibertyPort *d)
 {
-  bool has_check = false;
-  CellTimingArcSetIterator *set_iter = cell->timingArcSetIterator(clk, d);
-  while (set_iter->hasNext()) {
-    TimingArcSet *set = set_iter->next();
+  LibertyCellTimingArcSetIterator set_iter(cell, clk, d);
+  while (set_iter.hasNext()) {
+    TimingArcSet *set = set_iter.next();
     TimingRole *role = set->role();
-    if (role->isTimingCheck()) {
-      has_check = true;
-      break;
-    }
+    if (role->isTimingCheck())
+      return true;
   }
-  delete set_iter;
-  return has_check;
+  return false;
 }
 
 class FindRegInstances : public FindRegVisitor
@@ -560,18 +553,14 @@ FindRegClkPins::matchPin(Pin *pin)
 {
   LibertyPort *port = network_->libertyPort(pin);
   LibertyCell *cell = port->libertyCell();
-  CellTimingArcSetIterator *set_iter = cell->timingArcSetFromIterator(port);
-  bool match = false;
-  while (set_iter->hasNext()) {
-    TimingArcSet *set = set_iter->next();
+  LibertyCellTimingArcSetIterator set_iter(cell, port, NULL);
+  while (set_iter.hasNext()) {
+    TimingArcSet *set = set_iter.next();
     TimingRole *role = set->role();
-      if (role->isTimingCheck()) {
-	match = true;
-	break;
-      }
+    if (role->isTimingCheck())
+      return true;
   }
-  delete set_iter;
-  return match;
+  return false;
 }
 
 
@@ -622,18 +611,14 @@ FindRegAsyncPins::matchPin(Pin *pin)
 {
   LibertyPort *port = network_->libertyPort(pin);
   LibertyCell *cell = port->libertyCell();
-  CellTimingArcSetIterator *set_iter = cell->timingArcSetFromIterator(port);
-  bool match = false;
-  while (set_iter->hasNext()) {
-    TimingArcSet *set = set_iter->next();
+  LibertyCellTimingArcSetIterator set_iter(cell, port, NULL);
+  while (set_iter.hasNext()) {
+    TimingArcSet *set = set_iter.next();
     TimingRole *role = set->role();
-      if (role == TimingRole::regSetClr()) {
-	match = true;
-	break;
-      }
+    if (role == TimingRole::regSetClr())
+      return true;
   }
-  delete set_iter;
-  return match;
+  return false;
 }
 
 PinSet *
@@ -676,20 +661,16 @@ FindRegOutputPins::matchPin(Pin *pin)
 {
   LibertyPort *port = network_->libertyPort(pin);
   LibertyCell *cell = port->libertyCell();
-  CellTimingArcSetIterator *set_iter = cell->timingArcSetToIterator(port);
-  bool match = false;
-  while (set_iter->hasNext()) {
-    TimingArcSet *set = set_iter->next();
+  LibertyCellTimingArcSetIterator set_iter(cell, NULL, port);
+  while (set_iter.hasNext()) {
+    TimingArcSet *set = set_iter.next();
     TimingRole *role = set->role();
     if (role == TimingRole::regClkToQ()
 	|| role == TimingRole::latchEnToQ()
-	|| role == TimingRole::latchDtoQ()) {
-      match = true;
-      break;
-    }
+	|| role == TimingRole::latchDtoQ())
+      return true;
   }
-  delete set_iter;
-  return match;
+  return false;
 }
 
 void

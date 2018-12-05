@@ -144,10 +144,9 @@ Graph::vertexAndEdgeCounts(const Instance *inst,
 	vertex_count++;
       if (cell) {
 	LibertyPort *port = network_->libertyPort(pin);
-	CellTimingArcSetIterator *set_iter =
-	  cell->timingArcSetFromIterator(port);
-	while (set_iter->hasNext()) {
-	  TimingArcSet *arc_set = set_iter->next();
+	LibertyCellTimingArcSetIterator set_iter(cell, port, NULL);
+	while (set_iter.hasNext()) {
+	  TimingArcSet *arc_set = set_iter.next();
 	  LibertyPort *to_port = arc_set->to();
 	  if (network_->findPin(inst, to_port)) {
 	    if (dir->isBidirect()) {
@@ -161,7 +160,6 @@ Graph::vertexAndEdgeCounts(const Instance *inst,
 	    }
 	  }
 	}
-	delete set_iter;
       }
       // Count wire edges from driver pins.
       if (network_->isDriver(pin))
@@ -284,9 +282,9 @@ Graph::makePortInstanceEdges(const Instance *inst,
 			     LibertyCell *cell,
 			     LibertyPort *from_to_port)
 {
-  CellTimingArcSetIterator *timing_iter = cell->timingArcSetIterator();
-  while (timing_iter->hasNext()) {
-    TimingArcSet *arc_set = timing_iter->next();
+  LibertyCellTimingArcSetIterator timing_iter(cell);
+  while (timing_iter.hasNext()) {
+    TimingArcSet *arc_set = timing_iter.next();
     LibertyPort *from_port = arc_set->from();
     LibertyPort *to_port = arc_set->to();
     if (from_to_port == NULL
@@ -327,7 +325,6 @@ Graph::makePortInstanceEdges(const Instance *inst,
       }
     }
   }
-  delete timing_iter;
 }
 
 void
@@ -915,31 +912,27 @@ Graph::removeDelayAnnotated(Edge *edge)
 {
   edge->setDelayAnnotationIsIncremental(false);
   TimingArcSet *arc_set = edge->timingArcSet();
-  TimingArcSetArcIterator *arc_iter = arc_set->timingArcIterator();
-  while (arc_iter->hasNext()) {
-    TimingArc *arc = arc_iter->next();
+  TimingArcSetArcIterator arc_iter(arc_set);
+  while (arc_iter.hasNext()) {
+    TimingArc *arc = arc_iter.next();
     for (DcalcAPIndex ap_index = 0; ap_index < ap_count_; ap_index++) {
       setArcDelayAnnotated(edge, arc, ap_index, false);
     }
   }
-  delete arc_iter;
 }
 
 bool
 Graph::delayAnnotated(Edge *edge)
 {
   TimingArcSet *arc_set = edge->timingArcSet();
-  TimingArcSetArcIterator *arc_iter = arc_set->timingArcIterator();
-  while (arc_iter->hasNext()) {
-    TimingArc *arc = arc_iter->next();
+  TimingArcSetArcIterator arc_iter(arc_set);
+  while (arc_iter.hasNext()) {
+    TimingArc *arc = arc_iter.next();
     for (DcalcAPIndex ap_index = 0; ap_index < ap_count_; ap_index++) {
-      if (arcDelayAnnotated(edge, arc, ap_index)) {
-	delete arc_iter;
+      if (arcDelayAnnotated(edge, arc, ap_index))
 	return true;
-      }
     }
   }
-  delete arc_iter;
   return false;
 }
 

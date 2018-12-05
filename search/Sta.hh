@@ -903,12 +903,19 @@ public:
   // The sum of all negative endpoints slacks.
   // Incrementally updated.
   Slack totalNegativeSlack(const MinMax *min_max);
-  // Worst endpoint slack.
+  Slack totalNegativeSlack(const Corner *corner,
+			   const MinMax *min_max);
+  // Worst endpoint slack and vertex.
   // Incrementally updated.
-  Slack worstSlack(const MinMax *min_max);
-  // Worst endpoint slack vertex.
-  // Incrementally updated.
-  Vertex *worstSlackVertex(const MinMax *min_max);
+  void worstSlack(const MinMax *min_max,
+		  // Return values.
+		  Slack &worst_slack,
+		  Vertex *&worst_vertex);
+  void worstSlack(const Corner *corner,
+		  const MinMax *min_max,
+		  // Return values.
+		  Slack &worst_slack,
+		  Vertex *&worst_vertex);
   VertexPathIterator *vertexPathIterator(Vertex *vertex,
 					 const TransRiseFall *tr,
 					 const PathAnalysisPt *path_ap);

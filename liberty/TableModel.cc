@@ -25,7 +25,6 @@ namespace sta {
 
 static void
 reportPvt(const LibertyLibrary *library,
-	  const LibertyCell *cell,
 	  const Pvt *pvt,
 	  int digits,
 	  string *result);
@@ -124,7 +123,7 @@ GateTableModel::reportGateDelay(const LibertyCell *cell,
 				string *result) const
 {
   const LibertyLibrary *library = cell->libertyLibrary();
-  reportPvt(library, cell, pvt, digits, result);
+  reportPvt(library, pvt, digits, result);
   reportTableLookup("Delay", library, cell, pvt, delay_model_, in_slew,
 		    load_cap, related_out_cap, digits, result);
   if (delay_sigma_models_[EarlyLate::earlyIndex()])
@@ -386,7 +385,7 @@ CheckTableModel::reportCheckDelay(const LibertyCell *cell,
     findAxisValues(from_slew, to_slew, related_out_cap,
 		   axis_value1, axis_value2, axis_value3);
     const LibertyLibrary *library = cell->libertyLibrary();
-    reportPvt(library, cell, pvt, digits, result);
+    reportPvt(library, pvt, digits, result);
     model_->reportValue("Check", library, cell, pvt,
 			axis_value1, from_slew_annotation, axis_value2,
 			axis_value3, digits, result);
@@ -586,7 +585,6 @@ TableModel::reportValue(const char *result_name,
 
 static void
 reportPvt(const LibertyLibrary *library,
-	  const LibertyCell *cell,
 	  const Pvt *pvt,
 	  int digits,
 	  string *result)

@@ -295,9 +295,9 @@ SdfReader::setEdgeDelays(Edge *edge,
   if (triple_count == 1
       || triple_count == 2) {
     TimingArcSet *arc_set = edge->timingArcSet();
-    TimingArcSetArcIterator *arc_iter = arc_set->timingArcIterator();
-    while (arc_iter->hasNext()) {
-      TimingArc *arc = arc_iter->next();
+    TimingArcSetArcIterator arc_iter(arc_set);
+    while (arc_iter.hasNext()) {
+      TimingArc *arc = arc_iter.next();
       size_t triple_index;
       if (triple_count == 1)
 	triple_index = 0;
@@ -306,7 +306,6 @@ SdfReader::setEdgeDelays(Edge *edge,
       SdfTriple *triple = (*triples)[triple_index];
       setEdgeArcDelays(edge, arc, triple);
     }
-    delete arc_iter;
   }
   else if (triple_count == 0)
     sdfError("%s with no triples.\n", sdf_cmd);
@@ -404,9 +403,9 @@ SdfReader::iopath(SdfPortSpec *from_edge,
 		  // condelse matches the default (unconditional) arc.
 		  || (condelse && lib_cond == NULL))) {
 	    matched = true;
-	    TimingArcSetArcIterator *arc_iter = arc_set->timingArcIterator();
-	    while (arc_iter->hasNext()) {
-	      TimingArc *arc = arc_iter->next();
+	    TimingArcSetArcIterator arc_iter(arc_set);
+	    while (arc_iter.hasNext()) {
+	      TimingArc *arc = arc_iter.next();
 	      if ((from_edge->transition() == Transition::riseFall())
 		  || (arc->fromTrans() == from_edge->transition())) {
 		size_t triple_index = arc->toTrans()->sdfTripleIndex();
@@ -425,7 +424,6 @@ SdfReader::iopath(SdfPortSpec *from_edge,
 		}
 	      }
 	    }
-	    delete arc_iter;
 	  }
 	}
 	if (!matched)
@@ -551,9 +549,9 @@ SdfReader::annotateCheckEdges(Pin *data_pin,
 	       && edge_role->genericRole() == sdf_role->genericRole()))
 	  && cond_matches) {
 	TimingArcSet *arc_set = edge->timingArcSet();
-	TimingArcSetArcIterator *arc_iter = arc_set->timingArcIterator();
-	while (arc_iter->hasNext()) {
-	  TimingArc *arc = arc_iter->next();
+	TimingArcSetArcIterator arc_iter(arc_set);
+	while (arc_iter.hasNext()) {
+	  TimingArc *arc = arc_iter.next();
 	  if (((data_edge->transition() == Transition::riseFall())
 	       || (arc->toTrans() == data_edge->transition()))
 	      && ((clk_edge->transition() == Transition::riseFall())
@@ -561,7 +559,6 @@ SdfReader::annotateCheckEdges(Pin *data_pin,
 	    setEdgeArcDelays(edge, arc, triple);
 	  }
 	}
-	delete arc_iter;
 	matched = true;
       }
     }

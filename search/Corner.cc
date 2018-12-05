@@ -420,17 +420,7 @@ Corner::findDcalcAnalysisPt(const MinMax *min_max) const
 PathAnalysisPt *
 Corner::findPathAnalysisPt(const MinMax *min_max) const
 {
-  int ap_count = path_analysis_pts_.size();
-  if (ap_count == 0)
-    return NULL;
-  else if (ap_count == 1)
-    return path_analysis_pts_[0];
-  else if (ap_count == 2)
-    return path_analysis_pts_[min_max->index()];
-  else {
-    internalError("unknown analysis point count");
-    return NULL;
-  }
+  return path_analysis_pts_[min_max->index()];
 }
 
 void

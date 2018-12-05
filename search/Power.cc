@@ -23,7 +23,6 @@
 #include "Liberty.hh"
 #include "InternalPower.hh"
 #include "LeakagePower.hh"
-#include "InternalPower.hh"
 #include "TimingArc.hh"
 #include "FuncExpr.hh"
 #include "PortDirection.hh"
@@ -103,6 +102,7 @@ Power::power(const Corner *corner,
       total.incr(inst_power);
     }
   }
+  delete inst_iter;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -138,10 +138,10 @@ Power::power(const Instance *inst,
     bool is_clk;
     activity(to_pin, activity1, is_clk);
     if (to_port->direction()->isAnyOutput()) {
-      findSwitchingPower(inst, cell, to_pin, to_port, activity1, load_cap,
+      findSwitchingPower(cell, to_port, activity1, load_cap,
 			 dcalc_ap, result);
     }
-    findInternalPower(inst, cell, to_pin, to_port, activity1, is_clk,
+    findInternalPower(inst, cell, to_port, activity1, is_clk,
 		      load_cap, dcalc_ap, result);
   }
   delete pin_iter;
@@ -151,7 +151,6 @@ Power::power(const Instance *inst,
 void
 Power::findInternalPower(const Instance *inst,
 			 LibertyCell *cell,
-			 const Pin *to_pin,
 			 const LibertyPort *to_port,
 			 float activity,
 			 bool is_clk,
@@ -173,9 +172,9 @@ Power::findInternalPower(const Instance *inst,
 	      units_->capacitanceUnit()->asString(load_cap),
 	      activity * 1e-9,
 	      duty);
-  LibertyCellInternalPowerIterator *pwr_iter = cell->internalPowerIterator();
-  while (pwr_iter->hasNext()) {
-    InternalPower *pwr = pwr_iter->next();
+  LibertyCellInternalPowerIterator pwr_iter(cell);
+  while (pwr_iter.hasNext()) {
+    InternalPower *pwr = pwr_iter.next();
     const char *related_pg_pin = pwr->relatedPgPin();
     if (pwr->port() == to_port
 	&& ((related_pg_pin == NULL || pwr_pin == NULL)
@@ -189,7 +188,7 @@ Power::findInternalPower(const Instance *inst,
       while (tr_iter.hasNext()) {
 	TransRiseFall *to_tr = tr_iter.next();
 	// Need unateness to find from_tr.
-	float slew = sta_->vertexSlew(from_vertex, to_tr, dcalc_ap);
+	float slew = delayAsFloat(sta_->vertexSlew(from_vertex, to_tr, dcalc_ap));
 	float energy, tr_internal;
 	if (from_port) {
 	  float energy1 = pwr->power(to_tr, pvt, slew, load_cap);
@@ -216,7 +215,6 @@ Power::findInternalPower(const Instance *inst,
       }
     }
   }
-  delete pwr_iter;
   debugPrint1(debug_, "power", 2, " internal = %.5g\n", port_internal);
   result.setInternal(result.internal() + port_internal);
 }
@@ -232,13 +230,12 @@ Power::loadCap(const Pin *to_pin,
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
     TimingArcSet *arc_set = edge->timingArcSet();
-    TimingArcSetArcIterator *arc_iter = arc_set->timingArcIterator();
-    while (arc_iter->hasNext()) {
-      TimingArc *arc = arc_iter->next();
+    TimingArcSetArcIterator arc_iter(arc_set);
+    while (arc_iter.hasNext()) {
+      TimingArc *arc = arc_iter.next();
       ceff_sum += graph_delay_calc_->ceff(edge, arc, dcalc_ap);
       ceff_count++;
     }
-    delete arc_iter;
   }
   return ceff_sum / ceff_count;
 }
@@ -250,9 +247,9 @@ Power::findLeakagePower(const Instance *inst,
 			PowerResult &result)
 {
   float leakage = cell->leakagePower();
-  LibertyCellLeakagePowerIterator *pwr_iter = cell->leakagePowerIterator();
-  while (pwr_iter->hasNext()) {
-    LeakagePower *leak = pwr_iter->next();
+  LibertyCellLeakagePowerIterator pwr_iter(cell);
+  while (pwr_iter.hasNext()) {
+    LeakagePower *leak = pwr_iter.next();
     FuncExpr *when = leak->when();
     if (when) {
       LogicValue when_value = sim_->evalExpr(when, inst);
@@ -267,14 +264,11 @@ Power::findLeakagePower(const Instance *inst,
       }
     }
   }
-  delete pwr_iter;
   result.setLeakage(leakage);
 }
 
 void
-Power::findSwitchingPower(const Instance *inst,
-			  LibertyCell *cell,
-			  const Pin *to_pin,
+Power::findSwitchingPower(LibertyCell *cell,
 			  const LibertyPort *to_port,
 			  float activity,
 			  float load_cap,
@@ -307,7 +301,7 @@ Power::activity(const Pin *pin,
 
 float
 Power::voltage(LibertyCell *cell,
-	       const LibertyPort *port,
+	       const LibertyPort *,
 	       const DcalcAnalysisPt *dcalc_ap)
 {
   // Should use cell pg_pin voltage name to voltage.

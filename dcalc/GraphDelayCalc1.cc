@@ -739,9 +739,9 @@ GraphDelayCalc1::driveCellDefaultFromPort(LibertyCell *cell,
 {
   LibertyPort *from_port = 0;
   int from_port_index = 0;
-  CellTimingArcSetIterator *set_iter = cell->timingArcSetIterator();
-  while (set_iter->hasNext()) {
-    TimingArcSet *arc_set = set_iter->next();
+  LibertyCellTimingArcSetIterator set_iter(cell);
+  while (set_iter.hasNext()) {
+    TimingArcSet *arc_set = set_iter.next();
     if (arc_set->to() == to_port) {
       LibertyPort *set_from_port = arc_set->from();
       int set_from_port_index = findPortIndex(cell, set_from_port);
@@ -752,7 +752,6 @@ GraphDelayCalc1::driveCellDefaultFromPort(LibertyCell *cell,
       }
     }
   }
-  delete set_iter;
   return from_port;
 }
 
@@ -762,16 +761,13 @@ GraphDelayCalc1::findPortIndex(LibertyCell *cell,
 			       LibertyPort *port)
 {
   int index = 0;
-  LibertyCellPortIterator *port_iter = cell->libertyPortIterator();
-  while (port_iter->hasNext()) {
-    LibertyPort *cell_port = port_iter->next();
-    if (cell_port == port) {
-      delete port_iter;
+  LibertyCellPortIterator port_iter(cell);
+  while (port_iter.hasNext()) {
+    LibertyPort *cell_port = port_iter.next();
+    if (cell_port == port)
       return index;
-    }
     index++;
   }
-  delete port_iter;
   internalError("port not found in cell");
   return 0;
 }
@@ -789,24 +785,22 @@ GraphDelayCalc1::findInputDriverDelay(LibertyCell *drvr_cell,
   debugPrint2(debug_, "delay_calc", 2, "  driver cell %s %s\n",
 	      drvr_cell->name(),
 	      tr->asString());
-  CellTimingArcSetIterator *set_iter = drvr_cell->timingArcSetIterator();
-  while (set_iter->hasNext()) {
-    TimingArcSet *arc_set = set_iter->next();
+  LibertyCellTimingArcSetIterator set_iter(drvr_cell);
+  while (set_iter.hasNext()) {
+    TimingArcSet *arc_set = set_iter.next();
     if (arc_set->from() == from_port
 	&& arc_set->to() == to_port) {
-      TimingArcSetArcIterator *arc_iter = arc_set->timingArcIterator();
-      while (arc_iter->hasNext()) {
-	TimingArc *arc = arc_iter->next();
+      TimingArcSetArcIterator arc_iter(arc_set);
+      while (arc_iter.hasNext()) {
+	TimingArc *arc = arc_iter.next();
 	if (arc->toTrans()->asRiseFall() == tr) {
 	  float from_slew = from_slews[arc->fromTrans()->index()];
 	  findInputArcDelay(drvr_cell, drvr_pin, drvr_vertex,
 			    arc, from_slew, dcalc_ap);
 	}
       }
-      delete arc_iter;
     }
   }
-  delete set_iter;
 }
 
 // Driving cell delay is the load dependent delay, which is the gate
@@ -1026,9 +1020,9 @@ GraphDelayCalc1::findDriverEdgeDelays(LibertyCell *drvr_cell,
     const Pvt *pvt = sdc_->pvt(drvr_inst, dcalc_ap->constraintMinMax());
     if (pvt == NULL)
       pvt = dcalc_ap->operatingConditions();
-    TimingArcSetArcIterator *arc_iter = arc_set->timingArcIterator();
-    while (arc_iter->hasNext()) {
-      TimingArc *arc = arc_iter->next();
+    TimingArcSetArcIterator arc_iter(arc_set);
+    while (arc_iter.hasNext()) {
+      TimingArc *arc = arc_iter.next();
       const TransRiseFall *tr = arc->toTrans()->asRiseFall();
       Parasitic *parasitic;
       bool delete_parasitic;
@@ -1054,7 +1048,6 @@ GraphDelayCalc1::findDriverEdgeDelays(LibertyCell *drvr_cell,
       arc_delay_calc->finish(drvr_pin, tr, dcalc_ap,
 			     parasitic, delete_parasitic);
     }
-    delete arc_iter;
   }
 
   if (delay_changed && observer_) {
@@ -1369,9 +1362,9 @@ GraphDelayCalc1::findMultiDrvrGateDelay(MultiDrvrNet *multi_drvr,
 	Edge *edge1 = edge_iter.next();
 	TimingArcSet *arc_set1 = edge1->timingArcSet();
 	const LibertyPort *related_out_port = arc_set1->relatedOut();
-	TimingArcSetArcIterator *arc_iter = arc_set1->timingArcIterator();
-	while (arc_iter->hasNext()) {
-	  TimingArc *arc1 = arc_iter->next();
+	TimingArcSetArcIterator arc_iter(arc_set1);
+	while (arc_iter.hasNext()) {
+	  TimingArc *arc1 = arc_iter.next();
 	  TransRiseFall *drvr_tr1 = arc1->toTrans()->asRiseFall();
 	  if (drvr_tr1 == drvr_tr) {
 	    Vertex *from_vertex1 = edge1->from(graph_);
@@ -1420,7 +1413,6 @@ GraphDelayCalc1::findMultiDrvrGateDelay(MultiDrvrNet *multi_drvr,
 				   parasitic1, delete_parasitic1);
 	  }
 	}
-	delete arc_iter;
       }
     }
   }
@@ -1570,9 +1562,9 @@ GraphDelayCalc1::findCheckEdgeDelays(Edge *edge,
   Instance *inst = network_->instance(to_pin);
   const LibertyCell *cell = network_->libertyCell(inst);
   bool delay_changed = false;
-  TimingArcSetArcIterator *arc_iter = arc_set->timingArcIterator();
-  while (arc_iter->hasNext()) {
-    TimingArc *arc = arc_iter->next();
+  TimingArcSetArcIterator arc_iter(arc_set);
+  while (arc_iter.hasNext()) {
+    TimingArc *arc = arc_iter.next();
     TransRiseFall *from_tr = arc->fromTrans()->asRiseFall();
     TransRiseFall *to_tr = arc->toTrans()->asRiseFall();
     if (from_tr && to_tr) {
@@ -1631,7 +1623,6 @@ GraphDelayCalc1::findCheckEdgeDelays(Edge *edge,
       }
     }
   }
-  delete arc_iter;
   if (delay_changed && observer_)
     observer_->checkDelayChangedTo(to_vertex);
 }

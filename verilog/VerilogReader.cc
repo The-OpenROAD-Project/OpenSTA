@@ -560,9 +560,8 @@ VerilogReader::makeModuleInst(const char *module_name,
       Port *port = network_->findPort(cell, port_name);
       LibertyPort *lport = network_->libertyPort(port);
       if (lport->isBus()) {
-	LibertyPortMemberIterator *member_iter=lport->libertyMemberIterator();
-	lport = member_iter->next();
-	delete member_iter;
+	LibertyPortMemberIterator member_iter(lport);
+	lport = member_iter.next();
       }
       int pin_index = lport->pinIndex();
       const char *prev_net_name = net_names[pin_index];
@@ -1969,9 +1968,9 @@ VerilogReader::makeLibertyInst(VerilogLibertyInst *lib_inst,
   Instance *inst = network_->makeInstance(cell, lib_inst->instanceName(),
 					  parent);
   const char **net_names = lib_inst->netNames();
-  LibertyCellPortBitIterator *port_iter = lib_cell->libertyPortBitIterator();
-  while (port_iter->hasNext()) {
-    LibertyPort *port = port_iter->next();
+  LibertyCellPortBitIterator port_iter(lib_cell);
+  while (port_iter.hasNext()) {
+    LibertyPort *port = port_iter.next();
     const char *net_name = net_names[port->pinIndex()];
     // net_name may be the name of a single bit bus.
     if (net_name) {
@@ -1997,7 +1996,6 @@ VerilogReader::makeLibertyInst(VerilogLibertyInst *lib_inst,
 	&& lib_cell->hasTimingArcs(port))
      network_->makePin(inst, reinterpret_cast<Port*>(port), NULL);
   }
-  delete port_iter;
 }
 
 ////////////////////////////////////////////////////////////////

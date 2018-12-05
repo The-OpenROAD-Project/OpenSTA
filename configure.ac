@@ -148,6 +148,15 @@ AC_ARG_ENABLE(asan,
   esac],
   [asan=false])
 
+AC_ARG_ENABLE(ssta,
+  [AS_HELP_STRING([--enable-ssta],[enable ssta])],
+  [case "${enableval}" in
+    yes) ssta=true ;;
+    no)  ssta=false ;;
+    *) AC_MSG_ERROR(bad value ${enableval} for --enable-ssta) ;;
+  esac],
+  [ssta=false])
+
 AC_ARG_WITH(include,
   [AS_HELP_STRING([--with-include=dirs],[directories to search for include files])],
   [INCLUDE_DIRS="${withval}"],
@@ -187,6 +196,14 @@ AC_ARG_WITH(optimize,
   [AS_HELP_STRING([--with-optimize],[obsolete; optimization is on by default])],
   [],
   [])
+
+#--------------------------------------------------------------------
+
+if test x$ssta = xtrue; then
+   AC_DEFINE(SSTA, 1, "SSTA support")
+else
+   AC_DEFINE(SSTA, 0, "SSTA support")
+fi
 
 #--------------------------------------------------------------------
 # Locate the Tcl package
@@ -411,8 +428,8 @@ AC_FUNC_ERROR_AT_LINE
 #--------------------------------------------------------------------
 
 if test $CXX = clang++; then
-  # -Wno-deprecated-register to suppress warnings in flex files
-  CXXFLAGS="-std=c++11 -Wall -Wno-deprecated-register -Wcast-qual"
+  # suppress deprecated-register warnings in flex files.
+  CXXFLAGS="-std=c++11 -Wall -Wcast-qual -Wunused-parameter -Wno-deprecated-register"
   CXX_OPT="-O3"
   CXX_DEBUG="-g"
   CXX_ASAN="-fsanitize=address -O1 -fno-omit-frame-pointer"

@@ -31,6 +31,21 @@ InternalPowerAttrs::InternalPowerAttrs() :
 
 InternalPowerAttrs::~InternalPowerAttrs()
 {
+}
+
+void
+InternalPowerAttrs::deleteContents()
+{
+  TransRiseFallIterator tr_iter;
+  while (tr_iter.hasNext()) {
+    TransRiseFall *tr = tr_iter.next();
+    int tr_index = tr->index();
+    InternalPowerModel *model = models_[tr_index];
+    if (model)
+      delete model;
+  }
+  if (when_)
+    when_->deleteSubexprs();
   stringDelete(related_pg_pin_);
 }
 
@@ -63,7 +78,7 @@ InternalPower::InternalPower(LibertyCell *cell,
   port_(port),
   related_port_(related_port),
   when_(attrs->when()),
-  related_pg_pin_(stringCopy(attrs->relatedPgPin()))
+  related_pg_pin_(attrs->relatedPgPin())
 {
   TransRiseFallIterator tr_iter;
   while (tr_iter.hasNext()) {
@@ -76,17 +91,7 @@ InternalPower::InternalPower(LibertyCell *cell,
 
 InternalPower::~InternalPower()
 {
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    int tr_index = tr->index();
-    InternalPowerModel *model = models_[tr_index];
-    if (model)
-      delete model;
-  }
-  if (when_)
-    when_->deleteSubexprs();
-  stringDelete(related_pg_pin_);
+  // models_, when_ and related_pg_pin_ are owned by InternalPowerAttrs.
 }
 
 LibertyCell *

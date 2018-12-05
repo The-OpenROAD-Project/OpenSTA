@@ -1228,6 +1228,9 @@ proc get_ports_or_pins { pattern } {
 
 ################################################################
 
+# If -corner keyword is missing:
+#  one corner, return default
+#  multiple corner, error
 proc parse_corner { keys_var } {
   upvar 1 $keys_var keys
 
@@ -1243,6 +1246,23 @@ proc parse_corner { keys_var } {
     sta_error "-corner keyword required with multi-corner analysis."
   } else {
     return [default_corner]
+  }
+}
+
+# Assumes caller checks for existence of -corner keyword arg.
+proc parse_corner_required { keys_var } {
+  upvar 1 $keys_var keys
+
+  if { [info exists keys(-corner)] } {
+    set corner_name $keys(-corner)
+    set corner [find_corner $corner_name]
+    if { $corner == "NULL" } {
+      sta_error "$corner_name is not the name of process corner."
+    } else {
+      return $corner
+    }
+  } else {
+    sta_error "missing -corner arg."
   }
 }
 

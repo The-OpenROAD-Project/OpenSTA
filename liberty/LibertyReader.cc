@@ -131,6 +131,7 @@ LibertyReader::readLibertyFile(const char *filename,
   mode_def_ = NULL;
   mode_value_ = NULL;
   ocv_derate_ = NULL;
+  have_resistance_unit_ = false;
   
   TransRiseFallIterator tr_iter;
   while (tr_iter.hasNext()) {
@@ -169,6 +170,7 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("time_unit", &LibertyReader::visitTimeUnit);
   defineAttrVisitor("pulling_resistance_unit",
 		    &LibertyReader::visitPullingResistanceUnit);
+  defineAttrVisitor("resistance_unit", &LibertyReader::visitResistanceUnit);
   defineAttrVisitor("capacitive_load_unit",
 		    &LibertyReader::visitCapacitiveLoadUnit);
   defineAttrVisitor("voltage_unit", &LibertyReader::visitVoltageUnit);
@@ -580,6 +582,12 @@ LibertyReader::endLibrary(LibertyGroup *group)
 void
 LibertyReader::endLibraryAttrs(LibertyGroup *group)
 {
+  // Default resistance_unit to pulling_resistance_unit.
+  if (!have_resistance_unit_) {
+    Units *units = library_->units();
+    units->resistanceUnit()->copy(units->pullingResistanceUnit());
+  }
+
   // These attributes reference named groups in the library so
   // wait until the end of the library to resolve them.
   if (default_wireload_) {
@@ -640,7 +648,17 @@ void
 LibertyReader::visitPullingResistanceUnit(LibertyAttr *attr)
 {
   if (library_)
+    parseUnits(attr, "ohm", res_scale_,
+	       library_->units()->pullingResistanceUnit());
+}
+
+void
+LibertyReader::visitResistanceUnit(LibertyAttr *attr)
+{
+  if (library_) {
     parseUnits(attr, "ohm", res_scale_, library_->units()->resistanceUnit());
+    have_resistance_unit_ = true;
+  }
 }
 
 void
@@ -700,8 +718,8 @@ LibertyReader::parseUnits(LibertyAttr *attr,
   }
 
   float scale_mult = 1.0F;
-  if (stringEq(s + 1, unit_suffix)) {
-    char scale_char = *s;
+  if (*s && stringEqual(s + 1, unit_suffix)) {
+    char scale_char = tolower(*s);
     if (scale_char == 'k')
       scale_mult = 1E+3F;
     else if (scale_char == 'm')
@@ -717,7 +735,7 @@ LibertyReader::parseUnits(LibertyAttr *attr,
     else
       libWarn(attr, "unknown unit scale %c.\n", scale_char);
   }
-  else if (!stringEq(s, unit_suffix))
+  else if (!stringEqual(s, unit_suffix))
     libWarn(attr, "unknown unit suffix %s.\n", s + 1);
 
   scale_var = scale_mult * mult;
@@ -738,9 +756,9 @@ LibertyReader::visitCapacitiveLoadUnit(LibertyAttr *attr)
 	    value = value_iter.next();
 	    if (value->isString()) {
 	      const char *suffix = value->stringValue();
-	      if (stringEq(suffix, "ff"))
+	      if (stringEqual(suffix, "ff"))
 		cap_scale_ = scale * 1E-15F;
-	      else if (stringEq(suffix, "pf"))
+	      else if (stringEqual(suffix, "pf"))
 		cap_scale_ = scale * 1E-12F;
 	      else
 		libWarn(attr, "capacitive_load_units are not ff or pf.\n");
@@ -1814,15 +1832,7 @@ LibertyReader::makeTimingArcs(PortGroup *port_group)
       LibertyPort *port = port_iter.next();
       makeTimingArcs(port, timing);
     }
-
-    // Delete unreferenced models to prevent memory leak.
-    TransRiseFallIterator tr_iter;
-    while (tr_iter.hasNext()) {
-      TransRiseFall *tr = tr_iter.next();
-      TimingModel *model = timing->model(tr);
-      if (model && !timing->modelRef(tr))
-	delete model;
-    }
+    cell_->addTimingArcAttrs(timing);
   }
 }
 
@@ -1837,6 +1847,7 @@ LibertyReader::makeInternalPowers(PortGroup *port_group)
       LibertyPort *port = port_iter.next();
       makeInternalPowers(port, power_group);
     }
+    cell_->addInternalPowerAttrs(power_group);
   }
 }
 
@@ -2205,27 +2216,25 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
     // one -> bus
     if (from_port_iter.hasNext()) {
       LibertyPort *from_port = from_port_iter.next();
-      LibertyPortMemberIterator *bit_iter = to_port->libertyMemberIterator();
-      while (bit_iter->hasNext()) {
-	LibertyPort *to_port_bit = bit_iter->next();
+      LibertyPortMemberIterator bit_iter(to_port);
+      while (bit_iter.hasNext()) {
+	LibertyPort *to_port_bit = bit_iter.next();
 	builder_->makeTimingArcs(cell_, from_port, to_port_bit,
 				 related_out_port, timing);
       }
-      delete bit_iter;
     }
   }
   else {
     // bus -> bus
     if (timing->isOneToOne()) {
       if (static_cast<int>(from_port_iter.size()) == to_port->size()) {
-	LibertyPortMemberIterator *to_iter = to_port->libertyMemberIterator();
-	while (from_port_iter.hasNext() && to_iter->hasNext()) {
+	LibertyPortMemberIterator to_iter(to_port);
+	while (from_port_iter.hasNext() && to_iter.hasNext()) {
 	  LibertyPort *from_port_bit = from_port_iter.next();
-	  LibertyPort *to_port_bit = to_iter->next();
+	  LibertyPort *to_port_bit = to_iter.next();
 	  builder_->makeTimingArcs(cell_, from_port_bit, to_port_bit,
 				   related_out_port, timing);
 	}
-	delete to_iter;
       }
       else
 	libWarn(timing->line(),
@@ -2236,13 +2245,12 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
     else {
       while (from_port_iter.hasNext()) {
 	LibertyPort *from_port_bit = from_port_iter.next();
-	LibertyPortMemberIterator *to_iter = to_port->libertyMemberIterator();
-	while (to_iter->hasNext()) {
-	  LibertyPort *to_port_bit = to_iter->next();
+	LibertyPortMemberIterator to_iter(to_port);
+	while (to_iter.hasNext()) {
+	  LibertyPort *to_port_bit = to_iter.next();
 	  builder_->makeTimingArcs(cell_, from_port_bit, to_port_bit,
 				   related_out_port, timing);
 	}
-	delete to_iter;
       }
     }
   }
@@ -2270,12 +2278,11 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
   }
   else {
     if (port->hasMembers()) {
-      LibertyPortMemberIterator *bit_iter = port->libertyMemberIterator();
-      while (bit_iter->hasNext()) {
-	LibertyPort *port_bit = bit_iter->next();
+      LibertyPortMemberIterator bit_iter(port);
+      while (bit_iter.hasNext()) {
+	LibertyPort *port_bit = bit_iter.next();
 	builder_->makeInternalPower(cell_, port_bit, NULL, power_group);
       }
-      delete bit_iter;
     }
     else
       builder_->makeInternalPower(cell_, port, NULL, power_group);
@@ -2306,25 +2313,23 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
     // one -> bus
     if (related_port_iter.hasNext()) {
       LibertyPort *related_port = related_port_iter.next();
-      LibertyPortMemberIterator *bit_iter = port->libertyMemberIterator();
-      while (bit_iter->hasNext()) {
-	LibertyPort *port_bit = bit_iter->next();
+      LibertyPortMemberIterator bit_iter(port);
+      while (bit_iter.hasNext()) {
+	LibertyPort *port_bit = bit_iter.next();
 	builder_->makeInternalPower(cell_, port_bit, related_port, power_group);
       }
-      delete bit_iter;
     }
   }
   else {
     // bus -> bus
     if (power_group->isOneToOne()) {
       if (static_cast<int>(related_port_iter.size()) == port->size()) {
-	LibertyPortMemberIterator *to_iter = port->libertyMemberIterator();
-	while (related_port_iter.hasNext() && to_iter->hasNext()) {
+	LibertyPortMemberIterator to_iter(port);
+	while (related_port_iter.hasNext() && to_iter.hasNext()) {
 	  LibertyPort *related_port_bit = related_port_iter.next();
-	  LibertyPort *port_bit = to_iter->next();
+	  LibertyPort *port_bit = to_iter.next();
 	  builder_->makeInternalPower(cell_, port_bit, related_port_bit, power_group);
 	}
-	delete to_iter;
       }
       else
 	libWarn(power_group->line(),
@@ -2335,12 +2340,11 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
     else {
       while (related_port_iter.hasNext()) {
 	LibertyPort *related_port_bit = related_port_iter.next();
-	LibertyPortMemberIterator *to_iter = port->libertyMemberIterator();
-	while (to_iter->hasNext()) {
-	  LibertyPort *port_bit = to_iter->next();
+	LibertyPortMemberIterator to_iter(port);
+	while (to_iter.hasNext()) {
+	  LibertyPort *port_bit = to_iter.next();
 	  builder_->makeInternalPower(cell_, port_bit, related_port_bit, power_group);
 	}
-	delete to_iter;
       }
     }
   }
@@ -2562,12 +2566,11 @@ LibertyReader::endPorts(LibertyGroup *)
     if (in_bus_ || in_bundle_) {
       // Do not clobber member port capacitances by setting the capacitance
       // on a bus or bundle.
-      LibertyPortMemberIterator *member_iter = port->libertyMemberIterator();
-      while (member_iter->hasNext()) {
-	LibertyPort *member = member_iter->next();
+      LibertyPortMemberIterator member_iter(port);
+      while (member_iter.hasNext()) {
+	LibertyPort *member = member_iter.next();
 	setPortCapDefault(member);
       }
-      delete member_iter;
     }
     else
       setPortCapDefault(port);
@@ -4447,7 +4450,7 @@ LibertyReader::visitRelatedPowerPin(LibertyAttr *attr)
     LibertyPortSeq::Iterator port_iter(ports_);
     while (port_iter.hasNext()) {
       LibertyPort *port = port_iter.next();
-      port->setRelatedPowerPin(stringCopy(related_power_pin));
+      port->setRelatedPowerPin(related_power_pin);
     }
   }
 }
@@ -4699,8 +4702,8 @@ PortGroup::PortGroup(LibertyPortSeq *ports,
 
 PortGroup::~PortGroup()
 {
-  timings_.deleteContents();
-  internal_power_groups_.deleteContents();
+  // TimingGroups and IntternalPower are NOT deleted because ownership is transfered
+  // to LibertyCell::timing_arc_attrs_ by LibertyReader::makeTimingArcs.
   delete ports_;
 }
 
@@ -4846,6 +4849,8 @@ TimingGroup::TimingGroup(int line) :
 
 TimingGroup::~TimingGroup()
 {
+  // TimingAttrs contents are not deleted because they are referenced
+  // by TimingArcSets.
   if (related_output_port_name_)
     stringDelete(related_output_port_name_);
 }
@@ -5000,7 +5005,7 @@ PortNameBitIterator::init(const char *port_name)
   LibertyPort *port = visitor_->findPort(cell_, port_name);
   if (port) {
     if (port->isBus())
-      bit_iterator_ = port->libertyMemberIterator();
+      bit_iterator_ = new LibertyPortMemberIterator(port);
     else
       port_ = port;
     size_ = port->size();

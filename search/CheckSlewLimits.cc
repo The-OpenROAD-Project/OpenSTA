@@ -109,6 +109,8 @@ CheckSlewLimits::checkSlews(const Pin *pin,
 {
   corner1 = NULL;
   tr = NULL;
+  slew = 0.0;
+  limit = 0.0;
   slack = MinMax::min()->initValue();
   if (corner)
     checkSlews1(pin, corner, min_max,

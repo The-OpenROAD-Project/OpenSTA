@@ -78,6 +78,7 @@ public:
   virtual void visitAttr(LibertyAttr *attr);
   virtual void visitTimeUnit(LibertyAttr *attr);
   virtual void visitCapacitiveLoadUnit(LibertyAttr *attr);
+  virtual void visitResistanceUnit(LibertyAttr *attr);
   virtual void visitPullingResistanceUnit(LibertyAttr *attr);
   virtual void visitVoltageUnit(LibertyAttr *attr);
   virtual void visitCurrentUnit(LibertyAttr *attr);
@@ -546,6 +547,7 @@ protected:
   float curr_scale_;
   float power_scale_;
   float energy_scale_;
+  bool have_resistance_unit_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(LibertyReader);

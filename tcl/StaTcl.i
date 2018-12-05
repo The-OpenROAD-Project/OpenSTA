@@ -681,9 +681,9 @@ edgeDelayProperty(Edge *edge,
   ArcDelay delay = 0.0;
   bool delay_exists = false;
   TimingArcSet *arc_set = edge->timingArcSet();
-  TimingArcSetArcIterator *arc_iter = arc_set->timingArcIterator();
-  while (arc_iter->hasNext()) {
-    TimingArc *arc = arc_iter->next();
+  TimingArcSetArcIterator arc_iter(arc_set);
+  while (arc_iter.hasNext()) {
+    TimingArc *arc = arc_iter.next();
     TransRiseFall *to_tr = arc->toTrans()->asRiseFall();
     if (to_tr == tr) {
       CornerIterator corner_iter(sta);
@@ -700,7 +700,6 @@ edgeDelayProperty(Edge *edge,
       }
     }
   }
-  delete arc_iter;
   return sta->units()->timeUnit()->asString(delayAsFloat(delay), 8);
 }
 
@@ -1747,7 +1746,7 @@ using namespace sta;
   Tcl_SetObjResult(interp, obj);
 }
 
-%typemap(out) CellTimingArcSetIterator* {
+%typemap(out) LibertyCellTimingArcSetIterator* {
   Tcl_Obj *obj=SWIG_NewInstanceObj($1, $1_descriptor, false);
   Tcl_SetObjResult(interp, obj);
 }
@@ -1994,11 +1993,11 @@ private:
   ~TimingArcSet();
 };
 
-class CellTimingArcSetIterator
+class LibertyCellTimingArcSetIterator
 {
 private:
-  CellTimingArcSetIterator();
-  ~CellTimingArcSetIterator();
+  LibertyCellTimingArcSetIterator();
+  ~LibertyCellTimingArcSetIterator();
 };
 
 class TimingArcSetArcIterator
@@ -4666,7 +4665,7 @@ find_delays()
 }
 
 Slack
-total_negative_slack_cmd(MinMax *min_max)
+total_negative_slack_cmd(const MinMax *min_max)
 {
   cmdLinkedNetwork();
   Sta *sta = Sta::sta();
@@ -4674,19 +4673,35 @@ total_negative_slack_cmd(MinMax *min_max)
 }
 
 Slack
+total_negative_slack_corner_cmd(const Corner *corner,
+				const MinMax *min_max)
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  return sta->totalNegativeSlack(corner, min_max);
+}
+
+Slack
 worst_slack(const MinMax *min_max)
 {
   cmdLinkedNetwork();
   Sta *sta = Sta::sta();
-  return sta->worstSlack(min_max);
+  Slack worst_slack;
+  Vertex *worst_vertex;
+  sta->worstSlack(min_max, worst_slack, worst_vertex);
+  return worst_slack;
 }
 
-Vertex *
-worst_slack_vertex(const MinMax *min_max)
+Slack
+worst_slack_corner(const Corner *corner,
+		   const MinMax *min_max)
 {
   cmdLinkedNetwork();
   Sta *sta = Sta::sta();
-  return sta->worstSlackVertex(min_max);
+  Slack worst_slack;
+  Vertex *worst_vertex;
+  sta->worstSlack(corner, min_max, worst_slack, worst_vertex);
+  return worst_slack;
 }
 
 PathRef *
@@ -5460,10 +5475,10 @@ find_liberty_ports_matching(const char *pattern,
 }
 
 LibertyCellPortIterator *
-liberty_port_iterator() { return self->libertyPortIterator(); }
+liberty_port_iterator() { return new LibertyCellPortIterator(self); }
 
-CellTimingArcSetIterator *
-timing_arc_set_iterator() { return self->timingArcSetIterator(); }
+LibertyCellTimingArcSetIterator *
+timing_arc_set_iterator() { return new LibertyCellTimingArcSetIterator(self); }
 
 } // LibertyCell methods
 
@@ -5500,7 +5515,7 @@ Cell *cell() { return self->cell(); }
 const char *object_name() { return self->name(); }
 bool is_bus() { return self->isBus(); }
 LibertyPortMemberIterator *
-member_iterator() { return self->libertyMemberIterator(); }
+member_iterator() { return new LibertyPortMemberIterator(self); }
 const char *
 direction() { return self->direction()->name(); }
 
@@ -5575,7 +5590,7 @@ object_name()
 
 } // TimingArcSet methods
 
-%extend CellTimingArcSetIterator {
+%extend LibertyCellTimingArcSetIterator {
 bool has_next() { return self->hasNext(); }
 TimingArcSet *next() { return self->next(); }
 void finish() { delete self; }
@@ -5908,7 +5923,7 @@ arrivals_clk(const TransRiseFall *tr,
   return floats;
 }
 
-StringSeq *
+TmpStringSeq *
 arrivals_clk_delays(const TransRiseFall *tr,
 		    Clock *clk,
 		    const TransRiseFall *clk_tr,
@@ -5948,7 +5963,7 @@ requireds_clk(const TransRiseFall *tr,
   return floats;
 }
 
-StringSeq *
+TmpStringSeq *
 requireds_clk_delays(const TransRiseFall *tr,
 		     Clock *clk,
 		     const TransRiseFall *clk_tr,
@@ -6002,7 +6017,7 @@ slacks_clk(const TransRiseFall *tr,
   return floats;
 }
 
-StringSeq *
+TmpStringSeq *
 slacks_clk_delays(const TransRiseFall *tr,
 		  Clock *clk,
 		  const TransRiseFall *clk_tr,
@@ -6054,7 +6069,7 @@ Pin *to_pin() { return self->to(Sta::sta()->graph())->pin(); }
 TimingRole *role() { return self->role(); }
 const char *sense() { return timingSenseString(self->sense()); }
 TimingArcSetArcIterator *
-timing_arc_iterator() { return self->timingArcSet()->timingArcIterator(); }
+timing_arc_iterator() { return new TimingArcSetArcIterator(self->timingArcSet()); }
 bool is_disabled_loop() { return Sta::sta()->isDisabledLoop(self); }
 bool is_disabled_constraint() { return Sta::sta()->isDisabledConstraint(self);}
 bool is_disabled_constant() { return Sta::sta()->isDisabledConstant(self); }
@@ -6084,7 +6099,7 @@ arc_delays(TimingArc *arc)
   return floats;
 }
 
-StringSeq *
+TmpStringSeq *
 arc_delay_strings(TimingArc *arc,
 		  int digits)
 {

@@ -51,7 +51,6 @@ protected:
 	     PowerResult &result);
   void findInternalPower(const Instance *inst,
 			 LibertyCell *cell,
-			 const Pin *to_pin,
 			 const LibertyPort *to_port,
 			 float activity,
 			 bool is_clk,
@@ -63,9 +62,7 @@ protected:
 			LibertyCell *cell,
 			// Return values.
 			PowerResult &result);
-  void findSwitchingPower(const Instance *inst,
-			  LibertyCell *cell,
-			  const Pin *to_pin,
+  void findSwitchingPower(LibertyCell *cell,
 			  const LibertyPort *to_port,
 			  float activity,
 			  float load_cap,
