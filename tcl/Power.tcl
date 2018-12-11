@@ -56,26 +56,30 @@ proc report_power_design { corner digits } {
   puts "Group                 Internal Switching   Leakage     Total"
   puts "                         Power     Power     Power     Power (mW)"
   puts "-------------------------------------------------------------------"
-  set design_total [lindex $power_result 3]
-  report_power_row "Sequential"    $power_result  4 $design_total $digits
-  report_power_row "Combinational" $power_result  8 $design_total $digits
-  report_power_row "Macro"         $power_result 12 $design_total $digits
-  report_power_row "Pad"           $power_result 16 $design_total $digits
+
+  set totals        [lrange $power_result  0  3]
+  set sequential    [lrange $power_result  4  7]
+  set combinational [lrange $power_result  8 11]
+  set macro         [lrange $power_result 12 15]
+  set pad           [lrange $power_result 16 end]
+  lassign $totals design_internal design_switching \
+    design_leakage design_total
+  report_power_row "Sequential"    $sequential    $design_total $digits
+  report_power_row "Combinational" $combinational $design_total $digits
+  report_power_row "Macro"         $macro         $design_total $digits
+  report_power_row "Pad"           $pad           $design_total $digits
   puts "-------------------------------------------------------------------"
-  report_power_row "Total" $power_result 0 $design_total $digits
+  report_power_row "Total" $power_result $design_total $digits
 
   puts -nonewline "                    "
-  report_power_col_percent $power_result 0
-  report_power_col_percent $power_result 1
-  report_power_col_percent $power_result 2
+  report_power_col_percent $design_internal  $design_total
+  report_power_col_percent $design_switching $design_total
+  report_power_col_percent $design_leakage   $design_total
   puts ""
 }
 
-proc report_power_row { type power_result index design_total digits } {
-  set internal [lindex $power_result [expr $index + 0]]
-  set switching [lindex $power_result [expr $index + 1]]
-  set leakage [lindex $power_result [expr $index + 2]]
-  set total [lindex $power_result [expr $index + 3]]
+proc report_power_row { type row_result design_total digits } {
+  lassign $row_result internal switching leakage total
   if { $design_total == 0.0 } {
     set percent 0.0
   } else {
@@ -93,13 +97,11 @@ proc report_power_col { pwr digits } {
   puts -nonewline [format "%10.${digits}f" [expr $pwr * 1e+3]]
 }
 
-proc report_power_col_percent { power_result index } {
-  set total [lindex $power_result 3]
-  set col [lindex $power_result $index]
+proc report_power_col_percent { col_total total } {
   if { $total == 0.0 } {
     set percent 0.0
   } else {
-    set percent [expr $col / $total * 100]
+    set percent [expr $col_total / $total * 100]
   }
   puts -nonewline [format "%9.1f%%" $percent]
 }
@@ -109,12 +111,9 @@ proc report_power_inst { inst corner digits } {
   puts "Cell: [[$inst liberty_cell] name]"
   puts "Liberty file: [[[$inst liberty_cell] liberty_library] filename]"
   set power_result [instance_power $inst $corner]
-  set switching [lindex $power_result 0]
-  set internal [lindex $power_result 1]
-  set leakage [lindex $power_result 2]
-  set total [lindex $power_result 3]
-  report_power_line "Switching power" $switching $digits
+  lassign $power_result internal switching leakage total
   report_power_line "Internal power" $internal $digits
+  report_power_line "Switching power" $switching $digits
   report_power_line "Leakage power" $leakage $digits
   report_power_line "Total power" $total $digits
 }
