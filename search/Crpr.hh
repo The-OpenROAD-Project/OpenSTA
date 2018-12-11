@@ -27,28 +27,28 @@ namespace sta {
 class CrprPaths;
 
 // Clock Reconvergence Pessimism Removal.
-class Crpr : public StaState
+class CheckCrpr : public StaState
 {
 public:
-  explicit Crpr(StaState *sta);
+  explicit CheckCrpr(StaState *sta);
 
   // Find the maximum possible crpr (clock min/max delta delay) for path.
   Arrival maxCrpr(ClkInfo *clk_info);
   // Timing check CRPR.
-  float checkCrpr(const Path *src_clk_path,
-		  const PathVertex *tgt_clk_path);
+  Crpr checkCrpr(const Path *src_clk_path,
+		 const PathVertex *tgt_clk_path);
   void checkCrpr(const Path *src_path,
 		 const PathVertex *tgt_clk_path,
 		 // Return values.
-		 float &crpr,
+		 Crpr &crpr,
 		 Pin *&crpr_pin);
   // Output delay CRPR.
-  float outputDelayCrpr(const Path *src_clk_path,
-			const ClockEdge *tgt_clk_edge);
+  Crpr outputDelayCrpr(const Path *src_clk_path,
+		       const ClockEdge *tgt_clk_edge);
   void outputDelayCrpr(const Path *src_clk_path,
 		       const ClockEdge *tgt_clk_edge,
 		       // Return values.
-		       float &crpr,
+		       Crpr &crpr,
 		       Pin *&crpr_pin);
 
   // Previous clk path when crpr is enabled.
@@ -65,14 +65,14 @@ private:
 		  const PathVertex *tgt_clk_path,
 		  bool same_pin,
 		  // Return values.
-		  float &crpr,
+		  Crpr &crpr,
 		  Pin *&crpr_pin);
   void outputDelayCrpr1(const Path *src_path,
 			const ClockEdge *tgt_clk_edge,
 			const PathAnalysisPt *tgt_path_ap,
 			bool same_pin,
 			// Return values.
-			float &crpr,
+			Crpr &crpr,
 			Pin *&crpr_pin);
   bool crprPossible(Clock *clk1,
 		    Clock *clk2);
@@ -82,15 +82,15 @@ private:
 		const PathVertex *tgt_clk_path,
 		bool same_pin,
 		// Return values.
-		float &crpr,
+		Crpr &crpr,
 		Pin *&common_pin);
   void portClkPath(const ClockEdge *clk_edge,
 		   const Pin *clk_src_pin,
 		   const PathAnalysisPt *path_ap,
 		   // Return value.
 		   PathVertex &port_clk_path);
-  float findCrpr1(const PathVertex *src_clk_path,
-		  const PathVertex *tgt_clk_path);
+  Crpr findCrpr1(const PathVertex *src_clk_path,
+		 const PathVertex *tgt_clk_path);
   float crprArrivalDiff(const PathVertex *path);
 };
 

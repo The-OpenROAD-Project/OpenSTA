@@ -35,5 +35,13 @@ makeDelay(float delay,
   return delay;
 }
 
+inline Delay
+makeDelay2(float delay,
+	   float,
+	   float)
+{
+  return delay;
+}
+
 } // namespace
 #endif

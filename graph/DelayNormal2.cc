@@ -29,7 +29,11 @@
 
 namespace sta {
 
-#define square(x) ((x)*(x))
+inline float
+square(float x)
+{
+  return x * x;
+}
 
 static Delay delay_init_values[MinMax::index_count];
 
@@ -48,54 +52,76 @@ delayInitValue(const MinMax *min_max)
 
 Delay::Delay() :
   mean_(0.0),
-  sigma_{0.0, 0.0}
+  sigma2_{0.0, 0.0}
 {
 }
 
 Delay::Delay(float mean) :
   mean_(mean),
-  sigma_{0.0, 0.0}
+  sigma2_{0.0, 0.0}
 {
 }
 
 Delay::Delay(float mean,
-	     float sigma_early,
-	     float sigma_late) :
+	     float sigma2_early,
+	     float sigma2_late) :
   mean_(mean),
-  sigma_{sigma_early, sigma_late}
+  sigma2_{sigma2_early, sigma2_late}
 {
 }
 
 float
 Delay::sigma(const EarlyLate *early_late) const
 {
-  return sigma_[early_late->index()];
+  float sigma = sigma2_[early_late->index()];
+  if (sigma < 0.0)
+    // Sigma is negative for crpr to offset sigmas in the common
+    // clock path.
+    return -sqrt(-sigma);
+  else
+    return sqrt(sigma);
+}
+
+float
+Delay::sigma2(const EarlyLate *early_late) const
+{
+  return sigma2_[early_late->index()];
+}
+
+float
+Delay::sigma2Early() const
+{
+  return sigma2_[early_index];
+}
+
+float
+Delay::sigma2Late() const
+{
+  return sigma2_[late_index];
 }
 
 void
 Delay::operator=(const Delay &delay)
 {
   mean_ = delay.mean_;
-  sigma_[early_index] = delay.sigma_[early_index];
-  sigma_[late_index] = delay.sigma_[late_index];
+  sigma2_[early_index] = delay.sigma2_[early_index];
+  sigma2_[late_index] = delay.sigma2_[late_index];
 }
 
 void
 Delay::operator=(float delay)
 {
   mean_ = delay;
-  sigma_[early_index] = 0.0;
-  sigma_[late_index] = 0.0;
+  sigma2_[early_index] = 0.0;
+  sigma2_[late_index] = 0.0;
 }
 
 void
 Delay::operator+=(const Delay &delay)
 {
   mean_ += delay.mean_;
-  sigma_[early_index] = sqrt(square(sigma_[early_index])
-					 + square(delay.sigma_[early_index]));
-  sigma_[late_index] = sqrt(square(sigma_[late_index])
-					+ square(delay.sigma_[late_index]));
+  sigma2_[early_index] += delay.sigma2_[early_index];
+  sigma2_[late_index] += delay.sigma2_[late_index];
 }
 
 void
@@ -108,38 +134,34 @@ Delay
 Delay::operator+(const Delay &delay) const
 {
   return Delay(mean_ + delay.mean_,
-	       sqrt(square(sigma_[early_index])
-		    + square(delay.sigma_[early_index])),
-	       sqrt(square(sigma_[late_index])
-		    + square(delay.sigma_[late_index])));
+	       sigma2_[early_index] + delay.sigma2_[early_index],
+	       sigma2_[late_index] + delay.sigma2_[late_index]);
 }
 
 Delay
 Delay::operator+(float delay) const
 {
-  return Delay(mean_ + delay, sigma_[early_index], sigma_[late_index]);
+  return Delay(mean_ + delay, sigma2_[early_index], sigma2_[late_index]);
 }
 
 Delay
 Delay::operator-(const Delay &delay) const
 {
   return Delay(mean_ - delay.mean_,
-	       sqrt(square(sigma_[early_index])
-		    + square(delay.sigma_[early_index])),
-	       sqrt(square(sigma_[late_index])
-		    + square(delay.sigma_[late_index])));
+	       sigma2_[early_index] + delay.sigma2_[early_index],
+	       sigma2_[late_index] + delay.sigma2_[late_index]);
 }
 
 Delay
 Delay::operator-(float delay) const
 {
-  return Delay(mean_ - delay, sigma_[early_index], sigma_[late_index]);
+  return Delay(mean_ - delay, sigma2_[early_index], sigma2_[late_index]);
 }
 
 Delay
 Delay::operator-() const
 {
-  return Delay(-mean_, sigma_[early_index], sigma_[late_index]);
+  return Delay(-mean_, sigma2_[early_index], sigma2_[late_index]);
 }
 
 void
@@ -152,8 +174,8 @@ bool
 Delay::operator==(const Delay &delay) const
 {
   return mean_ == delay.mean_
-    && sigma_[early_index] == delay.sigma_[early_index]
-    && sigma_[late_index]  == delay.sigma_[late_index];
+    && sigma2_[early_index] == delay.sigma2_[early_index]
+    && sigma2_[late_index]  == delay.sigma2_[late_index];
 }
 
 bool
@@ -180,21 +202,40 @@ Delay::operator<=(const Delay &delay) const
   return mean_ <= delay.mean_;
 }
 
+////////////////////////////////////////////////////////////////
+
+Delay
+makeDelay(float delay,
+	  float sigma_early,
+	  float sigma_late)
+{
+  return Delay(delay, square(sigma_early), square(sigma_late));
+}
+
+Delay
+makeDelay2(float delay,
+	   float sigma2_early,
+	   float sigma2_late)
+{
+  return Delay(delay, sigma2_early, sigma2_late);
+}
+
 bool
 delayIsInitValue(const Delay &delay,
 		 const MinMax *min_max)
 {
   return fuzzyEqual(delay.mean(), min_max->initValue())
-    && delay.sigmaEarly() == 0.0
-    && delay.sigmaLate()  == 0.0;
+    && delay.sigma2Early() == 0.0
+    && delay.sigma2Late()  == 0.0;
 }
 
 bool
 delayFuzzyZero(const Delay &delay)
 {
   return fuzzyZero(delay.mean())
-    && fuzzyZero(delay.sigmaEarly())
-    && fuzzyZero(delay.sigmaLate());
+    //    && fuzzyZero(delay.sigma2(EarlyLate::early()))
+    && fuzzyZero(delay.sigma2Early())
+    && fuzzyZero(delay.sigma2Late());
 }
 
 bool
@@ -202,8 +243,8 @@ delayFuzzyEqual(const Delay &delay1,
 		const Delay &delay2)
 {
   return fuzzyEqual(delay1.mean(), delay2.mean())
-    && fuzzyEqual(delay1.sigmaEarly(), delay2.sigmaEarly())
-    && fuzzyEqual(delay1.sigmaLate(),  delay2.sigmaLate());
+    && fuzzyEqual(delay1.sigma2Early(), delay2.sigma2Early())
+    && fuzzyEqual(delay1.sigma2Late(),  delay2.sigma2Late());
 }
 
 bool
@@ -311,8 +352,8 @@ operator+(float delay1,
 	  const Delay &delay2)
 {
   return Delay(delay1 + delay2.mean(),
-	       delay2.sigmaEarly(),
-	       delay2.sigmaLate());
+	       delay2.sigma2Early(),
+	       delay2.sigma2Late());
 }
 
 Delay
@@ -320,8 +361,8 @@ operator/(float delay1,
 	  const Delay &delay2)
 {
   return Delay(delay1 / delay2.mean(),
-	       delay2.sigmaEarly(),
-	       delay2.sigmaLate());
+	       delay2.sigma2Early(),
+	       delay2.sigma2Late());
 }
 
 Delay
@@ -329,8 +370,8 @@ operator*(const Delay &delay1,
 	  float delay2)
 {
   return Delay(delay1.mean() * delay2,
-	       delay1.sigmaEarly() * delay2,
-	       delay1.sigmaLate() * delay2);
+	       delay1.sigma2Early() * delay2,
+	       delay1.sigma2Late() * delay2);
 }
 
 float
@@ -345,9 +386,9 @@ delayAsFloat(const Delay &delay,
 	     const EarlyLate *early_late)
 {
   if (early_late == EarlyLate::early())
-    return delay.mean() - delay.sigmaEarly();
+    return delay.mean() - delay.sigma(early_late);
   else if (early_late == EarlyLate::late())
-    return delay.mean() + delay.sigmaLate();
+    return delay.mean() + delay.sigma(early_late);
   else
     internalError("unknown early/late value.");
 }
@@ -359,21 +400,28 @@ delaySigma(const Delay &delay,
   return delay.sigma(early_late);
 }
 
+float
+delaySigma2(const Delay &delay,
+	    const EarlyLate *early_late)
+{
+  return delay.sigma2(early_late);
+}
+
 const char *
 delayAsString(const Delay &delay,
 	      const Units *units,
 	      int digits)
 {
   const Unit *unit = units->timeUnit();
-  float sigma_early = delay.sigmaEarly();
-  float sigma_late = delay.sigmaLate();
+  float sigma_early = delay.sigma(EarlyLate::early());
+  float sigma_late = delay.sigma(EarlyLate::late());
   if (fuzzyEqual(sigma_early, sigma_late))
-    return stringPrintTmp((digits + 2) * 2 + 2,
+    return stringPrintTmp((digits + 4) * 2 + 2,
 			  "%s|%s",
 			  unit->asString(delay.mean(), digits),
 			  unit->asString(sigma_early, digits));
   else
-    return stringPrintTmp((digits + 2) * 3 + 3,
+    return stringPrintTmp((digits + 4) * 3 + 3,
 			  "%s|%s:%s",
 			  unit->asString(delay.mean(), digits),
 			  unit->asString(sigma_early, digits),
@@ -386,11 +434,7 @@ delayAsString(const Delay &delay,
 	      const Units *units,
 	      int digits)
 {
-  float mean_sigma = delay.mean();
-  if (early_late == EarlyLate::early())
-    mean_sigma -= delay.sigmaEarly();
-  else if (early_late == EarlyLate::late())
-    mean_sigma += delay.sigmaLate();
+  float mean_sigma = delayAsFloat(delay, early_late);
   return units->timeUnit()->asString(mean_sigma, digits);
 }
 

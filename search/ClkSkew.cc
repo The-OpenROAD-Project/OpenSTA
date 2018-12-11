@@ -51,7 +51,7 @@ public:
   PathVertex *tgtPath() { return &tgt_path_; }
   float srcLatency(StaState *sta);
   float tgtLatency(StaState *sta);
-  float crpr(StaState *sta);
+  Crpr crpr(StaState *sta);
   float skew() const { return skew_; }
 
 private:
@@ -73,7 +73,7 @@ ClkSkew::ClkSkew(PathVertex *src_path,
 {
   src_path_.copy(src_path);
   tgt_path_.copy(tgt_path);
-  skew_ = srcLatency(sta) - tgtLatency(sta) - crpr(sta);
+  skew_ = srcLatency(sta) - tgtLatency(sta) - delayAsFloat(crpr(sta));
 }
 
 ClkSkew::ClkSkew(ClkSkew &clk_skew)
@@ -103,11 +103,11 @@ ClkSkew::tgtLatency(StaState *sta)
   return delayAsFloat(tgt_arrival) - tgt_path_.clkEdge(sta)->time();
 }
 
-float
+Crpr
 ClkSkew::crpr(StaState *sta)
 {
-  Crpr *crpr = sta->search()->crpr();
-  return crpr->checkCrpr(&src_path_, &tgt_path_);
+  CheckCrpr *check_crpr = sta->search()->checkCrpr();
+  return check_crpr->checkCrpr(&src_path_, &tgt_path_);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -155,7 +155,7 @@ ClkSkews::reportClkSkew(ClockSet *clks,
 		     tgt_path->transition(this)->asString());
       report_->print("%7s   %7s    %7s\n",
 		     time_unit->asString(clk_skew->tgtLatency(this), digits),
-		     time_unit->asString(-clk_skew->crpr(this), digits),
+		     delayAsString(-clk_skew->crpr(this), units_, digits),
 		     time_unit->asString(clk_skew->skew(), digits));
     }
     else
@@ -281,7 +281,7 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
 			network_->pathName(tgt_path->pin(this)),
 			tgt_path->transition(this)->asString(),
 			time_unit->asString(probe.tgtLatency(this)),
-			time_unit->asString(probe.crpr(this)),
+			delayAsString(probe.crpr(this), this),
 			time_unit->asString(probe.skew()));
 	    if (clk_skew == NULL) {
 	      clk_skew = new ClkSkew(probe);

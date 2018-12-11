@@ -634,7 +634,8 @@ ReportPath::reportBorrowing(const PathEndLatchCheck *end,
 			    string &result)
 {
   Delay open_latency, latency_diff, max_borrow;
-  float nom_pulse_width, open_uncertainty, open_crpr, crpr_diff;
+  float nom_pulse_width, open_uncertainty;
+  Crpr open_crpr, crpr_diff;
   bool borrow_limit_exists;
   const EarlyLate *early_late = EarlyLate::late();
   end->latchBorrowInfo(this, nom_pulse_width, open_latency, latency_diff,
@@ -668,19 +669,19 @@ ReportPath::reportBorrowing(const PathEndLatchCheck *end,
     ArcDelay margin = end->margin(this);
     reportLineTotalMinus("library setup time", margin, early_late, result);
     reportDashLineTotal(result);
-    if (!fuzzyZero(crpr_diff))
+    if (!delayFuzzyZero(crpr_diff))
       reportLineTotalMinus("CRPR difference", crpr_diff, early_late, result);
     reportLineTotal("max time borrow", max_borrow, early_late, result);
   }
   if (delayFuzzyGreater(borrow, delay_zero)
       && (!fuzzyZero(open_uncertainty)
-	  || !fuzzyZero(open_crpr))) {
+	  || !delayFuzzyZero(open_crpr))) {
     reportDashLineTotal(result);
     reportLineTotal("actual time borrow", borrow, early_late, result);
     if (!fuzzyZero(open_uncertainty))
       reportLineTotal("open edge uncertainty", open_uncertainty,
 		      early_late, result);
-    if (!fuzzyZero(open_crpr))
+    if (!delayFuzzyZero(open_crpr))
       reportLineTotal("open edge CRPR", open_crpr, early_late, result);
     reportDashLineTotal(result);
     reportLineTotal("time given to startpoint", time_given_to_startpoint,
@@ -1307,7 +1308,7 @@ ReportPath::reportVerbose(MinPulseWidthCheck *check,
   reportLine(pin_name, delay_zero, close_arrival, close_el, result);
 
   if (sdc_->crprEnabled()) {
-    float pessimism = check->commonClkPessimism(this);
+    Crpr pessimism = check->commonClkPessimism(this);
     close_arrival += pessimism;
     reportLine("clock reconvergence pessimism", pessimism, close_arrival,
 	       close_el, result);
@@ -2512,7 +2513,7 @@ ReportPath::reportCommonClkPessimism(const PathEnd *end,
 				     string &result)
 {
   if (sdc_->crprEnabled()) {
-    float pessimism = end->commonClkPessimism(this);
+    Crpr pessimism = end->commonClkPessimism(this);
     clk_arrival += pessimism;
     reportLine("clock reconvergence pessimism", pessimism, clk_arrival,
 	       end->clkEarlyLate(this), result);

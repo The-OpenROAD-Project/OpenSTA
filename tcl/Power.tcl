@@ -76,7 +76,11 @@ proc report_power_row { type power_result index design_total digits } {
   set switching [lindex $power_result [expr $index + 1]]
   set leakage [lindex $power_result [expr $index + 2]]
   set total [lindex $power_result [expr $index + 3]]
-  set percent [expr $total / $design_total * 100]
+  if { $design_total == 0.0 } {
+    set percent 0.0
+  } else {
+    set percent [expr $total / $design_total * 100]
+  }
   puts -nonewline [format "%-20s" $type]
   report_power_col $internal $digits
   report_power_col $switching $digits
@@ -92,7 +96,12 @@ proc report_power_col { pwr digits } {
 proc report_power_col_percent { power_result index } {
   set total [lindex $power_result 3]
   set col [lindex $power_result $index]
-  puts -nonewline [format "%9.1f%%" [expr $col / $total * 100]]
+  if { $total == 0.0 } {
+    set percent 0.0
+  } else {
+    set percent [expr $col / $total * 100]
+  }
+  puts -nonewline [format "%9.1f%%" $percent]
 }
 
 proc report_power_inst { inst corner digits } {

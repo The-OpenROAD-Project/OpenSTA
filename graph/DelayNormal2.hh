@@ -32,12 +32,14 @@ public:
   Delay();
   Delay(float mean);
   Delay(float mean,
-	float sigma_early,
-	float sigma_late);
+	float sigma2_early,
+	float sigma2_late);
   float mean() const { return mean_; }
   float sigma(const EarlyLate *early_late) const;
-  float sigmaEarly() const { return sigma_[early_index]; }
-  float sigmaLate() const { return sigma_[late_index]; }
+  // sigma^2
+  float sigma2(const EarlyLate *early_late) const;
+  float sigma2Early() const;
+  float sigma2Late() const;
   void operator=(const Delay &delay);
   void operator=(float delay);
   void operator+=(const Delay &delay);
@@ -60,19 +62,16 @@ protected:
 
 private:
   float mean_;
-  float sigma_[EarlyLate::index_count];
+  // Sigma^2
+  float sigma2_[EarlyLate::index_count];
 };
 
 const Delay delay_zero(0.0);
 
-inline Delay
+Delay
 makeDelay(float delay,
 	  float sigma_early,
-	  float sigma_late)
-{
-  return Delay(delay, sigma_early, sigma_late);
-}
-
+	  float sigma_late);
 inline float
 delayAsFloat(const Delay &delay) { return delay.mean(); }
 

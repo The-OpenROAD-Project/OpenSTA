@@ -4798,6 +4798,7 @@ report_slew_limit_verbose(Pin *pin,
 TmpFloatSeq *
 design_power(const Corner *corner)
 {
+  cmdLinkedNetwork();
   PowerResult total, sequential, combinational, macro, pad;
   Sta::sta()->power(corner, total, sequential, combinational, macro, pad);
   FloatSeq *floats = new FloatSeq;
@@ -4813,6 +4814,7 @@ TmpFloatSeq *
 instance_power(Instance *inst,
 	       const Corner *corner)
 {
+  cmdLinkedNetwork();
   PowerResult power;
   Sta::sta()->power(inst, corner, power);
   FloatSeq *floats = new FloatSeq;
@@ -6248,7 +6250,7 @@ float inter_clk_uncertainty()
 Arrival target_clk_arrival() { return self->targetClkArrival(Sta::sta()); }
 bool path_delay_margin_is_external()
 { return self->pathDelayMarginIsExternal();}
-float common_clk_pessimism() { return self->commonClkPessimism(Sta::sta()); }
+Crpr common_clk_pessimism() { return self->commonClkPessimism(Sta::sta()); }
 TransRiseFall *target_clk_end_trans()
 { return const_cast<TransRiseFall*>(self->targetClkEndTrans(Sta::sta())); }
 

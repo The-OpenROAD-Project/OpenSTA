@@ -51,7 +51,7 @@ class WorstSlacks;
 class DcalcAnalysisPt;
 class VisitPathEnds;
 class GatedClk;
-class Crpr;
+class CheckCrpr;
 class Genclks;
 class Corner;
 
@@ -339,7 +339,7 @@ public:
   virtual bool checkDefaultArrivalPaths() { return true; }
   bool matchesFilter(Path *path,
 		     const ClockEdge *to_clk_edge);
-  Crpr *crpr() { return crpr_; }
+  CheckCrpr *checkCrpr() { return check_crpr_; }
   VisitPathEnds *visitPathEnds() { return visit_path_ends_; }
   GatedClk *gatedClk() { return gated_clk_; }
   Genclks *genclks() { return genclks_; }
@@ -592,7 +592,7 @@ protected:
   PathGroups *path_groups_;
   VisitPathEnds *visit_path_ends_;
   GatedClk *gated_clk_;
-  Crpr *crpr_;
+  CheckCrpr *check_crpr_;
   bool crpr_path_pruning_enabled_;
   Genclks *genclks_;
 };

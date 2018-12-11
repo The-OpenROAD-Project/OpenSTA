@@ -68,7 +68,8 @@ Latches::latchRequired(const Path *data_path,
   }
   else if (enable_path && disable_path) {
     Delay open_latency, latency_diff, max_borrow;
-    float nom_pulse_width, open_uncertainty, open_crpr, crpr_diff;
+    float nom_pulse_width, open_uncertainty;
+    Crpr open_crpr, crpr_diff;
     bool borrow_limit_exists;
     latchBorrowInfo(data_path, enable_path, disable_path, margin,
 		    ignore_clk_latency,
@@ -149,8 +150,8 @@ Latches::latchBorrowInfo(const Path *data_path,
 			 Delay &open_latency,
 			 Delay &latency_diff,
 			 float &open_uncertainty,
-			 float &open_crpr,
-			 float &crpr_diff,
+			 Crpr &open_crpr,
+			 Crpr &crpr_diff,
 			 Delay &max_borrow,
 			 bool &borrow_limit_exists)
 {
@@ -169,14 +170,16 @@ Latches::latchBorrowInfo(const Path *data_path,
       crpr_diff = 0.0;
   }
   else {
-    Crpr *crpr = search_->crpr();
-    open_crpr = crpr->checkCrpr(data_path, enable_path);
-    float close_crpr = crpr->checkCrpr(data_path, disable_path);
+    CheckCrpr *check_crpr = search_->checkCrpr();
+    open_crpr = check_crpr->checkCrpr(data_path, enable_path);
+    Crpr close_crpr = check_crpr->checkCrpr(data_path, disable_path);
     crpr_diff = open_crpr - close_crpr;
     open_latency = PathEnd::checkTgtClkDelay(enable_path, enable_clk_edge,
 					     TimingRole::setup(), this);
-    Arrival close_latency = PathEnd::checkTgtClkDelay(disable_path, disable_clk_edge,
-						      TimingRole::latchSetup(), this);
+    Arrival close_latency = PathEnd::checkTgtClkDelay(disable_path,
+						      disable_clk_edge,
+						      TimingRole::latchSetup(),
+						      this);
     latency_diff = open_latency - close_latency;
   }
   float borrow_limit;
@@ -187,7 +190,7 @@ Latches::latchBorrowInfo(const Path *data_path,
     max_borrow = borrow_limit;
   else
     max_borrow = nom_pulse_width - delayAsFloat(latency_diff)
-      - crpr_diff - delayAsFloat(margin);
+      - delayAsFloat(crpr_diff) - delayAsFloat(margin);
 }
 
 void

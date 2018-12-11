@@ -40,14 +40,14 @@ namespace sta {
 using std::min;
 using std::abs;
 
-Crpr::Crpr(StaState *sta) :
+CheckCrpr::CheckCrpr(StaState *sta) :
   StaState(sta)
 {
 }
 
 PathVertex *
-Crpr::clkPathPrev(const PathVertex *path,
-		  PathVertex &tmp)
+CheckCrpr::clkPathPrev(const PathVertex *path,
+		       PathVertex &tmp)
 
 {
   Vertex *vertex = path->vertex(this);
@@ -58,9 +58,9 @@ Crpr::clkPathPrev(const PathVertex *path,
 }
 
 PathVertex *
-Crpr::clkPathPrev(Vertex *vertex,
-		  int arrival_index,
-		  PathVertex &tmp)
+CheckCrpr::clkPathPrev(Vertex *vertex,
+		       int arrival_index,
+		       PathVertex &tmp)
 {
    PathVertexRep *prevs = vertex->prevPaths();
   if (prevs) {
@@ -82,7 +82,7 @@ Crpr::clkPathPrev(Vertex *vertex,
 // Find the maximum possible crpr (clock min/max delta delay) for a
 // path from it's ClkInfo.
 Arrival
-Crpr::maxCrpr(ClkInfo *clk_info)
+CheckCrpr::maxCrpr(ClkInfo *clk_info)
 {
   const PathVertexRep &crpr_clk_path = clk_info->crprClkPath();
   if (!crpr_clk_path.isNull()) {
@@ -98,7 +98,7 @@ Crpr::maxCrpr(ClkInfo *clk_info)
 }
 
 Arrival
-Crpr::otherMinMaxArrival(const PathVertex *path)
+CheckCrpr::otherMinMaxArrival(const PathVertex *path)
 {
   PathAnalysisPt *other_ap = path->pathAnalysisPt(this)->tgtClkAnalysisPt();
   Tag *tag = path->tag(this);
@@ -115,22 +115,22 @@ Crpr::otherMinMaxArrival(const PathVertex *path)
   return path->arrival(this);
 }
 
-float
-Crpr::checkCrpr(const Path *src_path,
-		const PathVertex *tgt_clk_path)
+Crpr
+CheckCrpr::checkCrpr(const Path *src_path,
+		     const PathVertex *tgt_clk_path)
 {
-  float crpr;
+  Crpr crpr;
   Pin *crpr_pin;
   checkCrpr(src_path, tgt_clk_path, crpr, crpr_pin);
   return crpr;
 }
 
 void
-Crpr::checkCrpr(const Path *src_path,
-		const PathVertex *tgt_clk_path,
-	       // Return values.
-	       float &crpr,
-	       Pin *&crpr_pin)
+CheckCrpr::checkCrpr(const Path *src_path,
+		     const PathVertex *tgt_clk_path,
+		     // Return values.
+		     Crpr &crpr,
+		     Pin *&crpr_pin)
 {
   crpr = 0.0;
   crpr_pin = NULL;
@@ -142,12 +142,12 @@ Crpr::checkCrpr(const Path *src_path,
 }
 
 void
-Crpr::checkCrpr1(const Path *src_path,
-		 const PathVertex *tgt_clk_path,
-		 bool same_pin,
-		 // Return values.
-		 float &crpr,
-		 Pin *&crpr_pin)
+CheckCrpr::checkCrpr1(const Path *src_path,
+		      const PathVertex *tgt_clk_path,
+		      bool same_pin,
+		      // Return values.
+		      Crpr &crpr,
+		      Pin *&crpr_pin)
 {
   crpr = 0.0;
   crpr_pin = NULL;
@@ -156,7 +156,8 @@ Crpr::checkCrpr1(const Path *src_path,
   Clock *src_clk = src_clk_info->clock();
   Clock *tgt_clk = tgt_clk_info->clock();
   const PathVertex src_clk_path1(src_clk_info->crprClkPath(), this);
-  const PathVertex *src_clk_path = src_clk_path1.isNull() ? NULL : &src_clk_path1;
+  const PathVertex *src_clk_path =
+    src_clk_path1.isNull() ? NULL : &src_clk_path1;
   const MinMax *src_clk_min_max =
     src_clk_path ? src_clk_path->minMax(this) : src_path->minMax(this);
   if (crprPossible(src_clk, tgt_clk)
@@ -181,11 +182,11 @@ Crpr::checkCrpr1(const Path *src_path,
 
 // Find the clk path for an input/output port.
 void
-Crpr::portClkPath(const ClockEdge *clk_edge,
-		  const Pin *clk_src_pin,
-		  const PathAnalysisPt *path_ap,
-		  // Return value.
-		  PathVertex &genclk_path)
+CheckCrpr::portClkPath(const ClockEdge *clk_edge,
+		       const Pin *clk_src_pin,
+		       const PathAnalysisPt *path_ap,
+		       // Return value.
+		       PathVertex &genclk_path)
 {
   Vertex *clk_vertex = graph_->pinDrvrVertex(clk_src_pin);
   VertexPathIterator path_iter(clk_vertex, clk_edge->transition(),
@@ -201,12 +202,12 @@ Crpr::portClkPath(const ClockEdge *clk_edge,
 }
 
 void
-Crpr::findCrpr(const PathVertex *src_clk_path,
-	       const PathVertex *tgt_clk_path,
-	       bool same_pin,
-	       // Return values.
-	       float &crpr,
-	       Pin *&crpr_pin)
+CheckCrpr::findCrpr(const PathVertex *src_clk_path,
+		    const PathVertex *tgt_clk_path,
+		    bool same_pin,
+		    // Return values.
+		    Crpr &crpr,
+		    Pin *&crpr_pin)
 {
   crpr = 0.0;
   crpr_pin = NULL;
@@ -261,8 +262,8 @@ Crpr::findCrpr(const PathVertex *src_clk_path,
 }
 
 void
-Crpr::genClkSrcPaths(const PathVertex *path,
-		     PathVertexSeq &gclk_paths)
+CheckCrpr::genClkSrcPaths(const PathVertex *path,
+			  PathVertexSeq &gclk_paths)
 {
   ClkInfo *clk_info = path->clkInfo(this);
   ClockEdge *clk_edge = clk_info->clkEdge();
@@ -281,9 +282,24 @@ Crpr::genClkSrcPaths(const PathVertex *path,
   }
 }
 
-float
-Crpr::findCrpr1(const PathVertex *src_clk_path,
-		const PathVertex *tgt_clk_path)
+#if SSTA
+Crpr
+CheckCrpr::findCrpr1(const PathVertex *src_clk_path,
+		     const PathVertex *tgt_clk_path)
+{
+  // Remove variation on the common path.
+  // Note that the crpr sigma is negative to offset the
+  // sigma of the common clock path.
+  const EarlyLate *src_el = src_clk_path->minMax(this);
+  const EarlyLate *tgt_el = tgt_clk_path->minMax(this);
+  float crpr_sigma2 = delaySigma2(src_clk_path->arrival(this), src_el)
+    + delaySigma2(src_clk_path->arrival(this), tgt_el);
+  return makeDelay2(0.0, -crpr_sigma2, -crpr_sigma2);
+}
+#else
+Crpr
+CheckCrpr::findCrpr1(const PathVertex *src_clk_path,
+		     const PathVertex *tgt_clk_path)
 {
   // The source and target edges are different so the crpr
   // is the min of the source and target max-min delay.
@@ -299,23 +315,24 @@ Crpr::findCrpr1(const PathVertex *src_clk_path,
 	      delayAsString(common_delay, units_));
   return common_delay;
 }
+#endif
 
-float
-Crpr::outputDelayCrpr(const Path *src_clk_path,
-		      const ClockEdge *tgt_clk_edge)
+Crpr
+CheckCrpr::outputDelayCrpr(const Path *src_clk_path,
+			   const ClockEdge *tgt_clk_edge)
 {
-  float crpr;
+  Crpr crpr;
   Pin *crpr_pin;
   outputDelayCrpr(src_clk_path, tgt_clk_edge, crpr, crpr_pin);
   return crpr;
 }
 
 void
-Crpr::outputDelayCrpr(const Path *src_path,
-		      const ClockEdge *tgt_clk_edge,
-		      // Return values.
-		      float &crpr,
-		      Pin *&crpr_pin)
+CheckCrpr::outputDelayCrpr(const Path *src_path,
+			   const ClockEdge *tgt_clk_edge,
+			   // Return values.
+			   Crpr &crpr,
+			   Pin *&crpr_pin)
 {
   crpr = 0.0;
   crpr_pin = NULL;
@@ -329,13 +346,13 @@ Crpr::outputDelayCrpr(const Path *src_path,
 }
 
 void
-Crpr::outputDelayCrpr1(const Path *src_path,
-		       const ClockEdge *tgt_clk_edge,
-		       const PathAnalysisPt *tgt_path_ap,
-		       bool same_pin,
-		       // Return values.
-		       float &crpr,
-		       Pin *&crpr_pin)
+CheckCrpr::outputDelayCrpr1(const Path *src_path,
+			    const ClockEdge *tgt_clk_edge,
+			    const PathAnalysisPt *tgt_path_ap,
+			    bool same_pin,
+			    // Return values.
+			    Crpr &crpr,
+			    Pin *&crpr_pin)
 {
   crpr = 0.0;
   crpr_pin = NULL;
@@ -354,8 +371,8 @@ Crpr::outputDelayCrpr1(const Path *src_path,
 }
 
 bool
-Crpr::crprPossible(Clock *clk1,
-		   Clock *clk2)
+CheckCrpr::crprPossible(Clock *clk1,
+			Clock *clk2)
 {
   return clk1 && clk2
     && !clk1->isVirtual()
@@ -369,7 +386,7 @@ Crpr::crprPossible(Clock *clk1,
 }
 
 float
-Crpr::crprArrivalDiff(const PathVertex *path)
+CheckCrpr::crprArrivalDiff(const PathVertex *path)
 {
   Arrival other_arrival = otherMinMaxArrival(path);
   float crpr_diff = abs(delayAsFloat(path->arrival(this), EarlyLate::late())

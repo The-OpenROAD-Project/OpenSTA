@@ -1769,7 +1769,10 @@ DmpCeffDelayCalc::loadDelaySlew(const Pin *load_pin,
 float
 DmpCeffDelayCalc::ceff() const
 {
-  return static_cast<float>(dmp_alg_->ceff());
+  if (dmp_alg_)
+    return static_cast<float>(dmp_alg_->ceff());
+  else
+    return 0.0;
 }
 
 // Notify algorithm components.

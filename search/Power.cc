@@ -188,7 +188,8 @@ Power::findInternalPower(const Instance *inst,
       while (tr_iter.hasNext()) {
 	TransRiseFall *to_tr = tr_iter.next();
 	// Need unateness to find from_tr.
-	float slew = delayAsFloat(sta_->vertexSlew(from_vertex, to_tr, dcalc_ap));
+	float slew = delayAsFloat(sta_->vertexSlew(from_vertex,
+						   to_tr, dcalc_ap));
 	float energy, tr_internal;
 	if (from_port) {
 	  float energy1 = pwr->power(to_tr, pvt, slew, load_cap);
@@ -237,7 +238,10 @@ Power::loadCap(const Pin *to_pin,
       ceff_count++;
     }
   }
-  return ceff_sum / ceff_count;
+  if (ceff_count == 0)
+    return 0.0;
+  else
+    return ceff_sum / ceff_count;
 }
 
 void
@@ -289,14 +293,16 @@ Power::activity(const Pin *pin,
 {
   const Clock *clk;
   findClk(pin, clk, is_clk);
+  activity = 0.0;
   if (clk) {
-    if (is_clk)
-      activity = 2.0 / clk->period();
-    else
-      activity = default_signal_toggle_rate_ * 2.0 / clk->period();
+    float period = clk->period();
+    if (period > 0.0) {
+      if (is_clk)
+	activity = 2.0 / period;
+      else
+	activity = default_signal_toggle_rate_ * 2.0 / period;
+    }
   }
-  else
-    activity = 0.0;
 }
 
 float

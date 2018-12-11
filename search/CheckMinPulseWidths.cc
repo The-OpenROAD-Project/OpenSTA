@@ -459,14 +459,14 @@ minPulseWidth(const Path *path,
   }
 }
 
-float
+Crpr
 MinPulseWidthCheck::commonClkPessimism(const StaState *sta) const
 {
-  Crpr *crpr = sta->search()->crpr();
+  CheckCrpr *check_crpr = sta->search()->checkCrpr();
   PathVertex close;
   closePath(sta, close);
   if (!close.isNull())
-    return crpr->checkCrpr(openPath(), &close);
+    return check_crpr->checkCrpr(openPath(), &close);
   else
     return 0.0;
 }

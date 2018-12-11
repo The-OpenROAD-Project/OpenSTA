@@ -45,6 +45,11 @@ Delay
 makeDelay(float delay,
 	  float sigma_early,
 	  float sigma_late);
+// sigma^2
+Delay
+makeDelay2(float delay,
+	  float sigma2_early,
+	  float sigma2_late);
 float
 delayAsFloat(const Delay &delay);
 // mean late+/early- sigma
@@ -54,6 +59,9 @@ delayAsFloat(const Delay &delay,
 float
 delaySigma(const Delay &delay,
 	   const EarlyLate *early_late);
+float
+delaySigma2(const Delay &delay,
+	    const EarlyLate *early_late);
 const char *
 delayAsString(const Delay &delay,
 	      const Units *units);

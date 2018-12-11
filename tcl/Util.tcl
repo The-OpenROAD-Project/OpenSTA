@@ -116,10 +116,11 @@ proc is_keyword_arg { arg } {
 # The value of the last expression in the body is returned.
 proc proc_redirect { proc_name body } {
   set proc_body [concat "proc $proc_name { args } {" \
+		   "global errorCode errorInfo;" \
 		   "set redirect \[parse_redirect_args args\];" \
 		   "set code \[catch {" $body "} ret \];" \
 		   "if {\$redirect} { redirect_file_end };" \
-		   "if {\$code == 1} {error \$ret} else {return \$ret} }" ]
+		   "if {\$code != 0} {return -code error -errorcode \$errorCode -errorinfo \$errorInfo} else {return \$ret} }" ]
   eval $proc_body
 }
 

@@ -178,5 +178,12 @@ delaySigma(const Delay &,
   return 0.0;
 }
 
+float
+delaySigma2(const Delay &,
+	   const EarlyLate *)
+{
+  return 0.0;
+}
+
 } // namespace
 #endif

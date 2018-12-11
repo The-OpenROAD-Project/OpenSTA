@@ -231,7 +231,7 @@ Search::init(StaState *sta)
   report_unconstrained_paths_ = false;
   search_adj_ = new SearchThru(NULL, sta);
   eval_pred_ = new EvalPred(sta);
-  crpr_ = new Crpr(sta);
+  check_crpr_ = new CheckCrpr(sta);
   genclks_ = new Genclks(sta);
   arrival_visitor_ = new ArrivalVisitor(sta);
   clk_arrivals_valid_ = false;
@@ -284,7 +284,7 @@ Search::~Search()
   delete visit_path_ends_;
   delete gated_clk_;
   delete worst_slacks_;
-  delete crpr_;
+  delete check_crpr_;
   delete genclks_;
   deleteFilter();
   deletePathGroups();
@@ -379,7 +379,7 @@ Search::copyState(const StaState *sta)
   required_iter_->copyState(sta);
   visit_path_ends_->copyState(sta);
   gated_clk_->copyState(sta);
-  crpr_->copyState(sta);
+  check_crpr_->copyState(sta);
   genclks_->copyState(sta);
 }
 
@@ -1300,7 +1300,7 @@ ArrivalVisitor::pruneCrprArrivals()
 {
   const Debug *debug = sta_->debug();
   ArrivalMap::Iterator arrival_iter(tag_bldr_->arrivalMap());
-  Crpr *crpr = sta_->search()->crpr();
+  CheckCrpr *crpr = sta_->search()->checkCrpr();
   while (arrival_iter.hasNext()) {
     Tag *tag;
     int arrival_index;
@@ -2813,7 +2813,7 @@ Search::reportArrivals(Vertex *vertex) const
       report_->print(" %s", tag->asString(this));
       if (tag_group->hasClkTag()) {
 	PathVertex tmp;
-	PathVertex *prev = crpr_->clkPathPrev(vertex, arrival_index, tmp);
+	PathVertex *prev = check_crpr_->clkPathPrev(vertex, arrival_index, tmp);
 	report_->print(" clk_prev=[%s]",
 		       prev && !prev->isNull() ? prev->name(this) : "NULL");
       }

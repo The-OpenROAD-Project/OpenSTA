@@ -70,8 +70,8 @@ public:
 		       Delay &open_latency,
 		       Delay &latency_diff,
 		       float &open_uncertainty,
-		       float &open_crpr,
-		       float &crpr_diff,
+		       Crpr &open_crpr,
+		       Crpr &crpr_diff,
 		       Delay &max_borrow,
 		       bool &borrow_limit_exists);
   bool isLatchDtoQ(Edge *edge) const;
