@@ -549,7 +549,7 @@ STA_INCLUDE="-I.. -I../util -I../liberty -I../network -I../graph -I../sdc -I../s
 
 STA_LIBS="../search/libsearch.la ../sdf/libsdf.la ../graph/libgraph.la ../dcalc/libdcalc.la ../parasitics/libparasitics.la ../sdc/libsdc.la ../liberty/libliberty.la ../network/libnetwork.la ../util/libutil.la"
 
-SWIG_DEPEND="../tcl/StaException.i ../tcl/StaTcl.i ../tcl/NetworkEdit.i ../sdf/Sdf.i ../dcalc/DelayCalc.i ../parasitics/Parasitics.i ../tcl/StaTcl.i"
+SWIG_DEPEND="../tcl/StaException.i ../tcl/StaTcl.i ../tcl/NetworkEdit.i ../sdf/Sdf.i ../dcalc/DelayCalc.i ../parasitics/Parasitics.i"
 
 TCL_INIT_FILES="../tcl/Util.tcl ../dcalc/DelayCalc.tcl ../tcl/Graph.tcl ../tcl/Liberty.tcl ../tcl/Link.tcl ../tcl/Network.tcl ../tcl/NetworkEdit.tcl ../parasitics/Parasitics.tcl ../tcl/Sdc.tcl ../sdf/Sdf.tcl ../tcl/Search.tcl ../tcl/Cmds.tcl ../tcl/Variables.tcl ../tcl/Sta.tcl ../tcl/Power.tcl ../tcl/Splash.tcl"
 

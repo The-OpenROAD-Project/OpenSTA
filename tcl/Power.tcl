@@ -62,8 +62,7 @@ proc report_power_design { corner digits } {
   set combinational [lrange $power_result  8 11]
   set macro         [lrange $power_result 12 15]
   set pad           [lrange $power_result 16 end]
-  lassign $totals design_internal design_switching \
-    design_leakage design_total
+  lassign $totals design_internal design_switching design_leakage design_total
   report_power_row "Sequential"    $sequential    $design_total $digits
   report_power_row "Combinational" $combinational $design_total $digits
   report_power_row "Macro"         $macro         $design_total $digits

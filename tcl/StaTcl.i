@@ -4818,8 +4818,8 @@ instance_power(Instance *inst,
   PowerResult power;
   Sta::sta()->power(inst, corner, power);
   FloatSeq *floats = new FloatSeq;
-  floats->push_back(power.switching());
   floats->push_back(power.internal());
+  floats->push_back(power.switching());
   floats->push_back(power.leakage());
   floats->push_back(power.total());
   return floats;

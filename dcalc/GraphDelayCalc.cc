@@ -101,6 +101,14 @@ GraphDelayCalc::netCaps(const Pin *,
   has_set_load = false;
 }
 
+float
+GraphDelayCalc::ceff(Edge *,
+		     TimingArc *,
+		     const DcalcAnalysisPt *)
+{
+  return 0.0;
+}
+
 void
 GraphDelayCalc::minPulseWidth(const Pin *pin,
 			      const TransRiseFall *hi_low,

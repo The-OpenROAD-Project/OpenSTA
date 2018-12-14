@@ -98,7 +98,7 @@ public:
 		       bool &has_set_load) const;
   virtual float ceff(Edge *edge,
 		     TimingArc *arc,
-		     const DcalcAnalysisPt *dcalc_ap) = 0;
+		     const DcalcAnalysisPt *dcalc_ap);
   // Precedence:
   //  SDF annotation
   //  Liberty library
