@@ -14,44 +14,34 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-Build requirements
-------------------
+Builds are supported by dist tarfiles or from the git repository.
+Building from a dist tarfile does not require the GNU Autotools, Bison
+or Flex to be installed and is the recommended method unless you are a
+developer.
 
-Other versions may work, but these are the versions used for
-development.  
+Building from a tarfile
+-----------------------
+
+The build dependency versions are show below.  Other versions may
+work, but these are the versions used for development.
 
          from   Ubuntu  Xcode
                 18.04.1  10.1
 clang    9.1.0           10.0.0
-lldb     902.0.79.7      1000.11.38.2
 gcc      3.3.2   7.3.0   
 tcl      8.2     8.6     8.6.6
-autoconf 2.53    2.69    2.69
-automake 1.6.3   1.15.1  1.16.1
-libtool  1.4.2   2.4.6   2.4.6
-swig     1.3.28  3.0.12  3.0.12
-bison    1.35    3.0.4   2.3
-flex     2.5.4   2.6.4   2.5.35
 
 These packages are optional:
-
-gdb      5.3     8.1      
-valgrind 1.9.6   3.13.0   N/A
 
 libz     1.1.4   1.2.5     1.2.8
 cudd             2.4.1     2.5.0
 
-Building from the git repository:
+Use the following commands to unpack the dist file and compile it.
 
-git clone https://xp-dev.com/git/opensta
-set branch = master
-or
-set branch = rel_<version>
-git checkout $branch
-
-./bootstrap
-./configure [options...]
-make
+  tar zvfz opensta-<version>.tgz
+  cd opensta-<version>
+  ./configure [options...]
+  make
 
 With no options, configure builds an optimized executable.
 The resulting executable is app/sta.
@@ -70,22 +60,52 @@ configure options:
   --with-visualstudio     use Microcruft Visual Studio C++ compiler
 
 CUDD is a BDD package that is used to improve conditional timing arc
-handling.  The version used for developing the sta is 2.5.0.  It is
-available from the following url:
+handling.  It is available from the following url:
 
  ftp://vlsi.colorado.edu/pub/cudd-2.5.0.tar.gz
 
-The Zlib library is an optional.  If it is used, Verilog, SDF, SPF,
-and SPEF files compressed with gzip can be read by the STA.
+The Zlib library is an optional.  If the configure script finds libz,
+OpenSTA can read Verilog, SDF, SPF, and SPEF files compressed with
+gzip.
 
-If the configure script fails to find any of the TCL or Zlib files,
-use the --with-include, --with-lib, --with-tcl options to add directories
-to search for the files.
+If the configure script fails to find any of the TCL, Zlib or CUDD
+files, use the --with-include, --with-lib, --with-tcl, --with-cudd
+options to add directories to search for the files.
 
-The -help option lists the generic configure options that are not
-described above.  The default arguments to configure disable shared
-libraries. To build with shared libraries use the --enable-shared
-option.
+The configure -help option lists the generic configure options that
+are not described above.  The default arguments to configure disable
+shared libraries. To build with shared libraries use the
+--enable-shared option.
+
+Building from the git repository
+--------------------------------
+
+Building from the git repository has the additional build dependencies
+shown below.
+
+         from   Ubuntu  Xcode
+                18.04.1  10.1
+autoconf 2.53    2.69    2.69
+automake 1.6.3   1.15.1  1.16.1
+libtool  1.4.2   2.4.6   2.4.6
+swig     1.3.28  3.0.12  3.0.12
+bison    1.35    3.0.4   2.3
+flex     2.5.4   2.6.4   2.5.35
+
+These packages are optional:
+
+gdb      5.3     8.1      
+lldb     902.0.79.7      1000.11.38.2
+valgrind 1.9.6   3.13.0   N/A
+
+Use the following commands to checkout the git repository and compile
+it.
+
+  git clone https://xp-dev.com/git/opensta
+  git checkout master|branch
+  ./bootstrap
+  ./configure [options...]
+  make
 
 Building on Windoz
 ------------------
@@ -119,7 +139,6 @@ I am happy to say I haven't owned a windoz machine in 20 years.
 
 Submitting Bug Reports
 ----------------------
-Mail bug reports to bugs@parallaxsw.com.
 All bug reports should attach a testcase, preferably in the following
 form:
 
@@ -127,4 +146,4 @@ form:
  A file named README that describes the problem
  All commands in one .tcl file (usually run.tcl) for small cases
  No calls to "exit"
- No shell scripts to envoke the sta
+ No shell scripts to envoke the sta.
