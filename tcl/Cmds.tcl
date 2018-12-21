@@ -1795,6 +1795,8 @@ proc get_property_cmd { cmd type_key cmd_args } {
     return [edge_property $object $attr]
   } elseif { $object_type == "PathEnd" } {
     return [path_end_property $object $attr]
+  } elseif { $object_type == "PathRef" } {
+    return [path_ref_property $object $attr]
   } else {
     sta_error "$cmd unsupported object type $object_type."
   }
@@ -1838,7 +1840,9 @@ proc edge_property { edge property } {
 }
 
 proc path_end_property { path_end property } {
-  if { $property == "startpoint" } {
+  if { $property == "points" } {
+    return [$path_end points]
+  } elseif { $property == "startpoint" } {
     return [$path_end startpoint]
   } elseif { $property == "startpoint_clock" } {
     return [$path_end startpoint_clock]
@@ -1850,6 +1854,20 @@ proc path_end_property { path_end property } {
     return [$path_end endpoint_clock_pin]
   } elseif { $property == "slack" } {
     return [time_sta_ui [$path_end slack]]
+  } else {
+    return ""
+  }
+}
+
+proc path_ref_property { path property } {
+  if { $property == "pin" } {
+    return [$path pin]
+  } elseif { $property == "arrival" } {
+    return [time_sta_ui [$path arrival]]
+  } elseif { $property == "required" } {
+    return [time_sta_ui [$path required]]
+  } elseif { $property == "slack" } {
+    return [time_sta_ui [$path slack]]
   } else {
     return ""
   }

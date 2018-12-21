@@ -1808,6 +1808,22 @@ using namespace sta;
   Tcl_SetObjResult(interp, obj);
 }
 
+%typemap(out) PathRefSeq* {
+  Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
+  Tcl_SetObjResult(interp, obj);
+
+  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  PathRefSeq *paths = $1;
+  PathRefSeq::Iterator path_iter(paths);
+  while (path_iter.hasNext()) {
+    PathRef *path = &path_iter.next();
+    Tcl_Obj *obj = SWIG_NewInstanceObj(path, SWIGTYPE_p_PathRef, false);
+    Tcl_ListObjAppendElement(interp, list, obj);
+  }
+  delete paths;
+  Tcl_SetObjResult(interp, list);
+}
+
 %typemap(out) MinPulseWidthCheck* {
   Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
   Tcl_SetObjResult(interp, obj);
@@ -6289,6 +6305,20 @@ endpoint_clock_pin()
   return self->targetClkPath()->pin(sta);
 }
 
+PathRefSeq *
+points()
+{
+  Sta *sta = Sta::sta();
+  PathExpanded expanded(self->path(), sta);
+  PathRefSeq *paths = new PathRefSeq;
+  for (int i = expanded.startIndex(); i < expanded.size(); i++) {
+    PathRef *path = expanded.path(i);
+    PathRef *copy = new PathRef(path);
+    paths->push_back(copy);
+  }
+  return paths;
+}
+
 }
 
 %extend MinPulseWidthCheckSeqIterator {
@@ -6310,6 +6340,20 @@ required()
 {
   Sta *sta = Sta::sta();
   return delayAsFloat(self->required(sta));
+}
+
+float
+slack()
+{
+  Sta *sta = Sta::sta();
+  return delayAsFloat(self->slack(sta));
+}
+
+Pin *
+pin()
+{
+  Sta *sta = Sta::sta();
+  return self->pin(sta);
 }
 
 TmpPinSeq *
