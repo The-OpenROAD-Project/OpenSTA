@@ -178,6 +178,7 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("leakage_power_unit", &LibertyReader::visitPowerUnit);
   defineAttrVisitor("delay_model", &LibertyReader::visitDelayModel);
   defineAttrVisitor("bus_naming_style", &LibertyReader::visitBusStyle);
+  defineAttrVisitor("voltage_map", &LibertyReader::visitVoltageMap);
   defineAttrVisitor("nom_temperature", &LibertyReader::visitNomTemp);
   defineAttrVisitor("nom_voltage", &LibertyReader::visitNomVolt);
   defineAttrVisitor("nom_process", &LibertyReader::visitNomProc);
@@ -829,6 +830,39 @@ LibertyReader::visitBusStyle(LibertyAttr *attr)
       library_->setBusBrkts(bus_style[2], bus_style[5]);
     else
       libWarn(attr, "unknown bus_naming_style format.\n");
+  }
+}
+
+void
+LibertyReader::visitVoltageMap(LibertyAttr *attr)
+{
+  if (library_) {
+    if (attr->isComplex()) {
+      LibertyAttrValueIterator value_iter(attr->values());
+      if (value_iter.hasNext()) {
+	LibertyAttrValue *value = value_iter.next();
+	if (value->isString()) {
+	  const char *supply_name = value->stringValue();
+	  if (value_iter.hasNext()) {
+	    value = value_iter.next();
+	    if (value->isFloat()) {
+	      float voltage = value->floatValue();
+	      library_->addSupplyVoltage(supply_name, voltage);
+	    }
+	    else
+	      libWarn(attr, "voltage_map voltage is not a float.\n");
+	  }
+	  else
+	    libWarn(attr, "voltage_map missing voltage.\n");
+	}
+	else
+	  libWarn(attr, "voltage_map supply name is not a string.\n");
+      }
+      else
+	libWarn(attr, "voltage_map missing supply name and voltage.\n");
+    }
+    else
+      libWarn(attr, "voltage_map missing values suffix.\n");
   }
 }
 

@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 Parallax Gate Level Static Timing Analyzer
- See INSTALL for build instructions.
+See INSTALL for installation and build instructions. 
 
 Standard file formats
  Verilog

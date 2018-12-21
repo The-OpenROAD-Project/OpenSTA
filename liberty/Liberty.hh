@@ -68,6 +68,7 @@ typedef Map<TimingArcSet*, LatchEnable*> LatchEnableMap;
 typedef Map<const char *, OcvDerate*, CharPtrLess> OcvDerateMap;
 typedef Vector<TimingArcAttrs*> TimingArcAttrsSeq;
 typedef Vector<InternalPowerAttrs*> InternalPowerAttrsSeq;
+typedef Map<const char *, float, CharPtrLess> SupplyVoltageMap;
 
 typedef enum {
   clock_gate_none,
@@ -263,6 +264,9 @@ public:
   void setDefaultOcvDerate(OcvDerate *derate);
   OcvDerate *findOcvDerate(const char *derate_name);
   void addOcvDerate(OcvDerate *derate);
+  void addSupplyVoltage(const char *suppy_name,
+			float voltage);
+  float supplyVoltage(const char *suppy_name);
 
   // Make scaled cell.  Call LibertyCell::addScaledCell after it is complete.
   LibertyCell *makeScaledCell(const char *name,
@@ -323,6 +327,7 @@ protected:
   float ocv_arc_depth_;
   OcvDerate *default_ocv_derate_;
   OcvDerateMap ocv_derate_map_;
+  SupplyVoltageMap supply_voltage_map_;
 
   // Set if any library has rise/fall capacitances.
   static bool found_rise_fall_caps_;

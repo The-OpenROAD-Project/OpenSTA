@@ -65,6 +65,7 @@
 #include "Tag.hh"
 #include "PathVertex.hh"
 #include "PathRef.hh"
+#include "PathExpanded.hh"
 #include "PathEnd.hh"
 #include "PathGroup.hh"
 #include "CheckTiming.hh"
@@ -96,7 +97,6 @@ typedef PinSet TmpPinSet;
 typedef PinSeq TmpPinSeq;
 typedef InstanceSeq TmpInstanceSeq;
 typedef InstanceSet TmpInstanceSet;
-typedef PathEndSeq::Iterator PathEndSeqIterator;
 typedef MinPulseWidthCheckSeq::Iterator MinPulseWidthCheckSeqIterator;
 typedef FloatSeq TmpFloatSeq;
 typedef string TmpString;
@@ -1596,7 +1596,7 @@ using namespace sta;
   else if (stringEq(arg, "short"))
     $1 = report_path_short;
   else if (stringEq(arg, "end"))
-    $1 = report_path_end;
+    $1 = report_path_endpoint;
   else if (stringEq(arg, "summary"))
     $1 = report_path_summary;
   else if (stringEq(arg, "slack_only"))
@@ -1779,11 +1779,17 @@ using namespace sta;
 %typemap(out) PathEndSeq* {
   Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
   Tcl_SetObjResult(interp, obj);
-}
 
-%typemap(out) PathEndSeqIterator* {
-  Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
-  Tcl_SetObjResult(interp, obj);
+  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  const PathEndSeq *path_ends = $1;
+  PathEndSeq::ConstIterator end_iter(path_ends);
+  while (end_iter.hasNext()) {
+    PathEnd *path_end = end_iter.next();
+    Tcl_Obj *obj = SWIG_NewInstanceObj(path_end, SWIGTYPE_p_PathEnd, false);
+    Tcl_ListObjAppendElement(interp, list, obj);
+  }
+  delete path_ends;
+  Tcl_SetObjResult(interp, list);
 }
 
 %typemap(out) MinPulseWidthCheckSeqIterator* {
@@ -2194,20 +2200,6 @@ class PathEnd
 private:
   PathEnd();
   ~PathEnd();
-};
-
-class PathEndSeq
-{
-private:
-  PathEnd();
-  ~PathEnd();
-};
-
-class PathEndSeqIterator
-{
-private:
-  PathEndSeqIterator();
-  ~PathEndSeqIterator();
 };
 
 class MinPulseWidthCheck
@@ -4413,6 +4405,31 @@ find_path_ends(ExceptionFrom *from,
 }
 
 void
+report_path_end_header()
+{
+  Sta::sta()->reportPathEndHeader();
+}
+
+void
+report_path_end_footer()
+{
+  Sta::sta()->reportPathEndFooter();
+}
+
+void
+report_path_end(PathEnd *end)
+{
+  Sta::sta()->reportPathEnd(end);
+}
+
+void
+report_path_end2(PathEnd *end,
+		 PathEnd *prev_end)
+{
+  Sta::sta()->reportPathEnd(end, prev_end);
+}
+
+void
 set_report_path_format(ReportPathFormat format)
 {
   Sta::sta()->setReportPathFormat(format);
@@ -4464,18 +4481,6 @@ set_report_path_no_split(bool no_split)
 }
 
 void
-report_path_ends(PathEndSeq *ends)
-{
-  Sta::sta()->reportPathEnds(ends);
-}
-
-void
-delete_path_ends(PathEndSeq *ends)
-{
-  delete ends;
-}
-
-void
 delete_path_ref(PathRef *path)
 {
   delete path;
@@ -4502,12 +4507,6 @@ report_clk_skew(ClockSet *clks,
   cmdLinkedNetwork();
   Sta::sta()->reportClkSkew(clks, corner, setup_hold, digits);
   delete clks;
-}
-
-PathEndSeqIterator *
-path_end_seq_iterator(PathEndSeq *ends)
-{
-  return new PathEndSeqIterator(ends);
 }
 
 TmpPinSet *
@@ -6254,17 +6253,43 @@ Crpr common_clk_pessimism() { return self->commonClkPessimism(Sta::sta()); }
 TransRiseFall *target_clk_end_trans()
 { return const_cast<TransRiseFall*>(self->targetClkEndTrans(Sta::sta())); }
 
+Pin *
+startpoint()
+{
+  Sta *sta = Sta::sta();
+  PathExpanded expanded(self->path(), sta);
+  return expanded.startPath()->pin(sta);
 }
 
-%extend PathEndSeq {
-bool empty() { return self->empty(); }
-} // PathEndSeq methods
+Clock *
+startpoint_clock()
+{
+  Sta *sta = Sta::sta();
+  return self->path()->clock(sta);
+}
 
-%extend PathEndSeqIterator {
-bool has_next() { return self->hasNext(); }
-PathEnd *next() { return self->next(); }
-void finish() { delete self; }
-} // PathEndSeqIterator methods
+Pin *
+endpoint()
+{
+  Sta *sta = Sta::sta();
+  return self->path()->pin(sta);
+}
+
+Clock *
+endpoint_clock()
+{
+  Sta *sta = Sta::sta();
+  return self->targetClk(sta);
+}
+
+Pin *
+endpoint_clock_pin()
+{
+  Sta *sta = Sta::sta();
+  return self->targetClkPath()->pin(sta);
+}
+
+}
 
 %extend MinPulseWidthCheckSeqIterator {
 bool has_next() { return self->hasNext(); }

@@ -88,6 +88,7 @@ public:
 			  float &scale_var,
 			  Unit *unit_suffix);
   virtual void visitDelayModel(LibertyAttr *attr);
+  virtual void visitVoltageMap(LibertyAttr *attr);
   virtual void visitBusStyle(LibertyAttr *attr);
   virtual void visitNomTemp(LibertyAttr *attr);
   virtual void visitNomVolt(LibertyAttr *attr);

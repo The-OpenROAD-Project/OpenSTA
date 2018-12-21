@@ -135,6 +135,14 @@ LibertyLibrary::~LibertyLibrary()
     deleteEquivCellMap(equiv_cell_map_);
   delete units_;
   ocv_derate_map_.deleteContents();
+
+  SupplyVoltageMap::Iterator supply_iter(supply_voltage_map_);
+  while (supply_iter.hasNext()) {
+    const char *supply_name;
+    float voltage;
+    supply_iter.next(supply_name, voltage);
+    stringDelete(supply_name);
+  }
 }
 
 LibertyCell *
@@ -760,6 +768,19 @@ void
 LibertyLibrary::addOcvDerate(OcvDerate *derate)
 {
   ocv_derate_map_[derate->name()] = derate;
+}
+
+void
+LibertyLibrary::addSupplyVoltage(const char *supply_name,
+				 float voltage)
+{
+  supply_voltage_map_[stringCopy(supply_name)] = voltage;
+}
+
+float
+LibertyLibrary::supplyVoltage(const char *supply_name)
+{
+  return supply_voltage_map_[supply_name];
 }
 
 ////////////////////////////////////////////////////////////////

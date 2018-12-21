@@ -118,7 +118,7 @@ typedef enum {
   report_path_full_clock,
   report_path_full_clock_expanded,
   report_path_short,
-  report_path_end,
+  report_path_endpoint,
   report_path_summary,
   report_path_slack_only
 } ReportPathFormat;

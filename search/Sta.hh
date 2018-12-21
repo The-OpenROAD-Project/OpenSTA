@@ -870,6 +870,16 @@ public:
 		     const Corner *corner,
 		     const SetupHold *setup_hold,
 		     int digits);
+  // Header above reportPathEnd results.
+  void reportPathEndHeader();
+  // Footer below reportPathEnd results.
+  void reportPathEndFooter();
+  // Format report_path_endpoint only:
+  //   Previous path end is used to detect path group changes
+  //   so headers are reported by group.
+  void reportPathEnd(PathEnd *end,
+		     PathEnd *prev_end);
+  void reportPathEnd(PathEnd *end);
   void reportPathEnds(PathEndSeq *ends);
   ReportPath *reportPath() { return report_path_; }
   void reportPath(Path *path);

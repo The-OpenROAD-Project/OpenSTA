@@ -257,9 +257,62 @@ ReportPath::setDigits(int digits)
 ////////////////////////////////////////////////////////////////
 
 void
+ReportPath::reportPathEndHeader()
+{
+  string header;
+  switch (format_) {
+  case report_path_full:
+  case report_path_full_clock:
+  case report_path_full_clock_expanded:
+  case report_path_short:
+  case report_path_endpoint:
+    break;
+  case report_path_summary:
+    reportSummaryHeader(header);
+    report_->print(header);
+    break;
+  case report_path_slack_only:
+    reportSlackOnlyHeader(header);
+    report_->print(header);
+    break;
+  default:
+    internalError("unsupported path type");
+    break;
+  }
+}
+
+void
+ReportPath::reportPathEndFooter()
+{
+  string header;
+  switch (format_) {
+  case report_path_full:
+  case report_path_full_clock:
+  case report_path_full_clock_expanded:
+  case report_path_short:
+    break;
+  case report_path_endpoint:
+  case report_path_summary:
+  case report_path_slack_only:
+    report_->print("\n");
+    break;
+  default:
+    internalError("unsupported path type");
+    break;
+  }
+}
+
+void
 ReportPath::reportPathEnd(PathEnd *end)
 {
-  string header, result;
+  reportPathEnd(end, NULL);
+}
+
+void
+ReportPath::reportPathEnd(PathEnd *end,
+			  PathEnd *prev_end)
+{
+  string result;
   switch (format_) {
   case report_path_full:
   case report_path_full_clock:
@@ -273,24 +326,18 @@ ReportPath::reportPathEnd(PathEnd *end)
     report_->print(result);
     report_->print("\n\n");
     break;
-  case report_path_end:
-    reportEndHeader(header);
-    report_->print(header);
+  case report_path_endpoint:
+    reportEndpointHeader(end, prev_end);
     reportEndLine(end, result);
     report_->print(result);
     break;
   case report_path_summary:
-    reportSummaryHeader(header);
-    report_->print(header);
     reportSummaryLine(end, result);
     report_->print(result);
     break;
   case report_path_slack_only:
-    reportSlackOnlyHeader(header);
-    report_->print(header);
     reportSlackOnly(end, result);
     report_->print(result);
-    report_->print("\n");
     break;
   default:
     internalError("unsupported path type");
@@ -301,89 +348,42 @@ ReportPath::reportPathEnd(PathEnd *end)
 void
 ReportPath::reportPathEnds(PathEndSeq *ends)
 {
-  if (!ends->empty()) {
-    string header;
-    PathEndSeq::Iterator end_iter(ends);
-    switch (format_) {
-    case report_path_full:
-    case report_path_full_clock:
-    case report_path_full_clock_expanded:
-      while (end_iter.hasNext()) {
-	PathEnd *end = end_iter.next();
-	string result;
-	end->reportFull(this, result);
-	report_->print(result);
-	report_->print("\n\n");
-      }
-      break;
-    case report_path_short:
-      while (end_iter.hasNext()) {
-	PathEnd *end = end_iter.next();
-	string result;
-	end->reportShort(this, result);
-	report_->print(result);
-	report_->print("\n\n");
-      }
-      break;
-    case report_path_end:
-      reportPathEndsEnd(ends);
-      break;
-    case report_path_summary:
-      reportSummaryHeader(header);
-      report_->print(header);
-      while (end_iter.hasNext()) {
-	PathEnd *end = end_iter.next();
-	string result;
-	reportSummaryLine(end, result);
-	report_->print(result);
-      }
-      report_->print("\n");
-      break;
-    case report_path_slack_only:
-      reportSlackOnlyHeader(header);
-      report_->print(header);
-      while (end_iter.hasNext()) {
-	PathEnd *end = end_iter.next();
-	string result;
-	reportSlackOnly(end, result);
-	report_->print(result);
-      }
-      report_->print("\n");
-      break;
-    default:
-      internalError("unsupported path type");
-      break;
-    }
+  reportPathEndHeader();
+  PathEndSeq::Iterator end_iter(ends);
+  PathEnd *prev_end = NULL;
+  while (end_iter.hasNext()) {
+    PathEnd *end = end_iter.next();
+    reportEndpointHeader(end, prev_end);
+    string result;
+    end->reportFull(this, result);
+    report_->print(result);
+    report_->print("\n\n");
+    prev_end = end;
   }
+  reportPathEndFooter();
 }
 
 void
-ReportPath::reportPathEndsEnd(PathEndSeq *ends)
+ReportPath::reportEndpointHeader(PathEnd *end,
+				 PathEnd *prev_end)
 {
   PathGroup *prev_group = NULL;
-  PathEndSeq::Iterator end_iter(ends);
-  while (end_iter.hasNext()) {
-    PathEnd *end = end_iter.next();
-    PathGroup *group = search_->pathGroup(end);
-    if (group != prev_group) {
-      if (prev_group)
-	report_->print("\n");
-      const char *setup_hold = (end->minMax(this) == MinMax::min())
-	? "min_delay/hold"
-	: "max_delay/setup";
-      report_->print("%s ('%s' group)\n\n",
-		     setup_hold,
-		     group->name());
-      string header;
-      reportEndHeader(header);
-      report_->print(header);
-    }
-    string result;
-    reportEndLine(end, result);
-    report_->print(result);
-    prev_group = group;
+  if (prev_end)
+    prev_group = search_->pathGroup(prev_end);
+  PathGroup *group = search_->pathGroup(end);
+  if (group != prev_group) {
+    if (prev_group)
+      report_->print("\n");
+    const char *setup_hold = (end->minMax(this) == MinMax::min())
+      ? "min_delay/hold"
+      : "max_delay/setup";
+    report_->print("%s ('%s' group)\n\n",
+		   setup_hold,
+		   group->name());
+    string header;
+    reportEndHeader(header);
+    report_->print(header);
   }
-  report_->print("\n");
 }
 
 void

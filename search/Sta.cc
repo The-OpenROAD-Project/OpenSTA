@@ -2466,6 +2466,31 @@ Sta::reportPathEnds(PathEndSeq *ends)
 }
 
 void
+Sta::reportPathEndHeader()
+{
+  report_path_->reportPathEndHeader();
+}
+
+void
+Sta::reportPathEndFooter()
+{
+  report_path_->reportPathEndFooter();
+}
+
+void
+Sta::reportPathEnd(PathEnd *end)
+{
+  report_path_->reportPathEnd(end);
+}
+
+void
+Sta::reportPathEnd(PathEnd *end,
+		   PathEnd *prev_end)
+{
+  report_path_->reportPathEnd(end, prev_end);
+}
+
+void
 Sta::reportPath(Path *path)
 {
   report_path_->reportPath(path);

@@ -383,5 +383,15 @@ proc report_slew_limits { corner min_max all_violators verbose nosplit } {
   }
 }
 
+proc report_path_ends { path_ends } {
+  report_path_end_header
+  set prev_end "NULL"
+  foreach path_end $path_ends {
+    report_path_end2 $path_end $prev_end
+    set prev_end $path_end
+  }
+  report_path_end_footer
+}
+
 # sta namespace end.
 }

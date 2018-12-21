@@ -29,6 +29,8 @@
 
 namespace sta {
 
+class DcalcAnalysisPt;
+
 // Abstract base class for Path API.
 class Path
 {
@@ -55,6 +57,7 @@ public:
   virtual const MinMax *minMax(const StaState *sta) const;
   virtual PathAnalysisPt *pathAnalysisPt(const StaState *sta) const = 0;
   virtual PathAPIndex pathAnalysisPtIndex(const StaState *sta) const;
+  virtual DcalcAnalysisPt *dcalcAnalysisPt(const StaState *sta) const;
   virtual Arrival arrival(const StaState *sta) const = 0;
   virtual void setArrival(Arrival arrival,
 			  const StaState *sta) = 0;
@@ -66,6 +69,7 @@ public:
   virtual void initRequired(const StaState *sta);
   virtual bool requiredIsInitValue(const StaState *sta) const;
   virtual Slack slack(const StaState *sta) const;
+  virtual Slew slew(const StaState *sta) const;
   // This takes the same time as prevPath and prevArc combined.
   virtual void prevPath(const StaState *sta,
 			// Return values.

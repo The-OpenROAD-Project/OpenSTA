@@ -138,7 +138,7 @@ proc_redirect report_clock_skew {
 
 ################################################################
 
-define_sta_cmd_args "report_checks" \
+define_sta_cmd_args "find_timing_paths" \
   {[-from from_list|-rise_from from_list|-fall_from from_list]\
      [-through through_list|-rise_through through_list|-fall_through through_list]\
      [-to to_list|-rise_to to_list|-fall_to to_list]\
@@ -150,26 +150,21 @@ define_sta_cmd_args "report_checks" \
      [-slack_max slack_max]\
      [-slack_min slack_min]\
      [-sort_by_slack]\
-     [-path_group group_name]\
-     [-format full|full_clock|full_clock_expanded|short|end|summary]\
-     [-fields [capacitance|transition_time|input_pin|net]]\
-     [-digits digits]\
-     [-no_line_splits]\
-     [> filename] [>> filename]}
+     [-path_group group_name]}
 
-proc_redirect report_checks {
-  global sta_report_unconstrained_paths
-  variable path_options
+proc find_timing_paths { args } {
+  set path_ends [find_timing_paths_cmd "find_timing_paths" args]
+  return $path_ends
+}
 
-  parse_key_args "report_checks" args \
+proc find_timing_paths_cmd { cmd args_var } {
+  upvar 1 $args_var args
+
+  parse_key_args "find_timing_paths" args \
     keys {-from -rise_from -fall_from -to -rise_to -fall_to \
 	    -path_delay -corner -group_count -endpoint_count \
 	    -slack_max -slack_min -path_group} \
     flags {-sort_by_slack -unique_paths_to_endpoint} 0
-
-  parse_report_path_options "report_checks" args "full" 0
-
-  set cmd "report_checks"
 
   set min_max "max"
   set end_tr "rise_fall"
@@ -261,7 +256,36 @@ proc_redirect report_checks {
 		   $slack_min $slack_max \
 		   $sort_by_slack $groups \
 		   1 1 1 1 1 1]
-  if { [$path_ends empty] } {
+  return $path_ends
+}
+
+################################################################
+
+define_sta_cmd_args "report_checks" \
+  {[-from from_list|-rise_from from_list|-fall_from from_list]\
+     [-through through_list|-rise_through through_list|-fall_through through_list]\
+     [-to to_list|-rise_to to_list|-fall_to to_list]\
+     [-path_delay min|min_rise|min_fall|max|max_rise|max_fall|min_max]\
+     [-corner corner_name]\
+     [-group_count path_count] \
+     [-endpoint_count path_count]\
+     [-unique_paths_to_endpoint]\
+     [-slack_max slack_max]\
+     [-slack_min slack_min]\
+     [-sort_by_slack]\
+     [-path_group group_name]\
+     [-format full|full_clock|full_clock_expanded|short|end|summary]\
+     [-fields [capacitance|transition_time|input_pin|net]]\
+     [-digits digits]\
+     [-no_line_splits]\
+     [> filename] [>> filename]}
+
+proc_redirect report_checks {
+  global sta_report_unconstrained_paths
+
+  parse_report_path_options "report_checks" args "full" 0
+  set path_ends [find_timing_paths_cmd "report_checks" args]
+  if { $path_ends == {} } {
     if { $sta_report_unconstrained_paths } {
       puts "No paths."
     } else {
@@ -270,7 +294,6 @@ proc_redirect report_checks {
   } else {
     report_path_ends $path_ends
   }
-  delete_path_ends $path_ends
 }
 
 ################################################################
@@ -398,7 +421,6 @@ proc_redirect report_check_types {
 		     $recovery $removal \
 		     $clk_gating_setup $clk_gating_hold]
     report_path_ends $path_ends
-    delete_path_ends $path_ends
   }
 
   if { $max_transition } {

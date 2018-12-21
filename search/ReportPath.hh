@@ -81,7 +81,16 @@ public:
   void setNoSplit(bool no_split);
   ReportField *findField(const char *name);
 
+  // Header above reportPathEnd results.
+  void reportPathEndHeader();
+  // Footer below reportPathEnd results.
+  void reportPathEndFooter();
   void reportPathEnd(PathEnd *end);
+  // Format report_path_endpoint only:
+  //   Previous path end is used to detect path group changes
+  //   so headers are reported by group.
+  void reportPathEnd(PathEnd *end,
+		     PathEnd *prev_end);
   void reportPathEnds(PathEndSeq *ends);
   void reportPath(const Path *path);
 
@@ -194,7 +203,8 @@ protected:
 			 bool left_justify,
 			 Unit *unit,
 			 bool enabled);
-  void reportPathEndsEnd(PathEndSeq *ends);
+  void reportEndpointHeader(PathEnd *end,
+			    PathEnd *prev_end);
   void reportShort(const PathEndUnconstrained *end,
 		   PathExpanded &expanded,
 		   string &result);

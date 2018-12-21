@@ -1793,6 +1793,8 @@ proc get_property_cmd { cmd type_key cmd_args } {
     return [liberty_library_property $object $attr]
   } elseif { $object_type == "Edge" } {
     return [edge_property $object $attr]
+  } elseif { $object_type == "PathEnd" } {
+    return [path_end_property $object $attr]
   } else {
     sta_error "$cmd unsupported object type $object_type."
   }
@@ -1832,6 +1834,24 @@ proc edge_property { edge property } {
     return [$edge to_pin]
   } else {
     return [edge_string_property $edge $property]
+  }
+}
+
+proc path_end_property { path_end property } {
+  if { $property == "startpoint" } {
+    return [$path_end startpoint]
+  } elseif { $property == "startpoint_clock" } {
+    return [$path_end startpoint_clock]
+  } elseif { $property == "endpoint" } {
+    return [$path_end endpoint]
+  } elseif { $property == "endpoint_clock" } {
+    return [$path_end endpoint_clock]
+  } elseif { $property == "endpoint_clock_pin" } {
+    return [$path_end endpoint_clock_pin]
+  } elseif { $property == "slack" } {
+    return [time_sta_ui [$path_end slack]]
+  } else {
+    return ""
   }
 }
 

@@ -21,6 +21,7 @@
 #include "Clock.hh"
 #include "Tag.hh"
 #include "Corner.hh"
+#include "DcalcAnalysisPt.hh"
 #include "PathAnalysisPt.hh"
 #include "PathRef.hh"
 #include "Path.hh"
@@ -95,6 +96,19 @@ PathAPIndex
 Path::pathAnalysisPtIndex(const StaState *sta) const
 {
   return pathAnalysisPt(sta)->index();
+}
+
+DcalcAnalysisPt *
+Path::dcalcAnalysisPt(const StaState *sta) const
+{
+  return pathAnalysisPt(sta)->dcalcAnalysisPt();
+}
+
+Slew
+Path::slew(const StaState *sta) const
+{
+  return sta->graph()->slew(vertex(sta), transition(sta),
+			    dcalcAnalysisPt(sta)->index());
 }
 
 int
