@@ -359,6 +359,7 @@ public:
   virtual void beginFallPower(LibertyGroup *group);
   virtual void beginRisePower(LibertyGroup *group);
   virtual void endRiseFallPower(LibertyGroup *group);
+  virtual void visitRelatedGroundPin(LibertyAttr *attr);
   virtual void visitRelatedPowerPin(LibertyAttr *attr);
   virtual void visitRelatedPgPin(LibertyAttr *attr);
   virtual void makeInternalPowers(LibertyPort *port,
@@ -388,6 +389,12 @@ public:
   virtual void beginOcvSigmaFallTransition(LibertyGroup *group);
   virtual void endOcvSigmaTransition(LibertyGroup *group);
   virtual void visitSigmaType(LibertyAttr *attr);
+
+  // PgPin group.
+  virtual void beginPgPin(LibertyGroup *group);
+  virtual void endPgPin(LibertyGroup *group);
+  virtual void visitPgType(LibertyAttr *attr);
+  virtual void visitVoltageName(LibertyAttr *attr);
 
   // Visitors for derived classes to overload.
   virtual void beginGroup1(LibertyGroup *) {}
@@ -533,6 +540,7 @@ protected:
   EarlyLateAll *derate_type_;
   EarlyLateAll *sigma_type_;
   PathType path_type_;
+  LibertyPgPort *pg_port_;
   ScaleFactorType scale_factor_type_;
   TableAxis *axis_[3];
   bool own_axis_[3];

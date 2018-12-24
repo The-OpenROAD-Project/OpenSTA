@@ -119,9 +119,9 @@ DdNode *
 Sim::funcBdd(const FuncExpr *expr,
 	     const Instance *inst) const
 {
-  DdNode *left = 0;
-  DdNode *right = 0;
-  DdNode *result = 0;
+  DdNode *left = NULL;
+  DdNode *right = NULL;
+  DdNode *result = NULL;
   switch (expr->op()) {
   case FuncExpr::op_port: {
     LibertyPort *port = expr->port();

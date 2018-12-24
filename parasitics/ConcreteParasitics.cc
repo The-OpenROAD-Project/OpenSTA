@@ -888,6 +888,7 @@ ConcreteParasitics::clear()
       }
     }
     delete lumped_elmore_maps_;
+    lumped_elmore_maps_ = NULL;
   }
 
   if (pi_elmore_maps_) {
@@ -902,6 +903,7 @@ ConcreteParasitics::clear()
       }
     }
     delete pi_elmore_maps_;
+    pi_elmore_maps_ = NULL;
   }
 
   if (pi_pole_residue_maps_) {
@@ -916,6 +918,7 @@ ConcreteParasitics::clear()
       }
     }
     delete pi_pole_residue_maps_;
+    pi_pole_residue_maps_ = NULL;
   }
 
   if (parasitic_network_maps_) {
@@ -930,6 +933,7 @@ ConcreteParasitics::clear()
       }
     }
     delete parasitic_network_maps_;
+    parasitic_network_maps_ = NULL;
   }
 }
 

@@ -120,7 +120,7 @@ proc proc_redirect { proc_name body } {
 		   "set redirect \[parse_redirect_args args\];" \
 		   "set code \[catch {" $body "} ret \];" \
 		   "if {\$redirect} { redirect_file_end };" \
-		   "if {\$code != 0} {return -code error -errorcode \$errorCode -errorinfo \$errorInfo} else {return \$ret} }" ]
+		   "if {\$code == 1} {return -code \$code -errorcode \$errorCode -errorinfo \$errorInfo \$ret} else {return \$ret} }" ]
   eval $proc_body
 }
 

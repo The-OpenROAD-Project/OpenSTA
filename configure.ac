@@ -16,7 +16,7 @@
 
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(sta, 2.0)
+AC_INIT(sta, 2.0.1)
 AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS(config.h)
@@ -173,7 +173,7 @@ AC_ARG_WITH(tcl,
   [])
 
 AC_ARG_WITH(cudd,
-  [AS_HELP_STRING([--with-cudd=path],[use Cudd BDD package, defaults to $CUDD])],
+  [AS_HELP_STRING([--with-cudd=path],[use CUDD BDD package, defaults to $CUDD])],
   [CUDD_ARG="${withval}"],
   [CUDD_ARG=$CUDD])
 
@@ -352,23 +352,24 @@ AC_SUBST(ZLIB_LIB)
 CUDD_INCLUDE=""
 CUDD_LIBS=""
 if test "$CUDD_ARG"; then
-  AC_MSG_CHECKING(for Cudd header file)
+  AC_MSG_RESULT($CUDD_ARG)
+  AC_MSG_CHECKING(for CUDD header file)
   CUDD_INCLUDE_DIR="$CUDD_ARG/include"
   CUDD_HEADER="$CUDD_INCLUDE_DIR/cudd.h"
   if test -r "$CUDD_HEADER"; then
     AC_MSG_RESULT($CUDD_HEADER)
     CUDD_INCLUDE=$CUDD_INCLUDE_DIR
-    AC_DEFINE(CUDD, 1, "Cudd bdd package")
+    AC_DEFINE(CUDD, 1, "CUDD bdd package")
   else
     AC_MSG_RESULT(not found)
   fi
 
-  AC_MSG_CHECKING(for Cudd library)
+  AC_MSG_CHECKING(for CUDD library)
   CUDD_LIB_EXT="a"
-  CUDD_LIB="$CUDD_ARG/cudd/libcudd.$CUDD_LIB_EXT"
+  CUDD_LIB="$CUDD_ARG/lib/libcudd.$CUDD_LIB_EXT"
   if test -r $CUDD_LIB; then
     AC_MSG_RESULT($CUDD_LIB)
-    CUDD_LIBS="$CUDD_ARG/cudd/libcudd.$CUDD_LIB_EXT $CUDD_ARG/mtr/libmtr.$CUDD_LIB_EXT $CUDD_ARG/st/libst.$CUDD_LIB_EXT $CUDD_ARG/util/libutil.$CUDD_LIB_EXT $CUDD_ARG/epd/libepd.$CUDD_LIB_EXT"
+    CUDD_LIBS="$CUDD_ARG/lib/libcudd.$CUDD_LIB_EXT"
   else
     AC_MSG_RESULT(not found)
   fi

@@ -895,6 +895,8 @@ LibertyCell::~LibertyCell()
 
   delete test_cell_;
   ocv_derate_map_.deleteContents();
+
+  pg_port_map_.deleteContents();
 }
 
 // Multiple timing arc sets (buses bits or a related_ports list)
@@ -942,6 +944,18 @@ void
 LibertyCell::setHasInternalPorts(bool has_internal)
 {
   has_internal_ports_ = has_internal;
+}
+
+void
+LibertyCell::addPgPort(LibertyPgPort *pg_port)
+{
+  pg_port_map_[pg_port->name()] = pg_port;
+}
+
+LibertyPgPort *
+LibertyCell::findPgPort(const char *name)
+{
+  return pg_port_map_.findKey(name);
 }
 
 ModeDef *
@@ -1752,6 +1766,7 @@ LibertyPort::LibertyPort(LibertyCell *cell,
   min_period_(0.0),
   pulse_clk_trigger_(NULL),
   pulse_clk_sense_(NULL),
+  related_ground_pin_(NULL),
   related_power_pin_(NULL),
   min_pulse_width_exists_(false),
   min_period_exists_(false),
@@ -1775,6 +1790,7 @@ LibertyPort::~LibertyPort()
   if (tristate_enable_)
     tristate_enable_->deleteSubexprs();
   delete scaled_ports_;
+  stringDelete(related_ground_pin_);
   stringDelete(related_power_pin_);
 }
 
@@ -2132,6 +2148,12 @@ LibertyPort::setCornerPort(LibertyPort *corner_port,
   if (ap_index >= static_cast<int>(corner_ports_.size()))
     corner_ports_.resize(ap_index + 1);
   corner_ports_[ap_index] = corner_port;
+}
+
+void
+LibertyPort::setRelatedGroundPin(const char *related_ground_pin)
+{
+  related_ground_pin_ = stringCopy(related_ground_pin);
 }
 
 void
@@ -2688,6 +2710,33 @@ OcvDerate::setDerateTable(const TransRiseFall *tr,
 			  Table *derate)
 {
   derate_[tr->index()][early_late->index()][path_type] = derate;
+}
+
+////////////////////////////////////////////////////////////////
+
+LibertyPgPort::LibertyPgPort(const char *name) :
+  name_(stringCopy(name)),
+  pg_type_(unknown),
+  voltage_name_(NULL)
+{
+}
+
+LibertyPgPort::~LibertyPgPort()
+{
+  stringDelete(name_);
+  stringDelete(voltage_name_);
+}
+
+void
+LibertyPgPort::setPgType(PgType type)
+{
+  pg_type_ = type;
+}
+
+void
+LibertyPgPort::setVoltageName(const char *voltage_name)
+{
+  voltage_name_ = stringCopy(voltage_name);
 }
 
 } // namespace

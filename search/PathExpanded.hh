@@ -25,8 +25,6 @@
 
 namespace sta {
 
-typedef Vector<PathRef> PathRefSeq;
-
 class PathExpanded
 {
 public:

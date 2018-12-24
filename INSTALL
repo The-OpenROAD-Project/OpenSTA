@@ -34,7 +34,7 @@ tcl      8.2     8.6     8.6.6
 These packages are optional:
 
 libz     1.1.4   1.2.5     1.2.8
-cudd             2.4.1     2.5.0
+cudd             2.4.1     3.0.0
 
 Use the following commands to unpack the dist file and compile it.
 
@@ -60,9 +60,10 @@ configure options:
   --with-visualstudio     use Microcruft Visual Studio C++ compiler
 
 CUDD is a BDD package that is used to improve conditional timing arc
-handling.  It is available from the following url:
+handling.  It is available here:
 
- ftp://vlsi.colorado.edu/pub/cudd-2.5.0.tar.gz
+ https://www.davidkebo.com/source/cudd_versions/cudd-3.0.0.tar.gz
+ https://sourceforge.net/projects/cudd-mirror/
 
 The Zlib library is an optional.  If the configure script finds libz,
 OpenSTA can read Verilog, SDF, SPF, and SPEF files compressed with

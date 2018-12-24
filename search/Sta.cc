@@ -4622,9 +4622,20 @@ Sta::crossesHierarchy(Edge *edge) const
 {
   Vertex *from = edge->from(graph_);
   Vertex *to = edge->to(graph_);
-  Instance *from_inst = network_->instance(from->pin());
+  const Pin *from_pin = from->pin();
+  Instance *from_inst = network_->instance(from_pin);
   Instance *to_inst = network_->instance(to->pin());
-  return network_->parent(from_inst) != network_->parent(to_inst);
+  Instance *from_parent, *to_parent;
+  // Treat input/output port pins as "inside".
+  if (network_->isTopInstance(from_inst))
+    from_parent = from_inst;
+  else 
+    from_parent = network_->parent(from_inst);
+  if (network_->isTopInstance(to_inst))
+    to_parent = to_inst;
+  else 
+    to_parent = network_->parent(to_inst);
+  return from_parent != to_parent;
 }
 
 ////////////////////////////////////////////////////////////////

@@ -112,6 +112,7 @@ typedef UnorderedMap<Tag*, int, TagMatchHash, TagMatchEqual> ArrivalMap;
 typedef Vector<PathVertex> PathVertexSeq;
 typedef Vector<Slack> SlackSeq;
 typedef Delay Crpr;
+typedef Vector<PathRef> PathRefSeq;
 
 typedef enum {
   report_path_full,

@@ -131,6 +131,7 @@ LibertyReader::readLibertyFile(const char *filename,
   mode_def_ = NULL;
   mode_value_ = NULL;
   ocv_derate_ = NULL;
+  pg_port_ = NULL;
   have_resistance_unit_ = false;
   
   TransRiseFallIterator tr_iter;
@@ -404,6 +405,7 @@ LibertyReader::defineVisitors()
 		     &LibertyReader::endRiseFallPower);
   defineGroupVisitor("rise_power", &LibertyReader::beginRisePower,
 		     &LibertyReader::endRiseFallPower);
+  defineAttrVisitor("related_ground_pin",&LibertyReader::visitRelatedGroundPin);
   defineAttrVisitor("related_power_pin", &LibertyReader::visitRelatedPowerPin);
   defineAttrVisitor("related_pg_pin", &LibertyReader::visitRelatedPgPin);
 
@@ -438,6 +440,11 @@ LibertyReader::defineVisitors()
 		     &LibertyReader::endOcvSigmaTransition);
   defineAttrVisitor("sigma_type", &LibertyReader::visitSigmaType);
   defineAttrVisitor("cell_leakage_power", &LibertyReader::visitCellLeakagePower);
+
+  defineGroupVisitor("pg_pin", &LibertyReader::beginPgPin,
+		     &LibertyReader::endPgPin);
+  defineAttrVisitor("pg_type", &LibertyReader::visitPgType);
+  defineAttrVisitor("voltage_name", &LibertyReader::visitVoltageName);
 }
 
 void
@@ -4477,6 +4484,19 @@ LibertyReader::endRiseFallPower(LibertyGroup *)
 }
 
 void
+LibertyReader::visitRelatedGroundPin(LibertyAttr *attr)
+{
+  if (ports_) {
+    const char *related_ground_pin = getAttrString(attr);
+    LibertyPortSeq::Iterator port_iter(ports_);
+    while (port_iter.hasNext()) {
+      LibertyPort *port = port_iter.next();
+      port->setRelatedGroundPin(related_ground_pin);
+    }
+  }
+}
+
+void
 LibertyReader::visitRelatedPowerPin(LibertyAttr *attr)
 {
   if (ports_) {
@@ -4701,6 +4721,47 @@ LibertyReader::visitCellLeakagePower(LibertyAttr *attr)
     getAttrFloat(attr, value, exists);
     if (exists)
       cell_->setLeakagePower(value * power_scale_);
+  }
+}
+
+void
+LibertyReader::beginPgPin(LibertyGroup *group)
+{
+  if (cell_) {
+    const char *name = group->firstName();
+    pg_port_ = new LibertyPgPort(name);
+    cell_->addPgPort(pg_port_);
+  }
+}
+
+void
+LibertyReader::endPgPin(LibertyGroup *)
+{
+  pg_port_ = NULL;
+}
+
+void
+LibertyReader::visitPgType(LibertyAttr *attr)
+{
+  if (pg_port_) {
+    const char *type_name = getAttrString(attr);
+    LibertyPgPort::PgType type = LibertyPgPort::PgType::unknown;
+    if (stringEqual(type_name, "primary_ground"))
+      type = LibertyPgPort::PgType::ground;
+    else if (stringEqual(type_name, "primary_power"))      
+      type = LibertyPgPort::PgType::power;
+    else
+      libError(attr, "unknown pg_type.\n");
+    pg_port_->setPgType(type);
+  }
+}
+
+void
+LibertyReader::visitVoltageName(LibertyAttr *attr)
+{
+  if (pg_port_) {
+    const char *voltage_name = getAttrString(attr);
+    pg_port_->setVoltageName(voltage_name);
   }
 }
 

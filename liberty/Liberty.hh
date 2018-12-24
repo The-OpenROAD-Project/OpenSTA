@@ -43,6 +43,7 @@ class LibertyReader;
 class OcvDerate;
 class TimingArcAttrs;
 class InternalPowerAttrs;
+class LibertyPgPort;
 
 typedef Set<Library*> LibrarySet;
 typedef Map<const char*, TableTemplate*, CharPtrLess> TableTemplateMap;
@@ -69,6 +70,7 @@ typedef Map<const char *, OcvDerate*, CharPtrLess> OcvDerateMap;
 typedef Vector<TimingArcAttrs*> TimingArcAttrsSeq;
 typedef Vector<InternalPowerAttrs*> InternalPowerAttrsSeq;
 typedef Map<const char *, float, CharPtrLess> SupplyVoltageMap;
+typedef Map<const char *, LibertyPgPort*, CharPtrLess> LibertyPgPortMap;
 
 typedef enum {
   clock_gate_none,
@@ -388,6 +390,7 @@ public:
   void findLibertyPortsMatching(PatternMatch *pattern,
 				LibertyPortSeq *ports) const;
   bool hasInternalPorts() const { return has_internal_ports_; }
+  LibertyPgPort *findPgPort(const char *name);
   ScaleFactors *scaleFactors() const { return scale_factors_; }
   void setScaleFactors(ScaleFactors *scale_factors);
   ModeDef *makeModeDef(const char *name);
@@ -475,6 +478,8 @@ public:
   OcvDerate *findOcvDerate(const char *derate_name);
   void addOcvDerate(OcvDerate *derate);
 
+  void addPgPort(LibertyPgPort *pg_port);
+
 protected:
   virtual void addPort(ConcretePort *port);
   void setHasInternalPorts(bool has_internal);
@@ -534,6 +539,7 @@ protected:
   bool is_disabled_constraint_;
   Vector<LibertyCell*> corner_cells_;
   float leakage_power_;
+  LibertyPgPortMap pg_port_map_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(LibertyCell);
@@ -699,6 +705,8 @@ public:
   LibertyPort *cornerPort(int ap_index);
   void setCornerPort(LibertyPort *corner_port,
 		     int ap_index);
+  const char *relatedGroundPin() const { return related_ground_pin_; }
+  void setRelatedGroundPin(const char *related_ground_pin);
   const char *relatedPowerPin() const { return related_power_pin_; }
   void setRelatedPowerPin(const char *related_power_pin);
 
@@ -734,6 +742,7 @@ protected:
   float min_pulse_width_[TransRiseFall::index_count];
   TransRiseFall *pulse_clk_trigger_;
   TransRiseFall *pulse_clk_sense_;
+  const char *related_ground_pin_;
   const char *related_power_pin_;
   Vector<LibertyPort*> corner_ports_;
 
@@ -1000,6 +1009,25 @@ private:
   const char *name_;
   // [rf_type][derate_type][path_type]
   Table *derate_[TransRiseFall::index_count][EarlyLate::index_count][path_type_count];
+};
+
+// Power/ground port.
+class LibertyPgPort
+{
+public:
+  enum PgType { unknown, power, ground };
+  LibertyPgPort(const char *name);
+  ~LibertyPgPort();
+  const char *name() { return name_; }
+  PgType pgType() const { return pg_type_; }
+  void setPgType(PgType type);
+  const char *voltageName() const { return voltage_name_; }
+  void setVoltageName(const char *voltage_name);
+
+private:
+  const char *name_;
+  PgType pg_type_;
+  const char *voltage_name_;
 };
 
 } // namespace

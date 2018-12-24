@@ -405,7 +405,7 @@ close $in_stream
 
 # Disable emacs syntax highlighting.
 puts $out_stream "// Local Variables:"
-puts $out_stream "// font-lock-auto-fontify: nil"
+puts $out_stream "// mode:c++"
 puts $out_stream "// End:"
 
 close $out_stream

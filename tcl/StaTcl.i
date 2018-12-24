@@ -1797,17 +1797,6 @@ using namespace sta;
   Tcl_SetObjResult(interp, obj);
 }
 
-%typemap(in) Path* {
-  void *obj;
-  SWIG_ConvertPtr($input, &obj, $1_descriptor, false);
-  $1 = reinterpret_cast<Path*>(obj);
-}
-
-%typemap(out) Path* {
-  Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
-  Tcl_SetObjResult(interp, obj);
-}
-
 %typemap(out) PathRefSeq* {
   Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
   Tcl_SetObjResult(interp, obj);
@@ -1817,7 +1806,8 @@ using namespace sta;
   PathRefSeq::Iterator path_iter(paths);
   while (path_iter.hasNext()) {
     PathRef *path = &path_iter.next();
-    Tcl_Obj *obj = SWIG_NewInstanceObj(path, SWIGTYPE_p_PathRef, false);
+    PathRef *copy = new PathRef(path);
+    Tcl_Obj *obj = SWIG_NewInstanceObj(copy, SWIGTYPE_p_PathRef, false);
     Tcl_ListObjAppendElement(interp, list, obj);
   }
   delete paths;
@@ -4509,7 +4499,7 @@ remove_constraints()
 }
 
 void
-report_path_cmd(Path *path)
+report_path_cmd(PathRef *path)
 {
   Sta::sta()->reportPath(path);
 }
@@ -6311,10 +6301,9 @@ points()
   Sta *sta = Sta::sta();
   PathExpanded expanded(self->path(), sta);
   PathRefSeq *paths = new PathRefSeq;
-  for (int i = expanded.startIndex(); i < expanded.size(); i++) {
+  for (auto i = expanded.startIndex(); i < expanded.size(); i++) {
     PathRef *path = expanded.path(i);
-    PathRef *copy = new PathRef(path);
-    paths->push_back(copy);
+    paths->push_back(*path);
   }
   return paths;
 }
@@ -6369,6 +6358,13 @@ pins()
     path1.init(prev_path);
   }
   return pins;
+}
+
+const char *
+tag()
+{
+  Sta *sta = Sta::sta();
+  return self->tag(sta)->asString(sta);
 }
 
 }
