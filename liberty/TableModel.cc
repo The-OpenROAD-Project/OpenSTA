@@ -1311,6 +1311,8 @@ stringTableAxisVariable(const char *variable)
     return table_axis_path_depth;
   else if (stringEq(variable, "path_distance"))
     return table_axis_path_distance;
+  else if (stringEq(variable, "normalzied_voltage"))
+    return table_axis_normalized_voltage;
   else
     return table_axis_unknown;
 }
@@ -1376,6 +1378,7 @@ tableVariableUnit(TableAxisVariable variable,
   case table_axis_path_distance:
     return units->distanceUnit();
   case table_axis_path_depth:
+  case table_axis_normalized_voltage:
   case table_axis_unknown:
     return units->scalarUnit();
   }

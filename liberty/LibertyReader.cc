@@ -289,6 +289,7 @@ LibertyReader::defineVisitors()
 		     &LibertyReader::endScaledCell);
   defineAttrVisitor("clock_gating_integrated_cell",
 		    &LibertyReader::visitClockGatingIntegratedCell);
+
   defineAttrVisitor("area", &LibertyReader::visitArea);
   defineAttrVisitor("dont_use", &LibertyReader::visitDontUse);
   defineAttrVisitor("is_macro", &LibertyReader::visitIsMacro);
@@ -4747,9 +4748,30 @@ LibertyReader::visitPgType(LibertyAttr *attr)
     const char *type_name = getAttrString(attr);
     LibertyPgPort::PgType type = LibertyPgPort::PgType::unknown;
     if (stringEqual(type_name, "primary_ground"))
-      type = LibertyPgPort::PgType::ground;
-    else if (stringEqual(type_name, "primary_power"))      
-      type = LibertyPgPort::PgType::power;
+      type = LibertyPgPort::PgType::primary_ground;
+    else if (stringEqual(type_name, "primary_power"))
+      type = LibertyPgPort::PgType::primary_power;
+
+    else if (stringEqual(type_name, "backup_ground"))
+      type = LibertyPgPort::PgType::backup_ground;
+    else if (stringEqual(type_name, "backup_power"))
+      type = LibertyPgPort::PgType::backup_power;
+
+    else if (stringEqual(type_name, "internal_ground"))
+      type = LibertyPgPort::PgType::internal_ground;
+    else if (stringEqual(type_name, "internal_power"))
+      type = LibertyPgPort::PgType::internal_power;
+
+    else if (stringEqual(type_name, "nwell"))
+      type = LibertyPgPort::PgType::nwell;
+    else if (stringEqual(type_name, "pwell"))
+      type = LibertyPgPort::PgType::pwell;
+
+    else if (stringEqual(type_name, "deepnwell"))
+      type = LibertyPgPort::PgType::deepnwell;
+    else if (stringEqual(type_name, "deeppwell"))
+      type = LibertyPgPort::PgType::deeppwell;
+
     else
       libError(attr, "unknown pg_type.\n");
     pg_port_->setPgType(type);

@@ -1772,31 +1772,31 @@ proc get_property_cmd { cmd type_key cmd_args } {
     set object [get_property_object $object_type $object $quiet]
   }
   set object_type [object_type $object]
-  set attr [lindex $cmd_args 1]
+  set prop [lindex $cmd_args 1]
   if { $object_type == "Instance" } {
-    return [instance_property $object $attr]
+    return [instance_property $object $prop]
   } elseif { $object_type == "Pin" } {
-    return [pin_property $object $attr]
+    return [pin_property $object $prop]
   } elseif { $object_type == "Net" } {
-    return [net_property $object $attr]
+    return [net_property $object $prop]
   } elseif { $object_type == "Clock" } {
-    return [clock_property $object $attr]
+    return [clock_property $object $prop]
   } elseif { $object_type == "Port" } {
-    return [port_property $object $attr]
+    return [port_property $object $prop]
   } elseif { $object_type == "LibertyPort" } {
-    return [liberty_port_property $object $attr]
+    return [liberty_port_property $object $prop]
   } elseif { $object_type == "LibertyCell" } {
-    return [liberty_cell_property $object $attr]
+    return [liberty_cell_property $object $prop]
   } elseif { $object_type == "Library" } {
-    return [library_property $object $attr]
+    return [library_property $object $prop]
   } elseif { $object_type == "LibertyLibrary" } {
-    return [liberty_library_property $object $attr]
+    return [liberty_library_property $object $prop]
   } elseif { $object_type == "Edge" } {
-    return [edge_property $object $attr]
+    return [edge_property $object $prop]
   } elseif { $object_type == "PathEnd" } {
-    return [path_end_property $object $attr]
+    return [path_end_property $object $prop]
   } elseif { $object_type == "PathRef" } {
-    return [path_ref_property $object $attr]
+    return [path_ref_property $object $prop]
   } else {
     sta_error "$cmd unsupported object type $object_type."
   }
@@ -1827,50 +1827,6 @@ proc get_property_object { object_type object_name quiet } {
     sta_error "$object_type '$object_name' not found."
   }
   return [lindex $object 0]
-}
-
-proc edge_property { edge property } {
-  if { $property == "from_pin" } {
-    return [$edge from_pin]
-  } elseif { $property == "to_pin" } {
-    return [$edge to_pin]
-  } else {
-    return [edge_string_property $edge $property]
-  }
-}
-
-proc path_end_property { path_end property } {
-  if { $property == "points" } {
-    return [$path_end points]
-  } elseif { $property == "startpoint" } {
-    return [$path_end startpoint]
-  } elseif { $property == "startpoint_clock" } {
-    return [$path_end startpoint_clock]
-  } elseif { $property == "endpoint" } {
-    return [$path_end endpoint]
-  } elseif { $property == "endpoint_clock" } {
-    return [$path_end endpoint_clock]
-  } elseif { $property == "endpoint_clock_pin" } {
-    return [$path_end endpoint_clock_pin]
-  } elseif { $property == "slack" } {
-    return [time_sta_ui [$path_end slack]]
-  } else {
-    return ""
-  }
-}
-
-proc path_ref_property { path property } {
-  if { $property == "pin" } {
-    return [$path pin]
-  } elseif { $property == "arrival" } {
-    return [time_sta_ui [$path arrival]]
-  } elseif { $property == "required" } {
-    return [time_sta_ui [$path required]]
-  } elseif { $property == "slack" } {
-    return [time_sta_ui [$path slack]]
-  } else {
-    return ""
-  }
 }
 
 proc get_object_type { obj } {

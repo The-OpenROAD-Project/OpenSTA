@@ -36,6 +36,7 @@ public:
   PathRef();
   PathRef(const Path *path);
   PathRef(const PathRef &path);
+  PathRef(const PathRef *path);
   PathRef(const PathVertex &path);
   void init();
   void init(const PathRef &path);

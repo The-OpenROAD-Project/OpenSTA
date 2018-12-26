@@ -42,6 +42,12 @@ PathRef::PathRef(const PathRef &path) :
 {
 }
 
+PathRef::PathRef(const PathRef *path) :
+  path_vertex_(path->path_vertex_),
+  path_enumed_(path->path_enumed_)
+{
+}
+
 PathRef::PathRef(const PathVertex &path) :
   path_vertex_(&path),
   path_enumed_(NULL)

@@ -1015,7 +1015,12 @@ private:
 class LibertyPgPort
 {
 public:
-  enum PgType { unknown, power, ground };
+  enum PgType { unknown,
+		primary_power, primary_ground,
+		backup_power, backup_ground,
+		internal_power, internal_ground,
+		nwell, pwell,
+		deepnwell, deeppwell};
   LibertyPgPort(const char *name);
   ~LibertyPgPort();
   const char *name() { return name_; }

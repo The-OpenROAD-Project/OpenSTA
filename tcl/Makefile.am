@@ -25,4 +25,5 @@ EXTRA_DIST = \
 libs:
 
 xtags:
-	etags -a -o ../TAGS $(TCL_INIT_FILES) $(TCL_SRCS)
+	etags -a -o ../TAGS --lang=none --regex='/proc[ \t]+\([^ \t]+\)/\1/' \
+		$(TCL_INIT_FILES) $(TCL_SRCS)

@@ -133,6 +133,7 @@ typedef enum {
   table_axis_output_voltage,
   table_axis_path_depth,
   table_axis_path_distance,
+  table_axis_normalized_voltage,
   table_axis_unknown
 } TableAxisVariable;
 

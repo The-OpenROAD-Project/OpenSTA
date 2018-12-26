@@ -77,6 +77,7 @@
 #include "PathAnalysisPt.hh"
 #include "ReportPath.hh"
 #include "Power.hh"
+#include "Property.hh"
 #include "Sta.hh"
 
 namespace sta {
@@ -104,43 +105,6 @@ typedef Set<const char*, CharPtrLess> StringSet;
 typedef MinMaxAll MinMaxAllNull;
 typedef ClockSet TmpClockSet;
 typedef StringSeq TmpStringSeq;
-
-static const char *
-pinSlewProperty(const Pin *pin,
-		const TransRiseFall *tr,
-		const MinMax *min_max,
-		Sta *sta);
-static const char *
-pinSlackProperty(const Pin *pin,
-		 const TransRiseFall *tr,
-		 const MinMax *min_max,
-		 Sta *sta);
-static const char *
-portSlewProperty(const Port *port,
-		 const TransRiseFall *tr,
-		 const MinMax *min_max,
-		 Sta *sta);
-static const char *
-portSlackProperty(const Port *port,
-		  const TransRiseFall *tr,
-		  const MinMax *min_max,
-		  Sta *sta);
-static const char *
-pinClocksProperty(const Pin *pin,
-		  Sta *sta);
-const char *
-clockProperty(Clock *clk,
-	      const char *property,
-	      Network *network,
-	      Sta *sta);
-static const char *
-clockSourcesProperty(Clock *clk,
-		     Network *network);
-static const char *
-pathNamesString(PinSet *pins,
-		Network *network);
-static const char *
-clkNamesString(ClockSet *clks);
 
 class CmdErrorNetworkNotLinked : public StaException
 {
@@ -454,353 +418,6 @@ TclListSeqEdge(Tcl_Obj * const source, Tcl_Interp *interp)
   }
   else
     return NULL;
-}
-
-const char *
-portProperty(const Port *port,
-	     const char *property,
-	     Sta *sta)
-{
-  Network *network = sta->network();
-  if (stringEqual(property, "direction"))
-    return network->direction(port)->name();
-  else if (stringEqual(property, "full_name"))
-    return network->name(port);
-
-  else if (stringEqual(property, "actual_fall_transition_min"))
-    return portSlewProperty(port, TransRiseFall::fall(), MinMax::min(), sta);
-  else if (stringEqual(property, "actual_fall_transition_max"))
-    return portSlewProperty(port, TransRiseFall::fall(), MinMax::max(), sta);
-  else if (stringEqual(property, "actual_rise_transition_min"))
-    return portSlewProperty(port, TransRiseFall::rise(), MinMax::min(), sta);
-  else if (stringEqual(property, "actual_rise_transition_max"))
-    return portSlewProperty(port, TransRiseFall::rise(), MinMax::max(), sta);
-
-  else if (stringEqual(property, "min_fall_slack"))
-    return portSlackProperty(port, TransRiseFall::fall(), MinMax::min(), sta);
-  else if (stringEqual(property, "max_fall_slack"))
-    return portSlackProperty(port, TransRiseFall::fall(), MinMax::max(), sta);
-  else if (stringEqual(property, "min_rise_slack"))
-    return portSlackProperty(port, TransRiseFall::rise(), MinMax::min(), sta);
-  else if (stringEqual(property, "max_rise_slack"))
-    return portSlackProperty(port, TransRiseFall::rise(), MinMax::max(), sta);
-
-  else
-    return NULL;
-}
-
-static const char *
-portSlewProperty(const Port *port,
-		 const TransRiseFall *tr,
-		 const MinMax *min_max,
-		 Sta *sta)
-{
-  Network *network = sta->network();
-  Instance *top_inst = network->topInstance();
-  Pin *pin = network->findPin(top_inst, port);
-  return pinSlewProperty(pin, tr, min_max, sta);
-}
-
-static const char *
-portSlackProperty(const Port *port,
-		  const TransRiseFall *tr,
-		  const MinMax *min_max,
-		  Sta *sta)
-{
-  Network *network = sta->network();
-  Instance *top_inst = network->topInstance();
-  Pin *pin = network->findPin(top_inst, port);
-  return pinSlackProperty(pin, tr, min_max, sta);
-}
-
-const char *
-libertyCellProperty(const LibertyCell *cell,
-		    const char *property,
-		    Network *network)
-{
-  if (stringEqual(property, "base_name"))
-    return cell->name();
-  else if (stringEqual(property, "full_name")) {
-    const LibertyLibrary *lib = cell->libertyLibrary();
-    const char *lib_name = lib->name();
-    const char *cell_name = cell->name();
-    return stringPrintTmp(strlen(lib_name) + strlen(cell_name) + 2,
-			  "%s%c%s",
-			  lib_name,
-			  network->pathDivider(),
-			  cell_name);
-  }
-  else
-    return NULL;
-}
-
-const char *
-libertyPortProperty(const LibertyPort *port,
-		    const char *property)
-{
-  if (stringEqual(property, "direction"))
-    return port->direction()->name();
-  else if (stringEqual(property, "full_name"))
-    return port->name();
-  else
-    return NULL;
-}
-
-const char *
-instanceProperty(const Instance *inst,
-		 const char *property,
-		 Network *network)
-{
-  if (stringEqual(property, "ref_name"))
-    return network->name(network->cell(inst));
-  else if (stringEqual(property, "full_name"))
-    return network->pathName(inst);
-  else
-    return NULL;
-}
-
-const char *
-pinProperty(const Pin *pin,
-	    const char *property,
-	    Network *network,
-	    Sta *sta)
-{
-  if (stringEqual(property, "direction"))
-    return network->direction(pin)->name();
-  else if (stringEqual(property, "full_name"))
-    return network->pathName(pin);
-  else if (stringEqual(property, "lib_pin_name"))
-    return network->portName(pin);
-  else if (stringEqual(property, "clocks"))
-    return pinClocksProperty(pin, sta);
-
-  else if (stringEqual(property, "max_fall_slack"))
-    return pinSlackProperty(pin, TransRiseFall::fall(), MinMax::max(), sta);
-  else if (stringEqual(property, "max_rise_slack"))
-    return pinSlackProperty(pin, TransRiseFall::rise(), MinMax::max(), sta);
-  else if (stringEqual(property, "min_fall_slack"))
-    return pinSlackProperty(pin, TransRiseFall::fall(), MinMax::min(), sta);
-  else if (stringEqual(property, "min_rise_slack"))
-    return pinSlackProperty(pin, TransRiseFall::rise(), MinMax::min(), sta);
-
-  else if (stringEqual(property, "actual_fall_transition_max"))
-    return pinSlewProperty(pin, TransRiseFall::fall(), MinMax::max(), sta);
-  else if (stringEqual(property, "actual_rise_transition_max"))
-    return pinSlewProperty(pin, TransRiseFall::rise(), MinMax::max(), sta);
-  else if (stringEqual(property, "actual_rise_transition_min"))
-    return pinSlewProperty(pin, TransRiseFall::rise(), MinMax::min(), sta);
-  else if (stringEqual(property, "actual_fall_transition_min"))
-    return pinSlewProperty(pin, TransRiseFall::fall(), MinMax::min(), sta);
-
-  else
-    return NULL;
-}
-
-static const char *
-pinClocksProperty(const Pin *pin,
-		  Sta *sta)
-{
-  ClockSet clks;
-  sta->clocks(pin, clks);
-  return clkNamesString(&clks);
-}
-
-static const char *
-pinSlewProperty(const Pin *pin,
-		const TransRiseFall *tr,
-		const MinMax *min_max,
-		Sta *sta)
-{
-  Graph *graph = sta->ensureGraph();
-  Vertex *vertex, *bidirect_drvr_vertex;
-  graph->pinVertices(pin, vertex, bidirect_drvr_vertex);
-  Slew slew = min_max->initValue();
-  if (vertex) {
-    Slew vertex_slew = sta->vertexSlew(vertex, tr, min_max);
-    if (delayFuzzyGreater(vertex_slew, slew, min_max))
-      slew = vertex_slew;
-  }
-  if (bidirect_drvr_vertex) {
-    Slew vertex_slew = sta->vertexSlew(bidirect_drvr_vertex, tr, min_max);
-    if (delayFuzzyGreater(vertex_slew, slew, min_max))
-      slew = vertex_slew;
-  }
-  return sta->units()->timeUnit()->asString(delayAsFloat(slew), 8);
-}
-
-static const char *
-pinSlackProperty(const Pin *pin,
-		 const TransRiseFall *tr,
-		 const MinMax *min_max,
-		 Sta *sta)
-{
-  Slack slack = sta->pinSlack(pin, tr, min_max);
-  return sta->units()->timeUnit()->asString(delayAsFloat(slack), 8);
-}
-
-const char *
-netProperty(const Net *net,
-	    const char *property,
-	    Network *network)
-{
-  if (stringEqual(property, "full_name"))
-    return network->pathName(net);
-  else
-    return NULL;
-}
-
-const char *
-libraryProperty(const Library *lib,
-		const char *property,
-		Network *network)
-{
-  if (stringEqual(property, "name"))
-    return network->name(lib);
-  else
-    return NULL;
-}
-
-const char *
-libertyLibraryProperty(const LibertyLibrary *lib,
-		       const char *property)
-{
-  if (stringEqual(property, "name"))
-    return lib->name();
-  else if (stringEqual(property, "filename"))
-    return lib->filename();
-  else
-    return NULL;
-}
-
-const char *
-edgeDelayProperty(Edge *edge,
-		  const TransRiseFall *tr,
-		  const MinMax *min_max,
-		  Sta *sta)
-{
-  ArcDelay delay = 0.0;
-  bool delay_exists = false;
-  TimingArcSet *arc_set = edge->timingArcSet();
-  TimingArcSetArcIterator arc_iter(arc_set);
-  while (arc_iter.hasNext()) {
-    TimingArc *arc = arc_iter.next();
-    TransRiseFall *to_tr = arc->toTrans()->asRiseFall();
-    if (to_tr == tr) {
-      CornerIterator corner_iter(sta);
-      while (corner_iter.hasNext()) {
-	Corner *corner = corner_iter.next();
-	DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
-	ArcDelay arc_delay = sta->arcDelay(edge, arc, dcalc_ap);
-	if (!delay_exists
-	    || ((min_max == MinMax::max()
-		 && arc_delay > delay)
-		|| (min_max == MinMax::min()
-		    && arc_delay < delay)))
-	  delay = arc_delay;
-      }
-    }
-  }
-  return sta->units()->timeUnit()->asString(delayAsFloat(delay), 8);
-}
-
-const char *
-edgeStringProperty(Edge *edge,
-		   const char *property,
-		   Sta *sta)
-{
-  if (stringEqual(property, "delay_min_fall"))
-    return edgeDelayProperty(edge, TransRiseFall::fall(), MinMax::min(), sta);
-  else if (stringEqual(property, "delay_max_fall"))
-    return edgeDelayProperty(edge, TransRiseFall::fall(), MinMax::max(), sta);
-  else if (stringEqual(property, "delay_min_rise"))
-    return edgeDelayProperty(edge, TransRiseFall::rise(), MinMax::min(), sta);
-  else if (stringEqual(property, "delay_max_rise"))
-    return edgeDelayProperty(edge, TransRiseFall::rise(), MinMax::max(), sta);
-  else if (stringEqual(property, "sense"))
-    return timingSenseString(edge->sense());
-  else
-    return NULL;
-}
-
-const char *
-clockProperty(Clock *clk,
-	      const char *property,
-	      Network *network,
-	      Sta *sta)
-{
-  if (stringEqual(property, "name"))
-    return clk->name();
-  else if (stringEqual(property, "period"))
-    return sta->units()->timeUnit()->asString(clk->period(), 8);
-  else if (stringEqual(property, "sources"))
-    return clockSourcesProperty(clk, network);
-  else if (stringEqual(property, "propagated"))
-    return clk->isPropagated() ? "1" : "0";
-  else
-    return NULL;
-}
-
-static const char *
-clockSourcesProperty(Clock *clk,
-		     Network *network)
-{
-  return pathNamesString(clk->pins(), network);
-}
-
-// Concatenate the pin names separated with a space.
-static const char *
-pathNamesString(PinSet *pins,
-		Network *network)
-{
-  int length = 1;
-  PinSet::Iterator pin_iter1(pins);
-  while (pin_iter1.hasNext()) {
-    Pin *pin = pin_iter1.next();
-    const char *name = network->pathName(pin);
-    length += strlen(name) + 1;
-  }
-  char *result = makeTmpString(length);
-  char *s = result;
-  bool first = true;
-  PinSet::Iterator pin_iter2(pins);
-  while (pin_iter2.hasNext()) {
-    Pin *pin = pin_iter2.next();
-    const char *name = network->pathName(pin);
-    if (!first)
-      *s++ = ' ';
-    strcpy(s, name);
-    s += strlen(name);
-    first = false;
-  }
-  *s = '\0';
-  return result;
-}
-
-// Concatenate the clock names separated with a space.
-static const char *
-clkNamesString(ClockSet *clks)
-{
-  int length = 1;
-  ClockSet::Iterator clk_iter1(clks);
-  while (clk_iter1.hasNext()) {
-    Clock *clk = clk_iter1.next();
-    length += strlen(clk->name()) + 1;
-  }
-  char *result = makeTmpString(length);
-  char *s = result;
-  bool first = true;
-  ClockSet::Iterator clk_iter2(clks);
-  while (clk_iter2.hasNext()) {
-    Clock *clk = clk_iter2.next();
-    const char *name = clk->name();
-    if (!first)
-      *s++ = ' ';
-    strcpy(s, name);
-    s += strlen(name);
-    first = false;
-  }
-  *s = '\0';
-  return result;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1777,9 +1394,6 @@ using namespace sta;
 }
 
 %typemap(out) PathEndSeq* {
-  Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
-  Tcl_SetObjResult(interp, obj);
-
   Tcl_Obj *list = Tcl_NewListObj(0, NULL);
   const PathEndSeq *path_ends = $1;
   PathEndSeq::ConstIterator end_iter(path_ends);
@@ -1788,6 +1402,7 @@ using namespace sta;
     Tcl_Obj *obj = SWIG_NewInstanceObj(path_end, SWIGTYPE_p_PathEnd, false);
     Tcl_ListObjAppendElement(interp, list, obj);
   }
+  // Delete the PathEndSeq, not the ends.
   delete path_ends;
   Tcl_SetObjResult(interp, list);
 }
@@ -1810,7 +1425,6 @@ using namespace sta;
     Tcl_Obj *obj = SWIG_NewInstanceObj(copy, SWIGTYPE_p_PathRef, false);
     Tcl_ListObjAppendElement(interp, list, obj);
   }
-  delete paths;
   Tcl_SetObjResult(interp, list);
 }
 
@@ -1905,6 +1519,87 @@ using namespace sta;
 %typemap(out) Corner* {
   Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
   Tcl_SetObjResult(interp, obj);
+}
+
+%typemap(out) PropertyValue {
+  PropertyValue value = $1;
+  switch (value.type()) {
+  case PropertyValue::Type::type_none:
+    Tcl_SetResult(interp, const_cast<char*>(""), TCL_STATIC);
+    break;
+  case PropertyValue::Type::type_string:
+    Tcl_SetResult(interp, const_cast<char*>(value.string()), TCL_VOLATILE);
+    break;
+  case PropertyValue::Type::type_float: {
+    char *float_string = stringPrint(10, "%.5f", value.floatValue());
+    Tcl_SetResult(interp, float_string, TCL_VOLATILE);
+    stringDelete(float_string);
+  }
+    break;
+  case PropertyValue::Type::type_instance: {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(value.instance(),
+				       SWIGTYPE_p_Instance, false);
+    Tcl_SetObjResult(interp, obj);
+  }
+    break;
+  case PropertyValue::Type::type_pin: {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(value.pin(), SWIGTYPE_p_Pin, false);
+    Tcl_SetObjResult(interp, obj);
+  }
+    break;
+  case PropertyValue::Type::type_pins: {
+    Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+    PinSeq *pins = value.pins();
+    PinSeq::Iterator pin_iter(pins);
+    while (pin_iter.hasNext()) {
+      Pin *pin = pin_iter.next();
+      Tcl_Obj *obj = SWIG_NewInstanceObj(pin, SWIGTYPE_p_Pin, false);
+      Tcl_ListObjAppendElement(interp, list, obj);
+    }
+    Tcl_SetObjResult(interp, list);
+  }
+    break;
+  case PropertyValue::Type::type_net: {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(value.net(),
+				       SWIGTYPE_p_Net, false);
+    Tcl_SetObjResult(interp, obj);
+  }
+    break;
+  case PropertyValue::Type::type_clock: {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(value.clock(),
+				       SWIGTYPE_p_Clock, false);
+    Tcl_SetObjResult(interp, obj);
+  }
+    break;
+  case PropertyValue::Type::type_clocks: {
+    Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+    ClockSeq *clks = value.clocks();
+    ClockSeq::Iterator clk_iter(clks);
+    while (clk_iter.hasNext()) {
+      Clock *clk = clk_iter.next();
+      Tcl_Obj *obj = SWIG_NewInstanceObj(clk, SWIGTYPE_p_Clock, false);
+      Tcl_ListObjAppendElement(interp, list, obj);
+    }
+    Tcl_SetObjResult(interp, list);
+  }
+    break;
+  case PropertyValue::Type::type_path_refs: {
+    Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+    PathRefSeq *paths = value.pathRefs();
+    PathRefSeq::Iterator path_iter(paths);
+    while (path_iter.hasNext()) {
+      PathRef &path = path_iter.next();
+      PathRef *copy = new PathRef(path);
+      Tcl_Obj *obj = SWIG_NewInstanceObj(copy, SWIGTYPE_p_PathRef, false);
+      Tcl_ListObjAppendElement(interp, list, obj);
+    }
+    Tcl_SetObjResult(interp, list);
+  }
+    break;
+  default:
+    Tcl_SetResult(interp, const_cast<char*>(""), TCL_STATIC);
+    break;
+  }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2838,7 +2533,8 @@ filter_ports(const char *property,
   bool exact_match = stringEq(op, "==");
   while (port_iter.hasNext()) {
     Port *port = port_iter.next();
-    const char *prop = portProperty(port, property, sta);
+    PropertyValue value(getProperty(port, property, sta));
+    const char *prop = value.string();
     if (prop &&
 	((exact_match && stringEq(prop, pattern))
 	 || (!exact_match && patternMatch(pattern, prop))))
@@ -2854,13 +2550,15 @@ filter_insts(const char *property,
 	     const char *pattern,
 	     InstanceSeq *insts)
 {
-  Network *network = cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  cmdLinkedNetwork();
   TmpInstanceSeq *filtered_insts = new TmpInstanceSeq;
   TmpInstanceSeq::Iterator inst_iter(insts);
   bool exact_match = stringEq(op, "==");
   while (inst_iter.hasNext()) {
     Instance *inst = inst_iter.next();
-    const char *prop = instanceProperty(inst, property, network);
+    PropertyValue value(getProperty(inst, property, sta));
+    const char *prop = value.string();
     if (prop &&
 	((exact_match && stringEq(prop, pattern))
 	 || (!exact_match && patternMatch(pattern, prop))))
@@ -2876,14 +2574,14 @@ filter_pins(const char *property,
 	    const char *pattern,
 	    PinSeq *pins)
 {
-  Network *network = cmdLinkedNetwork();
   Sta *sta = Sta::sta();
   PinSeq *filtered_pins = new PinSeq;
   PinSeq::Iterator pin_iter(pins);
   bool exact_match = stringEq(op, "==");
   while (pin_iter.hasNext()) {
     Pin *pin = pin_iter.next();
-    const char *prop = pinProperty(pin, property, network, sta);
+    PropertyValue value(getProperty(pin, property, sta));
+    const char *prop = value.string();
     if (prop &&
 	((exact_match && stringEq(prop, pattern))
 	 || (!exact_match && patternMatch(pattern, prop))))
@@ -2893,75 +2591,100 @@ filter_pins(const char *property,
   return filtered_pins;
 }
 
-const char *
+PropertyValue
 pin_property(const Pin *pin,
 	     const char *property)
 {
-  return pinProperty(pin, property, cmdLinkedNetwork(), Sta::sta());
+  cmdGraph();
+  return getProperty(pin, property, Sta::sta());
 }
 
-const char *
+PropertyValue
 instance_property(const Instance *inst,
 		  const char *property)
 {
-  return instanceProperty(inst, property, cmdLinkedNetwork());
+  cmdGraph();
+  return getProperty(inst, property, Sta::sta());
 }
 
-const char *
+PropertyValue
 net_property(const Net *net,
 	     const char *property)
 {
-  return netProperty(net, property, cmdLinkedNetwork());
+  cmdGraph();
+  return getProperty(net, property, Sta::sta());
 }
 
-const char *
+PropertyValue
 port_property(const Port *port,
 	      const char *property)
 {
-  Sta *sta = Sta::sta();
-  return portProperty(port, property, sta);
+  cmdGraph();
+  return getProperty(port, property, Sta::sta());
 }
 
-const char *
+
+PropertyValue
 liberty_cell_property(const LibertyCell *cell,
 		      const char *property)
 {
-  return libertyCellProperty(cell, property, cmdLinkedNetwork());
+  cmdLinkedNetwork();
+  return getProperty(cell, property, Sta::sta());
 }
 
-const char *
+PropertyValue
 liberty_port_property(const LibertyPort *port,
 		      const char *property)
 {
-  return libertyPortProperty(port, property);
+  cmdLinkedNetwork();
+  return getProperty(port, property, Sta::sta());
 }
 
-const char *
+PropertyValue
 library_property(const Library *lib,
 		 const char *property)
 {
-  return libraryProperty(lib, property, cmdLinkedNetwork());
+  cmdLinkedNetwork();
+  return getProperty(lib, property, Sta::sta());
 }
 
-const char *
+PropertyValue
 liberty_library_property(const LibertyLibrary *lib,
 			 const char *property)
 {
-  return libertyLibraryProperty(lib, property);
+  return getProperty(lib, property, Sta::sta());
 }
 
-const char *
-edge_string_property(Edge *edge,
-		     const char *property)
+PropertyValue
+edge_property(Edge *edge,
+	      const char *property)
 {
-  return edgeStringProperty(edge, property, Sta::sta());
+  cmdGraph();
+  return getProperty(edge, property, Sta::sta());
 }
 
-const char *
+PropertyValue
 clock_property(Clock *clk,
 	       const char *property)
 {
-  return clockProperty(clk, property, cmdLinkedNetwork(), Sta::sta());
+  cmdLinkedNetwork();
+  return getProperty(clk, property, Sta::sta());
+}
+
+PropertyValue
+path_end_property(PathEnd *end,
+		  const char *property)
+{
+  cmdLinkedNetwork();
+  return getProperty(end, property, Sta::sta());
+}
+
+PropertyValue
+path_ref_property(PathRef *path,
+		  const char *property)
+{
+  cmdLinkedNetwork();
+  return getProperty(path, property, Sta::sta());
 }
 
 LeafInstanceIterator *
@@ -3034,10 +2757,11 @@ filter_timing_arcs(const char *property,
   bool exact_match = stringEq(op, "==");
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
-    const char *value = edgeStringProperty(edge, property, sta);
-    if (value &&
-	((exact_match && stringEq(value, pattern))
-	 || (!exact_match && patternMatch(pattern, value))))
+    PropertyValue value(getProperty(edge, property, sta));
+    const char *prop = value.string();
+    if (prop &&
+	((exact_match && stringEq(prop, pattern))
+	 || (!exact_match && patternMatch(pattern, prop))))
       filtered_edges->push_back(edge);
   }
   delete edges;
@@ -6259,55 +5983,6 @@ Crpr common_clk_pessimism() { return self->commonClkPessimism(Sta::sta()); }
 TransRiseFall *target_clk_end_trans()
 { return const_cast<TransRiseFall*>(self->targetClkEndTrans(Sta::sta())); }
 
-Pin *
-startpoint()
-{
-  Sta *sta = Sta::sta();
-  PathExpanded expanded(self->path(), sta);
-  return expanded.startPath()->pin(sta);
-}
-
-Clock *
-startpoint_clock()
-{
-  Sta *sta = Sta::sta();
-  return self->path()->clock(sta);
-}
-
-Pin *
-endpoint()
-{
-  Sta *sta = Sta::sta();
-  return self->path()->pin(sta);
-}
-
-Clock *
-endpoint_clock()
-{
-  Sta *sta = Sta::sta();
-  return self->targetClk(sta);
-}
-
-Pin *
-endpoint_clock_pin()
-{
-  Sta *sta = Sta::sta();
-  return self->targetClkPath()->pin(sta);
-}
-
-PathRefSeq *
-points()
-{
-  Sta *sta = Sta::sta();
-  PathExpanded expanded(self->path(), sta);
-  PathRefSeq *paths = new PathRefSeq;
-  for (auto i = expanded.startIndex(); i < expanded.size(); i++) {
-    PathRef *path = expanded.path(i);
-    paths->push_back(*path);
-  }
-  return paths;
-}
-
 }
 
 %extend MinPulseWidthCheckSeqIterator {
@@ -6343,21 +6018,6 @@ pin()
 {
   Sta *sta = Sta::sta();
   return self->pin(sta);
-}
-
-TmpPinSeq *
-pins()
-{
-  Sta *sta = Sta::sta();
-  PinSeq *pins = new PinSeq;
-  PathRef path1(self);
-  while (!path1.isNull()) {
-    pins->push_back(path1.vertex(sta)->pin());
-    PathRef prev_path;
-    path1.prevPath(sta, prev_path);
-    path1.init(prev_path);
-  }
-  return pins;
 }
 
 const char *

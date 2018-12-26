@@ -43,6 +43,7 @@ include_HEADERS = \
 	PathVertex.hh \
 	PathVertexRep.hh \
 	Power.hh \
+	Property.hh \
 	ReportPath.hh \
 	Search.hh \
 	SearchClass.hh \
@@ -84,14 +85,15 @@ libsearch_la_SOURCES = \
 	PathVertex.cc \
 	PathVertexRep.cc \
 	Power.cc \
+	Property.cc \
 	ReportPath.cc \
 	Search.cc \
 	SearchPred.cc \
 	Sim.cc \
-	Tag.cc \
-	TagGroup.cc \
 	Sta.cc \
 	StaState.cc \
+	Tag.cc \
+	TagGroup.cc \
 	VertexVisitor.cc \
 	VisitPathEnds.cc \
 	VisitPathGroupVertices.cc \
