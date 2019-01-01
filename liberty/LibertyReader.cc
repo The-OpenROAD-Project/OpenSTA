@@ -289,7 +289,6 @@ LibertyReader::defineVisitors()
 		     &LibertyReader::endScaledCell);
   defineAttrVisitor("clock_gating_integrated_cell",
 		    &LibertyReader::visitClockGatingIntegratedCell);
-
   defineAttrVisitor("area", &LibertyReader::visitArea);
   defineAttrVisitor("dont_use", &LibertyReader::visitDontUse);
   defineAttrVisitor("is_macro", &LibertyReader::visitIsMacro);
@@ -4730,7 +4729,7 @@ LibertyReader::beginPgPin(LibertyGroup *group)
 {
   if (cell_) {
     const char *name = group->firstName();
-    pg_port_ = new LibertyPgPort(name);
+    pg_port_ = new LibertyPgPort(name, cell_);
     cell_->addPgPort(pg_port_);
   }
 }

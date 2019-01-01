@@ -42,7 +42,7 @@ StaApp_wrap.cc: $(SWIG_DEPEND) StaApp.i ../verilog/Verilog.i
 # so that they do not have to be installed on the client host.
 
 TclInitVar.cc: ../etc/TclEncode.tcl $(TCL_INIT_FILES)
-	../etc/TclEncode.tcl TclInitVar.cc "tcl_inits" $(TCL_INIT_DIR) \
+	../etc/TclEncode.tcl TclInitVar.cc "tcl_inits" \
 		$(TCL_INIT_FILES) ../verilog/Verilog.tcl
 
 EXTRA_DIST = \

@@ -148,3 +148,36 @@ form:
  All commands in one .tcl file (usually run.tcl) for small cases
  No calls to "exit"
  No shell scripts to envoke the sta.
+
+----------------------------------------------------------------
+Building with Cmake
+
+ git clone https://xp-dev.com/git/opensta
+ cd opensta
+ mkdir build
+ cd build
+ cmake ../
+ make
+
+The resulting executable is app/sta for compatibility with configure.
+The library without main is app/libSTA.a.
+
+Optional cmake variables passed as -D<var>=<value> arguments to cmake.
+
+ MAKE_BUILD_TYPE DEBUG|RELEASE
+ TCL_LIB - path to tcl library
+ TCL_HEADER - path to tcl.h
+ TCL_INIT - path to init.tcl
+ CMAKE_INSTALL_PREFIX
+
+If TCL_LIB is specified the cmake script will attempt to locate
+the header and init files from its path.
+
+Default install directory is /usr/local.
+To install in a different directory with cmake use:
+
+ cmake .. -DCMAKE_INSTALL_PREFIX=<prefix_path>
+
+or use the DESTDIR variable with make.
+
+ make DESTDIR=<prefix_path> install

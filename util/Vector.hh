@@ -30,6 +30,7 @@ public:
   Vector() : std::vector<OBJ>() {}
   Vector(size_t n) : std::vector<OBJ>(n) {}
   Vector(size_t n, const OBJ &obj) : std::vector<OBJ>(n, obj) {}
+
   // Erase an object from the vector (slow).
   void
   eraseObject(OBJ obj)

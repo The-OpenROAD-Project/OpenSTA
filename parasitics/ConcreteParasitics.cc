@@ -1885,6 +1885,18 @@ ConcreteParasitics::value(const ParasiticDevice *device,
   return cdevice->value();
 }
 
+void
+ConcreteParasitics::resistorNodes(const ParasiticDevice *device,
+				  // Return values.
+				  ParasiticNode *&node1,
+				  ParasiticNode *&node2) const
+{
+  const ConcreteParasiticResistor *cdevice =
+    static_cast<const ConcreteParasiticResistor*>(device);
+  node1 = cdevice->node1();
+  node2 = cdevice->node2();
+}
+
 ParasiticNode *
 ConcreteParasitics::otherNode(const ParasiticDevice *device,
 			      ParasiticNode *node) const

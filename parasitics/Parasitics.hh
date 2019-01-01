@@ -248,6 +248,10 @@ public:
   // Device "value" (resistance, capacitance).
   virtual float value(const ParasiticDevice *device,
 		      const ParasiticAnalysisPt *ap) const = 0;
+  virtual void resistorNodes(const ParasiticDevice *device,
+			     // Return values.
+			     ParasiticNode *&node1,
+			     ParasiticNode *&node2) const = 0;
   virtual ParasiticNode *otherNode(const ParasiticDevice *device,
 				   ParasiticNode *node) const = 0;
 

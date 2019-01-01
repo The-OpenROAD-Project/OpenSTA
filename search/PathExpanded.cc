@@ -27,6 +27,11 @@
 
 namespace sta {
 
+PathExpanded::PathExpanded(const StaState *sta) :
+  sta_(sta)
+{
+}
+
 PathExpanded::PathExpanded(const Path *path,
 			   // Expand generated clk source paths.
 			   bool expand_genclks,

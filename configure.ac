@@ -50,7 +50,6 @@ case "${HOST_OS}" in
         INCLUDE_DIRS="/usr/include"
         LIB_DIRS="/usr/lib /usr/local/lib /usr/lib/i386-linux-gnu"
         LIB_EXTS="a so .so.1"
-        TCL_INIT_DIRS="/usr/lib/tcl /usr/lib /usr/share/tcltk"
         ;;
 
       x86_64)
@@ -58,7 +57,6 @@ case "${HOST_OS}" in
         INCLUDE_DIRS="/usr/include"
         LIB_DIRS="/usr/lib64 /usr/lib /usr/lib/x86_64-linux-gnu"
         LIB_EXTS="a so"
-        TCL_INIT_DIRS="/usr/lib64/tcl /usr/lib /usr/share/tcltk /usr/share"
         ;;
 
       *)
@@ -66,7 +64,6 @@ case "${HOST_OS}" in
         INCLUDE_DIRS="/usr/include"
         LIB_DIRS="/usr/lib"
         LIB_EXTS="a so"
-        TCL_INIT_DIRS="/usr/lib/tcl /usr/lib"
         ;;
     esac
     ;;
@@ -76,7 +73,6 @@ case "${HOST_OS}" in
     INCLUDE_DIRS="/usr/include"
     LIB_DIRS="/usr/lib"
     LIB_EXTS="a so"
-    TCL_INIT_DIRS="/usr/share"
     ;;
 
   Darwin)
@@ -88,14 +84,12 @@ case "${HOST_OS}" in
        CC=clang++
        INCLUDE_DIRS="/usr/local/include /usr/include"
        LIB_DIRS="/usr/local/lib /usr/lib"
-       TCL_INIT_DIRS="/usr/local/lib/tcl8.6"
     else
 	# gcc
 	CXX=g++
 	CC=g++
 	INCLUDE_DIRS="/usr/local/opt/tcl-tk/include /usr/local/opt/zlib/include /usr/include"
 	LIB_DIRS="/usr/local/opt/tcl-tk/lib /usr/local/opt/zlib/lib /usr/local/lib"
-	TCL_INIT_DIRS="/usr/local/opt/tcl-tk/lib/tcl8.6"
     fi
     LIB_EXTS="dylib"
     ;;
@@ -105,7 +99,6 @@ case "${HOST_OS}" in
     INCLUDE_DIRS="/usr/include /usr/local/include"
     LIB_DIRS="/usr/lib /usr/local/lib"
     LIB_EXTS="a so"
-    TCL_INIT_DIRS="/usr/lib/tcl /usr/share /usr/share/tcl"
     ;;
 
 esac
@@ -165,11 +158,6 @@ AC_ARG_WITH(include,
 AC_ARG_WITH(lib,
   [AS_HELP_STRING([--with-lib=dirs],[directories to search for libraries])],
   [LIB_DIRS="${withval}"],
-  [])
-
-AC_ARG_WITH(tcl,
-  [AS_HELP_STRING([--with-tcl=dirs],[directories to search for Tcl init files])],
-  [TCL_INIT_DIRS="${withval}"],
   [])
 
 AC_ARG_WITH(cudd,
@@ -274,38 +262,12 @@ for tcl_minor in $tcl_minors; do
     AC_MSG_RESULT(not found)
   fi
 
-  AC_MSG_CHECKING(for Tcl $tcl_major.$tcl_minor init files)
-  TCL_INIT_DIR=""
-  for dir in $TCL_INIT_DIRS ; do
-    init_dir=$dir
-    init_path="$dir/init.tcl"
-    if test -r $init_path; then
-      AC_MSG_RESULT($init_path)
-      TCL_INIT_DIR="$init_dir"
-      break
-    fi
-  
-    init_dir="$dir/tcl$tcl_major.$tcl_minor"
-    init_path="$init_dir/init.tcl"
-    if test -r $init_path; then
-      AC_MSG_RESULT($init_path)
-      TCL_INIT_DIR="$init_dir"
-      break
-    fi
-  done
-  if test -z "$TCL_INIT_DIR"; then
-    AC_MSG_RESULT(not found)
-  fi
-
   if test $found_tcl_header = true &&
-     test -n "$TCL_LIB" &&
-     test -n "$TCL_INIT_DIR"; then
+     test -n "$TCL_LIB"; then
     break
   fi
 
 done
-
-AC_SUBST(TCL_INIT_DIR, $TCL_INIT_DIR)
 
 #--------------------------------------------------------------------
 # Locate the Zlib package

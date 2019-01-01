@@ -56,7 +56,8 @@ include_HEADERS = \
 	VertexVisitor.hh \
 	VisitPathEnds.hh \
 	VisitPathGroupVertices.hh \
-	WorstSlack.hh
+	WorstSlack.hh \
+	WriteSpice.hh
 
 libsearch_la_SOURCES = \
 	Bfs.cc \
@@ -97,7 +98,8 @@ libsearch_la_SOURCES = \
 	VertexVisitor.cc \
 	VisitPathEnds.cc \
 	VisitPathGroupVertices.cc \
-	WorstSlack.cc
+	WorstSlack.cc \
+	WriteSpice.cc
 
 libs: $(lib_LTLIBRARIES)
 

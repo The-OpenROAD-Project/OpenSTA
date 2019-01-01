@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_DELAY_FLOAT_CLASS_H
-#define STA_DELAY_FLOAT_CLASS_H
+#ifndef STA_DELAY_NORMAL2_H
+#define STA_DELAY_NORMAL2_H
 
 #include "MinMax.hh"
 

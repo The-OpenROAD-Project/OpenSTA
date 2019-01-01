@@ -1021,9 +1021,11 @@ public:
 		internal_power, internal_ground,
 		nwell, pwell,
 		deepnwell, deeppwell};
-  LibertyPgPort(const char *name);
+  LibertyPgPort(const char *name,
+		LibertyCell *cell);
   ~LibertyPgPort();
   const char *name() { return name_; }
+  LibertyCell *cell() const { return cell_; }
   PgType pgType() const { return pg_type_; }
   void setPgType(PgType type);
   const char *voltageName() const { return voltage_name_; }
@@ -1033,6 +1035,7 @@ private:
   const char *name_;
   PgType pg_type_;
   const char *voltage_name_;
+  LibertyCell *cell_;
 };
 
 } // namespace

@@ -18,12 +18,16 @@ Makefile.in
 .libs
 .deps
 
-# /
 /build
 /configure
 /m4
 /compile
-/config.*
+/config.h
+/config.guess
+/config.h.in
+/config.log
+/config.sub
+/config.status
 /libtool
 /ltmain.sh
 /install-sh
@@ -50,9 +54,11 @@ Makefile.in
 
 # /liberty/
 /liberty/LibertyExprLex.cc
+/liberty/LibertyExprLex.hh
 /liberty/LibertyExprParse.cc
 /liberty/LibertyExprParse.h
 /liberty/LibertyLex.cc
+/liberty/LibertyLex.hh
 /liberty/LibertyParse.cc
 /liberty/LibertyParse.h
 /liberty/LibertyExprParse.hh
@@ -60,18 +66,18 @@ Makefile.in
 
 # /parasitics/
 /parasitics/SpefLex.cc
+/parasitics/SpefLex.hh
 /parasitics/SpefParse.cc
-/parasitics/SpefParse.h
-/parasitics/SpfLex.cc
-/parasitics/SpfParse.cc
-/parasitics/SpfParse.h
 /parasitics/SpefParse.hh
+/parasitics/SpfLex.cc
+/parasitics/SpfLex.hh
+/parasitics/SpfParse.cc
 /parasitics/SpfParse.hh
 
 # /sdf/
 /sdf/SdfLex.cc
+/sdf/SdfLex.hh
 /sdf/SdfParse.cc
-/sdf/SdfParse.h
 /sdf/SdfParse.hh
 
 # /tcl/
@@ -85,6 +91,7 @@ Makefile.in
 /test_native
 
 # /verilog/
+/verilog/VerilogLex.hh
 /verilog/VerilogLex.cc
 /verilog/VerilogParse.cc
 /verilog/VerilogParse.h

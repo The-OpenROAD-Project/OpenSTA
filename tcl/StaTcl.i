@@ -78,6 +78,7 @@
 #include "ReportPath.hh"
 #include "Power.hh"
 #include "Property.hh"
+#include "WriteSpice.hh"
 #include "Sta.hh"
 
 namespace sta {
@@ -4583,6 +4584,19 @@ write_sdc_cmd(const char *filename,
 {
   cmdLinkedNetwork();
   Sta::sta()->writeSdc(filename, native, no_timestamp, digits);
+}
+
+void
+write_spice(PathRef *path,
+	    const char *spice_filename,
+	    const char *subckts_filename,
+	    const char *lib_subckts_filename,
+	    const char *models_filename)
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  writeSpice(path, spice_filename, subckts_filename,
+	     lib_subckts_filename, models_filename, sta);
 }
 
 void

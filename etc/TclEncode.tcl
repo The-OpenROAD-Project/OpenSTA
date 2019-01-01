@@ -27,8 +27,7 @@ exec tclsh $0 ${1+"$@"}
 
 set encoded_filename [lindex $argv 0]
 set init_var [lindex $argv 1]
-set tcl_init_dir [lindex $argv 2]
-set init_filenames [lrange $argv 3 end]
+set init_filenames [lrange $argv 2 end]
 
 set mail_log 0
 if [info exists env(STA_MAIL_LOG)] {
@@ -77,12 +76,6 @@ proc encode_file { filename } {
   }
   close $in_stream
 }
-
-# init.tcl requires tcl_library to be bound for autoloading other files.
-# Allow the environment variable TCL_INIT_DIR to override the TCL init
-# file directory found by configure.
-encode_line "if \[info exists env(TCL_INIT_DIR)] { set tcl_library \$env(TCL_INIT_DIR) } else { set tcl_library \"$tcl_init_dir\" }"
-encode_line {source [file join $tcl_library init.tcl]}
 
 foreach filename $init_filenames {
   encode_file $filename

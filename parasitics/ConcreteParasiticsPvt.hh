@@ -322,8 +322,8 @@ public:
   virtual ParasiticNode *otherNode(ParasiticNode *node) const;
   virtual void replaceNode(ConcreteParasiticNode *from_node,
 			   ConcreteParasiticNode *to_node);
-  ConcreteParasiticNode *node1() { return node_; }
-  ConcreteParasiticNode *node2() { return other_node_; }
+  ConcreteParasiticNode *node1() const { return node_; }
+  ConcreteParasiticNode *node2() const { return other_node_; }
 
 private:
   ConcreteParasiticNode *other_node_;

@@ -28,6 +28,7 @@ namespace sta {
 class PathExpanded
 {
 public:
+  PathExpanded(const StaState *sta);
   // Expand path for lookup by index.
   PathExpanded(const Path *path,
 	       const StaState *sta);
@@ -35,6 +36,8 @@ public:
 	       // Expand generated clk source paths.
 	       bool expand_genclks,
 	       const StaState *sta);
+  void expand(const Path *path,
+	      bool expand_genclks);
   size_t size() const { return paths_.size(); }
   // path(0) is the startpoint.
   // path(size()-1) is the endpoint.
@@ -55,8 +58,6 @@ public:
 		  Edge *&d_q_edge);
 
 protected:
-  void expand(const Path *path,
-	      bool expand_genclks);
   void expandGenclk(PathRef *clk_path);
   // Convert external index that starts at the path root
   // and increases to an index for paths_ (reversed).

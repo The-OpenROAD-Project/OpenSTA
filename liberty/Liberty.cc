@@ -2714,10 +2714,12 @@ OcvDerate::setDerateTable(const TransRiseFall *tr,
 
 ////////////////////////////////////////////////////////////////
 
-LibertyPgPort::LibertyPgPort(const char *name) :
+LibertyPgPort::LibertyPgPort(const char *name,
+			     LibertyCell *cell) :
   name_(stringCopy(name)),
   pg_type_(unknown),
-  voltage_name_(NULL)
+  voltage_name_(NULL),
+  cell_(cell)
 {
 }
 
