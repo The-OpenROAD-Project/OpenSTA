@@ -43,8 +43,6 @@ libertyExprFlushBuffer()
 %}
 
 /* %option debug */
-%option prefix="LibertyExprLex_"
-%option outfile="lex.yy.c"
 %option noyywrap
 %option nounput
 %option never-interactive

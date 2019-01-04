@@ -33,8 +33,6 @@ sdfFlushBuffer()
 %}
 
 /* %option debug */
-%option prefix="SdfLex_"
-%option outfile="lex.yy.c"
 %option noyywrap
 %option nounput
 %option never-interactive

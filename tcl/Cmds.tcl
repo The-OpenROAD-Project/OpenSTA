@@ -1860,5 +1860,90 @@ proc object_name_cmp { obj1 obj2 } {
   return [string compare [$obj1 object_name] [$obj2 object_name]]
 }
 
+################################################################
+
+define_cmd_args "write_path_spice" { -path_args path_args\
+				       -spice_file spice_file\
+				       -subckt_file subckt_file\
+				       -lib_subckt_file lib_subckts_file\
+				       -model_file model_file\
+				       -power power\
+				       -ground ground}
+
+proc write_path_spice { args } {
+  parse_key_args "write_spice" args \
+    keys {-spice_file -subckt_file -lib_subckt_file \
+	    -model_file -power -ground -path_args} \
+    flags {}
+
+  if { [info exists keys(-spice_file)] } {
+    set spice_file $keys(-spice_file)
+    if { [file exists $spice_file] && ![file writable $spice_file] } {
+      sta_error "-spice_file $spice_file is not writable.\n"
+    }
+  } else {
+    sta_error "No -spice_file specified.\n"
+  }
+
+  if { [info exists keys(-subckt_file)] } {
+    set subckt_file $keys(-subckt_file)
+    if { [file exists $subckt_file] && ![file writable $subckt_file] } {
+      sta_error "-subckt_file $subckt_file is not writable.\n"
+    }
+  } else {
+    sta_error "No -subckt_file specified.\n"
+  }
+
+  if { [info exists keys(-lib_subckt_file)] } {
+    set lib_subckt_file $keys(-lib_subckt_file)
+    if { ![file readable $lib_subckt_file] } {
+      sta_error "-lib_subckt_file $lib_subckt_file is not readable.\n"
+    }
+  } else {
+    sta_error "No -lib_subckt_file specified.\n"
+  }
+
+  if { [info exists keys(-lib_subckt_file)] } {
+    set model_file $keys(-model_file)
+    if { ![file readable $model_file] } {
+      sta_error "-model_file $model_file is not readable.\n"
+    }
+  } else {
+    sta_error "No -model_file specified.\n"
+  }
+
+  if { [info exists keys(-power)] } {
+    set power $keys(-power)
+    if { ![liberty_supply_exists $power] } {
+      sta_error "liberty $power not found.\n"
+    }
+  } else {
+    sta_error "No -power specified.\n"
+  }
+
+  if { [info exists keys(-ground)] } {
+    set ground $keys(-ground)
+    if { ![liberty_supply_exists $ground] } {
+      sta_error "liberty $ground not found.\n"
+    }
+  } else {
+    sta_error "No -ground specified.\n"
+  }
+
+  if { ![info exists keys(-path_args)] } {
+    sta_error "No -path_args specified.\n"
+  }
+  set path_args $keys(-path_args)
+  set path_ends [eval [concat get_timing_paths $path_args]]
+  if { $path_ends == {} } {
+    sta_error "No paths found for -path_args $path_args.\n"
+  }
+  set path_end [lindex $path_ends 0]
+  set path [$path_end path]
+
+  write_path_spice_cmd $path $spice_file $subckt_file \
+    $lib_subckt_file $model_file $power $ground
+}
+
 # sta namespace end.
 }

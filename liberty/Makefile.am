@@ -64,6 +64,12 @@ libliberty_la_SOURCES = \
 
 LibertyExprLex.ll: LibertyExprParse.hh
 
+LibertyExprLex.cc: LibertyExprLex.ll
+	$(LEX) $(LFLAGS) -o LibertyExprLex.cc --prefix=LibertyExprLex_ --header-file=LibertyExprLex.hh LibertyExprLex.ll
+
+LibertyLex.cc: LibertyLex.ll
+	$(LEX) $(LFLAGS) -o LibertyLex.cc --prefix=LibertyLex_ --header-file=LibertyLex.hh LibertyLex.ll
+
 LibertyLex.ll: LibertyParse.hh
 
 # Rules to support automake pre 1.12 that name header .h instead of .hh

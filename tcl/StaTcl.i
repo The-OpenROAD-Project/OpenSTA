@@ -78,7 +78,7 @@
 #include "ReportPath.hh"
 #include "Power.hh"
 #include "Property.hh"
-#include "WriteSpice.hh"
+#include "WritePathSpice.hh"
 #include "Sta.hh"
 
 namespace sta {
@@ -4587,16 +4587,26 @@ write_sdc_cmd(const char *filename,
 }
 
 void
-write_spice(PathRef *path,
-	    const char *spice_filename,
-	    const char *subckts_filename,
-	    const char *lib_subckts_filename,
-	    const char *models_filename)
+write_path_spice_cmd(PathRef *path,
+		     const char *spice_filename,
+		     const char *subckt_filename,
+		     const char *lib_subckt_filename,
+		     const char *model_filename,
+		     const char *power_name,
+		     const char *gnd_name)
 {
-  cmdLinkedNetwork();
   Sta *sta = Sta::sta();
-  writeSpice(path, spice_filename, subckts_filename,
-	     lib_subckts_filename, models_filename, sta);
+  writePathSpice(path, spice_filename, subckt_filename,
+		 lib_subckt_filename, model_filename,
+		 power_name, gnd_name, sta);
+}
+
+bool
+liberty_supply_exists(const char *supply_name)
+{
+  auto network = Sta::sta()->network();
+  auto lib = network->defaultLibertyLibrary();
+  return lib->supplyExists(supply_name);
 }
 
 void

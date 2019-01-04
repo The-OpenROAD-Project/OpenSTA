@@ -19,6 +19,10 @@ Building from a dist tarfile does not require the GNU Autotools, Bison
 or Flex to be installed and is the recommended method unless you are a
 developer.
 
+Builds are also supported with cmake described later in this file.
+Autotools based builds are currently supported for compatibility but
+are deprecated.
+
 Building from a tarfile
 -----------------------
 
@@ -65,6 +69,10 @@ handling.  It is available here:
  https://www.davidkebo.com/source/cudd_versions/cudd-3.0.0.tar.gz
  https://sourceforge.net/projects/cudd-mirror/
 
+Note that the file hierarchy of the CUDD installation changed with
+version 3.0. This build only supports the 3.0 layout but only small
+changes to configure.ac are required to support older versions.
+
 The Zlib library is an optional.  If the configure script finds libz,
 OpenSTA can read Verilog, SDF, SPF, and SPEF files compressed with
 gzip.
@@ -108,6 +116,41 @@ it.
   ./configure [options...]
   make
 
+Building with Cmake
+-------------------
+
+Building with cmake requires bison and flex.
+
+ git clone https://xp-dev.com/git/opensta
+ cd opensta
+ mkdir build
+ cd build
+ cmake ../
+ make
+
+The resulting executable is app/sta for compatibility with configure.
+The library without main is app/libSTA.a.
+
+Optional cmake variables passed as -D<var>=<value> arguments to cmake.
+
+ MAKE_BUILD_TYPE DEBUG|RELEASE
+ TCL_LIB - path to tcl library
+ TCL_HEADER - path to tcl.h
+ TCL_INIT - path to init.tcl
+ CMAKE_INSTALL_PREFIX
+
+If TCL_LIB is specified the cmake script will attempt to locate
+the header and init files from its path.
+
+Default install directory is /usr/local.
+To install in a different directory with cmake use:
+
+ cmake .. -DCMAKE_INSTALL_PREFIX=<prefix_path>
+
+or use the DESTDIR variable with make.
+
+ make DESTDIR=<prefix_path> install
+
 Building on Windoz
 ------------------
 The Win32 API does not natively support the pthreads API.  The
@@ -148,36 +191,3 @@ form:
  All commands in one .tcl file (usually run.tcl) for small cases
  No calls to "exit"
  No shell scripts to envoke the sta.
-
-----------------------------------------------------------------
-Building with Cmake
-
- git clone https://xp-dev.com/git/opensta
- cd opensta
- mkdir build
- cd build
- cmake ../
- make
-
-The resulting executable is app/sta for compatibility with configure.
-The library without main is app/libSTA.a.
-
-Optional cmake variables passed as -D<var>=<value> arguments to cmake.
-
- MAKE_BUILD_TYPE DEBUG|RELEASE
- TCL_LIB - path to tcl library
- TCL_HEADER - path to tcl.h
- TCL_INIT - path to init.tcl
- CMAKE_INSTALL_PREFIX
-
-If TCL_LIB is specified the cmake script will attempt to locate
-the header and init files from its path.
-
-Default install directory is /usr/local.
-To install in a different directory with cmake use:
-
- cmake .. -DCMAKE_INSTALL_PREFIX=<prefix_path>
-
-or use the DESTDIR variable with make.
-
- make DESTDIR=<prefix_path> install

@@ -57,7 +57,7 @@ include_HEADERS = \
 	VisitPathEnds.hh \
 	VisitPathGroupVertices.hh \
 	WorstSlack.hh \
-	WriteSpice.hh
+	WritePathSpice.hh
 
 libsearch_la_SOURCES = \
 	Bfs.cc \
@@ -99,7 +99,7 @@ libsearch_la_SOURCES = \
 	VisitPathEnds.cc \
 	VisitPathGroupVertices.cc \
 	WorstSlack.cc \
-	WriteSpice.cc
+	WritePathSpice.cc
 
 libs: $(lib_LTLIBRARIES)
 

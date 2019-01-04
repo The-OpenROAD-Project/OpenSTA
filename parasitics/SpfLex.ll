@@ -47,8 +47,6 @@ spfResetScanner()
 %}
 
 /* %option debug */
-%option prefix="SpfLex_"
-%option outfile="lex.yy.c"
 %option noyywrap
 %option nounput
 %option never-interactive

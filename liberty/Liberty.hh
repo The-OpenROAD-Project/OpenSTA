@@ -268,7 +268,8 @@ public:
   void addOcvDerate(OcvDerate *derate);
   void addSupplyVoltage(const char *suppy_name,
 			float voltage);
-  float supplyVoltage(const char *suppy_name);
+  bool supplyExists(const char *suppy_name) const;
+  float supplyVoltage(const char *suppy_name) const;
 
   // Make scaled cell.  Call LibertyCell::addScaledCell after it is complete.
   LibertyCell *makeScaledCell(const char *name,

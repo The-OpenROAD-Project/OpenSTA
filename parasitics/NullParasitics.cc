@@ -424,6 +424,14 @@ NullParasitics::value(const ParasiticDevice *,
   return 0.0;
 }
 
+void
+NullParasitics::resistorNodes(const ParasiticDevice *,
+			      // Return values.
+			      ParasiticNode *&,
+			      ParasiticNode *&) const
+{
+}
+
 ParasiticNode *
 NullParasitics::otherNode(const ParasiticDevice *,
 			  ParasiticNode *) const

@@ -778,9 +778,18 @@ LibertyLibrary::addSupplyVoltage(const char *supply_name,
 }
 
 float
-LibertyLibrary::supplyVoltage(const char *supply_name)
+LibertyLibrary::supplyVoltage(const char *supply_name) const
 {
-  return supply_voltage_map_[supply_name];
+  float voltage;
+  bool exists;
+  supply_voltage_map_.findKey(supply_name, voltage, exists);
+  return voltage;
+}
+
+bool
+LibertyLibrary::supplyExists(const char *supply_name) const
+{
+  return supply_voltage_map_.hasKey(supply_name);
 }
 
 ////////////////////////////////////////////////////////////////

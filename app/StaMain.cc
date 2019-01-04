@@ -121,6 +121,9 @@ staTclAppInit(Tcl_Interp *interp)
   int argc = sta_argc;
   char **argv = sta_argv;
 
+  // source init.tcl
+  Tcl_Init(interp);
+
   // Define swig commands.
   sta_swig_init(interp);
 

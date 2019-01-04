@@ -176,7 +176,7 @@ set(STA_SOURCE
   search/VisitPathEnds.cc
   search/VisitPathGroupVertices.cc
   search/WorstSlack.cc
-  search/WriteSpice.cc
+  search/WritePathSpice.cc
 
   util/Condition.cc
   util/Debug.cc
@@ -346,7 +346,7 @@ set(STA_HEADERS
 	search/VisitPathEnds.hh
 	search/VisitPathGroupVertices.hh
 	search/WorstSlack.hh
-	search/WriteSpice.hh
+	search/WritePathSpice.hh
 
 	util/Condition.hh
 	util/Debug.hh
@@ -514,29 +514,21 @@ get_filename_component(TCL_HEADER_DIR "${TCL_HEADER}" PATH)
 
 ################################################################
 
-# TCL files included as part of the executable are shoved into TclInitVar.cc.
-# These files are encoded and shipped as part of the executable 
-# so that they do not have to be installed on the client host.
-add_custom_command(OUTPUT ${STA_HOME}/app/TclInitVar.cc
-			  COMMAND etc/TclEncode.tcl app/TclInitVar.cc tcl_inits  ${STA_TCL_FILES}
-			  WORKING_DIRECTORY ${STA_HOME}
-			  DEPENDS ${STA_TCL_FILES} etc/TclEncode.tcl
-			  )
-
 find_package(FLEX)
 find_package(BISON)
 
-# Verilog scan/parse.
-bison_target(VerilogParser verilog/VerilogParse.yy ${STA_HOME}/verilog/VerilogParse.cc
-			   DEFINES_FILE ${STA_HOME}/verilog/VerilogParse.hh
-			   COMPILE_FLAGS --name-prefix=VerilogParse_
-			   )
+# LibertyExpr scan/parse.
+bison_target(LibertyExprParser liberty/LibertyExprParse.yy ${STA_HOME}/liberty/LibertyExprParse.cc
+			       DEFINES_FILE ${STA_HOME}/liberty/LibertyExprParse.hh
+			       COMPILE_FLAGS --name-prefix=LibertyExprParse_
+			       )
 
-# flex seems to ignore -o<file>
-add_custom_command(OUTPUT ${STA_HOME}/verilog/VerilogLex.cc ${STA_HOME}/verilog/VerilogLex.hh
-		   COMMAND ${FLEX_EXECUTABLE} --prefix=VerilogLex_ --header-file=${STA_HOME}/verilog/VerilogLex.hh ${STA_HOME}/verilog/VerilogLex.ll
-	           COMMAND mv lex.yy.c ${STA_HOME}/verilog/VerilogLex.cc
+flex_target(LibertyExprLex liberty/LibertyExprLex.ll ${STA_HOME}/liberty/LibertyExprLex.cc
+		   DEFINES_FILE ${STA_HOME}/liberty/LibertyExprLex.hh
+		   COMPILE_FLAGS --prefix=LibertyExprLex_
 		   )
+
+add_flex_bison_dependency(LibertyExprLex LibertyExprParser)
 
 # Liberty scan/parse.
 bison_target(LibertyParser liberty/LibertyParse.yy ${STA_HOME}/liberty/LibertyParse.cc
@@ -544,60 +536,65 @@ bison_target(LibertyParser liberty/LibertyParse.yy ${STA_HOME}/liberty/LibertyPa
 			   COMPILE_FLAGS --name-prefix=LibertyParse_
 			   )
 
-# flex seems to ignore -o<file>
-add_custom_command(OUTPUT ${STA_HOME}/liberty/LibertyLex.cc ${STA_HOME}/liberty/LibertyLex.hh
-		   COMMAND ${FLEX_EXECUTABLE} --prefix=LibertyLex_ --header-file=${STA_HOME}/liberty/LibertyLex.hh ${STA_HOME}/liberty/LibertyLex.ll
-	           COMMAND mv lex.yy.c ${STA_HOME}/liberty/LibertyLex.cc
-		   )
+flex_target(LibertyLex liberty/LibertyLex.ll ${STA_HOME}/liberty/LibertyLex.cc
+		       DEFINES_FILE ${STA_HOME}/liberty/LibertyLex.hh
+		       COMPILE_FLAGS --prefix=LibertyLex_
+		       )
 
-# LibertyExpr scan/parse.
-bison_target(LibertyExprParser liberty/LibertyExprParse.yy ${STA_HOME}/liberty/LibertyExprParse.cc
-			   DEFINES_FILE ${STA_HOME}/liberty/LibertyExprParse.hh
-			   COMPILE_FLAGS --name-prefix=LibertyExprParse_
-			   )
-
-# flex seems to ignore -o<file>
-add_custom_command(OUTPUT ${STA_HOME}/liberty/LibertyExprLex.cc ${STA_HOME}/liberty/LibertyExprLex.hh
-		   COMMAND ${FLEX_EXECUTABLE} --prefix=LibertyExprLex_ --header-file=${STA_HOME}/liberty/LibertyExprLex.hh ${STA_HOME}/liberty/LibertyExprLex.ll
-	           COMMAND mv lex.yy.c ${STA_HOME}/liberty/LibertyExprLex.cc
-		   )
-
-# Sdf scan/parse.
-bison_target(SdfParser sdf/SdfParse.yy ${STA_HOME}/sdf/SdfParse.cc
-			   DEFINES_FILE ${STA_HOME}/sdf/SdfParse.hh
-			   COMPILE_FLAGS --name-prefix=SdfParse_
-			   )
-
-# flex seems to ignore -o<file>
-add_custom_command(OUTPUT ${STA_HOME}/sdf/SdfLex.cc ${STA_HOME}/sdf/SdfLex.hh
-		   COMMAND ${FLEX_EXECUTABLE} --prefix=SdfLex_ --header-file=${STA_HOME}/sdf/SdfLex.hh ${STA_HOME}/sdf/SdfLex.ll
-	           COMMAND mv lex.yy.c ${STA_HOME}/sdf/SdfLex.cc
-		   )
+add_flex_bison_dependency(LibertyLex LibertyParser)
 
 # Spef scan/parse.
 bison_target(SpefParser parasitics/SpefParse.yy ${STA_HOME}/parasitics/SpefParse.cc
-			   DEFINES_FILE ${STA_HOME}/parasitics/SpefParse.hh
-			   COMPILE_FLAGS --name-prefix=SpefParse_
-			   )
+			DEFINES_FILE ${STA_HOME}/parasitics/SpefParse.hh
+			COMPILE_FLAGS --name-prefix=SpefParse_
+			)
 
-# flex seems to ignore -o<file>
-add_custom_command(OUTPUT ${STA_HOME}/parasitics/SpefLex.cc ${STA_HOME}/parasitics/SpefLex.hh
-		   COMMAND ${FLEX_EXECUTABLE} --prefix=SpefLex_ --header-file=${STA_HOME}/parasitics/SpefLex.hh ${STA_HOME}/parasitics/SpefLex.ll
-	           COMMAND mv lex.yy.c ${STA_HOME}/parasitics/SpefLex.cc
-		   )
+flex_target(SpefLex parasitics/SpefLex.ll ${STA_HOME}/parasitics/SpefLex.cc
+		    DEFINES_FILE ${STA_HOME}/parasitics/SpefLex.hh
+		    COMPILE_FLAGS --prefix=SpefLex_
+		    )
 
+add_flex_bison_dependency(SpefLex SpefParser)
 
 # Spf scan/parse.
 bison_target(SpfParser parasitics/SpfParse.yy ${STA_HOME}/parasitics/SpfParse.cc
-			   DEFINES_FILE ${STA_HOME}/parasitics/SpfParse.hh
-			   COMPILE_FLAGS --name-prefix=SpfParse_
+		       DEFINES_FILE ${STA_HOME}/parasitics/SpfParse.hh
+		       COMPILE_FLAGS --name-prefix=SpfParse_
+		       )
+
+flex_target(SpfLex parasitics/SpfLex.ll ${STA_HOME}/parasitics/SpfLex.cc
+		   DEFINES_FILE ${STA_HOME}/parasitics/SpfLex.hh
+		   COMPILE_FLAGS --prefix=SpfLex_
+		   )
+
+add_flex_bison_dependency(SpfLex SpfParser)
+
+# Verilog scan/parse.
+bison_target(VerilogParser verilog/VerilogParse.yy ${STA_HOME}/verilog/VerilogParse.cc
+			   DEFINES_FILE ${STA_HOME}/verilog/VerilogParse.hh
+			   COMPILE_FLAGS --name-prefix=VerilogParse_
 			   )
 
-# flex seems to ignore -o<file>
-add_custom_command(OUTPUT ${STA_HOME}/parasitics/SpfLex.cc ${STA_HOME}/parasitics/SpfLex.hh
-		   COMMAND ${FLEX_EXECUTABLE} --prefix=SpfLex_ --header-file=${STA_HOME}/parasitics/SpfLex.hh ${STA_HOME}/parasitics/SpfLex.ll
-	           COMMAND mv lex.yy.c ${STA_HOME}/parasitics/SpfLex.cc
+flex_target(VerilogLex verilog/VerilogLex.ll ${STA_HOME}/verilog/VerilogLex.cc
+		       DEFINES_FILE ${STA_HOME}/verilog/VerilogLex.hh
+		       COMPILE_FLAGS --prefix=VerilogLex_
+		       )
+
+add_flex_bison_dependency(VerilogLex VerilogParser)
+
+# Sdf scan/parse.
+bison_target(SdfParser sdf/SdfParse.yy ${STA_HOME}/sdf/SdfParse.cc
+		       DEFINES_FILE ${STA_HOME}/sdf/SdfParse.hh
+		       COMPILE_FLAGS --name-prefix=SdfParse_
+		       )
+
+flex_target(SdfLex sdf/SdfLex.ll ${STA_HOME}/sdf/SdfLex.cc
+		   DEFINES_FILE ${STA_HOME}/sdf/SdfLex.hh
+		   COMPILE_FLAGS --prefix=SdfLex_
 		   )
+
+add_flex_bison_dependency(SdfLex SdfParser)
+
 
 ################################################################
 
@@ -608,6 +605,17 @@ add_custom_command(OUTPUT ${STA_HOME}/app/StaApp_wrap.cc
 			  COMMAND ${STA_HOME}/etc/SwigCleanup.tcl ${STA_HOME}/app/StaApp_wrap.cc
 			  WORKING_DIRECTORY ${STA_HOME}
 			  DEPENDS ${STA_SWIG_FILES}
+			  )
+
+################################################################
+
+# TCL files included as part of the executable are shoved into TclInitVar.cc.
+# These files are encoded and shipped as part of the executable 
+# so that they do not have to be installed on the client host.
+add_custom_command(OUTPUT ${STA_HOME}/app/TclInitVar.cc
+			  COMMAND etc/TclEncode.tcl app/TclInitVar.cc tcl_inits  ${STA_TCL_FILES}
+			  WORKING_DIRECTORY ${STA_HOME}
+			  DEPENDS ${STA_TCL_FILES} etc/TclEncode.tcl
 			  )
 
 ################################################################

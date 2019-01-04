@@ -44,8 +44,6 @@ libertyParseFlushBuffer()
 %}
 
 /* %option debug */
-%option prefix="LibertyLex_"
-%option outfile="lex.yy.c"
 %option noyywrap
 %option nounput
 %option never-interactive
@@ -63,6 +61,7 @@ BUS_SUB {BUS_LEFT}{DIGIT}+{BUS_RIGHT}
 BUS_RANGE {BUS_LEFT}{DIGIT}+:{DIGIT}+{BUS_RIGHT}
 PIN_NAME ({ALPHA}|_)({ALPHA}|{DIGIT}|_)*
 BUS_NAME {PIN_NAME}({BUS_SUB}|{BUS_RANGE})
+BUS_NAME2 {PIN_NAME}{BUS_SUB}({BUS_SUB}|{BUS_RANGE})
 MIXED_NAME {BUS_NAME}_{PIN_NAME}
 HNAME ({PIN_NAME}|{BUS_NAME}|{MIXED_NAME})([\/.]({PIN_NAME}|{BUS_NAME}|{MIXED_NAME}))+
 /* ocv_table_template(2D_ocv_template) */
@@ -97,6 +96,7 @@ EOL \r?\n
 
 {PIN_NAME}{TOKEN_END} |
 {BUS_NAME}{TOKEN_END} |
+{BUS_NAME2}{TOKEN_END} |
 {MIXED_NAME}{TOKEN_END} |
 {HNAME}{TOKEN_END} |
 {BUS_STYLE}{TOKEN_END} |

@@ -6,3 +6,4 @@ Release 2.0 Patches
 2018/11/09 Verilog ignore attributes (* blah *)
 2018/12/24 all_fanout from input port
 2018/12/25 liberty pg_types
+2019/01/03 liberty 2D bus names

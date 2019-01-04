@@ -43,8 +43,6 @@ spefResetScanner()
 %}
 
 /* %option debug */
-%option prefix="SpefLex_"
-%option outfile="lex.yy.c"
 %option noyywrap
 %option nounput
 %option never-interactive

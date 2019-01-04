@@ -31,6 +31,9 @@ libsdf_la_SOURCES = \
 
 SdfLex.ll: SdfParse.hh
 
+SdfLex.cc: SdfLex.ll
+	$(LEX) $(LFLAGS) -o SdfLex.cc --prefix=SdfLex_ --header-file=SdfLex.hh SdfLex.ll
+
 # Rules to support automake pre 1.12 that name header .h instead of .hh
 SdfParse.hh: SdfParse.cc
 	if test -f SdfParse.h; then \

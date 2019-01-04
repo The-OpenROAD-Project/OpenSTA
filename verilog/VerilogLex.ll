@@ -36,8 +36,6 @@ verilogFlushBuffer()
 %}
 
 /* %option debug */
-%option prefix="VerilogLex_"
-%option outfile="lex.yy.c"
 %option noyywrap
 %option nounput
 %option never-interactive

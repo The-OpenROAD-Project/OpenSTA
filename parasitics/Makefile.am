@@ -51,7 +51,13 @@ libparasitics_la_SOURCES = \
 
 SpfLex.ll: SpfParse.hh
 
+SpfLex.cc: SpfLex.ll
+	$(LEX) $(LFLAGS) -o SpfLex.cc --prefix=SpfLex_ --header-file=SpfLex.hh SpfLex.ll
+
 SpefLex.ll: SpefParse.hh
+
+SpefLex.cc: SpefLex.ll
+	$(LEX) $(LFLAGS) -o SpefLex.cc --prefix=SpefLex_ --header-file=SpefLex.hh SpefLex.ll
 
 # Rules to support automake pre 1.12 that name header .h instead of .hh
 SpfParse.hh: SpfParse.cc

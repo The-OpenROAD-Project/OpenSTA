@@ -27,6 +27,9 @@ libverilog_la_SOURCES = \
 
 VerilogLex.ll: VerilogParse.hh
 
+VerilogLex.cc: VerilogLex.ll
+	$(LEX) $(LFLAGS) -o VerilogLex.cc --prefix=VerilogLex_ --header-file=VerilogLex.hh VerilogLex.ll
+
 # Rules to support automake pre 1.12 that name header .h instead of .hh
 VerilogParse.hh: VerilogParse.cc
 	if test -f VerilogParse.h; then \

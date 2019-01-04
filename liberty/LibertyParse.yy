@@ -39,7 +39,6 @@ int LibertyParse_error(const char *msg);
   sta::LibertyStmt *stmt;
 }
 
-
 %token <number> FLOAT
 %token <string> STRING KEYWORD
 
