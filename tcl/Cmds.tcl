@@ -1863,8 +1863,7 @@ proc object_name_cmp { obj1 obj2 } {
 ################################################################
 
 define_cmd_args "write_path_spice" { -path_args path_args\
-				       -spice_file spice_file\
-				       -subckt_file subckt_file\
+				       -spice_directory spice_directory\
 				       -lib_subckt_file lib_subckts_file\
 				       -model_file model_file\
 				       -power power\
@@ -1872,26 +1871,23 @@ define_cmd_args "write_path_spice" { -path_args path_args\
 
 proc write_path_spice { args } {
   parse_key_args "write_spice" args \
-    keys {-spice_file -subckt_file -lib_subckt_file \
-	    -model_file -power -ground -path_args} \
+    keys {-spice_directory -lib_subckt_file -model_file \
+	    -power -ground -path_args} \
     flags {}
 
-  if { [info exists keys(-spice_file)] } {
-    set spice_file $keys(-spice_file)
-    if { [file exists $spice_file] && ![file writable $spice_file] } {
-      sta_error "-spice_file $spice_file is not writable.\n"
+  if { [info exists keys(-spice_directory)] } {
+    set spice_dir $keys(-spice_directory)
+    if { ![file exists $spice_dir] } {
+      sta_error "Directory $spice_dir not found.\n"
+    }
+    if { ![file isdirectory $spice_dir] } {
+      sta_error "$spice_dir is not a directory.\n"
+    }
+    if { ![file writable $spice_dir] } {
+      sta_error "Cannot write in $spice_dir.\n"
     }
   } else {
-    sta_error "No -spice_file specified.\n"
-  }
-
-  if { [info exists keys(-subckt_file)] } {
-    set subckt_file $keys(-subckt_file)
-    if { [file exists $subckt_file] && ![file writable $subckt_file] } {
-      sta_error "-subckt_file $subckt_file is not writable.\n"
-    }
-  } else {
-    sta_error "No -subckt_file specified.\n"
+    sta_error "No -spice_directory specified.\n"
   }
 
   if { [info exists keys(-lib_subckt_file)] } {
@@ -1937,12 +1933,18 @@ proc write_path_spice { args } {
   set path_ends [eval [concat get_timing_paths $path_args]]
   if { $path_ends == {} } {
     sta_error "No paths found for -path_args $path_args.\n"
+  } else {
+    set path_index 1
+    foreach path_end $path_ends {
+      set path [$path_end path]
+      set path_name "path_$path_index"
+      set spice_file [file join $spice_dir "$path_name.sp"]
+      set subckt_file [file join $spice_dir "$path_name.subckt"]
+      write_path_spice_cmd $path $spice_file $subckt_file \
+	$lib_subckt_file $model_file $power $ground
+      incr path_index
+    }
   }
-  set path_end [lindex $path_ends 0]
-  set path [$path_end path]
-
-  write_path_spice_cmd $path $spice_file $subckt_file \
-    $lib_subckt_file $model_file $power $ground
 }
 
 # sta namespace end.

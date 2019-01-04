@@ -682,7 +682,7 @@ ParasiticNodeNameLess::operator()(const ParasiticNode *node1,
 }
 
 typedef Set<ParasiticDevice*> ParasiticDeviceSet;
-// Use node names rather than pointers for less for stable results.
+// Less uses names rather than pointers for stable results.
 typedef Set<ParasiticNode*, ParasiticNodeNameLess> ParasiticNodeSet;
 
 void
@@ -723,8 +723,8 @@ WritePathSpice::writeStageParasitics(Stage stage)
     initNodeMap(net_name);
     streamPrint(spice_stream_, "* Net %s\n", net_name);
     auto node = parasitics_->findNode(parasitic, drvr_pin);
-    ParasiticNodeNameLess name_less(parasitics_);
-    ParasiticNodeSet nodes(name_less);
+    ParasiticNodeNameLess node_name_less(parasitics_);
+    ParasiticNodeSet nodes(node_name_less);
     ParasiticDeviceSet devices;
     findParasiticDevicesNodes(node, parasitics_, nodes, devices);
     ParasiticDeviceSet::Iterator device_iter(devices);
