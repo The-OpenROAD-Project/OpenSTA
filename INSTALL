@@ -133,7 +133,7 @@ The library without main is app/libSTA.a.
 
 Optional cmake variables passed as -D<var>=<value> arguments to cmake.
 
- MAKE_BUILD_TYPE DEBUG|RELEASE
+ CMAKE_BUILD_TYPE DEBUG|RELEASE
  TCL_LIB - path to tcl library
  TCL_HEADER - path to tcl.h
  TCL_INIT - path to init.tcl
