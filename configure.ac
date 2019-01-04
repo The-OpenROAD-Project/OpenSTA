@@ -16,7 +16,7 @@
 
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT(sta, 2.0.2)
+AC_INIT(sta, 2.0.3)
 AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS(config.h)
