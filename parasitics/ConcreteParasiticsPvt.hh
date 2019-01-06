@@ -299,6 +299,8 @@ public:
   virtual bool isCouplingCap() const { return false; }
   const char *name() const { return name_; }
   float value() const { return value_; }
+  ConcreteParasiticNode *node1() const { return node_; }
+  virtual ConcreteParasiticNode *node2() const = 0;
   virtual ParasiticNode *otherNode(ParasiticNode *node) const = 0;
   virtual void replaceNode(ConcreteParasiticNode *from_node,
 			   ConcreteParasiticNode *to_node) = 0;
@@ -319,11 +321,10 @@ public:
 			    ConcreteParasiticNode *other_node,
 			    float res);
   virtual bool isResistor() const { return true; }
+  virtual ConcreteParasiticNode *node2() const { return other_node_; }
   virtual ParasiticNode *otherNode(ParasiticNode *node) const;
   virtual void replaceNode(ConcreteParasiticNode *from_node,
 			   ConcreteParasiticNode *to_node);
-  ConcreteParasiticNode *node1() const { return node_; }
-  ConcreteParasiticNode *node2() const { return other_node_; }
 
 private:
   ConcreteParasiticNode *other_node_;
@@ -337,6 +338,7 @@ public:
 		      ConcreteParasiticNode *node,
 		      float cap);
   virtual bool isCouplingCap() const { return true; }
+  virtual ConcreteParasiticNode *node2() const { return NULL; }
   virtual void replaceNode(ConcreteParasiticNode *from_node,
 			   ConcreteParasiticNode *to_node);
 };
@@ -349,6 +351,7 @@ public:
 			 ConcreteParasiticNode *other_node,
 			 float cap);
   virtual bool isCouplingCap() const { return true; }
+  virtual ConcreteParasiticNode *node2() const { return other_node_; }
   virtual ParasiticNode *otherNode(ParasiticNode *node) const;
   virtual void replaceNode(ConcreteParasiticNode *from_node,
 			   ConcreteParasiticNode *to_node);

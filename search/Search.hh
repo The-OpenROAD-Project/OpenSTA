@@ -75,9 +75,7 @@ public:
   // non-critical paths on intermediate pins may be incorrect.
   bool crprPathPruningEnabled() const;
   void setCrprpathPruningEnabled(bool enabled);
-  // Report unconstrained paths.
-  bool reportUnconstrainedPaths() const { return report_unconstrained_paths_; }
-  void setReportUnconstrainedPaths(bool report);
+  bool unconstrainedPaths() const { return unconstrained_paths_; }
   // from/thrus/to are owned and deleted by Search.
   // Use corner NULL to report timing for all corners.
   // Returned sequence is owned by the caller.
@@ -85,6 +83,7 @@ public:
   PathEndSeq *findPathEnds(ExceptionFrom *from,
 			   ExceptionThruSeq *thrus,
 			   ExceptionTo *to,
+			   bool unconstrained,
 			   const Corner *corner,
 			   const MinMaxAll *min_max,
 			   int group_count,
@@ -524,7 +523,8 @@ protected:
 
   ////////////////////////////////////////////////////////////////
 
-  bool report_unconstrained_paths_;
+  // findPathEnds arg.
+  bool unconstrained_paths_;
   bool have_paths_;
   // Search predicates.
   SearchPred *search_adj_;

@@ -498,12 +498,14 @@ exceptionToEmpty(ExceptionTo *to);
 
 PathEndSeq *
 PathGroups::makePathEnds(ExceptionTo *to,
+			 bool unconstrained_paths,
 			 const Corner *corner,
 			 const MinMaxAll *min_max,
 			 bool sort_by_slack)
 {
   Stats stats(this->debug());
-  makeGroupPathEnds(to, group_count_, endpoint_count_, unique_pins_, corner, min_max);
+  makeGroupPathEnds(to, group_count_, endpoint_count_, unique_pins_,
+		    corner, min_max);
 
   PathEndSeq *path_ends = new PathEndSeq;
   pushGroupPathEnds(path_ends);
@@ -513,7 +515,7 @@ PathGroups::makePathEnds(ExceptionTo *to,
       path_ends->resize(group_count_);
   }
 
-  if (search_->reportUnconstrainedPaths()
+  if (unconstrained_paths
       && path_ends->empty())
     // No constrained paths, so report unconstrained paths.
     pushUnconstrainedPathEnds(path_ends, min_max);

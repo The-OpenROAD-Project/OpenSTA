@@ -11,3 +11,5 @@
 #if ${CUDD_FOUND}==TRUE
   #define CUDD
 #endif
+
+#define SSTA ${SSTA}

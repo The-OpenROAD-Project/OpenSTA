@@ -171,6 +171,7 @@ port_dcl_type:
 |	INOUT REG { $$ = sta::PortDirection::bidirect(); }
 |	INOUT WIRE { $$ = sta::PortDirection::bidirect(); }
 |	OUTPUT { $$ = sta::PortDirection::output(); }
+|	OUTPUT WIRE { $$ = sta::PortDirection::output(); }
 |	OUTPUT REG { $$ = sta::PortDirection::output(); }
 	;
 

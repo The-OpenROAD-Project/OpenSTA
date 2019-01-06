@@ -1930,7 +1930,7 @@ proc write_path_spice { args } {
     sta_error "No -path_args specified.\n"
   }
   set path_args $keys(-path_args)
-  set path_ends [eval [concat get_timing_paths $path_args]]
+  set path_ends [eval [concat find_timing_paths $path_args]]
   if { $path_ends == {} } {
     sta_error "No paths found for -path_args $path_args.\n"
   } else {

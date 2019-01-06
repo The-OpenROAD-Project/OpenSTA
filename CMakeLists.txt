@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.9)
 
-project(STA VERSION 2.0.3)
+project(STA VERSION 2.0.4)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 11)
@@ -422,40 +422,62 @@ set(STA_SWIG_FILES
 	)
 
 ################################################################
+#
 # Library dependencies
+#
 ################################################################
 
+# Pthreads
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads)
 set(HAVE_PTHREADS ${CMAKE_USE_PTHREADS_INIT})
-message(STATUS "Found pthreads: ${HAVE_PTHREADS}")
+if (HAVE_PTHREADS)
+  message(STATUS "Found pthreads")
+endif()
 
+# Zlib
 include(FindZLIB)
 
-if(NOT "$ENV{CUDD}" STREQUAL "")
-  set(CUDD_INCLUDE $ENV{CUDD}/include)
-  find_library(CUDD_LIB NAMES cudd PATHS $ENV{CUDD}/lib)
-  if (CUDD_LIB)
-    set(CUDD_FOUND TRUE)
-    message(STATUS "CUDD library: ${CUDD_LIB}")
-  endif()
-else()
+################################################################
+#
+# Locate CUDD bdd packagte
+
+# CUDD variable has precidence over environment variable.
+if("${CUDD}" STREQUAL "")
+  set(CUDD $ENV{CUDD})
+endif()
+
+if("${CUDD}" STREQUAL "")
   set(CUDD_INCLUDE "")
   set(CUDD_LIB "")
   set(CUDD_FOUND FALSE)
+else()
+  set(CUDD_INCLUDE ${CUDD}/include)
+  find_library(CUDD_LIB NAMES cudd PATHS ${CUDD}/lib)
+  if (CUDD_LIB)
+    # CUDD_FOUND referenced by config.h.cmake
+    set(CUDD_FOUND TRUE)
+    message(STATUS "CUDD library: ${CUDD_LIB}")
+  endif()
 endif()
 
+if("${SSTA}" STREQUAL "")
+  set(SSTA 0)
+endif()
+message(STATUS "Enable SSTA: ${SSTA}")
+
 # configure a header file to pass some of the CMake settins
-configure_file(
-	"${STA_HOME}/config.h.cmake"
-	"${STA_HOME}/config.h"
-	)
+configure_file(${STA_HOME}/config.h.cmake
+		${STA_HOME}/config.h
+		)
 
 
+################################################################
+#
 # Locate TCL library.
 #
-# Note that the cmakd findTcl module is hopeless for OSX
+# Note that the cmake findTcl module is hopeless for OSX
 # because there doesn't appear to be a way to override
 # searching OSX system directories before unix directories.
 
@@ -494,7 +516,7 @@ if (NOT TCL_LIB)
 		   PATHS ${TCL_LIB_PATHS}
 		   )
    endif()
-endif (NOT TCL_LIB)
+endif()
 message(STATUS "TCL lib: ${TCL_LIB}")
 
 get_filename_component(TCL_LIB_DIR "${TCL_LIB}" PATH)
@@ -508,10 +530,14 @@ if (NOT TCL_HEADER)
     PATH_SUFFIXES include include/tcl
     NO_DEFAULT_PATH
     )
-endif (NOT TCL_HEADER)
+endif()
 message(STATUS "TCL header: ${TCL_HEADER}")
 get_filename_component(TCL_HEADER_DIR "${TCL_HEADER}" PATH)
 
+################################################################
+#
+# Flex/bison scanner/parsers 
+#
 ################################################################
 
 find_package(FLEX)
@@ -672,7 +698,7 @@ target_link_libraries(sta
 	)
 if (ZLIB_FOUND)
    target_link_libraries(sta ${ZLIB_LIBRARIES})
-endif(ZLIB_FOUND)
+endif()
 
 message(STATUS "STA executable: ${STA_HOME}/app/sta")
 

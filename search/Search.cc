@@ -228,7 +228,7 @@ void
 Search::init(StaState *sta)
 {
   crpr_path_pruning_enabled_ = true;
-  report_unconstrained_paths_ = false;
+  unconstrained_paths_ = false;
   search_adj_ = new SearchThru(NULL, sta);
   eval_pred_ = new EvalPred(sta);
   check_crpr_ = new CheckCrpr(sta);
@@ -330,14 +330,6 @@ Search::setCrprpathPruningEnabled(bool enabled)
 }
 
 void
-Search::setReportUnconstrainedPaths(bool report)
-{
-  if (report_unconstrained_paths_ != report)
-    arrivalsInvalid();
-  report_unconstrained_paths_ = report;
-}
-
-void
 Search::deleteTags()
 {
   for (TagGroupIndex i = 0; i < tag_group_count_; i++) {
@@ -430,6 +422,7 @@ PathEndSeq *
 Search::findPathEnds(ExceptionFrom *from,
 		     ExceptionThruSeq *thrus,
 		     ExceptionTo *to,
+		     bool unconstrained,
 		     const Corner *corner,
 		     const MinMaxAll *min_max,
 		     int group_count,
@@ -446,6 +439,7 @@ Search::findPathEnds(ExceptionFrom *from,
 		     bool clk_gating_setup,
 		     bool clk_gating_hold)
 {
+  unconstrained_paths_ = unconstrained;
   // Delete results from last findPathEnds.
   // Filtered arrivals are deleted by Sta::searchPreamble.
   deletePathGroups();
@@ -474,7 +468,8 @@ Search::findPathEnds(ExceptionFrom *from,
 				recovery, removal,
 				clk_gating_setup, clk_gating_hold);
   ensureDownstreamClkPins();
-  PathEndSeq *path_ends = path_groups_->makePathEnds(to, corner, min_max,
+  PathEndSeq *path_ends = path_groups_->makePathEnds(to, unconstrained_paths_,
+						     corner, min_max,
 						     sort_by_slack);
   sdc_->reportClkToClkMaxCycleWarnings();
   return path_ends;
@@ -1462,7 +1457,7 @@ Search::seedArrival(Vertex *vertex)
     bool is_reg_clk = vertex->isRegClk();
     if (is_reg_clk
 	// Internal roots isolated by disabled pins are seeded with no clock.
-	|| (report_unconstrained_paths_
+	|| (unconstrained_paths_
 	    && !network_->isTopLevelPort(pin))) {
       debugPrint1(debug_, "search", 2, "arrival seed unclked root %s\n",
 		  network_->pathName(pin));
@@ -3236,7 +3231,7 @@ Search::isEndpoint(Vertex *vertex,
 	|| sdc_->isPathDelayInternalEndpoint(pin)
 	|| !hasFanout(vertex, pred, graph_)
 	// Unconstrained paths at register clk pins.
-	|| (report_unconstrained_paths_
+	|| (unconstrained_paths_
 	    && vertex->isRegClk()));
 }
 
@@ -4026,7 +4021,7 @@ Search::makePathGroups(int group_count,
 			setup, hold,
 			recovery, removal,
 			clk_gating_setup, clk_gating_hold,
-			report_unconstrained_paths_,
+			unconstrained_paths_,
 			this);
 }
 

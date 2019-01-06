@@ -2124,18 +2124,6 @@ net_is_constrained(Net *net)
 }
 
 bool
-report_unconstrained_paths()
-{
-  return Sta::sta()->reportUnconstrainedPaths();
-}
-
-void
-set_report_unconstrained_paths(bool report)
-{
-  Sta::sta()->setReportUnconstrainedPaths(report);
-}
-
-bool
 clk_thru_tristate_enabled()
 {
   return Sta::sta()->clkThruTristateEnabled();
@@ -4104,6 +4092,7 @@ PathEndSeq *
 find_path_ends(ExceptionFrom *from,
 	       ExceptionThruSeq *thrus,
 	       ExceptionTo *to,
+	       bool unconstrained,
 	       Corner *corner,
 	       const MinMaxAll *delay_min_max,
 	       int group_count,
@@ -4122,7 +4111,7 @@ find_path_ends(ExceptionFrom *from,
 {
   cmdLinkedNetwork();
   Sta *sta = Sta::sta();
-  PathEndSeq *ends = sta->findPathEnds(from, thrus, to,
+  PathEndSeq *ends = sta->findPathEnds(from, thrus, to, unconstrained,
 				       corner, delay_min_max,
 				       group_count, endpoint_count, unique_pins,
 				       slack_min, slack_max,
@@ -4420,6 +4409,17 @@ worst_slack(const MinMax *min_max)
   Vertex *worst_vertex;
   sta->worstSlack(min_max, worst_slack, worst_vertex);
   return worst_slack;
+}
+
+Vertex *
+worst_slack_vertex(const MinMax *min_max)
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  Slack worst_slack;
+  Vertex *worst_vertex;
+  sta->worstSlack(min_max, worst_slack, worst_vertex);
+  return worst_vertex;;
 }
 
 Slack
@@ -6049,6 +6049,22 @@ tag()
 {
   Sta *sta = Sta::sta();
   return self->tag(sta)->asString(sta);
+}
+
+// mea_opt3
+TmpPinSeq *
+pins()
+{
+  Sta *sta = Sta::sta();
+  PinSeq *pins = new PinSeq;
+  PathRef path1(self);
+  while (!path1.isNull()) {
+    pins->push_back(path1.vertex(sta)->pin());
+    PathRef prev_path;
+    path1.prevPath(sta, prev_path);
+    path1.init(prev_path);
+  }
+  return pins;
 }
 
 }

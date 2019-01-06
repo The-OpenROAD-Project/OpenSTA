@@ -14,31 +14,80 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-Builds are supported by dist tarfiles or from the git repository.
-Building from a dist tarfile does not require the GNU Autotools, Bison
-or Flex to be installed and is the recommended method unless you are a
-developer.
+Builds are supported with cmake.  Builds with Autotools are supported
+for compatibility but are deprecated.
 
-Builds are also supported with cmake described later in this file.
-Autotools based builds are currently supported for compatibility but
-are deprecated.
-
-Building from a tarfile
------------------------
+Building with Cmake
+-------------------
 
 The build dependency versions are show below.  Other versions may
 work, but these are the versions used for development.
 
-         from   Ubuntu  Xcode
+         from   Ubuntu   Xcode
                 18.04.1  10.1
 clang    9.1.0           10.0.0
 gcc      3.3.2   7.3.0   
 tcl      8.2     8.6     8.6.6
+swig     1.3.28  3.0.12  3.0.12
+bison    1.35    3.0.4   2.3
+flex     2.5.4   2.6.4   2.5.35
+
+Building with cmake requires bison, flex and swig.
 
 These packages are optional:
 
 libz     1.1.4   1.2.5     1.2.8
 cudd             2.4.1     3.0.0
+
+CUDD is a BDD package that is used to improve conditional timing arc
+handling.  It is available here:
+
+ https://www.davidkebo.com/source/cudd_versions/cudd-3.0.0.tar.gz
+ https://sourceforge.net/projects/cudd-mirror/
+
+Note that the file hierarchy of the CUDD installation changed with
+version 3.0. This build only supports the 3.0 layout but only small
+changes to configure.ac are required to support older versions.
+
+The Zlib library is an optional.  If the configure script finds libz,
+OpenSTA can read Verilog, SDF, SPF, and SPEF files compressed with
+gzip.
+
+Use the following commands to checkout the git repository build the
+OpenSTA library and excutable.
+
+ git clone https://xp-dev.com/git/opensta
+ cd opensta
+ mkdir build
+ cd build
+ cmake ..
+ make
+
+The resulting executable is in app/sta.
+The library without a main() procedure is app/libSTA.a.
+
+Optional cmake variables passed as -D<var>=<value> arguments to cmake
+are show below.
+
+ CMAKE_BUILD_TYPE DEBUG|RELEASE
+ TCL_LIB - path to tcl library
+ TCL_HEADER - path to tcl.h
+ CMAKE_INSTALL_PREFIX
+
+If TCL_LIB is specified the cmake script will attempt to locate the
+header from its path.
+
+The default install directory is /usr/local.
+To install in a different directory with cmake use:
+
+ cmake .. -DCMAKE_INSTALL_PREFIX=<prefix_path>
+
+or use the DESTDIR variable with make.
+
+ make DESTDIR=<prefix_path> install
+
+Building from a tarfile
+-----------------------
 
 Use the following commands to unpack the dist file and compile it.
 
@@ -63,20 +112,6 @@ configure options:
   --with-cudd=path        use Cudd BDD package, defaults to $CUDD
   --with-visualstudio     use Microcruft Visual Studio C++ compiler
 
-CUDD is a BDD package that is used to improve conditional timing arc
-handling.  It is available here:
-
- https://www.davidkebo.com/source/cudd_versions/cudd-3.0.0.tar.gz
- https://sourceforge.net/projects/cudd-mirror/
-
-Note that the file hierarchy of the CUDD installation changed with
-version 3.0. This build only supports the 3.0 layout but only small
-changes to configure.ac are required to support older versions.
-
-The Zlib library is an optional.  If the configure script finds libz,
-OpenSTA can read Verilog, SDF, SPF, and SPEF files compressed with
-gzip.
-
 If the configure script fails to find any of the TCL, Zlib or CUDD
 files, use the --with-include, --with-lib, --with-tcl, --with-cudd
 options to add directories to search for the files.
@@ -86,10 +121,10 @@ are not described above.  The default arguments to configure disable
 shared libraries. To build with shared libraries use the
 --enable-shared option.
 
-Building from the git repository
---------------------------------
+Building with GNU Autotools
+---------------------------
 
-Building from the git repository has the additional build dependencies
+Building with GNU Autotools the additional build dependencies
 shown below.
 
          from   Ubuntu  Xcode
@@ -97,15 +132,6 @@ shown below.
 autoconf 2.53    2.69    2.69
 automake 1.6.3   1.15.1  1.16.1
 libtool  1.4.2   2.4.6   2.4.6
-swig     1.3.28  3.0.12  3.0.12
-bison    1.35    3.0.4   2.3
-flex     2.5.4   2.6.4   2.5.35
-
-These packages are optional:
-
-gdb      5.3     8.1      
-lldb     902.0.79.7      1000.11.38.2
-valgrind 1.9.6   3.13.0   N/A
 
 Use the following commands to checkout the git repository and compile
 it.
@@ -116,43 +142,9 @@ it.
   ./configure [options...]
   make
 
-Building with Cmake
--------------------
-
-Building with cmake requires bison and flex.
-
- git clone https://xp-dev.com/git/opensta
- cd opensta
- mkdir build
- cd build
- cmake ../
- make
-
-The resulting executable is app/sta for compatibility with configure.
-The library without main is app/libSTA.a.
-
-Optional cmake variables passed as -D<var>=<value> arguments to cmake.
-
- CMAKE_BUILD_TYPE DEBUG|RELEASE
- TCL_LIB - path to tcl library
- TCL_HEADER - path to tcl.h
- TCL_INIT - path to init.tcl
- CMAKE_INSTALL_PREFIX
-
-If TCL_LIB is specified the cmake script will attempt to locate
-the header and init files from its path.
-
-Default install directory is /usr/local.
-To install in a different directory with cmake use:
-
- cmake .. -DCMAKE_INSTALL_PREFIX=<prefix_path>
-
-or use the DESTDIR variable with make.
-
- make DESTDIR=<prefix_path> install
-
 Building on Windoz
 ------------------
+
 The Win32 API does not natively support the pthreads API.  The
 pthreads-win32 package is one way to get support for pthreads for 32
 bit builds.  It is available from www.sourceware.org/pthreads-win32.
@@ -168,6 +160,9 @@ tcsh-startup.bat
   call "c:\Microsoft Visual Studio 9.0\Common7\Tools\vsvars.bat"
   set path=c:\cygwin\bin;%PATH%
   c:\cygwin\bin\tcsh
+
+cmake is supposedly more compatible with the windoz environment
+so you may have better luck wih it.
 
 Configure and build from the shell. Note that tcl and zlib must be
 built with the Visual C++ compiler to link to the sta libraries.

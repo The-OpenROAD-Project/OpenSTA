@@ -119,6 +119,7 @@ public:
   // Returned PathEndSeq is owned by the caller.
   // The PathEnds in the vector are owned by the PathGroups.
   PathEndSeq *makePathEnds(ExceptionTo *to,
+			   bool unconstrained_paths,
 			   const Corner *corner,
 			   const MinMaxAll *min_max,
 			   bool sort_by_slack);

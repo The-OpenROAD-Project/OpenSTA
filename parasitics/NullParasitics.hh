@@ -164,10 +164,8 @@ public:
   virtual const char *name(const ParasiticDevice *device) const;
   virtual float value(const ParasiticDevice *device,
 		      const ParasiticAnalysisPt *ap) const;
-  virtual void resistorNodes(const ParasiticDevice *device,
-			     // Return values.
-			     ParasiticNode *&node1,
-			     ParasiticNode *&node2) const;
+  virtual ParasiticNode *node1(const ParasiticDevice *device) const;
+  virtual ParasiticNode *node2(const ParasiticDevice *device) const;
   virtual ParasiticNode *otherNode(const ParasiticDevice *device,
 				   ParasiticNode *node) const;
   // Reduce parasitic network to reduce_to model.

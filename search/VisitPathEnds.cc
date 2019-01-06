@@ -62,7 +62,7 @@ VisitPathEnds::visitPathEnds(Vertex *vertex,
     bool is_constrained = false;
     visitClkedPathEnds(pin, vertex, corner, min_max, filtered, visitor,
 		       is_constrained);
-    if (search_->reportUnconstrainedPaths()
+    if (search_->unconstrainedPaths()
 	&& !is_constrained
 	&& !vertex->isDisabledConstraint())
       visitUnconstrainedPathEnds(pin, vertex, corner, min_max, filtered,

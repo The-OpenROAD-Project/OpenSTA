@@ -2282,18 +2282,6 @@ Sta::setUseDefaultArrivalClock(bool enable)
 }
 
 bool
-Sta::reportUnconstrainedPaths() const
-{
-  return search_->reportUnconstrainedPaths();
-}
- 
-void
-Sta::setReportUnconstrainedPaths(bool report)
-{
-  search_->setReportUnconstrainedPaths(report);
-}
-
-bool
 Sta::propagateAllClocks() const
 {
   return sdc_->propagateAllClocks();
@@ -2374,6 +2362,7 @@ PathEndSeq *
 Sta::findPathEnds(ExceptionFrom *from,
 		  ExceptionThruSeq *thrus,
 		  ExceptionTo *to,
+		  bool unconstrained,
 		  const Corner *corner,
 		  const MinMaxAll *min_max,
 		  int group_count,
@@ -2391,7 +2380,7 @@ Sta::findPathEnds(ExceptionFrom *from,
 		  bool clk_gating_hold)
 {
   searchPreamble();
-  return search_->findPathEnds(from, thrus, to,
+  return search_->findPathEnds(from, thrus, to, unconstrained,
 			       corner, min_max, group_count, endpoint_count,
 			       unique_pins, slack_min, slack_max,
 			       sort_by_slack, group_names,
@@ -2552,8 +2541,8 @@ PinSet *
 Sta::findGroupPathPins(const char *group_path_name)
 {
   if (!search_->havePathGroups()) {
-    PathEndSeq *path_ends = findPathEnds(// from, thrus, to
-					 NULL, NULL, NULL,
+    PathEndSeq *path_ends = findPathEnds(// from, thrus, to, unconstrained
+					 NULL, NULL, NULL, false,
 					 // corner, min_max, 
 					 NULL, MinMaxAll::max(),
 					 // group_count, endpoint_count, unique_pins

@@ -279,7 +279,9 @@ WritePathSpice::maxTime()
   Path *input_path = stageDrvrPath(input_stage);
   auto input_slew = input_path->slew(this);
   auto end_slew = path_->slew(this);
-  auto max_time = (input_slew + path_->arrival(this) + end_slew * 2) * 1.5;
+  auto max_time = delayAsFloat(input_slew
+			       + path_->arrival(this)
+			       + end_slew * 2) * 1.5;
   return max_time;
 }
 
@@ -348,7 +350,7 @@ WritePathSpice::writeInputSource()
     volt1 = gnd_voltage_;
   }
   Path *input_path = stageDrvrPath(input_stage);
-  auto input_slew = input_path->slew(this);
+  auto input_slew = delayAsFloat(input_path->slew(this));
   if (input_slew == 0.0)
     input_slew = maxTime() / 1e+3;
   // Arbitrary offset.
@@ -732,8 +734,8 @@ WritePathSpice::writeStageParasitics(Stage stage)
       auto device = device_iter.next();
       auto resistance = parasitics_->value(device, parasitic_ap);
       if (parasitics_->isResistor(device)) {
-	ParasiticNode *node1, *node2;
-	parasitics_->resistorNodes(device, node1, node2);
+	ParasiticNode *node1 = parasitics_->node1(device);
+	ParasiticNode *node2 = parasitics_->node2(device);
 	streamPrint(spice_stream_, "R%d %s %s %.3e\n",
 		    resistor_index,
 		    nodeName(node1),
@@ -742,6 +744,14 @@ WritePathSpice::writeStageParasitics(Stage stage)
 	resistor_index++;
       }
       else if (parasitics_->isCouplingCap(device)) {
+	// Ground coupling caps for now.
+	ParasiticNode *node1 = 	parasitics_->node1(device);
+	auto cap = parasitics_->value(device, parasitic_ap);
+	streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
+		    cap_index,
+		    nodeName(node1),
+		    cap);
+	cap_index++;
       }
     }
     ParasiticNodeSet::Iterator node_iter(nodes);

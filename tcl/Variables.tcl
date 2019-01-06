@@ -160,14 +160,6 @@ proc trace_propagate_gated_clock_enable { name1 name2 op } {
     propagate_gated_clock_enable set_propagate_gated_clock_enable
 }
 
-trace variable ::sta_report_unconstrained_paths "rw" \
-  sta::trace_report_unconstrained_paths
-
-proc trace_report_unconstrained_paths { ignore1 ignore2 op } {
-  trace_boolean_var $op ::sta_report_unconstrained_paths \
-    report_unconstrained_paths set_report_unconstrained_paths
-}
-
 ################################################################
 
 proc trace_boolean_var { op var_name get_proc set_proc } {

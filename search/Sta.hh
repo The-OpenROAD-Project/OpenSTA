@@ -721,9 +721,6 @@ public:
 		bool no_version);
   // Remove all delay and slew annotations.
   void removeDelaySlewAnnotations();
-  // TCL variable sta_report_unconstrained_paths.
-  bool reportUnconstrainedPaths() const;
-  void setReportUnconstrainedPaths(bool report);
   // TCL variable sta_crpr_enabled.
   // Common Reconvergent Clock Removal (CRPR).
   // Timing check source/target common clock path overlap for search
@@ -787,6 +784,7 @@ public:
   virtual PathEndSeq *findPathEnds(ExceptionFrom *from,
 				   ExceptionThruSeq *thrus,
 				   ExceptionTo *to,
+				   bool unconstrained,
 				   // Use corner NULL to report timing
 				   // for all corners.
 				   const Corner *corner,

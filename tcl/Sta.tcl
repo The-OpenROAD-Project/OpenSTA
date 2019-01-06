@@ -143,6 +143,7 @@ define_sta_cmd_args "find_timing_paths" \
      [-through through_list|-rise_through through_list|-fall_through through_list]\
      [-to to_list|-rise_to to_list|-fall_to to_list]\
      [-path_delay min|min_rise|min_fall|max|max_rise|max_fall|min_max]\
+     [-unconstrained]
      [-corner corner_name]\
      [-group_count path_count] \
      [-endpoint_count path_count]\
@@ -158,13 +159,14 @@ proc find_timing_paths { args } {
 }
 
 proc find_timing_paths_cmd { cmd args_var } {
+  global sta_report_unconstrained_paths
   upvar 1 $args_var args
 
-  parse_key_args "find_timing_paths" args \
+  parse_key_args $cmd args \
     keys {-from -rise_from -fall_from -to -rise_to -fall_to \
 	    -path_delay -corner -group_count -endpoint_count \
 	    -slack_max -slack_min -path_group} \
-    flags {-sort_by_slack -unique_paths_to_endpoint} 0
+    flags {-unconstrained -sort_by_slack -unique_paths_to_endpoint} 0
 
   set min_max "max"
   set end_tr "rise_fall"
@@ -185,7 +187,7 @@ proc find_timing_paths_cmd { cmd args_var } {
     } elseif { $mm_key == "min" || $mm_key == "max" || $mm_key == "min_max" } {
       set min_max $mm_key
     } else {
-      sta_error "report_checks -path_delay must be min, min_rise, min_fall, max, max_rise, max_fall or min_max."
+      sta_error "$cmd -path_delay must be min, min_rise, min_fall, max, max_rise, max_fall or min_max."
     }
   }
 
@@ -199,6 +201,14 @@ proc find_timing_paths_cmd { cmd args_var } {
   }
 
   check_for_key_args $cmd args
+
+  if { [info exists flags(-unconstrained)] } {
+    set unconstrained 1
+  } elseif { [info exists sta_report_unconstrained_paths] } {
+    set unconstrained $sta_report_unconstrained_paths
+  } else {
+    set unconstrained 0
+  }
 
   set corner [parse_corner_or_all keys]
 
@@ -251,7 +261,8 @@ proc find_timing_paths_cmd { cmd args_var } {
     }
   }
 
-  set path_ends [find_path_ends $from $thrus $to $corner $min_max \
+  set path_ends [find_path_ends $from $thrus $to $unconstrained \
+		   $corner $min_max \
 		   $group_count $endpoint_count $unique_pins \
 		   $slack_min $slack_max \
 		   $sort_by_slack $groups \
@@ -265,6 +276,7 @@ define_sta_cmd_args "report_checks" \
   {[-from from_list|-rise_from from_list|-fall_from from_list]\
      [-through through_list|-rise_through through_list|-fall_through through_list]\
      [-to to_list|-rise_to to_list|-fall_to to_list]\
+     [-unconstrained]\
      [-path_delay min|min_rise|min_fall|max|max_rise|max_fall|min_max]\
      [-corner corner_name]\
      [-group_count path_count] \
@@ -286,11 +298,7 @@ proc_redirect report_checks {
   parse_report_path_options "report_checks" args "full" 0
   set path_ends [find_timing_paths_cmd "report_checks" args]
   if { $path_ends == {} } {
-    if { $sta_report_unconstrained_paths } {
-      puts "No paths."
-    } else {
-      puts "No constrained paths."
-    }
+    puts "No paths found."
   } else {
     report_path_ends $path_ends
   }
