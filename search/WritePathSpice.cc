@@ -883,17 +883,19 @@ WritePathSpice::recordSpicePortNames(const char *cell_name,
 				     StringVector &tokens)
 {
   auto cell = network_->findLibertyCell(cell_name);
-  auto spice_port_names = new StringVector;
-  for (int i = 2; i < tokens.size(); i++) {
-    const char *port_name = tokens[i].c_str();
-    auto port = cell->findLibertyPort(port_name);
-    auto pg_port = cell->findPgPort(port_name);
-    if (port == NULL && pg_port == NULL)
-      report_->error("subckt %s port %s has no corresponding liberty port or pg_port.\n",
-		     cell_name, port_name);
-    spice_port_names->push_back(port_name);
+  if (cell) {
+    auto spice_port_names = new StringVector;
+    for (int i = 2; i < tokens.size(); i++) {
+      const char *port_name = tokens[i].c_str();
+      auto port = cell->findLibertyPort(port_name);
+      auto pg_port = cell->findPgPort(port_name);
+      if (port == NULL && pg_port == NULL)
+	report_->error("subckt %s port %s has no corresponding liberty port or pg_port.\n",
+		       cell_name, port_name);
+      spice_port_names->push_back(port_name);
+    }
+    cell_spice_port_names_[cell_name] = spice_port_names;
   }
-  cell_spice_port_names_[cell_name] = spice_port_names;
 }
 
 ////////////////////////////////////////////////////////////////
