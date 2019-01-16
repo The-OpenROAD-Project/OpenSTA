@@ -46,9 +46,7 @@ InternalError::InternalError(const char *filename,
 const char *
 InternalError::what() const throw()
 {
-  return stringPrintTmp(strlen("Internal error in : .")
-		        + strlen(filename_) + strlen(msg_) + 5,
-			"Internal error in %s:%d %s.",
+  return stringPrintTmp("Internal error in %s:%d %s.",
 			filename_, line_, msg_);
 }
 
@@ -60,9 +58,7 @@ FileNotReadable::FileNotReadable(const char *filename) :
 const char *
 FileNotReadable::what() const throw()
 {
-  return stringPrintTmp(strlen("Error: cannot read file .")
-			+ strlen(filename_) + 1,
-			"Error: cannot read file %s.", filename_);
+  return stringPrintTmp("Error: cannot read file %s.", filename_);
 }
 
 FileNotWritable::FileNotWritable(const char *filename) :
@@ -73,10 +69,7 @@ FileNotWritable::FileNotWritable(const char *filename) :
 const char *
 FileNotWritable::what() const throw()
 {
-  return stringPrintTmp(strlen("Error: cannot write file .")
-			+ strlen(filename_) + 1,
-			"Error: cannot write file %s.",
-			filename_);
+  return stringPrintTmp("Error: cannot write file %s.", filename_);
 }
 
 } // namespace

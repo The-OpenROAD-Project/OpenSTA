@@ -1265,9 +1265,9 @@ WriteSdc::writeDisabledEdgeSense(Edge *edge) const
 {
   fprintf(stream_, "set_disable_timing ");
   const char *sense = timingSenseString(edge->sense());
-  const char *filter = stringPrintTmp(strlen(sense) + strlen("sense == ") + 1,
-				      "sense == %s", sense);
-  writeGetTimingArcs(edge, filter);
+  string filter;
+  stringPrint(filter, "sense == %s", sense);
+  writeGetTimingArcs(edge, filter.c_str());
   fprintf(stream_, "\n");
 }
 

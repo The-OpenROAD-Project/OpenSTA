@@ -188,11 +188,9 @@ static void
 sourceTclFileEchoVerbose(const char *filename,
 			 Tcl_Interp *interp)
 {
-  const char *source_cmd = "source -echo -verbose ";
-  size_t cmd_length = strlen(source_cmd) + strlen(filename) + 1;
-  char *cmd = stringPrint(cmd_length, "%s%s", source_cmd, filename);
-  Tcl_Eval(interp, cmd);
-  delete [] cmd;
+  string cmd;
+  stringPrint(cmd, "source -echo -verbose %s", filename);
+  Tcl_Eval(interp, cmd.c_str());
 }
 
 void

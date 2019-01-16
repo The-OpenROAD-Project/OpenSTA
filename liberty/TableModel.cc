@@ -592,14 +592,12 @@ reportPvt(const LibertyLibrary *library,
   if (pvt == NULL)
     pvt = library->defaultOperatingConditions();
   if (pvt) {
-    const char *pvt_str = stringPrint(strlen("P = %.*f V = %.*f T = %.*f\n")
-				      + (digits + 10) * 3 + 1,
-				      "P = %.*f V = %.*f T = %.*f\n",
-				      digits, pvt->process(),
-				      digits, pvt->voltage(),
-				      digits, pvt->temperature());
+    string pvt_str;
+    stringPrint(pvt_str, "P = %.*f V = %.*f T = %.*f\n",
+		digits, pvt->process(),
+		digits, pvt->voltage(),
+		digits, pvt->temperature());
     *result += pvt_str;
-    stringDelete(pvt_str);
   }
 }
 
@@ -613,13 +611,11 @@ TableModel::reportPvtScaleFactor(const LibertyLibrary *library,
   if (pvt == NULL)
     pvt = library->defaultOperatingConditions();
   if (pvt) {
-    const char *scale_str = stringPrint(strlen("PVT scale factor = %.*f\n")
-					+ digits + 10 + 1,
-					"PVT scale factor = %.*f\n",
-					digits,
-					scaleFactor(library, cell, pvt));
+    string scale_str;
+    stringPrint(scale_str, "PVT scale factor = %.*f\n",
+		digits,
+		scaleFactor(library, cell, pvt));
     *result += scale_str;
-    stringDelete(scale_str);
   }
 }
 

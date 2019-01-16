@@ -33,8 +33,6 @@ class Instance;
 // Return true if successful.
 bool
 readSpefFile(const char *filename,
-	     gzFile stream,
-	     int line,
 	     Instance *instance,
 	     ParasiticAnalysisPt *ap,
 	     bool increment,

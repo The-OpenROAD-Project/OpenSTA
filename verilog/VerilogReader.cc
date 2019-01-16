@@ -153,7 +153,7 @@ VerilogReader::VerilogReader(Report *report,
 {
   network->setLinkFunc(linkVerilogNetwork);
   VerilogConstant10 constant10_max = 0;
-  constant10_max_ = stringPrint(21, "%llu", ~constant10_max);
+  constant10_max_ = stringPrint("%llu", ~constant10_max);
   constant10_max_length_ = strlen(constant10_max_);
 }
 
@@ -851,8 +851,7 @@ VerilogModule::checkInstanceName(VerilogInst *inst,
     do {
       if (replacement_name)
 	stringDelete(replacement_name);
-      replacement_name = stringPrint(strlen(inst_name) + 4,
-				     "%s_%d", inst_name, i);
+      replacement_name = stringPrint("%s_%d", inst_name, i);
     } while (inst_names.findKey(replacement_name));
     reader->warn(filename_, inst->line(),
 		 "instance name %s duplicated - renamed to %s.\n",
@@ -1161,14 +1160,14 @@ static const char *
 verilogBusBitNameTmp(const char *bus_name,
 		     int index)
 {
-  return stringPrintTmp(strlen(bus_name) + 8, "%s[%d]", bus_name, index);
+  return stringPrintTmp("%s[%d]", bus_name, index);
 }
 
 static const char *
 verilogBusBitName(const char *bus_name,
 		  int index)
 {
-  return stringPrint(strlen(bus_name) + 8, "%s[%d]", bus_name, index);
+  return stringPrint("%s[%d]", bus_name, index);
 }
 
 class VerilogConstantNetNameIterator : public VerilogNetNameIterator
@@ -2041,10 +2040,11 @@ VerilogReader::makeBlackBoxOrderedPorts(Cell *cell,
   while (pin_iter.hasNext()) {
     VerilogNet *net = pin_iter.next();
     size_t size = net->size(parent_module);
-    char *port_name = stringPrintTmp(8, "p_%lu", port_index);
+    char *port_name = stringPrint("p_%d", port_index);
     Port *port = (size == 1)
       ? network_->makePort(cell, port_name)
       : network_->makeBusPort(cell, port_name, size - 1, 0);
+    stringDelete(port_name);
     network_->setDirection(port, PortDirection::bidirect());
     port_index++;
   }
@@ -2161,7 +2161,7 @@ VerilogReader::linkWarn(const char *filename,
 {
   va_list args;
   va_start(args, msg);
-  char *msg_str = stringPrintArgs(strlen(msg) + 128, msg, args);
+  char *msg_str = stringPrintArgs(msg, args);
   VerilogError *error = new VerilogError(filename, line, msg_str, true);
   link_errors_.push_back(error);
   va_end(args);
@@ -2174,7 +2174,7 @@ VerilogReader::linkError(const char *filename,
 {
   va_list args;
   va_start(args, msg);
-  char *msg_str = stringPrintArgs(strlen(msg) + 128, msg, args);
+  char *msg_str = stringPrintArgs(msg, args);
   VerilogError *error = new VerilogError(filename, line, msg_str, false);
   link_errors_.push_back(error);
   va_end(args);

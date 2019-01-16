@@ -84,7 +84,7 @@ LibertyBuilder::makeBusPortBit(ConcreteLibrary *library,
 			       const char *bus_name,
 			       int bit_index)
 {
-  char *bit_name = stringPrintTmp(strlen(bus_name) + 6, "%s%c%d%c",
+  char *bit_name = stringPrintTmp("%s%c%d%c",
 				  bus_name,
 				  library->busBrktLeft(),
 				  bit_index,

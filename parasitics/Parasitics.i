@@ -34,24 +34,24 @@ using sta::TmpFloatSeq;
 %inline %{
 
 bool
-read_parasitics_cmd(const char *filename,
-		    Instance *instance,
-		    MinMaxAll *min_max,
-		    bool increment,
-		    bool pin_cap_included,
-		    bool keep_coupling_caps,
-		    float coupling_cap_factor,
-		    ReduceParasiticsTo reduce_to,
-		    bool delete_after_reduce,
-		    bool quiet,
-		    bool save)
+read_spef_cmd(const char *filename,
+	      Instance *instance,
+	      MinMaxAll *min_max,
+	      bool increment,
+	      bool pin_cap_included,
+	      bool keep_coupling_caps,
+	      float coupling_cap_factor,
+	      ReduceParasiticsTo reduce_to,
+	      bool delete_after_reduce,
+	      bool quiet,
+	      bool save)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->readParasitics(filename, instance, min_max,
-				    increment, pin_cap_included,
-				    keep_coupling_caps, coupling_cap_factor,
-				    reduce_to, delete_after_reduce,
-				    save, quiet);
+  return Sta::sta()->readSpef(filename, instance, min_max,
+			      increment, pin_cap_included,
+			      keep_coupling_caps, coupling_cap_factor,
+			      reduce_to, delete_after_reduce,
+			      save, quiet);
 }
 
 TmpFloatSeq *

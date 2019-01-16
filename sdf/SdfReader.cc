@@ -1043,23 +1043,25 @@ SdfReader::sdfError(const char *fmt, ...)
 Pin *
 SdfReader::findPin(const char *name)
 {
-  const char *path_name = (path_)
-    ? stringPrintTmp(strlen(name) + strlen(name) + 2, "%s%c%s",
-		     path_, divider_, name)
-    : name;
-  return network_->findPin(path_name);
+  if (path_) {
+    string path_name;
+    stringPrint(path_name, path_, divider_, name);
+    Pin *pin = network_->findPin(path_name.c_str());
+    return pin;
+  }
+  else
+    return network_->findPin(name);
 }
 
 Instance *
 SdfReader::findInstance(const char *name)
 {
-  const char *path_name = (path_)
-    ? stringPrintTmp(strlen(name) + strlen(name) + 2, "%s%c%s",
-		     path_, divider_, name)
-    : name;
-  Instance *inst = network_->findInstance(path_name);
+  string inst_name = name;
+  if (path_)
+    stringPrint(inst_name, "%s%c%s", path_, divider_, name);
+  Instance *inst = network_->findInstance(inst_name.c_str());
   if (inst == NULL)
-    sdfError("instance %s not found.\n", path_name);
+    sdfError("instance %s not found.\n", inst_name.c_str());
   return inst;
 }
 

@@ -583,9 +583,7 @@ const char *
 PathDelay::asString(const Network *network) const
 {
   const char *from_thru_to = fromThruToString(network);
-  const char *result = stringPrintTmp(strlen("PathDelay") + 10
-				      + strlen(from_thru_to) + 1,
-				      "PathDelay %.3fns%s",
+  const char *result = stringPrintTmp("PathDelay %.3fns%s",
 				      delay_ * 1E+9F,
 				      from_thru_to);
   return result;
@@ -776,9 +774,7 @@ const char *
 MultiCyclePath::asString(const Network *network) const
 {
   const char *from_thru_to = fromThruToString(network);
-  const char *result = stringPrintTmp(strlen("Multicycle -max ") + 5
-				      + strlen(from_thru_to) + 1,
-				      "Multicycle %s %d%s",
+  const char *result = stringPrintTmp("Multicycle %s %d%s",
 				      (use_end_clk_) ? "-end" : "-start",
 				      path_multiplier_,
 				      from_thru_to);

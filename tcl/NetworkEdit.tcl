@@ -48,7 +48,7 @@ proc parse_connect_pins { arg } {
 	set port [$pin port]
       } elseif { $object_type == "Port" } {
 	# Explicit port arg - convert to pin.
-	set pin [find_pin [$obj name]]
+	set pin [find_pin [get_name $obj]]
 	set inst [$pin instance]
 	set port [$pin port]
       } else {

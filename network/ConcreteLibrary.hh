@@ -52,7 +52,8 @@ public:
   void setName(const char *name);
   virtual const char *filename() const { return filename_; }
   void addCell(ConcreteCell *cell);
-  virtual ConcreteCell *makeCell(const char *name, bool is_leaf,
+  virtual ConcreteCell *makeCell(const char *name,
+				 bool is_leaf,
 				 const char *filename);
   void deleteCell(ConcreteCell *cell);
   ConcreteLibraryCellIterator *cellIterator() const;
@@ -61,10 +62,12 @@ public:
 				 CellSeq *cells) const;
   virtual char busBrktLeft() { return bus_brkt_left_; }
   virtual char busBrktRight() { return bus_brkt_right_; }
-  void setBusBrkts(char left, char right);
+  void setBusBrkts(char left,
+		   char right);
 
 protected:
-  void renameCell(ConcreteCell *cell, const char *cell_name);
+  void renameCell(ConcreteCell *cell,
+		  const char *cell_name);
 
   const char *name_;
   const char *filename_;
@@ -98,26 +101,39 @@ public:
   // Cell acts as port factory.
   ConcretePort *makePort(const char *name);
   // Bus port.
-  ConcretePort *makeBusPort(const char *name, int from_index, int to_index);
+  ConcretePort *makeBusPort(const char *name,
+			    int from_index,
+			    int to_index);
   // Bundle port.
-  ConcretePort *makeBundlePort(const char *name, ConcretePortSeq *members);
+  ConcretePort *makeBundlePort(const char *name,
+			       ConcretePortSeq *members);
   // Group previously defined bus bit ports together.
-  void groupBusPorts(const char *bus_brkts_left, const char *bus_brkts_right);
+  void groupBusPorts(const char *bus_brkts_left,
+		     const char *bus_brkts_right);
   size_t portCount() const;
   void setName(const char *name);
   virtual void addPort(ConcretePort *port);
   void addPortBit(ConcretePort *port);
 
 protected:
-  ConcreteCell(ConcreteLibrary *library, const char *name,
-	       bool is_leaf, const char *filename);
-  ConcretePort *makeBusPort(const char *name, int from_index, int to_index,
+  ConcreteCell(ConcreteLibrary *library,
+	       const char *name,
+	       bool is_leaf,
+	       const char *filename);
+  ConcretePort *makeBusPort(const char *name,
+			    int from_index,
+			    int to_index,
 			    ConcretePortSeq *members);
-  void makeBusPortBits(ConcretePort *bus_port, const char *name,
-		       int from_index, int to_index);
+  void makeBusPortBits(ConcretePort *bus_port,
+		       const char *name,
+		       int from_index,
+		       int to_index);
   // Bus port bit (internal to makeBusPortBits).
-  virtual ConcretePort *makePort(const char *bit_name, int bit_index);
-  void makeBusPortBit(ConcretePort *bus_port, const char *name, int index);
+  virtual ConcretePort *makePort(const char *bit_name,
+				 int bit_index);
+  void makeBusPortBit(ConcretePort *bus_port,
+		      const char *name,
+		      int index);
 
   ConcreteLibrary *library_;
   const char *name_;
@@ -182,9 +198,13 @@ public:
 
 protected:
   // Constructors for factory in cell class.
-  ConcretePort(ConcreteCell *cell, const char *name,
-	       bool is_bus, int from_index, int to_index,
-	       bool is_bundle, ConcretePortSeq *member_ports);
+  ConcretePort(ConcreteCell *cell,
+	       const char *name,
+	       bool is_bus,
+	       int from_index,
+	       int to_index,
+	       bool is_bundle,
+	       ConcretePortSeq *member_ports);
 
   const char *name_;
   ConcreteCell *cell_;

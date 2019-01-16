@@ -55,12 +55,9 @@ split(const string &text,
       const string &delims,
       // Return values.
       StringVector &tokens);
+
 void
 streamPrint(ofstream &stream,
-	    const char *fmt,
-	    ...) __attribute__((format (printf, 2, 3)));
-void
-stringPrint(string &str,
 	    const char *fmt,
 	    ...) __attribute__((format (printf, 2, 3)));
 
@@ -231,6 +228,7 @@ WritePathSpice::WritePathSpice(Path *path,
 
 WritePathSpice::~WritePathSpice()
 {
+  stringDelete(net_name_);
   cell_spice_port_names_.deleteContents();
 }
 
@@ -257,17 +255,17 @@ WritePathSpice::writeSpice()
 void
 WritePathSpice::writeHeader()
 {
-  const MinMax *min_max = path_->minMax(this);
-  const Pvt *pvt = sdc_->operatingConditions(min_max);
+  auto min_max = path_->minMax(this);
+  auto pvt = sdc_->operatingConditions(min_max);
   if (pvt == NULL)
     pvt = network_->defaultLibertyLibrary()->defaultOperatingConditions();
-  float temp = pvt->temperature();
+  auto temp = pvt->temperature();
   streamPrint(spice_stream_, ".temp %.1f\n", temp);
   streamPrint(spice_stream_, ".include \"%s\"\n", model_filename_);
   streamPrint(spice_stream_, ".include \"%s\"\n", subckt_filename_);
 
-  float max_time = maxTime();
-  float time_step = max_time / 1e+3;
+  auto max_time = maxTime();
+  auto time_step = max_time / 1e+3;
   streamPrint(spice_stream_, ".tran %.3g %.3g\n\n",
 	      time_step, max_time);
 }
@@ -275,8 +273,8 @@ WritePathSpice::writeHeader()
 float
 WritePathSpice::maxTime()
 {
-  Stage input_stage = stageFirst();
-  Path *input_path = stageDrvrPath(input_stage);
+  auto input_stage = stageFirst();
+  auto input_path = stageDrvrPath(input_stage);
   auto input_slew = input_path->slew(this);
   auto end_slew = path_->slew(this);
   auto max_time = delayAsFloat(input_slew
@@ -293,7 +291,7 @@ WritePathSpice::writeStageInstances()
   streamPrint(spice_stream_, "*****************\n\n");
 
   for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
-    const char *stage_name = stageName(stage).c_str();
+    auto stage_name = stageName(stage).c_str();
     if (stage == stageFirst())
       streamPrint(spice_stream_, "x%s %s %s %s\n",
 		  stage_name,
@@ -325,7 +323,7 @@ WritePathSpice::pgPortVoltage(LibertyPgPort *pg_port)
   auto cell = pg_port->cell();
   auto voltage_name = pg_port->voltageName();
   auto lib = cell->libertyLibrary();
-  float voltage = lib->supplyVoltage(voltage_name);
+  auto voltage = lib->supplyVoltage(voltage_name);
   return voltage;
 }
 
@@ -336,7 +334,7 @@ WritePathSpice::writeInputSource()
   streamPrint(spice_stream_, "* Input source\n");
   streamPrint(spice_stream_, "**************\n\n");
 
-  Stage input_stage = stageFirst();
+  auto input_stage = stageFirst();
   streamPrint(spice_stream_, "v1 %s 0 pwl(\n",
 	      stageDrvrPinName(input_stage));
   auto wire_arc = stageWireArc(input_stage);
@@ -349,13 +347,13 @@ WritePathSpice::writeInputSource()
     volt0 = power_voltage_;
     volt1 = gnd_voltage_;
   }
-  Path *input_path = stageDrvrPath(input_stage);
+  auto input_path = stageDrvrPath(input_stage);
   auto input_slew = delayAsFloat(input_path->slew(this));
   if (input_slew == 0.0)
     input_slew = maxTime() / 1e+3;
   // Arbitrary offset.
-  float time0 = input_slew;
-  float time1 = time0 + input_slew;
+  auto time0 = input_slew;
+  auto time1 = time0 + input_slew;
   streamPrint(spice_stream_, "+%.3e %.3e\n", 0.0, volt0);
   streamPrint(spice_stream_, "+%.3e %.3e\n", time0, volt0);
   streamPrint(spice_stream_, "+%.3e %.3e\n", time1, volt1);
@@ -370,7 +368,7 @@ WritePathSpice::writeMeasureStmts()
   streamPrint(spice_stream_, "* Measure statements\n");
   streamPrint(spice_stream_, "********************\n\n");
 
-  for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
+  for (auto stage = stageFirst(); stage <= stageLast(); stage++) {
     auto input_path = (stage == stageFirst())
       ? stageDrvrPath(stage)
       : stageGateInputPath(stage);
@@ -455,7 +453,7 @@ WritePathSpice::writeStageSubckts()
   streamPrint(spice_stream_, "* Stage subckts\n");
   streamPrint(spice_stream_, "***************\n\n");
 
-  for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
+  for (auto stage = stageFirst(); stage <= stageLast(); stage++) {
     if (stage == stageFirst())
       writeInputStage(stage);
     else
@@ -493,17 +491,17 @@ WritePathSpice::writeGateStage(Stage stage)
 	      input_pin_name,
 	      drvr_pin_name,
 	      load_pin_name);
-  Instance *inst = network_->instance(input_pin);
-  const char *inst_name = network_->pathName(inst);
-  LibertyCell *cell = network_->libertyCell(inst);
-  const char *cell_name = cell->name();
+  auto inst = network_->instance(input_pin);
+  auto inst_name = network_->pathName(inst);
+  auto cell = network_->libertyCell(inst);
+  auto cell_name = cell->name();
   auto spice_port_names = cell_spice_port_names_[cell_name];
 
   // Instance subckt call.
   streamPrint(spice_stream_, "x%s", inst_name);
   StringVector::Iterator port_iter(spice_port_names);
   while (port_iter.hasNext()) {
-    const char *subckt_port_name = port_iter.next().c_str();
+    auto subckt_port_name = port_iter.next().c_str();
     auto pin = network_->findPin(inst, subckt_port_name);
     auto pg_port = cell->findPgPort(subckt_port_name);
     const char *pin_name;
@@ -542,8 +540,8 @@ sensitizationValues(FuncExpr *expr,
     break;
   }
   case FuncExpr::op_or: {
-    FuncExpr *left = expr->left();
-    FuncExpr *right = expr->right();
+    auto left = expr->left();
+    auto right = expr->right();
     if (left->port() == from_port
 	&& right->op() == FuncExpr::op_port)
       port_values[right->port()] = logic_zero;
@@ -553,8 +551,8 @@ sensitizationValues(FuncExpr *expr,
     break;
   }
   case FuncExpr::op_and: {
-    FuncExpr *left = expr->left();
-    FuncExpr *right = expr->right();
+    auto left = expr->left();
+    auto right = expr->right();
     if (left->port() == from_port
 	&& right->op() == FuncExpr::op_port)
       port_values[right->port()] = logic_one;
@@ -565,8 +563,8 @@ sensitizationValues(FuncExpr *expr,
   }
   case FuncExpr::op_xor: {
     // Need to know timing arc sense to get this right.
-    FuncExpr *left = expr->left();
-    FuncExpr *right = expr->right();
+    auto left = expr->left();
+    auto right = expr->right();
     if (left->port() == from_port
 	&& right->op() == FuncExpr::op_port)
       port_values[right->port()] = logic_zero;
@@ -591,7 +589,7 @@ WritePathSpice::writeStageVoltageSources(LibertyCell *cell,
 {
   auto from_port_name = from_port->name();
   auto drvr_port_name = drvr_port->name();
-  LibertyLibrary *lib = cell->libertyLibrary();
+  auto lib = cell->libertyLibrary();
   LibertyPortLogicValues port_values;
   sensitizationValues(drvr_port->function(), from_port, port_values);
   int volt_source = 1;
@@ -613,7 +611,7 @@ WritePathSpice::writeStageVoltageSources(LibertyCell *cell,
     } else if (!(stringEq(subckt_port_name, from_port_name)
 		 || stringEq(subckt_port_name, drvr_port_name))) {
       // Input voltage to sensitize path from gate input to output.
-      LibertyPort *port = cell->findLibertyPort(subckt_port_name);
+      auto port = cell->findLibertyPort(subckt_port_name);
       if (port) {
 	const char *pg_port_name = NULL;
 	bool port_has_value;
@@ -795,8 +793,7 @@ WritePathSpice::nodeName(ParasiticNode *node)
       node_index = next_node_index_++;
       node_map_[node] = node_index;
     }
-    return stringPrintTmp(strlen(net_name_) + 10, "%s/%d",
-			  net_name_, node_index);
+    return stringPrintTmp("%s/%d", net_name_, node_index);
   }
 }
 
@@ -821,7 +818,7 @@ WritePathSpice::writeSubckts()
 	split(line, " \t", tokens);
 	if (tokens.size() >= 2
 	    && stringEqual(tokens[0].c_str(), ".subckt")) {
-	  const char *cell_name = tokens[1].c_str();
+	  auto cell_name = tokens[1].c_str();
 	  if (path_cell_names.hasKey(cell_name)) {
 	    subckts_stream << line << "\n";
 	    bool found_ends = false;
@@ -848,7 +845,7 @@ WritePathSpice::writeSubckts()
 	report_->error("The following subkcts are missing from %s\n",
 		       lib_subckt_filename_);
 	while (cell_iter.hasNext()) {
-	  const char *cell_name = cell_iter.next();
+	  auto cell_name = cell_iter.next();
 	  report_->printError(" %s\n", cell_name);
 	}
       }
@@ -866,10 +863,10 @@ void
 WritePathSpice::findPathCellnames(// Return values.
 				  StringSet &path_cell_names)
 {
-  for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
+  for (auto stage = stageFirst(); stage <= stageLast(); stage++) {
     auto arc = stageGateArc(stage);
     if (arc) {
-      LibertyCell *cell = arc->set()->libertyCell();
+      auto cell = arc->set()->libertyCell();
       if (cell) {
 	debugPrint1(debug_, "write_spice", 2, "cell %s\n", cell->name());
 	path_cell_names.insert(cell->name());
@@ -885,8 +882,8 @@ WritePathSpice::recordSpicePortNames(const char *cell_name,
   auto cell = network_->findLibertyCell(cell_name);
   if (cell) {
     auto spice_port_names = new StringVector;
-    for (int i = 2; i < tokens.size(); i++) {
-      const char *port_name = tokens[i].c_str();
+    for (auto i = 2; i < tokens.size(); i++) {
+      auto port_name = tokens[i].c_str();
       auto port = cell->findLibertyPort(port_name);
       auto pg_port = cell->findPgPort(port_name);
       if (port == NULL && pg_port == NULL)
@@ -941,28 +938,28 @@ WritePathSpice::stageLoadPathIndex(Stage stage)
 PathRef *
 WritePathSpice::stageGateInputPath(Stage stage)
 {
-  int path_index = stageGateInputPathIndex(stage);
+  auto path_index = stageGateInputPathIndex(stage);
   return path_expanded_.path(path_index);
 }
 
 PathRef *
 WritePathSpice::stageDrvrPath(Stage stage)
 {
-  int path_index = stageDrvrPathIndex(stage);
+  auto path_index = stageDrvrPathIndex(stage);
   return path_expanded_.path(path_index);
 }
 
 PathRef *
 WritePathSpice::stageLoadPath(Stage stage)
 {
-  int path_index = stageLoadPathIndex(stage);
+  auto path_index = stageLoadPathIndex(stage);
   return path_expanded_.path(path_index);
 }
 
 TimingArc *
 WritePathSpice::stageGateArc(Stage stage)
 {
-  int path_index = stageDrvrPathIndex(stage);
+  auto path_index = stageDrvrPathIndex(stage);
   if (path_index >= 0)
     return path_expanded_.prevArc(path_index);
   else
@@ -972,86 +969,69 @@ WritePathSpice::stageGateArc(Stage stage)
 TimingArc *
 WritePathSpice::stageWireArc(Stage stage)
 {
-  int path_index = stageLoadPathIndex(stage);
+  auto path_index = stageLoadPathIndex(stage);
   return path_expanded_.prevArc(path_index);
 }
 
 Edge *
 WritePathSpice::stageGateEdge(Stage stage)
 {
-  PathRef *path = stageGateInputPath(stage);
-  TimingArc *arc = stageGateArc(stage);
+  auto path = stageGateInputPath(stage);
+  auto arc = stageGateArc(stage);
   return path->prevEdge(arc, this);
 }
 
 Edge *
 WritePathSpice::stageWireEdge(Stage stage)
 {
-  PathRef *path = stageLoadPath(stage);
-  TimingArc *arc = stageWireArc(stage);
+  auto path = stageLoadPath(stage);
+  auto arc = stageWireArc(stage);
   return path->prevEdge(arc, this);
 }
 
 Pin *
 WritePathSpice::stageInputPin(Stage stage)
 {
-  PathRef *path = stageGateInputPath(stage);
+  auto path = stageGateInputPath(stage);
   return path->pin(this);
 }
 
 Pin *
 WritePathSpice::stageDrvrPin(Stage stage)
 {
-  PathRef *path = stageDrvrPath(stage);
+  auto path = stageDrvrPath(stage);
   return path->pin(this);
 }
 
 Pin *
 WritePathSpice::stageLoadPin(Stage stage)
 {
-  PathRef *path = stageLoadPath(stage);
+  auto path = stageLoadPath(stage);
   return path->pin(this);
 }
 
 const char *
 WritePathSpice::stageGateInputPinName(Stage stage)
 {
-  const Pin *pin = stageInputPin(stage);
+  auto pin = stageInputPin(stage);
   return network_->pathName(pin);
 }
 
 const char *
 WritePathSpice::stageDrvrPinName(Stage stage)
 {
-  Pin *pin = stageDrvrPin(stage);
+  auto pin = stageDrvrPin(stage);
   return network_->pathName(pin);
 }
 
 const char *
 WritePathSpice::stageLoadPinName(Stage stage)
 {
-  const Pin *pin = stageLoadPin(stage);
+  auto pin = stageLoadPin(stage);
   return network_->pathName(pin);
 }
 
 ////////////////////////////////////////////////////////////////
-
-void
-split(const string &text,
-      const string &delims,
-      // Return values.
-      StringVector &tokens)
-{
-  auto start = text.find_first_not_of(delims);
-  auto end = text.find_first_of(delims, start);
-  while (end != string::npos) {
-    tokens.push_back(text.substr(start, end - start));
-    start = text.find_first_not_of(delims, end);
-    end = text.find_first_of(delims, start);
-  }
-  if (start != string::npos)
-    tokens.push_back(text.substr(start));
-}
 
 // fprintf for c++ streams.
 // Yes, I hate formatted output to ostream THAT much.
@@ -1069,19 +1049,22 @@ streamPrint(ofstream &stream,
   va_end(args);
 }
 
-// print for c++ strings.
+
 void
-stringPrint(string &str,
-	    const char *fmt,
-	    ...)
+split(const string &text,
+      const string &delims,
+      // Return values.
+      StringVector &tokens)
 {
-  va_list args;
-  va_start(args, fmt);
-  char *result;
-  vasprintf(&result, fmt, args);
-  str = result;
-  free(result);
-  va_end(args);
+  auto start = text.find_first_not_of(delims);
+  auto end = text.find_first_of(delims, start);
+  while (end != string::npos) {
+    tokens.push_back(text.substr(start, end - start));
+    start = text.find_first_not_of(delims, end);
+    end = text.find_first_of(delims, start);
+  }
+  if (start != string::npos)
+    tokens.push_back(text.substr(start));
 }
 
 } // namespace

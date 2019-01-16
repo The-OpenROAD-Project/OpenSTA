@@ -1,22 +1,14 @@
-# OpenSTA, Static Timing Analyzer
+# Parallax Static Timing Analyzer
 # Copyright (c) 2019, Parallax Software, Inc.
+# All rights reserved.
 # 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# No part of this document may be copied, transmitted or
+# disclosed in any form or fashion without the express
+# written consent of Parallax Software, Inc.
 
 cmake_minimum_required (VERSION 3.9)
 
-project(STA VERSION 2.0.4)
+project(STA VERSION 2.0.5)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 11)
@@ -113,19 +105,12 @@ set(STA_SOURCE
   parasitics/EstimateParasitics.cc
   parasitics/NullParasitics.cc
   parasitics/Parasitics.cc
-  parasitics/ReadParasitics.cc
   parasitics/ReduceParasitics.cc
   parasitics/SpefLex.cc
   parasitics/SpefNamespace.cc
   parasitics/SpefParse.cc
   parasitics/SpefReader.cc
   parasitics/SpefReaderPvt.hh
-  parasitics/SpfLex.cc
-  parasitics/SpfParse.cc
-  parasitics/SpfReader.cc
-  parasitics/SpfReaderPvt.hh
-  parasitics/SpfSpefReader.cc
-  parasitics/SpfSpefReader.cc
 
   sdc/Clock.cc
   sdc/ClockGatingCheck.cc
@@ -288,11 +273,9 @@ set(STA_HEADERS
 	parasitics/NullParasitics.hh
 	parasitics/Parasitics.hh
 	parasitics/ParasiticsClass.hh
-	parasitics/ReadParasitics.hh
 	parasitics/ReduceParasitics.hh
 	parasitics/SpefNamespace.hh
 	parasitics/SpefReader.hh
-	parasitics/SpfReader.hh
 
 	sdc/Clock.hh
 	sdc/ClockGatingCheck.hh
@@ -596,19 +579,6 @@ flex_target(SpefLex parasitics/SpefLex.ll ${STA_HOME}/parasitics/SpefLex.cc
 		    )
 
 add_flex_bison_dependency(SpefLex SpefParser)
-
-# Spf scan/parse.
-bison_target(SpfParser parasitics/SpfParse.yy ${STA_HOME}/parasitics/SpfParse.cc
-		       DEFINES_FILE ${STA_HOME}/parasitics/SpfParse.hh
-		       COMPILE_FLAGS --name-prefix=SpfParse_
-		       )
-
-flex_target(SpfLex parasitics/SpfLex.ll ${STA_HOME}/parasitics/SpfLex.cc
-		   DEFINES_FILE ${STA_HOME}/parasitics/SpfLex.hh
-		   COMPILE_FLAGS --prefix=SpfLex_
-		   )
-
-add_flex_bison_dependency(SpfLex SpfParser)
 
 # Verilog scan/parse.
 bison_target(VerilogParser verilog/VerilogParse.yy ${STA_HOME}/verilog/VerilogParse.cc

@@ -91,6 +91,7 @@ INDEX   "*"{POS_INTEGER}
 "*CELL" { return CELL; }
 "*CONN" { return CONN; }
 "*C_UNIT" { return C_UNIT; }
+"*SPEF" { return SPEF; }
 "*DATE" { return DATE; }
 "*DEFINE" { return DEFINE; }
 "*DELIMITER" { return DELIMITER; }

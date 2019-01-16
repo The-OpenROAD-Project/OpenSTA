@@ -461,11 +461,7 @@ LibertyReader::defineScalingFactorVisitors()
 	while (tr_iter.hasNext()) {
 	  TransRiseFall *tr = tr_iter.next();
 	  const char *tr_name = (tr == TransRiseFall::rise()) ? "rise":"fall";
-	  const char *attr_name = stringPrintTmp(strlen(pvt_name)
-						 + strlen(type_name)
-						 + strlen(tr_name)
-						 + 5, // k___\0
-						 "k_%s_%s_%s",
+	  const char *attr_name = stringPrintTmp("k_%s_%s_%s",
 						 pvt_name,
 						 type_name,
 						 tr_name);
@@ -477,11 +473,7 @@ LibertyReader::defineScalingFactorVisitors()
 	while (tr_iter.hasNext()) {
 	  TransRiseFall *tr = tr_iter.next();
 	  const char *tr_name = (tr == TransRiseFall::rise()) ? "rise":"fall";
-	  const char *attr_name = stringPrintTmp(strlen(pvt_name)
-						 + strlen(type_name)
-						 + strlen(tr_name)
-						 + 5, // k___\0
-						 "k_%s_%s_%s",
+	  const char *attr_name = stringPrintTmp("k_%s_%s_%s",
 						 pvt_name,
 						 tr_name,
 						 type_name);
@@ -493,11 +485,7 @@ LibertyReader::defineScalingFactorVisitors()
 	while (tr_iter.hasNext()) {
 	  TransRiseFall *tr = tr_iter.next();
 	  const char *tr_name = (tr == TransRiseFall::rise()) ? "high":"low";
-	  const char *attr_name = stringPrintTmp(strlen(pvt_name)
-						 + strlen(type_name)
-						 + strlen(tr_name)
-						 + 5, // k___\0
-						 "k_%s_%s_%s",
+	  const char *attr_name = stringPrintTmp("k_%s_%s_%s",
 						 pvt_name,
 						 tr_name,
 						 type_name);
@@ -505,10 +493,7 @@ LibertyReader::defineScalingFactorVisitors()
 	}
       }
       else {
-	const char *attr_name = stringPrintTmp(strlen(pvt_name)
-					       + strlen(type_name)
-					       + 4, // k__\0
-					       "k_%s_%s",
+	const char *attr_name = stringPrintTmp("k_%s_%s",
 					       pvt_name,
 					       type_name);
 	defineAttrVisitor(attr_name,&LibertyReader::visitScaleFactor);
@@ -4327,12 +4312,7 @@ LibertyReader::parseFunc(const char *func,
 			 const char *attr_name,
 			 int line)
 {
-  const char *error_msg = stringPrintTmp(strlen(filename_)
-					 + strlen(", line ")
-					 + 8
-					 + strlen(attr_name)
-					 + 2,
-					 "%s, line %d %s",
+  const char *error_msg = stringPrintTmp("%s, line %d %s",
 					 filename_,		
 					 line,
 					 attr_name);
@@ -5221,8 +5201,7 @@ PortNameBitIterator::findRangeBusNameNext()
       ? range_bit_ >= range_to_
       : range_bit_ <= range_to_) {
     LibertyLibrary *library = visitor_->library();
-    const char *bus_bit_name = stringPrintTmp(strlen(range_bus_name_) + 10,
-					      "%s%c%d%c",
+    const char *bus_bit_name = stringPrintTmp("%s%c%d%c",
 					      range_bus_name_,
 					      library->busBrktLeft(),
 					      range_bit_,

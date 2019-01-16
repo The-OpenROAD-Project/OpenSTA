@@ -49,6 +49,16 @@ Note that the file hierarchy of the CUDD installation changed with
 version 3.0. This build only supports the 3.0 layout but only small
 changes to configure.ac are required to support older versions.
 
+ cd $HOME/cudd-3.0.0
+ mkdir $HOME/cudd
+ ./configure --prefix $HOME/cudd
+ make
+ make install
+
+And then pass the install directory to cmake before building OpenSTA.
+
+ cmake .. -DCUDD=$HOME/cudd
+
 The Zlib library is an optional.  If the configure script finds libz,
 OpenSTA can read Verilog, SDF, SPF, and SPEF files compressed with
 gzip.
@@ -70,8 +80,10 @@ Optional cmake variables passed as -D<var>=<value> arguments to cmake
 are show below.
 
  CMAKE_BUILD_TYPE DEBUG|RELEASE
+ CMAKE_CXX_FLAGS - additional compiler flags
  TCL_LIB - path to tcl library
  TCL_HEADER - path to tcl.h
+ ZLIB_ROOT - path to zlib
  CMAKE_INSTALL_PREFIX
 
 If TCL_LIB is specified the cmake script will attempt to locate the
@@ -85,6 +97,10 @@ To install in a different directory with cmake use:
 or use the DESTDIR variable with make.
 
  make DESTDIR=<prefix_path> install
+
+If you make changes to CMakeLists.txt you may need to clean out
+existing cmake cached variable values by deleting all of the
+files in the build directory.
 
 Building from a tarfile
 -----------------------

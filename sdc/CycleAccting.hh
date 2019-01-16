@@ -25,15 +25,11 @@
 
 namespace sta {
 
-// Maximum number of cycles we are willing to multiply the period by
-// looking for a minimum separation of edges to another clock.
-const int large_period_clk_expansion_cycle_count = 1000;
-const int small_period_clk_expansion_cycle_count = 101;
-
 class CycleAccting
 {
 public:
-  CycleAccting(const ClockEdge *src, const ClockEdge *tgt);
+  CycleAccting(const ClockEdge *src,
+	       const ClockEdge *tgt);
   // Fill in required times.
   void findDelays(StaState *sta);
   // Find delays when source clk edge is the default arrival clock edge
@@ -88,7 +84,8 @@ private:
 class CycleAcctingLess
 {
 public:
-  bool operator()(const CycleAccting *acct1, const CycleAccting *acct2) const;
+  bool operator()(const CycleAccting *acct1,
+		  const CycleAccting *acct2) const;
 };
 
 } // namespace

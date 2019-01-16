@@ -98,11 +98,11 @@ Tag::asString(bool report_index,
   string str;
 
   if (report_index)
-    str += stringPrintTmp(6, "%4d ", index_);
+    str += stringPrintTmp("%4d ", index_);
 
   const TransRiseFall *tr = transition();
   PathAnalysisPt *path_ap = corners->findPathAnalysisPt(path_ap_index_);
-  str += stringPrintTmp(25, "%s %s/%d ",
+  str += stringPrintTmp("%s %s/%d ",
 			tr->asString(),
 			path_ap->pathMinMax()->asString(),
 			path_ap_index_);

@@ -42,7 +42,7 @@ int SpefLex_lex();
   sta::Net *net;
 }
 
-%token DESIGN DATE VENDOR PROGRAM DESIGN_FLOW
+%token SPEF DESIGN DATE VENDOR PROGRAM DESIGN_FLOW
 %token PVERSION DIVIDER DELIMITER
 %token BUS_DELIMITER T_UNIT C_UNIT R_UNIT L_UNIT NAME_MAP
 %token POWER_NETS GROUND_NETS KW_C KW_L KW_S KW_D KW_V
@@ -142,6 +142,7 @@ hchar:
 /****************************************************************/
 
 header_def:
+	spef_version
 	design_name
 	date
 	vendor
@@ -152,6 +153,11 @@ header_def:
 	pin_delim_def
 	bus_delim_def
 	unit_def
+;
+
+spef_version:
+	SPEF QSTRING
+	{ sta::stringDelete($2); }
 ;
 
 design_name:

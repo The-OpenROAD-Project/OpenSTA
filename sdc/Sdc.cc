@@ -2033,15 +2033,20 @@ Sdc::makeClockGroups(const char *name,
 		     bool allow_paths,
 		     const char *comment)
 {
+  char *gen_name = NULL;
   if (name == NULL
       || name[0] == '\0')
-    name = makeClockGroupsName();
-  ClockGroups *groups = clk_groups_name_map_.findKey(name);
-  if (groups)
-    removeClockGroups(groups);
-  groups = new ClockGroups(name, logically_exclusive, physically_exclusive,
-			   asynchronous, allow_paths, comment);
+    name = gen_name = makeClockGroupsName();
+  else {
+    ClockGroups *groups = clk_groups_name_map_.findKey(name);
+    if (groups)
+      removeClockGroups(groups);
+  }
+  ClockGroups *groups = new ClockGroups(name, logically_exclusive,
+					physically_exclusive,
+					asynchronous, allow_paths, comment);
   clk_groups_name_map_[groups->name()] = groups;
+  stringDelete(gen_name);
   return groups;
 }
 
@@ -2049,11 +2054,12 @@ Sdc::makeClockGroups(const char *name,
 char *
 Sdc::makeClockGroupsName()
 {
-  char *name;
+  char *name = NULL;
   int i = 0;
   do {
     i++;
-    name = stringPrintTmp(10, "group%d", i);
+    stringDelete(name);
+    name = stringPrint("group%d", i);
   } while (clk_groups_name_map_.hasKey(name));
   return name;
 }
@@ -2609,10 +2615,9 @@ Sdc::reportClkToClkMaxCycleWarnings()
   ClockPairSeq::Iterator pair_iter2(clk_warnings2);
   while (pair_iter2.hasNext()) {
     ClockPair *pair = pair_iter2.next();
-    report_->warn("No common period was found between clocks %s and %s in %d cycles.\n",
+    report_->warn("No common period was found between clocks %s and %s.\n",
 		  pair->first->name(),
-		  pair->second->name(),
-		  large_period_clk_expansion_cycle_count);
+		  pair->second->name());
     delete pair;
   }
 }

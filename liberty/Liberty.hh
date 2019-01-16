@@ -385,7 +385,7 @@ public:
 	      const char *name,
 	      const char *filename);
   virtual ~LibertyCell();
-  const LibertyLibrary *libertyLibrary() const { return liberty_library_; }
+  LibertyLibrary *libertyLibrary() const { return liberty_library_; }
   LibertyLibrary *libertyLibrary() { return liberty_library_; }
   LibertyPort *findLibertyPort(const char *name) const;
   void findLibertyPortsMatching(PatternMatch *pattern,

@@ -31,7 +31,8 @@ namespace sta {
 class TokenParser
 {
 public:
-  TokenParser(const char *str, const char *delimiters);
+  TokenParser(const char *str,
+	      const char *delimiters);
   bool hasNext();
   char *next();
 

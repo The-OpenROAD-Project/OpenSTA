@@ -901,17 +901,13 @@ Network::findInstPinsHierMatching(const Instance *instance,
 				  PinSeq *pins) const
 {
   const char *inst_name = name(instance);
-  size_t inst_length = strlen(inst_name);
   InstancePinIterator *pin_iter = pinIterator(instance);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
     const char *port_name = name(port(pin));
-    const char *pin_name = stringPrintTmp(inst_length+strlen(port_name)+2,
-					  "%s%c%s",
-					  inst_name,
-					  divider_,
-					  port_name);
-    if (pattern->match(pin_name))
+    string pin_name;
+    stringPrint(pin_name, "%s%c%s", inst_name,divider_, port_name);
+    if (pattern->match(pin_name.c_str()))
       pins->push_back(pin);
   }
   delete pin_iter;

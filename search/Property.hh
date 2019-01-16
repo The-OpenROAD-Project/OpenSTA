@@ -17,10 +17,15 @@
 #ifndef STA_PROPERTY_H
 #define STA_PROPERTY_H
 
+#include <string>
+#include "LibertyClass.hh"
 #include "NetworkClass.hh"
 #include "SearchClass.hh"
+#include "SdcClass.hh"
 
 namespace sta {
+
+using std::string;
 
 class Sta;
 
@@ -28,11 +33,16 @@ class PropertyValue
 {
 public:
   enum Type { type_none, type_string, type_float,
+	      type_liberty_library, type_liberty_cell, type_cell,
 	      type_instance, type_pin, type_pins, type_net,
 	      type_clock, type_clocks, type_path_refs };
   PropertyValue();
   PropertyValue(const char *value);
+  PropertyValue(string &value);
   PropertyValue(float value);
+  PropertyValue(LibertyLibrary *value);
+  PropertyValue(LibertyCell *value);
+  PropertyValue(Cell *value);
   PropertyValue(Instance *value);
   PropertyValue(Pin *value);
   PropertyValue(PinSeq *value);
@@ -46,8 +56,11 @@ public:
   PropertyValue(const PropertyValue &props);
   ~PropertyValue();
   Type type() const { return type_; }
-  const char *string() const { return string_; }
+  const char *stringValue() const { return string_; }
   float floatValue() const { return float_; }
+  LibertyLibrary *libertyLibrary() const { return liberty_library_; }
+  LibertyCell *libertyCell() const { return liberty_cell_; }
+  Cell *cell() const { return cell_; }
   Instance *instance() const { return inst_; }
   Pin *pin() const { return pin_; }
   PinSeq *pins() const { return pins_; }
@@ -63,6 +76,9 @@ private:
   Type type_;
   const char *string_;
   float float_;
+  LibertyLibrary *liberty_library_;
+  LibertyCell *liberty_cell_;
+  Cell *cell_;
   Instance *inst_;
   Pin *pin_;
   PinSeq *pins_;
@@ -89,6 +105,11 @@ getProperty(const Net *net,
 
 PropertyValue
 getProperty(const Port *port,
+	    const char *property,
+	    Sta *sta);
+
+PropertyValue
+getProperty(const Cell *cell,
 	    const char *property,
 	    Sta *sta);
 
@@ -129,6 +150,11 @@ getProperty(PathEnd *end,
 
 PropertyValue
 getProperty(PathRef *end,
+	    const char *property,
+	    Sta *sta);
+
+PropertyValue
+getProperty(TimingArcSet *arc_set,
 	    const char *property,
 	    Sta *sta);
 

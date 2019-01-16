@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <cmath> // ceil
+#include <algorithm> // max
 #include "Machine.hh"
 #include "Debug.hh"
 #include "Fuzzy.hh"
@@ -53,59 +55,60 @@ CycleAccting::findDelays(StaState *sta)
   const int gclk_hold_index = TimingRole::gatedClockHold()->index();
   Clock *src_clk = src_->clock();
   Clock *tgt_clk = tgt_->clock();
-  ClockEdge *tgt_opp = tgt_->opposite();
+  double tgt_opp_time1 = tgt_->opposite()->time();
   double tgt_period = tgt_clk->period();
   double src_period = src_clk->period();
   if (tgt_period > 0.0 && src_period > 0.0) {
-    int tgt_max_cycle_count, src_max_cycle_count;
-    if (tgt_period > src_period) {
-      tgt_max_cycle_count = small_period_clk_expansion_cycle_count;
-      src_max_cycle_count = large_period_clk_expansion_cycle_count;
-    }
+    // If the clocks are related (ie, generated clock and its source) allow
+    // allow enough cycles to match up the common period.
+    int tgt_max_cycle;
+    if (tgt_period > src_period)
+      tgt_max_cycle = 100;
     else {
-      tgt_max_cycle_count = large_period_clk_expansion_cycle_count;
-      src_max_cycle_count = small_period_clk_expansion_cycle_count;
+      int ratio = std::ceil(src_period / tgt_period);
+      tgt_max_cycle = std::max(ratio, 100);
     }
-    int tgt_cycle;
     bool tgt_past_src = false;
     bool src_past_tgt = false;
+    int tgt_cycle, src_cycle;
     for (tgt_cycle = (tgt_->time() < tgt_period) ? 0 : -1;
-	 tgt_cycle < tgt_max_cycle_count;
+	 tgt_cycle <= tgt_max_cycle;
 	 tgt_cycle++) {
       double tgt_cycle_start = tgt_cycle * tgt_period;
       double tgt_time = tgt_cycle_start + tgt_->time();
-      double tgt_opp_time = tgt_cycle_start + tgt_opp->time();
-      int src_cycle;
+      double tgt_opp_time = tgt_cycle_start + tgt_opp_time1;
       for (src_cycle = (src_->time() < src_period) ? 0 : -1;
-	   src_cycle < src_max_cycle_count;
+	   ;
 	   src_cycle++) {
 	double src_cycle_start = src_cycle * src_period;
 	double src_time = src_cycle_start + src_->time();
-	// Make sure both setup and hold required_ are determined.
+
+	// Make sure both setup and hold required are determined.
 	if (tgt_past_src && src_past_tgt
+	    // Synchronicity achieved.
 	    && fuzzyEqual(src_cycle_start, tgt_cycle_start)) {
-	  debugPrint2(debug, "cycle_acct", 1,
-		      " setup = %s, required = %s\n",
+	  debugPrint2(debug, "cycle_acct", 1, " setup = %s, required = %s\n",
 		      time_unit->asString(delay_[setup_index]),
 		      time_unit->asString(required_[setup_index]));
-	  debugPrint2(debug, "cycle_acct", 1,
-		      " hold = %s, required = %s\n",
+	  debugPrint2(debug, "cycle_acct", 1, " hold = %s, required = %s\n",
 		      time_unit->asString(delay_[hold_index]),
 		      time_unit->asString(required_[hold_index]));
+	  debugPrint2(debug, "cycle_acct", 1,
+		      " converged at src cycles = %d tgt cycles = %d\n",
+		      src_cycle, tgt_cycle);
 	  return;
 	}
+
 	if (fuzzyGreater(src_cycle_start, tgt_cycle_start + tgt_period)
 	    && src_past_tgt)
 	  break;
-	debugPrint5(debug, "cycle_acct", 2,
-		    " %s src cycle %d %s + %s = %s\n",
+	debugPrint5(debug, "cycle_acct", 2, " %s src cycle %d %s + %s = %s\n",
 		    src_->name(),
 		    src_cycle,
 		    time_unit->asString(src_cycle_start),
 		    time_unit->asString(src_->time()),
 		    time_unit->asString(src_time));
-	debugPrint5(debug, "cycle_acct", 2,
-		    " %s tgt cycle %d %s + %s = %s\n",
+	debugPrint5(debug, "cycle_acct", 2, " %s tgt cycle %d %s + %s = %s\n",
 		    tgt_->name(),
 		    tgt_cycle,
 		    time_unit->asString(tgt_cycle_start),
@@ -125,6 +128,7 @@ CycleAccting::findDelays(StaState *sta)
 			time_unit->asString(required_[setup_index]));
 	  }
 	}
+
 	// Data check setup checks are zero cycle.
 	if (fuzzyLessEqual(tgt_time, src_time)) {
 	  double setup_delay = src_time - tgt_time;
@@ -138,6 +142,7 @@ CycleAccting::findDelays(StaState *sta)
 		       src_cycle + 1, tgt_cycle, hold_delay, hold_required);
 	  }
 	}
+
 	// Latch setup cycle accting for the enable is the data clk edge
 	// closest to the disable (opposite) edge.
 	if (fuzzyGreater(tgt_opp_time, src_time)) {
@@ -159,6 +164,7 @@ CycleAccting::findDelays(StaState *sta)
 			time_unit->asString(required_[latch_setup_index]));
 	  }
 	}
+
 	// For hold checks, target has to be BEFORE source.
 	if (fuzzyLessEqual(tgt_time, src_time)) {
 	  double delay = src_time - tgt_time;
@@ -172,6 +178,7 @@ CycleAccting::findDelays(StaState *sta)
 			time_unit->asString(required_[hold_index]));
 	  }
 	}
+
 	// Gated clock hold checks are in the same cycle as the
 	// setup check.
 	if (fuzzyLessEqual(tgt_opp_time, src_time)) {
@@ -187,11 +194,11 @@ CycleAccting::findDelays(StaState *sta)
 	  }
 	}
       }
-      if (src_cycle == src_max_cycle_count)
-	break;
     }
     max_cycles_exceeded_ = true;
-    debugPrint0(debug, "cycle_acct", 1, " max cycles exceeded\n");
+    debugPrint2(debug, "cycle_acct", 1,
+		" max cycles exceeded after %d src cycles, %d tgt_cycles\n",
+		src_cycle, tgt_cycle);
   }
   else if (tgt_period > 0.0)
     findDefaultArrivalSrcDelays();

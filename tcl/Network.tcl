@@ -60,11 +60,12 @@ proc report_instance1 { instance connections verbose } {
   if { $instance == [top_instance] } {
     set inst_name "top"
   } else {
-    set inst_name [$instance path_name]
+    set inst_name [get_full_name $instance]
   }
   puts "Instance $inst_name"
-  puts " Cell: [[$instance cell] name]"
-  puts " Library: [[[$instance cell] library] name]"
+  set cell [instance_property $instance "cell"]
+  puts " Cell: [get_name $cell]"
+  puts " Library: [get_name [$cell library]]"
   puts " Path cells: [instance_cell_path $instance]"
   if { $connections } {
     report_instance_pins $instance $verbose
@@ -92,7 +93,7 @@ proc report_instance_pins1 {instance verbose header header_optional dirs} {
   set iter [$instance pin_iterator]
   while {[$iter has_next]} {
     set pin [$iter next]
-    set dir [$pin direction]
+    set dir [pin_direction $pin]
     if { [lsearch $dirs $dir] !=  -1 } {
       if { !$header_shown } {
 	puts $header
@@ -105,20 +106,20 @@ proc report_instance_pins1 {instance verbose header header_optional dirs} {
 }
 
 proc report_instance_pin { pin verbose } {
-  puts -nonewline "  [$pin port_name] [$pin direction]"
+  puts -nonewline "  [$pin port_name] [pin_direction $pin]"
   set net [$pin net]
   if { $net == "NULL" } {
     puts " (unconnected)"
   } else {
-    puts " [[$net highest_connected_net] path_name]"
+    puts " [get_full_name [$net highest_connected_net]]"
     if { $verbose } {
       set pins [net_connected_pins_sorted $net]
       foreach pin $pins {
 	if [$pin is_load] {
 	  if [$pin is_top_level_port] {
-	    puts "   [$pin path_name] [$pin direction] port"
+	    puts "   [get_full_name $pin] [pin_direction $pin] port"
 	  } else {
-	    puts "   [$pin path_name] [$pin direction]"
+	    puts "   [get_full_name $pin] [pin_direction $pin]"
 	  }
 	}
       }
@@ -128,11 +129,11 @@ proc report_instance_pin { pin verbose } {
 
 # Concatenate the cell names of the instance parents.
 proc instance_cell_path { instance } {
-  set cell_path "[[$instance cell] name]"
+  set cell_path "[get_name [instance_property $instance "cell"]]"
   set parent [$instance parent]
   set top_instance [top_instance]
   while { $parent != "NULL" && $parent != $top_instance } {
-    set cell_path "[[$parent cell] name]/$cell_path"
+    set cell_path "[get_name [$parent cell]]/$cell_path"
     set parent [$parent parent]
   }
   return $cell_path
@@ -143,7 +144,7 @@ proc report_instance_children_ { instance } {
   if { $children != {} } {
     puts " Children:"
     foreach child $children {
-      puts "  [$child name] ([[$child cell] name])"
+      puts "  [get_name $child] ([instance_property $child ref_name])"
     }
   }
 }
@@ -155,15 +156,7 @@ proc instance_sorted_children { instance } {
     lappend children [$iter next]
   }
   $iter finish
-  return [lsort -command path_name_cmp $children]
-}
-
-proc path_name_cmp { obj1 obj2 } {
-  return [string compare [$obj1 path_name] [$obj2 path_name]]
-}
-
-proc name_cmp { obj1 obj2 } {
-  return [string compare [$obj1 name] [$obj2 name]]
+  return [sort_by_full_name $children]
 }
 
 ################################################################
@@ -183,9 +176,9 @@ proc report_lib_cell_ { cell } {
   global sta_report_default_digits
 
   set lib [$cell liberty_library]
-  puts "Cell [$cell name]"
-  puts "Library [$lib name]"
-  set filename [$cell filename]
+  puts "Cell [get_name $cell]"
+  puts "Library [get_name $lib]"
+  set filename [liberty_cell_property $cell "filename"]
   if { $filename != "" } {
     puts "File $filename"
   }
@@ -193,9 +186,9 @@ proc report_lib_cell_ { cell } {
   while {[$iter has_next]} {
     set port [$iter next]
     if { [$port is_bus] } {
-      puts -nonewline " [$port bus_name] [$port direction]"
+      puts -nonewline " [$port bus_name] [liberty_port_direction $port]"
     } else {
-      puts -nonewline " [$port name] [$port direction]"
+      puts -nonewline " [get_name $port] [liberty_port_direction $port]"
     }
     set enable [$port tristate_enable]
     if { $enable != "" } {
@@ -212,9 +205,9 @@ proc report_lib_cell_ { cell } {
 
 proc report_cell_ { cell } {
   set lib [$cell library]
-  puts "Cell [$cell name]"
-  puts "Library [$lib name]"
-  set filename [$cell filename]
+  puts "Cell [get_name $cell]"
+  puts "Library [get_name $lib]"
+  set filename [liberty_cell_property $cell "filename"]
   if { $filename != "" } {
     puts "File $filename"
   }
@@ -222,9 +215,9 @@ proc report_cell_ { cell } {
   while {[$iter has_next]} {
     set port [$iter next]
     if { [$port is_bus] } {
-      puts " [$port bus_name] [$port direction]"
+      puts " [$port bus_name] [port_direction $port]"
     } else {
-      puts " [$port name] [$port direction]"
+      puts " [get_name $port] [port_direction $port]"
     }
   }
   $iter finish
@@ -292,7 +285,7 @@ proc report_net_ { net } {
 }
 
 proc report_net1 { net connections verbose hier_pins corner digits } {
-  puts "Net [$net path_name]"
+  puts "Net [get_full_name $net]"
   if {$connections} {
     set pins [net_connected_pins_sorted $net]
     if {$verbose} {
@@ -320,7 +313,7 @@ proc net_connected_pins_sorted { net } {
     lappend pins $pin
   }
   $iter finish
-  set pins [lsort -command path_name_cmp $pins]
+  set pins [sort_by_full_name $pins]
   return $pins
 }
 
@@ -380,8 +373,8 @@ proc report_net_other_pins { pins verbose corner digits } {
 
 proc report_net_pin { pin verbose corner digits } {
   if [$pin is_leaf] {
-    set cell_name [[[$pin instance] cell] name]
-    puts -nonewline " [$pin path_name] [$pin direction] ($cell_name)"
+    set cell_name [get_name [[$pin instance] cell]]
+    puts -nonewline " [get_full_name $pin] [pin_direction $pin] ($cell_name)"
     if { $verbose } {
       set liberty_port [$pin liberty_port]
       if { $liberty_port != "NULL" } {
@@ -390,7 +383,7 @@ proc report_net_pin { pin verbose corner digits } {
     }
     puts ""
   } elseif [$pin is_top_level_port] {
-    puts -nonewline " [$pin path_name] [$pin direction] port"
+    puts -nonewline " [get_full_name $pin] [pin_direction $pin] port"
     if { $verbose } {
       set port [$pin port]
       set cap_r_min [port_ext_wire_cap $port "rise" "min"]
@@ -412,7 +405,7 @@ proc report_net_pin { pin verbose corner digits } {
     }
     puts ""
   } elseif [$pin is_hierarchical] {
-    puts " [$pin path_name] [$pin direction]"
+    puts " [get_full_name $pin] [pin_direction $pin]"
   }
 }
 
@@ -421,7 +414,7 @@ proc report_net_pin { pin verbose corner digits } {
 proc report_pin_ { pin } {
   global sta_report_default_digits
 
-  puts -nonewline "Pin [$pin path_name] [pin_direction_desc $pin]"
+  puts -nonewline "Pin [get_full_name $pin] [pin_direction_desc $pin]"
 
   set liberty_port [$pin liberty_port]
   if { $liberty_port != "NULL" } {
@@ -429,24 +422,29 @@ proc report_pin_ { pin } {
   }
 
   if { [$pin is_top_level_port] } {
-    set net [[$pin term] net]
+    set term [$pin term]
+    if { $term == "NULL" } {
+      set net "NULL"
+    } else {
+      set net [$term net]
+    }
   } else {
     set net [$pin net]
   }
   if { $net == "NULL" } {
     puts " (unconnected)"
   } else {
-    puts " [[$net highest_connected_net] path_name]"
+    puts " [get_full_name [$net highest_connected_net]]"
   }
 }
 
 proc pin_direction_desc { pin } {
   if [$pin is_hierarchical] {
-    return "hierarchical [$pin direction]"
+    return "hierarchical [pin_direction $pin]"
   } elseif [$pin is_top_level_port] {
-    return "[$pin direction] port"
+    return "[pin_direction $pin] port"
   } else {
-    return [$pin direction]
+    return [pin_direction $pin]
   }
 }
 

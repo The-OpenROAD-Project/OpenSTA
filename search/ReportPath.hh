@@ -232,9 +232,9 @@ protected:
 		      string &result);
   void reportEndpoint(const PathEndGatedClock *end,
 		      string &result);
-  const char *pathEndpoint(PathEnd *end);
-  const char *pathStartpoint(PathEnd *end,
-			     PathExpanded &expanded);
+  string pathEndpoint(PathEnd *end);
+  string pathStartpoint(PathEnd *end,
+			PathExpanded &expanded);
   void reportBorrowing(const PathEndLatchCheck *end,
 		       Arrival &borrow,
 		       Arrival &time_given_to_startpoint,
@@ -243,8 +243,8 @@ protected:
 		      string &result);
   const char *clkNetworkDelayIdealProp(bool is_ideal);
 
-  const char *checkRoleReason(const PathEnd *end);
-  char *checkRoleString(const PathEnd *end);
+  string checkRoleReason(const PathEnd *end);
+  string checkRoleString(const PathEnd *end);
   virtual void reportGroup(const PathEnd *end,
 			   string &result);
   void reportStartpoint(const PathEnd *end,
@@ -259,16 +259,16 @@ protected:
 		      string &result);
   const char *latchDesc(const PathEndLatchCheck *end);
   void reportStartpoint(const char *start,
-			const char *reason,
+			string reason,
 			string &result);
   void reportEndpoint(const char *end,
-		      const char *reason,
+		      string reason,
 		      string &result);
   void reportStartEndPoint(const char *pt,
-			   const char *reason,
+			   string reason,
 			   const char *key,
 			   string &result);
-  const char *tgtClkName(const PathEnd *end);
+  string tgtClkName(const PathEnd *end);
   const char *clkRegLatchDesc(const PathEnd *end);
   void reportSrcPath(const PathEnd *end,
 		     PathExpanded &expanded,
@@ -344,7 +344,7 @@ protected:
 		     const MinMax *min_max,
 		     string &result);
   void reportRequired(const PathEnd *end,
-		      const char *margin_msg,
+		      string margin_msg,
 		      string &result);
   void reportSlack(const PathEnd *end,
 		   string &result);
@@ -486,9 +486,10 @@ protected:
   void reportDashLine(int line_width,
 		      string &result);
   void reportEndOfLine(string &result);
-  char *descriptionField(Vertex *vertex);
+  string descriptionField(Vertex *vertex);
   bool reportClkPath() const;
-  const char *clkNameInverted(const char *clk_name);
+  string clkName(const Clock *clk,
+		 bool inverted);;
   bool hasExtInputDriver(const Pin *pin,
 			 const TransRiseFall *tr,
 			 const MinMax *min_max);
