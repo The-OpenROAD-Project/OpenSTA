@@ -1037,17 +1037,17 @@ public:
   // networks (dspf) are reduced and deleted after reading each net
   // with reduce_to and delete_after_reduce.
   // Return true if successful.
-  bool readParasitics(const char *filename,
-		      Instance *instance,
-		      const MinMaxAll *min_max,
-		      bool increment,
-		      bool pin_cap_included,
-		      bool keep_coupling_caps,
-		      float coupling_cap_factor,
-		      ReduceParasiticsTo reduce_to,
-		      bool delete_after_reduce,
-		      bool save,
-		      bool quiet);
+  bool readSpef(const char *filename,
+		Instance *instance,
+		const MinMaxAll *min_max,
+		bool increment,
+		bool pin_cap_included,
+		bool keep_coupling_caps,
+		float coupling_cap_factor,
+		ReduceParasiticsTo reduce_to,
+		bool delete_after_reduce,
+		bool save,
+		bool quiet);
   // Parasitics.
   void findPiElmore(Pin *drvr_pin,
 		    const TransRiseFall *tr,

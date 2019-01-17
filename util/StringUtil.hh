@@ -132,27 +132,33 @@ bool
 isDigits(const char *str);
 
 // Print to a new string.
-// length_estimate should include room for the terminating '\0'.
+// Caller owns returned string.
 char *
-stringPrint(int length_estimate,
-	    const char *fmt,
-	    ...);
+stringPrint(const char *fmt,
+	    ...) __attribute__((format (printf, 1, 2)));
+string
+stdstrPrint(const char *fmt,
+	       ...) __attribute__((format (printf, 1, 2)));
 char *
-stringPrintArgs(int length_estimate,
-		const char *fmt,
+stringPrintArgs(const char *fmt,
 		va_list args);
+void
+stringPrint(string &str,
+	    const char *fmt,
+	    ...) __attribute__((format (printf, 2, 3)));
+
 // Print to a temporary string.
-// length_estimate should include room for the terminating '\0'.
 char *
-stringPrintTmp(int length_estimate,
-	       const char *fmt,
-	       ...);
+stringPrintTmp(const char *fmt,
+	       ...)  __attribute__((format (printf, 1, 2)));
 // Caller owns returned string.
 char *
 integerString(int number);
 
 char *
 makeTmpString(size_t length);
+void
+initTmpStrings();
 void
 deleteTmpStrings();
 

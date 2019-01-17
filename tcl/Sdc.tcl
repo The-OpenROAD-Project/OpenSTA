@@ -159,7 +159,7 @@ proc current_instance { {inst ""} } {
   } else {
     set current_instance [get_instance_error "instance" $inst]
   }
-  set cell [[$current_instance cell] name]
+  set cell [get_name [$current_instance cell]]
   puts "Current instance is $cell."
   # Current instance state variable must be part of the sta state so
   # the tcl interpreter can be shared by multiple sdc files.
@@ -289,7 +289,7 @@ proc all_ports_for_direction { direction } {
   set iter [$top_cell port_iterator]
   while {[$iter has_next]} {
     set port [$iter next]
-    set port_dir [$port direction]
+    set port_dir [port_direction $port]
     if { $port_dir == $direction || $port_dir == "bidirect" } {
       set ports [concat $ports [port_members $port]]
     }
@@ -384,11 +384,11 @@ proc current_design { {design ""} } {
 
   if { $design == "" } {
     # top_instance errors if the network has not been linked.
-    set current_design_name [[[top_instance] cell] name]
+    set current_design_name [get_name [get_object_property [top_instance] cell]]
   } elseif { ![network_is_linked] } {
     set current_design_name $design
     return $design
-  } elseif { [network_is_linked] && $design == [[[top_instance] cell] name] } {
+  } elseif { [network_is_linked] && $design == [get_name [get_object_property [top_instance] cell]] } {
     set current_design_name $design
     return $design
   } else {
@@ -706,7 +706,7 @@ proc find_liberty_libraries_matching { pattern regexp nocase } {
   set matches {}
   while { [$lib_iter has_next] } {
     set lib [$lib_iter next]
-    set lib_name [$lib name]
+    set lib_name [get_name $lib]
     if { (!$regexp && [string match $pattern2 $lib_name]) \
 	   || ($regexp && $nocase && [regexp -nocase $pattern2 $lib_name]) \
 	   || ($regexp && !$nocase && [regexp $pattern2 $lib_name]) } {
@@ -980,7 +980,7 @@ proc create_clock { args } {
       sta_error "-add requires -name."
     }
     # Default clock name is the first pin name.
-    set name [[lindex $pins 0] path_name]
+    set name [get_full_name [lindex $pins 0]]
   } else {
     sta_error "-name or port_pin_list must be specified."
   }
@@ -1057,7 +1057,7 @@ proc create_generated_clock { args } {
       sta_error "-add requires -name."
     }
     # Default clock name is the first pin name.
-    set name [[lindex $pins 0] path_name]
+    set name [get_full_name [lindex $pins 0]]
   } else {
     sta_error "name or port_pin_list must be specified."
   }
@@ -1410,7 +1410,7 @@ proc set_clock_latency { args } {
     foreach pin $pins {
       # Source only allowed on clocks and clock pins.
       if { ![is_clock_src $pin] } {
-	sta_error "-source '[$pin path_name]' is not a clock pin."
+	sta_error "-source '[get_full_name $pin]' is not a clock pin."
       }
       set_clock_insertion_cmd $pin_clk $pin $tr $min_max $early_late $delay
     }
@@ -1465,7 +1465,7 @@ proc set_clock_sense { args } {
   }
   foreach pin $pins {
     if {[$pin is_hierarchical]} {
-      sta_warn "hierarchical pin '[$pin path_name]' not supported."
+      sta_warn "hierarchical pin '[get_full_name $pin]' not supported."
     }
   }
   set_clock_sense_cmd $pins $clks $positive $negative $stop_propagation
@@ -1724,16 +1724,16 @@ proc parse_disable_inst_ports { inst port_name } {
   if { $port_name == "" } {
     set ports "NULL"
   } else {
-    set cell [$inst liberty_cell]
+    set cell [instance_property $inst liberty_cell]
     set port [$cell find_liberty_port $port_name]
     if { $port == "NULL" } {
-      sta_error "pin '[$inst path_name]${hierarchy_separator}${port_name}' not found."
+      sta_error "pin '[get_full_name $inst]${hierarchy_separator}${port_name}' not found."
     } else {
       set ports [port_members $port]
       foreach port $ports {
-	set member_name [$port name]
+	set member_name [get_full_name $port]
 	if { [$inst find_pin $member_name] == "NULL" } {
-	  sta_error "pin '[$inst path_name]${hierarchy_separator}${member_name}' not found."
+	  sta_error "pin '[get_full_name $inst]]${hierarchy_separator}${member_name}' not found."
 	}
       }
     }
@@ -1773,7 +1773,7 @@ proc parse_disable_cell_ports { cell port_name } {
   } else {
     set port [$cell find_liberty_port $port_name]
     if { $port == "NULL" } {
-      sta_error "pin '[$cell name]${hierarchy_separator}${port_name}' not found."
+      sta_error "pin '[get_name $cell]${hierarchy_separator}${port_name}' not found."
     } else {
       set ports [port_members $port]
     }
@@ -1920,8 +1920,8 @@ proc set_port_delay { cmd sta_cmd cmd_args port_dirs } {
 
   foreach pin $pins {
     if { [$pin is_top_level_port] \
-	   && [lsearch $port_dirs [$pin direction]] == -1 } {
-      sta_warn "$cmd not allowed on [$pin direction] port '[$pin name]'."
+	   && [lsearch $port_dirs [pin_direction $pin]] == -1 } {
+      sta_warn "$cmd not allowed on [pin_direction $pin] port '[get_full_name $pin]'."
     } elseif { $clk != "NULL" && [lsearch [$clk sources] $pin] != -1 } {
       sta_warn "$cmd relative to a clock defined on the same port/pin not allowed."
     } else {
@@ -2147,7 +2147,7 @@ proc set_propagated_clock { objects } {
   parse_clk_port_pin_arg $objects clks pins
   foreach clk $clks {
     if { [$clk is_virtual] } {
-      sta_warn "virtual clock [$clk name] can not be propagated."
+      sta_warn "virtual clock [get_name $clk] can not be propagated."
     } else {
       set_propagated_clock_cmd $clk
     }
@@ -2257,7 +2257,7 @@ proc set_driving_cell { args } {
     set output_count 0
     while {[$port_iter has_next]} {
       set port [$port_iter next]
-      set dir [$port direction]
+      set dir [liberty_port_direction $port]
       if { [port_direction_any_output $dir] } {
 	incr output_count
 	if { $output_count > 1 } {
@@ -2482,9 +2482,9 @@ proc set_fanout_limit { fanout min_max objects } {
   check_positive_float "limit" $fanout
   parse_cell_port_args $objects cells ports
   foreach port $ports {
-    set dir [$port direction]
+    set dir [port_direction $port]
     if { !($dir == "input" || $dir == "bidirect") } {
-      sta_error "port '[$port name]' is not an input."
+      sta_error "port '[get_name $port]' is not an input."
     }
     set_port_fanout_limit $port $min_max $fanout
   }

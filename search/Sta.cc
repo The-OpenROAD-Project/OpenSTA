@@ -56,7 +56,7 @@
 #include "Latches.hh"
 #include "PathGroup.hh"
 #include "CheckTiming.hh"
-#include "ReadParasitics.hh"
+#include "SpefReader.hh"
 #include "CheckSlewLimits.hh"
 #include "CheckMinPulseWidths.hh"
 #include "CheckMinPeriods.hh"
@@ -231,6 +231,7 @@ initSta()
   Transition::init();
   TimingRole::init();
   PortDirection::init();
+  initTmpStrings();
   initLiberty();
   initDelayConstants();
   registerDelayCalcs();
@@ -3407,17 +3408,17 @@ Sta::setResistance(Net *net,
 ////////////////////////////////////////////////////////////////
 
 bool
-Sta::readParasitics(const char *filename,
-		    Instance *instance,
-		    const MinMaxAll *min_max,
-		    bool increment,
-		    bool pin_cap_included,
-		    bool keep_coupling_caps,
-		    float coupling_cap_factor,
-		    ReduceParasiticsTo reduce_to,
-		    bool delete_after_reduce,
-		    bool save,
-		    bool quiet)
+Sta::readSpef(const char *filename,
+	      Instance *instance,
+	      const MinMaxAll *min_max,
+	      bool increment,
+	      bool pin_cap_included,
+	      bool keep_coupling_caps,
+	      float coupling_cap_factor,
+	      ReduceParasiticsTo reduce_to,
+	      bool delete_after_reduce,
+	      bool save,
+	      bool quiet)
 {
   Corner *corner = corners_->defaultCorner();
   const MinMax *cnst_min_max;
@@ -3434,12 +3435,12 @@ Sta::readParasitics(const char *filename,
   }
   const OperatingConditions *op_cond =
     sdc_->operatingConditions(cnst_min_max);
-  bool success = readParasiticsFile(filename, instance, ap, increment,
-				    pin_cap_included,
-				    keep_coupling_caps, coupling_cap_factor,
-				    reduce_to, delete_after_reduce,
-				    op_cond, corner, cnst_min_max, save, quiet,
-				    report_, network_, parasitics_);
+  bool success = readSpefFile(filename, instance, ap, increment,
+			      pin_cap_included,
+			      keep_coupling_caps, coupling_cap_factor,
+			      reduce_to, delete_after_reduce,
+			      op_cond, corner, cnst_min_max, save, quiet,
+			      report_, network_, parasitics_);
   parasiticsChangedAfter();
   return success;
 }

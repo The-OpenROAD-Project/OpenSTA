@@ -149,11 +149,10 @@ systemRunTime()
 size_t
 memoryUsage()
 {
-  char *proc_filename = stringPrintTmp(strlen("/proc//status")+10,
-				       "/proc/%d/status",
-				       getpid());
+  string proc_filename;
+  stringPrint(proc_filename, "/proc/%d/status", getpid());
   size_t memory = 0;
-  FILE *status = fopen(proc_filename, "r");
+  FILE *status = fopen(proc_filename.c_str(), "r");
   if (status) {
     const size_t line_length = 128;
     char line[line_length];

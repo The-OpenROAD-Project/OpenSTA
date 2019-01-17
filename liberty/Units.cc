@@ -106,9 +106,7 @@ Unit::asString(float value,
     // prevent "-0.00" on slowaris
     if (abs(scaled_value) < 1E-6)
       scaled_value = 0.0;
-    // Leave room for sign, E+-exponent.
-    const int result_len = std::numeric_limits<float>::digits10 + 10;
-    return stringPrintTmp(result_len, "%.*f%s", digits, scaled_value, suffix_);
+    return stringPrintTmp("%.*f%s", digits, scaled_value, suffix_);
   }
 }
 

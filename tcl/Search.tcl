@@ -55,7 +55,7 @@ proc report_delays_wrt_clk { vertex what clk clk_tr } {
     set rise_fmt [format_delays $rise]
     set fall_fmt [format_delays $fall]
     if {$clk != "NULL"} {
-      set clk_str " ([$clk name] [rise_fall_short_name $clk_tr])"
+      set clk_str " ([get_name $clk] [rise_fall_short_name $clk_tr])"
     } else {
       set clk_str ""
     }
@@ -90,7 +90,7 @@ proc report_wrt_clk { vertex what clk clk_tr } {
     set rise_fmt [format_times $rise $sta_report_default_digits]
     set fall_fmt [format_times $fall $sta_report_default_digits]
     if {$clk != "NULL"} {
-      set clk_str " ([$clk name] [rise_fall_short_name $clk_tr])"
+      set clk_str " ([get_name $clk] [rise_fall_short_name $clk_tr])"
     } else {
       set clk_str ""
     }

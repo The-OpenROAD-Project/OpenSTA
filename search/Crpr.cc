@@ -87,14 +87,15 @@ CheckCrpr::maxCrpr(ClkInfo *clk_info)
   const PathVertexRep &crpr_clk_path = clk_info->crprClkPath();
   if (!crpr_clk_path.isNull()) {
     PathVertex crpr_clk_vpath(crpr_clk_path, this);
-    Arrival other_arrival = otherMinMaxArrival(&crpr_clk_vpath);
-    float crpr_diff = abs(delayAsFloat(crpr_clk_vpath.arrival(this),
-				       EarlyLate::late())
-			  - delayAsFloat(other_arrival, EarlyLate::early()));
-    return crpr_diff;
+    if (!crpr_clk_vpath.isNull()) {
+      Arrival other_arrival = otherMinMaxArrival(&crpr_clk_vpath);
+      float crpr_diff = abs(delayAsFloat(crpr_clk_vpath.arrival(this),
+					 EarlyLate::late())
+			    - delayAsFloat(other_arrival, EarlyLate::early()));
+      return crpr_diff;
+    }
   }
-  else
-    return 0.0F;
+  return 0.0F;
 }
 
 Arrival

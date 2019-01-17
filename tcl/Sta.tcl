@@ -25,11 +25,13 @@ proc define_sta_cmd_args { cmd arglist } {
 # Import Sta commands to global namespace.
 proc define_sta_cmds {} {
   variable sta_cmd_args
+  variable native
 
   foreach cmd [array names sta_cmd_args] {
     define_cmd_args $cmd $sta_cmd_args($cmd)
   }
   define_report_path_fields
+  set native 1
 }
 
 proc define_report_path_fields {} {
@@ -421,7 +423,7 @@ proc_redirect report_check_types {
       set slack_min [expr -$sta::float_inf]
       set slack_max $sta::float_inf
     }
-    set path_ends [find_path_ends "NULL" {} "NULL" \
+    set path_ends [find_path_ends "NULL" {} "NULL" 0 \
 		     $corner $path_min_max $group_count 1 0 \
 		     $slack_min $slack_max \
 		     0 {} \
@@ -674,27 +676,15 @@ proc unset_timing_derate { args } {
 
 define_sta_cmd_args "connect_pins" {net pins}
 
-################################################################
-
 define_sta_cmd_args "delete_instance" {cell_list}
-
-################################################################
 
 define_sta_cmd_args "delete_net" {net_list}
 
-################################################################
-
 define_sta_cmd_args "disconnect_pins" {net -all|pins}
-
-################################################################
 
 define_sta_cmd_args "make_instance" {inst_names lib_cell}
 
-################################################################
-
 define_sta_cmd_args "make_net" {}
-
-################################################################
 
 define_sta_cmd_args "replace_cell" {instances lib_cell}
 
@@ -713,6 +703,22 @@ define_sta_cmd_args "set_assigned_delay" \
 proc set_assigned_delay { args } {
   set_assigned_delay_cmd "set_assigned_delay" $args
 }
+
+# compatibility
+define_sta_cmd_args "read_parasitics" \
+  {[-min]\
+     [-max]\
+     [-elmore]\
+     [-path path]\
+     [-increment]\
+     [-pin_cap_included]\
+     [-keep_capacitive_coupling]\
+     [-coupling_reduction_factor factor]\
+     [-reduce_to pi_elmore|pi_pole_residue2]\
+     [-delete_after_reduce]\
+     [-quiet]\
+     [-save]\
+     filename}
 
 ################################################################a
 
@@ -891,16 +897,8 @@ proc get_fanout { args } {
 
 ################################################################
 
-define_sta_cmd_args "get_name_of_object" {object}
-
-proc get_name_of_object { object } {
-  if [is_object $object] {
-    return [$object object_name]
-  } elseif { [llength $object] > 1 } {
-    # Should return list of names.
-    sta_error "get_object_name cannot get the object name of multiple objects."
-  }
-}
+define_sta_cmd_args "get_name" {objects}
+define_sta_cmd_args "get_full_name" {objects}
 
 ################################################################
 
@@ -968,6 +966,30 @@ proc report_clock1 { clk } {
 
 ################################################################
 
+define_sta_cmd_args "report_object_full_names" {[-verbose] objects}
+
+proc report_object_full_names { args } {
+  parse_key_args "report_object_names" args keys {} flags {-verbose}
+
+  set objects [lindex $args 0]
+  if { [info exists flags(-verbose)] } {
+    puts -nonewline "{"
+    set first 1
+    foreach obj [sort_by_full_name $objects] {
+      if { !$first } {
+	puts -nonewline ", "
+      }
+      puts -nonewline \"[get_object_type $obj]:[get_full_name $obj]\"
+      set first 0
+    }
+    puts "}"
+  } else {
+    foreach obj [sort_by_full_name $objects] {
+      puts [get_full_name $obj]
+    }
+  }
+}
+
 define_sta_cmd_args "report_object_names" {[-verbose] objects}
 
 proc report_object_names { args } {
@@ -977,17 +999,17 @@ proc report_object_names { args } {
   if { [info exists flags(-verbose)] } {
     puts -nonewline "{"
     set first 1
-    foreach obj [lsort -command object_name_cmp $objects] {
+    foreach obj [sort_name $objects] {
       if { !$first } {
 	puts -nonewline ", "
       }
-      puts -nonewline \"[get_object_type $obj]:[get_name_of_object $obj]\"
+      puts -nonewline \"[get_object_type $obj]:[get_name $obj]\"
       set first 0
     }
     puts "}"
   } else {
-    foreach obj [lsort -command object_name_cmp $objects] {
-      puts [get_name_of_object $obj]
+    foreach obj [sort_by_full_name $objects] {
+      puts [get_name $obj]
     }
   }
 }

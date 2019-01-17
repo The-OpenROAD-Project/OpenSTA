@@ -1169,8 +1169,7 @@ Vertex::name(const Network *network) const
 {
   if (network->direction(pin_)->isBidirect()) {
     const char *pin_name = network->pathName(pin_);
-    int result_len = strlen(pin_name) + strlen("driver") + 2;
-    return stringPrintTmp(result_len, "%s %s",
+    return stringPrintTmp("%s %s",
 			  pin_name,
 			  is_bidirect_drvr_ ? "driver" : "load");
   }

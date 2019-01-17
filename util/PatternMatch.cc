@@ -117,7 +117,7 @@ RegexpCompileError::RegexpCompileError(const char *pattern)  :
   StaException()
 {
   const char *msg = "Error: TCL failed to compile regular expression '%s'.";
-  error_ = stringPrintTmp(strlen(msg) + strlen(pattern) + 1, msg, pattern);
+  error_ = stringPrintTmp(msg, pattern);
 }
 
 const char *

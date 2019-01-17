@@ -51,8 +51,13 @@ Parasitics::findParasiticNet(const Pin *pin) const
   Net *net = network_->net(pin);
   // Pins on the top level instance may not have nets.
   // Use the net connected to the pin's terminal.
-  if (net == NULL && network_->isTopLevelPort(pin))
-    net = network_->net(network_->term(pin));
+  if (net == NULL && network_->isTopLevelPort(pin)) {
+    Term *term = network_->term(pin);
+    if (term)
+      return network_->net(term);
+    else
+      return NULL;
+  }
   if (net)
     return network_->highestConnectedNet(net);
   else

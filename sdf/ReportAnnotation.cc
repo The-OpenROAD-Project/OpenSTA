@@ -283,11 +283,9 @@ ReportAnnotated::reportCheckCount(TimingRole *role,
   int index = role->index();
   if (edge_count_[index] > 0) {
     const char *role_name = role->asString();
-    const char *title = stringPrintTmp(strlen("cell  arcs")
-				       + strlen(role_name) + 1,
-				       "cell %s arcs",
-				       role_name);
-    reportCount(title, index, total, annotated_total);
+    string title;
+    stringPrint(title, "cell %s arcs", role_name);
+    reportCount(title.c_str(), index, total, annotated_total);
   }
 }
 

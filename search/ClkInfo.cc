@@ -116,7 +116,7 @@ ClkInfo::asString(const StaState *sta) const
   string str;
 
   PathAnalysisPt *path_ap = corners->findPathAnalysisPt(path_ap_index_);
-  str += stringPrintTmp(15, "%s/%d ",
+  str += stringPrintTmp("%s/%d ",
 			path_ap->pathMinMax()->asString(),
 			path_ap_index_);
   if (clk_edge_)

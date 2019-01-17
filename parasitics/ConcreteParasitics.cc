@@ -528,8 +528,7 @@ const char *
 ConcreteParasiticSubNode::name(const Network *network) const
 {
   const char *net_name = network->pathName(net_);
-  return stringPrintTmp(strlen(net_name) + INT_DIGITS + 2,
-			"%s:%d", net_name, id_);
+  return stringPrintTmp("%s:%d", net_name, id_);
 }
 
 ////////////////////////////////////////////////////////////////

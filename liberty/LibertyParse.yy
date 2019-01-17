@@ -107,7 +107,7 @@ simple_attr_value:
 /* Unquoted NOT function. */
 /* clocked_on : !CP; */
 |	'!' string
-	{ $$ = sta::makeLibertyStringAttrValue(sta::stringPrint(strlen($2)+1, "!%s", $2)); sta::stringDelete($2); }
+	{ $$ = sta::makeLibertyStringAttrValue(sta::stringPrint("!%s", $2)); sta::stringDelete($2); }
 	;
 
 complex_attr:

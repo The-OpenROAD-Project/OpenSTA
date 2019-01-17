@@ -40,9 +40,7 @@ Path::name(const StaState *sta) const
     int ap_index = path_ap->index();
     const char *min_max = path_ap->pathMinMax()->asString();
     TagIndex tag_index = tagIndex(sta);
-    size_t result_len = strlen(vertex_name) + strlen(tr_str)
-      + 2 + strlen(min_max) + 16;
-    return stringPrintTmp(result_len, "%s %s %s/%d %d",
+    return stringPrintTmp("%s %s %s/%d %d",
 			  vertex_name, tr_str, min_max,
 			  ap_index, tag_index);
   }

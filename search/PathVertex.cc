@@ -104,16 +104,18 @@ PathVertex::init(Vertex *vertex,
 		 Tag *tag,
 		 const StaState *sta)
 {
-  vertex_ = vertex;
+  vertex_ = NULL;
   tag_ = NULL;
   arrival_index_ = 0;
   const Search *search = sta->search();
-  TagGroup *tag_group = search->tagGroup(vertex_);
+  TagGroup *tag_group = search->tagGroup(vertex);
   if (tag_group) {
     bool arrival_exists;
     tag_group->arrivalIndex(tag, arrival_index_, arrival_exists);
-    if (arrival_exists)
+    if (arrival_exists) {
+      vertex_ = vertex;
       tag_ = tag;
+    }
   }
 }
 

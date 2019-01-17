@@ -548,8 +548,7 @@ ClockEdge::ClockEdge(Clock *clock,
 		     TransRiseFall *tr) :
   clock_(clock),
   tr_(tr),
-  name_(stringPrint(strlen(clock_->name())+strlen(tr_->asString()) + 2,
-		    "%s %s", clock_->name(), tr_->asString())),
+  name_(stringPrint("%s %s", clock_->name(), tr_->asString())),
   time_(0.0),
   index_(clock_->index() * TransRiseFall::index_count + tr_->index())
 {

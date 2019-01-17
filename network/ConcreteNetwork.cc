@@ -1250,14 +1250,22 @@ ConcreteNetwork::connect(Instance *inst,
     ConcreteNet *prev_net = cpin->net_;
     if (prev_net)
       disconnectNetPin(prev_net, cpin);
-    cpin->net_ = cnet;
   }
   else {
     cpin = new ConcretePin(cinst, cport, cnet);
     cinst->addPin(cpin);
   }
-  if (cnet)
+  if (cinst == top_instance_) {
+    // makeTerm
+    ConcreteTerm *cterm = new ConcreteTerm(cpin, cnet);
+    cnet->addTerm(cterm);
+    cpin->term_ = cterm;
+    cpin->net_ = NULL;
+  }
+  else {
+    cpin->net_ = cnet;
     connectNetPin(cnet, cpin);
+  }
   return reinterpret_cast<Pin*>(cpin);
 }
 
@@ -1288,13 +1296,15 @@ ConcreteNetwork::disconnectPin(Pin *pin)
   ConcretePin *cpin = reinterpret_cast<ConcretePin*>(pin);
   if (cpin->instance() == top_instance_) {
     ConcreteTerm *cterm = cpin->term_;
-    ConcreteNet *cnet = cterm->net_;
-    if (cnet) {
-      cnet->deleteTerm(cterm);
-      clearNetDrvPinrMap();
+    if (cterm) {
+      ConcreteNet *cnet = cterm->net_;
+      if (cnet) {
+	cnet->deleteTerm(cterm);
+	clearNetDrvPinrMap();
+      }
+      cpin->term_ = NULL;
+      delete cterm;
     }
-    cpin->term_ = NULL;
-    delete cterm;
   }
   else {
     ConcreteNet *cnet = cpin->net();

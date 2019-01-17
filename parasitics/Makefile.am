@@ -20,50 +20,30 @@ include_HEADERS = \
 	ConcreteParasitics.hh \
 	ConcreteParasiticsPvt.hh \
 	EstimateParasitics.hh \
-	MakeConcreteParasitics.hh \
 	NullParasitics.hh \
 	Parasitics.hh \
 	ParasiticsClass.hh \
-	ReadParasitics.hh \
 	ReduceParasitics.hh \
 	SpefNamespace.hh \
-	SpefReader.hh \
-	SpfReader.hh
+	SpefReader.hh
 
 libparasitics_la_SOURCES = \
 	ConcreteParasitics.cc \
 	EstimateParasitics.cc \
 	NullParasitics.cc \
 	Parasitics.cc \
-	ReadParasitics.cc \
 	ReduceParasitics.cc \
 	SpefLex.ll \
 	SpefNamespace.cc \
 	SpefParse.yy \
 	SpefReader.cc \
 	SpefReaderPvt.hh \
-	SpfLex.ll \
-	SpfParse.yy \
-	SpfReader.cc \
-	SpfReaderPvt.hh \
-	SpfSpefReader.cc \
-	SpfSpefReader.hh
-
-SpfLex.ll: SpfParse.hh
-
-SpfLex.cc: SpfLex.ll
-	$(LEX) $(LFLAGS) -o SpfLex.cc --prefix=SpfLex_ --header-file=SpfLex.hh SpfLex.ll
+	SpfReaderPvt.hh
 
 SpefLex.ll: SpefParse.hh
 
 SpefLex.cc: SpefLex.ll
 	$(LEX) $(LFLAGS) -o SpefLex.cc --prefix=SpefLex_ --header-file=SpefLex.hh SpefLex.ll
-
-# Rules to support automake pre 1.12 that name header .h instead of .hh
-SpfParse.hh: SpfParse.cc
-	if test -f SpfParse.h; then \
-	  cp  SpfParse.h SpfParse.hh; \
-	fi
 
 SpefParse.hh: SpefParse.cc
 	if test -f SpefParse.h; then \
@@ -76,7 +56,6 @@ TCL_SRCS = \
 
 EXTRA_DIST = \
 	$(TCL_SRCS) \
-	SpfParse.hh \
 	SpefParse.hh
 
 libs: $(lib_LTLIBRARIES)

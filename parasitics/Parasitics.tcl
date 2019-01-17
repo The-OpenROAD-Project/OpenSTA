@@ -16,7 +16,7 @@
 
 namespace eval sta {
 
-define_cmd_args "read_parasitics" \
+define_cmd_args "read_spef" \
   {[-min]\
      [-max]\
      [-elmore]\
@@ -31,14 +31,13 @@ define_cmd_args "read_parasitics" \
      [-save]\
      filename}
 
-proc_redirect read_parasitics {
-  # The -elmore flag is required by dc.
-  parse_key_args "read_parasitics" args \
+proc_redirect read_spef {
+  parse_key_args "read_spef" args \
     keys {-path -coupling_reduction_factor -reduce_to} \
     flags {-min -max -elmore -increment -pin_cap_included \
 	     -keep_capacitive_coupling \
 	     -delete_after_reduce -quiet -save}
-  check_argc_eq1 "report_parasitics" $args
+  check_argc_eq1 "report_spef" $args
 
   set instance [top_instance]
   if [info exists keys(-path)] {
@@ -69,7 +68,7 @@ proc_redirect read_parasitics {
   set quiet [info exists flags(-quiet)]
   set save [info exists flags(-save)]
   set filename $args
-  return [read_parasitics_cmd $filename $instance $min_max $increment \
+  return [read_spef_cmd $filename $instance $min_max $increment \
 	    $pin_cap_included $keep_coupling_caps $coupling_reduction_factor \
 	    $reduce_to $delete_after_reduce \
 	    $save $quiet]

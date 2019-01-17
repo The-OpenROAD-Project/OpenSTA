@@ -217,7 +217,7 @@ proc report_constant { obj } {
 
 proc report_pin_constant { pin } {
   set sim_value [pin_sim_logic_value $pin]
-  puts -nonewline "[$pin port_name] $sim_value"
+  puts -nonewline "[pin_property $pin lib_pin_name] $sim_value"
   set case_value [pin_case_logic_value $pin]
   if { $case_value != "X" } {
     puts -nonewline " case=$case_value"
@@ -234,15 +234,15 @@ proc report_pin_constant { pin } {
 proc report_disabled_edges {} {
   foreach edge [disabled_edges_sorted] {
     if { [$edge role] == "wire" } {
-      set from_pin_name [[[$edge from] pin] path_name]
-      set to_pin_name [[[$edge to] pin] path_name]
+      set from_pin_name [get_full_name [[$edge from] pin]]
+      set to_pin_name [get_full_name [[$edge to] pin]]
       puts -nonewline "$from_pin_name $to_pin_name"
     } else {
       set from_pin [[$edge from] pin]
       set to_pin [[$edge to] pin]
-      set inst_name [[$from_pin instance] path_name]
-      set from_port_name [[$from_pin port] name]
-      set to_port_name [[$to_pin port] name]
+      set inst_name [get_full_name [$from_pin instance]]
+      set from_port_name [get_name [$from_pin port]]
+      set to_port_name [get_name [$to_pin port]]
       puts -nonewline "$inst_name $from_port_name $to_port_name"
       set cond [$edge cond]
       if { $cond != "" } {
@@ -267,8 +267,8 @@ proc edge_disable_reason_verbose { edge } {
       append disables " $sense"
     }
     set const_pins [$edge disabled_constant_pins]
-    foreach pin [lsort -command path_name_cmp $const_pins] {
-      set port_name [$pin port_name]
+    foreach pin [sort_by_full_name $const_pins] {
+      set port_name [pin_property $pin lib_pin_name]
       set value [pin_sim_logic_value $pin]
       append disables " $port_name=$value"
     }
@@ -302,18 +302,20 @@ proc report_slews { pin } {
 }
 
 proc vertex_path_name { vertex } {
-  return [vertex_name_ $vertex path_name]
+  set pin [$vertex pin]
+  set pin_name [get_full_name $pin]
+  return [vertex_name_ $vertex $pin $pin_name]
 }
 
 proc vertex_port_name { vertex } {
-  return [vertex_name_ $vertex port_name]
+  set pin [$vertex pin]
+  set pin_name [pin_property $pin lib_pin_name]
+  return [vertex_name_ $vertex $pin $pin_name]
 }
 
 # Append driver/load for bidirect pin vertices.
-proc vertex_name_ { vertex name_proc } {
-  set pin [$vertex pin]
-  set pin_name [$pin $name_proc]
-  if { [$pin direction] == "bidirect" } {
+proc vertex_name_ { vertex pin pin_name } {
+  if { [pin_direction $pin] == "bidirect" } {
     if [$vertex is_bidirect_driver] {
       return "$pin_name driver"
     } else {

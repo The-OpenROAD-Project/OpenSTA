@@ -17,14 +17,18 @@
 #include <limits>
 #include "Machine.hh"
 #include "Zlib.hh"
+#include "Report.hh"
 #include "Debug.hh"
 #include "StringUtil.hh"
 #include "Map.hh"
 #include "PortDirection.hh"
 #include "Transition.hh"
 #include "Network.hh"
+#include "Liberty.hh"
+#include "Sdc.hh"
 #include "Parasitics.hh"
 #include "SpefReaderPvt.hh"
+#include "SpefNamespace.hh"
 #include "SpefReader.hh"
 
 int
@@ -38,8 +42,6 @@ SpefReader *spef_reader;
 
 bool
 readSpefFile(const char *filename,
-	     gzFile stream,
-	     int line,
 	     Instance *instance,
 	     ParasiticAnalysisPt *ap,
 	     bool increment,
@@ -57,14 +59,22 @@ readSpefFile(const char *filename,
 	     Network *network,
 	     Parasitics *parasitics)
 {
-  SpefReader reader(filename, stream, line, instance, ap, increment,
-		    pin_cap_included, keep_coupling_caps, coupling_cap_factor,
-		    reduce_to, delete_after_reduce, op_cond, corner, 
-		    cnst_min_max, quiet, report, network, parasitics);
-  spef_reader = &reader;
-  ::spefResetScanner();
-  // yyparse returns 0 on success.
-  bool success = (::SpefParse_parse() == 0);
+  bool success = false;
+  // Use zlib to uncompress gzip'd files automagically.
+  gzFile stream = gzopen(filename, "rb");
+  if (stream) {
+    SpefReader reader(filename, stream, instance, ap, increment,
+		      pin_cap_included, keep_coupling_caps, coupling_cap_factor,
+		      reduce_to, delete_after_reduce, op_cond, corner, 
+		      cnst_min_max, quiet, report, network, parasitics);
+    spef_reader = &reader;
+    ::spefResetScanner();
+    // yyparse returns 0 on success.
+    success = (::SpefParse_parse() == 0);
+    gzclose(stream);
+  }
+  else
+    throw FileNotReadable(filename);
   if (success && save)
     parasitics->save();
   return success;
@@ -72,7 +82,6 @@ readSpefFile(const char *filename,
 
 SpefReader::SpefReader(const char *filename,
 		       gzFile stream,
-		       int line,
 		       Instance *instance,
 		       ParasiticAnalysisPt *ap,
 		       bool increment,
@@ -88,16 +97,35 @@ SpefReader::SpefReader(const char *filename,
 		       Report *report,
 		       Network *network,
 		       Parasitics *parasitics) :
-  SpfSpefReader(filename, stream, line, instance, ap,
-		increment, pin_cap_included,
-		keep_coupling_caps, coupling_cap_factor,
-		reduce_to, delete_after_reduce,
-		op_cond, corner, cnst_min_max, quiet,
-		report, network, parasitics),
+  filename_(filename),
+  instance_(instance),
+  ap_(ap),
+  increment_(increment),
+  pin_cap_included_(pin_cap_included),
+  keep_coupling_caps_(keep_coupling_caps),
+  reduce_to_(reduce_to),
+  delete_after_reduce_(delete_after_reduce),
+  op_cond_(op_cond),
+  corner_(corner),
+  cnst_min_max_(cnst_min_max),
+  keep_device_names_(false),
+  quiet_(quiet),
+  stream_(stream),
+  line_(1),
+  // defaults
+  divider_('\0'),
+  delimiter_('\0'),
+  bus_brkt_left_('\0'),
+  bus_brkt_right_('\0'),
+  net_(NULL),
+  report_(report),
+  network_(network),
+  parasitics_(parasitics),
   triple_index_(0),
   design_flow_(NULL),
   parasitic_(NULL)
 {
+  ap->setCouplingCapFactor(coupling_cap_factor);
 }
 
 SpefReader::~SpefReader()
@@ -118,6 +146,18 @@ SpefReader::~SpefReader()
 }
 
 void
+SpefReader::setDivider(char divider)
+{
+  divider_ = divider;
+}
+
+void
+SpefReader::setDelimiter(char delimiter)
+{
+  delimiter_ = delimiter;
+}
+
+void
 SpefReader::setBusBrackets(char left, char right)
 {
   if (!((left == '[' && right == ']')
@@ -127,7 +167,78 @@ SpefReader::setBusBrackets(char left, char right)
 	|| (left == ':' && right == '\0')
 	|| (left == '.' && right == '\0')))
     warn("illegal bus delimiters.\n");
-  SpfSpefReader::setBusBrackets(left, right);
+  bus_brkt_left_ = left;
+  bus_brkt_right_ = right;
+}
+
+Instance *
+SpefReader::findInstanceRelative(const char *name)
+{
+  return network_->findInstanceRelative(instance_, name);
+}
+
+Net *
+SpefReader::findNetRelative(const char *name)
+{
+  return network_->findNetRelative(instance_, name);
+}
+
+Pin *
+SpefReader::findPinRelative(const char *name)
+{
+  return network_->findPinRelative(instance_, name);
+}
+
+Pin *
+SpefReader::findPortPinRelative(const char *name)
+{
+  return network_->findPin(instance_, name);
+}
+
+void
+SpefReader::getChars(char *buf,
+		     int &result,
+		     size_t max_size)
+{
+  char *status = gzgets(stream_, buf, max_size);
+  if (status == Z_NULL)
+    result = 0;  // YY_NULL
+  else
+    result = static_cast<int>(strlen(buf));
+}
+
+void
+SpefReader::getChars(char *buf,
+		     size_t &result,
+		     size_t max_size)
+{
+  char *status = gzgets(stream_, buf, max_size);
+  if (status == Z_NULL)
+    result = 0;  // YY_NULL
+  else
+    result = strlen(buf);
+}
+
+char *
+SpefReader::translated(const char *token)
+{
+  return spefToSta(token, divider_, network_->pathDivider(),
+		   network_->pathEscape());
+}
+
+void
+SpefReader::incrLine()
+{
+  line_++;
+}
+
+void
+SpefReader::warn(const char *fmt, ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  report_->vfileWarn(filename_, line_, fmt, args);
+  va_end(args);
 }
 
 void
@@ -510,10 +621,11 @@ SpefReader::makeCouplingCap(int id,
 			    char *node_name2,
 			    float cap)
 {
-  const char *name = 0;
+  const char *name = NULL;
+  const char *name_tmp = NULL;
   if (keep_device_names_)
     // Prepend device type because OA uses one namespace for all devices.
-    name = stringPrint(INT_DIGITS + 2, "C%d", id);
+    name = name_tmp = stringPrint("C%d", id);
 
   ParasiticNode *node1, *node2;
   Net *ext_net1, *ext_net2;
@@ -537,6 +649,7 @@ SpefReader::makeCouplingCap(int id,
     else if (ext_pin1)
       parasitics_->makeCouplingCap(name, node2, ext_pin1, cap, ap_);
   }
+  stringDelete(name_tmp);
 }
 
 void
@@ -549,11 +662,13 @@ SpefReader::makeResistor(int id,
   ParasiticNode *node2 = findParasiticNode(node_name2);
   if (node1 && node2) {
     float res1 = res->value(triple_index_) * res_scale_;
-    const char *name = 0;
+    const char *name = NULL;
+    const char *name_tmp = NULL;
     if (keep_device_names_)
       // Prepend device type because OA uses one namespace for all devices.
-      name = stringPrint(INT_DIGITS + 2, "R%d", id);
+      name = name_tmp = stringPrint("R%d", id);
     parasitics_->makeResistor(name, node1, node2, res1, ap_);
+    stringDelete(name_tmp);
   }
   delete res;
   stringDelete(node_name1);

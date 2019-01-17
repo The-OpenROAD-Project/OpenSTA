@@ -32,9 +32,7 @@ const char *
 ThreadException::what() const throw()
 {
   const char *msg = strerror(error_);
-  return stringPrintTmp(strlen(filename_) + strlen(msg) + 30,
-			"Thread error in %s:%d %s.",
-			filename_, line_, msg);
+  return stringPrintTmp("Thread error in %s:%d %s.", filename_, line_, msg);
 }
 
 }

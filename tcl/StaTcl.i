@@ -458,7 +458,7 @@ tclError(Tcl_Interp *interp,
 	 const char *msg,
 	 const char *arg)
 {
-  char *error = stringPrint(strlen(msg) + strlen(arg) + 1, msg, arg);
+  char *error = stringPrint(msg, arg);
   Tcl_SetResult(interp, error, TCL_VOLATILE);
   stringDelete(error);
 }
@@ -1529,10 +1529,10 @@ using namespace sta;
     Tcl_SetResult(interp, const_cast<char*>(""), TCL_STATIC);
     break;
   case PropertyValue::Type::type_string:
-    Tcl_SetResult(interp, const_cast<char*>(value.string()), TCL_VOLATILE);
+    Tcl_SetResult(interp, const_cast<char*>(value.stringValue()), TCL_VOLATILE);
     break;
   case PropertyValue::Type::type_float: {
-    char *float_string = stringPrint(10, "%.5f", value.floatValue());
+    char *float_string = stringPrint("%.5f", value.floatValue());
     Tcl_SetResult(interp, float_string, TCL_VOLATILE);
     stringDelete(float_string);
   }
@@ -1566,6 +1566,24 @@ using namespace sta;
     Tcl_SetObjResult(interp, obj);
   }
     break;
+  case PropertyValue::Type::type_liberty_cell: {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(value.libertyCell(),
+				       SWIGTYPE_p_LibertyCell, false);
+    Tcl_SetObjResult(interp, obj);
+  }
+    break;
+  case PropertyValue::Type::type_liberty_library: {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(value.libertyLibrary(),
+				       SWIGTYPE_p_LibertyLibrary, false);
+    Tcl_SetObjResult(interp, obj);
+  }
+    break;
+  case PropertyValue::Type::type_cell: {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(value.cell(),
+				       SWIGTYPE_p_Cell, false);
+    Tcl_SetObjResult(interp, obj);
+  }
+    break;
   case PropertyValue::Type::type_clock: {
     Tcl_Obj *obj = SWIG_NewInstanceObj(value.clock(),
 				       SWIGTYPE_p_Clock, false);
@@ -1596,9 +1614,6 @@ using namespace sta;
     }
     Tcl_SetObjResult(interp, list);
   }
-    break;
-  default:
-    Tcl_SetResult(interp, const_cast<char*>(""), TCL_STATIC);
     break;
   }
 }
@@ -2267,6 +2282,24 @@ top_instance()
   return cmdLinkedNetwork()->topInstance();
 }
 
+const char *
+liberty_port_direction(const LibertyPort *port)
+{
+  return port->direction()->name();
+}
+	     
+const char *
+port_direction(const Port *port)
+{
+  return cmdLinkedNetwork()->direction(port)->name();
+}
+	     
+const char *
+pin_direction(const Pin *pin)
+{
+  return cmdLinkedNetwork()->direction(pin)->name();
+}
+
 TmpPortSeq *
 find_ports_matching(const char *pattern,
 		    bool regexp,
@@ -2523,7 +2556,7 @@ filter_ports(const char *property,
   while (port_iter.hasNext()) {
     Port *port = port_iter.next();
     PropertyValue value(getProperty(port, property, sta));
-    const char *prop = value.string();
+    const char *prop = value.stringValue();
     if (prop &&
 	((exact_match && stringEq(prop, pattern))
 	 || (!exact_match && patternMatch(pattern, prop))))
@@ -2547,7 +2580,7 @@ filter_insts(const char *property,
   while (inst_iter.hasNext()) {
     Instance *inst = inst_iter.next();
     PropertyValue value(getProperty(inst, property, sta));
-    const char *prop = value.string();
+    const char *prop = value.stringValue();
     if (prop &&
 	((exact_match && stringEq(prop, pattern))
 	 || (!exact_match && patternMatch(pattern, prop))))
@@ -2570,7 +2603,7 @@ filter_pins(const char *property,
   while (pin_iter.hasNext()) {
     Pin *pin = pin_iter.next();
     PropertyValue value(getProperty(pin, property, sta));
-    const char *prop = value.string();
+    const char *prop = value.stringValue();
     if (prop &&
 	((exact_match && stringEq(prop, pattern))
 	 || (!exact_match && patternMatch(pattern, prop))))
@@ -2617,7 +2650,13 @@ PropertyValue
 liberty_cell_property(const LibertyCell *cell,
 		      const char *property)
 {
-  cmdLinkedNetwork();
+  return getProperty(cell, property, Sta::sta());
+}
+
+PropertyValue
+cell_property(const Cell *cell,
+	      const char *property)
+{
   return getProperty(cell, property, Sta::sta());
 }
 
@@ -2625,7 +2664,6 @@ PropertyValue
 liberty_port_property(const LibertyPort *port,
 		      const char *property)
 {
-  cmdLinkedNetwork();
   return getProperty(port, property, Sta::sta());
 }
 
@@ -2633,7 +2671,6 @@ PropertyValue
 library_property(const Library *lib,
 		 const char *property)
 {
-  cmdLinkedNetwork();
   return getProperty(lib, property, Sta::sta());
 }
 
@@ -2674,6 +2711,14 @@ path_ref_property(PathRef *path,
 {
   cmdLinkedNetwork();
   return getProperty(path, property, Sta::sta());
+}
+
+PropertyValue
+timing_arc_set_property(TimingArcSet *arc_set,
+			const char *property)
+{
+  cmdLinkedNetwork();
+  return getProperty(arc_set, property, Sta::sta());
 }
 
 LeafInstanceIterator *
@@ -2747,7 +2792,7 @@ filter_timing_arcs(const char *property,
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
     PropertyValue value(getProperty(edge, property, sta));
-    const char *prop = value.string();
+    const char *prop = value.stringValue();
     if (prop &&
 	((exact_match && stringEq(prop, pattern))
 	 || (!exact_match && patternMatch(pattern, prop))))
@@ -5093,8 +5138,6 @@ define_corners_cmd(StringSet *corner_names)
 ////////////////////////////////////////////////////////////////
 
 %extend Library {
-const char *name() { return cmdNetwork()->name(self); }
-const char *object_name() { return cmdNetwork()->name(self); }
 Cell *
 find_cell(const char *name)
 {
@@ -5115,10 +5158,6 @@ find_cells_matching(const char *pattern,
 } // Library methods
 
 %extend LibertyLibrary {
-
-const char *name() { return self->name(); }
-const char *filename() { return self->filename(); }
-const char *object_name() { return self->name(); }
 
 LibertyCell *
 find_liberty_cell(const char *name)
@@ -5177,9 +5216,6 @@ void finish() { delete self; }
 } // LibertyLibraryIterator methods
 
 %extend Cell {
-const char *name() { return cmdNetwork()->name(self); }
-const char *filename() { return cmdNetwork()->filename(self); }
-const char *object_name() { return cmdNetwork()->name(self); }
 Library *library() { return cmdNetwork()->library(self); }
 LibertyCell *liberty_cell() { return cmdNetwork()->libertyCell(self); }
 bool is_leaf() { return cmdNetwork()->isLeaf(self); }
@@ -5206,9 +5242,6 @@ find_ports_matching(const char *pattern,
 } // Cell methods
 
 %extend LibertyCell {
-const char *name() { return self->name(); }
-const char *filename() { return self->filename(); }
-const char *object_name() { return self->name(); }
 bool is_leaf() { return self->isLeaf(); }
 LibertyLibrary *liberty_library() { return self->libertyLibrary(); }
 Cell *cell() { return reinterpret_cast<Cell*>(self); }
@@ -5250,29 +5283,21 @@ void finish() { delete self; }
 } // LibertyCellPortIterator methods
 
 %extend Port {
-const char *name() { return cmdNetwork()->name(self); }
 const char *bus_name() { return cmdNetwork()->busName(self); }
 Cell *cell() { return cmdNetwork()->cell(self); }
 LibertyPort *liberty_port() { return cmdNetwork()->libertyPort(self); }
-const char *object_name() { return cmdNetwork()->name(self); }
 bool is_bus() { return cmdNetwork()->isBus(self); }
 PortMemberIterator *
 member_iterator() { return cmdNetwork()->memberIterator(self); }
-const char *
-direction() { return cmdNetwork()->direction(self)->name(); }
 
 } // Port methods
 
 %extend LibertyPort {
-const char *name() { return self->name(); }
 const char *bus_name() { return self->busName(); }
 Cell *cell() { return self->cell(); }
-const char *object_name() { return self->name(); }
 bool is_bus() { return self->isBus(); }
 LibertyPortMemberIterator *
 member_iterator() { return new LibertyPortMemberIterator(self); }
-const char *
-direction() { return self->direction()->name(); }
 
 const char *
 function()
@@ -5306,7 +5331,6 @@ capacitance(const TransRiseFall *tr,
 } // LibertyPort methods
 
 %extend OperatingConditions {
-const char *name() { return self->name(); }
 float process() { return self->process(); }
 float voltage() { return self->voltage(); }
 float temperature() { return self->temperature(); }
@@ -5331,13 +5355,12 @@ TimingRole *role() { return self->role(); }
 const char *sdf_cond() { return self->sdfCond(); }
 
 const char *
-object_name()
+full_name()
 {
   const char *from = self->from()->name();
   const char *to = self->to()->name();
   const char *cell_name = self->libertyCell()->name();
-  return stringPrintTmp(strlen(from) + strlen(to) + strlen(cell_name) + 6,
-			"%s %s -> %s",
+  return stringPrintTmp("%s %s -> %s",
 			cell_name,
 			from,
 			to);
@@ -5368,9 +5391,6 @@ void finish() { delete self; }
 }
 
 %extend Instance {
-const char *name() { return cmdLinkedNetwork()->name(self); }
-const char *object_name() { return cmdLinkedNetwork()->pathName(self); }
-const char *path_name() { return cmdLinkedNetwork()->pathName(self); }
 Instance *parent() { return cmdLinkedNetwork()->parent(self); }
 Cell *cell() { return cmdLinkedNetwork()->cell(self); }
 LibertyCell *liberty_cell() { return cmdLinkedNetwork()->libertyCell(self); }
@@ -5413,16 +5433,12 @@ void finish() { delete self; }
 } // InstanceNetIterator methods
 
 %extend Pin {
-const char *name() { return cmdLinkedNetwork()->name(self); }
-const char *object_name() { return cmdLinkedNetwork()->pathName(self); }
 const char *port_name() { return cmdLinkedNetwork()->portName(self); }
-const char *path_name() { return cmdLinkedNetwork()->pathName(self); }
 Instance *instance() { return cmdLinkedNetwork()->instance(self); }
 Net *net() { return cmdLinkedNetwork()->net(self); }
 Port *port() { return cmdLinkedNetwork()->port(self); }
 Term *term() { return cmdLinkedNetwork()->term(self); }
 LibertyPort *liberty_port() { return cmdLinkedNetwork()->libertyPort(self); }
-const char *direction() { return cmdLinkedNetwork()->direction(self)->name(); }
 bool is_driver() { return cmdLinkedNetwork()->isDriver(self); }
 bool is_load() { return cmdLinkedNetwork()->isLoad(self); }
 bool is_leaf() { return cmdLinkedNetwork()->isLeaf(self); }
@@ -5486,18 +5502,11 @@ void finish() { delete self; }
 } // PinConnectedPinIterator methods
 
 %extend Term {
-const char *name() { return cmdLinkedNetwork()->name(self); }
-const char *object_name() { return cmdLinkedNetwork()->pathName(self); }
-const char *port_name() { return cmdLinkedNetwork()->portName(self); }
-const char *path_name() { return cmdLinkedNetwork()->pathName(self); }
 Net *net() { return cmdLinkedNetwork()->net(self); }
 Pin *pin() { return cmdLinkedNetwork()->pin(self); }
 } // Term methods
 
 %extend Net {
-const char *name() { return cmdLinkedNetwork()->name(self); }
-const char *object_name() { return cmdLinkedNetwork()->pathName(self); }
-const char *path_name() { return cmdLinkedNetwork()->pathName(self); }
 Instance *instance() { return cmdLinkedNetwork()->instance(self); }
 Net *highest_connected_net()
 { return cmdLinkedNetwork()->highestConnectedNet(self); }
@@ -5579,8 +5588,6 @@ void finish() { delete self; }
 } // NetConnectedPinIterator methods
 
 %extend Clock {
-const char *name() { return self->name(); }
-const char *object_name() { return self->name(); }
 float period() { return self->period(); }
 FloatSeq *waveform() { return self->waveform(); }
 float time(TransRiseFall *tr) { return self->edge(tr)->time(); }
@@ -5601,8 +5608,6 @@ slew(const TransRiseFall *tr,
 }
 
 %extend ClockEdge {
-const char *name() { return self->name(); }
-const char *object_name() { return self->name(); }
 Clock *clock() { return self->clock(); }
 TransRiseFall *transition() { return self->transition(); }
 float time() { return self->time(); }
@@ -5910,18 +5915,6 @@ mode_value()
 }
 
 const char *
-object_name()
-{
-  Sta *sta = Sta::sta();
-  const Network *network = sta->cmdNetwork();
-  const Graph *graph = sta->graph();
-  const char *from = self->from(graph)->name(network);
-  const char *to = self->to(graph)->name(network);
-  return stringPrintTmp(strlen(from) + strlen(to) + 5,
-			"%s -> %s", from, to);
-}
-
-const char *
 latch_d_to_q_en()
 {
   if (self->role() == TimingRole::latchDtoQ()) {
@@ -5937,8 +5930,7 @@ latch_d_to_q_en()
     TransRiseFall *enable_tr;
     lib_cell->latchEnable(d_q_set, enable_port, enable_func, enable_tr);
     const char *en_name = enable_port->name();
-    return stringPrintTmp(strlen(en_name) + 3,
-			  "%s %s", en_name, enable_tr->asString());
+    return stringPrintTmp("%s %s", en_name, enable_tr->asString());
 
   }
   return "";

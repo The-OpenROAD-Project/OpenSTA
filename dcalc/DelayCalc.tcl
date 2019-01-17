@@ -82,17 +82,17 @@ proc report_edge_dcalc { edge corner min_max digits } {
     # Filter timing checks based on min_max.
     if {!(($min_max == "max" && $role == "hold") \
 	    || ($min_max=="min" && $role=="setup"))} {
-      puts "Library: [$library name]"
-      puts "Cell: [$cell name]"
+      puts "Library: [get_name $library]"
+      puts "Cell: [get_name $cell]"
       puts "Arc sense: [$edge sense]"
       puts "Arc type: $role"
 
       set arc_iter [$edge timing_arc_iterator]
       while {[$arc_iter has_next]} {
 	set arc [$arc_iter next]
-	set from [[$from_pin port] name]
+	set from [get_name [$from_pin port]]
 	set from_tr [$arc from_trans]
-	set to [[$to_pin port] name]
+	set to [get_name [$to_pin port]]
 	set to_tr [$arc to_trans]
 	puts "$from $from_tr -> $to $to_tr"
 	puts -nonewline [report_delay_calc_cmd $edge $arc $corner $min_max $digits]

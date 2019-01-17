@@ -106,9 +106,11 @@ proc report_power_col_percent { col_total total } {
 }
 
 proc report_power_inst { inst corner digits } {
-  puts "Instance: [$inst path_name]"
-  puts "Cell: [[$inst liberty_cell] name]"
-  puts "Liberty file: [[[$inst liberty_cell] liberty_library] filename]"
+  puts "Instance: [get_full_name $inst]"
+  set cell [instance_property $inst "liberty_cell"]
+  puts "Cell: [get_name $cell]"
+  set library [liberty_cell_property $cell "library"]
+  puts "Liberty file: [liberty_library_property $library filename]"
   set power_result [instance_power $inst $corner]
   lassign $power_result internal switching leakage total
   report_power_line "Internal power" $internal $digits

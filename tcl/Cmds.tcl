@@ -22,6 +22,15 @@
 
 namespace eval sta {
 
+proc_redirect read_parasitics {
+  variable native
+
+  if { $native } {
+    sta_warn "The read_parasitics command is deprecated. Use read_spef."
+  }
+  eval [concat read_spef $args]
+}
+
 proc check_setup_cmd { cmd cmd_args } {
   parse_key_args $cmd cmd_args keys {} flags {-verbose} 0
   # When nothing is everything.
@@ -290,12 +299,12 @@ proc set_assigned_delay_cmd { cmd cmd_args } {
       set inst [[lindex $from_pins 0] instance]
       foreach pin $from_pins {
 	if {[$pin instance] != $inst} {
-	  sta_error "$cmd pin [$pin name] is not attached to instance [$inst path_name]."
+	  sta_error "$cmd pin [get_full_name $pin] is not attached to instance [get_full_name $inst]."
 	}
       }
       foreach pin $to_pins {
 	if {[$pin instance] != $inst} {
-	  sta_error "$cmd pin [$pin name] is not attached to instance [$inst path_name]"
+	  sta_error "$cmd pin [get_full_name $pin] is not attached to instance [get_full_name $inst]"
 	}
       }
     }
@@ -1068,7 +1077,7 @@ proc parse_clk_inst_port_pin_arg { objects clks_var insts_var pins_var } {
   set ports {}
   get_object_args $objects clks {} {} {} insts ports pins {} {} {}
   foreach port $ports {
-    lappend pins [[top_instance] find_pin [$port name]]
+    lappend pins [[top_instance] find_pin [get_name $port]]
   }
 }
 
@@ -1080,7 +1089,7 @@ proc parse_clk_port_pin_arg { objects clks_var pins_var } {
   set ports {}
   get_object_args $objects clks {} {} {} {} ports pins {} {} {}
   foreach port $ports {
-    lappend pins [[top_instance] find_pin [$port name]]
+    lappend pins [[top_instance] find_pin [get_name $port]]
   }
 }
 
@@ -1155,7 +1164,7 @@ proc parse_inst_port_pin_arg { objects insts_var pins_var } {
   set ports {}
   get_object_args $objects {} {} {} {} insts ports pins {} {} {}
   foreach port $ports {
-    lappend pins [[top_instance] find_pin [$port name]]
+    lappend pins [[top_instance] find_pin [get_name $port]]
   }
 }
 
@@ -1177,7 +1186,7 @@ proc parse_inst_port_pin_net_arg { objects insts_var pins_var nets_var } {
   set nets {}
   get_object_args $objects {} {} {} {} insts ports pins nets {} {}
   foreach port $ports {
-    lappend pins [[top_instance] find_pin [$port name]]
+    lappend pins [[top_instance] find_pin [get_name $port]]
   }
 }
 
@@ -1196,8 +1205,9 @@ proc parse_port_pin_net_arg { objects pins_var nets_var } {
   set pins {}
   set nets {}
   get_object_args $objects {} {} {} {} {} ports pins nets {} {}
+
   foreach port $ports {
-    lappend pins [[top_instance] find_pin [$port name]]
+    lappend pins [[top_instance] find_pin [get_name $port]]
   }
 }
 
@@ -1497,7 +1507,7 @@ proc get_port_pin_arg { arg_name arg warn_error } {
       set pin $arg
     } elseif { $object_type == "Port" } {
       # Explicit port arg - convert to pin.
-      set pin [find_pin [$arg name]]
+      set pin [find_pin [get_name $arg]]
     } else {
       sta_warn_error $warn_error "$arg_name type '$object_type' is not a pin or port."
     }
@@ -1508,7 +1518,7 @@ proc get_port_pin_arg { arg_name arg warn_error } {
     if { $port == "NULL" } {
       set pin [find_pin $arg]
     } else {
-      set pin [$top_instance find_pin [$port name]]
+      set pin [$top_instance find_pin [get_name $port]]
     }
     if { $pin == "NULL" } {
       sta_warn_error $warn_error "pin $arg not found."
@@ -1531,7 +1541,7 @@ proc get_port_pins_error { arg_name arglist } {
 	lappend pins $arg
       } elseif { $object_type == "Port" } {
 	# Convert port to pin.
-	lappend pins [find_pin [$arg name]]
+	lappend pins [find_pin [get_name $arg]]
       } else {
 	sta_error "$arg_name type '$object_type' is not a pin or port."
       }
@@ -1769,10 +1779,14 @@ proc get_property_cmd { cmd type_key cmd_args } {
     } else {
       sta_error "$cmd $type_key must be specified with object name argument."
     }
-    set object [get_property_object $object_type $object $quiet]
+    set object [get_property_object_type $object_type $object $quiet]
   }
-  set object_type [object_type $object]
   set prop [lindex $cmd_args 1]
+  return [get_object_property $object $prop]
+}
+
+proc get_object_property { object prop } {
+  set object_type [object_type $object]
   if { $object_type == "Instance" } {
     return [instance_property $object $prop]
   } elseif { $object_type == "Pin" } {
@@ -1787,6 +1801,8 @@ proc get_property_cmd { cmd type_key cmd_args } {
     return [liberty_port_property $object $prop]
   } elseif { $object_type == "LibertyCell" } {
     return [liberty_cell_property $object $prop]
+  } elseif { $object_type == "Cell" } {
+    return [cell_property $object $prop]
   } elseif { $object_type == "Library" } {
     return [library_property $object $prop]
   } elseif { $object_type == "LibertyLibrary" } {
@@ -1797,12 +1813,14 @@ proc get_property_cmd { cmd type_key cmd_args } {
     return [path_end_property $object $prop]
   } elseif { $object_type == "PathRef" } {
     return [path_ref_property $object $prop]
+  } elseif { $object_type == "TimingArcSet" } {
+    return [timing_arc_set_property $object $prop]
   } else {
-    sta_error "$cmd unsupported object type $object_type."
+    sta_error "get_property unsupported object type object_type."
   }
 }
 
-proc get_property_object { object_type object_name quiet } {
+proc get_property_object_type { object_type object_name quiet } {
   set object "NULL"
   if { $object_type == "cell" } {
     set object [get_cells -quiet $object_name]
@@ -1856,8 +1874,46 @@ proc get_object_type { obj } {
   }
 }
 
-proc object_name_cmp { obj1 obj2 } {
-  return [string compare [$obj1 object_name] [$obj2 object_name]]
+proc sort_by_full_name { objects } {
+  return [lsort -command full_name_cmp $objects]
+}
+
+proc sort_by_name { objects } {
+  return [lsort -command name_cmp $objects]
+}
+
+proc full_name_cmp { obj1 obj2 } {
+  return [string compare [get_full_name $obj1] [get_full_name $obj2]]
+}
+
+proc name_cmp { obj1 obj2 } {
+  return [string compare [get_name $obj1] [get_name $obj2]]
+}
+
+proc get_name { object } {
+  return [get_object_property $object "name"]
+}
+
+proc get_full_name { object } {
+  return [get_object_property $object "full_name"]
+}
+
+if {0} {
+proc get_name { objects } {
+  set names {}
+  foreach object $objects {
+    lappend names [get_object_property $object "name"]
+  }
+  return $names
+}
+
+proc get_full_name { objects } {
+  set names {}
+  foreach object $objects {
+    lappend names [get_object_property $object "full_name"]
+  }
+  return $names
+}
 }
 
 ################################################################

@@ -23,6 +23,17 @@
 
 namespace sta {
 
+static void
+stringPrintTmp(const char *fmt,
+	       va_list args,
+	       // Return values.
+	       char *&str,
+	       size_t &length);
+static void
+getTmpString(// Return values.
+	     char *&str,
+	     size_t &length);
+
 char *
 stringCopy(const char *str)
 {
@@ -50,97 +61,119 @@ isDigits(const char *str)
 char *
 integerString(int number)
 {
-  // Leave room for sign and '\0'.
-  return stringPrint(INT_DIGITS + 2, "%d", number);
+  return stringPrint("%d", number);
 }
 
-char *
-stringPrint(int length_estimate,
+// print for c++ strings.
+void
+stringPrint(string &str,
 	    const char *fmt,
 	    ...)
 {
   va_list args;
   va_start(args, fmt);
-  char *result = stringPrintArgs(length_estimate, fmt, args);
+  char *tmp;
+  size_t tmp_length;
+  stringPrintTmp(fmt, args, tmp, tmp_length);
+  va_end(args);
+  str = tmp;
+}
+
+string
+stdstrPrint(const char *fmt,
+	    ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  char *tmp;
+  size_t tmp_length;
+  stringPrintTmp(fmt, args, tmp, tmp_length);
+  va_end(args);
+  return tmp;
+}
+
+char *
+stringPrint(const char *fmt,
+	    ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  char *result = stringPrintArgs(fmt, args);
   va_end(args);
   return result;
 }
 
 char *
-stringPrintArgs(int length_estimate,
-		const char *fmt,
+stringPrintArgs(const char *fmt,
 		va_list args)
 {
-  va_list args_copy;
-  va_copy(args_copy, args);
-  char *result = new char[length_estimate];
-  int length = vsnprint(result, length_estimate, fmt, args);
-  if (length >= length_estimate) {
-    stringDelete(result);
-    result = new char[length + 1];
-    vsnprint(result, length + 1, fmt, args_copy);
-  }
-  va_end(args_copy);
+  char *tmp;
+  size_t tmp_length;
+  stringPrintTmp(fmt, args, tmp, tmp_length);
+  char *result = new char[tmp_length + 1];
+  strcpy(result, tmp);
   return result;
 }
 
 char *
-stringPrintTmp(int length_estimate,
-	       const char *fmt,
+stringPrintTmp(const char *fmt,
 	       ...)
 {
-  char *result = makeTmpString(length_estimate);
   va_list args;
-
   va_start(args, fmt);
-  int length = vsnprint(result, length_estimate, fmt, args);
+  char *tmp;
+  size_t tmp_length;
+  stringPrintTmp(fmt, args, tmp, tmp_length);
   va_end(args);
+  return tmp;
+}
 
+static void
+stringPrintTmp(const char *fmt,
+	       va_list args,
+	       // Return values.
+	       char *&tmp,
+	       // strlen(tmp), not including terminating '\0'.
+	       size_t &tmp_length)
+{
+  size_t tmp_length1;
+  getTmpString(tmp, tmp_length1);
+
+  va_list args_copy;
+  va_copy(args_copy, args);
   // Returned length does NOT include trailing '\0'.
-  if (length >= length_estimate) {
-    result = makeTmpString(length + 1);
-    va_start(args, fmt);
-    vsnprint(result, length + 1, fmt, args);
-    va_end(args);
+  tmp_length = vsnprint(tmp, tmp_length1, fmt, args_copy);
+  va_end(args_copy);
+
+  if (tmp_length >= tmp_length1) {
+    tmp_length1 = tmp_length + 1;
+    tmp = makeTmpString(tmp_length1);
+    va_copy(args_copy, args);
+    tmp_length = vsnprint(tmp, tmp_length1, fmt, args_copy);
+    va_end(args_copy);
   }
-  return result;
 }
 
 ////////////////////////////////////////////////////////////////
 
 static int tmp_string_count_ = 100;
-static size_t tmp_string_length_ = 100;
-static int tmp_string_next_ = 0;
 static char **tmp_strings_ = NULL;
 static size_t *tmp_string_lengths_ = NULL;
+static int tmp_string_next_;
 static Mutex string_lock_;
 
-char *
-makeTmpString(size_t length)
+void
+initTmpStrings()
 {
-  string_lock_.lock();
-  if (tmp_strings_ == NULL) {
-    tmp_strings_ = new char*[tmp_string_count_];
-    tmp_string_lengths_ = new size_t[tmp_string_count_];
-    for (int i = 0; i < tmp_string_count_; i++) {
-      tmp_strings_[i] = new char[tmp_string_length_];
-      tmp_string_lengths_[i] = tmp_string_length_;
-    }
+  size_t initial_length = 100;
+
+  tmp_strings_ = new char*[tmp_string_count_];
+  tmp_string_lengths_ = new size_t[tmp_string_count_];
+  for (int i = 0; i < tmp_string_count_; i++) {
+    tmp_strings_[i] = new char[initial_length];
+    tmp_string_lengths_[i] = initial_length;
   }
-  if (tmp_string_next_ == tmp_string_count_)
-    tmp_string_next_ = 0;
-  char *tmp_str = tmp_strings_[tmp_string_next_];
-  size_t tmp_length = tmp_string_lengths_[tmp_string_next_];
-  if (tmp_length < length) {
-    // String isn't long enough.  Make a new one.
-    stringDelete(tmp_str);
-    tmp_str = new char[length];
-    tmp_strings_[tmp_string_next_] = tmp_str;
-    tmp_string_lengths_[tmp_string_next_] = length;
-  }
-  tmp_string_next_++;
-  string_lock_.unlock();
-  return tmp_str;
+  tmp_string_next_ = 0;
 }
 
 void
@@ -155,6 +188,40 @@ deleteTmpStrings()
     delete [] tmp_string_lengths_;
     tmp_string_lengths_ = NULL;
   }
+}
+
+static void
+getTmpString(// Return values.
+	     char *&str,
+	     size_t &length)
+{
+  string_lock_.lock();
+  if (tmp_string_next_ == tmp_string_count_)
+    tmp_string_next_ = 0;
+  str = tmp_strings_[tmp_string_next_];
+  length = tmp_string_lengths_[tmp_string_next_];
+  tmp_string_next_++;
+  string_lock_.unlock();
+}
+
+char *
+makeTmpString(size_t length)
+{
+  string_lock_.lock();
+  if (tmp_string_next_ == tmp_string_count_)
+    tmp_string_next_ = 0;
+  char *tmp_str = tmp_strings_[tmp_string_next_];
+  size_t tmp_length = tmp_string_lengths_[tmp_string_next_];
+  if (tmp_length < length) {
+    // String isn't long enough.  Make a new one.
+    stringDelete(tmp_str);
+    tmp_str = new char[length];
+    tmp_strings_[tmp_string_next_] = tmp_str;
+    tmp_string_lengths_[tmp_string_next_] = length;
+  }
+  tmp_string_next_++;
+  string_lock_.unlock();
+  return tmp_str;
 }
 
 ////////////////////////////////////////////////////////////////
