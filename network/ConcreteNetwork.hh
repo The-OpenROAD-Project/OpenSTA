@@ -185,7 +185,7 @@ public:
   virtual Instance *makeInstance(LibertyCell *cell,
 				 const char *name,
 				 Instance *parent);
-  void makeInternalPins(Instance *inst);
+  void makePins(Instance *inst);
   // For linking.
   virtual Instance *makeInstance(Cell *cell,
 				 const char *name,

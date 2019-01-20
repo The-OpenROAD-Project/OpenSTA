@@ -37,6 +37,7 @@
 #include "PathRef.hh"
 #include "PathExpanded.hh"
 #include "StaState.hh"
+#include "Sim.hh"
 #include "WritePathSpice.hh"
 
 namespace sta {
@@ -49,6 +50,7 @@ typedef Vector<string> StringVector;
 typedef Map<string, StringVector*> CellSpicePortNames;
 typedef int Stage;
 typedef Map<ParasiticNode*, int> ParasiticNodeMap;
+typedef Map<LibertyPort*, LogicValue> LibertyPortLogicValues;
 
 void
 split(const string &text,
@@ -88,6 +90,7 @@ private:
   void writeGateStage(Stage stage);
   void writeStageVoltageSources(LibertyCell *cell,
 				StringVector *spice_port_names,
+				const Instance *inst,
 				const char *inst_name,
 				LibertyPort *from_port,
 				LibertyPort *drvr_port);
@@ -105,14 +108,29 @@ private:
   void initNodeMap(const char *net_name);
   const char *spiceTrans(const TransRiseFall *tr);
   void writeMeasureDelayStmt(Stage stage,
-			     Path *input_path);
+			     Path *from_path,
+			     Path *to_path);
   void writeMeasureSlewStmt(Stage stage,
 			    Path *path);
+  void sensitizationValues(const Instance *inst,
+			   FuncExpr *expr,
+			   LibertyPort *from_port,
+			   // Return values.
+			   LibertyPortLogicValues &port_values);
 
   // Stage "accessors".
+  //
+  //           stage
+  //      |---------------|
+  //        |\             |\
+  // -------| >---/\/\/----| >---
+  //  gate  |/ drvr    load|/
+  //  input
+  //
+  // A path from an input port has no GateInputPath.
   // Internally a stage index from stageFirst() to stageLast()
   // is turned into an index into path_expanded_.
-  // A path from an input port has no GateInputPath.
+  //
   Stage stageFirst();
   Stage stageLast();
   string stageName(Stage stage);
@@ -149,9 +167,8 @@ private:
   const char *net_name_;
   float power_voltage_;
   float gnd_voltage_;
-
   // Resistance to use to simulate a short circuit between spice nodes.
-  static const float short_ckt_resistance_;
+  float short_ckt_resistance_;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -200,8 +217,6 @@ writePathSpice(Path *path,
   writer.writeSpice();
 }
 
-const float WritePathSpice::short_ckt_resistance_ = .0001;
-
 WritePathSpice::WritePathSpice(Path *path,
 			       const char *spice_filename,
 			       const char *subckt_filename,
@@ -219,7 +234,8 @@ WritePathSpice::WritePathSpice(Path *path,
   power_name_(power_name),
   gnd_name_(gnd_name),
   path_expanded_(sta),
-  net_name_(NULL)
+  net_name_(NULL),
+  short_ckt_resistance_(.0001)
 {
   auto lib = network_->defaultLibertyLibrary();
   power_voltage_ = lib->supplyVoltage(power_name_);
@@ -369,41 +385,51 @@ WritePathSpice::writeMeasureStmts()
   streamPrint(spice_stream_, "********************\n\n");
 
   for (auto stage = stageFirst(); stage <= stageLast(); stage++) {
-    auto input_path = (stage == stageFirst())
-      ? stageDrvrPath(stage)
-      : stageGateInputPath(stage);
-    writeMeasureDelayStmt(stage, input_path);
-    writeMeasureSlewStmt(stage, input_path);
+    auto gate_input_path = stageGateInputPath(stage);
+    auto drvr_path = stageDrvrPath(stage);
+    auto load_path = stageLoadPath(stage);
+    if (gate_input_path) {
+      // gate input -> gate output
+      writeMeasureSlewStmt(stage, gate_input_path);
+      writeMeasureDelayStmt(stage, gate_input_path, drvr_path);
+    }
+    writeMeasureSlewStmt(stage, drvr_path);
+    // gate output | input port -> load
+    writeMeasureDelayStmt(stage, drvr_path, load_path);
     if (stage == stageLast())
-      writeMeasureSlewStmt(stage, stageLoadPath(stage));
+      writeMeasureSlewStmt(stage, load_path);
   }
   streamPrint(spice_stream_, "\n");
 }
 
 void
 WritePathSpice::writeMeasureDelayStmt(Stage stage,
-				      Path *input_path)
+				      Path *from_path,
+				      Path *to_path)
 {
   auto lib = network_->defaultLibertyLibrary();
-  auto input_pin_name = network_->pathName(input_path->pin(this));
-  auto input_tr = input_path->transition(this);
-  auto input_threshold = power_voltage_ * lib->inputThreshold(input_tr);
+  auto from_pin_name = network_->pathName(from_path->pin(this));
+  auto from_tr = from_path->transition(this);
+  auto from_threshold = power_voltage_ * lib->inputThreshold(from_tr);
 
-  auto load_path = stageLoadPath(stage);
-  auto load_pin_name = stageLoadPinName(stage);
-  auto load_tr = load_path->transition(this);
-  auto load_threshold = power_voltage_ * lib->inputThreshold(load_tr);
+  auto to_pin_name = network_->pathName(to_path->pin(this));
+  auto to_tr = to_path->transition(this);
+  auto to_threshold = power_voltage_ * lib->inputThreshold(to_tr);
   streamPrint(spice_stream_,
-	      ".measure tran %s_%s_delay_%s trig v(%s) val=%.3f %s=last targ v(%s) val=%.3f %s=last\n",
+	      ".measure tran %s_%s_delay_%s\n",
 	      stageName(stage).c_str(),
-	      input_pin_name,
-	      load_pin_name,
-	      input_pin_name,
-	      input_threshold,
-	      spiceTrans(input_tr),
-	      load_pin_name,
-	      load_threshold,
-	      spiceTrans(load_tr));
+	      from_pin_name,
+	      to_pin_name);
+  streamPrint(spice_stream_,
+	      "+trig v(%s) val=%.3f %s=last\n",
+	      from_pin_name,
+	      from_threshold,
+	      spiceTrans(from_tr));
+  streamPrint(spice_stream_,
+	      "+targ v(%s) val=%.3f %s=last\n",
+	      to_pin_name,
+	      to_threshold,
+	      spiceTrans(to_tr));
 }
 
 void
@@ -426,12 +452,16 @@ WritePathSpice::writeMeasureSlewStmt(Stage stage,
     threshold2 = lower;
   }
   streamPrint(spice_stream_,
-	      ".measure tran %s_%s_slew trig v(%s) val=%.3f %s=last targ v(%s) val=%.3f %s=last\n",
+	      ".measure tran %s_%s_slew\n",
 	      stageName(stage).c_str(),
-	      pin_name,
+	      pin_name);
+  streamPrint(spice_stream_,
+	      "+trig v(%s) val=%.3f %s=last\n",
 	      pin_name,
 	      threshold1,
-	      spice_tr,
+	      spice_tr);
+  streamPrint(spice_stream_,
+	      "+targ v(%s) val=%.3f %s=last\n",
 	      pin_name,
 	      threshold2,
 	      spice_tr);
@@ -515,74 +545,18 @@ WritePathSpice::writeGateStage(Stage stage)
   streamPrint(spice_stream_, " %s\n", cell_name);
 
   writeStageVoltageSources(cell, spice_port_names,
-			   inst_name,
+			   inst, inst_name,
 			   network_->libertyPort(input_pin),
 			   network_->libertyPort(drvr_pin));
   writeStageParasitics(stage);
   streamPrint(spice_stream_, ".ends\n\n");
 }
 
-typedef Map<LibertyPort*, LogicValue> LibertyPortLogicValues;
-
-// Find the logic values for expression inputs to enable paths from_port.
-void
-sensitizationValues(FuncExpr *expr,
-		    LibertyPort *from_port,
-		    // Return values.
-		    LibertyPortLogicValues &port_values)
-{
-  switch (expr->op()) {
-  case FuncExpr::op_port: {
-    break;
-  }
-  case FuncExpr::op_not: {
-    sensitizationValues(expr->left(), from_port, port_values);
-    break;
-  }
-  case FuncExpr::op_or: {
-    auto left = expr->left();
-    auto right = expr->right();
-    if (left->port() == from_port
-	&& right->op() == FuncExpr::op_port)
-      port_values[right->port()] = logic_zero;
-    else if (right->port() == from_port
-	     && left->op() == FuncExpr::op_port)
-      port_values[left->port()] = logic_zero;
-    break;
-  }
-  case FuncExpr::op_and: {
-    auto left = expr->left();
-    auto right = expr->right();
-    if (left->port() == from_port
-	&& right->op() == FuncExpr::op_port)
-      port_values[right->port()] = logic_one;
-    else if (right->port() == from_port
-	     && left->op() == FuncExpr::op_port)
-      port_values[left->port()] = logic_one;
-    break;
-  }
-  case FuncExpr::op_xor: {
-    // Need to know timing arc sense to get this right.
-    auto left = expr->left();
-    auto right = expr->right();
-    if (left->port() == from_port
-	&& right->op() == FuncExpr::op_port)
-      port_values[right->port()] = logic_zero;
-    else if (right->port() == from_port
-	     && left->op() == FuncExpr::op_port)
-      port_values[left->port()] = logic_zero;
-    break;
-  }
-  case FuncExpr::op_one:
-  case FuncExpr::op_zero:
-    break;
-  }
-}
-
 // Power/ground and input voltage sources.
 void
 WritePathSpice::writeStageVoltageSources(LibertyCell *cell,
 					 StringVector *spice_port_names,
+					 const Instance *inst,
 					 const char *inst_name,
 					 LibertyPort *from_port,
 					 LibertyPort *drvr_port)
@@ -591,7 +565,7 @@ WritePathSpice::writeStageVoltageSources(LibertyCell *cell,
   auto drvr_port_name = drvr_port->name();
   auto lib = cell->libertyLibrary();
   LibertyPortLogicValues port_values;
-  sensitizationValues(drvr_port->function(), from_port, port_values);
+  sensitizationValues(inst, drvr_port->function(), from_port, port_values);
   int volt_source = 1;
   debugPrint1(debug_, "write_spice", 2, "subckt %s\n", cell->name());
   StringVector::Iterator port_iter(spice_port_names);
@@ -614,46 +588,124 @@ WritePathSpice::writeStageVoltageSources(LibertyCell *cell,
       auto port = cell->findLibertyPort(subckt_port_name);
       if (port) {
 	const char *pg_port_name = NULL;
-	bool port_has_value;
-	LogicValue port_value;
-	port_values.findKey(port, port_value, port_has_value);
-	if (port_has_value) {
-	  switch (port_value) {
-	  case logic_zero:
-	    pg_port_name = port->relatedGroundPin();
-	    break;
-	  case logic_one:
-	    pg_port_name = port->relatedPowerPin();
-	    break;
-	  default:
-	    break;
-	  }
-	  if (pg_port_name) {
-	    auto pg_port = cell->findPgPort(pg_port_name);
-	    if (pg_port) {
-	      auto voltage_name = pg_port->voltageName();
-	      if (voltage_name) {
-		float voltage = lib->supplyVoltage(voltage_name);
-		streamPrint(spice_stream_, "v%d %s/%s 0 %.3f\n",
-			    volt_source,
-			    inst_name, subckt_port_name,
-			    voltage);
-		volt_source++;
-	      }
-	      else
+	const Pin *pin = network_->findPin(inst, port);
+	// Look for tie high/low or propagated constant values.
+	LogicValue port_value = sim_->logicValue(pin);
+	if (port_value == logic_unknown) {
+	  bool has_value;
+	  LogicValue value;
+	  port_values.findKey(port, value, has_value);
+	  if (has_value)
+	    port_value = value;
+	}
+	if (port_value == logic_zero)
+	  pg_port_name = port->relatedGroundPin();
+	else if (port_value == logic_one)
+	  pg_port_name = port->relatedPowerPin();
+	if (pg_port_name) {
+	  auto pg_port = cell->findPgPort(pg_port_name);
+	  if (pg_port) {
+	    auto voltage_name = pg_port->voltageName();
+	    if (voltage_name) {
+	      float voltage = lib->supplyVoltage(voltage_name);
+	      streamPrint(spice_stream_, "v%d %s/%s 0 %.3f\n",
+			  volt_source,
+			  inst_name, subckt_port_name,
+			  voltage);
+	      volt_source++;
+	    }
+	    else
 	      report_->error("port %s %s voltage %s not found,\n",
 			     subckt_port_name,
 			     pg_port_name,
 			     voltage_name);
-	    }
-	    else
-	      report_->error("port %s %s not found,\n",
-			     subckt_port_name,
-			     pg_port_name);
 	  }
+	  else
+	    report_->error("port %s %s not found,\n",
+			   subckt_port_name,
+			   pg_port_name);
 	}
       }
     }
+  }
+}
+
+// Find the logic values for expression inputs to enable paths from_port.
+void
+WritePathSpice::sensitizationValues(const Instance *inst,
+				    FuncExpr *expr,
+				    LibertyPort *from_port,
+				    // Return values.
+				    LibertyPortLogicValues &port_values)
+{
+  auto left = expr->left();
+  auto right = expr->right();
+  switch (expr->op()) {
+  case FuncExpr::op_port:
+    break;
+  case FuncExpr::op_not:
+    sensitizationValues(inst, expr->left(), from_port, port_values);
+    break;
+  case FuncExpr::op_or:
+    if (left->hasPort(from_port)
+	&& right->op() == FuncExpr::op_port)
+      port_values[right->port()] = logic_zero;
+    else if (left->hasPort(from_port)
+	     && right->op() == FuncExpr::op_not
+	     && right->left()->op() == FuncExpr::op_port)
+	// from_port + !right_port
+	port_values[right->left()->port()] = logic_one;
+    else if (right->hasPort(from_port)
+	     && left->op() == FuncExpr::op_port)
+	port_values[left->port()] = logic_zero;
+    else if (right->hasPort(from_port)
+	     && left->op() == FuncExpr::op_not
+	     && left->left()->op() == FuncExpr::op_port)
+      // from_port + !left_port
+      port_values[left->left()->port()] = logic_one;
+    else {
+      sensitizationValues(inst, expr->left(), from_port, port_values);
+      sensitizationValues(inst, expr->right(), from_port, port_values);
+    }
+    break;
+  case FuncExpr::op_and:
+    if (left->hasPort(from_port)
+	&& right->op() == FuncExpr::op_port)
+	port_values[right->port()] = logic_one;
+    else if (left->hasPort(from_port)
+	     && right->op() == FuncExpr::op_not
+	     && right->left()->op() == FuncExpr::op_port)
+      // from_port * !right_port
+      port_values[right->left()->port()] = logic_zero;
+    else if (right->hasPort(from_port)
+	     && left->op() == FuncExpr::op_port)
+      port_values[left->port()] = logic_one;
+    else if (right->hasPort(from_port)
+	     && left->op() == FuncExpr::op_not
+	     && left->left()->op() == FuncExpr::op_port)
+      // from_port * !left_port
+      port_values[left->left()->port()] = logic_zero;
+    else {
+      sensitizationValues(inst, expr->left(), from_port, port_values);
+      sensitizationValues(inst, expr->right(), from_port, port_values);
+    }
+    break;
+  case FuncExpr::op_xor:
+    // Need to know timing arc sense to get this right.
+    if (left->port() == from_port
+	&& right->op() == FuncExpr::op_port)
+      port_values[right->port()] = logic_zero;
+    else if (right->port() == from_port
+	     && left->op() == FuncExpr::op_port)
+      port_values[left->port()] = logic_zero;
+    else {
+      sensitizationValues(inst, expr->left(), from_port, port_values);
+      sensitizationValues(inst, expr->right(), from_port, port_values);
+    }
+    break;
+  case FuncExpr::op_one:
+  case FuncExpr::op_zero:
+    break;
   }
 }
 
@@ -699,7 +751,8 @@ findParasiticDevicesNodes(ParasiticNode *node,
     if (!devices.hasKey(device)) {
       devices.insert(device);
       auto other_node = parasitics->otherNode(device, node);
-      findParasiticDevicesNodes(other_node, parasitics, nodes, devices);
+      if (other_node)
+	findParasiticDevicesNodes(other_node, parasitics, nodes, devices);
     }
   }
   delete device_iter;
@@ -717,7 +770,7 @@ WritePathSpice::writeStageParasitics(Stage stage)
   int resistor_index = 1;
   int cap_index = 1;
   if (parasitic) {
-    Net *net = network_->net(drvr_pin);
+    auto net = network_->net(drvr_pin);
     auto net_name =
       net ? network_->pathName(net) : network_->pathName(drvr_pin);
     initNodeMap(net_name);
@@ -756,18 +809,22 @@ WritePathSpice::writeStageParasitics(Stage stage)
     while (node_iter.hasNext()) {
       auto node = node_iter.next();
       auto cap = parasitics_->nodeGndCap(node, parasitic_ap);
-      streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
-		  cap_index,
-		  nodeName(node),
-		  cap);
-      cap_index++;
+      if (cap > 0.0) {
+	streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
+		    cap_index,
+		    nodeName(node),
+		    cap);
+	cap_index++;
+      }
     }
   }
-  else
+  else {
+    streamPrint(spice_stream_, "* No parasitics found for this net.\n");
     streamPrint(spice_stream_, "R1 %s %s %.3e\n",
 		network_->pathName(drvr_pin),
 		network_->pathName(load_pin),
 		short_ckt_resistance_);
+  }
 }
 
 void

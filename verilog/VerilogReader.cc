@@ -1805,8 +1805,18 @@ VerilogReader::makeModuleInstNetwork(VerilogModuleInst *mod_inst,
   if (cell) {
     Instance *inst = network_->makeInstance(cell, mod_inst->instanceName(),
 					    parent);
-    network_->makeInternalPins(inst);
     bool is_leaf = network_->isLeaf(cell);
+    if (is_leaf) {
+      // Make all pins.
+      LibertyCell *lib_cell = network_->libertyCell(cell);
+      if (lib_cell) {
+	LibertyCellPortBitIterator port_iter(lib_cell);
+	while (port_iter.hasNext()) {
+	  LibertyPort *port = port_iter.next();
+	  network_->makePin(inst, reinterpret_cast<Port*>(port), NULL);
+	}
+      }
+    }
     VerilogBindingTbl bindings(zero_net_name_, one_net_name_);
     if (mod_inst->hasPins()) {
       if (mod_inst->namedPins())
@@ -1945,8 +1955,12 @@ VerilogReader::makeInstPin(Instance *inst,
   Net *net = NULL;
   if (net_name)
     net = parent_bindings->ensureNetBinding(net_name, parent, network_);
-  // Guard against repeated port name.
-  if (network_->findPin(inst, port) == NULL) {
+  if (is_leaf) {
+    // Connect leaf pin to net.
+    if (net)
+      network_->connect(inst, port, net);
+  }
+  else {
     Pin *pin = network_->makePin(inst, port, net);
     if (!is_leaf && net) {
       const char *port_name = network_->name(port);
@@ -1990,10 +2004,9 @@ VerilogReader::makeLibertyInst(VerilogLibertyInst *lib_inst,
       }
       network_->makePin(inst, reinterpret_cast<Port*>(port), net);
     }
-    // Make internal pin.
-    if (port->direction()->isInternal()
-	&& lib_cell->hasTimingArcs(port))
-     network_->makePin(inst, reinterpret_cast<Port*>(port), NULL);
+    else
+      // Make unconnected pin.
+      network_->makePin(inst, reinterpret_cast<Port*>(port), NULL);
   }
 }
 

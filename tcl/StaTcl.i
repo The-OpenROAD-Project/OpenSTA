@@ -4651,7 +4651,7 @@ liberty_supply_exists(const char *supply_name)
 {
   auto network = Sta::sta()->network();
   auto lib = network->defaultLibertyLibrary();
-  return lib->supplyExists(supply_name);
+  return lib && lib->supplyExists(supply_name);
 }
 
 void
