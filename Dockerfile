@@ -1,16 +1,16 @@
 FROM ubuntu:18.04
+LABEL author="James Cherry"
+LABEL maintainer="Abdelrahman Hosny <abdelrahman@brown.edu>"
 
+# install basics
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
-    apt-get install -y wget apt-utils git
+    apt-get install -y wget apt-utils git cmake gcc tcl-dev swig bison flex
 
 # download CUDD
 RUN wget https://www.davidkebo.com/source/cudd_versions/cudd-3.0.0.tar.gz && \
-    tar -xvf cudd-3.0.0.tar.gz
-
-# install main dependencies
-ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && \
-    apt-get install -y cmake gcc tcl tcl-dev swig bison flex
+    tar -xvf cudd-3.0.0.tar.gz && \
+    rm cudd-3.0.0.tar.gz
 
 # install CUDD
 RUN cd cudd-3.0.0 && \
@@ -19,13 +19,14 @@ RUN cd cudd-3.0.0 && \
     make && \
     make install
 
-# clone and install OpenSTA
-RUN git clone https://github.com/abk-openroad/OpenSTA.git && \
-    cd OpenSTA && \
+# copy files and install OpenSTA
+RUN mkdir OpenSTA
+COPY . OpenSTA
+RUN cd OpenSTA && \
     mkdir build && \
     cd build && \
     cmake .. -DCUDD=$HOME/cudd && \
     make
 
 # Run sta on entry
-CMD OpenSTA/app/sta
+ENTRYPOINT ["OpenSTA/app/sta"]

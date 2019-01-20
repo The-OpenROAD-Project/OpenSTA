@@ -32,7 +32,7 @@ See INSTALL for installation and build instructions. Alternatively, run using Do
 * Liberty
 * SDC
 * SDF
-* SPEF
+* RSPF/DSPF/SPEF
 
 ## Exception path support
 * False path
