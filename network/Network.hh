@@ -482,8 +482,7 @@ public:
   virtual Instance *makeInstance(LibertyCell *cell,
 				 const char *name,
 				 Instance *parent) = 0;
-  // Make liberty internal pins.
-  virtual void makeInternalPins(Instance *inst) = 0;
+  virtual void makePins(Instance *inst) = 0;
   virtual void swapCell(Instance *inst,
 			LibertyCell *cell) = 0;
   // Deleting instance also deletes instance pins.

@@ -122,7 +122,7 @@ public:
   virtual Instance *makeInstance(LibertyCell *cell,
 				 const char *name,
 				 Instance *parent);
-  virtual void makeInternalPins(Instance *inst);
+  virtual void makePins(Instance *inst);
   virtual void swapCell(Instance *inst,
 			LibertyCell *cell);
   virtual Net *makeNet(const char *name,

@@ -1127,20 +1127,14 @@ ConcreteNetwork::makeConcreteInstance(ConcreteCell *cell,
 }
 
 void
-ConcreteNetwork::makeInternalPins(Instance *inst)
+ConcreteNetwork::makePins(Instance *inst)
 {
-  LibertyCell *lib_cell = libertyCell(inst);
-  if (lib_cell && lib_cell->hasInternalPorts()) {
-    CellPortBitIterator *port_iterator = portBitIterator(cell(inst));
-    while (port_iterator->hasNext()) {
-      Port *port = port_iterator->next();
-      LibertyPort *lib_port = libertyPort(port);
-      if (lib_port->direction()->isInternal()
-	  && lib_cell->hasTimingArcs(lib_port))
-	makePin(inst, port, NULL);
-    }
-    delete port_iterator;
+  CellPortBitIterator *port_iterator = portBitIterator(cell(inst));
+  while (port_iterator->hasNext()) {
+    Port *port = port_iterator->next();
+    makePin(inst, port, NULL);
   }
+  delete port_iterator;
 }
 
 void

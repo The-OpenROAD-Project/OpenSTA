@@ -3565,7 +3565,7 @@ Sta::makeInstance(const char *name,
 {
   NetworkEdit *network = networkCmdEdit();
   Instance *inst = network->makeInstance(cell, name, parent);
-  network->makeInternalPins(inst);
+  network->makePins(inst);
   makeInstanceAfter(inst);
   return inst;
 }
@@ -3645,20 +3645,17 @@ Sta::disconnectPin(Pin *pin)
 //
 ////////////////////////////////////////////////////////////////
 
-// Network::makeInternalPins with connectPinAfter.
+// Network::makePins with connectPinAfter.
 void
 Sta::makeInstanceAfter(Instance *inst)
 {
   LibertyCell *lib_cell = network_->libertyCell(inst);
-  if (lib_cell && lib_cell->hasInternalPorts()) {
+  if (lib_cell) {
     LibertyCellPortBitIterator port_iter(lib_cell);
     while (port_iter.hasNext()) {
       LibertyPort *lib_port = port_iter.next();
-      if (lib_port->direction()->isInternal()
-	  && lib_cell->hasTimingArcs(lib_port)) {
-	Pin *pin = network_->findPin(inst, lib_port);
-	connectPinAfter(pin);
-      }
+      Pin *pin = network_->findPin(inst, lib_port);
+      connectPinAfter(pin);
     }
   }
 }

@@ -903,9 +903,9 @@ NetworkNameAdapter::makeInstance(LibertyCell *cell,
 }
 
 void
-NetworkNameAdapter::makeInternalPins(Instance *inst)
+NetworkNameAdapter::makePins(Instance *inst)
 {
-  network_edit_->makeInternalPins(inst);
+  network_edit_->makePins(inst);
 }
 
 void

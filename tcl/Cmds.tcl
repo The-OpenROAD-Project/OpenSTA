@@ -1926,7 +1926,7 @@ define_cmd_args "write_path_spice" { -path_args path_args\
 				       -ground ground}
 
 proc write_path_spice { args } {
-  parse_key_args "write_spice" args \
+  parse_key_args "write_path_spice" args \
     keys {-spice_directory -lib_subckt_file -model_file \
 	    -power -ground -path_args} \
     flags {}
