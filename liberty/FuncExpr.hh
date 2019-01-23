@@ -53,10 +53,12 @@ public:
 
   // Delete expression and all of its subexpressions.
   void deleteSubexprs();
+  // op == op_port
   LibertyPort *port() const;
   Operator op() const { return op_; }
   // When operator is NOT left is the only operand.
   FuncExpr *left() const { return left_; }
+  // NULL when op == op_not
   FuncExpr *right() const { return right_; }
   TimingSense portTimingSense(const LibertyPort *port) const;
   // Return true if expression has port as an input.
