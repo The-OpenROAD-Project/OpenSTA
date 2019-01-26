@@ -1932,7 +1932,7 @@ proc write_path_spice { args } {
     flags {}
 
   if { [info exists keys(-spice_directory)] } {
-    set spice_dir $keys(-spice_directory)
+    set spice_dir [file_expand_tilde $keys(-spice_directory)]
     if { ![file exists $spice_dir] } {
       sta_error "Directory $spice_dir not found.\n"
     }
@@ -1947,7 +1947,7 @@ proc write_path_spice { args } {
   }
 
   if { [info exists keys(-lib_subckt_file)] } {
-    set lib_subckt_file $keys(-lib_subckt_file)
+    set lib_subckt_file [file_expand_tilde $keys(-lib_subckt_file)]
     if { ![file readable $lib_subckt_file] } {
       sta_error "-lib_subckt_file $lib_subckt_file is not readable.\n"
     }
@@ -1956,7 +1956,7 @@ proc write_path_spice { args } {
   }
 
   if { [info exists keys(-lib_subckt_file)] } {
-    set model_file $keys(-model_file)
+    set model_file [file_expand_tilde $keys(-model_file)]
     if { ![file readable $model_file] } {
       sta_error "-model_file $model_file is not readable.\n"
     }
@@ -2000,6 +2000,16 @@ proc write_path_spice { args } {
 	$lib_subckt_file $model_file $power $ground
       incr path_index
     }
+  }
+}
+
+proc file_expand_tilde { filename } {
+  global env
+
+  if { [string range $filename 0 1] == "~/" } {
+    return [file join $env(HOME) [string range $filename 2 end]]
+  } else {
+    return $filename
   }
 }
 

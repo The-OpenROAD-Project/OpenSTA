@@ -25,6 +25,7 @@ class ConcretePoleResidue;
 class ConcreteParasiticDevice;
 class ConcreteParasiticPinNode;
 class ConcreteParasiticSubNode;
+class ConcreteParasiticNode;
 
 typedef Map<const Pin*, float> ConcreteElmoreLoadMap;
 typedef ConcreteElmoreLoadMap::Iterator ConcretePiElmoreLoadIterator;
@@ -41,6 +42,7 @@ typedef Map<const Pin*,
 	    ConcreteParasiticPinNode*> ConcreteParasiticPinNodeMap;
 typedef Vector<ConcreteParasiticDevice*> ConcreteParasiticDeviceSeq;
 typedef Set<ConcreteParasiticDevice*> ConcreteParasiticDeviceSet;
+typedef Vector<ConcreteParasiticNode*> ConcreteParasiticNodeSeq;
 
 // Empty base class definitions so casts are not required on returned
 // objects.
@@ -78,6 +80,8 @@ public:
   virtual void setPoleResidue(const Pin *load_pin,
 			      ComplexFloatSeq *poles,
 			      ComplexFloatSeq *residues);
+  virtual ParasiticDeviceIterator *deviceIterator();
+  virtual ParasiticNodeIterator *nodeIterator();
 };
 
 class ConcreteElmore
@@ -268,7 +272,8 @@ protected:
 class ConcreteParasiticSubNode : public ConcreteParasiticNode
 {
 public:
-  ConcreteParasiticSubNode(Net *net, int id);
+  ConcreteParasiticSubNode(Net *net,
+			   int id);
   virtual const char *name(const Network *network) const;
 
 private:
@@ -391,15 +396,39 @@ public:
 private:
 };
 
-class ConcreteParasiticDeviceIterator : public ParasiticDeviceIterator
+class ConcreteParasiticDeviceSetIterator : public ParasiticDeviceIterator
 {
 public:
-  ConcreteParasiticDeviceIterator(ConcreteParasiticNode *node);
+  ConcreteParasiticDeviceSetIterator(ConcreteParasiticDeviceSet *devices);
+  virtual ~ConcreteParasiticDeviceSetIterator();
+  bool hasNext() { return iter_.hasNext(); }
+  ParasiticDevice *next() { return iter_.next(); }
+
+private:
+  ConcreteParasiticDeviceSet::ConstIterator iter_;
+};
+
+class ConcreteParasiticDeviceSeqIterator : public ParasiticDeviceIterator
+{
+public:
+  ConcreteParasiticDeviceSeqIterator(ConcreteParasiticDeviceSeq *devices);
   bool hasNext() { return iter_.hasNext(); }
   ParasiticDevice *next() { return iter_.next(); }
 
 private:
   ConcreteParasiticDeviceSeq::ConstIterator iter_;
+};
+
+class ConcreteParasiticNodeSeqIterator : public ParasiticNodeIterator
+{
+public:
+  ConcreteParasiticNodeSeqIterator(ConcreteParasiticNodeSeq *devices);
+  virtual ~ConcreteParasiticNodeSeqIterator();
+  bool hasNext() { return iter_.hasNext(); }
+  ParasiticNode *next() { return iter_.next(); }
+
+private:
+  ConcreteParasiticNodeSeq::ConstIterator iter_;
 };
 
 class ConcreteParasiticNetwork : public ParasiticNetwork,
@@ -418,7 +447,10 @@ public:
   ConcreteParasiticPinNodeMap *pinNodes() { return &pin_nodes_; }
   ConcreteParasiticSubNodeMap *subNodes() { return &sub_nodes_; }
   void disconnectPin(const Pin *pin, Net *net);
-  void devices(ConcreteParasiticDeviceSet &devices);
+  virtual ParasiticDeviceIterator *deviceIterator();
+  virtual ParasiticNodeIterator *nodeIterator();
+  virtual void devices(// Return value.
+		       ConcreteParasiticDeviceSet *devices);
 
 private:
   void deleteNodes();

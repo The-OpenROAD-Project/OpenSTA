@@ -239,7 +239,6 @@ private:
 class PathEndClkConstrained : public PathEnd
 {
 public:
-  virtual const EarlyLate *clkEarlyLate(const StaState *sta) const;
   virtual float sourceClkOffset(const StaState *sta) const;
   virtual Delay sourceClkLatency(const StaState *sta) const;
   virtual Delay sourceClkInsertionDelay(const StaState *sta) const;

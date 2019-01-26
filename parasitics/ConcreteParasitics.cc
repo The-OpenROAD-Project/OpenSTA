@@ -134,6 +134,18 @@ ConcreteParasitic::setPoleResidue(const Pin *,
 {
 }
 
+ParasiticDeviceIterator *
+ConcreteParasitic::deviceIterator()
+{
+  return NULL;
+}
+
+ParasiticNodeIterator *
+ConcreteParasitic::nodeIterator()
+{
+  return NULL;
+}
+
 ////////////////////////////////////////////////////////////////
 
 ConcreteElmore::ConcreteElmore() :
@@ -726,12 +738,37 @@ void
 ConcreteParasiticNetwork::deleteDevices()
 {
   ConcreteParasiticDeviceSet devices1;
-  devices(devices1);
+  devices(&devices1);
   devices1.deleteContents();
 }
 
+ParasiticNodeIterator *
+ConcreteParasiticNetwork::nodeIterator()
+{
+  ConcreteParasiticNodeSeq *nodes = new ConcreteParasiticNodeSeq();
+  ConcreteParasiticPinNodeMap::Iterator node_iter2(pin_nodes_);
+  while (node_iter2.hasNext()) {
+    ConcreteParasiticPinNode *node = node_iter2.next();
+    nodes->push_back(node);
+  }
+  ConcreteParasiticSubNodeMap::Iterator node_iter1(sub_nodes_);
+  while (node_iter1.hasNext()) {
+    ConcreteParasiticSubNode *node = node_iter1.next();
+    nodes->push_back(node);
+  }
+  return new ConcreteParasiticNodeSeqIterator(nodes);
+}
+
+ParasiticDeviceIterator *
+ConcreteParasiticNetwork::deviceIterator()
+{
+  ConcreteParasiticDeviceSet *devices1 = new ConcreteParasiticDeviceSet();
+  devices(devices1);
+  return new ConcreteParasiticDeviceSetIterator(devices1);
+}
+
 void
-ConcreteParasiticNetwork::devices(ConcreteParasiticDeviceSet &devices)
+ConcreteParasiticNetwork::devices(ConcreteParasiticDeviceSet *devices)
 {
   // Collect devices into a set so they are only deleted once
   // because multiple sub-nodes or pin nodes can refer to them.
@@ -741,7 +778,7 @@ ConcreteParasiticNetwork::devices(ConcreteParasiticDeviceSet &devices)
     ConcreteParasiticDeviceSeq::Iterator device_iter(node->devices());
     while (device_iter.hasNext()) {
       ConcreteParasiticDevice *device = device_iter.next();
-      devices.insert(device);
+      devices->insert(device);
     }
   }
 
@@ -751,7 +788,7 @@ ConcreteParasiticNetwork::devices(ConcreteParasiticDeviceSet &devices)
     ConcreteParasiticDeviceSeq::Iterator device_iter(node->devices());
     while (device_iter.hasNext()) {
       ConcreteParasiticDevice *device = device_iter.next();
-      devices.insert(device);
+      devices->insert(device);
     }
   }
 }
@@ -1798,6 +1835,20 @@ ConcreteParasitics::makeResistor(const char *name,
   cnode2->addDevice(resistor);
 }
 
+ParasiticDeviceIterator *
+ConcreteParasitics::deviceIterator(Parasitic *parasitic)
+{
+  ConcreteParasitic *cparasitic = static_cast<ConcreteParasitic*>(parasitic);
+  return cparasitic->deviceIterator();
+}
+
+ParasiticNodeIterator *
+ConcreteParasitics::nodeIterator(Parasitic *parasitic)
+{
+  ConcreteParasitic *cparasitic = static_cast<ConcreteParasitic*>(parasitic);
+  return cparasitic->nodeIterator();
+}
+
 float
 ConcreteParasitics::nodeGndCap(const ParasiticNode *node,
 			       const ParasiticAnalysisPt *) const
@@ -1838,17 +1889,11 @@ ConcreteParasitics::findNode(Parasitic *parasitic,
   return cparasitic->findNode(pin);
 }
 
-ConcreteParasiticDeviceIterator::
-ConcreteParasiticDeviceIterator(ConcreteParasiticNode *node) :
-  iter_(node->devices())
-{
-}
-
 ParasiticDeviceIterator *
 ConcreteParasitics::deviceIterator(ParasiticNode *node) const
 {
   ConcreteParasiticNode *cnode = static_cast<ConcreteParasiticNode*>(node);
-  return new ConcreteParasiticDeviceIterator(cnode);
+  return new ConcreteParasiticDeviceSeqIterator(cnode->devices());
 }
 
 const char *
@@ -2029,6 +2074,36 @@ ConcreteParasitics::estimatePiElmore(const Pin *drvr_pin,
 				       elmore_use_load_cap,
 				       tr, op_cond, corner, min_max,
 				       sdc_);
+}
+
+////////////////////////////////////////////////////////////////
+
+ConcreteParasiticDeviceSeqIterator::
+ConcreteParasiticDeviceSeqIterator(ConcreteParasiticDeviceSeq *devices) :
+  iter_(devices)
+{
+}
+
+ConcreteParasiticDeviceSetIterator::
+ConcreteParasiticDeviceSetIterator(ConcreteParasiticDeviceSet *devices) :
+  iter_(devices)
+{
+}
+
+ConcreteParasiticDeviceSetIterator::~ConcreteParasiticDeviceSetIterator()
+{
+  delete iter_.container();
+}
+
+ConcreteParasiticNodeSeqIterator::
+ConcreteParasiticNodeSeqIterator(ConcreteParasiticNodeSeq *nodes) :
+  iter_(nodes)
+{
+}
+
+ConcreteParasiticNodeSeqIterator::~ConcreteParasiticNodeSeqIterator()
+{
+  delete iter_.container();
 }
 
 } // namespace

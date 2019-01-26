@@ -33,6 +33,7 @@ class Corner;
 typedef std::complex<float> ComplexFloat;
 typedef Vector<ComplexFloat> ComplexFloatSeq;
 typedef Iterator<ParasiticDevice*> ParasiticDeviceIterator;
+typedef Iterator<ParasiticNode*> ParasiticNodeIterator;
 
 // Parasitics API.
 // All parasitic parameters can have multiple values, each corresponding
@@ -171,7 +172,7 @@ public:
 			   ComplexFloat &residue) const=0;
 
   ////////////////////////////////////////////////////////////////
-  // Parasitic Network (detailed parasitics, or DSPF).
+  // Parasitic Network (detailed parasitics).
   // This api assumes that parasitic networks are not rise/fall
   // dependent because they do not include pin capacitances.
   virtual bool isParasiticNetwork(Parasitic *parasitic) const = 0;
@@ -184,6 +185,8 @@ public:
   virtual Parasitic *makeParasiticNetwork(Net *net,
 					  bool pin_cap_included,
 					  const ParasiticAnalysisPt *ap) = 0;
+  virtual ParasiticDeviceIterator *deviceIterator(Parasitic *parasitic) = 0;
+  virtual ParasiticNodeIterator *nodeIterator(Parasitic *parasitic) = 0;
   // Delete parasitic network if it exists.
   virtual void deleteParasiticNetwork(const Net *net,
 				      const ParasiticAnalysisPt *ap) = 0;

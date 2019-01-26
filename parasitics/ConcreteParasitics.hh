@@ -162,6 +162,8 @@ public:
   virtual void makeResistor(const char *name, ParasiticNode *node1,
 			    ParasiticNode *node2,
 			    float res, const ParasiticAnalysisPt *ap);
+  virtual ParasiticDeviceIterator *deviceIterator(Parasitic *parasitic);
+  virtual ParasiticNodeIterator *nodeIterator(Parasitic *parasitic);
 
   virtual const char *name(const ParasiticNode *node);
   virtual const Pin *connectionPin(const ParasiticNode *node) const;

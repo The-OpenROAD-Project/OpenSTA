@@ -164,7 +164,7 @@ ArnoldiReduce::loadWork()
 
   int resistor_count = 0;
   ConcreteParasiticDeviceSet devices;
-  parasitic_network_->devices(devices);
+  parasitic_network_->devices(&devices);
   ConcreteParasiticDeviceSet::Iterator device_iter(devices);
   while (device_iter.hasNext()) {
     ParasiticDevice *device = device_iter.next();

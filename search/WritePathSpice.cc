@@ -747,7 +747,7 @@ WritePathSpice::writeStageVoltageSources(Stage stage,
       }
     }
   }
-  else
+  else if (drvr_port->function())
     sensitizationValues(inst, drvr_port->function(), input_port, port_values);
   int volt_index = 1;
   debugPrint1(debug_, "write_spice", 2, "subckt %s\n", cell->name());
@@ -986,55 +986,6 @@ WritePathSpice::onePort(FuncExpr *expr)
   }
 }
 
-class ParasiticNodeNameLess
-{
-public:
-  ParasiticNodeNameLess(Parasitics *parasitics);
-  bool operator()(const ParasiticNode *node1,
-		  const ParasiticNode *node2) const;
-
-private:
-  Parasitics *parasitics_;
-};
-
-ParasiticNodeNameLess::ParasiticNodeNameLess(Parasitics *parasitics) :
-  parasitics_(parasitics)
-{
-}
-
-bool
-ParasiticNodeNameLess::operator()(const ParasiticNode *node1,
-				  const ParasiticNode *node2) const
-{
-  return stringLess(parasitics_->name(node1),
-		    parasitics_->name(node2));
-}
-
-typedef Set<ParasiticDevice*> ParasiticDeviceSet;
-// Less uses names rather than pointers for stable results.
-typedef Set<ParasiticNode*, ParasiticNodeNameLess> ParasiticNodeSet;
-
-void
-findParasiticDevicesNodes(ParasiticNode *node,
-			  Parasitics *parasitics,
-			  // Return values.
-			  ParasiticNodeSet &nodes,
-			  ParasiticDeviceSet &devices)
-{
-  nodes.insert(node);
-  auto device_iter = parasitics->deviceIterator(node);
-  while (device_iter->hasNext()) {
-    auto device = device_iter->next();
-    if (!devices.hasKey(device)) {
-      devices.insert(device);
-      auto other_node = parasitics->otherNode(device, node);
-      if (other_node)
-	findParasiticDevicesNodes(other_node, parasitics, nodes, devices);
-    }
-  }
-  delete device_iter;
-}
-
 void
 WritePathSpice::writeStageParasitics(Stage stage)
 {
@@ -1052,14 +1003,9 @@ WritePathSpice::writeStageParasitics(Stage stage)
       net ? network_->pathName(net) : network_->pathName(drvr_pin);
     initNodeMap(net_name);
     streamPrint(spice_stream_, "* Net %s\n", net_name);
-    auto node = parasitics_->findNode(parasitic, drvr_pin);
-    ParasiticNodeNameLess node_name_less(parasitics_);
-    ParasiticNodeSet nodes(node_name_less);
-    ParasiticDeviceSet devices;
-    findParasiticDevicesNodes(node, parasitics_, nodes, devices);
-    ParasiticDeviceSet::Iterator device_iter(devices);
-    while (device_iter.hasNext()) {
-      auto device = device_iter.next();
+    ParasiticDeviceIterator *device_iter = parasitics_->deviceIterator(parasitic);
+    while (device_iter->hasNext()) {
+      auto device = device_iter->next();
       auto resistance = parasitics_->value(device, parasitic_ap);
       if (parasitics_->isResistor(device)) {
 	ParasiticNode *node1 = parasitics_->node1(device);
@@ -1082,10 +1028,12 @@ WritePathSpice::writeStageParasitics(Stage stage)
 	cap_index++;
       }
     }
-    ParasiticNodeSet::Iterator node_iter(nodes);
-    while (node_iter.hasNext()) {
-      auto node = node_iter.next();
+    delete device_iter;
+    ParasiticNodeIterator *node_iter = parasitics_->nodeIterator(parasitic);
+    while (node_iter->hasNext()) {
+      auto node = node_iter->next();
       auto cap = parasitics_->nodeGndCap(node, parasitic_ap);
+      // Spice has a cow over zero value caps.
       if (cap > 0.0) {
 	streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
 		    cap_index,
@@ -1094,6 +1042,7 @@ WritePathSpice::writeStageParasitics(Stage stage)
 	cap_index++;
       }
     }
+    delete node_iter;
   }
   else {
     streamPrint(spice_stream_, "* No parasitics found for this net.\n");

@@ -75,9 +75,9 @@ PathEnd::pathEarlyLate(const StaState *sta) const
 }
 
 const EarlyLate *
-PathEnd::clkEarlyLate(const StaState *) const
+PathEnd::clkEarlyLate(const StaState *sta) const
 {
-  return NULL;
+  return checkRole(sta)->tgtClkEarlyLate();
 }
 
 const TransRiseFall *
@@ -550,15 +550,6 @@ PathEndClkConstrained::setPath(PathEnumed *path,
 {
   path_.init(path);
   crpr_valid_ = false;
-}
-
-const EarlyLate *
-PathEndClkConstrained::clkEarlyLate(const StaState *sta) const
-{
-  if (clk_path_.isNull())
-    return NULL;
-  else
-    return clk_path_.pathAnalysisPt(sta)->pathMinMax();
 }
 
 float
