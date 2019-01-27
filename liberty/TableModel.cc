@@ -76,6 +76,7 @@ GateTableModel::gateDelay(const LibertyCell *cell,
 			  float in_slew,
 			  float load_cap,
 			  float related_out_cap,
+			  bool pocv_enabled,
 			  // return values
 			  ArcDelay &gate_delay,
 			  Slew &drvr_slew) const
@@ -85,11 +86,11 @@ GateTableModel::gateDelay(const LibertyCell *cell,
 			  load_cap, related_out_cap);
   float sigma_early = 0.0;
   float sigma_late = 0.0;
-  if (delay_sigma_models_[EarlyLate::earlyIndex()])
+  if (pocv_enabled && delay_sigma_models_[EarlyLate::earlyIndex()])
     sigma_early = findValue(library, cell, pvt,
 			    delay_sigma_models_[EarlyLate::earlyIndex()],
 			    in_slew, load_cap, related_out_cap);
-  if (delay_sigma_models_[EarlyLate::lateIndex()])
+  if (pocv_enabled && delay_sigma_models_[EarlyLate::lateIndex()])
     sigma_late = findValue(library, cell, pvt,
 			   delay_sigma_models_[EarlyLate::earlyIndex()],
 			   in_slew, load_cap, related_out_cap);
@@ -97,16 +98,14 @@ GateTableModel::gateDelay(const LibertyCell *cell,
 
   float slew = findValue(library, cell, pvt, slew_model_, in_slew,
 			 load_cap, related_out_cap);
-  if (slew_sigma_models_[EarlyLate::earlyIndex()])
+  if (pocv_enabled && slew_sigma_models_[EarlyLate::earlyIndex()])
     sigma_early = findValue(library, cell, pvt,
 			    slew_sigma_models_[EarlyLate::earlyIndex()],
 			    in_slew, load_cap, related_out_cap);
-  if (slew_sigma_models_[EarlyLate::lateIndex()])
+  if (pocv_enabled && slew_sigma_models_[EarlyLate::lateIndex()])
     sigma_late = findValue(library, cell, pvt,
 			   slew_sigma_models_[EarlyLate::earlyIndex()],
 			   in_slew, load_cap, related_out_cap);
-  sigma_early = 0.0;
-  sigma_late = 0.0;
   // Clip negative slews to zero.
   if (slew < 0.0)
     slew = 0.0;
@@ -119,6 +118,7 @@ GateTableModel::reportGateDelay(const LibertyCell *cell,
 				float in_slew,
 				float load_cap,
 				float related_out_cap,
+				bool pocv_enabled,
 				int digits,
 				string *result) const
 {
@@ -126,22 +126,22 @@ GateTableModel::reportGateDelay(const LibertyCell *cell,
   reportPvt(library, pvt, digits, result);
   reportTableLookup("Delay", library, cell, pvt, delay_model_, in_slew,
 		    load_cap, related_out_cap, digits, result);
-  if (delay_sigma_models_[EarlyLate::earlyIndex()])
+  if (pocv_enabled && delay_sigma_models_[EarlyLate::earlyIndex()])
     reportTableLookup("Delay sigma(early)", library, cell, pvt,
 		      delay_sigma_models_[EarlyLate::earlyIndex()],
 		      in_slew, load_cap, related_out_cap, digits, result);
-  if (delay_sigma_models_[EarlyLate::lateIndex()])
+  if (pocv_enabled && delay_sigma_models_[EarlyLate::lateIndex()])
     reportTableLookup("Delay sigma(late)", library, cell, pvt,
 		      delay_sigma_models_[EarlyLate::lateIndex()],
 		      in_slew, load_cap, related_out_cap, digits, result);
   *result += '\n';
   reportTableLookup("Slew", library, cell, pvt, slew_model_, in_slew,
 		    load_cap, related_out_cap, digits, result);
-  if (slew_sigma_models_[EarlyLate::earlyIndex()])
+  if (pocv_enabled && slew_sigma_models_[EarlyLate::earlyIndex()])
     reportTableLookup("Slew sigma(early)", library, cell, pvt,
 		      slew_sigma_models_[EarlyLate::earlyIndex()],
 		      in_slew, load_cap, related_out_cap, digits, result);
-  if (slew_sigma_models_[EarlyLate::lateIndex()])
+  if (pocv_enabled && slew_sigma_models_[EarlyLate::lateIndex()])
     reportTableLookup("Slew sigma(late)", library, cell, pvt,
 		      slew_sigma_models_[EarlyLate::lateIndex()],
 		      in_slew, load_cap, related_out_cap, digits, result);
@@ -355,19 +355,48 @@ CheckTableModel::checkDelay(const LibertyCell *cell,
 			    float from_slew,
 			    float to_slew,
 			    float related_out_cap,
+			    bool pocv_enabled,
 			    // Return values.
 			    ArcDelay &margin) const
 {
   if (model_) {
-    float axis_value1, axis_value2, axis_value3;
-    findAxisValues(from_slew, to_slew, related_out_cap,
-		   axis_value1, axis_value2, axis_value3);
     const LibertyLibrary *library = cell->libertyLibrary();
-    margin = model_->findValue(library, cell, pvt,
-			       axis_value1, axis_value2, axis_value3);
+    float mean = findValue(library, cell, pvt, model_,
+			  from_slew, to_slew, related_out_cap);
+    float sigma_early = 0.0;
+    float sigma_late = 0.0;
+    if (pocv_enabled && sigma_models_[EarlyLate::earlyIndex()])
+      sigma_early = findValue(library, cell, pvt,
+			      sigma_models_[EarlyLate::earlyIndex()],
+			      from_slew, to_slew, related_out_cap);
+    if (pocv_enabled && sigma_models_[EarlyLate::lateIndex()])
+      sigma_late = findValue(library, cell, pvt,
+			     sigma_models_[EarlyLate::earlyIndex()],
+			     from_slew, to_slew, related_out_cap);
+    margin = makeDelay(mean, sigma_early, sigma_late);  
   }
   else
     margin = 0.0;
+}
+
+float
+CheckTableModel::findValue(const LibertyLibrary *library,
+			   const LibertyCell *cell,
+			   const Pvt *pvt,
+			   const TableModel *model,
+			   float from_slew,
+			   float to_slew,
+			   float related_out_cap) const
+{
+  if (model) {
+    float axis_value1, axis_value2, axis_value3;
+    findAxisValues(from_slew, to_slew, related_out_cap,
+		   axis_value1, axis_value2, axis_value3);
+    return model->findValue(library, cell, pvt,
+			    axis_value1, axis_value2, axis_value3);
+  }
+  else
+    return 0.0;
 }
 
 void
@@ -377,16 +406,45 @@ CheckTableModel::reportCheckDelay(const LibertyCell *cell,
 				  const char *from_slew_annotation,
 				  float to_slew,
 				  float related_out_cap,
+				  bool pocv_enabled,
 				  int digits,
 				  string *result) const
 {
-  if (model_) {
+  const LibertyLibrary *library = cell->libertyLibrary();
+  reportTableDelay("Check", library, cell, pvt, model_,
+		   from_slew, from_slew_annotation, to_slew,
+		   related_out_cap, digits, result);
+  if (pocv_enabled && sigma_models_[EarlyLate::earlyIndex()])
+    reportTableDelay("Check sigma early", library, cell, pvt,
+		     sigma_models_[EarlyLate::earlyIndex()],
+		     from_slew, from_slew_annotation, to_slew,
+		     related_out_cap, digits, result);
+  if (pocv_enabled && sigma_models_[EarlyLate::lateIndex()])
+    reportTableDelay("Check sigma late", library, cell, pvt,
+		     sigma_models_[EarlyLate::lateIndex()],
+		     from_slew, from_slew_annotation, to_slew,
+		     related_out_cap, digits, result);
+}
+
+void
+CheckTableModel::reportTableDelay(const char *result_name,
+				  const LibertyLibrary *library,
+				  const LibertyCell *cell,
+				  const Pvt *pvt,
+				  const TableModel *model,
+				  float from_slew,
+				  const char *from_slew_annotation,
+				  float to_slew,
+				  float related_out_cap,
+				  int digits,
+				  string *result) const
+{
+  if (model) {
     float axis_value1, axis_value2, axis_value3;
     findAxisValues(from_slew, to_slew, related_out_cap,
 		   axis_value1, axis_value2, axis_value3);
-    const LibertyLibrary *library = cell->libertyLibrary();
     reportPvt(library, pvt, digits, result);
-    model_->reportValue("Check", library, cell, pvt,
+    model_->reportValue(result_name, library, cell, pvt,
 			axis_value1, from_slew_annotation, axis_value2,
 			axis_value3, digits, result);
   }

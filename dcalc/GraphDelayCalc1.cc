@@ -846,9 +846,9 @@ GraphDelayCalc1::findInputArcDelay(LibertyCell *drvr_cell,
     ArcDelay load_delay = gate_delay - intrinsic_delay;
     debugPrint3(debug_, "delay_calc", 3,
 		"    gate delay = %s intrinsic = %s slew = %s\n",
-		delayAsString(gate_delay, units_),
-		delayAsString(intrinsic_delay, units_),
-		delayAsString(gate_slew, units_));
+		delayAsString(gate_delay, this),
+		delayAsString(intrinsic_delay, this),
+		delayAsString(gate_slew, this));
     graph_->setSlew(drvr_vertex, drvr_tr, ap_index, gate_slew);
     annotateLoadDelays(drvr_vertex, drvr_tr, load_delay, false, dcalc_ap,
 		       arc_delay_calc_);
@@ -1274,8 +1274,8 @@ GraphDelayCalc1::findArcDelay(LibertyCell *drvr_cell,
     }
     debugPrint2(debug_, "delay_calc", 3,
 		"    gate delay = %s slew = %s\n",
-		delayAsString(gate_delay, units_),
-		delayAsString(gate_slew, units_));
+		delayAsString(gate_delay, this),
+		delayAsString(gate_slew, this));
     // Merge slews.
     const Slew &drvr_slew = graph_->slew(drvr_vertex, drvr_tr, ap_index);
     if (delayFuzzyGreater(gate_slew, drvr_slew, dcalc_ap->slewMinMax())
@@ -1477,8 +1477,8 @@ GraphDelayCalc1::annotateLoadDelays(Vertex *drvr_vertex,
       debugPrint3(debug_, "delay_calc", 3,
 		  "    %s load delay = %s slew = %s\n",
 		  load_vertex->name(sdc_network_),
-		  delayAsString(wire_delay, units_),
-		  delayAsString(load_slew, units_));
+		  delayAsString(wire_delay, this),
+		  delayAsString(load_slew, this));
       if (!load_vertex->slewAnnotated(drvr_tr, ap_index)) {
 	if (drvr_vertex->slewAnnotated(drvr_tr, ap_index)) {
 	  // Copy the driver slew to the load if it is annotated.
@@ -1593,8 +1593,8 @@ GraphDelayCalc1::findCheckEdgeDelays(Edge *edge,
 		      arc_set->role()->asString());
 	  debugPrint2(debug_, "delay_calc", 3,
 		      "    from_slew = %s to_slew = %s\n",
-		      delayAsString(from_slew, units_),
-		      delayAsString(to_slew, units_));
+		      delayAsString(from_slew, this),
+		      delayAsString(to_slew, this));
 	  float related_out_cap = 0.0;
 	  if (related_out_pin) {
 	    Parasitic *related_out_parasitic;
@@ -1616,7 +1616,7 @@ GraphDelayCalc1::findCheckEdgeDelays(Edge *edge,
 				     check_delay);
 	  debugPrint1(debug_, "delay_calc", 3,
 		      "    check_delay = %s\n",
-		      delayAsString(check_delay, units_));
+		      delayAsString(check_delay, this));
 	  graph_->setArcDelay(edge, arc, ap_index, check_delay);
 	  delay_changed = true;
 	}

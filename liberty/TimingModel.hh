@@ -47,6 +47,7 @@ public:
 			 float in_slew,
 			 float load_cap,
 			 float related_out_cap,
+			 bool pocv_enabled,
 			 // Return values.
 			 ArcDelay &gate_delay,
 			 Slew &drvr_slew) const = 0;
@@ -55,6 +56,7 @@ public:
 			       float in_slew,
 			       float load_cap,
 			       float related_out_cap,
+			       bool pocv_enabled,
 			       int digits,
 			       string *result) const = 0;
   virtual float driveResistance(const LibertyCell *cell,
@@ -71,6 +73,7 @@ public:
 			  float from_slew,
 			  float to_slew,
 			  float related_out_cap,
+			  bool pocv_enabled,
 			  // Return values.
 			  ArcDelay &margin) const = 0;
   virtual void reportCheckDelay(const LibertyCell *cell,
@@ -79,6 +82,7 @@ public:
 				const char *from_slew_annotation,
 				float to_slew,
 				float related_out_cap,
+				bool pocv_enabled,
 				int digits,
 				string *result) const = 0;
 };

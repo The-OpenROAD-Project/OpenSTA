@@ -155,7 +155,7 @@ ClkSkews::reportClkSkew(ClockSet *clks,
 		     tgt_path->transition(this)->asString());
       report_->print("%7s   %7s    %7s\n",
 		     time_unit->asString(clk_skew->tgtLatency(this), digits),
-		     delayAsString(-clk_skew->crpr(this), units_, digits),
+		     time_unit->asString(delayAsFloat(-clk_skew->crpr(this)), digits),
 		     time_unit->asString(clk_skew->skew(), digits));
     }
     else

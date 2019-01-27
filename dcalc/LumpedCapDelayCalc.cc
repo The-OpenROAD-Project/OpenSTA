@@ -151,7 +151,7 @@ LumpedCapDelayCalc::gateDelay(const LibertyCell *drvr_cell,
   GateTimingModel *model = gateModel(arc, dcalc_ap);
   debugPrint3(debug_, "delay_calc", 3,
 	      "    in_slew = %s load_cap = %s related_load_cap = %s lumped\n",
-	      delayAsString(in_slew, units()),
+	      delayAsString(in_slew, this),
 	      units()->capacitanceUnit()->asString(load_cap),
 	      units()->capacitanceUnit()->asString(related_out_cap));
   if (model) {
@@ -159,7 +159,7 @@ LumpedCapDelayCalc::gateDelay(const LibertyCell *drvr_cell,
     Slew drvr_slew1;
     float in_slew1 = delayAsFloat(in_slew);
     model->gateDelay(drvr_cell, pvt, in_slew1, load_cap, related_out_cap,
-		     gate_delay1, drvr_slew1);
+		     pocv_enabled_, gate_delay1, drvr_slew1);
     gate_delay = gate_delay1;
     drvr_slew = drvr_slew1;
     drvr_slew_ = drvr_slew1;
@@ -245,7 +245,7 @@ LumpedCapDelayCalc::reportGateDelay(const LibertyCell *drvr_cell,
   if (model) {
     float in_slew1 = delayAsFloat(in_slew);
     model->reportGateDelay(drvr_cell, pvt, in_slew1, load_cap,
-			   related_out_cap, digits, result);
+			   related_out_cap, false, digits, result);
   }
 }
 
@@ -264,7 +264,8 @@ LumpedCapDelayCalc::checkDelay(const LibertyCell *cell,
   if (model) {
     float from_slew1 = delayAsFloat(from_slew);
     float to_slew1 = delayAsFloat(to_slew);
-    model->checkDelay(cell, pvt, from_slew1, to_slew1, related_out_cap, margin);
+    model->checkDelay(cell, pvt, from_slew1, to_slew1, related_out_cap,
+		      false, margin);
   }
   else
     margin = delay_zero;
@@ -287,7 +288,7 @@ LumpedCapDelayCalc::reportCheckDelay(const LibertyCell *cell,
     float from_slew1 = delayAsFloat(from_slew);
     float to_slew1 = delayAsFloat(to_slew);
     model->reportCheckDelay(cell, pvt, from_slew1, from_slew_annotation, to_slew1,
-			    related_out_cap, digits, result);
+			    related_out_cap, false, digits, result);
   }
 }
 

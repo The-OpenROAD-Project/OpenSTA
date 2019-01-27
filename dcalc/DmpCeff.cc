@@ -77,7 +77,8 @@ gateModelRd(const LibertyCell *cell,
 	    double c2,
 	    double c1,
 	    float related_out_cap,
-	    const Pvt *pvt);
+	    const Pvt *pvt,
+	    bool pocv_enabled);
 static bool
 evalDmpEqnsState(void *state);
 static void
@@ -378,6 +379,7 @@ DmpAlg::gateCapDelaySlew(double ceff,
 			 static_cast<float>(in_slew_),
 			 static_cast<float>(ceff),
 			 related_out_cap_,
+			 pocv_enabled_,
 			 model_delay, model_slew);
   delay = delayAsFloat(model_delay);
   slew = delayAsFloat(model_slew);
@@ -1640,7 +1642,7 @@ DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
 {
   double rd = gate_model
     ? gateModelRd(drvr_cell, gate_model, in_slew, c2, c1,
-		  related_out_cap, pvt)
+		  related_out_cap, pvt, pocv_enabled_)
     : 0.0;
   // Zero Rd means the table is constant and thus independent of load cap.
   if (rd < 1e-2
@@ -1726,7 +1728,8 @@ DmpCeffDelayCalc::reportGateDelay(const LibertyCell *drvr_cell,
   if (model) {
     float in_slew1 = delayAsFloat(in_slew);
     model->reportGateDelay(drvr_cell, pvt, in_slew1, c_eff,
-			   related_out_cap, digits, result);
+			   related_out_cap, pocv_enabled_,
+			   digits, result);
   }
 }
 
@@ -1737,15 +1740,18 @@ gateModelRd(const LibertyCell *cell,
 	    double c2,
 	    double c1,
 	    float related_out_cap,
-	    const Pvt *pvt)
+	    const Pvt *pvt,
+	    bool pocv_enabled)
 {
   float cap1 = static_cast<float>((c1 + c2) * .75);
   float cap2 = cap1 * 1.1F;
   float in_slew1 = static_cast<float>(in_slew);
   ArcDelay d1, d2;
   Slew s1, s2;
-  gate_model->gateDelay(cell, pvt, in_slew1, cap1, related_out_cap, d1, s1);
-  gate_model->gateDelay(cell, pvt, in_slew1, cap2, related_out_cap, d2, s2);
+  gate_model->gateDelay(cell, pvt, in_slew1, cap1, related_out_cap, pocv_enabled,
+			d1, s1);
+  gate_model->gateDelay(cell, pvt, in_slew1, cap2, related_out_cap, pocv_enabled,
+			d2, s2);
   return abs(delayAsFloat(d1) - delayAsFloat(d2)) / (cap2 - cap1);
 }
 

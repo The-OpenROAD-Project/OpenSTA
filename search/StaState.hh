@@ -90,6 +90,7 @@ public:
   Latches *latches() { return latches_; }
   Latches *latches() const { return latches_; }
   unsigned threadCount() const { return thread_count_; }
+  bool pocvEnabled() const { return pocv_enabled_; }
 
 protected:
   Report *report_;
@@ -110,6 +111,7 @@ protected:
   Search *search_;
   Latches *latches_;
   int thread_count_;
+  bool pocv_enabled_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(StaState);

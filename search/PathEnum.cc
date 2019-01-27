@@ -125,7 +125,7 @@ PathEnum::insert(PathEnd *path_end)
 	      path_end->path()->name(this),
 	      cmp_slack_ ? "slack" : "delay",
 	      delayAsString(cmp_slack_ ? path_end->slack(this) :
-			    path_end->dataArrivalTime(this), units_));
+			    path_end->dataArrivalTime(this), this));
   Diversion *div = new Diversion(path_end, path_end->path());
   div_queue_.push(div);
   div_count_++;
@@ -178,8 +178,8 @@ PathEnum::findNext()
       Path *path = path_end->path();
       debug_->print("path_enum: next path %s delay %s slack %s\n",
 		    path->name(this),
-		    delayAsString(path_end->dataArrivalTime(this), units_),
-		    delayAsString(path_end->slack(this), units_));
+		    delayAsString(path_end->dataArrivalTime(this), this),
+		    delayAsString(path_end->slack(this), this));
       reportDiversionPath(div);
     }
 
@@ -213,7 +213,7 @@ PathEnum::reportDiversionPath(Diversion *div)
   while (!p.isNull()) {
     debug_->print("path_enum:  %s %s%s\n",
 		  p.name(this),
-		  delayAsString(p.arrival(this), units_),
+		  delayAsString(p.arrival(this), this),
 		  Path::equal(&p, after_div, this) ? " <-diversion" : "");
     if (network_->isLatchData(p.pin(this)))
       break;
@@ -387,7 +387,6 @@ PathEnumFaninVisitor::reportDiversion(TimingArc *div_arc,
 {			
   Debug *debug = sta_->debug();
   if (debug->check("path_enum", 3)) {
-    Units *units = sta_->units();
     Path *path = path_end_->path();
     const PathAnalysisPt *path_ap = path->pathAnalysisPt(sta_);
     Arrival path_delay = path_enum_->cmp_slack_
@@ -401,8 +400,8 @@ PathEnumFaninVisitor::reportDiversion(TimingArc *div_arc,
     debug->print("path_enum: diversion %s %s %s -> %s\n",
 		 path->name(sta_),
 		 path_enum_->cmp_slack_ ? "slack" : "delay",
-		 delayAsString(path_delay, units),
-		 delayAsString(div_delay, units));
+		 delayAsString(path_delay, sta_),
+		 delayAsString(div_delay, sta_));
     debug->print("path_enum:  from %s -> %s\n",
 		 div_prev.name(sta_),
 		 before_div_.name(sta_));
@@ -592,8 +591,8 @@ PathEnum::updatePathHeadDelays(PathEnumedSeq &paths,
     Arrival arrival = prev_arrival + arc_delay;
     debugPrint3(debug_, "path_enum", 3, "update arrival %s %s -> %s\n",
 		path->name(this),
-		delayAsString(path->arrival(this), units_),
-		delayAsString(arrival, units_));
+		delayAsString(path->arrival(this), this),
+		delayAsString(arrival, this));
     path->setArrival(arrival, this);
     prev_arrival = arrival;
     if (sdc_->crprActive()) {

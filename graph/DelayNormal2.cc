@@ -167,7 +167,15 @@ Delay::operator-() const
 void
 Delay::operator-=(float delay)
 {
-  mean_ -= - delay;
+  mean_ -= delay;
+}
+
+void
+Delay::operator-=(const Delay &delay)
+{
+  mean_ -= delay.mean_;
+  sigma2_[early_index] -= delay.sigma2_[early_index];
+  sigma2_[late_index] -= delay.sigma2_[late_index];
 }
 
 bool
@@ -409,31 +417,35 @@ delaySigma2(const Delay &delay,
 
 const char *
 delayAsString(const Delay &delay,
-	      const Units *units,
+	      const StaState *sta,
 	      int digits)
 {
-  const Unit *unit = units->timeUnit();
-  float sigma_early = delay.sigma(EarlyLate::early());
-  float sigma_late = delay.sigma(EarlyLate::late());
-  if (fuzzyEqual(sigma_early, sigma_late))
-    return stringPrintTmp("%s|%s",
-			  unit->asString(delay.mean(), digits),
-			  unit->asString(sigma_early, digits));
+  const Unit *unit = sta->units()->timeUnit();
+  if (sta->pocvEnabled()) {
+    float sigma_early = delay.sigma(EarlyLate::early());
+    float sigma_late = delay.sigma(EarlyLate::late());
+    if (fuzzyEqual(sigma_early, sigma_late))
+      return stringPrintTmp("%s|%s",
+			    unit->asString(delay.mean(), digits),
+			    unit->asString(sigma_early, digits));
+    else
+      return stringPrintTmp("%s|%s:%s",
+			    unit->asString(delay.mean(), digits),
+			    unit->asString(sigma_early, digits),
+			    unit->asString(sigma_late, digits));
+  }
   else
-    return stringPrintTmp("%s|%s:%s",
-			  unit->asString(delay.mean(), digits),
-			  unit->asString(sigma_early, digits),
-			  unit->asString(sigma_late, digits));
+    return unit->asString(delay.mean(), digits);
 }
 
 const char *
 delayAsString(const Delay &delay,
 	      const EarlyLate *early_late,
-	      const Units *units,
+	      const StaState *sta,
 	      int digits)
 {
   float mean_sigma = delayAsFloat(delay, early_late);
-  return units->timeUnit()->asString(mean_sigma, digits);
+  return sta->units()->timeUnit()->asString(mean_sigma, digits);
 }
 
 } // namespace

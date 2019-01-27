@@ -55,6 +55,7 @@ public:
 			 float in_slew,
 			 float load_cap,
 			 float related_out_cap,
+			 bool pocv_enabled,
 			 // Return values.
 			 ArcDelay &gate_delay,
 			 Slew &drvr_slew) const;
@@ -63,6 +64,7 @@ public:
 			       float in_slew,
 			       float load_cap,
 			       float related_out_cap,
+			       bool pocv_enabled,
 			       int digits,
 			       string *result) const;
   virtual float driveResistance(const LibertyCell *cell,
@@ -131,6 +133,7 @@ public:
 			  float from_slew,
 			  float to_slew,
 			  float related_out_cap,
+			  bool pocv_enabled,
 			  // Return values.
 			  ArcDelay &margin) const;
   virtual void reportCheckDelay(const LibertyCell *cell,
@@ -139,6 +142,7 @@ public:
 				const char *from_slew_annotation,
 				float to_slew,
 				float related_out_cap,
+				bool pocv_enabled,
 				int digits,
 				string *result) const;
 
@@ -148,6 +152,13 @@ public:
 
 protected:
   virtual void setIsScaled(bool is_scaled);
+  float findValue(const LibertyLibrary *library,
+		  const LibertyCell *cell,
+		  const Pvt *pvt,
+		  const TableModel *model,
+		  float from_slew,
+		  float to_slew,
+		  float related_out_cap) const;
   void findAxisValues(float from_slew,
 		      float to_slew,
 		      float related_out_cap,
@@ -159,9 +170,21 @@ protected:
 		  float load_cap,
 		  float in_slew,
 		  float related_out_cap) const;
+  void reportTableDelay(const char *result_name,
+			const LibertyLibrary *library,
+			const LibertyCell *cell,
+			const Pvt *pvt,
+			const TableModel *model,
+			float from_slew,
+			const char *from_slew_annotation,
+			float to_slew,
+			float related_out_cap,
+			int digits,
+			string *result) const;
   static bool checkAxis(TableAxis *axis);
 
   TableModel *model_;
+  TableModel *sigma_models_[EarlyLate::index_count];
 
 private:
   DISALLOW_COPY_AND_ASSIGN(CheckTableModel);

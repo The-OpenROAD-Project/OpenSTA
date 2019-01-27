@@ -84,7 +84,8 @@ public:
 			 float load_cap,
 			 Parasitic *drvr_parasitic,
 			 float related_out_cap,
-			 const Pvt *pvt, const DcalcAnalysisPt *dcalc_ap,
+			 const Pvt *pvt,
+			 const DcalcAnalysisPt *dcalc_ap,
 			 // Return values.
 			 ArcDelay &gate_delay,
 			 Slew &drvr_slew) = 0;

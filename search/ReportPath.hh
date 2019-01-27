@@ -408,10 +408,6 @@ protected:
 		  const TransRiseFall *tr,
 		  string &result);
   void reportLine(const char *what,
-		  float incr,
-		  float total,
-		  string &result);
-  void reportLine(const char *what,
 		  Delay incr,
 		  Delay total,
 		  const EarlyLate *early_late,

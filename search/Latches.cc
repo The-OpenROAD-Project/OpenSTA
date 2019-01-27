@@ -96,8 +96,8 @@ Latches::latchRequired(const Path *data_path,
       + open_crpr;
     debugPrint3(debug_, "latch", 1, "latch data %s %s enable %s\n",
 		network_->pathName(data_path->pin(this)),
-		delayAsString(data_arrival, units_),
-		delayAsString(enable_arrival, units_));
+		delayAsString(data_arrival, this),
+		delayAsString(enable_arrival, this));
     if (data_arrival <= enable_arrival) {
       // Data arrives before latch opens.
       required = enable_arrival;

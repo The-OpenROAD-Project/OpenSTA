@@ -50,6 +50,7 @@ public:
   Delay operator-(float delay) const;
   Delay operator-() const;
   void operator-=(float delay);
+  void operator-=(const Delay &delay);
   bool operator==(const Delay &delay) const;
   bool operator>(const Delay &delay) const;
   bool operator>=(const Delay &delay) const;

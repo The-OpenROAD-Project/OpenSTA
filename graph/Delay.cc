@@ -24,16 +24,9 @@ namespace sta {
 
 const char *
 delayAsString(const Delay &delay,
-	      const Units *units)
-{
-  return delayAsString(delay, units, units->timeUnit()->digits());
-}
-
-const char *
-delayAsString(const Delay &delay,
 	      const StaState *sta)
 {
-  return delayAsString(delay, sta->units(), sta->units()->timeUnit()->digits());
+  return delayAsString(delay, sta, sta->units()->timeUnit()->digits());
 }
 
 } // namespace

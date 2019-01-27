@@ -173,7 +173,7 @@ WorstSlack::initQueue(PathAPIndex path_ap_index,
     }
   }
   debugPrint1(debug, "wns", 3, "threshold %s\n",
-	      delayAsString(slack_threshold_, sta->units()));
+	      delayAsString(slack_threshold_, sta));
 //  checkQueue();
 }
 
@@ -200,7 +200,7 @@ WorstSlack::sortQueue(PathAPIndex path_ap_index,
   Vertex *threshold_vertex = vertices[threshold_index];
   slack_threshold_ = search->wnsSlack(threshold_vertex, path_ap_index);
   debugPrint1(debug, "wns", 3, "threshold %s\n",
-	      delayAsString(slack_threshold_, sta->units()));
+	      delayAsString(slack_threshold_, sta));
 
   // Reinsert vertices with slack < threshold.
   queue_.clear();
@@ -243,7 +243,6 @@ WorstSlack::checkQueue(PathAPIndex path_ap_index,
 {
   Search *search = sta->search();
   Report *report = sta->report();
-  Units *units = sta->units();
   const Network *network = sta->network();
 
   VertexSeq ends;
@@ -267,8 +266,8 @@ WorstSlack::checkQueue(PathAPIndex path_ap_index,
 			       slack_threshold_))
       report->print("WorstSlack queue missing %s %s < %s\n",
 		    end->name(network),
-		    delayAsString(search->wnsSlack(end, path_ap_index), units),
-		    delayAsString(slack_threshold_, units));
+		    delayAsString(search->wnsSlack(end, path_ap_index), sta),
+		    delayAsString(slack_threshold_, sta));
   }
 
   VertexSet::Iterator queue_iter(queue_);
@@ -277,9 +276,8 @@ WorstSlack::checkQueue(PathAPIndex path_ap_index,
     if (!end_set.hasKey(end))
       report->print("WorstSlack queue extra %s %s > %s\n",
 		    end->name(network),
-		    delayAsString(search->wnsSlack(end, path_ap_index),
-				  units),
-		    delayAsString(slack_threshold_, units));
+		    delayAsString(search->wnsSlack(end, path_ap_index), sta),
+		    delayAsString(slack_threshold_, sta));
   }
 }
 
@@ -307,13 +305,13 @@ WorstSlack::updateWorstSlack(Vertex *vertex,
       && delayFuzzyLessEqual(slack, slack_threshold_)) {
     debugPrint2(debug, "wns", 3, "insert %s %s\n",
 		vertex->name(network),
-		delayAsString(slack, sta->units()));
+		delayAsString(slack, sta));
     queue_.insert(vertex);
   }
   else {
     debugPrint2(debug, "wns", 3, "delete %s %s\n",
 		vertex->name(network),
-		delayAsString(slack, sta->units()));
+		delayAsString(slack, sta));
     queue_.eraseKey(vertex);
   }
   lock_.unlock();
@@ -327,7 +325,7 @@ WorstSlack::setWorstSlack(Vertex *vertex,
 {
   debugPrint2(sta->debug(), "wns", 3, "%s %s\n",
 	      vertex->name(sta->network()),
-	      delayAsString(slack, sta->units()));
+	      delayAsString(slack, sta));
   worst_vertex_ = vertex;
   worst_slack_ = slack;
 }

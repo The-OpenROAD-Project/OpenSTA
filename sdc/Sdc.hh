@@ -1400,6 +1400,7 @@ protected:
   WireloadSelection *wireload_selection_[MinMax::index_count];
   bool crpr_enabled_;
   CrprMode crpr_mode_;
+  bool pocv_enabled_;
   bool propagate_gated_clock_enable_;
   bool preset_clr_arcs_enabled_;
   bool cond_default_arcs_enabled_;

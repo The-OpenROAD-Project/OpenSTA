@@ -148,10 +148,20 @@ delayRatio(const Delay &delay1,
 
 const char *
 delayAsString(const Delay &delay,
-	      const Units *units,
+	      const StaState *sta,
 	      int digits)
 {
-  return units->timeUnit()->asString(delay, digits);
+  return sta->units()->timeUnit()->asString(delay, digits);
+}
+
+const char *
+delayAsString(const Delay &delay,
+	      const EarlyLate *,
+	      const StaState *sta,
+	      int digits)
+{
+  const Unit *unit = sta->units()->timeUnit();
+  return unit->asString(delay, digits);
 }
 
 float
@@ -159,16 +169,6 @@ delayAsFloat(const Delay &delay,
 	     const EarlyLate *)
 {
   return delay;
-}
-
-const char *
-delayAsString(const Delay &delay,
-	      const EarlyLate *,
-	      const Units *units,
-	      int digits)
-{
-  const Unit *unit = units->timeUnit();
-  return unit->asString(delay, digits);
 }
 
 float

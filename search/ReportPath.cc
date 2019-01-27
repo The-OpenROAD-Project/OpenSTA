@@ -1936,6 +1936,7 @@ ReportPath::reportSrcClkAndPath(const Path *path,
 				string &result)
 {
   ClockEdge *clk_edge = path->clkEdge(this);
+  const MinMax *min_max = path->minMax(this);
   if (clk_edge) {
     Clock *clk = clk_edge->clock();
     TransRiseFall *clk_tr = clk_edge->transition();
@@ -1943,9 +1944,11 @@ ReportPath::reportSrcClkAndPath(const Path *path,
     if (clk == sdc_->defaultArrivalClock()) {
       if (!is_path_delay) {
 	float clk_end_time = clk_time + time_offset;
+	const EarlyLate *early_late = min_max;
 	reportLine("clock (input port clock) (rise edge)",
-		   clk_end_time, clk_end_time, result);
-	reportLine(clkNetworkDelayIdealProp(false), 0.0, clk_end_time, result);
+		   clk_end_time, clk_end_time, early_late, result);
+	reportLine(clkNetworkDelayIdealProp(false), 0.0, clk_end_time,
+		   early_late, result);
       }
       reportPath1(path, expanded, false, time_offset, result);
     }
@@ -1953,7 +1956,6 @@ ReportPath::reportSrcClkAndPath(const Path *path,
       bool path_from_input = false;
       bool input_has_ref_path = false;
       Arrival clk_delay, clk_end_time;
-      const MinMax *min_max = path->minMax(this);
       PathRef clk_path;
       expanded.clkPath(clk_path);
       const TransRiseFall *clk_end_tr;
@@ -2931,16 +2933,6 @@ ReportPath::reportLine(const char *what,
 // Report increment, and total.
 void
 ReportPath::reportLine(const char *what,
-		       float incr,
-		       float total,
-		       string &result)
-{
-  reportLine(what, field_blank_, field_blank_, field_blank_,
-	     incr, total, false, NULL, NULL, NULL, result);
-}
-
-void
-ReportPath::reportLine(const char *what,
 		       Delay incr,
 		       Delay total,
 		       const EarlyLate *early_late,
@@ -3143,7 +3135,7 @@ ReportPath::reportTotalDelay(Delay value,
 			     const EarlyLate *early_late,
 			     string &result)
 {
-  const char *str = delayAsString(value, early_late, units_, digits_);
+  const char *str = delayAsString(value, early_late, this, digits_);
   if (stringEq(str, minus_zero_))
     // Filter "-0.00" fields.
     str = plus_zero_;
@@ -3178,7 +3170,7 @@ ReportPath::reportFieldDelay(Delay value,
   if (delayAsFloat(value) == field_blank_)
     reportFieldBlank(field, result);
   else {
-    const char *str = delayAsString(value, early_late, units_, digits_);
+    const char *str = delayAsString(value, early_late, this, digits_);
     if (stringEq(str, minus_zero_))
       // Filter "-0.00" fields.
       str = plus_zero_;

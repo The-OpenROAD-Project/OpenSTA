@@ -1309,7 +1309,8 @@ ArnoldiDelayCalc::ra_get_r(delay_work *D,
   ArcDelay d1;
   Slew s1;
   tab->table->gateDelay(tab->cell, tab->pvt, tab->in_slew,
-                        c1, tab->relcap, d1, s1);
+                        c1, tab->relcap, pocv_enabled_,
+			d1, s1);
   tlohi = slew_derate*delayAsFloat(s1);
   r = tlohi/(c_log*c1);
   if (rdelay>0.0 && r > rdelay)
@@ -1332,7 +1333,7 @@ ArnoldiDelayCalc::ra_get_s(delay_work *D,
   ArcDelay d1;
   Slew s1;
   tab->table->gateDelay(tab->cell, tab->pvt, tab->in_slew,
-                        c, tab->relcap, d1, s1);
+                        c, tab->relcap, pocv_enabled_, d1, s1);
   tlohi = slew_derate*delayAsFloat(s1);
   smin = r*c*c_smin; // c_smin = ra_hinv((1-vhi)/vhi-log(vhi)) + log(vhi);
   if (c_log*r*c >= tlohi) {
@@ -1366,9 +1367,9 @@ ArnoldiDelayCalc::ra_rdelay_1(timing_table *tab,
   ArcDelay d1, d2;
   Slew s1, s2;
   tab->table->gateDelay(tab->cell, tab->pvt, tab->in_slew,
-                        c1, tab->relcap, d1, s1);
+                        c1, tab->relcap, pocv_enabled_, d1, s1);
   tab->table->gateDelay(tab->cell, tab->pvt, tab->in_slew,
-                        c2, tab->relcap, d2, s2);
+                        c2, tab->relcap, pocv_enabled_, d2, s2);
   double dt50 = delayAsFloat(d1)-delayAsFloat(d2);
   if (dt50 <= 0.0)
     return 0.0;
@@ -1421,12 +1422,12 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
     thix = ra_solve_for_t(p,s,vhi);
     tlox = ra_solve_for_t(p,s,vlo);
     tab->table->gateDelay(tab->cell, tab->pvt,tab->in_slew,
-			  ctot, tab->relcap, df, sf);
+			  ctot, tab->relcap, pocv_enabled_, df, sf);
     debugPrint3(debug_, "arnoldi", 1,
 		"table slew (in_slew %s ctot %s) = %s\n",
 		units_->timeUnit()->asString(tab->in_slew),
 		units_->capacitanceUnit()->asString(ctot),
-		delayAsString(sf, units_));
+		delayAsString(sf, this));
     tlohi = slew_derate*delayAsFloat(sf);
     debugPrint2(debug_, "arnoldi", 1, "tlohi %s %s\n",
 		units_->timeUnit()->asString(tlohi),
@@ -1434,7 +1435,7 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
   }
   ceff = ctot;
   tab->table->gateDelay(tab->cell, tab->pvt, tab->in_slew,
-                        ceff, tab->relcap, df, sf);
+                        ceff, tab->relcap, pocv_enabled_, df, sf);
   t50_sy = delayAsFloat(df);
   t50_sr = ra_solve_for_t(1.0/(r*ceff),s,0.5);
 
@@ -1476,7 +1477,7 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
 	      units_->capacitanceUnit()->asString(ceff));
 
   tab->table->gateDelay(tab->cell, tab->pvt, tab->in_slew, ceff,
-			tab->relcap, df, sf);
+			tab->relcap, pocv_enabled_, df, sf);
   t50_sy = delayAsFloat(df);
   t50_sr = ra_solve_for_t(1.0/(r*ceff),s,0.5);
   for (j=0;j<mod->n;j++) {

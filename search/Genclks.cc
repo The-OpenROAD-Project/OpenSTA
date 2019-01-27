@@ -990,7 +990,7 @@ Genclks::recordSrcPaths(Clock *gclk)
 		      network_->pathName(gclk_pin),
 		      early_late->asString(),
 		      tr->asString(),
-		      delayAsString(path->arrival(this), units_));
+		      delayAsString(path->arrival(this), this));
 	  src_path.init(path, this);
 	  found_src_paths = true;
 	}

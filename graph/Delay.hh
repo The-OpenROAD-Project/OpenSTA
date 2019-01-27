@@ -64,18 +64,15 @@ delaySigma2(const Delay &delay,
 	    const EarlyLate *early_late);
 const char *
 delayAsString(const Delay &delay,
-	      const Units *units);
-const char *
-delayAsString(const Delay &delay,
 	      const StaState *sta);
 const char *
 delayAsString(const Delay &delay,
-	      const Units *units,
+	      const StaState *sta,
 	      int digits);
 const char *
 delayAsString(const Delay &delay,
 	      const EarlyLate *early_late,
-	      const Units *units,
+	      const StaState *sta,
 	      int digits);
 const Delay &
 delayInitValue(const MinMax *min_max);

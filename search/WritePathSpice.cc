@@ -26,6 +26,7 @@
 #include "FuncExpr.hh"
 #include "Units.hh"
 #include "Sequential.hh"
+#include "TableModel.hh"
 #include "Liberty.hh"
 #include "TimingArc.hh"
 #include "Network.hh"
@@ -136,9 +137,11 @@ private:
   float clkWaveformTImeOffset(const Clock *clk);
   float findSlew(Path *path);
   float findSlew(Path *path,
-		 const TransRiseFall *tr);
+		 const TransRiseFall *tr,
+		 TimingArc *next_arc);
   float findSlew(Vertex *vertex,
 		 const TransRiseFall *tr,
+		 TimingArc *next_arc,
 		 DcalcAPIndex dcalc_ap_index);
   LibertyPort *onePort(FuncExpr *expr);
   void writeVoltageSource(LibertyCell *cell,
@@ -146,6 +149,7 @@ private:
 			  const char *subckt_port_name,
 			  const char *pg_port_name,
 			  int &volt_index);
+  float slewAxisMinValue(TimingArc *arc);
 
   // Stage "accessors".
   //
@@ -324,7 +328,9 @@ WritePathSpice::maxTime()
 {
   auto input_stage = stageFirst();
   auto input_path = stageDrvrPath(input_stage);
-  auto input_slew = findSlew(input_path);
+  auto tr = input_path->transition(this);
+  auto next_arc = stageGateArc(input_stage + 1);
+  auto input_slew = findSlew(input_path, tr, next_arc);
   if (input_path->isClock(this)) {
     auto clk = input_path->clock(this);
     auto period = clk->period();
@@ -407,11 +413,13 @@ WritePathSpice::writeInputWaveform()
   auto input_stage = stageFirst();
   auto input_path = stageDrvrPath(input_stage);
   auto tr = input_path->transition(this);
-  auto slew0 = findSlew(input_path, tr);
+  auto next_arc = stageGateArc(input_stage + 1);
+  auto slew0 = findSlew(input_path, tr, next_arc);
   // Arbitrary offset.
   auto time0 = slew0;
   int volt_index = 1;
-  writeStepVoltSource(stageDrvrPin(input_stage), tr, slew0, time0, volt_index);
+  auto drvr_pin = stageDrvrPin(input_stage);
+  writeStepVoltSource(drvr_pin, tr, slew0, time0, volt_index);
 }
 
 void
@@ -445,6 +453,7 @@ WritePathSpice::writeClkWaveform()
 {
   auto input_stage = stageFirst();
   auto input_path = stageDrvrPath(input_stage);
+  auto next_arc = stageGateArc(input_stage + 1);
   auto clk_edge = input_path->clkEdge(this);
   auto clk = clk_edge->clock();
   auto period = clk->period();
@@ -461,8 +470,8 @@ WritePathSpice::writeClkWaveform()
     tr1 = TransRiseFall::rise();
     volt0 = power_voltage_;
   }
-  auto slew0 = findSlew(input_path, tr0);
-  auto slew1 = findSlew(input_path, tr1);
+  auto slew0 = findSlew(input_path, tr0, next_arc);
+  auto slew1 = findSlew(input_path, tr1, next_arc);
   streamPrint(spice_stream_, "v1 %s 0 pwl(\n",
 	      stageDrvrPinName(input_stage));
   streamPrint(spice_stream_, "+%.3e %.3e\n", 0.0, volt0);
@@ -488,27 +497,61 @@ WritePathSpice::findSlew(Path *path)
   auto vertex = path->vertex(this);
   auto dcalc_ap_index = path->dcalcAnalysisPt(this)->index();
   auto tr = path->transition(this);
-  return findSlew(vertex, tr, dcalc_ap_index);
+  return findSlew(vertex, tr, NULL, dcalc_ap_index);
 }
 
 float
 WritePathSpice::findSlew(Path *path,
-			 const TransRiseFall *tr)
+			 const TransRiseFall *tr,
+			 TimingArc *next_arc)
 {
   auto vertex = path->vertex(this);
   auto dcalc_ap_index = path->dcalcAnalysisPt(this)->index();
-  return findSlew(vertex, tr, dcalc_ap_index);
+  return findSlew(vertex, tr, next_arc, dcalc_ap_index);
 }
 
 float
 WritePathSpice::findSlew(Vertex *vertex,
 			 const TransRiseFall *tr,
+			 TimingArc *next_arc,
 			 DcalcAPIndex dcalc_ap_index)
 {
   auto slew = delayAsFloat(graph_->slew(vertex, tr, dcalc_ap_index));
+  if (slew == 0.0 && next_arc)
+    slew = slewAxisMinValue(next_arc);
   if (slew == 0.0)
     slew = units_->timeUnit()->scale();
   return slew;
+}
+
+// Look up the smallest slew axis value in the timing arc delay table.
+float
+WritePathSpice::slewAxisMinValue(TimingArc *arc)
+{
+  GateTableModel *gate_model = dynamic_cast<GateTableModel*>(arc->model());
+  if (gate_model) {
+    const TableModel *model = gate_model->delayModel();
+    TableAxis *axis;
+    TableAxisVariable var;
+    axis = model->axis1();
+    var = axis->variable();
+    if (var == table_axis_input_transition_time
+	|| var == table_axis_input_net_transition)
+      return axis->axisValue(0);
+
+    axis = model->axis2();
+    var = axis->variable();
+    if (var == table_axis_input_transition_time
+	|| var == table_axis_input_net_transition)
+      return axis->axisValue(0);
+
+    axis = model->axis3();
+    var = axis->variable();
+    if (var == table_axis_input_transition_time
+	|| var == table_axis_input_net_transition)
+      return axis->axisValue(0);
+  }
+  return 0.0;
 }
 
 // Write PWL rise/fall edge that crosses threshold at time.
@@ -807,6 +850,7 @@ WritePathSpice::writeStageVoltageSources(Stage stage,
   }
 }
 
+// PWL voltage source that rises half way into the first clock cycle.
 void
 WritePathSpice::writeClkedStepSource(const Pin *pin,
 				     const TransRiseFall *tr,
@@ -815,7 +859,7 @@ WritePathSpice::writeClkedStepSource(const Pin *pin,
 				     int &volt_index)
 {
   auto vertex = graph_->pinLoadVertex(pin);
-  auto slew = findSlew(vertex, tr, dcalc_ap_index);
+  auto slew = findSlew(vertex, tr, NULL, dcalc_ap_index);
   auto time = clkWaveformTImeOffset(clk) + clk->period() / 2.0;
   writeStepVoltSource(pin, tr, slew, time, volt_index);
 }

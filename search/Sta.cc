@@ -2143,6 +2143,23 @@ Sta::setCrprMode(CrprMode mode)
 }
 
 bool
+Sta::pocvEnabled() const
+{
+  return pocv_enabled_;
+}
+
+void
+Sta::setPocvEnabled(bool enabled)
+{
+  if (enabled != pocv_enabled_) {
+    graph_delay_calc_->delaysInvalid();
+    search_->arrivalsInvalid();
+  }
+  pocv_enabled_ = enabled;
+  updateComponentsState();
+}
+
+bool
 Sta::propagateGatedClockEnable() const
 {
   return sdc_->propagateGatedClockEnable();

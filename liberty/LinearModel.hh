@@ -31,14 +31,18 @@ public:
 			 const Pvt *pvt,
 			 float load_cap, float in_slew,
 			 float related_out_cap,
+			 bool pocv_enabled,
 			 // return values
 			 ArcDelay &gate_delay,
 			 Slew &drvr_slew) const;
   virtual void reportGateDelay(const LibertyCell *cell,
 			       const Pvt *pvt,
-			       float load_cap, float in_slew,
+			       float load_cap,
+			       float in_slew,
 			       float related_out_cap,
-			       int digits, string *result) const;
+			       bool pocv_enabled,
+			       int digits,
+			       string *result) const;
   virtual float driveResistance(const LibertyCell *cell,
 				const Pvt *pvt) const;
 
@@ -59,8 +63,10 @@ public:
   // Timing check margin delay calculation.
   virtual void checkDelay(const LibertyCell *cell,
 			  const Pvt *pvt,
-			  float from_slew, float to_slew,
+			  float from_slew,
+			  float to_slew,
 			  float related_out_cap,
+			  bool pocv_enabled,
 			  ArcDelay &margin) const;
   virtual void reportCheckDelay(const LibertyCell *cell,
 				const Pvt *pvt,
@@ -68,7 +74,9 @@ public:
 				const char *from_slew_annotation,
 				float to_slew,
 				float related_out_cap,
-				int digits, string *result) const;
+				bool pocv_enabled,
+				int digits,
+				string *result) const;
 
 protected:
   virtual void setIsScaled(bool is_scaled);

@@ -36,7 +36,8 @@ StaState::StaState() :
   sim_(NULL),
   search_(NULL),
   latches_(NULL),
-  thread_count_(1)
+  thread_count_(1),
+  pocv_enabled_(false)
 {
 }
 
@@ -57,7 +58,8 @@ StaState::StaState(const StaState *sta) :
   sim_(sta->sim_),
   search_(sta->search_),
   latches_(sta->latches_),
-  thread_count_(sta->thread_count_)
+  thread_count_(sta->thread_count_),
+  pocv_enabled_(sta->pocv_enabled_)
 {
 }
 
@@ -81,6 +83,7 @@ StaState::copyState(const StaState *sta)
   search_ = sta->search_;
   latches_ = sta->latches_;
   thread_count_ = sta->thread_count_;
+  pocv_enabled_ = sta->pocv_enabled_;
 }
 
 NetworkEdit *

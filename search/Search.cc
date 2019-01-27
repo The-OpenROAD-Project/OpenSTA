@@ -2797,13 +2797,13 @@ Search::reportArrivals(Vertex *vertex) const
 		     arrival_index,
 		     tr->asString(),
 		     path_ap->pathMinMax()->asString(),
-		     delayAsString(arrivals[arrival_index], units_));
+		     delayAsString(arrivals[arrival_index], this));
       if (vertex->hasRequireds()) {
 	int req_index;
 	bool exists;
 	tag_group->requiredIndex(tag, req_index, exists);
 	if (exists)
-	  report_->print(" / %s", delayAsString(arrivals[req_index], units_));
+	  report_->print(" / %s", delayAsString(arrivals[req_index], this));
       }
       report_->print(" %s", tag->asString(this));
       if (tag_group->hasClkTag()) {
@@ -3417,15 +3417,15 @@ RequiredCmp::requiredsSave(Vertex *vertex,
 	Required prev_req = path->required(sta);
 	if (!delayFuzzyEqual(prev_req, req)) {
 	  debugPrint2(debug, "search", 3, "required save %s -> %s\n",
-		      delayAsString(prev_req, sta->units()),
-		      delayAsString(req, sta->units()));
+		      delayAsString(prev_req, sta),
+		      delayAsString(req, sta));
 	  path->setRequired(req, sta);
 	  requireds_changed = true;
 	}
       }
       else {
 	debugPrint1(debug, "search", 3, "required save MIA -> %s\n",
-		    delayAsString(req, sta->units()));
+		    delayAsString(req, sta));
 	path->setRequired(req, sta);
       }
     }
@@ -3811,7 +3811,7 @@ Search::tnsIncr(Vertex *vertex,
 {
   if (delayFuzzyLess(slack, 0.0)) {
     debugPrint2(debug_, "tns", 3, "tns+ %s %s\n",
-		delayAsString(slack, units_),
+		delayAsString(slack, this),
 		vertex->name(sdc_network_));
     tns_[path_ap_index] += slack;
     if (tns_slacks_[path_ap_index].hasKey(vertex))
@@ -3830,9 +3830,9 @@ Search::tnsDecr(Vertex *vertex,
   if (found
       && delayFuzzyLess(slack, 0.0)) {
     debugPrint2(debug_, "tns", 3, "tns- %s %s\n",
-		delayAsString(slack, units_),
+		delayAsString(slack, this),
 		vertex->name(sdc_network_));
-    tns_[path_ap_index] -= delayAsFloat(slack);
+    tns_[path_ap_index] -= slack;
     tns_slacks_[path_ap_index].eraseKey(vertex);
   }
 }

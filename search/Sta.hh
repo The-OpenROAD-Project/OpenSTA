@@ -730,6 +730,10 @@ public:
   // TCL variable sta_crpr_mode.
   CrprMode crprMode() const;
   void setCrprMode(CrprMode mode);
+  // TCL variable sta_pocv_enabled.
+  // Parametric on chip variation (statisical sta).
+  bool pocvEnabled() const;
+  void setPocvEnabled(bool enabled);
   // TCL variable sta_propagate_gated_clock_enable.
   // Propagate gated clock enable arrivals.
   bool propagateGatedClockEnable() const;

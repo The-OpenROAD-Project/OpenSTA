@@ -4012,6 +4012,18 @@ set_crpr_mode(const char *mode)
 }
 
 bool
+pocv_enabled()
+{
+  return Sta::sta()->pocvEnabled();
+}
+
+void
+set_pocv_enabled(bool enabled)
+{
+  return Sta::sta()->setPocvEnabled(enabled);
+}
+
+bool
 propagate_gated_clock_enable()
 {
   return Sta::sta()->propagateGatedClockEnable();
@@ -5699,7 +5711,7 @@ arrivals_clk_delays(const TransRiseFall *tr,
     PathAnalysisPt *path_ap = ap_iter.next();
     arrivals->push_back(delayAsString(sta->vertexArrival(self, tr, clk_edge,
 							 path_ap),
-				      sta->units(), digits));
+				      sta, digits));
   }
   return arrivals;
 }
@@ -5739,7 +5751,7 @@ requireds_clk_delays(const TransRiseFall *tr,
     PathAnalysisPt *path_ap = ap_iter.next();
     requireds->push_back(delayAsString(sta->vertexRequired(self, tr, clk_edge,
 							   path_ap),
-				       sta->units(), digits));
+				       sta, digits));
   }
   return requireds;
 }
@@ -5793,7 +5805,7 @@ slacks_clk_delays(const TransRiseFall *tr,
     PathAnalysisPt *path_ap = ap_iter.next();
     slacks->push_back(delayAsString(sta->vertexSlack(self, tr, clk_edge,
 						     path_ap),
-				    sta->units(), digits));
+				    sta, digits));
   }
   return slacks;
 }
@@ -5869,7 +5881,7 @@ arc_delay_strings(TimingArc *arc,
   while (ap_iter.hasNext()) {
     DcalcAnalysisPt *dcalc_ap = ap_iter.next();
     delays->push_back(delayAsString(sta->arcDelay(self, arc, dcalc_ap),
-				    sta->units(), digits));
+				    sta, digits));
   }
   return delays;
 }
