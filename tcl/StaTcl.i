@@ -4020,6 +4020,10 @@ pocv_enabled()
 void
 set_pocv_enabled(bool enabled)
 {
+#if !SSTA
+  if (enabled)
+    Sta::sta()->report()->error("POCV support requires compilation with SSTA=1.\n");
+#endif
   return Sta::sta()->setPocvEnabled(enabled);
 }
 

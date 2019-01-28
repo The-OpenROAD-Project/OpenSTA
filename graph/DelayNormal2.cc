@@ -375,11 +375,12 @@ operator/(float delay1,
 
 Delay
 operator*(const Delay &delay1,
-	  float delay2)
+	  float scale)
 {
-  return Delay(delay1.mean() * delay2,
-	       delay1.sigma2Early() * delay2,
-	       delay1.sigma2Late() * delay2);
+  float scale2 = square(scale);
+  return Delay(delay1.mean() * scale,
+	       delay1.sigma2Early() * scale2,
+	       delay1.sigma2Late() * scale2);
 }
 
 float
