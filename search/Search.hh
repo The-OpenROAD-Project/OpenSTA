@@ -295,7 +295,7 @@ public:
 	       InputDelay *input_delay,
 	       bool is_segment_start,
 	       ExceptionStateSet *states,
-	       bool own_states) const;
+	       bool own_states);
   void reportTags() const;
   void reportClkInfos() const;
   virtual ClkInfo *findClkInfo(ClockEdge *clk_edge,
@@ -557,24 +557,24 @@ protected:
   SlackSeq tns_;
   // Indexed by path_ap->index().
   VertexSlackMapSeq tns_slacks_;
-  mutable Mutex tns_lock_;
+  Mutex tns_lock_;
   // Indexed by path_ap->index().
   WorstSlacks *worst_slacks_;
   // Use pointer to clk_info set so Tag.hh does not need to be included.
   ClkInfoSet *clk_info_set_;
   Mutex clk_info_lock_;
   // Use pointer to tag set so Tag.hh does not need to be included.
-  mutable TagHashSet *tag_set_;
+  TagHashSet *tag_set_;
   // Entries in tags_ may be missing where previous filter tags were deleted.
-  mutable TagIndex tag_capacity_;
-  mutable Tag **tags_;
-  mutable TagIndex tag_count_;
-  mutable Mutex tag_lock_;
-  mutable TagGroupSet *tag_group_set_;
-  mutable TagGroup **tag_groups_;
-  mutable TagGroupIndex tag_group_count_;
+  TagIndex tag_capacity_;
+  Tag **tags_;
+  TagIndex tag_count_;
+  Mutex tag_lock_;
+  TagGroupSet *tag_group_set_;
+  TagGroup **tag_groups_;
+  TagGroupIndex tag_group_count_;
   // Capacity of tag_groups_.
-  mutable TagGroupIndex tag_group_capacity_;
+  TagGroupIndex tag_group_capacity_;
   Mutex tag_group_lock_;
   // Latches data outputs to queue on the next search pass.
   VertexSet pending_latch_outputs_;

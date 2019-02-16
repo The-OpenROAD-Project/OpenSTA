@@ -698,7 +698,7 @@ Search::arrivalInvalid(Vertex *vertex)
     debugPrint1(debug_, "search", 2, "arrival invalid %s\n",
 		vertex->name(sdc_network_));
     if (!arrival_iter_->inQueue(vertex)) {
-      // Lock for DelayCalcObserveRequired called by GraphDelayCalc threads.
+      // Lock for StaDelayCalcObserver called by delay calc threads.
       invalid_arrivals_lock_.lock();
       invalid_arrivals_.insert(vertex);
       invalid_arrivals_lock_.unlock();
@@ -769,7 +769,7 @@ Search::requiredInvalid(Vertex *vertex)
     debugPrint1(debug_, "search", 2, "required invalid %s\n",
 		vertex->name(sdc_network_));
     if (!required_iter_->inQueue(vertex)) {
-      // Lock for DelayCalcObserveRequired called by GraphDelayCalc threads.
+      // Lock for StaDelayCalcObserver called by delay calc threads.
       invalid_arrivals_lock_.lock();
       invalid_requireds_.insert(vertex);
       invalid_arrivals_lock_.unlock();
@@ -2908,7 +2908,7 @@ Search::findTag(const TransRiseFall *tr,
 		InputDelay *input_delay,
 		bool is_segment_start,
 		ExceptionStateSet *states,
-		bool own_states) const
+		bool own_states)
 {
   Tag probe(0, tr->index(), path_ap->index(), clk_info, is_clk, input_delay,
 	    is_segment_start, states, false, this);

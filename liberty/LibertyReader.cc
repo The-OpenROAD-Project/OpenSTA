@@ -2569,10 +2569,10 @@ LibertyReader::setPortDefaults(LibertyPort *port)
 }
 
 void
-LibertyReader::endPin(LibertyGroup *group)
+LibertyReader::endPin(LibertyGroup *)
 {
   if (cell_) {
-    endPorts(group);
+    endPorts();
     if (in_bus_ || in_bundle_) {
       ports_ = saved_ports_;
       port_group_ = saved_port_group_;
@@ -2582,7 +2582,7 @@ LibertyReader::endPin(LibertyGroup *group)
 }
 
 void
-LibertyReader::endPorts(LibertyGroup *)
+LibertyReader::endPorts()
 {
   // Capacitances default based on direction so wait until the end
   // of the pin group to set them.
@@ -2638,7 +2638,7 @@ LibertyReader::endBus(LibertyGroup *group)
   if (cell_) {
     if (ports_->empty())
       libWarn(group, "bus %s bus_type not found.\n", group->firstName());
-    endBusOrBundle(group);
+    endBusOrBundle();
     in_bus_ = false;
   }
 }
@@ -2662,9 +2662,9 @@ LibertyReader::beginBusOrBundle(LibertyGroup *group)
 }
 
 void
-LibertyReader::endBusOrBundle(LibertyGroup *group)
+LibertyReader::endBusOrBundle()
 {
-  endPorts(group);
+  endPorts();
   deleteContents(&bus_names_);
   bus_names_.clear();
   ports_ = NULL;
@@ -2716,7 +2716,7 @@ LibertyReader::endBundle(LibertyGroup *group)
   if (cell_) {
     if (ports_->empty())
       libWarn(group, "bundle %s member not found.\n", group->firstName());
-    endBusOrBundle(group);
+    endBusOrBundle();
     in_bundle_ = false;
   }
 }

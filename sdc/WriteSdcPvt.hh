@@ -29,7 +29,7 @@ public:
   WriteSdc(Instance *instance,
 	   const char *filename,
 	   const char *creator,
-	   bool native,
+	   bool compatible,
 	   int digits,
 	   bool no_timestamp,
 	   Sdc *sdc);
@@ -239,7 +239,7 @@ protected:
   Instance *instance_;
   const char *filename_;
   const char *creator_;
-  bool native_;
+  bool compatible_;
   int digits_;
   bool no_timestamp_;
   bool top_instance_;

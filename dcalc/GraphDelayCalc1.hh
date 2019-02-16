@@ -195,11 +195,11 @@ protected:
   void clearIdealClkMap();
   bool setIdealClks(const Vertex *vertex,
 		    ClockSet *clks);
-  ClockSet *idealClks(const Vertex *vertex) const;
-  bool isIdealClk(const Vertex *vertex) const;
+  ClockSet *idealClks(const Vertex *vertex);
+  bool isIdealClk(const Vertex *vertex);
   Slew idealClkSlew(const Vertex *vertex,
 		    const TransRiseFall *tr,
-		    const MinMax *min_max) const;
+		    const MinMax *min_max);
   MultiDrvrNet *multiDrvrNet(const Vertex *drvr_vertex) const;
   void loadCap(Parasitic *drvr_parasitic,
 	       bool has_set_load,
@@ -222,7 +222,7 @@ protected:
   VertexSet invalid_delays_;
   // Vertices with invalid -from/-to timing checks.
   VertexSet invalid_checks_;
-  mutable Mutex check_vertices_lock_;
+  Mutex check_vertices_lock_;
   SearchPred *search_pred_;
   SearchPred *search_non_latch_pred_;
   SearchPred *clk_pred_;
@@ -233,7 +233,7 @@ protected:
   // delays to be recomputed during incremental delay calculation.
   float incremental_delay_tolerance_;
   VertexIdealClksMap ideal_clks_map_;
-  mutable Mutex ideal_clks_map_lock_;
+  Mutex ideal_clks_map_lock_;
 
   friend class FindVertexDelays;
   friend class MultiDrvrNet;

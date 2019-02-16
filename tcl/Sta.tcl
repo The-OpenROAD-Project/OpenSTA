@@ -35,17 +35,20 @@ proc define_sta_cmds {} {
 }
 
 proc define_report_path_fields {} {
+  variable report_path_field_width_extra
+
   set_rise_fall_short_names "^" "v"
   set_report_path_field_order { fanout capacitance slew \
 				 incr total edge case description }
-  set_report_path_field_properties "description" "Description" 36 1
-  set_report_path_field_properties "total" "Time" 10 0
-  set_report_path_field_properties "incr" "Delay" 10 0
-  set_report_path_field_properties "capacitance" "Cap" 10 0
-  set_report_path_field_properties "slew" "Slew" 10 0
-  set_report_path_field_properties "fanout" "Fanout" 10 0
+  set_report_path_field_properties "description" "Deescription" 36 1
+  set width $report_path_field_width_extra
+  set_report_path_field_properties "total" "Time" $width 0
+  set_report_path_field_properties "incr" "Delay" $width 0
+  set_report_path_field_properties "capacitance" "Cap" $width 0
+  set_report_path_field_properties "slew" "Slew" $width 0
+  set_report_path_field_properties "fanout" "Fanout" 5 0
   set_report_path_field_properties "edge" "" 1 0
-  set_report_path_field_properties "case" "" 10 0
+  set_report_path_field_properties "case" "" 11 0
 }
 
 ################################################################
@@ -415,7 +418,7 @@ proc_redirect report_check_types {
       set path_min_max "min"
     }
     if { $all_violators } {
-      set group_count $sta::int_max
+      set group_count $sta::group_count_max
       set slack_min [expr -$sta::float_inf]
       set slack_max 0.0
     } else {
@@ -772,9 +775,9 @@ proc set_assigned_transition { args } {
 #
 ################################################################
 
-define_sta_cmd_args "delete_objects_from_list" {list objs}
+define_sta_cmd_args "delete_from_list" {list objs}
 
-proc delete_objects_from_list { list objects } {
+proc delete_from_list { list objects } {
   delete_objects_from_list_cmd $list $objects
 }
 

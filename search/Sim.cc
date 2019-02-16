@@ -15,6 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "Machine.hh"
+#include "StaConfig.hh"  // CUDD
 #include "Error.hh"
 #include "Debug.hh"
 #include "Report.hh"
@@ -29,7 +30,7 @@
 #include "Graph.hh"
 #include "Sim.hh"
 
-#ifdef CUDD
+#if CUDD
 #include "cudd.h"
 #endif // CUDD
 
@@ -39,7 +40,7 @@ static Pin *
 findDrvrPin(const Pin *pin,
 	    Network *network);
 
-#ifdef CUDD
+#if CUDD
 
 Sim::Sim(StaState *sta) :
   StaState(sta),
@@ -55,11 +56,6 @@ Sim::Sim(StaState *sta) :
 Sim::~Sim()
 {
   delete observer_;
-  BddSymbolTable::Iterator sym_iter(symtab_);
-  while (sym_iter.hasNext()) {
-    DdNode *sym_node = sym_iter.next();
-    Cudd_RecursiveDeref(cudd_manager_, sym_node);
-  }
   if (Cudd_CheckZeroRef(cudd_manager_) > 0)
     internalErrorNoThrow("non-zero cudd reference counts");
   Cudd_Quit(cudd_manager_);
@@ -83,6 +79,7 @@ Sim::functionSense(const FuncExpr *expr,
   bool decreasing = (Cudd_Decreasing(cudd_manager_, bdd, input_index)
 		     == Cudd_ReadOne(cudd_manager_));
   Cudd_RecursiveDeref(cudd_manager_, bdd);
+  clearSymtab();
   cudd_lock_.unlock();
   TimingSense sense;
   if (increasing && decreasing)
@@ -97,6 +94,17 @@ Sim::functionSense(const FuncExpr *expr,
   return sense;
 }
 
+void
+Sim::clearSymtab() const
+{
+  BddSymbolTable::Iterator sym_iter(symtab_);
+  while (sym_iter.hasNext()) {
+    DdNode *sym_node = sym_iter.next();
+    Cudd_RecursiveDeref(cudd_manager_, sym_node);
+  }
+  symtab_.clear();
+}
+
 LogicValue
 Sim::evalExpr(const FuncExpr *expr,
 	      const Instance *inst) const
@@ -108,8 +116,10 @@ Sim::evalExpr(const FuncExpr *expr,
     value = logic_zero;
   else if (bdd == Cudd_ReadOne(cudd_manager_))
     value = logic_one;
-  if (bdd)
+  if (bdd) {
     Cudd_RecursiveDeref(cudd_manager_, bdd);
+    clearSymtab();
+  }
   cudd_lock_.unlock();
   return value;
 }

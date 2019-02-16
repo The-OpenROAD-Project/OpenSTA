@@ -66,7 +66,7 @@ CycleAccting::findDelays(StaState *sta)
       tgt_max_cycle = 100;
     else {
       int ratio = std::ceil(src_period / tgt_period);
-      tgt_max_cycle = std::max(ratio, 100);
+      tgt_max_cycle = std::max(ratio, 1000);
     }
     bool tgt_past_src = false;
     bool src_past_tgt = false;

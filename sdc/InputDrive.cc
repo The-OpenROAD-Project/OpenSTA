@@ -89,7 +89,8 @@ InputDrive::driveResistanceMinMaxEqual(const TransRiseFall *tr)
 }
 
 void
-InputDrive::setDriveCell(LibertyCell *cell,
+InputDrive::setDriveCell(LibertyLibrary *library,
+			 LibertyCell *cell,
 			 LibertyPort *from_port,
 			 float *from_slews,
 			 LibertyPort *to_port,
@@ -106,13 +107,15 @@ InputDrive::setDriveCell(LibertyCell *cell,
       int mm_index = mm->index();
       InputDriveCell *drive = drive_cells_[tr_index][mm_index];
       if (drive) {
+	drive->setLibrary(library);
 	drive->setCell(cell);
 	drive->setFromPort(from_port);
 	drive->setFromSlews(from_slews);
 	drive->setToPort(to_port);
       }
       else {
-	drive = new InputDriveCell(cell, from_port, from_slews, to_port);
+	drive = new InputDriveCell(library, cell, from_port,
+				   from_slews, to_port);
 	drive_cells_[tr_index][mm_index] = drive;
       }
     }
@@ -179,15 +182,23 @@ InputDrive::slew(const TransRiseFall *tr,
 
 ////////////////////////////////////////////////////////////////
 
-InputDriveCell::InputDriveCell(LibertyCell *cell,
+InputDriveCell::InputDriveCell(LibertyLibrary *library,
+			       LibertyCell *cell,
 			       LibertyPort *from_port,
 			       float *from_slews,
 			       LibertyPort *to_port) :
+  library_(library),
   cell_(cell),
   from_port_(from_port),
   to_port_(to_port)
 {
   setFromSlews(from_slews);
+}
+
+void
+InputDriveCell::setLibrary(LibertyLibrary *library)
+{
+  library_ = library;
 }
 
 void

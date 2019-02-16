@@ -20,9 +20,9 @@
 // The zlib package is optional.
 // Define stdio based macros if it is missing.
 
-#include "config.h"  // ZLIB
+#include "StaConfig.hh"  // ZLIB
 
-#ifdef ZLIB
+#if ZLIB
 
 #include <zlib.h>
 

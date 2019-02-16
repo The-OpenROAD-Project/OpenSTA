@@ -280,12 +280,12 @@ void
 writeSdc(Instance *instance,
 	 const char *filename,
 	 const char *creator,
-	 bool native,
+	 bool compatible,
 	 bool no_timestamp,
 	 int digits,
 	 Sdc *sdc)
 {
-  WriteSdc writer(instance, filename, creator, native, digits,
+  WriteSdc writer(instance, filename, creator, compatible, digits,
 		  no_timestamp, sdc);
   writer.write();
 }
@@ -293,7 +293,7 @@ writeSdc(Instance *instance,
 WriteSdc::WriteSdc(Instance *instance,
 		   const char *filename,
 		   const char *creator,
-		   bool native,
+		   bool compatible,
 		   int digits,
 		   bool no_timestamp,
 		   Sdc *sdc) :
@@ -301,7 +301,7 @@ WriteSdc::WriteSdc(Instance *instance,
   instance_(instance),
   filename_(filename),
   creator_(creator),
-  native_( native),
+  compatible_(compatible),
   digits_(digits),
   no_timestamp_(no_timestamp),
   top_instance_(instance == sdc_network_->topInstance()),
@@ -986,11 +986,12 @@ ClockGroupLess::operator()(const ClockGroup *clk_group1,
 void
 WriteSdc::writeClockGroups() const
 {
-  ClockGroupsNameMap::Iterator groups_iter(sdc_->clk_groups_name_map_);
-  while (groups_iter.hasNext()) {
-    ClockGroups *clk_groups = groups_iter.next();
+  ClockGroupIterator *groups_iter = sdc_->clockGroupIterator();
+  while (groups_iter->hasNext()) {
+    ClockGroups *clk_groups = groups_iter->next();
     writeClockGroups(clk_groups);
   }
+  delete groups_iter;
 }
 
 void
@@ -1737,15 +1738,16 @@ WriteSdc::writeDrivingCell(Port *port,
   LibertyPort *from_port = drive_cell->fromPort();
   LibertyPort *to_port = drive_cell->toPort();
   float *from_slews = drive_cell->fromSlews();
-  LibertyLibrary *lib = cell->libertyLibrary();
+  LibertyLibrary *lib = drive_cell->library();
   fprintf(stream_, "set_driving_cell");
   if (tr)
     fprintf(stream_, " %s", transRiseFallFlag(tr));
   if (min_max)
     fprintf(stream_, " %s", minMaxFlag(min_max));
-  fprintf(stream_, " -library %s -lib_cell %s",
-	  lib->name(),
-	  cell->name());
+  // Only write -library if it was specified in the sdc.
+  if (lib)
+    fprintf(stream_, " -library %s", lib->name());
+  fprintf(stream_, " -lib_cell %s", cell->name());
   if (from_port)
     fprintf(stream_, " -from_pin {%s}",
 	    from_port->name());
@@ -2434,16 +2436,16 @@ void
 WriteSdc::writeVariables() const
 {
   if (sdc_->propagateAllClocks()) {
-    if (native_)
-      fprintf(stream_, "set sta_propagate_all_clocks 1\n");
-    else
+    if (compatible_)
       fprintf(stream_, "set timing_all_clocks_propagated true\n");
+    else
+      fprintf(stream_, "set sta_propagate_all_clocks 1\n");
   }
   if (sdc_->presetClrArcsEnabled()) {
-    if (native_)
-      fprintf(stream_, "set sta_preset_clear_arcs_enabled 1\n");
-    else
+    if (compatible_)
       fprintf(stream_, "set timing_enable_preset_clear_arcs true\n");
+    else
+      fprintf(stream_, "set sta_preset_clear_arcs_enabled 1\n");
   }
 }
 
@@ -2481,7 +2483,7 @@ WriteSdc::writeGetTimingArcs(Edge *edge,
 const char *
 WriteSdc::getTimingArcsCmd() const
 {
-  return native_ ? "get_timing_edges" : "get_timing_arcs";
+  return compatible_ ? "get_timing_arcs" : "get_timing_edges";
 }
 
 ////////////////////////////////////////////////////////////////

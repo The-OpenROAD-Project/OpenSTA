@@ -17,9 +17,9 @@
 #ifndef STA_PTHREAD_H
 #define STA_PTHREAD_H
 
-#include "config.h"
+#include "StaConfig.hh"
 
-#if HAVE_PTHREAD_H
+#if PTHREADS
  #include <pthread.h>
  #define STA_PTHREAD_SCOPE_SYSTEM PTHREAD_SCOPE_SYSTEM
 #else
@@ -88,5 +88,5 @@ int
 pthread_rwlock_unlock(pthread_rwlock_t *);
 
 } // namespace
-#endif // HAVE_PTHREAD_H
+#endif // PTHREAD
 #endif // STA_PTHREAD_H

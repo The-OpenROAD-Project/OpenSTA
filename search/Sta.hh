@@ -204,8 +204,9 @@ public:
   void setResistance(Net *net,
 		     const MinMaxAll *min_max,
 		     float res);
-  void setDriveCell(Port *port,
+  void setDriveCell(LibertyLibrary *library,
 		    LibertyCell *cell,
+		    Port *port,
 		    LibertyPort *from_port,
 		    float *from_slews,
 		    LibertyPort *to_port,

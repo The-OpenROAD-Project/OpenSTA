@@ -35,7 +35,7 @@
 
 #include <limits>
 #include "Machine.hh"
-#include "config.h"  // VERSION
+#include "StaConfig.hh"  // STA_VERSION
 #include "Stats.hh"
 #include "Report.hh"
 #include "Error.hh"
@@ -1991,12 +1991,12 @@ private:
 %inline %{
 
 float float_inf = INF;
-int int_max = std::numeric_limits<int>::max();
+ int group_count_max = PathGroup::group_count_max;
 
 const char *
 version()
 {
-  return VERSION;
+  return STA_VERSION;
 }
 
 void
@@ -3512,8 +3512,9 @@ set_input_slew_cmd(Port *port,
 }
 
 void
-set_drive_cell_cmd(Port *port,
+set_drive_cell_cmd(LibertyLibrary *library,
 		   LibertyCell *cell,
+		   Port *port,
 		   LibertyPort *from_port,
 		   float from_slew_rise,
 		   float from_slew_fall,
@@ -3524,7 +3525,7 @@ set_drive_cell_cmd(Port *port,
   float from_slews[TransRiseFall::index_count];
   from_slews[TransRiseFall::riseIndex()] = from_slew_rise;
   from_slews[TransRiseFall::fallIndex()] = from_slew_fall;
-  Sta::sta()->setDriveCell(port, cell, from_port, from_slews,
+  Sta::sta()->setDriveCell(library, cell, port, from_port, from_slews,
 			   to_port, tr, min_max);
 }
 
@@ -4250,6 +4251,18 @@ set_report_path_field_properties(const char *field_name,
 }
 
 void
+set_report_path_field_width(const char *field_name,
+			    int width)
+{
+  Sta *sta = Sta::sta();
+  ReportField *field = sta->findReportPathField(field_name);
+  if (field)
+    field->setWidth(width);
+  else
+    sta->report()->print("Error: unknown report path field %s\n", field_name);
+}
+
+void
 set_report_path_digits(int digits)
 {
   Sta::sta()->setReportPathDigits(digits);
@@ -4639,12 +4652,12 @@ disabled_edges_sorted()
 
 void
 write_sdc_cmd(const char *filename,
-	      bool native,
+	      bool compatible,
 	      bool no_timestamp,
 	      int digits)
 {
   cmdLinkedNetwork();
-  Sta::sta()->writeSdc(filename, native, no_timestamp, digits);
+  Sta::sta()->writeSdc(filename, compatible, no_timestamp, digits);
 }
 
 void

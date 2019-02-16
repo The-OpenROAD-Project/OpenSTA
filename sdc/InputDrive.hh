@@ -49,7 +49,8 @@ public:
   bool hasDriveResistance(const TransRiseFall *tr,
 			  const MinMax *min_max);
   bool driveResistanceMinMaxEqual(const TransRiseFall *tr);
-  void setDriveCell(LibertyCell *cell,
+  void setDriveCell(LibertyLibrary *library,
+		    LibertyCell *cell,
 		    LibertyPort *from_port,
 		    float *from_slews,
 		    LibertyPort *to_port,
@@ -86,10 +87,13 @@ private:
 class InputDriveCell
 {
 public:
-  InputDriveCell(LibertyCell *cell,
+  InputDriveCell(LibertyLibrary *library,
+		 LibertyCell *cell,
 		 LibertyPort *from_port,
 		 float *from_slews,
 		 LibertyPort *to_port);
+  LibertyLibrary *library() const { return library_; }
+  void setLibrary(LibertyLibrary *library);
   LibertyCell *cell() const { return cell_; }
   void setCell(LibertyCell *cell);
   LibertyPort *fromPort() const { return from_port_; }
@@ -103,6 +107,7 @@ public:
 private:
   DISALLOW_COPY_AND_ASSIGN(InputDriveCell);
 
+  LibertyLibrary *library_;
   LibertyCell *cell_;
   LibertyPort *from_port_;
   float from_slews_[TransRiseFall::index_count];

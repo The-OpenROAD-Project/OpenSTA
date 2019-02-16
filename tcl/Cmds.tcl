@@ -100,7 +100,7 @@ proc delete_objects_from_list_cmd { list objects } {
       } elseif {$list_type == "LibertyPort"} {
 	set obj [get_lib_pins $obj]
       } else {
-	sta_error "remove_from_collection unsupported object type $list_type."
+	sta_error "unsupported object type $list_type."
       }
     }
     set index [lsearch $list $obj]
@@ -1955,7 +1955,7 @@ proc write_path_spice { args } {
     sta_error "No -lib_subckt_file specified.\n"
   }
 
-  if { [info exists keys(-lib_subckt_file)] } {
+  if { [info exists keys(-model_file)] } {
     set model_file [file_expand_tilde $keys(-model_file)]
     if { ![file readable $model_file] } {
       sta_error "-model_file $model_file is not readable.\n"

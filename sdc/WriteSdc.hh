@@ -28,7 +28,7 @@ void
 writeSdc(Instance *instance,
 	 const char *filename,
 	 const char *creator,
-	 bool native,
+	 bool compatible,
 	 bool no_timestamp,
 	 int digits,
 	 Sdc *sdc);

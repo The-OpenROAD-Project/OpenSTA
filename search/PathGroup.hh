@@ -65,7 +65,8 @@ public:
   PathGroupIterator *iterator();
   // This does NOT delete the path ends.
   void clear();
-
+  static int group_count_max;
+  
 protected:
   PathGroup(const char *name,
 	    int group_count,

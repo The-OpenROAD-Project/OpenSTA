@@ -18,7 +18,7 @@
 #include <time.h>
 #include "Machine.hh"
 #include "Zlib.hh"
-#include "config.h"  // VERSION
+#include "StaConfig.hh"  // STA_VERSION
 #include "Fuzzy.hh"
 #include "StringUtil.hh"
 #include "MinMaxValues.hh"
@@ -208,7 +208,7 @@ SdfWriter::writeHeader(LibertyLibrary *default_lib,
   gzprintf(stream_, " (VENDOR \"Parallax\")\n");
   gzprintf(stream_, " (PROGRAM \"STA\")\n");
   if (!no_version)
-    gzprintf(stream_, " (VERSION \"%s\")\n", VERSION);
+    gzprintf(stream_, " (VERSION \"%s\")\n", STA_VERSION);
   gzprintf(stream_, " (DIVIDER %c)\n", sdf_divider_);
 
   OperatingConditions *cond_min = 

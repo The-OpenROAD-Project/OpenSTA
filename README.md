@@ -53,7 +53,7 @@ See doc/OpenSTA.pdf for complete documentiaton.
 ## Getting Started
 
 OpenSTA can be run as a [Docker](https://www.docker.com/) container
-or built as local executable with CMake or Autotools.
+or built as local executable with CMake.
 
 ### Run using Docker
 * Install Docker on [Windows](https://docs.docker.com/docker-for-windows/), [Mac](https://docs.docker.com/docker-for-mac/) or [Linux](https://docs.docker.com/install/).
@@ -96,8 +96,7 @@ cudd             2.4.1     3.0.0
 CUDD is a binary decision diageram (BDD) package that is used to improve conditional timing arc handling. It is available [here](https://www.davidkebo.com/source/cudd_versions/cudd-3.0.0.tar.gz) or [here](https://sourceforge.net/projects/cudd-mirror/).
 
 Note that the file hierarchy of the CUDD installation changed with version 3.0.
-Some changes to the CMake or configure scripts are required to support older
-versions.
+Some changes to the CMake are required to support older versions.
 
 You may use the `--prefix ` option to `configure` to install in a location other than
 the default (`/usr/local/lib`).
@@ -162,72 +161,12 @@ If you make changes to `CMakeLists.txt` you may need to clean out
 existing CMake cached variable values by deleting all of the
 files in the build directory.
 
-### Installing from a tarfile
-
-Installing from a tarfile has the advantage that Autotools, bison,
-flex and swig do not need to be installed.
-
-Use the following commands to unpack the dist file and compile it.
-```
-tar zvfz opensta-<version>.tgz
-cd opensta-<version>
-./configure [options...]
-make
-```
-With no options, configure builds an optimized executable.
-The resulting executable is app/sta.
-```
-configure options:
-  -h, --help              display configure help and exit
-  --enable-debug          enable debug
-  --enable-asan           enable AddressSanitizer
-  --enable-gprof          enable gprof profiling
-  --enable-gcov           enable gcov profiling
-  --enable-32bit          force 32 bit compile
-  --with-include=dirs     directories to search for include files
-  --with-lib=dirs         directories to search for libraries
-  --with-tcl=dirs         directories to search for Tcl init files
-  --with-cudd=path        use Cudd BDD package, defaults to $CUDD
-  --with-visualstudio     use Microcruft Visual Studio C++ compiler
-```
-If the configure script fails to find any of the `TCL`, `Zlib` or `CUDD`
-files, use the `--with-include`, `--with-lib`, `--with-tcl`, `--with-cudd`
-options to add directories to search for the files.
-
-The configure `--help` option lists the generic configure options that
-are not described above.  The default arguments to configure disable
-shared libraries. To build with shared libraries use the
-`--enable-shared` option.
-
-### Installing with Autotools
-
-Building with GNU Autotools the additional build dependencies shown
-below.
-```
-         from   Ubuntu  Xcode
-                18.04.1  10.1
-autoconf 2.53    2.69    2.69
-automake 1.6.3   1.15.1  1.16.1
-libtool  1.4.2   2.4.6   2.4.6
-```
-Use the following commands to checkout the git repository and compile
-it.
-```
-git clone https://xp-dev.com/git/opensta
-git checkout master|branch
-./bootstrap
-./configure [options...]
-make
-```
-Configure options are show above in the "Installing from tarkit" section.
-
 ### Installing on Windoz
 
 The Win32 API does not natively support the pthreads API.  The
 pthreads-win32 package is one way to get support for pthreads for 32
 bit builds.  It is available from [pthreads](www.sourceware.org/pthreads-win32).
-If the configure script does not find `pthreads.h` the build proceeds
-without thread support.
+If Cmake does not find `pthreads.h` the build proceeds without thread support.
 
 Use a .bat file to start a cygwin shell that has its path set to
 support the Microcruft cl compiler by calling the vsvars32.bat script
@@ -242,13 +181,15 @@ tcsh-startup.bat
 CMake is supposedly more compatible with the windoz environment
 so you may have better luck wih it.
 
-Configure and build from the shell. Note that tcl and zlib must be
+Cmake and build from the shell. Note that tcl and zlib must be
 built with the Visual C++ compiler to link to the sta libraries.
+
+  mkdir build
+  cd build
+  cmakd ..
+  make
 ...
-./bootstrap
-./configure --with-visualstudio
-make maintainer-clean
-...
+
 Good luck and don't bother me with windoz specific issues.
 I am happy to say I haven't owned a windoz machine in 20 years.
 

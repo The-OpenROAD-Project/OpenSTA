@@ -155,6 +155,7 @@ typedef Map<const LibertyCell*, DeratingFactorsCell*> CellDeratingFactorsMap;
 typedef Set<ClockGroups*> ClockGroupsSet;
 typedef Map<const Clock*, ClockGroupsSet*> ClockGroupsClkMap;
 typedef Map<const char*, ClockGroups*, CharPtrLess> ClockGroupsNameMap;
+typedef ClockGroupsNameMap::Iterator ClockGroupIterator;
 typedef Map<PinClockPair*, ClockSense, PinClockPairLess> ClockSenseMap;
 typedef Set<ClkHpinDisable*, ClkHpinDisableLess> ClkHpinDisables;
 typedef Set<GroupPath*> GroupPathSet;
@@ -238,8 +239,9 @@ public:
 			  float res);
   // Set the drive on design port using external cell timing arcs of
   // cell driven by from_slews between from_port and to_port.
-  void setDriveCell(Port *port,
+  void setDriveCell(LibertyLibrary *library,
 		    LibertyCell *cell,
+		    Port *port,
 		    LibertyPort *from_port,
 		    float *from_slews,
 		    LibertyPort *to_port,
@@ -488,9 +490,10 @@ public:
   void removeClockGroupsAsynchronous(const char *name);
   bool sameClockGroup(const Clock *clk1,
 		      const Clock *clk2);
-  // Clocks explicitly excluded by set_clock_group.
+ // Clocks explicitly excluded by set_clock_group.
   bool sameClockGroupExplicit(const Clock *clk1,
 			      const Clock *clk2);
+  ClockGroupIterator *clockGroupIterator();
   void setClockSense(PinSet *pins,
 		     ClockSet *clks,
 		     ClockSense sense);

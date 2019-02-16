@@ -13,31 +13,13 @@ TAGS
 .~lock.*#
 .DS_Store
 Makefile
-Makefile.in
-
-.libs
-.deps
 
 /build
-/configure
-/m4
-/compile
-/config.h
-/config.guess
-/config.h.in
-/config.log
-/config.sub
-/config.status
-/libtool
-/ltmain.sh
-/install-sh
-/missing
-/depcomp
-/ylwrap
-/aclocal.m4
-/autom4te.cache
-/stamp-h1
-/ylwrap
+/debug
+/rel
+
+# /util/
+/util/StaConfig.hh
 
 # /app/
 /app/StaApp_wrap.cc
@@ -45,7 +27,6 @@ Makefile.in
 /app/sta
 /app/sta.exe
 /app/sta.dSYM
-/app/.dirstamp
 
 # /doc/
 /doc/._Sta.docx

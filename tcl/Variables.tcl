@@ -168,6 +168,9 @@ proc trace_pocv_enabled { name1 name2 op } {
     pocv_enabled set_pocv_enabled
 }
 
+# Report path numeric field width is digits + extra.
+set report_path_field_width_extra 5
+
 ################################################################
 
 proc trace_boolean_var { op var_name get_proc set_proc } {

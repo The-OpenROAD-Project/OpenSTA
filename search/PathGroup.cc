@@ -36,6 +36,8 @@
 
 namespace sta {
 
+int PathGroup::group_count_max = std::numeric_limits<int>::max();
+
 PathGroup *
 PathGroup::makePathGroupSlack(const char *name,
 			      int group_count,
@@ -119,7 +121,7 @@ PathGroup::insert(PathEnd *path_end)
 {
   lock_.lock();
   path_ends_.push_back(path_end);
-  if (group_count_ < std::numeric_limits<int>::max()
+  if (group_count_ != group_count_max
       && static_cast<int>(path_ends_.size()) > group_count_ * 2)
     prune();
   lock_.unlock();

@@ -24,7 +24,7 @@ namespace eval sta {
 
 define_cmd_args "report_power" \
   { [-instances instances]\
-      [-corner corner_name]]\
+      [-corner corner_name]\
       [-digits digits]\
       [> filename] [>> filename] }
 

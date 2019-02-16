@@ -1438,7 +1438,7 @@ GraphDelayCalc1::edgeFromSlew(const Vertex *from_vertex,
 Slew
 GraphDelayCalc1::idealClkSlew(const Vertex *vertex,
 			      const TransRiseFall *tr,
-			      const MinMax *min_max) const
+			      const MinMax *min_max)
 {
   float slew = min_max->initValue();
   const ClockSet *clks = idealClks(vertex);
@@ -1718,7 +1718,7 @@ GraphDelayCalc1::setIdealClks(const Vertex *vertex,
 }
 
 ClockSet *
-GraphDelayCalc1::idealClks(const Vertex *vertex) const
+GraphDelayCalc1::idealClks(const Vertex *vertex)
 {
   ideal_clks_map_lock_.lock();
   ClockSet *clks = ideal_clks_map_.findKey(vertex);
@@ -1727,7 +1727,7 @@ GraphDelayCalc1::idealClks(const Vertex *vertex) const
 }
 
 bool
-GraphDelayCalc1::isIdealClk(const Vertex *vertex) const
+GraphDelayCalc1::isIdealClk(const Vertex *vertex)
 {
   const ClockSet *clks = idealClks(vertex);
   return clks != 0

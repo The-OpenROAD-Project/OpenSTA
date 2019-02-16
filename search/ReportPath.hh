@@ -28,41 +28,9 @@ namespace sta {
 class Corner;
 class DcalcAnalysisPt;
 class PathExpanded;
+class ReportField;
 
 using std::string;
-
-class ReportField
-{
-public:
-  ReportField(const char *name,
-	      const char *title,
-	      int width,
-	      bool left_justify,
-	      Unit *unit,
-	      bool enabled);
-  ~ReportField();
-  void setProperties(const char *title,
-		     int width,
-		     bool left_justify);
-  const char *name() const { return name_; }
-  const char *title() const { return title_; }
-  int width() const { return width_; }
-  void setWidth(int width);
-  bool leftJustify() const { return left_justify_; }
-  Unit *unit() const { return unit_; }
-  const char *blank() { return blank_; }
-  void setEnabled(bool enabled);
-  bool enabled() const { return enabled_; }
-
-protected:
-  const char *name_;
-  const char *title_;
-  int width_;
-  bool left_justify_;
-  Unit *unit_;
-  bool enabled_;
-  char *blank_;
-};
 
 typedef Vector<ReportField*> ReportFieldSeq;
 
@@ -77,6 +45,7 @@ public:
 		       bool report_net,
 		       bool report_cap,
 		       bool report_slew);
+  int digits() const { return digits_; }
   void setDigits(int digits);
   void setNoSplit(bool no_split);
   ReportField *findField(const char *name);
@@ -451,6 +420,10 @@ protected:
   void reportDashLineTotal(string &result);
   void reportDescription(const char *what,
 			 string &result);
+  void reportDescription(const char *what,
+			 bool first_field,
+			 bool last_field,
+			 string &result);
   void reportFieldTime(float value,
 		       ReportField *field,
 		       string &result);
@@ -535,7 +508,7 @@ protected:
 
   // Path options.
   ReportPathFormat format_;
-  ReportFieldSeq *fields_;
+  ReportFieldSeq fields_;
   bool report_input_pin_;
   bool report_net_;
   bool no_split_;
@@ -560,6 +533,40 @@ protected:
 
 private:
   DISALLOW_COPY_AND_ASSIGN(ReportPath);
+};
+
+class ReportField
+{
+public:
+  ReportField(const char *name,
+	      const char *title,
+	      int width,
+	      bool left_justify,
+	      Unit *unit,
+	      bool enabled);
+  ~ReportField();
+  void setProperties(const char *title,
+		     int width,
+		     bool left_justify);
+  const char *name() const { return name_; }
+  const char *title() const { return title_; }
+  int width() const { return width_; }
+  void setWidth(int width);
+  bool leftJustify() const { return left_justify_; }
+  Unit *unit() const { return unit_; }
+  const char *blank() { return blank_; }
+  void setEnabled(bool enabled);
+  bool enabled() const { return enabled_; }
+
+protected:
+  const char *name_;
+  const char *title_;
+  int width_;
+  bool left_justify_;
+  Unit *unit_;
+  bool enabled_;
+  char *blank_;
+  ReportPath *report_path_;
 };
 
 } // namespace

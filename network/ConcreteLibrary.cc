@@ -595,7 +595,7 @@ ConcreteCellPortBitIterator::findNext()
   if (member_iter_ == NULL) {
     if (port_iter_.hasNext()) {
       next_ = port_iter_.next();
-      if (next_->hasMembers()) {
+      if (next_->isBus()) {
 	member_iter_ = next_->memberIterator();
 	next_ = member_iter_->next();
       }

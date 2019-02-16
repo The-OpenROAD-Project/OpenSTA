@@ -241,18 +241,16 @@ BfsIterator::visitParallel(Level to_level,
 {
   int visit_count = 0;
   if (!empty()) {
-    int thread_count = threadCount();
-    if (thread_count <= 1)
+    if (thread_count_ <= 1)
       visit_count = visit(to_level, visitor);
     else {
-      ForEachArg<BfsListIterator, VertexVisitor> *args =
-	new ForEachArg<BfsListIterator,VertexVisitor>[thread_count];
-      Thread *threads = new Thread[thread_count];
+      ForEachArg<BfsListIterator, VertexVisitor> args[thread_count_];
+      Thread threads[thread_count_];
       Mutex lock;
-      for (int i = 0; i < thread_count; i++) {
-	ForEachArg<BfsListIterator,VertexVisitor> *arg = &args[i];
-	arg->lock_ = &lock;
-	arg->func_ = visitor->copy();
+      for (int i = 0; i < thread_count_; i++) {
+	ForEachArg<BfsListIterator,VertexVisitor> &arg = args[i];
+	arg.lock_ = &lock;
+	arg.func_ = visitor->copy();
       }
 
       Level level = first_level_;
@@ -265,17 +263,17 @@ BfsIterator::visitParallel(Level to_level,
 	  incrLevel(first_level_);
 	  BfsListIterator iter(level_vertices, this, bfs_index_);
 
-	  for (int i = 0; i < thread_count; i++) {
-	    ForEachArg<BfsListIterator,VertexVisitor> *arg = &args[i];
+	  for (int i = 0; i < thread_count_; i++) {
+	    ForEachArg<BfsListIterator,VertexVisitor> &arg = args[i];
 	    // Initialize the iterator for this level's vertices.
-	    arg->iter_ = &iter;
+	    arg.iter_ = &iter;
 	    threads[i].beginTask(forEachBegin<BfsListIterator,
 				 VertexVisitor, Vertex*>,
-				 reinterpret_cast<void*>(arg));
+				 reinterpret_cast<void*>(&arg));
 	  }
 
 	  // Wait for all threads working on this level before moving on.
-	  for (int i = 0; i < thread_count; i++)
+	  for (int i = 0; i < thread_count_; i++)
 	    threads[i].wait();
 
 	  visit_count += iter.count();
@@ -287,12 +285,10 @@ BfsIterator::visitParallel(Level to_level,
 	}
       }
 
-      for (int i = 0; i < thread_count; i++) {
+      for (int i = 0; i < thread_count_; i++) {
 	ForEachArg<BfsListIterator,VertexVisitor> *arg = &args[i];
 	delete arg->func_;
       }
-      delete [] threads;
-      delete [] args;
     }
   }
   return visit_count;

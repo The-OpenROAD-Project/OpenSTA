@@ -1,0 +1,1290 @@
+Parallax Static Timing Analyzer Release Notes
+---------------------------------------------
+
+This file summarizes user visible changes for each release.
+
+Release 2.0.0 2018/09/28
+-------------------------
+
+Builds using Autotools/configure are no longer supported.
+Use CMake as documented in README.mb.
+
+The check_timing command -no_output_delay checks output ports for
+set_output_delay.
+
+The report_power command reports the power consumption of the design
+or a specific instance.
+
+  report_power [-instance inst] [-digits digits] [> filename] [>> filename]
+
+Report power used by the design or a specific instance. The internal,
+switching, leakage and total power are reported. Design power is
+reported separately for combinational, sequential, macro and pad
+groups.
+
+The write_path_spice command writes a spice netlist for a timing path.
+
+  write_path_spice -path_args path_args
+    -spice_directory spice_directory
+    -subckt_file subckt_file
+    -lib_subckt_file lib_subckts_file\
+    -model_file model_file
+    -power power
+    -ground ground
+    
+Use path_args to specify -from/-through/-to as arguments to the
+find_timing_paths command. For each path, a spice netlist and the
+subckts referenced by the path are written in spice_directory.  The
+spice netlist is written in path_<id>.sp and subckt file is
+path_<id>.subckt.
+
+Spice netlists for liberty library cells are read from
+lib_subckts_file.  The spice netlists used by the path are written to
+subckt_file, which spice_file .includes. The device models used by the
+spice subckt netlists in model_file are .included in spice_file. Power
+and ground names are specified with the -power and -ground arguments.
+The spice netlist includes a piecewise linear voltage source at the
+input and .measure statement for each gate delay and pin slew.
+
+The report_checks, find_timing_paths commands now support an
+-unconstrained flag.
+
+  report_checks -unconstrained
+  find_timing_paths -unconstrained
+
+The sta_report_unconstrained_paths variable will be supported for
+for compatibility in this current release.
+
+The read_parasitics command has been renamed read_spef and no longer
+supports the SPF format.
+
+Release 1.11.0 2017/08/18
+-------------------------
+
+Use the define_corners command to define the names of multiple
+process/temperature/voltage corners.
+
+ define_corners corner_name1 [orner_name2]...
+
+The define_corners command must follow set_operating_conditions
+-analysis_type precede any reference to the corner names and can only
+appear once in a command file. There is no support for re-defining
+corners.
+
+For analysis type single each corner has one delay calculation result
+and early/late path arrivals. For analysis type best_case/worst_case
+and on_chip_varition each corner has min/max delay calculation results
+and early/late path arrivals.
+
+Use the report_timing -corner keyword to report timing for one corner.
+With no corner keyword report timing reports the corner with the
+smallest slack for each timing check.
+
+ report_timing [-corner corner_name]
+
+The following commands do not require the -corner keyword if there
+is only one corner. Otherwise, it is required.
+
+ read_liberty [-corner corner_name] [-min] [-max]
+ read_parasitics [-min] [-max]
+ report_delay_calculation [-corner corner_name]
+ set_annotated_transition [-corner corner_name]
+ set_annotated_delay [-corner corner_name]
+ set_annotated_check [-corner corner_name]
+ read_sdf [-corner corner_name]
+ write_sdf [-corner corner_name]
+
+An example command script using multiple corners is shown below.
+
+  read_liberty liberty1.lib
+  read_verilog reg1.v
+  link_design top
+  define_corners ff ss
+  read_sdf -corner ff reg1.sdf
+  read_sdf -corner ss reg1_ss.sdf
+  create_clock -name clk -period 10 {clk1 clk2 clk3}
+  set_input_delay -clock clk 0 {in1 in2}
+  report_timing -delay_type min_max
+  report_timing -delay_type min_max -corner ss
+  report_timing -delay_type min_max -corner ff
+
+Note that the following use of the set_min_library command show below
+
+  read_liberty liberty1.lib
+  set_min_library -min_version liberty1_min.lib liberty1.lib
+
+can be replaced with the following commands using min/max flags:
+
+  read_liberty -max liberty1.lib
+  read_liberty -min liberty1_min.lib
+
+....
+
+The report_timing -unique_pins flag is used in conjuntion with -nworst
+to report multiple paths to an endpoint that traverse different pins
+without showing multiple paths with different rise/fall transitions.
+
+  report_timing [-unique_pins]
+
+....
+
+The set_max_delay/set_min_delay commands now support the -ignore_clock_latency
+option.
+
+  set_max_delay -ignore_clock_latency
+  set_min_delay -ignore_clock_latency
+
+Clock latency at the source and destination of the path delay is
+ignored.  The constraint is reported in the default path group
+(**default**) rather than the clock path group when the path ends at a
+timing check.
+
+....
+
+The write_sdf command writes an Standard Delay Format (SDF) file for
+the design.
+
+  write_sdf [-divider /|.] [-significant_digits digits] [-gzip] 
+      [-no_timestamp] [-no_version] filename
+
+ -divider separates hierarchy levels in name.  It must be '/' or '.'.
+ -significant_digits specifies the number of digits after the decimal point
+  for delays
+ -gzip flag writes the file in gzip compressed format
+ -no_timestamp flag excludes the DATE statement in the header
+ -no_version flags excludes the VERSION statement in the header
+  filename is the name of the SDF file
+
+The SDF TIMESCALE is same as the time_unit in the first liberty file read.
+
+....
+
+The group_path command now supports the -default flag.
+
+  group_path -default
+
+When the -default flag is specified paths matching the from/through/to
+criteria are added to the path group named **default**. Either the
+-default or -name arguments must be specified.
+
+....
+
+Common clock pessimism is now enabled by default
+(timing_remove_clock_reconvergence_pessimism true).
+
+....
+
+The report_clock_timing command is used to report the worst clock
+skew.
+
+  report_clock_timing [-type skew] [-setup|-hold] [-clock clocks]
+                      [-significant_digits digits]
+
+Only -type skew is supported. -setup and -hold are mutually exclusive.
+
+Release 1.10.1 2014/12/23
+-------------------------
+
+The set_annotated_check command now supports a -clock argument to 
+specify a clock rise/fall edge to annotate.
+
+  set_annotated_check -setup|-hold|-recovery|-removal [-rise] [-fall] [-min] [-max]
+       [-from from_pins] [-to to_pins] [-clock rise|fall]
+       [-cond sdf_cond] [-worst] check_value}
+
+The set_max_transition command now supports pin objects.
+
+  set_max_transition [-clock_path] [-data_path] [-rise] [-fall] slew objects
+
+
+Release 1.10.0 2013/06/23
+-------------------------
+
+The default analysis type has changed from single to
+on_chip_variation.  For designs that do not explicitly set the
+analysis type this may make the STA run longer because it is
+determining both minimum and maximum arrival times.
+
+Use the  following command to explicitly set the analysis type to single.
+
+  set_operation_conditions -analysis_type single
+
+....
+
+The read_liberty -min|-max option is no longers supported.  Use the
+set_min_library command after the the design has been linked instead.
+
+  set_min_library -min_version min_library max_library
+
+....
+
+The default value of timing_input_port_default_clock has changed to false.
+
+....
+
+An Arnoldi reducer and delay calculator for use with detailed
+parasitics is now supported.  Use the set_delay_calculator command to
+change the delay calculator.
+
+  set_delay_calculator arnoldi
+
+....
+
+The get_timing_arcs -filter option is now supported.
+
+  get_timing_arcs [-filter expr]
+
+....
+
+The set_clock_uncertainty -from_edge -to_edge options are no longer supported.
+
+....
+
+The allocate_budgets and write_sdc commands now have a
+-significant_digits option for to control the number of digits in the
+SDC file.
+
+ write_sdc [-no_timestamp] [-significant_digits digits] filename
+
+ allocate_budgets [-levels all|level] [-format ptsh|dctcl|dcsh]
+     [-file_format_spec format_spec] [-write_context] [-no_driving_cells]
+     [-no_timestamp] [-significant_digits digits] [instance_list]
+
+Release 1.9.1 2011/03/02
+------------------------
+
+The following commands are now supported.
+
+  set_annotated_check -setup|-hold|-recovery|-removal 
+                      [-rise] [-fall] [-min] [-max]
+                      [-from from_pins] [-to to_pins] [-clock rise|fall]
+                      [-cond sdf_cond] [-worst] check_value
+
+  all_fanin -to sink_list [-flat] [-only_cells] [-startpoints_only]
+     [-levels level_count] [-pin_levels pin_count]
+     [-trace_arcs timing|enabled|all]
+
+  all_fanout -from source_list [-flat] [-only_cells] [-endpoints_only]
+     [-levels level_count] [-pin_levels pin_count]
+     [-trace_arcs timing|enabled|all]
+
+  remove_propagated_clock objects
+
+....
+
+The create_generated_clock command now supports the phase locked loop
+options -pll_out and -pll_feedback.
+
+  create_generated_clock [-pll_out pll_out_pin] [-pll_feedback pll_fdbk_pin]
+
+The -source, -pll_out and -pll_feedback must all be pins on the same
+PLL instance.  The delay between the PLL out and feedback pins is
+removed from the source latency of the generated clock.
+
+....
+
+The set_timing_derate command now supports -rise and -fall flags.
+
+  set_timing_derate [-rise] [-fall] [-early] [-late] [-clock] [-data]
+                    [-net_delay] [-cell_delay] [-cell_check]
+                    factor [object_list]
+
+....
+
+The update_timing command now supports the -full flag.  
+
+  update_timing [-full]
+
+Without -full arrivals are updated incrementally.
+With -full all arrivals are updated from scratch.
+
+....
+
+The following commands return the total and worst negative slack in
+the design.
+
+  total_negative_slack [-min] [-max]
+  worst_negative_slack [-min] [-max]
+
+Release 1.9.0 2010/07/01
+------------------------
+
+The set_disable_timing and remove_disable_timing commands now support
+get_timing_arcs results as arguments.
+
+  set_disable_timing [get_timing_arcs -from u2/B -to u2/Z]
+  set_disable_timing [get_timing_arcs -of_objects [get_lib_cells liberty1/snl_invx1]]
+  remove_disable_timing [get_timing_arcs -from u2/B -to u2/Z]
+
+....
+
+The get_timing_arcs command now supports the -of_objects argument.
+
+ get_timing_arcs [-from from_pin] [-to to_pin] [-of_objects objects]
+
+The keyword arguments -from and -to cannot be used with -of_objects.
+Objects must be a collection of instances or library cells.
+
+....
+
+The redirect command redirects the output from a group of commands to
+a TCL variable.
+
+  redirect -variable var { cmds }
+
+....
+
+The query_objects command is now supported.
+
+  query_objects [-verbose] collection
+
+....
+
+OpenAccess databases are no longer supported.
+
+Release 1.8.2 2009/11/18
+------------------------
+
+The rise/fall from/through/to arguments of the group_path command are
+now supported.
+
+ group_path [-from from_list] [-rise_from from_list] [-fall_from from_list]
+            [-through through_list] [-rise_through through_list] [-fall_through through_list]
+            [-to to_list] [-rise_to to_list] [-fall_to to_list]
+
+The create_generated_clock -combinational flag is now supported.
+
+The set_clock_groups command is now supported.  The -allow_paths flag
+is ignored.
+
+ set_clock_groups [-name name] [-logically_exclusive] [-physically_exclusive]
+                  [-asynchronous] [-allow_paths] -group clock_list
+
+The set_clock_sense command is now supported.  The -pulse flag is
+ignored.
+
+ set_clock_sense [-positive] [-negative] [-pulse pulse] [-stop_propagation]
+                 [clock clock_list]
+
+If there were non-unate timing arcs in the clock network previous
+releases would issue a warning and only propagate the positive unate
+clock edges.  In this release both edges of the clock are propagated
+and no warning is issued.  Use the set_clock_sense command to control
+the unateness of the non-unate clock edge if necessary.
+
+In previous releases the set_input_delay command on a clock source pin
+would set the clock source delay (insertion delay) of the clock pin.
+With this release the set_input_delay is ignored.
+
+The remove_disable_timing command is now supported.  The
+remove_disable_timing removes disables from a corresponding
+set_disable_timing command.
+
+ remove_disable_timing [-from from_port] [-to to_port] objects
+
+The following SDC commands are parsed and ignored:
+
+ set_ideal_latency [-rise] [-fall] [-min] [-max] delay objects
+ set_ideal_network [-no_propagation] object_list
+ set_ideal_transition [-rise] [-fall] [-min] [-max] transition_time objects
+
+The linker now creates empty "block box" cells for instances that
+reference undefined cells when the variable link_create_black_boxes is
+"true".  When link_create_black_boxes is false an error is reported
+and the link fails.
+
+Release 1.8.1 2009/05/01
+------------------------
+
+The STA now supports threading on multi-processor systems.  
+The STA executable -threads argument specifies the number of threads
+to use.   
+
+ app/sta -threads max|integer
+
+The default value is one.  If -threads is "max" the thread count is
+set to the processor count.  Using multiple threads on multi-processor
+hosts reduces the wall run time by running multiple computations in
+parallel on each processor.
+
+The TCL variable timing_report_unconstrained_path is deprecated.
+Use timing_report_unconstrained_paths instead.
+
+The liberty library default values for the default_input_pin_cap and
+default_inout_pin_cap attributes has been changed from 1.0 to 0.0.
+
+Problems found by read_parasitics are now reported as warnings rather
+than errors.
+
+The create_generated_clock -edge_shift option is now supported.
+
+The timing_input_port_default_clock variable is now supported.
+
+ timing_input_port_default_clock true|false
+
+The timing_all_clocks_propagated variable is now supported.
+When true, all clocks are propagated.
+
+ timing_all_clocks_propagated true|false
+
+Release 1.8.0 2008/10/01
+------------------------
+
+The memory used by the STA has been signficantly reduced.
+
+The effective capacitance calculated by the Dartu/Menezes/Pileggi
+delay calculation algorithm has improved accuracy.  This will change
+delay calculation results when SPEF/SPF RSPF/DSPF parasitics are used.
+
+Release 1.7.2 Patches
+---------------------
+
+The common reconvergent pressimism removal (crpr) for clocks with
+combinational reconvergence is controlled by the 
+timing_clock_combinational_reconvergence_pessimism variable.
+The valid values are:
+  converge - use the crpr at the pin that the paths converge
+  diverge  - use the crpr at the pin that the paths diverge
+  none     - use zero for the crpr
+
+Release 1.7.2 2008/01/28
+------------------------
+
+Verilog 2001 port declaratation support has been added.  An example is
+shown below.
+
+  module top (input in1, in2, clk1, clk2, clk3,
+              output out);
+
+Release 1.7.1 patches
+---------------------
+
+The set_disable_clock_gating_check command disables clock gating
+checks.  The remove_disable_clock_gating_check command removes a
+previous disable.  The objects are clock gating cells (instances) or
+the clock or enable pin on the clock gating instance.
+
+  set_disable_clock_gating_check objects
+  remove_disable_clock_gating_check objects
+
+....
+
+The set_units command is now supported.
+
+  set_units [-capacitance cap_unit] [-resistance res_unit] [-time time_unit]
+            [-voltage voltage_unit] [-current current_unit] [-power power_unit]
+
+The units are specified as a scale factor followed by a unit name.
+The unit names are shown below.
+
+  capacitance f
+  time        s
+  current     A
+  resistance  ohm
+  voltage     v
+  power       w
+
+The scale factors are as follows.
+
+ M 1E+6
+ k 1E+3
+ m 1E-3
+ u 1E-6
+ n 1E-9
+ p 1E-12
+ f 1E-15
+
+An example of the set_units command is shown below.
+
+  set_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm
+
+....
+
+The following SDC commands are parsed but have no effect on timing results.
+
+  create_voltage_area [-name name] [-coordinate coordinates]
+                      [-guard_band_x guard_x] [-guard_band_y guard_y] cells
+  set_level_shifter_strategy [-rule rule_type]
+  set_level_shifter_threshold [-voltage volt]
+
+....
+
+The first liberty library that is read sets the default units used for
+tcl commands and reporting.  In previous releases they came from the
+last library read.
+
+
+Release 1.7.1 2007/08/13
+------------------------
+
+The report_annotated_delay and report_annotated_check commands are now
+supported.
+
+  report_annotated_delay [-cell] [-net] [-from_in_ports] [-to_out_ports]
+     [-max_line lines] [-list_annotated] [-list_not_annotated] [-constant_arcs]
+
+  report_annotated_check [-setup] [-hold] [-recovery] [-removal] [-nochange]
+     [-width] [-period] [-max_skew] 
+     [-max_line lines] [-list_annotated] [-list_not_annotated] [-constant_arcs]
+
+....
+
+The report_timing -group option is now supported.
+
+ report_timing [-group group_names]
+
+Only path groups in group_names are reported.
+
+....
+
+The set_max_transition command now supports clock objects.
+
+ set_max_transition [-clock_path] [-data_path] [-rise] [-fall] slew objects
+
+The object list is a list of ports, clocks or designs.  
+
+If specified for a design, the default maximum transition is set for
+the design.
+
+If specified for a clock, the maximum transition is applied to all
+pins in the specified clock domain. The -clock_path option restricts
+the maximum transition to clocks in clock paths.  The -data_path
+option restricts the maximum transition to clocks in data paths.  The
+-clock_path, -data_path, -rise, and -fall flags only apply to clock
+objects.
+
+....
+
+Support for pulse clocks has been added.  The liberty pin pulse_clock
+attribute specifies the triggering edge and clock sense for a pulse
+generator.
+
+   pulse_clock rise_triggered_high_pulse|rise_triggered_low_pulse
+               fall_triggered_high_pulse|fall_triggered_low_pulse
+
+....
+
+The timing_report_unconstrained_path variable is now supported.
+
+  timing_report_unconstrained_path true|false
+
+When timing_report_unconstrained_path is true, report_timing reports
+unconstrained paths if no constrained paths are found. The default
+value is "false".
+
+....
+
+The timing_disable_clock_gating_checks variable is now supported.
+
+  timing_disable_clock_gating_checks true|false
+
+When timing_disable_clock_gating_checks is true, clock gating setup
+and hold timing checks are disabled. The default value is "false".
+
+....
+
+The timing_disable_recovery_removal_checks variable is now supported.
+
+  timing_disable_recovery_removal_checks true|false
+
+When timing_disable_recovery_removal_checks is true, recovery and
+removal timing checks are disabled. The default value is "false".
+
+....
+
+The read_sdf command now supports the -path and -cond_use options.
+
+  read_sdf [-path path] [-cond_use min|max|min_max]
+
+The path specifies a path to a hierarchical instance in the design to
+annotate delays on.  
+
+The cond_use option is used when the SDF file contains conditional
+delays and the library does not have conditional delay arcs.  If
+cond_use is min, the minimum of all conditional delays is used.  If
+cond_use is max, the maximum of all conditional delays is used.  If
+cond_use is min_max and min_max operating conditions are in use, the
+minimum of the conditional delay values is used for minimum operating
+conditions and the maximum of the conditional delay values is used for
+maximum operating conditions.
+
+The sdf reader now supports the PORT, DEVICE, CONDELSE and PERIOD
+statements.
+
+....
+
+The report_constraint command now supports minimum period and max skew
+checks.
+
+  report_constraint [-min_period] [-max_skew]
+
+The report_constraint -min_pulse_width command now only reports the
+constraint with the least slack rather than all min pulse width
+checks.
+
+Release 1.7.0 2007/03/16
+------------------------
+
+The set_clock_latency -clock option is now supported.
+
+  set_clock_latency [-source] [-clock clock] [-rise] [-fall] [-min] [-max]
+                    [-early] [-late] delay object_list
+  remove_clock_latency [-source] [-clock clock] object_list
+
+The set_timing_derate command now supports the optional object_list argument.
+
+ set_timing_derate [-early] [-late] [-clock] [-data]
+                   [-net_delay] [-cell_delay] [-cell_check]
+                   factor [object_list]
+
+object_list is a list of nets, instances or library cells.
+
+The following commands now support -regexp and -nocase flags:
+
+ get_cells
+ get_clocks
+ get_lib_cells
+ get_lib_pins
+ get_libs
+ get_nets
+ get_pins
+ get_ports
+
+Without -regexp unix style file glob pattern matching is used.
+With -regexp TCL regular expression matching is used.
+When the -nocase is used regular expressions are case insensitive.
+The -nocase flag can only be used with -regexp.
+
+The timing_dynamic_loop_breaking variable is now supported.
+
+ timing_dynamic_loop_breaking true|false
+
+When timing_dynamic_loop_breaking is "false" combinational logic loops
+are disabled by disabling timing arcs in the loop.  When
+timing_dynamic_loop_breaking is "true" all paths around the loop are
+reported.  The default value is false.
+
+Release 1.6.2 patches
+---------------------
+
+The -rise_to and -fall_to arguments are now supported by all exceptions.
+  set_false_path [-rise_to to_list] [-fall_to to_list]
+  set_multicycle_path [-rise_to to_list] [-fall_to to_list]
+  set_min_delay [-rise_to to_list] [-fall_to to_list]
+  set_max_delay [-rise_to to_list] [-fall_to to_list]
+  reset_path [-rise_to to_list] [-fall_to to_list]
+
+Release 1.6.2 2006/12/08
+------------------------
+
+The set_input_delay/set_output_delay -reference_pin option is now supported.
+
+  set_input_delay  -reference_pin pin [-clock clock] [-clock_fall]
+  set_output_delay -reference_pin pin [-clock clock] [-clock_fall]
+
+For propagated clocks, the input arrival time is relative to the clock
+arrival time at the reference pin (the clock source latency and
+network latency from the clock source to the reference pin). For ideal
+clocks, input arrival time is relative to the reference pin clock
+source latency.  With the -clock_fall flag the arrival time is
+relative to the falling transition at the reference pin.  If no clocks
+arrive at the reference pin the set_input_delay command is ignored.
+If no -clock is specified the arrival time is with respect to all
+clocks that arrive at the reference pin.
+
+The set_input_delay/set_output_delay -source_latency_included and
+-network_latency_included options are now supported.
+
+  set_input_delay [-source_latency_included] [-network_latency_included]
+  set_output_delay [-source_latency_included] [-network_latency_included]
+
+If -source_latency_included is not specified the clock source latency
+(insertion delay) is added to the delay value.
+
+If -network_latency_included is not specified and the clock is ideal
+the clock latency is added to the delay value.
+
+The set_clock_uncertainty command now supports -rise_from, -fall_from,
+-rise_to and -fall_to arguments.
+
+  set_clock_uncertainty [-from|-rise_from|-fall_from clocks]
+                        [-to|-rise_to|-fall_to clocks]
+
+The report_timing command now supports the -path_type
+full_clock_expanded option.  If the source or target clock is
+generated and propagated, the path from the clock source pin is also
+reported.
+
+  report_timing -path_type command|end|full|full_clock
+                           |full_clock_expanded|short|summary
+
+The report_timing command now supports the -rise_to and -fall_to
+arguments as alternative to using 
+-delay_type max_rise|min_rise|max_fall|min_fall.
+
+The report_timing command is now faster if only a -to argument is
+used.
+
+The report_min_pulse_width command is now supported.
+
+  report_min_pulse_width [-verbose] [-nosplit] 
+                         [-significant_digits digits] [pins]
+ 
+If no pins are specified all pins in the clock network with min pulse
+width checks are reported.
+
+The report_constraint command now supports the -min_pulse_width option.
+ report_constraint [-min_pulse_width]
+
+The set_min_pulse_width command is now supported.
+
+  set_min_pulse_width [-low] [-high] value objects
+
+Objects can be pins, instances, or clocks.  If -low and -high are not
+specified the minimum width applies to both high and low pulses.
+
+The report_clock command now takes a list of clock names to report.
+
+  report_clock [clock]
+
+The get_ports function now supports the -filter arguement.
+
+  get_ports [-filter expr]
+
+where "expr" is of the form
+  attribute ==|=~ value
+
+The only supported attribute for ports is direction.
+
+The timing_disable_internal_inout_cell_paths variable is now
+supported.  
+
+  timing_disable_internal_inout_cell_paths true|false
+
+The default value is "true".  When set to "true", paths from
+bidirectional (inout) ports back into the instance are disabled.  When
+set to "false", paths from bidirectional (inout) ports back into the
+instance are enabled.
+
+The -compatibility command line option is no longer supported.
+DC compatibility mode has been removed.
+
+Release 1.6.1 2006/10/04
+-------------------------
+
+The timing_disable_cond_default_arcs variable is now supported.
+
+  timing_disable_cond_default_arcs true|false
+
+When set to true, default timing arcs with no condition ("when"
+expression) are disabled if there are other conditional timing arcs
+between the same pins.  The default value is false.
+
+The remove_clock_transition command removes the clock transition time
+set with the set_clock_transition command.
+
+ remove_clock_transition clock_list
+
+The remove_clock_latency command removes the clock latency
+set with the set_clock_latency command.
+
+ remove_clock_latency [-source] object_list
+   object_list is a list of clocks, pins, or ports
+
+The liberty mode_definition and mode statements are now supported for
+case analysis.
+
+Incremental SDF delay annotation is now supported.  INCREMENT is
+allowed as an alias for INCREMENTAL.
+
+The get_pins "-of_object" argument has been renamed to "-of_objects"
+to match the SDC definition.
+
+Release 1.5.1 2006/05/16
+-------------------------
+
+No user visible or api changes.
+
+Release 1.5.0 2006/03/05
+-------------------------
+
+The read_min_max_lib command is no longer supported.  The read_liberty
+command now supports argument flags for min/max libraries.
+
+  read_liberty [-min] [-max] filename
+
+Libraries read with the -min flag are used for min path delay
+calculation and libraries read with the -max flag are used for max
+path delay calculation.
+
+Support for gcc 3.4.4 and swig 1.3.28 added.
+
+Release 1.4.4 2005/12/08
+-------------------------
+
+The current_instance command now supports non-null instance arguments.
+
+The set_load command now supports -rise and -fall options for
+transition specific loads.  The -rise and -fall options can not be
+used for net objects.
+
+The report_timing command -delay option has been renamed to -delay_type.
+
+The set_timing_derate command is now supported.
+
+  set_timing_derate [-early] [-late] [-clock] [-data] 
+                    [-net_delay] [-cell_delay] [-cell_check] derate
+
+Use the reset_timing_derate command to remove all derating factors.
+
+Paths that start at latches only report the path from the latch with a
+"time given to startpoint" rather than the entire path through the D
+to Q path of the latch.
+
+Liberty rise/fall_capacitance and rise/fall_capacitance_range
+attributes are now supported.
+
+The default_significant_digits variable has been renamed to
+report_default_significant_digits.
+
+Release 1.4.1 2005/05/20
+-------------------------
+
+The read_min_max_lib command is now supported.
+
+  read_min_max_lib -name name
+       -min liberty_min_file
+       [-min_operating_condition min_op_cond]
+       [-use_min_operating_condition min_op_cond_used]
+       -max liberty_max_file
+       [-max_operating_condition max_op_cond]
+       [-use_max_operating_condition min_op_cond_used]
+
+The read_min_max_lib merges the timing values from two liberty files
+together to create a new library used for multi-operating condition
+analysis.  The merged library is named with the -name argument.  The
+libraries named in liberty_min_file and liberty_max_file are not
+accessible after they are merged.
+
+The timing values in liberty_min_file are used at the operating
+conditions named min_op_cond (default MIN).  The min_op_cond operating
+conditions are from the operating condition min_op_cond_used in
+liberty_min_file.
+
+The timing values in liberty_max_file are used at the operating
+conditions named max_op_cond (default MAX).  The max_op_cond operating
+conditions are from the operating condition max_op_cond_used in
+liberty_max_file.
+
+Use the set_operating_conditions command to use the merged library
+timing values.
+
+  set_operating_conditions -analysis_type bc_wc|on_chip_variation
+     -min min_op_cond -max max_op_cond
+
+The read_parasitics command now supports multiple analysis points.
+
+  read_parasitics [-analysis_point ap]
+
+If ap is min the parasitics are used for min delay calculation
+If ap is max the parasitics are used for max delay calculation.
+If ap is min_max the parasitics are used for both min and max 
+delay calculation. The default value of ap is min_max.
+
+Along these same lines, if an OpenAccess has parasitics when it is
+read using the read_oa_db command, the STA looks for analysis points
+named "min" and "max".  If it finds both, they are used for
+corresponding min and max delay calculation.  If not, the STA looks
+for an analysis point named "min_max".  If found, it is used for min
+and max delay calculation.  
+
+Release 1.3.10 2005/04/04
+-------------------------
+
+The read_parasitics command now supports a coupling capacitance
+reduction factor, and an option to keep coupling capacitors.
+
+  read_parasitics [-keep_capacitive_coupling]
+		  [-coupling_reduction_factor factor]
+
+Coupling capacitances in parasitic networks are multiplied by the
+coupling factor when the parasitic is reduced.
+
+Release 1.3.6 2005/01/30
+------------------------
+
+OpenAccess support for multiple parasitic analysis points. The STA
+looks for an analysis point named "max" first, then "min".  If it
+finds both, they are used for corresponding min and max delay
+calculation.
+
+Release 1.3.2 2004/12/20
+------------------------
+
+OpenAccess 2.2 verilog2oa is now supported.  Include a file that
+contains Verilog modules for each of the Liberty library cells that
+defines the ports and their declarations.
+
+  verilog2oa -verilog "reg1.v liberty1.v" \
+	     -top top -lib reg1 -view verilog -blackBox
+
+This creates an EMH network for a module named "top" in the "verilog"
+view of the "reg1" library.  To read this database into the sta, use
+the following commands.
+
+  read_oa_db reg1 top verilog
+  read_liberty liberty1.lib
+
+Release 1.3.1 2004/12/15
+------------------------
+
+Keyword arguments for commands can down be abreviated.  For example
+
+  report_timing -sig 3
+
+can be used instead of 
+
+  report_timing -significant_digits 3
+
+The report_timing command now supports the -slack_lesser_than and
+-slack_greater_than arguments.
+
+The find command is now supported for compatibility with
+DesignCompiler(tm) scripts.
+
+  find [-hierarchy] [-flat] type patterns
+
+Supported types are port, net, pin, clock, library, lib_cell and lib_pin.
+
+Release 1.3.0 2004/12/03
+------------------------
+
+The report_constraint command is now supported.
+
+  report_constraint [-all_violators] [-verbose]
+                    [-path_type slack_only|end]
+                    [-max_delay] [-min_delay]
+                    [-recovery] [-removal]
+                    [-clock_gating_setup] [-clock_gating_hold]
+                    [-max_transition] [-min_transition]
+                    [-significant_digits digits] [-nosplit]
+                    [> filename] [>> filename]
+
+The reset_path command is now supported.
+
+  reset_path [-setup] [-hold] [-rise] [-fall] [-from from_list]
+     [-rise_from from_list] [-fall_from from_list]
+     [-through through_list] [-rise_through through_list]
+     [-fall_through through_list] [-to to_list]
+
+The reset_path command removes any matching set_false_path,
+set_multicycle_path, set_max_delay or set_min_delay commands.
+
+The set_false_path, set_multicycle_path, set_max_delay and
+set_min_delay commands now support the -reset_path option to delete
+matching exceptions before adding the exception being defined.
+
+The set_compatibilty command is no longer supported.  Use the
+compatibility command line option to set the compatibility mode.
+
+  sta -compatibility pt|dc
+
+The default compatibilty mode has been changed to "pt".
+
+Latch behavior is now controlled with the timing_latch_required_on_open
+variable.
+
+  timing_latch_required_on_open true|false
+
+The default value is true.  When false the required time for latches
+is the closing edge of the enable clock.  This is a more accurate
+choice for the required time because the setup check is also to the
+closing edge of the latch enable.
+
+The set_instance_pvt command is used to set the process, voltage and
+temperature for an instance in the design.
+
+  set_instance_pvt insts [-min] [-max] [-process process] 
+                   [-voltage voltage] [-temperature temperature]
+
+The process, voltage and temperature values default to the operating
+condition if they are not supplied.
+
+Release 1.2.17 2004/11/23
+-------------------------
+
+The timing_clock_gating_propagate_enable variable is now supported.
+
+  timing_clock_gating_propagate_enable true|false
+
+When set to true, paths of gated clock enables are propagated through
+the clock gating instance.  If the gated clock controls sequential
+elements setting timing_clock_gating_propagate_enable to false
+prevents spurious paths from the clock enable.  The default value is
+"true".
+
+The timing_enable_preset_clear_arcs variable is now supported.
+
+  timing_enable_preset_clear_arcs true|false
+
+When set to true, paths through asyncronous preset and clear timing
+arcs are searched.  The default value is "false".
+
+Liberty three dimensional tables are now supported.  
+
+Release 1.2.14 2004/10/30
+-------------------------
+
+The SDF reader now optionally supports pin and instances names that do
+not quote dividers in escaped names.
+
+  read_sdf [-unescaped_dividers]
+
+With the -unescaped_dividers flag, path names in the SDF do not have
+to escape hierarchy dividers when the path name is escaped.  For
+example, the escaped Verilog name "\inst1/inst2 " can be referenced as
+"inst1/inst2".  The correct SDF name is "inst1\/inst2", since the
+divider does not represent a change in hierarchy in this case.
+
+Release 1.2.10 2004/08/25
+-------------------------
+
+The all_registers command is now supported.
+
+all_registers [-clock clocks] [-rise_clock clocks] [-fall_clock clocks]
+              [-cells] [-data_pins] [-clock_pins] [-async_pins]
+              [-output_pins] [-level_sensitive] [-edge_triggered]
+
+Release 1.2.5 2004/04/17
+------------------------
+
+Suse Linux 64 bit port complete.
+
+Release 1.2.4 2004/04/01
+------------------------
+
+The set_max_time_borrow command is now supported.
+
+  set_max_time_borrow limit latch_instance|enable_pin|data_pin|clock
+
+The create_generated_clock -master_clock option is now supported.
+
+The set_data_check command is now supported.
+
+  set_data_check [-from from_object] [-rise_from from_object]
+                 [-fall_from from_object] [-to to_object] [-rise_to to_object]
+                 [-fall_to to_object] [-setup] [-hold] [-clock clock_object]
+                 value
+
+Release 1.2.2 2004/01/13
+------------------------
+
+The group_path command is now supported.
+
+ group_path -name group_name [-weight weight] [-critical_range range]
+     [-from from_list] [-through through_list] [-to to_list]}
+
+The -weight and -critical_range arguements are ignored.
+
+Differing driver and slew liberty library slew thresholds are now
+supported.
+
+The report_timing -path_type "end" and "summary" are now supported.
+
+The set_driving_cell command -min and -max options are now supported.
+
+The read_parasitics command now supports parasitic network reduction
+after each net is read, substantially reducing the memory footprint
+required to store the parasitics.
+
+  read_parasitics -reduce_to pi_elmore|pi_pole_residue2 -delete_after_reduce 
+
+The parasitics can be reduced to a pi/elmore (rspf) model or a second
+order pi/pole/residue model.
+
+Release 1.1.7 2003/10/19
+------------------------
+
+The echo command is similar to the tcl "put" command and supports
+redirection.
+
+  echo [-n] args...
+
+The set_annotated_delay and set_annotated_transition commands are now
+supported.
+
+  set_annotated_delay -cell|-net [-rise] [-fall] [-min] [-max] 
+    [-from from_pins] [-to to_pins] delay
+
+  set_annotated_transition [-rise] [-fall] [-min] [-max] slew pin_list
+
+Liberty timing group conditional "when" expressions are now supported.
+
+The create_clock -add option to define multiple clocks on a pin is now
+supported.
+
+The following SDC commands are parsed and ignored.
+
+  set_max_dynamic_power
+  set_max_leakage_power
+  set_min_porocity 
+
+Release 1.1.6 2003/08/02
+------------------------
+
+Release 1.1.5 2003/07/11
+------------------------
+
+The source command now supports output redirection.
+
+  source [-echo] [-verbose] filename [> filename] [>> filename]
+
+Release 1.1.4 2003/06/10
+------------------------
+
+The report_timing -path_type option is now supported.
+
+  report_timing [-path_type short|full|full_clock]
+
+The following variable are now supported for analysis type
+on_chip_variation:
+
+  timing_remove_clock_reconvergence_pessimism false|true
+  timing_clock_reconvergence_pessimism normal|same_transition
+
+Release 1.1.3 2003/05/06
+------------------------
+
+The allocate_budgets command now has a -no_driving_cells option to
+suppress the inclusion of set_driving_cell commands in the budget
+constraint files.  This is useful when the driving cell libraries are
+not available in the tools that use the budget.
+
+SDF COND support added.
+
+The read_edif command has additional arguments to support the confused
+world of fpgas.
+
+read_edif [-cell_name cell_name] [-ignore_libraries] 
+          [-group_bus_ports] filename
+
+ -cell_name overrides cell name for any cell that has a contents section.
+ -ignore_libraries ignores library names.
+    All cells that do not already have a definition are built in 
+    the edif library.  libraryRefs search all libraries for the cell
+    named in the cellRef.
+ -group_bus_ports groups bus ports that are individually defined
+    into a bus as if they were defined using an array.
+
+Release 1.1.2 2003/03/07
+------------------------
+
+The report_timing -nets option is now supported.
+
+The report_clock command reports the period and waveform for all of
+the clocks.
+
+A mode to control compatibility is now supported from the command line
+or as a TCL command.
+  sta [-compatibility native|pt|dc]
+  set_compatibility native|pt|dc
+
+The read_edif command reads an edif netlist.
+
+Release 1.1.1 2003/01/20
+------------------------
+	
+The read_spf command has been replaced by the read_parasitics command,
+which reads rspf, dspf and spef format files.
+	
+The set_timing_disable command now supports library cell and port arguments.
+	
+The liberty reader now supports the following
+  bus_naming_style
+  variable = value;
+
+The following network editing commands are now supported:
+  connect_net net pins_ports
+  create_cell cell_names lib_cell_name
+  create_net net_list
+  disconnect_net net pins_ports|-all
+  remove_cell cell_list
+  remove_net net_list
+  swap_cell cell_list swap_in
+
+Release 1.1.0 2002/02/12
+------------------------
+
+The report_timing command -nworst option reports more than one path
+per endpoint.  The default value of path_end_count is 1.
+
+  report_timing -nworst path_end_count
+
+Gated clock timing checks are disabled unless a set_clock_gating_check
+command has been executed.
+
+The following SDC commands are now supported.
+ create_generated_clock
+ get_pins -hsc
+ get_nets -hsc
+ hierarchy_separator variable
+ set_case_analysis
+ set_drive
+ set_drive_resistance (alias for set_drive)
+ set_hierarchy_separator
+ set_max_area
+ set_max_capacitance
+ set_max_fanout
+ set_max_transition
+ set_min_capacitance
+ set_min_fanout
+ set_resistance
+
+The check_timing command now has options to control which checks are
+performed.
+
+  check_timing [-verbose] [-unconstrained_endpoints] [-multiple_clock] 
+      [-no_clock] [-no_input_delay] [-loops] [-generated_clocks]
+      [> filename] [>> filename]
+
+The allocate_budgets command now has a -no_timestamp option to
+suppress insertiing the date and time into the context files.
+
+The write_sdc command is now supported.
+	
+  write_sdc [-no_timestamp] filename
+
+Interface Logic Model (ILM) support has been added with the
+identify_interface_logic and write_ilm_netlist commands.
+
+  identify_interface_logic [-ignore_ports ports_list] [-auto_ignore] 
+                           [-latch_level level] [-remove_disabled_logic]
+
+  write_ilm_netlist [-include_all_net_pins] [-verbose] filename
+	
+Release 1.0.19 2002/04/24
+-------------------------
+
+The help command finds commands matching a pattern and shows their arguments.
+
+  help pattern
+
+
+set_clock_gating_check -high -low arguments are now supported.
+
+The following commands have been renamed:
+ show_cell      report_lib_cell
+ show_pin       report_pin
+ show_net       report_net
+ show_instance  report_instance or report_cell
+ show_path      report_path
+ show_arrival   report_arrival
+ show_edges     report_edges
+
+report_delay_calculation now has a -significant_digits argument.
+
+All printing commands now support file redirection.
+
+# Local Variables:
+# mode:text
+# End:

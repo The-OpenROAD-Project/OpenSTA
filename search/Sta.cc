@@ -852,16 +852,17 @@ Sta::setInputSlew(Port *port,
 }
 
 void
-Sta::setDriveCell(Port *port,
+Sta::setDriveCell(LibertyLibrary *library,
 		  LibertyCell *cell,
+		  Port *port,
 		  LibertyPort *from_port,
 		  float *from_slews,
 		  LibertyPort *to_port,
 		  const TransRiseFallBoth *tr,
 		  const MinMaxAll *min_max)
 {
-  sdc_->setDriveCell(port, cell, from_port, from_slews, to_port,
-			     tr, min_max);
+  sdc_->setDriveCell(library, cell, port, from_port, from_slews, to_port,
+		     tr, min_max);
   delaysInvalidFrom(port);
 }
 
@@ -2076,12 +2077,12 @@ Sta::constraintsChanged()
 
 void
 Sta::writeSdc(const char *filename,
-	      bool native,
+	      bool compatible,
 	      bool no_timestamp,
 	      int digits)
 {
   sta::writeSdc(network_->topInstance(), filename, "write_sdc",
-		native, no_timestamp, digits, sdc_);
+		compatible, no_timestamp, digits, sdc_);
 }
 
 ////////////////////////////////////////////////////////////////

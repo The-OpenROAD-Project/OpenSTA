@@ -16,7 +16,7 @@
 
 #include <stdio.h>
 #include "Machine.hh"
-#include "config.h"  // VERSION
+#include "StaConfig.hh"  // STA_VERSION
 #include "StringUtil.hh"
 #include "Sta.hh"
 #include "StaMain.hh"
@@ -39,7 +39,7 @@ main(int argc, char **argv)
     return 0;
   }
   else if (argc == 2 && stringEq(argv[1], "-version")) {
-    printf("%s\n", VERSION);
+    printf("%s\n", STA_VERSION);
     return 0;
   }
   else {

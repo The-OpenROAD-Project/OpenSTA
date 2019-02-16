@@ -213,6 +213,7 @@ proc parse_rise_fall_arg { arg } {
 proc parse_report_path_options { cmd args_var default_format
 				 unknown_key_is_error } {
   variable path_options
+  variable report_path_field_width_extra
   global sta_report_default_digits
 
   upvar 1 $args_var args
@@ -242,6 +243,11 @@ proc parse_report_path_options { cmd args_var default_format
   }
   set path_options(num_fmt) "%.${digits}f"
   set_report_path_digits $digits
+  # Numberic field width expands with digits.
+  set field_width [expr $digits + $report_path_field_width_extra]
+  foreach field {total incr capacitance slew} {
+    set_report_path_field_width $field $field_width
+  }
 
   if { [info exists path_options(-fields)] } {
     set fields $path_options(-fields)

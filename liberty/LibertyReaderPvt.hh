@@ -190,8 +190,8 @@ public:
   virtual void beginBundle(LibertyGroup *group);
   virtual void endBundle(LibertyGroup *group);
   virtual void beginBusOrBundle(LibertyGroup *group);
-  virtual void endBusOrBundle(LibertyGroup *group);
-  virtual void endPorts(LibertyGroup *group);
+  virtual void endBusOrBundle();
+  virtual void endPorts();
   virtual void setPortCapDefault(LibertyPort *port);
   virtual void setPortDefaults(LibertyPort *port);
   virtual void visitMembers(LibertyAttr *attr);

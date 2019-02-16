@@ -756,16 +756,17 @@ Sdc::deleteDeratingFactors()
 ////////////////////////////////////////////////////////////////
 
 void
-Sdc::setDriveCell(Port *port,
+Sdc::setDriveCell(LibertyLibrary *library,
 		  LibertyCell *cell,
+		  Port *port,
 		  LibertyPort *from_port,
 		  float *from_slews,
 		  LibertyPort *to_port,
 		  const TransRiseFallBoth *tr,
 		  const MinMaxAll *min_max)
 {
-  ensureInputDrive(port)->setDriveCell(cell, from_port, from_slews, to_port,
-				       tr, min_max);
+  ensureInputDrive(port)->setDriveCell(library, cell, from_port, from_slews,
+				       to_port, tr, min_max);
 }
 
 void
@@ -2069,6 +2070,12 @@ Sdc::makeClockGroup(ClockGroups *clk_groups,
 		    ClockSet *clks)
 {
   clk_groups->makeClockGroup(clks);
+}
+
+ClockGroupIterator *
+Sdc::clockGroupIterator()
+{
+  return new ClockGroupIterator(clk_groups_name_map_);
 }
 
 void
@@ -5990,15 +5997,6 @@ Sdc::setWireloadMode(WireloadMode mode)
 WireloadMode
 Sdc::wireloadMode()
 {
-  if (wireload_mode_ == wire_load_mode_unknown) {
-    // Look for a default.
-    LibertyLibrary *lib = network_->defaultLibertyLibrary();
-    if (lib) {
-      WireloadMode default_mode = lib->defaultWireloadMode();
-      if (default_mode != wire_load_mode_unknown)
-	wireload_mode_ = default_mode;
-    }
-  }
   return wireload_mode_;
 }
 

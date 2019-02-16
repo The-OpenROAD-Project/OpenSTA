@@ -127,7 +127,7 @@ define_cmd_args "write_sdc" \
 
 proc write_sdc { args } {
   parse_key_args "write_sdc" args keys {-digits -significant_digits} \
-    flags {-native -no_timestamp}
+    flags {-compatible -no_timestamp}
   check_argc_eq1 "write_sdc" $args
 
   set digits 4
@@ -141,8 +141,8 @@ proc write_sdc { args } {
 
   set filename [file nativename [lindex $args 0]]
   set no_timestamp [info exists flags(-no_timestamp)]
-  set native [info exists flags(-native)]
-  write_sdc_cmd $filename $native $no_timestamp $digits
+  set compatible [info exists flags(-native)]
+  write_sdc_cmd $filename $compatible $no_timestamp $digits
 }
 
 ################################################################
@@ -2223,21 +2223,22 @@ proc set_driving_cell { args } {
   set min_max [parse_min_max_all_flags flags]
 
   # -cell is an undocumented non-sdc alias for -lib_cell.
-  if [info exists keys(-cell)] {
+  if { [info exists keys(-cell)] } {
     set keys(-lib_cell) $keys(-cell)
   }
 
-  if [info exists keys(-lib_cell)] {
+  if { [info exists keys(-lib_cell)] } {
     set cell_name $keys(-lib_cell)
-    if [info exists keys(-library)] {
-      set liberty [get_liberty_error "library" $keys(-library)]
-      set liberty_cell [$liberty find_liberty_cell $cell_name]
-      if { $liberty_cell == "NULL" } {
+    if { [info exists keys(-library)] } {
+      set library [get_liberty_error "library" $keys(-library)]
+      set cell [$library find_liberty_cell $cell_name]
+      if { $cell == "NULL" } {
 	sta_error "cell '$lib_name:$cell_name' not found."
       }
     } else {
-      set liberty_cell [find_liberty_cell $cell_name]
-      if { $liberty_cell == "NULL" } {
+      set library "NULL"
+      set cell [find_liberty_cell $cell_name]
+      if { $cell == "NULL" } {
 	sta_error "'$cell_name' not found."
       }
     }
@@ -2248,12 +2249,12 @@ proc set_driving_cell { args } {
   set to_port "NULL"
   if [info exists keys(-pin)] {
     set to_port_name $keys(-pin)
-    set to_port [$liberty_cell find_liberty_port $to_port_name]
+    set to_port [$cell find_liberty_port $to_port_name]
     if { $to_port == "NULL" } {
       sta_error "port '$to_port_name' not found."
     }
   } else {
-    set port_iter [$liberty_cell liberty_port_iterator]
+    set port_iter [$cell liberty_port_iterator]
     set output_count 0
     while {[$port_iter has_next]} {
       set port [$port_iter next]
@@ -2275,7 +2276,7 @@ proc set_driving_cell { args } {
   set from_port "NULL"
   if [info exists keys(-from_pin)] {
     set from_port_name $keys(-from_pin)
-    set from_port [$liberty_cell find_liberty_port $from_port_name]
+    set from_port [$cell find_liberty_port $from_port_name]
     if { $from_port == "NULL" } {
       sta_error "port '$from_port_name' not found."
     }
@@ -2308,7 +2309,7 @@ proc set_driving_cell { args } {
 
   set ports [get_ports_error "ports" [lindex $args 0]]
   foreach port $ports {
-    set_drive_cell_cmd $port $liberty_cell $from_port \
+    set_drive_cell_cmd $library $cell $port $from_port \
        $from_slew_rise $from_slew_fall $to_port $tr $min_max
   }
 }

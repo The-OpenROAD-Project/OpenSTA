@@ -27,7 +27,9 @@ template<class Iterator, class Func>
 class ForEachArg {
 public:
   ForEachArg() {}
-  ForEachArg(Iterator *iter, Mutex *lock, Func *func) :
+  ForEachArg(Iterator *iter,
+	     Mutex *lock,
+	     Func *func) :
     iter_(iter),
     lock_(lock),
     func_(func)
@@ -64,7 +66,9 @@ forEachBegin(void *arg)
 // Parallel version of STL for_each.
 template<class Iterator, class Func, class FuncArg>
 void
-forEach(Iterator *iter, Func *func, int thread_count)
+forEach(Iterator *iter,
+	Func *func,
+	int thread_count)
 {
   if (thread_count <= 1) {
     while (iter->hasNext())
@@ -90,7 +94,9 @@ forEach(Iterator *iter, Func *func, int thread_count)
 // Func::copy() must be defined.
 template<class Iterator, class Func, class FuncArg>
 void
-forEach2(Iterator *iter, Func *func, int thread_count)
+forEach2(Iterator *iter,
+	 Func *func,
+	 int thread_count)
 {
   if (thread_count <= 1) {
     while (iter->hasNext())

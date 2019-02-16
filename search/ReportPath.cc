@@ -87,7 +87,6 @@ ReportField::setProperties(const char *title,
   setWidth(width);
 }
 
-
 void
 ReportField::setWidth(int width)
 {
@@ -95,9 +94,9 @@ ReportField::setWidth(int width)
 
   if (blank_)
     stringDelete(blank_);
-  blank_ = new char[width + 1];
+  blank_ = new char[width_ + 1];
   int i;
-  for (i = 0; i < width; i++)
+  for (i = 0; i < width_; i++)
     blank_[i] = ' ';
   blank_[i] = '\0';
 }
@@ -114,20 +113,19 @@ const float ReportPath::field_blank_ = -1.0;
 
 ReportPath::ReportPath(StaState *sta) :
   StaState(sta),
-  start_end_pt_width_(78),
+  format_(report_path_full),
+  no_split_(false),
+  start_end_pt_width_(80),
   plus_zero_(NULL),
   minus_zero_(NULL)
 {
-  makeFields();
-  setPathFormat(report_path_full);
-  setReportFields(false, false, false, false);
   setDigits(2);
-  setNoSplit(false);
+  makeFields();
+  setReportFields(false, false, false, false);
 }
 
 ReportPath::~ReportPath()
 {
-  delete fields_;
   delete field_description_;
   delete field_total_;
   delete field_incr_;
@@ -144,16 +142,19 @@ ReportPath::~ReportPath()
 void
 ReportPath::makeFields()
 {
-  fields_ = new ReportFieldSeq;
-  field_fanout_ = makeField("fanout", "Fanout", 10, false, NULL, true);
-  field_capacitance_ = makeField("capacitance", "Cap", 10, false,
+  field_fanout_ = makeField("fanout", "Fanout", 5, false, NULL, true);
+  field_capacitance_ = makeField("capacitance", "Cap", 6, false,
 				 units_->capacitanceUnit(), true);
-  field_slew_ = makeField("slew", "Slew", 10, false, units_->timeUnit(), true);
-  field_incr_ = makeField("incr", "Delay", 10, false, units_->timeUnit(), true);
-  field_total_ = makeField("total", "Time", 10, false, units_->timeUnit(), true);
+  field_slew_ = makeField("slew", "Slew", 6, false, units_->timeUnit(),
+			  true);
+  field_incr_ = makeField("incr", "Delay", 6, false, units_->timeUnit(),
+			  true);
+  field_total_ = makeField("total", "Time", 6, false, units_->timeUnit(),
+			   true);
   field_edge_ = makeField("edge", "", 1, false, NULL, true);
-  field_case_ = makeField("case", "case", 10, false, NULL, false);
-  field_description_ = makeField("description", "Description", 36, true, NULL, true);
+  field_case_ = makeField("case", "case", 11, false, NULL, false);
+  field_description_ = makeField("description", "Description", 36, 
+				 true, NULL, true);
 }
 
 ReportField *
@@ -166,7 +167,7 @@ ReportPath::makeField(const char *name,
 {
   ReportField *field = new ReportField(name, title, width, left_justify,
 				       unit, enabled);
-  fields_->push_back(field);
+  fields_.push_back(field);
   return field;
 }
 
@@ -192,12 +193,12 @@ ReportPath::setReportFieldOrder(StringSeq *field_names)
     field->setEnabled(false);
   }
 
-  ReportFieldSeq *next_fields = new ReportFieldSeq;
+  ReportFieldSeq next_fields;
   StringSeq::Iterator name_iter(field_names);
   while (name_iter.hasNext()) {
     const char *field_name = name_iter.next();
     ReportField *field = findField(field_name);
-    next_fields->push_back(field);
+    next_fields.push_back(field);
     field->setEnabled(true);
   }
   // Push remaining disabled fields on the end.
@@ -205,10 +206,15 @@ ReportPath::setReportFieldOrder(StringSeq *field_names)
   while (field_iter2.hasNext()) {
     ReportField *field = field_iter2.next();
     if (!field->enabled())
-      next_fields->push_back(field);
+      next_fields.push_back(field);
   }
-  delete fields_;
-  fields_ = next_fields;
+
+  fields_.clear();
+  ReportFieldSeq::Iterator field_iter3(next_fields);
+  while (field_iter3.hasNext()) {
+    ReportField *field = field_iter3.next();
+    fields_.push_back(field);
+  }
 }
 
 void
@@ -2982,18 +2988,18 @@ ReportPath::reportLine(const char *what,
 		       string &result)
 {
   ReportFieldSeq::Iterator field_iter(fields_);
-  bool first_field = true;
+  int field_index = 0;
   while (field_iter.hasNext()) {
     ReportField *field = field_iter.next();
+    bool first_field = field_index == 0;
+    bool last_field = field_index == fields_.size() - 1;
+    
     if (field->enabled()) {
-      if (!first_field
-	  // Compatibility kludge; suppress trailing whitespace for edge.
-	  && field != field_edge_)
+      if (!first_field)
 	result += ' ';
-      first_field = false;
 
       if (field == field_description_)
-	reportDescription(what, result);
+	reportDescription(what, first_field, last_field, result);
       else if (field == field_fanout_) {
 	if (fanout == field_blank_)
 	  reportFieldBlank(field, result);
@@ -3027,7 +3033,9 @@ ReportPath::reportLine(const char *what,
       }
       else if (field == field_case_ && line_case)
 	result += line_case;
+
     }
+    field_index++;
   }
   reportEndOfLine(result);
 }
@@ -3084,14 +3092,25 @@ void
 ReportPath::reportDescription(const char *what,
 			      string &result)
 {
+  reportDescription(what, false, false, result);
+}
+
+void
+ReportPath::reportDescription(const char *what,
+			      bool first_field,
+			      bool last_field,
+			      string &result)
+{
   result += what;
   int length = strlen(what);
-  if (!no_split_ && length > field_description_->width()) {
+  if (!no_split_
+      && first_field
+      && length > field_description_->width()) {
     reportEndOfLine(result);
     for (int i = 0; i < field_description_->width(); i++)
       result += ' ';
   }
-  else {
+  else if (!last_field) {
     for (int i = length; i < field_description_->width(); i++)
       result += ' ';
   }

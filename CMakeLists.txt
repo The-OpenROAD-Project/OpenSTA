@@ -16,7 +16,7 @@
 
 cmake_minimum_required (VERSION 3.9)
 
-project(STA VERSION 2.0.6)
+project(STA VERSION 2.0.7)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 11)
@@ -436,13 +436,19 @@ set(STA_SWIG_FILES
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads)
-set(HAVE_PTHREADS ${CMAKE_USE_PTHREADS_INIT})
-if (HAVE_PTHREADS)
+set(PTHREADS ${CMAKE_USE_PTHREADS_INIT})
+if (PTHREADS)
   message(STATUS "Found pthreads")
 endif()
 
 # Zlib
 include(FindZLIB)
+# translate cmake bool to ifdef bool
+if (ZLIB_FOUND)
+  set(ZLIB 1)
+else()
+  set(ZLIB 0)
+endif()
 
 ################################################################
 #
@@ -457,12 +463,13 @@ if("${CUDD}" STREQUAL "")
   set(CUDD_INCLUDE "")
   set(CUDD_LIB "")
   set(CUDD_FOUND FALSE)
+  set(CUDD 0)
 else()
   set(CUDD_INCLUDE ${CUDD}/include)
   find_library(CUDD_LIB NAMES cudd PATHS ${CUDD}/lib)
   if (CUDD_LIB)
-    # CUDD_FOUND referenced by config.h.cmake
-    set(CUDD_FOUND TRUE)
+     # CUDD referenced by StaConfig.hh.cmake
+    set(CUDD 1)
     message(STATUS "CUDD library: ${CUDD_LIB}")
   endif()
 endif()
@@ -473,8 +480,8 @@ endif()
 message(STATUS "Enable SSTA: ${SSTA}")
 
 # configure a header file to pass some of the CMake settins
-configure_file(${STA_HOME}/config.h.cmake
-		${STA_HOME}/config.h
+configure_file(${STA_HOME}/util/StaConfig.hh.cmake
+		${STA_HOME}/util/StaConfig.hh
 		)
 
 
@@ -651,7 +658,6 @@ set(STA_INCLUDE_DIRS
 	search
 	util
 	verilog
-	.	# config.h
 	${TCL_HEADER_DIR}
 	${CUDD_INCLUDE}
 )

@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <windows.h> // GetSystemInfo
 #include "Machine.hh"
-#include "config.h"
+#include "StaConfig.hh"
 
 namespace sta {
 
@@ -95,7 +95,7 @@ memoryUsage()
 #include <sys/time.h>
 #include <sys/resource.h>
 #include "Machine.hh"
-#include "config.h"
+#include "StaConfig.hh"
 #include "StringUtil.hh"
 
 namespace sta {

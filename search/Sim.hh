@@ -18,7 +18,7 @@
 #define STA_SIM_H
 
 #include <queue>
-#include "config.h"  // CUDD
+#include "StaConfig.hh"  // CUDD
 #include "DisallowCopyAssign.hh"
 #include "Map.hh"
 #include "Mutex.hh"
@@ -131,6 +131,7 @@ protected:
   DdNode *funcBdd(const FuncExpr *expr,
 		  const Instance *inst) const;
   DdNode *ensureNode(LibertyPort *port) const;
+  void clearSymtab() const;
 
   DdManager *cudd_manager_;
   mutable BddSymbolTable symtab_;
