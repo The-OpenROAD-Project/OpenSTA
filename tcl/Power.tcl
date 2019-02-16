@@ -42,9 +42,10 @@ proc_redirect report_power {
   set corner [parse_corner keys]
 
   if { [info exists keys(-instances)] } {
-    set insts [get_instance_error "-cell" $keys(-instances)]
+    set insts [get_instances_error "-instances" $keys(-instances)]
     foreach inst $insts {
       report_power_inst $inst $corner $digits
+      puts ""
     }
   } else {
     report_power_design $corner $digits
@@ -107,16 +108,20 @@ proc report_power_col_percent { col_total total } {
 
 proc report_power_inst { inst corner digits } {
   puts "Instance: [get_full_name $inst]"
-  set cell [instance_property $inst "liberty_cell"]
-  puts "Cell: [get_name $cell]"
-  set library [liberty_cell_property $cell "library"]
-  puts "Liberty file: [liberty_library_property $library filename]"
-  set power_result [instance_power $inst $corner]
-  lassign $power_result internal switching leakage total
-  report_power_line "Internal power" $internal $digits
-  report_power_line "Switching power" $switching $digits
-  report_power_line "Leakage power" $leakage $digits
-  report_power_line "Total power" $total $digits
+  set cell [get_property $inst "liberty_cell"]
+  if { $cell != "NULL" } {
+    puts "Cell: [get_name $cell]"
+    set library [get_property $cell "library"]
+    puts "Library file: [get_property $library filename]"
+    set power_result [instance_power $inst $corner]
+    lassign $power_result internal switching leakage total
+    report_power_line "Internal power" $internal $digits
+    report_power_line "Switching power" $switching $digits
+    report_power_line "Leakage power" $leakage $digits
+    report_power_line "Total power" $total $digits
+  } else {
+    sta_error "[get_full_name $inst] is not a liberty cell instance."
+  }
 }
 
 proc report_power_line { type pwr digits } {

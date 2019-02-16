@@ -1578,6 +1578,12 @@ using namespace sta;
     Tcl_SetObjResult(interp, obj);
   }
     break;
+  case PropertyValue::Type::type_library: {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(value.library(),
+				       SWIGTYPE_p_Library, false);
+    Tcl_SetObjResult(interp, obj);
+  }
+    break;
   case PropertyValue::Type::type_cell: {
     Tcl_Obj *obj = SWIG_NewInstanceObj(value.cell(),
 				       SWIGTYPE_p_Cell, false);

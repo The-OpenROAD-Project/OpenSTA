@@ -33,7 +33,8 @@ class PropertyValue
 {
 public:
   enum Type { type_none, type_string, type_float,
-	      type_liberty_library, type_liberty_cell, type_cell,
+	      type_liberty_library, type_liberty_cell,
+	      type_library, type_cell,
 	      type_instance, type_pin, type_pins, type_net,
 	      type_clock, type_clocks, type_path_refs };
   PropertyValue();
@@ -43,6 +44,7 @@ public:
   PropertyValue(LibertyLibrary *value);
   PropertyValue(LibertyCell *value);
   PropertyValue(Cell *value);
+  PropertyValue(Library *value);
   PropertyValue(Instance *value);
   PropertyValue(Pin *value);
   PropertyValue(PinSeq *value);
@@ -60,6 +62,7 @@ public:
   float floatValue() const { return float_; }
   LibertyLibrary *libertyLibrary() const { return liberty_library_; }
   LibertyCell *libertyCell() const { return liberty_cell_; }
+  Library *library() const { return library_; }
   Cell *cell() const { return cell_; }
   Instance *instance() const { return inst_; }
   Pin *pin() const { return pin_; }
@@ -78,6 +81,7 @@ private:
   float float_;
   LibertyLibrary *liberty_library_;
   LibertyCell *liberty_cell_;
+  Library *library_;
   Cell *cell_;
   Instance *inst_;
   Pin *pin_;

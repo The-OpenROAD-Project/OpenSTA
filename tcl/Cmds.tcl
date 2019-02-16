@@ -1773,7 +1773,9 @@ proc get_property_cmd { cmd type_key cmd_args } {
   set quiet [info exists flags(-quiet)]
   check_argc_eq2 $cmd $cmd_args
   set object [lindex $cmd_args 0]
-  if { ![is_object $object] } {
+  if { $object == "" } {
+    sta_error "$cmd object is null."
+  } elseif { ![is_object $object] } {
     if [info exists keys($type_key)] {
       set object_type $keys($type_key)
     } else {

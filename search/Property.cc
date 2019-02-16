@@ -68,6 +68,35 @@ delayPropertyValue(Delay delay,
 
 ////////////////////////////////////////////////////////////////
 
+class PropertyUnknown : public StaException
+{
+public:
+  PropertyUnknown(const char *type,
+		  const char *property);
+  virtual ~PropertyUnknown() THROW_DCL {}
+  virtual const char *what() const throw();
+
+private:
+  const char *type_;
+  const char *property_;
+};
+
+PropertyUnknown::PropertyUnknown(const char *type,
+				 const char *property) :
+  type_(type),
+  property_(property)
+{
+}
+
+const char *
+PropertyUnknown::what() const throw()
+{
+  return stringPrint("%s objects do not have a %s property.",
+		     type_, property_);
+}
+
+////////////////////////////////////////////////////////////////
+
 PropertyValue::PropertyValue() :
   type_(type_none)
 {
@@ -107,6 +136,13 @@ PropertyValue::PropertyValue(LibertyCell *value) :
 {
   init();
   liberty_cell_ = value;
+}
+
+PropertyValue::PropertyValue(Library *value) :
+  type_(type_library)
+{
+  init();
+  library_ = value;
 }
 
 PropertyValue::PropertyValue(Cell *value) :
@@ -195,6 +231,7 @@ PropertyValue::PropertyValue(const PropertyValue &value) :
   float_(value.float_),
   liberty_library_(value.liberty_library_),
   liberty_cell_(value.liberty_cell_),
+  library_(value.library_),
   cell_(value.cell_),
   inst_(value.inst_),
   pin_(value.pin_),
@@ -239,6 +276,7 @@ PropertyValue::operator=(const PropertyValue &value)
   float_ = value.float_;
   liberty_library_ = value.liberty_library_;
   liberty_cell_ = value.liberty_cell_;
+  library_ = value.library_;
   cell_ = value.cell_;
   inst_ = value.inst_;
   pin_ = value.pin_;
@@ -265,7 +303,7 @@ getProperty(const Library *lib,
     return PropertyValue(network->filename(lib));
 #endif
   else
-    return PropertyValue();
+    throw PropertyUnknown("library", property);
 }
 
 PropertyValue
@@ -279,7 +317,7 @@ getProperty(const LibertyLibrary *lib,
   else if (stringEqual(property, "filename"))
     return PropertyValue(lib->filename());
   else
-    return PropertyValue();
+    throw PropertyUnknown("liberty library", property);
 }
 
 PropertyValue
@@ -307,7 +345,7 @@ getProperty(const LibertyCell *cell,
   else if (stringEqual(property, "library"))
     return PropertyValue(cell->libertyLibrary());
   else
-    return PropertyValue();
+    throw PropertyUnknown("liberty cell", property);
 }
 
 PropertyValue
@@ -330,10 +368,12 @@ getProperty(const Cell *cell,
 		cell_name);
     return PropertyValue(full_name);
   }
+  else if (stringEqual(property, "library"))
+    return PropertyValue(network->library(cell));
   else if (stringEqual(property, "filename"))
     return PropertyValue(network->filename(cell));
   else
-    return PropertyValue();
+    throw PropertyUnknown("cell", property);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -369,7 +409,7 @@ getProperty(const Port *port,
     return portSlackProperty(port, TransRiseFall::rise(), MinMax::max(), sta);
 
   else
-    return PropertyValue();
+    throw PropertyUnknown("port", property);
 }
 
 static PropertyValue
@@ -408,36 +448,7 @@ getProperty(const LibertyPort *port,
   else if (stringEqual(property, "direction"))
     return PropertyValue(port->direction()->name());
   else
-    return PropertyValue();
-}
-
-////////////////////////////////////////////////////////////////
-
-class PropertyError : public StaException
-{
-public:
-  PropertyError(const char *type,
-		const char *property);
-  virtual const char *what() const throw();
-
-protected:
-  const char *type_;
-  const char *property_;
-};
-
-PropertyError::PropertyError(const char *type,
-			     const char *property) :
-  type_(type),
-  property_(property)
-{
-}
-
-const char *
-PropertyError::what() const throw()
-{
-  // leak
-  return stringPrint("%s objects do not have a %s property.",
-		     type_, property_);
+    throw PropertyUnknown("liberty port", property);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -459,7 +470,7 @@ getProperty(const Instance *inst,
   else if (stringEqual(property, "cell"))
     return PropertyValue(network->cell(inst));
   else
-    throw PropertyError("instance", property);
+    throw PropertyUnknown("instance", property);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -501,7 +512,7 @@ getProperty(const Pin *pin,
     return pinSlewProperty(pin, TransRiseFall::fall(), MinMax::min(), sta);
 
   else
-    throw PropertyError("pin", property);
+    throw PropertyUnknown("pin", property);
 }
 
 static PropertyValue
@@ -548,7 +559,7 @@ getProperty(const Net *net,
   if (stringEqual(property, "full_name"))
     return PropertyValue(network->pathName(net));
   else
-    throw PropertyError("net", property);
+    throw PropertyUnknown("net", property);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -580,7 +591,7 @@ getProperty(Edge *edge,
   else if (stringEqual(property, "to_pin"))
     return PropertyValue(edge->to(sta->graph())->pin());
   else
-    throw PropertyError("edge", property);
+    throw PropertyUnknown("edge", property);
 }
 
 static PropertyValue
@@ -631,7 +642,7 @@ getProperty(TimingArcSet *arc_set,
     return PropertyValue(name);
   }
   else
-    throw PropertyError("timing arc", property);
+    throw PropertyUnknown("timing arc", property);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -651,7 +662,7 @@ getProperty(Clock *clk,
   else if (stringEqual(property, "propagated"))
     return PropertyValue(clk->isPropagated() ? "1" : "0");
   else
-    throw PropertyError("clock", property);
+    throw PropertyUnknown("clock", property);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -685,7 +696,7 @@ getProperty(PathEnd *end,
     return PropertyValue(&paths);
   }
   else
-    throw PropertyError("path end", property);
+    throw PropertyUnknown("path end", property);
 }
 
 PropertyValue
@@ -702,7 +713,7 @@ getProperty(PathRef *path,
   else if (stringEqual(property, "slack"))
     return PropertyValue(delayPropertyValue(path->slack(sta), sta));
   else
-    throw PropertyError("path", property);
+    throw PropertyUnknown("path", property);
 }
 
 static float
