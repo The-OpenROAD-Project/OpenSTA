@@ -30,8 +30,6 @@ typedef sta::Vector<SwigInitFunc> SwigInitFuncSeq;
 static int sta_argc;
 static char **sta_argv;
 static SwigInitFunc sta_swig_init;
-static bool sta_native_cmds;
-static bool sta_compatibility_cmds;
 
 static const char *init_filename = "[file join $env(HOME) .sta]";
 extern const char *tcl_inits[];
@@ -57,10 +55,7 @@ staMain(Sta *sta,
   if (threads_exists)
     sta->setThreadCount(thread_count);
 
-  bool native_cmds, compatibility_cmds;
-  parseCmdsArg(argc, argv, native_cmds, compatibility_cmds);
-
-  staSetupAppInit(argc, argv, swig_init, native_cmds, compatibility_cmds);
+  staSetupAppInit(argc, argv, swig_init);
   // Set argc to 1 so Tcl_Main doesn't source any files.
   // Tcl_Main never returns.
   Tcl_Main(1, argv, staTclAppInit);
@@ -87,31 +82,15 @@ parseThreadsArg(int argc,
   }
 }
 
-void
-parseCmdsArg(int argc,
-	     char **argv,
-	     bool &native_cmds,
-	     bool &compatibility_cmds)
-{
-  native_cmds = findCmdLineFlag(argc, argv, "-native");
-  compatibility_cmds = findCmdLineFlag(argc, argv, "-compatibility");
-  if (!native_cmds && !compatibility_cmds)
-    compatibility_cmds = true; // default
-}
-
 // Set globals to pass to staTclAppInit.
 void
 staSetupAppInit(int argc,
 		char **argv,
-		SwigInitFunc swig_init,
-		bool native_cmds,
-		bool compatibility_cmds)
+		SwigInitFunc swig_init)
 {
   sta_argc = argc;
   sta_argv = argv;
   sta_swig_init = swig_init;
-  sta_native_cmds = native_cmds;
-  sta_compatibility_cmds = compatibility_cmds;
 }
 
 // Tcl init executed inside Tcl_Main.

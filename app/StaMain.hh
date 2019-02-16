@@ -35,9 +35,8 @@ staMain(Sta *sta,
 void
 staSetupAppInit(int argc,
 		char **argv,
-		SwigInitFunc swig_init,
-		bool native_cmds,
-		bool compatibility_cmds);
+		SwigInitFunc swig_init);
+
 // The variable tcl_init is an implicit argument to this function that
 // provides the definitions for builtin tcl commands encoded by
 // etc/TclEncode.tcl.
