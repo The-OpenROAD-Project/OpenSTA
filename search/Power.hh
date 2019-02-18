@@ -53,7 +53,6 @@ protected:
 			 LibertyCell *cell,
 			 const LibertyPort *to_port,
 			 float activity,
-			 bool is_clk,
 			 float load_cap,
 			 const DcalcAnalysisPt *dcalc_ap,
 			 // Return values.

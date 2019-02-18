@@ -43,10 +43,7 @@ proc_redirect report_power {
 
   if { [info exists keys(-instances)] } {
     set insts [get_instances_error "-instances" $keys(-instances)]
-    foreach inst $insts {
-      report_power_inst $inst $corner $digits
-      puts ""
-    }
+    report_power_insts $insts $corner $digits
   } else {
     report_power_design $corner $digits
   }
@@ -54,16 +51,16 @@ proc_redirect report_power {
 
 proc report_power_design { corner digits } {
   set power_result [design_power $corner]
-  puts "Group                 Internal Switching   Leakage     Total"
-  puts "                         Power     Power     Power     Power (mW)"
-  puts "-------------------------------------------------------------------"
-
   set totals        [lrange $power_result  0  3]
   set sequential    [lrange $power_result  4  7]
   set combinational [lrange $power_result  8 11]
   set macro         [lrange $power_result 12 15]
   set pad           [lrange $power_result 16 end]
   lassign $totals design_internal design_switching design_leakage design_total
+
+  puts "Group                 Internal Switching   Leakage     Total"
+  puts "                         Power     Power     Power     Power (mW)"
+  puts "-------------------------------------------------------------------"
   report_power_row "Sequential"    $sequential    $design_total $digits
   report_power_row "Combinational" $combinational $design_total $digits
   report_power_row "Macro"         $macro         $design_total $digits
@@ -106,14 +103,46 @@ proc report_power_col_percent { col_total total } {
   puts -nonewline [format "%9.1f%%" $percent]
 }
 
-proc report_power_inst { inst corner digits } {
+proc report_power_line { type pwr digits } {
+  puts [format "%-16s %.${digits}fmW" $type [expr $pwr * 1e+3]]
+}
+
+proc report_power_insts { insts corner digits } {
+  set inst_pwrs {}
+  foreach inst $insts {
+    set power_result [instance_power $inst $corner]
+    lappend inst_pwrs [list $inst $power_result]
+  }
+  set inst_pwrs [lsort -command inst_pwr_cmp $inst_pwrs]
+  foreach inst_pwr $inst_pwrs {
+    set inst [lindex $inst_pwr 0]
+    set power [lindex $inst_pwr 1]
+    report_power_inst $inst $power $digits
+    puts ""
+  }
+}
+
+proc inst_pwr_cmp { inst_pwr1 inst_pwr2 } {
+  set pwr1 [lindex $inst_pwr1 1]
+  set pwr2 [lindex $inst_pwr2 1]
+  lassign $pwr1 internal1 switching1 leakage1 total1
+  lassign $pwr2 internal2 switching2 leakage2 total2
+  if { $total1 < $total2 } {
+    return 1
+  } elseif { $total1 == $total2 } {
+    return 0
+  } else {
+    return -1
+  }
+}
+
+proc report_power_inst { inst power_result digits } {
   puts "Instance: [get_full_name $inst]"
   set cell [get_property $inst "liberty_cell"]
   if { $cell != "NULL" } {
     puts "Cell: [get_name $cell]"
     set library [get_property $cell "library"]
     puts "Library file: [get_property $library filename]"
-    set power_result [instance_power $inst $corner]
     lassign $power_result internal switching leakage total
     report_power_line "Internal power" $internal $digits
     report_power_line "Switching power" $switching $digits
@@ -124,9 +153,7 @@ proc report_power_inst { inst corner digits } {
   }
 }
 
-proc report_power_line { type pwr digits } {
-  puts [format "%-16s %.${digits}fmW" $type [expr $pwr * 1e+3]]
-}
+################################################################
 
 set ::power_default_signal_toggle_rate 0.1
 

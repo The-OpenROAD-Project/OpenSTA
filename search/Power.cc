@@ -50,6 +50,9 @@
 
 namespace sta {
 
+typedef std::pair<float, int> SumCount;
+typedef Map<const char*, SumCount, CharPtrLess> SupplySumCounts;
+
 Power::Power(Sta *sta) :
   StaState(sta),
   sta_(sta),
@@ -141,7 +144,7 @@ Power::power(const Instance *inst,
       findSwitchingPower(cell, to_port, activity1, load_cap,
 			 dcalc_ap, result);
     }
-    findInternalPower(inst, cell, to_port, activity1, is_clk,
+    findInternalPower(inst, cell, to_port, activity1,
 		      load_cap, dcalc_ap, result);
   }
   delete pin_iter;
@@ -153,55 +156,44 @@ Power::findInternalPower(const Instance *inst,
 			 LibertyCell *cell,
 			 const LibertyPort *to_port,
 			 float activity,
-			 bool is_clk,
 			 float load_cap,
 			 const DcalcAnalysisPt *dcalc_ap,
 			 // Return values.
 			 PowerResult &result)
 {
-  debugPrint3(debug_, "power", 2, "internal %s/%s %ss\n",
+  debugPrint3(debug_, "power", 2, "internal %s/%s (%s)\n",
 	      network_->pathName(inst),
 	      to_port->name(),
 	      cell->name());
-  float port_internal = 0.0;
+  SupplySumCounts supply_sum_counts;
   const Pvt *pvt = dcalc_ap->operatingConditions();
-  float volt = voltage(cell, to_port, dcalc_ap);
-  const char *pwr_pin = to_port->relatedPowerPin();
-  float duty = is_clk ? 1.0 : .5;
-  debugPrint3(debug_, "power", 2, "cap = %s activity = %.2f/ns duty = %.1f\n",
+  float duty = 1.0;
+  debugPrint2(debug_, "power", 2, " cap = %s duty = %.1f\n",
 	      units_->capacitanceUnit()->asString(load_cap),
-	      activity * 1e-9,
 	      duty);
   LibertyCellInternalPowerIterator pwr_iter(cell);
   while (pwr_iter.hasNext()) {
     InternalPower *pwr = pwr_iter.next();
     const char *related_pg_pin = pwr->relatedPgPin();
-    if (pwr->port() == to_port
-	&& ((related_pg_pin == NULL || pwr_pin == NULL)
-	    || stringEqual(related_pg_pin, pwr_pin))) {
-      const LibertyPort *from_port = pwr->relatedPort();
+    const LibertyPort *from_port = pwr->relatedPort();
+    if (pwr->port() == to_port) {
       if (from_port == NULL)
 	from_port = to_port;
       const Pin *from_pin = network_->findPin(inst, from_port);
       Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
+      float port_internal = 0.0;
       TransRiseFallIterator tr_iter;
       while (tr_iter.hasNext()) {
 	TransRiseFall *to_tr = tr_iter.next();
-	// Need unateness to find from_tr.
+	// Should use unateness to find from_tr.
 	float slew = delayAsFloat(sta_->vertexSlew(from_vertex,
 						   to_tr, dcalc_ap));
-	float energy, tr_internal;
-	if (from_port) {
-	  float energy1 = pwr->power(to_tr, pvt, slew, load_cap);
-	  // Scale by voltage and rise/fall transition count.
-	  energy = energy1 * volt / 2.0;
-	}
-	else {
-	  float energy1 = pwr->power(to_tr, pvt, 0.0, 0.0);
-	  // Scale by voltage and rise/fall transition count.
-	  energy = energy1 * volt / 2.0;
-	}
-	tr_internal = energy * activity * duty;
+	float energy;
+	if (from_port)
+	  energy = pwr->power(to_tr, pvt, slew, load_cap);
+	else
+	  energy = pwr->power(to_tr, pvt, 0.0, 0.0);
+	float tr_internal = energy * activity * duty;
 	port_internal += tr_internal;
 	debugPrint5(debug_, "power", 2, " %s -> %s %s %s (%s)\n",
 		    from_port->name(),
@@ -209,15 +201,30 @@ Power::findInternalPower(const Instance *inst,
 		    to_port->name(),
 		    pwr->when() ? pwr->when()->asString() : "",
 		    related_pg_pin ? related_pg_pin : "");
-	debugPrint3(debug_, "power", 2, "  slew = %s energy = %.5g pwr = %.5g\n",
+	debugPrint4(debug_, "power", 2, "  slew = %s activity = %.2f/ns energy = %.5g pwr = %.5g\n",
 		    units_->timeUnit()->asString(slew),
+		    activity * 1e-9,
 		    energy,
 		    tr_internal);
       }
+      // Sum/count internal power arcs by supply to average across conditions.
+      SumCount &supply_sum_count = supply_sum_counts[related_pg_pin];
+      // Average rise/fall internal power.
+      supply_sum_count.first += port_internal / 2.0;
+      supply_sum_count.second++;
     }
   }
-  debugPrint1(debug_, "power", 2, " internal = %.5g\n", port_internal);
-  result.setInternal(result.internal() + port_internal);
+  float internal = 0.0;
+  SupplySumCounts::Iterator supply_iter(supply_sum_counts);
+  while (supply_iter.hasNext()) {
+    const SumCount &supply_cum_count = supply_iter.next();
+    float supply_internal = supply_cum_count.first;
+    int supply_count = supply_cum_count.second;
+    internal += supply_internal / (supply_count > 0 ? supply_count : 1);
+  }
+
+  debugPrint1(debug_, "power", 2, " internal = %.5g\n", internal);
+  result.setInternal(result.internal() + internal);
 }
 
 float

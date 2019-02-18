@@ -1683,7 +1683,10 @@ DmpCeffDelayCalc::ceff(const LibertyCell *drvr_cell,
   gateDelay(drvr_cell, arc, in_slew, load_cap,
 	    drvr_parasitic, related_out_cap, pvt, dcalc_ap,
 	    gate_delay, drvr_slew);
-  return ceff();
+  if (dmp_alg_)
+    return static_cast<float>(dmp_alg_->ceff());
+  else
+    return load_cap;
 }
 
 void
@@ -1706,7 +1709,7 @@ DmpCeffDelayCalc::reportGateDelay(const LibertyCell *drvr_cell,
   GateTimingModel *model = gateModel(arc, dcalc_ap);
   float c_eff = 0.0;
   if (drvr_parasitic_ && dmp_alg_) {
-    c_eff = ceff();
+    c_eff = dmp_alg_->ceff();
     const LibertyLibrary *drvr_library = drvr_cell->libertyLibrary();
     const Units *units = drvr_library->units();
     const Unit *cap_unit = units->capacitanceUnit();
@@ -1770,15 +1773,6 @@ DmpCeffDelayCalc::loadDelaySlew(const Pin *load_pin,
 {
   if (dmp_alg_)
     dmp_alg_->loadDelaySlew(load_pin, elmore, delay, slew);
-}
-
-float
-DmpCeffDelayCalc::ceff() const
-{
-  if (dmp_alg_)
-    return static_cast<float>(dmp_alg_->ceff());
-  else
-    return 0.0;
 }
 
 // Notify algorithm components.

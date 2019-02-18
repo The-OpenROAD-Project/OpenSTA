@@ -87,7 +87,6 @@ protected:
 			double c2,
 			double rpi,
 			double c1);
-  float ceff() const;
 
   bool input_port_;
   static bool unsuppored_model_warned_;
