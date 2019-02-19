@@ -114,11 +114,15 @@ proc report_power_insts { insts corner digits } {
     lappend inst_pwrs [list $inst $power_result]
   }
   set inst_pwrs [lsort -command inst_pwr_cmp $inst_pwrs]
+
+  puts "  Internal Switching   Leakage     Total Instance"
+  puts "     Power     Power     Power     Power (mW)"
+  puts "-------------------------------------------------------------------"
+
   foreach inst_pwr $inst_pwrs {
     set inst [lindex $inst_pwr 0]
     set power [lindex $inst_pwr 1]
     report_power_inst $inst $power $digits
-    puts ""
   }
 }
 
@@ -137,20 +141,12 @@ proc inst_pwr_cmp { inst_pwr1 inst_pwr2 } {
 }
 
 proc report_power_inst { inst power_result digits } {
-  puts "Instance: [get_full_name $inst]"
-  set cell [get_property $inst "liberty_cell"]
-  if { $cell != "NULL" } {
-    puts "Cell: [get_name $cell]"
-    set library [get_property $cell "library"]
-    puts "Library file: [get_property $library filename]"
-    lassign $power_result internal switching leakage total
-    report_power_line "Internal power" $internal $digits
-    report_power_line "Switching power" $switching $digits
-    report_power_line "Leakage power" $leakage $digits
-    report_power_line "Total power" $total $digits
-  } else {
-    sta_error "[get_full_name $inst] is not a liberty cell instance."
-  }
+  lassign $power_result internal switching leakage total
+  report_power_col $internal $digits
+  report_power_col $switching $digits
+  report_power_col $leakage $digits
+  report_power_col $total $digits
+  puts " [get_full_name $inst]"
 }
 
 ################################################################
