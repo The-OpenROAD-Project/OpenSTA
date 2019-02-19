@@ -16,7 +16,7 @@
 
 cmake_minimum_required (VERSION 3.9)
 
-project(STA VERSION 2.0.7)
+project(STA VERSION 2.0.8)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 11)

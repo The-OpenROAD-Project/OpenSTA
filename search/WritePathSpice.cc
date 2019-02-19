@@ -312,6 +312,9 @@ WritePathSpice::writeHeader()
   auto pvt = sdc_->operatingConditions(min_max);
   if (pvt == NULL)
     pvt = default_library_->defaultOperatingConditions();
+  streamPrint(spice_stream_, "* Path to %s %s\n",
+	      network_->pathName(path_->pin(this)),
+	      path_->transition(this)->asString());
   auto temp = pvt->temperature();
   streamPrint(spice_stream_, ".temp %.1f\n", temp);
   streamPrint(spice_stream_, ".include \"%s\"\n", model_filename_);
