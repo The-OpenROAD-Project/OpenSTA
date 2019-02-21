@@ -16,3 +16,4 @@ Release 2.0 Patches
 2019/01/31 generated clk -divide_by 16384 cycle accting fallout
 2019/02/17 report_power internal power accuracy
 2019/02/18 write_path_spice first line is comment
+2019/02/21 write_path_spice include side load pins

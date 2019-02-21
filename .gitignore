@@ -68,6 +68,8 @@ Makefile
 # /test/
 /test/gmon.out
 /test/results
+# ngspice turd
+/test/b3v3_1check.log
 
 /test_native
 
