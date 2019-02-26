@@ -211,6 +211,12 @@ TimingArcSet::libertyCell() const
     return NULL;
 }
 
+TimingArcSetArcIterator *
+TimingArcSet::timingArcIterator()
+{
+  return new TimingArcSetArcIterator(this);
+}
+
 TimingArcIndex
 TimingArcSet::addTimingArc(TimingArc *arc)
 {

@@ -525,7 +525,6 @@ protected:
 
   // findPathEnds arg.
   bool unconstrained_paths_;
-  bool have_paths_;
   // Search predicates.
   SearchPred *search_adj_;
   SearchPred *search_clk_;

@@ -17,6 +17,7 @@
 #include <algorithm> // max
 #include <cmath> // abs
 #include "Machine.hh"
+#include "MinMax.hh" // INF
 
 namespace sta {
 
@@ -64,6 +65,13 @@ fuzzyGreaterEqual(float v1,
 		  float v2)
 {
   return v1 > v2 || fuzzyEqual(v1, v2);
+}
+
+bool
+fuzzyInf(float value)
+{
+  return fuzzyEqual(value, INF)
+    || fuzzyEqual(value, -INF);
 }
 
 } // namespace

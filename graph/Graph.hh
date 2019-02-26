@@ -284,7 +284,7 @@ public:
   void setTagGroupIndex(TagGroupIndex tag_index);
   // Slew is annotated by sdc set_annotated_transition cmd.
   bool slewAnnotated(const TransRiseFall *tr,
-		     DcalcAPIndex ap_index) const;
+		     const MinMax *min_max) const;
   // True if any rise/fall analysis pt slew is annotated.
   bool slewAnnotated() const;
   void setSlewAnnotated(bool annotated,
@@ -316,6 +316,11 @@ public:
   bool bfsInQueue(BfsIndex index) const;
   void setBfsInQueue(BfsIndex index, bool value);
   bool isRegClk() const { return is_reg_clk_; }
+  bool crprPathPruningDisabled() const { return crpr_path_pruning_disabled_;}
+  void setCrprPathPruningDisabled(bool disabled);
+  bool requiredsPruned() const { return requireds_pruned_; }
+  void setRequiredsPruned(bool pruned);
+
   static int transitionCount() { return 2; }  // rise/fall
 
 protected:
@@ -328,14 +333,23 @@ protected:
   PathVertexRep *prev_paths_;
   EdgeIndex in_edges_;		// Edges to this vertex.
   EdgeIndex out_edges_;		// Edges from this vertex.
-  unsigned int tag_group_index_:tag_group_index_bits;
+
+  // 4 bytes
+  unsigned int tag_group_index_:tag_group_index_bits; // 24
+  // Each bit corresponds to a different BFS queue.
+  unsigned int bfs_in_queue_:bfs_index_bits; // 4
+  unsigned int slew_annotated_:slew_annotated_bits;
+
+  // 4 bytes (32 bits)
+  unsigned int level_:16;
+  // Levelization search state.
+  unsigned int color_:2;
+  unsigned int sim_value_:3;	// LogicValue
   bool has_requireds_:1;
-  unsigned int slew_annotated_:4;
   // Bidirect pins have two vertices.
   // This flag distinguishes the driver and load vertices.
   bool is_bidirect_drvr_:1;
   bool is_reg_clk_:1;
-  unsigned int sim_value_:3;	// LogicValue
   bool is_disabled_constraint_:1;
   bool is_gated_clk_enable_:1;
   // Constrained by timing check edge.
@@ -344,11 +358,8 @@ protected:
   bool is_check_clk_:1;
   bool is_constrained_:1;
   bool has_downstream_clk_pin_:1;
-  // Levelization search state.
-  unsigned int color_:2;
-  unsigned int level_:16;
-  // Each bit corresponds to a different BFS queue.
-  unsigned int bfs_in_queue_:bfs_index_bits;
+  bool crpr_path_pruning_disabled_:1;
+  bool requireds_pruned_:1;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Vertex);

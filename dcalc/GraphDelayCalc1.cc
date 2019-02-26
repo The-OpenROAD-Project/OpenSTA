@@ -657,7 +657,8 @@ GraphDelayCalc1::seedNoDrvrCellSlew(Vertex *drvr_vertex,
     drive_delay = cap * drive_res;
     slew = cap * drive_res;
   }
-  if (!drvr_vertex->slewAnnotated(tr, ap_index))
+  const MinMax *slew_min_max = dcalc_ap->slewMinMax();
+  if (!drvr_vertex->slewAnnotated(tr, slew_min_max))
     graph_->setSlew(drvr_vertex, tr, ap_index, slew);
   arc_delay_calc->inputPortDelay(drvr_pin, delayAsFloat(slew), tr,
 				 parasitic, dcalc_ap);
@@ -674,6 +675,7 @@ GraphDelayCalc1::seedNoDrvrSlew(Vertex *drvr_vertex,
 				DcalcAnalysisPt *dcalc_ap,
 				ArcDelayCalc *arc_delay_calc)
 {
+  const MinMax *slew_min_max = dcalc_ap->slewMinMax();
   DcalcAPIndex ap_index = dcalc_ap->index();
   Slew slew(default_slew);
   // Top level bidirect driver uses load slew unless
@@ -682,7 +684,7 @@ GraphDelayCalc1::seedNoDrvrSlew(Vertex *drvr_vertex,
     Vertex *load_vertex = graph_->pinLoadVertex(drvr_pin);
     slew = graph_->slew(load_vertex, tr, ap_index);
   }
-  if (!drvr_vertex->slewAnnotated(tr, ap_index))
+  if (!drvr_vertex->slewAnnotated(tr, slew_min_max))
     graph_->setSlew(drvr_vertex, tr, ap_index, slew);
   Parasitic *parasitic;
   bool delete_parasitic;
@@ -711,8 +713,7 @@ GraphDelayCalc1::seedLoadSlew(Vertex *vertex)
     while (ap_iter.hasNext()) {
       DcalcAnalysisPt *dcalc_ap = ap_iter.next();
       const MinMax *slew_min_max = dcalc_ap->slewMinMax();
-      DcalcAPIndex ap_index = dcalc_ap->index();
-      if (!vertex->slewAnnotated(tr, ap_index)) {
+      if (!vertex->slewAnnotated(tr, slew_min_max)) {
 	float slew = 0.0;
 	if (clks) {
 	  slew = slew_min_max->initValue();
@@ -724,6 +725,7 @@ GraphDelayCalc1::seedLoadSlew(Vertex *vertex)
 	      slew = clk_slew;
 	  }
 	}
+	DcalcAPIndex ap_index = dcalc_ap->index();
 	graph_->setSlew(vertex, tr, ap_index, slew);
       }
     }
@@ -988,11 +990,12 @@ GraphDelayCalc1::initRootSlews(Vertex *vertex)
   DcalcAnalysisPtIterator ap_iter(this);
   while (ap_iter.hasNext()) {
     DcalcAnalysisPt *dcalc_ap = ap_iter.next();
+    const MinMax *slew_min_max = dcalc_ap->slewMinMax();
     DcalcAPIndex ap_index = dcalc_ap->index();
     TransRiseFallIterator tr_iter;
     while (tr_iter.hasNext()) {
       TransRiseFall *tr = tr_iter.next();
-      if (!vertex->slewAnnotated(tr, ap_index))
+      if (!vertex->slewAnnotated(tr, slew_min_max))
 	graph_->setSlew(vertex, tr, ap_index, default_slew);
     }
   }
@@ -1181,9 +1184,10 @@ GraphDelayCalc1::initSlew(Vertex *vertex)
     while (ap_iter.hasNext()) {
       DcalcAnalysisPt *dcalc_ap = ap_iter.next();
       const MinMax *slew_min_max = dcalc_ap->slewMinMax();
-      DcalcAPIndex ap_index = dcalc_ap->index();
-      if (!vertex->slewAnnotated(tr, ap_index))
+      if (!vertex->slewAnnotated(tr, slew_min_max)) {
+	DcalcAPIndex ap_index = dcalc_ap->index();
 	graph_->setSlew(vertex, tr, ap_index, slew_min_max->initValue());
+      }
     }
   }
 }
@@ -1213,7 +1217,7 @@ GraphDelayCalc1::initWireDelays(Vertex *drvr_vertex,
 	    graph_->setWireArcDelay(wire_edge, tr, ap_index, delay_init_value);
 	  // Init load vertex slew.
 	  if (init_load_slews
-	      && !load_vertex->slewAnnotated(tr, ap_index))
+	      && !load_vertex->slewAnnotated(tr, slew_min_max))
 	    graph_->setSlew(load_vertex, tr, ap_index, slew_init_value);
 	}
       }
@@ -1278,8 +1282,9 @@ GraphDelayCalc1::findArcDelay(LibertyCell *drvr_cell,
 		delayAsString(gate_slew, this));
     // Merge slews.
     const Slew &drvr_slew = graph_->slew(drvr_vertex, drvr_tr, ap_index);
+    const MinMax *slew_min_max = dcalc_ap->slewMinMax();
     if (delayFuzzyGreater(gate_slew, drvr_slew, dcalc_ap->slewMinMax())
-	&& !drvr_vertex->slewAnnotated(drvr_tr, ap_index))
+	&& !drvr_vertex->slewAnnotated(drvr_tr, slew_min_max))
       graph_->setSlew(drvr_vertex, drvr_tr, ap_index, gate_slew);
     if (!graph_->arcDelayAnnotated(edge, arc, ap_index)) {
       const ArcDelay &prev_gate_delay = graph_->arcDelay(edge,arc,ap_index);
@@ -1479,8 +1484,8 @@ GraphDelayCalc1::annotateLoadDelays(Vertex *drvr_vertex,
 		  load_vertex->name(sdc_network_),
 		  delayAsString(wire_delay, this),
 		  delayAsString(load_slew, this));
-      if (!load_vertex->slewAnnotated(drvr_tr, ap_index)) {
-	if (drvr_vertex->slewAnnotated(drvr_tr, ap_index)) {
+      if (!load_vertex->slewAnnotated(drvr_tr, slew_min_max)) {
+	if (drvr_vertex->slewAnnotated(drvr_tr, slew_min_max)) {
 	  // Copy the driver slew to the load if it is annotated.
 	  const Slew &drvr_slew = graph_->slew(drvr_vertex,drvr_tr,ap_index);
 	  graph_->setSlew(load_vertex, drvr_tr, ap_index, drvr_slew);

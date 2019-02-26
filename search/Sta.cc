@@ -2713,7 +2713,7 @@ Sta::vertexArrival(Vertex *vertex,
   search_->findArrivals(vertex->level());
   const MinMax *min_max = path_ap->pathMinMax();
   Arrival arrival = min_max->initValue();
-  VertexPathIterator path_iter(vertex, tr, path_ap, search_);
+  VertexPathIterator path_iter(vertex, tr, path_ap, this);
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
     const Arrival &path_arrival = path->arrival(this);
@@ -2744,7 +2744,7 @@ Sta::vertexRequired(Vertex *vertex,
   findRequired(vertex);
   const MinMax *min_max = path_ap->pathMinMax()->opposite();
   Required required = min_max->initValue();
-  VertexPathIterator path_iter(vertex, tr, path_ap, search_);
+  VertexPathIterator path_iter(vertex, tr, path_ap, this);
   while (path_iter.hasNext()) {
     const Path *path = path_iter.next();
     const Required path_required = path->required(this);
@@ -2794,7 +2794,7 @@ Sta::vertexSlack(Vertex *vertex,
   findRequired(vertex);
   MinMax *min = MinMax::min();
   Slack slack = min->initValue();
-  VertexPathIterator path_iter(vertex, search_);
+  VertexPathIterator path_iter(vertex, this);
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
     if (path->minMax(this) == min_max) {
@@ -2813,7 +2813,7 @@ Sta::vertexSlack(Vertex *vertex,
 {
   findRequired(vertex);
   Slack slack = MinMax::min()->initValue();
-  VertexPathIterator path_iter(vertex, tr, min_max, search_);
+  VertexPathIterator path_iter(vertex, tr, min_max, this);
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
     Slack path_slack = path->slack(this);
@@ -2850,7 +2850,7 @@ Sta::vertexSlack1(Vertex *vertex,
 {
   MinMax *min = MinMax::min();
   Slack slack = min->initValue();
-  VertexPathIterator path_iter(vertex, tr, path_ap, search_);
+  VertexPathIterator path_iter(vertex, tr, path_ap, this);
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
     Slack path_slack = path->slack(this);
@@ -2868,6 +2868,44 @@ Sta::findRequired(Vertex *vertex)
   searchPreamble();
   search_->findAllArrivals();
   search_->findRequireds(vertex->level());
+  if (sdc_->crprEnabled()
+      && vertex->requiredsPruned()) {
+    debugPrint1(debug_, "search", 2, "resurrect pruned required %s\n",
+		vertex->name(sdc_network_));
+    //    printf("resurrect pruned required %s\n", vertex->name(sdc_network_));
+    // Invalidate arrivals and requireds and disable
+    // path pruning on fanout vertices.
+    int fanout = 0;
+    disableFanoutCrprPruning(vertex, fanout);
+    //    if (fanout > 100)
+    //      printf("fanout %s %d\n", vertex->name(network_), fanout);
+    // Find fanout arrivals and requireds with pruning disabled.
+    search_->findArrivals();
+    search_->findRequireds(vertex->level());
+  }
+}
+
+// DFS to invalidate arrivals and requireds to
+// find arrivals with pruning disabled.
+void
+Sta::disableFanoutCrprPruning(Vertex *vertex,
+			      int &fanout)
+{
+  if (!vertex->crprPathPruningDisabled()) {
+    search_->arrivalInvalid(vertex);
+    search_->requiredInvalid(vertex);
+    vertex->setCrprPathPruningDisabled(true);
+    fanout++;
+    SearchPred *pred = search_->searchAdj();
+    VertexOutEdgeIterator edge_iter(vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      Vertex *to_vertex = edge->to(graph_);
+      if (pred->searchThru(edge)
+	  && pred->searchTo(to_vertex))
+	disableFanoutCrprPruning(to_vertex, fanout);
+    }
+  }
 }
 
 Slack

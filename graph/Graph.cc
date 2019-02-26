@@ -830,10 +830,14 @@ Graph::arcDelayAnnotated(Edge *edge,
 			 TimingArc *arc,
 			 DcalcAPIndex ap_index) const
 {
-  unsigned index = (edge->arcDelays() + arc->index()) * ap_count_ + ap_index;
-  if (index >= arc_delay_annotated_.size())
-    internalError("arc_delay_annotated array bounds exceeded");
-  return arc_delay_annotated_[index];
+  if (arc_delay_annotated_.size()) {
+    unsigned index = (edge->arcDelays() + arc->index()) * ap_count_ + ap_index;
+    if (index >= arc_delay_annotated_.size())
+      internalError("arc_delay_annotated array bounds exceeded");
+    return arc_delay_annotated_[index];
+  }
+  else
+    return false;
 }
 
 void
@@ -1162,6 +1166,8 @@ Vertex::init(Pin *pin,
   color_ = vertex_color_white;
   level_ = 0;
   bfs_in_queue_ = 0;
+  crpr_path_pruning_disabled_ = false;
+  requireds_pruned_ = false;
 }
 
 const char *
@@ -1191,13 +1197,9 @@ Vertex::setColor(VertexColor color)
 
 bool
 Vertex::slewAnnotated(const TransRiseFall *tr,
-		      DcalcAPIndex ap_index) const
+		      const MinMax *min_max) const
 {
-  // Track rise/fall/min/max annotations separately, but after that
-  // only rise/fall.
-  if (ap_index > 1)
-    ap_index = 0;
-  int index = ap_index * transitionCount() + tr->index();
+  int index = min_max->index() * transitionCount() + tr->index();
   return ((1 << index) & slew_annotated_) != 0;
 }
 
@@ -1227,6 +1229,18 @@ void
 Vertex::removeSlewAnnotated()
 {
   slew_annotated_ = 0;
+}
+
+void
+Vertex::setCrprPathPruningDisabled(bool disabled)
+{
+  crpr_path_pruning_disabled_ = disabled;
+}
+
+void
+Vertex::setRequiredsPruned(bool pruned)
+{
+  requireds_pruned_ = pruned;
 }
 
 TagGroupIndex

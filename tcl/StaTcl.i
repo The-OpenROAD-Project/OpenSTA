@@ -1997,7 +1997,7 @@ private:
 %inline %{
 
 float float_inf = INF;
- int group_count_max = PathGroup::group_count_max;
+int group_count_max = PathGroup::group_count_max;
 
 const char *
 version()

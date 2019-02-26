@@ -35,5 +35,7 @@ fuzzyGreater(float v1,
 bool
 fuzzyGreaterEqual(float v1,
 		  float v2);
+bool
+fuzzyInf(float value);
 
 } // namespace

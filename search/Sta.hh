@@ -1297,6 +1297,8 @@ protected:
 			const MinMax *min_max);
   void parasiticsChangedAfter();
   void powerPreamble();
+  void disableFanoutCrprPruning(Vertex *vertex,
+			      int &fanou);
 
   CmdNamespace cmd_namespace_;
   Instance *current_instance_;

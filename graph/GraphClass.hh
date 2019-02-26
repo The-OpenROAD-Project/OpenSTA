@@ -20,6 +20,8 @@
 #include "ObjectIndex.hh"
 #include "Set.hh"
 #include "Vector.hh"
+#include "MinMax.hh"
+#include "Transition.hh"
 
 namespace sta {
 
@@ -47,6 +49,7 @@ typedef Vector<GraphLoop*> GraphLoopSeq;
 // 16,777,215 tags
 static const int tag_group_index_bits = 24;
 static const TagGroupIndex tag_group_index_max = (1<<tag_group_index_bits)-1;
+static const int slew_annotated_bits = MinMax::index_count * TransRiseFall::index_count;
 
 enum BfsIndex {
   bfs_dcalc,

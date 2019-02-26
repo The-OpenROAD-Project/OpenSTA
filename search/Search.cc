@@ -261,7 +261,6 @@ Search::init(StaState *sta)
   filter_ = NULL;
   filter_from_ = NULL;
   filter_to_ = NULL;
-  have_paths_ = false;
   found_downstream_clk_pins_ = false;
 }
 
@@ -294,8 +293,8 @@ void
 Search::clear()
 {
   crpr_path_pruning_enabled_ = true;
+  unconstrained_paths_ = false;
   clk_arrivals_valid_ = false;
-  arrivals_exist_ = false;
   arrivals_at_endpoints_exist_ = false;
   arrivals_seeded_ = false;
   requireds_exist_ = false;
@@ -381,13 +380,13 @@ void
 Search::deletePaths()
 {
   debugPrint0(debug_, "search", 1, "delete paths\n");
-  if (have_paths_) {
+  if (arrivals_exist_) {
     VertexIterator vertex_iter(graph_);
     while (vertex_iter.hasNext()) {
       Vertex *vertex = vertex_iter.next();
       deletePaths1(vertex);
     }
-    have_paths_ = false;
+    arrivals_exist_ = false;
   }
 }
 
@@ -662,7 +661,6 @@ Search::arrivalsInvalid()
     deleteTags();
     genclks_->clear();
     deleteFilter();
-    arrivals_exist_ = false;
     arrivals_at_endpoints_exist_ = false;
     arrivals_seeded_ = false;
     requireds_exist_ = false;
@@ -1096,8 +1094,11 @@ ArrivalVisitor::visit(Vertex *vertex)
     visitFaninPaths(vertex);
     if (crpr_active_
 	&& search->crprPathPruningEnabled()
+	&& !vertex->crprPathPruningDisabled()
 	&& !has_fanin_one_)
       pruneCrprArrivals();
+    vertex->setCrprPathPruningDisabled(false);
+
     // Insert paths that originate here but 
     if (!network->isTopLevelPort(pin)
 	&& sdc->hasInputDelay(pin))
@@ -2769,7 +2770,6 @@ Search::setVertexArrivals(Vertex *vertex,
       vertex->setArrivals(arrivals);
       vertex->setPrevPaths(prev_paths);
 
-      have_paths_ = true;
       if (has_requireds) {
 	requiredInvalid(vertex);
 	vertex->setHasRequireds(false);
@@ -3472,6 +3472,7 @@ RequiredVisitor::visit(Vertex *vertex)
   debugPrint1(debug, "search", 2, "find required %s\n",
 	      vertex->name(sta_->network()));
   required_cmp_->requiredsInit(vertex, sta_);
+  vertex->setRequiredsPruned(false);
   // Back propagate requireds from fanout.
   visitFanoutPaths(vertex);
   // Check for constraints at endpoints that set required times.
@@ -3488,7 +3489,7 @@ RequiredVisitor::visit(Vertex *vertex)
 
 bool
 RequiredVisitor::visitFromToPath(const Pin *,
-				 Vertex *,
+				 Vertex *from_vertex,
 				 const TransRiseFall *from_tr,
 				 Tag *from_tag,
 				 PathVertex *from_path,
@@ -3500,7 +3501,7 @@ RequiredVisitor::visitFromToPath(const Pin *,
 				 Tag *to_tag,
 				 Arrival &,
 				 const MinMax *min_max,
-				 const PathAnalysisPt *path_ap)
+				 const PathAnalysisPt *)
 {
   // Don't propagate required times through latch D->Q edges.
   if (edge->role() != TimingRole::latchDtoQ()) {
@@ -3533,31 +3534,11 @@ RequiredVisitor::visitFromToPath(const Pin *,
 		  delayAsString(required_cmp_->required(arrival_index), sta_));
       required_cmp_->requiredSet(arrival_index, from_required, req_min);
     }
-    else {
-      // Arrival that differ by crpr_pin may be pruned. Find an arrival
-      // that matches everything but the crpr_pin.
-      VertexPathIterator to_iter(to_vertex, to_tr, path_ap, sta_);
-      while (to_iter.hasNext()) {
-	PathVertex *to_path = to_iter.next();
-	Tag *to_path_tag = to_path->tag(sta_);
-	if (tagMatchNoCrpr(to_path_tag, to_tag)) {
-	  Required to_required = to_path->required(sta_);
-	  Required from_required = to_required - arc_delay;
-	  debugPrint2(debug, "search", 3, "  to tag   %2u: %s\n",
-		      to_path_tag->index(),
-		      to_path_tag->asString(sta_));
-	  debugPrint5(debug, "search", 3, "  %s - %s = %s %s %s\n",
-		      delayAsString(to_required, sta_),
-		      delayAsString(arc_delay, sta_),
-		      delayAsString(from_required, sta_),
-		      min_max == MinMax::max() ? "<" : ">",
-		      delayAsString(required_cmp_->required(arrival_index),
-				    sta_));
-	  required_cmp_->requiredSet(arrival_index, from_required, req_min);
-	  break;
-	}
-      }
-    }
+    else
+      from_vertex->setRequiredsPruned(true);
+    // Propagate requireds pruned flag backwards.
+    if (to_vertex->requiredsPruned())
+      from_vertex->setRequiredsPruned(true);
   }
   return true;
 }
