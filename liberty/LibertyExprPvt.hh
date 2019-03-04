@@ -19,9 +19,6 @@
 
 #include "DisallowCopyAssign.hh"
 
-int
-LibertyExprLex_lex();
-
 namespace sta {
 
 class Report;

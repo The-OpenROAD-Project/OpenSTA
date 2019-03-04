@@ -99,8 +99,11 @@ LibertyLibrary::LibertyLibrary(const char *name,
   default_ocv_derate_(NULL)
 {
   // Scalar templates are builtin.
-  TableTemplate *scalar_template = new TableTemplate("scalar", NULL, NULL, NULL);
-  addTableTemplate(scalar_template);
+  for (int i = 0; i != table_template_count; i++) {
+    TableTemplateType type = static_cast<TableTemplateType>(i);
+    TableTemplate *scalar_template = new TableTemplate("scalar", NULL, NULL, NULL);
+    addTableTemplate(scalar_template, type);
+  }
 
   TransRiseFallIterator tr_iter;
   while (tr_iter.hasNext()) {
@@ -117,7 +120,8 @@ LibertyLibrary::LibertyLibrary(const char *name,
 LibertyLibrary::~LibertyLibrary()
 {
   bus_dcls_.deleteContents();
-  template_map_.deleteContents();
+  for (int i = 0; i < table_template_count; i++)
+    template_maps_[i].deleteContents();
   scale_factors_map_.deleteContents();
   delete scale_factors_;
 
@@ -182,21 +186,17 @@ LibertyLibrary::findBusDcl(const char *name) const
 }
 
 void
-LibertyLibrary::addTableTemplate(TableTemplate *tbl_template)
+LibertyLibrary::addTableTemplate(TableTemplate *tbl_template,
+				 TableTemplateType type)
 {
-  template_map_[tbl_template->name()] = tbl_template;
-}
-
-void
-LibertyLibrary::deleteTableTemplate(TableTemplate *tbl_template)
-{
-  template_map_.eraseKey(tbl_template->name());
+  template_maps_[type][tbl_template->name()] = tbl_template;
 }
 
 TableTemplate *
-LibertyLibrary::findTableTemplate(const char *name)
+LibertyLibrary::findTableTemplate(const char *name,
+				  TableTemplateType type)
 {
-  return template_map_[name];
+  return template_maps_[type][name];
 }
 
 void

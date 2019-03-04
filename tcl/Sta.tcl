@@ -40,15 +40,15 @@ proc define_report_path_fields {} {
   set_rise_fall_short_names "^" "v"
   set_report_path_field_order { fanout capacitance slew \
 				 incr total edge case description }
-  set_report_path_field_properties "description" "Deescription" 36 1
+  set_report_path_field_properties "description" "Description" 36 1
   set width $report_path_field_width_extra
   set_report_path_field_properties "total" "Time" $width 0
   set_report_path_field_properties "incr" "Delay" $width 0
   set_report_path_field_properties "capacitance" "Cap" $width 0
   set_report_path_field_properties "slew" "Slew" $width 0
   set_report_path_field_properties "fanout" "Fanout" 5 0
-  set_report_path_field_properties "edge" "" 1 0
-  set_report_path_field_properties "case" "" 11 0
+  set_report_path_field_properties "edge" " " 1 0
+  set_report_path_field_properties "case" " " 11 0
 }
 
 ################################################################
@@ -1002,7 +1002,7 @@ proc report_object_names { args } {
   if { [info exists flags(-verbose)] } {
     puts -nonewline "{"
     set first 1
-    foreach obj [sort_name $objects] {
+    foreach obj [sort_by_full_name $objects] {
       if { !$first } {
 	puts -nonewline ", "
       }

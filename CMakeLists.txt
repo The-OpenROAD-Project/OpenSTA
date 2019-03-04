@@ -69,7 +69,6 @@ set(STA_SOURCE
   dcalc/SimpleRCDelayCalc.cc
   dcalc/UnitDelayCalc.cc
 
-  graph/Delay.cc
   graph/DelayFloat.cc
   graph/DelayNormal2.cc
   graph/Graph.cc
@@ -700,7 +699,7 @@ endif()
 
 message(STATUS "STA executable: ${STA_HOME}/app/sta")
 
-set(STA_COMPILE_OPTIONS -Wall -Wcast-qual -Wunused-parameter -Wno-deprecated-register)
+set(STA_COMPILE_OPTIONS -Wall -Wcast-qual -Wunused-parameter -Wno-deprecated-register -Wredundant-decls)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES AppleClang|Clang|GNU)
    target_compile_options(OpenSTA PUBLIC ${STA_COMPILE_OPTIONS})

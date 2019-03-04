@@ -22,7 +22,6 @@
 #include "LibertyParser.hh"
 
 int LibertyLex_lex();
-int LibertyParse_error(const char *msg);
 #define LibertyParse_lex LibertyLex_lex
 // Use yacc generated parser errors.
 #define YYERROR_VERBOSE

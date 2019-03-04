@@ -171,7 +171,7 @@ private:
   //
   //           stage
   //      |---------------|
-  //        |\             |\
+  //        |\             |\   .
   // -------| >---/\/\/----| >---
   //  gate  |/ drvr    load|/
   //  input
@@ -1122,6 +1122,7 @@ WritePathSpice::onePort(FuncExpr *expr)
     return port;
   case FuncExpr::op_one:
   case FuncExpr::op_zero:
+  default:
     return NULL;
   }
 }
@@ -1337,7 +1338,7 @@ WritePathSpice::recordSpicePortNames(const char *cell_name,
   auto cell = network_->findLibertyCell(cell_name);
   if (cell) {
     auto spice_port_names = new StringVector;
-    for (auto i = 2; i < tokens.size(); i++) {
+    for (size_t i = 2; i < tokens.size(); i++) {
       auto port_name = tokens[i].c_str();
       auto port = cell->findLibertyPort(port_name);
       auto pg_port = cell->findPgPort(port_name);
@@ -1526,7 +1527,8 @@ streamPrint(ofstream &stream,
   va_list args;
   va_start(args, fmt);
   char *result;
-  vasprintf(&result, fmt, args);
+  if (vasprintf(&result, fmt, args) == -1)
+    internalError("out of memory");
   stream << result;
   free(result);
   va_end(args);

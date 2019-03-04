@@ -23,6 +23,7 @@
 #include "LibertyExpr.hh"
 #include "LibertyExprPvt.hh"
 
+int LibertyExprLex_lex();
 #define LibertyExprParse_lex LibertyExprLex_lex
 
 %}

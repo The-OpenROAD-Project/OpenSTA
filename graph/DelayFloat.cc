@@ -48,12 +48,6 @@ delayIsInitValue(const Delay &delay,
   return fuzzyEqual(delay, min_max->initValue());
 }
 
-float
-delayAsFloat(const Delay &delay)
-{
-  return delay;
-}
-
 bool
 delayFuzzyZero(const Delay &delay)
 {
@@ -144,6 +138,13 @@ delayRatio(const Delay &delay1,
 	   const Delay &delay2)
 {
   return delay1 / delay2;
+}
+
+const char *
+delayAsString(const Delay &delay,
+	      const StaState *sta)
+{
+  return delayAsString(delay, sta, sta->units()->timeUnit()->digits());
 }
 
 const char *

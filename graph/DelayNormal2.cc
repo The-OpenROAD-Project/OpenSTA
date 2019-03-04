@@ -418,6 +418,13 @@ delaySigma2(const Delay &delay,
 
 const char *
 delayAsString(const Delay &delay,
+	      const StaState *sta)
+{
+  return delayAsString(delay, sta, sta->units()->timeUnit()->digits());
+}
+
+const char *
+delayAsString(const Delay &delay,
 	      const StaState *sta,
 	      int digits)
 {

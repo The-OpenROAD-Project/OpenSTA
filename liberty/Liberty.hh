@@ -96,6 +96,14 @@ typedef enum {
   scale_factor_pvt_unknown
 } ScaleFactorPvt;
 
+typedef enum {
+  table_template_delay,
+  table_template_power,
+  table_template_output_current,
+  table_template_ocv,
+  table_template_count
+} TableTemplateType;
+
 void
 initLiberty();
 void
@@ -138,8 +146,10 @@ public:
   void setDelayModelType(DelayModelType type);
   void addBusDcl(BusDcl *bus_dcl);
   BusDcl *findBusDcl(const char *name) const;
-  void addTableTemplate(TableTemplate *tbl_template);
-  TableTemplate *findTableTemplate(const char *name);
+  void addTableTemplate(TableTemplate *tbl_template,
+			TableTemplateType type);
+  TableTemplate *findTableTemplate(const char *name,
+				   TableTemplateType type);
   float nominalProcess() { return nominal_process_; }
   void setNominalProcess(float process);
   float nominalVoltage() const { return nominal_voltage_; }
@@ -289,12 +299,11 @@ protected:
 			const TableModel *model,
 			float in_slew,
 			float wire_delay) const;
-  void deleteTableTemplate(TableTemplate *tbl_template);
 
   Units *units_;
   DelayModelType delay_model_type_;
   BusDclMap bus_dcls_;
-  TableTemplateMap template_map_;
+  TableTemplateMap template_maps_[table_template_count];
   float nominal_process_;
   float nominal_voltage_;
   float nominal_temperature_;
@@ -365,8 +374,9 @@ private:
 class TableTemplateIterator : public TableTemplateMap::ConstIterator
 {
 public:
-  TableTemplateIterator(const LibertyLibrary *library) :
-    TableTemplateMap::ConstIterator(library->template_map_) {}
+  TableTemplateIterator(const LibertyLibrary *library,
+			TableTemplateType type) :
+    TableTemplateMap::ConstIterator(library->template_maps_[type]) {}
 };
 
 class OperatingConditionsIterator : public OperatingConditionsMap::ConstIterator

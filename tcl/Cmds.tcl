@@ -1876,22 +1876,6 @@ proc get_object_type { obj } {
   }
 }
 
-proc sort_by_full_name { objects } {
-  return [lsort -command full_name_cmp $objects]
-}
-
-proc sort_by_name { objects } {
-  return [lsort -command name_cmp $objects]
-}
-
-proc full_name_cmp { obj1 obj2 } {
-  return [string compare [get_full_name $obj1] [get_full_name $obj2]]
-}
-
-proc name_cmp { obj1 obj2 } {
-  return [string compare [get_name $obj1] [get_name $obj2]]
-}
-
 proc get_name { object } {
   return [get_object_property $object "name"]
 }
@@ -1900,22 +1884,12 @@ proc get_full_name { object } {
   return [get_object_property $object "full_name"]
 }
 
-if {0} {
-proc get_name { objects } {
-  set names {}
-  foreach object $objects {
-    lappend names [get_object_property $object "name"]
-  }
-  return $names
+proc sort_by_full_name { objects } {
+  return [lsort -command full_name_cmp $objects]
 }
 
-proc get_full_name { objects } {
-  set names {}
-  foreach object $objects {
-    lappend names [get_object_property $object "full_name"]
-  }
-  return $names
-}
+proc full_name_cmp { obj1 obj2 } {
+  return [string compare [get_full_name $obj1] [get_full_name $obj2]]
 }
 
 ################################################################

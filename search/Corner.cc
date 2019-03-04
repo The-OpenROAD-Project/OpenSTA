@@ -445,7 +445,7 @@ Corner::libertyLibraries(const MinMax *min_max)
 int
 Corner::libertyIndex(const MinMax *min_max) const
 {
-  return index_ * 2 + min_max->index();
+  return index_ * MinMax::index_count + min_max->index();
 }
 
 ////////////////////////////////////////////////////////////////

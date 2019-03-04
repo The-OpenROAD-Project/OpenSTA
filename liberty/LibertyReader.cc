@@ -234,12 +234,11 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("slew_derate_from_library",
 		    &LibertyReader::visitSlewDerateFromLibrary);
 
-  defineGroupVisitor("lu_table_template", &LibertyReader::beginTableTemplate,
+  defineGroupVisitor("lu_table_template",
+		     &LibertyReader::beginTableTemplateDelay,
 		     &LibertyReader::endTableTemplate);
   defineGroupVisitor("output_current_template",
-		     &LibertyReader::beginTableTemplate,
-		     &LibertyReader::endTableTemplate);
-  defineGroupVisitor("ocv_table_template", &LibertyReader::beginTableTemplate,
+		     &LibertyReader::beginTableTemplateOutputCurrent,
 		     &LibertyReader::endTableTemplate);
   defineAttrVisitor("variable_1", &LibertyReader::visitVariable1);
   defineAttrVisitor("variable_2", &LibertyReader::visitVariable2);
@@ -395,7 +394,8 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("sdf_cond", &LibertyReader::visitSdfCond);
 
   // Power attributes.
-  defineGroupVisitor("power_lut_template", &LibertyReader::beginTableTemplate,
+  defineGroupVisitor("power_lut_template",
+		     &LibertyReader::beginTableTemplatePower,
 		     &LibertyReader::endTableTemplate);
   defineGroupVisitor("leakage_power", &LibertyReader::beginLeakagePower,
 		     &LibertyReader::endLeakagePower);
@@ -415,7 +415,7 @@ LibertyReader::defineVisitors()
 		    &LibertyReader::visitDefaultOcvDerateGroup);
   defineAttrVisitor("ocv_derate_group", &LibertyReader::visitOcvDerateGroup);
   defineGroupVisitor("ocv_table_template",
-		     &LibertyReader::beginTableTemplate,
+		     &LibertyReader::beginTableTemplateOcv,
 		     &LibertyReader::endTableTemplate);
   defineGroupVisitor("ocv_derate",
 		     &LibertyReader::beginOcvDerate,
@@ -1211,13 +1211,26 @@ LibertyReader::visitSlewDerateFromLibrary(LibertyAttr *attr)
 ////////////////////////////////////////////////////////////////
 
 void
-LibertyReader::beginTableTemplate(LibertyGroup *group)
+LibertyReader::beginTableTemplateDelay(LibertyGroup *group)
+{
+  beginTableTemplate(group, table_template_delay);
+}
+
+void
+LibertyReader::beginTableTemplateOutputCurrent(LibertyGroup *group)
+{
+  beginTableTemplate(group, table_template_output_current);
+}
+
+void
+LibertyReader::beginTableTemplate(LibertyGroup *group,
+				  TableTemplateType type)
 {
   if (library_) {
     const char *name = group->firstName();
     if (name) {
       tbl_template_ = new TableTemplate(name);
-      library_->addTableTemplate(tbl_template_);
+      library_->addTableTemplate(tbl_template_, type);
     }
     else
       libWarn(group, "table template does not have a name.\n");
@@ -3732,7 +3745,8 @@ void
 LibertyReader::beginRiseTransitionDegredation(LibertyGroup *group)
 {
   if (library_)
-    beginTableModel(group, TransRiseFall::rise(), time_scale_,
+    beginTableModel(group, table_template_delay,
+		    TransRiseFall::rise(), time_scale_,
 		    scale_factor_transition);
 }
 
@@ -3740,7 +3754,8 @@ void
 LibertyReader::beginFallTransitionDegredation(LibertyGroup *group)
 {
   if (library_)
-    beginTableModel(group, TransRiseFall::fall(), time_scale_,
+    beginTableModel(group, table_template_delay,
+		    TransRiseFall::fall(), time_scale_,
 		    scale_factor_transition);
 }
 
@@ -3768,16 +3783,18 @@ LibertyReader::beginTimingTableModel(LibertyGroup *group,
 				     ScaleFactorType scale_factor_type)
 {
   if (timing_)
-    beginTableModel(group, tr, time_scale_, scale_factor_type);
+    beginTableModel(group, table_template_delay, tr,
+		    time_scale_, scale_factor_type);
 }
 
 void
 LibertyReader::beginTableModel(LibertyGroup *group,
+			       TableTemplateType type,
 			       TransRiseFall *tr,
 			       float scale,
 			       ScaleFactorType scale_factor_type)
 {
-  beginTable(group, scale);
+  beginTable(group, type, scale);
   tr_ = tr;
   scale_factor_type_ = scale_factor_type;
   sigma_type_ = EarlyLateAll::all();
@@ -3791,11 +3808,12 @@ LibertyReader::endTableModel()
 
 void
 LibertyReader::beginTable(LibertyGroup *group,
+			  TableTemplateType type,
 			  float scale)
 {
   const char *template_name = group->firstName();
   if (template_name) {
-    tbl_template_ = library_->findTableTemplate(template_name);
+    tbl_template_ = library_->findTableTemplate(template_name, type);
     if (tbl_template_) {
       axis_[0] = tbl_template_->axis1();
       axis_[1] = tbl_template_->axis2();
@@ -4402,6 +4420,12 @@ LibertyReader::libError(LibertyStmt *stmt,
 ////////////////////////////////////////////////////////////////
 
 void
+LibertyReader::beginTableTemplatePower(LibertyGroup *group)
+{
+  beginTableTemplate(group, table_template_power);
+}
+
+void
 LibertyReader::beginLeakagePower(LibertyGroup *group)
 {
   if (cell_) {
@@ -4441,7 +4465,8 @@ void
 LibertyReader::beginFallPower(LibertyGroup *group)
 {
   if (internal_power_)
-    beginTableModel(group, TransRiseFall::fall(), energy_scale_,
+    beginTableModel(group, table_template_power,
+		    TransRiseFall::fall(), energy_scale_,
 		    scale_factor_internal_power);
 }
 
@@ -4449,7 +4474,8 @@ void
 LibertyReader::beginRisePower(LibertyGroup *group)
 {
   if (internal_power_)
-    beginTableModel(group, TransRiseFall::rise(), energy_scale_,
+    beginTableModel(group, table_template_power,
+		    TransRiseFall::rise(), energy_scale_,
 		    scale_factor_internal_power);
 }
 
@@ -4497,6 +4523,12 @@ LibertyReader::visitRelatedPgPin(LibertyAttr *attr)
 }
 
 ////////////////////////////////////////////////////////////////
+
+void
+LibertyReader::beginTableTemplateOcv(LibertyGroup *group)
+{
+  beginTableTemplate(group, table_template_ocv);
+}
 
 void
 LibertyReader::visitOcvArcDepth(LibertyAttr *attr)
@@ -4558,7 +4590,7 @@ LibertyReader::beginOcvDerateFactors(LibertyGroup *group)
     rf_type_ = TransRiseFallBoth::riseFall();
     derate_type_ = EarlyLateAll::all();
     path_type_ = path_type_clk_and_data;
-    beginTable(group, 1.0);
+    beginTable(group, table_template_ocv, 1.0);
   }
 }
 

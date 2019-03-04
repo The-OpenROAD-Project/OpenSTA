@@ -1068,11 +1068,11 @@ Sta::makeGeneratedClock(const char *name,
 			char *comment)
 {
   sdc_->makeGeneratedClock(name, pins, add_to_pins,
-				   src_pin, master_clk,
-				   pll_out, pll_fdbk,
-				   divide_by, multiply_by, duty_cycle,
-				   invert, combinational,
-				   edges, edge_shifts, comment);
+			   src_pin, master_clk,
+			   pll_out, pll_fdbk,
+			   divide_by, multiply_by, duty_cycle,
+			   invert, combinational,
+			   edges, edge_shifts, comment);
   update_genclks_ = true;
   search_->arrivalsInvalid();
 }
@@ -1257,7 +1257,7 @@ Sta::setClockUncertainty(Clock *from_clk,
 			 float uncertainty)
 {
   sdc_->setClockUncertainty(from_clk, from_tr, to_clk, to_tr,
-				    setup_hold, uncertainty);
+			    setup_hold, uncertainty);
   search_->arrivalsInvalid();
 }
 
@@ -1282,11 +1282,11 @@ Sta::makeClockGroups(const char *name,
 		     const char *comment)
 {
   ClockGroups *groups = sdc_->makeClockGroups(name,
-						      logically_exclusive,
-						      physically_exclusive,
-						      asynchronous,
-						      allow_paths,
-						      comment);
+					      logically_exclusive,
+					      physically_exclusive,
+					      asynchronous,
+					      allow_paths,
+					      comment);
   search_->requiredsInvalid();
   return groups;
 }
@@ -1828,8 +1828,8 @@ Sta::setInputDelay(Pin *pin,
 		   float delay)
 {
   sdc_->setInputDelay(pin, tr, clk, clk_tr, ref_pin,
-			      source_latency_included, network_latency_included,
-			      min_max, add, delay);
+		      source_latency_included, network_latency_included,
+		      min_max, add, delay);
 
   search_->arrivalInvalid(pin);
 }
@@ -1858,8 +1858,8 @@ Sta::setOutputDelay(Pin *pin,
 		    float delay)
 {
   sdc_->setOutputDelay(pin, tr, clk, clk_tr, ref_pin,
-			       source_latency_included,network_latency_included,
-			       min_max, add, delay);
+		       source_latency_included,network_latency_included,
+		       min_max, add, delay);
   search_->requiredInvalid(pin);
 }
 
@@ -1895,8 +1895,8 @@ Sta::makeMulticyclePath(ExceptionFrom *from,
 			const char *comment)
 {
   sdc_->makeMulticyclePath(from, thrus, to, min_max,
-				   use_end_clk, path_multiplier,
-				   comment);
+			   use_end_clk, path_multiplier,
+			   comment);
   search_->arrivalsInvalid();
 }
 
@@ -1910,8 +1910,8 @@ Sta::makePathDelay(ExceptionFrom *from,
 		   const char *comment)
 {
   sdc_->makePathDelay(from, thrus, to, min_max, 
-			      ignore_clk_latency, delay,
-			      comment);
+		      ignore_clk_latency, delay,
+		      comment);
   search_->endpointsInvalid();
   search_->arrivalsInvalid();
 }
@@ -1954,7 +1954,7 @@ Sta::makeExceptionFrom(PinSet *from_pins,
 		       const TransRiseFallBoth *from_tr)
 {
   return sdc_->makeExceptionFrom(from_pins, from_clks, from_insts,
-					 from_tr);
+				 from_tr);
 }
 
 void

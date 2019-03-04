@@ -30,91 +30,11 @@
 // API common to DelayFloat and DelayNormal2.
 namespace sta {
 
-class Units;
-class StaState;
-
 typedef Delay ArcDelay;
 typedef Delay Slew;
 typedef Delay Arrival;
 typedef Delay Required;
 typedef Delay Slack;
-
-void
-initDelayConstants();
-Delay
-makeDelay(float delay,
-	  float sigma_early,
-	  float sigma_late);
-// sigma^2
-Delay
-makeDelay2(float delay,
-	  float sigma2_early,
-	  float sigma2_late);
-float
-delayAsFloat(const Delay &delay);
-// mean late+/early- sigma
-float
-delayAsFloat(const Delay &delay,
-	     const EarlyLate *early_late);
-float
-delaySigma(const Delay &delay,
-	   const EarlyLate *early_late);
-float
-delaySigma2(const Delay &delay,
-	    const EarlyLate *early_late);
-const char *
-delayAsString(const Delay &delay,
-	      const StaState *sta);
-const char *
-delayAsString(const Delay &delay,
-	      const StaState *sta,
-	      int digits);
-const char *
-delayAsString(const Delay &delay,
-	      const EarlyLate *early_late,
-	      const StaState *sta,
-	      int digits);
-const Delay &
-delayInitValue(const MinMax *min_max);
-bool
-delayIsInitValue(const Delay &delay,
-		 const MinMax *min_max);
-bool
-delayFuzzyZero(const Delay &delay);
-bool
-delayFuzzyEqual(const Delay &delay1,
-		const Delay &delay2);
-bool
-delayFuzzyLess(const Delay &delay1,
-	       const Delay &delay2);
-bool
-delayFuzzyLess(const Delay &delay1,
-	       const Delay &delay2,
-	       const MinMax *min_max);
-bool
-delayFuzzyLessEqual(const Delay &delay1,
-		    const Delay &delay2);
-bool
-delayFuzzyLessEqual(const Delay &delay1,
-		    const Delay &delay2,
-		    const MinMax *min_max);
-bool
-delayFuzzyGreater(const Delay &delay1,
-		  const Delay &delay2);
-bool
-delayFuzzyGreaterEqual(const Delay &delay1,
-		       const Delay &delay2);
-bool
-delayFuzzyGreaterEqual(const Delay &delay1,
-		       const Delay &delay2,
-		       const MinMax *min_max);
-bool
-delayFuzzyGreater(const Delay &delay1,
-		  const Delay &delay2,
-		  const MinMax *min_max);
-float
-delayRatio(const Delay &delay1,
-	   const Delay &delay2);
 
 } // namespace
 #endif

@@ -133,7 +133,10 @@ public:
 					  TransRiseFall *tr);
   virtual void visitSlewDerateFromLibrary(LibertyAttr *attr);
 
-  virtual void beginTableTemplate(LibertyGroup *group);
+  virtual void beginTableTemplateDelay(LibertyGroup *group);
+  virtual void beginTableTemplateOutputCurrent(LibertyGroup *group);
+  virtual void beginTableTemplate(LibertyGroup *group,
+				  TableTemplateType type);
   virtual void endTableTemplate(LibertyGroup *group);
   virtual void visitVariable1(LibertyAttr *attr);
   virtual void visitVariable2(LibertyAttr *attr);
@@ -320,6 +323,7 @@ public:
   virtual void endRiseFallTransitionDegredation(LibertyGroup *group);
 
   virtual void beginTableModel(LibertyGroup *group,
+			       TableTemplateType type,
 			       TransRiseFall *tr,
 			       float scale,
 			       ScaleFactorType scale_factor_type);
@@ -328,7 +332,8 @@ public:
 				     TransRiseFall *tr,
 				     ScaleFactorType scale_factor_type);
   virtual void beginTable(LibertyGroup *group,
-			       float scale);
+			  TableTemplateType type,
+			  float scale);
   virtual void endTable();
   virtual void makeTable(LibertyAttr *attr,
 			 float scale);
@@ -351,6 +356,7 @@ public:
   virtual void visitSdfCond(LibertyAttr *attr);
 
   // Power attributes.
+  virtual void beginTableTemplatePower(LibertyGroup *group);
   virtual void beginLeakagePower(LibertyGroup *group);
   virtual void endLeakagePower(LibertyGroup *group);
   virtual void beginInternalPower(LibertyGroup *group);
@@ -370,6 +376,7 @@ public:
 				  InternalPowerGroup *power_group);
 
   // AOCV attributes.
+  virtual void beginTableTemplateOcv(LibertyGroup *group);
   virtual void visitOcvArcDepth(LibertyAttr *attr);
   virtual void visitDefaultOcvDerateGroup(LibertyAttr *attr);
   virtual void visitOcvDerateGroup(LibertyAttr *attr);

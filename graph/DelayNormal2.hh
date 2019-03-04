@@ -24,6 +24,7 @@ namespace sta {
 // Delay values defined as objects that hold a float value.
 
 class Delay;
+class StaState;
 
 // Normal distribution with early(left)/late(right) std deviations.
 class Delay
@@ -69,10 +70,20 @@ private:
 
 const Delay delay_zero(0.0);
 
+void
+initDelayConstants();
+
 Delay
 makeDelay(float delay,
 	  float sigma_early,
 	  float sigma_late);
+
+Delay
+makeDelay2(float delay,
+	   // sigma^2
+	   float sigma_early,
+	   float sigma_late);
+
 inline float
 delayAsFloat(const Delay &delay) { return delay.mean(); }
 
@@ -88,6 +99,70 @@ Delay operator/(float delay1,
 // Used for parallel gate delay calc.
 Delay operator*(const Delay &delay1,
 		float delay2);
+
+// mean late+/early- sigma
+float
+delayAsFloat(const Delay &delay,
+	     const EarlyLate *early_late);
+float
+delaySigma(const Delay &delay,
+	   const EarlyLate *early_late);
+float
+delaySigma2(const Delay &delay,
+	    const EarlyLate *early_late);
+const char *
+delayAsString(const Delay &delay,
+	      const StaState *sta);
+const char *
+delayAsString(const Delay &delay,
+	      const StaState *sta,
+	      int digits);
+const char *
+delayAsString(const Delay &delay,
+	      const EarlyLate *early_late,
+	      const StaState *sta,
+	      int digits);
+const Delay &
+delayInitValue(const MinMax *min_max);
+bool
+delayIsInitValue(const Delay &delay,
+		 const MinMax *min_max);
+bool
+delayFuzzyZero(const Delay &delay);
+bool
+delayFuzzyEqual(const Delay &delay1,
+		const Delay &delay2);
+bool
+delayFuzzyLess(const Delay &delay1,
+	       const Delay &delay2);
+bool
+delayFuzzyLess(const Delay &delay1,
+	       const Delay &delay2,
+	       const MinMax *min_max);
+bool
+delayFuzzyLessEqual(const Delay &delay1,
+		    const Delay &delay2);
+bool
+delayFuzzyLessEqual(const Delay &delay1,
+		    const Delay &delay2,
+		    const MinMax *min_max);
+bool
+delayFuzzyGreater(const Delay &delay1,
+		  const Delay &delay2);
+bool
+delayFuzzyGreaterEqual(const Delay &delay1,
+		       const Delay &delay2);
+bool
+delayFuzzyGreaterEqual(const Delay &delay1,
+		       const Delay &delay2,
+		       const MinMax *min_max);
+bool
+delayFuzzyGreater(const Delay &delay1,
+		  const Delay &delay2,
+		  const MinMax *min_max);
+float
+delayRatio(const Delay &delay1,
+	   const Delay &delay2);
 
 } // namespace
 #endif

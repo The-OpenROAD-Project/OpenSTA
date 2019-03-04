@@ -2891,9 +2891,8 @@ ReportPath::reportPathHeader(string &result)
     if (field->enabled()) {
       if (!first_field)
 	result += ' ';
-      first_field = false;
-
       reportField(field->title(), field, result);
+      first_field = false;
     }
   }
   trimRight(result);
@@ -2988,11 +2987,11 @@ ReportPath::reportLine(const char *what,
 		       string &result)
 {
   ReportFieldSeq::Iterator field_iter(fields_);
-  int field_index = 0;
+  size_t field_index = 0;
+  bool first_field = true;
   while (field_iter.hasNext()) {
     ReportField *field = field_iter.next();
-    bool first_field = field_index == 0;
-    bool last_field = field_index == fields_.size() - 1;
+    bool last_field = field_index == (fields_.size() - 1);
     
     if (field->enabled()) {
       if (!first_field)
@@ -3021,19 +3020,16 @@ ReportPath::reportLine(const char *what,
 	  reportFieldDelay(total, early_late, field, result);
       }
       else if (field == field_edge_) {
-	if (tr) {
-	  result += ' ';
+	if (tr)
 	  reportField(tr->shortName(), field, result);
-	}
 	// Compatibility kludge; suppress trailing spaces.
-	else if (field_iter.hasNext()) {
-	  result += ' ';
+	else if (field_iter.hasNext())
 	  reportFieldBlank(field, result);
-	}
       }
       else if (field == field_case_ && line_case)
 	result += line_case;
 
+      first_field = false;
     }
     field_index++;
   }

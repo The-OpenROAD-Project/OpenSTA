@@ -23,9 +23,14 @@
 
 namespace sta {
 
+class StaState;
+
 typedef float Delay;
 
 const Delay delay_zero = 0.0;
+
+void
+initDelayConstants();
 
 inline Delay
 makeDelay(float delay,
@@ -42,6 +47,76 @@ makeDelay2(float delay,
 {
   return delay;
 }
+
+inline float
+delayAsFloat(const Delay &delay)
+{
+  return delay;
+}
+
+// mean late+/early- sigma
+float
+delayAsFloat(const Delay &delay,
+	     const EarlyLate *early_late);
+float
+delaySigma(const Delay &delay,
+	   const EarlyLate *early_late);
+float
+delaySigma2(const Delay &delay,
+	    const EarlyLate *early_late);
+const char *
+delayAsString(const Delay &delay,
+	      const StaState *sta);
+const char *
+delayAsString(const Delay &delay,
+	      const StaState *sta,
+	      int digits);
+const char *
+delayAsString(const Delay &delay,
+	      const EarlyLate *early_late,
+	      const StaState *sta,
+	      int digits);
+const Delay &
+delayInitValue(const MinMax *min_max);
+bool
+delayIsInitValue(const Delay &delay,
+		 const MinMax *min_max);
+bool
+delayFuzzyZero(const Delay &delay);
+bool
+delayFuzzyEqual(const Delay &delay1,
+		const Delay &delay2);
+bool
+delayFuzzyLess(const Delay &delay1,
+	       const Delay &delay2);
+bool
+delayFuzzyLess(const Delay &delay1,
+	       const Delay &delay2,
+	       const MinMax *min_max);
+bool
+delayFuzzyLessEqual(const Delay &delay1,
+		    const Delay &delay2);
+bool
+delayFuzzyLessEqual(const Delay &delay1,
+		    const Delay &delay2,
+		    const MinMax *min_max);
+bool
+delayFuzzyGreater(const Delay &delay1,
+		  const Delay &delay2);
+bool
+delayFuzzyGreaterEqual(const Delay &delay1,
+		       const Delay &delay2);
+bool
+delayFuzzyGreaterEqual(const Delay &delay1,
+		       const Delay &delay2,
+		       const MinMax *min_max);
+bool
+delayFuzzyGreater(const Delay &delay1,
+		  const Delay &delay2,
+		  const MinMax *min_max);
+float
+delayRatio(const Delay &delay1,
+	   const Delay &delay2);
 
 } // namespace
 #endif

@@ -562,7 +562,8 @@ ConcretePort::memberIterator() const
 ConcreteCellPortBitIterator::ConcreteCellPortBitIterator(const ConcreteCell*
 							 cell) :
   port_iter_(cell->ports_),
-  member_iter_(NULL)
+  member_iter_(NULL),
+  next_(NULL)
 {
   findNext();
 }
@@ -585,24 +586,29 @@ void
 ConcreteCellPortBitIterator::findNext()
 {
   if (member_iter_) {
-    if (member_iter_->hasNext())
+    if (member_iter_->hasNext()) {
       next_ = member_iter_->next();
+      return;
+    }
     else {
       delete member_iter_;
       member_iter_ = NULL;
     }
   }
-  if (member_iter_ == NULL) {
-    if (port_iter_.hasNext()) {
-      next_ = port_iter_.next();
-      if (next_->isBus()) {
-	member_iter_ = next_->memberIterator();
-	next_ = member_iter_->next();
-      }
+  while (port_iter_.hasNext()) {
+    ConcretePort *next = port_iter_.next();
+    if (next->isBus()) {
+      member_iter_ = next->memberIterator();
+      next_ = member_iter_->next();
+      return;
     }
-    else
-      next_ = NULL;
+    else if (!next->isBundle()) {
+      next_ = next;
+      return;
+    }
+    next_ = NULL;
   }
+  next_ = NULL;
 }
 
 } // namespace
