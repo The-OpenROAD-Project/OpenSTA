@@ -20,7 +20,6 @@
 #include "DisallowCopyAssign.hh"
 #include "Map.hh"
 #include "Vector.hh"
-#include "Mutex.hh"
 #include "StaState.hh"
 #include "SearchClass.hh"
 
@@ -91,7 +90,7 @@ protected:
   const MinMax *min_max_;
   bool compare_slack_;
   float threshold_;
-  Mutex lock_;
+  std::mutex lock_;
   const StaState *sta_;
 
 private:
@@ -116,7 +115,7 @@ public:
 	     bool unconstrained,
 	     const StaState *sta);
   ~PathGroups();
-  // Use corner NULL to make PathEnds for all corners.
+  // Use corner nullptr to make PathEnds for all corners.
   // Returned PathEndSeq is owned by the caller.
   // The PathEnds in the vector are owned by the PathGroups.
   PathEndSeq *makePathEnds(ExceptionTo *to,

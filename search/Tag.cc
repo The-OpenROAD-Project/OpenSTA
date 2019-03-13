@@ -163,7 +163,7 @@ Tag::asString(bool report_index,
 	str += ")";
       }
       else {
-	if (exception->thrus() != NULL)
+	if (exception->thrus() != nullptr)
 	  str += " (thrus complete)";
       }
     }
@@ -241,7 +241,7 @@ Tag::genClkSrcPathClk(const StaState *sta) const
       }
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 void
@@ -541,8 +541,8 @@ tagStateCmp(const Tag *tag1,
 {
   ExceptionStateSet *states1 = tag1->states();
   ExceptionStateSet *states2 = tag2->states();
-  bool states_null1 = (states1 == NULL || states1->empty());
-  bool states_null2 = (states2 == NULL || states2->empty());
+  bool states_null1 = (states1 == nullptr || states1->empty());
+  bool states_null2 = (states2 == nullptr || states2->empty());
   if (states_null1
       && states_null2)
     return 0;
@@ -585,8 +585,8 @@ static bool
 tagStateEqual(ExceptionStateSet *states1,
 	      ExceptionStateSet *states2)
 {
-  bool states_null1 = (states1 == NULL || states1->empty());
-  bool states_null2 = (states2 == NULL || states2->empty());
+  bool states_null1 = (states1 == nullptr || states1->empty());
+  bool states_null2 = (states2 == nullptr || states2->empty());
   if (states_null1 && states_null2)
     return true;
   else if (states_null1 != states_null2)
@@ -621,7 +621,7 @@ tagStateEqualCrpr(const Tag *tag1,
   ExceptionStateSet::Iterator state_iter2(states2);
   ExceptionState *state1, *state2;
   do {
-    state1 = NULL;
+    state1 = nullptr;
     while (state_iter1.hasNext()) {
       state1 = state_iter1.next();
       ExceptionPath *exception1 = state1->exception();
@@ -629,9 +629,9 @@ tagStateEqualCrpr(const Tag *tag1,
 	  || exception1->isLoop())
 	break;
       else
-	state1 = NULL;
+	state1 = nullptr;
     }
-    state2 = NULL;
+    state2 = nullptr;
     while (state_iter2.hasNext()) {
       state2 = state_iter2.next();
       ExceptionPath *exception2 = state2->exception();
@@ -639,13 +639,13 @@ tagStateEqualCrpr(const Tag *tag1,
 	  || exception2->isLoop())
 	break;
       else
-	state2 = NULL;
+	state2 = nullptr;
     }
     if (state1 != state2)
       return false;
   } while (state1 && state2);
-  return state1 == NULL
-    && state2 == NULL;
+  return state1 == nullptr
+    && state2 == nullptr;
 }
 
 ////////////////////////////////////////////////////////////////

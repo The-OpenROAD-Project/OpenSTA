@@ -70,8 +70,8 @@ SdcPathParser::SdcPathParser(const char *path,
   network_(network),
   divider_(network->pathDivider()),
   escape_(network->pathEscape()),
-  inst_path_(NULL),
-  inst_(NULL)
+  inst_path_(nullptr),
+  inst_(nullptr)
 {
   initialScan(path);
   if (divider_count_ > 0)
@@ -1012,7 +1012,7 @@ SdcNetwork::findPort(const Cell *cell,
 		     const char *name) const
 {
   Port *port = network_->findPort(cell, name);
-  if (port == NULL) {
+  if (port == nullptr) {
     // Look for matches after escaping brackets.
     const char *port_name_ = escapeBrackets(name, this);
     port = network_->findPort(cell, port_name_);
@@ -1092,7 +1092,7 @@ SdcNetwork::findInstance(const char *path_name) const
 {
   SdcPathParser path_parser(path_name, this);
   Instance *parent = path_parser.instance();
-  if (parent == NULL)
+  if (parent == nullptr)
     parent = network_->topInstance();
   const char *child_name = path_parser.pathTail();
   return findChild(parent, child_name);
@@ -1103,7 +1103,7 @@ SdcNetwork::findChild(const Instance *parent,
 		      const char *name) const
 {
   Instance *child = network_->findChild(parent, name);
-  if (child == NULL) {
+  if (child == nullptr) {
     const char *escaped = escapeBrackets(name, this);
     child = network_->findChild(parent, escaped);
   }
@@ -1115,7 +1115,7 @@ SdcNetwork::findNet(const char *path_name) const
 {
   SdcPathParser path_parser(path_name, this);
   const Instance *inst = path_parser.instance();
-  if (inst == NULL)
+  if (inst == nullptr)
     inst = network_->topInstance();
   const char *net_name = path_parser.pathTail();
   return findNet(inst, net_name);
@@ -1126,7 +1126,7 @@ SdcNetwork::findNet(const Instance *instance,
 		    const char *net_name) const
 {
   Net *net = network_->findNet(instance, net_name);
-  if (net == NULL) {
+  if (net == nullptr) {
     const char *net_name_ = escapeBrackets(net_name, this);
     net = network_->findNet(instance, net_name_);
   }
@@ -1140,7 +1140,7 @@ SdcNetwork::findPin(const char *path_name) const
 {
   SdcPathParser path_parser(path_name, this);
   const Instance *inst = path_parser.instance();
-  if (inst == NULL)
+  if (inst == nullptr)
     inst = network_->topInstance();
   const char *port_name = path_parser.pathTail();
   return findPin(inst, port_name);
@@ -1151,7 +1151,7 @@ SdcNetwork::findPin(const Instance *instance,
 		    const char *port_name) const
 {
   Pin *pin = network_->findPin(instance, port_name);
-  if (pin == NULL) {
+  if (pin == nullptr) {
     // Look for match after escaping brackets.
     const char *port_name_ = escapeBrackets(port_name, this);
     pin = network_->findPin(instance, port_name_);

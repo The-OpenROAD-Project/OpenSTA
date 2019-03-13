@@ -15,6 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "Machine.hh"
+#include "EnumNameMap.hh"
 #include "FuncExpr.hh"
 #include "TimingRole.hh"
 #include "Liberty.hh"
@@ -33,16 +34,16 @@ timingArcsLess(const TimingArcSet *set1,
 ////////////////////////////////////////////////////////////////
 
 TimingArcAttrs::TimingArcAttrs() :
-  timing_type_(timing_type_combinational),
-  timing_sense_(timing_sense_unknown),
-  cond_(NULL),
-  sdf_cond_(NULL),
-  sdf_cond_start_(NULL),
-  sdf_cond_end_(NULL),
-  mode_name_(NULL),
-  mode_value_(NULL),
+  timing_type_(TimingType::combinational),
+  timing_sense_(TimingSense::unknown),
+  cond_(nullptr),
+  sdf_cond_(nullptr),
+  sdf_cond_start_(nullptr),
+  sdf_cond_end_(nullptr),
+  mode_name_(nullptr),
+  mode_value_(nullptr),
   ocv_arc_depth_(0.0),
-  models_{NULL, NULL}
+  models_{nullptr, nullptr}
 {
 }
 
@@ -135,7 +136,7 @@ TimingArcAttrs::setOcvArcDepth(float depth)
 
 ////////////////////////////////////////////////////////////////
 
-TimingArcSet *TimingArcSet::wire_timing_arc_set_ = NULL;
+TimingArcSet *TimingArcSet::wire_timing_arc_set_ = nullptr;
 
 TimingArcSet::TimingArcSet(LibertyCell *cell,
 			   LibertyPort *from,
@@ -165,20 +166,20 @@ TimingArcSet::TimingArcSet(LibertyCell *cell,
 }
 
 TimingArcSet::TimingArcSet(TimingRole *role) :
-  from_(NULL),
-  to_(NULL),
-  related_out_(NULL),
+  from_(nullptr),
+  to_(nullptr),
+  related_out_(nullptr),
   role_(role),
-  cond_(NULL),
+  cond_(nullptr),
   is_cond_default_(false),
-  sdf_cond_start_(NULL),
-  sdf_cond_end_(NULL),
-  mode_name_(NULL),
-  mode_value_(NULL),
+  sdf_cond_start_(nullptr),
+  sdf_cond_end_(nullptr),
+  mode_name_(nullptr),
+  mode_value_(nullptr),
   index_(0),
   is_disabled_constraint_(false)
 {
-  init(NULL);
+  init(nullptr);
 }
 
 void
@@ -191,8 +192,8 @@ TimingArcSet::init(LibertyCell *cell)
   while (tr_iter.hasNext()) {
     TransRiseFall *tr = tr_iter.next();
     int tr_index = tr->index();
-    from_arc1_[tr_index] = NULL;
-    from_arc2_[tr_index] = NULL;
+    from_arc1_[tr_index] = nullptr;
+    from_arc2_[tr_index] = nullptr;
   }
 }
 
@@ -208,7 +209,7 @@ TimingArcSet::libertyCell() const
     return from_->libertyCell();
   else
     // Wire timing arc set.
-    return NULL;
+    return nullptr;
 }
 
 TimingArcSetArcIterator *
@@ -226,9 +227,9 @@ TimingArcSet::addTimingArc(TimingArc *arc)
   arcs_.push_back(arc);
 
   int from_tr_index = arc->fromTrans()->asRiseFall()->index();
-  if (from_arc1_[from_tr_index] == NULL)
+  if (from_arc1_[from_tr_index] == nullptr)
     from_arc1_[from_tr_index] = arc;
-  else if (from_arc2_[from_tr_index] == NULL)
+  else if (from_arc2_[from_tr_index] == nullptr)
     from_arc2_[from_tr_index] = arc;
 
   return arc_index;
@@ -248,10 +249,10 @@ TimingArcSet::deleteTimingArc(TimingArc *arc)
   int from_tr_index = arc->fromTrans()->asRiseFall()->index();
   if (from_arc1_[from_tr_index] == arc) {
     from_arc1_[from_tr_index] = from_arc2_[from_tr_index];
-    from_arc2_[from_tr_index] = NULL;
+    from_arc2_[from_tr_index] = nullptr;
   }
   else if (from_arc2_[from_tr_index] == arc)
-    from_arc2_[from_tr_index] = NULL;
+    from_arc2_[from_tr_index] = nullptr;
   delete arc;
 }
 
@@ -292,7 +293,7 @@ TimingArcSet::sense() const
   else if (arcs_.size() == 2 && arcs_[0]->sense() == arcs_[1]->sense())
     return arcs_[0]->sense();
   else
-    return timing_sense_non_unate;
+    return TimingSense::non_unate;
 }
 
 TransRiseFall *
@@ -308,7 +309,7 @@ TimingArcSet::isRisingFallingEdge() const
   if (arcs_.size() == 1)
     return arcs_[0]->fromTrans()->asRiseFall();
   else
-    return NULL;
+    return nullptr;
 }
 
 void
@@ -475,16 +476,16 @@ TimingArcSet::init()
 {
   wire_timing_arc_set_ = new TimingArcSet(TimingRole::wire());
   new TimingArc(wire_timing_arc_set_, Transition::rise(),
-		Transition::rise(), NULL);
+		Transition::rise(), nullptr);
   new TimingArc(wire_timing_arc_set_, Transition::fall(),
-		Transition::fall(), NULL);
+		Transition::fall(), nullptr);
 }
 
 void
 TimingArcSet::destroy()
 {
   delete wire_timing_arc_set_;
-  wire_timing_arc_set_ = NULL;
+  wire_timing_arc_set_ = nullptr;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -504,7 +505,7 @@ TimingArc::TimingArc(TimingArcSet *set,
   from_tr_(from_tr),
   to_tr_(to_tr),
   model_(model),
-  scaled_models_(NULL)
+  scaled_models_(nullptr)
 {
   index_ = set->addTimingArc(this);
 }
@@ -534,7 +535,7 @@ void
 TimingArc::addScaledModel(const OperatingConditions *op_cond,
 			  TimingModel *scaled_model)
 {
-  if (scaled_models_ == NULL)
+  if (scaled_models_ == nullptr)
     scaled_models_ = new ScaledTimingModelMap;
   (*scaled_models_)[op_cond] = scaled_model;
 }
@@ -582,154 +583,129 @@ TimingArc::sense() const
        && to_tr_ == Transition::rise())
       || (from_tr_ == Transition::fall()
 	  && to_tr_ == Transition::fall()))
-    return timing_sense_positive_unate;
+    return TimingSense::positive_unate;
   else if ((from_tr_ == Transition::rise()
        && to_tr_ == Transition::fall())
       || (from_tr_ == Transition::fall()
 	  && to_tr_ == Transition::rise()))
-    return timing_sense_negative_unate;
+    return TimingSense::negative_unate;
   else
-    return timing_sense_non_unate;
+    return TimingSense::non_unate;
 }
+
+static EnumNameMap<TimingSense> timing_sense_name_map =
+  {{TimingSense::positive_unate, "positive_unate"},
+   {TimingSense::negative_unate, "negative_unate"},
+   {TimingSense::non_unate, "non_unate"},
+   {TimingSense::none, "none"},
+   {TimingSense::unknown, "unknown"}
+  };
 
 const char *
 timingSenseString(TimingSense sense)
 {
-  static const char *sense_string[] = {"positive_unate",
-				       "negative_unate",
-				       "non_unate",
-				       "none",
-				       "unknown"};
-  return sense_string[sense];
+  return timing_sense_name_map.find(sense);
 }
 
 TimingSense
 timingSenseOpposite(TimingSense sense)
 {
   switch (sense) {
-  case timing_sense_positive_unate:
-    return timing_sense_negative_unate;
-  case timing_sense_negative_unate:
-    return timing_sense_positive_unate;
-  case timing_sense_non_unate:
-    return timing_sense_non_unate;
-  case timing_sense_unknown:
-    return timing_sense_unknown;
-  case timing_sense_none:
-    return timing_sense_none;
+  case TimingSense::positive_unate:
+    return TimingSense::negative_unate;
+  case TimingSense::negative_unate:
+    return TimingSense::positive_unate;
+  case TimingSense::non_unate:
+    return TimingSense::non_unate;
+  case TimingSense::unknown:
+    return TimingSense::unknown;
+  case TimingSense::none:
+    return TimingSense::none;
   }
   // Prevent warnings from lame compilers.
-  return timing_sense_unknown;
+  return TimingSense::unknown;
 }
 
 ////////////////////////////////////////////////////////////////
 
 // Same order as enum TimingType.
-static const char *timing_type_strings[] = {
-  "clear",
-  "combinational",
-  "combinational_fall",
-  "combinational_rise",
-  "falling_edge",
-  "hold_falling",
-  "hold_rising",
-  "min_pulse_width",
-  "minimum_period",
-  "nochange_high_high",
-  "nochange_high_low",
-  "nochange_low_high",
-  "nochange_low_low",
-  "non_seq_hold_falling",
-  "non_seq_hold_rising",
-  "non_seq_setup_falling",
-  "non_seq_setup_rising",
-  "preset",
-  "recovery_falling",
-  "recovery_rising",
-  "removal_falling",
-  "removal_rising",
-  "retaining_time",
-  "rising_edge",
-  "setup_falling",
-  "setup_rising",
-  "skew_falling",
-  "skew_rising",
-  "three_state_disable",
-  "three_state_disable_fall",
-  "three_state_disable_rise",
-  "three_state_enable",
-  "three_state_enable_fall",
-  "three_state_enable_rise",
-  "min_clock_tree_path",
-  "max_clock_tree_path",
-  "unknown"
-};
-
-typedef Map<const char*,TimingType,CharPtrLess> TimingTypeMap;
-
-static TimingTypeMap *timing_type_string_map = NULL;
-
-void
-makeTimingTypeMap()
-{
-  timing_type_string_map = new TimingTypeMap();
-  int count = sizeof(timing_type_strings) / sizeof(const char*);
-  for (int i = 0; i < count; i++) {
-    const char *type_name = timing_type_strings[i];
-    (*timing_type_string_map)[type_name] = (TimingType) i;
-  }
-}
-
-void
-deleteTimingTypeMap()
-{
-  delete timing_type_string_map;
-  timing_type_string_map = NULL;
-}
+EnumNameMap<TimingType> timing_type_name_map =
+  {{TimingType::clear, "clear"},
+   {TimingType::combinational, "combinational"},
+   {TimingType::combinational_fall, "combinational_fall"},
+   {TimingType::combinational_rise, "combinational_rise"},
+   {TimingType::falling_edge, "falling_edge"},
+   {TimingType::hold_falling, "hold_falling"},
+   {TimingType::hold_rising, "hold_rising"},
+   {TimingType::min_pulse_width, "min_pulse_width"},
+   {TimingType::minimum_period, "minimum_period"},
+   {TimingType::nochange_high_high, "nochange_high_high"},
+   {TimingType::nochange_high_low, "nochange_high_low"},
+   {TimingType::nochange_low_high, "nochange_low_high"},
+   {TimingType::nochange_low_low, "nochange_low_low"},
+   {TimingType::non_seq_hold_falling, "non_seq_hold_falling"},
+   {TimingType::non_seq_hold_rising, "non_seq_hold_rising"},
+   {TimingType::non_seq_setup_falling, "non_seq_setup_falling"},
+   {TimingType::non_seq_setup_rising, "non_seq_setup_rising"},
+   {TimingType::preset, "preset"},
+   {TimingType::recovery_falling, "recovery_falling"},
+   {TimingType::recovery_rising, "recovery_rising"},
+   {TimingType::removal_falling, "removal_falling"},
+   {TimingType::removal_rising, "removal_rising"},
+   {TimingType::retaining_time, "retaining_time"},
+   {TimingType::rising_edge, "rising_edge"},
+   {TimingType::setup_falling, "setup_falling"},
+   {TimingType::setup_rising, "setup_rising"},
+   {TimingType::skew_falling, "skew_falling"},
+   {TimingType::skew_rising, "skew_rising"},
+   {TimingType::three_state_disable, "three_state_disable"},
+   {TimingType::three_state_disable_fall, "three_state_disable_fall"},
+   {TimingType::three_state_disable_rise, "three_state_disable_rise"},
+   {TimingType::three_state_enable, "three_state_enable"},
+   {TimingType::three_state_enable_fall, "three_state_enable_fall"},
+   {TimingType::three_state_enable_rise, "three_state_enable_rise"},
+   {TimingType::min_clock_tree_path, "min_clock_tree_path"},
+   {TimingType::max_clock_tree_path, "max_clock_tree_path"},
+   {TimingType::unknown, "unknown"}
+  };
 
 const char *
 timingTypeString(TimingType type)
 {
-  return timing_type_strings[type];
+  return timing_type_name_map.find(type);
 }
 
 TimingType
 findTimingType(const char *type_name)
 {
-  TimingType type;
-  bool exists;
-  timing_type_string_map->findKey(type_name, type, exists);
-  if (exists)
-    return type;
-  else
-    return timing_type_unknown;
+  return timing_type_name_map.find(type_name, TimingType::unknown);
 }
 
 bool
 timingTypeIsCheck(TimingType type)
 {
   switch (type) {
-  case timing_type_hold_falling:
-  case timing_type_hold_rising:
-  case timing_type_min_pulse_width:
-  case timing_type_minimum_period:
-  case timing_type_nochange_high_high:
-  case timing_type_nochange_high_low:
-  case timing_type_nochange_low_high:
-  case timing_type_nochange_low_low:
-  case timing_type_non_seq_hold_falling:
-  case timing_type_non_seq_hold_rising:
-  case timing_type_non_seq_setup_falling:
-  case timing_type_non_seq_setup_rising:
-  case timing_type_recovery_falling:
-  case timing_type_recovery_rising:
-  case timing_type_removal_falling:
-  case timing_type_removal_rising:
-  case timing_type_retaining_time:
-  case timing_type_setup_falling:
-  case timing_type_setup_rising:
-  case timing_type_skew_falling:
-  case timing_type_skew_rising:
+  case TimingType::hold_falling:
+  case TimingType::hold_rising:
+  case TimingType::min_pulse_width:
+  case TimingType::minimum_period:
+  case TimingType::nochange_high_high:
+  case TimingType::nochange_high_low:
+  case TimingType::nochange_low_high:
+  case TimingType::nochange_low_low:
+  case TimingType::non_seq_hold_falling:
+  case TimingType::non_seq_hold_rising:
+  case TimingType::non_seq_setup_falling:
+  case TimingType::non_seq_setup_rising:
+  case TimingType::recovery_falling:
+  case TimingType::recovery_rising:
+  case TimingType::removal_falling:
+  case TimingType::removal_rising:
+  case TimingType::retaining_time:
+  case TimingType::setup_falling:
+  case TimingType::setup_rising:
+  case TimingType::skew_falling:
+  case TimingType::skew_rising:
     return true;
   default:
     return false;
@@ -740,55 +716,55 @@ ScaleFactorType
 timingTypeScaleFactorType(TimingType type)
 {
   switch (type) {
-  case timing_type_non_seq_setup_falling:
-  case timing_type_non_seq_setup_rising:
-  case timing_type_setup_falling:
-  case timing_type_setup_rising:
-    return scale_factor_setup;
-  case timing_type_hold_falling:
-  case timing_type_hold_rising:
-  case timing_type_non_seq_hold_falling:
-  case timing_type_non_seq_hold_rising:
-    return scale_factor_hold;
-  case timing_type_recovery_falling:
-  case timing_type_recovery_rising:
-    return scale_factor_recovery;
-  case timing_type_removal_falling:
-  case timing_type_removal_rising:
-    return scale_factor_removal;
-  case timing_type_skew_falling:
-  case timing_type_skew_rising:
-    return scale_factor_skew;
-  case timing_type_minimum_period:
-    return scale_factor_min_period;
-  case timing_type_nochange_high_high:
-  case timing_type_nochange_high_low:
-  case timing_type_nochange_low_high:
-  case timing_type_nochange_low_low:
-    return scale_factor_nochange;
-  case timing_type_min_pulse_width:
-    return scale_factor_min_pulse_width;
-  case timing_type_clear:
-  case timing_type_combinational:
-  case timing_type_combinational_fall:
-  case timing_type_combinational_rise:
-  case timing_type_falling_edge:
-  case timing_type_preset:
-  case timing_type_retaining_time:
-  case timing_type_rising_edge:
-  case timing_type_three_state_disable:
-  case timing_type_three_state_disable_fall:
-  case timing_type_three_state_disable_rise:
-  case timing_type_three_state_enable:
-  case timing_type_three_state_enable_fall:
-  case timing_type_three_state_enable_rise:
-  case timing_type_min_clock_tree_path:
-  case timing_type_max_clock_tree_path:
-    return scale_factor_cell;
-  case timing_type_unknown:
-    return scale_factor_unknown;
+  case TimingType::non_seq_setup_falling:
+  case TimingType::non_seq_setup_rising:
+  case TimingType::setup_falling:
+  case TimingType::setup_rising:
+    return ScaleFactorType::setup;
+  case TimingType::hold_falling:
+  case TimingType::hold_rising:
+  case TimingType::non_seq_hold_falling:
+  case TimingType::non_seq_hold_rising:
+    return ScaleFactorType::hold;
+  case TimingType::recovery_falling:
+  case TimingType::recovery_rising:
+    return ScaleFactorType::recovery;
+  case TimingType::removal_falling:
+  case TimingType::removal_rising:
+    return ScaleFactorType::removal;
+  case TimingType::skew_falling:
+  case TimingType::skew_rising:
+    return ScaleFactorType::skew;
+  case TimingType::minimum_period:
+    return ScaleFactorType::min_period;
+  case TimingType::nochange_high_high:
+  case TimingType::nochange_high_low:
+  case TimingType::nochange_low_high:
+  case TimingType::nochange_low_low:
+    return ScaleFactorType::nochange;
+  case TimingType::min_pulse_width:
+    return ScaleFactorType::min_pulse_width;
+  case TimingType::clear:
+  case TimingType::combinational:
+  case TimingType::combinational_fall:
+  case TimingType::combinational_rise:
+  case TimingType::falling_edge:
+  case TimingType::preset:
+  case TimingType::retaining_time:
+  case TimingType::rising_edge:
+  case TimingType::three_state_disable:
+  case TimingType::three_state_disable_fall:
+  case TimingType::three_state_disable_rise:
+  case TimingType::three_state_enable:
+  case TimingType::three_state_enable_fall:
+  case TimingType::three_state_enable_rise:
+  case TimingType::min_clock_tree_path:
+  case TimingType::max_clock_tree_path:
+    return ScaleFactorType::cell;
+  case TimingType::unknown:
+    return ScaleFactorType::unknown;
   }
-  return scale_factor_unknown;
+  return ScaleFactorType::unknown;
 }
 
 } // namespace

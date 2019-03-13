@@ -20,6 +20,7 @@
 #include "Report.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "Mutex.hh"
 #include "Set.hh"
 #include "MinMax.hh"
 #include "Network.hh"
@@ -124,7 +125,7 @@ ConcreteParasitic::setElmore(const Pin *,
 Parasitic *
 ConcreteParasitic::findPoleResidue(const Pin *) const
 {
-  return NULL;
+  return nullptr;
 }
 
 void
@@ -137,19 +138,19 @@ ConcreteParasitic::setPoleResidue(const Pin *,
 ParasiticDeviceIterator *
 ConcreteParasitic::deviceIterator()
 {
-  return NULL;
+  return nullptr;
 }
 
 ParasiticNodeIterator *
 ConcreteParasitic::nodeIterator()
 {
-  return NULL;
+  return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////
 
 ConcreteElmore::ConcreteElmore() :
-  loads_(NULL)
+  loads_(nullptr)
 {
 }
 
@@ -179,7 +180,7 @@ void
 ConcreteElmore::setElmore(const Pin *load_pin,
 			  float elmore)
 {
-  if (loads_ == NULL)
+  if (loads_ == nullptr)
     loads_ = new ConcreteElmoreLoadMap;
   (*loads_)[load_pin] = elmore;
 }
@@ -420,7 +421,7 @@ ConcretePiPoleResidue::ConcretePiPoleResidue(float c2,
 					     float rpi,
 					     float c1) :
   ConcretePi(c2, rpi, c1),
-  load_pole_residue_(NULL)
+  load_pole_residue_(nullptr)
 {
 }
 
@@ -472,7 +473,7 @@ ConcretePiPoleResidue::findPoleResidue(const Pin *load_pin) const
   if (load_pole_residue_)
     return load_pole_residue_->findKey(load_pin);
   else
-    return NULL;
+    return nullptr;
 }
 
 void
@@ -480,10 +481,10 @@ ConcretePiPoleResidue::setPoleResidue(const Pin *load_pin,
 				      ComplexFloatSeq *poles,
 				      ComplexFloatSeq *residues)
 {
-  if (load_pole_residue_ == NULL)
+  if (load_pole_residue_ == nullptr)
     load_pole_residue_ = new ConcretePoleResidueMap;
   ConcretePoleResidue *pole_residue = load_pole_residue_->findKey(load_pin);
-  if (pole_residue == NULL) {
+  if (pole_residue == nullptr) {
     pole_residue = new ConcretePoleResidue(poles, residues);
     (*load_pole_residue_)[load_pin] = pole_residue;
   }
@@ -592,7 +593,7 @@ ConcreteParasiticResistor::otherNode(ParasiticNode *node) const
   else if (node == other_node_)
     return node_;
   else
-    return NULL;
+    return nullptr;
 }
 
 void
@@ -642,7 +643,7 @@ ConcreteCouplingCapInt::otherNode(ParasiticNode *node) const
   else if (node == other_node_)
     return node_;
   else
-    return NULL;
+    return nullptr;
 }
 
 void
@@ -670,7 +671,7 @@ ConcreteCouplingCapExtNode(const char *name,
 ParasiticNode *
 ConcreteCouplingCapExtNode::otherNode(ParasiticNode *) const
 {
-  return NULL;
+  return nullptr;
 }
 
 void
@@ -695,7 +696,7 @@ ConcreteCouplingCapExtPin(const char *name,
 ParasiticNode *
 ConcreteCouplingCapExtPin::otherNode(ParasiticNode *) const
 {
-  return NULL;
+  return nullptr;
 }
 
 void
@@ -817,7 +818,7 @@ ConcreteParasiticNetwork::ensureParasiticNode(Net *net,
 {
   NetId net_id(net, id);
   ConcreteParasiticSubNode *node = sub_nodes_.findKey(&net_id);
-  if (node == NULL) {
+  if (node == nullptr) {
     node = new ConcreteParasiticSubNode(net, id);
     sub_nodes_[new NetId(net, id)] = node;
     max_node_id_ = max((int) max_node_id_, id);
@@ -856,7 +857,7 @@ ConcreteParasiticNode *
 ConcreteParasiticNetwork::ensureParasiticNode(const Pin *pin)
 {
   ConcreteParasiticPinNode *node = pin_nodes_.findKey(pin);
-  if (node == NULL) {
+  if (node == nullptr) {
     node = new ConcreteParasiticPinNode(pin);
     pin_nodes_[pin] = node;
   }
@@ -886,10 +887,10 @@ makeConcreteParasitics(StaState *sta)
 
 ConcreteParasitics::ConcreteParasitics(StaState *sta) :
   Parasitics(sta),
-  lumped_elmore_maps_(NULL),
-  pi_elmore_maps_(NULL),
-  pi_pole_residue_maps_(NULL),
-  parasitic_network_maps_(NULL)
+  lumped_elmore_maps_(nullptr),
+  pi_elmore_maps_(nullptr),
+  pi_pole_residue_maps_(nullptr),
+  parasitic_network_maps_(nullptr)
 {
 }
 
@@ -901,10 +902,10 @@ ConcreteParasitics::~ConcreteParasitics()
 bool
 ConcreteParasitics::haveParasitics()
 {
-  return lumped_elmore_maps_ != NULL
-    || pi_elmore_maps_ != NULL
-    || pi_pole_residue_maps_ != NULL
-    || parasitic_network_maps_ != NULL;
+  return lumped_elmore_maps_ != nullptr
+    || pi_elmore_maps_ != nullptr
+    || pi_pole_residue_maps_ != nullptr
+    || parasitic_network_maps_ != nullptr;
 }
 
 void
@@ -924,7 +925,7 @@ ConcreteParasitics::clear()
       }
     }
     delete lumped_elmore_maps_;
-    lumped_elmore_maps_ = NULL;
+    lumped_elmore_maps_ = nullptr;
   }
 
   if (pi_elmore_maps_) {
@@ -939,7 +940,7 @@ ConcreteParasitics::clear()
       }
     }
     delete pi_elmore_maps_;
-    pi_elmore_maps_ = NULL;
+    pi_elmore_maps_ = nullptr;
   }
 
   if (pi_pole_residue_maps_) {
@@ -954,7 +955,7 @@ ConcreteParasitics::clear()
       }
     }
     delete pi_pole_residue_maps_;
-    pi_pole_residue_maps_ = NULL;
+    pi_pole_residue_maps_ = nullptr;
   }
 
   if (parasitic_network_maps_) {
@@ -969,7 +970,7 @@ ConcreteParasitics::clear()
       }
     }
     delete parasitic_network_maps_;
-    parasitic_network_maps_ = NULL;
+    parasitic_network_maps_ = nullptr;
   }
 }
 
@@ -1083,7 +1084,7 @@ ConcreteParasitics::deleteParasitic(const Pin *drvr_pin,
   // not require an analysis pt.
   if (ap) {
     int ap_index = parasiticAnalysisPtIndex(ap, tr);
-    lock_.writeLock();
+    UniqueLock lock(lock_);
     if (cparasitic->isLumpedElmore())
       (*lumped_elmore_maps_)[ap_index]->eraseKey(drvr_pin);
     else if (cparasitic->isPiElmore() && pi_elmore_maps_)
@@ -1094,7 +1095,6 @@ ConcreteParasitics::deleteParasitic(const Pin *drvr_pin,
       const Net *net = network_->net(drvr_pin);
       (*parasitic_network_maps_)[ap_index]->eraseKey(net);
     }
-    lock_.unlock();
   }
   delete cparasitic;
 }
@@ -1277,9 +1277,8 @@ ConcreteParasitics::hasLumpedElmore(const Pin *drvr_pin,
 {
   if (lumped_elmore_maps_ && ap) {
     int ap_index = parasiticAnalysisPtIndex(ap, tr);
-    lock_.readLock();
+    UniqueLock lock(lock_);
     bool exists = (*lumped_elmore_maps_)[ap_index]->hasKey(drvr_pin);
-    lock_.unlock();
     return exists;
   }
   else
@@ -1293,13 +1292,12 @@ ConcreteParasitics::findLumpedElmore(const Pin *drvr_pin,
 {
   if (ap && lumped_elmore_maps_) {
     int ap_index = parasiticAnalysisPtIndex(ap, tr);
-    lock_.readLock();
+    UniqueLock lock(lock_);
     Parasitic *parasitic = (*lumped_elmore_maps_)[ap_index]->findKey(drvr_pin);
-    lock_.unlock();
     return parasitic;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 Parasitic *
@@ -1309,8 +1307,8 @@ ConcreteParasitics::makeLumpedElmore(const Pin *drvr_pin,
 				     const ParasiticAnalysisPt *ap)
 {
   int ap_index = parasiticAnalysisPtIndex(ap, tr);
-  lock_.writeLock();
-  if (lumped_elmore_maps_ == NULL) {
+  UniqueLock lock(lock_);
+  if (lumped_elmore_maps_ == nullptr) {
     lumped_elmore_maps_ = new ConcreteLumpedElmoreMapSeq(mapSize());
     ParasiticAnalysisPtIterator ap_iter(corners_);
     while (ap_iter.hasNext()) {
@@ -1332,7 +1330,6 @@ ConcreteParasitics::makeLumpedElmore(const Pin *drvr_pin,
     lumped_elmore = new ConcreteLumpedElmore(cap);
     (*(*lumped_elmore_maps_)[ap_index])[drvr_pin] = lumped_elmore;
   }
-  lock_.unlock();
   return lumped_elmore;
 }
 
@@ -1343,14 +1340,13 @@ ConcreteParasitics::deleteLumpedElmore(const Pin *drvr_pin,
 {
   if (ap && lumped_elmore_maps_) {
     int ap_index = parasiticAnalysisPtIndex(ap, tr);
-    lock_.writeLock();
+    UniqueLock lock(lock_);
     ConcreteLumpedElmore *lumped_elmore =
       (*lumped_elmore_maps_)[ap_index]->findKey(drvr_pin);
     if (lumped_elmore) {
       (*lumped_elmore_maps_)[ap_index]->eraseKey(drvr_pin);
       delete lumped_elmore;
     }
-    lock_.unlock();
   }
 }
 
@@ -1370,13 +1366,12 @@ ConcreteParasitics::hasPiElmore(const Pin *drvr_pin,
 {
   if (ap && pi_elmore_maps_) {
     int ap_index = parasiticAnalysisPtIndex(ap, tr);
-    lock_.readLock();
+    UniqueLock lock(lock_);
     bool exists = (*pi_elmore_maps_)[ap_index]->hasKey(drvr_pin);
     if (!exists && tr == TransRiseFall::fall()) {
       ap_index = parasiticAnalysisPtIndex(ap, TransRiseFall::rise());
       exists = (*pi_elmore_maps_)[ap_index]->hasKey(drvr_pin);
     }
-    lock_.unlock();
     return exists;
   }
   else
@@ -1390,17 +1385,16 @@ ConcreteParasitics::findPiElmore(const Pin *drvr_pin,
 {
   if (ap && pi_elmore_maps_) {
     int ap_index = parasiticAnalysisPtIndex(ap, tr);
-    lock_.readLock();
+    UniqueLock lock(lock_);
     Parasitic *parasitic = (*pi_elmore_maps_)[ap_index]->findKey(drvr_pin);
-    if (parasitic == NULL && tr == TransRiseFall::fall()) {
+    if (parasitic == nullptr && tr == TransRiseFall::fall()) {
       ap_index = parasiticAnalysisPtIndex(ap, TransRiseFall::rise());
       parasitic = (*pi_elmore_maps_)[ap_index]->findKey(drvr_pin);
     }
-    lock_.unlock();
     return parasitic;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 Parasitic *
@@ -1412,8 +1406,8 @@ ConcreteParasitics::makePiElmore(const Pin *drvr_pin,
 				 float c1)
 {
   int ap_index = parasiticAnalysisPtIndex(ap, tr);
-  lock_.writeLock();
-  if (pi_elmore_maps_ == NULL) {
+  UniqueLock lock(lock_);
+  if (pi_elmore_maps_ == nullptr) {
     pi_elmore_maps_ = new ConcretePiElmoreMapSeq(mapSize());
     ParasiticAnalysisPtIterator ap_iter(corners_);
     while (ap_iter.hasNext()) {
@@ -1434,7 +1428,6 @@ ConcreteParasitics::makePiElmore(const Pin *drvr_pin,
     pi_elmore = new ConcretePiElmore(c2, rpi, c1);
     (*(*pi_elmore_maps_)[ap_index])[drvr_pin] = pi_elmore;
   }
-  lock_.unlock();
   return pi_elmore;
 }
 
@@ -1445,14 +1438,13 @@ ConcreteParasitics::deletePiElmore(const Pin *drvr_pin,
 {
   if (ap && pi_elmore_maps_) {
     int ap_index = parasiticAnalysisPtIndex(ap, tr);
-    lock_.writeLock();
+    UniqueLock lock(lock_);
     ConcretePiElmore *pi_elmore =
       (*pi_elmore_maps_)[ap_index]->findKey(drvr_pin);
     if (pi_elmore) {
       (*pi_elmore_maps_)[ap_index]->eraseKey(drvr_pin);
       delete pi_elmore;
     }
-    lock_.unlock();
   }
 }
 
@@ -1522,13 +1514,12 @@ ConcreteParasitics::hasPiPoleResidue(const Pin *drvr_pin,
 {
   if (ap && pi_pole_residue_maps_) {
     int ap_index = parasiticAnalysisPtIndex(ap, tr);
-    lock_.readLock();
+    UniqueLock lock(lock_);
     bool exists = (*pi_pole_residue_maps_)[ap_index]->hasKey(drvr_pin);
     if (!exists && tr == TransRiseFall::fall()) {
       ap_index = parasiticAnalysisPtIndex(ap, TransRiseFall::rise());
       exists = (*pi_pole_residue_maps_)[ap_index]->hasKey(drvr_pin);
     }
-    lock_.unlock();
     return exists;
   }
   else
@@ -1542,17 +1533,16 @@ ConcreteParasitics::findPiPoleResidue(const Pin *drvr_pin,
 {
   if (ap && pi_pole_residue_maps_) {
     int ap_index = parasiticAnalysisPtIndex(ap, tr);
-    lock_.readLock();
+    UniqueLock lock(lock_);
     Parasitic *parasitic = (*pi_pole_residue_maps_)[ap_index]->findKey(drvr_pin);
-    if (parasitic == NULL && tr == TransRiseFall::fall()) {
+    if (parasitic == nullptr && tr == TransRiseFall::fall()) {
       ap_index = parasiticAnalysisPtIndex(ap, TransRiseFall::rise());
       parasitic = (*pi_pole_residue_maps_)[ap_index]->findKey(drvr_pin);
     }
-    lock_.unlock();
     return parasitic;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 Parasitic *
@@ -1564,8 +1554,8 @@ ConcreteParasitics::makePiPoleResidue(const Pin *drvr_pin,
 				      float c1)
 {
   int ap_index = parasiticAnalysisPtIndex(ap, tr);
-  lock_.writeLock();
-  if (pi_pole_residue_maps_ == NULL) {
+  UniqueLock lock(lock_);
+  if (pi_pole_residue_maps_ == nullptr) {
     pi_pole_residue_maps_ = new ConcretePiPoleResidueMapSeq(mapSize());
     ParasiticAnalysisPtIterator ap_iter(corners_);
     while (ap_iter.hasNext()) {
@@ -1587,7 +1577,6 @@ ConcreteParasitics::makePiPoleResidue(const Pin *drvr_pin,
     pi_pole_residue = new ConcretePiPoleResidue(c2, rpi, c1);
     (*(*pi_pole_residue_maps_)[ap_index])[drvr_pin] = pi_pole_residue;
   }
-  lock_.unlock();
   return pi_pole_residue;
 }
 
@@ -1662,9 +1651,8 @@ ConcreteParasitics::hasParasiticNetwork(const Net *net,
 {
   if (ap && parasitic_network_maps_) {
     int ap_index = parasiticNetworkAnalysisPtIndex(ap);
-    lock_.readLock();
+    UniqueLock lock(lock_);
     bool exists = (*parasitic_network_maps_)[ap_index]->hasKey(net);
-    lock_.unlock();
     return exists;
   }
   else
@@ -1678,18 +1666,17 @@ ConcreteParasitics::findParasiticNetwork(const Pin *pin,
   if (ap && parasitic_network_maps_) {
     int ap_index = parasiticNetworkAnalysisPtIndex(ap);
     ConcreteParasiticNetworkMap *parasitics = (*parasitic_network_maps_)[ap_index];
-    lock_.readLock();
-    Parasitic *parasitic = NULL;
+    UniqueLock lock(lock_);
+    Parasitic *parasitic = nullptr;
     if (parasitics->size()) {
       // Only call findParasiticNet if parasitics exist.
       Net *net = findParasiticNet(pin);
       parasitic = parasitics->findKey(net);
     }
-    lock_.unlock();
     return parasitic;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 Parasitic *
@@ -1698,8 +1685,8 @@ ConcreteParasitics::makeParasiticNetwork(Net *net,
 					 const ParasiticAnalysisPt *ap)
 {
   int ap_index = parasiticNetworkAnalysisPtIndex(ap);
-  lock_.writeLock();
-  if (parasitic_network_maps_ == NULL) {
+  UniqueLock lock(lock_);
+  if (parasitic_network_maps_ == nullptr) {
     parasitic_network_maps_ = new ConcreteParasiticNetworkMapSeq(mapSize());
     ParasiticAnalysisPtIterator ap_iter(corners_);
     while (ap_iter.hasNext()) {
@@ -1715,11 +1702,10 @@ ConcreteParasitics::makeParasiticNetwork(Net *net,
 
   ConcreteParasiticNetwork *parasitic =
     (*parasitic_network_maps_)[ap_index]->findKey(net);
-  if (parasitic == NULL) {
+  if (parasitic == nullptr) {
     parasitic = new ConcreteParasiticNetwork(includes_pin_caps);
     (*(*parasitic_network_maps_)[ap_index])[net] = parasitic;
   }
-  lock_.unlock();
   return parasitic;
 }
 
@@ -1729,14 +1715,13 @@ ConcreteParasitics::deleteParasiticNetwork(const Net *net,
 {
   if (ap && parasitic_network_maps_) {
     int ap_index = parasiticNetworkAnalysisPtIndex(ap);
-    lock_.writeLock();
+    UniqueLock lock(lock_);
     ConcreteParasiticNetwork *parasitic =
       (*parasitic_network_maps_)[ap_index]->findKey(net);
     if (parasitic) {
       (*parasitic_network_maps_)[ap_index]->eraseKey(net);
       delete parasitic;
     }
-    lock_.unlock();
   }
 }
 
@@ -1877,7 +1862,7 @@ ConcreteParasitics::connectionPin(const ParasiticNode *node) const
     return pin_node->pin();
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 ParasiticNode *
@@ -1967,14 +1952,14 @@ ConcreteParasitics::reduceTo(Parasitic *parasitic,
 			     const ParasiticAnalysisPt *ap)
 {
   switch (reduce_to) {
-  case reduce_parasitics_to_pi_elmore:
+  case ReduceParasiticsTo::pi_elmore:
     reduceToPiElmore(parasitic, net, tr, op_cond, corner, cnst_min_max, ap);
     break;
-  case reduce_parasitics_to_pi_pole_residue2:
+  case ReduceParasiticsTo::pi_pole_residue2:
     reduceToPiPoleResidue2(parasitic, net, tr, op_cond, corner,
 			   cnst_min_max, ap);
     break;
-  case reduce_parasitics_to_none:
+  case ReduceParasiticsTo::none:
     break;
   }
 }

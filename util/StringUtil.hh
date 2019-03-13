@@ -45,7 +45,7 @@ inline bool
 stringEqIf(const char *str1,
 	   const char *str2)
 {
-  return (str1 == NULL && str2 == NULL)
+  return (str1 == nullptr && str2 == nullptr)
     || (str1 && str2 && strcmp(str1, str2) == 0);
 }
 
@@ -69,7 +69,7 @@ inline bool
 stringEqualIf(const char *str1,
 	      const char *str2)
 {
-  return (str1 == NULL && str2 == NULL)
+  return (str1 == nullptr && str2 == nullptr)
     || (str1 && str2 && strcasecmp(str1, str2) == 0);
 }
 
@@ -84,8 +84,8 @@ inline bool
 stringLessIf(const char *str1,
 	     const char *str2)
 {
-  return (str1 == NULL && str2 != NULL)
-    || (str1 != NULL && str2 != NULL && strcmp(str1, str2) < 0);
+  return (str1 == nullptr && str2 != nullptr)
+    || (str1 != nullptr && str2 != nullptr && strcmp(str1, str2) < 0);
 }
 
 class CharPtrLess

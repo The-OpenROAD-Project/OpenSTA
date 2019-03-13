@@ -97,8 +97,7 @@ class Corner
 {
 public:
   Corner(const char *name,
-	 int index,
-	 Corners *corners);
+	 int index);
   ~Corner();
   const char *name() const { return name_; }
   int index() const { return index_; }
@@ -120,7 +119,6 @@ protected:
 private:
   const char *name_;
   int index_;
-  Corners *corners_;
   ParasiticAnalysisPtSeq parasitic_analysis_pts_;
   DcalcAnalysisPtSeq dcalc_analysis_pts_;
   PathAnalysisPtSeq path_analysis_pts_;

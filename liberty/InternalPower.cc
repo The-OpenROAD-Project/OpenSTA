@@ -23,9 +23,9 @@
 namespace sta {
 
 InternalPowerAttrs::InternalPowerAttrs() :
-  when_(NULL),
-  models_{NULL, NULL},
-  related_pg_pin_(NULL)
+  when_(nullptr),
+  models_{nullptr, nullptr},
+  related_pg_pin_(nullptr)
 {
 }
 
@@ -157,7 +157,7 @@ InternalPowerModel::reportPower(const LibertyCell *cell,
 		   axis_value1, axis_value2, axis_value3);
     const LibertyLibrary *library = cell->libertyLibrary();
     model_->reportValue("Power", library, cell, pvt,
-			axis_value1, NULL, axis_value2, axis_value3, digits, result);
+			axis_value1, nullptr, axis_value2, axis_value3, digits, result);
   }
 }
 
@@ -201,9 +201,9 @@ InternalPowerModel::axisValue(TableAxis *axis,
 			      float load_cap) const
 {
   TableAxisVariable var = axis->variable();
-  if (var == table_axis_input_transition_time)
+  if (var == TableAxisVariable::input_transition_time)
     return in_slew;
-  else if (var == table_axis_total_output_net_capacitance)
+  else if (var == TableAxisVariable::total_output_net_capacitance)
     return load_cap;
   else {
     internalError("unsupported table axes");
@@ -222,7 +222,7 @@ InternalPowerModel::checkAxes(const TableModel *model)
     axis_ok &= checkAxis(model->axis1());
   if (axis2)
     axis_ok &= checkAxis(model->axis2());
-  axis_ok &= (axis3 == NULL);
+  axis_ok &= (axis3 == nullptr);
   return axis_ok;
 }
 
@@ -230,9 +230,9 @@ bool
 InternalPowerModel::checkAxis(TableAxis *axis)
 {
   TableAxisVariable var = axis->variable();
-  return var == table_axis_constrained_pin_transition
-    || var == table_axis_related_pin_transition
-    || var == table_axis_related_out_total_output_net_capacitance;
+  return var == TableAxisVariable::constrained_pin_transition
+    || var == TableAxisVariable::related_pin_transition
+    || var == TableAxisVariable::related_out_total_output_net_capacitance;
 }
 
 } // namespace

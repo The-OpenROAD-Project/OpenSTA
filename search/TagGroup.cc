@@ -217,7 +217,7 @@ TagGroupBldr::tagMatchArrival(Tag *tag,
   if (exists)
     arrival = arrivals_[arrival_index];
   else {
-    tag_match = NULL;
+    tag_match = nullptr;
     arrival = -1.0;
     arrival_index = -1;
   }

@@ -107,7 +107,7 @@ void
 MaxSkewViolatorsVisititor::visit(MaxSkewCheck &check,
 				 const StaState *sta)
 {
-  if (delayFuzzyLess(check.slack(sta), 0.0))
+  if (fuzzyLess(check.slack(sta), 0.0))
     checks_.push_back(check.copy());
 }
 
@@ -137,7 +137,7 @@ private:
 
 MaxSkewSlackVisitor::MaxSkewSlackVisitor() :
   MaxSkewCheckVisitor(),
-  min_slack_check_(NULL)
+  min_slack_check_(nullptr)
 {
 }
 
@@ -146,7 +146,7 @@ MaxSkewSlackVisitor::visit(MaxSkewCheck &check,
 			   const StaState *sta)
 {
   MaxSkewSlackLess slack_less(sta);
-  if (min_slack_check_ == NULL)
+  if (min_slack_check_ == nullptr)
     min_slack_check_ = check.copy();
   else if (slack_less(&check, min_slack_check_)) {
     delete min_slack_check_;
@@ -288,7 +288,7 @@ MaxSkewSlackLess::operator()(const MaxSkewCheck *check1,
   Slack slack1 = check1->slack(sta_);
   Slack slack2 = check2->slack(sta_);
   return slack1 < slack2
-    || (delayFuzzyEqual(slack1, slack2)
+    || (fuzzyEqual(slack1, slack2)
 	// Break ties based on constrained pin names.
 	&& sta_->network()->pinLess(check1->clkPin(sta_),check2->clkPin(sta_)));
 }

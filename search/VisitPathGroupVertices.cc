@@ -114,7 +114,7 @@ visitPathGroupVertices(PathGroup *path_group,
   VertexPathSetMap matching_path_map;
   // Do not visit clock network.
   SearchPredNonReg2 srch_non_reg(sta);
-  BfsBkwdIterator bkwd_iter(bfs_other, &srch_non_reg, sta);
+  BfsBkwdIterator bkwd_iter(BfsIndex::other, &srch_non_reg, sta);
   // Visit the path ends and filter by path_group to seed the backward search.
   VisitPathGroupEnds end_visitor(path_group, visitor, &matching_path_map,
 				 &bkwd_iter, sta);
@@ -197,7 +197,7 @@ vertexPathSetMapInsertPath(VertexPathSetMap *matching_path_map,
 			   const StaState *sta)
 {
   PathVertexSet *matching_paths = matching_path_map->findKey(vertex);
-  if (matching_paths == NULL) {
+  if (matching_paths == nullptr) {
     PathLess path_less(sta);
     matching_paths = new PathVertexSet(path_less);
     (*matching_path_map)[vertex] = matching_paths;

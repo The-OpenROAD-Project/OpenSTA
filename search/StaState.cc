@@ -22,22 +22,23 @@
 namespace sta {
 
 StaState::StaState() :
-  report_(NULL),
-  debug_(NULL),
-  units_(NULL),
-  network_(NULL),
-  sdc_(NULL),
-  corners_(NULL),
-  graph_(NULL),
-  levelize_(NULL),
-  parasitics_(NULL),
-  arc_delay_calc_(NULL),
-  graph_delay_calc_(NULL),
-  sim_(NULL),
-  search_(NULL),
-  latches_(NULL),
+  report_(nullptr),
+  debug_(nullptr),
+  units_(nullptr),
+  network_(nullptr),
+  sdc_(nullptr),
+  corners_(nullptr),
+  graph_(nullptr),
+  levelize_(nullptr),
+  parasitics_(nullptr),
+  arc_delay_calc_(nullptr),
+  graph_delay_calc_(nullptr),
+  sim_(nullptr),
+  search_(nullptr),
+  latches_(nullptr),
   thread_count_(1),
-  pocv_enabled_(false)
+  pocv_enabled_(false),
+  sigma_factor_(1.0)
 {
 }
 
@@ -84,6 +85,7 @@ StaState::copyState(const StaState *sta)
   latches_ = sta->latches_;
   thread_count_ = sta->thread_count_;
   pocv_enabled_ = sta->pocv_enabled_;
+  sigma_factor_ = sta->sigma_factor_;
 }
 
 NetworkEdit *

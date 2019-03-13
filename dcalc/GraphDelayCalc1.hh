@@ -17,7 +17,7 @@
 #ifndef STA_GRAPH_DELAY_CALC1_H
 #define STA_GRAPH_DELAY_CALC1_H
 
-#include "Mutex.hh"
+#include <mutex>
 #include "GraphDelayCalc.hh"
 
 namespace sta {
@@ -222,7 +222,7 @@ protected:
   VertexSet invalid_delays_;
   // Vertices with invalid -from/-to timing checks.
   VertexSet invalid_checks_;
-  Mutex check_vertices_lock_;
+  std::mutex check_vertices_lock_;
   SearchPred *search_pred_;
   SearchPred *search_non_latch_pred_;
   SearchPred *clk_pred_;
@@ -233,7 +233,7 @@ protected:
   // delays to be recomputed during incremental delay calculation.
   float incremental_delay_tolerance_;
   VertexIdealClksMap ideal_clks_map_;
-  Mutex ideal_clks_map_lock_;
+  std::mutex ideal_clks_map_lock_;
 
   friend class FindVertexDelays;
   friend class MultiDrvrNet;

@@ -25,7 +25,7 @@ namespace sta {
 
 Corners::Corners(StaState *sta) :
   StaState(sta),
-  default_corner_(NULL)
+  default_corner_(nullptr)
 {
 }
 
@@ -41,7 +41,7 @@ Corners::clear()
   corners_.deleteContentsClear();
   dcalc_analysis_pts_.deleteContentsClear();
   path_analysis_pts_.deleteContentsClear();
-  default_corner_ = NULL;
+  default_corner_ = nullptr;
 }
 
 int
@@ -95,10 +95,10 @@ Corners::makeCorners(StringSet *corner_names)
   StringSet::Iterator name_iter(corner_names);
   while (name_iter.hasNext()) {
     const char *name = name_iter.next();
-    Corner *corner = new Corner(name, index, this);
+    Corner *corner = new Corner(name, index);
     // Use the copied name in the map.
     corners_[corner->name()] = corner;
-    if (default_corner_ == NULL)
+    if (default_corner_ == nullptr)
       default_corner_ = corner;
     index++;
   }
@@ -173,19 +173,18 @@ Corners::makeDcalcAnalysisPts(Corner *corner)
 {
   DcalcAnalysisPt *min_ap, *max_ap;
   switch (sdc_->analysisType()) {
-  case analysis_type_single: 
-    
+  case AnalysisType::single:
     corner->setDcalcAnalysisPtcount(1);
     makeDcalcAnalysisPt(corner, MinMax::max(), MinMax::min());
     break;
-  case analysis_type_bc_wc:
+  case AnalysisType::bc_wc:
     corner->setDcalcAnalysisPtcount(2);
     min_ap = makeDcalcAnalysisPt(corner, MinMax::min(), MinMax::min());
     max_ap = makeDcalcAnalysisPt(corner, MinMax::max(), MinMax::max());
     min_ap->setCheckClkSlewIndex(min_ap->index());
     max_ap->setCheckClkSlewIndex(max_ap->index());
     break;
-  case analysis_type_on_chip_variation:
+  case AnalysisType::ocv:
     corner->setDcalcAnalysisPtcount(2);
     min_ap = makeDcalcAnalysisPt(corner, MinMax::min(), MinMax::max());
     max_ap = makeDcalcAnalysisPt(corner, MinMax::max(), MinMax::min());
@@ -240,11 +239,11 @@ Corners::makePathAnalysisPts(Corner *corner)
   DcalcAnalysisPt *dcalc_ap_min = corner->findDcalcAnalysisPt(MinMax::min());
   DcalcAnalysisPt *dcalc_ap_max = corner->findDcalcAnalysisPt(MinMax::max());
   switch (sdc_->analysisType()) {
-  case analysis_type_single:
-  case analysis_type_bc_wc:
+  case AnalysisType::single:
+  case AnalysisType::bc_wc:
     makePathAnalysisPts(corner, false, dcalc_ap_min, dcalc_ap_max);
     break;
-  case analysis_type_on_chip_variation:
+  case AnalysisType::ocv:
     makePathAnalysisPts(corner, true, dcalc_ap_min, dcalc_ap_max);
     break;
   }
@@ -341,11 +340,9 @@ Corners::findPathAnalysisPt(PathAPIndex path_index) const
 ////////////////////////////////////////////////////////////////
 
 Corner::Corner(const char *name,
-	       int index,
-	       Corners *corners) :
+	       int index) :
   name_(stringCopy(name)),
   index_(index),
-  corners_(corners),
   path_analysis_pts_(MinMax::index_count)
 {
 }
@@ -360,14 +357,14 @@ Corner::findParasiticAnalysisPt(const MinMax *min_max) const
 {
   int ap_count = parasitic_analysis_pts_.size();
   if (ap_count == 0)
-    return NULL;
+    return nullptr;
   else if (ap_count == 1)
     return parasitic_analysis_pts_[0];
   else if (ap_count == 2)
     return parasitic_analysis_pts_[min_max->index()];
   else {
     internalError("unknown parasitic analysis point count");
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -406,14 +403,14 @@ Corner::findDcalcAnalysisPt(const MinMax *min_max) const
 {
   int ap_count = dcalc_analysis_pts_.size();
   if (ap_count == 0)
-    return NULL;
+    return nullptr;
   else if (ap_count == 1)
     return dcalc_analysis_pts_[0];
   else if (ap_count == 2)
     return dcalc_analysis_pts_[min_max->index()];
   else {
     internalError("unknown analysis point count");
-    return NULL;
+    return nullptr;
   }
 }
 

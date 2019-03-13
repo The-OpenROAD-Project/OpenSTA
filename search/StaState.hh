@@ -91,6 +91,7 @@ public:
   Latches *latches() const { return latches_; }
   unsigned threadCount() const { return thread_count_; }
   bool pocvEnabled() const { return pocv_enabled_; }
+  float sigmaFactor() const { return sigma_factor_; }
 
 protected:
   Report *report_;
@@ -112,6 +113,7 @@ protected:
   Latches *latches_;
   int thread_count_;
   bool pocv_enabled_;
+  float sigma_factor_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(StaState);

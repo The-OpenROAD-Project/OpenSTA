@@ -34,8 +34,8 @@
 namespace sta {
 
 PathVertex::PathVertex() :
-  vertex_(NULL),
-  tag_(NULL),
+  vertex_(nullptr),
+  tag_(nullptr),
   arrival_index_(0)
 {
 }
@@ -48,8 +48,8 @@ PathVertex::PathVertex(const PathVertex &path) :
 }
 
 PathVertex::PathVertex(const PathVertex *path) :
-  vertex_(NULL),
-  tag_(NULL),
+  vertex_(nullptr),
+  tag_(nullptr),
   arrival_index_(0)
 {
   if (path) {
@@ -94,8 +94,8 @@ PathVertex::PathVertex(const PathVertexRep &path,
 void
 PathVertex::init()
 {
-  vertex_ = NULL;
-  tag_ = NULL;
+  vertex_ = nullptr;
+  tag_ = nullptr;
   arrival_index_ = 0;
 }
 
@@ -104,8 +104,8 @@ PathVertex::init(Vertex *vertex,
 		 Tag *tag,
 		 const StaState *sta)
 {
-  vertex_ = NULL;
-  tag_ = NULL;
+  vertex_ = nullptr;
+  tag_ = nullptr;
   arrival_index_ = 0;
   const Search *search = sta->search();
   TagGroup *tag_group = search->tagGroup(vertex);
@@ -166,8 +166,8 @@ PathVertex::copy(const PathVertex *path)
     arrival_index_ = path->arrival_index_;
   }
   else {
-    vertex_ = NULL;
-    tag_ = NULL;
+    vertex_ = nullptr;
+    tag_ = nullptr;
     arrival_index_ = 0;
   }
 }
@@ -175,7 +175,7 @@ PathVertex::copy(const PathVertex *path)
 bool
 PathVertex::isNull() const
 {
-  return tag_ == NULL;
+  return tag_ == nullptr;
 }
 
 void
@@ -395,7 +395,7 @@ PrevPathVisitor::PrevPathVisitor(const Path *path,
   path_tr_index_(path->trIndex(sta)),
   path_ap_index_(path->pathAnalysisPtIndex(sta)),
   prev_path_(),
-  prev_arc_(NULL),
+  prev_arc_(nullptr),
   dcalc_tol_(sta->graphDelayCalc()->incrementalDelayTolerance())
 {
 }
@@ -427,7 +427,7 @@ PrevPathVisitor::visitFromToPath(const Pin *,
       && path_ap_index == path_ap_index_
       && (dcalc_tol_ > 0.0 
 	  ? std::abs(delayAsFloat(to_arrival - path_arrival_)) < dcalc_tol_
-	  : delayFuzzyEqual(to_arrival, path_arrival_))
+	  : fuzzyEqual(to_arrival, path_arrival_))
       && (tagMatch(to_tag, path_tag_, sta_)
 	  // If the filter exception became active searching from
 	  // from_path to to_path the tag includes the filter, but
@@ -454,14 +454,14 @@ PrevPathVisitor::unfilteredTag(const Tag *tag) const
 {
   Search *search = sta_->search();
   const Corners *corners = sta_->corners();
-  ExceptionStateSet *unfiltered_states = NULL;
+  ExceptionStateSet *unfiltered_states = nullptr;
   const ExceptionStateSet *states = tag->states();
   ExceptionStateSet::ConstIterator state_iter(states);
   while (state_iter.hasNext()) {
     ExceptionState *state = state_iter.next();
     ExceptionPath *except = state->exception();
     if (!except->isFilter()) {
-      if (unfiltered_states == NULL)
+      if (unfiltered_states == nullptr)
 	unfiltered_states = new ExceptionStateSet;
       unfiltered_states->insert(state);
     }
@@ -518,9 +518,9 @@ VertexPathIterator::VertexPathIterator(Vertex *vertex,
 				       const StaState *sta) :
   search_(sta->search()),
   vertex_(vertex),
-  tr_(NULL),
-  path_ap_(NULL),
-  min_max_(NULL)
+  tr_(nullptr),
+  path_ap_(nullptr),
+  min_max_(nullptr)
 {
   TagGroup *tag_group = search_->tagGroup(vertex);
   if (tag_group) {
@@ -539,7 +539,7 @@ VertexPathIterator::VertexPathIterator(Vertex *vertex,
   vertex_(vertex),
   tr_(tr),
   path_ap_(path_ap),
-  min_max_(NULL)
+  min_max_(nullptr)
 {
   TagGroup *tag_group = search_->tagGroup(vertex);
   if (tag_group) {
@@ -555,7 +555,7 @@ VertexPathIterator::VertexPathIterator(Vertex *vertex,
   search_(sta->search()),
   vertex_(vertex),
   tr_(tr),
-  path_ap_(NULL),
+  path_ap_(nullptr),
   min_max_(min_max)
 {
   TagGroup *tag_group = search_->tagGroup(vertex);
@@ -582,11 +582,11 @@ VertexPathIterator::findNext()
     Tag *tag;
     int arrival_index;
     arrival_iter_.next(tag, arrival_index);
-    if ((tr_ == NULL
+    if ((tr_ == nullptr
 	 || tag->trIndex() == tr_->index())
-	&& (path_ap_ == NULL
+	&& (path_ap_ == nullptr
 	    || tag->pathAPIndex() == path_ap_->index())
-	&& (min_max_ == NULL
+	&& (min_max_ == nullptr
 	    || tag->pathAnalysisPt(search_)->pathMinMax() == min_max_)) {
       next_.init(vertex_, tag, arrival_index);
       return;

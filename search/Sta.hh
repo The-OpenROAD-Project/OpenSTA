@@ -57,15 +57,13 @@ class ClkSkews;
 class ReportField;
 class Power;
 class PowerResult;
+class ClockIterator;
 
 typedef InstanceSeq::Iterator SlowDrvrIterator;
 typedef Vector<const char*> CheckError;
 typedef Vector<CheckError*> CheckErrorSeq;
 
-typedef enum {
-  cmd_namespace_sta,
-  cmd_namespace_sdc
-} CmdNamespace;
+enum class CmdNamespace { sta, sdc };
 
 // Initialize sta functions that are not part of the Sta class.
 void initSta();
@@ -294,14 +292,17 @@ public:
   void removeClock(Clock *clk);
   // Update period/waveform for generated clocks from source pin clock.
   void updateGeneratedClks();
-  Clock *findClock(const char *name) const;
+  // Use Sdc::findClock
+  Clock *findClock(const char *name) const __attribute__ ((deprecated));
+  // Use findClocksMatching.
   void findClocksMatching(PatternMatch *pattern,
-			  ClockSeq *clks) const;
-  ClockIterator *clockIterator() const;
+			  ClockSeq *clks) const __attribute__ ((deprecated));
+  // Use Sdc::clockIterator.
+  ClockIterator *clockIterator() const __attribute__ ((deprecated));
   // True if pin is defined as a clock source (pin may be hierarchical).
   bool isClockSrc(const Pin *pin) const;
-  // Clock used for inputs without defined arrivals.
-  Clock *defaultArrivalClock() const;
+  // Use Sdc::defaultArrivalClock.
+  Clock *defaultArrivalClock() const __attribute__ ((deprecated));
   // Propagated (non-ideal) clocks.
   void setPropagatedClock(Clock *clk);
   void removePropagatedClock(Clock *clk);
@@ -359,7 +360,7 @@ public:
 			       bool asynchronous,
 			       bool allow_paths,
 			       const char *comment);
-  // NULL name removes all.
+  // nullptr name removes all.
   void removeClockGroupsLogicallyExclusive(const char *name);
   void removeClockGroupsPhysicallyExclusive(const char *name);
   void removeClockGroupsAsynchronous(const char *name);
@@ -611,11 +612,11 @@ public:
 	      ClockSet &clks);
 
   // Return the pin with the min/max slew limit slack.
-  // corner=NULL checks all corners.
+  // corner=nullptr checks all corners.
   Pin *pinMinSlewLimitSlack(const Corner *corner,
 			    const MinMax *min_max);
   // Return all pins with min/max slew violations.
-  // corner=NULL checks all corners.
+  // corner=nullptr checks all corners.
   PinSeq *pinSlewLimitViolations(const Corner *corner,
 				 const MinMax *min_max);
   void reportSlewLimitShortHeader();
@@ -635,17 +636,17 @@ public:
 		  float &limit,
 		  float &slack);
   // Min pulse width check with the least slack.
-  // corner=NULL checks all corners.
+  // corner=nullptr checks all corners.
   MinPulseWidthCheck *minPulseWidthSlack(const Corner *corner);
   // All violating min pulse width checks.
-  // corner=NULL checks all corners.
+  // corner=nullptr checks all corners.
   MinPulseWidthCheckSeq &minPulseWidthViolations(const Corner *corner);
   // Min pulse width checks for pins.
-  // corner=NULL checks all corners.
+  // corner=nullptr checks all corners.
   MinPulseWidthCheckSeq &minPulseWidthChecks(PinSeq *pins,
 					     const Corner *corner);
   // All min pulse width checks.
-  // corner=NULL checks all corners.
+  // corner=nullptr checks all corners.
   MinPulseWidthCheckSeq &minPulseWidthChecks(const Corner *corner);
   void reportMpwChecks(MinPulseWidthCheckSeq *checks,
 		       bool verbose);
@@ -653,11 +654,9 @@ public:
 		      bool verbose);
 
   // Min period check with the least slack.
-  // corner=NULL checks all corners.
-  MinPeriodCheck *minPeriodSlack(const Corner *corner);
+  MinPeriodCheck *minPeriodSlack();
   // All violating min period checks.
-  // corner=NULL checks all corners.
-  MinPeriodCheckSeq &minPeriodViolations(const Corner *corner);
+  MinPeriodCheckSeq &minPeriodViolations();
   void reportChecks(MinPeriodCheckSeq *checks,
 		    bool verbose);
   void reportCheck(MinPeriodCheck *check,
@@ -735,6 +734,8 @@ public:
   // Parametric on chip variation (statisical sta).
   bool pocvEnabled() const;
   void setPocvEnabled(bool enabled);
+  // Number of std deviations from mean to use for normal distributions.
+  void setSigmaFactor(float factor);
   // TCL variable sta_propagate_gated_clock_enable.
   // Propagate gated clock enable arrivals.
   bool propagateGatedClockEnable() const;
@@ -790,7 +791,7 @@ public:
 				   ExceptionThruSeq *thrus,
 				   ExceptionTo *to,
 				   bool unconstrained,
-				   // Use corner NULL to report timing
+				   // Use corner nullptr to report timing
 				   // for all corners.
 				   const Corner *corner,
 				   // max for setup checks.
@@ -826,7 +827,7 @@ public:
   PathEndSeq *reportTiming(ExceptionFrom *from,
 			   ExceptionThruSeq *thrus,
 			   ExceptionTo *to,
-			   // Use corner NULL to report timing
+			   // Use corner nullptr to report timing
 			   // for all corners.
 			   const Corner *corner,
 			   // max for setup checks.
@@ -1031,7 +1032,7 @@ public:
 
   LogicValue simLogicValue(const Pin *pin);
   // Iterator for instances sorted by max driver pin slew.
-  // Call owns iterator and iterator->container().
+  // Caller owns iterator and iterator->container().
   SlowDrvrIterator *slowDrvrIterator();
 
   // Annotate hierarchical "instance" with parasitics.

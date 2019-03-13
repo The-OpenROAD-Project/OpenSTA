@@ -21,8 +21,6 @@
 
 namespace sta {
 
-// Delay values defined as objects that hold a float value.
-
 class Delay;
 class StaState;
 
@@ -103,10 +101,8 @@ Delay operator*(const Delay &delay1,
 // mean late+/early- sigma
 float
 delayAsFloat(const Delay &delay,
-	     const EarlyLate *early_late);
-float
-delaySigma(const Delay &delay,
-	   const EarlyLate *early_late);
+	     const EarlyLate *early_late,
+	     float sigma_factor);
 float
 delaySigma2(const Delay &delay,
 	    const EarlyLate *early_late);
@@ -128,38 +124,38 @@ bool
 delayIsInitValue(const Delay &delay,
 		 const MinMax *min_max);
 bool
-delayFuzzyZero(const Delay &delay);
+fuzzyZero(const Delay &delay);
 bool
-delayFuzzyEqual(const Delay &delay1,
-		const Delay &delay2);
+fuzzyEqual(const Delay &delay1,
+	   const Delay &delay2);
 bool
-delayFuzzyLess(const Delay &delay1,
+fuzzyLess(const Delay &delay1,
+	  const Delay &delay2);
+bool
+fuzzyLess(const Delay &delay1,
+	  const Delay &delay2,
+	  const MinMax *min_max);
+bool
+fuzzyLessEqual(const Delay &delay1,
 	       const Delay &delay2);
 bool
-delayFuzzyLess(const Delay &delay1,
+fuzzyLessEqual(const Delay &delay1,
 	       const Delay &delay2,
 	       const MinMax *min_max);
 bool
-delayFuzzyLessEqual(const Delay &delay1,
-		    const Delay &delay2);
+fuzzyGreater(const Delay &delay1,
+	     const Delay &delay2);
 bool
-delayFuzzyLessEqual(const Delay &delay1,
-		    const Delay &delay2,
-		    const MinMax *min_max);
-bool
-delayFuzzyGreater(const Delay &delay1,
+fuzzyGreaterEqual(const Delay &delay1,
 		  const Delay &delay2);
 bool
-delayFuzzyGreaterEqual(const Delay &delay1,
-		       const Delay &delay2);
-bool
-delayFuzzyGreaterEqual(const Delay &delay1,
-		       const Delay &delay2,
-		       const MinMax *min_max);
-bool
-delayFuzzyGreater(const Delay &delay1,
+fuzzyGreaterEqual(const Delay &delay1,
 		  const Delay &delay2,
 		  const MinMax *min_max);
+bool
+fuzzyGreater(const Delay &delay1,
+	     const Delay &delay2,
+	     const MinMax *min_max);
 float
 delayRatio(const Delay &delay1,
 	   const Delay &delay2);

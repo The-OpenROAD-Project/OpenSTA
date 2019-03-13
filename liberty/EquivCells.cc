@@ -167,7 +167,7 @@ cellDriveResistance(const LibertyCell *cell)
 	TimingArc *arc = arc_iter.next();
 	GateTimingModel *model = dynamic_cast<GateTimingModel*>(arc->model());
 	if (model) {
-	  float drive = model->driveResistance(cell, NULL);
+	  float drive = model->driveResistance(cell, nullptr);
 	  if (drive > max_drive)
 	    max_drive = drive;
 	}
@@ -217,8 +217,8 @@ hashCellSequentials(const LibertyCell *cell)
     hash += hashPort(seq->outputInv()) * 9;
     hash += hashFuncExpr(seq->clear()) * 11;
     hash += hashFuncExpr(seq->preset()) * 13;
-    hash += seq->clearPresetOutput() * 17;
-    hash += seq->clearPresetOutputInv() * 19;
+    hash += int(seq->clearPresetOutput()) * 17;
+    hash += int(seq->clearPresetOutputInv()) * 19;
   }
   return hash;
 }
@@ -226,7 +226,7 @@ hashCellSequentials(const LibertyCell *cell)
 static unsigned
 hashFuncExpr(const FuncExpr *expr)
 {
-  if (expr == NULL)
+  if (expr == nullptr)
     return 0;
   else {
     switch (expr->op()) {

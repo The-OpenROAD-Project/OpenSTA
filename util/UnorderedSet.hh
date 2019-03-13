@@ -14,28 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_UNORDERED_MAP_H
-#define STA_UNORDERED_MAP_H
+#ifndef STA_UNORDERED_SET_H
+#define STA_UNORDERED_SET_H
 
-#include <unordered_map>
+#include <unordered_set>
 #include <algorithm>
 
 namespace sta {
 
 // Add convenience functions around STL container.
-template <class KEY, class VALUE, class HASH = std::hash<KEY>, class EQUAL = std::equal_to<KEY> >
-class UnorderedMap : public std::unordered_map<KEY, VALUE, HASH, EQUAL>
+template <class KEY, class HASH = std::hash<KEY>, class EQUAL = std::equal_to<KEY> >
+class UnorderedSet : public std::unordered_set<KEY, HASH, EQUAL>
 {
 public:
-  UnorderedMap() :
-    std::unordered_map<KEY, VALUE, HASH, EQUAL>()
+  UnorderedSet() :
+    std::unordered_set<KEY, HASH, EQUAL>()
   {
   }
 
-  explicit UnorderedMap(size_t size,
+  explicit UnorderedSet(size_t size,
 			const HASH &hash,
 			const EQUAL &equal) :
-    std::unordered_map<KEY, VALUE, HASH, EQUAL>(size, hash, equal)
+    std::unordered_set<KEY, HASH, EQUAL>(size, hash, equal)
   {
   }
 
@@ -47,52 +47,14 @@ public:
   }
 
   // Find the value corresponding to key.
-  VALUE
+  KEY
   findKey(const KEY key) const
   {
     auto find_iter = this->find(key);
     if (find_iter != this->end())
-      return find_iter->second;
+      return *find_iter;
     else
       return nullptr;
-  }
-  void
-  findKey(const KEY key,
-	  // Return Values.
-	  VALUE &value,
-	  bool &exists) const
-  {
-    auto find_iter = this->find(key);
-    if (find_iter != this->end()) {
-      value = find_iter->second;
-      exists = true;
-    }
-    else
-      exists = false;
-  }
-  void
-  findKey(const KEY &key,
-	  // Return Values.
-	  KEY &map_key,
-	  VALUE &value,
-	  bool &exists) const
-  {
-    auto find_iter = this->find(key);
-    if (find_iter != this->end()) {
-      map_key = find_iter->first;
-      value = find_iter->second;
-      exists = true;
-    }
-    else
-      exists = false;
-  }
-
-  void
-  insert(const KEY &key,
-	 VALUE value)
-  {
-    //  this->find(key) = value;
-    this->operator[](key) = value;
   }
 
   // Erase the value corresponding to key.
@@ -116,11 +78,11 @@ public:
   deleteContentsClear()
   {
     deleteContents();
-    std::unordered_map<KEY,VALUE,HASH,EQUAL>::clear();
+    std::unordered_set<KEY,HASH,EQUAL>::clear();
   }
 
   // Java style container itererator
-  //  Map::Iterator<string *, Value, stringLess> iter(map);
+  //  Set::Iterator<string *, Value, stringLess> iter(set);
   //  while (iter.hasNext()) {
   //    Value *v = iter.next();
   //  }
@@ -128,52 +90,46 @@ public:
   {
   public:
     Iterator() : container_(nullptr) {}
-    explicit Iterator(std::unordered_map<KEY,VALUE,HASH,EQUAL> *container) :
+    explicit Iterator(std::unordered_set<KEY,HASH,EQUAL> *container) :
       container_(container)
     { if (container_ != nullptr) iter_ = container_->begin(); }
-    explicit Iterator(std::unordered_map<KEY,VALUE,HASH,EQUAL> &container) :
+    explicit Iterator(std::unordered_set<KEY,HASH,EQUAL> &container) :
       container_(&container)
     { if (container_ != nullptr) iter_ = container_->begin(); }
-    void init(std::unordered_map<KEY,VALUE,HASH,EQUAL> *container)
+    void init(std::unordered_set<KEY,HASH,EQUAL> *container)
     { container_ = container; if (container_ != nullptr) iter_=container_->begin();}
-    void init(std::unordered_map<KEY,VALUE,HASH,EQUAL> &container)
+    void init(std::unordered_set<KEY,HASH,EQUAL> &container)
     { container_ = &container; if (container_ != nullptr) iter_=container_->begin();}
     bool hasNext() { return container_ != nullptr && iter_ != container_->end(); }
-    VALUE next() { return iter_++->second; }
-    void next(KEY &key,
-	      VALUE &value)
-    { key = iter_->first; value = iter_->second; iter_++; }
-    std::unordered_map<KEY,VALUE,HASH,EQUAL> *container() { return container_; }
+    KEY next() { return *iter_++; }
+    std::unordered_set<KEY,HASH,EQUAL> *container() { return container_; }
 
   private:
-    std::unordered_map<KEY,VALUE,HASH,EQUAL> *container_;
-    typename std::unordered_map<KEY,VALUE,HASH,EQUAL>::iterator iter_;
+    std::unordered_set<KEY,HASH,EQUAL> *container_;
+    typename std::unordered_set<KEY,HASH,EQUAL>::iterator iter_;
   };
 
   class ConstIterator
   {
   public:
     ConstIterator() : container_(nullptr) {}
-    explicit ConstIterator(const std::unordered_map<KEY,VALUE,HASH,EQUAL> *container) :
+    explicit ConstIterator(const std::unordered_set<KEY,HASH,EQUAL> *container) :
       container_(container)
     { if (container_ != nullptr) iter_ = container_->begin(); }
-    explicit ConstIterator(const std::unordered_map<KEY,VALUE,HASH,EQUAL> &container) :
+    explicit ConstIterator(const std::unordered_set<KEY,HASH,EQUAL> &container) :
       container_(&container)
     { if (container_ != nullptr) iter_ = container_->begin(); }
-    void init(const std::unordered_map<KEY,VALUE,HASH,EQUAL> *container)
+    void init(const std::unordered_set<KEY,HASH,EQUAL> *container)
     { container_ = container; if (container_ != nullptr) iter_=container_->begin();}
-    void init(const std::unordered_map<KEY,VALUE,HASH,EQUAL> &container)
+    void init(const std::unordered_set<KEY,HASH,EQUAL> &container)
     { container_ = &container; if (container_ != nullptr) iter_=container_->begin();}
     bool hasNext() { return container_ != nullptr && iter_ != container_->end(); }
-    VALUE next() { return iter_++->second; }
-    void next(KEY &key,
-	      VALUE &value)
-    { key = iter_->first; value = iter_->second; iter_++; }
-    const std::unordered_map<KEY,VALUE,HASH,EQUAL> *container() { return container_; }
+    KEY next() { return iter_++->second; }
+    const std::unordered_set<KEY,HASH,EQUAL> *container() { return container_; }
 
   private:
-    const std::unordered_map<KEY,VALUE,HASH,EQUAL> *container_;
-    typename std::unordered_map<KEY,VALUE,HASH,EQUAL>::const_iterator iter_;
+    const std::unordered_set<KEY,HASH,EQUAL> *container_;
+    typename std::unordered_set<KEY,HASH,EQUAL>::const_iterator iter_;
   };
 };
 

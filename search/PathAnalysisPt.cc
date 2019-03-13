@@ -29,7 +29,7 @@ PathAnalysisPt::PathAnalysisPt(Corner *corner,
   corner_(corner),
   index_(index),
   path_min_max_(path_min_max),
-  tgt_clk_ap_(NULL),
+  tgt_clk_ap_(nullptr),
   dcalc_ap_(dcalc_ap)
 {
 }

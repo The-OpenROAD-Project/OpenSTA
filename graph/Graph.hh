@@ -34,11 +34,7 @@ class MinMax;
 class Sdc;
 class PathVertexRep;
 
-enum VertexColor {
-  vertex_color_white,
-  vertex_color_gray,
-  vertex_color_black
-};
+enum class LevelColor { white, gray, black };
 
 typedef Pool<Delay> DelayPool;
 typedef Pool<Vertex> VertexPool;
@@ -271,8 +267,8 @@ public:
   Level level() const { return level_; }
   void setLevel(Level level);
   bool isRoot() const{ return level_ == 0; }
-  VertexColor color() const { return (VertexColor) color_; }
-  void setColor(VertexColor color);
+  LevelColor color() const { return static_cast<LevelColor>(color_); }
+  void setColor(LevelColor color);
   Arrival *arrivals() const { return arrivals_; }
   void setArrivals(Arrival *arrivals);
   PathVertexRep *prevPaths() const { return prev_paths_; }
@@ -337,14 +333,16 @@ protected:
   // 4 bytes
   unsigned int tag_group_index_:tag_group_index_bits; // 24
   // Each bit corresponds to a different BFS queue.
-  unsigned int bfs_in_queue_:bfs_index_bits; // 4
+  unsigned int bfs_in_queue_:int(BfsIndex::bits); // 4
   unsigned int slew_annotated_:slew_annotated_bits;
 
   // 4 bytes (32 bits)
   unsigned int level_:16;
   // Levelization search state.
-  unsigned int color_:2;
-  unsigned int sim_value_:3;	// LogicValue
+  // LevelColor gcc barfs if this is dcl'd.
+  unsigned color_:2;
+  // LogicValue gcc barfs if this is dcl'd.
+  unsigned sim_value_:3;
   bool has_requireds_:1;
   // Bidirect pins have two vertices.
   // This flag distinguishes the driver and load vertices.
@@ -418,14 +416,14 @@ protected:
   VertexIndex vertex_out_next_;		// Vertex out edges doubly linked list.
   VertexIndex vertex_out_prev_;
   ArcIndex arc_delays_;
-  unsigned int delay_annotation_is_incremental_:1;
-  unsigned int is_bidirect_inst_path_:1;
-  unsigned int is_bidirect_net_path_:1;
+  bool delay_annotation_is_incremental_:1;
+  bool is_bidirect_inst_path_:1;
+  bool is_bidirect_net_path_:1;
   // Timing sense from function and constants on edge instance.
-  unsigned int sim_timing_sense_:timing_sense_bit_count;
-  unsigned int is_disabled_constraint_:1;
-  unsigned int is_disabled_cond_:1;
-  unsigned int is_disabled_loop_:1;
+  unsigned sim_timing_sense_:timing_sense_bit_count;
+  bool is_disabled_constraint_:1;
+  bool is_disabled_cond_:1;
+  bool is_disabled_loop_:1;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Edge);
@@ -468,7 +466,7 @@ public:
 		       const Graph *graph);
   VertexInEdgeIterator(VertexIndex vertex_index,
 		       const Graph *graph);
-  bool hasNext() { return (next_ != NULL); }
+  bool hasNext() { return (next_ != nullptr); }
   Edge *next();
 
 private:
@@ -483,7 +481,7 @@ class VertexOutEdgeIterator : public VertexEdgeIterator
 public:
   VertexOutEdgeIterator(Vertex *vertex,
 			const Graph *graph);
-  bool hasNext() { return (next_ != NULL); }
+  bool hasNext() { return (next_ != nullptr); }
   Edge *next();
 
 private:

@@ -139,7 +139,7 @@ cmdLinkedNetwork()
     return network;
   else {
     throw CmdErrorNetworkNotLinked();
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -152,7 +152,7 @@ cmdEditNetwork()
     return dynamic_cast<NetworkEdit*>(network);
   else {
     throw CmdErrorNetworkNotEditable();
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -189,7 +189,7 @@ TclListSeqPort(Tcl_Obj * const source,
     return seq;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 PinSeq *
@@ -210,7 +210,7 @@ TclListSeqPin(Tcl_Obj * const source,
     return seq;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 InstanceSeq *
@@ -231,7 +231,7 @@ TclListSeqInstance(Tcl_Obj * const source,
     return seq;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 ExceptionThruSeq *
@@ -253,7 +253,7 @@ TclListSeqExceptionThru(Tcl_Obj *const source,
     return seq;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 PortSet *
@@ -274,7 +274,7 @@ TclListSetPort(Tcl_Obj *const source,
     return set;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 PinSet *
@@ -295,7 +295,7 @@ TclListSetPin(Tcl_Obj *const source,
     return set;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 ClockSet *
@@ -316,7 +316,7 @@ TclListSetClock(Tcl_Obj *const source,
     return set;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 InstanceSet *
@@ -337,7 +337,7 @@ TclListSetInstance(Tcl_Obj *const source,
     return set;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 NetSet *
@@ -358,7 +358,7 @@ TclListSetNet(Tcl_Obj *const source,
     return set;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 StringSet *
@@ -378,7 +378,7 @@ TclListSetConstChar(Tcl_Obj *const source,
     return set;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 StringSeq *
@@ -398,7 +398,7 @@ TclListSeqConstChar(Tcl_Obj *const source,
     return seq;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 EdgeSeq *
@@ -418,7 +418,7 @@ TclListSeqEdge(Tcl_Obj * const source, Tcl_Interp *interp)
     return seq;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -472,7 +472,7 @@ objectListNext(const char *list,
 {
   // Default return values (failure).
   type_match = false;
-  next = NULL;
+  next = nullptr;
   // _hexaddress_p_type
   const char *s = list;
   char ch = *s++;
@@ -494,7 +494,7 @@ objectListNext(const char *list,
       if (*s)
 	next = s + 1;
       else
-	next = NULL;
+	next = nullptr;
     }
   }
 }
@@ -520,7 +520,7 @@ using namespace sta;
     delete str;
   }
   else
-    Tcl_SetResult(interp, NULL, TCL_STATIC);
+    Tcl_SetResult(interp, nullptr, TCL_STATIC);
 }
 
 %typemap(in) StringSeq* {
@@ -529,7 +529,7 @@ using namespace sta;
 
 %typemap(out) StringSeq* {
   StringSeq *strs = $1;
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   StringSeq::Iterator str_iter(strs);
   while (str_iter.hasNext()) {
     const char *str = str_iter.next();
@@ -541,7 +541,7 @@ using namespace sta;
 
 %typemap(out) TmpStringSeq* {
   StringSeq *strs = $1;
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   StringSeq::Iterator str_iter(strs);
   while (str_iter.hasNext()) {
     const char *str = str_iter.next();
@@ -573,7 +573,7 @@ using namespace sta;
 }
 
 %typemap(out) CellSeq* {
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   CellSeq *cells = $1;
   CellSeq::Iterator cell_iter(cells);
   while (cell_iter.hasNext()) {
@@ -585,7 +585,7 @@ using namespace sta;
 }
 
 %typemap(out) TmpCellSeq* {
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   CellSeq *cells = $1;
   CellSeq::Iterator cell_iter(cells);
   while (cell_iter.hasNext()) {
@@ -598,7 +598,7 @@ using namespace sta;
 }
 
 %typemap(out) LibertyCellSeq* {
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   LibertyCellSeq *cells = $1;
   LibertyCellSeq::Iterator cell_iter(cells);
   while (cell_iter.hasNext()) {
@@ -611,7 +611,7 @@ using namespace sta;
 }
 
 %typemap(out) TmpLibertyCellSeq* {
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   LibertyCellSeq *cells = $1;
   LibertyCellSeq::Iterator cell_iter(cells);
   while (cell_iter.hasNext()) {
@@ -648,7 +648,7 @@ using namespace sta;
 }
 
 %typemap(out) TmpPortSeq* {
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   TmpPortSeq *ports = $1;
   TmpPortSeq::Iterator port_iter(ports);
   while (port_iter.hasNext()) {
@@ -661,7 +661,7 @@ using namespace sta;
 }
 
 %typemap(out) TmpLibertyPortSeq* {
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   TmpLibertyPortSeq *ports = $1;
   TmpLibertyPortSeq::Iterator port_iter(ports);
   while (port_iter.hasNext()) {
@@ -675,7 +675,7 @@ using namespace sta;
 }
 
 %typemap(out) TmpPinSet* {
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   PinSet *pins = $1;
   PinSet::Iterator pin_iter(pins);
   while (pin_iter.hasNext()) {
@@ -688,7 +688,7 @@ using namespace sta;
 }
 
 %typemap(out) TmpPinSeq* {
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   PinSeq *pins = $1;
   PinSeq::Iterator pin_iter(pins);
   while (pin_iter.hasNext()) {
@@ -741,7 +741,7 @@ using namespace sta;
   int length;
   const char *arg = Tcl_GetStringFromObj($input, &length);
   Transition *tr = Transition::find(arg);
-  if (tr == NULL) {
+  if (tr == nullptr) {
     Tcl_SetResult(interp,const_cast<char*>("Error: transition not found."),
 		  TCL_STATIC);
     return TCL_ERROR;
@@ -762,7 +762,7 @@ using namespace sta;
   int length;
   const char *arg = Tcl_GetStringFromObj($input, &length);
   TransRiseFall *tr = TransRiseFall::find(arg);
-  if (tr == NULL) {
+  if (tr == nullptr) {
     Tcl_SetResult(interp,const_cast<char*>("Error: unknown transition name."),
 		  TCL_STATIC);
     return TCL_ERROR;
@@ -782,7 +782,7 @@ using namespace sta;
   int length;
   const char *arg = Tcl_GetStringFromObj($input, &length);
   TransRiseFallBoth *tr = TransRiseFallBoth::find(arg);
-  if (tr == NULL) {
+  if (tr == nullptr) {
     Tcl_SetResult(interp,const_cast<char*>("Error: unknown transition name."),
 		  TCL_STATIC);
     return TCL_ERROR;
@@ -819,15 +819,15 @@ using namespace sta;
   int length;
   const char *arg = Tcl_GetStringFromObj($input, &length);
   if (stringEq(arg, "0") || stringEq(arg, "zero"))
-    $1 = logic_zero;
+    $1 = LogicValue::zero;
   else if (stringEq(arg, "1") || stringEq(arg, "one"))
-    $1 = logic_one;
+    $1 = LogicValue::one;
   else if (stringEq(arg, "X"))
-    $1 = logic_unknown;
+    $1 = LogicValue::unknown;
   else if (stringEq(arg, "rise") || stringEq(arg, "rising"))
-    $1 = logic_rise;
+    $1 = LogicValue::rise;
   else if (stringEq(arg, "fall") || stringEq(arg, "falling"))
-    $1 = logic_fall;
+    $1 = LogicValue::fall;
   else {
     Tcl_SetResult(interp,const_cast<char*>("Error: unknown logic value."),
 		  TCL_STATIC);
@@ -839,11 +839,11 @@ using namespace sta;
   int length;
   const char *arg = Tcl_GetStringFromObj($input, &length);
   if (stringEqual(arg, "single"))
-    $1 = analysis_type_single;
+    $1 = AnalysisType::single;
   else if (stringEqual(arg, "bc_wc"))
-    $1 = analysis_type_bc_wc;
+    $1 = AnalysisType::bc_wc;
   else if (stringEq(arg, "on_chip_variation"))
-    $1 = analysis_type_on_chip_variation;
+    $1 = AnalysisType::ocv;
   else {
     Tcl_SetResult(interp,const_cast<char*>("Error: unknown analysis type."),
 		  TCL_STATIC);
@@ -862,7 +862,7 @@ using namespace sta;
 }
 
 %typemap(out) TmpInstanceSeq* {
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   TmpInstanceSeq *insts = $1;
   TmpInstanceSeq::Iterator inst_iter(insts);
   while (inst_iter.hasNext()) {
@@ -900,7 +900,7 @@ using namespace sta;
 }
 
 %typemap(out) PinSeq* {
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   PinSeq *pins = $1;
   PinSeq::Iterator pin_iter(pins);
   while (pin_iter.hasNext()) {
@@ -918,7 +918,7 @@ using namespace sta;
 }
 
 %typemap(out) NetSeq* {
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   NetSeq *nets = $1;
   NetSeq::Iterator net_iter(nets);
   while (net_iter.hasNext()) {
@@ -956,7 +956,7 @@ using namespace sta;
 }
 
 %typemap(out) ClockSeq* {
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   ClockSeq *clks = $1;
   ClockSeq::Iterator clk_iter(clks);
   while (clk_iter.hasNext()) {
@@ -986,7 +986,7 @@ using namespace sta;
 %typemap(in) FloatSeq* {
   int argc;
   Tcl_Obj **argv;
-  FloatSeq *floats = NULL;
+  FloatSeq *floats = nullptr;
 
   if (Tcl_ListObjGetElements(interp, $input, &argc, &argv) == TCL_OK) {
     if (argc)
@@ -1008,7 +1008,7 @@ using namespace sta;
 
 %typemap(out) FloatSeq* {
   FloatSeq *floats = $1;
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   if (floats) {
     for (unsigned i = 0; i < floats->size(); i++) {
       Tcl_Obj *obj = Tcl_NewDoubleObj((*floats)[i]);
@@ -1020,7 +1020,7 @@ using namespace sta;
 
 %typemap(out) TmpFloatSeq* {
   FloatSeq *floats = $1;
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   if (floats) {
     for (unsigned i = 0; i < floats->size(); i++) {
       Tcl_Obj *obj = Tcl_NewDoubleObj((*floats)[i]);
@@ -1034,7 +1034,7 @@ using namespace sta;
 %typemap(in) IntSeq* {
   int argc;
   Tcl_Obj **argv;
-  IntSeq *ints = NULL;
+  IntSeq *ints = nullptr;
 
   if (Tcl_ListObjGetElements(interp, $input, &argc, &argv) == TCL_OK) {
     if (argc)
@@ -1090,7 +1090,7 @@ using namespace sta;
   int length;
   char *arg = Tcl_GetStringFromObj($input, &length);
   if (stringEqual(arg, "NULL"))
-    $1 = NULL;
+    $1 = nullptr;
   else {
     MinMaxAll *min_max = MinMaxAll::find(arg);
     if (min_max)
@@ -1165,11 +1165,11 @@ using namespace sta;
   int length;
   char *arg = Tcl_GetStringFromObj($input, &length);
   if (stringEq(arg, "net_delay"))
-    $1 = timing_derate_net_delay;
+    $1 = TimingDerateType::net_delay;
   else if (stringEq(arg, "cell_delay"))
-    $1 = timing_derate_cell_delay;
+    $1 = TimingDerateType::cell_delay;
   else if (stringEq(arg, "cell_check"))
-    $1 = timing_derate_cell_check;
+    $1 = TimingDerateType::cell_check;
   else {
     tclError(interp, "Error: %s not clk or data.", arg);
     return TCL_ERROR;
@@ -1180,9 +1180,9 @@ using namespace sta;
   int length;
   char *arg = Tcl_GetStringFromObj($input, &length);
   if (stringEq(arg, "clk"))
-    $1 = path_clk;
+    $1 = PathClkOrData::clk;
   else if (stringEq(arg, "data"))
-    $1 = path_data;
+    $1 = PathClkOrData::data;
   else {
     tclError(interp, "Error: %s not clk or data.", arg);
     return TCL_ERROR;
@@ -1206,19 +1206,19 @@ using namespace sta;
   int length;
   char *arg = Tcl_GetStringFromObj($input, &length);
   if (stringEq(arg, "full"))
-    $1 = report_path_full;
+    $1 = ReportPathFormat::full;
   else if (stringEq(arg, "full_clock"))
-    $1 = report_path_full_clock;
+    $1 = ReportPathFormat::full_clock;
   else if (stringEq(arg, "full_clock_expanded"))
-    $1 = report_path_full_clock_expanded;
+    $1 = ReportPathFormat::full_clock_expanded;
   else if (stringEq(arg, "short"))
-    $1 = report_path_short;
+    $1 = ReportPathFormat::shorter;
   else if (stringEq(arg, "end"))
-    $1 = report_path_endpoint;
+    $1 = ReportPathFormat::endpoint;
   else if (stringEq(arg, "summary"))
-    $1 = report_path_summary;
+    $1 = ReportPathFormat::summary;
   else if (stringEq(arg, "slack_only"))
-    $1 = report_path_slack_only;
+    $1 = ReportPathFormat::slack_only;
   else {
     tclError(interp, "Error: unknown path type %s.", arg);
     return TCL_ERROR;
@@ -1234,7 +1234,7 @@ using namespace sta;
 }
 
 %typemap(out) PinSet* {
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   const PinSet *pins = $1;
   if (pins) {
     PinSet::ConstIterator pin_iter(pins);
@@ -1252,7 +1252,7 @@ using namespace sta;
 }
 
 %typemap(out) ClockSet* {
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   const ClockSet *clks = $1;
   if (clks) {
     ClockSet::ConstIterator clk_iter(clks);
@@ -1266,7 +1266,7 @@ using namespace sta;
 }
 
 %typemap(out) TmpClockSet* {
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   const ClockSet *clks = $1;
   if (clks) {
     ClockSet::ConstIterator clk_iter(clks);
@@ -1285,7 +1285,7 @@ using namespace sta;
 }
 
 %typemap(out) TmpInstanceSet* {
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   InstanceSet *insts = $1;
   InstanceSet::Iterator inst_iter(insts);
   while (inst_iter.hasNext()) {
@@ -1313,7 +1313,7 @@ using namespace sta;
 %typemap(out) Vertex** {
   int i = 0;
   Tcl_ResetResult(interp);
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   while ($1[i]) {
     Tcl_Obj *obj = SWIG_NewInstanceObj($1[i], SWIGTYPE_p_Vertex,false);
     Tcl_ListObjAppendElement(interp, list, obj);
@@ -1332,7 +1332,7 @@ using namespace sta;
 }
 
 %typemap(out) EdgeSeq* {
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   EdgeSeq *edges = $1;
   EdgeSeq::Iterator edge_iter(edges);
   while (edge_iter.hasNext()) {
@@ -1370,12 +1370,12 @@ using namespace sta;
 }
 
 %typemap(out) CheckErrorSeq & {
-  Tcl_Obj *error_list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *error_list = Tcl_NewListObj(0, nullptr);
   CheckErrorSeq *check_errors = $1;
   CheckErrorSeq::Iterator check_iter(check_errors);
   while (check_iter.hasNext()) {
     CheckError *error = check_iter.next();
-    Tcl_Obj *string_list = Tcl_NewListObj(0, NULL);
+    Tcl_Obj *string_list = Tcl_NewListObj(0, nullptr);
     CheckError::Iterator string_iter(error);
     while (string_iter.hasNext()) {
       const char *str = string_iter.next();
@@ -1395,7 +1395,7 @@ using namespace sta;
 }
 
 %typemap(out) PathEndSeq* {
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   const PathEndSeq *path_ends = $1;
   PathEndSeq::ConstIterator end_iter(path_ends);
   while (end_iter.hasNext()) {
@@ -1417,7 +1417,7 @@ using namespace sta;
   Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
   Tcl_SetObjResult(interp, obj);
 
-  Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   PathRefSeq *paths = $1;
   PathRefSeq::Iterator path_iter(paths);
   while (path_iter.hasNext()) {
@@ -1478,11 +1478,11 @@ using namespace sta;
   int length;
   char *arg = Tcl_GetStringFromObj($input, &length);
   if (stringEq(arg, "pi_elmore"))
-    $1 = reduce_parasitics_to_pi_elmore;
+    $1 = ReduceParasiticsTo::pi_elmore;
   else if (stringEq(arg, "pi_pole_residue2"))
-    $1 = reduce_parasitics_to_pi_pole_residue2;
+    $1 = ReduceParasiticsTo::pi_pole_residue2;
   else if (stringEq(arg, "none"))
-    $1 = reduce_parasitics_to_none;
+    $1 = ReduceParasiticsTo::none;
   else {
     tclError(interp, "Error: %s pi_elmore, pi_pole_residue2, or none.", arg);
     return TCL_ERROR;
@@ -1549,7 +1549,7 @@ using namespace sta;
   }
     break;
   case PropertyValue::Type::type_pins: {
-    Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+    Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
     PinSeq *pins = value.pins();
     PinSeq::Iterator pin_iter(pins);
     while (pin_iter.hasNext()) {
@@ -1590,14 +1590,14 @@ using namespace sta;
     Tcl_SetObjResult(interp, obj);
   }
     break;
-  case PropertyValue::Type::type_clock: {
+  case PropertyValue::Type::type_clk: {
     Tcl_Obj *obj = SWIG_NewInstanceObj(value.clock(),
 				       SWIGTYPE_p_Clock, false);
     Tcl_SetObjResult(interp, obj);
   }
     break;
-  case PropertyValue::Type::type_clocks: {
-    Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+  case PropertyValue::Type::type_clks: {
+    Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
     ClockSeq *clks = value.clocks();
     ClockSeq::Iterator clk_iter(clks);
     while (clk_iter.hasNext()) {
@@ -1609,7 +1609,7 @@ using namespace sta;
   }
     break;
   case PropertyValue::Type::type_path_refs: {
-    Tcl_Obj *list = Tcl_NewListObj(0, NULL);
+    Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
     PathRefSeq *paths = value.pathRefs();
     PathRefSeq::Iterator path_iter(paths);
     while (path_iter.hasNext()) {
@@ -2182,7 +2182,7 @@ read_liberty_cmd(char *filename,
 {
   LibertyLibrary *lib = Sta::sta()->readLiberty(filename, corner, min_max,
 						infer_latches);
-  return (lib != NULL);
+  return (lib != nullptr);
 }
 
 bool
@@ -2257,9 +2257,9 @@ void
 set_cmd_namespace_cmd(const char *namespc)
 {
   if (stringEq(namespc, "sdc"))
-    Sta::sta()->setCmdNamespace(cmd_namespace_sdc);
+    Sta::sta()->setCmdNamespace(CmdNamespace::sdc);
   else if (stringEq(namespc, "sta"))
-    Sta::sta()->setCmdNamespace(cmd_namespace_sta);
+    Sta::sta()->setCmdNamespace(CmdNamespace::sta);
   else
     internalError("unknown namespace");
 }
@@ -2760,14 +2760,14 @@ set_analysis_type_cmd(const char *analysis_type)
 {
   AnalysisType type;
   if (stringEq(analysis_type, "single"))
-    type = analysis_type_single;
+    type = AnalysisType::single;
   else if (stringEq(analysis_type, "bc_wc"))
-    type = analysis_type_bc_wc;
+    type = AnalysisType::bc_wc;
   else if (stringEq(analysis_type, "on_chip_variation"))
-    type = analysis_type_on_chip_variation;
+    type = AnalysisType::ocv;
   else {
     internalError("unknown analysis type");
-    type = analysis_type_single;
+    type = AnalysisType::single;
   }
   Sta::sta()->setAnalysisType(type);
 }
@@ -2812,11 +2812,11 @@ const char *
 operating_condition_analysis_type()
 {
   switch (Sta::sta()->sdc()->analysisType()){
-  case analysis_type_single:
+  case AnalysisType::single:
     return "single";
-  case analysis_type_bc_wc:
+  case AnalysisType::bc_wc:
     return "bc_wc";
-  case analysis_type_on_chip_variation:
+  case AnalysisType::ocv:
     return "on_chip_variation";
   }
   // Prevent warnings from lame compilers.
@@ -2902,7 +2902,7 @@ void
 set_wire_load_mode_cmd(const char *mode_name)
 {
   WireloadMode mode = stringWireloadMode(mode_name);
-  if (mode == wire_load_mode_unknown)
+  if (mode == WireloadMode::unknown)
     internalError("unknown wire load mode");
   else
     Sta::sta()->setWireloadMode(mode);
@@ -3430,7 +3430,7 @@ make_group_path(const char *name,
 {
   cmdLinkedNetwork();
   if (name[0] == '\0')
-    name = NULL;
+    name = nullptr;
   Sta::sta()->makeGroupPath(name, is_default, from, thrus, to, comment);
 }
 
@@ -3751,14 +3751,14 @@ unset_timing_derate_cmd()
 ClockIterator *
 clock_iterator()
 {
-  return Sta::sta()->clockIterator();
+  return new ClockIterator(Sta::sta()->sdc());
 }
 
 Clock *
 find_clock(const char *name)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->findClock(name);
+  return Sta::sta()->sdc()->findClock(name);
 }
 
 bool
@@ -3770,7 +3770,7 @@ is_clock_src(const Pin *pin)
 Clock *
 default_arrival_clock()
 {
-  return Sta::sta()->defaultArrivalClock();
+  return Sta::sta()->sdc()->defaultArrivalClock();
 }
 
 ClockSeq *
@@ -3781,8 +3781,9 @@ find_clocks_matching(const char *pattern,
   cmdLinkedNetwork();
   ClockSeq *clks = new ClockSeq;
   Sta *sta = Sta::sta();
+  Sdc *sdc = sta->sdc();
   PatternMatch matcher(pattern, regexp, nocase, sta->tclInterp());
-  sta->findClocksMatching(&matcher, clks);
+  sdc->findClocksMatching(&matcher, clks);
   return clks;
 }
 
@@ -3821,7 +3822,7 @@ const char *
 format_time(const char *value_str,
 	    int digits)
 {
-  float value = strtof(value_str, NULL);
+  float value = strtof(value_str, nullptr);
   return Sta::sta()->units()->timeUnit()->asString(value, digits);
 }
 
@@ -3829,7 +3830,7 @@ const char *
 format_capacitance(const char *value_str,
 		   int digits)
 {
-  float value = strtof(value_str, NULL);
+  float value = strtof(value_str, nullptr);
   return Sta::sta()->units()->capacitanceUnit()->asString(value, digits);
 }
 
@@ -3837,7 +3838,7 @@ const char *
 format_resistance(const char *value_str,
 		  int digits)
 {
-  float value = strtof(value_str, NULL);
+  float value = strtof(value_str, nullptr);
   return Sta::sta()->units()->resistanceUnit()->asString(value, digits);
 }
 
@@ -3845,7 +3846,7 @@ const char *
 format_voltage(const char *value_str,
 	       int digits)
 {
-  float value = strtof(value_str, NULL);
+  float value = strtof(value_str, nullptr);
   return Sta::sta()->units()->voltageUnit()->asString(value, digits);
 }
 
@@ -3853,7 +3854,7 @@ const char *
 format_power(const char *value_str,
 	     int digits)
 {
-  float value = strtof(value_str, NULL);
+  float value = strtof(value_str, nullptr);
   return Sta::sta()->units()->powerUnit()->asString(value, digits);
 }
 
@@ -3998,9 +3999,9 @@ const char *
 crpr_mode()
 {
   switch (Sta::sta()->crprMode()) {
-  case crpr_mode_same_transition:
+  case CrprMode::same_transition:
     return "same_transition";
-  case crpr_mode_same_pin:
+  case CrprMode::same_pin:
     return "same_pin";
   default:
     return "";
@@ -4011,9 +4012,9 @@ void
 set_crpr_mode(const char *mode)
 {
   if (stringEq(mode, "same_pin"))
-    Sta::sta()->setCrprMode(crpr_mode_same_pin);
+    Sta::sta()->setCrprMode(CrprMode::same_pin);
   else if (stringEq(mode, "same_transition"))
-    Sta::sta()->setCrprMode(crpr_mode_same_transition);
+    Sta::sta()->setCrprMode(CrprMode::same_transition);
   else
     internalError("unknown common clk pessimism mode.");
 }
@@ -4032,6 +4033,18 @@ set_pocv_enabled(bool enabled)
     Sta::sta()->report()->error("POCV support requires compilation with SSTA=1.\n");
 #endif
   return Sta::sta()->setPocvEnabled(enabled);
+}
+
+float
+pocv_sigma_factor()
+{
+  return Sta::sta()->sigmaFactor();
+}
+
+void
+set_pocv_sigma_factor(float factor)
+{
+  Sta::sta()->setSigmaFactor(factor);
 }
 
 bool
@@ -4184,7 +4197,7 @@ find_path_ends(ExceptionFrom *from,
 				       group_count, endpoint_count, unique_pins,
 				       slack_min, slack_max,
 				       sort_by_slack,
-				       groups->size() ? groups : NULL,
+				       groups->size() ? groups : nullptr,
 				       setup, hold,
 				       recovery, removal,
 				       clk_gating_setup, clk_gating_hold);
@@ -4329,7 +4342,7 @@ group_path_pins(const char *group_path_name)
   if (sdc->isGroupPathName(group_path_name))
     return sta->findGroupPathPins(group_path_name);
   else
-    return NULL;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -4383,17 +4396,17 @@ report_mpw_check(MinPulseWidthCheck *check,
 ////////////////////////////////////////////////////////////////
 
 MinPeriodCheckSeq &
-min_period_violations(const Corner *corner)
+min_period_violations()
 {
   cmdLinkedNetwork();
-  return Sta::sta()->minPeriodViolations(corner);
+  return Sta::sta()->minPeriodViolations();
 }
 
 MinPeriodCheck *
-min_period_check_slack(const Corner *corner)
+min_period_check_slack()
 {
   cmdLinkedNetwork();
-  return Sta::sta()->minPeriodSlack(corner);
+  return Sta::sta()->minPeriodSlack();
 }
 
 void
@@ -4524,7 +4537,7 @@ vertex_worst_arrival_path(Vertex *vertex,
   if (!path.isNull())
     return new PathRef(path);
   else
-    return NULL;
+    return nullptr;
 }
 
 PathRef *
@@ -4538,7 +4551,7 @@ vertex_worst_arrival_path_tr(Vertex *vertex,
   if (!path.isNull())
     return new PathRef(path);
   else
-    return NULL;
+    return nullptr;
 }
 
 PathRef *
@@ -4551,7 +4564,7 @@ vertex_worst_slack_path(Vertex *vertex,
   if (!path.isNull())
     return new PathRef(path);
   else
-    return NULL;
+    return nullptr;
 }
 
 TmpString *
@@ -4728,7 +4741,7 @@ pin_case_logic_value(const Pin *pin)
 {
   Sta *sta = Sta::sta();
   Sdc *sdc = sta->sdc();
-  LogicValue value = logic_unknown;
+  LogicValue value = LogicValue::unknown;
   bool exists;
   sdc->caseLogicValue(pin, value, exists);
   return logicValueString(value);
@@ -4739,7 +4752,7 @@ pin_logic_value(const Pin *pin)
 {
   Sta *sta = Sta::sta();
   Sdc *sdc = sta->sdc();
-  LogicValue value = logic_unknown;
+  LogicValue value = LogicValue::unknown;
   bool exists;
   sdc->logicValue(pin, value, exists);
   return logicValueString(value);
@@ -4816,11 +4829,11 @@ set_clock_sense_cmd(PinSet *pins,
 {
   ClockSense sense;
   if (positive)
-    sense = clk_sense_positive;
+    sense = ClockSense::positive;
   else if (negative)
-    sense = clk_sense_negative;
+    sense = ClockSense::negative;
   else if (stop_propagation)
-    sense = clk_sense_stop;
+    sense = ClockSense::stop;
   else
     internalError("unknown clock sense");
   Sta::sta()->setClockSense(pins, clks, sense);
@@ -5341,7 +5354,7 @@ function()
   if (func)
     return func->asString();
   else
-    return NULL;
+    return nullptr;
 }
 
 const char *
@@ -5351,7 +5364,7 @@ tristate_enable()
   if (enable)
     return enable->asString();
   else
-    return NULL;
+    return nullptr;
 }
 
 float
@@ -5491,7 +5504,7 @@ vertices()
   cmdGraph()->pinVertices(self, vertex, vertex_bidirect_drvr);
   vertices[0] = vertex;
   vertices[1] = vertex_bidirect_drvr;
-  vertices[2] = NULL;
+  vertices[2] = nullptr;
   return vertices;
 }
 
@@ -5706,7 +5719,7 @@ arrivals_clk(const TransRiseFall *tr,
 {
   Sta *sta = Sta::sta();
   TmpFloatSeq *floats = new FloatSeq;
-  const ClockEdge *clk_edge = NULL;
+  const ClockEdge *clk_edge = nullptr;
   if (clk)
     clk_edge = clk->edge(clk_tr);
   PathAnalysisPtIterator ap_iter(sta);
@@ -5726,7 +5739,7 @@ arrivals_clk_delays(const TransRiseFall *tr,
 {
   Sta *sta = Sta::sta();
   StringSeq *arrivals = new StringSeq;
-  const ClockEdge *clk_edge = NULL;
+  const ClockEdge *clk_edge = nullptr;
   if (clk)
     clk_edge = clk->edge(clk_tr);
   PathAnalysisPtIterator ap_iter(sta);
@@ -5746,7 +5759,7 @@ requireds_clk(const TransRiseFall *tr,
 {
   Sta *sta = Sta::sta();
   TmpFloatSeq *floats = new FloatSeq;
-  const ClockEdge *clk_edge = NULL;
+  const ClockEdge *clk_edge = nullptr;
   if (clk)
     clk_edge = clk->edge(clk_tr);
   PathAnalysisPtIterator ap_iter(sta);
@@ -5766,7 +5779,7 @@ requireds_clk_delays(const TransRiseFall *tr,
 {
   Sta *sta = Sta::sta();
   StringSeq *requireds = new StringSeq;
-  const ClockEdge *clk_edge = NULL;
+  const ClockEdge *clk_edge = nullptr;
   if (clk)
     clk_edge = clk->edge(clk_tr);
   PathAnalysisPtIterator ap_iter(sta);
@@ -5800,7 +5813,7 @@ slacks_clk(const TransRiseFall *tr,
 {
   Sta *sta = Sta::sta();
   TmpFloatSeq *floats = new FloatSeq;
-  const ClockEdge *clk_edge = NULL;
+  const ClockEdge *clk_edge = nullptr;
   if (clk)
     clk_edge = clk->edge(clk_tr);
   PathAnalysisPtIterator ap_iter(sta);
@@ -5820,7 +5833,7 @@ slacks_clk_delays(const TransRiseFall *tr,
 {
   Sta *sta = Sta::sta();
   StringSeq *slacks = new StringSeq;
-  const ClockEdge *clk_edge = NULL;
+  const ClockEdge *clk_edge = nullptr;
   if (clk)
     clk_edge = clk->edge(clk_tr);
   PathAnalysisPtIterator ap_iter(sta);
@@ -5934,7 +5947,7 @@ cond()
   if (cond)
     return cond->asString();
   else
-    return NULL;
+    return nullptr;
 }
 
 const char *

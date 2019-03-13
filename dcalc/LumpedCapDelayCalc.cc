@@ -54,16 +54,16 @@ LumpedCapDelayCalc::findParasitic(const Pin *drvr_pin,
 				  Parasitic *&parasitic,
 				  bool &delete_at_finish)
 {
-  parasitic = NULL;
+  parasitic = nullptr;
   delete_at_finish = false;
   // set_load has precidence over parasitics.
   if (!sdc_->drvrPinHasWireCap(drvr_pin)) {
     const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
     // Prefer capacitive load.
     parasitic = parasitics_->findLumpedElmore(drvr_pin, tr, parasitic_ap);
-    if (parasitic == NULL)
+    if (parasitic == nullptr)
       parasitic = parasitics_->findPiElmore(drvr_pin, tr, parasitic_ap);
-    if (parasitic == NULL) {
+    if (parasitic == nullptr) {
       parasitic = parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
       if (parasitic) {
 	parasitic = parasitics_->reduceToPiElmore(parasitic, drvr_pin, tr,
@@ -74,7 +74,7 @@ LumpedCapDelayCalc::findParasitic(const Pin *drvr_pin,
 	delete_at_finish = true;
       }
     }
-    if (parasitic == NULL) {
+    if (parasitic == nullptr) {
       const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();
       Wireload *wireload = sdc_->wireloadDefaulted(cnst_min_max);
       if (wireload) {

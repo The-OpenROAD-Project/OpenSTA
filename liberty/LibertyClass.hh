@@ -67,86 +67,70 @@ typedef Set<LibertyCell*> LibertyCellSet;
 typedef Vector<float> FloatSeq;
 typedef Vector<FloatSeq*> FloatTable;
 
-typedef enum {
-  scale_factor_pin_cap,
-  scale_factor_wire_cap,
-  scale_factor_wire_res,
-  scale_factor_min_period,
+enum class ScaleFactorType : unsigned {
+  pin_cap,
+  wire_cap,
+  wire_res,
+  min_period,
   // Liberty attributes have rise/fall suffix.
-  scale_factor_cell,
-  scale_factor_hold,
-  scale_factor_setup,
-  scale_factor_recovery,
-  scale_factor_removal,
-  scale_factor_nochange,
-  scale_factor_skew,
-  scale_factor_leakage_power,
-  scale_factor_internal_power,
+  cell,
+  hold,
+  setup,
+  recovery,
+  removal,
+  nochange,
+  skew,
+  leakage_power,
+  internal_power,
   // Liberty attributes have rise/fall prefix.
-  scale_factor_transition,
+  transition,
   // Liberty attributes have low/high suffix (indexed as rise/fall).
-  scale_factor_min_pulse_width,
-  scale_factor_unknown,
-  scale_factor_count
-} ScaleFactorType;
-
+  min_pulse_width,
+  unknown,
+};
+const int scale_factor_type_count = int(ScaleFactorType::unknown) + 1;
 // Enough bits to hold a ScaleFactorType enum.
 const int scale_factor_bits = 4;
 
-typedef enum {
-  wire_load_worst_case_tree,
-  wire_load_best_case_tree,
-  wire_load_balanced_tree,
-  wire_load_unknown_tree
-} WireloadTree;
+enum class WireloadTree { worst_case, best_case, balanced, unknown };
 
-typedef enum {
-  wire_load_mode_top,
-  wire_load_mode_enclosed,
-  wire_load_mode_segmented,
-  wire_load_mode_unknown
-} WireloadMode;
+enum class WireloadMode { top, enclosed, segmented, unknown };
 
-typedef enum {
-  timing_sense_positive_unate,
-  timing_sense_negative_unate,
-  timing_sense_non_unate,
-  timing_sense_none,
-  timing_sense_unknown
-} TimingSense;
+enum class TimingSense {
+  positive_unate,
+  negative_unate,
+  non_unate,
+  none,
+  unknown
+};
+const int timing_sense_count = int(TimingSense::unknown) + 1;
+const int timing_sense_bit_count = 3;
 
-typedef enum {
-  table_axis_total_output_net_capacitance,
-  table_axis_equal_or_opposite_output_net_capacitance,
-  table_axis_input_net_transition,
-  table_axis_input_transition_time,
-  table_axis_related_pin_transition,
-  table_axis_constrained_pin_transition,
-  table_axis_output_pin_transition,
-  table_axis_connect_delay,
-  table_axis_related_out_total_output_net_capacitance,
-  table_axis_time,
-  table_axis_iv_output_voltage,
-  table_axis_input_noise_width,
-  table_axis_input_noise_height,
-  table_axis_input_voltage,
-  table_axis_output_voltage,
-  table_axis_path_depth,
-  table_axis_path_distance,
-  table_axis_normalized_voltage,
-  table_axis_unknown
-} TableAxisVariable;
+enum class TableAxisVariable {
+  total_output_net_capacitance,
+  equal_or_opposite_output_net_capacitance,
+  input_net_transition,
+  input_transition_time,
+  related_pin_transition,
+  constrained_pin_transition,
+  output_pin_transition,
+  connect_delay,
+  related_out_total_output_net_capacitance,
+  time,
+  iv_output_voltage,
+  input_noise_width,
+  input_noise_height,
+  input_voltage,
+  output_voltage,
+  path_depth,
+  path_distance,
+  normalized_voltage,
+  unknown
+};
 
-typedef enum {
-  path_type_clk,
-  path_type_data,
-  path_type_clk_and_data
-} PathType;
-
+enum class PathType { clk, data, clk_and_data };
 const int path_type_count = 2;
 
-const int timing_sense_count = timing_sense_unknown + 1;
-const int timing_sense_bit_count = 3;
 // Rise/fall to rise/fall.
 const int timing_arc_index_bit_count = 2;
 const int timing_arc_index_max = (1<<timing_arc_index_bit_count)-1;

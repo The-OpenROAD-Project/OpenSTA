@@ -36,72 +36,64 @@ class PoolBlock
 public:
   explicit PoolBlock(ObjectIndex size,
 		     ObjectIndex begin_index);
-  ~PoolBlock();
   OBJ *makeObject();
   OBJ *makeObjects(ObjectIndex count);
   ObjectIndex index(const OBJ *object);
   OBJ *find(ObjectIndex index);
   PoolBlock *nextBlock() const { return next_block_; }
   void setNextBlock(PoolBlock *next);
-  ObjectIndex size() const { return size_; }
+  ObjectIndex size() const { return objects_.size(); }
 
 private:
   DISALLOW_COPY_AND_ASSIGN(PoolBlock);
 
-  ObjectIndex size_;
+  std::vector<OBJ> objects_;
   ObjectIndex begin_index_;
-  OBJ *objects_;
   ObjectIndex next_free_;
   PoolBlock *next_block_;
+  static constexpr unsigned min_initial_size_ = 100;
 };
 
 template <class OBJ>
 PoolBlock<OBJ>::PoolBlock(ObjectIndex size,
 			  ObjectIndex begin_index) :
-  size_(size),
+  objects_(size),
   begin_index_(begin_index),
-  objects_(new OBJ[size]),
   next_free_(0),
-  next_block_(NULL)
+  next_block_(nullptr)
 {
-}
-
-template <class OBJ>
-PoolBlock<OBJ>::~PoolBlock()
-{
-  delete [] objects_;
 }
 
 template <class OBJ>
 OBJ *
 PoolBlock<OBJ>::makeObject()
 {
-  if (next_free_ < size_)
+  if (next_free_ < objects_.size())
     return &objects_[next_free_++];
   else
-    return NULL;
+    return nullptr;
 }
 
 template <class OBJ>
 OBJ *
 PoolBlock<OBJ>::makeObjects(ObjectIndex count)
 {
-  if ((next_free_ + count - 1) < size_) {
+  if ((next_free_ + count - 1) < objects_.size()) {
     OBJ *object = &objects_[next_free_];
     next_free_ += count;
     return object;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 template <class OBJ>
 ObjectIndex
 PoolBlock<OBJ>::index(const OBJ *object)
 {
-  if (object >= objects_ && object < &objects_[size_])
+  if (object >= &objects_[0] && object < &objects_[objects_.size()])
     // Index==0 is reserved.
-    return begin_index_ + object - objects_ + 1;
+    return begin_index_ + object - &objects_[0] + 1;
   else
     return 0;
 }
@@ -113,10 +105,10 @@ PoolBlock<OBJ>::find(ObjectIndex index)
   // Index==0 is reserved.
   ObjectIndex index1 = index - 1;
   if (index1 >= begin_index_
-      && index1 < begin_index_ + size_)
+      && index1 < begin_index_ + objects_.size())
     return &objects_[index1 - begin_index_];
   else
-    return NULL;
+    return nullptr;
 }
 
 template <class OBJ>
@@ -145,7 +137,7 @@ public:
 		     ObjectIndex count);
   void deleteObjects(ObjectIndex index,
 		     ObjectIndex count);
-  // Index=0 is reserved for the NULL object pointer.
+  // Index=0 is reserved for the nullptr object pointer.
   ObjectIndex index(const OBJ *object) const;
   OBJ *find(ObjectIndex index) const;
   ObjectIndex size() const { return size_; }
@@ -169,13 +161,8 @@ protected:
 
 template <class OBJ>
 Pool<OBJ>::Pool(ObjectIndex size) :
-  size_(0),
-  growth_factor_(.2F),
-  blocks_(NULL),
-  last_block_(NULL)
+  Pool(size, .2F)
 {
-  if (size > 0)
-    makeBlock(size);
 }
 
 template <class OBJ>
@@ -183,11 +170,10 @@ Pool<OBJ>::Pool(ObjectIndex size,
 		float growth_factor) :
   size_(0),
   growth_factor_(growth_factor),
-  blocks_(NULL),
-  last_block_(NULL)
+  blocks_(nullptr),
+  last_block_(nullptr)
 {
-  if (size > 0)
-    makeBlock(size);
+  makeBlock(size);
 }
 
 template <class OBJ>
@@ -204,12 +190,10 @@ template <class OBJ>
 OBJ *
 Pool<OBJ>::makeObject()
 {
-  if (size_ == 0)
-    makeBlock(10);
   OBJ *object = findDeletedObject(1);
-  if (object == NULL) {
+  if (object == nullptr) {
     object = last_block_->makeObject();
-    if (object == NULL) {
+    if (object == nullptr) {
       ObjectIndex block_size=static_cast<ObjectIndex>(size_*growth_factor_+2);
       PoolBlock<OBJ> *block = makeBlock(block_size);
       object = block->makeObject();
@@ -222,8 +206,6 @@ template <class OBJ>
 OBJ *
 Pool<OBJ>::findDeletedObject(ObjectIndex count)
 {
-  if (size_ == 0)
-    makeBlock(10);
   if (deleted_list_heads_.size() > count) {
     ObjectIndex index = deleted_list_heads_[count];
     if (index) {
@@ -233,7 +215,7 @@ Pool<OBJ>::findDeletedObject(ObjectIndex count)
       return object;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 template <class OBJ>
@@ -241,9 +223,9 @@ OBJ *
 Pool<OBJ>::makeObjects(ObjectIndex count)
 {
   OBJ *objects = findDeletedObject(count);
-  if (objects == NULL) {
+  if (objects == nullptr) {
     objects = last_block_->makeObjects(count);
-    if (objects == NULL) {
+    if (objects == nullptr) {
       ObjectIndex block_size=max(static_cast<ObjectIndex>(size_*growth_factor_+2),
 				 count);
       PoolBlock<OBJ> *block = makeBlock(block_size);
@@ -297,10 +279,10 @@ Pool<OBJ>::find(ObjectIndex index) const
 	return object;
     }
     internalError("object index not found in pool");
-    return NULL;
+    return nullptr;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 template <class OBJ>

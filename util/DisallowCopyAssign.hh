@@ -20,7 +20,7 @@
 // Disallow the copy constructor and operator= functions.
 // This should be used in the private declarations for a class.
 #define DISALLOW_COPY_AND_ASSIGN(type_name) \
-  type_name(const type_name&);               \
-  void operator=(const type_name&)
+  type_name(const type_name&) = delete; \
+  void operator=(const type_name&) = delete
 
 #endif

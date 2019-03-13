@@ -108,9 +108,8 @@ make
 make install
 ```
 
-The Zlib library is an optional.  If CMake or the configure script
-finds libz, OpenSTA can read Verilog, SDF, SPF, and SPEF files
-compressed with gzip.
+The Zlib library is an optional.  If CMake finds libz, OpenSTA can
+read Verilog, SDF, SPF, and SPEF files compressed with gzip.
 
 ### Installing with CMake
 
@@ -162,11 +161,6 @@ existing CMake cached variable values by deleting all of the
 files in the build directory.
 
 ### Installing on Windoz
-
-The Win32 API does not natively support the pthreads API.  The
-pthreads-win32 package is one way to get support for pthreads for 32
-bit builds.  It is available from [pthreads](www.sourceware.org/pthreads-win32).
-If Cmake does not find `pthreads.h` the build proceeds without thread support.
 
 Use a .bat file to start a cygwin shell that has its path set to
 support the Microcruft cl compiler by calling the vsvars32.bat script

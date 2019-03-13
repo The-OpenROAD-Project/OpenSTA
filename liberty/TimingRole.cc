@@ -52,43 +52,43 @@ TimingRoleMap TimingRole::timing_roles_;
 void
 TimingRole::init()
 {
-  wire_ = new TimingRole("wire", false, false, false, NULL, NULL, 0);
+  wire_ = new TimingRole("wire", false, false, false, nullptr, nullptr, 0);
   combinational_ = new TimingRole("combinational", true, false,  false,
-				  NULL, NULL, 1);
+				  nullptr, nullptr, 1);
   tristate_enable_ = new TimingRole("tristate enable",
 				    true, false, false,
-				    NULL, NULL, 2);
+				    nullptr, nullptr, 2);
   tristate_disable_ = new TimingRole("tristate disable",
 				     true, false, false,
-				     NULL, NULL, 3);
+				     nullptr, nullptr, 3);
   reg_clk_q_ = new TimingRole("Reg Clk to Q", true, false, false,
-			      NULL, NULL, 4);
+			      nullptr, nullptr, 4);
   reg_set_clr_ = new TimingRole("Reg Set/Clr", true, false, false,
-				NULL, NULL, 5);
+				nullptr, nullptr, 5);
   latch_en_q_ = new TimingRole("Latch En to Q", true, false, false,
-			       NULL, TimingRole::regClkToQ(), 6);
+			       nullptr, TimingRole::regClkToQ(), 6);
   latch_d_q_ = new TimingRole("Latch D to Q", true, false, false,
-			      NULL, NULL, 7);
+			      nullptr, nullptr, 7);
 
   sdf_iopath_ = new TimingRole("sdf IOPATH", true, false, false,
-			       NULL, NULL, 8);
+			       nullptr, nullptr, 8);
 
   setup_ = new TimingRole("setup", false, true, false,
-			  MinMax::max(), NULL, 9);
+			  MinMax::max(), nullptr, 9);
   hold_ = new TimingRole("hold", false, true, false,
-			 MinMax::min(), NULL, 10);
+			 MinMax::min(), nullptr, 10);
   recovery_ = new TimingRole("recovery", false, true, false,
 			     MinMax::max(), TimingRole::setup(), 11);
   removal_ = new TimingRole("removal", false, true, false,
 			    MinMax::min(), TimingRole::hold(), 12);
   width_ = new TimingRole("width", false, true, false,
-			  NULL, NULL, 13);
+			  nullptr, nullptr, 13);
   period_ = new TimingRole("period", false, true, false,
-			   NULL, NULL, 14);
+			   nullptr, nullptr, 14);
   skew_ = new TimingRole("skew", false, true, false,
-			 NULL, NULL, 15);
+			 nullptr, nullptr, 15);
   nochange_ = new TimingRole("nochange", true, false, false,
-			     NULL, NULL, 16);
+			     nullptr, nullptr, 16);
 
   output_setup_ = new TimingRole("output setup", false, true, false,
 				 MinMax::max(), TimingRole::setup(), 17);
@@ -118,59 +118,59 @@ void
 TimingRole::destroy()
 {
   delete wire_;
-  wire_ = NULL;
+  wire_ = nullptr;
   delete combinational_;
-  combinational_ = NULL;
+  combinational_ = nullptr;
   delete tristate_enable_;
-  tristate_enable_ = NULL;
+  tristate_enable_ = nullptr;
   delete tristate_disable_;
-  tristate_disable_ = NULL;
+  tristate_disable_ = nullptr;
   delete reg_clk_q_;
-  reg_clk_q_ = NULL;
+  reg_clk_q_ = nullptr;
   delete reg_set_clr_;
-  reg_set_clr_ = NULL;
+  reg_set_clr_ = nullptr;
   delete latch_en_q_;
-  latch_en_q_ = NULL;
+  latch_en_q_ = nullptr;
   delete latch_d_q_;
-  latch_d_q_ = NULL;
+  latch_d_q_ = nullptr;
   delete sdf_iopath_;
-  sdf_iopath_ = NULL;
+  sdf_iopath_ = nullptr;
   delete setup_;
-  setup_ = NULL;
+  setup_ = nullptr;
   delete hold_;
-  hold_ = NULL;
+  hold_ = nullptr;
   delete recovery_;
-  recovery_ = NULL;
+  recovery_ = nullptr;
   delete removal_;
-  removal_ = NULL;
+  removal_ = nullptr;
   delete width_;
-  width_ = NULL;
+  width_ = nullptr;
   delete period_;
-  period_ = NULL;
+  period_ = nullptr;
   delete skew_;
-  skew_ = NULL;
+  skew_ = nullptr;
   delete nochange_;
-  nochange_ = NULL;
+  nochange_ = nullptr;
   delete output_setup_;
-  output_setup_ = NULL;
+  output_setup_ = nullptr;
   delete output_hold_;
-  output_hold_ = NULL;
+  output_hold_ = nullptr;
   delete gated_clk_setup_;
-  gated_clk_setup_ = NULL;
+  gated_clk_setup_ = nullptr;
   delete gated_clk_hold_;
-  gated_clk_hold_ = NULL;
+  gated_clk_hold_ = nullptr;
   delete latch_setup_;
-  latch_setup_ = NULL;
+  latch_setup_ = nullptr;
   delete latch_hold_;
-  latch_hold_ = NULL;
+  latch_hold_ = nullptr;
   delete data_check_setup_;
-  data_check_setup_ = NULL;
+  data_check_setup_ = nullptr;
   delete data_check_hold_;
-  data_check_hold_ = NULL;
+  data_check_hold_ = nullptr;
   delete non_seq_setup_;
-  non_seq_setup_ = NULL;
+  non_seq_setup_ = nullptr;
   delete non_seq_hold_;
-  non_seq_hold_ = NULL;
+  non_seq_hold_ = nullptr;
   timing_roles_.clear();
 }
 
@@ -210,7 +210,7 @@ TimingRole::sdfRole() const
 const TimingRole *
 TimingRole::genericRole() const
 {
-  if (generic_role_ == NULL)
+  if (generic_role_ == nullptr)
     return this;
   else
     return generic_role_;

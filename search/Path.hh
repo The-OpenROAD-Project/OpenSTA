@@ -39,8 +39,8 @@ public:
   virtual ~Path() {}
   virtual const char *name(const StaState *sta) const;
   virtual bool isNull() const = 0;
-  virtual Path *path() { return isNull() ? NULL : this; }
-  virtual const Path *path() const { return isNull() ? NULL : this; }
+  virtual Path *path() { return isNull() ? nullptr : this; }
+  virtual const Path *path() const { return isNull() ? nullptr : this; }
   virtual void setRef(PathRef *ref) const = 0;
   virtual void setRef(PathRef &ref) const { setRef(&ref); }
   virtual Vertex *vertex(const StaState *sta) const = 0;

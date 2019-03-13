@@ -36,7 +36,7 @@ public:
 	      type_liberty_library, type_liberty_cell,
 	      type_library, type_cell,
 	      type_instance, type_pin, type_pins, type_net,
-	      type_clock, type_clocks, type_path_refs };
+	      type_clk, type_clks, type_path_refs };
   PropertyValue();
   PropertyValue(const char *value);
   PropertyValue(string &value);
@@ -56,6 +56,8 @@ public:
   PropertyValue(PathRefSeq *value);
   // Copy constructor.
   PropertyValue(const PropertyValue &props);
+  // Move constructor.
+  PropertyValue(PropertyValue &&props);
   ~PropertyValue();
   Type type() const { return type_; }
   const char *stringValue() const { return string_; }
@@ -71,25 +73,28 @@ public:
   Clock *clock() const { return clk_; }
   ClockSeq *clocks() const { return clks_; }
   PathRefSeq *pathRefs() const { return path_refs_; }
-  void operator=(const PropertyValue &);
+  // Copy assignment.
+  PropertyValue &operator=(const PropertyValue &);
+  // Move assignment.
+  PropertyValue &operator=(PropertyValue &&);
 
 private:
-  void init();
-
   Type type_;
-  const char *string_;
-  float float_;
-  LibertyLibrary *liberty_library_;
-  LibertyCell *liberty_cell_;
-  Library *library_;
-  Cell *cell_;
-  Instance *inst_;
-  Pin *pin_;
-  PinSeq *pins_;
-  Net *net_;
-  Clock *clk_;
-  ClockSeq *clks_;
-  PathRefSeq *path_refs_;
+  union {
+    const char *string_;
+    float float_;
+    LibertyLibrary *liberty_library_;
+    LibertyCell *liberty_cell_;
+    Library *library_;
+    Cell *cell_;
+    Instance *inst_;
+    Pin *pin_;
+    PinSeq *pins_;
+    Net *net_;
+    Clock *clk_;
+    ClockSeq *clks_;
+    PathRefSeq *path_refs_;
+  };
 };
 
 PropertyValue

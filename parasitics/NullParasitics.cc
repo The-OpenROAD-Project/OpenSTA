@@ -82,7 +82,7 @@ NullParasitics::findLumpedElmore(const Pin *,
 				 const TransRiseFall *,
 				 const ParasiticAnalysisPt *) const
 {
-  return NULL;
+  return nullptr;
 }
 
 bool
@@ -97,7 +97,7 @@ NullParasitics::makeLumpedElmore(const Pin *,
 				 const TransRiseFall *,
 				 const ParasiticAnalysisPt *)
 {
-  return NULL;
+  return nullptr;
 }
 
 void
@@ -120,7 +120,7 @@ NullParasitics::findPiElmore(const Pin *,
 			     const TransRiseFall *,
 			     const ParasiticAnalysisPt *) const
 {
-  return NULL;
+  return nullptr;
 }
 
 Parasitic *
@@ -131,7 +131,7 @@ NullParasitics::makePiElmore(const Pin *,
 			     float,
 			     float)
 {
-  return NULL;
+  return nullptr;
 }
 
 void
@@ -220,7 +220,7 @@ NullParasitics::findPiPoleResidue(const Pin *,
 				  const TransRiseFall *,
 				  const ParasiticAnalysisPt *) const
 {
-  return NULL;
+  return nullptr;
 }
 
 Parasitic *
@@ -231,14 +231,14 @@ NullParasitics::makePiPoleResidue(const Pin *,
 				  float,
 				  float)
 {
-  return NULL;
+  return nullptr;
 }
 
 Parasitic *
 NullParasitics::findPoleResidue(const Parasitic *,
 				const Pin *) const
 {
- return NULL;
+ return nullptr;
 }
 
 void
@@ -280,7 +280,7 @@ Parasitic *
 NullParasitics::findParasiticNetwork(const Pin *,
 				     const ParasiticAnalysisPt *) const
 {
-  return NULL;
+  return nullptr;
 }
 
 bool
@@ -294,7 +294,7 @@ NullParasitics::makeParasiticNetwork(Net *,
 				     bool,
 				     const ParasiticAnalysisPt *)
 {
-  return NULL;
+  return nullptr;
 }
 
 bool
@@ -314,14 +314,14 @@ NullParasitics::ensureParasiticNode(Parasitic *,
 				    Net *,
 				    int)
 {
-  return NULL;
+  return nullptr;
 }
 
 ParasiticNode *
 NullParasitics::ensureParasiticNode(Parasitic *,
 				    const Pin *)
 {
-  return NULL;
+  return nullptr;
 }
 
 void
@@ -370,20 +370,20 @@ NullParasitics::makeResistor(const char *,
 const char *
 NullParasitics::name(const ParasiticNode *)
 {
-  return NULL;
+  return nullptr;
 }
 
 const Pin *
 NullParasitics::connectionPin(const ParasiticNode *) const
 {
-  return NULL;
+  return nullptr;
 }
 
 ParasiticNode *
 NullParasitics::findNode(Parasitic *,
 			 const Pin *) const
 {
-  return NULL;
+  return nullptr;
 }
 
 float
@@ -414,7 +414,7 @@ NullParasitics::isCouplingCap(const ParasiticDevice *) const
 const char *
 NullParasitics::name(const ParasiticDevice *) const
 {
-  return NULL;
+  return nullptr;
 }
 
 float
@@ -427,20 +427,20 @@ NullParasitics::value(const ParasiticDevice *,
 ParasiticNode *
 NullParasitics::node1(const ParasiticDevice *) const
 {
-  return NULL;
+  return nullptr;
 }
 
 ParasiticNode *
 NullParasitics::node2(const ParasiticDevice *) const
 {
-  return NULL;
+  return nullptr;
 }
 
 ParasiticNode *
 NullParasitics::otherNode(const ParasiticDevice *,
 			  ParasiticNode *) const
 {
-  return NULL;
+  return nullptr;
 }
 
 void
@@ -475,7 +475,7 @@ NullParasitics::reduceToPiElmore(Parasitic *,
 				 const MinMax *,
 				 const ParasiticAnalysisPt *)
 {
-  return NULL;
+  return nullptr;
 }
 
 void
@@ -497,7 +497,7 @@ NullParasitics::reduceToPiPoleResidue2(Parasitic *,
 				       const MinMax *,
 				       const ParasiticAnalysisPt *)
 {
-  return NULL;
+  return nullptr;
 }
 
 Parasitic *
@@ -511,7 +511,7 @@ NullParasitics::estimatePiElmore(const Pin *,
 				 const MinMax *,
 				 const ParasiticAnalysisPt *)
 {
-  return NULL;
+  return nullptr;
 }
 
 void

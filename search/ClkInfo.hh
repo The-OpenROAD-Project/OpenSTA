@@ -63,7 +63,7 @@ public:
   const Pin *crprClkPin(const StaState *sta) const;
   // Much faster than crprClkPin.
   VertexIndex crprClkVertexIndex() const;
-  // Much faster than crprClkPin != NULL
+  // Much faster than crprClkPin != nullptr
   bool hasCrprClkPin() const { return !crpr_clk_path_.isNull(); }
   bool refsFilter(const StaState *sta) const;
   // This clk_info/tag is used for a generated clock source path.

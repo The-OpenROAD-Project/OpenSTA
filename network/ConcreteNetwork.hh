@@ -152,7 +152,7 @@ public:
 
   virtual ConstantPinIterator *constantPinIterator();
   void addConstantNet(Net *net,
-		      LogicValue const_value);
+		      LogicValue value);
 
   // Edit methods.
   virtual Library *makeLibrary(const char *name);
@@ -248,7 +248,7 @@ protected:
   ConcreteLibrarySeq library_seq_;
   ConcreteLibraryMap library_map_;
   ConcreteInstance *top_instance_;
-  NetSet constant_nets_[2];  // logic_zero/one
+  NetSet constant_nets_[2];  // LogicValue::zero/one
   LinkNetworkFunc *link_func_;
   CellNetworkViewMap cell_network_view_map_;
 

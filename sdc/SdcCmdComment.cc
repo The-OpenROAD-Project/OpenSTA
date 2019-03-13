@@ -21,13 +21,13 @@
 namespace sta {
 
 SdcCmdComment::SdcCmdComment() :
-  comment_(NULL)
+  comment_(nullptr)
 {
 }
 
 SdcCmdComment::SdcCmdComment(const char *comment)
 {
-  comment_ = NULL;
+  comment_ = nullptr;
   if (comment && comment[0] != '\0')
     comment_ = stringCopy(comment);
 }
@@ -41,7 +41,7 @@ SdcCmdComment::setComment(const char *comment)
 {
   if (comment_)
     stringDelete(comment_);
-  comment_ = NULL;
+  comment_ = nullptr;
   if (comment && comment[0] != '\0')
     comment_ = stringCopy(comment);
 }

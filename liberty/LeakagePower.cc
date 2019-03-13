@@ -23,7 +23,7 @@
 namespace sta {
 
 LeakagePowerAttrs::LeakagePowerAttrs() :
-  when_(NULL),
+  when_(nullptr),
   power_(0.0)
 {
 }

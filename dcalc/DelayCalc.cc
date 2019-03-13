@@ -28,7 +28,7 @@ namespace sta {
 
 typedef Map<const char*, MakeArcDelayCalc, CharPtrLess> DelayCalcMap;
 
-static DelayCalcMap *delay_calcs = NULL;
+static DelayCalcMap *delay_calcs = nullptr;
 
 void
 registerDelayCalcs()
@@ -45,7 +45,7 @@ void
 registerDelayCalc(const char *name,
 		  MakeArcDelayCalc maker)
 {
-  if (delay_calcs == NULL)
+  if (delay_calcs == nullptr)
     delay_calcs = new DelayCalcMap;
   (*delay_calcs)[name] = maker;
 }
@@ -54,7 +54,7 @@ void
 deleteDelayCalcs()
 {
   delete delay_calcs;
-  delay_calcs = NULL;
+  delay_calcs = nullptr;
 }
 
 ArcDelayCalc *
@@ -65,7 +65,7 @@ makeDelayCalc(const char *name,
   if (maker)
     return maker(sta);
   else
-    return NULL;
+    return nullptr;
 }
 
 bool

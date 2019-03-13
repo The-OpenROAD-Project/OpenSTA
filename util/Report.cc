@@ -24,8 +24,8 @@ namespace sta {
 using std::min;
 
 Report::Report() :
-  log_stream_(NULL),
-  redirect_stream_(NULL),
+  log_stream_(nullptr),
+  redirect_stream_(nullptr),
   redirect_to_string_(false),
   buffer_size_(1000),
   buffer_(new char[buffer_size_]),
@@ -236,7 +236,7 @@ void
 Report::logBegin(const char *filename)
 {
   log_stream_ = fopen(filename, "w");
-  if (log_stream_ == NULL)
+  if (log_stream_ == nullptr)
     throw FileNotWritable(filename);
 }
 
@@ -245,14 +245,14 @@ Report::logEnd()
 {
   if (log_stream_)
     fclose(log_stream_);
-  log_stream_ = NULL;
+  log_stream_ = nullptr;
 }
 
 void
 Report::redirectFileBegin(const char *filename)
 {
   redirect_stream_ = fopen(filename, "w");
-  if (redirect_stream_ == NULL)
+  if (redirect_stream_ == nullptr)
     throw FileNotWritable(filename);
 }
 
@@ -260,7 +260,7 @@ void
 Report::redirectFileAppendBegin(const char *filename)
 {
   redirect_stream_ = fopen(filename, "a");
-  if (redirect_stream_ == NULL)
+  if (redirect_stream_ == nullptr)
     throw FileNotWritable(filename);
 }
 
@@ -269,7 +269,7 @@ Report::redirectFileEnd()
 {
   if (redirect_stream_)
     fclose(redirect_stream_);
-  redirect_stream_ = NULL;
+  redirect_stream_ = nullptr;
 }
 
 void

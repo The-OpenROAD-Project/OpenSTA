@@ -34,29 +34,29 @@ isPowerOfTwo(int i);
 Clock::Clock(const char *name,
 	     int index) :
   name_(stringCopy(name)),
-  pins_(NULL),
+  pins_(nullptr),
   add_to_pins_(false),
-  vertex_pins_(NULL),
-  pll_out_(NULL),
-  pll_fdbk_(NULL),
+  vertex_pins_(nullptr),
+  pll_out_(nullptr),
+  pll_fdbk_(nullptr),
   period_(0.0),
-  waveform_(NULL),
+  waveform_(nullptr),
   waveform_valid_(false),
   index_(index),
-  clk_edges_(NULL),
+  clk_edges_(nullptr),
   is_propagated_(false),
-  uncertainties_(NULL),
+  uncertainties_(nullptr),
   is_generated_(false),
-  src_pin_(NULL),
-  master_clk_(NULL),
+  src_pin_(nullptr),
+  master_clk_(nullptr),
   master_clk_infered_(false),
   divide_by_(0),
   multiply_by_(0),
   duty_cycle_(0),
   invert_(false),
   combinational_(false),
-  edges_(NULL),
-  edge_shifts_(NULL)
+  edges_(nullptr),
+  edge_shifts_(nullptr)
 {
   makeClkEdges();
 }
@@ -85,7 +85,7 @@ Clock::initClk(PinSet *pins,
 bool
 Clock::isVirtual() const
 {
-  return pins_ == NULL || pins_->empty();
+  return pins_ == nullptr || pins_->empty();
 }
 
 void
@@ -150,10 +150,10 @@ Clock::~Clock()
 void
 Clock::addPin(Pin *pin)
 {
-  if (pins_ == NULL)
+  if (pins_ == nullptr)
     pins_ = new PinSet;
   pins_->insert(pin);
-  if (vertex_pins_ == NULL)
+  if (vertex_pins_ == nullptr)
     vertex_pins_ = new PinSet;
   vertex_pins_->insert(pin);
 }
@@ -191,7 +191,7 @@ Clock::defaultPin() const
   if (pin_iter.hasNext())
     return pin_iter.next();
   else
-    return NULL;
+    return nullptr;
 }
 
 ClockEdge *
@@ -256,7 +256,7 @@ Clock::setSlewLimit(const TransRiseFallBoth *tr,
 		    const MinMax *min_max,
 		    float slew)
 {
-  slew_limits_[clk_data].setValue(tr, min_max, slew);
+  slew_limits_[int(clk_data)].setValue(tr, min_max, slew);
 }
 
 void
@@ -267,7 +267,7 @@ Clock::slewLimit(const TransRiseFall *tr,
 		 float &slew,
 		 bool &exists) const
 {
-  slew_limits_[clk_data].value(tr, min_max, slew, exists);
+  slew_limits_[int(clk_data)].value(tr, min_max, slew, exists);
 }
 
 void
@@ -288,7 +288,7 @@ void
 Clock::setUncertainty(const SetupHoldAll *setup_hold,
 		      float uncertainty)
 {
-  if (uncertainties_ == NULL)
+  if (uncertainties_ == nullptr)
     uncertainties_ = new ClockUncertainties;
   uncertainties_->setValue(setup_hold, uncertainty);
 }
@@ -297,7 +297,7 @@ void
 Clock::setUncertainty(const SetupHold *setup_hold,
 		      float uncertainty)
 {
-  if (uncertainties_ == NULL)
+  if (uncertainties_ == nullptr)
     uncertainties_ = new ClockUncertainties;
   uncertainties_->setValue(setup_hold, uncertainty);
 }
@@ -309,7 +309,7 @@ Clock::removeUncertainty(const SetupHoldAll *setup_hold)
     uncertainties_->removeValue(setup_hold);
     if (uncertainties_->empty()) {
       delete uncertainties_;
-      uncertainties_ = NULL;
+      uncertainties_ = nullptr;
     }
   }
 }
@@ -361,7 +361,7 @@ Clock::initGeneratedClk(PinSet *pins,
   if (edges
       && edges->empty()) {
     delete edges;
-    edges = NULL;
+    edges = nullptr;
   }
   edges_ = edges;
 
@@ -369,7 +369,7 @@ Clock::initGeneratedClk(PinSet *pins,
   if (edge_shifts
       && edge_shifts->empty()) {
     delete edge_shifts;
-    edge_shifts = NULL;
+    edge_shifts = nullptr;
   }
   edge_shifts_ = edge_shifts;
 }
@@ -400,7 +400,7 @@ Clock::isGeneratedWithPropagatedMaster() const
 void
 Clock::generate(const Clock *src_clk)
 {
-  if (waveform_ == NULL)
+  if (waveform_ == nullptr)
     waveform_ = new FloatSeq;
   else
     waveform_->clear();
@@ -587,11 +587,11 @@ int
 clkCmp(const Clock *clk1,
        const Clock *clk2)
 {
-  if (clk1 == NULL && clk2)
+  if (clk1 == nullptr && clk2)
     return -1;
-  else if (clk1 == NULL && clk2 == NULL)
+  else if (clk1 == nullptr && clk2 == nullptr)
     return 0;
-  else if (clk1 && clk2 == NULL)
+  else if (clk1 && clk2 == nullptr)
     return 1;
   else {
     int index1 = clk1->index();
@@ -609,11 +609,11 @@ int
 clkEdgeCmp(ClockEdge *clk_edge1,
 	   ClockEdge *clk_edge2)
 {
-  if (clk_edge1 == NULL && clk_edge2)
+  if (clk_edge1 == nullptr && clk_edge2)
     return -1;
-  else if (clk_edge1 == NULL && clk_edge2 == NULL)
+  else if (clk_edge1 == nullptr && clk_edge2 == nullptr)
     return 0;
-  else if (clk_edge1 && clk_edge2 == NULL)
+  else if (clk_edge1 && clk_edge2 == nullptr)
     return 1;
   else {
     int index1 = clk_edge1->index();

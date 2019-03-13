@@ -36,17 +36,17 @@ public:
   ~CheckMinPulseWidths();
   void clear();
   // Min pulse width checks for pins.
-  // corner=NULL checks all corners.
+  // corner=nullptr checks all corners.
   MinPulseWidthCheckSeq &check(PinSeq *pins,
 			       const Corner *corner);
   // All min pulse width checks.
-  // corner=NULL checks all corners.
+  // corner=nullptr checks all corners.
   MinPulseWidthCheckSeq &check(const Corner *corner);
   // All violating min pulse width checks.
-  // corner=NULL checks all corners.
+  // corner=nullptr checks all corners.
   MinPulseWidthCheckSeq &violations(const Corner *corner);
   // Min pulse width check with the least slack.
-  // corner=NULL checks all corners.
+  // corner=nullptr checks all corners.
   MinPulseWidthCheck *minSlackCheck(const Corner *corner);
 
 protected:

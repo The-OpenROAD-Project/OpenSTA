@@ -156,10 +156,10 @@ memoryUsage()
   if (status) {
     const size_t line_length = 128;
     char line[line_length];
-    while (fgets(line, line_length, status) != NULL) {
+    while (fgets(line, line_length, status) != nullptr) {
       char *field = strtok(line, " \t");
       if (stringEq(field, "VmRSS:")) {
-	char *size = strtok(NULL, " \t");
+	char *size = strtok(nullptr, " \t");
 	if (size) {
 	  char *ignore;
 	  // VmRSS is in kilobytes.

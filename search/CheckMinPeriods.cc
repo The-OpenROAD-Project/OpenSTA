@@ -21,7 +21,6 @@
 #include "Clock.hh"
 #include "Sdc.hh"
 #include "Graph.hh"
-#include "Corner.hh"
 #include "DcalcAnalysisPt.hh"
 #include "GraphDelayCalc.hh"
 #include "Search.hh"
@@ -61,21 +60,17 @@ CheckMinPeriods::clear()
 class MinPeriodViolatorsVisitor : public MinPeriodCheckVisitor
 {
 public:
-  MinPeriodViolatorsVisitor(const Corner *corner,
-			    MinPeriodCheckSeq &checks);
+  MinPeriodViolatorsVisitor(MinPeriodCheckSeq &checks);
   virtual void visit(MinPeriodCheck &check,
 		     StaState *sta);
 
 private:
   DISALLOW_COPY_AND_ASSIGN(MinPeriodViolatorsVisitor);
 
-  const Corner *corner_;
   MinPeriodCheckSeq &checks_;
 };
 
-MinPeriodViolatorsVisitor::MinPeriodViolatorsVisitor(const Corner *corner,
-						     MinPeriodCheckSeq &checks):
-  corner_(corner),
+MinPeriodViolatorsVisitor::MinPeriodViolatorsVisitor(MinPeriodCheckSeq &checks):
   checks_(checks)
 {
 }
@@ -84,15 +79,15 @@ void
 MinPeriodViolatorsVisitor::visit(MinPeriodCheck &check,
 				 StaState *sta)
 {
-  if (delayFuzzyLess(check.slack(sta), 0.0))
+  if (fuzzyLess(check.slack(sta), 0.0))
     checks_.push_back(check.copy());
 }
 
 MinPeriodCheckSeq &
-CheckMinPeriods::violations(const Corner *corner)
+CheckMinPeriods::violations()
 {
   clear();
-  MinPeriodViolatorsVisitor visitor(corner, checks_);
+  MinPeriodViolatorsVisitor visitor(checks_);
   visitMinPeriodChecks(&visitor);
   sort(checks_, MinPeriodSlackLess(sta_));
   return checks_;
@@ -137,7 +132,7 @@ CheckMinPeriods::visitMinPeriodChecks(Vertex *vertex,
 class MinPeriodSlackVisitor : public MinPeriodCheckVisitor
 {
 public:
-  MinPeriodSlackVisitor(const Corner *corner);
+  MinPeriodSlackVisitor();
   virtual void visit(MinPeriodCheck &check,
 		     StaState *sta);
   MinPeriodCheck *minSlackCheck();
@@ -145,13 +140,11 @@ public:
 private:
   DISALLOW_COPY_AND_ASSIGN(MinPeriodSlackVisitor);
 
-  const Corner *corner_;
   MinPeriodCheck *min_slack_check_;
 };
 
-MinPeriodSlackVisitor::MinPeriodSlackVisitor(const Corner *corner) :
-  corner_(corner),
-  min_slack_check_(NULL)
+MinPeriodSlackVisitor::MinPeriodSlackVisitor() :
+  min_slack_check_(nullptr)
 {
 }
 
@@ -160,7 +153,7 @@ MinPeriodSlackVisitor::visit(MinPeriodCheck &check,
 			     StaState *sta)
 {
   MinPeriodSlackLess slack_less(sta);
-  if (min_slack_check_ == NULL)
+  if (min_slack_check_ == nullptr)
     min_slack_check_ = check.copy();
   else if (slack_less(&check, min_slack_check_)) {
     delete min_slack_check_;
@@ -175,10 +168,10 @@ MinPeriodSlackVisitor::minSlackCheck()
 }
 
 MinPeriodCheck *
-CheckMinPeriods::minSlackCheck(const Corner *corner)
+CheckMinPeriods::minSlackCheck()
 {
   clear();
-  MinPeriodSlackVisitor visitor(corner);
+  MinPeriodSlackVisitor visitor;
   visitMinPeriodChecks(&visitor);
   MinPeriodCheck *check = visitor.minSlackCheck();
   // Save check for cleanup.
@@ -238,9 +231,9 @@ MinPeriodSlackLess::operator()(const MinPeriodCheck *check1,
   Slack slack2 = check2->slack(sta_);
   const Pin *pin1 = check1->pin();
   const Pin *pin2 = check2->pin();
-  return delayFuzzyLess(slack1, slack2)
+  return fuzzyLess(slack1, slack2)
     // Break ties based on pin and clock names.
-    || (delayFuzzyEqual(slack1, slack2)
+    || (fuzzyEqual(slack1, slack2)
 	&& (sta_->network()->pinLess(pin1, pin2)
 	    || (pin1 == pin2
 		&& ClockNameLess()(check1->clk(),

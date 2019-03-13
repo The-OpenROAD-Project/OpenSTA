@@ -47,21 +47,10 @@ typedef Map<const char *, float, CharPtrLess> LibertyVariableMap;
 typedef Map<const char*,LibertyGroupVisitor*,CharPtrLess>LibertyGroupVisitorMap;
 typedef LibertyAttrValueSeq::Iterator LibertyAttrValueIterator;
 
-typedef enum {
-  liberty_attr_string,
-  liberty_attr_int,
-  liberty_attr_double,
-  liberty_attr_boolean,
-  liberty_attr_unknown
-} AttrType;
+enum class LibertyAttrType { attr_string, attr_int, attr_double,
+			     attr_boolean, attr_unknown };
 
-typedef enum {
-  liberty_group_library,
-  liberty_group_cell,
-  liberty_group_pin,
-  liberty_group_timing,
-  liberty_group_unknown
-} LibertyGroupType;
+enum class LibertyGroupType { library, cell, pin, timing, unknown };
 
 // Abstract base class for liberty statements.
 class LibertyStmt
@@ -254,18 +243,20 @@ class LibertyDefine : public LibertyStmt
 public:
   LibertyDefine(const char *name,
 		LibertyGroupType group_type,
-		AttrType value_type,
+		LibertyAttrType value_type,
 		int line);
   virtual ~LibertyDefine();
   virtual bool isDefine() const { return true; }
   const char *name() const { return name_; }
+  LibertyGroupType groupType() const { return group_type_; }
+  LibertyAttrType valueType() const { return value_type_; }
 
 private:
   DISALLOW_COPY_AND_ASSIGN(LibertyDefine);
 
   const char *name_;
   LibertyGroupType group_type_;
-  AttrType value_type_;
+  LibertyAttrType value_type_;
 };
 
 // The Liberty User Guide Version 2003.12 fails to document variables.

@@ -262,7 +262,7 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
 	&& src_path->minMax(this) == setup_hold
 	&& clks->hasKey(src_clk)) {
       Corner *src_corner = src_path->pathAnalysisPt(this)->corner();
-      if (corner == NULL
+      if (corner == nullptr
 	  || src_corner == corner) {
 	VertexPathIterator tgt_iter(tgt_vertex, this);
 	while (tgt_iter.hasNext()) {
@@ -283,7 +283,7 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
 			time_unit->asString(probe.tgtLatency(this)),
 			delayAsString(probe.crpr(this), this),
 			time_unit->asString(probe.skew()));
-	    if (clk_skew == NULL) {
+	    if (clk_skew == nullptr) {
 	      clk_skew = new ClkSkew(probe);
 	      skews[src_clk] = clk_skew;
 	    }
@@ -326,7 +326,7 @@ ClkSkews::findFanout(Vertex *from,
   debugPrint1(debug_, "fanout", 1, "%s\n",
 	      from->name(sdc_network_));
   FanOutSrchPred pred(this);
-  BfsFwdIterator fanout_iter(bfs_other, &pred, this);
+  BfsFwdIterator fanout_iter(BfsIndex::other, &pred, this);
   fanout_iter.enqueue(from);
   while (fanout_iter.hasNext()) {
     Vertex *fanout = fanout_iter.next();

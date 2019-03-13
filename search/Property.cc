@@ -100,84 +100,72 @@ PropertyUnknown::what() const throw()
 PropertyValue::PropertyValue() :
   type_(type_none)
 {
-  init();
 }
 
 PropertyValue::PropertyValue(const char *value) :
-  type_(type_string)
+  type_(type_string),
+  string_(stringCopy(value))
 {
-  init();
-  string_ = stringCopy(value);
 }
 
 PropertyValue::PropertyValue(std::string &value) :
-  type_(type_string)
+  type_(type_string),
+  string_(stringCopy(value.c_str()))
 {
-  init();
-  string_ = stringCopy(value.c_str());
 }
 
 PropertyValue::PropertyValue(float value) :
-  type_(type_float)
+  type_(type_float),
+  float_(value)
 {
-  init();
-  float_ = value;
 }
 
 PropertyValue::PropertyValue(LibertyLibrary *value) :
-  type_(type_liberty_library)
+  type_(type_liberty_library),
+  liberty_library_(value)
 {
-  init();
-  liberty_library_ = value;
 }
 
 PropertyValue::PropertyValue(LibertyCell *value) :
-  type_(type_liberty_cell)
+  type_(type_liberty_cell),
+  liberty_cell_(value)
 {
-  init();
-  liberty_cell_ = value;
 }
 
 PropertyValue::PropertyValue(Library *value) :
-  type_(type_library)
+  type_(type_library),
+  library_(value)
 {
-  init();
-  library_ = value;
 }
 
 PropertyValue::PropertyValue(Cell *value) :
-  type_(type_cell)
+  type_(type_cell),
+  cell_(value)
 {
-  init();
-  cell_ = value;
 }
 
 PropertyValue::PropertyValue(Instance *value) :
-  type_(type_instance)
+  type_(type_instance),
+  inst_(value)
 {
-  init();
-  inst_ = value;
 }
 
 PropertyValue::PropertyValue(Pin *value) :
-  type_(type_pin)
+  type_(type_pin),
+  pin_(value)
 {
-  init();
-  pin_ = value;
 }
 
 PropertyValue::PropertyValue(PinSeq *value) :
-  type_(type_pins)
+  type_(type_pins),
+  pins_(value)
 {
-  init();
-  pins_ = value;
 }
 
 PropertyValue::PropertyValue(PinSet *value) :
-  type_(type_pins)
+  type_(type_pins),
+  pins_(new PinSeq)
 {
-  init();
-  pins_ = new PinSeq;
   PinSet::Iterator pin_iter(value);
   while (pin_iter.hasNext()) {
     Pin *pin = pin_iter.next();
@@ -186,31 +174,27 @@ PropertyValue::PropertyValue(PinSet *value) :
 }
 
 PropertyValue::PropertyValue(Net *value) :
-  type_(type_net)
+  type_(type_net),
+  net_(value)
 {
-  init();
-  net_ = value;
 }
 
 PropertyValue::PropertyValue(Clock *value) :
-  type_(type_clock)
+  type_(type_clk),
+  clk_(value)
 {
-  init();
-  clk_ = value;
 }
 
 PropertyValue::PropertyValue(ClockSeq *value) :
-  type_(type_clocks)
+  type_(type_clks),
+  clks_(new ClockSeq(*value))
 {
-  init();
-  clks_ = new ClockSeq(*value);
 }
 
 PropertyValue::PropertyValue(ClockSet *value) :
-  type_(type_clocks)
+  type_(type_clks),
+  clks_(new ClockSeq)
 {
-  init();
-  clks_ = new ClockSeq;
   ClockSet::Iterator clk_iter(value);
   while (clk_iter.hasNext()) {
     Clock *clk = clk_iter.next();
@@ -219,72 +203,233 @@ PropertyValue::PropertyValue(ClockSet *value) :
 }
 
 PropertyValue::PropertyValue(PathRefSeq *value) :
-  type_(type_path_refs)
+  type_(type_path_refs),
+  path_refs_(new PathRefSeq(*value))
 {
-  init();
-  path_refs_ = new PathRefSeq(*value);
 }
 
 PropertyValue::PropertyValue(const PropertyValue &value) :
-  type_(value.type_),
-  string_(stringCopy(value.string_)),
-  float_(value.float_),
-  liberty_library_(value.liberty_library_),
-  liberty_cell_(value.liberty_cell_),
-  library_(value.library_),
-  cell_(value.cell_),
-  inst_(value.inst_),
-  pin_(value.pin_),
-  pins_(value.pins_ ? new PinSeq(*value.pins_) : NULL),
-  net_(value.net_),
-  clk_(value.clk_),
-  clks_(value.clks_ ? new ClockSeq(*value.clks_) : NULL),
-  path_refs_(value.path_refs_ ? new PathRefSeq(*value.path_refs_) : NULL)
+  type_(value.type_)
 {
+  switch (type_) {
+  case Type::type_none:
+    break;
+  case Type::type_string:
+    string_ = stringCopy(value.string_);
+    break;
+  case Type::type_float:
+    float_ = value.float_;
+    break;
+  case Type::type_liberty_library:
+    liberty_library_ = value.liberty_library_;
+    break;
+  case Type::type_liberty_cell:
+    liberty_cell_ = value.liberty_cell_;
+    break;
+  case Type::type_cell:
+    cell_ = value.cell_;
+    break;
+  case Type::type_library:
+    library_ = value.library_;
+    break;
+  case Type::type_instance:
+    inst_ = value.inst_;
+    break;
+  case Type::type_pin:
+    pin_ = value.pin_;
+    break;
+  case Type::type_pins:
+    pins_ = value.pins_ ? new PinSeq(*value.pins_) : nullptr;
+    break;
+  case Type::type_net:
+    net_ = value.net_;
+    break;
+  case Type::type_clk:
+    clk_ = value.clk_;
+    break;
+  case Type::type_clks:
+    clks_ = value.clks_ ? new ClockSeq(*value.clks_) : nullptr;
+    break;
+  case Type::type_path_refs:
+    path_refs_ = value.path_refs_ ? new PathRefSeq(*value.path_refs_) : nullptr;
+    break;
+  }
 }
 
-void
-PropertyValue::init()
+PropertyValue::PropertyValue(PropertyValue &&value) :
+  type_(value.type_)
 {
-  string_ = NULL;
-  float_ = 0.0;
-  liberty_library_ = NULL;
-  liberty_cell_ = NULL;
-  cell_ = NULL;
-  inst_ = NULL;
-  pin_ = NULL;
-  pins_ = NULL;
-  net_ = NULL;
-  clk_ = NULL;
-  clks_ = NULL;
-  path_refs_ = NULL;
+  switch (type_) {
+  case Type::type_none:
+    break;
+  case Type::type_string:
+    string_ = value.string_;
+    value.string_ = nullptr;
+    break;
+  case Type::type_float:
+    float_ = value.float_;
+    break;
+  case Type::type_liberty_library:
+    liberty_library_ = value.liberty_library_;
+    break;
+  case Type::type_liberty_cell:
+    liberty_cell_ = value.liberty_cell_;
+    break;
+  case Type::type_cell:
+    cell_ = value.cell_;
+    break;
+  case Type::type_library:
+    library_ = value.library_;
+    break;
+  case Type::type_instance:
+    inst_ = value.inst_;
+    break;
+  case Type::type_pin:
+    pin_ = value.pin_;
+    break;
+  case Type::type_pins:
+    pins_ = value.pins_;
+    value.pins_ = nullptr;
+    break;
+  case Type::type_net:
+    net_ = value.net_;
+    break;
+  case Type::type_clk:
+    clk_ = value.clk_;
+    break;
+  case Type::type_clks:
+    clks_ = value.clks_;
+    value.clks_ = nullptr;
+    break;
+  case Type::type_path_refs:
+    path_refs_ = value.path_refs_;
+    value.clks_ = nullptr;
+    break;
+  }
 }
 
 PropertyValue::~PropertyValue()
 {  
-  stringDelete(string_);
-  delete clks_;
-  delete pins_;
-  delete path_refs_;
+  switch (type_) {
+  case Type::type_string:
+    stringDelete(string_);
+    break;
+  case Type::type_clks:
+    delete clks_;
+    break;
+  case Type::type_pins:
+    delete pins_;
+    break;
+  case Type::type_path_refs:
+    delete path_refs_;
+    break;
+  default:
+    break;
+  }
 }
 
-void
+PropertyValue &
 PropertyValue::operator=(const PropertyValue &value)
 {
   type_ = value.type_;
-  string_ = stringCopy(value.string_);
-  float_ = value.float_;
-  liberty_library_ = value.liberty_library_;
-  liberty_cell_ = value.liberty_cell_;
-  library_ = value.library_;
-  cell_ = value.cell_;
-  inst_ = value.inst_;
-  pin_ = value.pin_;
-  pins_ = value.pins_ ? new PinSeq(*value.pins_) : NULL;
-  net_ = value.net_;
-  clk_ = value.clk_;
-  clks_ = value.clks_ ? new ClockSeq(*value.clks_) : NULL;
-  path_refs_ = value.path_refs_ ? new PathRefSeq(*value.path_refs_) : NULL;
+  switch (type_) {
+  case Type::type_none:
+    break;
+  case Type::type_string:
+    string_ = stringCopy(value.string_);
+    break;
+  case Type::type_float:
+    float_ = value.float_;
+    break;
+  case Type::type_liberty_library:
+    liberty_library_ = value.liberty_library_;
+    break;
+  case Type::type_liberty_cell:
+    liberty_cell_ = value.liberty_cell_;
+    break;
+  case Type::type_cell:
+    cell_ = value.cell_;
+    break;
+  case Type::type_library:
+    library_ = value.library_;
+    break;
+  case Type::type_instance:
+    inst_ = value.inst_;
+    break;
+  case Type::type_pin:
+    pin_ = value.pin_;
+    break;
+  case Type::type_pins:
+    pins_ = value.pins_ ? new PinSeq(*value.pins_) : nullptr;
+    break;
+  case Type::type_net:
+    net_ = value.net_;
+    break;
+  case Type::type_clk:
+    clk_ = value.clk_;
+    break;
+  case Type::type_clks:
+    clks_ = value.clks_ ? new ClockSeq(*value.clks_) : nullptr;
+    break;
+  case Type::type_path_refs:
+    path_refs_ = value.path_refs_ ? new PathRefSeq(*value.path_refs_) : nullptr;
+    break;
+  }
+  return *this;
+}
+
+PropertyValue &
+PropertyValue::operator=(PropertyValue &&value)
+{
+  type_ = value.type_;
+  switch (type_) {
+  case Type::type_none:
+    break;
+  case Type::type_string:
+    string_ = value.string_;
+    value.string_ = nullptr;
+    break;
+  case Type::type_float:
+    float_ = value.float_;
+    break;
+  case Type::type_liberty_library:
+    liberty_library_ = value.liberty_library_;
+    break;
+  case Type::type_liberty_cell:
+    liberty_cell_ = value.liberty_cell_;
+    break;
+  case Type::type_cell:
+    cell_ = value.cell_;
+    break;
+  case Type::type_library:
+    library_ = value.library_;
+    break;
+  case Type::type_instance:
+    inst_ = value.inst_;
+    break;
+  case Type::type_pin:
+    pin_ = value.pin_;
+    break;
+  case Type::type_pins:
+    pins_ = value.pins_;
+    value.pins_ = nullptr;
+    break;
+  case Type::type_net:
+    net_ = value.net_;
+    break;
+  case Type::type_clk:
+    clk_ = value.clk_;
+    break;
+  case Type::type_clks:
+    clks_ = value.clks_;
+    value.clks_ = nullptr;
+    break;
+  case Type::type_path_refs:
+    path_refs_ = value.path_refs_;
+    value.clks_ = nullptr;
+    break;
+  }
+  return *this;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -537,12 +682,12 @@ pinSlewProperty(const Pin *pin,
   Slew slew = min_max->initValue();
   if (vertex) {
     Slew vertex_slew = sta->vertexSlew(vertex, tr, min_max);
-    if (delayFuzzyGreater(vertex_slew, slew, min_max))
+    if (fuzzyGreater(vertex_slew, slew, min_max))
       slew = vertex_slew;
   }
   if (bidirect_drvr_vertex) {
     Slew vertex_slew = sta->vertexSlew(bidirect_drvr_vertex, tr, min_max);
-    if (delayFuzzyGreater(vertex_slew, slew, min_max))
+    if (fuzzyGreater(vertex_slew, slew, min_max))
       slew = vertex_slew;
   }
   return PropertyValue(delayPropertyValue(slew, sta));

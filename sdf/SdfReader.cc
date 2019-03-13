@@ -56,7 +56,7 @@ class SdfPortSpec
 public:
   SdfPortSpec(Transition *tr,
 	      const char *port,
-	      const char *cond = NULL) :
+	      const char *cond = nullptr) :
     tr_(tr), port_(port), cond_(cond) {}
   ~SdfPortSpec()
   {
@@ -75,7 +75,7 @@ private:
   const char *cond_;   // timing checks only
 };
 
-SdfReader *sdf_reader = NULL;
+SdfReader *sdf_reader = nullptr;
 
 bool
 readSdfSingle(const char *filename,
@@ -144,8 +144,8 @@ SdfReader::SdfReader(const char *filename,
   cond_use_(cond_use),
   line_(1),
   escape_('\\'),
-  instance_(NULL),
-  cell_name_(NULL),
+  instance_(nullptr),
+  cell_name_(nullptr),
   in_timing_check_(false),
   in_incremental_(false),
   timescale_(1.0E-9F)		// default units of ns
@@ -231,9 +231,9 @@ SdfReader::interconnect(const char *from_pin_name,
       }
     }
     else {
-      if (from_pin == NULL)
+      if (from_pin == nullptr)
 	sdfError("pin %s not found.\n", from_pin_name);
-      if (to_pin == NULL)
+      if (to_pin == nullptr)
 	sdfError("pin %s not found.\n", to_pin_name);
     }
   }
@@ -251,7 +251,7 @@ SdfReader::port(const char *to_pin_name,
     Pin *to_pin = (instance_)
       ? network_->findPinRelative(instance_, to_pin_name)
       : network_->findPin(to_pin_name);
-    if (to_pin == NULL)
+    if (to_pin == nullptr)
       sdfError("pin %s not found.\n", to_pin_name);
     else {
       Vertex *vertex = graph_->pinLoadVertex(to_pin);
@@ -282,7 +282,7 @@ SdfReader::findWireEdge(Pin *from_pin,
 	&& edge_role->sdfRole()->isWire())
       return edge;
   }
-  return NULL;
+  return nullptr;
 }
 
 void
@@ -325,7 +325,7 @@ SdfReader::setInstance(const char *instance_name)
   if (instance_name) {
     if (stringEq(instance_name, "*")) {
       notSupported("INSTANCE wildcards");
-      instance_ = NULL;
+      instance_ = nullptr;
     }
     else {
       instance_ = findInstance(instance_name);
@@ -342,22 +342,22 @@ SdfReader::setInstance(const char *instance_name)
     stringDelete(instance_name);
   }
   else
-    instance_ = NULL;
+    instance_ = nullptr;
 }
 
 void
 SdfReader::setInstanceWildcard()
 {
   notSupported("INSTANCE wildcards");
-  instance_ = NULL;
+  instance_ = nullptr;
 }
 
 void
 SdfReader::cellFinish()
 {
   stringDelete(cell_name_);
-  cell_name_ = NULL;
-  instance_ = NULL;
+  cell_name_ = nullptr;
+  instance_ = nullptr;
 }
 
 void
@@ -372,9 +372,9 @@ SdfReader::iopath(SdfPortSpec *from_edge,
     Cell *cell = network_->cell(instance_);
     Port *from_port = network_->findPort(cell, from_port_name);
     Port *to_port = network_->findPort(cell, to_port_name);
-    if (from_port == NULL)
+    if (from_port == nullptr)
       portNotFound(from_port_name);
-    if (to_port == NULL)
+    if (to_port == nullptr)
       portNotFound(to_port_name);
     if (from_port && to_port) {
       Pin *from_pin = network_->findPin(instance_, from_port_name);
@@ -394,14 +394,14 @@ SdfReader::iopath(SdfPortSpec *from_edge,
 	  TimingArcSet *arc_set = edge->timingArcSet();
 	  const char *lib_cond = arc_set->sdfCond();
 	  const TimingRole *edge_role = arc_set->role();
-	  bool cond_use_flag = cond_use_ && cond && lib_cond == NULL
+	  bool cond_use_flag = cond_use_ && cond && lib_cond == nullptr
 	    && !(!is_incremental_only_ && in_incremental_);
 	  if (edge->from(graph_)->pin() == from_pin
 	      && edge_role->sdfRole() == TimingRole::sdfIopath()
 	      && (cond_use_flag
 		  || (!condelse && condMatch(cond, lib_cond))
 		  // condelse matches the default (unconditional) arc.
-		  || (condelse && lib_cond == NULL))) {
+		  || (condelse && lib_cond == nullptr))) {
 	    matched = true;
 	    TimingArcSetArcIterator arc_iter(arc_set);
 	    while (arc_iter.hasNext()) {
@@ -409,7 +409,7 @@ SdfReader::iopath(SdfPortSpec *from_edge,
 	      if ((from_edge->transition() == Transition::riseFall())
 		  || (arc->fromTrans() == from_edge->transition())) {
 		size_t triple_index = arc->toTrans()->sdfTripleIndex();
-		SdfTriple *triple = NULL;
+		SdfTriple *triple = nullptr;
 		if (triple_index < triple_count)
 		  triple = (*triples)[triple_index];
 		if (triple_count == 1)
@@ -466,9 +466,9 @@ SdfReader::timingCheck1(TimingRole *role,
     Cell *cell = network_->cell(instance_);
     Port *data_port = network_->findPort(cell, data_port_name);
     Port *clk_port = network_->findPort(cell, clk_port_name);
-    if (data_port == NULL && warn)
+    if (data_port == nullptr && warn)
       portNotFound(data_port_name);
-    if (clk_port == NULL && warn)
+    if (clk_port == nullptr && warn)
       portNotFound(clk_port_name);
     if (data_port && clk_port) {
       Pin *data_pin = network_->findPin(instance_, data_port_name);
@@ -482,15 +482,15 @@ SdfReader::timingCheck1(TimingRole *role,
 	  float *value_max = values[triple_max_index_];
           if (value_min && value_max) {
 	    switch (analysis_type_) {
-	    case analysis_type_single:
+	    case AnalysisType::single:
 	      break;
-	    case analysis_type_bc_wc:
+	    case AnalysisType::bc_wc:
 	      if (role->genericRole() == TimingRole::setup())
 		*value_min = *value_max;
 	      else
 		*value_max = *value_min;
 	      break;
-	    case analysis_type_on_chip_variation:
+	    case AnalysisType::ocv:
 	      *value_min = *value_max;
 	      break;
 	    }
@@ -576,7 +576,7 @@ SdfReader::timingCheckWidth(SdfPortSpec *edge,
     const char *port_name = edge->port();
     Cell *cell = network_->cell(instance_);
     Port *port = network_->findPort(cell, port_name);
-    if (port == NULL)
+    if (port == nullptr)
       portNotFound(port_name);
     else {
       Pin *pin = network_->findPin(instance_, port_name);
@@ -614,7 +614,7 @@ SdfReader::timingCheckPeriod(SdfPortSpec *edge,
     const char *port_name = edge->port();
     Cell *cell = network_->cell(instance_);
     Port *port = network_->findPort(cell, port_name);
-    if (port == NULL)
+    if (port == nullptr)
       portNotFound(port_name);
     else {
       // Edge specifier is ignored for period checks.
@@ -706,7 +706,7 @@ SdfReader::device(const char *to_port_name,
       && instance_) {
     Cell *cell = network_->cell(instance_);
     Port *to_port = network_->findPort(cell, to_port_name);
-    if (to_port == NULL)
+    if (to_port == nullptr)
       portNotFound(to_port_name);
     else {
       Pin *to_pin = network_->findPin(instance_, to_port_name);
@@ -768,10 +768,10 @@ SdfReader::setEdgeArcDelaysCondUse(Edge *edge,
 				   SdfTriple *triple)
 {
   float **values = triple->values();
-  float *value_min = NULL;
+  float *value_min = nullptr;
   if (triple_min_index_ != null_index_)
     value_min = values[triple_min_index_];
-  float *value_max = NULL;
+  float *value_max = nullptr;
   if (triple_max_index_ != null_index_)
     value_max = values[triple_max_index_];
   MinMax *min, *max;
@@ -808,7 +808,7 @@ SdfReader::setEdgeArcDelaysCondUse(Edge *edge,
       delay = graph_->arcDelay(edge, arc, arc_delay_index) + *value;
     else if (graph_->arcDelayAnnotated(edge, arc, arc_delay_index)) {
       ArcDelay prev_value = graph_->arcDelay(edge, arc, arc_delay_index);
-      if (delayFuzzyGreater(prev_value, delay, min_max))
+      if (fuzzyGreater(prev_value, delay, min_max))
 	delay = prev_value;
     }
     graph_->setArcDelay(edge, arc, arc_delay_index, delay);
@@ -822,7 +822,7 @@ SdfReader::condMatch(const char *sdf_cond,
 		     const char *lib_cond)
 {
   // If the sdf is not conditional it matches any library condition.
-  if (sdf_cond == NULL)
+  if (sdf_cond == nullptr)
     return true;
   else if (sdf_cond && lib_cond) {
     // Match sdf_cond and lib_cond ignoring blanks.
@@ -1000,7 +1000,7 @@ SdfReader::getChars(char *buf,
 {
   char *status = gzgets(stream_, buf, max_size);
   if (status == Z_NULL)
-    result = 0;  // YY_NULL
+    result = 0;  // YY_nullptr
   else
     result = strlen(buf);
 }
@@ -1012,7 +1012,7 @@ SdfReader::getChars(char *buf,
 {
   char *status = gzgets(stream_, buf, max_size);
   if (status == Z_NULL)
-    result = 0;  // YY_NULL
+    result = 0;  // YY_nullptr
   else
     result = strlen(buf);
 }
@@ -1060,7 +1060,7 @@ SdfReader::findInstance(const char *name)
   if (path_)
     stringPrint(inst_name, "%s%c%s", path_, divider_, name);
   Instance *inst = network_->findInstance(inst_name.c_str());
-  if (inst == NULL)
+  if (inst == nullptr)
     sdfError("instance %s not found.\n", inst_name.c_str());
   return inst;
 }

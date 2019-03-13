@@ -130,7 +130,7 @@ Units::find(const char *unit_name)
   else if (stringEq(unit_name, "distance"))
     return &distance_unit_;
   else
-    return NULL;
+    return nullptr;
 }
 
 void

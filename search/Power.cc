@@ -177,7 +177,7 @@ Power::findInternalPower(const Instance *inst,
     const char *related_pg_pin = pwr->relatedPgPin();
     const LibertyPort *from_port = pwr->relatedPort();
     if (pwr->port() == to_port) {
-      if (from_port == NULL)
+      if (from_port == nullptr)
 	from_port = to_port;
       const Pin *from_pin = network_->findPin(inst, from_port);
       Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
@@ -265,11 +265,11 @@ Power::findLeakagePower(const Instance *inst,
     if (when) {
       LogicValue when_value = sim_->evalExpr(when, inst);
       switch (when_value) {
-      case logic_zero:
-      case logic_one:
+      case LogicValue::zero:
+      case LogicValue::one:
 	leakage = max(leakage, leak->power());
 	break;
-      case logic_unknown:
+      case LogicValue::unknown:
       default:
 	break;
       }
@@ -319,7 +319,7 @@ Power::voltage(LibertyCell *cell,
 {
   // Should use cell pg_pin voltage name to voltage.
   const Pvt *pvt = dcalc_ap->operatingConditions();
-  if (pvt == NULL)
+  if (pvt == nullptr)
     pvt = cell->libertyLibrary()->defaultOperatingConditions();
   if (pvt)
     return pvt->voltage();
@@ -333,7 +333,7 @@ Power::findClk(const Pin *to_pin,
 	       const Clock *&clk,
 	       bool &is_clk)
 {
-  clk = NULL;
+  clk = nullptr;
   is_clk = false;
   Vertex *to_vertex = graph_->pinDrvrVertex(to_pin);
   VertexPathIterator path_iter(to_vertex, this);
@@ -341,7 +341,7 @@ Power::findClk(const Pin *to_pin,
     PathVertex *path = path_iter.next();
     const Clock *path_clk = path->clock(this);
     if (path_clk
-	&& (clk == NULL
+	&& (clk == nullptr
 	    || path_clk->period() < clk->period()))
       clk = path_clk;
     if (path->isClock(this))

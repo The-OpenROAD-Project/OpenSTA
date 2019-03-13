@@ -78,13 +78,13 @@ Tcl_ChannelType tcl_encap_type_stdout = {
   encapGetOptionProc,
   encapWatchProc,
   encapGetHandleProc,
-  NULL,				// close2Proc
+  nullptr,				// close2Proc
   encapBlockModeProc,
-  NULL,				// flushProc
-  NULL,				// handlerProc
-  NULL,				// wideSeekProc
-  NULL,				// threadActionProc
-  NULL				// truncateProc
+  nullptr,				// flushProc
+  nullptr,				// handlerProc
+  nullptr,				// wideSeekProc
+  nullptr,				// threadActionProc
+  nullptr				// truncateProc
 };
 
 Tcl_ChannelType tcl_encap_type_stderr = {
@@ -98,13 +98,13 @@ Tcl_ChannelType tcl_encap_type_stderr = {
   encapGetOptionProc,
   encapWatchProc,
   encapGetHandleProc,
-  NULL,				// close2Proc
+  nullptr,				// close2Proc
   encapBlockModeProc,
-  NULL,				// flushProc
-  NULL,				// handlerProc
-  NULL,				// wideSeekProc
-  NULL,				// threadActionProc
-  NULL				// truncateProc
+  nullptr,				// flushProc
+  nullptr,				// handlerProc
+  nullptr,				// wideSeekProc
+  nullptr,				// threadActionProc
+  nullptr				// truncateProc
 };
 
 #else
@@ -121,12 +121,12 @@ Tcl_ChannelType tcl_encap_type_stdout = {
   encapGetOptionProc,
   encapWatchProc,
   encapGetHandleProc,
-  NULL,				// close2Proc
+  nullptr,				// close2Proc
   encapBlockModeProc,
-  NULL,				// flushProc
-  NULL,				// handlerProc
-  NULL,				// wideSeekProc
-  NULL				// threadActionProc
+  nullptr,				// flushProc
+  nullptr,				// handlerProc
+  nullptr,				// wideSeekProc
+  nullptr				// threadActionProc
 };
 
 Tcl_ChannelType tcl_encap_type_stderr = {
@@ -140,12 +140,12 @@ Tcl_ChannelType tcl_encap_type_stderr = {
   encapGetOptionProc,
   encapWatchProc,
   encapGetHandleProc,
-  NULL,				// close2Proc
+  nullptr,				// close2Proc
   encapBlockModeProc,
-  NULL,				// flushProc
-  NULL,				// handlerProc
-  NULL,				// wideSeekProc
-  NULL				// threadActionProc
+  nullptr,				// flushProc
+  nullptr,				// handlerProc
+  nullptr,				// wideSeekProc
+  nullptr				// threadActionProc
 };
 
 #else
@@ -162,11 +162,11 @@ Tcl_ChannelType tcl_encap_type_stdout = {
   encapGetOptionProc,
   encapWatchProc,
   encapGetHandleProc,
-  NULL,				// close2Proc
+  nullptr,				// close2Proc
   encapBlockModeProc,
-  NULL,				// flushProc
-  NULL,				// handlerProc
-  NULL				// wideSeekProc
+  nullptr,				// flushProc
+  nullptr,				// handlerProc
+  nullptr				// wideSeekProc
 };
 
 Tcl_ChannelType tcl_encap_type_stderr = {
@@ -180,11 +180,11 @@ Tcl_ChannelType tcl_encap_type_stderr = {
   encapGetOptionProc,
   encapWatchProc,
   encapGetHandleProc,
-  NULL,				// close2Proc
+  nullptr,				// close2Proc
   encapBlockModeProc,
-  NULL,				// flushProc
-  NULL,				// handlerProc
-  NULL				// wideSeekProc
+  nullptr,				// flushProc
+  nullptr,				// handlerProc
+  nullptr				// wideSeekProc
 };
 
 #else
@@ -202,10 +202,10 @@ Tcl_ChannelType tcl_encap_type_stdout = {
   encapGetOptionProc,
   encapWatchProc,
   encapGetHandleProc,
-  NULL,				// close2Proc
+  nullptr,				// close2Proc
   encapBlockModeProc,
-  NULL,				// flushProc
-  NULL				// handlerProc
+  nullptr,				// flushProc
+  nullptr				// handlerProc
 };
 
 Tcl_ChannelType tcl_encap_type_stderr = {
@@ -219,10 +219,10 @@ Tcl_ChannelType tcl_encap_type_stderr = {
   encapGetOptionProc,
   encapWatchProc,
   encapGetHandleProc,
-  NULL,				// close2Proc
+  nullptr,				// close2Proc
   encapBlockModeProc,
-  NULL,				// flushProc
-  NULL				// handlerProc
+  nullptr,				// flushProc
+  nullptr				// handlerProc
 };
 
 #else
@@ -239,7 +239,7 @@ Tcl_ChannelType tcl_encap_type_stdout = {
   encapGetOptionProc,
   encapWatchProc,
   encapGetHandleProc,
-  NULL				// close2Proc
+  nullptr				// close2Proc
 };
 
 Tcl_ChannelType tcl_encap_type_stderr = {
@@ -253,7 +253,7 @@ Tcl_ChannelType tcl_encap_type_stderr = {
   encapGetOptionProc,
   encapWatchProc,
   encapGetHandleProc,
-  NULL				// close2Proc
+  nullptr				// close2Proc
 };
 
 #endif
@@ -265,18 +265,18 @@ Tcl_ChannelType tcl_encap_type_stderr = {
 
 ReportTcl::ReportTcl() :
   Report(),
-  interp_(NULL),
-  tcl_stdout_(NULL),
-  tcl_stderr_(NULL),
-  tcl_encap_stdout_(NULL),
-  tcl_encap_stderr_(NULL)
+  interp_(nullptr),
+  tcl_stdout_(nullptr),
+  tcl_stderr_(nullptr),
+  tcl_encap_stdout_(nullptr),
+  tcl_encap_stderr_(nullptr)
 {
 }
 
 ReportTcl::~ReportTcl()
 {
-  tcl_encap_stdout_ = NULL;
-  tcl_encap_stderr_ = NULL;
+  tcl_encap_stdout_ = nullptr;
+  tcl_encap_stderr_ = nullptr;
   Tcl_UnstackChannel(interp_, tcl_stdout_);
   Tcl_UnstackChannel(interp_, tcl_stderr_);
 }

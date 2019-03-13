@@ -141,9 +141,9 @@ Wireload::findWireload(float fanout,
   }
   // Scale resistance and capacitance.
   cap = length * capacitance_
-    * library_->scaleFactor(scale_factor_wire_cap, op_cond);
+    * library_->scaleFactor(ScaleFactorType::wire_cap, op_cond);
   res = length * resistance_
-    * library_->scaleFactor(scale_factor_wire_res, op_cond);
+    * library_->scaleFactor(ScaleFactorType::wire_res, op_cond);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -239,13 +239,13 @@ const char *
 wireloadTreeString(WireloadTree tree)
 {
   switch (tree) {
-  case wire_load_worst_case_tree:
+  case WireloadTree::worst_case:
     return "worst_case_tree";
-  case wire_load_best_case_tree:
+  case WireloadTree::best_case:
     return "best_case_tree";
-  case wire_load_balanced_tree:
+  case WireloadTree::balanced:
     return "balanced_tree";
-  case wire_load_unknown_tree:
+  case WireloadTree::unknown:
     return "unknown";
   }
   // Prevent warnings from lame compilers.
@@ -256,26 +256,26 @@ WireloadTree
 stringWireloadTree(const char *wire_load_type)
 {
   if (stringEq(wire_load_type, "worst_case_tree"))
-    return wire_load_worst_case_tree;
+    return WireloadTree::worst_case;
   else if (stringEq(wire_load_type, "best_case_tree"))
-    return wire_load_best_case_tree;
+    return WireloadTree::best_case;
   else if (stringEq(wire_load_type, "balanced_tree"))
-    return wire_load_balanced_tree;
+    return WireloadTree::balanced;
   else
-    return wire_load_unknown_tree;
+    return WireloadTree::unknown;
 }
 
 const char *
 wireloadModeString(WireloadMode wire_load_mode)
 {
   switch (wire_load_mode) {
-  case wire_load_mode_top:
+  case WireloadMode::top:
     return "top";
-  case wire_load_mode_enclosed:
+  case WireloadMode::enclosed:
     return "enclosed";
-  case wire_load_mode_segmented:
+  case WireloadMode::segmented:
     return "segmented";
-  case wire_load_mode_unknown:
+  case WireloadMode::unknown:
     return "unknown";
   }
   // Prevent warnings from lame compilers.
@@ -286,13 +286,13 @@ WireloadMode
 stringWireloadMode(const char *wire_load_mode)
 {
   if (stringEq(wire_load_mode, "top"))
-    return wire_load_mode_top;
+    return WireloadMode::top;
   else if (stringEq(wire_load_mode, "enclosed"))
-    return wire_load_mode_enclosed;
+    return WireloadMode::enclosed;
   else if (stringEq(wire_load_mode, "segmented"))
-    return wire_load_mode_segmented;
+    return WireloadMode::segmented;
   else
-    return wire_load_mode_unknown;
+    return WireloadMode::unknown;
 }
 
 } // namespace

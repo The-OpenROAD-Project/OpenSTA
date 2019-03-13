@@ -455,10 +455,10 @@ proc_redirect report_check_types {
   }
   if { $min_period } {
     if { $all_violators } {
-      set checks [min_period_violations $corner]
+      set checks [min_period_violations]
       report_min_period_checks $checks $verbose
     } else {
-      set check [min_period_check_slack $corner]
+      set check [min_period_check_slack]
       if { $check != "NULL" } {
 	report_min_period_check $check $verbose
       }
@@ -1031,6 +1031,8 @@ proc with_output_to_variable { var_name args } {
   set var [sta::redirect_string_end]
   return $ret
 }
+
+define_sta_cmd_args "set_pocv_sigma_factor" { factor }
 
 # sta namespace end.
 }

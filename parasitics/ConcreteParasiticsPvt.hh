@@ -343,7 +343,7 @@ public:
 		      ConcreteParasiticNode *node,
 		      float cap);
   virtual bool isCouplingCap() const { return true; }
-  virtual ConcreteParasiticNode *node2() const { return NULL; }
+  virtual ConcreteParasiticNode *node2() const { return nullptr; }
   virtual void replaceNode(ConcreteParasiticNode *from_node,
 			   ConcreteParasiticNode *to_node);
 };

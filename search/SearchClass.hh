@@ -114,15 +114,14 @@ typedef Vector<Slack> SlackSeq;
 typedef Delay Crpr;
 typedef Vector<PathRef> PathRefSeq;
 
-typedef enum {
-  report_path_full,
-  report_path_full_clock,
-  report_path_full_clock_expanded,
-  report_path_short,
-  report_path_endpoint,
-  report_path_summary,
-  report_path_slack_only
-} ReportPathFormat;
+enum class ReportPathFormat { full,
+			      full_clock,
+			      full_clock_expanded,
+			      shorter,
+			      endpoint,
+			      summary,
+			      slack_only
+};
 
 static const int tag_index_bits = 24;
 static const int tag_index_max = (1 << tag_index_bits) - 1;

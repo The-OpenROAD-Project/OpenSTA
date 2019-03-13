@@ -239,8 +239,9 @@ protected:
 			    string *result) const;
 
   Table *table_;
-  unsigned int scale_factor_type_:scale_factor_bits;
-  unsigned int tr_index_:TransRiseFall::index_bit_count;
+  // ScaleFactorType gcc barfs if this is dcl'd.
+  unsigned scale_factor_type_:scale_factor_bits;
+  unsigned tr_index_:TransRiseFall::index_bit_count;
   bool is_scaled_:1;
 
 private:
@@ -255,9 +256,9 @@ public:
   virtual ~Table() {}
   void setScaleFactorType(ScaleFactorType type);
   virtual int order() const = 0;
-  virtual TableAxis *axis1() const { return NULL; }
-  virtual TableAxis *axis2() const { return NULL; }
-  virtual TableAxis *axis3() const { return NULL; }
+  virtual TableAxis *axis1() const { return nullptr; }
+  virtual TableAxis *axis2() const { return nullptr; }
+  virtual TableAxis *axis3() const { return nullptr; }
   void setIsScaled(bool is_scaled);
   // Table interpolated lookup.
   virtual float findValue(float value1,

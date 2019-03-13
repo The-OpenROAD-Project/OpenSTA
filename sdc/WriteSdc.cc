@@ -330,7 +330,7 @@ void
 WriteSdc::openFile(const char *filename)
 {
   stream_ = fopen(filename, "w");
-  if (stream_ == NULL)
+  if (stream_ == nullptr)
     throw FileNotWritable(filename);
 }
 
@@ -390,9 +390,7 @@ WriteSdc::writeClocks() const
 {
   // Write clocks in the order they were defined because generated
   // clocks depend on master clocks having been previously defined.
-  ClockIterator *clk_iter = sdc_->clockIterator();
-  while (clk_iter->hasNext()) {
-    Clock *clk = clk_iter->next();
+  for (auto clk : sdc_->clocks_) {
     if (clk->isGenerated())
       writeGeneratedClock(clk);
     else
@@ -405,7 +403,6 @@ WriteSdc::writeClocks() const
       fprintf(stream_, "\n");
     }
   }
-  delete clk_iter;
 }
 
 void
@@ -726,14 +723,15 @@ WriteSdc::writeInputDelays() const
 {
   // Sort arrivals by pin and clock name.
   PortDelaySeq delays;
-  InputDelayIterator *input_iter=sdc_->inputDelayIterator();
-  while (input_iter->hasNext()) {
-    InputDelay *input_delay = input_iter->next();
+  InputDelayIterator input_iter(sdc_);
+  while (input_iter.hasNext()) {
+    InputDelay *input_delay = input_iter.next();
     delays.push_back(input_delay);
   }
-  delete input_iter;
+
   PortDelayLess port_delay_less(sdc_network_);
   sort(delays, port_delay_less);
+
   PortDelaySeq::Iterator delay_iter(delays);
   while (delay_iter.hasNext()) {
     PortDelay *input_delay = delay_iter.next();
@@ -746,14 +744,15 @@ WriteSdc::writeOutputDelays() const
 {
   // Sort departures by pin and clock name.
   PortDelaySeq delays;
-  OutputDelayIterator *output_iter=sdc_->outputDelayIterator();
-  while (output_iter->hasNext()) {
-    OutputDelay *output_delay = output_iter->next();
+  OutputDelayIterator output_iter(sdc_);
+  while (output_iter.hasNext()) {
+    OutputDelay *output_delay = output_iter.next();
     delays.push_back(output_delay);
   }
-  delete output_iter;
+
   PortDelayLess port_delay_less(sdc_network_);
   sort(delays, port_delay_less);
+
   PortDelaySeq::Iterator delay_iter(delays);
   while (delay_iter.hasNext()) {
     PortDelay *output_delay = delay_iter.next();
@@ -862,8 +861,8 @@ class PinClockPairNameLess
 {
 public:
   PinClockPairNameLess(const Network *network);
-  bool operator()(const PinClockPair *pin_clk1,
-		  const PinClockPair *pin_clk2) const;
+  bool operator()(const PinClockPair &pin_clk1,
+		  const PinClockPair &pin_clk2) const;
 
 private:
   PinPathNameLess pin_less_;
@@ -875,16 +874,16 @@ PinClockPairNameLess::PinClockPairNameLess(const Network *network) :
 }
 
 bool
-PinClockPairNameLess::operator()(const PinClockPair *pin_clk1,
-				 const PinClockPair *pin_clk2) const
+PinClockPairNameLess::operator()(const PinClockPair &pin_clk1,
+				 const PinClockPair &pin_clk2) const
 {
-  const Pin *pin1 = pin_clk1->first;
-  const Pin *pin2 = pin_clk2->first;
-  const Clock *clk1 = pin_clk1->second;
-  const Clock *clk2 = pin_clk2->second;
+  const Pin *pin1 = pin_clk1.first;
+  const Pin *pin2 = pin_clk2.first;
+  const Clock *clk1 = pin_clk1.second;
+  const Clock *clk2 = pin_clk2.second;
   return pin_less_(pin1, pin2)
     || (pin1 == pin2
-	&& ((clk1 == NULL && clk2)
+	&& ((clk1 == nullptr && clk2)
 	    || (clk1 && clk2
 		&& clk1->index() < clk2->index())));
 }
@@ -892,19 +891,14 @@ PinClockPairNameLess::operator()(const PinClockPair *pin_clk1,
 void
 WriteSdc::writeClockSenses() const
 {
-  Vector<PinClockPair*> pin_clks;
-  ClockSenseMap::Iterator sense_iter(sdc_->clk_sense_map_);
-  while (sense_iter.hasNext()) {
-    PinClockPair *pin_clk;
-    ClockSense sense;
-    sense_iter.next(pin_clk, sense);
-    pin_clks.push_back(pin_clk);
-  }
+  Vector<PinClockPair> pin_clks;
+  for (auto iter : sdc_->clk_sense_map_)
+    pin_clks.push_back(iter.first);
+
   // Sort by pin/clk pair so regressions results are stable.
   sort(pin_clks, PinClockPairNameLess(sdc_network_));
-  Vector<PinClockPair*>::Iterator pin_clk_iter(pin_clks);
-  while (pin_clk_iter.hasNext()) {
-    PinClockPair *pin_clk = pin_clk_iter.next();
+  
+  for (auto pin_clk : pin_clks) {
     ClockSense sense;
     bool exists;
     sdc_->clk_sense_map_.findKey(pin_clk, sense, exists);
@@ -914,24 +908,24 @@ WriteSdc::writeClockSenses() const
 }
 
 void
-WriteSdc::writeClockSense(PinClockPair *pin_clk,
+WriteSdc::writeClockSense(PinClockPair &pin_clk,
 			  ClockSense sense) const
 {
-  const char *flag = NULL;
-  if (sense == clk_sense_positive)
+  const char *flag = nullptr;
+  if (sense == ClockSense::positive)
     flag = "-positive";
-  else if (sense == clk_sense_negative)
+  else if (sense == ClockSense::negative)
     flag = "-negative";
-  else if (sense == clk_sense_stop)
+  else if (sense == ClockSense::stop)
     flag = "-stop_propagation";
   fprintf(stream_, "set_clock_sense %s ", flag);
-  const Clock *clk = pin_clk->second;
+  const Clock *clk = pin_clk.second;
   if (clk) {
     fprintf(stream_, "-clock ");
     writeGetClock(clk);
     fprintf(stream_, " ");
   }
-  writeGetPin(pin_clk->first);
+  writeGetPin(pin_clk.first);
   fprintf(stream_, "\n");
 }
 
@@ -986,12 +980,11 @@ ClockGroupLess::operator()(const ClockGroup *clk_group1,
 void
 WriteSdc::writeClockGroups() const
 {
-  ClockGroupIterator *groups_iter = sdc_->clockGroupIterator();
-  while (groups_iter->hasNext()) {
-    ClockGroups *clk_groups = groups_iter->next();
+  ClockGroupIterator groups_iter(sdc_);
+  while (groups_iter.hasNext()) {
+    ClockGroups *clk_groups = groups_iter.next();
     writeClockGroups(clk_groups);
   }
-  delete groups_iter;
 }
 
 void
@@ -1593,7 +1586,7 @@ void
 WriteSdc::writeWireload() const
 {
   WireloadMode wireload_mode = sdc_->wireloadMode();
-  if (wireload_mode != wire_load_mode_unknown)
+  if (wireload_mode != WireloadMode::unknown)
     fprintf(stream_, "set_wire_load_mode \"%s\"\n",
 	    wireloadModeString(wireload_mode));
 }
@@ -1696,12 +1689,12 @@ WriteSdc::writeDrivingCells() const
 	  && drive_rise_min->equal(drive_fall_min)
 	  && drive_rise_min->equal(drive_fall_max))
 	// Only write one set_driving_cell if possible.
-	writeDrivingCell(port, drive_rise_min, NULL, NULL);
+	writeDrivingCell(port, drive_rise_min, nullptr, nullptr);
       else {
 	if (drive_rise_min
 	    && drive_rise_max
 	    && drive_rise_min->equal(drive_rise_max))
-	  writeDrivingCell(port, drive_rise_min, TransRiseFall::rise(), NULL);
+	  writeDrivingCell(port, drive_rise_min, TransRiseFall::rise(), nullptr);
 	else {
 	  if (drive_rise_min)
 	    writeDrivingCell(port, drive_rise_min, TransRiseFall::rise(),
@@ -1713,7 +1706,7 @@ WriteSdc::writeDrivingCells() const
 	if (drive_fall_min
 	    && drive_fall_max
 	    && drive_fall_min->equal(drive_fall_max))
-	  writeDrivingCell(port, drive_fall_min, TransRiseFall::fall(), NULL);
+	  writeDrivingCell(port, drive_fall_min, TransRiseFall::fall(), nullptr);
 	else {
 	  if (drive_fall_min)
 	    writeDrivingCell(port, drive_fall_min, TransRiseFall::fall(),
@@ -1850,14 +1843,14 @@ WriteSdc::setConstantCmd(Pin *pin) const
   bool exists;
   sdc_->logicValue(pin, value, exists);
   switch (value) {
-  case logic_zero:
-    return "set_logic_zero";
-  case logic_one:
+  case LogicValue::zero:
+    return "set_LogicValue::zero";
+  case LogicValue::one:
     return "set_logic_one";
-  case logic_unknown:
+  case LogicValue::unknown:
     return "set_logic_dc";
-  case logic_rise:
-  case logic_fall:
+  case LogicValue::rise:
+  case LogicValue::fall:
   default:
     internalError("illegal set_logic value");
   }
@@ -1892,15 +1885,15 @@ WriteSdc::caseAnalysisValueStr(Pin *pin) const
   bool exists;
   sdc_->caseLogicValue(pin, value, exists);
   switch (value) {
-  case logic_zero:
+  case LogicValue::zero:
     return "0";
-  case logic_one:
+  case LogicValue::one:
     return "1";
-  case logic_rise:
+  case LogicValue::rise:
     return "rising";
-  case logic_fall:
+  case LogicValue::fall:
     return "falling";
-  case logic_unknown:
+  case LogicValue::unknown:
   default:
     internalError("invalid set_case_analysis value");
   }
@@ -1939,7 +1932,8 @@ WriteSdc::writeDeratings() const
     MinMaxIterator mm_iter;
     while (mm_iter.hasNext()) {
       const MinMax *early_late = mm_iter.next();
-      writeDerating(factors, timing_derate_net_delay, early_late, &write_net);
+      writeDerating(factors, TimingDerateType::net_delay, early_late,
+		    &write_net);
     }
   }
 
@@ -1971,14 +1965,14 @@ WriteSdc::writeDerating(DeratingFactorsGlobal *factors) const
 
     bool delay_is_one_value, check_is_one_value, net_is_one_value;
     float delay_value, check_value, net_value;
-    factors->factors(timing_derate_cell_delay)->isOneValue(early_late,
+    factors->factors(TimingDerateType::cell_delay)->isOneValue(early_late,
 							   delay_is_one_value,
 							   delay_value);
-    factors->factors(timing_derate_net_delay)->isOneValue(early_late,
-							  net_is_one_value,
-							  net_value);
+    factors->factors(TimingDerateType::net_delay)->isOneValue(early_late,
+							      net_is_one_value,
+							      net_value);
     DeratingFactors *cell_check_factors =
-      factors->factors(timing_derate_cell_check);
+      factors->factors(TimingDerateType::cell_check);
     cell_check_factors->isOneValue(early_late, check_is_one_value, check_value);
     if (delay_is_one_value
 	&& net_is_one_value
@@ -1997,7 +1991,7 @@ WriteSdc::writeDerating(DeratingFactorsGlobal *factors) const
 	   type_index++) {
 	TimingDerateType type = static_cast<TimingDerateType>(type_index);
 	DeratingFactors *type_factors = factors->factors(type);
-	writeDerating(type_factors, type, early_late, NULL);
+	writeDerating(type_factors, type, early_late, nullptr);
       }
     }
   }
@@ -2010,10 +2004,10 @@ WriteSdc::writeDerating(DeratingFactorsCell *factors,
   MinMaxIterator mm_iter;
   while (mm_iter.hasNext()) {
     const MinMax *early_late = mm_iter.next();
-    DeratingFactors *delay_factors=factors->factors(timing_derate_cell_delay);
-    writeDerating(delay_factors, timing_derate_cell_delay, early_late, write_obj);
-    DeratingFactors *check_factors=factors->factors(timing_derate_cell_check);
-    writeDerating(check_factors, timing_derate_cell_check, early_late, write_obj);
+    DeratingFactors *delay_factors=factors->factors(TimingDerateType::cell_delay);
+    writeDerating(delay_factors, TimingDerateType::cell_delay, early_late, write_obj);
+    DeratingFactors *check_factors=factors->factors(TimingDerateType::cell_check);
+    writeDerating(check_factors, TimingDerateType::cell_check, early_late, write_obj);
   }
 }
 
@@ -2277,13 +2271,13 @@ WriteSdc::writeClkSlewLimits() const
     Clock *clk = clk_iter.next();
     float rise_clk_limit, fall_clk_limit, rise_data_limit, fall_data_limit;
     bool rise_clk_exists, fall_clk_exists, rise_data_exists, fall_data_exists;
-    clk->slewLimit(TransRiseFall::rise(), path_clk, min_max,
+    clk->slewLimit(TransRiseFall::rise(), PathClkOrData::clk, min_max,
 		   rise_clk_limit, rise_clk_exists);
-    clk->slewLimit(TransRiseFall::fall(), path_clk, min_max,
+    clk->slewLimit(TransRiseFall::fall(), PathClkOrData::clk, min_max,
 		   fall_clk_limit, fall_clk_exists);
-    clk->slewLimit(TransRiseFall::rise(), path_data, min_max,
+    clk->slewLimit(TransRiseFall::rise(), PathClkOrData::data, min_max,
 		   rise_data_limit, rise_data_exists);
-    clk->slewLimit(TransRiseFall::fall(), path_data, min_max,
+    clk->slewLimit(TransRiseFall::fall(), PathClkOrData::data, min_max,
 		   fall_data_limit, fall_data_exists);
     if (rise_clk_exists && fall_clk_exists
 	&& rise_data_exists && fall_data_exists
@@ -2462,7 +2456,7 @@ WriteSdc::writeGetTimingArcsOfOjbects(LibertyCell *cell) const
 void
 WriteSdc::writeGetTimingArcs(Edge *edge) const
 {
-  writeGetTimingArcs(edge, NULL);
+  writeGetTimingArcs(edge, nullptr);
 }
 
 void
@@ -2928,7 +2922,7 @@ transRiseFallFlag(const TransRiseFallBoth *tr)
   else {
     internalError("unknown transition");
   }
-  return NULL;
+  return nullptr;
 }
 
 static const char *
@@ -2942,7 +2936,7 @@ minMaxFlag(const MinMaxAll *min_max)
     return " -max";
   else {
     internalError("unknown MinMaxAll");
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -2955,7 +2949,7 @@ minMaxFlag(const MinMax *min_max)
     return " -max";
   else {
     internalError("unknown MinMax");
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -2968,7 +2962,7 @@ earlyLateFlag(const MinMax *early_late)
     return "-late";
   else {
     internalError("unknown EarlyLate");
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -2990,7 +2984,7 @@ setupHoldFlag(const MinMax *min_max)
     return " -setup";
   else {
     internalError("unknown MinMax");
-    return NULL;
+    return nullptr;
   }
 }
 

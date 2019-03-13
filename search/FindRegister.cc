@@ -149,14 +149,14 @@ FindRegVisitor::visitRegs(ClockSet *clks,
 	Pin *pin = pin_iter.next();
 	Vertex *vertex, *bidirect_drvr_vertex;
 	graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-	visitFanoutRegs(vertex, timing_sense_positive_unate,
+	visitFanoutRegs(vertex, TimingSense::positive_unate,
 			clk_tr, edge_triggered,
 			latches, clk_pred,
 			visited_vertices);
 	// Clocks defined on bidirect pins blow it out both ends.
 	if (bidirect_drvr_vertex)
 	  visitFanoutRegs(bidirect_drvr_vertex,
-			  timing_sense_positive_unate,
+			  TimingSense::positive_unate,
 			  clk_tr, edge_triggered,
 			  latches, clk_pred,
 			  visited_vertices);
@@ -167,7 +167,7 @@ FindRegVisitor::visitRegs(ClockSet *clks,
     VertexSet::ConstIterator reg_clk_iter(graph_->regClkVertices());
     while (reg_clk_iter.hasNext()) {
       Vertex *vertex = reg_clk_iter.next();
-      visitRegs(vertex->pin(), timing_sense_positive_unate,
+      visitRegs(vertex->pin(), TimingSense::positive_unate,
 		TransRiseFallBoth::riseFall(),
 		edge_triggered, latches);
     }
@@ -259,9 +259,9 @@ FindRegVisitor::findSequential(const Pin *clk_pin,
 	LibertyPort *port = network_->libertyPort(clk_pin);
 	TimingSense port_sense = clk_func->portTimingSense(port);
 	TimingSense path_sense = pathSenseThru(clk_sense, port_sense);
-	if ((path_sense == timing_sense_positive_unate
+	if ((path_sense == TimingSense::positive_unate
 	     && clk_tr == TransRiseFallBoth::rise())
-	    || (path_sense == timing_sense_negative_unate
+	    || (path_sense == TimingSense::negative_unate
 		&& clk_tr == TransRiseFallBoth::fall())) {
 	  visitSequential(inst, seq);
 	  matches = true;
@@ -289,9 +289,9 @@ FindRegVisitor::findInferedSequential(LibertyCell *cell,
     TransRiseFall *arc_clk_tr = arc->fromTrans()->asRiseFall();
     bool tr_matches = (clk_tr == TransRiseFallBoth::riseFall()
 		       || (arc_clk_tr == clk_tr1
-			   && clk_sense == timing_sense_positive_unate)
+			   && clk_sense == TimingSense::positive_unate)
 		       || (arc_clk_tr == clk_tr1->opposite()
-			   && clk_sense == timing_sense_negative_unate));
+			   && clk_sense == TimingSense::negative_unate));
     TimingRole *role = set->role();
     if (tr_matches
 	&& ((role == TimingRole::regClkToQ()
@@ -340,7 +340,7 @@ private:
 
 FindRegInstances::FindRegInstances(StaState *sta) :
   FindRegVisitor(sta),
-  regs_(NULL)
+  regs_(nullptr)
 {
 }
 
@@ -407,7 +407,7 @@ protected:
 
 FindRegPins::FindRegPins(StaState *sta) :
   FindRegVisitor(sta),
-  pins_(NULL)
+  pins_(nullptr)
 {
 }
 
@@ -490,7 +490,7 @@ FindRegDataPins::seqExpr1(Sequential *seq)
 FuncExpr *
 FindRegDataPins::seqExpr2(Sequential *)
 {
-  return NULL;
+  return nullptr;
 }
 
 bool
@@ -553,7 +553,7 @@ FindRegClkPins::matchPin(Pin *pin)
 {
   LibertyPort *port = network_->libertyPort(pin);
   LibertyCell *cell = port->libertyCell();
-  LibertyCellTimingArcSetIterator set_iter(cell, port, NULL);
+  LibertyCellTimingArcSetIterator set_iter(cell, port, nullptr);
   while (set_iter.hasNext()) {
     TimingArcSet *set = set_iter.next();
     TimingRole *role = set->role();
@@ -573,7 +573,7 @@ FindRegClkPins::seqExpr1(Sequential *seq)
 FuncExpr *
 FindRegClkPins::seqExpr2(Sequential *)
 {
-  return NULL;
+  return nullptr;
 }
 
 PinSet *
@@ -611,7 +611,7 @@ FindRegAsyncPins::matchPin(Pin *pin)
 {
   LibertyPort *port = network_->libertyPort(pin);
   LibertyCell *cell = port->libertyCell();
-  LibertyCellTimingArcSetIterator set_iter(cell, port, NULL);
+  LibertyCellTimingArcSetIterator set_iter(cell, port, nullptr);
   while (set_iter.hasNext()) {
     TimingArcSet *set = set_iter.next();
     TimingRole *role = set->role();
@@ -661,7 +661,7 @@ FindRegOutputPins::matchPin(Pin *pin)
 {
   LibertyPort *port = network_->libertyPort(pin);
   LibertyCell *cell = port->libertyCell();
-  LibertyCellTimingArcSetIterator set_iter(cell, NULL, port);
+  LibertyCellTimingArcSetIterator set_iter(cell, nullptr, port);
   while (set_iter.hasNext()) {
     TimingArcSet *set = set_iter.next();
     TimingRole *role = set->role();
@@ -706,13 +706,13 @@ FindRegOutputPins::visitOutput(LibertyPort *port,
 FuncExpr *
 FindRegOutputPins::seqExpr1(Sequential *)
 {
-  return NULL;
+  return nullptr;
 }
 
 FuncExpr *
 FindRegOutputPins::seqExpr2(Sequential *)
 {
-  return NULL;
+  return nullptr;
 }
 
 PinSet *
@@ -730,70 +730,77 @@ findRegOutputPins(ClockSet *clks,
 
 static TimingSense path_sense_thru[timing_sense_count][timing_sense_count];
 
+static void
+initPathSenseThru1(TimingSense from,
+		   TimingSense thru,
+		   TimingSense to)
+{
+  path_sense_thru[int(from)][int(thru)] = to;
+}
+
 void
 initPathSenseThru()
 {
-  path_sense_thru[timing_sense_positive_unate][timing_sense_positive_unate] =
-    timing_sense_positive_unate;
-  path_sense_thru[timing_sense_positive_unate][timing_sense_negative_unate] =
-    timing_sense_negative_unate;
-  path_sense_thru[timing_sense_positive_unate][timing_sense_non_unate] =
-    timing_sense_non_unate;
-  path_sense_thru[timing_sense_positive_unate][timing_sense_none] =
-    timing_sense_none;
-  path_sense_thru[timing_sense_positive_unate][timing_sense_unknown] =
-    timing_sense_unknown;
+  initPathSenseThru1(TimingSense::positive_unate, TimingSense::positive_unate,
+		     TimingSense::positive_unate);
+  initPathSenseThru1(TimingSense::positive_unate, TimingSense::negative_unate,
+		     TimingSense::negative_unate);
+  initPathSenseThru1(TimingSense::positive_unate, TimingSense::non_unate,
+		     TimingSense::non_unate);
+  initPathSenseThru1(TimingSense::positive_unate, TimingSense::none,
+		     TimingSense::none);
+  initPathSenseThru1(TimingSense::positive_unate, TimingSense::unknown,
+		     TimingSense::unknown);
+  initPathSenseThru1(TimingSense::negative_unate, TimingSense::positive_unate,
+		     TimingSense::negative_unate);
+  initPathSenseThru1(TimingSense::negative_unate, TimingSense::negative_unate,
+		     TimingSense::positive_unate);
+  initPathSenseThru1(TimingSense::negative_unate, TimingSense::non_unate,
+		     TimingSense::non_unate);
+  initPathSenseThru1(TimingSense::negative_unate, TimingSense::none,
+		     TimingSense::none);
+  initPathSenseThru1(TimingSense::negative_unate, TimingSense::unknown,
+		     TimingSense::unknown);
 
-  path_sense_thru[timing_sense_negative_unate][timing_sense_positive_unate] =
-    timing_sense_negative_unate;
-  path_sense_thru[timing_sense_negative_unate][timing_sense_negative_unate] =
-    timing_sense_positive_unate;
-  path_sense_thru[timing_sense_negative_unate][timing_sense_non_unate] =
-    timing_sense_non_unate;
-  path_sense_thru[timing_sense_negative_unate][timing_sense_none] =
-    timing_sense_none;
-  path_sense_thru[timing_sense_negative_unate][timing_sense_unknown] =
-    timing_sense_unknown;
+  initPathSenseThru1(TimingSense::non_unate, TimingSense::positive_unate,
+		     TimingSense::non_unate);
+  initPathSenseThru1(TimingSense::non_unate, TimingSense::negative_unate,
+		     TimingSense::non_unate);
+  initPathSenseThru1(TimingSense::non_unate, TimingSense::non_unate,
+		     TimingSense::non_unate);
+  initPathSenseThru1(TimingSense::non_unate, TimingSense::none,
+		     TimingSense::none);
+  initPathSenseThru1(TimingSense::non_unate, TimingSense::unknown,
+		     TimingSense::unknown);
 
-  path_sense_thru[timing_sense_non_unate][timing_sense_positive_unate] =
-    timing_sense_non_unate;
-  path_sense_thru[timing_sense_non_unate][timing_sense_negative_unate] =
-    timing_sense_non_unate;
-  path_sense_thru[timing_sense_non_unate][timing_sense_non_unate] =
-    timing_sense_non_unate;
-  path_sense_thru[timing_sense_non_unate][timing_sense_none] =
-    timing_sense_none;
-  path_sense_thru[timing_sense_non_unate][timing_sense_unknown] =
-    timing_sense_unknown;
+  initPathSenseThru1(TimingSense::none, TimingSense::positive_unate,
+		     TimingSense::none);
+  initPathSenseThru1(TimingSense::none, TimingSense::negative_unate,
+		     TimingSense::none);
+  initPathSenseThru1(TimingSense::none, TimingSense::non_unate,
+		     TimingSense::none);
+  initPathSenseThru1(TimingSense::none, TimingSense::none,
+		     TimingSense::none);
+  initPathSenseThru1(TimingSense::none, TimingSense::unknown,
+		     TimingSense::unknown);
 
-  path_sense_thru[timing_sense_none][timing_sense_positive_unate] =
-    timing_sense_none;
-  path_sense_thru[timing_sense_none][timing_sense_negative_unate] =
-    timing_sense_none;
-  path_sense_thru[timing_sense_none][timing_sense_non_unate] =
-    timing_sense_none;
-  path_sense_thru[timing_sense_none][timing_sense_none] =
-    timing_sense_none;
-  path_sense_thru[timing_sense_none][timing_sense_unknown] =
-    timing_sense_unknown;
-
-  path_sense_thru[timing_sense_unknown][timing_sense_positive_unate] =
-    timing_sense_unknown;
-  path_sense_thru[timing_sense_unknown][timing_sense_negative_unate] =
-    timing_sense_unknown;
-  path_sense_thru[timing_sense_unknown][timing_sense_non_unate] =
-    timing_sense_unknown;
-  path_sense_thru[timing_sense_unknown][timing_sense_none] =
-    timing_sense_unknown;
-  path_sense_thru[timing_sense_unknown][timing_sense_unknown] =
-    timing_sense_unknown;
+  initPathSenseThru1(TimingSense::unknown, TimingSense::positive_unate,
+		     TimingSense::unknown);
+  initPathSenseThru1(TimingSense::unknown, TimingSense::negative_unate,
+		     TimingSense::unknown);
+  initPathSenseThru1(TimingSense::unknown, TimingSense::non_unate,
+		     TimingSense::unknown);
+  initPathSenseThru1(TimingSense::unknown, TimingSense::none,
+		     TimingSense::unknown);
+  initPathSenseThru1(TimingSense::unknown, TimingSense::unknown,
+		     TimingSense::unknown);
 }
 
 static TimingSense
 pathSenseThru(TimingSense from_sense,
 	      TimingSense thru_sense)
 {
-  return path_sense_thru[from_sense][thru_sense];
+  return path_sense_thru[int(from_sense)][int(thru_sense)];
 }
 
 } // namespace

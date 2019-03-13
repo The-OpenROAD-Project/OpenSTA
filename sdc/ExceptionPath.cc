@@ -235,7 +235,7 @@ ExceptionPath::firstPt()
   else if (to_)
     return to_;
   else
-    return NULL;
+    return nullptr;
 }
 
 bool
@@ -295,7 +295,7 @@ ExceptionPath::fromThruToPriority(ExceptionFrom *from,
 Hash
 ExceptionPath::hash() const
 {
-  return hash(NULL);
+  return hash(nullptr);
 }
 
 Hash
@@ -317,7 +317,7 @@ bool
 ExceptionPath::mergeablePts(ExceptionPath *exception) const
 {
   ExceptionPt *ignore;
-  return mergeablePts(exception, NULL, ignore);
+  return mergeablePts(exception, nullptr, ignore);
 }
 
 bool
@@ -325,14 +325,14 @@ ExceptionPath::mergeablePts(ExceptionPath *exception2,
 			    ExceptionPt *missing_pt2,
 			    ExceptionPt *&missing_pt) const
 {
-  missing_pt = NULL;
+  missing_pt = nullptr;
   ExceptionFrom *from2 = exception2->from();
   if ((from_ && from2
        && !(from_->transition() == from2->transition()
 	    && (from2 == missing_pt2
 		|| from_->equal(from2))))
-       || (from_ && from2 == NULL)
-       || (from_ == NULL && from2))
+       || (from_ && from2 == nullptr)
+       || (from_ == nullptr && from2))
     return false;
   if (from2 == missing_pt2)
     missing_pt = from_;
@@ -360,8 +360,8 @@ ExceptionPath::mergeablePts(ExceptionPath *exception2,
 	    && to_->endTransition() == to2->endTransition()
 	    && (to2 == missing_pt2
 		|| to_->equal(to2))))
-      || (to_ && to2 == NULL)
-      || (to_ == NULL && to2))
+      || (to_ && to2 == nullptr)
+      || (to_ == nullptr && to2))
     return false;
   if (to2 == missing_pt2)
     missing_pt = to_;
@@ -374,11 +374,11 @@ ExceptionPath::intersectsPts(ExceptionPath *exception) const
   ExceptionFrom *from2 = exception->from();
   ExceptionThruSeq *thrus2 = exception->thrus();
   ExceptionTo *to2 = exception->to();
-  if (((from_ == NULL && from2 == NULL)
+  if (((from_ == nullptr && from2 == nullptr)
        || (from_ && from2 && from_->intersectsPts(from2)))
-      && ((thrus_ == NULL && thrus2 == NULL)
+      && ((thrus_ == nullptr && thrus2 == nullptr)
 	  || (thrus_ && thrus2 && thrus_->size() == thrus2->size()))
-      && ((to_ == NULL && to2 == NULL)
+      && ((to_ == nullptr && to2 == nullptr)
 	  || (to_ && to2 && to_->intersectsPts(to2)))) {
     ExceptionThruSeq::Iterator thrus_iter1(thrus_);
     ExceptionThruSeq::Iterator thrus_iter2(thrus2);
@@ -438,14 +438,14 @@ void
 ExceptionPath::makeStates()
 {
   if (thrus_) {
-    ExceptionState *prev_state = NULL;
+    ExceptionState *prev_state = nullptr;
     ExceptionThruSeq::Iterator thru_iter(thrus_);
     bool first = true;
     int index = 0;
     while (thru_iter.hasNext()) {
       ExceptionThru *thru = thru_iter.next();
       // No state for first -thru if no -from,since it kicks off the exception.
-      if (!(from_ == NULL && first)) {
+      if (!(from_ == nullptr && first)) {
 	ExceptionState *state = new ExceptionState(this, thru, index);
 	if (prev_state)
 	  prev_state->setNextState(state);
@@ -457,14 +457,14 @@ ExceptionPath::makeStates()
       index++;
     }
     // Last state indicates all the thrus have been traversed.
-    ExceptionState *state = new ExceptionState(this, NULL, index);
+    ExceptionState *state = new ExceptionState(this, nullptr, index);
     if (prev_state)
       prev_state->setNextState(state);
     else
       states_ = state;
   }
   else
-    states_ = new ExceptionState(this, NULL, 0);
+    states_ = new ExceptionState(this, nullptr, 0);
 }
 
 bool
@@ -478,33 +478,33 @@ ExceptionPath::resetMatch(ExceptionFrom *from,
   // exceptions that match the -from even if they are more specific.
   // -from
   return ((from && from_
-	   && thrus == NULL
-	   && to == NULL
+	   && thrus == nullptr
+	   && to == nullptr
 	   && from_->intersectsPts(from))
 	  // -thru
-	  || (from == NULL
+	  || (from == nullptr
 	      && thrus && thrus_
-	      && to == NULL
+	      && to == nullptr
 	      && thrusIntersectPts(thrus_, thrus))
 	  // -to
-	  || (from == NULL
-	      && thrus == NULL
+	  || (from == nullptr
+	      && thrus == nullptr
 	      && to && to_
 	      && to_->intersectsPts(to))
 	  // -from -thru
 	  || (from && from_
 	      && thrus && thrus_
-	      && to == NULL
+	      && to == nullptr
 	      && from_->intersectsPts(from)
 	      && thrusIntersectPts(thrus_, thrus))
 	  // -from -to
 	  || (from && from_
-	      && thrus == NULL
+	      && thrus == nullptr
 	      && to && to_
 	      && from_->intersectsPts(from)
 	      && to_->intersectsPts(to))
 	  // -thru -to
-	  || (from == NULL
+	  || (from == nullptr
 	      && thrus && thrus_
 	      && to && to_
 	      && thrusIntersectPts(thrus_, thrus)
@@ -680,9 +680,9 @@ FalsePath::overrides(ExceptionPath *exception) const
 ////////////////////////////////////////////////////////////////
 
 LoopPath::LoopPath(ExceptionThruSeq *thrus, bool own_pts) :
-  FalsePath(NULL, thrus, NULL, MinMaxAll::all(), own_pts,
-	    falsePathPriority() + fromThruToPriority(NULL, thrus, NULL),
-	    NULL)
+  FalsePath(nullptr, thrus, nullptr, MinMaxAll::all(), own_pts,
+	    falsePathPriority() + fromThruToPriority(nullptr, thrus, nullptr),
+	    nullptr)
 {
 }
 
@@ -810,7 +810,7 @@ FilterPath::FilterPath(ExceptionFrom *from,
 		       bool own_pts) :
   ExceptionPath(from, thrus, to, MinMaxAll::all(), own_pts,
 		filterPathPriority() + fromThruToPriority(from, thrus, to),
-		NULL)
+		nullptr)
 {
 }
 
@@ -962,17 +962,17 @@ ExceptionFromTo::ExceptionFromTo(PinSet *pins,
   if (pins_ && pins_->empty()) {
     if (own_pts)
       delete pins_;
-    pins_ = NULL;
+    pins_ = nullptr;
   }
   if (clks_ && clks_->empty()) {
     if (own_pts)
       delete clks_;
-    clks_ = NULL;
+    clks_ = nullptr;
   }
   if (insts_ && insts_->empty()) {
     if (own_pts)
       delete insts_;
-    insts_ = NULL;
+    insts_ = nullptr;
   }
   findHash();
 }
@@ -989,19 +989,19 @@ ExceptionFromTo::~ExceptionFromTo()
 bool
 ExceptionFromTo::hasPins() const
 {
-  return pins_ != NULL && !pins_->empty();
+  return pins_ != nullptr && !pins_->empty();
 }
 
 bool
 ExceptionFromTo::hasClocks() const
 {
-  return clks_ != NULL && !clks_->empty();
+  return clks_ != nullptr && !clks_->empty();
 }
 
 bool
 ExceptionFromTo::hasInstances() const
 {
-  return insts_ != NULL && !insts_->empty();
+  return insts_ != nullptr && !insts_->empty();
 }
 
 bool
@@ -1161,7 +1161,7 @@ ExceptionFromTo::deleteObjects(ExceptionFromTo *pt)
 void
 ExceptionFromTo::addPin(Pin *pin)
 {
-  if (pins_ == NULL)
+  if (pins_ == nullptr)
     pins_ = new PinSet;
   if (!pins_->hasKey(pin)) {
     pins_->insert(pin);
@@ -1173,7 +1173,7 @@ ExceptionFromTo::addPin(Pin *pin)
 void
 ExceptionFromTo::addClock(Clock *clk)
 {
-  if (clks_ == NULL)
+  if (clks_ == nullptr)
     clks_ = new ClockSet;
   if (!clks_->hasKey(clk)) {
     clks_->insert(clk);
@@ -1185,7 +1185,7 @@ ExceptionFromTo::addClock(Clock *clk)
 void
 ExceptionFromTo::addInstance(Instance *inst)
 {
-  if (insts_ == NULL)
+  if (insts_ == nullptr)
     insts_ = new InstanceSet;
   if (!insts_->hasKey(inst)) {
     insts_->insert(inst);
@@ -1320,13 +1320,13 @@ ExceptionFrom::findHash()
 ExceptionFrom *
 ExceptionFrom::clone()
 {
-  PinSet *pins = NULL;
+  PinSet *pins = nullptr;
   if (pins_)
     pins = new PinSet(*pins_);
-  ClockSet *clks = NULL;
+  ClockSet *clks = nullptr;
   if (clks_)
     clks = new ClockSet(*clks_);
-  InstanceSet *insts = NULL;
+  InstanceSet *insts = nullptr;
   if (insts_)
     insts = new InstanceSet(*insts_);
   return new ExceptionFrom(pins, clks, insts, tr_, true);
@@ -1368,13 +1368,13 @@ ExceptionTo::ExceptionTo(PinSet *pins,
 ExceptionTo *
 ExceptionTo::clone()
 {
-  PinSet *pins = NULL;
+  PinSet *pins = nullptr;
   if (pins_)
     pins = new PinSet(*pins_);
-  ClockSet *clks = NULL;
+  ClockSet *clks = nullptr;
   if (clks_)
     clks = new ClockSet(*clks_);
-  InstanceSet *insts = NULL;
+  InstanceSet *insts = nullptr;
   if (insts_)
     insts = new InstanceSet(*insts_);
   return new ExceptionTo(pins, clks, insts, tr_, end_tr_, true);
@@ -1449,9 +1449,9 @@ ExceptionTo::matches(const Pin *pin,
 	&& network->direction(pin)->isAnyInput()
 	&& tr_->matches(end_tr)
 	&& end_tr_->matches(end_tr))
-    || (pins_ == NULL
-	&& clks_ == NULL
-	&& insts_ == NULL
+    || (pins_ == nullptr
+	&& clks_ == nullptr
+	&& insts_ == nullptr
 	&& end_tr_->matches(end_tr));
 }
 
@@ -1463,9 +1463,9 @@ ExceptionTo::matches(const Pin *pin,
 	  && pins_->hasKey(const_cast<Pin*>(pin))
 	  && tr_->matches(end_tr)
 	  && end_tr_->matches(end_tr))
-    || (pins_ == NULL
-	&& clks_ == NULL
-	&& insts_ == NULL
+    || (pins_ == nullptr
+	&& clks_ == nullptr
+	&& insts_ == nullptr
 	&& end_tr_->matches(end_tr));
 }
 
@@ -1509,7 +1509,7 @@ ExceptionThru::ExceptionThru(PinSet *pins,
 			     const Network *network) :
   ExceptionPt(tr, own_pts),
   pins_(pins),
-  edges_(NULL),
+  edges_(nullptr),
   nets_(nets),
   insts_(insts)
 {
@@ -1517,17 +1517,17 @@ ExceptionThru::ExceptionThru(PinSet *pins,
   if (pins_ && pins_->empty()) {
     if (own_pts)
       delete pins_;
-    pins_ = NULL;
+    pins_ = nullptr;
   }
   if (nets_ && nets_->empty()) {
     if (own_pts)
       delete nets_;
-    nets_ = NULL;
+    nets_ = nullptr;
   }
   if (insts_ && insts_->empty()) {
     if (own_pts)
       delete insts_;
-    insts_ = NULL;
+    insts_ = nullptr;
   }
   makeAllEdges(network);
   findHash();
@@ -1599,7 +1599,7 @@ void
 ExceptionThru::makeHpinEdges(const Pin *pin,
 			     const Network *network)
 {
-  if (edges_ == NULL)
+  if (edges_ == nullptr)
     edges_ = new EdgePinsSet;
   // Add edges thru pin to edges_.
   insertPinPairsThruHierPin(pin, network, edges_);
@@ -1611,7 +1611,7 @@ ExceptionThru::makeNetEdges(const Network *network)
   NetSet::Iterator net_iter(nets_);
   while (net_iter.hasNext()) {
     Net *net = net_iter.next();
-    if (edges_ == NULL)
+    if (edges_ == nullptr)
       edges_ = new EdgePinsSet;
     // Add edges thru pin to edges_.
     insertPinPairsThruNet(net, network, edges_);
@@ -1622,7 +1622,7 @@ void
 ExceptionThru::makeNetEdges(Net *net,
 			    const Network *network)
 {
-  if (edges_ == NULL)
+  if (edges_ == nullptr)
     edges_ = new EdgePinsSet;
   // Add edges thru pin to edges_.
   insertPinPairsThruNet(net, network, edges_);
@@ -1764,19 +1764,19 @@ exceptionThrusClone(ExceptionThruSeq *thrus,
     return thrus_cpy;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 ExceptionThru *
 ExceptionThru::clone(const Network *network)
 {
-  PinSet *pins = NULL;
+  PinSet *pins = nullptr;
   if (pins_)
     pins = new PinSet(*pins_);
-  NetSet *nets = NULL;
+  NetSet *nets = nullptr;
   if (nets_)
     nets = new NetSet(*nets_);
-  InstanceSet *insts = NULL;
+  InstanceSet *insts = nullptr;
   if (insts_)
     insts = new InstanceSet(*insts_);
   return new ExceptionThru(pins, nets, insts, tr_, true, network);
@@ -1785,16 +1785,16 @@ ExceptionThru::clone(const Network *network)
 bool
 ExceptionThru::hasObjects() const
 {
-  return (pins_ != NULL && !pins_->empty())
-    || (nets_ != NULL && !nets_->empty())
-    || (insts_ != NULL && !insts_->empty());
+  return (pins_ != nullptr && !pins_->empty())
+    || (nets_ != nullptr && !nets_->empty())
+    || (insts_ != nullptr && !insts_->empty());
 }
 
 
 void
 ExceptionThru::addPin(Pin *pin)
 {
-  if (pins_ == NULL)
+  if (pins_ == nullptr)
     pins_ = new PinSet;
   if (!pins_->hasKey(pin)) {
     pins_->insert(pin);
@@ -1806,7 +1806,7 @@ ExceptionThru::addPin(Pin *pin)
 void
 ExceptionThru::addNet(Net *net)
 {
-  if (nets_ == NULL)
+  if (nets_ == nullptr)
     nets_ = new NetSet;
   if (!nets_->hasKey(net)) {
     nets_->insert(net);
@@ -1818,7 +1818,7 @@ ExceptionThru::addNet(Net *net)
 void
 ExceptionThru::addInstance(Instance *inst)
 {
-  if (insts_ == NULL)
+  if (insts_ == nullptr)
     insts_ = new InstanceSet;
   if (!insts_->hasKey(inst)) {
     insts_->insert(inst);
@@ -1830,7 +1830,7 @@ ExceptionThru::addInstance(Instance *inst)
 void
 ExceptionThru::addEdge(EdgePins *edge)
 {
-  if (edges_ == NULL)
+  if (edges_ == nullptr)
     edges_ = new EdgePinsSet;
   edges_->insert(edge);
   // Hash is unchanged because edges are derived from hierarchical pins.
@@ -2216,7 +2216,7 @@ ExpandedExceptionVisitor::visitExpansions()
       Pin *pin = pin_iter.next();
       PinSet pins;
       pins.insert(pin);
-      ExceptionFrom expanded_from(&pins, NULL, NULL, tr, false);
+      ExceptionFrom expanded_from(&pins, nullptr, nullptr, tr, false);
       expandThrus(&expanded_from);
     }
     ClockSet::Iterator clk_iter(from->clks());
@@ -2224,7 +2224,7 @@ ExpandedExceptionVisitor::visitExpansions()
       Clock *clk = clk_iter.next();
       ClockSet clks;
       clks.insert(clk);
-      ExceptionFrom expanded_from(NULL, &clks, NULL, tr, false);
+      ExceptionFrom expanded_from(nullptr, &clks, nullptr, tr, false);
       expandThrus(&expanded_from);
     }
     InstanceSet::Iterator inst_iter(from->instances());
@@ -2232,7 +2232,7 @@ ExpandedExceptionVisitor::visitExpansions()
       Instance *inst = inst_iter.next();
       InstanceSet insts;
       insts.insert(inst);
-      ExceptionFrom expanded_from(NULL, NULL, &insts, tr, false);
+      ExceptionFrom expanded_from(nullptr, nullptr, &insts, tr, false);
       expandThrus(&expanded_from);
     }
   }
@@ -2251,7 +2251,7 @@ ExpandedExceptionVisitor::expandThrus(ExceptionFrom *expanded_from)
     expandThru(expanded_from, thru_iter, &expanded_thrus);
   }
   else
-    expandTo(expanded_from, NULL);
+    expandTo(expanded_from, nullptr);
 }
 
 void
@@ -2267,7 +2267,7 @@ ExpandedExceptionVisitor::expandThru(ExceptionFrom *expanded_from,
       Pin *pin = pin_iter.next();
       PinSet pins;
       pins.insert(pin);
-      ExceptionThru expanded_thru(&pins, NULL, NULL, tr, false, network_);
+      ExceptionThru expanded_thru(&pins, nullptr, nullptr, tr, false, network_);
       expanded_thrus->push_back(&expanded_thru);
       expandThru(expanded_from, thru_iter, expanded_thrus);
       expanded_thrus->pop_back();
@@ -2277,7 +2277,7 @@ ExpandedExceptionVisitor::expandThru(ExceptionFrom *expanded_from,
       Net *net = net_iter.next();
       NetSet nets;
       nets.insert(net);
-      ExceptionThru expanded_thru(NULL, &nets, NULL, tr, false, network_);
+      ExceptionThru expanded_thru(nullptr, &nets, nullptr, tr, false, network_);
       expanded_thrus->push_back(&expanded_thru);
       expandThru(expanded_from, thru_iter, expanded_thrus);
       expanded_thrus->pop_back();
@@ -2287,7 +2287,7 @@ ExpandedExceptionVisitor::expandThru(ExceptionFrom *expanded_from,
       Instance *inst = inst_iter.next();
       InstanceSet insts;
       insts.insert(inst);
-      ExceptionThru expanded_thru(NULL, NULL, &insts, tr, false, network_);
+      ExceptionThru expanded_thru(nullptr, nullptr, &insts, tr, false, network_);
       expanded_thrus->push_back(&expanded_thru);
       expandThru(expanded_from, thru_iter, expanded_thrus);
       expanded_thrus->pop_back();
@@ -2311,7 +2311,7 @@ ExpandedExceptionVisitor::expandTo(ExceptionFrom *expanded_from,
       Pin *pin = pin_iter.next();
       PinSet pins;
       pins.insert(pin);
-      ExceptionTo expanded_to(&pins, NULL, NULL, tr, end_tr, false);
+      ExceptionTo expanded_to(&pins, nullptr, nullptr, tr, end_tr, false);
       visit(expanded_from, expanded_thrus, &expanded_to);
     }
     ClockSet::Iterator clk_iter(to->clks());
@@ -2319,7 +2319,7 @@ ExpandedExceptionVisitor::expandTo(ExceptionFrom *expanded_from,
       Clock *clk = clk_iter.next();
       ClockSet clks;
       clks.insert(clk);
-      ExceptionTo expanded_to(NULL, &clks, NULL, tr, end_tr, false);
+      ExceptionTo expanded_to(nullptr, &clks, nullptr, tr, end_tr, false);
       visit(expanded_from, expanded_thrus, &expanded_to);
     }
     InstanceSet::Iterator inst_iter(to->instances());
@@ -2327,12 +2327,12 @@ ExpandedExceptionVisitor::expandTo(ExceptionFrom *expanded_from,
       Instance *inst = inst_iter.next();
       InstanceSet insts;
       insts.insert(inst);
-      ExceptionTo expanded_to(NULL, NULL, &insts, tr, end_tr, false);
+      ExceptionTo expanded_to(nullptr, nullptr, &insts, tr, end_tr, false);
       visit(expanded_from, expanded_thrus, &expanded_to);
     }
   }
   else
-    visit(expanded_from, expanded_thrus, NULL);
+    visit(expanded_from, expanded_thrus, nullptr);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2342,7 +2342,7 @@ ExceptionState::ExceptionState(ExceptionPath *exception,
 			       int index) :
   exception_(exception),
   next_thru_(next_thru),
-  next_state_(NULL),
+  next_state_(nullptr),
   index_(index)
 {
 }
@@ -2369,8 +2369,8 @@ ExceptionState::matchesNextThru(const Pin *from_pin,
 bool
 ExceptionState::isComplete() const
 {
-  return next_thru_ == NULL
-    && exception_->to() == NULL;
+  return next_thru_ == nullptr
+    && exception_->to() == nullptr;
 }
 
 Hash

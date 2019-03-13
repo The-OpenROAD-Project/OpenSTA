@@ -179,7 +179,7 @@ Path::prevEdge(const TimingArc *prev_arc,
 	return edge;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -208,9 +208,9 @@ Path::cmpPinTrClk(const Path *path1,
     else
       return 1;
   }
-  else if (path1 == NULL && path2 == NULL)
+  else if (path1 == nullptr && path2 == nullptr)
     return 0;
-  else if (path1 == NULL)
+  else if (path1 == nullptr)
     return -1;
   else
     return 1;
@@ -233,8 +233,8 @@ Path::cmpClk(const Path *path1,
     else
       return 1;
   }
-  else if (clk_edge1 == NULL
-	   && clk_edge2 == NULL)
+  else if (clk_edge1 == nullptr
+	   && clk_edge2 == nullptr)
     return 0;
   else if (clk_edge2)
     return -1;
@@ -252,8 +252,8 @@ Path::equal(const Path *path1,
 	  && path1->vertexIndex(sta) == path2->vertexIndex(sta)
 	  // Tag equal implies transition and path ap equal.
 	  && path1->tagIndex(sta) == path2->tagIndex(sta))
-    || ((path1 == NULL || path1->isNull())
-	&& (path2 == NULL || path2->isNull()));
+    || ((path1 == nullptr || path1->isNull())
+	&& (path2 == nullptr || path2->isNull()));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -301,10 +301,10 @@ Path::cmp(const Path *path1,
     else
       return 1;
   }
-  else if (path1 == NULL
-	   && path2 == NULL)
+  else if (path1 == nullptr
+	   && path2 == nullptr)
     return 0;
-  else if (path1 == NULL)
+  else if (path1 == nullptr)
     return -1;
   else
     return 1;

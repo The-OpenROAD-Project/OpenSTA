@@ -58,8 +58,8 @@ GatedClk::isGatedClkEnable(Vertex *enable_vertex,
       && !sdc_->isDisableClockGatingCheck(enable_pin)
       && !sdc_->isDisableClockGatingCheck(inst)
       && eval_pred->searchFrom(enable_vertex)) {
-    FuncExpr *func = NULL;
-    Vertex *gclk_vertex = NULL;
+    FuncExpr *func = nullptr;
+    Vertex *gclk_vertex = nullptr;
     VertexOutEdgeIterator edge_iter(enable_vertex, graph_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
@@ -114,8 +114,8 @@ GatedClk::gatedClkEnables(Vertex *clk_vertex,
       && !sdc_->isDisableClockGatingCheck(clk_pin)
       && !sdc_->isDisableClockGatingCheck(inst)
       && eval_pred->searchFrom(clk_vertex)) {
-    FuncExpr *func = NULL;
-    Vertex *gclk_vertex = NULL;
+    FuncExpr *func = nullptr;
+    Vertex *gclk_vertex = nullptr;
     VertexOutEdgeIterator edge_iter(clk_vertex, graph_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
@@ -169,9 +169,9 @@ GatedClk::isClkGatingFunc(FuncExpr *func,
   while (func->op() == FuncExpr::op_not)
     func = func->left();
   if (func->op() == FuncExpr::op_and)
-    logic_value = logic_one;
+    logic_value = LogicValue::one;
   else if (func->op() == FuncExpr::op_or)
-    logic_value = logic_zero;
+    logic_value = LogicValue::zero;
   else {
     is_clk_gate = false;
     return;
@@ -189,7 +189,7 @@ GatedClk::isClkGatingFunc(FuncExpr *func,
       if (expr->left()->op() == FuncExpr::op_port
 	  && expr->left()->port() == clk_port) {
 	need_gating_check = true;
-	logic_value = (logic_value == logic_one) ? logic_zero : logic_one;
+	logic_value = (logic_value == LogicValue::one) ? LogicValue::zero : LogicValue::one;
       }
     }
     else {
@@ -236,11 +236,11 @@ GatedClk::gatedClkActiveTrans(LogicValue active_value,
 {
   TransRiseFall *leading_tr;
   switch (active_value) {
-  case logic_one:
-  case logic_unknown:
+  case LogicValue::one:
+  case LogicValue::unknown:
     leading_tr = TransRiseFall::rise();
     break;
-  case logic_zero:
+  case LogicValue::zero:
     leading_tr = TransRiseFall::fall();
     break;
   default:

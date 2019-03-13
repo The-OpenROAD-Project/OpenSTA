@@ -25,11 +25,7 @@ class ParasiticDevice;
 class ParasiticNode;
 class ParasiticAnalysisPt;
 
-typedef enum {
-  reduce_parasitics_to_pi_elmore,
-  reduce_parasitics_to_pi_pole_residue2,
-  reduce_parasitics_to_none
-} ReduceParasiticsTo;
+enum class ReduceParasiticsTo { pi_elmore, pi_pole_residue2, none };
 
 } // namespace
 #endif

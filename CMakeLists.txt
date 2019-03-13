@@ -16,7 +16,7 @@
 
 cmake_minimum_required (VERSION 3.9)
 
-project(STA VERSION 2.0.8)
+project(STA VERSION 2.0.10)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 11)
@@ -186,16 +186,12 @@ set(STA_SOURCE
   search/WorstSlack.cc
   search/WritePathSpice.cc
 
-  util/Condition.cc
   util/Debug.cc
   util/Error.cc
   util/Fuzzy.cc
   util/Machine.cc
   util/MinMax.cc
-  util/Mutex.cc
   util/PatternMatch.cc
-  util/Pthread.cc
-  util/ReadWriteLock.cc
   util/Report.cc
   util/ReportStd.cc
   util/ReportTcl.cc
@@ -203,10 +199,6 @@ set(STA_SOURCE
   util/StringSeq.cc
   util/StringSet.cc
   util/StringUtil.cc
-  util/Thread.cc
-  util/ThreadException.cc
-  util/ThreadPool.cc
-  util/ThreadWorker.cc
   util/TokenParser.cc
 
   verilog/VerilogReader.cc
@@ -353,14 +345,13 @@ set(STA_HEADERS
 	search/WorstSlack.hh
 	search/WritePathSpice.hh
 
-	util/Condition.hh
 	util/Debug.hh
 	util/DisallowCopyAssign.hh
+	util/EnumNameMap.hh
 	util/Error.hh
 	util/Fuzzy.hh
 	util/Hash.hh
 	util/HashSet.hh
-	util/HashMap.hh
 	util/Iterator.hh
 	util/Machine.hh
 	util/Map.hh
@@ -368,9 +359,7 @@ set(STA_HEADERS
 	util/Mutex.hh
 	util/ObjectIndex.hh
 	util/PatternMatch.hh
-	util/Pthread.hh
 	util/Pool.hh
-	util/ReadWriteLock.hh
 	util/Report.hh
 	util/ReportStd.hh
 	util/ReportTcl.hh
@@ -379,13 +368,10 @@ set(STA_HEADERS
 	util/StringSeq.hh
 	util/StringSet.hh
 	util/StringUtil.hh
-	util/Thread.hh
-	util/ThreadException.hh
 	util/ThreadForEach.hh
-	util/ThreadPool.hh
-	util/ThreadWorker.hh
 	util/TokenParser.hh
 	util/UnorderedMap.hh
+	util/UnorderedSet.hh
 	util/Vector.hh
 	util/Zlib.hh
 
@@ -431,15 +417,6 @@ set(STA_SWIG_FILES
 #
 ################################################################
 
-# Pthreads
-set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-find_package(Threads)
-set(PTHREADS ${CMAKE_USE_PTHREADS_INIT})
-if (PTHREADS)
-  message(STATUS "Found pthreads")
-endif()
-
 # Zlib
 include(FindZLIB)
 # translate cmake bool to ifdef bool
@@ -458,11 +435,12 @@ if("${CUDD}" STREQUAL "")
   set(CUDD $ENV{CUDD})
 endif()
 
-if("${CUDD}" STREQUAL "")
+if("${CUDD}" STREQUAL "" OR "${CUDD}" STREQUAL "0")
   set(CUDD_INCLUDE "")
   set(CUDD_LIB "")
   set(CUDD_FOUND FALSE)
   set(CUDD 0)
+  message(STATUS "CUDD library: not found")
 else()
   set(CUDD_INCLUDE ${CUDD}/include)
   find_library(CUDD_LIB NAMES cudd PATHS ${CUDD}/lib)
@@ -476,7 +454,7 @@ endif()
 if("${SSTA}" STREQUAL "")
   set(SSTA 0)
 endif()
-message(STATUS "Enable SSTA: ${SSTA}")
+message(STATUS "SSTA: ${SSTA}")
 
 # configure a header file to pass some of the CMake settins
 configure_file(${STA_HOME}/util/StaConfig.hh.cmake
@@ -689,7 +667,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${STA_HOME}/app)
 add_executable(sta app/Main.cc)
 target_link_libraries(sta
 	OpenSTA
-	Threads::Threads
 	${TCL_LIB}
 	${CUDD_LIB}
 	)
@@ -701,12 +678,18 @@ message(STATUS "STA executable: ${STA_HOME}/app/sta")
 
 set(STA_COMPILE_OPTIONS -Wall -Wcast-qual -Wunused-parameter -Wno-deprecated-register -Wredundant-decls)
 
+# Compiler specific options.
 if (CMAKE_CXX_COMPILER_ID MATCHES AppleClang|Clang|GNU)
    target_compile_options(OpenSTA PUBLIC ${STA_COMPILE_OPTIONS})
    target_compile_options(sta PUBLIC ${STA_COMPILE_OPTIONS})
    message(STATUS "Compiler options: ${STA_COMPILE_OPTIONS}")
 endif()
 
+# g++ still needs -pthreads when using std::thread
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_link_libraries(sta -pthread)
+endif()
+	
 ################################################################
 # Install
 # cmake .. -DCMAKE_INSTALL_PREFIX=<prefix_path>

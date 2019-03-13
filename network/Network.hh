@@ -34,7 +34,7 @@ class PinVisitor;
 typedef Set<const Net*> ConstNetSet;
 typedef Map<const char*, LibertyLibrary*, CharPtrLess> LibertyLibraryMap;
 // Link network function returns top level instance.
-// Return NULL if link fails.
+// Return nullptr if link fails.
 typedef Instance *(LinkNetworkFunc)(Cell *top_cell,
 				    bool make_black_boxes,
 				    Report *report,
@@ -599,7 +599,7 @@ public:
 private:
   DISALLOW_COPY_AND_ASSIGN(NetworkConstantPinIterator);
   void findConstantPins(NetSet &nets,
-			LogicValue const_value);
+			PinSet &pins);
 
   const Network *network_;
   PinSet constant_pins_[2];

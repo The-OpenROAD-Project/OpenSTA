@@ -17,6 +17,7 @@
 #include <limits>
 #include <ctype.h>
 #include <stdio.h>
+#include <mutex>
 #include "Machine.hh"
 #include "Mutex.hh"
 #include "StringUtil.hh"
@@ -43,7 +44,7 @@ stringCopy(const char *str)
     return copy;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 bool
@@ -157,10 +158,10 @@ stringPrintTmp(const char *fmt,
 ////////////////////////////////////////////////////////////////
 
 static int tmp_string_count_ = 100;
-static char **tmp_strings_ = NULL;
-static size_t *tmp_string_lengths_ = NULL;
+static char **tmp_strings_ = nullptr;
+static size_t *tmp_string_lengths_ = nullptr;
 static int tmp_string_next_;
-static Mutex string_lock_;
+static std::mutex string_lock_;
 
 void
 initTmpStrings()
@@ -183,10 +184,10 @@ deleteTmpStrings()
     for (int i = 0; i < tmp_string_count_; i++)
       delete [] tmp_strings_[i];
     delete [] tmp_strings_;
-    tmp_strings_ = NULL;
+    tmp_strings_ = nullptr;
 
     delete [] tmp_string_lengths_;
-    tmp_string_lengths_ = NULL;
+    tmp_string_lengths_ = nullptr;
   }
 }
 
@@ -195,19 +196,18 @@ getTmpString(// Return values.
 	     char *&str,
 	     size_t &length)
 {
-  string_lock_.lock();
+  UniqueLock lock(string_lock_);
   if (tmp_string_next_ == tmp_string_count_)
     tmp_string_next_ = 0;
   str = tmp_strings_[tmp_string_next_];
   length = tmp_string_lengths_[tmp_string_next_];
   tmp_string_next_++;
-  string_lock_.unlock();
 }
 
 char *
 makeTmpString(size_t length)
 {
-  string_lock_.lock();
+  UniqueLock lock(string_lock_);
   if (tmp_string_next_ == tmp_string_count_)
     tmp_string_next_ = 0;
   char *tmp_str = tmp_strings_[tmp_string_next_];
@@ -220,7 +220,6 @@ makeTmpString(size_t length)
     tmp_string_lengths_[tmp_string_next_] = length;
   }
   tmp_string_next_++;
-  string_lock_.unlock();
   return tmp_str;
 }
 

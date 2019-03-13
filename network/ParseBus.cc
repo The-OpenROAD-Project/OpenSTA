@@ -33,7 +33,7 @@ isBusName(const char *name,
   size_t len_1 = strlen(name) - 1;
   if (name[len_1] == brkt_right) {
     const char *left = strrchr(name, brkt_left);
-    return left != NULL;
+    return left != nullptr;
   }
   else
     return false;
@@ -58,7 +58,7 @@ parseBusName(const char *name,
 	     char *&bus_name,
 	     int &index)
 {
-  bus_name = NULL;
+  bus_name = nullptr;
   size_t len_1 = strlen(name) - 1;
   char last_ch = name[len_1];
   const char *brkt_right_ptr = strchr(brkts_right, last_ch);
@@ -98,7 +98,7 @@ parseBusRange(const char *name,
 	      int &from,
 	      int &to)
 {
-  bus_name = NULL;
+  bus_name = nullptr;
   size_t len_1 = strlen(name) - 1;
   char last_ch = name[len_1];
   const char *brkt_right_ptr = strchr(brkts_right, last_ch);

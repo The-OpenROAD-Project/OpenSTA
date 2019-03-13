@@ -33,7 +33,7 @@ public:
   // All corners, unfiltered.
   void visitPathEnds(Vertex *vertex,
 		     PathEndVisitor *visitor);
-  // Use corner NULL to visit PathEnds for all corners.
+  // Use corner nullptr to visit PathEnds for all corners.
   void visitPathEnds(Vertex *vertex,
 		     const Corner *corner,
 		     const MinMaxAll *min_max,

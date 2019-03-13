@@ -206,7 +206,7 @@ DmpCeffTwoPoleDelayCalc::findParasitic(const Pin *drvr_pin,
 				       Parasitic *&parasitic,
 				       bool &delete_at_finish)
 {
-  parasitic = NULL;
+  parasitic = nullptr;
   delete_at_finish = false;
   // set_load has precidence over parasitics.
   if (!sdc_->drvrPinHasWireCap(drvr_pin)) {
@@ -216,7 +216,7 @@ DmpCeffTwoPoleDelayCalc::findParasitic(const Pin *drvr_pin,
     const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();
     // Prefer PiPoleResidue.
     parasitic = parasitics_->findPiPoleResidue(drvr_pin, tr, parasitic_ap);
-    if (parasitic == NULL) {
+    if (parasitic == nullptr) {
       Parasitic *parasitic_network =
 	parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
       if (parasitic_network)
@@ -227,11 +227,11 @@ DmpCeffTwoPoleDelayCalc::findParasitic(const Pin *drvr_pin,
 							parasitic_ap);
       delete_at_finish = true;
     }
-    if (parasitic == NULL)
+    if (parasitic == nullptr)
       parasitic = parasitics_->findPiElmore(drvr_pin, tr, parasitic_ap);
-    if (parasitic == NULL)
+    if (parasitic == nullptr)
       parasitic = parasitics_->findLumpedElmore(drvr_pin, tr, parasitic_ap);
-    if (parasitic == NULL) {
+    if (parasitic == nullptr) {
       Wireload *wireload = sdc_->wireloadDefaulted(cnst_min_max);
       if (wireload) {
 	float pin_cap, wire_cap, fanout;
@@ -343,7 +343,7 @@ DmpCeffTwoPoleDelayCalc::loadDelay(Parasitic *pole_residue,
 {
   ComplexFloat pole2, residue2;
   parasitics_->poleResidue(pole_residue, 1, pole2, residue2);
-  if (!delayFuzzyZero(drvr_slew_)
+  if (!fuzzyZero(drvr_slew_)
       && pole2.imag() == 0.0
       && residue2.imag() == 0.0) {
     double p2 = pole2.real();

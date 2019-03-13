@@ -26,9 +26,9 @@ namespace sta {
 
 DisabledPorts::DisabledPorts() :
   all_(false),
-  from_(NULL),
-  to_(NULL),
-  from_to_(NULL)
+  from_(nullptr),
+  to_(nullptr),
+  from_to_(nullptr)
 {
 }
 
@@ -57,7 +57,7 @@ DisabledPorts::removeDisabledAll()
 void
 DisabledPorts::setDisabledFrom(LibertyPort *port)
 {
-  if (from_ == NULL)
+  if (from_ == nullptr)
     from_ = new LibertyPortSet;
   from_->insert(port);
 }
@@ -72,7 +72,7 @@ DisabledPorts::removeDisabledFrom(LibertyPort *port)
 void
 DisabledPorts::setDisabledTo(LibertyPort *port)
 {
-  if (to_ == NULL)
+  if (to_ == nullptr)
     to_ = new LibertyPortSet;
   to_->insert(port);
 }
@@ -87,7 +87,7 @@ DisabledPorts::removeDisabledTo(LibertyPort *port)
 void
 DisabledPorts::setDisabledFromTo(LibertyPort *from, LibertyPort *to)
 {
-  if (from_to_ == NULL)
+  if (from_to_ == nullptr)
     from_to_ = new LibertyPortPairSet;
   LibertyPortPair pair(from, to);
   if (!from_to_->hasKey(&pair)) {
@@ -126,7 +126,7 @@ DisabledPorts::isDisabled(LibertyPort *from, LibertyPort *to,
 DisabledCellPorts::DisabledCellPorts(LibertyCell *cell) :
   DisabledPorts(),
   cell_(cell),
-  arc_sets_(NULL)
+  arc_sets_(nullptr)
 {
 }
 
@@ -139,7 +139,7 @@ DisabledCellPorts::~DisabledCellPorts()
 void
 DisabledCellPorts::setDisabled(TimingArcSet *arc_set)
 {
-  if (arc_sets_ == NULL)
+  if (arc_sets_ == nullptr)
     arc_sets_ = new TimingArcSetSet;
   arc_sets_->insert(arc_set);
 }

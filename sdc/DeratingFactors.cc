@@ -19,6 +19,12 @@
 
 namespace sta {
 
+inline int
+TimingDerateIndex(TimingDerateType type)
+{
+  return int(type);
+}
+
 DeratingFactors::DeratingFactors()
 {
   clear();
@@ -33,7 +39,7 @@ DeratingFactors::setFactor(PathClkOrData clk_data,
   TransRiseFallIterator tr_iter(tr);
   while (tr_iter.hasNext()) {
     TransRiseFall *tr1 = tr_iter.next();
-    factors_[clk_data].setValue(tr1, early_late, factor);
+    factors_[int(clk_data)].setValue(tr1, early_late, factor);
   }
 }
 
@@ -44,14 +50,14 @@ DeratingFactors::factor(PathClkOrData clk_data,
 			float &factor,
 			bool &exists) const
 {
-  factors_[clk_data].value(tr, early_late, factor, exists);
+  factors_[int(clk_data)].value(tr, early_late, factor, exists);
 }
 
 void
 DeratingFactors::clear()
 {
   for (int clk_data = 0; clk_data < path_clk_or_data_count;clk_data++)
-    factors_[clk_data].clear();
+    factors_[int(clk_data)].clear();
 }
 
 void
@@ -59,13 +65,13 @@ DeratingFactors::isOneValue(const EarlyLate *early_late,
 			    bool &is_one_value,
 			    float &value) const
 {
-  bool is_one_value1, is_one_value2;
-  float value1, value2;
-  is_one_value1 = factors_[path_clk].isOneValue(early_late, value1);
-  is_one_value2 = factors_[path_data].isOneValue(early_late, value2);
-  is_one_value = is_one_value1
-    && is_one_value2
-    && value1 == value2;
+  bool is_one_value0, is_one_value1;
+  float value0, value1;
+  is_one_value0 = factors_[0].isOneValue(early_late, value0);
+  is_one_value1 = factors_[1].isOneValue(early_late, value1);
+  is_one_value = is_one_value0
+    && is_one_value1
+    && value0 == value1;
   value = value1;
 }
 
@@ -75,14 +81,14 @@ DeratingFactors::isOneValue(PathClkOrData clk_data,
 			    bool &is_one_value,
 			    float &value) const
 {
-  is_one_value = factors_[clk_data].isOneValue(early_late, value);
+  is_one_value = factors_[int(clk_data)].isOneValue(early_late, value);
 }
 
 bool
 DeratingFactors::hasValue() const
 {
-  return factors_[path_clk].hasValue()
-    || factors_[path_data].hasValue();
+  return factors_[0].hasValue()
+    || factors_[1].hasValue();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -99,7 +105,7 @@ DeratingFactorsGlobal::setFactor(TimingDerateType type,
 				 const EarlyLate *early_late,
 				 float factor)
 {
-  factors_[type].setFactor(clk_data, tr, early_late, factor);
+  factors_[TimingDerateIndex(type)].setFactor(clk_data, tr, early_late, factor);
 }
 
 void
@@ -110,7 +116,7 @@ DeratingFactorsGlobal::factor(TimingDerateType type,
 			      float &factor,
 			      bool &exists) const
 {
-  factors_[type].factor(clk_data, tr, early_late, factor, exists);
+  factors_[TimingDerateIndex(type)].factor(clk_data, tr, early_late, factor, exists);
 }
 
 void
@@ -123,7 +129,7 @@ DeratingFactorsGlobal::clear()
 DeratingFactors *
 DeratingFactorsGlobal::factors(TimingDerateType type)
 {
-  return &factors_[type];
+  return &factors_[TimingDerateIndex(type)];
 }
 
 ////////////////////////////////////////////////////////////////
@@ -140,7 +146,7 @@ DeratingFactorsCell::setFactor(TimingDerateType type,
 			       const EarlyLate *early_late,
 			       float factor)
 {
-  factors_[type].setFactor(clk_data, tr, early_late, factor);
+  factors_[TimingDerateIndex(type)].setFactor(clk_data, tr, early_late, factor);
 }
 
 void
@@ -151,7 +157,7 @@ DeratingFactorsCell::factor(TimingDerateType type,
 			    float &factor,
 			    bool &exists) const
 {
-  factors_[type].factor(clk_data, tr, early_late, factor, exists);
+  factors_[TimingDerateIndex(type)].factor(clk_data, tr, early_late, factor, exists);
 }
 
 void
@@ -164,7 +170,7 @@ DeratingFactorsCell::clear()
 DeratingFactors *
 DeratingFactorsCell::factors(TimingDerateType type)
 {
-  return &factors_[type];
+  return &factors_[TimingDerateIndex(type)];
 }
 
 void
@@ -174,8 +180,10 @@ DeratingFactorsCell::isOneValue(const EarlyLate *early_late,
 {
   bool is_one_value1, is_one_value2;
   float value1, value2;
-  factors_[timing_derate_cell_delay].isOneValue(early_late, is_one_value1, value1);
-  factors_[timing_derate_cell_check].isOneValue(early_late, is_one_value2, value2);
+  factors_[TimingDerateIndex(TimingDerateType::cell_delay)]
+    .isOneValue(early_late, is_one_value1, value1);
+  factors_[TimingDerateIndex(TimingDerateType::cell_check)]
+    .isOneValue(early_late, is_one_value2, value2);
   is_one_value = is_one_value1
     && is_one_value2
     && value1 == value2;

@@ -34,23 +34,23 @@ public:
     // Find the entry corresponding to key.
   KEY findKey(const KEY key) const
   {
-    typename std::set<KEY, CMP>::const_iterator find_iter = this->find(key);
+    auto find_iter = this->find(key);
     if (find_iter != this->end())
       return *find_iter;
     else
-      return NULL;
+      return nullptr;
   }
   // Find out if key is in the set.
   bool hasKey(const KEY key) const
   {
-    typename std::set<KEY, CMP>::const_iterator find_iter = this->find(key);
+    auto find_iter = this->find(key);
     return find_iter != this->end();
   }
 
   // Erase the entry corresponding to key.
   void eraseKey(KEY key)
   {
-    typename std::set<KEY, CMP>::iterator find_iter = this->find(key);
+    auto find_iter = this->find(key);
     if (find_iter != this->end())
       this->erase(find_iter);
   }
@@ -91,18 +91,18 @@ public:
   class Iterator
   {
   public:
-    Iterator() : container_(NULL) {}
+    Iterator() : container_(nullptr) {}
     explicit Iterator(std::set<KEY, CMP> *container) :
       container_(container)
-    { if (container_ != NULL) iter_ = container_->begin(); }
+    { if (container_ != nullptr) iter_ = container_->begin(); }
     explicit Iterator(std::set<KEY, CMP> &container) :
       container_(&container)
-    { if (container_ != NULL) iter_ = container_->begin(); }
+    { if (container_ != nullptr) iter_ = container_->begin(); }
     void init(std::set<KEY, CMP> *container)
-    { container_ = container; if (container_ != NULL) iter_=container_->begin();}
+    { container_ = container; if (container_ != nullptr) iter_=container_->begin();}
     void init(std::set<KEY, CMP> &container)
-    { container_ = &container; if (container_ != NULL) iter_=container_->begin();}
-    bool hasNext() { return container_ != NULL && iter_ != container_->end(); }
+    { container_ = &container; if (container_ != nullptr) iter_=container_->begin();}
+    bool hasNext() { return container_ != nullptr && iter_ != container_->end(); }
     KEY next() { return *iter_++; }
     std::set<KEY, CMP> *container() { return container_; }
 
@@ -114,19 +114,19 @@ public:
   class ConstIterator
   {
   public:
-    ConstIterator() : container_(NULL) {}
+    ConstIterator() : container_(nullptr) {}
     explicit ConstIterator(const std::set<KEY, CMP> *container) :
       container_(container)
-    { if (container_ != NULL) iter_ = container_->begin(); }
+    { if (container_ != nullptr) iter_ = container_->begin(); }
     explicit ConstIterator(const std::set<KEY, CMP> &container) :
       container_(&container)
-    { if (container_ != NULL) iter_ = container_->begin(); }
+    { if (container_ != nullptr) iter_ = container_->begin(); }
     void init(const std::set<KEY, CMP> *container)
-    { container_ = container; if (container_ != NULL) iter_=container_->begin();}
+    { container_ = container; if (container_ != nullptr) iter_=container_->begin();}
     void init(const std::set<KEY, CMP> &container)
-    { container_ = &container; if (container_ != NULL) iter_=container_->begin();}
+    { container_ = &container; if (container_ != nullptr) iter_=container_->begin();}
 
-    bool hasNext() { return container_ != NULL && iter_ != container_->end(); }
+    bool hasNext() { return container_ != nullptr && iter_ != container_->end(); }
     KEY next() { return *iter_++; }
     const std::set<KEY, CMP> *container() { return container_; }
 
@@ -141,8 +141,8 @@ bool
 Set<KEY, CMP>::equal(const std::set<KEY, CMP> *set1,
 		     const std::set<KEY, CMP> *set2)
 {
-  if ((set1 == NULL || set1->empty())
-      && (set2 == NULL || set2->empty()))
+  if ((set1 == nullptr || set1->empty())
+      && (set2 == nullptr || set2->empty()))
     return true;
   else if (set1 && set2) {
     if (set1->size() == set2->size()) {
@@ -191,10 +191,10 @@ Set<KEY, CMP>::intersects(std::set<KEY, CMP> *set1,
       small = set2;
       big = set1;
     }
-    typename Set<KEY, CMP>::const_iterator iter1 = big->begin();
-    typename Set<KEY, CMP>::const_iterator last1 = big->end();
-    typename Set<KEY, CMP>::const_iterator iter2 = small->begin();
-    typename Set<KEY, CMP>::const_iterator last2 = small->end();
+    auto iter1 = big->begin();
+    auto last1 = big->end();
+    auto iter2 = small->begin();
+    auto last2 = small->end();
     if (static_cast<float>(small->size() + big->size()) < (small->size() * log(static_cast<float>(big->size())))) {
       while (iter1 != last1 && iter2 != last2) {
         if (*iter1 < *iter2)

@@ -37,8 +37,8 @@ Levelize::Levelize(StaState *sta) :
   levels_valid_(false),
   max_level_(0),
   level_space_(10),
-  loops_(NULL),
-  observer_(NULL)
+  loops_(nullptr),
+  observer_(nullptr)
 {
 }
 
@@ -90,7 +90,7 @@ Levelize::deleteLoops()
   if (loops_) {
     loops_->deleteContents();
     delete loops_;
-    loops_ = NULL;
+    loops_ = nullptr;
     loop_edges_.clear();
   }
 }
@@ -147,10 +147,10 @@ Levelize::findRoots()
       if (hasFanout(vertex, search_pred_, graph_))
 	// Color roots with no fanout black so that they are
 	// not treated as degenerate loops by levelizeCycles().
-	vertex->setColor(vertex_color_black);
+	vertex->setColor(LevelColor::black);
     }
     else
-      vertex->setColor(vertex_color_white);
+      vertex->setColor(LevelColor::white);
   }
 }
 
@@ -208,7 +208,7 @@ Levelize::visit(Vertex *vertex,
   Pin *from_pin = vertex->pin();
   debugPrint2(debug_, "levelize", 3, "level %d %s\n",
 	      level, vertex->name(sdc_network_));
-  vertex->setColor(vertex_color_gray);
+  vertex->setColor(LevelColor::gray);
   setLevel(vertex, level);
   max_level_ = max(level, max_level_);
   level += level_space;
@@ -220,11 +220,11 @@ Levelize::visit(Vertex *vertex,
       Vertex *to_vertex = edge->to(graph_);
       if (search_pred_->searchThru(edge)
 	  && search_pred_->searchTo(to_vertex)) {
-	VertexColor to_color = to_vertex->color();
-	if (to_color == vertex_color_gray)
+	LevelColor to_color = to_vertex->color();
+	if (to_color == LevelColor::gray)
 	  // Back edges form feedback loops.
 	  recordLoop(edge, path);
-	else if (to_color == vertex_color_white
+	else if (to_color == LevelColor::white
 		 || to_vertex->level() < level) {
 	  path.push_back(edge);
 	  visit(to_vertex, level, level_space, path);
@@ -239,12 +239,12 @@ Levelize::visit(Vertex *vertex,
 	&& !vertex->isBidirectDriver()) {
       Vertex *to_vertex = graph_->pinDrvrVertex(from_pin);
       if (search_pred_->searchTo(to_vertex)
-	  && (to_vertex->color() == vertex_color_white
+	  && (to_vertex->color() == LevelColor::white
 	      || to_vertex->level() < level))
 	visit(to_vertex, level, level_space, path);
     }
   }
-  vertex->setColor(vertex_color_black);
+  vertex->setColor(LevelColor::black);
 }
 
 void
@@ -327,7 +327,7 @@ Levelize::levelizeCycles()
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
-    if (vertex->color() == vertex_color_white
+    if (vertex->color() == LevelColor::white
 	&& search_pred_->searchFrom(vertex))
       uncolored.push_back(vertex);
   }
@@ -341,7 +341,7 @@ Levelize::levelizeCycles()
     // Only search from and assign root status to vertices that
     // previous searches did not visit.  Otherwise "everybody is a
     // root".
-    if (vertex->color() == vertex_color_white) {
+    if (vertex->color() == LevelColor::white) {
       EdgeSeq path;
       roots_.insert(vertex);
       visit(vertex, 0, level_space_, path);

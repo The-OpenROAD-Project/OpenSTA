@@ -26,8 +26,7 @@ namespace sta {
 class ClockGroup
 {
 public:
-  ClockGroup(ClockGroups *clk_groups,
-	     ClockSet *clks);
+  ClockGroup(ClockSet *clks);
   ~ClockGroup();
   bool isMember(const Clock *clk);
   ClockSet *clks() const { return clks_; }
@@ -35,7 +34,6 @@ public:
 private:
   DISALLOW_COPY_AND_ASSIGN(ClockGroup);
 
-  ClockGroups *clk_groups_;
   ClockSet *clks_;
 };
 

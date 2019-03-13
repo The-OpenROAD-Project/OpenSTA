@@ -88,5 +88,18 @@ public:
 		  const CycleAccting *acct2) const;
 };
 
+class CycleAcctingHash
+{
+public:
+  Hash operator()(const CycleAccting *acct) const;
+};
+
+class CycleAcctingEqual
+{
+public:
+  bool operator()(const CycleAccting *acct1,
+		  const CycleAccting *acct2) const;
+};
+
 } // namespace
 #endif

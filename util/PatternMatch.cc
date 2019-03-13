@@ -34,7 +34,7 @@ PatternMatch::PatternMatch(const char *pattern,
   is_regexp_(is_regexp),
   nocase_(nocase),
   interp_(interp),
-  regexp_(NULL)
+  regexp_(nullptr)
 {
   if (is_regexp_)
     compileRegexp();
@@ -44,8 +44,8 @@ PatternMatch::PatternMatch(const char *pattern) :
   pattern_(pattern),
   is_regexp_(false),
   nocase_(false),
-  interp_(NULL),
-  regexp_(NULL)
+  interp_(nullptr),
+  regexp_(nullptr)
 {
 }
 
@@ -55,7 +55,7 @@ PatternMatch::PatternMatch(const char *pattern,
   is_regexp_(inherit_from->is_regexp_),
   nocase_(inherit_from->nocase_),
   interp_(inherit_from->interp_),
-  regexp_(NULL)
+  regexp_(nullptr)
 {
   if (is_regexp_)
     compileRegexp();
@@ -74,14 +74,14 @@ PatternMatch::compileRegexp()
   Tcl_Obj *pattern_obj = Tcl_NewStringObj(anchored_pattern.c_str(),
 					  anchored_pattern.size());
   regexp_ = Tcl_GetRegExpFromObj(interp_, pattern_obj, flags);
-  if (regexp_ == NULL && interp_)
+  if (regexp_ == nullptr && interp_)
     throw RegexpCompileError(pattern_);
 }
 
 static bool
 regexpWildcards(const char *pattern)
 {
-  return strpbrk(pattern, ".+*?[]") != NULL;
+  return strpbrk(pattern, ".+*?[]") != nullptr;
 }
 
 bool
@@ -97,7 +97,7 @@ bool
 PatternMatch::match(const char *str) const
 {
   if (regexp_)
-    return Tcl_RegExpExec(NULL, regexp_, str, str) == 1;
+    return Tcl_RegExpExec(nullptr, regexp_, str, str) == 1;
   else
     return patternMatch(pattern_, str);
 }

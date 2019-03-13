@@ -17,6 +17,7 @@
 #include "Machine.hh"
 #include "Debug.hh"
 #include "Stats.hh"
+#include "Mutex.hh"
 #include "MinMax.hh"
 #include "PortDirection.hh"
 #include "TimingRole.hh"
@@ -92,11 +93,11 @@ private:
 };
 
 MultiDrvrNet::MultiDrvrNet(VertexSet *drvrs) :
-  dcalc_drvr_(NULL),
+  dcalc_drvr_(nullptr),
   drvrs_(drvrs),
-  parallel_delays_(NULL),
-  parallel_slews_(NULL),
-  net_caps_(NULL),
+  parallel_delays_(nullptr),
+  parallel_slews_(nullptr),
+  net_caps_(nullptr),
   delays_valid_(false)
 {
 }
@@ -217,13 +218,13 @@ MultiDrvrNet::setDcalcDrvr(Vertex *drvr)
 
 GraphDelayCalc1::GraphDelayCalc1(StaState *sta) :
   GraphDelayCalc(sta),
-  observer_(NULL),
+  observer_(nullptr),
   delays_seeded_(false),
   incremental_(false),
   search_pred_(new SearchPred1(sta)),
   search_non_latch_pred_(new SearchPredNonLatch2(sta)),
   clk_pred_(new ClkTreeSearchPred(sta)),
-  iter_(new BfsFwdIterator(bfs_dcalc, search_non_latch_pred_, sta)),
+  iter_(new BfsFwdIterator(BfsIndex::dcalc, search_non_latch_pred_, sta)),
   multi_drvr_nets_found_(false),
   incremental_delay_tolerance_(0.0)
 {
@@ -525,7 +526,7 @@ GraphDelayCalc1::makeMultiDrvrNet(PinSet &drvr_pins)
   VertexSet *drvr_vertices = new VertexSet;
   MultiDrvrNet *multi_drvr = new MultiDrvrNet(drvr_vertices);
   Level max_drvr_level = 0;
-  Vertex *max_drvr = NULL;
+  Vertex *max_drvr = nullptr;
   PinSet::Iterator pin_iter(drvr_pins);
   while (pin_iter.hasNext()) {
     Pin *pin = pin_iter.next();
@@ -535,7 +536,7 @@ GraphDelayCalc1::makeMultiDrvrNet(PinSet &drvr_pins)
     multi_drvr_net_map_[drvr_vertex] = multi_drvr;
     drvr_vertices->insert(drvr_vertex);
     Level drvr_level = drvr_vertex->level();
-    if (max_drvr == NULL
+    if (max_drvr == nullptr
 	|| drvr_level > max_drvr_level)
       max_drvr = drvr_vertex;
   }
@@ -606,7 +607,7 @@ GraphDelayCalc1::seedDrvrSlew(Vertex *drvr_vertex,
 	drive->driveCell(tr, cnst_min_max, drvr_cell, from_port,
 			 from_slews, to_port);
 	if (drvr_cell) {
-	  if (from_port == NULL)
+	  if (from_port == nullptr)
 	    from_port = driveCellDefaultFromPort(drvr_cell, to_port);
 	  findInputDriverDelay(drvr_cell, drvr_pin, drvr_vertex, tr,
 			       from_port, from_slews, to_port, dcalc_ap);
@@ -747,7 +748,7 @@ GraphDelayCalc1::driveCellDefaultFromPort(LibertyCell *cell,
     if (arc_set->to() == to_port) {
       LibertyPort *set_from_port = arc_set->from();
       int set_from_port_index = findPortIndex(cell, set_from_port);
-      if (from_port == NULL
+      if (from_port == nullptr
 	  || set_from_port_index < from_port_index) {
 	from_port = set_from_port;
 	from_port_index = set_from_port_index;
@@ -904,9 +905,8 @@ GraphDelayCalc1::enqueueTimingChecksEdges(Vertex *vertex)
 {
   if (vertex->hasChecks()
       || vertex->isCheckClk()) {
-    check_vertices_lock_.lock();
+    UniqueLock lock(check_vertices_lock_);
     invalid_checks_.insert(vertex);
-    check_vertices_lock_.unlock();
   }
 }
 
@@ -951,7 +951,7 @@ GraphDelayCalc1::findDriverDelays(Vertex *drvr_vertex,
     return delay_changed;
   }
   else
-    return findDriverDelays1(drvr_vertex, true, NULL, arc_delay_calc);
+    return findDriverDelays1(drvr_vertex, true, nullptr, arc_delay_calc);
 }
 
 bool
@@ -1021,7 +1021,7 @@ GraphDelayCalc1::findDriverEdgeDelays(LibertyCell *drvr_cell,
   while (ap_iter.hasNext()) {
     DcalcAnalysisPt *dcalc_ap = ap_iter.next();
     const Pvt *pvt = sdc_->pvt(drvr_inst, dcalc_ap->constraintMinMax());
-    if (pvt == NULL)
+    if (pvt == nullptr)
       pvt = dcalc_ap->operatingConditions();
     TimingArcSetArcIterator arc_iter(arc_set);
     while (arc_iter.hasNext()) {
@@ -1069,7 +1069,7 @@ GraphDelayCalc1::loadCap(const Pin *drvr_pin,
   bool delete_parasitic;
   arc_delay_calc_->findParasitic(drvr_pin, drvr_tr, dcalc_ap,
 				 drvr_parasitic, delete_parasitic);
-  float load_cap = loadCap(drvr_pin, NULL, drvr_parasitic, drvr_tr, dcalc_ap);
+  float load_cap = loadCap(drvr_pin, nullptr, drvr_parasitic, drvr_tr, dcalc_ap);
   arc_delay_calc_->finish(drvr_pin, drvr_tr, dcalc_ap,
 			  drvr_parasitic, delete_parasitic);
   return load_cap;
@@ -1081,7 +1081,7 @@ GraphDelayCalc1::loadCap(const Pin *drvr_pin,
 			 const TransRiseFall *tr,
 			 const DcalcAnalysisPt *dcalc_ap) const
 {
-  return loadCap(drvr_pin, NULL, drvr_parasitic, tr, dcalc_ap);
+  return loadCap(drvr_pin, nullptr, drvr_parasitic, tr, dcalc_ap);
 }
 
 float
@@ -1283,7 +1283,7 @@ GraphDelayCalc1::findArcDelay(LibertyCell *drvr_cell,
     // Merge slews.
     const Slew &drvr_slew = graph_->slew(drvr_vertex, drvr_tr, ap_index);
     const MinMax *slew_min_max = dcalc_ap->slewMinMax();
-    if (delayFuzzyGreater(gate_slew, drvr_slew, dcalc_ap->slewMinMax())
+    if (fuzzyGreater(gate_slew, drvr_slew, dcalc_ap->slewMinMax())
 	&& !drvr_vertex->slewAnnotated(drvr_tr, slew_min_max))
       graph_->setSlew(drvr_vertex, drvr_tr, ap_index, gate_slew);
     if (!graph_->arcDelayAnnotated(edge, arc, ap_index)) {
@@ -1493,7 +1493,7 @@ GraphDelayCalc1::annotateLoadDelays(Vertex *drvr_vertex,
 	else {
 	  const Slew &slew = graph_->slew(load_vertex, drvr_tr, ap_index);
 	  if (!merge
-	      || delayFuzzyGreater(load_slew, slew, slew_min_max))
+	      || fuzzyGreater(load_slew, slew, slew_min_max))
 	    graph_->setSlew(load_vertex, drvr_tr, ap_index, load_slew);
 	}
       }
@@ -1506,7 +1506,7 @@ GraphDelayCalc1::annotateLoadDelays(Vertex *drvr_vertex,
 	Delay wire_delay_extra = extra_delay + wire_delay;
 	const MinMax *delay_min_max = dcalc_ap->delayMinMax();
 	if (!merge
-	    || delayFuzzyGreater(wire_delay_extra, delay, delay_min_max)) {
+	    || fuzzyGreater(wire_delay_extra, delay, delay_min_max)) {
 	  graph_->setWireArcDelay(wire_edge, drvr_tr, ap_index,
 				  wire_delay_extra);
 	  if (observer_)
@@ -1583,7 +1583,7 @@ GraphDelayCalc1::findCheckEdgeDelays(Edge *edge,
 	DcalcAPIndex ap_index = dcalc_ap->index();
 	if (!graph_->arcDelayAnnotated(edge, arc, ap_index)) {
 	  const Pvt *pvt = sdc_->pvt(inst,dcalc_ap->constraintMinMax());
-	  if (pvt == NULL)
+	  if (pvt == nullptr)
 	    pvt = dcalc_ap->operatingConditions();
 	  const Slew &from_slew = checkEdgeClkSlew(from_vertex, from_tr,
 						   dcalc_ap);
@@ -1650,7 +1650,7 @@ bool
 GraphDelayCalc1::findIdealClks(Vertex *vertex)
 {
   const Pin *pin = vertex->pin();
-  ClockSet *ideal_clks = NULL;
+  ClockSet *ideal_clks = nullptr;
   if (sdc_->isVertexPinClock(pin)) {
     // Seed ideal clocks pins.
     if (!sdc_->isPropagatedClock(pin)) {
@@ -1659,7 +1659,7 @@ GraphDelayCalc1::findIdealClks(Vertex *vertex)
       while (clk_iter.hasNext()) {
 	Clock *clk = clk_iter.next();
 	if (!clk->isPropagated()) {
-	  if (ideal_clks == NULL) {
+	  if (ideal_clks == nullptr) {
 	    ideal_clks = new ClockSet;
 	    debugPrint1(debug_, "ideal_clks", 1, " %s\n",
 			vertex->name(sdc_network_));
@@ -1682,7 +1682,7 @@ GraphDelayCalc1::findIdealClks(Vertex *vertex)
 	    ClockSet::ConstIterator from_clk_iter(from_clks);
 	    while (from_clk_iter.hasNext()) {
 	      Clock *from_clk = from_clk_iter.next();
-	      if (ideal_clks == NULL) {
+	      if (ideal_clks == nullptr) {
 		ideal_clks = new ClockSet;
 		debugPrint1(debug_, "ideal_clks", 1, " %s\n",
 			    vertex->name(sdc_network_));
@@ -1709,7 +1709,7 @@ GraphDelayCalc1::setIdealClks(const Vertex *vertex,
 			      ClockSet *clks)
 {
   bool changed = false;
-  ideal_clks_map_lock_.lock();
+  UniqueLock lock(ideal_clks_map_lock_);
   ClockSet *clks1 = ideal_clks_map_.findKey(vertex);
   if (ClockSet::equal(clks, clks1))
     delete clks;
@@ -1718,16 +1718,14 @@ GraphDelayCalc1::setIdealClks(const Vertex *vertex,
     ideal_clks_map_[vertex] = clks;
     changed = true;
   }
-  ideal_clks_map_lock_.unlock();
   return changed;
 }
 
 ClockSet *
 GraphDelayCalc1::idealClks(const Vertex *vertex)
 {
-  ideal_clks_map_lock_.lock();
+  UniqueLock lock(ideal_clks_map_lock_);
   ClockSet *clks = ideal_clks_map_.findKey(vertex);
-  ideal_clks_map_lock_.unlock();
   return clks;
 }
 
@@ -1752,7 +1750,7 @@ GraphDelayCalc1::ceff(Edge *edge,
   TimingArcSet *arc_set = edge->timingArcSet();
   float ceff = 0.0;
   const Pvt *pvt = sdc_->pvt(inst, dcalc_ap->constraintMinMax());
-  if (pvt == NULL)
+  if (pvt == nullptr)
     pvt = dcalc_ap->operatingConditions();
   TransRiseFall *from_tr = arc->fromTrans()->asRiseFall();
   TransRiseFall *to_tr = arc->toTrans()->asRiseFall();
@@ -1806,7 +1804,7 @@ GraphDelayCalc1::reportDelayCalc(Edge *edge,
   string *result = new string;
   DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
   const Pvt *pvt = sdc_->pvt(inst, dcalc_ap->constraintMinMax());
-  if (pvt == NULL)
+  if (pvt == nullptr)
     pvt = dcalc_ap->operatingConditions();
   TransRiseFall *from_tr = arc->fromTrans()->asRiseFall();
   TransRiseFall *to_tr = arc->toTrans()->asRiseFall();
@@ -1831,7 +1829,7 @@ GraphDelayCalc1::reportDelayCalc(Edge *edge,
       int slew_index = dcalc_ap->checkDataSlewIndex();
       const Slew &to_slew = graph_->slew(to_vertex, to_tr, slew_index);
       bool from_ideal_clk = isIdealClk(from_vertex);
-      const char *from_slew_annotation = from_ideal_clk ? " (ideal clock)" : NULL;
+      const char *from_slew_annotation = from_ideal_clk ? " (ideal clock)" : nullptr;
       arc_delay_calc_->reportCheckDelay(cell, arc, from_slew, from_slew_annotation,
 					to_slew, related_out_cap, pvt, dcalc_ap,
 					digits, result);

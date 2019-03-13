@@ -17,11 +17,12 @@
 #ifndef STA_SDC_H
 #define STA_SDC_H
 
+#include <mutex>
 #include "DisallowCopyAssign.hh"
-#include "ReadWriteLock.hh"
 #include "StringUtil.hh"
 #include "StringSet.hh"
 #include "Map.hh"
+#include "UnorderedSet.hh"
 #include "UnorderedMap.hh"
 #include "MinMax.hh"
 #include "RiseFallValues.hh"
@@ -56,6 +57,11 @@ class FindNetCaps;
 class ClkHpinDisable;
 class FindClkHpinDisables;
 class Corner;
+class ClockGroupIterator;
+class GroupPathIterator;
+class ClockVertexPinIterator;
+class ClockPinIterator;
+class ClockIterator;
 
 typedef std::pair<const Pin*, const Clock*> PinClockPair;
 
@@ -79,16 +85,16 @@ public:
 class ClockPairLess
 {
 public:
-  bool operator()(const ClockPair *pair1,
-		  const ClockPair *pair2) const;
+  bool operator()(const ClockPair &pair1,
+		  const ClockPair &pair2) const;
 };
 
 class PinClockPairLess
 {
 public:
   PinClockPairLess(const Network *network);
-  bool operator()(const PinClockPair *pin_clk1,
-		  const PinClockPair *pin_clk2) const;
+  bool operator()(const PinClockPair &pin_clk1,
+		  const PinClockPair &pin_clk2) const;
 
 protected:
   const Network *network_;
@@ -108,7 +114,7 @@ typedef Set<InputDelay*> InputDelaySet;
 typedef Map<const Pin*,InputDelaySet*> InputDelayRefPinMap;
 typedef Map<const Pin*,InputDelaySet*> InputDelayInternalPinMap;
 typedef Map<const Pin*,OutputDelay*> OutputDelayMap;
-typedef Set<CycleAccting*, CycleAcctingLess> CycleAcctingSet;
+typedef UnorderedSet<CycleAccting*, CycleAcctingHash, CycleAcctingEqual> CycleAcctingSet;
 typedef Set<Instance*> InstanceSet;
 typedef UnorderedMap<const Pin*,ExceptionPathSet*> PinExceptionsMap;
 typedef Map<const Clock*,ExceptionPathSet*> ClockExceptionsMap;
@@ -155,13 +161,11 @@ typedef Map<const LibertyCell*, DeratingFactorsCell*> CellDeratingFactorsMap;
 typedef Set<ClockGroups*> ClockGroupsSet;
 typedef Map<const Clock*, ClockGroupsSet*> ClockGroupsClkMap;
 typedef Map<const char*, ClockGroups*, CharPtrLess> ClockGroupsNameMap;
-typedef ClockGroupsNameMap::Iterator ClockGroupIterator;
-typedef Map<PinClockPair*, ClockSense, PinClockPairLess> ClockSenseMap;
+typedef Map<PinClockPair, ClockSense, PinClockPairLess> ClockSenseMap;
 typedef Set<ClkHpinDisable*, ClkHpinDisableLess> ClkHpinDisables;
 typedef Set<GroupPath*> GroupPathSet;
 typedef Map<const char*, GroupPathSet*, CharPtrLess> GroupPathMap;
-typedef GroupPathMap::Iterator GroupPathIterator;
-typedef Set<ClockPair*, ClockPairLess> ClockPairSet;
+typedef Set<ClockPair, ClockPairLess> ClockPairSet;
 
 void
 findVertexLoadPins(Pin *pin, const
@@ -386,7 +390,6 @@ public:
   void setPropagatedClock(Pin *pin);
   void removePropagatedClock(Pin *pin);
   bool isPropagatedClock(const Pin *pin);
-  bool isPropagatedClock(const Clock *clk) const __attribute__ ((deprecated));
   void setClockSlew(Clock *clk,
 		    const TransRiseFallBoth *tr,
 		    const MinMaxAll *min_max,
@@ -484,7 +487,7 @@ public:
   void makeClockGroup(ClockGroups *clk_groups,
 		      ClockSet *clks);
   void removeClockGroups(const char *name);
-  // NULL name removes all.
+  // nullptr name removes all.
   void removeClockGroupsLogicallyExclusive(const char *name);
   void removeClockGroupsPhysicallyExclusive(const char *name);
   void removeClockGroupsAsynchronous(const char *name);
@@ -674,7 +677,7 @@ public:
   void removeDisableClockGatingCheck(Pin *pin);
   bool isDisableClockGatingCheck(const Pin *pin);
   bool isDisableClockGatingCheck(const Instance *inst);
-  // set_logic_zero, set_logic_one, set_logic_dc
+  // set_LogicValue::zero, set_LogicValue::one, set_logic_dc
   void setLogicValue(Pin *pin,
 		     LogicValue value);
   // set_case_analysis
@@ -824,7 +827,7 @@ public:
 				 Pin *ref_pin);
   LogicValueMap *logicValues() { return &logic_value_map_; }
   LogicValueMap *caseLogicValues() { return &case_value_map_; }
-  // Returns NULL if set_operating_conditions has not been called.
+  // Returns nullptr if set_operating_conditions has not been called.
   OperatingConditions *operatingConditions(const MinMax *min_max);
   // Instance specific process/voltage/temperature.
   Pvt *pvt(Instance *inst, const MinMax *min_max) const;
@@ -842,9 +845,10 @@ public:
   // Find the clocks defined for pin.
   ClockSet *findClocks(const Pin *pin) const;
   ClockSet *findVertexPinClocks(const Pin *pin) const;
-  ClockIterator *clockIterator() const;
+  ClockIterator *clockIterator();
   void sortedClocks(ClockSeq &clks);
   ClockSeq *clocks() { return &clocks_; }
+  ClockSeq &clks() { return clocks_; }
   bool clkDisabledByHpinThru(const Clock *clk,
 			     const Pin *from_pin,
 			     const Pin *to_pin);
@@ -909,7 +913,7 @@ public:
   // If the pin is hierarchical, the vertex pins are:
   //   hierarchical  input - driver pins outside the hierarchical instance.
   //   hierarchical output - driver pins  inside the hierarchical instance.
-  PinOutputDelayIterator *outputDelayVertexIterator(const Pin *vertex_pin)const;
+  PinOutputDelayIterator *outputDelayVertexIterator(const Pin *vertex_pin) const;
   bool hasOutputDelay(const Pin *vertex_pin) const;
   PortExtCap *portExtCap(Port *port) const;
   bool hasPortExtCap(Port *port) const;
@@ -1210,7 +1214,6 @@ protected:
   void deleteClockLatenciesReferencing(Clock *clk);
   void deleteClockLatency(ClockLatency *latency);
   void deleteDeratingFactors();
-  void deleteClkSenses();
   void annotateGraphOutputDelays(bool annotate);
   void annotateGraphDataChecks(bool annotate);
   void annotateGraphConstrained(const PinSet *pins,
@@ -1318,7 +1321,7 @@ protected:
   InstanceClockGatingCheckMap inst_clk_gating_check_map_;
   PinClockGatingCheckMap pin_clk_gating_check_map_;
   CycleAcctingSet cycle_acctings_;
-  ReadWriteLock cycle_acctings_lock_;
+  std::mutex cycle_acctings_lock_;
   DataChecksMap data_checks_from_map_;
   DataChecksMap data_checks_to_map_;
   InputDelayMap input_delay_map_;
@@ -1386,7 +1389,7 @@ protected:
   // Group path exception names.
   GroupPathMap group_path_map_;
   InputDriveMap input_drive_map_;
-  // set_logic_one/zero/dc
+  // set_LogicValue::one/zero/dc
   LogicValueMap logic_value_map_;
   // set_case_analysis
   LogicValueMap case_value_map_;
@@ -1426,30 +1429,38 @@ private:
   friend class InputDelayIterator;
   friend class OutputDelayIterator;
   friend class FindNetCaps;
+  friend class ClockGroupIterator;
+  friend class GroupPathIterator;
+  friend class InputDelayVertexPinsIterator;
+  friend class PinInputDelayIterator;
+  friend class VertexPinInputDelayIterator;
+  friend class PinOutputDelayIterator;
+  friend class VertexPinOutputDelayIterator;
 };
 
 class InputDelayVertexPinsIterator : public Iterator<const Pin*>
 {
 public:
+  InputDelayVertexPinsIterator(Sdc *sdc);
   virtual bool hasNext();
   virtual const Pin *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(InputDelayVertexPinsIterator);
   InputDelayVertexPinsIterator(InputDelayMap &input_delay_map);
   InputDelayMap::ConstIterator input_iter_;
 
   friend class Sdc;
+  DISALLOW_COPY_AND_ASSIGN(InputDelayVertexPinsIterator);
 };
 
 class InputDelayIterator : public Iterator<InputDelay*>
 {
 public:
+  InputDelayIterator(Sdc *sdc);
   virtual bool hasNext();
   virtual InputDelay *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(InputDelayIterator);
   InputDelayIterator(InputDelayMap &input_delay_map);
   void findNext();
 
@@ -1457,16 +1468,17 @@ private:
   InputDelay *next_;
 
   friend class Sdc;
+  DISALLOW_COPY_AND_ASSIGN(InputDelayIterator);
 };
 
-class OutputDelayIterator : public Iterator<OutputDelay*>
+class OutputDelayIterator : public OutputDelayMap::Iterator
 {
 public:
+  OutputDelayIterator(Sdc *sdc);
   virtual bool hasNext();
   virtual OutputDelay *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(OutputDelayIterator);
   OutputDelayIterator(OutputDelayMap &output_delay_map);
   void findNext();
 
@@ -1474,6 +1486,42 @@ private:
   OutputDelay *next_;
 
   friend class Sdc;
+  DISALLOW_COPY_AND_ASSIGN(OutputDelayIterator);
+};
+
+class ClockIterator : public ClockSeq::Iterator
+{
+public:
+  ClockIterator(Sdc *sdc);
+
+private:
+  ClockIterator(ClockSeq &clocks);
+  friend class Sdc;
+  DISALLOW_COPY_AND_ASSIGN(ClockIterator);
+};
+
+class ClockGroupIterator : public ClockGroupsNameMap::Iterator
+{
+public:
+  ClockGroupIterator(Sdc *sdc);
+
+private:
+  ClockGroupIterator(ClockGroupsNameMap &clk_groups_name_map);
+
+  friend class Sdc;
+  DISALLOW_COPY_AND_ASSIGN(ClockGroupIterator);
+};
+
+class GroupPathIterator : public GroupPathMap::Iterator
+{
+public:
+  GroupPathIterator(Sdc *sdc);
+
+private:
+  GroupPathIterator(GroupPathMap &group_path_map);
+
+  friend class Sdc;
+  DISALLOW_COPY_AND_ASSIGN(GroupPathIterator);
 };
 
 } // namespace

@@ -25,13 +25,13 @@ namespace sta {
 FuncExpr *
 FuncExpr::makePort(LibertyPort *port)
 {
-  return new FuncExpr(op_port, NULL, NULL, port);
+  return new FuncExpr(op_port, nullptr, nullptr, port);
 }
 
 FuncExpr *
 FuncExpr::makeNot(FuncExpr *expr)
 {
-  return new FuncExpr(op_not, expr, NULL, NULL);
+  return new FuncExpr(op_not, expr, nullptr, nullptr);
 }
 
 
@@ -39,33 +39,33 @@ FuncExpr *
 FuncExpr::makeAnd(FuncExpr *left,
 		  FuncExpr *right)
 {
-  return new FuncExpr(op_and, left, right, NULL);
+  return new FuncExpr(op_and, left, right, nullptr);
 }
 
 FuncExpr *
 FuncExpr::makeOr(FuncExpr *left,
 		 FuncExpr *right)
 {
-  return new FuncExpr(op_or, left, right, NULL);
+  return new FuncExpr(op_or, left, right, nullptr);
 }
 
 FuncExpr *
 FuncExpr::makeXor(FuncExpr *left,
 		  FuncExpr *right)
 {
-  return new FuncExpr(op_xor, left, right, NULL);
+  return new FuncExpr(op_xor, left, right, nullptr);
 }
 
 FuncExpr *
 FuncExpr::makeZero()
 {
-  return new FuncExpr(op_zero, NULL, NULL, NULL);
+  return new FuncExpr(op_zero, nullptr, nullptr, nullptr);
 }
 
 FuncExpr *
 FuncExpr::makeOne()
 {
-  return new FuncExpr(op_one, NULL, NULL, NULL);
+  return new FuncExpr(op_one, nullptr, nullptr, nullptr);
 }
 
 FuncExpr::FuncExpr(Operator op,
@@ -95,7 +95,7 @@ FuncExpr::port() const
   if (op_ == op_port)
     return port_;
   else
-    return NULL;
+    return nullptr;
 }
 
 // Protect against null sub-expressions caused by unknown port refs.
@@ -107,29 +107,29 @@ FuncExpr::portTimingSense(const LibertyPort *port) const
   switch (op_) {
   case op_port:
     if (port == port_)
-      return timing_sense_positive_unate;
+      return TimingSense::positive_unate;
     else
-      return timing_sense_none;
+      return TimingSense::none;
   case op_not:
     if (left_) {
       switch (left_->portTimingSense(port)) {
-      case timing_sense_positive_unate:
-	return timing_sense_negative_unate;
-      case timing_sense_negative_unate:
-	return timing_sense_positive_unate;
-      case timing_sense_non_unate:
-	return timing_sense_non_unate;
-      case timing_sense_none:
-	return timing_sense_none;
-      case timing_sense_unknown:
-	return timing_sense_unknown;
+      case TimingSense::positive_unate:
+	return TimingSense::negative_unate;
+      case TimingSense::negative_unate:
+	return TimingSense::positive_unate;
+      case TimingSense::non_unate:
+	return TimingSense::non_unate;
+      case TimingSense::none:
+	return TimingSense::none;
+      case TimingSense::unknown:
+	return TimingSense::unknown;
       }
     }
-    return timing_sense_unknown;
+    return TimingSense::unknown;
   case op_or:
   case op_and:
-    left_sense = timing_sense_unknown;
-    right_sense = timing_sense_unknown;
+    left_sense = TimingSense::unknown;
+    right_sense = TimingSense::unknown;
     if (left_)
       left_sense = left_->portTimingSense(port);
     if (right_)
@@ -137,44 +137,44 @@ FuncExpr::portTimingSense(const LibertyPort *port) const
 
     if (left_sense == right_sense)
       return left_sense;
-    else if (left_sense == timing_sense_non_unate
-	     || right_sense == timing_sense_non_unate
-	     || (left_sense == timing_sense_positive_unate
-		 && right_sense == timing_sense_negative_unate)
-	     || (left_sense == timing_sense_negative_unate
-		 && right_sense == timing_sense_positive_unate))
-      return timing_sense_non_unate;
-    else if (left_sense == timing_sense_none
-	     || left_sense == timing_sense_unknown)
+    else if (left_sense == TimingSense::non_unate
+	     || right_sense == TimingSense::non_unate
+	     || (left_sense == TimingSense::positive_unate
+		 && right_sense == TimingSense::negative_unate)
+	     || (left_sense == TimingSense::negative_unate
+		 && right_sense == TimingSense::positive_unate))
+      return TimingSense::non_unate;
+    else if (left_sense == TimingSense::none
+	     || left_sense == TimingSense::unknown)
       return right_sense;
-    else if (right_sense == timing_sense_none
-	     || right_sense == timing_sense_unknown)
+    else if (right_sense == TimingSense::none
+	     || right_sense == TimingSense::unknown)
       return left_sense;
     else
-      return timing_sense_unknown;
+      return TimingSense::unknown;
   case op_xor:
-    left_sense = timing_sense_unknown;
-    right_sense = timing_sense_unknown;
+    left_sense = TimingSense::unknown;
+    right_sense = TimingSense::unknown;
     if (left_)
       left_sense = left_->portTimingSense(port);
     if (right_)
       right_sense = right_->portTimingSense(port);
-    if (left_sense == timing_sense_positive_unate
-	|| left_sense == timing_sense_negative_unate
-	|| left_sense == timing_sense_non_unate
-	|| right_sense == timing_sense_positive_unate
-	|| right_sense == timing_sense_negative_unate
-	|| right_sense == timing_sense_non_unate)
-      return timing_sense_non_unate;
+    if (left_sense == TimingSense::positive_unate
+	|| left_sense == TimingSense::negative_unate
+	|| left_sense == TimingSense::non_unate
+	|| right_sense == TimingSense::positive_unate
+	|| right_sense == TimingSense::negative_unate
+	|| right_sense == TimingSense::non_unate)
+      return TimingSense::non_unate;
     else
-      return timing_sense_unknown;
+      return TimingSense::unknown;
   case op_one:
-    return timing_sense_none;
+    return TimingSense::none;
   case op_zero:
-    return timing_sense_none;
+    return TimingSense::none;
   }
   // Prevent warnings from lame compilers.
-  return timing_sense_unknown;
+  return TimingSense::unknown;
 }
 
 const char *
@@ -270,7 +270,7 @@ FuncExpr::bitSubExpr(int bit_offset)
     return this;
   }
   // Prevent warnings from lame compilers.
-  return NULL;
+  return nullptr;
 }
 
 bool
@@ -360,9 +360,9 @@ bool
 FuncExpr::equiv(const FuncExpr *expr1,
 		const FuncExpr *expr2)
 {
-  if (expr1 == NULL && expr2 == NULL)
+  if (expr1 == nullptr && expr2 == nullptr)
     return true;
-  else if (expr1 != NULL && expr2 != NULL
+  else if (expr1 != nullptr && expr2 != nullptr
 	   && expr1->op() == expr2->op()) {
     switch (expr1->op()) {
     case FuncExpr::op_port:
@@ -382,7 +382,7 @@ bool
 FuncExpr::less(const FuncExpr *expr1,
 	       const FuncExpr *expr2)
 {
-  if (expr1 != NULL && expr2 != NULL) {
+  if (expr1 != nullptr && expr2 != nullptr) {
     Operator op1 = expr1->op();
     Operator op2 = expr2->op();
     if (op1 == op2) {
@@ -401,10 +401,10 @@ FuncExpr::less(const FuncExpr *expr1,
     else
       return op1 < op2;
   }
-  else if (expr1 == NULL && expr2 == NULL)
+  else if (expr1 == nullptr && expr2 == nullptr)
     return false;
   else
-    return (expr1 == NULL && expr2 != NULL);
+    return (expr1 == nullptr && expr2 != nullptr);
 }
 
 } // namespace

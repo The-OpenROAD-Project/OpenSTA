@@ -72,37 +72,13 @@ typedef Vector<InternalPowerAttrs*> InternalPowerAttrsSeq;
 typedef Map<const char *, float, CharPtrLess> SupplyVoltageMap;
 typedef Map<const char *, LibertyPgPort*, CharPtrLess> LibertyPgPortMap;
 
-typedef enum {
-  clock_gate_none,
-  clock_gate_latch_posedge,
-  clock_gate_latch_negedge,
-  clock_gate_other
-} ClockGateType;
+enum class ClockGateType { none, latch_posedge, latch_negedge, other };
 
-typedef enum {
-  delay_model_cmos_linear,
-  delay_model_cmos_pwl,
-  delay_model_cmos2,
-  delay_model_table,
-  delay_model_polynomial,
-  delay_model_dcm
-} DelayModelType;
+enum class DelayModelType { cmos_linear, cmos_pwl, cmos2, table, polynomial, dcm };
 
-typedef enum {
-  scale_factor_process,
-  scale_factor_volt,
-  scale_factor_temp,
-  scale_factor_pvt_count,
-  scale_factor_pvt_unknown
-} ScaleFactorPvt;
+enum class ScaleFactorPvt { process, volt, temp, count, unknown };
 
-typedef enum {
-  table_template_delay,
-  table_template_power,
-  table_template_output_current,
-  table_template_ocv,
-  table_template_count
-} TableTemplateType;
+enum class TableTemplateType { delay, power, output_current, ocv, count };
 
 void
 initLiberty();
@@ -279,7 +255,10 @@ public:
   void addSupplyVoltage(const char *suppy_name,
 			float voltage);
   bool supplyExists(const char *suppy_name) const;
-  float supplyVoltage(const char *suppy_name) const;
+  void supplyVoltage(const char *supply_name,
+		     // Return value.
+		     float &voltage,
+		     bool &exists) const;
 
   // Make scaled cell.  Call LibertyCell::addScaledCell after it is complete.
   LibertyCell *makeScaledCell(const char *name,
@@ -303,7 +282,7 @@ protected:
   Units *units_;
   DelayModelType delay_model_type_;
   BusDclMap bus_dcls_;
-  TableTemplateMap template_maps_[table_template_count];
+  TableTemplateMap template_maps_[int(TableTemplateType::count)];
   float nominal_process_;
   float nominal_voltage_;
   float nominal_temperature_;
@@ -343,12 +322,10 @@ protected:
 
   // Set if any library has rise/fall capacitances.
   static bool found_rise_fall_caps_;
-  static const float input_threshold_default_;
-  static const float output_threshold_default_;
-  static const float slew_lower_threshold_default_;
-  static const float slew_upper_threshold_default_;
-  static const float slew_lower_measure_threshold_default_;
-  static const float slew_upper_measure_threshold_default_;
+  static constexpr float input_threshold_default_ = .5;
+  static constexpr float output_threshold_default_ = .5;
+  static constexpr float slew_lower_threshold_default_ = .2;
+  static constexpr float slew_upper_threshold_default_ = .8;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(LibertyLibrary);
@@ -376,7 +353,7 @@ class TableTemplateIterator : public TableTemplateMap::ConstIterator
 public:
   TableTemplateIterator(const LibertyLibrary *library,
 			TableTemplateType type) :
-    TableTemplateMap::ConstIterator(library->template_maps_[type]) {}
+    TableTemplateMap::ConstIterator(library->template_maps_[int(type)]) {}
 };
 
 class OperatingConditionsIterator : public OperatingConditionsMap::ConstIterator
@@ -424,7 +401,7 @@ public:
   bool isClockGateLatchNegedge() const;
   bool isClockGateOther() const;
   bool isClockGate() const;
-  void setClockGateType(ClockGateType clock_gate_type);
+  void setClockGateType(ClockGateType type);
   virtual unsigned addTimingArcSet(TimingArcSet *set);
   void addTimingArcAttrs(TimingArcAttrs *attrs);
   virtual void addInternalPower(InternalPower *power);
@@ -865,7 +842,7 @@ public:
 
 protected:
   const char *name_;
-  float scales_[scale_factor_count][scale_factor_pvt_count][TransRiseFall::index_count];
+  float scales_[scale_factor_type_count][int(ScaleFactorPvt::count)][TransRiseFall::index_count];
 
 private:
   DISALLOW_COPY_AND_ASSIGN(ScaleFactors);

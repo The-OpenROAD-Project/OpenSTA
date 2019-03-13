@@ -46,7 +46,7 @@ UnitDelayCalc::findParasitic(const Pin *,
 			     bool &delete_at_finish)
 {
   // No parasitics are required for this delay calculator.
-  parasitic = NULL;
+  parasitic = nullptr;
   delete_at_finish = false;
 }
 

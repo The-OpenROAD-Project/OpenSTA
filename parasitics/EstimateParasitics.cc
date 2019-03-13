@@ -46,26 +46,26 @@ EstimateParasitics::estimatePiElmore(const Pin *drvr_pin,
   float wireload_cap, wireload_res;
   wireload->findWireload(fanout, op_cond, wireload_cap, wireload_res);
 
-  WireloadTree tree = wire_load_unknown_tree;
+  WireloadTree tree = WireloadTree::unknown;
   if (op_cond)
     tree = op_cond->wireloadTree();
   switch (tree) {
-  case wire_load_worst_case_tree:
+  case WireloadTree::worst_case:
     estimatePiElmoreWorst(drvr_pin, wireload_cap, wireload_res,
 			  fanout, net_pin_cap, tr, op_cond, corner,
 			  min_max, sta,
 			  c2, rpi, c1, elmore_res,
 			  elmore_cap, elmore_use_load_cap);
     break;
-  case wire_load_unknown_tree:
-  case wire_load_balanced_tree:
+  case WireloadTree::balanced:
+  case WireloadTree::unknown:
     estimatePiElmoreBalanced(drvr_pin, wireload_cap, wireload_res,
 			     fanout, net_pin_cap, tr, op_cond,
 			     corner, min_max,sta,
 			     c2, rpi, c1, elmore_res,
 			     elmore_cap, elmore_use_load_cap);
     break;
-  case wire_load_best_case_tree:
+  case WireloadTree::best_case:
     estimatePiElmoreBest(drvr_pin, wireload_cap, net_pin_cap, tr,
 			 op_cond, corner, min_max,
 			 c2, rpi, c1, elmore_res, elmore_cap,

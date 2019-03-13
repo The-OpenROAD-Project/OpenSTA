@@ -113,7 +113,7 @@ public:
   virtual bool useEndClk() const { return false; }
   virtual int pathMultiplier() const { return 0; }
   virtual float delay() const { return 0.0; }
-  virtual const char *name() const { return NULL; }
+  virtual const char *name() const { return nullptr; }
   virtual bool isDefault() const { return false; }
   virtual bool ignoreClkLatency() { return false; }
 
@@ -156,7 +156,7 @@ public:
 			       ExceptionTo *to,
 			       bool own_pts);
   virtual bool isFalse() const { return true; }
-  virtual ExceptionPathType type() const { return exception_type_false; }
+  virtual ExceptionPathType type() const { return ExceptionPathType::false_path; }
   virtual const char *typeString() const;
   virtual bool mergeable(ExceptionPath *exception) const;
   virtual bool overrides(ExceptionPath *exception) const;
@@ -175,7 +175,7 @@ public:
   LoopPath(ExceptionThruSeq *thrus,
 	   bool own_pts);
   virtual bool isLoop() const { return true; }
-  virtual ExceptionPathType type() const { return exception_type_loop; }
+  virtual ExceptionPathType type() const { return ExceptionPathType::loop; }
   virtual const char *typeString() const;
   virtual bool mergeable(ExceptionPath *exception) const;
 
@@ -200,7 +200,7 @@ public:
 			       ExceptionTo *to,
 			       bool own_pts);
   virtual bool isPathDelay() const { return true; }
-  virtual ExceptionPathType type() const { return exception_type_path_delay; }
+  virtual ExceptionPathType type() const { return ExceptionPathType::path_delay; }
   virtual const char *asString(const Network *network) const;
   virtual const char *typeString() const;
   virtual bool mergeable(ExceptionPath *exception) const;
@@ -235,7 +235,7 @@ public:
 			       ExceptionTo *to,
 			       bool own_pts);
   virtual bool isMultiCycle() const { return true; }
-  virtual ExceptionPathType type() const { return exception_type_multi_cycle; }
+  virtual ExceptionPathType type() const { return ExceptionPathType::multi_cycle; }
   virtual bool matches(const MinMax *min_max,
 		       bool exactly) const;
   virtual const char *asString(const Network *network) const;
@@ -272,7 +272,7 @@ public:
 			       ExceptionTo *to,
 			       bool own_pts);
   virtual bool isFilter() const { return true; }
-  virtual ExceptionPathType type() const { return exception_type_filter; }
+  virtual ExceptionPathType type() const { return ExceptionPathType::filter; }
   virtual const char *typeString() const;
   virtual bool mergeable(ExceptionPath *exception) const;
   virtual bool overrides(ExceptionPath *exception) const;
@@ -303,7 +303,7 @@ public:
 			       ExceptionTo *to,
 			       bool own_pts);
   virtual bool isGroupPath() const { return true; }
-  virtual ExceptionPathType type() const { return exception_type_group_path; }
+  virtual ExceptionPathType type() const { return ExceptionPathType::group_path; }
   virtual const char *typeString() const;
   virtual bool mergeable(ExceptionPath *exception) const;
   virtual bool overrides(ExceptionPath *exception) const;
@@ -388,8 +388,8 @@ public:
   bool hasClocks() const;
   InstanceSet *instances() { return insts_; }
   bool hasInstances() const;
-  virtual NetSet *nets() { return NULL; }
-  virtual EdgePinsSet *edges() { return NULL; }
+  virtual NetSet *nets() { return nullptr; }
+  virtual EdgePinsSet *edges() { return nullptr; }
   bool hasObjects() const;
   void deleteObjects(ExceptionFromTo *pt);
   virtual void allPins(const Network *network,
@@ -509,7 +509,7 @@ public:
   EdgePinsSet *edges() { return edges_; }
   NetSet *nets() { return nets_; }
   InstanceSet *instances() { return insts_; }
-  virtual ClockSet *clks() { return NULL; }
+  virtual ClockSet *clks() { return nullptr; }
   bool hasObjects() const;
   void deleteObjects(ExceptionThru *pt);
   virtual void allPins(const Network *network,

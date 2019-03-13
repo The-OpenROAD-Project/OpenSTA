@@ -168,7 +168,7 @@ GateTableModel::reportTableLookup(const char *result_name,
     findAxisValues(model, in_slew, load_cap, related_out_cap,
 		   axis_value1, axis_value2, axis_value3);
     model->reportValue(result_name, library, cell, pvt,
-		       axis_value1, NULL, axis_value2, axis_value3,
+		       axis_value1, nullptr, axis_value2, axis_value3,
 		       digits, result);
   }
 }
@@ -258,19 +258,19 @@ GateTableModel::maxCapSlew(const LibertyCell *cell,
   TableAxis *axis2 = slew_model_->axis2();
   TableAxis *axis3 = slew_model_->axis3();
   if (axis1
-      && axis1->variable() == table_axis_total_output_net_capacitance) {
+      && axis1->variable() == TableAxisVariable::total_output_net_capacitance) {
     cap = axis1->axisValue(axis1->size() - 1);
     slew = findValue(library, cell, pvt, slew_model_,
 		     in_slew, cap, 0.0);
   }
   else if (axis2
-	   && axis2->variable()==table_axis_total_output_net_capacitance) {
+	   && axis2->variable()==TableAxisVariable::total_output_net_capacitance) {
     cap = axis2->axisValue(axis2->size() - 1);
     slew = findValue(library, cell, pvt, slew_model_,
 		     in_slew, cap, 0.0);
   }
   else if (axis3
-	   && axis3->variable()==table_axis_total_output_net_capacitance) {
+	   && axis3->variable()==TableAxisVariable::total_output_net_capacitance) {
     cap = axis3->axisValue(axis3->size() - 1);
     slew = findValue(library, cell, pvt, slew_model_,
 		     in_slew, cap, 0.0);
@@ -292,12 +292,12 @@ GateTableModel::axisValue(TableAxis *axis,
 			  float related_out_cap) const
 {
   TableAxisVariable var = axis->variable();
-  if (var == table_axis_input_transition_time
-      || var == table_axis_input_net_transition)
+  if (var == TableAxisVariable::input_transition_time
+      || var == TableAxisVariable::input_net_transition)
     return in_slew;
-  else if (var == table_axis_total_output_net_capacitance)
+  else if (var == TableAxisVariable::total_output_net_capacitance)
     return load_cap;
-  else if (var == table_axis_related_out_total_output_net_capacitance)
+  else if (var == TableAxisVariable::related_out_total_output_net_capacitance)
     return related_out_cap;
   else {
     internalError("unsupported table axes");
@@ -325,10 +325,10 @@ bool
 GateTableModel::checkAxis(TableAxis *axis)
 {
   TableAxisVariable var = axis->variable();
-  return var == table_axis_total_output_net_capacitance
-    || var == table_axis_input_transition_time
-    || var == table_axis_input_net_transition
-    || var == table_axis_related_out_total_output_net_capacitance;
+  return var == TableAxisVariable::total_output_net_capacitance
+    || var == TableAxisVariable::input_transition_time
+    || var == TableAxisVariable::input_net_transition
+    || var == TableAxisVariable::related_out_total_output_net_capacitance;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -498,11 +498,11 @@ CheckTableModel::axisValue(TableAxis *axis,
 			   float related_out_cap) const
 {
   TableAxisVariable var = axis->variable();
-  if (var == table_axis_related_pin_transition)
+  if (var == TableAxisVariable::related_pin_transition)
     return from_slew;
-  else if (var == table_axis_constrained_pin_transition)
+  else if (var == TableAxisVariable::constrained_pin_transition)
     return to_slew;
-  else if (var == table_axis_related_out_total_output_net_capacitance)
+  else if (var == TableAxisVariable::related_out_total_output_net_capacitance)
     return related_out_cap;
   else {
     internalError("unsupported table axes");
@@ -530,9 +530,9 @@ bool
 CheckTableModel::checkAxis(TableAxis *axis)
 {
   TableAxisVariable var = axis->variable();
-  return var == table_axis_constrained_pin_transition
-    || var == table_axis_related_pin_transition
-    || var == table_axis_related_out_total_output_net_capacitance;
+  return var == TableAxisVariable::constrained_pin_transition
+    || var == TableAxisVariable::related_pin_transition
+    || var == TableAxisVariable::related_out_total_output_net_capacitance;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -541,7 +541,7 @@ TableModel::TableModel(Table *table,
 		       ScaleFactorType scale_factor_type,
 		       TransRiseFall *tr) :
   table_(table),
-  scale_factor_type_(scale_factor_type),
+  scale_factor_type_(int(scale_factor_type)),
   tr_index_(tr->index()),
   is_scaled_(false)
 {
@@ -561,7 +561,7 @@ TableModel::order() const
 void
 TableModel::setScaleFactorType(ScaleFactorType type)
 {
-  scale_factor_type_ = type;
+  scale_factor_type_ = int(type);
 }
 
 void
@@ -609,10 +609,9 @@ TableModel::scaleFactor(const LibertyLibrary *library,
     // Scaled tables are not derated because scale factors are wrt
     // nominal pvt.
     return 1.0F;
-  else {
-    ScaleFactorType type = static_cast<ScaleFactorType>(scale_factor_type_);
-    return library->scaleFactor(type, tr_index_, cell, pvt);
-  }
+  else
+    return library->scaleFactor(static_cast<ScaleFactorType>(scale_factor_type_),
+				tr_index_, cell, pvt);
 }
 
 void
@@ -647,7 +646,7 @@ reportPvt(const LibertyLibrary *library,
 	  int digits,
 	  string *result)
 {
-  if (pvt == NULL)
+  if (pvt == nullptr)
     pvt = library->defaultOperatingConditions();
   if (pvt) {
     string pvt_str;
@@ -666,7 +665,7 @@ TableModel::reportPvtScaleFactor(const LibertyLibrary *library,
 				 int digits,
 				 string *result) const
 {
-  if (pvt == NULL)
+  if (pvt == nullptr)
     pvt = library->defaultOperatingConditions();
   if (pvt) {
     string scale_str;
@@ -1332,74 +1331,74 @@ TableAxisVariable
 stringTableAxisVariable(const char *variable)
 {
   if (stringEq(variable, "total_output_net_capacitance"))
-    return table_axis_total_output_net_capacitance;
+    return TableAxisVariable::total_output_net_capacitance;
   if (stringEq(variable, "equal_or_opposite_output_net_capacitance"))
-    return table_axis_equal_or_opposite_output_net_capacitance;
+    return TableAxisVariable::equal_or_opposite_output_net_capacitance;
   else if (stringEq(variable, "input_net_transition"))
-    return table_axis_input_net_transition;
+    return TableAxisVariable::input_net_transition;
   else if (stringEq(variable, "input_transition_time"))
-    return table_axis_input_transition_time;
+    return TableAxisVariable::input_transition_time;
   else if (stringEq(variable, "related_pin_transition"))
-    return table_axis_related_pin_transition;
+    return TableAxisVariable::related_pin_transition;
   else if (stringEq(variable, "constrained_pin_transition"))
-    return table_axis_constrained_pin_transition;
+    return TableAxisVariable::constrained_pin_transition;
   else if (stringEq(variable, "output_pin_transition"))
-    return table_axis_output_pin_transition;
+    return TableAxisVariable::output_pin_transition;
   else if (stringEq(variable, "connect_delay"))
-    return table_axis_connect_delay;
+    return TableAxisVariable::connect_delay;
   else if (stringEq(variable,"related_out_total_output_net_capacitance"))
-    return table_axis_related_out_total_output_net_capacitance;
+    return TableAxisVariable::related_out_total_output_net_capacitance;
   else if (stringEq(variable, "time"))
-    return table_axis_time;
+    return TableAxisVariable::time;
   else if (stringEq(variable, "iv_output_voltage"))
-    return table_axis_iv_output_voltage;
+    return TableAxisVariable::iv_output_voltage;
   else if (stringEq(variable, "input_noise_width"))
-    return table_axis_input_noise_width;
+    return TableAxisVariable::input_noise_width;
   else if (stringEq(variable, "input_noise_height"))
-    return table_axis_input_noise_height;
+    return TableAxisVariable::input_noise_height;
   else if (stringEq(variable, "input_voltage"))
-    return table_axis_input_voltage;
+    return TableAxisVariable::input_voltage;
   else if (stringEq(variable, "output_voltage"))
-    return table_axis_output_voltage;
+    return TableAxisVariable::output_voltage;
   else if (stringEq(variable, "path_depth"))
-    return table_axis_path_depth;
+    return TableAxisVariable::path_depth;
   else if (stringEq(variable, "path_distance"))
-    return table_axis_path_distance;
+    return TableAxisVariable::path_distance;
   else if (stringEq(variable, "normalzied_voltage"))
-    return table_axis_normalized_voltage;
+    return TableAxisVariable::normalized_voltage;
   else
-    return table_axis_unknown;
+    return TableAxisVariable::unknown;
 }
 
 const char *
 tableVariableString(TableAxisVariable variable)
 {
   switch (variable) {
-  case table_axis_total_output_net_capacitance:
+  case TableAxisVariable::total_output_net_capacitance:
     return "total_output_net_capacitance";
-  case table_axis_equal_or_opposite_output_net_capacitance:
+  case TableAxisVariable::equal_or_opposite_output_net_capacitance:
     return "equal_or_opposite_output_net_capacitance";
-  case table_axis_input_net_transition:
+  case TableAxisVariable::input_net_transition:
     return "input_net_transition";
-  case table_axis_input_transition_time:
+  case TableAxisVariable::input_transition_time:
     return "input_transition_time";
-  case table_axis_related_pin_transition:
+  case TableAxisVariable::related_pin_transition:
     return "related_pin_transition";
-  case table_axis_constrained_pin_transition:
+  case TableAxisVariable::constrained_pin_transition:
     return "constrained_pin_transition";
-  case table_axis_output_pin_transition:
+  case TableAxisVariable::output_pin_transition:
     return "output_pin_transition";
-  case table_axis_connect_delay:
+  case TableAxisVariable::connect_delay:
     return "connect_delay";
-  case table_axis_related_out_total_output_net_capacitance:
+  case TableAxisVariable::related_out_total_output_net_capacitance:
     return "related_out_total_output_net_capacitance";
-  case table_axis_time:
+  case TableAxisVariable::time:
     return "time";
-  case table_axis_iv_output_voltage:
+  case TableAxisVariable::iv_output_voltage:
     return "iv_output_voltage";
-  case table_axis_input_noise_width:
+  case TableAxisVariable::input_noise_width:
     return "input_noise_width";
-  case table_axis_input_noise_height:
+  case TableAxisVariable::input_noise_height:
     return "input_noise_height";
   default:
     return "unknown";
@@ -1411,33 +1410,33 @@ tableVariableUnit(TableAxisVariable variable,
 		  const Units *units)
 {
   switch (variable) {
-  case table_axis_total_output_net_capacitance:
-  case table_axis_related_out_total_output_net_capacitance:
-  case table_axis_equal_or_opposite_output_net_capacitance:
+  case TableAxisVariable::total_output_net_capacitance:
+  case TableAxisVariable::related_out_total_output_net_capacitance:
+  case TableAxisVariable::equal_or_opposite_output_net_capacitance:
     return units->capacitanceUnit();
-  case table_axis_input_net_transition:
-  case table_axis_input_transition_time:
-  case table_axis_related_pin_transition:
-  case table_axis_constrained_pin_transition:
-  case table_axis_output_pin_transition:
-  case table_axis_connect_delay:
-  case table_axis_time:
-  case table_axis_input_noise_height:
+  case TableAxisVariable::input_net_transition:
+  case TableAxisVariable::input_transition_time:
+  case TableAxisVariable::related_pin_transition:
+  case TableAxisVariable::constrained_pin_transition:
+  case TableAxisVariable::output_pin_transition:
+  case TableAxisVariable::connect_delay:
+  case TableAxisVariable::time:
+  case TableAxisVariable::input_noise_height:
     return units->timeUnit();
-  case table_axis_input_voltage:
-  case table_axis_output_voltage:
-  case table_axis_iv_output_voltage:
-  case table_axis_input_noise_width:
+  case TableAxisVariable::input_voltage:
+  case TableAxisVariable::output_voltage:
+  case TableAxisVariable::iv_output_voltage:
+  case TableAxisVariable::input_noise_width:
     return units->voltageUnit();
-  case table_axis_path_distance:
+  case TableAxisVariable::path_distance:
     return units->distanceUnit();
-  case table_axis_path_depth:
-  case table_axis_normalized_voltage:
-  case table_axis_unknown:
+  case TableAxisVariable::path_depth:
+  case TableAxisVariable::normalized_voltage:
+  case TableAxisVariable::unknown:
     return units->scalarUnit();
   }
   // Prevent warnings from lame compilers.
-  return NULL;
+  return nullptr;
 }
 
 } // namespace

@@ -46,7 +46,7 @@ static Report *liberty_report;
 static LibertyStmt *
 makeLibertyDefine(LibertyAttrValueSeq *values,
 		  int line);
-static AttrType
+static LibertyAttrType
 attrValueType(const char *value_type_name);
 static LibertyGroupType
 groupType(const char *group_type_name);
@@ -63,8 +63,8 @@ parseLibertyFile(const char *filename,
     liberty_group_visitor = library_visitor;
     liberty_group_stack.clear();
     liberty_filename = filename;
-    liberty_filename_prev = NULL;
-    liberty_stream_prev = NULL;
+    liberty_filename_prev = nullptr;
+    liberty_stream_prev = nullptr;
     liberty_line = 1;
     liberty_report = report;
     LibertyParse_parse();
@@ -91,14 +91,14 @@ libertyGroupEnd()
   liberty_group_visitor->end(group);
   liberty_group_stack.pop_back();
   LibertyGroup *parent =
-    liberty_group_stack.empty() ? NULL : liberty_group_stack.back();
+    liberty_group_stack.empty() ? nullptr : liberty_group_stack.back();
   if (parent && liberty_group_visitor->save(group)) {
     parent->addSubgroup(group);
     return group;
   }
   else {
     delete group;
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -115,17 +115,17 @@ LibertyGroup::LibertyGroup(const char *type,
   LibertyStmt(line),
   type_(type),
   params_(params),
-  attrs_(NULL),
-  attr_map_(NULL),
-  subgroups_(NULL),
-  define_map_(NULL)
+  attrs_(nullptr),
+  attr_map_(nullptr),
+  subgroups_(nullptr),
+  define_map_(nullptr)
 {
 }
 
 void
 LibertyGroup::addSubgroup(LibertyGroup *subgroup)
 {
-  if (subgroups_ == NULL)
+  if (subgroups_ == nullptr)
     subgroups_ = new LibertyGroupSeq;
   subgroups_->push_back(subgroup);
 }
@@ -133,7 +133,7 @@ LibertyGroup::addSubgroup(LibertyGroup *subgroup)
 void
 LibertyGroup::addDefine(LibertyDefine *define)
 {
-  if (define_map_ == NULL)
+  if (define_map_ == nullptr)
     define_map_ = new LibertyDefineMap;
   const char *define_name = define->name();
   LibertyDefine *prev_define = define_map_->findKey(define_name);
@@ -147,7 +147,7 @@ LibertyGroup::addDefine(LibertyDefine *define)
 void
 LibertyGroup::addAttribute(LibertyAttr *attr)
 {
-  if (attrs_ == NULL)
+  if (attrs_ == nullptr)
     attrs_ = new LibertyAttrSeq;
   attrs_->push_back(attr);
   if (attr_map_)
@@ -185,7 +185,7 @@ LibertyGroup::firstName()
     if (value->isString())
       return value->stringValue();
   }
-  return NULL;
+  return nullptr;
 }
 
 const char *
@@ -196,14 +196,14 @@ LibertyGroup::secondName()
     if (value->isString())
       return value->stringValue();
   }
-  return NULL;
+  return nullptr;
 }
 
 LibertyAttr *
 LibertyGroup::findAttr(const char *name)
 {
   if (attrs_) {
-    if (attr_map_ == NULL) {
+    if (attr_map_ == nullptr) {
       // Build attribute name map on demand.
       LibertyAttrSeq::Iterator attr_iter(attrs_);
       while (attr_iter.hasNext()) {
@@ -214,7 +214,7 @@ LibertyGroup::findAttr(const char *name)
     return attr_map_->findKey(name);
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 LibertySubgroupIterator::LibertySubgroupIterator(LibertyGroup *group) :
@@ -256,7 +256,7 @@ makeLibertySimpleAttr(const char *name,
   }
   else {
     delete attr;
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -283,7 +283,7 @@ LibertyAttrValueSeq *
 LibertySimpleAttr::values() const
 {
   internalError("valueIterator called for LibertySimpleAttribute");
-  return NULL;
+  return nullptr;
 }
 
 LibertyStmt *
@@ -313,7 +313,7 @@ makeLibertyComplexAttr(const char *name,
     }
     else {
       delete attr;
-      return NULL;
+      return nullptr;
     }
   }
 }
@@ -340,7 +340,7 @@ LibertyComplexAttr::firstValue()
   if (values_ && values_->size() > 0)
     return (*values_)[0];
   else
-    return NULL;
+    return nullptr;
 }
 
 LibertyAttrValue *
@@ -394,7 +394,7 @@ const char *
 LibertyFloatAttrValue::stringValue()
 {
   internalError("LibertyStringAttrValue called for float value");
-  return NULL;
+  return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -403,12 +403,12 @@ static LibertyStmt *
 makeLibertyDefine(LibertyAttrValueSeq *values,
 		  int line)
 {
-  LibertyDefine *define = NULL;
+  LibertyDefine *define = nullptr;
   if (values->size() == 3) {
     const char *define_name = (*values)[0]->stringValue();
     const char *group_type_name = (*values)[1]->stringValue();
     const char *value_type_name = (*values)[2]->stringValue();
-    AttrType value_type = attrValueType(value_type_name);
+    LibertyAttrType value_type = attrValueType(value_type_name);
     LibertyGroupType group_type = groupType(group_type_name);
     define = new LibertyDefine(stringCopy(define_name), group_type,
 			       value_type, line);
@@ -424,39 +424,39 @@ makeLibertyDefine(LibertyAttrValueSeq *values,
 // The Liberty User Guide Version 2001.08 fails to define the strings
 // used to define valid attribute types.  Beyond "string" these are
 // guesses.
-static AttrType
+static LibertyAttrType
 attrValueType(const char *value_type_name)
 {
   if (stringEq(value_type_name, "string"))
-    return liberty_attr_string;
+    return LibertyAttrType::attr_string;
   else if (stringEq(value_type_name, "integer"))
-    return liberty_attr_int;
+    return LibertyAttrType::attr_int;
   else if (stringEq(value_type_name, "float"))
-    return liberty_attr_double;
+    return LibertyAttrType::attr_double;
   else if (stringEq(value_type_name, "boolean"))
-    return liberty_attr_boolean;
+    return LibertyAttrType::attr_boolean;
   else
-    return liberty_attr_unknown;
+    return LibertyAttrType::attr_unknown;
 }
 
 static LibertyGroupType
 groupType(const char *group_type_name)
 {
   if (stringEq(group_type_name, "library"))
-    return liberty_group_library;
+    return LibertyGroupType::library;
   else if (stringEq(group_type_name, "cell"))
-    return liberty_group_cell;
+    return LibertyGroupType::cell;
   else if (stringEq(group_type_name, "pin"))
-    return liberty_group_pin;
+    return LibertyGroupType::pin;
   else if (stringEq(group_type_name, "timing"))
-    return liberty_group_timing;
+    return LibertyGroupType::timing;
   else
-    return liberty_group_unknown;
+    return LibertyGroupType::unknown;
 }
 
 LibertyDefine::LibertyDefine(const char *name,
 			     LibertyGroupType group_type,
-			     AttrType value_type,
+			     LibertyAttrType value_type,
 			     int line) :
   LibertyStmt(line),
   name_(name),
@@ -483,7 +483,7 @@ makeLibertyVariable(char *var,
     return variable;
   else {
     delete variable;
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -506,14 +506,14 @@ LibertyVariable::~LibertyVariable()
 bool
 libertyInInclude()
 {
-  return liberty_filename_prev != NULL;
+  return liberty_filename_prev != nullptr;
 }
 
 FILE *
 libertyIncludeBegin(const char *filename)
 {
   FILE *stream = fopen(filename, "r" );
-  if (stream == NULL)
+  if (stream == nullptr)
     libertyParseError("cannot open include file %s.\n", filename);
   else {
     liberty_filename_prev = liberty_filename;
@@ -533,8 +533,8 @@ libertyIncludeEnd()
   liberty_filename = liberty_filename_prev;
   liberty_line = liberty_line_prev;
   LibertyLex_in = liberty_stream_prev;
-  liberty_filename_prev = NULL;
-  liberty_stream_prev = NULL;
+  liberty_filename_prev = nullptr;
+  liberty_stream_prev = nullptr;
 }
 
 void

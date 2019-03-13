@@ -34,7 +34,7 @@ class InputDriveCell;
 class InputDrive
 {
 public:
-  explicit InputDrive(Port *port);
+  explicit InputDrive();
   ~InputDrive();
   void setSlew(const TransRiseFallBoth *tr,
 	       const MinMaxAll *min_max,
@@ -77,7 +77,6 @@ public:
 private:
   DISALLOW_COPY_AND_ASSIGN(InputDrive);
 
-  Port *port_;
   RiseFallMinMax slews_;
   RiseFallMinMax drive_resistances_;
   // Separate rise/fall/min/max drive cells.

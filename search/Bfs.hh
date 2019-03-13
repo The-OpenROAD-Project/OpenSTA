@@ -17,10 +17,10 @@
 #ifndef STA_BFS_H
 #define STA_BFS_H
 
+#include <mutex>
 #include "DisallowCopyAssign.hh"
 #include "Iterator.hh"
 #include "Set.hh"
-#include "Mutex.hh"
 #include "StaState.hh"
 #include "GraphClass.hh"
 #include "VertexVisitor.hh"
@@ -30,11 +30,9 @@ namespace sta {
 class SearchPred;
 class BfsFwdIterator;
 class BfsBkwdIterator;
-class BfsList;
-class BfsListIterator;
 
-// LevelQueue is a vector of vertex lists indexed by logic level.
-typedef Vector<BfsList*> LevelQueue;
+// LevelQueue is a vector of vertex vectors indexed by logic level.
+typedef Vector<VertexSeq> LevelQueue;
 
 // Abstract base class for forward and backward breadth first search iterators.
 // Visit all of the vertices at a level before moving to the next.
@@ -100,10 +98,6 @@ protected:
 				Level level2) const = 0;
   virtual void incrLevel(Level &level) = 0;
   void findNext(Level to_level);
-  BfsList *makeList(Vertex *vertex,
-		    BfsList *next);
-  void freeList(BfsList *l);
-  void deleteList(BfsList *list);
   void deleteEntries();
 
   BfsIndex bfs_index_;
@@ -111,17 +105,14 @@ protected:
   Level level_max_;
   SearchPred *search_pred_;
   LevelQueue queue_;
-  Mutex queue_lock_;
+  std::mutex queue_lock_;
   // Min (max) level of queued vertices.
   Level first_level_;
   // Max (min) level of queued vertices.
   Level last_level_;
-  BfsList *list_free_;
-  Mutex list_lock_;
 
   friend class BfsFwdIterator;
   friend class BfsBkwdIterator;
-  friend class BfsListIterator;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(BfsIterator);
@@ -171,22 +162,6 @@ protected:
 
 private:
   DISALLOW_COPY_AND_ASSIGN(BfsBkwdIterator);
-};
-
-// Single linked list (STL list is doubly linked).
-class BfsList
-{
-public:
-  BfsList(Vertex *vertex,
-	  BfsList *next);
-  Vertex *vertex() const { return vertex_; }
-  void setVertex(Vertex *vertex);
-  BfsList *next() const { return next_; }
-  void setNext(BfsList *next);
-
-protected:
-  Vertex *vertex_;
-  BfsList *next_;
 };
 
 } // namespace

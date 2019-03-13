@@ -69,7 +69,7 @@ Diversion::Diversion(PathEnd *path_end,
 
 // Default constructor required for DiversionQueue template.
 DiversionGreater::DiversionGreater() :
-  sta_(NULL)
+  sta_(nullptr)
 {
 }
 
@@ -112,7 +112,7 @@ PathEnum::PathEnum(int group_count,
   div_queue_(DiversionGreater(sta)),
   div_count_(0),
   inserts_pruned_(false),
-  next_(NULL)
+  next_(nullptr)
 {
 }
 
@@ -150,10 +150,10 @@ PathEnum::hasNext()
     pruneDiversionQueue();
     inserts_pruned_ = true;
   }
-  if (next_ == NULL
+  if (next_ == nullptr
       && !div_queue_.empty())
     findNext();
-  return next_ != NULL;
+  return next_ != nullptr;
 }
 
 PathEnd *
@@ -167,7 +167,7 @@ PathEnum::next()
 void
 PathEnum::findNext()
 {
-  next_ = NULL;
+  next_ = nullptr;
   // Pop the next slowest path off the queue.
   while (!div_queue_.empty()) {
     Diversion *div = div_queue_.top();
@@ -348,7 +348,7 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
       // Make the diverted path end to check slack with from_path crpr.
       makeDivertedPathEnd(from_path, arc, div_end, after_div_copy);
       // Only enumerate paths with greater slack.
-      if (delayFuzzyGreaterEqual(div_end->slack(sta_), path_end_slack_)) {
+      if (fuzzyGreaterEqual(div_end->slack(sta_), path_end_slack_)) {
 	reportDiversion(arc, from_path);
 	path_enum_->makeDiversion(div_end, after_div_copy);
       }
@@ -356,7 +356,7 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
 	delete div_end;
     }
     // Only enumerate slower/faster paths.
-    else if (delayFuzzyLessEqual(to_arrival, before_div_arrival_, min_max)) {
+    else if (fuzzyLessEqual(to_arrival, before_div_arrival_, min_max)) {
       PathEnd *div_end;
       PathEnumed *after_div_copy;
       makeDivertedPathEnd(from_path, arc, div_end, after_div_copy);
@@ -487,7 +487,7 @@ PathEnum::divEdge(Path *before_div,
     if (edge->timingArcSet() == arc_set)
       return edge;
   }
-  return NULL;
+  return nullptr;
 }
 
 // Make diversions for all arcs that merge into path for paths
@@ -533,7 +533,7 @@ PathEnum::makeDivertedPath(Path *path,
   PathRef p(path);
   bool first = true;
   bool is_latch_data = false;
-  PathEnumed *prev_copy = NULL;
+  PathEnumed *prev_copy = nullptr;
   while (!p.isNull()) {
     PathRef prev;
     TimingArc *prev_arc;
@@ -541,7 +541,7 @@ PathEnum::makeDivertedPath(Path *path,
     PathEnumed *copy = new PathEnumed(p.vertexIndex(this),
 				      p.tagIndex(this),
 				      p.arrival(this),
-				      NULL,  // prev_path made in next pass.
+				      nullptr,  // prev_path made in next pass.
 				      prev_arc);
     if (prev_copy)
       prev_copy->setPrevPath(copy);

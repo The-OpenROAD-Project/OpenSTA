@@ -17,10 +17,10 @@
 #ifndef STA_CONCRETE_PARASITICS_H
 #define STA_CONCRETE_PARASITICS_H
 
+#include <mutex>
 #include "Map.hh"
 #include "Set.hh"
 #include "MinMax.hh"
-#include "ReadWriteLock.hh"
 #include "EstimateParasitics.hh"
 #include "Parasitics.hh"
 
@@ -244,7 +244,7 @@ protected:
   ConcretePiElmoreMapSeq *pi_elmore_maps_;
   ConcretePiPoleResidueMapSeq *pi_pole_residue_maps_;
   ConcreteParasiticNetworkMapSeq *parasitic_network_maps_;
-  mutable ReadWriteLock lock_;
+  mutable std::mutex lock_;
 
   using EstimateParasitics::estimatePiElmore;
   friend class ConcreteLumpedElmore;

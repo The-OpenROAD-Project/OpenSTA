@@ -25,12 +25,12 @@
 namespace sta {
 
 PathRef::PathRef() :
-  path_enumed_(NULL)
+  path_enumed_(nullptr)
 {
 }
 
 PathRef::PathRef(const Path *path) :
-  path_enumed_(NULL)
+  path_enumed_(nullptr)
 {
   if (path)
     path->setRef(this);
@@ -50,7 +50,7 @@ PathRef::PathRef(const PathRef *path) :
 
 PathRef::PathRef(const PathVertex &path) :
   path_vertex_(&path),
-  path_enumed_(NULL)
+  path_enumed_(nullptr)
 {
 }
 
@@ -58,7 +58,7 @@ void
 PathRef::init()
 {
   path_vertex_.init();
-  path_enumed_ = NULL;
+  path_enumed_ = nullptr;
 }
 
 void
@@ -93,7 +93,7 @@ PathRef::init(Vertex *vertex,
 	      int arrival_index)
 {
   path_vertex_.init(vertex, tag, arrival_index);
-  path_enumed_ = NULL;
+  path_enumed_ = nullptr;
 }
 
 void
@@ -119,7 +119,7 @@ PathRef::deleteRep()
 bool
 PathRef::isNull() const
 {
-  return path_enumed_ == NULL
+  return path_enumed_ == nullptr
     && path_vertex_.isNull();
 }
 

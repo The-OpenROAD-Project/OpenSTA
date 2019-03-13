@@ -87,7 +87,7 @@ private:
 	     bool is_timing_check,
  	     bool is_non_seq_check,
 	     MinMax *path_min_max,
-	     // generic_type = NULL means type is the same as this.
+	     // generic_type = nullptr means type is the same as this.
 	     TimingRole *generic_role,
 	     int index);
   DISALLOW_COPY_AND_ASSIGN(TimingRole);

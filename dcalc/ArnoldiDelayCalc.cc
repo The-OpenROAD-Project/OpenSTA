@@ -269,7 +269,7 @@ ArnoldiDelayCalc::findParasitic(const Pin *drvr_pin,
 				Parasitic *&parasitic,
 				bool &delete_at_finish)
 {
-  parasitic = NULL;
+  parasitic = nullptr;
   delete_at_finish = false;
   // set_load has precidence over parasitics.
   if (!sdc_->drvrPinHasWireCap(drvr_pin)) {
@@ -280,7 +280,7 @@ ArnoldiDelayCalc::findParasitic(const Pin *drvr_pin,
     Parasitic *parasitic_network =
       parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
     bool delete_parasitic_network = false;
-    if (parasitic_network == NULL) {
+    if (parasitic_network == nullptr) {
       Wireload *wireload = sdc_->wireloadDefaulted(cnst_min_max);
       if (wireload) {
 	float pin_cap, wire_cap, fanout;
@@ -318,7 +318,7 @@ ArnoldiDelayCalc::inputPortDelay(const Pin *drvr_pin,
 				 const DcalcAnalysisPt *dcalc_ap)
 {
   RCDelayCalc::inputPortDelay(drvr_pin, in_slew, tr, parasitic, dcalc_ap);
-  rcmodel_ = NULL;
+  rcmodel_ = nullptr;
   _delayV[0] = 0.0;
   _slewV[0] = in_slew;
 

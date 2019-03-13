@@ -35,7 +35,7 @@
 #define gzclose fclose
 #define gzgets(stream,s,size) fgets(s,size,stream)
 #define gzprintf fprintf
-#define Z_NULL NULL
+#define Z_NULL nullptr
 
 #endif // ZLIB
 

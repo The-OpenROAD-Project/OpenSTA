@@ -33,50 +33,45 @@ typedef int TimingArcIndex;
 typedef Vector<TimingArc*> TimingArcSeq;
 typedef Map<const OperatingConditions*, TimingModel*> ScaledTimingModelMap;
 
-typedef enum {
-  timing_type_clear,
-  timing_type_combinational,
-  timing_type_combinational_fall,
-  timing_type_combinational_rise,
-  timing_type_falling_edge,
-  timing_type_hold_falling,
-  timing_type_hold_rising,
-  timing_type_min_pulse_width,
-  timing_type_minimum_period,
-  timing_type_nochange_high_high,
-  timing_type_nochange_high_low,
-  timing_type_nochange_low_high,
-  timing_type_nochange_low_low,
-  timing_type_non_seq_hold_falling,
-  timing_type_non_seq_hold_rising,
-  timing_type_non_seq_setup_falling,
-  timing_type_non_seq_setup_rising,
-  timing_type_preset,
-  timing_type_recovery_falling,
-  timing_type_recovery_rising,
-  timing_type_removal_falling,
-  timing_type_removal_rising,
-  timing_type_retaining_time,
-  timing_type_rising_edge,
-  timing_type_setup_falling,
-  timing_type_setup_rising,
-  timing_type_skew_falling,
-  timing_type_skew_rising,
-  timing_type_three_state_disable,
-  timing_type_three_state_disable_fall,
-  timing_type_three_state_disable_rise,
-  timing_type_three_state_enable,
-  timing_type_three_state_enable_fall,
-  timing_type_three_state_enable_rise,
-  timing_type_min_clock_tree_path,
-  timing_type_max_clock_tree_path,
-  timing_type_unknown
-} TimingType;
-
-void
-makeTimingTypeMap();
-void
-deleteTimingTypeMap();
+enum class TimingType {
+  clear,
+  combinational,
+  combinational_fall,
+  combinational_rise,
+  falling_edge,
+  hold_falling,
+  hold_rising,
+  min_pulse_width,
+  minimum_period,
+  nochange_high_high,
+  nochange_high_low,
+  nochange_low_high,
+  nochange_low_low,
+  non_seq_hold_falling,
+  non_seq_hold_rising,
+  non_seq_setup_falling,
+  non_seq_setup_rising,
+  preset,
+  recovery_falling,
+  recovery_rising,
+  removal_falling,
+  removal_rising,
+  retaining_time,
+  rising_edge,
+  setup_falling,
+  setup_rising,
+  skew_falling,
+  skew_rising,
+  three_state_disable,
+  three_state_disable_fall,
+  three_state_disable_rise,
+  three_state_enable,
+  three_state_enable_fall,
+  three_state_enable_rise,
+  min_clock_tree_path,
+  max_clock_tree_path,
+  unknown
+};
 
 const char *
 timingTypeString(TimingType type);
@@ -164,8 +159,7 @@ public:
 		TimingArc *&arc1,
 		TimingArc *&arc2);
   const TimingArcSeq &arcs() const { return arcs_; }
-  // Use the TimingArcSetArcIterator(arc_set) constructor instead.
-  TimingArcSetArcIterator *timingArcIterator() __attribute__ ((deprecated));
+  TimingArcSetArcIterator *timingArcIterator();
   TimingArcIndex addTimingArc(TimingArc *arc);
   void deleteTimingArc(TimingArc *arc);
   TimingArc *findTimingArc(unsigned arc_index);

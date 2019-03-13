@@ -22,11 +22,7 @@ namespace sta {
 #include "GraphClass.hh"
 #include "SearchClass.hh"
 
-typedef enum {
-  latch_state_enabled,
-  latch_state_open,
-  latch_state_closed
-} LatchEnableState;
+enum class LatchEnableState { enabled, open, closed };
 
 // Latches class defines latch behavior.
 class Latches : public StaState

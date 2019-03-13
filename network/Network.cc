@@ -25,7 +25,7 @@
 namespace sta {
 
 Network::Network() :
-  default_liberty_(NULL),
+  default_liberty_(nullptr),
   divider_('/'),
   escape_('\\')
 {
@@ -39,14 +39,14 @@ Network::~Network()
 void
 Network::clear()
 {
-  default_liberty_ = NULL;
+  default_liberty_ = nullptr;
   clearNetDrvPinrMap();
 }
 
 bool
 Network::isLinked() const
 {
-  return topInstance() != NULL;
+  return topInstance() != nullptr;
 }
 
 LibertyLibrary *
@@ -79,7 +79,7 @@ Network::findLibertyCell(const char *name) const
     }
   }
   delete iter;
-  return NULL;
+  return nullptr;
 }
 
 LibertyLibrary *
@@ -107,7 +107,7 @@ Network::findLibertyFilename(const char *filename)
     }
   }
   delete lib_iter;
-  return NULL;
+  return nullptr;
 }
 
 LibertyCell *
@@ -181,9 +181,9 @@ int
 Network::pathNameCmp(const Instance *inst1,
 		     const Instance *inst2) const
 {
-  if (inst1 == NULL && inst2)
+  if (inst1 == nullptr && inst2)
     return -1;
-  else if (inst1 && inst2 == NULL)
+  else if (inst1 && inst2 == nullptr)
     return 1;
   else if (inst1 == inst2)
     return 0;
@@ -321,7 +321,7 @@ Network::isHierarchical(const Pin *pin) const
 bool
 Network::isTopLevelPort(const Pin *pin) const
 {
-  return (parent(instance(pin)) == NULL);
+  return (parent(instance(pin)) == nullptr);
 }
 
 bool
@@ -704,7 +704,7 @@ Network::findPinRelative(const Instance *inst,
     }
     stringDelete(inst_path);
     stringDelete(port_name);
-    return NULL;
+    return nullptr;
   }
   else
     // Top level pin.
@@ -724,7 +724,7 @@ Network::findPinLinear(const Instance *instance,
     }
   }
   delete pin_iter;
-  return NULL;
+  return nullptr;
 }
 
 Pin *
@@ -763,7 +763,7 @@ Network::findNetRelative(const Instance *inst,
     }
     stringDelete(inst_path);
     stringDelete(net_name);
-    return NULL;
+    return nullptr;
   }
   else
     // Top level net.
@@ -783,7 +783,7 @@ Network::findNetLinear(const Instance *instance,
     }
   }
   delete net_iter;
-  return NULL;
+  return nullptr;
 }
 
 void
@@ -1075,7 +1075,7 @@ LeafInstanceIterator1::LeafInstanceIterator1(const Instance *inst,
 					     const Network *network) :
   network_(network),
   child_iter_(network->childIterator(inst)),
-  next_(NULL)
+  next_(nullptr)
 {
   pending_child_iters_.reserve(512);
   nextInst();
@@ -1092,7 +1092,7 @@ LeafInstanceIterator1::next()
 void
 LeafInstanceIterator1::nextInst()
 {
-  next_ = NULL;
+  next_ = nullptr;
   while (child_iter_) {
     while (child_iter_->hasNext()) {
       next_ = child_iter_->next();
@@ -1101,13 +1101,13 @@ LeafInstanceIterator1::nextInst()
       else {
         pending_child_iters_.push_back(child_iter_);
         child_iter_ = network_->childIterator(next_);
-        next_ = NULL;
+        next_ = nullptr;
       }
     }
     delete child_iter_;
 
     if (pending_child_iters_.empty())
-      child_iter_ = NULL;
+      child_iter_ = nullptr;
     else {
       child_iter_ = pending_child_iters_.back();
       pending_child_iters_.pop_back();
@@ -1138,7 +1138,7 @@ Network::visitConnectedPins(Pin *pin,
   Term *pin_term = term(pin);
   if (pin_net)
     visitConnectedPins(pin_net, visitor, visited_nets);
-  else if (pin_term == NULL)
+  else if (pin_term == nullptr)
     // Unconnected or internal pin.
     visitor(pin);
 
@@ -1445,7 +1445,7 @@ Network::drivers(const Pin *pin)
   if (net)
     return drivers(net);
   else
-    return NULL;
+    return nullptr;
 }
 
 void
@@ -1458,7 +1458,7 @@ PinSet *
 Network::drivers(const Net *net)
 {
   PinSet *drvrs = net_drvr_pin_map_.findKey(net);
-  if (drvrs == NULL) {
+  if (drvrs == nullptr) {
     drvrs = new PinSet;
     FindDrvrPins visitor(drvrs, this);
     visitConnectedPins(net, visitor);
@@ -1478,7 +1478,7 @@ Network::pathNameFirst(const char *path_name,
   char divider = pathDivider();
   const char *d = strchr(path_name, divider);
   // Skip escaped dividers.
-  while (d != NULL
+  while (d != nullptr
 	 && d > path_name
 	 && d[-1] == escape)
     d = strchr(d + 1, divider);
@@ -1493,8 +1493,8 @@ Network::pathNameFirst(const char *path_name,
   }
   else {
     // No divider in path_name.
-    first = NULL;
-    tail = NULL;
+    first = nullptr;
+    tail = nullptr;
   }
 }
 
@@ -1526,8 +1526,8 @@ Network::pathNameLast(const char *path_name,
   }
   else {
     // No divider in path_name.
-    head = NULL;
-    last = NULL;
+    head = nullptr;
+    last = nullptr;
   }
 }
 
@@ -1554,10 +1554,10 @@ NetworkConstantPinIterator(const Network *network,
   ConstantPinIterator(),
   network_(network)
 {
-  findConstantPins(zero_nets, logic_zero);
-  findConstantPins(one_nets, logic_one);
-  value_ = logic_zero;
-  pin_iter_ = new PinSet::Iterator(constant_pins_[value_]);
+  findConstantPins(zero_nets, constant_pins_[0]);
+  findConstantPins(one_nets, constant_pins_[1]);
+  value_ = LogicValue::zero;
+  pin_iter_ = new PinSet::Iterator(constant_pins_[0]);
 }
 
 NetworkConstantPinIterator::~NetworkConstantPinIterator()
@@ -1567,7 +1567,7 @@ NetworkConstantPinIterator::~NetworkConstantPinIterator()
 
 void
 NetworkConstantPinIterator::findConstantPins(NetSet &nets,
-					     LogicValue const_value)
+					     PinSet &pins)
 {
   NetSet::Iterator net_iter(nets);
   while (net_iter.hasNext()) {
@@ -1575,7 +1575,7 @@ NetworkConstantPinIterator::findConstantPins(NetSet &nets,
     NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(net);
     while (pin_iter->hasNext()) {
       Pin *pin = pin_iter->next();
-      constant_pins_[const_value].insert(pin);
+      pins.insert(pin);
     }
     delete pin_iter;
   }
@@ -1586,10 +1586,10 @@ NetworkConstantPinIterator::hasNext()
 {
   if (pin_iter_->hasNext())
     return true;
-  else if (value_ == logic_zero) {
+  else if (value_ == LogicValue::zero) {
     delete pin_iter_;
-    value_ = logic_one;
-    pin_iter_ = new PinSet::Iterator(constant_pins_[value_]);
+    value_ = LogicValue::one;
+    pin_iter_ = new PinSet::Iterator(constant_pins_[1]);
     return pin_iter_->hasNext();
   }
   else
@@ -1825,7 +1825,7 @@ char
 logicValueString(LogicValue value)
 {
   static char str[] = "01X^v";
-  return str[value];
+  return str[int(value)];
 }
 
 bool

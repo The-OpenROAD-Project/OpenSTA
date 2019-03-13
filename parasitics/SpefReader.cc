@@ -117,13 +117,13 @@ SpefReader::SpefReader(const char *filename,
   delimiter_('\0'),
   bus_brkt_left_('\0'),
   bus_brkt_right_('\0'),
-  net_(NULL),
+  net_(nullptr),
   report_(report),
   network_(network),
   parasitics_(parasitics),
   triple_index_(0),
-  design_flow_(NULL),
-  parasitic_(NULL)
+  design_flow_(nullptr),
+  parasitic_(nullptr)
 {
   ap->setCouplingCapFactor(coupling_cap_factor);
 }
@@ -133,7 +133,7 @@ SpefReader::~SpefReader()
   if (design_flow_) {
     deleteContents(design_flow_);
     delete design_flow_;
-    design_flow_ = NULL;
+    design_flow_ = nullptr;
   }
 
   SpefNameMap::Iterator map_iter(name_map_);
@@ -202,7 +202,7 @@ SpefReader::getChars(char *buf,
 {
   char *status = gzgets(stream_, buf, max_size);
   if (status == Z_NULL)
-    result = 0;  // YY_NULL
+    result = 0;  // YY_nullptr
   else
     result = static_cast<int>(strlen(buf));
 }
@@ -214,7 +214,7 @@ SpefReader::getChars(char *buf,
 {
   char *status = gzgets(stream_, buf, max_size);
   if (status == Z_NULL)
-    result = 0;  // YY_NULL
+    result = 0;  // YY_nullptr
   else
     result = strlen(buf);
 }
@@ -358,7 +358,7 @@ SpefReader::findPin(char *name)
       const char *port_name = delim + 1;
       if (inst) {
 	pin = network_->findPin(inst, port_name);
-	if (pin == NULL)
+	if (pin == nullptr)
 	  warn("pin %s not found.\n", name);
       }
       else
@@ -366,7 +366,7 @@ SpefReader::findPin(char *name)
     }
     else {
       pin = findPortPinRelative(name);
-      if (pin == NULL)
+      if (pin == nullptr)
 	warn("pin %s not found.\n", name);
     }
   }
@@ -380,7 +380,7 @@ SpefReader::findNet(char *name)
   name = nameMapLookup(name);
   if (name) {
     net = findNetRelative(name);
-    if (net == NULL)
+    if (net == nullptr)
       warn("net %s not found.\n", name);
   }
   return net;
@@ -473,7 +473,7 @@ SpefReader::dspfFinish()
     // Checking "should" be done by report_annotated_parasitics.
     if (!quiet_)
       parasitics_->check(parasitic_);
-    if (reduce_to_ != reduce_parasitics_to_none) {
+    if (reduce_to_ != ReduceParasiticsTo::none) {
       TransRiseFallIterator tr_iter;
       while (tr_iter.hasNext()) {
 	TransRiseFall *tr = tr_iter.next();
@@ -497,7 +497,7 @@ SpefReader::findParasiticNode(char *name)
   int ext_node_id;
   Pin *ext_pin;
   findParasiticNode(name, node, ext_net, ext_node_id, ext_pin);
-  if (node == NULL
+  if (node == nullptr
       && (ext_net || ext_pin))
     warn("%s not connected to net %s.\n", name, network_->pathName(net_));
   return node;
@@ -621,8 +621,8 @@ SpefReader::makeCouplingCap(int id,
 			    char *node_name2,
 			    float cap)
 {
-  const char *name = NULL;
-  const char *name_tmp = NULL;
+  const char *name = nullptr;
+  const char *name_tmp = nullptr;
   if (keep_device_names_)
     // Prepend device type because OA uses one namespace for all devices.
     name = name_tmp = stringPrint("C%d", id);
@@ -635,14 +635,14 @@ SpefReader::makeCouplingCap(int id,
   findParasiticNode(node_name2, node2, ext_net2, ext_node_id2, ext_pin2);
   if (node1 && node2)
     parasitics_->makeCouplingCap(name, node1, node2, cap, ap_);
-  if (node1 && node2 == NULL) {
+  if (node1 && node2 == nullptr) {
     if (ext_net2)
       parasitics_->makeCouplingCap(name, node1, ext_net2, ext_node_id2,
 				   cap, ap_);
     else if (ext_pin2)
       parasitics_->makeCouplingCap(name, node1, ext_pin2, cap, ap_);
   }
-  else if (node1 == NULL && node2) {
+  else if (node1 == nullptr && node2) {
     if (ext_net1)
       parasitics_->makeCouplingCap(name, node2, ext_net1, ext_node_id1,
 				   cap, ap_);
@@ -662,8 +662,8 @@ SpefReader::makeResistor(int id,
   ParasiticNode *node2 = findParasiticNode(node_name2);
   if (node1 && node2) {
     float res1 = res->value(triple_index_) * res_scale_;
-    const char *name = NULL;
-    const char *name_tmp = NULL;
+    const char *name = nullptr;
+    const char *name_tmp = nullptr;
     if (keep_device_names_)
       // Prepend device type because OA uses one namespace for all devices.
       name = name_tmp = stringPrint("R%d", id);

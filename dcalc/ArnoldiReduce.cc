@@ -35,7 +35,7 @@
 namespace sta {
 
 rcmodel::rcmodel() :
-  pinV(NULL)
+  pinV(nullptr)
 {
 }
 
@@ -188,7 +188,7 @@ ArnoldiReduce::loadWork()
   ts_edge *e;
   int tindex;
   for (p = p0; p!=pend; p++) {
-    p->node_ = NULL;
+    p->node_ = nullptr;
     p->eN = 0;
     p->is_term = false;
   }
@@ -323,7 +323,7 @@ ArnoldiReduce::makeRcmodelDrv()
   makeRcmodelDfs(pdrv);
   getRC();
   if (ctot_ < 1e-22) // 1e-10ps
-    return NULL;
+    return nullptr;
   setTerms(pdrv);
   makeRcmodelFromTs();
   rcmodel *mod = makeRcmodelFromW();
@@ -350,7 +350,7 @@ ArnoldiReduce::makeRcmodelDfs(ts_point *pdrv)
   stackV[0] = e = pdrv->eV[0];
   ts_orient(pdrv,e);
   pdrv->visited = 1;
-  pdrv->in_edge = NULL;
+  pdrv->in_edge = nullptr;
   pdrv->ts = 0;
   ts_ordV[0] = pdrv-p0;
   ts_pordV[0] = pdrv;
@@ -620,7 +620,7 @@ ArnoldiReduce::makeRcmodelFromW()
     int totd = order + order - 1 + order*n;
     mod->d = (double *)malloc(totd*sizeof(double));
     if (order>1) mod->e = mod->d + order;
-    else mod->e = NULL;
+    else mod->e = nullptr;
     mod->U = (double **)malloc(order*sizeof(double*));
     mod->U[0] = mod->d + order + order - 1;
     for (h=1;h<order;h++) mod->U[h]=mod->U[0] + h*n;

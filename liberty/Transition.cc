@@ -35,9 +35,9 @@ void
 TransRiseFall::destroy()
 {
   delete rise_;
-  rise_ = NULL;
+  rise_ = nullptr;
   delete fall_;
-  fall_ = NULL;
+  fall_ = nullptr;
 }
 
 TransRiseFall::TransRiseFall(const char *name,
@@ -78,7 +78,7 @@ TransRiseFall::find(const char *tr_str)
   else if (stringEq(tr_str, fall_->name()))
     return fall_;
   else
-    return NULL;
+    return nullptr;
 }
 
 TransRiseFall *
@@ -128,18 +128,18 @@ TransRiseFallBoth::init()
 {
   rise_ = new TransRiseFallBoth("rise", "^", 0, TransRiseFall::rise());
   fall_ = new TransRiseFallBoth("fall", "v", 1, TransRiseFall::fall());
-  rise_fall_ = new TransRiseFallBoth("rise_fall", "rf", 2, NULL);
+  rise_fall_ = new TransRiseFallBoth("rise_fall", "rf", 2, nullptr);
 }
 
 void
 TransRiseFallBoth::destroy()
 {
   delete rise_;
-  rise_ = NULL;
+  rise_ = nullptr;
   delete fall_;
-  fall_ = NULL;
+  fall_ = nullptr;
   delete rise_fall_;
-  rise_fall_ = NULL;
+  rise_fall_ = nullptr;
 }
 
 TransRiseFallBoth::TransRiseFallBoth(const char *name,
@@ -168,7 +168,7 @@ TransRiseFallBoth::find(const char *tr_str)
   else if (stringEq(tr_str, rise_fall_->name()))
     return rise_fall_;
   else
-    return NULL;
+    return nullptr;
 }
 
 bool
@@ -229,9 +229,9 @@ Transition::init()
   tr_X1_ = new Transition("X1", "X1", TransRiseFall::rise(),  7);
   tr_1X_ = new Transition("1X", "1X", TransRiseFall::fall(),  8);
   tr_X0_ = new Transition("X0", "X0", TransRiseFall::fall(),  9);
-  tr_XZ_ = new Transition("XZ", "XZ",                  NULL, 10);
-  tr_ZX_ = new Transition("ZX", "ZX",                  NULL, 11);
-  rise_fall_ = new Transition("*", "**",               NULL, -1);
+  tr_XZ_ = new Transition("XZ", "XZ",                  nullptr, 10);
+  tr_ZX_ = new Transition("ZX", "ZX",                  nullptr, 11);
+  rise_fall_ = new Transition("*", "**",               nullptr, -1);
 }
 
 Transition::Transition(const char *name,
@@ -271,7 +271,7 @@ Transition::destroy()
     delete tr_ZX_;
     delete rise_fall_;
     delete transition_map_;
-    transition_map_ = NULL;
+    transition_map_ = nullptr;
   }
 }
 

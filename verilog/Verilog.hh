@@ -515,7 +515,7 @@ class VerilogNetUnnamed : public VerilogNet
 public:
   VerilogNetUnnamed() {}
   virtual bool isNamed() { return false; }
-  virtual const char *name() { return NULL; }
+  virtual const char *name() { return nullptr; }
 
 private:
   DISALLOW_COPY_AND_ASSIGN(VerilogNetUnnamed);
@@ -659,7 +659,7 @@ public:
   virtual int size(VerilogModule *module);
   virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
 					       VerilogReader *reader);
-  virtual bool hasNet() { return net_name_ != NULL; }
+  virtual bool hasNet() { return net_name_ != nullptr; }
   const char *netName() const { return net_name_; }
   void setNetName(const char *net_name) { net_name_ = net_name; }
 
@@ -677,7 +677,7 @@ public:
   virtual int size(VerilogModule *module);
   virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
 					       VerilogReader *reader);
-  virtual bool hasNet() { return net_ != NULL; }
+  virtual bool hasNet() { return net_ != nullptr; }
 
 private:
   DISALLOW_COPY_AND_ASSIGN(VerilogNetPortRefScalar);
@@ -707,6 +707,7 @@ public:
 			int to_index,
 			VerilogNet *net);
   virtual const char *name();
+  int toIndex() const { return to_index_; }
 
 private:
   DISALLOW_COPY_AND_ASSIGN(VerilogNetPortRefPart);

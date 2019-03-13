@@ -17,53 +17,74 @@
 #ifndef STA_THREAD_FOR_EACH_H
 #define STA_THREAD_FOR_EACH_H
 
+#include <mutex>
+#include <thread>
+#include <vector>
 #include "Iterator.hh"
-#include "Thread.hh"
-#include "Mutex.hh"
 
 namespace sta {
 
 template<class Iterator, class Func>
 class ForEachArg {
 public:
-  ForEachArg() {}
   ForEachArg(Iterator *iter,
-	     Mutex *lock,
+	     std::mutex &lock,
 	     Func *func) :
     iter_(iter),
     lock_(lock),
     func_(func)
   {}
 
+  ~ForEachArg()
+  {
+    delete func_;
+  }
+
+  // Copy constructor.
+  ForEachArg(const ForEachArg &arg) :
+    iter_(arg.iter_),
+    lock_(arg.lock_),
+    func_(arg.func_->copy())
+  {
+  }
+  // Move constructor.
+  ForEachArg(ForEachArg &&arg) :
+    iter_(arg.iter_),
+    lock_(arg.lock_),
+    func_(arg.func_)
+  {
+    arg.func_ = nullptr;
+  }
+
   Iterator *iter_;
-  Mutex *lock_;
+  std::mutex &lock_;
   Func *func_;
 };
 
 template<class Iterator, class Func, class FuncArg>
 void
-forEachBegin(void *arg)
+forEachBegin(ForEachArg<Iterator, Func> arg1)
 {
-  ForEachArg<Iterator, Func> *arg1 =
-    reinterpret_cast<ForEachArg<Iterator, Func>*>(arg);
-  Iterator *iter = arg1->iter_;
-  Mutex *lock = arg1->lock_;
-  Func *func = arg1->func_;
+  Iterator *iter = arg1.iter_;
+  std::mutex &lock = arg1.lock_;
+  Func *func = arg1.func_;
   while (true) {
-    lock->lock();
+    lock.lock();
     if (iter->hasNext()) {
       FuncArg arg = iter->next();
-      lock->unlock();
+      lock.unlock();
       (*func)(arg);
     }
     else {
-      lock->unlock();
+      lock.unlock();
       break;
     }
   }
 }
 
 // Parallel version of STL for_each.
+// Each thread has its own functor.
+// Func::copy() must be defined.
 template<class Iterator, class Func, class FuncArg>
 void
 forEach(Iterator *iter,
@@ -75,55 +96,15 @@ forEach(Iterator *iter,
       (*func)(iter->next());
   }
   else {
-    Mutex lock;
-    ForEachArg<Iterator, Func> arg(iter, &lock, func);
-    Thread *threads = new Thread[thread_count];
-    for (int i = 0; i < thread_count; i++)
-      threads[i].beginTask(forEachBegin<Iterator, Func, FuncArg>,
-			   reinterpret_cast<void*>(&arg));
-
-    for (int i = 0; i < thread_count; i++)
-      threads[i].wait();
-
-    delete [] threads;
-  }
-}
-
-// forEach2 is similar to forEach, except that each thread has
-// its own functor.
-// Func::copy() must be defined.
-template<class Iterator, class Func, class FuncArg>
-void
-forEach2(Iterator *iter,
-	 Func *func,
-	 int thread_count)
-{
-  if (thread_count <= 1) {
-    while (iter->hasNext())
-      (*func)(iter->next());
-  }
-  else {
-    ForEachArg<Iterator, Func> *args =
-      new ForEachArg<Iterator, Func>[thread_count];
-    Thread *threads = new Thread[thread_count];
-    Mutex lock;
+    std::vector<std::thread> threads;
+    std::mutex lock;
     for (int i = 0; i < thread_count; i++) {
-      ForEachArg<Iterator, Func> *arg = &args[i];
-      arg->iter_ = iter;
-      arg->lock_ = &lock;
-      arg->func_ = func->copy();
-      threads[i].beginTask(forEachBegin<Iterator, Func, FuncArg>,
-			   reinterpret_cast<void*>(arg));
+      ForEachArg<Iterator,Func> arg(iter, lock, func->copy());
+      threads.push_back(std::thread(forEachBegin<Iterator,Func,FuncArg>, arg));
     }
 
-    for (int i = 0; i < thread_count; i++) {
-      threads[i].wait();
-      ForEachArg<Iterator, Func> *arg = &args[i];
-      delete arg->func_;
-    }
-
-    delete [] threads;
-    delete [] args;
+    for (auto &thread : threads)
+      thread.join();
   }
 }
 

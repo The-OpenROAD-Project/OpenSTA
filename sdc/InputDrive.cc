@@ -19,8 +19,7 @@
 
 namespace sta {
 
-InputDrive::InputDrive(Port *port) :
-  port_(port)
+InputDrive::InputDrive()
 {
   TransRiseFallIterator tr_iter;
   while (tr_iter.hasNext()) {
@@ -28,7 +27,7 @@ InputDrive::InputDrive(Port *port) :
     MinMaxIterator mm_iter;
     while (mm_iter.hasNext()) {
       MinMax *mm = mm_iter.next();
-      drive_cells_[tr->index()][mm->index()] = NULL;
+      drive_cells_[tr->index()][mm->index()] = nullptr;
     }
   }
 }
@@ -138,7 +137,7 @@ InputDrive::driveCell(const TransRiseFall *tr,
     to_port = drive->toPort();
   }
   else
-    cell = NULL;
+    cell = nullptr;
 }
 
 InputDriveCell *
@@ -152,7 +151,7 @@ bool
 InputDrive::hasDriveCell(const TransRiseFall *tr,
 			 const MinMax *min_max)
 {
-  return drive_cells_[tr->index()][min_max->index()] != NULL;
+  return drive_cells_[tr->index()][min_max->index()] != nullptr;
 }
 
 bool

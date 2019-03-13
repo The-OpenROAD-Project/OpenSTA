@@ -43,7 +43,7 @@ void
 VisitPathEnds::visitPathEnds(Vertex *vertex,
 			     PathEndVisitor *visitor)
 {
-  visitPathEnds(vertex, NULL, MinMaxAll::all(), false, visitor);
+  visitPathEnds(vertex, nullptr, MinMaxAll::all(), false, visitor);
 }
 
 void
@@ -88,7 +88,7 @@ VisitPathEnds::visitClkedPathEnds(const Pin *pin,
     const MinMax *path_min_max = path_ap->pathMinMax();
     const TransRiseFall *end_tr = path->transition(this);
     Tag *tag = path->tag(this);
-    if ((corner == NULL
+    if ((corner == nullptr
 	 || path_ap->corner() == corner)
 	&& min_max->matches(path_min_max)
 	// Ignore generated clock source paths.
@@ -106,7 +106,7 @@ VisitPathEnds::visitClkedPathEnds(const Pin *pin,
 		      is_constrained);
       else if (!sdc_->exceptionToInvalid(pin)
 	       && (!filtered
-		   || search_->matchesFilter(path, NULL))) {
+		   || search_->matchesFilter(path, nullptr))) {
 	PathDelay *path_delay = pathDelayTo(path, pin, end_tr, path_min_max);
 	if (path_delay) {
 	  PathEndPathDelay path_end(path_delay, path, this);
@@ -178,7 +178,7 @@ VisitPathEnds::visitCheckEnd(const Pin *pin,
 			  != sdc_->defaultArrivalClockEdge())
 		      // False paths and path delays override
 		      // paths.
-		      && (exception == NULL
+		      && (exception == nullptr
 			  || exception->isFilter()
 			  || exception->isGroupPath()
 			  || exception->isMultiCycle())) {
@@ -186,7 +186,7 @@ VisitPathEnds::visitCheckEnd(const Pin *pin,
 		    if (network_->isLatchData(pin)
 			&& check_role == TimingRole::setup()) {
 		      PathEndLatchCheck path_end(path, check_arc, edge,
-						 tgt_clk_path, mcp, NULL,
+						 tgt_clk_path, mcp, nullptr,
 						 this);
 		      visitor->visit(&path_end);
 		      is_constrained = true;
@@ -200,14 +200,14 @@ VisitPathEnds::visitCheckEnd(const Pin *pin,
 		  }
 		  else if (exception
 			   && exception->isPathDelay()
-			   && (src_clk == NULL
+			   && (src_clk == nullptr
 			       || sdc_->sameClockGroup(src_clk,
 							       tgt_clk))) {
 		    PathDelay *path_delay = dynamic_cast<PathDelay*>(exception);
 		    if (network_->isLatchData(pin)
 			&& check_role == TimingRole::setup()) {
 		      PathEndLatchCheck path_end(path, check_arc, edge,
-						 tgt_clk_path, NULL,
+						 tgt_clk_path, nullptr,
 						 path_delay, this);
 		      visitor->visit(&path_end);
 		    }
@@ -257,14 +257,14 @@ VisitPathEnds::visitCheckEndUnclked(const Pin *pin,
 	if (check_arc->toTrans()->asRiseFall() == end_tr
 	    && clk_tr
 	    && (!filtered
-		|| search_->matchesFilter(path, NULL))) {
+		|| search_->matchesFilter(path, nullptr))) {
 	  ExceptionPath *exception = exceptionTo(path, pin, end_tr,
-						 NULL, min_max);
+						 nullptr, min_max);
 	  // False paths and path delays override multicycle paths.
 	  if (exception
 	      && exception->isPathDelay()) {
 	    PathDelay *path_delay = dynamic_cast<PathDelay*>(exception);
-	    PathEndPathDelay path_end(path_delay, path, NULL,
+	    PathEndPathDelay path_end(path_delay, path, nullptr,
 				      check_arc, edge, this);
 	    visitor->visit(&path_end);
 	    is_constrained = true;
@@ -299,10 +299,9 @@ VisitPathEnds::visitOutputDelayEnd(const Pin *pin,
 				   bool &is_constrained)
 {
   const MinMax *min_max = path_ap->pathMinMax();
-  PinOutputDelayIterator *delay_iter =
-    sdc_->outputDelayVertexIterator(pin);
-  while (delay_iter->hasNext()) {
-    OutputDelay *output_delay = delay_iter->next();
+  VertexPinOutputDelayIterator delay_iter(pin, sdc_);
+  while (delay_iter.hasNext()) {
+    OutputDelay *output_delay = delay_iter.next();
     float margin;
     bool exists;
     output_delay->delays()->value(end_tr, min_max, margin, exists);
@@ -319,7 +318,7 @@ VisitPathEnds::visitOutputDelayEnd(const Pin *pin,
 	  while (ref_path_iter.hasNext()) {
 	    PathVertex *ref_path = ref_path_iter.next();
 	    if (ref_path->isClock(this)
-		&& (tgt_clk == NULL
+		&& (tgt_clk == nullptr
 		    || ref_path->clock(this) == tgt_clk))
 	      visitOutputDelayEnd1(output_delay, pin, path, end_tr,
 				   ref_path->clkEdge(this), ref_path, min_max,
@@ -328,12 +327,11 @@ VisitPathEnds::visitOutputDelayEnd(const Pin *pin,
 	}
 	else
 	  visitOutputDelayEnd1(output_delay, pin, path, end_tr,
-			       tgt_clk_edge, NULL, min_max,
+			       tgt_clk_edge, nullptr, min_max,
 			       visitor, is_constrained);
       }
     }
   }
-  delete delay_iter;
 }
 
 void
@@ -361,7 +359,7 @@ VisitPathEnds::visitOutputDelayEnd1(OutputDelay *output_delay,
   else if (tgt_clk_edge
 	   && sdc_->sameClockGroup(path->clock(this), tgt_clk_edge->clock())
 	   // False paths and path delays override.
-	   && (exception == NULL
+	   && (exception == nullptr
 	       || exception->isFilter()
 	       || exception->isGroupPath()
 	       || exception->isMultiCycle())) {
@@ -403,14 +401,14 @@ VisitPathEnds::visitGatedClkEnd(const Pin *pin,
       TransRiseFall *clk_tr =
 	// Clock active value specified by set_clock_gating_check
 	// overrides the library cell function active value.
-	gated_clk->gatedClkActiveTrans((active_value == logic_unknown) ?
+	gated_clk->gatedClkActiveTrans((active_value == LogicValue::unknown) ?
 				       logic_active_value : active_value,
 				       min_max);
       VertexPathIterator clk_path_iter(clk_vertex, clk_tr, clk_path_ap, this);
       while (clk_path_iter.hasNext()) {
 	PathVertex *clk_path = clk_path_iter.next();
 	const ClockEdge *clk_edge = clk_path->clkEdge(this);
-	const Clock *clk = clk_edge ? clk_edge->clock() : NULL;
+	const Clock *clk = clk_edge ? clk_edge->clock() : nullptr;
 	if (clk_path->isClock(this)
 	    // Ignore unclocked paths (from path delay constraints).
 	    && clk_edge
@@ -429,7 +427,7 @@ VisitPathEnds::visitGatedClkEnd(const Pin *pin,
 						 clk_edge, min_max);
 	  if (sdc_->sameClockGroup(src_clk, clk)
 	      // False paths and path delays override.
-	      && (exception == NULL
+	      && (exception == nullptr
 		  || exception->isFilter()
 		  || exception->isGroupPath()
 		  || exception->isMultiCycle())
@@ -543,7 +541,7 @@ VisitPathEnds::visitDataCheckEnd1(DataCheck *check,
   while (tgt_clk_path_iter.hasNext()) {
     PathVertex *tgt_clk_path = tgt_clk_path_iter.next();
     const ClockEdge *tgt_clk_edge = tgt_clk_path->clkEdge(this);
-    const Clock *tgt_clk = tgt_clk_edge ? tgt_clk_edge->clock() : NULL;
+    const Clock *tgt_clk = tgt_clk_edge ? tgt_clk_edge->clock() : nullptr;
     ExceptionPath *exception = exceptionTo(path, pin, end_tr,
 					   tgt_clk_edge, min_max);
     // Ignore generated clock source paths.
@@ -560,7 +558,7 @@ VisitPathEnds::visitDataCheckEnd1(DataCheck *check,
 	  && (!filtered
 	      || search_->matchesFilter(path, tgt_clk_edge))) {
 	// No mcp for data checks.
-	PathEndDataCheck path_end(check, path, tgt_clk_path, NULL, this);
+	PathEndDataCheck path_end(check, path, tgt_clk_path, nullptr, this);
 	visitor->visit(&path_end);
 	is_constrained = true;
       }
@@ -584,14 +582,14 @@ VisitPathEnds::visitUnconstrainedPathEnds(const Pin *pin,
     PathVertex *path = path_iter.next();
     PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
     const MinMax *path_min_max = path_ap->pathMinMax();
-    if ((corner == NULL
+    if ((corner == nullptr
 	 || path_ap->corner() == corner)
 	&& min_max->matches(path_min_max)
 	// Ignore generated clock source paths.
 	&& !path->clkInfo(this)->isGenClkSrcPath()
  	&& !search_->pathPropagatedToClkSrc(pin, path)
 	&& (!filtered
-	    || search_->matchesFilter(path, NULL))
+	    || search_->matchesFilter(path, nullptr))
 	&& !falsePathTo(path, pin, path->transition(this),
 			path->minMax(this))) {
       PathEndUnconstrained path_end(path);
@@ -608,10 +606,10 @@ VisitPathEnds::falsePathTo(Path *path,
 			   const TransRiseFall *tr,
 			   const MinMax *min_max)
 {
-  ExceptionPath *exception = search_->exceptionTo(exception_type_false, path,
-						  pin, tr, NULL, min_max,
+  ExceptionPath *exception = search_->exceptionTo(ExceptionPathType::false_path, path,
+						  pin, tr, nullptr, min_max,
 						  false, false);
-  return exception != NULL;
+  return exception != nullptr;
 }
 
 PathDelay *
@@ -620,8 +618,8 @@ VisitPathEnds::pathDelayTo(Path *path,
 			   const TransRiseFall *tr,
 			   const MinMax *min_max)
 {
-  ExceptionPath *exception = search_->exceptionTo(exception_type_path_delay,
-						  path, pin, tr, NULL,
+  ExceptionPath *exception = search_->exceptionTo(ExceptionPathType::path_delay,
+						  path, pin, tr, nullptr,
 						  min_max, false,
 						  // Register clk pins only
 						  // match with -to pin.
@@ -636,7 +634,7 @@ VisitPathEnds::exceptionTo(const Path *path,
 			   const ClockEdge *clk_edge,
 			   const MinMax *min_max) const
 {
-  return search_->exceptionTo(exception_type_any, path, pin, tr, clk_edge,
+  return search_->exceptionTo(ExceptionPathType::any, path, pin, tr, clk_edge,
 			      min_max, false, false);
 }
 

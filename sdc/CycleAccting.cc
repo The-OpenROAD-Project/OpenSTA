@@ -309,6 +309,8 @@ CycleAccting::targetTimeOffset(const TimingRole *check_role)
   return targetCycle(check_role) * tgt_->clock()->period();
 }
 
+////////////////////////////////////////////////////////////////
+
 bool
 CycleAcctingLess::operator()(const CycleAccting *acct1,
 			     const CycleAccting *acct2) const
@@ -319,6 +321,20 @@ CycleAcctingLess::operator()(const CycleAccting *acct1,
   return src_index1 < src_index2
     || (src_index1 == src_index2
 	&& acct1->target()->index() < acct2->target()->index());
+}
+
+Hash 
+CycleAcctingHash::operator()(const CycleAccting *acct) const
+{
+  return hashSum(acct->src()->index(), acct->target()->index());
+}
+
+bool
+CycleAcctingEqual::operator()(const CycleAccting *acct1,
+			      const CycleAccting *acct2) const
+{
+  return acct1->src() == acct2->src()
+    && acct1->target() == acct2->target();
 }
 
 } // namespace

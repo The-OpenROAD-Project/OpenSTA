@@ -24,7 +24,7 @@ bool debug_on = false;
 
 Debug::Debug(Report *&report) :
   report_(report),
-  debug_map_(NULL),
+  debug_map_(nullptr),
   stats_level_(0)
 {
 }
@@ -95,7 +95,7 @@ Debug::setLevel(const char *what,
   else {
     char *what_cpy = new char[strlen(what) + 1];
     strcpy(what_cpy, what);
-    if (debug_map_ == NULL)
+    if (debug_map_ == nullptr)
       debug_map_ = new DebugMap;
     (*debug_map_)[what_cpy] = level;
     debug_on = true;

@@ -93,7 +93,7 @@ void
 PathVertexRep::init(const PathVertex *path,
 		    const StaState *sta)
 {
-  if (path == NULL || path->isNull())
+  if (path == nullptr || path->isNull())
     init();
   else {
     vertex_index_ = sta->graph()->index(path->vertex(sta));
@@ -196,10 +196,10 @@ PathVertexRep::cmp(const PathVertexRep *path1,
     else
       return 1;
   }
-  else if (path1 == NULL
-	   && path2 == NULL)
+  else if (path1 == nullptr
+	   && path2 == nullptr)
     return 0;
-  else if (path1 == NULL)
+  else if (path1 == nullptr)
     return -1;
   else
     return 1;

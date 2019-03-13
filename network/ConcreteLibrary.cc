@@ -137,7 +137,7 @@ ConcreteCell::setName(const char *name)
 ConcretePort *
 ConcreteCell::makePort(const char *name)
 {
-  ConcretePort *port = new ConcretePort(this, name, false, -1, -1, false, NULL);
+  ConcretePort *port = new ConcretePort(this, name, false, -1, -1, false, nullptr);
   addPort(port);
   return port;
 }
@@ -213,7 +213,7 @@ ConcreteCell::makePort(const char *bit_name,
 		       int bit_index)
 {
   ConcretePort *port = new ConcretePort(this, bit_name, false, bit_index,
-					bit_index, false, NULL);
+					bit_index, false, nullptr);
   addPortBit(port);
   return port;
 }
@@ -531,7 +531,7 @@ ConcretePort::findBusBit(int index) const
 	   && index <= from_index_)
     return (*member_ports_)[from_index_ - index];
   else
-    return NULL;
+    return nullptr;
 }
 
 bool
@@ -562,8 +562,8 @@ ConcretePort::memberIterator() const
 ConcreteCellPortBitIterator::ConcreteCellPortBitIterator(const ConcreteCell*
 							 cell) :
   port_iter_(cell->ports_),
-  member_iter_(NULL),
-  next_(NULL)
+  member_iter_(nullptr),
+  next_(nullptr)
 {
   findNext();
 }
@@ -571,7 +571,7 @@ ConcreteCellPortBitIterator::ConcreteCellPortBitIterator(const ConcreteCell*
 bool
 ConcreteCellPortBitIterator::hasNext()
 {
-  return next_ != NULL;
+  return next_ != nullptr;
 }
 
 ConcretePort *
@@ -592,7 +592,7 @@ ConcreteCellPortBitIterator::findNext()
     }
     else {
       delete member_iter_;
-      member_iter_ = NULL;
+      member_iter_ = nullptr;
     }
   }
   while (port_iter_.hasNext()) {
@@ -606,9 +606,9 @@ ConcreteCellPortBitIterator::findNext()
       next_ = next;
       return;
     }
-    next_ = NULL;
+    next_ = nullptr;
   }
-  next_ = NULL;
+  next_ = nullptr;
 }
 
 } // namespace

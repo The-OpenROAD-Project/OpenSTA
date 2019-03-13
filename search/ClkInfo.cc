@@ -56,7 +56,7 @@ ClkInfo::ClkInfo(ClockEdge *clk_edge,
   latency_(latency),
   is_propagated_(is_propagated),
   is_gen_clk_src_path_(is_gen_clk_src_path),
-  is_pulse_clk_(pulse_clk_sense != NULL),
+  is_pulse_clk_(pulse_clk_sense != nullptr),
   pulse_clk_sense_(pulse_clk_sense ? pulse_clk_sense->index() : 0),
   path_ap_index_(path_ap_index)
 {
@@ -149,7 +149,7 @@ ClkInfo::clock() const
   if (clk_edge_)
     return clk_edge_->clock();
   else
-    return NULL;
+    return nullptr;
 }
 
 TransRiseFall *
@@ -158,7 +158,7 @@ ClkInfo::pulseClkSense() const
   if (is_pulse_clk_)
     return TransRiseFall::find(pulse_clk_sense_);
   else
-    return NULL;
+    return nullptr;
 }
 
 const Pin *
@@ -167,7 +167,7 @@ ClkInfo::crprClkPin(const StaState *sta) const
   if (!crpr_clk_path_.isNull())
     return crpr_clk_path_.vertex(sta)->pin();
   else
-    return NULL;
+    return nullptr;
 }
 
 bool
@@ -214,8 +214,8 @@ clkInfoEqual(const ClkInfo *clk_info1,
     && (!crpr_on
 	|| (PathVertexRep::equal(clk_info1->crprClkPath(),
 				 clk_info2->crprClkPath())))
-    && ((uncertainties1 == NULL
-	 && uncertainties2 == NULL)
+    && ((uncertainties1 == nullptr
+	 && uncertainties2 == nullptr)
 	|| (uncertainties1 && uncertainties2
 	    && MinMaxValues<float>::equal(uncertainties1,
 					  uncertainties2)))

@@ -50,10 +50,10 @@ TokenParser::hasNext()
       while (*token_ != '\0' && isspace(*token_))
 	token_++;
       // Skip delimiters.
-      while (*token_ != '\0' && strchr(delimiters_,*token_) != NULL)
+      while (*token_ != '\0' && strchr(delimiters_,*token_) != nullptr)
         token_++;
       if (*token_ == '\0')
-	token_ = NULL;
+	token_ = nullptr;
       else {
 	token_end_ = strpbrk(token_, delimiters_);
 	if (token_end_) {
@@ -65,9 +65,9 @@ TokenParser::hasNext()
       }
     }
     else
-      token_ = NULL;
+      token_ = nullptr;
   }
-  return token_ != NULL;
+  return token_ != nullptr;
 }
 
 char *

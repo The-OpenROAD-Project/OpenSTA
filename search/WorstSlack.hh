@@ -19,6 +19,7 @@
 
 namespace sta {
 
+#include <mutex>
 #include "MinMax.hh"
 #include "Vector.hh"
 #include "GraphClass.hh"
@@ -98,7 +99,7 @@ protected:
 
   Slack slack_init_;
   // Vertex with the worst slack.
-  // When NULL the worst slack is unknown but in the queue.
+  // When nullptr the worst slack is unknown but in the queue.
   Vertex *worst_vertex_;
   Slack worst_slack_;
   Slack slack_threshold_;
@@ -108,7 +109,7 @@ protected:
   // reaches max_queue_size_.
   int min_queue_size_;
   int max_queue_size_;
-  Mutex lock_;
+  std::mutex lock_;
 };
 
 } // namespace

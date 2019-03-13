@@ -70,7 +70,7 @@ public:
   class Iterator
   {
   public:
-    Iterator() : container_(NULL) {}
+    Iterator() : container_(nullptr) {}
     explicit Iterator(HashSet<KEY, HASH, EQUAL> *container)
     { init(container); }
     explicit Iterator(HashSet<KEY, HASH, EQUAL> &container)
@@ -78,18 +78,18 @@ public:
     void init(HashSet<KEY, HASH, EQUAL> *container)
     { container_ = container;
       hash_= 0;
-      next_ = NULL;
+      next_ = nullptr;
       if (container_)
 	findNext();
     }
     void init(HashSet<KEY, HASH, EQUAL> &container)
     { container_ = &container;
       hash_= 0;
-      next_ = NULL;
+      next_ = nullptr;
       if (container_)
 	findNext();
     }
-    bool hasNext() { return container_ && next_ != NULL; }
+    bool hasNext() { return container_ && next_ != nullptr; }
     KEY next() { 
       HashSetBucket<KEY> *next = next_;
       findNext();
@@ -103,7 +103,7 @@ public:
     {
       if (next_)
 	next_ = next_->next();
-      while (next_ == NULL
+      while (next_ == nullptr
 	     && hash_ < container_->capacity())
 	next_ = container_->table_[hash_++];
     }
@@ -115,16 +115,16 @@ public:
   class ConstIterator
   {
   public:
-    ConstIterator() : container_(NULL) {}
+    ConstIterator() : container_(nullptr) {}
     explicit ConstIterator(const HashSet<KEY, HASH, EQUAL> *container)
     { init(container); }
     explicit ConstIterator(const HashSet<KEY, HASH, EQUAL> &container)
     { init(container); }
     void init(const HashSet<KEY, HASH, EQUAL> *container)
-    { container_ =  container; hash_= 0; next_ = NULL; findNext(); }
+    { container_ =  container; hash_= 0; next_ = nullptr; findNext(); }
     void init(HashSet<KEY, HASH, EQUAL> &container)
-    { container_ = &container; hash_= 0; next_ = NULL; findNext(); }
-    bool hasNext() { return container_ && next_ != NULL; }
+    { container_ = &container; hash_= 0; next_ = nullptr; findNext(); }
+    bool hasNext() { return container_ && next_ != nullptr; }
     KEY next() { 
       HashSetBucket<KEY> *next = next_;
       findNext();
@@ -138,7 +138,7 @@ public:
     {
       if (next_)
 	next_ = next_->next();
-      while (next_ == NULL
+      while (next_ == nullptr
 	     && hash_ < container_->capacity())
 	next_ = container_->table_[hash_++];
     }
@@ -225,10 +225,10 @@ void
 HashSet<KEY, HASH, EQUAL>::initTable()
 {
   size_ = 0;
-  tmp_ = NULL;
+  tmp_ = nullptr;
   table_ = new HashSetBucket<KEY>*[capacity_];
   for (size_t i = 0; i < capacity_; i++)
-    table_[i] = NULL;
+    table_[i] = nullptr;
 }
 
 template <class KEY, class HASH, class EQUAL>
@@ -259,7 +259,7 @@ HashSet<KEY, HASH, EQUAL>::findKey(KEY key) const
       return bucket_key;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 template <class KEY, class HASH, class EQUAL>
@@ -274,7 +274,7 @@ HashSet<KEY, HASH, EQUAL>::findKey(KEY key)
       return bucket_key;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 template <class KEY, class HASH, class EQUAL>
@@ -355,7 +355,7 @@ HashSet<KEY, HASH, EQUAL>::eraseKey(KEY key)
 {
   size_t hash = hash_(key) % capacity_;
   HashSetBucket<KEY> *head = table_[hash];
-  HashSetBucket<KEY> *prev = NULL;
+  HashSetBucket<KEY> *prev = nullptr;
   for (HashSetBucket<KEY> *bucket = head; bucket; bucket = bucket->next()) {
     if (equal_(bucket->key(), key)) {
       if (prev)
@@ -384,7 +384,7 @@ HashSet<KEY, HASH, EQUAL>::deleteContentsClear()
 	next = bucket->next();
 	delete bucket;
       }
-      table_[hash] = NULL;
+      table_[hash] = nullptr;
     }
     size_ = 0;
   }
@@ -403,7 +403,7 @@ HashSet<KEY, HASH, EQUAL>::clear()
 	next = bucket->next();
 	delete bucket;
       }
-      table_[hash] = NULL;
+      table_[hash] = nullptr;
     }
     size_ = 0;
   }

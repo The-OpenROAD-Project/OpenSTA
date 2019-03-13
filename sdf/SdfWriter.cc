@@ -108,7 +108,6 @@ private:
 
   char sdf_divider_;
   float timescale_;
-  int digits_;
 
   char sdf_escape_;
   char network_escape_;
@@ -139,7 +138,7 @@ SdfWriter::SdfWriter(StaState *sta) :
   StaState(sta),
   sdf_escape_('\\'),
   network_escape_(network_->pathEscape()),
-  delay_format_(NULL)
+  delay_format_(nullptr)
 {
 }
 
@@ -158,7 +157,7 @@ SdfWriter::write(const char *filename,
 		 bool no_version)
 {
   sdf_divider_ = sdf_divider;
-  if (delay_format_ == NULL)
+  if (delay_format_ == nullptr)
     delay_format_ = new char[10];
   sprintf(delay_format_, "%%.%df", digits);
 
@@ -183,7 +182,7 @@ SdfWriter::write(const char *filename,
   writeTrailer();
 
   gzclose(stream_);
-  stream_ = NULL;
+  stream_ = nullptr;
 }
 
 void
@@ -213,11 +212,11 @@ SdfWriter::writeHeader(LibertyLibrary *default_lib,
 
   OperatingConditions *cond_min = 
     sdc_->operatingConditions(MinMax::min());
-  if (cond_min == NULL)
+  if (cond_min == nullptr)
     cond_min = default_lib->defaultOperatingConditions();
   OperatingConditions *cond_max = 
     sdc_->operatingConditions(MinMax::max());
-  if (cond_max == NULL)
+  if (cond_max == nullptr)
     cond_max = default_lib->defaultOperatingConditions();
   if (cond_min && cond_max) {
     gzprintf(stream_, " (VOLTAGE %.3f::%.3f)\n",
@@ -231,7 +230,7 @@ SdfWriter::writeHeader(LibertyLibrary *default_lib,
 	     cond_max->temperature());
   }
 
-  const char *sdf_timescale = NULL;
+  const char *sdf_timescale = nullptr;
   if (fuzzyEqual(timescale_, 1e-6))
     sdf_timescale = "1us";
   else if (fuzzyEqual(timescale_, 10e-6))
@@ -490,7 +489,7 @@ SdfWriter::writeTimingChecks(const Instance *inst,
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
       TimingRole *role = edge->role();
-      const char *sdf_check = NULL;
+      const char *sdf_check = nullptr;
       if (role == TimingRole::setup())
 	sdf_check = "SETUP";
       else if (role == TimingRole::hold())
@@ -568,7 +567,7 @@ SdfWriter::writeCheck(Edge *edge,
   TimingArcSet *arc_set = edge->timingArcSet();
   // Examine the arcs to see if the check requires clk or data edge specifiers.
   TimingArc *arcs[TransRiseFall::index_count][TransRiseFall::index_count] = 
-    {{NULL, NULL}, {NULL, NULL}};
+    {{nullptr, nullptr}, {nullptr, nullptr}};
   TimingArcSetArcIterator arc_iter(arc_set);
   while (arc_iter.hasNext()) {
     TimingArc *arc = arc_iter.next();
@@ -577,11 +576,11 @@ SdfWriter::writeCheck(Edge *edge,
     arcs[clk_tr->index()][data_tr->index()] = arc;
   }
 
-  if (arcs[TransRiseFall::fallIndex()][TransRiseFall::riseIndex()] == NULL
-      && arcs[TransRiseFall::fallIndex()][TransRiseFall::fallIndex()] == NULL)
+  if (arcs[TransRiseFall::fallIndex()][TransRiseFall::riseIndex()] == nullptr
+      && arcs[TransRiseFall::fallIndex()][TransRiseFall::fallIndex()] == nullptr)
     writeEdgeCheck(edge, sdf_check, TransRiseFall::riseIndex(), arcs);
-  else if (arcs[TransRiseFall::riseIndex()][TransRiseFall::riseIndex()] == NULL
-	   && arcs[TransRiseFall::riseIndex()][TransRiseFall::fallIndex()] == NULL)
+  else if (arcs[TransRiseFall::riseIndex()][TransRiseFall::riseIndex()] == nullptr
+	   && arcs[TransRiseFall::riseIndex()][TransRiseFall::fallIndex()] == nullptr)
     writeEdgeCheck(edge, sdf_check, TransRiseFall::fallIndex(), arcs);
   else {
     // No special case; write all the checks with data and clock edge specifiers.
@@ -607,13 +606,13 @@ SdfWriter::writeEdgeCheck(Edge *edge,
       && arcs[clk_tr_index][TransRiseFall::fallIndex()]
       && arcs[clk_tr_index][TransRiseFall::riseIndex()]
       && arcs[clk_tr_index][TransRiseFall::fallIndex()]
-      && delayFuzzyEqual(graph_->arcDelay(edge, 
+      && fuzzyEqual(graph_->arcDelay(edge, 
 				       arcs[clk_tr_index][TransRiseFall::riseIndex()],
 				       arc_delay_min_index_),
 			 graph_->arcDelay(edge,
 					  arcs[clk_tr_index][TransRiseFall::fallIndex()],
 					  arc_delay_min_index_))
-      && delayFuzzyEqual(graph_->arcDelay(edge,
+      && fuzzyEqual(graph_->arcDelay(edge,
 					  arcs[clk_tr_index][TransRiseFall::riseIndex()],
 					  arc_delay_max_index_),
 			 graph_->arcDelay(edge,
@@ -714,7 +713,7 @@ SdfWriter::sdfEdge(const Transition *tr)
     return "posedge";
   else if (tr == Transition::fall())
     return "negedge";
-  return NULL;
+  return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////

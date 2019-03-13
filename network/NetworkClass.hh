@@ -75,13 +75,7 @@ public:
 		  const PortPair *pair2) const;
 };
 
-typedef enum {
-  logic_zero,
-  logic_one,
-  logic_unknown,
-  logic_rise,
-  logic_fall
-} LogicValue;
+enum class LogicValue : unsigned { zero, one, unknown, rise, fall };
 
 } // namespace
 #endif

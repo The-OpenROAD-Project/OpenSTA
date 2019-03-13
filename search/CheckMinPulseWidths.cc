@@ -103,7 +103,7 @@ void
 MinPulseWidthChecksVisitor::visit(MinPulseWidthCheck &check,
 				  const StaState *sta)
 {
-  if (corner_ == NULL
+  if (corner_ == nullptr
       || check.corner(sta) == corner_) {
     MinPulseWidthCheck *copy = new MinPulseWidthCheck(check.openPath());
     checks_.push_back(copy);
@@ -166,8 +166,8 @@ void
 MinPulseWidthViolatorsVisitor::visit(MinPulseWidthCheck &check,
 				     const StaState *sta)
 {
-  if (delayFuzzyLess(check.slack(sta), 0.0)
-      && (corner_ == NULL
+  if (fuzzyLess(check.slack(sta), 0.0)
+      && (corner_ == nullptr
 	  || check.corner(sta) == corner_)) {
     MinPulseWidthCheck *copy = new MinPulseWidthCheck(check.openPath());
     checks_.push_back(copy);
@@ -203,7 +203,7 @@ private:
 
 MinPulseWidthSlackVisitor::MinPulseWidthSlackVisitor(const Corner *corner) :
   corner_(corner),
-  min_slack_check_(NULL)
+  min_slack_check_(nullptr)
 {
 }
 
@@ -212,9 +212,9 @@ MinPulseWidthSlackVisitor::visit(MinPulseWidthCheck &check,
 				 const StaState *sta)
 {
   MinPulseWidthSlackLess slack_less(sta);
-  if (corner_ == NULL
+  if (corner_ == nullptr
       || check.corner(sta) == corner_) {
-    if (min_slack_check_ == NULL)
+    if (min_slack_check_ == nullptr)
       min_slack_check_ = check.copy();
     else if (slack_less(&check, min_slack_check_)) {
       delete min_slack_check_;
@@ -334,7 +334,7 @@ MinPulseWidthCheck::closePath(const StaState *sta,
 			 open_clk_info->genClkSrc(),
 			 open_clk_info->isGenClkSrcPath(),
 			 open_clk_info->pulseClkSense(),
-			 delay_zero, 0.0, NULL,
+			 delay_zero, 0.0, nullptr,
 			 open_clk_info->pathAPIndex(),
 			 open_clk_info->crprClkPath(),
 			 sta);
@@ -499,7 +499,7 @@ MinPulseWidthSlackLess::operator()(const MinPulseWidthCheck *check1,
   const Pin *pin1 = check1->pin(sta_);
   const Pin *pin2 = check2->pin(sta_);
   return slack1 < slack2
-    || (delayFuzzyEqual(slack1, slack2)
+    || (fuzzyEqual(slack1, slack2)
 	// Break ties for the sake of regression stability.
 	&& (sta_->network()->pinLess(pin1, pin2)
 	    || (pin1 == pin2

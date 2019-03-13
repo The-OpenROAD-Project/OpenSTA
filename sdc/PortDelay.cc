@@ -39,7 +39,7 @@ PortDelay::clock() const
   if (clk_edge_)
     return clk_edge_->clock();
   else
-    return NULL;
+    return nullptr;
 }
 
 bool
@@ -82,7 +82,7 @@ InputDelay::InputDelay(Pin *pin,
 		       int index,
 		       Network *network) :
   PortDelay(pin, clk_edge, ref_pin),
-  next_(NULL),
+  next_(nullptr),
   index_(index)
 {
   findVertexLoadPins(pin, network, &vertex_pins_);
@@ -99,7 +99,7 @@ OutputDelay::OutputDelay(Pin *pin,
 			 Pin *ref_pin,
 			 Network *network) :
   PortDelay(pin, clk_edge, ref_pin),
-  next_(NULL)
+  next_(nullptr)
 {
   if (network)
     findVertexDriverPins(pin, network, &vertex_pins_);
@@ -113,15 +113,16 @@ OutputDelay::setNext(OutputDelay *next)
 
 ////////////////////////////////////////////////////////////////
 
-PinInputDelayIterator::PinInputDelayIterator(InputDelay *input_delay) :
-  next_(input_delay)
+PinInputDelayIterator::PinInputDelayIterator(const Pin *pin,
+					     const Sdc *sdc)
 {
+  next_ = sdc->input_delay_map_.findKey(pin);
 }
 
 bool
 PinInputDelayIterator::hasNext()
 {
-  return next_ != NULL;
+  return next_ != nullptr;
 }
 
 InputDelay *
@@ -133,17 +134,25 @@ PinInputDelayIterator::next()
   return next;
 }
 
+VertexPinInputDelayIterator::VertexPinInputDelayIterator(const Pin *vertex_pin,
+							 const Sdc *sdc) :
+  PinInputDelayIterator()
+{
+  next_ = sdc->input_delay_vertex_map_.findKey(vertex_pin);
+}
+
 ////////////////////////////////////////////////////////////////
 
-PinOutputDelayIterator::PinOutputDelayIterator(OutputDelay *output_delay) :
-  next_(output_delay)
+PinOutputDelayIterator::PinOutputDelayIterator(const Pin *pin,
+					       const Sdc *sdc)
 {
+  next_ = sdc->output_delay_map_.findKey(pin);
 }
 
 bool
 PinOutputDelayIterator::hasNext()
 {
-  return next_ != NULL;
+  return next_ != nullptr;
 }
 
 OutputDelay *
@@ -153,6 +162,13 @@ PinOutputDelayIterator::next()
   if (next)
     next_ = next_->next();
   return next;
+}
+
+VertexPinOutputDelayIterator::VertexPinOutputDelayIterator(const Pin *vertex_pin,
+							   const Sdc *sdc) :
+  PinOutputDelayIterator()
+{
+  next_ = sdc->output_delay_vertex_map_.findKey(vertex_pin);
 }
 
 ////////////////////////////////////////////////////////////////

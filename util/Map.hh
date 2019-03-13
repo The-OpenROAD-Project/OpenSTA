@@ -47,11 +47,11 @@ public:
   VALUE
   findKey(const KEY key) const
   {
-    typename std::map<KEY,VALUE,CMP>::const_iterator find_iter=this->find(key);
+    auto find_iter = this->find(key);
     if (find_iter != this->end())
       return find_iter->second;
     else
-      return NULL;
+      return nullptr;
   }
   void
   findKey(const KEY key,
@@ -59,7 +59,7 @@ public:
 	  VALUE &value,
 	  bool &exists) const
   {
-    typename std::map<KEY, VALUE, CMP>::const_iterator find_iter=this->find(key);
+    auto find_iter = this->find(key);
     if (find_iter != this->end()) {
       value = find_iter->second;
       exists = true;
@@ -74,8 +74,7 @@ public:
 	  VALUE &value,
 	  bool &exists) const
   {
-    typename std::map<KEY, VALUE, CMP>::const_iterator
-      find_iter = this->find(key);
+    auto find_iter = this->find(key);
     if (find_iter != this->end()) {
       map_key = find_iter->first;
       value = find_iter->second;
@@ -97,7 +96,7 @@ public:
   void
   eraseKey(KEY key)
   {
-    typename std::map<KEY, VALUE, CMP>::iterator find_iter = this->find(key);
+    auto find_iter = this->find(key);
     if (find_iter != this->end())
       this->erase(find_iter);
   }
@@ -133,18 +132,18 @@ public:
   class Iterator
   {
   public:
-    Iterator() : container_(NULL) {}
+    Iterator() : container_(nullptr) {}
     explicit Iterator(std::map<KEY, VALUE, CMP> *container) :
       container_(container)
-    { if (container_ != NULL) iter_ = container_->begin(); }
+    { if (container_ != nullptr) iter_ = container_->begin(); }
     explicit Iterator(std::map<KEY, VALUE, CMP> &container) :
       container_(&container)
-    { if (container_ != NULL) iter_ = container_->begin(); }
+    { if (container_ != nullptr) iter_ = container_->begin(); }
     void init(std::map<KEY, VALUE, CMP> *container)
-    { container_ = container; if (container_ != NULL) iter_=container_->begin();}
+    { container_ = container; if (container_ != nullptr) iter_=container_->begin();}
     void init(std::map<KEY, VALUE, CMP> &container)
-    { container_ = &container; if (container_ != NULL) iter_=container_->begin();}
-    bool hasNext() { return container_ != NULL && iter_ != container_->end(); }
+    { container_ = &container; if (container_ != nullptr) iter_=container_->begin();}
+    bool hasNext() { return container_ != nullptr && iter_ != container_->end(); }
     VALUE next() { return iter_++->second; }
     void next(KEY &key,
 	      VALUE &value)
@@ -159,18 +158,18 @@ public:
   class ConstIterator
   {
   public:
-    ConstIterator() : container_(NULL) {}
+    ConstIterator() : container_(nullptr) {}
     explicit ConstIterator(const std::map<KEY, VALUE, CMP> *container) :
       container_(container)
-    { if (container_ != NULL) iter_ = container_->begin(); }
+    { if (container_ != nullptr) iter_ = container_->begin(); }
     explicit ConstIterator(const std::map<KEY, VALUE, CMP> &container) :
       container_(&container)
-    { if (container_ != NULL) iter_ = container_->begin(); }
+    { if (container_ != nullptr) iter_ = container_->begin(); }
     void init(const std::map<KEY, VALUE, CMP> *container)
-    { container_ = container; if (container_ != NULL) iter_=container_->begin();}
+    { container_ = container; if (container_ != nullptr) iter_=container_->begin();}
     void init(const std::map<KEY, VALUE, CMP> &container)
-    { container_ = &container; if (container_ != NULL) iter_=container_->begin();}
-    bool hasNext() { return container_ != NULL && iter_ != container_->end(); }
+    { container_ = &container; if (container_ != nullptr) iter_=container_->begin();}
+    bool hasNext() { return container_ != nullptr && iter_ != container_->end(); }
     VALUE next() { return iter_++->second; }
     void next(KEY &key,
 	      VALUE &value)

@@ -43,7 +43,7 @@ RCDelayCalc::findParasitic(const Pin *drvr_pin,
 			   Parasitic *&parasitic,
 			   bool &delete_at_finish)
 {
-  parasitic = NULL;
+  parasitic = nullptr;
   delete_at_finish = false;
   // set_load has precidence over parasitics.
   if (!sdc_->drvrPinHasWireCap(drvr_pin)) {
@@ -53,7 +53,7 @@ RCDelayCalc::findParasitic(const Pin *drvr_pin,
     const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
     // Prefer PiElmore.
     parasitic = parasitics_->findPiElmore(drvr_pin, tr, parasitic_ap);
-    if (parasitic == NULL) {
+    if (parasitic == nullptr) {
       Parasitic *parasitic_network =
 	parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
       if (parasitic_network) {
@@ -63,9 +63,9 @@ RCDelayCalc::findParasitic(const Pin *drvr_pin,
 	delete_at_finish = true;
       }
     }
-    if (parasitic == NULL)
+    if (parasitic == nullptr)
       parasitic = parasitics_->findLumpedElmore(drvr_pin, tr, parasitic_ap);
-    if (parasitic == NULL) {
+    if (parasitic == nullptr) {
       Wireload *wireload = sdc_->wireloadDefaulted(cnst_min_max);
       if (wireload) {
 	float pin_cap, wire_cap, fanout;
@@ -92,7 +92,7 @@ RCDelayCalc::inputPortDelay(const Pin *,
   drvr_parasitic_ = parasitic;
   drvr_slew_ = in_slew;
   drvr_tr_ = tr;
-  drvr_cell_ = NULL;
+  drvr_cell_ = nullptr;
   drvr_library_ = network_->defaultLibertyLibrary();
   multi_drvr_slew_factor_ = 1.0F;
 }

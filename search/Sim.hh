@@ -18,10 +18,10 @@
 #define STA_SIM_H
 
 #include <queue>
+#include <mutex>
 #include "StaConfig.hh"  // CUDD
 #include "DisallowCopyAssign.hh"
 #include "Map.hh"
-#include "Mutex.hh"
 #include "StaState.hh"
 #include "NetworkClass.hh"
 #include "GraphClass.hh"
@@ -135,7 +135,7 @@ protected:
 
   DdManager *cudd_manager_;
   mutable BddSymbolTable symtab_;
-  mutable Mutex cudd_lock_;
+  mutable std::mutex cudd_lock_;
 #endif // CUDD
 
 private:

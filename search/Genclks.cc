@@ -74,10 +74,10 @@ GenclkInfo::GenclkInfo(Clock *gclk,
   gclk_(gclk),
   gclk_level_(gclk_level),
   fanins_(fanins),
-  fdbk_edges_(NULL),
+  fdbk_edges_(nullptr),
   found_latch_fdbk_edges_(false),
   src_filter_(src_filter),
-  pll_filter_(NULL)
+  pll_filter_(nullptr)
 {
 }
 
@@ -198,15 +198,12 @@ Genclks::ensureInsertionDelays()
     debugPrint0(debug_, "genclk", 1, "find generated clk insertion delays\n");
 
     ClockSeq gclks;
-    ClockIterator *clk_iter = sdc_->clockIterator();
-    while (clk_iter->hasNext()) {
-      Clock *clk = clk_iter->next();
+    for (auto clk : sdc_->clks()) {
       if (clk->isGenerated()) {
 	checkMaster(clk);
 	gclks.push_back(clk);
       }
     }
-    delete clk_iter;
 
     clearSrcPaths();
 
@@ -288,7 +285,7 @@ void
 Genclks::checkMaster(Clock *gclk)
 {
   ensureMaster(gclk);
-  if (gclk->masterClk() == NULL)
+  if (gclk->masterClk() == nullptr)
     report_->warn("no master clock found for generated clock %s.\n",
 		  gclk->name());
 }
@@ -297,13 +294,13 @@ void
 Genclks::ensureMaster(Clock *gclk)
 {
   Clock *master_clk = gclk->masterClk();
-  if (master_clk == NULL) {
+  if (master_clk == nullptr) {
     int master_clk_count = 0;
     bool found_master = false;
     if (gclk->pllOut()) {
       // Search backward from generated clock source pin to a clock pin.
       GenClkMasterSearchPred pred(this);
-      BfsBkwdIterator iter(bfs_other, &pred, this);
+      BfsBkwdIterator iter(BfsIndex::other, &pred, this);
       seedSrcPins(gclk, iter);
       while (iter.hasNext()) {
 	Vertex *vertex = iter.next();
@@ -355,7 +352,7 @@ Genclks::ensureMaster(Clock *gclk)
       if (!found_master) {
 	// Search backward from generated clock source pin to a clock pin.
 	GenClkMasterSearchPred pred(this);
-	BfsBkwdIterator iter(bfs_other, &pred, this);
+	BfsBkwdIterator iter(BfsIndex::other, &pred, this);
 	seedSrcPins(gclk, iter);
 	while (iter.hasNext()) {
 	  Vertex *vertex = iter.next();
@@ -459,7 +456,7 @@ Genclks::findFanin(Clock *gclk,
 {
   // Search backward from generated clock source pin to a clock pin.
   GenClkFaninSrchPred srch_pred(gclk, this);
-  BfsBkwdIterator iter(bfs_other, &srch_pred, this);
+  BfsBkwdIterator iter(BfsIndex::other, &srch_pred, this);
   seedClkVertices(gclk, iter, fanins);
   while (iter.hasNext()) {
     Vertex *vertex = iter.next();
@@ -576,8 +573,8 @@ Genclks::findInsertionDelays(Clock *gclk)
 	      gclk->name());
   GenclkInfo *genclk_info = makeGenclkInfo(gclk);
   FilterPath *src_filter = genclk_info->srcFilter();
-  GenClkInsertionSearchPred srch_pred(gclk, NULL, genclk_info, this);
-  BfsFwdIterator insert_iter(bfs_other, &srch_pred, this);
+  GenClkInsertionSearchPred srch_pred(gclk, nullptr, genclk_info, this);
+  BfsFwdIterator insert_iter(BfsIndex::other, &srch_pred, this);
   seedSrcPins(gclk, src_filter, insert_iter);
   // Propagate arrivals to generated clk root pin level.
   findSrcArrivals(gclk, insert_iter, genclk_info);
@@ -613,7 +610,7 @@ Genclks::srcFilter(Clock *gclk)
   if (genclk_info)
     return genclk_info->srcFilter();
   else
-    return NULL;
+    return nullptr;
 }
 
 EdgeSet *
@@ -645,7 +642,7 @@ Genclks::findLatchFdbkEdges(const Clock *gclk,
 			    GenclkInfo *genclk_info)
 {
   Level gclk_level = genclk_info->gclkLevel();
-  EdgeSet *fdbk_edges = NULL;
+  EdgeSet *fdbk_edges = nullptr;
   ClockVertexPinIterator pin_iter(gclk->masterClk());
   while (pin_iter.hasNext()) {
     Pin *pin = pin_iter.next();
@@ -679,7 +676,7 @@ Genclks::findLatchFdbkEdges(Vertex *from_vertex,
 	debugPrint2(debug_, "genclk", 2, " found feedback edge %s -> %s\n",
 		    from_vertex->name(sdc_network_),
 		    to_vertex->name(sdc_network_));
-	if (fdbk_edges == NULL)
+	if (fdbk_edges == nullptr)
 	  fdbk_edges = new EdgeSet;
 	fdbk_edges->insert(edge);
       }
@@ -699,17 +696,17 @@ Genclks::makeSrcFilter(Clock *gclk)
   ClockSet *from_clks = new ClockSet;
   from_clks->insert(gclk->masterClk());
   const TransRiseFallBoth *rf = TransRiseFallBoth::riseFall();
-  ExceptionFrom *from = sdc_->makeExceptionFrom(NULL,from_clks,NULL,rf);
+  ExceptionFrom *from = sdc_->makeExceptionFrom(nullptr,from_clks,nullptr,rf);
 
   PinSet *thru_pins = new PinSet;
   thru_pins->insert(gclk->srcPin());
-  ExceptionThru *thru = sdc_->makeExceptionThru(thru_pins,NULL,NULL,rf);
+  ExceptionThru *thru = sdc_->makeExceptionThru(thru_pins,nullptr,nullptr,rf);
   ExceptionThruSeq *thrus = new ExceptionThruSeq;
   thrus->push_back(thru);
 
   ClockSet *to_clks = new ClockSet;
   to_clks->insert(gclk);
-  ExceptionTo *to = sdc_->makeExceptionTo(NULL, to_clks, NULL, rf, rf);
+  ExceptionTo *to = sdc_->makeExceptionTo(nullptr, to_clks, nullptr, rf, rf);
 
   return sdc_->makeFilterPath(from, thrus, to);
 }
@@ -741,7 +738,7 @@ Genclks::seedSrcPins(Clock *gclk,
 			   path_ap);
 	Arrival insert = search_->clockInsertion(master_clk, master_pin, tr,
 						 min_max, early_late, path_ap);
-	tag_bldr.setArrival(tag, insert, NULL);
+	tag_bldr.setArrival(tag, insert, nullptr);
       }
     }
     search_->setVertexArrivals(vertex, &tag_bldr);
@@ -765,10 +762,10 @@ Genclks::makeTag(const Clock *gclk,
   ExceptionStateSet *states = new ExceptionStateSet;
   states->insert(state);
   ClkInfo *clk_info = search_->findClkInfo(master_clk->edge(master_tr),
-					   master_pin, true, NULL, true,
-					   NULL, 0.0, 0.0, NULL,
-					   path_ap, NULL);
-  return search_->findTag(master_tr, path_ap, clk_info, false, NULL, false,
+					   master_pin, true, nullptr, true,
+					   nullptr, 0.0, 0.0, nullptr,
+					   path_ap, nullptr);
+  return search_->findTag(master_tr, path_ap, clk_info, false, nullptr, false,
 			  states, true);
 }
 
@@ -924,7 +921,7 @@ Genclks::copyGenClkSrcPaths(Vertex *vertex,
 	Arrival arrival = arrivals[arrival_index];
 	PathVertexRep *prev_path = prev_paths
 	  ? &prev_paths[arrival_index]
-	  : NULL;
+	  : nullptr;
 	tag_bldr->setArrival(tag, arrival, prev_path);
       }
     }
@@ -955,7 +952,7 @@ Genclks::recordSrcPaths(Clock *gclk)
 
   bool divide_by_1 = gclk->isDivideByOneCombinational();
   bool invert = gclk->invert();
-  bool has_edges = gclk->edges() != NULL;
+  bool has_edges = gclk->edges() != nullptr;
 
   ClockVertexPinIterator gclk_pin_iter(gclk);
   while (gclk_pin_iter.hasNext()) {
@@ -983,7 +980,7 @@ Genclks::recordSrcPaths(Clock *gclk)
 	    && (!has_edges
 		|| src_clk_tr == gclk->masterClkEdgeTr(tr))
 	    && (src_path.isNull()
-		|| delayFuzzyGreater(path->arrival(this),
+		|| fuzzyGreater(path->arrival(this),
 				     src_path.arrival(this),
 				     early_late))) {
 	  debugPrint4(debug_, "genclk", 2, "  %s insertion %s %s %s\n",
@@ -1020,7 +1017,7 @@ Genclks::matchesSrcFilter(Path *path,
       ExceptionState *state = state_iter.next();
       ExceptionPath *except = state->exception();
       if (except->isFilter()
-	  && state->nextThru() == NULL
+	  && state->nextThru() == nullptr
 	  && except->to()
 	  && except->to()->matches(gclk))
 	return true;
@@ -1131,7 +1128,7 @@ Genclks::findPllDelays(Clock *gclk)
   GenclkInfo *genclk_info = genclkInfo(gclk);
   genclk_info->setPllFilter(pll_filter);
   ClkTreeSearchPred srch_pred(this);
-  BfsFwdIterator pll_iter(bfs_other, &srch_pred, this);
+  BfsFwdIterator pll_iter(BfsIndex::other, &srch_pred, this);
   seedPllPin(gclk, pll_filter, pll_iter);
   // Propagate arrivals to pll feedback pin level.
   findPllArrivals(gclk, pll_iter);
@@ -1144,13 +1141,13 @@ Genclks::makePllFilter(const Clock *gclk)
   PinSet *from_pins = new PinSet;
   from_pins->insert(gclk->pllOut());
   TransRiseFallBoth *rf = TransRiseFallBoth::riseFall();
-  ExceptionFrom *from = sdc_->makeExceptionFrom(from_pins,NULL,NULL,rf);
+  ExceptionFrom *from = sdc_->makeExceptionFrom(from_pins,nullptr,nullptr,rf);
 
   PinSet *to_pins = new PinSet;
   to_pins->insert(gclk->pllFdbk());
-  ExceptionTo *to = sdc_->makeExceptionTo(to_pins, NULL, NULL, rf, rf);
+  ExceptionTo *to = sdc_->makeExceptionTo(to_pins, nullptr, nullptr, rf, rf);
 
-  return sdc_->makeFilterPath(from, NULL, to);
+  return sdc_->makeFilterPath(from, nullptr, to);
 }
 
 void
@@ -1172,7 +1169,7 @@ Genclks::seedPllPin(const Clock *gclk,
     while (tr_iter.hasNext()) {
       TransRiseFall *tr = tr_iter.next();
       Tag *tag = makeTag(gclk, gclk, pll_out_pin, tr, pll_filter, path_ap);
-      tag_bldr.setArrival(tag, 0.0, NULL);
+      tag_bldr.setArrival(tag, 0.0, nullptr);
     }
   }
   search_->setVertexArrivals(vertex, &tag_bldr);

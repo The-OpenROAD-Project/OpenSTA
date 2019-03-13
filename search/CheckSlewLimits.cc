@@ -107,8 +107,8 @@ CheckSlewLimits::checkSlews(const Pin *pin,
 			    float &limit,
 			    float &slack) const
 {
-  corner1 = NULL;
-  tr = NULL;
+  corner1 = nullptr;
+  tr = nullptr;
   slew = 0.0;
   limit = 0.0;
   slack = MinMax::min()->initValue();
@@ -189,7 +189,7 @@ CheckSlewLimits::findLimit(const Pin *pin,
   ClockSet::Iterator clk_iter(clks);
   while (clk_iter.hasNext()) {
     Clock *clk = clk_iter.next();
-    PathClkOrData clk_data =  is_clk ? path_clk : path_data;
+    PathClkOrData clk_data = is_clk ? PathClkOrData::clk : PathClkOrData::data;
     float clk_limit;
     bool clk_limit_exists;
     sdc->slewLimit(clk, tr, clk_data, min_max,
@@ -281,7 +281,7 @@ CheckSlewLimits::checkSlew(Vertex *vertex,
   float slew2 = delayAsFloat(slew1);
   float slack1 = (min_max == MinMax::max())
     ? limit1 - slew2 : slew2 - limit1;
-  if (corner == NULL
+  if (corner == nullptr
       || (slack1 < slack
 	  // Break ties for the sake of regression stability.
 	  || (fuzzyEqual(slack1, slack)

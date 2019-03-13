@@ -51,17 +51,17 @@ Parasitics::findParasiticNet(const Pin *pin) const
   Net *net = network_->net(pin);
   // Pins on the top level instance may not have nets.
   // Use the net connected to the pin's terminal.
-  if (net == NULL && network_->isTopLevelPort(pin)) {
+  if (net == nullptr && network_->isTopLevelPort(pin)) {
     Term *term = network_->term(pin);
     if (term)
       return network_->net(term);
     else
-      return NULL;
+      return nullptr;
   }
   if (net)
     return network_->highestConnectedNet(net);
   else
-    return NULL;
+    return nullptr;
 }
 
 void
@@ -102,20 +102,20 @@ Parasitics::makeWireloadNetwork(const Pin *drvr_pin,
   float wireload_cap, wireload_res;
   wireload->findWireload(fanout, op_cond, wireload_cap, wireload_res);
 
-  WireloadTree tree = wire_load_balanced_tree;
+  WireloadTree tree = WireloadTree::balanced;
   if (op_cond)
     tree = op_cond->wireloadTree();
   switch (tree) {
-  case wire_load_worst_case_tree:
+  case WireloadTree::worst_case:
     makeWireloadNetworkWorst(parasitic, drvr_pin, wireload_cap, 
 			     wireload_res, fanout, ap);
     break;
-  case wire_load_balanced_tree:
+  case WireloadTree::balanced:
     makeWireloadNetworkBalanced(parasitic, drvr_pin, wireload_cap,
 				wireload_res, fanout, ap);
     break;
-  case wire_load_unknown_tree:
-  case wire_load_best_case_tree:
+  case WireloadTree::best_case:
+  case WireloadTree::unknown:
     makeWireloadNetworkBest(parasitic, drvr_pin, wireload_cap, 
 			    wireload_res, fanout, ap);
     break;
@@ -136,7 +136,7 @@ Parasitics::makeWireloadNetworkWorst(Parasitic *parasitic,
   ParasiticNode *drvr_node = ensureParasiticNode(parasitic, drvr_pin);
   Net *net = network_->net(drvr_pin);
   ParasiticNode *load_node = ensureParasiticNode(parasitic, net, 0);
-  makeResistor(NULL, drvr_node, load_node, wireload_res, ap);
+  makeResistor(nullptr, drvr_node, load_node, wireload_res, ap);
   parasitics_->incrCap(load_node, wireload_cap, ap);
   PinConnectedPinIterator *load_iter =
     network_->connectedPinIterator(drvr_pin);
@@ -145,7 +145,7 @@ Parasitics::makeWireloadNetworkWorst(Parasitic *parasitic,
     if (load_pin != drvr_pin
 	&& network_->isLoad(load_pin)) {
       ParasiticNode *load_node1 = ensureParasiticNode(parasitic, load_pin);
-      makeResistor(NULL, load_node, load_node1, 0.0, ap);    
+      makeResistor(nullptr, load_node, load_node1, 0.0, ap);    
     }
   }
 }
@@ -168,7 +168,7 @@ Parasitics::makeWireloadNetworkBest(Parasitic *parasitic,
     if (load_pin != drvr_pin
 	&& network_->isLoad(load_pin)) {
       ParasiticNode *load_node1 = ensureParasiticNode(parasitic, load_pin);
-      makeResistor(NULL, drvr_node, load_node1, 0.0, ap);    
+      makeResistor(nullptr, drvr_node, load_node1, 0.0, ap);    
     }
   }
 }
@@ -193,7 +193,7 @@ Parasitics::makeWireloadNetworkBalanced(Parasitic *parasitic,
     if (load_pin != drvr_pin
 	&& network_->isLoad(load_pin)) {
       ParasiticNode *load_node1 = ensureParasiticNode(parasitic, load_pin);
-      makeResistor(NULL, drvr_node, load_node1, fanout_res, ap);    
+      makeResistor(nullptr, drvr_node, load_node1, fanout_res, ap);    
       parasitics_->incrCap(load_node1, fanout_cap, ap);
     }
   }

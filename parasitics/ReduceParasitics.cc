@@ -80,10 +80,10 @@ protected:
 ReduceToPi::ReduceToPi(StaState *sta) :
   StaState(sta),
   coupling_cap_multiplier_(1.0),
-  tr_(NULL),
-  op_cond_(NULL),
-  corner_(NULL),
-  cnst_min_max_(NULL)
+  tr_(nullptr),
+  op_cond_(nullptr),
+  corner_(nullptr),
+  cnst_min_max_(nullptr)
 {
 }
 
@@ -401,7 +401,7 @@ private:
 
 ReduceToPiPoleResidue2::ReduceToPiPoleResidue2(StaState *sta) :
   ReduceToPi(sta),
-  moments_(NULL)
+  moments_(nullptr)
 {
 }
 

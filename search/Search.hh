@@ -17,11 +17,10 @@
 #ifndef STA_SEARCH_H
 #define STA_SEARCH_H
 
+#include <mutex>
 #include "MinMax.hh"
 #include "StaState.hh"
 #include "HashSet.hh"
-#include "HashMap.hh"
-#include "Mutex.hh"
 #include "Transition.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
@@ -77,7 +76,7 @@ public:
   void setCrprpathPruningEnabled(bool enabled);
   bool unconstrainedPaths() const { return unconstrained_paths_; }
   // from/thrus/to are owned and deleted by Search.
-  // Use corner NULL to report timing for all corners.
+  // Use corner nullptr to report timing for all corners.
   // Returned sequence is owned by the caller.
   // PathEnds are owned by Search PathGroups and deleted on next call.
   PathEndSeq *findPathEnds(ExceptionFrom *from,
@@ -544,7 +543,7 @@ protected:
   bool requireds_seeded_;
   // Vertices with invalid arrival times to update and search from.
   VertexSet invalid_arrivals_;
-  Mutex invalid_arrivals_lock_;
+  std::mutex invalid_arrivals_lock_;
   BfsFwdIterator *arrival_iter_;
   // Vertices with invalid required times to update and search from.
   VertexSet invalid_requireds_;
@@ -556,33 +555,33 @@ protected:
   SlackSeq tns_;
   // Indexed by path_ap->index().
   VertexSlackMapSeq tns_slacks_;
-  Mutex tns_lock_;
+  std::mutex tns_lock_;
   // Indexed by path_ap->index().
   WorstSlacks *worst_slacks_;
   // Use pointer to clk_info set so Tag.hh does not need to be included.
   ClkInfoSet *clk_info_set_;
-  Mutex clk_info_lock_;
+  std::mutex clk_info_lock_;
   // Use pointer to tag set so Tag.hh does not need to be included.
   TagHashSet *tag_set_;
   // Entries in tags_ may be missing where previous filter tags were deleted.
   TagIndex tag_capacity_;
   Tag **tags_;
   TagIndex tag_count_;
-  Mutex tag_lock_;
+  std::mutex tag_lock_;
   TagGroupSet *tag_group_set_;
   TagGroup **tag_groups_;
   TagGroupIndex tag_group_count_;
   // Capacity of tag_groups_.
   TagGroupIndex tag_group_capacity_;
-  Mutex tag_group_lock_;
+  std::mutex tag_group_lock_;
   // Latches data outputs to queue on the next search pass.
   VertexSet pending_latch_outputs_;
-  Mutex pending_latch_outputs_lock_;
+  std::mutex pending_latch_outputs_lock_;
   VertexSet *endpoints_;
   VertexSet *invalid_endpoints_;
   // Filter exception to tag arrivals for
   // report_timing -from pin|inst -through.
-  // -to is always NULL.
+  // -to is always nullptr.
   FilterPath *filter_;
   // filter_from_ is owned by filter_ if it exists.
   ExceptionFrom *filter_from_;

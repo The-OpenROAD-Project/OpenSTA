@@ -17,6 +17,7 @@
 #include "Machine.hh"
 #include "StaConfig.hh"  // CUDD
 #include "Error.hh"
+#include "Mutex.hh"
 #include "Debug.hh"
 #include "Report.hh"
 #include "Stats.hh"
@@ -44,7 +45,7 @@ findDrvrPin(const Pin *pin,
 
 Sim::Sim(StaState *sta) :
   StaState(sta),
-  observer_(NULL),
+  observer_(nullptr),
   valid_(false),
   incremental_(false),
   const_func_pins_valid_(false),
@@ -69,27 +70,29 @@ Sim::functionSense(const FuncExpr *expr,
   debugPrint2(debug_, "sim", 4, "find sense pin %s %s\n",
 	      network_->pathName(input_pin),
 	      expr->asString());
-  cudd_lock_.lock();
-  DdNode *bdd = funcBdd(expr, inst);
-  LibertyPort *input_port = network_->libertyPort(input_pin);
-  DdNode *input_node = ensureNode(input_port);
-  unsigned int input_index = Cudd_NodeReadIndex(input_node);
-  bool increasing = (Cudd_Increasing(cudd_manager_, bdd, input_index)
-		     == Cudd_ReadOne(cudd_manager_));
-  bool decreasing = (Cudd_Decreasing(cudd_manager_, bdd, input_index)
-		     == Cudd_ReadOne(cudd_manager_));
-  Cudd_RecursiveDeref(cudd_manager_, bdd);
-  clearSymtab();
-  cudd_lock_.unlock();
+  bool increasing, decreasing;
+  {
+    UniqueLock lock(cudd_lock_);
+    DdNode *bdd = funcBdd(expr, inst);
+    LibertyPort *input_port = network_->libertyPort(input_pin);
+    DdNode *input_node = ensureNode(input_port);
+    unsigned int input_index = Cudd_NodeReadIndex(input_node);
+    increasing = (Cudd_Increasing(cudd_manager_, bdd, input_index)
+		  == Cudd_ReadOne(cudd_manager_));
+    decreasing = (Cudd_Decreasing(cudd_manager_, bdd, input_index)
+		  == Cudd_ReadOne(cudd_manager_));
+    Cudd_RecursiveDeref(cudd_manager_, bdd);
+    clearSymtab();
+  }
   TimingSense sense;
   if (increasing && decreasing)
-    sense = timing_sense_none;
+    sense = TimingSense::none;
   else if (increasing)
-    sense = timing_sense_positive_unate;
+    sense = TimingSense::positive_unate;
   else if (decreasing)
-    sense = timing_sense_negative_unate;
+    sense = TimingSense::negative_unate;
   else
-    sense = timing_sense_non_unate;
+    sense = TimingSense::non_unate;
   debugPrint1(debug_, "sim", 4, " %s\n", timingSenseString(sense));
   return sense;
 }
@@ -109,29 +112,28 @@ LogicValue
 Sim::evalExpr(const FuncExpr *expr,
 	      const Instance *inst) const
 {
-  cudd_lock_.lock();
+  UniqueLock lock(cudd_lock_);
   DdNode *bdd = funcBdd(expr, inst);
-  LogicValue value = logic_unknown;
+  LogicValue value = LogicValue::unknown;
   if (bdd == Cudd_ReadLogicZero(cudd_manager_))
-    value = logic_zero;
+    value = LogicValue::zero;
   else if (bdd == Cudd_ReadOne(cudd_manager_))
-    value = logic_one;
+    value = LogicValue::one;
   if (bdd) {
     Cudd_RecursiveDeref(cudd_manager_, bdd);
     clearSymtab();
   }
-  cudd_lock_.unlock();
   return value;
 }
 
-// Returns NULL if the expression simply references an internal port.
+// Returns nullptr if the expression simply references an internal port.
 DdNode *
 Sim::funcBdd(const FuncExpr *expr,
 	     const Instance *inst) const
 {
-  DdNode *left = NULL;
-  DdNode *right = NULL;
-  DdNode *result = NULL;
+  DdNode *left = nullptr;
+  DdNode *right = nullptr;
+  DdNode *result = nullptr;
   switch (expr->op()) {
   case FuncExpr::op_port: {
     LibertyPort *port = expr->port();
@@ -140,10 +142,10 @@ Sim::funcBdd(const FuncExpr *expr,
     if (pin) {
       LogicValue value = logicValue(pin);
       switch (value) {
-      case logic_zero:
+      case LogicValue::zero:
 	result = Cudd_ReadLogicZero(cudd_manager_);
 	break;
-      case logic_one:
+      case LogicValue::one:
 	result = Cudd_ReadOne(cudd_manager_);
 	break;
       default:
@@ -211,7 +213,7 @@ Sim::ensureNode(LibertyPort *port) const
 {
   const char *port_name = port->name();
   DdNode *node = symtab_.findKey(port_name);
-  if (node == NULL) {
+  if (node == nullptr) {
     node = Cudd_bddNewVar(cudd_manager_);
     symtab_[port_name] = node;
     Cudd_Ref(node);
@@ -219,32 +221,107 @@ Sim::ensureNode(LibertyPort *port) const
   return node;
 }
 
-#else // CUDD
+#else 
+// No CUDD.
 
-static LogicValue not_logic[5] =
-  {logic_one, logic_zero, logic_unknown, logic_unknown, logic_unknown};
-static LogicValue or_logic[5][5] =
-  {{logic_zero,   logic_one, logic_unknown, logic_unknown, logic_unknown},
-   {logic_one,    logic_one, logic_one,     logic_one,     logic_one},
-   {logic_unknown,logic_one, logic_unknown, logic_unknown, logic_unknown},
-   {logic_unknown,logic_one, logic_unknown, logic_unknown, logic_unknown},
-   {logic_unknown,logic_one, logic_unknown, logic_unknown, logic_unknown}};
-static LogicValue and_logic[5][5] =
-  {{logic_zero,logic_zero,   logic_zero,   logic_zero,    logic_zero},
-   {logic_zero,logic_one,    logic_unknown,logic_unknown, logic_unknown},
-   {logic_zero,logic_unknown,logic_unknown,logic_unknown, logic_unknown},
-   {logic_zero,logic_unknown,logic_unknown,logic_unknown, logic_unknown},
-   {logic_zero,logic_unknown,logic_unknown,logic_unknown, logic_unknown}};
-static LogicValue xor_logic[5][5]=
-  {{logic_zero, logic_one,      logic_unknown,logic_unknown, logic_unknown},
-   {logic_one,  logic_zero,     logic_unknown,logic_unknown, logic_unknown},
-   {logic_unknown,logic_unknown,logic_unknown,logic_unknown, logic_unknown},
-   {logic_unknown,logic_unknown,logic_unknown,logic_unknown, logic_unknown},
-   {logic_unknown,logic_unknown,logic_unknown,logic_unknown, logic_unknown}};
+static LogicValue
+logicNot(LogicValue value)
+{
+  static LogicValue logic_not[5] = {LogicValue::one, LogicValue::zero,
+				    LogicValue::unknown, LogicValue::unknown,
+				    LogicValue::unknown};
+  return logic_not[int(value)];
+}
+
+static LogicValue
+logicOr(LogicValue value1,
+	LogicValue value2)
+{
+  static LogicValue logic_or[5][5] =
+    {{LogicValue::zero,   LogicValue::one, LogicValue::unknown, LogicValue::unknown, LogicValue::unknown},
+     {LogicValue::one,    LogicValue::one, LogicValue::one,     LogicValue::one,     LogicValue::one},
+     {LogicValue::unknown,LogicValue::one, LogicValue::unknown, LogicValue::unknown, LogicValue::unknown},
+     {LogicValue::unknown,LogicValue::one, LogicValue::unknown, LogicValue::unknown, LogicValue::unknown},
+     {LogicValue::unknown,LogicValue::one, LogicValue::unknown, LogicValue::unknown, LogicValue::unknown}};
+  return logic_or[int(value1)][int(value2)];
+}
+
+static LogicValue
+logicAnd(LogicValue value1,
+	LogicValue value2)
+{
+  static LogicValue logic_and[5][5] =
+    {{LogicValue::zero,LogicValue::zero,   LogicValue::zero,   LogicValue::zero,    LogicValue::zero},
+     {LogicValue::zero,LogicValue::one,    LogicValue::unknown,LogicValue::unknown, LogicValue::unknown},
+     {LogicValue::zero,LogicValue::unknown,LogicValue::unknown,LogicValue::unknown, LogicValue::unknown},
+     {LogicValue::zero,LogicValue::unknown,LogicValue::unknown,LogicValue::unknown, LogicValue::unknown},
+     {LogicValue::zero,LogicValue::unknown,LogicValue::unknown,LogicValue::unknown, LogicValue::unknown}};
+  return logic_and[int(value1)][int(value2)];
+}
+
+static LogicValue
+logicXor(LogicValue value1,
+	 LogicValue value2)
+{
+  static LogicValue logic_xor[5][5]=
+    {{LogicValue::zero, LogicValue::one,      LogicValue::unknown,LogicValue::unknown, LogicValue::unknown},
+     {LogicValue::one,  LogicValue::zero,     LogicValue::unknown,LogicValue::unknown, LogicValue::unknown},
+     {LogicValue::unknown,LogicValue::unknown,LogicValue::unknown,LogicValue::unknown, LogicValue::unknown},
+     {LogicValue::unknown,LogicValue::unknown,LogicValue::unknown,LogicValue::unknown, LogicValue::unknown},
+     {LogicValue::unknown,LogicValue::unknown,LogicValue::unknown,LogicValue::unknown, LogicValue::unknown}};
+  return logic_xor[int(value1)][int(value2)];
+}
+
+static TimingSense
+senseNot(TimingSense sense)
+{
+  static TimingSense sense_not[5] = {TimingSense::negative_unate,
+				     TimingSense::positive_unate,
+				     TimingSense::non_unate,
+				     TimingSense::none,
+				     TimingSense::unknown};
+  return sense_not[int(sense)];
+}
+
+static TimingSense
+senseAndOr(TimingSense sense1,
+	   TimingSense sense2)
+{
+  static TimingSense sense_and_or[5][5] =
+    {{TimingSense::positive_unate, TimingSense::non_unate,
+      TimingSense::non_unate, TimingSense::positive_unate, TimingSense::unknown},
+     {TimingSense::non_unate, TimingSense::negative_unate,
+      TimingSense::non_unate, TimingSense::negative_unate, TimingSense::unknown},
+     {TimingSense::non_unate, TimingSense::non_unate, TimingSense::non_unate,
+      TimingSense::non_unate, TimingSense::unknown},
+     {TimingSense::positive_unate, TimingSense::negative_unate,
+      TimingSense::non_unate, TimingSense::none, TimingSense::unknown},
+     {TimingSense::unknown, TimingSense::unknown,
+      TimingSense::unknown, TimingSense::non_unate, TimingSense::unknown}};
+  return sense_and_or[int(sense1)][int(sense2)];
+}
+
+static TimingSense
+senseXor(TimingSense sense1,
+	 TimingSense sense2)
+{
+  static TimingSense xor_sense[5][5] =
+    {{TimingSense::non_unate, TimingSense::non_unate,
+      TimingSense::non_unate, TimingSense::non_unate, TimingSense::unknown},
+     {TimingSense::non_unate, TimingSense::non_unate,
+      TimingSense::non_unate, TimingSense::non_unate, TimingSense::unknown},
+     {TimingSense::non_unate, TimingSense::non_unate,
+      TimingSense::non_unate, TimingSense::non_unate, TimingSense::unknown},
+     {TimingSense::non_unate, TimingSense::non_unate,
+      TimingSense::non_unate, TimingSense::none, TimingSense::unknown},
+     {TimingSense::unknown, TimingSense::unknown,
+      TimingSense::unknown, TimingSense::unknown, TimingSense::unknown}};
+  return xor_sense[int(sense1)][int(sense2)];
+}
 
 Sim::Sim(StaState *sta) :
   StaState(sta),
-  observer_(NULL),
+  observer_(nullptr),
   valid_(false),
   incremental_(false),
   const_func_pins_valid_(false)
@@ -255,34 +332,6 @@ Sim::~Sim()
 {
   delete observer_;
 }
-
-static TimingSense not_sense[5] = {timing_sense_negative_unate,
-				   timing_sense_positive_unate,
-				   timing_sense_non_unate,
-				   timing_sense_none,
-				   timing_sense_unknown};
-static TimingSense and_or_sense[5][5] =
-  {{timing_sense_positive_unate, timing_sense_non_unate,
-    timing_sense_non_unate, timing_sense_positive_unate, timing_sense_unknown},
-   {timing_sense_non_unate, timing_sense_negative_unate,
-    timing_sense_non_unate, timing_sense_negative_unate, timing_sense_unknown},
-   {timing_sense_non_unate, timing_sense_non_unate, timing_sense_non_unate,
-    timing_sense_non_unate, timing_sense_unknown},
-   {timing_sense_positive_unate, timing_sense_negative_unate,
-    timing_sense_non_unate, timing_sense_none, timing_sense_unknown},
-   {timing_sense_unknown, timing_sense_unknown,
-    timing_sense_unknown, timing_sense_non_unate, timing_sense_unknown}};
-static TimingSense xor_sense[5][5] =
-  {{timing_sense_non_unate, timing_sense_non_unate,
-    timing_sense_non_unate, timing_sense_non_unate, timing_sense_unknown},
-   {timing_sense_non_unate, timing_sense_non_unate,
-    timing_sense_non_unate, timing_sense_non_unate, timing_sense_unknown},
-   {timing_sense_non_unate, timing_sense_non_unate,
-    timing_sense_non_unate, timing_sense_non_unate, timing_sense_unknown},
-   {timing_sense_non_unate, timing_sense_non_unate,
-    timing_sense_non_unate, timing_sense_none, timing_sense_unknown},
-   {timing_sense_unknown, timing_sense_unknown,
-    timing_sense_unknown, timing_sense_unknown, timing_sense_unknown}};
 
 TimingSense
 Sim::functionSense(const FuncExpr *expr,
@@ -308,14 +357,14 @@ Sim::functionSense(const FuncExpr *expr,
     Pin *pin = network_->findPin(inst, expr->port());
     if (pin) {
       if (pin == input_pin)
-	sense = timing_sense_positive_unate;
+	sense = TimingSense::positive_unate;
       else
-	sense = timing_sense_none;
+	sense = TimingSense::none;
       value = logicValue(pin);
     }
     else {
-      sense = timing_sense_none;
-      value = logic_unknown;
+      sense = TimingSense::none;
+      value = LogicValue::unknown;
     }
     break;
   }
@@ -323,17 +372,17 @@ Sim::functionSense(const FuncExpr *expr,
     TimingSense sense1;
     LogicValue value1;
     functionSense(expr->left(), input_pin, inst, sense1, value1);
-    if (value1 == logic_zero) {
-      sense = timing_sense_none;
-      value = logic_one;
+    if (value1 == LogicValue::zero) {
+      sense = TimingSense::none;
+      value = LogicValue::one;
     }
-    else if (value1 == logic_one) {
-      sense = timing_sense_none;
-      value = logic_zero;
+    else if (value1 == LogicValue::one) {
+      sense = TimingSense::none;
+      value = LogicValue::zero;
     }
     else {
-      sense = not_sense[sense1];
-      value = logic_unknown;
+      sense = senseNot(sense1);
+      value = LogicValue::unknown;
     }
     break;
   }
@@ -342,21 +391,21 @@ Sim::functionSense(const FuncExpr *expr,
     LogicValue value1, value2;
     functionSense(expr->left(), input_pin, inst, sense1, value1);
     functionSense(expr->right(), input_pin, inst, sense2, value2);
-    if (value1 == logic_one || value2 == logic_one) {
-      sense = timing_sense_none;
-      value = logic_one;
+    if (value1 == LogicValue::one || value2 == LogicValue::one) {
+      sense = TimingSense::none;
+      value = LogicValue::one;
     }
-    else if (value1 == logic_zero) {
+    else if (value1 == LogicValue::zero) {
       sense = sense2;
       value = value2;
     }
-    else if (value2 == logic_zero) {
+    else if (value2 == LogicValue::zero) {
       sense = sense1;
       value = value1;
     }
     else {
-      sense = and_or_sense[sense1][sense2];
-      value = logic_unknown;
+      sense = senseAndOr(sense1, sense2);
+      value = LogicValue::unknown;
     }
     break;
   }
@@ -365,21 +414,21 @@ Sim::functionSense(const FuncExpr *expr,
     LogicValue value1, value2;
     functionSense(expr->left(), input_pin, inst, sense1, value1);
     functionSense(expr->right(), input_pin, inst, sense2, value2);
-    if (value1 == logic_zero || value2 == logic_zero) {
-      sense = timing_sense_none;
-      value = logic_zero;
+    if (value1 == LogicValue::zero || value2 == LogicValue::zero) {
+      sense = TimingSense::none;
+      value = LogicValue::zero;
     }
-    else if (value1 == logic_one) {
+    else if (value1 == LogicValue::one) {
       sense = sense2;
       value = value2;
     }
-    else if (value2 == logic_one) {
+    else if (value2 == LogicValue::one) {
       sense = sense1;
       value = value1;
     }
     else {
-      sense = and_or_sense[sense1][sense2];
-      value = logic_unknown;
+      sense = senseAndOr(sense1, sense2);
+      value = LogicValue::unknown;
     }
     break;
   }
@@ -388,45 +437,45 @@ Sim::functionSense(const FuncExpr *expr,
     LogicValue value1, value2;
     functionSense(expr->left(), input_pin, inst, sense1, value1);
     functionSense(expr->right(), input_pin, inst, sense2, value2);
-    if ((value1 == logic_zero && value2 == logic_zero)
-	|| (value1 == logic_one && value2 == logic_one)) {
-      sense = timing_sense_none;
-      value = logic_zero;
+    if ((value1 == LogicValue::zero && value2 == LogicValue::zero)
+	|| (value1 == LogicValue::one && value2 == LogicValue::one)) {
+      sense = TimingSense::none;
+      value = LogicValue::zero;
     }
-    else if ((value1 == logic_zero && value2 == logic_one)
-	     || (value1 == logic_one && value2 == logic_zero)) {
-      sense = timing_sense_none;
-      value = logic_one;
+    else if ((value1 == LogicValue::zero && value2 == LogicValue::one)
+	     || (value1 == LogicValue::one && value2 == LogicValue::zero)) {
+      sense = TimingSense::none;
+      value = LogicValue::one;
     }
-    else if (value1 == logic_zero) {
+    else if (value1 == LogicValue::zero) {
       sense = sense2;
       value = value2;
     }
-    else if (value1 == logic_one) {
-      sense = not_sense[sense2];
-      value = not_logic[value2];
+    else if (value1 == LogicValue::one) {
+      sense = senseNot(sense2);
+      value = logicNot(value2);
     }
-    else if (value2 == logic_zero) {
+    else if (value2 == LogicValue::zero) {
       sense = sense1;
       value = value1;
     }
-    else if (value2 == logic_one) {
-      sense = not_sense[sense1];
-      value = not_logic[value1];
+    else if (value2 == LogicValue::one) {
+      sense = senseNot(sense1);
+      value = logicNot(value1);
     }
     else {
-      sense = xor_sense[sense1][sense2];
-      value = xor_logic[value1][value2];
+      sense = senseXor(sense1, sense2);
+      value = logicXor(value1, value2);
     }
     break;
   }
   case FuncExpr::op_one:
-    sense = timing_sense_none;
-    value = logic_one;
+    sense = TimingSense::none;
+    value = LogicValue::one;
     break;
   case FuncExpr::op_zero:
-    sense = timing_sense_none;
-    value = logic_zero;
+    sense = TimingSense::none;
+    value = LogicValue::zero;
     break;
   }
 }
@@ -442,26 +491,26 @@ Sim::evalExpr(const FuncExpr *expr,
       return logicValue(pin);
     else
       // Internal ports don't have instance pins.
-      return logic_unknown;
+      return LogicValue::unknown;
   }
   case FuncExpr::op_not:
-    return not_logic[evalExpr(expr->left(), inst)];
+    return logicNot(evalExpr(expr->left(), inst));
   case FuncExpr::op_or:
-    return or_logic[evalExpr(expr->left(),inst)]
-      [evalExpr(expr->right(),inst)];
+    return logicOr(evalExpr(expr->left(),inst),
+		   evalExpr(expr->right(),inst));
   case FuncExpr::op_and:
-    return and_logic[evalExpr(expr->left(),inst)]
-      [evalExpr(expr->right(),inst)];
+    return logicAnd(evalExpr(expr->left(),inst),
+		    evalExpr(expr->right(),inst));
   case FuncExpr::op_xor:
-    return xor_logic[evalExpr(expr->left(),inst)]
-      [evalExpr(expr->right(),inst)];
+    return  logicXor(evalExpr(expr->left(),inst),
+		     evalExpr(expr->right(),inst));
   case FuncExpr::op_one:
-    return logic_one;
+    return LogicValue::one;
   case FuncExpr::op_zero:
-    return logic_zero;
+    return LogicValue::zero;
   }
   // Prevent warnings from lame compilers.
-  return logic_zero;
+  return LogicValue::zero;
 }
 
 #endif // CUDD
@@ -531,9 +580,9 @@ Sim::propagateToInvalidLoads()
     Pin *load_pin = load_iter.next();
     Net *net = network_->net(load_pin);
     if (network_->isGround(net))
-      setPinValue(load_pin, logic_zero, true);
+      setPinValue(load_pin, LogicValue::zero, true);
     else if (network_->isPower(net))
-      setPinValue(load_pin, logic_one, true);
+      setPinValue(load_pin, LogicValue::one, true);
     else {
       Pin *drvr_pin = findDrvrPin(load_pin, network_);
       if (drvr_pin)
@@ -604,7 +653,7 @@ Sim::recordConstPinFunc(Pin *pin)
     FuncExpr *expr = port->function();
     if (expr
 	// Tristate outputs do not force the output to be constant.
-	&& port->tristateEnable() == NULL
+	&& port->tristateEnable() == nullptr
 	&& (expr->op() == FuncExpr::op_zero
 	    || expr->op() == FuncExpr::op_one))
       const_func_pins_.insert(pin);
@@ -676,7 +725,7 @@ Sim::seedConstants()
 {
   // Propagate constants from inputs tied hi/low in the network.
   enqueueConstantPinInputs(true);
-  // Propagate set_logic_zero, set_logic_one, set_logic_dc constants.
+  // Propagate set_LogicValue::zero, set_LogicValue::one, set_logic_dc constants.
   setConstraintConstPins(sdc_->logicValues(), true);
   // Propagate set_case_analysis constants.
   setConstraintConstPins(sdc_->caseLogicValues(), true);
@@ -739,12 +788,12 @@ Sim::setConstFuncPins(bool propagate)
       if (expr->op() == FuncExpr::op_zero) {
 	debugPrint1(debug_, "sim", 2, "func pin %s = 0\n",
 		    network_->pathName(pin));
-	setPinValue(pin, logic_zero, propagate);
+	setPinValue(pin, LogicValue::zero, propagate);
       }
       else if (expr->op() == FuncExpr::op_one) {
 	debugPrint1(debug_, "sim", 2, "func pin %s = 1\n",
 		    network_->pathName(pin));
-	setPinValue(pin, logic_one, propagate);
+	setPinValue(pin, LogicValue::one, propagate);
       }
     }
   }
@@ -783,7 +832,7 @@ Sim::removePropagatedValue(const Pin *pin)
 	debugPrint1(debug_, "sim", 2, "pin %s remove prop constant\n",
 		    network_->pathName(pin));
 	Vertex *vertex = graph_->pinLoadVertex(pin);
-	setSimValue(vertex, logic_unknown);
+	setSimValue(vertex, LogicValue::unknown);
       }
     }
   }
@@ -801,7 +850,7 @@ Sim::setPinValue(const Pin *pin,
     sdc_->logicValue(pin, constraint_value, exists);
   if (exists
       && value != constraint_value) {
-    if (value != logic_unknown)
+    if (value != LogicValue::unknown)
       report_->warn("propagated logic value %c differs from constraint value of %c on pin %s.\n",
 		    logicValueString(value),
 		    logicValueString(constraint_value),
@@ -859,8 +908,8 @@ Sim::evalInstance(const Instance *inst)
 	if (expr) {
 	  LogicValue value = evalExpr(expr, inst);
 	  FuncExpr *tri_en_expr = port->tristateEnable();
-	  if (tri_en_expr == NULL
-	      || evalExpr(tri_en_expr, inst) == logic_one) {
+	  if (tri_en_expr == nullptr
+	      || evalExpr(tri_en_expr, inst) == LogicValue::one) {
 	    debugPrint3(debug_, "sim", 2, " %s %s = %c\n",
 			port->name(),
 			expr->asString(),
@@ -892,7 +941,7 @@ Sim::functionSense(const Instance *inst,
 		   const Pin *to_pin)
 {
   if (logicZeroOne(from_pin))
-    return timing_sense_none;
+    return TimingSense::none;
   else {
     LibertyPort *from_port = network_->libertyPort(from_pin);
     LibertyPort *to_port = network_->libertyPort(to_pin);
@@ -906,9 +955,9 @@ Sim::functionSense(const Instance *inst,
 	    if (func->hasPort(from_port)) {
 	      // from_pin is an input to the to_pin function.
 	      LogicValue tri_enable = evalExpr(tri_func, inst);
-	      if (tri_enable == logic_zero)
+	      if (tri_enable == LogicValue::zero)
 		// Tristate is disabled.
-		return timing_sense_none;
+		return TimingSense::none;
 	      else
 		return functionSense(func, from_pin, inst);
 	    }
@@ -927,7 +976,7 @@ Sim::functionSense(const Instance *inst,
 	}
       }
     }
-    return timing_sense_unknown;
+    return TimingSense::unknown;
   }
 }
 
@@ -943,7 +992,7 @@ Sim::logicValue(const Pin *pin) const
       if (drvr_pin)
 	return logicValue(drvr_pin);
     }
-    return logic_unknown;
+    return LogicValue::unknown;
   }
 }
 
@@ -957,13 +1006,13 @@ findDrvrPin(const Pin *pin,
     if (drvr_iter.hasNext())
       return drvr_iter.next();
   }
-  return NULL;
+  return nullptr;
 }
 
 bool
 logicValueZeroOne(LogicValue value)
 {
-  return value == logic_zero || value == logic_one;
+  return value == LogicValue::zero || value == LogicValue::one;
 }
 
 bool
@@ -996,9 +1045,9 @@ Sim::clearInstSimValues(const Instance *inst)
     Vertex *vertex, *bidirect_drvr_vertex;
     graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
     if (vertex)
-      setSimValue(vertex, logic_unknown);
+      setSimValue(vertex, LogicValue::unknown);
     if (bidirect_drvr_vertex)
-      setSimValue(bidirect_drvr_vertex, logic_unknown);
+      setSimValue(bidirect_drvr_vertex, LogicValue::unknown);
   }
   delete pin_iter;
 }
@@ -1047,16 +1096,16 @@ Sim::annotateVertexEdges(const Instance *inst,
     if (!edge->role()->isWire()) {
       Vertex *from_vertex = edge->from(graph_);
       Pin *from_pin = from_vertex->pin();
-      TimingSense sense = timing_sense_unknown;
+      TimingSense sense = TimingSense::unknown;
       bool is_disabled_cond = false;
       if (annotate) {
 	// Set timing sense on edges in instances that have constant pins.
   	if (logicZeroOne(from_pin))
-  	  sense = timing_sense_none;
+  	  sense = TimingSense::none;
  	else
 	  sense = functionSense(inst, from_pin, pin);
 
-	if (sense != timing_sense_none)
+	if (sense != TimingSense::none)
 	  // Disable conditional timing edges based on constant pins.
 	  is_disabled_cond = isCondDisabled(edge, inst, from_pin, 
 					    pin, network_,sim_)
@@ -1115,7 +1164,7 @@ isCondDisabled(Edge *edge,
   if (cond) {
     LogicValue cond_value = sim->evalExpr(cond, inst);
     disable_cond = cond;
-    is_disabled = (cond_value == logic_zero);
+    is_disabled = (cond_value == LogicValue::zero);
   }
   else {
     // Unconditional "default" arc set is disabled if another
@@ -1129,7 +1178,7 @@ isCondDisabled(Edge *edge,
     while (cond_iter.hasNext()) {
       TimingArcSet *cond_set = cond_iter.next();
       FuncExpr *cond = cond_set->cond();
-      if (cond && sim->evalExpr(cond, inst) == logic_one) {
+      if (cond && sim->evalExpr(cond, inst) == LogicValue::one) {
 	disable_cond = cond;
 	is_disabled = true;
 	break;
@@ -1174,7 +1223,7 @@ isModeDisabled(Edge *edge,
 	FuncExpr *cond = value_def->cond();
 	if (cond) {
 	  LogicValue cond_value = sim->evalExpr(cond, inst);
-	  if (cond_value == logic_zero) {
+	  if (cond_value == LogicValue::zero) {
 	    // For a mode value to be disabled by having a value of
 	    // logic zero one mode value must logic one.
 	    ModeValueMap::Iterator iter(mode_def->values());
@@ -1184,7 +1233,7 @@ isModeDisabled(Edge *edge,
 		FuncExpr *cond1 = value_def1->cond();
 		if (cond1) {
 		  LogicValue cond_value1 = sim->evalExpr(cond1, inst);
-		  if (cond_value1 == logic_one) {
+		  if (cond_value1 == LogicValue::one) {
 		    disable_cond = cond;
 		    is_disabled = true;
 		    break;
@@ -1240,10 +1289,10 @@ isTestDisabled(const Instance *inst,
 	  scan_enable = network->findPin(inst, scan_enable_port);
 	  if (scan_enable) {
 	    LogicValue scan_enable_value = sim->logicValue(scan_enable);
-	    is_disabled = ((scan_enable_value == logic_zero
+	    is_disabled = ((scan_enable_value == LogicValue::zero
 			    && (from_port == scan_in_port
 				|| to_port == scan_in_port))
-			   || (scan_enable_value == logic_one
+			   || (scan_enable_value == LogicValue::one
 			       && (from_port == data_in_port
 				   || to_port == data_in_port)));
 	  }

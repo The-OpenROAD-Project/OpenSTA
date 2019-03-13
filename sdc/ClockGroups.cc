@@ -20,9 +20,7 @@
 
 namespace sta {
 
-ClockGroup::ClockGroup(ClockGroups *clk_groups,
-		       ClockSet *clks) :
-  clk_groups_(clk_groups),
+ClockGroup::ClockGroup(ClockSet *clks) :
   clks_(clks)
 {
 }
@@ -64,7 +62,7 @@ ClockGroups::~ClockGroups()
 ClockGroup *
 ClockGroups::makeClockGroup(ClockSet *clks)
 {
-  ClockGroup *group = new ClockGroup(this, clks);
+  ClockGroup *group = new ClockGroup(clks);
   groups_.insert(group);
   return group;
 }

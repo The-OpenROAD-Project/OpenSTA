@@ -89,7 +89,7 @@ public:
 		      const MinMaxAll *min_max,
 		      const char *sdc_cmd) const;
   void writeClockSenses() const;
-  void writeClockSense(PinClockPair *pin_clk,
+  void writeClockSense(PinClockPair &pin_clk,
 		       ClockSense sense) const;
   void writeClockGroups() const;
   void writeClockGroups(ClockGroups *clk_groups) const;

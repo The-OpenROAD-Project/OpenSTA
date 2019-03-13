@@ -66,7 +66,7 @@ CheckCrpr::clkPathPrev(Vertex *vertex,
   if (prevs) {
     PathVertexRep *prev = &prevs[arrival_index];
     if (prev->isNull())
-      return NULL;
+      return nullptr;
     else {
       tmp.init(graph_->vertex(prev->vertexIndex()),
 	       search_->tag(prev->tagIndex()), this);
@@ -90,8 +90,10 @@ CheckCrpr::maxCrpr(ClkInfo *clk_info)
     if (!crpr_clk_vpath.isNull()) {
       Arrival other_arrival = otherMinMaxArrival(&crpr_clk_vpath);
       float crpr_diff = abs(delayAsFloat(crpr_clk_vpath.arrival(this),
-					 EarlyLate::late())
-			    - delayAsFloat(other_arrival, EarlyLate::early()));
+					 EarlyLate::late(),
+					 sigma_factor_)
+			    - delayAsFloat(other_arrival, EarlyLate::early(),
+					   sigma_factor_));
       return crpr_diff;
     }
   }
@@ -134,10 +136,10 @@ CheckCrpr::checkCrpr(const Path *src_path,
 		     Pin *&crpr_pin)
 {
   crpr = 0.0;
-  crpr_pin = NULL;
+  crpr_pin = nullptr;
   if (sdc_->crprActive()
       && src_path && tgt_clk_path) {
-    bool same_pin = (sdc_->crprMode() == crpr_mode_same_pin);
+    bool same_pin = (sdc_->crprMode() == CrprMode::same_pin);
     checkCrpr1(src_path, tgt_clk_path, same_pin, crpr, crpr_pin);
   }
 }
@@ -151,14 +153,14 @@ CheckCrpr::checkCrpr1(const Path *src_path,
 		      Pin *&crpr_pin)
 {
   crpr = 0.0;
-  crpr_pin = NULL;
+  crpr_pin = nullptr;
   ClkInfo *src_clk_info = src_path->tag(this)->clkInfo();
   ClkInfo *tgt_clk_info = tgt_clk_path->tag(this)->clkInfo();
   Clock *src_clk = src_clk_info->clock();
   Clock *tgt_clk = tgt_clk_info->clock();
   const PathVertex src_clk_path1(src_clk_info->crprClkPath(), this);
   const PathVertex *src_clk_path =
-    src_clk_path1.isNull() ? NULL : &src_clk_path1;
+    src_clk_path1.isNull() ? nullptr : &src_clk_path1;
   const MinMax *src_clk_min_max =
     src_clk_path ? src_clk_path->minMax(this) : src_path->minMax(this);
   if (crprPossible(src_clk, tgt_clk)
@@ -166,11 +168,11 @@ CheckCrpr::checkCrpr1(const Path *src_path,
       // For path from latches that are borrowing the enable path
       // is from the opposite min/max of the data.
       && src_clk_min_max != tgt_clk_path->minMax(this)
-      && (src_clk_path != NULL
+      && (src_clk_path != nullptr
 	  || src_clk->isGenerated())) {
     // Src path from input port clk path can only be from generated clk path.
     PathVertex port_clk_path;
-    if (src_clk_path == NULL) {
+    if (src_clk_path == nullptr) {
       portClkPath(src_clk_info->clkEdge(),
 		  src_clk_info->clkSrc(),
 		  src_path->pathAnalysisPt(this),
@@ -211,7 +213,7 @@ CheckCrpr::findCrpr(const PathVertex *src_clk_path,
 		    Pin *&crpr_pin)
 {
   crpr = 0.0;
-  crpr_pin = NULL;
+  crpr_pin = nullptr;
   const PathVertex *src_clk_path1 = src_clk_path;
   const PathVertex *tgt_clk_path1 = tgt_clk_path;
   PathVertexSeq src_gclk_paths, tgt_gclk_paths;
@@ -332,11 +334,11 @@ CheckCrpr::outputDelayCrpr(const Path *src_path,
 			   Pin *&crpr_pin)
 {
   crpr = 0.0;
-  crpr_pin = NULL;
+  crpr_pin = nullptr;
   if (sdc_->crprActive()) {
     const PathAnalysisPt *path_ap = src_path->pathAnalysisPt(this);
     const PathAnalysisPt *tgt_path_ap = path_ap->tgtClkAnalysisPt();
-    bool same_pin = (sdc_->crprMode() == crpr_mode_same_pin);
+    bool same_pin = (sdc_->crprMode() == CrprMode::same_pin);
     outputDelayCrpr1(src_path,tgt_clk_edge,tgt_path_ap, same_pin,
 		     crpr, crpr_pin);
   }
@@ -352,7 +354,7 @@ CheckCrpr::outputDelayCrpr1(const Path *src_path,
 			    Pin *&crpr_pin)
 {
   crpr = 0.0;
-  crpr_pin = NULL;
+  crpr_pin = nullptr;
   Clock *tgt_clk = tgt_clk_edge->clock();
   Clock *src_clk = src_path->clock(this);
   if (tgt_clk->isGenerated()
@@ -386,8 +388,10 @@ float
 CheckCrpr::crprArrivalDiff(const PathVertex *path)
 {
   Arrival other_arrival = otherMinMaxArrival(path);
-  float crpr_diff = abs(delayAsFloat(path->arrival(this), EarlyLate::late())
-			- delayAsFloat(other_arrival, EarlyLate::early()));
+  float crpr_diff = abs(delayAsFloat(path->arrival(this), EarlyLate::late(),
+				     sigma_factor_)
+			- delayAsFloat(other_arrival, EarlyLate::early(),
+				       sigma_factor_));
   return crpr_diff;
 }
 

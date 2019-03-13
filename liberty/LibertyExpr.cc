@@ -32,14 +32,14 @@ FuncExpr *
 parseFuncExpr(const char *func, LibertyCell *cell, const char *error_msg,
 	      Report *report)
 {
-  if (func != NULL && func[0] != '\0') {
+  if (func != nullptr && func[0] != '\0') {
     LibExprParser parser(func, cell, error_msg, report);
     libexpr_parser = &parser;
     LibertyExprParse_parse();
     return parser.result();
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 LibExprParser::LibExprParser(const char *func, LibertyCell *cell,
@@ -48,7 +48,7 @@ LibExprParser::LibExprParser(const char *func, LibertyCell *cell,
   cell_(cell),
   error_msg_(error_msg),
   report_(report),
-  result_(NULL),
+  result_(nullptr),
   token_length_(100),
   token_(new char[token_length_]),
   token_next_(token_)
@@ -64,7 +64,7 @@ FuncExpr *
 LibExprParser::makeFuncExprPort(const char *port_name)
 {
   LibertyPort *port = cell_->findLibertyPort(port_name);
-  FuncExpr *expr = NULL;
+  FuncExpr *expr = nullptr;
   if (port)
     expr = FuncExpr::makePort(port);
   else
@@ -80,7 +80,7 @@ LibExprParser::makeFuncExprNot(FuncExpr *arg)
   if (arg)
     return FuncExpr::makeNot(arg);
   else
-    return NULL;
+    return nullptr;
 }
 
 FuncExpr *
@@ -89,7 +89,7 @@ LibExprParser::makeFuncExprXor(FuncExpr *arg1, FuncExpr *arg2)
   if (arg1 && arg2)
     return FuncExpr::makeXor(arg1, arg2);
   else
-    return NULL;
+    return nullptr;
 }
 
 FuncExpr *
@@ -98,7 +98,7 @@ LibExprParser::makeFuncExprAnd(FuncExpr *arg1, FuncExpr *arg2)
   if (arg1 && arg2)
     return FuncExpr::makeAnd(arg1, arg2);
   else
-    return NULL;
+    return nullptr;
 }
 
 FuncExpr *
@@ -107,7 +107,7 @@ LibExprParser::makeFuncExprOr(FuncExpr *arg1, FuncExpr *arg2)
   if (arg1 && arg2)
     return FuncExpr::makeOr(arg1, arg2);
   else
-    return NULL;
+    return nullptr;
 }
 
 void

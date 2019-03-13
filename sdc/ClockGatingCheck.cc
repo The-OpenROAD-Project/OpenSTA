@@ -20,7 +20,7 @@
 namespace sta {
 
 ClockGatingCheck::ClockGatingCheck() :
-  active_value_(logic_unknown)
+  active_value_(LogicValue::unknown)
 {
 }
 

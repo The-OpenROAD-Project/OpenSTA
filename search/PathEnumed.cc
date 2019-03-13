@@ -152,7 +152,7 @@ PathEnumed::prevPath(const StaState *,
   }
   else {
     prev_path.init();
-    prev_arc = NULL;
+    prev_arc = nullptr;
   }
 }
 

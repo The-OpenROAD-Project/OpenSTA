@@ -36,16 +36,6 @@ class ReportPath;
 
 using std::string;
 
-typedef enum {
-  path_end_unconstrained,
-  path_end_check,
-  path_end_data_check,
-  path_end_latch_check,
-  path_end_output_delay,
-  path_end_gated_clk,
-  path_end_path_delay
-} PathEndType;
-
 // PathEnds represent search endpoints that are either unconstrained
 // or constrained by a timing check, output delay, data check,
 // or path delay.
@@ -65,6 +55,15 @@ typedef enum {
 class PathEnd
 {
 public:
+  enum Type { unconstrained,
+	      check,
+	      data_check,
+	      latch_check,
+	      output_delay,
+	      gated_clk,
+	      path_delay
+  };
+
   virtual PathEnd *copy() = 0;
   virtual ~PathEnd();
   void deletePath();
@@ -95,7 +94,8 @@ public:
   virtual bool isOutputDelay() const { return false; }
   virtual bool isGatedClock() const { return false; }
   virtual bool isPathDelay() const { return false; }
-  virtual PathEndType type() const = 0;
+  virtual Type type() const = 0;
+  virtual const char *typeName() const = 0;
   virtual int exceptPathCmp(const PathEnd *path_end,
 			    const StaState *sta) const;
   virtual Arrival dataArrivalTime(const StaState *sta) const;
@@ -140,9 +140,9 @@ public:
   virtual PathDelay *pathDelay() const;
   virtual Crpr commonClkPessimism(const StaState *sta) const;
   virtual MultiCyclePath *multiCyclePath() const;
-  virtual TimingArc *checkArc() const { return NULL; }
+  virtual TimingArc *checkArc() const { return nullptr; }
   // PathEndDataCheck data clock path.
-  virtual const PathVertex *dataClkPath() const { return NULL; }
+  virtual const PathVertex *dataClkPath() const { return nullptr; }
 
   static bool less(const PathEnd *path_end1,
 		   const PathEnd *path_end2,
@@ -159,7 +159,6 @@ public:
   static int cmpNoCrpr(const PathEnd *path_end1,
 		       const PathEnd *path_end2,
 		       const StaState *sta);
-  static const char *typeName(PathEndType type);
 
   // Helper common to multiple PathEnd classes and used
   // externally.
@@ -218,7 +217,8 @@ class PathEndUnconstrained : public PathEnd
 {
 public:
   explicit PathEndUnconstrained(Path *path);
-  virtual PathEndType type() const;
+  virtual Type type() const;
+  virtual const char *typeName() const;
   virtual PathEnd *copy();
   virtual void reportShort(ReportPath *report,
 			   string &result) const;
@@ -329,7 +329,8 @@ public:
 	       MultiCyclePath *mcp,
 	       const StaState *sta);
   virtual PathEnd *copy();
-  virtual PathEndType type() const;
+  virtual Type type() const;
+  virtual const char *typeName() const;
   virtual void reportShort(ReportPath *report, string &result) const;
   virtual void reportFull(ReportPath *report, string &result) const;
   virtual bool isCheck() const { return true; }
@@ -366,7 +367,8 @@ public:
 		    MultiCyclePath *mcp,
 		    PathDelay *path_delay,
 		    const StaState *sta);
-  virtual PathEndType type() const;
+  virtual Type type() const;
+  virtual const char *typeName() const;
   virtual float sourceClkOffset(const StaState *sta) const;
   virtual bool isCheck() const { return false; }
   virtual bool isLatchCheck() const { return true; }
@@ -433,7 +435,8 @@ public:
 		     MultiCyclePath *mcp,
 		     const StaState *sta);
   virtual PathEnd *copy();
-  virtual PathEndType type() const;
+  virtual Type type() const;
+  virtual const char *typeName() const;
   virtual void reportShort(ReportPath *report,
 			   string &result) const;
   virtual void reportFull(ReportPath *report,
@@ -483,7 +486,8 @@ public:
 		    ArcDelay margin,
 		    const StaState *sta);
   virtual PathEnd *copy();
-  virtual PathEndType type() const;
+  virtual Type type() const;
+  virtual const char *typeName() const;
   virtual void reportShort(ReportPath *report,
 			   string &result) const;
   virtual void reportFull(ReportPath *report,
@@ -519,7 +523,8 @@ public:
 		   MultiCyclePath *mcp,
 		   const StaState *sta);
   virtual PathEnd *copy();
-  virtual PathEndType type() const;
+  virtual Type type() const;
+  virtual const char *typeName() const;
   virtual void reportShort(ReportPath *report,
 			   string &result) const;
   virtual void reportFull(ReportPath *report,
@@ -571,7 +576,8 @@ public:
 		   OutputDelay *output_delay,
 		   const StaState *sta);
   virtual PathEnd *copy();
-  virtual PathEndType type() const;
+  virtual Type type() const;
+  virtual const char *typeName() const;
   virtual void reportShort(ReportPath *report,
 			   string &result) const;
   virtual void reportFull(ReportPath *report,
@@ -605,7 +611,7 @@ protected:
   PathDelay *path_delay_;
   TimingArc *check_arc_;
   Edge *check_edge_;
-  // Output delay is NULL when there is no timing check or output
+  // Output delay is nullptr when there is no timing check or output
   // delay at the endpoint.
   OutputDelay *output_delay_;
   // Source clk arrival for set_min/max_delay -ignore_clk_latency.

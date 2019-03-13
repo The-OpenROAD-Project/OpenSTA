@@ -81,7 +81,7 @@ PathExpanded::expand(const Path *path,
 	    prev_arcs_.push_back(prev_arc);
 	    // Push latch D path.
 	    paths_.push_back(prev_path);
-	    prev_arcs_.push_back(NULL);
+	    prev_arcs_.push_back(nullptr);
 	    // This breaks latch loop paths.
 	    break;
 	  }
@@ -152,7 +152,7 @@ PathExpanded::path(size_t index)
   if (index < paths_.size())
     return &paths_[pathsIndex(index)];
   else
-    return NULL;
+    return nullptr;
 }
 
 TimingArc *
@@ -186,7 +186,7 @@ PathExpanded::startPrevPath()
   if (start1 < paths_.size())
     return &paths_[start1];
   else
-    return NULL;
+    return nullptr;
 }
 
 void
@@ -219,9 +219,9 @@ PathExpanded::latchPaths(// Return values.
 			 PathRef *&q_path,
 			 Edge *&d_q_edge)
 {
-  d_path = NULL;
-  q_path = NULL;
-  d_q_edge = NULL;
+  d_path = nullptr;
+  q_path = nullptr;
+  d_q_edge = nullptr;
   PathRef *start = startPath();
   TimingArc *prev_arc = startPrevArc();
   if (prev_arc

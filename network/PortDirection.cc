@@ -45,21 +45,21 @@ void
 PortDirection::destroy()
 {
   delete input_;
-  input_ = NULL;
+  input_ = nullptr;
   delete output_;
-  output_ = NULL;
+  output_ = nullptr;
   delete tristate_;
-  tristate_ = NULL;
+  tristate_ = nullptr;
   delete bidirect_;
-  bidirect_ = NULL;
+  bidirect_ = nullptr;
   delete internal_;
-  internal_ = NULL;
+  internal_ = nullptr;
   delete ground_;
-  ground_ = NULL;
+  ground_ = nullptr;
   delete power_;
-  power_ = NULL;
+  power_ = nullptr;
   delete unknown_;
-  unknown_ = NULL;
+  unknown_ = nullptr;
 }
 
 PortDirection::PortDirection(const char *name,

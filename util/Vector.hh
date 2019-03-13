@@ -35,8 +35,7 @@ public:
   void
   eraseObject(OBJ obj)
   {
-    typename std::vector<OBJ>::iterator find_iter =
-      std::find(this->begin(), this->end(), obj);
+    auto find_iter = std::find(this->begin(), this->end(), obj);
     if (find_iter != this->end())
       this->erase(find_iter);
   }
@@ -73,7 +72,7 @@ public:
   class Iterator
   {
   public:
-    Iterator() : container_(NULL) {}
+    Iterator() : container_(nullptr) {}
     Iterator(std::vector<OBJ> *container) :
       container_(container)
     { if (container) iter_ = container->begin(); }
@@ -97,13 +96,13 @@ public:
   class ConstIterator
   {
   public:
-    ConstIterator() : container_(NULL) {}
+    ConstIterator() : container_(nullptr) {}
     ConstIterator(const std::vector<OBJ> *container) :
       container_(container)
     { if (container_) iter_ = container_->begin(); }
     ConstIterator(const std::vector<OBJ> &container) :
       container_(&container)
-    { if (container_) iter_ = container_->begin(); }
+    { iter_ = container_->begin(); }
     void init() { iter_ = container_->begin(); }
     void init(const std::vector<OBJ> *container)
     { container_ = container; if (container_) iter_=container_->begin();}

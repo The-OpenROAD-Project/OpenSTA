@@ -196,7 +196,7 @@ CheckTiming::checkLoops()
       GraphLoop *loop = loop_iter2.next();
       if (loop->isCombinational()) {
 	EdgeSeq::Iterator edge_iter(loop->edges());
-	Edge *last_edge = NULL;
+	Edge *last_edge = nullptr;
 	while (edge_iter.hasNext()) {
 	  Edge *edge = edge_iter.next();
 	  Pin *pin = edge->from(graph_)->pin();
@@ -247,15 +247,12 @@ CheckTiming::checkUnconstraintedOutputs(PinSet &unconstrained_ends)
 bool
 CheckTiming::hasClkedDepature(Pin *pin)
 {
-  PinOutputDelayIterator *delay_iter = sdc_->outputDelayIterator(pin);
-  while (delay_iter->hasNext()) {
-    OutputDelay *output_delay = delay_iter->next();
-    if (output_delay->clkEdge() != NULL) {
-      delete delay_iter;
+  PinOutputDelayIterator delay_iter(pin, sdc_);
+  while (delay_iter.hasNext()) {
+    OutputDelay *output_delay = delay_iter.next();
+    if (output_delay->clkEdge() != nullptr)
       return true;
-    }
   }
-  delete delay_iter;
   return false;
 }
 
@@ -313,9 +310,7 @@ void
 CheckTiming::checkGeneratedClocks()
 {
   ClockSet gen_clk_errors;
-  ClockIterator *clk_iter = sdc_->clockIterator();
-  while (clk_iter->hasNext()) {
-    Clock *clk = clk_iter->next();
+  for (auto clk : sdc_->clks()) {
     if (clk->isGenerated()) {
       search_->genclks()->checkMaster(clk);
       bool found_clk = false;
@@ -333,7 +328,6 @@ CheckTiming::checkGeneratedClocks()
 	gen_clk_errors.insert(clk);
     }
   }
-  delete clk_iter;
   pushClkErrors("Warning: There %is %d generated clock%s that %is not connected to a clock source.",
 		gen_clk_errors);
 }

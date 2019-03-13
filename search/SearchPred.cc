@@ -59,13 +59,14 @@ SearchPred0::searchThru(Edge *edge)
 	   || (role == TimingRole::regSetClr()
 	       && !sdc->presetClrArcsEnabled())
 	   // Constants on other pins disable this edge (ie, a mux select).
-	   || edge->simTimingSense() == timing_sense_none
+	   || edge->simTimingSense() == TimingSense::none
 	   || (edge->isBidirectInstPath()
 	       && !sdc->bidirectInstPathsEnabled())
 	   || (edge->isBidirectNetPath()
 	       && !sdc->bidirectNetPathsEnabled())
 	   || (role == TimingRole::latchDtoQ()
-	       && sta_->latches()->latchDtoQState(edge)==latch_state_closed));
+	       && sta_->latches()->latchDtoQState(edge)
+	       == LatchEnableState::closed));
 }
 
 bool
@@ -200,9 +201,9 @@ searchThruSimEdge(const Vertex *vertex, const TransRiseFall *tr)
 {
   LogicValue sim_value = vertex->simValue();
   switch (sim_value) {
-  case logic_rise:
+  case LogicValue::rise:
     return tr == TransRiseFall::rise();
-  case logic_fall:
+  case LogicValue::fall:
     return tr == TransRiseFall::fall();
   default:
     return true;
@@ -214,15 +215,15 @@ searchThruTimingSense(const Edge *edge, const TransRiseFall *from_tr,
 		      const TransRiseFall *to_tr)
 {
   switch (edge->simTimingSense()) {
-  case timing_sense_unknown:
+  case TimingSense::unknown:
     return true;
-  case timing_sense_positive_unate:
+  case TimingSense::positive_unate:
     return from_tr == to_tr;
-  case timing_sense_negative_unate:
+  case TimingSense::negative_unate:
     return from_tr != to_tr;
-  case timing_sense_non_unate:
+  case TimingSense::non_unate:
     return true;
-  case timing_sense_none:
+  case TimingSense::none:
     return false;
   default:
     return true;

@@ -27,8 +27,8 @@ HpinDrvrLoad::HpinDrvrLoad(Pin *drvr,
 			   PinSet *hpins_to_load) :
   drvr_(drvr),
   load_(load),
-  hpins_from_drvr_(hpins_from_drvr ? new PinSet(*hpins_from_drvr) : NULL),
-  hpins_to_load_(hpins_to_load ? new PinSet(*hpins_to_load) : NULL)
+  hpins_from_drvr_(hpins_from_drvr ? new PinSet(*hpins_from_drvr) : nullptr),
+  hpins_to_load_(hpins_to_load ? new PinSet(*hpins_to_load) : nullptr)
 {
 }
 
@@ -104,13 +104,13 @@ visitPinsAboveNet2(const Pin *hpin,
     Pin *above_pin = pin_iter->next();
     if (above_pin != hpin) {
       if (network->isDriver(above_pin)) {
-	HpinDrvrLoad *drvr = new HpinDrvrLoad(above_pin, NULL,
-					      hpin_path, NULL);
+	HpinDrvrLoad *drvr = new HpinDrvrLoad(above_pin, nullptr,
+					      hpin_path, nullptr);
 	above_drvrs.insert(drvr);
       }
       if (network->isLoad(above_pin)) {
-	HpinDrvrLoad *load = new HpinDrvrLoad(NULL, above_pin,
-					      NULL, hpin_path);
+	HpinDrvrLoad *load = new HpinDrvrLoad(nullptr, above_pin,
+					      nullptr, hpin_path);
 	above_loads.insert(load);
       }
       Term *above_term = network->term(above_pin);
@@ -145,13 +145,13 @@ visitPinsAboveNet2(const Pin *hpin,
       }
 
       if (network->isDriver(above_pin)) {
-	HpinDrvrLoad *drvr = new HpinDrvrLoad(above_pin, NULL,
-					      hpin_path, NULL);
+	HpinDrvrLoad *drvr = new HpinDrvrLoad(above_pin, nullptr,
+					      hpin_path, nullptr);
 	above_drvrs.insert(drvr);
       }
       if (network->isLoad(above_pin)) {
-	HpinDrvrLoad *load = new HpinDrvrLoad(NULL, above_pin,
-					      NULL, hpin_path);
+	HpinDrvrLoad *load = new HpinDrvrLoad(nullptr, above_pin,
+					      nullptr, hpin_path);
 	above_loads.insert(load);
       }
     }
@@ -180,13 +180,13 @@ visitPinsBelowNet2(const Pin *hpin,
 			   visited, below_drvrs, below_loads,
 			   hpin_path, network);
       if (network->isDriver(below_pin)) {
-	HpinDrvrLoad *drvr = new HpinDrvrLoad(below_pin, NULL,
-					      hpin_path, NULL);
+	HpinDrvrLoad *drvr = new HpinDrvrLoad(below_pin, nullptr,
+					      hpin_path, nullptr);
 	below_drvrs.insert(drvr);
       }
       if (network->isLoad(below_pin)) {
-	HpinDrvrLoad *load = new HpinDrvrLoad(NULL, below_pin,
-					      NULL, hpin_path);
+	HpinDrvrLoad *load = new HpinDrvrLoad(nullptr, below_pin,
+					      nullptr, hpin_path);
 	below_loads.insert(load);
       }
       if (network->isHierarchical(below_pin)) {
@@ -279,7 +279,7 @@ visitHpinDrvrLoads(const Pin *pin,
   }
   else {
     if (network->isDriver(pin)) {
-      HpinDrvrLoad drvr(const_cast<Pin*>(pin), NULL, &hpin_path, NULL);
+      HpinDrvrLoad drvr(const_cast<Pin*>(pin), nullptr, &hpin_path, nullptr);
       HpinDrvrLoads drvrs;
       drvrs.insert(&drvr);
       visitHpinDrvrLoads(drvrs, below_loads, visitor);
@@ -287,7 +287,7 @@ visitHpinDrvrLoads(const Pin *pin,
     }
     // Bidirects are drivers and loads.
     if (network->isLoad(pin)) {
-      HpinDrvrLoad load(NULL, const_cast<Pin*>(pin), NULL, &hpin_path);
+      HpinDrvrLoad load(nullptr, const_cast<Pin*>(pin), nullptr, &hpin_path);
       HpinDrvrLoads loads;
       loads.insert(&load);
       visitHpinDrvrLoads(below_drvrs, loads, visitor);

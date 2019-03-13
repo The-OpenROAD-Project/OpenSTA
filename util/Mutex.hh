@@ -17,56 +17,11 @@
 #ifndef STA_MUTEX_H
 #define STA_MUTEX_H
 
-#include <errno.h>
-#include "Pthread.hh"
-#include "DisallowCopyAssign.hh"
-#include "ThreadException.hh"
+#include <mutex>
 
 namespace sta {
 
-// C++ wrapper/facade for pthread_mutex_t.
-class Mutex
-{
-public:
-  Mutex();
-  ~Mutex();
-  void lock();
-  bool trylock();
-  void unlock();
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(Mutex);
-
-  pthread_mutex_t mutex_;
-
-  friend class Condition;
-};
-
-inline void
-Mutex::lock()
-{
-  int error = pthread_mutex_lock(&mutex_);
-  CheckThreadError(error);
-}
-
-// Return true if lock is successful.
-inline bool
-Mutex::trylock()
-{
-  int error = pthread_mutex_trylock(&mutex_);
-  if (error == 0)
-    return true;
-  else if (error != EBUSY)
-    throw ThreadException(__FILE__, __LINE__, error);
-  return false;
-}
-
-inline void
-Mutex::unlock()
-{
-  int error = pthread_mutex_unlock(&mutex_);
-  CheckThreadError(error);
-}
+typedef std::unique_lock<std::mutex> UniqueLock;
 
 } // namespace
 #endif

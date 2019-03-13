@@ -16,6 +16,7 @@
 
 #include "Machine.hh"
 #include "DisallowCopyAssign.hh"
+#include "EnumNameMap.hh"
 #include "Report.hh"
 #include "Debug.hh"
 #include "Error.hh"
@@ -44,29 +45,16 @@ typedef Set<FuncExpr*> FuncExprSet;
 typedef Set<LatchEnable*> LatchEnableSet;
 
 bool LibertyLibrary::found_rise_fall_caps_ = false;
-const float LibertyLibrary::input_threshold_default_ = .5F;
-const float LibertyLibrary::output_threshold_default_ = .5F;
-const float LibertyLibrary::slew_lower_threshold_default_ = .2F;
-const float LibertyLibrary::slew_upper_threshold_default_ = .8F;
-
-void
-makeScaleFactorTypeMap();
-void
-deleteScaleFactorTypeMap();
 
 void
 initLiberty()
 {
-  makeTimingTypeMap();
-  makeScaleFactorTypeMap();
   TimingArcSet::init();
 }
 
 void
 deleteLiberty()
 {
-  deleteTimingTypeMap();
-  deleteScaleFactorTypeMap();
   TimingArcSet::destroy();
 }
 
@@ -74,11 +62,11 @@ LibertyLibrary::LibertyLibrary(const char *name,
 			       const char *filename) :
   ConcreteLibrary(name, filename),
   units_(new Units()),
-  delay_model_type_(delay_model_cmos_linear), // default
+  delay_model_type_(DelayModelType::cmos_linear), // default
   nominal_process_(0.0),
   nominal_voltage_(0.0),
   nominal_temperature_(0.0),
-  scale_factors_(NULL),
+  scale_factors_(nullptr),
   default_input_pin_cap_(0.0),
   default_output_pin_cap_(0.0),
   default_bidirect_pin_cap_(0.0),
@@ -90,18 +78,18 @@ LibertyLibrary::LibertyLibrary(const char *name,
   default_max_slew_(0.0),
   default_max_slew_exists_(false),
   slew_derate_from_library_(1.0),
-  default_wire_load_(NULL),
-  default_wire_load_mode_(wire_load_mode_unknown),
-  default_wire_load_selection_(NULL),
-  default_operating_conditions_(NULL),
-  equiv_cell_map_(NULL),
+  default_wire_load_(nullptr),
+  default_wire_load_mode_(WireloadMode::unknown),
+  default_wire_load_selection_(nullptr),
+  default_operating_conditions_(nullptr),
+  equiv_cell_map_(nullptr),
   ocv_arc_depth_(0.0),
-  default_ocv_derate_(NULL)
+  default_ocv_derate_(nullptr)
 {
   // Scalar templates are builtin.
-  for (int i = 0; i != table_template_count; i++) {
+  for (int i = 0; i != int(TableTemplateType::count); i++) {
     TableTemplateType type = static_cast<TableTemplateType>(i);
-    TableTemplate *scalar_template = new TableTemplate("scalar", NULL, NULL, NULL);
+    TableTemplate *scalar_template = new TableTemplate("scalar", nullptr, nullptr, nullptr);
     addTableTemplate(scalar_template, type);
   }
 
@@ -109,7 +97,7 @@ LibertyLibrary::LibertyLibrary(const char *name,
   while (tr_iter.hasNext()) {
     TransRiseFall *tr = tr_iter.next();
     int tr_index = tr->index();
-    wire_slew_degradation_tbls_[tr_index] = NULL;
+    wire_slew_degradation_tbls_[tr_index] = nullptr;
     input_threshold_[tr_index] = input_threshold_default_;
     output_threshold_[tr_index] = output_threshold_default_;
     slew_lower_threshold_[tr_index] = slew_lower_threshold_default_;
@@ -120,7 +108,7 @@ LibertyLibrary::LibertyLibrary(const char *name,
 LibertyLibrary::~LibertyLibrary()
 {
   bus_dcls_.deleteContents();
-  for (int i = 0; i < table_template_count; i++)
+  for (int i = 0; i < int(TableTemplateType::count); i++)
     template_maps_[i].deleteContents();
   scale_factors_map_.deleteContents();
   delete scale_factors_;
@@ -189,14 +177,14 @@ void
 LibertyLibrary::addTableTemplate(TableTemplate *tbl_template,
 				 TableTemplateType type)
 {
-  template_maps_[type][tbl_template->name()] = tbl_template;
+  template_maps_[int(type)][tbl_template->name()] = tbl_template;
 }
 
 TableTemplate *
 LibertyLibrary::findTableTemplate(const char *name,
 				  TableTemplateType type)
 {
-  return template_maps_[type][name];
+  return template_maps_[int(type)][name];
 }
 
 void
@@ -239,7 +227,7 @@ float
 LibertyLibrary::scaleFactor(ScaleFactorType type,
 			    const Pvt *pvt) const
 {
-  return scaleFactor(type, 0, NULL, pvt);
+  return scaleFactor(type, 0, nullptr, pvt);
 }
 
 float
@@ -256,24 +244,24 @@ LibertyLibrary::scaleFactor(ScaleFactorType type,
 			    const LibertyCell *cell,
 			    const Pvt *pvt) const
 {
-  if (pvt == NULL)
+  if (pvt == nullptr)
     pvt = default_operating_conditions_;
   // If there is no operating condition, nominal pvt values are used.
   // All scale factors are unity for nominal pvt.
   if (pvt) {
-    ScaleFactors *scale_factors = NULL;
+    ScaleFactors *scale_factors = nullptr;
     // Cell level scale factors have precidence over library scale factors.
     if (cell)
       scale_factors = cell->scaleFactors();
-    if (scale_factors == NULL)
+    if (scale_factors == nullptr)
       scale_factors = scale_factors_;
     if (scale_factors) {
       float process_scale = 1.0F + (pvt->process() - nominal_process_)
-	* scale_factors->scale(type, scale_factor_process, tr_index);
+	* scale_factors->scale(type, ScaleFactorPvt::process, tr_index);
       float temp_scale = 1.0F + (pvt->temperature() - nominal_temperature_)
-	* scale_factors->scale(type, scale_factor_temp, tr_index);
+	* scale_factors->scale(type, ScaleFactorPvt::temp, tr_index);
       float volt_scale = 1.0F + (pvt->voltage() - nominal_voltage_)
-	* scale_factors->scale(type, scale_factor_volt, tr_index);
+	* scale_factors->scale(type, ScaleFactorPvt::volt, tr_index);
       float scale = process_scale * temp_scale * volt_scale;
       return scale;
     }
@@ -324,9 +312,9 @@ LibertyLibrary::degradeWireSlew(const LibertyCell *cell,
   case 1: {
     TableAxis *axis1 = model->axis1();
     TableAxisVariable var1 = axis1->variable();
-    if (var1 == table_axis_output_pin_transition)
+    if (var1 == TableAxisVariable::output_pin_transition)
       return model->findValue(this, cell, pvt, in_slew, 0.0, 0.0);
-    else if (var1 == table_axis_connect_delay)
+    else if (var1 == TableAxisVariable::connect_delay)
       return model->findValue(this, cell, pvt, wire_delay, 0.0, 0.0);
     else {
       internalError("unsupported slew degradation table axes");
@@ -338,11 +326,11 @@ LibertyLibrary::degradeWireSlew(const LibertyCell *cell,
     TableAxis *axis2 = model->axis2();
     TableAxisVariable var1 = axis1->variable();
     TableAxisVariable var2 = axis2->variable();
-    if (var1 == table_axis_output_pin_transition
-	&& var2 == table_axis_connect_delay)
+    if (var1 == TableAxisVariable::output_pin_transition
+	&& var2 == TableAxisVariable::connect_delay)
       return model->findValue(this, cell, pvt, in_slew, wire_delay, 0.0);
-    else if (var1 == table_axis_connect_delay
-	     && var2 == table_axis_output_pin_transition)
+    else if (var1 == TableAxisVariable::connect_delay
+	     && var2 == TableAxisVariable::output_pin_transition)
       return model->findValue(this, cell, pvt, wire_delay, in_slew, 0.0);
     else {
       internalError("unsupported slew degradation table axes");
@@ -366,18 +354,18 @@ LibertyLibrary::checkSlewDegradationAxes(Table *table)
   case 1: {
     TableAxis *axis1 = table->axis1();
     TableAxisVariable var1 = axis1->variable();
-    return var1 == table_axis_output_pin_transition
-      || var1 == table_axis_connect_delay;
+    return var1 == TableAxisVariable::output_pin_transition
+      || var1 == TableAxisVariable::connect_delay;
   }
   case 2: {
     TableAxis *axis1 = table->axis1();
     TableAxis *axis2 = table->axis2();
     TableAxisVariable var1 = axis1->variable();
     TableAxisVariable var2 = axis2->variable();
-    return (var1 == table_axis_output_pin_transition
-	    && var2 == table_axis_connect_delay)
-      || (var1 == table_axis_connect_delay
-	  && var2 == table_axis_output_pin_transition);
+    return (var1 == TableAxisVariable::output_pin_transition
+	    && var2 == TableAxisVariable::connect_delay)
+      || (var1 == TableAxisVariable::connect_delay
+	  && var2 == TableAxisVariable::output_pin_transition);
   }
   default:
     internalError("unsupported slew degradation table axes");
@@ -518,7 +506,7 @@ LibertyLibrary::setDefaultOutputPinRes(const TransRiseFall *tr,
 LibertyCellSeq *
 LibertyLibrary::findEquivCells(LibertyCell *cell)
 {
-  if (equiv_cell_map_ == NULL)
+  if (equiv_cell_map_ == nullptr)
     equiv_cell_map_ = makeEquivCellMap(this);
   LibertyCellSeq *equivs = equiv_cell_map_->findKey(cell);
   return equivs;
@@ -777,13 +765,13 @@ LibertyLibrary::addSupplyVoltage(const char *supply_name,
   supply_voltage_map_[stringCopy(supply_name)] = voltage;
 }
 
-float
-LibertyLibrary::supplyVoltage(const char *supply_name) const
+void
+LibertyLibrary::supplyVoltage(const char *supply_name,
+			      // Return value.
+			      float &voltage,
+			      bool &exists) const
 {
-  float voltage;
-  bool exists;
   supply_voltage_map_.findKey(supply_name, voltage, exists);
-  return voltage;
 }
 
 bool
@@ -825,22 +813,22 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   is_pad_(false),
   has_internal_ports_(false),
   interface_timing_(false),
-  clock_gate_type_(clock_gate_none),
-  timing_arc_sets_(NULL),
-  port_timing_arc_set_map_(NULL),
-  timing_arc_set_from_map_(NULL),
-  timing_arc_set_to_map_(NULL),
+  clock_gate_type_(ClockGateType::none),
+  timing_arc_sets_(nullptr),
+  port_timing_arc_set_map_(nullptr),
+  timing_arc_set_from_map_(nullptr),
+  timing_arc_set_to_map_(nullptr),
   has_infered_reg_timing_arcs_(false),
-  internal_powers_(NULL),
-  leakage_powers_(NULL),
-  sequentials_(NULL),
-  port_to_seq_map_(NULL),
-  mode_defs_(NULL),
-  scale_factors_(NULL),
-  scaled_cells_(NULL),
-  test_cell_(NULL),
+  internal_powers_(nullptr),
+  leakage_powers_(nullptr),
+  sequentials_(nullptr),
+  port_to_seq_map_(nullptr),
+  mode_defs_(nullptr),
+  scale_factors_(nullptr),
+  scaled_cells_(nullptr),
+  test_cell_(nullptr),
   ocv_arc_depth_(0.0),
-  ocv_derate_(NULL),
+  ocv_derate_(nullptr),
   is_disabled_constraint_(false),
   leakage_power_(0.0)
 {
@@ -971,7 +959,7 @@ ModeDef *
 LibertyCell::makeModeDef(const char *name)
 {
   ModeDef *mode = new ModeDef(name);
-  if (mode_defs_ == NULL)
+  if (mode_defs_ == nullptr)
     mode_defs_ = new ModeDefMap;
   (*mode_defs_)[mode->name()] = mode;
   return mode;
@@ -1034,37 +1022,37 @@ LibertyCell::setInterfaceTiming(bool value)
 bool
 LibertyCell::isClockGateLatchPosedge() const
 {
-  return clock_gate_type_ == clock_gate_latch_posedge;
+  return clock_gate_type_ == ClockGateType::latch_posedge;
 }
 
 bool
 LibertyCell::isClockGateLatchNegedge() const
 {
-  return clock_gate_type_ == clock_gate_latch_posedge;
+  return clock_gate_type_ == ClockGateType::latch_posedge;
 }
 
 bool
 LibertyCell::isClockGateOther() const
 {
-  return clock_gate_type_ == clock_gate_other;
+  return clock_gate_type_ == ClockGateType::other;
 }
 
 bool
 LibertyCell::isClockGate() const
 {
-  return clock_gate_type_ != clock_gate_none;
+  return clock_gate_type_ != ClockGateType::none;
 }
 
 void
-LibertyCell::setClockGateType(ClockGateType clock_gate_type)
+LibertyCell::setClockGateType(ClockGateType type)
 {
-  clock_gate_type_ = clock_gate_type;
+  clock_gate_type_ = type;
 }
 
 unsigned
 LibertyCell::addTimingArcSet(TimingArcSet *arc_set)
 {
-  if (timing_arc_sets_ == NULL) {
+  if (timing_arc_sets_ == nullptr) {
     timing_arc_sets_ = new TimingArcSetSeq;
     timing_arc_set_map_ = new TimingArcSetMap;
     port_timing_arc_set_map_ = new LibertyPortPairTimingArcMap;
@@ -1088,7 +1076,7 @@ LibertyCell::addTimingArcSet(TimingArcSet *arc_set)
 
   LibertyPortPair port_pair(from, to);
   TimingArcSetSeq *sets = port_timing_arc_set_map_->findKey(&port_pair);
-  if (sets == NULL) {
+  if (sets == nullptr) {
     // First arc set for from/to ports.
     sets = new TimingArcSetSeq;
     LibertyPortPair *port_pair1 = new LibertyPortPair(from, to);
@@ -1097,14 +1085,14 @@ LibertyCell::addTimingArcSet(TimingArcSet *arc_set)
   sets->push_back(arc_set);
 
   sets = timing_arc_set_from_map_->findKey(from);
-  if (sets == NULL) {
+  if (sets == nullptr) {
     sets = new TimingArcSetSeq;
     (*timing_arc_set_from_map_)[from] = sets;
   }
   sets->push_back(arc_set);
 
   sets = timing_arc_set_to_map_->findKey(to);
-  if (sets == NULL) {
+  if (sets == nullptr) {
     sets = new TimingArcSetSeq;
     (*timing_arc_set_to_map_)[to] = sets;
   }
@@ -1121,7 +1109,7 @@ LibertyCell::addTimingArcAttrs(TimingArcAttrs *attrs)
 void
 LibertyCell::addInternalPower(InternalPower *power)
 {
-  if (internal_powers_ == NULL)
+  if (internal_powers_ == nullptr)
     internal_powers_ = new InternalPowerSeq;
   internal_powers_->push_back(power);
 }
@@ -1147,7 +1135,7 @@ LibertyCell::deleteInternalPowerAttrs()
 void
 LibertyCell::addLeakagePower(LeakagePower *power)
 {
-  if (leakage_powers_ == NULL)
+  if (leakage_powers_ == nullptr)
     leakage_powers_ = new LeakagePowerSeq;
   leakage_powers_->push_back(power);
 }
@@ -1241,7 +1229,7 @@ LibertyCell::timingArcSets(const LibertyPort *from,
     else if (to)
       return timing_arc_set_to_map_->findKey(to);
   }
-  return NULL;
+  return nullptr;
 }
 
 TimingArcSet *
@@ -1250,7 +1238,7 @@ LibertyCell::findTimingArcSet(TimingArcSet *key) const
   if (timing_arc_sets_)
     return timing_arc_set_map_->findKey(key);
   else
-    return NULL;
+    return nullptr;
 }
 
 TimingArcSet *
@@ -1289,16 +1277,16 @@ LibertyCell::makeSequential(int size,
 			    LibertyPort *output_inv)
 {
   for (int bit = 0; bit < size; bit++) {
-    FuncExpr *clk_bit = NULL;
+    FuncExpr *clk_bit = nullptr;
     if (clk)
       clk_bit = clk->bitSubExpr(bit);
-    FuncExpr *data_bit = NULL;
+    FuncExpr *data_bit = nullptr;
     if (data)
       data_bit = data->bitSubExpr(bit);
-    FuncExpr *clear_bit = NULL;
+    FuncExpr *clear_bit = nullptr;
     if (clear)
       clear_bit = clear->bitSubExpr(bit);
-    FuncExpr *preset_bit = NULL;
+    FuncExpr *preset_bit = nullptr;
     if (preset)
       preset_bit = preset->bitSubExpr(bit);
     LibertyPort *out_bit = output;
@@ -1311,7 +1299,7 @@ LibertyCell::makeSequential(int size,
 				     clear_bit,preset_bit,
 				     clr_preset_out, clr_preset_out_inv,
 				     out_bit, out_inv_bit);
-    if (sequentials_ == NULL) {
+    if (sequentials_ == nullptr) {
       sequentials_ = new SequentialSeq;
       port_to_seq_map_ = new PortToSequentialMap;
     }
@@ -1327,7 +1315,7 @@ LibertyCell::outputPortSequential(LibertyPort *port)
   if (port_to_seq_map_)
     return port_to_seq_map_->findKey(port);
   else
-    return NULL;
+    return nullptr;
 }
 
 bool
@@ -1340,7 +1328,7 @@ void
 LibertyCell::addScaledCell(OperatingConditions *op_cond,
 			   LibertyCell *scaled_cell)
 {
-  if (scaled_cells_ == NULL)
+  if (scaled_cells_ == nullptr)
     scaled_cells_ = new ScaledCellMap;
   (*scaled_cells_)[op_cond] = scaled_cell;
 
@@ -1402,7 +1390,7 @@ LibertyCell::cornerCell(int ap_index)
   if (ap_index < static_cast<int>(corner_cells_.size()))
     return corner_cells_[ap_index];
   else
-    return NULL;
+    return nullptr;
 }
 
 void
@@ -1539,7 +1527,7 @@ LibertyCell::makeLatchEnables(Report *report,
       if (en_to_q->role() == TimingRole::latchEnToQ()) {
 	LibertyPort *en = en_to_q->from();
 	LibertyPort *q = en_to_q->to();
-	LibertyCellTimingArcSetIterator to_iter(this, NULL, q);
+	LibertyCellTimingArcSetIterator to_iter(this, nullptr, q);
 	while (to_iter.hasNext()) {
 	  TimingArcSet *d_to_q = to_iter.next();
 	  if (d_to_q->role() == TimingRole::latchDtoQ()) {
@@ -1571,7 +1559,7 @@ LibertyCell::makeLatchEnables(Report *report,
 		  FuncExpr *en_func = latch_enable->enableFunc();
 		  if (en_func) {
 		    TimingSense en_sense = en_func->portTimingSense(en);
-		    if (en_sense == timing_sense_positive_unate
+		    if (en_sense == TimingSense::positive_unate
 			&& en_tr != TransRiseFall::rise())
 		      report->warn("%s, cell %s latch enable %s -> %s %s_edge is inconsistent with latch group enable function positive sense.\n",
 				   filename_,
@@ -1579,7 +1567,7 @@ LibertyCell::makeLatchEnables(Report *report,
 				   en->name(),
 				   q->name(),
 				   en_tr == TransRiseFall::rise()?"rising":"falling");
-		    else if (en_sense == timing_sense_negative_unate
+		    else if (en_sense == TimingSense::negative_unate
 			     && en_tr != TransRiseFall::fall())
 		      report->warn("%s, cell %s latch enable %s -> %s %s_edge is inconsistent with latch group enable function negative sense.\n",
 				   filename_,
@@ -1613,7 +1601,7 @@ LibertyCell::findLatchEnableFunc(LibertyPort *data,
 	&& seq->clock()->hasPort(enable))
       return seq->clock();
   }
-  return NULL;
+  return nullptr;
 }
 
 LatchEnable *
@@ -1653,15 +1641,15 @@ LibertyCell::inferLatchRoles(Debug *debug)
       if (en_to_q->role() == TimingRole::regClkToQ()) {
 	LibertyPort *en = en_to_q->from();
 	LibertyPort *q = en_to_q->to();
-	LibertyCellTimingArcSetIterator to_iter(this, NULL, q);
+	LibertyCellTimingArcSetIterator to_iter(this, nullptr, q);
 	while (to_iter.hasNext()) {
 	  TimingArcSet *d_to_q = to_iter.next();
 	  // Look for combinational d->q arcs.
 	  TimingRole *d_to_q_role = d_to_q->role();
 	  if ((d_to_q_role == TimingRole::combinational()
 	       && ((d_to_q->arcCount() == 2
-		    && (d_to_q->sense() == timing_sense_positive_unate
-			|| d_to_q->sense() == timing_sense_negative_unate))
+		    && (d_to_q->sense() == TimingSense::positive_unate
+			|| d_to_q->sense() == TimingSense::negative_unate))
 		   || (d_to_q->arcCount() == 4)))
 	      // Previously identified as D->Q arc.
 	      || d_to_q_role == TimingRole::latchDtoQ()) {
@@ -1696,7 +1684,7 @@ LibertyCell::latchEnable(TimingArcSet *d_to_q_set,
 			 FuncExpr *&enable_func,
 			 TransRiseFall *&enable_tr) const
 {
-  enable_port = NULL;
+  enable_port = nullptr;
   LatchEnable *latch_enable = latch_d_to_q_map_.findKey(d_to_q_set);
   if (latch_enable) {
     enable_port = latch_enable->enable();
@@ -1712,7 +1700,7 @@ LibertyCell::latchCheckEnableTrans(TimingArcSet *check_set)
   if (latch_enable)
     return latch_enable->enableTransition();
   else
-    return NULL;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1769,14 +1757,14 @@ LibertyPort::LibertyPort(LibertyCell *cell,
 			 ConcretePortSeq *members) :
   ConcretePort(cell, name, is_bus, from_index, to_index, is_bundle, members),
   liberty_cell_(cell),
-  function_(NULL),
-  tristate_enable_(NULL),
-  scaled_ports_(NULL),
+  function_(nullptr),
+  tristate_enable_(nullptr),
+  scaled_ports_(nullptr),
   min_period_(0.0),
-  pulse_clk_trigger_(NULL),
-  pulse_clk_sense_(NULL),
-  related_ground_pin_(NULL),
-  related_power_pin_(NULL),
+  pulse_clk_trigger_(nullptr),
+  pulse_clk_sense_(nullptr),
+  related_ground_pin_(nullptr),
+  related_power_pin_(nullptr),
   min_pulse_width_exists_(false),
   min_period_exists_(false),
   is_clk_(false),
@@ -1885,7 +1873,7 @@ LibertyPort::capacitance(const TransRiseFall *tr,
   }
   LibertyLibrary *lib = liberty_cell_->libertyLibrary();
   float cap = capacitance(tr, min_max);
-  return cap * lib->scaleFactor(scale_factor_pin_cap, liberty_cell_, pvt);
+  return cap * lib->scaleFactor(ScaleFactorType::pin_cap, liberty_cell_, pvt);
 }
 
 void
@@ -1897,7 +1885,7 @@ LibertyPort::setFunction(FuncExpr *func)
     int bit_offset = 0;
     while (member_iter.hasNext()) {
       LibertyPort *port_bit = member_iter.next();
-      FuncExpr *sub_expr = (func) ? func->bitSubExpr(bit_offset) : NULL;
+      FuncExpr *sub_expr = (func) ? func->bitSubExpr(bit_offset) : nullptr;
       port_bit->setFunction(sub_expr);
       bit_offset++;
     }
@@ -1913,7 +1901,7 @@ LibertyPort::setTristateEnable(FuncExpr *enable)
     while (member_iter.hasNext()) {
       LibertyPort *port_bit = member_iter.next();
       FuncExpr *sub_expr =
-	(enable) ? enable->bitSubExpr(port_bit->busBitIndex()) : NULL;
+	(enable) ? enable->bitSubExpr(port_bit->busBitIndex()) : nullptr;
       port_bit->setTristateEnable(sub_expr);
     }
   }
@@ -1980,7 +1968,7 @@ LibertyPort::minPeriod(const OperatingConditions *op_cond,
     }
   }
   LibertyLibrary *lib = liberty_cell_->libertyLibrary();
-  min_period = min_period_ * lib->scaleFactor(scale_factor_min_period,
+  min_period = min_period_ * lib->scaleFactor(ScaleFactorType::min_period,
 					      liberty_cell_, pvt);
   exists = min_period_exists_;
 }
@@ -2017,7 +2005,7 @@ LibertyPort::minPulseWidth(const TransRiseFall *hi_low,
   int hi_low_index = hi_low->index();
   LibertyLibrary *lib = liberty_cell_->libertyLibrary();
   min_width = min_pulse_width_[hi_low_index]
-    * lib->scaleFactor(scale_factor_min_pulse_width, hi_low_index,
+    * lib->scaleFactor(ScaleFactorType::min_pulse_width, hi_low_index,
 		       liberty_cell_, pvt);
   exists = min_pulse_width_exists_ & (1 << hi_low_index);
 }
@@ -2045,8 +2033,8 @@ bool
 LibertyPort::equiv(const LibertyPort *port1,
 		   const LibertyPort *port2)
 {
-  return (port1 == NULL && port2 == NULL)
-    || (port1 != NULL && port2 != NULL
+  return (port1 == nullptr && port2 == nullptr)
+    || (port1 != nullptr && port2 != nullptr
 	&& stringEq(port1->name(), port2->name())
 	&& port1->direction() == port2->direction());
 }
@@ -2072,7 +2060,7 @@ void
 LibertyPort::addScaledPort(OperatingConditions *op_cond,
 			   LibertyPort *scaled_port)
 {
-  if (scaled_ports_ == NULL)
+  if (scaled_ports_ == nullptr)
     scaled_ports_ = new ScaledPortMap;
   (*scaled_ports_)[op_cond] = scaled_port;
 }
@@ -2298,9 +2286,9 @@ ModeValueDef::setSdfCond(const char *sdf_cond)
 
 TableTemplate::TableTemplate(const char *name) :
   name_(stringCopy(name)),
-  axis1_(NULL),
-  axis2_(NULL),
-  axis3_(NULL)
+  axis1_(nullptr),
+  axis2_(nullptr),
+  axis3_(nullptr)
 {
 }
 
@@ -2381,7 +2369,7 @@ OperatingConditions::OperatingConditions(const char *name) :
   Pvt(0.0, 0.0, 0.0),
   name_(stringCopy(name)),
   // Default wireload tree.
-  wire_load_tree_(wire_load_balanced_tree)
+  wire_load_tree_(WireloadTree::balanced)
 {
 }
 
@@ -2409,115 +2397,87 @@ OperatingConditions::setWireloadTree(WireloadTree tree)
 
 ////////////////////////////////////////////////////////////////
 
-typedef Map<const char*,ScaleFactorType,CharPtrLess> ScaleFactorTypeMap;
-
-static const char *scale_factor_type_names[] = {"pin_cap",
-						"wire_cap",
-						"wire_res",
-						"min_period",
-						"cell",
-						"hold",
-						"setup",
-						"recovery",
-						"removal",
-						"nochange",
-						"skew",
-						"leakage_power",
-						"internal_power",
-						"transition",
-						"min_pulse_width",
-						"count",
-						"unknown"};
-
-static ScaleFactorTypeMap *scale_factor_type_name_map = NULL;
-
-void
-makeScaleFactorTypeMap()
-{
-  scale_factor_type_name_map = new ScaleFactorTypeMap;
-  for (int i = 0; i < scale_factor_count; i++) {
-    ScaleFactorType type = (ScaleFactorType) i;
-    (*scale_factor_type_name_map)[scale_factor_type_names[type]] = type;
-  }
-}
-
-void
-deleteScaleFactorTypeMap()
-{
-  delete scale_factor_type_name_map;
-  scale_factor_type_name_map = NULL;
-}
+static EnumNameMap<ScaleFactorType> scale_factor_type_map =
+  {{ScaleFactorType::pin_cap, "pin_cap"},
+   {ScaleFactorType::wire_cap, "wire_res"},
+   {ScaleFactorType::min_period, "min_period"},
+   {ScaleFactorType::cell, "cell"},
+   {ScaleFactorType::hold, "hold"},
+   {ScaleFactorType::setup, "setup"},
+   {ScaleFactorType::recovery, "recovery"},
+   {ScaleFactorType::removal, "removal"},
+   {ScaleFactorType::nochange, "nochange"},
+   {ScaleFactorType::skew, "skew"},
+   {ScaleFactorType::leakage_power, "leakage_power"},
+   {ScaleFactorType::internal_power, "internal_power"},
+   {ScaleFactorType::transition, "transition"},
+   {ScaleFactorType::min_pulse_width, "min_pulse_width"},
+   {ScaleFactorType::unknown, "unknown"}
+  };
 
 const char *
 scaleFactorTypeName(ScaleFactorType type)
 {
-  return scale_factor_type_names[type];
+  return scale_factor_type_map.find(type);
 }
 
 ScaleFactorType
 findScaleFactorType(const char *name)
 {
-  ScaleFactorType type;
-  bool exists;
-  scale_factor_type_name_map->findKey(name, type, exists);
-  if (exists)
-    return type;
-  else
-    return scale_factor_unknown;
+  return scale_factor_type_map.find(name, ScaleFactorType::unknown);
 }
 
 bool
 scaleFactorTypeRiseFallSuffix(ScaleFactorType type)
 {
-  return type == scale_factor_cell
-    || type == scale_factor_hold
-    || type == scale_factor_setup
-    || type == scale_factor_recovery
-    || type == scale_factor_removal
-    || type == scale_factor_nochange
-    || type == scale_factor_skew;
+  return type == ScaleFactorType::cell
+    || type == ScaleFactorType::hold
+    || type == ScaleFactorType::setup
+    || type == ScaleFactorType::recovery
+    || type == ScaleFactorType::removal
+    || type == ScaleFactorType::nochange
+    || type == ScaleFactorType::skew;
 }
 
 bool
 scaleFactorTypeRiseFallPrefix(ScaleFactorType type)
 {
-  return type == scale_factor_transition;
+  return type == ScaleFactorType::transition;
 }
 
 bool
 scaleFactorTypeLowHighSuffix(ScaleFactorType type)
 {
-  return type == scale_factor_min_pulse_width;
+  return type == ScaleFactorType::min_pulse_width;
 }
 
-static const char *scale_factor_pvt_names[] = {"process",
-					       "volt",
-					       "temp"};
+////////////////////////////////////////////////////////////////
+
+EnumNameMap<ScaleFactorPvt> scale_factor_pvt_names =
+  {{ScaleFactorPvt::process, "process"},
+   {ScaleFactorPvt::volt, "volt"},
+   {ScaleFactorPvt::temp, "temp"}
+  };
 
 ScaleFactorPvt
 findScaleFactorPvt(const char *name)
 {
-  if (stringEq(name, scale_factor_pvt_names[scale_factor_process]))
-    return scale_factor_process;
-  else if (stringEq(name, scale_factor_pvt_names[scale_factor_temp]))
-    return scale_factor_temp;
-  else if (stringEq(name, scale_factor_pvt_names[scale_factor_volt]))
-    return scale_factor_volt;
-  else
-    return scale_factor_pvt_unknown;
+  return scale_factor_pvt_names.find(name, ScaleFactorPvt::unknown);
 }
 
 const char *
 scaleFactorPvtName(ScaleFactorPvt pvt)
 {
-  return scale_factor_pvt_names[pvt];
+  return scale_factor_pvt_names.find(pvt);
 }
+
+////////////////////////////////////////////////////////////////
 
 ScaleFactors::ScaleFactors(const char *name) :
   name_(stringCopy(name))
 {
-  for (int type = 0; type < scale_factor_count; type++) {
-    for (int pvt = 0; pvt < scale_factor_pvt_count; pvt++) {
+  for (int type = 0; type < scale_factor_type_count; type++) {
+    for (int pvt = 0; pvt < int(ScaleFactorPvt::count); pvt++) {
       TransRiseFallIterator tr_iter;
       while (tr_iter.hasNext()) {
 	TransRiseFall *tr = tr_iter.next();
@@ -2539,7 +2499,7 @@ ScaleFactors::setScale(ScaleFactorType type,
 		       TransRiseFall *tr,
 		       float scale)
 {
-  scales_[type][pvt][tr->index()] = scale;
+  scales_[int(type)][int(pvt)][tr->index()] = scale;
 }
 
 void
@@ -2547,7 +2507,7 @@ ScaleFactors::setScale(ScaleFactorType type,
 		       ScaleFactorPvt pvt,
 		       float scale)
 {
-  scales_[type][pvt][0] = scale;
+  scales_[int(type)][int(pvt)][0] = scale;
 }
 
 float
@@ -2555,7 +2515,7 @@ ScaleFactors::scale(ScaleFactorType type,
 		    ScaleFactorPvt pvt,
 		    TransRiseFall *tr)
 {
-  return scales_[type][pvt][tr->index()];
+  return scales_[int(type)][int(pvt)][tr->index()];
 }
 
 float
@@ -2563,29 +2523,29 @@ ScaleFactors::scale(ScaleFactorType type,
 		    ScaleFactorPvt pvt,
 		    int tr_index)
 {
-  return scales_[type][pvt][tr_index];
+  return scales_[int(type)][int(pvt)][tr_index];
 }
 
 float
 ScaleFactors::scale(ScaleFactorType type,
 		    ScaleFactorPvt pvt)
 {
-  return scales_[type][pvt][0];
+  return scales_[int(type)][int(pvt)][0];
 }
 
 void
 ScaleFactors::print()
 {
   printf("%10s", " ");
-  for (int pvt_index = 0; pvt_index < scale_factor_pvt_count; pvt_index++) {
+  for (int pvt_index = 0; pvt_index < int(ScaleFactorPvt::count); pvt_index++) {
     ScaleFactorPvt pvt = (ScaleFactorPvt) pvt_index;
     printf("%10s", scaleFactorPvtName(pvt));
   }
   printf("\n");
-  for (int type_index = 0; type_index < scale_factor_count; type_index++) {
+  for (int type_index = 0; type_index < scale_factor_type_count; type_index++) {
     ScaleFactorType type = (ScaleFactorType) type_index;
     printf("%10s ", scaleFactorTypeName(type));
-    for (int pvt_index = 0; pvt_index < scale_factor_pvt_count; pvt_index++) {
+    for (int pvt_index = 0; pvt_index < int(ScaleFactorPvt::count); pvt_index++) {
       TransRiseFallIterator tr_iter;
       if (scaleFactorTypeRiseFallSuffix(type)
 	  || scaleFactorTypeRiseFallPrefix(type)
@@ -2617,11 +2577,11 @@ TestCell::TestCell(LibertyPort *data_in,
 }
 
 TestCell::TestCell() :
-  data_in_(NULL),
-  scan_in_(NULL),
-  scan_enable_(NULL),
-  scan_out_(NULL),
-  scan_out_inv_(NULL)
+  data_in_(nullptr),
+  scan_in_(nullptr),
+  scan_enable_(nullptr),
+  scan_out_(nullptr),
+  scan_out_inv_(nullptr)
 {
 }
 
@@ -2668,8 +2628,8 @@ OcvDerate::OcvDerate(const char *name) :
     while (tr_iter.hasNext()) {
       TransRiseFall *tr = tr_iter.next();
       int tr_index = tr->index();
-      derate_[tr_index][el_index][path_type_clk] = NULL;
-      derate_[tr_index][el_index][path_type_data] = NULL;
+      derate_[tr_index][el_index][int(PathType::clk)] = nullptr;
+      derate_[tr_index][el_index][int(PathType::data)] = nullptr;
     }
   }
 }
@@ -2689,10 +2649,10 @@ OcvDerate::~OcvDerate()
       TransRiseFall *tr = tr_iter.next();
       int tr_index = tr->index();
       Table *derate;
-      derate = derate_[tr_index][el_index][path_type_clk];
+      derate = derate_[tr_index][el_index][int(PathType::clk)];
       if (derate)
 	models.insert(derate);
-      derate = derate_[tr_index][el_index][path_type_data];
+      derate = derate_[tr_index][el_index][int(PathType::data)];
       if (derate)
 	models.insert(derate);
     }
@@ -2709,7 +2669,7 @@ OcvDerate::derateTable(const TransRiseFall *tr,
 		       const EarlyLate *early_late,
 		       PathType path_type)
 {
-  return derate_[tr->index()][early_late->index()][path_type];
+  return derate_[tr->index()][early_late->index()][int(path_type)];
 }
 
 void
@@ -2718,7 +2678,7 @@ OcvDerate::setDerateTable(const TransRiseFall *tr,
 			  const PathType path_type,
 			  Table *derate)
 {
-  derate_[tr->index()][early_late->index()][path_type] = derate;
+  derate_[tr->index()][early_late->index()][int(path_type)] = derate;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2727,7 +2687,7 @@ LibertyPgPort::LibertyPgPort(const char *name,
 			     LibertyCell *cell) :
   name_(stringCopy(name)),
   pg_type_(unknown),
-  voltage_name_(NULL),
+  voltage_name_(nullptr),
   cell_(cell)
 {
 }

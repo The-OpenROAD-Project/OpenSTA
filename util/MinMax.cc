@@ -53,9 +53,9 @@ void
 MinMax::destroy()
 {
   delete min_;
-  min_ = NULL;
+  min_ = nullptr;
   delete max_;
-  max_ = NULL;
+  max_ = nullptr;
 }
 
 MinMax::MinMax(const char *name,
@@ -97,7 +97,7 @@ MinMax::find(const char *min_max)
 	   || stringEq(min_max, "late"))
     return max();
   else
-    return NULL;
+    return nullptr;
 }
 
 MinMax *
@@ -108,7 +108,7 @@ MinMax::find(int index)
   else if (index == max_->index())
     return max();
   else
-    return NULL;
+    return nullptr;
 }
 
 bool
@@ -136,11 +136,11 @@ void
 MinMaxAll::destroy()
 {
   delete min_;
-  min_ = NULL;
+  min_ = nullptr;
   delete max_;
-  max_ = NULL;
+  max_ = nullptr;
   delete all_;
-  all_ = NULL;
+  all_ = nullptr;
 }
 
 MinMaxAll::MinMaxAll(const char *name,
@@ -185,7 +185,7 @@ MinMaxAll::find(const char *min_max)
 	   || stringEq(min_max, "minmax"))
     return all_;
   else
-    return NULL;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////

@@ -129,31 +129,53 @@ public:
 class PinInputDelayIterator : public Iterator<InputDelay*>
 {
 public:
+  PinInputDelayIterator(const Pin *pin,
+			const Sdc *sdc);
   virtual bool hasNext();
   virtual InputDelay *next();
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(PinInputDelayIterator);
-  PinInputDelayIterator(InputDelay *input_delay);
+protected:
+  PinInputDelayIterator() {}
 
   InputDelay *next_;
 
-  friend class Sdc;
+  DISALLOW_COPY_AND_ASSIGN(PinInputDelayIterator);
+};
+
+class VertexPinInputDelayIterator : public PinInputDelayIterator
+{
+public:
+  VertexPinInputDelayIterator(const Pin *vertex_pin,
+			      const Sdc *sdc);
+
+private:
+  DISALLOW_COPY_AND_ASSIGN(VertexPinInputDelayIterator);
 };
 
 class PinOutputDelayIterator : public Iterator<OutputDelay*>
 {
 public:
+  PinOutputDelayIterator(const Pin *pin,
+			 const Sdc *sdc);
   virtual bool hasNext();
   virtual OutputDelay *next();
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(PinOutputDelayIterator);
-  PinOutputDelayIterator(OutputDelay *output_delay);
+protected:
+  PinOutputDelayIterator() {}
 
   OutputDelay *next_;
 
-  friend class Sdc;
+  DISALLOW_COPY_AND_ASSIGN(PinOutputDelayIterator);
+};
+
+class VertexPinOutputDelayIterator : public PinOutputDelayIterator
+{
+public:
+  VertexPinOutputDelayIterator(const Pin *vertex_pin,
+			       const Sdc *sdc);
+
+private:
+  DISALLOW_COPY_AND_ASSIGN(VertexPinOutputDelayIterator);
 };
 
 // Prediate used to sort port delays.

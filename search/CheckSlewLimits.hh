@@ -34,21 +34,21 @@ public:
   CheckSlewLimits(const StaState *sta);
   void init(const MinMax *min_max);
   // Requires init().
-  // corner=NULL checks all corners.
+  // corner=nullptr checks all corners.
   void checkSlews(const Pin *pin,
 		  const Corner *corner,
 		  const MinMax *min_max,
 		  // Return values.
-		  // Corner is NULL for no slew limit.
+		  // Corner is nullptr for no slew limit.
 		  const Corner *&corner1,
 		  const TransRiseFall *&tr,
 		  Slew &slew,
 		  float &limit,
 		  float &slack) const;
-  // corner=NULL checks all corners.
+  // corner=nullptr checks all corners.
   PinSeq *pinSlewLimitViolations(const Corner *corner,
 				 const MinMax *min_max);
-  // corner=NULL checks all corners.
+  // corner=nullptr checks all corners.
   Pin *pinMinSlewLimitSlack(const Corner *corner,
 			    const MinMax *min_max);
 

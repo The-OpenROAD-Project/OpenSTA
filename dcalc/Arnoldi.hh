@@ -37,7 +37,7 @@ class Pin;
 class arnoldi1
 {
 public:
-  arnoldi1() { order=0; n=0; d=NULL; e=NULL; U=NULL; ctot=0.0; sqc=0.0; }
+  arnoldi1() { order=0; n=0; d=nullptr; e=nullptr; U=nullptr; ctot=0.0; sqc=0.0; }
   ~arnoldi1();
   double elmore(int term_index);
 

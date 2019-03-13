@@ -30,7 +30,7 @@ VertexVisitor *
 VertexPinCollector::copy()
 {
   internalError("VertexPinCollector::copy not supported.");
-  return NULL;
+  return nullptr;
 }
 
 void

@@ -53,20 +53,12 @@ static const double tiny_double = 1.0e-20;
 static const int find_root_max_iter = 20;
 
 // Indices of Newton-Raphson parameter vector.
-enum {
-  dmp_param_t0,
-  dmp_param_dt,
-  dmp_param_ceff
-};
+enum DmpParam { t0, dt, ceff };
 
 static const char *dmp_param_index_strings[] = {"t0", "dt", "Ceff"};
 
 // Indices of Newton-Raphson function value vector.
-enum {
-  dmp_func_y20,
-  dmp_func_y50,
-  dmp_func_ipi
-};
+enum DmpFunc { y20, y50, ipi };
 
 static const char *dmp_func_index_strings[] = {"y20", "y50", "Ipi"};
 
@@ -330,7 +322,7 @@ DmpAlg::init(const LibertyLibrary *drvr_library,
 }
 
 // Find Ceff, delta_t and t0 for the driver.
-// Caller must initialize/retrieve x_[dmp_param_ceff] because
+// Caller must initialize/retrieve x_[DmpParam::ceff] because
 // order 2 eqns don't have a ceff eqn.
 // Return true if successful.
 bool
@@ -340,17 +332,17 @@ DmpAlg::findDriverParams(double &ceff)
   gateDelays(ceff, t_vth, t_vl, slew);
   double dt = slew / (vh_ - vl_);
   double t0 = t_vth + log(1.0 - vth_) * rd_ * ceff - vth_ * dt;
-  x_[dmp_param_dt] = dt;
-  x_[dmp_param_t0] = t0;
+  x_[DmpParam::dt] = dt;
+  x_[DmpParam::t0] = t0;
   const char *nr_error;
   if (newtonRaphson(100, x_, nr_order_, driver_param_tol, evalDmpEqnsState,
 		    this, fvec_, fjac_, index_, p_, scale_, nr_error)) {
-    t0_ = x_[dmp_param_t0];
-    dt_ = x_[dmp_param_dt];
+    t0_ = x_[DmpParam::t0];
+    dt_ = x_[DmpParam::dt];
     debugPrint3(debug_, "delay_calc", 3, "    t0 = %s dt = %s ceff = %s\n",
 		units_->timeUnit()->asString(t0_),
 		units_->timeUnit()->asString(dt_),
-		units_->capacitanceUnit()->asString(x_[dmp_param_ceff]));
+		units_->capacitanceUnit()->asString(x_[DmpParam::ceff]));
     if (debug_->check("delay_calc", 4))
       showVo();
     return true;
@@ -929,7 +921,7 @@ DmpPi::gateDelaySlew(double &delay,
 		     double &slew)
 {
   if (findDriverParamsPi()) {
-    ceff_ = x_[dmp_param_ceff];
+    ceff_ = x_[DmpParam::ceff];
     driver_valid_ = true;
     double table_slew;
     // Table gate delays are more accurate than using Vo waveform delay
@@ -955,8 +947,8 @@ bool
 DmpPi::findDriverParamsPi()
 {
   double ceff = c1_ + c2_;
-  x_[dmp_param_ceff] = ceff;
-  return findDriverParams(x_[dmp_param_ceff]);
+  x_[DmpParam::ceff] = ceff;
+  return findDriverParams(x_[DmpParam::ceff]);
 }
 
 // Given x_ as a vector of input parameters, fill fvec_ with the
@@ -964,9 +956,9 @@ DmpPi::findDriverParamsPi()
 bool
 DmpPi::evalDmpEqns()
 {
-  double t0 = x_[dmp_param_t0];
-  double dt = x_[dmp_param_dt];
-  double ceff = x_[dmp_param_ceff];
+  double t0 = x_[DmpParam::t0];
+  double dt = x_[DmpParam::dt];
+  double ceff = x_[DmpParam::ceff];
 
   if (ceff > (c1_ + c2_) || ceff < 0.0)
     return false;
@@ -988,29 +980,29 @@ DmpPi::evalDmpEqns()
   double y_t_vth = y(t_vth, t0, dt, ceff);
   // y20 in the paper. Match Vl.
   double y_t_vl = y(t_vl, t0, dt, ceff);
-  fvec_[dmp_func_ipi] = ipiIceff(t0, dt, ceff_time, ceff);
-  fvec_[dmp_func_y50] = y_t_vth - vth_;
-  fvec_[dmp_func_y20] = y_t_vl - vl_;
-  fjac_[dmp_func_ipi][dmp_param_t0] = 0.0;
-  fjac_[dmp_func_ipi][dmp_param_dt] =
+  fvec_[DmpFunc::ipi] = ipiIceff(t0, dt, ceff_time, ceff);
+  fvec_[DmpFunc::y50] = y_t_vth - vth_;
+  fvec_[DmpFunc::y20] = y_t_vl - vl_;
+  fjac_[DmpFunc::ipi][DmpParam::t0] = 0.0;
+  fjac_[DmpFunc::ipi][DmpParam::dt] =
     (-A_ * dt + B_ * dt * exp_p1_dt - (2 * B_ / p1_) * (1.0 - exp_p1_dt)
      + D_ * dt * exp_p2_dt - (2 * D_ / p2_) * (1.0 - exp_p2_dt)
      + rd_ * ceff * (dt + dt * exp_dt_rd_ceff
 		     - 2 * rd_ * ceff * (1.0 - exp_dt_rd_ceff)))
     / (rd_ * dt * dt * dt);
-  fjac_[dmp_func_ipi][dmp_param_ceff] =
+  fjac_[DmpFunc::ipi][DmpParam::ceff] =
     (2 * rd_ * ceff - dt - (2 * rd_ * ceff + dt) * exp(-dt / (rd_ * ceff)))
     / (dt * dt);
 
   dy(t_vl, t0, dt, ceff,
-     fjac_[dmp_func_y20][dmp_param_t0],
-     fjac_[dmp_func_y20][dmp_param_dt],
-     fjac_[dmp_func_y20][dmp_param_ceff]);
+     fjac_[DmpFunc::y20][DmpParam::t0],
+     fjac_[DmpFunc::y20][DmpParam::dt],
+     fjac_[DmpFunc::y20][DmpParam::ceff]);
 
   dy(t_vth, t0, dt, ceff,
-     fjac_[dmp_func_y50][dmp_param_t0],
-     fjac_[dmp_func_y50][dmp_param_dt],
-     fjac_[dmp_func_y50][dmp_param_ceff]);
+     fjac_[DmpFunc::y50][DmpParam::t0],
+     fjac_[DmpFunc::y50][DmpParam::dt],
+     fjac_[DmpFunc::y50][DmpParam::ceff]);
 
   if (debug_->check("delay_calc", 4)) {
     showX();
@@ -1099,17 +1091,17 @@ DmpOnePole::DmpOnePole(StaState *sta) :
 bool
 DmpOnePole::evalDmpEqns()
 {
-  double t0 = x_[dmp_param_t0];
-  double dt = x_[dmp_param_dt];
+  double t0 = x_[DmpParam::t0];
+  double dt = x_[DmpParam::dt];
 
   double t_vth, t_vl, ignore, dummy;
   gateDelays(ceff_, t_vth, t_vl, ignore);
 
   if (dt <= 0.0)
-    dt = x_[dmp_param_dt] = (t_vl - t_vth) / 100;
+    dt = x_[DmpParam::dt] = (t_vl - t_vth) / 100;
 
-  fvec_[dmp_func_y50] = y(t_vth, t0, dt, ceff_) - vth_;
-  fvec_[dmp_func_y20] = y(t_vl, t0, dt, ceff_) - vl_;
+  fvec_[DmpFunc::y50] = y(t_vth, t0, dt, ceff_) - vth_;
+  fvec_[DmpFunc::y20] = y(t_vl, t0, dt, ceff_) - vl_;
 
   if (debug_->check("delay_calc", 4)) {
     showX();
@@ -1117,13 +1109,13 @@ DmpOnePole::evalDmpEqns()
   }
 
   dy(t_vl, t0, dt, ceff_,
-     fjac_[dmp_func_y20][dmp_param_t0],
-     fjac_[dmp_func_y20][dmp_param_dt],
+     fjac_[DmpFunc::y20][DmpParam::t0],
+     fjac_[DmpFunc::y20][DmpParam::dt],
      dummy);
 
   dy(t_vth, t0, dt, ceff_,
-     fjac_[dmp_func_y50][dmp_param_t0],
-     fjac_[dmp_func_y50][dmp_param_dt],
+     fjac_[DmpFunc::y50][DmpParam::t0],
+     fjac_[DmpFunc::y50][DmpParam::dt],
      dummy);
 
   if (debug_->check("delay_calc", 4)) {
@@ -1560,7 +1552,7 @@ DmpCeffDelayCalc::DmpCeffDelayCalc(StaState *sta) :
   dmp_cap_(new DmpCap(sta)),
   dmp_pi_(new DmpPi(sta)),
   dmp_zero_c2_(new DmpZeroC2(sta)),
-  dmp_alg_(NULL)
+  dmp_alg_(nullptr)
 {
 }
 
@@ -1578,7 +1570,7 @@ DmpCeffDelayCalc::inputPortDelay(const Pin *port_pin,
 				 Parasitic *parasitic,
 				 const DcalcAnalysisPt *dcalc_ap)
 {
-  dmp_alg_ = NULL;
+  dmp_alg_ = nullptr;
   input_port_ = true;
   RCDelayCalc::inputPortDelay(port_pin, in_slew, tr, parasitic, dcalc_ap);
 }

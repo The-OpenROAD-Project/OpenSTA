@@ -18,7 +18,6 @@
 #define STA_PATH_VERTEX_H
 
 #include "DisallowCopyAssign.hh"
-#include "Mutex.hh"
 #include "SearchClass.hh"
 #include "Path.hh"
 

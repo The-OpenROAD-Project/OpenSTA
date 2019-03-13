@@ -40,7 +40,7 @@ class Corner;
 // If incremental_only is true non-incremental annoatations are ignored.
 //
 // path is a hierararchial path prefix for instances and pins in the
-// sdf file.  Pass 0 (NULL) to specify no path.
+// sdf file.  Pass 0 (nullptr) to specify no path.
 //
 // The cond_use option is used when the SDF file contains conditional
 // delays and the library does not have conditional delay arcs.  If

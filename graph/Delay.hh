@@ -27,7 +27,6 @@
  #include "DelayFloat.hh"
 #endif
 
-// API common to DelayFloat and DelayNormal2.
 namespace sta {
 
 typedef Delay ArcDelay;

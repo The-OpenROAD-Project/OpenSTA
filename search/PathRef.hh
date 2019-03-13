@@ -28,7 +28,7 @@ namespace sta {
 // Path reference to either a PathVertex or PathEnum.
 // This "could" be made smaller by using a union for 
 // path_vertex_.vertex_ and path_enumed_ and a non-legal
-// value for path_vertex_.arrival_index_ (because a NULL tag 
+// value for path_vertex_.arrival_index_ (because a nullptr tag 
 // in PathVertex is valid).
 class PathRef : public Path
 {

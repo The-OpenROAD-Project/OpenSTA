@@ -207,7 +207,7 @@ Latches::latchRequired(const Path *data_path,
   Vertex *data_vertex = data_path->vertex(this);
   const TransRiseFall *data_tr = data_path->transition(this);
   ArcDelay setup = latchSetupMargin(data_vertex,data_tr,disable_path,path_ap);
-  ExceptionPath *excpt = search_->exceptionTo(exception_type_any,
+  ExceptionPath *excpt = search_->exceptionTo(ExceptionPathType::any,
 					      data_path, data_vertex->pin(),
 					      data_tr,
 					      enable_path->clkEdge(this),
@@ -262,7 +262,7 @@ Latches::latchEnablePath(Path *q_path,
   TransRiseFall *en_tr;
   LatchEnableState state;
   latchDtoQEnable(d_q_edge, latch, en_vertex, en_tr, state);
-  if (state == latch_state_enabled) {
+  if (state == LatchEnableState::enabled) {
     VertexPathIterator path_iter(en_vertex, en_tr, tgt_clk_path_ap, this);
     while (path_iter.hasNext()) {
       PathVertex *path = path_iter.next();
@@ -298,11 +298,11 @@ Latches::latchOutArrival(Path *data_path,
   latchDtoQEnable(d_q_edge, inst, enable_vertex, enable_tr, state);
   // Latch enable may be missing if library is malformed.
   switch (state) {
-  case latch_state_closed:
+  case LatchEnableState::closed:
     // Latch is disabled by constant enable.
     break;
-  case latch_state_open: {
-    ExceptionPath *excpt = exceptionTo(data_path, NULL);
+  case LatchEnableState::open: {
+    ExceptionPath *excpt = exceptionTo(data_path, nullptr);
     if (!(excpt && excpt->isFalse())) {
       arc_delay = search_->deratedDelay(data_vertex, d_q_arc, d_q_edge,
 					false, path_ap);
@@ -311,7 +311,7 @@ Latches::latchOutArrival(Path *data_path,
     }
   }
     break;
-  case latch_state_enabled: {
+  case LatchEnableState::enabled: {
     const PathAnalysisPt *tgt_clk_path_ap = path_ap->tgtClkAnalysisPt();
     VertexPathIterator enable_iter(enable_vertex, enable_tr,
 				   tgt_clk_path_ap, this);
@@ -340,7 +340,7 @@ Latches::latchOutArrival(Path *data_path,
 	     // Tag switcheroo - data passing thru gets latch enable tag.
 	     // States and path ap come from Q, everything else from enable.
 	     PathVertex *crpr_clk_path = 
-	       sdc_->crprActive() ? enable_path : NULL;
+	       sdc_->crprActive() ? enable_path : nullptr;
 	     ClkInfo *q_clk_info = 
 	       search_->findClkInfo(en_clk_edge,
 				    en_clk_info->clkSrc(),
@@ -354,11 +354,11 @@ Latches::latchOutArrival(Path *data_path,
 				    path_ap,
 				    crpr_clk_path);
 	     TransRiseFall *q_tr = d_q_arc->toTrans()->asRiseFall();
-	     ExceptionStateSet *states = NULL;
+	     ExceptionStateSet *states = nullptr;
 	     // Latch data pin is a valid exception -from pin.
 	     if (sdc_->exceptionFromStates(data_path->pin(this),
 						   data_path->transition(this),
-						   NULL, NULL, // clk below
+						   nullptr, nullptr, // clk below
 						   MinMax::max(), states)
 		 // -from enable non-filter exceptions apply.
 		 && sdc_->exceptionFromStates(enable_vertex->pin(),
@@ -367,7 +367,7 @@ Latches::latchOutArrival(Path *data_path,
 						      en_clk_edge->transition(),
 						      MinMax::max(), false, states))
 	       q_tag = search_->findTag(q_tr, path_ap, q_clk_info, false,
-					NULL, false, states, true);
+					nullptr, false, states, true);
 	   }
 	   return;
 	 }
@@ -384,7 +384,7 @@ Latches::exceptionTo(Path *data_path,
  		     ClockEdge *en_clk_edge)
 {
   // Look for exceptions -to data or -to enable clk.
-  return search_->exceptionTo(exception_type_any,
+  return search_->exceptionTo(ExceptionPathType::any,
 			      data_path,
 			      data_path->pin(this),
 			      data_path->transition(this),
@@ -461,8 +461,8 @@ Latches::latchDtoQEnable(Edge *d_q_edge,
 			 TransRiseFall *&enable_tr,
 			 LatchEnableState &state) const
 {
-  enable_vertex = NULL;
-  state = latch_state_open;
+  enable_vertex = nullptr;
+  state = LatchEnableState::open;
   LibertyCell *cell = network_->libertyCell(inst);
   if (cell) {
     TimingArcSet *d_q_set = d_q_edge->timingArcSet();
@@ -474,7 +474,7 @@ Latches::latchDtoQEnable(Edge *d_q_edge,
       if (enable_pin) {
 	enable_vertex = graph_->pinLoadVertex(enable_pin);
 	if (enable_vertex->isDisabledConstraint())
-	  state = latch_state_open;
+	  state = LatchEnableState::open;
 	else {
 	  // See if constant values in the latch enable expression force
 	  // it to be continuously open or closed.
@@ -482,16 +482,16 @@ Latches::latchDtoQEnable(Edge *d_q_edge,
 	    ? sim_->evalExpr(enable_func, inst)
 	    : sim_->logicValue(enable_pin);
 	  switch (enable_value) {
-	  case logic_zero:
-	  case logic_fall:
-	    state = latch_state_closed;
+	  case LogicValue::zero:
+	  case LogicValue::fall:
+	    state = LatchEnableState::closed;
 	    break;
-	  case logic_one:
-	  case logic_rise:
-	    state = latch_state_open;
+	  case LogicValue::one:
+	  case LogicValue::rise:
+	    state = LatchEnableState::open;
 	    break;
-	  case logic_unknown:
-	    state = latch_state_enabled;
+	  case LogicValue::unknown:
+	    state = LatchEnableState::enabled;
 	    break;
 	  }
 	}
@@ -519,7 +519,7 @@ bool
 Latches::isLatchDtoQ(Edge *edge) const
 {
   return edge->role() == TimingRole::latchDtoQ()
-    && latchDtoQState(edge) == latch_state_enabled;
+    && latchDtoQState(edge) == LatchEnableState::enabled;
 }
 
 } // namespace

@@ -18,7 +18,6 @@
 #define STA_CRPR_H
 
 #include "DisallowCopyAssign.hh"
-#include "Mutex.hh"
 #include "SdcClass.hh"
 #include "SearchClass.hh"
 

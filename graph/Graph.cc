@@ -32,8 +32,6 @@
 
 namespace sta {
 
-const char *bfs_index_names[] = {"dcalc", "arrival", "required", "other"};
-
 ////////////////////////////////////////////////////////////////
 //
 // Graph
@@ -45,17 +43,17 @@ Graph::Graph(StaState *sta,
 	     bool have_arc_delays,
 	     DcalcAPIndex ap_count) :
   StaState(sta),
-  vertices_(NULL),
-  edges_(NULL),
+  vertices_(nullptr),
+  edges_(nullptr),
   vertex_count_(0),
   edge_count_(0),
   arc_count_(0),
   slew_tr_count_(slew_tr_count),
   have_arc_delays_(have_arc_delays),
   ap_count_(ap_count),
-  float_pool_(NULL),
-  width_check_annotations_(NULL),
-  period_check_annotations_(NULL)
+  float_pool_(nullptr),
+  width_check_annotations_(nullptr),
+  period_check_annotations_(nullptr)
 {
 }
 
@@ -144,7 +142,7 @@ Graph::vertexAndEdgeCounts(const Instance *inst,
 	vertex_count++;
       if (cell) {
 	LibertyPort *port = network_->libertyPort(pin);
-	LibertyCellTimingArcSetIterator set_iter(cell, port, NULL);
+	LibertyCellTimingArcSetIterator set_iter(cell, port, nullptr);
 	while (set_iter.hasNext()) {
 	  TimingArcSet *arc_set = set_iter.next();
 	  LibertyPort *to_port = arc_set->to();
@@ -261,7 +259,7 @@ Graph::makeInstanceEdges(const Instance *inst)
 {
   LibertyCell *cell = network_->libertyCell(inst);
   if (cell)
-    makePortInstanceEdges(inst, cell, NULL);
+    makePortInstanceEdges(inst, cell, nullptr);
 }
 
 void
@@ -287,7 +285,7 @@ Graph::makePortInstanceEdges(const Instance *inst,
     TimingArcSet *arc_set = timing_iter.next();
     LibertyPort *from_port = arc_set->from();
     LibertyPort *to_port = arc_set->to();
-    if (from_to_port == NULL
+    if (from_to_port == nullptr
 	|| from_port == from_to_port
 	|| to_port == from_to_port) {
       Pin *from_pin = network_->findPin(inst, from_port);
@@ -362,9 +360,7 @@ Graph::makeWireEdgesFromPin(Pin *drvr_pin)
   FindNetDrvrLoads visitor(drvr_pin, visited_drvrs, loads, drvrs, network_);
   network_->visitConnectedPins(drvr_pin, visitor);
 
-  PinSeq::Iterator load_iter(loads);
-  while (load_iter.hasNext()) {
-    Pin *load_pin = load_iter.next();
+  for (auto load_pin : loads) {
     if (drvr_pin != load_pin)
       makeWireEdge(drvr_pin, load_pin);
   }
@@ -380,12 +376,8 @@ Graph::makeWireEdgesFromPin(Pin *drvr_pin,
   FindNetDrvrLoads visitor(drvr_pin, visited_drvrs, loads, drvrs, network_);
   network_->visitConnectedPins(drvr_pin, visitor);
 
-  PinSeq::Iterator drvr_iter(drvrs);
-  while (drvr_iter.hasNext()) {
-    Pin *drvr_pin = drvr_iter.next();
-    PinSeq::Iterator load_iter(loads);
-    while (load_iter.hasNext()) {
-      Pin *load_pin = load_iter.next();
+  for (auto drvr_pin : drvrs) {
+    for (auto load_pin : loads) {
       if (drvr_pin != load_pin)
 	makeWireEdge(drvr_pin, load_pin);
     }
@@ -397,9 +389,7 @@ Graph::makeWireEdgesToPin(Pin *to_pin)
 {
   PinSet *drvrs = network_->drivers(to_pin);
   if (drvrs) {
-    PinSet::Iterator drvr_iter(drvrs);
-    while (drvr_iter.hasNext()) {
-      Pin *drvr = drvr_iter.next();
+    for (auto drvr : *drvrs) {
       if (drvr != to_pin)
 	makeWireEdge(drvr, to_pin);
     }
@@ -409,8 +399,7 @@ Graph::makeWireEdgesToPin(Pin *to_pin)
 class MakeEdgesThruHierPin : public HierPinThruVisitor
 {
 public:
-  MakeEdgesThruHierPin(Graph *graph,
-		       Network *network);
+  MakeEdgesThruHierPin(Graph *graph);
 
 private:
   DISALLOW_COPY_AND_ASSIGN(MakeEdgesThruHierPin);
@@ -418,14 +407,11 @@ private:
 		     Pin *load);
 
   Graph *graph_;
-  Network *network_;
 };
 
-MakeEdgesThruHierPin::MakeEdgesThruHierPin(Graph *graph,
-					   Network *network) :
+MakeEdgesThruHierPin::MakeEdgesThruHierPin(Graph *graph) :
   HierPinThruVisitor(),
-  graph_(graph),
-  network_(network)
+  graph_(graph)
 {
 }
 
@@ -439,7 +425,7 @@ MakeEdgesThruHierPin::visit(Pin *drvr,
 void
 Graph::makeWireEdgesThruPin(Pin *hpin)
 {
-  MakeEdgesThruHierPin visitor(this, network_);
+  MakeEdgesThruHierPin visitor(this);
   visitDrvrLoadsThruHierPin(hpin, network_, &visitor);
 }
 
@@ -494,7 +480,7 @@ Graph::makePinVertices(Pin *pin,
       pin_bidirect_drvr_vertex_map_[pin] = bidir_drvr_vertex;
     }
     else
-      bidir_drvr_vertex = NULL;
+      bidir_drvr_vertex = nullptr;
   }
 }
 
@@ -522,7 +508,7 @@ Graph::pinVertices(const Pin *pin,
   if (network_->direction(pin)->isBidirect())
     bidirect_drvr_vertex = pin_bidirect_drvr_vertex_map_.findKey(pin);
   else
-    bidirect_drvr_vertex = NULL;
+    bidirect_drvr_vertex = nullptr;
 }
 
 Vertex *
@@ -1017,10 +1003,10 @@ Graph::setWidthCheckAnnotation(const Pin *pin,
 			       DcalcAPIndex ap_index,
 			       float width)
 {
-  if (width_check_annotations_ == NULL)
+  if (width_check_annotations_ == nullptr)
     width_check_annotations_ = new WidthCheckAnnotations;
   float *widths = width_check_annotations_->findKey(pin);
-  if (widths == NULL) {
+  if (widths == nullptr) {
     int width_count = TransRiseFall::index_count * ap_count_;
     widths = makeFloats(width_count);
     // Use negative (illegal) width values to indicate unannotated checks.
@@ -1043,7 +1029,7 @@ Graph::removeWidthCheckAnnotations()
       deleteFloats(widths, width_count);
     }
     delete width_check_annotations_;
-    width_check_annotations_ = NULL;
+    width_check_annotations_ = nullptr;
   }
 }
 
@@ -1072,10 +1058,10 @@ Graph::setPeriodCheckAnnotation(const Pin *pin,
 				DcalcAPIndex ap_index,
 				float period)
 {
-  if (period_check_annotations_ == NULL)
+  if (period_check_annotations_ == nullptr)
     period_check_annotations_ = new PeriodCheckAnnotations;
   float *periods = period_check_annotations_->findKey(pin);
-  if (periods == NULL) {
+  if (periods == nullptr) {
     periods = makeFloats(ap_count_);
     // Use negative (illegal) period values to indicate unannotated checks.
     for (DcalcAPIndex i = 0; i < ap_count_; i++)
@@ -1089,13 +1075,12 @@ void
 Graph::removePeriodCheckAnnotations()
 {
   if (period_check_annotations_) {
-    PeriodCheckAnnotations::Iterator check_iter(period_check_annotations_);
-    while (check_iter.hasNext()) {
-      float *periods = check_iter.next();
+    for (auto pin_floats : *period_check_annotations_) {
+      float *periods = pin_floats.second;
       deleteFloats(periods, ap_count_);
     }
     delete period_check_annotations_;
-    period_check_annotations_ = NULL;
+    period_check_annotations_ = nullptr;
   }
 }
 
@@ -1119,7 +1104,7 @@ Graph::removeDelaySlewAnnotations()
 float *
 Graph::makeFloats(ObjectIndex count)
 {
-  if (float_pool_ == NULL)
+  if (float_pool_ == nullptr)
     float_pool_ = new Pool<float>(100);
   return float_pool_->makeObjects(count);
 }
@@ -1138,7 +1123,7 @@ Graph::deleteFloats(float *floats, ObjectIndex count)
 
 Vertex::Vertex()
 {
-  init(NULL, false, false);
+  init(nullptr, false, false);
 }
 
 void
@@ -1151,19 +1136,19 @@ Vertex::init(Pin *pin,
   is_bidirect_drvr_ = is_bidirect_drvr;
   in_edges_ = 0;
   out_edges_ = 0;
-  arrivals_ = NULL;
-  prev_paths_ = NULL;
+  arrivals_ = nullptr;
+  prev_paths_ = nullptr;
   has_requireds_ = false;
   tag_group_index_ = tag_group_index_max;
   slew_annotated_ = false;
-  sim_value_ = logic_unknown;
+  sim_value_ = unsigned(LogicValue::unknown);
   is_disabled_constraint_ = false;
   is_gated_clk_enable_ = false;
   has_checks_ = false;
   is_check_clk_ = false;
   is_constrained_ = false;
   has_downstream_clk_pin_ = false;
-  color_ = vertex_color_white;
+  color_ = unsigned(LevelColor::white);
   level_ = 0;
   bfs_in_queue_ = 0;
   crpr_path_pruning_disabled_ = false;
@@ -1190,9 +1175,9 @@ Vertex::setLevel(Level level)
 }
 
 void
-Vertex::setColor(VertexColor color)
+Vertex::setColor(LevelColor color)
 {
-  color_ = color;
+  color_ = unsigned(color);
 }
 
 bool
@@ -1282,14 +1267,15 @@ Vertex::simValue() const
 void
 Vertex::setSimValue(LogicValue value)
 {
-  sim_value_ = value;
+  sim_value_ = unsigned(value);
 }
 
 bool
 Vertex::isConstant() const
 {
-  return sim_value_ == logic_zero
-    || sim_value_ == logic_one;
+  LogicValue value = static_cast<LogicValue>(sim_value_);
+  return value == LogicValue::zero
+    || value == LogicValue::one;
 }
 
 void
@@ -1331,7 +1317,7 @@ Vertex::setHasDownstreamClkPin(bool has_clk_pin)
 bool
 Vertex::bfsInQueue(BfsIndex index) const
 {
-  return (bfs_in_queue_ >> index) & 1;
+  return (bfs_in_queue_ >> unsigned(index)) & 1;
 }
 
 void
@@ -1339,9 +1325,9 @@ Vertex::setBfsInQueue(BfsIndex index,
 		      bool value)
 {
   if (value)
-    bfs_in_queue_ |= 1 << index;
+    bfs_in_queue_ |= 1 << int(index);
   else
-    bfs_in_queue_ &= ~(1 << index);
+    bfs_in_queue_ &= ~(1 << int(index));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1352,7 +1338,7 @@ Vertex::setBfsInQueue(BfsIndex index,
 
 Edge::Edge()
 {
-  init(0, 0, NULL);
+  init(0, 0, nullptr);
 }
 
 void
@@ -1371,7 +1357,7 @@ Edge::init(VertexIndex from,
   is_bidirect_inst_path_ = false;
   is_bidirect_net_path_ = false;
   delay_annotation_is_incremental_ = false;
-  sim_timing_sense_ = timing_sense_unknown;
+  sim_timing_sense_ = unsigned(TimingSense::unknown);
   is_disabled_constraint_ = false;
   is_disabled_cond_ = false;
   is_disabled_loop_ = false;
@@ -1423,13 +1409,13 @@ Edge::sense() const
 TimingSense
 Edge::simTimingSense() const
 {
-  return static_cast<TimingSense>(sim_timing_sense_);
+  return  static_cast<TimingSense>(sim_timing_sense_);
 }
 
 void
 Edge::setSimTimingSense(TimingSense sense)
 {
-  sim_timing_sense_ = sense;
+  sim_timing_sense_ = unsigned(sense);
 }
 
 bool
@@ -1486,9 +1472,9 @@ VertexIterator::VertexIterator(Graph *graph) :
   network_(graph->network()),
   top_inst_(network_->topInstance()),
   inst_iter_(network_->leafInstanceIterator()),
-  pin_iter_(NULL),
-  vertex_(NULL),
-  bidir_vertex_(NULL)
+  pin_iter_(nullptr),
+  vertex_(nullptr),
+  bidir_vertex_(nullptr)
 {
   if (inst_iter_)
     findNext();
@@ -1497,16 +1483,16 @@ VertexIterator::VertexIterator(Graph *graph) :
 Vertex *
 VertexIterator::next()
 {
-  Vertex *next = NULL;
+  Vertex *next = nullptr;
   if (vertex_) {
     next = vertex_;
-    vertex_ = NULL;
+    vertex_ = nullptr;
   }
   else if (bidir_vertex_) {
     next = bidir_vertex_;
-    bidir_vertex_ = NULL;
+    bidir_vertex_ = nullptr;
   }
-  if (bidir_vertex_ == NULL)
+  if (bidir_vertex_ == nullptr)
     findNext();
   return next;
 }
@@ -1519,12 +1505,12 @@ VertexIterator::findNextPin()
     vertex_ = graph_->vertex(network_->vertexIndex(pin));
     bidir_vertex_ = network_->direction(pin)->isBidirect() 
       ? graph_->pin_bidirect_drvr_vertex_map_.findKey(pin)
-      : NULL;
+      : nullptr;
     if (vertex_ || bidir_vertex_)
       return true;
   }
   delete pin_iter_;
-  pin_iter_ = NULL;
+  pin_iter_ = nullptr;
   return false;
 }
 
@@ -1541,10 +1527,10 @@ VertexIterator::findNext()
       pin_iter_ = network_->pinIterator(inst);
     } else {
       delete inst_iter_;
-      inst_iter_ = NULL;
+      inst_iter_ = nullptr;
       if (top_inst_) {
         pin_iter_ = network_->pinIterator(top_inst_);
-        top_inst_ = NULL;
+        top_inst_ = nullptr;
       }
     }
   }
