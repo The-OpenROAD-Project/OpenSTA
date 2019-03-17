@@ -227,8 +227,8 @@ Search::Search(StaState *sta) :
 void
 Search::init(StaState *sta)
 {
-  crpr_path_pruning_enabled_ = true;
-  unconstrained_paths_ = false;
+  initVars();
+
   search_adj_ = new SearchThru(nullptr, sta);
   eval_pred_ = new EvalPred(sta);
   check_crpr_ = new CheckCrpr(sta);
@@ -264,6 +264,15 @@ Search::init(StaState *sta)
   found_downstream_clk_pins_ = false;
 }
 
+// Init "options".
+void
+Search::initVars()
+{
+  unconstrained_paths_ = false;
+  crpr_path_pruning_enabled_ = true;
+  crpr_approx_missing_requireds_ = true;
+}
+
 Search::~Search()
 {
   deletePaths();
@@ -292,8 +301,8 @@ Search::~Search()
 void
 Search::clear()
 {
-  crpr_path_pruning_enabled_ = true;
-  unconstrained_paths_ = false;
+  initVars();
+
   clk_arrivals_valid_ = false;
   arrivals_at_endpoints_exist_ = false;
   arrivals_seeded_ = false;
@@ -326,6 +335,18 @@ void
 Search::setCrprpathPruningEnabled(bool enabled)
 {
   crpr_path_pruning_enabled_ = enabled;
+}
+
+bool
+Search::crprApproxMissingRequireds() const
+{
+  return crpr_approx_missing_requireds_;
+}
+
+void
+Search::setCrprApproxMissingRequireds(bool enabled)
+{
+  crpr_approx_missing_requireds_ = enabled;
 }
 
 void
@@ -3436,7 +3457,7 @@ RequiredVisitor::visitFromToPath(const Pin *,
 				 Tag *to_tag,
 				 Arrival &,
 				 const MinMax *min_max,
-				 const PathAnalysisPt *)
+				 const PathAnalysisPt *path_ap)
 {
   // Don't propagate required times through latch D->Q edges.
   if (edge->role() != TimingRole::latchDtoQ()) {
@@ -3469,8 +3490,35 @@ RequiredVisitor::visitFromToPath(const Pin *,
 		  delayAsString(required_cmp_->required(arrival_index), sta_));
       required_cmp_->requiredSet(arrival_index, from_required, req_min);
     }
-    else
+    else {
+      if (sta_->search()->crprApproxMissingRequireds()) {
+	// Arrival on to_vertex that differs by crpr_pin was pruned.
+	// Find an arrival that matches everything but the crpr_pin
+	// as an appromate required.
+	VertexPathIterator to_iter(to_vertex, to_tr, path_ap, sta_);
+	while (to_iter.hasNext()) {
+	  PathVertex *to_path = to_iter.next();
+	  Tag *to_path_tag = to_path->tag(sta_);
+	  if (tagMatchNoCrpr(to_path_tag, to_tag)) {
+	    Required to_required = to_path->required(sta_);
+	    Required from_required = to_required - arc_delay;
+	    debugPrint2(debug, "search", 3, "  to tag   %2u: %s\n",
+			to_path_tag->index(),
+			to_path_tag->asString(sta_));
+	    debugPrint5(debug, "search", 3, "  %s - %s = %s %s %s\n",
+			delayAsString(to_required, sta_),
+			delayAsString(arc_delay, sta_),
+			delayAsString(from_required, sta_),
+			min_max == MinMax::max() ? "<" : ">",
+			delayAsString(required_cmp_->required(arrival_index),
+				      sta_));
+	    required_cmp_->requiredSet(arrival_index, from_required, req_min);
+	    break;
+	  }
+	}
+      }
       from_vertex->setRequiredsPruned(true);
+    }
     // Propagate requireds pruned flag backwards.
     if (to_vertex->requiredsPruned())
       from_vertex->setRequiredsPruned(true);

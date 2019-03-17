@@ -2880,13 +2880,14 @@ Sta::findRequired(Vertex *vertex)
   search_->findRequireds(vertex->level());
   if (sdc_->crprEnabled()
       && search_->crprPathPruningEnabled()
+      && !search_->crprApproxMissingRequireds()
       // Clocks invariably have requireds that are pruned but isn't
       // worth finding arrivals and requireds all over again for
       // the entire fanout of the clock.
       && !search_->isClock(vertex)
       && vertex->requiredsPruned()) {
     // Invalidate arrivals and requireds and disable
-    // path pruning on fanout vertices.
+    // path pruning on fanout vertices with DFS.
     int fanout = 0;
     disableFanoutCrprPruning(vertex, fanout);
     debugPrint2(debug_, "search", 1, "resurrect pruned required %s fanout %d\n",
@@ -2898,8 +2899,6 @@ Sta::findRequired(Vertex *vertex)
   }
 }
 
-// DFS to invalidate fanout arrivals and requireds to
-// find arrivals with pruning disabled.
 void
 Sta::disableFanoutCrprPruning(Vertex *vertex,
 			      int &fanout)

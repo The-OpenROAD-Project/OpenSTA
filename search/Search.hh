@@ -70,10 +70,15 @@ public:
   // Reset to virgin state.
   void clear();
   // When enabled, non-critical path arrivals are pruned to improve
-  // run time and reduce memory. The side-effect is that slacks for
-  // non-critical paths on intermediate pins may be incorrect.
+  // run time and reduce memory.
   bool crprPathPruningEnabled() const;
   void setCrprpathPruningEnabled(bool enabled);
+  // When path pruning is enabled required times for non-critical paths
+  // that have been pruned require additional search. This option
+  // disables additional search to returns approximate required times.
+  bool crprApproxMissingRequireds() const;
+  void setCrprApproxMissingRequireds(bool enabled);
+
   bool unconstrainedPaths() const { return unconstrained_paths_; }
   // from/thrus/to are owned and deleted by Search.
   // Use corner nullptr to report timing for all corners.
@@ -344,6 +349,7 @@ public:
 
 protected:
   void init(StaState *sta);
+  void initVars();
   void makeAnalysisPts(AnalysisType analysis_type);
   void makeAnalysisPts(bool swap_clk_min_max,
 		       bool report_min,
@@ -524,6 +530,8 @@ protected:
 
   // findPathEnds arg.
   bool unconstrained_paths_;
+  bool crpr_path_pruning_enabled_;
+  bool crpr_approx_missing_requireds_;
   // Search predicates.
   SearchPred *search_adj_;
   SearchPred *search_clk_;
@@ -591,7 +599,6 @@ protected:
   VisitPathEnds *visit_path_ends_;
   GatedClk *gated_clk_;
   CheckCrpr *check_crpr_;
-  bool crpr_path_pruning_enabled_;
   Genclks *genclks_;
 };
 
