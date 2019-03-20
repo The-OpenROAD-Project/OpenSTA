@@ -21,7 +21,7 @@ namespace eval sta {
 define_cmd_args "read_liberty" \
   {[-corner corner_name] [-min] [-max] [-no_latch_infer] filename}
 
-proc read_liberty { args } {
+proc_redirect read_liberty {
   parse_key_args "read_liberty" args keys {-corner} \
     flags {-min -max -no_latch_infer}
   check_argc_eq1 "read_liberty" $args

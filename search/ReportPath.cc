@@ -381,7 +381,7 @@ ReportPath::reportEndpointHeader(PathEnd *end,
     const char *setup_hold = (end->minMax(this) == MinMax::min())
       ? "min_delay/hold"
       : "max_delay/setup";
-    report_->print("%s ('%s' group)\n\n",
+    report_->print("%s group %s\n\n",
 		   setup_hold,
 		   group->name());
     string header;
@@ -977,17 +977,17 @@ ReportPath::reportEndHeader(string &result)
   // Line one.
   reportDescription("", result);
   result += ' ';
-  reportField("Required ", field_total_, result);
+  reportField("Required", field_total_, result);
   result += ' ';
-  reportField("Actual  ", field_total_, result);
+  reportField("Actual", field_total_, result);
   reportEndOfLine(result);
 
   // Line two.
   reportDescription("Endpoint", result);
   result += ' ';
-  reportField("Path Delay", field_total_, result);
+  reportField("Delay", field_total_, result);
   result += ' ';
-  reportField("Path Delay", field_total_, result);
+  reportField("Delay", field_total_, result);
   result += ' ';
   reportField("Slack", field_total_, result);
   reportEndOfLine(result);
@@ -1169,9 +1169,9 @@ ReportPath::reportMpwHeaderShort(string &result)
 
   reportDescription("Pin", result);
   result += ' ';
-  reportField("width ", field_total_, result);
+  reportField("Width", field_total_, result);
   result += ' ';
-  reportField("width", field_total_, result);
+  reportField("Width", field_total_, result);
   result += ' ';
   reportField("Slack", field_total_, result);
   reportEndOfLine(result);
@@ -1328,7 +1328,7 @@ ReportPath::reportPeriodHeaderShort(string &result)
   result += ' ';
   reportField("", field_total_, result);
   result += ' ';
-  reportField("Min ", field_total_, result);
+  reportField("Min", field_total_, result);
   result += ' ';
   reportField("", field_total_, result);
   reportEndOfLine(result);

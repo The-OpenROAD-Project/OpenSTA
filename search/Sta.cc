@@ -658,7 +658,7 @@ Sta::readLibertyAfter(LibertyLibrary *liberty,
 {
   corner->addLiberty(liberty, min_max);
   LibertyLibrary::makeCornerMap(liberty, corner->libertyIndex(min_max),
-				network_);
+				network_, report_);
 }
 
 bool

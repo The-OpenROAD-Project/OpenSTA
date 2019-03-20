@@ -266,11 +266,19 @@ public:
   static void
   makeCornerMap(LibertyLibrary *lib,
 		int ap_index,
-		Network *network);
+		Network *network,
+		Report *report);
   static void
   makeCornerMap(LibertyCell *link_cell,
 		LibertyCell *map_cell,
-		int ap_index);
+		int ap_index,
+		Report *report);
+  static void
+  makeCornerMap(LibertyCell *cell1,
+		LibertyCell *cell2,
+		bool link,
+		int ap_index,
+		Report *report);
 
 protected:
   float degradeWireSlew(const LibertyCell *cell,
@@ -488,6 +496,8 @@ protected:
   virtual void translatePresetClrCheckRoles();
   virtual void inferLatchRoles(Debug *debug);
   void deleteInternalPowerAttrs();
+  void makeTimingArcMap(Report *report);
+  void makeTimingArcPortMaps();
 
   LibertyLibrary *liberty_library_;
   float area_;

@@ -673,7 +673,8 @@ LibertyLibrary::makeScaledCell(const char *name,
 void
 LibertyLibrary::makeCornerMap(LibertyLibrary *lib,
 			      int ap_index,
-			      Network *network)
+			      Network *network,
+			      Report *report)
 {
   LibertyCellIterator cell_iter(lib);
   while (cell_iter.hasNext()) {
@@ -681,7 +682,7 @@ LibertyLibrary::makeCornerMap(LibertyLibrary *lib,
     const char *name = cell->name();
     LibertyCell *link_cell = network->findLibertyCell(name);
     if (link_cell)
-      makeCornerMap(link_cell, cell, ap_index);
+      makeCornerMap(link_cell, cell, ap_index, report);
   }
 }
 
@@ -690,33 +691,65 @@ LibertyLibrary::makeCornerMap(LibertyLibrary *lib,
 void
 LibertyLibrary::makeCornerMap(LibertyCell *link_cell,
 			      LibertyCell *corner_cell,
-			      int ap_index)
+			      int ap_index,
+			      Report *report)
 {
   link_cell->setCornerCell(corner_cell, ap_index);
+  makeCornerMap(link_cell, corner_cell, true, ap_index, report);
+  // Check for brain damage in the other direction.
+  makeCornerMap(corner_cell, link_cell, false, ap_index, report);
+}
 
-  LibertyCellPortBitIterator port_iter(link_cell);
-  while (port_iter.hasNext()) {
-    LibertyPort *link_port = port_iter.next();
-    const char *port_name = link_port->name();
-    LibertyPort *corner_port = corner_cell->findLibertyPort(port_name);
-    if (corner_port)
-      link_port->setCornerPort(corner_port, ap_index);
+void
+LibertyLibrary::makeCornerMap(LibertyCell *cell1,
+			      LibertyCell *cell2,
+			      bool link,
+			      int ap_index,
+			      Report *report)
+{
+  LibertyCellPortBitIterator port_iter1(cell1);
+  while (port_iter1.hasNext()) {
+    LibertyPort *port1 = port_iter1.next();
+    const char *port_name = port1->name();
+    LibertyPort *port2 = cell2->findLibertyPort(port_name);
+    if (port2) {
+      if (link)
+	port1->setCornerPort(port2, ap_index);
+    }
+    else
+      report->warn("cell %s/%s port %s not found in cell %s/%s.\n",
+		   cell1->library()->name(),
+		   cell1->name(),
+		   port_name,
+		   cell2->library()->name(),
+		   cell2->name());
   }
 
-  LibertyCellTimingArcSetIterator set_iter(link_cell);
-  while (set_iter.hasNext()) {
-    TimingArcSet *link_arc_set = set_iter.next();
-    TimingArcSet *corner_arc_set = corner_cell->findTimingArcSet(link_arc_set);
-    if (corner_arc_set) {
-      TimingArcSetArcIterator arc_iter(link_arc_set);
-      TimingArcSetArcIterator corner_arc_iter(corner_arc_set);
-      while (arc_iter.hasNext() && corner_arc_iter.hasNext()) {
-	TimingArc *link_arc = arc_iter.next();
-	TimingArc *corner_arc = corner_arc_iter.next();
-	if (TimingArc::equiv(link_arc, corner_arc))
-	  link_arc->setCornerArc(corner_arc, ap_index);
+  LibertyCellTimingArcSetIterator set_iter1(cell1);
+  while (set_iter1.hasNext()) {
+    TimingArcSet *arc_set1 = set_iter1.next();
+    TimingArcSet *arc_set2 = cell2->findTimingArcSet(arc_set1);
+    if (arc_set2) {
+      if (link) {
+	TimingArcSetArcIterator arc_iter1(arc_set1);
+	TimingArcSetArcIterator arc_iter2(arc_set2);
+	while (arc_iter1.hasNext() && arc_iter2.hasNext()) {
+	  TimingArc *arc1 = arc_iter1.next();
+	  TimingArc *arc2 = arc_iter2.next();
+	  if (TimingArc::equiv(arc1, arc2))
+	    arc1->setCornerArc(arc2, ap_index);
+	}
       }
     }
+    else
+      report->warn("cell %s/%s %s -> %s timing group %s not found in cell %s/%s.\n",
+		   cell1->library()->name(),
+		   cell1->name(),
+		   arc_set1->from()->name(),
+		   arc_set1->to()->name(),
+		   arc_set1->role()->asString(),
+		   cell2->library()->name(),
+		   cell2->name());
   }
 }
 
@@ -1054,49 +1087,19 @@ LibertyCell::addTimingArcSet(TimingArcSet *arc_set)
 {
   if (timing_arc_sets_ == nullptr) {
     timing_arc_sets_ = new TimingArcSetSeq;
-    timing_arc_set_map_ = new TimingArcSetMap;
-    port_timing_arc_set_map_ = new LibertyPortPairTimingArcMap;
-    timing_arc_set_from_map_ = new LibertyPortTimingArcMap;
-    timing_arc_set_to_map_ = new LibertyPortTimingArcMap;
   }
   int set_index = timing_arc_sets_->size();
   if (set_index > timing_arc_set_index_max)
     internalError("timing arc set max index exceeded");
   timing_arc_sets_->push_back(arc_set);
-  timing_arc_set_map_->insert(arc_set);
 
   LibertyPort *from = arc_set->from();
-  LibertyPort *to = arc_set->to();
   TimingRole *role = arc_set->role();
   if (role == TimingRole::regClkToQ()
       || role == TimingRole::latchEnToQ())
     from->setIsRegClk(true);
   if (role->isTimingCheck())
     from->setIsCheckClk(true);
-
-  LibertyPortPair port_pair(from, to);
-  TimingArcSetSeq *sets = port_timing_arc_set_map_->findKey(&port_pair);
-  if (sets == nullptr) {
-    // First arc set for from/to ports.
-    sets = new TimingArcSetSeq;
-    LibertyPortPair *port_pair1 = new LibertyPortPair(from, to);
-    (*port_timing_arc_set_map_)[port_pair1] = sets;
-  }
-  sets->push_back(arc_set);
-
-  sets = timing_arc_set_from_map_->findKey(from);
-  if (sets == nullptr) {
-    sets = new TimingArcSetSeq;
-    (*timing_arc_set_from_map_)[from] = sets;
-  }
-  sets->push_back(arc_set);
-
-  sets = timing_arc_set_to_map_->findKey(to);
-  if (sets == nullptr) {
-    sets = new TimingArcSetSeq;
-    (*timing_arc_set_to_map_)[to] = sets;
-  }
-  sets->push_back(arc_set);
   return set_index;
 }
 
@@ -1151,9 +1154,13 @@ LibertyCell::finish(bool infer_latches,
 		    Report *report,
 		    Debug *debug)
 {
-  findDefaultCondArcs();
   translatePresetClrCheckRoles();
-  makeLatchEnables(report, debug);
+  if (timing_arc_sets_) {
+    makeTimingArcMap(report);
+    makeTimingArcPortMaps();
+    findDefaultCondArcs();
+    makeLatchEnables(report, debug);
+  }
   if (infer_latches
       && !interface_timing_)
     inferLatchRoles(debug);
@@ -1212,6 +1219,76 @@ LibertyCell::translatePresetClrCheckRoles()
 	  set->setRole(TimingRole::removal());
       }
     }
+  }
+}
+
+void
+LibertyCell::makeTimingArcMap(Report *)
+{
+  timing_arc_set_map_ = new TimingArcSetMap;
+  // Filter duplicate timing arcs, keeping the later definition.
+  for (auto arc_set : *timing_arc_sets_)
+    // The last definition will be left in the set.
+    timing_arc_set_map_->insert(arc_set);
+
+  // Prune the arc sets not in the map.
+  int j = 0;
+  for (int i = 0; i < timing_arc_sets_->size(); i++) {
+    TimingArcSet *arc_set = (*timing_arc_sets_)[i];
+    TimingArcSet *match = timing_arc_set_map_->findKey(arc_set);
+    if (match != arc_set) {
+      // Unfortunately these errors are common in some brain damaged
+      // libraries.
+      // report->warn("cell %s/%s has duplicate %s -> %s %s timing groups.\n",
+      // 		   library_->name(),
+      // 		   name_,
+      // 		   match->from()->name(),
+      // 		   match->to()->name(),
+      // 		   match->role()->asString());
+    }
+    else
+      // Shift arc sets down to fill holes left by removed duplicates.
+      (*timing_arc_sets_)[j++] = arc_set;
+  }
+  timing_arc_sets_->resize(j);
+
+  if (timing_arc_set_map_->size() != timing_arc_sets_->size())
+    internalError("timing arc count mismatch\n");
+}
+
+void
+LibertyCell::makeTimingArcPortMaps()
+{
+  port_timing_arc_set_map_ = new LibertyPortPairTimingArcMap;
+  timing_arc_set_from_map_ = new LibertyPortTimingArcMap;
+  timing_arc_set_to_map_ = new LibertyPortTimingArcMap;
+
+  for (auto arc_set : *timing_arc_sets_) {
+    LibertyPort *from = arc_set->from();
+    LibertyPort *to = arc_set->to();
+    LibertyPortPair port_pair(from, to);
+    TimingArcSetSeq *sets = port_timing_arc_set_map_->findKey(&port_pair);
+    if (sets == nullptr) {
+      // First arc set for from/to ports.
+      sets = new TimingArcSetSeq;
+      LibertyPortPair *port_pair1 = new LibertyPortPair(from, to);
+      (*port_timing_arc_set_map_)[port_pair1] = sets;
+    }
+    sets->push_back(arc_set);
+
+    sets = timing_arc_set_from_map_->findKey(from);
+    if (sets == nullptr) {
+      sets = new TimingArcSetSeq;
+      (*timing_arc_set_from_map_)[from] = sets;
+    }
+    sets->push_back(arc_set);
+
+    sets = timing_arc_set_to_map_->findKey(to);
+    if (sets == nullptr) {
+      sets = new TimingArcSetSeq;
+      (*timing_arc_set_to_map_)[to] = sets;
+    }
+    sets->push_back(arc_set);
   }
 }
 
@@ -1546,8 +1623,8 @@ LibertyCell::makeLatchEnables(Report *report,
 		  TransRiseFall *en_tr = latch_enable->enableTransition();
 		  TransRiseFall *check_tr = check_arc->fromTrans()->asRiseFall();
 		  if (check_tr == en_tr) {
-		    report->warn("%s, cell %s latch enable %s -> %s %s_edge timing arc is inconsistent with %s -> %s setup_%s check.\n",
-				 filename_,
+		    report->warn("cell %s/%s %s -> %s latch enable %s_edge timing arc is inconsistent with %s -> %s setup_%s check.\n",
+				 library_->name(),
 				 name_,
 				 en->name(),
 				 q->name(),
@@ -1561,16 +1638,16 @@ LibertyCell::makeLatchEnables(Report *report,
 		    TimingSense en_sense = en_func->portTimingSense(en);
 		    if (en_sense == TimingSense::positive_unate
 			&& en_tr != TransRiseFall::rise())
-		      report->warn("%s, cell %s latch enable %s -> %s %s_edge is inconsistent with latch group enable function positive sense.\n",
-				   filename_,
+		      report->warn("cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.\n",
+				   library_->name(),
 				   name_,
 				   en->name(),
 				   q->name(),
 				   en_tr == TransRiseFall::rise()?"rising":"falling");
 		    else if (en_sense == TimingSense::negative_unate
 			     && en_tr != TransRiseFall::fall())
-		      report->warn("%s, cell %s latch enable %s -> %s %s_edge is inconsistent with latch group enable function negative sense.\n",
-				   filename_,
+		      report->warn("cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.\n",
+				   library_->name(),
 				   name_,
 				   en->name(),
 				   q->name(),
