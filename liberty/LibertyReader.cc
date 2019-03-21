@@ -4345,6 +4345,8 @@ LibertyReader::getAttrEarlyLate(LibertyAttr *attr)
     return EarlyLateAll::min();
   else if (stringEq(value, "late"))
     return EarlyLateAll::max();
+  else if (stringEq(value, "early_and_late"))
+    return EarlyLateAll::all();
   else {
     libWarn(attr, "unknown early/late value.\n");
     return EarlyLateAll::all();

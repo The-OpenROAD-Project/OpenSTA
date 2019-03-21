@@ -56,7 +56,7 @@ typedef Map<const char*, OperatingConditions*,
 typedef Map<LibertyPort*, Sequential*> PortToSequentialMap;
 typedef Vector<TimingArcSet*> TimingArcSetSeq;
 typedef Set<TimingArcSet*, TimingArcSetLess> TimingArcSetMap;
-typedef Map<LibertyPortPair*, TimingArcSetSeq*,
+typedef Map<LibertyPortPair, TimingArcSetSeq*,
 	    LibertyPortPairLess> LibertyPortPairTimingArcMap;
 typedef Vector<InternalPower*> InternalPowerSeq;
 typedef Vector<LeakagePower*> LeakagePowerSeq;
@@ -427,8 +427,8 @@ public:
   TimingArcSet *findTimingArcSet(TimingArcSet *key) const;
   TimingArcSet *findTimingArcSet(unsigned arc_set_index) const;
   bool hasTimingArcs(LibertyPort *port) const;
-  InternalPowerSeq *internalPowers() const { return internal_powers_; }
-  LeakagePowerSeq *leakagePowers() const { return leakage_powers_; }
+  InternalPowerSeq *internalPowers() { return &internal_powers_; }
+  LeakagePowerSeq *leakagePowers() { return &leakage_powers_; }
   float leakagePower() const { return leakage_power_; }
   bool hasSequentials() const;
   void makeSequential(int size,
@@ -507,23 +507,23 @@ protected:
   bool has_internal_ports_;
   bool interface_timing_;
   ClockGateType clock_gate_type_;
-  TimingArcSetSeq *timing_arc_sets_;
+  TimingArcSetSeq timing_arc_sets_;
   // Used to find matching arc sets in equivalent cells.
-  TimingArcSetMap *timing_arc_set_map_;
-  LibertyPortPairTimingArcMap *port_timing_arc_set_map_;
-  LibertyPortTimingArcMap *timing_arc_set_from_map_;
-  LibertyPortTimingArcMap *timing_arc_set_to_map_;
+  TimingArcSetMap timing_arc_set_map_;
+  LibertyPortPairTimingArcMap port_timing_arc_set_map_;
+  LibertyPortTimingArcMap timing_arc_set_from_map_;
+  LibertyPortTimingArcMap timing_arc_set_to_map_;
   TimingArcAttrsSeq timing_arc_attrs_;
   bool has_infered_reg_timing_arcs_;
-  InternalPowerSeq *internal_powers_;
+  InternalPowerSeq internal_powers_;
   InternalPowerAttrsSeq internal_power_attrs_;
-  LeakagePowerSeq *leakage_powers_;
-  SequentialSeq *sequentials_;
-  PortToSequentialMap *port_to_seq_map_;
+  LeakagePowerSeq leakage_powers_;
+  SequentialSeq sequentials_;
+  PortToSequentialMap port_to_seq_map_;
   BusDclMap bus_dcls_;
-  ModeDefMap *mode_defs_;
+  ModeDefMap mode_defs_;
   ScaleFactors *scale_factors_;
-  ScaledCellMap *scaled_cells_;
+  ScaledCellMap scaled_cells_;
   TestCell *test_cell_;
   // Latch D->Q to LatchEnable.
   LatchEnableMap latch_d_to_q_map_;
@@ -577,7 +577,7 @@ private:
   ConcreteCellPortBitIterator *iter_;
 };
 
-class LibertyCellTimingArcSetIterator : public TimingArcSetSeq::Iterator
+class LibertyCellTimingArcSetIterator : public TimingArcSetSeq::ConstIterator
 {
 public:
   LibertyCellTimingArcSetIterator(const LibertyCell *cell);
@@ -596,14 +596,14 @@ public:
 class LibertyCellLeakagePowerIterator : public LeakagePowerSeq::Iterator
 {
 public:
-  LibertyCellLeakagePowerIterator(const LibertyCell *cell) :
+  LibertyCellLeakagePowerIterator(LibertyCell *cell) :
     LeakagePowerSeq::Iterator(cell->leakagePowers()) {}
 };
 
 class LibertyCellInternalPowerIterator : public InternalPowerSeq::Iterator
 {
 public:
-  LibertyCellInternalPowerIterator(const LibertyCell *cell) :
+  LibertyCellInternalPowerIterator(LibertyCell *cell) :
     InternalPowerSeq::Iterator(cell->internalPowers()) {}
 };
 

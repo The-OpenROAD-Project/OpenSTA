@@ -128,11 +128,8 @@ LibertyLibrary::~LibertyLibrary()
   delete units_;
   ocv_derate_map_.deleteContents();
 
-  SupplyVoltageMap::Iterator supply_iter(supply_voltage_map_);
-  while (supply_iter.hasNext()) {
-    const char *supply_name;
-    float voltage;
-    supply_iter.next(supply_name, voltage);
+  for (auto name_volt : supply_voltage_map_) {
+    const char *supply_name = name_volt.first;
     stringDelete(supply_name);
   }
 }
@@ -725,10 +722,8 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
 		   cell2->name());
   }
 
-  LibertyCellTimingArcSetIterator set_iter1(cell1);
-  while (set_iter1.hasNext()) {
-    TimingArcSet *arc_set1 = set_iter1.next();
-    TimingArcSet *arc_set2 = cell2->findTimingArcSet(arc_set1);
+  for (auto arc_set1 : cell1->timing_arc_sets_) {
+    auto arc_set2 = cell2->findTimingArcSet(arc_set1);
     if (arc_set2) {
       if (link) {
 	TimingArcSetArcIterator arc_iter1(arc_set1);
@@ -847,18 +842,8 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   has_internal_ports_(false),
   interface_timing_(false),
   clock_gate_type_(ClockGateType::none),
-  timing_arc_sets_(nullptr),
-  port_timing_arc_set_map_(nullptr),
-  timing_arc_set_from_map_(nullptr),
-  timing_arc_set_to_map_(nullptr),
   has_infered_reg_timing_arcs_(false),
-  internal_powers_(nullptr),
-  leakage_powers_(nullptr),
-  sequentials_(nullptr),
-  port_to_seq_map_(nullptr),
-  mode_defs_(nullptr),
   scale_factors_(nullptr),
-  scaled_cells_(nullptr),
   test_cell_(nullptr),
   ocv_arc_depth_(0.0),
   ocv_derate_(nullptr),
@@ -869,59 +854,22 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
 
 LibertyCell::~LibertyCell()
 {
-  if (mode_defs_) {
-    mode_defs_->deleteContents();
-    delete mode_defs_;
-  }
-
+  mode_defs_.deleteContents();
   latch_d_to_q_map_.deleteContents();
 
   deleteTimingArcAttrs();
-  if (timing_arc_sets_) {
-    timing_arc_sets_->deleteContents();
-    delete timing_arc_sets_;
-    delete timing_arc_set_map_;
-
-    LibertyPortPairTimingArcMap::Iterator port_map_iter(port_timing_arc_set_map_);
-    while (port_map_iter.hasNext()) {
-      LibertyPortPair *port_pair;
-      TimingArcSetSeq *sets;
-      port_map_iter.next(port_pair, sets);
-      delete port_pair;
-      delete sets;
-    }
-    delete port_timing_arc_set_map_;
-
-    timing_arc_set_from_map_->deleteContents();
-    delete timing_arc_set_from_map_;
-
-    timing_arc_set_to_map_->deleteContents();
-    delete timing_arc_set_to_map_;
-  }
+  timing_arc_sets_.deleteContents();
+  port_timing_arc_set_map_.deleteContents();
+  timing_arc_set_from_map_.deleteContents();
+  timing_arc_set_to_map_.deleteContents();
 
   deleteInternalPowerAttrs();
-  if (internal_powers_) {
-    internal_powers_->deleteContents();
-    delete internal_powers_;
-  }
+  internal_powers_.deleteContents();
+  leakage_powers_.deleteContents();
 
-  if (leakage_powers_) {
-    leakage_powers_->deleteContents();
-    delete leakage_powers_;
-  }
-
-  if (sequentials_) {
-    sequentials_->deleteContents();
-    delete sequentials_;
-    delete port_to_seq_map_;
-  }
-
+  sequentials_.deleteContents();
   bus_dcls_.deleteContents();
-
-  if (scaled_cells_) {
-    scaled_cells_->deleteContents();
-    delete scaled_cells_;
-  }
+  scaled_cells_.deleteContents();
 
   delete test_cell_;
   ocv_derate_map_.deleteContents();
@@ -935,9 +883,7 @@ LibertyCell::~LibertyCell()
 void
 LibertyCell::deleteTimingArcAttrs()
 {
-  TimingArcAttrsSeq::Iterator attr_iter(timing_arc_attrs_);
-  while (attr_iter.hasNext()) {
-    TimingArcAttrs *attrs = attr_iter.next();
+  for (auto attrs : timing_arc_attrs_) {
     attrs->deleteContents();
     delete attrs;
   }
@@ -992,16 +938,14 @@ ModeDef *
 LibertyCell::makeModeDef(const char *name)
 {
   ModeDef *mode = new ModeDef(name);
-  if (mode_defs_ == nullptr)
-    mode_defs_ = new ModeDefMap;
-  (*mode_defs_)[mode->name()] = mode;
+  mode_defs_[mode->name()] = mode;
   return mode;
 }
 
 ModeDef *
 LibertyCell::findModeDef(const char *name)
 {
-  return mode_defs_->findKey(name);
+  return mode_defs_.findKey(name);
 }
 
 void
@@ -1085,13 +1029,10 @@ LibertyCell::setClockGateType(ClockGateType type)
 unsigned
 LibertyCell::addTimingArcSet(TimingArcSet *arc_set)
 {
-  if (timing_arc_sets_ == nullptr) {
-    timing_arc_sets_ = new TimingArcSetSeq;
-  }
-  int set_index = timing_arc_sets_->size();
+  int set_index = timing_arc_sets_.size();
   if (set_index > timing_arc_set_index_max)
     internalError("timing arc set max index exceeded");
-  timing_arc_sets_->push_back(arc_set);
+  timing_arc_sets_.push_back(arc_set);
 
   LibertyPort *from = arc_set->from();
   TimingRole *role = arc_set->role();
@@ -1112,9 +1053,7 @@ LibertyCell::addTimingArcAttrs(TimingArcAttrs *attrs)
 void
 LibertyCell::addInternalPower(InternalPower *power)
 {
-  if (internal_powers_ == nullptr)
-    internal_powers_ = new InternalPowerSeq;
-  internal_powers_->push_back(power);
+  internal_powers_.push_back(power);
 }
 
 void
@@ -1126,21 +1065,16 @@ LibertyCell::addInternalPowerAttrs(InternalPowerAttrs *attrs)
 void
 LibertyCell::deleteInternalPowerAttrs()
 {
-  InternalPowerAttrsSeq::Iterator attr_iter(internal_power_attrs_);
-  while (attr_iter.hasNext()) {
-    InternalPowerAttrs *attrs = attr_iter.next();
+  for (auto attrs : internal_power_attrs_) {
     attrs->deleteContents();
     delete attrs;
   }
-  
 }
 
 void
 LibertyCell::addLeakagePower(LeakagePower *power)
 {
-  if (leakage_powers_ == nullptr)
-    leakage_powers_ = new LeakagePowerSeq;
-  leakage_powers_->push_back(power);
+  leakage_powers_.push_back(power);
 }
 
 void
@@ -1155,12 +1089,10 @@ LibertyCell::finish(bool infer_latches,
 		    Debug *debug)
 {
   translatePresetClrCheckRoles();
-  if (timing_arc_sets_) {
-    makeTimingArcMap(report);
-    makeTimingArcPortMaps();
-    findDefaultCondArcs();
-    makeLatchEnables(report, debug);
-  }
+  makeTimingArcMap(report);
+  makeTimingArcPortMaps();
+  findDefaultCondArcs();
+  makeLatchEnables(report, debug);
   if (infer_latches
       && !interface_timing_)
     inferLatchRoles(debug);
@@ -1169,24 +1101,17 @@ LibertyCell::finish(bool infer_latches,
 void
 LibertyCell::findDefaultCondArcs()
 {
-  LibertyPortPairTimingArcMap::Iterator set_iter1(port_timing_arc_set_map_);
-  while (set_iter1.hasNext()) {
-    LibertyPortPair *port_pair;
-    TimingArcSetSeq *sets;
-    set_iter1.next(port_pair, sets);
+  for (auto port_pair_set : port_timing_arc_set_map_) {
+    TimingArcSetSeq *sets = port_pair_set.second;
     bool has_cond_arcs = false;
-    TimingArcSetSeq::Iterator set_iter2(sets);
-    while (set_iter2.hasNext()) {
-      TimingArcSet *set = set_iter2.next();
+    for (auto set : *sets) {
       if (set->cond()) {
 	has_cond_arcs = true;
 	break;
       }
     }
     if (has_cond_arcs) {
-      TimingArcSetSeq::Iterator set_iter3(sets);
-      while (set_iter3.hasNext()) {
-	TimingArcSet *set = set_iter3.next();
+      for (auto set : *sets) {
 	if (!set->cond())
 	  set->setIsCondDefault(true);
       }
@@ -1201,22 +1126,18 @@ void
 LibertyCell::translatePresetClrCheckRoles()
 {
   LibertyPortSet pre_clr_ports;
-  LibertyCellTimingArcSetIterator set_iter(this);
-  while (set_iter.hasNext()) {
-    TimingArcSet *set = set_iter.next();
-    if (set->role() == TimingRole::regSetClr())
-      pre_clr_ports.insert(set->from());
+  for (auto arc_set : timing_arc_sets_) {
+    if (arc_set->role() == TimingRole::regSetClr())
+      pre_clr_ports.insert(arc_set->from());
   }
 
   if (!pre_clr_ports.empty()) {
-    LibertyCellTimingArcSetIterator set_iter(this);
-    while (set_iter.hasNext()) {
-      TimingArcSet *set = set_iter.next();
-      if (pre_clr_ports.findKey(set->to())) {
-	if (set->role() == TimingRole::setup())
-	  set->setRole(TimingRole::recovery());
-	else if (set->role() == TimingRole::hold())
-	  set->setRole(TimingRole::removal());
+    for (auto arc_set : timing_arc_sets_) {
+      if (pre_clr_ports.findKey(arc_set->to())) {
+	if (arc_set->role() == TimingRole::setup())
+	  arc_set->setRole(TimingRole::recovery());
+	else if (arc_set->role() == TimingRole::hold())
+	  arc_set->setRole(TimingRole::removal());
       }
     }
   }
@@ -1225,17 +1146,16 @@ LibertyCell::translatePresetClrCheckRoles()
 void
 LibertyCell::makeTimingArcMap(Report *)
 {
-  timing_arc_set_map_ = new TimingArcSetMap;
   // Filter duplicate timing arcs, keeping the later definition.
-  for (auto arc_set : *timing_arc_sets_)
+  for (auto arc_set : timing_arc_sets_)
     // The last definition will be left in the set.
-    timing_arc_set_map_->insert(arc_set);
+    timing_arc_set_map_.insert(arc_set);
 
   // Prune the arc sets not in the map.
   int j = 0;
-  for (int i = 0; i < timing_arc_sets_->size(); i++) {
-    TimingArcSet *arc_set = (*timing_arc_sets_)[i];
-    TimingArcSet *match = timing_arc_set_map_->findKey(arc_set);
+  for (int i = 0; i < timing_arc_sets_.size(); i++) {
+    TimingArcSet *arc_set = timing_arc_sets_[i];
+    TimingArcSet *match = timing_arc_set_map_.findKey(arc_set);
     if (match != arc_set) {
       // Unfortunately these errors are common in some brain damaged
       // libraries.
@@ -1248,45 +1168,40 @@ LibertyCell::makeTimingArcMap(Report *)
     }
     else
       // Shift arc sets down to fill holes left by removed duplicates.
-      (*timing_arc_sets_)[j++] = arc_set;
+      timing_arc_sets_[j++] = arc_set;
   }
-  timing_arc_sets_->resize(j);
+  timing_arc_sets_.resize(j);
 
-  if (timing_arc_set_map_->size() != timing_arc_sets_->size())
+  if (timing_arc_set_map_.size() != timing_arc_sets_.size())
     internalError("timing arc count mismatch\n");
 }
 
 void
 LibertyCell::makeTimingArcPortMaps()
 {
-  port_timing_arc_set_map_ = new LibertyPortPairTimingArcMap;
-  timing_arc_set_from_map_ = new LibertyPortTimingArcMap;
-  timing_arc_set_to_map_ = new LibertyPortTimingArcMap;
-
-  for (auto arc_set : *timing_arc_sets_) {
+  for (auto arc_set : timing_arc_sets_) {
     LibertyPort *from = arc_set->from();
     LibertyPort *to = arc_set->to();
     LibertyPortPair port_pair(from, to);
-    TimingArcSetSeq *sets = port_timing_arc_set_map_->findKey(&port_pair);
+    TimingArcSetSeq *sets = port_timing_arc_set_map_.findKey(port_pair);
     if (sets == nullptr) {
       // First arc set for from/to ports.
       sets = new TimingArcSetSeq;
-      LibertyPortPair *port_pair1 = new LibertyPortPair(from, to);
-      (*port_timing_arc_set_map_)[port_pair1] = sets;
+      port_timing_arc_set_map_[port_pair] = sets;
     }
     sets->push_back(arc_set);
 
-    sets = timing_arc_set_from_map_->findKey(from);
+    sets = timing_arc_set_from_map_.findKey(from);
     if (sets == nullptr) {
       sets = new TimingArcSetSeq;
-      (*timing_arc_set_from_map_)[from] = sets;
+      timing_arc_set_from_map_[from] = sets;
     }
     sets->push_back(arc_set);
 
-    sets = timing_arc_set_to_map_->findKey(to);
+    sets = timing_arc_set_to_map_.findKey(to);
     if (sets == nullptr) {
       sets = new TimingArcSetSeq;
-      (*timing_arc_set_to_map_)[to] = sets;
+      timing_arc_set_to_map_[to] = sets;
     }
     sets->push_back(arc_set);
   }
@@ -1296,49 +1211,41 @@ TimingArcSetSeq *
 LibertyCell::timingArcSets(const LibertyPort *from,
 			   const LibertyPort *to) const
 {
-  if (timing_arc_sets_) {
-    if (from && to) {
-      LibertyPortPair port_pair(from, to);
-      return port_timing_arc_set_map_->findKey(&port_pair);
-    }
-    else if (from)
-      return timing_arc_set_from_map_->findKey(from);
-    else if (to)
-      return timing_arc_set_to_map_->findKey(to);
+  if (from && to) {
+    LibertyPortPair port_pair(from, to);
+    return port_timing_arc_set_map_.findKey(port_pair);
   }
-  return nullptr;
-}
-
-TimingArcSet *
-LibertyCell::findTimingArcSet(TimingArcSet *key) const
-{
-  if (timing_arc_sets_)
-    return timing_arc_set_map_->findKey(key);
+  else if (from)
+    return timing_arc_set_from_map_.findKey(from);
+  else if (to)
+    return timing_arc_set_to_map_.findKey(to);
   else
     return nullptr;
 }
 
 TimingArcSet *
+LibertyCell::findTimingArcSet(TimingArcSet *key) const
+{
+  return timing_arc_set_map_.findKey(key);
+}
+
+TimingArcSet *
 LibertyCell::findTimingArcSet(unsigned arc_set_index) const
 {
-  return (*timing_arc_sets_)[arc_set_index];
+  return timing_arc_sets_[arc_set_index];
 }
 
 size_t
 LibertyCell::timingArcSetCount() const
 {
-  if (timing_arc_sets_)
-    return timing_arc_sets_->size();
-  else
-    return 0;
+  return timing_arc_sets_.size();
 }
 
 bool
 LibertyCell::hasTimingArcs(LibertyPort *port) const
 {
-  return timing_arc_sets_
-    && (timing_arc_set_from_map_->findKey(port)
-	|| timing_arc_set_to_map_->findKey(port));
+  return timing_arc_set_from_map_.findKey(port)
+    || timing_arc_set_to_map_.findKey(port);
 }
 
 void
@@ -1376,38 +1283,29 @@ LibertyCell::makeSequential(int size,
 				     clear_bit,preset_bit,
 				     clr_preset_out, clr_preset_out_inv,
 				     out_bit, out_inv_bit);
-    if (sequentials_ == nullptr) {
-      sequentials_ = new SequentialSeq;
-      port_to_seq_map_ = new PortToSequentialMap;
-    }
-    sequentials_->push_back(seq);
-    (*port_to_seq_map_)[seq->output()] = seq;
-    (*port_to_seq_map_)[seq->outputInv()] = seq;
+    sequentials_.push_back(seq);
+    port_to_seq_map_[seq->output()] = seq;
+    port_to_seq_map_[seq->outputInv()] = seq;
   }
 }
 
 Sequential *
 LibertyCell::outputPortSequential(LibertyPort *port)
 {
-  if (port_to_seq_map_)
-    return port_to_seq_map_->findKey(port);
-  else
-    return nullptr;
+  return port_to_seq_map_.findKey(port);
 }
 
 bool
 LibertyCell::hasSequentials() const
 {
-  return sequentials_ && !sequentials_->empty();
+  return !sequentials_.empty();
 }
 
 void
 LibertyCell::addScaledCell(OperatingConditions *op_cond,
 			   LibertyCell *scaled_cell)
 {
-  if (scaled_cells_ == nullptr)
-    scaled_cells_ = new ScaledCellMap;
-  (*scaled_cells_)[op_cond] = scaled_cell;
+  scaled_cells_[op_cond] = scaled_cell;
 
   LibertyCellPortBitIterator port_iter1(this);
   LibertyCellPortBitIterator port_iter2(scaled_cell);
@@ -1523,14 +1421,14 @@ LibertyCell::addOcvDerate(OcvDerate *derate)
 ////////////////////////////////////////////////////////////////
 
 LibertyCellTimingArcSetIterator::LibertyCellTimingArcSetIterator(const LibertyCell *cell) :
-  TimingArcSetSeq::Iterator(cell->timing_arc_sets_)
+  TimingArcSetSeq::ConstIterator(&cell->timing_arc_sets_)
 {
 }
 
 LibertyCellTimingArcSetIterator::LibertyCellTimingArcSetIterator(const LibertyCell *cell,
 								 const LibertyPort *from,
 								 const LibertyPort *to):
-  TimingArcSetSeq::Iterator(cell->timingArcSets(from, to))
+  TimingArcSetSeq::ConstIterator(cell->timingArcSets(from, to))
 {
 }
   
@@ -1598,9 +1496,7 @@ LibertyCell::makeLatchEnables(Report *report,
 {
   if (hasSequentials()
       || hasInferedRegTimingArcs()) {
-    LibertyCellTimingArcSetIterator set_iter(this);
-    while (set_iter.hasNext()) {
-      TimingArcSet *en_to_q = set_iter.next();
+    for (auto en_to_q : timing_arc_sets_) {
       if (en_to_q->role() == TimingRole::latchEnToQ()) {
 	LibertyPort *en = en_to_q->from();
 	LibertyPort *q = en_to_q->to();
@@ -1617,7 +1513,7 @@ LibertyCell::makeLatchEnables(Report *report,
 							    en_to_q,
 							    setup_check,
 							    debug);
-		TimingArcSetArcIterator check_arc_iter( setup_check);
+		TimingArcSetArcIterator check_arc_iter(setup_check);
 		if (check_arc_iter.hasNext()) {
 		  TimingArc *check_arc = check_arc_iter.next();
 		  TransRiseFall *en_tr = latch_enable->enableTransition();
@@ -1668,9 +1564,7 @@ FuncExpr *
 LibertyCell::findLatchEnableFunc(LibertyPort *data,
 				 LibertyPort *enable) const
 {
-  LibertyCellSequentialIterator iter(this);
-  while (iter.hasNext()) {
-    Sequential *seq = iter.next();
+  for (auto seq : sequentials_) {
     if (seq->isLatch()
 	&& seq->data()
 	&& seq->data()->hasPort(data)
@@ -2262,6 +2156,15 @@ LibertyPortPairLess::operator()(const LibertyPortPair *pair1,
   return pair1->first < pair2->first
     || (pair1->first == pair2->first
 	&& pair1->second < pair2->second);
+}
+
+bool
+LibertyPortPairLess::operator()(const LibertyPortPair &pair1,
+				const LibertyPortPair &pair2) const
+{
+  return pair1.first < pair2.first
+    || (pair1.first == pair2.first
+	&& pair1.second < pair2.second);
 }
 
 ////////////////////////////////////////////////////////////////
