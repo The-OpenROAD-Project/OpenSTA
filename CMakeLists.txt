@@ -70,6 +70,7 @@ set(STA_SOURCE
   dcalc/UnitDelayCalc.cc
 
   graph/DelayFloat.cc
+  graph/DelayNormal1.cc
   graph/DelayNormal2.cc
   graph/Graph.cc
   graph/GraphCmp.cc
@@ -227,6 +228,7 @@ set(STA_HEADERS
 
 	graph/Delay.hh
 	graph/DelayFloat.hh
+	graph/DelayNormal1.hh
 	graph/DelayNormal2.hh
 	graph/Graph.hh
 	graph/GraphClass.hh
