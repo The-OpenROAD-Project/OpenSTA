@@ -1026,9 +1026,9 @@ public:
   TagIndex tagCount() const;
   TagGroupIndex tagGroupCount() const;
   int clkInfoCount() const;
-  int pathCount() const;
-  int vertexPathCount(Vertex  *vertex) const;
-  Vertex *maxPathCountVertex() const;
+  int arrivalCount() const;
+  int vertexArrivalCount(Vertex  *vertex) const;
+  Vertex *maxArrivalCountVertex() const;
 
   LogicValue simLogicValue(const Pin *pin);
   // Iterator for instances sorted by max driver pin slew.

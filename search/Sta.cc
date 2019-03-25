@@ -3151,14 +3151,14 @@ Sta::pathDcalcAnalysisPt(Path *path)
 }
 
 Vertex *
-Sta::maxPathCountVertex() const
+Sta::maxArrivalCountVertex() const
 {
   Vertex *max_vertex = nullptr;
   VertexIndex max_count = 0;
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
-    VertexIndex count = vertexPathCount(vertex);
+    VertexIndex count = vertexArrivalCount(vertex);
     if (count > max_count) {
       max_count = count;
       max_vertex = vertex;
@@ -3168,19 +3168,23 @@ Sta::maxPathCountVertex() const
 }
 
 int
-Sta::vertexPathCount(Vertex  *vertex) const
+Sta::vertexArrivalCount(Vertex  *vertex) const
 {
-  return search_->tagGroup(vertex)->arrivalCount();
+  auto tag_group = search_->tagGroup(vertex);
+  if (tag_group)
+    return tag_group->arrivalCount();
+  else
+    return 0;
 }
 
 int
-Sta::pathCount() const
+Sta::arrivalCount() const
 {
   int count = 0;
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
-    count += vertexPathCount(vertex);
+    count += vertexArrivalCount(vertex);
   }
   return count;
 }

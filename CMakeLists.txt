@@ -399,7 +399,6 @@ set(STA_TCL_FILES
   dcalc/DelayCalc.tcl
   parasitics/Parasitics.tcl
   sdf/Sdf.tcl
-  tcl/Compatibility.tcl
   verilog/Verilog.tcl
   )
 

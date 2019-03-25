@@ -5070,9 +5070,9 @@ clk_info_count()
 }
 
 int
-path_count()
+arrival_count()
 {
-  return Sta::sta()->pathCount();
+  return Sta::sta()->arrivalCount();
 }
 
 void
