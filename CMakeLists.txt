@@ -53,7 +53,7 @@ set(STA_SOURCE
   app/StaApp_wrap.cc
   app/TclInitVar.cc
   app/StaApp_wrap.cc
-
+  
   dcalc/ArcDelayCalc.cc
   dcalc/ArnoldiDelayCalc.cc
   dcalc/ArnoldiReduce.cc
@@ -68,7 +68,7 @@ set(STA_SOURCE
   dcalc/RCDelayCalc.cc
   dcalc/SimpleRCDelayCalc.cc
   dcalc/UnitDelayCalc.cc
-
+  
   graph/DelayFloat.cc
   graph/DelayNormal1.cc
   graph/DelayNormal2.cc
@@ -98,7 +98,7 @@ set(STA_SOURCE
   liberty/Transition.cc
   liberty/Units.cc
   liberty/Wireload.cc
-
+  
   network/ConcreteLibrary.cc
   network/ConcreteNetwork.cc
   network/HpinDrvrLoad.cc
@@ -119,7 +119,7 @@ set(STA_SOURCE
   parasitics/SpefParse.cc
   parasitics/SpefReader.cc
   parasitics/SpefReaderPvt.hh
-
+  
   sdc/Clock.cc
   sdc/ClockGatingCheck.cc
   sdc/ClockGroups.cc
@@ -145,7 +145,7 @@ set(STA_SOURCE
   sdf/SdfParse.cc
   sdf/SdfLex.cc
   sdf/SdfWriter.cc
-
+  
   search/Bfs.cc
   search/CheckMaxSkews.cc
   search/CheckMinPeriods.cc
@@ -186,7 +186,7 @@ set(STA_SOURCE
   search/VisitPathGroupVertices.cc
   search/WorstSlack.cc
   search/WritePathSpice.cc
-
+  
   util/Debug.cc
   util/Error.cc
   util/Fuzzy.cc
@@ -201,217 +201,218 @@ set(STA_SOURCE
   util/StringSet.cc
   util/StringUtil.cc
   util/TokenParser.cc
-
+  
   verilog/VerilogReader.cc
   verilog/VerilogLex.cc
   verilog/VerilogParse.cc
-)
+  )
 
 set(STA_HEADERS
-	app/StaMain.hh
-
-	dcalc/ArcDelayCalc.hh
-	dcalc/Arnoldi.hh
-	dcalc/ArnoldiDelayCalc.hh
-	dcalc/ArnoldiReduce.hh
-	dcalc/DelayCalc.hh
-	dcalc/DcalcAnalysisPt.hh
-	dcalc/DmpCeff.hh
-	dcalc/DmpDelayCalc.hh
-	dcalc/GraphDelayCalc.hh
-	dcalc/GraphDelayCalc1.hh
-	dcalc/LumpedCapDelayCalc.hh
-	dcalc/NetCaps.hh
-	dcalc/RCDelayCalc.hh
-	dcalc/SimpleRCDelayCalc.hh
-	dcalc/UnitDelayCalc.hh
-
-	graph/Delay.hh
-	graph/DelayFloat.hh
-	graph/DelayNormal1.hh
-	graph/DelayNormal2.hh
-	graph/Graph.hh
-	graph/GraphClass.hh
-	graph/GraphCmp.hh
-
-	liberty/EquivCells.hh
-	liberty/FuncExpr.hh
-	liberty/InternalPower.hh
-	liberty/LeakagePower.hh
-	liberty/Liberty.hh
-	liberty/LibertyBuilder.hh
-	liberty/LibertyClass.hh
-	liberty/LibertyParser.hh
-	liberty/LibertyReader.hh
-	liberty/LibertyReaderPvt.hh
-	liberty/LinearModel.hh
-	liberty/Sequential.hh
-	liberty/TableModel.hh
-	liberty/TimingArc.hh
-	liberty/TimingModel.hh
-	liberty/TimingRole.hh
-	liberty/Transition.hh
-	liberty/Units.hh
-	liberty/Wireload.hh
-
-	network/ConcreteLibrary.hh
-	network/ConcreteNetwork.hh
-	network/HpinDrvrLoad.hh
-	network/MakeConcreteNetwork.hh
-	network/Network.hh
-	network/NetworkClass.hh
-	network/NetworkCmp.hh
-	network/ParseBus.hh
-	network/PortDirection.hh
-	network/SdcNetwork.hh
-	network/VerilogNamespace.hh
-
-	parasitics/ConcreteParasitics.hh
-	parasitics/ConcreteParasiticsPvt.hh
-	parasitics/EstimateParasitics.hh
-	parasitics/MakeConcreteParasitics.hh
-	parasitics/NullParasitics.hh
-	parasitics/Parasitics.hh
-	parasitics/ParasiticsClass.hh
-	parasitics/ReduceParasitics.hh
-	parasitics/SpefNamespace.hh
-	parasitics/SpefReader.hh
-
-	sdc/Clock.hh
-	sdc/ClockGatingCheck.hh
-	sdc/ClockGroups.hh
-	sdc/ClockInsertion.hh
-	sdc/ClockLatency.hh
-	sdc/CycleAccting.hh
-	sdc/DataCheck.hh
-	sdc/DeratingFactors.hh
-	sdc/DisabledPorts.hh
-	sdc/ExceptionPath.hh
-	sdc/InputDrive.hh
-	sdc/MinMaxValues.hh
-	sdc/PinPair.hh
-	sdc/PortDelay.hh
-	sdc/PortExtCap.hh
-	sdc/RiseFallMinMax.hh
-	sdc/RiseFallValues.hh
-	sdc/Sdc.hh
-	sdc/SdcClass.hh
-	sdc/SdcCmdComment.hh
-	sdc/WriteSdc.hh
-	sdc/WriteSdcPvt.hh
-
-	sdf/ReportAnnotation.hh
-	sdf/Sdf.hh
-	sdf/SdfReader.hh
-	sdf/SdfWriter.hh
-
-	search/Bfs.hh
-	search/CheckMaxSkews.hh
-	search/CheckMinPeriods.hh
-	search/CheckMinPulseWidths.hh
-	search/CheckSlewLimits.hh
-	search/CheckTiming.hh
-	search/ClkInfo.hh
-	search/ClkSkew.hh
-	search/Corner.hh
-	search/Crpr.hh
-	search/FindRegister.hh
-	search/GatedClk.hh
-	search/Genclks.hh
-	search/Latches.hh
-	search/Levelize.hh
-	search/Path.hh
-	search/PathAnalysisPt.hh
-	search/PathEnd.hh
-	search/PathEnum.hh
-	search/PathEnumed.hh
-	search/PathExpanded.hh
-	search/PathRef.hh
-	search/PathGroup.hh
-	search/PathVertex.hh
-	search/PathVertexRep.hh
-	search/Power.hh
-	search/Property.hh
-	search/ReportPath.hh
-	search/Search.hh
-	search/SearchClass.hh
-	search/SearchPred.hh
-	search/Sim.hh
-	search/Sta.hh
-	search/StaState.hh
-	search/Tag.hh
-	search/TagGroup.hh
-	search/VertexVisitor.hh
-	search/VisitPathEnds.hh
-	search/VisitPathGroupVertices.hh
-	search/WorstSlack.hh
-	search/WritePathSpice.hh
-
-	util/Debug.hh
-	util/DisallowCopyAssign.hh
-	util/EnumNameMap.hh
-	util/Error.hh
-	util/Fuzzy.hh
-	util/Hash.hh
-	util/HashSet.hh
-	util/Iterator.hh
-	util/Machine.hh
-	util/Map.hh
-	util/MinMax.hh
-	util/Mutex.hh
-	util/ObjectIndex.hh
-	util/PatternMatch.hh
-	util/Pool.hh
-	util/Report.hh
-	util/ReportStd.hh
-	util/ReportTcl.hh
-	util/Set.hh
-	util/Stats.hh
-	util/StringSeq.hh
-	util/StringSet.hh
-	util/StringUtil.hh
-	util/ThreadForEach.hh
-	util/TokenParser.hh
-	util/UnorderedMap.hh
-	util/UnorderedSet.hh
-	util/Vector.hh
-	util/Zlib.hh
-
-	verilog/Verilog.hh
-	verilog/VerilogReader.hh
-	)
+  app/StaMain.hh
+  
+  dcalc/ArcDelayCalc.hh
+  dcalc/Arnoldi.hh
+  dcalc/ArnoldiDelayCalc.hh
+  dcalc/ArnoldiReduce.hh
+  dcalc/DelayCalc.hh
+  dcalc/DcalcAnalysisPt.hh
+  dcalc/DmpCeff.hh
+  dcalc/DmpDelayCalc.hh
+  dcalc/GraphDelayCalc.hh
+  dcalc/GraphDelayCalc1.hh
+  dcalc/LumpedCapDelayCalc.hh
+  dcalc/NetCaps.hh
+  dcalc/RCDelayCalc.hh
+  dcalc/SimpleRCDelayCalc.hh
+  dcalc/UnitDelayCalc.hh
+  
+  graph/Delay.hh
+  graph/DelayFloat.hh
+  graph/DelayNormal1.hh
+  graph/DelayNormal2.hh
+  graph/Graph.hh
+  graph/GraphClass.hh
+  graph/GraphCmp.hh
+  
+  liberty/EquivCells.hh
+  liberty/FuncExpr.hh
+  liberty/InternalPower.hh
+  liberty/LeakagePower.hh
+  liberty/Liberty.hh
+  liberty/LibertyBuilder.hh
+  liberty/LibertyClass.hh
+  liberty/LibertyParser.hh
+  liberty/LibertyReader.hh
+  liberty/LibertyReaderPvt.hh
+  liberty/LinearModel.hh
+  liberty/Sequential.hh
+  liberty/TableModel.hh
+  liberty/TimingArc.hh
+  liberty/TimingModel.hh
+  liberty/TimingRole.hh
+  liberty/Transition.hh
+  liberty/Units.hh
+  liberty/Wireload.hh
+  
+  network/ConcreteLibrary.hh
+  network/ConcreteNetwork.hh
+  network/HpinDrvrLoad.hh
+  network/MakeConcreteNetwork.hh
+  network/Network.hh
+  network/NetworkClass.hh
+  network/NetworkCmp.hh
+  network/ParseBus.hh
+  network/PortDirection.hh
+  network/SdcNetwork.hh
+  network/VerilogNamespace.hh
+  
+  parasitics/ConcreteParasitics.hh
+  parasitics/ConcreteParasiticsPvt.hh
+  parasitics/EstimateParasitics.hh
+  parasitics/MakeConcreteParasitics.hh
+  parasitics/NullParasitics.hh
+  parasitics/Parasitics.hh
+  parasitics/ParasiticsClass.hh
+  parasitics/ReduceParasitics.hh
+  parasitics/SpefNamespace.hh
+  parasitics/SpefReader.hh
+  
+  sdc/Clock.hh
+  sdc/ClockGatingCheck.hh
+  sdc/ClockGroups.hh
+  sdc/ClockInsertion.hh
+  sdc/ClockLatency.hh
+  sdc/CycleAccting.hh
+  sdc/DataCheck.hh
+  sdc/DeratingFactors.hh
+  sdc/DisabledPorts.hh
+  sdc/ExceptionPath.hh
+  sdc/InputDrive.hh
+  sdc/MinMaxValues.hh
+  sdc/PinPair.hh
+  sdc/PortDelay.hh
+  sdc/PortExtCap.hh
+  sdc/RiseFallMinMax.hh
+  sdc/RiseFallValues.hh
+  sdc/Sdc.hh
+  sdc/SdcClass.hh
+  sdc/SdcCmdComment.hh
+  sdc/WriteSdc.hh
+  sdc/WriteSdcPvt.hh
+  
+  sdf/ReportAnnotation.hh
+  sdf/Sdf.hh
+  sdf/SdfReader.hh
+  sdf/SdfWriter.hh
+  
+  search/Bfs.hh
+  search/CheckMaxSkews.hh
+  search/CheckMinPeriods.hh
+  search/CheckMinPulseWidths.hh
+  search/CheckSlewLimits.hh
+  search/CheckTiming.hh
+  search/ClkInfo.hh
+  search/ClkSkew.hh
+  search/Corner.hh
+  search/Crpr.hh
+  search/FindRegister.hh
+  search/GatedClk.hh
+  search/Genclks.hh
+  search/Latches.hh
+  search/Levelize.hh
+  search/Path.hh
+  search/PathAnalysisPt.hh
+  search/PathEnd.hh
+  search/PathEnum.hh
+  search/PathEnumed.hh
+  search/PathExpanded.hh
+  search/PathRef.hh
+  search/PathGroup.hh
+  search/PathVertex.hh
+  search/PathVertexRep.hh
+  search/Power.hh
+  search/Property.hh
+  search/ReportPath.hh
+  search/Search.hh
+  search/SearchClass.hh
+  search/SearchPred.hh
+  search/Sim.hh
+  search/Sta.hh
+  search/StaState.hh
+  search/Tag.hh
+  search/TagGroup.hh
+  search/VertexVisitor.hh
+  search/VisitPathEnds.hh
+  search/VisitPathGroupVertices.hh
+  search/WorstSlack.hh
+  search/WritePathSpice.hh
+  
+  util/Debug.hh
+  util/DisallowCopyAssign.hh
+  util/EnumNameMap.hh
+  util/Error.hh
+  util/Fuzzy.hh
+  util/Hash.hh
+  util/HashSet.hh
+  util/Iterator.hh
+  util/Machine.hh
+  util/Map.hh
+  util/MinMax.hh
+  util/Mutex.hh
+  util/ObjectIndex.hh
+  util/PatternMatch.hh
+  util/Pool.hh
+  util/Report.hh
+  util/ReportStd.hh
+  util/ReportTcl.hh
+  util/Set.hh
+  util/Stats.hh
+  util/StringSeq.hh
+  util/StringSet.hh
+  util/StringUtil.hh
+  util/ThreadForEach.hh
+  util/TokenParser.hh
+  util/UnorderedMap.hh
+  util/UnorderedSet.hh
+  util/Vector.hh
+  util/Zlib.hh
+  
+  verilog/Verilog.hh
+  verilog/VerilogReader.hh
+  )
 
 # Source files.
 set(STA_TCL_FILES
-	tcl/Util.tcl
-	tcl/Graph.tcl
-	tcl/Liberty.tcl
-	tcl/Link.tcl
-	tcl/Network.tcl
-	tcl/NetworkEdit.tcl
-	tcl/Sdc.tcl
-	tcl/Search.tcl
-	tcl/Cmds.tcl
-	tcl/Variables.tcl
-	tcl/Sta.tcl
-	tcl/Power.tcl
-	tcl/Splash.tcl
-	dcalc/DelayCalc.tcl
-	parasitics/Parasitics.tcl
-	sdf/Sdf.tcl
-	verilog/Verilog.tcl
-	)
+  tcl/Util.tcl
+  tcl/Graph.tcl
+  tcl/Liberty.tcl
+  tcl/Link.tcl
+  tcl/Network.tcl
+  tcl/NetworkEdit.tcl
+  tcl/Sdc.tcl
+  tcl/Search.tcl
+  tcl/Cmds.tcl
+  tcl/Variables.tcl
+  tcl/Sta.tcl
+  tcl/Power.tcl
+  tcl/Splash.tcl
+  dcalc/DelayCalc.tcl
+  parasitics/Parasitics.tcl
+  sdf/Sdf.tcl
+  tcl/Compatibility.tcl
+  verilog/Verilog.tcl
+  )
 
 set(STA_SWIG_FILES
-	tcl/NetworkEdit.i
-	tcl/StaException.i
-	sdf/Sdf.i
-	dcalc/DelayCalc.i
-	parasitics/Parasitics.i
-	verilog/Verilog.i
-	tcl/StaTcl.i
-	app/StaApp.i
-	)
+  tcl/NetworkEdit.i
+  tcl/StaException.i
+  sdf/Sdf.i
+  dcalc/DelayCalc.i
+  parasitics/Parasitics.i
+  verilog/Verilog.i
+  tcl/StaTcl.i
+  app/StaApp.i
+  )
 
 ################################################################
 #
@@ -431,12 +432,10 @@ endif()
 ################################################################
 #
 # Locate CUDD bdd packagte
-
-# CUDD variable has precidence over environment variable.
-if("${CUDD}" STREQUAL "")
-  set(CUDD $ENV{CUDD})
-endif()
-
+# -DCUDD=0 to not use CUDD.
+# Look for library in CUDD/lib,     CUDD/cudd/lib
+# Look for header  in CUDD/include, CUDD/cudd/include
+#
 if("${CUDD}" STREQUAL "" OR "${CUDD}" STREQUAL "0")
   set(CUDD_INCLUDE "")
   set(CUDD_LIB "")
@@ -444,12 +443,28 @@ if("${CUDD}" STREQUAL "" OR "${CUDD}" STREQUAL "0")
   set(CUDD 0)
   message(STATUS "CUDD library: not found")
 else()
-  set(CUDD_INCLUDE ${CUDD}/include)
-  find_library(CUDD_LIB NAMES cudd PATHS ${CUDD}/lib)
+  find_library(CUDD_LIB NAMES cudd PATHS ${CUDD}/lib ${CUDD}/lib/cudd)
   if (CUDD_LIB)
-     # CUDD referenced by StaConfig.hh.cmake
-    set(CUDD 1)
     message(STATUS "CUDD library: ${CUDD_LIB}")
+    get_filename_component(CUDD_LIB_DIR "${CUDD_LIB}" PATH)
+    get_filename_component(CUDD_LIB_PARENT1 "${CUDD_LIB_DIR}" PATH)
+    get_filename_component(CUDD_LIB_PARENT2 "${CUDD_LIB_PARENT1}" PATH)
+    find_file(CUDD_HEADER cudd.h
+      PATHS ${CUDD}/include ${CUDD_LIB_PARENT2}/include/cudd)
+    if (CUDD_HEADER)
+      get_filename_component(CUDD_INCLUDE "${CUDD_HEADER}" PATH)
+      message(STATUS "CUDD header: ${CUDD_HEADER}")
+      # CUDD referenced by StaConfig.hh.cmake
+      set(CUDD 1)
+    else()
+      message(STATUS "CUDD header: not found")
+    endif()
+  else()
+    set(CUDD_INCLUDE "")
+    set(CUDD_LIB "")
+    set(CUDD_FOUND FALSE)
+    set(CUDD 0)
+    message(STATUS "CUDD library: not found")
   endif()
 endif()
 
@@ -460,8 +475,8 @@ message(STATUS "SSTA: ${SSTA}")
 
 # configure a header file to pass some of the CMake settins
 configure_file(${STA_HOME}/util/StaConfig.hh.cmake
-		${STA_HOME}/util/StaConfig.hh
-		)
+  ${STA_HOME}/util/StaConfig.hh
+  )
 
 
 ################################################################
@@ -473,40 +488,40 @@ configure_file(${STA_HOME}/util/StaConfig.hh.cmake
 # searching OSX system directories before unix directories.
 
 set(TCL_POSSIBLE_NAMES tcl87 tcl8.7
-		       tcl86 tcl8.6
-		       tcl85 tcl8.5
-		       tcl84 tcl8.4
-		       tcl83 tcl8.3
-		       tcl82 tcl8.2
-		       )
+  tcl86 tcl8.6
+  tcl85 tcl8.5
+  tcl84 tcl8.4
+  tcl83 tcl8.3
+  tcl82 tcl8.2
+  )
 
 # tcl lib path guesses.
 if (NOT TCL_LIB_PATHS)
-   if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-      set(TCL_LIB_PATHS /usr/local/lib)
-      set(TCL_NO_DEFAULT_PATH TRUE)
-   endif()
+  if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(TCL_LIB_PATHS /usr/local/lib)
+    set(TCL_NO_DEFAULT_PATH TRUE)
+  endif()
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-       set(TCL_LIB_PATHS /usr/lib
-       			 /usr/local/lib
-			 )
-       set(TCL_NO_DEFAULT_PATH FALSE)
-       endif()
+  set(TCL_LIB_PATHS /usr/lib
+    /usr/local/lib
+    )
+  set(TCL_NO_DEFAULT_PATH FALSE)
+endif()
 
 if (NOT TCL_LIB)
-   # bagbiter cmake doesn't have a way to pass NO_DEFAULT_PATH as a parameter.
-   if (TCL_NO_DEFAULT_PATH)
-      find_library(TCL_LIB
-		   NAMES tcl ${TCL_POSSIBLE_NAMES}
-		   PATHS ${TCL_LIB_PATHS}
-		   NO_DEFAULT_PATH
-		   )
-   else()
-      find_library(TCL_LIB
-		   NAMES tcl ${TCL_POSSIBLE_NAMES}
-		   PATHS ${TCL_LIB_PATHS}
-		   )
-   endif()
+  # bagbiter cmake doesn't have a way to pass NO_DEFAULT_PATH as a parameter.
+  if (TCL_NO_DEFAULT_PATH)
+    find_library(TCL_LIB
+      NAMES tcl ${TCL_POSSIBLE_NAMES}
+      PATHS ${TCL_LIB_PATHS}
+      NO_DEFAULT_PATH
+      )
+  else()
+    find_library(TCL_LIB
+      NAMES tcl ${TCL_POSSIBLE_NAMES}
+      PATHS ${TCL_LIB_PATHS}
+      )
+  endif()
 endif()
 message(STATUS "TCL lib: ${TCL_LIB}")
 
@@ -536,66 +551,66 @@ find_package(BISON)
 
 # LibertyExpr scan/parse.
 bison_target(LibertyExprParser liberty/LibertyExprParse.yy ${STA_HOME}/liberty/LibertyExprParse.cc
-			       DEFINES_FILE ${STA_HOME}/liberty/LibertyExprParse.hh
-			       COMPILE_FLAGS --name-prefix=LibertyExprParse_
-			       )
+  DEFINES_FILE ${STA_HOME}/liberty/LibertyExprParse.hh
+  COMPILE_FLAGS --name-prefix=LibertyExprParse_
+  )
 
 flex_target(LibertyExprLex liberty/LibertyExprLex.ll ${STA_HOME}/liberty/LibertyExprLex.cc
-		   DEFINES_FILE ${STA_HOME}/liberty/LibertyExprLex.hh
-		   COMPILE_FLAGS --prefix=LibertyExprLex_
-		   )
+  DEFINES_FILE ${STA_HOME}/liberty/LibertyExprLex.hh
+  COMPILE_FLAGS --prefix=LibertyExprLex_
+  )
 
 add_flex_bison_dependency(LibertyExprLex LibertyExprParser)
 
 # Liberty scan/parse.
 bison_target(LibertyParser liberty/LibertyParse.yy ${STA_HOME}/liberty/LibertyParse.cc
-			   DEFINES_FILE ${STA_HOME}/liberty/LibertyParse.hh
-			   COMPILE_FLAGS --name-prefix=LibertyParse_
-			   )
+  DEFINES_FILE ${STA_HOME}/liberty/LibertyParse.hh
+  COMPILE_FLAGS --name-prefix=LibertyParse_
+  )
 
 flex_target(LibertyLex liberty/LibertyLex.ll ${STA_HOME}/liberty/LibertyLex.cc
-		       DEFINES_FILE ${STA_HOME}/liberty/LibertyLex.hh
-		       COMPILE_FLAGS --prefix=LibertyLex_
-		       )
+  DEFINES_FILE ${STA_HOME}/liberty/LibertyLex.hh
+  COMPILE_FLAGS --prefix=LibertyLex_
+  )
 
 add_flex_bison_dependency(LibertyLex LibertyParser)
 
 # Spef scan/parse.
 bison_target(SpefParser parasitics/SpefParse.yy ${STA_HOME}/parasitics/SpefParse.cc
-			DEFINES_FILE ${STA_HOME}/parasitics/SpefParse.hh
-			COMPILE_FLAGS --name-prefix=SpefParse_
-			)
+  DEFINES_FILE ${STA_HOME}/parasitics/SpefParse.hh
+  COMPILE_FLAGS --name-prefix=SpefParse_
+  )
 
 flex_target(SpefLex parasitics/SpefLex.ll ${STA_HOME}/parasitics/SpefLex.cc
-		    DEFINES_FILE ${STA_HOME}/parasitics/SpefLex.hh
-		    COMPILE_FLAGS --prefix=SpefLex_
-		    )
+  DEFINES_FILE ${STA_HOME}/parasitics/SpefLex.hh
+  COMPILE_FLAGS --prefix=SpefLex_
+  )
 
 add_flex_bison_dependency(SpefLex SpefParser)
 
 # Verilog scan/parse.
 bison_target(VerilogParser verilog/VerilogParse.yy ${STA_HOME}/verilog/VerilogParse.cc
-			   DEFINES_FILE ${STA_HOME}/verilog/VerilogParse.hh
-			   COMPILE_FLAGS --name-prefix=VerilogParse_
-			   )
+  DEFINES_FILE ${STA_HOME}/verilog/VerilogParse.hh
+  COMPILE_FLAGS --name-prefix=VerilogParse_
+  )
 
 flex_target(VerilogLex verilog/VerilogLex.ll ${STA_HOME}/verilog/VerilogLex.cc
-		       DEFINES_FILE ${STA_HOME}/verilog/VerilogLex.hh
-		       COMPILE_FLAGS --prefix=VerilogLex_
-		       )
+  DEFINES_FILE ${STA_HOME}/verilog/VerilogLex.hh
+  COMPILE_FLAGS --prefix=VerilogLex_
+  )
 
 add_flex_bison_dependency(VerilogLex VerilogParser)
 
 # Sdf scan/parse.
 bison_target(SdfParser sdf/SdfParse.yy ${STA_HOME}/sdf/SdfParse.cc
-		       DEFINES_FILE ${STA_HOME}/sdf/SdfParse.hh
-		       COMPILE_FLAGS --name-prefix=SdfParse_
-		       )
+  DEFINES_FILE ${STA_HOME}/sdf/SdfParse.hh
+  COMPILE_FLAGS --name-prefix=SdfParse_
+  )
 
 flex_target(SdfLex sdf/SdfLex.ll ${STA_HOME}/sdf/SdfLex.cc
-		   DEFINES_FILE ${STA_HOME}/sdf/SdfLex.hh
-		   COMPILE_FLAGS --prefix=SdfLex_
-		   )
+  DEFINES_FILE ${STA_HOME}/sdf/SdfLex.hh
+  COMPILE_FLAGS --prefix=SdfLex_
+  )
 
 add_flex_bison_dependency(SdfLex SdfParser)
 
@@ -605,11 +620,11 @@ add_flex_bison_dependency(SdfLex SdfParser)
 include(FindSWIG)
 
 add_custom_command(OUTPUT ${STA_HOME}/app/StaApp_wrap.cc
-			  COMMAND ${SWIG_EXECUTABLE} -tcl8 -c++ -namespace -prefix sta -o ${STA_HOME}/app/StaApp_wrap.cc ${STA_HOME}/app/StaApp.i
-			  COMMAND ${STA_HOME}/etc/SwigCleanup.tcl ${STA_HOME}/app/StaApp_wrap.cc
-			  WORKING_DIRECTORY ${STA_HOME}
-			  DEPENDS ${STA_SWIG_FILES}
-			  )
+  COMMAND ${SWIG_EXECUTABLE} -tcl8 -c++ -namespace -prefix sta -o ${STA_HOME}/app/StaApp_wrap.cc ${STA_HOME}/app/StaApp.i
+  COMMAND ${STA_HOME}/etc/SwigCleanup.tcl ${STA_HOME}/app/StaApp_wrap.cc
+  WORKING_DIRECTORY ${STA_HOME}
+  DEPENDS ${STA_SWIG_FILES}
+  )
 
 ################################################################
 
@@ -617,29 +632,29 @@ add_custom_command(OUTPUT ${STA_HOME}/app/StaApp_wrap.cc
 # These files are encoded and shipped as part of the executable 
 # so that they do not have to be installed on the client host.
 add_custom_command(OUTPUT ${STA_HOME}/app/TclInitVar.cc
-			  COMMAND etc/TclEncode.tcl app/TclInitVar.cc tcl_inits  ${STA_TCL_FILES}
-			  WORKING_DIRECTORY ${STA_HOME}
-			  DEPENDS ${STA_TCL_FILES} etc/TclEncode.tcl
-			  )
+  COMMAND etc/TclEncode.tcl app/TclInitVar.cc tcl_inits  ${STA_TCL_FILES}
+  WORKING_DIRECTORY ${STA_HOME}
+  DEPENDS ${STA_TCL_FILES} etc/TclEncode.tcl
+  )
 
 ################################################################
 
 set(STA_INCLUDE_DIRS
-	app
-	dcalc
-	dcalc/verilog
-	graph
-	liberty
-	network
-	parasitics
-	sdc
-	sdf
-	search
-	util
-	verilog
-	${TCL_HEADER_DIR}
-	${CUDD_INCLUDE}
-)
+  app
+  dcalc
+  dcalc/verilog
+  graph
+  liberty
+  network
+  parasitics
+  sdc
+  sdf
+  search
+  util
+  verilog
+  ${TCL_HEADER_DIR}
+  ${CUDD_INCLUDE}
+  )
 
 ###########################################################
 # Library
@@ -653,8 +668,8 @@ add_library(OpenSTA ${STA_SOURCE})
 target_include_directories(OpenSTA PUBLIC ${STA_INCLUDE_DIRS})
 
 target_compile_features(OpenSTA
-	PUBLIC cxx_auto_type
-)
+  PUBLIC cxx_auto_type
+  )
 
 ###########################################################
 # Executable
@@ -668,12 +683,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${STA_HOME}/app)
 # lib name results in "No rule to make target ../depend.
 add_executable(sta app/Main.cc)
 target_link_libraries(sta
-	OpenSTA
-	${TCL_LIB}
-	${CUDD_LIB}
-	)
+  OpenSTA
+  ${TCL_LIB}
+  ${CUDD_LIB}
+  )
 if (ZLIB_FOUND)
-   target_link_libraries(sta ${ZLIB_LIBRARIES})
+  target_link_libraries(sta ${ZLIB_LIBRARIES})
 endif()
 
 message(STATUS "STA executable: ${STA_HOME}/app/sta")
@@ -682,16 +697,16 @@ set(STA_COMPILE_OPTIONS -Wall -Wcast-qual -Wunused-parameter -Wno-deprecated-reg
 
 # Compiler specific options.
 if (CMAKE_CXX_COMPILER_ID MATCHES AppleClang|Clang|GNU)
-   target_compile_options(OpenSTA PUBLIC ${STA_COMPILE_OPTIONS})
-   target_compile_options(sta PUBLIC ${STA_COMPILE_OPTIONS})
-   message(STATUS "Compiler options: ${STA_COMPILE_OPTIONS}")
+  target_compile_options(OpenSTA PUBLIC ${STA_COMPILE_OPTIONS})
+  target_compile_options(sta PUBLIC ${STA_COMPILE_OPTIONS})
+  message(STATUS "Compiler options: ${STA_COMPILE_OPTIONS}")
 endif()
 
 # g++ still needs -pthreads when using std::thread
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_link_libraries(sta -pthread)
 endif()
-	
+
 ################################################################
 # Install
 # cmake .. -DCMAKE_INSTALL_PREFIX=<prefix_path>
@@ -708,6 +723,6 @@ install(FILES ${STA_HEADERS} DESTINATION include)
 ################################################################
 
 add_custom_target(tags etags -o TAGS ${STA_SOURCE} ${STA_HEADERS} ${STA_TCL_FILES} ${SWIG_TCL_FILES}
-		       WORKING_DIRECTORY ${STA_HOME}
-		       DEPENDS ${STA_SOURCE} ${STA_HEADERS} ${STA_TCL_FILES} ${SWIG_TCL_FILES}
-		       )
+  WORKING_DIRECTORY ${STA_HOME}
+  DEPENDS ${STA_SOURCE} ${STA_HEADERS} ${STA_TCL_FILES} ${SWIG_TCL_FILES}
+  )

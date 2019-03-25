@@ -86,26 +86,41 @@ bison    1.35    3.0.4   2.3
 flex     2.5.4   2.6.4   2.5.35
 ```
 
-These packages are optional:
+These packages are **optional**:
 
 ```
 libz     1.1.4   1.2.5     1.2.8
 cudd             2.4.1     3.0.0
 ```
 
-CUDD is a binary decision diageram (BDD) package that is used to improve conditional timing arc handling. It is available [here](https://www.davidkebo.com/source/cudd_versions/cudd-3.0.0.tar.gz) or [here](https://sourceforge.net/projects/cudd-mirror/).
+CUDD is a binary decision diageram (BDD) package that is used to improve conditional timing arc handling. OpenSTA does not require it to be installed. It is available [here](https://www.davidkebo.com/source/cudd_versions/cudd-3.0.0.tar.gz) or [here](https://sourceforge.net/projects/cudd-mirror/).
 
 Note that the file hierarchy of the CUDD installation changed with version 3.0.
-Some changes to the CMake are required to support older versions.
+Some changes to CMakeLists.txt are required to support older versions.
 
-You may use the `--prefix ` option to `configure` to install in a location other than
-the default (`/usr/local/lib`).
+When building CUDD you may use the `--prefix ` option to `configure` to
+install in a location other than the default (`/usr/local/lib`).
 ```
 cd $HOME/cudd-3.0.0
 mkdir $HOME/cudd
 ./configure --prefix $HOME/cudd
 make
 make install
+```
+To not use CUDD specify `CUDD=0`.
+Cmake looks for the CUDD library in `CUDD/lib, CUDD/cudd/lib`
+and for the header in `CUDD/include, CUDD/cudd/include`.
+```
+# equivalent to -DCUDD=0
+cmake ..                     
+or
+cmake .. -DCUDD=0
+or
+# look in ~/cudd/lib, ~/cudd/include
+cmake .. -DCUDD=$HOME/cudd
+or
+# look in /usr/local/lib/cudd, /usr/local/include/cudd
+cmake .. -DCUDD=/usr/local
 ```
 
 The Zlib library is an optional.  If CMake finds libz, OpenSTA can
@@ -121,7 +136,7 @@ git clone https://xp-dev.com/git/opensta
 cd opensta
 mkdir build
 cd build
-cmake .. -DCUDD=$HOME/cudd
+cmake ..
 make
 ```
 The default build type is release to compile optimized code.
@@ -135,7 +150,7 @@ CMAKE_BUILD_TYPE DEBUG|RELEASE
 CMAKE_CXX_FLAGS - additional compiler flags
 TCL_LIB - path to tcl library
 TCL_HEADER - path to tcl.h
-CUDD - path to cudd installation ($HOME/cudd if following install shown above)
+CUDD - path to cudd installation
 ZLIB_ROOT - path to zlib
 CMAKE_INSTALL_PREFIX
 ```
