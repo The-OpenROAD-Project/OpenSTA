@@ -574,11 +574,13 @@ protected:
   // Entries in tags_ may be missing where previous filter tags were deleted.
   TagIndex tag_capacity_;
   Tag **tags_;
-  TagIndex tag_count_;
+  TagIndex tag_next_;
+  Vector<TagIndex> tag_free_indices_;
   std::mutex tag_lock_;
   TagGroupSet *tag_group_set_;
   TagGroup **tag_groups_;
-  TagGroupIndex tag_group_count_;
+  TagGroupIndex tag_group_next_;
+  Vector<TagIndex> tag_group_free_indices_;
   // Capacity of tag_groups_.
   TagGroupIndex tag_group_capacity_;
   std::mutex tag_group_lock_;

@@ -47,7 +47,7 @@ public:
   static int minIndex() { return min_->index_; }
   static int earlyIndex() { return min_->index_; }
   static int maxIndex() { return max_->index_; }
-  static int lateIndex() { return min_->index_; }
+  static int lateIndex() { return max_->index_; }
   const char *asString() const { return name_; }
   int index() const { return index_; }
   float initValue() const { return init_value_; }

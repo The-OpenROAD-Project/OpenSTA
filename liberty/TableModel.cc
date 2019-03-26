@@ -52,12 +52,20 @@ GateTableModel::~GateTableModel()
 {
   delete delay_model_;
   delete slew_model_;
-  MinMaxIterator el_iter;
-  while (el_iter.hasNext()) {
-    EarlyLate *early_late = el_iter.next();
-    int el_index = early_late->index();
-    delete slew_sigma_models_[el_index];
-    delete delay_sigma_models_[el_index];
+  deleteSigmaModels(slew_sigma_models_);
+  deleteSigmaModels(delay_sigma_models_);
+}
+
+void
+GateTableModel::deleteSigmaModels(TableModel *models[EarlyLate::index_count])
+{
+  TableModel *early_model = models[EarlyLate::earlyIndex()];
+  TableModel *late_model  = models[EarlyLate::lateIndex()];
+  if (early_model == late_model)
+    delete early_model;
+  else {
+    delete early_model;
+    delete late_model;
   }
 }
 

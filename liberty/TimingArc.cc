@@ -64,8 +64,8 @@ TimingArcAttrs::deleteContents()
   stringDelete(sdf_cond_end_);
   stringDelete(mode_name_);
   stringDelete(mode_value_);
-  delete models_[0];
-  delete models_[1];
+  delete models_[TransRiseFall::riseIndex()];
+  delete models_[TransRiseFall::fallIndex()];
 }
 
 void
@@ -199,7 +199,7 @@ TimingArcSet::init(LibertyCell *cell)
 
 TimingArcSet::~TimingArcSet()
 {
-  arcs_.deleteContentsClear();
+  arcs_.deleteContents();
 }
 
 LibertyCell *

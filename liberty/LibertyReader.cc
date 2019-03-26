@@ -4342,9 +4342,9 @@ LibertyReader::getAttrEarlyLate(LibertyAttr *attr)
 {
   const char *value = getAttrString(attr);
   if (stringEq(value, "early"))
-    return EarlyLateAll::min();
+    return EarlyLateAll::early();
   else if (stringEq(value, "late"))
-    return EarlyLateAll::max();
+    return EarlyLateAll::late();
   else if (stringEq(value, "early_and_late"))
     return EarlyLateAll::all();
   else {
@@ -5072,8 +5072,8 @@ TimingGroup::setTransition(TransRiseFall *tr,
 
 void
 TimingGroup::setDelaySigma(TransRiseFall *tr,
-			     EarlyLate *early_late,
-			     TableModel *model)
+			   EarlyLate *early_late,
+			   TableModel *model)
 {
   delay_sigma_[tr->index()][early_late->index()] = model;
 }

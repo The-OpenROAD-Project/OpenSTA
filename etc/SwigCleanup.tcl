@@ -93,7 +93,7 @@ proc swig5 { line_var } {
     {, reinterpret_cast<char*>(ptr)} line
   
   regsub ", *\\\(char *\\\*\\\) NULL" $line \
-    {, reinterpret_cast<char*>(NULL)} line
+    {, static_cast<char*>(NULL)} line
     
   regsub ", ?\\\(char ?\\\*\\\)(\[^,\\\)\]+)(\[,\\\)\])" $line \
     {, const_cast<char*>(\1)\2} line

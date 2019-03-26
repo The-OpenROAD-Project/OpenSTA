@@ -692,19 +692,22 @@ endif()
 
 message(STATUS "STA executable: ${STA_HOME}/app/sta")
 
-set(STA_COMPILE_OPTIONS -Wall -Wcast-qual -Wunused-parameter -Wno-deprecated-register -Wredundant-decls)
+
 
 # Compiler specific options.
 if (CMAKE_CXX_COMPILER_ID MATCHES AppleClang|Clang|GNU)
-  target_compile_options(OpenSTA PUBLIC ${STA_COMPILE_OPTIONS})
-  target_compile_options(sta PUBLIC ${STA_COMPILE_OPTIONS})
-  message(STATUS "Compiler options: ${STA_COMPILE_OPTIONS}")
+  set(STA_COMPILE_OPTIONS -Wall -Wcast-qual -Wunused-parameter -Wredundant-decls -Wno-deprecated-register)
 endif()
 
 # g++ still needs -pthreads when using std::thread
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(STA_COMPILE_OPTIONS -Wall -Wcast-qual -Wunused-parameter -Wredundant-decls -Wno-deprecated-register)
   target_link_libraries(sta -pthread)
 endif()
+
+target_compile_options(OpenSTA PUBLIC ${STA_COMPILE_OPTIONS})
+target_compile_options(sta PUBLIC ${STA_COMPILE_OPTIONS})
+message(STATUS "Compiler options: ${STA_COMPILE_OPTIONS}")
 
 ################################################################
 # Install

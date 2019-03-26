@@ -247,11 +247,11 @@ Search::init(StaState *sta)
   tag_capacity_ = 127;
   tag_set_ = new TagHashSet(tag_capacity_, false);
   clk_info_set_ = new ClkInfoSet(ClkInfoLess(sta));
-  tag_count_ = 0;
+  tag_next_ = 0;
   tags_ = new Tag*[tag_capacity_];
   tag_group_capacity_ = 127;
   tag_groups_ = new TagGroup*[tag_group_capacity_];
-  tag_group_count_ = 0;
+  tag_group_next_ = 0;
   tag_group_set_ = new TagGroupSet(tag_group_capacity_, false);
   visit_path_ends_ = new VisitPathEnds(this);
   gated_clk_ = new GatedClk(this);
@@ -352,15 +352,17 @@ Search::setCrprApproxMissingRequireds(bool enabled)
 void
 Search::deleteTags()
 {
-  for (TagGroupIndex i = 0; i < tag_group_count_; i++) {
+  for (TagGroupIndex i = 0; i < tag_group_next_; i++) {
     TagGroup *group = tag_groups_[i];
     delete group;
   }
-  tag_group_count_ = 0;
+  tag_group_next_ = 0;
   tag_group_set_->clear();
+  tag_group_free_indices_.clear();
 
-  tag_count_ = 0;
+  tag_next_ = 0;
   tag_set_->deleteContentsClear();
+  tag_free_indices_.clear();
 
   clk_info_set_->deleteContentsClear();
 }
@@ -436,6 +438,8 @@ Search::deletePaths(Vertex *vertex)
 
 ////////////////////////////////////////////////////////////////
 
+int run = 0;
+
 // from/thrus/to are owned and deleted by Search.
 // Returned sequence is owned by the caller.
 // PathEnds are owned by Search PathGroups and deleted on next call.
@@ -493,6 +497,7 @@ Search::findPathEnds(ExceptionFrom *from,
 						     corner, min_max,
 						     sort_by_slack);
   sdc_->reportClkToClkMaxCycleWarnings();
+  printf("run %d tag group count %d\n", run++, tag_group_next_);
   return path_ends;
 }
 
@@ -533,12 +538,13 @@ Search::deleteFilteredArrivals()
 void
 Search::deleteFilterTagGroups()
 {
-  for (TagGroupIndex i = 0; i < tag_group_count_; i++) {
+  for (TagGroupIndex i = 0; i < tag_group_next_; i++) {
     TagGroup *group = tag_groups_[i];
     if (group
 	&& group->hasFilterTag()) {
       tag_group_set_->eraseKey(group);
       tag_groups_[group->index()] = nullptr;
+      tag_group_free_indices_.push_back(i);
       delete group;
     }
   }
@@ -547,13 +553,14 @@ Search::deleteFilterTagGroups()
 void
 Search::deleteFilterTags()
 {
-  for (TagIndex i = 0; i < tag_count_; i++) {
+  for (TagIndex i = 0; i < tag_next_; i++) {
     Tag *tag = tags_[i];
     if (tag
 	&& tag->isFilter()) {
       tags_[i] = nullptr;
       tag_set_->eraseKey(tag);
       delete tag;
+      tag_free_indices_.push_back(i);
     }
   }
 }
@@ -2667,15 +2674,22 @@ Search::findTagGroup(TagGroupBldr *tag_bldr)
     UniqueLock lock(tag_group_lock_);
     tag_group = tag_group_set_->findKey(&probe);
     if (tag_group == nullptr) {
-      tag_group = tag_bldr->makeTagGroup(tag_group_count_, this);
-      tag_groups_[tag_group_count_++] = tag_group;
+      TagGroupIndex tag_group_index;
+      if (tag_group_free_indices_.empty())
+	tag_group_index = tag_group_next_++;
+      else {
+	tag_group_index = tag_group_free_indices_.back();
+	tag_group_free_indices_.pop_back();
+      }
+      tag_group = tag_bldr->makeTagGroup(tag_group_index, this);
+      tag_groups_[tag_group_index] = tag_group;
       tag_group_set_->insert(tag_group);
       // If tag_groups_ needs to grow make the new array and copy the
       // contents into it before updating tags_groups_ so that other threads
       // can use Search::tagGroup(TagGroupIndex) without returning gubbish.
       // std::vector doesn't seem to follow this protocol so multi-thread
       // search fails occasionally if a vector is used for tag_groups_.
-      if (tag_group_count_ == tag_group_capacity_) {
+      if (tag_group_next_ == tag_group_capacity_) {
 	TagGroupIndex new_capacity = nextMersenne(tag_group_capacity_);
 	TagGroup **new_tag_groups = new TagGroup*[new_capacity];
 	memcpy(new_tag_groups, tag_groups_,
@@ -2686,7 +2700,7 @@ Search::findTagGroup(TagGroupBldr *tag_bldr)
 	delete [] old_tag_groups;
 	tag_group_set_->resize(new_capacity);
       }
-      if (tag_group_count_ > tag_group_index_max)
+      if (tag_group_next_ > tag_group_index_max)
 	internalError("max tag group index exceeded");
     }
   }
@@ -2808,13 +2822,13 @@ Search::tagGroup(const Vertex *vertex) const
 TagGroupIndex
 Search::tagGroupCount() const
 {
-  return tag_group_count_;
+  return tag_group_set_->size();
 }
 
 void
 Search::reportTagGroups() const
 {
-  for (TagGroupIndex i = 0; i < tag_group_count_; i++) {
+  for (TagGroupIndex i = 0; i < tag_group_next_; i++) {
     TagGroup *tag_group = tag_groups_[i];
     if (tag_group) {
       report_->print("Group %4u hash = %4u (%4u)\n",
@@ -2867,7 +2881,7 @@ Search::tag(TagIndex index) const
 TagIndex
 Search::tagCount() const
 {
-  return tag_count_;
+  return tag_set_->size();
 }
 
 Tag *
@@ -2890,30 +2904,37 @@ Search::findTag(const TransRiseFall *tr,
     if (tag == nullptr) {
       ExceptionStateSet *new_states = !own_states && states
 	? new ExceptionStateSet(*states) : states;
-      tag = new Tag(tag_count_, tr->index(), path_ap->index(),
+      TagIndex tag_index;
+      if (tag_free_indices_.empty())
+	tag_index = tag_next_++;
+      else {
+	tag_index = tag_free_indices_.back();
+	tag_free_indices_.pop_back();
+      }
+      tag = new Tag(tag_index, tr->index(), path_ap->index(),
 		    clk_info, is_clk, input_delay, is_segment_start,
 		    new_states, true, this);
       own_states = false;
       // Make sure tag can be indexed in tags_ before it is visible to
       // other threads via tag_set_.
-      tags_[tag_count_++] = tag;
+      tags_[tag_index] = tag;
       tag_set_->insert(tag);
       // If tags_ needs to grow make the new array and copy the
       // contents into it before updating tags_ so that other threads
       // can use Search::tag(TagIndex) without returning gubbish.
       // std::vector doesn't seem to follow this protocol so multi-thread
       // search fails occasionally if a vector is used for tags_.
-      if (tag_count_ == tag_capacity_) {
+      if (tag_next_ == tag_capacity_) {
 	TagIndex new_capacity = nextMersenne(tag_capacity_);
 	Tag **new_tags = new Tag*[new_capacity];
-	memcpy(new_tags, tags_, tag_count_ * sizeof(Tag*));
+	memcpy(new_tags, tags_, tag_capacity_ * sizeof(Tag*));
 	Tag **old_tags = tags_;
 	tags_ = new_tags;
 	delete [] old_tags;
 	tag_capacity_ = new_capacity;
 	tag_set_->resize(new_capacity);
       }
-      if (tag_count_ > tag_index_max)
+      if (tag_next_ > tag_index_max)
 	internalError("max tag index exceeded");
     }
   }
@@ -2925,12 +2946,13 @@ Search::findTag(const TransRiseFall *tr,
 void
 Search::reportTags() const
 {
-  for (TagIndex i = 0; i < tag_count_; i++) {
+  for (TagIndex i = 0; i < tag_next_; i++) {
     Tag *tag = tags_[i];
-    report_->print("Tag %4u %4u %s\n",
-		   tag->index(),
-		   tag->hash() % tag_set_->capacity(),
-		   tag->asString(false, this));
+    if (tag)
+      report_->print("Tag %4u %4u %s\n",
+		     tag->index(),
+		     tag->hash() % tag_set_->capacity(),
+		     tag->asString(false, this)) ;
   }
   Hash long_hash = tag_set_->longestBucketHash();
   printf("Longest hash bucket length %d hash=%u\n",

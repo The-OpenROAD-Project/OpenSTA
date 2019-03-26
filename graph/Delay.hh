@@ -27,7 +27,7 @@
   #include "DelayNormal2.hh"
 #else
   // Delays are floats.
- #include "DelayFloat.hh"
+  #include "DelayFloat.hh"
 #endif
 
 namespace sta {

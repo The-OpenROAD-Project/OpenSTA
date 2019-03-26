@@ -112,6 +112,7 @@ protected:
 		      float &axis_value1,
 		      float &axis_value2,
 		      float &axis_value3) const;
+  void deleteSigmaModels(TableModel *models[EarlyLate::index_count]);
   static bool checkAxis(TableAxis *axis);
 
   TableModel *delay_model_;

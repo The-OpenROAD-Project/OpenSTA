@@ -1153,7 +1153,7 @@ LibertyCell::makeTimingArcMap(Report *)
 
   // Prune the arc sets not in the map.
   int j = 0;
-  for (int i = 0; i < timing_arc_sets_.size(); i++) {
+  for (size_t i = 0; i < timing_arc_sets_.size(); i++) {
     TimingArcSet *arc_set = timing_arc_sets_[i];
     TimingArcSet *match = timing_arc_set_map_.findKey(arc_set);
     if (match != arc_set) {
