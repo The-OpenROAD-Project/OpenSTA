@@ -1372,7 +1372,7 @@ stringTableAxisVariable(const char *variable)
     return TableAxisVariable::path_depth;
   else if (stringEq(variable, "path_distance"))
     return TableAxisVariable::path_distance;
-  else if (stringEq(variable, "normalzied_voltage"))
+  else if (stringEq(variable, "normalized_voltage"))
     return TableAxisVariable::normalized_voltage;
   else
     return TableAxisVariable::unknown;
