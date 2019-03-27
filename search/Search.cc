@@ -438,8 +438,6 @@ Search::deletePaths(Vertex *vertex)
 
 ////////////////////////////////////////////////////////////////
 
-int run = 0;
-
 // from/thrus/to are owned and deleted by Search.
 // Returned sequence is owned by the caller.
 // PathEnds are owned by Search PathGroups and deleted on next call.
@@ -497,7 +495,6 @@ Search::findPathEnds(ExceptionFrom *from,
 						     corner, min_max,
 						     sort_by_slack);
   sdc_->reportClkToClkMaxCycleWarnings();
-  printf("run %d tag group count %d\n", run++, tag_group_next_);
   return path_ends;
 }
 
