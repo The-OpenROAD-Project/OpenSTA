@@ -1,18 +1,10 @@
-# OpenSTA, Static Timing Analyzer
+# Parallax Static Timing Analyzer
 # Copyright (c) 2019, Parallax Software, Inc.
+# All rights reserved.
 # 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# No part of this document may be copied, transmitted or
+# disclosed in any form or fashion without the express
+# written consent of Parallax Software, Inc.
 
 cmake_minimum_required (VERSION 3.9)
 
@@ -366,6 +358,7 @@ set(STA_HEADERS
   util/ReportStd.hh
   util/ReportTcl.hh
   util/Set.hh
+  util/StaConfig.hh
   util/Stats.hh
   util/StringSeq.hh
   util/StringSet.hh
@@ -399,6 +392,7 @@ set(STA_TCL_FILES
   dcalc/DelayCalc.tcl
   parasitics/Parasitics.tcl
   sdf/Sdf.tcl
+  tcl/Compatibility.tcl
   verilog/Verilog.tcl
   )
 
