@@ -58,24 +58,62 @@ proc report_power_design { corner digits } {
   set pad           [lrange $power_result 16 end]
   lassign $totals design_internal design_switching design_leakage design_total
 
-  puts "Group                 Internal Switching   Leakage     Total"
-  puts "                         Power     Power     Power     Power (mW)"
-  puts "-------------------------------------------------------------------"
-  report_power_row "Sequential"    $sequential    $design_total $digits
-  report_power_row "Combinational" $combinational $design_total $digits
-  report_power_row "Macro"         $macro         $design_total $digits
-  report_power_row "Pad"           $pad           $design_total $digits
-  puts "-------------------------------------------------------------------"
-  report_power_row "Total" $power_result $design_total $digits
+  set field_width [max [expr $digits + 6] 10]
+  report_power_title5 "Group" "Internal" "Switching" "Leakage" "Total" $field_width
+  report_power_title5 "     " "Power"    "Power"     "Power"   "Power" $field_width
+  report_title_dashes5 $field_width
+  report_power_row "Sequential"    $sequential    $design_total $field_width $digits
+  report_power_row "Combinational" $combinational $design_total $field_width $digits
+  report_power_row "Macro"         $macro         $design_total $field_width $digits
+  report_power_row "Pad"           $pad           $design_total $field_width $digits
+  report_title_dashes5 $field_width
+  report_power_row "Total" $power_result $design_total $field_width $digits
 
-  puts -nonewline "                    "
-  report_power_col_percent $design_internal  $design_total
-  report_power_col_percent $design_switching $design_total
-  report_power_col_percent $design_leakage   $design_total
+  puts -nonewline [format "%-20s" ""]
+  report_power_col_percent $design_internal  $design_total $field_width
+  report_power_col_percent $design_switching $design_total $field_width
+  report_power_col_percent $design_leakage   $design_total $field_width
   puts ""
 }
 
-proc report_power_row { type row_result design_total digits } {
+proc max { x y } {
+  if { $x >= $y } {
+    return $x
+  } else {
+    return $y
+  }
+}
+
+proc report_power_title5 { title1 title2 title3 title4 title5 field_width } {
+  puts -nonewline [format "%-20s" $title1]
+  report_power_title4 $title2 $title3 $title4 $title5 $field_width
+}
+
+proc report_power_title4 { title1 title2 title3 title4 field_width } {
+  puts -nonewline [format " %${field_width}s" $title1]
+  puts -nonewline [format " %${field_width}s" $title2]
+  puts -nonewline [format " %${field_width}s" $title3]
+  puts [format " %${field_width}s" $title4]
+}
+
+proc report_title_dashes5 { field_width } {
+  set count [expr 20 + ($field_width + 1) * 4]
+  report_title_dashes $count
+}
+
+proc report_title_dashes4 { field_width } {
+  set count [expr ($field_width + 1) * 4]
+  report_title_dashes $count
+}
+
+proc report_title_dashes { count } {
+  for {set i 0} {$i < $count} {incr i} {
+    puts -nonewline "-"
+  }
+  puts ""
+}
+
+proc report_power_row { type row_result design_total field_width digits } {
   lassign $row_result internal switching leakage total
   if { $design_total == 0.0 } {
     set percent 0.0
@@ -83,28 +121,28 @@ proc report_power_row { type row_result design_total digits } {
     set percent [expr $total / $design_total * 100]
   }
   puts -nonewline [format "%-20s" $type]
-  report_power_col $internal $digits
-  report_power_col $switching $digits
-  report_power_col $leakage $digits
-  report_power_col $total $digits
+  report_power_col $internal $field_width $digits
+  report_power_col $switching $field_width $digits
+  report_power_col $leakage $field_width $digits
+  report_power_col $total $field_width $digits
   puts [format " %5.1f%%" $percent]
 }
 
-proc report_power_col { pwr digits } {
-  puts -nonewline [format "%10.${digits}f" [expr $pwr * 1e+3]]
+proc report_power_col { pwr field_width digits } {
+  puts -nonewline [format " %$field_width.${digits}e" $pwr]
 }
 
-proc report_power_col_percent { col_total total } {
+proc report_power_col_percent { col_total total field_width } {
   if { $total == 0.0 } {
     set percent 0.0
   } else {
     set percent [expr $col_total / $total * 100]
   }
-  puts -nonewline [format "%9.1f%%" $percent]
+  puts -nonewline [format "%$field_width.1f%%" $percent]
 }
 
 proc report_power_line { type pwr digits } {
-  puts [format "%-16s %.${digits}fmW" $type [expr $pwr * 1e+3]]
+  puts [format "%-16s %.${digits}e" $type $pwr]
 }
 
 proc report_power_insts { insts corner digits } {
@@ -115,14 +153,16 @@ proc report_power_insts { insts corner digits } {
   }
   set inst_pwrs [lsort -command inst_pwr_cmp $inst_pwrs]
 
-  puts "  Internal Switching   Leakage     Total Instance"
-  puts "     Power     Power     Power     Power (mW)"
-  puts "-------------------------------------------------------------------"
+  set field_width [max [expr $digits + 6] 10]
+
+  report_power_title4 "Internal" "Switching" "Leakage" "Total" $field_width
+  report_power_title4 "Power"    "Power"     "Power"   "Power" $field_width
+  report_title_dashes4 $field_width
 
   foreach inst_pwr $inst_pwrs {
     set inst [lindex $inst_pwr 0]
     set power [lindex $inst_pwr 1]
-    report_power_inst $inst $power $digits
+    report_power_inst $inst $power $field_width $digits
   }
 }
 
@@ -140,12 +180,12 @@ proc inst_pwr_cmp { inst_pwr1 inst_pwr2 } {
   }
 }
 
-proc report_power_inst { inst power_result digits } {
+proc report_power_inst { inst power_result field_width digits } {
   lassign $power_result internal switching leakage total
-  report_power_col $internal $digits
-  report_power_col $switching $digits
-  report_power_col $leakage $digits
-  report_power_col $total $digits
+  report_power_col $internal $field_width $digits
+  report_power_col $switching $field_width $digits
+  report_power_col $leakage $field_width $digits
+  report_power_col $total $field_width $digits
   puts " [get_full_name $inst]"
 }
 

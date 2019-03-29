@@ -17,6 +17,7 @@
 #include "Machine.hh"
 #include "Report.hh"
 #include "Error.hh"
+#include "EnumNameMap.hh"
 #include "Units.hh"
 #include "Liberty.hh"
 #include "TableModel.hh"
@@ -1335,82 +1336,37 @@ TableAxis::findAxisIndex(float value) const
 
 ////////////////////////////////////////////////////////////////
 
+static EnumNameMap<TableAxisVariable> table_axis_variable_map =
+  {{TableAxisVariable::total_output_net_capacitance, "total_output_net_capacitance"},
+   {TableAxisVariable::equal_or_opposite_output_net_capacitance, "equal_or_opposite_output_net_capacitance"},
+   {TableAxisVariable::input_net_transition, "input_net_transition"},
+   {TableAxisVariable::input_transition_time, "input_transition_time"},
+   {TableAxisVariable::related_pin_transition, "related_pin_transition"},
+   {TableAxisVariable::constrained_pin_transition, "constrained_pin_transition"},
+   {TableAxisVariable::output_pin_transition, "output_pin_transition"},
+   {TableAxisVariable::connect_delay, "connect_delay"},
+   {TableAxisVariable::related_out_total_output_net_capacitance, "related_out_total_output_net_capacitance"},
+   {TableAxisVariable::time, "time"},
+   {TableAxisVariable::iv_output_voltage, "iv_output_voltage"},
+   {TableAxisVariable::input_noise_width, "input_noise_width"},
+   {TableAxisVariable::input_noise_height, "input_noise_height"},
+   {TableAxisVariable::input_voltage, "input_voltage"},
+   {TableAxisVariable::output_voltage, "output_voltage"},
+   {TableAxisVariable::path_depth, "path_depth"},
+   {TableAxisVariable::path_distance, "path_distance"},
+   {TableAxisVariable::normalized_voltage, "normalized_voltage"}
+  };
+
 TableAxisVariable
 stringTableAxisVariable(const char *variable)
 {
-  if (stringEq(variable, "total_output_net_capacitance"))
-    return TableAxisVariable::total_output_net_capacitance;
-  if (stringEq(variable, "equal_or_opposite_output_net_capacitance"))
-    return TableAxisVariable::equal_or_opposite_output_net_capacitance;
-  else if (stringEq(variable, "input_net_transition"))
-    return TableAxisVariable::input_net_transition;
-  else if (stringEq(variable, "input_transition_time"))
-    return TableAxisVariable::input_transition_time;
-  else if (stringEq(variable, "related_pin_transition"))
-    return TableAxisVariable::related_pin_transition;
-  else if (stringEq(variable, "constrained_pin_transition"))
-    return TableAxisVariable::constrained_pin_transition;
-  else if (stringEq(variable, "output_pin_transition"))
-    return TableAxisVariable::output_pin_transition;
-  else if (stringEq(variable, "connect_delay"))
-    return TableAxisVariable::connect_delay;
-  else if (stringEq(variable,"related_out_total_output_net_capacitance"))
-    return TableAxisVariable::related_out_total_output_net_capacitance;
-  else if (stringEq(variable, "time"))
-    return TableAxisVariable::time;
-  else if (stringEq(variable, "iv_output_voltage"))
-    return TableAxisVariable::iv_output_voltage;
-  else if (stringEq(variable, "input_noise_width"))
-    return TableAxisVariable::input_noise_width;
-  else if (stringEq(variable, "input_noise_height"))
-    return TableAxisVariable::input_noise_height;
-  else if (stringEq(variable, "input_voltage"))
-    return TableAxisVariable::input_voltage;
-  else if (stringEq(variable, "output_voltage"))
-    return TableAxisVariable::output_voltage;
-  else if (stringEq(variable, "path_depth"))
-    return TableAxisVariable::path_depth;
-  else if (stringEq(variable, "path_distance"))
-    return TableAxisVariable::path_distance;
-  else if (stringEq(variable, "normalized_voltage"))
-    return TableAxisVariable::normalized_voltage;
-  else
-    return TableAxisVariable::unknown;
+  return table_axis_variable_map.find(variable, TableAxisVariable::unknown);
 }
 
 const char *
 tableVariableString(TableAxisVariable variable)
 {
-  switch (variable) {
-  case TableAxisVariable::total_output_net_capacitance:
-    return "total_output_net_capacitance";
-  case TableAxisVariable::equal_or_opposite_output_net_capacitance:
-    return "equal_or_opposite_output_net_capacitance";
-  case TableAxisVariable::input_net_transition:
-    return "input_net_transition";
-  case TableAxisVariable::input_transition_time:
-    return "input_transition_time";
-  case TableAxisVariable::related_pin_transition:
-    return "related_pin_transition";
-  case TableAxisVariable::constrained_pin_transition:
-    return "constrained_pin_transition";
-  case TableAxisVariable::output_pin_transition:
-    return "output_pin_transition";
-  case TableAxisVariable::connect_delay:
-    return "connect_delay";
-  case TableAxisVariable::related_out_total_output_net_capacitance:
-    return "related_out_total_output_net_capacitance";
-  case TableAxisVariable::time:
-    return "time";
-  case TableAxisVariable::iv_output_voltage:
-    return "iv_output_voltage";
-  case TableAxisVariable::input_noise_width:
-    return "input_noise_width";
-  case TableAxisVariable::input_noise_height:
-    return "input_noise_height";
-  default:
-    return "unknown";
-  }
+  return table_axis_variable_map.find(variable);
 }
 
 const Unit *
