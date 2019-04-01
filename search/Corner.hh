@@ -34,6 +34,7 @@ class Corner;
 class Corners;
 class LibertyLibrary;
 
+typedef Vector<Corner*> CornerSeq;
 typedef Map<const char *, Corner*, CharPtrLess> CornerMap;
 typedef Vector<ParasiticAnalysisPt*> ParasiticAnalysisPtSeq;
 typedef Vector<DcalcAnalysisPt*> DcalcAnalysisPtSeq;
@@ -49,7 +50,7 @@ public:
   int count() const;
   bool multiCorner() const;
   Corner *findCorner(const char *corner);
-  Corner *defaultCorner();
+  Corner *findCorner(int corner_index);
   void makeCorners(StringSet *corner_names);
   void analysisTypeChanged();
   void operatingConditionsChanged();
@@ -80,11 +81,11 @@ protected:
 			   bool swap_clk_min_max,
 			   DcalcAnalysisPt *dcalc_ap_min,
 			   DcalcAnalysisPt *dcalc_ap_max);
-  CornerMap &corners() { return corners_; }
+  CornerSeq &corners() { return corners_; }
 
 private:
-  CornerMap corners_;
-  Corner *default_corner_;
+  CornerMap corner_map_;
+  CornerSeq corners_;
   ParasiticAnalysisPtSeq parasitic_analysis_pts_;
   DcalcAnalysisPtSeq dcalc_analysis_pts_;
   PathAnalysisPtSeq path_analysis_pts_;
@@ -137,7 +138,7 @@ public:
   virtual Corner *next();
 
 protected:
-  CornerMap::ConstIterator iter_;
+  CornerSeq::ConstIterator iter_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(CornerIterator);

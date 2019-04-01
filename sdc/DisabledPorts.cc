@@ -253,7 +253,8 @@ LibertyPortPairNameLess::operator()(const LibertyPortPair *pair1,
 }
 
 void
-sortLibertyPortPairSet(LibertyPortPairSet *sets, LibertyPortPairSeq &pairs)
+sortLibertyPortPairSet(LibertyPortPairSet *sets,
+		       LibertyPortPairSeq &pairs)
 {
   LibertyPortPairSet::Iterator pair_iter(sets);
   while (pair_iter.hasNext())

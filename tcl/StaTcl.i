@@ -1988,6 +1988,13 @@ private:
   ~OperatingConditions();
 };
 
+class Corner
+{
+private:
+  Corner();
+  ~Corner();
+};
+
 ////////////////////////////////////////////////////////////////
 //
 // C++ functions visible as TCL functions.
@@ -2735,10 +2742,24 @@ leaf_instance_iterator()
 
 ////////////////////////////////////////////////////////////////
 
-Corner *
-default_corner()
+void
+define_corners_cmd(StringSet *corner_names)
 {
-  return Sta::sta()->defaultCorner();
+  Sta *sta = Sta::sta();
+  sta->makeCorners(corner_names);
+  delete corner_names;
+}
+
+Corner *
+cmd_corner()
+{
+  return Sta::sta()->cmdCorner();
+}
+
+void
+set_cmd_corner(Corner *corner)
+{
+  Sta::sta()->setCmdCorner(corner);
 }
 
 Corner *
@@ -5169,14 +5190,6 @@ arrivals_invalid()
   sta->arrivalsInvalid();
 }
 
-void
-define_corners_cmd(StringSet *corner_names)
-{
-  Sta *sta = Sta::sta();
-  sta->makeCorners(corner_names);
-  delete corner_names;
-}
-
 %} // inline
 
 ////////////////////////////////////////////////////////////////
@@ -6131,6 +6144,10 @@ finish()
   delete self;
 }
 
+}
+
+%extend Corner {
+const char *name() { return self->name(); }
 }
 
 // Local Variables:

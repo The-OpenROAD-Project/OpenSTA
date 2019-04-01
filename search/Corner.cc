@@ -24,24 +24,23 @@
 namespace sta {
 
 Corners::Corners(StaState *sta) :
-  StaState(sta),
-  default_corner_(nullptr)
+  StaState(sta)
 {
 }
 
 Corners::~Corners()
 {
   clear();
-  parasitic_analysis_pts_.deleteContentsClear();
 }
 
 void
 Corners::clear()
 {
   corners_.deleteContentsClear();
+  corner_map_.clear();
   dcalc_analysis_pts_.deleteContentsClear();
   path_analysis_pts_.deleteContentsClear();
-  default_corner_ = nullptr;
+  parasitic_analysis_pts_.deleteContentsClear();
 }
 
 int
@@ -59,13 +58,13 @@ Corners::multiCorner() const
 Corner *
 Corners::findCorner(const char *corner_name)
 {
-  return corners_.findKey(corner_name);
+  return corner_map_.findKey(corner_name);
 }
 
 Corner *
-Corners::defaultCorner()
+Corners::findCorner(int corner_index)
 {
-  return default_corner_;
+  return corners_[corner_index];
 }
 
 void
@@ -96,10 +95,9 @@ Corners::makeCorners(StringSet *corner_names)
   while (name_iter.hasNext()) {
     const char *name = name_iter.next();
     Corner *corner = new Corner(name, index);
+    corners_.push_back(corner);
     // Use the copied name in the map.
-    corners_[corner->name()] = corner;
-    if (default_corner_ == nullptr)
-      default_corner_ = corner;
+    corner_map_[corner->name()] = corner;
     index++;
   }
   updateCornerParasiticAnalysisPts();
@@ -142,11 +140,11 @@ Corners::makeParasiticAnalysisPtsMinMax()
 void
 Corners::updateCornerParasiticAnalysisPts()
 {
-  CornerMap::Iterator corner_iter(corners_);
+  CornerSeq::Iterator corner_iter(corners_);
   while (corner_iter.hasNext()) {
     Corner *corner = corner_iter.next();
     corner->setParasiticAnalysisPtcount(parasitic_analysis_pts_.size());
-    ParasiticAnalysisPtIterator ap_iter(this);
+    ParasiticAnalysisPtSeq::Iterator ap_iter(parasitic_analysis_pts_);
     while (ap_iter.hasNext()) {
       ParasiticAnalysisPt *ap = ap_iter.next();
       corner->addParasiticAP(ap);
@@ -160,7 +158,7 @@ Corners::makeAnalysisPts()
   dcalc_analysis_pts_.deleteContentsClear();
   path_analysis_pts_.deleteContentsClear();
 
-  CornerMap::Iterator corner_iter(corners_);
+  CornerSeq::Iterator corner_iter(corners_);
   while (corner_iter.hasNext()) {
     Corner *corner = corner_iter.next();
     makeDcalcAnalysisPts(corner);
@@ -200,13 +198,10 @@ Corners::makeDcalcAnalysisPt(Corner *corner,
 			     const MinMax *check_clk_slew_min_max)
 {
   OperatingConditions *op_cond = sdc_->operatingConditions(min_max);
-  ParasiticAnalysisPt *parasitic_ap = corner->findParasiticAnalysisPt(min_max);
   DcalcAnalysisPt *dcalc_ap = new DcalcAnalysisPt(corner,
 						  dcalc_analysis_pts_.size(),
 						  op_cond, min_max,
-						  min_max, min_max,
-						  check_clk_slew_min_max,
-						  parasitic_ap);
+						  check_clk_slew_min_max);
   dcalc_analysis_pts_.push_back(dcalc_ap);
   corner->addDcalcAP(dcalc_ap);
   return dcalc_ap;

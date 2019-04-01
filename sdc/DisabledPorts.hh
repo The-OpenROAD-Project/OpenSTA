@@ -105,7 +105,8 @@ sortDisabledInstancePortsMap(DisabledInstancePortsMap *inst_map,
 			     Network *network,
 			     DisabledInstancePortsSeq &disables);
 void
-sortLibertyPortPairSet(LibertyPortPairSet *sets, LibertyPortPairSeq &pairs);
+sortLibertyPortPairSet(LibertyPortPairSet *sets,
+		       LibertyPortPairSeq &pairs);
 
 } // namespace
 #endif

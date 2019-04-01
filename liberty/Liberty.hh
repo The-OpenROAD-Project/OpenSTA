@@ -429,7 +429,10 @@ public:
   bool hasTimingArcs(LibertyPort *port) const;
   InternalPowerSeq *internalPowers() { return &internal_powers_; }
   LeakagePowerSeq *leakagePowers() { return &leakage_powers_; }
-  float leakagePower() const { return leakage_power_; }
+  void leakagePower(// Return values.
+		    float &leakage,
+		    bool &exists) const;
+  bool leakagePowerEx() const { return leakage_power_exists_; }
   bool hasSequentials() const;
   void makeSequential(int size,
 		      bool is_register,
@@ -537,6 +540,7 @@ protected:
   bool is_disabled_constraint_;
   Vector<LibertyCell*> corner_cells_;
   float leakage_power_;
+  bool leakage_power_exists_;
   LibertyPgPortMap pg_port_map_;
 
 private:

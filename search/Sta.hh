@@ -1133,7 +1133,8 @@ public:
   Tcl_Interp *tclInterp();
   // Ensure that the timing graph has been built.
   Graph *ensureGraph();
-  Corner *defaultCorner();
+  Corner *cmdCorner() const;
+  void setCmdCorner(Corner *corner);
   Corner *findCorner(const char *corner_name);
   bool multiCorner();
   void makeCorners(StringSet *corner_names);
@@ -1292,17 +1293,16 @@ protected:
   void findRegisterPreamble();
   bool crossesHierarchy(Edge *edge) const;
   void deleteLeafInstanceBefore(Instance *inst);
-  void makeDefaultCorners();
   void readLibertyAfter(LibertyLibrary *liberty,
 			Corner *corner,
 			const MinMax *min_max);
-  void parasiticsChangedAfter();
   void powerPreamble();
   void disableFanoutCrprPruning(Vertex *vertex,
 			      int &fanou);
 
   CmdNamespace cmd_namespace_;
   Instance *current_instance_;
+  Corner *cmd_corner_;
   CheckTiming *check_timing_;
   CheckSlewLimits *check_slew_limits_;
   CheckMinPulseWidths *check_min_pulse_widths_;

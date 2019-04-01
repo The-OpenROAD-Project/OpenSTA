@@ -252,29 +252,59 @@ Power::loadCap(const Pin *to_pin,
 }
 
 void
-Power::findLeakagePower(const Instance *inst,
+Power::findLeakagePower(const Instance *,
 			LibertyCell *cell,
 			// Return values.
 			PowerResult &result)
 {
-  float leakage = cell->leakagePower();
+  float cond_leakage = 0.0;
+  bool found_cond = false;
+  float default_leakage = 0.0;
+  bool found_default = false;
   LibertyCellLeakagePowerIterator pwr_iter(cell);
   while (pwr_iter.hasNext()) {
     LeakagePower *leak = pwr_iter.next();
     FuncExpr *when = leak->when();
     if (when) {
-      LogicValue when_value = sim_->evalExpr(when, inst);
-      switch (when_value) {
-      case LogicValue::zero:
-      case LogicValue::one:
-	leakage = max(leakage, leak->power());
-	break;
-      case LogicValue::unknown:
-      default:
-	break;
+      FuncExprPortIterator port_iter(when);
+      float duty = 1.0;
+      while (port_iter.hasNext()) {
+	auto port = port_iter.next();
+	if (port->direction()->isAnyInput())
+	  duty *= .5;
       }
+      debugPrint4(debug_, "power", 2, "leakage %s %s %.3e * %.2f\n",
+		  cell->name(),
+		  when->asString(),
+		  leak->power(),
+		  duty);
+      cond_leakage += leak->power() * duty;
+      found_cond = true;
+    }
+    else {
+      debugPrint2(debug_, "power", 2, "leakage default %s %.3e\n",
+		  cell->name(),
+		  leak->power());
+      default_leakage += leak->power();
+      found_default = true;
     }
   }
+  float leakage = 0.0;
+  float leak;
+  bool exists;
+  cell->leakagePower(leak, exists);
+  if (exists) {
+    // Prefer cell_leakage_power until propagated activities exist.
+    debugPrint2(debug_, "power", 2, "leakage %s cell %.3e\n",
+		  cell->name(),
+		  leak);
+      leakage = leak;
+  }
+  // Ignore default leakages unless there are no conditional leakage groups.
+  else if (found_cond)
+    leakage = cond_leakage;
+  else if (found_default)
+    leakage = default_leakage;
   result.setLeakage(leakage);
 }
 
@@ -290,6 +320,15 @@ Power::findSwitchingPower(LibertyCell *cell,
   float volt = voltage(cell, to_port, dcalc_ap);
   float switching = load_cap * volt * volt * activity / 2.0;
   result.setSwitching(switching);
+}
+
+float
+Power::activity(const Pin *pin)
+{
+  float activity1;
+  bool is_clk;
+  activity(pin, activity1, is_clk);
+  return activity1;
 }
 
 void

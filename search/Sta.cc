@@ -301,9 +301,8 @@ Sta::makeComponents()
   updateComponentsState();
 
   makeObservers();
-
+  // This must follow updateComponentsState.
   corners_->makeParasiticAnalysisPtsSingle();
-  makeDefaultCorners();
   setThreadCount(defaultThreadCount());
 }
 
@@ -667,8 +666,7 @@ Sta::setMinLibrary(const char *min_filename,
 {
   LibertyLibrary *max_lib = network_->findLibertyFilename(max_filename);
   if (max_lib) {
-    LibertyLibrary *min_lib = readLibertyFile(min_filename,
-					      corners_->defaultCorner(),
+    LibertyLibrary *min_lib = readLibertyFile(min_filename, cmd_corner_,
 					      MinMaxAll::min(), false,
 					      report_, debug_, network_);
     return min_lib != nullptr;
@@ -2340,12 +2338,6 @@ Sta::setClkThruTristateEnabled(bool enable)
 ////////////////////////////////////////////////////////////////
 
 Corner *
-Sta::defaultCorner()
-{
-  return corners_->defaultCorner();
-}
-
-Corner *
 Sta::findCorner(const char *corner_name)
 {
   return corners_->findCorner(corner_name);
@@ -2357,24 +2349,33 @@ Sta::multiCorner()
   return corners_->multiCorner();
 }
 
+// Init one corner named "default".
 void
 Sta::makeCorners()
 {
   corners_ = new Corners(this);
+  StringSet corner_names;
+  corner_names.insert("default");
+  makeCorners(&corner_names);
 }
 
 void
 Sta::makeCorners(StringSet *corner_names)
 {
   corners_->makeCorners(corner_names);
+  cmd_corner_ = corners_->findCorner(0);
+}
+
+Corner *
+Sta::cmdCorner() const
+{
+  return cmd_corner_;
 }
 
 void
-Sta::makeDefaultCorners()
+Sta::setCmdCorner(Corner *corner)
 {
-  StringSet corner_names;
-  corner_names.insert("default");
-  corners_->makeCorners(&corner_names);
+  cmd_corner_ = corner;
 }
 
 void
@@ -3344,7 +3345,7 @@ Sta::setPortExtWireCap(Port *port,
 		       const MinMaxAll *min_max,
 		       float cap)
 {
-  Corner *corner = corners_->defaultCorner();
+  Corner *corner = cmd_corner_;
   TransRiseFallIterator tr_iter(tr);
   while (tr_iter.hasNext()) {
     TransRiseFall *tr1 = tr_iter.next();
@@ -3489,7 +3490,7 @@ Sta::readSpef(const char *filename,
 	      bool save,
 	      bool quiet)
 {
-  Corner *corner = corners_->defaultCorner();
+  Corner *corner = cmd_corner_;
   const MinMax *cnst_min_max;
   ParasiticAnalysisPt *ap;
   if (min_max == MinMaxAll::all()) {
@@ -3510,27 +3511,9 @@ Sta::readSpef(const char *filename,
 			      reduce_to, delete_after_reduce,
 			      op_cond, corner, cnst_min_max, save, quiet,
 			      report_, network_, parasitics_);
-  parasiticsChangedAfter();
-  return success;
-}
-
-void
-Sta::parasiticsChangedAfter()
-{
-  // Update the delay calculation analysis points to use the parasitics.
-  CornerIterator corner_iter(sta_);
-  while (corner_iter.hasNext()) {
-    Corner *corner = corner_iter.next();
-    MinMaxIterator mm_iter;
-    while (mm_iter.hasNext()) {
-      MinMax *min_max = mm_iter.next();
-      ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(min_max);
-      DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
-      dcalc_ap->setParasiticAnalysisPt(ap);
-    }
-  }
   graph_delay_calc_->delaysInvalid();
   search_->arrivalsInvalid();
+  return success;
 }
 
 void
@@ -3542,7 +3525,7 @@ Sta::findPiElmore(Pin *drvr_pin,
 		  float &c1,
 		  bool &exists) const
 {
-  Corner *corner = corners_->defaultCorner();
+  Corner *corner = cmd_corner_;
   const ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(min_max);
   if (parasitics_->hasPiElmore(drvr_pin, tr, ap)) {
     Parasitic *pi_elmore = parasitics_->findPiElmore(drvr_pin, tr, ap);
@@ -3561,7 +3544,7 @@ Sta::makePiElmore(Pin *drvr_pin,
 		  float rpi,
 		  float c1)
 {
-  Corner *corner = corners_->defaultCorner();
+  Corner *corner = cmd_corner_;
   MinMaxIterator mm_iter(min_max);
   while (mm_iter.hasNext()) {
     MinMax *mm = mm_iter.next();
@@ -3579,7 +3562,7 @@ Sta::findElmore(Pin *drvr_pin,
 		float &elmore,
 		bool &exists) const
 {
-  Corner *corner = corners_->defaultCorner();
+  Corner *corner = cmd_corner_;
   const ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(min_max);
   if (parasitics_->hasPiElmore(drvr_pin, tr, ap)) {
     Parasitic *pi_elmore = parasitics_->findPiElmore(drvr_pin, tr, ap);
@@ -3597,7 +3580,7 @@ Sta::setElmore(Pin *drvr_pin,
 	       const MinMaxAll *min_max,
 	       float elmore)
 {
-  Corner *corner = corners_->defaultCorner();
+  Corner *corner = cmd_corner_;
   MinMaxIterator mm_iter(min_max);
   while (mm_iter.hasNext()) {
     MinMax *mm = mm_iter.next();

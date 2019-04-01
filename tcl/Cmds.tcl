@@ -1255,7 +1255,7 @@ proc parse_corner { keys_var } {
   } elseif { [multi_corner] } {
     sta_error "-corner keyword required with multi-corner analysis."
   } else {
-    return [default_corner]
+    return [cmd_corner]
   }
 }
 
@@ -1289,7 +1289,7 @@ proc parse_corner_or_default { keys_var } {
       return $corner
     }
   } else {
-    return [default_corner]
+    return [cmd_corner]
   }
 }
 

@@ -16,6 +16,7 @@
 
 #include "Machine.hh"
 #include "StringUtil.hh"
+#include "Corner.hh"
 #include "DcalcAnalysisPt.hh"
 
 namespace sta {
@@ -23,19 +24,13 @@ namespace sta {
 DcalcAnalysisPt::DcalcAnalysisPt(Corner *corner,
 				 DcalcAPIndex index,
 				 const OperatingConditions *op_cond,
-				 const MinMax *cnst_min_max,
-				 const MinMax *delay_min_max,
-				 const MinMax *slew_min_max,
-				 const MinMax *check_clk_slew_min_max,
-				 const ParasiticAnalysisPt *parasitic_ap) :
+				 const MinMax *min_max,
+				 const MinMax *check_clk_slew_min_max) :
   corner_(corner),
   index_(index),
   op_cond_(op_cond),
-  cnst_min_max_(cnst_min_max),
-  delay_min_max_(delay_min_max),
-  slew_min_max_(slew_min_max),
-  check_clk_slew_min_max_(check_clk_slew_min_max),
-  parasitic_ap_(parasitic_ap)
+  min_max_(min_max),
+  check_clk_slew_min_max_(check_clk_slew_min_max)
 {
 }
 
@@ -45,11 +40,10 @@ DcalcAnalysisPt::setOperatingConditions(const OperatingConditions *op_cond)
   op_cond_ = op_cond;
 }
 
-void
-DcalcAnalysisPt::
-setParasiticAnalysisPt(const ParasiticAnalysisPt *parasitic_ap)
+ParasiticAnalysisPt *
+DcalcAnalysisPt::parasiticAnalysisPt() const
 {
-  parasitic_ap_ = parasitic_ap;
+  return corner_->findParasiticAnalysisPt(min_max_);
 }
 
 void

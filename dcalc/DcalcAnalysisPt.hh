@@ -39,11 +39,8 @@ public:
   DcalcAnalysisPt(Corner *corner,
 		  DcalcAPIndex index,
 		  const OperatingConditions *op_cond,
-		  const MinMax *cnst_min_max,
-		  const MinMax *delay_min_max,
-		  const MinMax *slew_min_max,
-		  const MinMax *check_clk_slew_min_max,
-		  const ParasiticAnalysisPt *parasitic_ap);
+		  const MinMax *min_max,
+		  const MinMax *check_clk_slew_min_max);
   Corner *corner() const { return corner_; }
   // Which of the delay_count results this analysis point corresponds to.
   DcalcAPIndex index() const { return index_; }
@@ -54,16 +51,15 @@ public:
   // Slew min/max of timing check clock.
   const MinMax *checkClkSlewMinMax() const { return check_clk_slew_min_max_; }
   // Constraint min/max values to use.
-  const MinMax *constraintMinMax() const { return cnst_min_max_; }
+  const MinMax *constraintMinMax() const { return min_max_; }
   // Constraints::operatingCondition(cnst_min_max_)
   const OperatingConditions *operatingConditions() const { return op_cond_; }
   void setOperatingConditions(const OperatingConditions *op_cond);
   // Delay merging min/max operator (for wires).
-  const MinMax *delayMinMax() const { return delay_min_max_; }
+  const MinMax *delayMinMax() const { return min_max_; }
   // Merge min/max slews across timing arcs.
-  const MinMax *slewMinMax() const { return slew_min_max_; }
-  const ParasiticAnalysisPt *parasiticAnalysisPt()const{return parasitic_ap_;}
-  void setParasiticAnalysisPt(const ParasiticAnalysisPt *parasitic_ap);
+  const MinMax *slewMinMax() const { return min_max_; }
+  ParasiticAnalysisPt *parasiticAnalysisPt() const;
   void setCheckClkSlewIndex(DcalcAPIndex index);
   int libertyIndex() const;
 
@@ -74,11 +70,8 @@ private:
   DcalcAPIndex index_;
   DcalcAPIndex check_clk_slew_index_;
   const OperatingConditions *op_cond_;
-  const MinMax *cnst_min_max_;
-  const MinMax *delay_min_max_;
-  const MinMax *slew_min_max_;
+  const MinMax *min_max_;
   const MinMax *check_clk_slew_min_max_;
-  const ParasiticAnalysisPt *parasitic_ap_;
 };
 
 } // namespace

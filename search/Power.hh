@@ -78,6 +78,7 @@ protected:
 		// Return values.
 		float &activity,
 		bool &is_clk);
+  float activity(const Pin *pin);
   float voltage(LibertyCell *cell,
 		const LibertyPort *port,
 		const DcalcAnalysisPt *dcalc_ap);

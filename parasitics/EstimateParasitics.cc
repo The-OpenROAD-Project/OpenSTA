@@ -193,9 +193,17 @@ EstimateParasitics::estimatePiElmoreBalanced(const Pin *drvr_pin,
     }
     delete load_iter;
 
-    c1 = static_cast<float>(y2 * y2 / y3);
-    c2 = static_cast<float>(y1 - y2 * y2 / y3);
-    rpi = static_cast<float>(-y3 * y3 / (y2 * y2 * y2));
+    if (y3 == 0) {
+      // No loads.
+      c1 = 0.0;
+      c2 = 0.0;
+      rpi = 0.0;
+    }
+    else {
+      c1 = static_cast<float>(y2 * y2 / y3);
+      c2 = static_cast<float>(y1 - y2 * y2 / y3);
+      rpi = static_cast<float>(-y3 * y3 / (y2 * y2 * y2));
+    }
     elmore_res = static_cast<float>(res_fanout);
     elmore_cap = static_cast<float>(cap_fanout);
     elmore_use_load_cap = true;

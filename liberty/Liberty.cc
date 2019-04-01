@@ -848,7 +848,8 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   ocv_arc_depth_(0.0),
   ocv_derate_(nullptr),
   is_disabled_constraint_(false),
-  leakage_power_(0.0)
+  leakage_power_(0.0),
+  leakage_power_exists_(false)
 {
 }
 
@@ -1081,6 +1082,16 @@ void
 LibertyCell::setLeakagePower(float leakage)
 {
   leakage_power_ = leakage;
+  leakage_power_exists_ = true;
+}
+
+void
+LibertyCell::leakagePower(// Return values.
+			  float &leakage,
+			  bool &exists) const
+{
+  leakage = leakage_power_;
+  exists = leakage_power_exists_;
 }
 
 void
