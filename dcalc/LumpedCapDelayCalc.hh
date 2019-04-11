@@ -28,17 +28,9 @@ class LumpedCapDelayCalc : public ArcDelayCalc
 public:
   LumpedCapDelayCalc(StaState *sta);
   virtual ArcDelayCalc *copy();
-  virtual void findParasitic(const Pin *drvr_pin,
-			     const TransRiseFall *tr,
-			     const DcalcAnalysisPt *dcalc_ap,
-			     // Return values.
-			     Parasitic *&parasitic,
-			     bool &delete_at_finish);
-  virtual void finish(const Pin *drvr_pin,
-		      const TransRiseFall *tr,
-		      const DcalcAnalysisPt *dcalc_ap,
-		      Parasitic *parasitic,
-		      bool delete_at_finish);
+  virtual Parasitic *findParasitic(const Pin *drvr_pin,
+				   const TransRiseFall *tr,
+				   const DcalcAnalysisPt *dcalc_ap);
   virtual void inputPortDelay(const Pin *port_pin,
 			      float in_slew,
 			      const TransRiseFall *tr,
@@ -97,6 +89,7 @@ public:
 				const DcalcAnalysisPt *dcalc_ap,
 				int digits,
 				string *result);
+  virtual void finishDrvrPin();
 
 protected:
   // Find the liberty library to use for logic/slew thresholds.
@@ -110,6 +103,11 @@ protected:
   float multi_drvr_slew_factor_;
   const LibertyLibrary *drvr_library_;
   const TransRiseFall *drvr_tr_;
+  // Parasitics returned by findParasitic that are reduced or estimated
+  // that can be deleted after delay calculation for the driver pin
+  // is finished.
+  Vector<Parasitic*> unsaved_parasitics_;
+  Vector<const Pin *> reduced_parasitic_drvrs_;
 };
 
 ArcDelayCalc *

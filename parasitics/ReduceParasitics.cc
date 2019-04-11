@@ -17,9 +17,11 @@
 #include "Machine.hh"
 #include "Error.hh"
 #include "Debug.hh"
+#include "MinMax.hh"
 #include "Liberty.hh"
 #include "Network.hh"
 #include "Sdc.hh"
+#include "Corner.hh"
 #include "Parasitics.hh"
 #include "ReduceParasitics.hh"
 
@@ -46,6 +48,7 @@ public:
 		  float &c2,
 		  float &rpi,
 		  float &c1);
+  bool pinCapsOneValue() { return pin_caps_one_value_; }
 
 protected:
   void reducePiDfs(const Pin *drvr_pin,
@@ -75,6 +78,7 @@ protected:
   ParasiticNodeSet visited_nodes_;
   ParasiticNodeValueMap node_values_;
   ParasiticDeviceSet loop_resistors_;
+  bool pin_caps_one_value_;
 };
 
 ReduceToPi::ReduceToPi(StaState *sta) :
@@ -83,7 +87,8 @@ ReduceToPi::ReduceToPi(StaState *sta) :
   tr_(nullptr),
   op_cond_(nullptr),
   corner_(nullptr),
-  cnst_min_max_(nullptr)
+  cnst_min_max_(nullptr),
+  pin_caps_one_value_(true)
 {
 }
 
@@ -117,16 +122,16 @@ ReduceToPi::reduceToPi(const Pin *drvr_pin,
 
   if (y2 == 0.0 && y3 == 0.0) {
     // Capacitive load.
-    c1 = static_cast<float>(y1);
+    c1 = y1;
     c2 = 0.0;
     rpi = 0.0;
   }
   else {
-    c1 = static_cast<float>(y2 * y2 / y3);
-    c2 = static_cast<float>(y1 - y2 * y2 / y3);
-    rpi = static_cast<float>(-y3 * y3 / (y2 * y2 * y2));
+    c1 = y2 * y2 / y3;
+    c2 = y1 - y2 * y2 / y3;
+    rpi = -y3 * y3 / (y2 * y2 * y2);
   }
-  debugPrint3(debug_, "parasitic_reduce", 1,
+  debugPrint3(debug_, "parasitic_reduce", 2,
 	      " Pi model c2=%.3g rpi=%.3g c1=%.3g\n",
 	      c2, rpi, c1);
 }
@@ -169,7 +174,7 @@ ReduceToPi::reducePiDfs(const Pin *drvr_pin,
 	  && device != from_res) {
 	if (isVisited(onode)) {
 	  // Resistor loop.
-	  debugPrint1(debug_, "parasitic_reduce", 1,
+	  debugPrint1(debug_, "parasitic_reduce", 2,
 		      " loop detected thru resistor %s\n",
 		      parasitics_->name(device));
 	  markLoopResistor(device);
@@ -190,9 +195,9 @@ ReduceToPi::reducePiDfs(const Pin *drvr_pin,
   }
   delete device_iter2;
 
-  setDownstreamCap(node, static_cast<float>(dwn_cap));
+  setDownstreamCap(node, dwn_cap);
   leave(node);
-  debugPrint5(debug_, "parasitic_reduce", 2,
+  debugPrint5(debug_, "parasitic_reduce", 3,
 	      " node %s y1=%.3g y2=%.3g y3=%.3g cap=%.3g\n",
 	      parasitics_->name(node), y1, y2, y3, dwn_cap);
 }
@@ -206,9 +211,11 @@ ReduceToPi::pinCapacitance(ParasiticNode *node)
     Port *port = network_->port(pin);
     LibertyPort *lib_port = network_->libertyPort(port);
     if (lib_port) {
-      if (!pin_cap_included_)
+      if (!pin_cap_included_) {
 	pin_cap = sdc_->pinCapacitance(pin,tr_, op_cond_, corner_,
 				       cnst_min_max_);
+	pin_caps_one_value_ &= lib_port->capacitanceIsOneValue();
+      }
     }
     else if (network_->isTopLevelPort(pin))
       pin_cap = sdc_->portExtCap(port, tr_, cnst_min_max_);
@@ -231,7 +238,7 @@ ReduceToPi::isVisited(ParasiticNode *node)
 void
 ReduceToPi::leave(ParasiticNode *node)
 {
-  visited_nodes_.eraseKey(node);
+  visited_nodes_.erase(node);
 }
 
 bool
@@ -256,7 +263,7 @@ ReduceToPi::setDownstreamCap(ParasiticNode *node,
 float
 ReduceToPi::downstreamCap(ParasiticNode *node)
 {
-  return static_cast<float>(node_values_[node]);
+  return node_values_[node];
 }
 
 ////////////////////////////////////////////////////////////////
@@ -265,6 +272,15 @@ class ReduceToPiElmore : public ReduceToPi
 {
 public:
   ReduceToPiElmore(StaState *sta);
+  void makePiElmore(Parasitic *parasitic_network,
+		    const Pin *drvr_pin,
+		    ParasiticNode *drvr_node,
+		    float coupling_cap_factor,
+		    const TransRiseFall *tr,
+		    const OperatingConditions *op_cond,
+		    const Corner *corner,
+		    const MinMax *cnst_min_max,
+		    const ParasiticAnalysisPt *ap);
   void reduceElmoreDfs(const Pin *drvr_pin,
 		       ParasiticNode *node,
 		       ParasiticDevice *from_res,
@@ -273,43 +289,60 @@ public:
 		       const ParasiticAnalysisPt *ap);
 };
 
-ReduceToPiElmore::ReduceToPiElmore(StaState *sta) :
-  ReduceToPi(sta)
-{
-}
-
-Parasitic *
-reduceToPiElmore(Parasitic *parasitic,
+void
+reduceToPiElmore(Parasitic *parasitic_network,
 		 const Pin *drvr_pin,
 		 float coupling_cap_factor,
-		 const TransRiseFall *tr,
 		 const OperatingConditions *op_cond,
 		 const Corner *corner,
 		 const MinMax *cnst_min_max,
 		 const ParasiticAnalysisPt *ap,
 		 StaState *sta)
 {
-  debugPrint1(sta->debug(), "parasitic_reduce", 1,
-	      "Reduce driver %s\n",
-	      sta->network()->pathName(drvr_pin));
   Parasitics *parasitics = sta->parasitics();
-  ParasiticNode *drvr_node = parasitics->findNode(parasitic, drvr_pin);
+  ParasiticNode *drvr_node = parasitics->findNode(parasitic_network,
+						  drvr_pin);
   if (drvr_node) {
+    debugPrint1(sta->debug(), "parasitic_reduce", 1,
+		"Reduce driver %s\n",
+		sta->network()->pathName(drvr_pin));
     ReduceToPiElmore reducer(sta);
-    float c2, rpi, c1;
-    reducer.reduceToPi(drvr_pin, drvr_node,
-		       parasitics->includesPinCaps(parasitic),
-		       coupling_cap_factor,
-		       tr, op_cond, corner, cnst_min_max, ap,
-		       c2, rpi, c1);
-    Parasitic *pi_elmore = parasitics->makePiElmore(drvr_pin, tr, ap,
-						    c2, rpi, c1);
-    parasitics->setIsReducedParasiticNetwork(pi_elmore, true);
-    reducer.reduceElmoreDfs(drvr_pin, drvr_node, 0, 0.0, pi_elmore, ap);
-    return pi_elmore;
+    reducer.makePiElmore(parasitic_network, drvr_pin, drvr_node,
+			 coupling_cap_factor, TransRiseFall::rise(),
+			 op_cond, corner, cnst_min_max, ap);
+    if (!reducer.pinCapsOneValue())
+      reducer.makePiElmore(parasitic_network, drvr_pin, drvr_node,
+			   coupling_cap_factor, TransRiseFall::fall(),
+			   op_cond, corner, cnst_min_max, ap);
   }
-  else
-    return 0;
+}
+
+ReduceToPiElmore::ReduceToPiElmore(StaState *sta) :
+  ReduceToPi(sta)
+{
+}
+
+void
+ReduceToPiElmore::makePiElmore(Parasitic *parasitic_network,
+			       const Pin *drvr_pin,
+			       ParasiticNode *drvr_node,
+			       float coupling_cap_factor,
+			       const TransRiseFall *tr,
+			       const OperatingConditions *op_cond,
+			       const Corner *corner,
+			       const MinMax *cnst_min_max,
+			       const ParasiticAnalysisPt *ap)
+{
+  float c2, rpi, c1;
+  reduceToPi(drvr_pin, drvr_node,
+	     parasitics_->includesPinCaps(parasitic_network),
+	     coupling_cap_factor,
+	     tr, op_cond, corner, cnst_min_max, ap,
+	     c2, rpi, c1);
+  Parasitic *pi_elmore = parasitics_->makePiElmore(drvr_pin, tr, ap,
+						   c2, rpi, c1);
+  parasitics_->setIsReducedParasiticNetwork(pi_elmore, true);
+  reduceElmoreDfs(drvr_pin, drvr_node, 0, 0.0, pi_elmore, ap);
 }
 
 // Find elmore delays on 2nd DFS search using downstream capacitances
@@ -325,11 +358,11 @@ ReduceToPiElmore::reduceElmoreDfs(const Pin *drvr_pin,
   const Pin *pin = parasitics_->connectionPin(node);
   if (from_res && pin) {
     if (network_->isLoad(pin)) {
-      debugPrint2(debug_, "parasitic_reduce", 1,
+      debugPrint2(debug_, "parasitic_reduce", 2,
 		  " Load %s elmore=%.3g\n",
 		  network_->pathName(pin),
 		  elmore);
-      parasitics_->setElmore(pi_elmore, pin, static_cast<float>(elmore));
+      parasitics_->setElmore(pi_elmore, pin, elmore);
     }
   }
   visit(node);
@@ -364,6 +397,15 @@ public:
 			 const Pin *drvr_pin,
 			 ParasiticNode *drvr_node,
 			 const ParasiticAnalysisPt *ap);
+  void makePiPoleResidue2(Parasitic *parasitic_network,
+			  const Pin *drvr_pin,
+			  ParasiticNode *drvr_node,
+			  float coupling_cap_factor,
+			  const TransRiseFall *tr,
+			  const OperatingConditions *op_cond,
+			  const Corner *corner,
+			  const MinMax *cnst_min_max,
+			  const ParasiticAnalysisPt *ap);
 
 private:
   void findMoments(const Pin *drvr_pin,
@@ -415,40 +457,56 @@ ReduceToPiPoleResidue2::ReduceToPiPoleResidue2(StaState *sta) :
 // "An Explicit RC-Circuit Delay Approximation Based on the First
 // Three Moments of the Impulse Response", Proceedings of the 33rd
 // Design Automation Conference, 1996, pg 611-616.
-Parasitic *
-reduceToPiPoleResidue2(Parasitic *parasitic,
+void
+reduceToPiPoleResidue2(Parasitic *parasitic_network,
 		       const Pin *drvr_pin,
 		       float coupling_cap_factor,
-		       const TransRiseFall *tr,
 		       const OperatingConditions *op_cond,
 		       const Corner *corner,
 		       const MinMax *cnst_min_max,
 		       const ParasiticAnalysisPt *ap,
 		       StaState *sta)
 {
-  debugPrint1(sta->debug(), "parasitic_reduce", 1,
-	      "Reduce driver %s\n",
-	      sta->network()->pathName(drvr_pin));
   Parasitics *parasitics = sta->parasitics();
-  ParasiticNode *drvr_node = parasitics->findNode(parasitic, drvr_pin);
+  ParasiticNode *drvr_node = parasitics->findNode(parasitic_network, drvr_pin);
   if (drvr_node) {
+    debugPrint1(sta->debug(), "parasitic_reduce", 1,
+		"Reduce driver %s\n",
+		sta->network()->pathName(drvr_pin));
     ReduceToPiPoleResidue2 reducer(sta);
-    float c2, rpi, c1;
-    reducer.reduceToPi(drvr_pin, drvr_node,
-		       parasitics->includesPinCaps(parasitic),
-		       coupling_cap_factor,
-		       tr, op_cond, corner, cnst_min_max, ap,
-		       c2, rpi, c1);
-    Parasitic *pi_pole_residue = parasitics->makePiPoleResidue(drvr_pin,
-							       tr, ap,
-							       c2, rpi, c1);
-    parasitics->setIsReducedParasiticNetwork(pi_pole_residue, true);
-    reducer.findPolesResidues(parasitic, pi_pole_residue,
-			      drvr_pin, drvr_node, ap);
-    return pi_pole_residue;
+    reducer.makePiPoleResidue2(parasitic_network, drvr_pin, drvr_node,
+			       coupling_cap_factor, TransRiseFall::rise(),
+			       op_cond, corner, cnst_min_max, ap);
+    if (!reducer.pinCapsOneValue())
+      reducer.makePiPoleResidue2(parasitic_network, drvr_pin, drvr_node,
+				 coupling_cap_factor, TransRiseFall::fall(),
+				 op_cond, corner, cnst_min_max, ap);
   }
-  else
-    return 0;
+}
+
+void
+ReduceToPiPoleResidue2::makePiPoleResidue2(Parasitic *parasitic_network,
+					   const Pin *drvr_pin,
+					   ParasiticNode *drvr_node,
+					   float coupling_cap_factor,
+					   const TransRiseFall *tr,
+					   const OperatingConditions *op_cond,
+					   const Corner *corner,
+					   const MinMax *cnst_min_max,
+					   const ParasiticAnalysisPt *ap)
+{
+  float c2, rpi, c1;
+  reduceToPi(drvr_pin, drvr_node,
+	     parasitics_->includesPinCaps(parasitic_network),
+	     coupling_cap_factor,
+	     tr, op_cond, corner, cnst_min_max, ap,
+	     c2, rpi, c1);
+  Parasitic *pi_pole_residue = parasitics_->makePiPoleResidue(drvr_pin,
+							      tr, ap,
+							      c2, rpi, c1);
+  parasitics_->setIsReducedParasiticNetwork(pi_pole_residue, true);
+  findPolesResidues(parasitic_network, pi_pole_residue,
+		    drvr_pin, drvr_node, ap);
 }
 
 ReduceToPiPoleResidue2::~ReduceToPiPoleResidue2()
@@ -639,8 +697,8 @@ ReduceToPiPoleResidue2::findPolesResidues(Parasitic *pi_pole_residue,
 		network_->pathName(load_pin), p1, k1);
     ComplexFloatSeq *poles = new ComplexFloatSeq(1);
     ComplexFloatSeq *residues = new ComplexFloatSeq(1);
-    (*poles)[0] = ComplexFloat(static_cast<float>(p1), 0.0);
-    (*residues)[0] = ComplexFloat(static_cast<float>(k1), 0.0);
+    (*poles)[0] = ComplexFloat(p1, 0.0);
+    (*residues)[0] = ComplexFloat(k1, 0.0);
     parasitics_->setPoleResidue(pi_pole_residue, load_pin, poles, residues);
   }
   else {
@@ -660,10 +718,10 @@ ReduceToPiPoleResidue2::findPolesResidues(Parasitic *pi_pole_residue,
 
     ComplexFloatSeq *poles = new ComplexFloatSeq(2);
     ComplexFloatSeq *residues = new ComplexFloatSeq(2);
-    (*poles)[0] = ComplexFloat(static_cast<float>(p1), 0.0);
-    (*residues)[0] = ComplexFloat(static_cast<float>(k1), 0.0);
-    (*poles)[1] = ComplexFloat(static_cast<float>(p2), 0.0);
-    (*residues)[1] = ComplexFloat(static_cast<float>(k2), 0.0);
+    (*poles)[0] = ComplexFloat(p1, 0.0);
+    (*residues)[0] = ComplexFloat(k1, 0.0);
+    (*poles)[1] = ComplexFloat(p2, 0.0);
+    (*residues)[1] = ComplexFloat(k2, 0.0);
     parasitics_->setPoleResidue(pi_pole_residue, load_pin, poles, residues);
   }
 }

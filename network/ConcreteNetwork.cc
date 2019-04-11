@@ -436,7 +436,7 @@ ConcreteNetwork::findLibrary(const char *name)
 void
 ConcreteNetwork::deleteLibrary(ConcreteLibrary *library)
 {
-  library_map_.eraseKey(library->name());
+  library_map_.erase(library->name());
   library_seq_.eraseObject(library);
   delete library;
 }
@@ -1138,8 +1138,8 @@ ConcreteNetwork::makePins(Instance *inst)
 }
 
 void
-ConcreteNetwork::swapCell(Instance *inst,
-			  LibertyCell *cell)
+ConcreteNetwork::replaceCell(Instance *inst,
+			     LibertyCell *cell)
 {
   InstancePinIterator *pin_iter = pinIterator(inst);
   ConcreteCell *ccell = cell;
@@ -1323,7 +1323,7 @@ ConcreteNetwork::disconnectNetPin(ConcreteNet *cnet,
       Net *net = reinterpret_cast<Net*>(cnet);
       PinSet *drvrs = net_drvr_pin_map_.findKey(net);
       if (drvrs)
-	drvrs->eraseKey(pin);
+	drvrs->erase(pin);
     }
     else
       clearNetDrvPinrMap();
@@ -1366,12 +1366,12 @@ ConcreteNetwork::deleteNet(Net *net)
     pin->net_ = nullptr;
   }
 
-  constant_nets_[int(LogicValue::zero)].eraseKey(net);
-  constant_nets_[int(LogicValue::one)].eraseKey(net);
+  constant_nets_[int(LogicValue::zero)].erase(net);
+  constant_nets_[int(LogicValue::one)].erase(net);
   PinSet *drvrs = net_drvr_pin_map_.findKey(net);
   if (drvrs) {
     delete drvrs;
-    net_drvr_pin_map_.eraseKey(net);
+    net_drvr_pin_map_.erase(net);
   }
 
   ConcreteInstance *cinst =
@@ -1554,7 +1554,7 @@ ConcreteInstance::addChild(ConcreteInstance *child)
 void
 ConcreteInstance::deleteChild(ConcreteInstance *child)
 {
-  children_->eraseKey(child->name());
+  children_->erase(child->name());
 }
 
 void
@@ -1591,7 +1591,7 @@ ConcreteInstance::addNet(const char *name,
 void
 ConcreteInstance::deleteNet(ConcreteNet *net)
 {
-  nets_->eraseKey(net->name());
+  nets_->erase(net->name());
 }
 
 void

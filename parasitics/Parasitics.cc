@@ -32,19 +32,6 @@ Parasitics::Parasitics(StaState *sta) :
 {
 }
 
-bool
-Parasitics::hasParasiticNetwork(const Pin *pin,
-				const ParasiticAnalysisPt *ap) const
-{
-  if (ap) {
-    // Only call findParasiticNet if there is an analysis pt (parasitics exist).
-    Net *net = findParasiticNet(pin);
-    return hasParasiticNetwork(net, ap);
-  }
-  else
-    return false;
-}
-
 Net *
 Parasitics::findParasiticNet(const Pin *pin) const
 {

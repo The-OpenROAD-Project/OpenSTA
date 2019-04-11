@@ -138,7 +138,7 @@ LibertyGroup::addDefine(LibertyDefine *define)
   const char *define_name = define->name();
   LibertyDefine *prev_define = define_map_->findKey(define_name);
   if (prev_define) {
-    define_map_->eraseKey(define_name);
+    define_map_->erase(define_name);
     delete prev_define;
   }
   (*define_map_)[define_name] = define;

@@ -74,9 +74,9 @@ ClockGroups::removeClock(Clock *clk)
   while (group_iter.hasNext()) {
     ClockGroup *group = group_iter.next();
     ClockSet *clks = group->clks();
-    clks->eraseKey(clk);
+    clks->erase(clk);
     if (clks->empty()) {
-      groups_.eraseKey(group);
+      groups_.erase(group);
       delete group;
     }
   }

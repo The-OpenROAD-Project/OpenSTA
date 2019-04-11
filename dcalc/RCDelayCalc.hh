@@ -27,12 +27,6 @@ class RCDelayCalc : public LumpedCapDelayCalc
 public:
   RCDelayCalc(StaState *sta);
   virtual ArcDelayCalc *copy();
-  virtual void findParasitic(const Pin *drvr_pin,
-			     const TransRiseFall *tr,
-			     const DcalcAnalysisPt *dcalc_ap,
-			     // Return values.
-			     Parasitic *&parasitic,
-			     bool &delete_at_finish);
   virtual void inputPortDelay(const Pin *port_pin,
 			      float in_slew,
 			      const TransRiseFall *tr,

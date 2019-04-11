@@ -91,17 +91,7 @@ public:
   insert(const KEY &key,
 	 VALUE value)
   {
-    //  this->find(key) = value;
     this->operator[](key) = value;
-  }
-
-  // Erase the value corresponding to key.
-  void
-  eraseKey(KEY key)
-  {
-    auto find_iter = this->find(key);
-    if (find_iter != this->end())
-      this->erase(find_iter);
   }
 
   void
@@ -110,6 +100,14 @@ public:
     Iterator iter(this);
     while (iter.hasNext())
       delete iter.next();
+  }
+
+  void
+  deleteArrayContents()
+  {
+    Iterator iter(this);
+    while (iter.hasNext())
+      delete [] iter.next();
   }
 
   void

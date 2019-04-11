@@ -663,8 +663,8 @@ Sim::recordConstPinFunc(Pin *pin)
 void
 Sim::deleteInstanceBefore(Instance *inst)
 {
-  instances_with_const_pins_.eraseKey(inst);
-  invalid_insts_.eraseKey(inst);
+  instances_with_const_pins_.erase(inst);
+  invalid_insts_.erase(inst);
 }
 
 void
@@ -678,9 +678,9 @@ void
 Sim::deletePinBefore(Pin *pin)
 {
   // Incrementally update const_func_pins_.
-  const_func_pins_.eraseKey(pin);
-  invalid_load_pins_.eraseKey(pin);
-  invalid_drvr_pins_.eraseKey(pin);
+  const_func_pins_.erase(pin);
+  invalid_load_pins_.erase(pin);
+  invalid_drvr_pins_.erase(pin);
   invalid_insts_.insert(network_->instance(pin));
 }
 
@@ -716,7 +716,7 @@ Sim::pinSetFuncAfter(Pin *pin)
     valid_ = false;
   }
   // Incrementally update const_func_pins_.
-  const_func_pins_.eraseKey(pin);
+  const_func_pins_.erase(pin);
   recordConstPinFunc(pin);
 }
 

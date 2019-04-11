@@ -1198,7 +1198,7 @@ void
 ExceptionFromTo::deletePin(Pin *pin)
 {
   if (pins_) {
-    pins_->eraseKey(pin);
+    pins_->erase(pin);
     // Incrementally update hash.
     hash_ -= hashPtr(pin) * hash_pin;
   }
@@ -1208,7 +1208,7 @@ void
 ExceptionFromTo::deleteClock(Clock *clk)
 {
   if (clks_) {
-    clks_->eraseKey(clk);
+    clks_->erase(clk);
     // Incrementally update hash.
     hash_ -= clk->index() * hash_clk;
   }
@@ -1218,7 +1218,7 @@ void
 ExceptionFromTo::deleteInstance(Instance *inst)
 {
   if (insts_) {
-    insts_->eraseKey(inst);
+    insts_->erase(inst);
     // Incrementally update hash.
     hash_ -= hashPtr(inst) * hash_inst;
   }
@@ -1587,7 +1587,7 @@ ExceptionThru::deletePinEdges(Pin *pin,
         EdgePins *edge_pins = edge_iter.next();
         if (edge_pins->first == pin
             || edge_pins->second == pin) {
-          edges_->eraseKey(edge_pins);
+          edges_->erase(edge_pins);
           delete edge_pins;
         }
       }
@@ -1840,7 +1840,7 @@ void
 ExceptionThru::deletePin(Pin *pin)
 {
   if (pins_) {
-    pins_->eraseKey(pin);
+    pins_->erase(pin);
     // Incrementally update hash.
     hash_ -= hashPtr(pin) * hash_pin;
   }
@@ -1850,7 +1850,7 @@ void
 ExceptionThru::deleteNet(Net *net)
 {
   if (nets_) {
-    nets_->eraseKey(net);
+    nets_->erase(net);
     // Incrementally update hash.
     hash_ -= hashPtr(net) * hash_net;
   }
@@ -1860,7 +1860,7 @@ void
 ExceptionThru::deleteInstance(Instance *inst)
 {
   if (insts_) {
-    insts_->eraseKey(inst);
+    insts_->erase(inst);
     // Incrementally update hash.
     hash_ -= hashPtr(inst) * hash_inst;
   }
@@ -1870,7 +1870,7 @@ void
 ExceptionThru::deleteEdge(EdgePins *edge)
 {
   if (edges_) {
-    edges_->eraseKey(edge);
+    edges_->erase(edge);
     // Hash is unchanged because edges are derived from hierarchical pins.
   }
 }
@@ -2519,7 +2519,7 @@ DeletePinPairsThru::visit(Pin *drvr,
 			  Pin *load)
 {
   PinPair probe(drvr, load);
-  pairs_->eraseKey(&probe);
+  pairs_->erase(&probe);
 }
 
 static void

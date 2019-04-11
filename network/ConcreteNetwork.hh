@@ -190,8 +190,8 @@ public:
   virtual Instance *makeInstance(Cell *cell,
 				 const char *name,
 				 Instance *parent);
-  virtual void swapCell(Instance *inst,
-			LibertyCell *cell);
+  virtual void replaceCell(Instance *inst,
+			   LibertyCell *cell);
   virtual void deleteInstance(Instance *inst);
   virtual Pin *connect(Instance *inst,
 		       Port *port,

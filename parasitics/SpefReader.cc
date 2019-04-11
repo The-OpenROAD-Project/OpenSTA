@@ -346,7 +346,7 @@ SpefReader::setDesignFlow(StringSeq *flow)
 Pin *
 SpefReader::findPin(char *name)
 {
-  Pin *pin = 0;
+  Pin *pin = nullptr;
   if (name) {
     char *delim = strrchr(name, delimiter_);
     if (delim) {
@@ -376,7 +376,7 @@ SpefReader::findPin(char *name)
 Net *
 SpefReader::findNet(char *name)
 {
-  Net *net = 0;
+  Net *net = nullptr;
   name = nameMapLookup(name);
   if (name) {
     net = findNetRelative(name);
@@ -408,13 +408,12 @@ SpefReader::rspfDrvrBegin(Pin *drvr_pin,
   if (drvr_pin) {
     // Incremental parasitics do not overwrite existing parasitics.
     if (!(increment_ &&
-	  parasitics_->hasPiElmore(drvr_pin, TransRiseFall::rise(), ap_))) {
+	  parasitics_->findPiElmore(drvr_pin, TransRiseFall::rise(), ap_))) {
       float c2 = pi->c2()->value(triple_index_) * cap_scale_;
       float rpi = pi->r1()->value(triple_index_) * res_scale_;
       float c1 = pi->c1()->value(triple_index_) * cap_scale_;
       // Delete pi model and elmore delays.
-      parasitics_->deletePiElmore(drvr_pin, TransRiseFall::rise(), ap_);
-      parasitics_->deletePiElmore(drvr_pin, TransRiseFall::fall(), ap_);
+      parasitics_->deleteParasitics(drvr_pin, ap_);
       // Only one parasitic, save it under rise transition.
       parasitic_ = parasitics_->makePiElmore(drvr_pin,
 					     TransRiseFall::rise(),
@@ -438,7 +437,7 @@ SpefReader::rspfLoad(Pin *load_pin,
 void
 SpefReader::rspfDrvrFinish()
 {
-  parasitic_ = 0;
+  parasitic_ = nullptr;
 }
 
 // Net cap (total_cap) is ignored.
@@ -449,19 +448,16 @@ SpefReader::dspfBegin(Net *net,
   if (net) {
     // Incremental parasitics do not overwrite existing parasitics.
     if (increment_
-	&& parasitics_->hasParasiticNetwork(net, ap_))
-      parasitic_ = 0;
-    else {
-      parasitics_->deleteParasitics(net, ap_);
+	&& parasitics_->findParasiticNetwork(net, ap_))
+      parasitic_ = nullptr;
+    else
       parasitic_ = parasitics_->makeParasiticNetwork(net, pin_cap_included_,
 						     ap_);
-
-    }
     net_ = net;
   }
   else {
-    parasitic_ = 0;
-    net_ = 0;
+    parasitic_ = nullptr;
+    net_ = nullptr;
   }
   delete total_cap;
 }
@@ -474,18 +470,14 @@ SpefReader::dspfFinish()
     if (!quiet_)
       parasitics_->check(parasitic_);
     if (reduce_to_ != ReduceParasiticsTo::none) {
-      TransRiseFallIterator tr_iter;
-      while (tr_iter.hasNext()) {
-	TransRiseFall *tr = tr_iter.next();
-	parasitics_->reduceTo(parasitic_, net_, reduce_to_, tr,
-			      op_cond_, corner_, cnst_min_max_, ap_);
-      }
+      parasitics_->reduceTo(parasitic_, net_, reduce_to_, op_cond_,
+			    corner_, cnst_min_max_, ap_);
       if (delete_after_reduce_)
 	parasitics_->deleteParasiticNetwork(net_, ap_);
     }
   }
-  parasitic_ = 0;
-  net_ = 0;
+  parasitic_ = nullptr;
+  net_ = nullptr;
 }
 
 // Caller is only interested in nodes on net_.
@@ -510,10 +502,10 @@ SpefReader::findParasiticNode(char *name,
 			      int &ext_node_id,
 			      Pin *&ext_pin)
 {
-  node = 0;
-  ext_net = 0;
+  node = nullptr;
+  ext_net = nullptr;
   ext_node_id = 0;
-  ext_pin = 0;
+  ext_pin = nullptr;
   if (name) {
     if (parasitic_) {
       char *delim = strrchr(name, delimiter_);

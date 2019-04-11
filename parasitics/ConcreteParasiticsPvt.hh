@@ -57,7 +57,6 @@ class ConcreteParasitic : public Parasitic
 public:
   virtual ~ConcreteParasitic();
   virtual float capacitance() const = 0;
-  virtual bool isLumpedElmore() const;
   virtual bool isPiElmore() const;
   virtual bool isPiModel() const;
   virtual bool isPiPoleResidue() const;
@@ -100,24 +99,6 @@ protected:
 
 private:
   ConcreteElmoreLoadMap *loads_;
-};
-
-class ConcreteLumpedElmore : public ConcreteParasitic,
-			     public ConcreteElmore
-{
-public:
-  ConcreteLumpedElmore(float cap);
-  virtual bool isLumpedElmore() const { return true; }
-  virtual float capacitance() const { return cap_; }
-  void setCapacitance(float cap);
-  virtual void findElmore(const Pin *load_pin,
-			  float &elmore,
-			  bool &exists) const;
-  virtual void setElmore(const Pin *load_pin,
-			 float elmore);
-
-private:
-  float cap_;
 };
 
 // Pi model for a driver pin.

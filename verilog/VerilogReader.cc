@@ -271,7 +271,7 @@ VerilogReader::makeModule(const char *name,
   if (cell) {
     VerilogModule *module = module_map_[cell];
     delete module;
-    module_map_.eraseKey(cell);
+    module_map_.erase(cell);
     network_->deleteCell(cell);
   }
   VerilogModule *module = new VerilogModule(name, ports, stmts,

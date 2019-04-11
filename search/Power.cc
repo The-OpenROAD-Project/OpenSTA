@@ -47,7 +47,6 @@
 // pin
 //  output_voltage : default_VDD_VSS_output;
 
-
 namespace sta {
 
 typedef std::pair<float, int> SumCount;
@@ -135,7 +134,7 @@ Power::power(const Instance *inst,
     const Pin *to_pin = pin_iter->next();
     const LibertyPort *to_port = network_->libertyPort(to_pin);
     float load_cap = to_port->direction()->isAnyOutput()
-      ? loadCap(to_pin, dcalc_ap)
+      ? graph_delay_calc_->loadCap(to_pin, TransRiseFall::rise(), dcalc_ap)
       : 0.0;
     float activity1;
     bool is_clk;
@@ -215,40 +214,15 @@ Power::findInternalPower(const Instance *inst,
     }
   }
   float internal = 0.0;
-  SupplySumCounts::Iterator supply_iter(supply_sum_counts);
-  while (supply_iter.hasNext()) {
-    const SumCount &supply_cum_count = supply_iter.next();
-    float supply_internal = supply_cum_count.first;
-    int supply_count = supply_cum_count.second;
+  for (auto supply_sum_count : supply_sum_counts) {
+    SumCount sum_count = supply_sum_count.second;
+    float supply_internal = sum_count.first;
+    int supply_count = sum_count.second;
     internal += supply_internal / (supply_count > 0 ? supply_count : 1);
   }
 
   debugPrint1(debug_, "power", 2, " internal = %.5g\n", internal);
   result.setInternal(result.internal() + internal);
-}
-
-float
-Power::loadCap(const Pin *to_pin,
-	       const DcalcAnalysisPt *dcalc_ap)
-{
-  float ceff_sum = 0.0;
-  int ceff_count = 0;
-  Vertex *to_vertex = graph_->pinDrvrVertex(to_pin);
-  VertexInEdgeIterator edge_iter(to_vertex, graph_);
-  while (edge_iter.hasNext()) {
-    Edge *edge = edge_iter.next();
-    TimingArcSet *arc_set = edge->timingArcSet();
-    TimingArcSetArcIterator arc_iter(arc_set);
-    while (arc_iter.hasNext()) {
-      TimingArc *arc = arc_iter.next();
-      ceff_sum += graph_delay_calc_->ceff(edge, arc, dcalc_ap);
-      ceff_count++;
-    }
-  }
-  if (ceff_count == 0)
-    return 0.0;
-  else
-    return ceff_sum / ceff_count;
 }
 
 void

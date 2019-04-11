@@ -60,14 +60,14 @@ void
 ConcreteLibrary::renameCell(ConcreteCell *cell,
 			    const char *cell_name)
 {
-  cell_map_.eraseKey(cell->name());
+  cell_map_.erase(cell->name());
   cell_map_[cell_name] = cell;
 }
 
 void
 ConcreteLibrary::deleteCell(ConcreteCell *cell)
 {
-  cell_map_.eraseKey(cell->name());
+  cell_map_.erase(cell->name());
   delete cell;
 }
 

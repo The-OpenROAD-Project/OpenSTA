@@ -1742,6 +1742,8 @@ LibertyPort::LibertyPort(LibertyCell *cell,
   function_(nullptr),
   tristate_enable_(nullptr),
   scaled_ports_(nullptr),
+  // capacitance_ intentionally not initialized so
+  // liberty reader can apply default capacitance.
   min_period_(0.0),
   pulse_clk_trigger_(nullptr),
   pulse_clk_sense_(nullptr),
@@ -1856,6 +1858,12 @@ LibertyPort::capacitance(const TransRiseFall *tr,
   LibertyLibrary *lib = liberty_cell_->libertyLibrary();
   float cap = capacitance(tr, min_max);
   return cap * lib->scaleFactor(ScaleFactorType::pin_cap, liberty_cell_, pvt);
+}
+
+bool
+LibertyPort::capacitanceIsOneValue() const
+{
+  return capacitance_.isOneValue();
 }
 
 void

@@ -85,7 +85,7 @@ Debug::setLevel(const char *what,
       const char *key;
       debug_map_->findKey(what, key, dbg_level, exists);
       if (exists) {
-	debug_map_->eraseKey(what);
+	debug_map_->erase(what);
 	delete [] key;
       }
       // debugCheck map lookup bypass

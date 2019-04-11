@@ -36,53 +36,6 @@ RCDelayCalc::copy()
 }
 
 void
-RCDelayCalc::findParasitic(const Pin *drvr_pin,
-			   const TransRiseFall *tr,
-			   const DcalcAnalysisPt *dcalc_ap,
-			   // Return values.
-			   Parasitic *&parasitic,
-			   bool &delete_at_finish)
-{
-  parasitic = nullptr;
-  delete_at_finish = false;
-  // set_load has precidence over parasitics.
-  if (!sdc_->drvrPinHasWireCap(drvr_pin)) {
-    const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
-    const Corner *corner = dcalc_ap->corner();
-    const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();
-    const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
-    // Prefer PiElmore.
-    parasitic = parasitics_->findPiElmore(drvr_pin, tr, parasitic_ap);
-    if (parasitic == nullptr) {
-      Parasitic *parasitic_network =
-	parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
-      if (parasitic_network) {
-	parasitic = parasitics_->reduceToPiElmore(parasitic_network, drvr_pin,
-						  tr, op_cond, corner,
-						  cnst_min_max, parasitic_ap);
-	delete_at_finish = true;
-      }
-    }
-    if (parasitic == nullptr)
-      parasitic = parasitics_->findLumpedElmore(drvr_pin, tr, parasitic_ap);
-    if (parasitic == nullptr) {
-      Wireload *wireload = sdc_->wireloadDefaulted(cnst_min_max);
-      if (wireload) {
-	float pin_cap, wire_cap, fanout;
-	bool has_wire_cap;
-	graph_delay_calc_->netCaps(drvr_pin, tr, dcalc_ap,
-				   pin_cap, wire_cap, fanout, has_wire_cap);
-	parasitic = parasitics_->estimatePiElmore(drvr_pin, tr, wireload,
-						  fanout, pin_cap, op_cond,
-						  corner, cnst_min_max,
-						  parasitic_ap);
-	delete_at_finish = true;
-      }
-    }
-  }
-}
-
-void
 RCDelayCalc::inputPortDelay(const Pin *,
 			    float in_slew,
 			    const TransRiseFall *tr,

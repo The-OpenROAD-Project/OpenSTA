@@ -108,12 +108,12 @@ void
 Corners::makeParasiticAnalysisPtsSingle()
 {
   if (parasitic_analysis_pts_.size() != 1) {
+    parasitics_->deleteParasitics();
     parasitic_analysis_pts_.deleteContentsClear();
     ParasiticAnalysisPt *ap = new ParasiticAnalysisPt("min_max", 0,
 						      MinMax::max());
     parasitic_analysis_pts_.push_back(ap);
     updateCornerParasiticAnalysisPts();
-    parasitics_->makeParasiticAnalysisPtAfter();
   }
 }
 
@@ -121,6 +121,7 @@ void
 Corners::makeParasiticAnalysisPtsMinMax()
 {
   if (parasitic_analysis_pts_.size() != 2) {
+    parasitics_->deleteParasitics();
     parasitic_analysis_pts_.deleteContentsClear();
     parasitic_analysis_pts_.resize(MinMax::index_count);
     MinMaxIterator mm_iter;
@@ -133,7 +134,6 @@ Corners::makeParasiticAnalysisPtsMinMax()
       parasitic_analysis_pts_[index] = ap;
     }
     updateCornerParasiticAnalysisPts();
-    parasitics_->makeParasiticAnalysisPtAfter();
   }
 }
 

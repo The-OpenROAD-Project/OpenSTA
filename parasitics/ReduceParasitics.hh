@@ -24,11 +24,10 @@ class ParasiticAnalysisPt;
 class StaState;
 
 // Reduce parasitic network to pi elmore model for drvr_pin.
-Parasitic *
-reduceToPiElmore(Parasitic *parasitic,
+void
+reduceToPiElmore(Parasitic *parasitic_network,
 		 const Pin *drvr_pin,
 		 float coupling_cap_factor,
-		 const TransRiseFall *tr,
 		 const OperatingConditions *op_cond,
 		 const Corner *corner,
 		 const MinMax *cnst_min_max,
@@ -37,11 +36,10 @@ reduceToPiElmore(Parasitic *parasitic,
 
 // Reduce parasitic network to pi and 2nd order pole/residue models
 // for drvr_pin.
-Parasitic *
-reduceToPiPoleResidue2(Parasitic *parasitic,
+void
+reduceToPiPoleResidue2(Parasitic *parasitic_network,
 		       const Pin *drvr_pin,
 		       float coupling_cap_factor,
-		       const TransRiseFall *tr,
 		       const OperatingConditions *op_cond,
 		       const Corner *corner,
 		       const MinMax *cnst_min_max,

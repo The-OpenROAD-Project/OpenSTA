@@ -123,8 +123,8 @@ public:
 				 const char *name,
 				 Instance *parent);
   virtual void makePins(Instance *inst);
-  virtual void swapCell(Instance *inst,
-			LibertyCell *cell);
+  virtual void replaceCell(Instance *inst,
+			   LibertyCell *cell);
   virtual Net *makeNet(const char *name,
 		       Instance *parent);
   virtual Pin *connect(Instance *inst,

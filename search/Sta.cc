@@ -298,6 +298,7 @@ Sta::makeComponents()
   makeLatches();
   makeCmdNetwork();
   makeReportPath();
+  makePower();
   updateComponentsState();
 
   makeObservers();
@@ -3412,16 +3413,12 @@ Sta::connectedCap(Pin *drvr_pin,
   wire_cap = 0.0;
   bool cap_exists = false;
   const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
-  Parasitic *parasitic;
-  bool delete_parasitic;
-  arc_delay_calc_->findParasitic(drvr_pin, tr, dcalc_ap,
-				 parasitic, delete_parasitic);
+  Parasitic *parasitic = arc_delay_calc_->findParasitic(drvr_pin, tr, dcalc_ap);
   float ap_pin_cap = 0.0;
   float ap_wire_cap = 0.0;
   graph_delay_calc_->loadCap(drvr_pin, parasitic, tr, dcalc_ap,
 			     ap_pin_cap, ap_wire_cap);
-  arc_delay_calc_->finish(drvr_pin, tr, dcalc_ap, parasitic,
-			  delete_parasitic);
+  arc_delay_calc_->finishDrvrPin();
   if (!cap_exists
       || min_max->compare(ap_pin_cap, pin_cap)) {
     pin_cap = ap_pin_cap;
@@ -3527,8 +3524,8 @@ Sta::findPiElmore(Pin *drvr_pin,
 {
   Corner *corner = cmd_corner_;
   const ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(min_max);
-  if (parasitics_->hasPiElmore(drvr_pin, tr, ap)) {
-    Parasitic *pi_elmore = parasitics_->findPiElmore(drvr_pin, tr, ap);
+  Parasitic *pi_elmore = parasitics_->findPiElmore(drvr_pin, tr, ap);
+  if (pi_elmore) {
     parasitics_->piModel(pi_elmore, c2, rpi, c1);
     exists = true;
   }
@@ -3564,8 +3561,8 @@ Sta::findElmore(Pin *drvr_pin,
 {
   Corner *corner = cmd_corner_;
   const ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(min_max);
-  if (parasitics_->hasPiElmore(drvr_pin, tr, ap)) {
-    Parasitic *pi_elmore = parasitics_->findPiElmore(drvr_pin, tr, ap);
+  Parasitic *pi_elmore = parasitics_->findPiElmore(drvr_pin, tr, ap);
+  if (pi_elmore) {
     exists = false;
     parasitics_->findElmore(pi_elmore, load_pin, elmore, exists);
   }
@@ -3637,22 +3634,15 @@ Sta::replaceCell(Instance *inst,
   NetworkEdit *network = networkCmdEdit();
   LibertyCell *from_cell = network->libertyCell(inst);
   if (equivCells(from_cell, to_cell)) {
-    swapEquivCellBefore(inst, to_cell);
-    network->swapCell(inst, to_cell);
-    swapEquivCellAfter(inst);
+    replaceEquivCellBefore(inst, to_cell);
+    network->replaceCell(inst, to_cell);
+    replaceEquivCellAfter(inst);
   }
   else {
-    swapCellBefore(inst, to_cell);
-    network->swapCell(inst, to_cell);
-    swapCellAfter(inst);
+    replaceCellBefore(inst, to_cell);
+    network->replaceCell(inst, to_cell);
+    replaceCellAfter(inst);
   }
-}
-
-void
-Sta::swapCell(Instance *inst,
-	      LibertyCell *to_cell)
-{
-  replaceCell(inst, to_cell);
 }
 
 Net *
@@ -3733,8 +3723,8 @@ Sta::makePinAfter(Pin *pin)
 }
 
 void
-Sta::swapEquivCellBefore(Instance *inst,
-			 LibertyCell *to_cell)
+Sta::replaceEquivCellBefore(Instance *inst,
+			    LibertyCell *to_cell)
 {
   if (graph_) {
     InstancePinIterator *pin_iter = network_->pinIterator(inst);
@@ -3743,7 +3733,7 @@ Sta::swapEquivCellBefore(Instance *inst,
       LibertyPort *port = network_->libertyPort(pin);
       if (port->direction()->isAnyInput()) {
 	Vertex *vertex = graph_->pinLoadVertex(pin);
-	instanceSetCellPinInvalidate(port, vertex, to_cell);
+	replaceCellPinInvalidate(port, vertex, to_cell);
 
 	// Replace the timing arc sets in the graph edges.
 	VertexOutEdgeIterator edge_iter(vertex, graph_);
@@ -3772,23 +3762,23 @@ Sta::swapEquivCellBefore(Instance *inst,
 }
 
 void
-Sta::swapEquivCellAfter(Instance *)
+Sta::replaceEquivCellAfter(Instance *inst)
 {
-  // No updates required.
+  if (graph_) {
+    InstancePinIterator *pin_iter = network_->pinIterator(inst);
+    while (pin_iter->hasNext()) {
+      Pin *pin = pin_iter->next();
+      if (network_->direction(pin)->isAnyInput())
+	parasitics_->loadPinCapacitanceChanged(pin);
+    }
+    delete pin_iter;
+  }
 }
 
-// Deprecated.
 void
-Sta::instanceSetEquivCellBefore(Instance *inst,
-				LibertyCell *to_cell)
-{
-  swapCellBefore(inst, to_cell);
-}
-
-void
-Sta::instanceSetCellPinInvalidate(LibertyPort *from_port,
-				  Vertex *vertex,
-				  LibertyCell *to_cell)
+Sta::replaceCellPinInvalidate(LibertyPort *from_port,
+			      Vertex *vertex,
+			      LibertyCell *to_cell)
 {
   LibertyPort *to_port = to_cell->findLibertyPort(from_port->name());
   if (!libertyPortCapsEqual(to_port, from_port)
@@ -3828,18 +3818,18 @@ libertyPortCapsEqual(LibertyPort *port1,
 }
 
 void
-Sta::swapCellBefore(Instance *inst,
-		    LibertyCell *to_cell)
+Sta::replaceCellBefore(Instance *inst,
+		       LibertyCell *to_cell)
 {
   if (graph_) {
-    // Delete all edges between instance pins.
+    // Delete all graph edges between instance pins.
     InstancePinIterator *pin_iter = network_->pinIterator(inst);
     while (pin_iter->hasNext()) {
       Pin *pin = pin_iter->next();
       LibertyPort *port = network_->libertyPort(pin);
       if (port->direction()->isAnyInput()) {
 	Vertex *vertex = graph_->pinLoadVertex(pin);
-	instanceSetCellPinInvalidate(port, vertex, to_cell);
+	replaceCellPinInvalidate(port, vertex, to_cell);
 
 	VertexOutEdgeIterator edge_iter(vertex, graph_);
 	while (edge_iter.hasNext()) {
@@ -3854,16 +3844,8 @@ Sta::swapCellBefore(Instance *inst,
   }
 }
 
-// Deprecated.
 void
-Sta::instanceSetCellBefore(Instance *inst,
-			   LibertyCell *to_cell)
-{
-  swapCellBefore(inst, to_cell);
-}
-
-void
-Sta::swapCellAfter(Instance *inst)
+Sta::replaceCellAfter(Instance *inst)
 {
   if (graph_) {
     graph_->makeInstanceEdges(inst);
@@ -3871,16 +3853,11 @@ Sta::swapCellAfter(Instance *inst)
     while (pin_iter->hasNext()) {
       Pin *pin = pin_iter->next();
       sim_->pinSetFuncAfter(pin);
+      if (network_->direction(pin)->isAnyInput())
+	parasitics_->loadPinCapacitanceChanged(pin);
     }
     delete pin_iter;
   }
-}
-
-// Deprecated.
-void
-Sta::instanceSetCellAfter(Instance *inst)
-{
-  swapCellAfter(inst);
 }
 
 void
@@ -4961,8 +4938,6 @@ Sta::powerPreamble()
   // Use arrivals to find clocking info.
   searchPreamble();
   search_->findAllArrivals();
-  if (power_ == nullptr)
-    makePower();
 }
 
 void

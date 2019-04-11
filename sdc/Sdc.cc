@@ -1160,7 +1160,7 @@ Sdc::deleteClkPinMappings(Clock *clk)
     if (pin_clks) {
       pin_clks->erase(clk);
       if (pin_clks->empty()) {
-	clock_pin_map_.eraseKey(pin);
+	clock_pin_map_.erase(pin);
 	delete pin_clks;
       }
     }
@@ -1173,7 +1173,7 @@ Sdc::deleteClkPinMappings(Clock *clk)
     if (pin_clks) {
       pin_clks->erase(clk);
       if (pin_clks->empty()) {
-	clock_vertex_pin_map_.eraseKey(pin);
+	clock_vertex_pin_map_.erase(pin);
 	delete pin_clks;
       }
     }
@@ -1223,7 +1223,7 @@ Sdc::removeClock(Clock *clk)
 
   deleteClkPinMappings(clk);
   clocks_.eraseObject(clk);
-  clock_name_map_.eraseKey(clk->name());
+  clock_name_map_.erase(clk->name());
   delete clk;
 }
 
@@ -1246,7 +1246,7 @@ Sdc::clockDeletePin(Clock *clk,
   ClockSet *pin_clks = clock_pin_map_.findKey(pin);
   pin_clks->erase(clk);
   if (pin_clks->empty())
-    clock_pin_map_.eraseKey(pin);
+    clock_pin_map_.erase(pin);
   clk->deletePin(pin);
   clk->makeVertexPins(network_);
   makeClkPinMappings(clk);
@@ -1572,7 +1572,7 @@ Sdc::setPropagatedClock(Pin *pin)
 void
 Sdc::removePropagatedClock(Pin *pin)
 {
-  propagated_clk_pins_.eraseKey(pin);
+  propagated_clk_pins_.erase(pin);
 }
 
 bool
@@ -1636,7 +1636,7 @@ Sdc::deleteClockLatency(ClockLatency *latency)
   const Pin *pin = latency->pin();
   if (pin && graph_ && network_->isHierarchical(pin))
     deannotateHierClkLatency(pin);
-  clk_latencies_.eraseKey(latency);
+  clk_latencies_.erase(latency);
   delete latency;
 }
 
@@ -1733,7 +1733,7 @@ Sdc::removeClockUncertainty(Pin *pin,
     uncertainties->removeValue(setup_hold);
     if (uncertainties->empty()) {
       delete uncertainties;
-      pin_clk_uncertainty_map_.eraseKey(pin);
+      pin_clk_uncertainty_map_.erase(pin);
     }
   }
 }
@@ -1811,7 +1811,7 @@ Sdc::removeClockUncertainty(Clock *from_clk,
   if (uncertainties) {
     uncertainties->removeUncertainty(from_tr, to_tr, setup_hold);
     if (uncertainties->empty()) {
-      inter_clk_uncertainties_.eraseKey(uncertainties);
+      inter_clk_uncertainties_.erase(uncertainties);
       delete uncertainties;
     }
   }
@@ -1820,7 +1820,7 @@ Sdc::removeClockUncertainty(Clock *from_clk,
 void
 Sdc::deleteInterClockUncertainty(InterClockUncertainty *uncertainties)
 {
-  inter_clk_uncertainties_.eraseKey(uncertainties);
+  inter_clk_uncertainties_.erase(uncertainties);
   delete uncertainties;
 }
 
@@ -1891,7 +1891,7 @@ Sdc::removeClockInsertion(const Clock *clk,
 void
 Sdc::deleteClockInsertion(ClockInsertion *insertion)
 {
-  clk_insertions_->eraseKey(insertion);
+  clk_insertions_->erase(insertion);
   delete insertion;
 }
 
@@ -2229,7 +2229,7 @@ Sdc::removeClockGroupsAsynchronous(const char *name)
 void
 Sdc::removeClockGroups(ClockGroups *groups)
 {
-  clk_groups_name_map_.eraseKey(groups->name());
+  clk_groups_name_map_.erase(groups->name());
   delete groups;
   // Can't delete excluded clock pairs for deleted clock groups because
   // some other clock groups may exclude the same clock pair.
@@ -2614,10 +2614,10 @@ Sdc::removeDataCheck(Pin *from,
     if (check) {
       check->removeMargin(from_tr, to_tr, setup_hold);
       if (check->empty()) {
-	checks->eraseKey(check);
+	checks->erase(check);
 	checks = data_checks_to_map_.findKey(to);
 	if (checks)
-	  checks->eraseKey(check);
+	  checks->erase(check);
 	delete check;
       }
     }
@@ -2662,7 +2662,7 @@ Sdc::setLatchBorrowLimit(Clock *clk,
 void
 Sdc::deleteLatchBorrowLimitsReferencing(Clock *clk)
 {
-  clk_latch_borrow_limit_map_.eraseKey(clk);
+  clk_latch_borrow_limit_map_.erase(clk);
 }
 
 void
@@ -2779,7 +2779,7 @@ Sdc::deleteMinPulseWidthReferencing(Clock *clk)
   RiseFallValues *widths = clk_min_pulse_width_map_.findKey(clk);
   if (widths) {
     delete widths;
-    clk_min_pulse_width_map_.eraseKey(clk);
+    clk_min_pulse_width_map_.erase(clk);
   }
 }
 
@@ -2979,7 +2979,7 @@ Sdc::deleteInputDelay(InputDelay *input_delay)
     if (next)
       input_delay_map_[pin] = next;
     else
-      input_delay_map_.eraseKey(pin);
+      input_delay_map_.erase(pin);
     head = next;
   }
   else {
@@ -2999,7 +2999,7 @@ Sdc::deleteInputDelay(InputDelay *input_delay)
     if (head)
       input_delay_vertex_map_[vpin] = head;
     else
-      input_delay_vertex_map_.eraseKey(vpin);
+      input_delay_vertex_map_.erase(vpin);
   }
 
   delete input_delay;
@@ -3149,7 +3149,7 @@ Sdc::deleteOutputDelay(OutputDelay *output_delay)
     if (next)
       output_delay_map_[pin] = next;
     else
-      output_delay_map_.eraseKey(pin);
+      output_delay_map_.erase(pin);
     head = next;
   }
   else {
@@ -3169,7 +3169,7 @@ Sdc::deleteOutputDelay(OutputDelay *output_delay)
     if (head)
       output_delay_vertex_map_[vpin] = head;
     else
-      output_delay_vertex_map_.eraseKey(vpin);
+      output_delay_vertex_map_.erase(vpin);
   }
 
   delete output_delay;
@@ -3723,7 +3723,7 @@ Sdc::disable(LibertyPort *port)
 void
 Sdc::removeDisable(LibertyPort *port)
 {
-  disabled_lib_ports_.eraseKey(port);
+  disabled_lib_ports_.erase(port);
   port->setIsDisabledConstraint(false);
 }
 
@@ -3744,7 +3744,7 @@ Sdc::removeDisable(Port *port)
     Pin *pin = network_->findPin(network_->topInstance(), port);
     annotateGraphDisabled(pin, false);
   }
-  disabled_ports_.eraseKey(port);
+  disabled_ports_.erase(port);
 }
 
 void
@@ -3809,7 +3809,7 @@ Sdc::removeDisable(Pin *from,
 {
   annotateGraphDisabledWireEdge(from, to, false, graph_);
   PinPair probe(from, to);
-  disabled_wire_edges_.eraseKey(&probe);
+  disabled_wire_edges_.erase(&probe);
 }
 
 void
@@ -3822,7 +3822,7 @@ Sdc::disable(Edge *edge)
 void
 Sdc::removeDisable(Edge *edge)
 {
-  disabled_edges_.eraseKey(edge);
+  disabled_edges_.erase(edge);
   edge->setIsDisabledConstraint(false);
 }
 
@@ -3917,7 +3917,7 @@ RemoveDisableEdgesThruHierPin::visit(Pin *drvr,
   PinPair probe(drvr, load);
   PinPair *pair = pairs_->findKey(&probe);
   if (pair) {
-    pairs_->eraseKey(pair);
+    pairs_->erase(pair);
     delete pair;
   }
 }
@@ -3933,7 +3933,7 @@ Sdc::removeDisable(Pin *pin)
   else {
     if (graph_)
       annotateGraphDisabled(pin, false);
-    disabled_pins_.eraseKey(pin);
+    disabled_pins_.erase(pin);
   }
 }
 
@@ -4012,13 +4012,13 @@ Sdc::disableClockGatingCheck(Pin *pin)
 void
 Sdc::removeDisableClockGatingCheck(Instance *inst)
 {
-  disabled_clk_gating_checks_inst_.eraseKey(inst);
+  disabled_clk_gating_checks_inst_.erase(inst);
 }
 
 void
 Sdc::removeDisableClockGatingCheck(Pin *pin)
 {
-  disabled_clk_gating_checks_pin_.eraseKey(pin);
+  disabled_clk_gating_checks_pin_.erase(pin);
 }
 
 bool
@@ -4060,7 +4060,7 @@ Sdc::setCaseAnalysis(Pin *pin,
 void
 Sdc::removeCaseAnalysis(Pin *pin)
 {
-  case_value_map_.eraseKey(pin);
+  case_value_map_.erase(pin);
 }
 
 void
@@ -4233,7 +4233,7 @@ Sdc::unrecordPathDelayInternalStartpoints(ExceptionFrom *from)
       if (!(network_->isRegClkPin(pin)
 	    || network_->isTopLevelPort(pin))
 	  && !pathDelayFrom(pin))
-	path_delay_internal_startpoints_->eraseKey(pin);
+	path_delay_internal_startpoints_->erase(pin);
     }
   }
 }
@@ -4298,7 +4298,7 @@ Sdc::unrecordPathDelayInternalEndpoints(ExceptionPath *exception)
       if (!(hasLibertyChecks(pin)
 	    || network_->isTopLevelPort(pin))
 	  && !pathDelayTo(pin))
-	path_delay_internal_endpoints_->eraseKey(pin);
+	path_delay_internal_endpoints_->erase(pin);
     }
   }
 }
@@ -5347,7 +5347,7 @@ Sdc::unrecordException(ExceptionPath *exception)
 {
   unrecordMergeHashes(exception);
   unrecordExceptionFirstPts(exception);
-  exceptions_.eraseKey(exception);
+  exceptions_.erase(exception);
 }
 
 void
@@ -5372,7 +5372,7 @@ Sdc::unrecordMergeHash(ExceptionPath *exception,
 	      missing_pt->asString(network_));
   ExceptionPathSet *matches = exception_merge_hash_.findKey(hash);
   if (matches)
-    matches->eraseKey(exception);
+    matches->erase(exception);
 }
 
 void
@@ -5414,7 +5414,7 @@ Sdc::unrecordExceptionClks(ExceptionPath *exception,
     Clock *clk = clk_iter.next();
     ExceptionPathSet *set = exception_map->findKey(clk);
     if (set)
-      set->eraseKey(exception);
+      set->erase(exception);
   }
 }
 
@@ -5428,7 +5428,7 @@ Sdc::unrecordExceptionPins(ExceptionPath *exception,
     const Pin *pin = pin_iter.next();
     ExceptionPathSet *set = exception_map->findKey(pin);
     if (set)
-      set->eraseKey(exception);
+      set->erase(exception);
   }
 }
 
@@ -5442,7 +5442,7 @@ Sdc::unrecordExceptionInsts(ExceptionPath *exception,
     Instance *inst = inst_iter.next();
     ExceptionPathSet *set = exception_map->findKey(inst);
     if (set)
-      set->eraseKey(exception);
+      set->erase(exception);
   }
 }
 
@@ -5456,7 +5456,7 @@ Sdc::unrecordExceptionEdges(ExceptionPath *exception,
     EdgePins *edge = edge_iter.next();
     ExceptionPathSet *set = exception_map->findKey(edge);
     if (set)
-      set->eraseKey(exception);
+      set->erase(exception);
   }
 }
 
@@ -5470,7 +5470,7 @@ Sdc::unrecordExceptionNets(ExceptionPath *exception,
     const Net *net = net_iter.next();
     ExceptionPathSet *set = exception_map->findKey(net);
     if (set)
-      set->eraseKey(exception);
+      set->erase(exception);
   }
 }
 
@@ -5481,7 +5481,7 @@ Sdc::unrecordExceptionHpin(ExceptionPath *exception,
 {
   ExceptionPathSet *set = exception_map->findKey(pin);
   if (set)
-    set->eraseKey(exception);
+    set->erase(exception);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -6534,7 +6534,7 @@ Sdc::deannotateHierClkLatency(const Pin *hpin)
   EdgesThruHierPinIterator edge_iter(hpin, network_, graph_);
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
-    edge_clk_latency_.eraseKey(edge);
+    edge_clk_latency_.erase(edge);
   }
 }
 

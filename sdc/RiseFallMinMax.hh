@@ -61,6 +61,7 @@ public:
   void mergeWith(RiseFallMinMax *rfmm);
   void clear();
   bool equal(const RiseFallMinMax *values) const;
+  bool isOneValue() const;
   bool isOneValue(float &value) const;
   bool isOneValue(const MinMax *min_max,
 		  // Return values.

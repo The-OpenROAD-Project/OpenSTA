@@ -60,7 +60,8 @@ StaState::StaState(const StaState *sta) :
   search_(sta->search_),
   latches_(sta->latches_),
   thread_count_(sta->thread_count_),
-  pocv_enabled_(sta->pocv_enabled_)
+  pocv_enabled_(sta->pocv_enabled_),
+  sigma_factor_(sta->sigma_factor_)
 {
 }
 

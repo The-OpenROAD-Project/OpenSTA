@@ -929,10 +929,10 @@ NetworkNameAdapter::makeNet(const char *name,
 }
 
 void
-NetworkNameAdapter::swapCell(Instance *inst,
-			     LibertyCell *cell)
+NetworkNameAdapter::replaceCell(Instance *inst,
+				LibertyCell *cell)
 {
-  network_edit_->swapCell(inst, cell);
+  network_edit_->replaceCell(inst, cell);
 }
 
 Pin *

@@ -121,7 +121,7 @@ visitPinsAboveNet2(const Pin *hpin,
 	  visitPinsAboveNet2(above_pin, above_net1, visited,
 			     above_drvrs, above_loads,
 			     hpin_path, network);
-	  hpin_path->eraseKey(above_pin);
+	  hpin_path->erase(above_pin);
 	}
       }
     }
@@ -141,7 +141,7 @@ visitPinsAboveNet2(const Pin *hpin,
 	visitPinsAboveNet2(above_pin, above_net1, visited,
 			   above_drvrs, above_loads,
 			   hpin_path, network);
-	hpin_path->eraseKey(above_pin);
+	hpin_path->erase(above_pin);
       }
 
       if (network->isDriver(above_pin)) {
@@ -198,7 +198,7 @@ visitPinsBelowNet2(const Pin *hpin,
 	    visitPinsBelowNet2(below_pin, below_net, below_net1, visited,
 			       below_drvrs, below_loads,
 			       hpin_path, network);
-	    hpin_path->eraseKey(below_pin);
+	    hpin_path->erase(below_pin);
 	  }
 	}
       }
@@ -219,7 +219,7 @@ visitPinsBelowNet2(const Pin *hpin,
 	visitPinsAboveNet2(above_pin, above_net1, 
 			   visited, below_drvrs, below_loads,
 			   hpin_path, network);
-	hpin_path->eraseKey(above_pin);
+	hpin_path->erase(above_pin);
       }
     }
   }

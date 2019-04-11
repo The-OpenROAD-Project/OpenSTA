@@ -47,14 +47,6 @@ public:
     return find_iter != this->end();
   }
 
-  // Erase the entry corresponding to key.
-  void eraseKey(KEY key)
-  {
-    auto find_iter = this->find(key);
-    if (find_iter != this->end())
-      this->erase(find_iter);
-  }
-
   // Slowaris STL doesn't support operator== on sets.
   static bool equal(const std::set<KEY, CMP> *set1,
 		    const std::set<KEY, CMP> *set2);

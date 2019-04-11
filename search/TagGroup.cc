@@ -253,7 +253,7 @@ TagGroupBldr::setMatchArrival(Tag *tag,
     // If the group_tag exists there has to be an arrival map entry for it.
     if (tag_match != tag) {
       // Replace tag in arrival map.
-      arrival_map_.eraseKey(tag_match);
+      arrival_map_.erase(tag_match);
       arrival_map_.insert(tag, arrival_index);
     }
     arrivals_[arrival_index] = arrival;
@@ -283,7 +283,7 @@ TagGroupBldr::setMatchArrival(Tag *tag,
 void
 TagGroupBldr::deleteArrival(Tag *tag)
 {
-  arrival_map_.eraseKey(tag);
+  arrival_map_.erase(tag);
 }
 
 TagGroup *

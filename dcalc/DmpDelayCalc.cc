@@ -126,12 +126,9 @@ class DmpCeffTwoPoleDelayCalc : public DmpCeffDelayCalc
 public:
   DmpCeffTwoPoleDelayCalc(StaState *sta);
   virtual ArcDelayCalc *copy();
-  virtual void findParasitic(const Pin *drvr_pin,
-			     const TransRiseFall *tr,
-			     const DcalcAnalysisPt *dcalc_ap,
-			     // Return values.
-			     Parasitic *&parasitic,
-			     bool &delete_at_finish);
+  virtual Parasitic *findParasitic(const Pin *drvr_pin,
+				   const TransRiseFall *tr,
+				   const DcalcAnalysisPt *dcalc_ap);
   virtual void inputPortDelay(const Pin *port_pin,
 			      float in_slew,
 			      const TransRiseFall *tr,
@@ -198,54 +195,57 @@ DmpCeffTwoPoleDelayCalc::copy()
   return new DmpCeffTwoPoleDelayCalc(this);
 }
 
-void
+Parasitic *
 DmpCeffTwoPoleDelayCalc::findParasitic(const Pin *drvr_pin,
 				       const TransRiseFall *tr,
-				       const DcalcAnalysisPt *dcalc_ap,
-				       // Return values.
-				       Parasitic *&parasitic,
-				       bool &delete_at_finish)
+				       const DcalcAnalysisPt *dcalc_ap)
 {
-  parasitic = nullptr;
-  delete_at_finish = false;
   // set_load has precidence over parasitics.
   if (!sdc_->drvrPinHasWireCap(drvr_pin)) {
     const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
-    const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
-    const Corner *corner = dcalc_ap->corner();
-    const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();
     // Prefer PiPoleResidue.
-    parasitic = parasitics_->findPiPoleResidue(drvr_pin, tr, parasitic_ap);
-    if (parasitic == nullptr) {
-      Parasitic *parasitic_network =
-	parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
-      if (parasitic_network)
-	parasitic = parasitics_->reduceToPiPoleResidue2(parasitic_network,
-							drvr_pin,
-							tr, op_cond, corner,
-							cnst_min_max,
-							parasitic_ap);
-      delete_at_finish = true;
+    Parasitic *parasitic = parasitics_->findPiPoleResidue(drvr_pin, tr,
+							  parasitic_ap);
+    if (parasitic)
+      return parasitic;
+
+    parasitic = parasitics_->findPiElmore(drvr_pin, tr, parasitic_ap);
+    if (parasitic)
+      return parasitic;
+
+    Parasitic *parasitic_network =
+      parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
+    if (parasitic_network) {
+      parasitics_->reduceToPiPoleResidue2(parasitic_network, drvr_pin,
+					  dcalc_ap->operatingConditions(),
+					  dcalc_ap->corner(),
+					  dcalc_ap->constraintMinMax(),
+					  parasitic_ap);
+      parasitic = parasitics_->findPiPoleResidue(drvr_pin, tr, parasitic_ap);
+      reduced_parasitic_drvrs_.push_back(drvr_pin);
+      return parasitic;
     }
-    if (parasitic == nullptr)
-      parasitic = parasitics_->findPiElmore(drvr_pin, tr, parasitic_ap);
-    if (parasitic == nullptr)
-      parasitic = parasitics_->findLumpedElmore(drvr_pin, tr, parasitic_ap);
-    if (parasitic == nullptr) {
-      Wireload *wireload = sdc_->wireloadDefaulted(cnst_min_max);
-      if (wireload) {
-	float pin_cap, wire_cap, fanout;
-	bool has_wire_cap;
-	graph_delay_calc_->netCaps(drvr_pin, tr, dcalc_ap,
-				   pin_cap, wire_cap, fanout, has_wire_cap);
-	parasitic = parasitics_->estimatePiElmore(drvr_pin, tr, wireload,
-						  fanout, pin_cap,
-						  op_cond, corner,cnst_min_max,
-						  parasitic_ap);
-	delete_at_finish = true;
-      }
+
+    const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();
+    Wireload *wireload = sdc_->wireloadDefaulted(cnst_min_max);
+    if (wireload) {
+      float pin_cap, wire_cap, fanout;
+      bool has_wire_cap;
+      graph_delay_calc_->netCaps(drvr_pin, tr, dcalc_ap,
+				 pin_cap, wire_cap, fanout, has_wire_cap);
+      parasitic = parasitics_->estimatePiElmore(drvr_pin, tr, wireload,
+						fanout, pin_cap,
+						dcalc_ap->operatingConditions(),
+						dcalc_ap->corner(),
+						cnst_min_max,
+						parasitic_ap);
+      // Estimated parasitics are not recorded in the "database", so
+      // it for deletion after the drvr pin delay calc is finished.
+      unsaved_parasitics_.push_back(parasitic);
+      return parasitic;
     }
   }
+  return nullptr;
 }
 
 void

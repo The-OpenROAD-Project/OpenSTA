@@ -66,7 +66,7 @@ void
 DisabledPorts::removeDisabledFrom(LibertyPort *port)
 {
   if (from_)
-    from_->eraseKey(port);
+    from_->erase(port);
 }
 
 void
@@ -81,7 +81,7 @@ void
 DisabledPorts::removeDisabledTo(LibertyPort *port)
 {
   if (to_)
-    to_->eraseKey(port);
+    to_->erase(port);
 }
 
 void
@@ -103,7 +103,7 @@ DisabledPorts::removeDisabledFromTo(LibertyPort *from, LibertyPort *to)
     LibertyPortPair probe(from, to);
     LibertyPortPair *pair = from_to_->findKey(&probe);
     if (pair) {
-      from_to_->eraseKey(pair);
+      from_to_->erase(pair);
       delete pair;
     }
   }
@@ -148,7 +148,7 @@ void
 DisabledCellPorts::removeDisabled(TimingArcSet *arc_set)
 {
   if (arc_sets_)
-    arc_sets_->eraseKey(arc_set);
+    arc_sets_->erase(arc_set);
 }
 
 bool

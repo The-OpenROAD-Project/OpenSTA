@@ -1090,8 +1090,6 @@ public:
   // replace_cell
   virtual void replaceCell(Instance *inst,
 			   LibertyCell *to_cell);
-  virtual void swapCell(Instance *inst,
-			LibertyCell *to_cell) __attribute__ ((deprecated));
   virtual Net *makeNet(const char *name,
 		       Instance *parent);
   virtual void deleteNet(Net *net);
@@ -1108,19 +1106,14 @@ public:
   void makePinAfter(Pin *pin) __attribute__ ((deprecated));
   // Replace the instance cell with to_cell.
   // equivCells(from_cell, to_cell) must be true.
-  virtual void swapEquivCellBefore(Instance *inst,
-				   LibertyCell *to_cell);
-  virtual void swapEquivCellAfter(Instance *inst);
-  void instanceSetEquivCellBefore(Instance *inst,
-				  LibertyCell *to_cell) __attribute__ ((deprecated));
+  virtual void replaceEquivCellBefore(Instance *inst,
+				      LibertyCell *to_cell);
+  virtual void replaceEquivCellAfter(Instance *inst);
   // Replace the instance cell with to_cell.
   // equivCellPorts(from_cell, to_cell) must be true.
-  virtual void swapCellBefore(Instance *inst,
-			      LibertyCell *to_cell);
-  virtual void swapCellAfter(Instance *inst);
-  virtual void instanceSetCellBefore(Instance *inst,
-				     LibertyCell *to_cell) __attribute__ ((deprecated));
-  void instanceSetCellAfter(Instance *inst) __attribute__ ((deprecated));
+  virtual void replaceCellBefore(Instance *inst,
+				 LibertyCell *to_cell);
+  virtual void replaceCellAfter(Instance *inst);
   virtual void connectPinAfter(Pin *pin);
   virtual void disconnectPinBefore(Pin *pin);
   virtual void deleteNetBefore(Net *net);
@@ -1167,9 +1160,9 @@ public:
   void delaysInvalidFromFanin(Net *net);
   void delaysInvalidFromFanin(Pin *pin);
   void delaysInvalidFromFanin(Vertex *vertex);
-  void instanceSetCellPinInvalidate(LibertyPort *from_port,
-				    Vertex *vertex,
-				    LibertyCell *to_cell);
+  void replaceCellPinInvalidate(LibertyPort *from_port,
+				Vertex *vertex,
+				LibertyCell *to_cell);
 
   // Power API.
   Power *power() { return power_; }

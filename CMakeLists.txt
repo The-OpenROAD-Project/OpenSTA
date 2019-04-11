@@ -21,6 +21,7 @@ project(STA VERSION 2.0.13)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# Disable compiler specific extensions like gnu++11.
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(STA_HOME ${PROJECT_SOURCE_DIR})
@@ -31,15 +32,20 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RELEASE)
 endif()
 
-message(STATUS "Host system: ${CMAKE_HOST_SYSTEM}")
-message(STATUS "Compiler version: ${CMAKE_CXX_COMPILER_VERSION}")
-message(STATUS "Compiler ID: ${CMAKE_CXX_COMPILER_ID}")
-message(STATUS "Compiler path: ${CMAKE_CXX_COMPILER}")
-message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+# Compiler specific options.
+if (CMAKE_CXX_COMPILER_ID MATCHES AppleClang|Clang|GNU)
+  set(STA_COMPILE_OPTIONS -Wall -Wcast-qual -Wunused-parameter -Wredundant-decls -Wno-deprecated-register)
+endif()
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(STA_COMPILE_OPTIONS -Wall -Wcast-qual -Wunused-parameter -Wredundant-decls -Wno-deprecated-register)
+endif()
+
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
-message(STATUS "CXX flags DEBUG: ${CMAKE_CXX_FLAGS_DEBUG}")
-message(STATUS "CXX flags RELEASE: ${CMAKE_CXX_FLAGS_RELEASE}")
-message(STATUS "CXX flags RELWITHDEBINFO: ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+message(STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "Build CXX_FLAGS: ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}}")
+message(STATUS "STA CXX_FLAGS: ${STA_COMPILE_OPTIONS}")
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 ################################################################
@@ -693,16 +699,8 @@ endif()
 
 message(STATUS "STA executable: ${STA_HOME}/app/sta")
 
-
-
-# Compiler specific options.
-if (CMAKE_CXX_COMPILER_ID MATCHES AppleClang|Clang|GNU)
-  set(STA_COMPILE_OPTIONS -Wall -Wcast-qual -Wunused-parameter -Wredundant-decls -Wno-deprecated-register)
-endif()
-
-# g++ still needs -pthreads when using std::thread
+# g++ std::thread apparently still needs -pthreads.
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  set(STA_COMPILE_OPTIONS -Wall -Wcast-qual -Wunused-parameter -Wredundant-decls -Wno-deprecated-register)
   target_link_libraries(sta -pthread)
 endif()
 

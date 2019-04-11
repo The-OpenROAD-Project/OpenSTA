@@ -161,7 +161,7 @@ Clock::addPin(Pin *pin)
 void
 Clock::deletePin(Pin *pin)
 {
-  pins_->eraseKey(pin);
+  pins_->erase(pin);
 }
 
 void

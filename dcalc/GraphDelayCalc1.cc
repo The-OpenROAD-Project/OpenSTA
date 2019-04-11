@@ -348,11 +348,11 @@ GraphDelayCalc1::deleteVertexBefore(Vertex *vertex)
 {
   iter_->deleteVertexBefore(vertex);
   if (incremental_)
-    invalid_delays_.eraseKey(vertex);
+    invalid_delays_.erase(vertex);
   MultiDrvrNet *multi_drvr = multiDrvrNet(vertex);
   if (multi_drvr) {
-    multi_drvr->drvrs()->eraseKey(vertex);
-    multi_drvr_net_map_.eraseKey(vertex);
+    multi_drvr->drvrs()->erase(vertex);
+    multi_drvr_net_map_.erase(vertex);
   }
 }
 
@@ -649,10 +649,7 @@ GraphDelayCalc1::seedNoDrvrCellSlew(Vertex *drvr_vertex,
   Delay drive_delay = delay_zero;
   float drive_res;
   drive->driveResistance(tr, cnst_min_max, drive_res, exists);
-  Parasitic *parasitic;
-  bool delete_parasitic;
-  arc_delay_calc->findParasitic(drvr_pin, tr, dcalc_ap,
-				parasitic, delete_parasitic);
+  Parasitic *parasitic = arc_delay_calc->findParasitic(drvr_pin, tr, dcalc_ap);
   if (exists) {
     float cap = loadCap(drvr_pin, parasitic, tr, dcalc_ap);
     drive_delay = cap * drive_res;
@@ -665,8 +662,6 @@ GraphDelayCalc1::seedNoDrvrCellSlew(Vertex *drvr_vertex,
 				 parasitic, dcalc_ap);
   annotateLoadDelays(drvr_vertex, tr, drive_delay, false, dcalc_ap,
 		     arc_delay_calc);
-  arc_delay_calc->finish(drvr_pin, tr, dcalc_ap,
-			 parasitic, delete_parasitic);
 }
 
 void
@@ -687,16 +682,11 @@ GraphDelayCalc1::seedNoDrvrSlew(Vertex *drvr_vertex,
   }
   if (!drvr_vertex->slewAnnotated(tr, slew_min_max))
     graph_->setSlew(drvr_vertex, tr, ap_index, slew);
-  Parasitic *parasitic;
-  bool delete_parasitic;
-  arc_delay_calc->findParasitic(drvr_pin, tr, dcalc_ap,
-				parasitic, delete_parasitic);
+  Parasitic *parasitic = arc_delay_calc->findParasitic(drvr_pin, tr, dcalc_ap);
   arc_delay_calc->inputPortDelay(drvr_pin, delayAsFloat(slew), tr,
 				 parasitic, dcalc_ap);
   annotateLoadDelays(drvr_vertex, tr, delay_zero, false, dcalc_ap,
 		     arc_delay_calc);
-  arc_delay_calc->finish(drvr_pin, tr, dcalc_ap,
-			 parasitic, delete_parasitic);
 }
 
 void
@@ -827,10 +817,8 @@ GraphDelayCalc1::findInputArcDelay(LibertyCell *drvr_cell,
   if (drvr_tr) {
     DcalcAPIndex ap_index = dcalc_ap->index();
     const Pvt *pvt = dcalc_ap->operatingConditions();
-    Parasitic *drvr_parasitic;
-    bool delete_parasitic;
-    arc_delay_calc_->findParasitic(drvr_pin, drvr_tr, dcalc_ap,
-				   drvr_parasitic, delete_parasitic);
+    Parasitic *drvr_parasitic = arc_delay_calc_->findParasitic(drvr_pin, drvr_tr,
+							       dcalc_ap);
     float load_cap = loadCap(drvr_pin, drvr_parasitic, drvr_tr, dcalc_ap);
 
     ArcDelay intrinsic_delay;
@@ -855,8 +843,6 @@ GraphDelayCalc1::findInputArcDelay(LibertyCell *drvr_cell,
     graph_->setSlew(drvr_vertex, drvr_tr, ap_index, gate_slew);
     annotateLoadDelays(drvr_vertex, drvr_tr, load_delay, false, dcalc_ap,
 		       arc_delay_calc_);
-    arc_delay_calc_->finish(drvr_pin, drvr_tr, dcalc_ap,
-			    drvr_parasitic, delete_parasitic);
   }
 }
 
@@ -932,10 +918,10 @@ bool
 GraphDelayCalc1::findDriverDelays(Vertex *drvr_vertex,
 				  ArcDelayCalc *arc_delay_calc)
 {
+  bool delay_changed = false;
   MultiDrvrNet *multi_drvr = multiDrvrNet(drvr_vertex);
   if (multi_drvr) {
     Vertex *dcalc_drvr = multi_drvr->dcalcDrvr();
-    bool delay_changed = false;
     if (drvr_vertex == dcalc_drvr) {
       bool init_load_slews = true;
       VertexSet::Iterator drvr_iter(multi_drvr->drvrs());
@@ -948,10 +934,11 @@ GraphDelayCalc1::findDriverDelays(Vertex *drvr_vertex,
 	init_load_slews = false;
       }
     }
-    return delay_changed;
   }
   else
-    return findDriverDelays1(drvr_vertex, true, nullptr, arc_delay_calc);
+    delay_changed = findDriverDelays1(drvr_vertex, true, nullptr, arc_delay_calc);
+  arc_delay_calc->finishDrvrPin();
+  return delay_changed;
 }
 
 bool
@@ -1027,29 +1014,21 @@ GraphDelayCalc1::findDriverEdgeDelays(LibertyCell *drvr_cell,
     while (arc_iter.hasNext()) {
       TimingArc *arc = arc_iter.next();
       const TransRiseFall *tr = arc->toTrans()->asRiseFall();
-      Parasitic *parasitic;
-      bool delete_parasitic;
-      arc_delay_calc->findParasitic(drvr_pin, tr, dcalc_ap,
-				    parasitic, delete_parasitic);
+      Parasitic *parasitic = arc_delay_calc->findParasitic(drvr_pin, tr,
+							   dcalc_ap);
       float related_out_cap = 0.0;
       if (related_out_pin) {
-	Parasitic *related_out_parasitic;
-	bool delete_related;
-	arc_delay_calc->findParasitic(related_out_pin, tr, dcalc_ap,
-				      related_out_parasitic, delete_related);
+	Parasitic *related_out_parasitic = 
+	  arc_delay_calc->findParasitic(related_out_pin, tr, dcalc_ap);
 	related_out_cap = loadCap(related_out_pin,
 				  related_out_parasitic,
 				  tr, dcalc_ap);
-	arc_delay_calc->finish(related_out_pin, 0, dcalc_ap,
-			       related_out_parasitic, delete_related);
       }
       delay_changed |= findArcDelay(drvr_cell, drvr_pin, drvr_vertex,
 				    multi_drvr, arc, parasitic,
 				    related_out_cap,
 				    in_vertex, edge, pvt, dcalc_ap,
 				    arc_delay_calc);
-      arc_delay_calc->finish(drvr_pin, tr, dcalc_ap,
-			     parasitic, delete_parasitic);
     }
   }
 
@@ -1065,14 +1044,10 @@ GraphDelayCalc1::loadCap(const Pin *drvr_pin,
 			 const TransRiseFall *drvr_tr,
 			 const DcalcAnalysisPt *dcalc_ap) const
 {
-  Parasitic *drvr_parasitic;
-  bool delete_parasitic;
-  arc_delay_calc_->findParasitic(drvr_pin, drvr_tr, dcalc_ap,
-				 drvr_parasitic, delete_parasitic);
-  float load_cap = loadCap(drvr_pin, nullptr, drvr_parasitic, drvr_tr, dcalc_ap);
-  arc_delay_calc_->finish(drvr_pin, drvr_tr, dcalc_ap,
-			  drvr_parasitic, delete_parasitic);
-  return load_cap;
+  Parasitic *drvr_parasitic = arc_delay_calc_->findParasitic(drvr_pin, drvr_tr,
+							     dcalc_ap);
+  float cap = loadCap(drvr_pin, nullptr, drvr_parasitic, drvr_tr, dcalc_ap);
+  return cap;
 }
 
 float
@@ -1130,8 +1105,7 @@ GraphDelayCalc1::loadCap(Parasitic *drvr_parasitic,
 {
   // set_load has precidence over parasitics.
   if (!has_set_load && drvr_parasitic) {
-    if (parasitics_->isLumpedElmore(drvr_parasitic)
-	|| parasitics_->isParasiticNetwork(drvr_parasitic))
+    if (parasitics_->isParasiticNetwork(drvr_parasitic))
       wire_cap += parasitics_->capacitance(drvr_parasitic);
     else {
       // PiModel includes both pin and external caps.
@@ -1380,28 +1354,20 @@ GraphDelayCalc1::findMultiDrvrGateDelay(MultiDrvrNet *multi_drvr,
 	    arc_delay_calc->gateDelay(drvr_cell1, arc1, from_slew1,
 				      0.0, 0, 0.0, pvt, dcalc_ap,
 				      intrinsic_delay1, intrinsic_slew1);
-	    Parasitic *parasitic1;
-	    bool delete_parasitic1;
-	    arc_delay_calc->findParasitic(drvr_pin1, drvr_tr1, dcalc_ap,
-					  parasitic1, delete_parasitic1);
+	    Parasitic *parasitic1 =
+	      arc_delay_calc->findParasitic(drvr_pin1, drvr_tr1, dcalc_ap);
 	    const Pin *related_out_pin1 = 0;
 	    float related_out_cap1 = 0.0;
 	    if (related_out_port) {
 	      Instance *inst1 = network_->instance(drvr_pin1);
 	      related_out_pin1 = network_->findPin(inst1, related_out_port);
 	      if (related_out_pin1) {
-		Parasitic *related_out_parasitic1;
-		bool delete_related1 = false;
-		arc_delay_calc->findParasitic(related_out_pin1, drvr_tr,
-					      dcalc_ap,
-					      related_out_parasitic1,
-					      delete_related1);
+		Parasitic *related_out_parasitic1 =
+		  arc_delay_calc->findParasitic(related_out_pin1, drvr_tr,
+						dcalc_ap);
 		related_out_cap1 = loadCap(related_out_pin1,
 					   related_out_parasitic1,
 					   drvr_tr, dcalc_ap);
-		arc_delay_calc->finish(related_out_pin1, drvr_tr, dcalc_ap,
-				       related_out_parasitic1,
-				       delete_related1);
 	      }
 	    }
 	    float load_cap1 = loadCap(drvr_pin1, parasitic1,
@@ -1414,8 +1380,6 @@ GraphDelayCalc1::findMultiDrvrGateDelay(MultiDrvrNet *multi_drvr,
 				      gate_delay1, gate_slew1);
 	    delay_sum += 1.0F / (gate_delay1 - intrinsic_delay1);
 	    slew_sum += 1.0F / gate_slew1;
-	    arc_delay_calc->finish(drvr_pin1, drvr_tr1, dcalc_ap,
-				   parasitic1, delete_parasitic1);
 	  }
 	}
       }
@@ -1602,16 +1566,11 @@ GraphDelayCalc1::findCheckEdgeDelays(Edge *edge,
 		      delayAsString(to_slew, this));
 	  float related_out_cap = 0.0;
 	  if (related_out_pin) {
-	    Parasitic *related_out_parasitic;
-	    bool delete_related;
-	    arc_delay_calc->findParasitic(related_out_pin, to_tr, dcalc_ap,
-					  related_out_parasitic,
-					  delete_related);
+	    Parasitic *related_out_parasitic =
+	      arc_delay_calc->findParasitic(related_out_pin, to_tr, dcalc_ap);
 	    related_out_cap = loadCap(related_out_pin,
 				      related_out_parasitic,
 				      to_tr, dcalc_ap);
-	    arc_delay_calc->finish(related_out_pin, to_tr, dcalc_ap,
-				   related_out_parasitic, delete_related);
 	  }
 	  ArcDelay check_delay;
 	  arc_delay_calc->checkDelay(cell, arc,
@@ -1628,6 +1587,7 @@ GraphDelayCalc1::findCheckEdgeDelays(Edge *edge,
       }
     }
   }
+
   if (delay_changed && observer_)
     observer_->checkDelayChangedTo(to_vertex);
 }
@@ -1761,26 +1721,19 @@ GraphDelayCalc1::ceff(Edge *edge,
       related_out_pin = network_->findPin(inst, related_out_port);
     float related_out_cap = 0.0;
     if (related_out_pin) {
-      Parasitic *related_out_parasitic;
-      bool delete_related;
-      arc_delay_calc_->findParasitic(related_out_pin, to_tr, dcalc_ap,
-				     related_out_parasitic, delete_related);
+      Parasitic *related_out_parasitic =
+	arc_delay_calc_->findParasitic(related_out_pin, to_tr, dcalc_ap);
       related_out_cap = loadCap(related_out_pin, related_out_parasitic,
 				to_tr, dcalc_ap);
-      arc_delay_calc_->finish(related_out_pin, to_tr, dcalc_ap,
-			      related_out_parasitic, delete_related);
     }
-    Parasitic *to_parasitic;
-    bool delete_to_parasitic;
-    arc_delay_calc_->findParasitic(to_pin, to_tr, dcalc_ap,
-				   to_parasitic, delete_to_parasitic);
+    Parasitic *to_parasitic = arc_delay_calc_->findParasitic(to_pin, to_tr,
+							     dcalc_ap);
     const Slew &from_slew = edgeFromSlew(from_vertex, from_tr, edge, dcalc_ap);
     float load_cap = loadCap(to_pin, to_parasitic, to_tr, dcalc_ap);
     ceff = arc_delay_calc_->ceff(cell, arc,
 				 from_slew, load_cap, to_parasitic,
 				 related_out_cap, pvt, dcalc_ap);
-    arc_delay_calc_->finish(to_pin, to_tr, dcalc_ap,
-			    to_parasitic, delete_to_parasitic);
+    arc_delay_calc_->finishDrvrPin();
   }
   return ceff;
 }
@@ -1815,14 +1768,10 @@ GraphDelayCalc1::reportDelayCalc(Edge *edge,
       related_out_pin = network_->findPin(inst, related_out_port);
     float related_out_cap = 0.0;
     if (related_out_pin) {
-      Parasitic *related_out_parasitic;
-      bool delete_related;
-      arc_delay_calc_->findParasitic(related_out_pin, to_tr, dcalc_ap,
-				     related_out_parasitic, delete_related);
+      Parasitic *related_out_parasitic = 
+	arc_delay_calc_->findParasitic(related_out_pin, to_tr, dcalc_ap);
       related_out_cap = loadCap(related_out_pin, related_out_parasitic,
 				to_tr, dcalc_ap);
-      arc_delay_calc_->finish(related_out_pin, to_tr, dcalc_ap,
-			      related_out_parasitic, delete_related);
     }
     if (role->isTimingCheck()) {
       const Slew &from_slew = checkEdgeClkSlew(from_vertex, from_tr, dcalc_ap);
@@ -1835,19 +1784,16 @@ GraphDelayCalc1::reportDelayCalc(Edge *edge,
 					digits, result);
     }
     else {
-      Parasitic *to_parasitic;
-      bool delete_to_parasitic;
-      arc_delay_calc_->findParasitic(to_pin, to_tr, dcalc_ap,
-				     to_parasitic, delete_to_parasitic);
+      Parasitic *to_parasitic =
+	arc_delay_calc_->findParasitic(to_pin, to_tr, dcalc_ap);
       const Slew &from_slew = edgeFromSlew(from_vertex, from_tr, edge, dcalc_ap);
       float load_cap = loadCap(to_pin, to_parasitic, to_tr, dcalc_ap);
       arc_delay_calc_->reportGateDelay(cell, arc,
 				       from_slew, load_cap, to_parasitic,
 				       related_out_cap, pvt, dcalc_ap,
 				       digits, result);
-      arc_delay_calc_->finish(to_pin, to_tr, dcalc_ap,
-			      to_parasitic, delete_to_parasitic);
     }
+    arc_delay_calc_->finishDrvrPin();
   }
   return result;
 }

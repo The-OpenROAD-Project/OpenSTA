@@ -52,21 +52,9 @@ public:
 
   // Find the parasitic for drvr_pin that is acceptable to the delay
   // calculator by probing parasitics_.
-  virtual void findParasitic(const Pin *drvr_pin,
-			     const TransRiseFall *tr,
-			     const DcalcAnalysisPt *dcalc_ap,
-			     // Return values.
-			     Parasitic *&parasitic,
-			     bool &delete_at_finish) = 0;
-  // Call after the parasitic returned by findParasitic is no longer
-  // needed.  This gives the arc delay calculator a chance to delete
-  // temporary estimated or reduced parasitics.  The default action is
-  // to do nothing.
-  virtual void finish(const Pin *drvr_pin,
-		      const TransRiseFall *tr,
-		      const DcalcAnalysisPt *dcalc_ap,
-		      Parasitic *parasitic,
-		      bool delete_at_finish) = 0;
+  virtual Parasitic *findParasitic(const Pin *drvr_pin,
+				   const TransRiseFall *tr,
+				   const DcalcAnalysisPt *dcalc_ap) = 0;
 
   // Find the wire delays and slews for an input port without a driving cell.
   // This call primarily initializes the load delay/slew iterator.
@@ -140,6 +128,8 @@ public:
 				const DcalcAnalysisPt *dcalc_ap,
 				int digits,
 				string *result) = 0;
+  virtual void finishDrvrPin() = 0;
+
 protected:
   GateTimingModel *gateModel(TimingArc *arc,
 			     const DcalcAnalysisPt *dcalc_ap) const;

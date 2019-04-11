@@ -72,8 +72,6 @@ protected:
 	       // Return values.
 	       const Clock *&clk,
 	       bool &is_clk);
-  float loadCap(const Pin *to_pin,
-		const DcalcAnalysisPt *dcalc_ap);;
   void activity(const Pin *pin,
 		// Return values.
 		float &activity,

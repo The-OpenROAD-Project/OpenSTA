@@ -30,11 +30,6 @@ NullParasitics::clear()
 }
 
 void
-NullParasitics::finish(Parasitic *)
-{
-}
-
-void
 NullParasitics::save()
 {
 }
@@ -56,10 +51,12 @@ NullParasitics::deleteParasitics(const Pin *, const ParasiticAnalysisPt *)
 }
 
 void
-NullParasitics::deleteParasitic(const Pin *,
-				const TransRiseFall *,
-				const ParasiticAnalysisPt *,
-				Parasitic *)
+NullParasitics::deleteUnsavedParasitic(Parasitic *)
+{
+}
+
+void
+NullParasitics::deleteDrvrReducedParasitics(const Pin *)
 {
 }
 
@@ -67,52 +64,6 @@ float
 NullParasitics::capacitance(Parasitic *) const
 {
   return 0.0;
-}
-
-bool
-NullParasitics::hasLumpedElmore(const Pin *,
-				const TransRiseFall *,
-				const ParasiticAnalysisPt *) const
-{
-  return false;
-}
-
-Parasitic *
-NullParasitics::findLumpedElmore(const Pin *,
-				 const TransRiseFall *,
-				 const ParasiticAnalysisPt *) const
-{
-  return nullptr;
-}
-
-bool
-NullParasitics::isLumpedElmore(Parasitic *) const
-{
-  return false;
-}
-
-Parasitic *
-NullParasitics::makeLumpedElmore(const Pin *,
-				 float,
-				 const TransRiseFall *,
-				 const ParasiticAnalysisPt *)
-{
-  return nullptr;
-}
-
-void
-NullParasitics::deleteLumpedElmore(const Pin *,
-				   const TransRiseFall *,
-				   const ParasiticAnalysisPt *)
-{
-}
-
-bool
-NullParasitics::hasPiElmore(const Pin *,
-			    const TransRiseFall *,
-			    const ParasiticAnalysisPt *) const
-{
-  return false;
 }
 
 Parasitic *
@@ -132,18 +83,6 @@ NullParasitics::makePiElmore(const Pin *,
 			     float)
 {
   return nullptr;
-}
-
-void
-NullParasitics::deletePiElmore(const Pin *)
-{
-}
-
-void
-NullParasitics::deletePiElmore(const Pin *,
-			       const TransRiseFall *,
-			       const ParasiticAnalysisPt *)
-{
 }
 
 bool
@@ -207,14 +146,6 @@ NullParasitics::isPiPoleResidue(Parasitic* ) const
   return false;
 }
 
-bool
-NullParasitics::hasPiPoleResidue(const Pin *,
-				 const TransRiseFall *,
-				 const ParasiticAnalysisPt *) const
-{
-  return false;
-}
-
 Parasitic *
 NullParasitics::findPiPoleResidue(const Pin *,
 				  const TransRiseFall *,
@@ -270,10 +201,16 @@ NullParasitics::poleResidue(const Parasitic *,
 }
 
 bool
-NullParasitics::hasParasiticNetwork(const Net *,
-				    const ParasiticAnalysisPt *) const
+NullParasitics::isParasiticNetwork(Parasitic *) const
 {
   return false;
+}
+
+Parasitic *
+NullParasitics::findParasiticNetwork(const Net *,
+				     const ParasiticAnalysisPt *) const
+{
+  return nullptr;
 }
 
 Parasitic *
@@ -283,14 +220,8 @@ NullParasitics::findParasiticNetwork(const Pin *,
   return nullptr;
 }
 
-bool
-NullParasitics::isParasiticNetwork(Parasitic *) const
-{
-  return false;
-}
-
 Parasitic *
-NullParasitics::makeParasiticNetwork(Net *,
+NullParasitics::makeParasiticNetwork(const Net *,
 				     bool,
 				     const ParasiticAnalysisPt *)
 {
@@ -447,7 +378,6 @@ void
 NullParasitics::reduceTo(Parasitic *,
 			 const Net *,
 			 ReduceParasiticsTo ,
-			 const TransRiseFall *,
 			 const OperatingConditions *,
 			 const Corner *,
 			 const MinMax *,
@@ -458,7 +388,6 @@ NullParasitics::reduceTo(Parasitic *,
 void
 NullParasitics::reduceToPiElmore(Parasitic *,
 				 const Net *,
-				 const TransRiseFall *,
 				 const OperatingConditions *,
 				 const Corner *,
 				 const MinMax *,
@@ -466,21 +395,18 @@ NullParasitics::reduceToPiElmore(Parasitic *,
 {
 }
 
-Parasitic *
+void
 NullParasitics::reduceToPiElmore(Parasitic *,
 				 const Pin *,
-				 const TransRiseFall *,
 				 const OperatingConditions *,
 				 const Corner *,
 				 const MinMax *,
 				 const ParasiticAnalysisPt *)
 {
-  return nullptr;
 }
 
 void
 NullParasitics::reduceToPiPoleResidue2(Parasitic *, const Net *,
-				       const TransRiseFall *,
 				       const OperatingConditions *,
 				       const Corner *,
 				       const MinMax *,
@@ -488,16 +414,14 @@ NullParasitics::reduceToPiPoleResidue2(Parasitic *, const Net *,
 {
 }
 
-Parasitic *
+void
 NullParasitics::reduceToPiPoleResidue2(Parasitic *,
 				       const Pin *,
-				       const TransRiseFall *,
 				       const OperatingConditions *,
 				       const Corner *,
 				       const MinMax *,
 				       const ParasiticAnalysisPt *)
 {
-  return nullptr;
 }
 
 Parasitic *
@@ -516,6 +440,11 @@ NullParasitics::estimatePiElmore(const Pin *,
 
 void
 NullParasitics::disconnectPinBefore(const Pin *)
+{
+}
+
+void
+NullParasitics::loadPinCapacitanceChanged(const Pin *)
 {
 }
 

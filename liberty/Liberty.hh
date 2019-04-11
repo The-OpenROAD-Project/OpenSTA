@@ -632,6 +632,7 @@ public:
 		    const MinMax *min_max,
 		    const OperatingConditions *op_cond,
 		    const Pvt *pvt) const;
+  bool capacitanceIsOneValue() const;
   void setCapacitance(float cap);
   void setCapacitance(const TransRiseFall *tr,
 		      const MinMax *min_max,

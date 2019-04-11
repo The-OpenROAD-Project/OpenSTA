@@ -539,7 +539,7 @@ Search::deleteFilterTagGroups()
     TagGroup *group = tag_groups_[i];
     if (group
 	&& group->hasFilterTag()) {
-      tag_group_set_->eraseKey(group);
+      tag_group_set_->erase(group);
       tag_groups_[group->index()] = nullptr;
       tag_group_free_indices_.push_back(i);
       delete group;
@@ -555,7 +555,7 @@ Search::deleteFilterTags()
     if (tag
 	&& tag->isFilter()) {
       tags_[i] = nullptr;
-      tag_set_->eraseKey(tag);
+      tag_set_->erase(tag);
       delete tag;
       tag_free_indices_.push_back(i);
     }
@@ -569,7 +569,7 @@ Search::deleteFilterClkInfos()
   while (clk_info_iter.hasNext()) {
     ClkInfo *clk_info = clk_info_iter.next();
     if (clk_info->refsFilter(this)) {
-      clk_info_set_->eraseKey(clk_info);
+      clk_info_set_->erase(clk_info);
       delete clk_info;
     }
   }
@@ -660,17 +660,17 @@ Search::deleteVertexBefore(Vertex *vertex)
   if (arrivals_exist_) {
     deletePaths(vertex);
     arrival_iter_->deleteVertexBefore(vertex);
-    invalid_arrivals_.eraseKey(vertex);
+    invalid_arrivals_.erase(vertex);
   }
   if (requireds_exist_) {
     required_iter_->deleteVertexBefore(vertex);
-    invalid_requireds_.eraseKey(vertex);
-    invalid_tns_.eraseKey(vertex);
+    invalid_requireds_.erase(vertex);
+    invalid_tns_.erase(vertex);
   }
   if (endpoints_)
-    endpoints_->eraseKey(vertex);
+    endpoints_->erase(vertex);
   if (invalid_endpoints_)
-    invalid_endpoints_->eraseKey(vertex);
+    invalid_endpoints_->erase(vertex);
 }
 
 void
@@ -3171,7 +3171,7 @@ Search::endpoints()
 	if (debug_->check("endpoint", 2)
 	    && endpoints_->hasKey(vertex))
 	  debug_->print("endpoint: remove %s\n", vertex->name(sdc_network_));
-	endpoints_->eraseKey(vertex);
+	endpoints_->erase(vertex);
       }
     }
     invalid_endpoints_->clear();
@@ -3805,7 +3805,7 @@ Search::tnsDecr(Vertex *vertex,
 		delayAsString(slack, this),
 		vertex->name(sdc_network_));
     tns_[path_ap_index] -= slack;
-    tns_slacks_[path_ap_index].eraseKey(vertex);
+    tns_slacks_[path_ap_index].erase(vertex);
   }
 }
 

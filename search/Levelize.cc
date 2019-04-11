@@ -374,8 +374,8 @@ Levelize::invalidFrom(Vertex *vertex)
 void
 Levelize::deleteVertexBefore(Vertex *vertex)
 {
-  roots_.eraseKey(vertex);
-  relevelize_from_.eraseKey(vertex);
+  roots_.erase(vertex);
+  relevelize_from_.erase(vertex);
 }
 
 void
@@ -395,7 +395,7 @@ Levelize::deleteEdgeBefore(Edge *edge)
     // fails because the DFS path will be missing.
     invalid();
     // Prevent refererence to deleted edge by clearLoopEdges().
-    disabled_loop_edges_.eraseKey(edge);
+    disabled_loop_edges_.erase(edge);
   }
 }
 

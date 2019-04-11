@@ -27,17 +27,9 @@ class UnitDelayCalc : public ArcDelayCalc
 public:
   UnitDelayCalc(StaState *sta);
   virtual ArcDelayCalc *copy();
-  virtual void findParasitic(const Pin *drvr_pin,
-			     const TransRiseFall *tr,
-			     const DcalcAnalysisPt *dcalc_ap,
-			     // Return values.
-			     Parasitic *&parasitic,
-			     bool &delete_at_finish);
-  virtual void finish(const Pin *drvr_pin,
-		      const TransRiseFall *tr,
-		      const DcalcAnalysisPt *dcalc_ap,
-		      Parasitic *parasitic,
-		      bool delete_at_finish);
+  virtual Parasitic *findParasitic(const Pin *drvr_pin,
+				   const TransRiseFall *tr,
+				   const DcalcAnalysisPt *dcalc_ap);
   virtual void gateDelay(const LibertyCell *drvr_cell,
 			 TimingArc *arc,
 			 const Slew &in_slew,
@@ -96,6 +88,7 @@ public:
 				const DcalcAnalysisPt *dcalc_ap,
 				int digits,
 				string *result);
+  virtual void finishDrvrPin();
 };
 
 ArcDelayCalc *

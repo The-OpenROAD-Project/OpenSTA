@@ -244,6 +244,13 @@ RiseFallMinMax::equal(const RiseFallMinMax *values) const
 }
 
 bool
+RiseFallMinMax::isOneValue() const
+{
+  float value;
+  return isOneValue(value);
+}
+
+bool
 RiseFallMinMax::isOneValue(float &value) const
 {
   if (exists_[0][0]) {

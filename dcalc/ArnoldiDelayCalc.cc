@@ -113,12 +113,9 @@ public:
   ArnoldiDelayCalc(StaState *sta);
   virtual ~ArnoldiDelayCalc();
   virtual ArcDelayCalc *copy();
-  virtual void findParasitic(const Pin *drvr_pin,
-			     const TransRiseFall *tr,
-			     const DcalcAnalysisPt *dcalc_ap,
-			     // Return values.
-			     Parasitic *&parasitic,
-			     bool &delete_at_finish);
+  virtual Parasitic *findParasitic(const Pin *drvr_pin,
+				   const TransRiseFall *tr,
+				   const DcalcAnalysisPt *dcalc_ap);
   virtual void gateDelay(const LibertyCell *drvr_cell,
 			 TimingArc *arc,
 			 const Slew &in_slew,
@@ -261,25 +258,21 @@ ArnoldiDelayCalc::~ArnoldiDelayCalc()
   delete reduce_;
 }
 
-void
+Parasitic *
 ArnoldiDelayCalc::findParasitic(const Pin *drvr_pin,
 				const TransRiseFall *drvr_tr,
-				const DcalcAnalysisPt *dcalc_ap,
-				// Return values.
-				Parasitic *&parasitic,
-				bool &delete_at_finish)
+				const DcalcAnalysisPt *dcalc_ap)
 {
-  parasitic = nullptr;
-  delete_at_finish = false;
   // set_load has precidence over parasitics.
   if (!sdc_->drvrPinHasWireCap(drvr_pin)) {
-    const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
-    const Corner *corner = dcalc_ap->corner();
-    const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();
     const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
     Parasitic *parasitic_network =
       parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
     bool delete_parasitic_network = false;
+
+    const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();
+    const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
+    const Corner *corner = dcalc_ap->corner();
     if (parasitic_network == nullptr) {
       Wireload *wireload = sdc_->wireloadDefaulted(cnst_min_max);
       if (wireload) {
@@ -287,27 +280,28 @@ ArnoldiDelayCalc::findParasitic(const Pin *drvr_pin,
 	bool has_wire_cap;
 	graph_delay_calc_->netCaps(drvr_pin, drvr_tr, dcalc_ap,
 				   pin_cap, wire_cap, fanout, has_wire_cap);
-	parasitic_network = parasitics_->makeWireloadNetwork(drvr_pin,
-							     wireload,
-							     fanout, 
-							     op_cond,
+	parasitic_network = parasitics_->makeWireloadNetwork(drvr_pin, wireload,
+							     fanout, op_cond,
 							     parasitic_ap);
 	delete_parasitic_network = true;
       }
     }
+    
     if (parasitic_network) {
-      parasitic = reduce_->reduceToArnoldi(parasitic_network,
-					   drvr_pin,
-					   parasitic_ap->couplingCapFactor(),
-					   drvr_tr, op_cond, corner,
-					   cnst_min_max, parasitic_ap);
+      Parasitic *parasitic = reduce_->reduceToArnoldi(parasitic_network,
+						      drvr_pin,
+						      parasitic_ap->couplingCapFactor(),
+						      drvr_tr, op_cond, corner,
+						      cnst_min_max, parasitic_ap);
       if (delete_parasitic_network) {
 	Net *net = network_->net(drvr_pin);
 	parasitics_->deleteParasiticNetwork(net, parasitic_ap);
       }
-      delete_at_finish = true;
+      reduced_parasitic_drvrs_.push_back(drvr_pin);
+      return parasitic;
     }
   }
+  return nullptr;
 }
 
 void

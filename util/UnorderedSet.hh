@@ -57,15 +57,6 @@ public:
       return nullptr;
   }
 
-  // Erase the value corresponding to key.
-  void
-  eraseKey(KEY key)
-  {
-    auto find_iter = this->find(key);
-    if (find_iter != this->end())
-      this->erase(find_iter);
-  }
-
   void
   deleteContents()
   {

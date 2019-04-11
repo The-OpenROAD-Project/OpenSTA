@@ -118,7 +118,7 @@ WorstSlack::deleteVertexBefore(Vertex *vertex)
     worst_vertex_ = nullptr;
     worst_slack_ = slack_init_;
   }
-  queue_.eraseKey(vertex);
+  queue_.erase(vertex);
 }
 
 void
@@ -311,7 +311,7 @@ WorstSlack::updateWorstSlack(Vertex *vertex,
     debugPrint2(debug, "wns", 3, "delete %s %s\n",
 		vertex->name(network),
 		delayAsString(slack, sta));
-    queue_.eraseKey(vertex);
+    queue_.erase(vertex);
   }
   //  checkQueue();
 }

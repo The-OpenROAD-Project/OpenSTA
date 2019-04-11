@@ -46,7 +46,7 @@ public:
   KEY findKey(KEY key);
   KEY findKey(KEY key) const;
   bool hasKey(KEY key);
-  void eraseKey(KEY key);
+  void erase(KEY key);
   bool empty() const;
   void clear();
   void deleteContentsClear();
@@ -351,7 +351,7 @@ HashSet<KEY, HASH, EQUAL>::resize(size_t capacity)
 
 template <class KEY, class HASH, class EQUAL>
 void
-HashSet<KEY, HASH, EQUAL>::eraseKey(KEY key)
+HashSet<KEY, HASH, EQUAL>::erase(KEY key)
 {
   size_t hash = hash_(key) % capacity_;
   HashSetBucket<KEY> *head = table_[hash];

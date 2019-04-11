@@ -1353,7 +1353,7 @@ WritePathSpice::writeSubckts()
 	    }
 	    if (!found_ends)
 	      throw SubcktEndsMissing(cell_name, lib_subckt_filename_);
-	    path_cell_names.eraseKey(cell_name);
+	    path_cell_names.erase(cell_name);
 	  }
 	  recordSpicePortNames(cell_name, tokens);
 	}

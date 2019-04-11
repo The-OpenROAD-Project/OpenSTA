@@ -37,26 +37,12 @@ UnitDelayCalc::copy()
   return new UnitDelayCalc(this);
 }
 
-void
+Parasitic *
 UnitDelayCalc::findParasitic(const Pin *,
 			     const TransRiseFall *,
-			     const DcalcAnalysisPt *,
-			     // Return values.
-			     Parasitic *&parasitic,
-			     bool &delete_at_finish)
+			     const DcalcAnalysisPt *)
 {
-  // No parasitics are required for this delay calculator.
-  parasitic = nullptr;
-  delete_at_finish = false;
-}
-
-void
-UnitDelayCalc::finish(const Pin *,
-		      const TransRiseFall *,
-		      const DcalcAnalysisPt *,
-		      Parasitic *, bool)
-{
-  // This space intentionally left blank.
+  return nullptr;
 }
 
 void
@@ -148,6 +134,11 @@ UnitDelayCalc::reportCheckDelay(const LibertyCell *,
 				string *result)
 {
   *result += "Check = 1.0\n";
+}
+
+void
+UnitDelayCalc::finishDrvrPin()
+{
 }
 
 } // namespace

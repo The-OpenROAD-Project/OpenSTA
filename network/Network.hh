@@ -483,8 +483,8 @@ public:
 				 const char *name,
 				 Instance *parent) = 0;
   virtual void makePins(Instance *inst) = 0;
-  virtual void swapCell(Instance *inst,
-			LibertyCell *cell) = 0;
+  virtual void replaceCell(Instance *inst,
+			   LibertyCell *cell) = 0;
   // Deleting instance also deletes instance pins.
   virtual void deleteInstance(Instance *inst) = 0;
   // Connect the port on an instance to a net.

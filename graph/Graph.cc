@@ -530,7 +530,7 @@ void
 Graph::deleteVertex(Vertex *vertex)
 {
   if (vertex->isRegClk())
-    reg_clk_vertices_.eraseKey(vertex);
+    reg_clk_vertices_.erase(vertex);
   Pin *pin = vertex->pin_;
   if (vertex->isBidirectDriver())
     pin_bidirect_drvr_vertex_map_.erase(pin_bidirect_drvr_vertex_map_

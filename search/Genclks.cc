@@ -18,6 +18,7 @@
 #include "Stats.hh"
 #include "Debug.hh"
 #include "Report.hh"
+#include "Hash.hh"
 #include "Network.hh"
 #include "PortDirection.hh"
 #include "Graph.hh"
@@ -686,7 +687,7 @@ Genclks::findLatchFdbkEdges(Vertex *from_vertex,
 	findLatchFdbkEdges(to_vertex, gclk_level, srch_pred,
 			   path_vertices, visited_vertices, fdbk_edges);
     }
-    path_vertices.eraseKey(from_vertex);
+    path_vertices.erase(from_vertex);
   }
 }
 
@@ -1069,22 +1070,6 @@ Genclks::srcPath(const Clock *gclk,
     src_path.init();
 }
 
-bool
-ClockPinPairLess::operator()(const ClockPinPair &pair1,
-			     const ClockPinPair &pair2) const
-
-{
-  const Clock *clk1 = pair1.first;
-  const Clock *clk2 = pair2.first;
-  int clk_index1 = clk1->index();
-  int clk_index2 = clk2->index();
-  const Pin *pin1 = pair1.second;
-  const Pin *pin2 = pair2.second;
-  return (clk_index1 < clk_index2
-	  || (clk_index1 == clk_index2
-	      && pin1 < pin2));
-}
-
 Arrival
 Genclks::insertionDelay(const Clock *clk,
 			const Pin *pin,
@@ -1283,6 +1268,52 @@ Genclks::matchesPllFilter(Path *path,
     }
   }
   return false;
+}
+
+////////////////////////////////////////////////////////////////
+
+bool
+ClockPinPairLess::operator()(const ClockPinPair &pair1,
+			     const ClockPinPair &pair2) const
+
+{
+  const Clock *clk1 = pair1.first;
+  const Clock *clk2 = pair2.first;
+  int clk_index1 = clk1->index();
+  int clk_index2 = clk2->index();
+  const Pin *pin1 = pair1.second;
+  const Pin *pin2 = pair2.second;
+  return (clk_index1 < clk_index2
+	  || (clk_index1 == clk_index2
+	      && pin1 < pin2));
+}
+
+class ClockPinPairHash
+{
+public:
+  Hash operator()(const ClockPinPair &pair) const;
+};
+
+Hash
+ClockPinPairHash::operator()(const ClockPinPair &pair) const
+{
+  return hashSum(pair.first->index(), hashPtr(pair.second));
+}
+
+class ClockPinPairEqual
+{
+public:
+  bool operator()(const ClockPinPair &pair1,
+		  const ClockPinPair &pair2) const;
+};
+
+bool
+ClockPinPairEqual::operator()(const ClockPinPair &pair1,
+			      const ClockPinPair &pair2) const
+
+{
+  return pair1.first == pair2.first
+    && pair1.second == pair2.second;
 }
 
 } // namespace

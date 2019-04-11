@@ -46,68 +46,63 @@ LumpedCapDelayCalc::copy()
   return new LumpedCapDelayCalc(this);
 }
 
-void
+Parasitic *
 LumpedCapDelayCalc::findParasitic(const Pin *drvr_pin,
 				  const TransRiseFall *tr,
-				  const DcalcAnalysisPt *dcalc_ap,
-				  // Return values.
-				  Parasitic *&parasitic,
-				  bool &delete_at_finish)
+				  const DcalcAnalysisPt *dcalc_ap)
 {
-  parasitic = nullptr;
-  delete_at_finish = false;
   // set_load has precidence over parasitics.
   if (!sdc_->drvrPinHasWireCap(drvr_pin)) {
     const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
-    // Prefer capacitive load.
-    parasitic = parasitics_->findLumpedElmore(drvr_pin, tr, parasitic_ap);
-    if (parasitic == nullptr)
-      parasitic = parasitics_->findPiElmore(drvr_pin, tr, parasitic_ap);
-    if (parasitic == nullptr) {
-      parasitic = parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
-      if (parasitic) {
-	parasitic = parasitics_->reduceToPiElmore(parasitic, drvr_pin, tr,
-						  dcalc_ap->operatingConditions(),
-						  dcalc_ap->corner(),
-						  dcalc_ap->constraintMinMax(),
-						  parasitic_ap);
-	delete_at_finish = true;
-      }
+    // Prefer PiElmore.
+    Parasitic *parasitic = parasitics_->findPiElmore(drvr_pin, tr,parasitic_ap);
+    if (parasitic)
+      return parasitic;
+
+    Parasitic *parasitic_network =
+      parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
+    if (parasitic_network) {
+      parasitics_->reduceToPiElmore(parasitic_network, drvr_pin,
+				    dcalc_ap->operatingConditions(),
+				    dcalc_ap->corner(),
+				    dcalc_ap->constraintMinMax(),
+				    parasitic_ap);
+      parasitic = parasitics_->findPiElmore(drvr_pin, tr,parasitic_ap);
+      reduced_parasitic_drvrs_.push_back(drvr_pin);
+      return parasitic;
     }
-    if (parasitic == nullptr) {
-      const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();
-      Wireload *wireload = sdc_->wireloadDefaulted(cnst_min_max);
-      if (wireload) {
-	float pin_cap, wire_cap, fanout;
-	bool has_wire_cap;
-	graph_delay_calc_->netCaps(drvr_pin, tr, dcalc_ap,
-				   pin_cap, wire_cap, fanout, has_wire_cap);
-	parasitic =
-	  parasitics_->estimatePiElmore(drvr_pin, tr, wireload, fanout,pin_cap,
-					dcalc_ap->operatingConditions(),
-					dcalc_ap->corner(),
-					cnst_min_max,
-					parasitic_ap);
-	delete_at_finish = true;
-      }
+
+    const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();
+    Wireload *wireload = sdc_->wireloadDefaulted(cnst_min_max);
+    if (wireload) {
+      float pin_cap, wire_cap, fanout;
+      bool has_wire_cap;
+      graph_delay_calc_->netCaps(drvr_pin, tr, dcalc_ap,
+				 pin_cap, wire_cap, fanout, has_wire_cap);
+      parasitic = parasitics_->estimatePiElmore(drvr_pin, tr, wireload,
+						fanout, pin_cap,
+						dcalc_ap->operatingConditions(),
+						dcalc_ap->corner(),
+						cnst_min_max,
+						parasitic_ap);
+      // Estimated parasitics are not recorded in the "database", so
+      // it for deletion after the drvr pin delay calc is finished.
+      unsaved_parasitics_.push_back(parasitic);
+      return parasitic;
     }
   }
+  return nullptr;
 }
 
 void
-LumpedCapDelayCalc::finish(const Pin *drvr_pin,
-			   const TransRiseFall *tr,
-			   const DcalcAnalysisPt *dcalc_ap,
-			   Parasitic *parasitic,
-			   bool delete_at_finish)
+LumpedCapDelayCalc::finishDrvrPin()
 {
-  if (parasitic) {
-    const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
-    if (delete_at_finish)
-      parasitics_->deleteParasitic(drvr_pin, tr, parasitic_ap, parasitic);
-    else
-      parasitics_->finish(parasitic);
-  }
+  for (auto parasitic : unsaved_parasitics_)
+    parasitics_->deleteUnsavedParasitic(parasitic);
+  unsaved_parasitics_.clear();
+  for (auto drvr_pin : reduced_parasitic_drvrs_)
+    parasitics_->deleteDrvrReducedParasitics(drvr_pin);
+  reduced_parasitic_drvrs_.clear();
 }
 
 void
