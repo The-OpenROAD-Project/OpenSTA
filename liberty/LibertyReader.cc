@@ -2473,9 +2473,9 @@ LibertyReader::visitClockGatingIntegratedCell(LibertyAttr *attr)
   if (cell_) {
     const char *clock_gate_type = getAttrString(attr);
     if (clock_gate_type) {
-      if (stringBeginEq(clock_gate_type, "latch_posedge"))
+      if (stringBeginEqual(clock_gate_type, "latch_posedge"))
 	cell_->setClockGateType(ClockGateType::latch_posedge);
-      else if (stringBeginEq(clock_gate_type, "latch_negedge"))
+      else if (stringBeginEqual(clock_gate_type, "latch_negedge"))
 	cell_->setClockGateType(ClockGateType::latch_negedge);
       else
 	cell_->setClockGateType(ClockGateType::other);

@@ -108,9 +108,6 @@ private:
 			 StringSet &path_cell_names);
   void recordSpicePortNames(const char *cell_name,
 			    StringVector &tokens);
-  float pgPortVoltage(const char *pg_port_name,
-		      LibertyCell *cell);
-  float pgPortVoltage(LibertyPgPort *pg_port);
   float maxTime();
   const char *nodeName(ParasiticNode *node);
   void initNodeMap(const char *net_name);
@@ -159,12 +156,18 @@ private:
 		 TimingArc *next_arc,
 		 DcalcAPIndex dcalc_ap_index);
   LibertyPort *onePort(FuncExpr *expr);
+  void writeVoltageSource(const char *inst_name,
+			  const char *port_name,
+			  float voltage,
+			  int &volt_index);
   void writeVoltageSource(LibertyCell *cell,
 			  const char *inst_name,
 			  const char *subckt_port_name,
 			  const char *pg_port_name,
+			  float voltage,
 			  int &volt_index);
   float slewAxisMinValue(TimingArc *arc);
+  float pgPortVoltage(LibertyPgPort *pg_port);
 
   // Stage "accessors".
   //
@@ -296,11 +299,16 @@ WritePathSpice::WritePathSpice(Path *path,
 {
   bool exists;
   default_library_->supplyVoltage(power_name_, power_voltage_, exists);
-  if (!exists)
-    report_->error("supply %s voltage not found,\n", power_name_);
+  if (!exists) {
+    auto dcalc_ap = path_->dcalcAnalysisPt(this);
+    auto op_cond = dcalc_ap->operatingConditions();
+    if (op_cond == nullptr)
+      op_cond = network_->defaultLibertyLibrary()->defaultOperatingConditions();
+    power_voltage_ = op_cond->voltage();
+  }
   default_library_->supplyVoltage(gnd_name_, gnd_voltage_, exists);
   if (!exists)
-    report_->error("supply %s voltage not found,\n", gnd_name_);
+    gnd_voltage_ = 0.0;
 }
 
 WritePathSpice::~WritePathSpice()
@@ -404,25 +412,30 @@ WritePathSpice::writeStageInstances()
 }
 
 float
-WritePathSpice::pgPortVoltage(const char *pg_port_name,
-			      LibertyCell *cell)
-{
-  auto pg_port = cell->findPgPort(pg_port_name);
-  return pgPortVoltage(pg_port);
-}
-
-float
 WritePathSpice::pgPortVoltage(LibertyPgPort *pg_port)
 {
-  auto cell = pg_port->cell();
-  auto voltage_name = pg_port->voltageName();
-  auto lib = cell->libertyLibrary();
-  float voltage;
+  LibertyLibrary *liberty = pg_port->cell()->libertyLibrary();
+  float voltage = 0.0;
   bool exists;
-  lib->supplyVoltage(voltage_name, voltage, exists);
-  if (!exists)
-    report_->error("pg_port %s voltage %s not found,\n",
-		   pg_port->name(), voltage_name);
+  auto voltage_name = pg_port->voltageName();
+  if (voltage_name) {
+    liberty->supplyVoltage(voltage_name, voltage, exists);
+    if (!exists) {
+      if (stringEqual(voltage_name, power_name_))
+	voltage = power_voltage_;
+      else if (stringEqual(voltage_name, gnd_name_))
+	voltage = gnd_voltage_;
+      else
+	report_->error("pg_pin %s/%s voltage %s not found,\n",
+		       pg_port->cell()->name(),
+		       pg_port->name(),
+		       voltage_name);
+    }
+  }
+  else
+    report_->error("Liberty pg_port %s/%s missing voltage_name attribute,\n",
+		   pg_port->cell()->name(),
+		   pg_port->name());
   return voltage;
 }
 
@@ -818,6 +831,9 @@ WritePathSpice::writeSubcktInst(const Pin *input_pin)
     }
     else if (pg_port)
       streamPrint(spice_stream_, " %s/%s", inst_name, subckt_port_cname);
+    else if (stringEq(subckt_port_cname, power_name_)
+	     || stringEq(subckt_port_cname, gnd_name_))
+      streamPrint(spice_stream_, " %s/%s", inst_name, subckt_port_cname);
   }
   streamPrint(spice_stream_, " %s\n", cell_name);
 }
@@ -851,14 +867,16 @@ WritePathSpice::writeSubcktInstVoltSrcs(Stage stage,
     debugPrint2(debug_, "write_spice", 2, " port %s%s\n",
 		subckt_port_name,
 		pg_port ? " pwr/gnd" : "");
-    if (pg_port) {
-      auto voltage = pgPortVoltage(pg_port);
-      streamPrint(spice_stream_, "v%d %s/%s 0 %.3f\n",
-		  volt_index,
-		  inst_name, subckt_port_name,
-		  voltage);
-      volt_index++;
-    } else if (!(stringEq(subckt_port_name, input_port_name)
+    if (pg_port)
+      writeVoltageSource(inst_name, subckt_port_name,
+			 pgPortVoltage(pg_port), volt_index);
+    else if (stringEq(subckt_port_name, power_name_))
+      writeVoltageSource(inst_name, subckt_port_name,
+			 power_voltage_, volt_index);
+    else if (stringEq(subckt_port_name, gnd_name_))
+      writeVoltageSource(inst_name, subckt_port_name,
+			 gnd_voltage_, volt_index);
+    else if (!(stringEq(subckt_port_name, input_port_name)
 		 || stringEq(subckt_port_name, drvr_port_name))) {
       // Input voltage to sensitize path from gate input to output.
       auto port = cell->findLibertyPort(subckt_port_name);
@@ -879,11 +897,13 @@ WritePathSpice::writeSubcktInstVoltSrcs(Stage stage,
 	case LogicValue::unknown:
 	  writeVoltageSource(cell, inst_name, subckt_port_name,
 			     port->relatedGroundPin(),
+			     gnd_voltage_,
 			     volt_index);
 	  break;
 	case LogicValue::one:
 	  writeVoltageSource(cell, inst_name, subckt_port_name,
 			     port->relatedPowerPin(),
+			     power_voltage_,
 			     volt_index);
 	  break;
 	case LogicValue::rise:
@@ -915,38 +935,37 @@ WritePathSpice::writeClkedStepSource(const Pin *pin,
 }
 
 void
+WritePathSpice::writeVoltageSource(const char *inst_name,
+				   const char *port_name,
+				   float voltage,
+				   int &volt_index)
+{
+  streamPrint(spice_stream_, "v%d %s/%s 0 %.3f\n",
+	      volt_index,
+	      inst_name, port_name,
+	      voltage);
+  volt_index++;
+}
+
+void
 WritePathSpice::writeVoltageSource(LibertyCell *cell,
 				   const char *inst_name,
 				   const char *subckt_port_name,
 				   const char *pg_port_name,
+				   float voltage,
 				   int &volt_index)
 {
-  auto pg_port = cell->findPgPort(pg_port_name);
-  if (pg_port) {
-    auto voltage_name = pg_port->voltageName();
-    if (voltage_name) {
-      float voltage;
-      bool exists;
-      cell->libertyLibrary()->supplyVoltage(voltage_name, voltage, exists);
-      if (!exists)
-	report_->error("pg_port %s voltage %s not found,\n",
-		       pg_port_name, voltage_name);
-      streamPrint(spice_stream_, "v%d %s/%s 0 %.3f\n",
-		  volt_index,
-		  inst_name, subckt_port_name,
-		  voltage);
-      volt_index++;
-    }
+  if (pg_port_name) {
+    auto pg_port = cell->findPgPort(pg_port_name);
+    if (pg_port)
+      voltage = pgPortVoltage(pg_port);
     else
-      report_->error("port %s %s voltage %s not found,\n",
-		     subckt_port_name,
-		     pg_port_name,
-		     voltage_name);
+      report_->error("%s pg_port %s not found,\n",
+		     cell->name(),
+		     pg_port_name);
+
   }
-  else
-    report_->error("port %s %s not found,\n",
-		   subckt_port_name,
-		   pg_port_name);
+  writeVoltageSource(inst_name, subckt_port_name, voltage, volt_index);
 }
 
 void
@@ -1345,7 +1364,7 @@ WritePathSpice::writeSubckts()
 	    bool found_ends = false;
 	    while (getline(lib_subckts_stream, line)) {
 	      subckts_stream << line << "\n";
-	      if (stringEqual(line.c_str(), ".ends")) {
+	      if (stringBeginEqual(line.c_str(), ".ends")) {
 		subckts_stream << "\n";
 		found_ends = true;
 		break;
@@ -1416,8 +1435,11 @@ WritePathSpice::recordSpicePortNames(const char *cell_name,
       auto port_name = tokens[i].c_str();
       auto port = cell->findLibertyPort(port_name);
       auto pg_port = cell->findPgPort(port_name);
-      if (port == nullptr && pg_port == nullptr)
-	report_->error("subckt %s port %s has no corresponding liberty port or pg_port.\n",
+      if (port == nullptr
+	  && pg_port == nullptr
+	  && !stringEqual(port_name, power_name_)
+	  && !stringEqual(port_name, gnd_name_))
+	report_->error("subckt %s port %s has no corresponding liberty port, pg_port and is not power or ground.\n",
 		       cell_name, port_name);
       spice_port_names->push_back(port_name);
     }

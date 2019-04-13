@@ -1942,18 +1942,12 @@ proc write_path_spice { args } {
 
   if { [info exists keys(-power)] } {
     set power $keys(-power)
-    if { ![liberty_supply_exists $power] } {
-      sta_error "liberty $power not found.\n"
-    }
   } else {
     sta_error "No -power specified.\n"
   }
 
   if { [info exists keys(-ground)] } {
     set ground $keys(-ground)
-    if { ![liberty_supply_exists $ground] } {
-      sta_error "liberty $ground not found.\n"
-    }
   } else {
     sta_error "No -ground specified.\n"
   }
