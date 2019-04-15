@@ -175,40 +175,42 @@ If you make changes to `CMakeLists.txt` you may need to clean out
 existing CMake cached variable values by deleting all of the
 files in the build directory.
 
-### Installing on Windoz
-
-Use a .bat file to start a cygwin shell that has its path set to
-support the Microcruft cl compiler by calling the vsvars32.bat script
-from the Visual C++ installation.
-```
-tcsh-startup.bat
-  @echo off
-  call "c:\Microsoft Visual Studio 9.0\Common7\Tools\vsvars.bat"
-  set path=c:\cygwin\bin;%PATH%
-  c:\cygwin\bin\tcsh
-```
-CMake is supposedly more compatible with the windoz environment
-so you may have better luck wih it.
-
-Cmake and build from the shell. Note that tcl and zlib must be
-built with the Visual C++ compiler to link to the sta libraries.
-
-  mkdir build
-  cd build
-  cmakd ..
-  make
-...
-
-Good luck and don't bother me with windoz specific issues.
-I am happy to say I haven't owned a windoz machine in 20 years.
-
 ## Authors
 
 * James Cherry
 
 * William Scott authored the arnoldi delay calculator at Blaze, Inc which was subsequently licensed to Nefelus, Inc that has graciously contributed it to OpenSTA.
 
+## Bug Reports
+
+Use the Issues tab on the github repository to report bugs.
+
+Each issue/bug should be a separate issue. The subject of the issue
+should be a short description of the problem. Attach a test case to
+reproduce the issue as described below. Issues without test cases are
+unlikely to get a response.
+
+The files in the test case should be collected into a directory named
+YYYYMMDD where YYYY is the year, MM is the month, and DD is the
+day (this format allows "ls" to report them in chronological order).
+The contents of the directory should be collected into a compressed
+tarfile named YYYYMMDD.tgz.
+
+The test case should have a tcl command file recreates the issue named
+run.tcl. If there are more than one command file using the same data
+files, there should be separate command files, run1.tcl, run2.tcl
+etc. The bug report can refer to these command files by name.
+
+Command files should not have absolute filenames like
+"/home/cho/OpenSTA_Request/write_path_spice/dump_spice" in them.
+These obviously are not portable. Use filenames relative to the test
+case directory.
+
 ## License
+
+OpenSTA is dual licensed. It is released under GPL v3 as OpenSTA and
+is also licensed for commerical applications by Parallax Software without
+the GPL's requirements.
 
 OpenSTA, Static Timing Analyzer
 Copyright (c) 2019, Parallax Software, Inc.
