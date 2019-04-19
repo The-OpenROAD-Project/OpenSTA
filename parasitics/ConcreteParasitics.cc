@@ -897,9 +897,11 @@ ConcreteParasitics::deleteParasitics()
 
   for (auto net_parasitics : parasitic_network_map_) {
     ConcreteParasiticNetwork **parasitics = net_parasitics.second;
-    for (int i = 0; i < ap_count; i++)
-      delete parasitics[i];
-    delete [] parasitics;
+    if (parasitics) {
+      for (int i = 0; i < ap_count; i++)
+	delete parasitics[i];
+      delete [] parasitics;
+    }
   }
   parasitic_network_map_.clear();
 }
