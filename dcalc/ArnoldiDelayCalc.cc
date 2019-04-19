@@ -288,11 +288,12 @@ ArnoldiDelayCalc::findParasitic(const Pin *drvr_pin,
     }
     
     if (parasitic_network) {
-      Parasitic *parasitic = reduce_->reduceToArnoldi(parasitic_network,
-						      drvr_pin,
-						      parasitic_ap->couplingCapFactor(),
-						      drvr_tr, op_cond, corner,
-						      cnst_min_max, parasitic_ap);
+      Parasitic *parasitic =
+	reduce_->reduceToArnoldi(parasitic_network,
+				 drvr_pin,
+				 parasitic_ap->couplingCapFactor(),
+				 drvr_tr, op_cond, corner,
+				 cnst_min_max, parasitic_ap);
       if (delete_parasitic_network) {
 	Net *net = network_->net(drvr_pin);
 	parasitics_->deleteParasiticNetwork(net, parasitic_ap);

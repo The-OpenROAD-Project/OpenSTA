@@ -24,6 +24,12 @@ NullParasitics::NullParasitics(StaState *sta) :
 {
 }
 
+bool
+NullParasitics::haveParasitics()
+{
+  return false;
+}
+
 void
 NullParasitics::clear()
 {

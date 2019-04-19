@@ -425,6 +425,7 @@ public:
   virtual void visitAttr9(LibertyAttr *) {}
 
 protected:
+  void setEnergyScale();
   void defineVisitors();
   virtual void begin(LibertyGroup *group);
   virtual void end(LibertyGroup *group);

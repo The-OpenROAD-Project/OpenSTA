@@ -42,7 +42,7 @@ class ConcreteParasitics : public Parasitics, public EstimateParasitics
 public:
   ConcreteParasitics(StaState *sta);
   virtual ~ConcreteParasitics();
-  bool haveParasitics();
+  virtual bool haveParasitics();
   virtual void clear();
 
   virtual void save();

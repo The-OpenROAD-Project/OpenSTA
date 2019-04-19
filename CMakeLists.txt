@@ -16,7 +16,7 @@
 
 cmake_minimum_required (VERSION 3.9)
 
-project(STA VERSION 2.0.13)
+project(STA VERSION 2.0.14)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 11)
@@ -33,12 +33,12 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Compiler specific options.
-if (CMAKE_CXX_COMPILER_ID MATCHES AppleClang|Clang|GNU)
+if (CMAKE_CXX_COMPILER_ID MATCHES AppleClang|Clang)
   set(STA_COMPILE_OPTIONS -Wall -Wcast-qual -Wunused-parameter -Wredundant-decls -Wno-deprecated-register)
 endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  set(STA_COMPILE_OPTIONS -Wall -Wcast-qual -Wunused-parameter -Wredundant-decls -Wno-deprecated-register)
+  set(STA_COMPILE_OPTIONS -Wall -Wcast-qual -Wunused-parameter -Wredundant-decls)
 endif()
 
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")

@@ -53,23 +53,26 @@ LumpedCapDelayCalc::findParasitic(const Pin *drvr_pin,
 {
   // set_load has precidence over parasitics.
   if (!sdc_->drvrPinHasWireCap(drvr_pin)) {
+    Parasitic *parasitic = nullptr;
     const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
-    // Prefer PiElmore.
-    Parasitic *parasitic = parasitics_->findPiElmore(drvr_pin, tr,parasitic_ap);
-    if (parasitic)
-      return parasitic;
-
-    Parasitic *parasitic_network =
-      parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
-    if (parasitic_network) {
-      parasitics_->reduceToPiElmore(parasitic_network, drvr_pin,
-				    dcalc_ap->operatingConditions(),
-				    dcalc_ap->corner(),
-				    dcalc_ap->constraintMinMax(),
-				    parasitic_ap);
+    if (parasitics_->haveParasitics()) {
+      // Prefer PiElmore.
       parasitic = parasitics_->findPiElmore(drvr_pin, tr,parasitic_ap);
-      reduced_parasitic_drvrs_.push_back(drvr_pin);
-      return parasitic;
+      if (parasitic)
+	return parasitic;
+
+      Parasitic *parasitic_network =
+	parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
+      if (parasitic_network) {
+	parasitics_->reduceToPiElmore(parasitic_network, drvr_pin,
+				      dcalc_ap->operatingConditions(),
+				      dcalc_ap->corner(),
+				      dcalc_ap->constraintMinMax(),
+				      parasitic_ap);
+	parasitic = parasitics_->findPiElmore(drvr_pin, tr,parasitic_ap);
+	reduced_parasitic_drvrs_.push_back(drvr_pin);
+	return parasitic;
+      }
     }
 
     const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();

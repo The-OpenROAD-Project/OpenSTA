@@ -42,6 +42,7 @@
 #include "StringUtil.hh"
 #include "PatternMatch.hh"
 #include "MinMax.hh"
+#include "Fuzzy.hh"
 #include "PortDirection.hh"
 #include "FuncExpr.hh"
 #include "Units.hh"
@@ -3840,43 +3841,43 @@ pin_is_genclk_src(const Pin *pin)
 // format_unit functions print with fixed digits and suffix.
 // Pass value arg as string to support NaNs.
 const char *
-format_time(const char *value_str,
+format_time(const char *value,
 	    int digits)
 {
-  float value = strtof(value_str, nullptr);
-  return Sta::sta()->units()->timeUnit()->asString(value, digits);
+  float value1 = strtof(value, nullptr);
+  return Sta::sta()->units()->timeUnit()->asString(value1, digits);
 }
 
 const char *
-format_capacitance(const char *value_str,
+format_capacitance(const char *value,
 		   int digits)
 {
-  float value = strtof(value_str, nullptr);
-  return Sta::sta()->units()->capacitanceUnit()->asString(value, digits);
+  float value1 = strtof(value, nullptr);
+  return Sta::sta()->units()->capacitanceUnit()->asString(value1, digits);
 }
 
 const char *
-format_resistance(const char *value_str,
+format_resistance(const char *value,
 		  int digits)
 {
-  float value = strtof(value_str, nullptr);
-  return Sta::sta()->units()->resistanceUnit()->asString(value, digits);
+  float value1 = strtof(value, nullptr);
+  return Sta::sta()->units()->resistanceUnit()->asString(value1, digits);
 }
 
 const char *
-format_voltage(const char *value_str,
+format_voltage(const char *value,
 	       int digits)
 {
-  float value = strtof(value_str, nullptr);
-  return Sta::sta()->units()->voltageUnit()->asString(value, digits);
+  float value1 = strtof(value, nullptr);
+  return Sta::sta()->units()->voltageUnit()->asString(value1, digits);
 }
 
 const char *
-format_power(const char *value_str,
+format_power(const char *value,
 	     int digits)
 {
-  float value = strtof(value_str, nullptr);
-  return Sta::sta()->units()->powerUnit()->asString(value, digits);
+  float value1 = strtof(value, nullptr);
+  return Sta::sta()->units()->powerUnit()->asString(value1, digits);
 }
 
 // Unit converstion from sta unit to user interface and visa versa.
@@ -4723,32 +4724,21 @@ liberty_supply_exists(const char *supply_name)
   return lib && lib->supplyExists(supply_name);
 }
 
-void
-set_cmd_unit_scale(const char *unit_name,
-		   float scale)
+float
+unit_scale(const char *unit_name)
 {
   Unit *unit = Sta::sta()->units()->find(unit_name);
   if (unit)
-    unit->setScale(scale);
+    return unit->scale();
+  else
+    return 1.0F;
 }
 
-void
-set_cmd_unit_digits(const char *unit_name,
-		    int digits)
+bool
+fuzzy_equal(float value1,
+	    float value2)
 {
-  Unit *unit = Sta::sta()->units()->find(unit_name);
-  if (unit)
-    unit->setDigits(digits);
-}
-
-void
-set_cmd_unit_suffix(const char *unit_name,
-		    const char *suffix)
-{
-  Unit *unit = Sta::sta()->units()->find(unit_name);
-  if (unit) {
-    unit->setSuffix(suffix);
-  }
+  return fuzzyEqual(value1, value2);
 }
 
 char

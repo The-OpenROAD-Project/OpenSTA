@@ -193,57 +193,60 @@ define_cmd_args "set_units" \
   {[-capacitance cap_unit] [-resistance res_unit] [-time time_unit]\
      [-voltage voltage_unit] [-current current_unit] [-power power_unit]}
 
+# Note that this does NOT actually set the units.
+# It merely checks that the library units are the same as the
+# units in the set_units command.
 proc set_units { args } {
   parse_key_args "set_cmd_units" args \
-    keys {-capacitance -resistance -time -voltage -current -power \
-	    -digits -suffix} flags {}
+    keys {-capacitance -resistance -time -voltage -current -power} flags {}
   if { [llength $args] != 0 } {
     cmd_usage_error "set_units"
   }
-  set_unit_values "capacitance" -capacitance "f" keys
-  set_unit_values "time" -time "s" keys
-  set_unit_values "voltage" -voltage "v" keys
-  set_unit_values "current" -current "A" keys
-  set_unit_values "resistance" -resistance "ohm" keys
+  check_unit "capacitance" -capacitance "f" keys
+  check_unit "time" -time "s" keys
+  check_unit "voltage" -voltage "v" keys
+  check_unit "current" -current "A" keys
+  check_unit "resistance" -resistance "ohm" keys
 }
 
-proc set_unit_values { unit key unit_name key_var } {
+proc check_unit { unit key unit_name key_var } {
   upvar 1 $key_var keys
   if { [info exists keys($key)] } {
     set value $keys($key)
     if { [string equal -nocase $value $unit_name] } {
-      set_cmd_unit_scale $unit 1.0
+      check_unit_scale $unit 1.0
     } else {
       set prefix [string index $value 0]
       set suffix [string range $value 1 end]
       if { [string equal -nocase $suffix $unit_name] } {
 	if { [string equal $prefix "M"] } {
-	  set_cmd_unit_scale $unit 1E+6
+	  check_unit_scale $unit 1E+6
 	} elseif { [string equal $prefix "k"] } {
-	  set_cmd_unit_scale $unit 1E+3
+	  check_unit_scale $unit 1E+3
 	} elseif { [string equal $prefix "m"] } {
-	  set_cmd_unit_scale $unit 1E-3
+	  check_unit_scale $unit 1E-3
 	} elseif { [string equal $prefix "u"] } {
-	  set_cmd_unit_scale $unit 1E-6
+	  check_unit_scale $unit 1E-6
 	} elseif { [string equal $prefix "n"] } {
-	  set_cmd_unit_scale $unit 1E-9
+	  check_unit_scale $unit 1E-9
 	} elseif { [string equal $prefix "p"] } {
-	  set_cmd_unit_scale $unit 1E-12
+	  check_unit_scale $unit 1E-12
 	} elseif { [string equal $prefix "f"] } {
-	  set_cmd_unit_scale $unit 1E-15
+	  check_unit_scale $unit 1E-15
 	} else {
 	  sta_error "unknown $unit prefix '$prefix'."
 	}
       } else {
-	sta_error "unknown $unit unit '$suffix'."
+	sta_error "unknown unit $unit '$suffix'."
       }
     }
-    if [info exists keys(-digits)] {
-      set_cmd_unit_digits $unit $keys(-digits)
-    }
-    if [info exists keys(-suffix)] {
-      set_cmd_unit_suffix $unit $keys(-suffix)
-    }
+  }
+}
+
+proc check_unit_scale { unit scale } {
+  set unit_scale [unit_scale $unit]
+  if { ![fuzzy_equal $scale $unit_scale] } {
+    sta_warn "$unit scale [format %.0e $scale] does not match library scale [format %.0e $unit_scale]."
   }
 }
 

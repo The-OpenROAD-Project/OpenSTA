@@ -27,6 +27,7 @@ class NullParasitics : public Parasitics
 {
 public:
   NullParasitics(StaState *sta);
+  virtual bool haveParasitics();
   virtual void clear();
   virtual void save();
   virtual void deleteParasitics();

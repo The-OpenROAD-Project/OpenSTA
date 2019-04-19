@@ -139,10 +139,9 @@ Power::power(const Instance *inst,
     float activity1;
     bool is_clk;
     activity(to_pin, activity1, is_clk);
-    if (to_port->direction()->isAnyOutput()) {
+    if (to_port->direction()->isAnyOutput())
       findSwitchingPower(cell, to_port, activity1, load_cap,
 			 dcalc_ap, result);
-    }
     findInternalPower(inst, cell, to_port, activity1,
 		      load_cap, dcalc_ap, result);
   }
@@ -185,8 +184,9 @@ Power::findInternalPower(const Instance *inst,
       while (tr_iter.hasNext()) {
 	TransRiseFall *to_tr = tr_iter.next();
 	// Should use unateness to find from_tr.
+	TransRiseFall *from_tr = to_tr;
 	float slew = delayAsFloat(sta_->vertexSlew(from_vertex,
-						   to_tr, dcalc_ap));
+						   from_tr, dcalc_ap));
 	float energy;
 	if (from_port)
 	  energy = pwr->power(to_tr, pvt, slew, load_cap);
@@ -199,7 +199,7 @@ Power::findInternalPower(const Instance *inst,
 		    to_tr->shortName(),
 		    to_port->name(),
 		    pwr->when() ? pwr->when()->asString() : "",
-		    related_pg_pin ? related_pg_pin : "");
+		    related_pg_pin ? related_pg_pin : "(no pg_pin)");
 	debugPrint4(debug_, "power", 2, "  slew = %s activity = %.2f/ns energy = %.5g pwr = %.5g\n",
 		    units_->timeUnit()->asString(slew),
 		    activity * 1e-9,
@@ -269,7 +269,7 @@ Power::findLeakagePower(const Instance *,
   cell->leakagePower(leak, exists);
   if (exists) {
     // Prefer cell_leakage_power until propagated activities exist.
-    debugPrint2(debug_, "power", 2, "leakage %s cell %.3e\n",
+    debugPrint2(debug_, "power", 2, "leakage cell %s %.3e\n",
 		  cell->name(),
 		  leak);
       leakage = leak;
@@ -292,7 +292,13 @@ Power::findSwitchingPower(LibertyCell *cell,
 			  PowerResult &result)
 {
   float volt = voltage(cell, to_port, dcalc_ap);
-  float switching = load_cap * volt * volt * activity / 2.0;
+  float switching = .5 * load_cap * volt * volt * activity;
+  debugPrint5(debug_, "power", 2, "switching %s/%s activity = %.2e volt = %.2f %.3e\n",
+	      cell->name(),
+	      to_port->name(),
+	      activity,
+	      volt,
+	      switching);
   result.setSwitching(switching);
 }
 

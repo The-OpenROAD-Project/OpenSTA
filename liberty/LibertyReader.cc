@@ -541,7 +541,8 @@ LibertyReader::beginLibrary(LibertyGroup *group)
     time_scale_ = 1E-9F;
     // 1ohm default
     res_scale_ = 1.0F;
-    cap_scale_ = 1.0F;
+    // pF default
+    cap_scale_ = 1E-12F;
     // 1v default
     volt_scale_ = 1;
     // Default is 1mA.
@@ -549,7 +550,7 @@ LibertyReader::beginLibrary(LibertyGroup *group)
     // Default is 1;
     power_scale_ = 1;
     // Default is fJ.
-    energy_scale_ = 1e-15;
+    setEnergyScale();
 
     library_->units()->timeUnit()->setScale(time_scale_);
     library_->units()->capacitanceUnit()->setScale(cap_scale_);
@@ -564,6 +565,13 @@ LibertyReader::beginLibrary(LibertyGroup *group)
   }
   else
     libError(group, "library does not have a name.\n");
+}
+
+// Energy scale is derived.
+void
+LibertyReader::setEnergyScale()
+{
+    energy_scale_ = volt_scale_ * volt_scale_ * cap_scale_;
 }
 
 void
@@ -666,6 +674,7 @@ LibertyReader::visitVoltageUnit(LibertyAttr *attr)
 {
   if (library_)
     parseUnits(attr, "V", volt_scale_, library_->units()->voltageUnit());
+  setEnergyScale();
 }
 
 void
@@ -771,6 +780,7 @@ LibertyReader::visitCapacitiveLoadUnit(LibertyAttr *attr)
     else
       libWarn(attr, "capacitive_load_unit missing values suffix.\n");
     library_->units()->capacitanceUnit()->setScale(cap_scale_);
+    setEnergyScale();
   }
 }
 

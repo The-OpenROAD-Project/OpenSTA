@@ -864,7 +864,7 @@ bool
 ConcreteParasitics::haveParasitics()
 {
   return !drvr_parasitic_map_.empty()
-    || parasitic_network_map_.empty();
+    || !parasitic_network_map_.empty();
 }
 
 void
@@ -887,9 +887,11 @@ ConcreteParasitics::deleteParasitics()
   int ap_tr_count = ap_count * TransRiseFall::index_count;
   for (auto drvr_parasitics : drvr_parasitic_map_) {
     ConcreteParasitic **parasitics = drvr_parasitics.second;
-    for (int i = 0; i < ap_tr_count; i++)
-      delete parasitics[i];
-    delete [] parasitics;
+    if (parasitics) {
+      for (int i = 0; i < ap_tr_count; i++)
+	delete parasitics[i];
+      delete [] parasitics;
+    }
   }
   drvr_parasitic_map_.clear();
 
@@ -1035,7 +1037,7 @@ ConcreteParasitics::findPiElmore(const Pin *drvr_pin,
 				 const TransRiseFall *tr,
 				 const ParasiticAnalysisPt *ap) const
 {
-  if (ap) {
+  if (!drvr_parasitic_map_.empty()) {
     int ap_tr_index = parasiticAnalysisPtIndex(ap, tr);
     UniqueLock lock(lock_);
     ConcreteParasitic **parasitics = drvr_parasitic_map_.findKey(drvr_pin);
@@ -1153,7 +1155,7 @@ ConcreteParasitics::findPiPoleResidue(const Pin *drvr_pin,
 				      const TransRiseFall *tr,
 				      const ParasiticAnalysisPt *ap) const
 {
-  if (ap) {
+  if (!drvr_parasitic_map_.empty()) {
     int ap_tr_index = parasiticAnalysisPtIndex(ap, tr);
     UniqueLock lock(lock_);
     ConcreteParasitic **parasitics = drvr_parasitic_map_.findKey(drvr_pin);
@@ -1269,7 +1271,7 @@ Parasitic *
 ConcreteParasitics::findParasiticNetwork(const Net *net,
 					 const ParasiticAnalysisPt *ap) const
 {
-  if (ap) {
+  if (!parasitic_network_map_.empty()) {
     UniqueLock lock(lock_);
     if (!parasitic_network_map_.empty()) {
       ConcreteParasiticNetwork **parasitics=parasitic_network_map_.findKey(net);
@@ -1284,7 +1286,7 @@ Parasitic *
 ConcreteParasitics::findParasiticNetwork(const Pin *pin,
 					 const ParasiticAnalysisPt *ap) const
 {
-  if (ap) {
+  if (!parasitic_network_map_.empty()) {
     UniqueLock lock(lock_);
     if (!parasitic_network_map_.empty()) {
       // Only call findParasiticNet if parasitics exist.
@@ -1322,7 +1324,7 @@ void
 ConcreteParasitics::deleteParasiticNetwork(const Net *net,
 					   const ParasiticAnalysisPt *ap)
 {
-  if (ap) {
+  if (!parasitic_network_map_.empty()) {
     UniqueLock lock(lock_);
     ConcreteParasiticNetwork **parasitics = parasitic_network_map_.findKey(net);
     if (parasitics) {

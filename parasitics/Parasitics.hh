@@ -46,6 +46,7 @@ class Parasitics : public StaState
 {
 public:
   virtual ~Parasitics() {}
+  virtual bool haveParasitics() = 0;
   // Clear all state.
   virtual void clear() = 0;
 
