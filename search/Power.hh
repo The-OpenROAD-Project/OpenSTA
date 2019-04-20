@@ -68,15 +68,16 @@ protected:
 			  const DcalcAnalysisPt *dcalc_ap,
 			  // Return values.
 			  PowerResult &result);
+  const Clock *findInstClk(const Instance *inst);
   void findClk(const Pin *to_pin,
 	       // Return values.
 	       const Clock *&clk,
 	       bool &is_clk);
   void activity(const Pin *pin,
+		const Clock *inst_clk,
 		// Return values.
 		float &activity,
 		bool &is_clk);
-  float activity(const Pin *pin);
   float voltage(LibertyCell *cell,
 		const LibertyPort *port,
 		const DcalcAnalysisPt *dcalc_ap);

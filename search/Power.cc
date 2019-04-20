@@ -129,6 +129,7 @@ Power::power(const Instance *inst,
 {
   MinMax *mm = MinMax::max();
   const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
+  const Clock *inst_clk = findInstClk(inst);
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
   while (pin_iter->hasNext()) {
     const Pin *to_pin = pin_iter->next();
@@ -138,7 +139,7 @@ Power::power(const Instance *inst,
       : 0.0;
     float activity1;
     bool is_clk;
-    activity(to_pin, activity1, is_clk);
+    activity(to_pin, inst_clk, activity1, is_clk);
     if (to_port->direction()->isAnyOutput())
       findSwitchingPower(cell, to_port, activity1, load_cap,
 			 dcalc_ap, result);
@@ -147,6 +148,23 @@ Power::power(const Instance *inst,
   }
   delete pin_iter;
   findLeakagePower(inst, cell, result);
+}
+
+const Clock *
+Power::findInstClk(const Instance *inst)
+{
+  const Clock *inst_clk = nullptr;
+  InstancePinIterator *pin_iter = network_->pinIterator(inst);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    const Clock *clk = nullptr;
+    bool is_clk;
+    findClk(pin, clk, is_clk);
+    if (is_clk)
+      inst_clk = clk;
+  }
+  delete pin_iter;
+  return inst_clk;
 }
 
 void
@@ -241,7 +259,7 @@ Power::findLeakagePower(const Instance *,
     FuncExpr *when = leak->when();
     if (when) {
       FuncExprPortIterator port_iter(when);
-      float duty = 1.0;
+      float duty = 2.0;
       while (port_iter.hasNext()) {
 	auto port = port_iter.next();
 	if (port->direction()->isAnyInput())
@@ -279,7 +297,7 @@ Power::findLeakagePower(const Instance *,
     leakage = cond_leakage;
   else if (found_default)
     leakage = default_leakage;
-  result.setLeakage(leakage);
+  result.setLeakage(result.leakage() + leakage);
 }
 
 void
@@ -299,25 +317,17 @@ Power::findSwitchingPower(LibertyCell *cell,
 	      activity,
 	      volt,
 	      switching);
-  result.setSwitching(switching);
-}
-
-float
-Power::activity(const Pin *pin)
-{
-  float activity1;
-  bool is_clk;
-  activity(pin, activity1, is_clk);
-  return activity1;
+  result.setSwitching(result.switching() + switching);
 }
 
 void
 Power::activity(const Pin *pin,
+		const Clock *inst_clk,
 		// Return values.
 		float &activity,
 		bool &is_clk)
 {
-  const Clock *clk;
+  const Clock *clk = inst_clk;
   findClk(pin, clk, is_clk);
   activity = 0.0;
   if (clk) {
@@ -326,7 +336,7 @@ Power::activity(const Pin *pin,
       if (is_clk)
 	activity = 2.0 / period;
       else
-	activity = default_signal_toggle_rate_ * 2.0 / period;
+	activity = default_signal_toggle_rate_ / period;
     }
   }
 }
@@ -352,7 +362,6 @@ Power::findClk(const Pin *to_pin,
 	       const Clock *&clk,
 	       bool &is_clk)
 {
-  clk = nullptr;
   is_clk = false;
   Vertex *to_vertex = graph_->pinDrvrVertex(to_pin);
   VertexPathIterator path_iter(to_vertex, this);
@@ -388,7 +397,7 @@ PowerResult::clear()
 float
 PowerResult::total() const
 {
-  return   internal_ + switching_ + leakage_;
+  return internal_ + switching_ + leakage_;
 }
 
 void
