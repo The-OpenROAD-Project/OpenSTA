@@ -317,6 +317,7 @@ Power::findSwitchingPower(LibertyCell *cell,
 	      activity,
 	      volt,
 	      switching);
+  volt = voltage(cell, to_port, dcalc_ap);
   result.setSwitching(result.switching() + switching);
 }
 
@@ -343,10 +344,23 @@ Power::activity(const Pin *pin,
 
 float
 Power::voltage(LibertyCell *cell,
-	       const LibertyPort *,
+	       const LibertyPort *port,
 	       const DcalcAnalysisPt *dcalc_ap)
 {
-  // Should use cell pg_pin voltage name to voltage.
+  auto power_pin = port->relatedPowerPin();
+  if (power_pin) {
+    auto pg_port = cell->findPgPort(power_pin);
+    if (pg_port) {
+      auto volt_name = pg_port->voltageName();
+      auto library = cell->libertyLibrary();
+      float voltage;
+      bool exists;
+      library->supplyVoltage(volt_name, voltage, exists);
+      if (exists)
+	return voltage;
+    }
+  }
+
   const Pvt *pvt = dcalc_ap->operatingConditions();
   if (pvt == nullptr)
     pvt = cell->libertyLibrary()->defaultOperatingConditions();
