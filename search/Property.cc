@@ -29,7 +29,7 @@
 #include "PathEnd.hh"
 #include "PathExpanded.hh"
 #include "PathRef.hh"
-#include "Property.hh"
+#include "Power.hh"
 #include "Sta.hh"
 #include "Property.hh"
 
@@ -208,6 +208,12 @@ PropertyValue::PropertyValue(PathRefSeq *value) :
 {
 }
 
+PropertyValue::PropertyValue(PwrActivity *value) :
+  type_(type_pwr_activity),
+  pwr_activity_(*value)
+{
+}
+
 PropertyValue::PropertyValue(const PropertyValue &value) :
   type_(value.type_)
 {
@@ -252,6 +258,9 @@ PropertyValue::PropertyValue(const PropertyValue &value) :
     break;
   case Type::type_path_refs:
     path_refs_ = value.path_refs_ ? new PathRefSeq(*value.path_refs_) : nullptr;
+    break;
+  case Type::type_pwr_activity:
+    pwr_activity_ = value.pwr_activity_;
     break;
   }
 }
@@ -299,11 +308,16 @@ PropertyValue::PropertyValue(PropertyValue &&value) :
     break;
   case Type::type_clks:
     clks_ = value.clks_;
+    // Steal the value.
     value.clks_ = nullptr;
     break;
   case Type::type_path_refs:
     path_refs_ = value.path_refs_;
+    // Steal the value.
     value.clks_ = nullptr;
+    break;
+  case Type::type_pwr_activity:
+    pwr_activity_ = value.pwr_activity_;
     break;
   }
 }
@@ -374,6 +388,9 @@ PropertyValue::operator=(const PropertyValue &value)
   case Type::type_path_refs:
     path_refs_ = value.path_refs_ ? new PathRefSeq(*value.path_refs_) : nullptr;
     break;
+  case Type::type_pwr_activity:
+    pwr_activity_ = value.pwr_activity_;
+    break;
   }
   return *this;
 }
@@ -427,6 +444,9 @@ PropertyValue::operator=(PropertyValue &&value)
   case Type::type_path_refs:
     path_refs_ = value.path_refs_;
     value.clks_ = nullptr;
+    break;
+  case Type::type_pwr_activity:
+    pwr_activity_ = value.pwr_activity_;
     break;
   }
   return *this;
@@ -534,6 +554,12 @@ getProperty(const Port *port,
     return PropertyValue(network->name(port));
   else if (stringEqual(property, "direction"))
     return PropertyValue(network->direction(port)->name());
+  else if (stringEqual(property, "activity")) {
+    const Instance *top_inst = network->topInstance();
+    const Pin *pin = network->findPin(top_inst, port);
+    PwrActivity activity = sta->power()->findActivity(pin);
+    return PropertyValue(&activity);
+  }
 
   else if (stringEqual(property, "actual_fall_transition_min"))
     return portSlewProperty(port, TransRiseFall::fall(), MinMax::min(), sta);
@@ -636,6 +662,10 @@ getProperty(const Pin *pin,
     ClockSet clks;
     sta->clocks(pin, clks);
     return PropertyValue(&clks);
+  }
+  else if (stringEqual(property, "activity")) {
+    PwrActivity activity = sta->power()->findActivity(pin);
+    return PropertyValue(&activity);
   }
 
   else if (stringEqual(property, "max_fall_slack"))

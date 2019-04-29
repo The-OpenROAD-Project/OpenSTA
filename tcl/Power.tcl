@@ -33,7 +33,7 @@ proc_redirect report_power {
 
   parse_key_args "report_power" args keys {-instances -corner -digits} flags {} 1
 
-  if [info exists keys(-digits)] {
+  if { [info exists keys(-digits)] } {
     set digits $keys(-digits)
     check_positive_integer "-digits" $digits
   } else {
@@ -191,22 +191,55 @@ proc report_power_inst { inst power_result field_width digits } {
 
 ################################################################
 
-set ::power_default_signal_toggle_rate 0.1
+define_cmd_args "set_power_activity" { [-global]\
+					 [-input]\
+					 [-input_ports ports]\
+					 [-pins pins]\
+					 [-activiity activity]\
+					 [-duty duty] }
 
-trace variable ::power_default_signal_toggle_rate "rw" \
-  sta::trace_power_default_signal_toggle_rate
+proc set_power_activity { args } {
+  parse_key_args "set_power_activity" args \
+    keys {-input_ports -pins -activity -duty} \
+    flags {-global -input} 1
 
-proc trace_power_default_signal_toggle_rate { name1 name2 op } {
-  global power_default_signal_toggle_rate
+  set activity 0.0
+  if { [info exists keys(-activity)] } {
+    set activity $keys(-activity)
+    check_float "activity" $activity
+    if { $activity < 0.0 } {
+      sta_warn "activity should be 0.0 to 1.0 or 2.0"
+    }
+  }
+  set duty 0.5
+  if { [info exists keys(-duty)] } {
+    set duty $keys(-duty)
+    check_float "duty" $duty
+    if { $duty < 0.0 || $duty > 1.0 } {
+      sta_warn "duty should be 0.0 to 1.0"
+    }
+  }
 
-  if { $op == "r" } {
-    set power_default_signal_toggle_rate [power_default_signal_toggle_rate]
-  } elseif { $op == "w" } {
-    if { [string is double $power_default_signal_toggle_rate] \
-	   && $power_default_signal_toggle_rate >= 0.0 } {
-      set_power_default_signal_toggle_rate $power_default_signal_toggle_rate 
-    } else {
-      sta_error "power_default_signal_toggle_rate must be a positive float."
+  if { [info exists flags(-global)] } {
+    set_power_global_activity $activity $duty
+  }
+  if { [info exists flags(-input)] } {
+    set_power_input_activity $activity $duty
+  }
+  if { [info exists keys(-input_ports)] } {
+    set ports [get_ports_error "input_ports" $keys(-input_ports)]
+    foreach port $ports {
+      if { [get_property $port "direction"] == "input" } {
+	set_power_input_port_activity $port $activity $duty
+      }
+    }
+  }
+  if { [info exists keys(-pins)] } {
+    set ports [get_pins_error "pins" $keys(-pins)]
+    foreach pin $pins {
+      if { [get_property $pin "direction"] == "input" } {
+	set_power_pin_activity $pin $activity $duty
+      }
     }
   }
 }

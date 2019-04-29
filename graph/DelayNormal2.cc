@@ -174,8 +174,8 @@ void
 Delay::operator-=(const Delay &delay)
 {
   mean_ -= delay.mean_;
-  sigma2_[early_index] -= delay.sigma2_[early_index];
-  sigma2_[late_index] -= delay.sigma2_[late_index];
+  sigma2_[early_index] += delay.sigma2_[early_index];
+  sigma2_[late_index] += delay.sigma2_[late_index];
 }
 
 bool
@@ -374,12 +374,11 @@ operator/(float delay1,
 
 Delay
 operator*(const Delay &delay1,
-	  float scale)
+	  float delay2)
 {
-  float scale2 = square(scale);
-  return Delay(delay1.mean() * scale,
-	       delay1.sigma2Early() * scale2,
-	       delay1.sigma2Late() * scale2);
+  return Delay(delay1.mean() * delay2,
+	       delay1.sigma2()Early * delay2,
+	       delay1.sigma2Late() * delay2);
 }
 
 float

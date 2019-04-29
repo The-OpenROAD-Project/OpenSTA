@@ -9,18 +9,36 @@ Release 2.0.0 2018/09/28
 Builds using Autotools/configure are no longer supported.
 Use CMake as documented in README.mb.
 
+....
+
 The check_timing command -no_output_delay checks output ports for
 set_output_delay.
+
+....
 
 The report_power command reports the power consumption of the design
 or a specific instance.
 
-  report_power [-instance inst] [-digits digits] [> filename] [>> filename]
+  report_power [-instances inst] [-digits digits] [> filename] [>> filename]
 
-Report power used by the design or a specific instance. The internal,
-switching, leakage and total power are reported. Design power is
-reported separately for combinational, sequential, macro and pad
-groups.
+The internal, switching, leakage and total power are reported. Design
+power is reported separately for combinational, sequential, macro and
+pad groups.
+
+Use -instances to report power for a specific instance.
+
+Use the set_power_activity command to specify activity/duty
+globally using -global, the input port default using -input,
+or for input ports using -input_ports, or pins using -pins.
+
+ set_power_activity [-global]
+                    [-input]
+                    [-input_ports ports]
+		    [-pins pins]
+		    [-activiity activity]
+		    [-duty duty]
+
+....
 
 The write_path_spice command writes a spice netlist for a timing path.
 
@@ -46,6 +64,8 @@ and ground names are specified with the -power and -ground arguments.
 The spice netlist includes a piecewise linear voltage source at the
 input and .measure statement for each gate delay and pin slew.
 
+....
+
 The report_checks, find_timing_paths commands now support an
 -unconstrained flag.
 
@@ -54,6 +74,8 @@ The report_checks, find_timing_paths commands now support an
 
 The sta_report_unconstrained_paths variable will be supported for
 for compatibility in this current release.
+
+....
 
 The read_parasitics command has been renamed read_spef and no longer
 supports the SPF format.

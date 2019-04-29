@@ -20,7 +20,7 @@
 #define STA_DELAY_H
 
 #if (SSTA == 1)
-  // Delays are Normal PDFs with early/late sigma.
+  // Delays are Normal PDFs.
   #include "DelayNormal1.hh"
 #elif (SSTA == 2)
   // Delays are Normal PDFs with early/late sigma.

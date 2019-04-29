@@ -28,6 +28,7 @@ namespace sta {
 using std::string;
 
 class Sta;
+class PwrActivity;
 
 class PropertyValue
 {
@@ -36,7 +37,7 @@ public:
 	      type_liberty_library, type_liberty_cell,
 	      type_library, type_cell,
 	      type_instance, type_pin, type_pins, type_net,
-	      type_clk, type_clks, type_path_refs };
+	      type_clk, type_clks, type_path_refs, type_pwr_activity };
   PropertyValue();
   PropertyValue(const char *value);
   PropertyValue(string &value);
@@ -54,6 +55,7 @@ public:
   PropertyValue(ClockSeq *value);
   PropertyValue(ClockSet *value);
   PropertyValue(PathRefSeq *value);
+  PropertyValue(PwrActivity *value);
   // Copy constructor.
   PropertyValue(const PropertyValue &props);
   // Move constructor.
@@ -73,6 +75,7 @@ public:
   Clock *clock() const { return clk_; }
   ClockSeq *clocks() const { return clks_; }
   PathRefSeq *pathRefs() const { return path_refs_; }
+  PwrActivity pwrActivity() const { return pwr_activity_; }
   // Copy assignment.
   PropertyValue &operator=(const PropertyValue &);
   // Move assignment.
@@ -94,6 +97,7 @@ private:
     Clock *clk_;
     ClockSeq *clks_;
     PathRefSeq *path_refs_;
+    PwrActivity pwr_activity_;
   };
 };
 

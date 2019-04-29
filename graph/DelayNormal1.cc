@@ -52,20 +52,20 @@ delayInitValue(const MinMax *min_max)
 
 Delay::Delay() :
   mean_(0.0),
-  sigma2_{0.0}
+  sigma2_(0.0)
 {
 }
 
 Delay::Delay(float mean) :
   mean_(mean),
-  sigma2_{0.0}
+  sigma2_(0.0)
 {
 }
 
 Delay::Delay(float mean,
 	     float sigma2) :
   mean_(mean),
-  sigma2_{sigma2}
+  sigma2_(sigma2)
 {
 }
 
@@ -155,7 +155,7 @@ void
 Delay::operator-=(const Delay &delay)
 {
   mean_ -= delay.mean_;
-  sigma2_ -= delay.sigma2_;
+  sigma2_ += delay.sigma2_;
 }
 
 bool
@@ -348,11 +348,10 @@ operator/(float delay1,
 
 Delay
 operator*(const Delay &delay1,
-	  float scale)
+	  float delay2)
 {
-  float scale2 = square(scale);
-  return Delay(delay1.mean() * scale,
-	       delay1.sigma2() * scale2);
+  return Delay(delay1.mean() * delay2,
+	       delay1.sigma2() * delay2);
 }
 
 float

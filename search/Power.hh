@@ -22,6 +22,46 @@
 namespace sta {
 
 class PowerResult;
+class PwrActivity;
+class PropActivityVisitor;
+class BfsFwdIterator;
+
+typedef UnorderedMap<const Pin*,PwrActivity> PwrActivityMap;
+
+enum class PwrActivityOrigin
+{
+ global,
+ input,
+ user,
+ propagated,
+ clock,
+ constant,
+ defaulted, // temporary
+ unknown
+};
+
+class PwrActivity
+{
+public:
+  PwrActivity();
+  PwrActivity(float activity,
+		float duty,
+		PwrActivityOrigin origin);
+  float activity() const { return activity_; }
+  float duty() const { return duty_; }
+  PwrActivityOrigin origin() { return origin_; }
+  const char *originName() const;
+  void set(float activity,
+	   float duty,
+	   PwrActivityOrigin origin);
+  bool isSet() const;
+
+private:
+  // In general activity is per clock cycle, NOT per second.
+  float activity_;
+  float duty_;
+  PwrActivityOrigin origin_;
+};
 
 // The Power class has access to Sta components directly for
 // convenience but also requires access to the Sta class member functions.
@@ -40,10 +80,27 @@ public:
 	     const Corner *corner,
 	     // Return values.
 	     PowerResult &result);
-  float defaultSignalToggleRate();
-  void setDefaultSignalToggleRate(float rate);
+  void setGlobalActivity(float activity,
+			 float duty);
+  void setInputActivity(float activity,
+			float duty);
+  void setInputPortActivity(const Port *input_port,
+			    float activity,
+			    float duty);
+  PwrActivity &pinActivity(const Pin *pin);
+  void setPinActivity(const Pin *pin,
+		      float activity,
+		      float duty,
+		      PwrActivityOrigin origin);
+  void setPinActivity(const Pin *pin,
+		      PwrActivity &activity);
+  // Activity is toggles per second.
+  PwrActivity findActivity(const Pin *pin);
 
 protected:
+  void preamble();
+  void ensureActivities();
+
   void power(const Instance *inst,
 	     LibertyCell *cell,
 	     const Corner *corner,
@@ -52,7 +109,7 @@ protected:
   void findInternalPower(const Instance *inst,
 			 LibertyCell *cell,
 			 const LibertyPort *to_port,
-			 float activity,
+			 PwrActivity &activity,
 			 float load_cap,
 			 const DcalcAnalysisPt *dcalc_ap,
 			 // Return values.
@@ -63,28 +120,35 @@ protected:
 			PowerResult &result);
   void findSwitchingPower(LibertyCell *cell,
 			  const LibertyPort *to_port,
-			  float activity,
+			  PwrActivity &activity,
 			  float load_cap,
 			  const DcalcAnalysisPt *dcalc_ap,
 			  // Return values.
 			  PowerResult &result);
   const Clock *findInstClk(const Instance *inst);
-  void findClk(const Pin *to_pin,
-	       // Return values.
-	       const Clock *&clk,
-	       bool &is_clk);
-  void activity(const Pin *pin,
-		const Clock *inst_clk,
-		// Return values.
-		float &activity,
-		bool &is_clk);
+  const Clock *findClk(const Pin *to_pin);
+  PwrActivity findActivity(const Pin *pin,
+			   const Clock *inst_clk);
   float voltage(LibertyCell *cell,
 		const LibertyPort *port,
 		const DcalcAnalysisPt *dcalc_ap);
+  void seedActivities(BfsFwdIterator &bfs);
+  void seedRegOutputActivities(BfsFwdIterator &bfs);
+  void seedRegOutputActivities(Instance *reg,
+			       Sequential *seq,
+			       LibertyPort *output,
+			       bool invert);
+  PwrActivity evalActivity(FuncExpr *expr,
+			   const Instance *inst);
 
 private:
-  Sta *sta_;
-  float default_signal_toggle_rate_;
+  PwrActivity global_activity_;
+  PwrActivity input_activity_;
+  float default_activity_;
+  PwrActivityMap activity_map_;
+  bool activities_valid_;
+
+  friend class PropActivityVisitor;
 };
 
 class PowerResult

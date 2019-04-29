@@ -878,9 +878,6 @@ LibertyCell::~LibertyCell()
   pg_port_map_.deleteContents();
 }
 
-// Multiple timing arc sets (buses bits or a related_ports list)
-// can share the same TimingAttrs values (model, cond, and sdf_conds),
-// so collect them into a set so they are only deleted once.
 void
 LibertyCell::deleteTimingArcAttrs()
 {
@@ -1176,6 +1173,7 @@ LibertyCell::makeTimingArcMap(Report *)
       // 		   match->from()->name(),
       // 		   match->to()->name(),
       // 		   match->role()->asString());
+      delete arc_set;
     }
     else
       // Shift arc sets down to fill holes left by removed duplicates.

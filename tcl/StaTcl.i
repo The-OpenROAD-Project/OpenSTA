@@ -1622,6 +1622,27 @@ using namespace sta;
     Tcl_SetObjResult(interp, list);
   }
     break;
+  case PropertyValue::Type::type_pwr_activity: {
+    PwrActivity activity = value.pwrActivity();
+    Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
+    Tcl_Obj *obj;
+    const char *str;
+
+    str = stringPrintTmp("%.5e", activity.activity());
+    obj = Tcl_NewStringObj(str, strlen(str));
+    Tcl_ListObjAppendElement(interp, list, obj);
+
+    str = stringPrintTmp("%.3f", activity.duty());
+    obj = Tcl_NewStringObj(str, strlen(str));
+    Tcl_ListObjAppendElement(interp, list, obj);
+
+    str = activity.originName();
+    obj = Tcl_NewStringObj(str, strlen(str));
+    Tcl_ListObjAppendElement(interp, list, obj);
+
+    Tcl_SetObjResult(interp, list);
+  }
+    break;
   }
 }
 
@@ -4670,16 +4691,35 @@ instance_power(Instance *inst,
   return floats;
 }
 
-float
-power_default_signal_toggle_rate()
+void
+set_power_global_activity(float activity,
+			  float duty)
 {
-  return Sta::sta()->power()->defaultSignalToggleRate();
+  Sta::sta()->power()->setGlobalActivity(activity, duty);
 }
 
 void
-set_power_default_signal_toggle_rate(float rate)
+set_power_input_activity(float activity,
+			 float duty)
 {
-  return Sta::sta()->power()->setDefaultSignalToggleRate(rate);
+  return Sta::sta()->power()->setInputActivity(activity, duty);
+}
+
+void
+set_power_input_port_activity(const Port *input_port,
+			      float activity,
+			      float duty)
+{
+  return Sta::sta()->power()->setInputPortActivity(input_port, activity, duty);
+}
+
+void
+set_power_pin_activity(const Pin *pin,
+		       float activity,
+		       float duty)
+{
+  return Sta::sta()->power()->setPinActivity(pin, activity, duty,
+					     PwrActivityOrigin::user);
 }
 
 ////////////////////////////////////////////////////////////////
