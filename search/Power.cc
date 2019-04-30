@@ -354,24 +354,19 @@ Power::ensureActivities()
 void
 Power::seedActivities(BfsFwdIterator &bfs)
 {
-  Instance *top_inst = network_->topInstance();
-  InstancePinIterator *pin_iter = network_->pinIterator(top_inst);
-  while (pin_iter->hasNext()) {
-    const Pin *pin = pin_iter->next();
-    if (network_->direction(pin)->isAnyInput()) {
-      // Clock activities are baked in.
-      if (!sdc_->isClock(pin)) {
-	PwrActivity &activity = pinActivity(pin);
-	PwrActivityOrigin origin = activity.origin();
-	// Default inputs without explicit activities to the input default.
-	if (origin != PwrActivityOrigin::user)
-	  setPinActivity(pin, input_activity_);
-	Vertex *vertex = graph_->pinDrvrVertex(pin);
-	bfs.enqueueAdjacentVertices(vertex);
-      }
+  for (auto vertex : levelize_->roots()) {
+    const Pin *pin = vertex->pin();
+    // Clock activities are baked in.
+    if (!sdc_->isVertexPinClock(pin)) {
+      PwrActivity &activity = pinActivity(pin);
+      PwrActivityOrigin origin = activity.origin();
+      // Default inputs without explicit activities to the input default.
+      if (origin != PwrActivityOrigin::user)
+	setPinActivity(pin, input_activity_);
+      Vertex *vertex = graph_->pinDrvrVertex(pin);
+      bfs.enqueueAdjacentVertices(vertex);
     }
   }
-  delete pin_iter;
 }
 
 void
