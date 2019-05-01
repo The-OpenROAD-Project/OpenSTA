@@ -22,6 +22,29 @@
 
 namespace eval sta {
 
+proc report_clock1 { clk } {
+  global sta_report_default_digits
+
+  if { [$clk waveform_valid] } {
+    set digits $sta_report_default_digits
+    puts -nonewline [format "%-20s" [get_name $clk]]
+    puts -nonewline [format "%10s" [format_time [$clk period] $digits]]
+    puts -nonewline "  "
+    set waveform [$clk waveform]
+    if { $waveform == {} } {
+      puts -nonewline "                    "
+    } else {
+      foreach edge $waveform {
+	puts -nonewline [format "%10s" [format_time $edge $digits]]
+      }
+    }
+    if {[$clk is_generated]} {
+      puts -nonewline " (generated)"
+    }
+    puts ""
+  }
+}
+
 proc_redirect read_parasitics {
   variable native
 

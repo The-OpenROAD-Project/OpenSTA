@@ -103,6 +103,12 @@ Power::pinActivity(const Pin *pin)
   return activity_map_[pin];
 }
 
+bool
+Power::hasPinActivity(const Pin *pin)
+{
+  return activity_map_.hasKey(pin);
+}
+
 void
 Power::setPinActivity(const Pin *pin,
 		      float activity,
@@ -218,10 +224,16 @@ class PropActivityVisitor : public VertexVisitor, StaState
 public:
   PropActivityVisitor(Power *power,
 		      BfsFwdIterator *bfs);
+  ~PropActivityVisitor();
   virtual VertexVisitor *copy();
   virtual void visit(Vertex *vertex);
+  void init();
+  bool foundRegWithoutActivity() const;
+  InstanceSet *stealVisitedRegs();
 
 private:
+  InstanceSet *visited_regs_;
+  bool found_reg_without_activity_;
   Power *power_;
   BfsFwdIterator *bfs_;
 };
@@ -229,15 +241,86 @@ private:
 PropActivityVisitor::PropActivityVisitor(Power *power,
 					 BfsFwdIterator *bfs) :
   StaState(power),
+  visited_regs_(nullptr),
   power_(power),
   bfs_(bfs)
 {
+}
+
+PropActivityVisitor::~PropActivityVisitor()
+{
+  delete visited_regs_;
 }
 
 VertexVisitor *
 PropActivityVisitor::copy()
 {
   return new PropActivityVisitor(power_, bfs_);
+}
+
+void
+PropActivityVisitor::init()
+{
+  visited_regs_ = new InstanceSet;
+  found_reg_without_activity_ = false;
+}
+
+InstanceSet *
+PropActivityVisitor::stealVisitedRegs()
+{
+  InstanceSet *visited_regs = visited_regs_;
+  visited_regs_ = nullptr;
+  return visited_regs;
+}
+
+bool
+PropActivityVisitor::foundRegWithoutActivity() const
+{
+  return found_reg_without_activity_;
+}
+
+void
+PropActivityVisitor::visit(Vertex *vertex)
+{
+  auto pin = vertex->pin();
+  debugPrint1(debug_, "power_activity", 3, "visit %s\n",
+	      vertex->name(network_));
+  bool input_without_activity = false;
+  if (network_->isLoad(pin)) {
+    VertexInEdgeIterator edge_iter(vertex, graph_);
+    if (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      if (edge->isWire()) {
+	Vertex *from_vertex = edge->from(graph_);
+	const Pin *from_pin = from_vertex->pin();
+	PwrActivity &from_activity = power_->pinActivity(from_pin);
+	PwrActivity to_activity(from_activity.activity(),
+				from_activity.duty(),
+				PwrActivityOrigin::propagated);
+	if (!power_->hasPinActivity(pin))
+	  input_without_activity = true;
+	power_->setPinActivity(pin, to_activity);
+      }
+    }
+    Instance *inst = network_->instance(pin);
+    auto cell = network_->libertyCell(inst);
+    if (cell && cell->hasSequentials()) {
+      debugPrint1(debug_, "power_activity", 3, "pending reg %s\n",
+		  network_->pathName(inst));
+      visited_regs_->insert(inst);
+      found_reg_without_activity_ = input_without_activity;
+    }
+  }
+  if (network_->isDriver(pin)) {
+    LibertyPort *port = network_->libertyPort(pin);
+    if (port) {
+      FuncExpr *func = port->function();
+      Instance *inst = network_->instance(pin);
+      PwrActivity activity = power_->evalActivity(func, inst);
+      power_->setPinActivity(pin, activity);
+    }
+  }
+  bfs_->enqueueAdjacentVertices(vertex);
 }
 
 PwrActivity
@@ -292,39 +375,6 @@ Power::evalActivity(FuncExpr *expr,
   return PwrActivity();
 }
 
-void
-PropActivityVisitor::visit(Vertex *vertex)
-{
-  auto pin = vertex->pin();
-  debugPrint1(debug_, "power", 3, "activity %s\n",
-	      vertex->name(network_));
-  if (network_->isLoad(pin)) {
-    VertexInEdgeIterator edge_iter(vertex, graph_);
-    if (edge_iter.hasNext()) {
-      Edge *edge = edge_iter.next();
-      if (edge->isWire()) {
-	Vertex *from_vertex = edge->from(graph_);
-	const Pin *from_pin = from_vertex->pin();
-	PwrActivity &from_activity = power_->pinActivity(from_pin);
-	PwrActivity to_activity(from_activity.activity(),
-				from_activity.duty(),
-				PwrActivityOrigin::propagated);
-	power_->setPinActivity(pin, to_activity);
-      }
-    }
-  }
-  if (network_->isDriver(pin)) {
-    LibertyPort *port = network_->libertyPort(pin);
-    if (port) {
-      FuncExpr *func = port->function();
-      Instance *inst = network_->instance(pin);
-      PwrActivity activity = power_->evalActivity(func, inst);
-      power_->setPinActivity(pin, activity);
-    }
-  }
-  bfs_->enqueueAdjacentVertices(vertex);
-}
-
 ////////////////////////////////////////////////////////////////
 
 void
@@ -342,10 +392,19 @@ Power::ensureActivities()
       BfsFwdIterator bfs(BfsIndex::other, &activity_srch_pred, this);
       seedActivities(bfs);
       PropActivityVisitor visitor(this, &bfs);
+      visitor.init();
       bfs.visit(levelize_->maxLevel(), &visitor);
-      // Propagate activiities across register D->Q.
-      seedRegOutputActivities(bfs);
-      bfs.visit(levelize_->maxLevel(), &visitor);
+      while (visitor.foundRegWithoutActivity()) {
+	InstanceSet *regs = visitor.stealVisitedRegs();
+	InstanceSet::Iterator reg_iter(regs);
+	while (reg_iter.hasNext()) {
+	  auto reg = reg_iter.next();
+	  // Propagate activiities across register D->Q.
+	  seedRegOutputActivities(reg, bfs);
+	}
+	visitor.init();
+	bfs.visit(levelize_->maxLevel(), &visitor);
+      }
       activities_valid_ = true;
     }
   }
@@ -357,54 +416,54 @@ Power::seedActivities(BfsFwdIterator &bfs)
   for (auto vertex : levelize_->roots()) {
     const Pin *pin = vertex->pin();
     // Clock activities are baked in.
-    if (!sdc_->isVertexPinClock(pin)) {
+    if (!sdc_->isVertexPinClock(pin)
+	&& network_->direction(pin) != PortDirection::internal()) {
       PwrActivity &activity = pinActivity(pin);
       PwrActivityOrigin origin = activity.origin();
       // Default inputs without explicit activities to the input default.
       if (origin != PwrActivityOrigin::user)
 	setPinActivity(pin, input_activity_);
       Vertex *vertex = graph_->pinDrvrVertex(pin);
+      debugPrint1(debug_, "power_activity", 3, "seed %s\n",
+		  vertex->name(network_));
       bfs.enqueueAdjacentVertices(vertex);
     }
   }
 }
 
 void
-Power::seedRegOutputActivities(BfsFwdIterator &bfs)
+Power::seedRegOutputActivities(const Instance *inst,
+			       BfsFwdIterator &bfs)
 {
-  LeafInstanceIterator *leaf_iter = network_->leafInstanceIterator();
-  while (leaf_iter->hasNext()) {
-    auto inst = leaf_iter->next();
-    auto cell = network_->libertyCell(inst);
-    if (cell) {
-      LibertyCellSequentialIterator seq_iter(cell);
-      while (seq_iter.hasNext()) {
-	Sequential *seq = seq_iter.next();
-	seedRegOutputActivities(inst, seq, seq->output(), false);
-	seedRegOutputActivities(inst, seq, seq->outputInv(), true);
-	// Enqueue register output pins with functions that reference
-	// the sequential internal pins (IQ, IQN).
-	InstancePinIterator *pin_iter = network_->pinIterator(inst);
-	while (pin_iter->hasNext()) {
-	  auto pin = pin_iter->next();
-	  auto port = network_->libertyPort(pin);
-	  auto func = port->function();
-	  if (func) {
-	    Vertex *vertex = graph_->pinDrvrVertex(pin);
-	    if (func->port() == seq->output()
-		|| func->port() == seq->outputInv())
-	      bfs.enqueue(vertex);
-	  }
+  auto cell = network_->libertyCell(inst);
+  LibertyCellSequentialIterator seq_iter(cell);
+  while (seq_iter.hasNext()) {
+    Sequential *seq = seq_iter.next();
+    seedRegOutputActivities(inst, seq, seq->output(), false);
+    seedRegOutputActivities(inst, seq, seq->outputInv(), true);
+    // Enqueue register output pins with functions that reference
+    // the sequential internal pins (IQ, IQN).
+    InstancePinIterator *pin_iter = network_->pinIterator(inst);
+    while (pin_iter->hasNext()) {
+      auto pin = pin_iter->next();
+      auto port = network_->libertyPort(pin);
+      auto func = port->function();
+      if (func) {
+	Vertex *vertex = graph_->pinDrvrVertex(pin);
+	if (func->port() == seq->output()
+	    || func->port() == seq->outputInv()) {
+	  debugPrint1(debug_, "power_activity", 3, "enqueue reg output %s\n",
+		      vertex->name(network_));
+	  bfs.enqueue(vertex);
 	}
-	delete pin_iter;
       }
     }
+    delete pin_iter;
   }
-  delete leaf_iter;
 }
 
 void
-Power::seedRegOutputActivities(Instance *reg,
+Power::seedRegOutputActivities(const Instance *reg,
 			       Sequential *seq,
 			       LibertyPort *output,
 			       bool invert)

@@ -88,6 +88,7 @@ public:
 			    float activity,
 			    float duty);
   PwrActivity &pinActivity(const Pin *pin);
+  bool hasPinActivity(const Pin *pin);
   void setPinActivity(const Pin *pin,
 		      float activity,
 		      float duty,
@@ -133,11 +134,12 @@ protected:
 		const LibertyPort *port,
 		const DcalcAnalysisPt *dcalc_ap);
   void seedActivities(BfsFwdIterator &bfs);
-  void seedRegOutputActivities(BfsFwdIterator &bfs);
-  void seedRegOutputActivities(Instance *reg,
+  void seedRegOutputActivities(const Instance *reg,
 			       Sequential *seq,
 			       LibertyPort *output,
 			       bool invert);
+  void seedRegOutputActivities(const Instance *inst,
+			       BfsFwdIterator &bfs);
   PwrActivity evalActivity(FuncExpr *expr,
 			   const Instance *inst);
 

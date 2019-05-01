@@ -944,29 +944,6 @@ proc_redirect report_clock_properties {
   }
 }
 
-proc report_clock1 { clk } {
-  global sta_report_default_digits
-
-  if { [$clk waveform_valid] } {
-    set digits $sta_report_default_digits
-    puts -nonewline [format "%-20s" [$clk name]]
-    puts -nonewline [format "%10s" [format_time [$clk period] $digits]]
-    puts -nonewline "  "
-    set waveform [$clk waveform]
-    if { $waveform == {} } {
-      puts -nonewline "                    "
-    } else {
-      foreach edge $waveform {
-	puts -nonewline [format "%10s" [format_time $edge $digits]]
-      }
-    }
-    if {[$clk is_generated]} {
-      puts -nonewline " (generated)"
-    }
-    puts ""
-  }
-}
-
 ################################################################
 
 define_sta_cmd_args "report_object_full_names" {[-verbose] objects}
