@@ -130,6 +130,9 @@ public:
   virtual Pin *connect(Instance *inst,
 		       Port *port,
 		       Net *net);
+  virtual Pin *connect(Instance *inst,
+		       LibertyPort *port,
+		       Net *net);
   virtual void disconnectPin(Pin *pin);
   virtual void deleteNet(Net *net);
   virtual void deletePin(Pin *pin);

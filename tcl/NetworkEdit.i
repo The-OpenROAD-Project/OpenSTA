@@ -93,4 +93,16 @@ disconnect_pin_cmd(Pin *pin)
   Sta::sta()->disconnectPin(pin);
 }
 
+void
+insert_buffer_cmd(const char *buffer_name,
+		  LibertyCell *buffer_cell,
+		  Net *net,
+		  PinSeq *load_pins,
+		  const char *buffer_out_net_name)
+{
+  Sta::sta()->insertBuffer(buffer_name, buffer_cell, net, load_pins,
+			   buffer_out_net_name);
+  delete load_pins;
+} 
+
 %} // inline

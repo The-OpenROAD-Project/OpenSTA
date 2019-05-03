@@ -491,6 +491,9 @@ public:
   virtual Pin *connect(Instance *inst,
 		       Port *port,
 		       Net *net) = 0;
+  virtual Pin *connect(Instance *inst,
+		       LibertyPort *port,
+		       Net *net) = 0;
   // makePin/connectPin replaced by connect.
   virtual void connectPin(Pin *pin,
 			  Net *net) __attribute__ ((deprecated));

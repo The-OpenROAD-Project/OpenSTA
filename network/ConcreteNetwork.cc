@@ -1233,6 +1233,14 @@ ConcreteNetwork::makeTerm(Pin *pin,
 
 Pin *
 ConcreteNetwork::connect(Instance *inst,
+			 LibertyPort *port,
+			 Net *net)
+{
+  return connect(inst, reinterpret_cast<Port*>(port), net);
+}
+
+Pin *
+ConcreteNetwork::connect(Instance *inst,
 			 Port *port,
 			 Net *net)
 {

@@ -3674,11 +3674,62 @@ Sta::connectPin(Instance *inst,
 }
 
 void
+Sta::connectPin(Instance *inst,
+		LibertyPort *port,
+		Net *net)
+{
+  NetworkEdit *network = networkCmdEdit();
+  Pin *pin = network->connect(inst, port, net);
+  connectPinAfter(pin);
+}
+
+void
 Sta::disconnectPin(Pin *pin)
 {
   NetworkEdit *network = networkCmdEdit();
   disconnectPinBefore(pin);
   network->disconnectPin(pin);
+}
+
+void
+Sta::insertBuffer(const char *buffer_name,
+		  LibertyCell *buffer_cell,
+		  Net *net,
+		  PinSeq *load_pins,
+		  const char *buffer_out_net_name)
+{
+  Instance *parent = network_->topInstance();
+  LibertyPort *buffer_in_port = findCellPort(buffer_cell, PortDirection::input());
+  LibertyPort *buffer_out_port = findCellPort(buffer_cell, PortDirection::output());
+  if (buffer_in_port && buffer_out_port) {
+    Instance *buffer = makeInstance(buffer_name, buffer_cell, parent);
+    connectPin(buffer, buffer_in_port, net);
+
+    Net *buffer_out_net = makeNet(buffer_out_net_name, parent);
+    connectPin(buffer, buffer_out_port, buffer_out_net);
+
+    PinSeq::Iterator pin_iter(load_pins);
+    while (pin_iter.hasNext()) {
+      Pin *load_pin = pin_iter.next();
+      auto load_inst = network_->instance(load_pin);
+      auto load_port = network_->port(load_pin);
+      disconnectPin(load_pin);
+      connectPin(load_inst, load_port, buffer_out_net);
+    }
+  }
+}
+
+LibertyPort *
+Sta::findCellPort(LibertyCell *cell,
+		  PortDirection *dir)
+{
+  LibertyCellPortIterator port_iter(cell);
+  while (port_iter.hasNext()) {
+    auto port = port_iter.next();
+    if (port->direction() == dir)
+      return port;
+  }
+  return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////

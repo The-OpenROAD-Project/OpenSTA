@@ -677,12 +677,16 @@ proc unset_timing_derate { args } {
 #  
 ################################################################
 
+define_sta_cmd_args "connect_pin" {net pins}
+# deprecated 2.0.16 05/02/2019
 define_sta_cmd_args "connect_pins" {net pins}
 
 define_sta_cmd_args "delete_instance" {cell_list}
 
 define_sta_cmd_args "delete_net" {net_list}
 
+define_sta_cmd_args "disconnect_pin" {net -all|pin}
+# deprecated 2.0.16 05/02/2019
 define_sta_cmd_args "disconnect_pins" {net -all|pins}
 
 define_sta_cmd_args "make_instance" {inst_names lib_cell}
@@ -690,6 +694,9 @@ define_sta_cmd_args "make_instance" {inst_names lib_cell}
 define_sta_cmd_args "make_net" {}
 
 define_sta_cmd_args "replace_cell" {instances lib_cell}
+
+define_sta_cmd_args "insert_buffer" {buffer_name buffer_cell net load_pins\
+				       buffer_out_net_name}
 
 ################################################################
 #

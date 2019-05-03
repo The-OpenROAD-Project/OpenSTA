@@ -1081,11 +1081,9 @@ public:
 		 float elmore);
 
   // TCL network edit function support.
-  // create_cell
   virtual Instance *makeInstance(const char *name,
 				 LibertyCell *cell,
 				 Instance *parent);
-  // remove_cell
   virtual void deleteInstance(Instance *inst);
   // replace_cell
   virtual void replaceCell(Instance *inst,
@@ -1097,8 +1095,21 @@ public:
   virtual void connectPin(Instance *inst,
 			  Port *port,
 			  Net *net);
+  virtual void connectPin(Instance *inst,
+			  LibertyPort *port,
+			  Net *net);
   // disconnect_net
   virtual void disconnectPin(Pin *pin);
+
+  // Insert a buffer_cell instance named inst_name by adding it's input
+  // pin on net and moving load_pins from net to the output of
+  // the instance. buffer_cell must have one input and one output port.
+  // The buffer's parent is the top_instance.
+  void insertBuffer(const char *buffer_name,
+		    LibertyCell *buffer_cell,
+		    Net *net,
+		    PinSeq *load_pins,
+		    const char *buffer_out_net_name);
 
   // Network edit before/after methods.
   void makeInstanceAfter(Instance *inst);
@@ -1292,6 +1303,8 @@ protected:
   void powerPreamble();
   void disableFanoutCrprPruning(Vertex *vertex,
 			      int &fanou);
+  LibertyPort *findCellPort(LibertyCell *cell,
+			    PortDirection *dir);
 
   CmdNamespace cmd_namespace_;
   Instance *current_instance_;

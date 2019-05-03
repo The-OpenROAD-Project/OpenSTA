@@ -943,6 +943,14 @@ NetworkNameAdapter::connect(Instance *inst,
   return network_edit_->connect(inst, port, net);
 }
 
+Pin *
+NetworkNameAdapter::connect(Instance *inst,
+			    LibertyPort *port,
+			    Net *net)
+{
+  return network_edit_->connect(inst, port, net);
+}
+
 void
 NetworkNameAdapter::disconnectPin(Pin *pin)
 {
