@@ -220,6 +220,8 @@ protected:
   void deleteFloats(float *floats,
 		    ObjectIndex count);
   void removeDelayAnnotated(Edge *edge);
+  // User defined predicate to filter graph edges for liberty timing arcs.
+  virtual bool filterEdge(TimingArcSet *) const { return true; }
 
   VertexPool *vertices_;
   EdgePool *edges_;

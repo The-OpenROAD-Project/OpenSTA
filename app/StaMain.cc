@@ -117,8 +117,7 @@ staTclAppInit(Tcl_Interp *interp)
 
   // Import exported commands from sta namespace to global namespace.
   Tcl_Eval(interp, "sta::define_sta_cmds");
-  const char *export_cmds = "namespace import sta::*";
-  Tcl_Eval(interp, export_cmds);
+  Tcl_Eval(interp, "namespace import sta::*");
 
   if (!findCmdLineFlag(argc, argv, "-no_init"))
     sourceTclFileEchoVerbose(init_filename, interp);

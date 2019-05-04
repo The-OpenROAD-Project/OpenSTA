@@ -146,7 +146,8 @@ Graph::vertexAndEdgeCounts(const Instance *inst,
 	while (set_iter.hasNext()) {
 	  TimingArcSet *arc_set = set_iter.next();
 	  LibertyPort *to_port = arc_set->to();
-	  if (network_->findPin(inst, to_port)) {
+	  if (network_->findPin(inst, to_port)
+	      && filterEdge(arc_set)) {
 	    if (dir->isBidirect()) {
 	      // Internal path from bidirect output back into the instance.
 	      edge_count += 2;
@@ -285,9 +286,10 @@ Graph::makePortInstanceEdges(const Instance *inst,
     TimingArcSet *arc_set = timing_iter.next();
     LibertyPort *from_port = arc_set->from();
     LibertyPort *to_port = arc_set->to();
-    if (from_to_port == nullptr
-	|| from_port == from_to_port
-	|| to_port == from_to_port) {
+    if ((from_to_port == nullptr
+	 || from_port == from_to_port
+	 || to_port == from_to_port)
+	&& filterEdge(arc_set)) {
       Pin *from_pin = network_->findPin(inst, from_port);
       Pin *to_pin = network_->findPin(inst, to_port);
       if (from_pin && to_pin) {
