@@ -36,7 +36,7 @@ enum class PwrActivityOrigin
  propagated,
  clock,
  constant,
- defaulted, // temporary
+ defaulted,
  unknown
 };
 
@@ -90,13 +90,13 @@ public:
   PwrActivity &pinActivity(const Pin *pin);
   bool hasPinActivity(const Pin *pin);
   void setPinActivity(const Pin *pin,
+		      PwrActivity &activity);
+  void setPinActivity(const Pin *pin,
 		      float activity,
 		      float duty,
 		      PwrActivityOrigin origin);
-  void setPinActivity(const Pin *pin,
-		      PwrActivity &activity);
   // Activity is toggles per second.
-  PwrActivity findActivity(const Pin *pin);
+  PwrActivity findClkedActivity(const Pin *pin);
 
 protected:
   void preamble();
@@ -107,10 +107,11 @@ protected:
 	     const Corner *corner,
 	     // Return values.
 	     PowerResult &result);
-  void findInternalPower(const Instance *inst,
+  void findInternalPower(const LibertyPort *to_port,
+			 const Instance *inst,
 			 LibertyCell *cell,
-			 const LibertyPort *to_port,
-			 PwrActivity &activity,
+			 PwrActivity &to_activity,
+			 const Clock *inst_clk,
 			 float load_cap,
 			 const DcalcAnalysisPt *dcalc_ap,
 			 // Return values.
@@ -128,11 +129,15 @@ protected:
 			  PowerResult &result);
   const Clock *findInstClk(const Instance *inst);
   const Clock *findClk(const Pin *to_pin);
-  PwrActivity findActivity(const Pin *pin,
-			   const Clock *inst_clk);
-  float voltage(LibertyCell *cell,
-		const LibertyPort *port,
-		const DcalcAnalysisPt *dcalc_ap);
+  PwrActivity findClkedActivity(const Pin *pin,
+				const Clock *inst_clk);
+  PwrActivity findActivity(const Pin *pin);
+  float portVoltage(LibertyCell *cell,
+		    const LibertyPort *port,
+		    const DcalcAnalysisPt *dcalc_ap);
+  float pgNameVoltage(LibertyCell *cell,
+		      const char *pg_port_name,
+		      const DcalcAnalysisPt *dcalc_ap);
   void seedActivities(BfsFwdIterator &bfs);
   void seedRegOutputActivities(const Instance *reg,
 			       Sequential *seq,
@@ -142,11 +147,14 @@ protected:
 			       BfsFwdIterator &bfs);
   PwrActivity evalActivity(FuncExpr *expr,
 			   const Instance *inst);
+  float inputDutySum(const Instance *inst);
+  bool internalPowerMissingWhen(LibertyCell *cell,
+				const LibertyPort *to_port,
+				const char *related_pg_pin);
 
 private:
   PwrActivity global_activity_;
   PwrActivity input_activity_;
-  float default_activity_;
   PwrActivityMap activity_map_;
   bool activities_valid_;
 

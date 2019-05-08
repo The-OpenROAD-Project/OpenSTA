@@ -29,7 +29,7 @@ using sta::StaException;
     Tcl_SetResult(interp, const_cast<char*>(excp.what()), TCL_VOLATILE);
     return TCL_ERROR;
   }
-  catch (std::bad_alloc) {
+  catch (std::bad_alloc &) {
     fprintf(stderr, "Error: out of memory.\n");
     exit(0);
   }
