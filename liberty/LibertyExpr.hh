@@ -26,7 +26,9 @@ class LibertyCell;
 class FuncExpr;
 
 FuncExpr *
-parseFuncExpr(const char *func, LibertyCell *cell, const char *error_msg,
+parseFuncExpr(const char *func,
+	      LibertyCell *cell,
+	      const char *error_msg,
 	      Report *report);
 
 } // namespace

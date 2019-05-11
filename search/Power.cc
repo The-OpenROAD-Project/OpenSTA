@@ -505,8 +505,8 @@ Power::power(const Instance *inst,
     if (to_port->direction()->isAnyOutput())
       findSwitchingPower(cell, to_port, activity, load_cap,
 			 dcalc_ap, result);
-    findInternalPower(to_port, inst, cell, activity,
-		      inst_clk, load_cap, dcalc_ap, result);
+    findInternalPower(to_pin, to_port, inst, cell, activity,
+		      load_cap, dcalc_ap, result);
   }
   delete pin_iter;
   findLeakagePower(inst, cell, result);
@@ -528,11 +528,11 @@ Power::findInstClk(const Instance *inst)
 }
 
 void
-Power::findInternalPower(const LibertyPort *to_port,
+Power::findInternalPower(const Pin *to_pin,
+			 const LibertyPort *to_port,
 			 const Instance *inst,
 			 LibertyCell *cell,
 			 PwrActivity &to_activity,
-			 const Clock *inst_clk,
 			 float load_cap,
 			 const DcalcAnalysisPt *dcalc_ap,
 			 // Return values.
@@ -554,10 +554,9 @@ Power::findInternalPower(const LibertyPort *to_port,
     if (pwr->port() == to_port) {
       const char *related_pg_pin = pwr->relatedPgPin();
       const LibertyPort *from_port = pwr->relatedPort();
-      if (from_port == nullptr) {
+      if (from_port == nullptr)
 	// Input port internal power.
 	from_port = to_port;
-      }
       FuncExpr *when = pwr->when();
       // If all the "when" clauses exist VSS internal power is ignored.
       if ((when && internalPowerMissingWhen(cell, to_port, related_pg_pin))
@@ -570,9 +569,10 @@ Power::findInternalPower(const LibertyPort *to_port,
 	else if (search_->isClock(from_vertex))
 	  duty = 1.0;
 	else {
-	  PwrActivity from_activity = findClkedActivity(from_pin, inst_clk);
-	  float duty1 = 1.0 - (input_duty_sum - from_activity.duty());
-	  duty = from_activity.activity() * duty1 / to_activity.activity();
+	  PwrActivity from_activity = findActivity(from_pin);
+	  PwrActivity to_activity = findActivity(to_pin);
+	  float duty1 = input_duty_sum - from_activity.duty();
+	  duty = from_activity.activity() * (1.0 - duty1) / to_activity.activity();
 	}
 	float port_energy = 0.0;
 	TransRiseFallIterator tr_iter;
@@ -624,7 +624,7 @@ Power::internalPowerMissingWhen(LibertyCell *cell,
     auto when = pwr->when();
     if (pwr->port() == to_port
 	&& pwr->relatedPort() == nullptr
-	&& stringEq(pwr->relatedPgPin(), related_pg_pin)
+	&& stringEqIf(pwr->relatedPgPin(), related_pg_pin)
 	&& when) {
       when_count++;
       when_input_count = funcExprPortCount(when);

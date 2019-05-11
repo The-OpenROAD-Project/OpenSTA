@@ -29,7 +29,9 @@ namespace sta {
 LibExprParser *libexpr_parser;
 
 FuncExpr *
-parseFuncExpr(const char *func, LibertyCell *cell, const char *error_msg,
+parseFuncExpr(const char *func,
+	      LibertyCell *cell,
+	      const char *error_msg,
 	      Report *report)
 {
   if (func != nullptr && func[0] != '\0') {
@@ -42,8 +44,10 @@ parseFuncExpr(const char *func, LibertyCell *cell, const char *error_msg,
     return nullptr;
 }
 
-LibExprParser::LibExprParser(const char *func, LibertyCell *cell,
-			     const char *error_msg, Report *report) :
+LibExprParser::LibExprParser(const char *func,
+			     LibertyCell *cell,
+			     const char *error_msg,
+			     Report *report) :
   func_(func),
   cell_(cell),
   error_msg_(error_msg),
@@ -84,7 +88,8 @@ LibExprParser::makeFuncExprNot(FuncExpr *arg)
 }
 
 FuncExpr *
-LibExprParser::makeFuncExprXor(FuncExpr *arg1, FuncExpr *arg2)
+LibExprParser::makeFuncExprXor(FuncExpr *arg1,
+			       FuncExpr *arg2)
 {
   if (arg1 && arg2)
     return FuncExpr::makeXor(arg1, arg2);
@@ -93,7 +98,8 @@ LibExprParser::makeFuncExprXor(FuncExpr *arg1, FuncExpr *arg2)
 }
 
 FuncExpr *
-LibExprParser::makeFuncExprAnd(FuncExpr *arg1, FuncExpr *arg2)
+LibExprParser::makeFuncExprAnd(FuncExpr *arg1,
+			       FuncExpr *arg2)
 {
   if (arg1 && arg2)
     return FuncExpr::makeAnd(arg1, arg2);
@@ -102,7 +108,8 @@ LibExprParser::makeFuncExprAnd(FuncExpr *arg1, FuncExpr *arg2)
 }
 
 FuncExpr *
-LibExprParser::makeFuncExprOr(FuncExpr *arg1, FuncExpr *arg2)
+LibExprParser::makeFuncExprOr(FuncExpr *arg1,
+			      FuncExpr *arg2)
 {
   if (arg1 && arg2)
     return FuncExpr::makeOr(arg1, arg2);
@@ -117,7 +124,8 @@ LibExprParser::setResult(FuncExpr *result)
 }
 
 size_t
-LibExprParser::copyInput(char *buf, size_t max_size)
+LibExprParser::copyInput(char *buf,
+			 size_t max_size)
 {
   size_t length = strlen(func_);
   if (length == 0)
