@@ -21,6 +21,7 @@ struct Tcl_Interp;
 
 namespace sta {
 
+class Sta;
 typedef int (*SwigInitFunc)(Tcl_Interp *);
 
 // The swig_init function is called to define the swig interface
@@ -29,17 +30,16 @@ void
 staMain(Sta *sta,
 	int argc,
 	char **argv,
-	SwigInitFunc swig_init);
+	SwigInitFunc swig_init,
+	const char *tcl_inits[]);
 
 // Set arguments passed to staTclAppInit inside the tcl interpreter.
 void
 staSetupAppInit(int argc,
 		char **argv,
-		SwigInitFunc swig_init);
+		SwigInitFunc swig_init,
+		const char *tcl_inits[]);
 
-// The variable tcl_init is an implicit argument to this function that
-// provides the definitions for builtin tcl commands encoded by
-// etc/TclEncode.tcl.
 int
 staTclAppInit(Tcl_Interp *interp);
 

@@ -276,7 +276,7 @@ void
 ConcreteNetwork::deleteTopInstance()
 {
   if (top_instance_) {
-    deleteInstance(reinterpret_cast<Instance*>(top_instance_));
+    deleteInstance(top_instance_);
     top_instance_ = nullptr;
   }
 }
@@ -296,7 +296,7 @@ ConcreteNetwork::deleteCellNetworkViews()
 Instance *
 ConcreteNetwork::topInstance() const
 {
-  return reinterpret_cast<Instance*>(top_instance_);
+  return top_instance_;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -404,9 +404,10 @@ ConcreteNetwork::libertyLibraryIterator() const
 ////////////////////////////////////////////////////////////////
 
 Library *
-ConcreteNetwork::makeLibrary(const char *name)
+ConcreteNetwork::makeLibrary(const char *name,
+			     const char *filename)
 {
-  ConcreteLibrary *library = new ConcreteLibrary(name, nullptr);
+  ConcreteLibrary *library = new ConcreteLibrary(name, filename);
   addLibrary(library);
   return reinterpret_cast<Library*>(library);
 }
@@ -1120,7 +1121,7 @@ ConcreteNetwork::makeConcreteInstance(ConcreteCell *cell,
 {
   ConcreteInstance *cparent =
     reinterpret_cast<ConcreteInstance*>(parent);
-  ConcreteInstance *inst = new ConcreteInstance(name, cell, cparent);
+  ConcreteInstance *inst = new ConcreteInstance(cell, name, cparent);
   if (parent)
     cparent->addChild(inst);
   return reinterpret_cast<Instance*>(inst);
@@ -1257,7 +1258,7 @@ ConcreteNetwork::connect(Instance *inst,
     cpin = new ConcretePin(cinst, cport, cnet);
     cinst->addPin(cpin);
   }
-  if (cinst == top_instance_) {
+  if (inst == top_instance_) {
     // makeTerm
     ConcreteTerm *cterm = new ConcreteTerm(cpin, cnet);
     cnet->addTerm(cterm);
@@ -1296,7 +1297,7 @@ void
 ConcreteNetwork::disconnectPin(Pin *pin)
 {
   ConcretePin *cpin = reinterpret_cast<ConcretePin*>(pin);
-  if (cpin->instance() == top_instance_) {
+  if (reinterpret_cast<Instance*>(cpin->instance()) == top_instance_) {
     ConcreteTerm *cterm = cpin->term_;
     if (cterm) {
       ConcreteNet *cnet = cterm->net_;
@@ -1450,19 +1451,26 @@ ConcreteNetwork::visitConnectedPins(const Net *net,
 
 ////////////////////////////////////////////////////////////////
 
-ConcreteInstance::ConcreteInstance(const char *name,
-				   ConcreteCell *cell,
+ConcreteInstance::ConcreteInstance(ConcreteCell *cell,
+				   const char *name,
 				   ConcreteInstance *parent) :
-  name_(stringCopy(name)),
   cell_(cell),
+  name_(stringCopy(name)),
   parent_(parent),
   children_(nullptr),
   nets_(nullptr)
 {
-  int pin_count = reinterpret_cast<ConcreteCell*>(cell)->portBitCount();
-  pins_ = new ConcretePin*[pin_count];
-  for (int i = 0; i < pin_count; i++)
-    pins_[i] = nullptr;
+  initPins();
+}
+
+void
+ConcreteInstance::initPins()
+{
+  int pin_count = reinterpret_cast<ConcreteCell*>(cell_)->portBitCount();
+  if (pin_count)
+    pins_ = new ConcretePin*[pin_count]{nullptr};
+  else
+    pins_ = nullptr;
 }
 
 ConcreteInstance::~ConcreteInstance()
@@ -1789,10 +1797,10 @@ ConcreteNetwork::readNetlistBefore()
 }
 
 void
-ConcreteNetwork::setTopInstance(ConcreteInstance *top_inst)
+ConcreteNetwork::setTopInstance(Instance *top_inst)
 {
   if (top_instance_) {
-    deleteInstance(reinterpret_cast<Instance*>(top_instance_));
+    deleteInstance(top_instance_);
     clearConstantNets();
     clearNetDrvPinrMap();
   }
@@ -1815,10 +1823,7 @@ ConcreteNetwork::linkNetwork(const char *top_cell_name,
     deleteTopInstance();
     Cell *top_cell = findAnyCell(top_cell_name);
     if (top_cell) {
-      top_instance_ =
-	reinterpret_cast<ConcreteInstance*>(link_func_(top_cell,
-						       make_black_boxes,
-						       report, this));
+      top_instance_ = link_func_(top_cell, make_black_boxes, report, this);
       return top_instance_ != nullptr;
     }
     else {

@@ -29,10 +29,10 @@ typedef sta::Vector<SwigInitFunc> SwigInitFuncSeq;
 // "Arguments" passed to staTclAppInit.
 static int sta_argc;
 static char **sta_argv;
+static const char **sta_tcl_inits;
 static SwigInitFunc sta_swig_init;
 
 static const char *init_filename = "[file join $env(HOME) .sta]";
-extern const char *tcl_inits[];
 
 static void
 sourceTclFileEchoVerbose(const char *filename,
@@ -42,7 +42,8 @@ void
 staMain(Sta *sta,
 	int argc,
 	char **argv,
-	SwigInitFunc swig_init)
+	SwigInitFunc swig_init,
+	const char *tcl_inits[])
 {
   initSta();
 
@@ -55,7 +56,7 @@ staMain(Sta *sta,
   if (threads_exists)
     sta->setThreadCount(thread_count);
 
-  staSetupAppInit(argc, argv, swig_init);
+  staSetupAppInit(argc, argv, swig_init, tcl_inits);
   // Set argc to 1 so Tcl_Main doesn't source any files.
   // Tcl_Main never returns.
   Tcl_Main(1, argv, staTclAppInit);
@@ -86,10 +87,12 @@ parseThreadsArg(int argc,
 void
 staSetupAppInit(int argc,
 		char **argv,
-		SwigInitFunc swig_init)
+		SwigInitFunc swig_init,
+		const char *tcl_inits[])
 {
   sta_argc = argc;
   sta_argv = argv;
+  sta_tcl_inits = tcl_inits;
   sta_swig_init = swig_init;
 }
 
@@ -110,7 +113,7 @@ staTclAppInit(Tcl_Interp *interp)
   sta->setTclInterp(interp);
 
   // Eval encoded sta TCL sources.
-  evalTclInit(interp, tcl_inits);
+  evalTclInit(interp, sta_tcl_inits);
 
   if (!findCmdLineFlag(argc, argv, "-no_splash"))
     Tcl_Eval(interp, "sta::show_splash");

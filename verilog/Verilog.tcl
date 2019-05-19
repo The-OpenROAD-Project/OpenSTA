@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Network commands.
-
 namespace eval sta {
 
 # Defined by SWIG interface Verilog.i.

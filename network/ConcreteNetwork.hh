@@ -155,7 +155,8 @@ public:
 		      LogicValue value);
 
   // Edit methods.
-  virtual Library *makeLibrary(const char *name);
+  virtual Library *makeLibrary(const char *name,
+			       const char *filename);
   virtual LibertyLibrary *makeLibertyLibrary(const char *name,
 					     const char *filename);
   virtual Cell *makeCell(Library *library,
@@ -221,7 +222,7 @@ public:
 
   virtual void readNetlistBefore();
   virtual void setLinkFunc(LinkNetworkFunc *link);
-  void setTopInstance(ConcreteInstance *top_inst);
+  void setTopInstance(Instance *top_inst);
 
   using Network::netIterator;
   using Network::findPin;
@@ -250,7 +251,7 @@ protected:
   // Cell lookup search order sequence.
   ConcreteLibrarySeq library_seq_;
   ConcreteLibraryMap library_map_;
-  ConcreteInstance *top_instance_;
+  Instance *top_instance_;
   NetSet constant_nets_[2];  // LogicValue::zero/one
   LinkNetworkFunc *link_func_;
   CellNetworkViewMap cell_network_view_map_;
@@ -284,15 +285,16 @@ public:
 	      ConcreteNet *net);
   void deleteNet(ConcreteNet *net);
   void setCell(LibertyCell *cell);
+  void initPins();
 
-private:
-  ConcreteInstance(const char *name,
-		   ConcreteCell *cell,
+protected:
+  ConcreteInstance(ConcreteCell *cell,
+		   const char *name,
 		   ConcreteInstance *parent);
   ~ConcreteInstance();
 
-  const char *name_;
   ConcreteCell *cell_;
+  const char *name_;
   ConcreteInstance *parent_;
   // Array of pins indexed by pin->port->index().
   ConcretePin **pins_;
@@ -373,12 +375,13 @@ public:
   void mergeInto(ConcreteNet *net);
   ConcreteNet *mergedInto() { return merged_into_; }
 
-private:
+protected:
   DISALLOW_COPY_AND_ASSIGN(ConcreteNet);
   ConcreteNet(const char *name,
 	      ConcreteInstance *instance);
   virtual ~ConcreteNet();
 
+private:
   const char *name_;
   ConcreteInstance *instance_;
   // Pointer to head of linked list of pins.

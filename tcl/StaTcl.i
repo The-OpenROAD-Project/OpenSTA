@@ -2652,7 +2652,6 @@ PropertyValue
 pin_property(const Pin *pin,
 	     const char *property)
 {
-  cmdGraph();
   return getProperty(pin, property, Sta::sta());
 }
 
@@ -2660,7 +2659,6 @@ PropertyValue
 instance_property(const Instance *inst,
 		  const char *property)
 {
-  cmdGraph();
   return getProperty(inst, property, Sta::sta());
 }
 
@@ -2668,7 +2666,6 @@ PropertyValue
 net_property(const Net *net,
 	     const char *property)
 {
-  cmdGraph();
   return getProperty(net, property, Sta::sta());
 }
 
@@ -2676,7 +2673,6 @@ PropertyValue
 port_property(const Port *port,
 	      const char *property)
 {
-  cmdGraph();
   return getProperty(port, property, Sta::sta());
 }
 

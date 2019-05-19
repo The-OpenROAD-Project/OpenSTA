@@ -405,6 +405,7 @@ Power::ensureActivities()
 	  // Propagate activiities across register D->Q.
 	  seedRegOutputActivities(reg, bfs);
 	}
+	delete regs;
 	visitor.init();
 	bfs.visit(levelize_->maxLevel(), &visitor);
       }
@@ -546,7 +547,6 @@ Power::findInternalPower(const Pin *to_pin,
   debugPrint1(debug_, "power", 2, " cap = %s\n",
 	      units_->capacitanceUnit()->asString(load_cap));
   debugPrint0(debug_, "power", 2, "       when act/ns duty  energy    power\n");
-  float input_duty_sum = inputDutySum(inst);
   float internal = 0.0;
   LibertyCellInternalPowerIterator pwr_iter(cell);
   while (pwr_iter.hasNext()) {
@@ -554,26 +554,35 @@ Power::findInternalPower(const Pin *to_pin,
     if (pwr->port() == to_port) {
       const char *related_pg_pin = pwr->relatedPgPin();
       const LibertyPort *from_port = pwr->relatedPort();
-      if (from_port == nullptr)
-	// Input port internal power.
-	from_port = to_port;
       FuncExpr *when = pwr->when();
+      FuncExpr *infered_when = nullptr;
+      if (from_port) {
+	if (when == nullptr) {
+	  FuncExpr *func = to_port->function();
+	  if (func)
+	    infered_when = inferedWhen(func, from_port);
+	}
+      }
+      else
+	from_port = to_port;
       // If all the "when" clauses exist VSS internal power is ignored.
       if ((when && internalPowerMissingWhen(cell, to_port, related_pg_pin))
 	  || pgNameVoltage(cell, related_pg_pin, dcalc_ap) != 0.0) {
 	const Pin *from_pin = network_->findPin(inst, from_port);
 	Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
 	float duty;
-	if (when)
+	if (infered_when) {
+	  PwrActivity from_activity = findActivity(from_pin);
+	  PwrActivity to_activity = findActivity(to_pin);
+	  float duty1 = evalActivity(infered_when, inst).duty();
+	  duty = from_activity.activity() / to_activity.activity() * duty1;
+	}
+	else if (when)
 	  duty = evalActivity(when, inst).duty();
 	else if (search_->isClock(from_vertex))
 	  duty = 1.0;
-	else {
-	  PwrActivity from_activity = findActivity(from_pin);
-	  PwrActivity to_activity = findActivity(to_pin);
-	  float duty1 = input_duty_sum - from_activity.duty();
-	  duty = from_activity.activity() * (1.0 - duty1) / to_activity.activity();
-	}
+	else
+	  duty = 0.5;
 	float port_energy = 0.0;
 	TransRiseFallIterator tr_iter;
 	while (tr_iter.hasNext()) {
@@ -596,7 +605,7 @@ Power::findInternalPower(const Pin *to_pin,
 	debugPrint8(debug_, "power", 2,  " %s -> %s %s  %.2f %.2f %9.2e %9.2e %s\n",
 		    from_port->name(),
 		    to_port->name(),
-		    pwr->when() ? pwr->when()->asString() : "    ",
+		    when ? when->asString() : (infered_when ? infered_when->asString() : "    "),
 		    to_activity.activity() * 1e-9,
 		    duty,
 		    port_energy,
@@ -604,10 +613,68 @@ Power::findInternalPower(const Pin *to_pin,
 		    related_pg_pin ? related_pg_pin : "no pg_pin");
 	internal += port_internal;
       }
+      if (infered_when)
+	infered_when->deleteSubexprs();
     }
   }
   result.setInternal(result.internal() + internal);
 }
+
+////////////////////////////////////////////////////////////////
+
+static bool
+isPortRef(FuncExpr *expr,
+	  const LibertyPort *port)
+{
+  return (expr->op() == FuncExpr::op_port
+	  && expr->port() == port)
+    || (expr->op() == FuncExpr::op_not
+	&& expr->left()->op() == FuncExpr::op_port
+	&& expr->left()->port() == port);
+}
+
+static FuncExpr *
+negate(FuncExpr *expr)
+{
+  if (expr->op() == FuncExpr::op_not)
+    return expr->left()->copy();
+  else
+    return FuncExpr::makeNot(expr->copy());
+}
+
+FuncExpr *
+Power::inferedWhen(FuncExpr *expr,
+		   const LibertyPort *from_port)
+{
+  switch (expr->op()) {
+  case FuncExpr::op_port: {
+    if (expr->port() == from_port)
+      return FuncExpr::makeOne();
+    else
+      return nullptr;
+  }
+  case FuncExpr::op_not:
+    return inferedWhen(expr->left(), from_port);
+  case FuncExpr::op_or:
+  case FuncExpr::op_xor: {
+    if (isPortRef(expr->left(), from_port))
+      return negate(expr->right());
+    if (isPortRef(expr->right(), from_port))
+      return negate(expr->left());
+  }
+  case FuncExpr::op_and: {
+    if (isPortRef(expr->left(), from_port))
+      return expr->right()->copy();
+    if (isPortRef(expr->right(), from_port))
+      return expr->left()->copy();
+  }
+  case FuncExpr::op_one:
+  case FuncExpr::op_zero:
+   return nullptr;
+  }
+}
+
+////////////////////////////////////////////////////////////////
 
 // Return true if some a "when" clause for the internal power to_port
 // is missing.
@@ -643,20 +710,6 @@ funcExprPortCount(FuncExpr *expr)
     port_count++;
   }
   return port_count;
-}
-
-float
-Power::inputDutySum(const Instance *inst)
-{
-  float duty_sum = 0.0;
-  InstancePinIterator *pin_iter = network_->pinIterator(inst);
-  while (pin_iter->hasNext()) {
-    const Pin *pin = pin_iter->next();
-    if (network_->direction(pin)->isAnyInput())
-      duty_sum += findClkedActivity(pin).duty();
-  }
-  delete pin_iter;
-  return duty_sum;
 }
 
 void

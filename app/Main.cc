@@ -31,6 +31,10 @@ extern "C" {
 extern int Sta_Init(Tcl_Interp *interp);
 }
 
+namespace sta {
+extern const char *tcl_inits[];
+}
+
 int
 main(int argc, char **argv)
 {
@@ -44,7 +48,7 @@ main(int argc, char **argv)
   }
   else {
     Sta *sta = new Sta;
-    staMain(sta, argc, argv, Sta_Init);
+    staMain(sta, argc, argv, Sta_Init, sta::tcl_inits);
     return 0;
   }
 }

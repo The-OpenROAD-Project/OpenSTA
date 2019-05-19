@@ -51,6 +51,8 @@ public:
   static bool less(const FuncExpr *expr1,
 		   const FuncExpr *expr2);
 
+  // Deep copy.
+  FuncExpr *copy();
   // Delete expression and all of its subexpressions.
   void deleteSubexprs();
   // op == op_port

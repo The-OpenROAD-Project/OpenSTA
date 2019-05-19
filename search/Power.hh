@@ -147,10 +147,11 @@ protected:
 			       BfsFwdIterator &bfs);
   PwrActivity evalActivity(FuncExpr *expr,
 			   const Instance *inst);
-  float inputDutySum(const Instance *inst);
   bool internalPowerMissingWhen(LibertyCell *cell,
 				const LibertyPort *to_port,
 				const char *related_pg_pin);
+  FuncExpr *inferedWhen(FuncExpr *expr,
+			const LibertyPort *from_port);
 
 private:
   PwrActivity global_activity_;

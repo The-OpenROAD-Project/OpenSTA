@@ -204,7 +204,7 @@ VerilogReader::init(const char *filename)
 
   library_ = network_->findLibrary("verilog");
   if (library_ == nullptr)
-    library_ = network_->makeLibrary("verilog");
+    library_ = network_->makeLibrary("verilog", nullptr);
 
   report_stmt_stats_ = debugCheck(debug_, "verilog", 1);
   module_count_ = 0;

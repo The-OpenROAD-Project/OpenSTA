@@ -89,6 +89,14 @@ FuncExpr::deleteSubexprs()
   delete this;
 }
 
+FuncExpr *
+FuncExpr::copy()
+{
+  FuncExpr *left = left_ ? left_->copy() : nullptr;
+  FuncExpr *right = right_ ? right_->copy() : nullptr;
+  return new FuncExpr(op_, left, right, port_);
+}
+
 LibertyPort *
 FuncExpr::port() const
 {
