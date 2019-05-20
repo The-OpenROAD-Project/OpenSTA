@@ -254,7 +254,10 @@ proc insert_buffer { buffer_name buffer_cell net load_pins buffer_out_net_name }
       lappend load_pins $pin1
     }
   }
-  insert_buffer_cmd $buffer_name $buffer_cell $net $load_pins $buffer_out_net_name
+  if { $buffer_cell != "NULL" \
+	 &&  $net  != "NULL" } {
+    insert_buffer_cmd $buffer_name $buffer_cell $net $load_pins $buffer_out_net_name
+  }
 }
 
 # sta namespace end.

@@ -247,6 +247,8 @@ protected:
 			ConcretePin *cpin);
   void connectNetPin(ConcreteNet *cnet,
 		     ConcretePin *cpin);
+  void replaceCellIntenal(Instance *inst,
+			  ConcreteCell *cell);
 
   // Cell lookup search order sequence.
   ConcreteLibrarySeq library_seq_;
@@ -284,7 +286,7 @@ public:
   void addNet(const char *name,
 	      ConcreteNet *net);
   void deleteNet(ConcreteNet *net);
-  void setCell(LibertyCell *cell);
+  void setCell(ConcreteCell *cell);
   void initPins();
 
 protected:

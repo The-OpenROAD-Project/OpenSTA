@@ -1142,13 +1142,19 @@ void
 ConcreteNetwork::replaceCell(Instance *inst,
 			     LibertyCell *cell)
 {
+  replaceCellIntenal(inst, cell);
+}
+
+void
+ConcreteNetwork::replaceCellIntenal(Instance *inst,
+				    ConcreteCell *cell)
+{
   InstancePinIterator *pin_iter = pinIterator(inst);
-  ConcreteCell *ccell = cell;
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
     ConcretePin *cpin = reinterpret_cast<ConcretePin*>(pin);
     ConcretePort *pin_cport = reinterpret_cast<ConcretePort*>(cpin->port());
-    ConcretePort *cport = ccell->findPort(pin_cport->name());
+    ConcretePort *cport = cell->findPort(pin_cport->name());
     if (cport)
       cpin->port_ = cport;
     else
@@ -1611,7 +1617,7 @@ ConcreteInstance::deleteNet(ConcreteNet *net)
 }
 
 void
-ConcreteInstance::setCell(LibertyCell *cell)
+ConcreteInstance::setCell(ConcreteCell *cell)
 {
   cell_ = cell;
 }
