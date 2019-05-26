@@ -120,6 +120,12 @@ PropertyValue::PropertyValue(float value) :
 {
 }
 
+PropertyValue::PropertyValue(bool value) :
+  type_(type_bool),
+  bool_(value)
+{
+}
+
 PropertyValue::PropertyValue(LibertyLibrary *value) :
   type_(type_liberty_library),
   liberty_library_(value)
@@ -226,6 +232,9 @@ PropertyValue::PropertyValue(const PropertyValue &value) :
   case Type::type_float:
     float_ = value.float_;
     break;
+  case Type::type_bool:
+    bool_ = value.bool_;
+    break;
   case Type::type_liberty_library:
     liberty_library_ = value.liberty_library_;
     break;
@@ -277,6 +286,9 @@ PropertyValue::PropertyValue(PropertyValue &&value) :
     break;
   case Type::type_float:
     float_ = value.float_;
+    break;
+  case Type::type_bool:
+    bool_ = value.bool_;
     break;
   case Type::type_liberty_library:
     liberty_library_ = value.liberty_library_;
@@ -355,6 +367,9 @@ PropertyValue::operator=(const PropertyValue &value)
   case Type::type_float:
     float_ = value.float_;
     break;
+  case Type::type_bool:
+    bool_ = value.bool_;
+    break;
   case Type::type_liberty_library:
     liberty_library_ = value.liberty_library_;
     break;
@@ -408,6 +423,9 @@ PropertyValue::operator=(PropertyValue &&value)
     break;
   case Type::type_float:
     float_ = value.float_;
+    break;
+  case Type::type_bool:
+    bool_ = value.bool_;
     break;
   case Type::type_liberty_library:
     liberty_library_ = value.liberty_library_;
@@ -513,6 +531,8 @@ getProperty(const LibertyCell *cell,
     return PropertyValue(cell->higherDrive());
   else if (stringEqual(property, "lower_drive"))
     return PropertyValue(cell->lowerDrive());
+  else if (stringEqual(property, "is_buffer"))
+    return PropertyValue(cell->isBuffer());
   else
     throw PropertyUnknown("liberty cell", property);
 }

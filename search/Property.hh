@@ -33,7 +33,7 @@ class PwrActivity;
 class PropertyValue
 {
 public:
-  enum Type { type_none, type_string, type_float,
+  enum Type { type_none, type_string, type_float, type_bool,
 	      type_liberty_library, type_liberty_cell,
 	      type_library, type_cell,
 	      type_instance, type_pin, type_pins, type_net,
@@ -42,6 +42,7 @@ public:
   PropertyValue(const char *value);
   PropertyValue(string &value);
   PropertyValue(float value);
+  PropertyValue(bool value);
   PropertyValue(LibertyLibrary *value);
   PropertyValue(LibertyCell *value);
   PropertyValue(Cell *value);
@@ -64,6 +65,7 @@ public:
   Type type() const { return type_; }
   const char *stringValue() const { return string_; }
   float floatValue() const { return float_; }
+  bool boolValue() const { return bool_; }
   LibertyLibrary *libertyLibrary() const { return liberty_library_; }
   LibertyCell *libertyCell() const { return liberty_cell_; }
   Library *library() const { return library_; }
@@ -86,6 +88,7 @@ private:
   union {
     const char *string_;
     float float_;
+    bool bool_;
     LibertyLibrary *liberty_library_;
     LibertyCell *liberty_cell_;
     Library *library_;

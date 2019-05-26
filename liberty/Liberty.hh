@@ -487,6 +487,10 @@ public:
 		      Debug *debug);
   void setHigherDrive(LibertyCell *cell);
   void setLowerDrive(LibertyCell *cell);
+  bool isBuffer() const;
+  bool isBuffer(// Return values.
+		LibertyPort *&input,
+		LibertyPort *&output) const;
 
 protected:
   virtual void addPort(ConcretePort *port);
@@ -510,6 +514,8 @@ protected:
   void deleteInternalPowerAttrs();
   void makeTimingArcMap(Report *report);
   void makeTimingArcPortMaps();
+  bool hasBufferFunc(const LibertyPort *input,
+		     const LibertyPort *output) const;
 
   LibertyLibrary *liberty_library_;
   float area_;

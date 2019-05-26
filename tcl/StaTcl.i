@@ -1538,6 +1538,11 @@ using namespace sta;
     stringDelete(float_string);
   }
     break;
+  case PropertyValue::Type::type_bool: {
+    const char *bool_string = value.boolValue() ? "1" : "0";
+    Tcl_SetResult(interp, const_cast<char*>(bool_string), TCL_STATIC);
+  }
+    break;
   case PropertyValue::Type::type_instance: {
     Tcl_Obj *obj = SWIG_NewInstanceObj(value.instance(),
 				       SWIGTYPE_p_Instance, false);

@@ -1020,6 +1020,49 @@ LibertyCell::setClockGateType(ClockGateType type)
   clock_gate_type_ = type;
 }
 
+bool
+LibertyCell::isBuffer() const
+{
+  LibertyPort *input, *output;
+  return isBuffer(input, output);
+}
+
+bool
+LibertyCell::isBuffer(// Return values.
+		      LibertyPort *&input,
+		      LibertyPort *&output) const
+{
+  if (ports_.size() == 2) {
+    LibertyPort *port1 = static_cast<LibertyPort*>(ports_[0]);
+    LibertyPort *port2 = static_cast<LibertyPort*>(ports_[1]);
+    if (port1->direction()->isInput()
+	&& port2->direction()->isOutput()
+	&& hasBufferFunc(port1, port2)) {
+      input = port1;
+      output = port2;
+      return true;
+    }
+    else if (port2->direction()->isInput()
+	     && port1->direction()->isOutput()
+	     && hasBufferFunc(port2, port1)) {
+      input = port2;
+      output = port1;
+      return true;
+    }
+  }
+  return false;
+}
+
+bool
+LibertyCell::hasBufferFunc(const LibertyPort *input,
+			   const LibertyPort *output) const
+{
+  FuncExpr *func = output->function();
+  return func
+    && func->op() == FuncExpr::op_port
+    && func->port() == input;
+}
+
 unsigned
 LibertyCell::addTimingArcSet(TimingArcSet *arc_set)
 {
