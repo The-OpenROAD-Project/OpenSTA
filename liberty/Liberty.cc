@@ -82,7 +82,6 @@ LibertyLibrary::LibertyLibrary(const char *name,
   default_wire_load_mode_(WireloadMode::unknown),
   default_wire_load_selection_(nullptr),
   default_operating_conditions_(nullptr),
-  equiv_cell_map_(nullptr),
   ocv_arc_depth_(0.0),
   default_ocv_derate_(nullptr)
 {
@@ -123,8 +122,6 @@ LibertyLibrary::~LibertyLibrary()
   operating_conditions_.deleteContents();
   wireloads_.deleteContents();
   wire_load_selections_.deleteContents();
-  if (equiv_cell_map_)
-    deleteEquivCellMap(equiv_cell_map_);
   delete units_;
   ocv_derate_map_.deleteContents();
 
@@ -500,15 +497,6 @@ LibertyLibrary::setDefaultOutputPinRes(const TransRiseFall *tr,
   default_output_pin_res_.setValue(tr, value);
 }
 
-LibertyCellSeq *
-LibertyLibrary::findEquivCells(LibertyCell *cell)
-{
-  if (equiv_cell_map_ == nullptr)
-    equiv_cell_map_ = makeEquivCellMap(this);
-  LibertyCellSeq *equivs = equiv_cell_map_->findKey(cell);
-  return equivs;
-}
-
 void
 LibertyLibrary::addWireload(Wireload *wireload)
 {
@@ -748,6 +736,12 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
   }
 }
 
+void
+LibertyLibrary::finish()
+{
+  findEquivCells(this);
+}
+
 ////////////////////////////////////////////////////////////////
 
 float
@@ -849,7 +843,9 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   ocv_derate_(nullptr),
   is_disabled_constraint_(false),
   leakage_power_(0.0),
-  leakage_power_exists_(false)
+  leakage_power_exists_(false),
+  higher_drive_(nullptr),
+  lower_drive_(nullptr)
 {
 }
 
@@ -1384,6 +1380,20 @@ LibertyCell::setCornerCell(LibertyCell *corner_cell,
   if (ap_index >= static_cast<int>(corner_cells_.size()))
     corner_cells_.resize(ap_index + 1);
   corner_cells_[ap_index] = corner_cell;
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+LibertyCell::setHigherDrive(LibertyCell *cell)
+{
+  higher_drive_ = cell;
+}
+
+void
+LibertyCell::setLowerDrive(LibertyCell *cell)
+{
+  lower_drive_ = cell;
 }
 
 ////////////////////////////////////////////////////////////////

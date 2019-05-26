@@ -16,10 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-%include "../tcl/StaException.i"
-%include "../tcl/StaTcl.i"
-%include "../verilog/Verilog.i"
-%include "../tcl/NetworkEdit.i"
-%include "../sdf/Sdf.i"
-%include "../dcalc/DelayCalc.i"
-%include "../parasitics/Parasitics.i"
+%include "StaException.i"
+%include "StaTcl.i"
+%include "Verilog.i"
+%include "NetworkEdit.i"
+%include "Sdf.i"
+%include "DelayCalc.i"
+%include "Parasitics.i"

@@ -223,7 +223,6 @@ public:
   float slewDerateFromLibrary() const;
   void setSlewDerateFromLibrary(float derate);
 
-  LibertyCellSeq *findEquivCells(LibertyCell *cell);
   Units *units() { return units_; }
   const Units *units() const { return units_; }
 
@@ -279,6 +278,7 @@ public:
 		bool link,
 		int ap_index,
 		Report *report);
+  void finish();
 
 protected:
   float degradeWireSlew(const LibertyCell *cell,
@@ -322,7 +322,6 @@ protected:
   WireloadSelectionMap wire_load_selections_;
   OperatingConditionsMap operating_conditions_;
   OperatingConditions *default_operating_conditions_;
-  LibertyCellEquivMap *equiv_cell_map_;
   float ocv_arc_depth_;
   OcvDerate *default_ocv_derate_;
   OcvDerateMap ocv_derate_map_;
@@ -391,9 +390,6 @@ public:
   void setScaleFactors(ScaleFactors *scale_factors);
   ModeDef *makeModeDef(const char *name);
   ModeDef *findModeDef(const char *name);
-  // Add scaled cell after it is complete.
-  void addScaledCell(OperatingConditions *op_cond,
-		     LibertyCell *scaled_cell);
 
   float area() const { return area_; }
   void setArea(float area);
@@ -410,15 +406,6 @@ public:
   bool isClockGateOther() const;
   bool isClockGate() const;
   void setClockGateType(ClockGateType type);
-  virtual unsigned addTimingArcSet(TimingArcSet *set);
-  void addTimingArcAttrs(TimingArcAttrs *attrs);
-  virtual void addInternalPower(InternalPower *power);
-  void addInternalPowerAttrs(InternalPowerAttrs *attrs);
-  virtual void addLeakagePower(LeakagePower *power);
-  // Call after cell is finished being constructed.
-  virtual void finish(bool infer_latches,
-		      Report *report,
-		      Debug *debug);
   // Internal to LibertyCellTimingArcSetIterator.
   TimingArcSetSeq *timingArcSets(const LibertyPort *from,
 				 const LibertyPort *to) const;
@@ -427,13 +414,44 @@ public:
   TimingArcSet *findTimingArcSet(TimingArcSet *key) const;
   TimingArcSet *findTimingArcSet(unsigned arc_set_index) const;
   bool hasTimingArcs(LibertyPort *port) const;
+
   InternalPowerSeq *internalPowers() { return &internal_powers_; }
   LeakagePowerSeq *leakagePowers() { return &leakage_powers_; }
   void leakagePower(// Return values.
 		    float &leakage,
 		    bool &exists) const;
   bool leakagePowerEx() const { return leakage_power_exists_; }
+
   bool hasSequentials() const;
+  // Find the sequential with the output connected to an (internal) port.
+  Sequential *outputPortSequential(LibertyPort *port);
+
+  // Find bus declaration local to this cell.
+  BusDcl *findBusDcl(const char *name) const;
+  // True when TimingArcSetBuilder::makeRegLatchArcs infers register
+  // timing arcs.
+  bool hasInferedRegTimingArcs() const { return has_infered_reg_timing_arcs_; }
+  TestCell *testCell() const { return test_cell_; }
+  bool isLatchData(LibertyPort *port);
+  void latchEnable(TimingArcSet *arc_set,
+		   // Return values.
+		   LibertyPort *&enable_port,
+		   FuncExpr *&enable_func,
+		   TransRiseFall *&enable_tr) const;
+  TransRiseFall *latchCheckEnableTrans(TimingArcSet *check_set);
+  bool isDisabledConstraint() const { return is_disabled_constraint_; }
+  LibertyCell *cornerCell(int ap_index);
+
+  // AOCV
+  float ocvArcDepth() const;
+  OcvDerate *ocvDerate() const;
+  OcvDerate *findOcvDerate(const char *derate_name);
+
+  // Next higher/lower drive equivalent cells.
+  LibertyCell *higherDrive() const { return higher_drive_; }
+  LibertyCell *lowerDrive() const { return lower_drive_; }
+
+  // Build helpers.
   void makeSequential(int size,
 		      bool is_register,
 		      FuncExpr *clk,
@@ -444,40 +462,31 @@ public:
 		      LogicValue clr_preset_out_inv,
 		      LibertyPort *output,
 		      LibertyPort *output_inv);
-  // Find the sequential with the output connected to an (internal) port.
-  Sequential *outputPortSequential(LibertyPort *port);
-  // Find bus declaration local to this cell.
-  BusDcl *findBusDcl(const char *name) const;
   void addBusDcl(BusDcl *bus_dcl);
-  // True when TimingArcSetBuilder::makeRegLatchArcs infers register
-  // timing arcs.
-  bool hasInferedRegTimingArcs() const { return has_infered_reg_timing_arcs_; }
-  void setHasInferedRegTimingArcs(bool infered);
-  TestCell *testCell() const { return test_cell_; }
+  // Add scaled cell after it is complete.
+  void addScaledCell(OperatingConditions *op_cond,
+		     LibertyCell *scaled_cell);
+  virtual unsigned addTimingArcSet(TimingArcSet *set);
+  void addTimingArcAttrs(TimingArcAttrs *attrs);
+  virtual void addInternalPower(InternalPower *power);
+  void addInternalPowerAttrs(InternalPowerAttrs *attrs);
+  virtual void addLeakagePower(LeakagePower *power);
+  void setLeakagePower(float leakage);
+  void setOcvArcDepth(float depth);
+  void setOcvDerate(OcvDerate *derate);
+  void addOcvDerate(OcvDerate *derate);
+  void addPgPort(LibertyPgPort *pg_port);
   void setTestCell(TestCell *test);
-  bool isLatchData(LibertyPort *port);
-  void latchEnable(TimingArcSet *arc_set,
-		   // Return values.
-		   LibertyPort *&enable_port,
-		   FuncExpr *&enable_func,
-		   TransRiseFall *&enable_tr) const;
-  TransRiseFall *latchCheckEnableTrans(TimingArcSet *check_set);
-  bool isDisabledConstraint() const { return is_disabled_constraint_; }
+  void setHasInferedRegTimingArcs(bool infered);
   void setIsDisabledConstraint(bool is_disabled);
-  LibertyCell *cornerCell(int ap_index);
   void setCornerCell(LibertyCell *corner_cell,
 		     int ap_index);
-  void setLeakagePower(float leakage);
-
-  // AOCV
-  float ocvArcDepth() const;
-  void setOcvArcDepth(float depth);
-  OcvDerate *ocvDerate() const;
-  void setOcvDerate(OcvDerate *derate);
-  OcvDerate *findOcvDerate(const char *derate_name);
-  void addOcvDerate(OcvDerate *derate);
-
-  void addPgPort(LibertyPgPort *pg_port);
+  // Call after cell is finished being constructed.
+  virtual void finish(bool infer_latches,
+		      Report *report,
+		      Debug *debug);
+  void setHigherDrive(LibertyCell *cell);
+  void setLowerDrive(LibertyCell *cell);
 
 protected:
   virtual void addPort(ConcretePort *port);
@@ -511,7 +520,6 @@ protected:
   bool interface_timing_;
   ClockGateType clock_gate_type_;
   TimingArcSetSeq timing_arc_sets_;
-  // Used to find matching arc sets in equivalent cells.
   TimingArcSetMap timing_arc_set_map_;
   LibertyPortPairTimingArcMap port_timing_arc_set_map_;
   LibertyPortTimingArcMap timing_arc_set_from_map_;
@@ -542,6 +550,9 @@ protected:
   float leakage_power_;
   bool leakage_power_exists_;
   LibertyPgPortMap pg_port_map_;
+  // Next higher/lower drive equivalent cells.
+  LibertyCell *higher_drive_;
+  LibertyCell *lower_drive_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(LibertyCell);

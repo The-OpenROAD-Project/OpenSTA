@@ -3214,7 +3214,7 @@ Sta::setArcDelay(Edge *edge,
 		 TimingArc *arc,
 		 const Corner *corner,
 		 const MinMaxAll *min_max,
-		 float delay)
+		 ArcDelay delay)
 {
   MinMaxIterator mm_iter(min_max);
   while (mm_iter.hasNext()) {

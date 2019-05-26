@@ -15,6 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "Machine.hh"
+#include "UnorderedMap.hh"
 #include "PortDirection.hh"
 #include "Transition.hh"
 #include "MinMax.hh"
@@ -28,14 +29,16 @@
 
 namespace sta {
 
-typedef Map<unsigned,LibertyCellSeq*, std::less<unsigned> > LibertyCellHashMap;
+typedef UnorderedMap<unsigned, LibertyCellSeq*> LibertyCellHashMap;
 typedef Set<LibertyCellSeq*> LibertyCellSeqSet;
 
 static LibertyCellEquivMap *
 findEquivCells1(const LibertyLibrary *library);
 static void
+deleteEquivCellMap(LibertyCellEquivMap *equiv_map);
+static void
 sortCellEquivs(LibertyCellEquivMap *cell_equivs);
-float
+static float
 cellDriveResistance(const LibertyCell *cell);
 
 static unsigned
@@ -55,15 +58,19 @@ static bool
 equivCellSequentials(const LibertyCell *cell1,
 		     const LibertyCell *cell2);
 
-LibertyCellEquivMap *
-makeEquivCellMap(const LibertyLibrary *library)
+void
+findEquivCells(const LibertyLibrary *library)
 {
+  // Build a map from each cell in the library to a group (CellSeq) of
+  // cells with equivalent functionality.
   LibertyCellEquivMap *cell_equivs = findEquivCells1(library);
+  // Sort by drive strength.
   sortCellEquivs(cell_equivs);
-  return cell_equivs;
+  deleteEquivCellMap(cell_equivs);
 }
 
-void
+// Delete the LibertyCellEquivMap returned by makeEquivCellMap.
+static void
 deleteEquivCellMap(LibertyCellEquivMap *equiv_map)
 {
   // Multiple cells can point to the same cell sequence, so collect
@@ -147,14 +154,21 @@ sortCellEquivs(LibertyCellEquivMap *cell_equivs)
   while (equivs_iter.hasNext()) {
     LibertyCellSeq *equivs = equivs_iter.next();
     sort(equivs, CellDriveResistanceLess());
+    LibertyCell *lower = nullptr;
+    LibertyCellSeq::Iterator cell_iter(equivs);
+    while (cell_iter.hasNext()) {
+      LibertyCell *cell = cell_iter.next();
+      if (lower) {
+	lower->setHigherDrive(cell);
+	cell->setLowerDrive(lower);
+      }
+      lower = cell;
+    }
   }
 }
 
 // Use the worst "drive" for all the timing arcs in the cell.
-// Note that this function can NOT be static for sun's compiler to
-// be happy with using it in a sort predicate (presumably because the
-// template functions are compiled outside the scope of this file).
-float
+static float
 cellDriveResistance(const LibertyCell *cell)
 {
   float max_drive = 0.0;

@@ -22,14 +22,10 @@
 
 namespace sta {
 
-// Build a map from each cell in the library to a group (CellSeq) of
-// cells with equivalent functionality, sorted by drive strength.
-LibertyCellEquivMap *
-makeEquivCellMap(const LibertyLibrary *library);
-
-// Delete the LibertyCellEquivMap returned by makeEquivCellMap.
+// Find equivalent cells, sort by drive strength and
+// and set cell->higherDrive/lowerDrive.
 void
-deleteEquivCellMap(LibertyCellEquivMap *equiv_map);
+findEquivCells(const LibertyLibrary *library);
 
 // Predicate that is true when the ports, functions, sequentials and
 // timing arcs match.

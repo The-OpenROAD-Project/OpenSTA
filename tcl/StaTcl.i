@@ -2275,13 +2275,6 @@ cells_equiv_ports(LibertyCell *cell1,
   return equivCellPorts(cell1, cell2);
 }
 
-LibertyCellSeq *
-find_equiv_cells(LibertyCell *cell)
-{
-  LibertyLibrary *library = cell->libertyLibrary();
-  return library->findEquivCells(cell);
-}
-
 void
 set_cmd_namespace_cmd(const char *namespc)
 {
@@ -2652,6 +2645,7 @@ PropertyValue
 pin_property(const Pin *pin,
 	     const char *property)
 {
+  cmdLinkedNetwork();
   return getProperty(pin, property, Sta::sta());
 }
 
@@ -2659,6 +2653,7 @@ PropertyValue
 instance_property(const Instance *inst,
 		  const char *property)
 {
+  cmdLinkedNetwork();
   return getProperty(inst, property, Sta::sta());
 }
 
@@ -2666,6 +2661,7 @@ PropertyValue
 net_property(const Net *net,
 	     const char *property)
 {
+  cmdLinkedNetwork();
   return getProperty(net, property, Sta::sta());
 }
 

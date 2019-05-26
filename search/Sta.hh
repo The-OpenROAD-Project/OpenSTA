@@ -705,7 +705,7 @@ public:
 		   TimingArc *arc,
 		   const Corner *corner,
 		   const MinMaxAll *min_max,
-		   float delay);
+		   ArcDelay delay);
   // Set annotated slew on a vertex for delay calculation.
   void setAnnotatedSlew(Vertex *vertex,
 			const Corner *corner,
