@@ -24,8 +24,11 @@ namespace sta {
 
 // Find equivalent cells, sort by drive strength and
 // and set cell->higherDrive/lowerDrive.
-void
+LibertyCellEquivMap *
 findEquivCells(const LibertyLibrary *library);
+// Delete findEquivCells return value.
+void
+deleteEquivCellMap(LibertyCellEquivMap *equiv_map);
 
 // Predicate that is true when the ports, functions, sequentials and
 // timing arcs match.

@@ -578,7 +578,6 @@ void
 LibertyReader::endLibrary(LibertyGroup *group)
 {
   endLibraryAttrs(group);
-  library_->finish();
 }
 
 void

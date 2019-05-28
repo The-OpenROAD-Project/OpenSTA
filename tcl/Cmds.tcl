@@ -1907,6 +1907,14 @@ proc get_full_name { object } {
   return [get_object_property $object "full_name"]
 }
 
+proc sort_by_name { objects } {
+  return [lsort -command name_cmp $objects]
+}
+
+proc name_cmp { obj1 obj2 } {
+  return [string compare [get_name $obj1] [get_name $obj2]]
+}
+
 proc sort_by_full_name { objects } {
   return [lsort -command full_name_cmp $objects]
 }

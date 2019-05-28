@@ -2273,8 +2273,21 @@ find_cells_matching(const char *pattern,
   return cells;
 }
 
+LibertyCellSeq *
+find_library_buffers(LibertyLibrary *library)
+{
+  return library->buffers();
+}
+
+LibertyCellSeq *
+equiv_cells(LibertyCell *cell)
+{
+  LibertyLibrary *library = cell->libertyLibrary();
+  return library->findEquivCells(cell);
+}
+
 bool
-cells_equiv_ports(LibertyCell *cell1,
+equiv_cell_ports(LibertyCell *cell1,
 		  LibertyCell *cell2)
 {
   return equivCellPorts(cell1, cell2);

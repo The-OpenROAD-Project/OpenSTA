@@ -56,9 +56,6 @@ message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 set(STA_SOURCE
   app/StaMain.cc
-  app/StaApp_wrap.cc
-  app/TclInitVar.cc
-  app/StaApp_wrap.cc
   
   dcalc/ArcDelayCalc.cc
   dcalc/ArnoldiDelayCalc.cc
@@ -212,6 +209,11 @@ set(STA_SOURCE
   verilog/VerilogLex.cc
   verilog/VerilogParse.cc
   )
+
+set(STA_CMD_SOURCE
+  app/TclInitVar.cc
+  app/StaApp_wrap.cc
+)
 
 set(STA_HEADERS
   app/StaMain.hh
@@ -648,7 +650,6 @@ add_custom_command(OUTPUT ${STA_HOME}/app/TclInitVar.cc
 set(STA_INCLUDE_DIRS
   app
   dcalc
-  dcalc/verilog
   graph
   liberty
   network
@@ -663,19 +664,37 @@ set(STA_INCLUDE_DIRS
   )
 
 ###########################################################
-# Library
+# Library without TCL commands.
+# This is used to build applications that define
+# their own SWIG and TCL commands.
 ###########################################################
 
 # compatibility with configure
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${STA_HOME}/app)
 
-add_library(OpenSTA ${STA_SOURCE})
+add_library(OpenSTAnoCmds ${STA_SOURCE})
+
+target_include_directories(OpenSTAnoCmds PUBLIC ${STA_INCLUDE_DIRS})
+
+target_compile_features(OpenSTAnoCmds
+  PUBLIC cxx_auto_type
+  )
+
+target_compile_options(OpenSTAnoCmds PUBLIC ${STA_COMPILE_OPTIONS})
+
+###########################################################
+# Library
+###########################################################
+
+add_library(OpenSTA ${STA_SOURCE} ${STA_CMD_SOURCE})
 
 target_include_directories(OpenSTA PUBLIC ${STA_INCLUDE_DIRS})
 
 target_compile_features(OpenSTA
   PUBLIC cxx_auto_type
   )
+
+target_compile_options(OpenSTA PUBLIC ${STA_COMPILE_OPTIONS})
 
 ###########################################################
 # Executable
@@ -704,9 +723,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_link_libraries(sta -pthread)
 endif()
 
-target_compile_options(OpenSTA PUBLIC ${STA_COMPILE_OPTIONS})
 target_compile_options(sta PUBLIC ${STA_COMPILE_OPTIONS})
-message(STATUS "Compiler options: ${STA_COMPILE_OPTIONS}")
 
 ################################################################
 # Install

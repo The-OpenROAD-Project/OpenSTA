@@ -500,7 +500,7 @@ Power::power(const Instance *inst,
     const Pin *to_pin = pin_iter->next();
     const LibertyPort *to_port = network_->libertyPort(to_pin);
     float load_cap = to_port->direction()->isAnyOutput()
-      ? graph_delay_calc_->loadCap(to_pin, TransRiseFall::rise(), dcalc_ap)
+      ? graph_delay_calc_->loadCap(to_pin, dcalc_ap)
       : 0.0;
     PwrActivity activity = findClkedActivity(to_pin, inst_clk);
     if (to_port->direction()->isAnyOutput())

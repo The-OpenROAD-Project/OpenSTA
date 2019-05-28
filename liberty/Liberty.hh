@@ -118,6 +118,10 @@ public:
   LibertyCell *findLibertyCell(const char *name) const;
   void findLibertyCellsMatching(PatternMatch *pattern,
 				LibertyCellSeq *cells);
+  LibertyCellSeq *findEquivCells(LibertyCell *cell);
+  // Liberty cells that are buffers.
+  LibertyCellSeq *buffers();
+
   DelayModelType delayModelType() const { return delay_model_type_; }
   void setDelayModelType(DelayModelType type);
   void addBusDcl(BusDcl *bus_dcl);
@@ -262,6 +266,7 @@ public:
   // Make scaled cell.  Call LibertyCell::addScaledCell after it is complete.
   LibertyCell *makeScaledCell(const char *name,
 			      const char *filename);
+
   static void
   makeCornerMap(LibertyLibrary *lib,
 		int ap_index,
@@ -278,7 +283,6 @@ public:
 		bool link,
 		int ap_index,
 		Report *report);
-  void finish();
 
 protected:
   float degradeWireSlew(const LibertyCell *cell,
@@ -286,6 +290,7 @@ protected:
 			const TableModel *model,
 			float in_slew,
 			float wire_delay) const;
+  void ensureEquivCells();
 
   Units *units_;
   DelayModelType delay_model_type_;
@@ -326,6 +331,8 @@ protected:
   OcvDerate *default_ocv_derate_;
   OcvDerateMap ocv_derate_map_;
   SupplyVoltageMap supply_voltage_map_;
+  LibertyCellEquivMap *equiv_cell_map_;
+  LibertyCellSeq *buffers_;
 
   // Set if any library has rise/fall capacitances.
   static bool found_rise_fall_caps_;
@@ -337,6 +344,7 @@ protected:
 private:
   DISALLOW_COPY_AND_ASSIGN(LibertyLibrary);
 
+  friend class LibertyCell;
   friend class LibertyCellIterator;
   friend class TableTemplateIterator;
   friend class OperatingConditionsIterator;
@@ -448,8 +456,8 @@ public:
   OcvDerate *findOcvDerate(const char *derate_name);
 
   // Next higher/lower drive equivalent cells.
-  LibertyCell *higherDrive() const { return higher_drive_; }
-  LibertyCell *lowerDrive() const { return lower_drive_; }
+  LibertyCell *higherDrive() const;
+  LibertyCell *lowerDrive() const;
 
   // Build helpers.
   void makeSequential(int size,
@@ -488,9 +496,10 @@ public:
   void setHigherDrive(LibertyCell *cell);
   void setLowerDrive(LibertyCell *cell);
   bool isBuffer() const;
-  bool isBuffer(// Return values.
-		LibertyPort *&input,
-		LibertyPort *&output) const;
+  // Only valid when isBuffer() returns true.
+  void bufferPorts(// Return values.
+		   LibertyPort *&input,
+		   LibertyPort *&output);
 
 protected:
   virtual void addPort(ConcretePort *port);

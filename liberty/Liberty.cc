@@ -83,12 +83,15 @@ LibertyLibrary::LibertyLibrary(const char *name,
   default_wire_load_selection_(nullptr),
   default_operating_conditions_(nullptr),
   ocv_arc_depth_(0.0),
-  default_ocv_derate_(nullptr)
+  default_ocv_derate_(nullptr),
+  equiv_cell_map_(nullptr),
+  buffers_(nullptr)
 {
   // Scalar templates are builtin.
   for (int i = 0; i != int(TableTemplateType::count); i++) {
     TableTemplateType type = static_cast<TableTemplateType>(i);
-    TableTemplate *scalar_template = new TableTemplate("scalar", nullptr, nullptr, nullptr);
+    TableTemplate *scalar_template = new TableTemplate("scalar", nullptr,
+						       nullptr, nullptr);
     addTableTemplate(scalar_template, type);
   }
 
@@ -129,6 +132,8 @@ LibertyLibrary::~LibertyLibrary()
     const char *supply_name = name_volt.first;
     stringDelete(supply_name);
   }
+  deleteEquivCellMap(equiv_cell_map_);
+  delete buffers_;
 }
 
 LibertyCell *
@@ -147,6 +152,22 @@ LibertyLibrary::findLibertyCellsMatching(PatternMatch *pattern,
     if (pattern->match(cell->name()))
       cells->push_back(cell);
   }
+}
+
+LibertyCellSeq *
+LibertyLibrary::buffers()
+{
+  if (buffers_ == nullptr) {
+    buffers_ = new LibertyCellSeq;
+    LibertyCellIterator cell_iter(this);
+    while (cell_iter.hasNext()) {
+      LibertyCell *cell = cell_iter.next();
+      if (!cell->dontUse()
+	  && cell->isBuffer())
+	buffers_->push_back(cell);
+    }
+  }
+  return buffers_;
 }
 
 void
@@ -737,9 +758,17 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
 }
 
 void
-LibertyLibrary::finish()
+LibertyLibrary::ensureEquivCells()
 {
-  findEquivCells(this);
+  if (equiv_cell_map_ == nullptr)
+    equiv_cell_map_ = sta::findEquivCells(this);
+}
+
+LibertyCellSeq *
+LibertyLibrary::findEquivCells(LibertyCell *cell)
+{
+  ensureEquivCells();
+  return equiv_cell_map_->findKey(cell);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1023,32 +1052,15 @@ LibertyCell::setClockGateType(ClockGateType type)
 bool
 LibertyCell::isBuffer() const
 {
-  LibertyPort *input, *output;
-  return isBuffer(input, output);
-}
-
-bool
-LibertyCell::isBuffer(// Return values.
-		      LibertyPort *&input,
-		      LibertyPort *&output) const
-{
   if (ports_.size() == 2) {
     LibertyPort *port1 = static_cast<LibertyPort*>(ports_[0]);
     LibertyPort *port2 = static_cast<LibertyPort*>(ports_[1]);
-    if (port1->direction()->isInput()
-	&& port2->direction()->isOutput()
-	&& hasBufferFunc(port1, port2)) {
-      input = port1;
-      output = port2;
-      return true;
-    }
-    else if (port2->direction()->isInput()
-	     && port1->direction()->isOutput()
-	     && hasBufferFunc(port2, port1)) {
-      input = port2;
-      output = port1;
-      return true;
-    }
+    return (port1->direction()->isInput()
+	    && port2->direction()->isOutput()
+	    && hasBufferFunc(port1, port2))
+      || (port2->direction()->isInput()
+	  && port1->direction()->isOutput()
+	  && hasBufferFunc(port2, port1));
   }
   return false;
 }
@@ -1061,6 +1073,24 @@ LibertyCell::hasBufferFunc(const LibertyPort *input,
   return func
     && func->op() == FuncExpr::op_port
     && func->port() == input;
+}
+
+void
+LibertyCell::bufferPorts(// Return values.
+			 LibertyPort *&input,
+			 LibertyPort *&output)
+{
+    LibertyPort *port1 = static_cast<LibertyPort*>(ports_[0]);
+    LibertyPort *port2 = static_cast<LibertyPort*>(ports_[1]);
+    if (port1->direction()->isInput()
+	&& port2->direction()->isOutput()) {
+      input = port1;
+      output = port2;
+    }
+    else {
+      input = port2;
+      output = port1;
+    }
 }
 
 unsigned
@@ -1426,6 +1456,20 @@ LibertyCell::setCornerCell(LibertyCell *corner_cell,
 }
 
 ////////////////////////////////////////////////////////////////
+
+LibertyCell *
+LibertyCell::higherDrive() const
+{
+  liberty_library_->ensureEquivCells();
+  return higher_drive_; 
+}
+
+LibertyCell *
+LibertyCell::lowerDrive() const
+{
+  liberty_library_->ensureEquivCells();
+  return lower_drive_; 
+}
 
 void
 LibertyCell::setHigherDrive(LibertyCell *cell)

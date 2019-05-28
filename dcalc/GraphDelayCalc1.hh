@@ -55,6 +55,8 @@ public:
   virtual float loadCap(const Pin *drvr_pin,
 			const TransRiseFall *drvr_tr,
 			const DcalcAnalysisPt *dcalc_ap) const;
+  virtual float loadCap(const Pin *drvr_pin,
+			const DcalcAnalysisPt *dcalc_ap) const;
   virtual void loadCap(const Pin *drvr_pin,
 		       Parasitic *drvr_parasitic,
 		       const TransRiseFall *tr,

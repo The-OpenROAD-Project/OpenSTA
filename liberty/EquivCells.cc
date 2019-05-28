@@ -35,8 +35,6 @@ typedef Set<LibertyCellSeq*> LibertyCellSeqSet;
 static LibertyCellEquivMap *
 findEquivCells1(const LibertyLibrary *library);
 static void
-deleteEquivCellMap(LibertyCellEquivMap *equiv_map);
-static void
 sortCellEquivs(LibertyCellEquivMap *cell_equivs);
 static float
 cellDriveResistance(const LibertyCell *cell);
@@ -58,7 +56,7 @@ static bool
 equivCellSequentials(const LibertyCell *cell1,
 		     const LibertyCell *cell2);
 
-void
+LibertyCellEquivMap *
 findEquivCells(const LibertyLibrary *library)
 {
   // Build a map from each cell in the library to a group (CellSeq) of
@@ -66,11 +64,11 @@ findEquivCells(const LibertyLibrary *library)
   LibertyCellEquivMap *cell_equivs = findEquivCells1(library);
   // Sort by drive strength.
   sortCellEquivs(cell_equivs);
-  deleteEquivCellMap(cell_equivs);
+  return cell_equivs;
 }
 
 // Delete the LibertyCellEquivMap returned by makeEquivCellMap.
-static void
+void
 deleteEquivCellMap(LibertyCellEquivMap *equiv_map)
 {
   // Multiple cells can point to the same cell sequence, so collect
@@ -129,12 +127,7 @@ findEquivCells1(const LibertyLibrary *library)
     }
   }
 
-  LibertyCellHashMap::Iterator hash_iter(cell_hash);
-  while (hash_iter.hasNext()) {
-    LibertyCellSeq *cells = hash_iter.next();
-    delete cells;
-  }
-
+  cell_hash.deleteContents();
   return cell_equivs;
 }
 

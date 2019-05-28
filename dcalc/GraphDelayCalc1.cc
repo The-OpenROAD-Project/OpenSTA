@@ -1041,6 +1041,24 @@ GraphDelayCalc1::findDriverEdgeDelays(LibertyCell *drvr_cell,
 
 float
 GraphDelayCalc1::loadCap(const Pin *drvr_pin,
+			 const DcalcAnalysisPt *dcalc_ap) const
+{
+  const MinMax *min_max = dcalc_ap->constraintMinMax();
+  float load_cap = 0.0;
+  TransRiseFallIterator drvr_tr_iter;
+  while (drvr_tr_iter.hasNext()) {
+    TransRiseFall *drvr_tr = drvr_tr_iter.next();
+    Parasitic *drvr_parasitic = arc_delay_calc_->findParasitic(drvr_pin, drvr_tr,
+							       dcalc_ap);
+    float cap = loadCap(drvr_pin, nullptr, drvr_parasitic, drvr_tr, dcalc_ap);
+    if (min_max->compare(cap, load_cap))
+      load_cap = cap;
+  }
+  return load_cap;
+}
+
+float
+GraphDelayCalc1::loadCap(const Pin *drvr_pin,
 			 const TransRiseFall *drvr_tr,
 			 const DcalcAnalysisPt *dcalc_ap) const
 {

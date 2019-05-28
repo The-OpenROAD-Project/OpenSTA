@@ -87,6 +87,13 @@ GraphDelayCalc::loadCap(const Pin *,
   return 0.0F;
 }
 
+float
+GraphDelayCalc::loadCap(const Pin *,
+			const DcalcAnalysisPt *) const
+{
+  return 0.0F;
+}
+
 void
 GraphDelayCalc::netCaps(const Pin *,
 			const TransRiseFall *,

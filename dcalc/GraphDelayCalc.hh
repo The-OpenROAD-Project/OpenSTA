@@ -79,9 +79,12 @@ public:
 		       // Return values.
 		       float &pin_cap,
 		       float &wire_cap) const;
-  // Load pin_cap + wire_cap.
+  // Load pin_cap + wire_cap including parasitic.
   virtual float loadCap(const Pin *drvr_pin,
 			const TransRiseFall *to_tr,
+			const DcalcAnalysisPt *dcalc_ap) const;
+  // Load pin_cap + wire_cap including parasitic min/max for rise/fall.
+  virtual float loadCap(const Pin *drvr_pin,
 			const DcalcAnalysisPt *dcalc_ap) const;
   // Load pin_cap + wire_cap.
   virtual float loadCap(const Pin *drvr_pin,

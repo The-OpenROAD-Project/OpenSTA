@@ -956,7 +956,7 @@ proc_redirect report_clock_properties {
 define_sta_cmd_args "report_object_full_names" {[-verbose] objects}
 
 proc report_object_full_names { args } {
-  parse_key_args "report_object_names" args keys {} flags {-verbose}
+  parse_key_args "report_object_full_names" args keys {} flags {-verbose}
 
   set objects [lindex $args 0]
   if { [info exists flags(-verbose)] } {
@@ -986,7 +986,7 @@ proc report_object_names { args } {
   if { [info exists flags(-verbose)] } {
     puts -nonewline "{"
     set first 1
-    foreach obj [sort_by_full_name $objects] {
+    foreach obj [sort_by_name $objects] {
       if { !$first } {
 	puts -nonewline ", "
       }
@@ -995,7 +995,7 @@ proc report_object_names { args } {
     }
     puts "}"
   } else {
-    foreach obj [sort_by_full_name $objects] {
+    foreach obj [sort_by_name $objects] {
       puts [get_name $obj]
     }
   }

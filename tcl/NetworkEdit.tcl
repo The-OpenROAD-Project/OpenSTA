@@ -225,8 +225,8 @@ proc replace_cell { instances lib_cell } {
     set insts [get_instances_error "instances" $instances]
     foreach inst $insts {
       set inst_cell [$inst liberty_cell]
-      if { $inst_cell != "NULL" \
-	     && ![cells_equiv_ports $inst_cell $cell] } {
+      if { $inst_cell == "NULL" \
+	     || ![equiv_cell_ports $inst_cell $cell] } {
 	return 0
       }
     }
