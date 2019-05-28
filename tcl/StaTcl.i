@@ -2282,8 +2282,7 @@ find_library_buffers(LibertyLibrary *library)
 LibertyCellSeq *
 equiv_cells(LibertyCell *cell)
 {
-  LibertyLibrary *library = cell->libertyLibrary();
-  return library->findEquivCells(cell);
+  return cell->equivCells();
 }
 
 bool

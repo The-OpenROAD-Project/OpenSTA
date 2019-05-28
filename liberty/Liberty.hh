@@ -118,7 +118,6 @@ public:
   LibertyCell *findLibertyCell(const char *name) const;
   void findLibertyCellsMatching(PatternMatch *pattern,
 				LibertyCellSeq *cells);
-  LibertyCellSeq *findEquivCells(LibertyCell *cell);
   // Liberty cells that are buffers.
   LibertyCellSeq *buffers();
 
@@ -331,7 +330,7 @@ protected:
   OcvDerate *default_ocv_derate_;
   OcvDerateMap ocv_derate_map_;
   SupplyVoltageMap supply_voltage_map_;
-  LibertyCellEquivMap *equiv_cell_map_;
+  bool found_equiv_cells_;
   LibertyCellSeq *buffers_;
 
   // Set if any library has rise/fall capacitances.
@@ -493,6 +492,10 @@ public:
   virtual void finish(bool infer_latches,
 		      Report *report,
 		      Debug *debug);
+  LibertyCellSeq *equivCells();
+  // Internal.
+  LibertyCellSeq *equivCellsRaw() { return equiv_cells_; }
+  void setEquivCells(LibertyCellSeq *equiv_cells);
   void setHigherDrive(LibertyCell *cell);
   void setLowerDrive(LibertyCell *cell);
   bool isBuffer() const;
@@ -565,6 +568,7 @@ protected:
   float leakage_power_;
   bool leakage_power_exists_;
   LibertyPgPortMap pg_port_map_;
+  LibertyCellSeq *equiv_cells_;
   // Next higher/lower drive equivalent cells.
   LibertyCell *higher_drive_;
   LibertyCell *lower_drive_;

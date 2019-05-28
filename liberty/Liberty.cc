@@ -84,7 +84,7 @@ LibertyLibrary::LibertyLibrary(const char *name,
   default_operating_conditions_(nullptr),
   ocv_arc_depth_(0.0),
   default_ocv_derate_(nullptr),
-  equiv_cell_map_(nullptr),
+  found_equiv_cells_(false),
   buffers_(nullptr)
 {
   // Scalar templates are builtin.
@@ -132,7 +132,6 @@ LibertyLibrary::~LibertyLibrary()
     const char *supply_name = name_volt.first;
     stringDelete(supply_name);
   }
-  deleteEquivCellMap(equiv_cell_map_);
   delete buffers_;
 }
 
@@ -151,6 +150,15 @@ LibertyLibrary::findLibertyCellsMatching(PatternMatch *pattern,
     LibertyCell *cell = cell_iter.next();
     if (pattern->match(cell->name()))
       cells->push_back(cell);
+  }
+}
+
+void
+LibertyLibrary::ensureEquivCells()
+{
+  if (!found_equiv_cells_) {
+    findEquivCells(this);
+    found_equiv_cells_ = true;
   }
 }
 
@@ -757,20 +765,6 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
   }
 }
 
-void
-LibertyLibrary::ensureEquivCells()
-{
-  if (equiv_cell_map_ == nullptr)
-    equiv_cell_map_ = sta::findEquivCells(this);
-}
-
-LibertyCellSeq *
-LibertyLibrary::findEquivCells(LibertyCell *cell)
-{
-  ensureEquivCells();
-  return equiv_cell_map_->findKey(cell);
-}
-
 ////////////////////////////////////////////////////////////////
 
 float
@@ -873,6 +867,7 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   is_disabled_constraint_(false),
   leakage_power_(0.0),
   leakage_power_exists_(false),
+  equiv_cells_(nullptr),
   higher_drive_(nullptr),
   lower_drive_(nullptr)
 {
@@ -888,6 +883,14 @@ LibertyCell::~LibertyCell()
   port_timing_arc_set_map_.deleteContents();
   timing_arc_set_from_map_.deleteContents();
   timing_arc_set_to_map_.deleteContents();
+
+  if (equiv_cells_) {
+    // equiv_cells_ is shared by all of the equivalent cells, so
+    // delete it once for all of them and null them.
+    for (auto equiv : *equiv_cells_)
+      equiv->setEquivCells(nullptr);
+    delete equiv_cells_;
+  }
 
   deleteInternalPowerAttrs();
   internal_powers_.deleteContents();
@@ -1456,6 +1459,20 @@ LibertyCell::setCornerCell(LibertyCell *corner_cell,
 }
 
 ////////////////////////////////////////////////////////////////
+
+LibertyCellSeq *
+LibertyCell::equivCells()
+{
+  if (equiv_cells_ == nullptr)
+    liberty_library_->ensureEquivCells();
+  return equiv_cells_;
+}
+
+void
+LibertyCell::setEquivCells(LibertyCellSeq *equiv_cells)
+{
+  equiv_cells_ = equiv_cells;
+}
 
 LibertyCell *
 LibertyCell::higherDrive() const

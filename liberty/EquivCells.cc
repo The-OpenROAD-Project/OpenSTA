@@ -30,12 +30,13 @@
 namespace sta {
 
 typedef UnorderedMap<unsigned, LibertyCellSeq*> LibertyCellHashMap;
-typedef Set<LibertyCellSeq*> LibertyCellSeqSet;
+typedef Set<LibertyCell*> LibertyCellSet;
 
-static LibertyCellEquivMap *
-findEquivCells1(const LibertyLibrary *library);
 static void
-sortCellEquivs(LibertyCellEquivMap *cell_equivs);
+findEquivCells1(const LibertyLibrary *library,
+		LibertyCellSet &cell_equivs);
+static void
+sortCellEquivs(LibertyCellSet &cell_equivs);
 static float
 cellDriveResistance(const LibertyCell *cell);
 
@@ -56,47 +57,24 @@ static bool
 equivCellSequentials(const LibertyCell *cell1,
 		     const LibertyCell *cell2);
 
-LibertyCellEquivMap *
+void
 findEquivCells(const LibertyLibrary *library)
 {
-  // Build a map from each cell in the library to a group (CellSeq) of
-  // cells with equivalent functionality.
-  LibertyCellEquivMap *cell_equivs = findEquivCells1(library);
+  LibertyCellSet cell_equivs;
+  findEquivCells1(library, cell_equivs);
   // Sort by drive strength.
   sortCellEquivs(cell_equivs);
-  return cell_equivs;
 }
 
-// Delete the LibertyCellEquivMap returned by makeEquivCellMap.
-void
-deleteEquivCellMap(LibertyCellEquivMap *equiv_map)
-{
-  // Multiple cells can point to the same cell sequence, so collect
-  // them into a set so the are only deleted once.
-  LibertyCellSeqSet cells_seqs;
-  LibertyCellEquivMap::Iterator equiv_iter(equiv_map);
-  while (equiv_iter.hasNext()) {
-    LibertyCellSeq *cells = equiv_iter.next();
-    cells_seqs.insert(cells);
-  }
-  LibertyCellSeqSet::Iterator cells_iter(cells_seqs);
-  while (cells_iter.hasNext()) {
-    LibertyCellSeq *cells = cells_iter.next();
-    delete cells;
-  }
-  delete equiv_map;
-}
-
-static LibertyCellEquivMap *
-findEquivCells1(const LibertyLibrary *library)
+static void
+findEquivCells1(const LibertyLibrary *library,
+		LibertyCellSet &cell_equivs)
 {
   LibertyCellHashMap cell_hash;
-  LibertyCellEquivMap *cell_equivs = new LibertyCellEquivMap;
   LibertyCellIterator cell_iter(library);
   while (cell_iter.hasNext()) {
     LibertyCell *cell = cell_iter.next();
     if (!cell->dontUse()) {
-      bool found_equiv = false;
       unsigned hash = hashCell(cell);
       // Use a comprehensive hash on cell properties to segregate
       // cells into groups of potential matches.
@@ -106,10 +84,15 @@ findEquivCells1(const LibertyLibrary *library)
 	while (match_iter.hasNext()) {
 	  LibertyCell *match = match_iter.next();
 	  if (equivCells(match, cell)) {
-	    LibertyCellSeq *equivs = cell_equivs->findKey(match);
+	    LibertyCellSeq *equivs = match->equivCellsRaw();
+	    if (equivs == nullptr) {
+	      equivs = new LibertyCellSeq;
+	      equivs->push_back(match);
+	      match->setEquivCells(equivs);
+	      cell_equivs.insert(match);
+	    }
 	    equivs->push_back(cell);
-	    (*cell_equivs)[cell] = equivs;
-	    found_equiv = true;
+	    cell->setEquivCells(equivs);
 	    break;
 	  }
 	}
@@ -119,16 +102,9 @@ findEquivCells1(const LibertyLibrary *library)
 	cell_hash[hash] = matches;
       }
       matches->push_back(cell);
-      if (!found_equiv) {
-	LibertyCellSeq *equivs = new LibertyCellSeq;
-	equivs->push_back(cell);
-	(*cell_equivs)[cell] = equivs;
-      }
     }
   }
-
   cell_hash.deleteContents();
-  return cell_equivs;
 }
 
 struct CellDriveResistanceLess
@@ -141,11 +117,10 @@ struct CellDriveResistanceLess
 };
 
 static void
-sortCellEquivs(LibertyCellEquivMap *cell_equivs)
+sortCellEquivs(LibertyCellSet &cell_equivs)
 {
-  LibertyCellEquivMap::Iterator equivs_iter(cell_equivs);
-  while (equivs_iter.hasNext()) {
-    LibertyCellSeq *equivs = equivs_iter.next();
+  for (auto equiv : cell_equivs) {
+    LibertyCellSeq *equivs = equiv->equivCells();
     sort(equivs, CellDriveResistanceLess());
     LibertyCell *lower = nullptr;
     LibertyCellSeq::Iterator cell_iter(equivs);
