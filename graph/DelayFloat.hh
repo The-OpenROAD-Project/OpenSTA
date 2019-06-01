@@ -59,7 +59,7 @@ delayAsFloat(const Delay &delay)
 float
 delayAsFloat(const Delay &delay,
 	     const EarlyLate *early_late,
-	     float sigma_factor);
+	     const StaState *sta);
 float
 delaySigma2(const Delay &delay,
 	    const EarlyLate *early_late);

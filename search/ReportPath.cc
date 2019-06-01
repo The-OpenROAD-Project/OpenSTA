@@ -2619,8 +2619,8 @@ ReportPath::reportPath5(const Path *path,
 	  // from the input to the loads.  Report the wire delay on the
 	  // input pin instead.
 	  Arrival next_time = next_path->arrival(this) + time_offset;
-	  incr = delayAsFloat(next_time, min_max, sigma_factor_)
-	    - delayAsFloat(time, min_max, sigma_factor_);
+	  incr = delayAsFloat(next_time, min_max, this)
+	    - delayAsFloat(time, min_max, this);
 	  time = next_time;
 	  line_case = "input_drive";
 	}
@@ -2667,13 +2667,13 @@ ReportPath::reportPath5(const Path *path,
 	line_case = "clk_ideal";
       }
       else if (is_clk && !is_clk_start) {
-	incr = delayAsFloat(time, min_max, sigma_factor_)
-	  - delayAsFloat(prev_time, min_max, sigma_factor_);
+	incr = delayAsFloat(time, min_max, this)
+	  - delayAsFloat(prev_time, min_max, this);
 	line_case = "clk_prop";
       }
       else {
-	incr = delayAsFloat(time, min_max, sigma_factor_)
-	  - delayAsFloat(prev_time, min_max, sigma_factor_);
+	incr = delayAsFloat(time, min_max, this)
+	  - delayAsFloat(prev_time, min_max, this);
 	line_case = "normal";
       }
       if (report_input_pin_
@@ -3161,7 +3161,7 @@ ReportPath::reportFieldDelayMinus(Delay value,
   if (delayAsFloat(value) == field_blank_)
     reportFieldBlank(field, result);
   else {
-    float mean_sigma = delayAsFloat(value, early_late, sigma_factor_);
+    float mean_sigma = delayAsFloat(value, early_late, this);
     const char *str = units_->timeUnit()->asString(-mean_sigma, digits_);
     if (stringEq(str, plus_zero_))
       // Force leading minus sign.

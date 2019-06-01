@@ -377,7 +377,7 @@ operator*(const Delay &delay1,
 	  float delay2)
 {
   return Delay(delay1.mean() * delay2,
-	       delay1.sigma2()Early * delay2,
+	       delay1.sigma2Early() * delay2,
 	       delay1.sigma2Late() * delay2);
 }
 
@@ -391,14 +391,18 @@ delayRatio(const Delay &delay1,
 float
 delayAsFloat(const Delay &delay,
 	     const EarlyLate *early_late,
-	     float sigma_factor)
+	     const StaState *sta)
 {
-  if (early_late == EarlyLate::early())
-    return delay.mean() - delay.sigma(early_late) * sigma_factor;
-  else if (early_late == EarlyLate::late())
-    return delay.mean() + delay.sigma(early_late) * sigma_factor;
+  if (sta->pocvEnabled()) {
+    if (early_late == EarlyLate::early())
+      return delay.mean() - delay.sigma(early_late) * sta->sigmaFactor();
+    else if (early_late == EarlyLate::late())
+      return delay.mean() + delay.sigma(early_late) * sta->sigmaFactor();
+    else
+      internalError("unknown early/late value.");
+  }
   else
-    internalError("unknown early/late value.");
+    return delay.mean();
 }
 
 float
@@ -444,7 +448,7 @@ delayAsString(const Delay &delay,
 	      const StaState *sta,
 	      int digits)
 {
-  float mean_sigma = delayAsFloat(delay, early_late, sta->sigmaFactor());
+  float mean_sigma = delayAsFloat(delay, early_late, sta);
   return sta->units()->timeUnit()->asString(mean_sigma, digits);
 }
 

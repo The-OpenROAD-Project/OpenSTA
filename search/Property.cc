@@ -755,7 +755,9 @@ getProperty(const Net *net,
 	    Sta *sta)
 {
   auto network = sta->cmdNetwork();
-  if (stringEqual(property, "full_name"))
+  if (stringEqual(property, "name"))
+    return PropertyValue(network->name(net));
+  else if (stringEqual(property, "full_name"))
     return PropertyValue(network->pathName(net));
   else
     throw PropertyUnknown("net", property);

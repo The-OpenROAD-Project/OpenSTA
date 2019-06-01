@@ -127,7 +127,7 @@ delayAsString(const Delay &delay,
 float
 delayAsFloat(const Delay &delay,
 	     const EarlyLate *,
-	     float )
+	     const StaState *)
 {
   return delay;
 }

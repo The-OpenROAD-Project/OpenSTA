@@ -36,7 +36,8 @@ extern const char *tcl_inits[];
 }
 
 int
-main(int argc, char **argv)
+main(int argc,
+     char **argv)
 {
   if (argc == 2 && stringEq(argv[1], "-help")) {
     showUseage(argv[0]);

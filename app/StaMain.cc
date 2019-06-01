@@ -216,6 +216,7 @@ showUseage(char *prog)
   printf("  -x cmd             evaluate cmd\n");
   printf("  -f cmd_file        source cmd_file\n");
   printf("  -threads count|max use count threads\n");
+  printf("  -no_splash         do not show the license splash at startup\n");
 }
 
 } // namespace
