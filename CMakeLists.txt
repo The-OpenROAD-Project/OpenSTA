@@ -686,13 +686,15 @@ target_compile_options(OpenSTAnoCmds PUBLIC ${STA_COMPILE_OPTIONS})
 # Library
 ###########################################################
 
-add_library(OpenSTA ${STA_SOURCE} ${STA_CMD_SOURCE})
+add_library(OpenSTA ${STA_CMD_SOURCE})
 
 target_include_directories(OpenSTA PUBLIC ${STA_INCLUDE_DIRS})
 
 target_compile_features(OpenSTA
   PUBLIC cxx_auto_type
   )
+
+target_link_libraries(OpenSTA OpenSTAnoCmds)
 
 target_compile_options(OpenSTA PUBLIC ${STA_COMPILE_OPTIONS})
 
@@ -733,7 +735,7 @@ target_compile_options(sta PUBLIC ${STA_COMPILE_OPTIONS})
 install(TARGETS sta DESTINATION bin)
 
 # library
-install(TARGETS OpenSTA DESTINATION lib)
+install(TARGETS OpenSTAnoCmds OpenSTA DESTINATION lib)
 
 # include
 install(FILES ${STA_HEADERS} DESTINATION include)
