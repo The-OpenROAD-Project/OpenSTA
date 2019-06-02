@@ -107,7 +107,8 @@ public:
   virtual void deleteParasiticNetwork(const Net *net,
 				      const ParasiticAnalysisPt *ap);
   virtual bool includesPinCaps(Parasitic *parasitic) const;
-  virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic, Net *net,
+  virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
+					     const Net *net,
 					     int id);
   virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
 					     const Pin *pin);

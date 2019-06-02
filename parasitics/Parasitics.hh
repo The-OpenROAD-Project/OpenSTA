@@ -161,7 +161,7 @@ public:
   // Parasitic network component builders.
   // Make a subnode of the parasitic network net.
   virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
-					     Net *net,
+					     const Net *net,
 					     int id) = 0;
   // Make a subnode of the parasitic network net connected to pin.
   virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic,

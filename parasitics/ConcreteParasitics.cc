@@ -494,7 +494,7 @@ ConcreteParasiticNode::addDevice(ConcreteParasiticDevice *device)
 
 ////////////////////////////////////////////////////////////////
 
-ConcreteParasiticSubNode::ConcreteParasiticSubNode(Net *net,
+ConcreteParasiticSubNode::ConcreteParasiticSubNode(const Net *net,
 						   int id) :
   ConcreteParasiticNode(),
   net_(net),
@@ -778,7 +778,7 @@ ConcreteParasiticNetwork::capacitance() const
 }
 
 ConcreteParasiticNode *
-ConcreteParasiticNetwork::ensureParasiticNode(Net *net,
+ConcreteParasiticNetwork::ensureParasiticNode(const Net *net,
 					      int id)
 {
   NetId net_id(net, id);
@@ -833,8 +833,8 @@ bool
 NetIdLess::operator()(const NetId *net_id1,
 		      const NetId *net_id2) const
 {
-  Net *net1 = net_id1->first;
-  Net *net2 = net_id2->first;
+  const Net *net1 = net_id1->first;
+  const Net *net2 = net_id2->first;
   int id1 = net_id1->second;
   int id2 = net_id2->second;
   return net1 < net2
@@ -1347,7 +1347,7 @@ ConcreteParasitics::includesPinCaps(Parasitic *parasitic) const
 
 ParasiticNode *
 ConcreteParasitics::ensureParasiticNode(Parasitic *parasitic,
-					Net *net,
+					const Net *net,
 					int id)
 {
   ConcreteParasiticNetwork *cparasitic =

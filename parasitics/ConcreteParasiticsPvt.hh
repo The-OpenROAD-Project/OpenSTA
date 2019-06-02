@@ -30,7 +30,7 @@ class ConcreteParasiticNode;
 typedef Map<const Pin*, float> ConcreteElmoreLoadMap;
 typedef ConcreteElmoreLoadMap::Iterator ConcretePiElmoreLoadIterator;
 typedef Map<const Pin*, ConcretePoleResidue*> ConcretePoleResidueMap;
-typedef std::pair<Net*, int> NetId;
+typedef std::pair<const Net*, int> NetId;
 struct NetIdLess
 {
   bool operator()(const NetId *net_id1,
@@ -253,12 +253,12 @@ protected:
 class ConcreteParasiticSubNode : public ConcreteParasiticNode
 {
 public:
-  ConcreteParasiticSubNode(Net *net,
+  ConcreteParasiticSubNode(const Net *net,
 			   int id);
   virtual const char *name(const Network *network) const;
 
 private:
-  Net *net_;
+  const Net *net_;
   int id_;
 };
 
@@ -420,14 +420,15 @@ public:
   virtual ~ConcreteParasiticNetwork();
   virtual bool isParasiticNetwork() const { return true; }
   bool includesPinCaps() const { return includes_pin_caps_; }
-  ConcreteParasiticNode *ensureParasiticNode(Net *net,
+  ConcreteParasiticNode *ensureParasiticNode(const Net *net,
 					     int id);
   ConcreteParasiticNode *findNode(const Pin *pin);
   ConcreteParasiticNode *ensureParasiticNode(const Pin *pin);
   virtual float capacitance() const;
   ConcreteParasiticPinNodeMap *pinNodes() { return &pin_nodes_; }
   ConcreteParasiticSubNodeMap *subNodes() { return &sub_nodes_; }
-  void disconnectPin(const Pin *pin, Net *net);
+  void disconnectPin(const Pin *pin,
+		     Net *net);
   virtual ParasiticDeviceIterator *deviceIterator();
   virtual ParasiticNodeIterator *nodeIterator();
   virtual void devices(// Return value.

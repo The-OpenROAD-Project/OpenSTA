@@ -99,7 +99,8 @@ public:
   virtual void deleteParasiticNetwork(const Net *net,
 				      const ParasiticAnalysisPt *ap);
   virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
-					     Net *net, int id);
+					     const Net *net,
+					     int id);
   virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
 					     const Pin *pin);
   virtual void incrCap(ParasiticNode *node, float cap,
