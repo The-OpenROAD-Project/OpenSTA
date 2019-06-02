@@ -202,37 +202,34 @@ proc make_instance { inst_path lib_cell } {
 
 ################################################################
 
-proc make_net { net_name } {
+proc make_net { net_path } {
   # Copy backslashes that will be removed by foreach.
-  set net_name [string map {\\ \\\\} $net_name]
+  set net_path [string map {\\ \\\\} $net_path]
   set path_regexp [path_regexp]
-  if {[regexp $path_regexp $net_name ignore path_name net_name]} {
+  if {[regexp $path_regexp $net_path ignore path_name net_name]} {
     set parent [find_instance $path_name]
     if { $parent == "NULL" } {
       return 0
     }
   } else {
     set parent [top_instance]
+    set net_name $net_path
   }
   return [make_net_cmd $net_name $parent]
 }
 
 ################################################################
 
-proc replace_cell { instances lib_cell } {
+proc replace_cell { instance lib_cell } {
   set cell [get_lib_cell_warn "lib_cell" $lib_cell]
   if { $cell != "NULL" } {
-    set insts [get_instances_error "instances" $instances]
-    foreach inst $insts {
-      set inst_cell [$inst liberty_cell]
-      if { $inst_cell == "NULL" \
-	     || ![equiv_cell_ports $inst_cell $cell] } {
-	return 0
-      }
+    set inst [get_instance_error "instance" $instance]
+    set inst_cell [$inst liberty_cell]
+    if { $inst_cell == "NULL" \
+	   || ![equiv_cell_ports $inst_cell $cell] } {
+      return 0
     }
-    foreach inst $insts {
-      replace_cell_cmd $inst $cell
-    }
+    replace_cell_cmd $inst $cell
     return 1
   } else {
     return 0

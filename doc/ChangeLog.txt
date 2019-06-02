@@ -82,17 +82,30 @@ supports the SPF format.
 
 ....
 
+The make_instance command now takes a single instance name argument
+and returns the instance.
+
+  make_instance instance_name
+
 The make_net command now takes a single net name argument and returns
 the net.
+
+  make_net net_name
 
 The delete_instance command deletes a single instance instead of a list
 of instances.
 
+  delete_instance instance
+
 The delete_net command deletes a single net instead of a list
 of nets.
 
+  delete_net net
+
 The disconnect_pins command is renamed disconnect_pin and disconnects a
 single pin.
+
+  disconnect_pin net pin
 
 Release 1.11.0 2017/08/18
 -------------------------
