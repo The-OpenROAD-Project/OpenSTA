@@ -1472,7 +1472,7 @@ proc get_instance_error { arg_name arg } {
   } elseif { [is_object $arg] } {
     set object_type [object_type $arg]
     if { $object_type == "Instance" } {
-      lappend insts $arg
+      set inst $arg
     } else {
       sta_error "$arg_name type '$object_type' is not an instance."
     }
