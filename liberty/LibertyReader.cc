@@ -438,6 +438,12 @@ LibertyReader::defineVisitors()
   defineGroupVisitor("ocv_sigma_fall_transition",
 		     &LibertyReader::beginOcvSigmaFallTransition,
 		     &LibertyReader::endOcvSigmaTransition);
+  defineGroupVisitor("ocv_sigma_rise_constraint",
+		     &LibertyReader::beginOcvSigmaRiseConstraint,
+		     &LibertyReader::endOcvSigmaConstraint);
+  defineGroupVisitor("ocv_sigma_fall_constraint",
+		     &LibertyReader::beginOcvSigmaFallConstraint,
+		     &LibertyReader::endOcvSigmaConstraint);
   defineAttrVisitor("sigma_type", &LibertyReader::visitSigmaType);
   defineAttrVisitor("cell_leakage_power", &LibertyReader::visitCellLeakagePower);
 
@@ -2234,7 +2240,8 @@ TimingGroup::makeTableModels(LibertyReader *visitor)
       }
     }
     if (constraint)
-      models_[tr_index] = new CheckTableModel(constraint);
+      models_[tr_index] = new CheckTableModel(constraint,
+					      constraint_sigma_[tr_index]);
   }
 }
 
@@ -4731,6 +4738,39 @@ LibertyReader::endOcvSigmaTransition(LibertyGroup *group)
 }
 
 void
+LibertyReader::beginOcvSigmaRiseConstraint(LibertyGroup *group)
+{
+  beginTimingTableModel(group, TransRiseFall::rise(), ScaleFactorType::unknown);
+}
+
+void
+LibertyReader::beginOcvSigmaFallConstraint(LibertyGroup *group)
+{
+  beginTimingTableModel(group, TransRiseFall::fall(), ScaleFactorType::unknown);
+}
+
+void
+LibertyReader::endOcvSigmaConstraint(LibertyGroup *group)
+{
+  if (table_) {
+    if (CheckTableModel::checkAxes(table_)) {
+      TableModel *table_model = new TableModel(table_, scale_factor_type_, tr_);
+      if (sigma_type_ == EarlyLateAll::all()) {
+	timing_->setConstraintSigma(tr_, EarlyLate::min(), table_model);
+	timing_->setConstraintSigma(tr_, EarlyLate::max(), table_model);
+      }
+      else
+	timing_->setConstraintSigma(tr_, sigma_type_->asMinMax(), table_model);
+    }
+    else {
+      libWarn(group, "unsupported model axis.\n");
+      delete table_;
+    }
+  }
+  endTableModel();
+}
+
+void
 LibertyReader::visitSigmaType(LibertyAttr *attr)
 {
   sigma_type_ = getAttrEarlyLate(attr);
@@ -4983,6 +5023,7 @@ TimingGroup::TimingGroup(int line) :
       int el_index = early_late->index();
       delay_sigma_[tr_index][el_index] = nullptr;
       slew_sigma_[tr_index][el_index] = nullptr;
+      constraint_sigma_[tr_index][el_index] = nullptr;
     }
   }
 }
@@ -5096,7 +5137,15 @@ TimingGroup::setSlewSigma(TransRiseFall *tr,
   slew_sigma_[tr->index()][early_late->index()] = model;
 }
 
- ////////////////////////////////////////////////////////////////
+void
+TimingGroup::setConstraintSigma(TransRiseFall *tr,
+				EarlyLate *early_late,
+				TableModel *model)
+{
+  constraint_sigma_[tr->index()][early_late->index()] = model;
+}
+
+////////////////////////////////////////////////////////////////
 
 InternalPowerGroup::InternalPowerGroup(int line) :
   InternalPowerAttrs(),

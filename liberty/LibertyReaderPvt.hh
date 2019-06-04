@@ -395,6 +395,9 @@ public:
   virtual void beginOcvSigmaRiseTransition(LibertyGroup *group);
   virtual void beginOcvSigmaFallTransition(LibertyGroup *group);
   virtual void endOcvSigmaTransition(LibertyGroup *group);
+  virtual void beginOcvSigmaRiseConstraint(LibertyGroup *group);
+  virtual void beginOcvSigmaFallConstraint(LibertyGroup *group);
+  virtual void endOcvSigmaConstraint(LibertyGroup *group);
   virtual void visitSigmaType(LibertyAttr *attr);
 
   // PgPin group.
@@ -730,6 +733,9 @@ public:
   void setSlewSigma(TransRiseFall *tr,
 		    EarlyLate *early_late,
 		    TableModel *model);
+  void setConstraintSigma(TransRiseFall *tr,
+			  EarlyLate *early_late,
+			  TableModel *model);
 
 protected:
   void makeLinearModels(LibertyLibrary *library);
@@ -742,6 +748,7 @@ protected:
   bool resistance_exists_[TransRiseFall::index_count];
   TableModel *cell_[TransRiseFall::index_count];
   TableModel *constraint_[TransRiseFall::index_count];
+  TableModel *constraint_sigma_[TransRiseFall::index_count][EarlyLate::index_count];
   TableModel *transition_[TransRiseFall::index_count];
   TableModel *delay_sigma_[TransRiseFall::index_count][EarlyLate::index_count];
   TableModel *slew_sigma_[TransRiseFall::index_count][EarlyLate::index_count];

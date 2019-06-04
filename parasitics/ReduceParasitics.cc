@@ -38,7 +38,7 @@ public:
   ReduceToPi(StaState *sta);
   void reduceToPi(const Pin *drvr_pin,
 		  ParasiticNode *drvr_node,
-		  bool pin_cap_included,
+		  bool includes_pin_caps,
 		  float coupling_cap_factor,
 		  const TransRiseFall *tr,
 		  const OperatingConditions *op_cond,
@@ -69,7 +69,7 @@ protected:
   bool isLoopResistor(ParasiticDevice *device);
   void markLoopResistor(ParasiticDevice *device);
 
-  bool pin_cap_included_;
+  bool includes_pin_caps_;
   float coupling_cap_multiplier_;
   const TransRiseFall *tr_;
   const OperatingConditions *op_cond_;
@@ -99,7 +99,7 @@ ReduceToPi::ReduceToPi(StaState *sta) :
 void
 ReduceToPi::reduceToPi(const Pin *drvr_pin,
 		       ParasiticNode *drvr_node,
-		       bool pin_cap_included,
+		       bool includes_pin_caps,
 		       float coupling_cap_factor,
 		       const TransRiseFall *tr,
 		       const OperatingConditions *op_cond,
@@ -110,7 +110,7 @@ ReduceToPi::reduceToPi(const Pin *drvr_pin,
 		       float &rpi,
 		       float &c1)
 {
-  pin_cap_included_ = pin_cap_included;
+  includes_pin_caps_ = includes_pin_caps;
   coupling_cap_multiplier_ = coupling_cap_factor;
   tr_ = tr;
   op_cond_ = op_cond;
@@ -211,8 +211,8 @@ ReduceToPi::pinCapacitance(ParasiticNode *node)
     Port *port = network_->port(pin);
     LibertyPort *lib_port = network_->libertyPort(port);
     if (lib_port) {
-      if (!pin_cap_included_) {
-	pin_cap = sdc_->pinCapacitance(pin,tr_, op_cond_, corner_,
+      if (!includes_pin_caps_) {
+	pin_cap = sdc_->pinCapacitance(pin, tr_, op_cond_, corner_,
 				       cnst_min_max_);
 	pin_caps_one_value_ &= lib_port->capacitanceIsOneValue();
       }

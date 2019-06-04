@@ -149,7 +149,7 @@ public:
   virtual Parasitic *findParasiticNetwork(const Pin *pin,
 					  const ParasiticAnalysisPt *ap) const = 0;
   virtual Parasitic *makeParasiticNetwork(const Net *net,
-					  bool pin_cap_included,
+					  bool includes_pin_caps,
 					  const ParasiticAnalysisPt *ap) = 0;
   virtual ParasiticDeviceIterator *deviceIterator(Parasitic *parasitic) = 0;
   virtual ParasiticNodeIterator *nodeIterator(Parasitic *parasitic) = 0;

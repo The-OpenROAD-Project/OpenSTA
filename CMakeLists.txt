@@ -430,7 +430,7 @@ set(STA_SWIG_FILES
 
 # Zlib
 include(FindZLIB)
-# translate cmake bool to ifdef bool
+# Translate cmake bool to StaConfig.h ifdef bool
 if (ZLIB_FOUND)
   set(ZLIB 1)
 else()
@@ -686,15 +686,13 @@ target_compile_options(OpenSTAnoCmds PUBLIC ${STA_COMPILE_OPTIONS})
 # Library
 ###########################################################
 
-add_library(OpenSTA ${STA_CMD_SOURCE})
+add_library(OpenSTA ${STA_SOURCE} ${STA_CMD_SOURCE})
 
 target_include_directories(OpenSTA PUBLIC ${STA_INCLUDE_DIRS})
 
 target_compile_features(OpenSTA
   PUBLIC cxx_auto_type
   )
-
-target_link_libraries(OpenSTA OpenSTAnoCmds)
 
 target_compile_options(OpenSTA PUBLIC ${STA_COMPILE_OPTIONS})
 

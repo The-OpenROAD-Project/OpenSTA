@@ -112,7 +112,6 @@ protected:
 		      float &axis_value1,
 		      float &axis_value2,
 		      float &axis_value3) const;
-  void deleteSigmaModels(TableModel *models[EarlyLate::index_count]);
   static bool checkAxis(TableAxis *axis);
 
   TableModel *delay_model_;
@@ -127,7 +126,8 @@ private:
 class CheckTableModel : public CheckTimingModel
 {
 public:
-  explicit CheckTableModel(TableModel *model);
+  explicit CheckTableModel(TableModel *model,
+			   TableModel *sigma_models[EarlyLate::index_count]);
   virtual ~CheckTableModel();
   virtual void checkDelay(const LibertyCell *cell,
 			  const Pvt *pvt,

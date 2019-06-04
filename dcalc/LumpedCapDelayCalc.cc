@@ -263,7 +263,7 @@ LumpedCapDelayCalc::checkDelay(const LibertyCell *cell,
     float from_slew1 = delayAsFloat(from_slew);
     float to_slew1 = delayAsFloat(to_slew);
     model->checkDelay(cell, pvt, from_slew1, to_slew1, related_out_cap,
-		      false, margin);
+		      pocv_enabled_, margin);
   }
   else
     margin = delay_zero;

@@ -25,6 +25,8 @@
 namespace sta {
 
 static void
+deleteSigmaModels(TableModel *models[EarlyLate::index_count]);
+static void
 reportPvt(const LibertyLibrary *library,
 	  const Pvt *pvt,
 	  int digits,
@@ -57,8 +59,8 @@ GateTableModel::~GateTableModel()
   deleteSigmaModels(delay_sigma_models_);
 }
 
-void
-GateTableModel::deleteSigmaModels(TableModel *models[EarlyLate::index_count])
+static void
+deleteSigmaModels(TableModel *models[EarlyLate::index_count])
 {
   TableModel *early_model = models[EarlyLate::earlyIndex()];
   TableModel *late_model  = models[EarlyLate::lateIndex()];
@@ -342,14 +344,22 @@ GateTableModel::checkAxis(TableAxis *axis)
 
 ////////////////////////////////////////////////////////////////
 
-CheckTableModel::CheckTableModel(TableModel *model) :
+CheckTableModel::CheckTableModel(TableModel *model,
+				 TableModel *sigma_models[EarlyLate::index_count]) :
   model_(model)
 {
+  MinMaxIterator el_iter;
+  while (el_iter.hasNext()) {
+    EarlyLate *early_late = el_iter.next();
+    int el_index = early_late->index();
+    sigma_models_[el_index] = sigma_models[el_index];
+  }
 }
 
 CheckTableModel::~CheckTableModel()
 {
   delete model_;
+  deleteSigmaModels(sigma_models_);
 }
 
 void

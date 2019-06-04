@@ -885,11 +885,13 @@ LibertyCell::~LibertyCell()
   timing_arc_set_to_map_.deleteContents();
 
   if (equiv_cells_) {
+    // Carefull because loop below nulls equiv_cells_.
+    auto equiv_cells = equiv_cells_;
     // equiv_cells_ is shared by all of the equivalent cells, so
-    // delete it once for all of them and null them.
+    // delete it once for all of them and null the others.
     for (auto equiv : *equiv_cells_)
       equiv->setEquivCells(nullptr);
-    delete equiv_cells_;
+    delete equiv_cells;
   }
 
   deleteInternalPowerAttrs();
