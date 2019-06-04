@@ -74,5 +74,9 @@ parseCmdsArg(int argc,
 	     bool &native_cmds,
 	     bool &compatibility_cmds);
 
+void
+sourceTclFileEchoVerbose(const char *filename,
+			 Tcl_Interp *interp);
+
 } // namespace
 #endif

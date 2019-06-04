@@ -34,10 +34,6 @@ static SwigInitFunc sta_swig_init;
 
 static const char *init_filename = "[file join $env(HOME) .sta]";
 
-static void
-sourceTclFileEchoVerbose(const char *filename,
-			 Tcl_Interp *interp);
-
 void
 staMain(Sta *sta,
 	int argc,
@@ -165,7 +161,7 @@ findCmdLineKey(int argc,
 }
 
 // Use overridden version of source to echo cmds and results.
-static void
+void
 sourceTclFileEchoVerbose(const char *filename,
 			 Tcl_Interp *interp)
 {
