@@ -2960,12 +2960,6 @@ set_wire_load_mode_cmd(const char *mode_name)
     Sta::sta()->setWireloadMode(mode);
 }
 
-Wireload *
-wireload_defaulted(MinMax *min_max)
-{
-  return Sta::sta()->sdc()->wireloadDefaulted(min_max);
-}
-
 void
 set_net_resistance(Net *net,
 		   const MinMaxAll *min_max,

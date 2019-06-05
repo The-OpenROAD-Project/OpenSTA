@@ -479,6 +479,42 @@ proc_redirect report_check_types {
 
 ################################################################
 
+define_sta_cmd_args "report_tns" { [-digits digits]}
+
+proc_redirect report_tns {
+  global sta_report_default_digits
+
+  parse_key_args "report_tns" args keys {-digits} flags {}
+  if [info exists keys(-digits)] {
+    set digits $keys(-digits)
+    check_positive_integer "-digits" $digits
+  } else {
+    set digits $sta_report_default_digits
+  }
+
+  puts "tns [format %.${digits}f [total_negative_slack]]"
+}
+
+################################################################
+
+define_sta_cmd_args "report_wns" { [-digits digits]}
+
+proc_redirect report_wns {
+  global sta_report_default_digits
+
+  parse_key_args "report_wns" args keys {-digits} flags {}
+  if [info exists keys(-digits)] {
+    set digits $keys(-digits)
+    check_positive_integer "-digits" $digits
+  } else {
+    set digits $sta_report_default_digits
+  }
+
+  puts "wns [format %.${digits}f [worst_negative_slack]]"
+}
+
+################################################################
+
 define_sta_cmd_args "report_dcalc" \
   {[-from from_pin] [-to to_pin] [-corner corner_name] [-min] [-max] [-digits digits]}
 

@@ -107,6 +107,12 @@ single pin.
 
   disconnect_pin net pin
 
+The report_tns and report_wns commands print the value returned by
+total_negative_slack and worst_negative_slack respectively.
+
+  report_tns
+  report_wns
+
 Release 1.11.0 2017/08/18
 -------------------------
 

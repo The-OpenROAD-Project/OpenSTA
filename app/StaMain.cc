@@ -119,7 +119,7 @@ staTclAppInit(Tcl_Interp *interp)
   Tcl_Eval(interp, "namespace import sta::*");
 
   if (!findCmdLineFlag(argc, argv, "-no_init"))
-    sourceTclFileEchoVerbose(init_filename, interp);
+    sourceTclFile(init_filename, true, true, interp);
 
   // "-x cmd" is evaled before -f file is sourced.
   char *cmd = findCmdLineKey(argc, argv, "-x");
@@ -129,7 +129,7 @@ staTclAppInit(Tcl_Interp *interp)
   // "-f cmd_file" is evaled as "source -echo -verbose file".
   char *file = findCmdLineKey(argc, argv, "-f");
   if (file)
-    sourceTclFileEchoVerbose(file, interp);
+    sourceTclFile(file, true, true, interp);
 
   return TCL_OK;
 }
@@ -157,16 +157,21 @@ findCmdLineKey(int argc,
     if (stringEq(arg, key) && argi + 1 < argc)
       return argv[argi + 1];
   }
-  return 0;
+  return nullptr;
 }
 
 // Use overridden version of source to echo cmds and results.
 void
-sourceTclFileEchoVerbose(const char *filename,
-			 Tcl_Interp *interp)
+sourceTclFile(const char *filename,
+	      bool echo,
+	      bool verbose,
+	      Tcl_Interp *interp)
 {
   string cmd;
-  stringPrint(cmd, "source -echo -verbose %s", filename);
+  stringPrint(cmd, "source %s%s%s",
+	      echo ? "-echo " : "",
+	      verbose ? "-verbose " : "",
+	      filename);
   Tcl_Eval(interp, cmd.c_str());
 }
 
