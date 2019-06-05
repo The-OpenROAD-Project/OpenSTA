@@ -56,6 +56,8 @@ message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 set(STA_SOURCE
   app/StaMain.cc
+  app/TclInitVar.cc
+  app/StaApp_wrap.cc
   
   dcalc/ArcDelayCalc.cc
   dcalc/ArnoldiDelayCalc.cc
@@ -209,11 +211,6 @@ set(STA_SOURCE
   verilog/VerilogLex.cc
   verilog/VerilogParse.cc
   )
-
-set(STA_CMD_SOURCE
-  app/TclInitVar.cc
-  app/StaApp_wrap.cc
-)
 
 set(STA_HEADERS
   app/StaMain.hh
@@ -664,29 +661,13 @@ set(STA_INCLUDE_DIRS
   )
 
 ###########################################################
-# Library without TCL commands.
-# This is used to build applications that define
-# their own SWIG and TCL commands.
+# Library
 ###########################################################
 
 # compatibility with configure
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${STA_HOME}/app)
 
-add_library(OpenSTAnoCmds ${STA_SOURCE})
-
-target_include_directories(OpenSTAnoCmds PUBLIC ${STA_INCLUDE_DIRS})
-
-target_compile_features(OpenSTAnoCmds
-  PUBLIC cxx_auto_type
-  )
-
-target_compile_options(OpenSTAnoCmds PUBLIC ${STA_COMPILE_OPTIONS})
-
-###########################################################
-# Library
-###########################################################
-
-add_library(OpenSTA ${STA_SOURCE} ${STA_CMD_SOURCE})
+add_library(OpenSTA ${STA_SOURCE})
 
 target_include_directories(OpenSTA PUBLIC ${STA_INCLUDE_DIRS})
 
@@ -733,7 +714,7 @@ target_compile_options(sta PUBLIC ${STA_COMPILE_OPTIONS})
 install(TARGETS sta DESTINATION bin)
 
 # library
-install(TARGETS OpenSTAnoCmds OpenSTA DESTINATION lib)
+install(TARGETS OpenSTA DESTINATION lib)
 
 # include
 install(FILES ${STA_HEADERS} DESTINATION include)
