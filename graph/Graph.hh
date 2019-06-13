@@ -266,6 +266,7 @@ public:
   // Pin path with load/driver suffix for bidirects.
   const char *name(const Network *network) const;
   bool isBidirectDriver() const { return is_bidirect_drvr_; }
+  bool isDriver(const Network *network) const;
   Level level() const { return level_; }
   void setLevel(Level level);
   bool isRoot() const{ return level_ == 0; }

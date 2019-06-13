@@ -1170,6 +1170,23 @@ Vertex::name(const Network *network) const
     return network->pathName(pin_);
 }
 
+bool
+Vertex::isDriver(const Network *network) const
+{
+  PortDirection *dir = network->direction(pin_);
+  bool top_level_port = network->isTopLevelPort(pin_);
+  return ((top_level_port
+	   && (dir->isInput()
+	       || (dir->isBidirect()
+		   && is_bidirect_drvr_)))
+	  || (!top_level_port
+	      && (dir->isOutput()
+		  || dir->isTristate()
+		  || (dir->isBidirect()
+		      && is_bidirect_drvr_)
+		  || dir->isInternal())));
+}
+
 void
 Vertex::setLevel(Level level)
 {

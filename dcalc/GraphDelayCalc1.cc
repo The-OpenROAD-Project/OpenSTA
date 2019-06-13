@@ -574,7 +574,7 @@ void
 GraphDelayCalc1::seedRootSlew(Vertex *vertex,
 			      ArcDelayCalc *arc_delay_calc)
 {
-  if (isDriver(vertex))
+  if (vertex->isDriver(network_))
     seedDrvrSlew(vertex, arc_delay_calc);
   else
     seedLoadSlew(vertex);
@@ -859,7 +859,7 @@ GraphDelayCalc1::findVertexDelay(Vertex *vertex,
 		vertex->name(sdc_network_),
 		network_->cellName(network_->instance(pin)));
     if (network_->isLeaf(pin)) {
-      if (isDriver(vertex)) {
+      if (vertex->isDriver(network_)) {
 	bool delay_changed = findDriverDelays(vertex, arc_delay_calc);
 	if (propagate) {
 	  if (network_->direction(pin)->isInternal())
@@ -894,24 +894,6 @@ GraphDelayCalc1::enqueueTimingChecksEdges(Vertex *vertex)
     UniqueLock lock(check_vertices_lock_);
     invalid_checks_.insert(vertex);
   }
-}
-
-bool
-GraphDelayCalc1::isDriver(Vertex *vertex)
-{
-  Pin *pin = vertex->pin();
-  PortDirection *dir = network_->direction(pin);
-  bool top_level_port = network_->isTopLevelPort(pin);
-  return ((top_level_port
-	   && (dir->isInput()
-	       || (dir->isBidirect()
-		   && vertex->isBidirectDriver())))
-	  || (!top_level_port
-	      && (dir->isOutput()
-		  || dir->isTristate()
-		  || (dir->isBidirect()
-		      && vertex->isBidirectDriver())
-		  || dir->isInternal())));
 }
 
 bool

@@ -213,7 +213,6 @@ protected:
 		Parasitic *drvr_parasitic,
 		const TransRiseFall *tr,
 		const DcalcAnalysisPt *dcalc_ap) const;
-  bool isDriver(Vertex *vertex);
 
   // Observer for edge delay changes.
   DelayCalcObserver *observer_;

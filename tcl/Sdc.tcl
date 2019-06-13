@@ -2365,7 +2365,7 @@ define_cmd_args "set_load" \
 
 proc set_load { args } {
   parse_key_args "set_load" args keys {-corner} \
-    flags {-rise -fall -min -max -subtract_pin_load  -pin_load -wire_load}\
+    flags {-rise -fall -min -max -subtract_pin_load -pin_load -wire_load}\
 
   check_argc_eq2 "set_load" $args
 
