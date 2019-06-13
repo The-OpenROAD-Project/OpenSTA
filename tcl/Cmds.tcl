@@ -1435,6 +1435,14 @@ proc get_liberty_error { arg_name arg } {
 }
 
 proc get_lib_cell_warn { arg_name arg } {
+  return [get_lib_cell_arg $arg_name $arg sta_warn]
+}
+
+proc get_lib_cell_error { arg_name arg } {
+  return [get_lib_cell_arg $arg_name $arg sta_error]
+}
+
+proc get_lib_cell_arg { arg_name arg error_proc } {
   set lib_cell "NULL"
   if { [llength $arg] > 1 } {
     sta_error "$arg_name must be a single lib cell."
@@ -1443,7 +1451,7 @@ proc get_lib_cell_warn { arg_name arg } {
     if { $object_type == "LibertyCell" } {
       set lib_cell $arg
     } else {
-      sta_warn "$arg_name type '$object_type' is not a liberty cell."
+      $error_proc "$arg_name type '$object_type' is not a liberty cell."
     }
     # Parse library_name/cell_name.
   } elseif {[regexp [cell_regexp] $arg ignore lib_name cell_name]} {
@@ -1451,15 +1459,15 @@ proc get_lib_cell_warn { arg_name arg } {
     if { $library != "NULL" } {
       set lib_cell [$library find_liberty_cell $cell_name]
       if { $lib_cell == "NULL" } {
-	sta_warn "liberty cell '$arg' not found."
+	$error_proc "liberty cell '$arg' not found."
       }
     } else {
-      sta_warn "library '$lib_name' not found."
+      $error_proc "library '$lib_name' not found."
     }
   } else {
     set lib_cell [find_liberty_cell $arg]
     if { $lib_cell == "NULL" } {
-      sta_warn "liberty cell '$arg' not found."
+      $error_proc "liberty cell '$arg' not found."
     }
   }
   return $lib_cell
