@@ -47,6 +47,7 @@ public:
   virtual const char *name(const Cell *cell) const;
   virtual Library *library(const Cell *cell) const;
   virtual LibertyCell *libertyCell(Cell *cell) const;
+  virtual Cell *cell(LibertyCell *cell) const;
   virtual const char *filename(const Cell *cell);
   virtual Port *findPort(const Cell *cell,
 			 const char *name) const;
@@ -124,7 +125,7 @@ public:
 				 Instance *parent);
   virtual void makePins(Instance *inst);
   virtual void replaceCell(Instance *inst,
-			   LibertyCell *cell);
+			   Cell *to_cell);
   virtual Net *makeNet(const char *name,
 		       Instance *parent);
   virtual Pin *connect(Instance *inst,

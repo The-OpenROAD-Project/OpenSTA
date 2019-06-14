@@ -76,6 +76,7 @@ public:
   virtual const char *name(const Cell *cell) const;
   virtual Library *library(const Cell *cell) const;
   virtual LibertyCell *libertyCell(Cell *cell) const;
+  virtual Cell *cell(LibertyCell *cell) const;
   virtual const char *filename(const Cell *cell);
   virtual Port *findPort(const Cell *cell,
 			 const char *name) const;
@@ -192,7 +193,7 @@ public:
 				 const char *name,
 				 Instance *parent);
   virtual void replaceCell(Instance *inst,
-			   LibertyCell *cell);
+			   Cell *cell);
   virtual void deleteInstance(Instance *inst);
   virtual Pin *connect(Instance *inst,
 		       Port *port,
@@ -247,8 +248,6 @@ protected:
 			ConcretePin *cpin);
   void connectNetPin(ConcreteNet *cnet,
 		     ConcretePin *cpin);
-  void replaceCellIntenal(Instance *inst,
-			  ConcreteCell *cell);
 
   // Cell lookup search order sequence.
   ConcreteLibrarySeq library_seq_;

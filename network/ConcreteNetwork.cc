@@ -553,6 +553,12 @@ ConcreteNetwork::libertyCell(Cell *cell) const
   return dynamic_cast<LibertyCell*>(ccell);
 }
 
+Cell *
+ConcreteNetwork::cell(LibertyCell *cell) const
+{
+  return reinterpret_cast<Cell*>(cell);
+}
+
 const char *
 ConcreteNetwork::filename(const Cell *cell)
 {
@@ -1140,21 +1146,15 @@ ConcreteNetwork::makePins(Instance *inst)
 
 void
 ConcreteNetwork::replaceCell(Instance *inst,
-			     LibertyCell *cell)
+			     Cell *cell)
 {
-  replaceCellIntenal(inst, cell);
-}
-
-void
-ConcreteNetwork::replaceCellIntenal(Instance *inst,
-				    ConcreteCell *cell)
-{
+  ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell);
   InstancePinIterator *pin_iter = pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
     ConcretePin *cpin = reinterpret_cast<ConcretePin*>(pin);
     ConcretePort *pin_cport = reinterpret_cast<ConcretePort*>(cpin->port());
-    ConcretePort *cport = cell->findPort(pin_cport->name());
+    ConcretePort *cport = ccell->findPort(pin_cport->name());
     if (cport)
       cpin->port_ = cport;
     else
@@ -1163,7 +1163,7 @@ ConcreteNetwork::replaceCellIntenal(Instance *inst,
   delete pin_iter;
 
   ConcreteInstance *cinst = reinterpret_cast<ConcreteInstance*>(inst);
-  cinst->setCell(cell);
+  cinst->setCell(ccell);
 }
 
 void

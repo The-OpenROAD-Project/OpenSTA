@@ -1087,7 +1087,9 @@ public:
   virtual void deleteInstance(Instance *inst);
   // replace_cell
   virtual void replaceCell(Instance *inst,
-			   LibertyCell *to_cell);
+			   Cell *to_cell);
+  virtual void replaceCell(Instance *inst,
+			   LibertyCell *to_lib_cell);
   virtual Net *makeNet(const char *name,
 		       Instance *parent);
   virtual void deleteNet(Net *net);
@@ -1305,6 +1307,9 @@ protected:
 			      int &fanou);
   LibertyPort *findCellPort(LibertyCell *cell,
 			    PortDirection *dir);
+  void replaceCell(Instance *inst,
+		   Cell *to_cell,
+		   LibertyCell *to_lib_cell);
 
   CmdNamespace cmd_namespace_;
   Instance *current_instance_;

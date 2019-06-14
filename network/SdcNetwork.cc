@@ -592,6 +592,12 @@ NetworkNameAdapter::libertyCell(Cell *cell) const
   return network_->libertyCell(cell);
 }
 
+Cell *
+NetworkNameAdapter::cell(LibertyCell *cell) const
+{
+  return network_->cell(cell);
+}
+
 Port *
 NetworkNameAdapter::findPort(const Cell *cell,
 			     const char *name) const
@@ -930,9 +936,9 @@ NetworkNameAdapter::makeNet(const char *name,
 
 void
 NetworkNameAdapter::replaceCell(Instance *inst,
-				LibertyCell *cell)
+				Cell *to_cell)
 {
-  network_edit_->replaceCell(inst, cell);
+  network_edit_->replaceCell(inst, to_cell);
 }
 
 Pin *

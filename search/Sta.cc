@@ -3629,17 +3629,34 @@ Sta::deleteInstance(Instance *inst)
 
 void
 Sta::replaceCell(Instance *inst,
-		 LibertyCell *to_cell)
+		 LibertyCell *to_lib_cell)
+{
+  Cell *to_cell = network_->cell(to_lib_cell);
+  replaceCell(inst, to_cell, to_lib_cell);
+}
+
+void
+Sta::replaceCell(Instance *inst,
+		 Cell *to_cell)
+{
+  LibertyCell *to_lib_cell = network_->libertyCell(to_cell);
+  replaceCell(inst, to_cell, to_lib_cell);
+}
+
+void
+Sta::replaceCell(Instance *inst,
+		 Cell *to_cell,
+		 LibertyCell *to_lib_cell)
 {
   NetworkEdit *network = networkCmdEdit();
-  LibertyCell *from_cell = network->libertyCell(inst);
-  if (equivCells(from_cell, to_cell)) {
-    replaceEquivCellBefore(inst, to_cell);
+  LibertyCell *from_lib_cell = network->libertyCell(inst);
+  if (equivCells(from_lib_cell, to_lib_cell)) {
+    replaceEquivCellBefore(inst, to_lib_cell);
     network->replaceCell(inst, to_cell);
     replaceEquivCellAfter(inst);
   }
   else {
-    replaceCellBefore(inst, to_cell);
+    replaceCellBefore(inst, to_lib_cell);
     network->replaceCell(inst, to_cell);
     replaceCellAfter(inst);
   }

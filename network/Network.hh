@@ -136,6 +136,7 @@ public:
     __attribute__ ((deprecated));
   // Find the corresponding liberty cell.
   virtual LibertyCell *libertyCell(Cell *cell) const = 0;
+  virtual Cell *cell(LibertyCell *cell) const = 0;
   // Filename may return null.
   virtual const char *filename(const Cell *cell) = 0;
   // Name can be a simple, bundle, bus, or bus bit name.
@@ -484,7 +485,7 @@ public:
 				 Instance *parent) = 0;
   virtual void makePins(Instance *inst) = 0;
   virtual void replaceCell(Instance *inst,
-			   LibertyCell *cell) = 0;
+			   Cell *cell) = 0;
   // Deleting instance also deletes instance pins.
   virtual void deleteInstance(Instance *inst) = 0;
   // Connect the port on an instance to a net.
