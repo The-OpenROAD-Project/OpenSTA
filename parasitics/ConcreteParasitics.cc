@@ -1006,8 +1006,10 @@ ConcreteParasitics::deleteReducedParasitics(const Pin *pin)
 {
   if (!drvr_parasitic_map_.empty()) {
     PinSet *drivers = network_->drivers(pin);
-    for (auto drvr_pin : *drivers)
-      deleteDrvrReducedParasitics(drvr_pin);
+    if (drivers) {
+      for (auto drvr_pin : *drivers)
+	deleteDrvrReducedParasitics(drvr_pin);
+    }
   }
 }
 

@@ -91,7 +91,7 @@ CheckSlewLimits::init(const MinMax *min_max)
   float top_limit;
   bool top_limit_exists;
   sta_->sdc()->slewLimit(top_cell, min_max,
-				 top_limit, top_limit_exists);
+			 top_limit, top_limit_exists);
   top_limit_= top_limit;
   top_limit_exists_ = top_limit_exists;
 }
@@ -175,11 +175,11 @@ CheckSlewLimits::findLimit(const Pin *pin,
 			   const TransRiseFall *tr,
 			   const MinMax *min_max,
 			   // Return values.
-			   float &limit1,
-			   bool &limit1_exists) const
+			   float &limit,
+			   bool &exists) const
 			
 {
-  limit1_exists = false;
+  exists = false;
   const Network *network = sta_->network();
   Sdc *sdc = sta_->sdc();
   bool is_clk = sta_->search()->isClock(vertex);
@@ -193,19 +193,19 @@ CheckSlewLimits::findLimit(const Pin *pin,
     float clk_limit;
     bool clk_limit_exists;
     sdc->slewLimit(clk, tr, clk_data, min_max,
-			   clk_limit, clk_limit_exists);
+		   clk_limit, clk_limit_exists);
     if (clk_limit_exists
-	&& (!limit1_exists
-	    || min_max->compare(limit1, clk_limit))) {
+	&& (!exists
+	    || min_max->compare(limit, clk_limit))) {
       // Use the tightest clock limit.
-      limit1 = clk_limit;
-      limit1_exists = true;
+      limit = clk_limit;
+      exists = true;
     }
   }
-  if (!limit1_exists) {
+  if (!exists) {
     // Default to top ("design") limit.
-    limit1_exists = top_limit_exists_;
-    limit1 = top_limit_;
+    exists = top_limit_exists_;
+    limit = top_limit_;
     if (network->isTopLevelPort(pin)) {
       Port *port = network->port(pin);
       float port_limit;
@@ -213,10 +213,10 @@ CheckSlewLimits::findLimit(const Pin *pin,
       sdc->slewLimit(port, min_max, port_limit, port_limit_exists);
       // Use the tightest limit.
       if (port_limit_exists
-	  && (!limit1_exists
-	      || min_max->compare(limit1, port_limit))) {
-	limit1 = port_limit;
-	limit1_exists = true;
+	  && (!exists
+	      || min_max->compare(limit, port_limit))) {
+	limit = port_limit;
+	exists = true;
       }
     }
     else {
@@ -226,10 +226,10 @@ CheckSlewLimits::findLimit(const Pin *pin,
 			     pin_limit, pin_limit_exists);
       // Use the tightest limit.
       if (pin_limit_exists
-	  && (!limit1_exists
-	      || min_max->compare(limit1, pin_limit))) {
-	limit1 = pin_limit;
-	limit1_exists = true;
+	  && (!exists
+	      || min_max->compare(limit, pin_limit))) {
+	limit = pin_limit;
+	exists = true;
       }
 
       float port_limit;
@@ -239,10 +239,10 @@ CheckSlewLimits::findLimit(const Pin *pin,
 	port->slewLimit(min_max, port_limit, port_limit_exists);
 	// Use the tightest limit.
 	if (port_limit_exists
-	    && (!limit1_exists
-		|| min_max->compare(limit1, port_limit))) {
-	  limit1 = port_limit;
-	  limit1_exists = true;
+	    && (!exists
+		|| min_max->compare(limit, port_limit))) {
+	  limit = port_limit;
+	  exists = true;
 	}
       }
     }
