@@ -37,7 +37,7 @@ static const char *init_filename = "[file join $env(HOME) .sta]";
 void
 staMain(Sta *sta,
 	int argc,
-	char **argv,
+	char *argv[],
 	SwigInitFunc swig_init,
 	const char *tcl_inits[])
 {
@@ -82,7 +82,7 @@ parseThreadsArg(int argc,
 // Set globals to pass to staTclAppInit.
 void
 staSetupAppInit(int argc,
-		char **argv,
+		char *argv[],
 		SwigInitFunc swig_init,
 		const char *tcl_inits[])
 {
@@ -121,43 +121,65 @@ staTclAppInit(Tcl_Interp *interp)
   if (!findCmdLineFlag(argc, argv, "-no_init"))
     sourceTclFile(init_filename, true, true, interp);
 
-  // "-x cmd" is evaled before -f file is sourced.
-  char *cmd = findCmdLineKey(argc, argv, "-x");
-  if (cmd)
-    Tcl_Eval(interp, cmd);
+  bool exit_after_cmd_file = findCmdLineFlag(argc, argv, "-exit");
 
-  // "-f cmd_file" is evaled as "source -echo -verbose file".
-  char *file = findCmdLineKey(argc, argv, "-f");
-  if (file)
-    sourceTclFile(file, true, true, interp);
-
+  if (argc > 2 ||
+      (argc > 1 && argv[1][0] == '-'))
+    showUseage(argv[0]);
+  else {
+    if (argc == 2) {
+      char *cmd_file = argv[1];
+      if (cmd_file) {
+	sourceTclFile(cmd_file, false, false, interp);
+	if (exit_after_cmd_file)
+	  exit(EXIT_SUCCESS);
+      }
+    }
+  }
   return TCL_OK;
 }
 
 bool
-findCmdLineFlag(int argc,
-		char **argv,
+findCmdLineFlag(int &argc,
+		char *argv[],
 		const char *flag)
 {
-  for (int argi = 1; argi < argc; argi++) {
-    char *arg = argv[argi];
-    if (stringEq(arg, flag))
-      return true;
+  bool found = false;
+  int j = 1;
+  int argc1 = argc;
+  for (int i = 1; i < argc1; i++) {
+    char *arg = argv[i];
+    if (stringEq(arg, flag)) {
+      found = true;
+      // remove flag from argv.
+      argc--;
+    }
+    else
+      argv[j++] = argv[i];
   }
-  return false;
+  return found;
 }
 
 char *
-findCmdLineKey(int argc,
-	       char **argv,
+findCmdLineKey(int &argc,
+	       char *argv[],
 	       const char *key)
 {
-  for (int argi = 1; argi < argc; argi++) {
-    char *arg = argv[argi];
-    if (stringEq(arg, key) && argi + 1 < argc)
-      return argv[argi + 1];
+  char *value = nullptr;
+  int j = 1;
+  int argc1 = argc;
+  for (int i = 1; i < argc1; i++) {
+    char *arg = argv[i];
+    if (stringEq(arg, key) && i + 1 < argc) {
+      value = argv[i + 1];
+      // remove key and value from argv.
+      i++;
+      argc -= 2;
+    }
+    else
+      argv[j++] = argv[i];
   }
-  return nullptr;
+  return value;
 }
 
 // Use overridden version of source to echo cmds and results.
@@ -210,14 +232,14 @@ evalTclInit(Tcl_Interp *interp,
 void
 showUseage(char *prog)
 {
-  printf("Usage: %s [-help] [-version] [-no_init] [-f cmd_file]\n", prog);
+  printf("Usage: %s [-help] [-version] [-no_init] [-exit] cmd_file\n", prog);
   printf("  -help              show help and exit\n");
   printf("  -version           show version and exit\n");
   printf("  -no_init           do not read .sta init file\n");
-  printf("  -x cmd             evaluate cmd\n");
-  printf("  -f cmd_file        source cmd_file\n");
   printf("  -threads count|max use count threads\n");
   printf("  -no_splash         do not show the license splash at startup\n");
+  printf("  -exit              exit after reading cmd_file\n");
+  printf("  cmd_file           source cmd_file\n");
 }
 
 } // namespace

@@ -6,6 +6,19 @@ This file summarizes user visible changes for each release.
 Release 2.0.0 2018/09/28
 -------------------------
 
+The command line options have changed to the following:
+
+  -help              show help and exit
+  -version           show version and exit
+  -no_init           do not read .sta init file
+  -threads count|max use count threads
+  -no_splash         do not show the license splash at startup
+  -exit              exit after reading cmd_file
+  cmd_file           source cmd_file
+
+
+....
+
 Builds using Autotools/configure are no longer supported.
 Use CMake as documented in README.mb.
 

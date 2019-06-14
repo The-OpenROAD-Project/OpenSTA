@@ -29,14 +29,14 @@ typedef int (*SwigInitFunc)(Tcl_Interp *);
 void
 staMain(Sta *sta,
 	int argc,
-	char **argv,
+	char *argv[],
 	SwigInitFunc swig_init,
 	const char *tcl_inits[]);
 
 // Set arguments passed to staTclAppInit inside the tcl interpreter.
 void
 staSetupAppInit(int argc,
-		char **argv,
+		char *argv[],
 		SwigInitFunc swig_init,
 		const char *tcl_inits[]);
 
@@ -53,12 +53,12 @@ evalTclInit(Tcl_Interp *interp,
 	    const char *inits[]);
 
 bool
-findCmdLineFlag(int argc,
-		char **argv,
+findCmdLineFlag(int &argc,
+		char *argv[],
 		const char *flag);
 char *
-findCmdLineKey(int argc,
-	       char **argv,
+findCmdLineKey(int &argc,
+	       char *argv[],
 	       const char *key);
 
 void
