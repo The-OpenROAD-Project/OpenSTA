@@ -1103,16 +1103,6 @@ public:
   // disconnect_net
   virtual void disconnectPin(Pin *pin);
 
-  // Insert a buffer_cell instance named inst_name by adding it's input
-  // pin on net and moving load_pins from net to the output of
-  // the instance. buffer_cell must have one input and one output port.
-  // The buffer's parent is the top_instance.
-  void insertBuffer(const char *buffer_name,
-		    LibertyCell *buffer_cell,
-		    Net *net,
-		    PinSeq *load_pins,
-		    const char *buffer_out_net_name);
-
   // Network edit before/after methods.
   void makeInstanceAfter(Instance *inst);
   // Not used by Sta (connectPinAfter).
