@@ -232,6 +232,7 @@ public:
   using Network::libertyLibrary;
   using Network::libertyCell;
   using Network::libertyPort;
+  using Network::isLeaf;
 
 protected:
   void addLibrary(ConcreteLibrary *library);

@@ -289,7 +289,7 @@ public:
   virtual Net *net(const Pin *pin) const = 0;
   virtual Term *term(const Pin *pin) const = 0;
   virtual PortDirection *direction(const Pin *pin) const = 0;
-  bool isLeaf(const Pin *pin) const;
+  virtual bool isLeaf(const Pin *pin) const;
   bool isHierarchical(const Pin *pin) const;
   bool isTopLevelPort(const Pin *pin) const;
   // Is pin inside the instance hier_pin is attached to?
