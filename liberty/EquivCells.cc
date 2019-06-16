@@ -29,6 +29,8 @@
 
 namespace sta {
 
+using std::max;
+
 typedef UnorderedMap<unsigned, LibertyCellSeq*> LibertyCellHashMap;
 typedef Set<LibertyCell*> LibertyCellSet;
 
@@ -116,6 +118,13 @@ struct CellDriveResistanceLess
   }
 };
 
+static float
+cellDriveResistance(const LibertyCell *cell)
+{
+  return max(cell->driveResistance(TransRiseFall::rise()),
+	     cell->driveResistance(TransRiseFall::fall()));
+}
+
 static void
 sortCellEquivs(LibertyCellSet &cell_equivs)
 {
@@ -133,30 +142,6 @@ sortCellEquivs(LibertyCellSet &cell_equivs)
       lower = cell;
     }
   }
-}
-
-// Use the worst "drive" for all the timing arcs in the cell.
-static float
-cellDriveResistance(const LibertyCell *cell)
-{
-  float max_drive = 0.0;
-  LibertyCellTimingArcSetIterator set_iter(cell);
-  while (set_iter.hasNext()) {
-    TimingArcSet *set = set_iter.next();
-    if (!set->role()->isTimingCheck()) {
-      TimingArcSetArcIterator arc_iter(set);
-      while (arc_iter.hasNext()) {
-	TimingArc *arc = arc_iter.next();
-	GateTimingModel *model = dynamic_cast<GateTimingModel*>(arc->model());
-	if (model) {
-	  float drive = model->driveResistance(cell, nullptr);
-	  if (drive > max_drive)
-	    max_drive = drive;
-	}
-      }
-    }
-  }
-  return max_drive;
 }
 
 static unsigned

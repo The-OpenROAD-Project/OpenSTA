@@ -496,6 +496,7 @@ public:
   // Internal.
   LibertyCellSeq *equivCellsRaw() { return equiv_cells_; }
   void setEquivCells(LibertyCellSeq *equiv_cells);
+  float driveResistance(const TransRiseFall *tr) const;
   void setHigherDrive(LibertyCell *cell);
   void setLowerDrive(LibertyCell *cell);
   bool isBuffer() const;

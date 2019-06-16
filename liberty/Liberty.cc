@@ -1477,6 +1477,30 @@ LibertyCell::setEquivCells(LibertyCellSeq *equiv_cells)
   equiv_cells_ = equiv_cells;
 }
 
+// Use the worst "drive" for all the timing arcs in the cell.
+float
+LibertyCell::driveResistance(const TransRiseFall *tr) const
+{
+  float max_drive = 0.0;
+  LibertyCellTimingArcSetIterator set_iter(this);
+  while (set_iter.hasNext()) {
+    TimingArcSet *set = set_iter.next();
+    if (!set->role()->isTimingCheck()) {
+      TimingArcSetArcIterator arc_iter(set);
+      while (arc_iter.hasNext()) {
+	TimingArc *arc = arc_iter.next();
+	GateTimingModel *model = dynamic_cast<GateTimingModel*>(arc->model());
+	if (model) {
+	  float drive = model->driveResistance(this, nullptr);
+	  if (drive > max_drive)
+	    max_drive = drive;
+	}
+      }
+    }
+  }
+  return max_drive;
+}
+
 LibertyCell *
 LibertyCell::higherDrive() const
 {
