@@ -871,6 +871,7 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   higher_drive_(nullptr),
   lower_drive_(nullptr)
 {
+  liberty_cell_ = this;
 }
 
 LibertyCell::~LibertyCell()
@@ -1874,6 +1875,7 @@ LibertyPort::LibertyPort(LibertyCell *cell,
   is_pll_feedback_pin_(false),
   is_disabled_constraint_(false)
 {
+  liberty_port_ = this;
   min_pulse_width_[TransRiseFall::riseIndex()] = 0.0;
   min_pulse_width_[TransRiseFall::fallIndex()] = 0.0;
 }

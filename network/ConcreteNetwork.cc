@@ -550,7 +550,7 @@ LibertyCell *
 ConcreteNetwork::libertyCell(Cell *cell) const
 {
   ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell);
-  return dynamic_cast<LibertyCell*>(ccell);
+  return ccell->libertyCell();
 }
 
 Cell *
@@ -743,7 +743,7 @@ LibertyPort *
 ConcreteNetwork::libertyPort(Port *port) const
 {
   ConcretePort *cport = reinterpret_cast<ConcretePort*>(port);
-  return dynamic_cast<LibertyPort*>(cport);
+  return cport->libertyPort();
 }
 
 PortDirection *

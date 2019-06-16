@@ -34,6 +34,8 @@ class ConcreteCell;
 class ConcretePort;
 class ConcreteCellPortBitIterator;
 class PatternMatch;
+class LibertyCell;
+class LibertyPort;
 
 typedef Map<const char*, ConcreteCell*, CharPtrLess> ConcreteCellMap;
 typedef Vector<ConcretePort*> ConcretePortSeq;
@@ -89,6 +91,8 @@ public:
   virtual ConcreteLibrary *library() const { return library_; }
   virtual const char *name() const { return name_; }
   virtual const char *filename() const { return filename_; }
+  LibertyCell *libertyCell() { return liberty_cell_; }
+  void setLibertyCell(LibertyCell *cell);
   virtual int portBitCount() const { return port_bit_count_; }
   virtual ConcretePort *findPort(const char *name) const;
   virtual void findPortsMatching(const PatternMatch *pattern,
@@ -139,6 +143,7 @@ protected:
   const char *name_;
   // Filename is optional.
   const char *filename_;
+  LibertyCell *liberty_cell_;
   // Non-bus and bus ports (but no expanded bus bit ports).
   ConcretePortSeq ports_;
   ConcretePortMap port_map_;
@@ -162,6 +167,8 @@ public:
   virtual Cell *cell() const;
   virtual ConcreteLibrary *library() const { return cell_->library(); }
   virtual PortDirection *direction() const { return direction_; }
+  LibertyPort *libertyPort() { return liberty_port_; }
+  void setLibertyPort(LibertyPort *port);
   virtual void setDirection(PortDirection *dir);
   // Bundles are groups of related ports that do not use
   // bus notation.
@@ -209,6 +216,7 @@ protected:
   const char *name_;
   ConcreteCell *cell_;
   PortDirection *direction_;
+  LibertyPort *liberty_port_;
   int pin_index_;
   bool is_bundle_;
   bool is_bus_;

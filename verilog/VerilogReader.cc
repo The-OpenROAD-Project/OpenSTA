@@ -539,8 +539,9 @@ VerilogReader::makeModuleInst(const char *module_name,
 			      const int line)
 {
   Cell *cell = network_->findAnyCell(module_name);
-  LibertyCell *liberty_cell = network_->libertyCell(cell);
-  VerilogInst *inst;
+  LibertyCell *liberty_cell = nullptr;
+  if (cell)
+    liberty_cell = network_->libertyCell(cell);
   // Instances of liberty with scalar ports are special cased
   // to reduce the memory footprint of the verilog parser.
   if (liberty_cell
@@ -573,7 +574,8 @@ VerilogReader::makeModuleInst(const char *module_name,
       delete vpin;
       net_port_ref_scalar_net_count_--;
     }
-    inst = new VerilogLibertyInst(liberty_cell, inst_name, net_names, line);
+    VerilogInst *inst = new VerilogLibertyInst(liberty_cell, inst_name,
+					       net_names, line);
     stringDelete(module_name);
     delete pins;
     if (report_stmt_stats_) {
@@ -581,16 +583,17 @@ VerilogReader::makeModuleInst(const char *module_name,
       inst_lib_count_++;
       inst_lib_net_arrays_ += port_count;
     }
+    return inst;
   }
   else {
-    inst = new VerilogModuleInst(module_name, inst_name, pins, line);
+    VerilogInst *inst = new VerilogModuleInst(module_name, inst_name, pins, line);
     if (report_stmt_stats_) {
       inst_module_names_ += strlen(module_name) + 1;
       inst_names_ += strlen(inst_name) + 1;
       inst_mod_count_++;
     }
+    return inst;
   }
-  return inst;
 }
 
 bool
