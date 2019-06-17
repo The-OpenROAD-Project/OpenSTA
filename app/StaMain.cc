@@ -144,20 +144,17 @@ findCmdLineFlag(int &argc,
 		char *argv[],
 		const char *flag)
 {
-  bool found = false;
-  int j = 1;
-  int argc1 = argc;
-  for (int i = 1; i < argc1; i++) {
+  for (int i = 1; i < argc; i++) {
     char *arg = argv[i];
     if (stringEq(arg, flag)) {
-      found = true;
       // remove flag from argv.
+      for (int j = i + 1; j < argc; j++, i++)
+	argv[i] = argv[j];
       argc--;
+      return true;
     }
-    else
-      argv[j++] = argv[i];
   }
-  return found;
+  return false;
 }
 
 char *
@@ -165,21 +162,18 @@ findCmdLineKey(int &argc,
 	       char *argv[],
 	       const char *key)
 {
-  char *value = nullptr;
-  int j = 1;
-  int argc1 = argc;
-  for (int i = 1; i < argc1; i++) {
+  for (int i = 1; i < argc; i++) {
     char *arg = argv[i];
     if (stringEq(arg, key) && i + 1 < argc) {
-      value = argv[i + 1];
+      char *value = argv[i + 1];
       // remove key and value from argv.
-      i++;
+      for (int j = i + 2; j < argc; j++, i++)
+	argv[i] = argv[j];
       argc -= 2;
+      return value;
     }
-    else
-      argv[j++] = argv[i];
   }
-  return value;
+  return nullptr;
 }
 
 // Use overridden version of source to echo cmds and results.

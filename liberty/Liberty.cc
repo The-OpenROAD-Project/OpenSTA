@@ -1489,11 +1489,13 @@ LibertyCell::driveResistance(const TransRiseFall *tr) const
       TimingArcSetArcIterator arc_iter(set);
       while (arc_iter.hasNext()) {
 	TimingArc *arc = arc_iter.next();
-	GateTimingModel *model = dynamic_cast<GateTimingModel*>(arc->model());
-	if (model) {
-	  float drive = model->driveResistance(this, nullptr);
-	  if (drive > max_drive)
-	    max_drive = drive;
+	if (arc->toTrans()->asRiseFall() == tr) {
+	  GateTimingModel *model = dynamic_cast<GateTimingModel*>(arc->model());
+	  if (model) {
+	    float drive = model->driveResistance(this, nullptr);
+	    if (drive > max_drive)
+	      max_drive = drive;
+	  }
 	}
       }
     }
