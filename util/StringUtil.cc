@@ -231,4 +231,21 @@ trimRight(string &str)
   str.erase(str.find_last_not_of(" ") + 1);
 }
 
+void
+split(const string &text,
+      const string &delims,
+      // Return values.
+      StringVector &tokens)
+{
+  auto start = text.find_first_not_of(delims);
+  auto end = text.find_first_of(delims, start);
+  while (end != string::npos) {
+    tokens.push_back(text.substr(start, end - start));
+    start = text.find_first_not_of(delims, end);
+    end = text.find_first_of(delims, start);
+  }
+  if (start != string::npos)
+    tokens.push_back(text.substr(start));
+}
+
 } // namespace

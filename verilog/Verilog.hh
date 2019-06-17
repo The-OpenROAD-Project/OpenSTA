@@ -74,9 +74,7 @@ extern VerilogReader *verilog_reader;
 class VerilogReader
 {
 public:
-  explicit VerilogReader(Report *report,
-			 Debug *debug,
-			 NetworkReader *network);
+  explicit VerilogReader(NetworkReader *network);
   ~VerilogReader();
   bool read(const char *filename);
   // flex YY_INPUT yy_n_chars arg changed definition from int to size_t,

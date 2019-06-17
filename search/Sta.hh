@@ -1215,14 +1215,10 @@ protected:
 				  Corner *corner,
 				  const MinMaxAll *min_max,
 				  bool infer_latches,
-				  Report *report,
-				  Debug *debug,
 				  Network *network);
   // Allow external Liberty reader to parse forms not used by Sta.
   virtual LibertyLibrary *readLibertyFile(const char *filename,
 					  bool infer_latches,
-					  Report *report,
-					  Debug *debug,
 					  Network *network);
   void ensureLevelized();
   void ensureClkArrivals();

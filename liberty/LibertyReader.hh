@@ -19,16 +19,12 @@
 
 namespace sta {
 
-class Report;
-class Debug;
 class Network;
 class LibertyLibrary;
 
 LibertyLibrary *
 readLibertyFile(const char *filename,
 		bool infer_latches,
-		Report *report,
-		Debug *debug,
 		Network *network);
 
 } // namespace

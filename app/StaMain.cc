@@ -125,7 +125,7 @@ staTclAppInit(Tcl_Interp *interp)
 
   if (argc > 2 ||
       (argc > 1 && argv[1][0] == '-'))
-    showUseage(argv[0]);
+    showUsage(argv[0]);
   else {
     if (argc == 2) {
       char *cmd_file = argv[1];
@@ -230,7 +230,7 @@ evalTclInit(Tcl_Interp *interp,
 }
 
 void
-showUseage(char *prog)
+showUsage(const char * prog) 
 {
   printf("Usage: %s [-help] [-version] [-no_init] [-exit] cmd_file\n", prog);
   printf("  -help              show help and exit\n");

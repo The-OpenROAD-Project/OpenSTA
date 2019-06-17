@@ -62,7 +62,7 @@ findCmdLineKey(int &argc,
 	       const char *key);
 
 void
-showUseage(char *prog);
+showUsage(const char *prog);
 void
 parseThreadsArg(int argc,
 		char **argv,

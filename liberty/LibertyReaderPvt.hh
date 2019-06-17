@@ -64,8 +64,6 @@ public:
   virtual ~LibertyReader();
   virtual LibertyLibrary *readLibertyFile(const char *filename,
 					  bool infer_latches,
-					  Report *report,
-					  Debug *debug,
 					  Network *network);
   LibertyLibrary *library() const { return library_; }
   virtual bool save(LibertyGroup *) { return false; }

@@ -24,7 +24,7 @@
 using sta::stringEq;
 using sta::Sta;
 using sta::staMain;
-using sta::showUseage;
+using sta::showUsage;
 
 // Swig uses C linkage for init functions.
 extern "C" {
@@ -40,7 +40,7 @@ main(int argc,
      char *argv[])
 {
   if (argc == 2 && stringEq(argv[1], "-help")) {
-    showUseage(argv[0]);
+    showUsage(argv[0]);
     return 0;
   }
   else if (argc == 2 && stringEq(argv[1], "-version")) {

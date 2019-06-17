@@ -48,17 +48,10 @@ using std::string;
 using std::ofstream;
 using std::ifstream;
 
-typedef Vector<string> StringVector;
 typedef Map<string, StringVector*> CellSpicePortNames;
 typedef int Stage;
 typedef Map<ParasiticNode*, int> ParasiticNodeMap;
 typedef Map<LibertyPort*, LogicValue> LibertyPortLogicValues;
-
-void
-split(const string &text,
-      const string &delims,
-      // Return values.
-      StringVector &tokens);
 
 void
 streamPrint(ofstream &stream,
@@ -1628,24 +1621,6 @@ streamPrint(ofstream &stream,
   stream << result;
   free(result);
   va_end(args);
-}
-
-
-void
-split(const string &text,
-      const string &delims,
-      // Return values.
-      StringVector &tokens)
-{
-  auto start = text.find_first_not_of(delims);
-  auto end = text.find_first_of(delims, start);
-  while (end != string::npos) {
-    tokens.push_back(text.substr(start, end - start));
-    start = text.find_first_not_of(delims, end);
-    end = text.find_first_of(delims, start);
-  }
-  if (start != string::npos)
-    tokens.push_back(text.substr(start));
 }
 
 } // namespace

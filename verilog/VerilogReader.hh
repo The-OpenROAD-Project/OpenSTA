@@ -19,15 +19,11 @@
 
 namespace sta {
 
-class Report;
-class Debug;
-class Cell;
-class NetworkEdit;
-class Instance;
+class NetworkReader;
 
 // Return true if successful.
 bool
-readVerilogFile(const char *filename, Report *report, Debug *debug,
+readVerilogFile(const char *filename,
 		NetworkReader *network);
 
 void

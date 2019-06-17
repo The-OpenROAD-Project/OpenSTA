@@ -37,7 +37,7 @@ read_verilog(const char *filename)
   NetworkReader *network = sta->networkReader();
   if (network) {
     sta->readNetlistBefore();
-    return readVerilogFile(filename, sta->report(), sta->debug(), network);
+    return readVerilogFile(filename, network);
   }
   else
     return false;

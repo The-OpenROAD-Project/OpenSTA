@@ -48,14 +48,11 @@ scaleFloats(FloatSeq *floats,
 LibertyLibrary *
 readLibertyFile(const char *filename,
 		bool infer_latches,
-		Report *report,
-		Debug *debug,
 		Network *network)
 {
   LibertyBuilder builder;
   LibertyReader reader(&builder);
-  return reader.readLibertyFile(filename, infer_latches,
-				report, debug, network);
+  return reader.readLibertyFile(filename, infer_latches, network);
 }
 
 LibertyReader::LibertyReader(LibertyBuilder *builder) :
@@ -91,14 +88,12 @@ LibertyReader::~LibertyReader()
 LibertyLibrary *
 LibertyReader::readLibertyFile(const char *filename,
 			       bool infer_latches,
-			       Report *report,
-			       Debug *debug,
 			       Network *network)
 {
   filename_ = filename;
   infer_latches_ = infer_latches;
-  report_ = report;
-  debug_ = debug;
+  report_ = network->report();
+  debug_ = network->debug();
   network_ = network;
   var_map_ = nullptr;
   library_ = nullptr;
@@ -143,7 +138,7 @@ LibertyReader::readLibertyFile(const char *filename,
     have_slew_upper_threshold_[tr_index] = false;
   }
 
-  parseLibertyFile(filename, this, report);
+  parseLibertyFile(filename, this, report_);
   return library_;
 }
 

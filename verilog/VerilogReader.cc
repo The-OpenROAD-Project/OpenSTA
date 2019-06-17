@@ -54,12 +54,10 @@ linkVerilogNetwork(Cell *top_cell,
 
 bool
 readVerilogFile(const char *filename,
-		Report *report,
-		Debug *debug,
 		NetworkReader *network)
 {
   if (verilog_reader == nullptr)
-    verilog_reader = new VerilogReader(report, debug, network);
+    verilog_reader = new VerilogReader(network);
   return verilog_reader->read(filename);
 }
 
@@ -140,11 +138,9 @@ public:
 
 ////////////////////////////////////////////////////////////////
 
-VerilogReader::VerilogReader(Report *report,
-			     Debug *debug,
-			     NetworkReader *network) :
-  report_(report),
-  debug_(debug),
+VerilogReader::VerilogReader(NetworkReader *network) :
+  report_(network->report()),
+  debug_(network->debug()),
   network_(network),
   library_(nullptr),
   black_box_index_(0),

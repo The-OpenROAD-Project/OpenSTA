@@ -20,6 +20,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <string>
+#include "Vector.hh"
 
 namespace sta {
 
@@ -167,6 +168,14 @@ deleteTmpStrings();
 // Trim right spaces.
 void
 trimRight(string &str);
+
+typedef Vector<string> StringVector;
+
+void
+split(const string &text,
+      const string &delims,
+      // Return values.
+      StringVector &tokens);
 
 } // namespace
 #endif
