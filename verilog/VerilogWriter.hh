@@ -1,7 +1,3 @@
-%module verilog
-
-%{
-
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2019, Parallax Software, Inc.
 // 
@@ -18,43 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "VerilogReader.hh"
-#include "VerilogWriter.hh"
-#include "Sta.hh"
+#ifndef STA_WRITE_VERILOG_H
+#define STA_WRITE_VERILOG_H
 
-using sta::Sta;
-using sta::NetworkReader;
-using sta::readVerilogFile;
+namespace sta {
 
-%}
-
-%inline %{
-
-bool
-read_verilog(const char *filename)
-{
-  Sta *sta = Sta::sta();
-  NetworkReader *network = sta->networkReader();
-  if (network) {
-    sta->readNetlistBefore();
-    return readVerilogFile(filename, sta->report(), sta->debug(), network);
-  }
-  else
-    return false;
-}
+class Network;
 
 void
-delete_verilog_reader()
-{
-  deleteVerilogReader();
-}
+writeVerilog(const char *filename,
+	     bool sorted,
+	     Network *network);
 
-void
-write_verilog_cmd(const char *filename,
-		  bool sorted)
-{
-  Network *network = cmdNetwork();
-  writeVerilog(filename, sorted, network);
-}
+} // namespace
 
-%} // inline
+#endif

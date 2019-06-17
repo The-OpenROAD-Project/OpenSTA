@@ -19,5 +19,16 @@ namespace eval sta {
 # Defined by SWIG interface Verilog.i.
 define_cmd_args "read_verilog" {filename}
 
+define_cmd_args "write_verilog" {[-sorted] filename}
+
+proc write_verilog { args } {
+  parse_key_args "write_verilog" args keys {} flags {-sorted}
+
+  set sorted [info exists flags(-sorted)]
+  check_argc_eq1 "write_verilog" $args
+  set filename $args
+  write_verilog_cmd $filename $sorted
+}
+
 # sta namespace end
 }

@@ -210,6 +210,7 @@ set(STA_SOURCE
   verilog/VerilogReader.cc
   verilog/VerilogLex.cc
   verilog/VerilogParse.cc
+  verilog/VerilogWriter.cc
   )
 
 set(STA_HEADERS
@@ -385,6 +386,7 @@ set(STA_HEADERS
   
   verilog/Verilog.hh
   verilog/VerilogReader.hh
+  verilog/VerilogWriter.hh
   )
 
 # Source files.
