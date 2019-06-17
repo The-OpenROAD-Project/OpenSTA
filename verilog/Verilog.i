@@ -51,10 +51,10 @@ delete_verilog_reader()
 
 void
 write_verilog_cmd(const char *filename,
-		  bool sorted)
+		  bool sort)
 {
   Network *network = cmdNetwork();
-  writeVerilog(filename, sorted, network);
+  writeVerilog(filename, sort, network);
 }
 
 %} // inline

@@ -23,7 +23,7 @@ class Network;
 
 void
 writeVerilog(const char *filename,
-	     bool sorted,
+	     bool sort,
 	     Network *network);
 
 } // namespace

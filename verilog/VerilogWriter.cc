@@ -29,7 +29,7 @@ class VerilogWriter
 {
 public:
   VerilogWriter(const char *filename,
-		bool sorted,
+		bool sort,
 		FILE *stream,
 		Network *network);
   void writeModule(Instance *inst);
@@ -42,7 +42,7 @@ protected:
   void writeChild(Instance *child);
 
   const char *filename_;
-  bool sorted_;
+  bool sort_;
   FILE *stream_;
   Network *network_;
 
@@ -52,12 +52,12 @@ protected:
 
 void
 writeVerilog(const char *filename,
-	     bool sorted,
+	     bool sort,
 	     Network *network)
 {
   FILE *stream = fopen(filename, "w");
   if (stream) {
-    VerilogWriter writer(filename, sorted, stream, network);
+    VerilogWriter writer(filename, sort, stream, network);
     writer.writeModule(network->topInstance());
     fclose(stream);
   }
@@ -66,11 +66,11 @@ writeVerilog(const char *filename,
 }
 
 VerilogWriter::VerilogWriter(const char *filename,
-			     bool sorted,
+			     bool sort,
 			     FILE *stream,
 			     Network *network) :
   filename_(filename),
-  sorted_(sorted),
+  sort_(sort),
   stream_(stream),
   network_(network)
 {
@@ -171,7 +171,7 @@ VerilogWriter::writeChildren(Instance *inst)
   }
   delete child_iter;
 
-  if (sorted_)
+  if (sort_)
     sort(children, InstancePathNameLess(network_));
 
   for (auto child : children)
