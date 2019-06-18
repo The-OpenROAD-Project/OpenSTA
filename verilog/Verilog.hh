@@ -160,8 +160,14 @@ public:
   void reportStmtCounts();
   const char *constant10Max() const { return constant10_max_; }
   size_t constant10MaxLength() const { return constant10_max_length_; }
+  const char *
+  verilogName(VerilogModuleInst *inst);
+  const char *
+  instanceVerilogName(const char *inst_name);
+  const char *
+  netVerilogName(const char *net_name);
 
-private:
+protected:
   DISALLOW_COPY_AND_ASSIGN(VerilogReader);
   void init(const char *filename);
   void makeCellPorts(Cell *cell,

@@ -492,7 +492,7 @@ proc_redirect report_tns {
     set digits $sta_report_default_digits
   }
 
-  puts "tns [format %.${digits}f [total_negative_slack]]"
+  puts "tns [format_time [total_negative_slack_cmd "max"] $digits]"
 }
 
 ################################################################
@@ -510,7 +510,29 @@ proc_redirect report_wns {
     set digits $sta_report_default_digits
   }
 
-  puts "wns [format %.${digits}f [worst_negative_slack]]"
+  set slack [worst_slack_cmd "max"]
+  if { $slack > 0.0 } {
+    set slack 0.0
+  }
+  puts "wns [format_time $slack $digits]"
+}
+
+################################################################
+
+define_sta_cmd_args "report_worst_slack" { [-digits digits]}
+
+proc_redirect report_worst_slack {
+  global sta_report_default_digits
+
+  parse_key_args "report_worst_slack" args keys {-digits} flags {}
+  if [info exists keys(-digits)] {
+    set digits $keys(-digits)
+    check_positive_integer "-digits" $digits
+  } else {
+    set digits $sta_report_default_digits
+  }
+
+  puts "worst slack [format_time [worst_slack_cmd "max"] $digits]"
 }
 
 ################################################################

@@ -318,21 +318,36 @@ define_hidden_cmd_args "worst_negative_slack" \
   {[-corner corner] [-min]|[-max]}
 
 proc worst_negative_slack { args } {
-  parse_key_args "total_negative_slack" args \
+  set worst_slack [worst_slack1 "worst_negative_slack" $args]
+  if { $worst_slack < 0.0 } {
+    return $worst_slack
+  } else {
+    return 0.0
+  }
+}
+
+################################################################
+
+define_hidden_cmd_args "worst_slack" \
+  {[-corner corner] [-min]|[-max]}
+
+proc worst_slack { args } {
+  return [worst_slack1 "worst_slack" $args]
+}
+
+# arg parsing common to worst_slack/worst_negative_slack
+proc worst_slack1 { cmd args1 } {
+  parse_key_args $cmd args1 \
     keys {-corner} flags {-min -max}
-  check_argc_eq0 "worst_negative_slack" $args
+  check_argc_eq0 $cmd $args1
   set min_max [parse_min_max_flags flags]
   if { [info exists keys(-corner)] } {
     set corner [parse_corner_required keys]
     set worst_slack [worst_slack_corner $corner $min_max]
   } else {
-    set worst_slack [worst_slack $min_max]
+    set worst_slack [worst_slack_cmd $min_max]
   }
-  if { $worst_slack < 0.0 } {
-    return [time_sta_ui $worst_slack]
-  } else {
-    return 0.0
-  }
+  return [time_sta_ui $worst_slack]
 }
 
 ################################################################

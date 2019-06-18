@@ -755,6 +755,25 @@ VerilogReader::warn(const char *filename,
   va_end(args);
 }
 
+const char *
+VerilogReader::verilogName(VerilogModuleInst *mod_inst)
+{
+  return sta::instanceVerilogName(mod_inst->instanceName(),
+				  network_->pathEscape());
+}
+
+const char *
+VerilogReader::instanceVerilogName(const char *inst_name)
+{
+  return sta::netVerilogName(inst_name, network_->pathEscape());
+}
+
+const char *
+VerilogReader::netVerilogName(const char *net_name)
+{
+  return sta::netVerilogName(net_name, network_->pathEscape());
+}
+
 ////////////////////////////////////////////////////////////////
 
 VerilogModule::VerilogModule(const char *name,
@@ -827,9 +846,9 @@ VerilogModule::parseDcl(VerilogDcl *dcl,
 	dcl_map_[net_name] = dcl;
       else if (!dcl->direction()->isInternal())
 	reader->warn(filename_, dcl->line(),
-		      "signal %s previously declared on line %d.\n",
-		      net_name,
-		      existing_dcl->line());
+		     "signal %s previously declared on line %d.\n",
+		     reader->netVerilogName(net_name),
+		     existing_dcl->line());
     }
     else
       dcl_map_[net_name] = dcl;
@@ -854,7 +873,7 @@ VerilogModule::checkInstanceName(VerilogInst *inst,
     } while (inst_names.findKey(replacement_name));
     reader->warn(filename_, inst->line(),
 		 "instance name %s duplicated - renamed to %s.\n",
-		 inst_name,
+		 reader->instanceVerilogName(inst_name),
 		 replacement_name);
     inst_name = replacement_name;
     inst->setInstanceName(inst_name);
@@ -1733,7 +1752,8 @@ VerilogReader::linkNetwork(Cell *top_cell,
       return top_instance;
   }
   else {
-    report->error("%s is not a verilog module.\n", network_->name(top_cell));
+    report->error("%s is not a verilog module.\n",
+		  network_->name(top_cell));
     return nullptr;
   }
 }
@@ -1793,13 +1813,13 @@ VerilogReader::makeModuleInstNetwork(VerilogModuleInst *mod_inst,
       linkWarn(filename_, mod_inst->line(),
 	       "module %s not found.  Creating black box for %s.\n",
 	       mod_inst->moduleName(),
-	       mod_inst->instanceName());
+	       verilogName(mod_inst));
     }
     else
       linkError(filename_, mod_inst->line(),
 		"module %s not found for instance %s.\n",
 		mod_inst->moduleName(),
-		mod_inst->instanceName());
+		verilogName(mod_inst));
   }
   if (cell) {
     Instance *inst = network_->makeInstance(cell, mod_inst->instanceName(),
@@ -1852,7 +1872,7 @@ VerilogReader::makeNamedInstPins(Cell *cell,
 	  && network_->size(port) != vpin->size(parent_module))
 	linkWarn(parent_module->filename(), mod_inst->line(),
 		 "instance %s port %s size %d does not match net size %d.\n",
-		 mod_inst->instanceName(),
+		 verilogName(mod_inst),
 		 network_->name(port),
 		 network_->size(port),
 		 vpin->size(parent_module));
@@ -1875,11 +1895,12 @@ VerilogReader::makeNamedInstPins(Cell *cell,
 	delete net_name_iter;
       }
     }
-    else
+    else {
       linkWarn(parent_module->filename(), mod_inst->line(),
 	       "instance %s port %s not found.\n",
-	       mod_inst->instanceName(),
+	       verilogName(mod_inst),
 	       port_name);
+    }
   }
 }
 
@@ -1901,7 +1922,7 @@ VerilogReader::makeOrderedInstPins(Cell *cell,
     if (network_->size(port) != net->size(parent_module))
       linkWarn(parent_module->filename(), mod_inst->line(),
 	       "instance %s port %s size %d does not match net size %d.\n",
-	       mod_inst->instanceName(),
+	       verilogName(mod_inst),
 	       network_->name(port),
 	       network_->size(port),
 	       net->size(parent_module));

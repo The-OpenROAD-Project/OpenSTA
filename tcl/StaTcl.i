@@ -4546,7 +4546,7 @@ total_negative_slack_corner_cmd(const Corner *corner,
 }
 
 Slack
-worst_slack(const MinMax *min_max)
+worst_slack_cmd(const MinMax *min_max)
 {
   cmdLinkedNetwork();
   Sta *sta = Sta::sta();

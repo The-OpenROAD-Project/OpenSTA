@@ -183,7 +183,8 @@ VerilogWriter::writeChild(Instance *child)
 {
   Cell *child_cell = network_->cell(child);
   const char *child_name = network_->name(child);
-  const char *child_vname = instanceVerilogName(child_name, '\0');
+  const char *child_vname = instanceVerilogName(child_name,
+						network_->pathEscape());
   fprintf(stream_, " %s %s (",
 	  network_->name(child_cell),
 	  child_vname);
@@ -194,7 +195,7 @@ VerilogWriter::writeChild(Instance *child)
     Net *net = network_->net(pin);
     if (net) {
       const char *net_name = network_->name(net);
-      const char *net_vname = netVerilogName(net_name, '\0');
+      const char *net_vname = netVerilogName(net_name, network_->pathEscape());
       Port *port = network_->port(pin);
       const char *port_name = network_->name(port);
       if (!first)
