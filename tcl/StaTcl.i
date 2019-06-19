@@ -1533,7 +1533,7 @@ using namespace sta;
     Tcl_SetResult(interp, const_cast<char*>(value.stringValue()), TCL_VOLATILE);
     break;
   case PropertyValue::Type::type_float: {
-    char *float_string = stringPrint("%.5f", value.floatValue());
+    char *float_string = stringPrint("%.6e", value.floatValue());
     Tcl_SetResult(interp, float_string, TCL_VOLATILE);
     stringDelete(float_string);
   }

@@ -640,7 +640,7 @@ portSlackProperty(const Port *port,
 PropertyValue
 getProperty(const LibertyPort *port,
 	    const char *property,
-	    Sta *)
+	    Sta *sta)
 {
   if (stringEqual(property, "name"))
     return PropertyValue(port->name());
@@ -648,6 +648,10 @@ getProperty(const LibertyPort *port,
     return PropertyValue(port->name());
   else if (stringEqual(property, "direction"))
     return PropertyValue(port->direction()->name());
+  else if (stringEqual(property, "capacitance")) {
+    float cap = port->capacitance(TransRiseFall::rise(), MinMax::max());
+    return PropertyValue(sta->units()->capacitanceUnit()->asString(cap, 6));
+  }
   else
     throw PropertyUnknown("liberty port", property);
 }
@@ -863,7 +867,7 @@ getProperty(Clock *clk,
       || stringEqual(property, "full_name"))
     return PropertyValue(clk->name());
   else if (stringEqual(property, "period"))
-    return PropertyValue(sta->units()->timeUnit()->asString(clk->period(), 8));
+    return PropertyValue(sta->units()->timeUnit()->asString(clk->period(), 6));
   else if (stringEqual(property, "sources"))
     return PropertyValue(clk->pins());
   else if (stringEqual(property, "propagated"))
