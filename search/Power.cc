@@ -1,10 +1,18 @@
-// Parallax Static Timing Analyzer
+// OpenSTA, Static Timing Analyzer
 // Copyright (c) 2019, Parallax Software, Inc.
-// All rights reserved.
 // 
-// No part of this document may be copied, transmitted or
-// disclosed in any form or fashion without the express
-// written consent of Parallax Software, Inc.
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <algorithm> // max
 #include "Machine.hh"
@@ -523,13 +531,6 @@ Power::findInstClk(const Instance *inst)
 }
 
 void
-check(float x)
-{
-  if (std::isnan(x))
-    printf("luse\n");
-}
-
-void
 Power::findInternalPower(const Pin *to_pin,
 			 const LibertyPort *to_port,
 			 const Instance *inst,
@@ -567,65 +568,56 @@ Power::findInternalPower(const Pin *to_pin,
       else
 	from_port = to_port;
       // If all the "when" clauses exist VSS internal power is ignored.
-      if ((when && internalPowerMissingWhen(cell, to_port, related_pg_pin))
-	  || pgNameVoltage(cell, related_pg_pin, dcalc_ap) != 0.0) {
-	const Pin *from_pin = network_->findPin(inst, from_port);
-	if (from_pin) {
-	  Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
-	  float duty;
-	  if (infered_when) {
-	    PwrActivity from_activity = findActivity(from_pin);
-	    PwrActivity to_activity = findActivity(to_pin);
-	    float duty1 = evalActivity(infered_when, inst).duty();
-	    check(from_activity.activity());
-	    check(to_activity.activity());
-	    check(duty1);
-	    if (to_activity.activity() == 0.0)
-	      duty = 0.0;
-	    else
-	      duty = from_activity.activity() / to_activity.activity() * duty1;
-	    check(duty);
-	  }
-	  else if (when)
-	    duty = evalActivity(when, inst).duty();
-	  else if (search_->isClock(from_vertex))
-	    duty = 1.0;
+      const Pin *from_pin = network_->findPin(inst, from_port);
+      if (from_pin
+	  && ((when && internalPowerMissingWhen(cell, to_port, related_pg_pin))
+	      || pgNameVoltage(cell, related_pg_pin, dcalc_ap) != 0.0)) {
+	Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
+	float duty;
+	if (infered_when) {
+	  PwrActivity from_activity = findActivity(from_pin);
+	  PwrActivity to_activity = findActivity(to_pin);
+	  float duty1 = evalActivity(infered_when, inst).duty();
+	  if (to_activity.activity() == 0.0)
+	    duty = 0.0;
 	  else
-	    duty = 0.5;
-	  check(duty);
-	  float port_energy = 0.0;
-	  TransRiseFallIterator tr_iter;
-	  while (tr_iter.hasNext()) {
-	    TransRiseFall *to_tr = tr_iter.next();
-	    // Should use unateness to find from_tr.
-	    TransRiseFall *from_tr = to_tr;
-	    float slew = delayAsFloat(graph_->slew(from_vertex,
-						   from_tr,
-						   dcalc_ap->index()));
-	    float table_energy = pwr->power(to_tr, pvt, slew, load_cap);
-	    float tr_energy = table_energy * duty;
-	    debugPrint4(debug_, "power", 3,  " %s energy = %9.2e * %.2f = %9.2e\n",
-			to_tr->shortName(),
-			table_energy,
-			duty,
-			tr_energy);
-	    check(slew);
-	    check(table_energy);
-	    check(tr_energy);
-	    port_energy += tr_energy;
-	  }
-	  float port_internal = port_energy * to_activity.activity();
-	  debugPrint8(debug_, "power", 2,  " %s -> %s %s  %.2f %.2f %9.2e %9.2e %s\n",
-		      from_port->name(),
-		      to_port->name(),
-		      when ? when->asString() : (infered_when ? infered_when->asString() : "    "),
-		      to_activity.activity() * 1e-9,
-		      duty,
-		      port_energy,
-		      port_internal,
-		      related_pg_pin ? related_pg_pin : "no pg_pin");
-	  internal += port_internal;
+	    duty = from_activity.activity() / to_activity.activity() * duty1;
 	}
+	else if (when)
+	  duty = evalActivity(when, inst).duty();
+	else if (search_->isClock(from_vertex))
+	  duty = 1.0;
+	else
+	  duty = 0.5;
+	float port_energy = 0.0;
+	TransRiseFallIterator tr_iter;
+	while (tr_iter.hasNext()) {
+	  TransRiseFall *to_tr = tr_iter.next();
+	  // Should use unateness to find from_tr.
+	  TransRiseFall *from_tr = to_tr;
+	  float slew = delayAsFloat(graph_->slew(from_vertex,
+						 from_tr,
+						 dcalc_ap->index()));
+	  float table_energy = pwr->power(to_tr, pvt, slew, load_cap);
+	  float tr_energy = table_energy * duty;
+	  debugPrint4(debug_, "power", 3,  " %s energy = %9.2e * %.2f = %9.2e\n",
+		      to_tr->shortName(),
+		      table_energy,
+		      duty,
+		      tr_energy);
+	  port_energy += tr_energy;
+	}
+	float port_internal = port_energy * to_activity.activity();
+	debugPrint8(debug_, "power", 2,  " %s -> %s %s  %.2f %.2f %9.2e %9.2e %s\n",
+		    from_port->name(),
+		    to_port->name(),
+		    when ? when->asString() : (infered_when ? infered_when->asString() : "    "),
+		    to_activity.activity() * 1e-9,
+		    duty,
+		    port_energy,
+		    port_internal,
+		    related_pg_pin ? related_pg_pin : "no pg_pin");
+	internal += port_internal;
       }
       if (infered_when)
 	infered_when->deleteSubexprs();
