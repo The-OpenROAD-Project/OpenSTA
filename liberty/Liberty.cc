@@ -84,7 +84,6 @@ LibertyLibrary::LibertyLibrary(const char *name,
   default_operating_conditions_(nullptr),
   ocv_arc_depth_(0.0),
   default_ocv_derate_(nullptr),
-  found_equiv_cells_(false),
   buffers_(nullptr)
 {
   // Scalar templates are builtin.
@@ -150,15 +149,6 @@ LibertyLibrary::findLibertyCellsMatching(PatternMatch *pattern,
     LibertyCell *cell = cell_iter.next();
     if (pattern->match(cell->name()))
       cells->push_back(cell);
-  }
-}
-
-void
-LibertyLibrary::ensureEquivCells()
-{
-  if (!found_equiv_cells_) {
-    findEquivCells(this);
-    found_equiv_cells_ = true;
   }
 }
 
@@ -866,10 +856,7 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   ocv_derate_(nullptr),
   is_disabled_constraint_(false),
   leakage_power_(0.0),
-  leakage_power_exists_(false),
-  equiv_cells_(nullptr),
-  higher_drive_(nullptr),
-  lower_drive_(nullptr)
+  leakage_power_exists_(false)
 {
   liberty_cell_ = this;
 }
@@ -884,16 +871,6 @@ LibertyCell::~LibertyCell()
   port_timing_arc_set_map_.deleteContents();
   timing_arc_set_from_map_.deleteContents();
   timing_arc_set_to_map_.deleteContents();
-
-  if (equiv_cells_) {
-    // Carefull because loop below nulls equiv_cells_.
-    auto equiv_cells = equiv_cells_;
-    // equiv_cells_ is shared by all of the equivalent cells, so
-    // delete it once for all of them and null the others.
-    for (auto equiv : *equiv_cells_)
-      equiv->setEquivCells(nullptr);
-    delete equiv_cells;
-  }
 
   deleteInternalPowerAttrs();
   internal_powers_.deleteContents();
@@ -1463,20 +1440,6 @@ LibertyCell::setCornerCell(LibertyCell *corner_cell,
 
 ////////////////////////////////////////////////////////////////
 
-LibertyCellSeq *
-LibertyCell::equivCells()
-{
-  if (equiv_cells_ == nullptr)
-    liberty_library_->ensureEquivCells();
-  return equiv_cells_;
-}
-
-void
-LibertyCell::setEquivCells(LibertyCellSeq *equiv_cells)
-{
-  equiv_cells_ = equiv_cells;
-}
-
 // Use the worst "drive" for all the timing arcs in the cell.
 float
 LibertyCell::driveResistance(const TransRiseFall *tr) const
@@ -1489,7 +1452,8 @@ LibertyCell::driveResistance(const TransRiseFall *tr) const
       TimingArcSetArcIterator arc_iter(set);
       while (arc_iter.hasNext()) {
 	TimingArc *arc = arc_iter.next();
-	if (arc->toTrans()->asRiseFall() == tr) {
+	if (tr == nullptr
+	    || arc->toTrans()->asRiseFall() == tr) {
 	  GateTimingModel *model = dynamic_cast<GateTimingModel*>(arc->model());
 	  if (model) {
 	    float drive = model->driveResistance(this, nullptr);
@@ -1503,30 +1467,10 @@ LibertyCell::driveResistance(const TransRiseFall *tr) const
   return max_drive;
 }
 
-LibertyCell *
-LibertyCell::higherDrive() const
+float
+LibertyCell::driveResistance() const
 {
-  liberty_library_->ensureEquivCells();
-  return higher_drive_; 
-}
-
-LibertyCell *
-LibertyCell::lowerDrive() const
-{
-  liberty_library_->ensureEquivCells();
-  return lower_drive_; 
-}
-
-void
-LibertyCell::setHigherDrive(LibertyCell *cell)
-{
-  higher_drive_ = cell;
-}
-
-void
-LibertyCell::setLowerDrive(LibertyCell *cell)
-{
-  lower_drive_ = cell;
+  return driveResistance(nullptr);
 }
 
 ////////////////////////////////////////////////////////////////

@@ -50,8 +50,8 @@
 #include "Transition.hh"
 #include "TimingRole.hh"
 #include "TimingArc.hh"
-#include "EquivCells.hh"
 #include "Liberty.hh"
+#include "EquivCells.hh"
 #include "Network.hh"
 #include "Clock.hh"
 #include "PortDelay.hh"
@@ -2279,17 +2279,39 @@ find_library_buffers(LibertyLibrary *library)
   return library->buffers();
 }
 
-LibertyCellSeq *
-equiv_cells(LibertyCell *cell)
+void
+make_equiv_cells(LibertyLibrary *lib)
 {
-  return cell->equivCells();
+  LibertyLibrarySeq libs;
+  libs.push_back(lib);
+  Sta::sta()->makeEquivCells(&libs, nullptr);
+}
+
+LibertyCellSeq *
+find_equiv_cells(LibertyCell *cell)
+{
+  return Sta::sta()->equivCells(cell);
+}
+
+bool
+equiv_cells(LibertyCell *cell1,
+	    LibertyCell *cell2)
+{
+  return sta::equivCells(cell1, cell2);
 }
 
 bool
 equiv_cell_ports(LibertyCell *cell1,
-		  LibertyCell *cell2)
+		 LibertyCell *cell2)
 {
   return equivCellPorts(cell1, cell2);
+}
+
+bool
+equiv_cell_timing_arcs(LibertyCell *cell1,
+		       LibertyCell *cell2)
+{
+  return equivCellTimingArcSets(cell1, cell2);
 }
 
 void

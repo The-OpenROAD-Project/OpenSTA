@@ -58,6 +58,7 @@ class ReportField;
 class Power;
 class PowerResult;
 class ClockIterator;
+class EquivCells;
 
 typedef InstanceSeq::Iterator SlowDrvrIterator;
 typedef Vector<const char*> CheckError;
@@ -1182,6 +1183,12 @@ public:
 	     // Return values.
 	     PowerResult &result);
 
+  // Find equivalent cells in equiv_libs.
+  // Optionally add mappings for cells in map_libs.
+  void makeEquivCells(LibertyLibrarySeq *equiv_libs,
+		      LibertyLibrarySeq *map_libs);
+  LibertyCellSeq *equivCells(LibertyCell *cell);
+
 protected:
   // Default constructors that are called by makeComponents in the Sta
   // constructor.  These can be redefined by a derived class to
@@ -1311,6 +1318,7 @@ protected:
   Tcl_Interp *tcl_interp_;
   bool link_make_black_boxes_;
   bool update_genclks_;
+  EquivCells *equiv_cells_;
 
   // Singleton sta used by tcl command interpreter.
   static Sta *sta_;

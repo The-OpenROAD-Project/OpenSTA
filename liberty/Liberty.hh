@@ -289,7 +289,6 @@ protected:
 			const TableModel *model,
 			float in_slew,
 			float wire_delay) const;
-  void ensureEquivCells();
 
   Units *units_;
   DelayModelType delay_model_type_;
@@ -330,7 +329,6 @@ protected:
   OcvDerate *default_ocv_derate_;
   OcvDerateMap ocv_derate_map_;
   SupplyVoltageMap supply_voltage_map_;
-  bool found_equiv_cells_;
   LibertyCellSeq *buffers_;
 
   // Set if any library has rise/fall capacitances.
@@ -492,13 +490,9 @@ public:
   virtual void finish(bool infer_latches,
 		      Report *report,
 		      Debug *debug);
-  LibertyCellSeq *equivCells();
-  // Internal.
-  LibertyCellSeq *equivCellsRaw() { return equiv_cells_; }
-  void setEquivCells(LibertyCellSeq *equiv_cells);
   float driveResistance(const TransRiseFall *tr) const;
-  void setHigherDrive(LibertyCell *cell);
-  void setLowerDrive(LibertyCell *cell);
+  // Max of rise/fall.
+  float driveResistance() const;
   bool isBuffer() const;
   // Only valid when isBuffer() returns true.
   void bufferPorts(// Return values.
@@ -569,10 +563,6 @@ protected:
   float leakage_power_;
   bool leakage_power_exists_;
   LibertyPgPortMap pg_port_map_;
-  LibertyCellSeq *equiv_cells_;
-  // Next higher/lower drive equivalent cells.
-  LibertyCell *higher_drive_;
-  LibertyCell *lower_drive_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(LibertyCell);

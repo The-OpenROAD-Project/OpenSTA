@@ -57,6 +57,7 @@ class TransRiseFall;
 class TransRiseFallBoth;
 class LibertyCellSequentialIterator;
 
+typedef Vector<LibertyLibrary*> LibertyLibrarySeq;
 typedef Vector<LibertyCell*> LibertyCellSeq;
 typedef Vector<Sequential*> SequentialSeq;
 typedef Map<LibertyCell*, LibertyCellSeq*> LibertyCellEquivMap;

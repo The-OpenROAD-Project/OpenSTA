@@ -15,7 +15,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "Machine.hh"
-#include "UnorderedMap.hh"
 #include "PortDirection.hh"
 #include "Transition.hh"
 #include "MinMax.hh"
@@ -31,17 +30,6 @@ namespace sta {
 
 using std::max;
 
-typedef UnorderedMap<unsigned, LibertyCellSeq*> LibertyCellHashMap;
-typedef Set<LibertyCell*> LibertyCellSet;
-
-static void
-findEquivCells1(const LibertyLibrary *library,
-		LibertyCellSet &cell_equivs);
-static void
-sortCellEquivs(LibertyCellSet &cell_equivs);
-static float
-cellDriveResistance(const LibertyCell *cell);
-
 static unsigned
 hashCell(const LibertyCell *cell);
 static unsigned
@@ -55,91 +43,110 @@ hashPort(const LibertyPort *port);
 static unsigned
 hashString(const char *str);
 
-static bool
-equivCellSequentials(const LibertyCell *cell1,
-		     const LibertyCell *cell2);
-
-void
-findEquivCells(const LibertyLibrary *library)
+class CellDriveResistanceLess
 {
-  LibertyCellSet cell_equivs;
-  findEquivCells1(library, cell_equivs);
-  // Sort by drive strength.
-  sortCellEquivs(cell_equivs);
+public:
+  bool operator()(const LibertyCell *cell1,
+		  const LibertyCell *cell2) const
+  {
+    return cell1->driveResistance() > cell2->driveResistance();
+  }
+};
+
+EquivCells::EquivCells(LibertyLibrarySeq *equiv_libs,
+		       LibertyLibrarySeq *map_libs)
+{
+  LibertyCellHashMap hash_matches;
+  for (auto lib : *equiv_libs)
+    findEquivCells(lib, hash_matches);
+  // Sort the equiv sets by drive resistance.
+  for (auto cell : unique_equiv_cells_) {
+    auto equivs = equiv_cells_.findKey(cell);
+    sort(equivs, CellDriveResistanceLess());
+  }
+  if (map_libs) {
+    for (auto lib : *map_libs)
+      mapEquivCells(lib, hash_matches);
+  }
+  hash_matches.deleteContents();
 }
 
-static void
-findEquivCells1(const LibertyLibrary *library,
-		LibertyCellSet &cell_equivs)
+EquivCells::~EquivCells()
 {
-  LibertyCellHashMap cell_hash;
+  for (auto cell : unique_equiv_cells_)
+    delete equiv_cells_.findKey(cell);
+}
+
+LibertyCellSeq *
+EquivCells::equivs(LibertyCell *cell)
+{
+  return equiv_cells_.findKey(cell);
+}
+
+// Use a comprehensive hash on cell properties to segregate
+// cells into groups of potential matches.
+void
+EquivCells::findEquivCells(const LibertyLibrary *library,
+			   LibertyCellHashMap &hash_matches)
+{
   LibertyCellIterator cell_iter(library);
   while (cell_iter.hasNext()) {
     LibertyCell *cell = cell_iter.next();
-    if (!cell->dontUse()) {
+    if (!cell->dontUse()
+	&& !stringBeginEqual(cell->name(), "DLY")) {
       unsigned hash = hashCell(cell);
-      // Use a comprehensive hash on cell properties to segregate
-      // cells into groups of potential matches.
-      LibertyCellSeq *matches = cell_hash[hash];
+      LibertyCellSeq *matches = hash_matches.findKey(hash);
       if (matches) {
 	LibertyCellSeq::Iterator match_iter(matches);
 	while (match_iter.hasNext()) {
 	  LibertyCell *match = match_iter.next();
 	  if (equivCells(match, cell)) {
-	    LibertyCellSeq *equivs = match->equivCellsRaw();
+	    LibertyCellSeq *equivs = equiv_cells_.findKey(match);
 	    if (equivs == nullptr) {
 	      equivs = new LibertyCellSeq;
 	      equivs->push_back(match);
-	      match->setEquivCells(equivs);
-	      cell_equivs.insert(match);
+	      unique_equiv_cells_.push_back(match);
+	      equiv_cells_[match] = equivs;
 	    }
 	    equivs->push_back(cell);
-	    cell->setEquivCells(equivs);
+	    equiv_cells_[cell] = equivs;
+	    break;
+	  }
+	}
+	matches->push_back(cell);
+      }
+      else {
+	matches = new LibertyCellSeq;
+	hash_matches[hash] = matches;
+	matches->push_back(cell);
+      }
+    }
+  }
+}
+
+// Map library cells to equiv cells.
+void
+EquivCells::mapEquivCells(const LibertyLibrary *library,
+			  LibertyCellHashMap &hash_matches)
+{
+  
+  LibertyCellIterator cell_iter(library);
+  while (cell_iter.hasNext()) {
+    LibertyCell *cell = cell_iter.next();
+    if (!cell->dontUse()) {
+      unsigned hash = hashCell(cell);
+      LibertyCellSeq *matches = hash_matches.findKey(hash);
+      if (matches) {
+	LibertyCellSeq::Iterator match_iter(matches);
+	while (match_iter.hasNext()) {
+	  LibertyCell *match = match_iter.next();
+	  if (equivCells(match, cell)) {
+	    LibertyCellSeq *equivs = equiv_cells_.findKey(match);
+	    equiv_cells_[cell] = equivs;
 	    break;
 	  }
 	}
       }
-      else {
-	matches = new LibertyCellSeq;
-	cell_hash[hash] = matches;
-      }
-      matches->push_back(cell);
-    }
-  }
-  cell_hash.deleteContents();
-}
-
-struct CellDriveResistanceLess
-{
-  bool operator()(const LibertyCell *cell1,
-		  const LibertyCell *cell2) const
-  {
-    return cellDriveResistance(cell1) > cellDriveResistance(cell2);
-  }
-};
-
-static float
-cellDriveResistance(const LibertyCell *cell)
-{
-  return max(cell->driveResistance(TransRiseFall::rise()),
-	     cell->driveResistance(TransRiseFall::fall()));
-}
-
-static void
-sortCellEquivs(LibertyCellSet &cell_equivs)
-{
-  for (auto equiv : cell_equivs) {
-    LibertyCellSeq *equivs = equiv->equivCells();
-    sort(equivs, CellDriveResistanceLess());
-    LibertyCell *lower = nullptr;
-    LibertyCellSeq::Iterator cell_iter(equivs);
-    while (cell_iter.hasNext()) {
-      LibertyCell *cell = cell_iter.next();
-      if (lower) {
-	lower->setHigherDrive(cell);
-	cell->setLowerDrive(lower);
-      }
-      lower = cell;
     }
   }
 }
@@ -273,7 +280,7 @@ equivCellPorts(const LibertyCell *cell1,
   }
 }
 
-static bool
+bool
 equivCellSequentials(const LibertyCell *cell1,
 		     const LibertyCell *cell2)
 {

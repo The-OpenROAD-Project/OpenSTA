@@ -17,15 +17,37 @@
 #ifndef STA_EQUIV_CELLS_H
 #define STA_EQUIV_CELLS_H
 
+#include "Vector.hh"
 #include "Map.hh"
+#include "UnorderedMap.hh"
 #include "LibertyClass.hh"
 
 namespace sta {
 
-// Find equivalent cells, sort by drive strength and
-// and set cell->equivCells/higherDrive/lowerDrive.
-void
-findEquivCells(const LibertyLibrary *library);
+typedef Map<LibertyCell*, LibertyCellSeq*> EquivCellMap;
+typedef UnorderedMap<unsigned, LibertyCellSeq*> LibertyCellHashMap;
+
+class EquivCells
+{
+public:
+  // Find equivalent cells in equiv_libs.
+  // Optionally add mappings for cells in map_libs.
+  EquivCells(LibertyLibrarySeq *equiv_libs,
+	     LibertyLibrarySeq *map_libs);
+  ~EquivCells();
+  // Find equivalents for cell (member of from_libs) in to_libs.
+  LibertyCellSeq *equivs(LibertyCell *cell);
+  
+protected:
+  void findEquivCells(const LibertyLibrary *library,
+		      LibertyCellHashMap &hash_matches);
+  void mapEquivCells(const LibertyLibrary *library,
+		     LibertyCellHashMap &hash_matches);
+
+  EquivCellMap equiv_cells_;
+  // Unique cell for each equiv cell group.
+  LibertyCellSeq unique_equiv_cells_;
+};
 
 // Predicate that is true when the ports, functions, sequentials and
 // timing arcs match.
@@ -47,6 +69,10 @@ equivCellPortsAndFuncs(const LibertyCell *cell1,
 bool
 equivCellTimingArcSets(const LibertyCell *cell1,
 		       const LibertyCell *cell2);
+
+bool
+equivCellSequentials(const LibertyCell *cell1,
+		     const LibertyCell *cell2);
 
 } // namespace
 #endif

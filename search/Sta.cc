@@ -276,7 +276,8 @@ Sta::Sta() :
   report_path_(nullptr),
   power_(nullptr),
   link_make_black_boxes_(true),
-  update_genclks_(false)
+  update_genclks_(false),
+  equiv_cells_(nullptr)
 {
 }
 
@@ -517,6 +518,7 @@ Sta::~Sta()
   delete units_;
   delete report_;
   delete power_;
+  delete equiv_cells_;
 }
 
 void
@@ -3644,7 +3646,7 @@ Sta::replaceCell(Instance *inst,
 {
   NetworkEdit *network = networkCmdEdit();
   LibertyCell *from_lib_cell = network->libertyCell(inst);
-  if (equivCells(from_lib_cell, to_lib_cell)) {
+  if (sta::equivCells(from_lib_cell, to_lib_cell)) {
     replaceEquivCellBefore(inst, to_lib_cell);
     network->replaceCell(inst, to_cell);
     replaceEquivCellAfter(inst);
@@ -4966,6 +4968,24 @@ Sta::reportCheck(MaxSkewCheck *check,
 
 ////////////////////////////////////////////////////////////////
 
+void
+Sta::makeEquivCells(LibertyLibrarySeq *equiv_libs,
+		    LibertyLibrarySeq *map_libs)
+{
+  delete equiv_cells_;
+  equiv_cells_ = new EquivCells(equiv_libs, map_libs);
+}
+
+LibertyCellSeq *
+Sta::equivCells(LibertyCell *cell)
+{
+  if (equiv_cells_)
+    return equiv_cells_->equivs(cell);
+  else
+    return nullptr;
+}
+
+////////////////////////////////////////////////////////////////
 void
 Sta::powerPreamble()
 {
