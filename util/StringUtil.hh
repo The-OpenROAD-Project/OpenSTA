@@ -50,14 +50,6 @@ stringEqIf(const char *str1,
     || (str1 && str2 && strcmp(str1, str2) == 0);
 }
 
-// Case sensitive compare the beginning of str1 to str2.
-inline bool
-stringBeginEq(const char *str1,
-	      const char *str2)
-{
-  return strncmp(str1, str2, strlen(str2)) == 0;
-}
-
 // Case insensitive compare the beginning of str1 to str2.
 inline bool
 stringBeginEqual(const char *str1,
