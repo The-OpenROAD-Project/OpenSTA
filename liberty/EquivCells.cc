@@ -92,8 +92,7 @@ EquivCells::findEquivCells(const LibertyLibrary *library,
   LibertyCellIterator cell_iter(library);
   while (cell_iter.hasNext()) {
     LibertyCell *cell = cell_iter.next();
-    if (!cell->dontUse()
-	&& !stringBeginEqual(cell->name(), "DLY")) {
+    if (!cell->dontUse()) {
       unsigned hash = hashCell(cell);
       LibertyCellSeq *matches = hash_matches.findKey(hash);
       if (matches) {
