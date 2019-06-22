@@ -527,10 +527,18 @@ getProperty(const LibertyCell *cell,
     return PropertyValue(cell->filename());
   else if (stringEqual(property, "library"))
     return PropertyValue(cell->libertyLibrary());
-  else if (stringEqual(property, "drive_resistance_rise"))
-    return PropertyValue(cell->driveResistance(TransRiseFall::rise()));
-  else if (stringEqual(property, "drive_resistance_fall"))
-    return PropertyValue(cell->driveResistance(TransRiseFall::fall()));
+  else if (stringEqual(property, "drive_resistance_rise_min"))
+    return PropertyValue(cell->driveResistance(TransRiseFall::rise(),
+					       MinMax::min()));
+  else if (stringEqual(property, "drive_resistance_rise_max"))
+    return PropertyValue(cell->driveResistance(TransRiseFall::rise(),
+					       MinMax::max()));
+  else if (stringEqual(property, "drive_resistance_fall_min"))
+    return PropertyValue(cell->driveResistance(TransRiseFall::fall(),
+					       MinMax::min()));
+  else if (stringEqual(property, "drive_resistance_fall_max"))
+    return PropertyValue(cell->driveResistance(TransRiseFall::fall(),
+					       MinMax::max()));
   else if (stringEqual(property, "is_buffer"))
     return PropertyValue(cell->isBuffer());
   else if (stringEqual(property, "dont_use"))

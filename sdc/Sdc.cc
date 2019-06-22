@@ -2251,10 +2251,10 @@ Sdc::clockGroupsDeleteClkRefs(Clock *clk)
 
 void
 Sdc::setClockSense(PinSet *pins,
-			   ClockSet *clks,
-			   ClockSense sense)
+		   ClockSet *clks,
+		   ClockSense sense)
 {
-  if (clks->empty()) {
+  if (clks && clks->empty()) {
     delete clks;
     clks = nullptr;
   }

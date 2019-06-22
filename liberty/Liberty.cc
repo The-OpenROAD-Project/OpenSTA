@@ -1440,11 +1440,12 @@ LibertyCell::setCornerCell(LibertyCell *corner_cell,
 
 ////////////////////////////////////////////////////////////////
 
-// Use the worst "drive" for all the timing arcs in the cell.
+// Use the min/max "drive" for all the timing arcs in the cell.
 float
-LibertyCell::driveResistance(const TransRiseFall *tr) const
+LibertyCell::driveResistance(const TransRiseFall *tr,
+			     const MinMax *min_max) const
 {
-  float max_drive = 0.0;
+  float max_drive = min_max->initValue();
   LibertyCellTimingArcSetIterator set_iter(this);
   while (set_iter.hasNext()) {
     TimingArcSet *set = set_iter.next();
@@ -1457,7 +1458,7 @@ LibertyCell::driveResistance(const TransRiseFall *tr) const
 	  GateTimingModel *model = dynamic_cast<GateTimingModel*>(arc->model());
 	  if (model) {
 	    float drive = model->driveResistance(this, nullptr);
-	    if (drive > max_drive)
+	    if (min_max->compare(drive, max_drive))
 	      max_drive = drive;
 	  }
 	}
@@ -1470,7 +1471,7 @@ LibertyCell::driveResistance(const TransRiseFall *tr) const
 float
 LibertyCell::driveResistance() const
 {
-  return driveResistance(nullptr);
+  return driveResistance(nullptr, MinMax::max());
 }
 
 ////////////////////////////////////////////////////////////////

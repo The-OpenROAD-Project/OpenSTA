@@ -172,105 +172,23 @@ cmdGraph()
 // type is not sufficient because then it chokes on the call to
 // SWIG_ConvertPtr because it is declared extern "C".
 
-LibertyLibrarySeq *
-TclListSeqLibertyLibrary(Tcl_Obj * const source,
-			 Tcl_Interp *interp)
-{
-  int argc;
-  Tcl_Obj **argv;
-
-  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
-    LibertyLibrarySeq *seq = new LibertyLibrarySeq;
-    for (int i = 0; i < argc; i++) {
-      void *obj;
-      // Ignore returned TCL_ERROR because can't get swig_type_info.
-      SWIG_ConvertPtr(argv[i], &obj, SWIGTYPE_p_LibertyLibrary, false);
-      seq->push_back(reinterpret_cast<LibertyLibrary*>(obj));
-    }
-    return seq;
-  }
-  else
-    return nullptr;
-}
-
-PortSeq *
-TclListSeqPort(Tcl_Obj * const source,
-	       Tcl_Interp *interp)
-{
-  int argc;
-  Tcl_Obj **argv;
-
-  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
-    PortSeq *seq = new PortSeq;
-    for (int i = 0; i < argc; i++) {
-      void *obj;
-      // Ignore returned TCL_ERROR because can't get swig_type_info.
-      SWIG_ConvertPtr(argv[i], &obj, SWIGTYPE_p_Port, false);
-      seq->push_back(reinterpret_cast<Port*>(obj));
-    }
-    return seq;
-  }
-  else
-    return nullptr;
-}
-
-PinSeq *
-TclListSeqPin(Tcl_Obj * const source,
-	      Tcl_Interp *interp)
-{
-  int argc;
-  Tcl_Obj **argv;
-
-  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
-    PinSeq *seq = new PinSeq;
-    for (int i = 0; i < argc; i++) {
-      void *obj;
-      // Ignore returned TCL_ERROR because can't get swig_type_info.
-      SWIG_ConvertPtr(argv[i], &obj, SWIGTYPE_p_Pin, false);
-      seq->push_back(reinterpret_cast<Pin*>(obj));
-    }
-    return seq;
-  }
-  else
-    return nullptr;
-}
-
-InstanceSeq *
-TclListSeqInstance(Tcl_Obj * const source,
-		   Tcl_Interp *interp)
-{
-  int argc;
-  Tcl_Obj **argv;
-
-  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
-    InstanceSeq *seq = new InstanceSeq;
-    for (int i = 0; i < argc; i++) {
-      void *obj;
-      // Ignore returned TCL_ERROR because can't get swig_type_info.
-      SWIG_ConvertPtr(argv[i], &obj, SWIGTYPE_p_Instance, false);
-      seq->push_back(reinterpret_cast<Instance*>(obj));
-    }
-    return seq;
-  }
-  else
-    return nullptr;
-}
-
-ExceptionThruSeq *
-TclListSeqExceptionThru(Tcl_Obj *const source,
-			Tcl_Interp *interp)
+template <class TYPE>
+Vector<TYPE> *
+tclListSeq(Tcl_Obj *const source,
+	   swig_type_info *swig_type,
+	   Tcl_Interp *interp)
 {
   int argc;
   Tcl_Obj **argv;
 
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
       && argc > 0) {
-    ExceptionThruSeq *seq = new ExceptionThruSeq;
+    Vector<TYPE> *seq = new Vector<TYPE>;
     for (int i = 0; i < argc; i++) {
       void *obj;
       // Ignore returned TCL_ERROR because can't get swig_type_info.
-      SWIG_ConvertPtr(argv[i], &obj, SWIGTYPE_p_ExceptionThru, false);
-      seq->push_back(reinterpret_cast<ExceptionThru*>(obj));
+      SWIG_ConvertPtr(argv[i], &obj, swig_type, false);
+      seq->push_back(reinterpret_cast<TYPE>(obj));
     }
     return seq;
   }
@@ -278,104 +196,30 @@ TclListSeqExceptionThru(Tcl_Obj *const source,
     return nullptr;
 }
 
-PortSet *
-TclListSetPort(Tcl_Obj *const source,
-	       Tcl_Interp *interp)
+LibertyLibrarySeq *
+tclListSeqLibertyLibrary(Tcl_Obj *const source,
+			 Tcl_Interp *interp)
 {
-  int argc;
-  Tcl_Obj **argv;
-
-  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
-    PortSet *set = new PortSet;
-    for (int i = 0; i < argc; i++) {
-      void *obj;
-      // Ignore returned TCL_ERROR because can't get swig_type_info.
-      SWIG_ConvertPtr(argv[i], &obj, SWIGTYPE_p_Port, false);
-      set->insert(reinterpret_cast<Port*>(obj));
-    }
-    return set;
-  }
-  else
-    return nullptr;
+  return tclListSeq<LibertyLibrary*>(source, SWIGTYPE_p_LibertyLibrary, interp);
 }
 
-PinSet *
-TclListSetPin(Tcl_Obj *const source,
-	      Tcl_Interp *interp)
+template <class TYPE>
+Set<TYPE> *
+tclListSet(Tcl_Obj *const source,
+	   swig_type_info *swig_type,
+	   Tcl_Interp *interp)
 {
   int argc;
   Tcl_Obj **argv;
 
-  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
-    PinSet *set = new PinSet;
+  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
+      && argc > 0) {
+    Set<TYPE> *set = new Set<TYPE>;
     for (int i = 0; i < argc; i++) {
       void *obj;
       // Ignore returned TCL_ERROR because can't get swig_type_info.
-      SWIG_ConvertPtr(argv[i], &obj, SWIGTYPE_p_Pin, false);
-      set->insert(reinterpret_cast<Pin*>(obj));
-    }
-    return set;
-  }
-  else
-    return nullptr;
-}
-
-ClockSet *
-TclListSetClock(Tcl_Obj *const source,
-		Tcl_Interp *interp)
-{
-  int argc;
-  Tcl_Obj **argv;
-
-  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
-    ClockSet *set = new ClockSet;
-    for (int i = 0; i < argc; i++) {
-      void *obj;
-      // Ignore returned TCL_ERROR because can't get swig_type_info.
-      SWIG_ConvertPtr(argv[i], &obj, SWIGTYPE_p_Clock, false);
-      set->insert(reinterpret_cast<Clock*>(obj));
-    }
-    return set;
-  }
-  else
-    return nullptr;
-}
-
-InstanceSet *
-TclListSetInstance(Tcl_Obj *const source,
-		   Tcl_Interp *interp)
-{
-  int argc;
-  Tcl_Obj **argv;
-
-  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
-    InstanceSet *set = new InstanceSet;
-    for (int i = 0; i < argc; i++) {
-      void *obj;
-      // Ignore returned TCL_ERROR because can't get swig_type_info.
-      SWIG_ConvertPtr(argv[i], &obj, SWIGTYPE_p_Instance, false);
-      set->insert(reinterpret_cast<Instance*>(obj));
-    }
-    return set;
-  }
-  else
-    return nullptr;
-}
-
-NetSet *
-TclListSetNet(Tcl_Obj *const source,
-	      Tcl_Interp *interp)
-{
-  int argc;
-  Tcl_Obj **argv;
-
-  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
-    NetSet *set = new NetSet;
-    for (int i = 0; i < argc; i++) {
-      void *obj;
-      // Ignore returned TCL_ERROR because can't get swig_type_info.
-      SWIG_ConvertPtr(argv[i], &obj, SWIGTYPE_p_Net, false);
-      set->insert(reinterpret_cast<Net*>(obj));
+      SWIG_ConvertPtr(argv[i], &obj, swig_type, false);
+      set->insert(reinterpret_cast<TYPE>(obj));
     }
     return set;
   }
@@ -384,7 +228,7 @@ TclListSetNet(Tcl_Obj *const source,
 }
 
 StringSet *
-TclListSetConstChar(Tcl_Obj *const source,
+tclListSetConstChar(Tcl_Obj *const source,
 		    Tcl_Interp *interp)
 {
   int argc;
@@ -416,26 +260,6 @@ TclListSeqConstChar(Tcl_Obj *const source,
       int length;
       const char *str = Tcl_GetStringFromObj(argv[i], &length);
       seq->push_back(str);
-    }
-    return seq;
-  }
-  else
-    return nullptr;
-}
-
-EdgeSeq *
-TclListSeqEdge(Tcl_Obj * const source, Tcl_Interp *interp)
-{
-  int argc;
-  Tcl_Obj **argv;
-
-  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
-    EdgeSeq *seq = new EdgeSeq;
-    for (int i = 0; i < argc; i++) {
-      void *obj;
-      // Ignore returned TCL_ERROR because can't get swig_type_info.
-      SWIG_ConvertPtr(argv[i], &obj, SWIGTYPE_p_Edge, false);
-      seq->push_back(reinterpret_cast<Edge*>(obj));
     }
     return seq;
   }
@@ -662,11 +486,11 @@ using namespace sta;
 }
 
 %typemap(in) PortSet* {
-  $1 = TclListSetPort($input, interp);
+  $1 = tclListSet<Port*>($input, SWIGTYPE_p_Port, interp);
 }
 
 %typemap(in) PortSeq* {
-  $1 = TclListSeqPort($input, interp);
+  $1 = tclListSeq<Port*>($input, SWIGTYPE_p_Port, interp);
 }
 
 %typemap(out) TmpPortSeq* {
@@ -880,7 +704,7 @@ using namespace sta;
 }
 
 %typemap(in) InstanceSeq* {
-  $1 = TclListSeqInstance($input, interp);
+  $1 = tclListSeq<Instance*>($input, SWIGTYPE_p_Instance, interp);
 }
 
 %typemap(out) TmpInstanceSeq* {
@@ -1248,11 +1072,11 @@ using namespace sta;
 }
 
 %typemap(in) PinSeq* {
-  $1 = TclListSeqPin($input, interp);
+  $1 = tclListSeq<Pin*>($input, SWIGTYPE_p_Pin, interp);
 }
 
 %typemap(in) PinSet* {
-  $1 = TclListSetPin($input, interp);
+  $1 = tclListSet<Pin*>($input, SWIGTYPE_p_Pin, interp);
 }
 
 %typemap(out) PinSet* {
@@ -1270,7 +1094,7 @@ using namespace sta;
 }
 
 %typemap(in) ClockSet* {
-  $1 = TclListSetClock($input, interp);
+  $1 = tclListSet<Clock*>($input, SWIGTYPE_p_Clock, interp);
 }
 
 %typemap(out) ClockSet* {
@@ -1303,7 +1127,7 @@ using namespace sta;
 }
 
 %typemap(in) InstanceSet* {
-  $1 = TclListSetInstance($input, interp);
+  $1 = tclListSet<Instance*>($input, SWIGTYPE_p_Instance, interp);
 }
 
 %typemap(out) TmpInstanceSet* {
@@ -1320,11 +1144,11 @@ using namespace sta;
 }
 
 %typemap(in) NetSet* {
-  $1 = TclListSetNet($input, interp);
+  $1 = tclListSet<Net*>($input, SWIGTYPE_p_Net, interp);
 }
 
 %typemap(in) ExceptionThruSeq* {
-  $1 = TclListSeqExceptionThru($input, interp);
+  $1 = tclListSeq<ExceptionThru*>($input, SWIGTYPE_p_ExceptionThru, interp);
 }
 
 %typemap(out) Vertex* {
@@ -1345,7 +1169,7 @@ using namespace sta;
 }
 
 %typemap(in) EdgeSeq* {
-  $1 = TclListSeqEdge($input, interp);
+  $1 = tclListSeq<Edge*>($input, SWIGTYPE_p_Edge, interp);
 }
 
 %typemap(out) Edge* {
@@ -1532,11 +1356,11 @@ using namespace sta;
 }
 
 %typemap(in) PathGroupNameSet* {
-  $1 = TclListSetConstChar($input, interp);
+  $1 = tclListSetConstChar($input, interp);
 }
 
 %typemap(in) StringSet* {
-  $1 = TclListSetConstChar($input, interp);
+  $1 = tclListSetConstChar($input, interp);
 }
 
 %typemap(out) Corner* {

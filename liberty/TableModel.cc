@@ -288,8 +288,8 @@ GateTableModel::maxCapSlew(const LibertyCell *cell,
   }
   else {
     // Table not dependent on capacitance.
-    cap = 0.0;
-    slew = 1.0;
+    cap = 1.0;
+    slew = 0.0;
   }
   // Clip negative slews to zero.
   if (slew < 0.0)

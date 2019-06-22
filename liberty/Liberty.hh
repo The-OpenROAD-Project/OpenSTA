@@ -490,7 +490,8 @@ public:
   virtual void finish(bool infer_latches,
 		      Report *report,
 		      Debug *debug);
-  float driveResistance(const TransRiseFall *tr) const;
+  float driveResistance(const TransRiseFall *tr,
+			const MinMax *min_max) const;
   // Max of rise/fall.
   float driveResistance() const;
   bool isBuffer() const;
