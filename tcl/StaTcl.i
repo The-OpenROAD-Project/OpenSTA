@@ -172,6 +172,27 @@ cmdGraph()
 // type is not sufficient because then it chokes on the call to
 // SWIG_ConvertPtr because it is declared extern "C".
 
+LibertyLibrarySeq *
+TclListSeqLibertyLibrary(Tcl_Obj * const source,
+			 Tcl_Interp *interp)
+{
+  int argc;
+  Tcl_Obj **argv;
+
+  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
+    LibertyLibrarySeq *seq = new LibertyLibrarySeq;
+    for (int i = 0; i < argc; i++) {
+      void *obj;
+      // Ignore returned TCL_ERROR because can't get swig_type_info.
+      SWIG_ConvertPtr(argv[i], &obj, SWIGTYPE_p_LibertyLibrary, false);
+      seq->push_back(reinterpret_cast<LibertyLibrary*>(obj));
+    }
+    return seq;
+  }
+  else
+    return nullptr;
+}
+
 PortSeq *
 TclListSeqPort(Tcl_Obj * const source,
 	       Tcl_Interp *interp)
