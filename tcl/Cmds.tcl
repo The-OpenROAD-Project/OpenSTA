@@ -1762,9 +1762,9 @@ proc cell_regexp {} {
 
 proc cell_wild_regexp { divider } {
   if { $divider == "." } {
-    set lib_regexp {[a-zA-Z0-9_]+}
+    set lib_regexp {[a-zA-Z0-9_*+?^$\{\}]+}
   } else {
-    set lib_regexp {[a-zA-Z0-9_\.]+}
+    set lib_regexp {[a-zA-Z0-9_.*+?^$\{\}]+}
   }
   set cell_wild_regexp {[a-zA-Z0-9_.*+?^$\{\}]+}
   return "^(${lib_regexp})${divider}(${cell_wild_regexp})$"
