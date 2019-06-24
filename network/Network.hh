@@ -132,10 +132,11 @@ public:
   // Cell functions.
   virtual const char *name(const Cell *cell) const = 0;
   virtual Library *library(const Cell *cell) const = 0;
-  virtual LibertyLibrary *libertyLibrary(const Cell *cell) const 
-    __attribute__ ((deprecated));
+  virtual LibertyLibrary *libertyLibrary(const Cell *cell) const;
   // Find the corresponding liberty cell.
+  virtual const LibertyCell *libertyCell(const Cell *cell) const = 0;
   virtual LibertyCell *libertyCell(Cell *cell) const = 0;
+  virtual const Cell *cell(const LibertyCell *cell) const = 0;
   virtual Cell *cell(LibertyCell *cell) const = 0;
   // Filename may return null.
   virtual const char *filename(const Cell *cell) = 0;

@@ -20,7 +20,7 @@ The command line options have changed to the following:
 ....
 
 Builds using Autotools/configure are no longer supported.
-Use CMake as documented in README.mb.
+Use CMake as documented in README.md.
 
 ....
 
@@ -79,16 +79,23 @@ input and .measure statement for each gate delay and pin slew.
 
 ....
 
-The report_checks, find_timing_paths commands now support an
+The report_checks and report_check_types commands now support an
 -unconstrained flag.
 
   report_checks -unconstrained
-  find_timing_paths -unconstrained
+  report_check_types -unconstrained
 
 The sta_report_unconstrained_paths variable will be supported for
-for compatibility in this current release.
+for compatibility in the current release.
 
 ....
+
+The transition_time path reporting field has been renamed to slew.
+
+  report_checks -fields {slew}
+  report_check_types -fields {slew}
+
+...
 
 The read_parasitics command has been renamed read_spef and no longer
 supports the SPF format.
@@ -125,6 +132,10 @@ total_negative_slack and worst_negative_slack respectively.
 
   report_tns
   report_wns
+  report_worst_slack
+
+The set_clock_sense command was deprecated by SDC 2.1.
+Use set_sense -type clock instead.
 
 Release 1.11.0 2017/08/18
 -------------------------

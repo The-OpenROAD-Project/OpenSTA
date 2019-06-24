@@ -91,7 +91,7 @@ public:
   virtual ConcreteLibrary *library() const { return library_; }
   virtual const char *name() const { return name_; }
   virtual const char *filename() const { return filename_; }
-  LibertyCell *libertyCell() { return liberty_cell_; }
+  LibertyCell *libertyCell() const { return liberty_cell_; }
   void setLibertyCell(LibertyCell *cell);
   virtual int portBitCount() const { return port_bit_count_; }
   virtual ConcretePort *findPort(const char *name) const;

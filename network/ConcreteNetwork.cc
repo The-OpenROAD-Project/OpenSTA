@@ -553,10 +553,23 @@ ConcreteNetwork::libertyCell(Cell *cell) const
   return ccell->libertyCell();
 }
 
+const LibertyCell *
+ConcreteNetwork::libertyCell(const Cell *cell) const
+{
+  const ConcreteCell *ccell = reinterpret_cast<const ConcreteCell*>(cell);
+  return ccell->libertyCell();
+}
+
 Cell *
 ConcreteNetwork::cell(LibertyCell *cell) const
 {
   return reinterpret_cast<Cell*>(cell);
+}
+
+const Cell *
+ConcreteNetwork::cell(const LibertyCell *cell) const
+{
+  return reinterpret_cast<const Cell*>(cell);
 }
 
 const char *

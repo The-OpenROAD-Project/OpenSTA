@@ -592,8 +592,20 @@ NetworkNameAdapter::libertyCell(Cell *cell) const
   return network_->libertyCell(cell);
 }
 
+const LibertyCell *
+NetworkNameAdapter::libertyCell(const Cell *cell) const
+{
+  return network_->libertyCell(cell);
+}
+
 Cell *
 NetworkNameAdapter::cell(LibertyCell *cell) const
+{
+  return network_->cell(cell);
+}
+
+const Cell *
+NetworkNameAdapter::cell(const LibertyCell *cell) const
 {
   return network_->cell(cell);
 }

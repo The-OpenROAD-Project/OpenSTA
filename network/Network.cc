@@ -52,7 +52,7 @@ Network::isLinked() const
 LibertyLibrary *
 Network::libertyLibrary(const Cell *cell) const
 {
-  return libertyCell(const_cast<Cell*>(cell))->libertyLibrary();
+  return libertyCell(cell)->libertyLibrary();
 }
 
 LibertyLibrary *

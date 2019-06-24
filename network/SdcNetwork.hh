@@ -47,7 +47,9 @@ public:
   virtual const char *name(const Cell *cell) const;
   virtual Library *library(const Cell *cell) const;
   virtual LibertyCell *libertyCell(Cell *cell) const;
+  virtual const LibertyCell *libertyCell(const Cell *cell) const;
   virtual Cell *cell(LibertyCell *cell) const;
+  virtual const Cell *cell(const LibertyCell *cell) const;
   virtual const char *filename(const Cell *cell);
   virtual Port *findPort(const Cell *cell,
 			 const char *name) const;

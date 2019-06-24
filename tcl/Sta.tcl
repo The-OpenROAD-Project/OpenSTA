@@ -292,7 +292,7 @@ define_sta_cmd_args "report_checks" \
      [-sort_by_slack]\
      [-path_group group_name]\
      [-format full|full_clock|full_clock_expanded|short|end|summary]\
-     [-fields [capacitance|transition_time|input_pin|net]]\
+     [-fields [capacitance|slew|input_pin|net]]\
      [-digits digits]\
      [-no_line_splits]\
      [> filename] [>> filename]}
