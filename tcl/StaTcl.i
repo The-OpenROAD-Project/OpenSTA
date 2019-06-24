@@ -203,6 +203,13 @@ tclListSeqLibertyLibrary(Tcl_Obj *const source,
   return tclListSeq<LibertyLibrary*>(source, SWIGTYPE_p_LibertyLibrary, interp);
 }
 
+LibertyCellSeq *
+tclListSeqLibertyCell(Tcl_Obj *const source,
+		      Tcl_Interp *interp)
+{
+  return tclListSeq<LibertyCell*>(source, SWIGTYPE_p_LibertyCell, interp);
+}
+
 template <class TYPE>
 Set<TYPE> *
 tclListSet(Tcl_Obj *const source,
