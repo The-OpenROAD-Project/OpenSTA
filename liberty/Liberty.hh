@@ -411,7 +411,7 @@ public:
   bool isClockGateOther() const;
   bool isClockGate() const;
   void setClockGateType(ClockGateType type);
-  // Internal to LibertyCellTimingArcSetIterator.
+  // from or to may be nullptr to wildcard.
   TimingArcSetSeq *timingArcSets(const LibertyPort *from,
 				 const LibertyPort *to) const;
   size_t timingArcSetCount() const;
@@ -490,10 +490,6 @@ public:
   virtual void finish(bool infer_latches,
 		      Report *report,
 		      Debug *debug);
-  float driveResistance(const TransRiseFall *tr,
-			const MinMax *min_max) const;
-  // Max of rise/fall.
-  float driveResistance() const;
   bool isBuffer() const;
   // Only valid when isBuffer() returns true.
   void bufferPorts(// Return values.
@@ -607,6 +603,7 @@ class LibertyCellTimingArcSetIterator : public TimingArcSetSeq::ConstIterator
 {
 public:
   LibertyCellTimingArcSetIterator(const LibertyCell *cell);
+  // from or to may be nullptr to wildcard.
   LibertyCellTimingArcSetIterator(const LibertyCell *cell,
 				  const LibertyPort *from,
 				  const LibertyPort *to);
@@ -659,6 +656,10 @@ public:
   void setCapacitance(const TransRiseFall *tr,
 		      const MinMax *min_max,
 		      float cap);
+  float driveResistance(const TransRiseFall *tr,
+			const MinMax *min_max) const;
+  // Max of rise/fall.
+  float driveResistance() const;
   FuncExpr *function() const { return function_; }
   void setFunction(FuncExpr *func);
   FuncExpr *&functionRef() { return function_; }

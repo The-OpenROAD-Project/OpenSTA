@@ -1434,15 +1434,41 @@ proc set_clock_latency { args } {
 
 ################################################################
 
+define_cmd_args "set_sense" \
+  {[-type clock|data] [-positive] [-negative] [-pulse pulse_type]\
+     [-stop_propagation] [-clocks clocks] pins}
+
+proc set_sense { args } {
+  parse_key_args "set_clock_sense" args keys {-type} flags {} 0
+
+  set type "clock"
+  if { [info exists keys(-type)] } {
+    set type $keys(-type)
+    if { $type == "data" } {
+      sdc_warn "set_sense -type data not supported."
+    } elseif { $type == "clock" } {
+      set_clock_sense_cmd1 "set_sense" $args
+    } else {
+      sdc_error "set_sense -type clock|data"
+    }
+  }
+}
+
+# deprecated in SDC 2.1
 define_cmd_args "set_clock_sense" \
   {[-positive] [-negative] [-pulse pulse_type] [-stop_propagation] \
      [-clock clocks] pins}
 
 proc set_clock_sense { args } {
+  sdc_warn "set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock."
+  set_clock_sense_cmd1 "set_clock_sense" $args
+}
+
+proc set_clock_sense_cmd1 { cmd cmd_args } {
   # SDC uses -clock, OT, OC use -clocks
-  parse_key_args "set_clock_sense" args keys {-clock -clocks -pulse} \
-    flags {-positive -negative -stop_propagation}
-  check_argc_eq1 "set_clock_sense" $args
+  parse_key_args $cmd cmd_args keys {-clock -clocks -pulse} \
+    flags {-positive -negative -stop_propagation} 0
+  check_argc_eq1 "set_clock_sense" $cmd_args
 
   set pulse [info exists keys(-pulse)]
   if { $pulse } {
@@ -1458,7 +1484,7 @@ proc set_clock_sense { args } {
     sta_warn "-positive, -negative, -stop_propagation and -pulse are mutually exclusive."
   }
 
-  set pins [get_port_pins_error "pins" [lindex $args 0]]
+  set pins [get_port_pins_error "pins" [lindex $cmd_args 0]]
   set clks {}
   if {[info exists keys(-clock)]} {
     set clks [get_clocks_warn "clock" $keys(-clock)]

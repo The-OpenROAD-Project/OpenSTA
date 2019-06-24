@@ -43,13 +43,25 @@ hashPort(const LibertyPort *port);
 static unsigned
 hashString(const char *str);
 
-class CellDriveResistanceLess
+static float
+cellDriveResistance(const LibertyCell *cell)
+{
+  LibertyCellPortBitIterator port_iter(cell);
+  while (port_iter.hasNext()) {
+    auto port = port_iter.next();
+    if (port->direction()->isOutput())
+      return port->driveResistance();
+  }
+  return 0.0;
+}
+
+class CellDriveResistanceGreater
 {
 public:
   bool operator()(const LibertyCell *cell1,
 		  const LibertyCell *cell2) const
   {
-    return cell1->driveResistance() > cell2->driveResistance();
+    return cellDriveResistance(cell1) > cellDriveResistance(cell2);
   }
 };
 
@@ -62,7 +74,7 @@ EquivCells::EquivCells(LibertyLibrarySeq *equiv_libs,
   // Sort the equiv sets by drive resistance.
   for (auto cell : unique_equiv_cells_) {
     auto equivs = equiv_cells_.findKey(cell);
-    sort(equivs, CellDriveResistanceLess());
+    sort(equivs, CellDriveResistanceGreater());
   }
   if (map_libs) {
     for (auto lib : *map_libs)

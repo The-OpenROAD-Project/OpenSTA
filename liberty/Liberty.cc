@@ -1440,42 +1440,6 @@ LibertyCell::setCornerCell(LibertyCell *corner_cell,
 
 ////////////////////////////////////////////////////////////////
 
-// Use the min/max "drive" for all the timing arcs in the cell.
-float
-LibertyCell::driveResistance(const TransRiseFall *tr,
-			     const MinMax *min_max) const
-{
-  float max_drive = min_max->initValue();
-  LibertyCellTimingArcSetIterator set_iter(this);
-  while (set_iter.hasNext()) {
-    TimingArcSet *set = set_iter.next();
-    if (!set->role()->isTimingCheck()) {
-      TimingArcSetArcIterator arc_iter(set);
-      while (arc_iter.hasNext()) {
-	TimingArc *arc = arc_iter.next();
-	if (tr == nullptr
-	    || arc->toTrans()->asRiseFall() == tr) {
-	  GateTimingModel *model = dynamic_cast<GateTimingModel*>(arc->model());
-	  if (model) {
-	    float drive = model->driveResistance(this, nullptr);
-	    if (min_max->compare(drive, max_drive))
-	      max_drive = drive;
-	  }
-	}
-      }
-    }
-  }
-  return max_drive;
-}
-
-float
-LibertyCell::driveResistance() const
-{
-  return driveResistance(nullptr, MinMax::max());
-}
-
-////////////////////////////////////////////////////////////////
-
 float
 LibertyCell::ocvArcDepth() const
 {
@@ -1951,6 +1915,47 @@ bool
 LibertyPort::capacitanceIsOneValue() const
 {
   return capacitance_.isOneValue();
+}
+
+////////////////////////////////////////////////////////////////
+
+// Use the min/max "drive" for all the timing arcs in the cell.
+float
+LibertyPort::driveResistance(const TransRiseFall *tr,
+			     const MinMax *min_max) const
+{
+  float max_drive = min_max->initValue();
+  bool found_drive = false;
+  LibertyCellTimingArcSetIterator set_iter(liberty_cell_, nullptr, this);
+  while (set_iter.hasNext()) {
+    TimingArcSet *set = set_iter.next();
+    if (!set->role()->isTimingCheck()) {
+      TimingArcSetArcIterator arc_iter(set);
+      while (arc_iter.hasNext()) {
+	TimingArc *arc = arc_iter.next();
+	if (tr == nullptr
+	    || arc->toTrans()->asRiseFall() == tr) {
+	  GateTimingModel *model = dynamic_cast<GateTimingModel*>(arc->model());
+	  if (model) {
+	    float drive = model->driveResistance(liberty_cell_, nullptr);
+	    if (min_max->compare(drive, max_drive))
+	      max_drive = drive;
+	    found_drive = true;
+	  }
+	}
+      }
+    }
+  }
+  if (found_drive)
+    return max_drive;
+  else
+    return 0.0;
+}
+
+float
+LibertyPort::driveResistance() const
+{
+  return driveResistance(nullptr, MinMax::max());
 }
 
 void

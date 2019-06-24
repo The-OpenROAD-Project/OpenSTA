@@ -346,6 +346,7 @@ public:
   VisitPathEnds *visitPathEnds() { return visit_path_ends_; }
   GatedClk *gatedClk() { return gated_clk_; }
   Genclks *genclks() { return genclks_; }
+  void findClkVertexPins(PinSet &clk_pins);
 
 protected:
   void init(StaState *sta);
@@ -376,7 +377,6 @@ protected:
 		      const PathAnalysisPt *path_ap,
 		      Arrival insertion,
 		      TagGroupBldr *tag_bldr);
-  void findClkVertexPins(PinSet &clk_pins);
   Tag *clkDataTag(const Pin *pin,
 		  Clock *clk,
 		  const TransRiseFall *tr,
@@ -622,6 +622,16 @@ public:
 
 protected:
   bool search_thru_latches_;
+};
+
+class ClkArrivalSearchPred : public EvalPred
+{
+public:
+  ClkArrivalSearchPred(const StaState *sta);
+  virtual bool searchThru(Edge *edge);
+
+private:
+  DISALLOW_COPY_AND_ASSIGN(ClkArrivalSearchPred);
 };
 
 // Class for visiting fanin/fanout paths of a vertex.

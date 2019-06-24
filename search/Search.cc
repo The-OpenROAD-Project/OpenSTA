@@ -192,16 +192,6 @@ SearchThru::searchThru(Edge *edge)
     && loopEnabled(edge, sdc, graph, search);
 }
 
-class ClkArrivalSearchPred : public EvalPred
-{
-public:
-  ClkArrivalSearchPred(const StaState *sta);
-  virtual bool searchThru(Edge *edge);
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(ClkArrivalSearchPred);
-};
-
 ClkArrivalSearchPred::ClkArrivalSearchPred(const StaState *sta) :
   EvalPred(sta)
 {

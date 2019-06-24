@@ -918,7 +918,7 @@ WriteSdc::writeClockSense(PinClockPair &pin_clk,
     flag = "-negative";
   else if (sense == ClockSense::stop)
     flag = "-stop_propagation";
-  fprintf(stream_, "set_clock_sense %s ", flag);
+  fprintf(stream_, "set_sense -type clock %s ", flag);
   const Clock *clk = pin_clk.second;
   if (clk) {
     fprintf(stream_, "-clock ");
