@@ -44,7 +44,7 @@ DataCheck::margin(const TransRiseFall *from_tr,
 void
 DataCheck::setMargin(const TransRiseFallBoth *from_tr,
 		     const TransRiseFallBoth *to_tr,
-		     const SetupHold *setup_hold,
+		     const SetupHoldAll *setup_hold,
 		     float margin)
 {
   TransRiseFallIterator from_tr_iter(from_tr);
@@ -58,7 +58,7 @@ DataCheck::setMargin(const TransRiseFallBoth *from_tr,
 void
 DataCheck::removeMargin(const TransRiseFallBoth *from_tr,
 			const TransRiseFallBoth *to_tr,
-			const SetupHold *setup_hold)
+			const SetupHoldAll *setup_hold)
 {
   TransRiseFallIterator from_tr_iter(from_tr);
   while (from_tr_iter.hasNext()) {

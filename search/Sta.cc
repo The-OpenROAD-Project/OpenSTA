@@ -241,6 +241,9 @@ initSta()
 void
 deleteAllMemory()
 {
+  // Verilog modules refer to the network in the sta so it has
+  // to deleted before the sta.
+  deleteVerilogReader();
   Sta *sta = Sta::sta();
   if (sta) {
     delete sta;
@@ -255,7 +258,6 @@ deleteAllMemory()
   Transition::destroy();
   TimingRole::destroy();
   PortDirection::destroy();
-  deleteVerilogReader();
   deleteLiberty();
 }
 
@@ -1372,7 +1374,7 @@ Sta::setDataCheck(Pin *from,
 		  Pin *to,
 		  const TransRiseFallBoth *to_tr,
 		  Clock *clk,
-		  const SetupHold *setup_hold,
+		  const SetupHoldAll *setup_hold,
 		  float margin)
 {
   sdc_->setDataCheck(from, from_tr, to, to_tr, clk, setup_hold,margin);
@@ -1385,7 +1387,7 @@ Sta::removeDataCheck(Pin *from,
 		     Pin *to,
 		     const TransRiseFallBoth *to_tr,
 		     Clock *clk,
-		     const SetupHold *setup_hold)
+		     const SetupHoldAll *setup_hold)
 {
   sdc_->removeDataCheck(from, from_tr, to, to_tr, clk, setup_hold);
   search_->requiredInvalid(to);

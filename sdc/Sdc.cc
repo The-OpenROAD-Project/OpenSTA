@@ -2570,7 +2570,7 @@ Sdc::setDataCheck(Pin *from,
 		  Pin *to,
 		  const TransRiseFallBoth *to_tr,
 		  Clock *clk,
-		  const SetupHold *setup_hold,
+		  const SetupHoldAll *setup_hold,
 		  float margin)
 {
   DataCheck *check = nullptr;
@@ -2605,7 +2605,7 @@ Sdc::removeDataCheck(Pin *from,
 		     Pin *to,
 		     const TransRiseFallBoth *to_tr,
 		     Clock *clk,
-		     const SetupHold *setup_hold)
+		     const SetupHoldAll *setup_hold)
 {
   DataCheck probe(from, to, clk);
   DataCheckSet *checks = data_checks_from_map_.findKey(from);

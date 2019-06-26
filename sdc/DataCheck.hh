@@ -46,11 +46,11 @@ public:
 	      bool &exists) const;
   void setMargin(const TransRiseFallBoth *from_tr,
 		 const TransRiseFallBoth *to_tr,
-		 const SetupHold *setup_hold,
+		 const SetupHoldAll *setup_hold,
 		 float margin);
   void removeMargin(const TransRiseFallBoth *from_tr,
 		    const TransRiseFallBoth *to_tr,
-		    const SetupHold *setup_hold);
+		    const SetupHoldAll *setup_hold);
   bool empty() const;
   void marginIsOneValue(SetupHold *setup_hold,
 			// Return values.

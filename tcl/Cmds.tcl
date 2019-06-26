@@ -702,10 +702,12 @@ proc unset_data_checks_cmd { cmd cmd_args } {
     set clk [get_clock_warn "clock" $keys(-clock)]
   }
 
-  if [info exists flags(-setup)] {
-    set setup_hold "max"
-  } elseif [info exists flags(-hold)] {
-    set setup_hold "min"
+  if { [info exists flags(-setup)] && ![info exists flags(-hold)] } {
+    set setup_hold "setup"
+  } elseif { [info exists flags(-hold)] && ![info exists flags(-setup)] } {
+    set setup_hold "hold"
+  } else {
+    set setup_hold "setup_hold"
   }
 
   unset_data_check_cmd $from $from_tr $to $to_tr $clk $setup_hold

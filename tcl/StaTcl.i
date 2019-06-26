@@ -979,11 +979,17 @@ using namespace sta;
 %typemap(in) SetupHoldAll* {
   int length;
   char *arg = Tcl_GetStringFromObj($input, &length);
-  MinMaxAll *min_max = MinMaxAll::find(arg);
-  if (min_max)
-    $1 = min_max;
+  if (stringEqual(arg, "hold")
+      || stringEqual(arg, "min"))
+    $1 = SetupHoldAll::min();
+  else if (stringEqual(arg, "setup")
+	   || stringEqual(arg, "max"))
+    $1 = SetupHoldAll::max();
+  else if (stringEqual(arg, "setup_hold")
+	   || stringEqual(arg, "min_max"))
+    $1 = SetupHoldAll::all();
   else {
-    tclError(interp, "Error: %s not min, max or min_max.", arg);
+    tclError(interp, "Error: %s not setup, hold, setup_hold, min, max or min_max.", arg);
     return TCL_ERROR;
   }
 }
@@ -3069,11 +3075,11 @@ set_clock_gating_check_pin_cmd(Pin *pin,
 }
 
 void
-  set_clock_gating_check_instance_cmd(Instance *inst,
-				      const TransRiseFallBoth *tr,
-				      const SetupHold *setup_hold,
-				      float margin,
-				      LogicValue active_value)
+set_clock_gating_check_instance_cmd(Instance *inst,
+				    const TransRiseFallBoth *tr,
+				    const SetupHold *setup_hold,
+				    float margin,
+				    LogicValue active_value)
 {
   Sta::sta()->setClockGatingCheck(inst, tr, setup_hold, margin, active_value);
 }
@@ -3084,7 +3090,7 @@ set_data_check_cmd(Pin *from,
 		   Pin *to,
 		   const TransRiseFallBoth *to_tr,
 		   Clock *clk,
-		   const SetupHold *setup_hold,
+		   const SetupHoldAll *setup_hold,
 		   float margin)
 {
   Sta::sta()->setDataCheck(from, from_tr, to, to_tr, clk, setup_hold, margin);
@@ -3096,7 +3102,7 @@ unset_data_check_cmd(Pin *from,
 		     Pin *to,
 		     const TransRiseFallBoth *to_tr,
 		     Clock *clk,
-		     const SetupHold *setup_hold)
+		     const SetupHoldAll *setup_hold)
 {
   Sta::sta()->removeDataCheck(from, from_tr, to, to_tr, clk, setup_hold);
 }

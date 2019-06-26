@@ -529,14 +529,14 @@ public:
 		    Pin *to,
 		    const TransRiseFallBoth *to_tr,
 		    Clock *clk,
-		    const SetupHold *setup_hold,
+		    const SetupHoldAll *setup_hold,
 		    float margin);
   void removeDataCheck(Pin *from,
 		       const TransRiseFallBoth *from_tr,
 		       Pin *to,
 		       const TransRiseFallBoth *to_tr,
 		       Clock *clk,
-		       const SetupHold *setup_hold);
+		       const SetupHoldAll *setup_hold);
   DataCheckSet *dataChecksFrom(const Pin *from) const;
   DataCheckSet *dataChecksTo(const Pin *to) const;
   void setInputDelay(Pin *pin,

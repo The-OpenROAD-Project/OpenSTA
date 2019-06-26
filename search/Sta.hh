@@ -392,14 +392,14 @@ public:
 		    Pin *to,
 		    const TransRiseFallBoth *to_tr,
 		    Clock *clk,
-		    const SetupHold *setup_hold,
+		    const SetupHoldAll *setup_hold,
 		    float margin);
   void removeDataCheck(Pin *from,
 		       const TransRiseFallBoth *from_tr,
 		       Pin *to,
 		       const TransRiseFallBoth *to_tr,
 		       Clock *clk,
-		       const SetupHold *setup_hold);
+		       const SetupHoldAll *setup_hold);
   // set_disable_timing cell [-from] [-to]
   // Disable all edges thru cell if from/to are null.
   // Bus and bundle ports are NOT supported.
