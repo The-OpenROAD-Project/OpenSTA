@@ -1841,15 +1841,8 @@ ConcreteNetwork::linkNetwork(const char *top_cell_name,
   if (link_func_) {
     clearConstantNets();
     deleteTopInstance();
-    Cell *top_cell = findAnyCell(top_cell_name);
-    if (top_cell) {
-      top_instance_ = link_func_(top_cell, make_black_boxes, report, this);
-      return top_instance_ != nullptr;
-    }
-    else {
-      report->error("cell %s not found.\n", top_cell_name);
-      return false;
-    }
+    top_instance_ = link_func_(top_cell_name, make_black_boxes, report, this);
+    return top_instance_ != nullptr;
   }
   else {
     report->error("cell type %s can not be linked.\n", top_cell_name);

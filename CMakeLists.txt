@@ -384,7 +384,7 @@ set(STA_HEADERS
   util/Vector.hh
   util/Zlib.hh
   
-  verilog/Verilog.hh
+  verilog/VerilogReaderPvt.hh
   verilog/VerilogReader.hh
   verilog/VerilogWriter.hh
   )

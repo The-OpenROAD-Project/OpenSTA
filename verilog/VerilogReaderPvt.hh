@@ -141,7 +141,7 @@ public:
 					  int from_index,
 					  int to_index);
   VerilogModule *module(Cell *cell);
-  Instance *linkNetwork(Cell *top_cell,
+  Instance *linkNetwork(const char *top_cell_name,
 			bool make_black_boxes,
 			Report *report);
   int line() const { return line_; }

@@ -19,7 +19,7 @@
 #include "Machine.hh"
 #include "Debug.hh"
 #include "VerilogNamespace.hh"
-#include "Verilog.hh"
+#include "VerilogReaderPvt.hh"
 #include "VerilogParse.hh"
 
 #define YY_NO_INPUT

@@ -35,7 +35,7 @@ typedef Set<const Net*> ConstNetSet;
 typedef Map<const char*, LibertyLibrary*, CharPtrLess> LibertyLibraryMap;
 // Link network function returns top level instance.
 // Return nullptr if link fails.
-typedef Instance *(LinkNetworkFunc)(Cell *top_cell,
+typedef Instance *(LinkNetworkFunc)(const char *top_cell_name,
 				    bool make_black_boxes,
 				    Report *report,
 				    NetworkReader *network);

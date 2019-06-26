@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include "Machine.hh"
 #include "PortDirection.hh"
-#include "Verilog.hh"
+#include "VerilogReaderPvt.hh"
 #include "VerilogReader.hh"
 
 int VerilogLex_lex();

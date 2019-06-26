@@ -25,7 +25,7 @@
 #include "Liberty.hh"
 #include "Network.hh"
 #include "VerilogNamespace.hh"
-#include "Verilog.hh"
+#include "VerilogReaderPvt.hh"
 #include "VerilogReader.hh"
 
 extern int
@@ -47,7 +47,7 @@ hierarchyLevel(Net *net,
 	       Network *network);
 // Return top level instance.
 Instance *
-linkVerilogNetwork(Cell *top_cell,
+linkVerilogNetwork(const char *top_cell_name,
 		   bool make_black_boxes,
 		   Report *report,
 		   NetworkReader *network);
@@ -1684,10 +1684,12 @@ VerilogNetPortRefPart::name()
 ////////////////////////////////////////////////////////////////
 
 Instance *
-linkVerilogNetwork(Cell *top_cell, bool make_black_boxes,
-		   Report *report, NetworkReader *)
+linkVerilogNetwork(const char *top_cell_name,
+		   bool make_black_boxes,
+		   Report *report,
+		   NetworkReader *)
 {
-  return verilog_reader->linkNetwork(top_cell, make_black_boxes, report);
+  return verilog_reader->linkNetwork(top_cell_name, make_black_boxes, report);
 }
 
 // Verilog net name to network net map.
@@ -1715,10 +1717,11 @@ private:
 };
 
 Instance *
-VerilogReader::linkNetwork(Cell *top_cell,
+VerilogReader::linkNetwork(const char *top_cell_name,
 			   bool make_black_boxes,
 			   Report *report)
 {
+  Cell *top_cell = network_->findCell(library_, top_cell_name);
   VerilogModule *module = verilog_reader->module(top_cell);
   if (module) {
     // Seed the recursion for expansion with the top level instance.
