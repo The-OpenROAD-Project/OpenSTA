@@ -48,6 +48,7 @@ protected:
 
   Set<Cell*> written_cells_;
   Set<Instance*> pending_children_;
+  int unconnected_net_index_;
 };
 
 void
@@ -72,7 +73,8 @@ VerilogWriter::VerilogWriter(const char *filename,
   filename_(filename),
   sort_(sort),
   stream_(stream),
-  network_(network)
+  network_(network),
+  unconnected_net_index_(1)
 {
 }
 
@@ -188,26 +190,54 @@ VerilogWriter::writeChild(Instance *child)
   fprintf(stream_, " %s %s (",
 	  network_->name(child_cell),
 	  child_vname);
-  bool first = true;
-  InstancePinIterator *pin_iter = network_->pinIterator(child);
-  while (pin_iter->hasNext()) {
-    Pin *pin = pin_iter->next();
-    Net *net = network_->net(pin);
-    if (net) {
-      const char *net_name = network_->name(net);
-      const char *net_vname = netVerilogName(net_name, network_->pathEscape());
-      Port *port = network_->port(pin);
-      const char *port_name = network_->name(port);
-      if (!first)
+  bool first_port = true;
+  CellPortIterator *port_iter = network_->portIterator(child_cell);
+  while (port_iter->hasNext()) {
+    Port *port = port_iter->next();
+    const char *port_name = network_->name(port);
+    if (network_->hasMembers(port)) {
+      if (!first_port)
 	fprintf(stream_, ",\n    ");
-      fprintf(stream_, ".%s(%s)",
-	      port_name,
-	      net_vname);
-      first = false;
+      fprintf(stream_, ".%s({", port_name);
+      first_port = false;
+      bool first_member = true;
+      PortMemberIterator *member_iter = network_->memberIterator(port);
+      while (member_iter->hasNext()) {
+	Port *member = member_iter->next();
+	Pin *pin = network_->findPin(child, member);
+	Net *net = network_->net(pin);
+	const char *net_name;
+	if (net)
+	  net_name = network_->name(net);
+	else
+	  // I can't see the verilog syntax to "skip" a bit in the concatentation.
+	  net_name = stringPrintTmp("_NC%d", unconnected_net_index_++);
+	const char *net_vname = netVerilogName(net_name, network_->pathEscape());
+	if (!first_member)
+	  fprintf(stream_, ",\n    ");
+	fprintf(stream_, "%s", net_vname);
+	first_member = false;
+      }
+      delete member_iter;
+      fprintf(stream_, "})");
+    }
+    else { 
+      Pin *pin = network_->findPin(child, port);
+      Net *net = network_->net(pin);
+      if (net) {
+	const char *net_name = network_->name(net);
+	const char *net_vname = netVerilogName(net_name, network_->pathEscape());
+	if (!first_port)
+	  fprintf(stream_, ",\n    ");
+	fprintf(stream_, ".%s(%s)",
+		port_name,
+		net_vname);
+	first_port = false;
+      }
     }
   }
-  delete pin_iter;
-    fprintf(stream_, ");\n");
+  delete port_iter;
+  fprintf(stream_, ");\n");
 }
 
 } // namespace
