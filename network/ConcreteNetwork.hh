@@ -177,9 +177,7 @@ public:
 			    const char *name,
 			    int from_index,
 			    int to_index);
-  virtual void groupBusPorts(Cell *cell,
-			     const char *bus_brkts_left,
-			     const char *bus_brkts_right);
+  virtual void groupBusPorts(Cell *cell);
   virtual Port *makeBundlePort(Cell *cell,
 			       const char *name,
 			       PortSeq *members);

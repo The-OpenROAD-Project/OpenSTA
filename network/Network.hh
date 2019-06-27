@@ -425,6 +425,11 @@ public:
   // Escape prefix for path dividers in path names.
   virtual char pathEscape() const { return escape_; }
   virtual void setPathEscape(char escape);
+  // Multiple brakets are supported but generally there is only one.
+  virtual void setBusBrkts(char bus_brkt_left,
+			   char bus_brkt_right);
+  virtual const char *busBrktsRight() const { return bus_brkts_right_; }
+  virtual const char *busBrktsLeft() const { return bus_brkts_left_; }
 
 protected:
   Pin *findPinLinear(const Instance *instance,
@@ -469,6 +474,8 @@ protected:
   LibertyLibrary *default_liberty_;
   char divider_;
   char escape_;
+  const char *bus_brkts_left_;
+  const char *bus_brkts_right_;
   NetDrvrPinsMap net_drvr_pin_map_;
 
 private:
@@ -541,9 +548,7 @@ public:
 			    const char *name,
 			    int from_index,
 			    int to_index) = 0;
-  virtual void groupBusPorts(Cell *cell,
-			     const char *bus_brkts_left,
-			     const char *bus_brkts_right) = 0;
+  virtual void groupBusPorts(Cell *cell) = 0;
   virtual Port *makeBundlePort(Cell *cell,
 			       const char *name,
 			       PortSeq *members) = 0;
