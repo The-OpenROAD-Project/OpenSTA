@@ -205,12 +205,14 @@ VerilogWriter::writeChild(Instance *child)
       while (member_iter->hasNext()) {
 	Port *member = member_iter->next();
 	Pin *pin = network_->findPin(child, member);
-	Net *net = network_->net(pin);
-	const char *net_name;
-	if (net)
-	  net_name = network_->name(net);
-	else
-	  // I can't see the verilog syntax to "skip" a bit in the concatentation.
+	const char *net_name = nullptr;
+	if (pin) {
+	  Net *net = network_->net(pin);
+	  if (net)
+	    net_name = network_->name(net);
+	}
+	if (net_name == nullptr)
+	  // There is no verilog syntax to "skip" a bit in the concatentation.
 	  net_name = stringPrintTmp("_NC%d", unconnected_net_index_++);
 	const char *net_vname = netVerilogName(net_name, network_->pathEscape());
 	if (!first_member)
@@ -223,16 +225,18 @@ VerilogWriter::writeChild(Instance *child)
     }
     else { 
       Pin *pin = network_->findPin(child, port);
-      Net *net = network_->net(pin);
-      if (net) {
-	const char *net_name = network_->name(net);
-	const char *net_vname = netVerilogName(net_name, network_->pathEscape());
-	if (!first_port)
-	  fprintf(stream_, ",\n    ");
-	fprintf(stream_, ".%s(%s)",
-		port_name,
-		net_vname);
-	first_port = false;
+      if (pin) {
+	Net *net = network_->net(pin);
+	if (net) {
+	  const char *net_name = network_->name(net);
+	  const char *net_vname = netVerilogName(net_name, network_->pathEscape());
+	  if (!first_port)
+	    fprintf(stream_, ",\n    ");
+	  fprintf(stream_, ".%s(%s)",
+		  port_name,
+		  net_vname);
+	  first_port = false;
+	}
       }
     }
   }
