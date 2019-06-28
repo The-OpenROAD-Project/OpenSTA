@@ -114,7 +114,7 @@ class LibertyLibrary : public ConcreteLibrary
 public:
   LibertyLibrary(const char *name,
 		 const char *filename);
-  virtual ~LibertyLibrary();
+  ~LibertyLibrary();
   LibertyCell *findLibertyCell(const char *name) const;
   void findLibertyCellsMatching(PatternMatch *pattern,
 				LibertyCellSeq *cells);
@@ -383,7 +383,7 @@ public:
   LibertyCell(LibertyLibrary *library,
 	      const char *name,
 	      const char *filename);
-  virtual ~LibertyCell();
+  ~LibertyCell();
   LibertyLibrary *libertyLibrary() const { return liberty_library_; }
   LibertyLibrary *libertyLibrary() { return liberty_library_; }
   LibertyPort *findLibertyPort(const char *name) const;
@@ -471,11 +471,11 @@ public:
   // Add scaled cell after it is complete.
   void addScaledCell(OperatingConditions *op_cond,
 		     LibertyCell *scaled_cell);
-  virtual unsigned addTimingArcSet(TimingArcSet *set);
+  unsigned addTimingArcSet(TimingArcSet *set);
   void addTimingArcAttrs(TimingArcAttrs *attrs);
-  virtual void addInternalPower(InternalPower *power);
+  void addInternalPower(InternalPower *power);
   void addInternalPowerAttrs(InternalPowerAttrs *attrs);
-  virtual void addLeakagePower(LeakagePower *power);
+  void addLeakagePower(LeakagePower *power);
   void setLeakagePower(float leakage);
   void setOcvArcDepth(float depth);
   void setOcvDerate(OcvDerate *derate);
@@ -487,9 +487,9 @@ public:
   void setCornerCell(LibertyCell *corner_cell,
 		     int ap_index);
   // Call after cell is finished being constructed.
-  virtual void finish(bool infer_latches,
-		      Report *report,
-		      Debug *debug);
+  void finish(bool infer_latches,
+	      Report *report,
+	      Debug *debug);
   bool isBuffer() const;
   // Only valid when isBuffer() returns true.
   void bufferPorts(// Return values.
@@ -497,7 +497,7 @@ public:
 		   LibertyPort *&output);
 
 protected:
-  virtual void addPort(ConcretePort *port);
+  void addPort(ConcretePort *port);
   void setHasInternalPorts(bool has_internal);
   void setLibertyLibrary(LibertyLibrary *library);
   void deleteTimingArcAttrs();
@@ -513,8 +513,8 @@ protected:
 			       TimingArcSet *setup_check,
 			       Debug *debug);
   void findDefaultCondArcs();
-  virtual void translatePresetClrCheckRoles();
-  virtual void inferLatchRoles(Debug *debug);
+  void translatePresetClrCheckRoles();
+  void inferLatchRoles(Debug *debug);
   void deleteInternalPowerAttrs();
   void makeTimingArcMap(Report *report);
   void makeTimingArcPortMaps();
@@ -750,8 +750,8 @@ protected:
 	      int to_index,
 	      bool is_bundle,
 	      ConcretePortSeq *members);
-  virtual ~LibertyPort();
-  virtual void setDirection(PortDirection *dir);
+  ~LibertyPort();
+  void setDirection(PortDirection *dir);
   void setMinPort(LibertyPort *min);
   void addScaledPort(OperatingConditions *op_cond,
 		     LibertyPort *scaled_port);

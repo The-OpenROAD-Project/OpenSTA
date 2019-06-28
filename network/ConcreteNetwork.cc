@@ -387,10 +387,12 @@ ConcreteLibertyLibraryIterator::findNext()
   next_ = nullptr;
   while (iter_.hasNext()) {
     ConcreteLibrary *lib = iter_.next();
-    LibertyLibrary *liberty = dynamic_cast<LibertyLibrary*>(lib);
-    if (liberty) {
-      next_ = liberty;
-      break;
+    if (lib->isLiberty()) {
+      LibertyLibrary *liberty = static_cast<LibertyLibrary*>(lib);
+      if (liberty) {
+	next_ = liberty;
+	break;
+      }
     }
   }
 }
@@ -407,7 +409,7 @@ Library *
 ConcreteNetwork::makeLibrary(const char *name,
 			     const char *filename)
 {
-  ConcreteLibrary *library = new ConcreteLibrary(name, filename);
+  ConcreteLibrary *library = new ConcreteLibrary(name, filename, false);
   addLibrary(library);
   return reinterpret_cast<Library*>(library);
 }
@@ -454,14 +456,14 @@ LibertyLibrary *
 ConcreteNetwork::findLiberty(const char *name)
 {
   ConcreteLibrary *lib =  library_map_.findKey(name);
-  return dynamic_cast<LibertyLibrary*>(lib);
+  return static_cast<LibertyLibrary*>(lib);
 }
 
 LibertyLibrary *
 ConcreteNetwork::libertyLibrary(Library *library) const
 {
-  ConcreteLibrary *lib =  reinterpret_cast<ConcreteLibrary*>(library);
-  return dynamic_cast<LibertyLibrary*>(lib);
+  ConcreteLibrary *lib = reinterpret_cast<ConcreteLibrary*>(library);
+  return static_cast<LibertyLibrary*>(lib);
 }
 
 Cell *

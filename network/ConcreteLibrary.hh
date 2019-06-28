@@ -48,22 +48,24 @@ class ConcreteLibrary
 {
 public:
   explicit ConcreteLibrary(const char *name,
-			   const char *filename);
-  virtual ~ConcreteLibrary();
-  virtual const char *name() const { return name_; }
+			   const char *filename,
+			   bool is_liberty);
+  ~ConcreteLibrary();
+  const char *name() const { return name_; }
   void setName(const char *name);
-  virtual const char *filename() const { return filename_; }
+  bool isLiberty() const { return is_liberty_; }
+  const char *filename() const { return filename_; }
   void addCell(ConcreteCell *cell);
-  virtual ConcreteCell *makeCell(const char *name,
-				 bool is_leaf,
-				 const char *filename);
+  ConcreteCell *makeCell(const char *name,
+			 bool is_leaf,
+			 const char *filename);
   void deleteCell(ConcreteCell *cell);
   ConcreteLibraryCellIterator *cellIterator() const;
-  virtual ConcreteCell *findCell(const char *name) const;
-  virtual void findCellsMatching(const PatternMatch *pattern,
-				 CellSeq *cells) const;
-  virtual char busBrktLeft() { return bus_brkt_left_; }
-  virtual char busBrktRight() { return bus_brkt_right_; }
+  ConcreteCell *findCell(const char *name) const;
+  void findCellsMatching(const PatternMatch *pattern,
+			 CellSeq *cells) const;
+  char busBrktLeft() { return bus_brkt_left_; }
+  char busBrktRight() { return bus_brkt_right_; }
   void setBusBrkts(char left,
 		   char right);
 
@@ -73,6 +75,7 @@ protected:
 
   const char *name_;
   const char *filename_;
+  bool is_liberty_;
   char bus_brkt_left_;
   char bus_brkt_right_;
   ConcreteCellMap cell_map_;
@@ -87,19 +90,19 @@ class ConcreteCell
 {
 public:
   // Use ConcreteLibrary::deleteCell.
-  virtual ~ConcreteCell();
-  virtual ConcreteLibrary *library() const { return library_; }
-  virtual const char *name() const { return name_; }
-  virtual const char *filename() const { return filename_; }
+  ~ConcreteCell();
+  ConcreteLibrary *library() const { return library_; }
+  const char *name() const { return name_; }
+  const char *filename() const { return filename_; }
   LibertyCell *libertyCell() const { return liberty_cell_; }
   void setLibertyCell(LibertyCell *cell);
-  virtual int portBitCount() const { return port_bit_count_; }
-  virtual ConcretePort *findPort(const char *name) const;
-  virtual void findPortsMatching(const PatternMatch *pattern,
-				 PortSeq *ports) const;
-  virtual ConcreteCellPortIterator *portIterator() const;
-  virtual ConcreteCellPortBitIterator *portBitIterator() const;
-  virtual bool isLeaf() const { return is_leaf_; }
+  int portBitCount() const { return port_bit_count_; }
+  ConcretePort *findPort(const char *name) const;
+  void findPortsMatching(const PatternMatch *pattern,
+			 PortSeq *ports) const;
+  ConcreteCellPortIterator *portIterator() const;
+  ConcreteCellPortBitIterator *portBitIterator() const;
+  bool isLeaf() const { return is_leaf_; }
   void setIsLeaf(bool is_leaf);
 
   // Cell acts as port factory.
@@ -116,7 +119,7 @@ public:
 		     const char bus_brkt_right);
   size_t portCount() const;
   void setName(const char *name);
-  virtual void addPort(ConcretePort *port);
+  void addPort(ConcretePort *port);
   void addPortBit(ConcretePort *port);
 
 protected:
@@ -133,8 +136,8 @@ protected:
 		       int from_index,
 		       int to_index);
   // Bus port bit (internal to makeBusPortBits).
-  virtual ConcretePort *makePort(const char *bit_name,
-				 int bit_index);
+  ConcretePort *makePort(const char *bit_name,
+			 int bit_index);
   void makeBusPortBit(ConcretePort *bus_port,
 		      const char *name,
 		      int index);
@@ -161,45 +164,45 @@ private:
 class ConcretePort
 {
 public:
-  virtual ~ConcretePort();
-  virtual const char *name() const { return name_; }
-  virtual const char *busName() const;
-  virtual Cell *cell() const;
-  virtual ConcreteLibrary *library() const { return cell_->library(); }
-  virtual PortDirection *direction() const { return direction_; }
+  ~ConcretePort();
+  const char *name() const { return name_; }
+  const char *busName() const;
+  Cell *cell() const;
+  ConcreteLibrary *library() const { return cell_->library(); }
+  PortDirection *direction() const { return direction_; }
   LibertyPort *libertyPort() { return liberty_port_; }
   void setLibertyPort(LibertyPort *port);
-  virtual void setDirection(PortDirection *dir);
+  void setDirection(PortDirection *dir);
   // Bundles are groups of related ports that do not use
   // bus notation.
-  virtual bool isBundle() const { return is_bundle_; }
-  virtual bool isBus() const { return is_bus_; }
+  bool isBundle() const { return is_bundle_; }
+  bool isBus() const { return is_bus_; }
   // Index of cell bit ports.
   // Bus/bundle ports do not have an pin index.
-  virtual int pinIndex() const { return pin_index_; }
+  int pinIndex() const { return pin_index_; }
   void setPinIndex(int index);
   // Size is the bus/bundle member count (1 for non-bus/bundle ports).
-  virtual int size() const;
-  virtual int fromIndex() const { return from_index_; }
-  virtual int toIndex() const { return to_index_; }
+  int size() const;
+  int fromIndex() const { return from_index_; }
+  int toIndex() const { return to_index_; }
   // Bus member, bus[subscript].
-  virtual ConcretePort *findBusBit(int index) const;
+  ConcretePort *findBusBit(int index) const;
   // Predicate to determine if subscript is within bus range.
   //     (toIndex > fromIndex) && fromIndex <= subscript <= toIndex
   //  || (fromIndex > toIndex) && fromIndex >= subscript >= toIndex
   bool busIndexInRange(int index) const;
   // A port has members if it is a bundle or bus.
   bool hasMembers() const;
-  virtual ConcretePort *findMember(int index) const;
-  virtual ConcretePortMemberIterator *memberIterator() const;
+  ConcretePort *findMember(int index) const;
+  ConcretePortMemberIterator *memberIterator() const;
   void setBusBitIndex(int index);
 
   // Bus bit port functions.
   // Bus bit is one bit of a bus port.
-  virtual bool isBusBit() const;
+  bool isBusBit() const;
   // Bit index within bus port.
   // The bit index of A[3] is 3.
-  virtual int busBitIndex() const { return to_index_; }
+  int busBitIndex() const { return to_index_; }
   ConcretePortSeq *memberPorts() const { return member_ports_; }
   void addPortBit(ConcretePort *port);
 
@@ -208,7 +211,7 @@ protected:
   ConcretePort(ConcreteCell *cell,
 	       const char *name,
 	       bool is_bus,
-	       int from_index,
+       int from_index,
 	       int to_index,
 	       bool is_bundle,
 	       ConcretePortSeq *member_ports);

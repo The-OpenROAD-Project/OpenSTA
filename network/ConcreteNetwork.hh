@@ -381,7 +381,7 @@ protected:
   DISALLOW_COPY_AND_ASSIGN(ConcreteNet);
   ConcreteNet(const char *name,
 	      ConcreteInstance *instance);
-  virtual ~ConcreteNet();
+  ~ConcreteNet();
 
 private:
   const char *name_;

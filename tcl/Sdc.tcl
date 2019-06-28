@@ -579,10 +579,11 @@ proc get_lib_cells { args } {
 			   $regexp $nocase]
 	    if {$matches != {}} {
 	      set cells [concat $cells $matches]
-	    } else {
-	      if {!$quiet} {
-		sta_warn "cell '$cell_pattern' not found."
-	      }
+	    }
+	  }
+	  if { $cells == {} } {
+	    if {!$quiet} {
+	      sta_warn "cell '$cell_pattern' not found."
 	    }
 	  }
 	}

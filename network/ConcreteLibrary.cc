@@ -25,9 +25,11 @@
 namespace sta {
 
 ConcreteLibrary::ConcreteLibrary(const char *name,
-				 const char *filename) :
+				 const char *filename,
+				 bool is_liberty) :
   name_(stringCopy(name)),
   filename_(stringCopy(filename)),
+  is_liberty_(is_liberty),
   bus_brkt_left_('['),
   bus_brkt_right_(']')
 {

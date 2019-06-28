@@ -60,7 +60,7 @@ deleteLiberty()
 
 LibertyLibrary::LibertyLibrary(const char *name,
 			       const char *filename) :
-  ConcreteLibrary(name, filename),
+  ConcreteLibrary(name, filename, true),
   units_(new Units()),
   delay_model_type_(DelayModelType::cmos_linear), // default
   nominal_process_(0.0),
@@ -137,7 +137,7 @@ LibertyLibrary::~LibertyLibrary()
 LibertyCell *
 LibertyLibrary::findLibertyCell(const char *name) const
 {
-  return dynamic_cast<LibertyCell*>(findCell(name));
+  return static_cast<LibertyCell*>(findCell(name));
 }
 
 void
@@ -832,7 +832,7 @@ LibertyCellIterator::hasNext()
 LibertyCell *
 LibertyCellIterator::next()
 {
-  return dynamic_cast<LibertyCell*>(iter_.next());
+  return static_cast<LibertyCell*>(iter_.next());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -898,7 +898,7 @@ LibertyCell::deleteTimingArcAttrs()
 LibertyPort *
 LibertyCell::findLibertyPort(const char *name) const
 {
-  return dynamic_cast<LibertyPort*>(findPort(name));
+  return static_cast<LibertyPort*>(findPort(name));
 }
 
 void
@@ -1751,7 +1751,7 @@ LibertyCellPortIterator::hasNext()
 LibertyPort *
 LibertyCellPortIterator::next()
 {
-  return dynamic_cast<LibertyPort*>(iter_.next());
+  return static_cast<LibertyPort*>(iter_.next());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1775,7 +1775,7 @@ LibertyCellPortBitIterator::hasNext()
 LibertyPort *
 LibertyCellPortBitIterator::next()
 {
-  return dynamic_cast<LibertyPort*>(iter_->next());
+  return static_cast<LibertyPort*>(iter_->next());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1837,13 +1837,13 @@ LibertyPort::setDirection(PortDirection *dir)
 LibertyPort *
 LibertyPort::findLibertyMember(int index) const
 {
-  return dynamic_cast<LibertyPort*>(findMember(index));
+  return static_cast<LibertyPort*>(findMember(index));
 }
 
 LibertyPort *
 LibertyPort::findLibertyBusBit(int index) const
 {
-  return dynamic_cast<LibertyPort*>(findBusBit(index));
+  return static_cast<LibertyPort*>(findBusBit(index));
 }
 
 void
@@ -2299,7 +2299,7 @@ LibertyPortMemberIterator::hasNext()
 LibertyPort *
 LibertyPortMemberIterator::next()
 {
-  return dynamic_cast<LibertyPort*>(iter_->next());
+  return static_cast<LibertyPort*>(iter_->next());
 }
 
 ////////////////////////////////////////////////////////////////

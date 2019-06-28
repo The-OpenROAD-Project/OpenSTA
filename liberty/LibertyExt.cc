@@ -19,8 +19,8 @@
 //  * code is called at the beginning of a library definition
 //  * a string attribute named "thingy" is parsed
 
-#include "Machine.hh"
 #include <stdio.h>
+#include "Machine.hh"
 #include "StringUtil.hh"
 #include "LibertyReader.hh"
 #include "LibertyReaderPvt.hh"
@@ -222,7 +222,7 @@ BigcoLibertyReader::visitAttr1(LibertyAttr *attr)
   if (thingy) {
     printf("Bigco thingy attribute value is %s.\n", thingy);
     if (cell_)
-      dynamic_cast<BigcoCell*>(cell_)->setThingy(thingy);
+      static_cast<BigcoCell*>(cell_)->setThingy(thingy);
   }
 }
 
@@ -248,8 +248,6 @@ public:
 protected:
   virtual LibertyLibrary *readLibertyFile(const char *filename, 
 					  bool infer_latches,
-					  Report *report,
-					  Debug *debug,
 					  Network *network);
 };
 
@@ -262,12 +260,9 @@ BigcoSta::BigcoSta() :
 LibertyLibrary *
 Sta::readLibertyFile(const char *filename,
 		bool infer_latches,
-		     Report *report,
-		     Debug *debug,
 		     Network *network)
 {
   BigcoLibertyBuilder builder;
   BigcoLibertyReader reader(&builder);
-  return reader.readLibertyFile(filename, infer_latches, 
-				report, debug, network);
+  return reader.readLibertyFile(filename, infer_latches, network);
 }
