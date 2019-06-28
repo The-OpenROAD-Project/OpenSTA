@@ -112,8 +112,8 @@ public:
   ConcretePort *makeBundlePort(const char *name,
 			       ConcretePortSeq *members);
   // Group previously defined bus bit ports together.
-  void groupBusPorts(const char *bus_brkts_left,
-		     const char *bus_brkts_right);
+  void groupBusPorts(const char bus_brkt_left,
+		     const char bus_brkt_right);
   size_t portCount() const;
   void setName(const char *name);
   virtual void addPort(ConcretePort *port);

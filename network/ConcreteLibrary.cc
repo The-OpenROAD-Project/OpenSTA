@@ -355,9 +355,11 @@ BusPort::setTo(int to)
 typedef Map<const char*, BusPort*, CharPtrLess> BusPortMap;
 
 void
-ConcreteCell::groupBusPorts(const char *bus_brkts_left,
-			    const char *bus_brkts_right)
+ConcreteCell::groupBusPorts(const char bus_brkt_left,
+			    const char bus_brkt_right)
 {
+  const char bus_brkts_left[2]{bus_brkt_left, '\0'};
+  const char bus_brkts_right[2]{bus_brkt_right, '\0'};
   BusPortMap port_map;
   // Find ungrouped bus ports.
   // Remove bus bit ports from the ports_ vector during the scan by
@@ -370,7 +372,8 @@ ConcreteCell::groupBusPorts(const char *bus_brkts_left,
     const char *port_name = port->name();
     char *bus_name;
     int index;
-    parseBusName(port_name, bus_brkts_left, bus_brkts_right, bus_name, index);
+    parseBusName(port_name, bus_brkts_left, bus_brkts_right,
+		 bus_name, index);
     if (bus_name) {
       if (!port->isBusBit()) {
 	BusPort *bus_port = port_map.findKey(bus_name);

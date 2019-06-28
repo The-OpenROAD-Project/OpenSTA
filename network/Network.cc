@@ -27,9 +27,7 @@ namespace sta {
 Network::Network() :
   default_liberty_(nullptr),
   divider_('/'),
-  escape_('\\'),
-  bus_brkts_left_("["),
-  bus_brkts_right_("]")
+  escape_('\\')
 {
 }
 
@@ -1048,14 +1046,6 @@ void
 Network::setPathEscape(char escape)
 {
   escape_ = escape;
-}
-
-void
-Network::setBusBrkts(char bus_brkt_left,
-		     char bus_brkt_right)
-{
-  bus_brkts_left_ = new char[2]{bus_brkt_left, '\0'};
-  bus_brkts_right_ = new char[2]{bus_brkt_right, '\0'};
 }
 
 ////////////////////////////////////////////////////////////////

@@ -626,8 +626,10 @@ ConcreteNetwork::makeBusPort(Cell *cell,
 void
 ConcreteNetwork::groupBusPorts(Cell *cell)
 {
+  Library *lib = library(cell);
+  ConcreteLibrary *clib = reinterpret_cast<ConcreteLibrary*>(lib);
   ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell);
-  ccell->groupBusPorts(bus_brkts_left_, bus_brkts_right_);
+  ccell->groupBusPorts(clib->busBrktLeft(), clib->busBrktRight());
 }
 
 Port *
