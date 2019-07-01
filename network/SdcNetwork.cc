@@ -29,471 +29,6 @@ static const char *
 escapeBrackets(const char *token,
 	       const Network *network);
 
-////////////////////////////////////////////////////////////////
-
-// Helper to parse an instance path (with optional net/port tail).
-// Since dividers are not escaped in SDC, look for an instance for
-// each sub-section of the path.  If none is found, escape the divider
-// and keep looking.  For the path a/b/c this looks for instances
-//  a
-//  a\/b
-//  a\/b\/c
-class SdcPathParser
-{
-public:
-  SdcPathParser(const char *path,
-		const Network *network);
-  ~SdcPathParser();
-  Instance *instance() const { return inst_; }
-  const char *pathTail() const { return path_tail_; }
-
-protected:
-  void initialScan(const char *path);
-  void parsePath(const char *path);
-
-  int path_length_;
-  const Network *network_;
-  char divider_;
-  char escape_;
-  // Unescaped divider count.
-  int divider_count_;
-  char *inst_path_;
-  Instance *inst_;
-  const char *path_tail_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(SdcPathParser);
-};
-
-SdcPathParser::SdcPathParser(const char *path,
-			     const Network *network) :
-  network_(network),
-  divider_(network->pathDivider()),
-  escape_(network->pathEscape()),
-  inst_path_(nullptr),
-  inst_(nullptr)
-{
-  initialScan(path);
-  if (divider_count_ > 0)
-    parsePath(path);
-  else
-    path_tail_ = path;
-}
-
-SdcPathParser::~SdcPathParser()
-{
-  stringDelete(inst_path_);
-}
-
-// Scan the path for unescaped dividers.
-void
-SdcPathParser::initialScan(const char *path)
-{
-  divider_count_ = 0;
-  path_length_ = 0;
-  for (const char *s = path; *s; s++) {
-    char ch = *s;
-    if (ch == escape_) {
-      // Make sure we don't skip the null if escape is the last char.
-      if (s[1] != '\0') {
-	s++;
-	path_length_++;
-      }
-    }
-    else if (ch == divider_)
-      divider_count_++;
-    path_length_++;
-  }
-}
-
-void
-SdcPathParser::parsePath(const char *path)
-{
-  Instance *parent = network_->topInstance();
-  // Leave room to escape all the dividers and '\0'.
-  int inst_path_length = path_length_ + divider_count_ + 1;
-  inst_path_ = new char[inst_path_length];
-  path_tail_ = inst_path_;
-  char *p = inst_path_;
-  for (const char *s = path; *s; s++) {
-    char ch = *s;
-    if (ch == escape_) {
-      // Make sure we don't skip the null if escape is the last char.
-      if (s[1] != '\0') {
-	*p++ = ch;
-	*p++ = s[1];
-	s++;
-      }
-    }
-    else if (ch == divider_) {
-      // Terminate the sub-path up to this divider.
-      *p = '\0';
-      Instance *child = network_->findChild(parent, inst_path_);
-      if (child) {
-	// Found an instance for the sub-path up to this divider.
-	parent = inst_ = child;
-	// Reset the instance path.
-	path_tail_ = p = inst_path_;
-      }
-      else {
-	// No match for sub-path.  Escape the divider and keep looking.
-	*p++ = escape_;
-	*p++ = divider_;
-      }
-    }
-    else
-      *p++ = ch;
-    if (p - inst_path_ + 1 > inst_path_length)
-      internalError("inst path string lenth estimate busted");
-  }
-  *p = '\0';
-}
-
-////////////////////////////////////////////////////////////////
-
-// Helper to visit an instance path matches.
-// Since dividers are not escaped in SDC, look for instance matches for
-// each sub-section of the path.  If none are found, escape the divider
-// and keep looking.  For the path a/b/c this looks for instances
-// This base class is specialized by defining visitTail.
-//  a
-//  a\/b
-//  a\/b\/c
-class SdcPathMatcher
-{
-public:
-  SdcPathMatcher(const Network *network);
-  void findMatches(const Instance *parent,
-		   const PatternMatch *pattern);
-  virtual bool visitTail(const Instance *instance,
-			 const PatternMatch *tail) = 0;
-
-protected:
-  void initialScan(const PatternMatch *pattern);
-  bool visitMatches(const Instance *parent,
-		    const PatternMatch *tail);
-
-  int path_length_;
-  const Network *network_;
-  char divider_;
-  char escape_;
-  int divider_count_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(SdcPathMatcher);
-};
-
-SdcPathMatcher::SdcPathMatcher(const Network *network) :
-  network_(network),
-  divider_(network->pathDivider()),
-  escape_(network->pathEscape())
-{
-}
-
-void
-SdcPathMatcher::findMatches(const Instance *parent,
-			    const PatternMatch *pattern)
-{
-  initialScan(pattern);
-  visitMatches(parent, pattern);
-}
-
-// Scan the path for unescaped dividers.
-void
-SdcPathMatcher::initialScan(const PatternMatch *pattern)
-{
-  divider_count_ = 0;
-  path_length_ = 0;
-  for (const char *s = pattern->pattern(); *s; s++) {
-    char ch = *s;
-    if (ch == escape_) {
-      // Make sure we don't skip the null if escape is the last char.
-      if (s[1] != '\0') {
-	s++;
-	path_length_++;
-      }
-    }
-    else if (ch == divider_)
-      divider_count_++;
-    path_length_++;
-  }
-}
-
-bool
-SdcPathMatcher::visitMatches(const Instance *parent,
-			     const PatternMatch *tail)
-{
-  // Leave room to escape all the dividers and '\0'.
-  int inst_path_length = path_length_ + divider_count_ + 1;
-  char *inst_path = new char[inst_path_length];
-  char *p = inst_path;
-  bool has_brkts = false;
-  bool found_match = false;
-  for (const char *s = tail->pattern(); *s; s++) {
-    char ch = *s;
-    if (ch == escape_) {
-      // Make sure we don't skip the null if escape is the last char.
-      if (s[1] != '\0') {
-	*p++ = ch;
-	*p++ = s[1];
-	s++;
-      }
-    }
-    else if (ch == divider_) {
-      // Terminate the sub-path up to this divider.
-      *p = '\0';
-      PatternMatch matcher(inst_path, tail);
-      InstanceSeq matches;
-      network_->findChildrenMatching(parent, &matcher, &matches);
-      if (has_brkts && matches.empty()) {
-	// Look for matches after escaping brackets.
-	const PatternMatch escaped_brkts(escapeBrackets(inst_path, network_),
-					 tail); 
-	network_->findChildrenMatching(parent, &escaped_brkts, &matches);
-      }
-      if (!matches.empty()) {
-	// Found instance matches for the sub-path up to this divider.
-	const PatternMatch tail_pattern(s + 1, tail);
-	InstanceSeq::Iterator match_iter(matches);
-	while (match_iter.hasNext()) {
-	  Instance *match = match_iter.next();
-	  // Recurse to save the iterator state so we can iterate over
-	  // multiple nested partial matches.
-	  found_match |= visitMatches(match, &tail_pattern);
-	}
-      }
-      // Escape the divider and keep looking.
-      *p++ = escape_;
-      *p++ = divider_;
-    }
-    else {
-      if (ch == '[' || ch == ']')
-	has_brkts = true;
-      *p++ = ch;
-    }
-    if (p - inst_path + 1 > inst_path_length)
-      internalError("inst path string lenth estimate busted");
-  }
-  *p = '\0';
-  if (!found_match) {
-    PatternMatch tail_pattern(inst_path, tail);
-    found_match |= visitTail(parent, &tail_pattern);
-    if (!found_match && has_brkts) {
-      // Look for matches after escaping brackets.
-      char *escaped_path = stringCopy(escapeBrackets(inst_path, network_));
-      const PatternMatch escaped_tail(escaped_path, tail);
-      found_match |= visitTail(parent, &escaped_tail);
-      stringDelete(escaped_path);
-    }
-  }
-  stringDelete(inst_path);
-  return found_match;
-}
-
-////////////////////////////////////////////////////////////////
-
-class SdcInstanceMatcher : public SdcPathMatcher
-{
-public:
-  SdcInstanceMatcher(const Network *network,
-		     InstanceSeq *insts);
-  virtual bool visitTail(const Instance *instance,
-			 const PatternMatch *tail);
-
-protected:
-  InstanceSeq *insts_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(SdcInstanceMatcher);
-};
-
-SdcInstanceMatcher::SdcInstanceMatcher(const Network *network,
-				       InstanceSeq *insts) :
-  SdcPathMatcher(network),
-  insts_(insts)
-{
-}
-
-bool
-SdcInstanceMatcher::visitTail(const Instance *instance,
-			      const PatternMatch *tail)
-{
-  size_t match_count = insts_->size();
-  network_->findChildrenMatching(instance, tail, insts_);
-  return insts_->size() != match_count;
-}
-
-void
-SdcNetwork::findInstancesMatching(const Instance *context,
-				  const PatternMatch *pattern,
-				  InstanceSeq *insts) const
-{
-  SdcInstanceMatcher matcher(network_, insts);
-  matcher.findMatches(context, pattern);
-}
-
-////////////////////////////////////////////////////////////////
-
-class SdcNetMatcher : public SdcPathMatcher
-{
-public:
-  SdcNetMatcher(const Network *network,
-		NetSeq *nets);
-  virtual bool visitTail(const Instance *instance,
-			 const PatternMatch *tail);
-
-protected:
-  DISALLOW_COPY_AND_ASSIGN(SdcNetMatcher);
-
-  NetSeq *nets_;
-};
-
-SdcNetMatcher::SdcNetMatcher(const Network *network,
-			     NetSeq *nets) :
-  SdcPathMatcher(network),
-  nets_(nets)
-{
-}
-
-bool
-SdcNetMatcher::visitTail(const Instance *instance,
-			 const PatternMatch *tail)
-{
-  size_t match_count = nets_->size();
-  network_->findInstNetsMatching(instance, tail, nets_);
-  return nets_->size() != match_count;
-}
-
-void
-SdcNetwork::findNetsMatching(const Instance *parent,
-			     const PatternMatch *pattern,
-			     NetSeq *nets) const
-{
-  SdcNetMatcher matcher(this, nets);
-  matcher.findMatches(parent, pattern);
-}
-
-void
-SdcNetwork::findInstNetsMatching(const Instance *instance,
-				 const PatternMatch *pattern,
-				 NetSeq *nets) const
-{
-  network_->findInstNetsMatching(instance, pattern, nets);
-  if (nets->empty()) {
-    // Look for matches after escaping path dividers.
-    const PatternMatch escaped_dividers(escapeDividers(pattern->pattern(),
-						       this),
-					pattern);
-    network_->findInstNetsMatching(instance, &escaped_dividers, nets);
-    if (nets->empty()) {
-      // Look for matches after escaping brackets.
-      const PatternMatch escaped_brkts(escapeBrackets(pattern->pattern(),this),
-				       pattern);
-      network_->findInstNetsMatching(instance, &escaped_brkts, nets);
-    }
-  }
-}
-
-////////////////////////////////////////////////////////////////
-
-class SdcPinMatcher : public SdcPathMatcher
-{
-public:
-  SdcPinMatcher(const Network *network,
-		PinSeq *pins);
-  virtual bool visitTail(const Instance *instance,
-			 const PatternMatch *tail);
-
-protected:
-  DISALLOW_COPY_AND_ASSIGN(SdcPinMatcher);
-
-  PinSeq *pins_;
-};
-
-SdcPinMatcher::SdcPinMatcher(const Network *network,
-			     PinSeq *pins) :
-  SdcPathMatcher(network),
-  pins_(pins)
-{
-}
-
-bool
-SdcPinMatcher::visitTail(const Instance *instance,
-			 const PatternMatch *tail)
-{
-  bool found_match = false;
-  if (instance != network_->topInstance()) {
-    Cell *cell = network_->cell(instance);
-    CellPortIterator *port_iter = network_->portIterator(cell);
-    while (port_iter->hasNext()) {
-      Port *port = port_iter->next();
-      const char *port_name = network_->name(port);
-      if (network_->hasMembers(port)) {
-	bool bus_matches = tail->match(port_name)
-	  || tail->match(escapeDividers(port_name, network_));
-	PortMemberIterator *member_iter = network_->memberIterator(port);
-	while (member_iter->hasNext()) {
-	  Port *member_port = member_iter->next();
-	  Pin *pin = network_->findPin(instance, member_port);
-	  if (pin) {
-	    if (bus_matches) {
-	      pins_->push_back(pin);
-	      found_match = true;
-	    }
-	    else {
-	      const char *member_name = network_->name(member_port);
-	      if (tail->match(member_name)
-		  || tail->match(escapeDividers(member_name, network_))) {
-		pins_->push_back(pin);
-		found_match = true;
-	      }
-	    }
-	  }
-	}
-	delete member_iter;
-      }
-      else if (tail->match(port_name)
-	       || tail->match(escapeDividers(port_name, network_))) {
-	Pin *pin = network_->findPin(instance, port);
-	if (pin) {
-	  pins_->push_back(pin);
-	  found_match = true;
-	}
-      }
-    }
-    delete port_iter;
-  }
-  return found_match;
-}
-
-// Top level ports are not considered pins by get_pins.
-void
-SdcNetwork::findPinsMatching(const Instance *instance,
-			     const PatternMatch *pattern,
-			     PinSeq *pins) const
-{
-  if (stringEq(pattern->pattern(), "*")) {
-    // Pattern of '*' matches all child instance pins.
-    InstanceChildIterator *child_iter = childIterator(instance);
-    while (child_iter->hasNext()) {
-      Instance *child = child_iter->next();
-      InstancePinIterator *pin_iter = pinIterator(child);
-      while (pin_iter->hasNext()) {
-	Pin *pin = pin_iter->next();
-	pins->push_back(pin);
-      }
-      delete pin_iter;
-    }
-    delete child_iter;
-  }
-  else {
-    SdcPinMatcher matcher(network_, pins);
-    matcher.findMatches(instance, pattern);
-  }
-}
-
-////////////////////////////////////////////////////////////////
-
 NetworkNameAdapter::NetworkNameAdapter(Network *network) :
   NetworkEdit(),
   network_(network),
@@ -729,6 +264,12 @@ int
 NetworkNameAdapter::toIndex(const Port *port) const
 {
   return network_->toIndex(port);
+}
+
+bool
+NetworkNameAdapter::hasMembers(const Port *port) const
+{
+  return network_->hasMembers(port);
 }
 
 Port *
@@ -1071,12 +612,6 @@ SdcNetwork::busName(const Port *port) const
   return staToSdc(network_->busName(port));
 }
 
-bool
-SdcNetwork::hasMembers(const Port *port) const
-{
-  return network_->hasMembers(port);
-}
-
 const char *
 SdcNetwork::name(const Instance *instance) const
 {
@@ -1113,15 +648,32 @@ SdcNetwork::pathName(const Net *net) const
   return staToSdc(network_->pathName(net));
 }
 
+////////////////////////////////////////////////////////////////
+
 Instance *
 SdcNetwork::findInstance(const char *path_name) const
 {
-  SdcPathParser path_parser(path_name, this);
-  Instance *parent = path_parser.instance();
+  const char *child_name;
+  Instance *parent;
+  parsePath(path_name, parent, child_name);
   if (parent == nullptr)
     parent = network_->topInstance();
-  const char *child_name = path_parser.pathTail();
   return findChild(parent, child_name);
+}
+
+void
+SdcNetwork::findInstancesMatching(const Instance *context,
+				  const PatternMatch *pattern,
+				  InstanceSeq *insts) const
+{
+  visitMatches(context, pattern,
+	       [&](const Instance *instance,
+		   const PatternMatch *tail)
+	       {
+		 size_t match_count = insts->size();
+		 network_->findChildrenMatching(instance, tail, insts);
+		 return insts->size() != match_count;
+	       });
 }
 
 Instance *
@@ -1136,14 +688,16 @@ SdcNetwork::findChild(const Instance *parent,
   return child;
 }
 
+////////////////////////////////////////////////////////////////
+
 Net *
 SdcNetwork::findNet(const char *path_name) const
 {
-  SdcPathParser path_parser(path_name, this);
-  const Instance *inst = path_parser.instance();
+  const char *net_name;
+  Instance *inst;
+  parsePath(path_name, inst, net_name);
   if (inst == nullptr)
     inst = network_->topInstance();
-  const char *net_name = path_parser.pathTail();
   return findNet(inst, net_name);
 }
 
@@ -1159,16 +713,52 @@ SdcNetwork::findNet(const Instance *instance,
   return net;
 }
 
+void
+SdcNetwork::findNetsMatching(const Instance *parent,
+			     const PatternMatch *pattern,
+			     NetSeq *nets) const
+{
+  visitMatches(parent, pattern,
+	       [&](const Instance *instance,
+		   const PatternMatch *tail)
+	       {
+		 size_t match_count = nets->size();
+		 network_->findInstNetsMatching(instance, tail, nets);
+		 return nets->size() != match_count;
+	       });
+}
+
+void
+SdcNetwork::findInstNetsMatching(const Instance *instance,
+				 const PatternMatch *pattern,
+				 NetSeq *nets) const
+{
+  network_->findInstNetsMatching(instance, pattern, nets);
+  if (nets->empty()) {
+    // Look for matches after escaping path dividers.
+    const PatternMatch escaped_dividers(escapeDividers(pattern->pattern(),
+						       this),
+					pattern);
+    network_->findInstNetsMatching(instance, &escaped_dividers, nets);
+    if (nets->empty()) {
+      // Look for matches after escaping brackets.
+      const PatternMatch escaped_brkts(escapeBrackets(pattern->pattern(),this),
+				       pattern);
+      network_->findInstNetsMatching(instance, &escaped_brkts, nets);
+    }
+  }
+}
+
 ////////////////////////////////////////////////////////////////
 
 Pin *
 SdcNetwork::findPin(const char *path_name) const
 {
-  SdcPathParser path_parser(path_name, this);
-  const Instance *inst = path_parser.instance();
+  const char *port_name;
+  Instance *inst;
+  parsePath(path_name, inst, port_name);
   if (inst == nullptr)
     inst = network_->topInstance();
-  const char *port_name = path_parser.pathTail();
   return findPin(inst, port_name);
 }
 
@@ -1183,6 +773,85 @@ SdcNetwork::findPin(const Instance *instance,
     pin = network_->findPin(instance, port_name_);
   }
   return pin;
+}
+
+// Top level ports are not considered pins by get_pins.
+void
+SdcNetwork::findPinsMatching(const Instance *instance,
+			     const PatternMatch *pattern,
+			     PinSeq *pins) const
+{
+  if (stringEq(pattern->pattern(), "*")) {
+    // Pattern of '*' matches all child instance pins.
+    InstanceChildIterator *child_iter = childIterator(instance);
+    while (child_iter->hasNext()) {
+      Instance *child = child_iter->next();
+      InstancePinIterator *pin_iter = pinIterator(child);
+      while (pin_iter->hasNext()) {
+	Pin *pin = pin_iter->next();
+	pins->push_back(pin);
+      }
+      delete pin_iter;
+    }
+    delete child_iter;
+  }
+  else
+    visitMatches(instance, pattern,
+		 [&](const Instance *instance,
+		     const PatternMatch *tail)
+		 {
+		   return visitPinTail(instance, tail, pins);
+		 });
+}
+
+bool
+SdcNetwork::visitPinTail(const Instance *instance,
+			 const PatternMatch *tail,
+			 PinSeq *pins) const
+{
+  bool found_match = false;
+  if (instance != network_->topInstance()) {
+    Cell *cell = network_->cell(instance);
+    CellPortIterator *port_iter = network_->portIterator(cell);
+    while (port_iter->hasNext()) {
+      Port *port = port_iter->next();
+      const char *port_name = network_->name(port);
+      if (network_->hasMembers(port)) {
+	bool bus_matches = tail->match(port_name)
+	  || tail->match(escapeDividers(port_name, network_));
+	PortMemberIterator *member_iter = network_->memberIterator(port);
+	while (member_iter->hasNext()) {
+	  Port *member_port = member_iter->next();
+	  Pin *pin = network_->findPin(instance, member_port);
+	  if (pin) {
+	    if (bus_matches) {
+	      pins->push_back(pin);
+	      found_match = true;
+	    }
+	    else {
+	      const char *member_name = network_->name(member_port);
+	      if (tail->match(member_name)
+		  || tail->match(escapeDividers(member_name, network_))) {
+		pins->push_back(pin);
+		found_match = true;
+	      }
+	    }
+	  }
+	}
+	delete member_iter;
+      }
+      else if (tail->match(port_name)
+	       || tail->match(escapeDividers(port_name, network_))) {
+	Pin *pin = network_->findPin(instance, port);
+	if (pin) {
+	  pins->push_back(pin);
+	  found_match = true;
+	}
+      }
+    }
+    delete port_iter;
+  }
+  return found_match;
 }
 
 Instance *
@@ -1200,6 +869,190 @@ SdcNetwork::makeNet(const char *name,
 {
   const char *escaped_name = escapeDividers(name, this);
   return network_edit_->makeNet(escaped_name, parent);
+}
+
+////////////////////////////////////////////////////////////////
+
+// Helper to parse an instance path (with optional net/port tail).
+// Since dividers are not escaped in SDC, look for an instance for
+// each sub-section of the path.  If none is found, escape the divider
+// and keep looking.  For the path a/b/c this looks for instances
+//  a
+//  a\/b
+//  a\/b\/c
+void
+SdcNetwork::parsePath(const char *path,
+		      // Return values.
+		      Instance *&inst,
+		      const char *&path_tail) const
+{
+  int divider_count, path_length;
+  scanPath(path, divider_count, path_length);
+  if (divider_count > 0)
+    parsePath(path, divider_count, path_length, inst, path_tail);
+  else {
+    inst = nullptr;
+    path_tail = path;
+  }
+}
+
+// Scan the path for unescaped dividers.
+void
+SdcNetwork::scanPath(const char *path,
+		     // Return values.
+		     // Unescaped divider count.
+		     int &divider_count,
+		     int &path_length) const
+{
+  divider_count = 0;
+  path_length = 0;
+  for (const char *s = path; *s; s++) {
+    char ch = *s;
+    if (ch == escape_) {
+      // Make sure we don't skip the null if escape is the last char.
+      if (s[1] != '\0') {
+	s++;
+	path_length++;
+      }
+    }
+    else if (ch == divider_)
+      divider_count++;
+    path_length++;
+  }
+}
+
+void
+SdcNetwork::parsePath(const char *path,
+		      int divider_count,
+		      int path_length,
+		      // Return values.
+		      Instance *&inst,
+		      const char *&path_tail) const
+{
+  Instance *parent = topInstance();
+  // Leave room to escape all the dividers and '\0'.
+  int inst_path_length = path_length + divider_count + 1;
+  char *inst_path = new char[inst_path_length];
+  inst = nullptr;
+  path_tail = inst_path;
+  char *p = inst_path;
+  for (const char *s = path; *s; s++) {
+    char ch = *s;
+    if (ch == escape_) {
+      // Make sure we don't skip the null if escape is the last char.
+      if (s[1] != '\0') {
+	*p++ = ch;
+	*p++ = s[1];
+	s++;
+      }
+    }
+    else if (ch == divider_) {
+      // Terminate the sub-path up to this divider.
+      *p = '\0';
+      Instance *child = findChild(parent, inst_path);
+      if (child) {
+	// Found an instance for the sub-path up to this divider.
+	parent = inst = child;
+	// Reset the instance path.
+	path_tail = p = inst_path;
+      }
+      else {
+	// No match for sub-path.  Escape the divider and keep looking.
+	*p++ = escape_;
+	*p++ = divider_;
+      }
+    }
+    else
+      *p++ = ch;
+    if (p - inst_path + 1 > inst_path_length)
+      internalError("inst path string lenth estimate busted");
+  }
+  *p = '\0';
+  stringDelete(inst_path);
+}
+
+// Helper to visit instance path matches.
+// Since dividers are not escaped in SDC, look for instance matches for
+// each sub-section of the path.  If none are found, escape the divider
+// and keep looking.  For the path a/b/c this looks for instances
+//  a
+//  a\/b
+//  a\/b\/c
+bool
+SdcNetwork::visitMatches(const Instance *parent,
+			 const PatternMatch *pattern,
+			 const std::function<bool (const Instance *instance,
+						   const PatternMatch *tail)>
+			 visit_tail) const
+{
+  int divider_count, path_length;
+  scanPath(pattern->pattern(), divider_count, path_length);
+
+  // Leave room to escape all the dividers and '\0'.
+  int inst_path_length = path_length + divider_count + 1;
+  char *inst_path = new char[inst_path_length];
+  char *p = inst_path;
+  bool has_brkts = false;
+  bool found_match = false;
+  for (const char *s = pattern->pattern(); *s; s++) {
+    char ch = *s;
+    if (ch == escape_) {
+      // Make sure we don't skip the null if escape is the last char.
+      if (s[1] != '\0') {
+	*p++ = ch;
+	*p++ = s[1];
+	s++;
+      }
+    }
+    else if (ch == divider_) {
+      // Terminate the sub-path up to this divider.
+      *p = '\0';
+      PatternMatch matcher(inst_path, pattern);
+      InstanceSeq matches;
+      findChildrenMatching(parent, &matcher, &matches);
+      if (has_brkts && matches.empty()) {
+	// Look for matches after escaping brackets.
+	const PatternMatch escaped_brkts(escapeBrackets(inst_path, this),
+					 pattern); 
+	network_->findChildrenMatching(parent, &escaped_brkts, &matches);
+      }
+      if (!matches.empty()) {
+	// Found instance matches for the sub-path up to this divider.
+	const PatternMatch tail_pattern(s + 1, pattern);
+	InstanceSeq::Iterator match_iter(matches);
+	while (match_iter.hasNext()) {
+	  Instance *match = match_iter.next();
+	  // Recurse to save the iterator state so we can iterate over
+	  // multiple nested partial matches.
+	  found_match |= visitMatches(match, &tail_pattern, visit_tail);
+	}
+      }
+      // Escape the divider and keep looking.
+      *p++ = escape_;
+      *p++ = divider_;
+    }
+    else {
+      if (ch == '[' || ch == ']')
+	has_brkts = true;
+      *p++ = ch;
+    }
+    if (p - inst_path + 1 > inst_path_length)
+      internalError("inst path string lenth estimate busted");
+  }
+  *p = '\0';
+  if (!found_match) {
+    PatternMatch tail_pattern(inst_path, pattern);
+    found_match |= visit_tail(parent, &tail_pattern);
+    if (!found_match && has_brkts) {
+      // Look for matches after escaping brackets.
+      char *escaped_path = stringCopy(escapeBrackets(inst_path, this));
+      const PatternMatch escaped_tail(escaped_path, pattern);
+      found_match |= visit_tail(parent, &escaped_tail);
+      stringDelete(escaped_path);
+    }
+  }
+  stringDelete(inst_path);
+  return found_match;
 }
 
 ////////////////////////////////////////////////////////////////

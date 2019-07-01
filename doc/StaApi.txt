@@ -32,7 +32,7 @@ verilog
   Verilog netlist reader that implements the network API.
 graph
   Timing graph built from network and library cell timing arcs.
-constraints
+sdc
   SDC timing constraint classes.   
 sdf
   SDF reader, writer and annotator.
@@ -59,16 +59,16 @@ the code.
 STA API
 -------
 
-Major components of the STA such as the network, timing graph,
-constraints, and search are implemented as separate classes.  The Sta
-class contains an instance of each of these components.
+Major components of the STA such as the network, timing graph, sdc,
+and search are implemented as separate classes.  The Sta class
+contains an instance of each of these components.
 
 The Sta class defines the bulk of the externally visible API used by
 the Tcl interface, and coordinates operations that involve multiple
 components.  For example, when a false path command is entered into
-the Tcl command interpreter the Sta passes the declaration on to the
-Constraints component and tells the Search component to invalidate all
-arrival and required times.  
+the Tcl command interpreter, the Sta passes the declaration on to the
+Sdc component and tells the Search component to invalidate all arrival
+and required times.
 
 Applications should call functions defined by the Sta class rather
 than functions defined by the components.  Calling functions defined
@@ -337,11 +337,11 @@ constructed using:
   Graph(this, 2, true, ap_count);
 
 
-Constraints
------------
+SDC
+---
 
-There is no support for updating constraints when network edits delete
-the instance, pin, or net objects refered to by the constraints.
+There is no support for updating SDC when network edits delete
+the instance, pin, or net objects refered to by the SDC.
 
 Delay Calculation
 -----------------
@@ -399,12 +399,12 @@ record signal arrival and required times.  As each vertex is visited
 in the forward search its required time is found using If the vertex
 is constrained by setup or hold timing checks, min/max path delay
 exceptions or gated timing checks its required time is found from the
-constraints.  The slack is the difference between the vertex required
-time and arrival time.  If the vertex is constrained it is scheduled
-for a breadth first backward search to propagate required times to the
-fanin vertices.  Separate events (and hence arrival and required
-times) are used for each clock edge and exception set that cause a
-vertex to change.
+SDC.  The slack is the difference between the vertex required time and
+arrival time.  If the vertex is constrained it is scheduled for a
+breadth first backward search to propagate required times to the fanin
+vertices.  Separate events (and hence arrival and required times) are
+used for each clock edge and exception set that cause a vertex to
+change.
 
 Arrival, required and slack calculations are incremental using a level
 based "lazy evaluation" algorithm.  The first time arrival/required

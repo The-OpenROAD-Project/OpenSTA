@@ -76,6 +76,7 @@ public:
   virtual Port *findMember(const Port *port,
 			   int index) const;
   virtual PortMemberIterator *memberIterator(const Port *port) const;
+  virtual bool hasMembers(const Port *port) const;
 
   virtual Instance *topInstance() const;
   virtual Cell *cell(const Instance *instance) const;
@@ -178,7 +179,6 @@ public:
 				 PortSeq *ports) const;
   virtual const char *name(const Port *port) const;
   virtual const char *busName(const Port *port) const;
-  virtual bool hasMembers(const Port *port) const;
 
   virtual const char *name(const Instance *instance) const;
   virtual const char *pathName(const Instance *instance) const;
@@ -223,6 +223,30 @@ public:
   using Network::findPin;
 
 protected:
+  void parsePath(const char *path,
+		 // Return values.
+		 Instance *&inst,
+		 const char *&path_tail) const;
+  void scanPath(const char *path,
+		// Return values.
+		// Unescaped divider count.
+		int &divider_count,
+		int &path_length) const;
+  void parsePath(const char *path,
+		 int divider_count,
+		 int path_length,
+		 // Return values.
+		 Instance *&inst,
+		 const char *&path_tail) const;
+  bool visitMatches(const Instance *parent,
+		    const PatternMatch *pattern,
+		    std::function<bool (const Instance *instance,
+					const PatternMatch *tail)>
+		    visit_tail) const;
+  bool visitPinTail(const Instance *instance,
+		    const PatternMatch *tail,
+		    PinSeq *pins) const;
+
   const char *staToSdc(const char *sta_name) const;
 
 private:

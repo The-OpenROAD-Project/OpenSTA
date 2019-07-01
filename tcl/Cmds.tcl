@@ -1821,37 +1821,41 @@ proc get_property_cmd { cmd type_key cmd_args } {
 }
 
 proc get_object_property { object prop } {
-  set object_type [object_type $object]
-  if { $object_type == "Instance" } {
-    return [instance_property $object $prop]
-  } elseif { $object_type == "Pin" } {
-    return [pin_property $object $prop]
-  } elseif { $object_type == "Net" } {
-    return [net_property $object $prop]
-  } elseif { $object_type == "Clock" } {
-    return [clock_property $object $prop]
-  } elseif { $object_type == "Port" } {
-    return [port_property $object $prop]
-  } elseif { $object_type == "LibertyPort" } {
-    return [liberty_port_property $object $prop]
-  } elseif { $object_type == "LibertyCell" } {
-    return [liberty_cell_property $object $prop]
-  } elseif { $object_type == "Cell" } {
-    return [cell_property $object $prop]
-  } elseif { $object_type == "Library" } {
-    return [library_property $object $prop]
-  } elseif { $object_type == "LibertyLibrary" } {
-    return [liberty_library_property $object $prop]
-  } elseif { $object_type == "Edge" } {
-    return [edge_property $object $prop]
-  } elseif { $object_type == "PathEnd" } {
-    return [path_end_property $object $prop]
-  } elseif { $object_type == "PathRef" } {
-    return [path_ref_property $object $prop]
-  } elseif { $object_type == "TimingArcSet" } {
-    return [timing_arc_set_property $object $prop]
+  if { [is_object $object] } {
+    set object_type [object_type $object]
+    if { $object_type == "Instance" } {
+      return [instance_property $object $prop]
+    } elseif { $object_type == "Pin" } {
+      return [pin_property $object $prop]
+    } elseif { $object_type == "Net" } {
+      return [net_property $object $prop]
+    } elseif { $object_type == "Clock" } {
+      return [clock_property $object $prop]
+    } elseif { $object_type == "Port" } {
+      return [port_property $object $prop]
+    } elseif { $object_type == "LibertyPort" } {
+      return [liberty_port_property $object $prop]
+    } elseif { $object_type == "LibertyCell" } {
+      return [liberty_cell_property $object $prop]
+    } elseif { $object_type == "Cell" } {
+      return [cell_property $object $prop]
+    } elseif { $object_type == "Library" } {
+      return [library_property $object $prop]
+    } elseif { $object_type == "LibertyLibrary" } {
+      return [liberty_library_property $object $prop]
+    } elseif { $object_type == "Edge" } {
+      return [edge_property $object $prop]
+    } elseif { $object_type == "PathEnd" } {
+      return [path_end_property $object $prop]
+    } elseif { $object_type == "PathRef" } {
+      return [path_ref_property $object $prop]
+    } elseif { $object_type == "TimingArcSet" } {
+      return [timing_arc_set_property $object $prop]
+    } else {
+      sta_error "get_property unsupported object type $object_type."
+    }
   } else {
-    sta_error "get_property unsupported object type object_type."
+    sta_error "get_property $object is not an object."
   }
 }
 

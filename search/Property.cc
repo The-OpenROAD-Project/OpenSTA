@@ -91,7 +91,7 @@ PropertyUnknown::PropertyUnknown(const char *type,
 const char *
 PropertyUnknown::what() const throw()
 {
-  return stringPrint("%s objects do not have a %s property.",
+  return stringPrint("Error: %s objects do not have a %s property.",
 		     type_, property_);
 }
 
@@ -692,7 +692,8 @@ getProperty(const Pin *pin,
   auto network = sta->cmdNetwork();
   if (stringEqual(property, "direction"))
     return PropertyValue(network->direction(pin)->name());
-  else if (stringEqual(property, "full_name"))
+  else if (stringEqual(property, "name")
+	   || stringEqual(property, "full_name"))
     return PropertyValue(network->pathName(pin));
   else if (stringEqual(property, "lib_pin_name"))
     return PropertyValue(network->portName(pin));
