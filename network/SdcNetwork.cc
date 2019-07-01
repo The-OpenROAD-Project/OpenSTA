@@ -968,7 +968,7 @@ SdcNetwork::parsePath(const char *path,
       internalError("inst path string lenth estimate busted");
   }
   *p = '\0';
-  stringDelete(inst_path);
+  //  stringDelete(inst_path);
 }
 
 // Helper to visit instance path matches.
