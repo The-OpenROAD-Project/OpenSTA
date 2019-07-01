@@ -114,7 +114,7 @@ class LibertyLibrary : public ConcreteLibrary
 public:
   LibertyLibrary(const char *name,
 		 const char *filename);
-  ~LibertyLibrary();
+  virtual ~LibertyLibrary();
   LibertyCell *findLibertyCell(const char *name) const;
   void findLibertyCellsMatching(PatternMatch *pattern,
 				LibertyCellSeq *cells);
@@ -383,7 +383,7 @@ public:
   LibertyCell(LibertyLibrary *library,
 	      const char *name,
 	      const char *filename);
-  ~LibertyCell();
+  virtual ~LibertyCell();
   LibertyLibrary *libertyLibrary() const { return liberty_library_; }
   LibertyLibrary *libertyLibrary() { return liberty_library_; }
   LibertyPort *findLibertyPort(const char *name) const;
@@ -589,7 +589,7 @@ class LibertyCellPortBitIterator : public Iterator<LibertyPort*>
 {
 public:
   explicit LibertyCellPortBitIterator(const LibertyCell *cell);
-  ~LibertyCellPortBitIterator();
+  virtual ~LibertyCellPortBitIterator();
   bool hasNext();
   LibertyPort *next();
 
@@ -750,7 +750,7 @@ protected:
 	      int to_index,
 	      bool is_bundle,
 	      ConcretePortSeq *members);
-  ~LibertyPort();
+  virtual ~LibertyPort();
   void setDirection(PortDirection *dir);
   void setMinPort(LibertyPort *min);
   void addScaledPort(OperatingConditions *op_cond,
@@ -800,7 +800,7 @@ class LibertyPortMemberIterator : public Iterator<LibertyPort*>
 {
 public:
   explicit LibertyPortMemberIterator(const LibertyPort *port);
-  ~LibertyPortMemberIterator();
+  virtual ~LibertyPortMemberIterator();
   virtual bool hasNext();
   virtual LibertyPort *next();
 
@@ -817,6 +817,7 @@ public:
   Pvt(float process,
       float voltage,
       float temperature);
+  virtual ~Pvt() {}
   float process() const { return process_; }
   void setProcess(float process);
   float voltage() const { return voltage_; }
@@ -842,7 +843,7 @@ public:
 		      float voltage,
 		      float temperature,
 		      WireloadTree wire_load_tree);
-  ~OperatingConditions();
+  virtual ~OperatingConditions();
   const char *name() const { return name_; }
   WireloadTree wireloadTree() const { return wire_load_tree_; }
   void setWireloadTree(WireloadTree tree);

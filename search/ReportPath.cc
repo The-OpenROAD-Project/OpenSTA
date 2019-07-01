@@ -1017,6 +1017,7 @@ void
 ReportPath::reportSummaryHeader(string &result)
 {
   reportDescription("Startpoint", result);
+  result += ' ';
   reportDescription("Endpoint", result);
   result += ' ';
   reportField("Slack", field_total_, result);
@@ -1034,6 +1035,7 @@ ReportPath::reportSummaryLine(PathEnd *end,
   const EarlyLate *early_late = end->pathEarlyLate(this);
   auto startpoint = pathStartpoint(end, expanded);
   reportDescription(startpoint.c_str(), result);
+  result += ' ';
   auto endpoint = pathEndpoint(end);
   reportDescription(endpoint.c_str(), result);
   if (end->isUnconstrained())

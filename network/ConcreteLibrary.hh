@@ -50,7 +50,7 @@ public:
   explicit ConcreteLibrary(const char *name,
 			   const char *filename,
 			   bool is_liberty);
-  ~ConcreteLibrary();
+  virtual ~ConcreteLibrary();
   const char *name() const { return name_; }
   void setName(const char *name);
   bool isLiberty() const { return is_liberty_; }
@@ -90,7 +90,7 @@ class ConcreteCell
 {
 public:
   // Use ConcreteLibrary::deleteCell.
-  ~ConcreteCell();
+  virtual ~ConcreteCell();
   ConcreteLibrary *library() const { return library_; }
   const char *name() const { return name_; }
   const char *filename() const { return filename_; }
@@ -164,7 +164,7 @@ private:
 class ConcretePort
 {
 public:
-  ~ConcretePort();
+  virtual ~ConcretePort();
   const char *name() const { return name_; }
   const char *busName() const;
   Cell *cell() const;

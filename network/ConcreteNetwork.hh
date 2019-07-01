@@ -321,12 +321,11 @@ public:
   VertexIndex vertexIndex() const { return vertex_index_; }
   void setVertexIndex(VertexIndex index);
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(ConcretePin);
+protected:
+  ~ConcretePin() {}
   ConcretePin(ConcreteInstance *instance,
 	      ConcretePort *port,
 	      ConcreteNet *net);
-  ~ConcretePin() {}
 
   ConcreteInstance *instance_;
   ConcretePort *port_;
@@ -336,6 +335,9 @@ private:
   ConcretePin *net_next_;
   ConcretePin *net_prev_;
   VertexIndex vertex_index_;
+
+private:
+  DISALLOW_COPY_AND_ASSIGN(ConcretePin);
 
   friend class ConcreteNetwork;
   friend class ConcreteNet;
@@ -349,16 +351,18 @@ public:
   ConcreteNet *net() const { return net_; }
   ConcretePin *pin() const { return pin_; }
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(ConcreteTerm);
+protected:
+  ~ConcreteTerm() {}
   ConcreteTerm(ConcretePin *pin,
 	       ConcreteNet *net);
-  ~ConcreteTerm() {}
 
   ConcretePin *pin_;
   ConcreteNet *net_;
   // Linked list of net terms.
   ConcreteTerm *net_next_;
+
+private:
+  DISALLOW_COPY_AND_ASSIGN(ConcreteTerm);
 
   friend class ConcreteNetwork;
   friend class ConcreteNet;
@@ -382,8 +386,6 @@ protected:
   ConcreteNet(const char *name,
 	      ConcreteInstance *instance);
   ~ConcreteNet();
-
-private:
   const char *name_;
   ConcreteInstance *instance_;
   // Pointer to head of linked list of pins.
