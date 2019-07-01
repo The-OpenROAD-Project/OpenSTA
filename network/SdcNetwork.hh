@@ -17,6 +17,7 @@
 #ifndef STA_SDC_NETWORK_H
 #define STA_SDC_NETWORK_H
 
+#include <functional>
 #include "DisallowCopyAssign.hh"
 #include "Network.hh"
 
