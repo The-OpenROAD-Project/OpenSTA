@@ -658,7 +658,10 @@ SdcNetwork::findInstance(const char *path_name) const
   parsePath(path_name, parent, child_name);
   if (parent == nullptr)
     parent = network_->topInstance();
-  return findChild(parent, child_name);
+  Instance *child = findChild(parent, child_name);
+  if (child == nullptr)
+    child = findChild(parent, escapeDividers(child_name, this));
+  return child;
 }
 
 void
@@ -934,7 +937,7 @@ SdcNetwork::parsePath(const char *path,
   int inst_path_length = path_length + divider_count + 1;
   char *inst_path = new char[inst_path_length];
   inst = nullptr;
-  path_tail = inst_path;
+  path_tail = path;
   char *p = inst_path;
   for (const char *s = path; *s; s++) {
     char ch = *s;
@@ -954,7 +957,8 @@ SdcNetwork::parsePath(const char *path,
 	// Found an instance for the sub-path up to this divider.
 	parent = inst = child;
 	// Reset the instance path.
-	path_tail = p = inst_path;
+	p = inst_path;
+	path_tail = s + 1;
       }
       else {
 	// No match for sub-path.  Escape the divider and keep looking.
@@ -968,7 +972,7 @@ SdcNetwork::parsePath(const char *path,
       internalError("inst path string lenth estimate busted");
   }
   *p = '\0';
-  //  stringDelete(inst_path);
+  stringDelete(inst_path);
 }
 
 // Helper to visit instance path matches.
