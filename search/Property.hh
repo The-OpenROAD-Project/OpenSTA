@@ -30,12 +30,22 @@ using std::string;
 class Sta;
 class PwrActivity;
 
+// Adding a new property type
+//  value union
+//  enum Type
+//  constructor
+//  copy constructor switch clause
+//  move constructor switch clause
+//  operator= &  switch clause
+//  operator= && switch clause
+//  StaTcl.i swig %typemap(out) PropertyValue switch clause
+
 class PropertyValue
 {
 public:
   enum Type { type_none, type_string, type_float, type_bool,
-	      type_liberty_library, type_liberty_cell,
-	      type_library, type_cell,
+	      type_library, type_cell, type_port,
+	      type_liberty_library, type_liberty_cell, type_liberty_port,
 	      type_instance, type_pin, type_pins, type_net,
 	      type_clk, type_clks, type_path_refs, type_pwr_activity };
   PropertyValue();
@@ -43,10 +53,12 @@ public:
   PropertyValue(string &value);
   PropertyValue(float value);
   PropertyValue(bool value);
+  PropertyValue(Library *value);
+  PropertyValue(Cell *value);
+  PropertyValue(Port *value);
   PropertyValue(LibertyLibrary *value);
   PropertyValue(LibertyCell *value);
-  PropertyValue(Cell *value);
-  PropertyValue(Library *value);
+  PropertyValue(LibertyPort *value);
   PropertyValue(Instance *value);
   PropertyValue(Pin *value);
   PropertyValue(PinSeq *value);
@@ -68,8 +80,10 @@ public:
   bool boolValue() const { return bool_; }
   LibertyLibrary *libertyLibrary() const { return liberty_library_; }
   LibertyCell *libertyCell() const { return liberty_cell_; }
+  LibertyPort *libertyPort() const { return liberty_port_; }
   Library *library() const { return library_; }
   Cell *cell() const { return cell_; }
+  Port *port() const { return port_; }
   Instance *instance() const { return inst_; }
   Pin *pin() const { return pin_; }
   PinSeq *pins() const { return pins_; }
@@ -89,10 +103,12 @@ private:
     const char *string_;
     float float_;
     bool bool_;
-    LibertyLibrary *liberty_library_;
-    LibertyCell *liberty_cell_;
     Library *library_;
     Cell *cell_;
+    Port *port_;
+    LibertyLibrary *liberty_library_;
+    LibertyCell *liberty_cell_;
+    LibertyPort *liberty_port_;
     Instance *inst_;
     Pin *pin_;
     PinSeq *pins_;

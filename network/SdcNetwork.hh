@@ -64,7 +64,7 @@ public:
 
   virtual const char *name(const Port *port) const;
   virtual Cell *cell(const Port *port) const;
-  virtual LibertyPort *libertyPort(Port *port) const;
+  virtual LibertyPort *libertyPort(const Port *port) const;
   virtual PortDirection *direction(const Port *port) const;
   virtual bool isBundle(const Port *port) const;
   virtual bool isBus(const Port *port) const;

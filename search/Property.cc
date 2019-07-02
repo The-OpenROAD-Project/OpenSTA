@@ -138,6 +138,12 @@ PropertyValue::PropertyValue(LibertyCell *value) :
 {
 }
 
+PropertyValue::PropertyValue(LibertyPort *value) :
+  type_(type_liberty_port),
+  liberty_port_(value)
+{
+}
+
 PropertyValue::PropertyValue(Library *value) :
   type_(type_library),
   library_(value)
@@ -147,6 +153,12 @@ PropertyValue::PropertyValue(Library *value) :
 PropertyValue::PropertyValue(Cell *value) :
   type_(type_cell),
   cell_(value)
+{
+}
+
+PropertyValue::PropertyValue(Port *value) :
+  type_(type_port),
+  port_(value)
 {
 }
 
@@ -241,11 +253,17 @@ PropertyValue::PropertyValue(const PropertyValue &value) :
   case Type::type_liberty_cell:
     liberty_cell_ = value.liberty_cell_;
     break;
-  case Type::type_cell:
-    cell_ = value.cell_;
+  case Type::type_liberty_port:
+    liberty_port_ = value.liberty_port_;
     break;
   case Type::type_library:
     library_ = value.library_;
+    break;
+  case Type::type_cell:
+    cell_ = value.cell_;
+    break;
+  case Type::type_port:
+    port_ = value.port_;
     break;
   case Type::type_instance:
     inst_ = value.inst_;
@@ -290,17 +308,23 @@ PropertyValue::PropertyValue(PropertyValue &&value) :
   case Type::type_bool:
     bool_ = value.bool_;
     break;
+  case Type::type_library:
+    library_ = value.library_;
+    break;
+  case Type::type_cell:
+    cell_ = value.cell_;
+    break;
+  case Type::type_port:
+    port_ = value.port_;
+    break;
   case Type::type_liberty_library:
     liberty_library_ = value.liberty_library_;
     break;
   case Type::type_liberty_cell:
     liberty_cell_ = value.liberty_cell_;
     break;
-  case Type::type_cell:
-    cell_ = value.cell_;
-    break;
-  case Type::type_library:
-    library_ = value.library_;
+  case Type::type_liberty_port:
+    liberty_port_ = value.liberty_port_;
     break;
   case Type::type_instance:
     inst_ = value.inst_;
@@ -370,17 +394,23 @@ PropertyValue::operator=(const PropertyValue &value)
   case Type::type_bool:
     bool_ = value.bool_;
     break;
+  case Type::type_library:
+    library_ = value.library_;
+    break;
+  case Type::type_cell:
+    cell_ = value.cell_;
+    break;
+  case Type::type_port:
+    port_ = value.port_;
+    break;
   case Type::type_liberty_library:
     liberty_library_ = value.liberty_library_;
     break;
   case Type::type_liberty_cell:
     liberty_cell_ = value.liberty_cell_;
     break;
-  case Type::type_cell:
-    cell_ = value.cell_;
-    break;
-  case Type::type_library:
-    library_ = value.library_;
+  case Type::type_liberty_port:
+    liberty_port_ = value.liberty_port_;
     break;
   case Type::type_instance:
     inst_ = value.inst_;
@@ -427,17 +457,23 @@ PropertyValue::operator=(PropertyValue &&value)
   case Type::type_bool:
     bool_ = value.bool_;
     break;
+  case Type::type_library:
+    library_ = value.library_;
+    break;
+  case Type::type_cell:
+    cell_ = value.cell_;
+    break;
+  case Type::type_port:
+    port_ = value.port_;
+    break;
   case Type::type_liberty_library:
     liberty_library_ = value.liberty_library_;
     break;
   case Type::type_liberty_cell:
     liberty_cell_ = value.liberty_cell_;
     break;
-  case Type::type_cell:
-    cell_ = value.cell_;
-    break;
-  case Type::type_library:
-    library_ = value.library_;
+  case Type::type_liberty_port:
+    liberty_port_ = value.liberty_port_;
     break;
   case Type::type_instance:
     inst_ = value.inst_;
@@ -576,6 +612,9 @@ getProperty(const Port *port,
     return PropertyValue(network->name(port));
   else if (stringEqual(property, "direction"))
     return PropertyValue(network->direction(port)->name());
+  else if (stringEqual(property, "liberty_port"))
+    return PropertyValue(network->libertyPort(port));
+
   else if (stringEqual(property, "activity")) {
     const Instance *top_inst = network->topInstance();
     const Pin *pin = network->findPin(top_inst, port);

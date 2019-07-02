@@ -199,7 +199,7 @@ NetworkNameAdapter::cell(const Port *port) const
 }
 
 LibertyPort *
-NetworkNameAdapter::libertyPort(Port *port) const
+NetworkNameAdapter::libertyPort(const Port *port) const
 {
   return network_->libertyPort(port);
 }

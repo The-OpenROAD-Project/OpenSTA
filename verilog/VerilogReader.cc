@@ -1755,8 +1755,7 @@ VerilogReader::linkNetwork(const char *top_cell_name,
       return top_instance;
   }
   else {
-    report->error("%s is not a verilog module.\n",
-		  network_->name(top_cell));
+    report->error("%s is not a verilog module.\n", top_cell_name);
     return nullptr;
   }
 }

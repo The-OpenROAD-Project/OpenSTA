@@ -755,9 +755,9 @@ ConcreteNetwork::cell(const Port *port) const
 }
 
 LibertyPort *
-ConcreteNetwork::libertyPort(Port *port) const
+ConcreteNetwork::libertyPort(const Port *port) const
 {
-  ConcretePort *cport = reinterpret_cast<ConcretePort*>(port);
+  const ConcretePort *cport = reinterpret_cast<const ConcretePort*>(port);
   return cport->libertyPort();
 }
 

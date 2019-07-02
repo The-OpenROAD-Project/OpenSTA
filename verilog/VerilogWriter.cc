@@ -18,6 +18,7 @@
 #include "Machine.hh"
 #include "Error.hh"
 #include "PortDirection.hh"
+#include "Liberty.hh"
 #include "Network.hh"
 #include "NetworkCmp.hh"
 #include "VerilogNamespace.hh"
@@ -40,6 +41,15 @@ protected:
   const char *verilogPortDir(PortDirection *dir);
   void writeChildren(Instance *inst);
   void writeChild(Instance *child);
+  void writeInstPin(Instance *inst,
+		    Port *port,
+		    bool &first_port);
+  void writeInstBusPin(Instance *inst,
+		       Port *port,
+		       bool &first_port);
+  void writeInstBusPinBit(Instance *inst,
+			  Port *port,
+			  bool &first_member);
 
   const char *filename_;
   bool sort_;
@@ -194,54 +204,96 @@ VerilogWriter::writeChild(Instance *child)
   CellPortIterator *port_iter = network_->portIterator(child_cell);
   while (port_iter->hasNext()) {
     Port *port = port_iter->next();
-    const char *port_name = network_->name(port);
-    if (network_->hasMembers(port)) {
-      if (!first_port)
-	fprintf(stream_, ",\n    ");
-      fprintf(stream_, ".%s({", port_name);
-      first_port = false;
-      bool first_member = true;
-      PortMemberIterator *member_iter = network_->memberIterator(port);
-      while (member_iter->hasNext()) {
-	Port *member = member_iter->next();
-	Pin *pin = network_->findPin(child, member);
-	const char *net_name = nullptr;
-	if (pin) {
-	  Net *net = network_->net(pin);
-	  if (net)
-	    net_name = network_->name(net);
-	}
-	if (net_name == nullptr)
-	  // There is no verilog syntax to "skip" a bit in the concatentation.
-	  net_name = stringPrintTmp("_NC%d", unconnected_net_index_++);
-	const char *net_vname = netVerilogName(net_name, network_->pathEscape());
-	if (!first_member)
-	  fprintf(stream_, ",\n    ");
-	fprintf(stream_, "%s", net_vname);
-	first_member = false;
-      }
-      delete member_iter;
-      fprintf(stream_, "})");
-    }
-    else { 
-      Pin *pin = network_->findPin(child, port);
-      if (pin) {
-	Net *net = network_->net(pin);
-	if (net) {
-	  const char *net_name = network_->name(net);
-	  const char *net_vname = netVerilogName(net_name, network_->pathEscape());
-	  if (!first_port)
-	    fprintf(stream_, ",\n    ");
-	  fprintf(stream_, ".%s(%s)",
-		  port_name,
-		  net_vname);
-	  first_port = false;
-	}
-      }
-    }
+    if (network_->hasMembers(port)) 
+      writeInstBusPin(child, port, first_port);
+    else 
+      writeInstPin(child, port, first_port);
   }
   delete port_iter;
   fprintf(stream_, ");\n");
+}
+
+void
+VerilogWriter::writeInstPin(Instance *inst,
+			    Port *port,
+			    bool &first_port)
+{
+  Pin *pin = network_->findPin(inst, port);
+  if (pin) {
+    Net *net = network_->net(pin);
+    if (net) {
+      const char *net_name = network_->name(net);
+      const char *net_vname = netVerilogName(net_name, network_->pathEscape());
+      if (!first_port)
+	fprintf(stream_, ",\n    ");
+      const char *port_name = network_->name(port);
+      fprintf(stream_, ".%s(%s)",
+	      port_name,
+	      net_vname);
+      first_port = false;
+    }
+  }
+}
+
+void
+VerilogWriter::writeInstBusPin(Instance *inst,
+			       Port *port,
+			       bool &first_port)
+{
+  if (!first_port)
+    fprintf(stream_, ",\n    ");
+
+  const char *port_name = network_->name(port);
+  fprintf(stream_, ".%s({", port_name);
+  first_port = false;
+  bool first_member = true;
+  PortSeq members;
+  PortMemberIterator *member_iter = network_->memberIterator(port);
+  while (member_iter->hasNext()) {
+    Port *member = member_iter->next();
+    members.push_back(member);
+  }
+  delete member_iter;
+
+  // Match the bit_from/bit_to order of the liberty cell if it exists.
+  LibertyPort *lib_port = network_->libertyPort(port);
+  if (lib_port
+      && (network_->fromIndex(port) > network_->toIndex(port))
+      != (lib_port->fromIndex() > lib_port->toIndex())) {
+    for (int i = members.size() - 1; i >= 0; i--) {
+      Port *member = members[i];
+      writeInstBusPinBit(inst, member, first_member);
+    }
+  }
+  else {
+    for (int i = 0; i < members.size(); i++) {
+      Port *member = members[i];
+      writeInstBusPinBit(inst, member, first_member);
+    }
+  }
+  fprintf(stream_, "})");
+}
+
+void
+VerilogWriter::writeInstBusPinBit(Instance *inst,
+				  Port *port,
+				  bool &first_member)
+{
+  Pin *pin = network_->findPin(inst, port);
+  const char *net_name = nullptr;
+  if (pin) {
+    Net *net = network_->net(pin);
+    if (net)
+      net_name = network_->name(net);
+  }
+  if (net_name == nullptr)
+    // There is no verilog syntax to "skip" a bit in the concatentation.
+    net_name = stringPrintTmp("_NC%d", unconnected_net_index_++);
+  const char *net_vname = netVerilogName(net_name, network_->pathEscape());
+  if (!first_member)
+    fprintf(stream_, ",\n    ");
+  fprintf(stream_, "%s", net_vname);
+  first_member = false;
 }
 
 } // namespace

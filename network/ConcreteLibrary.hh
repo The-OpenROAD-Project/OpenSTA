@@ -170,7 +170,7 @@ public:
   Cell *cell() const;
   ConcreteLibrary *library() const { return cell_->library(); }
   PortDirection *direction() const { return direction_; }
-  LibertyPort *libertyPort() { return liberty_port_; }
+  LibertyPort *libertyPort() const { return liberty_port_; }
   void setLibertyPort(LibertyPort *port);
   void setDirection(PortDirection *dir);
   // Bundles are groups of related ports that do not use

@@ -158,7 +158,7 @@ public:
   // Port functions
   virtual const char *name(const Port *port) const = 0;
   virtual Cell *cell(const Port *port) const = 0;
-  virtual LibertyPort *libertyPort(Port *port) const = 0;
+  virtual LibertyPort *libertyPort(const Port *port) const = 0;
   virtual PortDirection *direction(const Port *port) const = 0;
   // Bus port functions.
   virtual bool isBus(const Port *port) const = 0;

@@ -1759,18 +1759,13 @@ proc parse_disable_inst_ports { inst port_name } {
   if { $port_name == "" } {
     set ports "NULL"
   } else {
-    set cell [instance_property $inst liberty_cell]
-    set port [$cell find_liberty_port $port_name]
+    set cell [instance_property $inst cell]
+    set port [$cell find_port $port_name]
     if { $port == "NULL" } {
       sta_error "pin '[get_full_name $inst]${hierarchy_separator}${port_name}' not found."
     } else {
-      set ports [port_members $port]
-      foreach port $ports {
-	set member_name [get_full_name $port]
-	if { [$inst find_pin $member_name] == "NULL" } {
-	  sta_error "pin '[get_full_name $inst]]${hierarchy_separator}${member_name}' not found."
-	}
-      }
+      set lib_port [get_property $port liberty_port]
+      set ports [port_members $lib_port]
     }
   }
   return $ports

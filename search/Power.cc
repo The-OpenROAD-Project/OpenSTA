@@ -678,6 +678,8 @@ Power::inferedWhen(FuncExpr *expr,
   case FuncExpr::op_zero:
    return nullptr;
   }
+  // gcc not too smaht
+  return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////

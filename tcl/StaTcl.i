@@ -1401,6 +1401,42 @@ using namespace sta;
     Tcl_SetResult(interp, const_cast<char*>(bool_string), TCL_STATIC);
   }
     break;
+  case PropertyValue::Type::type_library: {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(value.library(),
+				       SWIGTYPE_p_Library, false);
+    Tcl_SetObjResult(interp, obj);
+  }
+    break;
+  case PropertyValue::Type::type_cell: {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(value.cell(),
+				       SWIGTYPE_p_Cell, false);
+    Tcl_SetObjResult(interp, obj);
+  }
+    break;
+  case PropertyValue::Type::type_port: {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(value.port(),
+				       SWIGTYPE_p_Port, false);
+    Tcl_SetObjResult(interp, obj);
+  }
+    break;
+  case PropertyValue::Type::type_liberty_library: {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(value.libertyLibrary(),
+				       SWIGTYPE_p_LibertyLibrary, false);
+    Tcl_SetObjResult(interp, obj);
+  }
+    break;
+  case PropertyValue::Type::type_liberty_cell: {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(value.libertyCell(),
+				       SWIGTYPE_p_LibertyCell, false);
+    Tcl_SetObjResult(interp, obj);
+  }
+    break;
+  case PropertyValue::Type::type_liberty_port: {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(value.libertyPort(),
+				       SWIGTYPE_p_LibertyPort, false);
+    Tcl_SetObjResult(interp, obj);
+  }
+    break;
   case PropertyValue::Type::type_instance: {
     Tcl_Obj *obj = SWIG_NewInstanceObj(value.instance(),
 				       SWIGTYPE_p_Instance, false);
@@ -1427,30 +1463,6 @@ using namespace sta;
   case PropertyValue::Type::type_net: {
     Tcl_Obj *obj = SWIG_NewInstanceObj(value.net(),
 				       SWIGTYPE_p_Net, false);
-    Tcl_SetObjResult(interp, obj);
-  }
-    break;
-  case PropertyValue::Type::type_liberty_cell: {
-    Tcl_Obj *obj = SWIG_NewInstanceObj(value.libertyCell(),
-				       SWIGTYPE_p_LibertyCell, false);
-    Tcl_SetObjResult(interp, obj);
-  }
-    break;
-  case PropertyValue::Type::type_liberty_library: {
-    Tcl_Obj *obj = SWIG_NewInstanceObj(value.libertyLibrary(),
-				       SWIGTYPE_p_LibertyLibrary, false);
-    Tcl_SetObjResult(interp, obj);
-  }
-    break;
-  case PropertyValue::Type::type_library: {
-    Tcl_Obj *obj = SWIG_NewInstanceObj(value.library(),
-				       SWIGTYPE_p_Library, false);
-    Tcl_SetObjResult(interp, obj);
-  }
-    break;
-  case PropertyValue::Type::type_cell: {
-    Tcl_Obj *obj = SWIG_NewInstanceObj(value.cell(),
-				       SWIGTYPE_p_Cell, false);
     Tcl_SetObjResult(interp, obj);
   }
     break;
