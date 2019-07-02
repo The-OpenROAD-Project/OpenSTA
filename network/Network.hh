@@ -181,6 +181,7 @@ public:
   virtual Port *findMember(const Port *port,
 			   int index) const = 0;
   // Iterate over the bits of a bus port or members of a bundle.
+  // from_index -> to_index
   virtual PortMemberIterator *memberIterator(const Port *port) const = 0;
   // A port has members if it is a bundle or bus.
   virtual bool hasMembers(const Port *port) const;

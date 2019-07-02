@@ -243,33 +243,28 @@ VerilogWriter::writeInstBusPin(Instance *inst,
   if (!first_port)
     fprintf(stream_, ",\n    ");
 
-  const char *port_name = network_->name(port);
-  fprintf(stream_, ".%s({", port_name);
+  fprintf(stream_, ".%s({", network_->name(port));
   first_port = false;
   bool first_member = true;
-  PortSeq members;
-  PortMemberIterator *member_iter = network_->memberIterator(port);
-  while (member_iter->hasNext()) {
-    Port *member = member_iter->next();
-    members.push_back(member);
-  }
-  delete member_iter;
 
-  // Match the bit_from/bit_to order of the liberty cell if it exists.
+  // Match the member order of the liberty cell if it exists.
   LibertyPort *lib_port = network_->libertyPort(port);
-  if (lib_port
-      && (network_->fromIndex(port) > network_->toIndex(port))
-      != (lib_port->fromIndex() > lib_port->toIndex())) {
-    for (int i = members.size() - 1; i >= 0; i--) {
-      Port *member = members[i];
+  if (lib_port) {
+    Cell *cell = network_->cell(inst);
+    LibertyPortMemberIterator member_iter(lib_port);
+    while (member_iter.hasNext()) {
+      LibertyPort *lib_member = member_iter.next();
+      Port *member = network_->findPort(cell, lib_member->name());
       writeInstBusPinBit(inst, member, first_member);
     }
   }
   else {
-    for (int i = 0; i < members.size(); i++) {
-      Port *member = members[i];
+    PortMemberIterator *member_iter = network_->memberIterator(port);
+    while (member_iter->hasNext()) {
+      Port *member = member_iter->next();
       writeInstBusPinBit(inst, member, first_member);
     }
+    delete member_iter;
   }
   fprintf(stream_, "})");
 }
