@@ -21,7 +21,6 @@ namespace sta {
 
 const char *
 staToVerilog(const char *sta_name,
-	     bool escape_brkts,
 	     const char escape);
 const char *
 verilogToSta(const char *verilog_name);

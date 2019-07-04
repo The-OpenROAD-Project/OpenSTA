@@ -43,6 +43,7 @@ void
 parseBusName(const char *name,
 	     const char brkt_left,
 	     const char brkt_right,
+	     // Return values.
 	     char *&bus_name,
 	     int &index)
 {
@@ -55,6 +56,7 @@ void
 parseBusName(const char *name,
 	     const char *brkts_left,
 	     const char *brkts_right,
+	     // Return values.
 	     char *&bus_name,
 	     int &index)
 {
@@ -81,6 +83,7 @@ void
 parseBusRange(const char *name,
 	      const char brkt_left,
 	      const char brkt_right,
+	      // Return values.
 	      char *&bus_name,
 	      int &from,
 	      int &to)
@@ -94,6 +97,7 @@ void
 parseBusRange(const char *name,
 	      const char *brkts_left,
 	      const char *brkts_right,
+	      // Return values.
 	      char *&bus_name,
 	      int &from,
 	      int &to)

@@ -66,14 +66,16 @@ writeVerilog(const char *filename,
 	     bool sort,
 	     Network *network)
 {
-  FILE *stream = fopen(filename, "w");
-  if (stream) {
-    VerilogWriter writer(filename, sort, stream, network);
-    writer.writeModule(network->topInstance());
-    fclose(stream);
+  if (network->topInstance()) {
+    FILE *stream = fopen(filename, "w");
+    if (stream) {
+      VerilogWriter writer(filename, sort, stream, network);
+      writer.writeModule(network->topInstance());
+      fclose(stream);
+    }
+    else
+      throw FileNotWritable(filename);
   }
-  else
-    throw FileNotWritable(filename);
 }
 
 VerilogWriter::VerilogWriter(const char *filename,
@@ -117,8 +119,8 @@ VerilogWriter::writePorts(Cell *cell)
     Port *port = port_iter->next();
     if (!first)
       fprintf(stream_, ",\n    ");
-    fprintf(stream_, "%s",
-	    network_->name(port));
+    fprintf(stream_, "%s", portVerilogName(network_->name(port),
+					   network_->pathEscape()));
     first = false;
   }
   delete port_iter;
@@ -132,23 +134,23 @@ VerilogWriter::writePortDcls(Cell *cell)
   while (port_iter->hasNext()) {
     Port *port = port_iter->next();
     PortDirection *dir = network_->direction(port);
-    if (dir) {
-      fprintf(stream_, " %s",
-		verilogPortDir(dir));
+    const char *port_name = portVerilogName(network_->name(port),
+					    network_->pathEscape());
+    const char *vtype = verilogPortDir(dir);
+    if (vtype) {
+      fprintf(stream_, " %s", vtype);
       if (network_->isBus(port))
 	fprintf(stream_, " [%d:%d]",
 		network_->fromIndex(port),
 		network_->toIndex(port));
-      fprintf(stream_, " %s;\n",
-		network_->name(port));
+      fprintf(stream_, " %s;\n", port_name);
       if (dir->isTristate()) {
 	fprintf(stream_, " tri");
 	if (network_->isBus(port))
-	fprintf(stream_, " [%d:%d]",
-		network_->fromIndex(port),
-		network_->toIndex(port));
-	fprintf(stream_, " %s;\n",
-		network_->name(port));
+	  fprintf(stream_, " [%d:%d]",
+		  network_->fromIndex(port),
+		  network_->toIndex(port));
+	fprintf(stream_, " %s;\n", port_name);
       }
     }
   }
@@ -226,7 +228,8 @@ VerilogWriter::writeInstPin(Instance *inst,
       const char *net_vname = netVerilogName(net_name, network_->pathEscape());
       if (!first_port)
 	fprintf(stream_, ",\n    ");
-      const char *port_name = network_->name(port);
+      const char *port_name = portVerilogName(network_->name(port),
+					      network_->pathEscape());
       fprintf(stream_, ".%s(%s)",
 	      port_name,
 	      net_vname);

@@ -1721,38 +1721,44 @@ VerilogReader::linkNetwork(const char *top_cell_name,
 			   bool make_black_boxes,
 			   Report *report)
 {
-  Cell *top_cell = network_->findCell(library_, top_cell_name);
-  VerilogModule *module = verilog_reader->module(top_cell);
-  if (module) {
-    // Seed the recursion for expansion with the top level instance.
-    Instance *top_instance = network_->makeInstance(top_cell, "", nullptr);
-    VerilogBindingTbl bindings(zero_net_name_, one_net_name_);
-    VerilogNetSeq::Iterator port_iter(module->ports());
-    while (port_iter.hasNext()) {
-      VerilogNet *mod_port = port_iter.next();
-      VerilogNetNameIterator *net_name_iter = mod_port->nameIterator(module,
-								     this);
-      while (net_name_iter->hasNext()) {
-	const char *net_name = net_name_iter->next();
-	Port *port = network_->findPort(top_cell, net_name);
-	Net *net = bindings.ensureNetBinding(net_name, top_instance, network_);
-	// Guard against repeated port name.
-	if (network_->findPin(top_instance, port) == nullptr) {
-	  Pin *pin = network_->makePin(top_instance, port, nullptr);
-	  network_->makeTerm(pin, net);
+  if (library_) {
+    Cell *top_cell = network_->findCell(library_, top_cell_name);
+    VerilogModule *module = this->module(top_cell);
+    if (module) {
+      // Seed the recursion for expansion with the top level instance.
+      Instance *top_instance = network_->makeInstance(top_cell, "", nullptr);
+      VerilogBindingTbl bindings(zero_net_name_, one_net_name_);
+      VerilogNetSeq::Iterator port_iter(module->ports());
+      while (port_iter.hasNext()) {
+	VerilogNet *mod_port = port_iter.next();
+	VerilogNetNameIterator *net_name_iter = mod_port->nameIterator(module,
+								       this);
+	while (net_name_iter->hasNext()) {
+	  const char *net_name = net_name_iter->next();
+	  Port *port = network_->findPort(top_cell, net_name);
+	  Net *net = bindings.ensureNetBinding(net_name, top_instance, network_);
+	  // Guard against repeated port name.
+	  if (network_->findPin(top_instance, port) == nullptr) {
+	    Pin *pin = network_->makePin(top_instance, port, nullptr);
+	    network_->makeTerm(pin, net);
+	  }
 	}
+	delete net_name_iter;
       }
-      delete net_name_iter;
+      makeModuleInstBody(module, top_instance, &bindings, make_black_boxes);
+      bool errors = reportLinkErrors(report);
+      deleteModules();
+      if (errors) {
+	network_->deleteInstance(top_instance);
+	return nullptr;
+      }
+      else
+	return top_instance;
     }
-    makeModuleInstBody(module, top_instance, &bindings, make_black_boxes);
-    bool errors = reportLinkErrors(report);
-    deleteModules();
-    if (errors) {
-      network_->deleteInstance(top_instance);
+    else {
+      report->error("%s is not a verilog module.\n", top_cell_name);
       return nullptr;
     }
-    else
-      return top_instance;
   }
   else {
     report->error("%s is not a verilog module.\n", top_cell_name);
@@ -1848,7 +1854,7 @@ VerilogReader::makeModuleInstNetwork(VerilogModuleInst *mod_inst,
 			    parent_module, parent_bindings, is_leaf);
     }
     if (!is_leaf) {
-      VerilogModule *module = verilog_reader->module(cell);
+      VerilogModule *module = this->module(cell);
       makeModuleInstBody(module, inst, &bindings, make_black_boxes);
     }
   }

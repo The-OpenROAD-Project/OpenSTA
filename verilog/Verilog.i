@@ -53,7 +53,10 @@ void
 write_verilog_cmd(const char *filename,
 		  bool sort)
 {
-  Network *network = cmdNetwork();
+  // This does NOT want the SDC (cmd) network because it wants
+  // to see the sta internal names.
+  Sta *sta = Sta::sta();
+  Network *network = sta->network();
   writeVerilog(filename, sort, network);
 }
 

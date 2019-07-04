@@ -27,7 +27,7 @@ isBusName(const char *name,
 
 // Parse name as a bus.
 // signal
-//  bus_name = 0
+//  bus_name = nullptr
 // bus[bit]
 //  bus_name = "bus"
 //  index = bit
@@ -36,6 +36,7 @@ void
 parseBusName(const char *name,
 	     const char brkt_left,
 	     const char brkt_right,
+	     // Return values.
 	     char *&bus_name,
 	     int &index);
 // Allow multiple different left/right bus brackets.
@@ -43,6 +44,7 @@ void
 parseBusName(const char *name,
 	     const char *brkts_left,
 	     const char *brkts_right,
+	     // Return values.
 	     char *&bus_name,
 	     int &index);
 
@@ -53,6 +55,7 @@ void
 parseBusRange(const char *name,
 	      const char brkt_left,
 	      const char brkt_right,
+	      // Return values.
 	      char *&bus_name,
 	      int &from,
 	      int &to);
@@ -62,6 +65,7 @@ void
 parseBusRange(const char *name,
 	      const char *brkts_left,
 	      const char *brkts_right,
+	      // Return values.
 	      char *&bus_name,
 	      int &from,
 	      int &to);

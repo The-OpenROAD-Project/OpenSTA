@@ -17,6 +17,7 @@
 #include <ctype.h>
 #include "Machine.hh"
 #include "StringUtil.hh"
+#include "ParseBus.hh"
 #include "VerilogNamespace.hh"
 
 namespace sta {
@@ -25,21 +26,29 @@ const char *
 instanceVerilogName(const char *sta_name,
 		    const char escape)
 {
-  return staToVerilog(sta_name, true, escape);
+  return staToVerilog(sta_name, escape);
 }
 
 const char *
 netVerilogName(const char *sta_name,
 	       const char escape)
 {
-  return staToVerilog(sta_name, false, escape);
+  char *bus_name;
+  int index;
+  parseBusName(sta_name, '[', ']', bus_name, index);
+  if (bus_name)
+    return stringPrintTmp("%s[%d]",
+			  staToVerilog(bus_name, escape),
+			  index);
+  else
+    return staToVerilog(sta_name, escape);
 }
 
 const char *
 portVerilogName(const char *sta_name,
 		const char escape)
 {
-  return staToVerilog(sta_name, false, escape);
+  return staToVerilog(sta_name, escape);
 }
 
 // Append ch to str at insert.  Resize str if necessary.
@@ -63,7 +72,6 @@ vstringAppend(char *&str,
 
 const char *
 staToVerilog(const char *sta_name,
-	     bool escape_brkts,
 	     const char escape)
 {
   const char bus_brkt_left = '[';
@@ -93,7 +101,7 @@ staToVerilog(const char *sta_name,
     else {
       bool is_brkt = (ch == bus_brkt_left || ch == bus_brkt_right);
       if ((!(isalnum(ch) || ch == '_') && !is_brkt)
-	  || (is_brkt && escape_brkts))
+	  || is_brkt)
 	escaped = true;
       vstringAppend(verilog_name, verilog_name_end, v, ch);
     }
