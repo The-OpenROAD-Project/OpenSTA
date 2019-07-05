@@ -581,8 +581,21 @@ SdcNetwork::findPort(const Cell *cell,
   Port *port = network_->findPort(cell, name);
   if (port == nullptr) {
     // Look for matches after escaping brackets.
-    const char *port_name_ = escapeBrackets(name, this);
-    port = network_->findPort(cell, port_name_);
+    char *bus_name;
+    int index;
+    parseBusName(name, '[', ']', bus_name, index);
+    if (bus_name) {
+      const char *escaped1 = escapeBrackets(name, this);
+      port = network_->findPort(cell, escaped1);
+      if (port == nullptr
+	  && bus_name[strlen(bus_name) - 1] == ']') {
+	// Try escaping base foo\[0\][1]
+	const char *escaped2 = stringPrintTmp("%s[%d]",
+					      escapeBrackets(bus_name, this),
+					      index);
+	port = network_->findPort(cell, escaped2);
+      }
+    }
   }
   return port;
 }
@@ -595,8 +608,23 @@ SdcNetwork::findPortsMatching(const Cell *cell,
   network_->findPortsMatching(cell, pattern, ports);
   if (ports->empty()) {
     // Look for matches after escaping brackets.
-    PatternMatch escaped(escapeBrackets(pattern->pattern(), this), pattern);
-    network_->findPortsMatching(cell, &escaped, ports);
+    char *bus_name;
+    int index;
+    parseBusName(pattern->pattern(), '[', ']', bus_name, index);
+    if (bus_name) {
+      const char *escaped1 = escapeBrackets(pattern->pattern(), this);
+      PatternMatch escaped_pattern1(escaped1, pattern);
+      network_->findPortsMatching(cell, &escaped_pattern1, ports);
+      if (ports->empty()
+	  && bus_name[strlen(bus_name) - 1] == ']') {
+	// Try escaping base foo\[0\][1]
+	const char *escaped2 = stringPrintTmp("%s[%d]",
+					      escapeBrackets(bus_name, this),
+					      index);
+	PatternMatch escaped_pattern2(escaped2, pattern);
+	network_->findPortsMatching(cell, &escaped_pattern2, ports);
+      }
+    }
   }
 }
 
@@ -772,8 +800,21 @@ SdcNetwork::findPin(const Instance *instance,
   Pin *pin = network_->findPin(instance, port_name);
   if (pin == nullptr) {
     // Look for match after escaping brackets.
-    const char *port_name_ = escapeBrackets(port_name, this);
-    pin = network_->findPin(instance, port_name_);
+    char *bus_name;
+    int index;
+    parseBusName(port_name, '[', ']', bus_name, index);
+    if (bus_name) {
+      const char *escaped1 = escapeBrackets(port_name, this);
+      pin = network_->findPin(instance, escaped1);
+      if (pin == nullptr
+	  && bus_name[strlen(bus_name) - 1] == ']') {
+	// Try escaping base foo\[0\][1]
+	const char *escaped2 = stringPrintTmp("%s[%d]",
+					      escapeBrackets(bus_name, this),
+					      index);
+	pin = network_->findPin(instance, escaped2);
+      }
+    }
   }
   return pin;
 }
