@@ -51,7 +51,6 @@ Graph::Graph(StaState *sta,
   slew_tr_count_(slew_tr_count),
   have_arc_delays_(have_arc_delays),
   ap_count_(ap_count),
-  float_pool_(nullptr),
   width_check_annotations_(nullptr),
   period_check_annotations_(nullptr)
 {
@@ -63,9 +62,8 @@ Graph::~Graph()
   delete edges_;
   deleteSlewPools();
   deleteArcDelayPools();
-  delete width_check_annotations_;
-  delete period_check_annotations_;
-  delete float_pool_;
+  removeWidthCheckAnnotations();
+  removePeriodCheckAnnotations();
 }
 
 void
@@ -1010,7 +1008,7 @@ Graph::setWidthCheckAnnotation(const Pin *pin,
   float *widths = width_check_annotations_->findKey(pin);
   if (widths == nullptr) {
     int width_count = TransRiseFall::index_count * ap_count_;
-    widths = makeFloats(width_count);
+    widths = new float[width_count];
     // Use negative (illegal) width values to indicate unannotated checks.
     for (int i = 0; i < width_count; i++)
       widths[i] = -1;
@@ -1024,11 +1022,10 @@ void
 Graph::removeWidthCheckAnnotations()
 {
   if (width_check_annotations_) {
-    int width_count = TransRiseFall::index_count * ap_count_;
     WidthCheckAnnotations::Iterator check_iter(width_check_annotations_);
     while (check_iter.hasNext()) {
       float *widths = check_iter.next();
-      deleteFloats(widths, width_count);
+      delete [] widths;
     }
     delete width_check_annotations_;
     width_check_annotations_ = nullptr;
@@ -1064,9 +1061,9 @@ Graph::setPeriodCheckAnnotation(const Pin *pin,
     period_check_annotations_ = new PeriodCheckAnnotations;
   float *periods = period_check_annotations_->findKey(pin);
   if (periods == nullptr) {
-    periods = makeFloats(ap_count_);
+    periods = new float[ap_count_];
     // Use negative (illegal) period values to indicate unannotated checks.
-    for (DcalcAPIndex i = 0; i < ap_count_; i++)
+    for (int i = 0; i < ap_count_; i++)
       periods[i] = -1;
     (*period_check_annotations_)[pin] = periods;
   }
@@ -1079,7 +1076,7 @@ Graph::removePeriodCheckAnnotations()
   if (period_check_annotations_) {
     for (auto pin_floats : *period_check_annotations_) {
       float *periods = pin_floats.second;
-      deleteFloats(periods, ap_count_);
+      delete [] periods;
     }
     delete period_check_annotations_;
     period_check_annotations_ = nullptr;
@@ -1101,20 +1098,6 @@ Graph::removeDelaySlewAnnotations()
   }
   removeWidthCheckAnnotations();
   removePeriodCheckAnnotations();
-}
-
-float *
-Graph::makeFloats(ObjectIndex count)
-{
-  if (float_pool_ == nullptr)
-    float_pool_ = new Pool<float>(100);
-  return float_pool_->makeObjects(count);
-}
-
-void
-Graph::deleteFloats(float *floats, ObjectIndex count)
-{
-  float_pool_->deleteObjects(floats, count);
 }
 
 ////////////////////////////////////////////////////////////////

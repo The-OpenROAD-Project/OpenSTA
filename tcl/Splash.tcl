@@ -25,12 +25,12 @@ namespace eval sta {
 define_cmd_args show_splash {}
 
 proc show_splash {} {
-  puts {OpenSTA Copyright (c) 2018, Parallax Software, Inc.
+  puts "OpenSTA [sta::version] [string range [sta::git_sha1] 0 9] Copyright (c) 2019, Parallax Software, Inc.
 License GPLv3: GNU GPL version 3 <http://gnu.org/licenses/gpl.html>
 
 This is free software, and you are free to change and redistribute it
 under certain conditions; type `show_copying' for details. 
-This program comes with ABSOLUTELY NO WARRANTY; for details type `show_warranty'.}
+This program comes with ABSOLUTELY NO WARRANTY; for details type `show_warranty'."
 }
 
 define_cmd_args show_warranty {}

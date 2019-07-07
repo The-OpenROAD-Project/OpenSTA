@@ -1167,7 +1167,9 @@ ConcreteNetwork::replaceCell(Instance *inst,
   int port_count = ccell->portBitCount();
   ConcreteInstance *cinst = reinterpret_cast<ConcreteInstance*>(inst);
   ConcretePin **pins = cinst->pins_;
-  ConcretePin **rpins = new ConcretePin*[port_count]{nullptr};
+  ConcretePin **rpins = new ConcretePin*[port_count];
+  for (int i = 0; i < port_count; i++)
+    rpins[i] = nullptr;
   for (int i = 0; i < port_count; i++) {
     ConcretePin *cpin = pins[i];
     if (cpin) {
@@ -1489,8 +1491,11 @@ void
 ConcreteInstance::initPins()
 {
   int pin_count = reinterpret_cast<ConcreteCell*>(cell_)->portBitCount();
-  if (pin_count)
-    pins_ = new ConcretePin*[pin_count]{nullptr};
+  if (pin_count) {
+    pins_ = new ConcretePin*[pin_count];
+    for (int i = 0; i < pin_count; i++)
+      pins_[i] = nullptr;
+  }
   else
     pins_ = nullptr;
 }

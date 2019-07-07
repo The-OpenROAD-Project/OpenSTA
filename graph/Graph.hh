@@ -216,9 +216,6 @@ protected:
   void deleteOutEdge(Vertex *vertex,
 		     Edge *edge);
   void removeDelays();
-  float *makeFloats(ObjectIndex count);
-  void deleteFloats(float *floats,
-		    ObjectIndex count);
   void removeDelayAnnotated(Edge *edge);
   // User defined predicate to filter graph edges for liberty timing arcs.
   virtual bool filterEdge(TimingArcSet *) const { return true; }
@@ -240,7 +237,6 @@ protected:
   DelayPoolSeq slew_pools_;	      // [ap_index][tr_index][vertex_index]
   VertexIndex slew_count_;
   DelayPoolSeq arc_delays_;	      // [ap_index][edge_arc_index]
-  Pool<float> *float_pool_;
   // Sdf width check annotations.
   WidthCheckAnnotations *width_check_annotations_;
   // Sdf period check annotations.

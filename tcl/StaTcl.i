@@ -1909,6 +1909,12 @@ version()
   return STA_VERSION;
 }
 
+const char *
+git_sha1()
+{
+  return STA_GIT_SHA1;
+}
+
 void
 redirect_file_begin(const char *filename)
 {

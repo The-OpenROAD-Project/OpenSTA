@@ -197,7 +197,7 @@ define_cmd_args "set_units" \
 # It merely checks that the library units are the same as the
 # units in the set_units command.
 proc set_units { args } {
-  parse_key_args "set_cmd_units" args \
+  parse_key_args "set_units" args \
     keys {-capacitance -resistance -time -voltage -current -power} flags {}
   if { [llength $args] != 0 } {
     cmd_usage_error "set_units"

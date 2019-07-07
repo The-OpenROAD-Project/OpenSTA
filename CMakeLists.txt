@@ -27,6 +27,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(STA_HOME ${PROJECT_SOURCE_DIR})
 message(STATUS "STA version: ${PROJECT_VERSION}")
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(GetGitRevisionDescription)
+get_git_head_revision(GIT_REFSPEC STA_GIT_SHA1)
+message(STATUS "STA git sha: ${STA_GIT_SHA1}")
+
 # Default to bulding optimnized/release executable.
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RELEASE)
