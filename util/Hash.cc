@@ -14,43 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_HASH_H
-#define STA_HASH_H
-
-#include <stddef.h>  // size_t
+#include <string.h>
+#include "Machine.hh"
+#include "Hash.hh"
 
 namespace sta {
 
-typedef unsigned int Hash;
-
-const Hash hash_init_value = 5381;
-
-// Dan Bernstein, comp.lang.c.
-inline Hash
-hashSum(Hash hash,
-	Hash add)
-{
-  // hash * 31 ^ add.
-  return ((hash << 5) + hash) ^ add;
-}
-
-inline void
-hashIncr(Hash &hash,
-	 Hash add)
-{
-  // hash * 31 ^ add.
-  hash = ((hash << 5) + hash) ^ add;
-}
-
-inline size_t
-nextMersenne(size_t n)
-{
-  return (n + 1) * 2 - 1;
-}
-
-// Sadly necessary until c++ std::hash works for char *.
 Hash
-hashString(const char *str);
+hashString(const char *str)
+{
+  unsigned hash = hash_init_value;
+  size_t length = strlen(str);
+  for (size_t i = 0; i < length; i++)
+    hash = ((hash << 5) + hash) ^ str[i];
+  return hash;
+}
 
 } // namespace
-#endif

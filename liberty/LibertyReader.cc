@@ -172,6 +172,7 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("voltage_unit", &LibertyReader::visitVoltageUnit);
   defineAttrVisitor("current_unit", &LibertyReader::visitCurrentUnit);
   defineAttrVisitor("leakage_power_unit", &LibertyReader::visitPowerUnit);
+  defineAttrVisitor("distance_unit", &LibertyReader::visitDistanceUnit);
   defineAttrVisitor("delay_model", &LibertyReader::visitDelayModel);
   defineAttrVisitor("bus_naming_style", &LibertyReader::visitBusStyle);
   defineAttrVisitor("voltage_map", &LibertyReader::visitVoltageMap);
@@ -547,17 +548,20 @@ LibertyReader::beginLibrary(LibertyGroup *group)
     // 1v default
     volt_scale_ = 1;
     // Default is 1mA.
-    curr_scale_ = 1E-3F;
+    current_scale_ = 1E-3F;
     // Default is 1;
     power_scale_ = 1;
     // Default is fJ.
     setEnergyScale();
+    // Default is 1 micron.
+    distance_scale_ = 1e-6;
 
     library_->units()->timeUnit()->setScale(time_scale_);
     library_->units()->capacitanceUnit()->setScale(cap_scale_);
     library_->units()->resistanceUnit()->setScale(res_scale_);
     library_->units()->voltageUnit()->setScale(volt_scale_);
-    library_->units()->currentUnit()->setScale(curr_scale_);
+    library_->units()->currentUnit()->setScale(current_scale_);
+    library_->units()->distanceUnit()->setScale(distance_scale_);
 
 
     library_->setDelayModelType(DelayModelType::cmos_linear);
@@ -667,7 +671,7 @@ void
 LibertyReader::visitCurrentUnit(LibertyAttr *attr)
 {
   if (library_)
-    parseUnits(attr, "A", curr_scale_, library_->units()->currentUnit());
+    parseUnits(attr, "A", current_scale_, library_->units()->currentUnit());
 }
 
 void
@@ -683,6 +687,13 @@ LibertyReader::visitPowerUnit(LibertyAttr *attr)
 {
   if (library_)
     parseUnits(attr, "W", power_scale_, library_->units()->powerUnit());
+}
+
+void
+LibertyReader::visitDistanceUnit(LibertyAttr *attr)
+{
+  if (library_)
+    parseUnits(attr, "m", distance_scale_, library_->units()->distanceUnit());
 }
 
 void

@@ -200,6 +200,7 @@ set(STA_SOURCE
   util/Debug.cc
   util/Error.cc
   util/Fuzzy.cc
+  util/Hash.cc
   util/Machine.cc
   util/MinMax.cc
   util/PatternMatch.cc

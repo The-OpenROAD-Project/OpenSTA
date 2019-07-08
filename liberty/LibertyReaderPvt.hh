@@ -81,6 +81,7 @@ public:
   virtual void visitVoltageUnit(LibertyAttr *attr);
   virtual void visitCurrentUnit(LibertyAttr *attr);
   virtual void visitPowerUnit(LibertyAttr *attr);
+  virtual void visitDistanceUnit(LibertyAttr *attr);
   virtual void parseUnits(LibertyAttr *attr,
 			  const char *suffix,
 			  float &scale_var,
@@ -562,9 +563,10 @@ protected:
   float cap_scale_;
   float res_scale_;
   float volt_scale_;
-  float curr_scale_;
+  float current_scale_;
   float power_scale_;
   float energy_scale_;
+  float distance_scale_;
   bool have_resistance_unit_;
 
 private:

@@ -191,22 +191,23 @@ proc check_path_divider { divider } {
 
 define_cmd_args "set_units" \
   {[-capacitance cap_unit] [-resistance res_unit] [-time time_unit]\
-     [-voltage voltage_unit] [-current current_unit] [-power power_unit]}
+     [-voltage voltage_unit] [-current current_unit] [-power power_unit]\
+     [-distance distance_unit]}
 
-# Note that this does NOT actually set the units.
-# It merely checks that the library units are the same as the
-# units in the set_units command.
+# Note that the set_units command does NOT actually set the units.
+# It merely checks that the current units are the same as the
+# units in the set_units command. Blame SNPS for this brain damage.
 proc set_units { args } {
   parse_key_args "set_units" args \
-    keys {-capacitance -resistance -time -voltage -current -power} flags {}
-  if { [llength $args] != 0 } {
-    cmd_usage_error "set_units"
-  }
+    keys {-capacitance -resistance -time -voltage -current -power -distance} \
+    flags {}
+  check_argc_eq0 "set_units" $args
   check_unit "capacitance" -capacitance "f" keys
   check_unit "time" -time "s" keys
   check_unit "voltage" -voltage "v" keys
   check_unit "current" -current "A" keys
   check_unit "resistance" -resistance "ohm" keys
+  check_unit "distance" -distance "m" keys
 }
 
 proc check_unit { unit key unit_name key_var } {
@@ -219,23 +220,8 @@ proc check_unit { unit key unit_name key_var } {
       set prefix [string index $value 0]
       set suffix [string range $value 1 end]
       if { [string equal -nocase $suffix $unit_name] } {
-	if { [string equal $prefix "M"] } {
-	  check_unit_scale $unit 1E+6
-	} elseif { [string equal $prefix "k"] } {
-	  check_unit_scale $unit 1E+3
-	} elseif { [string equal $prefix "m"] } {
-	  check_unit_scale $unit 1E-3
-	} elseif { [string equal $prefix "u"] } {
-	  check_unit_scale $unit 1E-6
-	} elseif { [string equal $prefix "n"] } {
-	  check_unit_scale $unit 1E-9
-	} elseif { [string equal $prefix "p"] } {
-	  check_unit_scale $unit 1E-12
-	} elseif { [string equal $prefix "f"] } {
-	  check_unit_scale $unit 1E-15
-	} else {
-	  sta_error "unknown $unit prefix '$prefix'."
-	}
+	set scale [unit_prefix_scale $unit $prefix]
+	check_unit_scale $unit 1.0 $scale
       } else {
 	sta_error "unknown unit $unit '$suffix'."
       }
@@ -243,10 +229,77 @@ proc check_unit { unit key unit_name key_var } {
   }
 }
 
+proc unit_prefix_scale { unit prefix } {
+  if { [string equal $prefix "M"] } {
+    return 1E+6
+  } elseif { [string equal $prefix "k"] } {
+    return 1E+3
+  } elseif { [string equal $prefix "m"] } {
+    return 1E-3
+  } elseif { [string equal $prefix "u"] } {
+    return 1E-6
+  } elseif { [string equal $prefix "n"] } {
+    return 1E-9
+  } elseif { [string equal $prefix "p"] } {
+    return 1E-12
+  } elseif { [string equal $prefix "f"] } {
+    return 1E-15
+  } else {
+    sta_error "unknown $unit prefix '$prefix'."
+  }
+}
+
 proc check_unit_scale { unit scale } {
   set unit_scale [unit_scale $unit]
   if { ![fuzzy_equal $scale $unit_scale] } {
     sta_warn "$unit scale [format %.0e $scale] does not match library scale [format %.0e $unit_scale]."
+  }
+}
+
+################################################################
+
+define_cmd_args "set_cmd_units" \
+  {[-capacitance cap_unit] [-resistance res_unit] [-time time_unit]\
+     [-voltage voltage_unit] [-current current_unit] [-power power_unit]\
+     [-distance distance_unit]}
+
+proc set_cmd_units { args } {
+  parse_key_args "set_cmd_units" args \
+    keys {-capacitance -resistance -time -voltage -current -power \
+	    -distance -digits -suffix} \
+    flags {}
+
+  check_argc_eq0 "set_cmd_units" $args
+  set_unit_values "capacitance" -capacitance "f" keys
+  set_unit_values "time" -time "s" keys
+  set_unit_values "voltage" -voltage "v" keys
+  set_unit_values "current" -current "A" keys
+  set_unit_values "resistance" -resistance "ohm" keys
+  set_unit_values "distance" -distance "m" keys
+}
+
+proc set_unit_values { unit key unit_name key_var } {
+  upvar 1 $key_var keys
+  if { [info exists keys($key)] } {
+    set value $keys($key)
+    if { [string equal -nocase $value $unit_name] } {
+      set_cmd_unit_scale $unit 1.0
+    } else {
+      set prefix [string index $value 0]
+      set suffix [string range $value 1 end]
+      if { [string equal -nocase $suffix $unit_name] } {
+	set scale [unit_prefix_scale $unit $prefix]
+	set_cmd_unit_scale $unit $scale
+      } else {
+	sta_error "unknown $unit unit '$suffix'."
+      }
+    }
+    if [info exists keys(-digits)] {
+      set_cmd_unit_digits $unit $keys(-digits)
+    }
+    if [info exists keys(-suffix)] {
+      set_cmd_unit_suffix $unit $keys(-suffix)
+    }
   }
 }
 

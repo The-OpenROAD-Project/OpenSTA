@@ -15,6 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "Machine.hh"
+#include "Hash.hh"
 #include "PortDirection.hh"
 #include "Transition.hh"
 #include "MinMax.hh"
@@ -40,8 +41,6 @@ static unsigned
 hashFuncExpr(const FuncExpr *expr);
 static unsigned
 hashPort(const LibertyPort *port);
-static unsigned
-hashString(const char *str);
 
 static float
 cellDriveResistance(const LibertyCell *cell)
@@ -226,17 +225,6 @@ hashFuncExpr(const FuncExpr *expr)
 	* ((1 << expr->op()) - 1);
     }
   }
-}
-
-static unsigned
-hashString(const char *str)
-{
-  unsigned hash = 0;
-  size_t length = strlen(str);
-  for (size_t i = 0; i < length; i++) {
-    hash = str[i] + (hash << 2);
-  }
-  return hash;
 }
 
 bool

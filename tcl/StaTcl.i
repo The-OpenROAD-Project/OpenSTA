@@ -3808,6 +3808,8 @@ format_power(const char *value,
   return Sta::sta()->units()->powerUnit()->asString(value1, digits);
 }
 
+////////////////////////////////////////////////////////////////
+
 // Unit converstion from sta unit to user interface and visa versa.
 double
 time_ui_sta(double value)
@@ -3880,6 +3882,50 @@ power_sta_ui(double value)
 {
   return value / Sta::sta()->units()->powerUnit()->scale();
 }
+
+double
+distance_ui_sta(double value)
+{
+  return value * Sta::sta()->units()->distanceUnit()->scale();
+}
+
+double
+distance_sta_ui(double value)
+{
+  return value / Sta::sta()->units()->distanceUnit()->scale();
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+set_cmd_unit_scale(const char *unit_name,
+		   float scale)
+{
+  Unit *unit = Sta::sta()->units()->find(unit_name);
+  if (unit)
+    unit->setScale(scale);
+}
+
+void
+set_cmd_unit_digits(const char *unit_name,
+		    int digits)
+{
+  Unit *unit = Sta::sta()->units()->find(unit_name);
+  if (unit)
+    unit->setDigits(digits);
+}
+
+void
+set_cmd_unit_suffix(const char *unit_name,
+		    const char *suffix)
+{
+  Unit *unit = Sta::sta()->units()->find(unit_name);
+  if (unit) {
+    unit->setSuffix(suffix);
+  }
+}
+
+////////////////////////////////////////////////////////////////
 
 VertexIterator *
 vertex_iterator()
