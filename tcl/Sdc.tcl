@@ -221,7 +221,7 @@ proc check_unit { unit key unit_name key_var } {
       set suffix [string range $value 1 end]
       if { [string equal -nocase $suffix $unit_name] } {
 	set scale [unit_prefix_scale $unit $prefix]
-	check_unit_scale $unit 1.0 $scale
+	check_unit_scale $unit $scale
       } else {
 	sta_error "unknown unit $unit '$suffix'."
       }
