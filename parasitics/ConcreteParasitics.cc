@@ -912,9 +912,7 @@ ConcreteParasitics::deleteParasitics(const Pin *drvr_pin,
 {
   ConcreteParasitic **parasitics = drvr_parasitic_map_[drvr_pin];
   if (parasitics) {
-    TransRiseFallIterator tr_iter;
-    while (tr_iter.hasNext()) {
-      TransRiseFall *tr = tr_iter.next();
+    for (auto tr : TransRiseFall::range()) {
       int ap_tr_index = parasiticAnalysisPtIndex(ap, tr);
       delete parasitics[ap_tr_index];
       parasitics[ap_tr_index] = nullptr;

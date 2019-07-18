@@ -67,10 +67,7 @@ public:
   void
   setValue(TYPE value)
   {
-    MinMaxIterator mm_iter;
-    while (mm_iter.hasNext()) {
-      MinMax *mm = mm_iter.next();
-      int mm_index = mm->index();
+    for (auto mm_index : MinMax::rangeIndex()) {
       values_[mm_index] = value;
       exists_[mm_index] = true;
     }
@@ -80,10 +77,7 @@ public:
   setValue(const MinMaxAll *min_max,
 	   TYPE value)
   {
-    MinMaxIterator mm_iter(min_max);
-    while (mm_iter.hasNext()) {
-      MinMax *mm = mm_iter.next();
-      int mm_index = mm->index();
+    for (auto mm_index : min_max->rangeIndex()) {
       values_[mm_index] = value;
       exists_[mm_index] = true;
     }
@@ -142,12 +136,8 @@ public:
   void
   removeValue(const MinMaxAll *min_max)
   {
-    MinMaxIterator mm_iter(min_max);
-    while (mm_iter.hasNext()) {
-      MinMax *mm = mm_iter.next();
-      int mm_index = mm->index();
+    for (auto mm_index : min_max->rangeIndex())
       exists_[mm_index] = false;
-    }
   }
 
   static bool equal(MinMaxValues *values1,

@@ -124,9 +124,7 @@ void
 Clock::makeClkEdges()
 {
   clk_edges_ = new ClockEdge*[TransRiseFall::index_count];
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
+  for (auto tr : TransRiseFall::range()) {
     clk_edges_[tr->index()] = new ClockEdge(this, tr);
   }
 }
@@ -667,12 +665,8 @@ InterClockUncertainty::setUncertainty(const TransRiseFallBoth *src_tr,
 				      const SetupHoldAll *setup_hold,
 				      float uncertainty)
 {
-  TransRiseFallIterator src_tr_iter(src_tr);
-  while (src_tr_iter.hasNext()) {
-    TransRiseFall *src_tr = src_tr_iter.next();
-    int src_tr_index = src_tr->index();
+  for (auto src_tr_index : src_tr->rangeIndex())
     uncertainties_[src_tr_index].setValue(tgt_tr, setup_hold, uncertainty);
-  }
 }
 
 void
@@ -680,12 +674,8 @@ InterClockUncertainty::removeUncertainty(const TransRiseFallBoth *src_tr,
 					 const TransRiseFallBoth *tgt_tr,
 					 const SetupHoldAll *setup_hold)
 {
-  TransRiseFallIterator src_tr_iter(src_tr);
-  while (src_tr_iter.hasNext()) {
-    TransRiseFall *src_tr = src_tr_iter.next();
-    int src_tr_index = src_tr->index();
+  for (auto src_tr_index : src_tr->rangeIndex())
     uncertainties_[src_tr_index].removeValue(tgt_tr, setup_hold);
-  }
 }
 
 const RiseFallMinMax *

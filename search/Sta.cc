@@ -224,11 +224,6 @@ void
 initSta()
 {
   initElapsedTime();
-  MinMax::init();
-  MinMaxAll::init();
-  TransRiseFall::init();
-  TransRiseFallBoth::init();
-  Transition::init();
   TimingRole::init();
   PortDirection::init();
   initTmpStrings();
@@ -251,11 +246,6 @@ deleteAllMemory()
   }
   deleteDelayCalcs();
   deleteTmpStrings();
-  MinMax::destroy();
-  MinMaxAll::destroy();
-  TransRiseFall::destroy();
-  TransRiseFallBoth::destroy();
-  Transition::destroy();
   TimingRole::destroy();
   PortDirection::destroy();
   deleteLiberty();
@@ -3060,9 +3050,7 @@ Sta::vertexSlew(Vertex *vertex,
 {
   findDelays(vertex);
   Slew mm_slew = min_max->initValue();
-  DcalcAnalysisPtIterator dcalc_ap_iter(this);
-  while (dcalc_ap_iter.hasNext()) {
-    DcalcAnalysisPt *dcalc_ap = dcalc_ap_iter.next();
+  for (auto dcalc_ap : corners_->dcalcAnalysisPts()) {
     Slew slew = graph_->slew(vertex, tr, dcalc_ap->index());
     if (fuzzyGreater(slew, mm_slew, min_max))
       mm_slew = slew;
@@ -3214,9 +3202,7 @@ Sta::setArcDelay(Edge *edge,
 		 const MinMaxAll *min_max,
 		 ArcDelay delay)
 {
-  MinMaxIterator mm_iter(min_max);
-  while (mm_iter.hasNext()) {
-    MinMax *mm = mm_iter.next();
+  for (auto mm : min_max->range()) {
     const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
     DcalcAPIndex ap_index = dcalc_ap->index();
     graph_->setArcDelay(edge, arc, ap_index, delay);
@@ -3238,14 +3224,10 @@ Sta::setAnnotatedSlew(Vertex *vertex,
 		      const TransRiseFallBoth *tr,
 		      float slew)
 {
-  MinMaxIterator mm_iter(min_max);
-  while (mm_iter.hasNext()) {
-    MinMax *mm = mm_iter.next();
+  for (auto mm : min_max->range()) {
     const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
     DcalcAPIndex ap_index = dcalc_ap->index();
-    TransRiseFallIterator tr_iter(tr);
-    while (tr_iter.hasNext()) {
-      TransRiseFall *tr1 = tr_iter.next();
+    for (auto tr1 : tr->range()) {
       graph_->setSlew(vertex, tr1, ap_index, slew);
       // Don't let delay calculation clobber the value.
       vertex->setSlewAnnotated(true, tr1, ap_index);
@@ -3307,12 +3289,8 @@ Sta::setPortExtPinCap(Port *port,
 		      const MinMaxAll *min_max,
 		      float cap)
 {
-  TransRiseFallIterator tr_iter(tr);
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr1 = tr_iter.next();
-    MinMaxIterator mm_iter(min_max);
-    while (mm_iter.hasNext()) {
-      MinMax *mm = mm_iter.next();
+  for (auto tr1 : tr->range()) {
+    for (auto mm : min_max->range()) {
       sdc_->setPortExtPinCap(port, tr1, mm, cap);
     }
   }
@@ -3345,12 +3323,8 @@ Sta::setPortExtWireCap(Port *port,
 		       float cap)
 {
   Corner *corner = cmd_corner_;
-  TransRiseFallIterator tr_iter(tr);
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr1 = tr_iter.next();
-    MinMaxIterator mm_iter(min_max);
-    while (mm_iter.hasNext()) {
-      MinMax *mm = mm_iter.next();
+  for (auto tr1 : tr->range()) {
+    for (auto mm : min_max->range()) {
       sdc_->setPortExtWireCap(port, subtract_pin_cap, tr1, corner, mm, cap);
     }
   }
@@ -3376,11 +3350,8 @@ Sta::setPortExtFanout(Port *port,
 		      int fanout,
 		      const MinMaxAll *min_max)
 {
-  MinMaxIterator mm_iter(min_max);
-  while (mm_iter.hasNext()) {
-    MinMax *mm = mm_iter.next();
+  for (auto mm : min_max->range())
     sdc_->setPortExtFanout(port, mm, fanout);
-  }
   delaysInvalidFromFanin(port);
 }
 
@@ -3391,11 +3362,8 @@ Sta::setNetWireCap(Net *net,
 		   const MinMaxAll *min_max,
 		   float cap)
 {
-  MinMaxIterator mm_iter(min_max);
-  while (mm_iter.hasNext()) {
-    MinMax *mm = mm_iter.next();
+  for (auto mm : min_max->range())
     sdc_->setNetWireCap(net, subtract_pin_cap, corner, mm, cap);
-  }
   delaysInvalidFromFanin(net);
 }
 
@@ -3540,9 +3508,7 @@ Sta::makePiElmore(Pin *drvr_pin,
 		  float c1)
 {
   Corner *corner = cmd_corner_;
-  MinMaxIterator mm_iter(min_max);
-  while (mm_iter.hasNext()) {
-    MinMax *mm = mm_iter.next();
+  for (auto mm : min_max->range()) {
     ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(mm);
     parasitics_->makePiElmore(drvr_pin, tr, ap, c2, rpi, c1);
   }
@@ -3576,9 +3542,7 @@ Sta::setElmore(Pin *drvr_pin,
 	       float elmore)
 {
   Corner *corner = cmd_corner_;
-  MinMaxIterator mm_iter(min_max);
-  while (mm_iter.hasNext()) {
-    MinMax *mm = mm_iter.next();
+  for (auto mm : min_max->range()) {
     const ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(mm);
     Parasitic *pi_elmore = parasitics_->findPiElmore(drvr_pin, tr, ap);
     if (pi_elmore)
@@ -4724,12 +4688,8 @@ InstanceMaxSlewGreater::instMaxSlew(const Instance *inst) const
     Pin *pin = pin_iter->next();
     if (network->isDriver(pin)) {
       Vertex *vertex = graph->pinDrvrVertex(pin);
-      TransRiseFallIterator tr_iter;
-      while (tr_iter.hasNext()) {
-	TransRiseFall *tr = tr_iter.next();
-	DcalcAnalysisPtIterator dcalc_ap_iter(sta_);
-	while (dcalc_ap_iter.hasNext()) {
-	  DcalcAnalysisPt *dcalc_ap = dcalc_ap_iter.next();
+      for (auto tr : TransRiseFall::range()) {
+	for (auto dcalc_ap : sta_->corners()->dcalcAnalysisPts()) {
 	  Slew slew = graph->slew(vertex, tr, dcalc_ap->index());
 	  if (slew > max_slew)
 	    max_slew = slew;

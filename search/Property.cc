@@ -863,9 +863,7 @@ edgeDelayProperty(Edge *edge,
     TimingArc *arc = arc_iter.next();
     TransRiseFall *to_tr = arc->toTrans()->asRiseFall();
     if (to_tr == tr) {
-      CornerIterator corner_iter(sta);
-      while (corner_iter.hasNext()) {
-	Corner *corner = corner_iter.next();
+      for (auto corner : *sta->corners()) {
 	DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
 	ArcDelay arc_delay = sta->arcDelay(edge, arc, dcalc_ap);
 	if (!delay_exists

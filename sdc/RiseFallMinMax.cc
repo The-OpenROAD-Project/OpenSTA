@@ -65,14 +65,8 @@ RiseFallMinMax::setValue(const TransRiseFallBoth *tr,
 			 const MinMaxAll *min_max,
 			 float value)
 {
-  TransRiseFallIterator tr_iter(tr);
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    int tr_index = tr->index();
-    MinMaxIterator mm_iter(min_max);
-    while (mm_iter.hasNext()) {
-      MinMax *mm = mm_iter.next();
-      int mm_index = mm->index();
+  for (auto tr_index : tr->rangeIndex()) {
+    for (auto mm_index : min_max->rangeIndex()) {
       values_[tr_index][mm_index] = value;
       exists_[tr_index][mm_index] = true;
     }
@@ -84,23 +78,16 @@ RiseFallMinMax::removeValue(const TransRiseFallBoth *tr,
 			    const MinMax *min_max)
 {
   int mm_index = min_max->index();
-  TransRiseFallIterator tr_iter(tr);
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    int tr_index = tr->index();
+  for (auto tr_index : tr->rangeIndex())
     exists_[tr_index][mm_index] = false;
-  }
 }
 
 void
 RiseFallMinMax::removeValue(const TransRiseFallBoth *tr, 
 			    const MinMaxAll *min_max)
 {
-  MinMaxIterator mm_iter(min_max);
-  while (mm_iter.hasNext()) {
-    MinMax *mm = mm_iter.next();
+  for (auto mm : min_max->range())
     removeValue(tr, mm);
-  }
 }
 
 void
@@ -108,13 +95,8 @@ RiseFallMinMax::mergeValue(const TransRiseFallBoth *tr,
 			   const MinMaxAll *min_max,
 			   float value)
 {
-  TransRiseFallIterator tr_iter(tr);
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr1 = tr_iter.next();
-    int tr_index = tr1->index();
-    MinMaxIterator mm_iter(min_max);
-    while (mm_iter.hasNext()) {
-      MinMax *mm = mm_iter.next();
+  for (auto tr_index : tr->rangeIndex()) {
+    for (auto mm : min_max->range()) {
       int mm_index = mm->index();
       if (!exists_[tr_index][mm_index]
 	  || mm->compare(value, values_[tr_index][mm_index])) {
@@ -131,10 +113,7 @@ RiseFallMinMax::setValue(const TransRiseFallBoth *tr,
 			 float value)
 {
   int mm_index = min_max->index();
-  TransRiseFallIterator tr_iter(tr);
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    int tr_index = tr->index();
+  for (auto tr_index : tr->rangeIndex()) {
     values_[tr_index][mm_index] = value;
     exists_[tr_index][mm_index] = true;
   }
@@ -206,11 +185,9 @@ RiseFallMinMax::hasValue(const TransRiseFall *tr, const MinMax *min_max) const
 void
 RiseFallMinMax::mergeWith(RiseFallMinMax *rfmm)
 {
-  MinMaxIterator mm_iter;
-  while (mm_iter.hasNext()) {
-    MinMax *min_max = mm_iter.next();
+  for (auto min_max : MinMax::range()) {
     int mm_index = min_max->index();
-    for (int tr_index=0;tr_index<TransRiseFall::index_count;tr_index++) {
+    for (auto tr_index : TransRiseFall::rangeIndex()) {
       bool exists1 = exists_[tr_index][mm_index];
       bool exists2 = rfmm->exists_[tr_index][mm_index];
       if (exists1 && exists2) {

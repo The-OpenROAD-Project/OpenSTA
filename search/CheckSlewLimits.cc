@@ -116,10 +116,8 @@ CheckSlewLimits::checkSlews(const Pin *pin,
     checkSlews1(pin, corner, min_max,
 		corner1, tr, slew, limit, slack);
   else {
-    CornerIterator corner_iter(sta_);
-    while (corner_iter.hasNext()) {
-      const Corner *corner2 = corner_iter.next();
-      checkSlews1(pin, corner2, min_max,
+    for (auto corner : *sta_->corners()) {
+      checkSlews1(pin, corner, min_max,
 		  corner1, tr, slew, limit, slack);
     }
   }
@@ -156,9 +154,7 @@ CheckSlewLimits::checkSlews1(Vertex *vertex,
 			     float &limit,
 			     float &slack) const
 {
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr1 = tr_iter.next();
+  for (auto tr1 : TransRiseFall::range()) {
     float limit1;
     bool limit1_exists;
     findLimit(vertex->pin(), vertex, tr1, min_max, limit1, limit1_exists);

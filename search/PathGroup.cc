@@ -325,10 +325,7 @@ PathGroups::makeGroups(int group_count,
 
 PathGroups::~PathGroups()
 {
-  MinMaxIterator mm_iter;
-  while (mm_iter.hasNext()) {
-    MinMax *min_max = mm_iter.next();
-    int mm_index = min_max->index();
+  for (auto mm_index : MinMax::rangeIndex()) {
     named_map_[mm_index].deleteContents();
     clk_map_[mm_index].deleteContents();
     delete path_delay_[mm_index];
@@ -425,9 +422,7 @@ PathGroups::groupPathTo(const PathEnd *path_end) const
 void
 PathGroups::pushGroupPathEnds(PathEndSeq *path_ends)
 {
-  MinMaxIterator mm_iter;
-  while (mm_iter.hasNext()) {
-    MinMax *min_max = mm_iter.next();
+  for (auto min_max : MinMax::range()) {
     int mm_index =  min_max->index();
     GroupPathIterator group_path_iter(sdc_);
     while (group_path_iter.hasNext()) {
@@ -465,9 +460,7 @@ PathGroups::pushUnconstrainedPathEnds(PathEndSeq *path_ends,
 				      const MinMaxAll *min_max)
 {
   Set<PathGroup *> groups;
-  PathAnalysisPtIterator path_ap_iter(this);
-  while (path_ap_iter.hasNext()) {
-    PathAnalysisPt *path_ap = path_ap_iter.next();
+  for (auto path_ap : corners_->pathAnalysisPts()) {
     const MinMax *path_min_max = path_ap->pathMinMax();
     if (min_max->matches(path_min_max)) {
       int mm_index =  path_min_max->index();
@@ -744,9 +737,7 @@ PathGroups::makeGroupPathEnds(ExceptionTo *to,
     MakePathEndsAll make_path_ends(endpoint_count, this);
     makeGroupPathEnds(to, corner, min_max, &make_path_ends);
 
-    MinMaxIterator mm_iter;
-    while (mm_iter.hasNext()) {
-      const MinMax *path_min_max = mm_iter.next();
+    for (auto path_min_max : MinMax::range()) {
       int mm_index =  path_min_max->index();
       GroupPathIterator group_path_iter(sdc_);
       while (group_path_iter.hasNext()) {

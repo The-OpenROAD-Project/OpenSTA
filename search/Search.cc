@@ -1483,13 +1483,9 @@ Search::seedClkArrivals(const Pin *pin,
   for (auto clk : *sdc_->findVertexPinClocks(pin)) {
     debugPrint2(debug_, "search", 2, "arrival seed clk %s pin %s\n",
 		clk->name(), network_->pathName(pin));
-    PathAnalysisPtIterator path_ap_iter(this);
-    while (path_ap_iter.hasNext()) {
-      PathAnalysisPt *path_ap = path_ap_iter.next();
+    for (auto path_ap : corners_->pathAnalysisPts()) {
       const MinMax *min_max = path_ap->pathMinMax();
-      TransRiseFallIterator tr_iter;
-      while (tr_iter.hasNext()) {
-	TransRiseFall *tr = tr_iter.next();
+      for (auto tr : TransRiseFall::range()) {
 	ClockEdge *clk_edge = clk->edge(tr);
 	const EarlyLate *early_late = min_max;
 	if (clk->isGenerated()
@@ -1606,13 +1602,9 @@ Search::makeUnclkedPaths(Vertex *vertex,
 {
   bool search_from = false;
   const Pin *pin = vertex->pin();
-  PathAnalysisPtIterator path_ap_iter(this);
-  while (path_ap_iter.hasNext()) {
-    PathAnalysisPt *path_ap = path_ap_iter.next();
+  for (auto path_ap : corners_->pathAnalysisPts()) {
     const MinMax *min_max = path_ap->pathMinMax();
-    TransRiseFallIterator tr_iter;
-    while (tr_iter.hasNext()) {
-      TransRiseFall *tr = tr_iter.next();
+    for (auto tr : TransRiseFall::range()) {
       Tag *tag = fromUnclkedInputTag(pin, tr, min_max, path_ap,
 				     is_segment_start);
       if (tag) {
@@ -1781,9 +1773,7 @@ Search::seedInputDelayArrival(const Pin *pin,
     clk_edge = sdc_->defaultArrivalClockEdge();
   if (ref_pin) {
     Vertex *ref_vertex = graph_->pinLoadVertex(ref_pin);
-    PathAnalysisPtIterator path_ap_iter(this);
-    while (path_ap_iter.hasNext()) {
-      PathAnalysisPt *path_ap = path_ap_iter.next();
+    for (auto path_ap : corners_->pathAnalysisPts()) {
       const MinMax *min_max = path_ap->pathMinMax();
       TransRiseFall *ref_tr = input_delay->refTransition();
       const Clock *clk = input_delay->clock();
@@ -1804,9 +1794,7 @@ Search::seedInputDelayArrival(const Pin *pin,
     }
   }
   else {
-    PathAnalysisPtIterator path_ap_iter(this);
-    while (path_ap_iter.hasNext()) {
-      PathAnalysisPt *path_ap = path_ap_iter.next();
+    for (auto path_ap : corners_->pathAnalysisPts()) {
       const MinMax *min_max = path_ap->pathMinMax();
       float clk_arrival, clk_insertion, clk_latency;
       inputDelayClkArrival(input_delay, clk_edge, min_max, path_ap,
@@ -1859,9 +1847,7 @@ Search::seedInputDelayArrival(const Pin *pin,
 			      PathAnalysisPt *path_ap,
 			      TagGroupBldr *tag_bldr)
 {
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
+  for (auto tr : TransRiseFall::range()) {
     if (input_delay) {
       float delay;
       bool exists;
@@ -3671,9 +3657,7 @@ Search::totalNegativeSlack(const MinMax *min_max)
 {
   tnsPreamble();
   Slack tns = 0.0;
-  CornerIterator corner_iter(this);
-  while (corner_iter.hasNext()) {
-    Corner *corner = corner_iter.next();
+  for (auto corner : *corners_) {
     PathAPIndex path_ap_index = corner->findPathAnalysisPt(min_max)->index();
     Slack tns1 = tns_[path_ap_index];
     if (tns1 < tns)

@@ -505,9 +505,7 @@ VisitPathEnds::visitDataCheckEnd(const Pin *pin,
 	DataCheck *check = check_iter.next();
  	const Pin *from_pin = check->from();
  	Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
- 	TransRiseFallIterator from_tr_iter;
- 	while (from_tr_iter.hasNext()) {
- 	  TransRiseFall *from_tr = from_tr_iter.next();
+	for (auto from_tr : TransRiseFall::range()) {
  	  float margin;
  	  bool margin_exists;
  	  check->margin(from_tr, end_tr, min_max, margin, margin_exists);

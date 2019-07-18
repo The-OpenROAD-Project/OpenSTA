@@ -590,9 +590,7 @@ Power::findInternalPower(const Pin *to_pin,
 	else
 	  duty = 0.5;
 	float port_energy = 0.0;
-	TransRiseFallIterator tr_iter;
-	while (tr_iter.hasNext()) {
-	  TransRiseFall *to_tr = tr_iter.next();
+	for (auto to_tr : TransRiseFall::range()) {
 	  // Should use unateness to find from_tr.
 	  TransRiseFall *from_tr = to_tr;
 	  float slew = delayAsFloat(graph_->slew(from_vertex,

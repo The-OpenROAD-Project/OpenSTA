@@ -27,20 +27,13 @@ RiseFallValues::RiseFallValues()
 void
 RiseFallValues::clear()
 {
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    int tr_index = tr->index();
+  for (auto tr_index : TransRiseFall::rangeIndex())
     exists_[tr_index] = false;
-  }
 }
 
 RiseFallValues::RiseFallValues(float init_value)
 {
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    int tr_index = tr->index();
+  for (auto tr_index : TransRiseFall::rangeIndex()) {
     values_[tr_index] = init_value;
     exists_[tr_index] = true;
   }
@@ -53,19 +46,18 @@ RiseFallValues::setValue(float value)
 }
 
 void
-RiseFallValues::setValue(const TransRiseFallBoth *tr, float value)
+RiseFallValues::setValue(const TransRiseFallBoth *tr,
+			 float value)
 {
-  TransRiseFallIterator tr_iter(tr);
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    int tr_index = tr->index();
+  for (auto tr_index : tr->rangeIndex()) {
     values_[tr_index] = value;
     exists_[tr_index] = true;
   }
 }
 
 void
-RiseFallValues::setValue(const TransRiseFall *tr, float value)
+RiseFallValues::setValue(const TransRiseFall *tr,
+			 float value)
 {
   int tr_index = tr->index();
   values_[tr_index] = value;
@@ -75,10 +67,7 @@ RiseFallValues::setValue(const TransRiseFall *tr, float value)
 void
 RiseFallValues::setValues(RiseFallValues *values)
 {
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    int tr_index = tr->index();
+  for (auto tr_index : TransRiseFall::rangeIndex()) {
     values_[tr_index] = values->values_[tr_index];
     exists_[tr_index] = values->exists_[tr_index];
   }

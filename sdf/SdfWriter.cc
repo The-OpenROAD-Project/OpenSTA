@@ -503,9 +503,7 @@ SdfWriter::writeTimingChecks(const Instance *inst,
 	writeCheck(edge, sdf_check);
       }
     }
-    TransRiseFallIterator tr_iter;
-    while (tr_iter.hasNext()) {
-      TransRiseFall *hi_low = tr_iter.next();
+    for (auto hi_low : TransRiseFall::range()) {
       float min_width, max_width;
       bool exists;
       graph_delay_calc_->minPulseWidth(pin, hi_low, arc_delay_min_index_,

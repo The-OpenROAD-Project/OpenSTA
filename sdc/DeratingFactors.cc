@@ -36,11 +36,8 @@ DeratingFactors::setFactor(PathClkOrData clk_data,
 			   const EarlyLate *early_late,
 			   float factor)
 {
-  TransRiseFallIterator tr_iter(tr);
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr1 = tr_iter.next();
+  for (auto tr1 : tr->range())
     factors_[int(clk_data)].setValue(tr1, early_late, factor);
-  }
 }
 
 void

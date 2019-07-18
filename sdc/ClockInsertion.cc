@@ -19,7 +19,8 @@
 
 namespace sta {
 
-ClockInsertion::ClockInsertion(const Clock *clk, const Pin *pin) :
+ClockInsertion::ClockInsertion(const Clock *clk,
+			       const Pin *pin) :
   clk_(clk),
   pin_(pin)
 {
@@ -28,17 +29,16 @@ ClockInsertion::ClockInsertion(const Clock *clk, const Pin *pin) :
 void
 ClockInsertion::setDelay(const TransRiseFallBoth *tr,
 			 const MinMaxAll *min_max,
-			 const EarlyLateAll *early_late, float delay)
+			 const EarlyLateAll *early_late,
+			 float delay)
 {
-  EarlyLateIterator el_iter(early_late);
-  while (el_iter.hasNext()) {
-    EarlyLate *el = el_iter.next();
-    delays_[el->index()].setValue(tr, min_max, delay);
-  }
+  for (auto el_index : early_late->rangeIndex())
+    delays_[el_index].setValue(tr, min_max, delay);
 }
 
 float
-ClockInsertion::delay(const TransRiseFall *tr, const MinMax *min_max,
+ClockInsertion::delay(const TransRiseFall *tr,
+		      const MinMax *min_max,
 		      const EarlyLate *early_late)
 {
   float insertion;
@@ -51,10 +51,12 @@ ClockInsertion::delay(const TransRiseFall *tr, const MinMax *min_max,
 }
 
 void
-ClockInsertion::delay(const TransRiseFall *tr, const MinMax *min_max,
+ClockInsertion::delay(const TransRiseFall *tr,
+		      const MinMax *min_max,
 		      const EarlyLate *early_late,
 		      // Return values.
-		      float &insertion, bool &exists)
+		      float &insertion,
+		      bool &exists)
 
 {
   delays_[early_late->index()].value(tr, min_max, insertion, exists);
@@ -65,7 +67,8 @@ ClockInsertion::delay(const TransRiseFall *tr, const MinMax *min_max,
 void
 ClockInsertion::setDelay(const TransRiseFall *tr,
 			 const MinMax *min_max,
-			 const EarlyLate *early_late, float delay)
+			 const EarlyLate *early_late,
+			 float delay)
 {
   delays_[early_late->index()].setValue(tr, min_max, delay);
 }
@@ -73,11 +76,8 @@ ClockInsertion::setDelay(const TransRiseFall *tr,
 void
 ClockInsertion::setDelays(RiseFallMinMax *delays)
 {
-  EarlyLateIterator el_iter;
-  while (el_iter.hasNext()) {
-    EarlyLate *el = el_iter.next();
-    delays_[el->index()].setValues(delays);
-  }
+  for (auto el_index : EarlyLate::rangeIndex())
+    delays_[el_index].setValues(delays);
 }
 
 RiseFallMinMax *

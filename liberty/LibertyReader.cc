@@ -129,9 +129,7 @@ LibertyReader::readLibertyFile(const char *filename,
   pg_port_ = nullptr;
   have_resistance_unit_ = false;
   
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    int tr_index = tr_iter.next()->index();
+  for (auto tr_index : TransRiseFall::rangeIndex()) {
     have_input_threshold_[tr_index] = false;
     have_output_threshold_[tr_index] = false;
     have_slew_lower_threshold_[tr_index] = false;
@@ -459,9 +457,7 @@ LibertyReader::defineScalingFactorVisitors()
       ScaleFactorPvt pvt = static_cast<ScaleFactorPvt>(pvt_index);
       const char *pvt_name = scaleFactorPvtName(pvt);
       if (scaleFactorTypeRiseFallSuffix(type)) {
-	TransRiseFallIterator tr_iter;
-	while (tr_iter.hasNext()) {
-	  TransRiseFall *tr = tr_iter.next();
+	for (auto tr : TransRiseFall::range()) {
 	  const char *tr_name = (tr == TransRiseFall::rise()) ? "rise":"fall";
 	  const char *attr_name = stringPrintTmp("k_%s_%s_%s",
 						 pvt_name,
@@ -471,9 +467,7 @@ LibertyReader::defineScalingFactorVisitors()
 	}
       }
       else if (scaleFactorTypeRiseFallPrefix(type)) {
-	TransRiseFallIterator tr_iter;
-	while (tr_iter.hasNext()) {
-	  TransRiseFall *tr = tr_iter.next();
+	for (auto tr : TransRiseFall::range()) {
 	  const char *tr_name = (tr == TransRiseFall::rise()) ? "rise":"fall";
 	  const char *attr_name = stringPrintTmp("k_%s_%s_%s",
 						 pvt_name,
@@ -483,9 +477,7 @@ LibertyReader::defineScalingFactorVisitors()
 	}
       }
       else if (scaleFactorTypeLowHighSuffix(type)) {
-	TransRiseFallIterator tr_iter;
-	while (tr_iter.hasNext()) {
-	  TransRiseFall *tr = tr_iter.next();
+	for (auto tr : TransRiseFall::range()) {
 	  const char *tr_name = (tr == TransRiseFall::rise()) ? "high":"low";
 	  const char *attr_name = stringPrintTmp("k_%s_%s_%s",
 						 pvt_name,
@@ -617,9 +609,7 @@ LibertyReader::endLibraryAttrs(LibertyGroup *group)
   }
 
   bool missing_threshold = false;
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
+  for (auto tr : TransRiseFall::range()) {
     int tr_index = tr->index();
     if (!have_input_threshold_[tr_index]) {
       libWarn(group, "input_threshold_pct_%s not found.\n", tr->name());
@@ -2185,9 +2175,7 @@ TimingGroup::makeTimingModels(LibertyLibrary *library,
 void
 TimingGroup::makeLinearModels(LibertyLibrary *library)
 {
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
+  for (auto tr : TransRiseFall::range()) {
     int tr_index = tr->index();
     float intr = intrinsic_[tr_index];
     bool intr_exists = intrinsic_exists_[tr_index];
@@ -2216,9 +2204,7 @@ TimingGroup::makeLinearModels(LibertyLibrary *library)
 void
 TimingGroup::makeTableModels(LibertyReader *visitor)
 {
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
+  for (auto tr : TransRiseFall::range()) {
     int tr_index = tr->index();
     TableModel *cell = cell_[tr_index];
     TableModel *constraint = constraint_[tr_index];
@@ -2644,12 +2630,8 @@ LibertyReader::endPorts()
 void
 LibertyReader::setPortCapDefault(LibertyPort *port)
 {
-  MinMaxIterator min_max_iter;
-  while (min_max_iter.hasNext()) {
-    MinMax *min_max = min_max_iter.next();
-    TransRiseFallIterator tr_iter;
-    while (tr_iter.hasNext()) {
-      TransRiseFall *tr = tr_iter.next();
+  for (auto min_max : MinMax::range()) {
+    for (auto tr : TransRiseFall::range()) {
       float cap;
       bool exists;
       port->capacitance(tr, min_max, cap, exists);
@@ -3462,9 +3444,7 @@ LibertyReader::endTiming(LibertyGroup *)
 {
   if (timing_) {
     // Set scale factor type in constraint tables.
-    TransRiseFallIterator tr_iter;
-    while (tr_iter.hasNext()) {
-      TransRiseFall *tr = tr_iter.next();
+    for (auto tr : TransRiseFall::range()) {
       TableModel *model = timing_->constraint(tr);
       if (model) {
 	ScaleFactorType type=timingTypeScaleFactorType(timing_->timingType());
@@ -4623,12 +4603,8 @@ void
 LibertyReader::endOcvDerateFactors(LibertyGroup *)
 {
   if (ocv_derate_) {
-    EarlyLateIterator el_iter(derate_type_);
-    while (el_iter.hasNext()) {
-      EarlyLate *early_late = el_iter.next();
-      TransRiseFallIterator tr_iter(rf_type_);
-      while (tr_iter.hasNext()) {
-	TransRiseFall *tr = tr_iter.next();
+    for (auto early_late : derate_type_->range()) {
+      for (auto tr : rf_type_->range()) {
 	if (path_type_ == PathType::clk_and_data) {
 	  ocv_derate_->setDerateTable(tr, early_late, PathType::clk, table_);
 	  ocv_derate_->setDerateTable(tr, early_late, PathType::data, table_);
@@ -5011,10 +4987,7 @@ TimingGroup::TimingGroup(int line) :
   RelatedPortGroup(line),
   related_output_port_name_(nullptr)
 {
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    int tr_index = tr->index();
+  for (auto tr_index : TransRiseFall::rangeIndex()) {
     cell_[tr_index] = nullptr;
     constraint_[tr_index] = nullptr;
     transition_[tr_index] = nullptr;
@@ -5023,10 +4996,7 @@ TimingGroup::TimingGroup(int line) :
     resistance_[tr_index] = 0.0F;
     resistance_exists_[tr_index] = false;
 
-    MinMaxIterator el_iter;
-    while (el_iter.hasNext()) {
-      EarlyLate *early_late = el_iter.next();
-      int el_index = early_late->index();
+    for (auto el_index : EarlyLate::rangeIndex()) {
       delay_sigma_[tr_index][el_index] = nullptr;
       slew_sigma_[tr_index][el_index] = nullptr;
       constraint_sigma_[tr_index][el_index] = nullptr;

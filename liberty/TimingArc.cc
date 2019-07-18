@@ -188,10 +188,7 @@ TimingArcSet::init(LibertyCell *cell)
   if (cell)
     index_ = cell->addTimingArcSet(this);
 
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    int tr_index = tr->index();
+  for (auto tr_index : TransRiseFall::rangeIndex()) {
     from_arc1_[tr_index] = nullptr;
     from_arc2_[tr_index] = nullptr;
   }

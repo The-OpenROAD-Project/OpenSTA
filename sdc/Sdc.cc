@@ -328,10 +328,8 @@ Sdc::deleteInstancePvts()
   // Multiple instances can share a pvt, so put them in a set
   // so they are only deleted once.
   PvtSet pvts;
-  MinMaxIterator mm_iter;
-  while (mm_iter.hasNext()) {
-    MinMax *mm = mm_iter.next();
-    InstancePvtMap *pvt_map = instance_pvt_maps_[mm->index()];
+  for (auto mm_index : MinMax::rangeIndex()) {
+    InstancePvtMap *pvt_map = instance_pvt_maps_[mm_index];
     InstancePvtMap::Iterator pvt_iter(pvt_map);
     while (pvt_iter.hasNext()) {
       Pvt *pvt = pvt_iter.next();
@@ -416,11 +414,8 @@ Sdc::removeLibertyAnnotations()
 void
 Sdc::initInstancePvtMaps()
 {
-  MinMaxIterator mm_iter;
-  while (mm_iter.hasNext()) {
-    MinMax *mm = mm_iter.next();
-    instance_pvt_maps_[mm->index()] = nullptr;
-  }
+  for (auto mm_index : MinMax::rangeIndex())
+    instance_pvt_maps_[mm_index] = nullptr;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -516,12 +511,8 @@ void
 Sdc::setOperatingConditions(OperatingConditions *op_cond,
 			    const MinMaxAll *min_max)
 {
-  MinMaxIterator mm_iter(min_max);
-  while (mm_iter.hasNext()) {
-    MinMax *mm = mm_iter.next();
-    int mm_index = mm->index();
+  for (auto mm_index : min_max->rangeIndex())
     operating_conditions_[mm_index] = op_cond;
-  }
 }
 
 void
@@ -555,9 +546,7 @@ Sdc::setPvt(Instance *inst, const
 	    MinMaxAll *min_max,
 	    Pvt *pvt)
 {
-  MinMaxIterator mm_iter(min_max);
-  while (mm_iter.hasNext()) {
-    int mm_index = mm_iter.next()->index();
+  for (auto mm_index : min_max->rangeIndex()) {
     InstancePvtMap *pvt_map = instance_pvt_maps_[mm_index];
     if (pvt_map == nullptr) {
       pvt_map = new InstancePvtMap;
@@ -2691,11 +2680,8 @@ void
 Sdc::setMinPulseWidth(const TransRiseFallBoth *tr,
 		      float min_width)
 {
-  TransRiseFallIterator tr_iter(tr);
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    min_pulse_width_.setValue(tr, min_width);
-  }
+  for (auto tr1 : tr->range())
+    min_pulse_width_.setValue(tr1, min_width);
 }
 
 void
@@ -2708,11 +2694,8 @@ Sdc::setMinPulseWidth(const Pin *pin,
     widths = new RiseFallValues;
     pin_min_pulse_width_map_[pin] = widths;
   }
-  TransRiseFallIterator tr_iter(tr);
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    widths->setValue(tr, min_width);
-  }
+  for (auto tr1 : tr->range())
+    widths->setValue(tr1, min_width);
 }
 
 void
@@ -2725,11 +2708,8 @@ Sdc::setMinPulseWidth(const Instance *inst,
     widths = new RiseFallValues;
     inst_min_pulse_width_map_[inst] = widths;
   }
-  TransRiseFallIterator tr_iter(tr);
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    widths->setValue(tr, min_width);
-  }
+  for (auto tr1 : tr->range())
+    widths->setValue(tr1, min_width);
 }
 
 void
@@ -2742,11 +2722,8 @@ Sdc::setMinPulseWidth(const Clock *clk,
     widths = new RiseFallValues;
     clk_min_pulse_width_map_[clk] = widths;
   }
-  TransRiseFallIterator tr_iter(tr);
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    widths->setValue(tr, min_width);
-  }
+  for (auto tr1 : tr->range())
+    widths->setValue(tr1, min_width);
 }
 
 void
@@ -5905,11 +5882,8 @@ void
 Sdc::setWireload(Wireload *wireload,
 		 const MinMaxAll *min_max)
 {
-  MinMaxIterator mm_iter(min_max);
-  while (mm_iter.hasNext()) {
-    MinMax *mm = mm_iter.next();
-    wireload_[mm->index()] = wireload;
-  }
+  for (auto mm_index : min_max->rangeIndex())
+    wireload_[mm_index] = wireload;
 }
 
 void
@@ -5946,11 +5920,8 @@ void
 Sdc::setWireloadSelection(WireloadSelection *selection,
 			  const MinMaxAll *min_max)
 {
-  MinMaxIterator mm_iter(min_max);
-  while (mm_iter.hasNext()) {
-    MinMax *mm = mm_iter.next();
-    wireload_selection_[mm->index()] = selection;
-  }
+  for (auto mm_index : min_max->rangeIndex())
+    wireload_selection_[mm_index] = selection;
 }
 
 ////////////////////////////////////////////////////////////////

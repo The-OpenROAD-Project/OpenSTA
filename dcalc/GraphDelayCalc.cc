@@ -148,9 +148,7 @@ GraphDelayCalc::minPeriod(const Pin *pin,
 {
   exists = false;
   const MinMax *min_max = MinMax::max();
-  DcalcAnalysisPtIterator dcalc_ap_iter(this);
-  while (dcalc_ap_iter.hasNext()) {
-    DcalcAnalysisPt *dcalc_ap = dcalc_ap_iter.next();
+  for (auto dcalc_ap : corners_->dcalcAnalysisPts()) {
     // Sdf annotation.
     float min_period1 = 0.0;
     bool exists1 = false;

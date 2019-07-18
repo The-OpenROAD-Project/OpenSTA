@@ -94,10 +94,7 @@ LibertyLibrary::LibertyLibrary(const char *name,
     addTableTemplate(scalar_template, type);
   }
 
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    int tr_index = tr->index();
+  for (auto tr_index : TransRiseFall::rangeIndex()) {
     wire_slew_degradation_tbls_[tr_index] = nullptr;
     input_threshold_[tr_index] = input_threshold_default_;
     output_threshold_[tr_index] = output_threshold_default_;
@@ -114,10 +111,7 @@ LibertyLibrary::~LibertyLibrary()
   scale_factors_map_.deleteContents();
   delete scale_factors_;
 
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    int tr_index = tr->index();
+  for (auto tr_index : TransRiseFall::rangeIndex()) {
     TableModel *model = wire_slew_degradation_tbls_[tr_index];
     delete model;
   }
@@ -2569,10 +2563,7 @@ ScaleFactors::ScaleFactors(const char *name) :
 {
   for (int type = 0; type < scale_factor_type_count; type++) {
     for (int pvt = 0; pvt < int(ScaleFactorPvt::count); pvt++) {
-      TransRiseFallIterator tr_iter;
-      while (tr_iter.hasNext()) {
-	TransRiseFall *tr = tr_iter.next();
-	int tr_index = tr->index();
+      for (auto tr_index : TransRiseFall::rangeIndex()) {
 	scales_[type][pvt][tr_index] = 0.0;
       }
     }
@@ -2637,7 +2628,6 @@ ScaleFactors::print()
     ScaleFactorType type = (ScaleFactorType) type_index;
     printf("%10s ", scaleFactorTypeName(type));
     for (int pvt_index = 0; pvt_index < int(ScaleFactorPvt::count); pvt_index++) {
-      TransRiseFallIterator tr_iter;
       if (scaleFactorTypeRiseFallSuffix(type)
 	  || scaleFactorTypeRiseFallPrefix(type)
 	  || scaleFactorTypeLowHighSuffix(type)) {
@@ -2711,14 +2701,8 @@ TestCell::setScanOutInv(LibertyPort *port)
 OcvDerate::OcvDerate(const char *name) :
   name_(name)
 {
-  EarlyLateIterator el_iter;
-  while (el_iter.hasNext()) {
-    EarlyLate *early_late = el_iter.next();
-    int el_index = early_late->index();
-    TransRiseFallIterator tr_iter;
-    while (tr_iter.hasNext()) {
-      TransRiseFall *tr = tr_iter.next();
-      int tr_index = tr->index();
+  for (auto el_index : EarlyLate::rangeIndex()) {
+    for (auto tr_index : TransRiseFall::rangeIndex()) {
       derate_[tr_index][el_index][int(PathType::clk)] = nullptr;
       derate_[tr_index][el_index][int(PathType::data)] = nullptr;
     }
@@ -2731,14 +2715,8 @@ OcvDerate::~OcvDerate()
   // Derating table models can be shared in multiple places in derate_;
   // Collect them in a set to avoid duplicate deletes.
   Set<Table*> models;
-  EarlyLateIterator el_iter;
-  while (el_iter.hasNext()) {
-    EarlyLate *early_late = el_iter.next();
-    int el_index = early_late->index();
-    TransRiseFallIterator tr_iter;
-    while (tr_iter.hasNext()) {
-      TransRiseFall *tr = tr_iter.next();
-      int tr_index = tr->index();
+  for (auto el_index : EarlyLate::rangeIndex()) {
+    for (auto tr_index : TransRiseFall::rangeIndex()) {
       Table *derate;
       derate = derate_[tr_index][el_index][int(PathType::clk)];
       if (derate)

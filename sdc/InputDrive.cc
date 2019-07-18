@@ -21,26 +21,17 @@ namespace sta {
 
 InputDrive::InputDrive()
 {
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    MinMaxIterator mm_iter;
-    while (mm_iter.hasNext()) {
-      MinMax *mm = mm_iter.next();
-      drive_cells_[tr->index()][mm->index()] = nullptr;
-    }
+  for (auto tr_index : TransRiseFall::rangeIndex()) {
+    for (auto mm_index : MinMax::rangeIndex())
+      drive_cells_[tr_index][mm_index] = nullptr;
   }
 }
 
 InputDrive::~InputDrive()
 {
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    MinMaxIterator mm_iter;
-    while (mm_iter.hasNext()) {
-      MinMax *mm = mm_iter.next();
-      InputDriveCell *drive_cell = drive_cells_[tr->index()][mm->index()];
+  for (auto tr_index : TransRiseFall::rangeIndex()) {
+    for (auto mm_index : MinMax::rangeIndex()) {
+      InputDriveCell *drive_cell = drive_cells_[tr_index][mm_index];
       delete drive_cell;
     }
   }
@@ -96,14 +87,8 @@ InputDrive::setDriveCell(LibertyLibrary *library,
 			 const TransRiseFallBoth *tr,
 			 const MinMaxAll *min_max)
 {
-  TransRiseFallIterator tr_iter(tr);
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    int tr_index = tr->index();
-    MinMaxIterator mm_iter(min_max);
-    while (mm_iter.hasNext()) {
-      MinMax *mm = mm_iter.next();
-      int mm_index = mm->index();
+  for (auto tr_index : tr->rangeIndex()) {
+    for (auto mm_index : min_max->rangeIndex()) {
       InputDriveCell *drive = drive_cells_[tr_index][mm_index];
       if (drive) {
 	drive->setLibrary(library);
@@ -221,12 +206,8 @@ InputDriveCell::setToPort(LibertyPort *to_port)
 void
 InputDriveCell::setFromSlews(float *from_slews)
 {
-  TransRiseFallIterator from_tr_iter;
-  while (from_tr_iter.hasNext()) {
-    TransRiseFall *from_tr = from_tr_iter.next();
-    int from_index = from_tr->index();
-    from_slews_[from_index] = from_slews[from_index];
-  }
+  for (auto tr_index : TransRiseFall::rangeIndex())
+    from_slews_[tr_index] = from_slews[tr_index];
 }
 
 bool

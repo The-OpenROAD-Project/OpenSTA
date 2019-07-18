@@ -68,6 +68,11 @@ public:
   PathAnalysisPt *findPathAnalysisPt(PathAPIndex path_index) const;
   PathAnalysisPtSeq &pathAnalysisPts();
   const PathAnalysisPtSeq &pathAnalysisPts() const;
+  CornerSeq &corners() { return corners_; }
+  // Iterators for range iteration.
+  // for (auto corner : *sta->corners()) {}
+  CornerSeq::iterator begin() { return corners_.begin(); }
+  CornerSeq::iterator end() { return corners_.end(); }
 
 protected:
   void makeAnalysisPts();
@@ -81,7 +86,6 @@ protected:
 			   bool swap_clk_min_max,
 			   DcalcAnalysisPt *dcalc_ap_min,
 			   DcalcAnalysisPt *dcalc_ap_max);
-  CornerSeq &corners() { return corners_; }
 
 private:
   CornerMap corner_map_;
@@ -90,7 +94,6 @@ private:
   DcalcAnalysisPtSeq dcalc_analysis_pts_;
   PathAnalysisPtSeq path_analysis_pts_;
 
-  friend class CornerIterator;
   DISALLOW_COPY_AND_ASSIGN(Corners);
 };
 
@@ -130,6 +133,8 @@ private:
   DISALLOW_COPY_AND_ASSIGN(Corner);
 };
 
+// Obsolete. Use range iterator.
+// for (auto corner : *sta->corners()) {}
 class CornerIterator : public Iterator<Corner*>
 {
 public:
@@ -145,21 +150,8 @@ private:
   DISALLOW_COPY_AND_ASSIGN(CornerIterator);
 };
 
-class ParasiticAnalysisPtIterator : public Iterator<ParasiticAnalysisPt*>
-{
-public:
-  explicit ParasiticAnalysisPtIterator(const StaState *sta);
-  virtual ~ParasiticAnalysisPtIterator() {}
-  virtual bool hasNext();
-  virtual ParasiticAnalysisPt *next();
-
-protected:
-  ParasiticAnalysisPtSeq::ConstIterator ap_iter_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(ParasiticAnalysisPtIterator);
-};
-
+// Obsolete. Use range iterator.
+// for (auto dcalc_ap : sta->corners()->dcalcAnalysisPts()) {}
 class DcalcAnalysisPtIterator : public Iterator<DcalcAnalysisPt*>
 {
 public:
@@ -175,6 +167,8 @@ private:
   DISALLOW_COPY_AND_ASSIGN(DcalcAnalysisPtIterator);
 };
 
+// Obsolete. Use range iterator.
+// for (auto path_ap : sta->corners()->pathAnalysisPts()) {}
 class PathAnalysisPtIterator : public Iterator<PathAnalysisPt*>
 {
 public:

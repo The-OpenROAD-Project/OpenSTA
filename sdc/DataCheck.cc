@@ -47,12 +47,8 @@ DataCheck::setMargin(const TransRiseFallBoth *from_tr,
 		     const SetupHoldAll *setup_hold,
 		     float margin)
 {
-  TransRiseFallIterator from_tr_iter(from_tr);
-  while (from_tr_iter.hasNext()) {
-    TransRiseFall *from_tr1 = from_tr_iter.next();
-    int from_tr_index = from_tr1->index();
+  for (auto from_tr_index : from_tr->rangeIndex())
     margins_[from_tr_index].setValue(to_tr, setup_hold, margin);
-  }
 }
 
 void
@@ -60,22 +56,15 @@ DataCheck::removeMargin(const TransRiseFallBoth *from_tr,
 			const TransRiseFallBoth *to_tr,
 			const SetupHoldAll *setup_hold)
 {
-  TransRiseFallIterator from_tr_iter(from_tr);
-  while (from_tr_iter.hasNext()) {
-    TransRiseFall *from_tr1 = from_tr_iter.next();
-    int from_tr_index = from_tr1->index();
+  for (auto from_tr_index : from_tr->rangeIndex())
     margins_[from_tr_index].removeValue(to_tr, setup_hold);
-  }
 }
 
 bool
 DataCheck::empty() const
 {
-  TransRiseFallIterator from_tr_iter;
-  while (from_tr_iter.hasNext()) {
-    TransRiseFall *from_tr1 = from_tr_iter.next();
-    int from_tr_index = from_tr1->index();
-    if (!margins_[from_tr_index].empty())
+  for (auto tr_index : TransRiseFall::rangeIndex()) {
+    if (!margins_[tr_index].empty())
       return false;
   }
   return true;

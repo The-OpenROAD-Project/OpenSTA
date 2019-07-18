@@ -42,9 +42,7 @@ WorstSlacks::worstSlack(const MinMax *min_max,
 {
   worst_slack = MinMax::min()->initValue();
   worst_vertex = nullptr;
-  CornerIterator corner_iter(sta_);
-  while (corner_iter.hasNext()) {
-    Corner *corner = corner_iter.next();
+  for (auto corner : *sta_->corners()) {
     PathAPIndex path_ap_index = corner->findPathAnalysisPt(min_max)->index();
     Slack worst_slack1;
     Vertex *worst_vertex1;

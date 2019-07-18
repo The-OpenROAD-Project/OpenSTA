@@ -5718,9 +5718,7 @@ arrivals_clk(const TransRiseFall *tr,
   const ClockEdge *clk_edge = nullptr;
   if (clk)
     clk_edge = clk->edge(clk_tr);
-  PathAnalysisPtIterator ap_iter(sta);
-  while (ap_iter.hasNext()) {
-    PathAnalysisPt *path_ap = ap_iter.next();
+  for (auto path_ap : sta->corners()->pathAnalysisPts()) {
     floats->push_back(delayAsFloat(sta->vertexArrival(self, tr, clk_edge,
 						      path_ap)));
   }
@@ -5738,9 +5736,7 @@ arrivals_clk_delays(const TransRiseFall *tr,
   const ClockEdge *clk_edge = nullptr;
   if (clk)
     clk_edge = clk->edge(clk_tr);
-  PathAnalysisPtIterator ap_iter(sta);
-  while (ap_iter.hasNext()) {
-    PathAnalysisPt *path_ap = ap_iter.next();
+  for (auto path_ap : sta->corners()->pathAnalysisPts()) {
     arrivals->push_back(delayAsString(sta->vertexArrival(self, tr, clk_edge,
 							 path_ap),
 				      sta, digits));
@@ -5758,9 +5754,7 @@ requireds_clk(const TransRiseFall *tr,
   const ClockEdge *clk_edge = nullptr;
   if (clk)
     clk_edge = clk->edge(clk_tr);
-  PathAnalysisPtIterator ap_iter(sta);
-  while (ap_iter.hasNext()) {
-    PathAnalysisPt *path_ap = ap_iter.next();
+  for (auto path_ap : sta->corners()->pathAnalysisPts()) {
     floats->push_back(delayAsFloat(sta->vertexRequired(self, tr, clk_edge,
 						       path_ap)));
   }
@@ -5778,9 +5772,7 @@ requireds_clk_delays(const TransRiseFall *tr,
   const ClockEdge *clk_edge = nullptr;
   if (clk)
     clk_edge = clk->edge(clk_tr);
-  PathAnalysisPtIterator ap_iter(sta);
-  while (ap_iter.hasNext()) {
-    PathAnalysisPt *path_ap = ap_iter.next();
+  for (auto path_ap : sta->corners()->pathAnalysisPts()) {
     requireds->push_back(delayAsString(sta->vertexRequired(self, tr, clk_edge,
 							   path_ap),
 				       sta, digits));
@@ -5793,9 +5785,7 @@ slacks(TransRiseFall *tr)
 {
   Sta *sta = Sta::sta();
   TmpFloatSeq *floats = new FloatSeq;
-  PathAnalysisPtIterator ap_iter(sta);
-  while (ap_iter.hasNext()) {
-    PathAnalysisPt *path_ap = ap_iter.next();
+  for (auto path_ap : sta->corners()->pathAnalysisPts()) {
     floats->push_back(delayAsFloat(sta->vertexSlack(self, tr, path_ap)));
   }
   return floats;
@@ -5812,9 +5802,7 @@ slacks_clk(const TransRiseFall *tr,
   const ClockEdge *clk_edge = nullptr;
   if (clk)
     clk_edge = clk->edge(clk_tr);
-  PathAnalysisPtIterator ap_iter(sta);
-  while (ap_iter.hasNext()) {
-    PathAnalysisPt *path_ap = ap_iter.next();
+  for (auto path_ap : sta->corners()->pathAnalysisPts()) {
     floats->push_back(delayAsFloat(sta->vertexSlack(self, tr, clk_edge,
 						    path_ap)));
   }
@@ -5832,9 +5820,7 @@ slacks_clk_delays(const TransRiseFall *tr,
   const ClockEdge *clk_edge = nullptr;
   if (clk)
     clk_edge = clk->edge(clk_tr);
-  PathAnalysisPtIterator ap_iter(sta);
-  while (ap_iter.hasNext()) {
-    PathAnalysisPt *path_ap = ap_iter.next();
+  for (auto path_ap : sta->corners()->pathAnalysisPts()) {
     slacks->push_back(delayAsString(sta->vertexSlack(self, tr, clk_edge,
 						     path_ap),
 				    sta, digits));

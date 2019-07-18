@@ -140,14 +140,10 @@ MultiDrvrNet::findDelaysSlews(ArcDelayCalc *arc_delay_calc,
   int count = TransRiseFall::index_count * corners->dcalcAnalysisPtCount();
   parallel_delays_ = new ArcDelay[count];
   parallel_slews_ = new Slew[count];
-  DcalcAnalysisPtIterator ap_iter(dcalc);
-  while (ap_iter.hasNext()) {
-    DcalcAnalysisPt *dcalc_ap = ap_iter.next();
+  for (auto dcalc_ap : corners->dcalcAnalysisPts()) {
     DcalcAPIndex ap_index = dcalc_ap->index();
     const Pvt *pvt = dcalc_ap->operatingConditions();
-    TransRiseFallIterator drvr_tr_iter;
-    while (drvr_tr_iter.hasNext()) {
-      TransRiseFall *drvr_tr = drvr_tr_iter.next();
+    for (auto drvr_tr : TransRiseFall::range()) {
       int drvr_tr_index = drvr_tr->index();
       int index = ap_index*TransRiseFall::index_count+drvr_tr_index;
       dcalc->findMultiDrvrGateDelay(this, drvr_tr, pvt, dcalc_ap,
@@ -184,16 +180,12 @@ MultiDrvrNet::findCaps(const GraphDelayCalc1 *dcalc,
   int count = TransRiseFall::index_count * corners->dcalcAnalysisPtCount();
   net_caps_ = new NetCaps[count];
   const Pin *drvr_pin = dcalc_drvr_->pin();
-  DcalcAnalysisPtIterator ap_iter(dcalc);
-  while (ap_iter.hasNext()) {
-    DcalcAnalysisPt *dcalc_ap = ap_iter.next();
+  for (auto dcalc_ap : corners->dcalcAnalysisPts()) {
     DcalcAPIndex ap_index = dcalc_ap->index();
     const Corner *corner = dcalc_ap->corner();
     const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
     const MinMax *min_max = dcalc_ap->constraintMinMax();
-    TransRiseFallIterator drvr_tr_iter;
-    while (drvr_tr_iter.hasNext()) {
-      TransRiseFall *drvr_tr = drvr_tr_iter.next();
+    for (auto drvr_tr : TransRiseFall::range()) {
       int drvr_tr_index = drvr_tr->index();
       int index = ap_index * TransRiseFall::index_count + drvr_tr_index;
       NetCaps &net_caps = net_caps_[index];
@@ -201,7 +193,7 @@ MultiDrvrNet::findCaps(const GraphDelayCalc1 *dcalc,
       bool has_set_load;
       // Find pin and external pin/wire capacitance.
       sdc->connectedCap(drvr_pin, drvr_tr, op_cond, corner, min_max,
-				pin_cap, wire_cap, fanout, has_set_load);
+			pin_cap, wire_cap, fanout, has_set_load);
       net_caps.init(pin_cap, wire_cap, fanout, has_set_load);
     }
   }
@@ -593,12 +585,8 @@ GraphDelayCalc1::seedDrvrSlew(Vertex *drvr_vertex,
     Port *port = network_->port(drvr_pin);
     drive = sdc_->findInputDrive(port);
   }
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    DcalcAnalysisPtIterator ap_iter(this);
-    while (ap_iter.hasNext()) {
-      DcalcAnalysisPt *dcalc_ap = ap_iter.next();
+  for (auto tr : TransRiseFall::range()) {
+    for (auto dcalc_ap : corners_->dcalcAnalysisPts()) {
       if (drive) {
 	const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();
 	LibertyCell *drvr_cell;
@@ -697,12 +685,8 @@ GraphDelayCalc1::seedLoadSlew(Vertex *vertex)
 	      vertex->name(sdc_network_));
   ClockSet *clks = sdc_->findVertexPinClocks(pin);
   initSlew(vertex);
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    const TransRiseFall *tr = tr_iter.next();
-    DcalcAnalysisPtIterator ap_iter(this);
-    while (ap_iter.hasNext()) {
-      DcalcAnalysisPt *dcalc_ap = ap_iter.next();
+  for (auto tr : TransRiseFall::range()) {
+    for (auto dcalc_ap : corners_->dcalcAnalysisPts()) {
       const MinMax *slew_min_max = dcalc_ap->slewMinMax();
       if (!vertex->slewAnnotated(tr, slew_min_max)) {
 	float slew = 0.0;
@@ -956,14 +940,10 @@ GraphDelayCalc1::findDriverDelays1(Vertex *drvr_vertex,
 void
 GraphDelayCalc1::initRootSlews(Vertex *vertex)
 {
-  DcalcAnalysisPtIterator ap_iter(this);
-  while (ap_iter.hasNext()) {
-    DcalcAnalysisPt *dcalc_ap = ap_iter.next();
+  for (auto dcalc_ap : corners_->dcalcAnalysisPts()) {
     const MinMax *slew_min_max = dcalc_ap->slewMinMax();
     DcalcAPIndex ap_index = dcalc_ap->index();
-    TransRiseFallIterator tr_iter;
-    while (tr_iter.hasNext()) {
-      TransRiseFall *tr = tr_iter.next();
+    for (auto tr : TransRiseFall::range()) {
       if (!vertex->slewAnnotated(tr, slew_min_max))
 	graph_->setSlew(vertex, tr, ap_index, default_slew);
     }
@@ -986,9 +966,7 @@ GraphDelayCalc1::findDriverEdgeDelays(LibertyCell *drvr_cell,
   bool delay_changed = false;
   if (related_out_port)
     related_out_pin = network_->findPin(drvr_inst, related_out_port);
-  DcalcAnalysisPtIterator ap_iter(this);
-  while (ap_iter.hasNext()) {
-    DcalcAnalysisPt *dcalc_ap = ap_iter.next();
+  for (auto dcalc_ap : corners_->dcalcAnalysisPts()) {
     const Pvt *pvt = sdc_->pvt(drvr_inst, dcalc_ap->constraintMinMax());
     if (pvt == nullptr)
       pvt = dcalc_ap->operatingConditions();
@@ -1027,9 +1005,7 @@ GraphDelayCalc1::loadCap(const Pin *drvr_pin,
 {
   const MinMax *min_max = dcalc_ap->constraintMinMax();
   float load_cap = 0.0;
-  TransRiseFallIterator drvr_tr_iter;
-  while (drvr_tr_iter.hasNext()) {
-    TransRiseFall *drvr_tr = drvr_tr_iter.next();
+  for (auto drvr_tr : TransRiseFall::range()) {
     Parasitic *drvr_parasitic = arc_delay_calc_->findParasitic(drvr_pin, drvr_tr,
 							       dcalc_ap);
     float cap = loadCap(drvr_pin, nullptr, drvr_parasitic, drvr_tr, dcalc_ap);
@@ -1151,12 +1127,8 @@ GraphDelayCalc1::netCaps(const Pin *drvr_pin,
 void
 GraphDelayCalc1::initSlew(Vertex *vertex)
 {
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    DcalcAnalysisPtIterator ap_iter(this);
-    while (ap_iter.hasNext()) {
-      DcalcAnalysisPt *dcalc_ap = ap_iter.next();
+  for (auto tr : TransRiseFall::range()) {
+    for (auto dcalc_ap : corners_->dcalcAnalysisPts()) {
       const MinMax *slew_min_max = dcalc_ap->slewMinMax();
       if (!vertex->slewAnnotated(tr, slew_min_max)) {
 	DcalcAPIndex ap_index = dcalc_ap->index();
@@ -1176,17 +1148,13 @@ GraphDelayCalc1::initWireDelays(Vertex *drvr_vertex,
     Edge *wire_edge = edge_iter.next();
     if (wire_edge->isWire()) {
       Vertex *load_vertex = wire_edge->to(graph_);
-      DcalcAnalysisPtIterator ap_iter(this);
-      while (ap_iter.hasNext()) {
-	DcalcAnalysisPt *dcalc_ap = ap_iter.next();
+      for (auto dcalc_ap : corners_->dcalcAnalysisPts()) {
 	const MinMax *delay_min_max = dcalc_ap->delayMinMax();
 	const MinMax *slew_min_max = dcalc_ap->slewMinMax();
 	Delay delay_init_value(delay_min_max->initValue());
 	Slew slew_init_value(slew_min_max->initValue());
 	DcalcAPIndex ap_index = dcalc_ap->index();
-	TransRiseFallIterator tr_iter;
-	while (tr_iter.hasNext()) {
-	  TransRiseFall *tr = tr_iter.next();
+	for (auto tr : TransRiseFall::range()) {
 	  if (!graph_->wireDelayAnnotated(wire_edge, tr, ap_index))
 	    graph_->setWireArcDelay(wire_edge, tr, ap_index, delay_init_value);
 	  // Init load vertex slew.
@@ -1541,9 +1509,7 @@ GraphDelayCalc1::findCheckEdgeDelays(Edge *edge,
       const Pin *related_out_pin = 0;
       if (related_out_port)
 	related_out_pin = network_->findPin(inst, related_out_port);
-      DcalcAnalysisPtIterator ap_iter(this);
-      while (ap_iter.hasNext()) {
-	DcalcAnalysisPt *dcalc_ap = ap_iter.next();
+      for (auto dcalc_ap : corners_->dcalcAnalysisPts()) {
 	DcalcAPIndex ap_index = dcalc_ap->index();
 	if (!graph_->arcDelayAnnotated(edge, arc, ap_index)) {
 	  const Pvt *pvt = sdc_->pvt(inst,dcalc_ap->constraintMinMax());

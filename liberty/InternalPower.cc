@@ -36,10 +36,7 @@ InternalPowerAttrs::~InternalPowerAttrs()
 void
 InternalPowerAttrs::deleteContents()
 {
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
-    int tr_index = tr->index();
+  for (auto tr_index : TransRiseFall::rangeIndex()) {
     InternalPowerModel *model = models_[tr_index];
     if (model)
       delete model;
@@ -80,9 +77,7 @@ InternalPower::InternalPower(LibertyCell *cell,
   when_(attrs->when()),
   related_pg_pin_(attrs->relatedPgPin())
 {
-  TransRiseFallIterator tr_iter;
-  while (tr_iter.hasNext()) {
-    TransRiseFall *tr = tr_iter.next();
+  for (auto tr : TransRiseFall::range()) {
     int tr_index = tr->index();
     models_[tr_index] = attrs->model(tr);
   }

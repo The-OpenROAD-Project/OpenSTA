@@ -687,15 +687,9 @@ writeInterClockUncertainty(InterClockUncertainty *uncertainty) const
     fprintf(stream_, "\n");
   }
   else {
-    TransRiseFallIterator src_tr_iter;
-    while (src_tr_iter.hasNext()) {
-      const TransRiseFall *src_tr = src_tr_iter.next();
-      TransRiseFallIterator tgt_tr_iter;
-      while (tgt_tr_iter.hasNext()) {
-	const TransRiseFall *tgt_tr = tgt_tr_iter.next();
-	MinMaxIterator sh_iter;
-	while (sh_iter.hasNext()) {
-	  const SetupHold *setup_hold = sh_iter.next();
+    for (auto src_tr : TransRiseFall::range()) {
+      for (auto tgt_tr : TransRiseFall::range()) {
+	for (auto setup_hold : SetupHold::range()) {
 	  float value;
 	  bool exists;
 	  sdc_->clockUncertainty(src_clk, src_tr, tgt_clk, tgt_tr,
@@ -1500,9 +1494,7 @@ WriteSdc::writeDataChecks() const
 void
 WriteSdc::writeDataCheck(DataCheck *check) const
 {
-  MinMaxIterator mm_iter;
-  while (mm_iter.hasNext()) {
-    SetupHold *setup_hold = mm_iter.next();
+  for (auto setup_hold : SetupHold::range()) {
     float margin;
     bool one_value;
     check->marginIsOneValue(setup_hold, margin, one_value);
@@ -1510,12 +1502,8 @@ WriteSdc::writeDataCheck(DataCheck *check) const
       writeDataCheck(check, TransRiseFallBoth::riseFall(),
 		     TransRiseFallBoth::riseFall(), setup_hold, margin);
     else {
-      TransRiseFallIterator from_tr_iter;
-      while (from_tr_iter.hasNext()) {
-	TransRiseFall *from_tr = from_tr_iter.next();
-	TransRiseFallIterator to_tr_iter;
-	while (to_tr_iter.hasNext()) {
-	  TransRiseFall *to_tr = to_tr_iter.next();
+      for (auto from_tr : TransRiseFall::range()) {
+	for (auto to_tr : TransRiseFall::range()) {
 	  float margin;
 	  bool margin_exists;
 	  check->margin(from_tr, to_tr, setup_hold, margin, margin_exists);
@@ -1627,9 +1615,7 @@ WriteSdc::writeDriveResistances() const
     Port *port = port_iter->next();
     InputDrive *drive = sdc_->findInputDrive(port);
     if (drive) {
-      TransRiseFallIterator tr_iter;
-      while (tr_iter.hasNext()) {
-	const TransRiseFall *tr = tr_iter.next();
+      for (auto tr : TransRiseFall::range()) {
 	if (drive->driveResistanceMinMaxEqual(tr)) {
 	  float res;
 	  bool exists;
@@ -1642,16 +1628,14 @@ WriteSdc::writeDriveResistances() const
 	  fprintf(stream_, "\n");
 	}
 	else {
-	  MinMaxIterator mm_iter;
-	  while (mm_iter.hasNext()) {
-	    const MinMax *mm = mm_iter.next();
+	  for (auto min_max : MinMax::range()) {
 	    float res;
 	    bool exists;
-	    drive->driveResistance(tr, mm, res, exists);
+	    drive->driveResistance(tr, min_max, res, exists);
 	    if (exists) {
 	      fprintf(stream_, "set_drive %s %s ",
 		      transRiseFallFlag(tr),
-		      minMaxFlag(mm));
+		      minMaxFlag(min_max));
 	      writeResistance(res);
 	      fprintf(stream_, " ");
 	      writeGetPort(port);
@@ -1929,9 +1913,7 @@ WriteSdc::writeDeratings() const
     DeratingFactorsNet *factors;
     net_iter.next(net, factors);
     WriteGetNet write_net(net, this);
-    MinMaxIterator mm_iter;
-    while (mm_iter.hasNext()) {
-      const MinMax *early_late = mm_iter.next();
+    for (auto early_late : EarlyLate::range()) {
       writeDerating(factors, TimingDerateType::net_delay, early_late,
 		    &write_net);
     }
@@ -1959,10 +1941,7 @@ WriteSdc::writeDeratings() const
 void
 WriteSdc::writeDerating(DeratingFactorsGlobal *factors) const
 {
-  MinMaxIterator mm_iter;
-  while (mm_iter.hasNext()) {
-    const MinMax *early_late = mm_iter.next();
-
+  for (auto early_late : EarlyLate::range()) {
     bool delay_is_one_value, check_is_one_value, net_is_one_value;
     float delay_value, check_value, net_value;
     factors->factors(TimingDerateType::cell_delay)->isOneValue(early_late,
@@ -2001,9 +1980,7 @@ void
 WriteSdc::writeDerating(DeratingFactorsCell *factors,
 			WriteSdcObject *write_obj) const
 {
-  MinMaxIterator mm_iter;
-  while (mm_iter.hasNext()) {
-    const MinMax *early_late = mm_iter.next();
+  for (auto early_late : EarlyLate::range()) {
     DeratingFactors *delay_factors=factors->factors(TimingDerateType::cell_delay);
     writeDerating(delay_factors, TimingDerateType::cell_delay, early_late, write_obj);
     DeratingFactors *check_factors=factors->factors(TimingDerateType::cell_check);
@@ -2057,10 +2034,7 @@ WriteSdc::writeDerating(DeratingFactors *factors,
 	}
       }
       else {
-	TransRiseFallIterator tr_iter;
-	while (tr_iter.hasNext()) {
-	  TransRiseFall *tr = tr_iter.next();
-	  MinMaxIterator mm_iter;
+	for (auto tr : TransRiseFall::range()) {
 	  float factor;
 	  bool exists;
 	  factors->factor(clk_data, tr, early_late, factor, exists);

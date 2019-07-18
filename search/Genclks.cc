@@ -727,14 +727,10 @@ Genclks::seedSrcPins(Clock *gclk,
     TagGroupBldr tag_bldr(true, this);
     tag_bldr.init(vertex);
     copyGenClkSrcPaths(vertex, &tag_bldr);
-    PathAnalysisPtIterator path_ap_iter(this);
-    while (path_ap_iter.hasNext()) {
-      PathAnalysisPt *path_ap = path_ap_iter.next();
+    for (auto path_ap : corners_->pathAnalysisPts()) {
       const MinMax *min_max = path_ap->pathMinMax();
       const EarlyLate *early_late = min_max;
-      TransRiseFallIterator tr_iter;
-      while (tr_iter.hasNext()) {
-	TransRiseFall *tr = tr_iter.next();
+      for (auto tr : TransRiseFall::range()) {
 	Tag *tag = makeTag(gclk, master_clk, master_pin, tr, src_filter,
 			   path_ap);
 	Arrival insert = search_->clockInsertion(master_clk, master_pin, tr,
@@ -1147,12 +1143,8 @@ Genclks::seedPllPin(const Clock *gclk,
   TagGroupBldr tag_bldr(true, this);
   tag_bldr.init(vertex);
   copyGenClkSrcPaths(vertex, &tag_bldr);
-  PathAnalysisPtIterator path_ap_iter(this);
-  while (path_ap_iter.hasNext()) {
-    PathAnalysisPt *path_ap = path_ap_iter.next();
-    TransRiseFallIterator tr_iter;
-    while (tr_iter.hasNext()) {
-      TransRiseFall *tr = tr_iter.next();
+  for (auto path_ap : corners_->pathAnalysisPts()) {
+    for (auto tr : TransRiseFall::range()) {
       Tag *tag = makeTag(gclk, gclk, pll_out_pin, tr, pll_filter, path_ap);
       tag_bldr.setArrival(tag, 0.0, nullptr);
     }

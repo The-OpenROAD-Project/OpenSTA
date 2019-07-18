@@ -39,24 +39,10 @@ compareMax(float value1,
 
 ////////////////////////////////////////////////////////////////
 
-MinMax *MinMax::min_;
-MinMax *MinMax::max_;
-
-void
-MinMax::init()
-{
-  min_ = new MinMax("min", 0,  INF, compareMin);
-  max_ = new MinMax("max", 1, -INF, compareMax);
-}
-
-void
-MinMax::destroy()
-{
-  delete min_;
-  min_ = nullptr;
-  delete max_;
-  max_ = nullptr;
-}
+MinMax MinMax::min_("min", 0,  INF, compareMin);
+MinMax MinMax::max_("max", 1, -INF, compareMax);
+const std::array<MinMax*, 2> MinMax::range_{&min_, &max_};
+const std::array<int, 2> MinMax::range_index_{min_.index(), max_.index()};
 
 MinMax::MinMax(const char *name,
 	       int index,
@@ -72,7 +58,7 @@ MinMax::MinMax(const char *name,
 MinMaxAll *
 MinMax::asMinMaxAll() const
 {
-  if (this == min_)
+  if (this == &min_)
     return MinMaxAll::min();
   else
     return MinMaxAll::max();
@@ -81,10 +67,10 @@ MinMax::asMinMaxAll() const
 MinMax *
 MinMax::opposite() const
 {
-  if (this == max_)
-    return min_;
+  if (this == &max_)
+    return &min_;
   else
-    return max_;
+    return &max_;
 }
 
 MinMax *
@@ -92,10 +78,10 @@ MinMax::find(const char *min_max)
 {
   if (stringEq(min_max, "min")
       || stringEq(min_max, "early"))
-    return min();
+    return &min_;
   else if (stringEq(min_max, "max")
 	   || stringEq(min_max, "late"))
-    return max();
+    return &max_;
   else
     return nullptr;
 }
@@ -103,10 +89,10 @@ MinMax::find(const char *min_max)
 MinMax *
 MinMax::find(int index)
 {
-  if (index == min_->index())
-    return min();
-  else if (index == max_->index())
-    return max();
+  if (index == min_.index())
+    return &min_;
+  else if (index == max_.index())
+    return &max_;
   else
     return nullptr;
 }
@@ -120,40 +106,26 @@ MinMax::compare(float value1,
 
 ////////////////////////////////////////////////////////////////
 
-MinMaxAll *MinMaxAll::min_;
-MinMaxAll *MinMaxAll::max_;
-MinMaxAll *MinMaxAll::all_;
-
-void
-MinMaxAll::init()
-{
-  min_ = new MinMaxAll("min", 0);
-  max_ = new MinMaxAll("max", 1);
-  all_ = new MinMaxAll("all", 2);
-}
-
-void
-MinMaxAll::destroy()
-{
-  delete min_;
-  min_ = nullptr;
-  delete max_;
-  max_ = nullptr;
-  delete all_;
-  all_ = nullptr;
-}
+MinMaxAll MinMaxAll::min_("min", 0, {MinMax::min()}, {MinMax::min()->index()});
+MinMaxAll MinMaxAll::max_("max", 1, {MinMax::max()}, {MinMax::max()->index()});
+MinMaxAll MinMaxAll::all_("all", 2, {MinMax::min(), MinMax::max()},
+			  {MinMax::min()->index(), MinMax::max()->index()});
 
 MinMaxAll::MinMaxAll(const char *name,
-		     int index) :
+		     int index,
+		     std::vector<MinMax*> range,
+		     std::vector<int> range_index) :
   name_(name),
-  index_(index)
+  index_(index),
+  range_(range),
+  range_index_(range_index)
 {
 }
 
 MinMax *
 MinMaxAll::asMinMax() const
 {
-  if (this == min_)
+  if (this == &min_)
     return MinMax::min();
   else
     return MinMax::max();
@@ -162,13 +134,13 @@ MinMaxAll::asMinMax() const
 bool
 MinMaxAll::matches(const MinMax *min_max) const
 {
-  return this == all_ || asMinMax() == min_max;
+  return this == &all_ || asMinMax() == min_max;
 }
 
 bool
 MinMaxAll::matches(const MinMaxAll *min_max) const
 {
-  return this == all_ || this == min_max;
+  return this == &all_ || this == min_max;
 }
 
 MinMaxAll *
@@ -176,14 +148,14 @@ MinMaxAll::find(const char *min_max)
 {
   if (stringEq(min_max, "min")
       || stringEq(min_max, "early"))
-    return min();
+    return &min_;
   else if (stringEq(min_max, "max")
 	   || stringEq(min_max, "late"))
-    return max();
+    return &max_;
   else if (stringEq(min_max, "all")
 	   || stringEq(min_max, "min_max")
 	   || stringEq(min_max, "minmax"))
-    return all_;
+    return &all_;
   else
     return nullptr;
 }

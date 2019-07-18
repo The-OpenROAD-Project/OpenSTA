@@ -124,14 +124,12 @@ Corners::makeParasiticAnalysisPtsMinMax()
     parasitics_->deleteParasitics();
     parasitic_analysis_pts_.deleteContentsClear();
     parasitic_analysis_pts_.resize(MinMax::index_count);
-    MinMaxIterator mm_iter;
-    while (mm_iter.hasNext()) {
-      MinMax *min_max = mm_iter.next();
-      int index = min_max->index();
+    for (auto min_max : MinMax::range()) {
+      int mm_index = min_max->index();
       ParasiticAnalysisPt *ap = new ParasiticAnalysisPt(min_max->asString(),
-							index,
+							mm_index,
 							min_max);
-      parasitic_analysis_pts_[index] = ap;
+      parasitic_analysis_pts_[mm_index] = ap;
     }
     updateCornerParasiticAnalysisPts();
   }
@@ -457,25 +455,6 @@ Corner *
 CornerIterator::next()
 {
   return iter_.next();
-}
-
-////////////////////////////////////////////////////////////////
-
-ParasiticAnalysisPtIterator::ParasiticAnalysisPtIterator(const StaState *sta) :
-  ap_iter_(sta->corners()->parasiticAnalysisPts())
-{
-}
-
-bool
-ParasiticAnalysisPtIterator::hasNext()
-{
-  return ap_iter_.hasNext();
-}
-
-ParasiticAnalysisPt *
-ParasiticAnalysisPtIterator::next()
-{
-  return ap_iter_.next();
 }
 
 ////////////////////////////////////////////////////////////////

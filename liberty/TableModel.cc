@@ -42,10 +42,7 @@ GateTableModel::GateTableModel(TableModel *delay_model,
   delay_model_(delay_model),
   slew_model_(slew_model)
 {
-  MinMaxIterator el_iter;
-  while (el_iter.hasNext()) {
-    EarlyLate *early_late = el_iter.next();
-    int el_index = early_late->index();
+  for (auto el_index : EarlyLate::rangeIndex()) {
     slew_sigma_models_[el_index] = slew_sigma_models[el_index];
     delay_sigma_models_[el_index] = delay_sigma_models[el_index];
   }
@@ -348,12 +345,8 @@ CheckTableModel::CheckTableModel(TableModel *model,
 				 TableModel *sigma_models[EarlyLate::index_count]) :
   model_(model)
 {
-  MinMaxIterator el_iter;
-  while (el_iter.hasNext()) {
-    EarlyLate *early_late = el_iter.next();
-    int el_index = early_late->index();
+  for (auto el_index : EarlyLate::rangeIndex())
     sigma_models_[el_index] = sigma_models[el_index];
-  }
 }
 
 CheckTableModel::~CheckTableModel()
