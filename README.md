@@ -132,8 +132,8 @@ Use the following commands to checkout the git repository and build the
 OpenSTA library and excutable.
 
 ```
-git clone https://xp-dev.com/git/opensta
-cd opensta
+git clone https://github.com/The-OpenROAD-Project/OpenSTA.git
+cd OpenSTA
 mkdir build
 cd build
 cmake ..
