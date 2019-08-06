@@ -52,10 +52,18 @@ See doc/OpenSTA.pdf for complete documentiaton.
 
 ## Getting Started
 
+### Install by package manager
+
+#### Arch Linux
+OpenSTA can be installed with your favorite aur helper. For example:
+```
+pakku -S opensta-git
+```
+
+### Run using Docker
 OpenSTA can be run as a [Docker](https://www.docker.com/) container
 or built as local executable with CMake.
 
-### Run using Docker
 * Install Docker on [Windows](https://docs.docker.com/docker-for-windows/), [Mac](https://docs.docker.com/docker-for-mac/) or [Linux](https://docs.docker.com/install/).
 * Navigate to the directory where you have the input files.
 * Run OpenSTA as a binary using
