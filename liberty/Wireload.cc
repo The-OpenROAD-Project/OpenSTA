@@ -106,38 +106,43 @@ Wireload::findWireload(float fanout,
 		       float &cap,
 		       float &res) const
 {
-  int max = static_cast<int>(fanout_lengths_.size()) - 1;
-  float fanout0 = fanout_lengths_[0]->first;
-  float fanout_max = fanout_lengths_[max]->first;
+  size_t size = fanout_lengths_.size();
   float length;
-  if (fanout == fanout0)
-    length = fanout_lengths_[0]->second;
-  else if (fanout <= fanout0) {
-    // Extrapolate from lowest fanout entry.
-    length = fanout_lengths_[0]->second - (fanout0 - fanout) * slope_;
-    if (length < 0)
-      length = 0;
-  }
-  else if (fanout >= fanout_max)
-    // Extrapolate from max fanout entry.
-    length = fanout_lengths_[max]->second + (fanout - fanout_max) * slope_;
+  if (size == 0)
+    length = 0;
   else {
-    // Bisection search.
-    int lower = -1;
-    int upper = max + 1;
-    while (upper - lower > 1) {
-      int mid = (upper + lower) >> 1;
-      if (fanout >= fanout_lengths_[mid]->first)
-	lower = mid;
-      else
-	upper = mid;
+    size_t max = size - 1;
+    float fanout0 = fanout_lengths_[0]->first;
+    float fanout_max = fanout_lengths_[max]->first;
+    if (fanout < fanout0) {
+      // Extrapolate from lowest fanout entry.
+      length = fanout_lengths_[0]->second - (fanout0 - fanout) * slope_;
+      if (length < 0)
+	length = 0;
     }
-    // Interpolate between lower and lower+1 entries.
-    float fanout1 = fanout_lengths_[lower]->first;
-    float fanout2 = fanout_lengths_[lower+1]->first;
-    float l1 = fanout_lengths_[lower]->second;
-    float l2 = fanout_lengths_[lower+1]->second;
-    length = l1 + (l2 - l1) * (fanout - fanout1) / (fanout2 - fanout1);
+    else if (fanout == fanout0)
+      length = fanout_lengths_[0]->second;
+    else if (fanout >= fanout_max)
+      // Extrapolate from max fanout entry.
+      length = fanout_lengths_[max]->second + (fanout - fanout_max) * slope_;
+    else {
+      // Bisection search.
+      int lower = -1;
+      int upper = size;
+      while (upper - lower > 1) {
+	int mid = (upper + lower) >> 1;
+	if (fanout >= fanout_lengths_[mid]->first)
+	  lower = mid;
+	else
+	  upper = mid;
+      }
+      // Interpolate between lower and lower+1 entries.
+      float fanout1 = fanout_lengths_[lower]->first;
+      float fanout2 = fanout_lengths_[lower+1]->first;
+      float l1 = fanout_lengths_[lower]->second;
+      float l2 = fanout_lengths_[lower+1]->second;
+      length = l1 + (l2 - l1) * (fanout - fanout1) / (fanout2 - fanout1);
+    }
   }
   // Scale resistance and capacitance.
   cap = length * capacitance_

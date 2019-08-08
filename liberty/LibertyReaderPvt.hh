@@ -454,6 +454,11 @@ protected:
 		    // Return values.
 		    float &value,
 		    bool &valid);
+  void getAttrFloat(LibertyAttr *attr,
+		    LibertyAttrValue *attr_value,
+		    // Return values.
+		    float &value,
+		    bool &valid);
   void getAttrFloat2(LibertyAttr *attr,
 		     // Return values.
 		     float &value1,

@@ -1700,30 +1700,13 @@ void
 LibertyReader::visitFanoutLength(LibertyAttr *attr)
 {
   if (wireload_) {
-    if (attr->isComplex()) {
-      LibertyAttrValueIterator value_iter(attr->values());
-      if (value_iter.hasNext()) {
-	LibertyAttrValue *value = value_iter.next();
-	if (value->isFloat()) {
-	  float fanout = value->floatValue();
-	  if (value_iter.hasNext()) {
-	    value = value_iter.next();
-	    if (value->isFloat())
-	      wireload_->addFanoutLength(fanout, value->floatValue());
-	    else
-	      libWarn(attr, "fanout_length fanout not a float.\n");
-	  }
-	  else
-	    libWarn(attr, "fanout_length is missing length.\n");
-	}
-	else
-	  libWarn(attr, "fanout_length fanout not an integer.\n");
-      }
-      else
-	libWarn(attr, "fanout_length is missing fanout and length.\n");
-    }
+    float fanout, length;
+    bool exists;
+    getAttrFloat2(attr, fanout, length, exists);
+    if (exists)
+      wireload_->addFanoutLength(fanout, length);
     else
-      libWarn(attr, "fanout_length is missing fanout and length.\n");
+      libWarn(attr, "fanout_length is missing length and fanout.\n");
   }
 }
 
@@ -4155,31 +4138,39 @@ LibertyReader::getAttrFloat(LibertyAttr *attr,
 			    bool &valid)
 {
   valid = false;
-  if (attr->isSimple()) {
-    LibertyAttrValue *first = attr->firstValue();
-    if (first->isFloat()) {
-      valid = true;
-      value = first->floatValue();
-    }
-    else if (first->isString()) {
-      const char *string = first->stringValue();
-      // See if attribute string is a variable.
-      variableValue(string, value, valid);
-      if (!valid) {
-	// For some reason area attributes for pads are quoted floats.
-	// Check that the string is a valid double.
-	char *end;
-	value = strtof(string, &end);
-	if (*end && !isspace(*end))
-	  libWarn(attr, "%s value %s is not a float.\n",
-		  attr->name(),
-		  string);
-	valid = true;
-      }
-    }
-  }
+  if (attr->isSimple()) 
+    getAttrFloat(attr, attr->firstValue(), value, valid);
   else
     libWarn(attr, "%s is not a simple attribute.\n", attr->name());
+}
+
+void
+LibertyReader::getAttrFloat(LibertyAttr *attr,
+			    LibertyAttrValue *attr_value,
+			    // Return values.
+			    float &value,
+			    bool &valid)
+{
+  if (attr_value->isFloat()) {
+    valid = true;
+    value = attr_value->floatValue();
+  }
+  else if (attr_value->isString()) {
+    const char *string = attr_value->stringValue();
+    // See if attribute string is a variable.
+    variableValue(string, value, valid);
+    if (!valid) {
+      // For some reason area attributes for pads are quoted floats.
+      // Check that the string is a valid double.
+      char *end;
+      value = strtof(string, &end);
+      if (*end && !isspace(*end))
+	libWarn(attr, "%s value %s is not a float.\n",
+		attr->name(),
+		string);
+      valid = true;
+    }
+  }
 }
 
 // Get two floats in a complex attribute.
@@ -4196,25 +4187,18 @@ LibertyReader::getAttrFloat2(LibertyAttr *attr,
     LibertyAttrValueIterator value_iter(attr->values());
     if (value_iter.hasNext()) {
       LibertyAttrValue *value = value_iter.next();
-      if (value->isFloat()) {
-	value1 = value->floatValue();
+      getAttrFloat(attr, value, value1, exists);
+      if (exists) {
 	if (value_iter.hasNext()) {
 	  value = value_iter.next();
-	  if (value->isFloat()) {
-	    value2 = value->floatValue();
-	    exists = true;
-	  }
-	  else
-	    libWarn(attr, "%s value is not a float.\n", attr->name());
+	  getAttrFloat(attr, value, value2, exists);
 	}
 	else
-	  libWarn(attr, "%s range missing second value.\n", attr->name());
+	  libWarn(attr, "%s missing values.\n", attr->name());
       }
-      else
-	libWarn(attr, "%s value is not a float.\n", attr->name());
     }
     else
-      libWarn(attr, "%s range missing values.\n", attr->name());
+      libWarn(attr, "%s missing values.\n", attr->name());
   }
   else
     libWarn(attr, "%s is not a complex attribute.\n", attr->name());
