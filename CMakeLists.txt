@@ -38,12 +38,10 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Compiler specific options.
-if (CMAKE_CXX_COMPILER_ID MATCHES AppleClang|Clang)
-  set(STA_COMPILE_OPTIONS -Wall -Wcast-qual -Wunused-parameter -Wredundant-decls -Wno-deprecated-register)
-endif()
-
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  set(STA_COMPILE_OPTIONS -Wall -Wcast-qual -Wunused-parameter -Wredundant-decls)
+# Note -Wno-deprecated-register is to suppress bison errors.
+if ((CMAKE_CXX_COMPILER_ID MATCHES AppleClang|Clang)
+    OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
+  set(STA_COMPILE_OPTIONS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security -Wno-deprecated-register)
 endif()
 
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")

@@ -63,17 +63,9 @@ findCmdLineKey(int &argc,
 
 void
 showUsage(const char *prog);
-void
-parseThreadsArg(int argc,
-		char **argv,
-		int &threads,
-		bool &exists);
-void
-parseCmdsArg(int argc,
-	     char **argv,
-	     bool &native_cmds,
-	     bool &compatibility_cmds);
-
+int
+parseThreadsArg(int &argc,
+		char *argv[]);
 void
 sourceTclFile(const char *filename,
 	      bool echo,

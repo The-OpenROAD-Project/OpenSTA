@@ -2811,7 +2811,7 @@ Search::reportTagGroups() const
       tag_group->reportArrivalMap(this);
     }
   }
-  Hash long_hash = tag_group_set_->longestBucketHash();
+  size_t long_hash = tag_group_set_->longestBucketHash();
   report_->print("Longest hash bucket length %lu hash=%lu\n",
 		 tag_group_set_->bucketLength(long_hash),
 		 long_hash);
@@ -2927,8 +2927,8 @@ Search::reportTags() const
 		     tag->hash() % tag_set_->capacity(),
 		     tag->asString(false, this)) ;
   }
-  Hash long_hash = tag_set_->longestBucketHash();
-  printf("Longest hash bucket length %d hash=%u\n",
+  size_t long_hash = tag_set_->longestBucketHash();
+  printf("Longest hash bucket length %d hash=%zu\n",
 	 tag_set_->bucketLength(long_hash),
 	 long_hash);
 }

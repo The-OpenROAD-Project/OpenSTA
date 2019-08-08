@@ -18,7 +18,6 @@
 #include "Stats.hh"
 #include "Debug.hh"
 #include "Report.hh"
-#include "Hash.hh"
 #include "Network.hh"
 #include "PortDirection.hh"
 #include "Graph.hh"
@@ -1283,10 +1282,10 @@ ClockPinPairLess::operator()(const ClockPinPair &pair1,
 class ClockPinPairHash
 {
 public:
-  Hash operator()(const ClockPinPair &pair) const;
+  size_t operator()(const ClockPinPair &pair) const;
 };
 
-Hash
+size_t
 ClockPinPairHash::operator()(const ClockPinPair &pair) const
 {
   return hashSum(pair.first->index(), hashPtr(pair.second));

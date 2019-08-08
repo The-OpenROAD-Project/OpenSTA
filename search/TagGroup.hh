@@ -23,7 +23,6 @@
 #include "Iterator.hh"
 #include "MinMax.hh"
 #include "Transition.hh"
-#include "Hash.hh"
 #include "GraphClass.hh"
 #include "SearchClass.hh"
 #include "Tag.hh"
@@ -47,7 +46,7 @@ public:
   TagGroup(TagGroupBldr *tag_bldr);
   ~TagGroup();
   TagGroupIndex index() const { return index_; }
-  Hash hash() const { return hash_; }
+  size_t hash() const { return hash_; }
   void report(const StaState *sta) const;
   void reportArrivalMap(const StaState *sta) const;
   bool hasClkTag() const { return has_clk_tag_; }
@@ -67,11 +66,11 @@ public:
   bool hasTag(Tag *tag) const;
 
 protected:
-  Hash arrivalMapHash(ArrivalMap *arrival_map);
+  size_t arrivalMapHash(ArrivalMap *arrival_map);
 
   // tag -> arrival index
   ArrivalMap *arrival_map_;
-  Hash hash_;
+  size_t hash_;
   unsigned int index_:tag_group_index_bits;
   unsigned int has_clk_tag_:1;
   unsigned int has_genclk_src_tag_:1;
@@ -86,7 +85,7 @@ private:
 class TagGroupHash
 {
 public:
-  Hash operator()(const TagGroup *tag) const;
+  size_t operator()(const TagGroup *tag) const;
 };
 
 class TagGroupEqual

@@ -36,10 +36,10 @@ PinPairEqual::operator()(const PinPair *pair1,
     && pair1->second == pair2->second;
 }
 
-Hash
+size_t
 PinPairHash::operator()(const PinPair *pair) const
 {
-  Hash hash = hash_init_value;
+  size_t hash = hash_init_value;
   hashIncr(hash, hashPtr(pair->first));
   hashIncr(hash, hashPtr(pair->second));
   return hash;

@@ -20,7 +20,6 @@
 #include "DisallowCopyAssign.hh"
 #include "Vector.hh"
 #include "Set.hh"
-#include "Hash.hh"
 #include "SearchClass.hh"
 #include "SdcClass.hh"
 #include "Transition.hh"
@@ -79,8 +78,8 @@ public:
   bool isLoop() const { return is_loop_; }
   bool isFilter() const { return is_filter_; }
   bool isSegmentStart() const { return is_segment_start_; }
-  Hash hash() const { return hash_; }
-  Hash matchHash(bool match_crpr_clk_pin) const;
+  size_t hash() const { return hash_; }
+  size_t matchHash(bool match_crpr_clk_pin) const;
 
 protected:
   void findHash();
@@ -91,8 +90,8 @@ private:
   ClkInfo *clk_info_;
   InputDelay *input_delay_;
   ExceptionStateSet *states_;
-  Hash hash_;
-  Hash match_hash_;
+  size_t hash_;
+  size_t match_hash_;
   bool is_clk_:1;
   bool is_filter_:1;
   bool is_loop_:1;
@@ -121,7 +120,7 @@ public:
 class TagHash
 {
 public:
-  Hash operator()(const Tag *tag);
+  size_t operator()(const Tag *tag);
 };
 
 class TagEqual

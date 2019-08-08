@@ -68,7 +68,7 @@ public:
   bool refsFilter(const StaState *sta) const;
   // This clk_info/tag is used for a generated clock source path.
   bool isGenClkSrcPath() const { return is_gen_clk_src_path_; }
-  Hash hash() const { return hash_; }
+  size_t hash() const { return hash_; }
 
 protected:
   void findHash(const StaState *sta);
@@ -83,7 +83,7 @@ private:
   ClockUncertainties *uncertainties_;
   Arrival insertion_;
   float latency_;
-  Hash hash_;
+  size_t hash_;
   unsigned int is_propagated_:1;
   unsigned int is_gen_clk_src_path_:1;
   unsigned int is_pulse_clk_:1;
@@ -106,7 +106,7 @@ protected:
 class ClkInfoHash
 {
 public:
-  Hash operator()(const ClkInfo *clk_info);
+  size_t operator()(const ClkInfo *clk_info);
 };
 
 class ClkInfoEqual

@@ -4905,9 +4905,9 @@ void
 Sdc::recordMergeHash(ExceptionPath *exception,
 		     ExceptionPt *missing_pt)
 {
-  Hash hash = exception->hash(missing_pt);
+  size_t hash = exception->hash(missing_pt);
   debugPrint3(debug_, "exception_merge", 3,
-	      "record merge hash %u %s missing %s\n",
+	      "record merge hash %zu %s missing %s\n",
 	      hash,
 	      exception->asString(network_),
 	      missing_pt->asString(network_));
@@ -5120,7 +5120,7 @@ Sdc::findMergeMatch(ExceptionPath *exception)
   ExceptionPtIterator missing_pt_iter(exception);
   while (missing_pt_iter.hasNext()) {
     ExceptionPt *missing_pt = missing_pt_iter.next();
-    Hash hash = exception->hash(missing_pt);
+    size_t hash = exception->hash(missing_pt);
     ExceptionPathSet *matches = exception_merge_hash_.findKey(hash);
     if (matches) {
       ExceptionPathSet::Iterator match_iter(matches);
@@ -5341,9 +5341,9 @@ void
 Sdc::unrecordMergeHash(ExceptionPath *exception,
 		       ExceptionPt *missing_pt)
 {
-  Hash hash = exception->hash(missing_pt);
+  size_t hash = exception->hash(missing_pt);
   debugPrint3(debug_, "exception_merge", 3,
-	      "unrecord merge hash %u %s missing %s\n",
+	      "unrecord merge hash %zu %s missing %s\n",
 	      hash,
 	      exception->asString(network_),
 	      missing_pt->asString(network_));

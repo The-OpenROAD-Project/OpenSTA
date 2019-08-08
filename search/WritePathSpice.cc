@@ -72,7 +72,7 @@ public:
 		 const char *gnd_name,
 		 const StaState *sta);
   ~WritePathSpice();
-  void writeSpice();;
+  void writeSpice();
 
 private:
   void writeHeader();
@@ -228,7 +228,7 @@ class SubcktEndsMissing : public StaException
 {
 public:
   SubcktEndsMissing(const char *cell_name,
-		    const char *subckt_filename);;
+		    const char *subckt_filename);
   const char *what() const throw();
 
 protected:

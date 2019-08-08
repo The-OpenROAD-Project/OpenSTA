@@ -21,7 +21,6 @@
 #include "Set.hh"
 #include "Map.hh"
 #include "UnorderedMap.hh"
-#include "Hash.hh"
 #include "StringSet.hh"
 #include "Delay.hh"
 #include "NetworkClass.hh"
@@ -77,7 +76,7 @@ class TagMatchHash
 public:
   TagMatchHash(bool match_crpr_clk_pin,
 	       const StaState *sta);
-  Hash operator()(const Tag *tag) const;
+  size_t operator()(const Tag *tag) const;
 
 protected:
   bool match_crpr_clk_pin_;

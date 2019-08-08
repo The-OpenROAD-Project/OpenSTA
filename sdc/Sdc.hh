@@ -1260,7 +1260,7 @@ protected:
 			const Corner *corner,
 			const MinMax *min_max) const;
   void removeClockGroups(ClockGroups *groups);
-  void ensureClkGroupExclusions();;
+  void ensureClkGroupExclusions();
   void makeClkGroupExclusions(ClockGroups *clk_groups);
   void makeClkGroupExclusions1(ClockGroupSet *groups);
   void makeClkGroupExclusions(ClockGroupSet *groups);

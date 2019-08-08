@@ -274,7 +274,7 @@ Tag::findHash()
   hashIncr(match_hash_, clk_info_->isGenClkSrcPath());
 }
 
-Hash
+size_t
 Tag::matchHash(bool match_crpr_clk_pin) const
 {
   if (match_crpr_clk_pin)
@@ -317,8 +317,8 @@ tagCmp(const Tag *tag1,
   if (path_ap_index1 > path_ap_index2)
     return 1;
 
-  Hash clk_info1 = tag1->clkInfo()->hash();
-  Hash clk_info2 = tag2->clkInfo()->hash();
+  size_t clk_info1 = tag1->clkInfo()->hash();
+  size_t clk_info2 = tag2->clkInfo()->hash();
   if (clk_info1 < clk_info2)
     return -1;
   if (clk_info1 > clk_info2)
@@ -650,7 +650,7 @@ tagStateEqualCrpr(const Tag *tag1,
 
 ////////////////////////////////////////////////////////////////
 
-Hash
+size_t
 TagHash::operator()(const Tag *tag)
 {
   return tag->hash();
@@ -670,7 +670,7 @@ TagMatchHash::TagMatchHash(bool match_crpr_clk_pin,
 {
 }
 
-Hash
+size_t
 TagMatchHash::operator()(const Tag *tag) const
 {
   return tag->matchHash(match_crpr_clk_pin_);

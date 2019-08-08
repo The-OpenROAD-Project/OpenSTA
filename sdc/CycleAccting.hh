@@ -91,7 +91,7 @@ public:
 class CycleAcctingHash
 {
 public:
-  Hash operator()(const CycleAccting *acct) const;
+  size_t operator()(const CycleAccting *acct) const;
 };
 
 class CycleAcctingEqual

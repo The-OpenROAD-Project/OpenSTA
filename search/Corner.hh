@@ -44,7 +44,7 @@ typedef Vector<LibertyLibrary*> LibertySeq;
 class Corners : public StaState
 {
 public:
-  explicit Corners(StaState *sta);;
+  explicit Corners(StaState *sta);
   virtual ~Corners();
   void clear();
   int count() const;

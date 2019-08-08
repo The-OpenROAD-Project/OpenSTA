@@ -20,10 +20,10 @@
 
 namespace sta {
 
-Hash
+size_t
 hashString(const char *str)
 {
-  unsigned hash = hash_init_value;
+  size_t hash = hash_init_value;
   size_t length = strlen(str);
   for (size_t i = 0; i < length; i++)
     hash = ((hash << 5) + hash) ^ str[i];

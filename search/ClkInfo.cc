@@ -179,7 +179,7 @@ ClkInfo::refsFilter(const StaState *sta) const
 
 ////////////////////////////////////////////////////////////////
 
-Hash
+size_t
 ClkInfoHash::operator()(const ClkInfo *clk_info)
 {
   return clk_info->hash();

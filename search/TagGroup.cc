@@ -58,10 +58,10 @@ TagGroup::~TagGroup()
     delete arrival_map_;
 }
 
-Hash
+size_t
 TagGroup::arrivalMapHash(ArrivalMap *arrival_map)
 {
-  Hash hash = 0;
+  size_t hash = 0;
   ArrivalMap::Iterator arrival_iter(arrival_map);
   while (arrival_iter.hasNext()) {
     Tag *tag;
@@ -338,7 +338,7 @@ TagGroupBldr::copyArrivals(TagGroup *tag_group,
 
 ////////////////////////////////////////////////////////////////
 
-Hash
+size_t
 TagGroupHash::operator()(const TagGroup *group) const
 {
   return group->hash();

@@ -20,7 +20,6 @@
 #include "DisallowCopyAssign.hh"
 #include "Error.hh"
 #include "Set.hh"
-#include "Hash.hh"
 #include "SdcCmdComment.hh"
 #include "SdcClass.hh"
 
@@ -95,8 +94,8 @@ public:
   static int fromThruToPriority(ExceptionFrom *from,
   				ExceptionThruSeq *thrus,
 				ExceptionTo *to);
-  Hash hash() const;
-  Hash hash(ExceptionPt *missing_pt) const;
+  size_t hash() const;
+  size_t hash(ExceptionPt *missing_pt) const;
   // Mergeable properties (independent of exception points).
   virtual bool mergeable(ExceptionPath *exception) const = 0;
   bool mergeablePts(ExceptionPath *exception) const;
@@ -336,7 +335,7 @@ public:
   virtual InstanceSet *instances() = 0;
   virtual NetSet *nets() = 0;
   virtual EdgePinsSet *edges() = 0;
-  Hash hash() const;
+  size_t hash() const;
   virtual int nameCmp(ExceptionPt *pt, const Network *network) const = 0;
   virtual void mergeInto(ExceptionPt *pt) = 0;
   // All pins and instance/net pins.
@@ -361,14 +360,14 @@ protected:
   bool own_pts_;
   // Hash is cached because there may be many objects to speed up
   // exception merging.
-  Hash hash_;
+  size_t hash_;
 
   // Maximum number of objects for asString() to show.
   static const int as_string_max_objects_;
-  static const Hash hash_clk  =  3;
-  static const Hash hash_pin  =  5;
-  static const Hash hash_net  =  7;
-  static const Hash hash_inst = 11;
+  static const size_t hash_clk  =  3;
+  static const size_t hash_pin  =  5;
+  static const size_t hash_net  =  7;
+  static const size_t hash_inst = 11;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(ExceptionPt);
@@ -645,7 +644,7 @@ public:
   ExceptionThru *nextThru() const { return next_thru_; }
   ExceptionState *nextState() const { return next_state_; }
   void setNextState(ExceptionState *next_state);
-  Hash hash() const;
+  size_t hash() const;
   
 private:
   DISALLOW_COPY_AND_ASSIGN(ExceptionState);

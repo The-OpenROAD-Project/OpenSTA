@@ -292,16 +292,16 @@ ExceptionPath::fromThruToPriority(ExceptionFrom *from,
   return priority;
 }
 
-Hash
+size_t
 ExceptionPath::hash() const
 {
   return hash(nullptr);
 }
 
-Hash
+size_t
 ExceptionPath::hash(ExceptionPt *missing_pt) const
 {
-  Hash hash = typePriority();
+  size_t hash = typePriority();
   int pot = 32;
   ExceptionPtIterator pt_iter(this);
   while (pt_iter.hasNext()) {
@@ -942,7 +942,7 @@ ExceptionPt::ExceptionPt(const TransRiseFallBoth *tr,
 
 // ExceptionPt initialization functions set hash_ and incrementally
 // maintain the value.
-Hash
+size_t
 ExceptionPt::hash() const
 {
   return hash_;
@@ -1040,7 +1040,7 @@ ExceptionFromTo::findHash()
 {
   hash_ = 0;
   if (pins_) {
-    Hash hash = 0;
+    size_t hash = 0;
     PinSet::Iterator pin_iter(pins_);
     while (pin_iter.hasNext()) {
       const Pin *pin = pin_iter.next();
@@ -1049,7 +1049,7 @@ ExceptionFromTo::findHash()
     hash_ += hash * hash_pin;
   }
   if (clks_) {
-    Hash hash = 0;
+    size_t hash = 0;
     ClockSet::Iterator clk_iter(clks_);
     while (clk_iter.hasNext()) {
       Clock *clk = clk_iter.next();
@@ -1058,7 +1058,7 @@ ExceptionFromTo::findHash()
     hash_ += hash * hash_clk;
   }
   if (insts_) {
-    Hash hash = 0;
+    size_t hash = 0;
     InstanceSet::Iterator inst_iter(insts_);
     while (inst_iter.hasNext()) {
       Instance *inst = inst_iter.next();
@@ -1931,7 +1931,7 @@ ExceptionThru::findHash()
 {
   hash_ = 0;
   if (pins_) {
-    Hash hash = 0;
+    size_t hash = 0;
     PinSet::Iterator pin_iter(pins_);
     while (pin_iter.hasNext()) {
       const Pin *pin = pin_iter.next();
@@ -1940,7 +1940,7 @@ ExceptionThru::findHash()
     hash_ += hash * hash_pin;
   }
   if (nets_) {
-    Hash hash = 0;
+    size_t hash = 0;
     NetSet::Iterator net_iter(nets_);
     while (net_iter.hasNext()) {
       Net *net = net_iter.next();
@@ -1949,7 +1949,7 @@ ExceptionThru::findHash()
     hash_ += hash * hash_net;
   }
   if (insts_) {
-    Hash hash = 0;
+    size_t hash = 0;
     InstanceSet::Iterator inst_iter(insts_);
     while (inst_iter.hasNext()) {
       Instance *inst = inst_iter.next();
@@ -2373,7 +2373,7 @@ ExceptionState::isComplete() const
     && exception_->to() == nullptr;
 }
 
-Hash
+size_t
 ExceptionState::hash() const
 {
   return hashSum(exception_->hash(), index_);

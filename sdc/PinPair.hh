@@ -37,7 +37,7 @@ typedef Set<PinPair*, PinPairLess> PinPairSet;
 class PinPairHash
 {
 public:
-  Hash operator()(const PinPair *pair) const;
+  size_t operator()(const PinPair *pair) const;
 };
 
 class PinPairEqual

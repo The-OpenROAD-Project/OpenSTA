@@ -323,7 +323,7 @@ CycleAcctingLess::operator()(const CycleAccting *acct1,
 	&& acct1->target()->index() < acct2->target()->index());
 }
 
-Hash 
+size_t 
 CycleAcctingHash::operator()(const CycleAccting *acct) const
 {
   return hashSum(acct->src()->index(), acct->target()->index());

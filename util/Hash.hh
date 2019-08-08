@@ -17,26 +17,26 @@
 #ifndef STA_HASH_H
 #define STA_HASH_H
 
-#include <stddef.h>  // size_t
+#include <cstddef>
 
 namespace sta {
 
-typedef unsigned int Hash;
+using std::size_t;
 
-const Hash hash_init_value = 5381;
+const size_t hash_init_value = 5381;
 
 // Dan Bernstein, comp.lang.c.
-inline Hash
-hashSum(Hash hash,
-	Hash add)
+inline size_t
+hashSum(size_t hash,
+	size_t add)
 {
   // hash * 31 ^ add.
   return ((hash << 5) + hash) ^ add;
 }
 
 inline void
-hashIncr(Hash &hash,
-	 Hash add)
+hashIncr(size_t &hash,
+	 size_t add)
 {
   // hash * 31 ^ add.
   hash = ((hash << 5) + hash) ^ add;
@@ -49,7 +49,7 @@ nextMersenne(size_t n)
 }
 
 // Sadly necessary until c++ std::hash works for char *.
-Hash
+size_t
 hashString(const char *str);
 
 } // namespace

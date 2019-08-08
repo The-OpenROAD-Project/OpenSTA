@@ -458,7 +458,7 @@ protected:
   string descriptionField(Vertex *vertex);
   bool reportClkPath() const;
   string clkName(const Clock *clk,
-		 bool inverted);;
+		 bool inverted);
   bool hasExtInputDriver(const Pin *pin,
 			 const TransRiseFall *tr,
 			 const MinMax *min_max);
@@ -504,7 +504,7 @@ protected:
 			     // Return value.
 			     PathRef &ref_path);
   const char *asRisingFalling(const TransRiseFall *tr);
-  const char *asRiseFall(const TransRiseFall *tr);;
+  const char *asRiseFall(const TransRiseFall *tr);
 
   // Path options.
   ReportPathFormat format_;

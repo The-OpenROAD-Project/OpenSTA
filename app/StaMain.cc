@@ -46,11 +46,8 @@ staMain(Sta *sta,
   Sta::setSta(sta);
   sta->makeComponents();
 
-  int thread_count = 1;
-  bool threads_exists = false;
-  parseThreadsArg(argc, argv, thread_count, threads_exists);
-  if (threads_exists)
-    sta->setThreadCount(thread_count);
+  int thread_count = parseThreadsArg(argc, argv);
+  sta->setThreadCount(thread_count);
 
   staSetupAppInit(argc, argv, swig_init, tcl_inits);
   // Set argc to 1 so Tcl_Main doesn't source any files.
@@ -58,25 +55,20 @@ staMain(Sta *sta,
   Tcl_Main(1, argv, staTclAppInit);
 }
 
-void
-parseThreadsArg(int argc,
-		char **argv,
-		int &thread_count,
-		bool &exists)
+int
+parseThreadsArg(int &argc,
+		char *argv[])
 {
   char *thread_arg = findCmdLineKey(argc, argv, "-threads");
   if (thread_arg) {
-    if (stringEqual(thread_arg, "max")) {
-      thread_count = processorCount();
-      exists = true;
-    }
-    else if (isDigits(thread_arg)) {
-      thread_count = atoi(thread_arg);
-      exists = true;
-    }
+    if (stringEqual(thread_arg, "max"))
+      return processorCount();
+    else if (isDigits(thread_arg))
+      return atoi(thread_arg);
     else
       fprintf(stderr,"Warning: -threads must be max or a positive integer.\n");
   }
+  return 1;
 }
 
 // Set globals to pass to staTclAppInit.

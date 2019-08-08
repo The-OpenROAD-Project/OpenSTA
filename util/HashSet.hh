@@ -18,7 +18,6 @@
 #define STA_HASHSET_H
 
 #include <stddef.h>  // size_t
-#include "Hash.hh"
 
 namespace sta {
 
@@ -51,8 +50,8 @@ public:
   void clear();
   void deleteContentsClear();
   int longestBucketLength() const;
-  Hash longestBucketHash() const;
-  int bucketLength(Hash hash) const;
+  size_t longestBucketHash() const;
+  int bucketLength(size_t hash) const;
 
   void
   deleteContents()
@@ -424,11 +423,11 @@ HashSet<KEY, HASH, EQUAL>::longestBucketLength() const
 }
 
 template <class KEY, class HASH, class EQUAL>
-Hash
+size_t
 HashSet<KEY, HASH, EQUAL>::longestBucketHash() const
 {
   int longest = 0;
-  Hash longest_hash = 0;
+  size_t longest_hash = 0;
   for (size_t hash = 0; hash < capacity_; hash++) {
     int length = bucketLength(hash);
     if (length > longest) {
@@ -441,7 +440,7 @@ HashSet<KEY, HASH, EQUAL>::longestBucketHash() const
 
 template <class KEY, class HASH, class EQUAL>
 int
-HashSet<KEY, HASH, EQUAL>::bucketLength(Hash hash) const
+HashSet<KEY, HASH, EQUAL>::bucketLength(size_t hash) const
 {
   int length = 0;
   for (HashSetBucket<KEY> *bucket = table_[hash];
