@@ -1,0 +1,26 @@
+#!/bin/sh
+# The next line is executed by /bin/sh, but not Tcl \
+exec tclsh $0 ${1+"$@"}
+
+# Parallax Static Timing Analyzer
+# Copyright (c) 2019, Parallax Software, Inc.
+# All rights reserved.
+# 
+# No part of this document may be copied, transmitted or
+# disclosed in any form or fashion without the express
+# written consent of Parallax Software, Inc.
+
+# Usage: regression help | test1 [test2...]
+# where test is all or the name of a tcl script in $STA/test
+
+# Directory containing tests.
+set test_dir [file dirname [file normalize [info script]]]
+source [file join $test_dir find_parent_dir.tcl]
+source [file join $test_dir regression_vars.tcl]
+source [file join $test_dir regression.tcl]
+
+regression_main
+
+# Local Variables:
+# mode:tcl
+# End:
