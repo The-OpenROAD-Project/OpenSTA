@@ -1021,6 +1021,12 @@ Sim::logicZeroOne(const Pin *pin) const
   return logicValueZeroOne(logicValue(pin));
 }
 
+bool
+Sim::logicZeroOne(const Vertex *vertex) const
+{
+  return logicValueZeroOne(vertex->simValue());
+}
+
 void
 Sim::clearSimValues()
 {
@@ -1100,7 +1106,7 @@ Sim::annotateVertexEdges(const Instance *inst,
       bool is_disabled_cond = false;
       if (annotate) {
 	// Set timing sense on edges in instances that have constant pins.
-  	if (logicZeroOne(from_pin))
+  	if (logicZeroOne(from_vertex))
   	  sense = TimingSense::none;
  	else
 	  sense = functionSense(inst, from_pin, pin);

@@ -36,10 +36,13 @@ netVerilogName(const char *sta_name,
   char *bus_name;
   int index;
   parseBusName(sta_name, '[', ']', bus_name, index);
-  if (bus_name)
-    return stringPrintTmp("%s[%d]",
-			  staToVerilog(bus_name, escape),
-			  index);
+  if (bus_name) {
+    const char *vname = stringPrintTmp("%s[%d]",
+				       staToVerilog(bus_name, escape),
+				       index);
+    stringDelete(bus_name);
+    return vname;
+  }
   else
     return staToVerilog(sta_name, escape);
 }

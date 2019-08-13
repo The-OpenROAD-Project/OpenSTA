@@ -595,6 +595,7 @@ SdcNetwork::findPort(const Cell *cell,
 					      index);
 	port = network_->findPort(cell, escaped2);
       }
+      stringDelete(bus_name);
     }
   }
   return port;
@@ -624,6 +625,7 @@ SdcNetwork::findPortsMatching(const Cell *cell,
 	PatternMatch escaped_pattern2(escaped2, pattern);
 	network_->findPortsMatching(cell, &escaped_pattern2, ports);
       }
+      stringDelete(bus_name);
     }
   }
 }
@@ -814,6 +816,7 @@ SdcNetwork::findPin(const Instance *instance,
 					      index);
 	pin = network_->findPin(instance, escaped2);
       }
+      stringDelete(bus_name);
     }
   }
   return pin;

@@ -54,6 +54,7 @@ public:
 		      const Instance *inst) const;
   LogicValue logicValue(const Pin *pin) const;
   bool logicZeroOne(const Pin *pin) const;
+  bool logicZeroOne(const Vertex *vertex) const;
   // Timing sense for the function between from_pin and to_pin
   // after simplifying the function based constants on the pins.
   virtual TimingSense functionSense(const Instance *inst,

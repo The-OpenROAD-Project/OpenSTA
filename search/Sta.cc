@@ -1597,11 +1597,13 @@ Sta::isDisabledConstant(Edge *edge)
 {
   sim_->ensureConstantsPropagated();
   const TimingRole *role = edge->role();
-  Pin *from_pin = edge->from(graph_)->pin();
-  Pin *to_pin = edge->to(graph_)->pin();
+  Vertex *from_vertex = edge->from(graph_);
+  Pin *from_pin = from_vertex->pin();
+  Vertex *to_vertex = edge->to(graph_);
+  Pin *to_pin = to_vertex->pin();
   const Instance *inst = network_->instance(from_pin);
-  return sim_->logicZeroOne(from_pin)
-    || sim_->logicZeroOne(to_pin)
+  return sim_->logicZeroOne(from_vertex)
+    || sim_->logicZeroOne(to_vertex)
     || (!role->isWire()
 	&& (isCondDisabled(edge, inst, from_pin, to_pin, network_, sim_)
 	    || isModeDisabled(edge, inst, network_, sim_)
@@ -1640,12 +1642,14 @@ Sta::disabledConstantPins(Edge *edge)
 {
   sim_->ensureConstantsPropagated();
   PinSet *pins = new PinSet;
-  Pin *from_pin = edge->from(graph_)->pin();
-  Pin *to_pin = edge->to(graph_)->pin();
-  if (sim_->logicZeroOne(from_pin))
+  Vertex *from_vertex = edge->from(graph_);
+  Pin *from_pin = from_vertex->pin();
+  Vertex *to_vertex = edge->to(graph_);
+  Pin *to_pin = to_vertex->pin();
+  if (sim_->logicZeroOne(from_vertex))
     pins->insert(from_pin);
   if (edge->role()->isWire()) {
-    if (sim_->logicZeroOne(to_pin))
+    if (sim_->logicZeroOne(to_vertex))
       pins->insert(to_pin);
   }
   else {
