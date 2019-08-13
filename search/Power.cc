@@ -665,18 +665,19 @@ Power::inferedWhen(FuncExpr *expr,
       return negate(expr->right());
     if (isPortRef(expr->right(), from_port))
       return negate(expr->left());
+    break;
   }
   case FuncExpr::op_and: {
     if (isPortRef(expr->left(), from_port))
       return expr->right()->copy();
     if (isPortRef(expr->right(), from_port))
       return expr->left()->copy();
+    break;
   }
   case FuncExpr::op_one:
   case FuncExpr::op_zero:
-   return nullptr;
+    break;
   }
-  // gcc not too smaht
   return nullptr;
 }
 

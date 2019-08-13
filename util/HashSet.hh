@@ -18,6 +18,7 @@
 #define STA_HASHSET_H
 
 #include <stddef.h>  // size_t
+#include "Hash.hh"
 
 namespace sta {
 
