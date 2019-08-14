@@ -2533,10 +2533,10 @@ LibertyReader::beginPin(LibertyGroup *group)
 	if (param->isString()) {
 	  const char *name = param->stringValue();
 	  debugPrint1(debug_, "liberty", 1, " port %s\n", name);
-	  if (isBusName(name, brkt_left, brkt_right))
+	  if (isBusName(name, brkt_left, brkt_right, escape_))
 	    // Pins not inside a bus group with bus names are not really
 	    // busses, so escape the brackets.
-	    name = escapeChars(name, brkt_left, brkt_right, '\\');
+	    name = escapeChars(name, brkt_left, brkt_right, escape_);
 	  LibertyPort *port = builder_->makePort(cell_, name);
 	  ports_->push_back(port);
 	  setPortDefaults(port);
@@ -2768,9 +2768,9 @@ LibertyReader::findPort(LibertyCell *cell,
   if (port == nullptr) {
     char brkt_left = library_->busBrktLeft();
     char brkt_right = library_->busBrktRight();
-    if (isBusName(port_name, brkt_left, brkt_right)) {
+    if (isBusName(port_name, brkt_left, brkt_right, escape_)) {
       // Pins at top level with bus names have escaped brackets.
-      port_name = escapeChars(port_name, brkt_left, brkt_right, '\\');
+      port_name = escapeChars(port_name, brkt_left, brkt_right, escape_);
       port = cell->findLibertyPort(port_name);
     }
   }
@@ -5165,7 +5165,7 @@ PortNameBitIterator::init(const char *port_name)
     int from, to;
     char *bus_name;
     parseBusRange(port_name, library->busBrktLeft(), library->busBrktRight(),
-		  bus_name, from, to);
+		  '\\', bus_name, from, to);
     if (bus_name) {
       port = visitor_->findPort(cell_, port_name);
       if (port) {

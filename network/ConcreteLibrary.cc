@@ -24,6 +24,8 @@
 
 namespace sta {
 
+static constexpr char escape_ = '\\';
+
 ConcreteLibrary::ConcreteLibrary(const char *name,
 				 const char *filename,
 				 bool is_liberty) :
@@ -374,7 +376,7 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
     const char *port_name = port->name();
     char *bus_name;
     int index;
-    parseBusName(port_name, bus_brkts_left, bus_brkts_right,
+    parseBusName(port_name, bus_brkts_left, bus_brkts_right, escape_,
 		 bus_name, index);
     if (bus_name) {
       if (!port->isBusBit()) {
@@ -414,7 +416,7 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
       ConcretePort *port = member_iter.next();
       char *bus_name;
       int index;
-      parseBusName(port->name(), bus_brkts_left, bus_brkts_right,
+      parseBusName(port->name(), bus_brkts_left, bus_brkts_right, escape_,
 		   bus_name, index);
       port->setBusBitIndex(index);
       stringDelete(bus_name);

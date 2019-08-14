@@ -583,7 +583,7 @@ SdcNetwork::findPort(const Cell *cell,
     // Look for matches after escaping brackets.
     char *bus_name;
     int index;
-    parseBusName(name, '[', ']', bus_name, index);
+    parseBusName(name, '[', ']', pathEscape(), bus_name, index);
     if (bus_name) {
       const char *escaped1 = escapeBrackets(name, this);
       port = network_->findPort(cell, escaped1);
@@ -611,7 +611,7 @@ SdcNetwork::findPortsMatching(const Cell *cell,
     // Look for matches after escaping brackets.
     char *bus_name;
     int index;
-    parseBusName(pattern->pattern(), '[', ']', bus_name, index);
+    parseBusName(pattern->pattern(), '[', ']', pathEscape(), bus_name, index);
     if (bus_name) {
       const char *escaped1 = escapeBrackets(pattern->pattern(), this);
       PatternMatch escaped_pattern1(escaped1, pattern);
@@ -804,7 +804,7 @@ SdcNetwork::findPin(const Instance *instance,
     // Look for match after escaping brackets.
     char *bus_name;
     int index;
-    parseBusName(port_name, '[', ']', bus_name, index);
+    parseBusName(port_name, '[', ']', pathEscape(), bus_name, index);
     if (bus_name) {
       const char *escaped1 = escapeBrackets(port_name, this);
       pin = network_->findPin(instance, escaped1);

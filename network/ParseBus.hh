@@ -23,7 +23,8 @@ namespace sta {
 bool
 isBusName(const char *name,
 	  const char brkt_left,
-	  const char brkt_right);
+	  const char brkt_right,
+	  char escape);
 
 // Parse name as a bus.
 // signal
@@ -36,6 +37,7 @@ void
 parseBusName(const char *name,
 	     const char brkt_left,
 	     const char brkt_right,
+	     char escape,
 	     // Return values.
 	     char *&bus_name,
 	     int &index);
@@ -44,6 +46,7 @@ void
 parseBusName(const char *name,
 	     const char *brkts_left,
 	     const char *brkts_right,
+	     char escape,
 	     // Return values.
 	     char *&bus_name,
 	     int &index);
@@ -55,6 +58,7 @@ void
 parseBusRange(const char *name,
 	      const char brkt_left,
 	      const char brkt_right,
+	      char escape,
 	      // Return values.
 	      char *&bus_name,
 	      int &from,
@@ -65,6 +69,7 @@ void
 parseBusRange(const char *name,
 	      const char *brkts_left,
 	      const char *brkts_right,
+	      char escape,
 	      // Return values.
 	      char *&bus_name,
 	      int &from,
