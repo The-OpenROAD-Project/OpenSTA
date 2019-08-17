@@ -3808,6 +3808,24 @@ format_power(const char *value,
   return Sta::sta()->units()->powerUnit()->asString(value1, digits);
 }
 
+const char *
+format_distance(const char *value,
+		int digits)
+{
+  float value1 = strtof(value, nullptr);
+  Unit *dist_unit = Sta::sta()->units()->distanceUnit();
+  return dist_unit->asString(value1, digits);
+}
+
+const char *
+format_area(const char *value,
+	    int digits)
+{
+  float value1 = strtof(value, nullptr);
+  Unit *dist_unit = Sta::sta()->units()->distanceUnit();
+  return dist_unit->asString(value1 / dist_unit->scale(), digits);
+}
+
 ////////////////////////////////////////////////////////////////
 
 // Unit converstion from sta unit to user interface and visa versa.
@@ -3893,6 +3911,20 @@ double
 distance_sta_ui(double value)
 {
   return value / Sta::sta()->units()->distanceUnit()->scale();
+}
+
+double
+area_ui_sta(double value)
+{
+  double scale = Sta::sta()->units()->distanceUnit()->scale();
+  return value * scale * scale;
+}
+
+double
+area_sta_ui(double value)
+{
+  double scale = Sta::sta()->units()->distanceUnit()->scale();
+  return value / (scale * scale);
 }
 
 ////////////////////////////////////////////////////////////////
