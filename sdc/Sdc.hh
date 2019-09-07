@@ -22,7 +22,7 @@
 #include "StringUtil.hh"
 #include "StringSet.hh"
 #include "Map.hh"
-#include "UnorderedSet.hh"
+#include "HashSet.hh"
 #include "UnorderedMap.hh"
 #include "MinMax.hh"
 #include "RiseFallValues.hh"
@@ -114,7 +114,8 @@ typedef Set<InputDelay*> InputDelaySet;
 typedef Map<const Pin*,InputDelaySet*> InputDelayRefPinMap;
 typedef Map<const Pin*,InputDelaySet*> InputDelayInternalPinMap;
 typedef Map<const Pin*,OutputDelay*> OutputDelayMap;
-typedef UnorderedSet<CycleAccting*, CycleAcctingHash, CycleAcctingEqual> CycleAcctingSet;
+// Use HashSet so no read lock is required.
+typedef HashSet<CycleAccting*, CycleAcctingHash, CycleAcctingEqual> CycleAcctingSet;
 typedef Set<Instance*> InstanceSet;
 typedef UnorderedMap<const Pin*,ExceptionPathSet*> PinExceptionsMap;
 typedef Map<const Clock*,ExceptionPathSet*> ClockExceptionsMap;

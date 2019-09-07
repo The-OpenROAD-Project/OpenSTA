@@ -359,6 +359,7 @@ public:
   virtual ~FindVertexDelays();
   virtual void visit(Vertex *vertex);
   virtual VertexVisitor *copy();
+  virtual void levelFinished();
 
 protected:
   GraphDelayCalc1 *graph_delay_calc1_;
@@ -396,6 +397,24 @@ FindVertexDelays::visit(Vertex *vertex)
   graph_delay_calc1_->findVertexDelay(vertex, arc_delay_calc_, true);
 }
 
+void
+FindVertexDelays::levelFinished()
+{
+  graph_delay_calc1_->mergeIdealClks();
+}
+
+void
+GraphDelayCalc1::mergeIdealClks()
+{
+  for (auto vertex_clks : ideal_clks_map_next_) {
+    const Vertex *vertex = vertex_clks.first;
+    ClockSet *prev_clks = ideal_clks_map_.findKey(vertex);
+    delete prev_clks;
+    ideal_clks_map_[vertex] = vertex_clks.second;
+  }
+  ideal_clks_map_next_.clear();
+}
+
 // The logical structure of incremental delay calculation closely
 // resembles the incremental search arrival time algorithm
 // (Search::findArrivals).
@@ -417,16 +436,14 @@ GraphDelayCalc1::findDelays(Level level)
     if (incremental_)
       seedInvalidDelays();
 
+    mergeIdealClks();
     FindVertexDelays visitor(this, arc_delay_calc_, false);
     dcalc_count += iter_->visitParallel(level, &visitor);
 
     // Timing checks require slews at both ends of the arc,
     // so find their delays after all slews are known.
-    VertexSet::Iterator check_iter(invalid_checks_);
-    while (check_iter.hasNext()) {
-      Vertex *check_vertex = check_iter.next();
+    for (Vertex *check_vertex : invalid_checks_)
       findCheckDelays(check_vertex, arc_delay_calc_);
-    }
     invalid_checks_.clear();
 
     delays_exist_ = true;
@@ -1628,6 +1645,7 @@ void
 GraphDelayCalc1::clearIdealClkMap()
 {
   ideal_clks_map_.deleteContentsClear();
+  ideal_clks_map_next_.deleteContentsClear();
 }
 
 bool
@@ -1635,13 +1653,13 @@ GraphDelayCalc1::setIdealClks(const Vertex *vertex,
 			      ClockSet *clks)
 {
   bool changed = false;
-  UniqueLock lock(ideal_clks_map_lock_);
   ClockSet *clks1 = ideal_clks_map_.findKey(vertex);
-  if (ClockSet::equal(clks, clks1))
-    delete clks;
-  else {
-    delete clks1;
-    ideal_clks_map_[vertex] = clks;
+  if (!ClockSet::equal(clks, clks1)) {
+    // Only lock for updates to vertex ideal clks.
+    // Finding ideal clks by level means only changes at the current
+    // delay calc level are changed.
+    UniqueLock lock(ideal_clks_map_next_lock_);
+    ideal_clks_map_next_[vertex] = clks;
     changed = true;
   }
   return changed;
@@ -1650,9 +1668,7 @@ GraphDelayCalc1::setIdealClks(const Vertex *vertex,
 ClockSet *
 GraphDelayCalc1::idealClks(const Vertex *vertex)
 {
-  UniqueLock lock(ideal_clks_map_lock_);
-  ClockSet *clks = ideal_clks_map_.findKey(vertex);
-  return clks;
+  return ideal_clks_map_.findKey(vertex);
 }
 
 bool

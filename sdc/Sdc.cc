@@ -2502,13 +2502,17 @@ Sdc::cycleAccting(const ClockEdge *src,
   CycleAccting probe(src, tgt);
   CycleAccting *acct = cycle_acctings_.findKey(&probe);
   if (acct == nullptr) {
-    acct = new CycleAccting(src, tgt);
-    if (src == defaultArrivalClockEdge())
-      acct->findDefaultArrivalSrcDelays();
-    else
-      acct->findDelays(this);
     UniqueLock lock(cycle_acctings_lock_);
-    cycle_acctings_.insert(acct);
+    // Recheck with lock.
+    acct = cycle_acctings_.findKey(&probe);
+    if (acct == nullptr) {
+      acct = new CycleAccting(src, tgt);
+      if (src == defaultArrivalClockEdge())
+	acct->findDefaultArrivalSrcDelays();
+      else
+	acct->findDelays(this);
+      cycle_acctings_.insert(acct);
+    }
   }
   return acct;
 }
@@ -2520,7 +2524,9 @@ Sdc::reportClkToClkMaxCycleWarnings()
   // duplicate warnings between different src/tgt clk edges.
   ClockPairSet clk_warnings;
   ClockPairSeq clk_warnings2;
-  for (auto acct : cycle_acctings_) {
+  CycleAcctingSet::Iterator acct_iter(cycle_acctings_);
+  while (acct_iter.hasNext()) {
+    CycleAccting *acct = acct_iter.next();
     if (acct->maxCyclesExceeded()) {
       Clock *src = acct->src()->clock();
       Clock *tgt = acct->target()->clock();
@@ -3301,22 +3307,17 @@ Sdc::setNetWireCap(Net *net,
   }
   if (net_wire_cap_map_ == nullptr)
     net_wire_cap_map_ = new NetWireCapMap[corners_->count()];
-  bool make_drvr_entry = net_wire_cap_map_[corner->index()].hasKey(net);
+  bool make_drvr_entry = !net_wire_cap_map_[corner->index()].hasKey(net);
   MinMaxFloatValues &values = net_wire_cap_map_[corner->index()][net];
   values.setValue(min_max, wire_cap);
 
   // Only need to do this when there is new net_wire_cap_map_ entry.
   if (make_drvr_entry) {
-    NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(net);
-    while (pin_iter->hasNext()) {
-      Pin *pin = pin_iter->next();
-      if (network_->isDriver(pin)) {
-	if (drvr_pin_wire_cap_map_ == nullptr)
-	  drvr_pin_wire_cap_map_ = new PinWireCapMap[corners_->count()];
-	drvr_pin_wire_cap_map_[corner->index()][pin] = &values;
-      }
+    for (Pin *pin : *network_->drivers(net)) {
+      if (drvr_pin_wire_cap_map_ == nullptr)
+	drvr_pin_wire_cap_map_ = new PinWireCapMap[corners_->count()];
+      drvr_pin_wire_cap_map_[corner->index()][pin] = &values;
     }
-    delete pin_iter;
   }
 }
 

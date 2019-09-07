@@ -153,6 +153,7 @@ BfsIterator::visit(Level to_level,
 	}
       }
       level_vertices.clear();
+      visitor->levelFinished();
     }
   }
   return visit_count;
@@ -224,7 +225,7 @@ BfsIterator::visitParallel(Level to_level,
 
 	  for (int i = 0; i < thread_count_; i++) {
 	    ForEachArg<QueueIterator, VertexVisitor> arg(&iter, lock,
-							 visitor->copy());
+						      visitor->copy());
 	    // Missing check for null vertex.
 	    threads.push_back(std::thread(forEachBegin<QueueIterator,
 					  VertexVisitor, Vertex*>, arg));
@@ -235,6 +236,7 @@ BfsIterator::visitParallel(Level to_level,
 	    thread.join();
 
 	  visit_count += iter.count();
+	  visitor->levelFinished();
 	  level = first_level_;
 	}
 	else {

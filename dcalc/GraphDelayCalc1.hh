@@ -213,6 +213,7 @@ protected:
 		Parasitic *drvr_parasitic,
 		const TransRiseFall *tr,
 		const DcalcAnalysisPt *dcalc_ap) const;
+  void mergeIdealClks();
 
   // Observer for edge delay changes.
   DelayCalcObserver *observer_;
@@ -234,7 +235,8 @@ protected:
   // delays to be recomputed during incremental delay calculation.
   float incremental_delay_tolerance_;
   VertexIdealClksMap ideal_clks_map_;
-  std::mutex ideal_clks_map_lock_;
+  VertexIdealClksMap ideal_clks_map_next_;
+  std::mutex ideal_clks_map_next_lock_;
 
   friend class FindVertexDelays;
   friend class MultiDrvrNet;

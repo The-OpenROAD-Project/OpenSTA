@@ -1079,12 +1079,9 @@ Sim::annotateVertexEdges(const Instance *inst,
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    Vertex *vertex, *bidirect_drvr_vertex;
-    graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
+    Vertex *vertex = graph_->pinDrvrVertex(pin);
     if (vertex)
       annotateVertexEdges(inst, pin, vertex, annotate);
-    if (bidirect_drvr_vertex)
-      annotateVertexEdges(inst, pin, bidirect_drvr_vertex, annotate);
   }
   delete pin_iter;
 }
