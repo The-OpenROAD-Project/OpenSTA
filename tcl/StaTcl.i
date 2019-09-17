@@ -166,12 +166,6 @@ cmdGraph()
   return Sta::sta()->ensureGraph();
 }
 
-// These should be templated, but Sun's compiler can't deal with
-// an explicit template instantiation (ie, the arglist is the same
-// for all these functions).  Adding a dummy argument of the return
-// type is not sufficient because then it chokes on the call to
-// SWIG_ConvertPtr because it is declared extern "C".
-
 template <class TYPE>
 Vector<TYPE> *
 tclListSeq(Tcl_Obj *const source,

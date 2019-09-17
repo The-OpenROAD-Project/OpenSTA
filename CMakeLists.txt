@@ -39,9 +39,12 @@ endif()
 
 # Compiler specific options.
 # Note -Wno-deprecated-register is to suppress bison errors.
-if ((CMAKE_CXX_COMPILER_ID MATCHES AppleClang|Clang)
-    OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
+if (CMAKE_CXX_COMPILER_ID MATCHES AppleClang|Clang)
   set(STA_COMPILE_OPTIONS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security -Wno-deprecated-register)
+endif()
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(STA_COMPILE_OPTIONS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security)
 endif()
 
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")

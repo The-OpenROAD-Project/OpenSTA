@@ -26,23 +26,8 @@
   #define __attribute__(x)
 #endif // __GNUC__
 
-#ifdef __SUNPRO_CC
-  // SunCC will not allow numeric limits in array subscript
-  // declarations so use define instead.
-  #define INT_DIGITS 10
-  // Prevent SunCC/Rogue Wave's brain dead STL allocator from
-  // pre-allocating excessive memory.
-  // Note well:
-  //   For this to work it MUST be included before any STL libraries
-  //   that may include <memory>.
-  //   This def is intentionally NOT guarded by #ifndef's so that compiler
-  //   warnings are emitted if this file is included after <memory> is included.
-  #undef _RWSTD_CONTAINER_BUFFER_SIZE
-  #define _RWSTD_CONTAINER_BUFFER_SIZE 16
-#else
-  // Requires #include <limits> if referenced.
-  #define INT_DIGITS std::numeric_limits<int>::digits10
-#endif // __SUNPRO_CC
+// Requires #include <limits> if referenced.
+#define INT_DIGITS std::numeric_limits<int>::digits10
 
 #ifdef _MSC_VER
   // Microcruft Visual C++
