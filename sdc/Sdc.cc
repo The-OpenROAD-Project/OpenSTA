@@ -129,8 +129,7 @@ Sdc::makeDefaultArrivalClock()
   waveform->push_back(0.0);
   waveform->push_back(0.0);
   default_arrival_clk_ = new Clock("input port clock", clk_index_++);
-  default_arrival_clk_->initClk(0, false, 0.0, waveform, false, nullptr,
-				network_);
+  default_arrival_clk_->initClk(0, false, 0.0, waveform, nullptr, network_);
 }
 
 Sdc::~Sdc()
@@ -1033,12 +1032,12 @@ Sdc::makeClock(const char *name,
   else {
     // Fresh clock definition.
     clk = new Clock(name, clk_index_++);
+    clk->setIsPropagated(propagate_all_clks_);
     clocks_.push_back(clk);
     // Use the copied name in the map.
     clock_name_map_[clk->name()] = clk;
   }
-  clk->initClk(pins, add_to_pins, period, waveform, propagate_all_clks_,
-	       comment, network_);
+  clk->initClk(pins, add_to_pins, period, waveform, comment, network_);
   makeClkPinMappings(clk);
   clearCycleAcctings();
   invalidateGeneratedClks();

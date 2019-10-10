@@ -66,7 +66,6 @@ Clock::initClk(PinSet *pins,
 	       bool add_to_pins,
 	       float period,
 	       FloatSeq *waveform,
-	       bool is_propagated,
 	       const char *comment,
 	       const Network *network)
 {
@@ -78,7 +77,6 @@ Clock::initClk(PinSet *pins,
   waveform_valid_ = true;
   period_ = period;
   setClkEdgeTimes();
-  is_propagated_ = is_propagated;
   setComment(comment);
 }
 

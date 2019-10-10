@@ -128,7 +128,6 @@ protected:
 	       bool add_to_pins,
 	       float period,
 	       FloatSeq *waveform,
-	       bool is_propagated,
 	       const char *comment,
 	       const Network *network);
   void initGeneratedClk(PinSet *pins,
