@@ -1005,10 +1005,7 @@ ReportPath::reportEndLine(PathEnd *end,
   reportDescription(endpoint.c_str(), result);
   reportSpaceFieldDelay(end->requiredTimeOffset(this), early_late, result);
   reportSpaceFieldDelay(end->dataArrivalTimeOffset(this), early_late, result);
-  Slack slack = end->slack(this);
-  reportSpaceFieldDelay(slack, early_late, result);
-  result += (slack >= 0.0) ? " (MET)" : " (VIOLATED)";
-  reportEndOfLine(result);
+  reportSpaceSlack(end, result);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1191,10 +1188,7 @@ ReportPath::reportShort(MinPulseWidthCheck *check,
   reportDescription(what.c_str(), result);
   reportSpaceFieldTime(check->minWidth(this), result);
   reportSpaceFieldDelay(check->width(this), EarlyLate::late(), result);
-  Slack slack = check->slack(this);
-  reportSpaceFieldDelay(slack, EarlyLate::early(), result);
-  result += (slack >= 0.0) ? " (MET)" : " (VIOLATED)";
-  reportEndOfLine(result);
+  reportSpaceSlack(check->slack(this), result);
 }
 
 void
@@ -1355,10 +1349,7 @@ ReportPath::reportShort(MinPeriodCheck *check,
   reportDescription(pin_name, result);
   reportSpaceFieldDelay(check->period(), EarlyLate::early(), result);
   reportSpaceFieldDelay(check->minPeriod(this), EarlyLate::early(), result);
-  Slack slack = check->slack(this);
-  reportSpaceFieldDelay(slack, EarlyLate::early(), result);
-  result += (slack >= 0.0) ? " (MET)" : " (VIOLATED)";
-  reportEndOfLine(result);
+  reportSpaceSlack(check->slack(this), result);
 }
 
 void
@@ -1466,12 +1457,10 @@ ReportPath::reportShort(MaxSkewCheck *check,
 			  check_arc->fromTrans()->asString(),
 			  check_arc->toTrans()->asString());
   reportDescription(what.c_str(), result);
-  reportSpaceFieldDelay(check->maxSkew(this), EarlyLate::early(), result);
-  reportSpaceFieldDelay(check->skew(this), EarlyLate::early(), result);
-  Slack slack = check->slack(this);
-  reportSpaceFieldDelay(slack, EarlyLate::early(), result);
-  result += (slack >= 0.0) ? " (MET)" : " (VIOLATED)";
-  reportEndOfLine(result);
+  const EarlyLate *early_late = EarlyLate::early();
+  reportSpaceFieldDelay(check->maxSkew(this), early_late, result);
+  reportSpaceFieldDelay(check->skew(this), early_late, result);
+  reportSpaceSlack(check->slack(this), result);
 }
 
 void
@@ -1599,9 +1588,7 @@ ReportPath::reportSlewLimitShort(Pin *pin,
   reportDescription(pin_name, result);
   reportSpaceFieldTime(limit, result);
   reportSpaceFieldDelay(slew, EarlyLate::late(),  result);
-  reportSpaceFieldTime(slack, result);
-  result += (slack >= 0.0) ? " (MET)" : " (VIOLATED)";
-  reportEndOfLine(result);
+  reportSpaceSlack(slack, result);
 }
 
 void
@@ -1647,9 +1634,7 @@ ReportPath::reportSlewLimitVerbose(Pin *pin,
 		 result);
 
   result += "Slack          ";
-  reportSpaceFieldTime(slack, result);
-  result += (slack >= 0.0) ? " (MET)" : " (VIOLATED)";
-  reportEndOfLine(result);
+  reportSpaceSlack(slack, result);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2408,10 +2393,31 @@ void
 ReportPath::reportSlack(Slack slack,
 			string &result)
 {
-  const char *msg = (slack < 0.0)
-    ? "slack (VIOLATED)"
-    : "slack (MET)";
-  reportLine(msg, slack, EarlyLate::early(), result);
+  const EarlyLate *early_late = EarlyLate::early();
+  const char *msg = (delayAsFloat(slack, early_late, this) >= 0.0)
+    ? "slack (MET)"
+    : "slack (VIOLATED)";
+  reportLine(msg, slack, early_late, result);
+}
+
+void
+ReportPath::reportSpaceSlack(PathEnd *end,
+			     string &result)
+{
+  Slack slack = end->slack(this);
+  reportSpaceSlack(slack, result);
+}
+
+void
+ReportPath::reportSpaceSlack(Slack slack,
+			     string &result)
+{
+  const EarlyLate *early_late = EarlyLate::early();
+  reportSpaceFieldDelay(slack, early_late, result);
+  result += (delayAsFloat(slack, early_late, this) >= 0.0)
+    ? " (MET)"
+    : " (VIOLATED)";
+  reportEndOfLine(result);
 }
 
 void

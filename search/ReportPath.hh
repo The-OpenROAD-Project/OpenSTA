@@ -317,7 +317,12 @@ protected:
 		      string &result);
   void reportSlack(const PathEnd *end,
 		   string &result);
-  void reportSlack(Slack slack, string &result);
+  void reportSlack(Slack slack,
+		   string &result);
+  void reportSpaceSlack(PathEnd *end,
+			string &result);
+  void reportSpaceSlack(Slack slack,
+			string &result);
   void reportSrcPathArrival(const PathEnd *end,
 			    PathExpanded &expanded,
 			    string &result);
