@@ -29,7 +29,8 @@ public:
   WriteSdc(Instance *instance,
 	   const char *filename,
 	   const char *creator,
-	   bool compatible,
+	   bool map_hpins,
+	   bool native,
 	   int digits,
 	   bool no_timestamp,
 	   Sdc *sdc);
@@ -82,8 +83,10 @@ public:
   void writeInputDelays() const;
   void writeOutputDelays() const;
   void writePortDelay(PortDelay *port_delay,
+		      bool is_input_delay,
 		      const char *sdc_cmd) const;
   void writePortDelay(PortDelay *port_delay,
+		      bool is_input_delay,
 		      float delay,
 		      const TransRiseFallBoth *tr,
 		      const MinMaxAll *min_max,
@@ -100,8 +103,11 @@ public:
   void writeExceptionFrom(ExceptionFrom *from) const;
   void writeExceptionTo(ExceptionTo *to) const;
   void writeExceptionFromTo(ExceptionFromTo *from_to,
-			    const char *from_to_key) const;
+			    const char *from_to_key,
+			    bool map_hpin_to_drvr) const;
   void writeExceptionThru(ExceptionThru *thru) const;
+  void mapThruHpins(ExceptionThru *thru,
+		    PinSeq &pins) const;
   void writeDataChecks() const;
   void writeDataCheck(DataCheck *check) const;
   void writeDataCheck(DataCheck *check,
@@ -179,10 +185,14 @@ public:
 		      bool &first) const;
   virtual void writeGetPort(const Port *port) const;
   virtual void writeGetPin(const Pin *pin) const;
+  void writeGetPin(const Pin *pin,
+		   bool map_hpin_to_drvr) const;
   virtual void writeGetNet(const Net *net) const;
   virtual void writeGetInstance(const Instance *inst) const;
-  void writeGetPins(PinSet *pins) const;
-  void writeGetPins(PinSeq *pins) const;
+  void writeGetPins(PinSet *pins,
+		    bool map_hpin_to_drvr) const;
+  void writeGetPins(PinSeq *pins,
+		    bool map_hpin_to_drvr) const;
   void writeClockKey(const Clock *clk) const;
   float scaleTime(float time) const;
   float scaleCapacitance(float cap) const;
@@ -232,6 +242,8 @@ public:
   void writeSetupHoldFlag(const MinMaxAll *min_max) const;
   void writeVariables() const;
   void writeCmdComment(SdcCmdComment *cmd) const;
+  const Pin *leafDrvrPin(const Pin *pin) const;
+  const Pin *leafLoadPin(const Pin *pin) const;
 
   FILE *stream() const { return stream_; }
 
@@ -239,7 +251,8 @@ protected:
   Instance *instance_;
   const char *filename_;
   const char *creator_;
-  bool compatible_;
+  bool map_hpins_;
+  bool native_;
   int digits_;
   bool no_timestamp_;
   bool top_instance_;

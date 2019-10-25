@@ -113,4 +113,16 @@ StaState::networkReader() const
   return dynamic_cast<NetworkReader*>(network_);
 }
 
+void
+StaState::setReport(Report *report)
+{
+  report_ = report;
+}
+
+void
+StaState::setDebug(Debug *debug)
+{
+  debug_ = debug;
+}
+
 } // namespace

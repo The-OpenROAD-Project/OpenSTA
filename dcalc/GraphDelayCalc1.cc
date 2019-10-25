@@ -700,7 +700,7 @@ GraphDelayCalc1::seedLoadSlew(Vertex *vertex)
   const Pin *pin = vertex->pin();
   debugPrint1(debug_, "delay_calc", 2, "seed load slew %s\n",
 	      vertex->name(sdc_network_));
-  ClockSet *clks = sdc_->findVertexPinClocks(pin);
+  ClockSet *clks = sdc_->findLeafPinClocks(pin);
   initSlew(vertex);
   for (auto tr : TransRiseFall::range()) {
     for (auto dcalc_ap : corners_->dcalcAnalysisPts()) {
@@ -1594,10 +1594,10 @@ GraphDelayCalc1::findIdealClks(Vertex *vertex)
 {
   const Pin *pin = vertex->pin();
   ClockSet *ideal_clks = nullptr;
-  if (sdc_->isVertexPinClock(pin)) {
+  if (sdc_->isLeafPinClock(pin)) {
     // Seed ideal clocks pins.
     if (!sdc_->isPropagatedClock(pin)) {
-      ClockSet *clks = sdc_->findVertexPinClocks(pin);
+      ClockSet *clks = sdc_->findLeafPinClocks(pin);
       ClockSet::ConstIterator clk_iter(clks);
       while (clk_iter.hasNext()) {
 	Clock *clk = clk_iter.next();

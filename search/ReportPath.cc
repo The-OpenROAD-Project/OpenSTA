@@ -1720,8 +1720,7 @@ ReportPath::pathFromClkPin(const Path *path,
 {
   Clock *clk = path->clock(search_);
   return clk
-    && clk->vertexPins()
-    && clk->vertexPins()->hasKey(const_cast<Pin*>(start_pin));
+    && clk->leafPins().hasKey(const_cast<Pin*>(start_pin));
 }
 
 void

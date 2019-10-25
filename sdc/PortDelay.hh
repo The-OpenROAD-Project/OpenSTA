@@ -33,7 +33,7 @@ class PortDelay
 public:
   RiseFallMinMax *delays() { return &delays_; }
   Pin *pin() const { return pin_; }
-  PinSet &vertexPins() { return vertex_pins_; }
+  PinSet &leafPins() { return leaf_pins_; }
   Clock *clock() const;
   ClockEdge *clkEdge() const { return clk_edge_; }
   bool sourceLatencyIncluded() const;
@@ -44,7 +44,9 @@ public:
   TransRiseFall *refTransition() const;
 
 protected:
-  PortDelay(Pin *pin, ClockEdge *clk_edge, Pin *ref_pin);
+  PortDelay(Pin *pin,
+	    ClockEdge *clk_edge,
+	    Pin *ref_pin);
 
   Pin *pin_;
   ClockEdge *clk_edge_;
@@ -52,7 +54,7 @@ protected:
   bool network_latency_included_;
   Pin *ref_pin_;
   RiseFallMinMax delays_;
-  PinSet vertex_pins_;
+  PinSet leaf_pins_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(PortDelay);
@@ -85,15 +87,6 @@ private:
   friend class InputDelayIterator;
 };
 
-class InputDelayVertexPinIterator : public PinSet::Iterator
-{
-public:
-  InputDelayVertexPinIterator(InputDelay *input_delay) :
-    PinSet::Iterator(input_delay->vertexPins())
-  {
-  }
-};
-
 class OutputDelay : public PortDelay
 {
 public:
@@ -117,15 +110,6 @@ private:
   friend class OutputDelayIterator;
 };
 
-class OutputDelayVertexPinIterator : public PinSet::Iterator
-{
-public:
-  OutputDelayVertexPinIterator(OutputDelay *output_delay) :
-    PinSet::Iterator(output_delay->vertexPins())
-  {
-  }
-};
-
 class PinInputDelayIterator : public Iterator<InputDelay*>
 {
 public:
@@ -142,14 +126,14 @@ protected:
   DISALLOW_COPY_AND_ASSIGN(PinInputDelayIterator);
 };
 
-class VertexPinInputDelayIterator : public PinInputDelayIterator
+class LeafPinInputDelayIterator : public PinInputDelayIterator
 {
 public:
-  VertexPinInputDelayIterator(const Pin *vertex_pin,
+  LeafPinInputDelayIterator(const Pin *pin,
 			      const Sdc *sdc);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(VertexPinInputDelayIterator);
+  DISALLOW_COPY_AND_ASSIGN(LeafPinInputDelayIterator);
 };
 
 class PinOutputDelayIterator : public Iterator<OutputDelay*>
@@ -168,14 +152,14 @@ protected:
   DISALLOW_COPY_AND_ASSIGN(PinOutputDelayIterator);
 };
 
-class VertexPinOutputDelayIterator : public PinOutputDelayIterator
+class LeafPinOutputDelayIterator : public PinOutputDelayIterator
 {
 public:
-  VertexPinOutputDelayIterator(const Pin *vertex_pin,
-			       const Sdc *sdc);
+  LeafPinOutputDelayIterator(const Pin *pin,
+			     const Sdc *sdc);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(VertexPinOutputDelayIterator);
+  DISALLOW_COPY_AND_ASSIGN(LeafPinOutputDelayIterator);
 };
 
 // Prediate used to sort port delays.

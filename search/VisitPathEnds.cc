@@ -299,7 +299,7 @@ VisitPathEnds::visitOutputDelayEnd(const Pin *pin,
 				   bool &is_constrained)
 {
   const MinMax *min_max = path_ap->pathMinMax();
-  VertexPinOutputDelayIterator delay_iter(pin, sdc_);
+  LeafPinOutputDelayIterator delay_iter(pin, sdc_);
   while (delay_iter.hasNext()) {
     OutputDelay *output_delay = delay_iter.next();
     float margin;

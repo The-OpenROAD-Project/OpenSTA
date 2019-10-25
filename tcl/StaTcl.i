@@ -820,11 +820,6 @@ using namespace sta;
   Tcl_SetObjResult(interp, obj);
 }
 
-%typemap(out) ClockPinIterator* {
-  Tcl_Obj *obj = SWIG_NewInstanceObj($1,$1_descriptor, false);
-  Tcl_SetObjResult(interp, obj);
-}
-
 %typemap(out) ClockEdge* {
   Tcl_Obj *obj = SWIG_NewInstanceObj($1,$1_descriptor, false);
   Tcl_SetObjResult(interp, obj);
@@ -1087,6 +1082,20 @@ using namespace sta;
 }
 
 %typemap(out) PinSet* {
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
+  const PinSet *pins = $1;
+  if (pins) {
+    PinSet::ConstIterator pin_iter(pins);
+    while (pin_iter.hasNext()) {
+      Pin *pin = pin_iter.next();
+      Tcl_Obj *obj = SWIG_NewInstanceObj(pin, SWIGTYPE_p_Pin, false);
+      Tcl_ListObjAppendElement(interp, list, obj);
+    }
+  }
+  Tcl_SetObjResult(interp, list);
+}
+
+%typemap(out) PinSet& {
   Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   const PinSet *pins = $1;
   if (pins) {
@@ -1751,13 +1760,6 @@ class ClockIterator
 private:
   ClockIterator();
   ~ClockIterator();
-};
-
-class ClockPinIterator
-{
-private:
-  ClockPinIterator();
-  ~ClockPinIterator();
 };
 
 class ClockEdge
@@ -4712,12 +4714,13 @@ disabled_edges_sorted()
 
 void
 write_sdc_cmd(const char *filename,
+	      bool leaf,
 	      bool compatible,
 	      bool no_timestamp,
 	      int digits)
 {
   cmdLinkedNetwork();
-  Sta::sta()->writeSdc(filename, compatible, no_timestamp, digits);
+  Sta::sta()->writeSdc(filename, leaf, compatible, no_timestamp, digits);
 }
 
 void
@@ -5661,12 +5664,11 @@ void finish() { delete self; }
 float period() { return self->period(); }
 FloatSeq *waveform() { return self->waveform(); }
 float time(TransRiseFall *tr) { return self->edge(tr)->time(); }
-ClockPinIterator *pin_iterator() { return new ClockPinIterator(self); }
 bool is_generated() { return self->isGenerated(); }
 bool waveform_valid() { return self->waveformValid(); }
 bool is_virtual() { return self->isVirtual(); }
 bool is_propagated() { return self->isPropagated(); }
-PinSet *sources() { return self->pins(); }
+PinSet &sources() { return self->pins(); }
 
 float
 slew(const TransRiseFall *tr,
@@ -5686,12 +5688,6 @@ float time() { return self->time(); }
 %extend ClockIterator {
 bool has_next() { return self->hasNext(); }
 Clock *next() { return self->next(); }
-void finish() { delete self; }
-}
-
-%extend ClockPinIterator {
-bool has_next() { return self->hasNext(); }
-Pin *next() { return self->next(); }
 void finish() { delete self; }
 }
 

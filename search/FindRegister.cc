@@ -144,9 +144,7 @@ FindRegVisitor::visitRegs(ClockSet *clks,
       Clock *clk = clk_iter.next();
       FindRegClkPred clk_pred(clk, this);
       VertexSet visited_vertices;
-      ClockVertexPinIterator pin_iter(clk);
-      while (pin_iter.hasNext()) {
-	Pin *pin = pin_iter.next();
+      for (Pin *pin : clk->leafPins()) {
 	Vertex *vertex, *bidirect_drvr_vertex;
 	graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
 	visitFanoutRegs(vertex, TimingSense::positive_unate,

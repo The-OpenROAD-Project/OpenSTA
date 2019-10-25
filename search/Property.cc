@@ -911,7 +911,7 @@ getProperty(Clock *clk,
   else if (stringEqual(property, "period"))
     return PropertyValue(sta->units()->timeUnit()->asString(clk->period(), 6));
   else if (stringEqual(property, "sources"))
-    return PropertyValue(clk->pins());
+    return PropertyValue(&clk->pins());
   else if (stringEqual(property, "propagated"))
     return PropertyValue(clk->isPropagated() ? "1" : "0");
   else

@@ -36,8 +36,14 @@ public:
   float period() const { return period_; }
   // Virtual clocks have no pins.
   bool isVirtual() const;
-  PinSet *pins() const { return pins_; }
-  PinSet *vertexPins() const { return vertex_pins_; }
+  PinSet &pins() { return pins_; }
+  const PinSet &pins() const { return pins_; }
+  // The clock source pin's leaf pins.
+  //  If the source pin is hierarchical, the leaf pins are:
+  //   hierarchical  input - load pins  inside the hierarchical instance
+  //   hierarchical output - load pins outside the hierarchical instance
+  PinSet &leafPins() { return leaf_pins_; }
+  const PinSet &leafPins() const { return leaf_pins_; }
   // Clock pin used by input/output delay for propagated generated
   // clock insertion delay.
   Pin *defaultPin() const;
@@ -92,7 +98,7 @@ public:
 
   void addPin(Pin *pin);
   void deletePin(Pin *pin);
-  void makeVertexPins(const Network *network);
+  void makeLeafPins(const Network *network);
 
   bool isGenerated() const;
   bool isGeneratedWithPropagatedMaster() const;
@@ -157,10 +163,10 @@ protected:
   void generateEdgesClk(const Clock *src_clk);
 
   const char *name_;
-  PinSet *pins_;
+  PinSet pins_;
   bool add_to_pins_;
   // Hierarchical pins in pins_ become driver pins through the pin.
-  PinSet *vertex_pins_;
+  PinSet leaf_pins_;
   Pin *pll_out_;
   Pin *pll_fdbk_;
   float period_;
@@ -293,23 +299,8 @@ sortClockSet(ClockSet * set,
 class ClockPinIterator : public PinSet::Iterator
 {
 public:
-  ClockPinIterator(Clock *clk) :
-    PinSet::Iterator(clk->pins())
-  {
-  }
-};
-
-// The clock source pin's graph vertex pins.
-//  If the source pin is hierarchical, the vertex pins are:
-//   hierarchical  input - load pins  inside the hierarchical instance
-//   hierarchical output - load pins outside the hierarchical instance
-class ClockVertexPinIterator : public PinSet::Iterator
-{
-public:
-  ClockVertexPinIterator(Clock *clk) :
-    PinSet::Iterator(clk->vertexPins())
-  {
-  }
+  // Use range iterator on Clock::pins().
+  ClockPinIterator(Clock *clk) __attribute__ ((deprecated));
 };
 
 } // namespace

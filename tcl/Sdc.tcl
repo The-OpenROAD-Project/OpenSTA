@@ -123,11 +123,11 @@ proc source_ { filename echo verbose } {
 ################################################################
 
 define_cmd_args "write_sdc" \
-  {[-no_timestamp] [-digits digits] filename}
+  {[-map_hpins] [-no_timestamp] [-digits digits] filename}
 
 proc write_sdc { args } {
   parse_key_args "write_sdc" args keys {-digits -significant_digits} \
-    flags {-compatible -no_timestamp}
+    flags {-map_hpins -compatible -no_timestamp}
   check_argc_eq1 "write_sdc" $args
 
   set digits 4
@@ -141,8 +141,9 @@ proc write_sdc { args } {
 
   set filename [file nativename [lindex $args 0]]
   set no_timestamp [info exists flags(-no_timestamp)]
-  set compatible [info exists flags(-native)]
-  write_sdc_cmd $filename $compatible $no_timestamp $digits
+  set map_hpins [info exists flags(-map_hpins)]
+  set native [expr ![info exists flags(-compatible)]]
+  write_sdc_cmd $filename $map_hpins $native $no_timestamp $digits
 }
 
 ################################################################

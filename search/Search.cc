@@ -104,7 +104,7 @@ EvalPred::searchTo(const Vertex *to_vertex)
   const Sdc *sdc = sta_->sdc();
   const Pin *pin = to_vertex->pin();
   return SearchPred0::searchTo(to_vertex)
-    && !(sdc->isVertexPinClock(pin)
+    && !(sdc->isLeafPinClock(pin)
 	 && !sdc->isPathDelayInternalEndpoint(pin));
 }
 
@@ -868,9 +868,8 @@ Search::visitStartpoints(VertexVisitor *visitor)
   }
   delete pin_iter;
 
-  InputDelayVertexPinsIterator arrival_iter(sdc_);
-  while (arrival_iter.hasNext()) {
-    const Pin *pin = arrival_iter.next();
+  for (auto iter : sdc_->inputDelayMap()) {
+    const Pin *pin = iter.first;
     // Already hit these.
     if (!network_->isTopLevelPort(pin)) {
       Vertex *vertex = graph_->pinDrvrVertex(pin);
@@ -879,10 +878,8 @@ Search::visitStartpoints(VertexVisitor *visitor)
     }
   }
 
-  for (auto clk : sdc_->clks()) {
-    ClockVertexPinIterator pin_iter(clk);
-    while (pin_iter.hasNext()) {
-      Pin *pin = pin_iter.next();
+  for (Clock *clk : sdc_->clks()) {
+    for (Pin *pin : clk->leafPins()) {
       // Already hit these.
       if (!network_->isTopLevelPort(pin)) {
 	Vertex *vertex = graph_->pinDrvrVertex(pin);
@@ -1080,7 +1077,7 @@ ArrivalVisitor::visit(Vertex *vertex)
 	      vertex->name(sdc_network));
   Pin *pin = vertex->pin();
   // Don't clobber clock sources.
-  if (!sdc->isVertexPinClock(pin)
+  if (!sdc->isLeafPinClock(pin)
       // Unless it is an internal path delay endpoint.
       || sdc->isPathDelayInternalEndpoint(pin)) {
     tag_bldr_->init(vertex);
@@ -1105,7 +1102,7 @@ ArrivalVisitor::visit(Vertex *vertex)
       // set_min/max_delay on internal pin.
       search->makeUnclkedPaths(vertex, true, tag_bldr_);
     if (sdc->isPathDelayInternalEndpoint(pin)
-	&& sdc->isVertexPinClock(pin))
+	&& sdc->isLeafPinClock(pin))
       // set_min/max_delay on internal pin also a clock src. Bizzaroland.
       // Re-seed the clock arrivals on top of the propagated paths.
       search->seedClkArrivals(pin, vertex, tag_bldr_);
@@ -1392,9 +1389,7 @@ void
 Search::findClockVertices(VertexSet &vertices)
 {
   for (auto clk : sdc_->clks()) {
-    ClockVertexPinIterator pin_iter(clk);
-    while (pin_iter.hasNext()) {
-      Pin *pin = pin_iter.next();
+    for (Pin *pin : clk->leafPins()) {
       Vertex *vertex, *bidirect_drvr_vertex;
       graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
       vertices.insert(vertex);
@@ -1416,7 +1411,7 @@ void
 Search::seedArrival(Vertex *vertex)
 {
   const Pin *pin = vertex->pin();
-  if (sdc_->isVertexPinClock(pin)) {
+  if (sdc_->isLeafPinClock(pin)) {
     TagGroupBldr tag_bldr(true, this);
     tag_bldr.init(vertex);
     genclks_->copyGenClkSrcPaths(vertex, &tag_bldr);
@@ -1462,14 +1457,12 @@ Search::seedArrival(Vertex *vertex)
   }
 }
 
-// Find all of the clock vertex pins.
+// Find all of the clock leaf pins.
 void
 Search::findClkVertexPins(PinSet &clk_pins)
 {
   for (auto clk : sdc_->clks()) {
-    ClockVertexPinIterator pin_iter(clk);
-    while (pin_iter.hasNext()) {
-      Pin *pin = pin_iter.next();
+    for (Pin *pin : clk->leafPins()) {
       clk_pins.insert(pin);
     }
   }
@@ -1480,7 +1473,7 @@ Search::seedClkArrivals(const Pin *pin,
 			Vertex *vertex,
 			TagGroupBldr *tag_bldr)
 {
-  for (auto clk : *sdc_->findVertexPinClocks(pin)) {
+  for (auto clk : *sdc_->findLeafPinClocks(pin)) {
     debugPrint2(debug_, "search", 2, "arrival seed clk %s pin %s\n",
 		clk->name(), network_->pathName(pin));
     for (auto path_ap : corners_->pathAnalysisPts()) {
@@ -1622,7 +1615,7 @@ Search::findRootVertices(VertexSet &vertices)
 {
   for (auto vertex : levelize_->roots()) {
     const Pin *pin = vertex->pin();
-    if (!sdc_->isVertexPinClock(pin)
+    if (!sdc_->isLeafPinClock(pin)
 	&& !sdc_->hasInputDelay(pin)
 	&& !vertex->isConstant()) {
       vertices.insert(vertex);
@@ -1648,7 +1641,7 @@ Search::isSegmentStart(const Pin *pin)
 {
   return (sdc_->isPathDelayInternalStartpoint(pin)
 	  || sdc_->isInputDelayInternal(pin))
-    && !sdc_->isVertexPinClock(pin);
+    && !sdc_->isLeafPinClock(pin);
 }
 
 bool
@@ -1668,10 +1661,9 @@ Search::seedInputArrivals(ClockSet *clks)
 {
   // Input arrivals can be on internal pins, so iterate over the pins
   // that have input arrivals rather than the top level input pins.
-  InputDelayVertexPinsIterator arrival_iter(sdc_);
-  while (arrival_iter.hasNext()) {
-    const Pin *pin = arrival_iter.next();
-    if (!sdc_->isVertexPinClock(pin)) {
+  for (auto iter : sdc_->inputDelayMap()) {
+    const Pin *pin = iter.first;
+    if (!sdc_->isLeafPinClock(pin)) {
       Vertex *vertex = graph_->pinDrvrVertex(pin);
       seedInputArrival(pin, vertex, clks);
     }
@@ -1685,13 +1677,13 @@ Search::seedInputArrival(const Pin *pin,
 {
   bool has_arrival = false;
   // There can be multiple arrivals for a pin with wrt different clocks.
-  VertexPinInputDelayIterator arrival_iter(pin, sdc_);
+  LeafPinInputDelayIterator arrival_iter(pin, sdc_);
   TagGroupBldr tag_bldr(true, this);
   tag_bldr.init(vertex);
   while (arrival_iter.hasNext()) {
     InputDelay *input_delay = arrival_iter.next();
     Clock *input_clk = input_delay->clock();
-    ClockSet *pin_clks = sdc_->findVertexPinClocks(pin);
+    ClockSet *pin_clks = sdc_->findLeafPinClocks(pin);
     if (input_clk && wrt_clks->hasKey(input_clk)
 	// Input arrivals wrt a clock source pin is the insertion
 	// delay (source latency), but arrivals wrt other clocks
@@ -1713,7 +1705,7 @@ Search::seedInputArrival(const Pin *pin,
 {
   if (sdc_->hasInputDelay(pin))
     seedInputArrival1(pin, vertex, false, tag_bldr);
-  else if (!sdc_->isVertexPinClock(pin))
+  else if (!sdc_->isLeafPinClock(pin))
     // Seed inputs without set_input_delays.
     seedInputDelayArrival(pin, vertex, nullptr, false, tag_bldr);
 }
@@ -1733,11 +1725,11 @@ Search::seedInputArrival1(const Pin *pin,
 			  TagGroupBldr *tag_bldr)
 {
   // There can be multiple arrivals for a pin with wrt different clocks.
-  VertexPinInputDelayIterator arrival_iter(pin, sdc_);
+  LeafPinInputDelayIterator arrival_iter(pin, sdc_);
   while (arrival_iter.hasNext()) {
     InputDelay *input_delay = arrival_iter.next();
     Clock *input_clk = input_delay->clock();
-    ClockSet *pin_clks = sdc_->findVertexPinClocks(pin);
+    ClockSet *pin_clks = sdc_->findLeafPinClocks(pin);
     // Input arrival wrt a clock source pin is the clock insertion
     // delay (source latency), but arrivals wrt other clocks
     // propagate.
@@ -2088,7 +2080,7 @@ Search::pathPropagatedToClkSrc(const Pin *pin,
       // Clock source can have input arrivals from unrelated clock.
       && tag->inputDelay() == nullptr
       && sdc_->isPathDelayInternalEndpoint(pin)) {
-    ClockSet *clks = sdc_->findVertexPinClocks(pin);
+    ClockSet *clks = sdc_->findLeafPinClocks(pin);
     return clks
       && !clks->hasKey(tag->clock());
   }

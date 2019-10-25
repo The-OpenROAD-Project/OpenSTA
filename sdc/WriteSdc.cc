@@ -110,6 +110,7 @@ class WriteGetPinAndClkKey : public WriteSdcObject
 {
 public:
   WriteGetPinAndClkKey(const Pin *pin,
+		       bool map_hpin_to_drvr,
 		       const Clock *clk,
 		       const WriteSdc *writer);
   virtual void write() const;
@@ -118,14 +119,17 @@ private:
   DISALLOW_COPY_AND_ASSIGN(WriteGetPinAndClkKey);
 
   const Pin *pin_;
+  bool map_hpin_to_drvr_;
   const Clock *clk_;
   const WriteSdc *writer_;
 };
 
 WriteGetPinAndClkKey::WriteGetPinAndClkKey(const Pin *pin,
+					   bool map_hpin_to_drvr,
 					   const Clock *clk,
 					   const WriteSdc *writer) :
   pin_(pin),
+  map_hpin_to_drvr_(map_hpin_to_drvr),
   clk_(clk),
   writer_(writer)
 {
@@ -136,13 +140,14 @@ WriteGetPinAndClkKey::write() const
 {
   writer_->writeClockKey(clk_);
   fprintf(writer_->stream(), " ");
-  writer_->writeGetPin(pin_);
+  writer_->writeGetPin(pin_, map_hpin_to_drvr_);
 }
 
 class WriteGetPin : public WriteSdcObject
 {
 public:
   WriteGetPin(const Pin *pin,
+	      bool map_hpin_to_drvr,
 	      const WriteSdc *writer);
   virtual void write() const;
 
@@ -150,12 +155,15 @@ private:
   DISALLOW_COPY_AND_ASSIGN(WriteGetPin);
 
   const Pin *pin_;
+  bool map_hpin_to_drvr_;
   const WriteSdc *writer_;
 };
 
 WriteGetPin::WriteGetPin(const Pin *pin,
+			 bool map_hpin_to_drvr,
 			 const WriteSdc *writer) :
   pin_(pin),
+  map_hpin_to_drvr_(map_hpin_to_drvr),
   writer_(writer)
 {
 }
@@ -163,7 +171,7 @@ WriteGetPin::WriteGetPin(const Pin *pin,
 void
 WriteGetPin::write() const
 {
-  writer_->writeGetPin(pin_);
+  writer_->writeGetPin(pin_, map_hpin_to_drvr_);
 }
 
 class WriteGetNet : public WriteSdcObject
@@ -280,20 +288,22 @@ void
 writeSdc(Instance *instance,
 	 const char *filename,
 	 const char *creator,
-	 bool compatible,
+	 bool map_hpins,
+	 bool native,
 	 bool no_timestamp,
 	 int digits,
 	 Sdc *sdc)
 {
-  WriteSdc writer(instance, filename, creator, compatible, digits,
-		  no_timestamp, sdc);
+  WriteSdc writer(instance, filename, creator, map_hpins, native,
+		  digits, no_timestamp, sdc);
   writer.write();
 }
 
 WriteSdc::WriteSdc(Instance *instance,
 		   const char *filename,
 		   const char *creator,
-		   bool compatible,
+		   bool map_hpins,
+		   bool native,
 		   int digits,
 		   bool no_timestamp,
 		   Sdc *sdc) :
@@ -301,7 +311,8 @@ WriteSdc::WriteSdc(Instance *instance,
   instance_(instance),
   filename_(filename),
   creator_(creator),
-  compatible_(compatible),
+  map_hpins_(map_hpins),
+  native_(native),
   digits_(digits),
   no_timestamp_(no_timestamp),
   top_instance_(instance == sdc_network_->topInstance()),
@@ -430,7 +441,7 @@ WriteSdc::writeGeneratedClock(Clock *clk) const
   if (clk->addToPins())
     fprintf(stream_, " -add");
   fprintf(stream_, " -source ");
-  writeGetPin(clk->srcPin());
+  writeGetPin(clk->srcPin(), true);
   Clock *master = clk->masterClk();
   if (master && !clk->masterClkInfered()) {
     fprintf(stream_, " -master_clock ");
@@ -439,12 +450,12 @@ WriteSdc::writeGeneratedClock(Clock *clk) const
   Pin *pll_out = clk->pllOut();
   if (pll_out) {
     fprintf(stream_, " -pll_out ");
-    writeGetPin(pll_out);
+    writeGetPin(pll_out, true);
   }
   Pin *pll_fdbk = clk->pllFdbk();
   if (pll_fdbk) {
     fprintf(stream_, " -pll_feedback ");
-    writeGetPin(pll_fdbk);
+    writeGetPin(pll_fdbk, false);
   }
   if (clk->combinational())
     fprintf(stream_, " -combinational");
@@ -481,16 +492,11 @@ void
 WriteSdc::writeClockPins(Clock *clk) const
 {
   // Sort pins.
-  PinSeq pins;
-  ClockPinIterator pin_iter(clk);
-  while (pin_iter.hasNext())
-    pins.push_back(pin_iter.next());
-
+  PinSet &pins = clk->pins();
   if (!pins.empty()) {
-    sort(pins, PinPathNameLess(sdc_network_));
     if (pins.size() > 1)
       fprintf(stream_, "\\\n    ");
-    writeGetPins(&pins);
+    writeGetPins(&pins, true);
   }
 }
 
@@ -572,7 +578,7 @@ WriteSdc::writeClockUncertaintyPin(const Pin *pin,
   fprintf(stream_, "set_clock_uncertainty %s", setup_hold);
   writeTime(value);
   fprintf(stream_, " ");
-  writeGetPin(pin);
+  writeGetPin(pin, true);
   fprintf(stream_, "\n");
 }
 
@@ -585,12 +591,12 @@ WriteSdc::writeClockLatencies() const
     const Pin *pin = latency->pin();
     const Clock *clk = latency->clock();
     if (pin && clk) {
-      WriteGetPinAndClkKey write_pin(pin, clk, this);
+      WriteGetPinAndClkKey write_pin(pin, true, clk, this);
       writeRiseFallMinMaxTimeCmd("set_clock_latency", latency->delays(),
 				 write_pin);
     }
     else if (pin) {
-      WriteGetPin write_pin(pin, this);
+      WriteGetPin write_pin(pin, true, this);
       writeRiseFallMinMaxTimeCmd("set_clock_latency", latency->delays(),
 				 write_pin);
     }
@@ -611,11 +617,11 @@ WriteSdc::writeClockInsertions() const
     const Pin *pin = insert->pin();
     const Clock *clk = insert->clock();
     if (pin && clk) {
-      WriteGetPinAndClkKey write_pin_clk(pin, clk, this);
+      WriteGetPinAndClkKey write_pin_clk(pin, true, clk, this);
       writeClockInsertion(insert, write_pin_clk);
     }
     else if (pin) {
-      WriteGetPin write_pin(pin, this);
+      WriteGetPin write_pin(pin, true, this);
       writeClockInsertion(insert, write_pin);
     }
     else if (clk) {
@@ -649,7 +655,7 @@ WriteSdc::writePropagatedClkPins() const
   while (pin_iter.hasNext()) {
     const Pin *pin = pin_iter.next();
     fprintf(stream_, "set_propagated_clock ");
-    writeGetPin(pin);
+    writeGetPin(pin, true);
     fprintf(stream_, "\n");
   }
 }
@@ -717,11 +723,8 @@ WriteSdc::writeInputDelays() const
 {
   // Sort arrivals by pin and clock name.
   PortDelaySeq delays;
-  InputDelayIterator input_iter(sdc_);
-  while (input_iter.hasNext()) {
-    InputDelay *input_delay = input_iter.next();
+  for (InputDelay *input_delay : sdc_->inputDelays())
     delays.push_back(input_delay);
-  }
 
   PortDelayLess port_delay_less(sdc_network_);
   sort(delays, port_delay_less);
@@ -729,7 +732,7 @@ WriteSdc::writeInputDelays() const
   PortDelaySeq::Iterator delay_iter(delays);
   while (delay_iter.hasNext()) {
     PortDelay *input_delay = delay_iter.next();
-    writePortDelay(input_delay, "set_input_delay");
+    writePortDelay(input_delay, true, "set_input_delay");
   }
 }
 
@@ -738,11 +741,8 @@ WriteSdc::writeOutputDelays() const
 {
   // Sort departures by pin and clock name.
   PortDelaySeq delays;
-  OutputDelayIterator output_iter(sdc_);
-  while (output_iter.hasNext()) {
-    OutputDelay *output_delay = output_iter.next();
+  for (OutputDelay *output_delay : sdc_->outputDelays())
     delays.push_back(output_delay);
-  }
 
   PortDelayLess port_delay_less(sdc_network_);
   sort(delays, port_delay_less);
@@ -750,12 +750,13 @@ WriteSdc::writeOutputDelays() const
   PortDelaySeq::Iterator delay_iter(delays);
   while (delay_iter.hasNext()) {
     PortDelay *output_delay = delay_iter.next();
-    writePortDelay(output_delay, "set_output_delay");
+    writePortDelay(output_delay, false, "set_output_delay");
   }
 }
 
 void
 WriteSdc::writePortDelay(PortDelay *port_delay,
+			 bool is_input_delay,
 			 const char *sdc_cmd) const
 {
   RiseFallMinMax *delays = port_delay->delays();
@@ -777,7 +778,7 @@ WriteSdc::writePortDelay(PortDelay *port_delay,
       && rise_max == rise_min
       && fall_min == rise_min
       && fall_max == rise_min)
-    writePortDelay(port_delay, rise_min,
+    writePortDelay(port_delay, is_input_delay, rise_min,
 		   TransRiseFallBoth::riseFall(), MinMaxAll::all(), sdc_cmd);
   else if (rise_min_exists
 	   && rise_max_exists
@@ -785,9 +786,9 @@ WriteSdc::writePortDelay(PortDelay *port_delay,
 	   && fall_min_exists
 	   && fall_max_exists
 	   && fall_min == fall_max) {
-    writePortDelay(port_delay, rise_min,
+    writePortDelay(port_delay, is_input_delay, rise_min,
 		   TransRiseFallBoth::rise(), MinMaxAll::all(), sdc_cmd);
-    writePortDelay(port_delay, fall_min,
+    writePortDelay(port_delay, is_input_delay, fall_min,
 		   TransRiseFallBoth::fall(), MinMaxAll::all(), sdc_cmd);
   }
   else if (rise_min_exists
@@ -796,29 +797,30 @@ WriteSdc::writePortDelay(PortDelay *port_delay,
 	   && rise_max_exists
 	   && fall_max_exists
 	   && rise_max == fall_max) {
-    writePortDelay(port_delay, rise_min,
+    writePortDelay(port_delay, is_input_delay, rise_min,
 		   TransRiseFallBoth::riseFall(), MinMaxAll::min(), sdc_cmd);
-    writePortDelay(port_delay, rise_max,
+    writePortDelay(port_delay, is_input_delay, rise_max,
 		   TransRiseFallBoth::riseFall(), MinMaxAll::max(), sdc_cmd);
   }
   else {
     if (rise_min_exists)
-      writePortDelay(port_delay, rise_min,
+      writePortDelay(port_delay, is_input_delay, rise_min,
 		     TransRiseFallBoth::rise(), MinMaxAll::min(), sdc_cmd);
     if (rise_max_exists)
-      writePortDelay(port_delay, rise_max,
+      writePortDelay(port_delay, is_input_delay, rise_max,
 		     TransRiseFallBoth::rise(), MinMaxAll::max(), sdc_cmd);
     if (fall_min_exists)
-      writePortDelay(port_delay, fall_min,
+      writePortDelay(port_delay, is_input_delay, fall_min,
 		     TransRiseFallBoth::fall(), MinMaxAll::min(), sdc_cmd);
     if (fall_max_exists)
-      writePortDelay(port_delay, fall_max,
+      writePortDelay(port_delay, is_input_delay, fall_max,
 		     TransRiseFallBoth::fall(), MinMaxAll::max(), sdc_cmd);
   }
 }
 
 void
 WriteSdc::writePortDelay(PortDelay *port_delay,
+			 bool is_input_delay,
 			 float delay,
 			 const TransRiseFallBoth *tr,
 			 const MinMaxAll *min_max,
@@ -838,16 +840,10 @@ WriteSdc::writePortDelay(PortDelay *port_delay,
   Pin *ref_pin = port_delay->refPin();
   if (ref_pin) {
     fprintf(stream_, "-reference_pin ");
-    writeGetPin(ref_pin);
+    writeGetPin(ref_pin, true);
     fprintf(stream_, " ");
   }
-  Pin *pin = port_delay->pin();
-  if (sdc_network_->instance(pin) == instance_) {
-    Port *port = sdc_network_->port(pin);
-    writeGetPort(port);
-  }
-  else
-    writeGetPin(pin);
+  writeGetPin(port_delay->pin(), is_input_delay);
   fprintf(stream_, "\n");
 }
 
@@ -919,7 +915,7 @@ WriteSdc::writeClockSense(PinClockPair &pin_clk,
     writeGetClock(clk);
     fprintf(stream_, " ");
   }
-  writeGetPin(pin_clk.first);
+  writeGetPin(pin_clk.first, true);
   fprintf(stream_, "\n");
 }
 
@@ -1184,7 +1180,7 @@ WriteSdc::writeDisabledPins() const
   while (pin_iter.hasNext()) {
     Pin *pin = pin_iter.next();
     fprintf(stream_, "set_disable_timing ");
-    writeGetPin(pin);
+    writeGetPin(pin, false);
     fprintf(stream_, "\n");
   }
 }
@@ -1350,7 +1346,7 @@ WriteSdc::writeExceptionValue(ExceptionPath *exception) const
 void
 WriteSdc::writeExceptionFrom(ExceptionFrom *from) const
 {
-  writeExceptionFromTo(from, "from");
+  writeExceptionFromTo(from, "from", true);
 }
 
 void
@@ -1360,12 +1356,13 @@ WriteSdc::writeExceptionTo(ExceptionTo *to) const
   if (end_tr != TransRiseFallBoth::riseFall())
     fprintf(stream_, "%s ", transRiseFallFlag(end_tr));
   if (to->hasObjects())
-    writeExceptionFromTo(to, "to");
+    writeExceptionFromTo(to, "to", false);
 }
 
 void
 WriteSdc::writeExceptionFromTo(ExceptionFromTo *from_to,
-			       const char *from_to_key) const
+			       const char *from_to_key,
+			       bool map_hpin_to_drvr) const
 {
   const TransRiseFallBoth *tr = from_to->transition();
   const char *tr_prefix = "-";
@@ -1389,7 +1386,7 @@ WriteSdc::writeExceptionFromTo(ExceptionFromTo *from_to,
       Pin *pin = pin_iter.next();
       if (multi_objs && !first)
 	fprintf(stream_, "\\\n           ");
-      writeGetPin(pin);
+      writeGetPin(pin, map_hpin_to_drvr);
       first = false;
     }
   }
@@ -1421,25 +1418,25 @@ WriteSdc::writeExceptionThru(ExceptionThru *thru) const
   else if (tr == TransRiseFallBoth::fall())
     tr_prefix = "-fall_";
   fprintf(stream_, "\\\n    %sthrough ", tr_prefix);
+  PinSeq pins;
+  mapThruHpins(thru, pins);
   bool multi_objs =
-    ((thru->pins() ? thru->pins()->size() : 0)
+    (pins.size()
      + (thru->nets() ? thru->nets()->size() : 0)
-     +  (thru->instances() ? thru->instances()->size() : 0)) > 1;
+     + (thru->instances() ? thru->instances()->size() : 0)) > 1;
   if (multi_objs)
     fprintf(stream_, "[list ");
   bool first = true;
-  if (thru->pins()) {
-    PinSeq pins;
-    sortPinSet(thru->pins(), sdc_network_, pins);
-    PinSeq::Iterator pin_iter(pins);
-    while (pin_iter.hasNext()) {
-      Pin *pin = pin_iter.next();
-      if (multi_objs && !first)
-	fprintf(stream_, "\\\n           ");
-      writeGetPin(pin);
-      first = false;
-    }
+  sort(pins, PinPathNameLess(network_));
+  PinSeq::Iterator pin_iter(pins);
+  while (pin_iter.hasNext()) {
+    Pin *pin = pin_iter.next();
+    if (multi_objs && !first)
+      fprintf(stream_, "\\\n           ");
+    writeGetPin(pin);
+    first = false;
   }
+
   if (thru->nets()) {
     NetSeq nets;
     sortNetSet(thru->nets(), sdc_network_, nets);
@@ -1466,6 +1463,33 @@ WriteSdc::writeExceptionThru(ExceptionThru *thru) const
   }
   if (multi_objs)
     fprintf(stream_, "]");
+}
+
+void
+WriteSdc::mapThruHpins(ExceptionThru *thru,
+		       PinSeq &pins) const
+{
+  if (thru->pins()) {
+    for (Pin *pin : *thru->pins()) {
+      // Map hierarical pins to load pins outside of outputs or inside of inputs.
+      if (network_->isHierarchical(pin)) {
+	Instance *hinst = network_->instance(pin);
+	bool hpin_is_output = network_->direction(pin)->isAnyOutput();
+	PinConnectedPinIterator *cpin_iter = network_->connectedPinIterator(pin);
+	while (cpin_iter->hasNext()) {
+	  Pin *cpin = cpin_iter->next();
+	  if (network_->isLoad(cpin)
+	      && ((hpin_is_output
+		   && !network_->isInside(network_->instance(cpin), hinst))
+		  || (!hpin_is_output
+		      && network_->isInside(network_->instance(cpin), hinst))))
+	    pins.push_back(cpin);
+	}
+      }
+      else
+	pins.push_back(pin);
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1530,14 +1554,14 @@ WriteSdc::writeDataCheck(DataCheck *check,
   else if (from_tr == TransRiseFallBoth::fall())
     from_key = "-fall_from";
   fprintf(stream_, "set_data_check %s ", from_key);
-  writeGetPin(check->from());
+  writeGetPin(check->from(), true);
   const char *to_key = "-to";
   if (to_tr == TransRiseFallBoth::rise())
     to_key = "-rise_to";
   else if (to_tr == TransRiseFallBoth::fall())
     to_key = "-fall_to";
   fprintf(stream_, " %s ", to_key);
-  writeGetPin(check->to());
+  writeGetPin(check->to(), false);
   fprintf(stream_, "%s ",
 	  setupHoldFlag(setup_hold));
   writeTime(margin);
@@ -1816,7 +1840,7 @@ WriteSdc::writeConstant(Pin *pin) const
 {
   const char *cmd = setConstantCmd(pin);
   fprintf(stream_, "%s ", cmd);
-  writeGetPin(pin);
+  writeGetPin(pin, false);
   fprintf(stream_, "\n");
 }
 
@@ -1858,7 +1882,7 @@ WriteSdc::writeCaseAnalysis(Pin *pin) const
 {
   const char *value_str = caseAnalysisValueStr(pin);
   fprintf(stream_, "set_case_analysis %s ", value_str);
-  writeGetPin(pin);
+  writeGetPin(pin, false);
   fprintf(stream_, "\n");
 }
 
@@ -2087,7 +2111,7 @@ WriteSdc::writeMinPulseWidths() const
     const Pin *pin;
     RiseFallValues *min_widths;
     pin_iter.next(pin, min_widths);
-    WriteGetPin write_obj(pin, this);
+    WriteGetPin write_obj(pin, false, this);
     writeMinPulseWidths(min_widths, write_obj);
   }
   InstMinPulseWidthMap::Iterator
@@ -2155,7 +2179,7 @@ WriteSdc::writeLatchBorowLimits() const
     fprintf(stream_, "set_max_time_borrow ");
     writeTime(limit);
     fprintf(stream_, " ");
-    writeGetPin(pin);
+    writeGetPin(pin, false);
     fprintf(stream_, "\n");
   }
   InstLatchBorrowLimitMap::Iterator
@@ -2226,7 +2250,7 @@ WriteSdc::writeSlewLimits() const
       fprintf(stream_, "set_max_transition ");
       writeTime(slew);
       fprintf(stream_, " ");
-      writeGetPin(pin);
+      writeGetPin(pin, false);
       fprintf(stream_, "\n");
     }
   }
@@ -2345,7 +2369,7 @@ WriteSdc::writeCapLimits(const MinMax *min_max,
       fprintf(stream_, "%s ", cmd);
       writeCapacitance(cap);
       fprintf(stream_, " ");
-      writeGetPin(pin);
+      writeGetPin(pin, false);
       fprintf(stream_, "\n");
     }
   }
@@ -2404,16 +2428,16 @@ void
 WriteSdc::writeVariables() const
 {
   if (sdc_->propagateAllClocks()) {
-    if (compatible_)
-      fprintf(stream_, "set timing_all_clocks_propagated true\n");
-    else
+    if (native_)
       fprintf(stream_, "set sta_propagate_all_clocks 1\n");
+    else
+      fprintf(stream_, "set timing_all_clocks_propagated true\n");
   }
   if (sdc_->presetClrArcsEnabled()) {
-    if (compatible_)
-      fprintf(stream_, "set timing_enable_preset_clear_arcs true\n");
-    else
+    if (native_)
       fprintf(stream_, "set sta_preset_clear_arcs_enabled 1\n");
+    else
+      fprintf(stream_, "set timing_enable_preset_clear_arcs true\n");
   }
 }
 
@@ -2439,10 +2463,10 @@ WriteSdc::writeGetTimingArcs(Edge *edge,
 {
   fprintf(stream_, "[%s -from ", getTimingArcsCmd());
   Vertex *from_vertex = edge->from(graph_);
-  writeGetPin(from_vertex->pin());
+  writeGetPin(from_vertex->pin(), true);
   fprintf(stream_, " -to ");
   Vertex *to_vertex = edge->to(graph_);
-  writeGetPin(to_vertex->pin());
+  writeGetPin(to_vertex->pin(), false);
   if (filter)
     fprintf(stream_, " -filter {%s}", filter);
   fprintf(stream_, "]");
@@ -2451,7 +2475,7 @@ WriteSdc::writeGetTimingArcs(Edge *edge,
 const char *
 WriteSdc::getTimingArcsCmd() const
 {
-  return compatible_ ? "get_timing_arcs" : "get_timing_edges";
+  return native_ ? "get_timing_edges" : "get_timing_arcs";
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2518,15 +2542,17 @@ WriteSdc::writeGetPort(const Port *port) const
 }
 
 void
-WriteSdc::writeGetPins(PinSet *pins) const
+WriteSdc::writeGetPins(PinSet *pins,
+		       bool map_hpin_to_drvr) const
 {
   PinSeq pins1;
   sortPinSet(pins, sdc_network_, pins1);
-  writeGetPins(&pins1);
+  writeGetPins(&pins1, map_hpin_to_drvr);
 }
 
 void
-WriteSdc::writeGetPins(PinSeq *pins) const
+WriteSdc::writeGetPins(PinSeq *pins,
+		       bool map_hpin_to_drvr) const
 {
   bool multiple = pins->size() > 1;
   if (multiple)
@@ -2537,7 +2563,7 @@ WriteSdc::writeGetPins(PinSeq *pins) const
     Pin *pin = pin_iter.next();
     if (multiple && !first)
       fprintf(stream_, "\\\n          ");
-    writeGetPin(pin);
+    writeGetPin(pin, map_hpin_to_drvr);
     first = false;
   }
   if (multiple)
@@ -2551,6 +2577,51 @@ WriteSdc::writeGetPin(const Pin *pin) const
     fprintf(stream_, "[get_ports {%s}]", sdc_network_->portName(pin));
   else
     fprintf(stream_, "[get_pins {%s}]", pathName(pin));
+}
+
+void
+WriteSdc::writeGetPin(const Pin *pin,
+		      bool map_hpin_to_drvr) const
+{
+  if (map_hpins_ && map_hpin_to_drvr)
+    pin = leafDrvrPin(pin);
+  else if (map_hpins_ && !map_hpin_to_drvr)
+    pin = leafLoadPin(pin);
+
+  if (sdc_network_->instance(pin) == instance_)
+    fprintf(stream_, "[get_ports {%s}]", sdc_network_->portName(pin));
+  else
+    fprintf(stream_, "[get_pins {%s}]", pathName(pin));
+}
+
+const Pin *
+WriteSdc::leafDrvrPin(const Pin *pin) const
+{
+  PinSet leaf_pins;
+  findLeafDriverPins(const_cast<Pin*>(pin), network_, &leaf_pins);
+  PinSet::Iterator pin_iter(leaf_pins);
+  if (pin_iter.hasNext())
+    return pin_iter.next();
+  else {
+    report_->warn("No leaf driver pin found for hierarchical pin %s\n",
+		  sdc_network_->pathName(pin));
+    return pin;
+  }
+}
+
+const Pin *
+WriteSdc::leafLoadPin(const Pin *pin) const
+{
+  PinSet leaf_pins;
+  findLeafLoadPins(const_cast<Pin*>(pin), network_, &leaf_pins);
+  PinSet::Iterator pin_iter(leaf_pins);
+  if (pin_iter.hasNext())
+    return pin_iter.next();
+  else {
+    report_->warn("No leaf load pin found for hierarchical pin %s\n",
+		  sdc_network_->pathName(pin));
+    return pin;
+  }
 }
 
 void

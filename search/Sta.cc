@@ -1154,11 +1154,8 @@ Sta::removeClockSlew(Clock *clk)
 void
 Sta::clockSlewChanged(Clock *clk)
 {
-  ClockPinIterator pin_iter(clk);
-  while (pin_iter.hasNext()) {
-    const Pin *pin = pin_iter.next();
+  for (Pin *pin : clk->pins())
     graph_delay_calc_->delayInvalid(pin);
-  }
   search_->arrivalsInvalid();
 }
 
@@ -2068,12 +2065,13 @@ Sta::constraintsChanged()
 
 void
 Sta::writeSdc(const char *filename,
-	      bool compatible,
+	      bool leaf,
+	      bool native,
 	      bool no_timestamp,
 	      int digits)
 {
   sta::writeSdc(network_->topInstance(), filename, "write_sdc",
-		compatible, no_timestamp, digits, sdc_);
+		leaf, native, no_timestamp, digits, sdc_);
 }
 
 ////////////////////////////////////////////////////////////////

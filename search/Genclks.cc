@@ -154,9 +154,7 @@ Level
 Genclks::clkPinMaxLevel(Clock *clk) const
 {
   Level max_level = 0;
-  ClockVertexPinIterator pin_iter(clk);
-  while (pin_iter.hasNext()) {
-    Pin *pin = pin_iter.next();
+  for (Pin *pin : clk->leafPins()) {
     Vertex *vertex = srcPathVertex(pin);
     max_level = max(max_level, vertex->level());
   }
@@ -305,8 +303,8 @@ Genclks::ensureMaster(Clock *gclk)
       while (iter.hasNext()) {
 	Vertex *vertex = iter.next();
 	Pin *pin = vertex->pin();
-	if (sdc_->isVertexPinClock(pin)) {
-	  ClockSet *master_clks = sdc_->findVertexPinClocks(pin);
+	if (sdc_->isLeafPinClock(pin)) {
+	  ClockSet *master_clks = sdc_->findLeafPinClocks(pin);
 	  if (master_clks) {
 	    ClockSet::Iterator master_iter(master_clks);
 	    while (master_iter.hasNext()) {
@@ -357,8 +355,8 @@ Genclks::ensureMaster(Clock *gclk)
 	while (iter.hasNext()) {
 	  Vertex *vertex = iter.next();
 	  Pin *pin = vertex->pin();
-	  if (sdc_->isVertexPinClock(pin)) {
-	    ClockSet *master_clks = sdc_->findVertexPinClocks(pin);
+	  if (sdc_->isLeafPinClock(pin)) {
+	    ClockSet *master_clks = sdc_->findLeafPinClocks(pin);
 	    if (master_clks) {
 	      ClockSet::Iterator master_iter(master_clks);
 	      if (master_iter.hasNext()) {
@@ -474,9 +472,7 @@ Genclks::seedClkVertices(Clock *clk,
 			 BfsBkwdIterator &iter,
 			 VertexSet *fanins)
 {
-  ClockVertexPinIterator pin_iter(clk);
-  while (pin_iter.hasNext()) {
-    Pin *pin = pin_iter.next();
+  for (Pin *pin : clk->leafPins()) {
     Vertex *vertex, *bidirect_drvr_vertex;
     graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
     fanins->insert(vertex);
@@ -543,7 +539,7 @@ GenClkInsertionSearchPred::searchTo(const Vertex *to_vertex)
   return SearchPred0::searchTo(to_vertex)
     // Propagate through other generated clock roots but not regular
     // clock roots.
-    && !(!gclk_->vertexPins()->hasKey(to_pin)
+    && !(!gclk_->leafPins().hasKey(to_pin)
 	 && isNonGeneratedClkPin(to_pin))
     && genclk_info_->fanins()->hasKey(const_cast<Vertex*>(to_vertex));
 }
@@ -552,7 +548,7 @@ bool
 GenClkInsertionSearchPred::isNonGeneratedClkPin(const Pin *pin) const
 {
   const Sdc *sdc = sta_->sdc();
-  ClockSet *clks = sdc->findVertexPinClocks(pin);
+  ClockSet *clks = sdc->findLeafPinClocks(pin);
   if (clks) {
     ClockSet::Iterator clk_iter(clks);
     while (clk_iter.hasNext()) {
@@ -643,9 +639,7 @@ Genclks::findLatchFdbkEdges(const Clock *gclk,
 {
   Level gclk_level = genclk_info->gclkLevel();
   EdgeSet *fdbk_edges = nullptr;
-  ClockVertexPinIterator pin_iter(gclk->masterClk());
-  while (pin_iter.hasNext()) {
-    Pin *pin = pin_iter.next();
+  for (Pin *pin : gclk->masterClk()->leafPins()) {
     Vertex *vertex = graph_->pinDrvrVertex(pin);
     VertexSet path_vertices;
     VertexSet visited_vertices;
@@ -717,9 +711,7 @@ Genclks::seedSrcPins(Clock *gclk,
 		     BfsFwdIterator &insert_iter)
 {
   Clock *master_clk = gclk->masterClk();
-  ClockVertexPinIterator master_pin_iter(master_clk);
-  while (master_pin_iter.hasNext()) {
-    Pin *master_pin = master_pin_iter.next();
+  for (Pin *master_pin : master_clk->leafPins()) {
     Vertex *vertex = graph_->pinDrvrVertex(master_pin);
     debugPrint1(debug_, "genclk", 2, " seed src pin %s\n",
 		network_->pathName(master_pin));
@@ -950,9 +942,7 @@ Genclks::recordSrcPaths(Clock *gclk)
   bool invert = gclk->invert();
   bool has_edges = gclk->edges() != nullptr;
 
-  ClockVertexPinIterator gclk_pin_iter(gclk);
-  while (gclk_pin_iter.hasNext()) {
-    Pin *gclk_pin = gclk_pin_iter.next();
+  for (Pin *gclk_pin : gclk->leafPins()) {
     PathVertexRep *src_paths = new PathVertexRep[path_count];
     genclk_src_paths_.insert(ClockPinPair(gclk, gclk_pin), src_paths);
 

@@ -911,6 +911,9 @@ public:
 			  const MinMax *min_max,
 			  int digits);
   void writeSdc(const char *filename,
+		// Map hierarchical pins and instances to leaf pins and instances.
+		bool leaf,
+		// Replace non-sdc get functions with OpenSTA equivalents.
 		bool native,
 		bool no_timestamp,
 		int digits);

@@ -19,9 +19,9 @@
 
 namespace  sta {
 
-class Network;
+class NetworkReader;
 
-Network *
+NetworkReader *
 makeConcreteNetwork();
 
 } // namespace

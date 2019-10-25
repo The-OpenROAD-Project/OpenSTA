@@ -85,7 +85,7 @@ InputDelay::InputDelay(Pin *pin,
   next_(nullptr),
   index_(index)
 {
-  findVertexLoadPins(pin, network, &vertex_pins_);
+  findLeafLoadPins(pin, network, &leaf_pins_);
 }
 
 void
@@ -102,7 +102,7 @@ OutputDelay::OutputDelay(Pin *pin,
   next_(nullptr)
 {
   if (network)
-    findVertexDriverPins(pin, network, &vertex_pins_);
+    findLeafDriverPins(pin, network, &leaf_pins_);
 }
 
 void
@@ -110,6 +110,8 @@ OutputDelay::setNext(OutputDelay *next)
 {
   next_ = next;
 }
+
+////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////
 
@@ -134,11 +136,11 @@ PinInputDelayIterator::next()
   return next;
 }
 
-VertexPinInputDelayIterator::VertexPinInputDelayIterator(const Pin *vertex_pin,
-							 const Sdc *sdc) :
+LeafPinInputDelayIterator::LeafPinInputDelayIterator(const Pin *vertex_pin,
+						     const Sdc *sdc) :
   PinInputDelayIterator()
 {
-  next_ = sdc->input_delay_vertex_map_.findKey(vertex_pin);
+  next_ = sdc->input_delay_leaf_pin_map_.findKey(vertex_pin);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -164,11 +166,11 @@ PinOutputDelayIterator::next()
   return next;
 }
 
-VertexPinOutputDelayIterator::VertexPinOutputDelayIterator(const Pin *vertex_pin,
-							   const Sdc *sdc) :
+LeafPinOutputDelayIterator::LeafPinOutputDelayIterator(const Pin *vertex_pin,
+						       const Sdc *sdc) :
   PinOutputDelayIterator()
 {
-  next_ = sdc->output_delay_vertex_map_.findKey(vertex_pin);
+  next_ = sdc->output_delay_leaf_pin_map_.findKey(vertex_pin);
 }
 
 ////////////////////////////////////////////////////////////////

@@ -40,7 +40,7 @@ makeClonePins(Instance *proto,
 	      ConcreteBindingTbl *parent_bindings,
 	      NetworkReader *network);
 
-Network *
+NetworkReader *
 makeConcreteNetwork()
 {
   return new ConcreteNetwork;

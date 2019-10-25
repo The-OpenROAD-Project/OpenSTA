@@ -72,6 +72,9 @@ public:
   }
 
   static bool
+  intersects(std::set<KEY, CMP> &set1,
+	     std::set<KEY, CMP> &set2);
+  static bool
   intersects(std::set<KEY, CMP> *set1,
 	     std::set<KEY, CMP> *set2);
 
@@ -168,6 +171,14 @@ Set<KEY, CMP>::isSubset(const std::set<KEY, CMP> *set2)
     }
     return true;
   }
+}
+
+template <class KEY, class CMP>
+bool
+Set<KEY, CMP>::intersects(std::set<KEY, CMP> &set1,
+			  std::set<KEY, CMP> &set2)
+{
+  return intersects(&set1, &set2);
 }
 
 template <class KEY, class CMP>

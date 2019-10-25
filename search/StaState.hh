@@ -54,8 +54,10 @@ public:
   virtual ~StaState() {}
   Report *report() { return report_; }
   Report *report() const { return report_; }
+  void setReport(Report *report);
   Debug *debug() { return debug_; }
   Debug *debug() const { return debug_; }
+  void setDebug(Debug *debug);
   Units *units() { return units_; }
   Units *units() const { return units_; }
   Network *network() { return network_; }

@@ -39,14 +39,11 @@ namespace sta {
 
 class OperatingConditions;
 class PinInputDelayIterator;
-class InputDelayVertexPinsIterator;
 class PinOutputDelayIterator;
 class PortExtCap;
 class ClockGatingCheck;
 class InputDriveCell;
 class DisabledPorts;
-class InputDelayIterator;
-class OutputDelayIterator;
 class GraphLoop;
 class DeratingFactors;
 class DeratingFactorsGlobal;
@@ -59,7 +56,6 @@ class FindClkHpinDisables;
 class Corner;
 class ClockGroupIterator;
 class GroupPathIterator;
-class ClockVertexPinIterator;
 class ClockPinIterator;
 class ClockIterator;
 
@@ -109,10 +105,12 @@ public:
 
 typedef Map<const char*,Clock*, CharPtrLess> ClockNameMap;
 typedef UnorderedMap<const Pin*, ClockSet*> ClockPinMap;
+typedef Set<InputDelay*> InputDelaySet;
 typedef Map<const Pin*,InputDelay*> InputDelayMap;
 typedef Set<InputDelay*> InputDelaySet;
 typedef Map<const Pin*,InputDelaySet*> InputDelayRefPinMap;
 typedef Map<const Pin*,InputDelaySet*> InputDelayInternalPinMap;
+typedef Set<OutputDelay*> OutputDelaySet;
 typedef Map<const Pin*,OutputDelay*> OutputDelayMap;
 // Use HashSet so no read lock is required.
 typedef HashSet<CycleAccting*, CycleAcctingHash, CycleAcctingEqual> CycleAcctingSet;
@@ -169,13 +167,13 @@ typedef Map<const char*, GroupPathSet*, CharPtrLess> GroupPathMap;
 typedef Set<ClockPair, ClockPairLess> ClockPairSet;
 
 void
-findVertexLoadPins(Pin *pin, const
-		   Network *network,
-		   PinSet *vertex_pins);
+findLeafLoadPins(Pin *pin,
+		 const Network *network,
+		 PinSet *leaf_pins);
 void
-findVertexDriverPins(Pin *pin,
-		     const Network *network,
-		     PinSet *vertex_pins);
+findLeafDriverPins(Pin *pin,
+		   const Network *network,
+		   PinSet *leaf_pins);
 
 class Sdc : public StaState
 {
@@ -840,12 +838,12 @@ public:
   // True if pin is defined as a clock source (pin may be hierarchical).
   bool isClock(const Pin *pin) const;
   // True if pin is a clock source vertex.
-  bool isVertexPinClock(const Pin *pin) const;
+  bool isLeafPinClock(const Pin *pin) const;
   // True if pin is a non-generated clock source vertex.
-  bool isVertexPinNonGeneratedClock(const Pin *pin) const;
+  bool isLeafPinNonGeneratedClock(const Pin *pin) const;
   // Find the clocks defined for pin.
   ClockSet *findClocks(const Pin *pin) const;
-  ClockSet *findVertexPinClocks(const Pin *pin) const;
+  ClockSet *findLeafPinClocks(const Pin *pin) const;
   ClockIterator *clockIterator();
   void sortedClocks(ClockSeq &clks);
   ClockSeq *clocks() { return &clocks_; }
@@ -894,28 +892,18 @@ public:
 			     const ClockEdge *tgt);
   // Report clock to clock relationships that exceed max_cycle_count.
   void reportClkToClkMaxCycleWarnings();
-  InputDelayIterator *inputDelayIterator();
-  // Iterate over the graph vertex pins that have input arrivals.
-  // If the pin is hierarchical, the vertex pins are:
-  //   hierarchical  input - load pins  inside the hierarchical instance.
-  //   hierarchical output - load pins outside the hierarchical instance.
-  InputDelayVertexPinsIterator *inputDelayVertexPinsIterator();
+  const InputDelaySet &inputDelays() const { return input_delays_; }
+  // Pin -> input delays.
+  const InputDelayMap &inputDelayMap() const { return input_delay_map_; }
   // Iterate over the input delays on pin (which may be hierarchical).
   PinInputDelayIterator *inputDelayIterator(const Pin *pin) const;
-  // Iterate over the input delays on vertex_pin.
-  PinInputDelayIterator *inputDelayVertexIterator(const Pin *vertex_pin) const;
-  bool hasInputDelay(const Pin *vertex_pin) const;
+  bool hasInputDelay(const Pin *leaf_pin) const;
   // Pin is internal (not top level port) and has an input arrival.
   bool isInputDelayInternal(const Pin *pin) const;
-  OutputDelayIterator *outputDelayIterator();
+  const OutputDelaySet &outputDelays() const { return output_delays_; }
   // Iterate over the output delays on pin (which may be hierarchical).
   PinOutputDelayIterator *outputDelayIterator(const Pin *pin) const;
-  // Iterate over the output delays on vertex_pin.
-  // If the pin is hierarchical, the vertex pins are:
-  //   hierarchical  input - driver pins outside the hierarchical instance.
-  //   hierarchical output - driver pins  inside the hierarchical instance.
-  PinOutputDelayIterator *outputDelayVertexIterator(const Pin *vertex_pin) const;
-  bool hasOutputDelay(const Pin *vertex_pin) const;
+  bool hasOutputDelay(const Pin *leaf_pin) const;
   PortExtCap *portExtCap(Port *port) const;
   bool hasPortExtCap(Port *port) const;
   void portExtCap(Port *port,
@@ -1302,7 +1290,7 @@ protected:
   ClockNameMap clock_name_map_;
   ClockPinMap clock_pin_map_;
   // Clocks on hierarchical pins are indexed by the load pins.
-  ClockPinMap clock_vertex_pin_map_;
+  ClockPinMap clock_leaf_pin_map_;
   ClkHpinDisables clk_hpin_disables_;
   bool clk_hpin_disables_valid_;
   PinSet propagated_clk_pins_;
@@ -1325,15 +1313,17 @@ protected:
   std::mutex cycle_acctings_lock_;
   DataChecksMap data_checks_from_map_;
   DataChecksMap data_checks_to_map_;
+  InputDelaySet input_delays_;
   InputDelayMap input_delay_map_;
   int input_delay_index_;
   InputDelayRefPinMap input_delay_ref_pin_map_;
   // Input delays on hierarchical pins are indexed by the load pins.
-  InputDelayMap input_delay_vertex_map_;
+  InputDelayMap input_delay_leaf_pin_map_;
   InputDelayInternalPinMap input_delay_internal_pin_map_;
+  OutputDelaySet output_delays_;
   OutputDelayMap output_delay_map_;
   // Output delays on hierarchical pins are indexed by the load pins.
-  OutputDelayMap output_delay_vertex_map_;
+  OutputDelayMap output_delay_leaf_pin_map_;
   PortSlewLimitMap port_slew_limit_map_;
   PinSlewLimitMap pin_slew_limit_map_;
   CellSlewLimitMap cell_slew_limit_map_;
@@ -1427,67 +1417,13 @@ private:
   DISALLOW_COPY_AND_ASSIGN(Sdc);
 
   friend class WriteSdc;
-  friend class InputDelayIterator;
-  friend class OutputDelayIterator;
   friend class FindNetCaps;
   friend class ClockGroupIterator;
   friend class GroupPathIterator;
-  friend class InputDelayVertexPinsIterator;
   friend class PinInputDelayIterator;
-  friend class VertexPinInputDelayIterator;
+  friend class LeafPinInputDelayIterator;
   friend class PinOutputDelayIterator;
-  friend class VertexPinOutputDelayIterator;
-};
-
-class InputDelayVertexPinsIterator : public Iterator<const Pin*>
-{
-public:
-  InputDelayVertexPinsIterator(Sdc *sdc);
-  virtual bool hasNext();
-  virtual const Pin *next();
-
-private:
-  InputDelayVertexPinsIterator(InputDelayMap &input_delay_map);
-  InputDelayMap::ConstIterator input_iter_;
-
-  friend class Sdc;
-  DISALLOW_COPY_AND_ASSIGN(InputDelayVertexPinsIterator);
-};
-
-class InputDelayIterator : public Iterator<InputDelay*>
-{
-public:
-  InputDelayIterator(Sdc *sdc);
-  virtual bool hasNext();
-  virtual InputDelay *next();
-
-private:
-  InputDelayIterator(InputDelayMap &input_delay_map);
-  void findNext();
-
-  InputDelayMap::Iterator input_iter_;
-  InputDelay *next_;
-
-  friend class Sdc;
-  DISALLOW_COPY_AND_ASSIGN(InputDelayIterator);
-};
-
-class OutputDelayIterator : public OutputDelayMap::Iterator
-{
-public:
-  OutputDelayIterator(Sdc *sdc);
-  virtual bool hasNext();
-  virtual OutputDelay *next();
-
-private:
-  OutputDelayIterator(OutputDelayMap &output_delay_map);
-  void findNext();
-
-  OutputDelayMap::Iterator output_iter_;
-  OutputDelay *next_;
-
-  friend class Sdc;
-  DISALLOW_COPY_AND_ASSIGN(OutputDelayIterator);
+  friend class LeafPinOutputDelayIterator;
 };
 
 class ClockIterator : public ClockSeq::Iterator

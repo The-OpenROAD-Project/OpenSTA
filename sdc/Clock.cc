@@ -34,9 +34,7 @@ isPowerOfTwo(int i);
 Clock::Clock(const char *name,
 	     int index) :
   name_(stringCopy(name)),
-  pins_(nullptr),
   add_to_pins_(false),
-  vertex_pins_(nullptr),
   pll_out_(nullptr),
   pll_fdbk_(nullptr),
   period_(0.0),
@@ -83,31 +81,26 @@ Clock::initClk(PinSet *pins,
 bool
 Clock::isVirtual() const
 {
-  return pins_ == nullptr || pins_->empty();
+  return pins_.empty();
 }
 
 void
 Clock::setPins(PinSet *pins,
 	       const Network *network)
 {
-  delete pins_;
-  pins_ = pins;
-  makeVertexPins(network);
+  if (pins)
+    pins_ = *pins;
+  makeLeafPins(network);
 }
 
 void
-Clock::makeVertexPins(const Network *network)
+Clock::makeLeafPins(const Network *network)
 {
-  if (pins_) {
-    if (vertex_pins_)
-      vertex_pins_->clear();
-    else
-      vertex_pins_ = new PinSet;
-    PinSet::Iterator pin_iter(pins_);
-    while (pin_iter.hasNext()) {
-      Pin *pin = pin_iter.next();
-      findVertexDriverPins(pin, network, vertex_pins_);
-    }
+  leaf_pins_.clear();
+  PinSet::Iterator pin_iter(pins_);
+  while (pin_iter.hasNext()) {
+    Pin *pin = pin_iter.next();
+    findLeafDriverPins(pin, network, &leaf_pins_);
   }
 }
 
@@ -130,8 +123,6 @@ Clock::makeClkEdges()
 Clock::~Clock()
 {
   stringDelete(name_);
-  delete pins_;
-  delete vertex_pins_;
   if (clk_edges_) {
     delete clk_edges_[TransRiseFall::riseIndex()];
     delete clk_edges_[TransRiseFall::fallIndex()];
@@ -146,18 +137,14 @@ Clock::~Clock()
 void
 Clock::addPin(Pin *pin)
 {
-  if (pins_ == nullptr)
-    pins_ = new PinSet;
-  pins_->insert(pin);
-  if (vertex_pins_ == nullptr)
-    vertex_pins_ = new PinSet;
-  vertex_pins_->insert(pin);
+  pins_.insert(pin);
+  leaf_pins_.insert(pin);
 }
 
 void
 Clock::deletePin(Pin *pin)
 {
-  pins_->erase(pin);
+  pins_.erase(pin);
 }
 
 void
@@ -183,7 +170,7 @@ Clock::setClkEdgeTime(const TransRiseFall *tr)
 Pin *
 Clock::defaultPin() const
 {
-  PinSet::Iterator pin_iter(vertex_pins_);
+  PinSet::ConstIterator pin_iter(leaf_pins_);
   if (pin_iter.hasNext())
     return pin_iter.next();
   else
@@ -510,9 +497,9 @@ Clock::srcPinVertices(VertexSet &src_vertices,
 {
   if (network->isHierarchical(src_pin_)) {
     // Use the clocks on a non-hierarchical pin on the same net.
-    PinSet vertex_pins;
-    findVertexDriverPins(src_pin_, network, &vertex_pins);
-    PinSet::Iterator pin_iter(vertex_pins);
+    PinSet leaf_pins;
+    findLeafDriverPins(src_pin_, network, &leaf_pins);
+    PinSet::Iterator pin_iter(leaf_pins);
     while (pin_iter.hasNext()) {
       Pin *pin = pin_iter.next();
       Vertex *vertex, *bidirect_drvr_vertex;
@@ -708,6 +695,11 @@ sortClockSet(ClockSet *set,
   while (clk_iter.hasNext())
     clks.push_back(clk_iter.next());
   sort(clks, ClockNameLess());
+}
+
+ClockPinIterator::ClockPinIterator(Clock *clk) :
+  PinSet::Iterator(clk->pins())
+{
 }
 
 } // namespace

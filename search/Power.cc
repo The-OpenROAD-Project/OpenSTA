@@ -422,7 +422,7 @@ Power::seedActivities(BfsFwdIterator &bfs)
   for (auto vertex : levelize_->roots()) {
     const Pin *pin = vertex->pin();
     // Clock activities are baked in.
-    if (!sdc_->isVertexPinClock(pin)
+    if (!sdc_->isLeafPinClock(pin)
 	&& network_->direction(pin) != PortDirection::internal()) {
       debugPrint1(debug_, "power_activity", 3, "seed %s\n",
 		  vertex->name(network_));
