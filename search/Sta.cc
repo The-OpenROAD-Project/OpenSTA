@@ -2730,6 +2730,25 @@ Sta::vertexArrival(Vertex *vertex,
 
 Required
 Sta::vertexRequired(Vertex *vertex,
+		    const MinMax *min_max)
+{
+  findRequired(vertex);
+  const MinMax *req_min_max = min_max->opposite();
+  Required required = req_min_max->initValue();
+  VertexPathIterator path_iter(vertex, this);
+  while (path_iter.hasNext()) {
+    const Path *path = path_iter.next();
+    if (path->minMax(this) == min_max) {
+      const Required path_required = path->required(this);
+      if (fuzzyGreater(path_required, required, req_min_max))
+	required = path_required;
+    }
+  }
+  return required;
+}
+
+Required
+Sta::vertexRequired(Vertex *vertex,
 		    const TransRiseFall *tr,
 		    const PathAnalysisPt *path_ap)
 {

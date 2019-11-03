@@ -976,12 +976,14 @@ public:
 			const TransRiseFall *tr,
 			const PathAnalysisPt *path_ap);
   Required vertexRequired(Vertex *vertex,
-			  const TransRiseFall *tr,
-			  const ClockEdge *clk_edge,
-			  const PathAnalysisPt *path_ap);
+			  const MinMax *min_max);
   // Min/max across all clock tags.
   Required vertexRequired(Vertex *vertex,
 			  const TransRiseFall *tr,
+			  const PathAnalysisPt *path_ap);
+  Required vertexRequired(Vertex *vertex,
+			  const TransRiseFall *tr,
+			  const ClockEdge *clk_edge,
 			  const PathAnalysisPt *path_ap);
   Slack pinSlack(const Pin *pin,
 		 const TransRiseFall *tr,
@@ -1131,8 +1133,10 @@ public:
 
   void setTclInterp(Tcl_Interp *interp);
   Tcl_Interp *tclInterp();
+  void ensureLevelized();
   // Ensure that the timing graph has been built.
   Graph *ensureGraph();
+  void ensureClkArrivals();
   Corner *cmdCorner() const;
   void setCmdCorner(Corner *corner);
   Corner *findCorner(const char *corner_name);
@@ -1230,8 +1234,6 @@ protected:
   virtual LibertyLibrary *readLibertyFile(const char *filename,
 					  bool infer_latches,
 					  Network *network);
-  void ensureLevelized();
-  void ensureClkArrivals();
   void delayCalcPreamble();
   void delaysInvalidFrom(Port *port);
   void delaysInvalidFromFanin(Port *port);
