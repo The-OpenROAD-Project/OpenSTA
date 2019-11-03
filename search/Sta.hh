@@ -1200,7 +1200,7 @@ protected:
   virtual void makeDebug();
   virtual void makeUnits();
   virtual void makeNetwork();
-  virtual void makeCmdNetwork();
+  virtual void makeSdcNetwork();
   virtual void makeSdc();
   virtual void makeGraph();
   virtual void makeCorners();

@@ -289,9 +289,10 @@ Sta::makeComponents()
   makeSim();
   makeSearch();
   makeLatches();
-  makeCmdNetwork();
+  makeSdcNetwork();
   makeReportPath();
   makePower();
+  setCmdNamespace(CmdNamespace::sdc);
   updateComponentsState();
 
   makeObservers();
@@ -421,11 +422,9 @@ Sta::makeLatches()
 }
 
 void
-Sta::makeCmdNetwork()
+Sta::makeSdcNetwork()
 {
-  sdc_network_ = makeSdcNetwork(network_);
-  cmd_network_ = sdc_network_;
-  cmd_namespace_ = CmdNamespace::sdc;
+  sdc_network_ = sta::makeSdcNetwork(network_);
 }
 
 void
