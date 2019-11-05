@@ -494,7 +494,7 @@ public:
   // Only valid when isBuffer() returns true.
   void bufferPorts(// Return values.
 		   LibertyPort *&input,
-		   LibertyPort *&output);
+		   LibertyPort *&output) const;
 
 protected:
   void addPort(ConcretePort *port);

@@ -456,7 +456,19 @@ LibertyLibrary *
 ConcreteNetwork::findLiberty(const char *name)
 {
   ConcreteLibrary *lib =  library_map_.findKey(name);
-  return static_cast<LibertyLibrary*>(lib);
+  if (lib) {
+    if (lib->isLiberty())
+      return static_cast<LibertyLibrary*>(lib);
+    // Potential name conflict
+    else {
+      for (ConcreteLibrary *lib : library_seq_) {
+	if (stringEq(lib->name(), name)
+	    && lib->isLiberty())
+	  return static_cast<LibertyLibrary*>(lib);
+      }
+    }
+  }
+  return nullptr;
 }
 
 LibertyLibrary *
