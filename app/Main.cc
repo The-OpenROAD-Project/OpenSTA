@@ -49,7 +49,7 @@ main(int argc,
   }
   else {
     Sta *sta = new Sta;
-    staMain(sta, argc, argv, Sta_Init, sta::tcl_inits);
+    staMain(sta, argc, argv, ".sta", Sta_Init, sta::tcl_inits);
     return 0;
   }
 }

@@ -29,15 +29,15 @@ typedef sta::Vector<SwigInitFunc> SwigInitFuncSeq;
 // "Arguments" passed to staTclAppInit.
 static int sta_argc;
 static char **sta_argv;
+static const char *sta_init_filename;
 static const char **sta_tcl_inits;
 static SwigInitFunc sta_swig_init;
-
-static const char *init_filename = "[file join $env(HOME) .sta]";
 
 void
 staMain(Sta *sta,
 	int argc,
 	char *argv[],
+	const char *init_filename,
 	SwigInitFunc swig_init,
 	const char *tcl_inits[])
 {
@@ -49,7 +49,7 @@ staMain(Sta *sta,
   int thread_count = parseThreadsArg(argc, argv);
   sta->setThreadCount(thread_count);
 
-  staSetupAppInit(argc, argv, swig_init, tcl_inits);
+  staSetupAppInit(argc, argv, init_filename, swig_init, tcl_inits);
   // Set argc to 1 so Tcl_Main doesn't source any files.
   // Tcl_Main never returns.
   Tcl_Main(1, argv, staTclAppInit);
@@ -75,11 +75,13 @@ parseThreadsArg(int &argc,
 void
 staSetupAppInit(int argc,
 		char *argv[],
+		const char *init_filename,
 		SwigInitFunc swig_init,
 		const char *tcl_inits[])
 {
   sta_argc = argc;
   sta_argv = argv;
+  sta_init_filename = init_filename;
   sta_tcl_inits = tcl_inits;
   sta_swig_init = swig_init;
 }
@@ -110,8 +112,11 @@ staTclAppInit(Tcl_Interp *interp)
   Tcl_Eval(interp, "sta::define_sta_cmds");
   Tcl_Eval(interp, "namespace import sta::*");
 
-  if (!findCmdLineFlag(argc, argv, "-no_init"))
-    sourceTclFile(init_filename, true, true, interp);
+  if (!findCmdLineFlag(argc, argv, "-no_init")) {
+    char *init_path = stringPrintTmp("[file join $env(HOME) %s]",
+				     sta_init_filename);
+    sourceTclFile(init_path, true, true, interp);
+  }
 
   bool exit_after_cmd_file = findCmdLineFlag(argc, argv, "-exit");
 

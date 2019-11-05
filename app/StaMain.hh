@@ -30,6 +30,7 @@ void
 staMain(Sta *sta,
 	int argc,
 	char *argv[],
+	const char *init_filename,
 	SwigInitFunc swig_init,
 	const char *tcl_inits[]);
 
@@ -37,6 +38,7 @@ staMain(Sta *sta,
 void
 staSetupAppInit(int argc,
 		char *argv[],
+		const char *init_filename,
 		SwigInitFunc swig_init,
 		const char *tcl_inits[]);
 
