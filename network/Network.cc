@@ -1077,7 +1077,7 @@ LeafInstanceIterator1::LeafInstanceIterator1(const Instance *inst,
   child_iter_(network->childIterator(inst)),
   next_(nullptr)
 {
-  pending_child_iters_.reserve(512);
+  pending_child_iters_.reserve(8);
   nextInst();
 }
 

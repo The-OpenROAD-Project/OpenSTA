@@ -1029,17 +1029,21 @@ LibertyCell::setClockGateType(ClockGateType type)
 bool
 LibertyCell::isBuffer() const
 {
-  if (ports_.size() == 2) {
-    LibertyPort *port1 = static_cast<LibertyPort*>(ports_[0]);
-    LibertyPort *port2 = static_cast<LibertyPort*>(ports_[1]);
-    return (port1->direction()->isInput()
-	    && port2->direction()->isOutput()
-	    && hasBufferFunc(port1, port2))
-      || (port2->direction()->isInput()
-	  && port1->direction()->isOutput()
-	  && hasBufferFunc(port2, port1));
+  int input_count = 0;
+  int output_count = 0;
+  for (ConcretePort *cport : ports_) {
+    LibertyPort *port = static_cast<LibertyPort*>(cport);
+    PortDirection *dir = port->direction();
+    if (dir->isInput())
+      input_count++;
+    else if (dir->isOutput())
+      output_count++;
+    else if (!dir->isPowerGround())
+      return false;
+    if (input_count > 1 || output_count > 1)
+      break;
   }
-  return false;
+  return input_count == 1 && output_count == 1;
 }
 
 bool
@@ -1057,17 +1061,18 @@ LibertyCell::bufferPorts(// Return values.
 			 LibertyPort *&input,
 			 LibertyPort *&output)
 {
-    LibertyPort *port1 = static_cast<LibertyPort*>(ports_[0]);
-    LibertyPort *port2 = static_cast<LibertyPort*>(ports_[1]);
-    if (port1->direction()->isInput()
-	&& port2->direction()->isOutput()) {
-      input = port1;
-      output = port2;
-    }
-    else {
-      input = port2;
-      output = port1;
-    }
+  input = nullptr;
+  output = nullptr;
+  for (ConcretePort *cport : ports_) {
+    LibertyPort *port = static_cast<LibertyPort*>(cport);
+    PortDirection *dir = port->direction();
+    if (dir->isInput())
+      input = port;
+    else if (dir->isOutput())
+      output = port;
+    if (input && output)
+      return;
+  }
 }
 
 unsigned

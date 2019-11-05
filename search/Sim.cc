@@ -579,9 +579,9 @@ Sim::propagateToInvalidLoads()
   while (load_iter.hasNext()) {
     Pin *load_pin = load_iter.next();
     Net *net = network_->net(load_pin);
-    if (network_->isGround(net))
+    if (net && network_->isGround(net))
       setPinValue(load_pin, LogicValue::zero, true);
-    else if (network_->isPower(net))
+    else if (net && network_->isPower(net))
       setPinValue(load_pin, LogicValue::one, true);
     else {
       Pin *drvr_pin = findDrvrPin(load_pin, network_);
@@ -701,9 +701,14 @@ Sim::connectPinAfter(Pin *pin)
 void
 Sim::disconnectPinBefore(Pin *pin)
 {
-  if (incremental_
-      && network_->isLoad(pin))
-    removePropagatedValue(pin);
+  if (incremental_) {
+    if (network_->isLoad(pin)) {
+      invalid_load_pins_.insert(pin);
+      removePropagatedValue(pin);
+    }
+    if (network_->isDriver(pin))
+      invalid_drvr_pins_.insert(pin);
+  }
 }
 
 void
