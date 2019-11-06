@@ -985,6 +985,9 @@ public:
 			  const TransRiseFall *tr,
 			  const ClockEdge *clk_edge,
 			  const PathAnalysisPt *path_ap);
+
+  Slack netSlack(const Net *net,
+		 const MinMax *min_max);
   Slack pinSlack(const Pin *pin,
 		 const TransRiseFall *tr,
 		 const MinMax *min_max);

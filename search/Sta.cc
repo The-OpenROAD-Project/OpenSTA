@@ -2777,6 +2777,24 @@ Sta::vertexRequired(Vertex *vertex,
 }
 
 Slack
+Sta::netSlack(const Net *net,
+	      const MinMax *min_max)
+{
+  ensureGraph();
+  Slack slack = MinMax::min()->initValue();
+  NetPinIterator *pin_iter = network_->pinIterator(net);
+  while (pin_iter->hasNext()) {
+    Pin *pin = pin_iter->next();
+    if (network_->isLoad(pin)) {
+      Vertex *vertex = graph_->pinLoadVertex(pin);
+      Slack pin_slack = vertexSlack(vertex, min_max);
+      slack = min(slack, pin_slack);
+    }
+  }
+  return slack;
+}
+
+Slack
 Sta::pinSlack(const Pin *pin,
 	      const MinMax *min_max)
 {
