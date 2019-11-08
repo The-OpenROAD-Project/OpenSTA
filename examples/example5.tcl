@@ -1,8 +1,8 @@
-# 3 corner with +/- 10% derating example
+# 3 corners with +/- 10% derating example
 define_corners ss tt ff
-read_liberty -corner ss  example1_slow.lib
+read_liberty -corner ss example1_slow.lib
 read_liberty -corner tt example1_typ.lib
-read_liberty -corner ff  example1_fast.lib
+read_liberty -corner ff example1_fast.lib
 read_verilog example1.v
 link_design top
 set_timing_derate -early 0.9

@@ -52,24 +52,9 @@ See doc/OpenSTA.pdf for command documentiaton.
 See doc/StaApi.txt for timing engine API documentiaton.
 See doc/ChangeLog.txt for changes to commands.
 
-## Getting Started
+## Build
 
-OpenSTA can be run as a [Docker](https://www.docker.com/) container
-or built as local executable with CMake.
-
-### Run using Docker
-* Install Docker on [Windows](https://docs.docker.com/docker-for-windows/), [Mac](https://docs.docker.com/docker-for-mac/) or [Linux](https://docs.docker.com/install/).
-* Navigate to the directory where you have the input files.
-* Run OpenSTA as a binary using
-````
-docker run -it -v $(pwd):/data openroad/opensta
-````
-
-4. From the interactive terminal, use OpenSTA commands. You can read input files from `/data` directory inside the docker container (e.g. `read_liberty /data/liberty.lib`). You can use OpenSTA in non-interactive mode by passing a command file using the `-f` flag as follows.
-```
-docker run -it -v $(pwd):/data openroad/opensta -f /data/cmd_file
-```
-Note that the path after `-f` is the path inside container, not on the guest machine. 
+OpenSTA is built with CMake.
 
 ### Prerequisites
 
@@ -177,11 +162,22 @@ If you make changes to `CMakeLists.txt` you may need to clean out
 existing CMake cached variable values by deleting all of the
 files in the build directory.
 
-## Authors
+### Run using Docker
 
-* James Cherry
+OpenSTA can be run as a [Docker](https://www.docker.com/) container.
 
-* William Scott authored the arnoldi delay calculator at Blaze, Inc which was subsequently licensed to Nefelus, Inc that has graciously contributed it to OpenSTA.
+* Install Docker on [Windows](https://docs.docker.com/docker-for-windows/), [Mac](https://docs.docker.com/docker-for-mac/) or [Linux](https://docs.docker.com/install/).
+* Navigate to the directory where you have the input files.
+* Run OpenSTA as a binary using
+````
+docker run -it -v $(pwd):/data openroad/opensta
+````
+
+From the interactive terminal, use OpenSTA commands. You can read input files from `/data` directory inside the docker container (e.g. `read_liberty /data/liberty.lib`). You can use OpenSTA in non-interactive mode by passing a command file using the `-f` flag as follows.
+```
+docker run -it -v $(pwd):/data openroad/opensta /data/cmd_file
+```
+Note that the path after `-f` is the path inside container, not on the guest machine. 
 
 ## Bug Reports
 
@@ -207,6 +203,12 @@ Command files should not have absolute filenames like
 "/home/cho/OpenSTA_Request/write_path_spice/dump_spice" in them.
 These obviously are not portable. Use filenames relative to the test
 case directory.
+
+## Authors
+
+* James Cherry
+
+* William Scott authored the arnoldi delay calculator at Blaze, Inc which was subsequently licensed to Nefelus, Inc that has graciously contributed it to OpenSTA.
 
 ## License
 
