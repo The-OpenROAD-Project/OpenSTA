@@ -15,8 +15,7 @@ TAGS
 Makefile
 
 /build
-/debug
-/rel
+/pvt
 
 # /util/
 /util/StaConfig.hh
