@@ -198,7 +198,7 @@ CheckCrpr::portClkPath(const ClockEdge *clk_edge,
     PathVertex *path = path_iter.next();
     if (path->clkEdge(this) == clk_edge
 	&& path->isClock(this)) {
-      genclk_path.copy(path);
+      genclk_path = path;
       break;
     }
   }

@@ -241,7 +241,7 @@ Latches::latchEnableOtherPath(Path *path,
     PathVertex *path = path_iter.next();
     if (path->isClock(this)
 	&& path->clkEdge(this) == other_clk_edge) {
-      other_path.copy(path);
+      other_path = path;
       break;
     }
   }
@@ -269,7 +269,7 @@ Latches::latchEnablePath(Path *q_path,
       const ClockEdge *clk_edge = path->clkEdge(this);
       if (path->isClock(this)
 	  && clk_edge == en_clk_edge) {
-	enable_path.copy(path);
+	enable_path = path;
 	break;
       }
     }

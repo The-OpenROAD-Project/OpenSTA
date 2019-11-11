@@ -358,7 +358,7 @@ MinPulseWidthCheck::closePath(const StaState *sta,
     if (tagMatchNoPathAp(close_path->tag(sta), &close_tag)) {
       debugPrint1(sta->debug(), "mpw", 3, " match %s\n",
 		  close_path->tag(sta)->asString(sta));
-      close.copy(close_path);
+      close = close_path;
       break;
     }
   }

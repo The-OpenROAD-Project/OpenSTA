@@ -150,26 +150,11 @@ PathVertex::init(const PathVertexRep &path,
 }
 
 void
-PathVertex::copy(const PathVertex &path)
+PathVertex::operator=(const PathVertex &path)
 {
   vertex_ = path.vertex_;
   tag_ = path.tag_;
   arrival_index_ = path.arrival_index_;
-}
-
-void
-PathVertex::copy(const PathVertex *path)
-{
-  if (path) {
-    vertex_ = path->vertex_;
-    tag_ = path->tag_;
-    arrival_index_ = path->arrival_index_;
-  }
-  else {
-    vertex_ = nullptr;
-    tag_ = nullptr;
-    arrival_index_ = 0;
-  }
 }
 
 bool
@@ -430,7 +415,7 @@ PrevPathVisitor::visitFromToPath(const Pin *,
     bool arrival_exists;
     from_path->arrivalIndex(arrival_index, arrival_exists);
     if (arrival_exists) {
-      prev_path_.copy(from_path);
+      prev_path_ = from_path;
       prev_arc_ = arc;
       // Stop looking for the previous path/arc.
       return false;
@@ -476,7 +461,7 @@ PathVertex::prevPath(const StaState *sta,
   PrevPred2 pred(sta);
   PrevPathVisitor visitor(this, &pred, sta);
   visitor.visitFaninPaths(vertex(sta));
-  prev_path.copy(visitor.prevPath());
+  prev_path = visitor.prevPath();
   prev_arc = visitor.prevArc();
 }
 
@@ -488,7 +473,7 @@ PathVertex::prevPath(const StaState *sta,
   PrevPred2 pred(sta);
   PrevPathVisitor visitor(this, &pred, sta);
   visitor.visitFaninPaths(vertex(sta));
-  prev_path.copy(visitor.prevPath());
+  prev_path = visitor.prevPath();
 }
 
 void
@@ -588,7 +573,7 @@ VertexPathIterator::findNext()
 PathVertex *
 VertexPathIterator::next()
 {
-  path_.copy(next_);
+  path_ = next_;
   findNext();
   return &path_;
 }

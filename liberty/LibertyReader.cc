@@ -583,7 +583,7 @@ LibertyReader::endLibraryAttrs(LibertyGroup *group)
   // Default resistance_unit to pulling_resistance_unit.
   if (!have_resistance_unit_) {
     Units *units = library_->units();
-    units->resistanceUnit()->copy(units->pullingResistanceUnit());
+    *units->resistanceUnit() = *units->pullingResistanceUnit();
   }
 
   // These attributes reference named groups in the library so

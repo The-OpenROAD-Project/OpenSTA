@@ -17,8 +17,6 @@
 #ifndef STA_UNITS_H
 #define STA_UNITS_H
 
-#include "DisallowCopyAssign.hh"
-
 namespace sta {
 
 class Unit
@@ -29,7 +27,7 @@ public:
   Unit(float scale,
        const char *suffix,
        int digits);
-  void copy(const Unit *unit);
+  void operator=(const Unit &unit);
   float scale() const { return scale_; }
   void setScale(float scale);
   const char *suffix() const { return suffix_; }
@@ -43,8 +41,6 @@ public:
 		       int digits) const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(Unit);
-
   float scale_;			// multiplier from user units to internal units
   const char *suffix_;		// print suffix
   int digits_;			// print digits (after decimal pt)
@@ -57,7 +53,7 @@ class Units
 public:
   Units() {}
   Unit *find(const char *unit_name);
-  void copy(const Units *units);
+  void operator=(const Units &units);
   Unit *timeUnit() { return &time_unit_; }
   const Unit *timeUnit() const { return &time_unit_; }
   Unit *capacitanceUnit() { return &capacitance_unit_; }
@@ -78,8 +74,6 @@ public:
   const Unit *scalarUnit() const { return &scalar_unit_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(Units);
-
   Unit time_unit_;
   Unit capacitance_unit_;
   Unit voltage_unit_;

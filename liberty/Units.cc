@@ -47,13 +47,12 @@ Unit::~Unit()
 }
 
 void
-Unit::copy(const Unit *unit)
+Unit::operator=(const Unit &unit)
 {
-  if (suffix_)
-    stringDelete(suffix_);
-  scale_ = unit->scale_;
-  suffix_ = stringCopy(unit->suffix_);
-  digits_ = unit->digits_;
+  scale_ = unit.scale_;
+  stringDelete(suffix_);
+  suffix_ = stringCopy(unit.suffix_);
+  digits_ = unit.digits_;
 }
 
 void
@@ -65,8 +64,7 @@ Unit::setScale(float scale)
 void
 Unit::setSuffix(const char *suffix)
 {
-  if (suffix_)
-    stringDelete(suffix_);
+  stringDelete(suffix_);
   suffix_ = stringCopy(suffix);
 }
 
@@ -134,16 +132,16 @@ Units::find(const char *unit_name)
 }
 
 void
-Units::copy(const Units *units)
+Units::operator=(const Units &units)
 {
-  time_unit_.copy(units->timeUnit());
-  capacitance_unit_.copy(units->capacitanceUnit());
-  resistance_unit_.copy(units->resistanceUnit());
-  voltage_unit_.copy(units->voltageUnit());
-  current_unit_.copy(units->currentUnit());
-  power_unit_.copy(units->powerUnit());
-  distance_unit_.copy(units->distanceUnit());
-  scalar_unit_.copy(units->scalarUnit());
+  time_unit_ = *units.timeUnit();
+  capacitance_unit_ = *units.capacitanceUnit();
+  resistance_unit_ = *units.resistanceUnit();
+  voltage_unit_ = *units.voltageUnit();
+  current_unit_ = *units.currentUnit();
+  power_unit_ = *units.powerUnit();
+  distance_unit_ = *units.distanceUnit();
+  scalar_unit_ = *units.scalarUnit();
 }
 
 } // namespace

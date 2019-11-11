@@ -298,7 +298,7 @@ PathEnd::clkPath(PathVertex *path,
     p.prevPath(sta, prev_path, prev_arc);
 
     if (p.isClock(sta)) {
-      clk_path.copy(p);
+      clk_path = p;
       return;
     }
     if (prev_arc) {
@@ -306,7 +306,7 @@ PathEnd::clkPath(PathVertex *path,
       if (prev_role == TimingRole::regClkToQ()
 	  || prev_role == TimingRole::latchEnToQ()) {
 	p.prevPath(sta, prev_path, prev_arc);
-	clk_path.copy(prev_path);
+	clk_path = prev_path;
 	return;
       }
       else if (prev_role == TimingRole::latchDtoQ()) {
@@ -314,11 +314,11 @@ PathEnd::clkPath(PathVertex *path,
 	Edge *prev_edge = p.prevEdge(prev_arc, sta);
 	PathVertex enable_path;
 	latches->latchEnablePath(&p, prev_edge, enable_path);
-	clk_path.copy(enable_path);
+	clk_path = enable_path;
 	return;
       }
     }
-    p.copy(prev_path);
+    p = prev_path;
   }
 }
 
@@ -1069,7 +1069,7 @@ PathEndLatchCheck::PathEndLatchCheck(Path *path,
   latches->latchEnableOtherPath(disable_path,
 				disable_path->pathAnalysisPt(sta),
 				enable_path);
-  clk_path_.copy(enable_path);
+  clk_path_ = enable_path;
   Search *search = sta->search();
   // Same as PathEndPathDelay::findRequired.
   if (path_delay_ && path_delay_->ignoreClkLatency())

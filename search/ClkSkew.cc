@@ -45,8 +45,8 @@ public:
   ClkSkew(PathVertex *src_path,
 	  PathVertex *tgt_path,
 	  StaState *sta);
-  ClkSkew(ClkSkew &clk_skew);
-  void copy(ClkSkew &clk_skew);
+  ClkSkew(const ClkSkew &clk_skew);
+  void operator=(const ClkSkew &clk_skew);
   PathVertex *srcPath() { return &src_path_; }
   PathVertex *tgtPath() { return &tgt_path_; }
   float srcLatency(StaState *sta);
@@ -58,8 +58,6 @@ private:
   PathVertex src_path_;
   PathVertex tgt_path_;
   float skew_;
-
-  DISALLOW_COPY_AND_ASSIGN(ClkSkew);
 };
 
 ClkSkew::ClkSkew() :
@@ -71,21 +69,23 @@ ClkSkew::ClkSkew(PathVertex *src_path,
 		 PathVertex *tgt_path,
 		 StaState *sta)
 {
-  src_path_.copy(src_path);
-  tgt_path_.copy(tgt_path);
+  src_path_ = src_path;
+  tgt_path_ = tgt_path;
   skew_ = srcLatency(sta) - tgtLatency(sta) - delayAsFloat(crpr(sta));
 }
 
-ClkSkew::ClkSkew(ClkSkew &clk_skew)
+ClkSkew::ClkSkew(const ClkSkew &clk_skew)
 {
-  copy(clk_skew);
+  src_path_ = clk_skew.src_path_;
+  tgt_path_ = clk_skew.tgt_path_;
+  skew_ = clk_skew.skew_;
 }
 
 void
-ClkSkew::copy(ClkSkew &clk_skew)
+ClkSkew::operator=(const ClkSkew &clk_skew)
 {
-  src_path_.copy(clk_skew.src_path_);
-  tgt_path_.copy(clk_skew.tgt_path_);
+  src_path_ = clk_skew.src_path_;
+  tgt_path_ = clk_skew.tgt_path_;
   skew_ = clk_skew.skew_;
 }
 
@@ -288,7 +288,7 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
 	      skews[src_clk] = clk_skew;
 	    }
 	    else if (fuzzyGreater(probe.skew(), clk_skew->skew()))
-	      clk_skew->copy(probe);
+	      *clk_skew = probe;
 	  }
 	}
       }

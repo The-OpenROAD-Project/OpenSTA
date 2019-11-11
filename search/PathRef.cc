@@ -78,13 +78,13 @@ PathRef::init(const PathRef *path)
 void
 PathRef::init(const PathVertex *path)
 {
-  path_vertex_.copy(path);
+  path_vertex_ = path;
 }
 
 void
 PathRef::init(const PathVertex &path)
 {
-  path_vertex_.copy(path);
+  path_vertex_ = path;
 }
 
 void
@@ -105,7 +105,7 @@ PathRef::init(PathEnumed *path)
 void
 PathRef::setRef(PathRef *ref) const
 {
-  ref->path_vertex_.copy(path_vertex_);
+  ref->path_vertex_ = path_vertex_;
   ref->path_enumed_ = path_enumed_;
 }
 

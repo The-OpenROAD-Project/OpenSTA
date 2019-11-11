@@ -54,8 +54,7 @@ public:
   void init(Vertex *vertex,
 	    Tag *tag,
 	    int arrival_index);
-  void copy(const PathVertex &path);
-  void copy(const PathVertex *path);
+  void operator=(const PathVertex &path);
   virtual bool isNull() const;
   virtual void setRef(PathRef *ref) const;
   virtual Vertex *vertex(const StaState *) const { return vertex_; }

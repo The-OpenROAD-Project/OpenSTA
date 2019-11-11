@@ -605,7 +605,7 @@ Sta::readLiberty(const char *filename,
       && network_->defaultLibertyLibrary() == nullptr) {
     network_->setDefaultLibertyLibrary(library);
     // Set units from default (first) library.
-    units_->copy(library->units());
+    *units_ = *library->units();
   }
   stats.report("Read liberty");
   return library;
