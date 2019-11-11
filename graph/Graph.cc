@@ -79,14 +79,10 @@ Graph::makeGraph()
 void
 Graph::makeVerticesAndEdges()
 {
-  int vertex_count;
-  int edge_count;
-  int arc_count;
-  vertexAndEdgeCounts(vertex_count, edge_count, arc_count);
   vertices_ = new VertexTable;
   edges_ = new EdgeTable;
   makeSlewTables(ap_count_);
-  makeArcDelayTables(arc_count, ap_count_);
+  makeArcDelayTables(ap_count_);
 
   LeafInstanceIterator *leaf_iter = network_->leafInstanceIterator();
   while (leaf_iter->hasNext()) {
@@ -96,72 +92,6 @@ Graph::makeVerticesAndEdges()
   }
   delete leaf_iter;
   makePinVertices(network_->topInstance());
-}
-
-void
-Graph::vertexAndEdgeCounts(// Return values.
-			   int &vertex_count,
-			   int &edge_count,
-			   int &arc_count)
-{
-  vertex_count = edge_count = arc_count = 0;
-  PinSet visited_drvrs;
-  LeafInstanceIterator *leaf_iter = network_->leafInstanceIterator();
-  while (leaf_iter->hasNext()) {
-    const Instance *inst = leaf_iter->next();
-    vertexAndEdgeCounts(inst, visited_drvrs,
-			vertex_count, edge_count, arc_count);
-  }
-  delete leaf_iter;
-  vertexAndEdgeCounts(network_->topInstance(), visited_drvrs,
-		      vertex_count, edge_count, arc_count);
-}
-
-void
-Graph::vertexAndEdgeCounts(const Instance *inst,
-			   PinSet &visited_drvrs,
-			   // Return values.
-			   int &vertex_count,
-			   int &edge_count,
-			   int &arc_count)
-{
-  LibertyCell *cell = network_->libertyCell(inst);
-  InstancePinIterator *pin_iter = network_->pinIterator(inst);
-  while (pin_iter->hasNext()) {
-    Pin *pin = pin_iter->next();
-    PortDirection *dir = network_->direction(pin);
-    if (!dir->isPowerGround()) {
-      if (dir->isBidirect())
-	vertex_count += 2;
-      else
-	vertex_count++;
-      if (cell) {
-	LibertyPort *port = network_->libertyPort(pin);
-	LibertyCellTimingArcSetIterator set_iter(cell, port, nullptr);
-	while (set_iter.hasNext()) {
-	  TimingArcSet *arc_set = set_iter.next();
-	  LibertyPort *to_port = arc_set->to();
-	  if (network_->findPin(inst, to_port)
-	      && filterEdge(arc_set)) {
-	    if (dir->isBidirect()) {
-	      // Internal path from bidirect output back into the instance.
-	      edge_count += 2;
-	      arc_count += arc_set->arcCount() * 2;
-	    }
-	    else {
-	      edge_count++;
-	      arc_count += arc_set->arcCount();
-	    }
-	  }
-	}
-      }
-      // Count wire edges from driver pins.
-      if (network_->isDriver(pin))
-	drvrPinEdgeCounts(pin, visited_drvrs,
-			  edge_count, arc_count);
-    }
-  }
-  delete pin_iter;
 }
 
 class FindNetDrvrLoadCounts : public PinVisitor
@@ -215,27 +145,6 @@ FindNetDrvrLoadCounts::operator()(Pin *pin)
   }
   if (network_->isLoad(pin))
     load_count_++;
-}
-
-void
-Graph::drvrPinEdgeCounts(Pin *drvr_pin,
-			 PinSet &visited_drvrs,
-			 // Return values.
-			 int &edge_count,
-			 int &arc_count)
-{
-  if (!visited_drvrs.findKey(drvr_pin)) {
-    int drvr_count = 0;
-    int bidirect_count = 0;
-    int load_count = 0;
-    FindNetDrvrLoadCounts visitor(drvr_pin, visited_drvrs, drvr_count,
-				  bidirect_count, load_count, network_);
-    network_->visitConnectedPins(drvr_pin, visitor);
-    int net_edge_count = drvr_count * load_count
-      + (bidirect_count * (load_count - 1));
-    edge_count += net_edge_count;
-    arc_count += net_edge_count * TimingArcSet::wireArcCount();
-  }
 }
 
 void
@@ -727,8 +636,7 @@ Graph::deleteEdge(Edge *edge)
 }
 
 void
-Graph::makeArcDelayTables(int arc_count,
-			  DcalcAPIndex ap_count)
+Graph::makeArcDelayTables(DcalcAPIndex ap_count)
 {
   if (have_arc_delays_) {
     arc_delays_.resize(ap_count);
@@ -736,10 +644,6 @@ Graph::makeArcDelayTables(int arc_count,
       DelayTable *table = new DelayTable();
       arc_delays_[i] = table;
     }
-
-    // Leave some room for edits.
-    int annot_size = arc_count * 1.2;
-    arc_delay_annotated_.resize(annot_size * ap_count);
   }
 }
 
@@ -892,7 +796,7 @@ Graph::setDelayCount(DcalcAPIndex ap_count)
     removeWidthCheckAnnotations();
     removePeriodCheckAnnotations();
     makeSlewTables(ap_count);
-    makeArcDelayTables(arc_count_, ap_count);
+    makeArcDelayTables(ap_count);
     ap_count_ = ap_count;
     removeDelays();
   }

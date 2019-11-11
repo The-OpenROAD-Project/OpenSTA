@@ -195,21 +195,6 @@ public:
 
 protected:
   void makeVerticesAndEdges();
-  void vertexAndEdgeCounts(// Return values.
-			   int &vertex_count,
-			   int &edge_count,
-			   int &arc_count);
-  virtual void vertexAndEdgeCounts(const Instance *inst,
-				   PinSet &visited_drvrs,
-                                   // Return values.
-				   int &vertex_count,
-				   int &edge_count,
-				   int &arc_count);
-  virtual void drvrPinEdgeCounts(Pin *pin,
-				 PinSet &visited_drvrs,
-                                 // Return values.
-                                 int &edge_count,
-				 int &arc_count);
   Vertex *makeVertex(Pin *pin,
 		     bool is_bidirect_drvr,
 		     bool is_reg_clk);
@@ -228,8 +213,7 @@ protected:
   void makeSlewTables(DcalcAPIndex count);
   void deleteSlewTables();
   void makeVertexSlews(Vertex *vertex);
-  void makeArcDelayTables(int arc_count,
-			  DcalcAPIndex ap_count);
+  void makeArcDelayTables(DcalcAPIndex ap_count);
   void deleteArcDelayTables();
   void deleteInEdge(Vertex *vertex,
 		    Edge *edge);
