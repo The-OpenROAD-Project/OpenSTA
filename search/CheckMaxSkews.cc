@@ -199,15 +199,15 @@ CheckMaxSkews:: visitMaxSkewChecks(Vertex *vertex,
       TimingArcSetArcIterator arc_iter(arc_set);
       while (arc_iter.hasNext()) {
 	TimingArc *arc = arc_iter.next();
-	TransRiseFall *clk_tr = arc->fromTrans()->asRiseFall();
-	TransRiseFall *ref_tr = arc->toTrans()->asRiseFall();
-	VertexPathIterator clk_path_iter(vertex, clk_tr, clk_min_max, search);
+	RiseFall *clk_rf = arc->fromTrans()->asRiseFall();
+	RiseFall *ref_rf = arc->toTrans()->asRiseFall();
+	VertexPathIterator clk_path_iter(vertex, clk_rf, clk_min_max, search);
 	while (clk_path_iter.hasNext()) {
 	  PathVertex *clk_path = clk_path_iter.next();
 	  if (clk_path->isClock(search)) {
 	    const PathAnalysisPt *clk_ap = clk_path->pathAnalysisPt(sta_);
 	    PathAnalysisPt *ref_ap = clk_ap->tgtClkAnalysisPt();
-	    VertexPathIterator ref_path_iter(ref_vertex, ref_tr, ref_ap, sta_);
+	    VertexPathIterator ref_path_iter(ref_vertex, ref_rf, ref_ap, sta_);
 	    while (ref_path_iter.hasNext()) {
 	      PathVertex *ref_path = ref_path_iter.next();
 	      if (ref_path->isClock(search)) {

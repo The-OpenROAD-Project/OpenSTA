@@ -46,15 +46,15 @@ protected:
 		   ClockSet *clks);
   void findClkSkewFrom(Vertex *src_vertex,
 		       Vertex *q_vertex,
-		       TransRiseFallBoth *src_tr,
+		       RiseFallBoth *src_rf,
 		       ClockSet *clks,
 		       const Corner *corner,
 		       const SetupHold *setup_hold,
 		       ClkSkewMap &skews);
   void findClkSkew(Vertex *src_vertex,
-		   TransRiseFallBoth *src_tr,
+		   RiseFallBoth *src_rf,
 		   Vertex *tgt_vertex,
-		   TransRiseFallBoth *tgt_tr,
+		   RiseFallBoth *tgt_rf,
 		   ClockSet *clks,
 		   const Corner *corner,
 		   const SetupHold *setup_hold,

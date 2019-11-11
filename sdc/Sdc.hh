@@ -197,42 +197,42 @@ public:
 			      const MinMax *min_max);
   void setTimingDerate(TimingDerateType type,
 		       PathClkOrData clk_data,
-		       const TransRiseFallBoth *tr,
+		       const RiseFallBoth *rf,
 		       const EarlyLate *early_late,
 		       float derate);
   // Delay type is always net for net derating.
   void setTimingDerate(const Net *net,
 		       PathClkOrData clk_data,
-		       const TransRiseFallBoth *tr,
+		       const RiseFallBoth *rf,
 		       const EarlyLate *early_late,
 		       float derate);
   void setTimingDerate(const Instance *inst,
 		       TimingDerateType type,
 		       PathClkOrData clk_data,
-		       const TransRiseFallBoth *tr,
+		       const RiseFallBoth *rf,
 		       const EarlyLate *early_late,
 		       float derate);
   void setTimingDerate(const LibertyCell *cell,
 		       TimingDerateType type,
 		       PathClkOrData clk_data,
-		       const TransRiseFallBoth *tr,
+		       const RiseFallBoth *rf,
 		       const EarlyLate *early_late,
 		       float derate);
   float timingDerateInstance(const Pin *pin,
 			     TimingDerateType type,
 			     PathClkOrData clk_data,
-			     const TransRiseFall *tr,
+			     const RiseFall *rf,
 			     const EarlyLate *early_late) const;
   float timingDerateNet(const Pin *pin,
 			PathClkOrData clk_data,
-			const TransRiseFall *tr,
+			const RiseFall *rf,
 			const EarlyLate *early_late) const;
   void unsetTimingDerate();
-  void setInputSlew(Port *port, const TransRiseFallBoth *tr,
+  void setInputSlew(Port *port, const RiseFallBoth *rf,
 		    const MinMaxAll *min_max, float slew);
   // Set the rise/fall drive resistance on design port.
   void setDriveResistance(Port *port,
-			  const TransRiseFallBoth *tr,
+			  const RiseFallBoth *rf,
 			  const MinMaxAll *min_max,
 			  float res);
   // Set the drive on design port using external cell timing arcs of
@@ -243,7 +243,7 @@ public:
 		    LibertyPort *from_port,
 		    float *from_slews,
 		    LibertyPort *to_port,
-		    const TransRiseFallBoth *tr,
+		    const RiseFallBoth *rf,
 		    const MinMaxAll *min_max);
   void setLatchBorrowLimit(Pin *pin,
 			   float limit);
@@ -259,31 +259,31 @@ public:
 			// Return values.
 			float &limit,
 			bool &exists);
-  void setMinPulseWidth(const TransRiseFallBoth *tr,
+  void setMinPulseWidth(const RiseFallBoth *rf,
 			float min_width);
   void setMinPulseWidth(const Pin *pin,
-			const TransRiseFallBoth *tr,
+			const RiseFallBoth *rf,
 			float min_width);
   void setMinPulseWidth(const Instance *inst,
-			const TransRiseFallBoth *tr,
+			const RiseFallBoth *rf,
 			float min_width);
   void setMinPulseWidth(const Clock *clk,
-			const TransRiseFallBoth *tr,
+			const RiseFallBoth *rf,
 			float min_width);
   // Return min pulse with respecting precidence.
   void minPulseWidth(const Pin *pin,
 		     const Clock *clk,
-		     const TransRiseFall *hi_low,
+		     const RiseFall *hi_low,
 		     float &min_width,
 		     bool &exists) const;
   void setSlewLimit(Clock *clk,
-		    const TransRiseFallBoth *tr,
+		    const RiseFallBoth *rf,
 		    const PathClkOrData clk_data,
 		    const MinMax *min_max,
 		    float slew);
   bool haveClkSlewLimits() const;
   void slewLimit(Clock *clk,
-		 const TransRiseFall *tr,
+		 const RiseFall *rf,
 		 const PathClkOrData clk_data,
 		 const MinMax *min_max,
 		 float &slew,
@@ -385,14 +385,14 @@ public:
   void removePropagatedClock(Pin *pin);
   bool isPropagatedClock(const Pin *pin);
   void setClockSlew(Clock *clk,
-		    const TransRiseFallBoth *tr,
+		    const RiseFallBoth *rf,
 		    const MinMaxAll *min_max,
 		    float slew);
   void removeClockSlew(Clock *clk);
   // Latency can be on a clk, pin, or clk/pin combination.
   void setClockLatency(Clock *clk,
 		       Pin *pin,
-		       const TransRiseFallBoth *tr,
+		       const RiseFallBoth *rf,
 		       const MinMaxAll *min_max,
 		       float delay);
   void removeClockLatency(const Clock *clk,
@@ -400,7 +400,7 @@ public:
   ClockLatency *clockLatency(Edge *edge) const;
   bool hasClockLatency(const Pin *pin) const;
   void clockLatency(Edge *edge,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const MinMax *min_max,
 		    // Return values.
 		    float &latency,
@@ -411,30 +411,30 @@ public:
   // This does NOT check for latency on clk (without pin).
   void clockLatency(const Clock *clk,
 		    const Pin *pin,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const MinMax *min_max,
 		    // Return values.
 		    float &latency,
 		    bool &exists) const;
   void clockLatency(const Clock *clk,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const MinMax *min_max,
 		    // Return values.
 		    float &latency,
 		    bool &exists) const;
   float clockLatency(const Clock *clk,
-		     const TransRiseFall *tr,
+		     const RiseFall *rf,
 		     const MinMax *min_max) const;
   // Clock insertion delay (set_clk_latency -source).
   // Insertion delay can be on a clk, pin, or clk/pin combination.
   void setClockInsertion(const Clock *clk,
 			 const Pin *pin,
-			 const TransRiseFallBoth *tr,
+			 const RiseFallBoth *rf,
 			 const MinMaxAll *min_max,
 			 const EarlyLateAll *early_late,
 			 float delay);
   void setClockInsertion(const Clock *clk, const Pin *pin,
-			 const TransRiseFall *tr,
+			 const RiseFall *rf,
 			 const MinMax *min_max,
 			 const EarlyLate *early_late,
 			 float delay);
@@ -442,13 +442,13 @@ public:
 			    const Pin *pin);
   bool hasClockInsertion(const Pin *pin) const;
   float clockInsertion(const Clock *clk,
-		       const TransRiseFall *tr,
+		       const RiseFall *rf,
 		       const MinMax *min_max,
 		       const EarlyLate *early_late) const;
   // Respects precedence of pin/clk and set_input_delay on clk pin.
   void clockInsertion(const Clock *clk,
 		      const Pin *pin,
-		      const TransRiseFall *tr,
+		      const RiseFall *rf,
 		      const MinMax *min_max,
 		      const EarlyLate *early_late,
 		      // Return values.
@@ -462,15 +462,15 @@ public:
   virtual void removeClockUncertainty(Pin *pin,
 				      const SetupHoldAll *setup_hold);
   virtual void setClockUncertainty(Clock *from_clk,
-				   const TransRiseFallBoth *from_tr,
+				   const RiseFallBoth *from_rf,
 				   Clock *to_clk,
-				   const TransRiseFallBoth *to_tr,
+				   const RiseFallBoth *to_rf,
 				   const SetupHoldAll *setup_hold,
 				   float uncertainty);
   virtual void removeClockUncertainty(Clock *from_clk,
-				      const TransRiseFallBoth *from_tr,
+				      const RiseFallBoth *from_rf,
 				      Clock *to_clk,
-				      const TransRiseFallBoth *to_tr,
+				      const RiseFallBoth *to_rf,
 				      const SetupHoldAll *setup_hold);
   ClockGroups *makeClockGroups(const char *name,
 			       bool logically_exclusive,
@@ -498,78 +498,78 @@ public:
 			  const Clock *clk) const;
   bool clkStopPropagation(const Clock *clk,
 			  const Pin *from_pin,
-			  const TransRiseFall *from_tr,
+			  const RiseFall *from_rf,
 			  const Pin *to_pin,
-			  const TransRiseFall *to_tr) const;
-  void setClockGatingCheck(const TransRiseFallBoth *tr,
+			  const RiseFall *to_rf) const;
+  void setClockGatingCheck(const RiseFallBoth *rf,
 			   const SetupHold *setup_hold,
 			   float margin);
   void setClockGatingCheck(Instance *inst,
-			   const TransRiseFallBoth *tr,
+			   const RiseFallBoth *rf,
 			   const SetupHold *setup_hold,
 			   float margin,
 			   LogicValue active_value);
   void setClockGatingCheck(Clock *clk,
-			   const TransRiseFallBoth *tr,
+			   const RiseFallBoth *rf,
 			   const SetupHold *setup_hold,
 			   float margin);
   void setClockGatingCheck(const Pin *pin,
-			   const TransRiseFallBoth *tr,
+			   const RiseFallBoth *rf,
 			   const SetupHold *setup_hold,
 			   float margin,
 			   LogicValue active_value);
   void setDataCheck(Pin *from,
-		    const TransRiseFallBoth *from_tr,
+		    const RiseFallBoth *from_rf,
 		    Pin *to,
-		    const TransRiseFallBoth *to_tr,
+		    const RiseFallBoth *to_rf,
 		    Clock *clk,
 		    const SetupHoldAll *setup_hold,
 		    float margin);
   void removeDataCheck(Pin *from,
-		       const TransRiseFallBoth *from_tr,
+		       const RiseFallBoth *from_rf,
 		       Pin *to,
-		       const TransRiseFallBoth *to_tr,
+		       const RiseFallBoth *to_rf,
 		       Clock *clk,
 		       const SetupHoldAll *setup_hold);
   DataCheckSet *dataChecksFrom(const Pin *from) const;
   DataCheckSet *dataChecksTo(const Pin *to) const;
   void setInputDelay(Pin *pin,
-		     const TransRiseFallBoth *tr,
+		     const RiseFallBoth *rf,
 		     Clock *clk,
-		     const TransRiseFall *clk_tr,
+		     const RiseFall *clk_rf,
 		     Pin *ref_pin,
 		     bool source_latency_included,
 		     bool network_latency_included,
 		     const MinMaxAll *min_max,
 		     bool add, float delay);
   void removeInputDelay(Pin *pin,
-			TransRiseFallBoth *tr,
+			RiseFallBoth *rf,
 			Clock *clk,
-			TransRiseFall *clk_tr,
+			RiseFall *clk_rf,
 			MinMaxAll *min_max);
   void setOutputDelay(Pin *pin,
-		      const TransRiseFallBoth *tr,
+		      const RiseFallBoth *rf,
 		      Clock *clk,
-		      const TransRiseFall *clk_tr,
+		      const RiseFall *clk_tr,
 		      Pin *ref_pin,
 		      bool source_latency_included,
 		      bool network_latency_included,
 		      const MinMaxAll *min_max,
 		      bool add, float delay);
   void removeOutputDelay(Pin *pin,
-			 TransRiseFallBoth *tr,
+			 RiseFallBoth *rf,
 			 Clock *clk,
-			 TransRiseFall *clk_tr,
+			 RiseFall *clk_rf,
 			 MinMaxAll *min_max);
   // Set port external pin load (set_load -pin_load port).
   void setPortExtPinCap(Port *port,
-			const TransRiseFall *tr,
+			const RiseFall *rf,
 			const MinMax *min_max,
 			float cap);
   // Set port external wire load (set_load -wire port).
   void setPortExtWireCap(Port *port,
 			 bool subtract_pin_cap,
-			 const TransRiseFall *tr,
+			 const RiseFall *rf,
 			 const Corner *corner,
 			 const MinMax *min_max,
 			 float cap);
@@ -594,7 +594,7 @@ public:
 		      bool &exists) const;
   // Pin capacitance derated by operating conditions and instance pvt.
   float pinCapacitance(const Pin *pin,
-		       const TransRiseFall *tr,
+		       const RiseFall *rf,
 		       const OperatingConditions *op_cond,
 		       const Corner *corner,
 		       const MinMax *min_max);
@@ -733,19 +733,19 @@ public:
   ExceptionFrom *makeExceptionFrom(PinSet *from_pins,
 				   ClockSet *from_clks,
 				   InstanceSet *from_insts,
-				   const TransRiseFallBoth *from_tr);
+				   const RiseFallBoth *from_rf);
   // Make an exception -through specification.
   ExceptionThru *makeExceptionThru(PinSet *pins,
 				   NetSet *nets,
 				   InstanceSet *insts,
-				   const TransRiseFallBoth *tr);
+				   const RiseFallBoth *rf);
   bool exceptionToInvalid(const Pin *pin);
   // Make an exception -to specification.
   ExceptionTo *makeExceptionTo(PinSet *pins,
 			       ClockSet *clks,
 			       InstanceSet *insts,
-			       const TransRiseFallBoth *tr,
-			       const TransRiseFallBoth *end_tr);
+			       const RiseFallBoth *rf,
+			       const RiseFallBoth *end_rf);
   FilterPath *makeFilterPath(ExceptionFrom *from,
 			     ExceptionThruSeq *thrus,
 			     ExceptionTo *to);
@@ -848,28 +848,28 @@ public:
 			bool &exists);
   // Inter-clock uncertainty.
   void clockUncertainty(const Clock *src_clk,
-			const TransRiseFall *src_tr,
+			const RiseFall *src_rf,
 			const Clock *tgt_clk,
-			const TransRiseFall *tgt_tr,
+			const RiseFall *tgt_rf,
 			const SetupHold *setup_hold,
 			float &uncertainty, bool &exists);
   void clockGatingMarginEnablePin(const Pin *enable_pin,
-				  const TransRiseFall *enable_tr,
+				  const RiseFall *enable_rf,
 				  const SetupHold *setup_hold,
 				  bool &exists, float &margin);
   void clockGatingMarginInstance(Instance *inst,
-				 const TransRiseFall *enable_tr,
+				 const RiseFall *enable_rf,
 				 const SetupHold *setup_hold,
 				 bool &exists, float &margin);
   void clockGatingMarginClkPin(const Pin *clk_pin,
-			       const TransRiseFall *enable_tr,
+			       const RiseFall *enable_rf,
 			       const SetupHold *setup_hold,
 			       bool &exists, float &margin);
   void clockGatingMarginClk(const Clock *clk,
-			    const TransRiseFall *enable_tr,
+			    const RiseFall *enable_rf,
 			    const SetupHold *setup_hold,
 			    bool &exists, float &margin);
-  void clockGatingMargin(const TransRiseFall *enable_tr,
+  void clockGatingMargin(const RiseFall *enable_rf,
 			 const SetupHold *setup_hold,
 			 bool &exists, float &margin);
   // Gated clock active (non-controlling) logic value.
@@ -901,7 +901,7 @@ public:
   PortExtCap *portExtCap(Port *port) const;
   bool hasPortExtCap(Port *port) const;
   void portExtCap(Port *port,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const MinMax *min_max,
 		  // Return values.
 		  float &pin_cap,
@@ -911,13 +911,13 @@ public:
 		  int &fanout,
 		  bool &has_fanout) const;
   float portExtCap(Port *port,
-		   const TransRiseFall *tr,
+		   const RiseFall *rf,
 		   const MinMax *min_max) const;
   // Connected total capacitance.
   //  pin_cap  = pin capacitance + port external pin
   //  wire_cap = port external wire capacitance + net wire capacitance
   void connectedCap(const Pin *pin,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const OperatingConditions *op_cond,
 		    const Corner *corner,
 		    const MinMax *min_max,
@@ -937,40 +937,40 @@ public:
   // that start at pin/net/instance also).  Transition tr applies to
   // pin, not clk.
   bool exceptionFromStates(const Pin *pin,
-			   const TransRiseFall *tr,
+			   const RiseFall *rf,
 			   const Clock *clk,
-			   const TransRiseFall *clk_tr,
+			   const RiseFall *clk_rf,
 			   const MinMax *min_max,
 			   ExceptionStateSet *&states) const;
   bool exceptionFromStates(const Pin *pin,
-			   const TransRiseFall *tr,
+			   const RiseFall *rf,
 			   const Clock *clk,
-			   const TransRiseFall *clk_tr,
+			   const RiseFall *clk_rf,
 			   const MinMax *min_max,
 			   bool include_filter,
 			   ExceptionStateSet *&states) const;
   void exceptionFromClkStates(const Pin *pin,
-			      const TransRiseFall *tr,
+			      const RiseFall *rf,
 			      const Clock *clk,
-			      const TransRiseFall *clk_tr,
+			      const RiseFall *clk_rf,
 			      const MinMax *min_max,
 			      ExceptionStateSet *&states) const;
   void filterRegQStates(const Pin *to_pin,
-			const TransRiseFall *to_tr,
+			const RiseFall *to_rf,
 			const MinMax *min_max,
 			ExceptionStateSet *&states) const;
   // Return hierarchical -thru exceptions that start between
   // from_pin and to_pin.
   void exceptionThruStates(const Pin *from_pin,
 			   const Pin *to_pin,
-			   const TransRiseFall *to_tr,
+			   const RiseFall *to_rf,
 			   const MinMax *min_max,
 			   ExceptionStateSet *&states) const;
   // Find the highest priority exception with first exception pt at
   // pin/clk end.
   void exceptionTo(ExceptionPathType type,
 		   const Pin *pin,
-		   const TransRiseFall *tr,
+		   const RiseFall *rf,
 		   const ClockEdge *clk_edge,
 		   const MinMax *min_max,
 		   bool match_min_max_exactly,
@@ -979,14 +979,14 @@ public:
 		   int &hi_priority) const;
   virtual bool exceptionMatchesTo(ExceptionPath *exception,
 				  const Pin *pin,
-				  const TransRiseFall *tr,
+				  const RiseFall *rf,
 				  const ClockEdge *clk_edge,
 				  const MinMax *min_max,
 				  bool match_min_max_exactly,
 				  bool require_to_pin) const;
   bool isCompleteTo(ExceptionState *state,
 		    const Pin *pin,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const ClockEdge *clk_edge,
 		    const MinMax *min_max,
 		    bool match_min_max_exactly,
@@ -1122,19 +1122,19 @@ protected:
 		       ExceptionPathSet &expansions);
   bool exceptionFromStates(const ExceptionPathSet *exceptions,
 			   const Pin *pin,
-			   const TransRiseFall *tr,
+			   const RiseFall *rf,
 			   const MinMax *min_max,
 			   bool include_filter,
 			   ExceptionStateSet *&states) const;
   void exceptionThruStates(const ExceptionPathSet *exceptions,
-			   const TransRiseFall *to_tr,
+			   const RiseFall *to_rf,
 			   const MinMax *min_max,
 			   // Return value.
 			   ExceptionStateSet *&states) const;
   void exceptionTo(const ExceptionPathSet *to_exceptions,
 		   ExceptionPathType type,
 		   const Pin *pin,
-		   const TransRiseFall *tr,
+		   const RiseFall *rf,
 		   const ClockEdge *clk_edge,
 		   const MinMax *min_max,
 		   bool match_min_max_exactly,
@@ -1144,7 +1144,7 @@ protected:
   void exceptionTo(ExceptionPath *exception,
 		   ExceptionPathType type,
 		   const Pin *pin,
-		   const TransRiseFall *tr,
+		   const RiseFall *rf,
 		   const ClockEdge *clk_edge,
 		   const MinMax *min_max,
 		   bool match_min_max_exactly,
@@ -1219,7 +1219,7 @@ protected:
   void deannotateHierClkLatency(const Pin *hpin);
   void initInstancePvtMaps();
   void pinCaps(const Pin *pin,
-	       const TransRiseFall *tr,
+	       const RiseFall *rf,
 	       const OperatingConditions *op_cond,
 	       const Corner *corner,
 	       const MinMax *min_max,
@@ -1228,7 +1228,7 @@ protected:
 	       float &fanout,
 	       bool &has_ext_cap) const;
   void netCaps(const Pin *drvr_pin,
-	       const TransRiseFall *tr,
+	       const RiseFall *rf,
 	       const OperatingConditions *op_cond,
 	       const Corner *corner,
 	       const MinMax *min_max,
@@ -1239,12 +1239,12 @@ protected:
 	       bool &has_set_load) const;
   // connectedCap pin_cap.
   float connectedPinCap(const Pin *pin,
-			const TransRiseFall *tr,
+			const RiseFall *rf,
 			const OperatingConditions *op_cond,
 			const Corner *corner,
 			const MinMax *min_max);
   float portCapacitance(Instance *inst, LibertyPort *port,
-			const TransRiseFall *tr,
+			const RiseFall *rf,
 			const OperatingConditions *op_cond,
 			const Corner *corner,
 			const MinMax *min_max) const;
@@ -1261,8 +1261,8 @@ protected:
 		     ClockSense sense);
   bool clkStopSense(const Pin *to_pin,
 		    const Clock *clk,
-		    const TransRiseFall *from_tr,
-		    const TransRiseFall *to_tr) const;
+		    const RiseFall *from_rf,
+		    const RiseFall *to_rf) const;
   void disconnectPinBefore(Pin *pin,
 			   ExceptionPathSet *exceptions);
   void clockGroupsDeleteClkRefs(Clock *clk);

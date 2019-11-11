@@ -65,7 +65,7 @@ public:
   Clock *clock() const;
   const Pin *clkSrc() const;
   int trIndex() const { return tr_index_; }
-  const TransRiseFall *transition() const;
+  const RiseFall *transition() const;
   PathAnalysisPt *pathAnalysisPt(const StaState *sta) const;
   PathAPIndex pathAPIndex() const { return path_ap_index_; }
   TagIndex index() const { return index_; }
@@ -99,7 +99,7 @@ private:
   // Indicates that states_ is owned by the tag.
   bool own_states_:1;
   TagIndex index_:tag_index_bits;
-  unsigned int tr_index_:TransRiseFall::index_bit_count;
+  unsigned int tr_index_:RiseFall::index_bit_count;
   unsigned int path_ap_index_:path_ap_index_bit_count;
 };
 
@@ -133,7 +133,7 @@ public:
 int
 tagCmp(const Tag *tag1,
        const Tag *tag2,
-       bool cmp_tr);
+       bool cmp_rf);
 
 // Match tag clock edge, clock driver and exception states but not clk info.
 bool

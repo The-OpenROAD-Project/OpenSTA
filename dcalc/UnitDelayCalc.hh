@@ -28,7 +28,7 @@ public:
   UnitDelayCalc(StaState *sta);
   virtual ArcDelayCalc *copy();
   virtual Parasitic *findParasitic(const Pin *drvr_pin,
-				   const TransRiseFall *tr,
+				   const RiseFall *rf,
 				   const DcalcAnalysisPt *dcalc_ap);
   virtual void gateDelay(const LibertyCell *drvr_cell,
 			 TimingArc *arc,
@@ -56,7 +56,7 @@ public:
 		     const DcalcAnalysisPt *dcalc_ap);
   virtual void inputPortDelay(const Pin *port_pin,
 			      float in_slew,
-			      const TransRiseFall *tr,
+			      const RiseFall *rf,
 			      Parasitic *parasitic,
 			      const DcalcAnalysisPt *dcalc_ap);
   virtual void checkDelay(const LibertyCell *cell,

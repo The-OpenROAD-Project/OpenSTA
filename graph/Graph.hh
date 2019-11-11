@@ -64,13 +64,13 @@ static constexpr ObjectIdx prev_path_null = object_id_null;
 class Graph : public StaState
 {
 public:
-  // slew_tr_count is
+  // slew_rf_count is
   //  0 no slews
   //  1 one slew for rise/fall
   //  2 rise/fall slews
   // ap_count is the dcalc analysis point count.
   Graph(StaState *sta,
-	int slew_tr_count,
+	int slew_rf_count,
 	bool have_arc_delays,
 	DcalcAPIndex ap_count);
   void makeGraph();
@@ -112,10 +112,10 @@ public:
   //  reported_slews = measured_slews / slew_derate_from_library
   // Measured slews are between slew_lower_threshold and slew_upper_threshold.
   virtual const Slew &slew(const Vertex *vertex,
-			   const TransRiseFall *tr,
+			   const RiseFall *rf,
 			   DcalcAPIndex ap_index);
   virtual void setSlew(Vertex *vertex,
-		       const TransRiseFall *tr,
+		       const RiseFall *rf,
 		       DcalcAPIndex ap_index,
 		       const Slew &slew);
 
@@ -142,10 +142,10 @@ public:
 			   ArcDelay delay);
   // Alias for arcDelays using library wire arcs.
   virtual const ArcDelay &wireArcDelay(const Edge *edge,
-				       const TransRiseFall *tr,
+				       const RiseFall *rf,
 				       DcalcAPIndex ap_index);
   virtual void setWireArcDelay(Edge *edge,
-			       const TransRiseFall *tr,
+			       const RiseFall *rf,
 			       DcalcAPIndex ap_index,
 			       const ArcDelay &delay);
   // Is timing arc delay annotated.
@@ -157,10 +157,10 @@ public:
 			    DcalcAPIndex ap_index,
 			    bool annotated);
   bool wireDelayAnnotated(Edge *edge,
-			  const TransRiseFall *tr,
+			  const RiseFall *rf,
 			  DcalcAPIndex ap_index) const;
   void setWireDelayAnnotated(Edge *edge,
-			     const TransRiseFall *tr,
+			     const RiseFall *rf,
 			     DcalcAPIndex ap_index,
 			     bool annotated);
   // True if any edge arc is annotated.
@@ -170,13 +170,13 @@ public:
 
   // Sdf width check annotation.
   void widthCheckAnnotation(const Pin *pin,
-			    const TransRiseFall *tr,
+			    const RiseFall *rf,
 			    DcalcAPIndex ap_index,
 			    // Return values.
 			    float &width,
 			    bool &exists);
   void setWidthCheckAnnotation(const Pin *pin,
-			       const TransRiseFall *tr,
+			       const RiseFall *rf,
 			       DcalcAPIndex ap_index,
 			       float width);
 
@@ -237,7 +237,7 @@ protected:
   PrevPathsTable prev_paths_;
   std::mutex prev_paths_lock_;
   Vector<bool> arc_delay_annotated_;
-  int slew_tr_count_;
+  int slew_rf_count_;
   bool have_arc_delays_;
   DcalcAPIndex ap_count_;
   DelayTableSeq slew_tables_;	      // [ap_index][tr_index][vertex_id]
@@ -285,12 +285,12 @@ public:
   TagGroupIndex tagGroupIndex() const;
   void setTagGroupIndex(TagGroupIndex tag_index);
   // Slew is annotated by sdc set_annotated_transition cmd.
-  bool slewAnnotated(const TransRiseFall *tr,
+  bool slewAnnotated(const RiseFall *rf,
 		     const MinMax *min_max) const;
   // True if any rise/fall analysis pt slew is annotated.
   bool slewAnnotated() const;
   void setSlewAnnotated(bool annotated,
-			const TransRiseFall *tr,
+			const RiseFall *rf,
 			DcalcAPIndex ap_index);
   void removeSlewAnnotated();
   // Constant zero/one from simulation.

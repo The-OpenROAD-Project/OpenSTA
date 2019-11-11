@@ -30,7 +30,7 @@
 namespace sta {
 
 class StaState;
-class TransRiseFall;
+class RiseFall;
 class MinMax;
 class ReportPath;
 
@@ -77,7 +77,7 @@ public:
   // Synonym for minMax().
   const EarlyLate *pathEarlyLate(const StaState *sta) const;
   virtual const EarlyLate *clkEarlyLate(const StaState *sta) const;
-  const TransRiseFall *transition(const StaState *sta) const;
+  const RiseFall *transition(const StaState *sta) const;
   PathAnalysisPt *pathAnalysisPt(const StaState *sta) const;
   PathAPIndex pathIndex(const StaState *sta) const;
   virtual void reportShort(ReportPath *report,
@@ -118,7 +118,7 @@ public:
   virtual const PathVertex *targetClkPath() const;
   virtual Clock *targetClk(const StaState *sta) const;
   virtual ClockEdge *targetClkEdge(const StaState *sta) const;
-  const TransRiseFall *targetClkEndTrans(const StaState *sta) const;
+  const RiseFall *targetClkEndTrans(const StaState *sta) const;
   // Target clock with cycle accounting and source clock offsets.
   virtual float targetClkTime(const StaState *sta) const;
   // Time offset for the target clock.

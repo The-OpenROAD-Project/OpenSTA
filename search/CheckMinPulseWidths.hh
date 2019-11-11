@@ -25,7 +25,7 @@
 
 namespace sta {
 
-class TransRiseFall;
+class RiseFall;
 class MinPulseWidthCheck;
 class MinPulseWidthCheckVisitor;
 
@@ -68,7 +68,7 @@ public:
   MinPulseWidthCheck(Path *open_path);
   MinPulseWidthCheck *copy();
   Pin *pin(const StaState *sta) const;
-  const TransRiseFall *openTransition(const StaState *sta) const;
+  const RiseFall *openTransition(const StaState *sta) const;
   Arrival width(const StaState *sta) const;
   float minWidth(const StaState *sta) const;
   Slack slack(const StaState *sta) const;

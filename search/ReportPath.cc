@@ -608,8 +608,8 @@ ReportPath::latchDesc(const PathEndLatchCheck *end)
   TimingArc *check_arc = end->checkArc();
   TimingArcSet *check_set = check_arc->set();
   LibertyCell *cell = check_set->from()->libertyCell();
-  TransRiseFall *enable_tr = cell->latchCheckEnableTrans(check_set);
-  return latchDesc(enable_tr);
+  RiseFall *enable_rf = cell->latchCheckEnableTrans(check_set);
+  return latchDesc(enable_rf);
 }
 
 void
@@ -890,10 +890,10 @@ ReportPath::reportEndpoint(const PathEndGatedClock *end,
   Instance *inst = network_->instance(end->vertex(this)->pin());
   const char *inst_name = cmd_network_->pathName(inst);
   string clk_name = tgtClkName(end);
-  const TransRiseFall *clk_end_tr = end->targetClkEndTrans(this);
-  const TransRiseFall *clk_tr =
-    (end->minMax(this) == MinMax::max()) ? clk_end_tr : clk_end_tr->opposite();
-  const char *rise_fall = asRisingFalling(clk_tr);
+  const RiseFall *clk_end_rf = end->targetClkEndTrans(this);
+  const RiseFall *clk_rf =
+    (end->minMax(this) == MinMax::max()) ? clk_end_rf : clk_end_rf->opposite();
+  const char *rise_fall = asRisingFalling(clk_rf);
   // Note that target clock transition is ignored.
   auto reason = stdstrPrint("%s clock gating-check end-point clocked by %s",
 			    rise_fall,
@@ -960,10 +960,10 @@ ReportPath::reportEndpoint(const PathEndDataCheck *end,
 {
   Instance *inst = network_->instance(end->vertex(this)->pin());
   const char *inst_name = cmd_network_->pathName(inst);
-  const char *tgt_clk_tr = asRisingFalling(end->dataClkPath()->transition(this));
+  const char *tgt_clk_rf = asRisingFalling(end->dataClkPath()->transition(this));
   const char *tgt_clk_name = end->targetClk(this)->name();
   auto reason = stdstrPrint("%s edge-triggered data to data check clocked by %s",
-			    tgt_clk_tr,
+			    tgt_clk_rf,
 			    tgt_clk_name);
 
   reportEndpoint(inst_name, reason, result);
@@ -1257,7 +1257,7 @@ ReportPath::reportVerbose(MinPulseWidthCheck *check,
 const char *
 ReportPath::mpwCheckHiLow(MinPulseWidthCheck *check)
 {
-  if (check->openTransition(this) == TransRiseFall::rise())
+  if (check->openTransition(this) == RiseFall::rise())
     return "high";
   else
     return "low";
@@ -1502,22 +1502,22 @@ ReportPath::reportSkewClkPath(const char *arrival_msg,
   ClockEdge *clk_edge = clk_path->clkEdge(this);
   Clock *clk = clk_edge->clock();
   const EarlyLate *early_late = clk_path->minMax(this);
-  const TransRiseFall *clk_tr = clk_edge->transition();
-  const TransRiseFall *clk_end_tr = clk_path->transition(this);
-  string clk_name = clkName(clk, clk_end_tr != clk_tr);
+  const RiseFall *clk_rf = clk_edge->transition();
+  const RiseFall *clk_end_rf = clk_path->transition(this);
+  string clk_name = clkName(clk, clk_end_rf != clk_rf);
   float clk_time = clk_edge->time();
   const Arrival &clk_arrival = search_->clkPathArrival(clk_path);
   Arrival clk_delay = clk_arrival - clk_time;
   PathAnalysisPt *path_ap = clk_path->pathAnalysisPt(this);
   const MinMax *min_max = path_ap->pathMinMax();
   Vertex *clk_vertex = clk_path->vertex(this);
-  reportClkLine(clk, clk_name.c_str(), clk_end_tr, clk_time, min_max, result);
+  reportClkLine(clk, clk_name.c_str(), clk_end_rf, clk_time, min_max, result);
 
   bool is_prop = isPropagated(clk_path);
   if (is_prop && reportClkPath()) {
     const EarlyLate *early_late = TimingRole::skew()->tgtClkEarlyLate();
-    if (reportGenClkSrcPath(clk_path, clk, clk_tr, min_max, early_late))
-      reportGenClkSrcAndPath(clk_path, clk, clk_tr, early_late, path_ap,
+    if (reportGenClkSrcPath(clk_path, clk, clk_rf, min_max, early_late))
+      reportGenClkSrcAndPath(clk_path, clk, clk_rf, early_late, path_ap,
 			     0.0, 0.0, false, result);
     else {
       Arrival insertion, latency;
@@ -1532,7 +1532,7 @@ ReportPath::reportSkewClkPath(const char *arrival_msg,
     reportLine(clkNetworkDelayIdealProp(is_prop), clk_delay, clk_arrival,
 	       early_late, result);
     reportLine(descriptionField(clk_vertex).c_str(), clk_arrival,
-	       early_late, clk_end_tr, result);
+	       early_late, clk_end_rf, result);
   }
   reportLine(arrival_msg, search_->clkPathArrival(clk_path),
 	     early_late, result);
@@ -1566,19 +1566,19 @@ ReportPath::reportSlewLimitShortHeader(string &result)
 
 void
 ReportPath::reportSlewLimitShort(Pin *pin,
-				 const TransRiseFall *tr,
+				 const RiseFall *rf,
 				 Slew slew,
 				 float limit,
 				 float slack)
 {
   string result;
-  reportSlewLimitShort(pin, tr, slew, limit, slack, result);
+  reportSlewLimitShort(pin, rf, slew, limit, slack, result);
   report_->print(result);
 }
 
 void
 ReportPath::reportSlewLimitShort(Pin *pin,
-				 const TransRiseFall *,
+				 const RiseFall *,
 				 Slew slew,
 				 float limit,
 				 float slack,
@@ -1594,21 +1594,21 @@ ReportPath::reportSlewLimitShort(Pin *pin,
 void
 ReportPath::reportSlewLimitVerbose(Pin *pin,
 				   const Corner *corner,
-				   const TransRiseFall *tr,
+				   const RiseFall *rf,
 				   Slew slew,
 				   float limit,
 				   float slack,
 				   const MinMax *min_max)
 {
   string result;
-  reportSlewLimitVerbose(pin, corner, tr, slew, limit, slack, min_max, result);
+  reportSlewLimitVerbose(pin, corner, rf, slew, limit, slack, min_max, result);
   report_->print(result);
 }
 
 void
 ReportPath::reportSlewLimitVerbose(Pin *pin,
 				   const Corner *,
-				   const TransRiseFall *tr,
+				   const RiseFall *rf,
 				   Slew slew,
 				   float limit,
 				   float slack,
@@ -1618,7 +1618,7 @@ ReportPath::reportSlewLimitVerbose(Pin *pin,
   result += "Pin ";
   result += cmd_network_->pathName(pin);
   result += ' ';
-  result += tr->shortName();
+  result += rf->shortName();
   reportEndOfLine(result);
 
   result += min_max->asString();
@@ -1672,11 +1672,11 @@ ReportPath::reportStartpoint(const PathEnd *end,
     Instance *inst = network_->instance(pin);
     const char *inst_name = cmd_network_->pathName(inst);
     if (clk_edge) {
-      const TransRiseFall *clk_tr = clk_edge->transition();
+      const RiseFall *clk_rf = clk_edge->transition();
       PathRef clk_path;
       expanded.clkPath(clk_path);
       bool clk_inverted = !clk_path.isNull()
-	&& clk_tr != clk_path.transition(this);
+	&& clk_rf != clk_path.transition(this);
       string clk_name = clkName(clk, clk_inverted);
       const char *reg_desc = edgeRegLatchDesc(prev_edge, prev_arc);
       auto reason = stdstrPrint("%s clocked by %s", reg_desc, clk_name.c_str());
@@ -1845,9 +1845,9 @@ ReportPath::tgtClkName(const PathEnd *end)
 {
   ClockEdge *tgt_clk_edge = end->targetClkEdge(this);
   const Clock *tgt_clk = tgt_clk_edge->clock();
-  const TransRiseFall *clk_tr = tgt_clk_edge->transition();
-  const TransRiseFall *clk_end_tr = end->targetClkEndTrans(this);
-  return clkName(tgt_clk, clk_end_tr != clk_tr);
+  const RiseFall *clk_rf = tgt_clk_edge->transition();
+  const RiseFall *clk_end_rf = end->targetClkEndTrans(this);
+  return clkName(tgt_clk, clk_end_rf != clk_rf);
 }
 
 string
@@ -1865,9 +1865,9 @@ ReportPath::clkRegLatchDesc(const PathEnd *end)
 {
   // Goofy libraries can have registers with both rising and falling
   // clk->q timing arcs.  Try and match the timing check transition.
-  const TransRiseFall *check_clk_tr=end->checkArc()->fromTrans()->asRiseFall();
+  const RiseFall *check_clk_rf=end->checkArc()->fromTrans()->asRiseFall();
   TimingArcSet *clk_set = nullptr;
-  TimingArcSet *clk_tr_set = nullptr;
+  TimingArcSet *clk_rf_set = nullptr;
   Vertex *tgt_clk_vertex = end->targetClkPath()->vertex(this);
   VertexOutEdgeIterator iter(tgt_clk_vertex, graph_);
   while (iter.hasNext()) {
@@ -1876,20 +1876,20 @@ ReportPath::clkRegLatchDesc(const PathEnd *end)
     TimingRole *role = arc_set->role();
     if (role == TimingRole::regClkToQ()
 	|| role == TimingRole::latchEnToQ()) {
-      TransRiseFall *arc_tr = arc_set->isRisingFallingEdge();
+      RiseFall *arc_rf = arc_set->isRisingFallingEdge();
       clk_set = arc_set;
-      if (arc_tr == check_clk_tr)
-	clk_tr_set = arc_set;
+      if (arc_rf == check_clk_rf)
+	clk_rf_set = arc_set;
     }
   }
-  if (clk_tr_set)
-    return checkRegLatchDesc(clk_tr_set->role(),
-			     clk_tr_set->isRisingFallingEdge());
+  if (clk_rf_set)
+    return checkRegLatchDesc(clk_rf_set->role(),
+			     clk_rf_set->isRisingFallingEdge());
   else if (clk_set)
     return checkRegLatchDesc(clk_set->role(),
 			     clk_set->isRisingFallingEdge());
   else
-    return checkRegLatchDesc(TimingRole::regClkToQ(), check_clk_tr);
+    return checkRegLatchDesc(TimingRole::regClkToQ(), check_clk_rf);
 }
 
 void
@@ -1931,7 +1931,7 @@ ReportPath::reportSrcClkAndPath(const Path *path,
   const MinMax *min_max = path->minMax(this);
   if (clk_edge) {
     Clock *clk = clk_edge->clock();
-    TransRiseFall *clk_tr = clk_edge->transition();
+    RiseFall *clk_rf = clk_edge->transition();
     float clk_time = clk_edge->time() + time_offset;
     if (clk == sdc_->defaultArrivalClock()) {
       if (!is_path_delay) {
@@ -1950,15 +1950,15 @@ ReportPath::reportSrcClkAndPath(const Path *path,
       Arrival clk_delay, clk_end_time;
       PathRef clk_path;
       expanded.clkPath(clk_path);
-      const TransRiseFall *clk_end_tr;
+      const RiseFall *clk_end_rf;
       if (!clk_path.isNull()) {
 	clk_end_time = search_->clkPathArrival(&clk_path) + time_offset;
 	clk_delay = clk_end_time - clk_time;
-	clk_end_tr = clk_path.transition(this);
+	clk_end_rf = clk_path.transition(this);
       }
       else {
 	// Path from input port or clk used as data.
-	clk_end_tr = clk_tr;
+	clk_end_rf = clk_rf;
 	clk_delay = clk_insertion + clk_latency;
 	clk_end_time = clk_time + clk_delay;
 
@@ -1979,24 +1979,24 @@ ReportPath::reportSrcClkAndPath(const Path *path,
 	  }
 	}
       }
-      string clk_name = clkName(clk, clk_tr != clk_end_tr);
+      string clk_name = clkName(clk, clk_rf != clk_end_rf);
 
       bool clk_used_as_data = pathFromClkPin(expanded);
       bool is_prop = isPropagated(path);
       const EarlyLate *early_late = min_max;
       if (reportGenClkSrcPath(clk_path.isNull() ? nullptr : &clk_path,
-			      clk, clk_tr, min_max, early_late)
+			      clk, clk_rf, min_max, early_late)
 	  && !(path_from_input && !input_has_ref_path)) {
-	reportClkLine(clk, clk_name.c_str(), clk_end_tr, clk_time,
+	reportClkLine(clk, clk_name.c_str(), clk_end_rf, clk_time,
 		      min_max, result);
  	const PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
-	reportGenClkSrcAndPath(path, clk, clk_tr, early_late, path_ap,
+	reportGenClkSrcAndPath(path, clk, clk_rf, early_late, path_ap,
  			       time_offset, time_offset, clk_used_as_data,
 			       result);
       }
       else if (clk_used_as_data 
  	       && pathFromGenPropClk(path, path->minMax(this))) {
-	reportClkLine(clk, clk_name.c_str(), clk_end_tr, clk_time,
+	reportClkLine(clk, clk_name.c_str(), clk_end_rf, clk_time,
 		      min_max, result);
  	ClkInfo *clk_info = path->tag(search_)->clkInfo();
  	if (clk_info->isPropagated())
@@ -2006,13 +2006,13 @@ ReportPath::reportSrcClkAndPath(const Path *path,
       else if (is_prop
 	       && reportClkPath()
 	       && !(path_from_input && !input_has_ref_path)) {
- 	reportClkLine(clk, clk_name.c_str(), clk_end_tr, clk_time,
+ 	reportClkLine(clk, clk_name.c_str(), clk_end_rf, clk_time,
 		      early_late, result);
 	reportClkSrcLatency(clk_insertion, clk_time, early_late, result);
  	reportPath1(path, expanded, false, time_offset, result);
       }
       else if (clk_used_as_data) {
-	reportClkLine(clk, clk_name.c_str(), clk_end_tr, clk_time,
+	reportClkLine(clk, clk_name.c_str(), clk_end_rf, clk_time,
 		      early_late, result);
  	if (clk_insertion > 0.0)
 	  reportClkSrcLatency(clk_insertion, clk_time, early_late, result);
@@ -2025,7 +2025,7 @@ ReportPath::reportSrcClkAndPath(const Path *path,
 		       clk_end_time, early_late, result);
 	}
 	else {
-	  reportClkLine(clk, clk_name.c_str(), clk_end_tr, clk_time,
+	  reportClkLine(clk, clk_name.c_str(), clk_end_rf, clk_time,
 			min_max, result);
 	  Arrival clk_arrival = clk_end_time;
 	  reportLine(clkNetworkDelayIdealProp(is_prop), clk_delay,
@@ -2065,9 +2065,9 @@ ReportPath::reportTgtClk(const PathEnd *end,
   float src_offset = end->sourceClkOffset(this);
   const ClockEdge *clk_edge = end->targetClkEdge(this);
   Clock *clk = clk_edge->clock();
-  const TransRiseFall *clk_tr = clk_edge->transition();
-  const TransRiseFall *clk_end_tr = end->targetClkEndTrans(this);
-  string clk_name = clkName(clk, clk_end_tr != clk_tr);
+  const RiseFall *clk_rf = clk_edge->transition();
+  const RiseFall *clk_end_rf = end->targetClkEndTrans(this);
+  string clk_name = clkName(clk, clk_end_rf != clk_rf);
   float clk_time = prev_time
     + end->targetClkTime(this)
     + end->targetClkMcpAdjustment(this)
@@ -2077,7 +2077,7 @@ ReportPath::reportTgtClk(const PathEnd *end,
   PathAnalysisPt *path_ap = end->pathAnalysisPt(this)->tgtClkAnalysisPt();
   const MinMax *min_max = path_ap->pathMinMax();
   const Path *clk_path = end->targetClkPath();
-  reportClkLine(clk, clk_name.c_str(), clk_end_tr, prev_time, clk_time,
+  reportClkLine(clk, clk_name.c_str(), clk_end_rf, prev_time, clk_time,
 		min_max, result);
   TimingRole *check_role = end->checkRole(this);
   if (is_prop && reportClkPath()) {
@@ -2085,10 +2085,10 @@ ReportPath::reportTgtClk(const PathEnd *end,
       + end->targetClkOffset(this)
       + end->targetClkMcpAdjustment(this);
     const EarlyLate *early_late = check_role->tgtClkEarlyLate();
-    if (reportGenClkSrcPath(clk_path, clk, clk_tr, min_max, early_late)) {
+    if (reportGenClkSrcPath(clk_path, clk, clk_rf, min_max, early_late)) {
       float insertion_offset = 
 	clk_path ? tgtClkInsertionOffet(clk_path, early_late, path_ap) : 0.0;
-      reportGenClkSrcAndPath(clk_path, clk, clk_tr, early_late, path_ap,
+      reportGenClkSrcAndPath(clk_path, clk, clk_rf, early_late, path_ap,
 			     time_offset, time_offset + insertion_offset,
 			     false, result);
     }
@@ -2124,7 +2124,7 @@ ReportPath::reportTgtClk(const PathEnd *end,
 		 prev_time
 		 + end->targetClkArrival(this)
 		 + end->sourceClkOffset(this),
-		 min_max, clk_end_tr, result);
+		 min_max, clk_end_rf, result);
     }
   }
 }
@@ -2138,12 +2138,12 @@ ReportPath::tgtClkInsertionOffet(const Path *clk_path,
   const Pin *src_pin = clk_info->clkSrc();
   const ClockEdge *clk_edge = clk_info->clkEdge();
   const Clock *clk = clk_edge->clock();
-  const TransRiseFall *clk_tr = clk_edge->transition();
+  const RiseFall *clk_rf = clk_edge->transition();
   const MinMax *min_max = path_ap->pathMinMax();
-  Arrival path_insertion = search_->clockInsertion(clk, src_pin, clk_tr,
+  Arrival path_insertion = search_->clockInsertion(clk, src_pin, clk_rf,
 						   min_max, min_max,
 						   path_ap);
-  Arrival tgt_insertion = search_->clockInsertion(clk, src_pin, clk_tr,
+  Arrival tgt_insertion = search_->clockInsertion(clk, src_pin, clk_rf,
 						  min_max, early_late,
 						  path_ap);
   return delayAsFloat(tgt_insertion - path_insertion);
@@ -2173,13 +2173,13 @@ ReportPath::pathFromGenPropClk(const Path *clk_path,
 
 bool
 ReportPath::isGenPropClk(const Clock *clk,
-			 const TransRiseFall *clk_tr,
+			 const RiseFall *clk_rf,
 			 const MinMax *min_max,
 			 const EarlyLate *early_late)
 {
   float insertion;
   bool exists;
-  sdc_->clockInsertion(clk, clk->srcPin(), clk_tr,
+  sdc_->clockInsertion(clk, clk->srcPin(), clk_rf,
 			       min_max, early_late,
 			       insertion, exists);
   return !exists
@@ -2189,30 +2189,30 @@ ReportPath::isGenPropClk(const Clock *clk,
 void
 ReportPath::reportClkLine(const Clock *clk,
 			  const char *clk_name,
-			  const TransRiseFall *clk_tr,
+			  const RiseFall *clk_rf,
 			  Arrival clk_time,
 			  const MinMax *min_max,
 			  string &result)
 {
-  reportClkLine(clk, clk_name, clk_tr, 0.0, clk_time, min_max, result);
+  reportClkLine(clk, clk_name, clk_rf, 0.0, clk_time, min_max, result);
 }
 
 void
 ReportPath::reportClkLine(const Clock *clk,
 			  const char *clk_name,
-			  const TransRiseFall *clk_tr,
+			  const RiseFall *clk_rf,
 			  Arrival prev_time,
 			  Arrival clk_time,
 			  const MinMax *min_max,
 			  string &result)
 {
-  const char *rise_fall = asRiseFall(clk_tr);
+  const char *rise_fall = asRiseFall(clk_rf);
   auto clk_msg = stdstrPrint("clock %s (%s edge)", clk_name, rise_fall);
   if (clk->isPropagated())
     reportLine(clk_msg.c_str(), clk_time - prev_time, clk_time, min_max, result);
   else {
     // Report ideal clock slew.
-    float clk_slew = clk->slew(clk_tr, min_max);
+    float clk_slew = clk->slew(clk_rf, min_max);
     reportLine(clk_msg.c_str(), clk_slew, clk_time - prev_time, clk_time,
 	       min_max, result);
   }
@@ -2221,13 +2221,13 @@ ReportPath::reportClkLine(const Clock *clk,
 bool
 ReportPath::reportGenClkSrcPath(const Path *clk_path,
 				Clock *clk,
-				const TransRiseFall *clk_tr,
+				const RiseFall *clk_rf,
 				const MinMax *min_max,
 				const EarlyLate *early_late)
 {
   bool from_gen_prop_clk = clk_path
     ? pathFromGenPropClk(clk_path, early_late)
-    : isGenPropClk(clk, clk_tr, min_max, early_late);
+    : isGenPropClk(clk, clk_rf, min_max, early_late);
   return from_gen_prop_clk
     && format_ == ReportPathFormat::full_clock_expanded;
 }
@@ -2235,7 +2235,7 @@ ReportPath::reportGenClkSrcPath(const Path *clk_path,
 void
 ReportPath::reportGenClkSrcAndPath(const Path *path,
 				   Clock *clk,
-				   const TransRiseFall *clk_tr,
+				   const RiseFall *clk_rf,
 				   const EarlyLate *early_late,
 				   const PathAnalysisPt *path_ap,
 				   float time_offset,
@@ -2246,8 +2246,8 @@ ReportPath::reportGenClkSrcAndPath(const Path *path,
   const Pin *clk_pin = path
     ? path->clkInfo(search_)->clkSrc()
     : clk->defaultPin();
-  float gclk_time = clk->edge(clk_tr)->time() + time_offset;
-  bool skip_first_path = reportGenClkSrcPath1(clk, clk_pin, clk_tr,
+  float gclk_time = clk->edge(clk_rf)->time() + time_offset;
+  bool skip_first_path = reportGenClkSrcPath1(clk, clk_pin, clk_rf,
 					      early_late, path_ap, gclk_time,
 					      time_offset, clk_used_as_data,
 					      result);
@@ -2261,7 +2261,7 @@ ReportPath::reportGenClkSrcAndPath(const Path *path,
 bool
 ReportPath::reportGenClkSrcPath1(Clock *clk,
 				 const Pin *clk_pin,
-				 const TransRiseFall *clk_tr,
+				 const RiseFall *clk_rf,
 				 const EarlyLate *early_late,
 				 const PathAnalysisPt *path_ap,
 				 float gclk_time,
@@ -2272,24 +2272,24 @@ ReportPath::reportGenClkSrcPath1(Clock *clk,
   PathAnalysisPt *insert_ap = path_ap->insertionAnalysisPt(early_late);
   PathVertex src_path;
   const MinMax *min_max = path_ap->pathMinMax();
-  search_->genclks()->srcPath(clk, clk_pin, clk_tr, insert_ap, src_path);
+  search_->genclks()->srcPath(clk, clk_pin, clk_rf, insert_ap, src_path);
   if (!src_path.isNull()) {
     ClkInfo *src_clk_info = src_path.clkInfo(search_);
     ClockEdge *src_clk_edge = src_clk_info->clkEdge();
     Clock *src_clk = src_clk_info->clock();
     bool skip_first_path = false;
-    const TransRiseFall *src_clk_tr = src_clk_edge->transition();
+    const RiseFall *src_clk_rf = src_clk_edge->transition();
     const Pin *src_clk_pin = src_clk_info->clkSrc();
     if (src_clk->isGeneratedWithPropagatedMaster()
 	&& src_clk_info->isPropagated()) {
       skip_first_path = reportGenClkSrcPath1(src_clk, src_clk_pin,
-					     src_clk_tr, early_late, path_ap,
+					     src_clk_rf, early_late, path_ap,
 					     gclk_time, time_offset,
 					     clk_used_as_data, result);
     }
     else {
       const Arrival insertion = search_->clockInsertion(src_clk, src_clk_pin,
-							src_clk_tr,
+							src_clk_rf,
 							path_ap->pathMinMax(),
 							early_late, path_ap);
       reportClkSrcLatency(insertion, gclk_time, early_late, result);
@@ -2299,7 +2299,7 @@ ReportPath::reportGenClkSrcPath1(Clock *clk,
       reportPath4(&src_path, src_expanded, skip_first_path, true,
 		  clk_used_as_data, gclk_time, result);
       PathAnalysisPt *pll_ap=path_ap->insertionAnalysisPt(min_max->opposite());
-      Arrival pll_delay = search_->genclks()->pllDelay(clk, clk_tr, pll_ap);
+      Arrival pll_delay = search_->genclks()->pllDelay(clk, clk_rf, pll_ap);
       size_t path_length = src_expanded.size();
       if (path_length < 2)
 	internalError("generated clock pll source path too short.\n");
@@ -2345,19 +2345,19 @@ ReportPath::reportPathLine(const Path *path,
   Vertex *vertex = path->vertex(this);
   Pin *pin = vertex->pin();
   auto what = descriptionField(vertex);
-  const TransRiseFall *tr = path->transition(this);
+  const RiseFall *rf = path->transition(this);
   bool is_driver = network_->isDriver(pin);
   PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
   const EarlyLate *early_late = path_ap->pathMinMax();
   DcalcAnalysisPt *dcalc_ap = path_ap->dcalcAnalysisPt();
   DcalcAPIndex ap_index = dcalc_ap->index();
-  Slew slew = graph_->slew(vertex, tr, ap_index);
+  Slew slew = graph_->slew(vertex, rf, ap_index);
   float cap = field_blank_;
   // Don't show capacitance field for input pins.
   if (is_driver && field_capacitance_->enabled())
-    cap = loadCap(pin, tr, dcalc_ap);
+    cap = loadCap(pin, rf, dcalc_ap);
   reportLine(what.c_str(), cap, slew, field_blank_,
-	     incr, time, false, early_late, tr, line_case, result);
+	     incr, time, false, early_late, rf, line_case, result);
 }
 
 void
@@ -2610,8 +2610,8 @@ ReportPath::reportPath5(const Path *path,
     if (is_clk_start
 	|| report_clk_path
 	|| !is_clk) {
-      const TransRiseFall *tr = path1->transition(this);
-      Slew slew = graph_->slew(vertex, tr, ap_index);
+      const RiseFall *rf = path1->transition(this);
+      Slew slew = graph_->slew(vertex, rf, ap_index);
       if (prev_arc == nullptr) {
 	// First path.
 	reportInputExternalDelay(path1, time_offset, result);
@@ -2620,7 +2620,7 @@ ReportPath::reportPath5(const Path *path,
 	if (network_->isTopLevelPort(pin)
 	    && next_path
 	    && !nextArcAnnotated(next_path, next_index, expanded, ap_index)
-	    && hasExtInputDriver(pin, tr, min_max)) {
+	    && hasExtInputDriver(pin, rf, min_max)) {
 	  // Pin is an input port with drive_cell/drive_resistance.
 	  // The delay calculator annotates wire delays on the edges
 	  // from the input to the loads.  Report the wire delay on the
@@ -2655,8 +2655,8 @@ ReportPath::reportPath5(const Path *path,
 	  time = search_->clkPathArrival(path1) + time_offset;
 	  if (src_clk_edge) {
 	    Clock *src_clk = src_clk_edge->clock();
-	    TransRiseFall *src_clk_tr = src_clk_edge->transition();
-	    slew = src_clk->slew(src_clk_tr, min_max);
+	    RiseFall *src_clk_rf = src_clk_edge->transition();
+	    slew = src_clk->slew(src_clk_rf, min_max);
 	  }
 	}
 	line_case = "clk_start";
@@ -2669,8 +2669,8 @@ ReportPath::reportPath5(const Path *path,
 	time = prev_time;
 	ClockEdge *src_clk_edge = path->clkEdge(this);
 	Clock *src_clk = src_clk_edge->clock();
-	TransRiseFall *src_clk_tr = src_clk_edge->transition();
-	slew = src_clk->slew(src_clk_tr, min_max);
+	RiseFall *src_clk_rf = src_clk_edge->transition();
+	slew = src_clk->slew(src_clk_rf, min_max);
 	line_case = "clk_ideal";
       }
       else if (is_clk && !is_clk_start) {
@@ -2695,12 +2695,12 @@ ReportPath::reportPath5(const Path *path,
 	float cap = field_blank_;
 	// Don't show capacitance field for input pins.
 	if (is_driver && field_capacitance_->enabled())
-	  cap = loadCap(pin, tr, dcalc_ap);
+	  cap = loadCap(pin, rf, dcalc_ap);
 	auto what = descriptionField(vertex);
 	if (report_net_ && is_driver) {
 	  // Capacitance field is reported on the net line.
 	  reportLine(what.c_str(), field_blank_, slew, field_blank_,
-		     incr, time, false, min_max, tr, line_case, result);
+		     incr, time, false, min_max, rf, line_case, result);
 	  string what2;
 	  if (network_->isTopLevelPort(pin)) {
 	    const char *pin_name = cmd_network_->pathName(pin);
@@ -2723,7 +2723,7 @@ ReportPath::reportPath5(const Path *path,
 	}
 	else
 	  reportLine(what.c_str(), cap, slew, field_blank_,
-		     incr, time, false, min_max, tr, line_case, result);
+		     incr, time, false, min_max, rf, line_case, result);
 	prev_time = time;
       }
     }
@@ -2792,14 +2792,14 @@ ReportPath::drvrFanout(Vertex *drvr,
 
 bool
 ReportPath::hasExtInputDriver(const Pin *pin,
-			      const TransRiseFall *tr,
+			      const RiseFall *rf,
 			      const MinMax *min_max)
 {
   Port *port = network_->port(pin);
   InputDrive *drive = sdc_->findInputDrive(port);
   return (drive
-	  && (drive->hasDriveResistance(tr, min_max)
-	      || drive->hasDriveCell(tr, min_max)));
+	  && (drive->hasDriveResistance(rf, min_max)
+	      || drive->hasDriveCell(rf, min_max)));
 }
 
 void
@@ -2809,7 +2809,7 @@ ReportPath::reportInputExternalDelay(const Path *first_path,
 {
   const Pin *first_pin = first_path->pin(graph_);
   if (!pathFromClkPin(first_path, first_pin)) {
-    const TransRiseFall *tr = first_path->transition(this);
+    const RiseFall *rf = first_path->transition(this);
     Arrival time = first_path->arrival(this) + time_offset;
     const EarlyLate *early_late = first_path->minMax(this);
     InputDelay *input_delay = pathInputDelay(first_path);
@@ -2831,12 +2831,12 @@ ReportPath::reportInputExternalDelay(const Path *first_path,
 	}
       }
       float input_arrival =
-	input_delay->delays()->value(tr, first_path->minMax(this));
+	input_delay->delays()->value(rf, first_path->minMax(this));
       reportLine("input external delay", input_arrival, time,
-		 early_late, tr, result);
+		 early_late, rf, result);
     }
     else if (network_->isTopLevelPort(first_pin))
-      reportLine("input external delay", 0.0, time, early_late, tr, result);
+      reportLine("input external delay", 0.0, time, early_late, rf, result);
   }
 }
 
@@ -2854,11 +2854,11 @@ ReportPath::pathInputDelayRefPath(const Path *path,
 				  PathRef &ref_path)
 {
   Pin *ref_pin = input_delay->refPin();
-  TransRiseFall *ref_tr = input_delay->refTransition();
+  RiseFall *ref_rf = input_delay->refTransition();
   Vertex *ref_vertex = graph_->pinDrvrVertex(ref_pin);
   const PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
   const ClockEdge *clk_edge = path->clkEdge(this);
-  VertexPathIterator path_iter(ref_vertex, ref_tr, path_ap, this);
+  VertexPathIterator path_iter(ref_vertex, ref_rf, path_ap, this);
   while (path_iter.hasNext()) {
     PathVertex *path = path_iter.next();
     if (path->isClock(this)
@@ -2871,13 +2871,13 @@ ReportPath::pathInputDelayRefPath(const Path *path,
 
 float
 ReportPath::loadCap(Pin *drvr_pin,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    DcalcAnalysisPt *dcalc_ap)
 {
   Parasitic *parasitic = nullptr;
   if (arc_delay_calc_)
-    parasitic = arc_delay_calc_->findParasitic(drvr_pin, tr, dcalc_ap);
-  return graph_delay_calc_->loadCap(drvr_pin, parasitic, tr, dcalc_ap);
+    parasitic = arc_delay_calc_->findParasitic(drvr_pin, rf, dcalc_ap);
+  return graph_delay_calc_->loadCap(drvr_pin, parasitic, rf, dcalc_ap);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2929,11 +2929,11 @@ void
 ReportPath::reportLine(const char *what,
 		       Delay total,
 		       const EarlyLate *early_late,
-		       const TransRiseFall *tr,
+		       const RiseFall *rf,
 		       string &result)
 {
   reportLine(what, field_blank_, field_blank_, field_blank_,
-	     field_blank_, total, false, early_late, tr, nullptr, result);
+	     field_blank_, total, false, early_late, rf, nullptr, result);
 }
 
 // Report increment, and total.
@@ -2954,11 +2954,11 @@ ReportPath::reportLine(const char *what,
 		       Delay incr,
 		       Delay total,
 		       const EarlyLate *early_late,
-		       const TransRiseFall *tr,
+		       const RiseFall *rf,
 		       string &result)
 {
   reportLine(what, field_blank_, field_blank_, field_blank_,
-	     incr, total, false, early_late, tr, nullptr, result);
+	     incr, total, false, early_late, rf, nullptr, result);
 }
 
 // Report slew, increment, and total.
@@ -2983,7 +2983,7 @@ ReportPath::reportLine(const char *what,
 		       Delay total,
 		       bool total_with_minus,
 		       const EarlyLate *early_late,
-		       const TransRiseFall *tr,
+		       const RiseFall *rf,
 		       const char *line_case,
 		       string &result)
 {
@@ -3021,8 +3021,8 @@ ReportPath::reportLine(const char *what,
 	  reportFieldDelay(total, early_late, field, result);
       }
       else if (field == field_edge_) {
-	if (tr)
-	  reportField(tr->shortName(), field, result);
+	if (rf)
+	  reportField(rf->shortName(), field, result);
 	// Compatibility kludge; suppress trailing spaces.
 	else if (field_iter.hasNext())
 	  reportFieldBlank(field, result);
@@ -3267,18 +3267,18 @@ ReportPath::reportClkPath() const
 ////////////////////////////////////////////////////////////////
 
 const char *
-ReportPath::asRisingFalling(const TransRiseFall *tr)
+ReportPath::asRisingFalling(const RiseFall *rf)
 {
-  if (tr == TransRiseFall::rise())
+  if (rf == RiseFall::rise())
     return "rising";
   else
     return "falling";
 }
 
 const char *
-ReportPath::asRiseFall(const TransRiseFall *tr)
+ReportPath::asRiseFall(const RiseFall *rf)
 {
-  if (tr == TransRiseFall::rise())
+  if (rf == RiseFall::rise())
     return "rise";
   else
     return "fall";
@@ -3296,10 +3296,10 @@ ReportPath::edgeRegLatchDesc(Edge *first_edge,
     if (cell) {
       LibertyPort *enable_port;
       FuncExpr *enable_func;
-      TransRiseFall *enable_tr;
+      RiseFall *enable_rf;
       cell->latchEnable(first_edge->timingArcSet(),
-			enable_port, enable_func, enable_tr);
-      return latchDesc(enable_tr);
+			enable_port, enable_func, enable_rf);
+      return latchDesc(enable_rf);
     }
   }
   else if (role == TimingRole::regClkToQ())
@@ -3312,33 +3312,33 @@ ReportPath::edgeRegLatchDesc(Edge *first_edge,
 
 const char *
 ReportPath::checkRegLatchDesc(const TimingRole *role,
-			      const TransRiseFall *clk_tr) const
+			      const RiseFall *clk_rf) const
 {
   if (role == TimingRole::regClkToQ())
-    return regDesc(clk_tr);
+    return regDesc(clk_rf);
   else if (role == TimingRole::latchEnToQ()
 	   || role == TimingRole::latchDtoQ())
-    return latchDesc(clk_tr);
+    return latchDesc(clk_rf);
   else
     // Default when we don't know better.
     return "edge-triggered flip-flop";
 }
 
 const char *
-ReportPath::regDesc(const TransRiseFall *clk_tr) const
+ReportPath::regDesc(const RiseFall *clk_rf) const
 {
-  if (clk_tr == TransRiseFall::rise())
+  if (clk_rf == RiseFall::rise())
     return "rising edge-triggered flip-flop";
-  else if (clk_tr == TransRiseFall::fall())
+  else if (clk_rf == RiseFall::fall())
     return "falling edge-triggered flip-flop";
   else
     return "edge-triggered flip-flop";
 }
 
 const char *
-ReportPath::latchDesc(const TransRiseFall *clk_tr) const
+ReportPath::latchDesc(const RiseFall *clk_rf) const
 {
-  return (clk_tr == TransRiseFall::rise()) 
+  return (clk_rf == RiseFall::rise()) 
     ? "positive level-sensitive latch"
     : "negative level-sensitive latch";
 }

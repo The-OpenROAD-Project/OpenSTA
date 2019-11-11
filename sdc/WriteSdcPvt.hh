@@ -88,7 +88,7 @@ public:
   void writePortDelay(PortDelay *port_delay,
 		      bool is_input_delay,
 		      float delay,
-		      const TransRiseFallBoth *tr,
+		      const RiseFallBoth *rf,
 		      const MinMaxAll *min_max,
 		      const char *sdc_cmd) const;
   void writeClockSenses() const;
@@ -111,8 +111,8 @@ public:
   void writeDataChecks() const;
   void writeDataCheck(DataCheck *check) const;
   void writeDataCheck(DataCheck *check,
-		      TransRiseFallBoth *from_tr,
-		      TransRiseFallBoth *to_tr,
+		      RiseFallBoth *from_rf,
+		      RiseFallBoth *to_rf,
 		      SetupHold *setup_hold,
 		      float margin) const;
   void writeEnvironment() const;
@@ -126,7 +126,7 @@ public:
   void writeInputTransitions() const;
   void writeDrivingCell(Port *port,
 			InputDriveCell *drive_cell,
-			const TransRiseFall *tr,
+			const RiseFall *rf,
 			const MinMax *min_max) const;
   void writeConstants() const;
   virtual void writeConstant(Pin *pin) const;
@@ -220,7 +220,7 @@ public:
   void writeRiseFallMinMaxCmd(const char *sdc_cmd,
 			      float value,
 			      float scale,
-			      const TransRiseFallBoth *tr,
+			      const RiseFallBoth *rf,
 			      const MinMaxAll *min_max,
 			      WriteSdcObject &write_object) const;
   void writeMinMaxFloatValuesCmd(const char *sdc_cmd,

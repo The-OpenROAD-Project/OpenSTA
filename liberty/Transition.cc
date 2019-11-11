@@ -21,12 +21,12 @@ namespace sta {
 
 using std::max;
 
-TransRiseFall TransRiseFall::rise_("rise", "^", 0);
-TransRiseFall TransRiseFall::fall_("fall", "v", 1);
-const std::array<TransRiseFall*, 2> TransRiseFall::range_{&rise_, &fall_};
-const std::array<int, 2> TransRiseFall::range_index_{rise_.index(), fall_.index()};
+RiseFall RiseFall::rise_("rise", "^", 0);
+RiseFall RiseFall::fall_("fall", "v", 1);
+const std::array<RiseFall*, 2> RiseFall::range_{&rise_, &fall_};
+const std::array<int, 2> RiseFall::range_index_{rise_.index(), fall_.index()};
 
-TransRiseFall::TransRiseFall(const char *name,
+RiseFall::RiseFall(const char *name,
 			     const char *short_name,
 			     int sdf_triple_index) :
   name_(name),
@@ -35,20 +35,20 @@ TransRiseFall::TransRiseFall(const char *name,
 {
 }
 
-TransRiseFall::~TransRiseFall()
+RiseFall::~RiseFall()
 {
   stringDelete(short_name_);
 }
 
 void
-TransRiseFall::setShortName(const char *short_name)
+RiseFall::setShortName(const char *short_name)
 {
   stringDelete(short_name_);
   short_name_ = stringCopy(short_name);
 }
 
-TransRiseFall *
-TransRiseFall::opposite() const
+RiseFall *
+RiseFall::opposite() const
 {
   if (this == &rise_)
     return &fall_;
@@ -56,8 +56,8 @@ TransRiseFall::opposite() const
     return &rise_;
 }
 
-TransRiseFall *
-TransRiseFall::find(const char *tr_str)
+RiseFall *
+RiseFall::find(const char *tr_str)
 {
   if (stringEq(tr_str, rise_.name()))
     return &rise_;
@@ -67,8 +67,8 @@ TransRiseFall::find(const char *tr_str)
     return nullptr;
 }
 
-TransRiseFall *
-TransRiseFall::find(int index)
+RiseFall *
+RiseFall::find(int index)
 {
   if (index == rise_.index())
     return &rise_;
@@ -76,26 +76,26 @@ TransRiseFall::find(int index)
     return &fall_;
 }
 
-TransRiseFallBoth *
-TransRiseFall::asRiseFallBoth()
+RiseFallBoth *
+RiseFall::asRiseFallBoth()
 {
   if (this == &rise_)
-    return TransRiseFallBoth::rise();
+    return RiseFallBoth::rise();
   else
-    return TransRiseFallBoth::fall();
+    return RiseFallBoth::fall();
 }
 
-const TransRiseFallBoth *
-TransRiseFall::asRiseFallBoth() const
+const RiseFallBoth *
+RiseFall::asRiseFallBoth() const
 {
   if (this == &rise_)
-    return TransRiseFallBoth::rise();
+    return RiseFallBoth::rise();
   else
-    return TransRiseFallBoth::fall();
+    return RiseFallBoth::fall();
 }
 
 Transition *
-TransRiseFall::asTransition() const
+RiseFall::asTransition() const
 {
   if (this == &rise_)
     return Transition::rise();
@@ -105,26 +105,26 @@ TransRiseFall::asTransition() const
 
 ////////////////////////////////////////////////////////////////
 
-TransRiseFallBoth TransRiseFallBoth::rise_("rise", "^", 0,
-					   TransRiseFall::rise(),
-					   {TransRiseFall::rise()},
-					   {TransRiseFall::riseIndex()});
-TransRiseFallBoth TransRiseFallBoth::fall_("fall", "v", 1,
-					   TransRiseFall::fall(),
-					   {TransRiseFall::fall()},
-					   {TransRiseFall::fallIndex()});
-TransRiseFallBoth TransRiseFallBoth::rise_fall_("rise_fall", "rf", 2,
+RiseFallBoth RiseFallBoth::rise_("rise", "^", 0,
+					   RiseFall::rise(),
+					   {RiseFall::rise()},
+					   {RiseFall::riseIndex()});
+RiseFallBoth RiseFallBoth::fall_("fall", "v", 1,
+					   RiseFall::fall(),
+					   {RiseFall::fall()},
+					   {RiseFall::fallIndex()});
+RiseFallBoth RiseFallBoth::rise_fall_("rise_fall", "rf", 2,
 						nullptr,
-						{TransRiseFall::rise(),
-						 TransRiseFall::fall()},
-						{TransRiseFall::riseIndex(),
-						 TransRiseFall::fallIndex()});
+						{RiseFall::rise(),
+						 RiseFall::fall()},
+						{RiseFall::riseIndex(),
+						 RiseFall::fallIndex()});
 
-TransRiseFallBoth::TransRiseFallBoth(const char *name,
+RiseFallBoth::RiseFallBoth(const char *name,
 				     const char *short_name,
 				     int sdf_triple_index,
-				     TransRiseFall *as_rise_fall,
-				     std::vector<TransRiseFall*> range,
+				     RiseFall *as_rise_fall,
+				     std::vector<RiseFall*> range,
 				     std::vector<int> range_index) :
   name_(name),
   short_name_(stringCopy(short_name)),
@@ -135,13 +135,13 @@ TransRiseFallBoth::TransRiseFallBoth(const char *name,
 {
 }
 
-TransRiseFallBoth::~TransRiseFallBoth()
+RiseFallBoth::~RiseFallBoth()
 {
   stringDelete(short_name_);
 }
 
-TransRiseFallBoth *
-TransRiseFallBoth::find(const char *tr_str)
+RiseFallBoth *
+RiseFallBoth::find(const char *tr_str)
 {
   if (stringEq(tr_str, rise_.name()))
     return &rise_;
@@ -154,14 +154,14 @@ TransRiseFallBoth::find(const char *tr_str)
 }
 
 bool
-TransRiseFallBoth::matches(const TransRiseFall *tr) const
+RiseFallBoth::matches(const RiseFall *rf) const
 {
   return this == &rise_fall_
-    || as_rise_fall_ == tr;
+    || as_rise_fall_ == rf;
 }
 
 bool
-TransRiseFallBoth::matches(const Transition *tr) const
+RiseFallBoth::matches(const Transition *tr) const
 {
   return this == &rise_fall_
     || (this == &rise_
@@ -171,7 +171,7 @@ TransRiseFallBoth::matches(const Transition *tr) const
 }
 
 void
-TransRiseFallBoth::setShortName(const char *short_name)
+RiseFallBoth::setShortName(const char *short_name)
 {
   stringDelete(short_name_);
   short_name_ = stringCopy(short_name);
@@ -183,23 +183,23 @@ TransitionMap Transition::transition_map_;
 int Transition::max_index_ = 0;
 
 // Sdf triple order defined on Sdf 3.0 spec, pg 3-17.
-Transition Transition::rise_{  "^", "01", TransRiseFall::rise(),  0};
-Transition Transition::fall_ { "v", "10", TransRiseFall::fall(),  1};
-Transition Transition::tr_0Z_{"0Z", "0Z", TransRiseFall::rise(),  2};
-Transition Transition::tr_Z1_{"Z1", "Z1", TransRiseFall::rise(),  3};
-Transition Transition::tr_1Z_{"1Z", "1Z", TransRiseFall::fall(),  4};
-Transition Transition::tr_Z0_{"Z0", "Z0", TransRiseFall::fall(),  5};
-Transition Transition::tr_0X_{"0X", "0X", TransRiseFall::rise(),  6};
-Transition Transition::tr_X1_{"X1", "X1", TransRiseFall::rise(),  7};
-Transition Transition::tr_1X_{"1X", "1X", TransRiseFall::fall(),  8};
-Transition Transition::tr_X0_{"X0", "X0", TransRiseFall::fall(),  9};
+Transition Transition::rise_{  "^", "01", RiseFall::rise(),  0};
+Transition Transition::fall_ { "v", "10", RiseFall::fall(),  1};
+Transition Transition::tr_0Z_{"0Z", "0Z", RiseFall::rise(),  2};
+Transition Transition::tr_Z1_{"Z1", "Z1", RiseFall::rise(),  3};
+Transition Transition::tr_1Z_{"1Z", "1Z", RiseFall::fall(),  4};
+Transition Transition::tr_Z0_{"Z0", "Z0", RiseFall::fall(),  5};
+Transition Transition::tr_0X_{"0X", "0X", RiseFall::rise(),  6};
+Transition Transition::tr_X1_{"X1", "X1", RiseFall::rise(),  7};
+Transition Transition::tr_1X_{"1X", "1X", RiseFall::fall(),  8};
+Transition Transition::tr_X0_{"X0", "X0", RiseFall::fall(),  9};
 Transition Transition::tr_XZ_{"XZ", "XZ",               nullptr, 10};
 Transition Transition::tr_ZX_{"ZX", "ZX",               nullptr, 11};
 Transition Transition::rise_fall_{"*", "**",               nullptr, -1};
 
 Transition::Transition(const char *name,
 		       const char *init_final,
-		       TransRiseFall *as_rise_fall,
+		       RiseFall *as_rise_fall,
 		       int sdf_triple_index) :
   name_(stringCopy(name)),
   init_final_(init_final),
@@ -228,10 +228,10 @@ Transition::find(const char *tr_str)
   return transition_map_.findKey(tr_str);
 }
 
-const TransRiseFallBoth *
+const RiseFallBoth *
 Transition::asRiseFallBoth() const
 {
-  return reinterpret_cast<const TransRiseFallBoth*>(as_rise_fall_);
+  return reinterpret_cast<const RiseFallBoth*>(as_rise_fall_);
 }
 
 void
@@ -243,35 +243,35 @@ Transition::setName(const char *name)
 
 ////////////////////////////////////////////////////////////////
 
-TransRiseFallIterator::TransRiseFallIterator(const TransRiseFallBoth *tr)
+RiseFallIterator::RiseFallIterator(const RiseFallBoth *rf)
 {
-  if (tr == TransRiseFallBoth::riseFall()) {
+  if (rf == RiseFallBoth::riseFall()) {
     index_ = 0;
-    index_max_ = TransRiseFall::index_max;
+    index_max_ = RiseFall::index_max;
   }
   else {
-    index_ = tr->asRiseFall()->index();
+    index_ = rf->asRiseFall()->index();
     index_max_ = index_;
   }
 }
 
 void
-TransRiseFallIterator::init()
+RiseFallIterator::init()
 {
   index_ = 0;
-  index_max_ = TransRiseFall::index_max;
+  index_max_ = RiseFall::index_max;
 }
 
 bool
-TransRiseFallIterator::hasNext()
+RiseFallIterator::hasNext()
 {
   return index_ <= index_max_;
 }
 
-TransRiseFall *
-TransRiseFallIterator::next()
+RiseFall *
+RiseFallIterator::next()
 {
-  return (index_++ == 0) ? TransRiseFall::rise() : TransRiseFall::fall();
+  return (index_++ == 0) ? RiseFall::rise() : RiseFall::fall();
 }
 
 } // namespace

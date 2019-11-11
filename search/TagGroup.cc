@@ -138,7 +138,7 @@ arrivalMapReport(const ArrivalMap *arrival_map,
 TagGroupBldr::TagGroupBldr(bool match_crpr_clk_pin,
 			   const StaState *sta) :
   default_arrival_count_(sta->corners()->count()
-			 * TransRiseFall::index_count
+			 * RiseFall::index_count
 			 * MinMax::index_count),
   arrival_map_(default_arrival_count_,
 	       TagMatchHash(match_crpr_clk_pin, sta),

@@ -181,11 +181,11 @@ ClkSkews::findClkSkew(ClockSet *clks,
 	Edge *edge = edge_iter.next();
 	if (edge->role()->genericRole() == TimingRole::regClkToQ()) {
 	  Vertex *q_vertex = edge->to(graph_);
-	  TransRiseFall *tr = edge->timingArcSet()->isRisingFallingEdge();
-	  TransRiseFallBoth *src_tr = tr
-	    ? tr->asRiseFallBoth()
-	    : TransRiseFallBoth::riseFall();
-	  findClkSkewFrom(src_vertex, q_vertex, src_tr, clks,
+	  RiseFall *rf = edge->timingArcSet()->isRisingFallingEdge();
+	  RiseFallBoth *src_rf = rf
+	    ? rf->asRiseFallBoth()
+	    : RiseFallBoth::riseFall();
+	  findClkSkewFrom(src_vertex, q_vertex, src_rf, clks,
 			  corner, setup_hold, skews);
 	}
       }
@@ -210,7 +210,7 @@ ClkSkews::hasClkPaths(Vertex *vertex,
 void
 ClkSkews::findClkSkewFrom(Vertex *src_vertex,
 			  Vertex *q_vertex,
-			  TransRiseFallBoth *src_tr,
+			  RiseFallBoth *src_rf,
 			  ClockSet *clks,
 			  const Corner *corner,
 			  const SetupHold *setup_hold,
@@ -231,11 +231,11 @@ ClkSkews::findClkSkewFrom(Vertex *src_vertex,
 	      || ((setup_hold == SetupHold::min()
 		   && role->genericRole() == TimingRole::hold())))) {
 	Vertex *tgt_vertex = edge->from(graph_);
-	TransRiseFall *tgt_tr1 = edge->timingArcSet()->isRisingFallingEdge();
-	TransRiseFallBoth *tgt_tr = tgt_tr1
-	  ? tgt_tr1->asRiseFallBoth()
-	  : TransRiseFallBoth::riseFall();
-	findClkSkew(src_vertex, src_tr, tgt_vertex, tgt_tr,
+	RiseFall *tgt_rf1 = edge->timingArcSet()->isRisingFallingEdge();
+	RiseFallBoth *tgt_rf = tgt_rf1
+	  ? tgt_rf1->asRiseFallBoth()
+	  : RiseFallBoth::riseFall();
+	findClkSkew(src_vertex, src_rf, tgt_vertex, tgt_rf,
 		    clks, corner, setup_hold, skews);
       }
     }
@@ -244,9 +244,9 @@ ClkSkews::findClkSkewFrom(Vertex *src_vertex,
 
 void
 ClkSkews::findClkSkew(Vertex *src_vertex,
-		      TransRiseFallBoth *src_tr,
+		      RiseFallBoth *src_rf,
 		      Vertex *tgt_vertex,
-		      TransRiseFallBoth *tgt_tr,
+		      RiseFallBoth *tgt_rf,
 		      ClockSet *clks,
 		      const Corner *corner,
 		      const SetupHold *setup_hold,
@@ -258,7 +258,7 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
   while (src_iter.hasNext()) {
     PathVertex *src_path = src_iter.next();
     Clock *src_clk = src_path->clock(this);
-    if (src_tr->matches(src_path->transition(this))
+    if (src_rf->matches(src_path->transition(this))
 	&& src_path->minMax(this) == setup_hold
 	&& clks->hasKey(src_clk)) {
       Corner *src_corner = src_path->pathAnalysisPt(this)->corner();
@@ -269,7 +269,7 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
 	  PathVertex *tgt_path = tgt_iter.next();
 	  Clock *tgt_clk = tgt_path->clock(this);
 	  if (tgt_clk == src_clk
-	      && tgt_tr->matches(tgt_path->transition(this))
+	      && tgt_rf->matches(tgt_path->transition(this))
 	      && tgt_path->minMax(this) == tgt_min_max
 	      && tgt_path->pathAnalysisPt(this)->corner() == src_corner) {
 	    ClkSkew probe(src_path, tgt_path, this);

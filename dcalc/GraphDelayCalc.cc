@@ -61,7 +61,7 @@ GraphDelayCalc::incrementalDelayTolerance()
 void
 GraphDelayCalc::loadCap(const Pin *,
 			Parasitic *,
-			const TransRiseFall *,
+			const RiseFall *,
 			const DcalcAnalysisPt *,
 			// Return values.
 			float &pin_cap,
@@ -72,7 +72,7 @@ GraphDelayCalc::loadCap(const Pin *,
 
 float
 GraphDelayCalc::loadCap(const Pin *,
-			const TransRiseFall *,
+			const RiseFall *,
 			const DcalcAnalysisPt *) const
 {
   return 0.0F;
@@ -81,7 +81,7 @@ GraphDelayCalc::loadCap(const Pin *,
 float
 GraphDelayCalc::loadCap(const Pin *,
 			Parasitic *,
-			const TransRiseFall *,
+			const RiseFall *,
 			const DcalcAnalysisPt *) const
 {
   return 0.0F;
@@ -96,7 +96,7 @@ GraphDelayCalc::loadCap(const Pin *,
 
 void
 GraphDelayCalc::netCaps(const Pin *,
-			const TransRiseFall *,
+			const RiseFall *,
 			const DcalcAnalysisPt *,
 			// Return values.
 			float &pin_cap,
@@ -118,7 +118,7 @@ GraphDelayCalc::ceff(Edge *,
 
 void
 GraphDelayCalc::minPulseWidth(const Pin *pin,
-			      const TransRiseFall *hi_low,
+			      const RiseFall *hi_low,
 			      DcalcAPIndex ap_index,
 			      const MinMax *min_max,
 			      // Return values.

@@ -30,11 +30,11 @@ class DeratingFactors
 public:
   DeratingFactors();
   void setFactor(PathClkOrData clk_data,
-		 const TransRiseFallBoth *tr,
+		 const RiseFallBoth *rf,
 		 const EarlyLate *early_late,
 		 float factor);
   void factor(PathClkOrData clk_data,
-	      const TransRiseFall *tr,
+	      const RiseFall *rf,
 	      const EarlyLate *early_late,
 	      float &factor,
 	      bool &exists) const;
@@ -60,12 +60,12 @@ public:
   DeratingFactorsGlobal();
   void setFactor(TimingDerateType type,
 		 PathClkOrData clk_data,
-		 const TransRiseFallBoth *tr,
+		 const RiseFallBoth *rf,
 		 const EarlyLate *early_late,
 		 float factor);
   void factor(TimingDerateType type,
 	      PathClkOrData clk_data,
-	      const TransRiseFall *tr,
+	      const RiseFall *rf,
 	      const EarlyLate *early_late,
 	      float &factor,
 	      bool &exists) const;
@@ -84,12 +84,12 @@ public:
   DeratingFactorsCell();
   void setFactor(TimingDerateType type,
 		 PathClkOrData clk_data,
-		 const TransRiseFallBoth *tr,
+		 const RiseFallBoth *rf,
 		 const EarlyLate *early_late,
 		 float factor);
   void factor(TimingDerateType type,
 	      PathClkOrData clk_data,
-	      const TransRiseFall *tr,
+	      const RiseFall *rf,
 	      const EarlyLate *early_late,
 	      float &factor,
 	      bool &exists) const;

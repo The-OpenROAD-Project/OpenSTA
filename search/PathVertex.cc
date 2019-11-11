@@ -182,14 +182,14 @@ PathVertex::tagIndex(const StaState *) const
   return tag_->index();
 }
 
-const TransRiseFall *
+const RiseFall *
 PathVertex::transition(const StaState *) const
 {
   return tag_->transition();
 }
 
 int
-PathVertex::trIndex(const StaState *) const
+PathVertex::rfIndex(const StaState *) const
 {
   return tag_->trIndex();
 }
@@ -329,14 +329,14 @@ public:
   virtual void visit(Vertex *) {}
   virtual bool visitFromToPath(const Pin *from_pin,
 			       Vertex *from_vertex,
-			       const TransRiseFall *from_tr,
+			       const RiseFall *from_rf,
 			       Tag *from_tag,
 			       PathVertex *from_path,
 			       Edge *edge,
 			       TimingArc *arc,
 			       ArcDelay arc_delay,
 			       Vertex *to_vertex,
-			       const TransRiseFall *to_tr,
+			       const RiseFall *to_rf,
 			       Tag *to_tag,
 			       Arrival &to_arrival,
 			       const MinMax *min_max,
@@ -350,7 +350,7 @@ protected:
   const Path *path_;
   Arrival path_arrival_;
   Tag *path_tag_;
-  int path_tr_index_;
+  int path_rf_index_;
   PathAPIndex path_ap_index_;
   PathVertex prev_path_;
   TimingArc *prev_arc_;
@@ -367,7 +367,7 @@ PrevPathVisitor::PrevPathVisitor(const Path *path,
   path_(path),
   path_arrival_(path->arrival(sta)),
   path_tag_(path->tag(sta)),
-  path_tr_index_(path->trIndex(sta)),
+  path_rf_index_(path->rfIndex(sta)),
   path_ap_index_(path->pathAnalysisPtIndex(sta)),
   prev_path_(),
   prev_arc_(nullptr),
@@ -384,21 +384,21 @@ PrevPathVisitor::copy()
 bool
 PrevPathVisitor::visitFromToPath(const Pin *,
 				 Vertex *,
-				 const TransRiseFall *,
+				 const RiseFall *,
 				 Tag *from_tag,
 				 PathVertex *from_path,
 				 Edge *,
 				 TimingArc *arc,
 				 ArcDelay,
 				 Vertex *,
-				 const TransRiseFall *to_tr,
+				 const RiseFall *to_rf,
 				 Tag *to_tag,
 				 Arrival &to_arrival,
 				 const MinMax *,
 				 const PathAnalysisPt *path_ap)
 {
   PathAPIndex path_ap_index = path_ap->index();
-  if (to_tr->index() == path_tr_index_
+  if (to_rf->index() == path_rf_index_
       && path_ap_index == path_ap_index_
       && (dcalc_tol_ > 0.0 
 	  ? std::abs(delayAsFloat(to_arrival - path_arrival_)) < dcalc_tol_
@@ -493,7 +493,7 @@ VertexPathIterator::VertexPathIterator(Vertex *vertex,
 				       const StaState *sta) :
   search_(sta->search()),
   vertex_(vertex),
-  tr_(nullptr),
+  rf_(nullptr),
   path_ap_(nullptr),
   min_max_(nullptr)
 {
@@ -507,12 +507,12 @@ VertexPathIterator::VertexPathIterator(Vertex *vertex,
 // Iterate over vertex paths with the same transition and
 // analysis pt but different but different tags.
 VertexPathIterator::VertexPathIterator(Vertex *vertex,
-				       const TransRiseFall *tr,
+				       const RiseFall *rf,
 				       const PathAnalysisPt *path_ap,
 				       const StaState *sta) :
   search_(sta->search()),
   vertex_(vertex),
-  tr_(tr),
+  rf_(rf),
   path_ap_(path_ap),
   min_max_(nullptr)
 {
@@ -524,12 +524,12 @@ VertexPathIterator::VertexPathIterator(Vertex *vertex,
 }
 
 VertexPathIterator::VertexPathIterator(Vertex *vertex,
-				       const TransRiseFall *tr,
+				       const RiseFall *rf,
 				       const MinMax *min_max,
 				       const StaState *sta) :
   search_(sta->search()),
   vertex_(vertex),
-  tr_(tr),
+  rf_(rf),
   path_ap_(nullptr),
   min_max_(min_max)
 {
@@ -557,8 +557,8 @@ VertexPathIterator::findNext()
     Tag *tag;
     int arrival_index;
     arrival_iter_.next(tag, arrival_index);
-    if ((tr_ == nullptr
-	 || tag->trIndex() == tr_->index())
+    if ((rf_ == nullptr
+	 || tag->trIndex() == rf_->index())
 	&& (path_ap_ == nullptr
 	    || tag->pathAPIndex() == path_ap_->index())
 	&& (min_max_ == nullptr

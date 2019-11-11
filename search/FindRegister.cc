@@ -85,7 +85,7 @@ public:
   FindRegVisitor(StaState *sta);
   virtual ~FindRegVisitor() {}
   void visitRegs(ClockSet *clks,
-		 const TransRiseFallBoth *clk_tr,
+		 const RiseFallBoth *clk_rf,
 		 bool edge_triggered,
 		 bool latches);
 
@@ -93,7 +93,7 @@ private:
   DISALLOW_COPY_AND_ASSIGN(FindRegVisitor);
   void visitRegs(const Pin *clk_pin,
 		 TimingSense clk_sense,
-		 const TransRiseFallBoth *clk_tr,
+		 const RiseFallBoth *clk_rf,
 		 bool edge_triggered,
 		 bool latches);
   virtual void visitReg(Instance *inst) = 0;
@@ -101,7 +101,7 @@ private:
 			       Sequential *seq) = 0;
   void visitFanoutRegs(Vertex *from_vertex,
 		       TimingSense from_sense,
-		       const TransRiseFallBoth *clk_tr,
+		       const RiseFallBoth *clk_rf,
 		       bool edge_triggered,
 		       bool latches,
 		       SearchPred &clk_pred,
@@ -110,14 +110,14 @@ private:
 		      Instance *inst,
 		      LibertyCell *cell,
 		      TimingSense clk_sense,
-		      const TransRiseFallBoth *clk_tr,
+		      const RiseFallBoth *clk_rf,
 		      bool edge_triggered,
 		      bool latches,
 		      bool &has_seqs,
 		      bool &matches);
   bool findInferedSequential(LibertyCell *cell,
 			     TimingSense clk_sense,
-			     const TransRiseFallBoth *clk_tr,
+			     const RiseFallBoth *clk_rf,
 			     bool edge_triggered,
 			     bool latches);
   bool hasTimingCheck(LibertyCell *cell,
@@ -133,7 +133,7 @@ FindRegVisitor::FindRegVisitor(StaState *sta) :
 
 void
 FindRegVisitor::visitRegs(ClockSet *clks,
-			  const TransRiseFallBoth *clk_tr,
+			  const RiseFallBoth *clk_rf,
 			  bool edge_triggered,
 			  bool latches)
 {
@@ -148,14 +148,14 @@ FindRegVisitor::visitRegs(ClockSet *clks,
 	Vertex *vertex, *bidirect_drvr_vertex;
 	graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
 	visitFanoutRegs(vertex, TimingSense::positive_unate,
-			clk_tr, edge_triggered,
+			clk_rf, edge_triggered,
 			latches, clk_pred,
 			visited_vertices);
 	// Clocks defined on bidirect pins blow it out both ends.
 	if (bidirect_drvr_vertex)
 	  visitFanoutRegs(bidirect_drvr_vertex,
 			  TimingSense::positive_unate,
-			  clk_tr, edge_triggered,
+			  clk_rf, edge_triggered,
 			  latches, clk_pred,
 			  visited_vertices);
       }
@@ -166,7 +166,7 @@ FindRegVisitor::visitRegs(ClockSet *clks,
     while (reg_clk_iter.hasNext()) {
       Vertex *vertex = reg_clk_iter.next();
       visitRegs(vertex->pin(), TimingSense::positive_unate,
-		TransRiseFallBoth::riseFall(),
+		RiseFallBoth::riseFall(),
 		edge_triggered, latches);
     }
   }
@@ -175,7 +175,7 @@ FindRegVisitor::visitRegs(ClockSet *clks,
 void
 FindRegVisitor::visitFanoutRegs(Vertex *from_vertex,
 				TimingSense from_sense,
-				const TransRiseFallBoth *clk_tr,
+				const RiseFallBoth *clk_rf,
 				bool edge_triggered,
 				bool latches,
 				SearchPred &clk_pred,
@@ -191,11 +191,11 @@ FindRegVisitor::visitFanoutRegs(Vertex *from_vertex,
       const Pin *to_pin = to_vertex->pin();
       TimingSense to_sense = pathSenseThru(from_sense, edge->sense());
       if (to_vertex->isRegClk())
-	visitRegs(to_pin, to_sense, clk_tr, edge_triggered, latches);
+	visitRegs(to_pin, to_sense, clk_rf, edge_triggered, latches);
       // Even register clock pins can have combinational fanout arcs.
       if (clk_pred.searchThru(edge)
           && clk_pred.searchTo(to_vertex))
-	visitFanoutRegs(to_vertex, to_sense, clk_tr, edge_triggered, latches,
+	visitFanoutRegs(to_vertex, to_sense, clk_rf, edge_triggered, latches,
 			clk_pred, visited_vertices);
     }
   }
@@ -204,20 +204,20 @@ FindRegVisitor::visitFanoutRegs(Vertex *from_vertex,
 void
 FindRegVisitor::visitRegs(const Pin *clk_pin,
 			  TimingSense clk_sense,
-			  const TransRiseFallBoth *clk_tr,
+			  const RiseFallBoth *clk_rf,
 			  bool edge_triggered,
 			  bool latches)
 {
   Instance *inst = network_->instance(clk_pin);
   LibertyCell *cell = network_->libertyCell(inst);
   if (!edge_triggered || !latches
-      || clk_tr != TransRiseFallBoth::riseFall()) {
+      || clk_rf != RiseFallBoth::riseFall()) {
     bool matches, has_seqs;
-    findSequential(clk_pin, inst, cell, clk_sense, clk_tr,
+    findSequential(clk_pin, inst, cell, clk_sense, clk_rf,
 		   edge_triggered, latches,
 		   has_seqs, matches);
     if (!has_seqs)
-      matches = findInferedSequential(cell, clk_sense, clk_tr,
+      matches = findInferedSequential(cell, clk_sense, clk_rf,
 				      edge_triggered, latches);
     if (matches)
       visitReg(inst);
@@ -233,7 +233,7 @@ FindRegVisitor::findSequential(const Pin *clk_pin,
 			       Instance *inst,
 			       LibertyCell *cell,
 			       TimingSense clk_sense,
-			       const TransRiseFallBoth *clk_tr,
+			       const RiseFallBoth *clk_rf,
 			       bool edge_triggered,
 			       bool latches,
 			       bool &has_seqs,
@@ -247,7 +247,7 @@ FindRegVisitor::findSequential(const Pin *clk_pin,
     Sequential *seq = seq_iter.next();
     if ((seq->isRegister() && edge_triggered)
 	|| (seq->isLatch() && latches)) {
-      if (clk_tr == TransRiseFallBoth::riseFall()) {
+      if (clk_rf == RiseFallBoth::riseFall()) {
 	visitSequential(inst, seq);
 	matches = true;
 	break;
@@ -258,9 +258,9 @@ FindRegVisitor::findSequential(const Pin *clk_pin,
 	TimingSense port_sense = clk_func->portTimingSense(port);
 	TimingSense path_sense = pathSenseThru(clk_sense, port_sense);
 	if ((path_sense == TimingSense::positive_unate
-	     && clk_tr == TransRiseFallBoth::rise())
+	     && clk_rf == RiseFallBoth::rise())
 	    || (path_sense == TimingSense::negative_unate
-		&& clk_tr == TransRiseFallBoth::fall())) {
+		&& clk_rf == RiseFallBoth::fall())) {
 	  visitSequential(inst, seq);
 	  matches = true;
 	  break;
@@ -273,22 +273,22 @@ FindRegVisitor::findSequential(const Pin *clk_pin,
 bool
 FindRegVisitor::findInferedSequential(LibertyCell *cell,
 				      TimingSense clk_sense,
-				      const TransRiseFallBoth *clk_tr,
+				      const RiseFallBoth *clk_rf,
 				      bool edge_triggered,
 				      bool latches)
 {
   bool matches = false;
-  const TransRiseFall *clk_tr1 = clk_tr->asRiseFall();
+  const RiseFall *clk_rf1 = clk_rf->asRiseFall();
   LibertyCellTimingArcSetIterator set_iter(cell);
   while (set_iter.hasNext()) {
     TimingArcSet *set = set_iter.next();
     TimingArcSetArcIterator arc_iter(set);
     TimingArc *arc = arc_iter.next();
-    TransRiseFall *arc_clk_tr = arc->fromTrans()->asRiseFall();
-    bool tr_matches = (clk_tr == TransRiseFallBoth::riseFall()
-		       || (arc_clk_tr == clk_tr1
+    RiseFall *arc_clk_rf = arc->fromTrans()->asRiseFall();
+    bool tr_matches = (clk_rf == RiseFallBoth::riseFall()
+		       || (arc_clk_rf == clk_rf1
 			   && clk_sense == TimingSense::positive_unate)
-		       || (arc_clk_tr == clk_tr1->opposite()
+		       || (arc_clk_rf == clk_rf1->opposite()
 			   && clk_sense == TimingSense::negative_unate));
     TimingRole *role = set->role();
     if (tr_matches
@@ -323,7 +323,7 @@ class FindRegInstances : public FindRegVisitor
 public:
   explicit FindRegInstances(StaState *sta);
   InstanceSet *findRegs(ClockSet *clks,
-			const TransRiseFallBoth *clk_tr,
+			const RiseFallBoth *clk_rf,
 			bool edge_triggered,
 			bool latches);
 
@@ -344,12 +344,12 @@ FindRegInstances::FindRegInstances(StaState *sta) :
 
 InstanceSet *
 FindRegInstances::findRegs(ClockSet *clks,
-			   const TransRiseFallBoth *clk_tr,
+			   const RiseFallBoth *clk_rf,
 			   bool edge_triggered,
 			   bool latches)
 {
   regs_ = new InstanceSet;
-  visitRegs(clks, clk_tr, edge_triggered, latches);
+  visitRegs(clks, clk_rf, edge_triggered, latches);
   return regs_;
 }
 
@@ -367,13 +367,13 @@ FindRegInstances::visitReg(Instance *inst)
 
 InstanceSet *
 findRegInstances(ClockSet *clks,
-		 const TransRiseFallBoth *clk_tr,
+		 const RiseFallBoth *clk_rf,
 		 bool edge_triggered,
 		 bool latches,
 		 StaState *sta)
 {
   FindRegInstances find_regs(sta);
-  return find_regs.findRegs(clks, clk_tr, edge_triggered, latches);
+  return find_regs.findRegs(clks, clk_rf, edge_triggered, latches);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -383,7 +383,7 @@ class FindRegPins : public FindRegVisitor
 public:
   explicit FindRegPins(StaState *sta);
   PinSet *findPins(ClockSet *clks,
-		   const TransRiseFallBoth *clk_tr,
+		   const RiseFallBoth *clk_rf,
 		   bool edge_triggered,
 		   bool latches);
 
@@ -411,12 +411,12 @@ FindRegPins::FindRegPins(StaState *sta) :
 
 PinSet *
 FindRegPins::findPins(ClockSet *clks,
-		      const TransRiseFallBoth *clk_tr,
+		      const RiseFallBoth *clk_rf,
 		      bool edge_triggered,
 		      bool latches)
 {
   pins_ = new PinSet;
-  visitRegs(clks, clk_tr, edge_triggered, latches);
+  visitRegs(clks, clk_rf, edge_triggered, latches);
   return pins_;
 }
 
@@ -509,22 +509,22 @@ hasMinPulseWidthCheck(LibertyPort *port)
 {
   float ignore;
   bool exists;
-  port->minPulseWidth(TransRiseFall::rise(), ignore, exists);
+  port->minPulseWidth(RiseFall::rise(), ignore, exists);
   if (exists)
     return true;
-  port->minPulseWidth(TransRiseFall::fall(), ignore, exists);
+  port->minPulseWidth(RiseFall::fall(), ignore, exists);
   return exists;
 }
 
 PinSet *
 findRegDataPins(ClockSet *clks,
-		const TransRiseFallBoth *clk_tr,
+		const RiseFallBoth *clk_rf,
 		bool edge_triggered,
 		bool latches,
 		StaState *sta)
 {
   FindRegDataPins find_regs(sta);
-  return find_regs.findPins(clks, clk_tr, edge_triggered, latches);
+  return find_regs.findPins(clks, clk_rf, edge_triggered, latches);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -576,13 +576,13 @@ FindRegClkPins::seqExpr2(Sequential *)
 
 PinSet *
 findRegClkPins(ClockSet *clks,
-	       const TransRiseFallBoth *clk_tr,
+	       const RiseFallBoth *clk_rf,
 	       bool edge_triggered,
 	       bool latches,
 	       StaState *sta)
 {
   FindRegClkPins find_regs(sta);
-  return find_regs.findPins(clks, clk_tr, edge_triggered, latches);
+  return find_regs.findPins(clks, clk_rf, edge_triggered, latches);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -621,13 +621,13 @@ FindRegAsyncPins::matchPin(Pin *pin)
 
 PinSet *
 findRegAsyncPins(ClockSet *clks,
-		 const TransRiseFallBoth *clk_tr,
+		 const RiseFallBoth *clk_rf,
 		 bool edge_triggered,
 		 bool latches,
 		 StaState *sta)
 {
   FindRegAsyncPins find_regs(sta);
-  return find_regs.findPins(clks, clk_tr, edge_triggered, latches);
+  return find_regs.findPins(clks, clk_rf, edge_triggered, latches);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -715,13 +715,13 @@ FindRegOutputPins::seqExpr2(Sequential *)
 
 PinSet *
 findRegOutputPins(ClockSet *clks,
-		  const TransRiseFallBoth *clk_tr,
+		  const RiseFallBoth *clk_rf,
 		  bool edge_triggered,
 		  bool latches,
 		  StaState *sta)
 {
   FindRegOutputPins find_regs(sta);
-  return find_regs.findPins(clks, clk_tr, edge_triggered, latches);
+  return find_regs.findPins(clks, clk_rf, edge_triggered, latches);
 }
 
 ////////////////////////////////////////////////////////////////

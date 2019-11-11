@@ -53,14 +53,14 @@ public:
   // Find the parasitic for drvr_pin that is acceptable to the delay
   // calculator by probing parasitics_.
   virtual Parasitic *findParasitic(const Pin *drvr_pin,
-				   const TransRiseFall *tr,
+				   const RiseFall *rf,
 				   const DcalcAnalysisPt *dcalc_ap) = 0;
 
   // Find the wire delays and slews for an input port without a driving cell.
   // This call primarily initializes the load delay/slew iterator.
   virtual void inputPortDelay(const Pin *port_pin,
 			      float in_slew,
-			      const TransRiseFall *tr,
+			      const RiseFall *rf,
 			      Parasitic *parasitic,
 			      const DcalcAnalysisPt *dcalc_ap) = 0;
 

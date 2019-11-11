@@ -40,7 +40,7 @@ public:
 		  ParasiticNode *drvr_node,
 		  bool includes_pin_caps,
 		  float coupling_cap_factor,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const OperatingConditions *op_cond,
 		  const Corner *corner,
 		  const MinMax *cnst_min_max,
@@ -71,7 +71,7 @@ protected:
 
   bool includes_pin_caps_;
   float coupling_cap_multiplier_;
-  const TransRiseFall *tr_;
+  const RiseFall *rf_;
   const OperatingConditions *op_cond_;
   const Corner *corner_;
   const MinMax *cnst_min_max_;
@@ -84,7 +84,7 @@ protected:
 ReduceToPi::ReduceToPi(StaState *sta) :
   StaState(sta),
   coupling_cap_multiplier_(1.0),
-  tr_(nullptr),
+  rf_(nullptr),
   op_cond_(nullptr),
   corner_(nullptr),
   cnst_min_max_(nullptr),
@@ -101,7 +101,7 @@ ReduceToPi::reduceToPi(const Pin *drvr_pin,
 		       ParasiticNode *drvr_node,
 		       bool includes_pin_caps,
 		       float coupling_cap_factor,
-		       const TransRiseFall *tr,
+		       const RiseFall *rf,
 		       const OperatingConditions *op_cond,
 		       const Corner *corner,
 		       const MinMax *cnst_min_max,
@@ -112,7 +112,7 @@ ReduceToPi::reduceToPi(const Pin *drvr_pin,
 {
   includes_pin_caps_ = includes_pin_caps;
   coupling_cap_multiplier_ = coupling_cap_factor;
-  tr_ = tr;
+  rf_ = rf;
   op_cond_ = op_cond;
   corner_ = corner;
   cnst_min_max_ = cnst_min_max;
@@ -212,13 +212,13 @@ ReduceToPi::pinCapacitance(ParasiticNode *node)
     LibertyPort *lib_port = network_->libertyPort(port);
     if (lib_port) {
       if (!includes_pin_caps_) {
-	pin_cap = sdc_->pinCapacitance(pin, tr_, op_cond_, corner_,
+	pin_cap = sdc_->pinCapacitance(pin, rf_, op_cond_, corner_,
 				       cnst_min_max_);
 	pin_caps_one_value_ &= lib_port->capacitanceIsOneValue();
       }
     }
     else if (network_->isTopLevelPort(pin))
-      pin_cap = sdc_->portExtCap(port, tr_, cnst_min_max_);
+      pin_cap = sdc_->portExtCap(port, rf_, cnst_min_max_);
   }
   return pin_cap;
 }
@@ -276,7 +276,7 @@ public:
 		    const Pin *drvr_pin,
 		    ParasiticNode *drvr_node,
 		    float coupling_cap_factor,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const OperatingConditions *op_cond,
 		    const Corner *corner,
 		    const MinMax *cnst_min_max,
@@ -308,11 +308,11 @@ reduceToPiElmore(Parasitic *parasitic_network,
 		sta->network()->pathName(drvr_pin));
     ReduceToPiElmore reducer(sta);
     reducer.makePiElmore(parasitic_network, drvr_pin, drvr_node,
-			 coupling_cap_factor, TransRiseFall::rise(),
+			 coupling_cap_factor, RiseFall::rise(),
 			 op_cond, corner, cnst_min_max, ap);
     if (!reducer.pinCapsOneValue())
       reducer.makePiElmore(parasitic_network, drvr_pin, drvr_node,
-			   coupling_cap_factor, TransRiseFall::fall(),
+			   coupling_cap_factor, RiseFall::fall(),
 			   op_cond, corner, cnst_min_max, ap);
   }
 }
@@ -327,7 +327,7 @@ ReduceToPiElmore::makePiElmore(Parasitic *parasitic_network,
 			       const Pin *drvr_pin,
 			       ParasiticNode *drvr_node,
 			       float coupling_cap_factor,
-			       const TransRiseFall *tr,
+			       const RiseFall *rf,
 			       const OperatingConditions *op_cond,
 			       const Corner *corner,
 			       const MinMax *cnst_min_max,
@@ -337,9 +337,9 @@ ReduceToPiElmore::makePiElmore(Parasitic *parasitic_network,
   reduceToPi(drvr_pin, drvr_node,
 	     parasitics_->includesPinCaps(parasitic_network),
 	     coupling_cap_factor,
-	     tr, op_cond, corner, cnst_min_max, ap,
+	     rf, op_cond, corner, cnst_min_max, ap,
 	     c2, rpi, c1);
-  Parasitic *pi_elmore = parasitics_->makePiElmore(drvr_pin, tr, ap,
+  Parasitic *pi_elmore = parasitics_->makePiElmore(drvr_pin, rf, ap,
 						   c2, rpi, c1);
   parasitics_->setIsReducedParasiticNetwork(pi_elmore, true);
   reduceElmoreDfs(drvr_pin, drvr_node, 0, 0.0, pi_elmore, ap);
@@ -401,7 +401,7 @@ public:
 			  const Pin *drvr_pin,
 			  ParasiticNode *drvr_node,
 			  float coupling_cap_factor,
-			  const TransRiseFall *tr,
+			  const RiseFall *rf,
 			  const OperatingConditions *op_cond,
 			  const Corner *corner,
 			  const MinMax *cnst_min_max,
@@ -475,11 +475,11 @@ reduceToPiPoleResidue2(Parasitic *parasitic_network,
 		sta->network()->pathName(drvr_pin));
     ReduceToPiPoleResidue2 reducer(sta);
     reducer.makePiPoleResidue2(parasitic_network, drvr_pin, drvr_node,
-			       coupling_cap_factor, TransRiseFall::rise(),
+			       coupling_cap_factor, RiseFall::rise(),
 			       op_cond, corner, cnst_min_max, ap);
     if (!reducer.pinCapsOneValue())
       reducer.makePiPoleResidue2(parasitic_network, drvr_pin, drvr_node,
-				 coupling_cap_factor, TransRiseFall::fall(),
+				 coupling_cap_factor, RiseFall::fall(),
 				 op_cond, corner, cnst_min_max, ap);
   }
 }
@@ -489,7 +489,7 @@ ReduceToPiPoleResidue2::makePiPoleResidue2(Parasitic *parasitic_network,
 					   const Pin *drvr_pin,
 					   ParasiticNode *drvr_node,
 					   float coupling_cap_factor,
-					   const TransRiseFall *tr,
+					   const RiseFall *rf,
 					   const OperatingConditions *op_cond,
 					   const Corner *corner,
 					   const MinMax *cnst_min_max,
@@ -499,10 +499,10 @@ ReduceToPiPoleResidue2::makePiPoleResidue2(Parasitic *parasitic_network,
   reduceToPi(drvr_pin, drvr_node,
 	     parasitics_->includesPinCaps(parasitic_network),
 	     coupling_cap_factor,
-	     tr, op_cond, corner, cnst_min_max, ap,
+	     rf, op_cond, corner, cnst_min_max, ap,
 	     c2, rpi, c1);
   Parasitic *pi_pole_residue = parasitics_->makePiPoleResidue(drvr_pin,
-							      tr, ap,
+							      rf, ap,
 							      c2, rpi, c1);
   parasitics_->setIsReducedParasiticNetwork(pi_pole_residue, true);
   findPolesResidues(parasitic_network, pi_pole_residue,

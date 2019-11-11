@@ -34,7 +34,7 @@ public:
 	  bool is_propagated,
 	  const Pin *gen_clk_src,
 	  bool is_gen_clk_src_path,
-	  const TransRiseFall *pulse_clk_sense,
+	  const RiseFall *pulse_clk_sense,
 	  Arrival insertion,
 	  float latency,
 	  ClockUncertainties *uncertainties,
@@ -49,7 +49,7 @@ public:
   bool isPropagated() const { return is_propagated_; }
   const Pin *genClkSrc() const { return gen_clk_src_; }
   bool isPulseClk() const { return is_pulse_clk_; }
-  TransRiseFall *pulseClkSense() const;
+  RiseFall *pulseClkSense() const;
   int pulseClkSenseTrIndex() const { return pulse_clk_sense_; }
   float latency() const { return latency_; }
   Arrival &insertion() { return insertion_; }
@@ -87,7 +87,7 @@ private:
   unsigned int is_propagated_:1;
   unsigned int is_gen_clk_src_path_:1;
   unsigned int is_pulse_clk_:1;
-  unsigned int pulse_clk_sense_:TransRiseFall::index_bit_count;
+  unsigned int pulse_clk_sense_:RiseFall::index_bit_count;
   unsigned int path_ap_index_:path_ap_index_bit_count;
 };
 

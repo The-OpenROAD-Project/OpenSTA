@@ -45,12 +45,12 @@ SimpleRCDelayCalc::copy()
 void
 SimpleRCDelayCalc::inputPortDelay(const Pin *port_pin,
 				  float in_slew,
-				  const TransRiseFall *tr,
+				  const RiseFall *rf,
 				  Parasitic *parasitic,
 				  const DcalcAnalysisPt *dcalc_ap)
 {
   pvt_ = dcalc_ap->operatingConditions();
-  RCDelayCalc::inputPortDelay(port_pin, in_slew, tr, parasitic, dcalc_ap);
+  RCDelayCalc::inputPortDelay(port_pin, in_slew, rf, parasitic, dcalc_ap);
 }
 
 void
@@ -67,7 +67,7 @@ SimpleRCDelayCalc::gateDelay(const LibertyCell *drvr_cell,
 			     Slew &drvr_slew)
 {
   drvr_parasitic_ = drvr_parasitic;
-  drvr_tr_ = arc->toTrans()->asRiseFall();
+  drvr_rf_ = arc->toTrans()->asRiseFall();
   drvr_cell_ = drvr_cell;
   drvr_library_ = drvr_cell->libertyLibrary();
   pvt_ = pvt;
@@ -89,9 +89,9 @@ SimpleRCDelayCalc::loadDelay(const Pin *load_pin,
   if (drvr_parasitic_)
     parasitics_->findElmore(drvr_parasitic_, load_pin, elmore, elmore_exists);
   if (elmore_exists) {
-    if (drvr_library_ && drvr_library_->wireSlewDegradationTable(drvr_tr_)) {
+    if (drvr_library_ && drvr_library_->wireSlewDegradationTable(drvr_rf_)) {
       wire_delay1 = elmore;
-      load_slew1 = drvr_library_->degradeWireSlew(drvr_cell_, drvr_tr_,
+      load_slew1 = drvr_library_->degradeWireSlew(drvr_cell_, drvr_rf_,
 						  pvt_,
 						  delayAsFloat(drvr_slew_),
 						  delayAsFloat(wire_delay1));

@@ -36,39 +36,39 @@ class InputDrive
 public:
   explicit InputDrive();
   ~InputDrive();
-  void setSlew(const TransRiseFallBoth *tr,
+  void setSlew(const RiseFallBoth *rf,
 	       const MinMaxAll *min_max,
 	       float slew);
-  void setDriveResistance(const TransRiseFallBoth *tr,
+  void setDriveResistance(const RiseFallBoth *rf,
 			  const MinMaxAll *min_max,
 			  float res);
-  void driveResistance(const TransRiseFall *tr,
+  void driveResistance(const RiseFall *rf,
 		       const MinMax *min_max,
 		       float &res,
 		       bool &exists);
-  bool hasDriveResistance(const TransRiseFall *tr,
+  bool hasDriveResistance(const RiseFall *rf,
 			  const MinMax *min_max);
-  bool driveResistanceMinMaxEqual(const TransRiseFall *tr);
+  bool driveResistanceMinMaxEqual(const RiseFall *rf);
   void setDriveCell(LibertyLibrary *library,
 		    LibertyCell *cell,
 		    LibertyPort *from_port,
 		    float *from_slews,
 		    LibertyPort *to_port,
-		    const TransRiseFallBoth *tr,
+		    const RiseFallBoth *rf,
 		    const MinMaxAll *min_max);
-  void driveCell(const TransRiseFall *tr,
+  void driveCell(const RiseFall *rf,
 		 const MinMax *min_max,
 		 LibertyCell *&cell,
 		 LibertyPort *&from_port,
 		 float *&from_slews,
 		 LibertyPort *&to_port);
-  InputDriveCell *driveCell(const TransRiseFall *tr,
+  InputDriveCell *driveCell(const RiseFall *rf,
 			    const MinMax *min_max);
-  bool hasDriveCell(const TransRiseFall *tr,
+  bool hasDriveCell(const RiseFall *rf,
 		    const MinMax *min_max);
   // True if rise/fall/min/max drive cells are equal.
   bool driveCellsEqual();
-  void slew(const TransRiseFall *tr,
+  void slew(const RiseFall *rf,
 	    const MinMax *min_max,
 	    float &slew,
 	    bool &exists);
@@ -80,7 +80,7 @@ private:
   RiseFallMinMax slews_;
   RiseFallMinMax drive_resistances_;
   // Separate rise/fall/min/max drive cells.
-  InputDriveCell *drive_cells_[TransRiseFall::index_count][MinMax::index_count];
+  InputDriveCell *drive_cells_[RiseFall::index_count][MinMax::index_count];
 };
 
 class InputDriveCell
@@ -109,7 +109,7 @@ private:
   LibertyLibrary *library_;
   LibertyCell *cell_;
   LibertyPort *from_port_;
-  float from_slews_[TransRiseFall::index_count];
+  float from_slews_[RiseFall::index_count];
   LibertyPort *to_port_;
 };
 

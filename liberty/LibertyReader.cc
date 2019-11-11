@@ -129,11 +129,11 @@ LibertyReader::readLibertyFile(const char *filename,
   pg_port_ = nullptr;
   have_resistance_unit_ = false;
   
-  for (auto tr_index : TransRiseFall::rangeIndex()) {
-    have_input_threshold_[tr_index] = false;
-    have_output_threshold_[tr_index] = false;
-    have_slew_lower_threshold_[tr_index] = false;
-    have_slew_upper_threshold_[tr_index] = false;
+  for (auto rf_index : RiseFall::rangeIndex()) {
+    have_input_threshold_[rf_index] = false;
+    have_output_threshold_[rf_index] = false;
+    have_slew_lower_threshold_[rf_index] = false;
+    have_slew_upper_threshold_[rf_index] = false;
   }
 
   parseLibertyFile(filename, this, report_);
@@ -457,8 +457,8 @@ LibertyReader::defineScalingFactorVisitors()
       ScaleFactorPvt pvt = static_cast<ScaleFactorPvt>(pvt_index);
       const char *pvt_name = scaleFactorPvtName(pvt);
       if (scaleFactorTypeRiseFallSuffix(type)) {
-	for (auto tr : TransRiseFall::range()) {
-	  const char *tr_name = (tr == TransRiseFall::rise()) ? "rise":"fall";
+	for (auto tr : RiseFall::range()) {
+	  const char *tr_name = (tr == RiseFall::rise()) ? "rise":"fall";
 	  const char *attr_name = stringPrintTmp("k_%s_%s_%s",
 						 pvt_name,
 						 type_name,
@@ -467,8 +467,8 @@ LibertyReader::defineScalingFactorVisitors()
 	}
       }
       else if (scaleFactorTypeRiseFallPrefix(type)) {
-	for (auto tr : TransRiseFall::range()) {
-	  const char *tr_name = (tr == TransRiseFall::rise()) ? "rise":"fall";
+	for (auto tr : RiseFall::range()) {
+	  const char *tr_name = (tr == RiseFall::rise()) ? "rise":"fall";
 	  const char *attr_name = stringPrintTmp("k_%s_%s_%s",
 						 pvt_name,
 						 tr_name,
@@ -477,8 +477,8 @@ LibertyReader::defineScalingFactorVisitors()
 	}
       }
       else if (scaleFactorTypeLowHighSuffix(type)) {
-	for (auto tr : TransRiseFall::range()) {
-	  const char *tr_name = (tr == TransRiseFall::rise()) ? "high":"low";
+	for (auto tr : RiseFall::range()) {
+	  const char *tr_name = (tr == RiseFall::rise()) ? "high":"low";
 	  const char *attr_name = stringPrintTmp("k_%s_%s_%s",
 						 pvt_name,
 						 tr_name,
@@ -609,7 +609,7 @@ LibertyReader::endLibraryAttrs(LibertyGroup *group)
   }
 
   bool missing_threshold = false;
-  for (auto tr : TransRiseFall::range()) {
+  for (auto tr : RiseFall::range()) {
     int tr_index = tr->index();
     if (!have_input_threshold_[tr_index]) {
       libWarn(group, "input_threshold_pct_%s not found.\n", tr->name());
@@ -969,75 +969,75 @@ LibertyReader::visitDefaultMaxFanout(LibertyAttr *attr)
 void
 LibertyReader::visitDefaultIntrinsicRise(LibertyAttr *attr)
 {
-  visitDefaultIntrinsic(attr, TransRiseFall::rise());
+  visitDefaultIntrinsic(attr, RiseFall::rise());
 }
 
 void
 LibertyReader::visitDefaultIntrinsicFall(LibertyAttr *attr)
 {
-  visitDefaultIntrinsic(attr, TransRiseFall::fall());
+  visitDefaultIntrinsic(attr, RiseFall::fall());
 }
 
 void
 LibertyReader::visitDefaultIntrinsic(LibertyAttr *attr,
-				     TransRiseFall *tr)
+				     RiseFall *rf)
 {
   if (library_) {
     float value;
     bool exists;
     getAttrFloat(attr, value, exists);
     if (exists)
-      library_->setDefaultIntrinsic(tr, value * time_scale_);
+      library_->setDefaultIntrinsic(rf, value * time_scale_);
   }
 }
 
 void
 LibertyReader::visitDefaultInoutPinRiseRes(LibertyAttr *attr)
 {
-  visitDefaultInoutPinRes(attr, TransRiseFall::rise());
+  visitDefaultInoutPinRes(attr, RiseFall::rise());
 }
 
 void
 LibertyReader::visitDefaultInoutPinFallRes(LibertyAttr *attr)
 {
-  visitDefaultInoutPinRes(attr, TransRiseFall::fall());
+  visitDefaultInoutPinRes(attr, RiseFall::fall());
 }
 
 void
 LibertyReader::visitDefaultInoutPinRes(LibertyAttr *attr,
-				       TransRiseFall *tr)
+				       RiseFall *rf)
 {
   if (library_) {
     float value;
     bool exists;
     getAttrFloat(attr, value, exists);
     if (exists)
-      library_->setDefaultBidirectPinRes(tr, value * res_scale_);
+      library_->setDefaultBidirectPinRes(rf, value * res_scale_);
   }
 }
 
 void
 LibertyReader::visitDefaultOutputPinRiseRes(LibertyAttr *attr)
 {
-  visitDefaultOutputPinRes(attr, TransRiseFall::rise());
+  visitDefaultOutputPinRes(attr, RiseFall::rise());
 }
 
 void
 LibertyReader::visitDefaultOutputPinFallRes(LibertyAttr *attr)
 {
-  visitDefaultOutputPinRes(attr, TransRiseFall::fall());
+  visitDefaultOutputPinRes(attr, RiseFall::fall());
 }
 
 void
 LibertyReader::visitDefaultOutputPinRes(LibertyAttr *attr,
-					TransRiseFall *tr)
+					RiseFall *rf)
 {
   if (library_) {
     float value;
     bool exists;
     getAttrFloat(attr, value, exists);
     if (exists)
-      library_->setDefaultOutputPinRes(tr, value * res_scale_);
+      library_->setDefaultOutputPinRes(rf, value * res_scale_);
   }
 }
 
@@ -1107,105 +1107,105 @@ LibertyReader::visitDefaultOperatingConditions(LibertyAttr *attr)
 void
 LibertyReader::visitInputThresholdPctFall(LibertyAttr *attr)
 {
-  visitInputThresholdPct(attr, TransRiseFall::fall());
+  visitInputThresholdPct(attr, RiseFall::fall());
 }
 
 void
 LibertyReader::visitInputThresholdPctRise(LibertyAttr *attr)
 {
-  visitInputThresholdPct(attr, TransRiseFall::rise());
+  visitInputThresholdPct(attr, RiseFall::rise());
 }
 
 void
 LibertyReader::visitInputThresholdPct(LibertyAttr *attr,
-				      TransRiseFall *tr)
+				      RiseFall *rf)
 {
   if (library_) {
     float value;
     bool exists;
     getAttrFloat(attr, value, exists);
     if (exists)
-    library_->setInputThreshold(tr, value / 100.0F);
+    library_->setInputThreshold(rf, value / 100.0F);
   }
-  have_input_threshold_[tr->index()] = true;
+  have_input_threshold_[rf->index()] = true;
 }
 
 void
 LibertyReader::visitOutputThresholdPctFall(LibertyAttr *attr)
 {
-  visitOutputThresholdPct(attr, TransRiseFall::fall());
+  visitOutputThresholdPct(attr, RiseFall::fall());
 }
 
 void
 LibertyReader::visitOutputThresholdPctRise(LibertyAttr *attr)
 {
-  visitOutputThresholdPct(attr, TransRiseFall::rise());
+  visitOutputThresholdPct(attr, RiseFall::rise());
 }
 
 void
 LibertyReader::visitOutputThresholdPct(LibertyAttr *attr,
-				       TransRiseFall *tr)
+				       RiseFall *rf)
 {
   if (library_) {
     float value;
     bool exists;
     getAttrFloat(attr, value, exists);
     if (exists)
-    library_->setOutputThreshold(tr, value / 100.0F);
+    library_->setOutputThreshold(rf, value / 100.0F);
   }
-  have_output_threshold_[tr->index()] = true;
+  have_output_threshold_[rf->index()] = true;
 }
 
 void
 LibertyReader::visitSlewLowerThresholdPctFall(LibertyAttr *attr)
 {
-  visitSlewLowerThresholdPct(attr, TransRiseFall::fall());
+  visitSlewLowerThresholdPct(attr, RiseFall::fall());
 }
 
 void
 LibertyReader::visitSlewLowerThresholdPctRise(LibertyAttr *attr)
 {
-  visitSlewLowerThresholdPct(attr, TransRiseFall::rise());
+  visitSlewLowerThresholdPct(attr, RiseFall::rise());
 }
 
 void
 LibertyReader::visitSlewLowerThresholdPct(LibertyAttr *attr,
-					  TransRiseFall *tr)
+					  RiseFall *rf)
 {
   if (library_) {
     float value;
     bool exists;
     getAttrFloat(attr, value, exists);
     if (exists)
-      library_->setSlewLowerThreshold(tr, value / 100.0F);
+      library_->setSlewLowerThreshold(rf, value / 100.0F);
   }
-  have_slew_lower_threshold_[tr->index()] = true;
+  have_slew_lower_threshold_[rf->index()] = true;
 }
 
 void
 LibertyReader::visitSlewUpperThresholdPctFall(LibertyAttr *attr)
 {
-  visitSlewUpperThresholdPct(attr, TransRiseFall::fall());
+  visitSlewUpperThresholdPct(attr, RiseFall::fall());
 }
 
 void
 LibertyReader::visitSlewUpperThresholdPctRise(LibertyAttr *attr)
 {
-  visitSlewUpperThresholdPct(attr, TransRiseFall::rise());
+  visitSlewUpperThresholdPct(attr, RiseFall::rise());
 }
 
 void
 LibertyReader::visitSlewUpperThresholdPct(LibertyAttr *attr,
-					  TransRiseFall *tr)
+					  RiseFall *rf)
 {
   if (library_) {
     float value;
     bool exists;
     getAttrFloat(attr, value, exists);
     if (exists)
-    library_->setSlewUpperThreshold(tr, value / 100.0F);
+    library_->setSlewUpperThreshold(rf, value / 100.0F);
   }
-  have_slew_upper_threshold_[tr->index()] = true;
+  have_slew_upper_threshold_[rf->index()] = true;
 }
 
 void
@@ -1440,7 +1440,7 @@ LibertyReader::visitScaleFactorSuffix(LibertyAttr *attr)
   if (scale_factors_) {
     ScaleFactorPvt pvt = ScaleFactorPvt::unknown;
     ScaleFactorType type = ScaleFactorType::unknown;
-    TransRiseFall *tr = nullptr;
+    RiseFall *rf = nullptr;
     // Parse the attribute name.
     TokenParser parser(attr->name(), "_");
     if (parser.hasNext())
@@ -1456,18 +1456,18 @@ LibertyReader::visitScaleFactorSuffix(LibertyAttr *attr)
     if (parser.hasNext()) {
       const char *tr_name = parser.next();
       if (stringEq(tr_name, "rise"))
-	tr = TransRiseFall::rise();
+	rf = RiseFall::rise();
       else if (stringEq(tr_name, "fall"))
-	tr = TransRiseFall::fall();
+	rf = RiseFall::fall();
     }
     if (pvt != ScaleFactorPvt::unknown
 	&& type != ScaleFactorType::unknown
-	&& tr) {
+	&& rf) {
       float value;
       bool exists;
       getAttrFloat(attr, value, exists);
       if (exists)
-	scale_factors_->setScale(type, pvt, tr, value);
+	scale_factors_->setScale(type, pvt, rf, value);
     }
   }
 }
@@ -1478,7 +1478,7 @@ LibertyReader::visitScaleFactorPrefix(LibertyAttr *attr)
   if (scale_factors_) {
     ScaleFactorPvt pvt = ScaleFactorPvt::unknown;
     ScaleFactorType type = ScaleFactorType::unknown;
-    TransRiseFall *tr = nullptr;
+    RiseFall *rf = nullptr;
     // Parse the attribute name.
     TokenParser parser(attr->name(), "_");
     if (parser.hasNext())
@@ -1490,9 +1490,9 @@ LibertyReader::visitScaleFactorPrefix(LibertyAttr *attr)
     if (parser.hasNext()) {
       const char *tr_name = parser.next();
       if (stringEq(tr_name, "rise"))
-	tr = TransRiseFall::rise();
+	rf = RiseFall::rise();
       else if (stringEq(tr_name, "fall"))
-	tr = TransRiseFall::fall();
+	rf = RiseFall::fall();
     }
     if (parser.hasNext()) {
       const char *type_name = parser.next();
@@ -1500,12 +1500,12 @@ LibertyReader::visitScaleFactorPrefix(LibertyAttr *attr)
     }
     if (pvt != ScaleFactorPvt::unknown
 	&& type != ScaleFactorType::unknown
-	&& tr) {
+	&& rf) {
       float value;
       bool exists;
       getAttrFloat(attr, value, exists);
       if (exists)
-	scale_factors_->setScale(type, pvt, tr, value);
+	scale_factors_->setScale(type, pvt, rf, value);
     }
   }
 }
@@ -1516,7 +1516,7 @@ LibertyReader::visitScaleFactorHiLow(LibertyAttr *attr)
   if (scale_factors_) {
     ScaleFactorPvt pvt = ScaleFactorPvt::unknown;
     ScaleFactorType type = ScaleFactorType::unknown;
-    TransRiseFall *tr = nullptr;
+    RiseFall *rf = nullptr;
     const char *pvt_name = nullptr;
     const char *type_name = nullptr;
     const char *tr_name = nullptr;
@@ -1535,18 +1535,18 @@ LibertyReader::visitScaleFactorHiLow(LibertyAttr *attr)
     if (parser.hasNext()) {
       tr_name = parser.next();
       if (stringEq(tr_name, "high"))
-	tr = TransRiseFall::rise();
+	rf = RiseFall::rise();
       else if (stringEq(tr_name, "low"))
-	tr = TransRiseFall::fall();
+	rf = RiseFall::fall();
     }
     if (pvt != ScaleFactorPvt::unknown
 	&& type != ScaleFactorType::unknown
-	&& tr) {
+	&& rf) {
       float value;
       bool exists;
       getAttrFloat(attr, value, exists);
       if (exists)
-	scale_factors_->setScale(type, pvt, tr, value);
+	scale_factors_->setScale(type, pvt, rf, value);
     }
   }
 }
@@ -2158,7 +2158,7 @@ TimingGroup::makeTimingModels(LibertyLibrary *library,
 void
 TimingGroup::makeLinearModels(LibertyLibrary *library)
 {
-  for (auto tr : TransRiseFall::range()) {
+  for (auto tr : RiseFall::range()) {
     int tr_index = tr->index();
     float intr = intrinsic_[tr_index];
     bool intr_exists = intrinsic_exists_[tr_index];
@@ -2187,7 +2187,7 @@ TimingGroup::makeLinearModels(LibertyLibrary *library)
 void
 TimingGroup::makeTableModels(LibertyReader *visitor)
 {
-  for (auto tr : TransRiseFall::range()) {
+  for (auto tr : RiseFall::range()) {
     int tr_index = tr->index();
     TableModel *cell = cell_[tr_index];
     TableModel *constraint = constraint_[tr_index];
@@ -2614,7 +2614,7 @@ void
 LibertyReader::setPortCapDefault(LibertyPort *port)
 {
   for (auto min_max : MinMax::range()) {
-    for (auto tr : TransRiseFall::range()) {
+    for (auto tr : RiseFall::range()) {
       float cap;
       bool exists;
       port->capacitance(tr, min_max, cap, exists);
@@ -2891,8 +2891,8 @@ LibertyReader::visitRiseCap(LibertyAttr *attr)
       LibertyPortSeq::Iterator port_iter(ports_);
       while (port_iter.hasNext()) {
 	LibertyPort *port = port_iter.next();
-	port->setCapacitance(TransRiseFall::rise(), MinMax::min(), cap);
-	port->setCapacitance(TransRiseFall::rise(), MinMax::max(), cap);
+	port->setCapacitance(RiseFall::rise(), MinMax::min(), cap);
+	port->setCapacitance(RiseFall::rise(), MinMax::max(), cap);
       }
     }
   }
@@ -2910,8 +2910,8 @@ LibertyReader::visitFallCap(LibertyAttr *attr)
       LibertyPortSeq::Iterator port_iter(ports_);
       while (port_iter.hasNext()) {
 	LibertyPort *port = port_iter.next();
-	port->setCapacitance(TransRiseFall::fall(), MinMax::min(), cap);
-	port->setCapacitance(TransRiseFall::fall(), MinMax::max(), cap);
+	port->setCapacitance(RiseFall::fall(), MinMax::min(), cap);
+	port->setCapacitance(RiseFall::fall(), MinMax::max(), cap);
       }
     }
   }
@@ -2930,8 +2930,8 @@ LibertyReader::visitRiseCapRange(LibertyAttr *attr)
       LibertyPortSeq::Iterator port_iter(ports_);
       while (port_iter.hasNext()) {
 	LibertyPort *port = port_iter.next();
-	port->setCapacitance(TransRiseFall::rise(), MinMax::min(), min);
-	port->setCapacitance(TransRiseFall::rise(), MinMax::max(), max);
+	port->setCapacitance(RiseFall::rise(), MinMax::min(), min);
+	port->setCapacitance(RiseFall::rise(), MinMax::max(), max);
       }
     }
   }
@@ -2950,8 +2950,8 @@ LibertyReader::visitFallCapRange(LibertyAttr *attr)
       LibertyPortSeq::Iterator port_iter(ports_);
       while (port_iter.hasNext()) {
 	LibertyPort *port = port_iter.next();
-	port->setCapacitance(TransRiseFall::fall(), MinMax::min(), min);
-	port->setCapacitance(TransRiseFall::fall(), MinMax::max(), max);
+	port->setCapacitance(RiseFall::fall(), MinMax::min(), min);
+	port->setCapacitance(RiseFall::fall(), MinMax::max(), max);
       }
     }
   }
@@ -3083,18 +3083,18 @@ LibertyReader::visitMinPeriod(LibertyAttr *attr)
 void
 LibertyReader::visitMinPulseWidthLow(LibertyAttr *attr)
 {
-  visitMinPulseWidth(attr, TransRiseFall::fall());
+  visitMinPulseWidth(attr, RiseFall::fall());
 }
 
 void
 LibertyReader::visitMinPulseWidthHigh(LibertyAttr *attr)
 {
-  visitMinPulseWidth(attr, TransRiseFall::rise());
+  visitMinPulseWidth(attr, RiseFall::rise());
 }
 
 void
 LibertyReader::visitMinPulseWidth(LibertyAttr *attr,
-				  TransRiseFall *tr)
+				  RiseFall *rf)
 {
   if (cell_) {
     float value;
@@ -3105,7 +3105,7 @@ LibertyReader::visitMinPulseWidth(LibertyAttr *attr,
       LibertyPortSeq::Iterator port_iter(ports_);
       while (port_iter.hasNext()) {
 	LibertyPort *port = port_iter.next();
-	port->setMinPulseWidth(tr, value);
+	port->setMinPulseWidth(rf, value);
       }
     }
   }
@@ -3117,23 +3117,23 @@ LibertyReader::visitPulseClock(LibertyAttr *attr)
   if (cell_) {
     const char *pulse_clk = getAttrString(attr);
     if (pulse_clk) {
-      TransRiseFall *trigger = nullptr;
-      TransRiseFall *sense = nullptr;
+      RiseFall *trigger = nullptr;
+      RiseFall *sense = nullptr;
       if (stringEq(pulse_clk, "rise_triggered_high_pulse")) {
-	trigger = TransRiseFall::rise();
-	sense = TransRiseFall::rise();
+	trigger = RiseFall::rise();
+	sense = RiseFall::rise();
       }
       else if (stringEq(pulse_clk, "rise_triggered_low_pulse")) {
-	trigger = TransRiseFall::rise();
-	sense = TransRiseFall::fall();
+	trigger = RiseFall::rise();
+	sense = RiseFall::fall();
       }
       else if (stringEq(pulse_clk, "fall_triggered_high_pulse")) {
-	trigger = TransRiseFall::fall();
-	sense = TransRiseFall::rise();
+	trigger = RiseFall::fall();
+	sense = RiseFall::rise();
       }
       else if (stringEq(pulse_clk, "fall_triggered_low_pulse")) {
-	trigger = TransRiseFall::fall();
-	sense = TransRiseFall::fall();
+	trigger = RiseFall::fall();
+	sense = RiseFall::fall();
       }
       else
 	libWarn(attr, "pulse_latch unknown pulse type.\n");
@@ -3427,7 +3427,7 @@ LibertyReader::endTiming(LibertyGroup *)
 {
   if (timing_) {
     // Set scale factor type in constraint tables.
-    for (auto tr : TransRiseFall::range()) {
+    for (auto tr : RiseFall::range()) {
       TableModel *model = timing_->constraint(tr);
       if (model) {
 	ScaleFactorType type=timingTypeScaleFactorType(timing_->timingType());
@@ -3592,63 +3592,63 @@ LibertyReader::visitMode(LibertyAttr *attr)
 void
 LibertyReader::visitIntrinsicRise(LibertyAttr *attr)
 {
-  visitIntrinsic(attr, TransRiseFall::rise());
+  visitIntrinsic(attr, RiseFall::rise());
 }
 
 void
 LibertyReader::visitIntrinsicFall(LibertyAttr *attr)
 {
-  visitIntrinsic(attr, TransRiseFall::fall());
+  visitIntrinsic(attr, RiseFall::fall());
 }
 
 void
 LibertyReader::visitIntrinsic(LibertyAttr *attr,
-			      TransRiseFall *tr)
+			      RiseFall *rf)
 {
   if (timing_) {
     float value;
     bool exists;
     getAttrFloat(attr, value, exists);
     if (exists)
-      timing_->setIntrinsic(tr, value * time_scale_);
+      timing_->setIntrinsic(rf, value * time_scale_);
   }
 }
 
 void
 LibertyReader::visitRiseResistance(LibertyAttr *attr)
 {
-  visitRiseFallResistance(attr, TransRiseFall::rise());
+  visitRiseFallResistance(attr, RiseFall::rise());
 }
 
 void
 LibertyReader::visitFallResistance(LibertyAttr *attr)
 {
-  visitRiseFallResistance(attr, TransRiseFall::fall());
+  visitRiseFallResistance(attr, RiseFall::fall());
 }
 
 void
 LibertyReader::visitRiseFallResistance(LibertyAttr *attr,
-				       TransRiseFall *tr)
+				       RiseFall *rf)
 {
   if (timing_) {
     float value;
     bool exists;
     getAttrFloat(attr, value, exists);
     if (exists)
-      timing_->setResistance(tr, value * res_scale_);
+      timing_->setResistance(rf, value * res_scale_);
   }
 }
 
 void
 LibertyReader::beginCellRise(LibertyGroup *group)
 {
-  beginTimingTableModel(group, TransRiseFall::rise(), ScaleFactorType::cell);
+  beginTimingTableModel(group, RiseFall::rise(), ScaleFactorType::cell);
 }
 
 void
 LibertyReader::beginCellFall(LibertyGroup *group)
 {
-  beginTimingTableModel(group, TransRiseFall::fall(), ScaleFactorType::cell);
+  beginTimingTableModel(group, RiseFall::fall(), ScaleFactorType::cell);
 }
 
 void
@@ -3656,8 +3656,8 @@ LibertyReader::endCellRiseFall(LibertyGroup *group)
 {
   if (table_) {
     if (GateTableModel::checkAxes(table_)) {
-      TableModel *table_model = new TableModel(table_, scale_factor_type_, tr_);
-      timing_->setCell(tr_, table_model);
+      TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
+      timing_->setCell(rf_, table_model);
     }
     else {
       libWarn(group, "unsupported model axis.\n");
@@ -3670,13 +3670,13 @@ LibertyReader::endCellRiseFall(LibertyGroup *group)
 void
 LibertyReader::beginRiseTransition(LibertyGroup *group)
 {
-  beginTimingTableModel(group, TransRiseFall::rise(), ScaleFactorType::transition);
+  beginTimingTableModel(group, RiseFall::rise(), ScaleFactorType::transition);
 }
 
 void
 LibertyReader::beginFallTransition(LibertyGroup *group)
 {
-  beginTimingTableModel(group, TransRiseFall::fall(), ScaleFactorType::transition);
+  beginTimingTableModel(group, RiseFall::fall(), ScaleFactorType::transition);
 }
 
 void
@@ -3684,8 +3684,8 @@ LibertyReader::endRiseFallTransition(LibertyGroup *group)
 {
   if (table_) {
     if (GateTableModel::checkAxes(table_)) {
-      TableModel *table_model = new TableModel(table_, scale_factor_type_, tr_);
-      timing_->setTransition(tr_, table_model);
+      TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
+      timing_->setTransition(rf_, table_model);
     }
     else {
       libWarn(group, "unsupported model axis.\n");
@@ -3699,14 +3699,14 @@ void
 LibertyReader::beginRiseConstraint(LibertyGroup *group)
 {
   // Scale factor depends on timing_type, which may follow this stmt.
-  beginTimingTableModel(group, TransRiseFall::rise(), ScaleFactorType::unknown);
+  beginTimingTableModel(group, RiseFall::rise(), ScaleFactorType::unknown);
 }
 
 void
 LibertyReader::beginFallConstraint(LibertyGroup *group)
 {
   // Scale factor depends on timing_type, which may follow this stmt.
-  beginTimingTableModel(group, TransRiseFall::fall(), ScaleFactorType::unknown);
+  beginTimingTableModel(group, RiseFall::fall(), ScaleFactorType::unknown);
 }
 
 void
@@ -3714,8 +3714,8 @@ LibertyReader::endRiseFallConstraint(LibertyGroup *group)
 {
   if (table_) {
     if (CheckTableModel::checkAxes(table_)) {
-      TableModel *table_model = new TableModel(table_, scale_factor_type_, tr_);
-      timing_->setConstraint(tr_, table_model);
+      TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
+      timing_->setConstraint(rf_, table_model);
     }
     else {
       libWarn(group, "unsupported model axis.\n");
@@ -3732,7 +3732,7 @@ LibertyReader::beginRiseTransitionDegredation(LibertyGroup *group)
 {
   if (library_)
     beginTableModel(group, TableTemplateType::delay,
-		    TransRiseFall::rise(), time_scale_,
+		    RiseFall::rise(), time_scale_,
 		    ScaleFactorType::transition);
 }
 
@@ -3741,7 +3741,7 @@ LibertyReader::beginFallTransitionDegredation(LibertyGroup *group)
 {
   if (library_)
     beginTableModel(group, TableTemplateType::delay,
-		    TransRiseFall::fall(), time_scale_,
+		    RiseFall::fall(), time_scale_,
 		    ScaleFactorType::transition);
 }
 
@@ -3750,8 +3750,8 @@ LibertyReader::endRiseFallTransitionDegredation(LibertyGroup *group)
 {
   if (table_) {
     if (LibertyLibrary::checkSlewDegradationAxes(table_)) {
-      TableModel *table_model = new TableModel(table_, scale_factor_type_, tr_);
-      library_->setWireSlewDegradationTable(table_model, tr_);
+      TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
+      library_->setWireSlewDegradationTable(table_model, rf_);
     }
     else {
       libWarn(group, "unsupported model axis.\n");
@@ -3765,23 +3765,23 @@ LibertyReader::endRiseFallTransitionDegredation(LibertyGroup *group)
 
 void
 LibertyReader::beginTimingTableModel(LibertyGroup *group,
-				     TransRiseFall *tr,
+				     RiseFall *rf,
 				     ScaleFactorType scale_factor_type)
 {
   if (timing_)
-    beginTableModel(group, TableTemplateType::delay, tr,
+    beginTableModel(group, TableTemplateType::delay, rf,
 		    time_scale_, scale_factor_type);
 }
 
 void
 LibertyReader::beginTableModel(LibertyGroup *group,
 			       TableTemplateType type,
-			       TransRiseFall *tr,
+			       RiseFall *rf,
 			       float scale,
 			       ScaleFactorType scale_factor_type)
 {
   beginTable(group, type, scale);
-  tr_ = tr;
+  rf_ = rf;
   scale_factor_type_ = scale_factor_type;
   sigma_type_ = EarlyLateAll::all();
 }
@@ -4455,7 +4455,7 @@ LibertyReader::beginFallPower(LibertyGroup *group)
 {
   if (internal_power_)
     beginTableModel(group, TableTemplateType::power,
-		    TransRiseFall::fall(), energy_scale_,
+		    RiseFall::fall(), energy_scale_,
 		    ScaleFactorType::internal_power);
 }
 
@@ -4464,7 +4464,7 @@ LibertyReader::beginRisePower(LibertyGroup *group)
 {
   if (internal_power_)
     beginTableModel(group, TableTemplateType::power,
-		    TransRiseFall::rise(), energy_scale_,
+		    RiseFall::rise(), energy_scale_,
 		    ScaleFactorType::internal_power);
 }
 
@@ -4472,8 +4472,8 @@ void
 LibertyReader::endRiseFallPower(LibertyGroup *)
 {
   if (table_) {
-    TableModel *table_model = new TableModel(table_, scale_factor_type_, tr_);
-    internal_power_->setModel(tr_, new InternalPowerModel(table_model));
+    TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
+    internal_power_->setModel(rf_, new InternalPowerModel(table_model));
   }
   endTableModel();
 }
@@ -4576,7 +4576,7 @@ void
 LibertyReader::beginOcvDerateFactors(LibertyGroup *group)
 {
   if (ocv_derate_) {
-    rf_type_ = TransRiseFallBoth::riseFall();
+    rf_type_ = RiseFallBoth::riseFall();
     derate_type_ = EarlyLateAll::all();
     path_type_ = PathType::clk_and_data;
     beginTable(group, TableTemplateType::ocv, 1.0);
@@ -4604,13 +4604,13 @@ LibertyReader::endOcvDerateFactors(LibertyGroup *)
 void
 LibertyReader::visitRfType(LibertyAttr *attr)
 {
-  const char *tr_name = getAttrString(attr);
-  if (stringEq(tr_name, "rise"))
-    rf_type_ = TransRiseFallBoth::rise();
-  else if (stringEq(tr_name, "fall"))
-    rf_type_ = TransRiseFallBoth::fall();
-  else if (stringEq(tr_name, "rise_and_fall"))
-    rf_type_ = TransRiseFallBoth::riseFall();
+  const char *rf_name = getAttrString(attr);
+  if (stringEq(rf_name, "rise"))
+    rf_type_ = RiseFallBoth::rise();
+  else if (stringEq(rf_name, "fall"))
+    rf_type_ = RiseFallBoth::fall();
+  else if (stringEq(rf_name, "rise_and_fall"))
+    rf_type_ = RiseFallBoth::riseFall();
   else
     libError(attr, "unknown rf_type.\n");
 }
@@ -4640,13 +4640,13 @@ LibertyReader::visitPathType(LibertyAttr *attr)
 void
 LibertyReader::beginOcvSigmaCellRise(LibertyGroup *group)
 {
-  beginTimingTableModel(group, TransRiseFall::rise(), ScaleFactorType::unknown);
+  beginTimingTableModel(group, RiseFall::rise(), ScaleFactorType::unknown);
 }
 
 void
 LibertyReader::beginOcvSigmaCellFall(LibertyGroup *group)
 {
-  beginTimingTableModel(group, TransRiseFall::fall(), ScaleFactorType::unknown);
+  beginTimingTableModel(group, RiseFall::fall(), ScaleFactorType::unknown);
 }
 
 void
@@ -4654,13 +4654,13 @@ LibertyReader::endOcvSigmaCell(LibertyGroup *group)
 {
   if (table_) {
     if (GateTableModel::checkAxes(table_)) {
-      TableModel *table_model = new TableModel(table_, scale_factor_type_, tr_);
+      TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
       if (sigma_type_ == EarlyLateAll::all()) {
-	timing_->setDelaySigma(tr_, EarlyLate::min(), table_model);
-	timing_->setDelaySigma(tr_, EarlyLate::max(), table_model);
+	timing_->setDelaySigma(rf_, EarlyLate::min(), table_model);
+	timing_->setDelaySigma(rf_, EarlyLate::max(), table_model);
       }
       else
-	timing_->setDelaySigma(tr_, sigma_type_->asMinMax(), table_model);
+	timing_->setDelaySigma(rf_, sigma_type_->asMinMax(), table_model);
     }
     else {
       libWarn(group, "unsupported model axis.\n");
@@ -4673,13 +4673,13 @@ LibertyReader::endOcvSigmaCell(LibertyGroup *group)
 void
 LibertyReader::beginOcvSigmaRiseTransition(LibertyGroup *group)
 {
-  beginTimingTableModel(group, TransRiseFall::rise(), ScaleFactorType::unknown);
+  beginTimingTableModel(group, RiseFall::rise(), ScaleFactorType::unknown);
 }
 
 void
 LibertyReader::beginOcvSigmaFallTransition(LibertyGroup *group)
 {
-  beginTimingTableModel(group, TransRiseFall::fall(), ScaleFactorType::unknown);
+  beginTimingTableModel(group, RiseFall::fall(), ScaleFactorType::unknown);
 }
 
 void
@@ -4687,13 +4687,13 @@ LibertyReader::endOcvSigmaTransition(LibertyGroup *group)
 {
   if (table_) {
     if (GateTableModel::checkAxes(table_)) {
-      TableModel *table_model = new TableModel(table_, scale_factor_type_, tr_);
+      TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
       if (sigma_type_ == EarlyLateAll::all()) {
-	timing_->setSlewSigma(tr_, EarlyLate::min(), table_model);
-	timing_->setSlewSigma(tr_, EarlyLate::max(), table_model);
+	timing_->setSlewSigma(rf_, EarlyLate::min(), table_model);
+	timing_->setSlewSigma(rf_, EarlyLate::max(), table_model);
       }
       else
-	timing_->setSlewSigma(tr_, sigma_type_->asMinMax(), table_model);
+	timing_->setSlewSigma(rf_, sigma_type_->asMinMax(), table_model);
     }
     else {
       libWarn(group, "unsupported model axis.\n");
@@ -4706,13 +4706,13 @@ LibertyReader::endOcvSigmaTransition(LibertyGroup *group)
 void
 LibertyReader::beginOcvSigmaRiseConstraint(LibertyGroup *group)
 {
-  beginTimingTableModel(group, TransRiseFall::rise(), ScaleFactorType::unknown);
+  beginTimingTableModel(group, RiseFall::rise(), ScaleFactorType::unknown);
 }
 
 void
 LibertyReader::beginOcvSigmaFallConstraint(LibertyGroup *group)
 {
-  beginTimingTableModel(group, TransRiseFall::fall(), ScaleFactorType::unknown);
+  beginTimingTableModel(group, RiseFall::fall(), ScaleFactorType::unknown);
 }
 
 void
@@ -4720,13 +4720,13 @@ LibertyReader::endOcvSigmaConstraint(LibertyGroup *group)
 {
   if (table_) {
     if (CheckTableModel::checkAxes(table_)) {
-      TableModel *table_model = new TableModel(table_, scale_factor_type_, tr_);
+      TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
       if (sigma_type_ == EarlyLateAll::all()) {
-	timing_->setConstraintSigma(tr_, EarlyLate::min(), table_model);
-	timing_->setConstraintSigma(tr_, EarlyLate::max(), table_model);
+	timing_->setConstraintSigma(rf_, EarlyLate::min(), table_model);
+	timing_->setConstraintSigma(rf_, EarlyLate::max(), table_model);
       }
       else
-	timing_->setConstraintSigma(tr_, sigma_type_->asMinMax(), table_model);
+	timing_->setConstraintSigma(rf_, sigma_type_->asMinMax(), table_model);
     }
     else {
       libWarn(group, "unsupported model axis.\n");
@@ -4971,19 +4971,19 @@ TimingGroup::TimingGroup(int line) :
   RelatedPortGroup(line),
   related_output_port_name_(nullptr)
 {
-  for (auto tr_index : TransRiseFall::rangeIndex()) {
-    cell_[tr_index] = nullptr;
-    constraint_[tr_index] = nullptr;
-    transition_[tr_index] = nullptr;
-    intrinsic_[tr_index] = 0.0F;
-    intrinsic_exists_[tr_index] = false;
-    resistance_[tr_index] = 0.0F;
-    resistance_exists_[tr_index] = false;
+  for (auto rf_index : RiseFall::rangeIndex()) {
+    cell_[rf_index] = nullptr;
+    constraint_[rf_index] = nullptr;
+    transition_[rf_index] = nullptr;
+    intrinsic_[rf_index] = 0.0F;
+    intrinsic_exists_[rf_index] = false;
+    resistance_[rf_index] = 0.0F;
+    resistance_exists_[rf_index] = false;
 
     for (auto el_index : EarlyLate::rangeIndex()) {
-      delay_sigma_[tr_index][el_index] = nullptr;
-      slew_sigma_[tr_index][el_index] = nullptr;
-      constraint_sigma_[tr_index][el_index] = nullptr;
+      delay_sigma_[rf_index][el_index] = nullptr;
+      slew_sigma_[rf_index][el_index] = nullptr;
+      constraint_sigma_[rf_index][el_index] = nullptr;
     }
   }
 }
@@ -5003,106 +5003,106 @@ TimingGroup::setRelatedOutputPortName(const char *name)
 }
 
 void
-TimingGroup::setIntrinsic(TransRiseFall *tr,
+TimingGroup::setIntrinsic(RiseFall *rf,
 			  float value)
 {
-  int tr_index = tr->index();
-  intrinsic_[tr_index] = value;
-  intrinsic_exists_[tr_index] = true;
+  int rf_index = rf->index();
+  intrinsic_[rf_index] = value;
+  intrinsic_exists_[rf_index] = true;
 }
 
 void
-TimingGroup::intrinsic(TransRiseFall *tr,
+TimingGroup::intrinsic(RiseFall *rf,
 		       // Return values.
 		       float &value,
 		       bool &exists)
 {
-  int tr_index = tr->index();
-  value = intrinsic_[tr_index];
-  exists = intrinsic_exists_[tr_index];
+  int rf_index = rf->index();
+  value = intrinsic_[rf_index];
+  exists = intrinsic_exists_[rf_index];
 }
 
 void
-TimingGroup::setResistance(TransRiseFall *tr,
+TimingGroup::setResistance(RiseFall *rf,
 			   float value)
 {
-  int tr_index = tr->index();
-  resistance_[tr_index] = value;
-  resistance_exists_[tr_index] = true;
+  int rf_index = rf->index();
+  resistance_[rf_index] = value;
+  resistance_exists_[rf_index] = true;
 }
 
 void
-TimingGroup::resistance(TransRiseFall *tr,
+TimingGroup::resistance(RiseFall *rf,
 			// Return values.
 			float &value,
 			bool &exists)
 {
-  int tr_index = tr->index();
-  value = resistance_[tr_index];
-  exists = resistance_exists_[tr_index];
+  int rf_index = rf->index();
+  value = resistance_[rf_index];
+  exists = resistance_exists_[rf_index];
 }
 
 TableModel *
-TimingGroup::cell(TransRiseFall *tr)
+TimingGroup::cell(RiseFall *rf)
 {
-  return cell_[tr->index()];
+  return cell_[rf->index()];
 }
 
 void
-TimingGroup::setCell(TransRiseFall *tr,
+TimingGroup::setCell(RiseFall *rf,
 		     TableModel *model)
 {
-  cell_[tr->index()] = model;
+  cell_[rf->index()] = model;
 }
 
 TableModel *
-TimingGroup::constraint(TransRiseFall *tr)
+TimingGroup::constraint(RiseFall *rf)
 {
-  return constraint_[tr->index()];
+  return constraint_[rf->index()];
 }
 
 void
-TimingGroup::setConstraint(TransRiseFall *tr,
+TimingGroup::setConstraint(RiseFall *rf,
 			   TableModel *model)
 {
-  constraint_[tr->index()] = model;
+  constraint_[rf->index()] = model;
 }
 
 TableModel *
-TimingGroup::transition(TransRiseFall *tr)
+TimingGroup::transition(RiseFall *rf)
 {
-  return transition_[tr->index()];
+  return transition_[rf->index()];
 }
 
 void
-TimingGroup::setTransition(TransRiseFall *tr,
+TimingGroup::setTransition(RiseFall *rf,
 			   TableModel *model)
 {
-  transition_[tr->index()] = model;
+  transition_[rf->index()] = model;
 }
 
 void
-TimingGroup::setDelaySigma(TransRiseFall *tr,
+TimingGroup::setDelaySigma(RiseFall *rf,
 			   EarlyLate *early_late,
 			   TableModel *model)
 {
-  delay_sigma_[tr->index()][early_late->index()] = model;
+  delay_sigma_[rf->index()][early_late->index()] = model;
 }
 
 void
-TimingGroup::setSlewSigma(TransRiseFall *tr,
+TimingGroup::setSlewSigma(RiseFall *rf,
 			  EarlyLate *early_late,
 			  TableModel *model)
 {
-  slew_sigma_[tr->index()][early_late->index()] = model;
+  slew_sigma_[rf->index()][early_late->index()] = model;
 }
 
 void
-TimingGroup::setConstraintSigma(TransRiseFall *tr,
+TimingGroup::setConstraintSigma(RiseFall *rf,
 				EarlyLate *early_late,
 				TableModel *model)
 {
-  constraint_sigma_[tr->index()][early_late->index()] = model;
+  constraint_sigma_[rf->index()][early_late->index()] = model;
 }
 
 ////////////////////////////////////////////////////////////////

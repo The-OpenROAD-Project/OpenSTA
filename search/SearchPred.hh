@@ -154,10 +154,10 @@ searchThru(const Edge *edge,
 	   const Graph *graph);
 bool
 searchThru(Vertex *from_vertex,
-	   const TransRiseFall *from_tr,
+	   const RiseFall *from_rf,
 	   const Edge *edge,
 	   Vertex *to_vertex,
-	   const TransRiseFall *to_tr);
+	   const RiseFall *to_rf);
 
 
 ////////////////////////////////////////////////////////////////

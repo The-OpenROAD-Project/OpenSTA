@@ -25,39 +25,39 @@ PortExtCap::PortExtCap(Port *port) :
 }
 
 void
-PortExtCap::pinCap(const TransRiseFall *tr,
+PortExtCap::pinCap(const RiseFall *rf,
 		   const MinMax *min_max,
 		   // Return values.
 		   float &cap,
 		   bool &exists)
 {
-  pin_cap_.value(tr, min_max, cap, exists);
+  pin_cap_.value(rf, min_max, cap, exists);
 }
 
 void
 PortExtCap::setPinCap(float cap,
-		      const TransRiseFall *tr,
+		      const RiseFall *rf,
 		      const MinMax *min_max)
 {
-  pin_cap_.setValue(tr, min_max, cap);
+  pin_cap_.setValue(rf, min_max, cap);
 }
 
 void
-PortExtCap::wireCap(const TransRiseFall *tr,
+PortExtCap::wireCap(const RiseFall *rf,
 		    const MinMax *min_max,
 		    // Return values.
 		    float &cap,
 		    bool &exists)
 {
-  wire_cap_.value(tr, min_max, cap, exists);
+  wire_cap_.value(rf, min_max, cap, exists);
 }
 
 void
 PortExtCap::setWireCap(float cap,
-		       const TransRiseFall *tr,
+		       const RiseFall *rf,
 		       const MinMax *min_max)
 {
-  wire_cap_.setValue(tr, min_max, cap);
+  wire_cap_.setValue(rf, min_max, cap);
 }
 
 void

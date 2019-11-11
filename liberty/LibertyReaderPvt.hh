@@ -100,15 +100,15 @@ public:
   virtual void visitDefaultIntrinsicRise(LibertyAttr *attr);
   virtual void visitDefaultIntrinsicFall(LibertyAttr *attr);
   virtual void visitDefaultIntrinsic(LibertyAttr *attr,
-				     TransRiseFall *tr);
+				     RiseFall *rf);
   virtual void visitDefaultInoutPinRiseRes(LibertyAttr *attr);
   virtual void visitDefaultInoutPinFallRes(LibertyAttr *attr);
   virtual void visitDefaultInoutPinRes(LibertyAttr *attr,
-				       TransRiseFall *tr);
+				       RiseFall *rf);
   virtual void visitDefaultOutputPinRiseRes(LibertyAttr *attr);
   virtual void visitDefaultOutputPinFallRes(LibertyAttr *attr);
   virtual void visitDefaultOutputPinRes(LibertyAttr *attr,
-					TransRiseFall *tr);
+					RiseFall *rf);
   virtual void visitDefaultFanoutLoad(LibertyAttr *attr);
   virtual void visitDefaultWireLoad(LibertyAttr *attr);
   virtual void visitDefaultWireLoadMode(LibertyAttr *attr);
@@ -117,19 +117,19 @@ public:
   virtual void visitInputThresholdPctFall(LibertyAttr *attr);
   virtual void visitInputThresholdPctRise(LibertyAttr *attr);
   virtual void visitInputThresholdPct(LibertyAttr *attr,
-				      TransRiseFall *tr);
+				      RiseFall *rf);
   virtual void visitOutputThresholdPctFall(LibertyAttr *attr);
   virtual void visitOutputThresholdPctRise(LibertyAttr *attr);
   virtual void visitOutputThresholdPct(LibertyAttr *attr,
-				       TransRiseFall *tr);
+				       RiseFall *rf);
   virtual void visitSlewLowerThresholdPctFall(LibertyAttr *attr);
   virtual void visitSlewLowerThresholdPctRise(LibertyAttr *attr);
   virtual void visitSlewLowerThresholdPct(LibertyAttr *attr,
-					  TransRiseFall *tr);
+					  RiseFall *rf);
   virtual void visitSlewUpperThresholdPctFall(LibertyAttr *attr);
   virtual void visitSlewUpperThresholdPctRise(LibertyAttr *attr);
   virtual void visitSlewUpperThresholdPct(LibertyAttr *attr,
-					  TransRiseFall *tr);
+					  RiseFall *rf);
   virtual void visitSlewDerateFromLibrary(LibertyAttr *attr);
 
   virtual void beginTableTemplateDelay(LibertyGroup *group);
@@ -222,7 +222,7 @@ public:
   virtual void visitMinPulseWidthLow(LibertyAttr *attr);
   virtual void visitMinPulseWidthHigh(LibertyAttr *attr);
   virtual void visitMinPulseWidth(LibertyAttr *attr,
-				  TransRiseFall *tr);
+				  RiseFall *rf);
   virtual void visitPulseClock(LibertyAttr *attr);
   virtual void visitClockGateClockPin(LibertyAttr *attr);
   virtual void visitClockGateEnablePin(LibertyAttr *attr);
@@ -300,11 +300,11 @@ public:
   virtual void visitIntrinsicRise(LibertyAttr *attr);
   virtual void visitIntrinsicFall(LibertyAttr *attr);
   virtual void visitIntrinsic(LibertyAttr *attr,
-			      TransRiseFall *tr);
+			      RiseFall *rf);
   virtual void visitRiseResistance(LibertyAttr *attr);
   virtual void visitFallResistance(LibertyAttr *attr);
   virtual void visitRiseFallResistance(LibertyAttr *attr,
-				       TransRiseFall *tr);
+				       RiseFall *rf);
   virtual void visitValue(LibertyAttr *attr);
   virtual void visitValues(LibertyAttr *attr);
   virtual void beginCellRise(LibertyGroup *group);
@@ -323,12 +323,12 @@ public:
 
   virtual void beginTableModel(LibertyGroup *group,
 			       TableTemplateType type,
-			       TransRiseFall *tr,
+			       RiseFall *rf,
 			       float scale,
 			       ScaleFactorType scale_factor_type);
   virtual void endTableModel();
   virtual void beginTimingTableModel(LibertyGroup *group,
-				     TransRiseFall *tr,
+				     RiseFall *rf,
 				     ScaleFactorType scale_factor_type);
   virtual void beginTable(LibertyGroup *group,
 			  TableTemplateType type,
@@ -517,10 +517,10 @@ protected:
   const char *default_wireload_selection_;
   ScaleFactors *scale_factors_;
   ScaleFactors *save_scale_factors_;
-  bool have_input_threshold_[TransRiseFall::index_count];
-  bool have_output_threshold_[TransRiseFall::index_count];
-  bool have_slew_lower_threshold_[TransRiseFall::index_count];
-  bool have_slew_upper_threshold_[TransRiseFall::index_count];
+  bool have_input_threshold_[RiseFall::index_count];
+  bool have_output_threshold_[RiseFall::index_count];
+  bool have_slew_lower_threshold_[RiseFall::index_count];
+  bool have_slew_upper_threshold_[RiseFall::index_count];
   TableTemplate *tbl_template_;
   LibertyCell *cell_;
   LibertyCell *save_cell_;
@@ -549,9 +549,9 @@ protected:
   InternalPowerGroup *internal_power_;
   LeakagePowerGroup *leakage_power_;
   LeakagePowerGroupSeq leakage_powers_;
-  TransRiseFall *tr_;
+  RiseFall *rf_;
   OcvDerate *ocv_derate_;
-  TransRiseFallBoth *rf_type_;
+  RiseFallBoth *rf_type_;
   EarlyLateAll *derate_type_;
   EarlyLateAll *sigma_type_;
   PathType path_type_;
@@ -710,36 +710,36 @@ public:
   virtual ~TimingGroup();
   const char *relatedOutputPortName()const {return related_output_port_name_;}
   void setRelatedOutputPortName(const char *name);
-  void intrinsic(TransRiseFall *tr,
+  void intrinsic(RiseFall *rf,
 		 // Return values.
 		 float &value,
 		 bool &exists);
-  void setIntrinsic(TransRiseFall *tr,
+  void setIntrinsic(RiseFall *rf,
 		    float value);
-  void resistance(TransRiseFall *tr,
+  void resistance(RiseFall *rf,
 		  // Return values.
 		  float &value,
 		  bool &exists);
-  void setResistance(TransRiseFall *tr,
+  void setResistance(RiseFall *rf,
 		     float value);
-  TableModel *cell(TransRiseFall *tr);
-  void setCell(TransRiseFall *tr,
+  TableModel *cell(RiseFall *rf);
+  void setCell(RiseFall *rf,
 	       TableModel *model);
-  TableModel *constraint(TransRiseFall *tr);
-  void setConstraint(TransRiseFall *tr,
+  TableModel *constraint(RiseFall *rf);
+  void setConstraint(RiseFall *rf,
 		     TableModel *model);
-  TableModel *transition(TransRiseFall *tr);
-  void setTransition(TransRiseFall *tr,
+  TableModel *transition(RiseFall *rf);
+  void setTransition(RiseFall *rf,
 		     TableModel *model);
   void makeTimingModels(LibertyLibrary *library,
 			LibertyReader *visitor);
-  void setDelaySigma(TransRiseFall *tr,
+  void setDelaySigma(RiseFall *rf,
 		     EarlyLate *early_late,
 		     TableModel *model);
-  void setSlewSigma(TransRiseFall *tr,
+  void setSlewSigma(RiseFall *rf,
 		    EarlyLate *early_late,
 		    TableModel *model);
-  void setConstraintSigma(TransRiseFall *tr,
+  void setConstraintSigma(RiseFall *rf,
 			  EarlyLate *early_late,
 			  TableModel *model);
 
@@ -748,16 +748,16 @@ protected:
   void makeTableModels(LibertyReader *visitor);
 
   const char *related_output_port_name_;
-  float intrinsic_[TransRiseFall::index_count];
-  bool intrinsic_exists_[TransRiseFall::index_count];
-  float resistance_[TransRiseFall::index_count];
-  bool resistance_exists_[TransRiseFall::index_count];
-  TableModel *cell_[TransRiseFall::index_count];
-  TableModel *constraint_[TransRiseFall::index_count];
-  TableModel *constraint_sigma_[TransRiseFall::index_count][EarlyLate::index_count];
-  TableModel *transition_[TransRiseFall::index_count];
-  TableModel *delay_sigma_[TransRiseFall::index_count][EarlyLate::index_count];
-  TableModel *slew_sigma_[TransRiseFall::index_count][EarlyLate::index_count];
+  float intrinsic_[RiseFall::index_count];
+  bool intrinsic_exists_[RiseFall::index_count];
+  float resistance_[RiseFall::index_count];
+  bool resistance_exists_[RiseFall::index_count];
+  TableModel *cell_[RiseFall::index_count];
+  TableModel *constraint_[RiseFall::index_count];
+  TableModel *constraint_sigma_[RiseFall::index_count][EarlyLate::index_count];
+  TableModel *transition_[RiseFall::index_count];
+  TableModel *delay_sigma_[RiseFall::index_count][EarlyLate::index_count];
+  TableModel *slew_sigma_[RiseFall::index_count][EarlyLate::index_count];
 
 private:
   DISALLOW_COPY_AND_ASSIGN(TimingGroup);

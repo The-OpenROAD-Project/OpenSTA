@@ -32,22 +32,22 @@ DeratingFactors::DeratingFactors()
 
 void
 DeratingFactors::setFactor(PathClkOrData clk_data,
-			   const TransRiseFallBoth *tr,
+			   const RiseFallBoth *rf,
 			   const EarlyLate *early_late,
 			   float factor)
 {
-  for (auto tr1 : tr->range())
+  for (auto tr1 : rf->range())
     factors_[int(clk_data)].setValue(tr1, early_late, factor);
 }
 
 void
 DeratingFactors::factor(PathClkOrData clk_data,
-			const TransRiseFall *tr,
+			const RiseFall *rf,
 			const EarlyLate *early_late,
 			float &factor,
 			bool &exists) const
 {
-  factors_[int(clk_data)].value(tr, early_late, factor, exists);
+  factors_[int(clk_data)].value(rf, early_late, factor, exists);
 }
 
 void
@@ -98,22 +98,22 @@ DeratingFactorsGlobal::DeratingFactorsGlobal()
 void
 DeratingFactorsGlobal::setFactor(TimingDerateType type,
 				 PathClkOrData clk_data,
-				 const TransRiseFallBoth *tr,
+				 const RiseFallBoth *rf,
 				 const EarlyLate *early_late,
 				 float factor)
 {
-  factors_[TimingDerateIndex(type)].setFactor(clk_data, tr, early_late, factor);
+  factors_[TimingDerateIndex(type)].setFactor(clk_data, rf, early_late, factor);
 }
 
 void
 DeratingFactorsGlobal::factor(TimingDerateType type,
 			      PathClkOrData clk_data,
-			      const TransRiseFall *tr,
+			      const RiseFall *rf,
 			      const EarlyLate *early_late,
 			      float &factor,
 			      bool &exists) const
 {
-  factors_[TimingDerateIndex(type)].factor(clk_data, tr, early_late, factor, exists);
+  factors_[TimingDerateIndex(type)].factor(clk_data, rf, early_late, factor, exists);
 }
 
 void
@@ -139,22 +139,22 @@ DeratingFactorsCell::DeratingFactorsCell()
 void
 DeratingFactorsCell::setFactor(TimingDerateType type,
 			       PathClkOrData clk_data,
-			       const TransRiseFallBoth *tr,
+			       const RiseFallBoth *rf,
 			       const EarlyLate *early_late,
 			       float factor)
 {
-  factors_[TimingDerateIndex(type)].setFactor(clk_data, tr, early_late, factor);
+  factors_[TimingDerateIndex(type)].setFactor(clk_data, rf, early_late, factor);
 }
 
 void
 DeratingFactorsCell::factor(TimingDerateType type,
 			    PathClkOrData clk_data,
-			    const TransRiseFall *tr,
+			    const RiseFall *rf,
 			    const EarlyLate *early_late,
 			    float &factor,
 			    bool &exists) const
 {
-  factors_[TimingDerateIndex(type)].factor(clk_data, tr, early_late, factor, exists);
+  factors_[TimingDerateIndex(type)].factor(clk_data, rf, early_late, factor, exists);
 }
 
 void

@@ -83,12 +83,12 @@ protected:
 					 TimingRole *role,
 					 TimingArcAttrs *attrs);
   virtual TimingArc *makeTimingArc(TimingArcSet *set,
-				   Transition *from_tr,
-				   Transition *to_tr,
+				   Transition *from_rf,
+				   Transition *to_rf,
 				   TimingModel *model);
   TimingArc *makeTimingArc(TimingArcSet *set,
-			   TransRiseFall *from_tr,
-			   TransRiseFall *to_tr,
+			   RiseFall *from_rf,
+			   RiseFall *to_rf,
 			   TimingModel *model);
   TimingArcSet *makeCombinationalArcs(LibertyCell *cell,
 				      LibertyPort *from_port,
@@ -106,20 +106,20 @@ protected:
 				 LibertyPort *from_port,
 				 LibertyPort *to_port,
 				 LibertyPort *related_out,
-				 TransRiseFall *from_tr,
+				 RiseFall *from_rf,
 				 TimingArcAttrs *attrs);
   TimingArcSet *makeFromTransitionArcs(LibertyCell *cell,
 				       LibertyPort *from_port,
 				       LibertyPort *to_port,
 				       LibertyPort *related_out,
-				       TransRiseFall *from_tr,
+				       RiseFall *from_rf,
 				       TimingRole *role,
 				       TimingArcAttrs *attrs);
   TimingArcSet *makePresetClrArcs(LibertyCell *cell,
 				  LibertyPort *from_port,
 				  LibertyPort *to_port,
 				  LibertyPort *related_out,
-				  TransRiseFall *to_tr,
+				  RiseFall *to_rf,
 				  TimingArcAttrs *attrs);
   TimingArcSet *makeTristateEnableArcs(LibertyCell *cell,
 				       LibertyPort *from_port,

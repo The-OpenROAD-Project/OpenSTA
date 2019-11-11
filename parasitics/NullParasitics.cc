@@ -74,7 +74,7 @@ NullParasitics::capacitance(Parasitic *) const
 
 Parasitic *
 NullParasitics::findPiElmore(const Pin *,
-			     const TransRiseFall *,
+			     const RiseFall *,
 			     const ParasiticAnalysisPt *) const
 {
   return nullptr;
@@ -82,7 +82,7 @@ NullParasitics::findPiElmore(const Pin *,
 
 Parasitic *
 NullParasitics::makePiElmore(const Pin *,
-			     const TransRiseFall *,
+			     const RiseFall *,
 			     const ParasiticAnalysisPt *,
 			     float,
 			     float,
@@ -154,7 +154,7 @@ NullParasitics::isPiPoleResidue(Parasitic* ) const
 
 Parasitic *
 NullParasitics::findPiPoleResidue(const Pin *,
-				  const TransRiseFall *,
+				  const RiseFall *,
 				  const ParasiticAnalysisPt *) const
 {
   return nullptr;
@@ -162,7 +162,7 @@ NullParasitics::findPiPoleResidue(const Pin *,
 
 Parasitic *
 NullParasitics::makePiPoleResidue(const Pin *,
-				  const TransRiseFall *,
+				  const RiseFall *,
 				  const ParasiticAnalysisPt *,
 				  float,
 				  float,
@@ -432,7 +432,7 @@ NullParasitics::reduceToPiPoleResidue2(Parasitic *,
 
 Parasitic *
 NullParasitics::estimatePiElmore(const Pin *,
-				 const TransRiseFall *,
+				 const RiseFall *,
 				 const Wireload *,
 				 float,
 				 float,

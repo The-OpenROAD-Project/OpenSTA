@@ -29,10 +29,10 @@
 namespace sta {
 
 static bool
-searchThruSimEdge(const Vertex *vertex, const TransRiseFall *tr);
+searchThruSimEdge(const Vertex *vertex, const RiseFall *rf);
 static bool
-searchThruTimingSense(const Edge *edge, const TransRiseFall *from_tr,
-		      const TransRiseFall *to_tr);
+searchThruTimingSense(const Edge *edge, const RiseFall *from_rf,
+		      const RiseFall *to_rf);
 
 SearchPred0::SearchPred0(const StaState *sta) :
   sta_(sta)
@@ -176,51 +176,52 @@ searchThru(const Edge *edge,
 	   const TimingArc *arc,
 	   const Graph *graph)
 {
-  TransRiseFall *from_tr = arc->fromTrans()->asRiseFall();
-  TransRiseFall *to_tr = arc->toTrans()->asRiseFall();
+  RiseFall *from_rf = arc->fromTrans()->asRiseFall();
+  RiseFall *to_rf = arc->toTrans()->asRiseFall();
   // Ignore transitions other than rise/fall.
-  return from_tr && to_tr
-    && searchThru(edge->from(graph), from_tr, edge, edge->to(graph), to_tr);
+  return from_rf && to_rf
+    && searchThru(edge->from(graph), from_rf, edge, edge->to(graph), to_rf);
 }
 
 bool
 searchThru(Vertex *from_vertex,
-	   const TransRiseFall *from_tr,
+	   const RiseFall *from_rf,
 	   const Edge *edge,
 	   Vertex *to_vertex,
-	   const TransRiseFall *to_tr)
+	   const RiseFall *to_rf)
 {
-  return searchThruTimingSense(edge, from_tr, to_tr)
-    && searchThruSimEdge(from_vertex, from_tr)
-    && searchThruSimEdge(to_vertex, to_tr);
+  return searchThruTimingSense(edge, from_rf, to_rf)
+    && searchThruSimEdge(from_vertex, from_rf)
+    && searchThruSimEdge(to_vertex, to_rf);
 }
 
 // set_case_analysis rising/falling filters rise/fall edges during search.
 static bool
-searchThruSimEdge(const Vertex *vertex, const TransRiseFall *tr)
+searchThruSimEdge(const Vertex *vertex,
+		  const RiseFall *rf)
 {
   LogicValue sim_value = vertex->simValue();
   switch (sim_value) {
   case LogicValue::rise:
-    return tr == TransRiseFall::rise();
+    return rf == RiseFall::rise();
   case LogicValue::fall:
-    return tr == TransRiseFall::fall();
+    return rf == RiseFall::fall();
   default:
     return true;
   };
 }
 
 static bool
-searchThruTimingSense(const Edge *edge, const TransRiseFall *from_tr,
-		      const TransRiseFall *to_tr)
+searchThruTimingSense(const Edge *edge, const RiseFall *from_rf,
+		      const RiseFall *to_rf)
 {
   switch (edge->simTimingSense()) {
   case TimingSense::unknown:
     return true;
   case TimingSense::positive_unate:
-    return from_tr == to_tr;
+    return from_rf == to_rf;
   case TimingSense::negative_unate:
-    return from_tr != to_tr;
+    return from_rf != to_rf;
   case TimingSense::non_unate:
     return true;
   case TimingSense::none:

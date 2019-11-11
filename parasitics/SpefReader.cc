@@ -408,7 +408,7 @@ SpefReader::rspfDrvrBegin(Pin *drvr_pin,
   if (drvr_pin) {
     // Incremental parasitics do not overwrite existing parasitics.
     if (!(increment_ &&
-	  parasitics_->findPiElmore(drvr_pin, TransRiseFall::rise(), ap_))) {
+	  parasitics_->findPiElmore(drvr_pin, RiseFall::rise(), ap_))) {
       float c2 = pi->c2()->value(triple_index_) * cap_scale_;
       float rpi = pi->r1()->value(triple_index_) * res_scale_;
       float c1 = pi->c1()->value(triple_index_) * cap_scale_;
@@ -416,7 +416,7 @@ SpefReader::rspfDrvrBegin(Pin *drvr_pin,
       parasitics_->deleteParasitics(drvr_pin, ap_);
       // Only one parasitic, save it under rise transition.
       parasitic_ = parasitics_->makePiElmore(drvr_pin,
-					     TransRiseFall::rise(),
+					     RiseFall::rise(),
 					     ap_, c2, rpi, c1);
     }
   }

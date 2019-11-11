@@ -29,7 +29,7 @@ public:
   virtual ArcDelayCalc *copy();
   virtual void inputPortDelay(const Pin *port_pin,
 			      float in_slew,
-			      const TransRiseFall *tr,
+			      const RiseFall *rf,
 			      Parasitic *parasitic,
 			      const DcalcAnalysisPt *dcalc_ap);
 

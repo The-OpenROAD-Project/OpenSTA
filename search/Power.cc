@@ -590,16 +590,16 @@ Power::findInternalPower(const Pin *to_pin,
 	else
 	  duty = 0.5;
 	float port_energy = 0.0;
-	for (auto to_tr : TransRiseFall::range()) {
-	  // Should use unateness to find from_tr.
-	  TransRiseFall *from_tr = to_tr;
+	for (auto to_rf : RiseFall::range()) {
+	  // Should use unateness to find from_rf.
+	  RiseFall *from_rf = to_rf;
 	  float slew = delayAsFloat(graph_->slew(from_vertex,
-						 from_tr,
+						 from_rf,
 						 dcalc_ap->index()));
-	  float table_energy = pwr->power(to_tr, pvt, slew, load_cap);
+	  float table_energy = pwr->power(to_rf, pvt, slew, load_cap);
 	  float tr_energy = table_energy * duty;
 	  debugPrint4(debug_, "power", 3,  " %s energy = %9.2e * %.2f = %9.2e\n",
-		      to_tr->shortName(),
+		      to_rf->shortName(),
 		      table_energy,
 		      duty,
 		      tr_energy);

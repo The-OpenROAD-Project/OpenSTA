@@ -115,8 +115,8 @@ Clock::setMasterClk(Clock *master)
 void
 Clock::makeClkEdges()
 {
-  clk_edges_ = new ClockEdge*[TransRiseFall::index_count];
-  for (auto tr : TransRiseFall::range()) {
+  clk_edges_ = new ClockEdge*[RiseFall::index_count];
+  for (auto tr : RiseFall::range()) {
     clk_edges_[tr->index()] = new ClockEdge(this, tr);
   }
 }
@@ -125,8 +125,8 @@ Clock::~Clock()
 {
   stringDelete(name_);
   if (clk_edges_) {
-    delete clk_edges_[TransRiseFall::riseIndex()];
-    delete clk_edges_[TransRiseFall::fallIndex()];
+    delete clk_edges_[RiseFall::riseIndex()];
+    delete clk_edges_[RiseFall::fallIndex()];
     delete [] clk_edges_;
   }
   delete waveform_;
@@ -157,15 +157,15 @@ Clock::setAddToPins(bool add_to_pins)
 void
 Clock::setClkEdgeTimes()
 {
-  setClkEdgeTime(TransRiseFall::rise());
-  setClkEdgeTime(TransRiseFall::fall());
+  setClkEdgeTime(RiseFall::rise());
+  setClkEdgeTime(RiseFall::fall());
 }
 
 void
-Clock::setClkEdgeTime(const TransRiseFall *tr)
+Clock::setClkEdgeTime(const RiseFall *rf)
 {
-  float time = (tr == TransRiseFall::rise()) ? (*waveform_)[0]:(*waveform_)[1];
-  clk_edges_[tr->index()]->setTime(time);
+  float time = (rf == RiseFall::rise()) ? (*waveform_)[0]:(*waveform_)[1];
+  clk_edges_[rf->index()]->setTime(time);
 }
 
 Pin *
@@ -179,9 +179,9 @@ Clock::defaultPin() const
 }
 
 ClockEdge *
-Clock::edge(const TransRiseFall *tr) const
+Clock::edge(const RiseFall *rf) const
 {
-  return clk_edges_[tr->index()];
+  return clk_edges_[rf->index()];
 }
 
 void
@@ -191,41 +191,41 @@ Clock::setIsPropagated(bool propagated)
 }
 
 void
-Clock::slew(const TransRiseFall *tr,
+Clock::slew(const RiseFall *rf,
 	    const MinMax *min_max,
 	    // Return values.
 	    float &slew,
 	    bool &exists) const
 {
-  slews_.value(tr, min_max, slew, exists);
+  slews_.value(rf, min_max, slew, exists);
 }
 
 float
-Clock::slew(const TransRiseFall *tr,
+Clock::slew(const RiseFall *rf,
 	    const MinMax *min_max) const
 {
   float slew;
   bool exists;
-  slews_.value(tr, min_max, slew, exists);
+  slews_.value(rf, min_max, slew, exists);
   if (!exists)
     slew = 0.0;
   return slew;
 }
 
 void
-Clock::setSlew(const TransRiseFallBoth *tr,
+Clock::setSlew(const RiseFallBoth *rf,
 	       const MinMaxAll *min_max,
 	       float slew)
 {
-  slews_.setValue(tr, min_max, slew);
+  slews_.setValue(rf, min_max, slew);
 }
 
 void
-Clock::setSlew(const TransRiseFall *tr,
+Clock::setSlew(const RiseFall *rf,
 	       const MinMax *min_max,
 	       float slew)
 {
-  slews_.setValue(tr, min_max, slew);
+  slews_.setValue(rf, min_max, slew);
 }
 
 void
@@ -235,23 +235,23 @@ Clock::removeSlew()
 }
 
 void
-Clock::setSlewLimit(const TransRiseFallBoth *tr,
+Clock::setSlewLimit(const RiseFallBoth *rf,
 		    const PathClkOrData clk_data,
 		    const MinMax *min_max,
 		    float slew)
 {
-  slew_limits_[int(clk_data)].setValue(tr, min_max, slew);
+  slew_limits_[int(clk_data)].setValue(rf, min_max, slew);
 }
 
 void
-Clock::slewLimit(const TransRiseFall *tr,
+Clock::slewLimit(const RiseFall *rf,
 		 const PathClkOrData clk_data,
 		 const MinMax *min_max,
 		 // Return values.
 		 float &slew,
 		 bool &exists) const
 {
-  slew_limits_[int(clk_data)].value(tr, min_max, slew, exists);
+  slew_limits_[int(clk_data)].value(rf, min_max, slew, exists);
 }
 
 void
@@ -482,13 +482,13 @@ isPowerOfTwo(int i)
   return (i & (i - 1)) == 0;
 }
 
-const TransRiseFall *
-Clock::masterClkEdgeTr(const TransRiseFall *tr) const
+const RiseFall *
+Clock::masterClkEdgeTr(const RiseFall *rf) const
 {
-  int edge_index = (tr == TransRiseFall::rise()) ? 0 : 1;
+  int edge_index = (rf == RiseFall::rise()) ? 0 : 1;
   return ((*edges_)[edge_index] - 1) % 2 
-    ? TransRiseFall::fall()
-    : TransRiseFall::rise();
+    ? RiseFall::fall()
+    : RiseFall::rise();
 }
 
 void
@@ -529,12 +529,12 @@ Clock::isDivideByOneCombinational() const
 ////////////////////////////////////////////////////////////////
 
 ClockEdge::ClockEdge(Clock *clock,
-		     TransRiseFall *tr) :
+		     RiseFall *rf) :
   clock_(clock),
-  tr_(tr),
-  name_(stringPrint("%s %s", clock_->name(), tr_->asString())),
+  rf_(rf),
+  name_(stringPrint("%s %s", clock_->name(), rf_->asString())),
   time_(0.0),
-  index_(clock_->index() * TransRiseFall::index_count + tr_->index())
+  index_(clock_->index() * RiseFall::index_count + rf_->index())
 {
 }
 
@@ -552,7 +552,7 @@ ClockEdge::setTime(float time)
 ClockEdge *
 ClockEdge::opposite() const
 {
-  return clock_->edge(tr_->opposite());
+  return clock_->edge(rf_->opposite());
 }
 
 float
@@ -630,44 +630,44 @@ InterClockUncertainty::InterClockUncertainty(const Clock *src,
 bool
 InterClockUncertainty::empty() const
 {
-  return uncertainties_[TransRiseFall::riseIndex()].empty()
-    && uncertainties_[TransRiseFall::fallIndex()].empty();
+  return uncertainties_[RiseFall::riseIndex()].empty()
+    && uncertainties_[RiseFall::fallIndex()].empty();
 }
 
 void
-InterClockUncertainty::uncertainty(const TransRiseFall *src_tr,
-				   const TransRiseFall *tgt_tr,
+InterClockUncertainty::uncertainty(const RiseFall *src_rf,
+				   const RiseFall *tgt_rf,
 				   const SetupHold *setup_hold,
 				   float &uncertainty,
 				   bool &exists) const
 {
-  uncertainties_[src_tr->index()].value(tgt_tr, setup_hold,
+  uncertainties_[src_rf->index()].value(tgt_rf, setup_hold,
 					uncertainty, exists);
 }
 
 void
-InterClockUncertainty::setUncertainty(const TransRiseFallBoth *src_tr,
-				      const TransRiseFallBoth *tgt_tr,
+InterClockUncertainty::setUncertainty(const RiseFallBoth *src_rf,
+				      const RiseFallBoth *tgt_rf,
 				      const SetupHoldAll *setup_hold,
 				      float uncertainty)
 {
-  for (auto src_tr_index : src_tr->rangeIndex())
-    uncertainties_[src_tr_index].setValue(tgt_tr, setup_hold, uncertainty);
+  for (auto src_rf_index : src_rf->rangeIndex())
+    uncertainties_[src_rf_index].setValue(tgt_rf, setup_hold, uncertainty);
 }
 
 void
-InterClockUncertainty::removeUncertainty(const TransRiseFallBoth *src_tr,
-					 const TransRiseFallBoth *tgt_tr,
+InterClockUncertainty::removeUncertainty(const RiseFallBoth *src_rf,
+					 const RiseFallBoth *tgt_rf,
 					 const SetupHoldAll *setup_hold)
 {
-  for (auto src_tr_index : src_tr->rangeIndex())
-    uncertainties_[src_tr_index].removeValue(tgt_tr, setup_hold);
+  for (auto src_rf_index : src_rf->rangeIndex())
+    uncertainties_[src_rf_index].removeValue(tgt_rf, setup_hold);
 }
 
 const RiseFallMinMax *
-InterClockUncertainty::uncertainties(TransRiseFall *src_tr) const
+InterClockUncertainty::uncertainties(RiseFall *src_rf) const
 {
-  return &uncertainties_[src_tr->index()];
+  return &uncertainties_[src_rf->index()];
 }
 
 bool

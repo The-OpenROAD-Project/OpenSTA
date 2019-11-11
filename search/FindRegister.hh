@@ -25,19 +25,19 @@
 namespace sta {
 
 InstanceSet *
-findRegInstances(ClockSet *clks, const TransRiseFallBoth *clk_tr,
+findRegInstances(ClockSet *clks, const RiseFallBoth *clk_rf,
 		 bool edge_triggered, bool latches, StaState *sta);
 PinSet *
-findRegDataPins(ClockSet *clks, const TransRiseFallBoth *clk_tr,
+findRegDataPins(ClockSet *clks, const RiseFallBoth *clk_rf,
 		bool edge_triggered, bool latches, StaState *sta);
 PinSet *
-findRegClkPins(ClockSet *clks, const TransRiseFallBoth *clk_tr,
+findRegClkPins(ClockSet *clks, const RiseFallBoth *clk_rf,
 	       bool edge_triggered, bool latches, StaState *sta);
 PinSet *
-findRegAsyncPins(ClockSet *clks, const TransRiseFallBoth *clk_tr,
+findRegAsyncPins(ClockSet *clks, const RiseFallBoth *clk_rf,
 		 bool edge_triggered, bool latches, StaState *sta);
 PinSet *
-findRegOutputPins(ClockSet *clks, const TransRiseFallBoth *clk_tr,
+findRegOutputPins(ClockSet *clks, const RiseFallBoth *clk_rf,
 		  bool edge_triggered, bool latches, StaState *sta);
 
 void

@@ -39,7 +39,7 @@ UnitDelayCalc::copy()
 
 Parasitic *
 UnitDelayCalc::findParasitic(const Pin *,
-			     const TransRiseFall *,
+			     const RiseFall *,
 			     const DcalcAnalysisPt *)
 {
   return nullptr;
@@ -48,7 +48,7 @@ UnitDelayCalc::findParasitic(const Pin *,
 void
 UnitDelayCalc::inputPortDelay(const Pin *,
 			      float,
-			      const TransRiseFall *,
+			      const RiseFall *,
 			      Parasitic *,
 			      const DcalcAnalysisPt *)
 {

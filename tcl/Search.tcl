@@ -45,17 +45,17 @@ proc report_delays_wrt_clks { pin_arg what } {
   }
 }
 
-proc report_delays_wrt_clk { vertex what clk clk_tr } {
+proc report_delays_wrt_clk { vertex what clk clk_rf } {
   global sta_report_default_digits
 
-  set rise [$vertex $what rise $clk $clk_tr $sta_report_default_digits]
-  set fall [$vertex $what fall $clk $clk_tr $sta_report_default_digits]
+  set rise [$vertex $what rise $clk $clk_rf $sta_report_default_digits]
+  set fall [$vertex $what fall $clk $clk_rf $sta_report_default_digits]
   # Filter INF/-INF arrivals.
   if { !([delays_are_inf $rise] && [delays_are_inf $fall]) } {
     set rise_fmt [format_delays $rise]
     set fall_fmt [format_delays $fall]
     if {$clk != "NULL"} {
-      set clk_str " ([get_name $clk] [rise_fall_short_name $clk_tr])"
+      set clk_str " ([get_name $clk] [rise_fall_short_name $clk_rf])"
     } else {
       set clk_str ""
     }
@@ -80,17 +80,17 @@ proc report_wrt_clks { pin_arg what } {
   }
 }
 
-proc report_wrt_clk { vertex what clk clk_tr } {
+proc report_wrt_clk { vertex what clk clk_rf } {
   global sta_report_default_digits
 
-  set rise [$vertex $what rise $clk $clk_tr]
-  set fall [$vertex $what fall $clk $clk_tr]
+  set rise [$vertex $what rise $clk $clk_rf]
+  set fall [$vertex $what fall $clk $clk_rf]
   # Filter INF/-INF arrivals.
   if { !([times_are_inf $rise] && [times_are_inf $fall]) } {
     set rise_fmt [format_times $rise $sta_report_default_digits]
     set fall_fmt [format_times $fall $sta_report_default_digits]
     if {$clk != "NULL"} {
-      set clk_str " ([get_name $clk] [rise_fall_short_name $clk_tr])"
+      set clk_str " ([get_name $clk] [rise_fall_short_name $clk_rf])"
     } else {
       set clk_str ""
     }
@@ -186,7 +186,7 @@ proc_redirect report_path {
 	  }
 	  $path_iter finish
 	} else {
-	  set worst_path [vertex_worst_arrival_path_tr $vertex $tr $min_max]
+	  set worst_path [vertex_worst_arrival_path_rf $vertex $tr $min_max]
 	  if { $worst_path != "NULL" } {
 	    if { $report_tags } {
 	      puts "Tag: [$worst_path tag]"

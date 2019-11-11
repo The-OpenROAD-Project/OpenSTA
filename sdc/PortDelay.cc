@@ -66,14 +66,14 @@ PortDelay::setNetworkLatencyIncluded(bool included)
   network_latency_included_ = included;
 }
 
-TransRiseFall *
+RiseFall *
 PortDelay::refTransition() const
 {
   // Reference pin transition is the clock transition.
   if (clk_edge_)
     return clk_edge_->transition();
   else
-    return TransRiseFall::rise();
+    return RiseFall::rise();
 }
 
 InputDelay::InputDelay(Pin *pin,

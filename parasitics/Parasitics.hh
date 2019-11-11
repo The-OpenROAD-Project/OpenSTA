@@ -77,10 +77,10 @@ public:
   // capacitor on the driver pin.
   virtual bool isPiElmore(Parasitic *parasitic) const = 0;
   virtual Parasitic *findPiElmore(const Pin *drvr_pin,
-				  const TransRiseFall *tr,
+				  const RiseFall *rf,
 				  const ParasiticAnalysisPt *ap) const = 0;
   virtual Parasitic *makePiElmore(const Pin *drvr_pin,
-				  const TransRiseFall *tr,
+				  const RiseFall *rf,
 				  const ParasiticAnalysisPt *ap,
 				  float c2,
 				  float rpi,
@@ -115,10 +115,10 @@ public:
   // Pi model driver load with pole/residue interconnect model to load pins.
   virtual bool isPiPoleResidue(Parasitic* parasitic) const = 0;
   virtual Parasitic *findPiPoleResidue(const Pin *drvr_pin,
-				       const TransRiseFall *tr,
+				       const RiseFall *rf,
 				       const ParasiticAnalysisPt *ap) const=0;
   virtual Parasitic *makePiPoleResidue(const Pin *drvr_pin,
-				       const TransRiseFall *tr,
+				       const RiseFall *rf,
 				       const ParasiticAnalysisPt *ap,
 				       float c2,
 				       float rpi,
@@ -262,7 +262,7 @@ public:
 
   // Estimate parasitic as pi elmore using wireload model.
   virtual Parasitic *estimatePiElmore(const Pin *drvr_pin,
-				      const TransRiseFall *tr,
+				      const RiseFall *rf,
 				      const Wireload *wireload,
 				      float fanout,
 				      float net_pin_cap,

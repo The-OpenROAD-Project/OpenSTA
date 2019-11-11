@@ -162,9 +162,9 @@ checkFromThrusTo(ExceptionFrom *from,
 		      || (to
 			  && (!to->hasObjects()
 			      && to->transition()
-			      == TransRiseFallBoth::riseFall()
+			      == RiseFallBoth::riseFall()
 			      && (to->endTransition()
- 				  == TransRiseFallBoth::riseFall()))));
+ 				  == RiseFallBoth::riseFall()))));
   if (thrus) {
     ExceptionThruSeq::Iterator thru_iter(thrus);
     while (thru_iter.hasNext()) {
@@ -239,11 +239,11 @@ ExceptionPath::firstPt()
 }
 
 bool
-ExceptionPath::matchesFirstPt(const TransRiseFall *to_tr,
+ExceptionPath::matchesFirstPt(const RiseFall *to_rf,
 			      const MinMax *min_max)
 {
   ExceptionPt *first_pt = firstPt();
-  return first_pt->transition()->matches(to_tr)
+  return first_pt->transition()->matches(to_rf)
     && matches(min_max, false);
 }
 
@@ -932,9 +932,9 @@ GroupPath::overrides(ExceptionPath *exception) const
 
 const int ExceptionPt::as_string_max_objects_ = 20;
 
-ExceptionPt::ExceptionPt(const TransRiseFallBoth *tr,
+ExceptionPt::ExceptionPt(const RiseFallBoth *rf,
 			 bool own_pts) :
-  tr_(tr),
+  rf_(rf),
   own_pts_(own_pts),
   hash_(0)
 {
@@ -951,9 +951,9 @@ ExceptionPt::hash() const
 ExceptionFromTo::ExceptionFromTo(PinSet *pins,
 				 ClockSet *clks,
 				 InstanceSet *insts,
-				 const TransRiseFallBoth *tr,
+				 const RiseFallBoth *rf,
 				 bool own_pts) :
-  ExceptionPt(tr, own_pts),
+  ExceptionPt(rf, own_pts),
   pins_(pins),
   clks_(clks),
   insts_(insts)
@@ -1074,7 +1074,7 @@ ExceptionFromTo::equal(ExceptionFromTo *from_to) const
   return PinSet::equal(from_to->pins_, pins_)
     && ClockSet::equal(from_to->clks_, clks_)
     && InstanceSet::equal(from_to->insts_, insts_)
-    && from_to->transition() == tr_;
+    && from_to->transition() == rf_;
 }
 
 int
@@ -1089,7 +1089,7 @@ ExceptionFromTo::nameCmp(ExceptionPt *pt2,
       if (clk_cmp == 0) {
 	int inst_cmp = setNameCmp(insts_, pt2->instances(), network);
 	if (inst_cmp == 0)
-	  return tr_->index() - pt2->transition()->index();
+	  return rf_->index() - pt2->transition()->index();
 	else
 	  return inst_cmp;
       }
@@ -1304,9 +1304,9 @@ ExceptionFromTo::objectCount() const
 ExceptionFrom::ExceptionFrom(PinSet *pins,
 			     ClockSet *clks,
 			     InstanceSet *insts,
-			     const TransRiseFallBoth *tr,
+			     const RiseFallBoth *rf,
 			     bool own_pts) :
-  ExceptionFromTo(pins, clks, insts, tr, own_pts)
+  ExceptionFromTo(pins, clks, insts, rf, own_pts)
 {
 }
 
@@ -1314,7 +1314,7 @@ void
 ExceptionFrom::findHash()
 {
   ExceptionFromTo::findHash();
-  hash_ += tr_->index() * 31 + 29;
+  hash_ += rf_->index() * 31 + 29;
 }
 
 ExceptionFrom *
@@ -1329,13 +1329,13 @@ ExceptionFrom::clone()
   InstanceSet *insts = nullptr;
   if (insts_)
     insts = new InstanceSet(*insts_);
-  return new ExceptionFrom(pins, clks, insts, tr_, true);
+  return new ExceptionFrom(pins, clks, insts, rf_, true);
 }
 
 bool
 ExceptionFrom::intersectsPts(ExceptionFrom *from) const
 {
-  return from->transition() == tr_
+  return from->transition() == rf_
     && ((pins_ && PinSet::intersects(pins_, from->pins()))
 	|| (clks_ && ClockSet::intersects(clks_, from->clks()))
 	|| (insts_ && InstanceSet::intersects(insts_, from->instances())));
@@ -1344,9 +1344,9 @@ ExceptionFrom::intersectsPts(ExceptionFrom *from) const
 const char *
 ExceptionFrom::cmdKeyword() const
 {
-  if (tr_ == TransRiseFallBoth::rise())
+  if (rf_ == RiseFallBoth::rise())
     return "-rise_from";
-  else if (tr_ == TransRiseFallBoth::fall())
+  else if (rf_ == RiseFallBoth::fall())
     return "-fall_from";
   else
     return "-from";
@@ -1357,11 +1357,11 @@ ExceptionFrom::cmdKeyword() const
 ExceptionTo::ExceptionTo(PinSet *pins,
 			 ClockSet *clks,
 			 InstanceSet *insts,
-			 const TransRiseFallBoth *tr,
-			 const TransRiseFallBoth *end_tr,
+			 const RiseFallBoth *rf,
+			 const RiseFallBoth *end_rf,
 			 bool own_pts) :
-  ExceptionFromTo(pins, clks, insts, tr, own_pts),
-  end_tr_(end_tr)
+  ExceptionFromTo(pins, clks, insts, rf, own_pts),
+  end_rf_(end_rf)
 {
 }
 
@@ -1377,7 +1377,7 @@ ExceptionTo::clone()
   InstanceSet *insts = nullptr;
   if (insts_)
     insts = new InstanceSet(*insts_);
-  return new ExceptionTo(pins, clks, insts, tr_, end_tr_, true);
+  return new ExceptionTo(pins, clks, insts, rf_, end_rf_, true);
 }
 
 const char *
@@ -1387,8 +1387,8 @@ ExceptionTo::asString(const Network *network) const
   if (hasObjects())
     str += ExceptionFromTo::asString(network);
 
-  if (end_tr_ != TransRiseFallBoth::riseFall())
-    str += (end_tr_ == TransRiseFallBoth::rise()) ? " -rise" : " -fall";
+  if (end_rf_ != RiseFallBoth::riseFall())
+    str += (end_rf_ == RiseFallBoth::rise()) ? " -rise" : " -fall";
 
   char *result = makeTmpString(str.size() + 1);
   strcpy(result, str.c_str());
@@ -1398,8 +1398,8 @@ ExceptionTo::asString(const Network *network) const
 bool
 ExceptionTo::intersectsPts(ExceptionTo *to) const
 {
-  return to->transition() == tr_
-    && to->endTransition() == end_tr_
+  return to->transition() == rf_
+    && to->endTransition() == end_rf_
     && ((pins_ && PinSet::intersects(pins_, to->pins()))
 	|| (clks_ && ClockSet::intersects(clks_, to->clks()))
 	|| (insts_ && InstanceSet::intersects(insts_, to->instances())));
@@ -1408,65 +1408,65 @@ ExceptionTo::intersectsPts(ExceptionTo *to) const
 bool
 ExceptionTo::matchesFilter(const Pin *pin,
 			   const ClockEdge *clk_edge,
-			   const TransRiseFall *end_tr,
+			   const RiseFall *end_rf,
 			   const Network *network) const
 {
   // "report -to reg" does match clock pins.
-  return matches(pin, clk_edge, end_tr, true, network);
+  return matches(pin, clk_edge, end_rf, true, network);
 }
 
 bool
 ExceptionTo::matches(const Pin *pin,
 		     const ClockEdge *clk_edge,
- 		     const TransRiseFall *end_tr,
+ 		     const RiseFall *end_rf,
 		     const Network *network) const
 {
   // "exception -to reg" does not match reg clock pins.
-  return matches(pin, clk_edge, end_tr, false, network);
+  return matches(pin, clk_edge, end_rf, false, network);
 }
 
 bool
 ExceptionTo::matches(const Pin *pin,
 		     const ClockEdge *clk_edge,
- 		     const TransRiseFall *end_tr,
+ 		     const RiseFall *end_rf,
 		     bool inst_matches_reg_clk_pin,
 		     const Network *network) const
 
 {
   return (pins_
 	  && pins_->hasKey(const_cast<Pin*>(pin))
-	  && tr_->matches(end_tr)
-	  && end_tr_->matches(end_tr))
+	  && rf_->matches(end_rf)
+	  && end_rf_->matches(end_rf))
     || (clk_edge
 	&& clks_
 	&& clks_->hasKey(const_cast<Clock*>(clk_edge->clock()))
-	&& tr_->matches(clk_edge->transition())
-	&& end_tr_->matches(end_tr))
+	&& rf_->matches(clk_edge->transition())
+	&& end_rf_->matches(end_rf))
     || (insts_
 	&& (inst_matches_reg_clk_pin
 	    || !network->isRegClkPin(pin))
 	&& insts_->hasKey(network->instance(pin))
 	&& network->direction(pin)->isAnyInput()
-	&& tr_->matches(end_tr)
-	&& end_tr_->matches(end_tr))
+	&& rf_->matches(end_rf)
+	&& end_rf_->matches(end_rf))
     || (pins_ == nullptr
 	&& clks_ == nullptr
 	&& insts_ == nullptr
-	&& end_tr_->matches(end_tr));
+	&& end_rf_->matches(end_rf));
 }
 
 bool
 ExceptionTo::matches(const Pin *pin,
-		     const TransRiseFall *end_tr) const
+		     const RiseFall *end_rf) const
 {
   return (pins_
 	  && pins_->hasKey(const_cast<Pin*>(pin))
-	  && tr_->matches(end_tr)
-	  && end_tr_->matches(end_tr))
+	  && rf_->matches(end_rf)
+	  && end_rf_->matches(end_rf))
     || (pins_ == nullptr
 	&& clks_ == nullptr
 	&& insts_ == nullptr
-	&& end_tr_->matches(end_tr));
+	&& end_rf_->matches(end_rf));
 }
 
 bool
@@ -1479,9 +1479,9 @@ ExceptionTo::matches(const Clock *clk) const
 const char *
 ExceptionTo::cmdKeyword() const
 {
-  if (tr_ == TransRiseFallBoth::rise())
+  if (rf_ == RiseFallBoth::rise())
     return "-rise_to";
-  else if (tr_ == TransRiseFallBoth::fall())
+  else if (rf_ == RiseFallBoth::fall())
     return "-fall_to";
   else
     return "-to";
@@ -1494,7 +1494,7 @@ ExceptionTo::nameCmp(ExceptionPt *pt2,
   ExceptionTo *to2 = dynamic_cast<ExceptionTo*>(pt2);
   int cmp = ExceptionFromTo::nameCmp(pt2, network);
   if (cmp == 0)
-    return end_tr_->index() - to2->endTransition()->index();
+    return end_rf_->index() - to2->endTransition()->index();
   else
     return cmp;
 }
@@ -1504,10 +1504,10 @@ ExceptionTo::nameCmp(ExceptionPt *pt2,
 ExceptionThru::ExceptionThru(PinSet *pins,
 			     NetSet *nets,
 			     InstanceSet *insts,
-			     const TransRiseFallBoth *tr,
+			     const RiseFallBoth *rf,
 			     bool own_pts,
 			     const Network *network) :
-  ExceptionPt(tr, own_pts),
+  ExceptionPt(rf, own_pts),
   pins_(pins),
   edges_(nullptr),
   nets_(nets),
@@ -1739,9 +1739,9 @@ ExceptionThru::asString(const Network *network) const
   }
   if (obj_count == as_string_max_objects_)
     str += ", ...";
-  if (tr_ == TransRiseFallBoth::rise())
+  if (rf_ == RiseFallBoth::rise())
     str += " rise";
-  else if (tr_ == TransRiseFallBoth::fall())
+  else if (rf_ == RiseFallBoth::fall())
     str += " fall";
 
   char *result = makeTmpString(str.size() + 1);
@@ -1779,7 +1779,7 @@ ExceptionThru::clone(const Network *network)
   InstanceSet *insts = nullptr;
   if (insts_)
     insts = new InstanceSet(*insts_);
-  return new ExceptionThru(pins, nets, insts, tr_, true, network);
+  return new ExceptionThru(pins, nets, insts, rf_, true, network);
 }
 
 bool
@@ -1915,7 +1915,7 @@ ExceptionThru::allPins(const Network *network,
 bool
 ExceptionThru::matches(const Pin *from_pin,
 		       const Pin *to_pin,
-		       const TransRiseFall *to_tr,
+		       const RiseFall *to_rf,
 		       const Network *network)
 {
   EdgePins edge_pins(const_cast<Pin*>(from_pin), const_cast<Pin*>(to_pin));
@@ -1923,7 +1923,7 @@ ExceptionThru::matches(const Pin *from_pin,
 	  || (edges_ && edges_->hasKey(&edge_pins))
 	  || (nets_ && nets_->hasKey(network->net(to_pin)))
 	  || (insts_ && insts_->hasKey(network->instance(to_pin))))
-    && tr_->matches(to_tr);
+    && rf_->matches(to_rf);
 }
 
 void
@@ -1957,7 +1957,7 @@ ExceptionThru::findHash()
     }
     hash_ += hash * hash_inst;
   }
-  hash_ += tr_->index() * 13;
+  hash_ += rf_->index() * 13;
 }
 
 bool
@@ -1967,7 +1967,7 @@ ExceptionThru::equal(ExceptionThru *thru) const
   return PinSet::equal(thru->pins_, pins_)
     && NetSet::equal(thru->nets_, nets_)
     && InstanceSet::equal(thru->insts_, insts_)
-    && tr_ == thru->tr_;
+    && rf_ == thru->rf_;
 }
 
 int
@@ -1982,7 +1982,7 @@ ExceptionThru::nameCmp(ExceptionPt *pt2,
       if (net_cmp == 0) {
 	int inst_cmp = setNameCmp(insts_, pt2->instances(), network);
 	if (inst_cmp == 0)
-	  return tr_->index() - pt2->transition()->index();
+	  return rf_->index() - pt2->transition()->index();
 	else
 	  return inst_cmp;
       }
@@ -2071,7 +2071,7 @@ ExceptionThru::deleteObjects(ExceptionThru *pt)
 bool
 ExceptionThru::intersectsPts(ExceptionThru *thru) const
 {
-  return thru->transition() == tr_
+  return thru->transition() == rf_
     && ((pins_ && PinSet::intersects(pins_, thru->pins()))
 	|| (nets_ && NetSet::intersects(nets_, thru->nets()))
 	|| (insts_ && InstanceSet::intersects(insts_, thru->instances())));
@@ -2210,13 +2210,13 @@ ExpandedExceptionVisitor::visitExpansions()
 {
   ExceptionFrom *from = exception_->from();
   if (from) {
-    const TransRiseFallBoth *tr = from->transition();
+    const RiseFallBoth *rf = from->transition();
     PinSet::Iterator pin_iter(from->pins());
     while (pin_iter.hasNext()) {
       Pin *pin = pin_iter.next();
       PinSet pins;
       pins.insert(pin);
-      ExceptionFrom expanded_from(&pins, nullptr, nullptr, tr, false);
+      ExceptionFrom expanded_from(&pins, nullptr, nullptr, rf, false);
       expandThrus(&expanded_from);
     }
     ClockSet::Iterator clk_iter(from->clks());
@@ -2224,7 +2224,7 @@ ExpandedExceptionVisitor::visitExpansions()
       Clock *clk = clk_iter.next();
       ClockSet clks;
       clks.insert(clk);
-      ExceptionFrom expanded_from(nullptr, &clks, nullptr, tr, false);
+      ExceptionFrom expanded_from(nullptr, &clks, nullptr, rf, false);
       expandThrus(&expanded_from);
     }
     InstanceSet::Iterator inst_iter(from->instances());
@@ -2232,7 +2232,7 @@ ExpandedExceptionVisitor::visitExpansions()
       Instance *inst = inst_iter.next();
       InstanceSet insts;
       insts.insert(inst);
-      ExceptionFrom expanded_from(nullptr, nullptr, &insts, tr, false);
+      ExceptionFrom expanded_from(nullptr, nullptr, &insts, rf, false);
       expandThrus(&expanded_from);
     }
   }
@@ -2261,13 +2261,13 @@ ExpandedExceptionVisitor::expandThru(ExceptionFrom *expanded_from,
 {
   if (thru_iter.hasNext()) {
     ExceptionThru *thru = thru_iter.next();
-    const TransRiseFallBoth *tr = thru->transition();
+    const RiseFallBoth *rf = thru->transition();
     PinSet::Iterator pin_iter(thru->pins());
     while (pin_iter.hasNext()) {
       Pin *pin = pin_iter.next();
       PinSet pins;
       pins.insert(pin);
-      ExceptionThru expanded_thru(&pins, nullptr, nullptr, tr, false, network_);
+      ExceptionThru expanded_thru(&pins, nullptr, nullptr, rf, false, network_);
       expanded_thrus->push_back(&expanded_thru);
       expandThru(expanded_from, thru_iter, expanded_thrus);
       expanded_thrus->pop_back();
@@ -2277,7 +2277,7 @@ ExpandedExceptionVisitor::expandThru(ExceptionFrom *expanded_from,
       Net *net = net_iter.next();
       NetSet nets;
       nets.insert(net);
-      ExceptionThru expanded_thru(nullptr, &nets, nullptr, tr, false, network_);
+      ExceptionThru expanded_thru(nullptr, &nets, nullptr, rf, false, network_);
       expanded_thrus->push_back(&expanded_thru);
       expandThru(expanded_from, thru_iter, expanded_thrus);
       expanded_thrus->pop_back();
@@ -2287,7 +2287,7 @@ ExpandedExceptionVisitor::expandThru(ExceptionFrom *expanded_from,
       Instance *inst = inst_iter.next();
       InstanceSet insts;
       insts.insert(inst);
-      ExceptionThru expanded_thru(nullptr, nullptr, &insts, tr, false, network_);
+      ExceptionThru expanded_thru(nullptr, nullptr, &insts, rf, false, network_);
       expanded_thrus->push_back(&expanded_thru);
       expandThru(expanded_from, thru_iter, expanded_thrus);
       expanded_thrus->pop_back();
@@ -2304,14 +2304,14 @@ ExpandedExceptionVisitor::expandTo(ExceptionFrom *expanded_from,
 {
   ExceptionTo *to = exception_->to();
   if (to) {
-    const TransRiseFallBoth *tr = to->transition();
-    const TransRiseFallBoth *end_tr = to->endTransition();
+    const RiseFallBoth *rf = to->transition();
+    const RiseFallBoth *end_rf = to->endTransition();
     PinSet::Iterator pin_iter(to->pins());
     while (pin_iter.hasNext()) {
       Pin *pin = pin_iter.next();
       PinSet pins;
       pins.insert(pin);
-      ExceptionTo expanded_to(&pins, nullptr, nullptr, tr, end_tr, false);
+      ExceptionTo expanded_to(&pins, nullptr, nullptr, rf, end_rf, false);
       visit(expanded_from, expanded_thrus, &expanded_to);
     }
     ClockSet::Iterator clk_iter(to->clks());
@@ -2319,7 +2319,7 @@ ExpandedExceptionVisitor::expandTo(ExceptionFrom *expanded_from,
       Clock *clk = clk_iter.next();
       ClockSet clks;
       clks.insert(clk);
-      ExceptionTo expanded_to(nullptr, &clks, nullptr, tr, end_tr, false);
+      ExceptionTo expanded_to(nullptr, &clks, nullptr, rf, end_rf, false);
       visit(expanded_from, expanded_thrus, &expanded_to);
     }
     InstanceSet::Iterator inst_iter(to->instances());
@@ -2327,7 +2327,7 @@ ExpandedExceptionVisitor::expandTo(ExceptionFrom *expanded_from,
       Instance *inst = inst_iter.next();
       InstanceSet insts;
       insts.insert(inst);
-      ExceptionTo expanded_to(nullptr, nullptr, &insts, tr, end_tr, false);
+      ExceptionTo expanded_to(nullptr, nullptr, &insts, rf, end_rf, false);
       visit(expanded_from, expanded_thrus, &expanded_to);
     }
   }
@@ -2356,14 +2356,14 @@ ExceptionState::setNextState(ExceptionState *next_state)
 bool
 ExceptionState::matchesNextThru(const Pin *from_pin,
 				const Pin *to_pin,
-				const TransRiseFall *to_tr,
+				const RiseFall *to_rf,
 				const MinMax *min_max,
 				const Network *network) const
 {
   // Don't advance the state if the exception is complete (no next_thru_).
   return next_thru_
     && exception_->matches(min_max, false)
-    && next_thru_->matches(from_pin, to_pin, to_tr, network);
+    && next_thru_->matches(from_pin, to_pin, to_rf, network);
 }
 
 bool

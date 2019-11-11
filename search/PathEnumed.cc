@@ -81,7 +81,7 @@ PathEnumed::setTag(Tag *tag)
   tag_index_ = tag->index();
 }
 
-const TransRiseFall *
+const RiseFall *
 PathEnumed::transition(const StaState *sta) const
 {
   return tag(sta)->transition();

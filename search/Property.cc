@@ -39,27 +39,27 @@ using std::string;
 
 static PropertyValue
 pinSlewProperty(const Pin *pin,
-		const TransRiseFall *tr,
+		const RiseFall *rf,
 		const MinMax *min_max,
 		Sta *sta);
 static PropertyValue
 pinSlackProperty(const Pin *pin,
-		 const TransRiseFall *tr,
+		 const RiseFall *rf,
 		 const MinMax *min_max,
 		 Sta *sta);
 static PropertyValue
 portSlewProperty(const Port *port,
-		 const TransRiseFall *tr,
+		 const RiseFall *rf,
 		 const MinMax *min_max,
 		 Sta *sta);
 static PropertyValue
 portSlackProperty(const Port *port,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const MinMax *min_max,
 		  Sta *sta);
 static PropertyValue
 edgeDelayProperty(Edge *edge,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const MinMax *min_max,
 		  Sta *sta);
 static float
@@ -623,22 +623,22 @@ getProperty(const Port *port,
   }
 
   else if (stringEqual(property, "actual_fall_transition_min"))
-    return portSlewProperty(port, TransRiseFall::fall(), MinMax::min(), sta);
+    return portSlewProperty(port, RiseFall::fall(), MinMax::min(), sta);
   else if (stringEqual(property, "actual_fall_transition_max"))
-    return portSlewProperty(port, TransRiseFall::fall(), MinMax::max(), sta);
+    return portSlewProperty(port, RiseFall::fall(), MinMax::max(), sta);
   else if (stringEqual(property, "actual_rise_transition_min"))
-    return portSlewProperty(port, TransRiseFall::rise(), MinMax::min(), sta);
+    return portSlewProperty(port, RiseFall::rise(), MinMax::min(), sta);
   else if (stringEqual(property, "actual_rise_transition_max"))
-    return portSlewProperty(port, TransRiseFall::rise(), MinMax::max(), sta);
+    return portSlewProperty(port, RiseFall::rise(), MinMax::max(), sta);
 
   else if (stringEqual(property, "min_fall_slack"))
-    return portSlackProperty(port, TransRiseFall::fall(), MinMax::min(), sta);
+    return portSlackProperty(port, RiseFall::fall(), MinMax::min(), sta);
   else if (stringEqual(property, "max_fall_slack"))
-    return portSlackProperty(port, TransRiseFall::fall(), MinMax::max(), sta);
+    return portSlackProperty(port, RiseFall::fall(), MinMax::max(), sta);
   else if (stringEqual(property, "min_rise_slack"))
-    return portSlackProperty(port, TransRiseFall::rise(), MinMax::min(), sta);
+    return portSlackProperty(port, RiseFall::rise(), MinMax::min(), sta);
   else if (stringEqual(property, "max_rise_slack"))
-    return portSlackProperty(port, TransRiseFall::rise(), MinMax::max(), sta);
+    return portSlackProperty(port, RiseFall::rise(), MinMax::max(), sta);
 
   else
     throw PropertyUnknown("port", property);
@@ -646,26 +646,26 @@ getProperty(const Port *port,
 
 static PropertyValue
 portSlewProperty(const Port *port,
-		 const TransRiseFall *tr,
+		 const RiseFall *rf,
 		 const MinMax *min_max,
 		 Sta *sta)
 {
   auto network = sta->cmdNetwork();
   Instance *top_inst = network->topInstance();
   Pin *pin = network->findPin(top_inst, port);
-  return pinSlewProperty(pin, tr, min_max, sta);
+  return pinSlewProperty(pin, rf, min_max, sta);
 }
 
 static PropertyValue
 portSlackProperty(const Port *port,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const MinMax *min_max,
 		  Sta *sta)
 {
   auto network = sta->cmdNetwork();
   Instance *top_inst = network->topInstance();
   Pin *pin = network->findPin(top_inst, port);
-  return pinSlackProperty(pin, tr, min_max, sta);
+  return pinSlackProperty(pin, rf, min_max, sta);
 }
 
 PropertyValue
@@ -680,20 +680,20 @@ getProperty(const LibertyPort *port,
   else if (stringEqual(property, "direction"))
     return PropertyValue(port->direction()->name());
   else if (stringEqual(property, "capacitance")) {
-    float cap = port->capacitance(TransRiseFall::rise(), MinMax::max());
+    float cap = port->capacitance(RiseFall::rise(), MinMax::max());
     return PropertyValue(sta->units()->capacitanceUnit()->asString(cap, 6));
   }
   else if (stringEqual(property, "drive_resistance_rise_min"))
-    return PropertyValue(port->driveResistance(TransRiseFall::rise(),
+    return PropertyValue(port->driveResistance(RiseFall::rise(),
 					       MinMax::min()));
   else if (stringEqual(property, "drive_resistance_rise_max"))
-    return PropertyValue(port->driveResistance(TransRiseFall::rise(),
+    return PropertyValue(port->driveResistance(RiseFall::rise(),
 					       MinMax::max()));
   else if (stringEqual(property, "drive_resistance_fall_min"))
-    return PropertyValue(port->driveResistance(TransRiseFall::fall(),
+    return PropertyValue(port->driveResistance(RiseFall::fall(),
 					       MinMax::min()));
   else if (stringEqual(property, "drive_resistance_fall_max"))
-    return PropertyValue(port->driveResistance(TransRiseFall::fall(),
+    return PropertyValue(port->driveResistance(RiseFall::fall(),
 					       MinMax::max()));
   else
     throw PropertyUnknown("liberty port", property);
@@ -747,22 +747,22 @@ getProperty(const Pin *pin,
   }
 
   else if (stringEqual(property, "max_fall_slack"))
-    return pinSlackProperty(pin, TransRiseFall::fall(), MinMax::max(), sta);
+    return pinSlackProperty(pin, RiseFall::fall(), MinMax::max(), sta);
   else if (stringEqual(property, "max_rise_slack"))
-    return pinSlackProperty(pin, TransRiseFall::rise(), MinMax::max(), sta);
+    return pinSlackProperty(pin, RiseFall::rise(), MinMax::max(), sta);
   else if (stringEqual(property, "min_fall_slack"))
-    return pinSlackProperty(pin, TransRiseFall::fall(), MinMax::min(), sta);
+    return pinSlackProperty(pin, RiseFall::fall(), MinMax::min(), sta);
   else if (stringEqual(property, "min_rise_slack"))
-    return pinSlackProperty(pin, TransRiseFall::rise(), MinMax::min(), sta);
+    return pinSlackProperty(pin, RiseFall::rise(), MinMax::min(), sta);
 
   else if (stringEqual(property, "actual_fall_transition_max"))
-    return pinSlewProperty(pin, TransRiseFall::fall(), MinMax::max(), sta);
+    return pinSlewProperty(pin, RiseFall::fall(), MinMax::max(), sta);
   else if (stringEqual(property, "actual_rise_transition_max"))
-    return pinSlewProperty(pin, TransRiseFall::rise(), MinMax::max(), sta);
+    return pinSlewProperty(pin, RiseFall::rise(), MinMax::max(), sta);
   else if (stringEqual(property, "actual_rise_transition_min"))
-    return pinSlewProperty(pin, TransRiseFall::rise(), MinMax::min(), sta);
+    return pinSlewProperty(pin, RiseFall::rise(), MinMax::min(), sta);
   else if (stringEqual(property, "actual_fall_transition_min"))
-    return pinSlewProperty(pin, TransRiseFall::fall(), MinMax::min(), sta);
+    return pinSlewProperty(pin, RiseFall::fall(), MinMax::min(), sta);
 
   else
     throw PropertyUnknown("pin", property);
@@ -770,17 +770,17 @@ getProperty(const Pin *pin,
 
 static PropertyValue
 pinSlackProperty(const Pin *pin,
-		 const TransRiseFall *tr,
+		 const RiseFall *rf,
 		 const MinMax *min_max,
 		 Sta *sta)
 {
-  Slack slack = sta->pinSlack(pin, tr, min_max);
+  Slack slack = sta->pinSlack(pin, rf, min_max);
   return PropertyValue(delayPropertyValue(slack, sta));
 }
 
 static PropertyValue
 pinSlewProperty(const Pin *pin,
-		const TransRiseFall *tr,
+		const RiseFall *rf,
 		const MinMax *min_max,
 		Sta *sta)
 {
@@ -789,12 +789,12 @@ pinSlewProperty(const Pin *pin,
   graph->pinVertices(pin, vertex, bidirect_drvr_vertex);
   Slew slew = min_max->initValue();
   if (vertex) {
-    Slew vertex_slew = sta->vertexSlew(vertex, tr, min_max);
+    Slew vertex_slew = sta->vertexSlew(vertex, rf, min_max);
     if (fuzzyGreater(vertex_slew, slew, min_max))
       slew = vertex_slew;
   }
   if (bidirect_drvr_vertex) {
-    Slew vertex_slew = sta->vertexSlew(bidirect_drvr_vertex, tr, min_max);
+    Slew vertex_slew = sta->vertexSlew(bidirect_drvr_vertex, rf, min_max);
     if (fuzzyGreater(vertex_slew, slew, min_max))
       slew = vertex_slew;
   }
@@ -832,13 +832,13 @@ getProperty(Edge *edge,
     return stringPrintTmp("%s -> %s", from, to);
   }
   if (stringEqual(property, "delay_min_fall"))
-    return edgeDelayProperty(edge, TransRiseFall::fall(), MinMax::min(), sta);
+    return edgeDelayProperty(edge, RiseFall::fall(), MinMax::min(), sta);
   else if (stringEqual(property, "delay_max_fall"))
-    return edgeDelayProperty(edge, TransRiseFall::fall(), MinMax::max(), sta);
+    return edgeDelayProperty(edge, RiseFall::fall(), MinMax::max(), sta);
   else if (stringEqual(property, "delay_min_rise"))
-    return edgeDelayProperty(edge, TransRiseFall::rise(), MinMax::min(), sta);
+    return edgeDelayProperty(edge, RiseFall::rise(), MinMax::min(), sta);
   else if (stringEqual(property, "delay_max_rise"))
-    return edgeDelayProperty(edge, TransRiseFall::rise(), MinMax::max(), sta);
+    return edgeDelayProperty(edge, RiseFall::rise(), MinMax::max(), sta);
   else if (stringEqual(property, "sense"))
     return PropertyValue(timingSenseString(edge->sense()));
   else if (stringEqual(property, "from_pin"))
@@ -851,7 +851,7 @@ getProperty(Edge *edge,
 
 static PropertyValue
 edgeDelayProperty(Edge *edge,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const MinMax *min_max,
 		  Sta *sta)
 {
@@ -861,8 +861,8 @@ edgeDelayProperty(Edge *edge,
   TimingArcSetArcIterator arc_iter(arc_set);
   while (arc_iter.hasNext()) {
     TimingArc *arc = arc_iter.next();
-    TransRiseFall *to_tr = arc->toTrans()->asRiseFall();
-    if (to_tr == tr) {
+    RiseFall *to_rf = arc->toTrans()->asRiseFall();
+    if (to_rf == rf) {
       for (auto corner : *sta->corners()) {
 	DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
 	ArcDelay arc_delay = sta->arcDelay(edge, arc, dcalc_ap);

@@ -39,8 +39,8 @@ using ::Tcl_Interp;
 // Don't include headers to minimize dependencies.
 class MinMax;
 class MinMaxAll;
-class TransRiseFallBoth;
-class TransRiseFall;
+class RiseFallBoth;
+class RiseFall;
 class ReportPath;
 class CheckTiming;
 class DcalcAnalysisPt;
@@ -126,49 +126,49 @@ public:
 			      const MinMaxAll *min_max);
   void setTimingDerate(TimingDerateType type,
 		       PathClkOrData clk_data,
-		       const TransRiseFallBoth *tr,
+		       const RiseFallBoth *rf,
 		       const EarlyLate *early_late,
 		       float derate);
   // Delay type is always net for net derating.
   void setTimingDerate(const Net *net,
 		       PathClkOrData clk_data,
-		       const TransRiseFallBoth *tr,
+		       const RiseFallBoth *rf,
 		       const EarlyLate *early_late,
 		       float derate);
   void setTimingDerate(const Instance *inst,
 		       TimingDerateType type,
 		       PathClkOrData clk_data,
-		       const TransRiseFallBoth *tr,
+		       const RiseFallBoth *rf,
 		       const EarlyLate *early_late,
 		       float derate);
   void setTimingDerate(const LibertyCell *cell,
 		       TimingDerateType type,
 		       PathClkOrData clk_data,
-		       const TransRiseFallBoth *tr,
+		       const RiseFallBoth *rf,
 		       const EarlyLate *early_late,
 		       float derate);
   void unsetTimingDerate();
   void setInputSlew(Port *port,
-		    const TransRiseFallBoth *tr,
+		    const RiseFallBoth *rf,
 		    const MinMaxAll *min_max,
 		    float slew);
   // Port external pin load.
   float portExtPinCap(Port *port,
-		      const TransRiseFall *tr,
+		      const RiseFall *rf,
 		      const MinMax *min_max);
   // Set port external pin load (set_load -pin port).
   void setPortExtPinCap(Port *port,
-			const TransRiseFallBoth *tr,
+			const RiseFallBoth *rf,
 			const MinMaxAll *min_max,
 			float cap);
   // Port external wire load.
   float portExtWireCap(Port *port,
-		       const TransRiseFall *tr,
+		       const RiseFall *rf,
 		       const MinMax *min_max);
   // Set port external wire load (set_load -wire port).
   void setPortExtWireCap(Port *port,
 			 bool subtract_pin_cap,
-			 const TransRiseFallBoth *tr,
+			 const RiseFallBoth *rf,
 			 const MinMaxAll *min_max,
 			 float cap);
   // Set net wire capacitance (set_load -wire net).
@@ -189,13 +189,13 @@ public:
   // pin_cap  = net pin capacitances + port external pin capacitance,
   // wire_cap = annotated net capacitance + port external wire capacitance.
   void connectedCap(Pin *drvr_pin,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const Corner *corner,
 		    const MinMax *min_max,
 		    float &pin_cap,
 		    float &wire_cap) const;
   void connectedCap(Net *net,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const Corner *corner,
 		    const MinMax *min_max,
 		    float &pin_cap,
@@ -209,10 +209,10 @@ public:
 		    LibertyPort *from_port,
 		    float *from_slews,
 		    LibertyPort *to_port,
-		    const TransRiseFallBoth *tr,
+		    const RiseFallBoth *rf,
 		    const MinMaxAll *min_max);
   void setDriveResistance(Port *port,
-			  const TransRiseFallBoth *tr,
+			  const RiseFallBoth *rf,
 			  const MinMaxAll *min_max,
 			  float res);
   void setLatchBorrowLimit(Pin *pin,
@@ -221,16 +221,16 @@ public:
 			   float limit);
   void setLatchBorrowLimit(Clock *clk,
 			   float limit);
-  void setMinPulseWidth(const TransRiseFallBoth *tr,
+  void setMinPulseWidth(const RiseFallBoth *rf,
 			float min_width);
   void setMinPulseWidth(const Pin *pin,
-			const TransRiseFallBoth *tr,
+			const RiseFallBoth *rf,
 			float min_width);
   void setMinPulseWidth(const Instance *inst,
-			const TransRiseFallBoth *tr,
+			const RiseFallBoth *rf,
 			float min_width);
   void setMinPulseWidth(const Clock *clk,
-			const TransRiseFallBoth *tr,
+			const RiseFallBoth *rf,
 			float min_width);
   void setWireload(Wireload *wireload,
 		   const MinMaxAll *min_max);
@@ -238,7 +238,7 @@ public:
   void setWireloadSelection(WireloadSelection *selection,
 			    const MinMaxAll *min_max);
   void setSlewLimit(Clock *clk,
-		    const TransRiseFallBoth *tr,
+		    const RiseFallBoth *rf,
 		    const PathClkOrData clk_data,
 		    const MinMax *min_max,
 		    float slew);
@@ -310,7 +310,7 @@ public:
   void setPropagatedClock(Pin *pin);
   void removePropagatedClock(Pin *pin);
   void setClockSlew(Clock *clock,
-		    const TransRiseFallBoth *tr,
+		    const RiseFallBoth *rf,
 		    const MinMaxAll *min_max,
 		    float slew);
   void removeClockSlew(Clock *clk);
@@ -318,7 +318,7 @@ public:
   // Latency can be on a clk, pin, or clk/pin combination.
   void setClockLatency(Clock *clk,
 		       Pin *pin,
-		       const TransRiseFallBoth *tr,
+		       const RiseFallBoth *rf,
 		       const MinMaxAll *min_max,
 		       float delay);
   void removeClockLatency(const Clock *clk,
@@ -326,7 +326,7 @@ public:
   // Clock insertion delay (source latency).
   void setClockInsertion(const Clock *clk,
 			 const Pin *pin,
-			 const TransRiseFallBoth *tr,
+			 const RiseFallBoth *rf,
 			 const MinMaxAll *min_max,
 			 const EarlyLateAll *early_late,
 			 float delay);
@@ -345,15 +345,15 @@ public:
 				      const SetupHoldAll *setup_hold);
   // Inter-clock uncertainty.
   virtual void setClockUncertainty(Clock *from_clk,
-				   const TransRiseFallBoth *from_tr,
+				   const RiseFallBoth *from_rf,
 				   Clock *to_clk,
-				   const TransRiseFallBoth *to_tr,
+				   const RiseFallBoth *to_rf,
 				   const SetupHoldAll *setup_hold,
 				   float uncertainty);
   virtual void removeClockUncertainty(Clock *from_clk,
-				      const TransRiseFallBoth *from_tr,
+				      const RiseFallBoth *from_rf,
 				      Clock *to_clk,
-				      const TransRiseFallBoth *to_tr,
+				      const RiseFallBoth *to_rf,
 				      const SetupHoldAll *setup_hold);
   ClockGroups *makeClockGroups(const char *name,
 			       bool logically_exclusive,
@@ -370,34 +370,34 @@ public:
   void setClockSense(PinSet *pins,
 		     ClockSet *clks,
 		     ClockSense sense);
-  void setClockGatingCheck(const TransRiseFallBoth *tr,
+  void setClockGatingCheck(const RiseFallBoth *rf,
 			   const SetupHold *setup_hold,
 			   float margin);
   void setClockGatingCheck(Clock *clk,
-			   const TransRiseFallBoth *tr,
+			   const RiseFallBoth *rf,
 			   const SetupHold *setup_hold,
 			   float margin);
   void setClockGatingCheck(Instance *inst,
-			   const TransRiseFallBoth *tr,
+			   const RiseFallBoth *rf,
 			   const SetupHold *setup_hold,
 			   float margin,
 			   LogicValue active_value);
   void setClockGatingCheck(Pin *pin,
-			   const TransRiseFallBoth *tr,
+			   const RiseFallBoth *rf,
 			   const SetupHold *setup_hold,
 			   float margin,
 			   LogicValue active_value);
   void setDataCheck(Pin *from,
-		    const TransRiseFallBoth *from_tr,
+		    const RiseFallBoth *from_rf,
 		    Pin *to,
-		    const TransRiseFallBoth *to_tr,
+		    const RiseFallBoth *to_rf,
 		    Clock *clk,
 		    const SetupHoldAll *setup_hold,
 		    float margin);
   void removeDataCheck(Pin *from,
-		       const TransRiseFallBoth *from_tr,
+		       const RiseFallBoth *from_rf,
 		       Pin *to,
-		       const TransRiseFallBoth *to_tr,
+		       const RiseFallBoth *to_rf,
 		       Clock *clk,
 		       const SetupHoldAll *setup_hold);
   // set_disable_timing cell [-from] [-to]
@@ -470,9 +470,9 @@ public:
 		       LogicValue value);
   void removeCaseAnalysis(Pin *pin);
   void setInputDelay(Pin *pin,
-		     const TransRiseFallBoth *tr,
+		     const RiseFallBoth *rf,
 		     Clock *clk,
-		     const TransRiseFall *clk_tr,
+		     const RiseFall *clk_rf,
 		     Pin *ref_pin,
 		     bool source_latency_included,
 		     bool network_latency_included,
@@ -480,14 +480,14 @@ public:
 		     bool add,
 		     float delay);
   void removeInputDelay(Pin *pin,
-			TransRiseFallBoth *tr, 
+			RiseFallBoth *rf, 
 			Clock *clk,
-			TransRiseFall *clk_tr, 
+			RiseFall *clk_rf, 
 			MinMaxAll *min_max);
   void setOutputDelay(Pin *pin,
-		      const TransRiseFallBoth *tr,
+		      const RiseFallBoth *rf,
 		      Clock *clk,
-		      const TransRiseFall *clk_tr,
+		      const RiseFall *clk_rf,
 		      Pin *ref_pin,
 		      bool source_latency_included,
 		      bool network_latency_included,
@@ -495,9 +495,9 @@ public:
 		      bool add,
 		      float delay);
   void removeOutputDelay(Pin *pin,
-			 TransRiseFallBoth *tr, 
+			 RiseFallBoth *rf, 
 			 Clock *clk,
-			 TransRiseFall *clk_tr, 
+			 RiseFall *clk_rf, 
 			 MinMaxAll *min_max);
   void makeFalsePath(ExceptionFrom *from,
 		     ExceptionThruSeq *thrus,
@@ -533,7 +533,7 @@ public:
   ExceptionFrom *makeExceptionFrom(PinSet *from_pins,
 				   ClockSet *from_clks,
 				   InstanceSet *from_insts,
-				   const TransRiseFallBoth *from_tr);
+				   const RiseFallBoth *from_rf);
   void checkExceptionFromPins(ExceptionFrom *from,
 			      const char *file,
 			      int line) const;
@@ -543,35 +543,35 @@ public:
   ExceptionThru *makeExceptionThru(PinSet *pins,
 				   NetSet *nets,
 				   InstanceSet *insts,
-				   const TransRiseFallBoth *tr);
+				   const RiseFallBoth *rf);
   void deleteExceptionThru(ExceptionThru *thru);
   // Make an exception -to specification.
   ExceptionTo *makeExceptionTo(PinSet *to_pins,
 			       ClockSet *to_clks,
 			       InstanceSet *to_insts,
-			       const TransRiseFallBoth *tr,
- 			       TransRiseFallBoth *end_tr);
+			       const RiseFallBoth *rf,
+ 			       RiseFallBoth *end_rf);
   void checkExceptionToPins(ExceptionTo *to,
 			    const char *file, int) const;
   void deleteExceptionTo(ExceptionTo *to);
   InstanceSet *findRegisterInstances(ClockSet *clks,
-				     const TransRiseFallBoth *clk_tr,
+				     const RiseFallBoth *clk_rf,
 				     bool edge_triggered,
 				     bool latches);
   PinSet *findRegisterDataPins(ClockSet *clks,
-			       const TransRiseFallBoth *clk_tr,
+			       const RiseFallBoth *clk_rf,
 			       bool registers,
 			       bool latches);
   PinSet *findRegisterClkPins(ClockSet *clks,
-			      const TransRiseFallBoth *clk_tr,
+			      const RiseFallBoth *clk_rf,
 			      bool registers,
 			      bool latches);
   PinSet *findRegisterAsyncPins(ClockSet *clks,
-				const TransRiseFallBoth *clk_tr,
+				const RiseFallBoth *clk_rf,
 				bool registers,
 				bool latches);
   PinSet *findRegisterOutputPins(ClockSet *clks,
-				 const TransRiseFallBoth *clk_tr,
+				 const RiseFallBoth *clk_rf,
 				 bool registers,
 				 bool latches);
   PinSet *
@@ -632,7 +632,7 @@ public:
 		  const MinMax *min_max,
 		  // Return values.
 		  const Corner *&corner1,
-		  const TransRiseFall *&tr,
+		  const RiseFall *&tr,
 		  Slew &slew,
 		  float &limit,
 		  float &slack);
@@ -711,7 +711,7 @@ public:
   void setAnnotatedSlew(Vertex *vertex,
 			const Corner *corner,
 			const MinMaxAll *min_max,
-			const TransRiseFallBoth *tr,
+			const RiseFallBoth *rf,
 			float slew);
   void writeSdf(const char *filename,
 		Corner *corner,
@@ -935,14 +935,14 @@ public:
 		  Slack &worst_slack,
 		  Vertex *&worst_vertex);
   VertexPathIterator *vertexPathIterator(Vertex *vertex,
-					 const TransRiseFall *tr,
+					 const RiseFall *rf,
 					 const PathAnalysisPt *path_ap);
   VertexPathIterator *vertexPathIterator(Vertex *vertex,
-					 const TransRiseFall *tr,
+					 const RiseFall *rf,
 					 const MinMax *min_max);
   void
   vertexWorstArrivalPath(Vertex *vertex,
-			 const TransRiseFall *tr,
+			 const RiseFall *rf,
 			 const MinMax *min_max,
 			 // Return value.
 			 PathRef &worst_path);
@@ -958,7 +958,7 @@ public:
 		       PathRef &worst_path);
   void
   vertexWorstSlackPath(Vertex *vertex,
-		       const TransRiseFall *tr,
+		       const RiseFall *rf,
 		       const MinMax *min_max,
 		       // Return value.
 		       PathRef &worst_path);
@@ -968,52 +968,52 @@ public:
   // passes required propagate arrivals around latch loops.
   // See Sta::updateTiming() to propagate arrivals around latch loops.
   Arrival vertexArrival(Vertex *vertex,
-			const TransRiseFall *tr,
+			const RiseFall *rf,
 			const ClockEdge *clk_edge,
 			const PathAnalysisPt *path_ap);
   // Min/max across all clock tags.
   Arrival vertexArrival(Vertex *vertex,
-			const TransRiseFall *tr,
+			const RiseFall *rf,
 			const PathAnalysisPt *path_ap);
   Required vertexRequired(Vertex *vertex,
 			  const MinMax *min_max);
   // Min/max across all clock tags.
   Required vertexRequired(Vertex *vertex,
-			  const TransRiseFall *tr,
+			  const RiseFall *rf,
 			  const PathAnalysisPt *path_ap);
   Required vertexRequired(Vertex *vertex,
-			  const TransRiseFall *tr,
+			  const RiseFall *rf,
 			  const ClockEdge *clk_edge,
 			  const PathAnalysisPt *path_ap);
 
   Slack netSlack(const Net *net,
 		 const MinMax *min_max);
   Slack pinSlack(const Pin *pin,
-		 const TransRiseFall *tr,
+		 const RiseFall *rf,
 		 const MinMax *min_max);
   Slack pinSlack(const Pin *pin,
 		 const MinMax *min_max);
   Slack vertexSlack(Vertex *vertex,
 		    const MinMax *min_max);
   Slack vertexSlack(Vertex *vertex,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const MinMax *min_max);
   // Slack with respect to clk_edge.
   Slack vertexSlack(Vertex *vertex,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const ClockEdge *clk_edge,
 		    const PathAnalysisPt *path_ap);
   // Min slack across all clock tags.
   Slack vertexSlack(Vertex *vertex,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const PathAnalysisPt *path_ap);
   // Slew for one delay calc analysis pt(corner).
   Slew vertexSlew(Vertex *vertex,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const DcalcAnalysisPt *dcalc_ap);
   // Slew across all corners.
   Slew vertexSlew(Vertex *vertex,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const MinMax *min_max);
   ArcDelay arcDelay(Edge *edge,
 		    TimingArc *arc,
@@ -1065,7 +1065,7 @@ public:
 		bool quiet);
   // Parasitics.
   void findPiElmore(Pin *drvr_pin,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const MinMax *min_max,
 		    float &c2,
 		    float &rpi,
@@ -1073,19 +1073,19 @@ public:
 		    bool &exists) const;
   void findElmore(Pin *drvr_pin,
 		  Pin *load_pin,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const MinMax *min_max,
 		  float &elmore,
 		  bool &exists) const;
   void makePiElmore(Pin *drvr_pin,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const MinMaxAll *min_max,
 		    float c2,
 		    float rpi,
 		    float c1);
   void setElmore(Pin *drvr_pin,
 		 Pin *load_pin,
-		 const TransRiseFall *tr,
+		 const RiseFall *rf,
 		 const MinMaxAll *min_max,
 		 float elmore);
 
@@ -1242,7 +1242,7 @@ protected:
   void delaysInvalidFromFanin(Port *port);
   void deleteEdge(Edge *edge);
   void netParasiticCaps(Net *net,
-			const TransRiseFall *tr,
+			const RiseFall *rf,
 			const MinMax *min_max,
 			float &pin_cap,
 			float &wire_cap) const;
@@ -1251,7 +1251,7 @@ protected:
 			Instance *inst,
 			PinSet *pins);
   Slack vertexSlack1(Vertex *vertex,
-		     const TransRiseFall *tr,
+		     const RiseFall *rf,
 		     const ClockEdge *clk_edge,
 		     const PathAnalysisPt *path_ap);
   void findRequired(Vertex *vertex);

@@ -28,7 +28,7 @@ namespace sta {
 // loads when driven by a different pin.
 void
 EstimateParasitics::estimatePiElmore(const Pin *drvr_pin,
-				     const TransRiseFall *tr,
+				     const RiseFall *rf,
 				     const Wireload *wireload,
 				     float fanout,
 				     float net_pin_cap,
@@ -52,7 +52,7 @@ EstimateParasitics::estimatePiElmore(const Pin *drvr_pin,
   switch (tree) {
   case WireloadTree::worst_case:
     estimatePiElmoreWorst(drvr_pin, wireload_cap, wireload_res,
-			  fanout, net_pin_cap, tr, op_cond, corner,
+			  fanout, net_pin_cap, rf, op_cond, corner,
 			  min_max, sta,
 			  c2, rpi, c1, elmore_res,
 			  elmore_cap, elmore_use_load_cap);
@@ -60,13 +60,13 @@ EstimateParasitics::estimatePiElmore(const Pin *drvr_pin,
   case WireloadTree::balanced:
   case WireloadTree::unknown:
     estimatePiElmoreBalanced(drvr_pin, wireload_cap, wireload_res,
-			     fanout, net_pin_cap, tr, op_cond,
+			     fanout, net_pin_cap, rf, op_cond,
 			     corner, min_max,sta,
 			     c2, rpi, c1, elmore_res,
 			     elmore_cap, elmore_use_load_cap);
     break;
   case WireloadTree::best_case:
-    estimatePiElmoreBest(drvr_pin, wireload_cap, net_pin_cap, tr,
+    estimatePiElmoreBest(drvr_pin, wireload_cap, net_pin_cap, rf,
 			 op_cond, corner, min_max,
 			 c2, rpi, c1, elmore_res, elmore_cap,
 			 elmore_use_load_cap);
@@ -79,7 +79,7 @@ void
 EstimateParasitics::estimatePiElmoreBest(const Pin *,
 					 float wireload_cap,
 					 float net_pin_cap,
-					 const TransRiseFall *,
+					 const RiseFall *,
 					 const OperatingConditions *,
 					 const Corner *,
 					 const MinMax *,
@@ -106,7 +106,7 @@ EstimateParasitics::estimatePiElmoreWorst(const Pin *drvr_pin,
 					  float wireload_res,
 					  float,
 					  float net_pin_cap,
-					  const TransRiseFall *tr,
+					  const RiseFall *rf,
 					  const OperatingConditions *op_cond,
 					  const Corner *corner,
 					  const MinMax *min_max,
@@ -120,7 +120,7 @@ EstimateParasitics::estimatePiElmoreWorst(const Pin *drvr_pin,
 {
   Sdc *sdc = sta->sdc();
   float drvr_pin_cap = 0.0;
-  drvr_pin_cap = sdc->pinCapacitance(drvr_pin, tr, op_cond, corner, min_max);
+  drvr_pin_cap = sdc->pinCapacitance(drvr_pin, rf, op_cond, corner, min_max);
   c2 = drvr_pin_cap;
   rpi = wireload_res;
   c1 = net_pin_cap - drvr_pin_cap + wireload_cap;
@@ -138,7 +138,7 @@ EstimateParasitics::estimatePiElmoreBalanced(const Pin *drvr_pin,
 					     float wireload_res,
 					     float fanout,
 					     float net_pin_cap,
-					     const TransRiseFall *tr,
+					     const RiseFall *rf,
 					     const OperatingConditions *op_cond,
 					     const Corner *corner,
 					     const MinMax *min_max,
@@ -168,7 +168,7 @@ EstimateParasitics::estimatePiElmoreBalanced(const Pin *drvr_pin,
     double y1 = 0.0;
     double y2 = 0.0;
     double y3 = 0.0;
-    y1 = sdc->pinCapacitance(drvr_pin, tr, op_cond, corner, min_max);
+    y1 = sdc->pinCapacitance(drvr_pin, rf, op_cond, corner, min_max);
     PinConnectedPinIterator *load_iter =
       network->connectedPinIterator(drvr_pin);
     while (load_iter->hasNext()) {
@@ -178,10 +178,10 @@ EstimateParasitics::estimatePiElmoreBalanced(const Pin *drvr_pin,
 	Port *port = network->port(load_pin);
 	double load_cap = 0.0;
 	if (network->isLeaf(load_pin))
-	  load_cap = sdc->pinCapacitance(load_pin, tr, op_cond,
+	  load_cap = sdc->pinCapacitance(load_pin, rf, op_cond,
 						 corner, min_max);
 	else if (network->isTopLevelPort(load_pin))
-	  load_cap = sdc->portExtCap(port, tr, min_max);
+	  load_cap = sdc->portExtCap(port, rf, min_max);
 	else
 	  internalError("load pin not leaf or top level");
 	double cap = load_cap + cap_fanout;

@@ -38,18 +38,18 @@ public:
   Pin *from() const { return from_; }
   Pin *to() const { return to_; }
   Clock *clk() const { return clk_; }
-  void margin(const TransRiseFall *from_tr,
-	      const TransRiseFall *to_tr,
+  void margin(const RiseFall *from_rf,
+	      const RiseFall *to_rf,
 	      const SetupHold *setup_hold,
 	      // Return values.
 	      float &margin,
 	      bool &exists) const;
-  void setMargin(const TransRiseFallBoth *from_tr,
-		 const TransRiseFallBoth *to_tr,
+  void setMargin(const RiseFallBoth *from_rf,
+		 const RiseFallBoth *to_rf,
 		 const SetupHoldAll *setup_hold,
 		 float margin);
-  void removeMargin(const TransRiseFallBoth *from_tr,
-		    const TransRiseFallBoth *to_tr,
+  void removeMargin(const RiseFallBoth *from_rf,
+		    const RiseFallBoth *to_rf,
 		    const SetupHoldAll *setup_hold);
   bool empty() const;
   void marginIsOneValue(SetupHold *setup_hold,
@@ -63,7 +63,7 @@ private:
   Pin *from_;
   Pin *to_;
   Clock *clk_;
-  RiseFallMinMax margins_[TransRiseFall::index_count];
+  RiseFallMinMax margins_[RiseFall::index_count];
 };
 
 class DataCheckLess

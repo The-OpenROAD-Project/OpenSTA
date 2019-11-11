@@ -34,15 +34,15 @@ public:
   void deleteContents();
   FuncExpr *when() const { return when_; }
   FuncExpr *&whenRef() { return when_; }
-  void setModel(TransRiseFall *tr,
+  void setModel(RiseFall *rf,
 		InternalPowerModel *model);
-  InternalPowerModel *model(TransRiseFall *tr) const;
+  InternalPowerModel *model(RiseFall *rf) const;
   const char *relatedPgPin() const { return related_pg_pin_; }
   void setRelatedPgPin(const char *related_pg_pin);
 
 protected:
   FuncExpr *when_;
-  InternalPowerModel *models_[TransRiseFall::index_count];
+  InternalPowerModel *models_[RiseFall::index_count];
   const  char *related_pg_pin_;
 
 private:
@@ -62,7 +62,7 @@ public:
   LibertyPort *relatedPort() const { return related_port_; }
   FuncExpr *when() const { return when_; }
   const char *relatedPgPin() const { return related_pg_pin_; }
-  float power(TransRiseFall *tr,
+  float power(RiseFall *rf,
 	      const Pvt *pvt,
 	      float in_slew,
 	      float load_cap);
@@ -72,7 +72,7 @@ protected:
   LibertyPort *related_port_;
   FuncExpr *when_;
   const  char *related_pg_pin_;
-  InternalPowerModel *models_[TransRiseFall::index_count];
+  InternalPowerModel *models_[RiseFall::index_count];
 
 private:
   DISALLOW_COPY_AND_ASSIGN(InternalPower);

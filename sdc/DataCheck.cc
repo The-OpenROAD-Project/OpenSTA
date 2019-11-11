@@ -30,40 +30,40 @@ DataCheck::DataCheck(Pin *from,
 }
 
 void
-DataCheck::margin(const TransRiseFall *from_tr,
-		  const TransRiseFall *to_tr,
+DataCheck::margin(const RiseFall *from_rf,
+		  const RiseFall *to_rf,
 		  const SetupHold *setup_hold,
 		  // Return values.
 		  float &margin,
 		  bool &exists) const
 {
-  return margins_[from_tr->index()].value(to_tr, setup_hold,
+  return margins_[from_rf->index()].value(to_rf, setup_hold,
 					  margin, exists);
 }
 
 void
-DataCheck::setMargin(const TransRiseFallBoth *from_tr,
-		     const TransRiseFallBoth *to_tr,
+DataCheck::setMargin(const RiseFallBoth *from_rf,
+		     const RiseFallBoth *to_rf,
 		     const SetupHoldAll *setup_hold,
 		     float margin)
 {
-  for (auto from_tr_index : from_tr->rangeIndex())
-    margins_[from_tr_index].setValue(to_tr, setup_hold, margin);
+  for (auto from_rf_index : from_rf->rangeIndex())
+    margins_[from_rf_index].setValue(to_rf, setup_hold, margin);
 }
 
 void
-DataCheck::removeMargin(const TransRiseFallBoth *from_tr,
-			const TransRiseFallBoth *to_tr,
+DataCheck::removeMargin(const RiseFallBoth *from_rf,
+			const RiseFallBoth *to_rf,
 			const SetupHoldAll *setup_hold)
 {
-  for (auto from_tr_index : from_tr->rangeIndex())
-    margins_[from_tr_index].removeValue(to_tr, setup_hold);
+  for (auto from_rf_index : from_rf->rangeIndex())
+    margins_[from_rf_index].removeValue(to_rf, setup_hold);
 }
 
 bool
 DataCheck::empty() const
 {
-  for (auto tr_index : TransRiseFall::rangeIndex()) {
+  for (auto tr_index : RiseFall::rangeIndex()) {
     if (!margins_[tr_index].empty())
       return false;
   }
@@ -77,8 +77,8 @@ DataCheck::marginIsOneValue(SetupHold *setup_hold,
 			    bool &one_value) const
 {
   float value1, value2;
-  if (margins_[TransRiseFall::riseIndex()].isOneValue(setup_hold, value1)
-      && margins_[TransRiseFall::fallIndex()].isOneValue(setup_hold, value2)
+  if (margins_[RiseFall::riseIndex()].isOneValue(setup_hold, value1)
+      && margins_[RiseFall::fallIndex()].isOneValue(setup_hold, value2)
       && value1 == value2) {
     value = value1;
     one_value = true;

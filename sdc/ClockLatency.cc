@@ -27,20 +27,20 @@ ClockLatency::ClockLatency(const Clock *clk,
 }
 
 void
-ClockLatency::setDelay(const TransRiseFallBoth *tr,
+ClockLatency::setDelay(const RiseFallBoth *rf,
 		       const MinMaxAll *min_max,
 		       float delay)
 {
-  delays_.setValue(tr, min_max, delay);
+  delays_.setValue(rf, min_max, delay);
 }
 
 float
-ClockLatency::delay(const TransRiseFall *tr,
+ClockLatency::delay(const RiseFall *rf,
 		    const MinMax *min_max)
 {
   float latency;
   bool exists;
-  delays_.value(tr, min_max, latency, exists);
+  delays_.value(rf, min_max, latency, exists);
   if (exists)
     return latency;
   else
@@ -48,24 +48,24 @@ ClockLatency::delay(const TransRiseFall *tr,
 }
 
 void
-ClockLatency::delay(const TransRiseFall *tr,
+ClockLatency::delay(const RiseFall *rf,
 		    const MinMax *min_max,
 		    // Return values.
 		    float &latency,
 		    bool &exists)
 
 {
-  delays_.value(tr, min_max, latency, exists);
+  delays_.value(rf, min_max, latency, exists);
   if (!exists)
     latency = 0.0;
 }
 
 void
-ClockLatency::setDelay(const TransRiseFall *tr,
+ClockLatency::setDelay(const RiseFall *rf,
 		       const MinMax *min_max,
 		       float delay)
 {
-  delays_.setValue(tr, min_max, delay);
+  delays_.setValue(rf, min_max, delay);
 }
 
 void

@@ -76,7 +76,7 @@ public:
 		       const Instance *inst,
 		       // Return values.
 		       Vertex *&enable_vertex,
-		       TransRiseFall *&enable_tr,
+		       RiseFall *&enable_rf,
 		       LatchEnableState &state) const;
   LatchEnableState latchDtoQState(Edge *d_q_edge) const;
   void latchEnableOtherPath(Path *path,
@@ -96,7 +96,7 @@ public:
 
 protected:
   ArcDelay latchSetupMargin(Vertex *data_vertex,
-			    const TransRiseFall *data_tr,
+			    const RiseFall *data_rf,
 			    const Path *disable_path,
 			    const PathAnalysisPt *path_ap);
   ExceptionPath *exceptionTo(Path *data_path,

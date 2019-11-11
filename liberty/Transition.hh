@@ -27,18 +27,18 @@
 namespace sta {
 
 class Transition;
-class TransRiseFall;
-class TransRiseFallBoth;
+class RiseFall;
+class RiseFallBoth;
 
 typedef Map<const char*, Transition*, CharPtrLess> TransitionMap;
 
 // Rise/fall transition.
-class TransRiseFall
+class RiseFall
 {
 public:
   // Singleton accessors.
-  static TransRiseFall *rise() { return &rise_; }
-  static TransRiseFall *fall() { return &fall_; }
+  static RiseFall *rise() { return &rise_; }
+  static RiseFall *fall() { return &fall_; }
   static int riseIndex() { return rise_.sdf_triple_index_; }
   static int fallIndex() { return fall_.sdf_triple_index_; }
   const char *asString() const { return short_name_; }
@@ -46,63 +46,63 @@ public:
   const char *shortName() const { return short_name_; }
   void setShortName(const char *short_name);
   int index() const { return sdf_triple_index_; }
-  TransRiseFallBoth *asRiseFallBoth();
-  const TransRiseFallBoth *asRiseFallBoth() const;
+  RiseFallBoth *asRiseFallBoth();
+  const RiseFallBoth *asRiseFallBoth() const;
   Transition *asTransition() const;
   // Find transition corresponding to tr_str.
-  static TransRiseFall *find(const char *tr_str);
+  static RiseFall *find(const char *tr_str);
   // Find transition from index.
-  static TransRiseFall *find(int index);
-  TransRiseFall *opposite() const;
+  static RiseFall *find(int index);
+  RiseFall *opposite() const;
 
   // for range support.
-  // for (auto tr : TransRiseFall::range()) {}
-  static const std::array<TransRiseFall*, 2> &range() { return range_; }
-  // for (auto tr_index : TransRiseFall::rangeIndex()) {}
+  // for (auto tr : RiseFall::range()) {}
+  static const std::array<RiseFall*, 2> &range() { return range_; }
+  // for (auto tr_index : RiseFall::rangeIndex()) {}
   static const std::array<int, 2> &rangeIndex() { return range_index_; }
   static const int index_count = 2;
   static const int index_max = (index_count - 1);
   static const int index_bit_count = 1;
 
 protected:
-  TransRiseFall(const char *name,
+  RiseFall(const char *name,
 		const char *short_name,
 		int sdf_triple_index);
-  ~TransRiseFall();
+  ~RiseFall();
 
   const char *name_;
   const char *short_name_;
   const int sdf_triple_index_;
 
-  static TransRiseFall rise_;
-  static TransRiseFall fall_;
-  static const std::array<TransRiseFall*, 2> range_;
+  static RiseFall rise_;
+  static RiseFall fall_;
+  static const std::array<RiseFall*, 2> range_;
   static const std::array<int, 2> range_index_;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(TransRiseFall);
+  DISALLOW_COPY_AND_ASSIGN(RiseFall);
 };
 
 // Rise/fall/risefall transition.
-class TransRiseFallBoth
+class RiseFallBoth
 {
 public:
   // Singleton accessors.
-  static TransRiseFallBoth *rise() { return &rise_; }
-  static TransRiseFallBoth *fall() { return &fall_; }
-  static TransRiseFallBoth *riseFall() { return &rise_fall_; }
+  static RiseFallBoth *rise() { return &rise_; }
+  static RiseFallBoth *fall() { return &fall_; }
+  static RiseFallBoth *riseFall() { return &rise_fall_; }
   const char *asString() const { return short_name_; }
   const char *name() const { return name_; }
   const char *shortName() const { return short_name_; }
   void setShortName(const char *short_name);
   int index() const { return sdf_triple_index_; }
-  bool matches(const TransRiseFall *tr) const;
+  bool matches(const RiseFall *rf) const;
   bool matches(const Transition *tr) const;
-  TransRiseFall *asRiseFall() const { return as_rise_fall_; }
+  RiseFall *asRiseFall() const { return as_rise_fall_; }
   // Find transition corresponding to string.
-  static TransRiseFallBoth *find(const char *tr_str);
+  static RiseFallBoth *find(const char *tr_str);
   // for (auto tr : min_max->range()) {}
-  const std::vector<TransRiseFall*> &range() const { return range_; }
+  const std::vector<RiseFall*> &range() const { return range_; }
   // for (auto tr_index : min_max->rangeIndex()) {}
   const std::vector<int> &rangeIndex() const { return range_index_; }
 
@@ -111,27 +111,27 @@ public:
   static const int index_bit_count = 2;
 
 protected:
-  TransRiseFallBoth(const char *name,
+  RiseFallBoth(const char *name,
 		    const char *short_name,
 		    int sdf_triple_index,
-		    TransRiseFall *as_rise_fall,
-		    std::vector<TransRiseFall*> range,
+		    RiseFall *as_rise_fall,
+		    std::vector<RiseFall*> range,
 		    std::vector<int> range_index);
-  ~TransRiseFallBoth();
+  ~RiseFallBoth();
 
   const char *name_;
   const char *short_name_;
   const int sdf_triple_index_;
-  TransRiseFall *as_rise_fall_;
-  const std::vector<TransRiseFall*> range_;
+  RiseFall *as_rise_fall_;
+  const std::vector<RiseFall*> range_;
   const std::vector<int> range_index_;
 
-  static TransRiseFallBoth rise_;
-  static TransRiseFallBoth fall_;
-  static TransRiseFallBoth rise_fall_;
+  static RiseFallBoth rise_;
+  static RiseFallBoth fall_;
+  static RiseFallBoth rise_fall_;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(TransRiseFallBoth);
+  DISALLOW_COPY_AND_ASSIGN(RiseFallBoth);
 };
 
 // General SDF transition.
@@ -159,8 +159,8 @@ public:
   const char *asInitFinalString() const { return init_final_; }
   int sdfTripleIndex() const { return sdf_triple_index_; }
   int index() const { return sdf_triple_index_; }
-  TransRiseFall *asRiseFall() const { return as_rise_fall_; }
-  const TransRiseFallBoth *asRiseFallBoth() const;
+  RiseFall *asRiseFall() const { return as_rise_fall_; }
+  const RiseFallBoth *asRiseFallBoth() const;
   bool matches(const Transition *tr) const;
   // Find transition corresponding to string.
   static Transition *find(const char *tr_str);
@@ -169,13 +169,13 @@ public:
 private:
   Transition(const char *name,
 	     const char *init_final,
-	     TransRiseFall *as_rise_fall,
+	     RiseFall *as_rise_fall,
 	     int sdf_triple_index);
   ~Transition();
 
   const char *name_;
   const char *init_final_;
-  TransRiseFall *as_rise_fall_;
+  RiseFall *as_rise_fall_;
   const int sdf_triple_index_;
 
   static Transition rise_;
@@ -203,18 +203,18 @@ private:
 };
 
 // Obsolete. Use range iteration instead.
-// for (auto tr : TransRiseFall::range()) {}
-class TransRiseFallIterator : public Iterator<TransRiseFall*>
+// for (auto tr : RiseFall::range()) {}
+class RiseFallIterator : public Iterator<RiseFall*>
 {
 public:
-  TransRiseFallIterator() : index_(0), index_max_(TransRiseFall::index_max) {}
-  explicit TransRiseFallIterator(const TransRiseFallBoth *tr);
+  RiseFallIterator() : index_(0), index_max_(RiseFall::index_max) {}
+  explicit RiseFallIterator(const RiseFallBoth *rf);
   void init();
   virtual bool hasNext();
-  virtual TransRiseFall *next();
+  virtual RiseFall *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(TransRiseFallIterator);
+  DISALLOW_COPY_AND_ASSIGN(RiseFallIterator);
 
   int index_;
   int index_max_;

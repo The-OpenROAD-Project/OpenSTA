@@ -81,12 +81,12 @@ protected:
 		  bool use_clk_edge);
   void writeEdgeCheck(Edge *edge,
 		      const char *sdf_check,
-		      int clk_tr_index,
-		      TimingArc *arcs[TransRiseFall::index_count][TransRiseFall::index_count]);
+		      int clk_rf_index,
+		      TimingArc *arcs[RiseFall::index_count][RiseFall::index_count]);
   void writeTimingCheckHeader();
   void writeTimingCheckTrailer();
   void writeWidthCheck(const Pin *pin,
-		       const TransRiseFall *hi_low,
+		       const RiseFall *hi_low,
 		       float min_width,
 		       float max_width);
   void writePeriodCheck(const Pin *pin,
@@ -94,7 +94,7 @@ protected:
   const char *sdfEdge(const Transition *tr);
   void writeArcDelays(Edge *edge);
   void writeSdfTuple(RiseFallMinMax &delays,
-		     TransRiseFall *tr);
+		     RiseFall *rf);
   void writeSdfTuple(float min_delay,
 		     float max_delay);
   void writeSdfDelay(double delay);
@@ -416,45 +416,45 @@ SdfWriter::writeArcDelays(Edge *edge)
   TimingArcSetArcIterator arc_iter(arc_set);
   while (arc_iter.hasNext()) {
     TimingArc *arc = arc_iter.next();
-    TransRiseFall *tr = arc->toTrans()->asRiseFall();
+    RiseFall *rf = arc->toTrans()->asRiseFall();
     ArcDelay min_delay = graph_->arcDelay(edge, arc, arc_delay_min_index_);
-    delays.setValue(tr, MinMax::min(), delayAsFloat(min_delay));
+    delays.setValue(rf, MinMax::min(), delayAsFloat(min_delay));
 
     ArcDelay max_delay = graph_->arcDelay(edge, arc, arc_delay_max_index_);
-    delays.setValue(tr, MinMax::max(), delayAsFloat(max_delay));
+    delays.setValue(rf, MinMax::max(), delayAsFloat(max_delay));
   }
 
-  if (delays.hasValue(TransRiseFall::rise(), MinMax::min())
-      && delays.hasValue(TransRiseFall::fall(), MinMax::min())) {
+  if (delays.hasValue(RiseFall::rise(), MinMax::min())
+      && delays.hasValue(RiseFall::fall(), MinMax::min())) {
     // Rise and fall.
-    writeSdfTuple(delays, TransRiseFall::rise());
+    writeSdfTuple(delays, RiseFall::rise());
     // Merge rise/fall values if they are the same.
-    if (!(fuzzyEqual(delays.value(TransRiseFall::rise(), MinMax::min()),
-		     delays.value(TransRiseFall::fall(), MinMax::min()))
-	  && fuzzyEqual(delays.value(TransRiseFall::rise(), MinMax::max()),
-			delays.value(TransRiseFall::fall(),MinMax::max())))) {
+    if (!(fuzzyEqual(delays.value(RiseFall::rise(), MinMax::min()),
+		     delays.value(RiseFall::fall(), MinMax::min()))
+	  && fuzzyEqual(delays.value(RiseFall::rise(), MinMax::max()),
+			delays.value(RiseFall::fall(),MinMax::max())))) {
       gzprintf(stream_, " ");
-      writeSdfTuple(delays, TransRiseFall::fall());
+      writeSdfTuple(delays, RiseFall::fall());
     }
   }
-  else if (delays.hasValue(TransRiseFall::rise(), MinMax::min()))
+  else if (delays.hasValue(RiseFall::rise(), MinMax::min()))
     // Rise only.
-    writeSdfTuple(delays, TransRiseFall::rise());
-  else if (delays.hasValue(TransRiseFall::fall(), MinMax::min())) {
+    writeSdfTuple(delays, RiseFall::rise());
+  else if (delays.hasValue(RiseFall::fall(), MinMax::min())) {
     // Fall only.
     gzprintf(stream_, "() ");
-    writeSdfTuple(delays, TransRiseFall::fall());
+    writeSdfTuple(delays, RiseFall::fall());
   }
 }
 
 void
 SdfWriter::writeSdfTuple(RiseFallMinMax &delays,
-			 TransRiseFall *tr)
+			 RiseFall *rf)
 {
   gzprintf(stream_, "(");
-  writeSdfDelay(delays.value(tr, MinMax::min()));
+  writeSdfDelay(delays.value(rf, MinMax::min()));
   gzprintf(stream_, "::");
-  writeSdfDelay(delays.value(tr, MinMax::max()));
+  writeSdfDelay(delays.value(rf, MinMax::max()));
   gzprintf(stream_, ")");
 }
 
@@ -503,7 +503,7 @@ SdfWriter::writeTimingChecks(const Instance *inst,
 	writeCheck(edge, sdf_check);
       }
     }
-    for (auto hi_low : TransRiseFall::range()) {
+    for (auto hi_low : RiseFall::range()) {
       float min_width, max_width;
       bool exists;
       graph_delay_calc_->minPulseWidth(pin, hi_low, arc_delay_min_index_,
@@ -564,22 +564,22 @@ SdfWriter::writeCheck(Edge *edge,
 {
   TimingArcSet *arc_set = edge->timingArcSet();
   // Examine the arcs to see if the check requires clk or data edge specifiers.
-  TimingArc *arcs[TransRiseFall::index_count][TransRiseFall::index_count] = 
+  TimingArc *arcs[RiseFall::index_count][RiseFall::index_count] = 
     {{nullptr, nullptr}, {nullptr, nullptr}};
   TimingArcSetArcIterator arc_iter(arc_set);
   while (arc_iter.hasNext()) {
     TimingArc *arc = arc_iter.next();
-    TransRiseFall *clk_tr = arc->fromTrans()->asRiseFall();
-    TransRiseFall *data_tr = arc->toTrans()->asRiseFall();;
-    arcs[clk_tr->index()][data_tr->index()] = arc;
+    RiseFall *clk_rf = arc->fromTrans()->asRiseFall();
+    RiseFall *data_rf = arc->toTrans()->asRiseFall();;
+    arcs[clk_rf->index()][data_rf->index()] = arc;
   }
 
-  if (arcs[TransRiseFall::fallIndex()][TransRiseFall::riseIndex()] == nullptr
-      && arcs[TransRiseFall::fallIndex()][TransRiseFall::fallIndex()] == nullptr)
-    writeEdgeCheck(edge, sdf_check, TransRiseFall::riseIndex(), arcs);
-  else if (arcs[TransRiseFall::riseIndex()][TransRiseFall::riseIndex()] == nullptr
-	   && arcs[TransRiseFall::riseIndex()][TransRiseFall::fallIndex()] == nullptr)
-    writeEdgeCheck(edge, sdf_check, TransRiseFall::fallIndex(), arcs);
+  if (arcs[RiseFall::fallIndex()][RiseFall::riseIndex()] == nullptr
+      && arcs[RiseFall::fallIndex()][RiseFall::fallIndex()] == nullptr)
+    writeEdgeCheck(edge, sdf_check, RiseFall::riseIndex(), arcs);
+  else if (arcs[RiseFall::riseIndex()][RiseFall::riseIndex()] == nullptr
+	   && arcs[RiseFall::riseIndex()][RiseFall::fallIndex()] == nullptr)
+    writeEdgeCheck(edge, sdf_check, RiseFall::fallIndex(), arcs);
   else {
     // No special case; write all the checks with data and clock edge specifiers.
     TimingArcSetArcIterator arc_iter(arc_set);
@@ -593,38 +593,38 @@ SdfWriter::writeCheck(Edge *edge,
 void
 SdfWriter::writeEdgeCheck(Edge *edge,
 			  const char *sdf_check,
-			  int clk_tr_index,
-			  TimingArc *arcs[TransRiseFall::index_count][TransRiseFall::index_count])
+			  int clk_rf_index,
+			  TimingArc *arcs[RiseFall::index_count][RiseFall::index_count])
 {
   // SDF requires edge specifiers on the data port to define separate
   // rise/fall check values.
   // Check the rise/fall margins to see if they are the same to avoid adding
   // data port edge specifiers if they aren't necessary.
-  if (arcs[clk_tr_index][TransRiseFall::riseIndex()]
-      && arcs[clk_tr_index][TransRiseFall::fallIndex()]
-      && arcs[clk_tr_index][TransRiseFall::riseIndex()]
-      && arcs[clk_tr_index][TransRiseFall::fallIndex()]
+  if (arcs[clk_rf_index][RiseFall::riseIndex()]
+      && arcs[clk_rf_index][RiseFall::fallIndex()]
+      && arcs[clk_rf_index][RiseFall::riseIndex()]
+      && arcs[clk_rf_index][RiseFall::fallIndex()]
       && fuzzyEqual(graph_->arcDelay(edge, 
-				       arcs[clk_tr_index][TransRiseFall::riseIndex()],
+				       arcs[clk_rf_index][RiseFall::riseIndex()],
 				       arc_delay_min_index_),
 			 graph_->arcDelay(edge,
-					  arcs[clk_tr_index][TransRiseFall::fallIndex()],
+					  arcs[clk_rf_index][RiseFall::fallIndex()],
 					  arc_delay_min_index_))
       && fuzzyEqual(graph_->arcDelay(edge,
-					  arcs[clk_tr_index][TransRiseFall::riseIndex()],
+					  arcs[clk_rf_index][RiseFall::riseIndex()],
 					  arc_delay_max_index_),
 			 graph_->arcDelay(edge,
-					  arcs[clk_tr_index][TransRiseFall::fallIndex()],
+					  arcs[clk_rf_index][RiseFall::fallIndex()],
 					  arc_delay_max_index_)))
     // Rise/fall margins are the same, so no data edge specifier is required.
-    writeCheck(edge, arcs[clk_tr_index][TransRiseFall::riseIndex()],
+    writeCheck(edge, arcs[clk_rf_index][RiseFall::riseIndex()],
 	       sdf_check, false, true);
   else {
-    if (arcs[clk_tr_index][TransRiseFall::riseIndex()])
-      writeCheck(edge, arcs[clk_tr_index][TransRiseFall::riseIndex()], 
+    if (arcs[clk_rf_index][RiseFall::riseIndex()])
+      writeCheck(edge, arcs[clk_rf_index][RiseFall::riseIndex()], 
 		 sdf_check, true, true);
-    if (arcs[clk_tr_index][TransRiseFall::fallIndex()])
-      writeCheck(edge, arcs[clk_tr_index][TransRiseFall::fallIndex()],
+    if (arcs[clk_rf_index][RiseFall::fallIndex()])
+      writeCheck(edge, arcs[clk_rf_index][RiseFall::fallIndex()],
 		 sdf_check, true, true);
   }
 }
@@ -683,7 +683,7 @@ SdfWriter::writeCheck(Edge *edge,
 
 void
 SdfWriter::writeWidthCheck(const Pin *pin,
-			   const TransRiseFall *hi_low,
+			   const RiseFall *hi_low,
 			   float min_width,
 			   float max_width)
 {

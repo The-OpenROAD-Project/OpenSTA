@@ -311,7 +311,7 @@ MinPulseWidthCheck::pin(const StaState *sta) const
   return open_path_.pin(sta);
 }
 
-const TransRiseFall *
+const RiseFall *
 MinPulseWidthCheck::openTransition(const StaState *sta) const
 {
   return open_path_.transition(sta);
@@ -324,8 +324,8 @@ MinPulseWidthCheck::closePath(const StaState *sta,
 {
   PathAnalysisPt *open_ap = open_path_.pathAnalysisPt(sta);
   PathAnalysisPt *close_ap = open_ap->tgtClkAnalysisPt();
-  const TransRiseFall *open_tr = open_path_.transition(sta);
-  const TransRiseFall *close_tr = open_tr->opposite();
+  const RiseFall *open_rf = open_path_.transition(sta);
+  const RiseFall *close_rf = open_rf->opposite();
   Tag *open_tag = open_path_.tag(sta);
   ClkInfo *open_clk_info = open_tag->clkInfo();
   ClkInfo close_clk_info(open_clk_info->clkEdge()->opposite(),
@@ -339,7 +339,7 @@ MinPulseWidthCheck::closePath(const StaState *sta,
 			 open_clk_info->crprClkPath(),
 			 sta);
   Tag close_tag(0,
-		close_tr->index(),
+		close_rf->index(),
 		close_ap->index(),
 		&close_clk_info,
 		open_tag->isClock(),
@@ -351,7 +351,7 @@ MinPulseWidthCheck::closePath(const StaState *sta,
 	      open_tag->asString(sta));
   debugPrint1(sta->debug(), "mpw", 3, " close %s\n",
 	      close_tag.asString(sta));
-  VertexPathIterator close_iter(open_path_.vertex(sta), close_tr,
+  VertexPathIterator close_iter(open_path_.vertex(sta), close_rf,
 				close_ap, sta);
   while (close_iter.hasNext()) {
     PathVertex *close_path = close_iter.next();
@@ -445,16 +445,16 @@ minPulseWidth(const Path *path,
 {
   Pin *pin = path->pin(sta);
   Clock *clk = path->clock(sta);
-  const TransRiseFall *tr = path->transition(sta);
+  const RiseFall *rf = path->transition(sta);
   Sdc *sdc = sta->sdc();
   // set_min_pulse_width command.
-  sdc->minPulseWidth(pin, clk, tr, min_width, exists);
+  sdc->minPulseWidth(pin, clk, rf, min_width, exists);
   if (!exists) {
     GraphDelayCalc *graph_dcalc = sta->graphDelayCalc();
     const MinMax *min_max = path->minMax(sta);
     const PathAnalysisPt *path_ap = path->pathAnalysisPt(sta);
     const DcalcAnalysisPt *dcalc_ap = path_ap->dcalcAnalysisPt();
-    graph_dcalc->minPulseWidth(pin, tr, dcalc_ap->index(), min_max,
+    graph_dcalc->minPulseWidth(pin, rf, dcalc_ap->index(), min_max,
 			       min_width, exists);
   }
 }
@@ -503,8 +503,8 @@ MinPulseWidthSlackLess::operator()(const MinPulseWidthCheck *check1,
 	// Break ties for the sake of regression stability.
 	&& (sta_->network()->pinLess(pin1, pin2)
 	    || (pin1 == pin2
-		&& check1->openPath()->trIndex(sta_)
-		< check2->openPath()->trIndex(sta_))));
+		&& check1->openPath()->rfIndex(sta_)
+		< check2->openPath()->rfIndex(sta_))));
 }
 
 } // namespace

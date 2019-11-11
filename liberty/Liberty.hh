@@ -150,10 +150,10 @@ public:
 		    const LibertyCell *cell,
 		    const Pvt *pvt) const;
   void setWireSlewDegradationTable(TableModel *model,
-				   TransRiseFall *tr);
-  TableModel *wireSlewDegradationTable(const TransRiseFall *tr) const;
+				   RiseFall *rf);
+  TableModel *wireSlewDegradationTable(const RiseFall *rf) const;
   float degradeWireSlew(const LibertyCell *cell,
-			const TransRiseFall *tr,
+			const RiseFall *rf,
 			const Pvt *pvt,
 			float in_slew,
 			float wire_delay) const;
@@ -168,29 +168,29 @@ public:
   float defaultBidirectPinCap() const { return default_bidirect_pin_cap_; }
   void setDefaultBidirectPinCap(float cap);
 
-  void defaultIntrinsic(const TransRiseFall *tr,
+  void defaultIntrinsic(const RiseFall *rf,
 			// Return values.
 			float &intrisic,
 			bool &exists) const;
-  void setDefaultIntrinsic(const TransRiseFall *tr,
+  void setDefaultIntrinsic(const RiseFall *rf,
 			   float value);
   // Uses defaultOutputPinRes or defaultBidirectPinRes based on dir.
-  void defaultPinResistance(const TransRiseFall *tr,
+  void defaultPinResistance(const RiseFall *rf,
 			    const PortDirection *dir,
 			    // Return values.
 			    float &res,
 			    bool &exists) const;
-  void defaultBidirectPinRes(const TransRiseFall *tr,
+  void defaultBidirectPinRes(const RiseFall *rf,
 			     // Return values.
 			     float &res,
 			     bool &exists) const;
-  void setDefaultBidirectPinRes(const TransRiseFall *tr,
+  void setDefaultBidirectPinRes(const RiseFall *rf,
 				float value);
-  void defaultOutputPinRes(const TransRiseFall *tr,
+  void defaultOutputPinRes(const RiseFall *rf,
 			   // Return values.
 			   float &res,
 			   bool &exists) const;
-  void setDefaultOutputPinRes(const TransRiseFall *tr,
+  void setDefaultOutputPinRes(const RiseFall *rf,
 			      float value);
 
   void defaultMaxSlew(float &slew,
@@ -206,18 +206,18 @@ public:
   void setDefaultFanoutLoad(float load);
 
   // Logic thresholds.
-  float inputThreshold(const TransRiseFall *tr) const;
-  void setInputThreshold(const TransRiseFall *tr,
+  float inputThreshold(const RiseFall *rf) const;
+  void setInputThreshold(const RiseFall *rf,
 			 float th);
-  float outputThreshold(const TransRiseFall *tr) const;
-  void setOutputThreshold(const TransRiseFall *tr,
+  float outputThreshold(const RiseFall *rf) const;
+  void setOutputThreshold(const RiseFall *rf,
 			  float th);
   // Slew thresholds (measured).
-  float slewLowerThreshold(const TransRiseFall *tr) const;
-  void setSlewLowerThreshold(const TransRiseFall *tr,
+  float slewLowerThreshold(const RiseFall *rf) const;
+  void setSlewLowerThreshold(const RiseFall *rf,
 			     float th);
-  float slewUpperThreshold(const TransRiseFall *tr) const;
-  void setSlewUpperThreshold(const TransRiseFall *tr,
+  float slewUpperThreshold(const RiseFall *rf) const;
+  void setSlewUpperThreshold(const RiseFall *rf,
 			     float th);
   // The library and delay calculator use the liberty slew upper/lower
   // (measured) thresholds for the table axes and value.  These slews
@@ -299,7 +299,7 @@ protected:
   float nominal_temperature_;
   ScaleFactors *scale_factors_;
   ScaleFactorsMap scale_factors_map_;
-  TableModel *wire_slew_degradation_tbls_[TransRiseFall::index_count];
+  TableModel *wire_slew_degradation_tbls_[RiseFall::index_count];
   float default_input_pin_cap_;
   float default_output_pin_cap_;
   float default_bidirect_pin_cap_;
@@ -313,10 +313,10 @@ protected:
   bool default_max_fanout_exists_;
   float default_max_slew_;
   bool default_max_slew_exists_;
-  float input_threshold_[TransRiseFall::index_count];
-  float output_threshold_[TransRiseFall::index_count];
-  float slew_lower_threshold_[TransRiseFall::index_count];
-  float slew_upper_threshold_[TransRiseFall::index_count];
+  float input_threshold_[RiseFall::index_count];
+  float output_threshold_[RiseFall::index_count];
+  float slew_lower_threshold_[RiseFall::index_count];
+  float slew_upper_threshold_[RiseFall::index_count];
   float slew_derate_from_library_;
   WireloadMap wireloads_;
   Wireload *default_wire_load_;
@@ -442,8 +442,8 @@ public:
 		   // Return values.
 		   LibertyPort *&enable_port,
 		   FuncExpr *&enable_func,
-		   TransRiseFall *&enable_tr) const;
-  TransRiseFall *latchCheckEnableTrans(TimingArcSet *check_set);
+		   RiseFall *&enable_rf) const;
+  RiseFall *latchCheckEnableTrans(TimingArcSet *check_set);
   bool isDisabledConstraint() const { return is_disabled_constraint_; }
   LibertyCell *cornerCell(int ap_index);
 
@@ -638,25 +638,25 @@ public:
   LibertyCell *libertyCell() const { return liberty_cell_; }
   LibertyPort *findLibertyMember(int index) const;
   LibertyPort *findLibertyBusBit(int index) const;
-  float capacitance(const TransRiseFall *tr,
+  float capacitance(const RiseFall *rf,
 		    const MinMax *min_max) const;
-  void capacitance(const TransRiseFall *tr,
+  void capacitance(const RiseFall *rf,
 		   const MinMax *min_max,
 		   // Return values.
 		   float &cap,
 		   bool &exists) const;
   // Capacitance at op_cond derated by library/cell scale factors
   // using pvt.
-  float capacitance(const TransRiseFall *tr,
+  float capacitance(const RiseFall *rf,
 		    const MinMax *min_max,
 		    const OperatingConditions *op_cond,
 		    const Pvt *pvt) const;
   bool capacitanceIsOneValue() const;
   void setCapacitance(float cap);
-  void setCapacitance(const TransRiseFall *tr,
+  void setCapacitance(const RiseFall *rf,
 		      const MinMax *min_max,
 		      float cap);
-  float driveResistance(const TransRiseFall *tr,
+  float driveResistance(const RiseFall *rf,
 			const MinMax *min_max) const;
   // Max of rise/fall.
   float driveResistance() const;
@@ -694,16 +694,16 @@ public:
 		 bool &exists) const;
   void setMinPeriod(float min_period);
   // high = rise, low = fall
-  void minPulseWidth(const TransRiseFall *hi_low,
+  void minPulseWidth(const RiseFall *hi_low,
 		     const OperatingConditions *op_cond,
 		     const Pvt *pvt,
 		     float &min_width,
 		     bool &exists) const;
   // Unscaled value.
-  void minPulseWidth(const TransRiseFall *hi_low,
+  void minPulseWidth(const RiseFall *hi_low,
 		     float &min_width,
 		     bool &exists) const;
-  void setMinPulseWidth(TransRiseFall *hi_low,
+  void setMinPulseWidth(RiseFall *hi_low,
 			float min_width);
   bool isClock() const;
   void setIsClock(bool is_clk);
@@ -721,11 +721,11 @@ public:
   // Is the clock for timing checks.
   bool isCheckClk() const { return is_check_clk_; }
   void setIsCheckClk(bool is_clk);
-  TransRiseFall *pulseClkTrigger() const { return pulse_clk_trigger_; }
+  RiseFall *pulseClkTrigger() const { return pulse_clk_trigger_; }
   // Rise for high, fall for low.
-  TransRiseFall *pulseClkSense() const { return pulse_clk_sense_; }
-  void setPulseClk(TransRiseFall *trigger,
-		   TransRiseFall *sense);
+  RiseFall *pulseClkSense() const { return pulse_clk_sense_; }
+  void setPulseClk(RiseFall *rfigger,
+		   RiseFall *sense);
   bool isDisabledConstraint() const { return is_disabled_constraint_; }
   void setIsDisabledConstraint(bool is_disabled);
   LibertyPort *cornerPort(int ap_index);
@@ -765,14 +765,14 @@ protected:
   MinMaxFloatValues cap_limit_;    // outputs
   MinMaxFloatValues fanout_limit_; // outputs
   float min_period_;
-  float min_pulse_width_[TransRiseFall::index_count];
-  TransRiseFall *pulse_clk_trigger_;
-  TransRiseFall *pulse_clk_sense_;
+  float min_pulse_width_[RiseFall::index_count];
+  RiseFall *pulse_clk_trigger_;
+  RiseFall *pulse_clk_sense_;
   const char *related_ground_pin_;
   const char *related_power_pin_;
   Vector<LibertyPort*> corner_ports_;
 
-  unsigned int min_pulse_width_exists_:TransRiseFall::index_count;
+  unsigned int min_pulse_width_exists_:RiseFall::index_count;
   bool min_period_exists_:1;
   bool is_clk_:1;
   bool is_reg_clk_:1;
@@ -864,7 +864,7 @@ public:
   const char *name() const { return name_; }
   float scale(ScaleFactorType type,
 	      ScaleFactorPvt pvt,
-	      TransRiseFall *tr);
+	      RiseFall *rf);
   float scale(ScaleFactorType type,
 	      ScaleFactorPvt pvt,
 	      int tr_index);
@@ -872,7 +872,7 @@ public:
 	      ScaleFactorPvt pvt);
   void setScale(ScaleFactorType type,
 		ScaleFactorPvt pvt,
-		TransRiseFall *tr,
+		RiseFall *rf,
 		float scale);
   void setScale(ScaleFactorType type,
 		ScaleFactorPvt pvt,
@@ -881,7 +881,7 @@ public:
 
 protected:
   const char *name_;
-  float scales_[scale_factor_type_count][int(ScaleFactorPvt::count)][TransRiseFall::index_count];
+  float scales_[scale_factor_type_count][int(ScaleFactorPvt::count)][RiseFall::index_count];
 
 private:
   DISALLOW_COPY_AND_ASSIGN(ScaleFactors);
@@ -1024,10 +1024,10 @@ public:
   OcvDerate(const char *name);
   ~OcvDerate();
   const char *name() const { return name_; }
-  Table *derateTable(const TransRiseFall *tr,
+  Table *derateTable(const RiseFall *rf,
 		     const EarlyLate *early_late,
 		     PathType path_type);
-  void setDerateTable(const TransRiseFall *tr,
+  void setDerateTable(const RiseFall *rf,
 		      const EarlyLate *early_late,
 		      PathType path_type,
 		      Table *derate);
@@ -1035,7 +1035,7 @@ public:
 private:
   const char *name_;
   // [rf_type][derate_type][path_type]
-  Table *derate_[TransRiseFall::index_count][EarlyLate::index_count][path_type_count];
+  Table *derate_[RiseFall::index_count][EarlyLate::index_count][path_type_count];
 };
 
 // Power/ground port.

@@ -549,19 +549,19 @@ Sdc::setPvt(Instance *inst, const
 void
 Sdc::setTimingDerate(TimingDerateType type,
 		     PathClkOrData clk_data,
-		     const TransRiseFallBoth *tr,
+		     const RiseFallBoth *rf,
 		     const EarlyLate *early_late,
 		     float derate)
 {
   if (derating_factors_ == nullptr)
     derating_factors_ = new DeratingFactorsGlobal;
-  derating_factors_->setFactor(type, clk_data, tr, early_late, derate);
+  derating_factors_->setFactor(type, clk_data, rf, early_late, derate);
 }
 
 void
 Sdc::setTimingDerate(const Net *net,
 		     PathClkOrData clk_data,
-		     const TransRiseFallBoth *tr,
+		     const RiseFallBoth *rf,
 		     const EarlyLate *early_late,
 		     float derate)
 {
@@ -572,14 +572,14 @@ Sdc::setTimingDerate(const Net *net,
     factors = new DeratingFactorsNet;
     (*net_derating_factors_)[net] = factors;
   }
-  factors->setFactor(clk_data, tr, early_late, derate);
+  factors->setFactor(clk_data, rf, early_late, derate);
 }
 
 void
 Sdc::setTimingDerate(const Instance *inst,
 		     TimingDerateType type,
 		     PathClkOrData clk_data,
-		     const TransRiseFallBoth *tr,
+		     const RiseFallBoth *rf,
 		     const EarlyLate *early_late,
 		     float derate)
 {
@@ -590,14 +590,14 @@ Sdc::setTimingDerate(const Instance *inst,
     factors = new DeratingFactorsCell;
     (*inst_derating_factors_)[inst] = factors;
   }
-  factors->setFactor(type, clk_data, tr, early_late, derate);
+  factors->setFactor(type, clk_data, rf, early_late, derate);
 }
 
 void
 Sdc::setTimingDerate(const LibertyCell *cell,
 		     TimingDerateType type,
 		     PathClkOrData clk_data,
-		     const TransRiseFallBoth *tr,
+		     const RiseFallBoth *rf,
 		     const EarlyLate *early_late,
 		     float derate)
 {
@@ -608,14 +608,14 @@ Sdc::setTimingDerate(const LibertyCell *cell,
     factors = new DeratingFactorsCell;
     (*cell_derating_factors_)[cell] = factors;
   }
-  factors->setFactor(type, clk_data, tr, early_late, derate);
+  factors->setFactor(type, clk_data, rf, early_late, derate);
 }
 
 float
 Sdc::timingDerateInstance(const Pin *pin,
 			  TimingDerateType type,
 			  PathClkOrData clk_data,
-			  const TransRiseFall *tr,
+			  const RiseFall *rf,
 			  const EarlyLate *early_late) const
 {
   if (inst_derating_factors_) {
@@ -624,7 +624,7 @@ Sdc::timingDerateInstance(const Pin *pin,
     if (factors) {
       float factor;
       bool exists;
-      factors->factor(type, clk_data, tr, early_late, factor, exists);
+      factors->factor(type, clk_data, rf, early_late, factor, exists);
       if (exists)
 	return factor;
     }
@@ -638,7 +638,7 @@ Sdc::timingDerateInstance(const Pin *pin,
       float factor;
       bool exists;
       if (factors) {
-	factors->factor(type, clk_data, tr, early_late, factor, exists);
+	factors->factor(type, clk_data, rf, early_late, factor, exists);
 	if (exists)
 	  return factor;
       }
@@ -647,7 +647,7 @@ Sdc::timingDerateInstance(const Pin *pin,
   if (derating_factors_) {
     float factor;
     bool exists;
-    derating_factors_->factor(type, clk_data, tr, early_late, factor, exists);
+    derating_factors_->factor(type, clk_data, rf, early_late, factor, exists);
     if (exists)
       return factor;
   }
@@ -657,7 +657,7 @@ Sdc::timingDerateInstance(const Pin *pin,
 float
 Sdc::timingDerateNet(const Pin *pin,
 		     PathClkOrData clk_data,
-		     const TransRiseFall *tr,
+		     const RiseFall *rf,
 		     const EarlyLate *early_late) const
 {
   if (net_derating_factors_) {
@@ -666,7 +666,7 @@ Sdc::timingDerateNet(const Pin *pin,
     if (factors) {
       float factor;
       bool exists;
-      factors->factor(clk_data, tr, early_late, factor, exists);
+      factors->factor(clk_data, rf, early_late, factor, exists);
       if (exists)
 	return factor;
     }
@@ -674,7 +674,7 @@ Sdc::timingDerateNet(const Pin *pin,
   if (derating_factors_) {
     float factor;
     bool exists;
-    derating_factors_->factor(TimingDerateType::net_delay, clk_data, tr,
+    derating_factors_->factor(TimingDerateType::net_delay, clk_data, rf,
 			      early_late, factor, exists);
     if (exists)
       return factor;
@@ -734,29 +734,29 @@ Sdc::setDriveCell(LibertyLibrary *library,
 		  LibertyPort *from_port,
 		  float *from_slews,
 		  LibertyPort *to_port,
-		  const TransRiseFallBoth *tr,
+		  const RiseFallBoth *rf,
 		  const MinMaxAll *min_max)
 {
   ensureInputDrive(port)->setDriveCell(library, cell, from_port, from_slews,
-				       to_port, tr, min_max);
+				       to_port, rf, min_max);
 }
 
 void
 Sdc::setInputSlew(Port *port,
-		  const TransRiseFallBoth *tr,
+		  const RiseFallBoth *rf,
 		  const MinMaxAll *min_max,
 		  float slew)
 {
-  ensureInputDrive(port)->setSlew(tr, min_max, slew);
+  ensureInputDrive(port)->setSlew(rf, min_max, slew);
 }
 
 void
 Sdc::setDriveResistance(Port *port,
-			const TransRiseFallBoth *tr,
+			const RiseFallBoth *rf,
 			const MinMaxAll *min_max,
 			float res)
 {
-  ensureInputDrive(port)->setDriveResistance(tr, min_max, res);
+  ensureInputDrive(port)->setDriveResistance(rf, min_max, res);
 }
 
 InputDrive *
@@ -774,12 +774,12 @@ Sdc::ensureInputDrive(Port *port)
 
 void
 Sdc::setSlewLimit(Clock *clk,
-		  const TransRiseFallBoth *tr,
+		  const RiseFallBoth *rf,
 		  const PathClkOrData clk_data,
 		  const MinMax *min_max,
 		  float slew)
 {
-  clk->setSlewLimit(tr, clk_data, min_max, slew);
+  clk->setSlewLimit(rf, clk_data, min_max, slew);
   have_clk_slew_limits_ = true;
 }
 
@@ -790,13 +790,13 @@ Sdc::haveClkSlewLimits() const
 }
 
 void
-Sdc::slewLimit(Clock *clk, const TransRiseFall *tr,
+Sdc::slewLimit(Clock *clk, const RiseFall *rf,
 	       const PathClkOrData clk_data,
 	       const MinMax *min_max,
 	       float &slew,
 	       bool &exists)
 {
-  clk->slewLimit(tr, clk_data, min_max, slew, exists);
+  clk->slewLimit(rf, clk_data, min_max, slew, exists);
 }
 
 void
@@ -1545,11 +1545,11 @@ Sdc::isPropagatedClock(const Pin *pin)
 
 void
 Sdc::setClockSlew(Clock *clk,
-		  const TransRiseFallBoth *tr,
+		  const RiseFallBoth *rf,
 		  const MinMaxAll *min_max,
 		  float slew)
 {
-  clk->setSlew(tr, min_max, slew);
+  clk->setSlew(rf, min_max, slew);
 }
 
 void
@@ -1561,7 +1561,7 @@ Sdc::removeClockSlew(Clock *clk)
 void
 Sdc::setClockLatency(Clock *clk,
 		     Pin *pin,
-		     const TransRiseFallBoth *tr,
+		     const RiseFallBoth *rf,
 		     const MinMaxAll *min_max,
 		     float delay)
 {
@@ -1571,7 +1571,7 @@ Sdc::setClockLatency(Clock *clk,
     latency = new ClockLatency(clk, pin);
     clk_latencies_.insert(latency);
   }
-  latency->setDelay(tr, min_max, delay);
+  latency->setDelay(rf, min_max, delay);
   if (pin && graph_ && network_->isHierarchical(pin))
     annotateHierClkLatency(pin, latency);
 
@@ -1623,7 +1623,7 @@ Sdc::hasClockLatency(const Pin *pin) const
 void
 Sdc::clockLatency(const Clock *clk,
 		  const Pin *pin,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const MinMax *min_max,
 		  // Return values.
 		  float &latency,
@@ -1635,19 +1635,19 @@ Sdc::clockLatency(const Clock *clk,
     ClockLatency probe(clk, pin);
     ClockLatency *latencies = clk_latencies_.findKey(&probe);
     if (latencies)
-      latencies->delay(tr, min_max, latency, exists);
+      latencies->delay(rf, min_max, latency, exists);
   }
   if (!exists) {
     ClockLatency probe(nullptr, pin);
     ClockLatency *latencies = clk_latencies_.findKey(&probe);
     if (latencies)
-      latencies->delay(tr, min_max, latency, exists);
+      latencies->delay(rf, min_max, latency, exists);
   }
 }
 
 void
 Sdc::clockLatency(const Clock *clk,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const MinMax *min_max,
 		  // Return values.
 		  float &latency,
@@ -1658,17 +1658,17 @@ Sdc::clockLatency(const Clock *clk,
   ClockLatency probe(clk, nullptr);
   ClockLatency *latencies = clk_latencies_.findKey(&probe);
   if (latencies)
-    latencies->delay(tr, min_max, latency, exists);
+    latencies->delay(rf, min_max, latency, exists);
 }
 
 float
 Sdc::clockLatency(const Clock *clk,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const MinMax *min_max) const
 {
   float latency;
   bool exists;
-  clockLatency(clk, tr, min_max,
+  clockLatency(clk, rf, min_max,
 	       latency, exists);
   return latency;
 }
@@ -1723,9 +1723,9 @@ Sdc::clockUncertainty(const Pin *pin,
 
 void
 Sdc::clockUncertainty(const Clock *src_clk,
-		      const TransRiseFall *src_tr,
+		      const RiseFall *src_rf,
 		      const Clock *tgt_clk,
-		      const TransRiseFall *tgt_tr,
+		      const RiseFall *tgt_rf,
 		      const SetupHold *setup_hold,
 		      float &uncertainty,
 		      bool &exists)
@@ -1734,7 +1734,7 @@ Sdc::clockUncertainty(const Clock *src_clk,
   InterClockUncertainty *uncertainties =
     inter_clk_uncertainties_.findKey(&probe);
   if (uncertainties)
-    uncertainties->uncertainty(src_tr, tgt_tr, setup_hold,
+    uncertainties->uncertainty(src_rf, tgt_rf, setup_hold,
 			       uncertainty, exists);
   else {
     uncertainty = 0.0;
@@ -1744,9 +1744,9 @@ Sdc::clockUncertainty(const Clock *src_clk,
 
 void
 Sdc::setClockUncertainty(Clock *from_clk,
-			 const TransRiseFallBoth *from_tr,
+			 const RiseFallBoth *from_rf,
 			 Clock *to_clk,
-			 const TransRiseFallBoth *to_tr,
+			 const RiseFallBoth *to_rf,
 			 const SetupHoldAll *setup_hold,
 			 float uncertainty)
 {
@@ -1757,21 +1757,21 @@ Sdc::setClockUncertainty(Clock *from_clk,
     uncertainties = new InterClockUncertainty(from_clk, to_clk);
     inter_clk_uncertainties_.insert(uncertainties);
   }
-  uncertainties->setUncertainty(from_tr, to_tr, setup_hold, uncertainty);
+  uncertainties->setUncertainty(from_rf, to_rf, setup_hold, uncertainty);
 }
 
 void
 Sdc::removeClockUncertainty(Clock *from_clk,
-			    const TransRiseFallBoth *from_tr,
+			    const RiseFallBoth *from_rf,
 			    Clock *to_clk,
-			    const TransRiseFallBoth *to_tr,
+			    const RiseFallBoth *to_rf,
 			    const SetupHoldAll *setup_hold)
 {
   InterClockUncertainty probe(from_clk, to_clk);
   InterClockUncertainty *uncertainties =
     inter_clk_uncertainties_.findKey(&probe);
   if (uncertainties) {
-    uncertainties->removeUncertainty(from_tr, to_tr, setup_hold);
+    uncertainties->removeUncertainty(from_rf, to_rf, setup_hold);
     if (uncertainties->empty()) {
       inter_clk_uncertainties_.erase(uncertainties);
       delete uncertainties;
@@ -1803,7 +1803,7 @@ Sdc::deleteInterClockUncertaintiesReferencing(Clock *clk)
 void
 Sdc::setClockInsertion(const Clock *clk,
 		       const Pin *pin,
-		       const TransRiseFallBoth *tr,
+		       const RiseFallBoth *rf,
 		       const MinMaxAll *min_max,
 		       const EarlyLateAll *early_late,
 		       float delay)
@@ -1816,13 +1816,13 @@ Sdc::setClockInsertion(const Clock *clk,
     insertion = new ClockInsertion(clk, pin);
     clk_insertions_->insert(insertion);
   }
-  insertion->setDelay(tr, min_max, early_late, delay);
+  insertion->setDelay(rf, min_max, early_late, delay);
 }
 
 void
 Sdc::setClockInsertion(const Clock *clk,
 		       const Pin *pin,
-		       const TransRiseFall *tr,
+		       const RiseFall *rf,
 		       const MinMax *min_max,
 		       const EarlyLate *early_late,
 		       float delay)
@@ -1835,7 +1835,7 @@ Sdc::setClockInsertion(const Clock *clk,
     insertion = new ClockInsertion(clk, pin);
     clk_insertions_->insert(insertion);
   }
-  insertion->setDelay(tr, min_max, early_late, delay);
+  insertion->setDelay(rf, min_max, early_late, delay);
 }
 
 void
@@ -1870,13 +1870,13 @@ Sdc::deleteClockInsertionsReferencing(Clock *clk)
 
 float
 Sdc::clockInsertion(const Clock *clk,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const MinMax *min_max,
 		    const EarlyLate *early_late) const
 {
   float insertion;
   bool exists;
-  clockInsertion(clk, nullptr, tr, min_max, early_late, insertion, exists);
+  clockInsertion(clk, nullptr, rf, min_max, early_late, insertion, exists);
   return insertion;
 }
 
@@ -1894,7 +1894,7 @@ Sdc::hasClockInsertion(const Pin *pin) const
 void
 Sdc::clockInsertion(const Clock *clk,
 		    const Pin *pin,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const MinMax *min_max,
 		    const EarlyLate *early_late,
 		    // Return values.
@@ -1917,7 +1917,7 @@ Sdc::clockInsertion(const Clock *clk,
     }
   }
   if (insert)
-    insert->delay(tr, min_max, early_late, insertion, exists);
+    insert->delay(rf, min_max, early_late, insertion, exists);
   else {
     insertion = 0.0;
     exists = false;
@@ -2270,8 +2270,8 @@ Sdc::clkStopPropagation(const Pin *pin,
 bool
 Sdc::clkStopSense(const Pin *to_pin,
 		  const Clock *clk,
-		  const TransRiseFall *from_tr,
-		  const TransRiseFall *to_tr) const
+		  const RiseFall *from_rf,
+		  const RiseFall *to_rf) const
 {
   PinClockPair pin_clk(to_pin, clk);
   ClockSense sense;
@@ -2284,20 +2284,20 @@ Sdc::clkStopSense(const Pin *to_pin,
   return exists
     && (sense == ClockSense::stop
 	|| (sense == ClockSense::positive
-	    && from_tr != to_tr)
+	    && from_rf != to_rf)
 	|| (sense == ClockSense::negative
-	    && from_tr == to_tr));
+	    && from_rf == to_rf));
 }
 
 bool
 Sdc::clkStopPropagation(const Clock *clk,
 			const Pin *from_pin,
-			const TransRiseFall *from_tr,
+			const RiseFall *from_rf,
 			const Pin *to_pin,
-			const TransRiseFall *to_tr) const
+			const RiseFall *to_rf) const
 {
   return clkStopPropagation(from_pin, clk)
-    || clkStopSense(to_pin, clk, from_tr, to_tr);
+    || clkStopSense(to_pin, clk, from_rf, to_rf);
 }
 
 PinClockPairLess::PinClockPairLess(const Network *network) :
@@ -2323,18 +2323,18 @@ PinClockPairLess::operator()(const PinClockPair &pin_clk1,
 ////////////////////////////////////////////////////////////////
 
 void
-Sdc::setClockGatingCheck(const TransRiseFallBoth *tr,
+Sdc::setClockGatingCheck(const RiseFallBoth *rf,
 			 const SetupHold *setup_hold,
 			 float margin)
 {
   if (clk_gating_check_ == nullptr)
     clk_gating_check_ = new ClockGatingCheck;
-  clk_gating_check_->margins()->setValue(tr, setup_hold, margin);
+  clk_gating_check_->margins()->setValue(rf, setup_hold, margin);
 }
 
 void
 Sdc::setClockGatingCheck(Clock *clk,
-			 const TransRiseFallBoth *tr,
+			 const RiseFallBoth *rf,
 			 const SetupHold *setup_hold,
 			 float margin)
 {
@@ -2343,12 +2343,12 @@ Sdc::setClockGatingCheck(Clock *clk,
     check = new ClockGatingCheck();
     clk_gating_check_map_[clk] = check;
   }
-  check->margins()->setValue(tr, setup_hold, margin);
+  check->margins()->setValue(rf, setup_hold, margin);
 }
 
 void
 Sdc::setClockGatingCheck(Instance *inst,
-			 const TransRiseFallBoth *tr,
+			 const RiseFallBoth *rf,
 			 const SetupHold *setup_hold,
 			 float margin,
 			 LogicValue active_value)
@@ -2358,13 +2358,13 @@ Sdc::setClockGatingCheck(Instance *inst,
     check = new ClockGatingCheck();
     inst_clk_gating_check_map_[inst] = check;
   }
-  check->margins()->setValue(tr, setup_hold, margin);
+  check->margins()->setValue(rf, setup_hold, margin);
   check->setActiveValue(active_value);
 }
 
 void
 Sdc::setClockGatingCheck(const Pin *pin,
-			 const TransRiseFallBoth *tr,
+			 const RiseFallBoth *rf,
 			 const SetupHold *setup_hold,
 			 float margin,
 			 LogicValue active_value)
@@ -2374,73 +2374,73 @@ Sdc::setClockGatingCheck(const Pin *pin,
     check = new ClockGatingCheck();
     pin_clk_gating_check_map_[pin] = check;
   }
-  check->margins()->setValue(tr, setup_hold, margin);
+  check->margins()->setValue(rf, setup_hold, margin);
   check->setActiveValue(active_value);
 }
 
 void
 Sdc::clockGatingMarginEnablePin(const Pin *enable_pin,
-				const TransRiseFall *enable_tr,
+				const RiseFall *enable_rf,
 				const SetupHold *setup_hold,
 				bool &exists, float &margin)
 {
   ClockGatingCheck *check = pin_clk_gating_check_map_.findKey(enable_pin);
   if (check)
-    check->margins()->value(enable_tr, setup_hold, margin, exists);
+    check->margins()->value(enable_rf, setup_hold, margin, exists);
   else
     exists = false;
 }
 
 void
 Sdc::clockGatingMarginInstance(Instance *inst,
-			       const TransRiseFall *enable_tr,
+			       const RiseFall *enable_rf,
 			       const SetupHold *setup_hold,
 			       bool &exists,
 			       float &margin)
 {
   ClockGatingCheck *check = inst_clk_gating_check_map_.findKey(inst);
   if (check)
-    check->margins()->value(enable_tr, setup_hold, margin, exists);
+    check->margins()->value(enable_rf, setup_hold, margin, exists);
   else
     exists = false;
 }
 
 void
 Sdc::clockGatingMarginClkPin(const Pin *clk_pin,
-			     const TransRiseFall *enable_tr,
+			     const RiseFall *enable_rf,
 			     const SetupHold *setup_hold,
 			     bool &exists,
 			     float &margin)
 {
   ClockGatingCheck *check = pin_clk_gating_check_map_.findKey(clk_pin);
   if (check)
-    check->margins()->value(enable_tr, setup_hold, margin, exists);
+    check->margins()->value(enable_rf, setup_hold, margin, exists);
   else
     exists = false;
 }
 
 void
 Sdc::clockGatingMarginClk(const Clock *clk,
-			  const TransRiseFall *enable_tr,
+			  const RiseFall *enable_rf,
 			  const SetupHold *setup_hold,
 			  bool &exists,
 			  float &margin)
 {
   ClockGatingCheck *check = clk_gating_check_map_.findKey(clk);
   if (check)
-    check->margins()->value(enable_tr, setup_hold, margin, exists);
+    check->margins()->value(enable_rf, setup_hold, margin, exists);
   else
     exists = false;
 }
 
 void
-Sdc::clockGatingMargin(const TransRiseFall *enable_tr,
+Sdc::clockGatingMargin(const RiseFall *enable_rf,
 		       const SetupHold *setup_hold,
 		       bool &exists,
 		       float &margin)
 {
   if (clk_gating_check_)
-    clk_gating_check_->margins()->value(enable_tr, setup_hold, margin, exists);
+    clk_gating_check_->margins()->value(enable_rf, setup_hold, margin, exists);
   else
     exists = false;
 }
@@ -2535,9 +2535,9 @@ Sdc::clearCycleAcctings()
 
 void
 Sdc::setDataCheck(Pin *from,
-		  const TransRiseFallBoth *from_tr,
+		  const RiseFallBoth *from_rf,
 		  Pin *to,
-		  const TransRiseFallBoth *to_tr,
+		  const RiseFallBoth *to_rf,
 		  Clock *clk,
 		  const SetupHoldAll *setup_hold,
 		  float margin)
@@ -2554,7 +2554,7 @@ Sdc::setDataCheck(Pin *from,
   }
   if (check == nullptr)
     check = new DataCheck(from, to, clk);
-  check->setMargin(from_tr, to_tr, setup_hold, margin);
+  check->setMargin(from_rf, to_rf, setup_hold, margin);
   checks->insert(check);
 
   checks = data_checks_to_map_.findKey(to);
@@ -2570,9 +2570,9 @@ Sdc::setDataCheck(Pin *from,
 
 void
 Sdc::removeDataCheck(Pin *from,
-		     const TransRiseFallBoth *from_tr,
+		     const RiseFallBoth *from_rf,
 		     Pin *to,
-		     const TransRiseFallBoth *to_tr,
+		     const RiseFallBoth *to_rf,
 		     Clock *clk,
 		     const SetupHoldAll *setup_hold)
 {
@@ -2581,7 +2581,7 @@ Sdc::removeDataCheck(Pin *from,
   if (checks) {
     DataCheck *check = checks->findKey(&probe);
     if (check) {
-      check->removeMargin(from_tr, to_tr, setup_hold);
+      check->removeMargin(from_rf, to_rf, setup_hold);
       if (check->empty()) {
 	checks->erase(check);
 	checks = data_checks_to_map_.findKey(to);
@@ -2657,16 +2657,16 @@ Sdc::latchBorrowLimit(Pin *data_pin,
 ////////////////////////////////////////////////////////////////
 
 void
-Sdc::setMinPulseWidth(const TransRiseFallBoth *tr,
+Sdc::setMinPulseWidth(const RiseFallBoth *rf,
 		      float min_width)
 {
-  for (auto tr1 : tr->range())
-    min_pulse_width_.setValue(tr1, min_width);
+  for (auto rf1 : rf->range())
+    min_pulse_width_.setValue(rf1, min_width);
 }
 
 void
 Sdc::setMinPulseWidth(const Pin *pin,
-		      const TransRiseFallBoth *tr,
+		      const RiseFallBoth *rf,
 		      float min_width)
 {
   RiseFallValues *widths = pin_min_pulse_width_map_.findKey(pin);
@@ -2674,13 +2674,13 @@ Sdc::setMinPulseWidth(const Pin *pin,
     widths = new RiseFallValues;
     pin_min_pulse_width_map_[pin] = widths;
   }
-  for (auto tr1 : tr->range())
-    widths->setValue(tr1, min_width);
+  for (auto rf1 : rf->range())
+    widths->setValue(rf1, min_width);
 }
 
 void
 Sdc::setMinPulseWidth(const Instance *inst,
-		      const TransRiseFallBoth *tr,
+		      const RiseFallBoth *rf,
 		      float min_width)
 {
   RiseFallValues *widths = inst_min_pulse_width_map_.findKey(inst);
@@ -2688,13 +2688,13 @@ Sdc::setMinPulseWidth(const Instance *inst,
     widths = new RiseFallValues;
     inst_min_pulse_width_map_[inst] = widths;
   }
-  for (auto tr1 : tr->range())
-    widths->setValue(tr1, min_width);
+  for (auto rf1 : rf->range())
+    widths->setValue(rf1, min_width);
 }
 
 void
 Sdc::setMinPulseWidth(const Clock *clk,
-		      const TransRiseFallBoth *tr,
+		      const RiseFallBoth *rf,
 		      float min_width)
 {
   RiseFallValues *widths = clk_min_pulse_width_map_.findKey(clk);
@@ -2702,14 +2702,14 @@ Sdc::setMinPulseWidth(const Clock *clk,
     widths = new RiseFallValues;
     clk_min_pulse_width_map_[clk] = widths;
   }
-  for (auto tr1 : tr->range())
-    widths->setValue(tr1, min_width);
+  for (auto rf1 : rf->range())
+    widths->setValue(rf1, min_width);
 }
 
 void
 Sdc::minPulseWidth(const Pin *pin,
 		   const Clock *clk,
-		   const TransRiseFall *hi_low,
+		   const RiseFall *hi_low,
 		   float &min_width,
 		   bool &exists) const
 {
@@ -2750,9 +2750,9 @@ Sdc::findInputDrive(Port *port)
 
 void
 Sdc::setInputDelay(Pin *pin,
-		   const TransRiseFallBoth *tr,
+		   const RiseFallBoth *rf,
 		   Clock *clk,
-		   const TransRiseFall *clk_tr,
+		   const RiseFall *clk_rf,
 		   Pin *ref_pin,
 		   bool source_latency_included,
 		   bool network_latency_included,
@@ -2760,18 +2760,18 @@ Sdc::setInputDelay(Pin *pin,
 		   bool add,
 		   float delay)
 {
-  ClockEdge *clk_edge = clk ? clk->edge(clk_tr) : nullptr;
+  ClockEdge *clk_edge = clk ? clk->edge(clk_rf) : nullptr;
   InputDelay *input_delay = findInputDelay(pin, clk_edge, ref_pin);
   if (input_delay == nullptr)
     input_delay = makeInputDelay(pin, clk_edge, ref_pin);
   if (add) {
     RiseFallMinMax *delays = input_delay->delays();
-    delays->mergeValue(tr, min_max, delay);
+    delays->mergeValue(rf, min_max, delay);
   }
   else {
     deleteInputDelays(pin, input_delay);
     RiseFallMinMax *delays = input_delay->delays();
-    delays->setValue(tr, min_max, delay);
+    delays->setValue(rf, min_max, delay);
   }
   input_delay->setSourceLatencyIncluded(source_latency_included);
   input_delay->setNetworkLatencyIncluded(network_latency_included);
@@ -2840,16 +2840,16 @@ Sdc::findInputDelay(const Pin *pin,
 
 void
 Sdc::removeInputDelay(Pin *pin,
-		      TransRiseFallBoth *tr,
+		      RiseFallBoth *rf,
 		      Clock *clk,
-		      TransRiseFall *clk_tr,
+		      RiseFall *clk_rf,
 		      MinMaxAll *min_max)
 {
-  ClockEdge *clk_edge = clk ? clk->edge(clk_tr) : nullptr;
+  ClockEdge *clk_edge = clk ? clk->edge(clk_rf) : nullptr;
   InputDelay *input_delay = findInputDelay(pin, clk_edge, nullptr);
   if (input_delay) {
     RiseFallMinMax *delays = input_delay->delays();
-    delays->removeValue(tr, min_max);
+    delays->removeValue(rf, min_max);
     if (delays->empty())
       deleteInputDelay(input_delay);
   }
@@ -2925,9 +2925,9 @@ Sdc::deleteInputDelay(InputDelay *input_delay)
 
 void
 Sdc::setOutputDelay(Pin *pin,
-		    const TransRiseFallBoth *tr,
+		    const RiseFallBoth *rf,
 		    Clock *clk,
-		    const TransRiseFall *clk_tr,
+		    const RiseFall *clk_rf,
 		    Pin *ref_pin,
 		    bool source_latency_included,
 		    bool network_latency_included,
@@ -2935,18 +2935,18 @@ Sdc::setOutputDelay(Pin *pin,
 		    bool add,
 		    float delay)
 {
-  ClockEdge *clk_edge = clk ? clk->edge(clk_tr) : nullptr;
+  ClockEdge *clk_edge = clk ? clk->edge(clk_rf) : nullptr;
   OutputDelay *output_delay = findOutputDelay(pin, clk_edge, ref_pin);
   if (output_delay == nullptr)
     output_delay = makeOutputDelay(pin, clk_edge, ref_pin);
   if (add) {
     RiseFallMinMax *delays = output_delay->delays();
-    delays->mergeValue(tr, min_max, delay);
+    delays->mergeValue(rf, min_max, delay);
   }
   else {
     deleteOutputDelays(pin, output_delay);
     RiseFallMinMax *delays = output_delay->delays();
-    delays->setValue(tr, min_max, delay);
+    delays->setValue(rf, min_max, delay);
   }
   output_delay->setSourceLatencyIncluded(source_latency_included);
   output_delay->setNetworkLatencyIncluded(network_latency_included);
@@ -3007,16 +3007,16 @@ Sdc::makeOutputDelay(Pin *pin,
 
 void
 Sdc::removeOutputDelay(Pin *pin,
-		       TransRiseFallBoth *tr,
+		       RiseFallBoth *rf,
 		       Clock *clk,
-		       TransRiseFall *clk_tr,
+		       RiseFall *clk_rf,
 		       MinMaxAll *min_max)
 {
-  ClockEdge *clk_edge = clk ? clk->edge(clk_tr) : nullptr;
+  ClockEdge *clk_edge = clk ? clk->edge(clk_rf) : nullptr;
   OutputDelay *output_delay = findOutputDelay(pin, clk_edge, nullptr);
   if (output_delay) {
     RiseFallMinMax *delays = output_delay->delays();
-    delays->removeValue(tr, min_max);
+    delays->removeValue(rf, min_max);
   }
 }
 
@@ -3077,18 +3077,18 @@ Sdc::deleteOutputDelay(OutputDelay *output_delay)
 
 void
 Sdc::setPortExtPinCap(Port *port,
-		      const TransRiseFall *tr,
+		      const RiseFall *rf,
 		      const MinMax *min_max,
 		      float cap)
 {
   PortExtCap *port_cap = ensurePortExtPinCap(port);
-  port_cap->setPinCap(cap, tr, min_max);
+  port_cap->setPinCap(cap, rf, min_max);
 }
 
 void
 Sdc::setPortExtWireCap(Port *port,
 		       bool subtract_pin_cap,
-		       const TransRiseFall *tr,
+		       const RiseFall *rf,
 		       const Corner *corner,
 		       const MinMax *min_max,
 		       float cap)
@@ -3097,11 +3097,11 @@ Sdc::setPortExtWireCap(Port *port,
   if (subtract_pin_cap) {
     Pin *pin = network_->findPin(network_->name(port));
     const OperatingConditions *op_cond = operatingConditions(min_max);
-    cap -= connectedPinCap(pin, tr, op_cond, corner, min_max);
+    cap -= connectedPinCap(pin, rf, op_cond, corner, min_max);
     if (cap < 0.0)
       cap = 0.0;
   }
-  port_cap->setWireCap(cap, tr, min_max);
+  port_cap->setWireCap(cap, rf, min_max);
 }
 
 PortExtCap *
@@ -3124,7 +3124,7 @@ Sdc::hasPortExtCap(Port *port) const
 
 void
 Sdc::portExtCap(Port *port,
-		const TransRiseFall *tr,
+		const RiseFall *rf,
 		const MinMax *min_max,
 		// Return values.
 		float &pin_cap,
@@ -3137,8 +3137,8 @@ Sdc::portExtCap(Port *port,
   if (port_cap_map_) {
     PortExtCap *port_cap = port_cap_map_->findKey(port);
     if (port_cap) {
-      port_cap->pinCap(tr, min_max, pin_cap, has_pin_cap);
-      port_cap->wireCap(tr, min_max, wire_cap, has_wire_cap);
+      port_cap->pinCap(rf, min_max, pin_cap, has_pin_cap);
+      port_cap->wireCap(rf, min_max, wire_cap, has_wire_cap);
       port_cap->fanout(min_max, fanout, has_fanout);
       return;
     }
@@ -3153,13 +3153,13 @@ Sdc::portExtCap(Port *port,
 
 float
 Sdc::portExtCap(Port *port,
-		const TransRiseFall *tr,
+		const RiseFall *rf,
 		const MinMax *min_max) const
 {
   float pin_cap, wire_cap;
   int fanout;
   bool has_pin_cap, has_wire_cap, has_fanout;
-  portExtCap(port, tr, min_max,
+  portExtCap(port, rf, min_max,
 	     pin_cap, has_pin_cap,
 	     wire_cap, has_wire_cap,
 	     fanout, has_fanout);
@@ -3209,9 +3209,9 @@ Sdc::setNetWireCap(Net *net,
     NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(net);
     if (pin_iter->hasNext()) {
       Pin *pin = pin_iter->next();
-      float pin_cap_rise = connectedPinCap(pin, TransRiseFall::rise(),
+      float pin_cap_rise = connectedPinCap(pin, RiseFall::rise(),
 					   op_cond, corner, min_max);
-      float pin_cap_fall = connectedPinCap(pin, TransRiseFall::fall(),
+      float pin_cap_fall = connectedPinCap(pin, RiseFall::fall(),
 					   op_cond, corner, min_max);
       float pin_cap = (pin_cap_rise + pin_cap_fall) / 2.0F;
       wire_cap -= pin_cap;
@@ -3252,7 +3252,7 @@ Sdc::hasNetWireCap(Net *net) const
 
 void
 Sdc::connectedCap(const Pin *pin,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const OperatingConditions *op_cond,
 		  const Corner *corner,
 		  const MinMax *min_max,
@@ -3262,7 +3262,7 @@ Sdc::connectedCap(const Pin *pin,
 		  float &fanout,
 		  bool &has_set_load) const
 {
-  netCaps(pin, tr, op_cond, corner, min_max,
+  netCaps(pin, rf, op_cond, corner, min_max,
 	  pin_cap, wire_cap, fanout, has_set_load);
   float net_wire_cap;
   bool has_net_wire_cap;
@@ -3275,14 +3275,14 @@ Sdc::connectedCap(const Pin *pin,
 
 float
 Sdc::connectedPinCap(const Pin *pin,
-		     const TransRiseFall *tr,
+		     const RiseFall *rf,
 		     const OperatingConditions *op_cond,
 		     const Corner *corner,
 		     const MinMax *min_max)
 {
   float pin_cap, wire_cap, fanout;
   bool has_set_load;
-  connectedCap(pin, tr, op_cond, corner, min_max,
+  connectedCap(pin, rf, op_cond, corner, min_max,
 	       pin_cap, wire_cap, fanout, has_set_load);
   return pin_cap;
 }
@@ -3290,7 +3290,7 @@ Sdc::connectedPinCap(const Pin *pin,
 class FindNetCaps : public PinVisitor
 {
 public:
-  FindNetCaps(const TransRiseFall *tr,
+  FindNetCaps(const RiseFall *rf,
 	      const OperatingConditions *op_cond,
 	      const Corner *corner,
 	      const MinMax *min_max,
@@ -3302,7 +3302,7 @@ public:
   virtual void operator()(Pin *pin);
 
 protected:
-  const TransRiseFall *tr_;
+  const RiseFall *rf_;
   const OperatingConditions *op_cond_;
   const Corner *corner_;
   const MinMax *min_max_;
@@ -3316,7 +3316,7 @@ private:
   DISALLOW_COPY_AND_ASSIGN(FindNetCaps);
 };
 
-FindNetCaps::FindNetCaps(const TransRiseFall *tr,
+FindNetCaps::FindNetCaps(const RiseFall *rf,
 			 const OperatingConditions *op_cond,
 			 const Corner *corner,
 			 const MinMax *min_max,
@@ -3326,7 +3326,7 @@ FindNetCaps::FindNetCaps(const TransRiseFall *tr,
 			 bool &has_set_load,
 			 const Sdc *sdc) :
   PinVisitor(),
-  tr_(tr),
+  rf_(rf),
   op_cond_(op_cond),
   corner_(corner),
   min_max_(min_max),
@@ -3341,14 +3341,14 @@ FindNetCaps::FindNetCaps(const TransRiseFall *tr,
 void
 FindNetCaps::operator()(Pin *pin)
 {
-  sdc_->pinCaps(pin, tr_, op_cond_, corner_, min_max_,
+  sdc_->pinCaps(pin, rf_, op_cond_, corner_, min_max_,
 		pin_cap_, wire_cap_, fanout_, has_set_load_);
 }
 
 // Capacitances for all pins connected to drvr_pin's net.
 void
 Sdc::netCaps(const Pin *drvr_pin,
-	     const TransRiseFall *tr,
+	     const RiseFall *rf,
 	     const OperatingConditions *op_cond,
 	     const Corner *corner,
 	     const MinMax *min_max,
@@ -3362,14 +3362,14 @@ Sdc::netCaps(const Pin *drvr_pin,
   wire_cap = 0.0;
   fanout = 0.0;
   has_set_load = false;
-  FindNetCaps visitor(tr, op_cond, corner, min_max, pin_cap,
+  FindNetCaps visitor(rf, op_cond, corner, min_max, pin_cap,
 		      wire_cap, fanout, has_set_load, this);
   network_->visitConnectedPins(const_cast<Pin*>(drvr_pin), visitor);
 }
 
 void
 Sdc::pinCaps(const Pin *pin,
-	     const TransRiseFall *tr,
+	     const RiseFall *rf,
 	     const OperatingConditions *op_cond,
 	     const Corner *corner,
 	     const MinMax *min_max,
@@ -3385,7 +3385,7 @@ Sdc::pinCaps(const Pin *pin,
     float port_pin_cap, port_wire_cap;
     int port_fanout;
     bool has_pin_cap, has_wire_cap, has_fanout;
-    portExtCap(port, tr, min_max,
+    portExtCap(port, rf, min_max,
 	       port_pin_cap, has_pin_cap,
 	       port_wire_cap, has_wire_cap,
 	       port_fanout, has_fanout);
@@ -3405,7 +3405,7 @@ Sdc::pinCaps(const Pin *pin,
     LibertyPort *port = network_->libertyPort(pin);
     if (port) {
       Instance *inst = network_->instance(pin);
-      pin_cap += portCapacitance(inst, port, tr, op_cond, corner, min_max);
+      pin_cap += portCapacitance(inst, port, rf, op_cond, corner, min_max);
       if (port->direction()->isAnyInput())
 	fanout++;
     }
@@ -3415,7 +3415,7 @@ Sdc::pinCaps(const Pin *pin,
 float
 Sdc::portCapacitance(Instance *inst,
 		     LibertyPort *port,
-		     const TransRiseFall *tr,
+		     const RiseFall *rf,
 		     const OperatingConditions *op_cond,
 		     const Corner *corner,
 		     const MinMax *min_max) const
@@ -3424,12 +3424,12 @@ Sdc::portCapacitance(Instance *inst,
   if (inst)
     inst_pvt = pvt(inst, min_max);
   LibertyPort *corner_port = port->cornerPort(corner->libertyIndex(min_max));
-  return corner_port->capacitance(tr, min_max, op_cond, inst_pvt);
+  return corner_port->capacitance(rf, min_max, op_cond, inst_pvt);
 }
 
 float
 Sdc::pinCapacitance(const Pin *pin,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const OperatingConditions *op_cond,
 		    const Corner *corner,
 		    const MinMax *min_max)
@@ -3437,7 +3437,7 @@ Sdc::pinCapacitance(const Pin *pin,
   LibertyPort *port = network_->libertyPort(pin);
   if (port) {
     Instance *inst = network_->instance(pin);
-    return portCapacitance(inst, port, tr, op_cond, corner, min_max);
+    return portCapacitance(inst, port, rf, op_cond, corner, min_max);
   }
   else
     return 0.0;
@@ -3977,12 +3977,12 @@ ExceptionFrom *
 Sdc::makeExceptionFrom(PinSet *from_pins,
 		       ClockSet *from_clks,
 		       InstanceSet *from_insts,
-		       const TransRiseFallBoth *from_tr)
+		       const RiseFallBoth *from_rf)
 {
   if ((from_pins && !from_pins->empty())
       || (from_clks && !from_clks->empty())
       || (from_insts && !from_insts->empty()))
-    return new ExceptionFrom(from_pins, from_clks, from_insts, from_tr, true);
+    return new ExceptionFrom(from_pins, from_clks, from_insts, from_rf, true);
   else
     return nullptr;
 }
@@ -3991,12 +3991,12 @@ ExceptionThru *
 Sdc::makeExceptionThru(PinSet *pins,
 		       NetSet *nets,
 		       InstanceSet *insts,
-		       const TransRiseFallBoth *tr)
+		       const RiseFallBoth *rf)
 {
   if ((pins && !pins->empty())
       || (nets && !nets->empty())
       || (insts && !insts->empty()))
-    return new ExceptionThru(pins, nets, insts, tr, true, network_);
+    return new ExceptionThru(pins, nets, insts, rf, true, network_);
   else
     return nullptr;
 }
@@ -4005,15 +4005,15 @@ ExceptionTo *
 Sdc::makeExceptionTo(PinSet *pins,
 		     ClockSet *clks,
 		     InstanceSet *insts,
-		     const TransRiseFallBoth *tr,
-		     const TransRiseFallBoth *end_tr)
+		     const RiseFallBoth *rf,
+		     const RiseFallBoth *end_rf)
 {
   if ((pins && !pins->empty())
       || (clks && !clks->empty())
       || (insts && !insts->empty())
-      || (tr != TransRiseFallBoth::riseFall())
-      || (end_tr != TransRiseFallBoth::riseFall()))
-    return new ExceptionTo(pins, clks, insts, tr, end_tr, true);
+      || (rf != RiseFallBoth::riseFall())
+      || (end_rf != RiseFallBoth::riseFall()))
+    return new ExceptionTo(pins, clks, insts, rf, end_rf, true);
   else
     return nullptr;
 }
@@ -4380,7 +4380,7 @@ Sdc::makeLoopExceptionThru(Pin *pin,
   PinSet *pins = new PinSet;
   pins->insert(pin);
   ExceptionThru *thru = makeExceptionThru(pins, nullptr, nullptr,
-					  TransRiseFallBoth::riseFall());
+					  RiseFallBoth::riseFall());
   thrus->push_back(thru);
 }
 
@@ -5475,20 +5475,20 @@ Sdc::resetPath(ExceptionFrom *from,
 
 bool
 Sdc::exceptionFromStates(const Pin *pin,
-			 const TransRiseFall *tr,
+			 const RiseFall *rf,
 			 const Clock *clk,
-			 const TransRiseFall *clk_tr,
+			 const RiseFall *clk_rf,
 			 const MinMax *min_max,
 			 ExceptionStateSet *&states) const
 {
-  return exceptionFromStates(pin, tr, clk, clk_tr, min_max, true, states);
+  return exceptionFromStates(pin, rf, clk, clk_rf, min_max, true, states);
 }
 
 bool
 Sdc::exceptionFromStates(const Pin *pin,
-			 const TransRiseFall *tr,
+			 const RiseFall *rf,
 			 const Clock *clk,
-			 const TransRiseFall *clk_tr,
+			 const RiseFall *clk_rf,
 			 const MinMax *min_max,
 			 bool include_filter,
 			 ExceptionStateSet *&states) const
@@ -5497,11 +5497,11 @@ Sdc::exceptionFromStates(const Pin *pin,
   if (pin) {
     if (srch_from && first_from_pin_exceptions_)
       srch_from &= exceptionFromStates(first_from_pin_exceptions_->findKey(pin),
-				       nullptr, tr, min_max, include_filter,
+				       nullptr, rf, min_max, include_filter,
 				       states);
     if (srch_from && first_thru_pin_exceptions_)
       srch_from &= exceptionFromStates(first_thru_pin_exceptions_->findKey(pin),
-				       nullptr, tr, min_max, include_filter,
+				       nullptr, rf, min_max, include_filter,
 				       states);
 
     if (srch_from
@@ -5509,17 +5509,17 @@ Sdc::exceptionFromStates(const Pin *pin,
       Instance *inst = network_->instance(pin);
       if (srch_from && first_from_inst_exceptions_)
 	srch_from &= exceptionFromStates(first_from_inst_exceptions_->findKey(inst),
-					 pin, tr, min_max, include_filter,
+					 pin, rf, min_max, include_filter,
 					 states);
       if (srch_from && first_thru_inst_exceptions_)
 	srch_from &= exceptionFromStates(first_thru_inst_exceptions_->findKey(inst),
-					 pin, tr, min_max, include_filter,
+					 pin, rf, min_max, include_filter,
 					 states);
     }
   }
   if (srch_from && clk && first_from_clk_exceptions_)
     srch_from &= exceptionFromStates(first_from_clk_exceptions_->findKey(clk),
-				     pin, clk_tr, min_max, include_filter,
+				     pin, clk_rf, min_max, include_filter,
 				     states);
   if (!srch_from) {
     delete states;
@@ -5531,7 +5531,7 @@ Sdc::exceptionFromStates(const Pin *pin,
 bool
 Sdc::exceptionFromStates(const ExceptionPathSet *exceptions,
 			 const Pin *pin,
-			 const TransRiseFall *tr,
+			 const RiseFall *rf,
 			 const MinMax *min_max,
 			 bool include_filter,
 			 ExceptionStateSet *&states) const
@@ -5542,10 +5542,10 @@ Sdc::exceptionFromStates(const ExceptionPathSet *exceptions,
       ExceptionPath *exception = exception_iter.next();
       if (exception->matches(min_max, false)
 	  && (exception->from() == nullptr
-	      || exception->from()->transition()->matches(tr))
+	      || exception->from()->transition()->matches(rf))
 	  && (include_filter || !exception->isFilter())) {
 	ExceptionState *state = exception->firstState();
-	if (state->matchesNextThru(nullptr, pin, tr, min_max, network_))
+	if (state->matchesNextThru(nullptr, pin, rf, min_max, network_))
 	  // -from clk -thru reg/clk
 	  state = state->nextState();
 	// If the exception is -from and has no -to transition it is
@@ -5574,30 +5574,30 @@ Sdc::exceptionFromStates(const ExceptionPathSet *exceptions,
 
 void
 Sdc::exceptionFromClkStates(const Pin *pin,
-			    const TransRiseFall *tr,
+			    const RiseFall *rf,
 			    const Clock *clk,
-			    const TransRiseFall *clk_tr,
+			    const RiseFall *clk_rf,
 			    const MinMax *min_max,
 			    ExceptionStateSet *&states) const
 {
   if (pin) {
     if (first_from_pin_exceptions_)
       exceptionFromStates(first_from_pin_exceptions_->findKey(pin),
-			  nullptr, tr, min_max, true, states);
+			  nullptr, rf, min_max, true, states);
     if (first_from_inst_exceptions_) {
       Instance *inst = network_->instance(pin);
       exceptionFromStates(first_from_inst_exceptions_->findKey(inst),
-			  pin, tr, min_max, true, states);
+			  pin, rf, min_max, true, states);
     }
   }
   if (first_from_clk_exceptions_)
     exceptionFromStates(first_from_clk_exceptions_->findKey(clk),
-			pin, clk_tr, min_max, true, states);
+			pin, clk_rf, min_max, true, states);
 }
 
 void
 Sdc::filterRegQStates(const Pin *to_pin,
-		      const TransRiseFall *to_tr,
+		      const RiseFall *to_rf,
 		      const MinMax *min_max,
 		      ExceptionStateSet *&states) const
 {
@@ -5610,7 +5610,7 @@ Sdc::filterRegQStates(const Pin *to_pin,
 	ExceptionPath *exception = exception_iter.next();
 	// Hack for filter -from reg/Q.
 	if (exception->isFilter()
-	    && exception->matchesFirstPt(to_tr, min_max)) {
+	    && exception->matchesFirstPt(to_rf, min_max)) {
 	  ExceptionState *state = exception->firstState();
 	  if (states == nullptr)
 	    states = new ExceptionStateSet;
@@ -5624,30 +5624,30 @@ Sdc::filterRegQStates(const Pin *to_pin,
 void
 Sdc::exceptionThruStates(const Pin *from_pin,
 			 const Pin *to_pin,
-			 const TransRiseFall *to_tr,
+			 const RiseFall *to_rf,
 			 const MinMax *min_max,
 			 ExceptionStateSet *&states) const
 {
   if (first_thru_pin_exceptions_)
     exceptionThruStates(first_thru_pin_exceptions_->findKey(to_pin),
-			to_tr, min_max, states);
+			to_rf, min_max, states);
   if (first_thru_edge_exceptions_) {
     EdgePins edge_pins(const_cast<Pin*>(from_pin), const_cast<Pin*>(to_pin));
     exceptionThruStates(first_thru_edge_exceptions_->findKey(&edge_pins),
-			to_tr, min_max, states);
+			to_rf, min_max, states);
   }
   if (first_thru_inst_exceptions_
       && (network_->direction(to_pin)->isAnyOutput()
 	  || network_->isLatchData(to_pin))) {
     const Instance *to_inst = network_->instance(to_pin);
     exceptionThruStates(first_thru_inst_exceptions_->findKey(to_inst),
-			to_tr, min_max, states);
+			to_rf, min_max, states);
   }
 }
 
 void
 Sdc::exceptionThruStates(const ExceptionPathSet *exceptions,
-			 const TransRiseFall *to_tr,
+			 const RiseFall *to_rf,
 			 const MinMax *min_max,
 			 // Return value.
 			 ExceptionStateSet *&states) const
@@ -5656,7 +5656,7 @@ Sdc::exceptionThruStates(const ExceptionPathSet *exceptions,
     ExceptionPathSet::ConstIterator exception_iter(exceptions);
     while (exception_iter.hasNext()) {
       ExceptionPath *exception = exception_iter.next();
-      if (exception->matchesFirstPt(to_tr, min_max)) {
+      if (exception->matchesFirstPt(to_rf, min_max)) {
 	ExceptionState *state = exception->firstState();
 	if (states == nullptr)
 	  states = new ExceptionStateSet;
@@ -5669,7 +5669,7 @@ Sdc::exceptionThruStates(const ExceptionPathSet *exceptions,
 void
 Sdc::exceptionTo(ExceptionPathType type,
 		 const Pin *pin,
-		 const TransRiseFall *tr,
+		 const RiseFall *rf,
 		 const ClockEdge *clk_edge,
 		 const MinMax *min_max,
 		 bool match_min_max_exactly,
@@ -5679,17 +5679,17 @@ Sdc::exceptionTo(ExceptionPathType type,
 {
   if (first_to_inst_exceptions_) {
     Instance *inst = network_->instance(pin);
-    exceptionTo(first_to_inst_exceptions_->findKey(inst), type, pin, tr,
+    exceptionTo(first_to_inst_exceptions_->findKey(inst), type, pin, rf,
 		clk_edge, min_max, match_min_max_exactly,
 		hi_priority_exception, hi_priority);
   }
   if (first_to_pin_exceptions_)
-    exceptionTo(first_to_pin_exceptions_->findKey(pin), type, pin, tr,
+    exceptionTo(first_to_pin_exceptions_->findKey(pin), type, pin, rf,
 		clk_edge, min_max, match_min_max_exactly,
 		hi_priority_exception, hi_priority);
   if (clk_edge && first_to_clk_exceptions_)
     exceptionTo(first_to_clk_exceptions_->findKey(clk_edge->clock()),
-		type, pin, tr, clk_edge, min_max, match_min_max_exactly,
+		type, pin, rf, clk_edge, min_max, match_min_max_exactly,
 		hi_priority_exception, hi_priority);
 }
 
@@ -5697,7 +5697,7 @@ void
 Sdc::exceptionTo(const ExceptionPathSet *to_exceptions,
 		 ExceptionPathType type,
 		 const Pin *pin,
-		 const TransRiseFall *tr,
+		 const RiseFall *rf,
 		 const ClockEdge *clk_edge,
 		 const MinMax *min_max,
 		 bool match_min_max_exactly,
@@ -5709,7 +5709,7 @@ Sdc::exceptionTo(const ExceptionPathSet *to_exceptions,
     ExceptionPathSet::ConstIterator exception_iter(to_exceptions);
     while (exception_iter.hasNext()) {
       ExceptionPath *exception = exception_iter.next();
-      exceptionTo(exception, type, pin, tr, clk_edge,
+      exceptionTo(exception, type, pin, rf, clk_edge,
 		  min_max, match_min_max_exactly,
 		  hi_priority_exception, hi_priority);
     }
@@ -5720,7 +5720,7 @@ void
 Sdc::exceptionTo(ExceptionPath *exception,
 		 ExceptionPathType type,
 		 const Pin *pin,
-		 const TransRiseFall *tr,
+		 const RiseFall *rf,
 		 const ClockEdge *clk_edge,
 		 const MinMax *min_max,
 		 bool match_min_max_exactly,
@@ -5730,7 +5730,7 @@ Sdc::exceptionTo(ExceptionPath *exception,
 {
   if ((type == ExceptionPathType::any
        || exception->type() == type)
-      && exceptionMatchesTo(exception, pin, tr, clk_edge, min_max,
+      && exceptionMatchesTo(exception, pin, rf, clk_edge, min_max,
 			    match_min_max_exactly, false)) {
     int priority = exception->priority(min_max);
     if (hi_priority_exception == nullptr
@@ -5746,7 +5746,7 @@ Sdc::exceptionTo(ExceptionPath *exception,
 bool
 Sdc::exceptionMatchesTo(ExceptionPath *exception,
 			const Pin *pin,
-			const TransRiseFall *tr,
+			const RiseFall *rf,
 			const ClockEdge *clk_edge,
 			const MinMax *min_max,
 			bool match_min_max_exactly,
@@ -5757,20 +5757,20 @@ Sdc::exceptionMatchesTo(ExceptionPath *exception,
     && ((to == nullptr
 	 && !require_to_pin)
 	|| (to
-	    && to->matches(pin, clk_edge, tr, network_)));
+	    && to->matches(pin, clk_edge, rf, network_)));
 }
 
 bool
 Sdc::isCompleteTo(ExceptionState *state,
 		  const Pin *pin,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const ClockEdge *clk_edge,
 		  const MinMax *min_max,
 		  bool match_min_max_exactly,
 		  bool require_to_pin) const
 {
   return state->nextThru() == nullptr
-    && exceptionMatchesTo(state->exception(), pin, tr, clk_edge,
+    && exceptionMatchesTo(state->exception(), pin, rf, clk_edge,
 			  min_max, match_min_max_exactly, require_to_pin);
 }
 
@@ -6022,7 +6022,7 @@ Sdc::setClkThruTristateEnabled(bool enable)
 ClockEdge *
 Sdc::defaultArrivalClockEdge() const
 {
-  return default_arrival_clk_->edge(TransRiseFall::rise());
+  return default_arrival_clk_->edge(RiseFall::rise());
 }
 
 bool
@@ -6425,7 +6425,7 @@ Sdc::clockLatency(Edge *edge) const
 
 void
 Sdc::clockLatency(Edge *edge,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const MinMax *min_max,
 		  // Return values.
 		  float &latency,
@@ -6433,7 +6433,7 @@ Sdc::clockLatency(Edge *edge,
 {
   ClockLatency *latencies = edge_clk_latency_.findKey(edge);
   if (latencies)
-    latencies->delay(tr, min_max, latency, exists);
+    latencies->delay(rf, min_max, latency, exists);
   else {
     latency = 0.0;
     exists = false;

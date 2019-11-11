@@ -138,26 +138,26 @@ public:
   void reportSlewLimitShortHeader();
   void reportSlewLimitShortHeader(string &result);
   void reportSlewLimitShort(Pin *pin,
-			    const TransRiseFall *tr,
+			    const RiseFall *rf,
 			    Slew slew,
 			    float limit,
 			    float slack);
   void reportSlewLimitShort(Pin *pin, const
-			    TransRiseFall *tr,
+			    RiseFall *rf,
 			    Slew slew,
 			    float limit,
 			    float slack,
 			    string &result);
   void reportSlewLimitVerbose(Pin *pin,
 			      const Corner *corner,
-			      const TransRiseFall *tr,
+			      const RiseFall *rf,
 			      Slew slew,
 			      float limit,
 			      float slack,
 			      const MinMax *min_max);
   void reportSlewLimitVerbose(Pin *pin,
 			      const Corner *corner,
-			      const TransRiseFall *tr,
+			      const RiseFall *rf,
 			      Slew slew,
 			      float limit,
 			      float slack,
@@ -254,7 +254,7 @@ protected:
   bool pathFromGenPropClk(const Path *clk_path,
 			  const EarlyLate *early_late);
   bool isGenPropClk(const Clock *clk,
-		    const TransRiseFall *clk_tr,
+		    const RiseFall *clk_rf,
 		    const MinMax *min_max,
 		    const EarlyLate *early_late);
   void reportSrcClkAndPath(const Path *path,
@@ -265,19 +265,21 @@ protected:
 			   bool is_path_delay,
 			   string &result);
   bool reportGenClkSrcPath(const Path *clk_path, Clock *clk,
-			   const TransRiseFall *clk_tr,
+			   const RiseFall *clk_rf,
 			   const MinMax *min_max,
 			   const EarlyLate *early_late);
-  void reportGenClkSrcAndPath(const Path *path, Clock *clk,
-			      const TransRiseFall *clk_tr,
+  void reportGenClkSrcAndPath(const Path *path,
+			      Clock *clk,
+			      const RiseFall *clk_rf,
 			      const EarlyLate *early_late,
 			      const PathAnalysisPt *path_ap,
 			      float time_offset,
 			      float path_time_offset,
 			      bool clk_used_as_data,
 			      string &result);
-  bool reportGenClkSrcPath1(Clock *clk, const Pin *clk_pin,
-			    const TransRiseFall *clk_tr,
+  bool reportGenClkSrcPath1(Clock *clk,
+			    const Pin *clk_pin,
+			    const RiseFall *clk_rf,
 			    const EarlyLate *early_late,
 			    const PathAnalysisPt *path_ap,
 			    float gclk_time,
@@ -301,13 +303,13 @@ protected:
 			    string &result);
   void reportClkLine(const Clock *clk,
 		     const char *clk_name,
-		     const TransRiseFall *clk_tr,
+		     const RiseFall *clk_rf,
 		     Arrival clk_time,
 		     const MinMax *min_max,
 		     string &result);
   void reportClkLine(const Clock *clk,
 		     const char *clk_name,
-		     const TransRiseFall *clk_tr,
+		     const RiseFall *clk_rf,
 		     Arrival prev_time,
 		     Arrival clk_time,
 		     const MinMax *min_max,
@@ -379,7 +381,7 @@ protected:
   void reportLine(const char *what,
 		  Delay total,
 		  const EarlyLate *early_late,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  string &result);
   void reportLine(const char *what,
 		  Delay incr,
@@ -390,7 +392,7 @@ protected:
 		  Delay incr,
 		  Delay total,
 		  const EarlyLate *early_late,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  string &result);
   void reportLine(const char *what,
 		  Slew slew,
@@ -406,7 +408,7 @@ protected:
 		  Delay total,
 		  bool total_with_minus,
 		  const EarlyLate *early_late,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const char *line_case,
 		  string &result);
   void reportLineTotal(const char *what,
@@ -465,10 +467,10 @@ protected:
   string clkName(const Clock *clk,
 		 bool inverted);
   bool hasExtInputDriver(const Pin *pin,
-			 const TransRiseFall *tr,
+			 const RiseFall *rf,
 			 const MinMax *min_max);
   float loadCap(Pin *drvr_pin,
-		const TransRiseFall *tr,
+		const RiseFall *rf,
 		DcalcAnalysisPt *dcalc_ap);
   float drvrFanout(Vertex *drvr,
 		   const MinMax *min_max);
@@ -479,9 +481,9 @@ protected:
   const char *edgeRegLatchDesc(Edge *edge,
 			       TimingArc *arc);
   const char *checkRegLatchDesc(const TimingRole *role,
-				const TransRiseFall *clk_tr) const;
-  const char *regDesc(const TransRiseFall *clk_tr) const;
-  const char *latchDesc(const TransRiseFall *clk_tr) const;
+				const RiseFall *clk_rf) const;
+  const char *regDesc(const RiseFall *clk_rf) const;
+  const char *latchDesc(const RiseFall *clk_rf) const;
   void pathClkPath(const Path *path,
 		   PathRef &clk_path) const;
   bool isPropagated(const Path *clk_path);
@@ -508,8 +510,8 @@ protected:
 			     InputDelay *input_delay,
 			     // Return value.
 			     PathRef &ref_path);
-  const char *asRisingFalling(const TransRiseFall *tr);
-  const char *asRiseFall(const TransRiseFall *tr);
+  const char *asRisingFalling(const RiseFall *rf);
+  const char *asRiseFall(const RiseFall *rf);
 
   // Path options.
   ReportPathFormat format_;

@@ -51,32 +51,32 @@ public:
   void setAddToPins(bool add_to_pins);
   FloatSeq *waveform() { return waveform_; }
   const FloatSeq *waveform() const { return waveform_; }
-  ClockEdge *edge(const TransRiseFall *tr) const;
+  ClockEdge *edge(const RiseFall *rf) const;
   int index() const { return index_; }
   bool isPropagated() const { return is_propagated_; }
   void setIsPropagated(bool propagated);
   // Ideal clock slew.
-  void slew(const TransRiseFall *tr,
+  void slew(const RiseFall *rf,
 	    const MinMax *min_max,
 	    // Return values.
 	    float &slew,
 	    bool &exists) const;
   // Return zero (default) if no slew exists.
-  float slew(const TransRiseFall *tr,
+  float slew(const RiseFall *rf,
 	     const MinMax *min_max) const;
-  void setSlew(const TransRiseFall *tr,
+  void setSlew(const RiseFall *rf,
 	       const MinMax *min_max,
 	       float slew);
-  void setSlew(const TransRiseFallBoth *tr,
+  void setSlew(const RiseFallBoth *rf,
 	       const MinMaxAll *min_max,
 	       float slew);
   void removeSlew();
   RiseFallMinMax *slews() { return &slews_; }
-  void setSlewLimit(const TransRiseFallBoth *tr,
+  void setSlewLimit(const RiseFallBoth *rf,
 		    const PathClkOrData clk_data,
 		    const MinMax *min_max,
 		    float slew);
-  void slewLimit(const TransRiseFall *tr,
+  void slewLimit(const RiseFall *rf,
 		 const PathClkOrData clk_data,
 		 const MinMax *min_max,
 		 // Return values.
@@ -115,7 +115,7 @@ public:
   bool invert() const { return invert_; }
   IntSeq *edges() const { return edges_; }
   FloatSeq *edgeShifts() const { return edge_shifts_; }
-  const TransRiseFall *masterClkEdgeTr(const TransRiseFall *tr) const;
+  const RiseFall *masterClkEdgeTr(const RiseFall *rf) const;
   bool combinational() const { return combinational_; }
   bool isDivideByOneCombinational() const;
   bool generatedUpToDate() const;
@@ -157,7 +157,7 @@ protected:
   void setMasterClk(Clock *master);
   void makeClkEdges();
   void setClkEdgeTimes();
-  void setClkEdgeTime(const TransRiseFall *tr);
+  void setClkEdgeTime(const RiseFall *rf);
   void generateScaledClk(const Clock *src_clk,
 			 float scale);
   void generateEdgesClk(const Clock *src_clk);
@@ -204,7 +204,7 @@ class ClockEdge
 public:
   Clock *clock() const { return clock_; }
   ~ClockEdge();
-  TransRiseFall *transition() const { return tr_; }
+  RiseFall *transition() const { return rf_; }
   float time() const { return time_; }
   const char *name() const { return name_; }
   int index() const { return index_; }
@@ -215,11 +215,11 @@ public:
   friend class Clock;  // builder
 private:
   DISALLOW_COPY_AND_ASSIGN(ClockEdge);
-  ClockEdge(Clock *clock, TransRiseFall *tr);
+  ClockEdge(Clock *clock, RiseFall *rf);
   void setTime(float time);
 
   Clock *clock_;
-  TransRiseFall *tr_;
+  RiseFall *rf_;
   const char *name_;
   float time_;
   int index_;
@@ -250,20 +250,20 @@ public:
 			const Clock *target);
   const Clock *src() const { return src_; }
   const Clock *target() const { return target_; }
-  void uncertainty(const TransRiseFall *src_tr,
-		   const TransRiseFall *tgt_tr,
+  void uncertainty(const RiseFall *src_rf,
+		   const RiseFall *tgt_rf,
 		   const SetupHold *setup_hold,
 		   // Return values.
 		   float &uncertainty,
 		   bool &exists) const;
-  void setUncertainty(const TransRiseFallBoth *src_tr,
-		      const TransRiseFallBoth *tgt_tr,
+  void setUncertainty(const RiseFallBoth *src_rf,
+		      const RiseFallBoth *tgt_rf,
 		      const SetupHoldAll *setup_hold,
 		      float uncertainty);
-  void removeUncertainty(const TransRiseFallBoth *src_tr,
-			 const TransRiseFallBoth *tgt_tr,
+  void removeUncertainty(const RiseFallBoth *src_rf,
+			 const RiseFallBoth *tgt_rf,
 			 const SetupHoldAll *setup_hold);
-  const RiseFallMinMax *uncertainties(TransRiseFall *src_tr) const;
+  const RiseFallMinMax *uncertainties(RiseFall *src_rf) const;
   bool empty() const;
 
 private:
@@ -271,7 +271,7 @@ private:
 
   const Clock *src_;
   const Clock *target_;
-  RiseFallMinMax uncertainties_[TransRiseFall::index_count];
+  RiseFallMinMax uncertainties_[RiseFall::index_count];
 };
 
 class InterClockUncertaintyLess

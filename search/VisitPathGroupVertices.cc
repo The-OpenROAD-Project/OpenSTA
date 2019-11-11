@@ -78,14 +78,14 @@ protected:
   // Return false to stop visiting.
   virtual bool visitFromToPath(const Pin *from_pin,
 			       Vertex *from_vertex,
-			       const TransRiseFall *from_tr,
+			       const RiseFall *from_rf,
 			       Tag *from_tag,
 			       PathVertex *from_path,
 			       Edge *edge,
 			       TimingArc *arc,
 			       ArcDelay arc_delay,
 			       Vertex *to_vertex,
-			       const TransRiseFall *to_tr,
+			       const RiseFall *to_rf,
 			       Tag *to_tag,
 			       Arrival &to_arrival,
 			       const MinMax *min_max,
@@ -257,14 +257,14 @@ PathGroupPathVisitor::visit(Vertex *vertex)
 bool
 PathGroupPathVisitor::visitFromToPath(const Pin *,
 				      Vertex *from_vertex,
-				      const TransRiseFall *,
+				      const RiseFall *,
 				      Tag *from_tag,
 				      PathVertex *from_path,
 				      Edge *,
 				      TimingArc *,
 				      ArcDelay ,
 				      Vertex *to_vertex,
-				      const TransRiseFall *to_tr,
+				      const RiseFall *to_rf,
 				      Tag *to_tag,
 				      Arrival &,
 				      const MinMax *,
@@ -288,7 +288,7 @@ PathGroupPathVisitor::visitFromToPath(const Pin *,
       }
     }
     else {
-      VertexPathIterator to_iter(to_vertex, to_tr, path_ap, sta_);
+      VertexPathIterator to_iter(to_vertex, to_rf, path_ap, sta_);
       while (to_iter.hasNext()) {
 	PathVertex *to_path = to_iter.next();
 	if (tagMatchNoCrpr(to_path->tag(sta_), to_tag)

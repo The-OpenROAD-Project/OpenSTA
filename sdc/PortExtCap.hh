@@ -34,21 +34,21 @@ class PortExtCap
 public:
   explicit PortExtCap(Port *port);
   Port *port() { return port_; }
-  void pinCap(const TransRiseFall *tr,
+  void pinCap(const RiseFall *rf,
 	      const MinMax *min_max,
 	      // Return values.
 	      float &cap, bool &exists);
   RiseFallMinMax *pinCap() { return &pin_cap_; }
   void setPinCap(float cap,
-		 const TransRiseFall *tr,
+		 const RiseFall *rf,
 		 const MinMax *min_max);
-  void wireCap(const TransRiseFall *tr,
+  void wireCap(const RiseFall *rf,
 	       const MinMax *min_max,
 	       // Return values.
 	       float &cap, bool &exists);
   RiseFallMinMax *wireCap() { return &wire_cap_; }
   void setWireCap(float cap,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const MinMax *min_max);
   void setFanout(int fanout,
 		 const MinMax *min_max);

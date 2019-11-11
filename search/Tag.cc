@@ -100,10 +100,10 @@ Tag::asString(bool report_index,
   if (report_index)
     str += stringPrintTmp("%4d ", index_);
 
-  const TransRiseFall *tr = transition();
+  const RiseFall *rf = transition();
   PathAnalysisPt *path_ap = corners->findPathAnalysisPt(path_ap_index_);
   str += stringPrintTmp("%s %s/%d ",
-			tr->asString(),
+			rf->asString(),
 			path_ap->pathMinMax()->asString(),
 			path_ap_index_);
 
@@ -174,10 +174,10 @@ Tag::asString(bool report_index,
   return result;
 }
 
-const TransRiseFall *
+const RiseFall *
 Tag::transition() const
 {
-  return TransRiseFall::find(tr_index_);
+  return RiseFall::find(tr_index_);
 }
 
 PathAnalysisPt *
@@ -296,12 +296,12 @@ TagLess::operator()(const Tag *tag1,
 int
 tagCmp(const Tag *tag1,
        const Tag *tag2,
-       bool cmp_tr)
+       bool cmp_rf)
 {
   if (tag1 == tag2)
     return 0;
 
-  if (cmp_tr) {
+  if (cmp_rf) {
     int tr_index1 = tag1->trIndex();
     int tr_index2 = tag2->trIndex();
     if (tr_index1 < tr_index2)

@@ -296,7 +296,7 @@ proc set_assigned_delay_cmd { cmd cmd_args } {
   check_argc_eq1 $cmd $cmd_args
   set corner [parse_corner keys]
   set min_max [parse_min_max_all_check_flags flags]
-  set to_tr [parse_rise_fall_flags flags]
+  set to_rf [parse_rise_fall_flags flags]
 
   if [info exists keys(-from)] {
     set from_pins [get_port_pins_error "from_pins" $keys(-from)]
@@ -337,28 +337,28 @@ proc set_assigned_delay_cmd { cmd cmd_args } {
   foreach from_pin $from_pins {
     set from_vertices [$from_pin vertices]
     set_assigned_delay1 [lindex $from_vertices 0] \
-      $to_pins $to_tr $corner $min_max $delay
+      $to_pins $to_rf $corner $min_max $delay
     if { [llength $from_vertices] == 2 } {
       set_assigned_delay1 [lindex $from_vertices 1] \
-	$to_pins $to_tr $corner $min_max $delay
+	$to_pins $to_rf $corner $min_max $delay
     }
   }
 }
 
-proc set_assigned_delay1 { from_vertex to_pins to_tr corner min_max delay } {
+proc set_assigned_delay1 { from_vertex to_pins to_rf corner min_max delay } {
   foreach to_pin $to_pins {
     set to_vertices [$to_pin vertices]
     set_assigned_delay2 $from_vertex [lindex $to_vertices 0] \
-      $to_tr $corner $min_max $delay
+      $to_rf $corner $min_max $delay
     if { [llength $to_vertices] == 2 } {
       # Bidirect driver.
       set_assigned_delay2 $from_vertex [lindex $to_vertices 1] \
-	$to_tr $corner $min_max $delay
+	$to_rf $corner $min_max $delay
     }
   }
 }
 
-proc set_assigned_delay2 {from_vertex to_vertex to_tr corner min_max delay} {
+proc set_assigned_delay2 {from_vertex to_vertex to_rf corner min_max delay} {
   set edge_iter [$from_vertex out_edge_iterator]
   while {[$edge_iter has_next]} {
     set edge [$edge_iter next]
@@ -367,8 +367,8 @@ proc set_assigned_delay2 {from_vertex to_vertex to_tr corner min_max delay} {
       set arc_iter [$edge timing_arc_iterator]
       while {[$arc_iter has_next]} {
 	set arc [$arc_iter next]
-	if { $to_tr == "rise_fall" \
-	       || $to_tr eq [$arc to_trans_name] } {
+	if { $to_rf == "rise_fall" \
+	       || $to_rf eq [$arc to_trans_name] } {
 	  set_arc_delay $edge $arc $corner $min_max $delay
 	}
       }
@@ -392,12 +392,12 @@ proc set_assigned_check_cmd { cmd cmd_args } {
   } else {
     sta_error "$cmd missing -from argument."
   }
-  set from_tr "rise_fall"
+  set from_rf "rise_fall"
   if { [info exists keys(-clock)] } {
     set clk_arg $keys(-clock)
     if { $clk_arg eq "rise" \
 	   || $clk_arg eq "fall" } {
-      set from_tr $clk_arg
+      set from_rf $clk_arg
     } else {
       sta_error "$cmd -clock must be rise or fall."
     }
@@ -408,7 +408,7 @@ proc set_assigned_check_cmd { cmd cmd_args } {
   } else {
     sta_error "$cmd missing -to argument."
   }
-  set to_tr [parse_rise_fall_flags flags]
+  set to_rf [parse_rise_fall_flags flags]
   set corner [parse_corner keys]
   set min_max [parse_min_max_all_check_flags flags]
 
@@ -435,31 +435,31 @@ proc set_assigned_check_cmd { cmd cmd_args } {
 
   foreach from_pin $from_pins {
     set from_vertices [$from_pin vertices]
-    set_assigned_check1 [lindex $from_vertices 0] $from_tr \
-      $to_pins $to_tr $role $corner $min_max $cond $check_value
+    set_assigned_check1 [lindex $from_vertices 0] $from_rf \
+      $to_pins $to_rf $role $corner $min_max $cond $check_value
     if { [llength $from_vertices] == 2 } {
-      set_assigned_check1 [lindex $from_vertices 1] $from_tr \
-	$to_pins $to_tr $role $corner $min_max $cond $check_value
+      set_assigned_check1 [lindex $from_vertices 1] $from_rf \
+	$to_pins $to_rf $role $corner $min_max $cond $check_value
     }
   }
 }
 
-proc set_assigned_check1 { from_vertex from_tr to_pins to_tr \
+proc set_assigned_check1 { from_vertex from_rf to_pins to_rf \
 			     role corner min_max cond check_value } {
   foreach to_pin $to_pins {
     set to_vertices [$to_pin vertices]
-    set_assigned_check2 $from_vertex $from_tr [lindex $to_vertices 0] \
-      $to_tr $role $corner $min_max $cond $check_value
+    set_assigned_check2 $from_vertex $from_rf [lindex $to_vertices 0] \
+      $to_rf $role $corner $min_max $cond $check_value
     if { [llength $to_vertices] == 2 } {
       # Bidirect driver.
-      set_assigned_check2 $from_vertex $from_tr \
-	[lindex $to_vertices 1] $to_tr $role $corner $min_max \
+      set_assigned_check2 $from_vertex $from_rf \
+	[lindex $to_vertices 1] $to_rf $role $corner $min_max \
 	$cond $check_value
     }
   }
 }
 
-proc set_assigned_check2 { from_vertex from_tr to_vertex to_tr \
+proc set_assigned_check2 { from_vertex from_rf to_vertex to_rf \
 			     role corner min_max cond check_value } {
   set edge_iter [$from_vertex out_edge_iterator]
   while {[$edge_iter has_next]} {
@@ -468,10 +468,10 @@ proc set_assigned_check2 { from_vertex from_tr to_vertex to_tr \
       set arc_iter [$edge timing_arc_iterator]
       while {[$arc_iter has_next]} {
 	set arc [$arc_iter next]
-	if { ($from_tr eq "rise_fall" \
-		|| $from_tr eq [$arc from_trans_name]) \
-	       && ($to_tr eq "rise_fall" \
-		     || $to_tr eq [$arc to_trans_name]) \
+	if { ($from_rf eq "rise_fall" \
+		|| $from_rf eq [$arc from_trans_name]) \
+	       && ($to_rf eq "rise_fall" \
+		     || $to_rf eq [$arc to_trans_name]) \
 	       && [$arc role] eq $role \
 	       && ($cond eq "" || [$arc sdf_cond] eq $cond) } {
 	  set_arc_delay $edge $arc $corner $min_max $check_value
@@ -602,26 +602,26 @@ proc unset_clk_uncertainty_cmd { cmd cmd_args } {
 
   if { [info exists keys(-from)] } {
     set from_key "-from"
-    set from_tr "rise_fall"
+    set from_rf "rise_fall"
   } elseif { [info exists keys(-rise_from)] } {
     set from_key "-rise_from"
-    set from_tr "rise"
+    set from_rf "rise"
   } elseif { [info exists keys(-fall_from)] } {
     set from_key "-fall_from"
-    set from_tr "fall"
+    set from_rf "fall"
   } else {
     set from_key "none"
   }
 
   if { [info exists keys(-to)] } {
     set to_key "-to"
-    set to_tr "rise_fall"
+    set to_rf "rise_fall"
   } elseif { [info exists keys(-rise_to)] } {
     set to_key "-rise_to"
-    set to_tr "rise"
+    set to_rf "rise"
   } elseif { [info exists keys(-fall_to)] } {
     set to_key "-fall_to"
-    set to_tr "fall"
+    set to_rf "fall"
   } else {
     set to_key "none"
   }
@@ -639,8 +639,8 @@ proc unset_clk_uncertainty_cmd { cmd cmd_args } {
 
     foreach from_clk $from_clks {
       foreach to_clk $to_clks {
-	unset_inter_clock_uncertainty $from_clk $from_tr \
-	  $to_clk $to_tr $min_max
+	unset_inter_clock_uncertainty $from_clk $from_rf \
+	  $to_clk $to_rf $min_max
       }
     }
   } else {
@@ -670,18 +670,18 @@ proc unset_data_checks_cmd { cmd cmd_args } {
     flags {-setup -hold}
   check_argc_eq0 $cmd $cmd_args
 
-  set from_tr "rise_fall"
-  set to_tr "rise_fall"
+  set from_rf "rise_fall"
+  set to_rf "rise_fall"
   set clk "NULL"
   set setup_hold "max"
   if [info exists keys(-from)] {
     set from [get_port_pin_error "from_pin" $keys(-from)]
   } elseif [info exists keys(-rise_from)] {
     set from [get_port_pin_error "from_pin" $keys(-rise_from)]
-    set from_tr "rise"
+    set from_rf "rise"
   } elseif [info exists keys(-fall_from)] {
     set from [get_port_pin_error "from_pin" $keys(-fall_from)]
-    set from_tr "fall"
+    set from_rf "fall"
   } else {
     sta_error "missing -from, -rise_from or -fall_from argument."
   }
@@ -690,10 +690,10 @@ proc unset_data_checks_cmd { cmd cmd_args } {
     set to [get_port_pin_error "to_pin" $keys(-to)]
   } elseif [info exists keys(-rise_to)] {
     set to [get_port_pin_error "to_pin" $keys(-rise_to)]
-    set to_tr "rise"
+    set to_rf "rise"
   } elseif [info exists keys(-fall_to)] {
     set to [get_port_pin_error "to_pin" $keys(-fall_to)]
-    set to_tr "fall"
+    set to_rf "fall"
   } else {
     sta_error "missing -to, -rise_to or -fall_to argument."
   }
@@ -710,7 +710,7 @@ proc unset_data_checks_cmd { cmd cmd_args } {
     set setup_hold "setup_hold"
   }
 
-  unset_data_check_cmd $from $from_tr $to $to_tr $clk $setup_hold
+  unset_data_check_cmd $from $from_rf $to $to_rf $clk $setup_hold
 }
 
 ################################################################
@@ -892,16 +892,16 @@ proc unset_port_delay { cmd swig_cmd cmd_args } {
   }
   
   if [info exists flags(-clock_fall)] {
-    set clk_tr "fall"
+    set clk_rf "fall"
   } else {
-    set clk_tr "rise"
+    set clk_rf "rise"
   }
   
   set tr [parse_rise_fall_flags flags]
   set min_max [parse_min_max_all_flags flags]
 
   foreach pin $pins {
-    $swig_cmd $pin $tr $clk $clk_tr $min_max
+    $swig_cmd $pin $tr $clk $clk_rf $min_max
   }
 }
 

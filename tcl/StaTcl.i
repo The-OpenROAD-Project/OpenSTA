@@ -605,10 +605,10 @@ using namespace sta;
   Tcl_SetResult(interp, const_cast<char*>(str), TCL_STATIC);
 }
 
-%typemap(in) TransRiseFall* {
+%typemap(in) RiseFall* {
   int length;
   const char *arg = Tcl_GetStringFromObj($input, &length);
-  TransRiseFall *tr = TransRiseFall::find(arg);
+  RiseFall *tr = RiseFall::find(arg);
   if (tr == nullptr) {
     Tcl_SetResult(interp,const_cast<char*>("Error: unknown transition name."),
 		  TCL_STATIC);
@@ -617,18 +617,18 @@ using namespace sta;
   $1 = tr;
 }
 
-%typemap(out) TransRiseFall* {
-  const TransRiseFall *tr = $1;
+%typemap(out) RiseFall* {
+  const RiseFall *tr = $1;
   const char *str = "";
   if (tr)
     str = tr->asString();
   Tcl_SetResult(interp, const_cast<char*>(str), TCL_STATIC);
 }
 
-%typemap(in) TransRiseFallBoth* {
+%typemap(in) RiseFallBoth* {
   int length;
   const char *arg = Tcl_GetStringFromObj($input, &length);
-  TransRiseFallBoth *tr = TransRiseFallBoth::find(arg);
+  RiseFallBoth *tr = RiseFallBoth::find(arg);
   if (tr == nullptr) {
     Tcl_SetResult(interp,const_cast<char*>("Error: unknown transition name."),
 		  TCL_STATIC);
@@ -637,8 +637,8 @@ using namespace sta;
   $1 = tr;
 }
 
-%typemap(out) TransRiseFallBoth* {
-  TransRiseFallBoth *tr = $1;
+%typemap(out) RiseFallBoth* {
+  RiseFallBoth *tr = $1;
   const char *str = "";
   if (tr)
     str = tr->asString();
@@ -2010,11 +2010,11 @@ void
 set_rise_fall_short_names(const char *rise_short_name,
 			  const char *fall_short_name)
 {
-  TransRiseFall::rise()->setShortName(rise_short_name);
-  TransRiseFall::fall()->setShortName(fall_short_name);
+  RiseFall::rise()->setShortName(rise_short_name);
+  RiseFall::fall()->setShortName(fall_short_name);
 
-  TransRiseFallBoth::rise()->setShortName(rise_short_name);
-  TransRiseFallBoth::fall()->setShortName(fall_short_name);
+  RiseFallBoth::rise()->setShortName(rise_short_name);
+  RiseFallBoth::fall()->setShortName(fall_short_name);
 
   Transition::rise()->setName(rise_short_name);
   Transition::fall()->setName(fall_short_name);
@@ -2023,13 +2023,13 @@ set_rise_fall_short_names(const char *rise_short_name,
 const char *
 rise_short_name()
 {
-  return TransRiseFall::rise()->shortName();
+  return RiseFall::rise()->shortName();
 }
 
 const char *
 fall_short_name()
 {
-  return TransRiseFall::fall()->shortName();
+  return RiseFall::fall()->shortName();
 }
 
 bool
@@ -2386,7 +2386,7 @@ find_instances_hier_matching(const char *pattern,
 
 TmpInstanceSet *
 find_register_instances(ClockSet *clks,
-			const TransRiseFallBoth *clk_tr,
+			const RiseFallBoth *clk_tr,
 			bool edge_triggered,
 			bool latches)
 {
@@ -2400,7 +2400,7 @@ find_register_instances(ClockSet *clks,
 
 TmpPinSet *
 find_register_data_pins(ClockSet *clks,
-			const TransRiseFallBoth *clk_tr,
+			const RiseFallBoth *clk_tr,
 			bool edge_triggered,
 			bool latches)
 {
@@ -2413,7 +2413,7 @@ find_register_data_pins(ClockSet *clks,
 
 TmpPinSet *
 find_register_clk_pins(ClockSet *clks,
-		       const TransRiseFallBoth *clk_tr,
+		       const RiseFallBoth *clk_tr,
 		       bool edge_triggered,
 		       bool latches)
 {
@@ -2426,7 +2426,7 @@ find_register_clk_pins(ClockSet *clks,
 
 TmpPinSet *
 find_register_async_pins(ClockSet *clks,
-			 const TransRiseFallBoth *clk_tr,
+			 const RiseFallBoth *clk_tr,
 			 bool edge_triggered,
 			 bool latches)
 {
@@ -2439,7 +2439,7 @@ find_register_async_pins(ClockSet *clks,
 
 TmpPinSet *
 find_register_output_pins(ClockSet *clks,
-			  const TransRiseFallBoth *clk_tr,
+			  const RiseFallBoth *clk_tr,
 			  bool edge_triggered,
 			  bool latches)
 {
@@ -2783,39 +2783,39 @@ set_instance_pvt(Instance *inst,
 
 float
 port_ext_pin_cap(Port *port,
-		 const TransRiseFall *tr,
+		 const RiseFall *rf,
 		 const MinMax *min_max)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->portExtPinCap(port, tr, min_max);
+  return Sta::sta()->portExtPinCap(port, rf, min_max);
 }
 
 void
 set_port_pin_cap(Port *port,
-		 const TransRiseFallBoth *tr,
+		 const RiseFallBoth *rf,
 		 const MinMaxAll *min_max,
 		 float cap)
 {
-  Sta::sta()->setPortExtPinCap(port, tr, min_max, cap);
+  Sta::sta()->setPortExtPinCap(port, rf, min_max, cap);
 }
 
 float
 port_ext_wire_cap(Port *port,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const MinMax *min_max)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->portExtWireCap(port, tr, min_max);
+  return Sta::sta()->portExtWireCap(port, rf, min_max);
 }
 
 void
 set_port_wire_cap(Port *port,
 		  bool subtract_pin_cap,
-		  const TransRiseFallBoth *tr,
+		  const RiseFallBoth *rf,
 		  const MinMaxAll *min_max,
 		  float cap)
 {
-  Sta::sta()->setPortExtWireCap(port, subtract_pin_cap, tr, min_max, cap);
+  Sta::sta()->setPortExtWireCap(port, subtract_pin_cap, rf, min_max, cap);
 }
 
 int
@@ -2950,12 +2950,12 @@ unset_propagated_clock_pin_cmd(Pin *pin)
 
 void
 set_clock_slew_cmd(Clock *clk,
-		   const TransRiseFallBoth *tr,
+		   const RiseFallBoth *rf,
 		   const MinMaxAll *min_max,
 		   float slew)
 {
   cmdLinkedNetwork();
-  Sta::sta()->setClockSlew(clk, tr, min_max, slew);
+  Sta::sta()->setClockSlew(clk, rf, min_max, slew);
 }
 
 void
@@ -2968,23 +2968,23 @@ unset_clock_slew_cmd(Clock *clk)
 void
 set_clock_latency_cmd(Clock *clk,
 		      Pin *pin,
-		      const TransRiseFallBoth *tr,
+		      const RiseFallBoth *rf,
 		      MinMaxAll *min_max, float delay)
 {
   cmdLinkedNetwork();
-  Sta::sta()->setClockLatency(clk, pin, tr, min_max, delay);
+  Sta::sta()->setClockLatency(clk, pin, rf, min_max, delay);
 }
 
 void
 set_clock_insertion_cmd(Clock *clk,
 			Pin *pin,
-			const TransRiseFallBoth *tr,
+			const RiseFallBoth *rf,
 			const MinMaxAll *min_max,
 			const EarlyLateAll *early_late,
 			float delay)
 {
   cmdLinkedNetwork();
-  Sta::sta()->setClockInsertion(clk, pin, tr, min_max, early_late, delay);
+  Sta::sta()->setClockInsertion(clk, pin, rf, min_max, early_late, delay);
 }
 
 void
@@ -3039,9 +3039,9 @@ unset_clock_uncertainty_pin(Pin *pin,
 
 void
 set_inter_clock_uncertainty(Clock *from_clk,
-			    const TransRiseFallBoth *from_tr,
+			    const RiseFallBoth *from_tr,
 			    Clock *to_clk,
-			    const TransRiseFallBoth *to_tr,
+			    const RiseFallBoth *to_tr,
 			    const MinMaxAll *min_max,
 			    float uncertainty)
 {
@@ -3052,9 +3052,9 @@ set_inter_clock_uncertainty(Clock *from_clk,
 
 void
 unset_inter_clock_uncertainty(Clock *from_clk,
-			      const TransRiseFallBoth *from_tr,
+			      const RiseFallBoth *from_tr,
 			      Clock *to_clk,
-			      const TransRiseFallBoth *to_tr,
+			      const RiseFallBoth *to_tr,
 			      const MinMaxAll *min_max)
 {
   cmdLinkedNetwork();
@@ -3062,59 +3062,59 @@ unset_inter_clock_uncertainty(Clock *from_clk,
 }
 
 void
-set_clock_gating_check_cmd(const TransRiseFallBoth *tr,
+set_clock_gating_check_cmd(const RiseFallBoth *rf,
 			   const SetupHold *setup_hold,
 			   float margin)
 {
-  Sta::sta()->setClockGatingCheck(tr, setup_hold, margin);
+  Sta::sta()->setClockGatingCheck(rf, setup_hold, margin);
 }
 
 void
 set_clock_gating_check_clk_cmd(Clock *clk,
-			       const TransRiseFallBoth *tr,
+			       const RiseFallBoth *rf,
 			       const SetupHold *setup_hold,
 			       float margin)
 {
-  Sta::sta()->setClockGatingCheck(clk, tr, setup_hold, margin);
+  Sta::sta()->setClockGatingCheck(clk, rf, setup_hold, margin);
 }
 
 void
 set_clock_gating_check_pin_cmd(Pin *pin,
-			       const TransRiseFallBoth *tr,
+			       const RiseFallBoth *rf,
 			       const SetupHold *setup_hold,
 			       float margin,
 			       LogicValue active_value)
 {
-  Sta::sta()->setClockGatingCheck(pin, tr, setup_hold, margin, active_value);
+  Sta::sta()->setClockGatingCheck(pin, rf, setup_hold, margin, active_value);
 }
 
 void
 set_clock_gating_check_instance_cmd(Instance *inst,
-				    const TransRiseFallBoth *tr,
+				    const RiseFallBoth *rf,
 				    const SetupHold *setup_hold,
 				    float margin,
 				    LogicValue active_value)
 {
-  Sta::sta()->setClockGatingCheck(inst, tr, setup_hold, margin, active_value);
+  Sta::sta()->setClockGatingCheck(inst, rf, setup_hold, margin, active_value);
 }
 
 void
 set_data_check_cmd(Pin *from,
-		   const TransRiseFallBoth *from_tr,
+		   const RiseFallBoth *from_rf,
 		   Pin *to,
-		   const TransRiseFallBoth *to_tr,
+		   const RiseFallBoth *to_rf,
 		   Clock *clk,
 		   const SetupHoldAll *setup_hold,
 		   float margin)
 {
-  Sta::sta()->setDataCheck(from, from_tr, to, to_tr, clk, setup_hold, margin);
+  Sta::sta()->setDataCheck(from, from_rf, to, to_rf, clk, setup_hold, margin);
 }
 
 void
 unset_data_check_cmd(Pin *from,
-		     const TransRiseFallBoth *from_tr,
+		     const RiseFallBoth *from_tr,
 		     Pin *to,
-		     const TransRiseFallBoth *to_tr,
+		     const RiseFallBoth *to_tr,
 		     Clock *clk,
 		     const SetupHoldAll *setup_hold)
 {
@@ -3123,9 +3123,9 @@ unset_data_check_cmd(Pin *from,
 
 void
 set_input_delay_cmd(Pin *pin,
-		    TransRiseFallBoth *tr,
+		    RiseFallBoth *rf,
 		    Clock *clk,
-		    TransRiseFall *clk_tr,
+		    RiseFall *clk_rf,
 		    Pin *ref_pin,
 		    bool source_latency_included,
 		    bool network_latency_included,
@@ -3134,27 +3134,27 @@ set_input_delay_cmd(Pin *pin,
 		    float delay)
 {
   cmdLinkedNetwork();
-  Sta::sta()->setInputDelay(pin, tr, clk, clk_tr, ref_pin,
+  Sta::sta()->setInputDelay(pin, rf, clk, clk_rf, ref_pin,
 			    source_latency_included, network_latency_included,
 			    min_max, add, delay);
 }
 
 void
 unset_input_delay_cmd(Pin *pin,
-		      TransRiseFallBoth *tr, 
+		      RiseFallBoth *rf, 
 		      Clock *clk,
-		      TransRiseFall *clk_tr, 
+		      RiseFall *clk_rf, 
 		      MinMaxAll *min_max)
 {
   cmdLinkedNetwork();
-  Sta::sta()->removeInputDelay(pin, tr, clk, clk_tr, min_max);
+  Sta::sta()->removeInputDelay(pin, rf, clk, clk_rf, min_max);
 }
 
 void
 set_output_delay_cmd(Pin *pin,
-		     const TransRiseFallBoth *tr,
+		     const RiseFallBoth *rf,
 		     Clock *clk,
-		     const TransRiseFall *clk_tr,
+		     const RiseFall *clk_rf,
 		     Pin *ref_pin,
 		     bool source_latency_included,
 		     bool network_latency_included,
@@ -3163,20 +3163,20 @@ set_output_delay_cmd(Pin *pin,
 		     float delay)
 {
   cmdLinkedNetwork();
-  Sta::sta()->setOutputDelay(pin, tr, clk, clk_tr, ref_pin,
+  Sta::sta()->setOutputDelay(pin, rf, clk, clk_rf, ref_pin,
 			     source_latency_included, network_latency_included,
 			     min_max, add, delay);
 }
 
 void
 unset_output_delay_cmd(Pin *pin,
-		       TransRiseFallBoth *tr, 
+		       RiseFallBoth *rf, 
 		       Clock *clk,
-		       TransRiseFall *clk_tr, 
+		       RiseFall *clk_rf, 
 		       MinMaxAll *min_max)
 {
   cmdLinkedNetwork();
-  Sta::sta()->removeOutputDelay(pin, tr, clk, clk_tr, min_max);
+  Sta::sta()->removeOutputDelay(pin, rf, clk, clk_rf, min_max);
 }
 
 void
@@ -3391,7 +3391,7 @@ ExceptionFrom *
 make_exception_from(PinSet *from_pins,
 		    ClockSet *from_clks,
 		    InstanceSet *from_insts,
-		    const TransRiseFallBoth *from_tr)
+		    const RiseFallBoth *from_tr)
 {
   cmdLinkedNetwork();
   return Sta::sta()->makeExceptionFrom(from_pins, from_clks, from_insts,
@@ -3416,10 +3416,10 @@ ExceptionThru *
 make_exception_thru(PinSet *pins,
 		    NetSet *nets,
 		    InstanceSet *insts,
-		    const TransRiseFallBoth *tr)
+		    const RiseFallBoth *rf)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->makeExceptionThru(pins, nets, insts, tr);
+  return Sta::sta()->makeExceptionThru(pins, nets, insts, rf);
 }
 
 void
@@ -3432,11 +3432,11 @@ ExceptionTo *
 make_exception_to(PinSet *to_pins,
 		  ClockSet *to_clks,
 		  InstanceSet *to_insts,
-		  const TransRiseFallBoth *tr,
- 		  TransRiseFallBoth *end_tr)
+		  const RiseFallBoth *rf,
+ 		  RiseFallBoth *end_rf)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->makeExceptionTo(to_pins, to_clks, to_insts, tr, end_tr);
+  return Sta::sta()->makeExceptionTo(to_pins, to_clks, to_insts, rf, end_rf);
 }
 
 void
@@ -3455,12 +3455,12 @@ check_exception_to_pins(ExceptionTo *to,
 
 void
 set_input_slew_cmd(Port *port,
-		   const TransRiseFallBoth *tr,
+		   const RiseFallBoth *rf,
 		   const MinMaxAll *min_max,
 		   float slew)
 {
   cmdLinkedNetwork();
-  Sta::sta()->setInputSlew(port, tr, min_max, slew);
+  Sta::sta()->setInputSlew(port, rf, min_max, slew);
 }
 
 void
@@ -3471,35 +3471,35 @@ set_drive_cell_cmd(LibertyLibrary *library,
 		   float from_slew_rise,
 		   float from_slew_fall,
 		   LibertyPort *to_port,
-		   const TransRiseFallBoth *tr,
+		   const RiseFallBoth *rf,
 		   const MinMaxAll *min_max)
 {
-  float from_slews[TransRiseFall::index_count];
-  from_slews[TransRiseFall::riseIndex()] = from_slew_rise;
-  from_slews[TransRiseFall::fallIndex()] = from_slew_fall;
+  float from_slews[RiseFall::index_count];
+  from_slews[RiseFall::riseIndex()] = from_slew_rise;
+  from_slews[RiseFall::fallIndex()] = from_slew_fall;
   Sta::sta()->setDriveCell(library, cell, port, from_port, from_slews,
-			   to_port, tr, min_max);
+			   to_port, rf, min_max);
 }
 
 void
 set_drive_resistance_cmd(Port *port,
-			 const TransRiseFallBoth *tr,
+			 const RiseFallBoth *rf,
 			 const MinMaxAll *min_max,
 			 float res)
 {
   cmdLinkedNetwork();
-  Sta::sta()->setDriveResistance(port, tr, min_max, res);
+  Sta::sta()->setDriveResistance(port, rf, min_max, res);
 }
 
 void
 set_slew_limit_clk(Clock *clk,
-		   const TransRiseFallBoth *tr,
+		   const RiseFallBoth *rf,
 		   PathClkOrData clk_data,
 		   const MinMax *min_max,
 		   float slew)
 {
   cmdLinkedNetwork();
-  Sta::sta()->setSlewLimit(clk, tr, clk_data, min_max, slew);
+  Sta::sta()->setSlewLimit(clk, rf, clk_data, min_max, slew);
 }
 
 void
@@ -3574,34 +3574,34 @@ set_latch_borrow_limit_clk(Clock *clk, float limit)
 }
 
 void
-set_min_pulse_width_global(const TransRiseFallBoth *tr,
+set_min_pulse_width_global(const RiseFallBoth *rf,
 			   float min_width)
 {
-  Sta::sta()->setMinPulseWidth(tr, min_width);
+  Sta::sta()->setMinPulseWidth(rf, min_width);
 }
 
 void
 set_min_pulse_width_pin(Pin *pin,
-			const TransRiseFallBoth *tr,
+			const RiseFallBoth *rf,
 			float min_width)
 {
-  Sta::sta()->setMinPulseWidth(pin, tr, min_width);
+  Sta::sta()->setMinPulseWidth(pin, rf, min_width);
 }
 
 void
 set_min_pulse_width_clk(Clock *clk,
-			const TransRiseFallBoth *tr,
+			const RiseFallBoth *rf,
 			float min_width)
 {
-  Sta::sta()->setMinPulseWidth(clk, tr, min_width);
+  Sta::sta()->setMinPulseWidth(clk, rf, min_width);
 }
 
 void
 set_min_pulse_width_inst(Instance *inst,
-			 const TransRiseFallBoth *tr,
+			 const RiseFallBoth *rf,
 			 float min_width)
 {
-  Sta::sta()->setMinPulseWidth(inst, tr, min_width);
+  Sta::sta()->setMinPulseWidth(inst, rf, min_width);
 }
 
 void
@@ -3649,43 +3649,43 @@ unset_case_analysis_cmd(Pin *pin)
 void
 set_timing_derate_cmd(TimingDerateType type,
 		      PathClkOrData clk_data,
-		      const TransRiseFallBoth *tr,
+		      const RiseFallBoth *rf,
 		      const EarlyLate *early_late,
 		      float derate)
 {
-  Sta::sta()->setTimingDerate(type, clk_data, tr, early_late, derate);
+  Sta::sta()->setTimingDerate(type, clk_data, rf, early_late, derate);
 }
 
 void
 set_timing_derate_net_cmd(const Net *net,
 			  PathClkOrData clk_data,
-			  const TransRiseFallBoth *tr,
+			  const RiseFallBoth *rf,
 			  const EarlyLate *early_late,
 			  float derate)
 {
-  Sta::sta()->setTimingDerate(net, clk_data, tr, early_late, derate);
+  Sta::sta()->setTimingDerate(net, clk_data, rf, early_late, derate);
 }
 
 void
 set_timing_derate_inst_cmd(const Instance *inst,
 			   TimingDerateType type,
 			   PathClkOrData clk_data,
-			   const TransRiseFallBoth *tr,
+			   const RiseFallBoth *rf,
 			   const EarlyLate *early_late,
 			   float derate)
 {
-  Sta::sta()->setTimingDerate(inst, type, clk_data, tr, early_late, derate);
+  Sta::sta()->setTimingDerate(inst, type, clk_data, rf, early_late, derate);
 }
 
 void
 set_timing_derate_cell_cmd(const LibertyCell *cell,
 			   TimingDerateType type,
 			   PathClkOrData clk_data,
-			   const TransRiseFallBoth *tr,
+			   const RiseFallBoth *rf,
 			   const EarlyLate *early_late,
 			   float derate)
 {
-  Sta::sta()->setTimingDerate(cell, type, clk_data, tr, early_late, derate);
+  Sta::sta()->setTimingDerate(cell, type, clk_data, rf, early_late, derate);
 }
 
 void
@@ -3976,11 +3976,11 @@ void
 set_annotated_slew(Vertex *vertex,
 		   const Corner *corner,
 		   const MinMaxAll *min_max,
-		   const TransRiseFallBoth *tr,
+		   const RiseFallBoth *rf,
 		   float slew)
 {
   cmdGraph();
-  Sta::sta()->setAnnotatedSlew(vertex, corner, min_max, tr, slew);
+  Sta::sta()->setAnnotatedSlew(vertex, corner, min_max, rf, slew);
 }
 
 // Remove all delay and slew annotations.
@@ -4565,13 +4565,13 @@ vertex_worst_arrival_path(Vertex *vertex,
 }
 
 PathRef *
-vertex_worst_arrival_path_tr(Vertex *vertex,
-			     const TransRiseFall *tr,
+vertex_worst_arrival_path_rf(Vertex *vertex,
+			     const RiseFall *rf,
 			     MinMax *min_max)
 {
   Sta *sta = Sta::sta();
   PathRef path;
-  sta->vertexWorstArrivalPath(vertex, tr, min_max, path);
+  sta->vertexWorstArrivalPath(vertex, rf, min_max, path);
   if (!path.isNull())
     return new PathRef(path);
   else
@@ -5393,12 +5393,12 @@ tristate_enable()
 }
 
 float
-capacitance(const TransRiseFall *tr,
+capacitance(const RiseFall *rf,
 	    const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
   OperatingConditions *op_cond = sta->operatingConditions(min_max);
-  return self->capacitance(tr, min_max, op_cond, op_cond);
+  return self->capacitance(rf, min_max, op_cond, op_cond);
 }
 
 } // LibertyPort methods
@@ -5534,35 +5534,35 @@ vertices()
 }
 
 float
-capacitance(const TransRiseFall *tr,
+capacitance(const RiseFall *rf,
 	    const Corner *corner,
 	    const MinMax *min_max)
 {
   cmdLinkedNetwork();
   float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, tr, corner, min_max, pin_cap, wire_cap);
+  Sta::sta()->connectedCap(self, rf, corner, min_max, pin_cap, wire_cap);
   return pin_cap + wire_cap;
 }
 
 float
-pin_capacitance(const TransRiseFall *tr,
+pin_capacitance(const RiseFall *rf,
 		const Corner *corner,
 		const MinMax *min_max)
 {
   cmdLinkedNetwork();
   float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, tr, corner, min_max, pin_cap, wire_cap);
+  Sta::sta()->connectedCap(self, rf, corner, min_max, pin_cap, wire_cap);
   return pin_cap;
 }
 
 float
-wire_capacitance(const TransRiseFall *tr,
+wire_capacitance(const RiseFall *rf,
 		 const Corner *corner,
 		 const MinMax *min_max)
 {
   cmdLinkedNetwork();
   float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, tr, corner, min_max, pin_cap, wire_cap);
+  Sta::sta()->connectedCap(self, rf, corner, min_max, pin_cap, wire_cap);
   return wire_cap;
 }
 
@@ -5591,35 +5591,35 @@ bool is_power() { return cmdLinkedNetwork()->isPower(self);}
 bool is_ground() { return cmdLinkedNetwork()->isGround(self);}
 
 float
-capacitance(const TransRiseFall *tr,
+capacitance(const RiseFall *rf,
 	    const Corner *corner,
 	    const MinMax *min_max)
 {
   cmdLinkedNetwork();
   float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, tr, corner, min_max, pin_cap, wire_cap);
+  Sta::sta()->connectedCap(self, rf, corner, min_max, pin_cap, wire_cap);
   return pin_cap + wire_cap;
 }
 
 float
-pin_capacitance(const TransRiseFall *tr,
+pin_capacitance(const RiseFall *rf,
 		const Corner *corner,
 		const MinMax *min_max)
 {
   cmdLinkedNetwork();
   float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, tr, corner, min_max, pin_cap, wire_cap);
+  Sta::sta()->connectedCap(self, rf, corner, min_max, pin_cap, wire_cap);
   return pin_cap;
 }
 
 float
-wire_capacitance(const TransRiseFall *tr,
+wire_capacitance(const RiseFall *rf,
 		 const Corner *corner,
 		 const MinMax *min_max)
 {
   cmdLinkedNetwork();
   float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, tr, corner, min_max, pin_cap, wire_cap);
+  Sta::sta()->connectedCap(self, rf, corner, min_max, pin_cap, wire_cap);
   return wire_cap;
 }
 
@@ -5663,7 +5663,7 @@ void finish() { delete self; }
 %extend Clock {
 float period() { return self->period(); }
 FloatSeq *waveform() { return self->waveform(); }
-float time(TransRiseFall *tr) { return self->edge(tr)->time(); }
+float time(RiseFall *rf) { return self->edge(rf)->time(); }
 bool is_generated() { return self->isGenerated(); }
 bool waveform_valid() { return self->waveformValid(); }
 bool is_virtual() { return self->isVirtual(); }
@@ -5671,17 +5671,17 @@ bool is_propagated() { return self->isPropagated(); }
 PinSet &sources() { return self->pins(); }
 
 float
-slew(const TransRiseFall *tr,
+slew(const RiseFall *rf,
      const MinMax *min_max)
 {
-  return self->slew(tr, min_max);
+  return self->slew(rf, min_max);
 }
 
 }
 
 %extend ClockEdge {
 Clock *clock() { return self->clock(); }
-TransRiseFall *transition() { return self->transition(); }
+RiseFall *transition() { return self->transition(); }
 float time() { return self->time(); }
 }
 
@@ -5698,24 +5698,24 @@ int level() { return Sta::sta()->vertexLevel(self); }
 int tag_group_index() { return self->tagGroupIndex(); }
 
 TmpFloatSeq *
-slews(TransRiseFall *tr)
+slews(RiseFall *rf)
 {
   Sta *sta = Sta::sta();
   TmpFloatSeq *floats = new FloatSeq;
   DcalcAnalysisPtIterator ap_iter(sta);
   while (ap_iter.hasNext()) {
     DcalcAnalysisPt *dcalc_ap = ap_iter.next();
-    floats->push_back(delayAsFloat(sta->vertexSlew(self, tr, dcalc_ap)));
+    floats->push_back(delayAsFloat(sta->vertexSlew(self, rf, dcalc_ap)));
   }
   return floats;
 }
 
 Slew
-slew(const TransRiseFall *tr,
+slew(const RiseFall *rf,
      const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  return sta->vertexSlew(self, tr, min_max);
+  return sta->vertexSlew(self, rf, min_max);
 }
 
 VertexOutEdgeIterator *
@@ -5731,35 +5731,35 @@ in_edge_iterator()
 }
 
 TmpFloatSeq *
-arrivals_clk(const TransRiseFall *tr,
+arrivals_clk(const RiseFall *rf,
 	     Clock *clk,
-	     const TransRiseFall *clk_tr)
+	     const RiseFall *clk_rf)
 {
   Sta *sta = Sta::sta();
   TmpFloatSeq *floats = new FloatSeq;
   const ClockEdge *clk_edge = nullptr;
   if (clk)
-    clk_edge = clk->edge(clk_tr);
+    clk_edge = clk->edge(clk_rf);
   for (auto path_ap : sta->corners()->pathAnalysisPts()) {
-    floats->push_back(delayAsFloat(sta->vertexArrival(self, tr, clk_edge,
+    floats->push_back(delayAsFloat(sta->vertexArrival(self, rf, clk_edge,
 						      path_ap)));
   }
   return floats;
 }
 
 TmpStringSeq *
-arrivals_clk_delays(const TransRiseFall *tr,
+arrivals_clk_delays(const RiseFall *rf,
 		    Clock *clk,
-		    const TransRiseFall *clk_tr,
+		    const RiseFall *clk_rf,
 		    int digits)
 {
   Sta *sta = Sta::sta();
   StringSeq *arrivals = new StringSeq;
   const ClockEdge *clk_edge = nullptr;
   if (clk)
-    clk_edge = clk->edge(clk_tr);
+    clk_edge = clk->edge(clk_rf);
   for (auto path_ap : sta->corners()->pathAnalysisPts()) {
-    arrivals->push_back(delayAsString(sta->vertexArrival(self, tr, clk_edge,
+    arrivals->push_back(delayAsString(sta->vertexArrival(self, rf, clk_edge,
 							 path_ap),
 				      sta, digits));
   }
@@ -5767,35 +5767,35 @@ arrivals_clk_delays(const TransRiseFall *tr,
 }
 
 TmpFloatSeq *
-requireds_clk(const TransRiseFall *tr,
+requireds_clk(const RiseFall *rf,
 	      Clock *clk,
-	      const TransRiseFall *clk_tr)
+	      const RiseFall *clk_rf)
 {
   Sta *sta = Sta::sta();
   TmpFloatSeq *floats = new FloatSeq;
   const ClockEdge *clk_edge = nullptr;
   if (clk)
-    clk_edge = clk->edge(clk_tr);
+    clk_edge = clk->edge(clk_rf);
   for (auto path_ap : sta->corners()->pathAnalysisPts()) {
-    floats->push_back(delayAsFloat(sta->vertexRequired(self, tr, clk_edge,
+    floats->push_back(delayAsFloat(sta->vertexRequired(self, rf, clk_edge,
 						       path_ap)));
   }
   return floats;
 }
 
 TmpStringSeq *
-requireds_clk_delays(const TransRiseFall *tr,
+requireds_clk_delays(const RiseFall *rf,
 		     Clock *clk,
-		     const TransRiseFall *clk_tr,
+		     const RiseFall *clk_rf,
 		     int digits)
 {
   Sta *sta = Sta::sta();
   StringSeq *requireds = new StringSeq;
   const ClockEdge *clk_edge = nullptr;
   if (clk)
-    clk_edge = clk->edge(clk_tr);
+    clk_edge = clk->edge(clk_rf);
   for (auto path_ap : sta->corners()->pathAnalysisPts()) {
-    requireds->push_back(delayAsString(sta->vertexRequired(self, tr, clk_edge,
+    requireds->push_back(delayAsString(sta->vertexRequired(self, rf, clk_edge,
 							   path_ap),
 				       sta, digits));
   }
@@ -5803,47 +5803,47 @@ requireds_clk_delays(const TransRiseFall *tr,
 }
 
 TmpFloatSeq *
-slacks(TransRiseFall *tr)
+slacks(RiseFall *rf)
 {
   Sta *sta = Sta::sta();
   TmpFloatSeq *floats = new FloatSeq;
   for (auto path_ap : sta->corners()->pathAnalysisPts()) {
-    floats->push_back(delayAsFloat(sta->vertexSlack(self, tr, path_ap)));
+    floats->push_back(delayAsFloat(sta->vertexSlack(self, rf, path_ap)));
   }
   return floats;
 }
 
 // Slack with respect to a clock rise/fall edge.
 TmpFloatSeq *
-slacks_clk(const TransRiseFall *tr,
+slacks_clk(const RiseFall *rf,
 	   Clock *clk,
-	   const TransRiseFall *clk_tr)
+	   const RiseFall *clk_rf)
 {
   Sta *sta = Sta::sta();
   TmpFloatSeq *floats = new FloatSeq;
   const ClockEdge *clk_edge = nullptr;
   if (clk)
-    clk_edge = clk->edge(clk_tr);
+    clk_edge = clk->edge(clk_rf);
   for (auto path_ap : sta->corners()->pathAnalysisPts()) {
-    floats->push_back(delayAsFloat(sta->vertexSlack(self, tr, clk_edge,
+    floats->push_back(delayAsFloat(sta->vertexSlack(self, rf, clk_edge,
 						    path_ap)));
   }
   return floats;
 }
 
 TmpStringSeq *
-slacks_clk_delays(const TransRiseFall *tr,
+slacks_clk_delays(const RiseFall *rf,
 		  Clock *clk,
-		  const TransRiseFall *clk_tr,
+		  const RiseFall *clk_rf,
 		  int digits)
 {
   Sta *sta = Sta::sta();
   StringSeq *slacks = new StringSeq;
   const ClockEdge *clk_edge = nullptr;
   if (clk)
-    clk_edge = clk->edge(clk_tr);
+    clk_edge = clk->edge(clk_rf);
   for (auto path_ap : sta->corners()->pathAnalysisPts()) {
-    slacks->push_back(delayAsString(sta->vertexSlack(self, tr, clk_edge,
+    slacks->push_back(delayAsString(sta->vertexSlack(self, rf, clk_edge,
 						     path_ap),
 				    sta, digits));
   }
@@ -5851,10 +5851,10 @@ slacks_clk_delays(const TransRiseFall *tr,
 }
 
 VertexPathIterator *
-path_iterator(const TransRiseFall *tr,
+path_iterator(const RiseFall *rf,
 	      const MinMax *min_max)
 {
-  return Sta::sta()->vertexPathIterator(self, tr, min_max);
+  return Sta::sta()->vertexPathIterator(self, rf, min_max);
 }
 
 bool
@@ -5979,10 +5979,10 @@ latch_d_to_q_en()
     TimingArcSet *d_q_set = self->timingArcSet();
     LibertyPort *enable_port;
     FuncExpr *enable_func;
-    TransRiseFall *enable_tr;
-    lib_cell->latchEnable(d_q_set, enable_port, enable_func, enable_tr);
+    RiseFall *enable_rf;
+    lib_cell->latchEnable(d_q_set, enable_port, enable_func, enable_rf);
     const char *en_name = enable_port->name();
-    return stringPrintTmp("%s %s", en_name, enable_tr->asString());
+    return stringPrintTmp("%s %s", en_name, enable_rf->asString());
 
   }
   return "";
@@ -6018,8 +6018,8 @@ bool is_path_delay() { return self->isPathDelay(); }
 bool is_gated_clock() { return self->isGatedClock(); }
 Vertex *vertex() { return self->vertex(Sta::sta()); }
 PathRef *path() { return &self->pathRef(); }
-TransRiseFall *end_transition()
-{ return const_cast<TransRiseFall*>(self->path()->transition(Sta::sta())); }
+RiseFall *end_transition()
+{ return const_cast<RiseFall*>(self->path()->transition(Sta::sta())); }
 Slack slack() { return self->slack(Sta::sta()); }
 ArcDelay margin() { return self->margin(Sta::sta()); }
 Required data_required_time() { return self->requiredTimeOffset(Sta::sta()); }
@@ -6048,8 +6048,8 @@ Arrival target_clk_arrival() { return self->targetClkArrival(Sta::sta()); }
 bool path_delay_margin_is_external()
 { return self->pathDelayMarginIsExternal();}
 Crpr common_clk_pessimism() { return self->commonClkPessimism(Sta::sta()); }
-TransRiseFall *target_clk_end_trans()
-{ return const_cast<TransRiseFall*>(self->targetClkEndTrans(Sta::sta())); }
+RiseFall *target_clk_end_trans()
+{ return const_cast<RiseFall*>(self->targetClkEndTrans(Sta::sta())); }
 
 }
 

@@ -25,7 +25,7 @@ using sta::cmdLinkedNetwork;
 using sta::Instance;
 using sta::MinMaxAll;
 using sta::ReduceParasiticsTo;
-using sta::TransRiseFall;
+using sta::RiseFall;
 using sta::Pin;
 using sta::TmpFloatSeq;
 
@@ -56,12 +56,12 @@ read_spef_cmd(const char *filename,
 
 TmpFloatSeq *
 find_pi_elmore(Pin *drvr_pin,
-	       TransRiseFall *tr,
+	       RiseFall *rf,
 	       MinMax *min_max)
 {
   float c2, rpi, c1;
   bool exists;
-  Sta::sta()->findPiElmore(drvr_pin, tr, min_max, c2, rpi, c1, exists);
+  Sta::sta()->findPiElmore(drvr_pin, rf, min_max, c2, rpi, c1, exists);
   TmpFloatSeq *floats = new FloatSeq;
   if (exists) {
     floats->push_back(c2);
@@ -74,34 +74,34 @@ find_pi_elmore(Pin *drvr_pin,
 float
 find_elmore(Pin *drvr_pin,
 	    Pin *load_pin,
-	    TransRiseFall *tr,
+	    RiseFall *rf,
 	    MinMax *min_max)
 {
   float elmore = 0.0;
   bool exists;
-  Sta::sta()->findElmore(drvr_pin, load_pin, tr, min_max, elmore, exists);
+  Sta::sta()->findElmore(drvr_pin, load_pin, rf, min_max, elmore, exists);
   return elmore;
 }
 
 void
 set_pi_model_cmd(Pin *drvr_pin,
-		 TransRiseFall *tr,
+		 RiseFall *rf,
 		 MinMaxAll *min_max,
 		 float c2,
 		 float rpi,
 		 float c1)
 {
-  Sta::sta()->makePiElmore(drvr_pin, tr, min_max, c2, rpi, c1);
+  Sta::sta()->makePiElmore(drvr_pin, rf, min_max, c2, rpi, c1);
 }
 
 void
 set_elmore_cmd(Pin *drvr_pin,
 	       Pin *load_pin,
-	       TransRiseFall *tr,
+	       RiseFall *rf,
 	       MinMaxAll *min_max,
 	       float elmore)
 {
-  Sta::sta()->setElmore(drvr_pin, load_pin, tr, min_max, elmore);
+  Sta::sta()->setElmore(drvr_pin, load_pin, rf, min_max, elmore);
 }
 
 %} // inline

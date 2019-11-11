@@ -403,7 +403,7 @@ ReportAnnotated::findWidthPeriodCount(Pin *pin)
 
     int width_index = TimingRole::width()->index();
     if (report_role_[width_index]) {
-      for (auto hi_low : TransRiseFall::range()) {
+      for (auto hi_low : RiseFall::range()) {
 	port->minPulseWidth(hi_low, value, exists);
 	if (exists) {
 	  edge_count_[width_index]++;
@@ -557,7 +557,7 @@ ReportAnnotated::reportWidthPeriodArcs(Pin *pin,
     if (report_role_[width_index]
 	&& (max_lines_ == 0 || i < max_lines_)) {
       bool report = false;
-      for (auto hi_low : TransRiseFall::range()) {
+      for (auto hi_low : RiseFall::range()) {
 	port->minPulseWidth(hi_low, value, exists);
 	if (exists) {
 	  edge_count_[width_index]++;

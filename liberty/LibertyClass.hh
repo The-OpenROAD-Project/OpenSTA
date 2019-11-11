@@ -53,8 +53,8 @@ class FuncExpr;
 class TimingModel;
 class TimingRole;
 class Transition;
-class TransRiseFall;
-class TransRiseFallBoth;
+class RiseFall;
+class RiseFallBoth;
 class LibertyCellSequentialIterator;
 
 typedef Vector<LibertyLibrary*> LibertyLibrarySeq;

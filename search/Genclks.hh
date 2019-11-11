@@ -59,7 +59,7 @@ public:
   // Generated clock insertion delay.
   Arrival insertionDelay(const Clock *clk,
 			 const Pin *pin,
-			 const TransRiseFall *tr,
+			 const RiseFall *rf,
 			 const EarlyLate *early_late,
 			 const PathAnalysisPt *path_ap) const;
   // Generated clock source path for a clock path root.
@@ -74,12 +74,12 @@ public:
 	       PathVertex &src_path) const;
   void srcPath(const Clock *clk,
 	       const Pin *src_pin,
-	       const TransRiseFall *tr,
+	       const RiseFall *rf,
 	       const PathAnalysisPt *path_ap,
 	       // Return value.
 	       PathVertex &src_path) const;
   Arrival pllDelay(const Clock *clk,
-		   const TransRiseFall *tr,
+		   const RiseFall *rf,
 		   const PathAnalysisPt *path_ap) const;
   Vertex *srcPathVertex(const Pin *pin) const;
   Level clkPinMaxLevel(Clock *clk) const;
@@ -95,7 +95,7 @@ private:
   void seedClkVertices(Clock *clk,
 		       BfsBkwdIterator &iter,
 		       VertexSet *fanins);
-  int srcPathIndex(const TransRiseFall *clk_tr,
+  int srcPathIndex(const RiseFall *clk_rf,
 		   const PathAnalysisPt *path_ap) const;
   bool matchesSrcFilter(Path *path,
 			const Clock *gclk) const;
@@ -119,7 +119,7 @@ private:
   virtual Tag *makeTag(const Clock *gclk,
 		       const Clock *master_clk,
 		       const Pin *master_pin,
-		       const TransRiseFall *tr,
+		       const RiseFall *rf,
 		       FilterPath *src_filter,
 		       const PathAnalysisPt *path_ap);
   void seedSrcPins(Clock *clk,

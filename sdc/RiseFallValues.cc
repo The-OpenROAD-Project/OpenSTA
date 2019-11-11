@@ -27,13 +27,13 @@ RiseFallValues::RiseFallValues()
 void
 RiseFallValues::clear()
 {
-  for (auto tr_index : TransRiseFall::rangeIndex())
+  for (auto tr_index : RiseFall::rangeIndex())
     exists_[tr_index] = false;
 }
 
 RiseFallValues::RiseFallValues(float init_value)
 {
-  for (auto tr_index : TransRiseFall::rangeIndex()) {
+  for (auto tr_index : RiseFall::rangeIndex()) {
     values_[tr_index] = init_value;
     exists_[tr_index] = true;
   }
@@ -42,57 +42,57 @@ RiseFallValues::RiseFallValues(float init_value)
 void
 RiseFallValues::setValue(float value)
 {
-  setValue(TransRiseFallBoth::riseFall(), value);
+  setValue(RiseFallBoth::riseFall(), value);
 }
 
 void
-RiseFallValues::setValue(const TransRiseFallBoth *tr,
+RiseFallValues::setValue(const RiseFallBoth *rf,
 			 float value)
 {
-  for (auto tr_index : tr->rangeIndex()) {
-    values_[tr_index] = value;
-    exists_[tr_index] = true;
+  for (auto rf_index : rf->rangeIndex()) {
+    values_[rf_index] = value;
+    exists_[rf_index] = true;
   }
 }
 
 void
-RiseFallValues::setValue(const TransRiseFall *tr,
+RiseFallValues::setValue(const RiseFall *rf,
 			 float value)
 {
-  int tr_index = tr->index();
-  values_[tr_index] = value;
-  exists_[tr_index] = true;
+  int rf_index = rf->index();
+  values_[rf_index] = value;
+  exists_[rf_index] = true;
 }
 
 void
 RiseFallValues::setValues(RiseFallValues *values)
 {
-  for (auto tr_index : TransRiseFall::rangeIndex()) {
-    values_[tr_index] = values->values_[tr_index];
-    exists_[tr_index] = values->exists_[tr_index];
+  for (auto rf_index : RiseFall::rangeIndex()) {
+    values_[rf_index] = values->values_[rf_index];
+    exists_[rf_index] = values->exists_[rf_index];
   }
 }
 
 void
-RiseFallValues::value(const TransRiseFall *tr,
+RiseFallValues::value(const RiseFall *rf,
 		      float &value, bool &exists) const
 {
-  int tr_index = tr->index();
-  exists = exists_[tr_index];
+  int rf_index = rf->index();
+  exists = exists_[rf_index];
   if (exists)
-    value = values_[tr_index];
+    value = values_[rf_index];
 }
 
 float
-RiseFallValues::value(const TransRiseFall *tr) const
+RiseFallValues::value(const RiseFall *rf) const
 {
-  return values_[tr->index()];
+  return values_[rf->index()];
 }
 
 bool
-RiseFallValues::hasValue(const TransRiseFall *tr) const
+RiseFallValues::hasValue(const RiseFall *rf) const
 {
-  return exists_[tr->index()];
+  return exists_[rf->index()];
 }
 
 } // namespace

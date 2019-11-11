@@ -28,12 +28,12 @@ class RiseFallValues
 public:
   RiseFallValues();
   explicit RiseFallValues(float init_value);
-  float value(const TransRiseFall *tr) const;
-  void value(const TransRiseFall *tr,
+  float value(const RiseFall *rf) const;
+  void value(const RiseFall *rf,
 	     float &value, bool &exists) const;
-  bool hasValue(const TransRiseFall *tr) const;
-  void setValue(const TransRiseFallBoth *tr, float value);
-  void setValue(const TransRiseFall *tr, float value);
+  bool hasValue(const RiseFall *rf) const;
+  void setValue(const RiseFallBoth *rf, float value);
+  void setValue(const RiseFall *rf, float value);
   void setValue(float value);
   void setValues(RiseFallValues *values);
   void clear();
@@ -41,8 +41,8 @@ public:
 private:
   DISALLOW_COPY_AND_ASSIGN(RiseFallValues);
 
-  float values_[TransRiseFall::index_count];
-  bool exists_[TransRiseFall::index_count];
+  float values_[RiseFall::index_count];
+  bool exists_[RiseFall::index_count];
 };
 
 } // namespace

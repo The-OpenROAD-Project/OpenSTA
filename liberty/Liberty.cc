@@ -94,7 +94,7 @@ LibertyLibrary::LibertyLibrary(const char *name,
     addTableTemplate(scalar_template, type);
   }
 
-  for (auto tr_index : TransRiseFall::rangeIndex()) {
+  for (auto tr_index : RiseFall::rangeIndex()) {
     wire_slew_degradation_tbls_[tr_index] = nullptr;
     input_threshold_[tr_index] = input_threshold_default_;
     output_threshold_[tr_index] = output_threshold_default_;
@@ -111,7 +111,7 @@ LibertyLibrary::~LibertyLibrary()
   scale_factors_map_.deleteContents();
   delete scale_factors_;
 
-  for (auto tr_index : TransRiseFall::rangeIndex()) {
+  for (auto tr_index : RiseFall::rangeIndex()) {
     TableModel *model = wire_slew_degradation_tbls_[tr_index];
     delete model;
   }
@@ -278,28 +278,28 @@ LibertyLibrary::scaleFactor(ScaleFactorType type,
 
 void
 LibertyLibrary::setWireSlewDegradationTable(TableModel *model,
-					    TransRiseFall *tr)
+			 		    RiseFall *rf)
 {
-  int tr_index = tr->index();
+  int tr_index = rf->index();
   if (wire_slew_degradation_tbls_[tr_index])
     delete wire_slew_degradation_tbls_[tr_index];
   wire_slew_degradation_tbls_[tr_index] = model;
 }
 
 TableModel *
-LibertyLibrary::wireSlewDegradationTable(const TransRiseFall *tr) const
+LibertyLibrary::wireSlewDegradationTable(const RiseFall *rf) const
 {
-  return wire_slew_degradation_tbls_[tr->index()];
+  return wire_slew_degradation_tbls_[rf->index()];
 }
 
 float
 LibertyLibrary::degradeWireSlew(const LibertyCell *cell,
-				const TransRiseFall *tr,
+				const RiseFall *rf,
 				const Pvt *pvt,
 				float in_slew,
 				float wire_delay) const
 {
-  const TableModel *model = wireSlewDegradationTable(tr);
+  const TableModel *model = wireSlewDegradationTable(rf);
   if (model)
     return degradeWireSlew(cell, pvt, model, in_slew, wire_delay);
   else
@@ -450,64 +450,64 @@ LibertyLibrary::setDefaultOutputPinCap(float cap)
 }
 
 void
-LibertyLibrary::defaultIntrinsic(const TransRiseFall *tr,
+LibertyLibrary::defaultIntrinsic(const RiseFall *rf,
 				 // Return values.
 				 float &intrinsic,
 				 bool &exists) const
 {
-  default_intrinsic_.value(tr, intrinsic, exists);
+  default_intrinsic_.value(rf, intrinsic, exists);
 }
 
 void
-LibertyLibrary::setDefaultIntrinsic(const TransRiseFall *tr,
+LibertyLibrary::setDefaultIntrinsic(const RiseFall *rf,
 				    float value)
 {
-  default_intrinsic_.setValue(tr, value);
+  default_intrinsic_.setValue(rf, value);
 }
 
 void
-LibertyLibrary::defaultPinResistance(const TransRiseFall *tr,
+LibertyLibrary::defaultPinResistance(const RiseFall *rf,
 				     const PortDirection *dir,
 				     // Return values.
 				     float &res,
 				     bool &exists) const
 {
   if (dir->isAnyTristate())
-    defaultBidirectPinRes(tr, res, exists);
+    defaultBidirectPinRes(rf, res, exists);
   else
-    defaultOutputPinRes(tr, res, exists);
+    defaultOutputPinRes(rf, res, exists);
 }
 
 void
-LibertyLibrary::defaultBidirectPinRes(const TransRiseFall *tr,
+LibertyLibrary::defaultBidirectPinRes(const RiseFall *rf,
 				      // Return values.
 				      float &res,
 				      bool &exists) const
 {
-  return default_inout_pin_res_.value(tr, res, exists);
+  return default_inout_pin_res_.value(rf, res, exists);
 }
 
 void
-LibertyLibrary::setDefaultBidirectPinRes(const TransRiseFall *tr,
+LibertyLibrary::setDefaultBidirectPinRes(const RiseFall *rf,
 					 float value)
 {
-  default_inout_pin_res_.setValue(tr, value);
+  default_inout_pin_res_.setValue(rf, value);
 }
 
 void
-LibertyLibrary::defaultOutputPinRes(const TransRiseFall *tr,
+LibertyLibrary::defaultOutputPinRes(const RiseFall *rf,
 				    // Return values.
 				    float &res,
 				    bool &exists) const
 {
-  default_output_pin_res_.value(tr, res, exists);
+  default_output_pin_res_.value(rf, res, exists);
 }
 
 void
-LibertyLibrary::setDefaultOutputPinRes(const TransRiseFall *tr,
+LibertyLibrary::setDefaultOutputPinRes(const RiseFall *rf,
 				       float value)
 {
-  default_output_pin_res_.setValue(tr, value);
+  default_output_pin_res_.setValue(rf, value);
 }
 
 void
@@ -595,55 +595,55 @@ LibertyLibrary::setDefaultOperatingConditions(OperatingConditions *op_cond)
 }
 
 float
-LibertyLibrary::inputThreshold(const TransRiseFall *tr) const
+LibertyLibrary::inputThreshold(const RiseFall *rf) const
 {
-  return input_threshold_[tr->index()];
+  return input_threshold_[rf->index()];
 }
 
 void
-LibertyLibrary::setInputThreshold(const TransRiseFall *tr,
+LibertyLibrary::setInputThreshold(const RiseFall *rf,
 				  float th)
 {
-  input_threshold_[tr->index()] = th;
+  input_threshold_[rf->index()] = th;
 }
 
 float
-LibertyLibrary::outputThreshold(const TransRiseFall *tr) const
+LibertyLibrary::outputThreshold(const RiseFall *rf) const
 {
-  return output_threshold_[tr->index()];
+  return output_threshold_[rf->index()];
 }
 
 void
-LibertyLibrary::setOutputThreshold(const TransRiseFall *tr,
+LibertyLibrary::setOutputThreshold(const RiseFall *rf,
 				   float th)
 {
-  output_threshold_[tr->index()] = th;
+  output_threshold_[rf->index()] = th;
 }
 
 float
-LibertyLibrary::slewLowerThreshold(const TransRiseFall *tr) const
+LibertyLibrary::slewLowerThreshold(const RiseFall *rf) const
 {
-  return slew_lower_threshold_[tr->index()];
+  return slew_lower_threshold_[rf->index()];
 }
 
 void
-LibertyLibrary::setSlewLowerThreshold(const TransRiseFall *tr,
+LibertyLibrary::setSlewLowerThreshold(const RiseFall *rf,
 				      float th)
 {
-  slew_lower_threshold_[tr->index()] = th;
+  slew_lower_threshold_[rf->index()] = th;
 }
 
 float
-LibertyLibrary::slewUpperThreshold(const TransRiseFall *tr) const
+LibertyLibrary::slewUpperThreshold(const RiseFall *rf) const
 {
-  return slew_upper_threshold_[tr->index()];
+  return slew_upper_threshold_[rf->index()];
 }
 
 void
-LibertyLibrary::setSlewUpperThreshold(const TransRiseFall *tr,
+LibertyLibrary::setSlewUpperThreshold(const RiseFall *rf,
 				      float th)
 {
-  slew_upper_threshold_[tr->index()] = th;
+  slew_upper_threshold_[rf->index()] = th;
 }
 
 float
@@ -1507,7 +1507,7 @@ class LatchEnable
 public:
   LatchEnable(LibertyPort *data,
 	      LibertyPort *enable,
-	      TransRiseFall *enable_tr,
+	      RiseFall *enable_rf,
 	      FuncExpr *enable_func,
 	      LibertyPort *output,
 	      TimingArcSet *d_to_q,
@@ -1517,7 +1517,7 @@ public:
   LibertyPort *output() const { return output_; }
   LibertyPort *enable() const { return enable_; }
   FuncExpr *enableFunc() const { return enable_func_; }
-  TransRiseFall *enableTransition() const { return enable_tr_; }
+  RiseFall *enableTransition() const { return enable_rf_; }
   TimingArcSet *dToQ() const { return d_to_q_; }
   TimingArcSet *enToQ() const { return en_to_q_; }
   TimingArcSet *setupCheck() const { return setup_check_; }
@@ -1527,7 +1527,7 @@ private:
 
   LibertyPort *data_;
   LibertyPort *enable_;
-  TransRiseFall *enable_tr_;
+  RiseFall *enable_rf_;
   FuncExpr *enable_func_;
   LibertyPort *output_;
   TimingArcSet *d_to_q_;
@@ -1537,7 +1537,7 @@ private:
 
 LatchEnable::LatchEnable(LibertyPort *data,
 			 LibertyPort *enable,
-			 TransRiseFall *enable_tr,
+			 RiseFall *enable_rf,
 			 FuncExpr *enable_func,
 			 LibertyPort *output,
 			 TimingArcSet *d_to_q,
@@ -1545,7 +1545,7 @@ LatchEnable::LatchEnable(LibertyPort *data,
 			 TimingArcSet *setup_check) :
   data_(data),
   enable_(enable),
-  enable_tr_(enable_tr),
+  enable_rf_(enable_rf),
   enable_func_(enable_func),
   output_(output),
   d_to_q_(d_to_q),
@@ -1583,38 +1583,38 @@ LibertyCell::makeLatchEnables(Report *report,
 		TimingArcSetArcIterator check_arc_iter(setup_check);
 		if (check_arc_iter.hasNext()) {
 		  TimingArc *check_arc = check_arc_iter.next();
-		  TransRiseFall *en_tr = latch_enable->enableTransition();
-		  TransRiseFall *check_tr = check_arc->fromTrans()->asRiseFall();
-		  if (check_tr == en_tr) {
+		  RiseFall *en_rf = latch_enable->enableTransition();
+		  RiseFall *check_rf = check_arc->fromTrans()->asRiseFall();
+		  if (check_rf == en_rf) {
 		    report->warn("cell %s/%s %s -> %s latch enable %s_edge timing arc is inconsistent with %s -> %s setup_%s check.\n",
 				 library_->name(),
 				 name_,
 				 en->name(),
 				 q->name(),
-				 en_tr == TransRiseFall::rise()?"rising":"falling",
+				 en_rf == RiseFall::rise()?"rising":"falling",
 				 en->name(),
 				 d->name(),
-				 check_tr==TransRiseFall::rise()?"rising":"falling");
+				 check_rf==RiseFall::rise()?"rising":"falling");
 		  }
 		  FuncExpr *en_func = latch_enable->enableFunc();
 		  if (en_func) {
 		    TimingSense en_sense = en_func->portTimingSense(en);
 		    if (en_sense == TimingSense::positive_unate
-			&& en_tr != TransRiseFall::rise())
+			&& en_rf != RiseFall::rise())
 		      report->warn("cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.\n",
 				   library_->name(),
 				   name_,
 				   en->name(),
 				   q->name(),
-				   en_tr == TransRiseFall::rise()?"rising":"falling");
+				   en_rf == RiseFall::rise()?"rising":"falling");
 		    else if (en_sense == TimingSense::negative_unate
-			     && en_tr != TransRiseFall::fall())
+			     && en_rf != RiseFall::fall())
 		      report->warn("cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.\n",
 				   library_->name(),
 				   name_,
 				   en->name(),
 				   q->name(),
-				   en_tr == TransRiseFall::rise()?"rising":"falling");
+				   en_rf == RiseFall::rise()?"rising":"falling");
 		  }
 		  break;
 		}
@@ -1651,9 +1651,9 @@ LibertyCell::makeLatchEnable(LibertyPort *d,
 			     TimingArcSet *setup_check,
 			     Debug *debug)
 {
-  TransRiseFall *en_tr = en_to_q->isRisingFallingEdge();
+  RiseFall *en_rf = en_to_q->isRisingFallingEdge();
   FuncExpr *en_func = findLatchEnableFunc(d, en);
-  LatchEnable *latch_enable = new LatchEnable(d, en, en_tr, en_func, q,
+  LatchEnable *latch_enable = new LatchEnable(d, en, en_rf, en_func, q,
 					      d_to_q, en_to_q, setup_check);
   // Multiple enables for D->Q pairs are not supported.
   if (latch_d_to_q_map_[d_to_q])
@@ -1720,18 +1720,18 @@ LibertyCell::latchEnable(TimingArcSet *d_to_q_set,
 			 // Return values.
 			 LibertyPort *&enable_port,
 			 FuncExpr *&enable_func,
-			 TransRiseFall *&enable_tr) const
+			 RiseFall *&enable_rf) const
 {
   enable_port = nullptr;
   LatchEnable *latch_enable = latch_d_to_q_map_.findKey(d_to_q_set);
   if (latch_enable) {
     enable_port = latch_enable->enable();
     enable_func = latch_enable->enableFunc();
-    enable_tr = latch_enable->enableTransition();
+    enable_rf = latch_enable->enableTransition();
   }
 }
 
-TransRiseFall *
+RiseFall *
 LibertyCell::latchCheckEnableTrans(TimingArcSet *check_set)
 {
   LatchEnable *latch_enable = latch_check_map_.findKey(check_set);
@@ -1817,8 +1817,8 @@ LibertyPort::LibertyPort(LibertyCell *cell,
   is_disabled_constraint_(false)
 {
   liberty_port_ = this;
-  min_pulse_width_[TransRiseFall::riseIndex()] = 0.0;
-  min_pulse_width_[TransRiseFall::fallIndex()] = 0.0;
+  min_pulse_width_[RiseFall::riseIndex()] = 0.0;
+  min_pulse_width_[RiseFall::fallIndex()] = 0.0;
 }
 
 LibertyPort::~LibertyPort()
@@ -1855,34 +1855,34 @@ LibertyPort::findLibertyBusBit(int index) const
 void
 LibertyPort::setCapacitance(float cap)
 {
-  setCapacitance(TransRiseFall::rise(), MinMax::min(), cap);
-  setCapacitance(TransRiseFall::fall(), MinMax::min(), cap);
-  setCapacitance(TransRiseFall::rise(), MinMax::max(), cap);
-  setCapacitance(TransRiseFall::fall(), MinMax::max(), cap);
+  setCapacitance(RiseFall::rise(), MinMax::min(), cap);
+  setCapacitance(RiseFall::fall(), MinMax::min(), cap);
+  setCapacitance(RiseFall::rise(), MinMax::max(), cap);
+  setCapacitance(RiseFall::fall(), MinMax::max(), cap);
 }
 
 void
-LibertyPort::setCapacitance(const TransRiseFall *tr,
+LibertyPort::setCapacitance(const RiseFall *rf,
 			    const MinMax *min_max,
 			    float cap)
 {
-  capacitance_.setValue(tr, min_max, cap);
+  capacitance_.setValue(rf, min_max, cap);
   if (hasMembers()) {
     LibertyPortMemberIterator member_iter(this);
     while (member_iter.hasNext()) {
       LibertyPort *port_bit = member_iter.next();
-      port_bit->setCapacitance(tr, min_max, cap);
+      port_bit->setCapacitance(rf, min_max, cap);
     }
   }
 }
 
 float
-LibertyPort::capacitance(const TransRiseFall *tr,
+LibertyPort::capacitance(const RiseFall *rf,
 			 const MinMax *min_max) const
 {
   float cap;
   bool exists;
-  capacitance_.value(tr, min_max, cap, exists);
+  capacitance_.value(rf, min_max, cap, exists);
   if (exists)
     return cap;
   else
@@ -1890,17 +1890,17 @@ LibertyPort::capacitance(const TransRiseFall *tr,
 }
 
 void
-LibertyPort::capacitance(const TransRiseFall *tr,
+LibertyPort::capacitance(const RiseFall *rf,
 			 const MinMax *min_max,
 			 // Return values.
 			 float &cap,
 			 bool &exists) const
 {
-  capacitance_.value(tr, min_max, cap, exists);
+  capacitance_.value(rf, min_max, cap, exists);
 }
 
 float
-LibertyPort::capacitance(const TransRiseFall *tr,
+LibertyPort::capacitance(const RiseFall *rf,
 			 const MinMax *min_max,
 			 const OperatingConditions *op_cond,
 			 const Pvt *pvt) const
@@ -1910,10 +1910,10 @@ LibertyPort::capacitance(const TransRiseFall *tr,
     // Scaled capacitance is not derated because scale factors are wrt
     // nominal pvt.
     if (scaled_port)
-      return scaled_port->capacitance(tr, min_max);
+      return scaled_port->capacitance(rf, min_max);
   }
   LibertyLibrary *lib = liberty_cell_->libertyLibrary();
-  float cap = capacitance(tr, min_max);
+  float cap = capacitance(rf, min_max);
   return cap * lib->scaleFactor(ScaleFactorType::pin_cap, liberty_cell_, pvt);
 }
 
@@ -1927,7 +1927,7 @@ LibertyPort::capacitanceIsOneValue() const
 
 // Use the min/max "drive" for all the timing arcs in the cell.
 float
-LibertyPort::driveResistance(const TransRiseFall *tr,
+LibertyPort::driveResistance(const RiseFall *rf,
 			     const MinMax *min_max) const
 {
   float max_drive = min_max->initValue();
@@ -1939,8 +1939,8 @@ LibertyPort::driveResistance(const TransRiseFall *tr,
       TimingArcSetArcIterator arc_iter(set);
       while (arc_iter.hasNext()) {
 	TimingArc *arc = arc_iter.next();
-	if (tr == nullptr
-	    || arc->toTrans()->asRiseFall() == tr) {
+	if (rf == nullptr
+	    || arc->toTrans()->asRiseFall() == rf) {
 	  GateTimingModel *model = dynamic_cast<GateTimingModel*>(arc->model());
 	  if (model) {
 	    float drive = model->driveResistance(liberty_cell_, nullptr);
@@ -2077,7 +2077,7 @@ LibertyPort::setMinPeriod(float min_period)
 }
 
 void
-LibertyPort::minPulseWidth(const TransRiseFall *hi_low,
+LibertyPort::minPulseWidth(const RiseFall *hi_low,
 			   const OperatingConditions *op_cond,
 			   const Pvt *pvt,
 			   float &min_width,
@@ -2099,7 +2099,7 @@ LibertyPort::minPulseWidth(const TransRiseFall *hi_low,
 }
 
 void
-LibertyPort::minPulseWidth(const TransRiseFall *hi_low,
+LibertyPort::minPulseWidth(const RiseFall *hi_low,
 			   float &min_width,
 			   bool &exists) const
 {
@@ -2109,7 +2109,7 @@ LibertyPort::minPulseWidth(const TransRiseFall *hi_low,
 }
 
 void
-LibertyPort::setMinPulseWidth(TransRiseFall *hi_low,
+LibertyPort::setMinPulseWidth(RiseFall *hi_low,
 			      float min_width)
 {
   int hi_low_index = hi_low->index();
@@ -2202,8 +2202,8 @@ LibertyPort::setIsPllFeedbackPin(bool is_pll_feedback_pin)
 }
 
 void
-LibertyPort::setPulseClk(TransRiseFall *trigger,
-			 TransRiseFall *sense)
+LibertyPort::setPulseClk(RiseFall *trigger,
+			 RiseFall *sense)
 {
   pulse_clk_trigger_ = trigger;
   pulse_clk_sense_ = sense;
@@ -2575,7 +2575,7 @@ ScaleFactors::ScaleFactors(const char *name) :
 {
   for (int type = 0; type < scale_factor_type_count; type++) {
     for (int pvt = 0; pvt < int(ScaleFactorPvt::count); pvt++) {
-      for (auto tr_index : TransRiseFall::rangeIndex()) {
+      for (auto tr_index : RiseFall::rangeIndex()) {
 	scales_[type][pvt][tr_index] = 0.0;
       }
     }
@@ -2590,10 +2590,10 @@ ScaleFactors::~ScaleFactors()
 void
 ScaleFactors::setScale(ScaleFactorType type,
 		       ScaleFactorPvt pvt,
-		       TransRiseFall *tr,
+		       RiseFall *rf,
 		       float scale)
 {
-  scales_[int(type)][int(pvt)][tr->index()] = scale;
+  scales_[int(type)][int(pvt)][rf->index()] = scale;
 }
 
 void
@@ -2607,9 +2607,9 @@ ScaleFactors::setScale(ScaleFactorType type,
 float
 ScaleFactors::scale(ScaleFactorType type,
 		    ScaleFactorPvt pvt,
-		    TransRiseFall *tr)
+		    RiseFall *rf)
 {
-  return scales_[int(type)][int(pvt)][tr->index()];
+  return scales_[int(type)][int(pvt)][rf->index()];
 }
 
 float
@@ -2644,8 +2644,8 @@ ScaleFactors::print()
 	  || scaleFactorTypeRiseFallPrefix(type)
 	  || scaleFactorTypeLowHighSuffix(type)) {
 	printf(" %.3f,%.3f",
-	       scales_[type_index][pvt_index][TransRiseFall::riseIndex()],
-	       scales_[type_index][pvt_index][TransRiseFall::fallIndex()]);
+	       scales_[type_index][pvt_index][RiseFall::riseIndex()],
+	       scales_[type_index][pvt_index][RiseFall::fallIndex()]);
       }
       else {
 	printf(" %.3f",
@@ -2714,7 +2714,7 @@ OcvDerate::OcvDerate(const char *name) :
   name_(name)
 {
   for (auto el_index : EarlyLate::rangeIndex()) {
-    for (auto tr_index : TransRiseFall::rangeIndex()) {
+    for (auto tr_index : RiseFall::rangeIndex()) {
       derate_[tr_index][el_index][int(PathType::clk)] = nullptr;
       derate_[tr_index][el_index][int(PathType::data)] = nullptr;
     }
@@ -2728,7 +2728,7 @@ OcvDerate::~OcvDerate()
   // Collect them in a set to avoid duplicate deletes.
   Set<Table*> models;
   for (auto el_index : EarlyLate::rangeIndex()) {
-    for (auto tr_index : TransRiseFall::rangeIndex()) {
+    for (auto tr_index : RiseFall::rangeIndex()) {
       Table *derate;
       derate = derate_[tr_index][el_index][int(PathType::clk)];
       if (derate)
@@ -2746,20 +2746,20 @@ OcvDerate::~OcvDerate()
 }
 
 Table *
-OcvDerate::derateTable(const TransRiseFall *tr,
+OcvDerate::derateTable(const RiseFall *rf,
 		       const EarlyLate *early_late,
 		       PathType path_type)
 {
-  return derate_[tr->index()][early_late->index()][int(path_type)];
+  return derate_[rf->index()][early_late->index()][int(path_type)];
 }
 
 void
-OcvDerate::setDerateTable(const TransRiseFall *tr,
+OcvDerate::setDerateTable(const RiseFall *rf,
 			  const EarlyLate *early_late,
 			  const PathType path_type,
 			  Table *derate)
 {
-  derate_[tr->index()][early_late->index()][int(path_type)] = derate;
+  derate_[rf->index()][early_late->index()][int(path_type)] = derate;
 }
 
 ////////////////////////////////////////////////////////////////

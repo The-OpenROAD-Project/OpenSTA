@@ -157,7 +157,7 @@ public:
 			    float elmore_res,
 			    float elmore_cap,
 			    bool elmore_use_load_cap,
-			    const TransRiseFall *tr,
+			    const RiseFall *rf,
 			    const OperatingConditions *op_cond,
 			    const Corner *corner,
 			    const MinMax *min_max,
@@ -174,7 +174,7 @@ private:
   float elmore_res_;
   float elmore_cap_;
   bool elmore_use_load_cap_;
-  const TransRiseFall *tr_;
+  const RiseFall *rf_;
   const OperatingConditions *op_cond_;
   const Corner *corner_;
   const MinMax *min_max_;

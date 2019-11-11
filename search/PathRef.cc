@@ -159,7 +159,7 @@ PathRef::tagIndex(const StaState *sta) const
     return path_vertex_.tagIndex(sta);
 }
 
-const TransRiseFall *
+const RiseFall *
 PathRef::transition(const StaState *sta) const
 {
   if (path_enumed_)
@@ -169,12 +169,12 @@ PathRef::transition(const StaState *sta) const
 }
 
 int
-PathRef::trIndex(const StaState *sta) const
+PathRef::rfIndex(const StaState *sta) const
 {
   if (path_enumed_)
-    return path_enumed_->trIndex(sta);
+    return path_enumed_->rfIndex(sta);
   else
-    return path_vertex_.trIndex(sta);
+    return path_vertex_.rfIndex(sta);
 }
 
 PathAnalysisPt *

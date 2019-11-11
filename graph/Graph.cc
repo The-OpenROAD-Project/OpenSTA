@@ -38,14 +38,14 @@ namespace sta {
 ////////////////////////////////////////////////////////////////
 
 Graph::Graph(StaState *sta,
-	     int slew_tr_count,
+	     int slew_rf_count,
 	     bool have_arc_delays,
 	     DcalcAPIndex ap_count) :
   StaState(sta),
   vertices_(nullptr),
   edges_(nullptr),
   arc_count_(0),
-  slew_tr_count_(slew_tr_count),
+  slew_rf_count_(slew_rf_count),
   have_arc_delays_(have_arc_delays),
   ap_count_(ap_count),
   width_check_annotations_(nullptr),
@@ -553,12 +553,12 @@ Graph::clearPrevPaths()
 
 const Slew &
 Graph::slew(const Vertex *vertex,
-	    const TransRiseFall *tr,
+	    const RiseFall *rf,
 	    DcalcAPIndex ap_index)
 {
-  if (slew_tr_count_) {
+  if (slew_rf_count_) {
     int table_index =
-      (slew_tr_count_ == 1) ? ap_index : ap_index*slew_tr_count_+tr->index();
+      (slew_rf_count_ == 1) ? ap_index : ap_index*slew_rf_count_+rf->index();
     DelayTable *table = slew_tables_[table_index];
     VertexId vertex_id = id(vertex);
     return table->ref(vertex_id);
@@ -571,13 +571,13 @@ Graph::slew(const Vertex *vertex,
 
 void
 Graph::setSlew(Vertex *vertex,
-	       const TransRiseFall *tr,
+	       const RiseFall *rf,
 	       DcalcAPIndex ap_index,
 	       const Slew &slew)
 {
-  if (slew_tr_count_) {
+  if (slew_rf_count_) {
     int table_index =
-      (slew_tr_count_ == 1) ? ap_index : ap_index*slew_tr_count_+tr->index();
+      (slew_rf_count_ == 1) ? ap_index : ap_index*slew_rf_count_+rf->index();
     DelayTable *table = slew_tables_[table_index];
     VertexId vertex_id = id(vertex);
     Slew &vertex_slew = table->ref(vertex_id);
@@ -707,13 +707,13 @@ Graph::setArcDelay(Edge *edge,
 
 const ArcDelay &
 Graph::wireArcDelay(const Edge *edge,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    DcalcAPIndex ap_index)
 {
   if (have_arc_delays_) {
     DelayTable *table = arc_delays_[ap_index];
     ArcDelay *arc_delays = table->pointer(edge->arcDelays());
-    return arc_delays[tr->index()];
+    return arc_delays[rf->index()];
   }
   else
     return delay_zero;
@@ -721,14 +721,14 @@ Graph::wireArcDelay(const Edge *edge,
 
 void
 Graph::setWireArcDelay(Edge *edge,
-		       const TransRiseFall *tr,
+		       const RiseFall *rf,
 		       DcalcAPIndex ap_index,
 		       const ArcDelay &delay)
 {
   if (have_arc_delays_) {
     DelayTable *table = arc_delays_[ap_index];
     ArcDelay *arc_delays = table->pointer(edge->arcDelays());
-    arc_delays[tr->index()] = delay;
+    arc_delays[rf->index()] = delay;
   }
 }
 
@@ -761,10 +761,10 @@ Graph::setArcDelayAnnotated(Edge *edge,
 
 bool
 Graph::wireDelayAnnotated(Edge *edge,
-			  const TransRiseFall *tr,
+			  const RiseFall *rf,
 			  DcalcAPIndex ap_index) const
 {
-  size_t index = (edge->arcDelays() + TimingArcSet::wireArcIndex(tr)) * ap_count_
+  size_t index = (edge->arcDelays() + TimingArcSet::wireArcIndex(rf)) * ap_count_
     + ap_index;
   if (index >= arc_delay_annotated_.size())
     internalError("arc_delay_annotated array bounds exceeded");
@@ -773,11 +773,11 @@ Graph::wireDelayAnnotated(Edge *edge,
 
 void
 Graph::setWireDelayAnnotated(Edge *edge,
-			     const TransRiseFall *tr,
+			     const RiseFall *rf,
 			     DcalcAPIndex ap_index,
 			     bool annotated)
 {
-  size_t index = (edge->arcDelays() + TimingArcSet::wireArcIndex(tr)) * ap_count_
+  size_t index = (edge->arcDelays() + TimingArcSet::wireArcIndex(rf)) * ap_count_
     + ap_index;
   if (index >= arc_delay_annotated_.size())
     internalError("arc_delay_annotated array bounds exceeded");
@@ -850,7 +850,7 @@ Graph::delayAnnotated(Edge *edge)
 void
 Graph::makeSlewTables(DcalcAPIndex ap_count)
 {
-  DcalcAPIndex tr_ap_count = slew_tr_count_ * ap_count;
+  DcalcAPIndex tr_ap_count = slew_rf_count_ * ap_count;
   slew_tables_.resize(tr_ap_count);
   for (DcalcAPIndex i = 0; i < tr_ap_count; i++) {
     DelayTable *table = new DelayTable;
@@ -867,7 +867,7 @@ Graph::deleteSlewTables()
 void
 Graph::makeVertexSlews(Vertex *vertex)
 {
-  DcalcAPIndex tr_ap_count = slew_tr_count_ * ap_count_;
+  DcalcAPIndex tr_ap_count = slew_rf_count_ * ap_count_;
   for (DcalcAPIndex i = 0; i < tr_ap_count; i++) {
     DelayTable *table = slew_tables_[i];
     // Slews are 1:1 with vertices and use the same object id.
@@ -880,7 +880,7 @@ Graph::makeVertexSlews(Vertex *vertex)
 
 void
 Graph::widthCheckAnnotation(const Pin *pin,
-			    const TransRiseFall *tr,
+			    const RiseFall *rf,
 			    DcalcAPIndex ap_index,
 			    // Return values.
 			    float &width,
@@ -890,7 +890,7 @@ Graph::widthCheckAnnotation(const Pin *pin,
   if (width_check_annotations_) {
     float *widths = width_check_annotations_->findKey(pin);
     if (widths) {
-      int index = ap_index * TransRiseFall::index_count + tr->index();
+      int index = ap_index * RiseFall::index_count + rf->index();
       width = widths[index];
       if (width >= 0.0)
 	exists = true;
@@ -900,7 +900,7 @@ Graph::widthCheckAnnotation(const Pin *pin,
 
 void
 Graph::setWidthCheckAnnotation(const Pin *pin,
-			       const TransRiseFall *tr,
+			       const RiseFall *rf,
 			       DcalcAPIndex ap_index,
 			       float width)
 {
@@ -908,14 +908,14 @@ Graph::setWidthCheckAnnotation(const Pin *pin,
     width_check_annotations_ = new WidthCheckAnnotations;
   float *widths = width_check_annotations_->findKey(pin);
   if (widths == nullptr) {
-    int width_count = TransRiseFall::index_count * ap_count_;
+    int width_count = RiseFall::index_count * ap_count_;
     widths = new float[width_count];
     // Use negative (illegal) width values to indicate unannotated checks.
     for (int i = 0; i < width_count; i++)
       widths[i] = -1;
     (*width_check_annotations_)[pin] = widths;
   }
-  int index = ap_index * TransRiseFall::index_count + tr->index();
+  int index = ap_index * RiseFall::index_count + rf->index();
   widths[index] = width;
 }
 
@@ -1091,10 +1091,10 @@ Vertex::setColor(LevelColor color)
 }
 
 bool
-Vertex::slewAnnotated(const TransRiseFall *tr,
+Vertex::slewAnnotated(const RiseFall *rf,
 		      const MinMax *min_max) const
 {
-  int index = min_max->index() * transitionCount() + tr->index();
+  int index = min_max->index() * transitionCount() + rf->index();
   return ((1 << index) & slew_annotated_) != 0;
 }
 
@@ -1106,14 +1106,14 @@ Vertex::slewAnnotated() const
 
 void
 Vertex::setSlewAnnotated(bool annotated,
-			 const TransRiseFall *tr,
+			 const RiseFall *rf,
 			 DcalcAPIndex ap_index)
 {
   // Track rise/fall/min/max annotations separately, but after that
   // only rise/fall.
   if (ap_index > 1)
     ap_index = 0;
-  int index = ap_index * transitionCount() + tr->index();
+  int index = ap_index * transitionCount() + rf->index();
   if (annotated)
     slew_annotated_ |= (1 << index);
   else

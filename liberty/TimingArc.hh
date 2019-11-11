@@ -106,8 +106,8 @@ public:
   void setModeName(const char *name);
   const char *modeValue() const { return mode_value_; }
   void setModeValue(const char *value);
-  TimingModel *model(TransRiseFall *tr) const;
-  void setModel(TransRiseFall *tr,
+  TimingModel *model(RiseFall *rf) const;
+  void setModel(RiseFall *rf,
 		TimingModel *model);
   float ocvArcDepth() const { return ocv_arc_depth_; }
   void setOcvArcDepth(float depth);
@@ -122,7 +122,7 @@ protected:
   const char *mode_name_;
   const char *mode_value_;
   float ocv_arc_depth_;
-  TimingModel *models_[TransRiseFall::index_count];
+  TimingModel *models_[RiseFall::index_count];
 
 private:
   DISALLOW_COPY_AND_ASSIGN(TimingArcAttrs);
@@ -150,11 +150,11 @@ public:
   TimingRole *role() const { return role_; };
   TimingSense sense() const;
   // Rise/fall if the arc set is rising_edge or falling_edge.
-  TransRiseFall *isRisingFallingEdge() const;
+  RiseFall *isRisingFallingEdge() const;
   size_t arcCount() const { return arcs_.size(); }
   TimingArcSeq &arcs() { return arcs_; }
   // Return 1 or 2 arcs matching from transition.
-  void arcsFrom(const TransRiseFall *from_tr,
+  void arcsFrom(const RiseFall *from_rf,
 		// Return values.
 		TimingArc *&arc1,
 		TimingArc *&arc2);
@@ -194,7 +194,7 @@ public:
 
   // Psuedo definition for wire arcs.
   static TimingArcSet *wireTimingArcSet() { return wire_timing_arc_set_; }
-  static int wireArcIndex(const TransRiseFall *tr);
+  static int wireArcIndex(const RiseFall *rf);
   static int wireArcCount() { return 2; }
 
 protected:
@@ -215,8 +215,8 @@ protected:
   float ocv_arc_depth_;
   unsigned index_;
   bool is_disabled_constraint_;
-  TimingArc *from_arc1_[TransRiseFall::index_count];
-  TimingArc *from_arc2_[TransRiseFall::index_count];
+  TimingArc *from_arc1_[RiseFall::index_count];
+  TimingArc *from_arc2_[RiseFall::index_count];
 
   static TimingArcSet *wire_timing_arc_set_;
 
@@ -239,14 +239,14 @@ class TimingArc
 {
 public:
   TimingArc(TimingArcSet *set,
-	    Transition *from_tr,
-	    Transition *to_tr,
+	    Transition *from_rf,
+	    Transition *to_rf,
 	    TimingModel *model);
   ~TimingArc();
   LibertyPort *from() const { return set_->from(); }
   LibertyPort *to() const { return set_->to(); }
-  Transition *fromTrans() const { return from_tr_; }
-  Transition *toTrans() const { return to_tr_; }
+  Transition *fromTrans() const { return from_rf_; }
+  Transition *toTrans() const { return to_rf_; }
   TimingRole *role() const { return set_->role(); }
   TimingArcSet *set() const { return set_; }
   TimingSense sense() const;
@@ -267,8 +267,8 @@ protected:
 		      TimingModel *scaled_model);
 
   TimingArcSet *set_;
-  Transition *from_tr_;
-  Transition *to_tr_;
+  Transition *from_rf_;
+  Transition *to_rf_;
   unsigned index_;
   TimingModel *model_;
   ScaledTimingModelMap *scaled_models_;

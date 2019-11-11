@@ -61,10 +61,10 @@ public:
 
   virtual bool isPiElmore(Parasitic *parasitic) const;
   virtual Parasitic *findPiElmore(const Pin *drvr_pin,
-				  const TransRiseFall *tr,
+				  const RiseFall *rf,
 				  const ParasiticAnalysisPt *ap) const;
   virtual Parasitic *makePiElmore(const Pin *drvr_pin,
-				  const TransRiseFall *tr,
+				  const RiseFall *rf,
 				  const ParasiticAnalysisPt *ap,
 				  float c2, float rpi, float c1);
 
@@ -80,12 +80,12 @@ public:
 
   virtual bool isPiPoleResidue(Parasitic* parasitic) const;
   virtual Parasitic *findPiPoleResidue(const Pin *drvr_pin,
-				       const TransRiseFall *tr,
+				       const RiseFall *rf,
 				       const ParasiticAnalysisPt *ap) const;
   virtual Parasitic *findPoleResidue(const Parasitic *parasitic,
 				     const Pin *load_pin) const;
   virtual Parasitic *makePiPoleResidue(const Pin *drvr_pin,
-				       const TransRiseFall *tr,
+				       const RiseFall *rf,
 				       const ParasiticAnalysisPt *ap,
 				       float c2, float rpi, float c1);
   virtual void setPoleResidue(Parasitic *parasitic, const Pin *load_pin,
@@ -150,7 +150,7 @@ public:
 				   ParasiticNode *node) const;
 
   virtual Parasitic *estimatePiElmore(const Pin *drvr_pin,
-				      const TransRiseFall *tr,
+				      const RiseFall *rf,
 				      const Wireload *wireload,
 				      float fanout,
 				      float net_pin_cap,
@@ -196,7 +196,7 @@ public:
 
 protected:
   int parasiticAnalysisPtIndex(const ParasiticAnalysisPt *ap,
-			       const TransRiseFall *tr) const;
+			       const RiseFall *rf) const;
   Parasitic *ensureRspf(const Pin *drvr_pin);
   void makeAnalysisPtAfter();
   void deleteReducedParasitics(const Pin *pin);

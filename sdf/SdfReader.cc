@@ -581,19 +581,19 @@ SdfReader::timingCheckWidth(SdfPortSpec *edge,
     else {
       Pin *pin = network_->findPin(instance_, port_name);
       if (pin) {
-	const TransRiseFall *tr = edge->transition()->asRiseFall();
+	const RiseFall *rf = edge->transition()->asRiseFall();
 	float **values = triple->values();
 	float *value_ptr = values[triple_min_index_];
 	if (value_ptr) {
 	  float value = *value_ptr;
-	  graph_->setWidthCheckAnnotation(pin, tr, arc_delay_min_index_,
+	  graph_->setWidthCheckAnnotation(pin, rf, arc_delay_min_index_,
 					  value);
 	}
 	if (triple_max_index_ != null_index_) {
 	  value_ptr = values[triple_max_index_];
 	  if (value_ptr) {
 	    float value = *value_ptr;
-	    graph_->setWidthCheckAnnotation(pin, tr, arc_delay_max_index_,
+	    graph_->setWidthCheckAnnotation(pin, rf, arc_delay_max_index_,
 					    value);
 	  }
 	}

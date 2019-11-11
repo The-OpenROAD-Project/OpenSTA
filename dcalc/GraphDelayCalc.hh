@@ -74,14 +74,14 @@ public:
   // wire_cap = annotated net capacitance + port external wire capacitance.
   virtual void loadCap(const Pin *drvr_pin,
 		       Parasitic *drvr_parasitic,
-		       const TransRiseFall *tr,
+		       const RiseFall *rf,
 		       const DcalcAnalysisPt *dcalc_ap,
 		       // Return values.
 		       float &pin_cap,
 		       float &wire_cap) const;
   // Load pin_cap + wire_cap including parasitic.
   virtual float loadCap(const Pin *drvr_pin,
-			const TransRiseFall *to_tr,
+			const RiseFall *to_rf,
 			const DcalcAnalysisPt *dcalc_ap) const;
   // Load pin_cap + wire_cap including parasitic min/max for rise/fall.
   virtual float loadCap(const Pin *drvr_pin,
@@ -89,10 +89,10 @@ public:
   // Load pin_cap + wire_cap.
   virtual float loadCap(const Pin *drvr_pin,
 			Parasitic *drvr_parasitic,
-			const TransRiseFall *tr,
+			const RiseFall *rf,
 			const DcalcAnalysisPt *dcalc_ap) const;
   virtual void netCaps(const Pin *drvr_pin,
-		       const TransRiseFall *tr,
+		       const RiseFall *rf,
 		       const DcalcAnalysisPt *dcalc_ap,
 		       // Return values.
 		       float &pin_cap,
@@ -107,7 +107,7 @@ public:
   //  Liberty library
   // (ignores set_min_pulse_width constraint)
   void minPulseWidth(const Pin *pin,
-		     const TransRiseFall *hi_low,
+		     const RiseFall *hi_low,
 		     DcalcAPIndex ap_index,
 		     const MinMax *min_max,
 		     // Return values.

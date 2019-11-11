@@ -30,32 +30,32 @@ public:
   RiseFallMinMax();
   RiseFallMinMax(const RiseFallMinMax *rfmm);
   explicit RiseFallMinMax(float init_value);
-  float value(const TransRiseFall *tr,
+  float value(const RiseFall *rf,
 	      const MinMax *min_max) const;
-  void value(const TransRiseFall *tr,
+  void value(const RiseFall *rf,
 	     const MinMax *min_max,
 	     float &value,
 	     bool &exists) const;
   bool hasValue() const;
   bool empty() const;
-  bool hasValue(const TransRiseFall *tr,
+  bool hasValue(const RiseFall *rf,
 		const MinMax *min_max) const;
-  void setValue(const TransRiseFallBoth *tr,
+  void setValue(const RiseFallBoth *rf,
 		const MinMaxAll *min_max,
 		float value);
-  void setValue(const TransRiseFallBoth *tr,
+  void setValue(const RiseFallBoth *rf,
 		const MinMax *min_max,
 		float value);
-  void setValue(const TransRiseFall *tr,
+  void setValue(const RiseFall *rf,
 		const MinMax *min_max, float value);
   void setValue(float value);
-  void mergeValue(const TransRiseFallBoth *tr,
+  void mergeValue(const RiseFallBoth *rf,
 		  const MinMaxAll *min_max,
 		  float value);
   void setValues(RiseFallMinMax *values);
-  void removeValue(const TransRiseFallBoth *tr,
+  void removeValue(const RiseFallBoth *rf,
 		   const MinMax *min_max);
-  void removeValue(const TransRiseFallBoth *tr, 
+  void removeValue(const RiseFallBoth *rf, 
 		   const MinMaxAll *min_max);
   // Merge all values of rfmm.
   void mergeWith(RiseFallMinMax *rfmm);
@@ -68,8 +68,8 @@ public:
 		  float &value) const;
 
 private:
-  float values_[TransRiseFall::index_count][MinMax::index_count];
-  bool exists_[TransRiseFall::index_count][MinMax::index_count];
+  float values_[RiseFall::index_count][MinMax::index_count];
+  bool exists_[RiseFall::index_count][MinMax::index_count];
 };
 
 } // namespace

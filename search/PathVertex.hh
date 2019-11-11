@@ -61,8 +61,8 @@ public:
   virtual VertexId vertexId(const StaState *sta) const;
   virtual Tag *tag(const StaState *) const { return tag_; }
   virtual TagIndex tagIndex(const StaState *sta) const;
-  virtual const TransRiseFall *transition(const StaState *) const;
-  virtual int trIndex(const StaState *sta) const;
+  virtual const RiseFall *transition(const StaState *) const;
+  virtual int rfIndex(const StaState *sta) const;
   virtual PathAnalysisPt *pathAnalysisPt(const StaState *sta) const;
   virtual PathAPIndex pathAnalysisPtIndex(const StaState *sta) const;
   void arrivalIndex(int &arrival_index,
@@ -115,13 +115,13 @@ public:
   // Iterate over vertex paths with the same transition and
   // analysis pt but different tags.
   VertexPathIterator(Vertex *vertex,
-		     const TransRiseFall *tr,
+		     const RiseFall *rf,
 		     const PathAnalysisPt *path_ap,
 		     const StaState *sta);
   // Iterate over vertex paths with the same transition and
   // analysis pt min/max but different tags.
   VertexPathIterator(Vertex *vertex,
-		     const TransRiseFall *tr,
+		     const RiseFall *rf,
 		     const MinMax *min_max,
 		     const StaState *sta);
   virtual ~VertexPathIterator();
@@ -134,7 +134,7 @@ private:
 
   const Search *search_;
   Vertex *vertex_;
-  const TransRiseFall *tr_;
+  const RiseFall *rf_;
   const PathAnalysisPt *path_ap_;
   const MinMax *min_max_;
   ArrivalMap::Iterator arrival_iter_;

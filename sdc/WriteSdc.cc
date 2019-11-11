@@ -52,9 +52,9 @@ typedef Set<ClockSense*> ClockSenseSet;
 typedef Vector<ClockSense*> ClockSenseSeq;
 
 static const char *
-transRiseFallFlag(const TransRiseFall *tr);
+transRiseFallFlag(const RiseFall *rf);
 static const char *
-transRiseFallFlag(const TransRiseFallBoth *tr);
+transRiseFallFlag(const RiseFallBoth *rf);
 static const char *
 minMaxFlag(const MinMaxAll *min_max);
 static const char *
@@ -678,9 +678,9 @@ writeInterClockUncertainty(InterClockUncertainty *uncertainty) const
   const Clock *src_clk = uncertainty->src();
   const Clock *tgt_clk = uncertainty->target();
   const RiseFallMinMax *src_rise =
-    uncertainty->uncertainties(TransRiseFall::rise());
+    uncertainty->uncertainties(RiseFall::rise());
   const RiseFallMinMax *src_fall =
-    uncertainty->uncertainties(TransRiseFall::fall());
+    uncertainty->uncertainties(RiseFall::fall());
   float value;
   if (src_rise->equal(src_fall)
       && src_rise->isOneValue(value)) {
@@ -693,19 +693,19 @@ writeInterClockUncertainty(InterClockUncertainty *uncertainty) const
     fprintf(stream_, "\n");
   }
   else {
-    for (auto src_tr : TransRiseFall::range()) {
-      for (auto tgt_tr : TransRiseFall::range()) {
+    for (auto src_rf : RiseFall::range()) {
+      for (auto tgt_rf : RiseFall::range()) {
 	for (auto setup_hold : SetupHold::range()) {
 	  float value;
 	  bool exists;
-	  sdc_->clockUncertainty(src_clk, src_tr, tgt_clk, tgt_tr,
+	  sdc_->clockUncertainty(src_clk, src_rf, tgt_clk, tgt_rf,
 					 setup_hold, value, exists);
 	  if (exists) {
 	    fprintf(stream_, "set_clock_uncertainty -%s_from ",
-		    src_tr == TransRiseFall::rise() ? "rise" : "fall");
+		    src_rf == RiseFall::rise() ? "rise" : "fall");
 	    writeGetClock(uncertainty->src());
 	    fprintf(stream_, " -%s_to ",
-		    tgt_tr == TransRiseFall::rise() ? "rise" : "fall");
+		    tgt_rf == RiseFall::rise() ? "rise" : "fall");
 	    writeGetClock(uncertainty->target());
 	    fprintf(stream_, " %s ",
 		    setupHoldFlag(setup_hold));
@@ -762,13 +762,13 @@ WriteSdc::writePortDelay(PortDelay *port_delay,
   RiseFallMinMax *delays = port_delay->delays();
   float rise_min, rise_max, fall_min, fall_max;
   bool rise_min_exists, rise_max_exists, fall_min_exists, fall_max_exists;
-  delays->value(TransRiseFall::rise(), MinMax::min(),
+  delays->value(RiseFall::rise(), MinMax::min(),
 		rise_min, rise_min_exists);
-  delays->value(TransRiseFall::rise(), MinMax::max(),
+  delays->value(RiseFall::rise(), MinMax::max(),
 		rise_max, rise_max_exists);
-  delays->value(TransRiseFall::fall(), MinMax::min(),
+  delays->value(RiseFall::fall(), MinMax::min(),
 		fall_min, fall_min_exists);
-  delays->value(TransRiseFall::fall(), MinMax::max(),
+  delays->value(RiseFall::fall(), MinMax::max(),
 		fall_max, fall_max_exists);
   // Try to compress the four port delays.
   if (rise_min_exists
@@ -779,7 +779,7 @@ WriteSdc::writePortDelay(PortDelay *port_delay,
       && fall_min == rise_min
       && fall_max == rise_min)
     writePortDelay(port_delay, is_input_delay, rise_min,
-		   TransRiseFallBoth::riseFall(), MinMaxAll::all(), sdc_cmd);
+		   RiseFallBoth::riseFall(), MinMaxAll::all(), sdc_cmd);
   else if (rise_min_exists
 	   && rise_max_exists
 	   && rise_max == rise_min
@@ -787,9 +787,9 @@ WriteSdc::writePortDelay(PortDelay *port_delay,
 	   && fall_max_exists
 	   && fall_min == fall_max) {
     writePortDelay(port_delay, is_input_delay, rise_min,
-		   TransRiseFallBoth::rise(), MinMaxAll::all(), sdc_cmd);
+		   RiseFallBoth::rise(), MinMaxAll::all(), sdc_cmd);
     writePortDelay(port_delay, is_input_delay, fall_min,
-		   TransRiseFallBoth::fall(), MinMaxAll::all(), sdc_cmd);
+		   RiseFallBoth::fall(), MinMaxAll::all(), sdc_cmd);
   }
   else if (rise_min_exists
 	   && fall_min_exists
@@ -798,23 +798,23 @@ WriteSdc::writePortDelay(PortDelay *port_delay,
 	   && fall_max_exists
 	   && rise_max == fall_max) {
     writePortDelay(port_delay, is_input_delay, rise_min,
-		   TransRiseFallBoth::riseFall(), MinMaxAll::min(), sdc_cmd);
+		   RiseFallBoth::riseFall(), MinMaxAll::min(), sdc_cmd);
     writePortDelay(port_delay, is_input_delay, rise_max,
-		   TransRiseFallBoth::riseFall(), MinMaxAll::max(), sdc_cmd);
+		   RiseFallBoth::riseFall(), MinMaxAll::max(), sdc_cmd);
   }
   else {
     if (rise_min_exists)
       writePortDelay(port_delay, is_input_delay, rise_min,
-		     TransRiseFallBoth::rise(), MinMaxAll::min(), sdc_cmd);
+		     RiseFallBoth::rise(), MinMaxAll::min(), sdc_cmd);
     if (rise_max_exists)
       writePortDelay(port_delay, is_input_delay, rise_max,
-		     TransRiseFallBoth::rise(), MinMaxAll::max(), sdc_cmd);
+		     RiseFallBoth::rise(), MinMaxAll::max(), sdc_cmd);
     if (fall_min_exists)
       writePortDelay(port_delay, is_input_delay, fall_min,
-		     TransRiseFallBoth::fall(), MinMaxAll::min(), sdc_cmd);
+		     RiseFallBoth::fall(), MinMaxAll::min(), sdc_cmd);
     if (fall_max_exists)
       writePortDelay(port_delay, is_input_delay, fall_max,
-		     TransRiseFallBoth::fall(), MinMaxAll::max(), sdc_cmd);
+		     RiseFallBoth::fall(), MinMaxAll::max(), sdc_cmd);
   }
 }
 
@@ -822,7 +822,7 @@ void
 WriteSdc::writePortDelay(PortDelay *port_delay,
 			 bool is_input_delay,
 			 float delay,
-			 const TransRiseFallBoth *tr,
+			 const RiseFallBoth *rf,
 			 const MinMaxAll *min_max,
 			 const char *sdc_cmd) const
 {
@@ -831,11 +831,11 @@ WriteSdc::writePortDelay(PortDelay *port_delay,
   ClockEdge *clk_edge = port_delay->clkEdge();
   if (clk_edge) {
     writeClockKey(clk_edge->clock());
-    if (clk_edge->transition() == TransRiseFall::fall())
+    if (clk_edge->transition() == RiseFall::fall())
       fprintf(stream_, " -clock_fall");
   }
   fprintf(stream_, "%s%s -add_delay ",
-	  transRiseFallFlag(tr),
+	  transRiseFallFlag(rf),
 	  minMaxFlag(min_max));
   Pin *ref_pin = port_delay->refPin();
   if (ref_pin) {
@@ -1352,9 +1352,9 @@ WriteSdc::writeExceptionFrom(ExceptionFrom *from) const
 void
 WriteSdc::writeExceptionTo(ExceptionTo *to) const
 {
-  const TransRiseFallBoth *end_tr = to->endTransition();
-  if (end_tr != TransRiseFallBoth::riseFall())
-    fprintf(stream_, "%s ", transRiseFallFlag(end_tr));
+  const RiseFallBoth *end_rf = to->endTransition();
+  if (end_rf != RiseFallBoth::riseFall())
+    fprintf(stream_, "%s ", transRiseFallFlag(end_rf));
   if (to->hasObjects())
     writeExceptionFromTo(to, "to", false);
 }
@@ -1364,11 +1364,11 @@ WriteSdc::writeExceptionFromTo(ExceptionFromTo *from_to,
 			       const char *from_to_key,
 			       bool map_hpin_to_drvr) const
 {
-  const TransRiseFallBoth *tr = from_to->transition();
+  const RiseFallBoth *rf = from_to->transition();
   const char *tr_prefix = "-";
-  if (tr == TransRiseFallBoth::rise())
+  if (rf == RiseFallBoth::rise())
     tr_prefix = "-rise_";
-  else if (tr == TransRiseFallBoth::fall())
+  else if (rf == RiseFallBoth::fall())
     tr_prefix = "-fall_";
   fprintf(stream_, "\\\n    %s%s ", tr_prefix, from_to_key);
   bool multi_objs =
@@ -1411,11 +1411,11 @@ WriteSdc::writeExceptionFromTo(ExceptionFromTo *from_to,
 void
 WriteSdc::writeExceptionThru(ExceptionThru *thru) const
 {
-  const TransRiseFallBoth *tr = thru->transition();
+  const RiseFallBoth *rf = thru->transition();
   const char *tr_prefix = "-";
-  if (tr == TransRiseFallBoth::rise())
+  if (rf == RiseFallBoth::rise())
     tr_prefix = "-rise_";
-  else if (tr == TransRiseFallBoth::fall())
+  else if (rf == RiseFallBoth::fall())
     tr_prefix = "-fall_";
   fprintf(stream_, "\\\n    %sthrough ", tr_prefix);
   PinSeq pins;
@@ -1524,17 +1524,17 @@ WriteSdc::writeDataCheck(DataCheck *check) const
     bool one_value;
     check->marginIsOneValue(setup_hold, margin, one_value);
     if (one_value)
-      writeDataCheck(check, TransRiseFallBoth::riseFall(),
-		     TransRiseFallBoth::riseFall(), setup_hold, margin);
+      writeDataCheck(check, RiseFallBoth::riseFall(),
+		     RiseFallBoth::riseFall(), setup_hold, margin);
     else {
-      for (auto from_tr : TransRiseFall::range()) {
-	for (auto to_tr : TransRiseFall::range()) {
+      for (auto from_rf : RiseFall::range()) {
+	for (auto to_rf : RiseFall::range()) {
 	  float margin;
 	  bool margin_exists;
-	  check->margin(from_tr, to_tr, setup_hold, margin, margin_exists);
+	  check->margin(from_rf, to_rf, setup_hold, margin, margin_exists);
 	  if (margin_exists) {
-	    writeDataCheck(check, from_tr->asRiseFallBoth(),
-			   to_tr->asRiseFallBoth(), setup_hold, margin);
+	    writeDataCheck(check, from_rf->asRiseFallBoth(),
+			   to_rf->asRiseFallBoth(), setup_hold, margin);
 	  }
 	}
       }
@@ -1544,22 +1544,22 @@ WriteSdc::writeDataCheck(DataCheck *check) const
 
 void
 WriteSdc::writeDataCheck(DataCheck *check,
-			 TransRiseFallBoth *from_tr,
-			 TransRiseFallBoth *to_tr,
+			 RiseFallBoth *from_rf,
+			 RiseFallBoth *to_rf,
 			 SetupHold *setup_hold,
 			 float margin) const
 {
   const char *from_key = "-from";
-  if (from_tr == TransRiseFallBoth::rise())
+  if (from_rf == RiseFallBoth::rise())
     from_key = "-rise_from";
-  else if (from_tr == TransRiseFallBoth::fall())
+  else if (from_rf == RiseFallBoth::fall())
     from_key = "-fall_from";
   fprintf(stream_, "set_data_check %s ", from_key);
   writeGetPin(check->from(), true);
   const char *to_key = "-to";
-  if (to_tr == TransRiseFallBoth::rise())
+  if (to_rf == RiseFallBoth::rise())
     to_key = "-rise_to";
-  else if (to_tr == TransRiseFallBoth::fall())
+  else if (to_rf == RiseFallBoth::fall())
     to_key = "-fall_to";
   fprintf(stream_, " %s ", to_key);
   writeGetPin(check->to(), false);
@@ -1640,7 +1640,7 @@ WriteSdc::writeDriveResistances() const
     Port *port = port_iter->next();
     InputDrive *drive = sdc_->findInputDrive(port);
     if (drive) {
-      for (auto tr : TransRiseFall::range()) {
+      for (auto tr : RiseFall::range()) {
 	if (drive->driveResistanceMinMaxEqual(tr)) {
 	  float res;
 	  bool exists;
@@ -1682,13 +1682,13 @@ WriteSdc::writeDrivingCells() const
     Port *port = port_iter->next();
     InputDrive *drive = sdc_->findInputDrive(port);
     if (drive) {
-      InputDriveCell *drive_rise_min = drive->driveCell(TransRiseFall::rise(),
+      InputDriveCell *drive_rise_min = drive->driveCell(RiseFall::rise(),
 							MinMax::min());
-      InputDriveCell *drive_rise_max = drive->driveCell(TransRiseFall::rise(),
+      InputDriveCell *drive_rise_max = drive->driveCell(RiseFall::rise(),
 							MinMax::max());
-      InputDriveCell *drive_fall_min = drive->driveCell(TransRiseFall::fall(),
+      InputDriveCell *drive_fall_min = drive->driveCell(RiseFall::fall(),
 							MinMax::min());
-      InputDriveCell *drive_fall_max = drive->driveCell(TransRiseFall::fall(),
+      InputDriveCell *drive_fall_max = drive->driveCell(RiseFall::fall(),
 							MinMax::max());
       if (drive_rise_min
 	  && drive_rise_max
@@ -1703,25 +1703,25 @@ WriteSdc::writeDrivingCells() const
 	if (drive_rise_min
 	    && drive_rise_max
 	    && drive_rise_min->equal(drive_rise_max))
-	  writeDrivingCell(port, drive_rise_min, TransRiseFall::rise(), nullptr);
+	  writeDrivingCell(port, drive_rise_min, RiseFall::rise(), nullptr);
 	else {
 	  if (drive_rise_min)
-	    writeDrivingCell(port, drive_rise_min, TransRiseFall::rise(),
+	    writeDrivingCell(port, drive_rise_min, RiseFall::rise(),
 			     MinMax::min());
 	  if (drive_rise_max)
-	    writeDrivingCell(port, drive_rise_max, TransRiseFall::rise(),
+	    writeDrivingCell(port, drive_rise_max, RiseFall::rise(),
 			     MinMax::max());
 	}
 	if (drive_fall_min
 	    && drive_fall_max
 	    && drive_fall_min->equal(drive_fall_max))
-	  writeDrivingCell(port, drive_fall_min, TransRiseFall::fall(), nullptr);
+	  writeDrivingCell(port, drive_fall_min, RiseFall::fall(), nullptr);
 	else {
 	  if (drive_fall_min)
-	    writeDrivingCell(port, drive_fall_min, TransRiseFall::fall(),
+	    writeDrivingCell(port, drive_fall_min, RiseFall::fall(),
 			     MinMax::min());
 	  if (drive_fall_max)
-	    writeDrivingCell(port, drive_fall_max, TransRiseFall::fall(),
+	    writeDrivingCell(port, drive_fall_max, RiseFall::fall(),
 			     MinMax::max());
 	}
       }
@@ -1733,7 +1733,7 @@ WriteSdc::writeDrivingCells() const
 void
 WriteSdc::writeDrivingCell(Port *port,
 			   InputDriveCell *drive_cell,
-			   const TransRiseFall *tr,
+			   const RiseFall *rf,
 			   const MinMax *min_max) const
 {
   LibertyCell *cell = drive_cell->cell();
@@ -1742,8 +1742,8 @@ WriteSdc::writeDrivingCell(Port *port,
   float *from_slews = drive_cell->fromSlews();
   LibertyLibrary *lib = drive_cell->library();
   fprintf(stream_, "set_driving_cell");
-  if (tr)
-    fprintf(stream_, " %s", transRiseFallFlag(tr));
+  if (rf)
+    fprintf(stream_, " %s", transRiseFallFlag(rf));
   if (min_max)
     fprintf(stream_, " %s", minMaxFlag(min_max));
   // Only write -library if it was specified in the sdc.
@@ -1756,9 +1756,9 @@ WriteSdc::writeDrivingCell(Port *port,
   fprintf(stream_,
 	  " -pin {%s} -input_transition_rise ",
 	  to_port->name());
-  writeTime(from_slews[TransRiseFall::riseIndex()]);
+  writeTime(from_slews[RiseFall::riseIndex()]);
   fprintf(stream_, " -input_transition_fall ");
-  writeTime(from_slews[TransRiseFall::fallIndex()]);
+  writeTime(from_slews[RiseFall::fallIndex()]);
   fprintf(stream_, " ");
   writeGetPort(port);
   fprintf(stream_, "\n");
@@ -2059,7 +2059,7 @@ WriteSdc::writeDerating(DeratingFactors *factors,
 	}
       }
       else {
-	for (auto tr : TransRiseFall::range()) {
+	for (auto tr : RiseFall::range()) {
 	  float factor;
 	  bool exists;
 	  factors->factor(clk_data, tr, early_late, factor, exists);
@@ -2141,8 +2141,8 @@ WriteSdc::writeMinPulseWidths(RiseFallValues *min_widths,
 {
   bool hi_exists, low_exists;
   float hi, low;
-  min_widths->value(TransRiseFall::rise(), hi, hi_exists);
-  min_widths->value(TransRiseFall::fall(), low, low_exists);
+  min_widths->value(RiseFall::rise(), hi, hi_exists);
+  min_widths->value(RiseFall::fall(), low, low_exists);
   if (hi_exists && low_exists
       && hi == low)
     writeMinPulseWidth("", hi, write_obj);
@@ -2270,13 +2270,13 @@ WriteSdc::writeClkSlewLimits() const
     Clock *clk = clk_iter.next();
     float rise_clk_limit, fall_clk_limit, rise_data_limit, fall_data_limit;
     bool rise_clk_exists, fall_clk_exists, rise_data_exists, fall_data_exists;
-    clk->slewLimit(TransRiseFall::rise(), PathClkOrData::clk, min_max,
+    clk->slewLimit(RiseFall::rise(), PathClkOrData::clk, min_max,
 		   rise_clk_limit, rise_clk_exists);
-    clk->slewLimit(TransRiseFall::fall(), PathClkOrData::clk, min_max,
+    clk->slewLimit(RiseFall::fall(), PathClkOrData::clk, min_max,
 		   fall_clk_limit, fall_clk_exists);
-    clk->slewLimit(TransRiseFall::rise(), PathClkOrData::data, min_max,
+    clk->slewLimit(RiseFall::rise(), PathClkOrData::data, min_max,
 		   rise_data_limit, rise_data_exists);
-    clk->slewLimit(TransRiseFall::fall(), PathClkOrData::data, min_max,
+    clk->slewLimit(RiseFall::fall(), PathClkOrData::data, min_max,
 		   fall_data_limit, fall_data_exists);
     if (rise_clk_exists && fall_clk_exists
 	&& rise_data_exists && fall_data_exists
@@ -2709,13 +2709,13 @@ WriteSdc::writeRiseFallMinMaxCmd(const char *sdc_cmd,
 {
   float fall_min, fall_max, rise_min, rise_max;
   bool fall_min_exists, fall_max_exists, rise_min_exists, rise_max_exists;
-  values->value(TransRiseFall::fall(), MinMax::min(),
+  values->value(RiseFall::fall(), MinMax::min(),
 		fall_min, fall_min_exists);
-  values->value(TransRiseFall::fall(), MinMax::max(),
+  values->value(RiseFall::fall(), MinMax::max(),
 		fall_max, fall_max_exists);
-  values->value(TransRiseFall::rise(), MinMax::min(),
+  values->value(RiseFall::rise(), MinMax::min(),
 		rise_min, rise_min_exists);
-  values->value(TransRiseFall::rise(), MinMax::max(),
+  values->value(RiseFall::rise(), MinMax::max(),
 		rise_max, rise_max_exists);
   if (fall_min_exists && fall_max_exists
       && rise_min_exists && rise_max_exists) {
@@ -2724,46 +2724,46 @@ WriteSdc::writeRiseFallMinMaxCmd(const char *sdc_cmd,
 	&& fall_max == rise_min) {
       // rise/fall/min/max match.
       writeRiseFallMinMaxCmd(sdc_cmd, rise_min, scale,
-			     TransRiseFallBoth::riseFall(), MinMaxAll::all(),
+			     RiseFallBoth::riseFall(), MinMaxAll::all(),
 			     write_object);
     }
     else if (rise_min == fall_min
 	     && rise_max == fall_max) {
       // rise/fall match.
       writeRiseFallMinMaxCmd(sdc_cmd, rise_min, scale,
-			     TransRiseFallBoth::riseFall(), MinMaxAll::min(),
+			     RiseFallBoth::riseFall(), MinMaxAll::min(),
 			     write_object);
       writeRiseFallMinMaxCmd(sdc_cmd, rise_max, scale,
-			     TransRiseFallBoth::riseFall(), MinMaxAll::max(),
+			     RiseFallBoth::riseFall(), MinMaxAll::max(),
 			     write_object);
     }
     else if (rise_min == rise_max
 	     && fall_min == fall_max) {
       // min/max match.
       writeRiseFallMinMaxCmd(sdc_cmd, rise_min, scale,
-			     TransRiseFallBoth::rise(), MinMaxAll::all(),
+			     RiseFallBoth::rise(), MinMaxAll::all(),
 			     write_object);
       writeRiseFallMinMaxCmd(sdc_cmd, fall_min, scale,
-			     TransRiseFallBoth::fall(), MinMaxAll::all(),
+			     RiseFallBoth::fall(), MinMaxAll::all(),
 			     write_object);
     }
   }
   else {
     if (rise_min_exists)
       writeRiseFallMinMaxCmd(sdc_cmd, rise_min, scale,
-			     TransRiseFallBoth::rise(), MinMaxAll::min(),
+			     RiseFallBoth::rise(), MinMaxAll::min(),
 			     write_object);
     if (rise_max_exists)
       writeRiseFallMinMaxCmd(sdc_cmd, rise_max, scale,
-			     TransRiseFallBoth::rise(), MinMaxAll::max(),
+			     RiseFallBoth::rise(), MinMaxAll::max(),
 			     write_object);
     if (fall_min_exists)
       writeRiseFallMinMaxCmd(sdc_cmd, fall_min, scale,
-			     TransRiseFallBoth::fall(), MinMaxAll::min(),
+			     RiseFallBoth::fall(), MinMaxAll::min(),
 			     write_object);
     if (fall_max_exists)
       writeRiseFallMinMaxCmd(sdc_cmd, fall_max, scale,
-			     TransRiseFallBoth::fall(), MinMaxAll::max(),
+			     RiseFallBoth::fall(), MinMaxAll::max(),
 			     write_object);
   }
 }
@@ -2772,13 +2772,13 @@ void
 WriteSdc::writeRiseFallMinMaxCmd(const char *sdc_cmd,
 				 float value,
 				 float scale,
-				 const TransRiseFallBoth *tr,
+				 const RiseFallBoth *rf,
 				 const MinMaxAll *min_max,
 				 WriteSdcObject &write_object) const
 {
   fprintf(stream_, "%s%s%s ",
 	  sdc_cmd,
-	  transRiseFallFlag(tr),
+	  transRiseFallFlag(rf),
 	  minMaxFlag(min_max));
   writeFloat(value / scale);
   fprintf(stream_, " ");
@@ -2951,19 +2951,19 @@ WriteSdc::writeIntSeq(IntSeq *ints) const
 ////////////////////////////////////////////////////////////////
 
 static const char *
-transRiseFallFlag(const TransRiseFall *tr)
+transRiseFallFlag(const RiseFall *rf)
 {
-  return (tr == TransRiseFall::rise()) ? "-rise" : "-fall";
+  return (rf == RiseFall::rise()) ? "-rise" : "-fall";
 }
 
 static const char *
-transRiseFallFlag(const TransRiseFallBoth *tr)
+transRiseFallFlag(const RiseFallBoth *rf)
 {
-  if (tr == TransRiseFallBoth::rise())
+  if (rf == RiseFallBoth::rise())
     return " -rise";
-  else if (tr == TransRiseFallBoth::fall())
+  else if (rf == RiseFallBoth::fall())
     return " -fall";
-  else if (tr == TransRiseFallBoth::riseFall())
+  else if (rf == RiseFallBoth::riseFall())
     return "";
   else {
     internalError("unknown transition");

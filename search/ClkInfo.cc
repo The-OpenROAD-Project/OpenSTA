@@ -40,7 +40,7 @@ ClkInfo::ClkInfo(ClockEdge *clk_edge,
 		 bool is_propagated,
                  const Pin *gen_clk_src,
 		 bool is_gen_clk_src_path,
-		 const TransRiseFall *pulse_clk_sense,
+		 const RiseFall *pulse_clk_sense,
 		 Arrival insertion,
 		 float latency,
 		 ClockUncertainties *uncertainties,
@@ -152,11 +152,11 @@ ClkInfo::clock() const
     return nullptr;
 }
 
-TransRiseFall *
+RiseFall *
 ClkInfo::pulseClkSense() const
 {
   if (is_pulse_clk_)
-    return TransRiseFall::find(pulse_clk_sense_);
+    return RiseFall::find(pulse_clk_sense_);
   else
     return nullptr;
 }

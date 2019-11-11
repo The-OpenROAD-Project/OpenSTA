@@ -44,7 +44,7 @@ public:
   Parasitic *reduceToArnoldi(Parasitic *parasitic,
 			     const Pin *drvr_pin,
 			     float coupling_cap_factor,
-			     const TransRiseFall *tr,
+			     const RiseFall *rf,
 			     const OperatingConditions *op_cond,
 			     const Corner *corner,
 			     const MinMax *cnst_min_max,
@@ -66,7 +66,7 @@ protected:
   ConcreteParasiticNetwork *parasitic_network_;
   const Pin *drvr_pin_;
   float coupling_cap_factor_;
-  const TransRiseFall *tr_;
+  const RiseFall *rf_;
   const OperatingConditions *op_cond_;
   const Corner *corner_;
   const MinMax *cnst_min_max_;

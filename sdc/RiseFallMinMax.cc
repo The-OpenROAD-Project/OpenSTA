@@ -27,7 +27,7 @@ RiseFallMinMax::RiseFallMinMax()
 void
 RiseFallMinMax::clear()
 {
-  for (int tr_index=0; tr_index<TransRiseFall::index_count; tr_index++) {
+  for (int tr_index=0; tr_index<RiseFall::index_count; tr_index++) {
     for (int mm_index = 0; mm_index < MinMax::index_count; mm_index++) {
       exists_[tr_index][mm_index] = false;
     }
@@ -36,7 +36,7 @@ RiseFallMinMax::clear()
 
 RiseFallMinMax::RiseFallMinMax(float init_value)
 {
-  for (int tr_index=0;tr_index<TransRiseFall::index_count;tr_index++) {
+  for (int tr_index=0;tr_index<RiseFall::index_count;tr_index++) {
     for (int mm_index = 0; mm_index < MinMax::index_count; mm_index++) {
       values_[tr_index][mm_index] = init_value;
       exists_[tr_index][mm_index] = true;
@@ -46,7 +46,7 @@ RiseFallMinMax::RiseFallMinMax(float init_value)
 
 RiseFallMinMax::RiseFallMinMax(const RiseFallMinMax *rfmm)
 {
-  for (int tr_index=0;tr_index<TransRiseFall::index_count;tr_index++) {
+  for (int tr_index=0;tr_index<RiseFall::index_count;tr_index++) {
     for (int mm_index = 0; mm_index < MinMax::index_count; mm_index++) {
       values_[tr_index][mm_index] = rfmm->values_[tr_index][mm_index];
       exists_[tr_index][mm_index] = rfmm->exists_[tr_index][mm_index];
@@ -57,105 +57,105 @@ RiseFallMinMax::RiseFallMinMax(const RiseFallMinMax *rfmm)
 void
 RiseFallMinMax::setValue(float value)
 {
-  setValue(TransRiseFallBoth::riseFall(), MinMaxAll::all(), value);
+  setValue(RiseFallBoth::riseFall(), MinMaxAll::all(), value);
 }
 
 void
-RiseFallMinMax::setValue(const TransRiseFallBoth *tr,
+RiseFallMinMax::setValue(const RiseFallBoth *rf,
 			 const MinMaxAll *min_max,
 			 float value)
 {
-  for (auto tr_index : tr->rangeIndex()) {
+  for (auto rf_index : rf->rangeIndex()) {
     for (auto mm_index : min_max->rangeIndex()) {
-      values_[tr_index][mm_index] = value;
-      exists_[tr_index][mm_index] = true;
+      values_[rf_index][mm_index] = value;
+      exists_[rf_index][mm_index] = true;
     }
   }
 }
 
 void
-RiseFallMinMax::removeValue(const TransRiseFallBoth *tr,
+RiseFallMinMax::removeValue(const RiseFallBoth *rf,
 			    const MinMax *min_max)
 {
   int mm_index = min_max->index();
-  for (auto tr_index : tr->rangeIndex())
-    exists_[tr_index][mm_index] = false;
+  for (auto rf_index : rf->rangeIndex())
+    exists_[rf_index][mm_index] = false;
 }
 
 void
-RiseFallMinMax::removeValue(const TransRiseFallBoth *tr, 
+RiseFallMinMax::removeValue(const RiseFallBoth *rf, 
 			    const MinMaxAll *min_max)
 {
   for (auto mm : min_max->range())
-    removeValue(tr, mm);
+    removeValue(rf, mm);
 }
 
 void
-RiseFallMinMax::mergeValue(const TransRiseFallBoth *tr,
+RiseFallMinMax::mergeValue(const RiseFallBoth *rf,
 			   const MinMaxAll *min_max,
 			   float value)
 {
-  for (auto tr_index : tr->rangeIndex()) {
+  for (auto rf_index : rf->rangeIndex()) {
     for (auto mm : min_max->range()) {
       int mm_index = mm->index();
-      if (!exists_[tr_index][mm_index]
-	  || mm->compare(value, values_[tr_index][mm_index])) {
-	values_[tr_index][mm_index] = value;
-	exists_[tr_index][mm_index] = true;
+      if (!exists_[rf_index][mm_index]
+	  || mm->compare(value, values_[rf_index][mm_index])) {
+	values_[rf_index][mm_index] = value;
+	exists_[rf_index][mm_index] = true;
       }
     }
   }
 }
 
 void
-RiseFallMinMax::setValue(const TransRiseFallBoth *tr,
+RiseFallMinMax::setValue(const RiseFallBoth *rf,
 			 const MinMax *min_max,
 			 float value)
 {
   int mm_index = min_max->index();
-  for (auto tr_index : tr->rangeIndex()) {
-    values_[tr_index][mm_index] = value;
-    exists_[tr_index][mm_index] = true;
+  for (auto rf_index : rf->rangeIndex()) {
+    values_[rf_index][mm_index] = value;
+    exists_[rf_index][mm_index] = true;
   }
 }
 
 void
-RiseFallMinMax::setValue(const TransRiseFall *tr,
+RiseFallMinMax::setValue(const RiseFall *rf,
 			 const MinMax *min_max,
 			 float value)
 {
-  int tr_index = tr->index();
+  int rf_index = rf->index();
   int mm_index = min_max->index();
-  values_[tr_index][mm_index] = value;
-  exists_[tr_index][mm_index] = true;
+  values_[rf_index][mm_index] = value;
+  exists_[rf_index][mm_index] = true;
 }
 
 void
 RiseFallMinMax::setValues(RiseFallMinMax *values)
 {
-  for (int tr_index=0;tr_index<TransRiseFall::index_count;tr_index++) {
+  for (int rf_index=0;rf_index<RiseFall::index_count;rf_index++) {
     for (int mm_index = 0; mm_index < MinMax::index_count; mm_index++) {
-      values_[tr_index][mm_index] = values->values_[tr_index][mm_index];
-      exists_[tr_index][mm_index] = values->exists_[tr_index][mm_index];
+      values_[rf_index][mm_index] = values->values_[rf_index][mm_index];
+      exists_[rf_index][mm_index] = values->exists_[rf_index][mm_index];
     }
   }
 }
 
 void
-RiseFallMinMax::value(const TransRiseFall *tr,
+RiseFallMinMax::value(const RiseFall *rf,
 		      const MinMax *min_max,
 		      float &value, bool &exists) const
 {
-  exists = exists_[tr->index()][min_max->index()];
+  exists = exists_[rf->index()][min_max->index()];
   if (exists)
-    value = values_[tr->index()][min_max->index()];
+    value = values_[rf->index()][min_max->index()];
 }
 
 float
-RiseFallMinMax::value(const TransRiseFall *tr,
+RiseFallMinMax::value(const RiseFall *rf,
 		      const MinMax *min_max) const
 {
-  return values_[tr->index()][min_max->index()];
+  return values_[rf->index()][min_max->index()];
 }
 
 bool
@@ -167,9 +167,9 @@ RiseFallMinMax::hasValue() const
 bool
 RiseFallMinMax::empty() const
 {
-  for (int tr_index=0;tr_index<TransRiseFall::index_count;tr_index++) {
+  for (int rf_index=0;rf_index<RiseFall::index_count;rf_index++) {
     for (int mm_index = 0; mm_index < MinMax::index_count; mm_index++) {
-      if (exists_[tr_index][mm_index])
+      if (exists_[rf_index][mm_index])
 	return false;
     }
   }
@@ -177,9 +177,9 @@ RiseFallMinMax::empty() const
 }
 
 bool
-RiseFallMinMax::hasValue(const TransRiseFall *tr, const MinMax *min_max) const
+RiseFallMinMax::hasValue(const RiseFall *rf, const MinMax *min_max) const
 {
-  return exists_[tr->index()][min_max->index()];
+  return exists_[rf->index()][min_max->index()];
 }
 
 void
@@ -187,17 +187,17 @@ RiseFallMinMax::mergeWith(RiseFallMinMax *rfmm)
 {
   for (auto min_max : MinMax::range()) {
     int mm_index = min_max->index();
-    for (auto tr_index : TransRiseFall::rangeIndex()) {
-      bool exists1 = exists_[tr_index][mm_index];
-      bool exists2 = rfmm->exists_[tr_index][mm_index];
+    for (auto rf_index : RiseFall::rangeIndex()) {
+      bool exists1 = exists_[rf_index][mm_index];
+      bool exists2 = rfmm->exists_[rf_index][mm_index];
       if (exists1 && exists2) {
-	float rfmm_value = rfmm->values_[tr_index][mm_index];
-	if (min_max->compare(rfmm_value, values_[tr_index][mm_index]))
-	  values_[tr_index][mm_index] = rfmm_value;
+	float rfmm_value = rfmm->values_[rf_index][mm_index];
+	if (min_max->compare(rfmm_value, values_[rf_index][mm_index]))
+	  values_[rf_index][mm_index] = rfmm_value;
       }
       else if (!exists1 && exists2) {
-	values_[tr_index][mm_index] = rfmm->values_[tr_index][mm_index];
-	exists_[tr_index][mm_index] = true;
+	values_[rf_index][mm_index] = rfmm->values_[rf_index][mm_index];
+	exists_[rf_index][mm_index] = true;
       }
     }
   }
@@ -206,14 +206,14 @@ RiseFallMinMax::mergeWith(RiseFallMinMax *rfmm)
 bool
 RiseFallMinMax::equal(const RiseFallMinMax *values) const
 {
-  for (int tr_index=0;tr_index<TransRiseFall::index_count;tr_index++) {
+  for (int rf_index=0;rf_index<RiseFall::index_count;rf_index++) {
     for (int mm_index = 0; mm_index < MinMax::index_count; mm_index++) {
-      bool exists1 = exists_[tr_index][mm_index];
-      bool exists2 = values->exists_[tr_index][mm_index];
+      bool exists1 = exists_[rf_index][mm_index];
+      bool exists2 = values->exists_[rf_index][mm_index];
       if (exists1 != exists2)
 	return false;
       if (exists1 && exists2
-	  && values_[tr_index][mm_index] != values->values_[tr_index][mm_index])
+	  && values_[rf_index][mm_index] != values->values_[rf_index][mm_index])
 	return false;
     }
   }
@@ -232,10 +232,10 @@ RiseFallMinMax::isOneValue(float &value) const
 {
   if (exists_[0][0]) {
     value = values_[0][0];
-    for (int tr_index=0;tr_index<TransRiseFall::index_count;tr_index++) {
+    for (int rf_index=0;rf_index<RiseFall::index_count;rf_index++) {
       for (int mm_index=0; mm_index<MinMax::index_count;mm_index++) {
-	if (!exists_[tr_index][mm_index]
-	    || values_[tr_index][mm_index] != value)
+	if (!exists_[rf_index][mm_index]
+	    || values_[rf_index][mm_index] != value)
 	  return false;
       }
     }
@@ -253,9 +253,9 @@ RiseFallMinMax::isOneValue(const MinMax *min_max,
   int mm_index = min_max->index();
   if (exists_[0][mm_index]) {
     value = values_[0][mm_index];
-    for (int tr_index=0;tr_index<TransRiseFall::index_count;tr_index++) {
-      if (!exists_[tr_index][mm_index]
-	  || values_[tr_index][mm_index] != value)
+    for (int rf_index=0;rf_index<RiseFall::index_count;rf_index++) {
+      if (!exists_[rf_index][mm_index]
+	  || values_[rf_index][mm_index] != value)
 	return false;
     }
     return true;

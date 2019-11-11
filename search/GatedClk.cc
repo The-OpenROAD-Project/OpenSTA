@@ -230,28 +230,28 @@ GatedClk::functionClkOperands(FuncExpr *root_expr,
   }
 }
 
-TransRiseFall *
+RiseFall *
 GatedClk::gatedClkActiveTrans(LogicValue active_value,
 			      const MinMax *min_max) const
 {
-  TransRiseFall *leading_tr;
+  RiseFall *leading_rf;
   switch (active_value) {
   case LogicValue::one:
   case LogicValue::unknown:
-    leading_tr = TransRiseFall::rise();
+    leading_rf = RiseFall::rise();
     break;
   case LogicValue::zero:
-    leading_tr = TransRiseFall::fall();
+    leading_rf = RiseFall::fall();
     break;
   default:
     internalError("illegal gated clock active value");
-    leading_tr = TransRiseFall::rise();
+    leading_rf = RiseFall::rise();
     break;
   }
   if (min_max == MinMax::max())
-    return leading_tr;
+    return leading_rf;
   else
-    return leading_tr->opposite();
+    return leading_rf->opposite();
 }
 
 } // namespace

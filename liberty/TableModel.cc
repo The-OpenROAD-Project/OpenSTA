@@ -551,10 +551,10 @@ CheckTableModel::checkAxis(TableAxis *axis)
 
 TableModel::TableModel(Table *table,
 		       ScaleFactorType scale_factor_type,
-		       TransRiseFall *tr) :
+		       RiseFall *rf) :
   table_(table),
   scale_factor_type_(int(scale_factor_type)),
-  tr_index_(tr->index()),
+  tr_index_(rf->index()),
   is_scaled_(false)
 {
 }

@@ -383,17 +383,17 @@ proc all_registers { args } {
   check_argc_eq0 "all_registers" $args
 
   set clks {}
-  set clk_tr "rise_fall"
+  set clk_rf "rise_fall"
   if [info exists keys(-clock)] {
     set clks [get_clocks_warn "clocks" $keys(-clock)]
   }
   if [info exists keys(-rise_clock)] {
     set clks [get_clocks_warn "clocks" $keys(-rise_clock)]
-    set clk_tr "rise"
+    set clk_rf "rise"
   }
   if [info exists keys(-fall_clock)] {
     set clks [get_clocks_warn "clocks" $keys(-fall_clock)]
-    set clk_tr "fall"
+    set clk_rf "fall"
   }
 
   if {[info exists flags(-edge_triggered)] \
@@ -409,23 +409,23 @@ proc all_registers { args } {
     set level_sensitive 1
   }
   if [info exists flags(-cells)] {
-    return [find_register_instances $clks $clk_tr \
+    return [find_register_instances $clks $clk_rf \
 	      $edge_triggered $level_sensitive]
   } elseif [info exists flags(-data_pins)] {
-    return [find_register_data_pins $clks $clk_tr \
+    return [find_register_data_pins $clks $clk_rf \
 	      $edge_triggered $level_sensitive]
   } elseif [info exists flags(-clock_pins)] {
-    return [find_register_clk_pins $clks $clk_tr \
+    return [find_register_clk_pins $clks $clk_rf \
 	      $edge_triggered $level_sensitive]
   } elseif [info exists flags(-async_pins)] {
-    return [find_register_async_pins $clks $clk_tr \
+    return [find_register_async_pins $clks $clk_rf \
 	      $edge_triggered $level_sensitive]
   } elseif [info exists flags(-output_pins)] {
-    return [find_register_output_pins $clks $clk_tr \
+    return [find_register_output_pins $clks $clk_rf \
 	      $edge_triggered $level_sensitive]
   } else {
     # -cells is the default.
-    return [find_register_instances $clks $clk_tr \
+    return [find_register_instances $clks $clk_rf \
 	      $edge_triggered $level_sensitive]
   }
 }
@@ -1613,26 +1613,26 @@ proc set_clock_uncertainty { args } {
       
   if { [info exists keys(-from)] } {
     set from_key "-from"
-    set from_tr "rise_fall"
+    set from_rf "rise_fall"
   } elseif { [info exists keys(-rise_from)] } {
     set from_key "-rise_from"
-    set from_tr "rise"
+    set from_rf "rise"
   } elseif { [info exists keys(-fall_from)] } {
     set from_key "-fall_from"
-    set from_tr "fall"
+    set from_rf "fall"
   } else {
     set from_key "none"
   }
       
   if { [info exists keys(-to)] } {
     set to_key "-to"
-    set to_tr "rise_fall"
+    set to_rf "rise_fall"
   } elseif { [info exists keys(-rise_to)] } {
     set to_key "-rise_to"
-    set to_tr "rise"
+    set to_rf "rise"
   } elseif { [info exists keys(-fall_to)] } {
     set to_key "-fall_to"
-    set to_tr "fall"
+    set to_rf "fall"
   } else {
     set to_key "none"
   }
@@ -1650,8 +1650,8 @@ proc set_clock_uncertainty { args } {
     
     foreach from_clk $from_clks {
       foreach to_clk $to_clks {
-	set_inter_clock_uncertainty $from_clk $from_tr \
-	  $to_clk $to_tr $min_max $uncertainty
+	set_inter_clock_uncertainty $from_clk $from_rf \
+	  $to_clk $to_rf $min_max $uncertainty
       }
     }
   } else {
@@ -1687,18 +1687,18 @@ proc set_data_check { args } {
   check_argc_eq1 "set_data_check" $args
 
   set margin [time_ui_sta $args]
-  set from_tr "rise_fall"
-  set to_tr "rise_fall"
+  set from_rf "rise_fall"
+  set to_rf "rise_fall"
   set clk "NULL"
 
   if [info exists keys(-from)] {
     set from [get_port_pin_error "from_pin" $keys(-from)]
   } elseif [info exists keys(-rise_from)] {
     set from [get_port_pin_error "from_pin" $keys(-rise_from)]
-    set from_tr "rise"
+    set from_rf "rise"
   } elseif [info exists keys(-fall_from)] {
     set from [get_port_pin_error "from_pin" $keys(-fall_from)]
-    set from_tr "fall"
+    set from_rf "fall"
   } else {
     sta_error "missing -from, -rise_from or -fall_from argument."
   }
@@ -1707,10 +1707,10 @@ proc set_data_check { args } {
     set to [get_port_pin_error "to_pin" $keys(-to)]
   } elseif [info exists keys(-rise_to)] {
     set to [get_port_pin_error "to_pin" $keys(-rise_to)]
-    set to_tr "rise"
+    set to_rf "rise"
   } elseif [info exists keys(-fall_to)] {
     set to [get_port_pin_error "to_pin" $keys(-fall_to)]
-    set to_tr "fall"
+    set to_rf "fall"
   } else {
     sta_error "missing -to, -rise_to or -fall_to argument."
   }
@@ -1727,7 +1727,7 @@ proc set_data_check { args } {
     set setup_hold "setup_hold"
   }
 
-  set_data_check_cmd $from $from_tr $to $to_tr $clk $setup_hold $margin
+  set_data_check_cmd $from $from_rf $to $to_rf $clk $setup_hold $margin
 }
 
 ################################################################
@@ -1991,9 +1991,9 @@ proc set_port_delay { cmd sta_cmd cmd_args port_dirs } {
   }
   
   if [info exists flags(-clock_fall)] {
-    set clk_tr "fall"
+    set clk_rf "fall"
   } else {
-    set clk_tr "rise"
+    set clk_rf "rise"
   }
   
   set tr [parse_rise_fall_flags flags]
@@ -2009,7 +2009,7 @@ proc set_port_delay { cmd sta_cmd cmd_args port_dirs } {
     } elseif { $clk != "NULL" && [lsearch [$clk sources] $pin] != -1 } {
       sta_warn "$cmd relative to a clock defined on the same port/pin not allowed."
     } else {
-      $sta_cmd $pin $tr $clk $clk_tr $ref_pin\
+      $sta_cmd $pin $tr $clk $clk_rf $ref_pin\
 	$source_latency_included $network_latency_included \
 	$min_max $add $delay
     }
@@ -2834,27 +2834,27 @@ proc parse_to_arg { keys_var flags_var arg_error_var } {
   upvar 1 $flags_var flags
   upvar 1 $arg_error_var arg_error
   
-  set end_tr [parse_rise_fall_flags flags]
-  return [parse_to_arg1 keys $end_tr arg_error]
+  set end_rf [parse_rise_fall_flags flags]
+  return [parse_to_arg1 keys $end_rf arg_error]
 }
 
-proc parse_to_arg1 { keys_var end_tr arg_error_var } {
+proc parse_to_arg1 { keys_var end_rf arg_error_var } {
   upvar 1 $keys_var keys
   upvar 1 $arg_error_var arg_error
   
   if [info exists keys(-to)] {
     set key "-to"
-    set to_tr "rise_fall"
+    set to_rf "rise_fall"
   } elseif [info exists keys(-rise_to)] {
     set key "-rise_to"
-    set to_tr "rise"
+    set to_rf "rise"
   } elseif [info exists keys(-fall_to)] {
     set key "-fall_to"
-    set to_tr "fall"
+    set to_rf "fall"
   } else {
     # -rise/-fall without -to/-rise_to/-fall_to (no objects).
-    if { $end_tr != "rise_fall" } {
-      return [make_exception_to {} {} {} "rise_fall" $end_tr]
+    if { $end_rf != "rise_fall" } {
+      return [make_exception_to {} {} {} "rise_fall" $end_rf]
     } else {
       return "NULL"
     }
@@ -2866,7 +2866,7 @@ proc parse_to_arg1 { keys_var end_tr arg_error_var } {
     puts "Error: no valid objects specified for $key."
     return "NULL"
   }
-  return [make_exception_to $to_pins $to_clks $to_insts $to_tr $end_tr]
+  return [make_exception_to $to_pins $to_clks $to_insts $to_rf $end_rf]
 }
 
 proc delete_from_thrus_to { from thrus to } {

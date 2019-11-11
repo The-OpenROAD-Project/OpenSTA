@@ -38,13 +38,13 @@ RCDelayCalc::copy()
 void
 RCDelayCalc::inputPortDelay(const Pin *,
 			    float in_slew,
-			    const TransRiseFall *tr,
+			    const RiseFall *rf,
 			    Parasitic *parasitic,
 			    const DcalcAnalysisPt *)
 {
   drvr_parasitic_ = parasitic;
   drvr_slew_ = in_slew;
-  drvr_tr_ = tr;
+  drvr_rf_ = rf;
   drvr_cell_ = nullptr;
   drvr_library_ = network_->defaultLibertyLibrary();
   multi_drvr_slew_factor_ = 1.0F;
@@ -66,9 +66,9 @@ RCDelayCalc::dspfWireDelaySlew(const Pin *,
   float vh = .8;
   float slew_derate = 1.0;
   if (drvr_library_) {
-    vth = drvr_library_->inputThreshold(drvr_tr_);
-    vl = drvr_library_->slewLowerThreshold(drvr_tr_);
-    vh = drvr_library_->slewUpperThreshold(drvr_tr_);
+    vth = drvr_library_->inputThreshold(drvr_rf_);
+    vl = drvr_library_->slewLowerThreshold(drvr_rf_);
+    vh = drvr_library_->slewUpperThreshold(drvr_rf_);
     slew_derate = drvr_library_->slewDerateFromLibrary();
   }
   wire_delay = static_cast<float>(-elmore * log(1.0 - vth));

@@ -41,7 +41,7 @@ public:
 		  // Return values.
 		  // Corner is nullptr for no slew limit.
 		  const Corner *&corner1,
-		  const TransRiseFall *&tr,
+		  const RiseFall *&rf,
 		  Slew &slew,
 		  float &limit,
 		  float &slack) const;
@@ -58,7 +58,7 @@ protected:
 		   const MinMax *min_max,
 		   // Return values.
 		   const Corner *&corner1,
-		   const TransRiseFall *&tr,
+		   const RiseFall *&rf,
 		   Slew &slew,
 		   float &limit,
 		   float &slack) const;
@@ -67,24 +67,24 @@ protected:
 		   const MinMax *min_max,
 		   // Return values.
 		   const Corner *&corner,
-		   const TransRiseFall *&tr,
+		   const RiseFall *&rf,
 		   Slew &slew,
 		   float &limit,
 		   float &slack) const;
   void checkSlew(Vertex *vertex,
 		 const Corner *corner1,
 		 const MinMax *min_max,
-		 const TransRiseFall *tr1,
+		 const RiseFall *rf1,
 		 float limit1,
 		 // Return values.
 		 const Corner *&corner,
-		 const TransRiseFall *&tr,
+		 const RiseFall *&rf,
 		 Slew &slew,
 		 float &slack,
 		 float &limit) const;
   void findLimit(const Pin *pin,
 		 const Vertex *vertex,
-		 const TransRiseFall *tr,
+		 const RiseFall *rf,
 		 const MinMax *min_max,
 		 // Return values.
 		 float &limit1,

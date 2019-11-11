@@ -110,7 +110,7 @@ Path::slew(const StaState *sta) const
 }
 
 int
-Path::trIndex(const StaState *sta) const
+Path::rfIndex(const StaState *sta) const
 {
   return transition(sta)->index();
 }
@@ -194,8 +194,8 @@ Path::cmpPinTrClk(const Path *path1,
     const Pin *pin2 = path2->pin(sta);
     const Network *network = sta->network();
     if (pin1 == pin2) {
-      int tr_index1 = path1->trIndex(sta);
-      int tr_index2 = path2->trIndex(sta);
+      int tr_index1 = path1->rfIndex(sta);
+      int tr_index2 = path2->rfIndex(sta);
       if (tr_index1 == tr_index2)
 	return cmpClk(path1, path2, sta);
       else if (tr_index1 < tr_index2)

@@ -771,11 +771,11 @@ Sta::setPvt(Instance *inst,
 void
 Sta::setTimingDerate(TimingDerateType type,
 		     PathClkOrData clk_data,
-		     const TransRiseFallBoth *tr,
+		     const RiseFallBoth *rf,
 		     const EarlyLate *early_late,
 		     float derate)
 {
-  sdc_->setTimingDerate(type, clk_data, tr, early_late, derate);
+  sdc_->setTimingDerate(type, clk_data, rf, early_late, derate);
   // Delay calculation results are still valid.
   // The search derates delays while finding arrival times.
   search_->arrivalsInvalid();
@@ -784,11 +784,11 @@ Sta::setTimingDerate(TimingDerateType type,
 void
 Sta::setTimingDerate(const Net *net,
 		     PathClkOrData clk_data,
-		     const TransRiseFallBoth *tr,
+		     const RiseFallBoth *rf,
 		     const EarlyLate *early_late,
 		     float derate)
 {
-  sdc_->setTimingDerate(net, clk_data, tr, early_late, derate);
+  sdc_->setTimingDerate(net, clk_data, rf, early_late, derate);
   // Delay calculation results are still valid.
   // The search derates delays while finding arrival times.
   search_->arrivalsInvalid();
@@ -798,11 +798,11 @@ void
 Sta::setTimingDerate(const Instance *inst,
 		     TimingDerateType type,
 		     PathClkOrData clk_data,
-		     const TransRiseFallBoth *tr,
+		     const RiseFallBoth *rf,
 		     const EarlyLate *early_late,
 		     float derate)
 {
-  sdc_->setTimingDerate(inst, type, clk_data, tr, early_late, derate);
+  sdc_->setTimingDerate(inst, type, clk_data, rf, early_late, derate);
   // Delay calculation results are still valid.
   // The search derates delays while finding arrival times.
   search_->arrivalsInvalid();
@@ -812,11 +812,11 @@ void
 Sta::setTimingDerate(const LibertyCell *cell,
 		     TimingDerateType type,
 		     PathClkOrData clk_data,
-		     const TransRiseFallBoth *tr,
+		     const RiseFallBoth *rf,
 		     const EarlyLate *early_late,
 		     float derate)
 {
-  sdc_->setTimingDerate(cell, type, clk_data, tr, early_late, derate);
+  sdc_->setTimingDerate(cell, type, clk_data, rf, early_late, derate);
   // Delay calculation results are still valid.
   // The search derates delays while finding arrival times.
   search_->arrivalsInvalid();
@@ -833,11 +833,11 @@ Sta::unsetTimingDerate()
 
 void
 Sta::setInputSlew(Port *port,
-		  const TransRiseFallBoth *tr,
+		  const RiseFallBoth *rf,
 		  const MinMaxAll *min_max,
 		  float slew)
 {
-  sdc_->setInputSlew(port, tr, min_max, slew);
+  sdc_->setInputSlew(port, rf, min_max, slew);
   delaysInvalidFrom(port);
 }
 
@@ -848,21 +848,21 @@ Sta::setDriveCell(LibertyLibrary *library,
 		  LibertyPort *from_port,
 		  float *from_slews,
 		  LibertyPort *to_port,
-		  const TransRiseFallBoth *tr,
+		  const RiseFallBoth *rf,
 		  const MinMaxAll *min_max)
 {
   sdc_->setDriveCell(library, cell, port, from_port, from_slews, to_port,
-		     tr, min_max);
+		     rf, min_max);
   delaysInvalidFrom(port);
 }
 
 void
 Sta::setDriveResistance(Port *port,
-			const TransRiseFallBoth *tr,
+			const RiseFallBoth *rf,
 			const MinMaxAll *min_max,
 			float res)
 {
-  sdc_->setDriveResistance(port, tr, min_max, res);
+  sdc_->setDriveResistance(port, rf, min_max, res);
   delaysInvalidFrom(port);
 }
 
@@ -891,34 +891,34 @@ Sta::setLatchBorrowLimit(Clock *clk,
 }
 
 void
-Sta::setMinPulseWidth(const TransRiseFallBoth *tr,
+Sta::setMinPulseWidth(const RiseFallBoth *rf,
 		      float min_width)
 {
-  sdc_->setMinPulseWidth(tr, min_width);
+  sdc_->setMinPulseWidth(rf, min_width);
 }
 
 void
 Sta::setMinPulseWidth(const Pin *pin,
-		      const TransRiseFallBoth *tr,
+		      const RiseFallBoth *rf,
 		      float min_width)
 {
-  sdc_->setMinPulseWidth(pin, tr, min_width);
+  sdc_->setMinPulseWidth(pin, rf, min_width);
 }
 
 void
 Sta::setMinPulseWidth(const Instance *inst,
-		      const TransRiseFallBoth *tr,
+		      const RiseFallBoth *rf,
 		      float min_width)
 {
-  sdc_->setMinPulseWidth(inst, tr, min_width);
+  sdc_->setMinPulseWidth(inst, rf, min_width);
 }
 
 void
 Sta::setMinPulseWidth(const Clock *clk,
-		      const TransRiseFallBoth *tr,
+		      const RiseFallBoth *rf,
 		      float min_width)
 {
-  sdc_->setMinPulseWidth(clk, tr, min_width);
+  sdc_->setMinPulseWidth(clk, rf, min_width);
 }
 
 void
@@ -949,12 +949,12 @@ Sta::setWireloadSelection(WireloadSelection *selection,
 
 void
 Sta::setSlewLimit(Clock *clk,
-		  const TransRiseFallBoth *tr,
+		  const RiseFallBoth *rf,
 		  const PathClkOrData clk_data,
 		  const MinMax *min_max,
 		  float slew)
 {
-  sdc_->setSlewLimit(clk, tr, clk_data, min_max, slew);
+  sdc_->setSlewLimit(clk, rf, clk_data, min_max, slew);
 }
 
 void
@@ -1139,11 +1139,11 @@ Sta::removePropagatedClock(Pin *pin)
 
 void
 Sta::setClockSlew(Clock *clk,
-		  const TransRiseFallBoth *tr,
+		  const RiseFallBoth *rf,
 		  const MinMaxAll *min_max,
 		  float slew)
 {
-  sdc_->setClockSlew(clk, tr, min_max, slew);
+  sdc_->setClockSlew(clk, rf, min_max, slew);
   clockSlewChanged(clk);
 }
 
@@ -1165,11 +1165,11 @@ Sta::clockSlewChanged(Clock *clk)
 void
 Sta::setClockLatency(Clock *clk,
 		     Pin *pin,
-		     const TransRiseFallBoth *tr,
+		     const RiseFallBoth *rf,
 		     const MinMaxAll *min_max,
 		     float delay)
 {
-  sdc_->setClockLatency(clk, pin, tr, min_max, delay);
+  sdc_->setClockLatency(clk, pin, rf, min_max, delay);
   search_->arrivalsInvalid();
 }
 
@@ -1184,12 +1184,12 @@ Sta::removeClockLatency(const Clock *clk,
 void
 Sta::setClockInsertion(const Clock *clk,
 		       const Pin *pin,
-		       const TransRiseFallBoth *tr,
+		       const RiseFallBoth *rf,
 		       const MinMaxAll *min_max,
 		       const EarlyLateAll *early_late,
 		       float delay)
 {
-  sdc_->setClockInsertion(clk, pin, tr, min_max, early_late, delay);
+  sdc_->setClockInsertion(clk, pin, rf, min_max, early_late, delay);
   search_->arrivalsInvalid();
 }
 
@@ -1237,25 +1237,25 @@ Sta::removeClockUncertainty(Pin *pin,
 
 void
 Sta::setClockUncertainty(Clock *from_clk,
-			 const TransRiseFallBoth *from_tr,
+			 const RiseFallBoth *from_rf,
 			 Clock *to_clk,
-			 const TransRiseFallBoth *to_tr,
+			 const RiseFallBoth *to_rf,
 			 const SetupHoldAll *setup_hold,
 			 float uncertainty)
 {
-  sdc_->setClockUncertainty(from_clk, from_tr, to_clk, to_tr,
+  sdc_->setClockUncertainty(from_clk, from_rf, to_clk, to_rf,
 			    setup_hold, uncertainty);
   search_->arrivalsInvalid();
 }
 
 void
 Sta::removeClockUncertainty(Clock *from_clk,
-			    const TransRiseFallBoth *from_tr,
+			    const RiseFallBoth *from_rf,
 			    Clock *to_clk,
-			    const TransRiseFallBoth *to_tr,
+			    const RiseFallBoth *to_rf,
 			    const SetupHoldAll *setup_hold)
 {
-  sdc_->removeClockUncertainty(from_clk, from_tr, to_clk, to_tr,
+  sdc_->removeClockUncertainty(from_clk, from_rf, to_clk, to_rf,
 				       setup_hold);
   search_->arrivalsInvalid();
 }
@@ -1318,68 +1318,68 @@ Sta::setClockSense(PinSet *pins,
 ////////////////////////////////////////////////////////////////
 
 void
-Sta::setClockGatingCheck(const TransRiseFallBoth *tr,
+Sta::setClockGatingCheck(const RiseFallBoth *rf,
 			 const SetupHold *setup_hold,
 			 float margin)
 {
-  sdc_->setClockGatingCheck(tr, setup_hold, margin);
+  sdc_->setClockGatingCheck(rf, setup_hold, margin);
   search_->arrivalsInvalid();
 }
 
 void
 Sta::setClockGatingCheck(Clock *clk,
-			 const TransRiseFallBoth *tr,
+			 const RiseFallBoth *rf,
 			 const SetupHold *setup_hold,
 			 float margin)
 {
-  sdc_->setClockGatingCheck(clk, tr, setup_hold, margin);
+  sdc_->setClockGatingCheck(clk, rf, setup_hold, margin);
   search_->arrivalsInvalid();
 }
 
 void
 Sta::setClockGatingCheck(Instance *inst,
-			 const TransRiseFallBoth *tr,
+			 const RiseFallBoth *rf,
 			 const SetupHold *setup_hold,
 			 float margin,
 			 LogicValue active_value)
 {
-  sdc_->setClockGatingCheck(inst, tr, setup_hold, margin,active_value);
+  sdc_->setClockGatingCheck(inst, rf, setup_hold, margin,active_value);
   search_->arrivalsInvalid();
 }
 
 void
 Sta::setClockGatingCheck(Pin *pin,
-			 const TransRiseFallBoth *tr,
+			 const RiseFallBoth *rf,
 			 const SetupHold *setup_hold,
 			 float margin,
 			 LogicValue active_value)
 {
-  sdc_->setClockGatingCheck(pin, tr, setup_hold, margin,active_value);
+  sdc_->setClockGatingCheck(pin, rf, setup_hold, margin,active_value);
   search_->arrivalsInvalid();
 }
 
 void
 Sta::setDataCheck(Pin *from,
-		  const TransRiseFallBoth *from_tr,
+		  const RiseFallBoth *from_rf,
 		  Pin *to,
-		  const TransRiseFallBoth *to_tr,
+		  const RiseFallBoth *to_rf,
 		  Clock *clk,
 		  const SetupHoldAll *setup_hold,
 		  float margin)
 {
-  sdc_->setDataCheck(from, from_tr, to, to_tr, clk, setup_hold,margin);
+  sdc_->setDataCheck(from, from_rf, to, to_rf, clk, setup_hold,margin);
   search_->requiredInvalid(to);
 }
 
 void
 Sta::removeDataCheck(Pin *from,
-		     const TransRiseFallBoth *from_tr,
+		     const RiseFallBoth *from_rf,
 		     Pin *to,
-		     const TransRiseFallBoth *to_tr,
+		     const RiseFallBoth *to_rf,
 		     Clock *clk,
 		     const SetupHoldAll *setup_hold)
 {
-  sdc_->removeDataCheck(from, from_tr, to, to_tr, clk, setup_hold);
+  sdc_->removeDataCheck(from, from_rf, to, to_rf, clk, setup_hold);
   search_->requiredInvalid(to);
 }
 
@@ -1808,9 +1808,9 @@ Sta::removeCaseAnalysis(Pin *pin)
 
 void
 Sta::setInputDelay(Pin *pin,
-		   const TransRiseFallBoth *tr,
+		   const RiseFallBoth *rf,
 		   Clock *clk,
-		   const TransRiseFall *clk_tr,
+		   const RiseFall *clk_rf,
 		   Pin *ref_pin,
 		   bool source_latency_included,
 		   bool network_latency_included,
@@ -1818,7 +1818,7 @@ Sta::setInputDelay(Pin *pin,
 		   bool add,
 		   float delay)
 {
-  sdc_->setInputDelay(pin, tr, clk, clk_tr, ref_pin,
+  sdc_->setInputDelay(pin, rf, clk, clk_rf, ref_pin,
 		      source_latency_included, network_latency_included,
 		      min_max, add, delay);
 
@@ -1827,20 +1827,20 @@ Sta::setInputDelay(Pin *pin,
 
 void 
 Sta::removeInputDelay(Pin *pin,
-		      TransRiseFallBoth *tr, 
+		      RiseFallBoth *rf,
 		      Clock *clk,
-		      TransRiseFall *clk_tr, 
+		      RiseFall *clk_rf, 
 		      MinMaxAll *min_max)
 {
-  sdc_->removeInputDelay(pin, tr, clk, clk_tr, min_max);
+  sdc_->removeInputDelay(pin, rf, clk, clk_rf, min_max);
   search_->arrivalInvalid(pin);
 }
 
 void
 Sta::setOutputDelay(Pin *pin,
-		    const TransRiseFallBoth *tr,
+		    const RiseFallBoth *rf,
 		    Clock *clk,
-		    const TransRiseFall *clk_tr,
+		    const RiseFall *clk_rf,
 		    Pin *ref_pin,
 		    bool source_latency_included,
 		    bool network_latency_included,
@@ -1848,7 +1848,7 @@ Sta::setOutputDelay(Pin *pin,
 		    bool add,
 		    float delay)
 {
-  sdc_->setOutputDelay(pin, tr, clk, clk_tr, ref_pin,
+  sdc_->setOutputDelay(pin, rf, clk, clk_rf, ref_pin,
 		       source_latency_included,network_latency_included,
 		       min_max, add, delay);
   search_->requiredInvalid(pin);
@@ -1856,12 +1856,12 @@ Sta::setOutputDelay(Pin *pin,
 
 void 
 Sta::removeOutputDelay(Pin *pin,
-		       TransRiseFallBoth *tr, 
+		       RiseFallBoth *rf, 
 		       Clock *clk,
-		       TransRiseFall *clk_tr, 
+		       RiseFall *clk_rf, 
 		       MinMaxAll *min_max)
 {
-  sdc_->removeOutputDelay(pin, tr, clk, clk_tr, min_max);
+  sdc_->removeOutputDelay(pin, rf, clk, clk_rf, min_max);
   search_->arrivalInvalid(pin);
 }
 
@@ -1942,10 +1942,10 @@ ExceptionFrom *
 Sta::makeExceptionFrom(PinSet *from_pins,
 		       ClockSet *from_clks,
 		       InstanceSet *from_insts,
-		       const TransRiseFallBoth *from_tr)
+		       const RiseFallBoth *from_rf)
 {
   return sdc_->makeExceptionFrom(from_pins, from_clks, from_insts,
-				 from_tr);
+				 from_rf);
 }
 
 void
@@ -1996,9 +1996,9 @@ ExceptionThru *
 Sta::makeExceptionThru(PinSet *pins,
 		       NetSet *nets,
 		       InstanceSet *insts,
-		       const TransRiseFallBoth *tr)
+		       const RiseFallBoth *rf)
 {
-  return sdc_->makeExceptionThru(pins, nets, insts, tr);
+  return sdc_->makeExceptionThru(pins, nets, insts, rf);
 }
 
 void
@@ -2011,10 +2011,10 @@ ExceptionTo *
 Sta::makeExceptionTo(PinSet *to_pins,
 		     ClockSet *to_clks,
 		     InstanceSet *to_insts,
-		     const TransRiseFallBoth *tr,
- 		     TransRiseFallBoth *end_tr)
+		     const RiseFallBoth *rf,
+ 		     RiseFallBoth *end_rf)
 {
-  return sdc_->makeExceptionTo(to_pins, to_clks, to_insts, tr, end_tr);
+  return sdc_->makeExceptionTo(to_pins, to_clks, to_insts, rf, end_rf);
 }
 
 void
@@ -2604,29 +2604,29 @@ Sta::findRequireds()
 
 VertexPathIterator *
 Sta::vertexPathIterator(Vertex *vertex,
-			const TransRiseFall *tr,
+			const RiseFall *rf,
 			const PathAnalysisPt *path_ap)
 {
-  return new VertexPathIterator(vertex, tr, path_ap, this);
+  return new VertexPathIterator(vertex, rf, path_ap, this);
 }
 
 VertexPathIterator *
 Sta::vertexPathIterator(Vertex *vertex,
-			const TransRiseFall *tr,
+			const RiseFall *rf,
 			const MinMax *min_max)
 {
-  return new VertexPathIterator(vertex, tr, min_max, this);
+  return new VertexPathIterator(vertex, rf, min_max, this);
 }
 
 void
 Sta::vertexWorstArrivalPath(Vertex *vertex,
-			    const TransRiseFall *tr,
+			    const RiseFall *rf,
 			    const MinMax *min_max,
 			    // Return value.
 			    PathRef &worst_path)
 {
   Arrival worst_arrival = min_max->initValue();
-  VertexPathIterator path_iter(vertex, tr, min_max, this);
+  VertexPathIterator path_iter(vertex, rf, min_max, this);
   while (path_iter.hasNext()) {
     PathVertex *path = path_iter.next();
     Arrival arrival = path->arrival(this);
@@ -2660,13 +2660,13 @@ Sta::vertexWorstArrivalPath(Vertex *vertex,
 
 void
 Sta::vertexWorstSlackPath(Vertex *vertex,
-			  const TransRiseFall *tr,
+			  const RiseFall *rf,
 			  const MinMax *min_max,
 			  // Return value.
 			  PathRef &worst_path)
 {
   Slack min_slack = MinMax::min()->initValue();
-  VertexPathIterator path_iter(vertex, tr, min_max, this);
+  VertexPathIterator path_iter(vertex, rf, min_max, this);
   while (path_iter.hasNext()) {
     PathVertex *path = path_iter.next();
     Slack slack = path->slack(this);
@@ -2702,15 +2702,15 @@ Sta::vertexWorstSlackPath(Vertex *vertex,
 
 Arrival
 Sta::vertexArrival(Vertex *vertex,
-		   const TransRiseFall *tr,
+		   const RiseFall *rf,
 		   const PathAnalysisPt *path_ap)
 {
-  return vertexArrival(vertex, tr, clk_edge_wildcard, path_ap);
+  return vertexArrival(vertex, rf, clk_edge_wildcard, path_ap);
 }
 
 Arrival
 Sta::vertexArrival(Vertex *vertex,
-		   const TransRiseFall *tr,
+		   const RiseFall *rf,
 		   const ClockEdge *clk_edge,
 		   const PathAnalysisPt *path_ap)
 {
@@ -2718,7 +2718,7 @@ Sta::vertexArrival(Vertex *vertex,
   search_->findArrivals(vertex->level());
   const MinMax *min_max = path_ap->pathMinMax();
   Arrival arrival = min_max->initValue();
-  VertexPathIterator path_iter(vertex, tr, path_ap, this);
+  VertexPathIterator path_iter(vertex, rf, path_ap, this);
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
     const Arrival &path_arrival = path->arrival(this);
@@ -2753,22 +2753,22 @@ Sta::vertexRequired(Vertex *vertex,
 
 Required
 Sta::vertexRequired(Vertex *vertex,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const PathAnalysisPt *path_ap)
 {
-  return vertexRequired(vertex, tr, clk_edge_wildcard, path_ap);
+  return vertexRequired(vertex, rf, clk_edge_wildcard, path_ap);
 }
 
 Required
 Sta::vertexRequired(Vertex *vertex,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const ClockEdge *clk_edge,
 		    const PathAnalysisPt *path_ap)
 {
   findRequired(vertex);
   const MinMax *min_max = path_ap->pathMinMax()->opposite();
   Required required = min_max->initValue();
-  VertexPathIterator path_iter(vertex, tr, path_ap, this);
+  VertexPathIterator path_iter(vertex, rf, path_ap, this);
   while (path_iter.hasNext()) {
     const Path *path = path_iter.next();
     const Required path_required = path->required(this);
@@ -2815,7 +2815,7 @@ Sta::pinSlack(const Pin *pin,
 
 Slack
 Sta::pinSlack(const Pin *pin,
-	      const TransRiseFall *tr,
+	      const RiseFall *rf,
 	      const MinMax *min_max)
 {
   ensureGraph();
@@ -2823,9 +2823,9 @@ Sta::pinSlack(const Pin *pin,
   graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
   Slack slack = MinMax::min()->initValue();
   if (vertex)
-    slack = vertexSlack(vertex, tr, min_max);
+    slack = vertexSlack(vertex, rf, min_max);
   if (bidirect_drvr_vertex)
-    slack = min(slack, vertexSlack(bidirect_drvr_vertex, tr, min_max));
+    slack = min(slack, vertexSlack(bidirect_drvr_vertex, rf, min_max));
   return slack;
 }
 
@@ -2850,12 +2850,12 @@ Sta::vertexSlack(Vertex *vertex,
 
 Slack
 Sta::vertexSlack(Vertex *vertex,
-		 const TransRiseFall *tr,
+		 const RiseFall *rf,
 		 const MinMax *min_max)
 {
   findRequired(vertex);
   Slack slack = MinMax::min()->initValue();
-  VertexPathIterator path_iter(vertex, tr, min_max, this);
+  VertexPathIterator path_iter(vertex, rf, min_max, this);
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
     Slack path_slack = path->slack(this);
@@ -2867,32 +2867,32 @@ Sta::vertexSlack(Vertex *vertex,
 
 Slack
 Sta::vertexSlack(Vertex *vertex,
-		 const TransRiseFall *tr,
+		 const RiseFall *rf,
 		 const PathAnalysisPt *path_ap)
 {
   findRequired(vertex);
-  return vertexSlack1(vertex, tr, clk_edge_wildcard, path_ap);
+  return vertexSlack1(vertex, rf, clk_edge_wildcard, path_ap);
 }
 
 Slack
 Sta::vertexSlack(Vertex *vertex,
-		 const TransRiseFall *tr,
+		 const RiseFall *rf,
 		 const ClockEdge *clk_edge,
 		 const PathAnalysisPt *path_ap)
 {
   findRequired(vertex);
-  return vertexSlack1(vertex, tr, clk_edge, path_ap);
+  return vertexSlack1(vertex, rf, clk_edge, path_ap);
 }
 
 Slack
 Sta::vertexSlack1(Vertex *vertex,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const ClockEdge *clk_edge,
 		  const PathAnalysisPt *path_ap)
 {
   MinMax *min = MinMax::min();
   Slack slack = min->initValue();
-  VertexPathIterator path_iter(vertex, tr, path_ap, this);
+  VertexPathIterator path_iter(vertex, rf, path_ap, this);
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
     Slack path_slack = path->slack(this);
@@ -3078,22 +3078,22 @@ Sta::setArcDelayAnnotated(Edge *edge,
 
 Slew
 Sta::vertexSlew(Vertex *vertex,
-		const TransRiseFall *tr,
+		const RiseFall *rf,
 		const DcalcAnalysisPt *dcalc_ap)
 {
   findDelays(vertex);
-  return graph_->slew(vertex, tr, dcalc_ap->index());
+  return graph_->slew(vertex, rf, dcalc_ap->index());
 }
 
 Slew
 Sta::vertexSlew(Vertex *vertex,
-		const TransRiseFall *tr,
+		const RiseFall *rf,
 		const MinMax *min_max)
 {
   findDelays(vertex);
   Slew mm_slew = min_max->initValue();
   for (auto dcalc_ap : corners_->dcalcAnalysisPts()) {
-    Slew slew = graph_->slew(vertex, tr, dcalc_ap->index());
+    Slew slew = graph_->slew(vertex, rf, dcalc_ap->index());
     if (fuzzyGreater(slew, mm_slew, min_max))
       mm_slew = slew;
   }
@@ -3139,7 +3139,7 @@ Sta::updateGeneratedClks()
     bool gen_clk_changed = true;
     while (gen_clk_changed) {
       gen_clk_changed = false;
-      for (auto clk : sdc_->clks()) {
+      for (Clock *clk : sdc_->clks()) {
 	if (clk->isGenerated() && !clk->waveformValid()) {
 	  search_->genclks()->ensureMaster(clk);
 	  Clock *master_clk = clk->masterClk();
@@ -3244,7 +3244,7 @@ Sta::setArcDelay(Edge *edge,
 		 const MinMaxAll *min_max,
 		 ArcDelay delay)
 {
-  for (auto mm : min_max->range()) {
+  for (MinMax *mm : min_max->range()) {
     const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
     DcalcAPIndex ap_index = dcalc_ap->index();
     graph_->setArcDelay(edge, arc, ap_index, delay);
@@ -3263,16 +3263,16 @@ void
 Sta::setAnnotatedSlew(Vertex *vertex,
 		      const Corner *corner,
 		      const MinMaxAll *min_max,
-		      const TransRiseFallBoth *tr,
+		      const RiseFallBoth *rf,
 		      float slew)
 {
-  for (auto mm : min_max->range()) {
+  for (MinMax *mm : min_max->range()) {
     const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
     DcalcAPIndex ap_index = dcalc_ap->index();
-    for (auto tr1 : tr->range()) {
-      graph_->setSlew(vertex, tr1, ap_index, slew);
+    for (RiseFall *rf1 : rf->range()) {
+      graph_->setSlew(vertex, rf1, ap_index, slew);
       // Don't let delay calculation clobber the value.
-      vertex->setSlewAnnotated(true, tr1, ap_index);
+      vertex->setSlewAnnotated(true, rf1, ap_index);
     }
   }
   graph_delay_calc_->delayInvalid(vertex);
@@ -3309,13 +3309,13 @@ Sta::simLogicValue(const Pin *pin)
 
 float
 Sta::portExtPinCap(Port *port,
-		   const TransRiseFall *tr,
+		   const RiseFall *rf,
 		   const MinMax *min_max)
 {
   float pin_cap, wire_cap;
   int fanout;
   bool pin_exists, wire_exists, fanout_exists;
-  sdc_->portExtCap(port, tr, min_max,
+  sdc_->portExtCap(port, rf, min_max,
 		   pin_cap, pin_exists,
 		   wire_cap, wire_exists,
 		   fanout, fanout_exists);
@@ -3327,13 +3327,13 @@ Sta::portExtPinCap(Port *port,
 
 void
 Sta::setPortExtPinCap(Port *port,
-		      const TransRiseFallBoth *tr,
+		      const RiseFallBoth *rf,
 		      const MinMaxAll *min_max,
 		      float cap)
 {
-  for (auto tr1 : tr->range()) {
-    for (auto mm : min_max->range()) {
-      sdc_->setPortExtPinCap(port, tr1, mm, cap);
+  for (RiseFall *rf1 : rf->range()) {
+    for (MinMax *mm : min_max->range()) {
+      sdc_->setPortExtPinCap(port, rf1, mm, cap);
     }
   }
   delaysInvalidFromFanin(port);
@@ -3341,13 +3341,13 @@ Sta::setPortExtPinCap(Port *port,
 
 float
 Sta::portExtWireCap(Port *port,
-		    const TransRiseFall *tr,
+		    const RiseFall *rf,
 		    const MinMax *min_max)
 {
   float pin_cap, wire_cap;
   int fanout;
   bool pin_exists, wire_exists, fanout_exists;
-  sdc_->portExtCap(port, tr, min_max,
+  sdc_->portExtCap(port, rf, min_max,
 		   pin_cap, pin_exists,
 		   wire_cap, wire_exists,
 		   fanout, fanout_exists);
@@ -3360,14 +3360,14 @@ Sta::portExtWireCap(Port *port,
 void
 Sta::setPortExtWireCap(Port *port,
 		       bool subtract_pin_cap,
-		       const TransRiseFallBoth *tr,
+		       const RiseFallBoth *rf,
 		       const MinMaxAll *min_max,
 		       float cap)
 {
   Corner *corner = cmd_corner_;
-  for (auto tr1 : tr->range()) {
-    for (auto mm : min_max->range()) {
-      sdc_->setPortExtWireCap(port, subtract_pin_cap, tr1, corner, mm, cap);
+  for (RiseFall *rf1 : rf->range()) {
+    for (MinMax *mm : min_max->range()) {
+      sdc_->setPortExtWireCap(port, subtract_pin_cap, rf1, corner, mm, cap);
     }
   }
   delaysInvalidFromFanin(port);
@@ -3392,7 +3392,7 @@ Sta::setPortExtFanout(Port *port,
 		      int fanout,
 		      const MinMaxAll *min_max)
 {
-  for (auto mm : min_max->range())
+  for (MinMax *mm : min_max->range())
     sdc_->setPortExtFanout(port, mm, fanout);
   delaysInvalidFromFanin(port);
 }
@@ -3404,14 +3404,14 @@ Sta::setNetWireCap(Net *net,
 		   const MinMaxAll *min_max,
 		   float cap)
 {
-  for (auto mm : min_max->range())
+  for (MinMax *mm : min_max->range())
     sdc_->setNetWireCap(net, subtract_pin_cap, corner, mm, cap);
   delaysInvalidFromFanin(net);
 }
 
 void
 Sta::connectedCap(Pin *drvr_pin,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const Corner *corner,
 		  const MinMax *min_max,
 		  float &pin_cap,
@@ -3421,10 +3421,10 @@ Sta::connectedCap(Pin *drvr_pin,
   wire_cap = 0.0;
   bool cap_exists = false;
   const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
-  Parasitic *parasitic = arc_delay_calc_->findParasitic(drvr_pin, tr, dcalc_ap);
+  Parasitic *parasitic = arc_delay_calc_->findParasitic(drvr_pin, rf, dcalc_ap);
   float ap_pin_cap = 0.0;
   float ap_wire_cap = 0.0;
-  graph_delay_calc_->loadCap(drvr_pin, parasitic, tr, dcalc_ap,
+  graph_delay_calc_->loadCap(drvr_pin, parasitic, rf, dcalc_ap,
 			     ap_pin_cap, ap_wire_cap);
   arc_delay_calc_->finishDrvrPin();
   if (!cap_exists
@@ -3437,7 +3437,7 @@ Sta::connectedCap(Pin *drvr_pin,
 
 void
 Sta::connectedCap(Net *net,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const Corner *corner,
 		  const MinMax *min_max,
 		  float &pin_cap,
@@ -3445,7 +3445,7 @@ Sta::connectedCap(Net *net,
 {
   Pin *drvr_pin = findNetParasiticDrvrPin(net);
   if (drvr_pin)
-    connectedCap(drvr_pin, tr, corner, min_max, pin_cap, wire_cap);
+    connectedCap(drvr_pin, rf, corner, min_max, pin_cap, wire_cap);
   else {
     pin_cap = 0.0;
     wire_cap = 0.0;
@@ -3523,7 +3523,7 @@ Sta::readSpef(const char *filename,
 
 void
 Sta::findPiElmore(Pin *drvr_pin,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const MinMax *min_max,
 		  float &c2,
 		  float &rpi,
@@ -3532,7 +3532,7 @@ Sta::findPiElmore(Pin *drvr_pin,
 {
   Corner *corner = cmd_corner_;
   const ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(min_max);
-  Parasitic *pi_elmore = parasitics_->findPiElmore(drvr_pin, tr, ap);
+  Parasitic *pi_elmore = parasitics_->findPiElmore(drvr_pin, rf, ap);
   if (pi_elmore) {
     parasitics_->piModel(pi_elmore, c2, rpi, c1);
     exists = true;
@@ -3543,16 +3543,16 @@ Sta::findPiElmore(Pin *drvr_pin,
 
 void
 Sta::makePiElmore(Pin *drvr_pin,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const MinMaxAll *min_max,
 		  float c2,
 		  float rpi,
 		  float c1)
 {
   Corner *corner = cmd_corner_;
-  for (auto mm : min_max->range()) {
+  for (MinMax *mm : min_max->range()) {
     ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(mm);
-    parasitics_->makePiElmore(drvr_pin, tr, ap, c2, rpi, c1);
+    parasitics_->makePiElmore(drvr_pin, rf, ap, c2, rpi, c1);
   }
   delaysInvalidFrom(drvr_pin);
 }
@@ -3560,14 +3560,14 @@ Sta::makePiElmore(Pin *drvr_pin,
 void
 Sta::findElmore(Pin *drvr_pin,
 		Pin *load_pin,
-		const TransRiseFall *tr,
+		const RiseFall *rf,
 		const MinMax *min_max,
 		float &elmore,
 		bool &exists) const
 {
   Corner *corner = cmd_corner_;
   const ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(min_max);
-  Parasitic *pi_elmore = parasitics_->findPiElmore(drvr_pin, tr, ap);
+  Parasitic *pi_elmore = parasitics_->findPiElmore(drvr_pin, rf, ap);
   if (pi_elmore) {
     exists = false;
     parasitics_->findElmore(pi_elmore, load_pin, elmore, exists);
@@ -3579,14 +3579,14 @@ Sta::findElmore(Pin *drvr_pin,
 void
 Sta::setElmore(Pin *drvr_pin,
 	       Pin *load_pin,
-	       const TransRiseFall *tr,
+	       const RiseFall *rf,
 	       const MinMaxAll *min_max,
 	       float elmore)
 {
   Corner *corner = cmd_corner_;
-  for (auto mm : min_max->range()) {
+  for (MinMax *mm : min_max->range()) {
     const ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(mm);
-    Parasitic *pi_elmore = parasitics_->findPiElmore(drvr_pin, tr, ap);
+    Parasitic *pi_elmore = parasitics_->findPiElmore(drvr_pin, rf, ap);
     if (pi_elmore)
       parasitics_->setElmore(pi_elmore, load_pin, elmore);
   }
@@ -3840,7 +3840,7 @@ Sta::replaceCellPinInvalidate(LibertyPort *from_port,
 bool
 Sta::idealClockMode()
 {
-  for (auto clk : sdc_->clks()) {
+  for (Clock *clk : sdc_->clks()) {
     if (clk->isPropagated())
       return false;
   }
@@ -3851,14 +3851,14 @@ static bool
 libertyPortCapsEqual(LibertyPort *port1,
 		     LibertyPort *port2)
 {
-  return port1->capacitance(TransRiseFall::rise(), MinMax::min())
-    == port2->capacitance(TransRiseFall::rise(), MinMax::min())
-    && port1->capacitance(TransRiseFall::rise(), MinMax::max())
-    == port2->capacitance(TransRiseFall::rise(), MinMax::max())
-    && port1->capacitance(TransRiseFall::fall(), MinMax::min())
-    == port2->capacitance(TransRiseFall::fall(), MinMax::min())
-    && port1->capacitance(TransRiseFall::fall(), MinMax::max())
-    == port2->capacitance(TransRiseFall::fall(), MinMax::max());
+  return port1->capacitance(RiseFall::rise(), MinMax::min())
+    == port2->capacitance(RiseFall::rise(), MinMax::min())
+    && port1->capacitance(RiseFall::rise(), MinMax::max())
+    == port2->capacitance(RiseFall::rise(), MinMax::max())
+    && port1->capacitance(RiseFall::fall(), MinMax::min())
+    == port2->capacitance(RiseFall::fall(), MinMax::min())
+    && port1->capacitance(RiseFall::fall(), MinMax::max())
+    == port2->capacitance(RiseFall::fall(), MinMax::max());
 }
 
 void
@@ -4271,52 +4271,52 @@ Sta::clocks(const Pin *pin,
 
 InstanceSet *
 Sta::findRegisterInstances(ClockSet *clks,
-			   const TransRiseFallBoth *clk_tr,
+			   const RiseFallBoth *clk_rf,
 			   bool edge_triggered,
 			   bool latches)
 {
   findRegisterPreamble();
-  return findRegInstances(clks, clk_tr, edge_triggered, latches, this);
+  return findRegInstances(clks, clk_rf, edge_triggered, latches, this);
 }
 
 PinSet *
 Sta::findRegisterDataPins(ClockSet *clks,
-			  const TransRiseFallBoth *clk_tr,
+			  const RiseFallBoth *clk_rf,
 			  bool edge_triggered,
 			  bool latches)
 {
   findRegisterPreamble();
-  return findRegDataPins(clks, clk_tr, edge_triggered, latches, this);
+  return findRegDataPins(clks, clk_rf, edge_triggered, latches, this);
 }
 
 PinSet *
 Sta::findRegisterClkPins(ClockSet *clks,
-			 const TransRiseFallBoth *clk_tr,
+			 const RiseFallBoth *clk_rf,
 			 bool edge_triggered,
 			 bool latches)
 {
   findRegisterPreamble();
-  return findRegClkPins(clks, clk_tr, edge_triggered, latches, this);
+  return findRegClkPins(clks, clk_rf, edge_triggered, latches, this);
 }
 
 PinSet *
 Sta::findRegisterAsyncPins(ClockSet *clks,
-			   const TransRiseFallBoth *clk_tr,
+			   const RiseFallBoth *clk_rf,
 			   bool edge_triggered,
 			   bool latches)
 {
   findRegisterPreamble();
-  return findRegAsyncPins(clks, clk_tr, edge_triggered, latches, this);
+  return findRegAsyncPins(clks, clk_rf, edge_triggered, latches, this);
 }
 
 PinSet *
 Sta::findRegisterOutputPins(ClockSet *clks,
-			    const TransRiseFallBoth *clk_tr,
+			    const RiseFallBoth *clk_rf,
 			    bool edge_triggered,
 			    bool latches)
 {
   findRegisterPreamble();
-  return findRegOutputPins(clks, clk_tr, edge_triggered, latches, this);
+  return findRegOutputPins(clks, clk_rf, edge_triggered, latches, this);
 }
 
 void
@@ -4730,9 +4730,9 @@ InstanceMaxSlewGreater::instMaxSlew(const Instance *inst) const
     Pin *pin = pin_iter->next();
     if (network->isDriver(pin)) {
       Vertex *vertex = graph->pinDrvrVertex(pin);
-      for (auto tr : TransRiseFall::range()) {
+      for (RiseFall *rf : RiseFall::range()) {
 	for (auto dcalc_ap : sta_->corners()->dcalcAnalysisPts()) {
-	  Slew slew = graph->slew(vertex, tr, dcalc_ap->index());
+	  Slew slew = graph->slew(vertex, rf, dcalc_ap->index());
 	  if (slew > max_slew)
 	    max_slew = slew;
 	}
@@ -4800,12 +4800,12 @@ Sta::reportSlewLimitShort(Pin *pin,
 			  const MinMax *min_max)
 {
   const Corner *corner1;
-  const TransRiseFall *tr;
+  const RiseFall *rf;
   Slew slew;
   float limit, slack;
   check_slew_limits_->checkSlews(pin, corner, min_max,
-				 corner1, tr, slew, limit, slack);
-  report_path_->reportSlewLimitShort(pin, tr, slew, limit, slack);
+				 corner1, rf, slew, limit, slack);
+  report_path_->reportSlewLimitShort(pin, rf, slew, limit, slack);
 }
 
 void
@@ -4814,12 +4814,12 @@ Sta::reportSlewLimitVerbose(Pin *pin,
 			    const MinMax *min_max)
 {
   const Corner *corner1;
-  const TransRiseFall *tr;
+  const RiseFall *rf;
   Slew slew;
   float limit, slack;
   check_slew_limits_->checkSlews(pin, corner, min_max,
-				 corner1, tr, slew, limit, slack);
-  report_path_->reportSlewLimitVerbose(pin, corner1, tr, slew,
+				 corner1, rf, slew, limit, slack);
+  report_path_->reportSlewLimitVerbose(pin, corner1, rf, slew,
 				       limit, slack, min_max);
 }
 
@@ -4829,7 +4829,7 @@ Sta::checkSlews(const Pin *pin,
 		const MinMax *min_max,
 		// Return values.
 		const Corner *&corner1,
-		const TransRiseFall *&tr,
+		const RiseFall *&rf,
 		Slew &slew,
 		float &limit,
 		float &slack)
@@ -4837,7 +4837,7 @@ Sta::checkSlews(const Pin *pin,
   checkSlewLimitPreamble();
   check_slew_limits_->init(min_max);
   check_slew_limits_->checkSlews(pin, corner, min_max,
-				 corner1, tr, slew, limit, slack);
+				 corner1, rf, slew, limit, slack);
 }
 
 ////////////////////////////////////////////////////////////////'

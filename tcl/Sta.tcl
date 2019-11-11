@@ -174,21 +174,21 @@ proc find_timing_paths_cmd { cmd args_var } {
     flags {-unconstrained -sort_by_slack -unique_paths_to_endpoint} 0
 
   set min_max "max"
-  set end_tr "rise_fall"
+  set end_rf "rise_fall"
   if [info exists keys(-path_delay)] {
     set mm_key $keys(-path_delay)
     if { $mm_key == "max_rise" } {
       set min_max "max"
-      set end_tr "rise"
+      set end_rf "rise"
     } elseif { $mm_key == "max_fall" } {
       set min_max "max"
-      set end_tr "fall"
+      set end_rf "fall"
     } elseif { $mm_key == "min_rise" } {
       set min_max "min"
-      set end_tr "rise"
+      set end_rf "rise"
     } elseif { $mm_key == "min_fall" } {
       set min_max "min"
-      set end_tr "fall"
+      set end_rf "fall"
     } elseif { $mm_key == "min" || $mm_key == "max" || $mm_key == "min_max" } {
       set min_max $mm_key
     } else {
@@ -199,7 +199,7 @@ proc find_timing_paths_cmd { cmd args_var } {
   set arg_error 0
   set from [parse_from_arg keys arg_error]
   set thrus [parse_thrus_arg args arg_error]
-  set to [parse_to_arg1 keys $end_tr arg_error]
+  set to [parse_to_arg1 keys $end_rf arg_error]
   if { $arg_error } {
     delete_from_thrus_to $from $thrus $to
     sta_error "$cmd command failed."

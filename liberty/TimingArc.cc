@@ -64,8 +64,8 @@ TimingArcAttrs::deleteContents()
   stringDelete(sdf_cond_end_);
   stringDelete(mode_name_);
   stringDelete(mode_value_);
-  delete models_[TransRiseFall::riseIndex()];
-  delete models_[TransRiseFall::fallIndex()];
+  delete models_[RiseFall::riseIndex()];
+  delete models_[RiseFall::fallIndex()];
 }
 
 void
@@ -116,16 +116,16 @@ TimingArcAttrs::setModeValue(const char *value)
 }
 
 TimingModel *
-TimingArcAttrs::model(TransRiseFall *tr) const
+TimingArcAttrs::model(RiseFall *rf) const
 {
-  return models_[tr->index()];
+  return models_[rf->index()];
 }
 
 void
-TimingArcAttrs::setModel(TransRiseFall *tr,
+TimingArcAttrs::setModel(RiseFall *rf,
 			 TimingModel *model)
 {
-  models_[tr->index()] = model;
+  models_[rf->index()] = model;
 }
 
 void
@@ -188,7 +188,7 @@ TimingArcSet::init(LibertyCell *cell)
   if (cell)
     index_ = cell->addTimingArcSet(this);
 
-  for (auto tr_index : TransRiseFall::rangeIndex()) {
+  for (auto tr_index : RiseFall::rangeIndex()) {
     from_arc1_[tr_index] = nullptr;
     from_arc2_[tr_index] = nullptr;
   }
@@ -223,11 +223,11 @@ TimingArcSet::addTimingArc(TimingArc *arc)
     internalError("timing arc max index exceeded\n");
   arcs_.push_back(arc);
 
-  int from_tr_index = arc->fromTrans()->asRiseFall()->index();
-  if (from_arc1_[from_tr_index] == nullptr)
-    from_arc1_[from_tr_index] = arc;
-  else if (from_arc2_[from_tr_index] == nullptr)
-    from_arc2_[from_tr_index] = arc;
+  int from_rf_index = arc->fromTrans()->asRiseFall()->index();
+  if (from_arc1_[from_rf_index] == nullptr)
+    from_arc1_[from_rf_index] = arc;
+  else if (from_arc2_[from_rf_index] == nullptr)
+    from_arc2_[from_rf_index] = arc;
 
   return arc_index;
 }
@@ -243,13 +243,13 @@ TimingArcSet::deleteTimingArc(TimingArc *arc)
     arcs_[arc->index()] = last_arc;
     arcs_.pop_back();
   }
-  int from_tr_index = arc->fromTrans()->asRiseFall()->index();
-  if (from_arc1_[from_tr_index] == arc) {
-    from_arc1_[from_tr_index] = from_arc2_[from_tr_index];
-    from_arc2_[from_tr_index] = nullptr;
+  int from_rf_index = arc->fromTrans()->asRiseFall()->index();
+  if (from_arc1_[from_rf_index] == arc) {
+    from_arc1_[from_rf_index] = from_arc2_[from_rf_index];
+    from_arc2_[from_rf_index] = nullptr;
   }
-  else if (from_arc2_[from_tr_index] == arc)
-    from_arc2_[from_tr_index] = nullptr;
+  else if (from_arc2_[from_rf_index] == arc)
+    from_arc2_[from_rf_index] = nullptr;
   delete arc;
 }
 
@@ -272,12 +272,12 @@ TimingArcSet::setIsCondDefault(bool is_default)
 }
 
 void
-TimingArcSet::arcsFrom(const TransRiseFall *from_tr,
+TimingArcSet::arcsFrom(const RiseFall *from_rf,
 		       // Return values.
 		       TimingArc *&arc1,
 		       TimingArc *&arc2)
 {
-  int tr_index = from_tr->index();
+  int tr_index = from_rf->index();
   arc1 = from_arc1_[tr_index];
   arc2 = from_arc2_[tr_index];
 }
@@ -293,15 +293,15 @@ TimingArcSet::sense() const
     return TimingSense::non_unate;
 }
 
-TransRiseFall *
+RiseFall *
 TimingArcSet::isRisingFallingEdge() const
 {
   int arc_count = arcs_.size();
   if (arc_count == 2) {
-    TransRiseFall *from_tr1 = arcs_[0]->fromTrans()->asRiseFall();
-    TransRiseFall *from_tr2 = arcs_[1]->fromTrans()->asRiseFall();
-    if (from_tr1 == from_tr2)
-      return from_tr1;
+    RiseFall *from_rf1 = arcs_[0]->fromTrans()->asRiseFall();
+    RiseFall *from_rf2 = arcs_[1]->fromTrans()->asRiseFall();
+    if (from_rf1 == from_rf2)
+      return from_rf1;
   }
   if (arcs_.size() == 1)
     return arcs_[0]->fromTrans()->asRiseFall();
@@ -463,9 +463,9 @@ timingArcsLess(const TimingArcSet *set1,
 ////////////////////////////////////////////////////////////////
 
 int
-TimingArcSet::wireArcIndex(const TransRiseFall *tr)
+TimingArcSet::wireArcIndex(const RiseFall *rf)
 {
-  return tr->index();
+  return rf->index();
 }
 
 void
@@ -495,12 +495,12 @@ TimingArcSetArcIterator::TimingArcSetArcIterator(const TimingArcSet *set) :
 ////////////////////////////////////////////////////////////////
 
 TimingArc::TimingArc(TimingArcSet *set,
-		     Transition *from_tr,
-		     Transition *to_tr,
+		     Transition *from_rf,
+		     Transition *to_rf,
 		     TimingModel *model) :
   set_(set),
-  from_tr_(from_tr),
-  to_tr_(to_tr),
+  from_rf_(from_rf),
+  to_rf_(to_rf),
   model_(model),
   scaled_models_(nullptr)
 {
@@ -576,15 +576,15 @@ TimingArc::setCornerArc(TimingArc *corner_arc,
 TimingSense
 TimingArc::sense() const
 {
-  if ((from_tr_ == Transition::rise()
-       && to_tr_ == Transition::rise())
-      || (from_tr_ == Transition::fall()
-	  && to_tr_ == Transition::fall()))
+  if ((from_rf_ == Transition::rise()
+       && to_rf_ == Transition::rise())
+      || (from_rf_ == Transition::fall()
+	  && to_rf_ == Transition::fall()))
     return TimingSense::positive_unate;
-  else if ((from_tr_ == Transition::rise()
-       && to_tr_ == Transition::fall())
-      || (from_tr_ == Transition::fall()
-	  && to_tr_ == Transition::rise()))
+  else if ((from_rf_ == Transition::rise()
+       && to_rf_ == Transition::fall())
+      || (from_rf_ == Transition::fall()
+	  && to_rf_ == Transition::rise()))
     return TimingSense::negative_unate;
   else
     return TimingSense::non_unate;

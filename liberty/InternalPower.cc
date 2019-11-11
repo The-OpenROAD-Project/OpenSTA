@@ -36,7 +36,7 @@ InternalPowerAttrs::~InternalPowerAttrs()
 void
 InternalPowerAttrs::deleteContents()
 {
-  for (auto tr_index : TransRiseFall::rangeIndex()) {
+  for (auto tr_index : RiseFall::rangeIndex()) {
     InternalPowerModel *model = models_[tr_index];
     if (model)
       delete model;
@@ -47,16 +47,16 @@ InternalPowerAttrs::deleteContents()
 }
 
 InternalPowerModel *
-InternalPowerAttrs::model(TransRiseFall *tr) const
+InternalPowerAttrs::model(RiseFall *rf) const
 {
-  return models_[tr->index()];
+  return models_[rf->index()];
 }
 
 void
-InternalPowerAttrs::setModel(TransRiseFall *tr,
+InternalPowerAttrs::setModel(RiseFall *rf,
 			     InternalPowerModel *model)
 {
-  models_[tr->index()] = model;
+  models_[rf->index()] = model;
 }
 
 void
@@ -77,7 +77,7 @@ InternalPower::InternalPower(LibertyCell *cell,
   when_(attrs->when()),
   related_pg_pin_(attrs->relatedPgPin())
 {
-  for (auto tr : TransRiseFall::range()) {
+  for (auto tr : RiseFall::range()) {
     int tr_index = tr->index();
     models_[tr_index] = attrs->model(tr);
   }
@@ -96,12 +96,12 @@ InternalPower::libertyCell() const
 }
 
 float
-InternalPower::power(TransRiseFall *tr,
+InternalPower::power(RiseFall *rf,
 		     const Pvt *pvt,
 		     float in_slew,
 		     float load_cap)
 {
-  InternalPowerModel *model = models_[tr->index()];
+  InternalPowerModel *model = models_[rf->index()];
   if (model)
     return model->power(libertyCell(), pvt, in_slew, load_cap);
   else

@@ -48,7 +48,7 @@ LumpedCapDelayCalc::copy()
 
 Parasitic *
 LumpedCapDelayCalc::findParasitic(const Pin *drvr_pin,
-				  const TransRiseFall *tr,
+				  const RiseFall *rf,
 				  const DcalcAnalysisPt *dcalc_ap)
 {
   // set_load has precidence over parasitics.
@@ -57,7 +57,7 @@ LumpedCapDelayCalc::findParasitic(const Pin *drvr_pin,
     const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
     if (parasitics_->haveParasitics()) {
       // Prefer PiElmore.
-      parasitic = parasitics_->findPiElmore(drvr_pin, tr,parasitic_ap);
+      parasitic = parasitics_->findPiElmore(drvr_pin, rf, parasitic_ap);
       if (parasitic)
 	return parasitic;
 
@@ -69,7 +69,7 @@ LumpedCapDelayCalc::findParasitic(const Pin *drvr_pin,
 				      dcalc_ap->corner(),
 				      dcalc_ap->constraintMinMax(),
 				      parasitic_ap);
-	parasitic = parasitics_->findPiElmore(drvr_pin, tr,parasitic_ap);
+	parasitic = parasitics_->findPiElmore(drvr_pin, rf, parasitic_ap);
 	reduced_parasitic_drvrs_.push_back(drvr_pin);
 	return parasitic;
       }
@@ -80,9 +80,9 @@ LumpedCapDelayCalc::findParasitic(const Pin *drvr_pin,
     if (wireload) {
       float pin_cap, wire_cap, fanout;
       bool has_wire_cap;
-      graph_delay_calc_->netCaps(drvr_pin, tr, dcalc_ap,
+      graph_delay_calc_->netCaps(drvr_pin, rf, dcalc_ap,
 				 pin_cap, wire_cap, fanout, has_wire_cap);
-      parasitic = parasitics_->estimatePiElmore(drvr_pin, tr, wireload,
+      parasitic = parasitics_->estimatePiElmore(drvr_pin, rf, wireload,
 						fanout, pin_cap,
 						dcalc_ap->operatingConditions(),
 						dcalc_ap->corner(),
@@ -110,12 +110,12 @@ LumpedCapDelayCalc::finishDrvrPin()
 
 void
 LumpedCapDelayCalc::inputPortDelay(const Pin *, float in_slew,
-				   const TransRiseFall *tr,
+				   const RiseFall *rf,
 				   Parasitic *,
 				   const DcalcAnalysisPt *)
 {
   drvr_slew_ = in_slew;
-  drvr_tr_ = tr;
+  drvr_rf_ = rf;
   drvr_library_ = network_->defaultLibertyLibrary();
   multi_drvr_slew_factor_ = 1.0F;
 }
@@ -167,7 +167,7 @@ LumpedCapDelayCalc::gateDelay(const LibertyCell *drvr_cell,
     drvr_slew = delay_zero;
     drvr_slew_ = 0.0;
   }
-  drvr_tr_ = arc->toTrans()->asRiseFall();
+  drvr_rf_ = arc->toTrans()->asRiseFall();
   drvr_library_ = drvr_cell->libertyLibrary();
   multi_drvr_slew_factor_ = 1.0F;
 }
@@ -193,17 +193,17 @@ LumpedCapDelayCalc::thresholdAdjust(const Pin *load_pin,
   if (load_library
       && drvr_library_
       && load_library != drvr_library_) {
-    float drvr_vth = drvr_library_->outputThreshold(drvr_tr_);
-    float load_vth = load_library->inputThreshold(drvr_tr_);
-    float drvr_slew_delta = drvr_library_->slewUpperThreshold(drvr_tr_)
-      - drvr_library_->slewLowerThreshold(drvr_tr_);
+    float drvr_vth = drvr_library_->outputThreshold(drvr_rf_);
+    float load_vth = load_library->inputThreshold(drvr_rf_);
+    float drvr_slew_delta = drvr_library_->slewUpperThreshold(drvr_rf_)
+      - drvr_library_->slewLowerThreshold(drvr_rf_);
     float load_delay_delta =
       delayAsFloat(load_slew) * ((load_vth - drvr_vth) / drvr_slew_delta);
-    load_delay += (drvr_tr_ == TransRiseFall::rise())
+    load_delay += (drvr_rf_ == RiseFall::rise())
       ? load_delay_delta
       : -load_delay_delta;
-    float load_slew_delta = load_library->slewUpperThreshold(drvr_tr_)
-      - load_library->slewLowerThreshold(drvr_tr_);
+    float load_slew_delta = load_library->slewUpperThreshold(drvr_rf_)
+      - load_library->slewLowerThreshold(drvr_rf_);
     float drvr_slew_derate = drvr_library_->slewDerateFromLibrary();
     float load_slew_derate = load_library->slewDerateFromLibrary();
     load_slew = load_slew * ((load_slew_delta / load_slew_derate)

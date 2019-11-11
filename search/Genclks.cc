@@ -691,7 +691,7 @@ Genclks::makeSrcFilter(Clock *gclk)
 {
   ClockSet *from_clks = new ClockSet;
   from_clks->insert(gclk->masterClk());
-  const TransRiseFallBoth *rf = TransRiseFallBoth::riseFall();
+  const RiseFallBoth *rf = RiseFallBoth::riseFall();
   ExceptionFrom *from = sdc_->makeExceptionFrom(nullptr,from_clks,nullptr,rf);
 
   PinSet *thru_pins = new PinSet;
@@ -723,7 +723,7 @@ Genclks::seedSrcPins(Clock *gclk,
     for (auto path_ap : corners_->pathAnalysisPts()) {
       const MinMax *min_max = path_ap->pathMinMax();
       const EarlyLate *early_late = min_max;
-      for (auto tr : TransRiseFall::range()) {
+      for (auto tr : RiseFall::range()) {
 	Tag *tag = makeTag(gclk, master_clk, master_pin, tr, src_filter,
 			   path_ap);
 	Arrival insert = search_->clockInsertion(master_clk, master_pin, tr,
@@ -740,7 +740,7 @@ Tag *
 Genclks::makeTag(const Clock *gclk,
 		 const Clock *master_clk,
 		 const Pin *master_pin,
-		 const TransRiseFall *master_tr,
+		 const RiseFall *master_rf,
 		 FilterPath *src_filter,
 		 const PathAnalysisPt *path_ap)
 {
@@ -751,11 +751,11 @@ Genclks::makeTag(const Clock *gclk,
     state = state->nextState();
   ExceptionStateSet *states = new ExceptionStateSet;
   states->insert(state);
-  ClkInfo *clk_info = search_->findClkInfo(master_clk->edge(master_tr),
+  ClkInfo *clk_info = search_->findClkInfo(master_clk->edge(master_rf),
 					   master_pin, true, nullptr, true,
 					   nullptr, 0.0, 0.0, nullptr,
 					   path_ap, nullptr);
-  return search_->findTag(master_tr, path_ap, clk_info, false, nullptr, false,
+  return search_->findTag(master_rf, path_ap, clk_info, false, nullptr, false,
 			  states, true);
 }
 
@@ -928,16 +928,16 @@ Genclks::clearSrcPaths()
 }
 
 int
-Genclks::srcPathIndex(const TransRiseFall *clk_tr,
+Genclks::srcPathIndex(const RiseFall *clk_rf,
 		      const PathAnalysisPt *path_ap) const
 {
-  return path_ap->index() * TransRiseFall::index_count + clk_tr->index();
+  return path_ap->index() * RiseFall::index_count + clk_rf->index();
 }
 
 void
 Genclks::recordSrcPaths(Clock *gclk)
 {
-  int path_count = TransRiseFall::index_count
+  int path_count = RiseFall::index_count
     * corners_->pathAnalysisPtCount();
 
   bool divide_by_1 = gclk->isDivideByOneCombinational();
@@ -957,16 +957,16 @@ Genclks::recordSrcPaths(Clock *gclk)
       if (src_clk_edge
 	  && matchesSrcFilter(path, gclk)) {
 	const EarlyLate *early_late = path->minMax(this);
-	TransRiseFall *src_clk_tr = src_clk_edge->transition();
-	const TransRiseFall *tr = path->transition(this);
-	bool inverting_path = (tr != src_clk_tr);
+	RiseFall *src_clk_rf = src_clk_edge->transition();
+	const RiseFall *rf = path->transition(this);
+	bool inverting_path = (rf != src_clk_rf);
 	const PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
-	int path_index = srcPathIndex(tr, path_ap);
+	int path_index = srcPathIndex(rf, path_ap);
 	PathVertexRep &src_path = src_paths[path_index];
 	if ((!divide_by_1
 		|| (inverting_path == invert))
 	    && (!has_edges
-		|| src_clk_tr == gclk->masterClkEdgeTr(tr))
+		|| src_clk_rf == gclk->masterClkEdgeTr(rf))
 	    && (src_path.isNull()
 		|| fuzzyGreater(path->arrival(this),
 				     src_path.arrival(this),
@@ -974,7 +974,7 @@ Genclks::recordSrcPaths(Clock *gclk)
 	  debugPrint4(debug_, "genclk", 2, "  %s insertion %s %s %s\n",
 		      network_->pathName(gclk_pin),
 		      early_late->asString(),
-		      tr->asString(),
+		      rf->asString(),
 		      delayAsString(path->arrival(this), this));
 	  src_path.init(path, this);
 	  found_src_paths = true;
@@ -1042,7 +1042,7 @@ Genclks::srcPath(const ClockEdge *clk_edge,
 void
 Genclks::srcPath(const Clock *gclk,
 		 const Pin *src_pin,
-		 const TransRiseFall *tr,
+		 const RiseFall *rf,
 		 const PathAnalysisPt *path_ap,
 		 // Return value.
 		 PathVertex &src_path) const
@@ -1050,7 +1050,7 @@ Genclks::srcPath(const Clock *gclk,
   PathVertexRep *src_paths =
     genclk_src_paths_.findKey(ClockPinPair(gclk, src_pin));
   if (src_paths) {
-    int path_index = srcPathIndex(tr, path_ap);
+    int path_index = srcPathIndex(rf, path_ap);
     src_path.init(src_paths[path_index], this);
   }
   else
@@ -1060,17 +1060,17 @@ Genclks::srcPath(const Clock *gclk,
 Arrival
 Genclks::insertionDelay(const Clock *clk,
 			const Pin *pin,
-			const TransRiseFall *tr,
+			const RiseFall *rf,
 			const EarlyLate *early_late,
 			const PathAnalysisPt *path_ap) const
 {
   PathVertex src_path;
   PathAnalysisPt *insert_ap = path_ap->insertionAnalysisPt(early_late);
-  srcPath(clk, pin, tr, insert_ap, src_path);
+  srcPath(clk, pin, rf, insert_ap, src_path);
   if (clk->pllFdbk()) {
     const MinMax *min_max = path_ap->pathMinMax();
     PathAnalysisPt *pll_ap = path_ap->insertionAnalysisPt(min_max->opposite());
-    Arrival pll_delay = pllDelay(clk, tr, pll_ap);
+    Arrival pll_delay = pllDelay(clk, rf, pll_ap);
     if (src_path.isNull())
       return -pll_delay;
     else {
@@ -1112,7 +1112,7 @@ Genclks::makePllFilter(const Clock *gclk)
 {
   PinSet *from_pins = new PinSet;
   from_pins->insert(gclk->pllOut());
-  TransRiseFallBoth *rf = TransRiseFallBoth::riseFall();
+  RiseFallBoth *rf = RiseFallBoth::riseFall();
   ExceptionFrom *from = sdc_->makeExceptionFrom(from_pins,nullptr,nullptr,rf);
 
   PinSet *to_pins = new PinSet;
@@ -1135,7 +1135,7 @@ Genclks::seedPllPin(const Clock *gclk,
   tag_bldr.init(vertex);
   copyGenClkSrcPaths(vertex, &tag_bldr);
   for (auto path_ap : corners_->pathAnalysisPts()) {
-    for (auto tr : TransRiseFall::range()) {
+    for (auto tr : RiseFall::range()) {
       Tag *tag = makeTag(gclk, gclk, pll_out_pin, tr, pll_filter, path_ap);
       tag_bldr.setArrival(tag, 0.0, nullptr);
     }
@@ -1217,14 +1217,14 @@ Genclks::findPllArrivals(const Clock *gclk,
 
 Arrival
 Genclks::pllDelay(const Clock *clk,
-		  const TransRiseFall *tr,
+		  const RiseFall *rf,
 		  const PathAnalysisPt *path_ap) const
 {
   Vertex *fdbk_vertex = graph_->pinLoadVertex(clk->pllFdbk());
   GenclkInfo *genclk_info = genclkInfo(clk);
   if (genclk_info) {
     FilterPath *pll_filter = genclk_info->pllFilter();
-    VertexPathIterator fdbk_path_iter(fdbk_vertex, tr, path_ap, this);
+    VertexPathIterator fdbk_path_iter(fdbk_vertex, rf, path_ap, this);
     while (fdbk_path_iter.hasNext()) {
       Path *path = fdbk_path_iter.next();
       if (matchesPllFilter(path, pll_filter))

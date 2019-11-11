@@ -205,11 +205,11 @@ Latches::latchRequired(const Path *data_path,
 		       Delay &time_given_to_startpoint)
 {
   Vertex *data_vertex = data_path->vertex(this);
-  const TransRiseFall *data_tr = data_path->transition(this);
-  ArcDelay setup = latchSetupMargin(data_vertex,data_tr,disable_path,path_ap);
+  const RiseFall *data_rf = data_path->transition(this);
+  ArcDelay setup = latchSetupMargin(data_vertex,data_rf,disable_path,path_ap);
   ExceptionPath *excpt = search_->exceptionTo(ExceptionPathType::any,
 					      data_path, data_vertex->pin(),
-					      data_tr,
+					      data_rf,
 					      enable_path->clkEdge(this),
 					      path_ap->pathMinMax(), false,
 					      false);
@@ -235,8 +235,8 @@ Latches::latchEnableOtherPath(Path *path,
   ClockEdge *clk_edge = path->clkEdge(this);
   ClockEdge *other_clk_edge =
     path->clkInfo(this)->isPulseClk() ? clk_edge:clk_edge->opposite();
-  TransRiseFall *other_tr = path->transition(this)->opposite();
-  VertexPathIterator path_iter(vertex, other_tr, tgt_clk_path_ap, this);
+  RiseFall *other_rf = path->transition(this)->opposite();
+  VertexPathIterator path_iter(vertex, other_rf, tgt_clk_path_ap, this);
   while (path_iter.hasNext()) {
     PathVertex *path = path_iter.next();
     if (path->isClock(this)
@@ -259,11 +259,11 @@ Latches::latchEnablePath(Path *q_path,
   const PathAnalysisPt *tgt_clk_path_ap = path_ap->tgtClkAnalysisPt();
   const Instance *latch = network_->instance(q_path->pin(this));
   Vertex *en_vertex;
-  TransRiseFall *en_tr;
+  RiseFall *en_rf;
   LatchEnableState state;
-  latchDtoQEnable(d_q_edge, latch, en_vertex, en_tr, state);
+  latchDtoQEnable(d_q_edge, latch, en_vertex, en_rf, state);
   if (state == LatchEnableState::enabled) {
-    VertexPathIterator path_iter(en_vertex, en_tr, tgt_clk_path_ap, this);
+    VertexPathIterator path_iter(en_vertex, en_rf, tgt_clk_path_ap, this);
     while (path_iter.hasNext()) {
       PathVertex *path = path_iter.next();
       const ClockEdge *clk_edge = path->clkEdge(this);
@@ -293,9 +293,9 @@ Latches::latchOutArrival(Path *data_path,
   Vertex *data_vertex = d_q_edge->from(graph_);
   const Instance *inst = network_->instance(data_vertex->pin());
   Vertex *enable_vertex;
-  TransRiseFall *enable_tr;
+  RiseFall *enable_rf;
   LatchEnableState state;
-  latchDtoQEnable(d_q_edge, inst, enable_vertex, enable_tr, state);
+  latchDtoQEnable(d_q_edge, inst, enable_vertex, enable_rf, state);
   // Latch enable may be missing if library is malformed.
   switch (state) {
   case LatchEnableState::closed:
@@ -313,7 +313,7 @@ Latches::latchOutArrival(Path *data_path,
     break;
   case LatchEnableState::enabled: {
     const PathAnalysisPt *tgt_clk_path_ap = path_ap->tgtClkAnalysisPt();
-    VertexPathIterator enable_iter(enable_vertex, enable_tr,
+    VertexPathIterator enable_iter(enable_vertex, enable_rf,
 				   tgt_clk_path_ap, this);
     while (enable_iter.hasNext()) {
       PathVertex *enable_path = enable_iter.next();
@@ -353,7 +353,7 @@ Latches::latchOutArrival(Path *data_path,
 				    en_clk_info->uncertainties(),
 				    path_ap,
 				    crpr_clk_path);
-	     TransRiseFall *q_tr = d_q_arc->toTrans()->asRiseFall();
+	     RiseFall *q_rf = d_q_arc->toTrans()->asRiseFall();
 	     ExceptionStateSet *states = nullptr;
 	     // Latch data pin is a valid exception -from pin.
 	     if (sdc_->exceptionFromStates(data_path->pin(this),
@@ -362,11 +362,11 @@ Latches::latchOutArrival(Path *data_path,
 						   MinMax::max(), states)
 		 // -from enable non-filter exceptions apply.
 		 && sdc_->exceptionFromStates(enable_vertex->pin(),
-						      enable_tr,
+						      enable_rf,
 						      en_clk_edge->clock(),
 						      en_clk_edge->transition(),
 						      MinMax::max(), false, states))
-	       q_tag = search_->findTag(q_tr, path_ap, q_clk_info, false,
+	       q_tag = search_->findTag(q_rf, path_ap, q_clk_info, false,
 					nullptr, false, states, true);
 	   }
 	   return;
@@ -395,13 +395,13 @@ Latches::exceptionTo(Path *data_path,
 
 ArcDelay
 Latches::latchSetupMargin(Vertex *data_vertex,
-			  const TransRiseFall *data_tr,
+			  const RiseFall *data_rf,
 			  const Path *disable_path,
 			  const PathAnalysisPt *path_ap)
 {
   if (disable_path) {
     Vertex *enable_vertex = disable_path->vertex(this);
-    const TransRiseFall *disable_tr = disable_path->transition(this);
+    const RiseFall *disable_rf = disable_path->transition(this);
     VertexInEdgeIterator edge_iter(data_vertex, graph_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
@@ -415,8 +415,8 @@ Latches::latchSetupMargin(Vertex *data_vertex,
 	TimingArcSetArcIterator arc_iter(arc_set);
 	while (arc_iter.hasNext()) {
 	  TimingArc *check_arc = arc_iter.next();
-	  if (check_arc->toTrans()->asRiseFall() == data_tr
-	      && check_arc->fromTrans()->asRiseFall() == disable_tr)
+	  if (check_arc->toTrans()->asRiseFall() == data_rf
+	      && check_arc->fromTrans()->asRiseFall() == disable_rf)
 	    return search_->deratedDelay(from_vertex, check_arc, edge,
 					 false, path_ap);
 	}
@@ -458,7 +458,7 @@ Latches::latchDtoQEnable(Edge *d_q_edge,
 			 const Instance *inst,
 			 // Return values.
 			 Vertex *&enable_vertex,
-			 TransRiseFall *&enable_tr,
+			 RiseFall *&enable_rf,
 			 LatchEnableState &state) const
 {
   enable_vertex = nullptr;
@@ -468,7 +468,7 @@ Latches::latchDtoQEnable(Edge *d_q_edge,
     TimingArcSet *d_q_set = d_q_edge->timingArcSet();
     LibertyPort *enable_port;
     FuncExpr *enable_func;
-    cell->latchEnable(d_q_set, enable_port, enable_func, enable_tr);
+    cell->latchEnable(d_q_set, enable_port, enable_func, enable_rf);
     if (enable_port) {
       Pin *enable_pin = network_->findPin(inst, enable_port);
       if (enable_pin) {
@@ -507,9 +507,9 @@ Latches::latchDtoQState(Edge *edge) const
   const Pin *from_pin = from_vertex->pin();
   const Instance *inst = network_->instance(from_pin);
   Vertex *enable_vertex;
-  TransRiseFall *enable_tr;
+  RiseFall *enable_rf;
   LatchEnableState state;
-  latchDtoQEnable(edge, inst, enable_vertex, enable_tr, state);
+  latchDtoQEnable(edge, inst, enable_vertex, enable_rf, state);
   return state;
 }
 

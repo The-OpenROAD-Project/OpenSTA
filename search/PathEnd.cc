@@ -80,7 +80,7 @@ PathEnd::clkEarlyLate(const StaState *sta) const
   return checkRole(sta)->tgtClkEarlyLate();
 }
 
-const TransRiseFall *
+const RiseFall *
 PathEnd::transition(const StaState *sta) const
 {
   return path_.transition(sta);
@@ -122,7 +122,7 @@ PathEnd::requiredTimeOffset(const StaState *sta) const
   return requiredTime(sta) + sourceClkOffset(sta);
 }
 
-const TransRiseFall *
+const RiseFall *
 PathEnd::targetClkEndTrans(const StaState *sta) const
 {
   const PathVertex *clk_path = targetClkPath();
@@ -354,14 +354,14 @@ PathEnd::checkTgtClkDelay(const PathVertex *tgt_clk_path,
     ClkInfo *clk_info = tgt_clk_path->clkInfo(sta);
     const Pin *tgt_src_pin = clk_info->clkSrc();
     const Clock *tgt_clk = tgt_clk_edge->clock();
-    const TransRiseFall *tgt_clk_tr = tgt_clk_edge->transition();
-    insertion = search->clockInsertion(tgt_clk, tgt_src_pin, tgt_clk_tr,
+    const RiseFall *tgt_clk_rf = tgt_clk_edge->transition();
+    insertion = search->clockInsertion(tgt_clk, tgt_src_pin, tgt_clk_rf,
 				       min_max, early_late, tgt_path_ap);
     if (clk_info->isPropagated()) {
       // Propagated clock.  Propagated arrival is seeded with
       // early_late==path_min_max insertion delay.
       Arrival path_insertion = search->clockInsertion(tgt_clk, tgt_src_pin,
-						      tgt_clk_tr, min_max,
+						      tgt_clk_rf, min_max,
 						      min_max, tgt_path_ap);
       latency=tgt_clk_path->arrival(sta)-tgt_clk_edge->time()-path_insertion;
     }
@@ -913,7 +913,7 @@ PathEndClkConstrainedMcp::findHoldMcps(const ClockEdge *tgt_clk_edge,
 
 {
   Pin *pin = path_.pin(sta);
-  const TransRiseFall *tr = path_.transition(sta);
+  const RiseFall *rf = path_.transition(sta);
   // Mcp may be setup, hold or setup_hold, since all match min paths.
   const MinMaxAll *mcp_min_max = mcp_->minMax();
   Search *search = sta->search();
@@ -921,7 +921,7 @@ PathEndClkConstrainedMcp::findHoldMcps(const ClockEdge *tgt_clk_edge,
     hold_mcp = mcp_;
     setup_mcp =
       dynamic_cast<MultiCyclePath*>(search->exceptionTo(ExceptionPathType::multi_cycle,
-							path_.path(), pin, tr,
+							path_.path(), pin, rf,
 							tgt_clk_edge,
 							MinMax::max(), true,
 							false));
@@ -930,7 +930,7 @@ PathEndClkConstrainedMcp::findHoldMcps(const ClockEdge *tgt_clk_edge,
     setup_mcp = mcp_;
     hold_mcp =
       dynamic_cast<MultiCyclePath*>(search->exceptionTo(ExceptionPathType::multi_cycle,
-							path_.path(), pin, tr,
+							path_.path(), pin, rf,
 							tgt_clk_edge,
 							MinMax::min(), true,
 							false));
@@ -1340,9 +1340,9 @@ PathEnd::outputDelayMargin(OutputDelay *output_delay,
 			   const Path *path,
 			   const StaState *sta)
 {
-  const TransRiseFall *tr = path->transition(sta);
+  const RiseFall *rf = path->transition(sta);
   const MinMax *min_max = path->minMax(sta);
-  float margin = output_delay->delays()->value(tr, min_max);
+  float margin = output_delay->delays()->value(rf, min_max);
   if (min_max == MinMax::max())
     return margin;
   else
@@ -1428,11 +1428,11 @@ PathEndOutputDelay::tgtClkDelay(const ClockEdge *tgt_clk_edge,
   const PathAnalysisPt *path_ap = path_.pathAnalysisPt(sta);
   const MinMax *latency_min_max = path_ap->tgtClkAnalysisPt()->pathMinMax();
   Clock *tgt_clk = tgt_clk_edge->clock();
-  TransRiseFall *tgt_clk_tr = tgt_clk_edge->transition();
+  RiseFall *tgt_clk_rf = tgt_clk_edge->transition();
   if (!output_delay_->sourceLatencyIncluded())
     insertion = sta->search()->clockInsertion(tgt_clk,
 					      tgt_clk->defaultPin(),
-					      tgt_clk_tr,
+					      tgt_clk_rf,
 					      latency_min_max,
 					      early_late, path_ap);
   else
@@ -1440,7 +1440,7 @@ PathEndOutputDelay::tgtClkDelay(const ClockEdge *tgt_clk_edge,
   const Sdc *sdc = sta->sdc();
   if (!tgt_clk->isPropagated()
       && !output_delay_->networkLatencyIncluded())
-    latency = sdc->clockLatency(tgt_clk, tgt_clk_tr, latency_min_max);
+    latency = sdc->clockLatency(tgt_clk, tgt_clk_rf, latency_min_max);
   else
     latency = 0.0;
 }

@@ -197,7 +197,7 @@ class TableModel
 public:
   TableModel(Table *table,
 	     ScaleFactorType scale_factor_type,
-	     TransRiseFall *tr);
+	     RiseFall *rf);
   ~TableModel();
   void setScaleFactorType(ScaleFactorType type);
   int order() const;
@@ -242,7 +242,7 @@ protected:
   Table *table_;
   // ScaleFactorType gcc barfs if this is dcl'd.
   unsigned scale_factor_type_:scale_factor_bits;
-  unsigned tr_index_:TransRiseFall::index_bit_count;
+  unsigned tr_index_:RiseFall::index_bit_count;
   bool is_scaled_:1;
 
 private:

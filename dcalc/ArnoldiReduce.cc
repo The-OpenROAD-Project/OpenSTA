@@ -139,7 +139,7 @@ Parasitic *
 ArnoldiReduce::reduceToArnoldi(Parasitic *parasitic,
 			       const Pin *drvr_pin,
 			       float coupling_cap_factor,
-			       const TransRiseFall *tr,
+			       const RiseFall *rf,
 			       const OperatingConditions *op_cond,
 			       const Corner *corner,
 			       const MinMax *cnst_min_max,
@@ -148,7 +148,7 @@ ArnoldiReduce::reduceToArnoldi(Parasitic *parasitic,
   parasitic_network_ = reinterpret_cast<ConcreteParasiticNetwork*>(parasitic);
   drvr_pin_ = drvr_pin;
   coupling_cap_factor_ = coupling_cap_factor;
-  tr_ = tr;
+  rf_ = rf;
   op_cond_ = op_cond;
   corner_ = corner;
   cnst_min_max_ = cnst_min_max;
@@ -449,9 +449,9 @@ ArnoldiReduce::pinCapacitance(ParasiticNode *node)
     Port *port = network_->port(pin);
     LibertyPort *lib_port = network_->libertyPort(port);
     if (lib_port)
-      pin_cap = sdc_->pinCapacitance(pin,tr_, op_cond_, corner_, cnst_min_max_);
+      pin_cap = sdc_->pinCapacitance(pin,rf_, op_cond_, corner_, cnst_min_max_);
     else if (network_->isTopLevelPort(pin))
-      pin_cap = sdc_->portExtCap(port, tr_, cnst_min_max_);
+      pin_cap = sdc_->portExtCap(port, rf_, cnst_min_max_);
   }
   return pin_cap;
 }

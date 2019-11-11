@@ -25,8 +25,8 @@
 
 namespace sta {
 
-class TransRiseFall;
-class TransRiseFallBoth;
+class RiseFall;
+class RiseFallBoth;
 class MinMaxAll;
 class Network;
 class Pin;
@@ -67,7 +67,8 @@ public:
   const MinMaxAll *minMax() const { return min_max_; }
   virtual bool matches(const MinMax *min_max,
 		       bool exact) const;
-  bool matchesFirstPt(const TransRiseFall *to_tr, const MinMax *min_max);
+  bool matchesFirstPt(const RiseFall *to_rf,
+		      const MinMax *min_max);
   ExceptionState *firstState();
   virtual bool resetMatch(ExceptionFrom *from,
 			  ExceptionThruSeq *thrus,
@@ -323,13 +324,13 @@ private:
 class ExceptionPt
 {
 public:
-  ExceptionPt(const TransRiseFallBoth *tr,
+  ExceptionPt(const RiseFallBoth *rf,
 	      bool own_pts);
   virtual ~ExceptionPt() {};
   virtual bool isFrom() const { return false; }
   virtual bool isThru() const { return false; }
   virtual bool isTo() const { return false; }
-  const TransRiseFallBoth *transition() const { return tr_; }
+  const RiseFallBoth *transition() const { return rf_; }
   virtual PinSet *pins() = 0;
   virtual ClockSet *clks() = 0;
   virtual InstanceSet *instances() = 0;
@@ -355,7 +356,7 @@ public:
 				   Network *network) = 0;
 
 protected:
-  const TransRiseFallBoth *tr_;
+  const RiseFallBoth *rf_;
   // True when the pin/net/inst/edge sets are owned by the exception point.
   bool own_pts_;
   // Hash is cached because there may be many objects to speed up
@@ -378,7 +379,7 @@ class ExceptionFromTo : public ExceptionPt
 public:
   ExceptionFromTo(PinSet *pins, ClockSet *clks,
 		  InstanceSet *insts,
-		  const TransRiseFallBoth *tr,
+		  const RiseFallBoth *rf,
 		  bool own_pts);
   ~ExceptionFromTo();
   virtual PinSet *pins() { return pins_; }
@@ -431,7 +432,7 @@ public:
   ExceptionFrom(PinSet *pins,
 		ClockSet *clks,
 		InstanceSet *insts,
-		const TransRiseFallBoth *tr,
+		const RiseFallBoth *rf,
 		bool own_pts);
   ExceptionFrom *clone();
   virtual bool isFrom() const { return true; }
@@ -453,39 +454,39 @@ public:
 	      ClockSet *clks,
 	      InstanceSet *insts,
 	      // -to|-rise_to|-fall_to
-	      const TransRiseFallBoth *tr,
+	      const RiseFallBoth *rf,
 	      // -rise|-fall endpoint transition.
-	      const TransRiseFallBoth *end_tr,
+	      const RiseFallBoth *end_rf,
 	      bool own_pts);
   ExceptionTo *clone();
   virtual bool isTo() const { return true; }
   const char *asString(const Network *network) const;
-  const TransRiseFallBoth *endTransition() { return end_tr_; }
+  const RiseFallBoth *endTransition() { return end_rf_; }
   bool intersectsPts(ExceptionTo *to) const;
   virtual int typePriority() const { return 1; }
   bool matches(const Pin *pin,
  	       const ClockEdge *clk_edge, 
- 	       const TransRiseFall *end_tr,
+ 	       const RiseFall *end_rf,
  	       const Network *network) const;
   bool matches(const Pin *pin,
-	       const TransRiseFall *end_tr) const;
+	       const RiseFall *end_rf) const;
   bool matches(const Clock *clk) const;
   bool matchesFilter(const Pin *pin,
 		     const ClockEdge *clk_edge,
-		     const TransRiseFall *end_tr,
+		     const RiseFall *end_rf,
 		     const Network *network) const;
   virtual int nameCmp(ExceptionPt *pt, const Network *network) const;
 
 protected:
   bool matches(const Pin *pin,
 	       const ClockEdge *clk_edge,
-	       const TransRiseFall *end_tr,
+	       const RiseFall *end_rf,
 	       bool inst_matches_reg_clk_pin,
 	       const Network *network) const;
   virtual const char *cmdKeyword() const;
 
   // -rise|-fall endpoint transition.
-  const TransRiseFallBoth *end_tr_;
+  const RiseFallBoth *end_rf_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(ExceptionTo);
@@ -497,7 +498,7 @@ public:
   ExceptionThru(PinSet *pins,
 		NetSet *nets,
 		InstanceSet *insts,
-		const TransRiseFallBoth *tr,
+		const RiseFallBoth *rf,
 		bool own_pts,
 		const Network *network);
   ~ExceptionThru();
@@ -515,7 +516,7 @@ public:
 		       PinSet *pins);
   bool matches(const Pin *from_pin,
 	       const Pin *to_pin,
-	       const TransRiseFall *to_tr,
+	       const RiseFall *to_rf,
 	       const Network *network);
   bool equal(ExceptionThru *thru) const;
   virtual int nameCmp(ExceptionPt *pt,
@@ -637,7 +638,7 @@ public:
   ExceptionPath *exception() { return exception_; }
   bool matchesNextThru(const Pin *from_pin,
 		       const Pin *to_pin,
-		       const TransRiseFall *to_tr,
+		       const RiseFall *to_rf,
 		       const MinMax *min_max,
 		       const Network *network) const;
   bool isComplete() const;

@@ -114,7 +114,7 @@ public:
   virtual ~ArnoldiDelayCalc();
   virtual ArcDelayCalc *copy();
   virtual Parasitic *findParasitic(const Pin *drvr_pin,
-				   const TransRiseFall *tr,
+				   const RiseFall *rf,
 				   const DcalcAnalysisPt *dcalc_ap);
   virtual void gateDelay(const LibertyCell *drvr_cell,
 			 TimingArc *arc,
@@ -134,7 +134,7 @@ public:
 			 Slew &load_slew);
   virtual void inputPortDelay(const Pin *port_pin,
 			      float in_slew,
-			      const TransRiseFall *tr,
+			      const RiseFall *rf,
 			      Parasitic *parasitic,
 			      const DcalcAnalysisPt *dcalc_ap);
   virtual void reportGateDelay(const LibertyCell *drvr_cell,
@@ -260,7 +260,7 @@ ArnoldiDelayCalc::~ArnoldiDelayCalc()
 
 Parasitic *
 ArnoldiDelayCalc::findParasitic(const Pin *drvr_pin,
-				const TransRiseFall *drvr_tr,
+				const RiseFall *drvr_rf,
 				const DcalcAnalysisPt *dcalc_ap)
 {
   // set_load has precidence over parasitics.
@@ -278,7 +278,7 @@ ArnoldiDelayCalc::findParasitic(const Pin *drvr_pin,
       if (wireload) {
 	float pin_cap, wire_cap, fanout;
 	bool has_wire_cap;
-	graph_delay_calc_->netCaps(drvr_pin, drvr_tr, dcalc_ap,
+	graph_delay_calc_->netCaps(drvr_pin, drvr_rf, dcalc_ap,
 				   pin_cap, wire_cap, fanout, has_wire_cap);
 	parasitic_network = parasitics_->makeWireloadNetwork(drvr_pin, wireload,
 							     fanout, op_cond,
@@ -292,7 +292,7 @@ ArnoldiDelayCalc::findParasitic(const Pin *drvr_pin,
 	reduce_->reduceToArnoldi(parasitic_network,
 				 drvr_pin,
 				 parasitic_ap->couplingCapFactor(),
-				 drvr_tr, op_cond, corner,
+				 drvr_rf, op_cond, corner,
 				 cnst_min_max, parasitic_ap);
       if (delete_parasitic_network) {
 	Net *net = network_->net(drvr_pin);
@@ -308,11 +308,11 @@ ArnoldiDelayCalc::findParasitic(const Pin *drvr_pin,
 void
 ArnoldiDelayCalc::inputPortDelay(const Pin *drvr_pin,
 				 float in_slew,
-				 const TransRiseFall *tr,
+				 const RiseFall *rf,
 				 Parasitic *parasitic,
 				 const DcalcAnalysisPt *dcalc_ap)
 {
-  RCDelayCalc::inputPortDelay(drvr_pin, in_slew, tr, parasitic, dcalc_ap);
+  RCDelayCalc::inputPortDelay(drvr_pin, in_slew, rf, parasitic, dcalc_ap);
   rcmodel_ = nullptr;
   _delayV[0] = 0.0;
   _slewV[0] = in_slew;
@@ -332,9 +332,9 @@ ArnoldiDelayCalc::inputPortDelay(const Pin *drvr_pin,
 
     pin_n_ = rcmodel_->n;
     double slew_derate = drvr_library_->slewDerateFromLibrary();
-    double lo_thresh = drvr_library_->slewLowerThreshold(drvr_tr_);
-    double hi_thresh = drvr_library_->slewUpperThreshold(drvr_tr_);
-    bool rising = (drvr_tr_ == TransRiseFall::rise());
+    double lo_thresh = drvr_library_->slewLowerThreshold(drvr_rf_);
+    double hi_thresh = drvr_library_->slewUpperThreshold(drvr_rf_);
+    bool rising = (drvr_rf_ == RiseFall::rise());
     delay_work_set_thresholds(delay_work_, lo_thresh, hi_thresh, rising,
 			      slew_derate);
     delay_c *c = delay_work_->c;
@@ -362,7 +362,7 @@ ArnoldiDelayCalc::gateDelay(const LibertyCell *drvr_cell,
 			    Slew &drvr_slew)
 {
   input_port_ = false;
-  drvr_tr_ = arc->toTrans()->asRiseFall();
+  drvr_rf_ = arc->toTrans()->asRiseFall();
   drvr_library_ = drvr_cell->libertyLibrary();
   drvr_parasitic_ = drvr_parasitic;
   ConcreteParasitic *drvr_cparasitic =
@@ -403,9 +403,9 @@ ArnoldiDelayCalc::gateDelaySlew(const LibertyCell *drvr_cell,
   pin_n_ = rcmodel_->n;
   if (table_model) {
     double slew_derate = drvr_library_->slewDerateFromLibrary();
-    double lo_thresh = drvr_library_->slewLowerThreshold(drvr_tr_);
-    double hi_thresh = drvr_library_->slewUpperThreshold(drvr_tr_);
-    bool rising = (drvr_tr_ == TransRiseFall::rise());
+    double lo_thresh = drvr_library_->slewLowerThreshold(drvr_rf_);
+    double hi_thresh = drvr_library_->slewUpperThreshold(drvr_rf_);
+    bool rising = (drvr_rf_ == RiseFall::rise());
     delay_work_set_thresholds(delay_work_, lo_thresh, hi_thresh, rising,
 			      slew_derate);
     if (rcmodel_->order > 0) {

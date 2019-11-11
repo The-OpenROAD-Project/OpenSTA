@@ -52,8 +52,8 @@ public:
   virtual ClockEdge *clkEdge(const StaState *sta) const;
   virtual Clock *clock(const StaState *sta) const;
   virtual bool isClock(const StaState *sta) const;
-  virtual const TransRiseFall *transition(const StaState *sta) const = 0;
-  virtual int trIndex(const StaState *sta) const;
+  virtual const RiseFall *transition(const StaState *sta) const = 0;
+  virtual int rfIndex(const StaState *sta) const;
   virtual const MinMax *minMax(const StaState *sta) const;
   virtual PathAnalysisPt *pathAnalysisPt(const StaState *sta) const = 0;
   virtual PathAPIndex pathAnalysisPtIndex(const StaState *sta) const;

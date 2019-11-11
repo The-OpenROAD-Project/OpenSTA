@@ -237,14 +237,14 @@ public:
 			   TimingArc *prev_arc);
   virtual bool visitFromToPath(const Pin *from_pin,
 			       Vertex *from_vertex,
-			       const TransRiseFall *from_tr,
+			       const RiseFall *from_rf,
 			       Tag *from_tag,
 			       PathVertex *from_path,
 			       Edge *edge,
 			       TimingArc *arc,
 			       ArcDelay arc_delay,
 			       Vertex *to_vertex,
-			       const TransRiseFall *to_tr,
+			       const RiseFall *to_rf,
 			       Tag *to_tag,
 			       Arrival &to_arrival,
 			       const MinMax *min_max,
@@ -264,7 +264,7 @@ private:
   Slack path_end_slack_;
   PathRef &before_div_;
   bool unique_pins_;
-  int before_div_tr_index_;
+  int before_div_rf_index_;
   Tag *before_div_tag_;
   PathAPIndex before_div_ap_index_;
   Arrival before_div_arrival_;
@@ -283,7 +283,7 @@ PathEnumFaninVisitor::PathEnumFaninVisitor(PathEnd *path_end,
   path_end_slack_(path_end->slack(sta_)),
   before_div_(before_div),
   unique_pins_(unique_pins),
-  before_div_tr_index_(before_div_.trIndex(sta_)),
+  before_div_rf_index_(before_div_.rfIndex(sta_)),
   before_div_tag_(before_div_.tag(sta_)),
   before_div_ap_index_(before_div_.pathAnalysisPtIndex(sta_)),
   before_div_arrival_(before_div_.arrival(sta_)),
@@ -297,7 +297,7 @@ PathEnumFaninVisitor::visitFaninPathsThru(Vertex *vertex,
 					  Vertex *prev_vertex,
 					  TimingArc *prev_arc)
 {
-  before_div_tr_index_ = before_div_.trIndex(sta_);
+  before_div_rf_index_ = before_div_.rfIndex(sta_);
   before_div_tag_ = before_div_.tag(sta_);
   before_div_ap_index_ = before_div_.pathAnalysisPtIndex(sta_);
   before_div_arrival_ = before_div_.arrival(sta_);
@@ -316,14 +316,14 @@ PathEnumFaninVisitor::copy()
 bool
 PathEnumFaninVisitor::visitFromToPath(const Pin *,
 				      Vertex *from_vertex,
-				      const TransRiseFall *,
+				      const RiseFall *,
 				      Tag *,
 				      PathVertex *from_path,
 				      Edge *edge,
 				      TimingArc *arc,
 				      ArcDelay,
 				      Vertex *to_vertex,
-				      const TransRiseFall *to_tr,
+				      const RiseFall *to_rf,
 				      Tag *to_tag,
 				      Arrival &to_arrival,
 				      const MinMax *min_max,
@@ -333,11 +333,11 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
   debugPrint4(debug, "path_enum", 3, "visit fanin %s -> %s %s %s\n",
 	      from_path->name(sta_),
 	      to_vertex->name(sta_->network()),
-	      to_tr->asString(),
+	      to_rf->asString(),
 	      delayAsString(sta_->search()->deratedDelay(from_vertex, arc, edge,
 							 false,path_ap),sta_));
   // These paths fanin to before_div_ so we know to_vertex matches.
-  if (to_tr->index() == before_div_tr_index_
+  if (to_rf->index() == before_div_rf_index_
       && path_ap->index() == before_div_ap_index_
       && arc != prev_arc_
       && (!unique_pins_ || from_vertex != prev_vertex_)
