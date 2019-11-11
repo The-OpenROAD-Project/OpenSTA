@@ -249,7 +249,7 @@ Path::equal(const Path *path1,
 {
   return (path1
 	  && path2
-	  && path1->vertexIndex(sta) == path2->vertexIndex(sta)
+	  && path1->vertexId(sta) == path2->vertexId(sta)
 	  // Tag equal implies transition and path ap equal.
 	  && path1->tagIndex(sta) == path2->tagIndex(sta))
     || ((path1 == nullptr || path1->isNull())
@@ -284,9 +284,9 @@ Path::cmp(const Path *path1,
 	  const StaState *sta)
 {
   if (path1 && path2) {
-    VertexIndex vertex_index1 = path1->vertexIndex(sta);
-    VertexIndex vertex_index2 = path2->vertexIndex(sta);
-    if (vertex_index1 == vertex_index2) {
+    VertexId vertex_id1 = path1->vertexId(sta);
+    VertexId vertex_id2 = path2->vertexId(sta);
+    if (vertex_id1 == vertex_id2) {
       TagIndex tag_index1 = path1->tagIndex(sta);
       TagIndex tag_index2 = path2->tagIndex(sta);
       if (tag_index1 == tag_index2)
@@ -296,7 +296,7 @@ Path::cmp(const Path *path1,
       else
 	return 1;
     }
-    else if (vertex_index1 < vertex_index2)
+    else if (vertex_id1 < vertex_id2)
       return -1;
     else
       return 1;
@@ -315,11 +315,11 @@ Path::cmpNoCrpr(const Path *path1,
 		const Path *path2,
 		const StaState *sta)
 {
-  VertexIndex vertex_index1 = path1->vertexIndex(sta);
-  VertexIndex vertex_index2 = path2->vertexIndex(sta);
-  if (vertex_index1 == vertex_index2)
+  VertexId vertex_id1 = path1->vertexId(sta);
+  VertexId vertex_id2 = path2->vertexId(sta);
+  if (vertex_id1 == vertex_id2)
     return tagMatchCmp(path1->tag(sta), path2->tag(sta), false, sta);
-  else if (vertex_index1 < vertex_index2)
+  else if (vertex_id1 < vertex_id2)
     return -1;
   else
     return 1;

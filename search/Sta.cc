@@ -3184,11 +3184,11 @@ Vertex *
 Sta::maxArrivalCountVertex() const
 {
   Vertex *max_vertex = nullptr;
-  VertexIndex max_count = 0;
+  int max_count = 0;
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
-    VertexIndex count = vertexArrivalCount(vertex);
+    int count = vertexArrivalCount(vertex);
     if (count > max_count) {
       max_count = count;
       max_vertex = vertex;
@@ -3919,7 +3919,7 @@ Sta::connectPinAfter(Pin *pin)
     }
     else {
       Vertex *vertex, *bidir_drvr_vertex;
-      if (network_->vertexIndex(pin) == vertex_id_null) {
+      if (network_->vertexId(pin) == vertex_id_null) {
 	graph_->makePinVertices(pin, vertex, bidir_drvr_vertex);
 	graph_->makePinInstanceEdges(pin);
       }

@@ -16,7 +16,7 @@
 
 cmake_minimum_required (VERSION 3.9)
 
-project(STA VERSION 2.0.16)
+project(STA VERSION 2.0.17)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 11)
@@ -375,7 +375,6 @@ set(STA_HEADERS
   util/MinMax.hh
   util/Mutex.hh
   util/ObjectId.hh
-  util/ObjectIndex.hh
   util/ObjectTable.hh
   util/PatternMatch.hh
   util/Report.hh

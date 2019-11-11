@@ -76,10 +76,10 @@ ClkInfo::findHash(const StaState *sta)
 
   const Network *network = sta->network();
   if (clk_src_)
-    hashIncr(hash_, network->vertexIndex(clk_src_));
+    hashIncr(hash_, network->vertexId(clk_src_));
   if (gen_clk_src_)
-    hashIncr(hash_, network->vertexIndex(gen_clk_src_));
-  hashIncr(hash_, crprClkVertexIndex());
+    hashIncr(hash_, network->vertexId(gen_clk_src_));
+  hashIncr(hash_, crprClkVertexId());
   if (uncertainties_) {
     float uncertainty;
     bool exists;
@@ -99,13 +99,13 @@ ClkInfo::findHash(const StaState *sta)
   hashIncr(hash_, path_ap_index_);
 }
 
-VertexIndex
-ClkInfo::crprClkVertexIndex() const
+VertexId
+ClkInfo::crprClkVertexId() const
 {
   if (crpr_clk_path_.isNull())
     return 0;
   else
-    return crpr_clk_path_.vertexIndex();
+    return crpr_clk_path_.vertexId();
 }
 
 const char *

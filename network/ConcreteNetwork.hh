@@ -131,9 +131,9 @@ public:
   virtual Term *term(const Pin *pin) const;
   virtual Port *port(const Pin *pin) const;
   virtual PortDirection *direction(const Pin *pin) const;
-  virtual VertexId vertexIndex(const Pin *pin) const;
-  virtual void setVertexIndex(Pin *pin,
-			      VertexId id);
+  virtual VertexId vertexId(const Pin *pin) const;
+  virtual void setVertexId(Pin *pin,
+			   VertexId id);
 
   virtual Net *net(const Term *term) const;
   virtual Pin *pin(const Term *term) const;

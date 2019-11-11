@@ -26,15 +26,15 @@ namespace sta {
 class PathEnumed : public Path
 {
 public:
-  PathEnumed(VertexIndex vertex_index,
+  PathEnumed(VertexId vertex_id,
 	     TagIndex tag_index,
 	     Arrival arrival,
 	     PathEnumed *prev_path,
 	     TimingArc *prev_arc);
   virtual void setRef(PathRef *ref) const;
-  virtual bool isNull() const { return vertex_index_ == 0; }
+  virtual bool isNull() const { return vertex_id_ == 0; }
   virtual Vertex *vertex(const StaState *sta) const;
-  virtual VertexIndex vertexIndex(const StaState *sta) const;
+  virtual VertexId vertexId(const StaState *sta) const;
   virtual Tag *tag(const StaState *sta) const;
   virtual const TransRiseFall *transition(const StaState *sta) const;
   virtual int trIndex(const StaState *) const;
@@ -65,7 +65,7 @@ protected:
   PathEnumed *prev_path_;
   TimingArc *prev_arc_;
   Arrival arrival_;
-  VertexIndex vertex_index_;
+  VertexId vertex_id_;
   unsigned int tag_index_:tag_index_bits;
 
 private:

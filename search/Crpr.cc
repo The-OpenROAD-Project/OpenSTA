@@ -68,7 +68,7 @@ CheckCrpr::clkPathPrev(Vertex *vertex,
     if (prev->isNull())
       return nullptr;
     else {
-      tmp.init(graph_->vertex(prev->vertexIndex()),
+      tmp.init(graph_->vertex(prev->vertexId()),
 	       search_->tag(prev->tagIndex()), this);
       return &tmp;
     }

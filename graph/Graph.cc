@@ -79,9 +79,9 @@ Graph::makeGraph()
 void
 Graph::makeVerticesAndEdges()
 {
-  VertexIndex vertex_count;
-  EdgeIndex edge_count;
-  ArcIndex arc_count;
+  int vertex_count;
+  int edge_count;
+  int arc_count;
   vertexAndEdgeCounts(vertex_count, edge_count, arc_count);
   vertices_ = new VertexTable;
   edges_ = new EdgeTable;
@@ -100,9 +100,9 @@ Graph::makeVerticesAndEdges()
 
 void
 Graph::vertexAndEdgeCounts(// Return values.
-			   VertexIndex &vertex_count,
-			   EdgeIndex &edge_count,
-			   ArcIndex &arc_count)
+			   int &vertex_count,
+			   int &edge_count,
+			   int &arc_count)
 {
   vertex_count = edge_count = arc_count = 0;
   PinSet visited_drvrs;
@@ -121,9 +121,9 @@ void
 Graph::vertexAndEdgeCounts(const Instance *inst,
 			   PinSet &visited_drvrs,
 			   // Return values.
-			   VertexIndex &vertex_count,
-			   EdgeIndex &edge_count,
-			   ArcIndex &arc_count)
+			   int &vertex_count,
+			   int &edge_count,
+			   int &arc_count)
 {
   LibertyCell *cell = network_->libertyCell(inst);
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
@@ -221,8 +221,8 @@ void
 Graph::drvrPinEdgeCounts(Pin *drvr_pin,
 			 PinSet &visited_drvrs,
 			 // Return values.
-			 EdgeIndex &edge_count,
-			 ArcIndex &arc_count)
+			 int &edge_count,
+			 int &arc_count)
 {
   if (!visited_drvrs.findKey(drvr_pin)) {
     int drvr_count = 0;
@@ -444,13 +444,13 @@ Graph::makeWireEdge(Pin *from_pin,
 ////////////////////////////////////////////////////////////////
 
 Vertex *
-Graph::vertex(VertexIndex vertex_index) const
+Graph::vertex(VertexId vertex_id) const
 {
-  return vertices_->pointer(vertex_index);
+  return vertices_->pointer(vertex_id);
 }
 
-VertexIndex
-Graph::index(const Vertex *vertex) const
+VertexId
+Graph::id(const Vertex *vertex) const
 {
   return vertices_->objectId(vertex);
 }
@@ -471,7 +471,7 @@ Graph::makePinVertices(Pin *pin,
   if (!dir->isPowerGround()) {
     bool is_reg_clk = network_->isRegClkPin(pin);
     vertex = makeVertex(pin, false, is_reg_clk);
-    network_->setVertexIndex(pin, index(vertex));
+    network_->setVertexId(pin, id(vertex));
     if (dir->isBidirect()) {
       bidir_drvr_vertex = makeVertex(pin, true, is_reg_clk);
       pin_bidirect_drvr_vertex_map_[pin] = bidir_drvr_vertex;
@@ -500,7 +500,7 @@ Graph::pinVertices(const Pin *pin,
 		   Vertex *&vertex,
 		   Vertex *&bidirect_drvr_vertex)  const
 {
-  vertex = Graph::vertex(network_->vertexIndex(pin));
+  vertex = Graph::vertex(network_->vertexId(pin));
   if (network_->direction(pin)->isBidirect())
     bidirect_drvr_vertex = pin_bidirect_drvr_vertex_map_.findKey(pin);
   else
@@ -513,13 +513,13 @@ Graph::pinDrvrVertex(const Pin *pin) const
   if (network_->direction(pin)->isBidirect())
     return pin_bidirect_drvr_vertex_map_.findKey(pin);
   else
-    return Graph::vertex(network_->vertexIndex(pin));
+    return Graph::vertex(network_->vertexId(pin));
 }
 
 Vertex *
 Graph::pinLoadVertex(const Pin *pin) const
 {
-  return vertex(network_->vertexIndex(pin));
+  return vertex(network_->vertexId(pin));
 }
 
 void
@@ -532,20 +532,20 @@ Graph::deleteVertex(Vertex *vertex)
     pin_bidirect_drvr_vertex_map_.erase(pin_bidirect_drvr_vertex_map_
 					.find(pin));
   else
-    network_->setVertexIndex(pin, vertex_id_null);
+    network_->setVertexId(pin, vertex_id_null);
   // Delete edges to vertex.
-  EdgeIndex edge_index, next_index;
-  for (edge_index = vertex->in_edges_; edge_index; edge_index = next_index) {
-    Edge *edge = Graph::edge(edge_index);
-    next_index = edge->vertex_in_link_;
+  EdgeId edge_id, next_id;
+  for (edge_id = vertex->in_edges_; edge_id; edge_id = next_id) {
+    Edge *edge = Graph::edge(edge_id);
+    next_id = edge->vertex_in_link_;
     deleteOutEdge(edge->from(this), edge);
     arc_count_ -= edge->timingArcSet()->arcCount();
     edges_->destroy(edge);
   }
   // Delete edges from vertex.
-  for (edge_index = vertex->out_edges_; edge_index; edge_index = next_index) {
-    Edge *edge = Graph::edge(edge_index);
-    next_index = edge->vertex_out_next_;
+  for (edge_id = vertex->out_edges_; edge_id; edge_id = next_id) {
+    Edge *edge = Graph::edge(edge_id);
+    next_id = edge->vertex_out_next_;
     deleteInEdge(edge->to(this), edge);
     arc_count_ -= edge->timingArcSet()->arcCount();
     edges_->destroy(edge);
@@ -564,10 +564,10 @@ void
 Graph::deleteInEdge(Vertex *vertex,
 		    Edge *edge)
 {
-  EdgeIndex edge_index = index(edge);
-  EdgeIndex prev = 0;
-  for (EdgeIndex i = vertex->in_edges_;
-       i && i != edge_index;
+  EdgeId edge_id = id(edge);
+  EdgeId prev = 0;
+  for (EdgeId i = vertex->in_edges_;
+       i && i != edge_id;
        i = Graph::edge(i)->vertex_in_link_)
     prev = i;
   if (prev)
@@ -580,8 +580,8 @@ void
 Graph::deleteOutEdge(Vertex *vertex,
 		     Edge *edge)
 {
-  EdgeIndex next = edge->vertex_out_next_;
-  EdgeIndex prev = edge->vertex_out_prev_;
+  EdgeId next = edge->vertex_out_next_;
+  EdgeId prev = edge->vertex_out_prev_;
   if (prev)
     Graph::edge(prev)->vertex_out_next_ = next;
   else
@@ -651,8 +651,8 @@ Graph::slew(const Vertex *vertex,
     int table_index =
       (slew_tr_count_ == 1) ? ap_index : ap_index*slew_tr_count_+tr->index();
     DelayTable *table = slew_tables_[table_index];
-    VertexIndex vertex_index = index(vertex);
-    return table->ref(vertex_index);
+    VertexId vertex_id = id(vertex);
+    return table->ref(vertex_id);
   }
   else {
     static Slew slew(0.0);
@@ -670,8 +670,8 @@ Graph::setSlew(Vertex *vertex,
     int table_index =
       (slew_tr_count_ == 1) ? ap_index : ap_index*slew_tr_count_+tr->index();
     DelayTable *table = slew_tables_[table_index];
-    VertexIndex vertex_index = index(vertex);
-    Slew &vertex_slew = table->ref(vertex_index);
+    VertexId vertex_id = id(vertex);
+    Slew &vertex_slew = table->ref(vertex_id);
     vertex_slew = slew;
   }
 }
@@ -679,13 +679,13 @@ Graph::setSlew(Vertex *vertex,
 ////////////////////////////////////////////////////////////////
 
 Edge *
-Graph::edge(EdgeIndex edge_index) const
+Graph::edge(EdgeId edge_id) const
 {
-  return edges_->pointer(edge_index);
+  return edges_->pointer(edge_id);
 }
 
-EdgeIndex
-Graph::index(const Edge *edge) const
+EdgeId
+Graph::id(const Edge *edge) const
 {
   return edges_->objectId(edge);
 }
@@ -696,7 +696,7 @@ Graph::makeEdge(Vertex *from,
 		TimingArcSet *arc_set)
 {
   Edge *edge = edges_->make();
-  edge->init(index(from), index(to), arc_set);
+  edge->init(id(from), id(to), arc_set);
   makeEdgeArcDelays(edge);
   arc_count_ += arc_set->arcCount();
   // Add out edge to from vertex.
@@ -727,7 +727,7 @@ Graph::deleteEdge(Edge *edge)
 }
 
 void
-Graph::makeArcDelayTables(ArcIndex arc_count,
+Graph::makeArcDelayTables(int arc_count,
 			  DcalcAPIndex ap_count)
 {
   if (have_arc_delays_) {
@@ -754,17 +754,17 @@ Graph::makeEdgeArcDelays(Edge *edge)
 {
   if (have_arc_delays_) {
     int arc_count = edge->timingArcSet()->arcCount();
-    ArcIndex arc_index = 0;
+    ArcId arc_id = 0;
     for (DcalcAPIndex i = 0; i < ap_count_; i++) {
       DelayTable *table = arc_delays_[i];
       ArcDelay *arc_delays;
-      table->make(arc_count, arc_delays, arc_index);
+      table->make(arc_count, arc_delays, arc_id);
       for (int j = 0; j < arc_count; j++)
 	arc_delays[j] = 0.0;
     }
-    edge->setArcDelays(arc_index);
+    edge->setArcDelays(arc_id);
     // Make sure there is room for delay_annotated flags.
-    size_t max_annot_index = (arc_index + arc_count) * ap_count_;
+    size_t max_annot_index = (arc_id + arc_count) * ap_count_;
     if (max_annot_index >= arc_delay_annotated_.size()) {
       size_t size = max_annot_index * 1.2;
       arc_delay_annotated_.resize(size);
@@ -1349,8 +1349,8 @@ Edge::Edge()
 }
 
 void
-Edge::init(VertexIndex from,
-	   VertexIndex to,
+Edge::init(VertexId from,
+	   VertexId to,
 	   TimingArcSet *arc_set)
 {
   from_ = from;
@@ -1383,7 +1383,7 @@ Edge::setTimingArcSet(TimingArcSet *set)
 }
 
 void
-Edge::setArcDelays(ArcIndex arc_delays)
+Edge::setArcDelays(ArcId arc_delays)
 {
   arc_delays_ = arc_delays;
 }
@@ -1515,7 +1515,7 @@ VertexIterator::findNextPin()
 {
   while (pin_iter_->hasNext()) {
     Pin *pin = pin_iter_->next();
-    vertex_ = graph_->vertex(network_->vertexIndex(pin));
+    vertex_ = graph_->vertex(network_->vertexId(pin));
     bidir_vertex_ = network_->direction(pin)->isBidirect() 
       ? graph_->pin_bidirect_drvr_vertex_map_.findKey(pin)
       : nullptr;
@@ -1558,9 +1558,9 @@ VertexInEdgeIterator::VertexInEdgeIterator(Vertex *vertex,
 {
 }
 
-VertexInEdgeIterator::VertexInEdgeIterator(VertexIndex vertex_index,
+VertexInEdgeIterator::VertexInEdgeIterator(VertexId vertex_id,
 					   const Graph *graph) :
-  next_(graph->edge(graph->vertex(vertex_index)->in_edges_)),
+  next_(graph->edge(graph->vertex(vertex_id)->in_edges_)),
   graph_(graph)
 {
 }

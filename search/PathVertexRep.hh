@@ -34,7 +34,7 @@ public:
 			 const StaState *sta);
   explicit PathVertexRep(const PathVertex &path,
 			 const StaState *sta);
-  explicit PathVertexRep(VertexIndex vertex_index,
+  explicit PathVertexRep(VertexId vertex_id,
 			 TagIndex tag_index,
 			 bool is_enum);
   void init();
@@ -44,9 +44,9 @@ public:
 	    const StaState *sta);
   void init(const PathVertex &path,
 	    const StaState *sta);
-  bool isNull() const { return vertex_index_ == 0; }
+  bool isNull() const { return vertex_id_ == 0; }
   Vertex *vertex(const StaState *) const;
-  VertexIndex vertexIndex() const { return vertex_index_; }
+  VertexId vertexId() const { return vertex_id_; }
   Tag *tag(const StaState *sta) const;
   TagIndex tagIndex() const { return tag_index_; }
   Arrival arrival(const StaState *sta) const;
@@ -65,7 +65,7 @@ public:
 		 const PathVertexRep &path2);
 
 protected:
-  VertexIndex vertex_index_;
+  VertexId vertex_id_;
   unsigned int tag_index_:tag_index_bits;
   bool is_enum_:1;
 

@@ -62,7 +62,7 @@ public:
   const PathVertexRep &crprClkPath() const { return crpr_clk_path_; }
   const Pin *crprClkPin(const StaState *sta) const;
   // Much faster than crprClkPin.
-  VertexIndex crprClkVertexIndex() const;
+  VertexId crprClkVertexId() const;
   // Much faster than crprClkPin != nullptr
   bool hasCrprClkPin() const { return !crpr_clk_path_.isNull(); }
   bool refsFilter(const StaState *sta) const;

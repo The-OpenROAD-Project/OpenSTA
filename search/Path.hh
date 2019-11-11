@@ -44,7 +44,7 @@ public:
   virtual void setRef(PathRef *ref) const = 0;
   virtual void setRef(PathRef &ref) const { setRef(&ref); }
   virtual Vertex *vertex(const StaState *sta) const = 0;
-  virtual VertexIndex vertexIndex(const StaState *sta) const = 0;
+  virtual VertexId vertexId(const StaState *sta) const = 0;
   virtual Pin *pin(const StaState *sta) const;
   virtual Tag *tag(const StaState *sta) const = 0;
   virtual TagIndex tagIndex(const StaState *sta) const;

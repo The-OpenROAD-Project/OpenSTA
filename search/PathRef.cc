@@ -132,13 +132,13 @@ PathRef::vertex(const StaState *sta) const
     return path_vertex_.vertex(sta);
 }
 
-VertexIndex
-PathRef::vertexIndex(const StaState *sta) const
+VertexId
+PathRef::vertexId(const StaState *sta) const
 {
   if (path_enumed_)
-    return path_enumed_->vertexIndex(sta);
+    return path_enumed_->vertexId(sta);
   else
-    return path_vertex_.vertexIndex(sta);
+    return path_vertex_.vertexId(sta);
 }
 
 Tag *

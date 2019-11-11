@@ -50,7 +50,7 @@ public:
   virtual void setRef(PathRef *ref) const;
   virtual bool isNull() const;
   virtual Vertex *vertex(const StaState *sta) const;
-  virtual VertexIndex vertexIndex(const StaState *sta) const;
+  virtual VertexId vertexId(const StaState *sta) const;
   virtual Tag *tag(const StaState *sta) const;
   virtual TagIndex tagIndex(const StaState *sta) const;
   virtual const TransRiseFall *transition(const StaState *sta) const;

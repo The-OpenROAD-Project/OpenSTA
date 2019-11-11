@@ -279,7 +279,7 @@ Tag::matchHash(bool match_crpr_clk_pin) const
 {
   if (match_crpr_clk_pin)
     // match_hash_ with crpr clk pin thrown in.
-    return hashSum(match_hash_, clk_info_->crprClkVertexIndex());
+    return hashSum(match_hash_, clk_info_->crprClkVertexId());
   else
     return match_hash_;
 }
@@ -416,7 +416,7 @@ tagMatch(const Tag *tag1,
 	&& clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
 	&& (!match_crpr_clk_pin
 	    || !sta->sdc()->crprActive()
-	    || clk_info1->crprClkVertexIndex() == clk_info2->crprClkVertexIndex())
+	    || clk_info1->crprClkVertexId() == clk_info2->crprClkVertexId())
 	&& tagStateEqual(tag1, tag2));
 }
 
@@ -477,8 +477,8 @@ tagMatchCmp(const Tag *tag1,
 
   if (match_crpr_clk_pin
       && sta->sdc()->crprActive()) {
-    VertexIndex crpr_vertex1 = clk_info1->crprClkVertexIndex();
-    VertexIndex crpr_vertex2 = clk_info2->crprClkVertexIndex();
+    VertexId crpr_vertex1 = clk_info1->crprClkVertexId();
+    VertexId crpr_vertex2 = clk_info2->crprClkVertexId();
     if (crpr_vertex1 < crpr_vertex2)
       return -1;
     if (crpr_vertex1 > crpr_vertex2)

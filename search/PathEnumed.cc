@@ -25,7 +25,7 @@
 
 namespace sta {
 
-PathEnumed:: PathEnumed(VertexIndex vertex_index,
+PathEnumed:: PathEnumed(VertexId vertex_id,
 		       TagIndex tag_index,
 		       Arrival arrival,
 		       PathEnumed *prev_path,
@@ -34,7 +34,7 @@ PathEnumed:: PathEnumed(VertexIndex vertex_index,
   prev_path_(prev_path),
   prev_arc_(prev_arc),
   arrival_(arrival),
-  vertex_index_(vertex_index),
+  vertex_id_(vertex_id),
   tag_index_(tag_index)
 {
 }
@@ -59,13 +59,13 @@ Vertex *
 PathEnumed::vertex(const StaState *sta) const
 {
   const Graph *graph = sta->graph();
-  return graph->vertex(vertex_index_);
+  return graph->vertex(vertex_id_);
 }
 
-VertexIndex
-PathEnumed::vertexIndex(const StaState *) const
+VertexId
+PathEnumed::vertexId(const StaState *) const
 {
-  return vertex_index_;
+  return vertex_id_;
 }
 
 Tag *

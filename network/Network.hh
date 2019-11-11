@@ -321,9 +321,9 @@ public:
   virtual bool pinLess(const Pin *pin1,
 		       const Pin *pin2) const;
   // Return the id of the pin graph vertex.
-  virtual VertexId vertexIndex(const Pin *pin) const = 0;
-  virtual void setVertexIndex(Pin *pin,
-			      VertexId id) = 0;
+  virtual VertexId vertexId(const Pin *pin) const = 0;
+  virtual void setVertexId(Pin *pin,
+			   VertexId id) = 0;
   int pinCount();
   int pinCount(Instance *inst);
   int leafPinCount();

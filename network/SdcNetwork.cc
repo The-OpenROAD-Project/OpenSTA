@@ -211,16 +211,16 @@ NetworkNameAdapter::direction(const Port *port) const
 }
 
 VertexId
-NetworkNameAdapter::vertexIndex(const Pin *pin) const
+NetworkNameAdapter::vertexId(const Pin *pin) const
 {
-  return network_->vertexIndex(pin);
+  return network_->vertexId(pin);
 }
 
 void
-NetworkNameAdapter::setVertexIndex(Pin *pin,
-				   VertexId id)
+NetworkNameAdapter::setVertexId(Pin *pin,
+				VertexId id)
 {
-  network_->setVertexIndex(pin, id);
+  network_->setVertexId(pin, id);
 }
 
 bool

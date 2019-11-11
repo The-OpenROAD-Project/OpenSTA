@@ -16,6 +16,12 @@
 
 This file summarizes STA API changes for each release.
 
+Release 2.0.17 2019/11/11
+-------------------------
+
+Network::setVertexIndex renamed to setVertexId
+Network::vertexIndex renamed to vertexId
+
 Release 2.0.0 2018/06/11
 -------------------------
 

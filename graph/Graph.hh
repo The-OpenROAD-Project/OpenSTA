@@ -81,8 +81,8 @@ public:
 
   // Vertex functions.
   // Bidirect pins have two vertices.
-  virtual Vertex *vertex(VertexIndex vertex_index) const;
-  VertexIndex index(const Vertex *vertex) const;
+  virtual Vertex *vertex(VertexId vertex_id) const;
+  VertexId id(const Vertex *vertex) const;
   void makePinVertices(Pin *pin);
   void makePinVertices(Pin *pin,
 		       Vertex *&vertex,
@@ -98,7 +98,7 @@ public:
   Vertex *pinLoadVertex(const Pin *pin) const;
   virtual void deleteVertex(Vertex *vertex);
   bool hasFaninOne(Vertex *vertex) const;
-  VertexIndex vertexCount() { return vertices_->size(); }
+  VertexId vertexCount() { return vertices_->size(); }
   Arrival *makeArrivals(Vertex *vertex,
 			uint32_t count);
   Arrival *arrivals(Vertex *vertex) const;
@@ -120,8 +120,8 @@ public:
 		       const Slew &slew);
 
   // Edge functions.
-  virtual Edge *edge(EdgeIndex edge_index) const;
-  EdgeIndex index(const Edge *edge) const;
+  virtual Edge *edge(EdgeId edge_index) const;
+  EdgeId id(const Edge *edge) const;
   virtual Edge *makeEdge(Vertex *from,
 			 Vertex *to,
 			 TimingArcSet *arc_set);
@@ -165,8 +165,8 @@ public:
 			     bool annotated);
   // True if any edge arc is annotated.
   bool delayAnnotated(Edge *edge);
-  EdgeIndex edgeCount() { return edges_->size(); }
-  virtual ArcIndex arcCount() { return arc_count_; }
+  int edgeCount() { return edges_->size(); }
+  virtual int arcCount() { return arc_count_; }
 
   // Sdf width check annotation.
   void widthCheckAnnotation(const Pin *pin,
@@ -196,20 +196,20 @@ public:
 protected:
   void makeVerticesAndEdges();
   void vertexAndEdgeCounts(// Return values.
-			   VertexIndex &vertex_count,
-			   EdgeIndex &edge_count,
-			   ArcIndex &arc_count);
+			   int &vertex_count,
+			   int &edge_count,
+			   int &arc_count);
   virtual void vertexAndEdgeCounts(const Instance *inst,
 				   PinSet &visited_drvrs,
                                    // Return values.
-                                   VertexIndex &vertex_count,
-				   EdgeIndex &edge_count,
-                                   ArcIndex &arc_count);
+				   int &vertex_count,
+				   int &edge_count,
+				   int &arc_count);
   virtual void drvrPinEdgeCounts(Pin *pin,
 				 PinSet &visited_drvrs,
                                  // Return values.
-                                 EdgeIndex &edge_count,
-				 ArcIndex &arc_count);
+                                 int &edge_count,
+				 int &arc_count);
   Vertex *makeVertex(Pin *pin,
 		     bool is_bidirect_drvr,
 		     bool is_reg_clk);
@@ -228,7 +228,7 @@ protected:
   void makeSlewTables(DcalcAPIndex count);
   void deleteSlewTables();
   void makeVertexSlews(Vertex *vertex);
-  void makeArcDelayTables(ArcIndex arc_count,
+  void makeArcDelayTables(int arc_count,
 			  DcalcAPIndex ap_count);
   void deleteArcDelayTables();
   void deleteInEdge(Vertex *vertex,
@@ -247,7 +247,7 @@ protected:
   //  driver/source (top level input, instance pin output) vertex
   //  in pin_bidirect_drvr_vertex_map
   PinVertexMap pin_bidirect_drvr_vertex_map_;
-  ArcIndex arc_count_;
+  int arc_count_;
   ArrivalsTable arrivals_;
   std::mutex arrivals_lock_;
   PrevPathsTable prev_paths_;
@@ -256,8 +256,8 @@ protected:
   int slew_tr_count_;
   bool have_arc_delays_;
   DcalcAPIndex ap_count_;
-  DelayTableSeq slew_tables_;	      // [ap_index][tr_index][vertex_index]
-  VertexIndex slew_count_;
+  DelayTableSeq slew_tables_;	      // [ap_index][tr_index][vertex_id]
+  VertexId slew_count_;
   DelayTableSeq arc_delays_;	      // [ap_index][edge_arc_index]
   // Sdf width check annotations.
   WidthCheckAnnotations *width_check_annotations_;
@@ -353,8 +353,8 @@ protected:
   Pin *pin_;
   ArrivalId arrivals_;
   PrevPathId prev_paths_;
-  EdgeIndex in_edges_;		// Edges to this vertex.
-  EdgeIndex out_edges_;		// Edges from this vertex.
+  EdgeId in_edges_;		// Edges to this vertex.
+  EdgeId out_edges_;		// Edges from this vertex.
 
   // 4 bytes
   unsigned int tag_group_index_:tag_group_index_bits; // 24
@@ -409,8 +409,8 @@ public:
   TimingSense sense() const;
   TimingArcSet *timingArcSet() const { return arc_set_; }
   void setTimingArcSet(TimingArcSet *set);
-  ArcIndex arcDelays() const { return arc_delays_; }
-  void setArcDelays(ArcIndex arc_delays);
+  ArcId arcDelays() const { return arc_delays_; }
+  void setArcDelays(ArcId arc_delays);
   bool delayAnnotationIsIncremental() const;
   void setDelayAnnotationIsIncremental(bool is_incr);
   // Edge is disabled by set_disable_timing constraint.
@@ -437,8 +437,8 @@ public:
   void setObjectIdx(ObjectIdx idx);
 
 protected:
-  void init(VertexIndex from,
-	    VertexIndex to,
+  void init(VertexId from,
+	    VertexId to,
 	    TimingArcSet *arc_set);
 
   TimingArcSet *arc_set_;
@@ -447,7 +447,7 @@ protected:
   EdgeId vertex_in_link_;		// Vertex in edges list.
   EdgeId vertex_out_next_;		// Vertex out edges doubly linked list.
   EdgeId vertex_out_prev_;
-  ArcIndex arc_delays_;
+  ArcId arc_delays_;
   bool delay_annotation_is_incremental_:1;
   bool is_bidirect_inst_path_:1;
   bool is_bidirect_net_path_:1;
@@ -497,7 +497,7 @@ class VertexInEdgeIterator : public VertexEdgeIterator
 public:
   VertexInEdgeIterator(Vertex *vertex,
 		       const Graph *graph);
-  VertexInEdgeIterator(VertexIndex vertex_index,
+  VertexInEdgeIterator(VertexId vertex_id,
 		       const Graph *graph);
   bool hasNext() { return (next_ != nullptr); }
   Edge *next();

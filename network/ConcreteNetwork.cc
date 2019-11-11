@@ -1033,15 +1033,15 @@ ConcreteNetwork::direction(const Pin *pin) const
 }
 
 VertexId
-ConcreteNetwork::vertexIndex(const Pin *pin) const
+ConcreteNetwork::vertexId(const Pin *pin) const
 {
   const ConcretePin *cpin = reinterpret_cast<const ConcretePin*>(pin);
   return cpin->vertexId();
 }
 
 void
-ConcreteNetwork::setVertexIndex(Pin *pin,
-				VertexId id)
+ConcreteNetwork::setVertexId(Pin *pin,
+			     VertexId id)
 {
   ConcretePin *cpin = reinterpret_cast<ConcretePin*>(pin);
   cpin->setVertexId(id);

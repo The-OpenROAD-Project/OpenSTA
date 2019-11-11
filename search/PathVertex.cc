@@ -184,11 +184,11 @@ PathVertex::setRef(PathRef *ref) const
   ref->init(vertex_, tag_, arrival_index_);
 }
 
-VertexIndex
-PathVertex::vertexIndex(const StaState *sta) const
+VertexId
+PathVertex::vertexId(const StaState *sta) const
 {
   const Graph *graph = sta->graph();
-  return graph->index(vertex_);
+  return graph->id(vertex_);
 }
 
 TagIndex

@@ -52,10 +52,10 @@ PathVertexRep::PathVertexRep(const PathVertex &path,
   init(path, sta);
 }
 
-PathVertexRep::PathVertexRep(VertexIndex vertex_index,
+PathVertexRep::PathVertexRep(VertexId vertex_id,
 			     TagIndex tag_index,
 			     bool is_enum) :
-  vertex_index_(vertex_index),
+  vertex_id_(vertex_id),
   tag_index_(tag_index),
   is_enum_(is_enum)
 {
@@ -64,7 +64,7 @@ PathVertexRep::PathVertexRep(VertexIndex vertex_index,
 void
 PathVertexRep::init()
 {
-  vertex_index_ = 0;
+  vertex_id_ = 0;
   tag_index_ = tag_index_null;
   is_enum_ = false;
 }
@@ -73,7 +73,7 @@ void
 PathVertexRep::init(const PathVertexRep *path)
 {
   if (path) {
-    vertex_index_ = path->vertex_index_;
+    vertex_id_ = path->vertex_id_;
     tag_index_ = path->tag_index_;
     is_enum_ = false;
   }
@@ -84,7 +84,7 @@ PathVertexRep::init(const PathVertexRep *path)
 void
 PathVertexRep::init(const PathVertexRep &path)
 {
-  vertex_index_ = path.vertex_index_;
+  vertex_id_ = path.vertex_id_;
   tag_index_ = path.tag_index_;
   is_enum_ = false;
 }
@@ -96,7 +96,7 @@ PathVertexRep::init(const PathVertex *path,
   if (path == nullptr || path->isNull())
     init();
   else {
-    vertex_index_ = sta->graph()->index(path->vertex(sta));
+    vertex_id_ = sta->graph()->id(path->vertex(sta));
     tag_index_ = path->tag(sta)->index();
     is_enum_ = false;
   }
@@ -109,7 +109,7 @@ PathVertexRep::init(const PathVertex &path,
   if (path.isNull())
     init();
   else {
-    vertex_index_ = sta->graph()->index(path.vertex(sta));
+    vertex_id_ = sta->graph()->id(path.vertex(sta));
     tag_index_ = path.tag(sta)->index();
     is_enum_ = false;
   }
@@ -119,7 +119,7 @@ Vertex *
 PathVertexRep::vertex(const StaState *sta) const
 {
   const Graph *graph = sta->graph();
-  return graph->vertex(vertex_index_);
+  return graph->vertex(vertex_id_);
 }
 
 Tag *
@@ -135,7 +135,7 @@ PathVertexRep::arrival(const StaState *sta) const
   const Graph *graph = sta->graph();
   const Search *search = sta->search();
   Tag *tag = search->tag(tag_index_);
-  Vertex *vertex = graph->vertex(vertex_index_);
+  Vertex *vertex = graph->vertex(vertex_id_);
   TagGroup *tag_group = search->tagGroup(vertex);
   int arrival_index;
   bool arrival_exists;
@@ -162,7 +162,7 @@ bool
 PathVertexRep::equal(const PathVertexRep *path1,
 		     const PathVertexRep *path2)
 {
-  return path1->vertex_index_ == path2->vertex_index_
+  return path1->vertex_id_ == path2->vertex_id_
     && path1->tag_index_ == path2->tag_index_;
 }
 
@@ -170,7 +170,7 @@ bool
 PathVertexRep::equal(const PathVertexRep &path1,
 		     const PathVertexRep &path2)
 {
-  return path1.vertex_index_ == path2.vertex_index_
+  return path1.vertex_id_ == path2.vertex_id_
     && path1.tag_index_ == path2.tag_index_;
 }
 
@@ -179,9 +179,9 @@ PathVertexRep::cmp(const PathVertexRep *path1,
 		   const PathVertexRep *path2)
 {
   if (path1 && path2) {
-    VertexIndex vertex_index1 = path1->vertexIndex();
-    VertexIndex vertex_index2 = path2->vertexIndex();
-    if (vertex_index1 == vertex_index2) {
+    VertexId vertex_id1 = path1->vertexId();
+    VertexId vertex_id2 = path2->vertexId();
+    if (vertex_id1 == vertex_id2) {
       TagIndex tag_index1 = path1->tagIndex();
       TagIndex tag_index2 = path2->tagIndex();
       if (tag_index1 == tag_index2)
@@ -191,7 +191,7 @@ PathVertexRep::cmp(const PathVertexRep *path1,
       else
 	return 1;
     }
-    else if (vertex_index1 < vertex_index2)
+    else if (vertex_id1 < vertex_id2)
       return -1;
     else
       return 1;
@@ -209,9 +209,9 @@ int
 PathVertexRep::cmp(const PathVertexRep &path1,
 		   const PathVertexRep &path2)
 {
-  VertexIndex vertex_index1 = path1.vertexIndex();
-  VertexIndex vertex_index2 = path2.vertexIndex();
-  if (vertex_index1 == vertex_index2) {
+  VertexId vertex_id1 = path1.vertexId();
+  VertexId vertex_id2 = path2.vertexId();
+  if (vertex_id1 == vertex_id2) {
     TagIndex tag_index1 = path1.tagIndex();
     TagIndex tag_index2 = path2.tagIndex();
     if (tag_index1 == tag_index2)
@@ -221,7 +221,7 @@ PathVertexRep::cmp(const PathVertexRep &path1,
     else
       return 1;
   }
-  else if (vertex_index1 < vertex_index2)
+  else if (vertex_id1 < vertex_id2)
     return -1;
   else
     return 1;

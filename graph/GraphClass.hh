@@ -17,7 +17,7 @@
 #ifndef STA_GRAPH_CLASS_H
 #define STA_GRAPH_CLASS_H
 
-#include "ObjectIndex.hh"
+#include "ObjectId.hh"
 #include "Set.hh"
 #include "Vector.hh"
 #include "MinMax.hh"
@@ -34,9 +34,9 @@ class VertexInEdgeIterator;
 class VertexOutEdgeIterator;
 class GraphLoop;
 
-typedef ObjectIndex VertexIndex;
-typedef ObjectIndex EdgeIndex;
-typedef ObjectIndex ArcIndex;
+typedef ObjectId VertexId;
+typedef ObjectId EdgeId;
+typedef ObjectId ArcId;
 typedef Set<Vertex*> VertexSet;
 typedef Vector<Vertex*> VertexSeq;
 typedef Vector<Edge*> EdgeSeq;

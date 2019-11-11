@@ -538,7 +538,7 @@ PathEnum::makeDivertedPath(Path *path,
     PathRef prev;
     TimingArc *prev_arc;
     p.prevPath(this, prev, prev_arc);
-    PathEnumed *copy = new PathEnumed(p.vertexIndex(this),
+    PathEnumed *copy = new PathEnumed(p.vertexId(this),
 				      p.tagIndex(this),
 				      p.arrival(this),
 				      nullptr,  // prev_path made in next pass.
