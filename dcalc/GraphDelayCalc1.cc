@@ -1662,6 +1662,8 @@ GraphDelayCalc1::setIdealClks(const Vertex *vertex,
     ideal_clks_map_next_[vertex] = clks;
     changed = true;
   }
+  else
+    delete clks;
   return changed;
 }
 

@@ -1485,6 +1485,7 @@ WriteSdc::mapThruHpins(ExceptionThru *thru,
 		      && network_->isInside(network_->instance(cpin), hinst))))
 	    pins.push_back(cpin);
 	}
+	delete cpin_iter;
       }
       else
 	pins.push_back(pin);

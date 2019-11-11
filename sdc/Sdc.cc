@@ -288,15 +288,15 @@ Sdc::deleteConstraints()
   for (auto input_delay : input_delays_)
     delete input_delay;
   input_delay_pin_map_.deleteContents();
-  input_delay_leaf_pin_map_.deleteContents();                                        
-  input_delay_internal_pin_map_.deleteContents();                                    
+  input_delay_leaf_pin_map_.deleteContents();
+  input_delay_ref_pin_map_.deleteContents();
+  input_delay_internal_pin_map_.deleteContents();
 
   for (auto output_delay : output_delays_)
     delete output_delay;
-  output_delay_pin_map_.deleteContents();                                            
-  output_delay_ref_pin_map_.deleteContents();                                        
-  output_delay_leaf_pin_map_.deleteContents();                                       
-
+  output_delay_pin_map_.deleteContents();
+  output_delay_ref_pin_map_.deleteContents();
+  output_delay_leaf_pin_map_.deleteContents();
 
   clk_hpin_disables_.deleteContentsClear();
   clk_hpin_disables_valid_ = false;
