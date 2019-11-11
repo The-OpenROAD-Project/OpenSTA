@@ -3092,7 +3092,7 @@ Sta::vertexSlew(Vertex *vertex,
 {
   findDelays(vertex);
   Slew mm_slew = min_max->initValue();
-  for (auto dcalc_ap : corners_->dcalcAnalysisPts()) {
+  for (DcalcAnalysisPt *dcalc_ap : corners_->dcalcAnalysisPts()) {
     Slew slew = graph_->slew(vertex, rf, dcalc_ap->index());
     if (fuzzyGreater(slew, mm_slew, min_max))
       mm_slew = slew;
@@ -3200,7 +3200,7 @@ Sta::maxArrivalCountVertex() const
 int
 Sta::vertexArrivalCount(Vertex  *vertex) const
 {
-  auto tag_group = search_->tagGroup(vertex);
+  TagGroup *tag_group = search_->tagGroup(vertex);
   if (tag_group)
     return tag_group->arrivalCount();
   else
@@ -3718,7 +3718,7 @@ Sta::findCellPort(LibertyCell *cell,
 {
   LibertyCellPortIterator port_iter(cell);
   while (port_iter.hasNext()) {
-    auto port = port_iter.next();
+    LibertyPort *port = port_iter.next();
     if (port->direction() == dir)
       return port;
   }
@@ -4731,7 +4731,7 @@ InstanceMaxSlewGreater::instMaxSlew(const Instance *inst) const
     if (network->isDriver(pin)) {
       Vertex *vertex = graph->pinDrvrVertex(pin);
       for (RiseFall *rf : RiseFall::range()) {
-	for (auto dcalc_ap : sta_->corners()->dcalcAnalysisPts()) {
+	for (DcalcAnalysisPt *dcalc_ap : sta_->corners()->dcalcAnalysisPts()) {
 	  Slew slew = graph->slew(vertex, rf, dcalc_ap->index());
 	  if (slew > max_slew)
 	    max_slew = slew;
