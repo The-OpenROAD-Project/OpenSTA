@@ -37,6 +37,8 @@
 
 namespace sta {
 
+using std::max;
+
 class GenclkInfo
 {
 public:
@@ -896,9 +898,9 @@ void
 Genclks::copyGenClkSrcPaths(Vertex *vertex,
 			    TagGroupBldr *tag_bldr)
 {
-  Arrival *arrivals = vertex->arrivals();
+  Arrival *arrivals = graph_->arrivals(vertex);
   if (arrivals) {
-    PathVertexRep *prev_paths = vertex->prevPaths();
+    PathVertexRep *prev_paths = graph_->prevPaths(vertex);
     TagGroup *tag_group = search_->tagGroup(vertex);
     ArrivalMap::Iterator arrival_iter(tag_group->arrivalMap());
     while (arrival_iter.hasNext()) {

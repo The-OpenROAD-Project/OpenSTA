@@ -21,7 +21,7 @@
 #include "Map.hh"
 #include "StringUtil.hh"
 #include "LibertyClass.hh"
-#include "GraphClass.hh"
+#include "VertexId.hh"
 #include "NetworkClass.hh"
 #include "StaState.hh"
 
@@ -320,10 +320,10 @@ public:
   virtual PinSet *drivers(const Pin *pin);
   virtual bool pinLess(const Pin *pin1,
 		       const Pin *pin2) const;
-  // Return the index of the pin graph vertex.
-  virtual VertexIndex vertexIndex(const Pin *pin) const = 0;
+  // Return the id of the pin graph vertex.
+  virtual VertexId vertexIndex(const Pin *pin) const = 0;
   virtual void setVertexIndex(Pin *pin,
-			      VertexIndex index) = 0;
+			      VertexId id) = 0;
   int pinCount();
   int pinCount(Instance *inst);
   int leafPinCount();

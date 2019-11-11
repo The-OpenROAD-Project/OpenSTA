@@ -210,7 +210,7 @@ NetworkNameAdapter::direction(const Port *port) const
   return network_->direction(port);
 }
 
-VertexIndex
+VertexId
 NetworkNameAdapter::vertexIndex(const Pin *pin) const
 {
   return network_->vertexIndex(pin);
@@ -218,9 +218,9 @@ NetworkNameAdapter::vertexIndex(const Pin *pin) const
 
 void
 NetworkNameAdapter::setVertexIndex(Pin *pin,
-				   VertexIndex index)
+				   VertexId id)
 {
-  network_->setVertexIndex(pin, index);
+  network_->setVertexIndex(pin, id);
 }
 
 bool

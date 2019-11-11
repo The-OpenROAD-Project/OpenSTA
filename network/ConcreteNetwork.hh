@@ -131,9 +131,9 @@ public:
   virtual Term *term(const Pin *pin) const;
   virtual Port *port(const Pin *pin) const;
   virtual PortDirection *direction(const Pin *pin) const;
-  virtual VertexIndex vertexIndex(const Pin *pin) const;
+  virtual VertexId vertexIndex(const Pin *pin) const;
   virtual void setVertexIndex(Pin *pin,
-			      VertexIndex index);
+			      VertexId id);
 
   virtual Net *net(const Term *term) const;
   virtual Pin *pin(const Term *term) const;
@@ -318,8 +318,8 @@ public:
   ConcreteNet *net() const { return net_; }
   ConcretePort *port() const { return port_; }
   ConcreteTerm *term() const { return term_; }
-  VertexIndex vertexIndex() const { return vertex_index_; }
-  void setVertexIndex(VertexIndex index);
+  VertexId vertexId() const { return vertex_id_; }
+  void setVertexId(VertexId id);
 
 protected:
   ~ConcretePin() {}
@@ -334,7 +334,7 @@ protected:
   // Doubly linked list of net pins.
   ConcretePin *net_next_;
   ConcretePin *net_prev_;
-  VertexIndex vertex_index_;
+  VertexId vertex_id_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(ConcretePin);

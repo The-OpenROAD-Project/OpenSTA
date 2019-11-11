@@ -19,7 +19,6 @@
 #include "Stats.hh"
 #include "Error.hh"
 #include "Debug.hh"
-#include "Pool.hh"
 #include "MinMax.hh"
 #include "PortDirection.hh"
 #include "Transition.hh"
@@ -45,8 +44,6 @@ Graph::Graph(StaState *sta,
   StaState(sta),
   vertices_(nullptr),
   edges_(nullptr),
-  vertex_count_(0),
-  edge_count_(0),
   arc_count_(0),
   slew_tr_count_(slew_tr_count),
   have_arc_delays_(have_arc_delays),
@@ -60,8 +57,8 @@ Graph::~Graph()
 {
   delete vertices_;
   delete edges_;
-  deleteSlewPools();
-  deleteArcDelayPools();
+  deleteSlewTables();
+  deleteArcDelayTables();
   removeWidthCheckAnnotations();
   removePeriodCheckAnnotations();
 }
@@ -86,10 +83,10 @@ Graph::makeVerticesAndEdges()
   EdgeIndex edge_count;
   ArcIndex arc_count;
   vertexAndEdgeCounts(vertex_count, edge_count, arc_count);
-  vertices_ = new VertexPool(vertex_count);
-  edges_ = new EdgePool(edge_count);
-  makeSlewPools(vertex_count, ap_count_);
-  makeArcDelayPools(arc_count, ap_count_);
+  vertices_ = new VertexTable;
+  edges_ = new EdgeTable;
+  makeSlewTables(ap_count_);
+  makeArcDelayTables(arc_count, ap_count_);
 
   LeafInstanceIterator *leaf_iter = network_->leafInstanceIterator();
   while (leaf_iter->hasNext()) {
@@ -449,13 +446,13 @@ Graph::makeWireEdge(Pin *from_pin,
 Vertex *
 Graph::vertex(VertexIndex vertex_index) const
 {
-  return vertices_->find(vertex_index);
+  return vertices_->pointer(vertex_index);
 }
 
 VertexIndex
 Graph::index(const Vertex *vertex) const
 {
-  return vertices_->index(vertex);
+  return vertices_->objectId(vertex);
 }
 
 void
@@ -489,10 +486,9 @@ Graph::makeVertex(Pin *pin,
 		  bool is_bidirect_drvr,
 		  bool is_reg_clk)
 {
-  Vertex *vertex = vertices_->makeObject();
+  Vertex *vertex = vertices_->make();
   vertex->init(pin, is_bidirect_drvr, is_reg_clk);
-  vertex_count_++;
-  makeVertexSlews();
+  makeVertexSlews(vertex);
   if (is_reg_clk)
     reg_clk_vertices_.insert(vertex);
   return vertex;
@@ -536,31 +532,25 @@ Graph::deleteVertex(Vertex *vertex)
     pin_bidirect_drvr_vertex_map_.erase(pin_bidirect_drvr_vertex_map_
 					.find(pin));
   else
-    network_->setVertexIndex(pin, 0);
+    network_->setVertexIndex(pin, vertex_id_null);
   // Delete edges to vertex.
   EdgeIndex edge_index, next_index;
   for (edge_index = vertex->in_edges_; edge_index; edge_index = next_index) {
     Edge *edge = Graph::edge(edge_index);
     next_index = edge->vertex_in_link_;
     deleteOutEdge(edge->from(this), edge);
-    deleteEdgeArcDelays(edge);
-    edge_count_--;
     arc_count_ -= edge->timingArcSet()->arcCount();
-    edges_->deleteObject(edge);
+    edges_->destroy(edge);
   }
   // Delete edges from vertex.
   for (edge_index = vertex->out_edges_; edge_index; edge_index = next_index) {
     Edge *edge = Graph::edge(edge_index);
     next_index = edge->vertex_out_next_;
     deleteInEdge(edge->to(this), edge);
-    deleteEdgeArcDelays(edge);
-    edge_count_--;
     arc_count_ -= edge->timingArcSet()->arcCount();
-    edges_->deleteObject(edge);
+    edges_->destroy(edge);
   }
-  deleteVertexSlews(vertex);
-  vertices_->deleteObject(vertex);
-  vertex_count_--;
+  vertices_->destroy(vertex);
 }
 
 bool
@@ -600,17 +590,69 @@ Graph::deleteOutEdge(Vertex *vertex,
     Graph::edge(next)->vertex_out_prev_ = prev;
 }
 
+Arrival *
+Graph::makeArrivals(Vertex *vertex,
+		    uint32_t count)
+{
+  Arrival *arrivals;
+  ArrivalId id;
+  {
+    UniqueLock lock(arrivals_lock_);
+    arrivals_.make(count, arrivals, id);
+  }
+  vertex->setArrivals(id);
+  return arrivals;
+}
+
+Arrival *
+Graph::arrivals(Vertex *vertex) const
+{
+  return arrivals_.pointer(vertex->arrivals());
+}
+
+void
+Graph::clearArrivals()
+{
+  arrivals_.clear();
+}
+
+PathVertexRep *
+Graph::makePrevPaths(Vertex *vertex,
+		     uint32_t count)
+{
+  PathVertexRep *prev_paths;
+  PrevPathId id;
+  {
+    UniqueLock lock(prev_paths_lock_);
+    prev_paths_.make(count, prev_paths, id);
+  }
+  vertex->setPrevPaths(id);
+  return prev_paths;
+}
+
+PathVertexRep *
+Graph::prevPaths(Vertex *vertex) const
+{
+  return prev_paths_.pointer(vertex->prevPaths());
+}
+
+void
+Graph::clearPrevPaths()
+{
+  prev_paths_.clear();
+}
+
 const Slew &
 Graph::slew(const Vertex *vertex,
 	    const TransRiseFall *tr,
 	    DcalcAPIndex ap_index)
 {
   if (slew_tr_count_) {
-    int pool_index =
+    int table_index =
       (slew_tr_count_ == 1) ? ap_index : ap_index*slew_tr_count_+tr->index();
-    DelayPool *pool = slew_pools_[pool_index];
+    DelayTable *table = slew_tables_[table_index];
     VertexIndex vertex_index = index(vertex);
-    return *pool->find(vertex_index);
+    return table->ref(vertex_index);
   }
   else {
     static Slew slew(0.0);
@@ -625,11 +667,11 @@ Graph::setSlew(Vertex *vertex,
 	       const Slew &slew)
 {
   if (slew_tr_count_) {
-    int pool_index =
+    int table_index =
       (slew_tr_count_ == 1) ? ap_index : ap_index*slew_tr_count_+tr->index();
-    DelayPool *pool = slew_pools_[pool_index];
+    DelayTable *table = slew_tables_[table_index];
     VertexIndex vertex_index = index(vertex);
-    Slew &vertex_slew = *pool->find(vertex_index);
+    Slew &vertex_slew = table->ref(vertex_index);
     vertex_slew = slew;
   }
 }
@@ -639,13 +681,13 @@ Graph::setSlew(Vertex *vertex,
 Edge *
 Graph::edge(EdgeIndex edge_index) const
 {
-  return edges_->find(edge_index);
+  return edges_->pointer(edge_index);
 }
 
 EdgeIndex
 Graph::index(const Edge *edge) const
 {
-  return edges_->index(edge);
+  return edges_->objectId(edge);
 }
 
 Edge *
@@ -653,23 +695,22 @@ Graph::makeEdge(Vertex *from,
 		Vertex *to,
 		TimingArcSet *arc_set)
 {
-  Edge *edge = edges_->makeObject();
-  EdgeIndex edge_index = edges_->index(edge);
-  edge->init(vertices_->index(from), vertices_->index(to), arc_set);
+  Edge *edge = edges_->make();
+  edge->init(index(from), index(to), arc_set);
   makeEdgeArcDelays(edge);
-  edge_count_++;
   arc_count_ += arc_set->arcCount();
   // Add out edge to from vertex.
-  EdgeIndex next = from->out_edges_;
+  EdgeId next = from->out_edges_;
   edge->vertex_out_next_ = next;
-  edge->vertex_out_prev_ = 0;
+  edge->vertex_out_prev_ = edge_id_null;
+  EdgeId edge_id = edges_->objectId(edge);
   if (next)
-    Graph::edge(next)->vertex_out_prev_ = edge_index;
-  from->out_edges_ = edge_index;
+    Graph::edge(next)->vertex_out_prev_ = edge_id;
+  from->out_edges_ = edge_id;
 
   // Add in edge to to vertex.
   edge->vertex_in_link_ = to->in_edges_;
-  to->in_edges_ = edge_index;
+  to->in_edges_ = edge_id;
 
   return edge;
 }
@@ -681,21 +722,19 @@ Graph::deleteEdge(Edge *edge)
   Vertex *to = edge->to(this);
   deleteOutEdge(from, edge);
   deleteInEdge(to, edge);
-  deleteEdgeArcDelays(edge);
   arc_count_ -= edge->timingArcSet()->arcCount();
-  edge_count_--;
-  edges_->deleteObject(edge);
+  edges_->destroy(edge);
 }
 
 void
-Graph::makeArcDelayPools(ArcIndex arc_count,
-			 DcalcAPIndex ap_count)
+Graph::makeArcDelayTables(ArcIndex arc_count,
+			  DcalcAPIndex ap_count)
 {
   if (have_arc_delays_) {
     arc_delays_.resize(ap_count);
     for (DcalcAPIndex i = 0; i < ap_count; i++) {
-      DelayPool *pool = new DelayPool(arc_count);
-      arc_delays_[i] = pool;
+      DelayTable *table = new DelayTable();
+      arc_delays_[i] = table;
     }
 
     // Leave some room for edits.
@@ -705,15 +744,9 @@ Graph::makeArcDelayPools(ArcIndex arc_count,
 }
 
 void
-Graph::deleteArcDelayPools()
+Graph::deleteArcDelayTables()
 {
-  if (have_arc_delays_) {
-    for (DcalcAPIndex i = 0; i < ap_count_; i++) {
-      DelayPool *pool = arc_delays_[i];
-      delete pool;
-    }
-    arc_delays_.clear();
-  }
+  arc_delays_.deleteContentsClear();
 }
 
 void
@@ -723,11 +756,11 @@ Graph::makeEdgeArcDelays(Edge *edge)
     int arc_count = edge->timingArcSet()->arcCount();
     ArcIndex arc_index = 0;
     for (DcalcAPIndex i = 0; i < ap_count_; i++) {
-      DelayPool *pool = arc_delays_[i];
-      ArcDelay *arc_delays = pool->makeObjects(arc_count);
-      arc_index = pool->index(arc_delays);
+      DelayTable *table = arc_delays_[i];
+      ArcDelay *arc_delays;
+      table->make(arc_count, arc_delays, arc_index);
       for (int j = 0; j < arc_count; j++)
-	*arc_delays++ = 0.0;
+	arc_delays[j] = 0.0;
     }
     edge->setArcDelays(arc_index);
     // Make sure there is room for delay_annotated flags.
@@ -740,28 +773,15 @@ Graph::makeEdgeArcDelays(Edge *edge)
   }
 }
 
-void
-Graph::deleteEdgeArcDelays(Edge *edge)
-{
-  if (have_arc_delays_) {
-    ArcIndex arc_count = edge->timingArcSet()->arcCount();
-    ArcIndex arc_index = edge->arcDelays();
-    for (DcalcAPIndex i = 0; i < ap_count_; i++) {
-      DelayPool *pool = arc_delays_[i];
-      pool->deleteObjects(arc_index, arc_count);
-    }
-  }
-}
-
 ArcDelay
 Graph::arcDelay(const Edge *edge,
 		const TimingArc *arc,
 		DcalcAPIndex ap_index) const
 {
   if (have_arc_delays_) {
-    DelayPool *pool = arc_delays_[ap_index];
-    ArcIndex arc_index = edge->arcDelays() + arc->index();
-    ArcDelay &arc_delay = *pool->find(arc_index);
+    DelayTable *table = arc_delays_[ap_index];
+    ArcDelay *arc_delays = table->pointer(edge->arcDelays());
+    ArcDelay &arc_delay = arc_delays[arc->index()];
     return arc_delay;
   }
   else
@@ -775,10 +795,9 @@ Graph::setArcDelay(Edge *edge,
 		   ArcDelay delay)
 {
   if (have_arc_delays_) {
-    DelayPool *pool = arc_delays_[ap_index];
-    ArcIndex arc_index = edge->arcDelays() + arc->index();
-    ArcDelay &arc_delay = *pool->find(arc_index);
-    arc_delay = delay;
+    DelayTable *table = arc_delays_[ap_index];
+    ArcDelay *arc_delays = table->pointer(edge->arcDelays());
+    arc_delays[arc->index()] = delay;
   }
 }
 
@@ -788,10 +807,9 @@ Graph::wireArcDelay(const Edge *edge,
 		    DcalcAPIndex ap_index)
 {
   if (have_arc_delays_) {
-    DelayPool *pool = arc_delays_[ap_index];
-    ArcIndex arc_index = edge->arcDelays() + tr->index();
-    const ArcDelay &arc_delay = *pool->find(arc_index);
-    return arc_delay;
+    DelayTable *table = arc_delays_[ap_index];
+    ArcDelay *arc_delays = table->pointer(edge->arcDelays());
+    return arc_delays[tr->index()];
   }
   else
     return delay_zero;
@@ -804,10 +822,9 @@ Graph::setWireArcDelay(Edge *edge,
 		       const ArcDelay &delay)
 {
   if (have_arc_delays_) {
-    DelayPool *pool = arc_delays_[ap_index];
-    ArcIndex arc_index = edge->arcDelays() + tr->index();
-    ArcDelay &arc_delay = *pool->find(arc_index);
-    arc_delay = delay;
+    DelayTable *table = arc_delays_[ap_index];
+    ArcDelay *arc_delays = table->pointer(edge->arcDelays());
+    arc_delays[tr->index()] = delay;
   }
 }
 
@@ -870,12 +887,12 @@ Graph::setDelayCount(DcalcAPIndex ap_count)
 {
   if (ap_count != ap_count_) {
     // Discard any existing delays.
-    deleteSlewPools();
-    deleteArcDelayPools();
+    deleteSlewTables();
+    deleteArcDelayTables();
     removeWidthCheckAnnotations();
     removePeriodCheckAnnotations();
-    makeSlewPools(vertex_count_, ap_count);
-    makeArcDelayPools(arc_count_, ap_count);
+    makeSlewTables(ap_count);
+    makeArcDelayTables(arc_count_, ap_count);
     ap_count_ = ap_count;
     removeDelays();
   }
@@ -887,7 +904,7 @@ Graph::removeDelays()
   VertexIterator vertex_iter(this);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
-    makeVertexSlews();
+    makeVertexSlews(vertex);
     VertexOutEdgeIterator edge_iter(vertex, this);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
@@ -927,51 +944,31 @@ Graph::delayAnnotated(Edge *edge)
 }
 
 void
-Graph::makeSlewPools(VertexIndex vertex_count,
-		     DcalcAPIndex ap_count)
+Graph::makeSlewTables(DcalcAPIndex ap_count)
 {
   DcalcAPIndex tr_ap_count = slew_tr_count_ * ap_count;
-  slew_pools_.resize(tr_ap_count);
+  slew_tables_.resize(tr_ap_count);
   for (DcalcAPIndex i = 0; i < tr_ap_count; i++) {
-    DelayPool *pool = new DelayPool(vertex_count);
-    slew_pools_[i] = pool;
+    DelayTable *table = new DelayTable;
+    slew_tables_[i] = table;
   }
 }
 
 void
-Graph::deleteSlewPools()
+Graph::deleteSlewTables()
 {
-  if (slew_tr_count_) {
-    DcalcAPIndex tr_ap_count = slew_tr_count_ * ap_count_;
-    for (DcalcAPIndex i = 0; i < tr_ap_count; i++) {
-      DelayPool *pool = slew_pools_[i];
-      delete pool;
-    }
-    slew_pools_.clear();
-  }
+  slew_tables_.deleteContentsClear();
 }
 
 void
-Graph::makeVertexSlews()
+Graph::makeVertexSlews(Vertex *vertex)
 {
   DcalcAPIndex tr_ap_count = slew_tr_count_ * ap_count_;
-  slew_pools_.resize(tr_ap_count);
   for (DcalcAPIndex i = 0; i < tr_ap_count; i++) {
-    DelayPool *pool = slew_pools_[i];
-    Slew *slew = pool->makeObject();
+    DelayTable *table = slew_tables_[i];
+    // Slews are 1:1 with vertices and use the same object id.
+    Slew *slew = table->ensureId(vertices_->objectId(vertex));
     *slew = 0.0;
-  }
-}
-
-void
-Graph::deleteVertexSlews(Vertex *vertex)
-{
-  VertexIndex vertex_index = index(vertex);
-  DcalcAPIndex tr_ap_count = slew_tr_count_ * ap_count_;
-  slew_pools_.resize(tr_ap_count);
-  for (DcalcAPIndex i = 0; i < tr_ap_count; i++) {
-    DelayPool *pool = slew_pools_[i];
-    pool->deleteObject(vertex_index);
   }
 }
 
@@ -1109,6 +1106,7 @@ Graph::removeDelaySlewAnnotations()
 Vertex::Vertex()
 {
   init(nullptr, false, false);
+  object_idx_ = object_idx_null;
 }
 
 void
@@ -1119,10 +1117,10 @@ Vertex::init(Pin *pin,
   pin_ = pin;
   is_reg_clk_ = is_reg_clk;
   is_bidirect_drvr_ = is_bidirect_drvr;
-  in_edges_ = 0;
-  out_edges_ = 0;
-  arrivals_ = nullptr;
-  prev_paths_ = nullptr;
+  in_edges_ = edge_id_null;
+  out_edges_ = edge_id_null;
+  arrivals_ = arrival_null;
+  prev_paths_ = prev_path_null;
   has_requireds_ = false;
   tag_group_index_ = tag_group_index_max;
   slew_annotated_ = false;
@@ -1138,6 +1136,12 @@ Vertex::init(Pin *pin,
   bfs_in_queue_ = 0;
   crpr_path_pruning_disabled_ = false;
   requireds_pruned_ = false;
+}
+
+void
+Vertex::setObjectIdx(ObjectIdx idx)
+{
+  object_idx_ = idx;
 }
 
 const char *
@@ -1243,13 +1247,13 @@ Vertex::setTagGroupIndex(TagGroupIndex tag_index)
 }
 
 void
-Vertex::setArrivals(Arrival *arrivals)
+Vertex::setArrivals(ArrivalId id)
 {
-  arrivals_ = arrivals;
+  arrivals_ = id;
 }
 
 void
-Vertex::setPrevPaths(PathVertexRep *prev_paths)
+Vertex::setPrevPaths(PrevPathId prev_paths)
 {
   prev_paths_ = prev_paths;
 }
@@ -1341,6 +1345,7 @@ Vertex::setBfsInQueue(BfsIndex index,
 Edge::Edge()
 {
   init(0, 0, nullptr);
+  object_idx_ = object_idx_null;
 }
 
 void
@@ -1353,9 +1358,9 @@ Edge::init(VertexIndex from,
   arc_set_ = arc_set;
   arc_delays_ = 0;
 
-  vertex_in_link_ = 0;
-  vertex_out_next_ = 0;
-  vertex_out_prev_ = 0;
+  vertex_in_link_ = edge_id_null;
+  vertex_out_next_ = edge_id_null;
+  vertex_out_prev_ = edge_id_null;
   is_bidirect_inst_path_ = false;
   is_bidirect_net_path_ = false;
   delay_annotation_is_incremental_ = false;
@@ -1363,6 +1368,12 @@ Edge::init(VertexIndex from,
   is_disabled_constraint_ = false;
   is_disabled_cond_ = false;
   is_disabled_loop_ = false;
+}
+
+void
+Edge::setObjectIdx(ObjectIdx idx)
+{
+  object_idx_ = idx;
 }
 
 void

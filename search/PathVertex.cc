@@ -240,18 +240,18 @@ PathVertex::setArrivalIndex(int arrival_index)
 }
 
 Arrival
-PathVertex::arrival(const StaState *) const
+PathVertex::arrival(const StaState *sta) const
 {
-  Arrival *arrivals = vertex_->arrivals();
+  Arrival *arrivals = sta->graph()->arrivals(vertex_);
   return arrivals[arrival_index_];
 }
 
 void
 PathVertex::setArrival(Arrival arrival,
-		       const StaState *)
+		       const StaState *sta)
 {
   if (tag_) {
-    Arrival *arrivals = vertex_->arrivals();
+    Arrival *arrivals = sta->graph()->arrivals(vertex_);
     arrivals[arrival_index_] = arrival;
   }
 }
@@ -263,7 +263,7 @@ PathVertex::required(const StaState *sta) const
     const Search *search = sta->search();
     TagGroup *tag_group = search->tagGroup(vertex_);
     int req_index = tag_group->requiredIndex(arrival_index_);
-    Arrival *arrivals = vertex_->arrivals();
+    Arrival *arrivals = sta->graph()->arrivals(vertex_);
     return arrivals[req_index];
   }
   else
@@ -274,16 +274,15 @@ void
 PathVertex::setRequired(const Required &required,
 			const StaState *sta)
 {
+  Graph *graph = sta->graph();
   const Search *search = sta->search();
   TagGroup *tag_group = search->tagGroup(vertex_);
-  Arrival *arrivals = vertex_->arrivals();
+  Arrival *arrivals = graph->arrivals(vertex_);
   int arrival_count = tag_group->arrivalCount();
   if (!vertex_->hasRequireds()) {
-    Arrival *new_arrivals = new Arrival[arrival_count * 2];
+    Arrival *new_arrivals = graph->makeArrivals(vertex_, arrival_count * 2);
     memcpy(new_arrivals, arrivals, arrival_count * sizeof(Arrival));
-    vertex_->setArrivals(new_arrivals);
     vertex_->setHasRequireds(true);
-    delete [] arrivals;
     arrivals = new_arrivals;
   }
   int req_index = arrival_index_ + arrival_count;
@@ -292,19 +291,10 @@ PathVertex::setRequired(const Required &required,
 
 void
 PathVertex::deleteRequireds(Vertex *vertex,
-			    const StaState *sta)
+			    const StaState *)
 {
-  if (vertex->hasRequireds()) {
-    const Search *search = sta->search();
-    TagGroup *tag_group = search->tagGroup(vertex);
-    Arrival *arrivals = vertex->arrivals();
-    int arrival_count = tag_group->arrivalCount();
-    Arrival *new_arrivals = new Arrival[arrival_count];
-    memcpy(new_arrivals, arrivals, arrival_count * sizeof(Arrival));
-    vertex->setArrivals(new_arrivals);
-    vertex->setHasRequireds(false);
-    delete [] arrivals;
-  }
+  vertex->setHasRequireds(false);
+  // Don't bother reclaiming requieds from arrival table.
 }
 
 bool

@@ -372,9 +372,10 @@ set(STA_HEADERS
   util/Map.hh
   util/MinMax.hh
   util/Mutex.hh
+  util/ObjectId.hh
   util/ObjectIndex.hh
+  util/ObjectTable.hh
   util/PatternMatch.hh
-  util/Pool.hh
   util/Report.hh
   util/ReportStd.hh
   util/ReportTcl.hh

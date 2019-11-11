@@ -62,7 +62,7 @@ CheckCrpr::clkPathPrev(Vertex *vertex,
 		       int arrival_index,
 		       PathVertex &tmp)
 {
-   PathVertexRep *prevs = vertex->prevPaths();
+  PathVertexRep *prevs = graph_->prevPaths(vertex);
   if (prevs) {
     PathVertexRep *prev = &prevs[arrival_index];
     if (prev->isNull())

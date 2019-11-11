@@ -17,16 +17,20 @@
 #ifndef STA_GRAPH_H
 #define STA_GRAPH_H
 
+#include "Mutex.hh"
 #include "DisallowCopyAssign.hh"
 #include "Iterator.hh"
 #include "Map.hh"
 #include "Vector.hh"
-#include "Pool.hh"
+#include "ObjectTable.hh"
+#include "ArrayTable.hh"
 #include "StaState.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
 #include "Delay.hh"
 #include "GraphClass.hh"
+#include "VertexId.hh"
+#include "PathVertexRep.hh"
 
 namespace sta {
 
@@ -36,14 +40,25 @@ class PathVertexRep;
 
 enum class LevelColor { white, gray, black };
 
-typedef Pool<Delay> DelayPool;
-typedef Pool<Vertex> VertexPool;
-typedef Pool<Edge> EdgePool;
+typedef ArrayTable<Delay> DelayTable;
+typedef ObjectTable<Vertex> VertexTable;
+typedef ObjectTable<Edge> EdgeTable;
+typedef ArrayTable<Arrival> ArrivalsTable;
+typedef ArrayTable<PathVertexRep> PrevPathsTable;
 typedef Map<const Pin*, Vertex*> PinVertexMap;
 typedef Iterator<Edge*> VertexEdgeIterator;
 typedef Map<const Pin*, float*> WidthCheckAnnotations;
 typedef Map<const Pin*, float*> PeriodCheckAnnotations;
-typedef Vector<DelayPool*> DelayPoolSeq;
+typedef Vector<DelayTable*> DelayTableSeq;
+typedef ObjectId EdgeId;
+typedef ObjectId ArrivalId;
+typedef ObjectId PrevPathId;
+
+static constexpr EdgeId edge_id_null = object_id_null;
+static constexpr ObjectIdx edge_idx_null = object_id_null;
+static constexpr ObjectIdx vertex_idx_null = object_id_null;
+static constexpr ObjectIdx arrival_null = object_id_null;
+static constexpr ObjectIdx prev_path_null = object_id_null;
 
 // The graph acts as a BUILDER for the graph vertices and edges.
 class Graph : public StaState
@@ -83,7 +98,15 @@ public:
   Vertex *pinLoadVertex(const Pin *pin) const;
   virtual void deleteVertex(Vertex *vertex);
   bool hasFaninOne(Vertex *vertex) const;
-  VertexIndex vertexCount() { return vertex_count_; }
+  VertexIndex vertexCount() { return vertices_->size(); }
+  Arrival *makeArrivals(Vertex *vertex,
+			uint32_t count);
+  Arrival *arrivals(Vertex *vertex) const;
+  void clearArrivals();
+  PathVertexRep *makePrevPaths(Vertex *vertex,
+			       uint32_t count);
+  PathVertexRep *prevPaths(Vertex *vertex) const;
+  void clearPrevPaths();
   // Slews are reported slews in seconds.
   // Reported slew are the same as those in the liberty tables.
   //  reported_slews = measured_slews / slew_derate_from_library
@@ -142,7 +165,7 @@ public:
 			     bool annotated);
   // True if any edge arc is annotated.
   bool delayAnnotated(Edge *edge);
-  EdgeIndex edgeCount() { return edge_count_; }
+  EdgeIndex edgeCount() { return edges_->size(); }
   virtual ArcIndex arcCount() { return arc_count_; }
 
   // Sdf width check annotation.
@@ -202,15 +225,12 @@ protected:
                                      LibertyPort *from_to_port);
   void removeWidthCheckAnnotations();
   void removePeriodCheckAnnotations();
-  void makeSlewPools(VertexIndex vertex_count,
-		     DcalcAPIndex count);
-  void deleteSlewPools();
-  void makeVertexSlews();
-  void deleteVertexSlews(Vertex *vertex);
-  void makeArcDelayPools(ArcIndex arc_count,
-			 DcalcAPIndex ap_count);
-  void deleteArcDelayPools();
-  virtual void deleteEdgeArcDelays(Edge *edge);
+  void makeSlewTables(DcalcAPIndex count);
+  void deleteSlewTables();
+  void makeVertexSlews(Vertex *vertex);
+  void makeArcDelayTables(ArcIndex arc_count,
+			  DcalcAPIndex ap_count);
+  void deleteArcDelayTables();
   void deleteInEdge(Vertex *vertex,
 		    Edge *edge);
   void deleteOutEdge(Vertex *vertex,
@@ -220,29 +240,32 @@ protected:
   // User defined predicate to filter graph edges for liberty timing arcs.
   virtual bool filterEdge(TimingArcSet *) const { return true; }
 
-  VertexPool *vertices_;
-  EdgePool *edges_;
+  VertexTable *vertices_;
+  EdgeTable *edges_;
   // Bidirect pins are split into two vertices:
   //  load/sink (top level output, instance pin input) vertex in pin_vertex_map
   //  driver/source (top level input, instance pin output) vertex
   //  in pin_bidirect_drvr_vertex_map
   PinVertexMap pin_bidirect_drvr_vertex_map_;
-  VertexIndex vertex_count_;
-  EdgeIndex edge_count_;
   ArcIndex arc_count_;
+  ArrivalsTable arrivals_;
+  std::mutex arrivals_lock_;
+  PrevPathsTable prev_paths_;
+  std::mutex prev_paths_lock_;
   Vector<bool> arc_delay_annotated_;
   int slew_tr_count_;
   bool have_arc_delays_;
   DcalcAPIndex ap_count_;
-  DelayPoolSeq slew_pools_;	      // [ap_index][tr_index][vertex_index]
+  DelayTableSeq slew_tables_;	      // [ap_index][tr_index][vertex_index]
   VertexIndex slew_count_;
-  DelayPoolSeq arc_delays_;	      // [ap_index][edge_arc_index]
+  DelayTableSeq arc_delays_;	      // [ap_index][edge_arc_index]
   // Sdf width check annotations.
   WidthCheckAnnotations *width_check_annotations_;
   // Sdf period check annotations.
   PeriodCheckAnnotations *period_check_annotations_;
   // Register/latch clock vertices to search from.
   VertexSet reg_clk_vertices_;
+
   friend class Vertex;
   friend class VertexIterator;
   friend class VertexInEdgeIterator;
@@ -268,10 +291,10 @@ public:
   bool isRoot() const{ return level_ == 0; }
   LevelColor color() const { return static_cast<LevelColor>(color_); }
   void setColor(LevelColor color);
-  Arrival *arrivals() const { return arrivals_; }
-  void setArrivals(Arrival *arrivals);
-  PathVertexRep *prevPaths() const { return prev_paths_; }
-  void setPrevPaths(PathVertexRep *prev_paths);
+  ArrivalId arrivals() const { return arrivals_; }
+  void setArrivals(ArrivalId id);
+  PrevPathId prevPaths() const { return prev_paths_; }
+  void setPrevPaths(PrevPathId id);
   // Requireds optionally follow arrivals in the same array.
   bool hasRequireds() const { return has_requireds_; }
   void setHasRequireds(bool has_req);
@@ -315,6 +338,10 @@ public:
   void setCrprPathPruningDisabled(bool disabled);
   bool requiredsPruned() const { return requireds_pruned_; }
   void setRequiredsPruned(bool pruned);
+  
+  // ObjectTable interface.
+  ObjectIdx objectIdx() const { return object_idx_; }
+  void setObjectIdx(ObjectIdx idx);
 
   static int transitionCount() { return 2; }  // rise/fall
 
@@ -324,8 +351,8 @@ protected:
 	    bool is_reg_clk);
 
   Pin *pin_;
-  Arrival *arrivals_;
-  PathVertexRep *prev_paths_;
+  ArrivalId arrivals_;
+  PrevPathId prev_paths_;
   EdgeIndex in_edges_;		// Edges to this vertex.
   EdgeIndex out_edges_;		// Edges from this vertex.
 
@@ -357,6 +384,8 @@ protected:
   bool has_downstream_clk_pin_:1;
   bool crpr_path_pruning_disabled_:1;
   bool requireds_pruned_:1;
+
+  unsigned object_idx_:VertexTable::idx_bits;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Vertex);
@@ -403,17 +432,21 @@ public:
   bool isBidirectNetPath() const { return is_bidirect_net_path_; }
   void setIsBidirectNetPath(bool is_bidir);
 
+  // ObjectTable interface.
+  ObjectIdx objectIdx() const { return object_idx_; }
+  void setObjectIdx(ObjectIdx idx);
+
 protected:
   void init(VertexIndex from,
 	    VertexIndex to,
 	    TimingArcSet *arc_set);
 
   TimingArcSet *arc_set_;
-  VertexIndex from_;
-  VertexIndex to_;
-  VertexIndex vertex_in_link_;		// Vertex in edges list.
-  VertexIndex vertex_out_next_;		// Vertex out edges doubly linked list.
-  VertexIndex vertex_out_prev_;
+  VertexId from_;
+  VertexId to_;
+  EdgeId vertex_in_link_;		// Vertex in edges list.
+  EdgeId vertex_out_next_;		// Vertex out edges doubly linked list.
+  EdgeId vertex_out_prev_;
   ArcIndex arc_delays_;
   bool delay_annotation_is_incremental_:1;
   bool is_bidirect_inst_path_:1;
@@ -423,6 +456,7 @@ protected:
   bool is_disabled_constraint_:1;
   bool is_disabled_cond_:1;
   bool is_disabled_loop_:1;
+  unsigned object_idx_:VertexTable::idx_bits;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Edge);

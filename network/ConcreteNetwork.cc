@@ -1032,19 +1032,19 @@ ConcreteNetwork::direction(const Pin *pin) const
   return cport->direction();
 }
 
-VertexIndex
+VertexId
 ConcreteNetwork::vertexIndex(const Pin *pin) const
 {
   const ConcretePin *cpin = reinterpret_cast<const ConcretePin*>(pin);
-  return cpin->vertexIndex();
+  return cpin->vertexId();
 }
 
 void
 ConcreteNetwork::setVertexIndex(Pin *pin,
-				VertexIndex index)
+				VertexId id)
 {
   ConcretePin *cpin = reinterpret_cast<ConcretePin*>(pin);
-  cpin->setVertexIndex(index);
+  cpin->setVertexId(id);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1666,7 +1666,7 @@ ConcretePin::ConcretePin(ConcreteInstance *instance,
   term_(nullptr),
   net_next_(nullptr),
   net_prev_(nullptr),
-  vertex_index_(0)
+  vertex_id_(vertex_id_null)
 {
 }
 
@@ -1677,9 +1677,9 @@ ConcretePin::name() const
 }
 
 void
-ConcretePin::setVertexIndex(VertexIndex index)
+ConcretePin::setVertexId(VertexId id)
 {
-  vertex_index_ = index;
+  vertex_id_ = id;
 }
 
 ////////////////////////////////////////////////////////////////

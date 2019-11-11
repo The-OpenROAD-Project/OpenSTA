@@ -100,9 +100,9 @@ public:
   virtual Net *net(const Pin *pin) const;
   virtual Term *term(const Pin *pin) const;
   virtual PortDirection *direction(const Pin *pin) const;
-  virtual VertexIndex vertexIndex(const Pin *pin) const;
+  virtual VertexId vertexIndex(const Pin *pin) const;
   virtual void setVertexIndex(Pin *pin,
-			      VertexIndex index);
+			      VertexId id);
 
   virtual Net *net(const Term *term) const;
   virtual Pin *pin(const Term *term) const;

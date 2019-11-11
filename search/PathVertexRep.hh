@@ -17,10 +17,9 @@
 #ifndef STA_PATH_VERTEX_REP_H
 #define STA_PATH_VERTEX_REP_H
 
-namespace sta {
+#include "SearchClass.hh"
 
-class StaState;
-class PathVertex;
+namespace sta {
 
 // Path representation that references a vertex arrival via a tag.
 // This does not implement the Path API which uses virtual functions

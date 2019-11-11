@@ -30,6 +30,8 @@
 
 namespace sta {
 
+using std::max;
+
 Levelize::Levelize(StaState *sta) :
   StaState(sta),
   search_pred_(new SearchPredNonLatch2(sta)),

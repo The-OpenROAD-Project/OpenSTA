@@ -399,6 +399,8 @@ Search::deletePaths()
       Vertex *vertex = vertex_iter.next();
       deletePaths1(vertex);
     }
+    graph_->clearArrivals();
+    graph_->clearPrevPaths();
     arrivals_exist_ = false;
   }
 }
@@ -406,12 +408,8 @@ Search::deletePaths()
 void
 Search::deletePaths1(Vertex *vertex)
 {
-  Arrival *arrivals = vertex->arrivals();
-  delete [] arrivals;
-  vertex->setArrivals(nullptr);
-  PathVertexRep *prev_paths = vertex->prevPaths();
-  delete [] prev_paths;
-  vertex->setPrevPaths(nullptr);
+  vertex->setArrivals(arrival_null);
+  vertex->setPrevPaths(prev_path_null);
   vertex->setTagGroupIndex(tag_group_index_max);
   vertex->setHasRequireds(false);
   vertex->setCrprPathPruningDisabled(false);
@@ -1191,7 +1189,7 @@ bool
 Search::arrivalsChanged(Vertex *vertex,
 			TagGroupBldr *tag_bldr)
 {
-  Arrival *arrivals1 = vertex->arrivals();
+  Arrival *arrivals1 = graph_->arrivals(vertex);
   if (arrivals1) {
     TagGroup *tag_group = tagGroup(vertex);
     if (tag_group->arrivalMap()->size() != tag_bldr->arrivalMap()->size())
@@ -2682,8 +2680,8 @@ Search::setVertexArrivals(Vertex *vertex,
     deletePaths(vertex);
   else {
     TagGroup *prev_tag_group = tagGroup(vertex);
-    Arrival *prev_arrivals = vertex->arrivals();
-    PathVertexRep *prev_paths = vertex->prevPaths();
+    Arrival *prev_arrivals = graph_->arrivals(vertex);
+    PathVertexRep *prev_paths = graph_->prevPaths(vertex);
 
     TagGroup *tag_group = findTagGroup(tag_bldr);
     int arrival_count = tag_group->arrivalCount();
@@ -2696,30 +2694,24 @@ Search::setVertexArrivals(Vertex *vertex,
 	    || tag_group == prev_tag_group)) {
       if  (tag_bldr->hasClkTag() || tag_bldr->hasGenClkSrcTag()) {
 	if (prev_paths == nullptr)
-	  prev_paths = new PathVertexRep[arrival_count];
+	  prev_paths = graph_->makePrevPaths(vertex, arrival_count);
       }
       else {
-	// Prev paths not required, delete stale ones.
-	delete [] prev_paths;
+	// Prev paths not required.
 	prev_paths = nullptr;
-	vertex->setPrevPaths(nullptr);
+	vertex->setPrevPaths(prev_path_null);
       }
       tag_bldr->copyArrivals(tag_group, prev_arrivals, prev_paths);
       vertex->setTagGroupIndex(tag_group->index());
     }
     else {
-      delete [] prev_arrivals;
-      delete [] prev_paths;
-
-      Arrival *arrivals = new Arrival[arrival_count];
+      Arrival *arrivals = graph_->makeArrivals(vertex, arrival_count);
       prev_paths = nullptr;
       if  (tag_bldr->hasClkTag() || tag_bldr->hasGenClkSrcTag())
-	prev_paths = new PathVertexRep[arrival_count];
+	prev_paths = graph_->makePrevPaths(vertex, arrival_count);
       tag_bldr->copyArrivals(tag_group, arrivals, prev_paths);
 
       vertex->setTagGroupIndex(tag_group->index());
-      vertex->setArrivals(arrivals);
-      vertex->setPrevPaths(prev_paths);
 
       if (has_requireds) {
 	requiredInvalid(vertex);
@@ -2734,7 +2726,7 @@ Search::reportArrivals(Vertex *vertex) const
 {
   report_->print("Vertex %s\n", vertex->name(sdc_network_));
   TagGroup *tag_group = tagGroup(vertex);
-  Arrival *arrivals = vertex->arrivals();
+  Arrival *arrivals = graph_->arrivals(vertex);
   if (tag_group) {
     report_->print("Group %u\n", tag_group->index());
     ArrivalMap::Iterator arrival_iter(tag_group->arrivalMap());

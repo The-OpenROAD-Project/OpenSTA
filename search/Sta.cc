@@ -3915,7 +3915,7 @@ Sta::connectPinAfter(Pin *pin)
     }
     else {
       Vertex *vertex, *bidir_drvr_vertex;
-      if (network_->vertexIndex(pin) == 0) {
+      if (network_->vertexIndex(pin) == vertex_id_null) {
 	graph_->makePinVertices(pin, vertex, bidir_drvr_vertex);
 	graph_->makePinInstanceEdges(pin);
       }
