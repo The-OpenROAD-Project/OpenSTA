@@ -17,6 +17,7 @@
 #include <limits>
 #include "Machine.hh"
 #include "Network.hh"
+#include "DispatchQueue.hh"
 #include "StaState.hh"
 
 namespace sta {
@@ -37,6 +38,7 @@ StaState::StaState() :
   search_(nullptr),
   latches_(nullptr),
   thread_count_(1),
+  dispatch_queue_(new DispatchQueue(thread_count_)),
   pocv_enabled_(false),
   sigma_factor_(1.0)
 {
@@ -60,6 +62,7 @@ StaState::StaState(const StaState *sta) :
   search_(sta->search_),
   latches_(sta->latches_),
   thread_count_(sta->thread_count_),
+  dispatch_queue_(sta->dispatch_queue_),
   pocv_enabled_(sta->pocv_enabled_),
   sigma_factor_(sta->sigma_factor_)
 {
@@ -85,6 +88,7 @@ StaState::copyState(const StaState *sta)
   search_ = sta->search_;
   latches_ = sta->latches_;
   thread_count_ = sta->thread_count_;
+  dispatch_queue_ = sta->dispatch_queue_;
   pocv_enabled_ = sta->pocv_enabled_;
   sigma_factor_ = sta->sigma_factor_;
 }

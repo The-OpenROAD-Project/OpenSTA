@@ -19,7 +19,7 @@
 #include "Report.hh"
 #include "Debug.hh"
 #include "Mutex.hh"
-#include "ThreadForEach.hh"
+#include "DispatchQueue.hh"
 #include "Network.hh"
 #include "Graph.hh"
 #include "Levelize.hh"
@@ -159,51 +159,6 @@ BfsIterator::visit(Level to_level,
   return visit_count;
 }
 
-// VertexSeq::Iterator that filters null objects,
-// and pops objects so the vector does not need to be cleared.
-class QueueIterator : Iterator<Vertex*>
-{
-public:
-  QueueIterator(VertexSeq &vertices,
-		BfsIndex bfs_index);
-  virtual bool hasNext();
-  virtual Vertex *next();
-  unsigned count() { return count_; }
-
-private:
-  VertexSeq &vertices_;
-  BfsIndex bfs_index_;
-  unsigned count_;
-};
-
-QueueIterator::QueueIterator(VertexSeq &vertices,
-			     BfsIndex bfs_index) :
-  vertices_(vertices),
-  bfs_index_(bfs_index),
-  count_(0)
-{
-}
-  
-bool
-QueueIterator::hasNext()
-{
-  Vertex *next = nullptr;
-  while (!vertices_.empty()
-	 && (next = vertices_.back()) == nullptr)
-    vertices_.pop_back();
-  return next != nullptr;
-}
-
-Vertex *
-QueueIterator::next()
-{
-  Vertex *next = vertices_.back();
-  next->setBfsInQueue(bfs_index_, false);
-  vertices_.pop_back();
-  count_++;
-  return next;
-}
-
 int
 BfsIterator::visitParallel(Level to_level,
 			   VertexVisitor *visitor)
@@ -213,35 +168,24 @@ BfsIterator::visitParallel(Level to_level,
     if (thread_count_ <= 1)
       visit_count = visit(to_level, visitor);
     else {
-      std::mutex lock;
-      Level level = first_level_;
-      while (levelLessOrEqual(level, last_level_)
-	     && levelLessOrEqual(level, to_level)) {
-	VertexSeq &level_vertices = queue_[level];
+      std::vector<VertexVisitor*> visitors;
+      for (int i = 0; i < thread_count_; i++)
+	visitors.push_back(visitor->copy());
+      while (levelLessOrEqual(first_level_, last_level_)
+	     && levelLessOrEqual(first_level_, to_level)) {
+	VertexSeq &level_vertices = queue_[first_level_];
+	incrLevel(first_level_);
 	if (!level_vertices.empty()) {
-	  incrLevel(first_level_);
-	  QueueIterator iter(level_vertices, bfs_index_);
-	  std::vector<std::thread> threads;
-
-	  for (int i = 0; i < thread_count_; i++) {
-	    ForEachArg<QueueIterator, VertexVisitor> arg(&iter, lock,
-						      visitor->copy());
-	    // Missing check for null vertex.
-	    threads.push_back(std::thread(forEachBegin<QueueIterator,
-					  VertexVisitor, Vertex*>, arg));
+	  for (auto vertex : level_vertices) {
+	    if (vertex) {
+	      vertex->setBfsInQueue(bfs_index_, false);
+	      dispatch_queue_->dispatch( [vertex, &visitors](int i){ visitors[i]->visit(vertex); } );
+	      visit_count++;
+	    }
 	  }
-
-	  // Wait for all threads working on this level before moving on.
-	  for (auto &thread : threads)
-	    thread.join();
-
-	  visit_count += iter.count();
+	  dispatch_queue_->finishTasks();
 	  visitor->levelFinished();
-	  level = first_level_;
-	}
-	else {
-	  incrLevel(first_level_);
-	  level = first_level_;
+	  level_vertices.clear();
 	}
       }
     }

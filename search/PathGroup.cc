@@ -32,7 +32,7 @@
 #include "Search.hh"
 #include "VisitPathEnds.hh"
 #include "PathEnum.hh"
-#include "ThreadForEach.hh"
+#include "DispatchQueue.hh"
 #include "PathGroup.hh"
 
 namespace sta {
@@ -899,11 +899,15 @@ PathGroups::makeGroupPathEnds(VertexSet *endpoints,
 			      const MinMaxAll *min_max,
 			      PathEndVisitor *visitor)
 {
-  VertexSet::Iterator end_iter(endpoints);
-  MakeEndpointPathEnds make_path_ends(visitor, corner, min_max, this);
-  forEach<VertexSet::Iterator,VertexVisitor,Vertex*>(&end_iter,
-						     &make_path_ends,
-						     thread_count_);
+  Vector<MakeEndpointPathEnds*> visitors;
+  for (int i = 0; i < thread_count_; i++)
+    visitors.push_back(new MakeEndpointPathEnds(visitor, corner, min_max, this));
+  for (auto endpoint : *endpoints) {
+    dispatch_queue_->dispatch( [endpoint, &visitors](int i)
+			       { visitors[i]->visit(endpoint); } );
+  }
+  dispatch_queue_->finishTasks();
+  visitors.deleteContents();
 }
 
 } // namespace

@@ -17,6 +17,7 @@
 #include <limits>
 #include "Machine.hh"
 #include "DisallowCopyAssign.hh"
+#include "DispatchQueue.hh"
 #include "ReportTcl.hh"
 #include "Debug.hh"
 #include "Stats.hh"
@@ -319,6 +320,9 @@ void
 Sta::setThreadCount(int thread_count)
 {
   thread_count_ = thread_count;
+  //  dispatch_queue_->setThreadCount(thread_count);
+  delete dispatch_queue_;
+  dispatch_queue_ = new DispatchQueue(thread_count);
   updateComponentsState();
 }
 

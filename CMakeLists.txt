@@ -199,6 +199,7 @@ set(STA_SOURCE
   search/WritePathSpice.cc
   
   util/Debug.cc
+  util/DispatchQueue.cc
   util/Error.cc
   util/Fuzzy.cc
   util/Hash.cc
@@ -361,6 +362,7 @@ set(STA_HEADERS
   search/WritePathSpice.hh
   
   util/Debug.hh
+  util/DispatchQueue.hh
   util/DisallowCopyAssign.hh
   util/EnumNameMap.hh
   util/Error.hh
@@ -385,7 +387,6 @@ set(STA_HEADERS
   util/StringSeq.hh
   util/StringSet.hh
   util/StringUtil.hh
-  util/ThreadForEach.hh
   util/TokenParser.hh
   util/UnorderedMap.hh
   util/UnorderedSet.hh

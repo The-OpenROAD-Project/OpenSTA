@@ -37,6 +37,7 @@ class Parasitics;
 class ArcDelayCalc;
 class GraphDelayCalc;
 class Latches;
+class DispatchQueue;
 
 // Most STA components use functionality in other components.
 // This class simplifies the process of copying pointers to the
@@ -114,6 +115,7 @@ protected:
   Search *search_;
   Latches *latches_;
   int thread_count_;
+  DispatchQueue *dispatch_queue_;
   bool pocv_enabled_;
   float sigma_factor_;
 

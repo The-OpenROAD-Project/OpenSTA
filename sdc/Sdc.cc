@@ -2472,8 +2472,9 @@ Sdc::cycleAccting(const ClockEdge *src,
 {
   if (src == nullptr)
     src = tgt;
+  CycleAccting *acct;
   CycleAccting probe(src, tgt);
-  CycleAccting *acct = cycle_acctings_.findKey(&probe);
+  acct = cycle_acctings_.findKey(&probe);
   if (acct == nullptr) {
     UniqueLock lock(cycle_acctings_lock_);
     // Recheck with lock.

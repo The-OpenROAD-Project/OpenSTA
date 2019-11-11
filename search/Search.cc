@@ -19,7 +19,6 @@
 #include "Machine.hh"
 #include "DisallowCopyAssign.hh"
 #include "Mutex.hh"
-#include "ThreadForEach.hh"
 #include "Report.hh"
 #include "Debug.hh"
 #include "Error.hh"
