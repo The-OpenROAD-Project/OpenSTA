@@ -71,11 +71,6 @@ protected:
 	     Pin *ref_pin,
 	     int index,
 	     Network *network);
-  InputDelay *next() { return next_; }
-
-  // Linked list of port delays on the same pin wrt different clocks.
-  InputDelay *next_;
-  void setNext(InputDelay *next);
 
 private:
   DISALLOW_COPY_AND_ASSIGN(InputDelay);
@@ -83,8 +78,6 @@ private:
   int index_;
 
   friend class Sdc;
-  friend class PinInputDelayIterator;
-  friend class InputDelayIterator;
 };
 
 class OutputDelay : public PortDelay
@@ -96,70 +89,11 @@ protected:
 	      ClockEdge *clk_edge,
 	      Pin *ref_pin,
 	      Network *network);
-  OutputDelay *next() { return next_; }
-  void setNext(OutputDelay *next);
-
-  // Linked list of port delays on the same port wrt different clocks.
-  OutputDelay *next_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(OutputDelay);
 
   friend class Sdc;
-  friend class PinOutputDelayIterator;
-  friend class OutputDelayIterator;
-};
-
-class PinInputDelayIterator : public Iterator<InputDelay*>
-{
-public:
-  PinInputDelayIterator(const Pin *pin,
-			const Sdc *sdc);
-  virtual bool hasNext();
-  virtual InputDelay *next();
-
-protected:
-  PinInputDelayIterator() {}
-
-  InputDelay *next_;
-
-  DISALLOW_COPY_AND_ASSIGN(PinInputDelayIterator);
-};
-
-class LeafPinInputDelayIterator : public PinInputDelayIterator
-{
-public:
-  LeafPinInputDelayIterator(const Pin *pin,
-			      const Sdc *sdc);
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(LeafPinInputDelayIterator);
-};
-
-class PinOutputDelayIterator : public Iterator<OutputDelay*>
-{
-public:
-  PinOutputDelayIterator(const Pin *pin,
-			 const Sdc *sdc);
-  virtual bool hasNext();
-  virtual OutputDelay *next();
-
-protected:
-  PinOutputDelayIterator() {}
-
-  OutputDelay *next_;
-
-  DISALLOW_COPY_AND_ASSIGN(PinOutputDelayIterator);
-};
-
-class LeafPinOutputDelayIterator : public PinOutputDelayIterator
-{
-public:
-  LeafPinOutputDelayIterator(const Pin *pin,
-			     const Sdc *sdc);
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(LeafPinOutputDelayIterator);
 };
 
 // Prediate used to sort port delays.

@@ -868,7 +868,7 @@ Search::visitStartpoints(VertexVisitor *visitor)
   }
   delete pin_iter;
 
-  for (auto iter : sdc_->inputDelayMap()) {
+  for (auto iter : sdc_->inputDelayPinMap()) {
     const Pin *pin = iter.first;
     // Already hit these.
     if (!network_->isTopLevelPort(pin)) {
@@ -1332,7 +1332,7 @@ ArrivalVisitor::enqueueRefPinInputDelays(const Pin *ref_pin)
   InputDelaySet *input_delays = sdc->refPinInputDelays(ref_pin);
   if (input_delays) {
     const Graph *graph = sta_->graph();
-    for (auto input_delay : *input_delays) {
+    for (InputDelay *input_delay : *input_delays) {
       const Pin *pin = input_delay->pin();
       Vertex *vertex, *bidirect_drvr_vertex;
       graph->pinVertices(pin, vertex, bidirect_drvr_vertex);
@@ -1661,7 +1661,7 @@ Search::seedInputArrivals(ClockSet *clks)
 {
   // Input arrivals can be on internal pins, so iterate over the pins
   // that have input arrivals rather than the top level input pins.
-  for (auto iter : sdc_->inputDelayMap()) {
+  for (auto iter : sdc_->inputDelayPinMap()) {
     const Pin *pin = iter.first;
     if (!sdc_->isLeafPinClock(pin)) {
       Vertex *vertex = graph_->pinDrvrVertex(pin);
@@ -1677,25 +1677,26 @@ Search::seedInputArrival(const Pin *pin,
 {
   bool has_arrival = false;
   // There can be multiple arrivals for a pin with wrt different clocks.
-  LeafPinInputDelayIterator arrival_iter(pin, sdc_);
   TagGroupBldr tag_bldr(true, this);
   tag_bldr.init(vertex);
-  while (arrival_iter.hasNext()) {
-    InputDelay *input_delay = arrival_iter.next();
-    Clock *input_clk = input_delay->clock();
-    ClockSet *pin_clks = sdc_->findLeafPinClocks(pin);
-    if (input_clk && wrt_clks->hasKey(input_clk)
-	// Input arrivals wrt a clock source pin is the insertion
-	// delay (source latency), but arrivals wrt other clocks
-	// propagate.
-	&& (pin_clks == nullptr
-	    || !pin_clks->hasKey(input_clk))) {
-      seedInputDelayArrival(pin, vertex, input_delay, false, &tag_bldr);
-      has_arrival = true;
+  InputDelaySet *input_delays = sdc_->inputDelaysLeafPin(pin);
+  if (input_delays) {
+    for (InputDelay *input_delay : *input_delays) {
+      Clock *input_clk = input_delay->clock();
+      ClockSet *pin_clks = sdc_->findLeafPinClocks(pin);
+      if (input_clk && wrt_clks->hasKey(input_clk)
+	  // Input arrivals wrt a clock source pin is the insertion
+	  // delay (source latency), but arrivals wrt other clocks
+	  // propagate.
+	  && (pin_clks == nullptr
+	      || !pin_clks->hasKey(input_clk))) {
+	seedInputDelayArrival(pin, vertex, input_delay, false, &tag_bldr);
+	has_arrival = true;
+      }
     }
+    if (has_arrival)
+      setVertexArrivals(vertex, &tag_bldr);
   }
-  if (has_arrival)
-    setVertexArrivals(vertex, &tag_bldr);
 }
 
 void
@@ -1725,18 +1726,19 @@ Search::seedInputArrival1(const Pin *pin,
 			  TagGroupBldr *tag_bldr)
 {
   // There can be multiple arrivals for a pin with wrt different clocks.
-  LeafPinInputDelayIterator arrival_iter(pin, sdc_);
-  while (arrival_iter.hasNext()) {
-    InputDelay *input_delay = arrival_iter.next();
-    Clock *input_clk = input_delay->clock();
-    ClockSet *pin_clks = sdc_->findLeafPinClocks(pin);
-    // Input arrival wrt a clock source pin is the clock insertion
-    // delay (source latency), but arrivals wrt other clocks
-    // propagate.
-    if (pin_clks == nullptr
-	|| !pin_clks->hasKey(input_clk))
-      seedInputDelayArrival(pin, vertex, input_delay, is_segment_start,
-			    tag_bldr);
+  InputDelaySet *input_delays = sdc_->inputDelaysLeafPin(pin);
+  if (input_delays) {
+    for (InputDelay *input_delay : *input_delays) {
+      Clock *input_clk = input_delay->clock();
+      ClockSet *pin_clks = sdc_->findLeafPinClocks(pin);
+      // Input arrival wrt a clock source pin is the clock insertion
+      // delay (source latency), but arrivals wrt other clocks
+      // propagate.
+      if (pin_clks == nullptr
+	  || !pin_clks->hasKey(input_clk))
+	seedInputDelayArrival(pin, vertex, input_delay, is_segment_start,
+			      tag_bldr);
+    }
   }
 }
 

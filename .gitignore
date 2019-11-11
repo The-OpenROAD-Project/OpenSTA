@@ -10,6 +10,7 @@
 TAGS
 *~
 \#*#
+.#*
 .~lock.*#
 .DS_Store
 Makefile

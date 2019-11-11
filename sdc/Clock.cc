@@ -90,6 +90,7 @@ Clock::setPins(PinSet *pins,
 {
   if (pins)
     pins_ = *pins;
+  delete pins;
   makeLeafPins(network);
 }
 

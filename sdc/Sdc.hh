@@ -38,8 +38,6 @@
 namespace sta {
 
 class OperatingConditions;
-class PinInputDelayIterator;
-class PinOutputDelayIterator;
 class PortExtCap;
 class ClockGatingCheck;
 class InputDriveCell;
@@ -106,12 +104,9 @@ public:
 typedef Map<const char*,Clock*, CharPtrLess> ClockNameMap;
 typedef UnorderedMap<const Pin*, ClockSet*> ClockPinMap;
 typedef Set<InputDelay*> InputDelaySet;
-typedef Map<const Pin*,InputDelay*> InputDelayMap;
-typedef Set<InputDelay*> InputDelaySet;
-typedef Map<const Pin*,InputDelaySet*> InputDelayRefPinMap;
-typedef Map<const Pin*,InputDelaySet*> InputDelayInternalPinMap;
+typedef Map<const Pin*,InputDelaySet*> InputDelaysPinMap;
 typedef Set<OutputDelay*> OutputDelaySet;
-typedef Map<const Pin*,OutputDelay*> OutputDelayMap;
+typedef Map<const Pin*,OutputDelaySet*> OutputDelaysPinMap;
 // Use HashSet so no read lock is required.
 typedef HashSet<CycleAccting*, CycleAcctingHash, CycleAcctingEqual> CycleAcctingSet;
 typedef Set<Instance*> InstanceSet;
@@ -817,13 +812,7 @@ public:
   void setUseDefaultArrivalClock(bool enable);
 
   // STA interface.
-  InputDelay *ensureInputDelay(Pin *pin,
-			       ClockEdge *clk_edge,
-			       Pin *ref_pin);
   InputDelaySet *refPinInputDelays(const Pin *ref_pin) const;
-  OutputDelay *ensureOutputDelay(Pin *pin,
-				 ClockEdge *clk_edge,
-				 Pin *ref_pin);
   LogicValueMap *logicValues() { return &logic_value_map_; }
   LogicValueMap *caseLogicValues() { return &case_value_map_; }
   // Returns nullptr if set_operating_conditions has not been called.
@@ -892,18 +881,23 @@ public:
 			     const ClockEdge *tgt);
   // Report clock to clock relationships that exceed max_cycle_count.
   void reportClkToClkMaxCycleWarnings();
+
   const InputDelaySet &inputDelays() const { return input_delays_; }
   // Pin -> input delays.
-  const InputDelayMap &inputDelayMap() const { return input_delay_map_; }
-  // Iterate over the input delays on pin (which may be hierarchical).
-  PinInputDelayIterator *inputDelayIterator(const Pin *pin) const;
+  const InputDelaysPinMap &inputDelayPinMap() const { return input_delay_pin_map_; }
+  // Input delays on leaf_pin.
+  InputDelaySet *inputDelaysLeafPin(const Pin *leaf_pin);
   bool hasInputDelay(const Pin *leaf_pin) const;
   // Pin is internal (not top level port) and has an input arrival.
   bool isInputDelayInternal(const Pin *pin) const;
+
   const OutputDelaySet &outputDelays() const { return output_delays_; }
-  // Iterate over the output delays on pin (which may be hierarchical).
-  PinOutputDelayIterator *outputDelayIterator(const Pin *pin) const;
+  // Pin -> output delays.
+  const OutputDelaysPinMap &outputDelayPinMap() const { return output_delay_pin_map_; }
+  // Output delays on leaf_pin.
+  OutputDelaySet *outputDelaysLeafPin(const Pin *leaf_pin);
   bool hasOutputDelay(const Pin *leaf_pin) const;
+
   PortExtCap *portExtCap(Port *port) const;
   bool hasPortExtCap(Port *port) const;
   void portExtCap(Port *port,
@@ -1168,11 +1162,17 @@ protected:
   InputDelay *findInputDelay(const Pin *pin,
 			     ClockEdge *clk_edge,
 			     Pin *ref_pin);
+  InputDelay *makeInputDelay(Pin *pin,
+			     ClockEdge *clk_edge,
+			     Pin *ref_pin);
   void deleteInputDelays(Pin *pin,
 			 InputDelay *except);
   void deleteInputDelaysReferencing(Clock *clk);
   void deleteInputDelay(InputDelay *input_delay);
   OutputDelay *findOutputDelay(const Pin *pin,
+			       ClockEdge *clk_edge,
+			       Pin *ref_pin);
+  OutputDelay *makeOutputDelay(Pin *pin,
 			       ClockEdge *clk_edge,
 			       Pin *ref_pin);
   void deleteOutputDelays(Pin *pin, OutputDelay *except);
@@ -1313,17 +1313,21 @@ protected:
   std::mutex cycle_acctings_lock_;
   DataChecksMap data_checks_from_map_;
   DataChecksMap data_checks_to_map_;
+
   InputDelaySet input_delays_;
-  InputDelayMap input_delay_map_;
+  InputDelaysPinMap input_delay_pin_map_;
   int input_delay_index_;
-  InputDelayRefPinMap input_delay_ref_pin_map_;
+  InputDelaysPinMap input_delay_ref_pin_map_;
   // Input delays on hierarchical pins are indexed by the load pins.
-  InputDelayMap input_delay_leaf_pin_map_;
-  InputDelayInternalPinMap input_delay_internal_pin_map_;
+  InputDelaysPinMap input_delay_leaf_pin_map_;
+  InputDelaysPinMap input_delay_internal_pin_map_;
+
   OutputDelaySet output_delays_;
-  OutputDelayMap output_delay_map_;
+  OutputDelaysPinMap output_delay_pin_map_;
+  OutputDelaysPinMap output_delay_ref_pin_map_;
   // Output delays on hierarchical pins are indexed by the load pins.
-  OutputDelayMap output_delay_leaf_pin_map_;
+  OutputDelaysPinMap output_delay_leaf_pin_map_;
+
   PortSlewLimitMap port_slew_limit_map_;
   PinSlewLimitMap pin_slew_limit_map_;
   CellSlewLimitMap cell_slew_limit_map_;
@@ -1420,10 +1424,6 @@ private:
   friend class FindNetCaps;
   friend class ClockGroupIterator;
   friend class GroupPathIterator;
-  friend class PinInputDelayIterator;
-  friend class LeafPinInputDelayIterator;
-  friend class PinOutputDelayIterator;
-  friend class LeafPinOutputDelayIterator;
 };
 
 class ClockIterator : public ClockSeq::Iterator

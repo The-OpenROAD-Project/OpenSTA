@@ -247,11 +247,12 @@ CheckTiming::checkUnconstraintedOutputs(PinSet &unconstrained_ends)
 bool
 CheckTiming::hasClkedDepature(Pin *pin)
 {
-  PinOutputDelayIterator delay_iter(pin, sdc_);
-  while (delay_iter.hasNext()) {
-    OutputDelay *output_delay = delay_iter.next();
-    if (output_delay->clkEdge() != nullptr)
-      return true;
+  OutputDelaySet *output_delays = sdc_->outputDelaysLeafPin(pin);
+  if (output_delays) {
+    for (OutputDelay *output_delay : *output_delays) {
+      if (output_delay->clkEdge() != nullptr)
+	return true;
+    }
   }
   return false;
 }

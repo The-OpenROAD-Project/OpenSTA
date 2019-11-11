@@ -167,12 +167,14 @@ Sdc::clear()
   data_checks_to_map_.clear();
 
   input_delays_.clear();
-  input_delay_map_.clear();
+  input_delay_pin_map_.clear();
   input_delay_index_ = 0;
   input_delay_ref_pin_map_.clear();
   input_delay_leaf_pin_map_.clear();
   input_delay_internal_pin_map_.clear();
-  output_delay_map_.clear();
+
+  output_delays_.clear();
+  output_delay_pin_map_.clear();
   output_delay_leaf_pin_map_.clear();
 
   port_slew_limit_map_.clear();
@@ -283,32 +285,18 @@ Sdc::deleteConstraints()
     delete checks;
   }
 
-  InputDelayMap::Iterator input_iter(input_delay_map_);
-  while (input_iter.hasNext()) {
-    InputDelay *input_delay = input_iter.next();
-    while (input_delay) {
-      InputDelay *next = input_delay->next();
-      delete input_delay;
-      input_delay = next;
-    }
-  }
+  for (auto input_delay : input_delays_)
+    delete input_delay;
+  input_delay_pin_map_.deleteContents();
+  input_delay_leaf_pin_map_.deleteContents();                                        
+  input_delay_internal_pin_map_.deleteContents();                                    
 
-  InputDelayRefPinMap::Iterator input_set_iter(input_delay_ref_pin_map_);
-  while (input_set_iter.hasNext()) {
-    InputDelaySet *input_delays = input_set_iter.next();
-    delete input_delays;
-  }
-  input_delay_internal_pin_map_.deleteContents();
+  for (auto output_delay : output_delays_)
+    delete output_delay;
+  output_delay_pin_map_.deleteContents();                                            
+  output_delay_ref_pin_map_.deleteContents();                                        
+  output_delay_leaf_pin_map_.deleteContents();                                       
 
-  OutputDelayMap::Iterator output_iter(output_delay_map_);
-  while (output_iter.hasNext()) {
-    OutputDelay *output_delay = output_iter.next();
-    while (output_delay) {
-      OutputDelay *next = output_delay->next();
-      delete output_delay;
-      output_delay = next;
-    }
-  }
 
   clk_hpin_disables_.deleteContentsClear();
   clk_hpin_disables_valid_ = false;
@@ -442,8 +430,8 @@ Sdc::isConstrained(const Pin *pin) const
     || pin_clk_gating_check_map_.hasKey(pin)
     || data_checks_from_map_.hasKey(pin)
     || data_checks_to_map_.hasKey(pin)
-    || input_delay_map_.hasKey(pin)
-    || output_delay_map_.hasKey(pin)
+    || input_delay_pin_map_.hasKey(pin)
+    || output_delay_pin_map_.hasKey(pin)
     || port_slew_limit_map_.hasKey(port)
     || pin_cap_limit_map_.hasKey(pin1)
     || port_cap_limit_map_.hasKey(port)
@@ -2772,12 +2760,16 @@ Sdc::setInputDelay(Pin *pin,
 		   float delay)
 {
   ClockEdge *clk_edge = clk ? clk->edge(clk_tr) : nullptr;
-  InputDelay *input_delay = ensureInputDelay(pin, clk_edge, ref_pin);
-  RiseFallMinMax *delays = input_delay->delays();
-  if (add)
+  InputDelay *input_delay = findInputDelay(pin, clk_edge, ref_pin);
+  if (input_delay == nullptr)
+    input_delay = makeInputDelay(pin, clk_edge, ref_pin);
+  if (add) {
+    RiseFallMinMax *delays = input_delay->delays();
     delays->mergeValue(tr, min_max, delay);
+  }
   else {
     deleteInputDelays(pin, input_delay);
+    RiseFallMinMax *delays = input_delay->delays();
     delays->setValue(tr, min_max, delay);
   }
   input_delay->setSourceLatencyIncluded(source_latency_included);
@@ -2785,35 +2777,45 @@ Sdc::setInputDelay(Pin *pin,
 }
 
 InputDelay *
-Sdc::ensureInputDelay(Pin *pin,
-		      ClockEdge *clk_edge,
-		      Pin *ref_pin)
+Sdc::makeInputDelay(Pin *pin,
+		    ClockEdge *clk_edge,
+		    Pin *ref_pin)
 {
-  InputDelay *input_delay = findInputDelay(pin, clk_edge, ref_pin);
-  if (input_delay == nullptr) {
-    input_delay = new InputDelay(pin, clk_edge, ref_pin, input_delay_index_++,
-				 network_);
-    input_delays_.insert(input_delay);
-    input_delay->setNext(input_delay_map_[pin]);
-    input_delay_map_[pin] = input_delay;
-    if (ref_pin) {
-      InputDelaySet *ref_inputs = input_delay_ref_pin_map_.findKey(ref_pin);
-      if (ref_inputs == nullptr) {
-	ref_inputs = new InputDelaySet;
-	input_delay_ref_pin_map_[ref_pin] = ref_inputs;
-      }
-      ref_inputs->insert(input_delay);
+  InputDelay *input_delay = new InputDelay(pin, clk_edge, ref_pin,
+					   input_delay_index_++,
+					   network_);
+  input_delays_.insert(input_delay);
+  InputDelaySet *inputs = input_delay_pin_map_.findKey(pin);
+  if (inputs == nullptr) {
+    inputs = new InputDelaySet;
+    input_delay_pin_map_[pin] = inputs;
+  }
+  inputs->insert(input_delay);
+
+  if (ref_pin) {
+    InputDelaySet *ref_inputs = input_delay_ref_pin_map_.findKey(ref_pin);
+    if (ref_inputs == nullptr) {
+      ref_inputs = new InputDelaySet;
+      input_delay_ref_pin_map_[ref_pin] = ref_inputs;
     }
-    for (Pin *vpin : input_delay->leafPins()) {
-      input_delay_leaf_pin_map_[vpin] = input_delay;
-      if (!network_->isTopLevelPort(vpin)) {
-	InputDelaySet *input_set = input_delay_internal_pin_map_[vpin];
-	if (input_set == nullptr) {
-	  input_set = new InputDelaySet;
-	  input_delay_internal_pin_map_[vpin] = input_set;
-	}
-	input_set->insert(input_delay);
+    ref_inputs->insert(input_delay);
+  }
+
+  for (Pin *lpin : input_delay->leafPins()) {
+    InputDelaySet *leaf_inputs = input_delay_leaf_pin_map_[lpin];
+    if (leaf_inputs == nullptr) {
+      leaf_inputs = new InputDelaySet;
+      input_delay_leaf_pin_map_[lpin] = leaf_inputs;
+    }
+    leaf_inputs->insert(input_delay);
+
+    if (!network_->isTopLevelPort(lpin)) {
+      InputDelaySet *internal_inputs = input_delay_internal_pin_map_[lpin];
+      if (internal_inputs == nullptr) {
+	internal_inputs = new InputDelaySet;
+	input_delay_internal_pin_map_[pin] = internal_inputs;
       }
+      internal_inputs->insert(input_delay);
     }
   }
   return input_delay;
@@ -2824,12 +2826,13 @@ Sdc::findInputDelay(const Pin *pin,
 		    ClockEdge *clk_edge,
 		    Pin *ref_pin)
 {
-  for (InputDelay *input_delay = input_delay_map_.findKey(pin);
-       input_delay;
-       input_delay = input_delay->next()) {
-    if (input_delay->clkEdge() == clk_edge
-	&& input_delay->refPin() == ref_pin)
-      return input_delay;
+  InputDelaySet *inputs = input_delay_pin_map_.findKey(pin);
+  if (inputs) {
+    for (InputDelay *input_delay : *inputs) {
+      if (input_delay->clkEdge() == clk_edge
+	  && input_delay->refPin() == ref_pin)
+	return input_delay;
+    }
   }
   return nullptr;
 }
@@ -2855,27 +2858,12 @@ void
 Sdc::deleteInputDelays(Pin *pin,
 		       InputDelay *except)
 {
-  InputDelay *input_delay = input_delay_map_.findKey(pin);
-  while (input_delay) {
-    InputDelay *next = input_delay->next();
-    if (input_delay == except)
-      input_delay->setNext(nullptr);
-    else {
-      delete input_delay;
-      input_delays_.erase(input_delay);
-    }
-    input_delay = next;
-  }
-  input_delay_map_[pin] = except;
-  
-  for (Pin *vpin : except->leafPins()) {
-    input_delay_leaf_pin_map_[vpin] = except;
-    InputDelaySet *input_delays =
-      input_delay_internal_pin_map_.findKey(vpin);
-    if (input_delays) {
-      input_delays->clear();
-      input_delays->insert(except);
-    }
+  InputDelaySet *input_delays = input_delay_pin_map_[pin];
+  InputDelaySet::Iterator iter(input_delays);
+  while (iter.hasNext()) {
+    InputDelay *input_delay = iter.next();
+    if (input_delay != except)
+      deleteInputDelay(input_delay);
   }
 }
 
@@ -2885,70 +2873,48 @@ Sdc::refPinInputDelays(const Pin *ref_pin) const
   return input_delay_ref_pin_map_.findKey(ref_pin);
 }
 
-PinInputDelayIterator *
-Sdc::inputDelayIterator(const Pin *pin) const
+InputDelaySet *
+Sdc::inputDelaysLeafPin(const Pin *leaf_pin)
 {
-  return new PinInputDelayIterator(pin, this);
+  return input_delay_leaf_pin_map_.findKey(leaf_pin);
 }
 
 bool
 Sdc::hasInputDelay(const Pin *leaf_pin) const
 {
-  return input_delay_leaf_pin_map_.findKey(leaf_pin) != nullptr;
+  InputDelaySet *input_delays = input_delay_leaf_pin_map_.findKey(leaf_pin);
+  return input_delays && !input_delays->empty();
 }
 
 bool
 Sdc::isInputDelayInternal(const Pin *pin) const
 {
-  InputDelaySet *input_delays =
-    input_delay_internal_pin_map_.findKey(pin);
-  return input_delays && !input_delays->empty();
+  return input_delay_internal_pin_map_.hasKey(pin);
 }
-
-
 
 void
 Sdc::deleteInputDelaysReferencing(Clock *clk)
 {
-  Vector<InputDelay*> refs;
-  for (InputDelay *input_delay : input_delays_) {
+  InputDelaySet::Iterator iter(input_delays_);
+  while (iter.hasNext()) {
+    InputDelay *input_delay = iter.next();
     if (input_delay->clock() == clk)
-      refs.push_back(input_delay);
-  }
-  for (InputDelay *input_delay : refs)
       deleteInputDelay(input_delay);
+  }
 }
 
 void
 Sdc::deleteInputDelay(InputDelay *input_delay)
 {
   input_delays_.erase(input_delay);
-  Pin *pin = input_delay->pin();
-  InputDelay *head = input_delay_map_.findKey(pin);
-  if (head == input_delay) {
-    InputDelay *next = input_delay->next();
-    if (next)
-      input_delay_map_[pin] = next;
-    else
-      input_delay_map_.erase(pin);
-    head = next;
-  }
-  else {
-    for (InputDelay *delay = head; delay; ) {
-      InputDelay *next = delay->next();
-      if (next == input_delay) {
-	delay->setNext(input_delay->next());
-	break;
-      }
-      delay = next;
-    }
-  }
 
-  for (Pin *vpin : input_delay->leafPins()) {
-    if (head)
-      input_delay_leaf_pin_map_[vpin] = head;
-    else
-      input_delay_leaf_pin_map_.erase(vpin);
+  Pin *pin = input_delay->pin();
+  InputDelaySet *inputs = input_delay_pin_map_[pin];
+  inputs->erase(input_delay);
+
+  for (Pin *lpin : input_delay->leafPins()) {
+    InputDelaySet *inputs = input_delay_leaf_pin_map_[lpin];
+    inputs->erase(input_delay);
   }
 
   delete input_delay;
@@ -2969,12 +2935,16 @@ Sdc::setOutputDelay(Pin *pin,
 		    float delay)
 {
   ClockEdge *clk_edge = clk ? clk->edge(clk_tr) : nullptr;
-  OutputDelay *output_delay = ensureOutputDelay(pin, clk_edge, ref_pin);
-  RiseFallMinMax *delays = output_delay->delays();
-  if (add)
+  OutputDelay *output_delay = findOutputDelay(pin, clk_edge, ref_pin);
+  if (output_delay == nullptr)
+    output_delay = makeOutputDelay(pin, clk_edge, ref_pin);
+  if (add) {
+    RiseFallMinMax *delays = output_delay->delays();
     delays->mergeValue(tr, min_max, delay);
+  }
   else {
     deleteOutputDelays(pin, output_delay);
+    RiseFallMinMax *delays = output_delay->delays();
     delays->setValue(tr, min_max, delay);
   }
   output_delay->setSourceLatencyIncluded(source_latency_included);
@@ -2982,38 +2952,56 @@ Sdc::setOutputDelay(Pin *pin,
 }
 
 OutputDelay *
-Sdc::ensureOutputDelay(Pin *pin,
-		       ClockEdge *clk_edge,
-		       Pin *ref_pin)
-{
-  OutputDelay *output_delay = findOutputDelay(pin, clk_edge, ref_pin);
-  if (output_delay == nullptr) {
-    output_delay = new OutputDelay(pin, clk_edge, ref_pin, network_);
-    output_delays_.insert(output_delay);
-    output_delay->setNext(output_delay_map_[pin]);
-    output_delay_map_[pin] = output_delay;
-    for (Pin *vpin : output_delay->leafPins()) {
-      output_delay_leaf_pin_map_[vpin] = output_delay;
-      if (graph_)
-	annotateGraphConstrained(vpin, true);
-    }
-  }
-  return output_delay;
-}
-
-OutputDelay *
 Sdc::findOutputDelay(const Pin *pin,
 		     ClockEdge *clk_edge,
 		     Pin *ref_pin)
 {
-  for (OutputDelay *output_delay = output_delay_map_.findKey(pin);
-       output_delay;
-       output_delay = output_delay->next()) {
-    if (output_delay->clkEdge() == clk_edge
-	&& output_delay->refPin() == ref_pin)
-      return output_delay;
+  OutputDelaySet *outputs = output_delay_pin_map_.findKey(pin);
+  if (outputs) {
+    for (OutputDelay *output_delay : *outputs) {
+      if (output_delay->clkEdge() == clk_edge
+	  && output_delay->refPin() == ref_pin)
+	return output_delay;
+    }
   }
   return nullptr;
+}
+
+OutputDelay *
+Sdc::makeOutputDelay(Pin *pin,
+		     ClockEdge *clk_edge,
+		     Pin *ref_pin)
+{
+  OutputDelay *output_delay = new OutputDelay(pin, clk_edge, ref_pin,
+					      network_);
+  output_delays_.insert(output_delay);
+  OutputDelaySet *outputs = output_delay_pin_map_.findKey(pin);
+  if (outputs == nullptr) {
+    outputs = new OutputDelaySet;
+    output_delay_pin_map_[pin] = outputs;
+  }
+  outputs->insert(output_delay);
+
+  if (ref_pin) {
+    OutputDelaySet *ref_outputs = output_delay_ref_pin_map_.findKey(ref_pin);
+    if (ref_outputs == nullptr) {
+      ref_outputs = new OutputDelaySet;
+      output_delay_ref_pin_map_[ref_pin] = ref_outputs;
+    }
+    ref_outputs->insert(output_delay);
+  }
+
+  for (Pin *lpin : output_delay->leafPins()) {
+    OutputDelaySet *leaf_outputs = output_delay_leaf_pin_map_[lpin];
+    if (leaf_outputs == nullptr) {
+      leaf_outputs = new OutputDelaySet;
+      output_delay_leaf_pin_map_[lpin] = leaf_outputs;
+    }
+    leaf_outputs->insert(output_delay);
+    if (graph_)
+      annotateGraphConstrained(lpin, true);
+  }
+  return output_delay;
 }
 
 void
@@ -3024,9 +3012,9 @@ Sdc::removeOutputDelay(Pin *pin,
 		       MinMaxAll *min_max)
 {
   ClockEdge *clk_edge = clk ? clk->edge(clk_tr) : nullptr;
-  InputDelay *input_delay = findInputDelay(pin, clk_edge, nullptr);
-  if (input_delay) {
-    RiseFallMinMax *delays = input_delay->delays();
+  OutputDelay *output_delay = findOutputDelay(pin, clk_edge, nullptr);
+  if (output_delay) {
+    RiseFallMinMax *delays = output_delay->delays();
     delays->removeValue(tr, min_max);
   }
 }
@@ -3035,24 +3023,19 @@ void
 Sdc::deleteOutputDelays(Pin *pin,
 			OutputDelay *except)
 {
-  OutputDelay *output_delay = output_delay_map_.findKey(pin);
-  while (output_delay) {
-    OutputDelay *next = output_delay->next();
-    if (output_delay == except)
-      output_delay->setNext(nullptr);
-    else
-      delete output_delay;
-    output_delay = next;
+  OutputDelaySet *output_delays = output_delay_pin_map_[pin];
+  OutputDelaySet::Iterator iter(output_delays);
+  while (iter.hasNext()) {
+    OutputDelay *output_delay = iter.next();
+    if (output_delay != except)
+      deleteOutputDelay(output_delay);
   }
-  output_delay_map_[pin] = except;
-  for (Pin *vpin : except->leafPins())
-    output_delay_leaf_pin_map_[vpin] = except;
 }
 
-PinOutputDelayIterator *
-Sdc::outputDelayIterator(const Pin *pin) const
+OutputDelaySet *
+Sdc::outputDelaysLeafPin(const Pin *leaf_pin)
 {
-  return new PinOutputDelayIterator(pin, this);
+  return output_delay_leaf_pin_map_.findKey(leaf_pin);
 }
 
 bool
@@ -3064,45 +3047,26 @@ Sdc::hasOutputDelay(const Pin *leaf_pin) const
 void
 Sdc::deleteOutputDelaysReferencing(Clock *clk)
 {
-  Vector<OutputDelay*> refs;
-  for (OutputDelay *output_delay : output_delays_) {
+  OutputDelaySet::Iterator iter(output_delays_);
+  while (iter.hasNext()) {
+    OutputDelay *output_delay = iter.next();
     if (output_delay->clock() == clk)
-      refs.push_back(output_delay);
+      deleteOutputDelay(output_delay);
   }
-  for (OutputDelay *output_delay : refs)
-    deleteOutputDelay(output_delay);
 }
 
 void
 Sdc::deleteOutputDelay(OutputDelay *output_delay)
 {
-  Pin *pin = output_delay->pin();
   output_delays_.erase(output_delay);
-  OutputDelay *head = output_delay_map_.findKey(pin);
-  if (head == output_delay) {
-    OutputDelay *next = output_delay->next();
-    if (next)
-      output_delay_map_[pin] = next;
-    else
-      output_delay_map_.erase(pin);
-    head = next;
-  }
-  else {
-    for (OutputDelay *delay = head; delay; ) {
-      OutputDelay *next = delay->next();
-      if (next == output_delay) {
-	delay->setNext(output_delay->next());
-	break;
-      }
-      delay = next;
-    }
-  }
 
-  for (Pin *vpin : output_delay->leafPins()) {
-    if (head)
-      output_delay_leaf_pin_map_[vpin] = head;
-    else
-      output_delay_leaf_pin_map_.erase(vpin);
+  Pin *pin = output_delay->pin();
+ OutputDelaySet *outputs = output_delay_pin_map_[pin];
+  outputs->erase(output_delay);
+
+  for (Pin *lpin : output_delay->leafPins()) {
+    OutputDelaySet *outputs = output_delay_leaf_pin_map_[lpin];
+    outputs->erase(output_delay);
   }
 
   delete output_delay;
@@ -6345,14 +6309,9 @@ Sdc::setEdgeDisabledInstFrom(Pin *from_pin,
 void
 Sdc::annotateGraphOutputDelays(bool annotate)
 {
-  OutputDelayMap::Iterator output_iter(output_delay_map_);
-  while (output_iter.hasNext()) {
-    OutputDelay *output_delay = output_iter.next();
-    while (output_delay) {
-      for (Pin *vpin : output_delay->leafPins())
-	annotateGraphConstrained(vpin, annotate);
-      output_delay = output_delay->next();
-    }
+  for (OutputDelay *output_delay : output_delays_) {
+    for (Pin *lpin : output_delay->leafPins())
+      annotateGraphConstrained(lpin, annotate);
   }
 }
 

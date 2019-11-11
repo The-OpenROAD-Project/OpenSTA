@@ -299,36 +299,37 @@ VisitPathEnds::visitOutputDelayEnd(const Pin *pin,
 				   bool &is_constrained)
 {
   const MinMax *min_max = path_ap->pathMinMax();
-  LeafPinOutputDelayIterator delay_iter(pin, sdc_);
-  while (delay_iter.hasNext()) {
-    OutputDelay *output_delay = delay_iter.next();
-    float margin;
-    bool exists;
-    output_delay->delays()->value(end_tr, min_max, margin, exists);
-    if (exists) {
-      const Pin *ref_pin = output_delay->refPin();
-      ClockEdge *tgt_clk_edge = output_delay->clkEdge();
-      if (!filtered
-	  || search_->matchesFilter(path, tgt_clk_edge)) {
-	if (ref_pin) {
-	  Clock *tgt_clk = output_delay->clock();
-	  Vertex *ref_vertex = graph_->pinLoadVertex(ref_pin);
-	  TransRiseFall *ref_tr = output_delay->refTransition();
-	  VertexPathIterator ref_path_iter(ref_vertex,ref_tr,path_ap,this);
-	  while (ref_path_iter.hasNext()) {
-	    PathVertex *ref_path = ref_path_iter.next();
-	    if (ref_path->isClock(this)
-		&& (tgt_clk == nullptr
-		    || ref_path->clock(this) == tgt_clk))
-	      visitOutputDelayEnd1(output_delay, pin, path, end_tr,
-				   ref_path->clkEdge(this), ref_path, min_max,
-				   visitor, is_constrained);
+  OutputDelaySet *output_delays = sdc_->outputDelaysLeafPin(pin);
+  if (output_delays) {
+    for (OutputDelay *output_delay : *output_delays) {
+      float margin;
+      bool exists;
+      output_delay->delays()->value(end_tr, min_max, margin, exists);
+      if (exists) {
+	const Pin *ref_pin = output_delay->refPin();
+	ClockEdge *tgt_clk_edge = output_delay->clkEdge();
+	if (!filtered
+	    || search_->matchesFilter(path, tgt_clk_edge)) {
+	  if (ref_pin) {
+	    Clock *tgt_clk = output_delay->clock();
+	    Vertex *ref_vertex = graph_->pinLoadVertex(ref_pin);
+	    TransRiseFall *ref_tr = output_delay->refTransition();
+	    VertexPathIterator ref_path_iter(ref_vertex,ref_tr,path_ap,this);
+	    while (ref_path_iter.hasNext()) {
+	      PathVertex *ref_path = ref_path_iter.next();
+	      if (ref_path->isClock(this)
+		  && (tgt_clk == nullptr
+		      || ref_path->clock(this) == tgt_clk))
+		visitOutputDelayEnd1(output_delay, pin, path, end_tr,
+				     ref_path->clkEdge(this), ref_path, min_max,
+				     visitor, is_constrained);
+	    }
 	  }
+	  else
+	    visitOutputDelayEnd1(output_delay, pin, path, end_tr,
+				 tgt_clk_edge, nullptr, min_max,
+				 visitor, is_constrained);
 	}
-	else
-	  visitOutputDelayEnd1(output_delay, pin, path, end_tr,
-			       tgt_clk_edge, nullptr, min_max,
-			       visitor, is_constrained);
       }
     }
   }

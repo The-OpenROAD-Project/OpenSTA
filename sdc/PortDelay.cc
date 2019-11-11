@@ -82,95 +82,19 @@ InputDelay::InputDelay(Pin *pin,
 		       int index,
 		       Network *network) :
   PortDelay(pin, clk_edge, ref_pin),
-  next_(nullptr),
   index_(index)
 {
   findLeafLoadPins(pin, network, &leaf_pins_);
-}
-
-void
-InputDelay::setNext(InputDelay *next)
-{
-  next_ = next;
 }
 
 OutputDelay::OutputDelay(Pin *pin,
 			 ClockEdge *clk_edge,
 			 Pin *ref_pin,
 			 Network *network) :
-  PortDelay(pin, clk_edge, ref_pin),
-  next_(nullptr)
+  PortDelay(pin, clk_edge, ref_pin)
 {
   if (network)
     findLeafDriverPins(pin, network, &leaf_pins_);
-}
-
-void
-OutputDelay::setNext(OutputDelay *next)
-{
-  next_ = next;
-}
-
-////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////
-
-PinInputDelayIterator::PinInputDelayIterator(const Pin *pin,
-					     const Sdc *sdc)
-{
-  next_ = sdc->input_delay_map_.findKey(pin);
-}
-
-bool
-PinInputDelayIterator::hasNext()
-{
-  return next_ != nullptr;
-}
-
-InputDelay *
-PinInputDelayIterator::next()
-{
-  InputDelay *next = next_;
-  if (next)
-    next_ = next_->next();
-  return next;
-}
-
-LeafPinInputDelayIterator::LeafPinInputDelayIterator(const Pin *vertex_pin,
-						     const Sdc *sdc) :
-  PinInputDelayIterator()
-{
-  next_ = sdc->input_delay_leaf_pin_map_.findKey(vertex_pin);
-}
-
-////////////////////////////////////////////////////////////////
-
-PinOutputDelayIterator::PinOutputDelayIterator(const Pin *pin,
-					       const Sdc *sdc)
-{
-  next_ = sdc->output_delay_map_.findKey(pin);
-}
-
-bool
-PinOutputDelayIterator::hasNext()
-{
-  return next_ != nullptr;
-}
-
-OutputDelay *
-PinOutputDelayIterator::next()
-{
-  OutputDelay *next = next_;
-  if (next)
-    next_ = next_->next();
-  return next;
-}
-
-LeafPinOutputDelayIterator::LeafPinOutputDelayIterator(const Pin *vertex_pin,
-						       const Sdc *sdc) :
-  PinOutputDelayIterator()
-{
-  next_ = sdc->output_delay_leaf_pin_map_.findKey(vertex_pin);
 }
 
 ////////////////////////////////////////////////////////////////
