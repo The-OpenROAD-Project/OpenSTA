@@ -22,7 +22,6 @@ Makefile
 /util/StaConfig.hh
 
 # /app/
-/app/StaApp_wrap.cc
 /app/TclInitVar.cc
 /app/sta
 /app/sta.exe

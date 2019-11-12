@@ -60,10 +60,12 @@ message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 #
 ################################################################
 
+set(STA_WRAP ${CMAKE_CURRENT_BINARY_DIR}/StaApp_wrap.cc)
+
 set(STA_SOURCE
   app/StaMain.cc
   app/TclInitVar.cc
-  app/StaApp_wrap.cc
+  ${STA_WRAP}
   
   dcalc/ArcDelayCalc.cc
   dcalc/ArnoldiDelayCalc.cc
@@ -634,9 +636,9 @@ add_flex_bison_dependency(SdfLex SdfParser)
 
 include(FindSWIG)
 
-add_custom_command(OUTPUT ${STA_HOME}/app/StaApp_wrap.cc
-  COMMAND ${SWIG_EXECUTABLE} -tcl8 -c++ -namespace -prefix sta -I${STA_HOME}/tcl -I${STA_HOME}/sdf -I${STA_HOME}/dcalc -I${STA_HOME}/parasitics -I${STA_HOME}/verilog -o ${STA_HOME}/app/StaApp_wrap.cc ${STA_HOME}/app/StaApp.i
-  COMMAND ${STA_HOME}/etc/SwigCleanup.tcl ${STA_HOME}/app/StaApp_wrap.cc
+add_custom_command(OUTPUT ${STA_WRAP}
+  COMMAND ${SWIG_EXECUTABLE} -tcl8 -c++ -namespace -prefix sta -I${STA_HOME}/tcl -I${STA_HOME}/sdf -I${STA_HOME}/dcalc -I${STA_HOME}/parasitics -I${STA_HOME}/verilog -o ${STA_WRAP} ${STA_HOME}/app/StaApp.i
+  COMMAND ${STA_HOME}/etc/SwigCleanup.tcl ${STA_WRAP}
   WORKING_DIRECTORY ${STA_HOME}
   DEPENDS ${STA_SWIG_FILES}
   )
