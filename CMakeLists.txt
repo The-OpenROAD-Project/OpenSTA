@@ -650,7 +650,7 @@ add_custom_command(OUTPUT ${STA_WRAP}
 # These files are encoded and shipped as part of the executable 
 # so that they do not have to be installed on the client host.
 add_custom_command(OUTPUT ${STA_TCL_INIT}
-  COMMAND etc/TclEncode.tcl ${STA_TCL_INIT} tcl_inits  ${STA_TCL_FILES}
+  COMMAND etc/TclEncode.tcl ${STA_TCL_INIT} tcl_inits ${STA_TCL_FILES}
   WORKING_DIRECTORY ${STA_HOME}
   DEPENDS ${STA_TCL_FILES} etc/TclEncode.tcl
   )
