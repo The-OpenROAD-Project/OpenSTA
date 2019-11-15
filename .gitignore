@@ -22,7 +22,6 @@ Makefile
 /util/StaConfig.hh
 
 # /app/
-/app/TclInitVar.cc
 /app/sta
 /app/sta.exe
 /app/sta.dSYM

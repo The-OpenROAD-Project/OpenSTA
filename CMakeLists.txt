@@ -61,10 +61,11 @@ message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 ################################################################
 
 set(STA_WRAP ${CMAKE_CURRENT_BINARY_DIR}/StaApp_wrap.cc)
+set(STA_TCL_INIT ${CMAKE_CURRENT_BINARY_DIR}/StaTclInitVar.cc)
 
 set(STA_SOURCE
   app/StaMain.cc
-  app/TclInitVar.cc
+  ${STA_TCL_INIT}
   ${STA_WRAP}
   
   dcalc/ArcDelayCalc.cc
@@ -645,11 +646,11 @@ add_custom_command(OUTPUT ${STA_WRAP}
 
 ################################################################
 
-# TCL files included as part of the executable are shoved into TclInitVar.cc.
+# TCL files included as part of the executable are shoved into StaTclInitVar.cc.
 # These files are encoded and shipped as part of the executable 
 # so that they do not have to be installed on the client host.
-add_custom_command(OUTPUT ${STA_HOME}/app/TclInitVar.cc
-  COMMAND etc/TclEncode.tcl app/TclInitVar.cc tcl_inits  ${STA_TCL_FILES}
+add_custom_command(OUTPUT ${STA_TCL_INIT}
+  COMMAND etc/TclEncode.tcl ${STA_TCL_INIT} tcl_inits  ${STA_TCL_FILES}
   WORKING_DIRECTORY ${STA_HOME}
   DEPENDS ${STA_TCL_FILES} etc/TclEncode.tcl
   )
