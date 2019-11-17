@@ -58,6 +58,9 @@ puts $out_stream "#define DIAG_STR(s) #s
 
 DISABLE_WARNING(cast-qual,cast-qual,00)
 DISABLE_WARNING(missing-braces,missing-braces,00)
+DISABLE_WARNING(unused-but-set-parameter,unused-but-set-parameter,00)
+DISABLE_WARNING(pedantic,pedantic,00)
+DISABLE_WARNING(missing-field-initializers,missing-field-initializers,00)
 "
 
 while { ! [eof $in_stream] } {
