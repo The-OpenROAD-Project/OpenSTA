@@ -96,6 +96,8 @@ public:
   const char *filename() const { return filename_; }
   LibertyCell *libertyCell() const { return liberty_cell_; }
   void setLibertyCell(LibertyCell *cell);
+  void *extCell() const { return ext_cell_; }
+  void setExtCell(void *ext_cell);
   int portBitCount() const { return port_bit_count_; }
   ConcretePort *findPort(const char *name) const;
   void findPortsMatching(const PatternMatch *pattern,
@@ -147,6 +149,8 @@ protected:
   // Filename is optional.
   const char *filename_;
   LibertyCell *liberty_cell_;
+  // External application cell.
+  void *ext_cell_;
   // Non-bus and bus ports (but no expanded bus bit ports).
   ConcretePortSeq ports_;
   ConcretePortMap port_map_;
@@ -172,6 +176,9 @@ public:
   PortDirection *direction() const { return direction_; }
   LibertyPort *libertyPort() const { return liberty_port_; }
   void setLibertyPort(LibertyPort *port);
+  // External application port.
+  void *extPort() const { return ext_port_; }
+  void setExtPort(void *port);
   void setDirection(PortDirection *dir);
   // Bundles are groups of related ports that do not use
   // bus notation.
@@ -220,6 +227,8 @@ protected:
   ConcreteCell *cell_;
   PortDirection *direction_;
   LibertyPort *liberty_port_;
+  // External application port.
+  void *ext_port_;
   int pin_index_;
   bool is_bundle_;
   bool is_bus_;

@@ -700,12 +700,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${STA_HOME}/app)
 # Note executable and lib name cannot be the same because
 # on osx something is case insensitive. Using STA for the
 # lib name results in "No rule to make target ../depend.
-add_executable(sta app/Main.cc)
+add_executable(sta app/Main.cc ${STA_WRAP})
+
 target_link_libraries(sta
   OpenSTA
   ${TCL_LIB}
   ${CUDD_LIB}
   )
+
 if (ZLIB_FOUND)
   target_link_libraries(sta ${ZLIB_LIBRARIES})
 endif()

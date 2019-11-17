@@ -22,28 +22,20 @@ struct Tcl_Interp;
 namespace sta {
 
 class Sta;
-typedef int (*SwigInitFunc)(Tcl_Interp *);
 
-// The swig_init function is called to define the swig interface
-// functions to the tcl interpreter.
-void
-staMain(Sta *sta,
-	int argc,
-	char *argv[],
-	const char *init_filename,
-	SwigInitFunc swig_init,
-	const char *tcl_inits[]);
-
-// Set arguments passed to staTclAppInit inside the tcl interpreter.
-void
-staSetupAppInit(int argc,
-		char *argv[],
-		const char *init_filename,
-		SwigInitFunc swig_init,
-		const char *tcl_inits[]);
-
+// Parse command line argument
 int
-staTclAppInit(Tcl_Interp *interp);
+staTclAppInit(int argc,
+	      char *argv[],
+	      const char *init_filename,
+	      Tcl_Interp *interp);
+
+// Sta initialization.
+// Makes the Sta object and registers TCL commands.
+void
+initSta(int argc,
+	char *argv[],
+	Tcl_Interp *interp);
 
 // TCL init files are encoded into the string init using the three
 // digit decimal equivalent for each ascii character.  This function
@@ -63,8 +55,6 @@ findCmdLineKey(int &argc,
 	       char *argv[],
 	       const char *key);
 
-void
-showUsage(const char *prog);
 int
 parseThreadsArg(int &argc,
 		char *argv[]);

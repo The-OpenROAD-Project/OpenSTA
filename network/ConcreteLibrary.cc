@@ -117,6 +117,7 @@ ConcreteCell::ConcreteCell(ConcreteLibrary *library,
   name_(stringCopy(name)),
   filename_(stringCopy(filename)),
   liberty_cell_(nullptr),
+  ext_cell_(nullptr),
   port_bit_count_(0),
   is_leaf_(is_leaf)
 {
@@ -143,6 +144,12 @@ void
 ConcreteCell::setLibertyCell(LibertyCell *cell)
 {
   liberty_cell_ = cell;
+}
+
+void
+ConcreteCell::setExtCell(void *ext_cell)
+{
+  ext_cell_ = ext_cell;
 }
 
 ConcretePort *
@@ -437,6 +444,7 @@ ConcretePort::ConcretePort(ConcreteCell *cell,
   cell_(cell),
   direction_(PortDirection::unknown()),
   liberty_port_(nullptr),
+  ext_port_(nullptr),
   pin_index_(-1),
   is_bundle_(is_bundle),
   is_bus_(is_bus),
@@ -466,6 +474,12 @@ void
 ConcretePort::setLibertyPort(LibertyPort *port)
 {
   liberty_port_ = port;
+}
+
+void
+ConcretePort::setExtPort(void *port)
+{
+  ext_port_ = port;
 }
 
 const char *

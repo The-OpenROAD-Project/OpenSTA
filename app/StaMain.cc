@@ -24,37 +24,6 @@
 
 namespace sta {
 
-typedef sta::Vector<SwigInitFunc> SwigInitFuncSeq;
-
-// "Arguments" passed to staTclAppInit.
-static int sta_argc;
-static char **sta_argv;
-static const char *sta_init_filename;
-static const char **sta_tcl_inits;
-static SwigInitFunc sta_swig_init;
-
-void
-staMain(Sta *sta,
-	int argc,
-	char *argv[],
-	const char *init_filename,
-	SwigInitFunc swig_init,
-	const char *tcl_inits[])
-{
-  initSta();
-
-  Sta::setSta(sta);
-  sta->makeComponents();
-
-  int thread_count = parseThreadsArg(argc, argv);
-  sta->setThreadCount(thread_count);
-
-  staSetupAppInit(argc, argv, init_filename, swig_init, tcl_inits);
-  // Set argc to 1 so Tcl_Main doesn't source any files.
-  // Tcl_Main never returns.
-  Tcl_Main(1, argv, staTclAppInit);
-}
-
 int
 parseThreadsArg(int &argc,
 		char *argv[])
@@ -69,71 +38,6 @@ parseThreadsArg(int &argc,
       fprintf(stderr,"Warning: -threads must be max or a positive integer.\n");
   }
   return 1;
-}
-
-// Set globals to pass to staTclAppInit.
-void
-staSetupAppInit(int argc,
-		char *argv[],
-		const char *init_filename,
-		SwigInitFunc swig_init,
-		const char *tcl_inits[])
-{
-  sta_argc = argc;
-  sta_argv = argv;
-  sta_init_filename = init_filename;
-  sta_tcl_inits = tcl_inits;
-  sta_swig_init = swig_init;
-}
-
-// Tcl init executed inside Tcl_Main.
-int
-staTclAppInit(Tcl_Interp *interp)
-{
-  int argc = sta_argc;
-  char **argv = sta_argv;
-
-  // source init.tcl
-  Tcl_Init(interp);
-
-  // Define swig commands.
-  sta_swig_init(interp);
-
-  Sta *sta = Sta::sta();
-  sta->setTclInterp(interp);
-
-  // Eval encoded sta TCL sources.
-  evalTclInit(interp, sta_tcl_inits);
-
-  if (!findCmdLineFlag(argc, argv, "-no_splash"))
-    Tcl_Eval(interp, "sta::show_splash");
-
-  // Import exported commands from sta namespace to global namespace.
-  Tcl_Eval(interp, "sta::define_sta_cmds");
-  Tcl_Eval(interp, "namespace import sta::*");
-
-  if (!findCmdLineFlag(argc, argv, "-no_init")) {
-    char *init_path = stringPrintTmp("[file join $env(HOME) %s]",
-				     sta_init_filename);
-    sourceTclFile(init_path, true, true, interp);
-  }
-
-  bool exit_after_cmd_file = findCmdLineFlag(argc, argv, "-exit");
-
-  if (argc > 2 ||
-      (argc > 1 && argv[1][0] == '-'))
-    showUsage(argv[0]);
-  else {
-    if (argc == 2) {
-      char *cmd_file = argv[1];
-      if (cmd_file) {
-	sourceTclFile(cmd_file, false, false, interp);
-	if (exit_after_cmd_file)
-	  exit(EXIT_SUCCESS);
-      }
-    }
-  }
-  return TCL_OK;
 }
 
 bool
@@ -218,19 +122,6 @@ evalTclInit(Tcl_Interp *interp,
     exit(0);
   }
   delete [] unencoded;
-}
-
-void
-showUsage(const char * prog) 
-{
-  printf("Usage: %s [-help] [-version] [-no_init] [-exit] cmd_file\n", prog);
-  printf("  -help              show help and exit\n");
-  printf("  -version           show version and exit\n");
-  printf("  -no_init           do not read .sta init file\n");
-  printf("  -threads count|max use count threads\n");
-  printf("  -no_splash         do not show the license splash at startup\n");
-  printf("  -exit              exit after reading cmd_file\n");
-  printf("  cmd_file           source cmd_file\n");
 }
 
 } // namespace
