@@ -65,7 +65,6 @@ set(STA_WRAP ${CMAKE_CURRENT_BINARY_DIR}/StaApp_wrap.cc)
 set(STA_SOURCE
   app/StaMain.cc
   app/TclInitVar.cc
-  ${STA_WRAP}
   
   dcalc/ArcDelayCalc.cc
   dcalc/ArnoldiDelayCalc.cc
@@ -699,7 +698,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${STA_HOME}/app)
 # Note executable and lib name cannot be the same because
 # on osx something is case insensitive. Using STA for the
 # lib name results in "No rule to make target ../depend.
-add_executable(sta app/Main.cc)
+add_executable(sta app/Main.cc ${STA_WRAP})
+
 target_link_libraries(sta
   OpenSTA
   ${TCL_LIB}
