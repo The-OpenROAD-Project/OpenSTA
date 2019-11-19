@@ -23,6 +23,12 @@
 namespace sta {
 
 class HpinDrvrLoad;
+class HpinDrvrLoadVisitor;
+
+void
+visitHpinDrvrLoads(const Pin *pin,
+		   const Network *network,
+		   HpinDrvrLoadVisitor *visitor);
 
 class HpinDrvrLoadLess
 { 
@@ -68,11 +74,6 @@ private:
   PinSet *hpins_from_drvr_;
   PinSet *hpins_to_load_;
 };
-
-void
-visitHpinDrvrLoads(const Pin *pin,
-		   const Network *network,
-		   HpinDrvrLoadVisitor *visitor);
 
 } // namespace
 #endif

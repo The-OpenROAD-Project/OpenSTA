@@ -21,72 +21,81 @@
 
 namespace sta {
 
-HpinDrvrLoad::HpinDrvrLoad(Pin *drvr,
-			   Pin *load,
-			   PinSet *hpins_from_drvr,
-			   PinSet *hpins_to_load) :
-  drvr_(drvr),
-  load_(load),
-  hpins_from_drvr_(hpins_from_drvr ? new PinSet(*hpins_from_drvr) : nullptr),
-  hpins_to_load_(hpins_to_load ? new PinSet(*hpins_to_load) : nullptr)
-{
-}
+static void
+visitPinsAboveNet2(const Pin *hpin,
+		   Net *above_net,
+		   NetSet &visited,
+		   HpinDrvrLoads &above_drvrs,
+		   HpinDrvrLoads &above_loads,
+		   PinSet *hpin_path,
+		   const Network *network);
+static void
+visitPinsBelowNet2(const Pin *hpin,
+		   Net *above_net,
+		   Net *below_net,
+		   NetSet &visited,
+		   HpinDrvrLoads &below_drvrs,
+		   HpinDrvrLoads &below_loads,
+		   PinSet *hpin_path,
+		   const Network *network);
+static void
+visitHpinDrvrLoads(HpinDrvrLoads drvrs,
+		   HpinDrvrLoads loads,
+		   HpinDrvrLoadVisitor *visitor);
 
-HpinDrvrLoad::HpinDrvrLoad(Pin *drvr,
-			   Pin *load) :
-  drvr_(drvr),
-  load_(load)
+void
+visitHpinDrvrLoads(const Pin *pin,
+		   const Network *network,
+		   HpinDrvrLoadVisitor *visitor)
 {
-}
-
-HpinDrvrLoad::~HpinDrvrLoad()
-{
-  delete hpins_from_drvr_;
-  delete hpins_to_load_;
-}
-
-void 
-HpinDrvrLoad::report(const Network *network)
-{
-  printf("%s -> %s: ", 
-	 drvr_ ? network->pathName(drvr_) : "-",
-	 load_ ? network->pathName(load_) : "-");
-  PinSet::Iterator pin_iter(hpins_from_drvr_);
-  while (pin_iter.hasNext()) {
-    Pin *pin = pin_iter.next();
-    printf("%s ", network->pathName(pin)); 
+  NetSet visited;
+  HpinDrvrLoads above_drvrs;
+  HpinDrvrLoads above_loads;
+  PinSet hpin_path;
+  Net *above_net = network->net(pin);
+  if (above_net) {
+    visitPinsAboveNet2(pin, above_net, visited, 
+		       above_drvrs, above_loads,
+		       &hpin_path, network);
   }
-  printf("* "); 
-  PinSet::Iterator pin_iter2(hpins_to_load_);
-  while (pin_iter2.hasNext()) {
-    Pin *pin = pin_iter2.next();
-    printf("%s ", network->pathName(pin)); 
- }
-  printf("\n");
-}
 
-void 
-HpinDrvrLoad::setDrvr(Pin *drvr)
-{
-  drvr_ = drvr;
-}
-
-bool
-HpinDrvrLoadLess::operator()(const HpinDrvrLoad *drvr_load1,
-			     const HpinDrvrLoad *drvr_load2) const
-{
-  Pin *load1 = drvr_load1->load();
-  Pin *load2 = drvr_load2->load();
-  if (load1 == load2) {
-    Pin *drvr1 = drvr_load1->drvr();
-    Pin *drvr2 = drvr_load2->drvr();
-    return drvr1 < drvr2;
+  // Search down from hpin terminal.
+  HpinDrvrLoads below_drvrs;
+  HpinDrvrLoads below_loads;
+  Term *term = network->term(pin);
+  if (term) {
+    Net *below_net = network->net(term);
+    if (below_net)
+      visitPinsBelowNet2(pin, above_net, below_net, visited,
+			 below_drvrs, below_loads,
+			 &hpin_path, network);
   }
-  else
-    return load1 < load2;
+  if (network->isHierarchical(pin)) {
+    visitHpinDrvrLoads(above_drvrs, below_loads, visitor);
+    visitHpinDrvrLoads(below_drvrs, above_loads, visitor);
+  }
+  else {
+    if (network->isDriver(pin)) {
+      HpinDrvrLoad drvr(const_cast<Pin*>(pin), nullptr, &hpin_path, nullptr);
+      HpinDrvrLoads drvrs;
+      drvrs.insert(&drvr);
+      visitHpinDrvrLoads(drvrs, below_loads, visitor);
+      visitHpinDrvrLoads(drvrs, above_loads, visitor);
+    }
+    // Bidirects are drivers and loads.
+    if (network->isLoad(pin)) {
+      HpinDrvrLoad load(nullptr, const_cast<Pin*>(pin), nullptr, &hpin_path);
+      HpinDrvrLoads loads;
+      loads.insert(&load);
+      visitHpinDrvrLoads(below_drvrs, loads, visitor);
+      visitHpinDrvrLoads(above_drvrs, loads, visitor);
+    }
+  }
+  above_drvrs.deleteContents();
+  above_loads.deleteContents();
+  below_drvrs.deleteContents();
+  below_loads.deleteContents();
 }
-
-////////////////////////////////////////////////////////////////
 
 static void
 visitPinsAboveNet2(const Pin *hpin,
@@ -246,58 +255,71 @@ visitHpinDrvrLoads(HpinDrvrLoads drvrs,
   }
 }
 
-void
-visitHpinDrvrLoads(const Pin *pin,
-		   const Network *network,
-		   HpinDrvrLoadVisitor *visitor)
-{
-  NetSet visited;
-  HpinDrvrLoads above_drvrs;
-  HpinDrvrLoads above_loads;
-  PinSet hpin_path;
-  Net *above_net = network->net(pin);
-  if (above_net) {
-    visitPinsAboveNet2(pin, above_net, visited, 
-		       above_drvrs, above_loads,
-		       &hpin_path, network);
-  }
+////////////////////////////////////////////////////////////////
 
-  // Search down from hpin terminal.
-  HpinDrvrLoads below_drvrs;
-  HpinDrvrLoads below_loads;
-  Term *term = network->term(pin);
-  if (term) {
-    Net *below_net = network->net(term);
-    if (below_net)
-      visitPinsBelowNet2(pin, above_net, below_net, visited,
-			 below_drvrs, below_loads,
-			 &hpin_path, network);
+HpinDrvrLoad::HpinDrvrLoad(Pin *drvr,
+			   Pin *load,
+			   PinSet *hpins_from_drvr,
+			   PinSet *hpins_to_load) :
+  drvr_(drvr),
+  load_(load),
+  hpins_from_drvr_(hpins_from_drvr ? new PinSet(*hpins_from_drvr) : nullptr),
+  hpins_to_load_(hpins_to_load ? new PinSet(*hpins_to_load) : nullptr)
+{
+}
+
+HpinDrvrLoad::HpinDrvrLoad(Pin *drvr,
+			   Pin *load) :
+  drvr_(drvr),
+  load_(load)
+{
+}
+
+HpinDrvrLoad::~HpinDrvrLoad()
+{
+  delete hpins_from_drvr_;
+  delete hpins_to_load_;
+}
+
+void 
+HpinDrvrLoad::report(const Network *network)
+{
+  printf("%s -> %s: ", 
+	 drvr_ ? network->pathName(drvr_) : "-",
+	 load_ ? network->pathName(load_) : "-");
+  PinSet::Iterator pin_iter(hpins_from_drvr_);
+  while (pin_iter.hasNext()) {
+    Pin *pin = pin_iter.next();
+    printf("%s ", network->pathName(pin)); 
   }
-  if (network->isHierarchical(pin)) {
-    visitHpinDrvrLoads(above_drvrs, below_loads, visitor);
-    visitHpinDrvrLoads(below_drvrs, above_loads, visitor);
+  printf("* "); 
+  PinSet::Iterator pin_iter2(hpins_to_load_);
+  while (pin_iter2.hasNext()) {
+    Pin *pin = pin_iter2.next();
+    printf("%s ", network->pathName(pin)); 
+ }
+  printf("\n");
+}
+
+void 
+HpinDrvrLoad::setDrvr(Pin *drvr)
+{
+  drvr_ = drvr;
+}
+
+bool
+HpinDrvrLoadLess::operator()(const HpinDrvrLoad *drvr_load1,
+			     const HpinDrvrLoad *drvr_load2) const
+{
+  Pin *load1 = drvr_load1->load();
+  Pin *load2 = drvr_load2->load();
+  if (load1 == load2) {
+    Pin *drvr1 = drvr_load1->drvr();
+    Pin *drvr2 = drvr_load2->drvr();
+    return drvr1 < drvr2;
   }
-  else {
-    if (network->isDriver(pin)) {
-      HpinDrvrLoad drvr(const_cast<Pin*>(pin), nullptr, &hpin_path, nullptr);
-      HpinDrvrLoads drvrs;
-      drvrs.insert(&drvr);
-      visitHpinDrvrLoads(drvrs, below_loads, visitor);
-      visitHpinDrvrLoads(drvrs, above_loads, visitor);
-    }
-    // Bidirects are drivers and loads.
-    if (network->isLoad(pin)) {
-      HpinDrvrLoad load(nullptr, const_cast<Pin*>(pin), nullptr, &hpin_path);
-      HpinDrvrLoads loads;
-      loads.insert(&load);
-      visitHpinDrvrLoads(below_drvrs, loads, visitor);
-      visitHpinDrvrLoads(above_drvrs, loads, visitor);
-    }
-  }
-  above_drvrs.deleteContents();
-  above_loads.deleteContents();
-  below_drvrs.deleteContents();
-  below_loads.deleteContents();
+  else
+    return load1 < load2;
 }
 
 } // namespace
