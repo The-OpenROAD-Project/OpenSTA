@@ -98,7 +98,7 @@ public:
   size_t hash() const;
   size_t hash(ExceptionPt *missing_pt) const;
   // Mergeable properties (independent of exception points).
-  virtual bool mergeable(ExceptionPath *exception) const = 0;
+  virtual bool mergeable(ExceptionPath *exception) const;
   bool mergeablePts(ExceptionPath *exception) const;
   bool mergeablePts(ExceptionPath *exception2,
 		    ExceptionPt *missing_pt2,
