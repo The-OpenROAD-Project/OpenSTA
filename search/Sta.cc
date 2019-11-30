@@ -2533,6 +2533,13 @@ Sta::reportClkSkew(ClockSet *clks,
 ////////////////////////////////////////////////////////////////
 
 void
+Sta::delaysInvalid()
+{
+  graph_delay_calc_->delaysInvalid();
+  search_->arrivalsInvalid();
+}
+
+void
 Sta::arrivalsInvalid()
 {
   search_->arrivalsInvalid();

@@ -894,6 +894,8 @@ public:
   // If full=false update arrivals incrementally.
   // If full=true update all arrivals from scratch.
   void updateTiming(bool full);
+  // Invalidate all delay calculations. Arrivals also invalidated.
+  void delaysInvalid();
   // Invalidate all arrival and required times.
   void arrivalsInvalid();
   void setPathMinMax(const MinMaxAll *min_max) __attribute__ ((deprecated));
