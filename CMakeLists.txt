@@ -557,6 +557,7 @@ if (NOT TCL_HEADER)
 endif()
 message(STATUS "TCL header: ${TCL_HEADER}")
 get_filename_component(TCL_HEADER_DIR "${TCL_HEADER}" PATH)
+include_directories(SYSTEM ${TCL_HEADER_DIR})
 
 ################################################################
 #
@@ -669,7 +670,6 @@ set(STA_INCLUDE_DIRS
   search
   util
   verilog
-  ${TCL_HEADER_DIR}
   ${CUDD_INCLUDE}
   )
 
