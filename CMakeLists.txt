@@ -60,13 +60,8 @@ message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 #
 ################################################################
 
-set(STA_WRAP ${CMAKE_CURRENT_BINARY_DIR}/StaApp_wrap.cc)
-set(STA_TCL_INIT ${CMAKE_CURRENT_BINARY_DIR}/StaTclInitVar.cc)
-
 set(STA_SOURCE
   app/StaMain.cc
-  ${STA_TCL_INIT}
-  ${STA_WRAP}
   
   dcalc/ArcDelayCalc.cc
   dcalc/ArnoldiDelayCalc.cc
@@ -96,12 +91,7 @@ set(STA_SOURCE
   liberty/Liberty.cc
   liberty/LibertyBuilder.cc
   liberty/LibertyExpr.cc
-  liberty/LibertyExpr.hh
-  liberty/LibertyExprLex.cc
-  liberty/LibertyExprParse.cc
   liberty/LibertyExprPvt.hh
-  liberty/LibertyLex.cc
-  liberty/LibertyParse.cc
   liberty/LibertyParser.cc
   liberty/LibertyReader.cc
   liberty/LinearModel.cc
@@ -128,9 +118,7 @@ set(STA_SOURCE
   parasitics/NullParasitics.cc
   parasitics/Parasitics.cc
   parasitics/ReduceParasitics.cc
-  parasitics/SpefLex.cc
   parasitics/SpefNamespace.cc
-  parasitics/SpefParse.cc
   parasitics/SpefReader.cc
   parasitics/SpefReaderPvt.hh
   
@@ -156,8 +144,6 @@ set(STA_SOURCE
   
   sdf/ReportAnnotation.cc
   sdf/SdfReader.cc
-  sdf/SdfParse.cc
-  sdf/SdfLex.cc
   sdf/SdfWriter.cc
   
   search/Bfs.cc
@@ -219,8 +205,6 @@ set(STA_SOURCE
   util/TokenParser.cc
   
   verilog/VerilogReader.cc
-  verilog/VerilogLex.cc
-  verilog/VerilogParse.cc
   verilog/VerilogWriter.cc
   )
 
@@ -258,6 +242,7 @@ set(STA_HEADERS
   liberty/Liberty.hh
   liberty/LibertyBuilder.hh
   liberty/LibertyClass.hh
+  liberty/LibertyExpr.hh
   liberty/LibertyParser.hh
   liberty/LibertyReader.hh
   liberty/LibertyReaderPvt.hh
@@ -434,6 +419,87 @@ set(STA_SWIG_FILES
 
 ################################################################
 #
+# Flex/bison scanner/parsers
+#
+################################################################
+
+find_package(FLEX)
+find_package(BISON)
+
+# LibertyExpr scan/parse.
+flex_target(LibertyExprLex liberty/LibertyExprLex.ll ${CMAKE_CURRENT_BINARY_DIR}/LibertyExprLex.cc
+  COMPILE_FLAGS --prefix=LibertyExprLex_
+  )
+bison_target(LibertyExprParser liberty/LibertyExprParse.yy ${CMAKE_CURRENT_BINARY_DIR}/LibertyExprParse.cc
+  COMPILE_FLAGS --name-prefix=LibertyExprParse_
+  )
+add_flex_bison_dependency(LibertyExprLex LibertyExprParser)
+
+# Liberty scan/parse.
+flex_target(LibertyLex liberty/LibertyLex.ll ${CMAKE_CURRENT_BINARY_DIR}/LibertyLex.cc
+  COMPILE_FLAGS --prefix=LibertyLex_
+  )
+bison_target(LibertyParser liberty/LibertyParse.yy ${CMAKE_CURRENT_BINARY_DIR}/LibertyParse.cc
+  COMPILE_FLAGS --name-prefix=LibertyParse_
+  )
+add_flex_bison_dependency(LibertyLex LibertyParser)
+
+# Spef scan/parse.
+flex_target(SpefLex parasitics/SpefLex.ll ${CMAKE_CURRENT_BINARY_DIR}/SpefLex.cc
+  COMPILE_FLAGS --prefix=SpefLex_
+  )
+bison_target(SpefParser parasitics/SpefParse.yy ${CMAKE_CURRENT_BINARY_DIR}/SpefParse.cc
+  COMPILE_FLAGS --name-prefix=SpefParse_
+  )
+add_flex_bison_dependency(SpefLex SpefParser)
+
+# Verilog scan/parse.
+flex_target(VerilogLex verilog/VerilogLex.ll ${CMAKE_CURRENT_BINARY_DIR}/VerilogLex.cc
+  COMPILE_FLAGS --prefix=VerilogLex_
+  )
+bison_target(VerilogParser verilog/VerilogParse.yy ${CMAKE_CURRENT_BINARY_DIR}/VerilogParse.cc
+  COMPILE_FLAGS --name-prefix=VerilogParse_
+  )
+add_flex_bison_dependency(VerilogLex VerilogParser)
+
+# Sdf scan/parse.
+flex_target(SdfLex sdf/SdfLex.ll ${CMAKE_CURRENT_BINARY_DIR}/SdfLex.cc
+  COMPILE_FLAGS --prefix=SdfLex_
+  )
+bison_target(SdfParser sdf/SdfParse.yy ${CMAKE_CURRENT_BINARY_DIR}/SdfParse.cc
+  COMPILE_FLAGS --name-prefix=SdfParse_
+  )
+add_flex_bison_dependency(SdfLex SdfParser)
+
+
+################################################################
+
+include(FindSWIG)
+
+set(STA_WRAP ${CMAKE_CURRENT_BINARY_DIR}/StaApp_wrap.cc)
+
+add_custom_command(OUTPUT ${STA_WRAP}
+  COMMAND ${SWIG_EXECUTABLE} -tcl8 -c++ -namespace -prefix sta -I${STA_HOME}/tcl -I${STA_HOME}/sdf -I${STA_HOME}/dcalc -I${STA_HOME}/parasitics -I${STA_HOME}/verilog -o ${STA_WRAP} ${STA_HOME}/app/StaApp.i
+  COMMAND ${STA_HOME}/etc/SwigCleanup.tcl ${STA_WRAP}
+  WORKING_DIRECTORY ${STA_HOME}
+  DEPENDS ${STA_SWIG_FILES}
+  )
+
+################################################################
+
+set(STA_TCL_INIT ${CMAKE_CURRENT_BINARY_DIR}/StaTclInitVar.cc)
+
+# TCL files included as part of the executable are shoved into StaTclInitVar.cc.
+# These files are encoded and shipped as part of the executable 
+# so that they do not have to be installed on the client host.
+add_custom_command(OUTPUT ${STA_TCL_INIT}
+  COMMAND etc/TclEncode.tcl ${STA_TCL_INIT} tcl_inits ${STA_TCL_FILES}
+  WORKING_DIRECTORY ${STA_HOME}
+  DEPENDS ${STA_TCL_FILES} etc/TclEncode.tcl
+  )
+
+################################################################
+#
 # Library dependencies
 #
 ################################################################
@@ -560,103 +626,6 @@ get_filename_component(TCL_HEADER_DIR "${TCL_HEADER}" PATH)
 include_directories(SYSTEM ${TCL_HEADER_DIR})
 
 ################################################################
-#
-# Flex/bison scanner/parsers 
-#
-################################################################
-
-find_package(FLEX)
-find_package(BISON)
-
-# LibertyExpr scan/parse.
-bison_target(LibertyExprParser liberty/LibertyExprParse.yy ${STA_HOME}/liberty/LibertyExprParse.cc
-  DEFINES_FILE ${STA_HOME}/liberty/LibertyExprParse.hh
-  COMPILE_FLAGS --name-prefix=LibertyExprParse_
-  )
-
-flex_target(LibertyExprLex liberty/LibertyExprLex.ll ${STA_HOME}/liberty/LibertyExprLex.cc
-  DEFINES_FILE ${STA_HOME}/liberty/LibertyExprLex.hh
-  COMPILE_FLAGS --prefix=LibertyExprLex_
-  )
-
-add_flex_bison_dependency(LibertyExprLex LibertyExprParser)
-
-# Liberty scan/parse.
-bison_target(LibertyParser liberty/LibertyParse.yy ${STA_HOME}/liberty/LibertyParse.cc
-  DEFINES_FILE ${STA_HOME}/liberty/LibertyParse.hh
-  COMPILE_FLAGS --name-prefix=LibertyParse_
-  )
-
-flex_target(LibertyLex liberty/LibertyLex.ll ${STA_HOME}/liberty/LibertyLex.cc
-  DEFINES_FILE ${STA_HOME}/liberty/LibertyLex.hh
-  COMPILE_FLAGS --prefix=LibertyLex_
-  )
-
-add_flex_bison_dependency(LibertyLex LibertyParser)
-
-# Spef scan/parse.
-bison_target(SpefParser parasitics/SpefParse.yy ${STA_HOME}/parasitics/SpefParse.cc
-  DEFINES_FILE ${STA_HOME}/parasitics/SpefParse.hh
-  COMPILE_FLAGS --name-prefix=SpefParse_
-  )
-
-flex_target(SpefLex parasitics/SpefLex.ll ${STA_HOME}/parasitics/SpefLex.cc
-  DEFINES_FILE ${STA_HOME}/parasitics/SpefLex.hh
-  COMPILE_FLAGS --prefix=SpefLex_
-  )
-
-add_flex_bison_dependency(SpefLex SpefParser)
-
-# Verilog scan/parse.
-bison_target(VerilogParser verilog/VerilogParse.yy ${STA_HOME}/verilog/VerilogParse.cc
-  DEFINES_FILE ${STA_HOME}/verilog/VerilogParse.hh
-  COMPILE_FLAGS --name-prefix=VerilogParse_
-  )
-
-flex_target(VerilogLex verilog/VerilogLex.ll ${STA_HOME}/verilog/VerilogLex.cc
-  DEFINES_FILE ${STA_HOME}/verilog/VerilogLex.hh
-  COMPILE_FLAGS --prefix=VerilogLex_
-  )
-
-add_flex_bison_dependency(VerilogLex VerilogParser)
-
-# Sdf scan/parse.
-bison_target(SdfParser sdf/SdfParse.yy ${STA_HOME}/sdf/SdfParse.cc
-  DEFINES_FILE ${STA_HOME}/sdf/SdfParse.hh
-  COMPILE_FLAGS --name-prefix=SdfParse_
-  )
-
-flex_target(SdfLex sdf/SdfLex.ll ${STA_HOME}/sdf/SdfLex.cc
-  DEFINES_FILE ${STA_HOME}/sdf/SdfLex.hh
-  COMPILE_FLAGS --prefix=SdfLex_
-  )
-
-add_flex_bison_dependency(SdfLex SdfParser)
-
-
-################################################################
-
-include(FindSWIG)
-
-add_custom_command(OUTPUT ${STA_WRAP}
-  COMMAND ${SWIG_EXECUTABLE} -tcl8 -c++ -namespace -prefix sta -I${STA_HOME}/tcl -I${STA_HOME}/sdf -I${STA_HOME}/dcalc -I${STA_HOME}/parasitics -I${STA_HOME}/verilog -o ${STA_WRAP} ${STA_HOME}/app/StaApp.i
-  COMMAND ${STA_HOME}/etc/SwigCleanup.tcl ${STA_WRAP}
-  WORKING_DIRECTORY ${STA_HOME}
-  DEPENDS ${STA_SWIG_FILES}
-  )
-
-################################################################
-
-# TCL files included as part of the executable are shoved into StaTclInitVar.cc.
-# These files are encoded and shipped as part of the executable 
-# so that they do not have to be installed on the client host.
-add_custom_command(OUTPUT ${STA_TCL_INIT}
-  COMMAND etc/TclEncode.tcl ${STA_TCL_INIT} tcl_inits ${STA_TCL_FILES}
-  WORKING_DIRECTORY ${STA_HOME}
-  DEPENDS ${STA_TCL_FILES} etc/TclEncode.tcl
-  )
-
-################################################################
 
 set(STA_INCLUDE_DIRS
   app
@@ -680,7 +649,26 @@ set(STA_INCLUDE_DIRS
 # compatibility with configure
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${STA_HOME}/app)
 
-add_library(OpenSTA ${STA_SOURCE})
+add_library(OpenSTA
+  ${STA_SOURCE}
+
+  ${STA_WRAP}
+  ${STA_TCL_INIT}
+
+  ${FLEX_LibertyExprLex_OUTPUTS}
+  ${BISON_LibertyExprParser_OUTPUTS}
+  ${FLEX_LibertyLex_OUTPUTS}
+  ${BISON_LibertyParser_OUTPUTS}
+
+  ${FLEX_SpefLex_OUTPUTS}
+  ${BISON_SpefParser_OUTPUTS}
+
+  ${FLEX_SdfLex_OUTPUTS}
+  ${BISON_SdfParser_OUTPUTS}
+
+  ${FLEX_VerilogLex_OUTPUTS}
+  ${BISON_VerilogParser_OUTPUTS}
+)
 
 target_include_directories(OpenSTA PUBLIC ${STA_INCLUDE_DIRS})
 

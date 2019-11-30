@@ -31,34 +31,6 @@ Makefile
 /doc/.~lock.Sta.doc#
 /doc/.~lock.Sta.odt#
 
-# /liberty/
-/liberty/LibertyExprLex.cc
-/liberty/LibertyExprLex.hh
-/liberty/LibertyExprParse.cc
-/liberty/LibertyExprParse.h
-/liberty/LibertyLex.cc
-/liberty/LibertyLex.hh
-/liberty/LibertyParse.cc
-/liberty/LibertyParse.h
-/liberty/LibertyExprParse.hh
-/liberty/LibertyParse.hh
-
-# /parasitics/
-/parasitics/SpefLex.cc
-/parasitics/SpefLex.hh
-/parasitics/SpefParse.cc
-/parasitics/SpefParse.hh
-/parasitics/SpfLex.cc
-/parasitics/SpfLex.hh
-/parasitics/SpfParse.cc
-/parasitics/SpfParse.hh
-
-# /sdf/
-/sdf/SdfLex.cc
-/sdf/SdfLex.hh
-/sdf/SdfParse.cc
-/sdf/SdfParse.hh
-
 # /tcl/
 /tcl/history.tcl
 /tcl/init.tcl
@@ -70,11 +42,3 @@ Makefile
 /test/b3v3_1check.log
 
 /test_native
-
-# /verilog/
-/verilog/VerilogLex.hh
-/verilog/VerilogLex.cc
-/verilog/VerilogParse.cc
-/verilog/VerilogParse.h
-/verilog/VerilogParse.output
-/verilog/VerilogParse.hh
