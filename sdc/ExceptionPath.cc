@@ -314,6 +314,12 @@ ExceptionPath::hash(ExceptionPt *missing_pt) const
 }
 
 bool
+ExceptionPath::mergeable(ExceptionPath *exception) const
+{
+  return stringEqualIf(comment_, exception->comment());
+}
+
+bool
 ExceptionPath::mergeablePts(ExceptionPath *exception) const
 {
   ExceptionPt *ignore;
@@ -598,7 +604,8 @@ PathDelay::typeString() const
 bool
 PathDelay::mergeable(ExceptionPath *exception) const
 {
-  return overrides(exception)
+  return ExceptionPath::mergeable(exception)
+    && overrides(exception)
     && exception->ignoreClkLatency() == ignore_clk_latency_
     && exception->delay() == delay_;
 }
@@ -666,15 +673,15 @@ FalsePath::typeString() const
 bool
 FalsePath::mergeable(ExceptionPath *exception) const
 {
-  return exception->isFalse()
-    && exception->priority() == priority()
-    && exception->minMax() == min_max_;
+  return ExceptionPath::mergeable(exception)
+    && overrides(exception);
 }
 
 bool
 FalsePath::overrides(ExceptionPath *exception) const
 {
-  return mergeable(exception);
+  return exception->priority() == priority()
+    && exception->minMax() == min_max_;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -790,7 +797,8 @@ MultiCyclePath::typeString() const
 bool
 MultiCyclePath::mergeable(ExceptionPath *exception) const
 {
-  return overrides(exception)
+  return ExceptionPath::mergeable(exception)
+    && overrides(exception)
     && exception->pathMultiplier() == path_multiplier_;
 }
 
@@ -917,15 +925,16 @@ GroupPath::tighterThan(ExceptionPath *) const
 bool
 GroupPath::mergeable(ExceptionPath *exception) const
 {
-  return exception->isGroupPath()
-    && is_default_ == exception->isDefault()
-    && (name_ && exception->name() && stringEq(name_, exception->name()));
+  return ExceptionPath::mergeable(exception)
+    && overrides(exception);
 }
 
 bool
 GroupPath::overrides(ExceptionPath *exception) const
 {
-  return mergeable(exception);
+  return exception->isGroupPath()
+    && is_default_ == exception->isDefault()
+    && stringEqIf(name_, exception->name());
 }
 
 ////////////////////////////////////////////////////////////////
