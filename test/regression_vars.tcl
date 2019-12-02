@@ -22,7 +22,7 @@ if { [regexp "CYGWIN" [exec uname -a]] } {
 } else {
   set app "sta"
 }
-set sta_dir [find_parent_dir $test_dir]
+set sta_dir [file dirname $test_dir]
 set app_path [file join $sta_dir "app" $app]
 # Application options.
 set app_options "-no_init -no_splash -exit"
