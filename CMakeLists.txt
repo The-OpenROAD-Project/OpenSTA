@@ -40,14 +40,16 @@ endif()
 
 # Compiler specific options.
 # Note -Wno-deprecated-register is to suppress bison errors.
+find_package(Threads REQUIRED)
+find_package(Boost REQUIRED)
 find_package(Galois REQUIRED)
 set(CMAKE_CXX_COMPILER ${Galois_CXX_COMPILER})
 if (CMAKE_CXX_COMPILER_ID MATCHES AppleClang|Clang)
-  set(STA_COMPILE_OPTIONS "${Galois_CXX_FLAGS} -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security -Wno-deprecated-register")
+  set(STA_COMPILE_OPTIONS ${Galois_CXX_FLAGS} -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security -Wno-deprecated-register)
 endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  set(STA_COMPILE_OPTIONS "${Galois_CXX_FLAGS} -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security")
+  set(STA_COMPILE_OPTIONS ${Galois_CXX_FLAGS} -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security)
 endif()
 
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
@@ -601,6 +603,7 @@ set(STA_INCLUDE_DIRS
   verilog
   ${CUDD_INCLUDE}
   ${Galois_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
   )
 
 ###########################################################
@@ -641,7 +644,7 @@ target_compile_features(OpenSTA
   )
 
 target_compile_options(OpenSTA PUBLIC ${STA_COMPILE_OPTIONS})
-target_link_libraries(OpenSTA PUBLIC ${Galois_LIBRARIES})
+target_link_libraries(OpenSTA PUBLIC ${Galois_LIBRARIES} ${Boost_LIBRARIES} Threads::Threads)
 
 ###########################################################
 # Executable
