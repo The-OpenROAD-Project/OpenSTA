@@ -361,7 +361,7 @@ WritePathSpice::maxTime()
   PathRef *input_path = stageDrvrPath(input_stage);
   const RiseFall *rf = input_path->transition(this);
   TimingArc *next_arc = stageGateArc(input_stage + 1);
-  Slew input_slew = findSlew(input_path, rf, next_arc);
+  float input_slew = findSlew(input_path, rf, next_arc);
   if (input_path->isClock(this)) {
     Clock *clk = input_path->clock(this);
     float period = clk->period();
@@ -370,7 +370,7 @@ WritePathSpice::maxTime()
     return max_time;
   }
   else {
-    Slew end_slew = findSlew(path_);
+    float end_slew = findSlew(path_);
     float max_time = delayAsFloat(input_slew
 				  + path_->arrival(this)
 				  + end_slew * 2) * 1.5;
@@ -455,7 +455,7 @@ WritePathSpice::writeInputWaveform()
   PathRef *input_path = stageDrvrPath(input_stage);
   const RiseFall *rf = input_path->transition(this);
   TimingArc *next_arc = stageGateArc(input_stage + 1);
-  Slew slew0 = findSlew(input_path, rf, next_arc);
+  float slew0 = findSlew(input_path, rf, next_arc);
   // Arbitrary offset.
   float time0 = slew0;
   int volt_index = 1;
@@ -511,8 +511,8 @@ WritePathSpice::writeClkWaveform()
     rf1 = RiseFall::rise();
     volt0 = power_voltage_;
   }
-  Slew slew0 = findSlew(input_path, rf0, next_arc);
-  Slew slew1 = findSlew(input_path, rf1, next_arc);
+  float slew0 = findSlew(input_path, rf0, next_arc);
+  float slew1 = findSlew(input_path, rf1, next_arc);
   streamPrint(spice_stream_, "v1 %s 0 pwl(\n",
 	      stageDrvrPinName(input_stage));
   streamPrint(spice_stream_, "+%.3e %.3e\n", 0.0, volt0);
@@ -557,7 +557,7 @@ WritePathSpice::findSlew(Vertex *vertex,
 			 TimingArc *next_arc,
 			 DcalcAPIndex dcalc_ap_index)
 {
-  Slew slew = delayAsFloat(graph_->slew(vertex, rf, dcalc_ap_index));
+  float slew = delayAsFloat(graph_->slew(vertex, rf, dcalc_ap_index));
   if (slew == 0.0 && next_arc)
     slew = slewAxisMinValue(next_arc);
   if (slew == 0.0)
@@ -922,8 +922,8 @@ WritePathSpice::writeClkedStepSource(const Pin *pin,
 				     int &volt_index)
 {
   Vertex *vertex = graph_->pinLoadVertex(pin);
-  Slew slew = findSlew(vertex, rf, nullptr, dcalc_ap_index);
-  Delay time = clkWaveformTImeOffset(clk) + clk->period() / 2.0;
+  float slew = findSlew(vertex, rf, nullptr, dcalc_ap_index);
+  float time = clkWaveformTImeOffset(clk) + clk->period() / 2.0;
   writeStepVoltSource(pin, rf, slew, time, volt_index);
 }
 
