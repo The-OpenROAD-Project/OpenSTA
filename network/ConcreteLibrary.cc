@@ -318,6 +318,7 @@ public:
   ~BusPort();
   const char *name() const { return name_; }
   void pushMember(ConcretePort *port);
+  void setFrom(int from);
   void setTo(int to);
   int from() const { return from_; }
   int to() const { return to_; }
@@ -358,6 +359,12 @@ BusPort::pushMember(ConcretePort *port)
 }
 
 void
+BusPort::setFrom(int from)
+{
+  from_ = from;
+}
+
+void
 BusPort::setTo(int to)
 {
   to_ = to;
@@ -376,10 +383,9 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
   // Remove bus bit ports from the ports_ vector during the scan by
   // keeping an index to the next insertion index and skipping over
   // the ones we want to remove.
-  int port_index = 0;
-  ConcretePortSeq::Iterator port_iter(ports_);
-  while (port_iter.hasNext()) {
-    ConcretePort *port = port_iter.next();
+  ConcretePortSeq ports = ports_;
+  ports_.clear();
+  for (ConcretePort *port : ports) {
     const char *port_name = port->name();
     char *bus_name;
     int index;
@@ -389,7 +395,9 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
       if (!port->isBusBit()) {
 	BusPort *bus_port = port_map.findKey(bus_name);
 	if (bus_port) {
-	  bus_port->setTo(index);
+	  // Treat it as [max:min]/[from:to], ie downto.
+	  bus_port->setFrom(std::max(index, bus_port->from()));
+	  bus_port->setTo(std::min(index, bus_port->to()));
 	  stringDelete(bus_name);
 	}
 	else {
@@ -399,13 +407,11 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
 	bus_port->pushMember(port);
       }
       else
-	ports_[port_index++] = port;
+	ports_.push_back(port);
     }
     else
-      ports_[port_index++] = port;
+      ports_.push_back(port);
   }
-  // Resize to forget the ports that didn't make the cut.
-  ports_.resize(port_index);
 
   // Make the bus ports.
   BusPortMap::Iterator bus_iter(port_map);
@@ -418,9 +424,7 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
     port->setDirection(bus_port->direction());
     delete bus_port;
 
-    ConcretePortSeq::Iterator member_iter(members);
-    while (member_iter.hasNext()) {
-      ConcretePort *port = member_iter.next();
+    for (ConcretePort *port : *members) {
       char *bus_name;
       int index;
       parseBusName(port->name(), bus_brkts_left, bus_brkts_right, escape_,
