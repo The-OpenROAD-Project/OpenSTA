@@ -474,7 +474,11 @@ add_flex_bison_dependency(SdfLex SdfParser)
 
 ################################################################
 
-include(FindSWIG)
+set(SWIG_REQUIRED_VERSION "2.0")
+find_package(SWIG REQUIRED)
+if(${SWIG_VERSION} VERSION_LESS ${SWIG_REQUIRED_VERSION})
+  message(FATAL_ERROR "SWIG version ${SWIG_VERSION} must be at least ${SWIG_REQUIRED_VERSION}")
+endif()
 
 set(STA_WRAP ${CMAKE_CURRENT_BINARY_DIR}/StaApp_wrap.cc)
 
