@@ -22,7 +22,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Disable compiler specific extensions like gnu++11.
-set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_EXTENSIONS ON)
 
 set(STA_HOME ${PROJECT_SOURCE_DIR})
 message(STATUS "STA version: ${PROJECT_VERSION}")
@@ -213,7 +213,6 @@ set(STA_SOURCE
   verilog/VerilogWriter.cc
 
   galoisGraph/TimingGraph.cpp
-  galoisGraph/TimingTypeDef.cpp
   )
 
 set(STA_HEADERS
@@ -393,8 +392,6 @@ set(STA_HEADERS
   verilog/VerilogWriter.hh
 
   galoisGraph/TimingGraph.h
-  galoisGraph/TimingTypeDef.h
-  galoisGraph/DelayCalculator.h
   )
 
 # Source files.
@@ -601,6 +598,7 @@ set(STA_INCLUDE_DIRS
   search
   util
   verilog
+  galoisGraph
   ${CUDD_INCLUDE}
   ${Galois_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
