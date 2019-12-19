@@ -5623,6 +5623,7 @@ wire_capacitance(const RiseFall *rf,
   return wire_cap;
 }
 
+// get_ports -of_objects net
 TmpPortSeq *
 ports()
 {
