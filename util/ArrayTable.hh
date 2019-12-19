@@ -80,8 +80,6 @@ ArrayTable<TYPE>::make(uint32_t count,
        && free_block_idx_ == block_idx_null)
       || free_idx_ + count >= block->size()) {
     uint32_t size = (count > block_size) ? count : block_size;
-    if (count > block_size)
-      printf("big block %d\n", count);
     block = makeBlock(size);
   }
   // makeId(free_block_idx_, idx_bits)
