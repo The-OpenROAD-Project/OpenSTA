@@ -508,9 +508,7 @@ add_custom_command(OUTPUT ${STA_TCL_INIT}
 #
 ################################################################
 
-find_package(TCL)
-message(STATUS "TCL lib: ${TCL_LIB}")
-message(STATUS "TCL header: ${TCL_HEADER}")
+include(FindTcl)
 
 # Zlib
 include(FindZLIB)
