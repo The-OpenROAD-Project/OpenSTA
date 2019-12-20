@@ -76,3 +76,9 @@ foreach filename $init_filenames {
   encode_file $filename
 }
 
+puts $out_stream "\","
+# NULL string to terminate char* array.
+puts $out_stream "0"
+puts $out_stream "};"
+puts $out_stream "} // namespace"
+close $out_stream
