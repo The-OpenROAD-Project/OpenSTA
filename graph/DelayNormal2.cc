@@ -377,8 +377,8 @@ operator*(const Delay &delay1,
 	  float delay2)
 {
   return Delay(delay1.mean() * delay2,
-	       delay1.sigma2Early() * delay2,
-	       delay1.sigma2Late() * delay2);
+	       delay1.sigma2Early() * delay2 * delay2,
+	       delay1.sigma2Late() * delay2 * delay2);
 }
 
 float
