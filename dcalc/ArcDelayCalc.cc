@@ -34,7 +34,6 @@ ArcDelayCalc::model(TimingArc *arc,
   const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
   TimingArc *corner_arc = arc->cornerArc(dcalc_ap->libertyIndex());
   return corner_arc->model(op_cond);
-
 }
 
 GateTimingModel *

@@ -1207,14 +1207,15 @@ GraphDelayCalc1::findArcDelay(LibertyCell *drvr_cell,
   RiseFall *drvr_rf = arc->toTrans()->asRiseFall();
   if (from_rf && drvr_rf) {
     DcalcAPIndex ap_index = dcalc_ap->index();
-    debugPrint6(debug_, "delay_calc", 3,
-		"  %s %s -> %s %s (%s) %s\n",
+    debugPrint7(debug_, "delay_calc", 3,
+		"  %s %s -> %s %s (%s) corner:%s/%s\n",
 		arc->from()->name(),
 		arc->fromTrans()->asString(),
 		arc->to()->name(),
 		arc->toTrans()->asString(),
 		arc->role()->asString(),
-		dcalc_ap->corner()->name());
+		dcalc_ap->corner()->name(),
+		dcalc_ap->delayMinMax()->asString());
     // Delay calculation is done even when the gate delays/slews are
     // annotated because the wire delays may not be annotated.
     const Slew from_slew = edgeFromSlew(from_vertex, from_rf, edge, dcalc_ap);

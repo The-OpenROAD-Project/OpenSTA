@@ -100,7 +100,7 @@ GateTableModel::gateDelay(const LibertyCell *cell,
 			    in_slew, load_cap, related_out_cap);
   if (pocv_enabled && delay_sigma_models_[EarlyLate::lateIndex()])
     sigma_late = findValue(library, cell, pvt,
-			   delay_sigma_models_[EarlyLate::earlyIndex()],
+			   delay_sigma_models_[EarlyLate::lateIndex()],
 			   in_slew, load_cap, related_out_cap);
   gate_delay = makeDelay(delay, sigma_early, sigma_late);
 
@@ -112,7 +112,7 @@ GateTableModel::gateDelay(const LibertyCell *cell,
 			    in_slew, load_cap, related_out_cap);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::lateIndex()])
     sigma_late = findValue(library, cell, pvt,
-			   slew_sigma_models_[EarlyLate::earlyIndex()],
+			   slew_sigma_models_[EarlyLate::lateIndex()],
 			   in_slew, load_cap, related_out_cap);
   // Clip negative slews to zero.
   if (slew < 0.0)
