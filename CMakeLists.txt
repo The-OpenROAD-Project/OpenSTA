@@ -211,8 +211,6 @@ set(STA_SOURCE
   
   verilog/VerilogReader.cc
   verilog/VerilogWriter.cc
-
-  galoisGraph/TimingGraph.cpp
   )
 
 set(STA_HEADERS
@@ -390,8 +388,6 @@ set(STA_HEADERS
   verilog/VerilogReaderPvt.hh
   verilog/VerilogReader.hh
   verilog/VerilogWriter.hh
-
-  galoisGraph/TimingGraph.h
   )
 
 # Source files.
@@ -598,7 +594,6 @@ set(STA_INCLUDE_DIRS
   search
   util
   verilog
-  galoisGraph
   ${CUDD_INCLUDE}
   ${Galois_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
