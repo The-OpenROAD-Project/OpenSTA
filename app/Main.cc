@@ -152,7 +152,8 @@ initStaApp(int &argc,
   sta->makeComponents();
   sta->setTclInterp(interp);
   int thread_count = parseThreadsArg(argc, argv);
-  sta->setThreadCount(thread_count);
+//  sta->setThreadCount(thread_count);
+  sta->setThreadCount(sta->defaultThreadCount());
 
   // Define swig TCL commands.
   Sta_Init(interp);
