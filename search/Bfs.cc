@@ -27,6 +27,9 @@
 #include "SearchPred.hh"
 #include "Bfs.hh"
 
+#include "galois/Galois.h"
+#include "galois/substrate/PerThreadStorage.h"
+
 namespace sta {
 
 BfsIterator::BfsIterator(BfsIndex bfs_index,
@@ -48,6 +51,9 @@ BfsIterator::init()
 {
   first_level_ = level_max_;
   last_level_ = level_min_;
+  history_max_level_1_= 0;
+  per_thread_min_level_.reset();
+  per_thread_max_level_.reset();
   ensureSize();
 }
 
@@ -55,9 +61,15 @@ void
 BfsIterator::ensureSize()
 {
   if (levelize_->levelized()) {
-    unsigned max_level_1 = levelize_->maxLevel() + 1;
+    int max_level_1 = levelize_->maxLevel() + 1;
     if (queue_.size() < max_level_1)
       queue_.resize(max_level_1);
+    // allocate worklist at corresponding levels
+    if (history_max_level_1_ < max_level_1) {
+      for (auto i = history_max_level_1_; i < max_level_1; i++) {
+        queue_[i] = new galois::InsertBag<Vertex*>;
+      }
+    }
   }
 }
 
@@ -70,11 +82,14 @@ BfsIterator::clear()
 {
   Level level = first_level_;
   while (levelLessOrEqual(level, last_level_)) {
-    VertexSeq &level_vertices = queue_[level];
-    for (auto vertex : level_vertices) {
-      if (vertex)
-	vertex->setBfsInQueue(bfs_index_, false);
-    }
+    auto& level_vertices = *queue_[level];
+    galois::do_all(
+        galois::iterate(level_vertices),
+        [&] (Vertex* vertex) {
+          if (vertex)
+	    vertex->setBfsInQueue(bfs_index_, false);
+        }
+    );
     level_vertices.clear();
     incrLevel(level);
   }
@@ -86,7 +101,7 @@ BfsIterator::reportEntries(const Network *network)
 {
   Level level = first_level_;
   while (levelLessOrEqual(level, last_level_)) {
-    VertexSeq &level_vertices = queue_[level];
+    auto& level_vertices = *queue_[level];
     if (!level_vertices.empty()) {
       printf("Level %d\n", level);
       for (auto vertex : level_vertices) {
@@ -101,17 +116,21 @@ BfsIterator::reportEntries(const Network *network)
 void 
 BfsIterator::deleteEntries(Level level)
 {
-  VertexSeq &level_vertices = queue_[level];
-  for (auto vertex : level_vertices) {
-    if (vertex)
-      vertex->setBfsInQueue(bfs_index_, false);
-  }
+  auto& level_vertices = *queue_[level];
+  galois::do_all(
+      galois::iterate(level_vertices),
+      [&] (Vertex* vertex) {
+        if (vertex)
+          vertex->setBfsInQueue(bfs_index_, false);
+      }
+  );
   level_vertices.clear();
 }
 
 bool
 BfsIterator::empty() const
 {
+  // need to call updateLevelBoundaries() before this
   return levelLess(last_level_, first_level_);
 }
 
@@ -140,9 +159,10 @@ BfsIterator::visit(Level to_level,
 		   VertexVisitor *visitor)
 {
   int visit_count = 0;
+  updateLevelBoundaries();
   while (levelLessOrEqual(first_level_, last_level_)
 	 && levelLessOrEqual(first_level_, to_level)) {
-    VertexSeq &level_vertices = queue_[first_level_];
+    auto& level_vertices = *queue_[first_level_];
     incrLevel(first_level_);
     if (!level_vertices.empty()) {
       for (auto vertex : level_vertices) {
@@ -153,7 +173,7 @@ BfsIterator::visit(Level to_level,
 	}
       }
       level_vertices.clear();
-      visitor->levelFinished();
+      levelFinished(visitor);
     }
   }
   return visit_count;
@@ -164,30 +184,44 @@ BfsIterator::visitParallel(Level to_level,
 			   VertexVisitor *visitor)
 {
   int visit_count = 0;
+  updateLevelBoundaries();
+
   if (!empty()) {
-    if (thread_count_ <= 1)
+    galois::setActiveThreads(threadCount());
+
+    if (galois::getActiveThreads() <= 1)
       visit_count = visit(to_level, visitor);
+
     else {
-      std::vector<VertexVisitor*> visitors;
-      for (int i = 0; i < thread_count_; i++)
-	visitors.push_back(visitor->copy());
+      galois::substrate::PerThreadStorage<VertexVisitor*> visitors;
+      for (int i = 0; i < galois::getActiveThreads(); i++)
+	*(visitors.getRemote(i)) = visitor->copy();
+
+      galois::GAccumulator<int> visit_count_local;
+      visit_count_local.reset();
+
       while (levelLessOrEqual(first_level_, last_level_)
 	     && levelLessOrEqual(first_level_, to_level)) {
-	VertexSeq &level_vertices = queue_[first_level_];
+	auto& level_vertices = *queue_[first_level_];
 	incrLevel(first_level_);
 	if (!level_vertices.empty()) {
-	  for (auto vertex : level_vertices) {
-	    if (vertex) {
-	      vertex->setBfsInQueue(bfs_index_, false);
-	      dispatch_queue_->dispatch( [vertex, &visitors](int i){ visitors[i]->visit(vertex); } );
-	      visit_count++;
-	    }
-	  }
-	  dispatch_queue_->finishTasks();
-	  visitor->levelFinished();
+          galois::do_all(
+              galois::iterate(level_vertices),
+              [&] (Vertex* vertex) {
+	        if (vertex) {
+	          vertex->setBfsInQueue(bfs_index_, false);
+                  (*(visitors.getLocal()))->visit(vertex);
+                  visit_count_local += 1;
+                }
+              }
+              , galois::steal()
+              , galois::loopname("visitParallel")
+	  );
+          levelFinished(visitor);
 	  level_vertices.clear();
 	}
       }
+      visit_count = visit_count_local.reduce();
     }
   }
   return visit_count;
@@ -204,16 +238,35 @@ BfsIterator::hasNext(Level to_level)
 {
   findNext(to_level);
   return levelLessOrEqual(first_level_, last_level_)
-     && !queue_[first_level_].empty();
+     && !queue_[first_level_]->empty();
 }
 
 Vertex *
 BfsIterator::next()
 {
-  VertexSeq &level_vertices = queue_[first_level_];
-  Vertex *vertex = level_vertices.back();
-  level_vertices.pop_back();
+  auto& level_vertices = *queue_[first_level_];
+  Vertex *vertex = *(level_vertices.begin());
   vertex->setBfsInQueue(bfs_index_, false);
+  remove(vertex);
+
+  galois::InsertBag<Vertex*> bag;
+  galois::do_all(
+      galois::iterate(level_vertices),
+      [&] (Vertex* vertex) {
+        if (vertex)
+          bag.push_back(vertex);
+      }
+  );
+
+  level_vertices.clear();
+  galois::do_all(
+      galois::iterate(bag),
+      [&] (Vertex* vertex) {
+        level_vertices.push(vertex);
+      }
+  );
+  bag.clear();
+
   return vertex;
 }
 
@@ -222,7 +275,7 @@ BfsIterator::findNext(Level to_level)
 {
   while (levelLessOrEqual(first_level_, last_level_)
 	 && levelLessOrEqual(first_level_, to_level)
-	 && queue_[first_level_].empty())
+	 && queue_[first_level_]->empty())
     incrLevel(first_level_);
 }
 
@@ -231,16 +284,11 @@ BfsIterator::enqueue(Vertex *vertex)
 {
   debugPrint1(debug_, "bfs", 2, "enqueue %s\n", vertex->name(sdc_network_));
   if (!vertex->bfsInQueue(bfs_index_)) {
-    Level level = vertex->level();
-    UniqueLock lock(queue_lock_);
-    if (!vertex->bfsInQueue(bfs_index_)) {
-      vertex->setBfsInQueue(bfs_index_, true);
-      queue_[level].push_back(vertex);
-
-      if (levelLess(last_level_, level))
-	last_level_ = level;
-      if (levelLess(level, first_level_))
-	first_level_ = level;
+    if (vertex->setBfsInQueue(bfs_index_, true)) {
+      Level level = vertex->level();
+      queue_[level]->push_back(vertex);
+      per_thread_min_level_.update(level);
+      per_thread_max_level_.update(level);
     }
   }
 }
@@ -257,7 +305,7 @@ BfsIterator::checkInQueue(Vertex *vertex)
 {
   Level level = vertex->level();
   if (static_cast<Level>(queue_.size()) > level) {
-    for (auto v : queue_[level]) {
+    for (auto v : *queue_[level]) {
       if (v == vertex) {
 	if (vertex->bfsInQueue(bfs_index_))
 	  return;
@@ -284,7 +332,7 @@ BfsIterator::remove(Vertex *vertex)
   Level level = vertex->level();
   if (vertex->bfsInQueue(bfs_index_)
       && static_cast<Level>(queue_.size()) > level) {
-    for (auto &v : queue_[level]) {
+    for (auto &v : *queue_[level]) {
       if (v == vertex) {
 	v = nullptr;
 	vertex->setBfsInQueue(bfs_index_, false);
@@ -292,6 +340,14 @@ BfsIterator::remove(Vertex *vertex)
       }
     }
   }
+}
+
+void
+BfsIterator::levelFinished(VertexVisitor* visitor)
+{
+  if (visitor)
+    visitor->levelFinished();
+  updateLevelBoundaries();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -348,6 +404,19 @@ BfsFwdIterator::enqueueAdjacentVertices(Vertex *vertex,
   }
 }
 
+void
+BfsFwdIterator::updateLevelBoundaries() {
+  auto minLv = per_thread_min_level_.reduce();
+  if (levelLess(minLv, first_level_))
+    first_level_ = minLv;
+  per_thread_min_level_.reset();
+
+  auto maxLv = per_thread_max_level_.reduce();
+  if (levelLess(last_level_, maxLv))
+    last_level_ = maxLv;
+  per_thread_max_level_.reset();
+}
+
 ////////////////////////////////////////////////////////////////
 
 BfsBkwdIterator::BfsBkwdIterator(BfsIndex bfs_index,
@@ -400,6 +469,19 @@ BfsBkwdIterator::enqueueAdjacentVertices(Vertex *vertex,
 	enqueue(from_vertex);
     }
   }
+}
+
+void
+BfsBkwdIterator::updateLevelBoundaries() {
+  auto maxLv = per_thread_max_level_.reduce();
+  if (levelLess(maxLv, first_level_))
+    first_level_ = maxLv;
+  per_thread_max_level_.reset();
+
+  auto minLv = per_thread_min_level_.reduce();
+  if (levelLess(last_level_, minLv))
+    last_level_ = minLv;
+  per_thread_min_level_.reset();
 }
 
 } // namespace

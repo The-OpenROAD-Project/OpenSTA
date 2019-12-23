@@ -25,14 +25,17 @@
 #include "GraphClass.hh"
 #include "VertexVisitor.hh"
 
+#include "galois/Reduction.h"
+#include "galois/Bag.h"
+
 namespace sta {
 
 class SearchPred;
 class BfsFwdIterator;
 class BfsBkwdIterator;
 
-// LevelQueue is a vector of vertex vectors indexed by logic level.
-typedef Vector<VertexSeq> LevelQueue;
+// LevelQueue is a vector of galois::InsertBag<Vertex*>* indexed by logic level.
+typedef Vector<galois::InsertBag<Vertex*>*> LevelQueue;
 
 // Abstract base class for forward and backward breadth first search iterators.
 // Visit all of the vertices at a level before moving to the next.
@@ -99,6 +102,8 @@ protected:
   virtual void incrLevel(Level &level) = 0;
   void findNext(Level to_level);
   void deleteEntries();
+  void levelFinished(VertexVisitor* visitor);
+  virtual void updateLevelBoundaries() = 0;
 
   BfsIndex bfs_index_;
   Level level_min_;
@@ -110,6 +115,10 @@ protected:
   Level first_level_;
   // Max (min) level of queued vertices.
   Level last_level_;
+  // Historical max level of queued vertices.
+  Level history_max_level_1_;
+  galois::GReduceMax<Level> per_thread_max_level_;
+  galois::GReduceMin<Level> per_thread_min_level_;
 
   friend class BfsFwdIterator;
   friend class BfsBkwdIterator;
@@ -136,6 +145,7 @@ protected:
   virtual bool levelLess(Level level1,
 			 Level level2) const;
   virtual void incrLevel(Level &level);
+  virtual void updateLevelBoundaries();
 
 private:
   DISALLOW_COPY_AND_ASSIGN(BfsFwdIterator);
@@ -159,6 +169,7 @@ protected:
   virtual bool levelLess(Level level1,
 			 Level level2) const;
   virtual void incrLevel(Level &level);
+  virtual void updateLevelBoundaries();
 
 private:
   DISALLOW_COPY_AND_ASSIGN(BfsBkwdIterator);
