@@ -295,9 +295,12 @@ CheckCrpr::findCrpr1(const PathVertex *src_clk_path,
     // sigma of the common clock path.
     const EarlyLate *src_el = src_clk_path->minMax(this);
     const EarlyLate *tgt_el = tgt_clk_path->minMax(this);
-    float crpr_sigma2 = delaySigma2(src_clk_path->arrival(this), src_el)
-      + delaySigma2(src_clk_path->arrival(this), tgt_el);
-    return makeDelay2(0.0, -crpr_sigma2, -crpr_sigma2);
+    Arrival src_arrival = src_clk_path->arrival(this);
+    Arrival tgt_arrival = tgt_clk_path->arrival(this);
+    float crpr_mean = delayAsFloat(src_arrival) - delayAsFloat(tgt_arrival);
+    float crpr_sigma2 = delaySigma2(src_arrival, src_el)
+      + delaySigma2(tgt_arrival, tgt_el);
+    return makeDelay2(abs(crpr_mean), -crpr_sigma2, -crpr_sigma2);
   }
   else {
     // The source and target edges are different so the crpr
