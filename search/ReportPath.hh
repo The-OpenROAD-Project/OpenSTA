@@ -48,6 +48,8 @@ public:
   int digits() const { return digits_; }
   void setDigits(int digits);
   void setNoSplit(bool no_split);
+  bool reportSigmas() const { return report_sigmas_; }
+  void setReportSigmas(bool report);
   ReportField *findField(const char *name);
 
   // Header above reportPathEnd results.
@@ -520,6 +522,7 @@ protected:
   bool report_net_;
   bool no_split_;
   int digits_;
+  bool report_sigmas_;
 
   int start_end_pt_width_;
 
@@ -573,7 +576,6 @@ protected:
   Unit *unit_;
   bool enabled_;
   char *blank_;
-  ReportPath *report_path_;
 };
 
 } // namespace

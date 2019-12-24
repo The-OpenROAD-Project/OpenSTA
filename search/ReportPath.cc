@@ -115,6 +115,7 @@ ReportPath::ReportPath(StaState *sta) :
   StaState(sta),
   format_(ReportPathFormat::full),
   no_split_(false),
+  report_sigmas_(false),
   start_end_pt_width_(80),
   plus_zero_(nullptr),
   minus_zero_(nullptr)
@@ -178,7 +179,7 @@ ReportPath::findField(const char *name)
   while (field_iter.hasNext()) {
     ReportField *field = field_iter.next();
     if (stringEq(name, field->name()))
-	return field;
+      return field;
   }
   return nullptr;
 }
@@ -256,6 +257,12 @@ ReportPath::setDigits(int digits)
   }
   minus_zero_ = stringPrint("-%.*f", digits_, 0.0);
   plus_zero_  = stringPrint("%.*f", digits_, 0.0);
+}
+
+void
+ReportPath::setReportSigmas(bool report)
+{
+  report_sigmas_ = report;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3168,8 +3175,10 @@ ReportPath::reportFieldDelayMinus(Delay value,
   if (delayAsFloat(value) == field_blank_)
     reportFieldBlank(field, result);
   else {
-    float mean_sigma = delayAsFloat(value, early_late, this);
-    const char *str = units_->timeUnit()->asString(-mean_sigma, digits_);
+    const char *str = report_sigmas_
+      ? delayAsString(-value, this, digits_)
+      //      : delayAsString(-value, early_late, this, digits_);
+      : units_->timeUnit()->asString(-delayAsFloat(value, early_late, this), digits_);
     if (stringEq(str, plus_zero_))
       // Force leading minus sign.
       str = minus_zero_;
@@ -3186,7 +3195,9 @@ ReportPath::reportFieldDelay(Delay value,
   if (delayAsFloat(value) == field_blank_)
     reportFieldBlank(field, result);
   else {
-    const char *str = delayAsString(value, early_late, this, digits_);
+    const char *str = report_sigmas_
+      ? delayAsString(value, this, digits_)
+      : delayAsString(value, early_late, this, digits_);
     if (stringEq(str, minus_zero_))
       // Filter "-0.00" fields.
       str = plus_zero_;

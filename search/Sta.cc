@@ -2473,6 +2473,12 @@ Sta::setReportPathNoSplit(bool no_split)
 }
 
 void
+Sta::setReportPathSigmas(bool report_sigmas)
+{
+  report_path_->setReportSigmas(report_sigmas);
+}
+
+void
 Sta::reportPathEnds(PathEndSeq *ends)
 {
   report_path_->reportPathEnds(ends);

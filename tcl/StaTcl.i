@@ -4318,6 +4318,12 @@ set_report_path_no_split(bool no_split)
 }
 
 void
+set_report_path_sigmas(bool report_sigmas)
+{
+  Sta::sta()->setReportPathSigmas(report_sigmas);
+}
+
+void
 delete_path_ref(PathRef *path)
 {
   delete path;

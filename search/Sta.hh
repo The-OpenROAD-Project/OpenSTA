@@ -870,6 +870,7 @@ public:
   ReportField *findReportPathField(const char *name);
   void setReportPathDigits(int digits);
   void setReportPathNoSplit(bool no_split);
+  void setReportPathSigmas(bool report_sigmas);
   // Report clk skews for clks.
   void reportClkSkew(ClockSet *clks,
 		     const Corner *corner,

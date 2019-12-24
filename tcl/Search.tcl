@@ -221,7 +221,7 @@ proc parse_report_path_options { cmd args_var default_format
     unset path_options
   }
   parse_key_args $cmd args path_options {-format -digits -fields} \
-    path_options {-no_line_splits} $unknown_key_is_error
+    path_options {-no_line_splits -report_sigmas} $unknown_key_is_error
 
   set format $default_format
   if [info exists path_options(-format)] {
@@ -241,11 +241,23 @@ proc parse_report_path_options { cmd args_var default_format
     set digits $path_options(-digits)
     check_positive_integer "-digits" $digits
   }
+
+  set report_sigmas [info exists path_options(-report_sigmas)]
+  set_report_path_sigmas $report_sigmas
+
   set path_options(num_fmt) "%.${digits}f"
   set_report_path_digits $digits
   # Numberic field width expands with digits.
   set field_width [expr $digits + $report_path_field_width_extra]
-  foreach field {total incr capacitance slew} {
+  if { $report_sigmas } {
+    set delay_field_width [expr $field_width * 3 + $report_path_field_width_extra]
+  } else {
+    set delay_field_width $field_width
+  }
+  foreach field {total incr} {
+    set_report_path_field_width $field $delay_field_width
+  }
+  foreach field {capacitance slew} {
     set_report_path_field_width $field $field_width
   }
 
