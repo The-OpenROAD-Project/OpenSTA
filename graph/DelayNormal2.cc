@@ -148,8 +148,8 @@ Delay
 Delay::operator-(const Delay &delay) const
 {
   return Delay(mean_ - delay.mean_,
-	       sigma2_[early_index] + delay.sigma2_[early_index],
-	       sigma2_[late_index] + delay.sigma2_[late_index]);
+	       sigma2_[early_index] + delay.sigma2_[late_index],
+	       sigma2_[late_index] + delay.sigma2_[early_index]);
 }
 
 Delay
@@ -161,7 +161,7 @@ Delay::operator-(float delay) const
 Delay
 Delay::operator-() const
 {
-  return Delay(-mean_, sigma2_[early_index], sigma2_[late_index]);
+  return Delay(-mean_, sigma2_[late_index], sigma2_[early_index]);
 }
 
 void
@@ -182,8 +182,8 @@ bool
 Delay::operator==(const Delay &delay) const
 {
   return mean_ == delay.mean_
-    && sigma2_[early_index] == delay.sigma2_[early_index]
-    && sigma2_[late_index]  == delay.sigma2_[late_index];
+    && sigma2_[early_index] == delay.sigma2_[late_index]
+    && sigma2_[late_index]  == delay.sigma2_[early_index];
 }
 
 bool
