@@ -297,10 +297,10 @@ CheckCrpr::findCrpr1(const PathVertex *src_clk_path,
     const EarlyLate *tgt_el = tgt_clk_path->minMax(this);
     Arrival src_arrival = src_clk_path->arrival(this);
     Arrival tgt_arrival = tgt_clk_path->arrival(this);
-    float crpr_mean = delayAsFloat(src_arrival) - delayAsFloat(tgt_arrival);
+    float crpr_mean = abs(delayAsFloat(src_arrival) - delayAsFloat(tgt_arrival));
     float crpr_sigma2 = delaySigma2(src_arrival, src_el)
       + delaySigma2(tgt_arrival, tgt_el);
-    return makeDelay2(abs(crpr_mean), -crpr_sigma2, -crpr_sigma2);
+    return makeDelay2(crpr_mean, -crpr_sigma2, -crpr_sigma2);
   }
   else {
     // The source and target edges are different so the crpr
@@ -317,6 +317,15 @@ CheckCrpr::findCrpr1(const PathVertex *src_clk_path,
 		delayAsString(common_delay, this));
     return common_delay;
   }
+}
+
+float
+CheckCrpr::crprArrivalDiff(const PathVertex *path)
+{
+  Arrival other_arrival = otherMinMaxArrival(path);
+  float crpr_diff = abs(delayAsFloat(path->arrival(this))
+			- delayAsFloat(other_arrival));
+  return crpr_diff;
 }
 
 Crpr
@@ -385,17 +394,6 @@ CheckCrpr::crprPossible(Clock *clk1,
 	|| clk2->isGenerated()
 	// Different non-generated clocks with the same source pins (using -add).
 	|| PinSet::intersects(clk1->pins(), clk2->pins()));
-}
-
-float
-CheckCrpr::crprArrivalDiff(const PathVertex *path)
-{
-  Arrival other_arrival = otherMinMaxArrival(path);
-  float crpr_diff = abs(delayAsFloat(path->arrival(this),
-				     EarlyLate::late(), this)
-			- delayAsFloat(other_arrival,
-				       EarlyLate::early(), this));
-  return crpr_diff;
 }
 
 } // namespace
