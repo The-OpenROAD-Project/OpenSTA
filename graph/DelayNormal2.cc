@@ -428,15 +428,10 @@ delayAsString(const Delay &delay,
   if (sta->pocvEnabled()) {
     float sigma_early = delay.sigma(EarlyLate::early());
     float sigma_late = delay.sigma(EarlyLate::late());
-    if (fuzzyEqual(sigma_early, sigma_late))
-      return stringPrintTmp("%s|%s",
-			    unit->asString(delay.mean(), digits),
-			    unit->asString(sigma_early, digits));
-    else
-      return stringPrintTmp("%s|%s:%s",
-			    unit->asString(delay.mean(), digits),
-			    unit->asString(sigma_early, digits),
-			    unit->asString(sigma_late, digits));
+    return stringPrintTmp("%s[%s : %s]",
+			  unit->asString(delay.mean(), digits),
+			  unit->asString(sigma_early, digits),
+			  unit->asString(sigma_late, digits));
   }
   else
     return unit->asString(delay.mean(), digits);

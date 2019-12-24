@@ -400,7 +400,7 @@ delayAsString(const Delay &delay,
   const Unit *unit = sta->units()->timeUnit();
   if (sta->pocvEnabled()) {
     float sigma = delay.sigma();
-    return stringPrintTmp("%s|%s",
+    return stringPrintTmp("%s[%s]",
 			  unit->asString(delay.mean(), digits),
 			  unit->asString(sigma, digits));
   }
