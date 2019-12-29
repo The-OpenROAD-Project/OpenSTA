@@ -1,0 +1,16 @@
+Language: Cpp
+BasedOnStyle: Google
+AlignOperands: false
+AllowAllConstructorInitializersOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortFunctionsOnASingleLine: InlineOnly
+AlwaysBreakAfterReturnType: TopLevel
+# fails
+BinPackParameters: false
+BraceWrapping:   
+  AfterClass: true
+  AfterStruct: true
+  AfterFunction: true
+BreakBeforeBraces: Custom
+# fails
+BreakConstructorInitializers: AfterColon
