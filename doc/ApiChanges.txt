@@ -16,6 +16,29 @@
 
 This file summarizes STA API changes for each release.
 
+The following iterator functions are deprecated:
+
+ TimingArcSet::timingArcIterator()
+ Sdc::clockIterator()
+
+Use the iterator class constructor instead. This avoids new/deletes of
+the iterators by stack allocating them. For example,
+Instead of
+
+  TimingArcSetArcIterator *arc_iter = arc_set->timingArcIterator();
+  while (arc_iter->hasNext()) {
+    TimingArc *arc = arc_iter->next();
+  }
+  delete arc_iter;
+
+use the following:
+
+  TimingArcSetArcIterator arc_iter(arc_set);
+  while (arc_iter.hasNext()) {
+    TimingArc *arc = arc_iter.next();
+  }
+
+
 Release 2.0.17 2019/11/11
 -------------------------
 

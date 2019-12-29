@@ -159,7 +159,8 @@ public:
 		TimingArc *&arc1,
 		TimingArc *&arc2);
   const TimingArcSeq &arcs() const { return arcs_; }
-  TimingArcSetArcIterator *timingArcIterator();
+  // Use the TimingArcSetArcIterator(arc_set) constructor instead.
+  TimingArcSetArcIterator *timingArcIterator() __attribute__ ((deprecated));
   TimingArcIndex addTimingArc(TimingArc *arc);
   void deleteTimingArc(TimingArc *arc);
   TimingArc *findTimingArc(unsigned arc_index);
