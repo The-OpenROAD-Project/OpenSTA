@@ -1959,9 +1959,19 @@ PathEnd::cmp(const PathEnd *path_end1,
     const Path *path1 = path_end1->path();
     const Path *path2 = path_end2->path();
     cmp = Path::cmpPinTrClk(path1, path2, sta);
-    if (cmp == 0)
-      return clkEdgeCmp(path_end1->targetClkEdge(sta),
-			path_end2->targetClkEdge(sta));
+    if (cmp == 0) {
+      cmp = clkEdgeCmp(path_end1->targetClkEdge(sta),
+		       path_end2->targetClkEdge(sta));
+      if (cmp == 0) {
+	PathExpanded expanded1(path1, sta);
+	PathExpanded expanded2(path2, sta);
+	const Path *start1 = expanded1.startPath();
+	const Path *start2 = expanded2.startPath();
+	return Path::cmp(start1, start2, sta) < 0;
+      }
+      else
+	return cmp;
+    }
     else
       return cmp;
   }
