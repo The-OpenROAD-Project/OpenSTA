@@ -2547,13 +2547,27 @@ WriteSdc::writeGetPins(PinSet *pins,
 		       bool map_hpin_to_drvr) const
 {
   PinSeq pins1;
-  sortPinSet(pins, sdc_network_, pins1);
-  writeGetPins(&pins1, map_hpin_to_drvr);
+  if (map_hpins_) {
+    PinSet leaf_pins;
+    for (Pin *pin : *pins) {
+      if (network_->isHierarchical(pin)) {
+	if (map_hpin_to_drvr)
+	  findLeafDriverPins(const_cast<Pin*>(pin), network_, &leaf_pins);
+	else
+	  findLeafLoadPins(const_cast<Pin*>(pin), network_, &leaf_pins);
+      }
+      else
+	leaf_pins.insert(pin);
+    }
+    sortPinSet(&leaf_pins, sdc_network_, pins1);
+  }
+  else
+    sortPinSet(pins, sdc_network_, pins1);
+  writeGetPins1(&pins1);
 }
 
 void
-WriteSdc::writeGetPins(PinSeq *pins,
-		       bool map_hpin_to_drvr) const
+WriteSdc::writeGetPins1(PinSeq *pins) const
 {
   bool multiple = pins->size() > 1;
   if (multiple)
@@ -2564,7 +2578,7 @@ WriteSdc::writeGetPins(PinSeq *pins,
     Pin *pin = pin_iter.next();
     if (multiple && !first)
       fprintf(stream_, "\\\n          ");
-    writeGetPin(pin, map_hpin_to_drvr);
+    writeGetPin(pin);
     first = false;
   }
   if (multiple)
@@ -2584,45 +2598,13 @@ void
 WriteSdc::writeGetPin(const Pin *pin,
 		      bool map_hpin_to_drvr) const
 {
-  if (map_hpins_ && map_hpin_to_drvr)
-    pin = leafDrvrPin(pin);
-  else if (map_hpins_ && !map_hpin_to_drvr)
-    pin = leafLoadPin(pin);
-
-  if (sdc_network_->instance(pin) == instance_)
-    fprintf(stream_, "[get_ports {%s}]", sdc_network_->portName(pin));
+  if (map_hpins_ && network_->isHierarchical(pin)) {
+    PinSet pins;
+    pins.insert(const_cast<Pin*>(pin));
+    writeGetPins(&pins, map_hpin_to_drvr);
+  }
   else
-    fprintf(stream_, "[get_pins {%s}]", pathName(pin));
-}
-
-const Pin *
-WriteSdc::leafDrvrPin(const Pin *pin) const
-{
-  PinSet leaf_pins;
-  findLeafDriverPins(const_cast<Pin*>(pin), network_, &leaf_pins);
-  PinSet::Iterator pin_iter(leaf_pins);
-  if (pin_iter.hasNext())
-    return pin_iter.next();
-  else {
-    report_->warn("No leaf driver pin found for hierarchical pin %s\n",
-		  sdc_network_->pathName(pin));
-    return pin;
-  }
-}
-
-const Pin *
-WriteSdc::leafLoadPin(const Pin *pin) const
-{
-  PinSet leaf_pins;
-  findLeafLoadPins(const_cast<Pin*>(pin), network_, &leaf_pins);
-  PinSet::Iterator pin_iter(leaf_pins);
-  if (pin_iter.hasNext())
-    return pin_iter.next();
-  else {
-    report_->warn("No leaf load pin found for hierarchical pin %s\n",
-		  sdc_network_->pathName(pin));
-    return pin;
-  }
+    writeGetPin(pin);
 }
 
 void
