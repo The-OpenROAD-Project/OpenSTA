@@ -247,13 +247,14 @@ Path::equal(const Path *path1,
 	    const Path *path2,
 	    const StaState *sta)
 {
-  return (path1
-	  && path2
-	  && path1->vertexId(sta) == path2->vertexId(sta)
-	  // Tag equal implies transition and path ap equal.
-	  && path1->tagIndex(sta) == path2->tagIndex(sta))
-    || ((path1 == nullptr || path1->isNull())
-	&& (path2 == nullptr || path2->isNull()));
+  bool path1_null = (path1 == nullptr || path1->isNull());
+  bool path2_null = (path2 == nullptr || path2->isNull());
+  return (path1_null && path2_null)
+    || (!path1_null
+	&& !path2_null
+	&& path1->vertexId(sta) == path2->vertexId(sta)
+	// Tag equal implies transition and path ap equal.
+	&& path1->tagIndex(sta) == path2->tagIndex(sta));
 }
 
 ////////////////////////////////////////////////////////////////
