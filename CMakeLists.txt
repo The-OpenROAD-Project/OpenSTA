@@ -508,7 +508,7 @@ add_custom_command(OUTPUT ${STA_TCL_INIT}
 #
 ################################################################
 
-include(FindTcl)
+find_package(TCL)
 
 # Zlib
 include(FindZLIB)
@@ -615,7 +615,7 @@ add_library(OpenSTA
 
 target_include_directories(OpenSTA
   PUBLIC ${STA_INCLUDE_DIRS}
-  SYSTEM ${TCL_HEADER_DIR}
+  SYSTEM ${TCL_INCLUDE_PATH}
   )
 
 target_compile_features(OpenSTA
@@ -638,7 +638,7 @@ add_executable(sta app/Main.cc ${STA_WRAP})
 
 target_link_libraries(sta
   OpenSTA
-  ${TCL_LIB}
+  tcl
   ${CUDD_LIB}
   )
 
