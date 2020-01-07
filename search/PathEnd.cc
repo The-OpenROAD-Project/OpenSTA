@@ -1960,10 +1960,14 @@ PathEnd::cmp(const PathEnd *path_end1,
     const Path *path2 = path_end2->path();
     cmp = Path::cmpPinTrClk(path1, path2, sta);
     if (cmp == 0) {
-      cmp = clkEdgeCmp(path_end1->targetClkEdge(sta),
-		       path_end2->targetClkEdge(sta));
-      if (cmp == 0)
-	return Path::cmpAll(path1, path2, sta);
+      const Path *clk_path1 = path_end1->targetClkPath();
+      const Path *clk_path2 = path_end2->targetClkPath();
+      cmp = Path::cmpPinTrClk(clk_path1, clk_path2, sta);
+      if (cmp == 0) {
+	cmp = Path::cmpAll(path1, path2, sta);
+	if (cmp == 0)
+	  cmp = Path::cmpAll(clk_path1, clk_path2, sta);
+      }
     }
   }
   return cmp;
