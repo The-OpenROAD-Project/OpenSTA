@@ -602,10 +602,10 @@ clkEdgeCmp(ClockEdge *clk_edge1,
   else {
     int index1 = clk_edge1->index();
     int index2 = clk_edge2->index();
-    if (index1 < index2)
-      return -1;
-    else if (index1 == index2)
+    if (index1 == index2)
       return 0;
+    else if (index1 < index2)
+      return -1;
     else
       return 1;
   }
