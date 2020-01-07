@@ -273,8 +273,8 @@ PathLess::operator()(const Path *path1,
 
 bool
 Path::less(const Path *path1,
-	 const Path *path2,
-	 const StaState *sta)
+	   const Path *path2,
+	   const StaState *sta)
 {
   return cmp(path1, path2, sta) < 0;
 }
@@ -333,19 +333,15 @@ Path::cmpAll(const Path *path1,
 {
   PathRef p1(path1);
   PathRef p2(path2);
-  bool first = true;
   while (!p1.isNull()
 	 && !p2.isNull()) {
     int cmp = Path::cmp(&p1, &p2, sta);
     if (cmp != 0)
       return cmp;
 
-    // Pin and transitions are the same.  Keep on look'n.
     p1.prevPath(sta, p1);
     p2.prevPath(sta, p2);
-    first = false;
-    if (!first
-	&& equal(&p1, path1, sta))
+    if (equal(&p1, path1, sta))
       // Equivalent latch loops.
       return 0;
   }
