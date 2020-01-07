@@ -160,11 +160,8 @@ void
 PathGroup::pushEnds(PathEndSeq *path_ends)
 {
   ensureSortedMaxPaths();
-  PathEndSeq::Iterator iter(path_ends_);
-  while (iter.hasNext()) {
-    PathEnd *path_end = iter.next();
+  for (PathEnd *path_end : path_ends_)
     path_ends->push_back(path_end);
-  }
 }
 
 PathGroupIterator *
