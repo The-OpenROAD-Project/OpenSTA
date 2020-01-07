@@ -25,8 +25,10 @@ proc regression_main {} {
 proc setup {} {
   global result_dir diff_file failure_file errors 
   global use_valgrind valgrind_shared_lib_failure
+  global report_stats
 
   set use_valgrind 0
+  set report_stats 0
 
   if { !([file exists $result_dir] && [file isdirectory $result_dir]) } {
     file mkdir $result_dir
@@ -37,11 +39,6 @@ proc setup {} {
   set errors(error) 0
   set errors(memory) 0
   set errors(leak) 0
-  set errors(race) 0
-  set errors(slow) 0
-  set errors(fast) 0
-  set errors(big) 0
-  set errors(small) 0
   set errors(fail) 0
   set errors(no_cmd) 0
   set errors(no_ok) 0
@@ -52,13 +49,15 @@ proc parse_args {} {
   global argv app_options tests test_groups cmd_paths
   global use_valgrind
   global result_dir tests
+  global report_stats
 
   while { $argv != {} } {
     set arg [lindex $argv 0]
     if { $arg == "help" || $arg == "-help" } {
-      puts {Usage: regression [-help] [-threads threads]  [-valgrind] tests...}
+      puts {Usage: regression [-help] [-threads threads] [-valgrind] [-report_stats] tests...}
       puts "  -threads max|integer - number of threads to use"
       puts "  -valgrind - run valgrind (linux memory checker)"
+      puts "  -report_stats - report run time and memory"
       puts "  Wildcarding for test names is supported (enclose in \"'s)"
       puts "  Tests are: all, fast, med, slow, or a test group or test name"
       puts ""
@@ -75,6 +74,9 @@ proc parse_args {} {
       set argv [lrange $argv 2 end]
     } elseif { $arg == "-valgrind" } {
       set use_valgrind 1
+      set argv [lrange $argv 1 end]
+    } elseif { $arg == "-report_stats" } {
+      set report_stats 1
       set argv [lrange $argv 1 end]
     } elseif { [llength $argv] == 0 } {
       # Default is to run dist tests.
@@ -121,7 +123,7 @@ proc run_tests {} {
 }
 
 proc run_test { test } {
-  global result_dir diff_file errors diff_options
+  global result_dir diff_file errors diff_options report_stats
   
   set cmd_file [test_cmd_file $test]
   if [file exists $cmd_file] {
@@ -162,26 +164,8 @@ proc run_test { test } {
 	append_failure $test
 	incr errors(leak)
       }
-      if { [lsearch $test_errors "RACE"] != -1 } {
-	append error_msg " *RACE*"
-	append_failure $test
-	incr errors(race)
-      }
-      if { [lsearch $test_errors "SLOW"] != -1 } {
-	append error_msg " *SLOW*"
-	incr errors(slow)
-      }
-      if { [lsearch $test_errors "FAST"] != -1 } {
-	append error_msg " *FAST*"
-	incr errors(fast)
-      }
-      if { [lsearch $test_errors "BIG"] != -1 } {
-	append error_msg " *BIG*"
-	incr errors(big)
-      }
-      if { [lsearch $test_errors "SMALL"] != -1 } {
-	append error_msg " *SMALL*"
-	incr errors(small)
+      if { $report_stats } {
+	append error_msg " [test_stats_summary $test]"
       }
       
       if [file exists $ok_file] {
@@ -209,6 +193,39 @@ proc run_test { test } {
   }
 }
 
+proc test_stats { test } {
+  if { ![catch {open [test_stats_file $test] r} stream] } {
+    gets $stream line1
+    close $stream
+    return $line1
+  } else {
+    return {}
+  }
+}
+
+proc test_stats_summary { test } {
+  set stats [test_stats $test]
+  set elapsed_time [lindex $stats 0]
+  set user_time [lindex $stats 1]
+  set memory [lindex $stats 2]
+  if { [string is double $elapsed_time] } {
+    set elapsed [format "%.1fe" $elapsed_time]
+  } else {
+    set elapsed "?"
+  }
+  if { [string is double $user_time] } {
+    set user [format "%.1fu" $user_time]
+  } else {
+    set user "?"
+  }
+  if { [string is double $memory] } {
+    set mem [format "%.0fmb" [expr $memory * 1e-6]]
+  } else {
+    set mem "?"
+  }
+  return "$elapsed $user $mem"
+}
+
 proc append_failure { test } {
   global failure_file
   set fail_ch [open $failure_file "a"]
@@ -228,20 +245,27 @@ proc run_test_app { test cmd_file log_file } {
 
 proc run_test_plain { test cmd_file log_file } {
   global app_path app_options result_dir errorCode
-  
+  global report_stats
+
   if { ![file exists $app_path] } {
     return "ERROR $app_path not found."
   } elseif { ![file executable $app_path] } {
     return "ERROR $app_path is not executable."
   } else {
-    set save_dir [pwd]
-    cd [file dirname $cmd_file]
-    if { [catch [concat exec $app_path $app_options \
-		   [file tail $cmd_file] >& $log_file]] } {
-      cd $save_dir
+    set run_file [test_run_file $test]
+    set run_stream [open $run_file "w"]
+    puts $run_stream "cd [file dirname $cmd_file]"
+    puts $run_stream "source [file tail $cmd_file]"
+    if { $report_stats } {
+      set stat_file [file normalize [test_stats_file $test]]
+      puts $run_stream "sta::write_stats $stat_file"
+    }
+    close $run_stream
+
+    if { [catch [concat exec $app_path $app_options $run_file >& $log_file]] } {
       set signal [lindex $errorCode 2]
       set error [lindex $errorCode 3]
-      # Errors strings are not consistent across platforms but signal
+      # Error strings are not consistent across platforms but signal
       # names are.
       if { $signal == "SIGSEGV" } {
 	# Save corefiles to regression results directory.
@@ -254,7 +278,6 @@ proc run_test_plain { test cmd_file log_file } {
       cleanse_logfile $test $log_file
       return "ERROR $error"
     }
-    cd $save_dir
     cleanse_logfile $test $log_file
     return ""
   }
@@ -376,9 +399,6 @@ proc show_summary {} {
     if { $errors(memory) != 0 } {
       puts "Memory corruption in $errors(memory)/$test_count"
     }
-    if { $errors(race) != 0 } {
-      puts "Race errors in $errors(race)/$test_count"
-    }
     if { $errors(no_ok) != 0 } {
       puts "No ok file for $errors(no_ok)/$test_count"
     }
@@ -402,8 +422,7 @@ proc found_errors {} {
   
   return [expr $errors(error) != 0 || $errors(fail) != 0 \
 	    || $errors(no_cmd) != 0 || $errors(no_ok) != 0 \
-	    || $errors(memory) != 0 || $errors(leak) != 0 \
-	    || $errors(race) != 0]
+	    || $errors(memory) != 0 || $errors(leak) != 0]
 }
 
 ################################################################
@@ -471,6 +490,11 @@ proc test_log_file { test } {
   return [file join $result_dir "$test.log"]
 }
 
+proc test_run_file { test } {
+  global result_dir
+  return [file join $result_dir $test.run]
+}
+
 proc test_tmp_file { test } {
   global result_dir
   return [file join $result_dir $test.tmp]
@@ -484,6 +508,11 @@ proc test_valgrind_cmd_file { test } {
 proc test_valgrind_file { test } {
   global result_dir
   return [file join $result_dir $test.valgrind]
+}
+
+proc test_stats_file { test } {
+  global result_dir
+  return [file join $result_dir "$test.stats"]
 }
 
 proc test_core_file { test } {
