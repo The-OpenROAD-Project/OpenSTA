@@ -81,7 +81,7 @@ void
 MaxSkewChecksVisitor::visit(MaxSkewCheck &check,
 			    const StaState *)
 {
-  checks_.push_back(check.copy());
+  checks_.push_back(new MaxSkewCheck(check));
 }
 
 class MaxSkewViolatorsVisititor : public MaxSkewCheckVisitor
@@ -108,7 +108,7 @@ MaxSkewViolatorsVisititor::visit(MaxSkewCheck &check,
 				 const StaState *sta)
 {
   if (fuzzyLess(check.slack(sta), 0.0))
-    checks_.push_back(check.copy());
+    checks_.push_back(new MaxSkewCheck(check));
 }
 
 MaxSkewCheckSeq &
@@ -146,11 +146,10 @@ MaxSkewSlackVisitor::visit(MaxSkewCheck &check,
 			   const StaState *sta)
 {
   MaxSkewSlackLess slack_less(sta);
-  if (min_slack_check_ == nullptr)
-    min_slack_check_ = check.copy();
-  else if (slack_less(&check, min_slack_check_)) {
+  if (min_slack_check_ == nullptr
+      || slack_less(&check, min_slack_check_)) {
     delete min_slack_check_;
-    min_slack_check_ = check.copy();
+    min_slack_check_ = new MaxSkewCheck(check);
   }
 }
 
@@ -233,12 +232,6 @@ MaxSkewCheck::MaxSkewCheck(PathVertex *clk_path,
   check_arc_(check_arc),
   check_edge_(check_edge)
 {
-}
-
-MaxSkewCheck *
-MaxSkewCheck::copy()
-{
-  return new MaxSkewCheck(&clk_path_, &ref_path_, check_arc_, check_edge_);
 }
 
 Pin *

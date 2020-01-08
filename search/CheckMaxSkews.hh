@@ -58,7 +58,6 @@ public:
 	       PathVertex *ref_path,
 	       TimingArc *check_arc,
 	       Edge *check_edge);
-  MaxSkewCheck *copy();
   PathVertex *clkPath() { return &clk_path_; }
   Pin *clkPin(const StaState *sta) const;
   PathVertex *refPath() { return &ref_path_; }
@@ -69,8 +68,6 @@ public:
   TimingArc *checkArc() const { return check_arc_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(MaxSkewCheck);
-
   PathVertex clk_path_;
   PathVertex ref_path_;
   TimingArc *check_arc_;
