@@ -508,13 +508,14 @@ add_custom_command(OUTPUT ${STA_TCL_INIT}
 #
 ################################################################
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  # OSX tcl is deprecated and prints a warning, so look for a user installed
-  # version before using the system version.
-  include(FindTcl)
-else()
-  find_package(TCL REQUIRED)
-endif()
+# OSX tcl is deprecated and prints a warning, so look for a user installed
+# version before using the system version.
+# I tried to override the library search order instead but failed.
+# CMAKE_FIND_FRAMEWORK LAST bypasses the version in the framework directory
+# but not the one in /usr/lib.
+# This calls cmake/FindTCL.cmake
+# Do not use REQUIRED because it also requires TK.
+find_package(TCL)
 
 # Zlib
 include(FindZLIB)
