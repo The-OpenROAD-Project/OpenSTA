@@ -508,7 +508,13 @@ add_custom_command(OUTPUT ${STA_TCL_INIT}
 #
 ################################################################
 
-find_package(TCL)
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  # OSX tcl is deprecated and prints a warning, so look for a user installed
+  # version before using the system version.
+  include(FindTcl)
+else()
+  find_package(TCL REQUIRED)
+endif()
 
 # Zlib
 include(FindZLIB)
@@ -638,7 +644,7 @@ add_executable(sta app/Main.cc ${STA_WRAP})
 
 target_link_libraries(sta
   OpenSTA
-  tcl
+  ${TCL_LIBRARY}
   ${CUDD_LIB}
   )
 
