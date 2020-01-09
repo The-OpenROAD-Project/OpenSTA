@@ -57,7 +57,7 @@ staTclAppInit(int argc,
 	      const char *init_filename,
 	      Tcl_Interp *interp);
 static void
-initStaApp(int argc,
+initStaApp(int &argc,
 	   char *argv[],
 	   Tcl_Interp *interp);
 
@@ -139,7 +139,7 @@ staTclAppInit(int argc,
 }
 
 static void
-initStaApp(int argc,
+initStaApp(int &argc,
 	   char *argv[],
 	   Tcl_Interp *interp)
 {
