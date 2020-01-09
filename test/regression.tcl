@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#  regression -help | [-valgrind] [-report_stats] test1 [test2...]
+
 proc regression_main {} {
   setup
   parse_args
@@ -78,14 +80,16 @@ proc parse_args {} {
     } elseif { $arg == "-report_stats" } {
       set report_stats 1
       set argv [lrange $argv 1 end]
-    } elseif { [llength $argv] == 0 } {
-      # Default is to run dist tests.
-      set tests [group_tests dist]
     } else {
       break
     }
   }
-  set tests [expand_tests $argv]
+  if { $argv == {} } {
+    # Default is to run fast tests.
+    set tests [group_tests fast]
+  } else {
+    set tests [expand_tests $argv]
+  }
 }
 
 proc expand_tests { argv } {
@@ -295,15 +299,14 @@ proc run_test_valgrind { test cmd_file log_file } {
 
   set cmd [concat exec valgrind $valgrind_options \
 	     $app_path $app_options $vg_cmd_file >& $log_file]
+  set error_msg ""
   if { [catch $cmd] } {
-    set error [lindex $errorCode 3]
-    cleanse_valgrind_logfile $test $log_file
-    cleanse_logfile $test $log_file
-    return "ERROR $error"
-  } else {
-    cleanse_logfile $test $log_file
-    return [cleanse_valgrind_logfile $test $log_file]
+    set error_msg "ERROR [lindex $errorCode 3]"
   }
+  file delete $vg_cmd_file
+  cleanse_logfile $test $log_file
+  lappend error_msg [cleanse_valgrind_logfile $test $log_file]
+  return $error_msg
 }
 
 # Error messages can be found in "valgrind/memcheck/mc_errcontext.c".
