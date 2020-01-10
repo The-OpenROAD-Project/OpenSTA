@@ -514,6 +514,7 @@ Sta::~Sta()
   delete report_;
   delete power_;
   delete equiv_cells_;
+  delete dispatch_queue_;
 }
 
 void

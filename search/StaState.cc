@@ -38,7 +38,7 @@ StaState::StaState() :
   search_(nullptr),
   latches_(nullptr),
   thread_count_(1),
-  dispatch_queue_(new DispatchQueue(thread_count_)),
+  dispatch_queue_(nullptr),
   pocv_enabled_(false),
   sigma_factor_(1.0)
 {
