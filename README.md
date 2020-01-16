@@ -135,15 +135,15 @@ Optional CMake variables passed as -D<var>=<value> arguments to CMake are show b
 ```
 CMAKE_BUILD_TYPE DEBUG|RELEASE
 CMAKE_CXX_FLAGS - additional compiler flags
-TCL_LIB - path to tcl library
+TCL_LIBRARY - path to tcl library
 TCL_HEADER - path to tcl.h
 CUDD - path to cudd installation
 ZLIB_ROOT - path to zlib
 CMAKE_INSTALL_PREFIX
 ```
 
-If `TCL_LIB` is specified the CMake script will attempt to locate the
-header from the library path.
+If `TCL_LIBRARY` is specified the CMake script will attempt to locate
+the header from the library path.
 
 The default install directory is `/usr/local`.
 To install in a different directory with CMake use:
