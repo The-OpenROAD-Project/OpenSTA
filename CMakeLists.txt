@@ -27,7 +27,7 @@ set(CMAKE_CXX_EXTENSIONS ON)
 set(STA_HOME ${PROJECT_SOURCE_DIR})
 message(STATUS "STA version: ${PROJECT_VERSION}")
 
-set(CMAKE_PREFIX_PATH /net/ghostwheel4/workspace/ylu/Galois/installed/lib/CMake/Galois ${CMAKE_PREFIX_PATH})
+set(CMAKE_PREFIX_PATH $ENV{GALOIS_PREFIX_PATH}/lib/CMake/Galois ${CMAKE_PREFIX_PATH})
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC STA_GIT_SHA1)
