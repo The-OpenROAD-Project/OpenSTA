@@ -1045,7 +1045,7 @@ SdfReader::findPin(const char *name)
 {
   if (path_) {
     string path_name;
-    stringPrint(path_name, path_, divider_, name);
+    stringPrint(path_name, "%s%c%s", path_, divider_, name);
     Pin *pin = network_->findPin(path_name.c_str());
     return pin;
   }
