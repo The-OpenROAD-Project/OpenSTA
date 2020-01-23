@@ -452,10 +452,6 @@ public:
   OcvDerate *ocvDerate() const;
   OcvDerate *findOcvDerate(const char *derate_name);
 
-  // Next higher/lower drive equivalent cells.
-  LibertyCell *higherDrive() const;
-  LibertyCell *lowerDrive() const;
-
   // Build helpers.
   void makeSequential(int size,
 		      bool is_register,
