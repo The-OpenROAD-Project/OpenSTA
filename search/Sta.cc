@@ -2919,6 +2919,27 @@ Sta::vertexSlack1(Vertex *vertex,
 }
 
 void
+Sta::vertexSlacks(Vertex *vertex,
+		  Slack (&slacks)[RiseFall::index_count][MinMax::index_count])
+{
+  findRequired(vertex);
+  for(int rf_index : RiseFall::rangeIndex()) {
+    for(MinMax *min_max : MinMax::range()) {
+      slacks[rf_index][min_max->index()] = MinMax::min()->initValue();
+    }
+  }
+  VertexPathIterator path_iter(vertex, this);
+  while (path_iter.hasNext()) {
+    Path *path = path_iter.next();
+    Slack path_slack = path->slack(this);
+    int rf_index = path->rfIndex(this);
+    int mm_index = path->minMax(this)->index();
+    if (path_slack < slacks[rf_index][mm_index])
+      slacks[rf_index][mm_index] = path_slack;
+  }
+}
+
+void
 Sta::findRequired(Vertex *vertex)
 {
   searchPreamble();
