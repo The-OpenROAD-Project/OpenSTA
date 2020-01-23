@@ -338,8 +338,8 @@ Sim::functionSense(const FuncExpr *expr,
 		   const Pin *input_pin,
 		   const Instance *inst)
 {
-  TimingSense sense;
-  LogicValue value;
+  TimingSense sense = TimingSense::none;
+  LogicValue value = LogicValue::unknown;
   functionSense(expr, input_pin, inst, sense, value);
   return sense;
 }
