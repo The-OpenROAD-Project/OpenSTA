@@ -393,16 +393,11 @@ proc check_percent { cmd_arg arg } {
 # The builtin Tcl "source" and "unknown" commands are redefined by sta.
 # This rename provides a mechanism to refer to the original TCL
 # command.
-rename source builtin_source
-
-# This seems to be a common build problem.
-# It happens with incomplete installs of libtcl that can't find the
-# corresponding init.tcl file.
-if { [info procs unknown] == {} } {
-  puts "TCL installation problem. proc unknown not defined. Check tcl_libraries $tcl_libraries for init.tcl"
-  proc unknown { args } { return -code error "invalid command name" }
-} else {
+# Protected so this file can be reloaded without blowing up.
+if { ![info exists renamed_source] } {
+  rename source builtin_source
   rename unknown builtin_unknown
+  set renamed_source 1
 }
 
 # Numeric expressions eval to themselves so braces aren't required
