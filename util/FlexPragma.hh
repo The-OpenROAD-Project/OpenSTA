@@ -19,5 +19,4 @@
 #endif
 #endif
 
-DISABLE_WARNING(deprecated-register,deprecated-register,00)
-
+DISABLE_WARNING(,deprecated-register,00)
