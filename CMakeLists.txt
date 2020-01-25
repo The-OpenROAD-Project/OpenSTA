@@ -469,23 +469,25 @@ add_flex_bison_dependency(SdfLex SdfParser)
 # all hell breaks loose with cmake 3.16.2
 #cmake_policy(SET CMP<0078> NEW)
 #set(UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
-find_package(SWIG REQUIRED)
+find_package(SWIG REQUIRED 3.0)
 include(UseSWIG)
 
-set(STA_SWIG_FILE
-  app/StaApp.i
-  )
+set(STA_SWIG_FILE app/StaApp.i)
 
-set_source_files_properties(${STA_SWIG_FILE}
-  PROPERTIES CPLUSPLUS ON
+set_property(SOURCE ${STA_SWIG_FILE}
+  PROPERTY CPLUSPLUS ON
 )
-set(CMAKE_SWIG_FLAGS -module sta -namespace -prefix sta
-  -I${STA_HOME}/tcl
-  -I${STA_HOME}/sdf
-  -I${STA_HOME}/dcalc
-  -I${STA_HOME}/parasitics
-  -I${STA_HOME}/verilog
-  )
+set_property(SOURCE ${STA_SWIG_FILE}  
+  PROPERTY COMPILE_OPTIONS -module sta -namespace -prefix sta
+)
+set_property(SOURCE ${STA_SWIG_FILE}  
+  PROPERTY INCLUDE_DIRECTORIES
+  ${STA_HOME}/tcl
+  ${STA_HOME}/sdf
+  ${STA_HOME}/dcalc
+  ${STA_HOME}/parasitics
+  ${STA_HOME}/verilog
+)
 
 swig_add_library(sta_swig
   LANGUAGE tcl
