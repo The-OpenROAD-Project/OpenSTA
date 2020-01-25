@@ -14,9 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-cmake_minimum_required (VERSION 3.9)
+cmake_minimum_required (VERSION 3.9...3.16)
 
-project(STA VERSION 2.0.17)
+project(STA VERSION 2.0.18)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 11)
@@ -35,16 +35,6 @@ message(STATUS "STA git sha: ${STA_GIT_SHA1}")
 # Default to bulding optimnized/release executable.
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RELEASE)
-endif()
-
-# Compiler specific options.
-# Note -Wno-deprecated-register is to suppress bison errors.
-if (CMAKE_CXX_COMPILER_ID MATCHES AppleClang|Clang)
-  set(STA_COMPILE_OPTIONS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security -Wno-deprecated-register)
-endif()
-
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  set(STA_COMPILE_OPTIONS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security)
 endif()
 
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
@@ -385,6 +375,20 @@ set(STA_HEADERS
   verilog/VerilogWriter.hh
   )
 
+set(STA_INCLUDE_DIRS
+  app
+  dcalc
+  graph
+  liberty
+  network
+  parasitics
+  sdc
+  sdf
+  search
+  util
+  verilog
+  )
+
 # Source files.
 set(STA_TCL_FILES
   tcl/Util.tcl
@@ -406,17 +410,6 @@ set(STA_TCL_FILES
   verilog/Verilog.tcl
   )
 
-set(STA_SWIG_FILES
-  tcl/NetworkEdit.i
-  tcl/StaException.i
-  sdf/Sdf.i
-  dcalc/DelayCalc.i
-  parasitics/Parasitics.i
-  verilog/Verilog.i
-  tcl/StaTcl.i
-  app/StaApp.i
-  )
-
 ################################################################
 #
 # Flex/bison scanner/parsers
@@ -428,8 +421,7 @@ find_package(BISON)
 
 # LibertyExpr scan/parse.
 flex_target(LibertyExprLex liberty/LibertyExprLex.ll ${CMAKE_CURRENT_BINARY_DIR}/LibertyExprLex.cc
-  COMPILE_FLAGS --prefix=LibertyExprLex_
-  )
+  COMPILE_FLAGS --prefix=LibertyExprLex_)
 bison_target(LibertyExprParser liberty/LibertyExprParse.yy ${CMAKE_CURRENT_BINARY_DIR}/LibertyExprParse.cc
   COMPILE_FLAGS --name-prefix=LibertyExprParse_
   )
@@ -474,20 +466,37 @@ add_flex_bison_dependency(SdfLex SdfParser)
 
 ################################################################
 
-set(SWIG_REQUIRED_VERSION "2.0")
+# all hell breaks loose with cmake 3.16.2
+#cmake_policy(SET CMP<0078> NEW)
+#set(UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
 find_package(SWIG REQUIRED)
-if(${SWIG_VERSION} VERSION_LESS ${SWIG_REQUIRED_VERSION})
-  message(FATAL_ERROR "SWIG version ${SWIG_VERSION} must be at least ${SWIG_REQUIRED_VERSION}")
-endif()
+include(UseSWIG)
 
-set(STA_WRAP ${CMAKE_CURRENT_BINARY_DIR}/StaApp_wrap.cc)
-
-add_custom_command(OUTPUT ${STA_WRAP}
-  COMMAND ${SWIG_EXECUTABLE} -tcl8 -c++ -namespace -prefix sta -I${STA_HOME}/tcl -I${STA_HOME}/sdf -I${STA_HOME}/dcalc -I${STA_HOME}/parasitics -I${STA_HOME}/verilog -o ${STA_WRAP} ${STA_HOME}/app/StaApp.i
-  COMMAND ${STA_HOME}/etc/SwigCleanup.tcl ${STA_WRAP}
-  WORKING_DIRECTORY ${STA_HOME}
-  DEPENDS ${STA_SWIG_FILES}
+set(STA_SWIG_FILE
+  app/StaApp.i
   )
+
+set_source_files_properties(${STA_SWIG_FILE}
+  PROPERTIES CPLUSPLUS ON
+)
+set(CMAKE_SWIG_FLAGS -module sta -namespace -prefix sta
+  -I${STA_HOME}/tcl
+  -I${STA_HOME}/sdf
+  -I${STA_HOME}/dcalc
+  -I${STA_HOME}/parasitics
+  -I${STA_HOME}/verilog
+  )
+
+swig_add_library(sta_swig
+  LANGUAGE tcl
+  TYPE STATIC
+  SOURCES ${STA_SWIG_FILE}
+)
+
+swig_link_libraries(sta_swig
+  PUBLIC
+  OpenSTA
+)
 
 ################################################################
 
@@ -602,7 +611,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${STA_HOME}/app)
 add_library(OpenSTA
   ${STA_SOURCE}
 
-  ${STA_WRAP}
   ${STA_TCL_INIT}
 
   ${FLEX_LibertyExprLex_OUTPUTS}
@@ -641,10 +649,18 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${STA_HOME}/app)
 # Note executable and lib name cannot be the same because
 # on osx something is case insensitive. Using STA for the
 # lib name results in "No rule to make target ../depend.
-add_executable(sta app/Main.cc ${STA_WRAP})
+add_executable(sta app/Main)
+
+target_compile_options(sta
+  PRIVATE
+  $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security>
+  $<$<CXX_COMPILER_ID:AppleClang>:-Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security>
+  $<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security>
+  )
 
 target_link_libraries(sta
   OpenSTA
+  sta_swig
   ${TCL_LIBRARY}
   ${CUDD_LIB}
   )

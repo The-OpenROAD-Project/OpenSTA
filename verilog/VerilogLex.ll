@@ -17,6 +17,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "Machine.hh"
+#include "FlexPragma.hh"
 #include "Debug.hh"
 #include "VerilogNamespace.hh"
 #include "VerilogReaderPvt.hh"
