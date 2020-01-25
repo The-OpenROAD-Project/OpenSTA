@@ -474,8 +474,8 @@ set(STA_SWIG_FILE app/StaApp.i)
 set_property(SOURCE ${STA_SWIG_FILE}
   PROPERTY CPLUSPLUS ON
 )
-# Ubuntu 18.04 apt version is 3.10.2 that does not support the
-# COMPILE_OPTIONS and INCLUDE_DIRECTORIES properties so cram
+# Ubuntu 18.04 cmake version 3.10.2 does not support the
+# COMPILE_OPTIONS and INCLUDE_DIRECTORIES properties, so cram
 # them into SWIG_FLAGS for the time being.
 set_property(SOURCE ${STA_SWIG_FILE}
   PROPERTY SWIG_FLAGS
