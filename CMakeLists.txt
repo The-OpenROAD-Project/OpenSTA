@@ -424,45 +424,45 @@ find_package(FLEX)
 find_package(BISON)
 
 # LibertyExpr scan/parse.
-flex_target(LibertyExprLex liberty/LibertyExprLex.ll ${CMAKE_CURRENT_BINARY_DIR}/LibertyExprLex.cc
+flex_target(LibertyExprLex ${STA_HOME}/liberty/LibertyExprLex.ll ${CMAKE_CURRENT_BINARY_DIR}/LibertyExprLex.cc
   COMPILE_FLAGS --prefix=LibertyExprLex_)
-bison_target(LibertyExprParser liberty/LibertyExprParse.yy ${CMAKE_CURRENT_BINARY_DIR}/LibertyExprParse.cc
+bison_target(LibertyExprParser ${STA_HOME}/liberty/LibertyExprParse.yy ${CMAKE_CURRENT_BINARY_DIR}/LibertyExprParse.cc
   COMPILE_FLAGS --name-prefix=LibertyExprParse_
   )
 add_flex_bison_dependency(LibertyExprLex LibertyExprParser)
 
 # Liberty scan/parse.
-flex_target(LibertyLex liberty/LibertyLex.ll ${CMAKE_CURRENT_BINARY_DIR}/LibertyLex.cc
+flex_target(LibertyLex ${STA_HOME}/liberty/LibertyLex.ll ${CMAKE_CURRENT_BINARY_DIR}/LibertyLex.cc
   COMPILE_FLAGS --prefix=LibertyLex_
   )
-bison_target(LibertyParser liberty/LibertyParse.yy ${CMAKE_CURRENT_BINARY_DIR}/LibertyParse.cc
+bison_target(LibertyParser ${STA_HOME}/liberty/LibertyParse.yy ${CMAKE_CURRENT_BINARY_DIR}/LibertyParse.cc
   COMPILE_FLAGS --name-prefix=LibertyParse_
   )
 add_flex_bison_dependency(LibertyLex LibertyParser)
 
 # Spef scan/parse.
-flex_target(SpefLex parasitics/SpefLex.ll ${CMAKE_CURRENT_BINARY_DIR}/SpefLex.cc
+flex_target(SpefLex ${STA_HOME}/parasitics/SpefLex.ll ${CMAKE_CURRENT_BINARY_DIR}/SpefLex.cc
   COMPILE_FLAGS --prefix=SpefLex_
   )
-bison_target(SpefParser parasitics/SpefParse.yy ${CMAKE_CURRENT_BINARY_DIR}/SpefParse.cc
+bison_target(SpefParser ${STA_HOME}/parasitics/SpefParse.yy ${CMAKE_CURRENT_BINARY_DIR}/SpefParse.cc
   COMPILE_FLAGS --name-prefix=SpefParse_
   )
 add_flex_bison_dependency(SpefLex SpefParser)
 
 # Verilog scan/parse.
-flex_target(VerilogLex verilog/VerilogLex.ll ${CMAKE_CURRENT_BINARY_DIR}/VerilogLex.cc
+flex_target(VerilogLex ${STA_HOME}/verilog/VerilogLex.ll ${CMAKE_CURRENT_BINARY_DIR}/VerilogLex.cc
   COMPILE_FLAGS --prefix=VerilogLex_
   )
-bison_target(VerilogParser verilog/VerilogParse.yy ${CMAKE_CURRENT_BINARY_DIR}/VerilogParse.cc
+bison_target(VerilogParser ${STA_HOME}/verilog/VerilogParse.yy ${CMAKE_CURRENT_BINARY_DIR}/VerilogParse.cc
   COMPILE_FLAGS --name-prefix=VerilogParse_
   )
 add_flex_bison_dependency(VerilogLex VerilogParser)
 
 # Sdf scan/parse.
-flex_target(SdfLex sdf/SdfLex.ll ${CMAKE_CURRENT_BINARY_DIR}/SdfLex.cc
+flex_target(SdfLex ${STA_HOME}/sdf/SdfLex.ll ${CMAKE_CURRENT_BINARY_DIR}/SdfLex.cc
   COMPILE_FLAGS --prefix=SdfLex_
   )
-bison_target(SdfParser sdf/SdfParse.yy ${CMAKE_CURRENT_BINARY_DIR}/SdfParse.cc
+bison_target(SdfParser ${STA_HOME}/sdf/SdfParse.yy ${CMAKE_CURRENT_BINARY_DIR}/SdfParse.cc
   COMPILE_FLAGS --name-prefix=SdfParse_
   )
 add_flex_bison_dependency(SdfLex SdfParser)
