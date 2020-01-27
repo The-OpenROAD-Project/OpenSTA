@@ -631,7 +631,7 @@ add_library(OpenSTA
 
 target_include_directories(OpenSTA
   PUBLIC ${STA_INCLUDE_DIRS}
-  SYSTEM ${TCL_INCLUDE_PATH}
+  ${TCL_INCLUDE_PATH}
   )
 
 target_compile_features(OpenSTA
