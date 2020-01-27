@@ -677,6 +677,8 @@ getProperty(const LibertyPort *port,
     return PropertyValue(port->name());
   else if (stringEqual(property, "full_name"))
     return PropertyValue(port->name());
+  else if (stringEqual(property, "lib_cell"))
+    return PropertyValue(port->libertyCell());
   else if (stringEqual(property, "direction"))
     return PropertyValue(port->direction()->name());
   else if (stringEqual(property, "capacitance")) {
