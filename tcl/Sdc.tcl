@@ -220,6 +220,11 @@ proc check_unit { unit key unit_name key_var } {
     } else {
       set prefix [string index $value 0]
       set suffix [string range $value 1 end]
+      # unit includes "1" prefix
+      if { [string is digit $prefix] } {
+	set prefix [string index $value 1]
+	set suffix [string range $value 2 end]
+      }
       if { [string equal -nocase $suffix $unit_name] } {
 	set scale [unit_prefix_scale $unit $prefix]
 	check_unit_scale $unit $scale
