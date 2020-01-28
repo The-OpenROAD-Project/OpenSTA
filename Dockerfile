@@ -1,5 +1,6 @@
 FROM centos:centos7 AS base-dependencies
-LABEL maintainer="Abdelrahman Hosny <abdelrahman_hosny@brown.edu>"
+LABEL author="James Cherry"
+LABEL maintainer="James Cherry <cherry@parallaxsw.com>"
 
 # Install dev and runtime dependencies
 RUN yum group install -y "Development Tools" \
