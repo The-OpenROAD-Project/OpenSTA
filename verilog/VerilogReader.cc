@@ -1830,20 +1830,20 @@ VerilogReader::makeModuleInstNetwork(VerilogModuleInst *mod_inst,
 		verilogName(mod_inst));
   }
   if (cell) {
+    LibertyCell *lib_cell = network_->libertyCell(cell);
+    if (lib_cell)
+      cell = network_->cell(lib_cell);
     Instance *inst = network_->makeInstance(cell, mod_inst->instanceName(),
 					    parent);
-    bool is_leaf = network_->isLeaf(cell);
-    if (is_leaf) {
-      // Make all pins.
-      LibertyCell *lib_cell = network_->libertyCell(cell);
-      if (lib_cell) {
-	LibertyCellPortBitIterator port_iter(lib_cell);
-	while (port_iter.hasNext()) {
-	  LibertyPort *port = port_iter.next();
-	  network_->makePin(inst, reinterpret_cast<Port*>(port), nullptr);
-	}
+    if (lib_cell) {
+      // Make all pins so timing arcs are built.
+      LibertyCellPortBitIterator port_iter(lib_cell);
+      while (port_iter.hasNext()) {
+	LibertyPort *port = port_iter.next();
+	network_->makePin(inst, reinterpret_cast<Port*>(port), nullptr);
       }
     }
+    bool is_leaf = network_->isLeaf(cell);
     VerilogBindingTbl bindings(zero_net_name_, one_net_name_);
     if (mod_inst->hasPins()) {
       if (mod_inst->namedPins())
