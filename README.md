@@ -63,13 +63,13 @@ work, but these are the versions used for development.
 
 ```
          from   Ubuntu   Xcode
-                18.04.1  10.1
-cmake    3.9
-clang    9.1.0           10.0.0
+                18.04.1  11.3
+cmake    3.10.2 3.10.2   3.16.2
+clang    9.1.0           11.0.0
 gcc      3.3.2   7.3.0   
 tcl      8.2     8.6     8.6.6
-swig     1.3.28  3.0.12  3.0.12
-bison    1.35    3.0.4   2.3
+swig     1.3.28  3.0.12  4.0.1
+bison    1.35    3.0.4   3.5
 flex     2.5.4   2.6.4   2.5.35
 ```
 
