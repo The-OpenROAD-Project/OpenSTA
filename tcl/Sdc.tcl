@@ -672,6 +672,7 @@ proc get_lib_pins { args } {
   
   set regexp [info exists flags(-regexp)]
   set nocase [info exists flags(-nocase)]
+  set quiet [info exists flags(-quiet)]
   # Copy backslashes that will be removed by foreach.
   set patterns [string map {\\ \\\\} [lindex $args 0]]
   # Parse library_name/cell_name/pattern.
@@ -697,22 +698,22 @@ proc get_lib_pins { args } {
 	    }
 	  }
 	  if { $ports == {} } {
-	    if {![info exists flags(-quiet)]} {
+	    if { !$quiet } {
 	      sta_warn "port '$port_pattern' not found."
 	    }
 	  }
 	} else {
-	  if {![info exists flags(-quiet)]} {
+	  if { !$quiet } {
 	    sta_warn "cell '$cell_name' not found."
 	  }
 	}
       } else {
-	if {![info exists flags(-quiet)]} {
+	if { !$quiet } {
 	  sta_warn "library '$lib_name' not found."
 	}
       }
     } else {
-      if {![info exists flags(-quiet)]} {
+      if { !$quiet } {
 	sta_warn "library/cell/port '$pattern' not found."
       }
     }
