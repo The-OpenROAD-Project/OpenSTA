@@ -419,6 +419,16 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
     BusPort *bus_port = bus_iter.next();
     const char *bus_name = bus_port->name();
     ConcretePortSeq *members = bus_port->members();
+    sort(members, [&](ConcretePort *port1,
+		      ConcretePort *port2) {
+		    char *bus_name;
+		    int index1, index2;
+		    parseBusName(port1->name(), bus_brkts_left, bus_brkts_right, escape_,
+				 bus_name, index1);
+		    parseBusName(port2->name(), bus_brkts_left, bus_brkts_right, escape_,
+				 bus_name, index2);
+		    return index1 > index2;
+		  });
     ConcretePort *port = makeBusPort(bus_name, bus_port->from(),
 				     bus_port->to(), members);
     port->setDirection(bus_port->direction());
