@@ -163,9 +163,8 @@ void
 VerilogReader::deleteModules()
 {
   StringSet filenames;
-  VerilogModuleMap::Iterator module_iter(module_map_);
-  while (module_iter.hasNext()) {
-    VerilogModule *module = module_iter.next();
+  for (auto module_iter : module_map_) {
+    VerilogModule *module = module_iter.second;
     filenames.insert(module->filename());
     delete module;
   }
@@ -286,14 +285,10 @@ VerilogReader::makeModule(const char *name,
 {
   VerilogNetSeq *ports = new VerilogNetSeq;
   // Pull the port names out of the port declarations.
-  VerilogStmtSeq::Iterator dcl_iter1(port_dcls);
-  while (dcl_iter1.hasNext()) {
-    VerilogStmt *dcl = dcl_iter1.next();
+  for (VerilogStmt *dcl : *port_dcls) {
     if (dcl->isDeclaration()) {
       VerilogDcl *dcl1 = dynamic_cast<VerilogDcl*>(dcl);
-      VerilogDclArgSeq::Iterator arg_iter(dcl1->args());
-      while (arg_iter.hasNext()) {
-	VerilogDclArg *arg = arg_iter.next();
+      for (VerilogDclArg *arg : *dcl1->args()) {
 	const char *port_name = stringCopy(arg->netName());
 	VerilogNetNamed *port = new VerilogNetScalar(port_name);
 	ports->push_back(port);
@@ -312,9 +307,7 @@ VerilogReader::makeCellPorts(Cell *cell,
 			     VerilogNetSeq *ports)
 {
   StringSet port_names;
-  VerilogNetSeq::Iterator port_iter(ports);
-  while (port_iter.hasNext()) {
-    VerilogNet *mod_port = port_iter.next();
+  for (VerilogNet *mod_port : *ports) {
     const char *port_name = mod_port->name();
     if (port_names.findKey(port_name) == nullptr) {
       port_names.insert(stringCopy(port_name));
@@ -410,9 +403,7 @@ VerilogReader::makeDcl(PortDirection *dir,
   if (dir->isInternal()) {
     // Prune wire declarations without assigns because they just eat memory.
     VerilogDclArgSeq *assign_args = nullptr;
-    VerilogDclArgSeq::Iterator arg_iter(args);
-    while (arg_iter.hasNext()) {
-      VerilogDclArg *arg = arg_iter.next();
+    for (VerilogDclArg *arg : *args) {
       if (arg->assign()) {
 	if (assign_args == nullptr)
 	  assign_args = new VerilogDclArgSeq;
@@ -546,10 +537,9 @@ VerilogReader::makeModuleInst(const char *module_name,
     const char **net_names = new const char *[port_count];
     for (int i = 0; i < port_count; i++)
       net_names[i] = nullptr;
-    VerilogNetSeq::Iterator pin_iter(pins);
-    while (pin_iter.hasNext()) {
+    for (VerilogNet *vnet : *pins) {
       VerilogNetPortRefScalarNet *vpin =
-	dynamic_cast<VerilogNetPortRefScalarNet*>(pin_iter.next());
+	dynamic_cast<VerilogNetPortRefScalarNet*>(vnet);
       const char *port_name = vpin->name();
       const char *net_name = vpin->netName();
       // Steal the net name string.
@@ -599,9 +589,7 @@ VerilogReader::hasScalarNamedPortRefs(LibertyCell *liberty_cell,
   if (pins
       && pins->size() > 0
       && (*pins)[0]->isNamedPortRef()) {
-    VerilogNetSeq::Iterator pin_iter(pins);
-    while (pin_iter.hasNext()) {
-      VerilogNet *vpin = pin_iter.next();
+    for (VerilogNet *vpin : *pins) {
       const char *port_name = vpin->name();
       LibertyPort *port = liberty_cell->findLibertyPort(port_name);
       if (port) {
@@ -804,9 +792,7 @@ void
 VerilogModule::parseStmts(VerilogReader *reader)
 {
   StringSet inst_names;
-  VerilogStmtSeq::Iterator stmt_iter(stmts_);
-  while (stmt_iter.hasNext()) {
-    VerilogStmt *stmt = stmt_iter.next();
+  for (VerilogStmt *stmt : *stmts_) {
     if (stmt->isDeclaration())
       parseDcl(dynamic_cast<VerilogDcl*>(stmt), reader);
     else if (stmt->isInstance())
@@ -819,9 +805,7 @@ void
 VerilogModule::parseDcl(VerilogDcl *dcl,
 			VerilogReader *reader)
 {
-  VerilogDclArgSeq::Iterator arg_iter(dcl->args());
-  while (arg_iter.hasNext()) {
-    VerilogDclArg *arg = arg_iter.next();
+  for (VerilogDclArg *arg : *dcl->args()) {
     const char *net_name = arg->netName();
     VerilogDcl *existing_dcl = dcl_map_[net_name];
     if (existing_dcl) {
