@@ -596,14 +596,16 @@ Power::findInternalPower(const Pin *to_pin,
 	  float slew = delayAsFloat(graph_->slew(from_vertex,
 						 from_rf,
 						 dcalc_ap->index()));
-	  float table_energy = pwr->power(to_rf, pvt, slew, load_cap);
-	  float tr_energy = table_energy * duty;
-	  debugPrint4(debug_, "power", 3,  " %s energy = %9.2e * %.2f = %9.2e\n",
-		      to_rf->shortName(),
-		      table_energy,
-		      duty,
-		      tr_energy);
-	  port_energy += tr_energy;
+	  if (!fluzzyInf(slew)) {
+	    float table_energy = pwr->power(to_rf, pvt, slew, load_cap);
+	    float tr_energy = table_energy * duty;
+	    debugPrint4(debug_, "power", 3,  " %s energy = %9.2e * %.2f = %9.2e\n",
+			to_rf->shortName(),
+			table_energy,
+			duty,
+			tr_energy);
+	    port_energy += tr_energy;
+	  }
 	}
 	float port_internal = port_energy * to_activity.activity();
 	debugPrint8(debug_, "power", 2,  " %s -> %s %s  %.2f %.2f %9.2e %9.2e %s\n",
