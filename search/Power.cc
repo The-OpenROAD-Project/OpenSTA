@@ -596,7 +596,7 @@ Power::findInternalPower(const Pin *to_pin,
 	  float slew = delayAsFloat(graph_->slew(from_vertex,
 						 from_rf,
 						 dcalc_ap->index()));
-	  if (!fluzzyInf(slew)) {
+	  if (!fuzzyInf(slew)) {
 	    float table_energy = pwr->power(to_rf, pvt, slew, load_cap);
 	    float tr_energy = table_energy * duty;
 	    debugPrint4(debug_, "power", 3,  " %s energy = %9.2e * %.2f = %9.2e\n",
