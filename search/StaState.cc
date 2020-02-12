@@ -16,6 +16,7 @@
 
 #include <limits>
 #include "Machine.hh"
+#include "Units.hh"
 #include "Network.hh"
 #include "DispatchQueue.hh"
 #include "StaState.hh"
@@ -91,6 +92,12 @@ StaState::copyState(const StaState *sta)
   dispatch_queue_ = sta->dispatch_queue_;
   pocv_enabled_ = sta->pocv_enabled_;
   sigma_factor_ = sta->sigma_factor_;
+}
+
+void
+StaState::copyUnits(const Units *units)
+{
+  *units_ = *units;
 }
 
 NetworkEdit *

@@ -61,6 +61,7 @@ public:
   void setDebug(Debug *debug);
   Units *units() { return units_; }
   Units *units() const { return units_; }
+  void copyUnits(const Units *units);
   Network *network() { return network_; }
   Network *network() const { return network_; }
   NetworkEdit *networkEdit();
