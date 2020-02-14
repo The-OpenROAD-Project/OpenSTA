@@ -39,7 +39,7 @@ proc_redirect read_sdc {
 
 ################################################################
 
-set ::sta_continue_on_error 1
+set ::sta_continue_on_error 0
 
 define_cmd_args "source" \
   {[-echo] [-verbose] filename [> filename] [>> filename]}
