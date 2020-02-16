@@ -28,4 +28,5 @@ readVerilogFile(const char *filename,
 void
 deleteVerilogReader();
 
-} // namespace
+} // namespace sta
+

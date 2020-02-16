@@ -135,4 +135,4 @@ sort(Vector<OBJ> *seq, SortCmp cmp)
   std::stable_sort(seq->begin(), seq->end(), cmp);
 }
 
-} // namespace
+} // namespace sta
