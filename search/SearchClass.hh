@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_SEARCH_CLASS_H
-#define STA_SEARCH_CLASS_H
+#pragma once
 
 #include "Vector.hh"
 #include "Set.hh"
@@ -128,4 +127,3 @@ static const int tag_index_null = tag_index_max;
 static const int path_ap_index_bit_count = 4;
 
 } // namespace
-#endif

@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_SPEF_NAMESPACE_H
-#define STA_SPEF_NAMESPACE_H
+#pragma once
 
 namespace sta {
 
@@ -32,4 +31,3 @@ staToSpef(const char *token, char spef_divider,
 
 
 } // namespace
-#endif

@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_LIBERTY_EXPR_H
-#define STA_LIBERTY_EXPR_H
+#pragma once
 
 #include "LibertyClass.hh"
 
@@ -32,4 +31,3 @@ parseFuncExpr(const char *func,
 	      Report *report);
 
 } // namespace
-#endif

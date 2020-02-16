@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_STRING_UTIL_H
-#define STA_STRING_UTIL_H
+#pragma once
 
 #include <stdarg.h>
 #include <string.h>
@@ -186,4 +185,3 @@ split(const string &text,
       StringVector &tokens);
 
 } // namespace
-#endif

@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_APP_H
-#define STA_APP_H
+#pragma once
 
 struct Tcl_Interp;
 
@@ -65,4 +64,3 @@ sourceTclFile(const char *filename,
 	      Tcl_Interp *interp);
 
 } // namespace
-#endif

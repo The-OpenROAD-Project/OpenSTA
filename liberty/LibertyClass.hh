@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_LIBERTY_CLASS_H
-#define STA_LIBERTY_CLASS_H
+#pragma once
 
 #include "Vector.hh"
 #include "Map.hh"
@@ -169,4 +168,3 @@ public:
 };
 
 } // namespace
-#endif

@@ -3,8 +3,7 @@
 // https://github.com/embeddedartistry/embedded-resources/blob/master/examples/cpp/dispatch.cpp
 // https://embeddedartistry.com/blog/2017/2/1/dispatch-queues?rq=dispatch
 
-#ifndef STA_DISPATCH_QUEUE_H
-#define STA_DISPATCH_QUEUE_H
+#pragma once
 
 #include <thread>
 #include <functional>
@@ -50,4 +49,3 @@ private:
 };
 
 } // namespace
-#endif

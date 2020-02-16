@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_PATH_VERTEX_H
-#define STA_PATH_VERTEX_H
+#pragma once
 
 #include "DisallowCopyAssign.hh"
 #include "SearchClass.hh"
@@ -143,4 +142,3 @@ private:
 };
 
 } // namespace
-#endif

@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_SPEF_READER_PVT_H
-#define STA_SPEF_READER_PVT_H
+#pragma once
 
 #include "Zlib.hh"
 #include "Map.hh"
@@ -207,4 +206,3 @@ private:
 extern SpefReader *spef_reader;
 
 } // namespace
-#endif

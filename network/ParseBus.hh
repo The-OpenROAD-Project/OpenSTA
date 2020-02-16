@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_PARSE_BUS_H
-#define STA_PARSE_BUS_H
+#pragma once
 
 namespace sta {
 
@@ -83,4 +82,3 @@ escapeChars(const char *token,
 	    char escape);
 
 } // namespace
-#endif

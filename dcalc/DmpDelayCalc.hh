@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_DMP_DELAY_CALC_H
-#define STA_DMP_DELAY_CALC_H
+#pragma once
 
 namespace sta {
 
@@ -25,4 +24,3 @@ ArcDelayCalc *
 makeDmpCeffTwoPoleDelayCalc(StaState *sta);
 
 } // namespace
-#endif

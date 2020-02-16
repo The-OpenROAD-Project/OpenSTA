@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_ERROR_H
-#define STA_ERROR_H
+#pragma once
 
 #include <exception>
 #include "DisallowCopyAssign.hh"
@@ -87,4 +86,3 @@ protected:
 };
 
 } // namespace
-#endif

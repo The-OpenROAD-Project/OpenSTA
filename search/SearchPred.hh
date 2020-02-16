@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_SEARCH_PRED_H
-#define STA_SEARCH_PRED_H
+#pragma once
 
 #include "DisallowCopyAssign.hh"
 #include "StaState.hh"
@@ -175,4 +174,3 @@ hasFanout(Vertex *vertex,
 	  const Graph *graph);
 
 } // namespace
-#endif

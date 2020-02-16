@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_MIN_MAX_VALUES_H
-#define STA_MIN_MAX_VALUES_H
+#pragma once
 
 #include "MinMax.hh"
 #include "Error.hh"
@@ -166,4 +165,3 @@ typedef MinMaxValues<float> MinMaxFloatValues;
 typedef MinMaxValues<int> MinMaxIntValues;
 
 } // namespace
-#endif

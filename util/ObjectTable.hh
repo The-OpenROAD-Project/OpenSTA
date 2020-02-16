@@ -6,8 +6,7 @@
 // disclosed in any form or fashion without the express
 // written consent of Parallax Software, Inc.
 
-#ifndef STA_OBJECT_TABLE_H
-#define STA_OBJECT_TABLE_H
+#pragma once
 
 #include "Vector.hh"
 #include "Error.hh"
@@ -195,4 +194,3 @@ TableBlock<TYPE>::TableBlock(BlockIdx block_idx,
 }
 
 } // Namespace
-#endif

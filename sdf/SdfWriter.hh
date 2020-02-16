@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_SDF_WRITER_H
-#define STA_SDF_WRITER_H
+#pragma once
 
 namespace sta {
 
@@ -32,4 +31,3 @@ writeSdf(const char *filename,
 	 StaState *sta);
 
 } // namespace
-#endif

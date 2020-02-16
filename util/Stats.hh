@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_STATS_H
-#define STA_STATS_H
+#pragma once
 
 #include <stddef.h>  // size_t
 #include "DisallowCopyAssign.hh"
@@ -42,4 +41,3 @@ private:
 };
 
 } // namespace
-#endif

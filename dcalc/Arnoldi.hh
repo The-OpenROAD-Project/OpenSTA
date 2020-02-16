@@ -18,8 +18,7 @@
 //
 // Author: W. Scott
 
-#ifndef ARNOLDI_H
-#define ARNOLDI_H
+#pragma once
 
 #include "ConcreteParasiticsPvt.hh"
 
@@ -80,4 +79,3 @@ struct timing_table
 };
 
 } // namespace
-#endif

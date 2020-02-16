@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_GRAPH_DELAY_CALC1_H
-#define STA_GRAPH_DELAY_CALC1_H
+#pragma once
 
 #include <mutex>
 #include "GraphDelayCalc.hh"
@@ -243,4 +242,3 @@ protected:
 };
 
 } // namespace
-#endif

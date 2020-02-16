@@ -18,8 +18,7 @@
 //
 // Author: W. Scott
 
-#ifndef STA_ARNOLDI_REDUCE_H
-#define STA_ARNOLDI_REDUCE_H
+#pragma once
 
 #include "Map.hh"
 #include "NetworkClass.hh"
@@ -112,5 +111,3 @@ protected:
 };
 
 } // namespace
-#endif
-

@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_LIBERTY_READER_H
-#define STA_LIBERTY_READER_H
+#pragma once
 
 namespace sta {
 
@@ -28,4 +27,3 @@ readLibertyFile(const char *filename,
 		Network *network);
 
 } // namespace
-#endif

@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_MAKE_CONCRETE_PARASITICS_H
-#define STA_MAKE_CONCRETE_PARASITICS_H
+#pragma once
 
 namespace sta {
 
@@ -23,4 +22,3 @@ Parasitics *
 makeConcreteParasitics(StaState *sta);
 
 } // namespace
-#endif

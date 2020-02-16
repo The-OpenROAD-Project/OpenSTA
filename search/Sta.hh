@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_STA_H
-#define STA_STA_H
+#pragma once
 
 #include <string>
 #include "DisallowCopyAssign.hh"
@@ -1341,4 +1340,3 @@ private:
 };
 
 } // namespace
-#endif

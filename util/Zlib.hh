@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_ZLIB_H
-#define STA_ZLIB_H
+#pragma once
 
 // The zlib package is optional.
 // Define stdio based macros if it is missing.
@@ -38,5 +37,3 @@
 #define Z_NULL nullptr
 
 #endif // ZLIB
-
-#endif

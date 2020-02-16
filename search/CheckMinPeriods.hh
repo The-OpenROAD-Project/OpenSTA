@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_MIN_PERIOD_H
-#define STA_MIN_PERIOD_H
+#pragma once
 
 #include "DisallowCopyAssign.hh"
 #include "StaState.hh"
@@ -81,4 +80,3 @@ private:
 };
 
 } // namespace
-#endif

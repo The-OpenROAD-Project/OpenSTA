@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_DMP_CEFF_H
-#define STA_DMP_CEFF_H
+#pragma once
 
 #include "LibertyClass.hh"
 #include "RCDelayCalc.hh"
@@ -101,4 +100,3 @@ private:
 };
 
 } // namespace
-#endif

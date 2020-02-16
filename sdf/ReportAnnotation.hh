@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_REPORT_ANNOTATION_H
-#define STA_REPORT_ANNOTATION_H
+#pragma once
 
 namespace sta {
 
@@ -45,4 +44,3 @@ reportAnnotatedCheck(bool report_setup,
 		     StaState *sta);
 
 } // namespace
-#endif

@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_DELAY_FLOAT_H
-#define STA_DELAY_FLOAT_H
+#pragma once
 
 #include "MinMax.hh"
 #include "Fuzzy.hh"
@@ -101,4 +100,3 @@ delayRatio(const Delay &delay1,
 	   const Delay &delay2);
 
 } // namespace
-#endif

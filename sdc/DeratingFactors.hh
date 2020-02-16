@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_DERATING_FACTORS_H
-#define STA_DERATING_FACTORS_H
+#pragma once
 
 #include "DisallowCopyAssign.hh"
 #include "LibertyClass.hh"
@@ -115,4 +114,3 @@ private:
 };
 
 } // namespace
-#endif

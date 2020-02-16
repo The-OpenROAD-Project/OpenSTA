@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_BFS_H
-#define STA_BFS_H
+#pragma once
 
 #include <mutex>
 #include "DisallowCopyAssign.hh"
@@ -165,4 +164,3 @@ private:
 };
 
 } // namespace
-#endif

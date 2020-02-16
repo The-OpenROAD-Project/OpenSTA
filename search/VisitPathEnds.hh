@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_VISIT_PATH_ENDS_H
-#define STA_VISIT_PATH_ENDS_H
+#pragma once
 
 #include "SdcClass.hh"
 #include "GraphClass.hh"
@@ -150,4 +149,3 @@ public:
 };
 
 } // namespace
-#endif

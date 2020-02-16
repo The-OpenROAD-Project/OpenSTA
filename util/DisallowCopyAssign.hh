@@ -14,13 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_DISALLOW_COPY_ASSIGN_H
-#define STA_DISALLOW_COPY_ASSIGN_H
+#pragma once
 
 // Disallow the copy constructor and operator= functions.
 // This should be used in the private declarations for a class.
 #define DISALLOW_COPY_AND_ASSIGN(type_name) \
   type_name(const type_name&) = delete; \
   void operator=(const type_name&) = delete
-
-#endif

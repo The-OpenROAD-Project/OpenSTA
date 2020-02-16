@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_CLK_SKEW_H
-#define STA_CLK_SKEW_H
+#pragma once
 
 #include "Map.hh"
 #include "SdcClass.hh"
@@ -65,4 +64,3 @@ protected:
 };
     
 } // namespace
-#endif

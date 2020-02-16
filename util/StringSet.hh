@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_STRING_SET_H
-#define STA_STRING_SET_H
+#pragma once
 
 #include "StringUtil.hh"
 #include "Set.hh"
@@ -31,4 +30,3 @@ void
 deleteContents(StringSetEq *strings);
 
 } // namespace
-#endif

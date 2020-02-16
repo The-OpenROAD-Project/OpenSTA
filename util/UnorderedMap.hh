@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_UNORDERED_MAP_H
-#define STA_UNORDERED_MAP_H
+#pragma once
 
 #include <unordered_map>
 #include <algorithm>
@@ -176,4 +175,3 @@ public:
 };
 
 } // namespace
-#endif

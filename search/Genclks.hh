@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_GENCLKS_H
-#define STA_GENCLKS_H
+#pragma once
 
 #include "Map.hh"
 #include "Transition.hh"
@@ -146,4 +145,3 @@ private:
 };
 
 } // namespace
-#endif

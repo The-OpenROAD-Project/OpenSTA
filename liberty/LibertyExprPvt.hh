@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_LIBERTY_EXPR_PVT_H
-#define STA_LIBERTY_EXPR_PVT_H
+#pragma once
 
 #include "DisallowCopyAssign.hh"
 
@@ -75,5 +74,3 @@ void
 libertyExprFlushBuffer();
 int
 LibertyExprParse_error(const char *msg);
-
-#endif

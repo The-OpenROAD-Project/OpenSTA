@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_MIN_MAX_H
-#define STA_MIN_MAX_H
+#pragma once
 
 #include <array>
 #include <vector>
@@ -148,4 +147,3 @@ private:
 typedef MinMaxIterator EarlyLateIterator;
 
 } // namespace
-#endif

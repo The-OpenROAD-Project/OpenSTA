@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_CHECK_SLEW_LIMIT_H
-#define STA_CHECK_SLEW_LIMIT_H
+#pragma once
 
 #include "MinMax.hh"
 #include "Transition.hh"
@@ -109,4 +108,3 @@ protected:
 };
 
 } // namespace
-#endif

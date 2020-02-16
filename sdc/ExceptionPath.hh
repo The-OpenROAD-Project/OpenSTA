@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_EXCEPTION_PATH_H
-#define STA_EXCEPTION_PATH_H
+#pragma once
 
 #include "DisallowCopyAssign.hh"
 #include "Error.hh"
@@ -682,4 +681,3 @@ intersects(ClockSet *set1,
 	   ClockSet *set2);
 
 } // namespace
-#endif

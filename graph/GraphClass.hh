@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_GRAPH_CLASS_H
-#define STA_GRAPH_CLASS_H
+#pragma once
 
 #include "ObjectId.hh"
 #include "Set.hh"
@@ -55,4 +54,3 @@ static const int slew_annotated_bits = MinMax::index_count * RiseFall::index_cou
 enum class BfsIndex { dcalc, arrival, required, other, bits };
 
 } // namespace
-#endif

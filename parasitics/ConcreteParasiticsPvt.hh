@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_CONCRETE_PARASITICS_PVT_H
-#define STA_CONCRETE_PARASITICS_PVT_H
+#pragma once
 
 #include "Parasitics.hh"
 
@@ -445,4 +444,3 @@ private:
 };
 
 } // namespace
-#endif

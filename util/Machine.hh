@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_MACHINE_H
-#define STA_MACHINE_H
+#pragma once
 
 // This header contains global os/port specific definitions.
 // It should be included in every source file after any system include
@@ -109,6 +108,5 @@ memoryUsage();
   #define hashPtr(ptr) (reinterpret_cast<intptr_t>(ptr) >> 2)
 #endif
 
-}
+} // namespace sta
 
-#endif // STA_MACHINE_H

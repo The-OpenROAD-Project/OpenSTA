@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_VERILOG_NAMESPACE_H
-#define STA_VERILOG_NAMESPACE_H
+#pragma once
 
 namespace sta {
 
@@ -35,4 +34,3 @@ portVerilogName(const char *sta_name,
 		const char escape);
 
 } // namespace
-#endif

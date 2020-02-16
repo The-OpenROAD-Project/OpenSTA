@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_PARASITICS_CLASS_H
-#define STA_PARASITICS_CLASS_H
+#pragma once
 
 namespace sta {
 
@@ -28,4 +27,3 @@ class ParasiticAnalysisPt;
 enum class ReduceParasiticsTo { pi_elmore, pi_pole_residue2, none };
 
 } // namespace
-#endif

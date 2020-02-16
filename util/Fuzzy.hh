@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_FUZZY_H
-#define STA_FUZZY_H
+#pragma once
 
 namespace sta {
 
@@ -42,4 +41,3 @@ bool
 fuzzyInf(float value);
 
 } // namespace
-#endif

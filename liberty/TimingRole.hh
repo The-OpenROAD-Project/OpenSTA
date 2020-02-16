@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_TIMING_ROLE_H
-#define STA_TIMING_ROLE_H
+#pragma once
 
 #include "DisallowCopyAssign.hh"
 #include "MinMax.hh"
@@ -132,7 +131,4 @@ private:
   friend class TimingRoleLess;
 };
 
-
-
 } // namespace
-#endif

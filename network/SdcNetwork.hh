@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_SDC_NETWORK_H
-#define STA_SDC_NETWORK_H
+#pragma once
 
 #include <functional>
 #include "DisallowCopyAssign.hh"
@@ -259,4 +258,3 @@ Network *
 makeSdcNetwork(Network *network);
 
 } // namespace
-#endif

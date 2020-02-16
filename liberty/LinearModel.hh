@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_LINEAR_MODEL_H
-#define STA_LINEAR_MODEL_H
+#pragma once
 
 #include "DisallowCopyAssign.hh"
 #include "TimingModel.hh"
@@ -88,4 +87,3 @@ private:
 };
 
 } // namespace
-#endif

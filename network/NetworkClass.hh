@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_NETWORK_CLASS_H
-#define STA_NETWORK_CLASS_H
+#pragma once
 
 #include "Set.hh"
 #include "Vector.hh"
@@ -78,4 +77,3 @@ public:
 enum class LogicValue : unsigned { zero, one, unknown, rise, fall };
 
 } // namespace
-#endif

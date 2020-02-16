@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_FIND_REGISTER_H
-#define STA_FIND_REGISTER_H
+#pragma once
 
 #include "StaState.hh"
 #include "LibertyClass.hh"
@@ -44,4 +43,3 @@ void
 initPathSenseThru();
 
 } // namespace
-#endif

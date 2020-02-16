@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_WRITE_SDC_H
-#define STA_WRITE_SDC_H
+#pragma once
 
 #include "NetworkClass.hh"
 #include "SdcClass.hh"
@@ -37,4 +36,3 @@ writeSdc(Instance *instance,
 	 Sdc *sdc);
 
 } // namespace
-#endif

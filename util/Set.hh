@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_SET_H
-#define STA_SET_H
+#pragma once
 
 #include <set>
 #include <math.h>
@@ -238,4 +237,3 @@ Set<KEY, CMP>::insertSet(const std::set<KEY, CMP> *set2)
 }
 
 } // namespace
-#endif

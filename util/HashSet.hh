@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_HASHSET_H
-#define STA_HASHSET_H
+#pragma once
 
 #include <stddef.h>  // size_t
 #include "Hash.hh"
@@ -452,4 +451,3 @@ HashSet<KEY, HASH, EQUAL>::bucketLength(size_t hash) const
 }
 
 } // namespace
-#endif

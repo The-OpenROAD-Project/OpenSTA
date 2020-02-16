@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_PIN_PAIR_H
-#define STA_PIN_PAIR_H
+#pragma once
 
 #include "Hash.hh"
 #include "Set.hh"
@@ -48,4 +47,3 @@ public:
 };
 
 } // namespace
-#endif

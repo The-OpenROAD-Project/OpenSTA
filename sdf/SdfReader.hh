@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_READ_SDF_H
-#define STA_READ_SDF_H
+#pragma once
 
 namespace sta {
 
@@ -77,4 +76,3 @@ readSdfMinMax(const char *filename,
 	      StaState *sta);
 
 } // namespace
-#endif

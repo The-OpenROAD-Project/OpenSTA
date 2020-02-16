@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_PATH_END_H
-#define STA_PATH_END_H
+#pragma once
 
 #include <string>
 #include "DisallowCopyAssign.hh"
@@ -660,4 +659,3 @@ protected:
 };
 
 } // namespace
-#endif

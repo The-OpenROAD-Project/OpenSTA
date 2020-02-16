@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_PORT_EXT_CAP_H
-#define STA_PORT_EXT_CAP_H
+#pragma once
 
 #include "DisallowCopyAssign.hh"
 #include "MinMax.hh"
@@ -68,4 +67,3 @@ private:
 };
 
 } // namespace
-#endif

@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_TAG_H
-#define STA_TAG_H
+#pragma once
 
 #include "DisallowCopyAssign.hh"
 #include "Vector.hh"
@@ -165,4 +164,3 @@ tagMatchCrpr(const Tag *tag1,
 	     const Tag *tag2);
 
 } // namespace
-#endif

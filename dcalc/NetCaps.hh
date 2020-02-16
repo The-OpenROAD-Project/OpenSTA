@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_NET_CAPS_H
-#define STA_NET_CAPS_H
+#pragma once
 
 #include "DisallowCopyAssign.hh"
 
@@ -49,4 +48,3 @@ private:
 };
 
 } // namespace
-#endif

@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_GRAPH_CMP_H
-#define STA_GRAPH_CMP_H
+#pragma once
 
 #include "NetworkClass.hh"
 #include "NetworkCmp.hh"
@@ -53,4 +52,3 @@ sortEdges(EdgeSeq *edges,
 	  Graph *graph);
 
 } // namespace
-#endif

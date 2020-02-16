@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_HASH_H
-#define STA_HASH_H
+#pragma once
 
 #include <cstddef>
 
@@ -53,4 +52,3 @@ size_t
 hashString(const char *str);
 
 } // namespace
-#endif

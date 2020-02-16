@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_DEBUG_H
-#define STA_DEBUG_H
+#pragma once
 
 #include <stdarg.h>
 #include "DisallowCopyAssign.hh"
@@ -124,4 +123,3 @@ debugCheck(const Debug *debug,
   }
 
 } // namespace
-#endif

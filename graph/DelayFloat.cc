@@ -140,4 +140,5 @@ delaySigma2(const Delay &,
 }
 
 } // namespace
-#endif
+
+#endif // !SSTA

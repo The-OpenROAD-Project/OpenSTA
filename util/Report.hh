@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_REPORT_H
-#define STA_REPORT_H
+#pragma once
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -119,4 +118,3 @@ private:
 };
 
 } // namespace
-#endif

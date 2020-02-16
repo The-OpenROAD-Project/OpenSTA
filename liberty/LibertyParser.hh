@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_LIBERTY_PARSER_H
-#define STA_LIBERTY_PARSER_H
+#pragma once
 
 #include "DisallowCopyAssign.hh"
 #include "Vector.hh"
@@ -350,4 +349,3 @@ makeLibertyVariable(char *var,
 int
 LibertyParse_error(const char *msg);
 
-#endif

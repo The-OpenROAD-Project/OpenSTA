@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_EQUIV_CELLS_H
-#define STA_EQUIV_CELLS_H
+#pragma once
 
 #include "Vector.hh"
 #include "Map.hh"
@@ -75,4 +74,3 @@ equivCellSequentials(const LibertyCell *cell1,
 		     const LibertyCell *cell2);
 
 } // namespace
-#endif

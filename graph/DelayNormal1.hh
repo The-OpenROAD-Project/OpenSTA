@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_DELAY_NORMAL1_H
-#define STA_DELAY_NORMAL1_H
+#pragma once
 
 #include "MinMax.hh"
 
@@ -154,4 +153,3 @@ delayRatio(const Delay &delay1,
 	   const Delay &delay2);
 
 } // namespace
-#endif

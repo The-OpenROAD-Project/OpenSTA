@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_TABLE_MODEL_H
-#define STA_TABLE_MODEL_H
+#pragma once
 
 #include <string>
 #include "DisallowCopyAssign.hh"
@@ -458,4 +457,3 @@ private:
 };
 
 } // namespace
-#endif

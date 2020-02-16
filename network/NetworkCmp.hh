@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_NETWORK_CMP_H
-#define STA_NETWORK_CMP_H
+#pragma once
 
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
@@ -86,4 +85,3 @@ sortNetSet(NetSet *set,
 	   NetSeq &nets);
 
 } // namespace
-#endif

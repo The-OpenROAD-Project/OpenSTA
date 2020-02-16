@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_SIMPLE_RC_DELAY_CALC_H
-#define STA_SIMPLE_RC_DELAY_CALC_H
+#pragma once
 
 #include "RCDelayCalc.hh"
 
@@ -62,4 +61,3 @@ ArcDelayCalc *
 makeSimpleRCDelayCalc(StaState *sta);
 
 } // namespace
-#endif

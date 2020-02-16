@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_SIM_H
-#define STA_SIM_H
+#pragma once
 
 #include <queue>
 #include <mutex>
@@ -218,4 +217,3 @@ isTestDisabled(const Instance *inst,
 	       Pin *&scan_enable);
 
 } // namespace
-#endif

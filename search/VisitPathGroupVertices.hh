@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_VISIT_PATH_GROUP_VERTICES_H
-#define STA_VISIT_PATH_GROUP_VERTICES_H
+#pragma once
 
 namespace sta {
 
@@ -31,4 +30,3 @@ visitPathGroupVertices(PathGroup *path_group,
 		       StaState *sta);
 
 } // namespace
-#endif

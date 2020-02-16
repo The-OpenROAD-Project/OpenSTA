@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_NULL_PARASITICS_H
-#define STA_NULL_PARASITICS_H
+#pragma once
 
 #include "DisallowCopyAssign.hh"
 #include "Parasitics.hh"
@@ -190,4 +189,3 @@ private:
 };
 
 } // namespace
-#endif

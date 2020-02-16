@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_LUMPED_CAP_DELAY_CALC_H
-#define STA_LUMPED_CAP_DELAY_CALC_H
+#pragma once
 
 #include "ArcDelayCalc.hh"
 
@@ -114,4 +113,3 @@ ArcDelayCalc *
 makeLumpedCapDelayCalc(StaState *sta);
 
 } // namespace
-#endif

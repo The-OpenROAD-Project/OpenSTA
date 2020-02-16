@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_DISABLED_PORTS_H
-#define STA_DISABLED_PORTS_H
+#pragma once
 
 #include "DisallowCopyAssign.hh"
 #include "Map.hh"
@@ -109,4 +108,3 @@ sortLibertyPortPairSet(LibertyPortPairSet *sets,
 		       LibertyPortPairSeq &pairs);
 
 } // namespace
-#endif

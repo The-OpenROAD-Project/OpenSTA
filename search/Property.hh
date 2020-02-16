@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_PROPERTY_H
-#define STA_PROPERTY_H
+#pragma once
 
 #include <string>
 #include "LibertyClass.hh"
@@ -191,4 +190,3 @@ getProperty(TimingArcSet *arc_set,
 	    Sta *sta);
 
 } // namespace
-#endif

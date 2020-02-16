@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_SDC_CLASS_H
-#define STA_SDC_CLASS_H
+#pragma once
 
 #include "Map.hh"
 #include "Set.hh"
@@ -102,4 +101,3 @@ const int timing_derate_type_count = int(TimingDerateType::net_delay) + 1 ;
 const int timing_derate_cell_type_count = 2;
 
 } // namespace
-#endif

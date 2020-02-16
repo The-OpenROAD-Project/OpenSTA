@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_UNIT_DELAY_CALC_H
-#define STA_UNIT_DELAY_CALC_H
+#pragma once
 
 #include "ArcDelayCalc.hh"
 
@@ -95,4 +94,3 @@ ArcDelayCalc *
 makeUnitDelayCalc(StaState *sta);
 
 } // namespace
-#endif

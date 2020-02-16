@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_PATH_ENUMED_H
-#define STA_PATH_ENUMED_H
+#pragma once
 
 #include "DisallowCopyAssign.hh"
 #include "Path.hh"
@@ -75,4 +74,3 @@ private:
 void deletePathEnumed(PathEnumed *path);
 
 } // namespace
-#endif

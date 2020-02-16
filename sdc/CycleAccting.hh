@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_CYCLE_ACCTING_H
-#define STA_CYCLE_ACCTING_H
+#pragma once
 
 #include "DisallowCopyAssign.hh"
 #include "MinMax.hh"
@@ -102,4 +101,3 @@ public:
 };
 
 } // namespace
-#endif

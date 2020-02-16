@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_STRING_SEQ_H
-#define STA_STRING_SEQ_H
+#pragma once
 
 #include "StringUtil.hh"
 #include "Vector.hh"
@@ -28,4 +27,3 @@ void
 deleteContents(StringSeq *strings);
 
 } // namespace
-#endif

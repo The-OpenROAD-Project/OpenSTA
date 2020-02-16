@@ -448,4 +448,5 @@ delayAsString(const Delay &delay,
 }
 
 } // namespace
-#endif
+
+#endif // (SSTA == 2)

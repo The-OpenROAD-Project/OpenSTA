@@ -16,8 +16,7 @@
 
 #include "StaConfig.hh"
 
-#ifndef STA_DELAY_H
-#define STA_DELAY_H
+#pragma once
 
 #if (SSTA == 1)
   // Delays are Normal PDFs.
@@ -39,4 +38,3 @@ typedef Delay Required;
 typedef Delay Slack;
 
 } // namespace
-#endif

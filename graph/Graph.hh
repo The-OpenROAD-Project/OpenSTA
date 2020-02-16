@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_GRAPH_H
-#define STA_GRAPH_H
+#pragma once
 
 #include "Mutex.hh"
 #include "DisallowCopyAssign.hh"
@@ -526,4 +525,3 @@ private:
 };
 
 } // namespace
-#endif

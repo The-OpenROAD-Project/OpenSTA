@@ -6,8 +6,7 @@
 // disclosed in any form or fashion without the express
 // written consent of Parallax Software, Inc.
 
-#ifndef STA_OBJECT_ID_H
-#define STA_OBJECT_ID_H
+#pragma once
 
 #include <cstdint>
 
@@ -25,4 +24,3 @@ static constexpr ObjectId object_id_null = 0;
 static constexpr ObjectIdx object_idx_null = 0;
 
 } // Namespace
-#endif

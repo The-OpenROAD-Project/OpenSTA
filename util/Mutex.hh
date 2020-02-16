@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_MUTEX_H
-#define STA_MUTEX_H
+#pragma once
 
 #include <mutex>
 
@@ -24,4 +23,3 @@ namespace sta {
 typedef std::unique_lock<std::mutex> UniqueLock;
 
 } // namespace
-#endif

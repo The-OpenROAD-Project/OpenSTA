@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_CRPR_H
-#define STA_CRPR_H
+#pragma once
 
 #include "DisallowCopyAssign.hh"
 #include "SdcClass.hh"
@@ -94,4 +93,3 @@ private:
 };
 
 } // namespace
-#endif

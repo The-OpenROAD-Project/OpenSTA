@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_DELAY_CALC_H
-#define STA_DELAY_CALC_H
+#pragma once
 
 #include "StringSeq.hh"
 
@@ -47,4 +46,3 @@ makeDelayCalc(const char *name,
 	      StaState *sta);
 
 } // namespace
-#endif

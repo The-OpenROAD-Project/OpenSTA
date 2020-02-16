@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_REPORT_STD_H
-#define STA_REPORT_STD_H
+#pragma once
 
 namespace sta {
 
@@ -27,4 +26,3 @@ Report *
 makeReportStd();
 
 } // namespace
-#endif

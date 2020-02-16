@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_SDC_CMD_COMMENT_H
-#define STA_SDC_CMD_COMMENT_H
+#pragma once
 
 namespace sta {
 
@@ -36,4 +35,3 @@ protected:
 };
 
 } // namespace
-#endif
