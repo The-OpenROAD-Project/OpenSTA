@@ -148,7 +148,7 @@ setNameCmp(NetSet *set1,
 ////////////////////////////////////////////////////////////////
 
 const char *
-EmptyExpceptionPt::what() const throw()
+EmptyExpceptionPt::what() const noexcept
 {
   return "empty exception from/through/to.";
 }

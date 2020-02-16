@@ -64,11 +64,11 @@ private:
 };
 
 // Error thrown by Pattern constructor.
-class RegexpCompileError : public StaException
+class RegexpCompileError : public Exception
 {
 public:
   explicit RegexpCompileError(const char *error);
-  virtual ~RegexpCompileError() throw() {}
+  virtual ~RegexpCompileError() noexcept {}
   virtual const char *what() const throw();
 
 private:

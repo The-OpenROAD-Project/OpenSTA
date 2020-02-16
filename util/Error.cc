@@ -22,14 +22,14 @@
 
 namespace sta {
 
-StaException::StaException() :
+Exception::Exception() :
   std::exception()
 {
 }
 
-StaExceptionLine::StaExceptionLine(const char *filename,
-				   int line) :
-  StaException(),
+ExceptionLine::ExceptionLine(const char *filename,
+			     int line) :
+  Exception(),
   filename_(filename),
   line_(line)
 {
@@ -38,13 +38,13 @@ StaExceptionLine::StaExceptionLine(const char *filename,
 InternalError::InternalError(const char *filename,
 			     int line,
 			     const char *msg) :
-  StaExceptionLine(filename, line),
+  ExceptionLine(filename, line),
   msg_(msg)
 {
 }
 
 const char *
-InternalError::what() const throw()
+InternalError::what() const noexcept
 {
   return stringPrintTmp("Internal error in %s:%d %s.",
 			filename_, line_, msg_);
@@ -56,7 +56,7 @@ FileNotReadable::FileNotReadable(const char *filename) :
 }
 
 const char *
-FileNotReadable::what() const throw()
+FileNotReadable::what() const noexcept
 {
   return stringPrintTmp("Error: cannot read file %s.", filename_);
 }
@@ -67,7 +67,7 @@ FileNotWritable::FileNotWritable(const char *filename) :
 }
 
 const char *
-FileNotWritable::what() const throw()
+FileNotWritable::what() const noexcept
 {
   return stringPrintTmp("Error: cannot write file %s.", filename_);
 }

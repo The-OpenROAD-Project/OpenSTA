@@ -16,6 +16,9 @@
 
 This file summarizes STA API changes for each release.
 
+Release 2.0.18 2020/02/15
+-------------------------
+
 The following iterator functions are deprecated:
 
  TimingArcSet::timingArcIterator()
@@ -38,6 +41,7 @@ use the following:
     TimingArc *arc = arc_iter.next();
   }
 
+StaException renamed to Exception
 
 Release 2.0.17 2019/11/11
 -------------------------

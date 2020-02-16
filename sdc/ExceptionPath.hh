@@ -656,10 +656,10 @@ private:
 };
 
 // Exception thrown by check.
-class EmptyExpceptionPt : public StaException
+class EmptyExpceptionPt : public Exception
 {
 public:
-  virtual const char *what() const throw();
+  virtual const char *what() const noexcept;
 };
 
 // Throws EmptyExpceptionPt it finds an empty exception point.

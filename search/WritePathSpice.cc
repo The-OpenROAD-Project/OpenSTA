@@ -224,19 +224,20 @@ private:
 
 ////////////////////////////////////////////////////////////////
 
-class SubcktEndsMissing : public StaException
+class SubcktEndsMissing : public Exception
 {
 public:
   SubcktEndsMissing(const char *cell_name,
 		    const char *subckt_filename);
-  const char *what() const throw();
+  const char *what() const noexcept;
 
 protected:
   string what_;
 };
 
 SubcktEndsMissing::SubcktEndsMissing(const char *cell_name,
-				     const char *subckt_filename)
+				     const char *subckt_filename) :
+  Exception()
 {
   what_ = "Error: spice subckt for cell ";
   what_ += cell_name;
@@ -245,7 +246,7 @@ SubcktEndsMissing::SubcktEndsMissing(const char *cell_name,
 }
 
 const char *
-SubcktEndsMissing::what() const throw()
+SubcktEndsMissing::what() const noexcept
 {
   return what_.c_str();
 }

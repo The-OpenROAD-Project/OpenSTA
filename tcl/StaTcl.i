@@ -108,17 +108,17 @@ typedef MinMaxAll MinMaxAllNull;
 typedef ClockSet TmpClockSet;
 typedef StringSeq TmpStringSeq;
 
-class CmdErrorNetworkNotLinked : public StaException
+class CmdErrorNetworkNotLinked : public Exception
 {
 public:
-  virtual const char *what() const throw()
+  virtual const char *what() const noexcept
   { return "Error: no network has been linked."; }
 };
 
-class CmdErrorNetworkNotEditable : public StaException
+class CmdErrorNetworkNotEditable : public Exception
 {
 public:
-  virtual const char *what() const throw()
+  virtual const char *what() const noexcept
   { return "Error: network does not support edits."; }
 };
 

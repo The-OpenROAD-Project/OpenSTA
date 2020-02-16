@@ -22,32 +22,32 @@
 namespace sta {
 
 // Abstract base class for sta exceptions.
-class StaException : public std::exception
+class Exception : public std::exception
 {
 public:
-  StaException();
-  virtual ~StaException() THROW_DCL {}
-  virtual const char *what() const throw() = 0;
+  Exception();
+  virtual ~Exception() {}
+  virtual const char *what() const noexcept = 0;
 };
 
-class StaExceptionLine : public StaException
+class ExceptionLine : public Exception
 {
 public:
-  StaExceptionLine(const char *filename,
-		   int line);
+  ExceptionLine(const char *filename,
+		int line);
 
 protected:
   const char *filename_;
   int line_;
 };
 
-class InternalError : public StaExceptionLine
+class InternalError : public ExceptionLine
 {
 public:
   InternalError(const char *filename,
 		int line,
 		const char *msg);
-  virtual const char *what() const throw();
+  virtual const char *what() const noexcept;
 
 protected:
   const char *msg_;
@@ -64,22 +64,22 @@ protected:
   printf("Internal Error: %s:%d %s\n", __FILE__, __LINE__, msg)
 
 // Failure opening filename for reading.
-class FileNotReadable : public StaException
+class FileNotReadable : public Exception
 {
 public:
   explicit FileNotReadable(const char *filename);
-  virtual const char *what() const throw();
+  virtual const char *what() const noexcept;
 
 protected:
   const char *filename_;
 };
 
 // Failure opening filename for writing.
-class FileNotWritable : public StaException
+class FileNotWritable : public Exception
 {
 public:
   explicit FileNotWritable(const char *filename);
-  virtual const char *what() const throw();
+  virtual const char *what() const noexcept;
 
 protected:
   const char *filename_;

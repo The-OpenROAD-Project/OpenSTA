@@ -62,9 +62,6 @@
   #define strtoull _strtoui64
   // Flex doesn't check for unistd.h.
   #define YY_NO_UNISTD_H
-  // Visual c++ version of std::exception destructor missing throw()
-  // declaration.
-  #define THROW_DCL
   namespace sta {
     int vsnprint(char *str, size_t size, const char *fmt, va_list args);
   }
@@ -72,7 +69,6 @@
   #define DllExport
   #include <stdint.h>		// intptr_t
   #define vsnprint vsnprintf
-  #define THROW_DCL throw()
 #endif // _WINDOWS
 
 #include <stddef.h>

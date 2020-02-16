@@ -114,14 +114,14 @@ PatternMatch::matchNoCase(const char *str) const
 ////////////////////////////////////////////////////////////////
 
 RegexpCompileError::RegexpCompileError(const char *pattern)  :
-  StaException()
+  Exception()
 {
   const char *msg = "Error: TCL failed to compile regular expression '%s'.";
   error_ = stringPrintTmp(msg, pattern);
 }
 
 const char *
-RegexpCompileError::what() const throw()
+RegexpCompileError::what() const noexcept
 {
   return error_;
 }

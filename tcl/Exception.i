@@ -16,21 +16,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "Error.hh"
-
-using sta::StaException;
-
 %}
 
 %exception {
   try { $function }
-  catch (StaException &excp) {
-    Tcl_SetResult(interp, const_cast<char*>(excp.what()), TCL_VOLATILE);
-    return TCL_ERROR;
-  }
   catch (std::bad_alloc &) {
     fprintf(stderr, "Error: out of memory.\n");
     exit(0);
+  }
+  catch (std::exception &excp) {
+    Tcl_SetResult(interp, const_cast<char*>(excp.what()), TCL_VOLATILE);
+    return TCL_ERROR;
   }
 }

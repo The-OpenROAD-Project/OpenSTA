@@ -68,13 +68,13 @@ delayPropertyValue(Delay delay,
 
 ////////////////////////////////////////////////////////////////
 
-class PropertyUnknown : public StaException
+class PropertyUnknown : public Exception
 {
 public:
   PropertyUnknown(const char *type,
 		  const char *property);
-  virtual ~PropertyUnknown() THROW_DCL {}
-  virtual const char *what() const throw();
+  virtual ~PropertyUnknown() {}
+  virtual const char *what() const noexcept;
 
 private:
   const char *type_;
@@ -83,13 +83,14 @@ private:
 
 PropertyUnknown::PropertyUnknown(const char *type,
 				 const char *property) :
+  Exception(),
   type_(type),
   property_(property)
 {
 }
 
 const char *
-PropertyUnknown::what() const throw()
+PropertyUnknown::what() const noexcept
 {
   return stringPrint("Error: %s objects do not have a %s property.",
 		     type_, property_);
