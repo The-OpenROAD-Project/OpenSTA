@@ -23,6 +23,7 @@
 #include "StaState.hh"
 #include "DcalcAnalysisPt.hh"
 #include "Corner.hh"
+#include "GraphDelayCalc.hh"
 #include "PathVertex.hh"
 #include "Search.hh"
 #include "CheckSlewLimits.hh"
@@ -173,72 +174,73 @@ CheckSlewLimits::findLimit(const Pin *pin,
 			   // Return values.
 			   float &limit,
 			   bool &exists) const
-			
 {
   exists = false;
-  const Network *network = sta_->network();
-  Sdc *sdc = sta_->sdc();
-  bool is_clk = sta_->search()->isClock(vertex);
-  // Look for clock slew limits.
-  ClockSet clks;
-  clockDomains(vertex, clks);
-  ClockSet::Iterator clk_iter(clks);
-  while (clk_iter.hasNext()) {
-    Clock *clk = clk_iter.next();
-    PathClkOrData clk_data = is_clk ? PathClkOrData::clk : PathClkOrData::data;
-    float clk_limit;
-    bool clk_limit_exists;
-    sdc->slewLimit(clk, rf, clk_data, min_max,
-		   clk_limit, clk_limit_exists);
-    if (clk_limit_exists
-	&& (!exists
-	    || min_max->compare(limit, clk_limit))) {
-      // Use the tightest clock limit.
-      limit = clk_limit;
-      exists = true;
-    }
-  }
-  if (!exists) {
-    // Default to top ("design") limit.
-    exists = top_limit_exists_;
-    limit = top_limit_;
-    if (network->isTopLevelPort(pin)) {
-      Port *port = network->port(pin);
-      float port_limit;
-      bool port_limit_exists;
-      sdc->slewLimit(port, min_max, port_limit, port_limit_exists);
-      // Use the tightest limit.
-      if (port_limit_exists
+  if (!sta_->graphDelayCalc()->isIdealClk(vertex)) {
+    const Network *network = sta_->network();
+    Sdc *sdc = sta_->sdc();
+    bool is_clk = sta_->search()->isClock(vertex);
+    // Look for clock slew limits.
+    ClockSet clks;
+    clockDomains(vertex, clks);
+    ClockSet::Iterator clk_iter(clks);
+    while (clk_iter.hasNext()) {
+      Clock *clk = clk_iter.next();
+      PathClkOrData clk_data = is_clk ? PathClkOrData::clk : PathClkOrData::data;
+      float clk_limit;
+      bool clk_limit_exists;
+      sdc->slewLimit(clk, rf, clk_data, min_max,
+		     clk_limit, clk_limit_exists);
+      if (clk_limit_exists
 	  && (!exists
-	      || min_max->compare(limit, port_limit))) {
-	limit = port_limit;
+	      || min_max->compare(limit, clk_limit))) {
+	// Use the tightest clock limit.
+	limit = clk_limit;
 	exists = true;
       }
     }
-    else {
-      float pin_limit;
-      bool pin_limit_exists;
-      sdc->slewLimit(pin, min_max,
-			     pin_limit, pin_limit_exists);
-      // Use the tightest limit.
-      if (pin_limit_exists
-	  && (!exists
-	      || min_max->compare(limit, pin_limit))) {
-	limit = pin_limit;
-	exists = true;
-      }
-
-      float port_limit;
-      bool port_limit_exists;
-      LibertyPort *port = network->libertyPort(pin);
-      if (port) {
-	port->slewLimit(min_max, port_limit, port_limit_exists);
+    if (!exists) {
+      // Default to top ("design") limit.
+      exists = top_limit_exists_;
+      limit = top_limit_;
+      if (network->isTopLevelPort(pin)) {
+	Port *port = network->port(pin);
+	float port_limit;
+	bool port_limit_exists;
+	sdc->slewLimit(port, min_max, port_limit, port_limit_exists);
 	// Use the tightest limit.
 	if (port_limit_exists
 	    && (!exists
 		|| min_max->compare(limit, port_limit))) {
 	  limit = port_limit;
 	  exists = true;
+	}
+      }
+      else {
+	float pin_limit;
+	bool pin_limit_exists;
+	sdc->slewLimit(pin, min_max,
+		       pin_limit, pin_limit_exists);
+	// Use the tightest limit.
+	if (pin_limit_exists
+	    && (!exists
+		|| min_max->compare(limit, pin_limit))) {
+	  limit = pin_limit;
+	  exists = true;
+	}
+
+	float port_limit;
+	bool port_limit_exists;
+	LibertyPort *port = network->libertyPort(pin);
+	if (port) {
+	  port->slewLimit(min_max, port_limit, port_limit_exists);
+	  // Use the tightest limit.
+	  if (port_limit_exists
+	      && (!exists
+		  || min_max->compare(limit, port_limit))) {
+	    limit = port_limit;
+	    exists = true;
+	  }
 	}
       }
     }

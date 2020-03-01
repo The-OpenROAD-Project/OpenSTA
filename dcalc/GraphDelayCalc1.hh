@@ -197,7 +197,7 @@ protected:
   bool setIdealClks(const Vertex *vertex,
 		    ClockSet *clks);
   ClockSet *idealClks(const Vertex *vertex);
-  bool isIdealClk(const Vertex *vertex);
+  virtual bool isIdealClk(const Vertex *vertex);
   Slew idealClkSlew(const Vertex *vertex,
 		    const RiseFall *rf,
 		    const MinMax *min_max);
