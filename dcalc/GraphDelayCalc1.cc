@@ -546,8 +546,10 @@ GraphDelayCalc1::makeMultiDrvrNet(PinSet &drvr_pins)
     drvr_vertices->insert(drvr_vertex);
     Level drvr_level = drvr_vertex->level();
     if (max_drvr == nullptr
-	|| drvr_level > max_drvr_level)
+	|| drvr_level > max_drvr_level) {
       max_drvr = drvr_vertex;
+      max_drvr_level = drvr_level;
+    }
   }
   multi_drvr->setDcalcDrvr(max_drvr);
   multi_drvr->findCaps(this, sdc_);
