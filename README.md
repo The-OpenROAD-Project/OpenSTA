@@ -217,7 +217,7 @@ is also licensed for commerical applications by Parallax Software without
 the GPL's requirements.
 
 OpenSTA, Static Timing Analyzer
-Copyright (c) 2019, Parallax Software, Inc.
+Copyright (c) 2020, Parallax Software, Inc.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -231,4 +231,5 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 
