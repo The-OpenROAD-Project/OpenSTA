@@ -2832,8 +2832,7 @@ Search::reportArrivalCountHistogram() const
 Tag *
 Search::tag(TagIndex index) const
 {
-  Tag *tag = tags_[index];
-  return tag;
+  return tags_[index];
 }
 
 TagIndex
