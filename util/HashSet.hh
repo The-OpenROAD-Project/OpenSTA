@@ -40,7 +40,7 @@ public:
   // Number of hash buckets.
   size_t capacity() const { return capacity_; }
   // Multi-threaded findKey is safe during resize.
-  void resize(size_t capacity);
+  void reserve(size_t capacity);
   void insert(KEY key);
   KEY findKey(KEY key);
   KEY findKey(KEY key) const;
@@ -308,12 +308,12 @@ HashSet<KEY, HASH, EQUAL>::insert(KEY key)
   size_++;
   if (size_ > capacity_
       && auto_resize_)
-    resize(nextMersenne(capacity_));
+    reserve(nextMersenne(capacity_));
 }
 
 template <class KEY, class HASH, class EQUAL>
 void
-HashSet<KEY, HASH, EQUAL>::resize(size_t capacity)
+HashSet<KEY, HASH, EQUAL>::reserve(size_t capacity)
 {
   if (capacity != capacity_) {
     if (size_ == 0) {

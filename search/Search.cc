@@ -2662,7 +2662,7 @@ Search::findTagGroup(TagGroupBldr *tag_bldr)
 	tag_groups_ = new_tag_groups;
 	tag_group_capacity_ = new_capacity;
 	delete [] old_tag_groups;
-	tag_group_set_->resize(new_capacity);
+	tag_group_set_->reserve(new_capacity);
       }
       if (tag_group_next_ > tag_group_index_max)
 	internalError("max tag group index exceeded");
@@ -2889,7 +2889,7 @@ Search::findTag(const RiseFall *rf,
 	tags_ = new_tags;
 	delete [] old_tags;
 	tag_capacity_ = new_capacity;
-	tag_set_->resize(new_capacity);
+	tag_set_->reserve(new_capacity);
       }
       if (tag_next_ > tag_index_max)
 	internalError("max tag index exceeded");
