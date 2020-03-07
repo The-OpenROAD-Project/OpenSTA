@@ -25,7 +25,7 @@
     exit(0);
   }
   catch (std::exception &excp) {
-    Tcl_SetResult(interp, const_cast<char*>(excp.what()), TCL_VOLATILE);
+    Tcl_AppendResult(interp, "Error: ", excp.what(), nullptr);
     return TCL_ERROR;
   }
 }

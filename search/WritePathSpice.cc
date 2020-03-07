@@ -239,7 +239,7 @@ SubcktEndsMissing::SubcktEndsMissing(const char *cell_name,
 				     const char *subckt_filename) :
   Exception()
 {
-  what_ = "Error: spice subckt for cell ";
+  what_ = "spice subckt for cell ";
   what_ += cell_name;
   what_ += " missing .ends in ";
   what_ += subckt_filename;

@@ -92,7 +92,7 @@ PropertyUnknown::PropertyUnknown(const char *type,
 const char *
 PropertyUnknown::what() const noexcept
 {
-  return stringPrint("Error: %s objects do not have a %s property.",
+  return stringPrint("%s objects do not have a %s property.",
 		     type_, property_);
 }
 

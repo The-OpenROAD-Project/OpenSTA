@@ -90,7 +90,7 @@ proc check_for_key_args { cmd arg_var } {
   while { $args != "" } {
     set arg [lindex $args 0]
     if { [is_keyword_arg $arg] } {
-      sta_warn "$cmd $arg is not a known keyword or flag."
+      sta_error "$cmd $arg is not a known keyword or flag."
     } else {
       lappend args_rtn $arg
     }

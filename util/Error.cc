@@ -58,7 +58,7 @@ FileNotReadable::FileNotReadable(const char *filename) :
 const char *
 FileNotReadable::what() const noexcept
 {
-  return stringPrintTmp("Error: cannot read file %s.", filename_);
+  return stringPrintTmp("cannot read file %s.", filename_);
 }
 
 FileNotWritable::FileNotWritable(const char *filename) :
@@ -69,7 +69,7 @@ FileNotWritable::FileNotWritable(const char *filename) :
 const char *
 FileNotWritable::what() const noexcept
 {
-  return stringPrintTmp("Error: cannot write file %s.", filename_);
+  return stringPrintTmp("cannot write file %s.", filename_);
 }
 
 } // namespace

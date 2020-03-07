@@ -496,6 +496,11 @@ set_property(SOURCE ${STA_SWIG_FILE}
   -I${STA_HOME}/verilog
 )
 
+set_property(SOURCE ${STA_SWIG_FILE}
+  PROPERTY DEPENDS
+  ${STA_HOME}/tcl/Exception.i
+)
+
 swig_add_library(sta_swig
   LANGUAGE tcl
   TYPE STATIC
