@@ -433,7 +433,7 @@ proc sta_unknown { args } {
 	  "ambiguous command name \"$name\": [lsort $cmds]"
       }
     } else {
-      return [uplevel 1 [builtin_unknown $args]]
+      return [uplevel 1 [concat builtin_unknown $args]]
     }
   }
 }
