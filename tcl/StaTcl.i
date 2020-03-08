@@ -1912,6 +1912,13 @@ git_sha1()
 }
 
 void
+fflush()
+{
+  fflush(stdout);
+  fflush(stderr);
+}
+
+void
 redirect_file_begin(const char *filename)
 {
   Sta::sta()->report()->redirectFileBegin(filename);

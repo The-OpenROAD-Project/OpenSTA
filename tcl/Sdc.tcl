@@ -83,7 +83,10 @@ proc source_ { filename echo verbose } {
       if { [string index $line end] != "\\" \
 	     && [info complete $cmd] } {
 	set error {}
-	switch [catch {uplevel \#0 $cmd} result] {
+	set error_code [catch {uplevel \#0 $cmd} result]
+	# Flush results printed outside tcl to stdout/stderr.
+	fflush
+	switch $error_code {
 	  0 { if { $verbose && $result != "" } { puts $result } }
 	  1 { set error $result }
 	  2 { set error {invoked "return" outside of a proc.} }
