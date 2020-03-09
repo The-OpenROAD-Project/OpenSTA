@@ -433,7 +433,15 @@ proc sta_unknown { args } {
 	  "ambiguous command name \"$name\": [lsort $cmds]"
       }
     } else {
-      return [uplevel 1 [concat builtin_unknown $args]]
+      # I cannot figure out why the first call to ::history add
+      # that presumably loads history.tcl causes the following error:
+      # Error: history.tcl, 306 invoked "return" outside of a proc.
+      # But this squashes the error.
+      if { [lindex $args 0] == "::history" } {
+	return ""
+      } else {
+	return [uplevel 1 builtin_unknown $args]
+      }
     }
   }
 }
