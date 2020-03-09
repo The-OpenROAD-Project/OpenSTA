@@ -499,6 +499,7 @@ set_property(SOURCE ${STA_SWIG_FILE}
 set_property(SOURCE ${STA_SWIG_FILE}
   PROPERTY DEPENDS
   ${STA_HOME}/tcl/Exception.i
+  ${STA_HOME}/tcl/StaTcl.i
 )
 
 swig_add_library(sta_swig
