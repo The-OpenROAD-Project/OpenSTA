@@ -500,6 +500,10 @@ set_property(SOURCE ${STA_SWIG_FILE}
   PROPERTY DEPENDS
   ${STA_HOME}/tcl/Exception.i
   ${STA_HOME}/tcl/StaTcl.i
+  ${STA_HOME}/verilog/Verilog.i
+  ${STA_HOME}/tcl/NetworkEdit.i
+  ${STA_HOME}/sdf/Sdf.i
+  ${STA_HOME}/parasitics/Parasitics.i
 )
 
 swig_add_library(sta_swig
