@@ -25,8 +25,8 @@
     exit(0);
   }
   catch (std::exception &excp) {
-    char *msg = stringPrint("Error: %s", excp.what());
-    Tcl_SetResult(interp, msg, nullptr);
+    Tcl_ResetResult(interp);
+    Tcl_AppendResult(interp, "Error: ", excp.what(), nullptr);
     return TCL_ERROR;
   }
 }
