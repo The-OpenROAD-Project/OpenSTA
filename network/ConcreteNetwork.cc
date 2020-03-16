@@ -1112,7 +1112,7 @@ ConcreteNetwork::mergeInto(Net *net,
   ConcreteNet *cnet = reinterpret_cast<ConcreteNet*>(net);
   ConcreteNet *cinto_net = reinterpret_cast<ConcreteNet*>(into_net);
   cnet->mergeInto(cinto_net);
-  clearNetDrvPinrMap();
+  clearNetDrvrPinMap();
 }
 
 Net *
@@ -1325,7 +1325,7 @@ ConcreteNetwork::connectNetPin(ConcreteNet *cnet,
 	drvrs->insert(pin);
     }
     else
-      clearNetDrvPinrMap();
+      clearNetDrvrPinMap();
   }
 }
 
@@ -1339,7 +1339,7 @@ ConcreteNetwork::disconnectPin(Pin *pin)
       ConcreteNet *cnet = cterm->net_;
       if (cnet) {
 	cnet->deleteTerm(cterm);
-	clearNetDrvPinrMap();
+	clearNetDrvrPinMap();
       }
       cpin->term_ = nullptr;
       delete cterm;
@@ -1371,7 +1371,7 @@ ConcreteNetwork::disconnectNetPin(ConcreteNet *cnet,
 	drvrs->erase(pin);
     }
     else
-      clearNetDrvPinrMap();
+      clearNetDrvrPinMap();
   }
 }
 
@@ -1832,7 +1832,7 @@ ConcreteNetwork::readNetlistBefore()
 {
   clearConstantNets();
   deleteTopInstance();
-  clearNetDrvPinrMap();
+  clearNetDrvrPinMap();
 }
 
 void
@@ -1841,7 +1841,7 @@ ConcreteNetwork::setTopInstance(Instance *top_inst)
   if (top_instance_) {
     deleteInstance(top_instance_);
     clearConstantNets();
-    clearNetDrvPinrMap();
+    clearNetDrvrPinMap();
   }
   top_instance_ = top_inst;
 }

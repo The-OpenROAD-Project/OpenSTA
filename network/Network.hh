@@ -464,7 +464,7 @@ protected:
   // Connect/disconnect net/pins should clear the net->drvrs map.
   // Incrementally maintaining the map is expensive because 
   // nets may be connected across hierarchy levels.
-  void clearNetDrvPinrMap();
+  void clearNetDrvrPinMap();
 
   LibertyLibrary *default_liberty_;
   char divider_;

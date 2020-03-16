@@ -40,7 +40,7 @@ void
 Network::clear()
 {
   default_liberty_ = nullptr;
-  clearNetDrvPinrMap();
+  clearNetDrvrPinMap();
 }
 
 bool
@@ -1449,7 +1449,7 @@ Network::drivers(const Pin *pin)
 }
 
 void
-Network::clearNetDrvPinrMap()
+Network::clearNetDrvrPinMap()
 {
   net_drvr_pin_map_.deleteContentsClear();
 }
