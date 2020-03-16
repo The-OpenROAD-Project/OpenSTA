@@ -112,14 +112,14 @@ class CmdErrorNetworkNotLinked : public Exception
 {
 public:
   virtual const char *what() const noexcept
-  { return "Error: no network has been linked."; }
+  { return "no network has been linked."; }
 };
 
 class CmdErrorNetworkNotEditable : public Exception
 {
 public:
   virtual const char *what() const noexcept
-  { return "Error: network does not support edits."; }
+  { return "network does not support edits."; }
 };
 
 

@@ -116,8 +116,7 @@ PatternMatch::matchNoCase(const char *str) const
 RegexpCompileError::RegexpCompileError(const char *pattern)  :
   Exception()
 {
-  const char *msg = "Error: TCL failed to compile regular expression '%s'.";
-  error_ = stringPrintTmp(msg, pattern);
+  error_ = stringPrint("TCL failed to compile regular expression '%s'.", pattern);
 }
 
 const char *

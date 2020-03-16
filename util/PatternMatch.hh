@@ -69,7 +69,7 @@ class RegexpCompileError : public Exception
 public:
   explicit RegexpCompileError(const char *error);
   virtual ~RegexpCompileError() noexcept {}
-  virtual const char *what() const throw();
+  virtual const char *what() const noexcept;
 
 private:
   const char *error_;
