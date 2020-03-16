@@ -58,10 +58,6 @@ void
 streamPrint(ofstream &stream,
 	    const char *fmt,
 	    ...) __attribute__((format (printf, 2, 3)));
-void
-stringPrint(string &str,
-	    const char *fmt,
-	    ...) __attribute__((format (printf, 2, 3)));
 
 ////////////////////////////////////////////////////////////////
 
@@ -924,21 +920,6 @@ streamPrint(ofstream &stream,
   char *result;
   vasprintf(&result, fmt, args);
   stream << result;
-  free(result);
-  va_end(args);
-}
-
-// print for c++ strings.
-void
-stringPrint(string &str,
-	    const char *fmt,
-	    ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  char *result;
-  vasprintf(&result, fmt, args);
-  str = result;
   free(result);
   va_end(args);
 }
