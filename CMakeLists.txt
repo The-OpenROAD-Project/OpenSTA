@@ -232,6 +232,7 @@ set(STA_HEADERS
   graph/Graph.hh
   graph/GraphClass.hh
   graph/GraphCmp.hh
+  graph/VertexId.hh
   
   liberty/EquivCells.hh
   liberty/FuncExpr.hh
@@ -347,6 +348,7 @@ set(STA_HEADERS
   search/WorstSlack.hh
   search/WritePathSpice.hh
   
+  util/ArrayTable.hh
   util/Debug.hh
   util/DispatchQueue.hh
   util/DisallowCopyAssign.hh
@@ -708,7 +710,7 @@ install(TARGETS sta DESTINATION bin)
 install(TARGETS OpenSTA DESTINATION lib)
 
 # include
-install(FILES ${STA_HEADERS} DESTINATION include)
+install(FILES ${STA_HEADERS} DESTINATION include/opensta)
 
 ################################################################
 
