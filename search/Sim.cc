@@ -32,6 +32,7 @@
 #include "Sim.hh"
 
 #if CUDD
+// https://davidkebo.com/cudd
 #include "cudd.h"
 #endif // CUDD
 
