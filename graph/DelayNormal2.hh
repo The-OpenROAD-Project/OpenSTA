@@ -125,6 +125,8 @@ delayIsInitValue(const Delay &delay,
 bool
 fuzzyZero(const Delay &delay);
 bool
+fuzzyInf(const Delay &delay);
+bool
 fuzzyEqual(const Delay &delay1,
 	   const Delay &delay2);
 bool

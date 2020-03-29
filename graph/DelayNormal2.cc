@@ -246,6 +246,12 @@ fuzzyZero(const Delay &delay)
 }
 
 bool
+fuzzyInf(const Delay &delay)
+{
+  return fuzzyInf(delay.mean());
+}
+
+bool
 fuzzyEqual(const Delay &delay1,
 	   const Delay &delay2)
 {
