@@ -24,6 +24,9 @@
 
 namespace sta {
 
+static char *
+unencode(const char *inits[]);
+
 int
 parseThreadsArg(int &argc,
 		char *argv[])
@@ -96,6 +99,21 @@ void
 evalTclInit(Tcl_Interp *interp,
 	    const char *inits[])
 {
+  char *unencoded = unencode(inits);
+  if (Tcl_Eval(interp, unencoded) != TCL_OK) {
+    // Get a backtrace for the error.
+    Tcl_Eval(interp, "$errorInfo");
+    const char *tcl_err = Tcl_GetStringResult(interp);
+    fprintf(stderr, "Error: TCL init script: %s.\n", tcl_err);
+    fprintf(stderr, "       Try deleting app/TclInitVar.cc and rebuilding.\n");
+    exit(0);
+  }
+  delete [] unencoded;
+}
+
+static char *
+unencode(const char *inits[])
+{
   size_t length = 0;
   for (const char **e = inits; *e; e++) {
     const char *init = *e;
@@ -113,15 +131,7 @@ evalTclInit(Tcl_Interp *interp,
     }
   }
   *u = '\0';
-  if (Tcl_Eval(interp, unencoded) != TCL_OK) {
-    // Get a backtrace for the error.
-    Tcl_Eval(interp, "$errorInfo");
-    const char *tcl_err = Tcl_GetStringResult(interp);
-    fprintf(stderr, "Error: TCL init script: %s.\n", tcl_err);
-    fprintf(stderr, "       Try deleting app/TclInitVar.cc and rebuilding.\n");
-    exit(0);
-  }
-  delete [] unencoded;
+  return unencoded;
 }
 
 } // namespace
