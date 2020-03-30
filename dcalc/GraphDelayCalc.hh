@@ -101,7 +101,7 @@ public:
   virtual float ceff(Edge *edge,
 		     TimingArc *arc,
 		     const DcalcAnalysisPt *dcalc_ap);
-  virtual bool isIdealClk(const Vertex *vertex) = 0;
+  virtual bool isIdealClk(const Vertex *vertex);
   // Precedence:
   //  SDF annotation
   //  Liberty library
