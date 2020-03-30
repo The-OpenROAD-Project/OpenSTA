@@ -21,8 +21,8 @@
 
 namespace sta {
 
-// Write constraints to a file.
-// Allow contraints to apply to an instance to support write_context.
+// Write SDC to a file.
+// Allow SDC to apply to an instance to support write_context.
 void
 writeSdc(Instance *instance,
 	 const char *filename,
