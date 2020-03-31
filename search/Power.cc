@@ -737,11 +737,11 @@ Power::findLeakagePower(const Instance *,
     FuncExpr *when = leak->when();
     if (when) {
       FuncExprPortIterator port_iter(when);
-      float duty = 2.0;
+      float duty = 1.0;
       while (port_iter.hasNext()) {
 	auto port = port_iter.next();
 	if (port->direction()->isAnyInput())
-	  duty *= .5;
+	  duty *= port->isClock() ? 0.25 : 0.5;
       }
       debugPrint4(debug_, "power", 2, "leakage %s %s %.3e * %.2f\n",
 		  cell->name(),
@@ -760,21 +760,23 @@ Power::findLeakagePower(const Instance *,
     }
   }
   float leakage = 0.0;
-  float leak;
-  bool exists;
-  cell->leakagePower(leak, exists);
-  if (exists) {
-    // Prefer cell_leakage_power until propagated activities exist.
+  float cell_leakage;
+  bool cell_leakage_exists;
+  cell->leakagePower(cell_leakage, cell_leakage_exists);
+  if (cell_leakage_exists)
     debugPrint2(debug_, "power", 2, "leakage cell %s %.3e\n",
-		  cell->name(),
-		  leak);
-      leakage = leak;
-  }
+		cell->name(),
+		cell_leakage);
   // Ignore default leakages unless there are no conditional leakage groups.
-  else if (found_cond)
+  if (found_cond)
     leakage = cond_leakage;
   else if (found_default)
     leakage = default_leakage;
+  else if (cell_leakage_exists)
+    leakage = cell_leakage;
+  debugPrint2(debug_, "power", 2, "leakage cell %s %.3e\n",
+	      cell->name(),
+	      leakage);
   result.setLeakage(result.leakage() + leakage);
 }
 
