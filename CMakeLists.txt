@@ -558,41 +558,33 @@ endif()
 
 ################################################################
 #
-# Locate CUDD bdd packagte
-# -DCUDD=0 to not use CUDD.
-# Look for library in CUDD/lib,     CUDD/cudd/lib
-# Look for header  in CUDD/include, CUDD/cudd/include
+# Locate CUDD bdd package.
 #
-if("${CUDD}" STREQUAL "" OR "${CUDD}" STREQUAL "0")
+find_library(CUDD_LIB
+  NAMES cudd
+  PATHS ENV CUDD
+  )
+if (CUDD_LIB)
+  message(STATUS "CUDD library: ${CUDD_LIB}")
+  get_filename_component(CUDD_LIB_DIR "${CUDD_LIB}" PATH)
+  get_filename_component(CUDD_LIB_PARENT1 "${CUDD_LIB_DIR}" PATH)
+  get_filename_component(CUDD_LIB_PARENT2 "${CUDD_LIB_PARENT1}" PATH)
+  find_file(CUDD_HEADER cudd.h
+    PATHS ${CUDD_LIB_PARENT1}/include ${CUDD_LIB_PARENT1}/include/cudd)
+  if (CUDD_HEADER)
+    get_filename_component(CUDD_INCLUDE "${CUDD_HEADER}" PATH)
+    message(STATUS "CUDD header: ${CUDD_HEADER}")
+    # CUDD referenced by StaConfig.hh.cmake
+    set(CUDD 1)
+  else()
+    message(STATUS "CUDD header: not found")
+  endif()
+else()
   set(CUDD_INCLUDE "")
   set(CUDD_LIB "")
   set(CUDD_FOUND FALSE)
   set(CUDD 0)
   message(STATUS "CUDD library: not found")
-else()
-  find_library(CUDD_LIB NAMES cudd PATHS ${CUDD}/lib ${CUDD}/lib/cudd)
-  if (CUDD_LIB)
-    message(STATUS "CUDD library: ${CUDD_LIB}")
-    get_filename_component(CUDD_LIB_DIR "${CUDD_LIB}" PATH)
-    get_filename_component(CUDD_LIB_PARENT1 "${CUDD_LIB_DIR}" PATH)
-    get_filename_component(CUDD_LIB_PARENT2 "${CUDD_LIB_PARENT1}" PATH)
-    find_file(CUDD_HEADER cudd.h
-      PATHS ${CUDD}/include ${CUDD_LIB_PARENT2}/include/cudd)
-    if (CUDD_HEADER)
-      get_filename_component(CUDD_INCLUDE "${CUDD_HEADER}" PATH)
-      message(STATUS "CUDD header: ${CUDD_HEADER}")
-      # CUDD referenced by StaConfig.hh.cmake
-      set(CUDD 1)
-    else()
-      message(STATUS "CUDD header: not found")
-    endif()
-  else()
-    set(CUDD_INCLUDE "")
-    set(CUDD_LIB "")
-    set(CUDD_FOUND FALSE)
-    set(CUDD 0)
-    message(STATUS "CUDD library: not found")
-  endif()
 endif()
 
 if("${SSTA}" STREQUAL "")
