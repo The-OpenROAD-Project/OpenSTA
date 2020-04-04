@@ -2,7 +2,7 @@
 
 #define STA_GIT_SHA1 "${STA_GIT_SHA1}"
 
-#define ZLIB ${ZLIB}
+#cmakedefine ZLIB_FOUND
 
 #define CUDD ${CUDD}
 

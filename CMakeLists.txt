@@ -551,12 +551,6 @@ find_package(TCL)
 
 # Zlib
 include(FindZLIB)
-# Translate cmake bool to StaConfig.h ifdef bool
-if (ZLIB_FOUND)
-  set(ZLIB 1)
-else()
-  set(ZLIB 0)
-endif()
 
 ################################################################
 #
@@ -675,9 +669,12 @@ target_link_libraries(sta
   OpenSTA
   sta_swig
   ${TCL_LIBRARY}
-  ZLIB
-  CUDD_LIB
+  ${ZLIB_LIBRARIES}
   )
+
+if (CUDD_LIB)
+target_link_libraries(sta ${CUDD_LIB})
+endif()
 
 message(STATUS "STA executable: ${STA_HOME}/app/sta")
 

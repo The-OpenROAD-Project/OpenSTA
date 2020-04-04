@@ -21,11 +21,11 @@
 
 #include "StaConfig.hh"  // ZLIB
 
-#if ZLIB
+#ifdef ZLIB_FOUND
 
 #include <zlib.h>
 
-#else // ZLIB
+#else // ZLIB_FOUND
 
 #include <stdio.h>
 
@@ -36,4 +36,4 @@
 #define gzprintf fprintf
 #define Z_NULL nullptr
 
-#endif // ZLIB
+#endif // ZLIB_FOUND
