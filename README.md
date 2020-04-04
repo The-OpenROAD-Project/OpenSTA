@@ -89,7 +89,8 @@ or [here](https://sourceforge.net/projects/cudd-mirror/).
 Note that the file hierarchy of the CUDD installation changed with version 3.0.
 Some changes to CMakeLists.txt are required to support older versions.
 
-The cmake file searchs in the normal places for the CUDD library.
+Use the CUDD_DIR option to set the install directory if it is not in
+one of the normal install directories.
 
 When building CUDD you may use the `--prefix ` option to `configure` to
 install in a location other than the default (`/usr/local/lib`).
@@ -99,8 +100,9 @@ mkdir $HOME/cudd
 ./configure --prefix $HOME/cudd
 make
 make install
-# export location of cudd for make to find it
-export CUDD=$HOME/cudd/lib
+
+cd <opensta>/build
+cmake .. -DCUDD_DIR=$HOME/cudd
 ```
 
 The Zlib library is an optional.  If CMake finds libz, OpenSTA can

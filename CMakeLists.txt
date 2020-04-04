@@ -26,6 +26,8 @@ endif()
 
 project(STA VERSION 2.0.18)
 
+option(CUDD_DIR "CUDD BDD package directory")
+
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -560,15 +562,16 @@ endif()
 #
 # Locate CUDD bdd package.
 #
+set(CUDD 0)
 find_library(CUDD_LIB
-  NAMES cudd
-  PATHS ENV CUDD
+  NAME cudd
+  PATHS ${CUDD_DIR}
+  PATH_SUFFIXES lib lib/cudd
   )
 if (CUDD_LIB)
   message(STATUS "CUDD library: ${CUDD_LIB}")
   get_filename_component(CUDD_LIB_DIR "${CUDD_LIB}" PATH)
   get_filename_component(CUDD_LIB_PARENT1 "${CUDD_LIB_DIR}" PATH)
-  get_filename_component(CUDD_LIB_PARENT2 "${CUDD_LIB_PARENT1}" PATH)
   find_file(CUDD_HEADER cudd.h
     PATHS ${CUDD_LIB_PARENT1}/include ${CUDD_LIB_PARENT1}/include/cudd)
   if (CUDD_HEADER)
@@ -580,10 +583,6 @@ if (CUDD_LIB)
     message(STATUS "CUDD header: not found")
   endif()
 else()
-  set(CUDD_INCLUDE "")
-  set(CUDD_LIB "")
-  set(CUDD_FOUND FALSE)
-  set(CUDD 0)
   message(STATUS "CUDD library: not found")
 endif()
 
@@ -611,7 +610,6 @@ set(STA_INCLUDE_DIRS
   search
   util
   verilog
-  ${CUDD_INCLUDE}
   )
 
 ###########################################################
@@ -642,7 +640,9 @@ add_library(OpenSTA
 )
 
 target_include_directories(OpenSTA
-  PUBLIC ${STA_INCLUDE_DIRS}
+  PUBLIC
+  ${STA_INCLUDE_DIRS}
+  ${CUDD_INCLUDE}
   ${TCL_INCLUDE_PATH}
   )
 
@@ -675,12 +675,9 @@ target_link_libraries(sta
   OpenSTA
   sta_swig
   ${TCL_LIBRARY}
-  ${CUDD_LIB}
+  ZLIB
+  CUDD_LIB
   )
-
-if (ZLIB_FOUND)
-  target_link_libraries(sta ${ZLIB_LIBRARIES})
-endif()
 
 message(STATUS "STA executable: ${STA_HOME}/app/sta")
 
