@@ -249,7 +249,7 @@ tclListSetConstChar(Tcl_Obj *const source,
 }
 
 StringSeq *
-TclListSeqConstChar(Tcl_Obj *const source,
+tclListSeqConstChar(Tcl_Obj *const source,
 		    Tcl_Interp *interp)
 {
   int argc;
@@ -371,7 +371,7 @@ using namespace sta;
 }
 
 %typemap(in) StringSeq* {
-  $1 = TclListSeqConstChar($input, interp);
+  $1 = tclListSeqConstChar($input, interp);
 }
 
 %typemap(out) StringSeq* {
