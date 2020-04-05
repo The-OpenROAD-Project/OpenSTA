@@ -520,7 +520,6 @@ target_include_directories(sta_swig
 
   PRIVATE
   ${STA_HOME}
-  ${STA_INCLUDE_DIRS}
 )
 
 ################################################################
