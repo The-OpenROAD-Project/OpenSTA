@@ -20,7 +20,7 @@
 
 #include "PortDirection.hh"
 #include "verilog/VerilogReaderPvt.hh"
-#include "verilog/VerilogReader.hh"
+#include "VerilogReader.hh"
 
 int VerilogLex_lex();
 #define VerilogParse_lex VerilogLex_lex

@@ -17,8 +17,6 @@
 #pragma once
 
 // This header contains global os/port specific definitions.
-// It should be included in every source file after any system include
-// files and before any STA include files.
 
 // Pragma placeholder for non-gcc compilers.
 #ifndef __GNUC__
