@@ -18,6 +18,9 @@
 
 namespace sta {
 
+class ArcDelayCalc;
+class StaState;
+
 ArcDelayCalc *
 makeDmpCeffElmoreDelayCalc(StaState *sta);
 ArcDelayCalc *

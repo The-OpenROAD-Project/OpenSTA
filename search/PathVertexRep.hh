@@ -16,7 +16,8 @@
 
 #pragma once
 
-#include "SearchClass.hh"
+#include "sdc/SdcClass.hh"
+#include "search/SearchClass.hh"
 
 namespace sta {
 

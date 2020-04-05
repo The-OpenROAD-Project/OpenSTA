@@ -208,198 +208,189 @@ set(STA_SOURCE
   verilog/VerilogWriter.cc
   )
 
-set(STA_HEADERS
-  include/sta/Sta.hh
-
-  app/StaMain.hh
-  
-  dcalc/ArcDelayCalc.hh
+set(STA_PVT_HEADERS
   dcalc/Arnoldi.hh
   dcalc/ArnoldiDelayCalc.hh
   dcalc/ArnoldiReduce.hh
-  dcalc/DelayCalc.hh
-  dcalc/DcalcAnalysisPt.hh
   dcalc/DmpCeff.hh
   dcalc/DmpDelayCalc.hh
-  dcalc/GraphDelayCalc.hh
   dcalc/GraphDelayCalc1.hh
   dcalc/LumpedCapDelayCalc.hh
   dcalc/NetCaps.hh
   dcalc/RCDelayCalc.hh
   dcalc/SimpleRCDelayCalc.hh
   dcalc/UnitDelayCalc.hh
-  
-  graph/Delay.hh
-  graph/DelayFloat.hh
-  graph/DelayNormal1.hh
-  graph/DelayNormal2.hh
-  graph/Graph.hh
-  graph/GraphClass.hh
-  graph/GraphCmp.hh
-  graph/VertexId.hh
-  
-  liberty/EquivCells.hh
-  liberty/FuncExpr.hh
-  liberty/InternalPower.hh
-  liberty/LeakagePower.hh
-  liberty/Liberty.hh
+
   liberty/LibertyBuilder.hh
-  liberty/LibertyClass.hh
   liberty/LibertyExpr.hh
   liberty/LibertyParser.hh
   liberty/LibertyReader.hh
   liberty/LibertyReaderPvt.hh
-  liberty/LinearModel.hh
-  liberty/Sequential.hh
-  liberty/TableModel.hh
-  liberty/TimingArc.hh
-  liberty/TimingModel.hh
-  liberty/TimingRole.hh
-  liberty/Transition.hh
-  liberty/Units.hh
-  liberty/Wireload.hh
-  
-  network/ConcreteLibrary.hh
-  network/ConcreteNetwork.hh
-  network/HpinDrvrLoad.hh
-  network/MakeConcreteNetwork.hh
-  network/Network.hh
-  network/NetworkClass.hh
-  network/NetworkCmp.hh
-  network/ParseBus.hh
-  network/PortDirection.hh
-  network/SdcNetwork.hh
-  network/VerilogNamespace.hh
-  
+
   parasitics/ConcreteParasitics.hh
   parasitics/ConcreteParasiticsPvt.hh
   parasitics/EstimateParasitics.hh
-  parasitics/MakeConcreteParasitics.hh
-  parasitics/NullParasitics.hh
-  parasitics/Parasitics.hh
-  parasitics/ParasiticsClass.hh
   parasitics/ReduceParasitics.hh
   parasitics/SpefNamespace.hh
   parasitics/SpefReader.hh
-  
-  sdc/Clock.hh
-  sdc/ClockGatingCheck.hh
-  sdc/ClockGroups.hh
-  sdc/ClockInsertion.hh
-  sdc/ClockLatency.hh
-  sdc/CycleAccting.hh
-  sdc/DataCheck.hh
-  sdc/DeratingFactors.hh
-  sdc/DisabledPorts.hh
-  sdc/ExceptionPath.hh
-  sdc/InputDrive.hh
-  sdc/MinMaxValues.hh
-  sdc/PinPair.hh
-  sdc/PortDelay.hh
-  sdc/PortExtCap.hh
-  sdc/RiseFallMinMax.hh
-  sdc/RiseFallValues.hh
-  sdc/Sdc.hh
-  sdc/SdcClass.hh
-  sdc/SdcCmdComment.hh
-  sdc/WriteSdc.hh
-  sdc/WriteSdcPvt.hh
-  
+
   sdf/ReportAnnotation.hh
   sdf/Sdf.hh
   sdf/SdfReader.hh
   sdf/SdfWriter.hh
   
-  search/Bfs.hh
   search/CheckMaxSkews.hh
   search/CheckMinPeriods.hh
   search/CheckMinPulseWidths.hh
   search/CheckSlewLimits.hh
   search/CheckTiming.hh
-  search/ClkInfo.hh
   search/ClkSkew.hh
-  search/Corner.hh
   search/Crpr.hh
   search/FindRegister.hh
   search/GatedClk.hh
   search/Genclks.hh
   search/Latches.hh
   search/Levelize.hh
-  search/Path.hh
-  search/PathAnalysisPt.hh
-  search/PathEnd.hh
-  search/PathEnum.hh
   search/PathEnumed.hh
-  search/PathExpanded.hh
-  search/PathRef.hh
-  search/PathGroup.hh
+  search/PathEnum.hh
   search/PathVertex.hh
   search/PathVertexRep.hh
-  search/Power.hh
-  search/Property.hh
+  search/PathRef.hh
   search/ReportPath.hh
-  search/Search.hh
-  search/SearchClass.hh
-  search/SearchPred.hh
   search/Sim.hh
   search/StaState.hh
   search/Tag.hh
   search/TagGroup.hh
-  search/VertexVisitor.hh
-  search/VisitPathEnds.hh
   search/VisitPathGroupVertices.hh
   search/WorstSlack.hh
-  search/WritePathSpice.hh
-  
-  util/ArrayTable.hh
-  util/Debug.hh
-  util/DispatchQueue.hh
-  util/DisallowCopyAssign.hh
-  util/EnumNameMap.hh
-  util/Error.hh
-  util/Fuzzy.hh
-  util/Hash.hh
-  util/HashSet.hh
-  util/Iterator.hh
-  util/Machine.hh
-  util/Map.hh
-  util/MinMax.hh
-  util/Mutex.hh
-  util/ObjectId.hh
-  util/ObjectTable.hh
-  util/PatternMatch.hh
-  util/Report.hh
-  util/ReportStd.hh
-  util/ReportTcl.hh
-  util/Set.hh
+
   util/StaConfig.hh
-  util/Stats.hh
-  util/StringSeq.hh
-  util/StringSet.hh
-  util/StringUtil.hh
-  util/TokenParser.hh
-  util/UnorderedMap.hh
-  util/UnorderedSet.hh
-  util/Vector.hh
-  util/Zlib.hh
-  
+  util/Machine.hh
+
   verilog/VerilogReaderPvt.hh
   verilog/VerilogReader.hh
   verilog/VerilogWriter.hh
   )
 
-set(STA_INCLUDE_DIRS
-  app
-  dcalc
-  graph
-  liberty
-  network
-  parasitics
-  sdc
-  sdf
-  search
-  util
-  verilog
+set(STA_PUBLIC_HEADERS
+  include/sta/app/StaMain.hh
+
+  include/sta/dcalc/ArcDelayCalc.hh
+  include/sta/dcalc/DelayCalc.hh
+  include/sta/dcalc/GraphDelayCalc.hh
+  include/sta/dcalc/DcalcAnalysisPt.hh
+
+  include/sta/graph/Delay.hh
+  include/sta/graph/DelayFloat.hh
+  include/sta/graph/DelayNormal1.hh
+  include/sta/graph/DelayNormal2.hh
+  include/sta/graph/Graph.hh
+  include/sta/graph/GraphClass.hh
+  include/sta/graph/GraphCmp.hh
+  include/sta/graph/VertexId.hh
+
+  include/sta/liberty/EquivCells.hh
+  include/sta/liberty/FuncExpr.hh
+  include/sta/liberty/InternalPower.hh
+  include/sta/liberty/LeakagePower.hh
+  include/sta/liberty/Liberty.hh
+  include/sta/liberty/LibertyClass.hh
+  include/sta/liberty/Sequential.hh
+  include/sta/liberty/TableModel.hh
+  include/sta/liberty/LinearModel.hh
+  include/sta/liberty/TimingArc.hh
+  include/sta/liberty/TimingModel.hh
+  include/sta/liberty/TimingRole.hh
+  include/sta/liberty/Transition.hh
+  include/sta/liberty/Units.hh
+  include/sta/liberty/Wireload.hh
+
+  include/sta/network/ConcreteLibrary.hh
+  include/sta/network/ConcreteNetwork.hh
+  include/sta/network/HpinDrvrLoad.hh
+  include/sta/network/MakeConcreteNetwork.hh
+  include/sta/network/Network.hh
+  include/sta/network/NetworkClass.hh
+  include/sta/network/NetworkCmp.hh
+  include/sta/network/ParseBus.hh
+  include/sta/network/PortDirection.hh
+  include/sta/network/SdcNetwork.hh
+  include/sta/network/VerilogNamespace.hh
+
+  include/sta/parasitics/MakeConcreteParasitics.hh
+  include/sta/parasitics/NullParasitics.hh
+  include/sta/parasitics/Parasitics.hh
+  include/sta/parasitics/ParasiticsClass.hh
+
+  include/sta/sdc/Clock.hh
+  include/sta/sdc/ClockGatingCheck.hh
+  include/sta/sdc/ClockGroups.hh
+  include/sta/sdc/ClockInsertion.hh
+  include/sta/sdc/ClockLatency.hh
+  include/sta/sdc/CycleAccting.hh
+  include/sta/sdc/DataCheck.hh
+  include/sta/sdc/DeratingFactors.hh
+  include/sta/sdc/DisabledPorts.hh
+  include/sta/sdc/ExceptionPath.hh
+  include/sta/sdc/InputDrive.hh
+  include/sta/sdc/MinMaxValues.hh
+  include/sta/sdc/PinPair.hh
+  include/sta/sdc/PortDelay.hh
+  include/sta/sdc/PortExtCap.hh
+  include/sta/sdc/RiseFallMinMax.hh
+  include/sta/sdc/RiseFallValues.hh
+  include/sta/sdc/Sdc.hh
+  include/sta/sdc/SdcClass.hh
+  include/sta/sdc/SdcCmdComment.hh
+  include/sta/sdc/WriteSdc.hh
+  include/sta/sdc/WriteSdcPvt.hh
+
+  include/sta/search/Bfs.hh
+  include/sta/search/ClkInfo.hh
+  include/sta/search/Corner.hh
+  include/sta/search/Path.hh
+  include/sta/search/PathAnalysisPt.hh
+  include/sta/search/PathEnd.hh
+  include/sta/search/PathExpanded.hh
+  include/sta/search/PathGroup.hh
+  include/sta/search/Power.hh
+  include/sta/search/Property.hh
+  include/sta/search/Search.hh
+  include/sta/search/SearchClass.hh
+  include/sta/search/SearchPred.hh
+  include/sta/search/VertexVisitor.hh
+  include/sta/search/VisitPathEnds.hh
+  include/sta/search/WritePathSpice.hh
+
+  include/sta/util/ArrayTable.hh
+  include/sta/util/Debug.hh
+  include/sta/util/DispatchQueue.hh
+  include/sta/util/DisallowCopyAssign.hh
+  include/sta/util/EnumNameMap.hh
+  include/sta/util/Error.hh
+  include/sta/util/Fuzzy.hh
+  include/sta/util/Hash.hh
+  include/sta/util/HashSet.hh
+  include/sta/util/Iterator.hh
+  include/sta/util/Map.hh
+  include/sta/util/MinMax.hh
+  include/sta/util/Mutex.hh
+  include/sta/util/ObjectId.hh
+  include/sta/util/ObjectTable.hh
+  include/sta/util/PatternMatch.hh
+  include/sta/util/Report.hh
+  include/sta/util/ReportStd.hh
+  include/sta/util/ReportTcl.hh
+  include/sta/util/Set.hh
+  include/sta/util/Stats.hh
+  include/sta/util/StringSeq.hh
+  include/sta/util/StringSet.hh
+  include/sta/util/StringUtil.hh
+  include/sta/util/TokenParser.hh
+  include/sta/util/UnorderedMap.hh
+  include/sta/util/UnorderedSet.hh
+  include/sta/util/Vector.hh
+  include/sta/util/Zlib.hh
   )
 
 # Source files.
@@ -509,6 +500,7 @@ set_property(SOURCE ${STA_SWIG_FILE}
   ${STA_HOME}/tcl/NetworkEdit.i
   ${STA_HOME}/sdf/Sdf.i
   ${STA_HOME}/parasitics/Parasitics.i
+  ${STA_HOME}/dcalc/DelayCalc.i
 )
 
 swig_add_library(sta_swig
@@ -520,6 +512,15 @@ swig_add_library(sta_swig
 swig_link_libraries(sta_swig
   PUBLIC
   OpenSTA
+)
+
+target_include_directories(sta_swig
+  PUBLIC
+  include/sta
+
+  PRIVATE
+  ${STA_HOME}
+  ${STA_INCLUDE_DIRS}
 )
 
 ################################################################
@@ -636,11 +637,10 @@ add_library(OpenSTA
 
 target_include_directories(OpenSTA
   PUBLIC
-  include
+  include/sta
+  ${STA_HOME}
 
   PRIVATE
-  ${STA_HOME}
-  ${STA_INCLUDE_DIRS}
   ${CUDD_INCLUDE}
   ${TCL_INCLUDE_PATH}
   )
@@ -701,11 +701,11 @@ install(TARGETS sta DESTINATION bin)
 install(TARGETS OpenSTA DESTINATION lib)
 
 # include
-install(FILES ${STA_HEADERS} DESTINATION include/opensta)
+install(FILES ${STA_PUBLIC_HEADERS} DESTINATION include/sta)
 
 ################################################################
 
-add_custom_target(tags etags -o TAGS ${STA_SOURCE} ${STA_HEADERS} ${STA_TCL_FILES} ${SWIG_TCL_FILES}
+add_custom_target(tags etags -o TAGS ${STA_SOURCE} ${STA_PUBLIC_HEADERS} ${STA_PVT_HEADERS} ${SWIG_TCL_FILES}
   WORKING_DIRECTORY ${STA_HOME}
-  DEPENDS ${STA_SOURCE} ${STA_HEADERS} ${STA_TCL_FILES} ${SWIG_TCL_FILES}
+  DEPENDS ${STA_SOURCE} ${STA_PUBLIC_HEADERS} ${STA_PVT_HEADERS} ${STA_TCL_FILES} ${SWIG_TCL_FILES}
   )

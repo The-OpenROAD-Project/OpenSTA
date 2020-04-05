@@ -16,12 +16,17 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
-#include "Vector.hh"
-#include "Transition.hh"
-#include "LibertyClass.hh"
+#include "util/DisallowCopyAssign.hh"
+#include "util/Vector.hh"
+#include "liberty/Transition.hh"
+#include "liberty/LibertyClass.hh"
+#include "network/ConcreteLibrary.hh"
 
 namespace sta {
+
+class TimingArcAttrs;
+class InternalPowerAttrs;
+class LeakagePowerAttrs;
 
 class LibertyBuilder
 {

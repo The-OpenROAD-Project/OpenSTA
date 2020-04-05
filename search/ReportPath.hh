@@ -17,10 +17,11 @@
 #pragma once
 
 #include <string>
-#include "DisallowCopyAssign.hh"
-#include "StringSeq.hh"
-#include "SearchClass.hh"
-#include "PathEnd.hh"
+
+#include "util/DisallowCopyAssign.hh"
+#include "util/StringSeq.hh"
+#include "search/SearchClass.hh"
+#include "search/PathEnd.hh"
 
 namespace sta {
 

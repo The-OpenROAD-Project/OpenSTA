@@ -14,23 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "DisallowCopyAssign.hh"
-#include "Debug.hh"
-#include "Error.hh"
-#include "TimingRole.hh"
-#include "TimingArc.hh"
-#include "Network.hh"
-#include "Sdc.hh"
-#include "Graph.hh"
-#include "PathAnalysisPt.hh"
-#include "Tag.hh"
-#include "Search.hh"
-#include "PathEnd.hh"
-#include "PathRef.hh"
-#include "PathEnumed.hh"
-#include "PathEnum.hh"
-#include "Fuzzy.hh"
+#include "search/PathEnum.hh"
+
+#include "util/DisallowCopyAssign.hh"
+#include "util/Debug.hh"
+#include "util/Error.hh"
+#include "util/Fuzzy.hh"
+#include "liberty/TimingRole.hh"
+#include "liberty/TimingArc.hh"
+#include "network/Network.hh"
+#include "sdc/Sdc.hh"
+#include "graph/Graph.hh"
+#include "search/PathAnalysisPt.hh"
+#include "search/Tag.hh"
+#include "search/Search.hh"
+#include "search/PathEnd.hh"
+#include "search/PathRef.hh"
+#include "search/PathEnumed.hh"
 
 namespace sta {
 

@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "Report.hh"
-#include "Error.hh"
-#include "EnumNameMap.hh"
-#include "Units.hh"
-#include "Liberty.hh"
-#include "TableModel.hh"
+#include "liberty/TableModel.hh"
+
+#include "util/Report.hh"
+#include "util/Error.hh"
+#include "util/EnumNameMap.hh"
+#include "liberty/Units.hh"
+#include "liberty/Liberty.hh"
 
 namespace sta {
 

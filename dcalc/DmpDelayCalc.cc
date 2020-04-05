@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "TableModel.hh"
-#include "TimingArc.hh"
-#include "Liberty.hh"
-#include "Sdc.hh"
-#include "Parasitics.hh"
-#include "DcalcAnalysisPt.hh"
-#include "GraphDelayCalc.hh"
-#include "DmpCeff.hh"
 #include "DmpDelayCalc.hh"
+
+#include "liberty/TableModel.hh"
+#include "liberty/TimingArc.hh"
+#include "liberty/Liberty.hh"
+#include "sdc/Sdc.hh"
+#include "parasitics/Parasitics.hh"
+#include "dcalc/DcalcAnalysisPt.hh"
+#include "dcalc/GraphDelayCalc.hh"
+#include "dcalc/DmpCeff.hh"
 
 namespace sta {
 

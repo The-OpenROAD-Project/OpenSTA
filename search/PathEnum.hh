@@ -17,12 +17,13 @@
 #pragma once
 
 #include <queue>
-#include "DisallowCopyAssign.hh"
-#include "Iterator.hh"
-#include "Vector.hh"
-#include "StaState.hh"
-#include "SearchClass.hh"
-#include "Path.hh"
+
+#include "util/DisallowCopyAssign.hh"
+#include "util/Iterator.hh"
+#include "util/Vector.hh"
+#include "search/StaState.hh"
+#include "search/SearchClass.hh"
+#include "search/Path.hh"
 
 namespace sta {
 

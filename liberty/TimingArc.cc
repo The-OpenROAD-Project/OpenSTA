@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "EnumNameMap.hh"
-#include "FuncExpr.hh"
-#include "TimingRole.hh"
-#include "Liberty.hh"
-#include "TimingModel.hh"
-#include "TimingArc.hh"
+#include "liberty/TimingModel.hh"
+
+#include "util/EnumNameMap.hh"
+#include "liberty/FuncExpr.hh"
+#include "liberty/TimingRole.hh"
+#include "liberty/Liberty.hh"
+#include "liberty/TimingArc.hh"
 
 namespace sta {
 

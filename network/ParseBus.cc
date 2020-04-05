@@ -14,12 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "network/ParseBus.hh"
+
 #include <string.h>
 #include <stdlib.h>
 #include <string>
-#include "Machine.hh"
-#include "StringUtil.hh"
-#include "ParseBus.hh"
+
+#include "util/StringUtil.hh"
 
 namespace sta {
 

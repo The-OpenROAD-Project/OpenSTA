@@ -16,9 +16,9 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
-#include "SearchClass.hh"
-#include "Path.hh"
+#include "util/DisallowCopyAssign.hh"
+#include "search/SearchClass.hh"
+#include "search/Path.hh"
 
 namespace sta {
 

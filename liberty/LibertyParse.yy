@@ -17,9 +17,9 @@
 	
 #include <stdlib.h>
 #include <string.h>
-#include "Machine.hh"
-#include "StringUtil.hh"
-#include "LibertyParser.hh"
+
+#include "util/StringUtil.hh"
+#include "liberty/LibertyParser.hh"
 
 int LibertyLex_lex();
 #define LibertyParse_lex LibertyLex_lex

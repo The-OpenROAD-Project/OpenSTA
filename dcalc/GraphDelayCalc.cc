@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "Liberty.hh"
-#include "Network.hh"
-#include "Graph.hh"
-#include "Sdc.hh"
-#include "Corner.hh"
-#include "GraphDelayCalc.hh"
+#include "dcalc/GraphDelayCalc.hh"
+
+#include "liberty/Liberty.hh"
+#include "network/Network.hh"
+#include "graph/Graph.hh"
+#include "sdc/Sdc.hh"
+#include "search/Corner.hh"
 
 namespace sta {
 

@@ -16,12 +16,13 @@
 
 #pragma once
 
-#include "Map.hh"
-#include "Transition.hh"
-#include "NetworkClass.hh"
-#include "GraphClass.hh"
-#include "SdcClass.hh"
-#include "SearchClass.hh"
+#include "util/Map.hh"
+#include "liberty/Transition.hh"
+#include "network/NetworkClass.hh"
+#include "graph/GraphClass.hh"
+#include "sdc/SdcClass.hh"
+#include "search/SearchClass.hh"
+#include "search/StaState.hh"
 
 namespace sta {
 

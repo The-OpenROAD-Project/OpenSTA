@@ -14,18 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "Hash.hh"
-#include "PortDirection.hh"
-#include "Transition.hh"
-#include "MinMax.hh"
-#include "TimingRole.hh"
-#include "FuncExpr.hh"
-#include "TimingArc.hh"
-#include "Liberty.hh"
-#include "TableModel.hh"
-#include "Sequential.hh"
-#include "EquivCells.hh"
+#include "liberty/EquivCells.hh"
+
+#include "util/Hash.hh"
+#include "util/MinMax.hh"
+#include "network/PortDirection.hh"
+#include "liberty/Transition.hh"
+#include "liberty/TimingRole.hh"
+#include "liberty/FuncExpr.hh"
+#include "liberty/TimingArc.hh"
+#include "liberty/Liberty.hh"
+#include "liberty/TableModel.hh"
+#include "liberty/Sequential.hh"
 
 namespace sta {
 

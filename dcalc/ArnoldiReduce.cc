@@ -18,19 +18,20 @@
 //
 // Author: W. Scott
 
+#include "ArnoldiReduce.hh"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
-#include "Machine.hh"
-#include "Debug.hh"
-#include "Units.hh"
-#include "MinMax.hh"
-#include "Sdc.hh"
-#include "Network.hh"
-#include "ArnoldiReduce.hh"
-#include "Arnoldi.hh"
-#include "ConcreteParasiticsPvt.hh"
+
+#include "util/Debug.hh"
+#include "util/MinMax.hh"
+#include "sdc/Sdc.hh"
+#include "network/Network.hh"
+#include "liberty/Units.hh"
+#include "dcalc/Arnoldi.hh"
+#include "parasitics/ConcreteParasiticsPvt.hh"
 
 namespace sta {
 

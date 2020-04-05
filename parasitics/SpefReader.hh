@@ -16,14 +16,19 @@
 
 #pragma once
 
-#include "Zlib.hh"
+#include "util/Zlib.hh"
+#include "util/MinMax.hh"
+#include "parasitics/ParasiticsClass.hh"
 
 namespace sta {
 
+class Report;
 class Network;
 class Parasitics;
 class ParasiticAnalysisPt;
 class Instance;
+class Corner;
+class OperatingConditions;
 
 // Read a file single value parasitics into analysis point ap.
 // In a Spef file with triplet values the first value is used.

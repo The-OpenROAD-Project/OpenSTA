@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "DeratingFactors.hh"
+#include "sdc/DeratingFactors.hh"
 
 namespace sta {
 

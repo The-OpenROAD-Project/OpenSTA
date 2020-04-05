@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "DisallowCopyAssign.hh"
-#include "StringUtil.hh"
-#include "PatternMatch.hh"
-#include "PortDirection.hh"
-#include "Liberty.hh"
-#include "Network.hh"
+
+#include "network/Network.hh"
+
+#include "util/DisallowCopyAssign.hh"
+#include "util/StringUtil.hh"
+#include "util/PatternMatch.hh"
+#include "liberty/Liberty.hh"
+#include "network/PortDirection.hh"
 
 namespace sta {
 

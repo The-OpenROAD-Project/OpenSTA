@@ -14,12 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "liberty/Wireload.hh"
+
 #include <algorithm>
-#include "Machine.hh"
-#include "DisallowCopyAssign.hh"
-#include "StringUtil.hh"
-#include "Liberty.hh"
-#include "Wireload.hh"
+
+#include "util/DisallowCopyAssign.hh"
+#include "util/StringUtil.hh"
+#include "liberty/Liberty.hh"
 
 namespace sta {
 

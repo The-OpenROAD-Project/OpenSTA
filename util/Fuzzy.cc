@@ -14,10 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "util/Fuzzy.hh"
+
 #include <algorithm> // max
 #include <cmath> // abs
-#include "Machine.hh"
-#include "MinMax.hh" // INF
+
+#include "util/MinMax.hh" // INF
 
 namespace sta {
 

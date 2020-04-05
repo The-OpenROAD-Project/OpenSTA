@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "util/Hash.hh"
+
 #include <string.h>
-#include "Machine.hh"
-#include "Hash.hh"
 
 namespace sta {
 

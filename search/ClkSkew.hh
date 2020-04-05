@@ -16,8 +16,10 @@
 
 #pragma once
 
-#include "Map.hh"
-#include "SdcClass.hh"
+#include "util/Map.hh"
+#include "sdc/SdcClass.hh"
+#include "search/StaState.hh"
+#include "search/SearchClass.hh"
 
 namespace sta {
 

@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "util/ReportTcl.hh"
+
 #include <stdlib.h>
 #include <stdio.h>
-#include "Machine.hh"
-#include "ReportTcl.hh"
 
 namespace sta {
 

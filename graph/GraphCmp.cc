@@ -14,12 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "StringUtil.hh"
-#include "Network.hh"
-#include "NetworkCmp.hh"
-#include "Graph.hh"
-#include "GraphCmp.hh"
+#include "util/StringUtil.hh"
+#include "network/Network.hh"
+#include "network/NetworkCmp.hh"
+#include "graph/Graph.hh"
+#include "graph/GraphCmp.hh"
 
 namespace sta {
 

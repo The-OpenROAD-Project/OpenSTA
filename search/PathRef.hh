@@ -16,11 +16,11 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
-#include "Vector.hh"
-#include "SearchClass.hh"
-#include "Path.hh"
-#include "PathVertex.hh"
+#include "util/DisallowCopyAssign.hh"
+#include "util/Vector.hh"
+#include "search/SearchClass.hh"
+#include "search/Path.hh"
+#include "search/PathVertex.hh"
 
 namespace sta {
 

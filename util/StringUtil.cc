@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "util/StringUtil.hh"
+
 #include <limits>
 #include <ctype.h>
 #include <stdio.h>
-#include <mutex>
-#include "Machine.hh"
-#include "Mutex.hh"
-#include "StringUtil.hh"
+
+#include "util/Mutex.hh"
+#include "util/Machine.hh"
 
 namespace sta {
 

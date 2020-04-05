@@ -20,14 +20,18 @@
 
 #pragma once
 
-#include "Map.hh"
-#include "NetworkClass.hh"
-#include "ParasiticsClass.hh"
+#include "util/Map.hh"
+#include "liberty/Transition.hh"
+#include "network/NetworkClass.hh"
+#include "parasitics/ParasiticsClass.hh"
+#include "sdc/SdcClass.hh"
+#include "search/StaState.hh"
 
 namespace sta {
 
 class ConcreteParasiticNetwork;
 class ConcreteParasiticNode;
+class Corner;
 
 class rcmodel;
 struct ts_edge;

@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "StringUtil.hh"
-#include "Corner.hh"
-#include "Search.hh"
-#include "PathAnalysisPt.hh"
+#include "search/PathAnalysisPt.hh"
+
+#include "util/StringUtil.hh"
+#include "search/Corner.hh"
+#include "search/Search.hh"
 
 namespace sta {
 

@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "ConcreteParasiticsPvt.hh"
+#include "parasitics/ConcreteParasiticsPvt.hh"
 
 namespace sta {
 

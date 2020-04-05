@@ -16,13 +16,13 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
-#include "Zlib.hh"
-#include "Vector.hh"
-#include "Map.hh"
-#include "StringSeq.hh"
-#include "StringSet.hh"
-#include "NetworkClass.hh"
+#include "util/DisallowCopyAssign.hh"
+#include "util/Zlib.hh"
+#include "util/Vector.hh"
+#include "util/Map.hh"
+#include "util/StringSeq.hh"
+#include "util/StringSet.hh"
+#include "network/NetworkClass.hh"
 
 // Global namespace.
 #define YY_INPUT(buf,result,max_size) \

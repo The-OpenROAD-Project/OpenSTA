@@ -17,10 +17,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <stdlib.h>
-#include "Machine.hh"
-#include "PortDirection.hh"
-#include "VerilogReaderPvt.hh"
-#include "VerilogReader.hh"
+
+#include "network/PortDirection.hh"
+#include "verilog/VerilogReaderPvt.hh"
+#include "verilog/VerilogReader.hh"
 
 int VerilogLex_lex();
 #define VerilogParse_lex VerilogLex_lex

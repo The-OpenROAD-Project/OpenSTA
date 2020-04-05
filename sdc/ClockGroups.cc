@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "StringUtil.hh"
-#include "ClockGroups.hh"
+#include "sdc/ClockGroups.hh"
+
+#include "util/StringUtil.hh"
 
 namespace sta {
 

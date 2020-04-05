@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "ArcDelayCalc.hh"
+#include "dcalc/ArcDelayCalc.hh"
 
 namespace sta {
 

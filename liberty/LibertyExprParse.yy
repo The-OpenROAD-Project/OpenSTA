@@ -18,10 +18,9 @@
 
 // Liberty function expression parser.
 
-#include "Machine.hh"
-#include "FuncExpr.hh"
-#include "LibertyExpr.hh"
-#include "LibertyExprPvt.hh"
+#include "liberty/FuncExpr.hh"
+#include "liberty/LibertyExpr.hh"
+#include "liberty/LibertyExprPvt.hh"
 
 int LibertyExprLex_lex();
 #define LibertyExprParse_lex LibertyExprLex_lex

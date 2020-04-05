@@ -18,11 +18,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "SdfReader.hh"
-#include "ReportAnnotation.hh"
-#include "SdfWriter.hh"
-#include "Search.hh"
-#include "Sta.hh"
+#include "sdf/SdfReader.hh"
+#include "sdf/ReportAnnotation.hh"
+#include "sdf/SdfWriter.hh"
+#include "search/Search.hh"
+#include "search/Sta.hh"
 
 using sta::Sta;
 using sta::cmdLinkedNetwork;

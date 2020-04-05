@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "app/StaMain.hh"
+
 #include <tcl.h>
 #include <stdlib.h>
-#include "Machine.hh"
-#include "StringUtil.hh"
-#include "Vector.hh"
-#include "Sta.hh"
-#include "StaMain.hh"
+
+#include "util/StringUtil.hh"
+#include "util/Vector.hh"
+#include "search/Sta.hh"
 
 namespace sta {
 

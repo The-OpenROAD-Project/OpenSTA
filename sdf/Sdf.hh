@@ -16,16 +16,16 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
-#include "Zlib.hh"
-#include "Vector.hh"
-#include "TimingRole.hh"
-#include "Transition.hh"
-#include "LibertyClass.hh"
-#include "NetworkClass.hh"
-#include "GraphClass.hh"
-#include "SdcClass.hh"
-#include "StaState.hh"
+#include "util/DisallowCopyAssign.hh"
+#include "util/Zlib.hh"
+#include "util/Vector.hh"
+#include "liberty/TimingRole.hh"
+#include "liberty/Transition.hh"
+#include "liberty/LibertyClass.hh"
+#include "network/NetworkClass.hh"
+#include "graph/GraphClass.hh"
+#include "sdc/SdcClass.hh"
+#include "search/StaState.hh"
 
 // Header for ReadSdf.cc to communicate with SdfLex.cc, SdfParse.cc
 

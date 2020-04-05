@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "Error.hh"
-#include "Debug.hh"
-#include "MinMax.hh"
-#include "Liberty.hh"
-#include "Network.hh"
-#include "Sdc.hh"
-#include "Corner.hh"
-#include "Parasitics.hh"
-#include "ReduceParasitics.hh"
+#include "parasitics/ReduceParasitics.hh"
+
+#include "util/Error.hh"
+#include "util/Debug.hh"
+#include "util/MinMax.hh"
+#include "liberty/Liberty.hh"
+#include "network/Network.hh"
+#include "sdc/Sdc.hh"
+#include "search/Corner.hh"
+#include "parasitics/Parasitics.hh"
 
 namespace sta {
 

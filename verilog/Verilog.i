@@ -18,9 +18,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "VerilogReader.hh"
-#include "VerilogWriter.hh"
-#include "Sta.hh"
+#include "verilog/VerilogReader.hh"
+#include "verilog/VerilogWriter.hh"
+#include "search/Sta.hh"
 
 using sta::Sta;
 using sta::NetworkReader;

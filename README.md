@@ -147,12 +147,6 @@ To install in a different directory with CMake use:
 cmake .. -DCMAKE_INSTALL_PREFIX=<prefix_path>
 ```
 
-Alternatively, you can use the `DESTDIR` variable with make.
-
-```
-make DESTDIR=<prefix_path> install
-```
-
 If you make changes to `CMakeLists.txt` you may need to clean out
 existing CMake cached variable values by deleting all of the
 files in the build directory.

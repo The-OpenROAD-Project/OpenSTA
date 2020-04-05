@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "network/HpinDrvrLoad.hh"
+
 #include <stdio.h>
-#include "Machine.hh"
-#include "Network.hh"
-#include "HpinDrvrLoad.hh"
+
+#include "network/Network.hh"
 
 namespace sta {
 

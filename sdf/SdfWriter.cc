@@ -14,27 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "sdf/SdfWriter.hh"
+
 #include <stdio.h>
 #include <time.h>
-#include "Machine.hh"
-#include "Zlib.hh"
-#include "StaConfig.hh"  // STA_VERSION
-#include "Fuzzy.hh"
-#include "StringUtil.hh"
-#include "MinMaxValues.hh"
-#include "Units.hh"
-#include "TimingRole.hh"
-#include "TimingArc.hh"
-#include "Liberty.hh"
-#include "Sdc.hh"
-#include "Network.hh"
-#include "Graph.hh"
-#include "StaState.hh"
-#include "Corner.hh"
-#include "DcalcAnalysisPt.hh"
-#include "GraphDelayCalc1.hh"
-#include "PathAnalysisPt.hh"
-#include "SdfWriter.hh"
+
+#include "util/Zlib.hh"
+#include "util/StaConfig.hh"  // STA_VERSION
+#include "util/Fuzzy.hh"
+#include "util/StringUtil.hh"
+#include "liberty/Units.hh"
+#include "liberty/TimingRole.hh"
+#include "liberty/TimingArc.hh"
+#include "liberty/Liberty.hh"
+#include "sdc/Sdc.hh"
+#include "sdc/MinMaxValues.hh"
+#include "network/Network.hh"
+#include "graph/Graph.hh"
+#include "dcalc/DcalcAnalysisPt.hh"
+#include "dcalc/GraphDelayCalc1.hh"
+#include "search/StaState.hh"
+#include "search/Corner.hh"
+#include "search/PathAnalysisPt.hh"
 
 namespace sta {
 

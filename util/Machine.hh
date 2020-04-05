@@ -98,11 +98,5 @@ systemRunTime();
 size_t
 memoryUsage();
 
-#if __WORDSIZE == 64
-  #define hashPtr(ptr) (reinterpret_cast<intptr_t>(ptr) >> 3)
-#else
-  #define hashPtr(ptr) (reinterpret_cast<intptr_t>(ptr) >> 2)
-#endif
-
 } // namespace sta
 

@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include "sdc/SdcClass.hh"
+
 namespace sta {
 
 class Report;
@@ -23,6 +25,7 @@ class MinMax;
 class Network;
 class Graph;
 class Corner;
+class StaState;
 
 // Sdf index is:
 //  sdf_min = 0

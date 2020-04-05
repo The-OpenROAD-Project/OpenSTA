@@ -14,19 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "DisallowCopyAssign.hh"
-#include "StringUtil.hh"
-#include "Report.hh"
-#include "TimingRole.hh"
-#include "TimingArc.hh"
-#include "Liberty.hh"
-#include "Network.hh"
-#include "Graph.hh"
-#include "GraphCmp.hh"
-#include "Sdc.hh"
-#include "DcalcAnalysisPt.hh"
-#include "ReportAnnotation.hh"
+#include "sdf/ReportAnnotation.hh"
+
+#include "util/DisallowCopyAssign.hh"
+#include "util/StringUtil.hh"
+#include "util/Report.hh"
+#include "liberty/TimingRole.hh"
+#include "liberty/TimingArc.hh"
+#include "liberty/Liberty.hh"
+#include "network/Network.hh"
+#include "graph/Graph.hh"
+#include "graph/GraphCmp.hh"
+#include "sdc/Sdc.hh"
+#include "dcalc/DcalcAnalysisPt.hh"
 
 namespace sta {
 

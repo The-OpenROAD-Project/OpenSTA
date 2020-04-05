@@ -14,22 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "StaConfig.hh"  // CUDD
-#include "Error.hh"
-#include "Mutex.hh"
-#include "Debug.hh"
-#include "Report.hh"
-#include "Stats.hh"
-#include "PortDirection.hh"
-#include "FuncExpr.hh"
-#include "TimingRole.hh"
-#include "TimingArc.hh"
-#include "Liberty.hh"
-#include "Network.hh"
-#include "Sdc.hh"
-#include "Graph.hh"
-#include "Sim.hh"
+#include "search/Sim.hh"
+
+#include "util/StaConfig.hh"  // CUDD
+#include "util/Error.hh"
+#include "util/Mutex.hh"
+#include "util/Debug.hh"
+#include "util/Report.hh"
+#include "util/Stats.hh"
+#include "liberty/FuncExpr.hh"
+#include "liberty/TimingRole.hh"
+#include "liberty/TimingArc.hh"
+#include "liberty/Liberty.hh"
+#include "network/PortDirection.hh"
+#include "network/Network.hh"
+#include "sdc/Sdc.hh"
+#include "graph/Graph.hh"
 
 #if CUDD
 // https://davidkebo.com/cudd

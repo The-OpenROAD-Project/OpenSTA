@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "Sdc.hh"
-#include "Parasitics.hh"
-#include "DcalcAnalysisPt.hh"
-#include "PathAnalysisPt.hh"
-#include "Corner.hh"
+#include "search/Corner.hh"
+
+#include "sdc/Sdc.hh"
+#include "parasitics/Parasitics.hh"
+#include "dcalc/DcalcAnalysisPt.hh"
+#include "search/PathAnalysisPt.hh"
 
 namespace sta {
 

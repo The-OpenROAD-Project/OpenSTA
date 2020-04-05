@@ -14,19 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include <algorithm>
-#include "Machine.hh"
-#include "Report.hh"
-#include "Debug.hh"
-#include "Stats.hh"
-#include "TimingRole.hh"
-#include "PortDirection.hh"
-#include "Network.hh"
-#include "Graph.hh"
-#include "GraphCmp.hh"
-#include "SearchPred.hh"
-#include "Sdc.hh"
 #include "Levelize.hh"
+
+#include <algorithm>
+
+#include "util/Report.hh"
+#include "util/Debug.hh"
+#include "util/Stats.hh"
+#include "liberty/TimingRole.hh"
+#include "network/PortDirection.hh"
+#include "network/Network.hh"
+#include "sdc/Sdc.hh"
+#include "graph/Graph.hh"
+#include "graph/GraphCmp.hh"
+#include "search/SearchPred.hh"
 
 namespace sta {
 

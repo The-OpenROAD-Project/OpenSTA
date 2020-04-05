@@ -16,9 +16,10 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
-#include "SdcClass.hh"
-#include "SearchClass.hh"
+#include "util/DisallowCopyAssign.hh"
+#include "sdc/SdcClass.hh"
+#include "search/StaState.hh"
+#include "search/SearchClass.hh"
 
 namespace sta {
 

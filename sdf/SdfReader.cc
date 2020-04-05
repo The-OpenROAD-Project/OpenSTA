@@ -14,21 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "sdf/SdfReader.hh"
+
 #include <stdarg.h>
 #include <ctype.h>
-#include "Machine.hh"
-#include "DisallowCopyAssign.hh"
-#include "Error.hh"
-#include "Report.hh"
-#include "MinMax.hh"
-#include "TimingArc.hh"
-#include "Network.hh"
-#include "SdcNetwork.hh"
-#include "Graph.hh"
-#include "Corner.hh"
-#include "DcalcAnalysisPt.hh"
-#include "Sdf.hh"
-#include "SdfReader.hh"
+
+#include "util/DisallowCopyAssign.hh"
+#include "util/Error.hh"
+#include "util/Report.hh"
+#include "util/MinMax.hh"
+#include "liberty/TimingArc.hh"
+#include "network/Network.hh"
+#include "network/SdcNetwork.hh"
+#include "graph/Graph.hh"
+#include "search/Corner.hh"
+#include "dcalc/DcalcAnalysisPt.hh"
+#include "sdf/Sdf.hh"
 
 extern int
 SdfParse_parse();

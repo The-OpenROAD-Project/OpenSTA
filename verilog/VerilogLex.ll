@@ -16,11 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "FlexPragma.hh"
-#include "Debug.hh"
-#include "VerilogNamespace.hh"
-#include "VerilogReaderPvt.hh"
+#include "util/FlexPragma.hh"
+#include "util/Debug.hh"
+#include "network/VerilogNamespace.hh"
+#include "verilog/VerilogReaderPvt.hh"
 #include "VerilogParse.hh"
 
 #define YY_NO_INPUT

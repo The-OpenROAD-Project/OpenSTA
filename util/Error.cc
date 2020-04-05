@@ -14,11 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "util/Error.hh"
+
 #include <stdlib.h>
 #include <stdio.h>
-#include "Machine.hh"
-#include "StringUtil.hh"
-#include "Error.hh"
+
+#include "util/StringUtil.hh"
 
 namespace sta {
 

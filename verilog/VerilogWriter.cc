@@ -14,15 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "verilog/VerilogWriter.hh"
+
 #include <stdlib.h>
-#include "Machine.hh"
-#include "Error.hh"
-#include "PortDirection.hh"
-#include "Liberty.hh"
-#include "Network.hh"
-#include "NetworkCmp.hh"
-#include "VerilogNamespace.hh"
-#include "VerilogWriter.hh"
+
+#include "util/Error.hh"
+#include "liberty/Liberty.hh"
+#include "network/PortDirection.hh"
+#include "network/Network.hh"
+#include "network/NetworkCmp.hh"
+#include "network/VerilogNamespace.hh"
 
 namespace sta {
 

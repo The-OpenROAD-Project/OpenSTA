@@ -14,22 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "search/PathVertex.hh"
+
 #include <cmath>
-#include "Machine.hh"
-#include "DisallowCopyAssign.hh"
-#include "Fuzzy.hh"
-#include "Graph.hh"
-#include "ExceptionPath.hh"
-#include "Sdc.hh"
-#include "Corner.hh"
-#include "GraphDelayCalc.hh"
-#include "Tag.hh"
-#include "TagGroup.hh"
-#include "PathAnalysisPt.hh"
-#include "PathRef.hh"
-#include "PathVertexRep.hh"
-#include "Search.hh"
-#include "PathVertex.hh"
+
+#include "util/DisallowCopyAssign.hh"
+#include "util/Fuzzy.hh"
+#include "graph/Graph.hh"
+#include "sdc/ExceptionPath.hh"
+#include "sdc/Sdc.hh"
+#include "dcalc/GraphDelayCalc.hh"
+#include "search/Corner.hh"
+#include "search/Tag.hh"
+#include "search/TagGroup.hh"
+#include "search/PathAnalysisPt.hh"
+#include "search/PathRef.hh"
+#include "search/PathVertexRep.hh"
+#include "search/Search.hh"
 
 namespace sta {
 

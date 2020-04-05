@@ -14,26 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "search/Crpr.hh"
+
 #include <cmath> // abs
 #include <stdio.h>
-#include "Machine.hh"
-#include "Debug.hh"
-#include "Vector.hh"
-#include "Network.hh"
-#include "Graph.hh"
-#include "Sdc.hh"
-#include "PathVertex.hh"
-#include "PathVertexRep.hh"
-#include "Path.hh"
-#include "PathAnalysisPt.hh"
-#include "ClkInfo.hh"
-#include "Tag.hh"
-#include "TagGroup.hh"
-#include "VisitPathEnds.hh"
-#include "PathEnd.hh"
-#include "Search.hh"
-#include "Genclks.hh"
-#include "Crpr.hh"
+
+#include "util/Debug.hh"
+#include "util/Vector.hh"
+#include "network/Network.hh"
+#include "graph/Graph.hh"
+#include "sdc/Sdc.hh"
+#include "search/PathVertex.hh"
+#include "search/PathVertexRep.hh"
+#include "search/Path.hh"
+#include "search/PathAnalysisPt.hh"
+#include "search/ClkInfo.hh"
+#include "search/Tag.hh"
+#include "search/TagGroup.hh"
+#include "search/VisitPathEnds.hh"
+#include "search/PathEnd.hh"
+#include "search/Search.hh"
+#include "search/Genclks.hh"
 
 namespace sta {
 

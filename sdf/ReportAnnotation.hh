@@ -18,6 +18,8 @@
 
 namespace sta {
 
+class StaState;
+
 void
 reportAnnotatedDelay(bool report_cells,
 		     bool report_nets,

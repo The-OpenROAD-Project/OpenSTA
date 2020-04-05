@@ -14,12 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "util/ReportStd.hh"
+
 #include <stdlib.h>
 #include <stdio.h>
-#include "Machine.hh"
-#include "DisallowCopyAssign.hh"
-#include "Report.hh"
-#include "ReportStd.hh"
+
+#include "util/DisallowCopyAssign.hh"
+#include "util/Report.hh"
 
 namespace sta {
 

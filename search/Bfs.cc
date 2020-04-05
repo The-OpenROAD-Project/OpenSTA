@@ -14,18 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "search/Bfs.hh"
+
 #include <limits.h>
-#include "Machine.hh"
-#include "Report.hh"
-#include "Debug.hh"
-#include "Mutex.hh"
-#include "DispatchQueue.hh"
-#include "Network.hh"
-#include "Graph.hh"
-#include "Levelize.hh"
-#include "Sdc.hh"
-#include "SearchPred.hh"
-#include "Bfs.hh"
+
+#include "util/Report.hh"
+#include "util/Debug.hh"
+#include "util/Mutex.hh"
+#include "util/DispatchQueue.hh"
+#include "network/Network.hh"
+#include "graph/Graph.hh"
+#include "sdc/Sdc.hh"
+#include "search/Levelize.hh"
+#include "search/SearchPred.hh"
 
 namespace sta {
 

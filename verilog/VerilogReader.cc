@@ -14,19 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "verilog/VerilogReader.hh"
+
 #include <stdlib.h>
-#include "Machine.hh"
-#include "DisallowCopyAssign.hh"
-#include "Debug.hh"
-#include "Report.hh"
-#include "Error.hh"
-#include "Stats.hh"
-#include "PortDirection.hh"
-#include "Liberty.hh"
-#include "Network.hh"
-#include "VerilogNamespace.hh"
-#include "VerilogReaderPvt.hh"
-#include "VerilogReader.hh"
+
+#include "util/DisallowCopyAssign.hh"
+#include "util/Debug.hh"
+#include "util/Report.hh"
+#include "util/Error.hh"
+#include "util/Stats.hh"
+#include "liberty/Liberty.hh"
+#include "network/PortDirection.hh"
+#include "network/Network.hh"
+#include "network/VerilogNamespace.hh"
+#include "verilog/VerilogReaderPvt.hh"
 
 extern int
 VerilogParse_parse();

@@ -16,16 +16,18 @@
 
 #pragma once
 
-#include "MinMax.hh"
-#include "Transition.hh"
-#include "NetworkClass.hh"
-#include "GraphClass.hh"
-#include "Delay.hh"
+#include "util/MinMax.hh"
+#include "liberty/Transition.hh"
+#include "network/NetworkClass.hh"
+#include "graph/GraphClass.hh"
+#include "graph/Delay.hh"
+#include "sdc/SdcClass.hh"
 
 namespace sta {
 
 class StaState;
 class DcalcAnalysisPt;
+class Corner;
 
 class CheckSlewLimits
 {

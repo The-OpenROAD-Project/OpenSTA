@@ -14,17 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "Report.hh"
-#include "Debug.hh"
-#include "Graph.hh"
-#include "PathAnalysisPt.hh"
-#include "ClkInfo.hh"
-#include "Tag.hh"
-#include "Corner.hh"
-#include "Search.hh"
-#include "PathVertexRep.hh"
-#include "TagGroup.hh"
+#include "search/TagGroup.hh"
+
+#include "util/Report.hh"
+#include "util/Debug.hh"
+#include "graph/Graph.hh"
+#include "search/PathAnalysisPt.hh"
+#include "search/ClkInfo.hh"
+#include "search/Tag.hh"
+#include "search/Corner.hh"
+#include "search/Search.hh"
+#include "search/PathVertexRep.hh"
 
 namespace sta {
 

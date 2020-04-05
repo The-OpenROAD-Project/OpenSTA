@@ -16,11 +16,11 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
-#include "SdcClass.hh"
-#include "SearchClass.hh"
-#include "StaState.hh"
-#include "PathRef.hh"
+#include "util/DisallowCopyAssign.hh"
+#include "sdc/SdcClass.hh"
+#include "search/SearchClass.hh"
+#include "search/StaState.hh"
+#include "search/PathRef.hh"
 
 namespace sta {
 

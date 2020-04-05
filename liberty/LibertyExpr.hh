@@ -16,13 +16,11 @@
 
 #pragma once
 
-#include "LibertyClass.hh"
-
 namespace sta {
 
 class Report;
-class LibertyCell;
 class FuncExpr;
+class LibertyCell;
 
 FuncExpr *
 parseFuncExpr(const char *func,

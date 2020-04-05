@@ -16,12 +16,15 @@
 
 #pragma once
 
-#include "LibertyClass.hh"
-#include "NetworkClass.hh"
-#include "SdcClass.hh"
-#include "ParasiticsClass.hh"
+#include "liberty/LibertyClass.hh"
+#include "network/NetworkClass.hh"
+#include "sdc/SdcClass.hh"
+#include "parasitics/ParasiticsClass.hh"
 
 namespace sta {
+
+class Corner;
+class StaState;
 
 class EstimateParasitics
 {

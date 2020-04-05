@@ -17,8 +17,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <ctype.h>
-#include "Machine.hh"
-#include "Sdf.hh"
+
+#include "sdf/Sdf.hh"
 
 int SdfLex_lex();
 #define SdfParse_lex SdfLex_lex

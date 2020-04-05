@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "app/StaMain.hh"
+
 #include <stdio.h>
 #include <tcl.h>
-#include "Machine.hh"
-#include "StaConfig.hh"  // STA_VERSION
-#include "StringUtil.hh"
-#include "Sta.hh"
-#include "StaMain.hh"
+
+#include "util/StaConfig.hh"  // STA_VERSION
+#include "util/StringUtil.hh"
+#include "search/Sta.hh"
 
 
 namespace sta {

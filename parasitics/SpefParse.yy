@@ -17,10 +17,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <string.h>
-#include "Machine.hh"
-#include "StringUtil.hh"
-#include "StringSeq.hh"
-#include "SpefReaderPvt.hh"
+
+#include "util/StringUtil.hh"
+#include "util/StringSeq.hh"
+#include "parasitics/SpefReaderPvt.hh"
 
 int SpefLex_lex();
 #define SpefParse_lex SpefLex_lex

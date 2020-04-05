@@ -19,6 +19,7 @@
 namespace sta {
 
 class StaState;
+class Corner;
 
 void
 writeSdf(const char *filename,

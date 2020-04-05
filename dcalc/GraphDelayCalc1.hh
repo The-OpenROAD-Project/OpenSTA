@@ -17,7 +17,8 @@
 #pragma once
 
 #include <mutex>
-#include "GraphDelayCalc.hh"
+
+#include "dcalc/GraphDelayCalc.hh"
 
 namespace sta {
 

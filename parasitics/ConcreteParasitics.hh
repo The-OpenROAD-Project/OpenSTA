@@ -17,11 +17,12 @@
 #pragma once
 
 #include <mutex>
-#include "Map.hh"
-#include "Set.hh"
-#include "MinMax.hh"
-#include "EstimateParasitics.hh"
-#include "Parasitics.hh"
+
+#include "util/Map.hh"
+#include "util/Set.hh"
+#include "util/MinMax.hh"
+#include "parasitics/EstimateParasitics.hh"
+#include "parasitics/Parasitics.hh"
 
 namespace sta {
 

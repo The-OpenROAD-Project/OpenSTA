@@ -1,44 +1,26 @@
-*.o
-*.a
-*.lo
-*.la
-*.gcov
-*.gcda
-*.gcno
 *.rej
 *.orig
 TAGS
 *~
 \#*#
 .#*
-.~lock.*#
+.~lock.*\.*#
 .DS_Store
 Makefile
+gmon.out
 
-/build
-/pvt
+build
+pvt
 
-# /util/
-/util/StaConfig.hh
+util/StaConfig.hh
 
-# /app/
-/app/sta
-/app/sta.exe
-/app/sta.dSYM
+app/sta
+app/libOpenSTA.*
+app/sta.exe
+app/sta.dSYM
 
-# /doc/
-/doc/._Sta.docx
-/doc/.~lock.Sta.doc#
-/doc/.~lock.Sta.odt#
+doc/._Sta.docx
 
-# /tcl/
-/tcl/history.tcl
-/tcl/init.tcl
-
-# /test/
-/test/gmon.out
-/test/results
+test/results
 # ngspice turd
-/test/b3v3_1check.log
-
-/test_native
+test/b3v3_1check.log

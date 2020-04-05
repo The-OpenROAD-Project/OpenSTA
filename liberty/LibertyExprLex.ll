@@ -18,11 +18,10 @@
 
 // Liberty function expression lexical analyzer
 
-#include "Machine.hh"
-#include "FlexPragma.hh"
-#include "Debug.hh"
-#include "StringUtil.hh"
-#include "LibertyExprPvt.hh"
+#include "util/FlexPragma.hh"
+#include "util/Debug.hh"
+#include "util/StringUtil.hh"
+#include "liberty/LibertyExprPvt.hh"
 
 using sta::libexpr_parser;
 using sta::stringCopy;

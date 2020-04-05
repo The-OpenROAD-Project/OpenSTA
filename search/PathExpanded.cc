@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "TimingRole.hh"
-#include "PortDirection.hh"
-#include "Network.hh"
-#include "Clock.hh"
-#include "Search.hh"
-#include "PathRef.hh"
-#include "Latches.hh"
-#include "Genclks.hh"
-#include "PathExpanded.hh"
+#include "search/PathExpanded.hh"
+
+#include "liberty/TimingRole.hh"
+#include "network/PortDirection.hh"
+#include "network/Network.hh"
+#include "sdc/Clock.hh"
+#include "search/Search.hh"
+#include "search/PathRef.hh"
+#include "search/Latches.hh"
+#include "search/Genclks.hh"
 
 namespace sta {
 

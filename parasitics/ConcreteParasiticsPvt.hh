@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "Parasitics.hh"
+#include "parasitics/Parasitics.hh"
 
 namespace sta {
 

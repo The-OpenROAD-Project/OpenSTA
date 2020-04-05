@@ -14,30 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "liberty/LibertyReader.hh"
+
 #include <ctype.h>
 #include <stdlib.h>
-#include "Machine.hh"
-#include "Report.hh"
-#include "Debug.hh"
-#include "TokenParser.hh"
-#include "Network.hh"
-#include "Units.hh"
-#include "PortDirection.hh"
-#include "Transition.hh"
-#include "FuncExpr.hh"
-#include "TimingArc.hh"
-#include "TableModel.hh"
-#include "LeakagePower.hh"
-#include "InternalPower.hh"
-#include "LinearModel.hh"
-#include "Wireload.hh"
-#include "EquivCells.hh"
-#include "LibertyExpr.hh"
-#include "ParseBus.hh"
-#include "Liberty.hh"
-#include "LibertyBuilder.hh"
-#include "LibertyReader.hh"
-#include "LibertyReaderPvt.hh"
+
+#include "util/Report.hh"
+#include "util/Debug.hh"
+#include "util/TokenParser.hh"
+#include "liberty/Units.hh"
+#include "liberty/Transition.hh"
+#include "liberty/FuncExpr.hh"
+#include "liberty/TimingArc.hh"
+#include "liberty/TableModel.hh"
+#include "liberty/LeakagePower.hh"
+#include "liberty/InternalPower.hh"
+#include "liberty/LinearModel.hh"
+#include "liberty/Wireload.hh"
+#include "liberty/EquivCells.hh"
+#include "liberty/LibertyExpr.hh"
+#include "liberty/Liberty.hh"
+#include "liberty/LibertyBuilder.hh"
+#include "liberty/LibertyReaderPvt.hh"
+#include "network/PortDirection.hh"
+#include "network/ParseBus.hh"
+#include "network/Network.hh"
 
 namespace sta {
 

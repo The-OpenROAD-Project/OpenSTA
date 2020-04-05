@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "Wireload.hh"
-#include "Liberty.hh"
-#include "Parasitics.hh"
-#include "Network.hh"
-#include "Sdc.hh"
-#include "EstimateParasitics.hh"
+#include "parasitics/EstimateParasitics.hh"
+
+#include "liberty/Wireload.hh"
+#include "liberty/Liberty.hh"
+#include "network/Network.hh"
+#include "sdc/Sdc.hh"
+#include "parasitics/Parasitics.hh"
 
 namespace sta {
 

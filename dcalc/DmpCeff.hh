@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "LibertyClass.hh"
-#include "RCDelayCalc.hh"
+#include "liberty/LibertyClass.hh"
+#include "dcalc/RCDelayCalc.hh"
 
 namespace sta {
 
@@ -25,6 +25,7 @@ class DmpAlg;
 class DmpCap;
 class DmpPi;
 class DmpZeroC2;
+class GateTableModel;
 
 // Delay calculator using Dartu/Menezes/Pileggi effective capacitance
 // algorithm for RSPF loads.

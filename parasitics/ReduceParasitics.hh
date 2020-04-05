@@ -16,8 +16,12 @@
 
 #pragma once
 
+#include "network/NetworkClass.hh"
+#include "sdc/SdcClass.hh"
+
 namespace sta {
 
+class Corner;
 class Parasitic;
 class ParasiticAnalysisPt;
 class StaState;

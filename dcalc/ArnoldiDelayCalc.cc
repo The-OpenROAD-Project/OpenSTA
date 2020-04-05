@@ -18,28 +18,29 @@
 //
 // Author: W. Scott
 
+#include "ArnoldiDelayCalc.hh"
+
 #include <stdio.h>
 #include <cmath> // abs
-#include "Machine.hh"
-#include "Report.hh"
-#include "Debug.hh"
-#include "Units.hh"
-#include "Liberty.hh"
-#include "TimingModel.hh"
-#include "TimingArc.hh"
-#include "TableModel.hh"
-#include "Network.hh"
-#include "Graph.hh"
-#include "Parasitics.hh"
-#include "Sdc.hh"
-#include "DcalcAnalysisPt.hh"
-#include "DelayCalc.hh"
-#include "ArcDelayCalc.hh"
-#include "RCDelayCalc.hh"
-#include "GraphDelayCalc.hh"
-#include "Arnoldi.hh"
-#include "ArnoldiReduce.hh"
-#include "ArnoldiDelayCalc.hh"
+
+#include "util/Report.hh"
+#include "util/Debug.hh"
+#include "liberty/Units.hh"
+#include "liberty/Liberty.hh"
+#include "liberty/TimingModel.hh"
+#include "liberty/TimingArc.hh"
+#include "liberty/TableModel.hh"
+#include "network/Network.hh"
+#include "graph/Graph.hh"
+#include "parasitics/Parasitics.hh"
+#include "sdc/Sdc.hh"
+#include "dcalc/DcalcAnalysisPt.hh"
+#include "dcalc/DelayCalc.hh"
+#include "dcalc/ArcDelayCalc.hh"
+#include "dcalc/RCDelayCalc.hh"
+#include "dcalc/GraphDelayCalc.hh"
+#include "dcalc/Arnoldi.hh"
+#include "dcalc/ArnoldiReduce.hh"
 
 namespace sta {
 

@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "TimingModel.hh"
-#include "TimingArc.hh"
-#include "GraphDelayCalc.hh"
-#include "ArcDelayCalc.hh"
+#include "dcalc/ArcDelayCalc.hh"
+
+#include "liberty/TimingModel.hh"
+#include "liberty/TimingArc.hh"
+#include "dcalc/GraphDelayCalc.hh"
 
 namespace sta {
 

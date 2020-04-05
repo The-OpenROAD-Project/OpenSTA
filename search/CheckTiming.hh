@@ -16,11 +16,13 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
-#include "Vector.hh"
-#include "StringSeq.hh"
-#include "NetworkClass.hh"
-#include "StaState.hh"
+#include "util/DisallowCopyAssign.hh"
+#include "util/Vector.hh"
+#include "util/StringSeq.hh"
+#include "network/NetworkClass.hh"
+#include "graph/GraphClass.hh"
+#include "sdc/SdcClass.hh"
+#include "search/StaState.hh"
 
 namespace sta {
 

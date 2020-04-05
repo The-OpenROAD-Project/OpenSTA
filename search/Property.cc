@@ -14,24 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "StringUtil.hh"
-#include "MinMax.hh"
-#include "Transition.hh"
-#include "PortDirection.hh"
-#include "Units.hh"
-#include "TimingArc.hh"
-#include "Liberty.hh"
-#include "Network.hh"
-#include "Graph.hh"
-#include "Clock.hh"
-#include "Corner.hh"
-#include "PathEnd.hh"
-#include "PathExpanded.hh"
-#include "PathRef.hh"
-#include "Power.hh"
-#include "Sta.hh"
-#include "Property.hh"
+#include "search/Property.hh"
+
+#include "util/StringUtil.hh"
+#include "util/MinMax.hh"
+#include "liberty/Transition.hh"
+#include "liberty/Units.hh"
+#include "liberty/TimingArc.hh"
+#include "liberty/Liberty.hh"
+#include "network/PortDirection.hh"
+#include "network/Network.hh"
+#include "graph/Graph.hh"
+#include "sdc/Clock.hh"
+#include "search/Corner.hh"
+#include "search/PathEnd.hh"
+#include "search/PathExpanded.hh"
+#include "search/PathRef.hh"
+#include "search/Power.hh"
+#include "search/Sta.hh"
 
 namespace sta {
 

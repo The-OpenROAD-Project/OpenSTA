@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "Machine.hh"
-#include "Graph.hh"
-#include "TagGroup.hh"
-#include "PathEnumed.hh"
-#include "PathVertex.hh"
-#include "Search.hh"
-#include "PathRef.hh"
+#include "search/PathRef.hh"
+
+#include "graph/Graph.hh"
+#include "search/TagGroup.hh"
+#include "search/PathEnumed.hh"
+#include "search/PathVertex.hh"
+#include "search/Search.hh"
+
 
 namespace sta {
 
