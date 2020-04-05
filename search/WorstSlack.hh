@@ -20,10 +20,10 @@ namespace sta {
 
 #include <mutex>
 
-#include "util/MinMax.hh"
-#include "util/Vector.hh"
-#include "graph/GraphClass.hh"
-#include "search/SearchClass.hh"
+#include "MinMax.hh"
+#include "Vector.hh"
+#include "GraphClass.hh"
+#include "SearchClass.hh"
 
 class StaState;
 class WorstSlack;

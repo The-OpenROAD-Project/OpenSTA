@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "dcalc/DelayCalc.hh"
+#include "DelayCalc.hh"
 
-#include "util/Map.hh"
-#include "util/StringUtil.hh"
-#include "dcalc/UnitDelayCalc.hh"
-#include "dcalc/LumpedCapDelayCalc.hh"
-#include "dcalc/SimpleRCDelayCalc.hh"
-#include "dcalc/DmpDelayCalc.hh"
-#include "dcalc/ArnoldiDelayCalc.hh"
+#include "Map.hh"
+#include "StringUtil.hh"
+#include "UnitDelayCalc.hh"
+#include "LumpedCapDelayCalc.hh"
+#include "SimpleRCDelayCalc.hh"
+#include "DmpDelayCalc.hh"
+#include "ArnoldiDelayCalc.hh"
 
 namespace sta {
 

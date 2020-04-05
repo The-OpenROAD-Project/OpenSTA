@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 
-#include "network/PortDirection.hh"
+#include "PortDirection.hh"
 #include "verilog/VerilogReaderPvt.hh"
 #include "verilog/VerilogReader.hh"
 

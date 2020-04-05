@@ -16,12 +16,12 @@
 
 #pragma once
 
-#include "util/DisallowCopyAssign.hh"
-#include "graph/GraphClass.hh"
-#include "graph/Delay.hh"
-#include "search/StaState.hh"
-#include "search/SearchClass.hh"
-#include "search/PathRef.hh"
+#include "DisallowCopyAssign.hh"
+#include "GraphClass.hh"
+#include "Delay.hh"
+#include "StaState.hh"
+#include "SearchClass.hh"
+#include "PathRef.hh"
 
 namespace sta {
 

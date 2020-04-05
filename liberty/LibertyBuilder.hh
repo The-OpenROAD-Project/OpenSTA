@@ -16,11 +16,11 @@
 
 #pragma once
 
-#include "util/DisallowCopyAssign.hh"
-#include "util/Vector.hh"
-#include "liberty/Transition.hh"
-#include "liberty/LibertyClass.hh"
-#include "network/ConcreteLibrary.hh"
+#include "DisallowCopyAssign.hh"
+#include "Vector.hh"
+#include "Transition.hh"
+#include "LibertyClass.hh"
+#include "ConcreteLibrary.hh"
 
 namespace sta {
 

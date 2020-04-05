@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "search/VertexVisitor.hh"
+#include "VertexVisitor.hh"
 
-#include "util/Error.hh"
-#include "graph/Graph.hh"
+#include "Error.hh"
+#include "Graph.hh"
 
 namespace sta {
 

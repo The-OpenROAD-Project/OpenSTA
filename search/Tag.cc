@@ -14,19 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "search/Tag.hh"
+#include "Tag.hh"
 
-#include "util/Report.hh"
-#include "network/Network.hh"
-#include "sdc/Clock.hh"
-#include "sdc/PortDelay.hh"
-#include "sdc/ExceptionPath.hh"
-#include "sdc/Sdc.hh"
-#include "graph/Graph.hh"
-#include "search/Corner.hh"
-#include "search/Search.hh"
-#include "search/PathAnalysisPt.hh"
-#include "search/ClkInfo.hh"
+#include "Report.hh"
+#include "Network.hh"
+#include "Clock.hh"
+#include "PortDelay.hh"
+#include "ExceptionPath.hh"
+#include "Sdc.hh"
+#include "Graph.hh"
+#include "Corner.hh"
+#include "Search.hh"
+#include "PathAnalysisPt.hh"
+#include "ClkInfo.hh"
 
 namespace sta {
 

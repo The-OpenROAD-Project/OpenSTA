@@ -16,11 +16,11 @@
 
 #pragma once
 
-#include "util/Zlib.hh"
-#include "util/Map.hh"
-#include "util/StringSeq.hh"
-#include "network/NetworkClass.hh"
-#include "parasitics/ParasiticsClass.hh"
+#include "Zlib.hh"
+#include "Map.hh"
+#include "StringSeq.hh"
+#include "NetworkClass.hh"
+#include "ParasiticsClass.hh"
 
 // Global namespace.
 #define YY_INPUT(buf,result,max_size) \

@@ -16,10 +16,10 @@
 
 #pragma once
 
-#include "liberty/LibertyClass.hh"
-#include "network/NetworkClass.hh"
-#include "sdc/SdcClass.hh"
-#include "parasitics/ParasiticsClass.hh"
+#include "LibertyClass.hh"
+#include "NetworkClass.hh"
+#include "SdcClass.hh"
+#include "ParasiticsClass.hh"
 
 namespace sta {
 

@@ -18,9 +18,9 @@
 
 namespace sta {
 
-#include "graph/GraphClass.hh"
-#include "search/SearchClass.hh"
-#include "search/StaState.hh"
+#include "GraphClass.hh"
+#include "SearchClass.hh"
+#include "StaState.hh"
 
 enum class LatchEnableState { enabled, open, closed };
 

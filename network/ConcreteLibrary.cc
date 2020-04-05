@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "network/ConcreteLibrary.hh"
+#include "ConcreteLibrary.hh"
 
 #include <stdlib.h>
 
-#include "util/DisallowCopyAssign.hh"
-#include "util/PatternMatch.hh"
-#include "network/PortDirection.hh"
-#include "network/ParseBus.hh"
+#include "DisallowCopyAssign.hh"
+#include "PatternMatch.hh"
+#include "PortDirection.hh"
+#include "ParseBus.hh"
 
 namespace sta {
 

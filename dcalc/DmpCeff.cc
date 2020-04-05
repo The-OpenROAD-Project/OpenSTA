@@ -22,22 +22,22 @@
 // The only real change from the paper is that Vl, the measured low
 // slew voltage is matched instead of y20 in eqn 12.
 
-#include "dcalc/DmpCeff.hh"
+#include "DmpCeff.hh"
 
 #include <algorithm> // abs, min
 #include <math.h>    // sqrt
 
-#include "util/Report.hh"
-#include "util/Debug.hh"
-#include "liberty/Units.hh"
-#include "liberty/TimingArc.hh"
-#include "liberty/TableModel.hh"
-#include "liberty/Liberty.hh"
-#include "network/Network.hh"
-#include "sdc/Sdc.hh"
-#include "parasitics/Parasitics.hh"
-#include "dcalc/DcalcAnalysisPt.hh"
-#include "dcalc/ArcDelayCalc.hh"
+#include "Report.hh"
+#include "Debug.hh"
+#include "Units.hh"
+#include "TimingArc.hh"
+#include "TableModel.hh"
+#include "Liberty.hh"
+#include "Network.hh"
+#include "Sdc.hh"
+#include "Parasitics.hh"
+#include "DcalcAnalysisPt.hh"
+#include "ArcDelayCalc.hh"
 
 namespace sta {
 

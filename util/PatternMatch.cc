@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "util/PatternMatch.hh"
+#include "PatternMatch.hh"
 
 #include <string.h>
 #include <string>
 #include <ctype.h>
 #include <tcl.h>
 
-#include "util/StringUtil.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 

@@ -14,27 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "parasitics/ConcreteParasitics.hh"
+#include "ConcreteParasitics.hh"
 
 #include <limits>
 #include <algorithm> // max
 
-#include "util/Report.hh"
-#include "util/Debug.hh"
-#include "util/Error.hh"
-#include "util/Mutex.hh"
-#include "util/Set.hh"
-#include "util/MinMax.hh"
-#include "network/Network.hh"
-#include "liberty/Wireload.hh"
-#include "liberty/Liberty.hh"
-#include "sdc/Sdc.hh"
-#include "parasitics/Parasitics.hh"
-#include "parasitics/ReduceParasitics.hh"
-#include "parasitics/MakeConcreteParasitics.hh"
-#include "parasitics/Parasitics.hh"
-#include "parasitics/ConcreteParasiticsPvt.hh"
-#include "search/Corner.hh"
+#include "Report.hh"
+#include "Debug.hh"
+#include "Error.hh"
+#include "Mutex.hh"
+#include "Set.hh"
+#include "MinMax.hh"
+#include "Network.hh"
+#include "Wireload.hh"
+#include "Liberty.hh"
+#include "Sdc.hh"
+#include "Parasitics.hh"
+#include "ReduceParasitics.hh"
+#include "MakeConcreteParasitics.hh"
+#include "Parasitics.hh"
+#include "ConcreteParasiticsPvt.hh"
+#include "Corner.hh"
 
 // Multiple inheritance is used to share elmore and pi model base
 // classes, but care is taken to make sure there are no loops in the

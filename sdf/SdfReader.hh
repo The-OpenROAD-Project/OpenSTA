@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "sdc/SdcClass.hh"
+#include "SdcClass.hh"
 
 namespace sta {
 

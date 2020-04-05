@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "util/StringUtil.hh"
-#include "dcalc/DcalcAnalysisPt.hh"
-#include "search/Corner.hh"
+#include "StringUtil.hh"
+#include "DcalcAnalysisPt.hh"
+#include "Corner.hh"
 
 namespace sta {
 

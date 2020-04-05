@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "network/ConcreteNetwork.hh"
+#include "ConcreteNetwork.hh"
 
-#include "util/DisallowCopyAssign.hh"
-#include "util/PatternMatch.hh"
-#include "util/Report.hh"
-#include "liberty/Liberty.hh"
-#include "network/PortDirection.hh"
-#include "network/ConcreteLibrary.hh"
-#include "network/Network.hh"
+#include "DisallowCopyAssign.hh"
+#include "PatternMatch.hh"
+#include "Report.hh"
+#include "Liberty.hh"
+#include "PortDirection.hh"
+#include "ConcreteLibrary.hh"
+#include "Network.hh"
 
 namespace sta {
 

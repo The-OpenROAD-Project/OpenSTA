@@ -14,20 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "search/FindRegister.hh"
+#include "FindRegister.hh"
 
-#include "util/DisallowCopyAssign.hh"
-#include "liberty/TimingRole.hh"
-#include "liberty/FuncExpr.hh"
-#include "liberty/TimingArc.hh"
-#include "liberty/Sequential.hh"
-#include "liberty/Liberty.hh"
-#include "network/Network.hh"
-#include "graph/Graph.hh"
-#include "sdc/Sdc.hh"
-#include "sdc/Clock.hh"
-#include "search/SearchPred.hh"
-#include "search/Search.hh"
+#include "DisallowCopyAssign.hh"
+#include "TimingRole.hh"
+#include "FuncExpr.hh"
+#include "TimingArc.hh"
+#include "Sequential.hh"
+#include "Liberty.hh"
+#include "Network.hh"
+#include "Graph.hh"
+#include "Sdc.hh"
+#include "Clock.hh"
+#include "SearchPred.hh"
+#include "Search.hh"
 
 namespace sta {
 

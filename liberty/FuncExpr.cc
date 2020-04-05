@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "liberty/FuncExpr.hh"
+#include "FuncExpr.hh"
 
-#include "util/StringUtil.hh"
-#include "liberty/Liberty.hh"
-#include "network/Network.hh"
+#include "StringUtil.hh"
+#include "Liberty.hh"
+#include "Network.hh"
 
 namespace sta {
 

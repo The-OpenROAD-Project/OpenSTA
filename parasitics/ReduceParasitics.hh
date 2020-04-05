@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "network/NetworkClass.hh"
-#include "sdc/SdcClass.hh"
+#include "NetworkClass.hh"
+#include "SdcClass.hh"
 
 namespace sta {
 

@@ -14,19 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "sdc/ExceptionPath.hh"
+#include "ExceptionPath.hh"
 
 #include <algorithm>
 
-#include "util/DisallowCopyAssign.hh"
-#include "util/MinMax.hh"
-#include "liberty/TimingRole.hh"
-#include "liberty/Units.hh"
-#include "liberty/Transition.hh"
-#include "network/PortDirection.hh"
-#include "network/Network.hh"
-#include "network/NetworkCmp.hh"
-#include "sdc/Clock.hh"
+#include "DisallowCopyAssign.hh"
+#include "MinMax.hh"
+#include "TimingRole.hh"
+#include "Units.hh"
+#include "Transition.hh"
+#include "PortDirection.hh"
+#include "Network.hh"
+#include "NetworkCmp.hh"
+#include "Clock.hh"
 
 namespace sta {
 

@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "util/DisallowCopyAssign.hh"
+#include "DisallowCopyAssign.hh"
 
 namespace sta {
 

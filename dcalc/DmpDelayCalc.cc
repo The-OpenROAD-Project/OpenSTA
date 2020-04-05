@@ -16,14 +16,14 @@
 
 #include "DmpDelayCalc.hh"
 
-#include "liberty/TableModel.hh"
-#include "liberty/TimingArc.hh"
-#include "liberty/Liberty.hh"
-#include "sdc/Sdc.hh"
-#include "parasitics/Parasitics.hh"
-#include "dcalc/DcalcAnalysisPt.hh"
-#include "dcalc/GraphDelayCalc.hh"
-#include "dcalc/DmpCeff.hh"
+#include "TableModel.hh"
+#include "TimingArc.hh"
+#include "Liberty.hh"
+#include "Sdc.hh"
+#include "Parasitics.hh"
+#include "DcalcAnalysisPt.hh"
+#include "GraphDelayCalc.hh"
+#include "DmpCeff.hh"
 
 namespace sta {
 

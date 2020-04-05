@@ -25,12 +25,12 @@
 #include <ctype.h>
 #include <math.h>
 
-#include "util/Debug.hh"
-#include "util/MinMax.hh"
-#include "sdc/Sdc.hh"
-#include "network/Network.hh"
-#include "liberty/Units.hh"
-#include "dcalc/Arnoldi.hh"
+#include "Debug.hh"
+#include "MinMax.hh"
+#include "Sdc.hh"
+#include "Network.hh"
+#include "Units.hh"
+#include "Arnoldi.hh"
 #include "parasitics/ConcreteParasiticsPvt.hh"
 
 namespace sta {

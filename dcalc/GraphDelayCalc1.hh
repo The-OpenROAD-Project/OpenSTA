@@ -18,7 +18,7 @@
 
 #include <mutex>
 
-#include "dcalc/GraphDelayCalc.hh"
+#include "GraphDelayCalc.hh"
 
 namespace sta {
 

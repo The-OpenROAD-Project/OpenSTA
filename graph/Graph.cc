@@ -14,21 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "graph/Graph.hh"
+#include "Graph.hh"
 
-#include "util/DisallowCopyAssign.hh"
-#include "util/Stats.hh"
-#include "util/Error.hh"
-#include "util/Debug.hh"
-#include "util/MinMax.hh"
-#include "util/Mutex.hh"
-#include "liberty/Transition.hh"
-#include "liberty/TimingRole.hh"
-#include "liberty/TimingArc.hh"
-#include "liberty/Liberty.hh"
-#include "network/PortDirection.hh"
-#include "network/Network.hh"
-#include "dcalc/DcalcAnalysisPt.hh"
+#include "DisallowCopyAssign.hh"
+#include "Stats.hh"
+#include "Error.hh"
+#include "Debug.hh"
+#include "MinMax.hh"
+#include "Mutex.hh"
+#include "Transition.hh"
+#include "TimingRole.hh"
+#include "TimingArc.hh"
+#include "Liberty.hh"
+#include "PortDirection.hh"
+#include "Network.hh"
+#include "DcalcAnalysisPt.hh"
 
 namespace sta {
 

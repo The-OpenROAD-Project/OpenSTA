@@ -16,14 +16,14 @@
 
 #include "LibertyBuilder.hh"
 
-#include "network/PortDirection.hh"
-#include "liberty/TimingRole.hh"
-#include "liberty/FuncExpr.hh"
-#include "liberty/TimingArc.hh"
-#include "liberty/InternalPower.hh"
-#include "liberty/LeakagePower.hh"
-#include "liberty/Sequential.hh"
-#include "liberty/Liberty.hh"
+#include "PortDirection.hh"
+#include "TimingRole.hh"
+#include "FuncExpr.hh"
+#include "TimingArc.hh"
+#include "InternalPower.hh"
+#include "LeakagePower.hh"
+#include "Sequential.hh"
+#include "Liberty.hh"
 
 namespace sta {
 

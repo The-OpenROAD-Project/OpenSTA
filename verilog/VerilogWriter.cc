@@ -18,12 +18,12 @@
 
 #include <stdlib.h>
 
-#include "util/Error.hh"
-#include "liberty/Liberty.hh"
-#include "network/PortDirection.hh"
-#include "network/Network.hh"
-#include "network/NetworkCmp.hh"
-#include "network/VerilogNamespace.hh"
+#include "Error.hh"
+#include "Liberty.hh"
+#include "PortDirection.hh"
+#include "Network.hh"
+#include "NetworkCmp.hh"
+#include "VerilogNamespace.hh"
 
 namespace sta {
 

@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "sdc/CycleAccting.hh"
+#include "CycleAccting.hh"
 
 #include <cmath> // ceil
 #include <algorithm> // max
 
-#include "util/Debug.hh"
-#include "util/Fuzzy.hh"
-#include "liberty/Units.hh"
-#include "liberty/TimingRole.hh"
-#include "sdc/Clock.hh"
+#include "Debug.hh"
+#include "Fuzzy.hh"
+#include "Units.hh"
+#include "TimingRole.hh"
+#include "Clock.hh"
 
 namespace sta {
 

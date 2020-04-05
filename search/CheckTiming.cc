@@ -14,23 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "search/CheckTiming.hh"
+#include "CheckTiming.hh"
 
-#include "util/Error.hh"
-#include "liberty/TimingRole.hh"
-#include "network/Network.hh"
-#include "network/NetworkCmp.hh"
-#include "network/PortDirection.hh"
-#include "graph/Graph.hh"
-#include "sdc/PortDelay.hh"
-#include "sdc/ExceptionPath.hh"
-#include "sdc/Sdc.hh"
-#include "search/SearchPred.hh"
-#include "search/Levelize.hh"
-#include "search/Bfs.hh"
-#include "search/Search.hh"
-#include "search/Genclks.hh"
-#include "search/PathVertex.hh"
+#include "Error.hh"
+#include "TimingRole.hh"
+#include "Network.hh"
+#include "NetworkCmp.hh"
+#include "PortDirection.hh"
+#include "Graph.hh"
+#include "PortDelay.hh"
+#include "ExceptionPath.hh"
+#include "Sdc.hh"
+#include "SearchPred.hh"
+#include "Levelize.hh"
+#include "Bfs.hh"
+#include "Search.hh"
+#include "Genclks.hh"
+#include "PathVertex.hh"
 
 namespace sta {
 

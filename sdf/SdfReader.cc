@@ -19,16 +19,16 @@
 #include <stdarg.h>
 #include <ctype.h>
 
-#include "util/DisallowCopyAssign.hh"
-#include "util/Error.hh"
-#include "util/Report.hh"
-#include "util/MinMax.hh"
-#include "liberty/TimingArc.hh"
-#include "network/Network.hh"
-#include "network/SdcNetwork.hh"
-#include "graph/Graph.hh"
-#include "search/Corner.hh"
-#include "dcalc/DcalcAnalysisPt.hh"
+#include "DisallowCopyAssign.hh"
+#include "Error.hh"
+#include "Report.hh"
+#include "MinMax.hh"
+#include "TimingArc.hh"
+#include "Network.hh"
+#include "SdcNetwork.hh"
+#include "Graph.hh"
+#include "Corner.hh"
+#include "DcalcAnalysisPt.hh"
 #include "sdf/Sdf.hh"
 
 extern int

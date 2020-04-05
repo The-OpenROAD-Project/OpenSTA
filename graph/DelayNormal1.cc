@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "graph/Delay.hh"
+#include "Delay.hh"
 
 #include <cmath> // sqrt
 
-#include "util/StaConfig.hh"
-#include "util/Error.hh"
-#include "util/StringUtil.hh"
-#include "util/Fuzzy.hh"
-#include "liberty/Units.hh"
-#include "search/StaState.hh"
+#include "StaConfig.hh"
+#include "Error.hh"
+#include "StringUtil.hh"
+#include "Fuzzy.hh"
+#include "Units.hh"
+#include "StaState.hh"
 
 // SSTA compilation.
 #if (SSTA == 1)

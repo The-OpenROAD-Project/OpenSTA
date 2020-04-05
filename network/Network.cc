@@ -15,13 +15,13 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-#include "network/Network.hh"
+#include "Network.hh"
 
-#include "util/DisallowCopyAssign.hh"
-#include "util/StringUtil.hh"
-#include "util/PatternMatch.hh"
-#include "liberty/Liberty.hh"
-#include "network/PortDirection.hh"
+#include "DisallowCopyAssign.hh"
+#include "StringUtil.hh"
+#include "PatternMatch.hh"
+#include "Liberty.hh"
+#include "PortDirection.hh"
 
 namespace sta {
 

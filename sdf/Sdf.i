@@ -21,8 +21,8 @@
 #include "sdf/SdfReader.hh"
 #include "sdf/ReportAnnotation.hh"
 #include "sdf/SdfWriter.hh"
-#include "search/Search.hh"
-#include "search/Sta.hh"
+#include "Search.hh"
+#include "Sta.hh"
 
 using sta::Sta;
 using sta::cmdLinkedNetwork;

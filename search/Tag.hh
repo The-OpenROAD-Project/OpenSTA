@@ -16,13 +16,13 @@
 
 #pragma once
 
-#include "util/DisallowCopyAssign.hh"
-#include "util/Vector.hh"
-#include "util/Set.hh"
-#include "liberty/Transition.hh"
-#include "sdc/SdcClass.hh"
-#include "search/SearchClass.hh"
-#include "search/PathRef.hh"
+#include "DisallowCopyAssign.hh"
+#include "Vector.hh"
+#include "Set.hh"
+#include "Transition.hh"
+#include "SdcClass.hh"
+#include "SearchClass.hh"
+#include "PathRef.hh"
 
 namespace sta {
 

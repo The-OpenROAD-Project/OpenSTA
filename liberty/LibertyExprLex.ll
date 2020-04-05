@@ -19,8 +19,8 @@
 // Liberty function expression lexical analyzer
 
 #include "util/FlexPragma.hh"
-#include "util/Debug.hh"
-#include "util/StringUtil.hh"
+#include "Debug.hh"
+#include "StringUtil.hh"
 #include "liberty/LibertyExprPvt.hh"
 
 using sta::libexpr_parser;

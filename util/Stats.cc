@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "util/Stats.hh"
+#include "Stats.hh"
 
-#include "util/StringUtil.hh"
-#include "util/Debug.hh"
-#include "util/Machine.hh"
+#include "StringUtil.hh"
+#include "Debug.hh"
+#include "Machine.hh"
 
 namespace sta {
 

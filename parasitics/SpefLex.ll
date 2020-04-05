@@ -20,7 +20,7 @@
 #include <string>
 
 #include "util/FlexPragma.hh"
-#include "util/StringUtil.hh"
+#include "StringUtil.hh"
 #include "parasitics/SpefReaderPvt.hh"
 #include "SpefParse.hh"
 

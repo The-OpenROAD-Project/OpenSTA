@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "liberty/Units.hh"
+#include "Units.hh"
 
 #include <cmath> // abs
 #include <limits>
 
-#include "util/StringUtil.hh"
-#include "util/MinMax.hh"  // INF
+#include "StringUtil.hh"
+#include "MinMax.hh"  // INF
 
 namespace sta {
 

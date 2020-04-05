@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "dcalc/UnitDelayCalc.hh"
+#include "UnitDelayCalc.hh"
 
-#include "liberty/Units.hh"
+#include "Units.hh"
 
 namespace sta {
 

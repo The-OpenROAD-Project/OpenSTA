@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "liberty/FuncExpr.hh"
+#include "FuncExpr.hh"
 
-#include "util/Report.hh"
-#include "util/StringUtil.hh"
-#include "liberty/Liberty.hh"
-#include "liberty/LibertyExprPvt.hh"
+#include "Report.hh"
+#include "StringUtil.hh"
+#include "Liberty.hh"
+#include "LibertyExprPvt.hh"
 
 extern int
 LibertyExprParse_parse();

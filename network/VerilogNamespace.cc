@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "network/VerilogNamespace.hh"
+#include "VerilogNamespace.hh"
 
 #include <ctype.h>
 
-#include "util/StringUtil.hh"
-#include "network/ParseBus.hh"
+#include "StringUtil.hh"
+#include "ParseBus.hh"
 
 namespace sta {
 

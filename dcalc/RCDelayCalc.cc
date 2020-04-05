@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "dcalc/RCDelayCalc.hh"
+#include "RCDelayCalc.hh"
 
-#include "liberty/Liberty.hh"
-#include "network/Network.hh"
-#include "sdc/Sdc.hh"
-#include "parasitics/Parasitics.hh"
-#include "dcalc/GraphDelayCalc.hh"
+#include "Liberty.hh"
+#include "Network.hh"
+#include "Sdc.hh"
+#include "Parasitics.hh"
+#include "GraphDelayCalc.hh"
 
 namespace sta {
 

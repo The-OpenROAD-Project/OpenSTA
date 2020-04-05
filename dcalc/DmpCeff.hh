@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "liberty/LibertyClass.hh"
-#include "dcalc/RCDelayCalc.hh"
+#include "LibertyClass.hh"
+#include "RCDelayCalc.hh"
 
 namespace sta {
 

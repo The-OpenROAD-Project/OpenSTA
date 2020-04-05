@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "util/StringUtil.hh"
-#include "sdc/SdcCmdComment.hh"
+#include "StringUtil.hh"
+#include "SdcCmdComment.hh"
 
 namespace sta {
 

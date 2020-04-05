@@ -14,23 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "parasitics/SpefReader.hh"
+#include "SpefReader.hh"
 
 #include <limits>
 
-#include "util/Zlib.hh"
-#include "util/Report.hh"
-#include "util/Debug.hh"
-#include "util/StringUtil.hh"
-#include "util/Map.hh"
-#include "liberty/Transition.hh"
-#include "liberty/Liberty.hh"
-#include "network/Network.hh"
-#include "network/PortDirection.hh"
-#include "sdc/Sdc.hh"
-#include "parasitics/Parasitics.hh"
-#include "parasitics/SpefReaderPvt.hh"
-#include "parasitics/SpefNamespace.hh"
+#include "Zlib.hh"
+#include "Report.hh"
+#include "Debug.hh"
+#include "StringUtil.hh"
+#include "Map.hh"
+#include "Transition.hh"
+#include "Liberty.hh"
+#include "Network.hh"
+#include "PortDirection.hh"
+#include "Sdc.hh"
+#include "Parasitics.hh"
+#include "SpefReaderPvt.hh"
+#include "SpefNamespace.hh"
 
 int
 SpefParse_parse();

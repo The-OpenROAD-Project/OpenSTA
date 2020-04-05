@@ -16,11 +16,11 @@
 
 #pragma once
 
-#include "util/DisallowCopyAssign.hh"
-#include "util/Vector.hh"
-#include "util/Map.hh"
-#include "util/Set.hh"
-#include "util/StringUtil.hh"
+#include "DisallowCopyAssign.hh"
+#include "Vector.hh"
+#include "Map.hh"
+#include "Set.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 

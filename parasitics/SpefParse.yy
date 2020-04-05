@@ -18,8 +18,8 @@
 
 #include <string.h>
 
-#include "util/StringUtil.hh"
-#include "util/StringSeq.hh"
+#include "StringUtil.hh"
+#include "StringSeq.hh"
 #include "parasitics/SpefReaderPvt.hh"
 
 int SpefLex_lex();

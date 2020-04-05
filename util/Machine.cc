@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "util/Machine.hh"
+#include "Machine.hh"
 
 #if defined(_WINDOWS) || defined(_WIN32)
 
 #include <stdio.h>
 #include <windows.h> // GetSystemInfo
 
-#include "util/StaConfig.hh"
+#include "StaConfig.hh"
 
 namespace sta {
 
@@ -97,8 +97,8 @@ memoryUsage()
 #include <sys/time.h>
 #include <sys/resource.h>
 
-#include "util/StaConfig.hh"
-#include "util/StringUtil.hh"
+#include "StaConfig.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 

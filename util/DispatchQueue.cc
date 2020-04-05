@@ -3,7 +3,7 @@
 // https://github.com/embeddedartistry/embedded-resources/blob/master/examples/cpp/dispatch.cpp
 // https://embeddedartistry.com/blog/2017/2/1/dispatch-queues?rq=dispatch
 
-#include "util/DispatchQueue.hh"
+#include "DispatchQueue.hh"
 
 namespace sta {
 

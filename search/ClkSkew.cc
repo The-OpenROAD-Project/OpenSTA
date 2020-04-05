@@ -14,26 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "search/ClkSkew.hh"
+#include "ClkSkew.hh"
 
 #include <cmath> // abs
 
-#include "util/DisallowCopyAssign.hh"
-#include "util/Report.hh"
-#include "util/Debug.hh"
-#include "util/Fuzzy.hh"
-#include "liberty/Units.hh"
-#include "liberty/TimingArc.hh"
-#include "network/Network.hh"
-#include "graph/Graph.hh"
-#include "sdc/Sdc.hh"
-#include "search/Bfs.hh"
-#include "search/PathVertex.hh"
-#include "search/StaState.hh"
-#include "search/PathAnalysisPt.hh"
-#include "search/SearchPred.hh"
-#include "search/Search.hh"
-#include "search/Crpr.hh"
+#include "DisallowCopyAssign.hh"
+#include "Report.hh"
+#include "Debug.hh"
+#include "Fuzzy.hh"
+#include "Units.hh"
+#include "TimingArc.hh"
+#include "Network.hh"
+#include "Graph.hh"
+#include "Sdc.hh"
+#include "Bfs.hh"
+#include "PathVertex.hh"
+#include "StaState.hh"
+#include "PathAnalysisPt.hh"
+#include "SearchPred.hh"
+#include "Search.hh"
+#include "Crpr.hh"
 
 namespace sta {
 

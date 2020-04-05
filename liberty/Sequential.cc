@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "liberty/Sequential.hh"
+#include "Sequential.hh"
 
-#include "liberty/FuncExpr.hh"
+#include "FuncExpr.hh"
 
 namespace sta {
 

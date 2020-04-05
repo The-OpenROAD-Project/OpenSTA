@@ -14,23 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "search/VisitPathEnds.hh"
+#include "VisitPathEnds.hh"
 
-#include "util/Debug.hh"
-#include "liberty/Liberty.hh"
-#include "network/Network.hh"
-#include "liberty/TimingArc.hh"
-#include "sdc/ExceptionPath.hh"
-#include "sdc/PortDelay.hh"
-#include "sdc/Sdc.hh"
-#include "graph/Graph.hh"
-#include "search/ClkInfo.hh"
-#include "search/Tag.hh"
-#include "search/PathVertex.hh"
-#include "search/PathAnalysisPt.hh"
-#include "search/PathEnd.hh"
-#include "search/Search.hh"
-#include "search/GatedClk.hh"
+#include "Debug.hh"
+#include "Liberty.hh"
+#include "Network.hh"
+#include "TimingArc.hh"
+#include "ExceptionPath.hh"
+#include "PortDelay.hh"
+#include "Sdc.hh"
+#include "Graph.hh"
+#include "ClkInfo.hh"
+#include "Tag.hh"
+#include "PathVertex.hh"
+#include "PathAnalysisPt.hh"
+#include "PathEnd.hh"
+#include "Search.hh"
+#include "GatedClk.hh"
 
 namespace sta {
 

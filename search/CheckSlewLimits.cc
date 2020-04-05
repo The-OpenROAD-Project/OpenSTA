@@ -14,19 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "search/CheckSlewLimits.hh"
+#include "CheckSlewLimits.hh"
 
-#include "util/Fuzzy.hh"
-#include "liberty/Liberty.hh"
-#include "network/Network.hh"
-#include "sdc/Sdc.hh"
-#include "graph/Graph.hh"
-#include "dcalc/DcalcAnalysisPt.hh"
-#include "dcalc/GraphDelayCalc.hh"
-#include "search/StaState.hh"
-#include "search/Corner.hh"
-#include "search/PathVertex.hh"
-#include "search/Search.hh"
+#include "Fuzzy.hh"
+#include "Liberty.hh"
+#include "Network.hh"
+#include "Sdc.hh"
+#include "Graph.hh"
+#include "DcalcAnalysisPt.hh"
+#include "GraphDelayCalc.hh"
+#include "StaState.hh"
+#include "Corner.hh"
+#include "PathVertex.hh"
+#include "Search.hh"
 
 namespace sta {
 

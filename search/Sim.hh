@@ -19,13 +19,13 @@
 #include <queue>
 #include <mutex>
 
-#include "util/StaConfig.hh"  // CUDD
-#include "util/DisallowCopyAssign.hh"
-#include "util/Map.hh"
-#include "network/NetworkClass.hh"
-#include "graph/GraphClass.hh"
-#include "sdc/SdcClass.hh"
-#include "search/StaState.hh"
+#include "StaConfig.hh"  // CUDD
+#include "DisallowCopyAssign.hh"
+#include "Map.hh"
+#include "NetworkClass.hh"
+#include "GraphClass.hh"
+#include "SdcClass.hh"
+#include "StaState.hh"
 
 struct DdNode;
 struct DdManager;

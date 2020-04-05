@@ -234,6 +234,8 @@ set(STA_PVT_HEADERS
   parasitics/SpefNamespace.hh
   parasitics/SpefReader.hh
 
+  sdc/WriteSdcPvt.hh
+
   sdf/ReportAnnotation.hh
   sdf/Sdf.hh
   sdf/SdfReader.hh
@@ -254,17 +256,13 @@ set(STA_PVT_HEADERS
   search/PathEnumed.hh
   search/PathEnum.hh
   search/PathVertex.hh
-  search/PathVertexRep.hh
-  search/PathRef.hh
   search/ReportPath.hh
   search/Sim.hh
-  search/StaState.hh
   search/Tag.hh
   search/TagGroup.hh
   search/VisitPathGroupVertices.hh
   search/WorstSlack.hh
 
-  util/StaConfig.hh
   util/Machine.hh
 
   verilog/VerilogReaderPvt.hh
@@ -273,124 +271,129 @@ set(STA_PVT_HEADERS
   )
 
 set(STA_PUBLIC_HEADERS
-  include/sta/app/StaMain.hh
+  include/sta/StaMain.hh
 
-  include/sta/dcalc/ArcDelayCalc.hh
-  include/sta/dcalc/DelayCalc.hh
-  include/sta/dcalc/GraphDelayCalc.hh
-  include/sta/dcalc/DcalcAnalysisPt.hh
+  include/sta/ArcDelayCalc.hh
+  include/sta/DelayCalc.hh
+  include/sta/GraphDelayCalc.hh
+  include/sta/DcalcAnalysisPt.hh
 
-  include/sta/graph/Delay.hh
-  include/sta/graph/DelayFloat.hh
-  include/sta/graph/DelayNormal1.hh
-  include/sta/graph/DelayNormal2.hh
-  include/sta/graph/Graph.hh
-  include/sta/graph/GraphClass.hh
-  include/sta/graph/GraphCmp.hh
-  include/sta/graph/VertexId.hh
+  include/sta/Delay.hh
+  include/sta/DelayFloat.hh
+  include/sta/DelayNormal1.hh
+  include/sta/DelayNormal2.hh
+  include/sta/Graph.hh
+  include/sta/GraphClass.hh
+  include/sta/GraphCmp.hh
+  include/sta/VertexId.hh
 
-  include/sta/liberty/EquivCells.hh
-  include/sta/liberty/FuncExpr.hh
-  include/sta/liberty/InternalPower.hh
-  include/sta/liberty/LeakagePower.hh
-  include/sta/liberty/Liberty.hh
-  include/sta/liberty/LibertyClass.hh
-  include/sta/liberty/Sequential.hh
-  include/sta/liberty/TableModel.hh
-  include/sta/liberty/LinearModel.hh
-  include/sta/liberty/TimingArc.hh
-  include/sta/liberty/TimingModel.hh
-  include/sta/liberty/TimingRole.hh
-  include/sta/liberty/Transition.hh
-  include/sta/liberty/Units.hh
-  include/sta/liberty/Wireload.hh
+  include/sta/EquivCells.hh
+  include/sta/FuncExpr.hh
+  include/sta/InternalPower.hh
+  include/sta/LeakagePower.hh
+  include/sta/Liberty.hh
+  include/sta/LibertyClass.hh
+  include/sta/Sequential.hh
+  include/sta/TableModel.hh
+  include/sta/LinearModel.hh
+  include/sta/TimingArc.hh
+  include/sta/TimingModel.hh
+  include/sta/TimingRole.hh
+  include/sta/Transition.hh
+  include/sta/Units.hh
+  include/sta/Wireload.hh
 
-  include/sta/network/ConcreteLibrary.hh
-  include/sta/network/ConcreteNetwork.hh
-  include/sta/network/HpinDrvrLoad.hh
-  include/sta/network/MakeConcreteNetwork.hh
-  include/sta/network/Network.hh
-  include/sta/network/NetworkClass.hh
-  include/sta/network/NetworkCmp.hh
-  include/sta/network/ParseBus.hh
-  include/sta/network/PortDirection.hh
-  include/sta/network/SdcNetwork.hh
-  include/sta/network/VerilogNamespace.hh
+  include/sta/ConcreteLibrary.hh
+  include/sta/ConcreteNetwork.hh
+  include/sta/HpinDrvrLoad.hh
+  include/sta/MakeConcreteNetwork.hh
+  include/sta/Network.hh
+  include/sta/NetworkClass.hh
+  include/sta/NetworkCmp.hh
+  include/sta/ParseBus.hh
+  include/sta/PortDirection.hh
+  include/sta/SdcNetwork.hh
+  include/sta/VerilogNamespace.hh
 
-  include/sta/parasitics/MakeConcreteParasitics.hh
-  include/sta/parasitics/NullParasitics.hh
-  include/sta/parasitics/Parasitics.hh
-  include/sta/parasitics/ParasiticsClass.hh
+  include/sta/MakeConcreteParasitics.hh
+  include/sta/NullParasitics.hh
+  include/sta/Parasitics.hh
+  include/sta/ParasiticsClass.hh
 
-  include/sta/sdc/Clock.hh
-  include/sta/sdc/ClockGatingCheck.hh
-  include/sta/sdc/ClockGroups.hh
-  include/sta/sdc/ClockInsertion.hh
-  include/sta/sdc/ClockLatency.hh
-  include/sta/sdc/CycleAccting.hh
-  include/sta/sdc/DataCheck.hh
-  include/sta/sdc/DeratingFactors.hh
-  include/sta/sdc/DisabledPorts.hh
-  include/sta/sdc/ExceptionPath.hh
-  include/sta/sdc/InputDrive.hh
-  include/sta/sdc/MinMaxValues.hh
-  include/sta/sdc/PinPair.hh
-  include/sta/sdc/PortDelay.hh
-  include/sta/sdc/PortExtCap.hh
-  include/sta/sdc/RiseFallMinMax.hh
-  include/sta/sdc/RiseFallValues.hh
-  include/sta/sdc/Sdc.hh
-  include/sta/sdc/SdcClass.hh
-  include/sta/sdc/SdcCmdComment.hh
-  include/sta/sdc/WriteSdc.hh
-  include/sta/sdc/WriteSdcPvt.hh
+  include/sta/Clock.hh
+  include/sta/ClockGatingCheck.hh
+  include/sta/ClockGroups.hh
+  include/sta/ClockInsertion.hh
+  include/sta/ClockLatency.hh
+  include/sta/CycleAccting.hh
+  include/sta/DataCheck.hh
+  include/sta/DeratingFactors.hh
+  include/sta/DisabledPorts.hh
+  include/sta/ExceptionPath.hh
+  include/sta/InputDrive.hh
+  include/sta/MinMaxValues.hh
+  include/sta/PinPair.hh
+  include/sta/PortDelay.hh
+  include/sta/PortExtCap.hh
+  include/sta/RiseFallMinMax.hh
+  include/sta/RiseFallValues.hh
+  include/sta/Sdc.hh
+  include/sta/SdcClass.hh
+  include/sta/SdcCmdComment.hh
+  include/sta/WriteSdc.hh
 
-  include/sta/search/Bfs.hh
-  include/sta/search/ClkInfo.hh
-  include/sta/search/Corner.hh
-  include/sta/search/Path.hh
-  include/sta/search/PathAnalysisPt.hh
-  include/sta/search/PathEnd.hh
-  include/sta/search/PathExpanded.hh
-  include/sta/search/PathGroup.hh
-  include/sta/search/Power.hh
-  include/sta/search/Property.hh
-  include/sta/search/Search.hh
-  include/sta/search/SearchClass.hh
-  include/sta/search/SearchPred.hh
-  include/sta/search/VertexVisitor.hh
-  include/sta/search/VisitPathEnds.hh
-  include/sta/search/WritePathSpice.hh
+  include/sta/Bfs.hh
+  include/sta/ClkInfo.hh
+  include/sta/Corner.hh
+  include/sta/Path.hh
+  include/sta/PathAnalysisPt.hh
+  include/sta/PathEnd.hh
+  include/sta/PathExpanded.hh
+  include/sta/PathGroup.hh
+  include/sta/PathRef.hh
+  include/sta/PathVertex.hh
+  include/sta/PathVertexRep.hh
+  include/sta/Power.hh
+  include/sta/Property.hh
+  include/sta/Search.hh
+  include/sta/SearchClass.hh
+  include/sta/SearchPred.hh
+  include/sta/Sta.hh
+  include/sta/StaState.hh
+  include/sta/VertexVisitor.hh
+  include/sta/VisitPathEnds.hh
+  include/sta/WritePathSpice.hh
 
-  include/sta/util/ArrayTable.hh
-  include/sta/util/Debug.hh
-  include/sta/util/DispatchQueue.hh
-  include/sta/util/DisallowCopyAssign.hh
-  include/sta/util/EnumNameMap.hh
-  include/sta/util/Error.hh
-  include/sta/util/Fuzzy.hh
-  include/sta/util/Hash.hh
-  include/sta/util/HashSet.hh
-  include/sta/util/Iterator.hh
-  include/sta/util/Map.hh
-  include/sta/util/MinMax.hh
-  include/sta/util/Mutex.hh
-  include/sta/util/ObjectId.hh
-  include/sta/util/ObjectTable.hh
-  include/sta/util/PatternMatch.hh
-  include/sta/util/Report.hh
-  include/sta/util/ReportStd.hh
-  include/sta/util/ReportTcl.hh
-  include/sta/util/Set.hh
-  include/sta/util/Stats.hh
-  include/sta/util/StringSeq.hh
-  include/sta/util/StringSet.hh
-  include/sta/util/StringUtil.hh
-  include/sta/util/TokenParser.hh
-  include/sta/util/UnorderedMap.hh
-  include/sta/util/UnorderedSet.hh
-  include/sta/util/Vector.hh
-  include/sta/util/Zlib.hh
+  include/sta/ArrayTable.hh
+  include/sta/Debug.hh
+  include/sta/DispatchQueue.hh
+  include/sta/DisallowCopyAssign.hh
+  include/sta/EnumNameMap.hh
+  include/sta/Error.hh
+  include/sta/Fuzzy.hh
+  include/sta/Hash.hh
+  include/sta/HashSet.hh
+  include/sta/Iterator.hh
+  include/sta/Map.hh
+  include/sta/MinMax.hh
+  include/sta/Mutex.hh
+  include/sta/ObjectId.hh
+  include/sta/ObjectTable.hh
+  include/sta/PatternMatch.hh
+  include/sta/Report.hh
+  include/sta/ReportStd.hh
+  include/sta/ReportTcl.hh
+  include/sta/Set.hh
+  include/sta/Stats.hh
+  include/sta/StaConfig.hh
+  include/sta/StringSeq.hh
+  include/sta/StringSet.hh
+  include/sta/StringUtil.hh
+  include/sta/TokenParser.hh
+  include/sta/UnorderedMap.hh
+  include/sta/UnorderedSet.hh
+  include/sta/Vector.hh
+  include/sta/Zlib.hh
   )
 
 # Source files.
@@ -586,9 +589,9 @@ if("${SSTA}" STREQUAL "")
 endif()
 message(STATUS "SSTA: ${SSTA}")
 
-# configure a header file to pass some of the CMake settins
+# configure a header file to pass some of the CMake settings
 configure_file(${STA_HOME}/util/StaConfig.hh.cmake
-  ${STA_HOME}/util/StaConfig.hh
+  ${STA_HOME}/include/sta/StaConfig.hh
   )
 
 ################################################################

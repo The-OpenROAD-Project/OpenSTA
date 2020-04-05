@@ -16,9 +16,9 @@
 
 #pragma once
 
-#include "util/Zlib.hh"
-#include "util/MinMax.hh"
-#include "parasitics/ParasiticsClass.hh"
+#include "Zlib.hh"
+#include "MinMax.hh"
+#include "ParasiticsClass.hh"
 
 namespace sta {
 

@@ -14,17 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "search/CheckMinPeriods.hh"
+#include "CheckMinPeriods.hh"
 
-#include "util/DisallowCopyAssign.hh"
-#include "liberty/Liberty.hh"
-#include "network/Network.hh"
-#include "sdc/Sdc.hh"
-#include "sdc/Clock.hh"
-#include "graph/Graph.hh"
-#include "dcalc/DcalcAnalysisPt.hh"
-#include "dcalc/GraphDelayCalc.hh"
-#include "search/Search.hh"
+#include "DisallowCopyAssign.hh"
+#include "Liberty.hh"
+#include "Network.hh"
+#include "Sdc.hh"
+#include "Clock.hh"
+#include "Graph.hh"
+#include "DcalcAnalysisPt.hh"
+#include "GraphDelayCalc.hh"
+#include "Search.hh"
 
 namespace sta {
 

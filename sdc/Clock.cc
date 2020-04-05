@@ -14,18 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "sdc/Clock.hh"
+#include "Clock.hh"
 
 #include <algorithm>
 
-#include "util/Error.hh"
-#include "util/StringUtil.hh"
-#include "util/MinMax.hh"
-#include "liberty/Transition.hh"
-#include "liberty/TimingRole.hh"
-#include "network/Network.hh"
-#include "graph/Graph.hh"
-#include "sdc/Sdc.hh"
+#include "Error.hh"
+#include "StringUtil.hh"
+#include "MinMax.hh"
+#include "Transition.hh"
+#include "TimingRole.hh"
+#include "Network.hh"
+#include "Graph.hh"
+#include "Sdc.hh"
 
 namespace sta {
 

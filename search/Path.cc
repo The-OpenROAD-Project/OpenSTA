@@ -14,17 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "search/Path.hh"
+#include "Path.hh"
 
-#include "liberty/TimingArc.hh"
-#include "network/Network.hh"
-#include "graph/Graph.hh"
-#include "sdc/Clock.hh"
-#include "dcalc/DcalcAnalysisPt.hh"
-#include "search/Corner.hh"
-#include "search/PathAnalysisPt.hh"
-#include "search/Tag.hh"
-#include "search/PathRef.hh"
+#include "TimingArc.hh"
+#include "Network.hh"
+#include "Graph.hh"
+#include "Clock.hh"
+#include "DcalcAnalysisPt.hh"
+#include "Corner.hh"
+#include "PathAnalysisPt.hh"
+#include "Tag.hh"
+#include "PathRef.hh"
 
 namespace sta {
 

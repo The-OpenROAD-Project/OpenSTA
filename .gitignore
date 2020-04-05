@@ -12,7 +12,7 @@ gmon.out
 build
 pvt
 
-util/StaConfig.hh
+include/sta/StaConfig.hh
 
 app/sta
 app/libOpenSTA.*

@@ -14,34 +14,34 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "search/WritePathSpice.hh"
+#include "WritePathSpice.hh"
 
 #include <string>
 #include <iostream>
 #include <fstream>
 
-#include "util/Debug.hh"
-#include "util/Error.hh"
-#include "util/Report.hh"
-#include "util/StringUtil.hh"
-#include "liberty/FuncExpr.hh"
-#include "liberty/Units.hh"
-#include "liberty/Sequential.hh"
-#include "liberty/TableModel.hh"
-#include "liberty/Liberty.hh"
-#include "liberty/TimingArc.hh"
-#include "network/PortDirection.hh"
-#include "network/Network.hh"
-#include "graph/Graph.hh"
-#include "sdc/Sdc.hh"
-#include "dcalc/DcalcAnalysisPt.hh"
-#include "parasitics/Parasitics.hh"
-#include "search/PathAnalysisPt.hh"
-#include "search/Path.hh"
-#include "search/PathRef.hh"
-#include "search/PathExpanded.hh"
-#include "search/StaState.hh"
-#include "search/Sim.hh"
+#include "Debug.hh"
+#include "Error.hh"
+#include "Report.hh"
+#include "StringUtil.hh"
+#include "FuncExpr.hh"
+#include "Units.hh"
+#include "Sequential.hh"
+#include "TableModel.hh"
+#include "Liberty.hh"
+#include "TimingArc.hh"
+#include "PortDirection.hh"
+#include "Network.hh"
+#include "Graph.hh"
+#include "Sdc.hh"
+#include "DcalcAnalysisPt.hh"
+#include "Parasitics.hh"
+#include "PathAnalysisPt.hh"
+#include "Path.hh"
+#include "PathRef.hh"
+#include "PathExpanded.hh"
+#include "StaState.hh"
+#include "Sim.hh"
 
 namespace sta {
 

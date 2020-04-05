@@ -19,23 +19,23 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "util/Zlib.hh"
-#include "util/StaConfig.hh"  // STA_VERSION
-#include "util/Fuzzy.hh"
-#include "util/StringUtil.hh"
-#include "liberty/Units.hh"
-#include "liberty/TimingRole.hh"
-#include "liberty/TimingArc.hh"
-#include "liberty/Liberty.hh"
-#include "sdc/Sdc.hh"
-#include "sdc/MinMaxValues.hh"
-#include "network/Network.hh"
-#include "graph/Graph.hh"
-#include "dcalc/DcalcAnalysisPt.hh"
-#include "dcalc/GraphDelayCalc1.hh"
-#include "search/StaState.hh"
-#include "search/Corner.hh"
-#include "search/PathAnalysisPt.hh"
+#include "Zlib.hh"
+#include "StaConfig.hh"  // STA_VERSION
+#include "Fuzzy.hh"
+#include "StringUtil.hh"
+#include "Units.hh"
+#include "TimingRole.hh"
+#include "TimingArc.hh"
+#include "Liberty.hh"
+#include "Sdc.hh"
+#include "MinMaxValues.hh"
+#include "Network.hh"
+#include "Graph.hh"
+#include "DcalcAnalysisPt.hh"
+#include "GraphDelayCalc.hh"
+#include "StaState.hh"
+#include "Corner.hh"
+#include "PathAnalysisPt.hh"
 
 namespace sta {
 

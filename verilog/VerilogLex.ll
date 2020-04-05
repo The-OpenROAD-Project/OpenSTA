@@ -17,8 +17,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "util/FlexPragma.hh"
-#include "util/Debug.hh"
-#include "network/VerilogNamespace.hh"
+#include "Debug.hh"
+#include "VerilogNamespace.hh"
 #include "verilog/VerilogReaderPvt.hh"
 #include "VerilogParse.hh"
 

@@ -18,15 +18,15 @@
 
 #include <stdlib.h>
 
-#include "util/DisallowCopyAssign.hh"
-#include "util/Debug.hh"
-#include "util/Report.hh"
-#include "util/Error.hh"
-#include "util/Stats.hh"
-#include "liberty/Liberty.hh"
-#include "network/PortDirection.hh"
-#include "network/Network.hh"
-#include "network/VerilogNamespace.hh"
+#include "DisallowCopyAssign.hh"
+#include "Debug.hh"
+#include "Report.hh"
+#include "Error.hh"
+#include "Stats.hh"
+#include "Liberty.hh"
+#include "PortDirection.hh"
+#include "Network.hh"
+#include "VerilogNamespace.hh"
 #include "verilog/VerilogReaderPvt.hh"
 
 extern int

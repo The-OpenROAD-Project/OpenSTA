@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "graph/Delay.hh"
+#include "Delay.hh"
 
-#include "util/StaConfig.hh"
-#include "util/Fuzzy.hh"
-#include "liberty/Units.hh"
-#include "search/StaState.hh"
+#include "StaConfig.hh"
+#include "Fuzzy.hh"
+#include "Units.hh"
+#include "StaState.hh"
 
 // Non-SSTA compilation.
 #if !SSTA

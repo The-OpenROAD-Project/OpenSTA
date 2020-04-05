@@ -14,23 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "util/Debug.hh"
-#include "liberty/TimingRole.hh"
-#include "liberty/TimingArc.hh"
-#include "liberty/Liberty.hh"
-#include "network/Network.hh"
-#include "graph/Graph.hh"
-#include "sdc/ExceptionPath.hh"
-#include "sdc/Sdc.hh"
-#include "search/ClkInfo.hh"
-#include "search/Tag.hh"
-#include "search/Sim.hh"
-#include "search/PathEnd.hh"
-#include "search/PathAnalysisPt.hh"
-#include "search/Search.hh"
-#include "search/Crpr.hh"
+#include "Debug.hh"
+#include "TimingRole.hh"
+#include "TimingArc.hh"
+#include "Liberty.hh"
+#include "Network.hh"
+#include "Graph.hh"
+#include "ExceptionPath.hh"
+#include "Sdc.hh"
+#include "ClkInfo.hh"
+#include "Tag.hh"
+#include "Sim.hh"
+#include "PathEnd.hh"
+#include "PathAnalysisPt.hh"
+#include "Search.hh"
+#include "Crpr.hh"
 
-#include "search/Latches.hh"
+#include "Latches.hh"
 
 namespace sta {
 

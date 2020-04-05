@@ -20,7 +20,7 @@
 
 #include "verilog/VerilogReader.hh"
 #include "verilog/VerilogWriter.hh"
-#include "search/Sta.hh"
+#include "Sta.hh"
 
 using sta::Sta;
 using sta::NetworkReader;

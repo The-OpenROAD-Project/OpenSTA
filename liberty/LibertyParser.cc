@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "liberty/LibertyParser.hh"
+#include "LibertyParser.hh"
 
 #include <stdio.h>
 #include <string.h>
 
-#include "util/Report.hh"
-#include "util/Error.hh"
-#include "util/StringUtil.hh"
+#include "Report.hh"
+#include "Error.hh"
+#include "StringUtil.hh"
 
 // Global namespace
 

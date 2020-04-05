@@ -14,14 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "app/StaMain.hh"
+#include "StaMain.hh"
 
 #include <tcl.h>
 #include <stdlib.h>
 
-#include "util/StringUtil.hh"
-#include "util/Vector.hh"
-#include "search/Sta.hh"
+#include "util/Machine.hh"
+#include "StringUtil.hh"
+#include "Vector.hh"
+#include "Sta.hh"
 
 namespace sta {
 
@@ -106,7 +107,7 @@ evalTclInit(Tcl_Interp *interp,
     Tcl_Eval(interp, "$errorInfo");
     const char *tcl_err = Tcl_GetStringResult(interp);
     fprintf(stderr, "Error: TCL init script: %s.\n", tcl_err);
-    fprintf(stderr, "       Try deleting app/TclInitVar.cc and rebuilding.\n");
+    fprintf(stderr, "       Try deleting TclInitVar.cc and rebuilding.\n");
     exit(0);
   }
   delete [] unencoded;

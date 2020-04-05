@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "search/PathEnumed.hh"
+#include "PathEnumed.hh"
 
-#include "util/Set.hh"
-#include "graph/Graph.hh"
-#include "search/Corner.hh"
-#include "search/Search.hh"
-#include "search/Tag.hh"
-#include "search/PathRef.hh"
+#include "Set.hh"
+#include "Graph.hh"
+#include "Corner.hh"
+#include "Search.hh"
+#include "Tag.hh"
+#include "PathRef.hh"
 
 namespace sta {
 

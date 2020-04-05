@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "search/StaState.hh"
+#include "StaState.hh"
 
 #include <limits>
 
-#include "util/DispatchQueue.hh"
-#include "liberty/Units.hh"
-#include "network/Network.hh"
+#include "DispatchQueue.hh"
+#include "Units.hh"
+#include "Network.hh"
 
 namespace sta {
 

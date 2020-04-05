@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "sdc/PortDelay.hh"
+#include "PortDelay.hh"
 
-#include "sdc/Sdc.hh"
-#include "network/Network.hh"
+#include "Sdc.hh"
+#include "Network.hh"
 
 namespace sta {
 

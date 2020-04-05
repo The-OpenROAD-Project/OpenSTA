@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "util/Debug.hh"
-#include "util/Report.hh"
-#include "util/Mutex.hh"
-#include "graph/Graph.hh"
-#include "search/Corner.hh"
-#include "search/Search.hh"
-#include "search/PathAnalysisPt.hh"
+#include "Debug.hh"
+#include "Report.hh"
+#include "Mutex.hh"
+#include "Graph.hh"
+#include "Corner.hh"
+#include "Search.hh"
+#include "PathAnalysisPt.hh"
 
-#include "search/WorstSlack.hh"
+#include "WorstSlack.hh"
 
 namespace sta {
 

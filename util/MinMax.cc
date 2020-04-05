@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "util/MinMax.hh"
+#include "MinMax.hh"
 
 #include <algorithm>
 
-#include "util/StringUtil.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 

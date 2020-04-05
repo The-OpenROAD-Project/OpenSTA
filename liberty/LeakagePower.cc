@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "liberty/LeakagePower.hh"
+#include "LeakagePower.hh"
 
-#include "liberty/FuncExpr.hh"
-#include "liberty/TableModel.hh"
-#include "liberty/Liberty.hh"
+#include "FuncExpr.hh"
+#include "TableModel.hh"
+#include "Liberty.hh"
 
 namespace sta {
 

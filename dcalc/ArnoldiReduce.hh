@@ -20,12 +20,12 @@
 
 #pragma once
 
-#include "util/Map.hh"
-#include "liberty/Transition.hh"
-#include "network/NetworkClass.hh"
-#include "parasitics/ParasiticsClass.hh"
-#include "sdc/SdcClass.hh"
-#include "search/StaState.hh"
+#include "Map.hh"
+#include "Transition.hh"
+#include "NetworkClass.hh"
+#include "ParasiticsClass.hh"
+#include "SdcClass.hh"
+#include "StaState.hh"
 
 namespace sta {
 

@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "parasitics/Parasitics.hh"
+#include "Parasitics.hh"
 
-#include "util/Error.hh"
-#include "util/Debug.hh"
-#include "liberty/Liberty.hh"
-#include "liberty/Wireload.hh"
-#include "network/Network.hh"
-#include "network/PortDirection.hh"
-#include "sdc/Sdc.hh"
-#include "parasitics/ReduceParasitics.hh"
+#include "Error.hh"
+#include "Debug.hh"
+#include "Liberty.hh"
+#include "Wireload.hh"
+#include "Network.hh"
+#include "PortDirection.hh"
+#include "Sdc.hh"
+#include "ReduceParasitics.hh"
 
 namespace sta {
 

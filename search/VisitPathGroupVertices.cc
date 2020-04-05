@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "search/VisitPathGroupVertices.hh"
+#include "VisitPathGroupVertices.hh"
 
-#include "util/Debug.hh"
-#include "graph/Graph.hh"
-#include "search/Bfs.hh"
-#include "search/Search.hh"
-#include "search/PathVertex.hh"
-#include "search/PathEnd.hh"
-#include "search/Tag.hh"
-#include "search/VisitPathEnds.hh"
+#include "Debug.hh"
+#include "Graph.hh"
+#include "Bfs.hh"
+#include "Search.hh"
+#include "PathVertex.hh"
+#include "PathEnd.hh"
+#include "Tag.hh"
+#include "VisitPathEnds.hh"
 
 namespace sta {
 

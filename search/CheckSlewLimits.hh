@@ -16,12 +16,12 @@
 
 #pragma once
 
-#include "util/MinMax.hh"
-#include "liberty/Transition.hh"
-#include "network/NetworkClass.hh"
-#include "graph/GraphClass.hh"
-#include "graph/Delay.hh"
-#include "sdc/SdcClass.hh"
+#include "MinMax.hh"
+#include "Transition.hh"
+#include "NetworkClass.hh"
+#include "GraphClass.hh"
+#include "Delay.hh"
+#include "SdcClass.hh"
 
 namespace sta {
 

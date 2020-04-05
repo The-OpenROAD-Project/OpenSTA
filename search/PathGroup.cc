@@ -14,27 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "search/PathGroup.hh"
+#include "PathGroup.hh"
 
 #include <algorithm>
 #include <limits>
 
-#include "util/Stats.hh"
-#include "util/Debug.hh"
-#include "util/Mutex.hh"
-#include "util/Fuzzy.hh"
-#include "util/MinMax.hh"
-#include "util/DispatchQueue.hh"
-#include "sdc/ExceptionPath.hh"
-#include "sdc/Sdc.hh"
-#include "graph/Graph.hh"
-#include "search/PathEnd.hh"
-#include "search/PathAnalysisPt.hh"
-#include "search/Tag.hh"
-#include "search/Corner.hh"
-#include "search/Search.hh"
-#include "search/VisitPathEnds.hh"
-#include "search/PathEnum.hh"
+#include "Stats.hh"
+#include "Debug.hh"
+#include "Mutex.hh"
+#include "Fuzzy.hh"
+#include "MinMax.hh"
+#include "DispatchQueue.hh"
+#include "ExceptionPath.hh"
+#include "Sdc.hh"
+#include "Graph.hh"
+#include "PathEnd.hh"
+#include "PathAnalysisPt.hh"
+#include "Tag.hh"
+#include "Corner.hh"
+#include "Search.hh"
+#include "VisitPathEnds.hh"
+#include "PathEnum.hh"
 
 namespace sta {
 
