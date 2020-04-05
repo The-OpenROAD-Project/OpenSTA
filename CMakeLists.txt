@@ -208,194 +208,6 @@ set(STA_SOURCE
   verilog/VerilogWriter.cc
   )
 
-set(STA_PVT_HEADERS
-  dcalc/Arnoldi.hh
-  dcalc/ArnoldiDelayCalc.hh
-  dcalc/ArnoldiReduce.hh
-  dcalc/DmpCeff.hh
-  dcalc/DmpDelayCalc.hh
-  dcalc/GraphDelayCalc1.hh
-  dcalc/LumpedCapDelayCalc.hh
-  dcalc/NetCaps.hh
-  dcalc/RCDelayCalc.hh
-  dcalc/SimpleRCDelayCalc.hh
-  dcalc/UnitDelayCalc.hh
-
-  liberty/LibertyBuilder.hh
-  liberty/LibertyExpr.hh
-  liberty/LibertyParser.hh
-  liberty/LibertyReader.hh
-  liberty/LibertyReaderPvt.hh
-
-  parasitics/ConcreteParasitics.hh
-  parasitics/ConcreteParasiticsPvt.hh
-  parasitics/EstimateParasitics.hh
-  parasitics/ReduceParasitics.hh
-  parasitics/SpefNamespace.hh
-  parasitics/SpefReader.hh
-
-  sdc/WriteSdcPvt.hh
-
-  sdf/ReportAnnotation.hh
-  sdf/Sdf.hh
-  sdf/SdfReader.hh
-  sdf/SdfWriter.hh
-  
-  search/CheckMaxSkews.hh
-  search/CheckMinPeriods.hh
-  search/CheckMinPulseWidths.hh
-  search/CheckSlewLimits.hh
-  search/CheckTiming.hh
-  search/ClkSkew.hh
-  search/Crpr.hh
-  search/FindRegister.hh
-  search/GatedClk.hh
-  search/Genclks.hh
-  search/Latches.hh
-  search/Levelize.hh
-  search/PathEnumed.hh
-  search/PathEnum.hh
-  search/PathVertex.hh
-  search/ReportPath.hh
-  search/Sim.hh
-  search/Tag.hh
-  search/TagGroup.hh
-  search/VisitPathGroupVertices.hh
-  search/WorstSlack.hh
-
-  util/Machine.hh
-
-  verilog/VerilogReaderPvt.hh
-  verilog/VerilogReader.hh
-  verilog/VerilogWriter.hh
-  )
-
-set(STA_PUBLIC_HEADERS
-  include/sta/StaMain.hh
-
-  include/sta/ArcDelayCalc.hh
-  include/sta/DelayCalc.hh
-  include/sta/GraphDelayCalc.hh
-  include/sta/DcalcAnalysisPt.hh
-
-  include/sta/Delay.hh
-  include/sta/DelayFloat.hh
-  include/sta/DelayNormal1.hh
-  include/sta/DelayNormal2.hh
-  include/sta/Graph.hh
-  include/sta/GraphClass.hh
-  include/sta/GraphCmp.hh
-  include/sta/VertexId.hh
-
-  include/sta/EquivCells.hh
-  include/sta/FuncExpr.hh
-  include/sta/InternalPower.hh
-  include/sta/LeakagePower.hh
-  include/sta/Liberty.hh
-  include/sta/LibertyClass.hh
-  include/sta/Sequential.hh
-  include/sta/TableModel.hh
-  include/sta/LinearModel.hh
-  include/sta/TimingArc.hh
-  include/sta/TimingModel.hh
-  include/sta/TimingRole.hh
-  include/sta/Transition.hh
-  include/sta/Units.hh
-  include/sta/Wireload.hh
-
-  include/sta/ConcreteLibrary.hh
-  include/sta/ConcreteNetwork.hh
-  include/sta/HpinDrvrLoad.hh
-  include/sta/MakeConcreteNetwork.hh
-  include/sta/Network.hh
-  include/sta/NetworkClass.hh
-  include/sta/NetworkCmp.hh
-  include/sta/ParseBus.hh
-  include/sta/PortDirection.hh
-  include/sta/SdcNetwork.hh
-  include/sta/VerilogNamespace.hh
-
-  include/sta/MakeConcreteParasitics.hh
-  include/sta/NullParasitics.hh
-  include/sta/Parasitics.hh
-  include/sta/ParasiticsClass.hh
-
-  include/sta/Clock.hh
-  include/sta/ClockGatingCheck.hh
-  include/sta/ClockGroups.hh
-  include/sta/ClockInsertion.hh
-  include/sta/ClockLatency.hh
-  include/sta/CycleAccting.hh
-  include/sta/DataCheck.hh
-  include/sta/DeratingFactors.hh
-  include/sta/DisabledPorts.hh
-  include/sta/ExceptionPath.hh
-  include/sta/InputDrive.hh
-  include/sta/MinMaxValues.hh
-  include/sta/PinPair.hh
-  include/sta/PortDelay.hh
-  include/sta/PortExtCap.hh
-  include/sta/RiseFallMinMax.hh
-  include/sta/RiseFallValues.hh
-  include/sta/Sdc.hh
-  include/sta/SdcClass.hh
-  include/sta/SdcCmdComment.hh
-  include/sta/WriteSdc.hh
-
-  include/sta/Bfs.hh
-  include/sta/ClkInfo.hh
-  include/sta/Corner.hh
-  include/sta/Path.hh
-  include/sta/PathAnalysisPt.hh
-  include/sta/PathEnd.hh
-  include/sta/PathExpanded.hh
-  include/sta/PathGroup.hh
-  include/sta/PathRef.hh
-  include/sta/PathVertex.hh
-  include/sta/PathVertexRep.hh
-  include/sta/Power.hh
-  include/sta/Property.hh
-  include/sta/Search.hh
-  include/sta/SearchClass.hh
-  include/sta/SearchPred.hh
-  include/sta/Sta.hh
-  include/sta/StaState.hh
-  include/sta/VertexVisitor.hh
-  include/sta/VisitPathEnds.hh
-  include/sta/WritePathSpice.hh
-
-  include/sta/ArrayTable.hh
-  include/sta/Debug.hh
-  include/sta/DispatchQueue.hh
-  include/sta/DisallowCopyAssign.hh
-  include/sta/EnumNameMap.hh
-  include/sta/Error.hh
-  include/sta/Fuzzy.hh
-  include/sta/Hash.hh
-  include/sta/HashSet.hh
-  include/sta/Iterator.hh
-  include/sta/Map.hh
-  include/sta/MinMax.hh
-  include/sta/Mutex.hh
-  include/sta/ObjectId.hh
-  include/sta/ObjectTable.hh
-  include/sta/PatternMatch.hh
-  include/sta/Report.hh
-  include/sta/ReportStd.hh
-  include/sta/ReportTcl.hh
-  include/sta/Set.hh
-  include/sta/Stats.hh
-  include/sta/StaConfig.hh
-  include/sta/StringSeq.hh
-  include/sta/StringSet.hh
-  include/sta/StringUtil.hh
-  include/sta/TokenParser.hh
-  include/sta/UnorderedMap.hh
-  include/sta/UnorderedSet.hh
-  include/sta/Vector.hh
-  include/sta/Zlib.hh
-  )
-
 # Source files.
 set(STA_TCL_FILES
   tcl/Util.tcl
@@ -594,22 +406,6 @@ configure_file(${STA_HOME}/util/StaConfig.hh.cmake
   ${STA_HOME}/include/sta/StaConfig.hh
   )
 
-################################################################
-
-set(STA_INCLUDE_DIRS
-  app
-  dcalc
-  graph
-  liberty
-  network
-  parasitics
-  sdc
-  sdf
-  search
-  util
-  verilog
-  )
-
 ###########################################################
 # Library
 ###########################################################
@@ -639,10 +435,11 @@ add_library(OpenSTA
 
 target_include_directories(OpenSTA
   PUBLIC
-  include/sta
-  ${STA_HOME}
+  include
 
   PRIVATE
+  include/sta
+  ${STA_HOME}
   ${CUDD_INCLUDE}
   ${TCL_INCLUDE_PATH}
   )
@@ -703,11 +500,10 @@ install(TARGETS sta DESTINATION bin)
 install(TARGETS OpenSTA DESTINATION lib)
 
 # include
-install(FILES ${STA_PUBLIC_HEADERS} DESTINATION include/sta)
+install(DIRECTORY include/sta  DESTINATION include)
 
 ################################################################
 
-add_custom_target(tags etags -o TAGS ${STA_SOURCE} ${STA_PUBLIC_HEADERS} ${STA_PVT_HEADERS} ${SWIG_TCL_FILES}
+add_custom_target(tags etags -o TAGS ${STA_SOURCE} */*.hh include/sta/*.hh  ${SWIG_TCL_FILES}
   WORKING_DIRECTORY ${STA_HOME}
-  DEPENDS ${STA_SOURCE} ${STA_PUBLIC_HEADERS} ${STA_PVT_HEADERS} ${STA_TCL_FILES} ${SWIG_TCL_FILES}
   )
