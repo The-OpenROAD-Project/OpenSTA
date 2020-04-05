@@ -209,6 +209,8 @@ set(STA_SOURCE
   )
 
 set(STA_HEADERS
+  include/sta/Sta.hh
+
   app/StaMain.hh
   
   dcalc/ArcDelayCalc.hh
@@ -340,7 +342,6 @@ set(STA_HEADERS
   search/SearchClass.hh
   search/SearchPred.hh
   search/Sim.hh
-  search/Sta.hh
   search/StaState.hh
   search/Tag.hh
   search/TagGroup.hh
@@ -635,6 +636,10 @@ add_library(OpenSTA
 
 target_include_directories(OpenSTA
   PUBLIC
+  include
+
+  PRIVATE
+  ${STA_HOME}
   ${STA_INCLUDE_DIRS}
   ${CUDD_INCLUDE}
   ${TCL_INCLUDE_PATH}

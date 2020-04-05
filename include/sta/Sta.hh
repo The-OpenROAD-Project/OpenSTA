@@ -17,16 +17,17 @@
 #pragma once
 
 #include <string>
-#include "DisallowCopyAssign.hh"
-#include "StringSeq.hh"
-#include "StaState.hh"
-#include "LibertyClass.hh"
-#include "NetworkClass.hh"
-#include "SdcClass.hh"
-#include "GraphClass.hh"
-#include "SearchClass.hh"
-#include "ParasiticsClass.hh"
-#include "VertexVisitor.hh"
+#include "util/Machine.hh"
+#include "util/DisallowCopyAssign.hh"
+#include "util/StringSeq.hh"
+#include "liberty/LibertyClass.hh"
+#include "network/NetworkClass.hh"
+#include "sdc/SdcClass.hh"
+#include "graph/GraphClass.hh"
+#include "parasitics/ParasiticsClass.hh"
+#include "search/StaState.hh"
+#include "search/VertexVisitor.hh"
+#include "search/SearchClass.hh"
 
 struct Tcl_Interp;
 

@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "Sta.hh"
+#include "sta/Sta.hh"
 
 namespace sta {
 
