@@ -16,14 +16,14 @@
 
 #pragma once
 
-namespace sta {
-
 #include <mutex>
 
 #include "MinMax.hh"
 #include "Vector.hh"
 #include "GraphClass.hh"
 #include "SearchClass.hh"
+
+namespace sta {
 
 class StaState;
 class WorstSlack;

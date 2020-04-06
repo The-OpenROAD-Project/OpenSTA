@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "WorstSlack.hh"
+
 #include "Debug.hh"
 #include "Report.hh"
 #include "Mutex.hh"
@@ -21,8 +23,6 @@
 #include "Corner.hh"
 #include "Search.hh"
 #include "PathAnalysisPt.hh"
-
-#include "WorstSlack.hh"
 
 namespace sta {
 

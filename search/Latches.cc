@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "Latches.hh"
+
 #include "Debug.hh"
 #include "TimingRole.hh"
 #include "TimingArc.hh"
@@ -29,8 +31,6 @@
 #include "PathAnalysisPt.hh"
 #include "Search.hh"
 #include "Crpr.hh"
-
-#include "Latches.hh"
 
 namespace sta {
 

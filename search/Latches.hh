@@ -16,11 +16,12 @@
 
 #pragma once
 
-namespace sta {
-
 #include "GraphClass.hh"
 #include "SearchClass.hh"
+#include "SdcClass.hh"
 #include "StaState.hh"
+
+namespace sta {
 
 enum class LatchEnableState { enabled, open, closed };
 
