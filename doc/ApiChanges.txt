@@ -16,6 +16,10 @@
 
 This file summarizes STA API changes for each release.
 
+Release 2.1.0 2020/04/05
+
+All public headers files have been moved to include/sta.
+
 Release 2.0.18 2020/02/15
 -------------------------
 
