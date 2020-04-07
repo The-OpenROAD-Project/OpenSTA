@@ -16,12 +16,7 @@
 
 #include "PatternMatch.hh"
 
-#include <string.h>
-#include <string>
-#include <ctype.h>
 #include <tcl.h>
-
-#include "StringUtil.hh"
 
 namespace sta {
 
@@ -117,13 +112,15 @@ PatternMatch::matchNoCase(const char *str) const
 RegexpCompileError::RegexpCompileError(const char *pattern)  :
   Exception()
 {
-  error_ = stringPrint("TCL failed to compile regular expression '%s'.", pattern);
+  error_ = "TCL failed to compile regular expression '";
+  error_ += pattern;
+  error_ =+ "'.";
 }
 
 const char *
 RegexpCompileError::what() const noexcept
 {
-  return error_;
+  return error_.c_str();
 }
 
 ////////////////////////////////////////////////////////////////

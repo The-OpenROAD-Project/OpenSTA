@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <string>
 #include "DisallowCopyAssign.hh"
 #include "Error.hh"
 
@@ -67,12 +68,12 @@ private:
 class RegexpCompileError : public Exception
 {
 public:
-  explicit RegexpCompileError(const char *error);
+  explicit RegexpCompileError(const char *pattern);
   virtual ~RegexpCompileError() noexcept {}
   virtual const char *what() const noexcept;
 
 private:
-  const char *error_;
+  std::string error_;
 };
 
 // Simple pattern match
