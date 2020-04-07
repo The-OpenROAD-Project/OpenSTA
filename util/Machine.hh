@@ -23,9 +23,6 @@
   #define __attribute__(x)
 #endif // __GNUC__
 
-// Requires #include <limits> if referenced.
-#define INT_DIGITS std::numeric_limits<int>::digits10
-
 #ifdef _MSC_VER
   // Microcruft Visual C++
   // Obtuse warning codes enabled by pragma.
@@ -51,7 +48,6 @@
 #if defined(_WINDOWS) || defined(_WIN32)
   // Export class definitions to DLLs.
   #define DllExport __declspec(dllexport)
-  // intptr_t is defined in stddef.h, included below.
   #include <stdarg.h>
   #define va_copy(d,s) ((d)=(s))
   #define strcasecmp _stricmp
@@ -69,7 +65,7 @@
   #define vsnprint vsnprintf
 #endif // _WINDOWS
 
-#include <stddef.h>
+#include <stddef.h>		// size_t
 
 namespace sta {
 
