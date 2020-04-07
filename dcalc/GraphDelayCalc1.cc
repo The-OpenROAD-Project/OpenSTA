@@ -688,7 +688,6 @@ GraphDelayCalc1::seedNoDrvrSlew(Vertex *drvr_vertex,
   }
   if (!drvr_vertex->slewAnnotated(rf, slew_min_max))
     graph_->setSlew(drvr_vertex, rf, ap_index, slew);
-  printf("%s %s\n", network_->pathName(drvr_pin), rf->asString());
   Parasitic *parasitic = arc_delay_calc->findParasitic(drvr_pin, rf, dcalc_ap);
   arc_delay_calc->inputPortDelay(drvr_pin, delayAsFloat(slew), rf,
 				 parasitic, dcalc_ap);
