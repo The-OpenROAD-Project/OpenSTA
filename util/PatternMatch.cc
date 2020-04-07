@@ -114,7 +114,7 @@ RegexpCompileError::RegexpCompileError(const char *pattern)  :
 {
   error_ = "TCL failed to compile regular expression '";
   error_ += pattern;
-  error_ =+ "'.";
+  error_ += "'.";
 }
 
 const char *
