@@ -19,8 +19,9 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string>
-#include <tcl.h>
 #include "DisallowCopyAssign.hh"
+
+struct Tcl_Interp;
 
 namespace sta {
 

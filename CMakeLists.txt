@@ -335,6 +335,7 @@ target_include_directories(sta_swig
 
   PRIVATE
   ${STA_HOME}
+  ${TCL_INCLUDE_PATH}
 )
 
 ################################################################
@@ -436,12 +437,12 @@ add_library(OpenSTA
 target_include_directories(OpenSTA
   PUBLIC
   include
-  ${CUDD_INCLUDE}
   ${TCL_INCLUDE_PATH}
 
   PRIVATE
   include/sta
   ${STA_HOME}
+  ${CUDD_INCLUDE}
   )
 
 target_compile_features(OpenSTA
