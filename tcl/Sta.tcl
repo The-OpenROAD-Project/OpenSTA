@@ -312,13 +312,13 @@ proc_redirect report_checks {
 ################################################################
 
 define_sta_cmd_args "report_check_types" \
-  {[-all_violators] [-verbose]\
+  {[-violators] [-verbose]\
      [-corner corner_name]\
      [-format slack_only|end]\
      [-max_delay] [-min_delay]\
      [-recovery] [-removal]\
      [-clock_gating_setup] [-clock_gating_hold]\
-     [-max_transition] [-min_transition]\
+     [-max_slew] [-min_slew]\
      [-min_pulse_width] [-min_period] [-max_skew]\
      [-digits digits] [-no_line_splits]\
      [> filename] [>> filename]}
@@ -327,9 +327,14 @@ proc_redirect report_check_types {
   variable path_options
 
   parse_key_args "report_check_types" args keys {-corner}\
-    flags {-all_violators -verbose -no_line_splits} 0
+    flags {-violators -all_violators -verbose -no_line_splits} 0
 
-  set all_violators [info exists flags(-all_violators)]
+  set violators [info exists flags(-violators)]
+  if { [info exists flags(-all_violators)] } {
+    sta_warn "-all_violators is deprecated. Use -violators"
+    set violators 1
+  }
+
   set verbose [info exists flags(-verbose)]
   set nosplit [info exists flags(-no_line_splits)]
 
@@ -352,33 +357,35 @@ proc_redirect report_check_types {
       set setup 1
       set recovery 1
       set clk_gating_setup 1
-      set max_transition 1
+      set max_slew 1
     } else {
       set setup 0
       set recovery 0
       set clk_gating_setup 0
-      set max_transition 0
+      set max_slew 0
     }
     if { $min_max == "min" || $min_max == "min_max" } {
       set hold 1
       set removal 1
       set clk_gating_hold 1
-      set min_transition 1
+      set min_slew 1
     } else {
       set hold 0
       set min_delay 0
       set removal 0
       set clk_gating_hold 0
-      set min_transition 0
+      set min_slew 0
     }
     set min_pulse_width 1
     set min_period 1
     set max_skew 1
   } else {
-    parse_key_args "report_check_types" args keys {}\
-      flags {-max_delay -min_delay -recovery -removal\
-	       -clock_gating_setup -clock_gating_hold\
-	       -max_transition -min_transition -min_pulse_width\
+    parse_key_args "report_check_types" args keys {} \
+      flags {-max_delay -min_delay -recovery -removal \
+	       -clock_gating_setup -clock_gating_hold \
+	       -max_slew -min_slew \
+	       -max_transition -min_transition \
+	       -min_pulse_width \
 	       -min_period -max_skew} 1
 
     set setup [info exists flags(-max_delay)]
@@ -387,8 +394,16 @@ proc_redirect report_check_types {
     set removal [info exists flags(-removal)]
     set clk_gating_setup [info exists flags(-clock_gating_setup)]
     set clk_gating_hold [info exists flags(-clock_gating_hold)]
-    set max_transition [info exists flags(-max_transition)]
-    set min_transition [info exists flags(-min_transition)]
+    set max_slew [info exists flags(-max_slew)]
+    if { [info exists flags(-max_transition)] } {
+      sta_warn "-max_transition deprecated. Use -max_slew."
+      set max_slew 1
+    }
+    set min_slew [info exists flags(-min_slew)]
+    if { [info exists flags(-min_transition)] } {
+      sta_warn "-min_transition deprecated. Use -min_slew."
+      set min_slew 1
+    }
     set min_pulse_width [info exists flags(-min_pulse_width)]
     set min_period [info exists flags(-min_period)]
     set max_skew [info exists flags(-max_skew)]
@@ -417,7 +432,7 @@ proc_redirect report_check_types {
     } elseif { $hold || $removal || $clk_gating_hold } {
       set path_min_max "min"
     }
-    if { $all_violators } {
+    if { $violators } {
       set group_count $sta::group_count_max
       set slack_min [expr -$sta::float_inf]
       set slack_max 0.0
@@ -436,14 +451,14 @@ proc_redirect report_check_types {
     report_path_ends $path_ends
   }
 
-  if { $max_transition } {
-    report_slew_limits $corner "max" $all_violators $verbose $nosplit
+  if { $max_slew } {
+    report_slew_limits $corner "max" $violators $verbose $nosplit
   }
-  if { $min_transition } {
-    report_slew_limits $corner "min" $all_violators $verbose $nosplit
+  if { $min_slew } {
+    report_slew_limits $corner "min" $violators $verbose $nosplit
   }
   if { $min_pulse_width } {
-    if { $all_violators } {
+    if { $violators } {
       set checks [min_pulse_width_violations $corner]
       report_mpw_checks $checks $verbose
     } else {
@@ -454,7 +469,7 @@ proc_redirect report_check_types {
     }
   }
   if { $min_period } {
-    if { $all_violators } {
+    if { $violators } {
       set checks [min_period_violations]
       report_min_period_checks $checks $verbose
     } else {
@@ -465,7 +480,7 @@ proc_redirect report_check_types {
     }
   }
   if { $max_skew } {
-    if { $all_violators } {
+    if { $violators } {
       set checks [max_skew_violations]
       report_max_skew_checks $checks $verbose
     } else {
