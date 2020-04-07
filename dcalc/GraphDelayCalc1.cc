@@ -688,11 +688,13 @@ GraphDelayCalc1::seedNoDrvrSlew(Vertex *drvr_vertex,
   }
   if (!drvr_vertex->slewAnnotated(rf, slew_min_max))
     graph_->setSlew(drvr_vertex, rf, ap_index, slew);
+  printf("%s %s\n", network_->pathName(drvr_pin), rf->asString());
   Parasitic *parasitic = arc_delay_calc->findParasitic(drvr_pin, rf, dcalc_ap);
   arc_delay_calc->inputPortDelay(drvr_pin, delayAsFloat(slew), rf,
 				 parasitic, dcalc_ap);
   annotateLoadDelays(drvr_vertex, rf, delay_zero, false, dcalc_ap,
 		     arc_delay_calc);
+  arc_delay_calc->finishDrvrPin();
 }
 
 void
@@ -1027,6 +1029,7 @@ GraphDelayCalc1::loadCap(const Pin *drvr_pin,
     Parasitic *drvr_parasitic = arc_delay_calc_->findParasitic(drvr_pin, drvr_rf,
 							       dcalc_ap);
     float cap = loadCap(drvr_pin, nullptr, drvr_parasitic, drvr_rf, dcalc_ap);
+    arc_delay_calc_->finishDrvrPin();
     if (min_max->compare(cap, load_cap))
       load_cap = cap;
   }
