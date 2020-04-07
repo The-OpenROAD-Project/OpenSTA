@@ -436,12 +436,12 @@ add_library(OpenSTA
 target_include_directories(OpenSTA
   PUBLIC
   include
+  ${CUDD_INCLUDE}
+  ${TCL_INCLUDE_PATH}
 
   PRIVATE
   include/sta
   ${STA_HOME}
-  ${CUDD_INCLUDE}
-  ${TCL_INCLUDE_PATH}
   )
 
 target_compile_features(OpenSTA
@@ -460,7 +460,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${STA_HOME}/app)
 # Note executable and lib name cannot be the same because
 # on osx something is case insensitive. Using STA for the
 # lib name results in "No rule to make target ../depend.
-add_executable(sta app/Main)
+add_executable(sta app/Main.cc)
 
 target_compile_options(sta
   PRIVATE
