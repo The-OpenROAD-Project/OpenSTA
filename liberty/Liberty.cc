@@ -1110,6 +1110,19 @@ void
 LibertyCell::addInternalPower(InternalPower *power)
 {
   internal_powers_.push_back(power);
+  port_internal_powers_[power->port()].push_back(power);
+}
+
+InternalPowerSeq *
+LibertyCell::internalPowers()
+{
+  return &internal_powers_;
+}
+
+InternalPowerSeq *
+LibertyCell::internalPowers(const LibertyPort *port)
+{
+  return &port_internal_powers_[port];
 }
 
 void

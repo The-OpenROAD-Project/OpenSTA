@@ -20,6 +20,11 @@ Release 2.1.0 2020/04/05
 
 All public headers files have been moved to include/sta.
 
+The following iterators have been removed.
+Use range iteration on the returned collection shown next to them instead.
+  LibertyCellInternalPowerIterator cell->internalPowers()
+  LibertyCellLeakagePowerIterator cell->leakagePowers()
+
 Release 2.0.18 2020/02/15
 -------------------------
 

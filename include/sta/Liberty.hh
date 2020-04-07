@@ -58,6 +58,7 @@ typedef Set<TimingArcSet*, TimingArcSetLess> TimingArcSetMap;
 typedef Map<LibertyPortPair, TimingArcSetSeq*,
 	    LibertyPortPairLess> LibertyPortPairTimingArcMap;
 typedef Vector<InternalPower*> InternalPowerSeq;
+typedef Map<const LibertyPort *, InternalPowerSeq> PortInternalPowerSeq;
 typedef Vector<LeakagePower*> LeakagePowerSeq;
 typedef Map<const LibertyPort*, TimingArcSetSeq*> LibertyPortTimingArcMap;
 typedef Map<const OperatingConditions*, LibertyCell*> ScaledCellMap;
@@ -419,12 +420,13 @@ public:
   TimingArcSet *findTimingArcSet(unsigned arc_set_index) const;
   bool hasTimingArcs(LibertyPort *port) const;
 
-  InternalPowerSeq *internalPowers() { return &internal_powers_; }
+  InternalPowerSeq *internalPowers();
+  InternalPowerSeq *internalPowers(const LibertyPort *port);
   LeakagePowerSeq *leakagePowers() { return &leakage_powers_; }
   void leakagePower(// Return values.
 		    float &leakage,
 		    bool &exists) const;
-  bool leakagePowerEx() const { return leakage_power_exists_; }
+  bool leakagePowerExists() const { return leakage_power_exists_; }
 
   bool hasSequentials() const;
   // Find the sequential with the output connected to an (internal) port.
@@ -532,6 +534,7 @@ protected:
   TimingArcAttrsSeq timing_arc_attrs_;
   bool has_infered_reg_timing_arcs_;
   InternalPowerSeq internal_powers_;
+  PortInternalPowerSeq port_internal_powers_;
   InternalPowerAttrsSeq internal_power_attrs_;
   LeakagePowerSeq leakage_powers_;
   SequentialSeq sequentials_;
@@ -609,20 +612,6 @@ class LibertyCellSequentialIterator : public SequentialSeq::ConstIterator
 public:
   LibertyCellSequentialIterator(const LibertyCell *cell) :
     SequentialSeq::ConstIterator(cell->sequentials_) {}
-};
-
-class LibertyCellLeakagePowerIterator : public LeakagePowerSeq::Iterator
-{
-public:
-  LibertyCellLeakagePowerIterator(LibertyCell *cell) :
-    LeakagePowerSeq::Iterator(cell->leakagePowers()) {}
-};
-
-class LibertyCellInternalPowerIterator : public InternalPowerSeq::Iterator
-{
-public:
-  LibertyCellInternalPowerIterator(LibertyCell *cell) :
-    InternalPowerSeq::Iterator(cell->internalPowers()) {}
 };
 
 ////////////////////////////////////////////////////////////////
