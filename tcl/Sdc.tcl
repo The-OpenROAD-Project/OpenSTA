@@ -194,7 +194,7 @@ proc check_path_divider { divider } {
 ################################################################
 
 define_cmd_args "set_units" \
-  {[-capacitance cap_unit] [-resistance res_unit] [-time time_unit]\
+  {[-time time_unit] [-capacitance cap_unit] [-resistance res_unit]\
      [-voltage voltage_unit] [-current current_unit] [-power power_unit]\
      [-distance distance_unit]}
 
@@ -206,11 +206,12 @@ proc set_units { args } {
     keys {-capacitance -resistance -time -voltage -current -power -distance} \
     flags {}
   check_argc_eq0 "set_units" $args
-  check_unit "capacitance" -capacitance "f" keys
   check_unit "time" -time "s" keys
+  check_unit "capacitance" -capacitance "f" keys
+  check_unit "resistance" -resistance "ohm" keys
   check_unit "voltage" -voltage "v" keys
   check_unit "current" -current "A" keys
-  check_unit "resistance" -resistance "ohm" keys
+  check_unit "power" -power "W" keys
   check_unit "distance" -distance "m" keys
 }
 
