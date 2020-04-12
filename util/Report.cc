@@ -88,6 +88,7 @@ Report::print(const string &str)
 void
 Report::vprint(const char *fmt, va_list args)
 {
+  std::unique_lock<std::mutex> lock(buffer_lock_);
   printToBuffer(fmt, args);
   printString(buffer_, buffer_length_);
 }
@@ -121,6 +122,7 @@ Report::printError(const char *buffer, size_t length)
 void
 Report::vprintError(const char *fmt, va_list args)
 {
+  std::unique_lock<std::mutex> lock(buffer_lock_);
   printToBuffer(fmt, args);
   printError(buffer_, buffer_length_);
 }

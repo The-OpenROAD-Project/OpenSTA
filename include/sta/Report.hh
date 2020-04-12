@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string>
+#include <mutex>
 #include "DisallowCopyAssign.hh"
 
 struct Tcl_Interp;
@@ -113,6 +114,7 @@ protected:
   char *buffer_;
   // Length of string in buffer.
   size_t buffer_length_;
+  std::mutex buffer_lock_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Report);
