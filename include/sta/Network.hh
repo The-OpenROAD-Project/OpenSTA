@@ -368,16 +368,16 @@ public:
 		  const Net *net2) const;
   virtual Instance *instance(const Net *net) const = 0;
   // Is net inside of hier_inst?
-  bool isInside(const Net *net,
-		const Instance *hier_inst) const;
+  virtual bool isInside(const Net *net,
+			const Instance *hier_inst) const;
   // Is pin connected to net anywhere in the hierarchy?
   virtual bool isConnected(const Net *net,
 			   const Pin *pin) const;
   // Is net1 connected to net2 anywhere in the hierarchy?
   virtual bool isConnected(const Net *net1,
 			   const Net *net2) const;
-  Net *highestNetAbove(Net *net) const;
-  Net *highestConnectedNet(Net *net) const;
+  virtual Net *highestNetAbove(Net *net) const;
+  virtual Net *highestConnectedNet(Net *net) const;
   virtual void connectedNets(Net *net,
 			     NetSet *nets) const;
   virtual void connectedNets(const Pin *pin,
