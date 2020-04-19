@@ -100,7 +100,7 @@ public:
   VertexId vertexCount() { return vertices_->size(); }
   Arrival *makeArrivals(Vertex *vertex,
 			uint32_t count);
-  Arrival *arrivals(Vertex *vertex) const;
+  Arrival *arrivals(Vertex *vertex);
   void clearArrivals();
   PathVertexRep *makePrevPaths(Vertex *vertex,
 			       uint32_t count);
@@ -274,7 +274,7 @@ public:
   bool isRoot() const{ return level_ == 0; }
   LevelColor color() const { return static_cast<LevelColor>(color_); }
   void setColor(LevelColor color);
-  ArrivalId arrivals() const { return arrivals_; }
+  ArrivalId arrivals() { return arrivals_; }
   void setArrivals(ArrivalId id);
   PrevPathId prevPaths() const { return prev_paths_; }
   void setPrevPaths(PrevPathId id);

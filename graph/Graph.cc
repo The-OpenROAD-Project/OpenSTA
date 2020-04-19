@@ -515,9 +515,14 @@ Graph::makeArrivals(Vertex *vertex,
 }
 
 Arrival *
-Graph::arrivals(Vertex *vertex) const
+Graph::arrivals(Vertex *vertex)
 {
-  return arrivals_.pointer(vertex->arrivals());
+  Arrival *arrivals;
+  {
+    UniqueLock lock(arrivals_lock_);
+    arrivals = arrivals_.pointer(vertex->arrivals());
+  }
+  return arrivals;
 }
 
 void

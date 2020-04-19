@@ -132,7 +132,7 @@ PathVertexRep::tag(const StaState *sta) const
 Arrival
 PathVertexRep::arrival(const StaState *sta) const
 { 
-  const Graph *graph = sta->graph();
+  Graph *graph = sta->graph();
   const Search *search = sta->search();
   Tag *tag = search->tag(tag_index_);
   Vertex *vertex = graph->vertex(vertex_id_);
