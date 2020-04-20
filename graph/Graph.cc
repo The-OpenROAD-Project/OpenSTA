@@ -1174,6 +1174,16 @@ Vertex::setHasRequireds(bool has_req)
   has_requireds_ = has_req;
 }
 
+void
+Vertex::deletePaths()
+{
+  arrivals_ = arrival_null;
+  prev_paths_ = prev_path_null;
+  tag_group_index_ = tag_group_index_max;
+  has_requireds_ = false;
+  crpr_path_pruning_disabled_ = false;
+}
+
 LogicValue
 Vertex::simValue() const
 {

@@ -397,7 +397,7 @@ Search::deletePaths()
     VertexIterator vertex_iter(graph_);
     while (vertex_iter.hasNext()) {
       Vertex *vertex = vertex_iter.next();
-      deletePaths1(vertex);
+      vertex->deletePaths();
     }
     graph_->clearArrivals();
     graph_->clearPrevPaths();
@@ -406,22 +406,12 @@ Search::deletePaths()
 }
 
 void
-Search::deletePaths1(Vertex *vertex)
-{
-  vertex->setArrivals(arrival_null);
-  vertex->setPrevPaths(prev_path_null);
-  vertex->setTagGroupIndex(tag_group_index_max);
-  vertex->setHasRequireds(false);
-  vertex->setCrprPathPruningDisabled(false);
-}
-
-void
 Search::deletePaths(Vertex *vertex)
 {
   tnsNotifyBefore(vertex);
   if (worst_slacks_)
     worst_slacks_->worstSlackNotifyBefore(vertex);
-  deletePaths1(vertex);
+  vertex->deletePaths();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -720,7 +710,7 @@ void
 Search::arrivalInvalidDelete(Vertex *vertex)
 {
   arrivalInvalid(vertex);
-  deletePaths1(vertex);
+  vertex->deletePaths();
 }
 
 void

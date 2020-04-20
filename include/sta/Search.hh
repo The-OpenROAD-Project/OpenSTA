@@ -482,7 +482,6 @@ protected:
 			     const PathAnalysisPt *path_ap);
   void deletePaths();
   void deletePaths(Vertex *vertex);
-  void deletePaths1(Vertex *vertex);
   TagGroup *findTagGroup(TagGroupBldr *group_bldr);
   void deleteFilterTags();
   void deleteFilterTagGroups();

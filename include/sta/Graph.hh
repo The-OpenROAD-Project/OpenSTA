@@ -275,7 +275,6 @@ public:
   LevelColor color() const { return static_cast<LevelColor>(color_); }
   void setColor(LevelColor color);
   ArrivalId arrivals() { return arrivals_; }
-  void setArrivals(ArrivalId id);
   PrevPathId prevPaths() const { return prev_paths_; }
   void setPrevPaths(PrevPathId id);
   // Requireds optionally follow arrivals in the same array.
@@ -325,6 +324,8 @@ public:
   // ObjectTable interface.
   ObjectIdx objectIdx() const { return object_idx_; }
   void setObjectIdx(ObjectIdx idx);
+  // private to Search.cc
+  void deletePaths();
 
   static int transitionCount() { return 2; }  // rise/fall
 
@@ -332,6 +333,7 @@ protected:
   void init(Pin *pin,
 	    bool is_bidirect_drvr,
 	    bool is_reg_clk);
+  void setArrivals(ArrivalId id);
 
   Pin *pin_;
   ArrivalId arrivals_;
