@@ -27,6 +27,9 @@
 
 #include "galois/Reduction.h"
 #include "galois/Bag.h"
+#include "galois/substrate/PerThreadStorage.h"
+
+#include <atomic>
 
 namespace sta {
 
@@ -172,7 +175,20 @@ private:
 };
 
 // GaloisedLevelQueue is a vector of galois::InsertBag<Vertex*>* indexed by logic level.
-typedef Vector<galois::InsertBag<Vertex*>*> GaloisedLevelQueue;
+using GaloisedVertexBag = galois::InsertBag<Vertex*>;
+using GaloisedLevelQueue = Vector<std::pair<Level, GaloisedVertexBag*>>;
+
+struct GaloisedThreadData
+{
+public:
+  unsigned int version_;
+  VertexVisitor* visitor_;
+  galois::gstl::Map<Level, GaloisedVertexBag*> level_map_;
+
+public:
+  GaloisedThreadData();
+  ~GaloisedThreadData();
+};
 
 // Abstract base class for Galoised forward and backward breadth first search iterators.
 // Visit all of the vertices at a level before moving to the next.
@@ -231,30 +247,34 @@ protected:
 	      SearchPred *search_pred,
 	      StaState *sta);
   void init();
-  void deleteEntries(Level level);
   virtual bool levelLess(Level level1,
 			 Level level2) const = 0;
   virtual bool levelLessOrEqual(Level level1,
 				Level level2) const = 0;
   virtual void incrLevel(Level &level) = 0;
   void findNext(Level to_level);
-  void deleteEntries();
   void levelFinished(VertexVisitor* visitor);
   virtual void updateLevelBoundaries() = 0;
+  void updateLocalMapping();
+  GaloisedVertexBag* findLocalMapping(Level level);
+  GaloisedVertexBag* updateLocalOrCreateMapping(Level level);
 
   BfsIndex bfs_index_;
   Level level_min_;
   Level level_max_;
   SearchPred *search_pred_;
-  GaloisedLevelQueue queue_;
   // Min (max) level of queued vertices.
   Level first_level_;
   // Max (min) level of queued vertices.
   Level last_level_;
-  // Historical max level of queued vertices.
-  Level history_max_level_1_;
   galois::GReduceMax<Level> per_thread_max_level_;
   galois::GReduceMin<Level> per_thread_min_level_;
+  // Thread-local mapping look-up
+  galois::substrate::PerThreadStorage<GaloisedThreadData> per_thread_data_;
+  // Global version of (level, worklist*) mapping
+  galois::substrate::PaddedLock<true> master_lock_;
+  GaloisedLevelQueue master_queue_;
+  std::atomic<unsigned int> master_version_;
 
   friend class GaloisedBfsFwdIterator;
   friend class GaloisedBfsBkwdIterator;

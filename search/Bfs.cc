@@ -409,6 +409,20 @@ OriginalBfsBkwdIterator::enqueueAdjacentVertices(Vertex *vertex,
 
 ////////////////////////////////////////////////////////////////
 
+GaloisedThreadData::GaloisedThreadData() :
+  version_(0),
+  visitor_(nullptr)
+{
+  level_map_.clear();
+}
+
+GaloisedThreadData::~GaloisedThreadData()
+{
+  level_map_.clear();
+}
+
+////////////////////////////////////////////////////////////////
+
 GaloisedBfsIterator::GaloisedBfsIterator(BfsIndex bfs_index,
 			 Level level_min,
 			 Level level_max,
@@ -418,7 +432,8 @@ GaloisedBfsIterator::GaloisedBfsIterator(BfsIndex bfs_index,
   bfs_index_(bfs_index),
   level_min_(level_min),
   level_max_(level_max),
-  search_pred_(search_pred)
+  search_pred_(search_pred),
+  master_version_(0)
 {
   init();
 }
@@ -428,47 +443,36 @@ GaloisedBfsIterator::init()
 {
   first_level_ = level_max_;
   last_level_ = level_min_;
-  history_max_level_1_= 0;
   per_thread_min_level_.reset();
   per_thread_max_level_.reset();
-  ensureSize();
 }
 
 void
 GaloisedBfsIterator::ensureSize()
 {
-  if (levelize_->levelized()) {
-    int max_level_1 = levelize_->maxLevel() + 1;
-    if (queue_.size() < max_level_1)
-      queue_.resize(max_level_1);
-    // allocate worklist at corresponding levels
-    if (history_max_level_1_ < max_level_1) {
-      for (auto i = history_max_level_1_; i < max_level_1; i++) {
-        queue_[i] = new galois::InsertBag<Vertex*>;
-      }
-    }
-  }
 }
 
 GaloisedBfsIterator::~GaloisedBfsIterator()
 {
+  for (auto i: master_queue_)
+    delete i.second;
 }
 
 void
 GaloisedBfsIterator::clear()
 {
-  Level level = first_level_;
-  while (levelLessOrEqual(level, last_level_)) {
-    auto& level_vertices = *queue_[level];
-    galois::do_all(
-        galois::iterate(level_vertices),
-        [&] (Vertex* vertex) {
-          if (vertex)
-	    vertex->setBfsInQueue(bfs_index_, false);
-        }
-    );
-    level_vertices.clear();
-    incrLevel(level);
+  for (auto i: per_thread_data_.getLocal()->level_map_) {
+    auto level_vertices = i.second;
+    if (level_vertices && !level_vertices->empty()) {
+      galois::do_all(
+          galois::iterate(*level_vertices),
+          [&] (Vertex* vertex) {
+            if (vertex)
+	      vertex->setBfsInQueue(bfs_index_, false);
+          }
+      );
+      level_vertices->clear();
+    }
   }
   init();
 }
@@ -476,12 +480,13 @@ GaloisedBfsIterator::clear()
 void
 GaloisedBfsIterator::reportEntries(const Network *network)
 {
+  updateLocalMapping();
   Level level = first_level_;
   while (levelLessOrEqual(level, last_level_)) {
-    auto& level_vertices = *queue_[level];
-    if (!level_vertices.empty()) {
+    auto level_vertices = findLocalMapping(level);
+    if (level_vertices && !level_vertices->empty()) {
       printf("Level %d\n", level);
-      for (auto vertex : level_vertices) {
+      for (auto vertex : *level_vertices) {
 	if (vertex)
 	  printf(" %s\n", vertex->name(network));
       }
@@ -490,18 +495,63 @@ GaloisedBfsIterator::reportEntries(const Network *network)
   }
 }
 
-void 
-GaloisedBfsIterator::deleteEntries(Level level)
+void
+GaloisedBfsIterator::updateLocalMapping()
 {
-  auto& level_vertices = *queue_[level];
-  galois::do_all(
-      galois::iterate(level_vertices),
-      [&] (Vertex* vertex) {
-        if (vertex)
-          vertex->setBfsInQueue(bfs_index_, false);
-      }
-  );
-  level_vertices.clear();
+  auto& data = *per_thread_data_.getLocal();
+  auto& ver = data.version_;
+  if (ver != master_version_.load(std::memory_order_relaxed)) {
+    for (;
+         ver < master_version_.load(std::memory_order_relaxed);
+         ver++) {
+      std::pair<Level, GaloisedVertexBag*> entry = master_queue_[ver];
+      data.level_map_[entry.first] = entry.second;
+      assert(entry.second);
+    }
+  }
+}
+
+GaloisedVertexBag*
+GaloisedBfsIterator::findLocalMapping(Level level)
+{
+  auto& data = *per_thread_data_.getLocal();
+  auto& map = data.level_map_;
+  auto it = map.find(level);
+  return (it != map.end()) ? it ->second : nullptr;
+}
+
+GaloisedVertexBag*
+GaloisedBfsIterator::updateLocalOrCreateMapping(Level level)
+{
+  auto& data = *per_thread_data_.getLocal();
+  auto& map = data.level_map_;
+  auto it = map.find(level);
+
+  // we have the mapping locally
+  if (it != map.end())
+    return it->second;
+
+  // update until we find it or we get the writer lock
+  do {
+    updateLocalMapping();
+    it = map.find(level);
+    if (it != map.end())
+      return it->second;
+  } while (!master_lock_.try_lock());
+
+  // we have the writer lock, update again and then create
+  updateLocalMapping();
+  it = map.find(level);
+  GaloisedVertexBag* bag = (it != map.end()) ? it->second : nullptr;
+  if (!bag) {
+    bag = new GaloisedVertexBag();
+    map[level] = bag;
+    data.version_ = master_version_.load(std::memory_order_relaxed) + 1;
+    master_queue_.push_back(std::make_pair(level, bag));
+    master_version_.fetch_add(1);
+  }
+  master_lock_.unlock();
+  return bag;
 }
 
 bool
@@ -537,19 +587,20 @@ GaloisedBfsIterator::visit(Level to_level,
 {
   int visit_count = 0;
   updateLevelBoundaries();
+  updateLocalMapping();
   while (levelLessOrEqual(first_level_, last_level_)
 	 && levelLessOrEqual(first_level_, to_level)) {
-    auto& level_vertices = *queue_[first_level_];
+    auto level_vertices = findLocalMapping(first_level_);
     incrLevel(first_level_);
-    if (!level_vertices.empty()) {
-      for (auto vertex : level_vertices) {
+    if (level_vertices && !level_vertices->empty()) {
+      for (auto vertex : *level_vertices) {
 	if (vertex) {
 	  vertex->setBfsInQueue(bfs_index_, false);
 	  visitor->visit(vertex);
 	  visit_count++;
 	}
       }
-      level_vertices.clear();
+      level_vertices->clear();
       levelFinished(visitor);
     }
   }
@@ -562,28 +613,27 @@ GaloisedBfsIterator::visitParallel(Level to_level,
 {
   int visit_count = 0;
   updateLevelBoundaries();
+  updateLocalMapping();
 
   if (!empty()) {
     galois::setActiveThreads(threadCount());
-
-    galois::substrate::PerThreadStorage<VertexVisitor*> visitors;
-    for (int i = 0; i < galois::getActiveThreads(); i++)
-      *(visitors.getRemote(i)) = visitor->copy();
+    for (unsigned int i = 0; i < galois::getActiveThreads(); i++)
+      per_thread_data_.getRemote(i)->visitor_ = visitor->copy();
 
     galois::GAccumulator<int> visit_count_local;
     visit_count_local.reset();
 
     while (levelLessOrEqual(first_level_, last_level_)
            && levelLessOrEqual(first_level_, to_level)) {
-      auto& level_vertices = *queue_[first_level_];
+      auto level_vertices = findLocalMapping(first_level_);
       incrLevel(first_level_);
-      if (!level_vertices.empty()) {
+      if (level_vertices && !level_vertices->empty()) {
         galois::do_all(
-            galois::iterate(level_vertices),
+            galois::iterate(*level_vertices),
             [&] (Vertex* vertex) {
               if (vertex) {
                 vertex->setBfsInQueue(bfs_index_, false);
-                (*(visitors.getLocal()))->visit(vertex);
+                per_thread_data_.getLocal()->visitor_->visit(vertex);
                 visit_count_local += 1;
               }
             }
@@ -591,10 +641,15 @@ GaloisedBfsIterator::visitParallel(Level to_level,
             , galois::loopname("visitParallel")
 	);
         levelFinished(visitor);
-	level_vertices.clear();
+	level_vertices->clear();
       }
     }
     visit_count = visit_count_local.reduce();
+
+    for (unsigned int i = 0; i < galois::getActiveThreads(); i++) {
+      delete per_thread_data_.getRemote(i)->visitor_;
+      per_thread_data_.getRemote(i)->visitor_ = nullptr;
+    }
   }
   return visit_count;
 }
@@ -609,32 +664,36 @@ bool
 GaloisedBfsIterator::hasNext(Level to_level)
 {
   findNext(to_level);
+  auto level_vertices = findLocalMapping(first_level_);
   return levelLessOrEqual(first_level_, last_level_)
-     && !queue_[first_level_]->empty();
+     && level_vertices
+     && !level_vertices->empty();
 }
 
 Vertex *
 GaloisedBfsIterator::next()
 {
-  auto& level_vertices = *queue_[first_level_];
-  Vertex *vertex = *(level_vertices.begin());
-  vertex->setBfsInQueue(bfs_index_, false);
+  updateLocalMapping();
+  auto level_vertices = findLocalMapping(first_level_);
+  assert(level_vertices);
+  assert(!level_vertices->empty());
+  Vertex *vertex = *(level_vertices->begin());
   remove(vertex);
 
   galois::InsertBag<Vertex*> bag;
   galois::do_all(
-      galois::iterate(level_vertices),
+      galois::iterate(*level_vertices),
       [&] (Vertex* vertex) {
         if (vertex)
           bag.push_back(vertex);
       }
   );
 
-  level_vertices.clear();
+  level_vertices->clear();
   galois::do_all(
       galois::iterate(bag),
       [&] (Vertex* vertex) {
-        level_vertices.push(vertex);
+        level_vertices->push(vertex);
       }
   );
   bag.clear();
@@ -645,10 +704,14 @@ GaloisedBfsIterator::next()
 void
 GaloisedBfsIterator::findNext(Level to_level)
 {
+  updateLocalMapping();
   while (levelLessOrEqual(first_level_, last_level_)
-	 && levelLessOrEqual(first_level_, to_level)
-	 && queue_[first_level_]->empty())
+	 && levelLessOrEqual(first_level_, to_level)) {
+    auto level_vertices = findLocalMapping(first_level_);
+    if (level_vertices && !level_vertices->empty())
+      return;
     incrLevel(first_level_);
+  }
 }
 
 void
@@ -658,7 +721,8 @@ GaloisedBfsIterator::enqueue(Vertex *vertex)
   if (!vertex->bfsInQueue(bfs_index_)) {
     if (vertex->setBfsInQueue(bfs_index_, true)) {
       Level level = vertex->level();
-      queue_[level]->push_back(vertex);
+      auto level_vertices = updateLocalOrCreateMapping(level);
+      level_vertices->push_back(vertex);
       per_thread_min_level_.update(level);
       per_thread_max_level_.update(level);
     }
@@ -675,9 +739,10 @@ GaloisedBfsIterator::inQueue(Vertex *vertex)
 void
 GaloisedBfsIterator::checkInQueue(Vertex *vertex)
 {
-  Level level = vertex->level();
-  if (static_cast<Level>(queue_.size()) > level) {
-    for (auto v : *queue_[level]) {
+  updateLocalMapping();
+  auto level_vertices = findLocalMapping(vertex->level());
+  if (level_vertices) {
+    for (auto v : *level_vertices) {
       if (v == vertex) {
 	if (vertex->bfsInQueue(bfs_index_))
 	  return;
@@ -700,11 +765,13 @@ GaloisedBfsIterator::deleteVertexBefore(Vertex *vertex)
 void
 GaloisedBfsIterator::remove(Vertex *vertex)
 {
-  // If the iterator has not been inited the queue will be empty.
-  Level level = vertex->level();
-  if (vertex->bfsInQueue(bfs_index_)
-      && static_cast<Level>(queue_.size()) > level) {
-    for (auto &v : *queue_[level]) {
+  if (!vertex->bfsInQueue(bfs_index_))
+    return;
+
+  updateLocalMapping();
+  auto level_vertices = findLocalMapping(vertex->level());
+  if (level_vertices) {
+    for (auto &v : *level_vertices) {
       if (v == vertex) {
 	v = nullptr;
 	vertex->setBfsInQueue(bfs_index_, false);
@@ -720,6 +787,7 @@ GaloisedBfsIterator::levelFinished(VertexVisitor* visitor)
   if (visitor)
     visitor->levelFinished();
   updateLevelBoundaries();
+  updateLocalMapping();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -731,17 +799,25 @@ GaloisedBfsFwdIterator::GaloisedBfsFwdIterator(BfsIndex bfs_index,
 {
 }
 
-// clear() without saving lists to list_free_.
 GaloisedBfsFwdIterator::~GaloisedBfsFwdIterator()
 {
-  for (Level level = first_level_; level <= last_level_; level++)
-    deleteEntries(level);
+  clear();
 }
 
 void
 GaloisedBfsFwdIterator::incrLevel(Level &level)
 {
-  level++;
+  updateLocalMapping();
+  auto& map = per_thread_data_.getLocal()->level_map_;
+  auto it = map.lower_bound(level);
+  if (it == map.end())
+    level = last_level_ + 1;
+  else if (level < it->first)
+    level = it->first;
+  else {
+    it++;
+    level = (it != map.end()) ? it->first : (last_level_ + 1);
+  }
 }
 
 bool
@@ -798,17 +874,30 @@ GaloisedBfsBkwdIterator::GaloisedBfsBkwdIterator(BfsIndex bfs_index,
 {
 }
 
-// clear() without saving lists to list_free_.
 GaloisedBfsBkwdIterator::~GaloisedBfsBkwdIterator()
 {
-  for (Level level = first_level_; level >= last_level_; level--)
-    deleteEntries(level);
+  clear();
 }
 
 void
 GaloisedBfsBkwdIterator::incrLevel(Level &level)
 {
-  level--;
+  updateLocalMapping();
+  auto& map = per_thread_data_.getLocal()->level_map_;
+  if (map.empty())
+    level = last_level_ - 1;
+  else {
+    auto it = map.lower_bound(level);
+    if (it == map.end())
+      level = map.rbegin()->first;
+    else if (it == map.begin()) {
+      level = last_level_ - 1;
+    }
+    else {
+      it--;
+      level = it->first;
+    }
+  }
 }
 
 bool
