@@ -315,13 +315,15 @@ PropActivityVisitor::visit(Vertex *vertex)
     LibertyPort *port = network_->libertyPort(pin);
     if (port) {
       FuncExpr *func = port->function();
-      Instance *inst = network_->instance(pin);
-      PwrActivity activity = power_->evalActivity(func, inst);
-      power_->setPinActivity(pin, activity);
-      debugPrint3(debug_, "power_activity", 3, "set %s %.2e %.2f\n",
-		  vertex->name(network_),
-		  activity.activity(),
-		  activity.duty());
+      if (func) {
+	Instance *inst = network_->instance(pin);
+	PwrActivity activity = power_->evalActivity(func, inst);
+	power_->setPinActivity(pin, activity);
+	debugPrint3(debug_, "power_activity", 3, "set %s %.2e %.2f\n",
+		    vertex->name(network_),
+		    activity.activity(),
+		    activity.duty());
+      }
     }
   }
   bfs_->enqueueAdjacentVertices(vertex);
