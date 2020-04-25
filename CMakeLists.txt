@@ -24,7 +24,9 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14)
 cmake_policy(SET CMP0086 NEW)
 endif()
 
-project(STA VERSION 2.1.0)
+project(STA VERSION 2.1.0
+  LANGUAGES CXX
+)
 
 option(CUDD_DIR "CUDD BDD package directory")
 
@@ -474,11 +476,14 @@ target_link_libraries(sta
   OpenSTA
   sta_swig
   ${TCL_LIBRARY}
-  ${ZLIB_LIBRARIES}
   )
 
+if (ZLIB_LIBRARIES)
+  target_link_libraries(sta ${ZLIB_LIBRARIES})
+endif()
+
 if (CUDD_LIB)
-target_link_libraries(sta ${CUDD_LIB})
+  target_link_libraries(sta ${CUDD_LIB})
 endif()
 
 message(STATUS "STA executable: ${STA_HOME}/app/sta")

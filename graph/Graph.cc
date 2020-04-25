@@ -515,9 +515,14 @@ Graph::makeArrivals(Vertex *vertex,
 }
 
 Arrival *
-Graph::arrivals(Vertex *vertex) const
+Graph::arrivals(Vertex *vertex)
 {
-  return arrivals_.pointer(vertex->arrivals());
+  Arrival *arrivals;
+  {
+    UniqueLock lock(arrivals_lock_);
+    arrivals = arrivals_.pointer(vertex->arrivals());
+  }
+  return arrivals;
 }
 
 void
@@ -1167,6 +1172,16 @@ void
 Vertex::setHasRequireds(bool has_req)
 {
   has_requireds_ = has_req;
+}
+
+void
+Vertex::deletePaths()
+{
+  arrivals_ = arrival_null;
+  prev_paths_ = prev_path_null;
+  tag_group_index_ = tag_group_index_max;
+  has_requireds_ = false;
+  crpr_path_pruning_disabled_ = false;
 }
 
 LogicValue

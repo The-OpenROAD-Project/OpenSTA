@@ -1,33 +1,33 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2020, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "ReportTcl.hh"
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 namespace sta {
 
-using ::Tcl_Channel;
-using ::Tcl_GetChannelType;
-using ::Tcl_ChannelType;
 using ::ClientData;
-using ::Tcl_GetChannelInstanceData;
-using ::Tcl_DriverOutputProc;
+using ::Tcl_Channel;
 using ::Tcl_ChannelOutputProc;
+using ::Tcl_ChannelType;
+using ::Tcl_DriverOutputProc;
+using ::Tcl_GetChannelInstanceData;
+using ::Tcl_GetChannelType;
 
 extern "C" {
 
@@ -38,153 +38,166 @@ extern "C" {
 #endif
 
 static int
-encapOutputProc(ClientData instanceData, CONST84 char *buf, int toWrite,
-		int *errorCodePtr);
+encapOutputProc(ClientData instanceData,
+                CONST84 char *buf,
+                int toWrite,
+                int *errorCodePtr);
 static int
-encapErrorOutputProc(ClientData instanceData, CONST84 char *buf, int toWrite,
-		     int *errorCodePtr);
+encapErrorOutputProc(ClientData instanceData,
+                     CONST84 char *buf,
+                     int toWrite,
+                     int *errorCodePtr);
 static int
 encapCloseProc(ClientData instanceData, Tcl_Interp *interp);
 static int
-encapSetOptionProc(ClientData instanceData, Tcl_Interp *interp,
-		   CONST84 char *optionName, CONST84 char *value);
+encapSetOptionProc(ClientData instanceData,
+                   Tcl_Interp *interp,
+                   CONST84 char *optionName,
+                   CONST84 char *value);
 static int
-encapGetOptionProc(ClientData instanceData, Tcl_Interp *interp,
-		   CONST84 char *optionName, Tcl_DString *dsPtr);
+encapGetOptionProc(ClientData instanceData,
+                   Tcl_Interp *interp,
+                   CONST84 char *optionName,
+                   Tcl_DString *dsPtr);
 static int
-encapInputProc(ClientData instanceData, char *buf, int bufSize,
-		int *errorCodePtr);
+encapInputProc(ClientData instanceData,
+               char *buf,
+               int bufSize,
+               int *errorCodePtr);
 static int
-encapSeekProc(ClientData instanceData, long offset, int seekMode,
-	      int *errorCodePtr);
+encapSeekProc(ClientData instanceData,
+              long offset,
+              int seekMode,
+              int *errorCodePtr);
 static void
 encapWatchProc(ClientData instanceData, int mask);
 static int
-encapGetHandleProc(ClientData instanceData, int direction,
-		   ClientData *handlePtr);
+encapGetHandleProc(ClientData instanceData,
+                   int direction,
+                   ClientData *handlePtr);
 static int
 encapBlockModeProc(ClientData instanceData, int mode);
 }  // extern "C"
 
 #ifdef TCL_CHANNEL_VERSION_5
 Tcl_ChannelType tcl_encap_type_stdout = {
-  const_cast<char*>("file"),
-  TCL_CHANNEL_VERSION_4,
-  encapCloseProc,
-  encapInputProc,
-  encapOutputProc,
-  encapSeekProc,
-  encapSetOptionProc,
-  encapGetOptionProc,
-  encapWatchProc,
-  encapGetHandleProc,
-  nullptr,				// close2Proc
-  encapBlockModeProc,
-  nullptr,				// flushProc
-  nullptr,				// handlerProc
-  nullptr,				// wideSeekProc
-  nullptr,				// threadActionProc
-  nullptr				// truncateProc
+    const_cast<char *>("file"),
+    TCL_CHANNEL_VERSION_4,
+    encapCloseProc,
+    encapInputProc,
+    encapOutputProc,
+    encapSeekProc,
+    encapSetOptionProc,
+    encapGetOptionProc,
+    encapWatchProc,
+    encapGetHandleProc,
+    nullptr,  // close2Proc
+    encapBlockModeProc,
+    nullptr,  // flushProc
+    nullptr,  // handlerProc
+    nullptr,  // wideSeekProc
+    nullptr,  // threadActionProc
+    nullptr   // truncateProc
 };
 
 Tcl_ChannelType tcl_encap_type_stderr = {
-  const_cast<char*>("file"),
-  TCL_CHANNEL_VERSION_4,
-  encapCloseProc,
-  encapInputProc,
-  encapErrorOutputProc,
-  encapSeekProc,
-  encapSetOptionProc,
-  encapGetOptionProc,
-  encapWatchProc,
-  encapGetHandleProc,
-  nullptr,				// close2Proc
-  encapBlockModeProc,
-  nullptr,				// flushProc
-  nullptr,				// handlerProc
-  nullptr,				// wideSeekProc
-  nullptr,				// threadActionProc
-  nullptr				// truncateProc
+    const_cast<char *>("file"),
+    TCL_CHANNEL_VERSION_4,
+    encapCloseProc,
+    encapInputProc,
+    encapErrorOutputProc,
+    encapSeekProc,
+    encapSetOptionProc,
+    encapGetOptionProc,
+    encapWatchProc,
+    encapGetHandleProc,
+    nullptr,  // close2Proc
+    encapBlockModeProc,
+    nullptr,  // flushProc
+    nullptr,  // handlerProc
+    nullptr,  // wideSeekProc
+    nullptr,  // threadActionProc
+    nullptr   // truncateProc
 };
 
 #else
 #ifdef TCL_CHANNEL_VERSION_4
 // Tcl 8.4.12
 Tcl_ChannelType tcl_encap_type_stdout = {
-  const_cast<char*>("file"),
-  TCL_CHANNEL_VERSION_4,
-  encapCloseProc,
-  encapInputProc,
-  encapOutputProc,
-  encapSeekProc,
-  encapSetOptionProc,
-  encapGetOptionProc,
-  encapWatchProc,
-  encapGetHandleProc,
-  nullptr,				// close2Proc
-  encapBlockModeProc,
-  nullptr,				// flushProc
-  nullptr,				// handlerProc
-  nullptr,				// wideSeekProc
-  nullptr				// threadActionProc
+    const_cast<char *>("file"),
+    TCL_CHANNEL_VERSION_4,
+    encapCloseProc,
+    encapInputProc,
+    encapOutputProc,
+    encapSeekProc,
+    encapSetOptionProc,
+    encapGetOptionProc,
+    encapWatchProc,
+    encapGetHandleProc,
+    nullptr,  // close2Proc
+    encapBlockModeProc,
+    nullptr,  // flushProc
+    nullptr,  // handlerProc
+    nullptr,  // wideSeekProc
+    nullptr   // threadActionProc
 };
 
 Tcl_ChannelType tcl_encap_type_stderr = {
-  const_cast<char*>("file"),
-  TCL_CHANNEL_VERSION_4,
-  encapCloseProc,
-  encapInputProc,
-  encapErrorOutputProc,
-  encapSeekProc,
-  encapSetOptionProc,
-  encapGetOptionProc,
-  encapWatchProc,
-  encapGetHandleProc,
-  nullptr,				// close2Proc
-  encapBlockModeProc,
-  nullptr,				// flushProc
-  nullptr,				// handlerProc
-  nullptr,				// wideSeekProc
-  nullptr				// threadActionProc
+    const_cast<char *>("file"),
+    TCL_CHANNEL_VERSION_4,
+    encapCloseProc,
+    encapInputProc,
+    encapErrorOutputProc,
+    encapSeekProc,
+    encapSetOptionProc,
+    encapGetOptionProc,
+    encapWatchProc,
+    encapGetHandleProc,
+    nullptr,  // close2Proc
+    encapBlockModeProc,
+    nullptr,  // flushProc
+    nullptr,  // handlerProc
+    nullptr,  // wideSeekProc
+    nullptr   // threadActionProc
 };
 
 #else
 #ifdef TCL_CHANNEL_VERSION_3
 // Tcl 8.4
 Tcl_ChannelType tcl_encap_type_stdout = {
-  const_cast<char*>("file"),
-  TCL_CHANNEL_VERSION_3,
-  encapCloseProc,
-  encapInputProc,
-  encapOutputProc,
-  encapSeekProc,
-  encapSetOptionProc,
-  encapGetOptionProc,
-  encapWatchProc,
-  encapGetHandleProc,
-  nullptr,				// close2Proc
-  encapBlockModeProc,
-  nullptr,				// flushProc
-  nullptr,				// handlerProc
-  nullptr				// wideSeekProc
+    const_cast<char *>("file"),
+    TCL_CHANNEL_VERSION_3,
+    encapCloseProc,
+    encapInputProc,
+    encapOutputProc,
+    encapSeekProc,
+    encapSetOptionProc,
+    encapGetOptionProc,
+    encapWatchProc,
+    encapGetHandleProc,
+    nullptr,  // close2Proc
+    encapBlockModeProc,
+    nullptr,  // flushProc
+    nullptr,  // handlerProc
+    nullptr   // wideSeekProc
 };
 
 Tcl_ChannelType tcl_encap_type_stderr = {
-  const_cast<char*>("file"),
-  TCL_CHANNEL_VERSION_3,
-  encapCloseProc,
-  encapInputProc,
-  encapErrorOutputProc,
-  encapSeekProc,
-  encapSetOptionProc,
-  encapGetOptionProc,
-  encapWatchProc,
-  encapGetHandleProc,
-  nullptr,				// close2Proc
-  encapBlockModeProc,
-  nullptr,				// flushProc
-  nullptr,				// handlerProc
-  nullptr				// wideSeekProc
+    const_cast<char *>("file"),
+    TCL_CHANNEL_VERSION_3,
+    encapCloseProc,
+    encapInputProc,
+    encapErrorOutputProc,
+    encapSeekProc,
+    encapSetOptionProc,
+    encapGetOptionProc,
+    encapWatchProc,
+    encapGetHandleProc,
+    nullptr,  // close2Proc
+    encapBlockModeProc,
+    nullptr,  // flushProc
+    nullptr,  // handlerProc
+    nullptr   // wideSeekProc
 };
 
 #else
@@ -192,68 +205,68 @@ Tcl_ChannelType tcl_encap_type_stderr = {
 
 // Tcl 8.3.2
 Tcl_ChannelType tcl_encap_type_stdout = {
-  const_cast<char*>("file"),
-  TCL_CHANNEL_VERSION_2,
-  encapCloseProc,
-  encapInputProc,
-  encapOutputProc,
-  encapSeekProc,
-  encapSetOptionProc,
-  encapGetOptionProc,
-  encapWatchProc,
-  encapGetHandleProc,
-  nullptr,				// close2Proc
-  encapBlockModeProc,
-  nullptr,				// flushProc
-  nullptr				// handlerProc
+    const_cast<char *>("file"),
+    TCL_CHANNEL_VERSION_2,
+    encapCloseProc,
+    encapInputProc,
+    encapOutputProc,
+    encapSeekProc,
+    encapSetOptionProc,
+    encapGetOptionProc,
+    encapWatchProc,
+    encapGetHandleProc,
+    nullptr,  // close2Proc
+    encapBlockModeProc,
+    nullptr,  // flushProc
+    nullptr   // handlerProc
 };
 
 Tcl_ChannelType tcl_encap_type_stderr = {
-  const_cast<char*>("file"),
-  TCL_CHANNEL_VERSION_2,
-  encapCloseProc,
-  encapInputProc,
-  encapErrorOutputProc,
-  encapSeekProc,
-  encapSetOptionProc,
-  encapGetOptionProc,
-  encapWatchProc,
-  encapGetHandleProc,
-  nullptr,				// close2Proc
-  encapBlockModeProc,
-  nullptr,				// flushProc
-  nullptr				// handlerProc
+    const_cast<char *>("file"),
+    TCL_CHANNEL_VERSION_2,
+    encapCloseProc,
+    encapInputProc,
+    encapErrorOutputProc,
+    encapSeekProc,
+    encapSetOptionProc,
+    encapGetOptionProc,
+    encapWatchProc,
+    encapGetHandleProc,
+    nullptr,  // close2Proc
+    encapBlockModeProc,
+    nullptr,  // flushProc
+    nullptr   // handlerProc
 };
 
 #else
 
 // Tcl 8.2
 Tcl_ChannelType tcl_encap_type_stdout = {
-  const_cast<char*>("file"),
-  encapBlockModeProc,
-  encapCloseProc,
-  encapInputProc,
-  encapOutputProc,
-  encapSeekProc,
-  encapSetOptionProc,
-  encapGetOptionProc,
-  encapWatchProc,
-  encapGetHandleProc,
-  nullptr				// close2Proc
+    const_cast<char *>("file"),
+    encapBlockModeProc,
+    encapCloseProc,
+    encapInputProc,
+    encapOutputProc,
+    encapSeekProc,
+    encapSetOptionProc,
+    encapGetOptionProc,
+    encapWatchProc,
+    encapGetHandleProc,
+    nullptr  // close2Proc
 };
 
 Tcl_ChannelType tcl_encap_type_stderr = {
-  const_cast<char*>("file"),
-  encapBlockModeProc,
-  encapCloseProc,
-  encapInputProc,
-  encapErrorOutputProc,
-  encapSeekProc,
-  encapSetOptionProc,
-  encapGetOptionProc,
-  encapWatchProc,
-  encapGetHandleProc,
-  nullptr				// close2Proc
+    const_cast<char *>("file"),
+    encapBlockModeProc,
+    encapCloseProc,
+    encapInputProc,
+    encapErrorOutputProc,
+    encapSeekProc,
+    encapSetOptionProc,
+    encapGetOptionProc,
+    encapWatchProc,
+    encapGetHandleProc,
+    nullptr  // close2Proc
 };
 
 #endif
@@ -264,12 +277,8 @@ Tcl_ChannelType tcl_encap_type_stderr = {
 ////////////////////////////////////////////////////////////////
 
 ReportTcl::ReportTcl() :
-  Report(),
-  interp_(nullptr),
-  tcl_stdout_(nullptr),
-  tcl_stderr_(nullptr),
-  tcl_encap_stdout_(nullptr),
-  tcl_encap_stderr_(nullptr)
+    Report(), interp_(nullptr), tcl_stdout_(nullptr), tcl_stderr_(nullptr),
+    tcl_encap_stdout_(nullptr), tcl_encap_stderr_(nullptr)
 {
 }
 
@@ -290,10 +299,16 @@ ReportTcl::setTclInterp(Tcl_Interp *interp)
   interp_ = interp;
   tcl_stdout_ = Tcl_GetStdChannel(TCL_STDOUT);
   tcl_stderr_ = Tcl_GetStdChannel(TCL_STDERR);
-  tcl_encap_stdout_ = Tcl_StackChannel(interp, &tcl_encap_type_stdout, this,
-				       TCL_WRITABLE, tcl_stdout_);
-  tcl_encap_stderr_ = Tcl_StackChannel(interp, &tcl_encap_type_stderr, this,
-				       TCL_WRITABLE, tcl_stderr_);
+  tcl_encap_stdout_ = Tcl_StackChannel(interp,
+                                       &tcl_encap_type_stdout,
+                                       this,
+                                       TCL_WRITABLE,
+                                       tcl_stdout_);
+  tcl_encap_stderr_ = Tcl_StackChannel(interp,
+                                       &tcl_encap_type_stderr,
+                                       this,
+                                       TCL_WRITABLE,
+                                       tcl_stderr_);
 }
 
 size_t
@@ -315,9 +330,10 @@ ReportTcl::printTcl(Tcl_Channel channel, const char *buffer, size_t length)
   Tcl_DriverOutputProc *output_proc = Tcl_ChannelOutputProc(ch_type);
   int error_code;
   ClientData clientData = Tcl_GetChannelInstanceData(channel);
-  return output_proc(clientData, const_cast<char*>(buffer),
-		     static_cast<int>(length),
-		     &error_code);
+  return output_proc(clientData,
+                     const_cast<char *>(buffer),
+                     length,
+                     &error_code);
 }
 
 // Tcl_Main can eval multiple commands before the flushing the command
@@ -389,19 +405,20 @@ ReportTcl::redirectStringEnd()
 ////////////////////////////////////////////////////////////////
 
 static int
-encapOutputProc(ClientData instanceData, CONST84 char *buf, int toWrite,
-		int *)
+encapOutputProc(ClientData instanceData, CONST84 char *buf, int toWrite, int *)
 {
-  ReportTcl *report = reinterpret_cast<ReportTcl*>(instanceData);
-  return static_cast<int>(report->printString(buf, toWrite));
+  ReportTcl *report = reinterpret_cast<ReportTcl *>(instanceData);
+  return report->printString(buf, toWrite);
 }
 
 static int
-encapErrorOutputProc(ClientData instanceData, CONST84 char *buf, int toWrite,
-		     int *)
+encapErrorOutputProc(ClientData instanceData,
+                     CONST84 char *buf,
+                     int toWrite,
+                     int *)
 {
-  ReportTcl *report = reinterpret_cast<ReportTcl*>(instanceData);
-  return static_cast<int>(report->printString(buf, toWrite));
+  ReportTcl *report = reinterpret_cast<ReportTcl *>(instanceData);
+  return report->printString(buf, toWrite);
 }
 
 static int
@@ -413,7 +430,7 @@ encapInputProc(ClientData, char *, int, int *)
 static int
 encapCloseProc(ClientData instanceData, Tcl_Interp *)
 {
-  ReportTcl *report = reinterpret_cast<ReportTcl*>(instanceData);
+  ReportTcl *report = reinterpret_cast<ReportTcl *>(instanceData);
   report->logEnd();
   report->redirectFileEnd();
   report->redirectStringEnd();
@@ -455,4 +472,4 @@ encapBlockModeProc(ClientData, int)
   return 0;
 }
 
-} // namespace
+}  // namespace sta
