@@ -1513,11 +1513,11 @@ proc set_sense { args } {
   if { [info exists keys(-type)] } {
     set type $keys(-type)
     if { $type == "data" } {
-      sdc_warn "set_sense -type data not supported."
+      sta_warn "set_sense -type data not supported."
     } elseif { $type == "clock" } {
       set_clock_sense_cmd1 "set_sense" $args
     } else {
-      sdc_error "set_sense -type clock|data"
+      sta_error "set_sense -type clock|data"
     }
   }
 }
@@ -1528,7 +1528,7 @@ define_cmd_args "set_clock_sense" \
      [-clock clocks] pins}
 
 proc set_clock_sense { args } {
-  sdc_warn "set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock."
+  sta_warn "set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock."
   set_clock_sense_cmd1 "set_clock_sense" $args
 }
 
@@ -1905,26 +1905,24 @@ proc set_false_path { args } {
   check_exception_pins $from $to
   if { $arg_error } {
     delete_from_thrus_to $from $thrus $to
-    sta_error "set_false_path command failed."
-  }
+  } else {
+    check_for_key_args $cmd args
+    if { $args != {} } {
+      sta_warn "'$args' ignored."
+    }
+    if { ($from == "NULL" && $thrus == "" && $to == "NULL") } {
+      delete_from_thrus_to $from $thrus $to
+      sta_warn "-from, -through or -to required."
+    } else {
+      if [info exists flags(-reset_path)] {
+	reset_path_cmd $from $thrus $to $min_max
+      }
   
-  check_for_key_args $cmd args
-  if { $args != {} } {
-    delete_from_thrus_to $from $thrus $to
-    sta_error "positional arguments not supported."
-  }
-  if { ($from == "NULL" && $thrus == "" && $to == "NULL") } {
-    delete_from_thrus_to $from $thrus $to
-    sta_error "-from, -through or -to required."
-  }
+      set comment [parse_comment_key keys]
   
-  if [info exists flags(-reset_path)] {
-    reset_path_cmd $from $thrus $to $min_max
+      make_false_path $from $thrus $to $min_max $comment
+    }
   }
-  
-  set comment [parse_comment_key keys]
-  
-  make_false_path $from $thrus $to $min_max $comment
 }
 
 ################################################################
@@ -2050,32 +2048,30 @@ proc set_path_delay { cmd args min_max } {
   set to [parse_to_arg keys flags arg_error]
   if { $arg_error } {
     delete_from_thrus_to $from $thrus $to
-    sta_error "set_path_delay command failed."
-  }
-  
-  check_for_key_args $cmd args
-  if { [llength $args] == 0 } {
-    delete_from_thrus_to $from $thrus $to
-    sta_error "missing delay argument."
-  } elseif { [llength $args] == 1 } {
-    set delay $args
-    check_float "$cmd delay" $delay
-    set delay [time_ui_sta $delay]
   } else {
-    delete_from_thrus_to $from $thrus $to
-    sta_error "extra positional arguments."
+    check_for_key_args $cmd args
+    if { [llength $args] == 0 } {
+      delete_from_thrus_to $from $thrus $to
+      sta_error "missing delay argument."
+    } elseif { [llength $args] == 1 } {
+      set delay $args
+      check_float "$cmd delay" $delay
+      set delay [time_ui_sta $delay]
+    } else {
+      sta_warn "'$args' ignored."
+    }
+  
+    set ignore_clk_latency [info exists flags(-ignore_clock_latency)]
+  
+    if [info exists flags(-reset_path)] {
+      reset_path_cmd $from $thrus $to "all"
+    }
+  
+    set comment [parse_comment_key keys]
+  
+    make_path_delay $from $thrus $to $min_max $ignore_clk_latency \
+      $delay $comment
   }
-  
-  set ignore_clk_latency [info exists flags(-ignore_clock_latency)]
-  
-  if [info exists flags(-reset_path)] {
-    reset_path_cmd $from $thrus $to "all"
-  }
-  
-  set comment [parse_comment_key keys]
-  
-  make_path_delay $from $thrus $to $min_max $ignore_clk_latency \
-    $delay $comment
 }
 
 ################################################################
@@ -2183,40 +2179,38 @@ proc set_multicycle_path { args } {
   check_exception_pins $from $to
   if { $arg_error } {
     delete_from_thrus_to $from $thrus $to
-    sta_error "set_multicycle_path command failed."
-  }
-  
-  check_for_key_args $cmd args
-  if { [llength $args] == 0 } {
-    delete_from_thrus_to $from $thrus $to
-    sta_error "missing path multiplier argument."
-  } elseif { [llength $args] == 1 } {
-    set path_multiplier $args
-    check_integer "path multiplier" $path_multiplier
   } else {
-    delete_from_thrus_to $from $thrus $to
-    sta_error "extra positional arguments."
+    check_for_key_args $cmd args
+    if { [llength $args] == 0 } {
+      delete_from_thrus_to $from $thrus $to
+      sta_error "missing path multiplier argument."
+    } elseif { [llength $args] == 1 } {
+      set path_multiplier $args
+      check_integer "path multiplier" $path_multiplier
+    } else {
+      sta_warn "'$args' ignored."
+    }
+  
+    set start [info exists flags(-start)]
+    set end [info exists flags(-end)]
+    if { $start && $end } {
+      delete_from_thrus_to $from $thrus $to
+      sta_error "cannot use -start with -end."
+    } elseif { $start } {
+      set use_end_clk 0
+    } elseif { $end } {
+      set use_end_clk 1
+    }
+  
+    if [info exists flags(-reset_path)] {
+      reset_path_cmd $from $thrus $to $min_max
+    }
+  
+    set comment [parse_comment_key keys]
+  
+    make_multicycle_path $from $thrus $to $min_max $use_end_clk \
+      $path_multiplier $comment
   }
-  
-  set start [info exists flags(-start)]
-  set end [info exists flags(-end)]
-  if { $start && $end } {
-    delete_from_thrus_to $from $thrus $to
-    sta_error "cannot use -start with -end."
-  } elseif { $start } {
-    set use_end_clk 0
-  } elseif { $end } {
-    set use_end_clk 1
-  }
-  
-  if [info exists flags(-reset_path)] {
-    reset_path_cmd $from $thrus $to $min_max
-  }
-  
-  set comment [parse_comment_key keys]
-  
-  make_multicycle_path $from $thrus $to $min_max $use_end_clk \
-    $path_multiplier $comment
 }
 
 ################################################################
@@ -2794,7 +2788,7 @@ proc parse_from_arg { keys_var arg_error_var } {
   if {$from_pins == {} && $from_insts == {} && $from_clks == {}} {
     upvar 1 $arg_error_var arg_error
     set arg_error 1
-    sta_error "no valid objects specified for $key."
+    sta_warn "no valid objects specified for $key."
     return "NULL"
   }
   return [make_exception_from $from_pins $from_clks $from_insts $tr]
@@ -2811,10 +2805,13 @@ proc parse_thrus_arg { args_var arg_error_var } {
     set tr ""
     if { $arg == "-through" } {
       set tr "rise_fall"
+      set key "-through"
     } elseif { $arg == "-rise_through" } {
       set tr "rise"
+      set key "-rise_through"
     } elseif { $arg == "-fall_through" } {
       set tr "fall"
+      set key "-fall_through"
     }
     if { $tr != "" } {
       if { [llength $args] > 1 } {
@@ -2824,7 +2821,7 @@ proc parse_thrus_arg { args_var arg_error_var } {
 	if {$pins == {} && $insts == {} && $nets == {}} {
 	  upvar 1 $arg_error_var arg_error
 	  set arg_error 1
-	  sta_error "no valid objects specified for -through."
+	  sta_warn "no valid objects specified for $key"
 	} else {
 	  lappend thrus [make_exception_thru $pins $nets $insts $tr]
 	}
@@ -2873,7 +2870,7 @@ proc parse_to_arg1 { keys_var end_rf arg_error_var } {
   if {$to_pins == {} && $to_insts == {} && $to_clks == {}} {
     upvar 1 $arg_error_var arg_error
     set arg_error 1
-    puts "Error: no valid objects specified for $key."
+    sta_warn "no valid objects specified for $key."
     return "NULL"
   }
   return [make_exception_to $to_pins $to_clks $to_insts $to_rf $end_rf]
