@@ -629,30 +629,28 @@ proc get_lib_cells { args } {
     set cell_regexp [cell_wild_regexp $divider]
     set quiet [info exists flags(-quiet)]
     foreach pattern $patterns {
-      if {[regexp $cell_regexp $pattern ignore lib_name cell_pattern]} {
-	# SDC does not allow wildcards in the library name.
-	set libs [get_libs -quiet $lib_name]
-	if { $libs == {} } {
-	  if {!$quiet} {
-	    sta_warn "library '$lib_name' not found."
-	  }
-	} else {
-	  foreach lib $libs {
-	    set matches [$lib find_liberty_cells_matching $cell_pattern \
-			   $regexp $nocase]
-	    if {$matches != {}} {
-	      set cells [concat $cells $matches]
-	    }
-	  }
-	  if { $cells == {} } {
-	    if {!$quiet} {
-	      sta_warn "cell '$cell_pattern' not found."
-	    }
-	  }
+      if { ![regexp $cell_regexp $pattern ignore lib_name cell_pattern]} {
+	set lib_name "*"
+	set cell_pattern $pattern
+      }
+      # Allow wildcards in the library name (incompatible).
+      set libs [get_libs -quiet $lib_name]
+      if { $libs == {} } {
+	if {!$quiet} {
+	  sta_warn "library '$lib_name' not found."
 	}
       } else {
-	if {!$quiet} {
-	  sta_warn "library/cell not found in $pattern."
+	foreach lib $libs {
+	  set matches [$lib find_liberty_cells_matching $cell_pattern \
+			 $regexp $nocase]
+	  if {$matches != {}} {
+	    set cells [concat $cells $matches]
+	  }
+	}
+	if { $cells == {} } {
+	  if {!$quiet} {
+	    sta_warn "cell '$cell_pattern' not found."
+	  }
 	}
       }
     }
@@ -1598,21 +1596,21 @@ proc set_clock_transition { args } {
 # -rise/-fall are obsolete.
 define_cmd_args "set_clock_uncertainty" \
   {[-from|-rise_from|-fall_from from_clock]\
-      [-to|-rise_to|-fall_to to_clock] [-rise] [-fall]\
-      [-setup] [-hold] uncertainty [objects]}
+     [-to|-rise_to|-fall_to to_clock] [-rise] [-fall]\
+     [-setup] [-hold] uncertainty [objects]}
 
 proc set_clock_uncertainty { args } {
   parse_key_args "set_clock_uncertainty" args \
     keys {-from -rise_from -fall_from -to -rise_to -fall_to} \
     flags {-rise -fall -setup -hold}
-      
+  
   if { [llength $args] == 0 } {
     sta_error "missing uncertainty value."
   }
   set uncertainty [lindex $args 0]
   check_float "uncertainty" $uncertainty
   set uncertainty [time_ui_sta $uncertainty]
-      
+  
   set min_max "min_max"
   if { [info exists flags(-setup)] && ![info exists flags(-hold)] } {
     set min_max "max"
@@ -1620,7 +1618,7 @@ proc set_clock_uncertainty { args } {
   if { [info exists flags(-hold)] && ![info exists flags(-setup)] } {
     set min_max "min"
   }
-      
+  
   if { [info exists keys(-from)] } {
     set from_key "-from"
     set from_rf "rise_fall"
@@ -1633,7 +1631,7 @@ proc set_clock_uncertainty { args } {
   } else {
     set from_key "none"
   }
-      
+  
   if { [info exists keys(-to)] } {
     set to_key "-to"
     set to_rf "rise_fall"
@@ -1646,7 +1644,7 @@ proc set_clock_uncertainty { args } {
   } else {
     set to_key "none"
   }
-      
+  
   if { $from_key != "none" && $to_key == "none" \
 	 || $from_key == "none" && $to_key != "none" } {
     sta_error "-from/-to must be used together."
@@ -1695,12 +1693,12 @@ proc set_data_check { args } {
     keys {-from -rise_from -fall_from -to -rise_to -fall_to -clock} \
     flags {-setup -hold}
   check_argc_eq1 "set_data_check" $args
-
+  
   set margin [time_ui_sta $args]
   set from_rf "rise_fall"
   set to_rf "rise_fall"
   set clk "NULL"
-
+  
   if [info exists keys(-from)] {
     set from [get_port_pin_error "from_pin" $keys(-from)]
   } elseif [info exists keys(-rise_from)] {
@@ -1712,7 +1710,7 @@ proc set_data_check { args } {
   } else {
     sta_error "missing -from, -rise_from or -fall_from argument."
   }
-
+  
   if [info exists keys(-to)] {
     set to [get_port_pin_error "to_pin" $keys(-to)]
   } elseif [info exists keys(-rise_to)] {
@@ -1724,11 +1722,11 @@ proc set_data_check { args } {
   } else {
     sta_error "missing -to, -rise_to or -fall_to argument."
   }
-
+  
   if [info exists keys(-clock)] {
     set clk [get_clock_warn "clock" $keys(-clock)]
   }
-
+  
   if { [info exists flags(-setup)] && ![info exists flags(-hold)] } {
     set setup_hold "setup"
   } elseif { [info exists flags(-hold)] && ![info exists flags(-setup)] } {
@@ -1736,7 +1734,7 @@ proc set_data_check { args } {
   } else {
     set setup_hold "setup_hold"
   }
-
+  
   set_data_check_cmd $from $from_rf $to $to_rf $clk $setup_hold $margin
 }
 
@@ -1917,9 +1915,9 @@ proc set_false_path { args } {
       if [info exists flags(-reset_path)] {
 	reset_path_cmd $from $thrus $to $min_max
       }
-  
+      
       set comment [parse_comment_key keys]
-  
+      
       make_false_path $from $thrus $to $min_max $comment
     }
   }
@@ -2060,15 +2058,15 @@ proc set_path_delay { cmd args min_max } {
     } else {
       sta_warn "'$args' ignored."
     }
-  
+    
     set ignore_clk_latency [info exists flags(-ignore_clock_latency)]
-  
+    
     if [info exists flags(-reset_path)] {
       reset_path_cmd $from $thrus $to "all"
     }
-  
+    
     set comment [parse_comment_key keys]
-  
+    
     make_path_delay $from $thrus $to $min_max $ignore_clk_latency \
       $delay $comment
   }
@@ -2190,7 +2188,7 @@ proc set_multicycle_path { args } {
     } else {
       sta_warn "'$args' ignored."
     }
-  
+    
     set start [info exists flags(-start)]
     set end [info exists flags(-end)]
     if { $start && $end } {
@@ -2201,13 +2199,13 @@ proc set_multicycle_path { args } {
     } elseif { $end } {
       set use_end_clk 1
     }
-  
+    
     if [info exists flags(-reset_path)] {
       reset_path_cmd $from $thrus $to $min_max
     }
-  
+    
     set comment [parse_comment_key keys]
-  
+    
     make_multicycle_path $from $thrus $to $min_max $use_end_clk \
       $path_multiplier $comment
   }

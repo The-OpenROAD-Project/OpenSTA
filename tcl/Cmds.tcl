@@ -1475,6 +1475,31 @@ proc get_lib_cell_arg { arg_name arg error_proc } {
   return $lib_cell
 }
 
+proc get_lib_cells_arg { arg_name arglist error_proc } {
+  set lib_cells {}
+  # Copy backslashes that will be removed by foreach.
+  set arglist [string map {\\ \\\\} $arglist]
+  foreach arg $arglist {
+    if {[llength $arg] > 1} {
+      # Embedded list.
+      set lib_cells [concat $lib_cells [get_lib_cells_arg $arg_name $arg $warn_error]]
+    } elseif { [is_object $arg] } {
+      set object_type [object_type $arg]
+      if { $object_type == "LibertyCell" } {
+	lappend lib_cells $arg
+      } else {
+	sta_warn_error $warn_error "unsupported object type $object_type."
+      }
+    } elseif { $arg != {} } {
+      set arg_lib_cells [get_lib_cells -quiet $arg]
+      if { $arg_lib_cells != {} } {
+	set lib_cells [concat $lib_cells $arg_lib_cells]
+      }
+    }
+  }
+  return $lib_cells
+}
+
 proc get_instance_error { arg_name arg } {
   set inst "NULL"
   if {[llength $arg] > 1} {
