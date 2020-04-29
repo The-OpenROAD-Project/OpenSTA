@@ -122,4 +122,10 @@ debugCheck(const Debug *debug,
     debug->print(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);	\
   }
 
+#define debugPrint9(debug,what,level,fmt,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9) \
+  if (sta::debug_on && debug->check(what, level)) { \
+    debug->print("%s: ", what); \
+    debug->print(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);	\
+  }
+
 } // namespace

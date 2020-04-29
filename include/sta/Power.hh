@@ -106,15 +106,24 @@ protected:
 	     const Corner *corner,
 	     // Return values.
 	     PowerResult &result);
-  void findInternalPower(const Pin *to_pin,
-			 const LibertyPort *to_port,
-			 const Instance *inst,
-			 LibertyCell *cell,
-			 PwrActivity &to_activity,
-			 float load_cap,
-			 const DcalcAnalysisPt *dcalc_ap,
-			 // Return values.
-			 PowerResult &result);
+  void findInputInternalPower(const Pin *to_pin,
+			      const LibertyPort *to_port,
+			      const Instance *inst,
+			      LibertyCell *cell,
+			      PwrActivity &to_activity,
+			      float load_cap,
+			      const DcalcAnalysisPt *dcalc_ap,
+			      // Return values.
+			      PowerResult &result);
+  void findOutputInternalPower(const Pin *to_pin,
+			       const LibertyPort *to_port,
+			       const Instance *inst,
+			       LibertyCell *cell,
+			       PwrActivity &to_activity,
+			       float load_cap,
+			       const DcalcAnalysisPt *dcalc_ap,
+			       // Return values.
+			       PowerResult &result);
   void findLeakagePower(const Instance *inst,
 			LibertyCell *cell,
 			// Return values.
