@@ -622,6 +622,7 @@ Power::findOutputInternalPower(const Pin *to_pin,
   debugPrint0(debug_, "power", 2, "          when act/ns duty  wgt   energy    power\n");
 
   float duty_sum = 0.0;
+  map<const char*, float, StringLessIf> pg_duty_sum;
   for (InternalPower *pwr : *cell->internalPowers(to_port)) {
     const char *related_pg_pin = pwr->relatedPgPin();
     const LibertyPort *from_port = pwr->relatedPort();
@@ -634,28 +635,24 @@ Power::findOutputInternalPower(const Pin *to_pin,
     }
     // If all the "when" clauses exist VSS internal power is ignored.
     const Pin *from_pin = network_->findPin(inst, from_port);
-    if (from_pin
-	&& ((when && internalPowerMissingWhen(cell, to_port, related_pg_pin))
-	    || pgNameVoltage(cell, related_pg_pin, dcalc_ap) != 0.0)) {
-      Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
-      float duty;
-      if (infered_when) {
-	PwrActivity from_activity = findActivity(from_pin);
-	PwrActivity to_activity = findActivity(to_pin);
-	float duty1 = evalActivity(infered_when, inst).duty();
-	if (to_activity.activity() == 0.0)
-	  duty = 0.0;
-	else
-	  duty = from_activity.activity() / to_activity.activity() * duty1;
-      }
-      else if (when)
-	duty = evalActivity(when, inst).duty();
-      else if (search_->isClock(from_vertex))
-	duty = 1.0;
+    Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
+    float duty;
+    if (infered_when) {
+      PwrActivity from_activity = findActivity(from_pin);
+      PwrActivity to_activity = findActivity(to_pin);
+      float duty1 = evalActivity(infered_when, inst).duty();
+      if (to_activity.activity() == 0.0)
+	duty = 0.0;
       else
-	duty = 0.5;
-      duty_sum += duty;
+	duty = from_activity.activity() / to_activity.activity() * duty1;
     }
+    else if (when)
+      duty = evalActivity(when, inst).duty();
+    else if (search_->isClock(from_vertex))
+      duty = 1.0;
+    else
+      duty = 0.5;
+    pg_duty_sum[related_pg_pin] += duty;
     if (infered_when)
       infered_when->deleteSubexprs();
   }
@@ -673,56 +670,52 @@ Power::findOutputInternalPower(const Pin *to_pin,
     }
     // If all the "when" clauses exist VSS internal power is ignored.
     const Pin *from_pin = network_->findPin(inst, from_port);
-    if (from_pin
-	&& ((when && internalPowerMissingWhen(cell, to_port, related_pg_pin))
-	    || pgNameVoltage(cell, related_pg_pin, dcalc_ap) != 0.0)) {
-      Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
-      float duty;
-      if (infered_when) {
-	PwrActivity from_activity = findActivity(from_pin);
-	PwrActivity to_activity = findActivity(to_pin);
-	float duty1 = evalActivity(infered_when, inst).duty();
-	if (to_activity.activity() == 0.0)
-	  duty = 0.0;
-	else
-	  duty = from_activity.activity() / to_activity.activity() * duty1;
-      }
-      else if (when)
-	duty = evalActivity(when, inst).duty();
-      else if (search_->isClock(from_vertex))
-	duty = 1.0;
+    Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
+    float duty;
+    if (infered_when) {
+      PwrActivity from_activity = findActivity(from_pin);
+      PwrActivity to_activity = findActivity(to_pin);
+      float duty1 = evalActivity(infered_when, inst).duty();
+      if (to_activity.activity() == 0.0)
+	duty = 0.0;
       else
-	duty = 0.5;
-      float energy = 0.0;
-      int tr_count = 0;
-      for (auto to_rf : RiseFall::range()) {
-	// Use unateness to find from_rf.
-	RiseFall *from_rf = isPositiveUnate(cell, from_port, to_port)
-	  ? to_rf
-	  : to_rf->opposite();
-	float slew = delayAsFloat(graph_->slew(from_vertex, from_rf,
-					       dcalc_ap->index()));
-	if (!fuzzyInf(slew)) {
-	  float table_energy = pwr->power(to_rf, pvt, slew, load_cap);
-	  energy += table_energy;
-	  tr_count++;
-	}
-      }
-      energy /= tr_count; // average non-inf energies
-      float weight = duty / duty_sum;
-      float port_internal = weight * energy * to_activity.activity();
-      debugPrint9(debug_, "power", 2,  " %s -> %s %6s %.2f %.2f %.2f %9.2e %9.2e %s\n",
-		  from_port->name(),
-		  to_port->name(),
-		  when ? when->asString() : (infered_when ? infered_when->asString() : "    "),
-		  to_activity.activity() * 1e-9,
-		  duty,
-		  weight,
-		  energy,
-		  port_internal,
-		  related_pg_pin ? related_pg_pin : "no pg_pin");
-      internal += port_internal;
+	duty = from_activity.activity() / to_activity.activity() * duty1;
     }
+    else if (when)
+      duty = evalActivity(when, inst).duty();
+    else if (search_->isClock(from_vertex))
+      duty = 1.0;
+    else
+      duty = 0.5;
+    float energy = 0.0;
+    int tr_count = 0;
+    for (auto to_rf : RiseFall::range()) {
+      // Use unateness to find from_rf.
+      RiseFall *from_rf = isPositiveUnate(cell, from_port, to_port)
+	? to_rf
+	: to_rf->opposite();
+      float slew = delayAsFloat(graph_->slew(from_vertex, from_rf,
+					     dcalc_ap->index()));
+      if (!fuzzyInf(slew)) {
+	float table_energy = pwr->power(to_rf, pvt, slew, load_cap);
+	energy += table_energy;
+	tr_count++;
+      }
+    }
+    energy /= tr_count; // average non-inf energies
+    float weight = duty / pg_duty_sum[related_pg_pin];
+    float port_internal = weight * energy * to_activity.activity();
+    debugPrint9(debug_, "power", 2,  " %s -> %s  %6s  %.2f %.2f %.2f %9.2e %9.2e %s\n",
+		from_port->name(),
+		to_port->name(),
+		when ? when->asString() : (infered_when ? infered_when->asString() : "    "),
+		to_activity.activity() * 1e-9,
+		duty,
+		weight,
+		energy,
+		port_internal,
+		related_pg_pin ? related_pg_pin : "no pg_pin");
+    internal += port_internal;
     if (infered_when)
       infered_when->deleteSubexprs();
   }

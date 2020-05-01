@@ -117,6 +117,16 @@ public:
   }
 };
 
+class StringLessIf
+{
+public:
+  bool operator()(const char *string1,
+		  const char *string2) const
+  {
+    return stringLessIf(string1, string2);
+  }
+};
+
 // strdup using new instead of malloc so delete can be used on the strings.
 char *
 stringCopy(const char *str);
