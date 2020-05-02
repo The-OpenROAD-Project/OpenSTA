@@ -161,6 +161,13 @@ protected:
   FuncExpr *inferedWhen(FuncExpr *expr,
 			const LibertyPort *from_port);
   LibertyPort *findExprOutPort(FuncExpr *expr);
+  void findInputDuty(const Pin *to_pin,
+		     const Instance *inst,
+		     FuncExpr *func,
+		     InternalPower *pwr,
+		     // Return values.
+		     float &duty,
+		     FuncExpr *&infered_when);
 
 private:
   PwrActivity global_activity_;

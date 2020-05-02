@@ -581,7 +581,7 @@ Power::findInputInternalPower(const Pin *pin,
       }
       if (tr_count)
 	energy /= tr_count; // average non-inf energies
-      float duty = 1.0;
+      float duty = .5; // fallback default
       FuncExpr *when = pwr->when();
       if (when) {
 	LibertyPort *out_port = findExprOutPort(when);
@@ -589,11 +589,15 @@ Power::findInputInternalPower(const Pin *pin,
 	  FuncExpr *func = out_port->function();
 	  // eval cofactor of func wrt inputp
 	  FuncExpr *sensitize_expr = inferedWhen(func, port);
-	  if (sensitize_expr)
+	  if (sensitize_expr) {
 	    duty = evalActivity(sensitize_expr, inst).duty();
+	    sensitize_expr->deleteSubexprs();
+	  }
 	  else
 	    duty = evalActivity(when, inst).duty();
 	}
+	else
+	  duty = evalActivity(when, inst).duty();
       }
       float port_internal = energy * duty * activity.activity();
       debugPrint7(debug_, "power", 2,  " %3s %6s  %.2f  %.2f %9.2e %9.2e %s\n",
@@ -659,37 +663,15 @@ Power::findOutputInternalPower(const Pin *to_pin,
   const Pvt *pvt = dcalc_ap->operatingConditions();
   debugPrint1(debug_, "power", 2, " cap = %s\n",
 	      units_->capacitanceUnit()->asString(load_cap));
-  float duty_sum = 0.0;
+  FuncExpr *func = to_port->function();
+
   map<const char*, float, StringLessIf> pg_duty_sum;
   for (InternalPower *pwr : *cell->internalPowers(to_port)) {
-    const char *related_pg_pin = pwr->relatedPgPin();
-    const LibertyPort *from_port = pwr->relatedPort();
-    FuncExpr *when = pwr->when();
-    FuncExpr *infered_when = nullptr;
-    if (when == nullptr) {
-      FuncExpr *func = to_port->function();
-      if (func)
-	infered_when = inferedWhen(func, from_port);
-    }
-    // If all the "when" clauses exist VSS internal power is ignored.
-    const Pin *from_pin = network_->findPin(inst, from_port);
-    Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
     float duty;
-    if (infered_when) {
-      PwrActivity from_activity = findActivity(from_pin);
-      PwrActivity to_activity = findActivity(to_pin);
-      float duty1 = evalActivity(infered_when, inst).duty();
-      if (to_activity.activity() == 0.0)
-	duty = 0.0;
-      else
-	duty = from_activity.activity() / to_activity.activity() * duty1;
-    }
-    else if (when)
-      duty = evalActivity(when, inst).duty();
-    else if (search_->isClock(from_vertex))
-      duty = 1.0;
-    else
-      duty = 0.5;
+    FuncExpr *infered_when;
+    findInputDuty(to_pin, inst, func, pwr,
+		  duty, infered_when);
+    const char *related_pg_pin = pwr->relatedPgPin();
     pg_duty_sum[related_pg_pin] += duty;
     if (infered_when)
       infered_when->deleteSubexprs();
@@ -697,34 +679,15 @@ Power::findOutputInternalPower(const Pin *to_pin,
 
   float internal = 0.0;
   for (InternalPower *pwr : *cell->internalPowers(to_port)) {
-    const char *related_pg_pin = pwr->relatedPgPin();
-    const LibertyPort *from_port = pwr->relatedPort();
     FuncExpr *when = pwr->when();
-    FuncExpr *infered_when = nullptr;
-    if (when == nullptr) {
-      FuncExpr *func = to_port->function();
-      if (func)
-	infered_when = inferedWhen(func, from_port);
-    }
-    // If all the "when" clauses exist VSS internal power is ignored.
+    const char *related_pg_pin = pwr->relatedPgPin();
+    float duty;
+    FuncExpr *infered_when;
+    findInputDuty(to_pin, inst, func, pwr,
+		  duty, infered_when);
+    const LibertyPort *from_port = pwr->relatedPort();
     const Pin *from_pin = network_->findPin(inst, from_port);
     Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
-    float duty;
-    if (infered_when) {
-      PwrActivity from_activity = findActivity(from_pin);
-      PwrActivity to_activity = findActivity(to_pin);
-      float duty1 = evalActivity(infered_when, inst).duty();
-      if (to_activity.activity() == 0.0)
-	duty = 0.0;
-      else
-	duty = from_activity.activity() / to_activity.activity() * duty1;
-    }
-    else if (when)
-      duty = evalActivity(when, inst).duty();
-    else if (search_->isClock(from_vertex))
-      duty = 1.0;
-    else
-      duty = 0.5;
     float energy = 0.0;
     int tr_count = 0;
     debugPrint0(debug_, "power", 2, "             when act/ns duty  wgt   energy    power\n");
@@ -748,7 +711,7 @@ Power::findOutputInternalPower(const Pin *to_pin,
     debugPrint9(debug_, "power", 2,  "%3s -> %-3s %6s  %.2f %.2f %.2f %9.2e %9.2e %s\n",
 		from_port->name(),
 		to_port->name(),
-		when ? when->asString() : (infered_when ? infered_when->asString() : "    "),
+		when ? when->asString() : (infered_when ? infered_when->asString() : ""),
 		to_activity.activity() * 1e-9,
 		duty,
 		weight,
@@ -760,6 +723,40 @@ Power::findOutputInternalPower(const Pin *to_pin,
       infered_when->deleteSubexprs();
   }
   result.setInternal(result.internal() + internal);
+}
+
+void
+Power::findInputDuty(const Pin *to_pin,
+		     const Instance *inst,
+		     FuncExpr *func,
+		     InternalPower *pwr,
+		     // Return values.
+		     float &duty,
+		     FuncExpr *&infered_when)
+
+{
+  const char *related_pg_pin = pwr->relatedPgPin();
+  const LibertyPort *from_port = pwr->relatedPort();
+  FuncExpr *when = pwr->when();
+  infered_when = (when == nullptr && func)
+    ? inferedWhen(func, from_port)
+    : nullptr;
+  const Pin *from_pin = network_->findPin(inst, from_port);
+  Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
+  duty = 0.5;
+  if (infered_when) {
+    PwrActivity from_activity = findActivity(from_pin);
+    PwrActivity to_activity = findActivity(to_pin);
+    float duty1 = evalActivity(infered_when, inst).duty();
+    if (to_activity.activity() == 0.0)
+      duty = 0.0;
+    else
+      duty = from_activity.activity() / to_activity.activity() * duty1;
+  }
+  else if (when)
+    duty = evalActivity(when, inst).duty();
+  else if (search_->isClock(from_vertex))
+    duty = 1.0;
 }
 
 static bool
