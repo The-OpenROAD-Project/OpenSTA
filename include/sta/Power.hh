@@ -155,19 +155,18 @@ protected:
 			       BfsFwdIterator &bfs);
   PwrActivity evalActivity(FuncExpr *expr,
 			   const Instance *inst);
-  bool internalPowerMissingWhen(LibertyCell *cell,
-				const LibertyPort *to_port,
-				const char *related_pg_pin);
-  FuncExpr *inferedWhen(FuncExpr *expr,
-			const LibertyPort *port);
+  PwrActivity evalActivity(FuncExpr *expr,
+			   const Instance *inst,
+			   const LibertyPort *cofactor_port,
+			   bool cofactor_positive);
   LibertyPort *findExprOutPort(FuncExpr *expr);
-  void findInputDuty(const Pin *to_pin,
-		     const Instance *inst,
-		     FuncExpr *func,
-		     InternalPower *pwr,
-		     // Return values.
-		     float &duty,
-		     FuncExpr *&infered_when);
+  float findInputDuty(const Pin *to_pin,
+		      const Instance *inst,
+		      FuncExpr *func,
+		      InternalPower *pwr);
+  PwrActivity evalActivityDifference(FuncExpr *expr,
+				     const Instance *inst,
+				     const LibertyPort *cofactor_port);
 
 private:
   PwrActivity global_activity_;

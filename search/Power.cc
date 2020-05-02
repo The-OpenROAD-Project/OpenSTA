@@ -59,8 +59,6 @@
 
 namespace sta {
 
-static int
-funcExprPortCount(FuncExpr *expr);
 static bool
 isPositiveUnate(const LibertyCell *cell,
 		const LibertyPort *from,
@@ -339,23 +337,44 @@ PwrActivity
 Power::evalActivity(FuncExpr *expr,
 		    const Instance *inst)
 {
+  return evalActivity(expr, inst, nullptr, true);
+}
+
+// Eval activity thru expr.
+// With cofactor_port eval the positive/negative cofactor of expr wrt cofactor_port.
+PwrActivity
+Power::evalActivity(FuncExpr *expr,
+		    const Instance *inst,
+		    const LibertyPort *cofactor_port,
+		    bool cofactor_positive)
+{
   switch (expr->op()) {
   case FuncExpr::op_port: {
-    Pin *pin = network_->findPin(inst, expr->port()->name());
+    LibertyPort *port = expr->port();
+    if (port == cofactor_port) {
+      if (cofactor_positive)
+	return PwrActivity(0.0, 1.0, PwrActivityOrigin::constant);
+      else
+	return PwrActivity(0.0, 0.0, PwrActivityOrigin::constant);
+    }
+    Pin *pin = network_->findPin(inst, port->name());
     if (pin)
       return findActivity(pin);
     else
       return PwrActivity(0.0, 0.0, PwrActivityOrigin::constant);
   }
   case FuncExpr::op_not: {
-    PwrActivity activity1 = evalActivity(expr->left(), inst);
+    PwrActivity activity1 = evalActivity(expr->left(), inst,
+					 cofactor_port, cofactor_positive);
     return PwrActivity(activity1.activity(),
 		       1.0 - activity1.duty(),
 		       PwrActivityOrigin::propagated);
   }
   case FuncExpr::op_or: {
-    PwrActivity activity1 = evalActivity(expr->left(), inst);
-    PwrActivity activity2 = evalActivity(expr->right(), inst);
+    PwrActivity activity1 = evalActivity(expr->left(), inst,
+					 cofactor_port, cofactor_positive);
+    PwrActivity activity2 = evalActivity(expr->right(), inst,
+					 cofactor_port, cofactor_positive);
     float p1 = 1.0 - activity1.duty();
     float p2 = 1.0 - activity2.duty();
     return PwrActivity(activity1.activity() * p2
@@ -364,8 +383,10 @@ Power::evalActivity(FuncExpr *expr,
 		       PwrActivityOrigin::propagated);
   }
   case FuncExpr::op_and: {
-    PwrActivity activity1 = evalActivity(expr->left(), inst);
-    PwrActivity activity2 = evalActivity(expr->right(), inst);
+    PwrActivity activity1 = evalActivity(expr->left(), inst,
+					 cofactor_port, cofactor_positive);
+    PwrActivity activity2 = evalActivity(expr->right(), inst,
+					 cofactor_port, cofactor_positive);
     float p1 = activity1.duty();
     float p2 = activity2.duty();
     return PwrActivity(activity1.activity() * p2 + activity2.activity() * p1,
@@ -373,8 +394,10 @@ Power::evalActivity(FuncExpr *expr,
 		       PwrActivityOrigin::propagated);
   }
   case FuncExpr::op_xor: {
-    PwrActivity activity1 = evalActivity(expr->left(), inst);
-    PwrActivity activity2 = evalActivity(expr->right(), inst);
+    PwrActivity activity1 = evalActivity(expr->left(), inst,
+					 cofactor_port, cofactor_positive);
+    PwrActivity activity2 = evalActivity(expr->right(), inst,
+					 cofactor_port, cofactor_positive);
     float p1 = activity1.duty() * (1.0 - activity2.duty());
     float p2 = activity2.duty() * (1.0 - activity1.duty());
     return PwrActivity(activity1.activity() * p1 + activity2.activity() * p2,
@@ -587,12 +610,8 @@ Power::findInputInternalPower(const Pin *pin,
 	LibertyPort *out_port = findExprOutPort(when);
 	if (out_port) {
 	  FuncExpr *func = out_port->function();
-	  // eval cofactor of func wrt input
-	  FuncExpr *sensitize_expr = inferedWhen(func, port);
-	  if (sensitize_expr) {
-	    duty = evalActivity(sensitize_expr, inst).duty();
-	    sensitize_expr->deleteSubexprs();
-	  }
+	  if (func->hasPort(port))
+	    duty = evalActivityDifference(func, inst, port).duty();
 	  else
 	    duty = evalActivity(when, inst).duty();
 	}
@@ -645,6 +664,21 @@ Power::findExprOutPort(FuncExpr *expr)
   }
 }
 
+PwrActivity
+Power::evalActivityDifference(FuncExpr *expr,
+			      const Instance *inst,
+			      const LibertyPort *cofactor_port)
+{
+  PwrActivity pos = evalActivity(expr, inst, cofactor_port, true);
+  PwrActivity neg = evalActivity(expr, inst, cofactor_port, false);
+  // difference(expr) wrt cofactor port = xor(pos, neg).
+  float p1 = pos.duty() * (1.0 - neg.duty());
+  float p2 = neg.duty() * (1.0 - pos.duty());
+  return PwrActivity(pos.activity() * p1 + neg.activity() * p2,
+		     p1 + p2,
+		     PwrActivityOrigin::propagated);
+}
+
 void
 Power::findOutputInternalPower(const Pin *to_pin,
 			       const LibertyPort *to_port,
@@ -667,24 +701,16 @@ Power::findOutputInternalPower(const Pin *to_pin,
 
   map<const char*, float, StringLessIf> pg_duty_sum;
   for (InternalPower *pwr : *cell->internalPowers(to_port)) {
-    float duty;
-    FuncExpr *infered_when;
-    findInputDuty(to_pin, inst, func, pwr,
-		  duty, infered_when);
+    float duty = findInputDuty(to_pin, inst, func, pwr);
     const char *related_pg_pin = pwr->relatedPgPin();
     pg_duty_sum[related_pg_pin] += duty;
-    if (infered_when)
-      infered_when->deleteSubexprs();
   }
 
   float internal = 0.0;
   for (InternalPower *pwr : *cell->internalPowers(to_port)) {
     FuncExpr *when = pwr->when();
     const char *related_pg_pin = pwr->relatedPgPin();
-    float duty;
-    FuncExpr *infered_when;
-    findInputDuty(to_pin, inst, func, pwr,
-		  duty, infered_when);
+    float duty = findInputDuty(to_pin, inst, func, pwr);
     const LibertyPort *from_port = pwr->relatedPort();
     const Pin *from_pin = network_->findPin(inst, from_port);
     Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
@@ -711,7 +737,7 @@ Power::findOutputInternalPower(const Pin *to_pin,
     debugPrint9(debug_, "power", 2,  "%3s -> %-3s %6s  %.2f %.2f %.2f %9.2e %9.2e %s\n",
 		from_port->name(),
 		to_port->name(),
-		when ? when->asString() : (infered_when ? infered_when->asString() : ""),
+		when ? when->asString() : "",
 		to_activity.activity() * 1e-9,
 		duty,
 		weight,
@@ -719,44 +745,36 @@ Power::findOutputInternalPower(const Pin *to_pin,
 		port_internal,
 		related_pg_pin ? related_pg_pin : "no pg_pin");
     internal += port_internal;
-    if (infered_when)
-      infered_when->deleteSubexprs();
   }
   result.internal() += internal;
 }
 
-void
+float
 Power::findInputDuty(const Pin *to_pin,
 		     const Instance *inst,
 		     FuncExpr *func,
-		     InternalPower *pwr,
-		     // Return values.
-		     float &duty,
-		     FuncExpr *&infered_when)
+		     InternalPower *pwr)
 
 {
   const char *related_pg_pin = pwr->relatedPgPin();
   const LibertyPort *from_port = pwr->relatedPort();
   FuncExpr *when = pwr->when();
-  infered_when = (when == nullptr && func)
-    ? inferedWhen(func, from_port)
-    : nullptr;
   const Pin *from_pin = network_->findPin(inst, from_port);
   Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
-  duty = 0.5;
-  if (infered_when) {
+  if (func->hasPort(from_port)) {
     PwrActivity from_activity = findActivity(from_pin);
     PwrActivity to_activity = findActivity(to_pin);
-    float duty1 = evalActivity(infered_when, inst).duty();
+    float duty1 = evalActivityDifference(func, inst, from_port).duty();
     if (to_activity.activity() == 0.0)
-      duty = 0.0;
+      return 0.0;
     else
-      duty = from_activity.activity() / to_activity.activity() * duty1;
+      return from_activity.activity() / to_activity.activity() * duty1;
   }
   else if (when)
-    duty = evalActivity(when, inst).duty();
+    return evalActivity(when, inst).duty();
   else if (search_->isClock(from_vertex))
-    duty = 1.0;
+    return 1.0;
+  return 0.5;
 }
 
 static bool
@@ -796,76 +814,7 @@ negate(FuncExpr *expr)
     return FuncExpr::makeNot(expr->copy());
 }
 
-// Positive shannon cofactor of expr wrt port.
-FuncExpr *
-Power::inferedWhen(FuncExpr *expr,
-		   const LibertyPort *port)
-{
-  switch (expr->op()) {
-  case FuncExpr::op_port: {
-    if (expr->port() == port)
-      return FuncExpr::makeOne();
-    else
-      return nullptr;
-  }
-  case FuncExpr::op_not:
-    return inferedWhen(expr->left(), port);
-  case FuncExpr::op_or:
-  case FuncExpr::op_xor: {
-    if (isPortRef(expr->left(), port))
-      return negate(expr->right());
-    if (isPortRef(expr->right(), port))
-      return negate(expr->left());
-    break;
-  }
-  case FuncExpr::op_and: {
-    if (isPortRef(expr->left(), port))
-      return expr->right()->copy();
-    if (isPortRef(expr->right(), port))
-      return expr->left()->copy();
-    break;
-  }
-  case FuncExpr::op_one:
-  case FuncExpr::op_zero:
-    return expr;
-  }
-  return nullptr;
-}
-
 ////////////////////////////////////////////////////////////////
-
-// Return true if some a "when" clause for the internal power to_port
-// is missing.
-bool
-Power::internalPowerMissingWhen(LibertyCell *cell,
-				const LibertyPort *to_port,
-				const char *related_pg_pin)
-{
-  int when_input_count = 0;
-  int when_count = 0;
-  for (InternalPower *pwr : *cell->internalPowers(to_port)) {
-    auto when = pwr->when();
-    if (pwr->relatedPort() == nullptr
-	&& stringEqIf(pwr->relatedPgPin(), related_pg_pin)
-	&& when) {
-      when_count++;
-      when_input_count = funcExprPortCount(when);
-    }
-  }
-  return when_count != (1 << when_input_count);
-}
-
-static int
-funcExprPortCount(FuncExpr *expr)
-{
-  int port_count = 0;
-  FuncExprPortIterator port_iter(expr);
-  while (port_iter.hasNext()) {
-    port_iter.next();
-    port_count++;
-  }
-  return port_count;
-}
 
 void
 Power::findLeakagePower(const Instance *,
