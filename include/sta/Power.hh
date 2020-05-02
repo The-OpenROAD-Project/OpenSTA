@@ -159,7 +159,7 @@ protected:
 				const LibertyPort *to_port,
 				const char *related_pg_pin);
   FuncExpr *inferedWhen(FuncExpr *expr,
-			const LibertyPort *from_port);
+			const LibertyPort *port);
   LibertyPort *findExprOutPort(FuncExpr *expr);
   void findInputDuty(const Pin *to_pin,
 		     const Instance *inst,
@@ -183,12 +183,9 @@ class PowerResult
 public:
   PowerResult();
   void clear();
-  float internal() const { return internal_; }
-  void setInternal(float internal);
-  float switching() const { return switching_; }
-  void setSwitching(float switching);
-  float leakage() const { return leakage_; }
-  void setLeakage(float leakage);
+  float &internal() { return internal_; }
+  float &switching() { return switching_; }
+  float &leakage() { return leakage_; }
   float total() const;
   void incr(PowerResult &result);
   

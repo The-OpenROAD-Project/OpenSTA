@@ -587,7 +587,7 @@ Power::findInputInternalPower(const Pin *pin,
 	LibertyPort *out_port = findExprOutPort(when);
 	if (out_port) {
 	  FuncExpr *func = out_port->function();
-	  // eval cofactor of func wrt inputp
+	  // eval cofactor of func wrt input
 	  FuncExpr *sensitize_expr = inferedWhen(func, port);
 	  if (sensitize_expr) {
 	    duty = evalActivity(sensitize_expr, inst).duty();
@@ -610,7 +610,7 @@ Power::findInputInternalPower(const Pin *pin,
 		  related_pg_pin ? related_pg_pin : "no pg_pin");
       internal += port_internal;
     }
-    result.setInternal(result.internal() + internal);
+    result.internal() += internal;
   }
 }
 
@@ -722,7 +722,7 @@ Power::findOutputInternalPower(const Pin *to_pin,
     if (infered_when)
       infered_when->deleteSubexprs();
   }
-  result.setInternal(result.internal() + internal);
+  result.internal() += internal;
 }
 
 void
@@ -796,37 +796,38 @@ negate(FuncExpr *expr)
     return FuncExpr::makeNot(expr->copy());
 }
 
+// Positive shannon cofactor of expr wrt port.
 FuncExpr *
 Power::inferedWhen(FuncExpr *expr,
-		   const LibertyPort *from_port)
+		   const LibertyPort *port)
 {
   switch (expr->op()) {
   case FuncExpr::op_port: {
-    if (expr->port() == from_port)
+    if (expr->port() == port)
       return FuncExpr::makeOne();
     else
       return nullptr;
   }
   case FuncExpr::op_not:
-    return inferedWhen(expr->left(), from_port);
+    return inferedWhen(expr->left(), port);
   case FuncExpr::op_or:
   case FuncExpr::op_xor: {
-    if (isPortRef(expr->left(), from_port))
+    if (isPortRef(expr->left(), port))
       return negate(expr->right());
-    if (isPortRef(expr->right(), from_port))
+    if (isPortRef(expr->right(), port))
       return negate(expr->left());
     break;
   }
   case FuncExpr::op_and: {
-    if (isPortRef(expr->left(), from_port))
+    if (isPortRef(expr->left(), port))
       return expr->right()->copy();
-    if (isPortRef(expr->right(), from_port))
+    if (isPortRef(expr->right(), port))
       return expr->left()->copy();
     break;
   }
   case FuncExpr::op_one:
   case FuncExpr::op_zero:
-    break;
+    return expr;
   }
   return nullptr;
 }
@@ -920,7 +921,7 @@ Power::findLeakagePower(const Instance *,
   debugPrint2(debug_, "power", 2, "leakage cell %s %.3e\n",
 	      cell->name(),
 	      leakage);
-  result.setLeakage(result.leakage() + leakage);
+  result.leakage() += leakage;
 }
 
 void
@@ -940,7 +941,7 @@ Power::findSwitchingPower(LibertyCell *cell,
 	      activity.activity(),
 	      volt,
 	      switching);
-  result.setSwitching(result.switching() + switching);
+  result.switching() += switching;
 }
 
 PwrActivity
@@ -1064,24 +1065,6 @@ float
 PowerResult::total() const
 {
   return internal_ + switching_ + leakage_;
-}
-
-void
-PowerResult::setInternal(float internal)
-{
-  internal_ = internal;
-}
-
-void
-PowerResult::setLeakage(float leakage)
-{
-  leakage_ = leakage;
-}
-
-void
-PowerResult::setSwitching(float switching)
-{
-  switching_ = switching;
 }
 
 void
