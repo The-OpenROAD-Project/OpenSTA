@@ -664,14 +664,16 @@ Power::findExprOutPort(FuncExpr *expr)
   }
 }
 
+// Eval activity of differenc(expr) wrt cofactor port.
 PwrActivity
 Power::evalActivityDifference(FuncExpr *expr,
 			      const Instance *inst,
 			      const LibertyPort *cofactor_port)
 {
+  // Activity of positive/negative cofactors.
   PwrActivity pos = evalActivity(expr, inst, cofactor_port, true);
   PwrActivity neg = evalActivity(expr, inst, cofactor_port, false);
-  // difference(expr) wrt cofactor port = xor(pos, neg).
+  // difference = xor(pos, neg).
   float p1 = pos.duty() * (1.0 - neg.duty());
   float p2 = neg.duty() * (1.0 - pos.duty());
   return PwrActivity(pos.activity() * p1 + neg.activity() * p2,
