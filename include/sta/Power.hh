@@ -160,6 +160,7 @@ protected:
 				const char *related_pg_pin);
   FuncExpr *inferedWhen(FuncExpr *expr,
 			const LibertyPort *from_port);
+  LibertyPort *findExprOutPort(FuncExpr *expr);
 
 private:
   PwrActivity global_activity_;
