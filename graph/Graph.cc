@@ -517,12 +517,7 @@ Graph::makeArrivals(Vertex *vertex,
 Arrival *
 Graph::arrivals(Vertex *vertex)
 {
-  Arrival *arrivals;
-  {
-    UniqueLock lock(arrivals_lock_);
-    arrivals = arrivals_.pointer(vertex->arrivals());
-  }
-  return arrivals;
+  return arrivals_.pointer(vertex->arrivals());
 }
 
 void
