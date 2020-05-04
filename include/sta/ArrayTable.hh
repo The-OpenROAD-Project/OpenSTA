@@ -55,6 +55,7 @@ private:
   BlockIdx free_block_idx_;
   // Index of next free object in free_block_idx_.
   ObjectIdx free_idx_;
+  // Don't use std::vector so growing blocks_ can be thread safe.
   size_t blocks_size_;
   size_t blocks_capacity_;
   ArrayBlock<TYPE>* *blocks_;
