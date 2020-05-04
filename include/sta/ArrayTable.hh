@@ -9,6 +9,8 @@
 #ifndef STA_ARRAY_TABLE_H
 #define STA_ARRAY_TABLE_H
 
+#include <string.h> // memcpy
+
 #include "Vector.hh"
 #include "ObjectId.hh"
 
