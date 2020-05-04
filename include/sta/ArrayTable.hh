@@ -48,6 +48,7 @@ public:
 private:
   ArrayBlock<TYPE> *makeBlock(uint32_t size);
   void pushBlock(ArrayBlock<TYPE> *block);
+  void deleteBlocks();
 
   size_t size_;
   // Block index of free block (blocks_[size - 1]).
@@ -73,6 +74,14 @@ ArrayTable<TYPE>::ArrayTable() :
 
 template <class TYPE>
 ArrayTable<TYPE>::~ArrayTable()
+{
+  deleteBlocks();
+  delete [] blocks_;
+}
+
+template <class TYPE>
+void
+ArrayTable<TYPE>::deleteBlocks()
 {
   for (int i = 0; i < blocks_size_; i++)
     delete blocks_[i];
@@ -171,8 +180,7 @@ template <class TYPE>
 void
 ArrayTable<TYPE>::clear()
 {
-  for (int i = 0; i < blocks_size_; i++)
-    delete blocks_[i];
+  deleteBlocks();
   blocks_size_ = 0;
   size_ = 0;
   free_block_idx_ = block_idx_null;
