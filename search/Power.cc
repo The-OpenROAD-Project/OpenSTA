@@ -662,6 +662,7 @@ Power::findExprOutPort(FuncExpr *expr)
   case FuncExpr::op_zero:
     return nullptr;
   }
+  return nullptr;
 }
 
 // Eval activity of differenc(expr) wrt cofactor port.
@@ -705,7 +706,8 @@ Power::findOutputInternalPower(const Pin *to_pin,
   for (InternalPower *pwr : *cell->internalPowers(to_port)) {
     float duty = findInputDuty(to_pin, inst, func, pwr);
     const char *related_pg_pin = pwr->relatedPgPin();
-    pg_duty_sum[related_pg_pin] += duty;
+    if (related_pg_pin)
+      pg_duty_sum[related_pg_pin] += duty;
   }
 
   float internal = 0.0;
@@ -734,7 +736,10 @@ Power::findOutputInternalPower(const Pin *to_pin,
     }
     if (tr_count)
       energy /= tr_count; // average non-inf energies
-    float weight = duty / pg_duty_sum[related_pg_pin];
+    auto duty_sum = pg_duty_sum.find(related_pg_pin);
+    float weight = duty_sum == pg_duty_sum.end()
+      ? duty
+      : duty / duty_sum->second;
     float port_internal = weight * energy * to_activity.activity();
     debugPrint9(debug_, "power", 2,  "%3s -> %-3s %6s  %.2f %.2f %.2f %9.2e %9.2e %s\n",
 		from_port->name(),
