@@ -815,13 +815,13 @@ VerilogModule::parseDcl(VerilogDcl *dcl,
 	// wire dcl can be used as modifier for input/inout dcls.
 	// Ignore the wire dcl.
 	dcl_map_[net_name] = dcl;
-      else if (dcl->direction()->isTristate()
-	       && (existing_dir->isOutput()
-		   || existing_dir->isInput()
-		   || existing_dir->isBidirect()))
+      else if (dcl->direction()->isTristate()) {
+	if (existing_dir->isOutput())
 	// tri dcl can be used as modifier for input/output/inout dcls.
-	// Keep the tristate dcl because it is more specific.
+	// Keep the tristate dcl for outputs because it is more specific
+	// but ignore it for inputs and bidirs.
 	dcl_map_[net_name] = dcl;
+      }
       else if (dcl->direction()->isPowerGround()
 	       && (existing_dir->isOutput()
 		   || existing_dir->isInput()
