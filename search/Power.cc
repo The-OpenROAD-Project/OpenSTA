@@ -610,7 +610,7 @@ Power::findInputInternalPower(const Pin *pin,
 	LibertyPort *out_port = findExprOutPort(when);
 	if (out_port) {
 	  FuncExpr *func = out_port->function();
-	  if (func->hasPort(port))
+	  if (func && func->hasPort(port))
 	    duty = evalActivityDifference(func, inst, port).duty();
 	  else
 	    duty = evalActivity(when, inst).duty();
@@ -768,7 +768,7 @@ Power::findInputDuty(const Pin *to_pin,
   FuncExpr *when = pwr->when();
   const Pin *from_pin = network_->findPin(inst, from_port);
   Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
-  if (func->hasPort(from_port)) {
+  if (func && func->hasPort(from_port)) {
     PwrActivity from_activity = findActivity(from_pin);
     PwrActivity to_activity = findActivity(to_pin);
     float duty1 = evalActivityDifference(func, inst, from_port).duty();
