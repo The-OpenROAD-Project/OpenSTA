@@ -115,7 +115,7 @@ proc report_title_dashes { count } {
 
 proc report_power_row { type row_result design_total field_width digits } {
   lassign $row_result internal switching leakage total
-  if { $design_total == 0.0 } {
+  if { $design_total == 0.0 || [is_nan $design_total] } {
     set percent 0.0
   } else {
     set percent [expr $total / $design_total * 100]
@@ -128,12 +128,20 @@ proc report_power_row { type row_result design_total field_width digits } {
   puts [format " %5.1f%%" $percent]
 }
 
+proc is_nan { str } {
+  return  [string match "*NaN" $str]
+}
+
 proc report_power_col { pwr field_width digits } {
-  puts -nonewline [format " %$field_width.${digits}e" $pwr]
+  if { [is_nan $pwr] } {
+    puts -nonewline [format " %${field_width}s" $pwr]
+  } else {
+    puts -nonewline [format " %$field_width.${digits}e" $pwr]
+  }
 }
 
 proc report_power_col_percent { col_total total field_width } {
-  if { $total == 0.0 } {
+  if { $total == 0.0 || [is_nan $total]} {
     set percent 0.0
   } else {
     set percent [expr $col_total / $total * 100]
@@ -142,7 +150,11 @@ proc report_power_col_percent { col_total total field_width } {
 }
 
 proc report_power_line { type pwr digits } {
-  puts [format "%-16s %.${digits}e" $type $pwr]
+  if { [is_nan $pwr] } {
+    puts [format "%-16s %s" $type $pwr]
+  } else {
+    puts [format "%-16s %.${digits}e" $type $pwr]
+  }
 }
 
 proc report_power_insts { insts corner digits } {
@@ -240,6 +252,18 @@ proc set_power_activity { args } {
       if { [get_property $pin "direction"] == "input" } {
 	set_power_pin_activity $pin $activity $duty
       }
+    }
+  }
+}
+
+proc power_find_nan { } {
+  set corner [cmd_corner]
+  foreach inst [network_leaf_instances] {
+    set power_result [instance_power $inst $corner]
+    lassign $power_result internal switching leakage total
+    if { [is_nan $internal] || [is_nan $switching] || [is_nan $leakage] } {
+      puts "[get_full_name $inst] $internal $switching $leakage"
+      break
     }
   }
 }

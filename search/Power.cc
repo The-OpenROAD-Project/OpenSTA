@@ -736,10 +736,11 @@ Power::findOutputInternalPower(const Pin *to_pin,
     }
     if (tr_count)
       energy /= tr_count; // average non-inf energies
-    auto duty_sum = pg_duty_sum.find(related_pg_pin);
-    float weight = duty_sum == pg_duty_sum.end()
-      ? duty
-      : duty / duty_sum->second;
+    auto duty_sum_iter = pg_duty_sum.find(related_pg_pin);
+    float duty_sum = duty_sum_iter == pg_duty_sum.end()
+      ? 0.0
+      : duty_sum_iter->second;
+    float weight = duty_sum == 0.0 ? duty : duty / duty_sum;
     float port_internal = weight * energy * to_activity.activity();
     debugPrint9(debug_, "power", 2,  "%3s -> %-3s %6s  %.2f %.2f %.2f %9.2e %9.2e %s\n",
 		from_port->name(),
