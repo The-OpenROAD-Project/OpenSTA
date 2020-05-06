@@ -1116,6 +1116,8 @@ public:
 			  Net *net);
   // disconnect_net
   virtual void disconnectPin(Pin *pin);
+  // Notify STA of network change.
+  void networkChanged();
 
   // Network edit before/after methods.
   void makeInstanceAfter(Instance *inst);
