@@ -535,6 +535,28 @@ Sta::clear()
 }
 
 void
+Sta::networkChanged()
+{
+  // Remove sdc graph annotations.
+  sdc_->annotateGraph(false);
+  // Everything else from clear().
+  search_->clear();
+  levelize_->clear();
+  if (parasitics_)
+    parasitics_->clear();
+  graph_delay_calc_->clear();
+  sim_->clear();
+  if (check_min_pulse_widths_)
+    check_min_pulse_widths_->clear();
+  if (check_min_periods_)
+    check_min_periods_->clear();
+  delete graph_;
+  graph_ = nullptr;
+  current_instance_ = nullptr;
+  updateComponentsState();
+}
+
+void
 Sta::setTclInterp(Tcl_Interp *interp)
 {
   tcl_interp_ = interp;

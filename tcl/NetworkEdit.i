@@ -93,4 +93,11 @@ disconnect_pin_cmd(Pin *pin)
   Sta::sta()->disconnectPin(pin);
 }
 
+// Notify STA of network change.
+void
+network_changed()
+{
+  Sta::sta()->networkChanged();
+}
+
 %} // inline
