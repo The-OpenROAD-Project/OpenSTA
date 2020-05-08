@@ -683,40 +683,45 @@ proc get_lib_pins { args } {
     set divider $keys(-hsc)
     check_path_divider $divider
   }
-  set port_regexp [port_wild_regexp $divider]
+  set port_regexp1 [port_wild_regexp $divider]
+  set port_regexp2 [cell_wild_regexp $divider]
   set ports {}
   foreach pattern $patterns {
-    if [regexp $port_regexp $pattern ignore lib_name cell_name port_pattern] {
-      set liberty [find_liberty $lib_name]
-      if { $liberty != "NULL" } {
-	set cells [$liberty find_liberty_cells_matching $cell_name \
-		     $regexp $nocase]
-	if { $cells != {} } {
-	  foreach cell $cells {
-	    set matches [$cell find_liberty_ports_matching $port_pattern \
-			   $regexp $nocase]
-	    if {$matches != {}} {
-	      set ports [concat $ports $matches]
-	    }
-	  }
-	  if { $ports == {} } {
-	    if { !$quiet } {
-	      sta_warn "port '$port_pattern' not found."
-	    }
-	  }
-	} else {
-	  if { !$quiet } {
-	    sta_warn "cell '$cell_name' not found."
+    # match library/cell/port
+    set libs {}
+    if { [regexp $port_regexp1 $pattern ignore lib_name cell_name port_pattern] } {
+      set libs [get_libs -quiet $lib_name]
+      # match cell/port
+    } elseif { [regexp $port_regexp2 $pattern ignore cell_name port_pattern] } {
+      set libs [get_libs *]
+    } else {
+      if { !$quiet } {
+	sta_warn "library/cell/port '$pattern' not found."
+      }
+      return {}
+    }
+    if { $libs != {} } {
+      set found_match 0
+      set cells {}
+      foreach lib $libs {
+	set cells [$lib find_liberty_cells_matching $cell_name $regexp $nocase]
+	foreach cell $cells {
+	  set matches [$cell find_liberty_ports_matching $port_pattern \
+			 $regexp $nocase]
+	  foreach match $matches {
+	    lappend ports $match
+	    set found_match 1
 	  }
 	}
-      } else {
+      }
+      if { !$found_match } {
 	if { !$quiet } {
-	  sta_warn "library '$lib_name' not found."
+	  sta_warn "port '$port_pattern' not found."
 	}
       }
     } else {
       if { !$quiet } {
-	sta_warn "library/cell/port '$pattern' not found."
+	sta_warn "library '$lib_name' not found."
       }
     }
   }
