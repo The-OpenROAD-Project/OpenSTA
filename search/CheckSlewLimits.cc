@@ -137,9 +137,11 @@ CheckSlewLimits::checkSlews1(const Pin *pin,
 {
   Vertex *vertex, *bidirect_drvr_vertex;
   sta_->graph()->pinVertices(pin, vertex, bidirect_drvr_vertex);
-  checkSlews1(vertex, corner, min_max,
-	      corner1, rf, slew, limit, slack);
-  if (bidirect_drvr_vertex)
+  if (!vertex->isDisabledConstraint())
+    checkSlews1(vertex, corner, min_max,
+		corner1, rf, slew, limit, slack);
+  if (bidirect_drvr_vertex
+      && !vertex->isDisabledConstraint())
     checkSlews1(bidirect_drvr_vertex, corner, min_max,
 		corner1, rf, slew, limit, slack);
 }
