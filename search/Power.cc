@@ -706,8 +706,8 @@ Power::findOutputInternalPower(const Pin *to_pin,
   for (InternalPower *pwr : *cell->internalPowers(to_port)) {
     float duty = findInputDuty(to_pin, inst, func, pwr);
     const char *related_pg_pin = pwr->relatedPgPin();
-    if (related_pg_pin)
-      pg_duty_sum[related_pg_pin] += duty;
+    // Note related_pg_pin may be null.
+    pg_duty_sum[related_pg_pin] += duty;
   }
 
   float internal = 0.0;
