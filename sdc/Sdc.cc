@@ -6128,6 +6128,17 @@ Sdc::annotateDisables(bool annotate)
     annotateGraphDisabled(pin, annotate);
   }
 
+  if (!disabled_lib_ports_.empty()) {
+    VertexIterator vertex_iter(graph_);
+    while (vertex_iter.hasNext()) {
+      Vertex *vertex = vertex_iter.next();
+      Pin *pin = vertex->pin();
+      LibertyPort *port = network_->libertyPort(pin);
+      if (disabled_lib_ports_.hasKey(port))
+	annotateGraphDisabled(pin, annotate);
+    }
+  }
+
   Instance *top_inst = network_->topInstance();
   PortSet::Iterator port_iter(disabled_ports_);
   while (port_iter.hasNext()) {

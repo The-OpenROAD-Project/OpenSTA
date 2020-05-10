@@ -5242,6 +5242,7 @@ find_cells_matching(const char *pattern,
 } // Library methods
 
 %extend LibertyLibrary {
+const char *name() { return self->name(); }
 
 LibertyCell *
 find_liberty_cell(const char *name)
@@ -5326,6 +5327,7 @@ find_ports_matching(const char *pattern,
 } // Cell methods
 
 %extend LibertyCell {
+const char *name() { return self->name(); }
 bool is_leaf() { return self->isLeaf(); }
 LibertyLibrary *liberty_library() { return self->libertyLibrary(); }
 Cell *cell() { return reinterpret_cast<Cell*>(self); }
@@ -5882,6 +5884,8 @@ is_clock()
   Search *search = sta->search();
   return search->isClock(self);
 }
+
+bool is_disabled_constraint() { return self->isDisabledConstraint(); }
 
 } // Vertex methods
 
