@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <functional>
+
 #include "DisallowCopyAssign.hh"
 #include "Vector.hh"
 #include "Map.hh"
@@ -444,6 +446,7 @@ protected:
 			const char *port_name);
   float defaultCap(LibertyPort *port);
   virtual void visitVariable(LibertyVariable *var);
+  void visitPorts(std::function<void (LibertyPort *port)> func);
   const char *getAttrString(LibertyAttr *attr);
   void getAttrInt(LibertyAttr *attr,
 		  // Return values.

@@ -2018,7 +2018,8 @@ LibertyPort::slewLimit(const MinMax *min_max,
 }
 
 void
-LibertyPort::setSlewLimit(float slew, const MinMax *min_max)
+LibertyPort::setSlewLimit(float slew,
+			  const MinMax *min_max)
 {
   slew_limit_.setValue(min_max, slew);
 }

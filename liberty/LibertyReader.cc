@@ -2799,9 +2799,9 @@ LibertyReader::visitDirection(LibertyAttr *attr)
       LibertyPortSeq::Iterator port_iter(ports_);
       while (port_iter.hasNext()) {
 	LibertyPort *port = port_iter.next();
+	// Tristate enable function sets direction to tristate; don't
+	// clobber it.
 	if (!port->direction()->isTristate())
-	  // Tristate enable function sets direction to tristate; don't
-	  // clobber it.
 	  port->setDirection(port_dir);
       }
     }
@@ -2835,6 +2835,21 @@ LibertyReader::visitThreeState(LibertyAttr *attr)
 	makeLibertyFunc(three_state, port->tristateEnableRef(), true,
 			"three_state", attr);
       }
+    }
+  }
+}
+
+void
+LibertyReader::visitPorts(std::function<void (LibertyPort *port)> func)
+{
+  LibertyPortSeq::Iterator port_iter(ports_);
+  while (port_iter.hasNext()) {
+    LibertyPort *port = port_iter.next();
+    func(port);
+    LibertyPortMemberIterator member_iter(port);
+    while (member_iter.hasNext()) {
+      LibertyPort *member = member_iter.next();
+      func(member);
     }
   }
 }
@@ -2994,11 +3009,9 @@ LibertyReader::visitFanout(LibertyAttr *attr,
     bool exists;
     getAttrFloat(attr, fanout, exists);
     if (exists) {
-      LibertyPortSeq::Iterator port_iter(ports_);
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
-	port->setFanoutLimit(fanout, min_max);
-      }
+      visitPorts([&] (LibertyPort *port) {
+		   port->setFanoutLimit(fanout, min_max);
+		 });
     }
   }
 }
@@ -3024,11 +3037,9 @@ LibertyReader::visitMinMaxTransition(LibertyAttr *attr, MinMax *min_max)
     getAttrFloat(attr, value, exists);
     if (exists) {
       value *= time_scale_;
-      LibertyPortSeq::Iterator port_iter(ports_);
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
-	port->setSlewLimit(value, min_max);
-      }
+      visitPorts([&] (LibertyPort *port) {
+		   port->setSlewLimit(value, min_max);
+		 });
     }
   }
 }
@@ -3056,10 +3067,9 @@ LibertyReader::visitMinMaxCapacitance(LibertyAttr *attr,
     if (exists) {
       value *= cap_scale_;
       LibertyPortSeq::Iterator port_iter(ports_);
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
-	port->setCapacitanceLimit(value, min_max);
-      }
+      visitPorts([&] (LibertyPort *port) {
+		   port->setCapacitanceLimit(value, min_max);
+		 });
     }
   }
 }

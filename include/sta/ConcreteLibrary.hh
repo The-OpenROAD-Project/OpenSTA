@@ -217,7 +217,7 @@ protected:
   ConcretePort(ConcreteCell *cell,
 	       const char *name,
 	       bool is_bus,
-       int from_index,
+	       int from_index,
 	       int to_index,
 	       bool is_bundle,
 	       ConcretePortSeq *member_ports);
