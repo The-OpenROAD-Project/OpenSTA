@@ -5222,7 +5222,10 @@ arrivals_invalid()
 ////////////////////////////////////////////////////////////////
 
 %extend Library {
-const char *name() { return self->name(); }
+const char *name()
+{
+  return cmdNetwork()->name(self);
+}
 
 Cell *
 find_cell(const char *name)
