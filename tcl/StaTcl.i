@@ -5222,6 +5222,8 @@ arrivals_invalid()
 ////////////////////////////////////////////////////////////////
 
 %extend Library {
+const char *name() { return self->name(); }
+
 Cell *
 find_cell(const char *name)
 {
