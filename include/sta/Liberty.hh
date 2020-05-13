@@ -620,6 +620,7 @@ class LibertyPort : public ConcretePort
 {
 public:
   LibertyCell *libertyCell() const { return liberty_cell_; }
+  LibertyLibrary *libertyLibrary() const { return liberty_cell_->libertyLibrary(); }
   LibertyPort *findLibertyMember(int index) const;
   LibertyPort *findLibertyBusBit(int index) const;
   float capacitance(const RiseFall *rf,

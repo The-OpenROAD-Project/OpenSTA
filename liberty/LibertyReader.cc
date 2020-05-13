@@ -2496,7 +2496,6 @@ LibertyReader::beginPin(LibertyGroup *group)
 	  while (port_iter.hasNext()) {
 	    LibertyPort *port = port_iter.next();
 	    ports_->push_back(port);
-	    setPortDefaults(port);
 	  }
 	}
 	else
@@ -2517,7 +2516,6 @@ LibertyReader::beginPin(LibertyGroup *group)
 	  if (port == nullptr)
 	    port = builder_->makePort(cell_, name);
 	  ports_->push_back(port);
-	  setPortDefaults(port);
 	}
 	else
 	  libWarn(group, "pin name is not a string.\n");
@@ -2540,7 +2538,6 @@ LibertyReader::beginPin(LibertyGroup *group)
 	    name = escapeChars(name, brkt_left, brkt_right, escape_);
 	  LibertyPort *port = builder_->makePort(cell_, name);
 	  ports_->push_back(port);
-	  setPortDefaults(port);
 	}
 	else
 	  libWarn(group, "pin name is not a string.\n");
@@ -2554,24 +2551,6 @@ LibertyReader::beginPin(LibertyGroup *group)
     if (pin_name)
       port_ = findPort(save_cell_, pin_name);
   }
-}
-
-void
-LibertyReader::setPortDefaults(LibertyPort *port)
-{
-  float fanout;
-  bool exists;
-  library_->defaultMaxFanout(fanout, exists);
-  if (exists)
-    port->setFanoutLimit(fanout, MinMax::max());
-  float slew;
-  library_->defaultMaxSlew(slew, exists);
-  if (exists)
-    port->setSlewLimit(slew, MinMax::max());
-  float max_cap;
-  library_->defaultMaxCapacitance(max_cap, exists);
-  if (exists)
-    port->setCapacitanceLimit(slew, MinMax::max());
 }
 
 void

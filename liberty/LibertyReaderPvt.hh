@@ -196,7 +196,6 @@ public:
   virtual void endBusOrBundle();
   virtual void endPorts();
   virtual void setPortCapDefault(LibertyPort *port);
-  virtual void setPortDefaults(LibertyPort *port);
   virtual void visitMembers(LibertyAttr *attr);
   virtual void visitDirection(LibertyAttr *attr);
   virtual void visitFunction(LibertyAttr *attr);
