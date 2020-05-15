@@ -2,6 +2,7 @@
 # using it on the source tree.
 Language: Cpp
 BasedOnStyle: Google
+AccessModifierOffset: -2
 AlignOperands: false
 AllowAllArgumentsOnNextLine: false
 AllowAllConstructorInitializersOnNextLine: false
@@ -25,3 +26,4 @@ ColumnLimit: 0
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
 ConstructorInitializerIndentWidth: 2
 IncludeBlocks: Preserve
+PointerAlignment: Right
