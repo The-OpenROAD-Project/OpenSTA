@@ -200,7 +200,7 @@ define_cmd_args "set_units" \
 
 # Note that the set_units command does NOT actually set the units.
 # It merely checks that the current units are the same as the
-# units in the set_units command. Blame SNPS for this brain damage.
+# units in the set_units command.
 proc set_units { args } {
   parse_key_args "set_units" args \
     keys {-capacitance -resistance -time -voltage -current -power -distance} \

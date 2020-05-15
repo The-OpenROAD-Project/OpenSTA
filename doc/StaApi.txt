@@ -48,7 +48,7 @@ app
   Main program definition.
 tcl
   User interface code.
-  SDC (Synopsys Design Constraint) argument parsing.
+  SDC argument parsing.
 
 Each sub-directory builds a library that is linked to build the STA
 executable or linked into another application.

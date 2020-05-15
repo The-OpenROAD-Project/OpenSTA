@@ -168,8 +168,7 @@ ReduceToPi::reducePiDfs(const Pin *drvr_pin,
     if (parasitics_->isResistor(device)
 	&& !isLoopResistor(device)) {
       ParasiticNode *onode = parasitics_->otherNode(device, node);
-      // Cadence Fire&Ice likes to create resistors with identical
-      // from/to nodes.
+      // One commercial extractor creates resistors with identical from/to nodes.
       if (onode != node
 	  && device != from_res) {
 	if (isVisited(onode)) {
@@ -572,8 +571,7 @@ ReduceToPiPoleResidue2::findBranchCurrents(const Pin *drvr_pin,
     ParasiticDevice *device = device_iter->next();
     if (parasitics_->isResistor(device)) {
       ParasiticNode *onode = parasitics_->otherNode(device, node);
-      // Cadence Fire&Ice likes to create resistors with identical
-      // from/to nodes.
+      // One commercial extractor creates resistors with identical from/to nodes.
       if (onode != node
 	  && device != from_res
 	  && !isVisited(onode)
@@ -613,8 +611,7 @@ ReduceToPiPoleResidue2::findMoments(const Pin *drvr_pin,
     ParasiticDevice *device = device_iter->next();
     if (parasitics_->isResistor(device)) {
       ParasiticNode *onode = parasitics_->otherNode(device, node);
-      // Cadence Fire&Ice likes to create resistors with identical
-      // from/to nodes.
+      // One commercial extractor creates resistors with identical from/to nodes.
       if (onode != node
 	  && device != from_res
 	  && !isVisited(onode)
