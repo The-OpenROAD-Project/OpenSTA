@@ -331,6 +331,7 @@ swig_link_libraries(sta_swig
   OpenSTA
 )
 
+# result build/CMakeFiles/sta_swig.dir/StaAppTCL_wrap.cxx
 target_include_directories(sta_swig
   PUBLIC
   include/sta
