@@ -72,7 +72,7 @@ PinSlewLimitSlackLess::operator()(Pin *pin1,
 				corner1, rf1, slew1, limit1, slack1);
   check_slew_limit_->checkSlews(pin2, corner_, min_max_,
 				corner2, rf2, slew2, limit2, slack2);
-  return slack1 < slack2
+  return fuzzyLess(slack1, slack2)
     || (fuzzyEqual(slack1, slack2)
 	// Break ties for the sake of regression stability.
 	&& sta_->network()->pinLess(pin1, pin2));
