@@ -1015,6 +1015,7 @@ ConcreteParasitics::deleteReducedParasitics(const Pin *pin)
 void
 ConcreteParasitics::deleteDrvrReducedParasitics(const Pin *drvr_pin)
 {
+  UniqueLock lock(lock_);
   ConcreteParasitic **parasitics = drvr_parasitic_map_[drvr_pin];
   if (parasitics) {
     int ap_count = corners_->parasiticAnalysisPtCount();
