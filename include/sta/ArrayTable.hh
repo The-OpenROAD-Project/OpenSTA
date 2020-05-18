@@ -59,6 +59,7 @@ private:
   size_t blocks_size_;
   size_t blocks_capacity_;
   ArrayBlock<TYPE>* *blocks_;
+  ArrayBlock<TYPE>* *prev_blocks_;
   static constexpr ObjectId idx_mask_ = block_size - 1;
 };
 
@@ -68,6 +69,7 @@ ArrayTable<TYPE>::ArrayTable() :
   blocks_size_(0),
   blocks_capacity_(1024),
   blocks_(new ArrayBlock<TYPE>*[blocks_capacity_]),
+  prev_blocks_(nullptr),
   free_block_idx_(block_idx_null),
   free_idx_(object_idx_null)
 {
@@ -78,6 +80,7 @@ ArrayTable<TYPE>::~ArrayTable()
 {
   deleteBlocks();
   delete [] blocks_;
+  delete [] prev_blocks_;
 }
 
 template <class TYPE>
@@ -130,10 +133,12 @@ ArrayTable<TYPE>::pushBlock(ArrayBlock<TYPE> *block)
     size_t new_capacity = blocks_capacity_ * 1.5;
     ArrayBlock<TYPE>** new_blocks = new ArrayBlock<TYPE>*[new_capacity];
     memcpy(new_blocks, blocks_, blocks_capacity_ * sizeof(ArrayBlock<TYPE>*));
-    ArrayBlock<TYPE>** old_blocks = blocks_;
+    if (prev_blocks_)
+      delete [] prev_blocks_;
+    // Preserve block array for other threads to reference.
+    prev_blocks_ = blocks_;
     blocks_ = new_blocks;
     blocks_capacity_ = new_capacity;
-    delete [] old_blocks;
   }
 }
 
