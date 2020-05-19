@@ -1186,14 +1186,21 @@ Sta::setClockLatency(Clock *clk,
 		     const MinMaxAll *min_max,
 		     float delay)
 {
+  sdcChangedGraph();
   sdc_->setClockLatency(clk, pin, rf, min_max, delay);
   search_->arrivalsInvalid();
+}
+
+void
+Sta::sdcChangedGraph()
+{
 }
 
 void
 Sta::removeClockLatency(const Clock *clk,
 			const Pin *pin)
 {
+  sdcChangedGraph();
   sdc_->removeClockLatency(clk, pin);
   search_->arrivalsInvalid();
 }
@@ -1384,6 +1391,7 @@ Sta::setDataCheck(Pin *from,
 		  const SetupHoldAll *setup_hold,
 		  float margin)
 {
+  sdcChangedGraph();
   sdc_->setDataCheck(from, from_rf, to, to_rf, clk, setup_hold,margin);
   search_->requiredInvalid(to);
 }
@@ -1428,6 +1436,7 @@ Sta::disable(Instance *inst,
 	     LibertyPort *from,
 	     LibertyPort *to)
 {
+  sdcChangedGraph();
   sdc_->disable(inst, from, to);
 
   if (from) {
@@ -1456,6 +1465,7 @@ Sta::removeDisable(Instance *inst,
 		   LibertyPort *from,
 		   LibertyPort *to)
 {
+  sdcChangedGraph();
   sdc_->removeDisable(inst, from, to);
 
   if (from) {
@@ -1500,6 +1510,7 @@ Sta::removeDisable(LibertyCell *cell,
 void
 Sta::disable(LibertyPort *port)
 {
+  sdcChangedGraph();
   sdc_->disable(port);
   disableAfter();
 }
@@ -1507,6 +1518,7 @@ Sta::disable(LibertyPort *port)
 void
 Sta::removeDisable(LibertyPort *port)
 {
+  sdcChangedGraph();
   sdc_->removeDisable(port);
   disableAfter();
 }
@@ -1868,6 +1880,7 @@ Sta::setOutputDelay(Pin *pin,
   sdc_->setOutputDelay(pin, rf, clk, clk_rf, ref_pin,
 		       source_latency_included,network_latency_included,
 		       min_max, add, delay);
+  sdcChangedGraph();
   search_->requiredInvalid(pin);
 }
 
@@ -1879,6 +1892,7 @@ Sta::removeOutputDelay(Pin *pin,
 		       MinMaxAll *min_max)
 {
   sdc_->removeOutputDelay(pin, rf, clk, clk_rf, min_max);
+  sdcChangedGraph();
   search_->arrivalInvalid(pin);
 }
 
