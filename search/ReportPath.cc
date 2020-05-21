@@ -2167,10 +2167,10 @@ ReportPath::pathFromGenPropClk(const Path *clk_path,
     float insertion;
     bool exists;
     sdc_->clockInsertion(clk, clk_info->clkSrc(),
-				 clk_edge->transition(),
-				 clk_path->minMax(this),
-				 early_late,
-				 insertion, exists);
+			 clk_edge->transition(),
+			 clk_path->minMax(this),
+			 early_late,
+			 insertion, exists);
     return !exists
       && clk->isGeneratedWithPropagatedMaster();
   }
@@ -2187,8 +2187,8 @@ ReportPath::isGenPropClk(const Clock *clk,
   float insertion;
   bool exists;
   sdc_->clockInsertion(clk, clk->srcPin(), clk_rf,
-			       min_max, early_late,
-			       insertion, exists);
+		       min_max, early_late,
+		       insertion, exists);
   return !exists
     && clk->isGeneratedWithPropagatedMaster();
 }
