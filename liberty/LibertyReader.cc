@@ -2026,7 +2026,7 @@ LibertyReader::parseCellFuncs()
   while (func_iter.hasNext()) {
     LibertyFunc *func = func_iter.next();
     FuncExpr *expr = parseFunc(func->expr(), func->attrName(), func->line());
-    if (func->invert()) {
+    if (func->invert() && expr) {
       if (expr->op() == FuncExpr::op_not) {
 	FuncExpr *inv = expr;
 	expr = expr->left();
