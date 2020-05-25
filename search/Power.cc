@@ -621,7 +621,7 @@ Power::findInputInternalPower(const Pin *pin,
       float port_internal = energy * duty * activity.activity();
       debugPrint7(debug_, "power", 2,  " %3s %6s  %.2f  %.2f %9.2e %9.2e %s\n",
 		  port->name(),
-		  when->asString(),
+		  when ? when->asString() : "",
 		  activity.activity() * 1e-9,
 		  duty,
 		  energy,
