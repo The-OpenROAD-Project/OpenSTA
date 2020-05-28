@@ -2262,8 +2262,13 @@ Search::pathClkPathArrival(const Path *path) const
   pathClkPathArrival1(path, src_clk_path);
   if (!src_clk_path.isNull())
     return clkPathArrival(&src_clk_path);
-  else
-    return 0.0;
+  else {
+    // Check for input arrival clock.
+    ClockEdge *clk_edge = path->clkEdge(this);
+    if (clk_edge)
+      return clk_edge->time();
+  }
+  return 0.0;
 }
 
 // PathExpanded::expand() and PathExpanded::clkPath().
