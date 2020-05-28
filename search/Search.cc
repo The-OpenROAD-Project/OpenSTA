@@ -3445,7 +3445,7 @@ RequiredVisitor::visitFromToPath(const Pin *,
     const MinMax *req_min = min_max->opposite();
     TagGroup *to_tag_group = sta_->search()->tagGroup(to_vertex);
     // Check to see if to_tag was pruned.
-    if (to_tag_group->hasTag(to_tag)) {
+    if (to_tag_group && to_tag_group->hasTag(to_tag)) {
       PathVertex to_path(to_vertex, to_tag, sta_);
       Required to_required = to_path.required(sta_);
       Required from_required = to_required - arc_delay;
