@@ -537,8 +537,6 @@ Sta::clear()
 void
 Sta::networkChanged()
 {
-  // Remove sdc graph annotations.
-  sdc_->annotateGraph(false);
   // Everything else from clear().
   search_->clear();
   levelize_->clear();
