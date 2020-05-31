@@ -514,6 +514,9 @@ protected:
 			     PathRef &ref_path);
   const char *asRisingFalling(const RiseFall *rf);
   const char *asRiseFall(const RiseFall *rf);
+  Delay delayIncr(Delay time,
+		  Delay prev,
+		  const MinMax *min_max);
 
   // Path options.
   ReportPathFormat format_;

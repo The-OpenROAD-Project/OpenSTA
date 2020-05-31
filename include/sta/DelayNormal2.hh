@@ -84,19 +84,6 @@ makeDelay2(float delay,
 inline float
 delayAsFloat(const Delay &delay) { return delay.mean(); }
 
-// Most non-operator functions on Delay are not defined as member
-// functions so they can be defined on floats, where there is no class
-// to define them.
-
-Delay operator+(float delay1,
-		const Delay &delay2);
-// Used for parallel gate delay calc.
-Delay operator/(float delay1,
-		const Delay &delay2);
-// Used for parallel gate delay calc.
-Delay operator*(const Delay &delay1,
-		float delay2);
-
 // mean late+/early- sigma
 float
 delayAsFloat(const Delay &delay,
@@ -157,8 +144,24 @@ bool
 fuzzyGreater(const Delay &delay1,
 	     const Delay &delay2,
 	     const MinMax *min_max);
+// delay1-delay2 subtracting sigma instead of addiing.
+Delay delayRemove(const Delay &delay1,
+		  const Delay &delay2);
 float
 delayRatio(const Delay &delay1,
 	   const Delay &delay2);
+
+// Most non-operator functions on Delay are not defined as member
+// functions so they can be defined on floats, where there is no class
+// to define them.
+
+Delay operator+(float delay1,
+		const Delay &delay2);
+// Used for parallel gate delay calc.
+Delay operator/(float delay1,
+		const Delay &delay2);
+// Used for parallel gate delay calc.
+Delay operator*(const Delay &delay1,
+		float delay2);
 
 } // namespace

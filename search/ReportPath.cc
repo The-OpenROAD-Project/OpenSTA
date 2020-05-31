@@ -2608,7 +2608,7 @@ ReportPath::reportPath5(const Path *path,
     Vertex *vertex = path1->vertex(this);
     Pin *pin = vertex->pin();
     Arrival time = path1->arrival(this) + time_offset;
-    float incr = 0.0;
+    Delay incr = 0.0;
     const char *line_case = nullptr;
     bool is_clk_start = network_->isRegClkPin(pin);
     bool is_clk = path1->isClock(search_);
@@ -2633,8 +2633,7 @@ ReportPath::reportPath5(const Path *path,
 	  // from the input to the loads.  Report the wire delay on the
 	  // input pin instead.
 	  Arrival next_time = next_path->arrival(this) + time_offset;
-	  incr = delayAsFloat(next_time, min_max, this)
-	    - delayAsFloat(time, min_max, this);
+	  incr = delayIncr(next_time, time, min_max);
 	  time = next_time;
 	  line_case = "input_drive";
 	}
@@ -2681,13 +2680,11 @@ ReportPath::reportPath5(const Path *path,
 	line_case = "clk_ideal";
       }
       else if (is_clk && !is_clk_start) {
-	incr = delayAsFloat(time, min_max, this)
-	  - delayAsFloat(prev_time, min_max, this);
+	incr = delayIncr(time, prev_time, min_max);
 	line_case = "clk_prop";
       }
       else {
-	incr = delayAsFloat(time, min_max, this)
-	  - delayAsFloat(prev_time, min_max, this);
+	incr = delayIncr(time, prev_time, min_max);
 	line_case = "normal";
       }
       if (report_input_pin_
@@ -2737,6 +2734,17 @@ ReportPath::reportPath5(const Path *path,
     else
       prev_time = time;
   }
+}
+
+Delay
+ReportPath::delayIncr(Delay time,
+		      Delay prev,
+		      const MinMax *min_max)
+{
+  if (report_sigmas_)
+    return delayRemove(time, prev);
+  else
+    return delayAsFloat(time, min_max, this) - delayAsFloat(prev, min_max, this);
 }
 
 bool
@@ -3177,8 +3185,8 @@ ReportPath::reportFieldDelayMinus(Delay value,
   else {
     const char *str = report_sigmas_
       ? delayAsString(-value, this, digits_)
-      //      : delayAsString(-value, early_late, this, digits_);
-      : units_->timeUnit()->asString(-delayAsFloat(value, early_late, this), digits_);
+      // Opposite min/max for negative value.
+      : delayAsString(-value, early_late->opposite(), this, digits_);
     if (stringEq(str, plus_zero_))
       // Force leading minus sign.
       str = minus_zero_;

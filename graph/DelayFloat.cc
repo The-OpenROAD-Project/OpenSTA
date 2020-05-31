@@ -48,6 +48,46 @@ delayIsInitValue(const Delay &delay,
   return fuzzyEqual(delay, min_max->initValue());
 }
 
+const char *
+delayAsString(const Delay &delay,
+	      const StaState *sta)
+{
+  return delayAsString(delay, sta, sta->units()->timeUnit()->digits());
+}
+
+const char *
+delayAsString(const Delay &delay,
+	      const StaState *sta,
+	      int digits)
+{
+  return sta->units()->timeUnit()->asString(delay, digits);
+}
+
+const char *
+delayAsString(const Delay &delay,
+	      const EarlyLate *,
+	      const StaState *sta,
+	      int digits)
+{
+  const Unit *unit = sta->units()->timeUnit();
+  return unit->asString(delay, digits);
+}
+
+float
+delayAsFloat(const Delay &delay,
+	     const EarlyLate *,
+	     const StaState *)
+{
+  return delay;
+}
+
+float
+delaySigma2(const Delay &,
+	   const EarlyLate *)
+{
+  return 0.0;
+}
+
 bool
 fuzzyGreater(const Delay &delay1,
 	     const Delay &delay2,
@@ -92,51 +132,18 @@ fuzzyLessEqual(const Delay &delay1,
     return fuzzyGreaterEqual(delay1, delay2);
 }
 
+Delay
+delayRemove(const Delay &delay1,
+	    const Delay &delay2)
+{
+  return delay1 - delay2;
+}
+
 float
 delayRatio(const Delay &delay1,
 	   const Delay &delay2)
 {
   return delay1 / delay2;
-}
-
-const char *
-delayAsString(const Delay &delay,
-	      const StaState *sta)
-{
-  return delayAsString(delay, sta, sta->units()->timeUnit()->digits());
-}
-
-const char *
-delayAsString(const Delay &delay,
-	      const StaState *sta,
-	      int digits)
-{
-  return sta->units()->timeUnit()->asString(delay, digits);
-}
-
-const char *
-delayAsString(const Delay &delay,
-	      const EarlyLate *,
-	      const StaState *sta,
-	      int digits)
-{
-  const Unit *unit = sta->units()->timeUnit();
-  return unit->asString(delay, digits);
-}
-
-float
-delayAsFloat(const Delay &delay,
-	     const EarlyLate *,
-	     const StaState *)
-{
-  return delay;
-}
-
-float
-delaySigma2(const Delay &,
-	   const EarlyLate *)
-{
-  return 0.0;
 }
 
 } // namespace

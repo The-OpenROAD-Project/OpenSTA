@@ -337,37 +337,6 @@ fuzzyLess(const Delay &delay1,
     return fuzzyGreater(delay1.mean(), delay2.mean());
 }
 
-Delay
-operator+(float delay1,
-	  const Delay &delay2)
-{
-  return Delay(delay1 + delay2.mean(),
-	       delay2.sigma2());
-}
-
-Delay
-operator/(float delay1,
-	  const Delay &delay2)
-{
-  return Delay(delay1 / delay2.mean(),
-	       delay2.sigma2());
-}
-
-Delay
-operator*(const Delay &delay1,
-	  float delay2)
-{
-  return Delay(delay1.mean() * delay2,
-	       delay1.sigma2() * delay2 * delay2);
-}
-
-float
-delayRatio(const Delay &delay1,
-	   const Delay &delay2)
-{
-  return delay1.mean() / delay2.mean();
-}
-
 float
 delayAsFloat(const Delay &delay,
 	     const EarlyLate *early_late,
@@ -423,6 +392,45 @@ delayAsString(const Delay &delay,
 {
   float mean_sigma = delayAsFloat(delay, early_late, sta);
   return sta->units()->timeUnit()->asString(mean_sigma, digits);
+}
+
+Delay
+delayRemove(const Delay &delay1,
+	    const Delay &delay2)
+{
+  return Delay(delay1.mean() - delay2.mean(),
+	       delay1.sigma2() - delay2.sigma2());
+}
+
+float
+delayRatio(const Delay &delay1,
+	   const Delay &delay2)
+{
+  return delay1.mean() / delay2.mean();
+}
+
+Delay
+operator+(float delay1,
+	  const Delay &delay2)
+{
+  return Delay(delay1 + delay2.mean(),
+	       delay2.sigma2());
+}
+
+Delay
+operator/(float delay1,
+	  const Delay &delay2)
+{
+  return Delay(delay1 / delay2.mean(),
+	       delay2.sigma2());
+}
+
+Delay
+operator*(const Delay &delay1,
+	  float delay2)
+{
+  return Delay(delay1.mean() * delay2,
+	       delay1.sigma2() * delay2 * delay2);
 }
 
 } // namespace

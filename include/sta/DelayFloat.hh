@@ -95,6 +95,10 @@ bool
 fuzzyLessEqual(const Delay &delay1,
 	       const Delay &delay2,
 	       const MinMax *min_max);
+
+Delay
+delayRemove(const Delay &delay1,
+	    const Delay &delay2);
 float
 delayRatio(const Delay &delay1,
 	   const Delay &delay2);

@@ -388,6 +388,15 @@ operator*(const Delay &delay1,
 	       delay1.sigma2Late() * delay2 * delay2);
 }
 
+Delay
+delayRemove(const Delay &delay1,
+	    const Delay &delay2)
+{
+  return Delay(delay1.mean() - delay2.mean(),
+	       delay1.sigma2Early() - delay2.sigma2Early(),
+	       delay1.sigma2Late() - delay2.sigma2Late());
+}
+
 float
 delayRatio(const Delay &delay1,
 	   const Delay &delay2)
