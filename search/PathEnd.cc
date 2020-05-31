@@ -361,10 +361,11 @@ PathEnd::checkTgtClkDelay(const PathVertex *tgt_clk_path,
     if (clk_info->isPropagated()) {
       // Propagated clock.  Propagated arrival is seeded with
       // early_late==path_min_max insertion delay.
+      Arrival clk_arrival = tgt_clk_path->arrival(sta);
       Arrival path_insertion = search->clockInsertion(tgt_clk, tgt_src_pin,
 						      tgt_clk_rf, min_max,
 						      min_max, tgt_path_ap);
-      latency=tgt_clk_path->arrival(sta)-tgt_clk_edge->time()-path_insertion;
+      latency = clk_arrival - tgt_clk_edge->time() - path_insertion;
     }
     else
       // Ideal clock.
