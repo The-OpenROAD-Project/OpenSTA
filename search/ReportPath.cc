@@ -1549,21 +1549,22 @@ ReportPath::reportSkewClkPath(const char *arrival_msg,
 ////////////////////////////////////////////////////////////////
 
 void
-ReportPath::reportSlewLimitShortHeader()
+ReportPath::reportLimitShortHeader(const char *what)
 {
   string result;
-  reportSlewLimitShortHeader(result);
+  reportLimitShortHeader(what, result);
   report_->print(result);
 }
 
 void
-ReportPath::reportSlewLimitShortHeader(string &result)
+ReportPath::reportLimitShortHeader(const char *what,
+				   string &result)
 {
   reportDescription("Pin", result);
   result += ' ';
   reportField("Limit", field_slew_, result);
   result += ' ';
-  reportField("Trans", field_slew_, result);
+  reportField(what, field_slew_, result);
   result += ' ';
   reportField("Slack", field_slew_, result);
   reportEndOfLine(result);
@@ -1572,75 +1573,80 @@ ReportPath::reportSlewLimitShortHeader(string &result)
 }
 
 void
-ReportPath::reportSlewLimitShort(Pin *pin,
-				 const RiseFall *rf,
-				 Slew slew,
-				 float limit,
-				 float slack)
+ReportPath::reportLimitShort(const char *what,
+			     Pin *pin,
+			     float value,
+			     float limit,
+			     float slack)
 {
   string result;
-  reportSlewLimitShort(pin, rf, slew, limit, slack, result);
+  reportLimitShort(what, pin, value, limit, slack, result);
   report_->print(result);
 }
 
 void
-ReportPath::reportSlewLimitShort(Pin *pin,
-				 const RiseFall *,
-				 Slew slew,
-				 float limit,
-				 float slack,
-				 string &result)
+ReportPath::reportLimitShort(const char *what,
+			     Pin *pin,
+			     float value,
+			     float limit,
+			     float slack,
+			     string &result)
 {
   const char *pin_name = cmd_network_->pathName(pin);
   reportDescription(pin_name, result);
   reportSpaceFieldTime(limit, result);
-  reportSpaceFieldDelay(slew, EarlyLate::late(),  result);
+  reportSpaceFieldDelay(value, EarlyLate::late(),  result);
   reportSpaceSlack(slack, result);
 }
 
 void
-ReportPath::reportSlewLimitVerbose(Pin *pin,
-				   const Corner *corner,
-				   const RiseFall *rf,
-				   Slew slew,
-				   float limit,
-				   float slack,
-				   const MinMax *min_max)
+ReportPath::reportLimitVerbose(const char *what,
+			       Pin *pin,
+			       const RiseFall *rf,
+			       float value,
+			       float limit,
+			       float slack,
+			       const MinMax *min_max)
 {
   string result;
-  reportSlewLimitVerbose(pin, corner, rf, slew, limit, slack, min_max, result);
+  reportLimitVerbose(what, pin, rf, value, limit, slack, min_max, result);
   report_->print(result);
 }
 
 void
-ReportPath::reportSlewLimitVerbose(Pin *pin,
-				   const Corner *,
-				   const RiseFall *rf,
-				   Slew slew,
-				   float limit,
-				   float slack,
-				   const MinMax *min_max,
-				   string &result)
+ReportPath::reportLimitVerbose(const char *what,
+			       Pin *pin,
+			       const RiseFall *rf,
+			       float value,
+			       float limit,
+			       float slack,
+			       const MinMax *min_max,
+			       string &result)
 {
   result += "Pin ";
   result += cmd_network_->pathName(pin);
   result += ' ';
-  result += rf->shortName();
+  if (rf)
+    result += rf->shortName();
+  else
+    result += " ";
   reportEndOfLine(result);
 
   result += min_max->asString();
-  result += "_transition ";
+  result += " ";
+  result += what;
+  result += " ";
   reportSpaceFieldTime(limit, result);
   reportEndOfLine(result);
 
-  result += "transition_time ";
-  reportField(delayAsFloat(slew), field_slew_, result);
+  result += what;
+  result += "      ";
+  reportField(value, field_slew_, result);
   reportEndOfLine(result);
 
-  reportDashLine(strlen("transition_time") + field_slew_->width() + 1,
-		 result);
+  reportDashLine(strlen(what) + field_slew_->width() + 6, result);
 
-  result += "Slack          ";
+  result += "Slack    ";
   reportSpaceSlack(slack, result);
 }
 

@@ -55,6 +55,8 @@
 #include "PathGroup.hh"
 #include "CheckTiming.hh"
 #include "CheckSlewLimits.hh"
+#include "CheckFanoutLimits.hh"
+#include "CheckCapacitanceLimits.hh"
 #include "CheckMinPulseWidths.hh"
 #include "CheckMinPeriods.hh"
 #include "CheckMaxSkews.hh"
@@ -256,6 +258,8 @@ Sta::Sta() :
   current_instance_(nullptr),
   check_timing_(nullptr),
   check_slew_limits_(nullptr),
+  check_fanout_limits_(nullptr),
+  check_capacitance_limits_(nullptr),
   check_min_pulse_widths_(nullptr),
   check_min_periods_(nullptr),
   check_max_skews_(nullptr),
@@ -438,6 +442,18 @@ Sta::makeCheckSlewLimits()
 }
 
 void
+Sta::makeCheckFanoutLimits()
+{
+  check_fanout_limits_ = new CheckFanoutLimits(this);
+}
+
+void
+Sta::makeCheckCapacitanceLimits()
+{
+  check_capacitance_limits_ = new CheckCapacitanceLimits(this);
+}
+
+void
 Sta::makeCheckMinPulseWidths()
 {
   check_min_pulse_widths_ = new CheckMinPulseWidths(this);
@@ -483,6 +499,8 @@ Sta::~Sta()
 {
   // Delete "top down" to minimize chance of referencing deleted memory.
   delete check_slew_limits_;
+  delete check_fanout_limits_;
+  delete check_capacitance_limits_;
   delete check_min_pulse_widths_;
   delete check_min_periods_;
   delete check_max_skews_;
@@ -4813,7 +4831,7 @@ void
 Sta::checkSlewLimitPreamble()
 {
   if (sdc_->haveClkSlewLimits())
-    // Arrivals are needed to know what pin clock domains.
+    // Arrivals are needed to know pin clock domains.
     updateTiming(false);
   else
     findDelays();
@@ -4840,7 +4858,7 @@ Sta::pinSlewLimitViolations(const Corner *corner,
 void
 Sta::reportSlewLimitShortHeader()
 {
-  report_path_->reportSlewLimitShortHeader();
+  report_path_->reportLimitShortHeader("Slew");
 }
 
 void
@@ -4854,7 +4872,7 @@ Sta::reportSlewLimitShort(Pin *pin,
   float limit, slack;
   check_slew_limits_->checkSlews(pin, corner, min_max,
 				 corner1, rf, slew, limit, slack);
-  report_path_->reportSlewLimitShort(pin, rf, slew, limit, slack);
+  report_path_->reportLimitShort("slew", pin, delayAsFloat(slew), limit, slack);
 }
 
 void
@@ -4868,8 +4886,8 @@ Sta::reportSlewLimitVerbose(Pin *pin,
   float limit, slack;
   check_slew_limits_->checkSlews(pin, corner, min_max,
 				 corner1, rf, slew, limit, slack);
-  report_path_->reportSlewLimitVerbose(pin, corner1, rf, slew,
-				       limit, slack, min_max);
+  report_path_->reportLimitVerbose("slew", pin, rf, delayAsFloat(slew),
+				   limit, slack, min_max);
 }
 
 void
@@ -4887,6 +4905,148 @@ Sta::checkSlews(const Pin *pin,
   check_slew_limits_->init(min_max);
   check_slew_limits_->checkSlews(pin, corner, min_max,
 				 corner1, rf, slew, limit, slack);
+}
+
+////////////////////////////////////////////////////////////////'
+
+void
+Sta::checkFanoutLimitPreamble()
+{
+  if (check_fanout_limits_ == nullptr)
+    makeCheckFanoutLimits();
+}
+
+Pin *
+Sta::pinMinFanoutLimitSlack(const MinMax *min_max)
+{
+  checkFanoutLimitPreamble();
+  return check_fanout_limits_->pinMinFanoutLimitSlack(min_max);
+}
+
+PinSeq *
+Sta::pinFanoutLimitViolations(const MinMax *min_max)
+{
+  checkFanoutLimitPreamble();
+  return check_fanout_limits_->pinFanoutLimitViolations(min_max);
+}
+
+void
+Sta::reportFanoutLimitShortHeader()
+{
+  report_path_->reportLimitShortHeader("Fanout");
+}
+
+void
+Sta::reportFanoutLimitShort(Pin *pin,
+			    const MinMax *min_max)
+{
+  float fanout, limit, slack;
+  check_fanout_limits_->checkFanout(pin, min_max,
+				    fanout, limit, slack);
+  report_path_->reportLimitShort("fanout", pin, fanout, limit, slack);
+}
+
+void
+Sta::reportFanoutLimitVerbose(Pin *pin,
+			      const MinMax *min_max)
+{
+  float fanout, limit, slack;
+  check_fanout_limits_->checkFanout(pin, min_max,
+				    fanout, limit, slack);
+  report_path_->reportLimitVerbose("fanout", pin, nullptr, fanout,
+				   limit, slack, min_max);
+}
+
+void
+Sta::checkFanouts(const Pin *pin,
+		  const MinMax *min_max,
+		  // Return values.
+		  float &fanout,
+		  float &limit,
+		  float &slack)
+{
+  checkFanoutLimitPreamble();
+  check_fanout_limits_->init(min_max);
+  check_fanout_limits_->checkFanout(pin, min_max,
+				    fanout, limit, slack);
+}
+
+////////////////////////////////////////////////////////////////'
+
+void
+Sta::checkCapacitanceLimitPreamble()
+{
+  if (check_capacitance_limits_ == nullptr)
+    makeCheckCapacitanceLimits();
+}
+
+Pin *
+Sta::pinMinCapacitanceLimitSlack(const Corner *corner,
+			  const MinMax *min_max)
+{
+  checkCapacitanceLimitPreamble();
+  return check_capacitance_limits_->pinMinCapacitanceLimitSlack(corner, min_max);
+}
+
+PinSeq *
+Sta::pinCapacitanceLimitViolations(const Corner *corner,
+				   const MinMax *min_max)
+{
+  checkCapacitanceLimitPreamble();
+  return check_capacitance_limits_->pinCapacitanceLimitViolations(corner, min_max);
+}
+
+void
+Sta::reportCapacitanceLimitShortHeader()
+{
+  report_path_->reportLimitShortHeader("Capacitance");
+}
+
+void
+Sta::reportCapacitanceLimitShort(Pin *pin,
+				 const Corner *corner,
+				 const MinMax *min_max)
+{
+  const Corner *corner1;
+  const RiseFall *rf;
+  float capacitance, limit, slack;
+  check_capacitance_limits_->checkCapacitance(pin, corner, min_max,
+					      corner1, rf, capacitance,
+					      limit, slack);
+  report_path_->reportLimitShort("capacitance", pin, capacitance, limit, slack);
+}
+
+void
+Sta::reportCapacitanceLimitVerbose(Pin *pin,
+				   const Corner *corner,
+				   const MinMax *min_max)
+{
+  const Corner *corner1;
+  const RiseFall *rf;
+  float capacitance, limit, slack;
+  check_capacitance_limits_->checkCapacitance(pin, corner, min_max,
+					      corner1, rf, capacitance,
+					      limit, slack);
+  report_path_->reportLimitVerbose("capacitance", pin, rf,
+				   capacitance, limit, slack, min_max);
+}
+
+void
+Sta::checkCapacitances(const Pin *pin,
+		       const Corner *corner,
+		       const MinMax *min_max,
+		       // Return values.
+		       const Corner *&corner1,
+		       const RiseFall *&rf,
+		       float &capacitance,
+		       float &limit,
+		       float &slack)
+{
+  checkCapacitanceLimitPreamble();
+  check_capacitance_limits_->init(min_max);
+  check_capacitance_limits_->checkCapacitance(pin, corner, min_max,
+					      corner1, rf, capacitance,
+					      limit, slack);
 }
 
 ////////////////////////////////////////////////////////////////'

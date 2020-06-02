@@ -386,7 +386,7 @@ proc report_slew_limits { corner min_max all_violators verbose nosplit } {
   if { $all_violators } {
     set violators [pin_slew_limit_violations $corner $min_max]
     if { $violators != {} } {
-      puts "${min_max}_transition"
+      puts "${min_max} slew"
       puts ""
       if { $verbose } {
 	foreach pin $violators {
@@ -404,7 +404,7 @@ proc report_slew_limits { corner min_max all_violators verbose nosplit } {
   } else {
     set pin [pin_min_slew_limit_slack $corner $min_max]
     if { $pin != "NULL" } {
-      puts "${min_max}_transition"
+      puts "${min_max} slew"
       puts ""
       if { $verbose } {
 	report_slew_limit_verbose $pin $corner $min_max
@@ -417,6 +417,80 @@ proc report_slew_limits { corner min_max all_violators verbose nosplit } {
     }
   }
 }
+
+proc report_fanout_limits { min_max all_violators verbose nosplit } {
+  if { $all_violators } {
+    set violators [pin_fanout_limit_violations $min_max]
+    if { $violators != {} } {
+      puts "${min_max} fanout"
+      puts ""
+      if { $verbose } {
+	foreach pin $violators {
+	  report_fanout_limit_verbose $pin $min_max
+	  puts ""
+	}
+      } else {
+	report_fanout_limit_short_header
+	foreach pin $violators {
+	  report_fanout_limit_short $pin $min_max
+	}
+	puts ""
+      }
+    }
+  } else {
+    set pin [pin_min_fanout_limit_slack $min_max]
+    if { $pin != "NULL" } {
+      puts "${min_max} fanout"
+      puts ""
+      if { $verbose } {
+	report_fanout_limit_verbose $pin $min_max
+	puts ""
+      } else {
+	report_fanout_limit_short_header
+	report_fanout_limit_short $pin $min_max
+	puts ""
+      }
+    }
+  }
+}
+
+proc report_capacitance_limits { corner min_max all_violators verbose nosplit } {
+  if { $all_violators } {
+    set violators [pin_capacitance_limit_violations $corner $min_max]
+    if { $violators != {} } {
+      puts "${min_max} capacitance"
+      puts ""
+      if { $verbose } {
+	foreach pin $violators {
+	  report_capacitance_limit_verbose $pin $corner $min_max
+	  puts ""
+	}
+      } else {
+	report_capacitance_limit_short_header
+	foreach pin $violators {
+	  report_capacitance_limit_short $pin $corner $min_max
+	}
+	puts ""
+      }
+    }
+  } else {
+    set pin [pin_min_capacitance_limit_slack $corner $min_max]
+    if { $pin != "NULL" } {
+      puts "${min_max} capacitance"
+      puts ""
+      if { $verbose } {
+	report_capacitance_limit_verbose $pin $corner $min_max
+	puts ""
+      } else {
+	report_capacitance_limit_short_header
+	report_capacitance_limit_short $pin $corner $min_max
+	puts ""
+      }
+    }
+  }
+}
+
+################################################################
 
 proc report_path_ends { path_ends } {
   report_path_end_header

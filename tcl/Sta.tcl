@@ -319,6 +319,8 @@ define_sta_cmd_args "report_check_types" \
      [-recovery] [-removal]\
      [-clock_gating_setup] [-clock_gating_hold]\
      [-max_slew] [-min_slew]\
+     [-max_fanout] [-min_fanout]\
+     [-max_capacitance] [-min_capacitance]\
      [-min_pulse_width] [-min_period] [-max_skew]\
      [-digits digits] [-no_line_splits]\
      [> filename] [>> filename]}
@@ -358,35 +360,47 @@ proc_redirect report_check_types {
       set recovery 1
       set clk_gating_setup 1
       set max_slew 1
+      set max_fanout 1
+      set max_capacitance 1
     } else {
       set setup 0
       set recovery 0
       set clk_gating_setup 0
       set max_slew 0
+      set max_fanout 0
+      set max_capacitance 0
     }
     if { $min_max == "min" || $min_max == "min_max" } {
       set hold 1
       set removal 1
       set clk_gating_hold 1
       set min_slew 1
+      set min_fanout 1
+      set min_capacitance 1
     } else {
       set hold 0
       set min_delay 0
       set removal 0
       set clk_gating_hold 0
       set min_slew 0
+      set min_fanout 0
+      set min_capacitance 0
     }
     set min_pulse_width 1
     set min_period 1
     set max_skew 1
+    set max_fanout 1
+    set max_capacitance 1
   } else {
     parse_key_args "report_check_types" args keys {} \
       flags {-max_delay -min_delay -recovery -removal \
 	       -clock_gating_setup -clock_gating_hold \
 	       -max_slew -min_slew \
-	       -max_transition -min_transition \
+	       -max_fanout -min_fanout \
+	       -max_capacitance -min_capacitance \
 	       -min_pulse_width \
-	       -min_period -max_skew} 1
+	       -min_period -max_skew \
+	       -max_transition -min_transition } 1
 
     set setup [info exists flags(-max_delay)]
     set hold [info exists flags(-min_delay)]
@@ -404,6 +418,10 @@ proc_redirect report_check_types {
       sta_warn "-min_transition deprecated. Use -min_slew."
       set min_slew 1
     }
+    set max_fanout [info exists flags(-max_fanout)]
+    set min_fanout [info exists flags(-min_fanout)]
+    set max_capacitance [info exists flags(-max_capacitance)]
+    set min_capacitance [info exists flags(-min_capacitance)]
     set min_pulse_width [info exists flags(-min_pulse_width)]
     set min_period [info exists flags(-min_period)]
     set max_skew [info exists flags(-max_skew)]
@@ -456,6 +474,18 @@ proc_redirect report_check_types {
   }
   if { $min_slew } {
     report_slew_limits $corner "min" $violators $verbose $nosplit
+  }
+  if { $max_fanout } {
+#    report_fanout_limits "max" $violators $verbose $nosplit
+  }
+  if { $min_fanout } {
+#    report_fanout_limits "min" $violators $verbose $nosplit
+  }
+  if { $max_capacitance } {
+#    report_capacitance_limits $corner "max" $violators $verbose $nosplit
+  }
+  if { $min_capacitance } {
+#    report_capacitance_limits $corner "min" $violators $verbose $nosplit
   }
   if { $min_pulse_width } {
     if { $violators } {

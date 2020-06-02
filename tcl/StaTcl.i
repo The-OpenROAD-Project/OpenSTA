@@ -4613,6 +4613,8 @@ report_delay_calc_cmd(Edge *edge,
   return Sta::sta()->reportDelayCalc(edge, arc, corner, min_max, digits);
 }
 
+////////////////////////////////////////////////////////////////
+
 Pin *
 pin_min_slew_limit_slack(const Corner *corner,
 			 const MinMax *min_max)
@@ -4649,6 +4651,82 @@ report_slew_limit_verbose(Pin *pin,
 			  const MinMax *min_max)
 {
   Sta::sta()->reportSlewLimitVerbose(pin, corner, min_max);
+}
+
+////////////////////////////////////////////////////////////////
+
+Pin *
+pin_min_fanout_limit_slack(const MinMax *min_max)
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->pinMinFanoutLimitSlack(min_max);
+}
+
+PinSeq *
+pin_fanout_limit_violations(const MinMax *min_max)
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->pinFanoutLimitViolations(min_max);
+}
+
+void
+report_fanout_limit_short_header()
+{
+  Sta::sta()->reportFanoutLimitShortHeader();
+}
+
+void
+report_fanout_limit_short(Pin *pin,
+			  const MinMax *min_max)
+{
+  Sta::sta()->reportFanoutLimitShort(pin, min_max);
+}
+
+void
+report_fanout_limit_verbose(Pin *pin,
+			    const MinMax *min_max)
+{
+  Sta::sta()->reportFanoutLimitVerbose(pin, min_max);
+}
+
+////////////////////////////////////////////////////////////////
+
+Pin *
+pin_min_capacitance_limit_slack(const Corner *corner,
+				const MinMax *min_max)
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->pinMinCapacitanceLimitSlack(corner, min_max);
+}
+
+PinSeq *
+pin_capacitance_limit_violations(const Corner *corner,
+				 const MinMax *min_max)
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->pinCapacitanceLimitViolations(corner, min_max);
+}
+
+void
+report_capacitance_limit_short_header()
+{
+  Sta::sta()->reportCapacitanceLimitShortHeader();
+}
+
+void
+report_capacitance_limit_short(Pin *pin,
+			       const Corner *corner,
+			       const MinMax *min_max)
+{
+  Sta::sta()->reportCapacitanceLimitShort(pin, corner, min_max);
+}
+
+void
+report_capacitance_limit_verbose(Pin *pin,
+				 const Corner *corner,
+				 const MinMax *min_max)
+{
+  Sta::sta()->reportCapacitanceLimitVerbose(pin, corner, min_max);
 }
 
 ////////////////////////////////////////////////////////////////

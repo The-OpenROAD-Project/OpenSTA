@@ -137,34 +137,35 @@ public:
   void reportVerbose(MaxSkewCheck *check,
 		     string &result);
 
-  void reportSlewLimitShortHeader();
-  void reportSlewLimitShortHeader(string &result);
-  void reportSlewLimitShort(Pin *pin,
-			    const RiseFall *rf,
-			    Slew slew,
-			    float limit,
-			    float slack);
-  void reportSlewLimitShort(Pin *pin, const
-			    RiseFall *rf,
-			    Slew slew,
-			    float limit,
-			    float slack,
-			    string &result);
-  void reportSlewLimitVerbose(Pin *pin,
-			      const Corner *corner,
-			      const RiseFall *rf,
-			      Slew slew,
-			      float limit,
-			      float slack,
-			      const MinMax *min_max);
-  void reportSlewLimitVerbose(Pin *pin,
-			      const Corner *corner,
-			      const RiseFall *rf,
-			      Slew slew,
-			      float limit,
-			      float slack,
-			      const MinMax *min_max,
+  void reportLimitShortHeader(const char *what);
+  void reportLimitShortHeader(const char *what,
 			      string &result);
+  void reportLimitShort(const char *what,
+			Pin *pin,
+			float value,
+			float limit,
+			float slack);
+  void reportLimitShort(const char *what,
+			Pin *pin,
+			float value,
+			float limit,
+			float slack,
+			string &result);
+  void reportLimitVerbose(const char *what,
+			  Pin *pin,
+			  const RiseFall *rf,
+			  float value,
+			  float limit,
+			  float slack,
+			  const MinMax *min_max);
+  void reportLimitVerbose(const char *what,
+			  Pin *pin,
+			  const RiseFall *rf,
+			  float value,
+			  float limit,
+			  float slack,
+			  const MinMax *min_max,
+			  string &result);
 
 protected:
   void makeFields();
