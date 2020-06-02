@@ -257,7 +257,7 @@ proc parse_report_path_options { cmd args_var default_format
   foreach field {total incr} {
     set_report_path_field_width $field $delay_field_width
   }
-  foreach field {capacitance slew fanout} {
+  foreach field {capacitance slew} {
     set_report_path_field_width $field $field_width
   }
 

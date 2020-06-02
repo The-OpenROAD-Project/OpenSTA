@@ -1600,6 +1600,10 @@ ReportPath::reportLimitShort(const ReportField *field,
   reportField(value, field, result);
   result += ' ';
   reportField(slack, field, result);
+  result += (slack >= 0.0)
+    ? " (MET)"
+    : " (VIOLATED)";
+  reportEndOfLine(result);
 }
 
 void
@@ -1632,7 +1636,7 @@ ReportPath::reportLimitVerbose(const ReportField *field,
   if (rf)
     result += rf->shortName();
   else
-  result += ' ';
+    result += ' ';
   reportEndOfLine(result);
 
   result += min_max->asString();
@@ -1646,10 +1650,17 @@ ReportPath::reportLimitVerbose(const ReportField *field,
   result += "     ";
   reportField(value, field, result);
   reportEndOfLine(result);
-  reportDashLine(strlen(field->name()) + field->width() + 5, result);
+  int name_width = strlen(field->name()) + 5;
+  reportDashLine(name_width + field->width(), result);
 
-  result += "Slack      ";
+  result += "Slack";
+  for (int i = strlen("Slack"); i < name_width; i++)
+    result += ' ';
   reportField(slack, field, result);
+  result += (slack >= 0.0)
+    ? " (MET)"
+    : " (VIOLATED)";
+  reportEndOfLine(result);
 }
 
 ////////////////////////////////////////////////////////////////

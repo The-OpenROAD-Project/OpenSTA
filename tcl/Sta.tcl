@@ -46,7 +46,7 @@ proc define_report_path_fields {} {
   set_report_path_field_properties "incr" "Delay" $width 0
   set_report_path_field_properties "capacitance" "Cap" $width 0
   set_report_path_field_properties "slew" "Slew" $width 0
-  set_report_path_field_properties "fanout" "Fanout" 5 0
+  set_report_path_field_properties "fanout" "Fanout" 6 0
   set_report_path_field_properties "edge" " " 1 0
   set_report_path_field_properties "case" " " 11 0
 }
@@ -390,7 +390,9 @@ proc_redirect report_check_types {
     set min_period 1
     set max_skew 1
     set max_fanout 0
+    set min_fanout 0
     set max_capacitance 0
+    set min_capacitance 0
   } else {
     parse_key_args "report_check_types" args keys {} \
       flags {-max_delay -min_delay -recovery -removal \
@@ -482,10 +484,10 @@ proc_redirect report_check_types {
     report_fanout_limits "min" $violators $verbose $nosplit
   }
   if { $max_capacitance } {
-#    report_capacitance_limits $corner "max" $violators $verbose $nosplit
+    report_capacitance_limits $corner "max" $violators $verbose $nosplit
   }
   if { $min_capacitance } {
-#    report_capacitance_limits $corner "min" $violators $verbose $nosplit
+    report_capacitance_limits $corner "min" $violators $verbose $nosplit
   }
   if { $min_pulse_width } {
     if { $violators } {
