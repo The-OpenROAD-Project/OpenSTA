@@ -143,7 +143,7 @@ ReportPath::~ReportPath()
 void
 ReportPath::makeFields()
 {
-  field_fanout_ = makeField("fanout", "Fanout", 5, false, nullptr, true);
+  field_fanout_ = makeField("fanout", "Fanout", 6, false, nullptr, true);
   field_capacitance_ = makeField("capacitance", "Cap", 6, false,
 				 units_->capacitanceUnit(), true);
   field_slew_ = makeField("slew", "Slew", 6, false, units_->timeUnit(),
@@ -1549,43 +1549,43 @@ ReportPath::reportSkewClkPath(const char *arrival_msg,
 ////////////////////////////////////////////////////////////////
 
 void
-ReportPath::reportLimitShortHeader(const char *what)
+ReportPath::reportLimitShortHeader(const ReportField *field)
 {
   string result;
-  reportLimitShortHeader(what, result);
+  reportLimitShortHeader(field, result);
   report_->print(result);
 }
 
 void
-ReportPath::reportLimitShortHeader(const char *what,
+ReportPath::reportLimitShortHeader(const ReportField *field,
 				   string &result)
 {
   reportDescription("Pin", result);
   result += ' ';
-  reportField("Limit", field_slew_, result);
+  reportField("Limit", field, result);
   result += ' ';
-  reportField(what, field_slew_, result);
+  reportField(field->title(), field, result);
   result += ' ';
-  reportField("Slack", field_slew_, result);
+  reportField("Slack", field, result);
   reportEndOfLine(result);
-  reportDashLine(field_description_->width() + field_slew_->width() * 3 + 3,
+  reportDashLine(field_description_->width() + field->width() * 3 + 3,
 		 result);
 }
 
 void
-ReportPath::reportLimitShort(const char *what,
+ReportPath::reportLimitShort(const ReportField *field,
 			     Pin *pin,
 			     float value,
 			     float limit,
 			     float slack)
 {
   string result;
-  reportLimitShort(what, pin, value, limit, slack, result);
+  reportLimitShort(field, pin, value, limit, slack, result);
   report_->print(result);
 }
 
 void
-ReportPath::reportLimitShort(const char *what,
+ReportPath::reportLimitShort(const ReportField *field,
 			     Pin *pin,
 			     float value,
 			     float limit,
@@ -1594,13 +1594,16 @@ ReportPath::reportLimitShort(const char *what,
 {
   const char *pin_name = cmd_network_->pathName(pin);
   reportDescription(pin_name, result);
-  reportSpaceFieldTime(limit, result);
-  reportSpaceFieldDelay(value, EarlyLate::late(),  result);
-  reportSpaceSlack(slack, result);
+  result += ' ';
+  reportField(limit, field, result);
+  result += ' ';
+  reportField(value, field, result);
+  result += ' ';
+  reportField(slack, field, result);
 }
 
 void
-ReportPath::reportLimitVerbose(const char *what,
+ReportPath::reportLimitVerbose(const ReportField *field,
 			       Pin *pin,
 			       const RiseFall *rf,
 			       float value,
@@ -1609,12 +1612,12 @@ ReportPath::reportLimitVerbose(const char *what,
 			       const MinMax *min_max)
 {
   string result;
-  reportLimitVerbose(what, pin, rf, value, limit, slack, min_max, result);
+  reportLimitVerbose(field, pin, rf, value, limit, slack, min_max, result);
   report_->print(result);
 }
 
 void
-ReportPath::reportLimitVerbose(const char *what,
+ReportPath::reportLimitVerbose(const ReportField *field,
 			       Pin *pin,
 			       const RiseFall *rf,
 			       float value,
@@ -1629,25 +1632,24 @@ ReportPath::reportLimitVerbose(const char *what,
   if (rf)
     result += rf->shortName();
   else
-    result += " ";
+  result += ' ';
   reportEndOfLine(result);
 
   result += min_max->asString();
-  result += " ";
-  result += what;
-  result += " ";
-  reportSpaceFieldTime(limit, result);
+  result += ' ';
+  result += field->name();
+  result += ' ';
+  reportField(limit, field, result);
   reportEndOfLine(result);
 
-  result += what;
-  result += "      ";
-  reportField(value, field_slew_, result);
+  result += field->name();
+  result += "     ";
+  reportField(value, field, result);
   reportEndOfLine(result);
+  reportDashLine(strlen(field->name()) + field->width() + 5, result);
 
-  reportDashLine(strlen(what) + field_slew_->width() + 6, result);
-
-  result += "Slack    ";
-  reportSpaceSlack(slack, result);
+  result += "Slack      ";
+  reportField(slack, field, result);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3221,20 +3223,24 @@ ReportPath::reportFieldDelay(Delay value,
 
 void
 ReportPath::reportField(float value,
-			ReportField *field,
+			const ReportField *field,
 			string &result)
 {
   if (value == field_blank_)
     reportFieldBlank(field, result);
   else {
-    const char *value_str = field->unit()->asString(value, digits_);
+    Unit *unit = field->unit();
+    const char *value_str = (unit)
+      ? unit->asString(value, digits_)
+      // fanout
+      : stringPrintTmp("%.0f", value);
     reportField(value_str, field, result);
   }
 }
 
 void
 ReportPath::reportField(const char *value,
-			ReportField *field,
+			const ReportField *field,
 			string &result)
 {
   if (field->leftJustify())
@@ -3246,7 +3252,7 @@ ReportPath::reportField(const char *value,
 }
 
 void
-ReportPath::reportFieldBlank(ReportField *field,
+ReportPath::reportFieldBlank(const ReportField *field,
 			     string &result)
 {
   result += field->blank();

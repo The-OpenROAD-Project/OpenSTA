@@ -247,7 +247,7 @@ proc parse_report_path_options { cmd args_var default_format
 
   set path_options(num_fmt) "%.${digits}f"
   set_report_path_digits $digits
-  # Numberic field width expands with digits.
+  # Numeric field width expands with digits.
   set field_width [expr $digits + $report_path_field_width_extra]
   if { $report_sigmas } {
     set delay_field_width [expr $field_width * 3 + $report_path_field_width_extra]
@@ -257,7 +257,7 @@ proc parse_report_path_options { cmd args_var default_format
   foreach field {total incr} {
     set_report_path_field_width $field $delay_field_width
   }
-  foreach field {capacitance slew} {
+  foreach field {capacitance slew fanout} {
     set_report_path_field_width $field $field_width
   }
 

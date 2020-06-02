@@ -389,8 +389,8 @@ proc_redirect report_check_types {
     set min_pulse_width 1
     set min_period 1
     set max_skew 1
-    set max_fanout 1
-    set max_capacitance 1
+    set max_fanout 0
+    set max_capacitance 0
   } else {
     parse_key_args "report_check_types" args keys {} \
       flags {-max_delay -min_delay -recovery -removal \
@@ -476,10 +476,10 @@ proc_redirect report_check_types {
     report_slew_limits $corner "min" $violators $verbose $nosplit
   }
   if { $max_fanout } {
-#    report_fanout_limits "max" $violators $verbose $nosplit
+    report_fanout_limits "max" $violators $verbose $nosplit
   }
   if { $min_fanout } {
-#    report_fanout_limits "min" $violators $verbose $nosplit
+    report_fanout_limits "min" $violators $verbose $nosplit
   }
   if { $max_capacitance } {
 #    report_capacitance_limits $corner "max" $violators $verbose $nosplit

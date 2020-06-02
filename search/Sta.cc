@@ -4858,7 +4858,7 @@ Sta::pinSlewLimitViolations(const Corner *corner,
 void
 Sta::reportSlewLimitShortHeader()
 {
-  report_path_->reportLimitShortHeader("Slew");
+  report_path_->reportLimitShortHeader(report_path_->fieldSlew());
 }
 
 void
@@ -4872,7 +4872,8 @@ Sta::reportSlewLimitShort(Pin *pin,
   float limit, slack;
   check_slew_limits_->checkSlews(pin, corner, min_max,
 				 corner1, rf, slew, limit, slack);
-  report_path_->reportLimitShort("slew", pin, delayAsFloat(slew), limit, slack);
+  report_path_->reportLimitShort(report_path_->fieldSlew(), pin,
+				 delayAsFloat(slew), limit, slack);
 }
 
 void
@@ -4886,7 +4887,8 @@ Sta::reportSlewLimitVerbose(Pin *pin,
   float limit, slack;
   check_slew_limits_->checkSlews(pin, corner, min_max,
 				 corner1, rf, slew, limit, slack);
-  report_path_->reportLimitVerbose("slew", pin, rf, delayAsFloat(slew),
+  report_path_->reportLimitVerbose(report_path_->fieldSlew(), pin, rf,
+				   delayAsFloat(slew),
 				   limit, slack, min_max);
 }
 
@@ -4933,7 +4935,7 @@ Sta::pinFanoutLimitViolations(const MinMax *min_max)
 void
 Sta::reportFanoutLimitShortHeader()
 {
-  report_path_->reportLimitShortHeader("Fanout");
+  report_path_->reportLimitShortHeader(report_path_->fieldFanout());
 }
 
 void
@@ -4943,7 +4945,8 @@ Sta::reportFanoutLimitShort(Pin *pin,
   float fanout, limit, slack;
   check_fanout_limits_->checkFanout(pin, min_max,
 				    fanout, limit, slack);
-  report_path_->reportLimitShort("fanout", pin, fanout, limit, slack);
+  report_path_->reportLimitShort(report_path_->fieldFanout(),
+				 pin, fanout, limit, slack);
 }
 
 void
@@ -4953,7 +4956,8 @@ Sta::reportFanoutLimitVerbose(Pin *pin,
   float fanout, limit, slack;
   check_fanout_limits_->checkFanout(pin, min_max,
 				    fanout, limit, slack);
-  report_path_->reportLimitVerbose("fanout", pin, nullptr, fanout,
+  report_path_->reportLimitVerbose(report_path_->fieldFanout(),
+				   pin, nullptr, fanout,
 				   limit, slack, min_max);
 }
 
@@ -4999,7 +5003,7 @@ Sta::pinCapacitanceLimitViolations(const Corner *corner,
 void
 Sta::reportCapacitanceLimitShortHeader()
 {
-  report_path_->reportLimitShortHeader("Capacitance");
+  report_path_->reportLimitShortHeader(report_path_->fieldCapacitance());
 }
 
 void
@@ -5013,7 +5017,8 @@ Sta::reportCapacitanceLimitShort(Pin *pin,
   check_capacitance_limits_->checkCapacitance(pin, corner, min_max,
 					      corner1, rf, capacitance,
 					      limit, slack);
-  report_path_->reportLimitShort("capacitance", pin, capacitance, limit, slack);
+  report_path_->reportLimitShort(report_path_->fieldCapacitance(),
+				 pin, capacitance, limit, slack);
 }
 
 void
@@ -5027,8 +5032,9 @@ Sta::reportCapacitanceLimitVerbose(Pin *pin,
   check_capacitance_limits_->checkCapacitance(pin, corner, min_max,
 					      corner1, rf, capacitance,
 					      limit, slack);
-  report_path_->reportLimitVerbose("capacitance", pin, rf,
-				   capacitance, limit, slack, min_max);
+  report_path_->reportLimitVerbose(report_path_->fieldCapacitance(),
+				   pin, rf, capacitance,
+				   limit, slack, min_max);
 }
 
 void

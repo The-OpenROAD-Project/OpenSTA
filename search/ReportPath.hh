@@ -137,28 +137,28 @@ public:
   void reportVerbose(MaxSkewCheck *check,
 		     string &result);
 
-  void reportLimitShortHeader(const char *what);
-  void reportLimitShortHeader(const char *what,
+  void reportLimitShortHeader(const ReportField *field);
+  void reportLimitShortHeader(const ReportField *field,
 			      string &result);
-  void reportLimitShort(const char *what,
+  void reportLimitShort(const ReportField *field,
 			Pin *pin,
 			float value,
 			float limit,
 			float slack);
-  void reportLimitShort(const char *what,
+  void reportLimitShort(const ReportField *field,
 			Pin *pin,
 			float value,
 			float limit,
 			float slack,
 			string &result);
-  void reportLimitVerbose(const char *what,
+  void reportLimitVerbose(const ReportField *field,
 			  Pin *pin,
 			  const RiseFall *rf,
 			  float value,
 			  float limit,
 			  float slack,
 			  const MinMax *min_max);
-  void reportLimitVerbose(const char *what,
+  void reportLimitVerbose(const ReportField *field,
 			  Pin *pin,
 			  const RiseFall *rf,
 			  float value,
@@ -166,6 +166,9 @@ public:
 			  float slack,
 			  const MinMax *min_max,
 			  string &result);
+  ReportField *fieldSlew() const { return field_slew_; }
+  ReportField *fieldFanout() const { return field_fanout_; }
+  ReportField *fieldCapacitance() const { return field_capacitance_; }
 
 protected:
   void makeFields();
@@ -454,12 +457,12 @@ protected:
 			ReportField *field,
 			string &result);
   void reportField(float value,
-		   ReportField *field,
+		   const ReportField *field,
 		   string &result);
   void reportField(const char *value,
-		   ReportField *field,
+		   const ReportField *field,
 		   string &result);
-  void reportFieldBlank(ReportField *field,
+  void reportFieldBlank(const ReportField *field,
 			string &result);
   void reportDashLine(string &result);
   void reportDashLine(int line_width,
@@ -568,7 +571,7 @@ public:
   void setWidth(int width);
   bool leftJustify() const { return left_justify_; }
   Unit *unit() const { return unit_; }
-  const char *blank() { return blank_; }
+  const char *blank() const { return blank_; }
   void setEnabled(bool enabled);
   bool enabled() const { return enabled_; }
 

@@ -166,13 +166,15 @@ CheckFanoutLimits::fanout(const Pin *pin) const
   float fanout = 0;
   const Network *network = sta_->network();
   Net *net = network->net(pin);
-  NetPinIterator *pin_iter = network->pinIterator(net);
-  while (pin_iter->hasNext()) {
-    Pin *pin = pin_iter->next();
-    if (network->isLoad(pin))
-      fanout++;
+  if (net) {
+    NetPinIterator *pin_iter = network->pinIterator(net);
+    while (pin_iter->hasNext()) {
+      Pin *pin = pin_iter->next();
+      if (network->isLoad(pin))
+	fanout++;
+    }
+    delete pin_iter;
   }
-  delete pin_iter;
   return fanout;
 }
 
