@@ -263,7 +263,7 @@ CheckCapacitanceLimits::pinMinCapacitanceLimitSlack(const Corner *corner,
 {
   init(min_max);
   const Network *network = sta_->network();
-  Pin *min_slack_pin = 0;
+  Pin *min_slack_pin = nullptr;
   float min_slack = MinMax::min()->initValue();
   LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
   while (inst_iter->hasNext()) {
@@ -294,7 +294,8 @@ CheckCapacitanceLimits::pinMinCapacitanceLimitSlack(Instance *inst,
     float capacitance, limit, slack;
     checkCapacitance(pin, corner, min_max, corner1, rf, capacitance, limit, slack);
     if (rf
-	&& (min_slack_pin == 0
+	&& !fuzzyInf(slack)
+	&& (min_slack_pin == nullptr
 	    || slack < min_slack)) {
       min_slack_pin = pin;
       min_slack = slack;

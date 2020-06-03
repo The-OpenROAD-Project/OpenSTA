@@ -389,10 +389,6 @@ proc_redirect report_check_types {
     set min_pulse_width 1
     set min_period 1
     set max_skew 1
-    set max_fanout 0
-    set min_fanout 0
-    set max_capacitance 0
-    set min_capacitance 0
   } else {
     parse_key_args "report_check_types" args keys {} \
       flags {-max_delay -min_delay -recovery -removal \

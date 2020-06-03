@@ -346,7 +346,7 @@ CheckSlewLimits::pinMinSlewLimitSlack(const Corner *corner,
 {
   init(min_max);
   const Network *network = sta_->network();
-  Pin *min_slack_pin = 0;
+  Pin *min_slack_pin = nullptr;
   float min_slack = MinMax::min()->initValue();
   LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
   while (inst_iter->hasNext()) {
@@ -378,7 +378,7 @@ CheckSlewLimits::pinMinSlewLimitSlack(Instance *inst,
     float limit, slack;
     checkSlews(pin, corner, min_max, corner1, rf, slew, limit, slack);
     if (rf
-	&& (min_slack_pin == 0
+	&& (min_slack_pin == nullptr
 	    || slack < min_slack)) {
       min_slack_pin = pin;
       min_slack = slack;

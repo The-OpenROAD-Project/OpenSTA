@@ -100,10 +100,9 @@ CheckFanoutLimits::checkFanout(const Pin *pin,
   float limit1;
   bool limit1_exists;
   findLimit(pin, min_max, limit1, limit1_exists);
-  if (limit1_exists) {
+  if (limit1_exists)
     checkFanout(pin, min_max, limit1,
 		fanout, slack, limit);
-  }
 }
   
 void
@@ -133,6 +132,7 @@ CheckFanoutLimits::findLimit(const Pin *pin,
       if (port) {
 	port->fanoutLimit(min_max, limit, exists);
 	if (!exists
+	    && min_max == MinMax::max()
 	    && port->direction()->isAnyOutput())
 	  port->libertyLibrary()->defaultMaxFanout(limit, exists);
       }
@@ -220,7 +220,7 @@ CheckFanoutLimits::pinMinFanoutLimitSlack(const MinMax *min_max)
 {
   init(min_max);
   const Network *network = sta_->network();
-  Pin *min_slack_pin = 0;
+  Pin *min_slack_pin = nullptr;
   float min_slack = MinMax::min()->initValue();
   LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
   while (inst_iter->hasNext()) {
@@ -230,7 +230,7 @@ CheckFanoutLimits::pinMinFanoutLimitSlack(const MinMax *min_max)
   delete inst_iter;
   // Check top level ports.
   pinMinFanoutLimitSlack(network->topInstance(), min_max,
-		       min_slack_pin, min_slack);
+			 min_slack_pin, min_slack);
   return min_slack_pin;
 }
 
@@ -245,13 +245,16 @@ CheckFanoutLimits::pinMinFanoutLimitSlack(Instance *inst,
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    float fanout;
-    float limit, slack;
-    checkFanout(pin, min_max, fanout, limit, slack);
-    if (min_slack_pin == 0
-	|| slack < min_slack) {
-      min_slack_pin = pin;
-      min_slack = slack;
+    if (network->direction(pin)->isAnyOutput()) {
+      float fanout;
+      float limit, slack;
+      checkFanout(pin, min_max, fanout, limit, slack);
+      if (!fuzzyInf(slack)
+	  && (min_slack_pin == nullptr
+	      || slack < min_slack)) {
+	min_slack_pin = pin;
+	min_slack = slack;
+      }
     }
   }
   delete pin_iter;
