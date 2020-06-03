@@ -5291,6 +5291,13 @@ arrivals_invalid()
   sta->arrivalsInvalid();
 }
 
+void
+delays_invalid()
+{
+  Sta *sta = Sta::sta();
+  sta->delaysInvalid();
+}
+
 %} // inline
 
 ////////////////////////////////////////////////////////////////
