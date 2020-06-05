@@ -365,7 +365,7 @@ PathEnd::checkTgtClkDelay(const PathVertex *tgt_clk_path,
       Arrival path_insertion = search->clockInsertion(tgt_clk, tgt_src_pin,
 						      tgt_clk_rf, min_max,
 						      min_max, tgt_path_ap);
-      latency = clk_arrival - tgt_clk_edge->time() - path_insertion;
+      latency = delayRemove(clk_arrival - tgt_clk_edge->time(), path_insertion);
     }
     else
       // Ideal clock.
