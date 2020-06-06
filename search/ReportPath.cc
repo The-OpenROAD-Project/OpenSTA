@@ -1368,7 +1368,7 @@ ReportPath::reportVerbose(MinPeriodCheck *check, string &result)
   reportEndOfLine(result);
 
   reportLine("Period", check->period(), EarlyLate::early(), result);
-  reportLine("min_period", -check->minPeriod(this),
+  reportLine("min period", -check->minPeriod(this),
 	     EarlyLate::early(), result);
   reportDashLine(result);
   reportSlack(check->slack(this), result);
