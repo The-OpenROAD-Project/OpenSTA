@@ -244,7 +244,8 @@ DmpCeffTwoPoleDelayCalc::findParasitic(const Pin *drvr_pin,
 						parasitic_ap);
       // Estimated parasitics are not recorded in the "database", so
       // it for deletion after the drvr pin delay calc is finished.
-      unsaved_parasitics_.push_back(parasitic);
+      if (parasitic)
+	unsaved_parasitics_.push_back(parasitic);
       return parasitic;
     }
   }

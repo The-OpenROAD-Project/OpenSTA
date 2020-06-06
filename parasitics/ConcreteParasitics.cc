@@ -1670,10 +1670,13 @@ ConcreteParasitics::estimatePiElmore(const Pin *drvr_pin,
 		   c2, rpi, c1,
 		   elmore_res, elmore_cap, elmore_use_load_cap);
 
-  return new ConcretePiElmoreEstimated(c2, rpi, c1, elmore_res, elmore_cap,
-				       elmore_use_load_cap,
-				       rf, op_cond, corner, min_max,
-				       sdc_);
+  if (c1 > 0.0 || c2 > 0.0)
+    return new ConcretePiElmoreEstimated(c2, rpi, c1, elmore_res, elmore_cap,
+					 elmore_use_load_cap,
+					 rf, op_cond, corner, min_max,
+					 sdc_);
+  else
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////

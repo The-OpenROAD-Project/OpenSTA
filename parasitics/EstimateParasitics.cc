@@ -150,7 +150,8 @@ EstimateParasitics::estimatePiElmoreBalanced(const Pin *drvr_pin,
 					     float &elmore_cap,
 					     bool &elmore_use_load_cap)
 {
-  if (wireload_res == 0.0) {
+  if (wireload_res == 0.0
+      || fanout == 0) {
     // No resistance, so load is capacitance only.
     c2 = wireload_cap + net_pin_cap;
     rpi = 0.0;
