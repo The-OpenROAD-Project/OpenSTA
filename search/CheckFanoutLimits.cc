@@ -83,6 +83,8 @@ CheckFanoutLimits::init(const MinMax *min_max)
 			   top_limit, top_limit_exists);
   top_limit_= top_limit;
   top_limit_exists_ = top_limit_exists;
+  if (top_limit_exists_)
+    printf("luse\n");
 }
 
 void
