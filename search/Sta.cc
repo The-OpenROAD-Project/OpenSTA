@@ -5031,15 +5031,15 @@ Sta::reportCapacitanceLimitVerbose(Pin *pin,
 }
 
 void
-Sta::checkCapacitances(const Pin *pin,
-		       const Corner *corner,
-		       const MinMax *min_max,
-		       // Return values.
-		       const Corner *&corner1,
-		       const RiseFall *&rf,
-		       float &capacitance,
-		       float &limit,
-		       float &slack)
+Sta::checkCapacitance(const Pin *pin,
+		      const Corner *corner,
+		      const MinMax *min_max,
+		      // Return values.
+		      const Corner *&corner1,
+		      const RiseFall *&rf,
+		      float &capacitance,
+		      float &limit,
+		      float &slack)
 {
   checkCapacitanceLimitPreamble();
   check_capacitance_limits_->init(min_max);
@@ -5048,7 +5048,7 @@ Sta::checkCapacitances(const Pin *pin,
 					      limit, slack);
 }
 
-////////////////////////////////////////////////////////////////'
+////////////////////////////////////////////////////////////////
 
 void
 Sta::minPulseWidthPreamble()

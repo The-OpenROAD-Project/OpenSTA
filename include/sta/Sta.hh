@@ -671,15 +671,15 @@ public:
   void reportCapacitanceLimitVerbose(Pin *pin,
 				     const Corner *corner,
 				     const MinMax *min_max);
-  void checkCapacitances(const Pin *pin,
-			 const Corner *corner,
-			 const MinMax *min_max,
-			 // Return values.
-			 const Corner *&corner1,
-			 const RiseFall *&tr,
-			 float &capacitance,
-			 float &limit,
-			 float &slack);
+  void checkCapacitance(const Pin *pin,
+			const Corner *corner,
+			const MinMax *min_max,
+			// Return values.
+			const Corner *&corner1,
+			const RiseFall *&tr,
+			float &capacitance,
+			float &limit,
+			float &slack);
 
   // Min pulse width check with the least slack.
   // corner=nullptr checks all corners.
