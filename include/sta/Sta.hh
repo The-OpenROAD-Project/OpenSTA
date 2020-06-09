@@ -247,9 +247,6 @@ public:
   void setSlewLimit(Port *port,
 		    const MinMax *min_max,
 		    float slew);
-  void setSlewLimit(Pin *pin,
-		    const MinMax *min_max,
-		    float slew);
   void setSlewLimit(Cell *cell,
 		    const MinMax *min_max,
 		    float slew);

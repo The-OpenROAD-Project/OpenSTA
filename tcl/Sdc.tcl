@@ -2600,7 +2600,7 @@ proc set_max_transition { args } {
   set slew [time_ui_sta $slew]
   
   set objects [lindex $args 1]
-  parse_clk_cell_port_pin_args $objects clks cells ports pins
+  parse_clk_cell_port_args $objects clks cells ports
   
   set tr [parse_rise_fall_flags flags]
   
@@ -2617,12 +2617,12 @@ proc set_max_transition { args } {
     lappend path_types "data"
   }
   
-  if { ($ports != {} || $pins != {} || $cells != {}) \
+  if { ($ports != {} || $cells != {}) \
 	 && ([info exists flags(-clock_path)] \
 	       || [info exists flags(-data_path)]
 	     || [info exists flags(-rise)]
 	     || [info exists flags(-fall)]) } {
-    sta_warn "-data_path, -clock_path, -rise, -fall ignored for ports, pins and designs."
+    sta_warn "-data_path, -clock_path, -rise, -fall ignored for ports and designs."
   }
   
   # -clock_path/-data_path and transition only apply to clock objects.
@@ -2636,9 +2636,6 @@ proc set_max_transition { args } {
   }
   foreach port $ports {
     set_slew_limit_port $port "max" $slew
-  }
-  foreach pin $pins {
-    set_slew_limit_pin $pin "max" $slew
   }
 }
 

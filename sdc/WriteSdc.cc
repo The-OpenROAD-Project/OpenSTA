@@ -2239,24 +2239,6 @@ WriteSdc::writeSlewLimits() const
   }
   delete port_iter;
 
-  ConstPinSeq pins;
-  sdc_->slewLimitPins(pins);
-  sort(pins, PinPathNameLess(network_));
-  ConstPinSeq::Iterator pin_iter(pins);
-  while (pin_iter.hasNext()) {
-    const Pin *pin = pin_iter.next();
-    float slew;
-    bool exists;
-    sdc_->slewLimit(pin, min_max, slew, exists);
-    if (exists) {
-      fprintf(stream_, "set_max_transition ");
-      writeTime(slew);
-      fprintf(stream_, " ");
-      writeGetPin(pin, false);
-      fprintf(stream_, "\n");
-    }
-  }
-
   writeClkSlewLimits();
 }
 

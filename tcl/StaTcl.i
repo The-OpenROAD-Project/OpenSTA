@@ -3517,15 +3517,6 @@ set_slew_limit_port(Port *port,
 }
 
 void
-set_slew_limit_pin(Pin *pin,
-		   const MinMax *min_max,
-		   float slew)
-{
-  cmdLinkedNetwork();
-  Sta::sta()->setSlewLimit(pin, min_max, slew);
-}
-
-void
 set_slew_limit_cell(Cell *cell,
 		    const MinMax *min_max,
 		    float slew)

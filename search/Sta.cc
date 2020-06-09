@@ -999,14 +999,6 @@ Sta::setSlewLimit(Port *port,
 }
 
 void
-Sta::setSlewLimit(Pin *pin,
-		  const MinMax *min_max,
-		  float slew)
-{
-  sdc_->setSlewLimit(pin, min_max, slew);
-}
-
-void
 Sta::setSlewLimit(Cell *cell,
 		  const MinMax *min_max,
 		  float slew)
