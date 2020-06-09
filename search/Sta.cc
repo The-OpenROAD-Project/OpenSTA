@@ -4862,8 +4862,8 @@ Sta::reportSlewLimitShort(Pin *pin,
   const RiseFall *rf;
   Slew slew;
   float limit, slack;
-  check_slew_limits_->checkSlews(pin, corner, min_max,
-				 corner1, rf, slew, limit, slack);
+  check_slew_limits_->checkSlew(pin, corner, min_max, true,
+				corner1, rf, slew, limit, slack);
   report_path_->reportLimitShort(report_path_->fieldSlew(), pin,
 				 delayAsFloat(slew), limit, slack);
 }
@@ -4877,28 +4877,29 @@ Sta::reportSlewLimitVerbose(Pin *pin,
   const RiseFall *rf;
   Slew slew;
   float limit, slack;
-  check_slew_limits_->checkSlews(pin, corner, min_max,
-				 corner1, rf, slew, limit, slack);
+  check_slew_limits_->checkSlew(pin, corner, min_max, true,
+				corner1, rf, slew, limit, slack);
   report_path_->reportLimitVerbose(report_path_->fieldSlew(), pin, rf,
 				   delayAsFloat(slew),
 				   limit, slack, min_max);
 }
 
 void
-Sta::checkSlews(const Pin *pin,
-		const Corner *corner,
-		const MinMax *min_max,
-		// Return values.
-		const Corner *&corner1,
-		const RiseFall *&rf,
-		Slew &slew,
-		float &limit,
-		float &slack)
+Sta::checkSlew(const Pin *pin,
+	       const Corner *corner,
+	       const MinMax *min_max,
+	       bool check_clks,
+	       // Return values.
+	       const Corner *&corner1,
+	       const RiseFall *&rf,
+	       Slew &slew,
+	       float &limit,
+	       float &slack)
 {
   checkSlewLimitPreamble();
   check_slew_limits_->init(min_max);
-  check_slew_limits_->checkSlews(pin, corner, min_max,
-				 corner1, rf, slew, limit, slack);
+  check_slew_limits_->checkSlew(pin, corner, min_max, check_clks,
+				corner1, rf, slew, limit, slack);
 }
 
 ////////////////////////////////////////////////////////////////'

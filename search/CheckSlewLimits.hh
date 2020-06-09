@@ -36,16 +36,17 @@ public:
   void init(const MinMax *min_max);
   // Requires init().
   // corner=nullptr checks all corners.
-  void checkSlews(const Pin *pin,
-		  const Corner *corner,
-		  const MinMax *min_max,
-		  // Return values.
-		  // Corner is nullptr for no slew limit.
-		  const Corner *&corner1,
-		  const RiseFall *&rf,
-		  Slew &slew,
-		  float &limit,
-		  float &slack) const;
+  void checkSlew(const Pin *pin,
+		 const Corner *corner,
+		 const MinMax *min_max,
+		 bool check_clks,
+		 // Return values.
+		 // Corner is nullptr for no slew limit.
+		 const Corner *&corner1,
+		 const RiseFall *&rf,
+		 Slew &slew,
+		 float &limit,
+		 float &slack) const;
   // corner=nullptr checks all corners.
   PinSeq *pinSlewLimitViolations(const Corner *corner,
 				 const MinMax *min_max);
@@ -57,6 +58,7 @@ protected:
   void checkSlews1(const Pin *pin,
 		   const Corner *corner,
 		   const MinMax *min_max,
+		   bool check_clks,
 		   // Return values.
 		   const Corner *&corner1,
 		   const RiseFall *&rf,
@@ -66,6 +68,7 @@ protected:
   void checkSlews1(Vertex *vertex,
 		   const Corner *corner1,
 		   const MinMax *min_max,
+		   bool check_clks,
 		   // Return values.
 		   const Corner *&corner,
 		   const RiseFall *&rf,
@@ -74,8 +77,8 @@ protected:
 		   float &slack) const;
   void checkSlew(Vertex *vertex,
 		 const Corner *corner1,
-		 const MinMax *min_max,
 		 const RiseFall *rf1,
+		 const MinMax *min_max,
 		 float limit1,
 		 // Return values.
 		 const Corner *&corner,
@@ -87,6 +90,7 @@ protected:
 		 const Vertex *vertex,
 		 const RiseFall *rf,
 		 const MinMax *min_max,
+		 bool check_clks,
 		 // Return values.
 		 float &limit1,
 		 bool &limit1_exists) const;

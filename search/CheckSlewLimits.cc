@@ -68,10 +68,10 @@ PinSlewLimitSlackLess::operator()(Pin *pin1,
   const RiseFall *rf1, *rf2;
   Slew slew1, slew2;
   float limit1, limit2, slack1, slack2;
-  check_slew_limit_->checkSlews(pin1, corner_, min_max_,
-				corner1, rf1, slew1, limit1, slack1);
-  check_slew_limit_->checkSlews(pin2, corner_, min_max_,
-				corner2, rf2, slew2, limit2, slack2);
+  check_slew_limit_->checkSlew(pin1, corner_, min_max_, true,
+			       corner1, rf1, slew1, limit1, slack1);
+  check_slew_limit_->checkSlew(pin2, corner_, min_max_, true,
+			       corner2, rf2, slew2, limit2, slack2);
   return fuzzyLess(slack1, slack2)
     || (fuzzyEqual(slack1, slack2)
 	// Break ties for the sake of regression stability.
@@ -99,15 +99,16 @@ CheckSlewLimits::init(const MinMax *min_max)
 }
 
 void
-CheckSlewLimits::checkSlews(const Pin *pin,
-			    const Corner *corner,
-			    const MinMax *min_max,
-			    // Return values.
-			    const Corner *&corner1,
-			    const RiseFall *&rf,
-			    Slew &slew,
-			    float &limit,
-			    float &slack) const
+CheckSlewLimits::checkSlew(const Pin *pin,
+			   const Corner *corner,
+			   const MinMax *min_max,
+			   bool check_clks,
+			   // Return values.
+			   const Corner *&corner1,
+			   const RiseFall *&rf,
+			   Slew &slew,
+			   float &limit,
+			   float &slack) const
 {
   corner1 = nullptr;
   rf = nullptr;
@@ -115,11 +116,11 @@ CheckSlewLimits::checkSlews(const Pin *pin,
   limit = 0.0;
   slack = MinMax::min()->initValue();
   if (corner)
-    checkSlews1(pin, corner, min_max,
+    checkSlews1(pin, corner, min_max, check_clks,
 		corner1, rf, slew, limit, slack);
   else {
     for (auto corner : *sta_->corners()) {
-      checkSlews1(pin, corner, min_max,
+      checkSlews1(pin, corner, min_max, check_clks,
 		  corner1, rf, slew, limit, slack);
     }
   }
@@ -129,6 +130,7 @@ void
 CheckSlewLimits::checkSlews1(const Pin *pin,
 			     const Corner *corner,
 			     const MinMax *min_max,
+			     bool check_clks,
 			     // Return values.
 			     const Corner *&corner1,
 			     const RiseFall *&rf,
@@ -140,11 +142,11 @@ CheckSlewLimits::checkSlews1(const Pin *pin,
   sta_->graph()->pinVertices(pin, vertex, bidirect_drvr_vertex);
   if (vertex
       && !vertex->isDisabledConstraint())
-    checkSlews1(vertex, corner, min_max,
+    checkSlews1(vertex, corner, min_max, check_clks,
 		corner1, rf, slew, limit, slack);
   if (bidirect_drvr_vertex
       && !vertex->isDisabledConstraint())
-    checkSlews1(bidirect_drvr_vertex, corner, min_max,
+    checkSlews1(bidirect_drvr_vertex, corner, min_max, check_clks,
 		corner1, rf, slew, limit, slack);
 }
   
@@ -152,6 +154,7 @@ void
 CheckSlewLimits::checkSlews1(Vertex *vertex,
 			     const Corner *corner1,
 			     const MinMax *min_max,
+			     bool check_clks,
 			     // Return values.
 			     const Corner *&corner,
 			     const RiseFall *&rf,
@@ -162,9 +165,10 @@ CheckSlewLimits::checkSlews1(Vertex *vertex,
   for (auto rf1 : RiseFall::range()) {
     float limit1;
     bool limit1_exists;
-    findLimit(vertex->pin(), vertex, rf1, min_max, limit1, limit1_exists);
+    findLimit(vertex->pin(), vertex, rf1, min_max, check_clks,
+	      limit1, limit1_exists);
     if (limit1_exists) {
-      checkSlew(vertex, corner1, min_max, rf1, limit1,
+      checkSlew(vertex, corner1, rf1, min_max, limit1,
 		corner, rf, slew, slack, limit);
     }
   }
@@ -176,6 +180,7 @@ CheckSlewLimits::findLimit(const Pin *pin,
 			   const Vertex *vertex,
 			   const RiseFall *rf,
 			   const MinMax *min_max,
+			   bool check_clks,
 			   // Return values.
 			   float &limit,
 			   bool &exists) const
@@ -188,23 +193,25 @@ CheckSlewLimits::findLimit(const Pin *pin,
 
     const Network *network = sta_->network();
     Sdc *sdc = sta_->sdc();
-    bool is_clk = sta_->search()->isClock(vertex);
     float limit1;
     bool exists1;
-    // Look for clock slew limits.
-    ClockSet clks;
-    clockDomains(vertex, clks);
-    ClockSet::Iterator clk_iter(clks);
-    while (clk_iter.hasNext()) {
-      Clock *clk = clk_iter.next();
-      PathClkOrData clk_data = is_clk ? PathClkOrData::clk : PathClkOrData::data;
-      sdc->slewLimit(clk, rf, clk_data, min_max,
-		     limit1, exists1);
-      if (exists1
-	  && (!exists
-	      || min_max->compare(limit, limit1))) {
-	limit = limit1;
-	exists = true;
+    if (check_clks) {
+      // Look for clock slew limits.
+      bool is_clk = sta_->search()->isClock(vertex);
+      ClockSet clks;
+      clockDomains(vertex, clks);
+      ClockSet::Iterator clk_iter(clks);
+      while (clk_iter.hasNext()) {
+	Clock *clk = clk_iter.next();
+	PathClkOrData clk_data = is_clk ? PathClkOrData::clk : PathClkOrData::data;
+	sdc->slewLimit(clk, rf, clk_data, min_max,
+		       limit1, exists1);
+	if (exists1
+	    && (!exists
+		|| min_max->compare(limit, limit1))) {
+	  limit = limit1;
+	  exists = true;
+	}
       }
     }
     if (network->isTopLevelPort(pin)) {
@@ -253,8 +260,8 @@ CheckSlewLimits::clockDomains(const Vertex *vertex,
 void
 CheckSlewLimits::checkSlew(Vertex *vertex,
 			   const Corner *corner1,
-			   const MinMax *min_max,
 			   const RiseFall *rf1,
+			   const MinMax *min_max,
 			   float limit1,
 			   // Return values.
 			   const Corner *&corner,
@@ -314,7 +321,7 @@ CheckSlewLimits::pinSlewLimitViolations(Instance *inst,
     const RiseFall *rf;
     Slew slew;
     float limit, slack;
-    checkSlews(pin, corner, min_max, corner1, rf, slew, limit, slack );
+    checkSlew(pin, corner, min_max, true, corner1, rf, slew, limit, slack);
     if (rf && slack < 0.0)
       violators->push_back(pin);
   }
@@ -357,7 +364,7 @@ CheckSlewLimits::pinMinSlewLimitSlack(Instance *inst,
     const RiseFall *rf;
     Slew slew;
     float limit, slack;
-    checkSlews(pin, corner, min_max, corner1, rf, slew, limit, slack);
+    checkSlew(pin, corner, min_max, true, corner1, rf, slew, limit, slack);
     if (rf
 	&& (min_slack_pin == nullptr
 	    || slack < min_slack)) {

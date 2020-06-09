@@ -627,15 +627,16 @@ public:
   void reportSlewLimitVerbose(Pin *pin,
 			      const Corner *corner,
 			      const MinMax *min_max);
-  void checkSlews(const Pin *pin,
-		  const Corner *corner,
-		  const MinMax *min_max,
-		  // Return values.
-		  const Corner *&corner1,
-		  const RiseFall *&tr,
-		  Slew &slew,
-		  float &limit,
-		  float &slack);
+  void checkSlew(const Pin *pin,
+		 const Corner *corner,
+		 const MinMax *min_max,
+		 bool check_clks,
+		 // Return values.
+		 const Corner *&corner1,
+		 const RiseFall *&tr,
+		 Slew &slew,
+		 float &limit,
+		 float &slack);
 
   void checkFanoutLimitPreamble();
   // Return the pin with the min/max fanout limit slack.
