@@ -21,6 +21,7 @@
 #include "Network.hh"
 #include "Sdc.hh"
 #include "DcalcAnalysisPt.hh"
+#include "GraphDelayCalc.hh"
 #include "StaState.hh"
 #include "Corner.hh"
 #include "PortDirection.hh"
@@ -212,12 +213,7 @@ CheckCapacitanceLimits::checkCapacitance(const Pin *pin,
 {
   const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
   const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
-  Sdc *sdc = sta_->sdc();
-  float pin_cap, wire_cap, fanout;
-  bool has_set_load;
-  sdc->connectedCap(pin, rf1, op_cond, corner, min_max,
-		    pin_cap, wire_cap, fanout, has_set_load);
-  float cap = pin_cap + wire_cap;
+  float cap = sta_->graphDelayCalc()->loadCap(pin, dcalc_ap);
 
   float slack1 = (min_max == MinMax::max())
     ? limit1 - cap : cap - limit1;
