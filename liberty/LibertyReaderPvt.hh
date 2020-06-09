@@ -206,6 +206,7 @@ public:
   virtual void visitFallCap(LibertyAttr *attr);
   virtual void visitRiseCapRange(LibertyAttr *attr);
   virtual void visitFallCapRange(LibertyAttr *attr);
+  virtual void visitFanoutLoad(LibertyAttr *attr);
   virtual void visitMaxFanout(LibertyAttr *attr);
   virtual void visitMinFanout(LibertyAttr *attr);
   virtual void visitFanout(LibertyAttr *attr,

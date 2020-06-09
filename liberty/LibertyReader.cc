@@ -307,6 +307,7 @@ LibertyReader::defineVisitors()
 		    &LibertyReader::visitRiseCapRange);
   defineAttrVisitor("fall_capacitance_range",
 		    &LibertyReader::visitFallCapRange);
+  defineAttrVisitor("fanout_load", &LibertyReader::visitFanoutLoad);
   defineAttrVisitor("max_fanout", &LibertyReader::visitMaxFanout);
   defineAttrVisitor("min_fanout", &LibertyReader::visitMinFanout);
   defineAttrVisitor("max_transition", &LibertyReader::visitMaxTransition);
@@ -2965,6 +2966,21 @@ LibertyReader::defaultCap(LibertyPort *port)
   else if (dir->isBidirect())
     cap = library_->defaultBidirectPinCap();
   return cap;
+}
+
+void
+LibertyReader::visitFanoutLoad(LibertyAttr *attr)
+{
+  if (ports_) {
+    float fanout;
+    bool exists;
+    getAttrFloat(attr, fanout, exists);
+    if (exists) {
+      visitPorts([&] (LibertyPort *port) {
+		   port->setFanoutLoad(fanout);
+		 });
+    }
+  }
 }
 
 void

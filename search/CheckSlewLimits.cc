@@ -170,6 +170,7 @@ CheckSlewLimits::checkSlews1(Vertex *vertex,
   }
 }
 
+// return the tightest limit.
 void
 CheckSlewLimits::findLimit(const Pin *pin,
 			   const Vertex *vertex,
@@ -202,7 +203,6 @@ CheckSlewLimits::findLimit(const Pin *pin,
       if (exists1
 	  && (!exists
 	      || min_max->compare(limit, limit1))) {
-	// Use the tightest clock limit.
 	limit = limit1;
 	exists = true;
       }
@@ -210,7 +210,6 @@ CheckSlewLimits::findLimit(const Pin *pin,
     if (network->isTopLevelPort(pin)) {
       Port *port = network->port(pin);
       sdc->slewLimit(port, min_max, limit1, exists1);
-      // Use the tightest limit.
       if (exists1
 	  && (!exists
 	      || min_max->compare(limit, limit1))) {
@@ -222,22 +221,15 @@ CheckSlewLimits::findLimit(const Pin *pin,
       LibertyPort *port = network->libertyPort(pin);
       if (port) {
 	port->slewLimit(min_max, limit1, exists1);
-	// Use the tightest limit.
+	if (!exists1
+	    && port->direction()->isAnyOutput()
+	    && min_max == MinMax::max())
+	  port->libertyLibrary()->defaultMaxSlew(limit1, exists1);
 	if (exists1
 	    && (!exists
 		|| min_max->compare(limit, limit1))) {
 	  limit = limit1;
 	  exists = true;
-	}
-	if (port->direction()->isAnyOutput()
-	    && min_max == MinMax::max()) {
-	  port->libertyLibrary()->defaultMaxSlew(limit1, exists1);
-	  if (exists1
-	      && (!exists
-		  || min_max->compare(limit, limit1))) {
-	    limit = limit1;
-	    exists = true;
-	  }
 	}
       }
     }

@@ -202,7 +202,9 @@ public:
   void defaultMaxFanout(float &fanout,
 			bool &exists) const;
   void setDefaultMaxFanout(float fanout);
-  float defaultFanoutLoad() const { return default_fanout_load_; }
+  void defaultFanoutLoad(// Return values.
+			 float &fanout,
+			 bool &exists) const;
   void setDefaultFanoutLoad(float load);
 
   // Logic thresholds.
@@ -307,6 +309,7 @@ protected:
   RiseFallValues default_inout_pin_res_;
   RiseFallValues default_output_pin_res_;
   float default_fanout_load_;
+  bool default_fanout_load_exists_;
   float default_max_cap_;
   bool default_max_cap_exists_;
   float default_max_fanout_;
@@ -623,6 +626,10 @@ public:
   LibertyLibrary *libertyLibrary() const { return liberty_cell_->libertyLibrary(); }
   LibertyPort *findLibertyMember(int index) const;
   LibertyPort *findLibertyBusBit(int index) const;
+  void fanoutLoad(// Return values.
+		  float &fanout_load,
+		  bool &exists) const;
+  void setFanoutLoad(float fanout_load);
   float capacitance(const RiseFall *rf,
 		    const MinMax *min_max) const;
   void capacitance(const RiseFall *rf,
@@ -748,6 +755,8 @@ protected:
   RiseFallMinMax capacitance_;
   MinMaxFloatValues slew_limit_; // inputs and outputs
   MinMaxFloatValues cap_limit_;    // outputs
+  float fanout_load_; // inputs
+  bool fanout_load_exists_;
   MinMaxFloatValues fanout_limit_; // outputs
   float min_period_;
   float min_pulse_width_[RiseFall::index_count];

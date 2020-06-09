@@ -60,7 +60,7 @@ protected:
 			      // Return values.
 			      Pin *&min_slack_pin,
 			      float &min_slack);
-  float fanout(const Pin *pin) const;
+  float fanoutLoad(const Pin *pin) const;
 
   float top_limit_;
   bool top_limit_exists_;

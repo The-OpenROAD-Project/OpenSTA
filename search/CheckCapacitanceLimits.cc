@@ -145,6 +145,7 @@ CheckCapacitanceLimits::checkCapacitance1(const Pin *pin,
   }
 }
 
+// return the tightest limit.
 void
 CheckCapacitanceLimits::findLimit(const Pin *pin,
 				  const MinMax *min_max,
@@ -152,28 +153,45 @@ CheckCapacitanceLimits::findLimit(const Pin *pin,
 				  float &limit,
 				  bool &exists) const
 {
-  exists = false;
+  // Default to top ("design") limit.
+  limit = top_limit_;
+  exists = top_limit_exists_;
+
   const Network *network = sta_->network();
   Sdc *sdc = sta_->sdc();
+  float limit1;
+  bool exists1;
   if (network->isTopLevelPort(pin)) {
     Port *port = network->port(pin);
-    sdc->capacitanceLimit(port, min_max, limit, exists);
-    if (!exists) {
-      limit = top_limit_;
-      exists = top_limit_exists_;
+    sdc->capacitanceLimit(port, min_max, limit1, exists1);
+    if (exists1
+	&& (!exists
+	    || min_max->compare(limit, limit1))) {
+	limit = limit1;
+	exists = true;
     }
   }
   else {
     Cell *cell = network->cell(network->instance(pin));
     sdc->capacitanceLimit(cell, min_max,
-			  limit, exists);
-    if (!exists) {
-      LibertyPort *port = network->libertyPort(pin);
-      if (port) {
-	port->capacitanceLimit(min_max, limit, exists);
-	if (!exists
-	    && port->direction()->isAnyOutput())
-	  port->libertyLibrary()->defaultMaxCapacitance(limit, exists);
+			  limit1, exists1);
+    if (exists1
+	&& (!exists
+	    || min_max->compare(limit, limit1))) {
+	limit = limit1;
+	exists = true;
+    }
+    LibertyPort *port = network->libertyPort(pin);
+    if (port) {
+      port->capacitanceLimit(min_max, limit1, exists1);
+      if (!exists1
+	  && port->direction()->isAnyOutput())
+	port->libertyLibrary()->defaultMaxCapacitance(limit1, exists1);
+      if (exists1
+	  && (!exists
+	      || min_max->compare(limit, limit1))) {
+	limit = limit1;
+	exists = true;
       }
     }
   }

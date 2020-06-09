@@ -105,6 +105,7 @@ CheckFanoutLimits::checkFanout(const Pin *pin,
 		fanout, slack, limit);
 }
   
+// return the tightest limit.
 void
 CheckFanoutLimits::findLimit(const Pin *pin,
 			     const MinMax *min_max,
@@ -112,29 +113,46 @@ CheckFanoutLimits::findLimit(const Pin *pin,
 			     float &limit,
 			     bool &exists) const
 {
-  exists = false;
+  // Default to top ("design") limit.
+  limit = top_limit_;
+  exists = top_limit_exists_;
+
   const Network *network = sta_->network();
   Sdc *sdc = sta_->sdc();
+  float limit1;
+  bool exists1;
   if (network->isTopLevelPort(pin)) {
     Port *port = network->port(pin);
-    sdc->fanoutLimit(port, min_max, limit, exists);
-    if (!exists) {
-      limit = top_limit_;
-      exists = top_limit_exists_;
+    sdc->fanoutLimit(port, min_max, limit1, exists1);
+    if (exists1
+	&& (!exists
+	    || min_max->compare(limit, limit1))) {
+      limit = limit1;
+      exists = true;
     }
   }
   else {
     Cell *cell = network->cell(network->instance(pin));
     sdc->fanoutLimit(cell, min_max,
-		     limit, exists);
-    if (!exists) {
-      LibertyPort *port = network->libertyPort(pin);
-      if (port) {
-	port->fanoutLimit(min_max, limit, exists);
-	if (!exists
-	    && min_max == MinMax::max()
-	    && port->direction()->isAnyOutput())
-	  port->libertyLibrary()->defaultMaxFanout(limit, exists);
+		     limit1, exists1);
+    if (exists1
+	&& (!exists
+	    || min_max->compare(limit, limit1))) {
+      limit = limit1;
+      exists = true;
+    }
+    LibertyPort *port = network->libertyPort(pin);
+    if (port) {
+      port->fanoutLimit(min_max, limit1, exists1);
+      if (!exists1
+	  && min_max == MinMax::max()
+	  && port->direction()->isAnyOutput())
+	port->libertyLibrary()->defaultMaxFanout(limit1, exists1);
+      if (exists1
+	  && (!exists
+	      || min_max->compare(limit, limit1))) {
+	limit = limit1;
+	exists = true;
       }
     }
   }
@@ -149,7 +167,7 @@ CheckFanoutLimits::checkFanout(const Pin *pin,
 			       float &slack,
 			       float &limit) const
 {
-  float fanout1 = this->fanout(pin);
+  float fanout1 = fanoutLoad(pin);
   float slack1 = (min_max == MinMax::max())
     ? limit1 - fanout1
     : fanout1 - limit1;
@@ -161,7 +179,7 @@ CheckFanoutLimits::checkFanout(const Pin *pin,
 }
 
 float
-CheckFanoutLimits::fanout(const Pin *pin) const
+CheckFanoutLimits::fanoutLoad(const Pin *pin) const
 {
   float fanout = 0;
   const Network *network = sta_->network();
@@ -170,8 +188,18 @@ CheckFanoutLimits::fanout(const Pin *pin) const
     NetPinIterator *pin_iter = network->pinIterator(net);
     while (pin_iter->hasNext()) {
       Pin *pin = pin_iter->next();
-      if (network->isLoad(pin))
-	fanout++;
+      if (network->isLoad(pin)) {
+	LibertyPort *port = network->libertyPort(pin);
+	float fanout_load;
+	bool exists;
+	port->fanoutLoad(fanout_load, exists);
+	if (!exists) {
+	  LibertyLibrary *lib = port->libertyLibrary();
+	  lib->defaultFanoutLoad(fanout_load, exists);
+	}
+	if (exists)
+	  fanout += fanout_load;
+      }
     }
     delete pin_iter;
   }

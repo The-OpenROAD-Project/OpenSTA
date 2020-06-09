@@ -4954,12 +4954,12 @@ Sta::reportFanoutLimitVerbose(Pin *pin,
 }
 
 void
-Sta::checkFanouts(const Pin *pin,
-		  const MinMax *min_max,
-		  // Return values.
-		  float &fanout,
-		  float &limit,
-		  float &slack)
+Sta::checkFanout(const Pin *pin,
+		 const MinMax *min_max,
+		 // Return values.
+		 float &fanout,
+		 float &limit,
+		 float &slack)
 {
   checkFanoutLimitPreamble();
   check_fanout_limits_->init(min_max);

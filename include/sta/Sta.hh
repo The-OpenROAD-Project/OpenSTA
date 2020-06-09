@@ -647,12 +647,12 @@ public:
 			      const MinMax *min_max);
   void reportFanoutLimitVerbose(Pin *pin,
 				const MinMax *min_max);
-  void checkFanouts(const Pin *pin,
-		    const MinMax *min_max,
-		    // Return values.
-		    float &fanout,
-		    float &limit,
-		    float &slack);
+  void checkFanout(const Pin *pin,
+		   const MinMax *min_max,
+		   // Return values.
+		   float &fanout,
+		   float &limit,
+		   float &slack);
 
   void checkCapacitanceLimitPreamble();
   // Return the pin with the min/max capacitance limit slack.

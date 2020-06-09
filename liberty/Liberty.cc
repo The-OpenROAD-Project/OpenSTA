@@ -71,6 +71,7 @@ LibertyLibrary::LibertyLibrary(const char *name,
   default_output_pin_cap_(0.0),
   default_bidirect_pin_cap_(0.0),
   default_fanout_load_(0.0),
+  default_fanout_load_exists_(false),
   default_max_cap_(0.0),
   default_max_cap_exists_(false),
   default_max_fanout_(0.0),
@@ -426,9 +427,19 @@ LibertyLibrary::setDefaultMaxCapacitance(float cap)
 }
 
 void
+LibertyLibrary::defaultFanoutLoad(// Return values.
+				  float &fanout,
+				  bool &exists) const
+{
+  fanout = default_fanout_load_;
+  exists = default_fanout_load_exists_;
+}
+
+void
 LibertyLibrary::setDefaultFanoutLoad(float load)
 {
   default_fanout_load_ = load;
+  default_fanout_load_exists_ = true;
 }
 
 void
@@ -1811,8 +1822,8 @@ LibertyPort::LibertyPort(LibertyCell *cell,
   function_(nullptr),
   tristate_enable_(nullptr),
   scaled_ports_(nullptr),
-  // capacitance_ intentionally not initialized so
-  // liberty reader can apply default capacitance.
+  fanout_load_(0.0),
+  fanout_load_exists_(false),
   min_period_(0.0),
   pulse_clk_trigger_(nullptr),
   pulse_clk_sense_(nullptr),
@@ -2038,6 +2049,22 @@ LibertyPort::setCapacitanceLimit(float cap,
 				 const MinMax *min_max)
 {
   cap_limit_.setValue(min_max, cap);
+}
+
+void
+LibertyPort::fanoutLoad(// Return values.
+			float &fanout_load,
+			bool &exists) const
+{
+  fanout_load = fanout_load_;
+  exists = fanout_load_exists_;
+}
+
+void
+LibertyPort::setFanoutLoad(float fanout_load)
+{
+  fanout_load_ = fanout_load;
+  fanout_load_exists_ = true;
 }
 
 void
