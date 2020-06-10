@@ -154,7 +154,8 @@ Power::power(const Corner *corner,
     if (cell) {
       PowerResult inst_power;
       power(inst, corner, inst_power);
-      if (cell->isMacro())
+      if (cell->isMacro()
+	  || cell->isMemory())
 	macro.incr(inst_power);
       else if (cell->isPad())
 	pad.incr(inst_power);

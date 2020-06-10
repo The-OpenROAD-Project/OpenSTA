@@ -286,6 +286,7 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("area", &LibertyReader::visitArea);
   defineAttrVisitor("dont_use", &LibertyReader::visitDontUse);
   defineAttrVisitor("is_macro", &LibertyReader::visitIsMacro);
+  defineAttrVisitor("is_memory", &LibertyReader::visitIsMemory);
   defineAttrVisitor("is_pad", &LibertyReader::visitIsPad);
   defineAttrVisitor("interface_timing", &LibertyReader::visitInterfaceTiming);
   defineAttrVisitor("scaling_factors", &LibertyReader::visitScalingFactors);
@@ -2423,6 +2424,17 @@ LibertyReader::visitIsMacro(LibertyAttr *attr)
     getAttrBool(attr, is_macro, exists);
     if (exists)
       cell_->setIsMacro(is_macro);
+  }
+}
+
+void
+LibertyReader::visitIsMemory(LibertyAttr *attr)
+{
+  if (cell_) {
+    bool is_memory, exists;
+    getAttrBool(attr, is_memory, exists);
+    if (exists)
+      cell_->setIsMemory(is_memory);
   }
 }
 

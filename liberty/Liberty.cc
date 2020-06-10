@@ -850,6 +850,7 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   area_(0.0),
   dont_use_(false),
   is_macro_(false),
+  is_memory_(false),
   is_pad_(false),
   has_internal_ports_(false),
   interface_timing_(false),
@@ -993,6 +994,12 @@ void
 LibertyCell::setIsMacro(bool is_macro)
 {
   is_macro_ = is_macro;
+}
+
+void
+LibertyCell::setIsMemory(bool is_memory)
+{
+  is_memory_ = is_memory;
 }
 
 void

@@ -405,6 +405,8 @@ public:
   void setDontUse(bool dont_use);
   bool isMacro() const { return is_macro_; }
   void setIsMacro(bool is_macro);
+  bool isMemory() const { return is_memory_; }
+  void setIsMemory(bool is_memory);
   bool isPad() const { return is_pad_; }
   void setIsPad(bool is_pad);
   bool interfaceTiming() const { return interface_timing_; }
@@ -525,6 +527,7 @@ protected:
   float area_;
   bool dont_use_;
   bool is_macro_;
+  bool is_memory_;
   bool is_pad_;
   bool has_internal_ports_;
   bool interface_timing_;
