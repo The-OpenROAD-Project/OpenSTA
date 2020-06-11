@@ -234,11 +234,13 @@ CheckFanoutLimits::pinFanoutLimitViolations(Instance *inst,
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    float fanout;
-    float limit, slack;
-    checkFanout(pin, min_max, fanout, limit, slack );
-    if (slack < 0.0)
-      violators->push_back(pin);
+    if (network->direction(pin)->isAnyOutput()) {
+      float fanout;
+      float limit, slack;
+      checkFanout(pin, min_max, fanout, limit, slack );
+      if (slack < 0.0)
+	violators->push_back(pin);
+    }
   }
   delete pin_iter;
 }
