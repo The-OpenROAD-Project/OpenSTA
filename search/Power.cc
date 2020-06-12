@@ -775,25 +775,26 @@ Power::findInputDuty(const Pin *to_pin,
   const LibertyPort *from_port = pwr->relatedPort();
   if (from_port) {
     const Pin *from_pin = network_->findPin(inst, from_port);
-    FuncExpr *when = pwr->when();
-    Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
-    if (func && func->hasPort(from_port)) {
-      PwrActivity from_activity = findActivity(from_pin);
-      PwrActivity to_activity = findActivity(to_pin);
-      float duty1 = evalActivityDifference(func, inst, from_port).duty();
-      if (to_activity.activity() == 0.0)
-	return 0.0;
-      else
-	return from_activity.activity() / to_activity.activity() * duty1;
+    if (from_pin) {
+      FuncExpr *when = pwr->when();
+      Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
+      if (func && func->hasPort(from_port)) {
+	PwrActivity from_activity = findActivity(from_pin);
+	PwrActivity to_activity = findActivity(to_pin);
+	float duty1 = evalActivityDifference(func, inst, from_port).duty();
+	if (to_activity.activity() == 0.0)
+	  return 0.0;
+	else
+	  return from_activity.activity() / to_activity.activity() * duty1;
+      }
+      else if (when)
+	return evalActivity(when, inst).duty();
+      else if (search_->isClock(from_vertex))
+	return 1.0;
+      return 0.5;
     }
-    else if (when)
-      return evalActivity(when, inst).duty();
-    else if (search_->isClock(from_vertex))
-      return 1.0;
-    return 0.5;
   }
-  else
-    return 0.0;
+  return 0.0;
 }
 
 static bool
