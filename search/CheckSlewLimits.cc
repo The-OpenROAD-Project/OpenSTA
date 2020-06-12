@@ -86,19 +86,6 @@ CheckSlewLimits::CheckSlewLimits(const StaState *sta) :
 }
 
 void
-CheckSlewLimits::init(const MinMax *min_max)
-{
-  const Network *network = sta_->network();
-  Cell *top_cell = network->cell(network->topInstance());
-  float top_limit;
-  bool top_limit_exists;
-  sta_->sdc()->slewLimit(top_cell, min_max,
-			 top_limit, top_limit_exists);
-  top_limit_= top_limit;
-  top_limit_exists_ = top_limit_exists;
-}
-
-void
 CheckSlewLimits::checkSlew(const Pin *pin,
 			   const Corner *corner,
 			   const MinMax *min_max,
@@ -187,12 +174,13 @@ CheckSlewLimits::findLimit(const Pin *pin,
 {
   exists = false;
   if (!sta_->graphDelayCalc()->isIdealClk(vertex)) {
-    // Default to top ("design") limit.
-    exists = top_limit_exists_;
-    limit = top_limit_;
-
     const Network *network = sta_->network();
     Sdc *sdc = sta_->sdc();
+
+    // Default to top ("design") limit.
+    Cell *top_cell = network->cell(network->topInstance());
+    sdc->slewLimit(top_cell, min_max,
+		   limit, exists);
     float limit1;
     bool exists1;
     if (check_clks) {
@@ -292,7 +280,6 @@ PinSeq *
 CheckSlewLimits::pinSlewLimitViolations(const Corner *corner,
 					const MinMax *min_max)
 {
-  init(min_max);
   const Network *network = sta_->network();
   PinSeq *violators = new PinSeq;
   LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
@@ -332,7 +319,6 @@ Pin *
 CheckSlewLimits::pinMinSlewLimitSlack(const Corner *corner,
 				      const MinMax *min_max)
 {
-  init(min_max);
   const Network *network = sta_->network();
   Pin *min_slack_pin = nullptr;
   float min_slack = MinMax::min()->initValue();

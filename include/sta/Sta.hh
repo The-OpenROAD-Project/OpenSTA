@@ -627,6 +627,7 @@ public:
   void reportSlewLimitVerbose(Pin *pin,
 			      const Corner *corner,
 			      const MinMax *min_max);
+  // requires checkSlewLimitPreamble()
   void checkSlew(const Pin *pin,
 		 const Corner *corner,
 		 const MinMax *min_max,
@@ -648,6 +649,7 @@ public:
 			      const MinMax *min_max);
   void reportFanoutLimitVerbose(Pin *pin,
 				const MinMax *min_max);
+  // requires checkFanoutLimitPreamble()
   void checkFanout(const Pin *pin,
 		   const MinMax *min_max,
 		   // Return values.
@@ -671,6 +673,7 @@ public:
   void reportCapacitanceLimitVerbose(Pin *pin,
 				     const Corner *corner,
 				     const MinMax *min_max);
+  // requires checkCapacitanceLimitPreamble()
   void checkCapacitance(const Pin *pin,
 			const Corner *corner,
 			const MinMax *min_max,

@@ -4896,8 +4896,6 @@ Sta::checkSlew(const Pin *pin,
 	       float &limit,
 	       float &slack)
 {
-  checkSlewLimitPreamble();
-  check_slew_limits_->init(min_max);
   check_slew_limits_->checkSlew(pin, corner, min_max, check_clks,
 				corner1, rf, slew, limit, slack);
 }
@@ -4963,7 +4961,6 @@ Sta::checkFanout(const Pin *pin,
 		 float &slack)
 {
   checkFanoutLimitPreamble();
-  check_fanout_limits_->init(min_max);
   check_fanout_limits_->checkFanout(pin, min_max,
 				    fanout, limit, slack);
 }
@@ -5042,7 +5039,6 @@ Sta::checkCapacitance(const Pin *pin,
 		      float &slack)
 {
   checkCapacitanceLimitPreamble();
-  check_capacitance_limits_->init(min_max);
   check_capacitance_limits_->checkCapacitance(pin, corner, min_max,
 					      corner1, rf, capacitance,
 					      limit, slack);

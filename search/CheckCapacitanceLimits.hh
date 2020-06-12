@@ -30,8 +30,6 @@ class CheckCapacitanceLimits
 {
 public:
   CheckCapacitanceLimits(const StaState *sta);
-  void init(const MinMax *min_max);
-  // Requires init().
   // corner=nullptr checks all corners.
   void checkCapacitance(const Pin *pin,
 			const Corner *corner1,
@@ -87,8 +85,6 @@ protected:
 				   Pin *&min_slack_pin,
 				   float &min_slack);
 
-  float top_limit_;
-  bool top_limit_exists_;
   const StaState *sta_;
 };
 

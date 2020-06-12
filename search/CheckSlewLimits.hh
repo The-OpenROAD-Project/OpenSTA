@@ -33,8 +33,6 @@ class CheckSlewLimits
 {
 public:
   CheckSlewLimits(const StaState *sta);
-  void init(const MinMax *min_max);
-  // Requires init().
   // corner=nullptr checks all corners.
   void checkSlew(const Pin *pin,
 		 const Corner *corner,
@@ -108,8 +106,6 @@ protected:
 		    // Return value.
 		    ClockSet &clks) const;
 
-  float top_limit_;
-  bool top_limit_exists_;
   const StaState *sta_;
 };
 

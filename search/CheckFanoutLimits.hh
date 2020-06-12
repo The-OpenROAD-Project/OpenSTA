@@ -28,8 +28,6 @@ class CheckFanoutLimits
 {
 public:
   CheckFanoutLimits(const StaState *sta);
-  void init(const MinMax *min_max);
-  // Requires init().
   void checkFanout(const Pin *pin,
 		   const MinMax *min_max,
 		   // Return values.
@@ -62,8 +60,6 @@ protected:
 			      float &min_slack);
   float fanoutLoad(const Pin *pin) const;
 
-  float top_limit_;
-  bool top_limit_exists_;
   const StaState *sta_;
 };
 

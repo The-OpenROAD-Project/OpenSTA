@@ -73,19 +73,6 @@ CheckFanoutLimits::CheckFanoutLimits(const StaState *sta) :
 }
 
 void
-CheckFanoutLimits::init(const MinMax *min_max)
-{
-  const Network *network = sta_->network();
-  Cell *top_cell = network->cell(network->topInstance());
-  float top_limit;
-  bool top_limit_exists;
-  sta_->sdc()->fanoutLimit(top_cell, min_max,
-			   top_limit, top_limit_exists);
-  top_limit_= top_limit;
-  top_limit_exists_ = top_limit_exists;
-}
-
-void
 CheckFanoutLimits::checkFanout(const Pin *pin,
 			       const MinMax *min_max,
 			       // Return values.
@@ -113,12 +100,14 @@ CheckFanoutLimits::findLimit(const Pin *pin,
 			     float &limit,
 			     bool &exists) const
 {
-  // Default to top ("design") limit.
-  limit = top_limit_;
-  exists = top_limit_exists_;
-
   const Network *network = sta_->network();
   Sdc *sdc = sta_->sdc();
+
+  // Default to top ("design") limit.
+  Cell *top_cell = network->cell(network->topInstance());
+  sdc->fanoutLimit(top_cell, min_max,
+		   limit, exists);
+
   float limit1;
   bool exists1;
   if (network->isTopLevelPort(pin)) {
@@ -209,7 +198,6 @@ CheckFanoutLimits::fanoutLoad(const Pin *pin) const
 PinSeq *
 CheckFanoutLimits::pinFanoutLimitViolations(const MinMax *min_max)
 {
-  init(min_max);
   const Network *network = sta_->network();
   PinSeq *violators = new PinSeq;
   LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
@@ -248,7 +236,6 @@ CheckFanoutLimits::pinFanoutLimitViolations(Instance *inst,
 Pin *
 CheckFanoutLimits::pinMinFanoutLimitSlack(const MinMax *min_max)
 {
-  init(min_max);
   const Network *network = sta_->network();
   Pin *min_slack_pin = nullptr;
   float min_slack = MinMax::min()->initValue();

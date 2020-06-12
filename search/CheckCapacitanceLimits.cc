@@ -85,19 +85,6 @@ CheckCapacitanceLimits::CheckCapacitanceLimits(const StaState *sta) :
 }
 
 void
-CheckCapacitanceLimits::init(const MinMax *min_max)
-{
-  const Network *network = sta_->network();
-  Cell *top_cell = network->cell(network->topInstance());
-  float top_limit;
-  bool top_limit_exists;
-  sta_->sdc()->capacitanceLimit(top_cell, min_max,
-				top_limit, top_limit_exists);
-  top_limit_= top_limit;
-  top_limit_exists_ = top_limit_exists;
-}
-
-void
 CheckCapacitanceLimits::checkCapacitance(const Pin *pin,
 					 const Corner *corner1,
 					 const MinMax *min_max,
@@ -154,12 +141,14 @@ CheckCapacitanceLimits::findLimit(const Pin *pin,
 				  float &limit,
 				  bool &exists) const
 {
-  // Default to top ("design") limit.
-  limit = top_limit_;
-  exists = top_limit_exists_;
-
   const Network *network = sta_->network();
   Sdc *sdc = sta_->sdc();
+
+  // Default to top ("design") limit.
+  Cell *top_cell = network->cell(network->topInstance());
+  sdc->capacitanceLimit(top_cell, min_max,
+			limit, exists);
+
   float limit1;
   bool exists1;
   if (network->isTopLevelPort(pin)) {
@@ -234,7 +223,6 @@ PinSeq *
 CheckCapacitanceLimits::pinCapacitanceLimitViolations(const Corner *corner,
 						      const MinMax *min_max)
 {
-  init(min_max);
   const Network *network = sta_->network();
   PinSeq *violators = new PinSeq;
   LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
@@ -275,7 +263,6 @@ Pin *
 CheckCapacitanceLimits::pinMinCapacitanceLimitSlack(const Corner *corner,
 						    const MinMax *min_max)
 {
-  init(min_max);
   const Network *network = sta_->network();
   Pin *min_slack_pin = nullptr;
   float min_slack = MinMax::min()->initValue();
