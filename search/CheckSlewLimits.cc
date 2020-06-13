@@ -309,7 +309,7 @@ CheckSlewLimits::pinSlewLimitViolations(Instance *inst,
     Slew slew;
     float limit, slack;
     checkSlew(pin, corner, min_max, true, corner1, rf, slew, limit, slack);
-    if (rf && slack < 0.0)
+    if (rf && slack < 0.0 && !fuzzyInf(slack))
       violators->push_back(pin);
   }
   delete pin_iter;

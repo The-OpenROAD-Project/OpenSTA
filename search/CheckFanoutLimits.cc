@@ -226,7 +226,7 @@ CheckFanoutLimits::pinFanoutLimitViolations(Instance *inst,
       float fanout;
       float limit, slack;
       checkFanout(pin, min_max, fanout, limit, slack );
-      if (slack < 0.0)
+      if (slack < 0.0 && !fuzzyInf(slack))
 	violators->push_back(pin);
     }
   }

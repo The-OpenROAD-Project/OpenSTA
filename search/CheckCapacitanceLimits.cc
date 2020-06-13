@@ -252,7 +252,7 @@ CheckCapacitanceLimits::pinCapacitanceLimitViolations(Instance *inst,
       const RiseFall *rf;
       float capacitance, limit, slack;
       checkCapacitance(pin, corner, min_max, corner1, rf, capacitance, limit, slack );
-      if (rf && slack < 0.0)
+      if (rf && slack < 0.0 && !fuzzyInf(slack))
 	violators->push_back(pin);
     }
   }
