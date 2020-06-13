@@ -3934,7 +3934,7 @@ LibertyReader::makeFloatTable(LibertyAttr *attr,
     }
     else if (value->isFloat())
       // Scalar value.
-      row->push_back(value->floatValue());
+      row->push_back(value->floatValue() * scale);
     else
       libWarn(attr, "%s is not a list of floats.\n", attr->name());
     if (row->size() != cols) {
