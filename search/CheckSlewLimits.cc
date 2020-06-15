@@ -127,12 +127,10 @@ CheckSlewLimits::checkSlews1(const Pin *pin,
 {
   Vertex *vertex, *bidirect_drvr_vertex;
   sta_->graph()->pinVertices(pin, vertex, bidirect_drvr_vertex);
-  if (vertex
-      && !vertex->isDisabledConstraint())
+  if (vertex)
     checkSlews1(vertex, corner, min_max, check_clks,
 		corner1, rf, slew, limit, slack);
-  if (bidirect_drvr_vertex
-      && !vertex->isDisabledConstraint())
+  if (bidirect_drvr_vertex)
     checkSlews1(bidirect_drvr_vertex, corner, min_max, check_clks,
 		corner1, rf, slew, limit, slack);
 }
@@ -149,14 +147,18 @@ CheckSlewLimits::checkSlews1(Vertex *vertex,
 			     float &limit,
 			     float &slack) const
 {
-  for (auto rf1 : RiseFall::range()) {
-    float limit1;
-    bool limit1_exists;
-    findLimit(vertex->pin(), vertex, rf1, min_max, check_clks,
-	      limit1, limit1_exists);
-    if (limit1_exists) {
-      checkSlew(vertex, corner1, rf1, min_max, limit1,
-		corner, rf, slew, slack, limit);
+  if (!vertex->isDisabledConstraint()
+      && !vertex->isConstant()
+      && !sta_->graphDelayCalc()->isIdealClk(vertex)) {
+    for (auto rf1 : RiseFall::range()) {
+      float limit1;
+      bool limit1_exists;
+      findLimit(vertex->pin(), vertex, rf1, min_max, check_clks,
+		limit1, limit1_exists);
+      if (limit1_exists) {
+	checkSlew(vertex, corner1, rf1, min_max, limit1,
+		  corner, rf, slew, slack, limit);
+      }
     }
   }
 }
@@ -173,38 +175,26 @@ CheckSlewLimits::findLimit(const Pin *pin,
 			   bool &exists) const
 {
   exists = false;
-  if (!sta_->graphDelayCalc()->isIdealClk(vertex)) {
-    const Network *network = sta_->network();
-    Sdc *sdc = sta_->sdc();
+  const Network *network = sta_->network();
+  Sdc *sdc = sta_->sdc();
 
-    // Default to top ("design") limit.
-    Cell *top_cell = network->cell(network->topInstance());
-    sdc->slewLimit(top_cell, min_max,
-		   limit, exists);
-    float limit1;
-    bool exists1;
-    if (check_clks) {
-      // Look for clock slew limits.
-      bool is_clk = sta_->search()->isClock(vertex);
-      ClockSet clks;
-      clockDomains(vertex, clks);
-      ClockSet::Iterator clk_iter(clks);
-      while (clk_iter.hasNext()) {
-	Clock *clk = clk_iter.next();
-	PathClkOrData clk_data = is_clk ? PathClkOrData::clk : PathClkOrData::data;
-	sdc->slewLimit(clk, rf, clk_data, min_max,
-		       limit1, exists1);
-	if (exists1
-	    && (!exists
-		|| min_max->compare(limit, limit1))) {
-	  limit = limit1;
-	  exists = true;
-	}
-      }
-    }
-    if (network->isTopLevelPort(pin)) {
-      Port *port = network->port(pin);
-      sdc->slewLimit(port, min_max, limit1, exists1);
+  // Default to top ("design") limit.
+  Cell *top_cell = network->cell(network->topInstance());
+  sdc->slewLimit(top_cell, min_max,
+		 limit, exists);
+  float limit1;
+  bool exists1;
+  if (check_clks) {
+    // Look for clock slew limits.
+    bool is_clk = sta_->search()->isClock(vertex);
+    ClockSet clks;
+    clockDomains(vertex, clks);
+    ClockSet::Iterator clk_iter(clks);
+    while (clk_iter.hasNext()) {
+      Clock *clk = clk_iter.next();
+      PathClkOrData clk_data = is_clk ? PathClkOrData::clk : PathClkOrData::data;
+      sdc->slewLimit(clk, rf, clk_data, min_max,
+		     limit1, exists1);
       if (exists1
 	  && (!exists
 	      || min_max->compare(limit, limit1))) {
@@ -212,20 +202,30 @@ CheckSlewLimits::findLimit(const Pin *pin,
 	exists = true;
       }
     }
-    else {
-      LibertyPort *port = network->libertyPort(pin);
-      if (port) {
-	port->slewLimit(min_max, limit1, exists1);
-	if (!exists1
-	    && port->direction()->isAnyOutput()
-	    && min_max == MinMax::max())
-	  port->libertyLibrary()->defaultMaxSlew(limit1, exists1);
-	if (exists1
-	    && (!exists
-		|| min_max->compare(limit, limit1))) {
-	  limit = limit1;
-	  exists = true;
-	}
+  }
+  if (network->isTopLevelPort(pin)) {
+    Port *port = network->port(pin);
+    sdc->slewLimit(port, min_max, limit1, exists1);
+    if (exists1
+	&& (!exists
+	    || min_max->compare(limit, limit1))) {
+      limit = limit1;
+      exists = true;
+    }
+  }
+  else {
+    LibertyPort *port = network->libertyPort(pin);
+    if (port) {
+      port->slewLimit(min_max, limit1, exists1);
+      if (!exists1
+	  && port->direction()->isAnyOutput()
+	  && min_max == MinMax::max())
+	port->libertyLibrary()->defaultMaxSlew(limit1, exists1);
+      if (exists1
+	  && (!exists
+	      || min_max->compare(limit, limit1))) {
+	limit = limit1;
+	exists = true;
       }
     }
   }
