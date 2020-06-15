@@ -4896,6 +4896,7 @@ Sta::checkSlew(const Pin *pin,
 	       float &limit,
 	       float &slack)
 {
+  checkSlewLimitPreamble();
   check_slew_limits_->checkSlew(pin, corner, min_max, check_clks,
 				corner1, rf, slew, limit, slack);
 }
