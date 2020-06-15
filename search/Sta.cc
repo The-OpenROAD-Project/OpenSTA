@@ -4974,6 +4974,8 @@ Sta::checkCapacitanceLimitPreamble()
 {
   if (check_capacitance_limits_ == nullptr)
     makeCheckCapacitanceLimits();
+  // Sim values required to suppress reporting constant nets.
+  ensureLevelized();
 }
 
 Pin *

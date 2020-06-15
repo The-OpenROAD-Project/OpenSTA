@@ -220,10 +220,12 @@ CheckFanoutLimits::pinFanoutLimitViolations(Instance *inst,
 					    PinSeq *violators)
 {
   const Network *network = sta_->network();
+  const Sim *sim = sta_->sim();
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    if (network->direction(pin)->isAnyOutput()) {
+    if (network->direction(pin)->isAnyOutput()
+	&& !sim->logicZeroOne(pin)) {
       float fanout;
       float limit, slack;
       checkFanout(pin, min_max, fanout, limit, slack );
@@ -264,8 +266,6 @@ CheckFanoutLimits::pinMinFanoutLimitSlack(Instance *inst,
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    if (stringEq(network->pathName(pin),"rdrv/Q"))
-      printf("luse\n");
     if (network->direction(pin)->isAnyOutput()
 	&& !sim->logicZeroOne(pin)) {
       float fanout;

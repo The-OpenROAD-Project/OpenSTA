@@ -25,6 +25,7 @@
 #include "StaState.hh"
 #include "Corner.hh"
 #include "PortDirection.hh"
+#include "Sim.hh"
 
 namespace sta {
 
@@ -244,10 +245,12 @@ CheckCapacitanceLimits::pinCapacitanceLimitViolations(Instance *inst,
 						      PinSeq *violators)
 {
   const Network *network = sta_->network();
+  const Sim *sim = sta_->sim();
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    if (network->direction(pin)->isAnyOutput()) {
+    if (network->direction(pin)->isAnyOutput()
+	&& !sim->logicZeroOne(pin)) {
       const Corner *corner1;
       const RiseFall *rf;
       float capacitance, limit, slack;
@@ -287,19 +290,23 @@ CheckCapacitanceLimits::pinMinCapacitanceLimitSlack(Instance *inst,
 						    float &min_slack)
 {
   const Network *network = sta_->network();
+  const Sim *sim = sta_->sim();
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    const Corner *corner1;
-    const RiseFall *rf;
-    float capacitance, limit, slack;
-    checkCapacitance(pin, corner, min_max, corner1, rf, capacitance, limit, slack);
-    if (rf
-	&& !fuzzyInf(slack)
-	&& (min_slack_pin == nullptr
-	    || slack < min_slack)) {
-      min_slack_pin = pin;
-      min_slack = slack;
+    if (network->direction(pin)->isAnyOutput()
+	&& !sim->logicZeroOne(pin)) {
+      const Corner *corner1;
+      const RiseFall *rf;
+      float capacitance, limit, slack;
+      checkCapacitance(pin, corner, min_max, corner1, rf, capacitance, limit, slack);
+      if (rf
+	  && !fuzzyInf(slack)
+	  && (min_slack_pin == nullptr
+	      || slack < min_slack)) {
+	min_slack_pin = pin;
+	min_slack = slack;
+      }
     }
   }
   delete pin_iter;
