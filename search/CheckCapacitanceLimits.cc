@@ -249,8 +249,7 @@ CheckCapacitanceLimits::pinCapacitanceLimitViolations(Instance *inst,
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    if (network->direction(pin)->isAnyOutput()
-	&& !sim->logicZeroOne(pin)) {
+    if (checkPin(pin)) {
       const Corner *corner1;
       const RiseFall *rf;
       float capacitance, limit, slack;
@@ -294,8 +293,7 @@ CheckCapacitanceLimits::pinMinCapacitanceLimitSlack(Instance *inst,
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    if (network->direction(pin)->isAnyOutput()
-	&& !sim->logicZeroOne(pin)) {
+    if (checkPin(pin)) {
       const Corner *corner1;
       const RiseFall *rf;
       float capacitance, limit, slack;
@@ -310,6 +308,17 @@ CheckCapacitanceLimits::pinMinCapacitanceLimitSlack(Instance *inst,
     }
   }
   delete pin_iter;
+}
+
+bool
+CheckCapacitanceLimits::checkPin(const Pin *pin)
+{
+  const Network *network = sta_->network();
+  const Sim *sim = sta_->sim();
+  const Sdc *sdc = sta_->sdc();
+  return network->direction(pin)->isAnyOutput()
+    && !sim->logicZeroOne(pin)
+    && !sdc->isDisabled(pin);
 }
 
 } // namespace

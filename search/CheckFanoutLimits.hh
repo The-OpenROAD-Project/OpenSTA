@@ -59,6 +59,7 @@ protected:
 			      Pin *&min_slack_pin,
 			      float &min_slack);
   float fanoutLoad(const Pin *pin) const;
+  bool checkPin(const Pin *pin);
 
   const StaState *sta_;
 };

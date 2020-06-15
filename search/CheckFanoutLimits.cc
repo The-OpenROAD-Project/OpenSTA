@@ -224,8 +224,7 @@ CheckFanoutLimits::pinFanoutLimitViolations(Instance *inst,
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    if (network->direction(pin)->isAnyOutput()
-	&& !sim->logicZeroOne(pin)) {
+    if (checkPin(pin)) {
       float fanout;
       float limit, slack;
       checkFanout(pin, min_max, fanout, limit, slack );
@@ -262,12 +261,10 @@ CheckFanoutLimits::pinMinFanoutLimitSlack(Instance *inst,
 					  float &min_slack)
 {
   const Network *network = sta_->network();
-  const Sim *sim = sta_->sim();
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    if (network->direction(pin)->isAnyOutput()
-	&& !sim->logicZeroOne(pin)) {
+    if (checkPin(pin)) {
       float fanout;
       float limit, slack;
       checkFanout(pin, min_max, fanout, limit, slack);
@@ -280,6 +277,17 @@ CheckFanoutLimits::pinMinFanoutLimitSlack(Instance *inst,
     }
   }
   delete pin_iter;
+}
+
+bool
+CheckFanoutLimits::checkPin(const Pin *pin)
+{
+  const Network *network = sta_->network();
+  const Sim *sim = sta_->sim();
+  const Sdc *sdc = sta_->sdc();
+  return network->direction(pin)->isAnyOutput()
+    && !sim->logicZeroOne(pin)
+    && !sdc->isDisabled(pin);
 }
 
 } // namespace

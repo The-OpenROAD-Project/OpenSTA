@@ -84,6 +84,7 @@ protected:
 				   // Return values.
 				   Pin *&min_slack_pin,
 				   float &min_slack);
+  bool checkPin(const Pin *pin);
 
   const StaState *sta_;
 };
