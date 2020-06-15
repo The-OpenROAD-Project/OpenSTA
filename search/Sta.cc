@@ -4907,6 +4907,8 @@ Sta::checkFanoutLimitPreamble()
 {
   if (check_fanout_limits_ == nullptr)
     makeCheckFanoutLimits();
+  // Sim values required to suppress reporting constant nets.
+  ensureLevelized();
 }
 
 Pin *

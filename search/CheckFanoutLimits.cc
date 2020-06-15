@@ -20,6 +20,7 @@
 #include "Liberty.hh"
 #include "Network.hh"
 #include "Sdc.hh"
+#include "Sim.hh"
 #include "PortDirection.hh"
 
 namespace sta {
@@ -259,10 +260,14 @@ CheckFanoutLimits::pinMinFanoutLimitSlack(Instance *inst,
 					  float &min_slack)
 {
   const Network *network = sta_->network();
+  const Sim *sim = sta_->sim();
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    if (network->direction(pin)->isAnyOutput()) {
+    if (stringEq(network->pathName(pin),"rdrv/Q"))
+      printf("luse\n");
+    if (network->direction(pin)->isAnyOutput()
+	&& !sim->logicZeroOne(pin)) {
       float fanout;
       float limit, slack;
       checkFanout(pin, min_max, fanout, limit, slack);
