@@ -331,7 +331,8 @@ proc report_net_caps { net pins corner digits } {
     }
     if [$pin is_driver] {
       incr driver_count
-    } elseif [$pin is_load] {
+    }
+    if [$pin is_load] {
       incr load_count
     }
   }
