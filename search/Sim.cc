@@ -837,8 +837,12 @@ Sim::removePropagatedValue(const Pin *pin)
       if (!exists) {
 	debugPrint1(debug_, "sim", 2, "pin %s remove prop constant\n",
 		    network_->pathName(pin));
-	Vertex *vertex = graph_->pinLoadVertex(pin);
-	setSimValue(vertex, LogicValue::unknown);
+	Vertex *vertex, *bidirect_drvr_vertex;
+	graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
+	if (vertex)
+	  setSimValue(vertex, LogicValue::unknown);
+	if (bidirect_drvr_vertex)
+	  setSimValue(bidirect_drvr_vertex, LogicValue::unknown);
       }
     }
   }

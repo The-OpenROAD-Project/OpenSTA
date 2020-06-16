@@ -2911,7 +2911,9 @@ ReportPath::loadCap(Pin *drvr_pin,
   Parasitic *parasitic = nullptr;
   if (arc_delay_calc_)
     parasitic = arc_delay_calc_->findParasitic(drvr_pin, rf, dcalc_ap);
-  return graph_delay_calc_->loadCap(drvr_pin, parasitic, rf, dcalc_ap);
+  float load_cap = graph_delay_calc_->loadCap(drvr_pin, parasitic, rf, dcalc_ap);
+  arc_delay_calc_->finishDrvrPin();
+  return load_cap;
 }
 
 ////////////////////////////////////////////////////////////////
