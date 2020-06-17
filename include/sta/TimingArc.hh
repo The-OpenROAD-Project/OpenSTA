@@ -1,25 +1,25 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2020, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
 #include "DisallowCopyAssign.hh"
-#include "Vector.hh"
-#include "Transition.hh"
 #include "LibertyClass.hh"
+#include "Transition.hh"
+#include "Vector.hh"
 
 namespace sta {
 
@@ -29,8 +29,8 @@ class WireTimingArcSetArcIterator;
 class TimingArcSetArcIterator;
 
 typedef int TimingArcIndex;
-typedef Vector<TimingArc*> TimingArcSeq;
-typedef Map<const OperatingConditions*, TimingModel*> ScaledTimingModelMap;
+typedef Vector<TimingArc *> TimingArcSeq;
+typedef Map<const OperatingConditions *, TimingModel *> ScaledTimingModelMap;
 
 enum class TimingType {
   clear,
@@ -85,7 +85,7 @@ timingTypeScaleFactorType(TimingType type);
 
 class TimingArcAttrs
 {
-public:
+ public:
   TimingArcAttrs();
   virtual ~TimingArcAttrs();
   void deleteContents();
@@ -106,12 +106,11 @@ public:
   const char *modeValue() const { return mode_value_; }
   void setModeValue(const char *value);
   TimingModel *model(RiseFall *rf) const;
-  void setModel(RiseFall *rf,
-		TimingModel *model);
+  void setModel(RiseFall *rf, TimingModel *model);
   float ocvArcDepth() const { return ocv_arc_depth_; }
   void setOcvArcDepth(float depth);
 
-protected:
+ protected:
   TimingType timing_type_;
   TimingSense timing_sense_;
   FuncExpr *cond_;
@@ -123,7 +122,7 @@ protected:
   float ocv_arc_depth_;
   TimingModel *models_[RiseFall::index_count];
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(TimingArcAttrs);
 };
 
@@ -134,13 +133,13 @@ private:
 // See ~LibertyCell for delete of TimingArcSet members.
 class TimingArcSet
 {
-public:
+ public:
   TimingArcSet(LibertyCell *cell,
-	       LibertyPort *from,
-	       LibertyPort *to,
-	       LibertyPort *related_out,
-	       TimingRole *role,
-	       TimingArcAttrs *attrs);
+               LibertyPort *from,
+               LibertyPort *to,
+               LibertyPort *related_out,
+               TimingRole *role,
+               TimingArcAttrs *attrs);
   virtual ~TimingArcSet();
   LibertyCell *libertyCell() const;
   LibertyPort *from() const { return from_; }
@@ -154,12 +153,12 @@ public:
   TimingArcSeq &arcs() { return arcs_; }
   // Return 1 or 2 arcs matching from transition.
   void arcsFrom(const RiseFall *from_rf,
-		// Return values.
-		TimingArc *&arc1,
-		TimingArc *&arc2);
+                // Return values.
+                TimingArc *&arc1,
+                TimingArc *&arc2);
   const TimingArcSeq &arcs() const { return arcs_; }
   // Use the TimingArcSetArcIterator(arc_set) constructor instead.
-  TimingArcSetArcIterator *timingArcIterator() __attribute__ ((deprecated));
+  TimingArcSetArcIterator *timingArcIterator() __attribute__((deprecated));
   TimingArcIndex addTimingArc(TimingArc *arc);
   void deleteTimingArc(TimingArc *arc);
   TimingArc *findTimingArc(unsigned arc_index);
@@ -184,10 +183,8 @@ public:
   // OCV arc depth from timing/cell/library.
   float ocvArcDepth() const;
 
-  static bool equiv(const TimingArcSet *set1,
-		    const TimingArcSet *set2);
-  static bool less(const TimingArcSet *set1,
-		   const TimingArcSet *set2);
+  static bool equiv(const TimingArcSet *set1, const TimingArcSet *set2);
+  static bool less(const TimingArcSet *set1, const TimingArcSet *set2);
 
   static void init();
   static void destroy();
@@ -197,7 +194,7 @@ public:
   static int wireArcIndex(const RiseFall *rf);
   static int wireArcCount() { return 2; }
 
-protected:
+ protected:
   void init(LibertyCell *cell);
   TimingArcSet(TimingRole *role);
 
@@ -220,16 +217,16 @@ protected:
 
   static TimingArcSet *wire_timing_arc_set_;
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(TimingArcSet);
 };
 
 class TimingArcSetArcIterator : public TimingArcSeq::ConstIterator
 {
-public:
+ public:
   TimingArcSetArcIterator(const TimingArcSet *set);
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(TimingArcSetArcIterator);
 };
 
@@ -237,11 +234,11 @@ private:
 // The timing model parameters used for delay calculation are also found here.
 class TimingArc
 {
-public:
+ public:
   TimingArc(TimingArcSet *set,
-	    Transition *from_rf,
-	    Transition *to_rf,
-	    TimingModel *model);
+            Transition *from_rf,
+            Transition *to_rf,
+            TimingModel *model);
   ~TimingArc();
   LibertyPort *from() const { return set_->from(); }
   LibertyPort *to() const { return set_->to(); }
@@ -255,16 +252,14 @@ public:
   TimingModel *model(const OperatingConditions *op_cond) const;
   TimingModel *model() const { return model_; }
   TimingArc *cornerArc(int ap_index);
-  void setCornerArc(TimingArc *corner_arc,
-		    int ap_index);
+  void setCornerArc(TimingArc *corner_arc, int ap_index);
 
-  static bool equiv(const TimingArc *arc1,
-		    const TimingArc *arc2);
+  static bool equiv(const TimingArc *arc1, const TimingArc *arc2);
 
-protected:
+ protected:
   void setIndex(unsigned index);
   void addScaledModel(const OperatingConditions *op_cond,
-		      TimingModel *scaled_model);
+                      TimingModel *scaled_model);
 
   TimingArcSet *set_;
   Transition *from_rf_;
@@ -272,9 +267,9 @@ protected:
   unsigned index_;
   TimingModel *model_;
   ScaledTimingModelMap *scaled_models_;
-  Vector<TimingArc*> corner_arcs_;
+  Vector<TimingArc *> corner_arcs_;
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(TimingArc);
 
   friend class LibertyLibrary;
@@ -282,4 +277,4 @@ private:
   friend class TimingArcSet;
 };
 
-} // namespace
+}  // namespace sta

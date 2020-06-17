@@ -1,26 +1,26 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2020, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
 #include "DisallowCopyAssign.hh"
-#include "Vector.hh"
 #include "Map.hh"
-#include "StringUtil.hh"
 #include "NetworkClass.hh"
+#include "StringUtil.hh"
+#include "Vector.hh"
 
 // The classes defined in this file are a contrete implementation of
 // the library API.  They can be used by a reader to construct classes
@@ -36,41 +36,36 @@ class PatternMatch;
 class LibertyCell;
 class LibertyPort;
 
-typedef Map<const char*, ConcreteCell*, CharPtrLess> ConcreteCellMap;
-typedef Vector<ConcretePort*> ConcretePortSeq;
-typedef Map<const char*, ConcretePort*, CharPtrLess> ConcretePortMap;
+typedef Map<const char *, ConcreteCell *, CharPtrLess> ConcreteCellMap;
+typedef Vector<ConcretePort *> ConcretePortSeq;
+typedef Map<const char *, ConcretePort *, CharPtrLess> ConcretePortMap;
 typedef ConcreteCellMap::ConstIterator ConcreteLibraryCellIterator;
 typedef ConcretePortSeq::ConstIterator ConcreteCellPortIterator;
 typedef ConcretePortSeq::ConstIterator ConcretePortMemberIterator;
 
 class ConcreteLibrary
 {
-public:
+ public:
   explicit ConcreteLibrary(const char *name,
-			   const char *filename,
-			   bool is_liberty);
+                           const char *filename,
+                           bool is_liberty);
   virtual ~ConcreteLibrary();
   const char *name() const { return name_; }
   void setName(const char *name);
   bool isLiberty() const { return is_liberty_; }
   const char *filename() const { return filename_; }
   void addCell(ConcreteCell *cell);
-  ConcreteCell *makeCell(const char *name,
-			 bool is_leaf,
-			 const char *filename);
+  ConcreteCell *makeCell(const char *name, bool is_leaf, const char *filename);
   void deleteCell(ConcreteCell *cell);
   ConcreteLibraryCellIterator *cellIterator() const;
   ConcreteCell *findCell(const char *name) const;
-  void findCellsMatching(const PatternMatch *pattern,
-			 CellSeq *cells) const;
+  void findCellsMatching(const PatternMatch *pattern, CellSeq *cells) const;
   char busBrktLeft() { return bus_brkt_left_; }
   char busBrktRight() { return bus_brkt_right_; }
-  void setBusBrkts(char left,
-		   char right);
+  void setBusBrkts(char left, char right);
 
-protected:
-  void renameCell(ConcreteCell *cell,
-		  const char *cell_name);
+ protected:
+  void renameCell(ConcreteCell *cell, const char *cell_name);
 
   const char *name_;
   const char *filename_;
@@ -79,7 +74,7 @@ protected:
   char bus_brkt_right_;
   ConcreteCellMap cell_map_;
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(ConcreteLibrary);
 
   friend class ConcreteCell;
@@ -87,7 +82,7 @@ private:
 
 class ConcreteCell
 {
-public:
+ public:
   // Use ConcreteLibrary::deleteCell.
   virtual ~ConcreteCell();
   ConcreteLibrary *library() const { return library_; }
@@ -99,8 +94,7 @@ public:
   void setExtCell(void *ext_cell);
   int portBitCount() const { return port_bit_count_; }
   ConcretePort *findPort(const char *name) const;
-  void findPortsMatching(const PatternMatch *pattern,
-			 PortSeq *ports) const;
+  void findPortsMatching(const PatternMatch *pattern, PortSeq *ports) const;
   ConcreteCellPortIterator *portIterator() const;
   ConcreteCellPortBitIterator *portBitIterator() const;
   bool isLeaf() const { return is_leaf_; }
@@ -109,39 +103,32 @@ public:
   // Cell acts as port factory.
   ConcretePort *makePort(const char *name);
   // Bus port.
-  ConcretePort *makeBusPort(const char *name,
-			    int from_index,
-			    int to_index);
+  ConcretePort *makeBusPort(const char *name, int from_index, int to_index);
   // Bundle port.
-  ConcretePort *makeBundlePort(const char *name,
-			       ConcretePortSeq *members);
+  ConcretePort *makeBundlePort(const char *name, ConcretePortSeq *members);
   // Group previously defined bus bit ports together.
-  void groupBusPorts(const char bus_brkt_left,
-		     const char bus_brkt_right);
+  void groupBusPorts(const char bus_brkt_left, const char bus_brkt_right);
   size_t portCount() const;
   void setName(const char *name);
   void addPort(ConcretePort *port);
   void addPortBit(ConcretePort *port);
 
-protected:
+ protected:
   ConcreteCell(ConcreteLibrary *library,
-	       const char *name,
-	       bool is_leaf,
-	       const char *filename);
+               const char *name,
+               bool is_leaf,
+               const char *filename);
   ConcretePort *makeBusPort(const char *name,
-			    int from_index,
-			    int to_index,
-			    ConcretePortSeq *members);
+                            int from_index,
+                            int to_index,
+                            ConcretePortSeq *members);
   void makeBusPortBits(ConcretePort *bus_port,
-		       const char *name,
-		       int from_index,
-		       int to_index);
+                       const char *name,
+                       int from_index,
+                       int to_index);
   // Bus port bit (internal to makeBusPortBits).
-  ConcretePort *makePort(const char *bit_name,
-			 int bit_index);
-  void makeBusPortBit(ConcretePort *bus_port,
-		      const char *name,
-		      int index);
+  ConcretePort *makePort(const char *bit_name, int bit_index);
+  void makeBusPortBit(ConcretePort *bus_port, const char *name, int index);
 
   ConcreteLibrary *library_;
   const char *name_;
@@ -157,7 +144,7 @@ protected:
   int port_bit_count_;
   bool is_leaf_;
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(ConcreteCell);
 
   friend class ConcreteLibrary;
@@ -166,7 +153,7 @@ private:
 
 class ConcretePort
 {
-public:
+ public:
   virtual ~ConcretePort();
   const char *name() const { return name_; }
   const char *busName() const;
@@ -212,15 +199,15 @@ public:
   ConcretePortSeq *memberPorts() const { return member_ports_; }
   void addPortBit(ConcretePort *port);
 
-protected:
+ protected:
   // Constructors for factory in cell class.
   ConcretePort(ConcreteCell *cell,
-	       const char *name,
-	       bool is_bus,
-       int from_index,
-	       int to_index,
-	       bool is_bundle,
-	       ConcretePortSeq *member_ports);
+               const char *name,
+               bool is_bus,
+               int from_index,
+               int to_index,
+               bool is_bundle,
+               ConcretePortSeq *member_ports);
 
   const char *name_;
   ConcreteCell *cell_;
@@ -237,20 +224,20 @@ protected:
   // or bundle member ports.
   ConcretePortSeq *member_ports_;
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(ConcretePort);
 
   friend class ConcreteCell;
 };
 
-class ConcreteCellPortBitIterator : public Iterator<ConcretePort*>
+class ConcreteCellPortBitIterator : public Iterator<ConcretePort *>
 {
-public:
+ public:
   explicit ConcreteCellPortBitIterator(const ConcreteCell *cell);
   virtual bool hasNext();
   virtual ConcretePort *next();
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(ConcreteCellPortBitIterator);
   void findNext();
 
@@ -259,4 +246,4 @@ private:
   ConcretePort *next_;
 };
 
-} // Namespace
+}  // namespace sta
