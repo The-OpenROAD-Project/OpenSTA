@@ -1,16 +1,16 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2020, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -19,34 +19,33 @@
 #include <algorithm>
 
 #include "DisallowCopyAssign.hh"
-#include "StringUtil.hh"
 #include "Liberty.hh"
+#include "StringUtil.hh"
 
 namespace sta {
 
-Wireload::Wireload(const char *name,
-		   LibertyLibrary *library) :
-  name_(stringCopy(name)),
-  library_(library),
-  area_(0.0F),
-  resistance_(0.0F),
-  capacitance_(0.0F),
-  slope_(0.0F)
+Wireload::Wireload(const char *name, LibertyLibrary *library) :
+    name_(stringCopy(name)),
+    library_(library),
+    area_(0.0F),
+    resistance_(0.0F),
+    capacitance_(0.0F),
+    slope_(0.0F)
 {
 }
 
 Wireload::Wireload(const char *name,
-		   LibertyLibrary *library,
-		   float area,
-		   float resistance,
-		   float capacitance,
-		   float slope) :
-  name_(stringCopy(name)),
-  library_(library),
-  area_(area),
-  resistance_(resistance),
-  capacitance_(capacitance),
-  slope_(slope)
+                   LibertyLibrary *library,
+                   float area,
+                   float resistance,
+                   float capacitance,
+                   float slope) :
+    name_(stringCopy(name)),
+    library_(library),
+    area_(area),
+    resistance_(resistance),
+    capacitance_(capacitance),
+    slope_(slope)
 {
 }
 
@@ -82,30 +81,28 @@ Wireload::setSlope(float slope)
 
 struct FanoutLess
 {
-  bool operator()(FanoutLength *fanout1,
-		  FanoutLength *fanout2) const
+  bool operator()(FanoutLength *fanout1, FanoutLength *fanout2) const
   {
     return fanout1->first < fanout2->first;
   }
 };
 
 void
-Wireload::addFanoutLength(float fanout,
-			  float length)
+Wireload::addFanoutLength(float fanout, float length)
 {
   FanoutLength *fanout_length = new FanoutLength(fanout, length);
   fanout_lengths_.push_back(fanout_length);
   // Keep fanouts sorted for lookup.
-  if (fanout_lengths_.size() > 1
-      && fanout < (fanout_lengths_[fanout_lengths_.size() - 2])->first)
+  if (fanout_lengths_.size() > 1 &&
+      fanout < (fanout_lengths_[fanout_lengths_.size() - 2])->first)
     sort(fanout_lengths_, FanoutLess());
 }
 
 void
 Wireload::findWireload(float fanout,
-		       const OperatingConditions *op_cond,
-		       float &cap,
-		       float &res) const
+                       const OperatingConditions *op_cond,
+                       float &cap,
+                       float &res) const
 {
   size_t size = fanout_lengths_.size();
   float length;
@@ -118,10 +115,8 @@ Wireload::findWireload(float fanout,
     if (fanout < fanout0) {
       // Extrapolate from lowest fanout entry.
       length = fanout_lengths_[0]->second - (fanout0 - fanout) * slope_;
-      if (length < 0)
-	length = 0;
-    }
-    else if (fanout == fanout0)
+      if (length < 0) length = 0;
+    } else if (fanout == fanout0)
       length = fanout_lengths_[0]->second;
     else if (fanout >= fanout_max)
       // Extrapolate from max fanout entry.
@@ -131,40 +126,38 @@ Wireload::findWireload(float fanout,
       int lower = -1;
       int upper = size;
       while (upper - lower > 1) {
-	int mid = (upper + lower) >> 1;
-	if (fanout >= fanout_lengths_[mid]->first)
-	  lower = mid;
-	else
-	  upper = mid;
+        int mid = (upper + lower) >> 1;
+        if (fanout >= fanout_lengths_[mid]->first)
+          lower = mid;
+        else
+          upper = mid;
       }
       // Interpolate between lower and lower+1 entries.
       float fanout1 = fanout_lengths_[lower]->first;
-      float fanout2 = fanout_lengths_[lower+1]->first;
+      float fanout2 = fanout_lengths_[lower + 1]->first;
       float l1 = fanout_lengths_[lower]->second;
-      float l2 = fanout_lengths_[lower+1]->second;
+      float l2 = fanout_lengths_[lower + 1]->second;
       length = l1 + (l2 - l1) * (fanout - fanout1) / (fanout2 - fanout1);
     }
   }
   // Scale resistance and capacitance.
-  cap = length * capacitance_
-    * library_->scaleFactor(ScaleFactorType::wire_cap, op_cond);
-  res = length * resistance_
-    * library_->scaleFactor(ScaleFactorType::wire_res, op_cond);
+  cap = length * capacitance_ *
+      library_->scaleFactor(ScaleFactorType::wire_cap, op_cond);
+  res = length * resistance_ *
+      library_->scaleFactor(ScaleFactorType::wire_res, op_cond);
 }
 
 ////////////////////////////////////////////////////////////////
 
 class WireloadForArea
 {
-public:
-  WireloadForArea(float min_area,
-		  float max_area,
-		  const Wireload *wireload);
+ public:
+  WireloadForArea(float min_area, float max_area, const Wireload *wireload);
   float minArea() const { return min_area_; }
   float maxArea() const { return max_area_; }
   const Wireload *wireload() const { return wireload_; }
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(WireloadForArea);
 
   float min_area_;
@@ -173,16 +166,15 @@ private:
 };
 
 WireloadForArea::WireloadForArea(float min_area,
-				 float max_area,
-				 const Wireload *wireload) :
-  min_area_(min_area),
-  max_area_(max_area),
-  wireload_(wireload)
+                                 float max_area,
+                                 const Wireload *wireload) :
+    min_area_(min_area),
+    max_area_(max_area),
+    wireload_(wireload)
 {
 }
 
-WireloadSelection::WireloadSelection(const char *name) :
-  name_(stringCopy(name))
+WireloadSelection::WireloadSelection(const char *name) : name_(stringCopy(name))
 {
 }
 
@@ -194,8 +186,7 @@ WireloadSelection::~WireloadSelection()
 
 struct WireloadForAreaMinLess
 {
-  bool operator()(WireloadForArea *wireload1,
-		  WireloadForArea *wireload2) const
+  bool operator()(WireloadForArea *wireload1, WireloadForArea *wireload2) const
   {
     return wireload1->minArea() < wireload2->minArea();
   }
@@ -203,15 +194,15 @@ struct WireloadForAreaMinLess
 
 void
 WireloadSelection::addWireloadFromArea(float min_area,
-				       float max_area,
-				       const Wireload *wireload)
+                                       float max_area,
+                                       const Wireload *wireload)
 {
-  WireloadForArea *wireload_area = new WireloadForArea(min_area, max_area,
-						       wireload);
+  WireloadForArea *wireload_area =
+      new WireloadForArea(min_area, max_area, wireload);
   wireloads_.push_back(wireload_area);
   // Keep wireloads sorted by area for lookup.
-  if (wireloads_.size() > 1
-      && min_area < (wireloads_[wireloads_.size() - 2])->minArea())
+  if (wireloads_.size() > 1 &&
+      min_area < (wireloads_[wireloads_.size() - 2])->minArea())
     sort(wireloads_, WireloadForAreaMinLess());
 }
 
@@ -245,14 +236,14 @@ const char *
 wireloadTreeString(WireloadTree tree)
 {
   switch (tree) {
-  case WireloadTree::worst_case:
-    return "worst_case_tree";
-  case WireloadTree::best_case:
-    return "best_case_tree";
-  case WireloadTree::balanced:
-    return "balanced_tree";
-  case WireloadTree::unknown:
-    return "unknown";
+    case WireloadTree::worst_case:
+      return "worst_case_tree";
+    case WireloadTree::best_case:
+      return "best_case_tree";
+    case WireloadTree::balanced:
+      return "balanced_tree";
+    case WireloadTree::unknown:
+      return "unknown";
   }
   // Prevent warnings from lame compilers.
   return "?";
@@ -275,14 +266,14 @@ const char *
 wireloadModeString(WireloadMode wire_load_mode)
 {
   switch (wire_load_mode) {
-  case WireloadMode::top:
-    return "top";
-  case WireloadMode::enclosed:
-    return "enclosed";
-  case WireloadMode::segmented:
-    return "segmented";
-  case WireloadMode::unknown:
-    return "unknown";
+    case WireloadMode::top:
+      return "top";
+    case WireloadMode::enclosed:
+      return "enclosed";
+    case WireloadMode::segmented:
+      return "segmented";
+    case WireloadMode::unknown:
+      return "unknown";
   }
   // Prevent warnings from lame compilers.
   return "?";
@@ -301,4 +292,4 @@ stringWireloadMode(const char *wire_load_mode)
     return WireloadMode::unknown;
 }
 
-} // namespace
+}  // namespace sta
