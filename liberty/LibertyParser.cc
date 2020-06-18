@@ -1,16 +1,16 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2020, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -19,8 +19,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "Report.hh"
 #include "Error.hh"
+#include "Report.hh"
 #include "StringUtil.hh"
 
 // Global namespace
@@ -31,7 +31,7 @@ extern FILE *LibertyLex_in;
 
 namespace sta {
 
-typedef Vector<LibertyGroup*> LibertyGroupSeq;
+typedef Vector<LibertyGroup *> LibertyGroupSeq;
 
 static const char *liberty_filename;
 static int liberty_line;
@@ -45,8 +45,7 @@ static LibertyGroupSeq liberty_group_stack;
 static Report *liberty_report;
 
 static LibertyStmt *
-makeLibertyDefine(LibertyAttrValueSeq *values,
-		  int line);
+makeLibertyDefine(LibertyAttrValueSeq *values, int line);
 static LibertyAttrType
 attrValueType(const char *value_type_name);
 static LibertyGroupType
@@ -56,8 +55,8 @@ groupType(const char *group_type_name);
 
 void
 parseLibertyFile(const char *filename,
-		 LibertyGroupVisitor *library_visitor,
-		 Report *report)
+                 LibertyGroupVisitor *library_visitor,
+                 Report *report)
 {
   LibertyLex_in = fopen(filename, "r");
   if (LibertyLex_in) {
@@ -70,15 +69,12 @@ parseLibertyFile(const char *filename,
     liberty_report = report;
     LibertyParse_parse();
     fclose(LibertyLex_in);
-  }
-  else
+  } else
     throw FileNotReadable(filename);
 }
 
 void
-libertyGroupBegin(const char *type,
-		  LibertyAttrValueSeq *params,
-		  int line)
+libertyGroupBegin(const char *type, LibertyAttrValueSeq *params, int line)
 {
   LibertyGroup *group = new LibertyGroup(type, params, line);
   liberty_group_visitor->begin(group);
@@ -92,12 +88,11 @@ libertyGroupEnd()
   liberty_group_visitor->end(group);
   liberty_group_stack.pop_back();
   LibertyGroup *parent =
-    liberty_group_stack.empty() ? nullptr : liberty_group_stack.back();
+      liberty_group_stack.empty() ? nullptr : liberty_group_stack.back();
   if (parent && liberty_group_visitor->save(group)) {
     parent->addSubgroup(group);
     return group;
-  }
-  else {
+  } else {
     delete group;
     return nullptr;
   }
@@ -105,37 +100,34 @@ libertyGroupEnd()
 
 ////////////////////////////////////////////////////////////////
 
-LibertyStmt::LibertyStmt(int line) :
-  line_(line)
+LibertyStmt::LibertyStmt(int line) : line_(line)
 {
 }
 
 LibertyGroup::LibertyGroup(const char *type,
-			   LibertyAttrValueSeq *params,
-			   int line) :
-  LibertyStmt(line),
-  type_(type),
-  params_(params),
-  attrs_(nullptr),
-  attr_map_(nullptr),
-  subgroups_(nullptr),
-  define_map_(nullptr)
+                           LibertyAttrValueSeq *params,
+                           int line) :
+    LibertyStmt(line),
+    type_(type),
+    params_(params),
+    attrs_(nullptr),
+    attr_map_(nullptr),
+    subgroups_(nullptr),
+    define_map_(nullptr)
 {
 }
 
 void
 LibertyGroup::addSubgroup(LibertyGroup *subgroup)
 {
-  if (subgroups_ == nullptr)
-    subgroups_ = new LibertyGroupSeq;
+  if (subgroups_ == nullptr) subgroups_ = new LibertyGroupSeq;
   subgroups_->push_back(subgroup);
 }
 
 void
 LibertyGroup::addDefine(LibertyDefine *define)
 {
-  if (define_map_ == nullptr)
-    define_map_ = new LibertyDefineMap;
+  if (define_map_ == nullptr) define_map_ = new LibertyDefineMap;
   const char *define_name = define->name();
   LibertyDefine *prev_define = define_map_->findKey(define_name);
   if (prev_define) {
@@ -148,11 +140,9 @@ LibertyGroup::addDefine(LibertyDefine *define)
 void
 LibertyGroup::addAttribute(LibertyAttr *attr)
 {
-  if (attrs_ == nullptr)
-    attrs_ = new LibertyAttrSeq;
+  if (attrs_ == nullptr) attrs_ = new LibertyAttrSeq;
   attrs_->push_back(attr);
-  if (attr_map_)
-    (*attr_map_)[attr->name()] = attr;
+  if (attr_map_) (*attr_map_)[attr->name()] = attr;
 }
 
 LibertyGroup::~LibertyGroup()
@@ -183,8 +173,7 @@ LibertyGroup::firstName()
 {
   if (params_ && params_->size() > 0) {
     LibertyAttrValue *value = (*params_)[0];
-    if (value->isString())
-      return value->stringValue();
+    if (value->isString()) return value->stringValue();
   }
   return nullptr;
 }
@@ -194,8 +183,7 @@ LibertyGroup::secondName()
 {
   if (params_ && params_->size() > 1) {
     LibertyAttrValue *value = (*params_)[1];
-    if (value->isString())
-      return value->stringValue();
+    if (value->isString()) return value->stringValue();
   }
   return nullptr;
 }
@@ -208,32 +196,30 @@ LibertyGroup::findAttr(const char *name)
       // Build attribute name map on demand.
       LibertyAttrSeq::Iterator attr_iter(attrs_);
       while (attr_iter.hasNext()) {
-	LibertyAttr *attr = attr_iter.next();
-	(*attr_map_)[attr->name()] = attr;
+        LibertyAttr *attr = attr_iter.next();
+        (*attr_map_)[attr->name()] = attr;
       }
     }
     return attr_map_->findKey(name);
-  }
-  else
+  } else
     return nullptr;
 }
 
 LibertySubgroupIterator::LibertySubgroupIterator(LibertyGroup *group) :
-  LibertyGroupSeq::Iterator(group->subgroups())
+    LibertyGroupSeq::Iterator(group->subgroups())
 {
 }
 
 LibertyAttrIterator::LibertyAttrIterator(LibertyGroup *group) :
-  LibertyAttrSeq::Iterator(group->attrs())
+    LibertyAttrSeq::Iterator(group->attrs())
 {
 }
 
 ////////////////////////////////////////////////////////////////
 
-LibertyAttr::LibertyAttr(const char *name,
-			 int line) :
-  LibertyStmt(line),
-  name_(name)
+LibertyAttr::LibertyAttr(const char *name, int line) :
+    LibertyStmt(line),
+    name_(name)
 {
 }
 
@@ -243,19 +229,15 @@ LibertyAttr::~LibertyAttr()
 }
 
 LibertyStmt *
-makeLibertySimpleAttr(const char *name,
-		      LibertyAttrValue *value,
-		      int line)
+makeLibertySimpleAttr(const char *name, LibertyAttrValue *value, int line)
 {
   LibertyAttr *attr = new LibertySimpleAttr(name, value, line);
-  if (liberty_group_visitor)
-    liberty_group_visitor->visitAttr(attr);
+  if (liberty_group_visitor) liberty_group_visitor->visitAttr(attr);
   LibertyGroup *group = libertyGroup();
   if (group && liberty_group_visitor->save(attr)) {
     group->addAttribute(attr);
     return attr;
-  }
-  else {
+  } else {
     delete attr;
     return nullptr;
   }
@@ -268,10 +250,10 @@ libertyGroup()
 }
 
 LibertySimpleAttr::LibertySimpleAttr(const char *name,
-				     LibertyAttrValue *value,
-				     int line) :
-  LibertyAttr(name, line),
-  value_(value)
+                                     LibertyAttrValue *value,
+                                     int line) :
+    LibertyAttr(name, line),
+    value_(value)
 {
 }
 
@@ -288,9 +270,7 @@ LibertySimpleAttr::values() const
 }
 
 LibertyStmt *
-makeLibertyComplexAttr(const char *name,
-		       LibertyAttrValueSeq *values,
-		       int line)
+makeLibertyComplexAttr(const char *name, LibertyAttrValueSeq *values, int line)
 {
   // Defines have the same syntax as complex attributes.
   // Detect and convert them.
@@ -298,21 +278,17 @@ makeLibertyComplexAttr(const char *name,
     LibertyStmt *define = makeLibertyDefine(values, line);
     stringDelete(name);
     LibertyAttrValueSeq::Iterator attr_iter(values);
-    while (attr_iter.hasNext())
-      delete attr_iter.next();
+    while (attr_iter.hasNext()) delete attr_iter.next();
     delete values;
     return define;
-  }
-  else {
+  } else {
     LibertyAttr *attr = new LibertyComplexAttr(name, values, line);
-    if (liberty_group_visitor)
-      liberty_group_visitor->visitAttr(attr);
+    if (liberty_group_visitor) liberty_group_visitor->visitAttr(attr);
     if (liberty_group_visitor->save(attr)) {
       LibertyGroup *group = libertyGroup();
       group->addAttribute(attr);
       return attr;
-    }
-    else {
+    } else {
       delete attr;
       return nullptr;
     }
@@ -320,10 +296,10 @@ makeLibertyComplexAttr(const char *name,
 }
 
 LibertyComplexAttr::LibertyComplexAttr(const char *name,
-				       LibertyAttrValueSeq *values,
-				       int line) :
-  LibertyAttr(name, line),
-  values_(values)
+                                       LibertyAttrValueSeq *values,
+                                       int line) :
+    LibertyAttr(name, line),
+    values_(values)
 {
 }
 
@@ -351,8 +327,8 @@ makeLibertyStringAttrValue(char *value)
 }
 
 LibertyStringAttrValue::LibertyStringAttrValue(const char *value) :
-  LibertyAttrValue(),
-  value_(value)
+    LibertyAttrValue(),
+    value_(value)
 {
 }
 
@@ -380,8 +356,7 @@ makeLibertyFloatAttrValue(float value)
   return new LibertyFloatAttrValue(value);
 }
 
-LibertyFloatAttrValue::LibertyFloatAttrValue(float value) :
-  value_(value)
+LibertyFloatAttrValue::LibertyFloatAttrValue(float value) : value_(value)
 {
 }
 
@@ -401,8 +376,7 @@ LibertyFloatAttrValue::stringValue()
 ////////////////////////////////////////////////////////////////
 
 static LibertyStmt *
-makeLibertyDefine(LibertyAttrValueSeq *values,
-		  int line)
+makeLibertyDefine(LibertyAttrValueSeq *values, int line)
 {
   LibertyDefine *define = nullptr;
   if (values->size() == 3) {
@@ -411,14 +385,13 @@ makeLibertyDefine(LibertyAttrValueSeq *values,
     const char *value_type_name = (*values)[2]->stringValue();
     LibertyAttrType value_type = attrValueType(value_type_name);
     LibertyGroupType group_type = groupType(group_type_name);
-    define = new LibertyDefine(stringCopy(define_name), group_type,
-			       value_type, line);
+    define = new LibertyDefine(stringCopy(define_name), group_type, value_type,
+                               line);
     LibertyGroup *group = libertyGroup();
     group->addDefine(define);
-  }
-  else
+  } else
     liberty_report->fileWarn(liberty_filename, line,
-			     "define does not have three arguments.\n");
+                             "define does not have three arguments.\n");
   return define;
 }
 
@@ -456,13 +429,13 @@ groupType(const char *group_type_name)
 }
 
 LibertyDefine::LibertyDefine(const char *name,
-			     LibertyGroupType group_type,
-			     LibertyAttrType value_type,
-			     int line) :
-  LibertyStmt(line),
-  name_(name),
-  group_type_(group_type),
-  value_type_(value_type)
+                             LibertyGroupType group_type,
+                             LibertyAttrType value_type,
+                             int line) :
+    LibertyStmt(line),
+    name_(name),
+    group_type_(group_type),
+    value_type_(value_type)
 {
 }
 
@@ -474,9 +447,7 @@ LibertyDefine::~LibertyDefine()
 ////////////////////////////////////////////////////////////////
 
 LibertyStmt *
-makeLibertyVariable(char *var,
-		    float value,
-		    int line)
+makeLibertyVariable(char *var, float value, int line)
 {
   LibertyVariable *variable = new LibertyVariable(var, value, line);
   liberty_group_visitor->visitVariable(variable);
@@ -488,12 +459,10 @@ makeLibertyVariable(char *var,
   }
 }
 
-LibertyVariable::LibertyVariable(const char *var,
-				 float value,
-				 int line) :
-  LibertyStmt(line),
-  var_(var),
-  value_(value)
+LibertyVariable::LibertyVariable(const char *var, float value, int line) :
+    LibertyStmt(line),
+    var_(var),
+    value_(value)
 {
 }
 
@@ -513,7 +482,7 @@ libertyInInclude()
 FILE *
 libertyIncludeBegin(const char *filename)
 {
-  FILE *stream = fopen(filename, "r" );
+  FILE *stream = fopen(filename, "r");
   if (stream == nullptr)
     libertyParseError("cannot open include file %s.\n", filename);
   else {
@@ -555,23 +524,24 @@ libertyParseError(const char *fmt, ...)
 {
   va_list args;
   va_start(args, fmt);
-  sta::liberty_report->vfileError(sta::liberty_filename, sta::liberty_line,
-				  fmt, args);
+  sta::liberty_report->vfileError(sta::liberty_filename, sta::liberty_line, fmt,
+                                  args);
   va_end(args);
 }
 
-} // namespace
+}  // namespace sta
 
 ////////////////////////////////////////////////////////////////
 // Global namespace
 
-void libertyParseFlushBuffer();
+void
+libertyParseFlushBuffer();
 
 int
 LibertyParse_error(const char *msg)
 {
   sta::liberty_report->fileError(sta::liberty_filename, sta::liberty_line,
-				 "%s.\n", msg);
+                                 "%s.\n", msg);
   libertyParseFlushBuffer();
   return 0;
 }

@@ -1,16 +1,16 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2020, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -20,52 +20,54 @@
 //  * a string attribute named "thingy" is parsed
 
 #include <stdio.h>
-#include "Machine.hh"
-#include "StringUtil.hh"
+
+#include "ConcreteNetwork.hh"
+#include "LibertyBuilder.hh"
 #include "LibertyReader.hh"
 #include "LibertyReaderPvt.hh"
-#include "LibertyBuilder.hh"
+#include "Machine.hh"
 #include "Network.hh"
-#include "ConcreteNetwork.hh"
 #include "Sta.hh"
+#include "StringUtil.hh"
 
 // Import symbols from sta package (this example is in the global package).
-using sta::Report;
 using sta::Debug;
-using sta::Network;
-using sta::LibertyReader;
 using sta::LibertyAttr;
-using sta::LibertyGroup;
-using sta::TimingGroup;
-using sta::LibertyCell;
-using sta::LibertyPort;
-using sta::LibertyLibrary;
-using sta::TimingArcSet;
 using sta::LibertyBuilder;
-using sta::TimingRole;
-using sta::TimingArcAttrs;
+using sta::LibertyCell;
+using sta::LibertyGroup;
+using sta::LibertyLibrary;
+using sta::LibertyPort;
+using sta::LibertyReader;
+using sta::Network;
+using sta::Report;
 using sta::Sta;
 using sta::stringCopy;
+using sta::TimingArcAttrs;
+using sta::TimingArcSet;
+using sta::TimingGroup;
+using sta::TimingRole;
 
 // LibertyCell with Bigco thingy variable.
 class BigcoCell : public LibertyCell
 {
-public:
+ public:
   BigcoCell(LibertyLibrary *library, const char *name, const char *filename);
   void setThingy(const char *thingy);
 
-protected:
+ protected:
   const char *thingy_;
 };
 
-BigcoCell::BigcoCell(LibertyLibrary *library, const char *name, 
-		     const char *filename) :
-  LibertyCell(library, name, filename),
-  thingy_(0)
+BigcoCell::BigcoCell(LibertyLibrary *library,
+                     const char *name,
+                     const char *filename) :
+    LibertyCell(library, name, filename),
+    thingy_(0)
 {
 }
 
-void 
+void
 BigcoCell::setThingy(const char *thingy)
 {
   thingy_ = thingy;
@@ -75,22 +77,20 @@ BigcoCell::setThingy(const char *thingy)
 
 class BigcoTimingGroup : public TimingGroup
 {
-public:
+ public:
   BigcoTimingGroup(int line);
   const char *frob() const { return frob_; }
   void setFrob(const char *frob);
 
-protected:
+ protected:
   const char *frob_;
 };
 
-BigcoTimingGroup::BigcoTimingGroup(int line) :
-  TimingGroup(line),
-  frob_(0)
+BigcoTimingGroup::BigcoTimingGroup(int line) : TimingGroup(line), frob_(0)
 {
 }
 
-void 
+void
 BigcoTimingGroup::setFrob(const char *frob)
 {
   frob_ = frob;
@@ -100,24 +100,28 @@ BigcoTimingGroup::setFrob(const char *frob)
 
 class BigcoTimingArcSet : public TimingArcSet
 {
-public:
-  BigcoTimingArcSet(LibertyCell *cell, LibertyPort *from, LibertyPort *to, 
-		    LibertyPort *related_out, TimingRole *role, 
-		    TimingArcAttrs *attrs);
+ public:
+  BigcoTimingArcSet(LibertyCell *cell,
+                    LibertyPort *from,
+                    LibertyPort *to,
+                    LibertyPort *related_out,
+                    TimingRole *role,
+                    TimingArcAttrs *attrs);
 
-protected:
+ protected:
   const char *frob_;
 };
 
-BigcoTimingArcSet::BigcoTimingArcSet(LibertyCell *cell, LibertyPort *from, 
-				     LibertyPort *to, 
-				     LibertyPort *related_out, TimingRole *role, 
-				     TimingArcAttrs *attrs) :
-  TimingArcSet(cell, from, to, related_out, role, attrs)
+BigcoTimingArcSet::BigcoTimingArcSet(LibertyCell *cell,
+                                     LibertyPort *from,
+                                     LibertyPort *to,
+                                     LibertyPort *related_out,
+                                     TimingRole *role,
+                                     TimingArcAttrs *attrs) :
+    TimingArcSet(cell, from, to, related_out, role, attrs)
 {
-  const char *frob = static_cast<BigcoTimingGroup*>(attrs)->frob();
-  if (frob)
-    frob_ = stringCopy(frob);
+  const char *frob = static_cast<BigcoTimingGroup *>(attrs)->frob();
+  if (frob) frob_ = stringCopy(frob);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -125,21 +129,24 @@ BigcoTimingArcSet::BigcoTimingArcSet(LibertyCell *cell, LibertyPort *from,
 // Make Bigco objects instead of Liberty objects.
 class BigcoLibertyBuilder : public LibertyBuilder
 {
-public:
-  virtual LibertyCell *makeCell(LibertyLibrary *library, const char *name,
-				const char *filename);
+ public:
+  virtual LibertyCell *makeCell(LibertyLibrary *library,
+                                const char *name,
+                                const char *filename);
 
-protected:
-  virtual TimingArcSet *makeTimingArcSet(LibertyCell *cell, LibertyPort *from, 
-					 LibertyPort *to, 
-					 LibertyPort *related_out,
-					 TimingRole *role,
-					 TimingArcAttrs *attrs);
+ protected:
+  virtual TimingArcSet *makeTimingArcSet(LibertyCell *cell,
+                                         LibertyPort *from,
+                                         LibertyPort *to,
+                                         LibertyPort *related_out,
+                                         TimingRole *role,
+                                         TimingArcAttrs *attrs);
 };
 
 LibertyCell *
-BigcoLibertyBuilder::makeCell(LibertyLibrary *library, const char *name,
-			      const char *filename)
+BigcoLibertyBuilder::makeCell(LibertyLibrary *library,
+                              const char *name,
+                              const char *filename)
 {
   LibertyCell *cell = new BigcoCell(library, name, filename);
   library->addCell(cell);
@@ -147,11 +154,12 @@ BigcoLibertyBuilder::makeCell(LibertyLibrary *library, const char *name,
 }
 
 TimingArcSet *
-BigcoLibertyBuilder::makeTimingArcSet(LibertyCell *cell, LibertyPort *from, 
-				      LibertyPort *to, 
-				      LibertyPort *related_out,
-				      TimingRole *role,
-				      TimingArcAttrs *attrs)
+BigcoLibertyBuilder::makeTimingArcSet(LibertyCell *cell,
+                                      LibertyPort *from,
+                                      LibertyPort *to,
+                                      LibertyPort *related_out,
+                                      TimingRole *role,
+                                      TimingArcAttrs *attrs)
 {
   return new BigcoTimingArcSet(cell, from, to, related_out, role, attrs);
 }
@@ -161,10 +169,10 @@ BigcoLibertyBuilder::makeTimingArcSet(LibertyCell *cell, LibertyPort *from,
 // Liberty reader to parse Bigco attributes.
 class BigcoLibertyReader : public LibertyReader
 {
-public:
+ public:
   BigcoLibertyReader(LibertyBuilder *builder);
 
-protected:
+ protected:
   virtual void visitAttr1(LibertyAttr *attr);
   virtual void visitAttr2(LibertyAttr *attr);
   virtual void beginLibrary(LibertyGroup *group);
@@ -173,11 +181,11 @@ protected:
 };
 
 BigcoLibertyReader::BigcoLibertyReader(LibertyBuilder *builder) :
-  LibertyReader(builder)
+    LibertyReader(builder)
 {
   // Define a visitor for the "thingy" attribute.
-  // Note that the function descriptor passed to defineAttrVisitor 
-  // must be defined by the LibertyVisitor class, so a number of 
+  // Note that the function descriptor passed to defineAttrVisitor
+  // must be defined by the LibertyVisitor class, so a number of
   // extra visitor functions are pre-defined for extensions.
   defineAttrVisitor("thingy", &LibertyReader::visitAttr1);
   defineAttrVisitor("frob", &LibertyReader::visitAttr2);
@@ -191,13 +199,11 @@ libertyCellRequired(const char *)
 }
 
 // Prune cells from liberty file based on libertyCellRequired predicate.
-void 
+void
 BigcoLibertyReader::beginCell(LibertyGroup *group)
 {
   const char *name = group->firstName();
-  if (name
-      && libertyCellRequired(name))
-    LibertyReader::beginCell(group);
+  if (name && libertyCellRequired(name)) LibertyReader::beginCell(group);
 }
 
 TimingGroup *
@@ -207,7 +213,7 @@ BigcoLibertyReader::makeTimingGroup(int line)
 }
 
 // Called at the beginning of a library group.
-void 
+void
 BigcoLibertyReader::beginLibrary(LibertyGroup *group)
 {
   LibertyReader::beginLibrary(group);
@@ -215,24 +221,22 @@ BigcoLibertyReader::beginLibrary(LibertyGroup *group)
   printf("Bigco was here.\n");
 }
 
-void 
+void
 BigcoLibertyReader::visitAttr1(LibertyAttr *attr)
 {
   const char *thingy = getAttrString(attr);
   if (thingy) {
     printf("Bigco thingy attribute value is %s.\n", thingy);
-    if (cell_)
-      static_cast<BigcoCell*>(cell_)->setThingy(thingy);
+    if (cell_) static_cast<BigcoCell *>(cell_)->setThingy(thingy);
   }
 }
 
-void 
+void
 BigcoLibertyReader::visitAttr2(LibertyAttr *attr)
 {
   const char *frob = getAttrString(attr);
   if (frob) {
-    if (timing_)
-      static_cast<BigcoTimingGroup*>(timing_)->setFrob(frob);
+    if (timing_) static_cast<BigcoTimingGroup *>(timing_)->setFrob(frob);
   }
 }
 
@@ -242,25 +246,22 @@ BigcoLibertyReader::visitAttr2(LibertyAttr *attr)
 // new liberty reader/visitor in BigcoSta::makeLibertyReader.
 class BigcoSta : public Sta
 {
-public:
+ public:
   BigcoSta();
 
-protected:
-  virtual LibertyLibrary *readLibertyFile(const char *filename, 
-					  bool infer_latches,
-					  Network *network);
+ protected:
+  virtual LibertyLibrary *readLibertyFile(const char *filename,
+                                          bool infer_latches,
+                                          Network *network);
 };
 
-BigcoSta::BigcoSta() :
-  Sta()
+BigcoSta::BigcoSta() : Sta()
 {
 }
 
 // Replace Sta liberty file reader with Bigco's very own.
 LibertyLibrary *
-Sta::readLibertyFile(const char *filename,
-		bool infer_latches,
-		     Network *network)
+Sta::readLibertyFile(const char *filename, bool infer_latches, Network *network)
 {
   BigcoLibertyBuilder builder;
   BigcoLibertyReader reader(&builder);

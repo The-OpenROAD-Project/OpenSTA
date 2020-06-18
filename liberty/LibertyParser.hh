@@ -1,26 +1,26 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2020, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
 #include "DisallowCopyAssign.hh"
-#include "Vector.hh"
 #include "Map.hh"
 #include "Set.hh"
 #include "StringUtil.hh"
+#include "Vector.hh"
 
 namespace sta {
 
@@ -36,25 +36,31 @@ class LibertyVariable;
 class LibertySubgroupIterator;
 class LibertyAttrIterator;
 
-typedef Vector<LibertyStmt*> LibertyStmtSeq;
-typedef Vector<LibertyGroup*> LibertyGroupSeq;
-typedef Vector<LibertyAttr*> LibertyAttrSeq;
-typedef Map<const char *, LibertyAttr*, CharPtrLess> LibertyAttrMap;
-typedef Map<const char *, LibertyDefine*, CharPtrLess> LibertyDefineMap;
-typedef Vector<LibertyAttrValue*> LibertyAttrValueSeq;
+typedef Vector<LibertyStmt *> LibertyStmtSeq;
+typedef Vector<LibertyGroup *> LibertyGroupSeq;
+typedef Vector<LibertyAttr *> LibertyAttrSeq;
+typedef Map<const char *, LibertyAttr *, CharPtrLess> LibertyAttrMap;
+typedef Map<const char *, LibertyDefine *, CharPtrLess> LibertyDefineMap;
+typedef Vector<LibertyAttrValue *> LibertyAttrValueSeq;
 typedef Map<const char *, float, CharPtrLess> LibertyVariableMap;
-typedef Map<const char*,LibertyGroupVisitor*,CharPtrLess>LibertyGroupVisitorMap;
+typedef Map<const char *, LibertyGroupVisitor *, CharPtrLess>
+    LibertyGroupVisitorMap;
 typedef LibertyAttrValueSeq::Iterator LibertyAttrValueIterator;
 
-enum class LibertyAttrType { attr_string, attr_int, attr_double,
-			     attr_boolean, attr_unknown };
+enum class LibertyAttrType {
+  attr_string,
+  attr_int,
+  attr_double,
+  attr_boolean,
+  attr_unknown
+};
 
 enum class LibertyGroupType { library, cell, pin, timing, unknown };
 
 // Abstract base class for liberty statements.
 class LibertyStmt
 {
-public:
+ public:
   explicit LibertyStmt(int line);
   virtual ~LibertyStmt() {}
   int line() const { return line_; }
@@ -63,10 +69,10 @@ public:
   virtual bool isDefine() const { return false; }
   virtual bool isVariable() const { return false; }
 
-protected:
+ protected:
   int line_;
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(LibertyStmt);
 };
 
@@ -75,10 +81,8 @@ private:
 //  type([param1][, param2]...) { stmts.. }
 class LibertyGroup : public LibertyStmt
 {
-public:
-  LibertyGroup(const char *type,
-	       LibertyAttrValueSeq *params,
-	       int line);
+ public:
+  LibertyGroup(const char *type, LibertyAttrValueSeq *params, int line);
   virtual ~LibertyGroup();
   virtual bool isGroup() const { return true; }
   const char *type() const { return type_; }
@@ -95,7 +99,7 @@ public:
   LibertyAttrSeq *attrs() const { return attrs_; }
   LibertyAttrValueSeq *params() const { return params_; }
 
-protected:
+ protected:
   void parseNames(LibertyAttrValueSeq *values);
 
   const char *type_;
@@ -105,34 +109,33 @@ protected:
   LibertyGroupSeq *subgroups_;
   LibertyDefineMap *define_map_;
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(LibertyGroup);
 };
 
 class LibertySubgroupIterator : public LibertyGroupSeq::Iterator
 {
-public:
+ public:
   explicit LibertySubgroupIterator(LibertyGroup *group);
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(LibertySubgroupIterator);
 };
 
 class LibertyAttrIterator : public LibertyAttrSeq::Iterator
 {
-public:
+ public:
   explicit LibertyAttrIterator(LibertyGroup *group);
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(LibertyAttrIterator);
 };
 
 // Abstract base class for attributes.
 class LibertyAttr : public LibertyStmt
 {
-public:
-  LibertyAttr(const char *name,
-	      int line);
+ public:
+  LibertyAttr(const char *name, int line);
   virtual ~LibertyAttr();
   const char *name() const { return name_; }
   virtual bool isAttribute() const { return true; }
@@ -141,10 +144,10 @@ public:
   virtual LibertyAttrValueSeq *values() const = 0;
   virtual LibertyAttrValue *firstValue() = 0;
 
-protected:
+ protected:
   const char *name_;
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(LibertyAttr);
 };
 
@@ -152,17 +155,15 @@ private:
 //  name : value;
 class LibertySimpleAttr : public LibertyAttr
 {
-public:
-  LibertySimpleAttr(const char *name,
-		    LibertyAttrValue *value,
-		    int line);
+ public:
+  LibertySimpleAttr(const char *name, LibertyAttrValue *value, int line);
   virtual ~LibertySimpleAttr();
   virtual bool isSimple() const { return true; }
   virtual bool isComplex() const { return false; }
   virtual LibertyAttrValue *firstValue() { return value_; }
   virtual LibertyAttrValueSeq *values() const;
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(LibertySimpleAttr);
 
   LibertyAttrValue *value_;
@@ -172,17 +173,15 @@ private:
 //  name(attr_value1[, attr_value2]...);
 class LibertyComplexAttr : public LibertyAttr
 {
-public:
-  LibertyComplexAttr(const char *name,
-		     LibertyAttrValueSeq *values,
-		     int line);
+ public:
+  LibertyComplexAttr(const char *name, LibertyAttrValueSeq *values, int line);
   virtual ~LibertyComplexAttr();
   virtual bool isSimple() const { return false; }
   virtual bool isComplex() const { return true; }
   virtual LibertyAttrValue *firstValue();
   virtual LibertyAttrValueSeq *values() const { return values_; }
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(LibertyComplexAttr);
 
   LibertyAttrValueSeq *values_;
@@ -191,7 +190,7 @@ private:
 // Attribute values are a string or float.
 class LibertyAttrValue
 {
-public:
+ public:
   LibertyAttrValue() {}
   virtual ~LibertyAttrValue() {}
   virtual bool isString() = 0;
@@ -199,13 +198,13 @@ public:
   virtual float floatValue() = 0;
   virtual const char *stringValue() = 0;
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(LibertyAttrValue);
 };
 
 class LibertyStringAttrValue : public LibertyAttrValue
 {
-public:
+ public:
   explicit LibertyStringAttrValue(const char *value);
   virtual ~LibertyStringAttrValue();
   virtual bool isFloat() { return false; }
@@ -213,7 +212,7 @@ public:
   virtual float floatValue();
   virtual const char *stringValue();
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(LibertyStringAttrValue);
 
   const char *value_;
@@ -221,14 +220,14 @@ private:
 
 class LibertyFloatAttrValue : public LibertyAttrValue
 {
-public:
+ public:
   explicit LibertyFloatAttrValue(float value);
   virtual bool isString() { return false; }
   virtual bool isFloat() { return true; }
   virtual float floatValue();
   virtual const char *stringValue();
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(LibertyFloatAttrValue);
 
   float value_;
@@ -239,18 +238,18 @@ private:
 //  attribute_type is string|integer|float.
 class LibertyDefine : public LibertyStmt
 {
-public:
+ public:
   LibertyDefine(const char *name,
-		LibertyGroupType group_type,
-		LibertyAttrType value_type,
-		int line);
+                LibertyGroupType group_type,
+                LibertyAttrType value_type,
+                int line);
   virtual ~LibertyDefine();
   virtual bool isDefine() const { return true; }
   const char *name() const { return name_; }
   LibertyGroupType groupType() const { return group_type_; }
   LibertyAttrType valueType() const { return value_type_; }
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(LibertyDefine);
 
   const char *name_;
@@ -264,10 +263,8 @@ private:
 // that is all that is supported (which is probably wrong).
 class LibertyVariable : public LibertyStmt
 {
-public:
-  LibertyVariable(const char *var,
-		  float value,
-		  int line);
+ public:
+  LibertyVariable(const char *var, float value, int line);
   // var_ is NOT deleted by ~LibertyVariable because the group
   // variable map ref's it.
   virtual ~LibertyVariable();
@@ -275,7 +272,7 @@ public:
   const char *variable() const { return var_; }
   float value() const { return value_; }
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(LibertyVariable);
 
   const char *var_;
@@ -284,7 +281,7 @@ private:
 
 class LibertyGroupVisitor
 {
-public:
+ public:
   LibertyGroupVisitor() {}
   virtual ~LibertyGroupVisitor() {}
   virtual void begin(LibertyGroup *group) = 0;
@@ -296,7 +293,7 @@ public:
   virtual bool save(LibertyAttr *attr) = 0;
   virtual bool save(LibertyVariable *variable) = 0;
 
-private:
+ private:
   DISALLOW_COPY_AND_ASSIGN(LibertyGroupVisitor);
 };
 
@@ -309,43 +306,33 @@ libertyInInclude();
 void
 libertyIncrLine();
 void
-libertyParseError(const char *fmt,
-		  ...);
+libertyParseError(const char *fmt, ...);
 int
 libertyLine();
 
 void
 parseLibertyFile(const char *filename,
-		 LibertyGroupVisitor *library_visitor,
-		 Report *report);
+                 LibertyGroupVisitor *library_visitor,
+                 Report *report);
 void
-libertyGroupBegin(const char *type,
-		  LibertyAttrValueSeq *params,
-		  int line);
+libertyGroupBegin(const char *type, LibertyAttrValueSeq *params, int line);
 LibertyGroup *
 libertyGroupEnd();
 LibertyGroup *
 libertyGroup();
 LibertyStmt *
-makeLibertyComplexAttr(const char *name,
-		       LibertyAttrValueSeq *values,
-		       int line);
+makeLibertyComplexAttr(const char *name, LibertyAttrValueSeq *values, int line);
 LibertyStmt *
-makeLibertySimpleAttr(const char *name,
-		      LibertyAttrValue *value,
-		      int line);
+makeLibertySimpleAttr(const char *name, LibertyAttrValue *value, int line);
 LibertyAttrValue *
 makeLibertyFloatAttrValue(float value);
 LibertyAttrValue *
 makeLibertyStringAttrValue(char *value);
 LibertyStmt *
-makeLibertyVariable(char *var,
-		    float value,
-		    int line);
+makeLibertyVariable(char *var, float value, int line);
 
-} // namespace
+}  // namespace sta
 
 // Global namespace.
 int
 LibertyParse_error(const char *msg);
-
