@@ -22,6 +22,8 @@
 #include "Sdc.hh"
 #include "Sim.hh"
 #include "PortDirection.hh"
+#include "Graph.hh"
+#include "GraphDelayCalc.hh"
 
 namespace sta {
 
@@ -285,9 +287,13 @@ CheckFanoutLimits::checkPin(const Pin *pin)
   const Network *network = sta_->network();
   const Sim *sim = sta_->sim();
   const Sdc *sdc = sta_->sdc();
+  const Graph *graph = sta_->graph();
+  GraphDelayCalc *dcalc = sta_->graphDelayCalc();
+  Vertex *vertex = graph->pinLoadVertex(pin);
   return network->direction(pin)->isAnyOutput()
     && !sim->logicZeroOne(pin)
-    && !sdc->isDisabled(pin);
+    && !sdc->isDisabled(pin)
+    && !(vertex && dcalc->isIdealClk(vertex));
 }
 
 } // namespace

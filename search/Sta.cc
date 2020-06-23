@@ -4817,7 +4817,7 @@ Sta::slowDrvrIterator()
   return new SlowDrvrIterator(insts);
 }
 
-////////////////////////////////////////////////////////////////'
+////////////////////////////////////////////////////////////////
 
 void
 Sta::checkSlewLimitPreamble()
@@ -4907,8 +4907,8 @@ Sta::checkFanoutLimitPreamble()
 {
   if (check_fanout_limits_ == nullptr)
     makeCheckFanoutLimits();
-  // Sim values required to suppress reporting constant nets.
-  ensureLevelized();
+  // For sim values and ideal clocks.
+  findDelays();
 }
 
 Pin *
@@ -4974,8 +4974,8 @@ Sta::checkCapacitanceLimitPreamble()
 {
   if (check_capacitance_limits_ == nullptr)
     makeCheckCapacitanceLimits();
-  // Sim values required to suppress reporting constant nets.
-  ensureLevelized();
+  // For sim values and ideal clocks.
+  findDelays();
 }
 
 Pin *
