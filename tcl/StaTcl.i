@@ -3949,6 +3949,26 @@ set_cmd_unit_suffix(const char *unit_name,
   }
 }
 
+const char *
+unit_scale_abreviation(const char *unit_name)
+{
+  Unit *unit = Sta::sta()->units()->find(unit_name);
+  if (unit)
+    return unit->scaleAbreviation();
+  else
+    return "";
+}
+
+const char *
+unit_suffix(const char *unit_name)
+{
+  Unit *unit = Sta::sta()->units()->find(unit_name);
+  if (unit)
+    return unit->suffix();
+  else
+    return "";
+}
+
 ////////////////////////////////////////////////////////////////
 
 VertexIterator *

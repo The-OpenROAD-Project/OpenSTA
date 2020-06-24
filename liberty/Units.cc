@@ -21,15 +21,17 @@
 
 #include "StringUtil.hh"
 #include "MinMax.hh"  // INF
+#include "Fuzzy.hh"
 
 namespace sta {
 
 using std::abs;
 
-Unit::Unit() :
+
+Unit::Unit(const char *suffix) :
   scale_(1.0),
-  suffix_(stringCopy("")),
-  digits_(4)
+  suffix_(stringCopy(suffix)),
+  digits_(3)
 {
 }
 
@@ -62,6 +64,29 @@ Unit::setScale(float scale)
   scale_ = scale;
 }
 
+const char *
+Unit::scaleAbreviation()
+{
+  if (fuzzyEqual(scale_, 1E+6))
+    return "M";
+  else if (fuzzyEqual(scale_, 1E+3))
+    return "k";
+  if (fuzzyEqual(scale_, 1.0))
+    return "";
+  else if (fuzzyEqual(scale_, 1E-3))
+    return "m";
+  else if (fuzzyEqual(scale_, 1E-6))
+    return "u";
+  else if (fuzzyEqual(scale_, 1E-9))
+    return "n";
+  else if (fuzzyEqual(scale_, 1E-12))
+    return "p";
+  else if (fuzzyEqual(scale_, 1E-15))
+    return "f";
+  else
+    return "?";
+}
+
 void
 Unit::setSuffix(const char *suffix)
 {
@@ -78,7 +103,7 @@ Unit::setDigits(int digits)
 int
 Unit::width() const
 {
-  return digits_ + (suffix_ ? strlen(suffix_) : 0) + 2;
+  return digits_ + 2;
 }
 
 const char *
@@ -105,11 +130,24 @@ Unit::asString(float value,
     // prevent "-0.00" on slowaris
     if (abs(scaled_value) < 1E-6)
       scaled_value = 0.0;
-    return stringPrintTmp("%.*f%s", digits, scaled_value, suffix_);
+    return stringPrintTmp("%.*f", digits, scaled_value);
   }
 }
 
 ////////////////////////////////////////////////////////////////
+
+Units::Units() :
+  time_unit_("s"),
+  capacitance_unit_("F"),
+  voltage_unit_("v"),
+  resistance_unit_("ohm"),
+  pulling_resistance_unit_("ohm"),
+  current_unit_("A"),
+  power_unit_("W"),
+  distance_unit_("m"),
+  scalar_unit_("")
+{
+}
 
 Unit *
 Units::find(const char *unit_name)

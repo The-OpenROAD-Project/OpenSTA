@@ -21,7 +21,7 @@ namespace sta {
 class Unit
 {
 public:
-  Unit();
+  Unit(const char *suffix);
   ~Unit();
   Unit(float scale,
        const char *suffix,
@@ -29,10 +29,12 @@ public:
   void operator=(const Unit &unit);
   float scale() const { return scale_; }
   void setScale(float scale);
+  const char *scaleAbreviation();
   const char *suffix() const { return suffix_; }
   void setSuffix(const char *suffix);
   int digits() const { return digits_; }
   void setDigits(int digits);
+  // Does not include suffix.
   int width() const;
   const char *asString(float value) const;
   const char *asString(double value) const;
@@ -50,7 +52,7 @@ private:
 class Units
 {
 public:
-  Units() {}
+  Units();
   Unit *find(const char *unit_name);
   void operator=(const Units &units);
   Unit *timeUnit() { return &time_unit_; }
