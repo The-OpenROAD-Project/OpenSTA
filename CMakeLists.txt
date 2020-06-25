@@ -180,6 +180,7 @@ set(STA_SOURCE
   search/ReportPath.cc
   search/Search.cc
   search/SearchPred.cc
+  search/FindClkPins.cc
   search/Sim.cc
   search/Sta.cc
   search/StaState.cc

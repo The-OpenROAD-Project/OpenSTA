@@ -20,6 +20,7 @@
 #include "Transition.hh"
 #include "NetworkClass.hh"
 #include "SdcClass.hh"
+#include "Sta.hh"
 
 namespace sta {
 
@@ -29,7 +30,7 @@ class Corner;
 class CheckCapacitanceLimits
 {
 public:
-  CheckCapacitanceLimits(const StaState *sta);
+  CheckCapacitanceLimits(const Sta *sta);
   // corner=nullptr checks all corners.
   void checkCapacitance(const Pin *pin,
 			const Corner *corner1,
@@ -84,9 +85,9 @@ protected:
 				   // Return values.
 				   Pin *&min_slack_pin,
 				   float &min_slack);
-  bool checkPin(const Pin *pin);
+  bool checkPin(Pin *pin);
 
-  const StaState *sta_;
+  const Sta *sta_;
 };
 
 } // namespace

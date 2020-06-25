@@ -82,7 +82,7 @@ PinCapacitanceLimitSlackLess::operator()(Pin *pin1,
 
 ////////////////////////////////////////////////////////////////
 
-CheckCapacitanceLimits::CheckCapacitanceLimits(const StaState *sta) :
+CheckCapacitanceLimits::CheckCapacitanceLimits(const Sta *sta) :
   sta_(sta)
 {
 }
@@ -205,7 +205,8 @@ CheckCapacitanceLimits::checkCapacitance(const Pin *pin,
 {
   const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
   const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
-  float cap = sta_->graphDelayCalc()->loadCap(pin, dcalc_ap);
+  GraphDelayCalc *dcalc = sta_->graphDelayCalc();
+  float cap = dcalc->loadCap(pin, dcalc_ap);
 
   float slack1 = (min_max == MinMax::max())
     ? limit1 - cap : cap - limit1;
@@ -313,18 +314,18 @@ CheckCapacitanceLimits::pinMinCapacitanceLimitSlack(Instance *inst,
 }
 
 bool
-CheckCapacitanceLimits::checkPin(const Pin *pin)
+CheckCapacitanceLimits::checkPin(Pin *pin)
 {
   const Network *network = sta_->network();
   const Sim *sim = sta_->sim();
   const Sdc *sdc = sta_->sdc();
   const Graph *graph = sta_->graph();
-  GraphDelayCalc *dcalc = sta_->graphDelayCalc();
+  Search *search = sta_->search();
   Vertex *vertex = graph->pinLoadVertex(pin);
   return network->direction(pin)->isAnyOutput()
     && !sim->logicZeroOne(pin)
     && !sdc->isDisabled(pin)
-    && !(vertex && sta_->graphDelayCalc()->isIdealClk(vertex));
+    && !(vertex && sta_->isIdealClock(pin));
 }
 
 } // namespace

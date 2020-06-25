@@ -19,6 +19,7 @@
 #include "MinMax.hh"
 #include "NetworkClass.hh"
 #include "SdcClass.hh"
+#include "Sta.hh"
 
 namespace sta {
 
@@ -27,7 +28,7 @@ class StaState;
 class CheckFanoutLimits
 {
 public:
-  CheckFanoutLimits(const StaState *sta);
+  CheckFanoutLimits(const Sta *sta);
   void checkFanout(const Pin *pin,
 		   const MinMax *min_max,
 		   // Return values.
@@ -59,9 +60,9 @@ protected:
 			      Pin *&min_slack_pin,
 			      float &min_slack);
   float fanoutLoad(const Pin *pin) const;
-  bool checkPin(const Pin *pin);
+  bool checkPin(Pin *pin);
 
-  const StaState *sta_;
+  const Sta *sta_;
 };
 
 } // namespace

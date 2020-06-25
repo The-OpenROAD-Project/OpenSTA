@@ -268,7 +268,8 @@ Sta::Sta() :
   power_(nullptr),
   link_make_black_boxes_(true),
   update_genclks_(false),
-  equiv_cells_(nullptr)
+  equiv_cells_(nullptr),
+  clk_pins_valid_(false)
 {
 }
 
@@ -532,6 +533,7 @@ Sta::~Sta()
 void
 Sta::clear()
 {
+  clkPinsInvalid();
   // Constraints reference search filter, so clear search first.
   search_->clear();
   sdc_->clear();
@@ -1136,6 +1138,7 @@ Sta::setPropagatedClock(Clock *clk)
   sdc_->setPropagatedClock(clk);
   graph_delay_calc_->delaysInvalid();
   search_->arrivalsInvalid();
+  clkPinsInvalid();
 }
 
 void
@@ -1144,6 +1147,7 @@ Sta::removePropagatedClock(Clock *clk)
   sdc_->removePropagatedClock(clk);
   graph_delay_calc_->delaysInvalid();
   search_->arrivalsInvalid();
+  clkPinsInvalid();
 }
 
 void
@@ -1152,6 +1156,7 @@ Sta::setPropagatedClock(Pin *pin)
   sdc_->setPropagatedClock(pin);
   graph_delay_calc_->delaysInvalid();
   search_->arrivalsInvalid();
+  clkPinsInvalid();
 }
 
 void
@@ -1160,6 +1165,7 @@ Sta::removePropagatedClock(Pin *pin)
   sdc_->removePropagatedClock(pin);
   graph_delay_calc_->delaysInvalid();
   search_->arrivalsInvalid();
+  clkPinsInvalid();
 }
 
 void
@@ -4024,6 +4030,7 @@ Sta::connectDrvrPinAfter(Vertex *vertex)
   graph_delay_calc_->delayInvalid(vertex);
   search_->requiredInvalid(vertex);
   search_->endpointInvalid(vertex);
+  clkPinsConnectPinAfter(vertex);
   levelize_->invalidFrom(vertex);
 }
 
@@ -4044,6 +4051,7 @@ Sta::connectLoadPinAfter(Vertex *vertex)
   levelize_->invalidFrom(vertex);
   search_->arrivalInvalid(vertex);
   search_->endpointInvalid(vertex);
+  clkPinsConnectPinAfter(vertex);
 }
 
 void
@@ -4063,6 +4071,7 @@ Sta::disconnectPinBefore(Pin *pin)
 	  if (edge->role()->isWire())
 	    deleteEdge(edge);
 	}
+	clkPinsDisconnectPinBefore(vertex);
       }
     }
     if (network_->isLoad(pin)) {
@@ -4075,6 +4084,7 @@ Sta::disconnectPinBefore(Pin *pin)
 	  if (edge->role()->isWire())
 	    deleteEdge(edge);
 	}
+	clkPinsDisconnectPinBefore(vertex);
       }
     }
     if (network_->isHierarchical(pin)) {
@@ -4907,8 +4917,7 @@ Sta::checkFanoutLimitPreamble()
 {
   if (check_fanout_limits_ == nullptr)
     makeCheckFanoutLimits();
-  // For sim values and ideal clocks.
-  findDelays();
+  ensureClkPins();
 }
 
 Pin *
@@ -4974,8 +4983,7 @@ Sta::checkCapacitanceLimitPreamble()
 {
   if (check_capacitance_limits_ == nullptr)
     makeCheckCapacitanceLimits();
-  // For sim values and ideal clocks.
-  findDelays();
+  ensureClkPins();
 }
 
 Pin *

@@ -1189,6 +1189,13 @@ public:
 
   ////////////////////////////////////////////////////////////////
 
+  void ensureClkPins();
+  bool isIdealClock(Pin *pin) const;
+  bool isClock(Pin *pin) const;
+  void clkPinsInvalid();
+
+////////////////////////////////////////////////////////////////
+
   void setTclInterp(Tcl_Interp *interp);
   Tcl_Interp *tclInterp();
   void ensureLevelized();
@@ -1367,6 +1374,11 @@ protected:
   void replaceCell(Instance *inst,
 		   Cell *to_cell,
 		   LibertyCell *to_lib_cell);
+  void clkPinsConnectPinAfter(Vertex *vertex);
+  void clkPinsDisconnectPinBefore(Vertex *vertex);
+  void findClkPins();
+  void findClkPins(bool ideal_only,
+		   PinSet &clk_pins);
 
   CmdNamespace cmd_namespace_;
   Instance *current_instance_;
@@ -1385,6 +1397,10 @@ protected:
   bool link_make_black_boxes_;
   bool update_genclks_;
   EquivCells *equiv_cells_;
+  // findClkPins
+  PinSet clk_pins_;
+  PinSet ideal_clk_pins_;
+  bool clk_pins_valid_;
 
   // Singleton sta used by tcl command interpreter.
   static Sta *sta_;
