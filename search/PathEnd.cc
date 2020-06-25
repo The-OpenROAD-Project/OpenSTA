@@ -1845,6 +1845,17 @@ PathEnd::pathDelaySrcClkOffset(const PathRef &path,
   return offset;
 }
 
+ClockEdge *
+PathEndPathDelay::targetClkEdge(const StaState *sta) const
+{
+  if (!clk_path_.isNull())
+    return clk_path_.clkEdge(sta);
+  else if (output_delay_)
+    return output_delay_->clkEdge();
+  else
+    return nullptr;
+}
+
 float 
 PathEndPathDelay::targetClkTime(const StaState *sta) const
 {
@@ -1858,14 +1869,12 @@ PathEndPathDelay::targetClkTime(const StaState *sta) const
 Arrival
 PathEndPathDelay::targetClkArrivalNoCrpr(const StaState *sta) const
 {
-  if (!clk_path_.isNull()) {
-    ClockEdge *tgt_clk_edge = targetClkEdge(sta);
-    if (tgt_clk_edge)
-      return targetClkDelay(sta)
-	+ targetClkUncertainty(sta);
-    else
-      return clk_path_.arrival(sta);
-  }
+  ClockEdge *tgt_clk_edge = targetClkEdge(sta);
+  if (tgt_clk_edge)
+    return targetClkDelay(sta)
+      + targetClkUncertainty(sta);
+  else if (!clk_path_.isNull())
+    return clk_path_.arrival(sta);
   else
     return 0.0;
 }
@@ -1887,9 +1896,7 @@ PathEndPathDelay::requiredTime(const StaState *sta) const
       return src_clk_arrival_ + delay + margin(sta);
   }
   else {
-    Arrival tgt_clk_arrival = 0.0;
-    if (!clk_path_.isNull())
-      tgt_clk_arrival = targetClkArrival(sta);
+    Arrival tgt_clk_arrival = targetClkArrival(sta);
     float src_clk_offset = sourceClkOffset(sta);
     // Path delay includes target clk latency and timing check setup/hold 
     // margin or external departure at target.
