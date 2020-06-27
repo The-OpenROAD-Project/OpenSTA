@@ -705,12 +705,16 @@ void
 ReportPath::reportEndpoint(const PathEndPathDelay *end,
 			   string &result)
 {
-  Instance *inst = network_->instance(end->vertex(this)->pin());
-  const char *inst_name = cmd_network_->pathName(inst);
-  string clk_name = tgtClkName(end);
-  const char *reg_desc = clkRegLatchDesc(end);
-  auto reason = stdstrPrint("%s clocked by %s", reg_desc, clk_name.c_str());
-  reportEndpoint(inst_name, reason, result);
+  if (end->hasOutputDelay())
+    reportEndpointOutputDelay(end, result);
+  else {
+    Instance *inst = network_->instance(end->vertex(this)->pin());
+    const char *inst_name = cmd_network_->pathName(inst);
+    string clk_name = tgtClkName(end);
+    const char *reg_desc = clkRegLatchDesc(end);
+    auto reason = stdstrPrint("%s clocked by %s", reg_desc, clk_name.c_str());
+    reportEndpoint(inst_name, reason, result);
+  }
 }
 
 void
@@ -746,13 +750,11 @@ ReportPath::reportFull(const PathEndPathDelay *end,
   float delay = path_delay->delay();
   reportLine(delay_msg.c_str(), delay, delay, early_late, result);
   if (!path_delay->ignoreClkLatency()) {
-    const Path *tgt_clk_path = end->targetClkPath();
-    if (tgt_clk_path) {
-      float delay = 0.0;
-      if (path_delay)
-	delay = path_delay->delay();
+    Clock *tgt_clk = end->targetClk(this);
+    if (tgt_clk) {
+      const Path *tgt_clk_path = end->targetClkPath();
       if (reportClkPath()
-	  && isPropagated(tgt_clk_path))
+	  && isPropagated(tgt_clk_path, tgt_clk))
 	reportTgtClk(end, delay, result);
       else {
 	Arrival tgt_clk_delay = end->targetClkDelay(this);
@@ -833,6 +835,13 @@ void
 ReportPath::reportEndpoint(const PathEndOutputDelay *end,
 			   string &result)
 {
+  reportEndpointOutputDelay(end, result);
+}
+
+void
+ReportPath::reportEndpointOutputDelay(const PathEndClkConstrained *end,
+				      string &result)
+{
   Vertex *vertex = end->vertex(this);
   Pin *pin = vertex->pin();
   const char *pin_name = cmd_network_->pathName(pin);
@@ -851,6 +860,7 @@ ReportPath::reportEndpoint(const PathEndOutputDelay *end,
     if (tgt_clk) {
       string clk_name = tgtClkName(end);
       auto reason = stdstrPrint("internal path endpoint clocked by %s", clk_name.c_str());
+
       reportEndpoint(pin_name, reason, result);
     }
     else

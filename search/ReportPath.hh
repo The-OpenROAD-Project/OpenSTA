@@ -203,6 +203,8 @@ protected:
 		   string &result);
   void reportEndpoint(const PathEndOutputDelay *end,
 		      string &result);
+  void reportEndpointOutputDelay(const PathEndClkConstrained *end,
+				 string &result);
   void reportEndpoint(const PathEndPathDelay *end,
 		      string &result);
   void reportEndpoint(const PathEndGatedClock *end,
