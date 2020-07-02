@@ -4962,7 +4962,6 @@ Sta::checkFanout(const Pin *pin,
 		 float &limit,
 		 float &slack)
 {
-  checkFanoutLimitPreamble();
   check_fanout_limits_->checkFanout(pin, min_max,
 				    fanout, limit, slack);
 }
@@ -5042,7 +5041,6 @@ Sta::checkCapacitance(const Pin *pin,
 		      float &limit,
 		      float &slack)
 {
-  checkCapacitanceLimitPreamble();
   check_capacitance_limits_->checkCapacitance(pin, corner, min_max,
 					      corner1, rf, capacitance,
 					      limit, slack);
