@@ -916,7 +916,9 @@ getProperty(Clock *clk,
   else if (stringEqual(property, "sources"))
     return PropertyValue(&clk->pins());
   else if (stringEqual(property, "propagated"))
-    return PropertyValue(clk->isPropagated() ? "1" : "0");
+    return PropertyValue(clk->isPropagated());
+  else if (stringEqual(property, "is_generated"))
+    return PropertyValue(clk->isGenerated());
   else
     throw PropertyUnknown("clock", property);
 }
