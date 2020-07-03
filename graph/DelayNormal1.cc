@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// SSTA compilation.
+#if (SSTA == 1)
+
 #include "Delay.hh"
 
 #include <cmath> // sqrt
@@ -26,9 +29,6 @@
 #include "StaState.hh"
 // temporary hack
 #include "Sta.hh"
-
-// SSTA compilation.
-#if (SSTA == 1)
 
 namespace sta {
 
