@@ -502,9 +502,16 @@ proc get_cells { args } {
     if { $args != {} } {
       sta_warn "patterns argument not supported with -of_objects."
     }
-    parse_pin_net_args $keys(-of_objects) pins nets
+    parse_port_pin_net_arg $keys(-of_objects) pins nets
     foreach pin $pins {
-      lappend insts [$pin instance]
+      if { [$pin is_top_level_port] } {
+	set net [get_nets [get_name $pin]]
+	if { $net != "NULL" } {
+	  lappend nets $net
+	}
+      } else {
+	lappend insts [$pin instance]
+      }
     }
     foreach net $nets {
       set pin_iter [$net pin_iterator]
