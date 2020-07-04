@@ -14,9 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-// SSTA compilation.
-#if (SSTA == 2)
-
 #include "Delay.hh"
 
 #include <cmath> // sqrt
@@ -27,6 +24,9 @@
 #include "Fuzzy.hh"
 #include "Units.hh"
 #include "StaState.hh"
+
+// SSTA compilation.
+#if (SSTA == 2)
 
 namespace sta {
 
