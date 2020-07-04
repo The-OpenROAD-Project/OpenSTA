@@ -165,12 +165,20 @@ VerilogWriter::verilogPortDir(PortDirection *dir)
     return "input";
   else if (dir == PortDirection::output())
     return "output";
-  else if (dir == PortDirection::bidirect())
-    return "inout";
   else if (dir == PortDirection::tristate())
     return "output";
-  else
+  else if (dir == PortDirection::bidirect())
+    return "inout";
+  else if (dir == PortDirection::power())
+    return "input";
+  else if (dir == PortDirection::ground())
+    return "input";
+  else if (dir == PortDirection::internal())
     return nullptr;
+  else {
+    internalError("unknown port direction");
+    return nullptr;
+  }
 }
 
 void
