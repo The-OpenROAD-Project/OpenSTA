@@ -165,6 +165,8 @@ CheckCrpr::checkCrpr1(const Path *src_path,
   const MinMax *src_clk_min_max =
     src_clk_path ? src_clk_path->minMax(this) : src_path->minMax(this);
   if (crprPossible(src_clk, tgt_clk)
+      && src_clk_info->isPropagated()
+      && tgt_clk_info->isPropagated()
       // Note that crpr clk min/max is NOT the same as the path min max.
       // For path from latches that are borrowing the enable path
       // is from the opposite min/max of the data.
@@ -372,9 +374,12 @@ CheckCrpr::outputDelayCrpr1(const Path *src_path,
 {
   crpr = 0.0;
   crpr_pin = nullptr;
+  ClkInfo *src_clk_info = src_path->tag(this)->clkInfo();
   Clock *tgt_clk = tgt_clk_edge->clock();
   Clock *src_clk = src_path->clock(this);
-  if (tgt_clk->isGenerated()
+  if (src_clk_info->isPropagated()
+      && tgt_clk->isGenerated()
+      && tgt_clk->isPropagated()
       && crprPossible(src_clk, tgt_clk)) {
     PathVertex tgt_genclk_path;
     portClkPath(tgt_clk_edge, tgt_clk_edge->clock()->defaultPin(), tgt_path_ap,
@@ -393,7 +398,7 @@ CheckCrpr::crprPossible(Clock *clk1,
   return clk1 && clk2
     && !clk1->isVirtual()
     && !clk2->isVirtual()
-    // Generated clock can have crpr in the source path.
+    // Generated clocks can have crpr in the source path.
     && (clk1 == clk2
 	|| clk1->isGenerated()
 	|| clk2->isGenerated()
