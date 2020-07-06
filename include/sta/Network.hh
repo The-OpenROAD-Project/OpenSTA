@@ -326,9 +326,9 @@ public:
   // Return the physical X/Y coordinates of the pin.
   virtual void location(const Pin *pin,
 			// Return values.
-			double x,
-			double y,
-			bool exists) const;
+			double &x,
+			double &y,
+			bool &exists) const;
 
   int pinCount();
   int pinCount(Instance *inst);
