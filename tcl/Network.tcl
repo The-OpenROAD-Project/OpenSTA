@@ -410,9 +410,15 @@ proc report_net_pin { pin verbose corner digits } {
   }
 }
 
-# default handler
+# Used by report_net
 proc pin_location_str { pin } {
-  return ""
+  set loc [pin_location $pin]
+  if { $loc != "" } {
+    lassign $loc x y
+    return " ([format_distance $x 0], [format_distance $y 0])"
+  } else {
+    return ""
+  }
 }
 
 ################################################################
