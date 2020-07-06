@@ -5311,6 +5311,20 @@ delays_invalid()
   sta->delaysInvalid();
 }
 
+const char *
+pin_location(Pin *pin)
+{
+  Network *network = cmdNetwork();
+  double x, y;
+  bool exists;
+  network->location(pin, x, y, exists);
+  // return x/y as tcl list
+  if (exists)
+    return sta::stringPrintTmp("%f %f", x, y);
+  else
+    return "";
+}
+
 %} // inline
 
 ////////////////////////////////////////////////////////////////
