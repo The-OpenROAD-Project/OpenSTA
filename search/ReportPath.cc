@@ -2551,10 +2551,10 @@ ReportPath::reportPathJson(const Path *path,
     network_->location(pin, x, y, exists);
     if (exists) {
       result += "       \"x\": ";
-      stringPrint(tmp, "%.3f", x);
+      stringPrint(tmp, "%.6f", x);
       result += tmp + ",\n";
       result += "       \"y\": ";
-      stringPrint(tmp, "%.3f", y);
+      stringPrint(tmp, "%.6f", y);
       result += tmp + "\n";
     }
 
