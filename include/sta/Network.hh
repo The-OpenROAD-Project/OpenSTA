@@ -323,6 +323,13 @@ public:
   virtual VertexId vertexId(const Pin *pin) const = 0;
   virtual void setVertexId(Pin *pin,
 			   VertexId id) = 0;
+  // Return the physical X/Y coordinates of the pin.
+  virtual void location(const Pin *pin,
+			// Return values.
+			double x,
+			double y,
+			bool exists) const;
+
   int pinCount();
   int pinCount(Instance *inst);
   int leafPinCount();

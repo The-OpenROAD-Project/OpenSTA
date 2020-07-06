@@ -1065,6 +1065,8 @@ using namespace sta;
     $1 = ReportPathFormat::summary;
   else if (stringEq(arg, "slack_only"))
     $1 = ReportPathFormat::slack_only;
+  else if (stringEq(arg, "json"))
+    $1 = ReportPathFormat::json;
   else {
     tclError(interp, "Error: unknown path type %s.", arg);
     return TCL_ERROR;

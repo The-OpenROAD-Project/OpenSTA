@@ -63,6 +63,7 @@ public:
   void reportPathEnd(PathEnd *end,
 		     PathEnd *prev_end);
   void reportPathEnds(PathEndSeq *ends);
+  // for debugging
   void reportPath(const Path *path);
 
   void reportShort(const PathEndUnconstrained *end,
@@ -341,6 +342,10 @@ protected:
 		  string &result);
   void reportPath(const Path *path,
 		  string &result);
+  void reportPathFull(const Path *path,
+		      string &result);
+  void reportPathJson(const Path *path,
+		      string &result);
   void reportPathHeader(string &result);
   void reportPath1(const Path *path,
 		   PathExpanded &expanded,

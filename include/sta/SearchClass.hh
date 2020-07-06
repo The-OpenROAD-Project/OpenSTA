@@ -119,7 +119,8 @@ enum class ReportPathFormat { full,
 			      shorter,
 			      endpoint,
 			      summary,
-			      slack_only
+			      slack_only,
+			      json
 };
 
 static const int tag_index_bits = 24;

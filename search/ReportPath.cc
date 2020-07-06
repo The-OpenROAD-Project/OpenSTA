@@ -2504,10 +2504,72 @@ void
 ReportPath::reportPath(const Path *path,
 		       string &result)
 {
+  switch (format_) {
+  case ReportPathFormat::full:
+  case ReportPathFormat::full_clock:
+  case ReportPathFormat::full_clock_expanded:
+    reportPathFull(path, result);
+    break;
+  case ReportPathFormat::json:
+    reportPathJson(path, result);
+    break;
+  case ReportPathFormat::summary:
+  case ReportPathFormat::slack_only:
+  default:
+    internalError("unsupported path type");
+    break;
+  }
+}
+
+void
+ReportPath::reportPathFull(const Path *path,
+			   string &result)
+{
   reportPathHeader(result);
   PathExpanded expanded(path, this);
   reportSrcClkAndPath(path, expanded, 0.0, delay_zero, delay_zero,
 		      false, result);
+}
+
+void
+ReportPath::reportPathJson(const Path *path,
+			   string &result)
+{
+  result += "{ \"path\": [\n";
+  PathExpanded expanded(path, this);
+  for (auto i = expanded.startIndex(); i < expanded.size(); i++) {
+    PathRef *path = expanded.path(i);
+    const Pin *pin = path->vertex(this)->pin();
+    result += "    {\n";
+    result += "       \"pin\": \"";
+    result += network_->pathName(pin);
+    result += "\",\n";
+
+    double x, y;
+    bool exists;
+    string tmp;
+    network_->location(pin, x, y, exists);
+    if (exists) {
+      result += "       \"x\": ";
+      stringPrint(tmp, "%.3f", x);
+      result += tmp + ",\n";
+      result += "       \"y\": ";
+      stringPrint(tmp, "%.3f", y);
+      result += tmp + "\n";
+    }
+
+    result += "       \"arrival\": ";
+    stringPrint(tmp, "%.3e", path->arrival(this));
+    result += tmp + ",\n";
+    
+    result += "       \"slew\": ";
+    stringPrint(tmp, "%.3e", path->slew(this));
+    result += tmp + ",\n";
+
+    result += "    }\n";
+  }
+  result += "  ]\n";
+  result += "}\n";
 }
 
 void
