@@ -732,13 +732,13 @@ getProperty(const Pin *pin,
 	    Sta *sta)
 {
   auto network = sta->cmdNetwork();
-  if (stringEqual(property, "direction"))
-    return PropertyValue(network->direction(pin)->name());
-  else if (stringEqual(property, "name")
-	   || stringEqual(property, "full_name"))
-    return PropertyValue(network->pathName(pin));
-  else if (stringEqual(property, "lib_pin_name"))
+  if (stringEqual(property, "name")
+      || stringEqual(property, "lib_pin_name"))
     return PropertyValue(network->portName(pin));
+  else if (stringEqual(property, "full_name"))
+    return PropertyValue(network->pathName(pin));
+  else if (stringEqual(property, "direction"))
+    return PropertyValue(network->direction(pin)->name());
   else if (stringEqual(property, "clocks")) {
     ClockSet clks;
     sta->clocks(pin, clks);
