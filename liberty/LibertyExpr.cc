@@ -16,6 +16,7 @@
 
 #include "FuncExpr.hh"
 
+#include <algorithm> // min
 #include "Report.hh"
 #include "StringUtil.hh"
 #include "Liberty.hh"
@@ -129,14 +130,9 @@ LibExprParser::copyInput(char *buf,
 {
   size_t length = strlen(func_);
   if (length == 0)
-	return 0;
+    return 0;
   else {
-    size_t count;
-
-    if (length < max_size)
-      count = length;
-    else
-      count = max_size;
+    size_t count = std::min(length,  max_size);
     strncpy(buf, func_, count);
     func_ += count;
     return count;
