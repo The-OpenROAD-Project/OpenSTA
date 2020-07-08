@@ -2551,11 +2551,11 @@ ReportPath::reportPathJson(const Path *path,
     network_->location(pin, x, y, exists);
     if (exists) {
       result += "       \"x\": ";
-      stringPrint(tmp, "%.6f", x);
+      stringPrint(tmp, "%.9f", x);
       result += tmp + ",\n";
       result += "       \"y\": ";
-      stringPrint(tmp, "%.6f", y);
-      result += tmp + "\n";
+      stringPrint(tmp, "%.9f", y);
+      result += tmp + ",\n";
     }
 
     result += "       \"arrival\": ";
@@ -2564,9 +2564,12 @@ ReportPath::reportPathJson(const Path *path,
     
     result += "       \"slew\": ";
     stringPrint(tmp, "%.3e", path->slew(this));
-    result += tmp + ",\n";
+    result += tmp + "\n";
 
-    result += "    }\n";
+    result += "    }";
+    if (i < expanded.size() - 1)
+      result += ",";
+    result += "\n";
   }
   result += "  ]\n";
   result += "}\n";
