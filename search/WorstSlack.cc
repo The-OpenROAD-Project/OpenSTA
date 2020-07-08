@@ -178,41 +178,43 @@ void
 WorstSlack::sortQueue(PathAPIndex path_ap_index,
 		      const StaState *sta)
 {
-  Search *search = sta->search();
-  const Debug *debug = sta->debug();
-  debugPrint0(debug, "wns", 3, "sort queue\n");
+  if (queue_.size() > 0) {
+    Search *search = sta->search();
+    const Debug *debug = sta->debug();
+    debugPrint0(debug, "wns", 3, "sort queue\n");
 
-  VertexSeq vertices;
-  vertices.reserve(queue_.size());
-  VertexSet::Iterator queue_iter(queue_);
-  while (queue_iter.hasNext()) {
-    Vertex *vertex = queue_iter.next();
-    vertices.push_back(vertex);
+    VertexSeq vertices;
+    vertices.reserve(queue_.size());
+    VertexSet::Iterator queue_iter(queue_);
+    while (queue_iter.hasNext()) {
+      Vertex *vertex = queue_iter.next();
+      vertices.push_back(vertex);
+    }
+    WnsSlackLess slack_less(path_ap_index, sta);
+    sort(vertices, slack_less);
+
+    int vertex_count = vertices.size();
+    int threshold_index = min(min_queue_size_, vertex_count - 1);
+    Vertex *threshold_vertex = vertices[threshold_index];
+    slack_threshold_ = search->wnsSlack(threshold_vertex, path_ap_index);
+    debugPrint1(debug, "wns", 3, "threshold %s\n",
+		delayAsString(slack_threshold_, sta));
+
+    // Reinsert vertices with slack < threshold.
+    queue_.clear();
+    VertexSeq::Iterator queue_iter2(vertices);
+    while (queue_iter2.hasNext()) {
+      Vertex *vertex = queue_iter2.next();
+      Slack slack = search->wnsSlack(vertex, path_ap_index);
+      if (fuzzyGreater(slack, slack_threshold_))
+	break;
+      queue_.insert(vertex);
+    }
+    max_queue_size_ = queue_.size() * 2;
+    Vertex *worst_slack_vertex = vertices[0];
+    Slack worst_slack_slack = search->wnsSlack(worst_slack_vertex, path_ap_index);
+    setWorstSlack(worst_slack_vertex, worst_slack_slack, sta);
   }
-  WnsSlackLess slack_less(path_ap_index, sta);
-  sort(vertices, slack_less);
-
-  int vertex_count = vertices.size();
-  int threshold_index = min(min_queue_size_, vertex_count - 1);
-  Vertex *threshold_vertex = vertices[threshold_index];
-  slack_threshold_ = search->wnsSlack(threshold_vertex, path_ap_index);
-  debugPrint1(debug, "wns", 3, "threshold %s\n",
-	      delayAsString(slack_threshold_, sta));
-
-  // Reinsert vertices with slack < threshold.
-  queue_.clear();
-  VertexSeq::Iterator queue_iter2(vertices);
-  while (queue_iter2.hasNext()) {
-    Vertex *vertex = queue_iter2.next();
-    Slack slack = search->wnsSlack(vertex, path_ap_index);
-    if (fuzzyGreater(slack, slack_threshold_))
-      break;
-    queue_.insert(vertex);
-  }
-  max_queue_size_ = queue_.size() * 2;
-  Vertex *worst_slack_vertex = vertices[0];
-  Slack worst_slack_slack = search->wnsSlack(worst_slack_vertex, path_ap_index);
-  setWorstSlack(worst_slack_vertex, worst_slack_slack, sta);
 }
 
 void
