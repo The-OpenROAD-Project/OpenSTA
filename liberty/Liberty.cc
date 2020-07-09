@@ -1929,6 +1929,18 @@ LibertyPort::setCapacitance(const RiseFall *rf,
 }
 
 float
+LibertyPort::capacitance() const
+{
+  float cap;
+  bool exists;
+  capacitance_.maxValue(cap, exists);
+  if (exists)
+    return cap;
+  else
+    return 0.0;
+}
+
+float
 LibertyPort::capacitance(const RiseFall *rf,
 			 const MinMax *min_max) const
 {
