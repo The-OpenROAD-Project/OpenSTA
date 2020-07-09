@@ -566,6 +566,8 @@ getProperty(const LibertyCell *cell,
     return PropertyValue(cell->libertyLibrary());
   else if (stringEqual(property, "is_buffer"))
     return PropertyValue(cell->isBuffer());
+  else if (stringEqual(property, "is_inverter"))
+    return PropertyValue(cell->isInverter());
   else if (stringEqual(property, "dont_use"))
     return PropertyValue(cell->dontUse());
   else

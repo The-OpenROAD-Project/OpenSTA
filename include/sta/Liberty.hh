@@ -493,6 +493,7 @@ public:
 	      Report *report,
 	      Debug *debug);
   bool isBuffer() const;
+  bool isInverter() const;
   // Only valid when isBuffer() returns true.
   void bufferPorts(// Return values.
 		   LibertyPort *&input,
@@ -522,6 +523,8 @@ protected:
   void makeTimingArcPortMaps();
   bool hasBufferFunc(const LibertyPort *input,
 		     const LibertyPort *output) const;
+  bool hasInverterFunc(const LibertyPort *input,
+		       const LibertyPort *output) const;
 
   LibertyLibrary *liberty_library_;
   float area_;

@@ -1064,6 +1064,27 @@ LibertyCell::hasBufferFunc(const LibertyPort *input,
     && func->port() == input;
 }
 
+bool
+LibertyCell::isInverter() const
+{
+  LibertyPort *input;
+  LibertyPort *output;
+  bufferPorts(input, output);
+  return input && output
+    && hasInverterFunc(input, output);
+}
+
+bool
+LibertyCell::hasInverterFunc(const LibertyPort *input,
+			     const LibertyPort *output) const
+{
+  FuncExpr *func = output->function();
+  return func
+    && func->op() == FuncExpr::op_not
+    && func->left()->op() == FuncExpr::op_port
+    && func->left()->port() == input;
+}
+
 void
 LibertyCell::bufferPorts(// Return values.
 			 LibertyPort *&input,
