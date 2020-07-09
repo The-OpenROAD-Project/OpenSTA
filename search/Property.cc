@@ -688,6 +688,8 @@ getProperty(const LibertyPort *port,
     float cap = port->capacitance(RiseFall::rise(), MinMax::max());
     return PropertyValue(sta->units()->capacitanceUnit()->asString(cap, 6));
   }
+  else if (stringEqual(property, "is_register_clock"))
+    return PropertyValue(port->isRegClk());
   else if (stringEqual(property, "drive_resistance_rise_min"))
     return PropertyValue(port->driveResistance(RiseFall::rise(),
 					       MinMax::min()));
@@ -741,6 +743,10 @@ getProperty(const Pin *pin,
     return PropertyValue(network->pathName(pin));
   else if (stringEqual(property, "direction"))
     return PropertyValue(network->direction(pin)->name());
+  else if (stringEqual(property, "is_register_clock")) {
+    const LibertyPort *port = network->libertyPort(pin);
+    return PropertyValue(port && port->isRegClk());
+  }
   else if (stringEqual(property, "clocks")) {
     ClockSet clks;
     sta->clocks(pin, clks);
