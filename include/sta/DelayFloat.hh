@@ -17,7 +17,6 @@
 #pragma once
 
 #include "MinMax.hh"
-#include "Fuzzy.hh"
 
 // Delay values defined as floats.
 
@@ -31,6 +30,19 @@ const Delay delay_zero = 0.0;
 
 void
 initDelayConstants();
+
+const char *
+delayAsString(const Delay &delay,
+	      const StaState *sta);
+const char *
+delayAsString(const Delay &delay,
+	      const StaState *sta,
+	      int digits);
+const char *
+delayAsString(const Delay &delay,
+	      const EarlyLate *early_late,
+	      const StaState *sta,
+	      int digits);
 
 inline Delay
 makeDelay(float delay,
@@ -55,46 +67,61 @@ delayAsFloat(const Delay &delay)
 }
 
 // mean late+/early- sigma
-float
+inline float
 delayAsFloat(const Delay &delay,
-	     const EarlyLate *early_late,
-	     const StaState *sta);
-float
-delaySigma2(const Delay &delay,
-	    const EarlyLate *early_late);
-const char *
-delayAsString(const Delay &delay,
-	      const StaState *sta);
-const char *
-delayAsString(const Delay &delay,
-	      const StaState *sta,
-	      int digits);
-const char *
-delayAsString(const Delay &delay,
-	      const EarlyLate *early_late,
-	      const StaState *sta,
-	      int digits);
+	     const EarlyLate *,
+	     const StaState *)
+{
+  return delay;
+}
+
+inline float
+delaySigma2(const Delay &,
+	    const EarlyLate *)
+{
+  return 0.0;
+}
+
 const Delay &
 delayInitValue(const MinMax *min_max);
 bool
 delayIsInitValue(const Delay &delay,
 		 const MinMax *min_max);
 bool
-fuzzyGreater(const Delay &delay1,
-	     const Delay &delay2,
-	     const MinMax *min_max);
+delayZero(const Delay &delay);
 bool
-fuzzyGreaterEqual(const Delay &delay1,
-		  const Delay &delay2,
-		  const MinMax *min_max);
+delayInf(const Delay &delay);
 bool
-fuzzyLess(const Delay &delay1,
+delayEqual(const Delay &delay1,
+	   const Delay &delay2);
+bool
+delayLess(const Delay &delay1,
+	  const Delay &delay2);
+bool
+delayLess(const Delay &delay1,
 	  const Delay &delay2,
 	  const MinMax *min_max);
 bool
-fuzzyLessEqual(const Delay &delay1,
+delayLessEqual(const Delay &delay1,
+	       const Delay &delay2);
+bool
+delayLessEqual(const Delay &delay1,
 	       const Delay &delay2,
 	       const MinMax *min_max);
+bool
+delayGreater(const Delay &delay1,
+	     const Delay &delay2);
+bool
+delayGreater(const Delay &delay1,
+	     const Delay &delay2,
+	     const MinMax *min_max);
+bool
+delayGreaterEqual(const Delay &delay1,
+		  const Delay &delay2);
+bool
+delayGreaterEqual(const Delay &delay1,
+		  const Delay &delay2,
+		  const MinMax *min_max);
 
 Delay
 delayRemove(const Delay &delay1,

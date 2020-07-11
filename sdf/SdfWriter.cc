@@ -605,18 +605,18 @@ SdfWriter::writeEdgeCheck(Edge *edge,
       && arcs[clk_rf_index][RiseFall::fallIndex()]
       && arcs[clk_rf_index][RiseFall::riseIndex()]
       && arcs[clk_rf_index][RiseFall::fallIndex()]
-      && fuzzyEqual(graph_->arcDelay(edge, 
-				       arcs[clk_rf_index][RiseFall::riseIndex()],
-				       arc_delay_min_index_),
-			 graph_->arcDelay(edge,
-					  arcs[clk_rf_index][RiseFall::fallIndex()],
-					  arc_delay_min_index_))
-      && fuzzyEqual(graph_->arcDelay(edge,
-					  arcs[clk_rf_index][RiseFall::riseIndex()],
-					  arc_delay_max_index_),
-			 graph_->arcDelay(edge,
-					  arcs[clk_rf_index][RiseFall::fallIndex()],
-					  arc_delay_max_index_)))
+      && delayEqual(graph_->arcDelay(edge, 
+				     arcs[clk_rf_index][RiseFall::riseIndex()],
+				     arc_delay_min_index_),
+		    graph_->arcDelay(edge,
+				     arcs[clk_rf_index][RiseFall::fallIndex()],
+				     arc_delay_min_index_))
+      && delayEqual(graph_->arcDelay(edge,
+				     arcs[clk_rf_index][RiseFall::riseIndex()],
+				     arc_delay_max_index_),
+		    graph_->arcDelay(edge,
+				     arcs[clk_rf_index][RiseFall::fallIndex()],
+				     arc_delay_max_index_)))
     // Rise/fall margins are the same, so no data edge specifier is required.
     writeCheck(edge, arcs[clk_rf_index][RiseFall::riseIndex()],
 	       sdf_check, false, true);

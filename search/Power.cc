@@ -597,7 +597,7 @@ Power::findInputInternalPower(const Pin *pin,
       for (auto rf : RiseFall::range()) {
 	float slew = delayAsFloat(graph_->slew(vertex, rf,
 					       dcalc_ap->index()));
-	if (!fuzzyInf(slew)) {
+	if (!delayInf(slew)) {
 	  float table_energy = pwr->power(rf, pvt, slew, load_cap);
 	  energy += table_energy;
 	  tr_count++;
@@ -735,7 +735,7 @@ Power::findOutputInternalPower(const Pin *to_pin,
 	? delayAsFloat(graph_->slew(from_vertex, from_rf,
 				    dcalc_ap->index()))
 	: 0.0;
-      if (!fuzzyInf(slew)) {
+      if (!delayInf(slew)) {
 	float table_energy = pwr->power(to_rf, pvt, slew, load_cap);
 	energy += table_energy;
 	tr_count++;

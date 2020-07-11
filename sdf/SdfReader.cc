@@ -809,7 +809,7 @@ SdfReader::setEdgeArcDelaysCondUse(Edge *edge,
       delay = graph_->arcDelay(edge, arc, arc_delay_index) + *value;
     else if (graph_->arcDelayAnnotated(edge, arc, arc_delay_index)) {
       ArcDelay prev_value = graph_->arcDelay(edge, arc, arc_delay_index);
-      if (fuzzyGreater(prev_value, delay, min_max))
+      if (delayGreater(prev_value, delay, min_max))
 	delay = prev_value;
     }
     graph_->setArcDelay(edge, arc, arc_delay_index, delay);

@@ -1244,7 +1244,7 @@ PathEndLatchCheck::targetClkWidth(const StaState *sta) const
   if (enable_clk_info->isPulseClk())
     return disable_arrival - enable_arrival;
   else {
-    if (enable_arrival > disable_arrival) {
+    if (delayGreater(enable_arrival, disable_arrival)) {
       float period = enable_clk_info->clock()->period();
       disable_arrival += period;
     }
@@ -1989,24 +1989,24 @@ PathEnd::cmpSlack(const PathEnd *path_end1,
 {
   Slack slack1 = path_end1->slack(sta);
   Slack slack2 = path_end2->slack(sta);
-  if (fuzzyZero(slack1)
-      && fuzzyZero(slack2)
+  if (delayZero(slack1)
+      && delayZero(slack2)
       && path_end1->isLatchCheck()
       && path_end2->isLatchCheck()) {
     Arrival borrow1 = path_end1->borrow(sta);
     Arrival borrow2 = path_end2->borrow(sta);
     // Latch slack is zero if there is borrowing so break ties
     // based on borrow time.
-    if (fuzzyEqual(borrow1, borrow2))
+    if (delayEqual(borrow1, borrow2))
       return 0;
-    else if (borrow1 > borrow2)
+    else if (delayGreater(borrow1, borrow2))
       return -1;
     else
       return 1;
   }
-  else if (fuzzyEqual(slack1, slack2))
+  else if (delayEqual(slack1, slack2))
     return 0;
-  else if (slack1 < slack2)
+  else if (delayLess(slack1, slack2))
     return -1;
   else
     return 1;
@@ -2020,9 +2020,9 @@ PathEnd::cmpArrival(const PathEnd *path_end1,
   Arrival arrival1 = path_end1->dataArrivalTime(sta);
   Arrival arrival2 = path_end2->dataArrivalTime(sta);
   const MinMax *min_max = path_end1->minMax(sta);
-  if (fuzzyEqual(arrival1, arrival2))
+  if (delayEqual(arrival1, arrival2))
     return 0;
-  else if (fuzzyLess(arrival1, arrival2, min_max))
+  else if (delayLess(arrival1, arrival2, min_max))
     return -1;
   else
     return 1;

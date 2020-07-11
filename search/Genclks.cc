@@ -968,9 +968,9 @@ Genclks::recordSrcPaths(Clock *gclk)
 	    && (!has_edges
 		|| src_clk_rf == gclk->masterClkEdgeTr(rf))
 	    && (src_path.isNull()
-		|| fuzzyGreater(path->arrival(this),
-				     src_path.arrival(this),
-				     early_late))) {
+		|| delayGreater(path->arrival(this),
+				src_path.arrival(this),
+				early_late))) {
 	  debugPrint4(debug_, "genclk", 2, "  %s insertion %s %s %s\n",
 		      network_->pathName(gclk_pin),
 		      early_late->asString(),

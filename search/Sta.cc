@@ -2669,7 +2669,7 @@ Sta::vertexWorstArrivalPath(Vertex *vertex,
     PathVertex *path = path_iter.next();
     Arrival arrival = path->arrival(this);
     if (!path->tag(this)->isGenClkSrcPath()
-	&& fuzzyGreater(arrival, worst_arrival, min_max)) {
+	&& delayGreater(arrival, worst_arrival, min_max)) {
       worst_arrival = arrival;
       worst_path.init(path);
     }
@@ -2689,7 +2689,7 @@ Sta::vertexWorstArrivalPath(Vertex *vertex,
     Arrival arrival = path->arrival(this);
     if (path->minMax(this) == min_max
 	&& !path->tag(this)->isGenClkSrcPath()
-	&& fuzzyGreater(arrival, worst_arrival, min_max)) {
+	&& delayGreater(arrival, worst_arrival, min_max)) {
       worst_arrival = arrival;
       worst_path.init(path);
     }
@@ -2709,7 +2709,7 @@ Sta::vertexWorstSlackPath(Vertex *vertex,
     PathVertex *path = path_iter.next();
     Slack slack = path->slack(this);
     if (!path->tag(this)->isGenClkSrcPath()
-	&& slack < min_slack) {
+	&& delayLess(slack, min_slack)) {
       min_slack = slack;
       worst_path.init(path);
     }
@@ -2730,7 +2730,7 @@ Sta::vertexWorstSlackPath(Vertex *vertex,
     if (path->minMax(this) == min_max
 	&& !path->tag(this)->isGenClkSrcPath()) {
       Slack slack = path->slack(this);
-      if (fuzzyLess(slack, min_slack)) {
+      if (delayLess(slack, min_slack)) {
 	min_slack = slack;
 	worst_path.init(path);
       }
@@ -2764,7 +2764,7 @@ Sta::vertexArrival(Vertex *vertex,
     if ((clk_edge == clk_edge_wildcard
 	 || clk_info->clkEdge() == clk_edge)
 	&& !clk_info->isGenClkSrcPath()
-	&& fuzzyGreater(path->arrival(this), arrival, min_max))
+	&& delayGreater(path->arrival(this), arrival, min_max))
       arrival = path_arrival;
   }
   return arrival;
@@ -2782,7 +2782,7 @@ Sta::vertexRequired(Vertex *vertex,
     const Path *path = path_iter.next();
     if (path->minMax(this) == min_max) {
       const Required path_required = path->required(this);
-      if (fuzzyGreater(path_required, required, req_min_max))
+      if (delayGreater(path_required, required, req_min_max))
 	required = path_required;
     }
   }
@@ -2812,7 +2812,7 @@ Sta::vertexRequired(Vertex *vertex,
     const Required path_required = path->required(this);
     if ((clk_edge == clk_edge_wildcard
 	 || path->clkEdge(search_) == clk_edge)
-	&& fuzzyGreater(path_required, required, min_max))
+	&& delayGreater(path_required, required, min_max))
       required = path_required;
   }
   return required;
@@ -2830,7 +2830,8 @@ Sta::netSlack(const Net *net,
     if (network_->isLoad(pin)) {
       Vertex *vertex = graph_->pinLoadVertex(pin);
       Slack pin_slack = vertexSlack(vertex, min_max);
-      slack = min(slack, pin_slack);
+      if (delayLess(pin_slack, slack))
+	slack = pin_slack;
     }
   }
   return slack;
@@ -2846,8 +2847,11 @@ Sta::pinSlack(const Pin *pin,
   Slack slack = MinMax::min()->initValue();
   if (vertex)
     slack = vertexSlack(vertex, min_max);
-  if (bidirect_drvr_vertex)
-    slack = min(slack, vertexSlack(bidirect_drvr_vertex, min_max));
+  if (bidirect_drvr_vertex) {
+    Slack slack1 = vertexSlack(bidirect_drvr_vertex, min_max);
+    if (delayLess(slack1, slack))
+      slack = slack1;
+  }
   return slack;
 }
 
@@ -2862,8 +2866,11 @@ Sta::pinSlack(const Pin *pin,
   Slack slack = MinMax::min()->initValue();
   if (vertex)
     slack = vertexSlack(vertex, rf, min_max);
-  if (bidirect_drvr_vertex)
-    slack = min(slack, vertexSlack(bidirect_drvr_vertex, rf, min_max));
+  if (bidirect_drvr_vertex) {
+    Slack slack1 = vertexSlack(bidirect_drvr_vertex, rf, min_max);
+    if (delayLess(slack1, slack))
+      slack = slack1;
+  }
   return slack;
 }
 
@@ -2879,7 +2886,7 @@ Sta::vertexSlack(Vertex *vertex,
     Path *path = path_iter.next();
     if (path->minMax(this) == min_max) {
       Slack path_slack = path->slack(this);
-      if (path_slack < slack)
+      if (delayLess(path_slack, slack))
 	slack = path_slack;
     }
   }
@@ -2897,7 +2904,7 @@ Sta::vertexSlack(Vertex *vertex,
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
     Slack path_slack = path->slack(this);
-    if (path_slack < slack)
+    if (delayLess(path_slack, slack))
       slack = path_slack;
   }
   return slack;
@@ -2936,7 +2943,7 @@ Sta::vertexSlack1(Vertex *vertex,
     Slack path_slack = path->slack(this);
     if ((clk_edge == clk_edge_wildcard
 	 || path->clkEdge(search_) == clk_edge)
-	&& path_slack < slack)
+	&& delayLess(path_slack, slack))
       slack = path_slack;
   }
   return slack;
@@ -2958,7 +2965,7 @@ Sta::vertexSlacks(Vertex *vertex,
     Slack path_slack = path->slack(this);
     int rf_index = path->rfIndex(this);
     int mm_index = path->minMax(this)->index();
-    if (path_slack < slacks[rf_index][mm_index])
+    if (delayLess(path_slack, slacks[rf_index][mm_index]))
       slacks[rf_index][mm_index] = path_slack;
   }
 }
@@ -3153,7 +3160,7 @@ Sta::vertexSlew(Vertex *vertex,
   Slew mm_slew = min_max->initValue();
   for (DcalcAnalysisPt *dcalc_ap : corners_->dcalcAnalysisPts()) {
     Slew slew = graph_->slew(vertex, rf, dcalc_ap->index());
-    if (fuzzyGreater(slew, mm_slew, min_max))
+    if (delayGreater(slew, mm_slew, min_max))
       mm_slew = slew;
   }
   return mm_slew;
@@ -4775,7 +4782,7 @@ bool
 InstanceMaxSlewGreater::operator()(const Instance *inst1,
 				   const Instance *inst2) const
 {
-  return instMaxSlew(inst1) > instMaxSlew(inst2);
+  return delayGreater(instMaxSlew(inst1), instMaxSlew(inst2));
 }
 
 Slew
@@ -4792,7 +4799,7 @@ InstanceMaxSlewGreater::instMaxSlew(const Instance *inst) const
       for (RiseFall *rf : RiseFall::range()) {
 	for (DcalcAnalysisPt *dcalc_ap : sta_->corners()->dcalcAnalysisPts()) {
 	  Slew slew = graph->slew(vertex, rf, dcalc_ap->index());
-	  if (slew > max_slew)
+	  if (delayGreater(slew, max_slew))
 	    max_slew = slew;
 	}
       }

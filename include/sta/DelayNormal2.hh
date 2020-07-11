@@ -50,10 +50,6 @@ public:
   void operator-=(float delay);
   void operator-=(const Delay &delay);
   bool operator==(const Delay &delay) const;
-  bool operator>(const Delay &delay) const;
-  bool operator>=(const Delay &delay) const;
-  bool operator<(const Delay &delay) const;
-  bool operator<=(const Delay &delay) const;
 
 protected:
   static const int early_index = 0;
@@ -110,38 +106,38 @@ bool
 delayIsInitValue(const Delay &delay,
 		 const MinMax *min_max);
 bool
-fuzzyZero(const Delay &delay);
+delayZero(const Delay &delay);
 bool
-fuzzyInf(const Delay &delay);
+delayInf(const Delay &delay);
 bool
-fuzzyEqual(const Delay &delay1,
+delayEqual(const Delay &delay1,
 	   const Delay &delay2);
 bool
-fuzzyLess(const Delay &delay1,
+delayLess(const Delay &delay1,
 	  const Delay &delay2);
 bool
-fuzzyLess(const Delay &delay1,
+delayLess(const Delay &delay1,
 	  const Delay &delay2,
 	  const MinMax *min_max);
 bool
-fuzzyLessEqual(const Delay &delay1,
+delayLessEqual(const Delay &delay1,
 	       const Delay &delay2);
 bool
-fuzzyLessEqual(const Delay &delay1,
+delayLessEqual(const Delay &delay1,
 	       const Delay &delay2,
 	       const MinMax *min_max);
 bool
-fuzzyGreater(const Delay &delay1,
+delayGreater(const Delay &delay1,
 	     const Delay &delay2);
 bool
-fuzzyGreaterEqual(const Delay &delay1,
+delayGreaterEqual(const Delay &delay1,
 		  const Delay &delay2);
 bool
-fuzzyGreaterEqual(const Delay &delay1,
+delayGreaterEqual(const Delay &delay1,
 		  const Delay &delay2,
 		  const MinMax *min_max);
 bool
-fuzzyGreater(const Delay &delay1,
+delayGreater(const Delay &delay1,
 	     const Delay &delay2,
 	     const MinMax *min_max);
 // delay1-delay2 subtracting sigma instead of addiing.

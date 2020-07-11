@@ -801,12 +801,12 @@ pinSlewProperty(const Pin *pin,
   Slew slew = min_max->initValue();
   if (vertex) {
     Slew vertex_slew = sta->vertexSlew(vertex, rf, min_max);
-    if (fuzzyGreater(vertex_slew, slew, min_max))
+    if (delayGreater(vertex_slew, slew, min_max))
       slew = vertex_slew;
   }
   if (bidirect_drvr_vertex) {
     Slew vertex_slew = sta->vertexSlew(bidirect_drvr_vertex, rf, min_max);
-    if (fuzzyGreater(vertex_slew, slew, min_max))
+    if (delayGreater(vertex_slew, slew, min_max))
       slew = vertex_slew;
   }
   return PropertyValue(delayPropertyValue(slew, sta));
@@ -879,9 +879,9 @@ edgeDelayProperty(Edge *edge,
 	ArcDelay arc_delay = sta->arcDelay(edge, arc, dcalc_ap);
 	if (!delay_exists
 	    || ((min_max == MinMax::max()
-		 && arc_delay > delay)
+		 && delayGreater(arc_delay, delay))
 		|| (min_max == MinMax::min()
-		    && arc_delay < delay)))
+		    && delayLess(arc_delay, delay))))
 	  delay = arc_delay;
       }
     }
