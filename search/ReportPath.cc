@@ -2052,7 +2052,18 @@ ReportPath::reportSrcClkAndPath(const Path *path,
 		      early_late, result);
  	if (clk_insertion > 0.0)
 	  reportClkSrcLatency(clk_insertion, clk_time, early_late, result);
-	reportPath1(path, expanded, true, time_offset, result);
+	if (reportClkPath())
+	  reportPath1(path, expanded, true, time_offset, result);
+	else {
+	  Arrival clk_arrival = clk_end_time;
+	  Arrival end_arrival = path->arrival(this) + time_offset;
+	  Delay clk_delay = end_arrival - clk_arrival;
+	  reportLine("clock network delay", clk_delay,
+		     end_arrival, early_late, result);
+	  Vertex *end_vertex = path->vertex(this);
+	  reportLine(descriptionField(end_vertex).c_str(),
+		     end_arrival, early_late, clk_end_rf, result);
+	}
       }
       else {
 	if (is_path_delay) {
