@@ -21,7 +21,6 @@
 #include "DisabledPorts.hh"
 #include "PortDelay.hh"
 #include "ClockLatency.hh"
-#include "HpinDrvrLoad.hh"
 #include "Sdc.hh"
 
 namespace sta {
@@ -29,22 +28,21 @@ namespace sta {
 static void
 annotateGraphDisabledWireEdge(Pin *from_pin,
 			      Pin *to_pin,
-			      bool annotate,
 			      Graph *graph);
 
 // Annotate constraints to the timing graph.
 void
-Sdc::annotateGraph(bool annotate)
+Sdc::annotateGraph()
 {
   Stats stats(debug_);
   // All output pins are considered constrained because
   // they may be downstream from a set_min/max_delay -from that
   // does not have a set_output_delay.
   annotateGraphConstrainOutputs();
-  annotateDisables(annotate);
-  annotateGraphOutputDelays(annotate);
-  annotateGraphDataChecks(annotate);
-  annotateHierClkLatency(annotate);
+  annotateDisables();
+  annotateGraphOutputDelays();
+  annotateGraphDataChecks();
+  annotateHierClkLatency();
   stats.report("Annotate constraints to graph");
 }
 
@@ -56,18 +54,18 @@ Sdc::annotateGraphConstrainOutputs()
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
     if (network_->direction(pin)->isAnyOutput())
-      annotateGraphConstrained(pin, true);
+      annotateGraphConstrained(pin);
   }
   delete pin_iter;
 }
 
 void
-Sdc::annotateDisables(bool annotate)
+Sdc::annotateDisables()
 {
   PinSet::Iterator pin_iter(disabled_pins_);
   while (pin_iter.hasNext()) {
     Pin *pin = pin_iter.next();
-    annotateGraphDisabled(pin, annotate);
+    annotateGraphDisabled(pin);
   }
 
   if (!disabled_lib_ports_.empty()) {
@@ -77,7 +75,7 @@ Sdc::annotateDisables(bool annotate)
       Pin *pin = vertex->pin();
       LibertyPort *port = network_->libertyPort(pin);
       if (disabled_lib_ports_.hasKey(port))
-	annotateGraphDisabled(pin, annotate);
+	annotateGraphDisabled(pin);
     }
   }
 
@@ -86,32 +84,32 @@ Sdc::annotateDisables(bool annotate)
   while (port_iter.hasNext()) {
     Port *port = port_iter.next();
     Pin *pin = network_->findPin(top_inst, port);
-    annotateGraphDisabled(pin, annotate);
+    annotateGraphDisabled(pin);
   }
 
   PinPairSet::Iterator pair_iter(disabled_wire_edges_);
   while (pair_iter.hasNext()) {
     PinPair *pair = pair_iter.next();
-    annotateGraphDisabledWireEdge(pair->first, pair->second, annotate, graph_);
+    annotateGraphDisabledWireEdge(pair->first, pair->second, graph_);
   }
 
   EdgeSet::Iterator edge_iter(disabled_edges_);
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
-    edge->setIsDisabledConstraint(annotate);
+    edge->setIsDisabledConstraint(true);
   }
 
   DisabledInstancePortsMap::Iterator disable_inst_iter(disabled_inst_ports_);
   while (disable_inst_iter.hasNext()) {
     DisabledInstancePorts *disabled_inst = disable_inst_iter.next();
-    setEdgeDisabledInstPorts(disabled_inst, annotate);
+    setEdgeDisabledInstPorts(disabled_inst);
   }
 }
 
 class DisableHpinEdgeVisitor : public HierPinThruVisitor
 {
 public:
-  DisableHpinEdgeVisitor(bool annotate, Graph *graph);
+  DisableHpinEdgeVisitor(Graph *graph);
   virtual void visit(Pin *from_pin,
 		     Pin *to_pin);
 
@@ -123,10 +121,8 @@ private:
   DISALLOW_COPY_AND_ASSIGN(DisableHpinEdgeVisitor);
 };
 
-DisableHpinEdgeVisitor::DisableHpinEdgeVisitor(bool annotate,
-					       Graph *graph) :
+DisableHpinEdgeVisitor::DisableHpinEdgeVisitor(Graph *graph) :
   HierPinThruVisitor(),
-  annotate_(annotate),
   graph_(graph)
 {
 }
@@ -135,13 +131,12 @@ void
 DisableHpinEdgeVisitor::visit(Pin *from_pin,
 			      Pin *to_pin)
 {
-  annotateGraphDisabledWireEdge(from_pin, to_pin, annotate_, graph_);
+  annotateGraphDisabledWireEdge(from_pin, to_pin, graph_);
 }
 
 static void
 annotateGraphDisabledWireEdge(Pin *from_pin,
 			      Pin *to_pin,
-			      bool annotate,
 			      Graph *graph)
 {
   Vertex *from_vertex = graph->pinDrvrVertex(from_pin);
@@ -152,40 +147,37 @@ annotateGraphDisabledWireEdge(Pin *from_pin,
       Edge *edge = edge_iter.next();
       if (edge->isWire()
 	  && edge->to(graph) == to_vertex)
-	edge->setIsDisabledConstraint(annotate);
+	edge->setIsDisabledConstraint(true);
     }
   }
 }
 
 void
-Sdc::annotateGraphDisabled(const Pin *pin,
-			   bool annotate)
+Sdc::annotateGraphDisabled(const Pin *pin)
 {
   Vertex *vertex, *bidirect_drvr_vertex;
   graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-  vertex->setIsDisabledConstraint(annotate);
+  vertex->setIsDisabledConstraint(true);
   if (bidirect_drvr_vertex)
-    bidirect_drvr_vertex->setIsDisabledConstraint(annotate);
+    bidirect_drvr_vertex->setIsDisabledConstraint(true);
 }
 
 void
-Sdc::setEdgeDisabledInstPorts(DisabledInstancePorts *disabled_inst,
-			      bool annotate)
+Sdc::setEdgeDisabledInstPorts(DisabledInstancePorts *disabled_inst)
 {
-  setEdgeDisabledInstPorts(disabled_inst, disabled_inst->instance(), annotate);
+  setEdgeDisabledInstPorts(disabled_inst, disabled_inst->instance());
 }
 
 void
 Sdc::setEdgeDisabledInstPorts(DisabledPorts *disabled_port,
-			      Instance *inst,
-			      bool annotate)
+			      Instance *inst)
 {
   if (disabled_port->all()) {
     InstancePinIterator *pin_iter = network_->pinIterator(inst);
     while (pin_iter->hasNext()) {
       Pin *pin = pin_iter->next();
       // set_disable_timing instance does not disable timing checks.
-      setEdgeDisabledInstFrom(pin, false, annotate);
+      setEdgeDisabledInstFrom(pin, false);
     }
     delete pin_iter;
   }
@@ -196,7 +188,7 @@ Sdc::setEdgeDisabledInstPorts(DisabledPorts *disabled_port,
     LibertyPort *from_port = from_iter.next();
     Pin *from_pin = network_->findPin(inst, from_port);
     if (from_pin)
-      setEdgeDisabledInstFrom(from_pin, true, annotate);
+      setEdgeDisabledInstFrom(from_pin, true);
   }
 
   // Disable to pins.
@@ -211,7 +203,7 @@ Sdc::setEdgeDisabledInstPorts(DisabledPorts *disabled_port,
 	  VertexInEdgeIterator edge_iter(vertex, graph_);
 	  while (edge_iter.hasNext()) {
 	    Edge *edge = edge_iter.next();
-	    edge->setIsDisabledConstraint(annotate);
+	    edge->setIsDisabledConstraint(true);
 	  }
 	}
       }
@@ -235,7 +227,7 @@ Sdc::setEdgeDisabledInstPorts(DisabledPorts *disabled_port,
 	while (edge_iter.hasNext()) {
 	  Edge *edge = edge_iter.next();
 	  if (edge->to(graph_) == to_vertex)
-	    edge->setIsDisabledConstraint(annotate);
+	    edge->setIsDisabledConstraint(true);
 	}
       }
     }
@@ -244,8 +236,7 @@ Sdc::setEdgeDisabledInstPorts(DisabledPorts *disabled_port,
 
 void
 Sdc::setEdgeDisabledInstFrom(Pin *from_pin,
-			     bool disable_checks,
-			     bool annotate)
+			     bool disable_checks)
 {
   if (network_->direction(from_pin)->isAnyInput()) {
     Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
@@ -255,23 +246,23 @@ Sdc::setEdgeDisabledInstFrom(Pin *from_pin,
 	Edge *edge = edge_iter.next();
 	if (disable_checks
 	    || !edge->role()->isTimingCheck())
-	  edge->setIsDisabledConstraint(annotate);
+	  edge->setIsDisabledConstraint(true);
       }
     }
   }
 }
 
 void
-Sdc::annotateGraphOutputDelays(bool annotate)
+Sdc::annotateGraphOutputDelays()
 {
   for (OutputDelay *output_delay : output_delays_) {
     for (Pin *lpin : output_delay->leafPins())
-      annotateGraphConstrained(lpin, annotate);
+      annotateGraphConstrained(lpin);
   }
 }
 
 void
-Sdc::annotateGraphDataChecks(bool annotate)
+Sdc::annotateGraphDataChecks()
 {
   DataChecksMap::Iterator data_checks_iter(data_checks_to_map_);
   while (data_checks_iter.hasNext()) {
@@ -281,73 +272,65 @@ Sdc::annotateGraphDataChecks(bool annotate)
     // but we only need to mark it as constrained once.
     if (check_iter.hasNext()) {
       DataCheck *check = check_iter.next();
-      annotateGraphConstrained(check->to(), annotate);
+      annotateGraphConstrained(check->to());
     }
   }
 }
 
 void
-Sdc::annotateGraphConstrained(const PinSet *pins,
-			      bool annotate)
+Sdc::annotateGraphConstrained(const PinSet *pins)
 {
   PinSet::ConstIterator pin_iter(pins);
   while (pin_iter.hasNext()) {
     const Pin *pin = pin_iter.next();
-    annotateGraphConstrained(pin, annotate);
+    annotateGraphConstrained(pin);
   }
 }
 
 void
-Sdc::annotateGraphConstrained(const InstanceSet *insts,
-			      bool annotate)
+Sdc::annotateGraphConstrained(const InstanceSet *insts)
 {
   InstanceSet::ConstIterator inst_iter(insts);
   while (inst_iter.hasNext()) {
     const Instance *inst = inst_iter.next();
-    annotateGraphConstrained(inst, annotate);
+    annotateGraphConstrained(inst);
   }
 }
 
 void
-Sdc::annotateGraphConstrained(const Instance *inst,
-			      bool annotate)
+Sdc::annotateGraphConstrained(const Instance *inst)
 {
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
     if (network_->direction(pin)->isAnyInput())
-      annotateGraphConstrained(pin, annotate);
+      annotateGraphConstrained(pin);
   }
   delete pin_iter;
 }
 
 void
-Sdc::annotateGraphConstrained(const Pin *pin,
-			      bool annotate)
+Sdc::annotateGraphConstrained(const Pin *pin)
 {
   Vertex *vertex, *bidirect_drvr_vertex;
   graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
   // Pin may be hierarchical and have no vertex.
   if (vertex)
-    vertex->setIsConstrained(annotate);
+    vertex->setIsConstrained(true);
   if (bidirect_drvr_vertex)
-    bidirect_drvr_vertex->setIsConstrained(annotate);
+    bidirect_drvr_vertex->setIsConstrained(true);
 }
 
 void
-Sdc::annotateHierClkLatency(bool annotate)
+Sdc::annotateHierClkLatency()
 {
-  if (annotate) {
-    ClockLatencies::Iterator latency_iter(clk_latencies_);
-    while (latency_iter.hasNext()) {
-      ClockLatency *latency = latency_iter.next();
-      const Pin *pin = latency->pin();
-      if (pin && network_->isHierarchical(pin))
-	annotateHierClkLatency(pin, latency);
-    }
+  ClockLatencies::Iterator latency_iter(clk_latencies_);
+  while (latency_iter.hasNext()) {
+    ClockLatency *latency = latency_iter.next();
+    const Pin *pin = latency->pin();
+    if (pin && network_->isHierarchical(pin))
+      annotateHierClkLatency(pin, latency);
   }
-  else
-    edge_clk_latency_.clear();
 }
 
 void
@@ -358,16 +341,6 @@ Sdc::annotateHierClkLatency(const Pin *hpin,
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
     edge_clk_latency_[edge] = latency;
-  }
-}
-
-void
-Sdc::deannotateHierClkLatency(const Pin *hpin)
-{
-  EdgesThruHierPinIterator edge_iter(hpin, network_, graph_);
-  while (edge_iter.hasNext()) {
-    Edge *edge = edge_iter.next();
-    edge_clk_latency_.erase(edge);
   }
 }
 
@@ -394,132 +367,25 @@ Sdc::clockLatency(Edge *edge,
   }
 }
 
-class FindClkHpinDisables : public HpinDrvrLoadVisitor
-{
-public:
-  FindClkHpinDisables(Clock *clk,
-		      const Network *network,
-		      Sdc *sdc);
-  ~FindClkHpinDisables();
-  bool drvrLoadExists(Pin *drvr,
-		      Pin *load);
-
-protected:
-  virtual void visit(HpinDrvrLoad *drvr_load);
-  void makeClkHpinDisables(Pin *clk_src,
-			   Pin *drvr,
-			   Pin *load);
-
-  Clock *clk_;
-  PinPairSet drvr_loads_;
-  const Network *network_;
-  Sdc *sdc_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(FindClkHpinDisables);
-};
-
-FindClkHpinDisables::FindClkHpinDisables(Clock *clk,
-					 const Network *network,
-					 Sdc *sdc) :
-  HpinDrvrLoadVisitor(),
-  clk_(clk),
-  network_(network),
-  sdc_(sdc)
-{
-}
-
-FindClkHpinDisables::~FindClkHpinDisables()
-{
-  drvr_loads_.deleteContents();
-}
-
-void
-FindClkHpinDisables::visit(HpinDrvrLoad *drvr_load)
-{
-  Pin *drvr = drvr_load->drvr();
-  Pin *load = drvr_load->load();
-
-  makeClkHpinDisables(drvr, drvr, load);
-
-  PinSet *hpins_from_drvr = drvr_load->hpinsFromDrvr();
-  PinSet::Iterator hpin_iter(hpins_from_drvr);
-  while (hpin_iter.hasNext()) {
-    Pin *hpin = hpin_iter.next();
-    makeClkHpinDisables(hpin, drvr, load);
-  }
-  drvr_loads_.insert(new PinPair(drvr, load));
-}
-
-void
-FindClkHpinDisables::makeClkHpinDisables(Pin *clk_src,
-					 Pin *drvr,
-					 Pin *load)
-{
-  ClockSet *clks = sdc_->findClocks(clk_src);
-  ClockSet::Iterator clk_iter(clks);
-  while (clk_iter.hasNext()) {
-    Clock *clk = clk_iter.next();
-    if (clk != clk_)
-      // Do not propagate clock from source pin if another
-      // clock is defined on a hierarchical pin between the
-      // driver and load.
-      sdc_->makeClkHpinDisable(clk, drvr, load);
-  }
-}
-
-bool
-FindClkHpinDisables::drvrLoadExists(Pin *drvr,
-				    Pin *load)
-{
-  PinPair probe(drvr, load);
-  return drvr_loads_.hasKey(&probe);
-}
-
-void
-Sdc::ensureClkHpinDisables()
-{
-  if (!clk_hpin_disables_valid_) {
-    clk_hpin_disables_.deleteContentsClear();
-    for (auto clk : clocks_) {
-      for (Pin *src : clk->pins()) {
-	if (network_->isHierarchical(src)) {
-	  FindClkHpinDisables visitor(clk, network_, this);
-	  visitHpinDrvrLoads(src, network_, &visitor);
-	  // Disable fanouts from the src driver pins that do
-	  // not go thru the hierarchical src pin.
-	  for (Pin *lpin : clk->leafPins()) {
-	    Vertex *vertex, *bidirect_drvr_vertex;
-	    graph_->pinVertices(lpin, vertex, bidirect_drvr_vertex);
-	    makeVertexClkHpinDisables(clk, vertex, visitor);
-	    if (bidirect_drvr_vertex)
-	      makeVertexClkHpinDisables(clk, bidirect_drvr_vertex, visitor);
-	  }
-	}
-      }
-    }
-    clk_hpin_disables_valid_ = true;
-  }
-}
-
-void
-Sdc::makeVertexClkHpinDisables(Clock *clk,
-			       Vertex *vertex,
-			       FindClkHpinDisables &visitor)
-{
-  VertexOutEdgeIterator edge_iter(vertex, graph_);
-  while (edge_iter.hasNext()) {
-    Edge *edge = edge_iter.next();
-    if (edge->isWire()) {
-      Pin *drvr = edge->from(graph_)->pin();
-      Pin *load = edge->to(graph_)->pin();
-      if (!visitor.drvrLoadExists(drvr, load))
-	makeClkHpinDisable(clk, drvr, load);
-    }
-  }
-}
-
 ////////////////////////////////////////////////////////////////
+
+void
+Sdc::removeGraphAnnotations()
+{
+  VertexIterator vertex_iter(graph_);
+  while (vertex_iter.hasNext()) {
+    Vertex *vertex = vertex_iter.next();
+    vertex->setIsDisabledConstraint(false);
+    vertex->setIsConstrained(false);
+
+    VertexOutEdgeIterator edge_iter(vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      edge->setIsDisabledConstraint(false);
+    }
+  }
+  edge_clk_latency_.clear();
+}
 
 void
 Sdc::searchPreamble()

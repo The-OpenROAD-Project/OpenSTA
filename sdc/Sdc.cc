@@ -45,6 +45,7 @@
 #include "ClockGatingCheck.hh"
 #include "ClockGroups.hh"
 #include "DeratingFactors.hh"
+#include "HpinDrvrLoad.hh"
 #include "search/Levelize.hh"
 #include "Corner.hh"
 #include "Graph.hh"
@@ -1299,6 +1300,131 @@ ClkHpinDisableLess::operator()(const ClkHpinDisable *disable1,
   }
   else
     return clk_index1 < clk_index2;
+}
+
+class FindClkHpinDisables : public HpinDrvrLoadVisitor
+{
+public:
+  FindClkHpinDisables(Clock *clk,
+		      const Network *network,
+		      Sdc *sdc);
+  ~FindClkHpinDisables();
+  bool drvrLoadExists(Pin *drvr,
+		      Pin *load);
+
+protected:
+  virtual void visit(HpinDrvrLoad *drvr_load);
+  void makeClkHpinDisables(Pin *clk_src,
+			   Pin *drvr,
+			   Pin *load);
+
+  Clock *clk_;
+  PinPairSet drvr_loads_;
+  const Network *network_;
+  Sdc *sdc_;
+
+private:
+  DISALLOW_COPY_AND_ASSIGN(FindClkHpinDisables);
+};
+
+FindClkHpinDisables::FindClkHpinDisables(Clock *clk,
+					 const Network *network,
+					 Sdc *sdc) :
+  HpinDrvrLoadVisitor(),
+  clk_(clk),
+  network_(network),
+  sdc_(sdc)
+{
+}
+
+FindClkHpinDisables::~FindClkHpinDisables()
+{
+  drvr_loads_.deleteContents();
+}
+
+void
+FindClkHpinDisables::visit(HpinDrvrLoad *drvr_load)
+{
+  Pin *drvr = drvr_load->drvr();
+  Pin *load = drvr_load->load();
+
+  makeClkHpinDisables(drvr, drvr, load);
+
+  PinSet *hpins_from_drvr = drvr_load->hpinsFromDrvr();
+  PinSet::Iterator hpin_iter(hpins_from_drvr);
+  while (hpin_iter.hasNext()) {
+    Pin *hpin = hpin_iter.next();
+    makeClkHpinDisables(hpin, drvr, load);
+  }
+  drvr_loads_.insert(new PinPair(drvr, load));
+}
+
+void
+FindClkHpinDisables::makeClkHpinDisables(Pin *clk_src,
+					 Pin *drvr,
+					 Pin *load)
+{
+  ClockSet *clks = sdc_->findClocks(clk_src);
+  ClockSet::Iterator clk_iter(clks);
+  while (clk_iter.hasNext()) {
+    Clock *clk = clk_iter.next();
+    if (clk != clk_)
+      // Do not propagate clock from source pin if another
+      // clock is defined on a hierarchical pin between the
+      // driver and load.
+      sdc_->makeClkHpinDisable(clk, drvr, load);
+  }
+}
+
+bool
+FindClkHpinDisables::drvrLoadExists(Pin *drvr,
+				    Pin *load)
+{
+  PinPair probe(drvr, load);
+  return drvr_loads_.hasKey(&probe);
+}
+
+void
+Sdc::ensureClkHpinDisables()
+{
+  if (!clk_hpin_disables_valid_) {
+    clk_hpin_disables_.deleteContentsClear();
+    for (auto clk : clocks_) {
+      for (Pin *src : clk->pins()) {
+	if (network_->isHierarchical(src)) {
+	  FindClkHpinDisables visitor(clk, network_, this);
+	  visitHpinDrvrLoads(src, network_, &visitor);
+	  // Disable fanouts from the src driver pins that do
+	  // not go thru the hierarchical src pin.
+	  for (Pin *lpin : clk->leafPins()) {
+	    Vertex *vertex, *bidirect_drvr_vertex;
+	    graph_->pinVertices(lpin, vertex, bidirect_drvr_vertex);
+	    makeVertexClkHpinDisables(clk, vertex, visitor);
+	    if (bidirect_drvr_vertex)
+	      makeVertexClkHpinDisables(clk, bidirect_drvr_vertex, visitor);
+	  }
+	}
+      }
+    }
+    clk_hpin_disables_valid_ = true;
+  }
+}
+
+void
+Sdc::makeVertexClkHpinDisables(Clock *clk,
+			       Vertex *vertex,
+			       FindClkHpinDisables &visitor)
+{
+  VertexOutEdgeIterator edge_iter(vertex, graph_);
+  while (edge_iter.hasNext()) {
+    Edge *edge = edge_iter.next();
+    if (edge->isWire()) {
+      Pin *drvr = edge->from(graph_)->pin();
+      Pin *load = edge->to(graph_)->pin();
+      if (!visitor.drvrLoadExists(drvr, load))
+	makeClkHpinDisable(clk, drvr, load);
+    }
+  }
 }
 
 void

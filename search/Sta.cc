@@ -1205,8 +1205,7 @@ void
 Sta::sdcChangedGraph()
 {
   if (graph_sdc_annotated_)
-    // Remove graph constraint annotations.
-    sdc_->annotateGraph(false);
+    sdc_->removeGraphAnnotations();
   graph_sdc_annotated_ = false;
 }
 
@@ -1214,7 +1213,7 @@ void
 Sta::ensureGraphSdcAnnotated()
 {
   if (!graph_sdc_annotated_) {
-    sdc_->annotateGraph(true);
+    sdc_->annotateGraph();
     graph_sdc_annotated_ = true;
   }
 }
@@ -2108,8 +2107,7 @@ Sta::removeConstraints()
   search_->clear();
   sim_->constantsInvalid();
   if (graph_)
-    // Remove graph constraint annotations.
-    sdc_->annotateGraph(false);
+    sdc_->removeGraphAnnotations();
   sdc_->clear();
 }
 
