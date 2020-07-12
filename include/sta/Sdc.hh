@@ -1245,9 +1245,6 @@ protected:
   void disconnectPinBefore(Pin *pin,
 			   ExceptionPathSet *exceptions);
   void clockGroupsDeleteClkRefs(Clock *clk);
-  void makeVertexClkHpinDisables(Clock *clk,
-				 Vertex *vertex,
-				 FindClkHpinDisables &visitor);
   void clearGroupPathMap();
 
   AnalysisType analysis_type_;

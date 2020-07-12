@@ -1392,38 +1392,25 @@ Sdc::ensureClkHpinDisables()
     for (auto clk : clocks_) {
       for (Pin *src : clk->pins()) {
 	if (network_->isHierarchical(src)) {
-	  FindClkHpinDisables visitor(clk, network_, this);
-	  visitHpinDrvrLoads(src, network_, &visitor);
+	  FindClkHpinDisables visitor1(clk, network_, this);
+	  visitHpinDrvrLoads(src, network_, &visitor1);
+	  PinSeq loads, drvrs;
+	  PinSet visited_drvrs;
+	  FindNetDrvrLoads visitor2(nullptr, visited_drvrs, loads, drvrs, network_);
+	  network_->visitConnectedPins(src, visitor2);
+
 	  // Disable fanouts from the src driver pins that do
 	  // not go thru the hierarchical src pin.
-	  for (Pin *lpin : clk->leafPins()) {
-	    Vertex *vertex, *bidirect_drvr_vertex;
-	    graph_->pinVertices(lpin, vertex, bidirect_drvr_vertex);
-	    makeVertexClkHpinDisables(clk, vertex, visitor);
-	    if (bidirect_drvr_vertex)
-	      makeVertexClkHpinDisables(clk, bidirect_drvr_vertex, visitor);
+	  for (Pin *drvr : drvrs) {
+	    for (Pin *load : loads) {
+	      if (!visitor1.drvrLoadExists(drvr, load))
+		makeClkHpinDisable(clk, drvr, load);
+	    }
 	  }
 	}
       }
     }
     clk_hpin_disables_valid_ = true;
-  }
-}
-
-void
-Sdc::makeVertexClkHpinDisables(Clock *clk,
-			       Vertex *vertex,
-			       FindClkHpinDisables &visitor)
-{
-  VertexOutEdgeIterator edge_iter(vertex, graph_);
-  while (edge_iter.hasNext()) {
-    Edge *edge = edge_iter.next();
-    if (edge->isWire()) {
-      Pin *drvr = edge->from(graph_)->pin();
-      Pin *load = edge->to(graph_)->pin();
-      if (!visitor.drvrLoadExists(drvr, load))
-	makeClkHpinDisable(clk, drvr, load);
-    }
   }
 }
 
