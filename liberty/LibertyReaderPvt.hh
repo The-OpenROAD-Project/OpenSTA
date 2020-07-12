@@ -181,6 +181,7 @@ public:
   virtual void visitArea(LibertyAttr *attr);
   virtual void visitDontUse(LibertyAttr *attr);
   virtual void visitIsMacro(LibertyAttr *attr);
+  virtual void visitIsMemory(LibertyAttr *attr);
   virtual void visitIsPad(LibertyAttr *attr);
   virtual void visitInterfaceTiming(LibertyAttr *attr);
   virtual void visitScalingFactors(LibertyAttr *attr);
@@ -206,6 +207,7 @@ public:
   virtual void visitFallCap(LibertyAttr *attr);
   virtual void visitRiseCapRange(LibertyAttr *attr);
   virtual void visitFallCapRange(LibertyAttr *attr);
+  virtual void visitFanoutLoad(LibertyAttr *attr);
   virtual void visitMaxFanout(LibertyAttr *attr);
   virtual void visitMinFanout(LibertyAttr *attr);
   virtual void visitFanout(LibertyAttr *attr,

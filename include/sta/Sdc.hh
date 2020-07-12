@@ -295,15 +295,6 @@ public:
   void setSlewLimit(Port *port,
 		    const MinMax *min_max,
 		    float slew);
-  void slewLimit(const Pin *pin,
-		 const MinMax *min_max,
-		 // Return values.
-		 float &slew,
-		 bool &exists);
-  void setSlewLimit(const Pin *pin,
-		    const MinMax *min_max,
-		    float slew);
-  void slewLimitPins(ConstPinSeq &pins);
   void slewLimit(Cell *cell,
 		 const MinMax *min_max,
 		 float &slew,
@@ -1329,7 +1320,6 @@ protected:
   OutputDelaysPinMap output_delay_leaf_pin_map_;
 
   PortSlewLimitMap port_slew_limit_map_;
-  PinSlewLimitMap pin_slew_limit_map_;
   CellSlewLimitMap cell_slew_limit_map_;
   bool have_clk_slew_limits_;
   CellCapLimitMap cell_cap_limit_map_;

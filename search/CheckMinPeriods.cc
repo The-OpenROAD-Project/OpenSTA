@@ -79,7 +79,7 @@ void
 MinPeriodViolatorsVisitor::visit(MinPeriodCheck &check,
 				 StaState *sta)
 {
-  if (fuzzyLess(check.slack(sta), 0.0))
+  if (delayLess(check.slack(sta), 0.0, sta))
     checks_.push_back(check.copy());
 }
 
@@ -231,9 +231,9 @@ MinPeriodSlackLess::operator()(const MinPeriodCheck *check1,
   Slack slack2 = check2->slack(sta_);
   const Pin *pin1 = check1->pin();
   const Pin *pin2 = check2->pin();
-  return fuzzyLess(slack1, slack2)
+  return delayLess(slack1, slack2, sta_)
     // Break ties based on pin and clock names.
-    || (fuzzyEqual(slack1, slack2)
+    || (delayEqual(slack1, slack2)
 	&& (sta_->network()->pinLess(pin1, pin2)
 	    || (pin1 == pin2
 		&& ClockNameLess()(check1->clk(),

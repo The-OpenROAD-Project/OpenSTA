@@ -361,10 +361,11 @@ PathEnd::checkTgtClkDelay(const PathVertex *tgt_clk_path,
     if (clk_info->isPropagated()) {
       // Propagated clock.  Propagated arrival is seeded with
       // early_late==path_min_max insertion delay.
+      Arrival clk_arrival = tgt_clk_path->arrival(sta);
       Arrival path_insertion = search->clockInsertion(tgt_clk, tgt_src_pin,
 						      tgt_clk_rf, min_max,
 						      min_max, tgt_path_ap);
-      latency=tgt_clk_path->arrival(sta)-tgt_clk_edge->time()-path_insertion;
+      latency = delayRemove(clk_arrival - tgt_clk_edge->time(), path_insertion);
     }
     else
       // Ideal clock.
@@ -1243,7 +1244,7 @@ PathEndLatchCheck::targetClkWidth(const StaState *sta) const
   if (enable_clk_info->isPulseClk())
     return disable_arrival - enable_arrival;
   else {
-    if (enable_arrival > disable_arrival) {
+    if (delayGreater(enable_arrival, disable_arrival, sta)) {
       float period = enable_clk_info->clock()->period();
       disable_arrival += period;
     }
@@ -1844,6 +1845,17 @@ PathEnd::pathDelaySrcClkOffset(const PathRef &path,
   return offset;
 }
 
+ClockEdge *
+PathEndPathDelay::targetClkEdge(const StaState *sta) const
+{
+  if (!clk_path_.isNull())
+    return clk_path_.clkEdge(sta);
+  else if (output_delay_)
+    return output_delay_->clkEdge();
+  else
+    return nullptr;
+}
+
 float 
 PathEndPathDelay::targetClkTime(const StaState *sta) const
 {
@@ -1857,14 +1869,12 @@ PathEndPathDelay::targetClkTime(const StaState *sta) const
 Arrival
 PathEndPathDelay::targetClkArrivalNoCrpr(const StaState *sta) const
 {
-  if (!clk_path_.isNull()) {
-    ClockEdge *tgt_clk_edge = targetClkEdge(sta);
-    if (tgt_clk_edge)
-      return targetClkDelay(sta)
-	+ targetClkUncertainty(sta);
-    else
-      return clk_path_.arrival(sta);
-  }
+  ClockEdge *tgt_clk_edge = targetClkEdge(sta);
+  if (tgt_clk_edge)
+    return targetClkDelay(sta)
+      + targetClkUncertainty(sta);
+  else if (!clk_path_.isNull())
+    return clk_path_.arrival(sta);
   else
     return 0.0;
 }
@@ -1886,9 +1896,7 @@ PathEndPathDelay::requiredTime(const StaState *sta) const
       return src_clk_arrival_ + delay + margin(sta);
   }
   else {
-    Arrival tgt_clk_arrival = 0.0;
-    if (!clk_path_.isNull())
-      tgt_clk_arrival = targetClkArrival(sta);
+    Arrival tgt_clk_arrival = targetClkArrival(sta);
     float src_clk_offset = sourceClkOffset(sta);
     // Path delay includes target clk latency and timing check setup/hold 
     // margin or external departure at target.
@@ -1981,24 +1989,24 @@ PathEnd::cmpSlack(const PathEnd *path_end1,
 {
   Slack slack1 = path_end1->slack(sta);
   Slack slack2 = path_end2->slack(sta);
-  if (fuzzyZero(slack1)
-      && fuzzyZero(slack2)
+  if (delayZero(slack1)
+      && delayZero(slack2)
       && path_end1->isLatchCheck()
       && path_end2->isLatchCheck()) {
     Arrival borrow1 = path_end1->borrow(sta);
     Arrival borrow2 = path_end2->borrow(sta);
     // Latch slack is zero if there is borrowing so break ties
     // based on borrow time.
-    if (fuzzyEqual(borrow1, borrow2))
+    if (delayEqual(borrow1, borrow2))
       return 0;
-    else if (borrow1 > borrow2)
+    else if (delayGreater(borrow1, borrow2, sta))
       return -1;
     else
       return 1;
   }
-  else if (fuzzyEqual(slack1, slack2))
+  else if (delayEqual(slack1, slack2))
     return 0;
-  else if (slack1 < slack2)
+  else if (delayLess(slack1, slack2, sta))
     return -1;
   else
     return 1;
@@ -2012,9 +2020,9 @@ PathEnd::cmpArrival(const PathEnd *path_end1,
   Arrival arrival1 = path_end1->dataArrivalTime(sta);
   Arrival arrival2 = path_end2->dataArrivalTime(sta);
   const MinMax *min_max = path_end1->minMax(sta);
-  if (fuzzyEqual(arrival1, arrival2))
+  if (delayEqual(arrival1, arrival2))
     return 0;
-  else if (fuzzyLess(arrival1, arrival2, min_max))
+  else if (delayLess(arrival1, arrival2, min_max, sta))
     return -1;
   else
     return 1;

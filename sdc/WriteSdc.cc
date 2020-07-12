@@ -1578,7 +1578,8 @@ WriteSdc::writeEnvironment() const
   writeCommentSection("Environment");
   writeOperatingConditions();
   writeWireload();
-  writePinLoads();
+  writePortLoads();
+  writeNetLoads();
   writeDriveResistances();
   writeDrivingCells();
   writeInputTransitions();
@@ -1606,7 +1607,44 @@ WriteSdc::writeWireload() const
 }
 
 void
-WriteSdc::writePinLoads() const
+WriteSdc::writeNetLoads() const
+{
+  if (sdc_->net_wire_cap_map_) {
+    for (auto net_cap : *sdc_->net_wire_cap_map_) {
+      Net *net = net_cap.first;
+      MinMaxFloatValues &caps = net_cap.second;
+      float min_cap, max_cap;
+      bool min_exists, max_exists;
+      caps.value(MinMax::min(), min_cap, min_exists);
+      caps.value(MinMax::max(), max_cap, max_exists);
+      if (min_exists && max_exists
+	  && min_cap == max_cap)
+	writeNetLoad(net, MinMaxAll::all(), min_cap);
+      else {
+	if (min_exists)
+	  writeNetLoad(net, MinMaxAll::min(), min_cap);
+	if (max_exists)
+	  writeNetLoad(net, MinMaxAll::max(), max_cap);
+      }
+    }
+  }
+}
+
+void
+WriteSdc::writeNetLoad(Net *net,
+		       const MinMaxAll *min_max,
+		       float cap) const
+{
+  fprintf(stream_, "set_load ");
+  fprintf(stream_, "%s ", minMaxFlag(min_max));
+  writeCapacitance(cap);
+  fprintf(stream_, " ");
+  writeGetNet(net);
+  fprintf(stream_, "\n");
+}
+
+void
+WriteSdc::writePortLoads() const
 {
   CellPortBitIterator *port_iter = sdc_network_->portBitIterator(cell_);
   while (port_iter->hasNext()) {
@@ -2238,24 +2276,6 @@ WriteSdc::writeSlewLimits() const
     }
   }
   delete port_iter;
-
-  ConstPinSeq pins;
-  sdc_->slewLimitPins(pins);
-  sort(pins, PinPathNameLess(network_));
-  ConstPinSeq::Iterator pin_iter(pins);
-  while (pin_iter.hasNext()) {
-    const Pin *pin = pin_iter.next();
-    float slew;
-    bool exists;
-    sdc_->slewLimit(pin, min_max, slew, exists);
-    if (exists) {
-      fprintf(stream_, "set_max_transition ");
-      writeTime(slew);
-      fprintf(stream_, " ");
-      writeGetPin(pin, false);
-      fprintf(stream_, "\n");
-    }
-  }
 
   writeClkSlewLimits();
 }

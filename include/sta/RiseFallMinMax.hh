@@ -36,6 +36,9 @@ public:
 	     float &value,
 	     bool &exists) const;
   bool hasValue() const;
+  void maxValue(// Return values
+		float &max_value,
+		bool &exists) const;
   bool empty() const;
   bool hasValue(const RiseFall *rf,
 		const MinMax *min_max) const;

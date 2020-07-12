@@ -202,7 +202,9 @@ public:
   void defaultMaxFanout(float &fanout,
 			bool &exists) const;
   void setDefaultMaxFanout(float fanout);
-  float defaultFanoutLoad() const { return default_fanout_load_; }
+  void defaultFanoutLoad(// Return values.
+			 float &fanout,
+			 bool &exists) const;
   void setDefaultFanoutLoad(float load);
 
   // Logic thresholds.
@@ -307,6 +309,7 @@ protected:
   RiseFallValues default_inout_pin_res_;
   RiseFallValues default_output_pin_res_;
   float default_fanout_load_;
+  bool default_fanout_load_exists_;
   float default_max_cap_;
   bool default_max_cap_exists_;
   float default_max_fanout_;
@@ -402,6 +405,8 @@ public:
   void setDontUse(bool dont_use);
   bool isMacro() const { return is_macro_; }
   void setIsMacro(bool is_macro);
+  bool isMemory() const { return is_memory_; }
+  void setIsMemory(bool is_memory);
   bool isPad() const { return is_pad_; }
   void setIsPad(bool is_pad);
   bool interfaceTiming() const { return interface_timing_; }
@@ -488,6 +493,7 @@ public:
 	      Report *report,
 	      Debug *debug);
   bool isBuffer() const;
+  bool isInverter() const;
   // Only valid when isBuffer() returns true.
   void bufferPorts(// Return values.
 		   LibertyPort *&input,
@@ -517,11 +523,14 @@ protected:
   void makeTimingArcPortMaps();
   bool hasBufferFunc(const LibertyPort *input,
 		     const LibertyPort *output) const;
+  bool hasInverterFunc(const LibertyPort *input,
+		       const LibertyPort *output) const;
 
   LibertyLibrary *liberty_library_;
   float area_;
   bool dont_use_;
   bool is_macro_;
+  bool is_memory_;
   bool is_pad_;
   bool has_internal_ports_;
   bool interface_timing_;
@@ -623,6 +632,11 @@ public:
   LibertyLibrary *libertyLibrary() const { return liberty_cell_->libertyLibrary(); }
   LibertyPort *findLibertyMember(int index) const;
   LibertyPort *findLibertyBusBit(int index) const;
+  void fanoutLoad(// Return values.
+		  float &fanout_load,
+		  bool &exists) const;
+  void setFanoutLoad(float fanout_load);
+  float capacitance() const;
   float capacitance(const RiseFall *rf,
 		    const MinMax *min_max) const;
   void capacitance(const RiseFall *rf,
@@ -748,6 +762,8 @@ protected:
   RiseFallMinMax capacitance_;
   MinMaxFloatValues slew_limit_; // inputs and outputs
   MinMaxFloatValues cap_limit_;    // outputs
+  float fanout_load_; // inputs
+  bool fanout_load_exists_;
   MinMaxFloatValues fanout_limit_; // outputs
   float min_period_;
   float min_pulse_width_[RiseFall::index_count];

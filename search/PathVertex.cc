@@ -403,7 +403,7 @@ PrevPathVisitor::visitFromToPath(const Pin *,
       && path_ap_index == path_ap_index_
       && (dcalc_tol_ > 0.0 
 	  ? std::abs(delayAsFloat(to_arrival - path_arrival_)) < dcalc_tol_
-	  : fuzzyEqual(to_arrival, path_arrival_))
+	  : delayEqual(to_arrival, path_arrival_))
       && (tagMatch(to_tag, path_tag_, sta_)
 	  // If the filter exception became active searching from
 	  // from_path to to_path the tag includes the filter, but

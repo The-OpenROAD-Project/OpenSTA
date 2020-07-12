@@ -227,7 +227,7 @@ proc parse_report_path_options { cmd args_var default_format
   if [info exists path_options(-format)] {
     set format $path_options(-format)
     set formats {full full_clock full_clock_expanded short \
-		   end slack_only summary}
+		   end slack_only summary json}
     if { [lsearch $formats $format] == -1 } {
       sta_error "-format $format not recognized."
     }
@@ -247,7 +247,7 @@ proc parse_report_path_options { cmd args_var default_format
 
   set path_options(num_fmt) "%.${digits}f"
   set_report_path_digits $digits
-  # Numberic field width expands with digits.
+  # Numeric field width expands with digits.
   set field_width [expr $digits + $report_path_field_width_extra]
   if { $report_sigmas } {
     set delay_field_width [expr $field_width * 3 + $report_path_field_width_extra]
@@ -386,7 +386,7 @@ proc report_slew_limits { corner min_max all_violators verbose nosplit } {
   if { $all_violators } {
     set violators [pin_slew_limit_violations $corner $min_max]
     if { $violators != {} } {
-      puts "${min_max}_transition"
+      puts "${min_max} slew"
       puts ""
       if { $verbose } {
 	foreach pin $violators {
@@ -404,7 +404,7 @@ proc report_slew_limits { corner min_max all_violators verbose nosplit } {
   } else {
     set pin [pin_min_slew_limit_slack $corner $min_max]
     if { $pin != "NULL" } {
-      puts "${min_max}_transition"
+      puts "${min_max} slew"
       puts ""
       if { $verbose } {
 	report_slew_limit_verbose $pin $corner $min_max
@@ -417,6 +417,80 @@ proc report_slew_limits { corner min_max all_violators verbose nosplit } {
     }
   }
 }
+
+proc report_fanout_limits { min_max all_violators verbose nosplit } {
+  if { $all_violators } {
+    set violators [pin_fanout_limit_violations $min_max]
+    if { $violators != {} } {
+      puts "${min_max} fanout"
+      puts ""
+      if { $verbose } {
+	foreach pin $violators {
+	  report_fanout_limit_verbose $pin $min_max
+	  puts ""
+	}
+      } else {
+	report_fanout_limit_short_header
+	foreach pin $violators {
+	  report_fanout_limit_short $pin $min_max
+	}
+	puts ""
+      }
+    }
+  } else {
+    set pin [pin_min_fanout_limit_slack $min_max]
+    if { $pin != "NULL" } {
+      puts "${min_max} fanout"
+      puts ""
+      if { $verbose } {
+	report_fanout_limit_verbose $pin $min_max
+	puts ""
+      } else {
+	report_fanout_limit_short_header
+	report_fanout_limit_short $pin $min_max
+	puts ""
+      }
+    }
+  }
+}
+
+proc report_capacitance_limits { corner min_max all_violators verbose nosplit } {
+  if { $all_violators } {
+    set violators [pin_capacitance_limit_violations $corner $min_max]
+    if { $violators != {} } {
+      puts "${min_max} capacitance"
+      puts ""
+      if { $verbose } {
+	foreach pin $violators {
+	  report_capacitance_limit_verbose $pin $corner $min_max
+	  puts ""
+	}
+      } else {
+	report_capacitance_limit_short_header
+	foreach pin $violators {
+	  report_capacitance_limit_short $pin $corner $min_max
+	}
+	puts ""
+      }
+    }
+  } else {
+    set pin [pin_min_capacitance_limit_slack $corner $min_max]
+    if { $pin != "NULL" } {
+      puts "${min_max} capacitance"
+      puts ""
+      if { $verbose } {
+	report_capacitance_limit_verbose $pin $corner $min_max
+	puts ""
+      } else {
+	report_capacitance_limit_short_header
+	report_capacitance_limit_short $pin $corner $min_max
+	puts ""
+      }
+    }
+  }
+}
+
+################################################################
 
 proc report_path_ends { path_ends } {
   report_path_end_header

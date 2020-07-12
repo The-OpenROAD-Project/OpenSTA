@@ -808,40 +808,6 @@ Sdc::setSlewLimit(Port *port,
 }
 
 void
-Sdc::slewLimit(const Pin *pin,
-	       const MinMax *min_max,
-	       float &slew,
-	       bool &exists)
-{
-  slew = 0.0;
-  MinMaxFloatValues values;
-  pin_slew_limit_map_.findKey(pin, values, exists);
-  if (exists)
-    values.value(min_max, slew, exists);
-}
-
-void
-Sdc::setSlewLimit(const Pin *pin,
-		  const MinMax *min_max,
-		  float slew)
-{
-  MinMaxFloatValues &values = pin_slew_limit_map_[pin];
-  values.setValue(min_max, slew);
-}
-
-void
-Sdc::slewLimitPins(ConstPinSeq &pins)
-{
-  PinSlewLimitMap::Iterator iter(pin_slew_limit_map_);
-  while (iter.hasNext()) {
-    const Pin *pin;
-    MinMaxFloatValues values;
-    iter.next(pin, values);
-    pins.push_back(pin);
-  }
-}
-
-void
 Sdc::slewLimit(Cell *cell,
 	       const MinMax *min_max,
 	       float &slew,

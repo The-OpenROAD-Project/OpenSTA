@@ -286,6 +286,7 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("area", &LibertyReader::visitArea);
   defineAttrVisitor("dont_use", &LibertyReader::visitDontUse);
   defineAttrVisitor("is_macro", &LibertyReader::visitIsMacro);
+  defineAttrVisitor("is_memory", &LibertyReader::visitIsMemory);
   defineAttrVisitor("is_pad", &LibertyReader::visitIsPad);
   defineAttrVisitor("interface_timing", &LibertyReader::visitInterfaceTiming);
   defineAttrVisitor("scaling_factors", &LibertyReader::visitScalingFactors);
@@ -307,6 +308,7 @@ LibertyReader::defineVisitors()
 		    &LibertyReader::visitRiseCapRange);
   defineAttrVisitor("fall_capacitance_range",
 		    &LibertyReader::visitFallCapRange);
+  defineAttrVisitor("fanout_load", &LibertyReader::visitFanoutLoad);
   defineAttrVisitor("max_fanout", &LibertyReader::visitMaxFanout);
   defineAttrVisitor("min_fanout", &LibertyReader::visitMinFanout);
   defineAttrVisitor("max_transition", &LibertyReader::visitMaxTransition);
@@ -2026,7 +2028,7 @@ LibertyReader::parseCellFuncs()
   while (func_iter.hasNext()) {
     LibertyFunc *func = func_iter.next();
     FuncExpr *expr = parseFunc(func->expr(), func->attrName(), func->line());
-    if (func->invert()) {
+    if (func->invert() && expr) {
       if (expr->op() == FuncExpr::op_not) {
 	FuncExpr *inv = expr;
 	expr = expr->left();
@@ -2422,6 +2424,17 @@ LibertyReader::visitIsMacro(LibertyAttr *attr)
     getAttrBool(attr, is_macro, exists);
     if (exists)
       cell_->setIsMacro(is_macro);
+  }
+}
+
+void
+LibertyReader::visitIsMemory(LibertyAttr *attr)
+{
+  if (cell_) {
+    bool is_memory, exists;
+    getAttrBool(attr, is_memory, exists);
+    if (exists)
+      cell_->setIsMemory(is_memory);
   }
 }
 
@@ -2965,6 +2978,21 @@ LibertyReader::defaultCap(LibertyPort *port)
   else if (dir->isBidirect())
     cap = library_->defaultBidirectPinCap();
   return cap;
+}
+
+void
+LibertyReader::visitFanoutLoad(LibertyAttr *attr)
+{
+  if (ports_) {
+    float fanout;
+    bool exists;
+    getAttrFloat(attr, fanout, exists);
+    if (exists) {
+      visitPorts([&] (LibertyPort *port) {
+		   port->setFanoutLoad(fanout);
+		 });
+    }
+  }
 }
 
 void
@@ -3906,7 +3934,7 @@ LibertyReader::makeFloatTable(LibertyAttr *attr,
     }
     else if (value->isFloat())
       // Scalar value.
-      row->push_back(value->floatValue());
+      row->push_back(value->floatValue() * scale);
     else
       libWarn(attr, "%s is not a list of floats.\n", attr->name());
     if (row->size() != cols) {

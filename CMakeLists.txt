@@ -152,6 +152,8 @@ set(STA_SOURCE
   search/CheckMaxSkews.cc
   search/CheckMinPeriods.cc
   search/CheckMinPulseWidths.cc
+  search/CheckCapacitanceLimits.cc
+  search/CheckFanoutLimits.cc
   search/CheckSlewLimits.cc
   search/CheckTiming.cc
   search/ClkInfo.cc
@@ -511,6 +513,9 @@ install(DIRECTORY include/sta  DESTINATION include)
 
 ################################################################
 
-add_custom_target(tags etags -o TAGS ${STA_SOURCE} */*.hh include/sta/*.hh  ${SWIG_TCL_FILES}
+add_custom_target(tags etags -o TAGS
+  ${STA_SOURCE}
+  */*.hh include/sta/*.hh
+  ${STA_TCL_FILES} ${SWIG_TCL_FILES}
   WORKING_DIRECTORY ${STA_HOME}
   )

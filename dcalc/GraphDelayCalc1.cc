@@ -1246,7 +1246,7 @@ GraphDelayCalc1::findArcDelay(LibertyCell *drvr_cell,
     // Merge slews.
     const Slew &drvr_slew = graph_->slew(drvr_vertex, drvr_rf, ap_index);
     const MinMax *slew_min_max = dcalc_ap->slewMinMax();
-    if (fuzzyGreater(gate_slew, drvr_slew, dcalc_ap->slewMinMax())
+    if (delayGreater(gate_slew, drvr_slew, dcalc_ap->slewMinMax(), this)
 	&& !drvr_vertex->slewAnnotated(drvr_rf, slew_min_max))
       graph_->setSlew(drvr_vertex, drvr_rf, ap_index, gate_slew);
     if (!graph_->arcDelayAnnotated(edge, arc, ap_index)) {
@@ -1446,7 +1446,7 @@ GraphDelayCalc1::annotateLoadDelays(Vertex *drvr_vertex,
 	else {
 	  const Slew &slew = graph_->slew(load_vertex, drvr_rf, ap_index);
 	  if (!merge
-	      || fuzzyGreater(load_slew, slew, slew_min_max))
+	      || delayGreater(load_slew, slew, slew_min_max, this))
 	    graph_->setSlew(load_vertex, drvr_rf, ap_index, load_slew);
 	}
       }
@@ -1459,7 +1459,7 @@ GraphDelayCalc1::annotateLoadDelays(Vertex *drvr_vertex,
 	Delay wire_delay_extra = extra_delay + wire_delay;
 	const MinMax *delay_min_max = dcalc_ap->delayMinMax();
 	if (!merge
-	    || fuzzyGreater(wire_delay_extra, delay, delay_min_max)) {
+	    || delayGreater(wire_delay_extra, delay, delay_min_max, this)) {
 	  graph_->setWireArcDelay(wire_edge, drvr_rf, ap_index,
 				  wire_delay_extra);
 	  if (observer_)

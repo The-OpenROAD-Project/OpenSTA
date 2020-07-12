@@ -45,6 +45,8 @@ class ReportPath;
 class CheckTiming;
 class DcalcAnalysisPt;
 class CheckSlewLimits;
+class CheckFanoutLimits;
+class CheckCapacitanceLimits;
 class CheckMinPulseWidths;
 class CheckMinPeriods;
 class CheckMaxSkews;
@@ -243,9 +245,6 @@ public:
 		    const MinMax *min_max,
 		    float slew);
   void setSlewLimit(Port *port,
-		    const MinMax *min_max,
-		    float slew);
-  void setSlewLimit(Pin *pin,
 		    const MinMax *min_max,
 		    float slew);
   void setSlewLimit(Cell *cell,
@@ -612,6 +611,7 @@ public:
 	      // Return value.
 	      ClockSet &clks);
 
+  void checkSlewLimitPreamble();
   // Return the pin with the min/max slew limit slack.
   // corner=nullptr checks all corners.
   Pin *pinMinSlewLimitSlack(const Corner *corner,
@@ -627,15 +627,63 @@ public:
   void reportSlewLimitVerbose(Pin *pin,
 			      const Corner *corner,
 			      const MinMax *min_max);
-  void checkSlews(const Pin *pin,
-		  const Corner *corner,
-		  const MinMax *min_max,
-		  // Return values.
-		  const Corner *&corner1,
-		  const RiseFall *&tr,
-		  Slew &slew,
-		  float &limit,
-		  float &slack);
+  // requires checkSlewLimitPreamble()
+  void checkSlew(const Pin *pin,
+		 const Corner *corner,
+		 const MinMax *min_max,
+		 bool check_clks,
+		 // Return values.
+		 const Corner *&corner1,
+		 const RiseFall *&tr,
+		 Slew &slew,
+		 float &limit,
+		 float &slack);
+
+  void checkFanoutLimitPreamble();
+  // Return the pin with the min/max fanout limit slack.
+  Pin *pinMinFanoutLimitSlack(const MinMax *min_max);
+  // Return all pins with min/max fanout violations.
+  PinSeq *pinFanoutLimitViolations(const MinMax *min_max);
+  void reportFanoutLimitShortHeader();
+  void reportFanoutLimitShort(Pin *pin,
+			      const MinMax *min_max);
+  void reportFanoutLimitVerbose(Pin *pin,
+				const MinMax *min_max);
+  // requires checkFanoutLimitPreamble()
+  void checkFanout(const Pin *pin,
+		   const MinMax *min_max,
+		   // Return values.
+		   float &fanout,
+		   float &limit,
+		   float &slack);
+
+  void checkCapacitanceLimitPreamble();
+  // Return the pin with the min/max capacitance limit slack.
+  // corner=nullptr checks all corners.
+  Pin *pinMinCapacitanceLimitSlack(const Corner *corner,
+				   const MinMax *min_max);
+  // Return all pins with min/max capacitance violations.
+  // corner=nullptr checks all corners.
+  PinSeq *pinCapacitanceLimitViolations(const Corner *corner,
+					const MinMax *min_max);
+  void reportCapacitanceLimitShortHeader();
+  void reportCapacitanceLimitShort(Pin *pin,
+				   const Corner *corner,
+				   const MinMax *min_max);
+  void reportCapacitanceLimitVerbose(Pin *pin,
+				     const Corner *corner,
+				     const MinMax *min_max);
+  // requires checkCapacitanceLimitPreamble()
+  void checkCapacitance(const Pin *pin,
+			const Corner *corner,
+			const MinMax *min_max,
+			// Return values.
+			const Corner *&corner1,
+			const RiseFall *&tr,
+			float &capacitance,
+			float &limit,
+			float &slack);
+
   // Min pulse width check with the least slack.
   // corner=nullptr checks all corners.
   MinPulseWidthCheck *minPulseWidthSlack(const Corner *corner);
@@ -1227,6 +1275,8 @@ protected:
   virtual void makeLatches();
   virtual void makeCheckTiming();
   virtual void makeCheckSlewLimits();
+  virtual void makeCheckFanoutLimits();
+  virtual void makeCheckCapacitanceLimits();
   virtual void makeCheckMinPulseWidths();
   virtual void makeCheckMinPeriods();
   virtual void makeCheckMaxSkews();
@@ -1268,7 +1318,6 @@ protected:
 			Edge *d_q_edge,
 			const ClockEdge *en_clk_edge);
   void clockSlewChanged(Clock *clk);
-  void checkSlewLimitPreamble();
   void minPulseWidthPreamble();
   void minPeriodPreamble();
   void maxSkewPreamble();
@@ -1324,6 +1373,8 @@ protected:
   Corner *cmd_corner_;
   CheckTiming *check_timing_;
   CheckSlewLimits *check_slew_limits_;
+  CheckFanoutLimits *check_fanout_limits_;
+  CheckCapacitanceLimits *check_capacitance_limits_;
   CheckMinPulseWidths *check_min_pulse_widths_;
   CheckMinPeriods *check_min_periods_;
   CheckMaxSkews *check_max_skews_;

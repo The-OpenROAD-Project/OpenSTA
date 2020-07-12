@@ -297,6 +297,11 @@ proc set_unit_values { unit key unit_name key_var } {
     } else {
       set prefix [string index $value 0]
       set suffix [string range $value 1 end]
+      # unit includes "1" prefix
+      if { [string is digit $prefix] } {
+	set prefix [string index $value 1]
+	set suffix [string range $value 2 end]
+      }
       if { [string equal -nocase $suffix $unit_name] } {
 	set scale [unit_prefix_scale $unit $prefix]
 	set_cmd_unit_scale $unit $scale
@@ -497,9 +502,16 @@ proc get_cells { args } {
     if { $args != {} } {
       sta_warn "patterns argument not supported with -of_objects."
     }
-    parse_pin_net_args $keys(-of_objects) pins nets
+    parse_port_pin_net_arg $keys(-of_objects) pins nets
     foreach pin $pins {
-      lappend insts [$pin instance]
+      if { [$pin is_top_level_port] } {
+	set net [get_nets [get_name $pin]]
+	if { $net != "NULL" } {
+	  lappend nets $net
+	}
+      } else {
+	lappend insts [$pin instance]
+      }
     }
     foreach net $nets {
       set pin_iter [$net pin_iterator]
@@ -992,7 +1004,7 @@ proc get_ports { args } {
   return $ports
 }
 
-variable filter_regexp1 {@?([a-zA-Z_]+) +(==|=~) +([0-9a-zA-Z_\*]+)}
+variable filter_regexp1 {@?([a-zA-Z_]+) *(==|=~) *([0-9a-zA-Z_\*]+)}
 variable filter_or_regexp "($filter_regexp1) +\\|\\| +($filter_regexp1)"
 variable filter_and_regexp "($filter_regexp1) +&& +($filter_regexp1)"
 
@@ -2600,7 +2612,7 @@ proc set_max_transition { args } {
   set slew [time_ui_sta $slew]
   
   set objects [lindex $args 1]
-  parse_clk_cell_port_pin_args $objects clks cells ports pins
+  parse_clk_cell_port_args $objects clks cells ports
   
   set tr [parse_rise_fall_flags flags]
   
@@ -2617,12 +2629,12 @@ proc set_max_transition { args } {
     lappend path_types "data"
   }
   
-  if { ($ports != {} || $pins != {} || $cells != {}) \
+  if { ($ports != {} || $cells != {}) \
 	 && ([info exists flags(-clock_path)] \
 	       || [info exists flags(-data_path)]
 	     || [info exists flags(-rise)]
 	     || [info exists flags(-fall)]) } {
-    sta_warn "-data_path, -clock_path, -rise, -fall ignored for ports, pins and designs."
+    sta_warn "-data_path, -clock_path, -rise, -fall ignored for ports and designs."
   }
   
   # -clock_path/-data_path and transition only apply to clock objects.
@@ -2636,9 +2648,6 @@ proc set_max_transition { args } {
   }
   foreach port $ports {
     set_slew_limit_port $port "max" $slew
-  }
-  foreach pin $pins {
-    set_slew_limit_pin $pin "max" $slew
   }
 }
 

@@ -154,7 +154,8 @@ Power::power(const Corner *corner,
     if (cell) {
       PowerResult inst_power;
       power(inst, corner, inst_power);
-      if (cell->isMacro())
+      if (cell->isMacro()
+	  || cell->isMemory())
 	macro.incr(inst_power);
       else if (cell->isPad())
 	pad.incr(inst_power);
@@ -596,7 +597,7 @@ Power::findInputInternalPower(const Pin *pin,
       for (auto rf : RiseFall::range()) {
 	float slew = delayAsFloat(graph_->slew(vertex, rf,
 					       dcalc_ap->index()));
-	if (!fuzzyInf(slew)) {
+	if (!delayInf(slew)) {
 	  float table_energy = pwr->power(rf, pvt, slew, load_cap);
 	  energy += table_energy;
 	  tr_count++;
@@ -621,7 +622,7 @@ Power::findInputInternalPower(const Pin *pin,
       float port_internal = energy * duty * activity.activity();
       debugPrint7(debug_, "power", 2,  " %3s %6s  %.2f  %.2f %9.2e %9.2e %s\n",
 		  port->name(),
-		  when->asString(),
+		  when ? when->asString() : "",
 		  activity.activity() * 1e-9,
 		  duty,
 		  energy,
@@ -734,7 +735,7 @@ Power::findOutputInternalPower(const Pin *to_pin,
 	? delayAsFloat(graph_->slew(from_vertex, from_rf,
 				    dcalc_ap->index()))
 	: 0.0;
-      if (!fuzzyInf(slew)) {
+      if (!delayInf(slew)) {
 	float table_energy = pwr->power(to_rf, pvt, slew, load_cap);
 	energy += table_energy;
 	tr_count++;
@@ -774,25 +775,26 @@ Power::findInputDuty(const Pin *to_pin,
   const LibertyPort *from_port = pwr->relatedPort();
   if (from_port) {
     const Pin *from_pin = network_->findPin(inst, from_port);
-    FuncExpr *when = pwr->when();
-    Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
-    if (func && func->hasPort(from_port)) {
-      PwrActivity from_activity = findActivity(from_pin);
-      PwrActivity to_activity = findActivity(to_pin);
-      float duty1 = evalActivityDifference(func, inst, from_port).duty();
-      if (to_activity.activity() == 0.0)
-	return 0.0;
-      else
-	return from_activity.activity() / to_activity.activity() * duty1;
+    if (from_pin) {
+      FuncExpr *when = pwr->when();
+      Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
+      if (func && func->hasPort(from_port)) {
+	PwrActivity from_activity = findActivity(from_pin);
+	PwrActivity to_activity = findActivity(to_pin);
+	float duty1 = evalActivityDifference(func, inst, from_port).duty();
+	if (to_activity.activity() == 0.0)
+	  return 0.0;
+	else
+	  return from_activity.activity() / to_activity.activity() * duty1;
+      }
+      else if (when)
+	return evalActivity(when, inst).duty();
+      else if (search_->isClock(from_vertex))
+	return 1.0;
+      return 0.5;
     }
-    else if (when)
-      return evalActivity(when, inst).duty();
-    else if (search_->isClock(from_vertex))
-      return 1.0;
-    return 0.5;
   }
-  else
-    return 0.0;
+  return 0.0;
 }
 
 static bool

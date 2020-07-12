@@ -1931,8 +1931,8 @@ ExceptionThru::matches(const Pin *from_pin,
   EdgePins edge_pins(const_cast<Pin*>(from_pin), const_cast<Pin*>(to_pin));
   return ((pins_ && pins_->hasKey(const_cast<Pin*>(to_pin)))
 	  || (edges_ && edges_->hasKey(&edge_pins))
-	  || (nets_ && nets_->hasKey(network->net(to_pin)))
-	  || (insts_ && insts_->hasKey(network->instance(to_pin))))
+	  || (nets_ && to_pin && nets_->hasKey(network->net(to_pin)))
+	  || (insts_ && to_pin && insts_->hasKey(network->instance(to_pin))))
     && rf_->matches(to_rf);
 }
 

@@ -223,6 +223,16 @@ NetworkNameAdapter::setVertexId(Pin *pin,
   network_->setVertexId(pin, id);
 }
 
+void
+NetworkNameAdapter::location(const Pin *pin,
+			     // Return values.
+			     double &x,
+			     double &y,
+			     bool &exists) const
+{
+  network_->location(pin, x, y, exists);
+}
+
 bool
 NetworkNameAdapter::isBundle(const Port *port) const
 {

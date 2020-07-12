@@ -1065,6 +1065,8 @@ using namespace sta;
     $1 = ReportPathFormat::summary;
   else if (stringEq(arg, "slack_only"))
     $1 = ReportPathFormat::slack_only;
+  else if (stringEq(arg, "json"))
+    $1 = ReportPathFormat::json;
   else {
     tclError(interp, "Error: unknown path type %s.", arg);
     return TCL_ERROR;
@@ -3517,15 +3519,6 @@ set_slew_limit_port(Port *port,
 }
 
 void
-set_slew_limit_pin(Pin *pin,
-		   const MinMax *min_max,
-		   float slew)
-{
-  cmdLinkedNetwork();
-  Sta::sta()->setSlewLimit(pin, min_max, slew);
-}
-
-void
 set_slew_limit_cell(Cell *cell,
 		    const MinMax *min_max,
 		    float slew)
@@ -3956,6 +3949,26 @@ set_cmd_unit_suffix(const char *unit_name,
   if (unit) {
     unit->setSuffix(suffix);
   }
+}
+
+const char *
+unit_scale_abreviation(const char *unit_name)
+{
+  Unit *unit = Sta::sta()->units()->find(unit_name);
+  if (unit)
+    return unit->scaleAbreviation();
+  else
+    return "";
+}
+
+const char *
+unit_suffix(const char *unit_name)
+{
+  Unit *unit = Sta::sta()->units()->find(unit_name);
+  if (unit)
+    return unit->suffix();
+  else
+    return "";
 }
 
 ////////////////////////////////////////////////////////////////
@@ -4613,6 +4626,8 @@ report_delay_calc_cmd(Edge *edge,
   return Sta::sta()->reportDelayCalc(edge, arc, corner, min_max, digits);
 }
 
+////////////////////////////////////////////////////////////////
+
 Pin *
 pin_min_slew_limit_slack(const Corner *corner,
 			 const MinMax *min_max)
@@ -4649,6 +4664,82 @@ report_slew_limit_verbose(Pin *pin,
 			  const MinMax *min_max)
 {
   Sta::sta()->reportSlewLimitVerbose(pin, corner, min_max);
+}
+
+////////////////////////////////////////////////////////////////
+
+Pin *
+pin_min_fanout_limit_slack(const MinMax *min_max)
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->pinMinFanoutLimitSlack(min_max);
+}
+
+PinSeq *
+pin_fanout_limit_violations(const MinMax *min_max)
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->pinFanoutLimitViolations(min_max);
+}
+
+void
+report_fanout_limit_short_header()
+{
+  Sta::sta()->reportFanoutLimitShortHeader();
+}
+
+void
+report_fanout_limit_short(Pin *pin,
+			  const MinMax *min_max)
+{
+  Sta::sta()->reportFanoutLimitShort(pin, min_max);
+}
+
+void
+report_fanout_limit_verbose(Pin *pin,
+			    const MinMax *min_max)
+{
+  Sta::sta()->reportFanoutLimitVerbose(pin, min_max);
+}
+
+////////////////////////////////////////////////////////////////
+
+Pin *
+pin_min_capacitance_limit_slack(const Corner *corner,
+				const MinMax *min_max)
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->pinMinCapacitanceLimitSlack(corner, min_max);
+}
+
+PinSeq *
+pin_capacitance_limit_violations(const Corner *corner,
+				 const MinMax *min_max)
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->pinCapacitanceLimitViolations(corner, min_max);
+}
+
+void
+report_capacitance_limit_short_header()
+{
+  Sta::sta()->reportCapacitanceLimitShortHeader();
+}
+
+void
+report_capacitance_limit_short(Pin *pin,
+			       const Corner *corner,
+			       const MinMax *min_max)
+{
+  Sta::sta()->reportCapacitanceLimitShort(pin, corner, min_max);
+}
+
+void
+report_capacitance_limit_verbose(Pin *pin,
+				 const Corner *corner,
+				 const MinMax *min_max)
+{
+  Sta::sta()->reportCapacitanceLimitVerbose(pin, corner, min_max);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -5211,6 +5302,27 @@ arrivals_invalid()
 {
   Sta *sta = Sta::sta();
   sta->arrivalsInvalid();
+}
+
+void
+delays_invalid()
+{
+  Sta *sta = Sta::sta();
+  sta->delaysInvalid();
+}
+
+const char *
+pin_location(Pin *pin)
+{
+  Network *network = cmdNetwork();
+  double x, y;
+  bool exists;
+  network->location(pin, x, y, exists);
+  // return x/y as tcl list
+  if (exists)
+    return sta::stringPrintTmp("%f %f", x, y);
+  else
+    return "";
 }
 
 %} // inline

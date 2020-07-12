@@ -1194,7 +1194,7 @@ Search::arrivalsChanged(Vertex *vertex,
       bool arrival_exists2;
       tag_bldr->tagArrival(tag1, arrival2, arrival_exists2);
       if (!arrival_exists2
-	  || !fuzzyEqual(arrival1, arrival2))
+	  || !delayEqual(arrival1, arrival2))
 	return true;
     }
     return false;
@@ -1238,7 +1238,7 @@ ArrivalVisitor::visitFromToPath(const Pin *,
   Tag *tag_match;
   tag_bldr_->tagMatchArrival(to_tag, tag_match, arrival, arrival_index);
   if (tag_match == nullptr
-      || fuzzyGreater(to_arrival, arrival, min_max)) {
+      || delayGreater(to_arrival, arrival, min_max, sta_)) {
     debugPrint5(debug, "search", 3, "   %s + %s = %s %s %s\n",
 		delayAsString(from_path->arrival(sta_), sta_),
 		delayAsString(arc_delay, sta_),
@@ -1258,7 +1258,7 @@ ArrivalVisitor::visitFromToPath(const Pin *,
       tag_bldr_no_crpr_->tagMatchArrival(to_tag, tag_match,
 					 arrival, arrival_index);
       if (tag_match == nullptr
-	  || fuzzyGreater(to_arrival, arrival, min_max)) {
+	  || delayGreater(to_arrival, arrival, min_max, sta_)) {
 	tag_bldr_no_crpr_->setMatchArrival(to_tag, tag_match,
 					   to_arrival, arrival_index,
 					   &prev_path);
@@ -1300,7 +1300,7 @@ ArrivalVisitor::pruneCrprArrivals()
 		    delayAsString(max_crpr, sta_),
 		    delayAsString(max_arrival_max_crpr, sta_));
 	Arrival arrival = tag_bldr_->arrival(arrival_index);
-	if (fuzzyGreater(max_arrival_max_crpr, arrival, min_max)) {
+	if (delayGreater(max_arrival_max_crpr, arrival, min_max, sta_)) {
 	  debugPrint1(debug, "search", 3, "  pruned %s\n",
 		      tag->asString(sta_));
 	  tag_bldr_->deleteArrival(tag);
@@ -2207,7 +2207,7 @@ PathVisitor::visitFromPath(const Pin *from_pin,
   }
   else {
     arc_delay = search->deratedDelay(from_vertex, arc, edge, false, path_ap);
-    if (!fuzzyEqual(arc_delay, min_max->initValue())) {
+    if (!delayEqual(arc_delay, min_max->initValue())) {
       to_arrival = from_arrival + arc_delay;
       to_tag = search->thruTag(from_tag, edge, to_rf, min_max, path_ap);
     }
@@ -2262,8 +2262,13 @@ Search::pathClkPathArrival(const Path *path) const
   pathClkPathArrival1(path, src_clk_path);
   if (!src_clk_path.isNull())
     return clkPathArrival(&src_clk_path);
-  else
-    return 0.0;
+  else {
+    // Check for input arrival clock.
+    ClockEdge *clk_edge = path->clkEdge(this);
+    if (clk_edge)
+      return clk_edge->time();
+  }
+  return 0.0;
 }
 
 // PathExpanded::expand() and PathExpanded::clkPath().
@@ -3249,7 +3254,7 @@ FindEndRequiredVisitor::visit(PathEnd *path_end)
     bool arrival_exists;
     path.arrivalIndex(arrival_index, arrival_exists);
     Required required = path_end->requiredTime(sta_);
-    required_cmp_->requiredSet(arrival_index, required, req_min);
+    required_cmp_->requiredSet(arrival_index, required, req_min, sta_);
   }
 }
 
@@ -3314,9 +3319,10 @@ RequiredCmp::requiredsInit(Vertex *vertex,
 void
 RequiredCmp::requiredSet(int arrival_index,
 			 Required required,
-			 const MinMax *min_max)
+			 const MinMax *min_max,
+			 const StaState *sta)
 {
-  if (fuzzyGreater(required, requireds_[arrival_index], min_max)) {
+  if (delayGreater(required, requireds_[arrival_index], min_max, sta)) {
     requireds_[arrival_index] = required;
     have_requireds_ = true;
   }
@@ -3341,7 +3347,7 @@ RequiredCmp::requiredsSave(Vertex *vertex,
       Required req = requireds_[arrival_index];
       if (prev_reqs) {
 	Required prev_req = path->required(sta);
-	if (!fuzzyEqual(prev_req, req)) {
+	if (!delayEqual(prev_req, req)) {
 	  debugPrint2(debug, "search", 3, "required save %s -> %s\n",
 		      delayAsString(prev_req, sta),
 		      delayAsString(req, sta));
@@ -3445,7 +3451,7 @@ RequiredVisitor::visitFromToPath(const Pin *,
     const MinMax *req_min = min_max->opposite();
     TagGroup *to_tag_group = sta_->search()->tagGroup(to_vertex);
     // Check to see if to_tag was pruned.
-    if (to_tag_group->hasTag(to_tag)) {
+    if (to_tag_group && to_tag_group->hasTag(to_tag)) {
       PathVertex to_path(to_vertex, to_tag, sta_);
       Required to_required = to_path.required(sta_);
       Required from_required = to_required - arc_delay;
@@ -3458,7 +3464,7 @@ RequiredVisitor::visitFromToPath(const Pin *,
 		  delayAsString(from_required, sta_),
 		  min_max == MinMax::max() ? "<" : ">",
 		  delayAsString(required_cmp_->required(arrival_index), sta_));
-      required_cmp_->requiredSet(arrival_index, from_required, req_min);
+      required_cmp_->requiredSet(arrival_index, from_required, req_min, sta_);
     }
     else {
       if (sta_->search()->crprApproxMissingRequireds()) {
@@ -3482,7 +3488,7 @@ RequiredVisitor::visitFromToPath(const Pin *,
 			min_max == MinMax::max() ? "<" : ">",
 			delayAsString(required_cmp_->required(arrival_index),
 				      sta_));
-	    required_cmp_->requiredSet(arrival_index, from_required, req_min);
+	    required_cmp_->requiredSet(arrival_index, from_required, req_min, sta_);
 	    break;
 	  }
 	}
@@ -3635,7 +3641,7 @@ Search::totalNegativeSlack(const MinMax *min_max)
   for (Corner *corner : *corners_) {
     PathAPIndex path_ap_index = corner->findPathAnalysisPt(min_max)->index();
     Slack tns1 = tns_[path_ap_index];
-    if (tns1 < tns)
+    if (delayLess(tns1, tns, this))
       tns = tns1;
   }
   return tns;
@@ -3730,7 +3736,7 @@ Search::tnsIncr(Vertex *vertex,
 		Slack slack,
 		PathAPIndex path_ap_index)
 {
-  if (fuzzyLess(slack, 0.0)) {
+  if (delayLess(slack, 0.0, this)) {
     debugPrint2(debug_, "tns", 3, "tns+ %s %s\n",
 		delayAsString(slack, this),
 		vertex->name(sdc_network_));
@@ -3749,7 +3755,7 @@ Search::tnsDecr(Vertex *vertex,
   bool found;
   tns_slacks_[path_ap_index].findKey(vertex, slack, found);
   if (found
-      && fuzzyLess(slack, 0.0)) {
+      && delayLess(slack, 0.0, this)) {
     debugPrint2(debug_, "tns", 3, "tns- %s %s\n",
 		delayAsString(slack, this),
 		vertex->name(sdc_network_));
@@ -3875,7 +3881,7 @@ FindEndSlackVisitor::visit(PathEnd *path_end)
     PathRef &path = path_end->pathRef();
     PathAPIndex path_ap_index = path.pathAnalysisPtIndex(sta_);
     Slack slack = path_end->slack(sta_);
-    if (fuzzyLess(slack, slacks_[path_ap_index]))
+    if (delayLess(slack, slacks_[path_ap_index], sta_))
       slacks_[path_ap_index] = slack;
   }
 }
@@ -3902,7 +3908,7 @@ Search::wnsSlacks(Vertex *vertex,
       PathAPIndex path_ap_index = path->pathAnalysisPtIndex(this);
       const Slack path_slack = path->slack(this);
       if (!path->tag(this)->isFilter()
-	  && fuzzyLess(path_slack, slacks[path_ap_index]))
+	  && delayLess(path_slack, slacks[path_ap_index], this))
 	slacks[path_ap_index] = path_slack;
     }
   }

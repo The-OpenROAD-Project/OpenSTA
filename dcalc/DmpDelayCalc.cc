@@ -244,7 +244,8 @@ DmpCeffTwoPoleDelayCalc::findParasitic(const Pin *drvr_pin,
 						parasitic_ap);
       // Estimated parasitics are not recorded in the "database", so
       // it for deletion after the drvr pin delay calc is finished.
-      unsaved_parasitics_.push_back(parasitic);
+      if (parasitic)
+	unsaved_parasitics_.push_back(parasitic);
       return parasitic;
     }
   }
@@ -346,7 +347,7 @@ DmpCeffTwoPoleDelayCalc::loadDelay(Parasitic *pole_residue,
 {
   ComplexFloat pole2, residue2;
   parasitics_->poleResidue(pole_residue, 1, pole2, residue2);
-  if (!fuzzyZero(drvr_slew_)
+  if (!delayZero(drvr_slew_)
       && pole2.imag() == 0.0
       && residue2.imag() == 0.0) {
     double p2 = pole2.real();

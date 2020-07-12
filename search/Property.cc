@@ -566,6 +566,8 @@ getProperty(const LibertyCell *cell,
     return PropertyValue(cell->libertyLibrary());
   else if (stringEqual(property, "is_buffer"))
     return PropertyValue(cell->isBuffer());
+  else if (stringEqual(property, "is_inverter"))
+    return PropertyValue(cell->isInverter());
   else if (stringEqual(property, "dont_use"))
     return PropertyValue(cell->dontUse());
   else
@@ -686,6 +688,8 @@ getProperty(const LibertyPort *port,
     float cap = port->capacitance(RiseFall::rise(), MinMax::max());
     return PropertyValue(sta->units()->capacitanceUnit()->asString(cap, 6));
   }
+  else if (stringEqual(property, "is_register_clock"))
+    return PropertyValue(port->isRegClk());
   else if (stringEqual(property, "drive_resistance_rise_min"))
     return PropertyValue(port->driveResistance(RiseFall::rise(),
 					       MinMax::min()));
@@ -732,13 +736,17 @@ getProperty(const Pin *pin,
 	    Sta *sta)
 {
   auto network = sta->cmdNetwork();
-  if (stringEqual(property, "direction"))
-    return PropertyValue(network->direction(pin)->name());
-  else if (stringEqual(property, "name")
-	   || stringEqual(property, "full_name"))
-    return PropertyValue(network->pathName(pin));
-  else if (stringEqual(property, "lib_pin_name"))
+  if (stringEqual(property, "name")
+      || stringEqual(property, "lib_pin_name"))
     return PropertyValue(network->portName(pin));
+  else if (stringEqual(property, "full_name"))
+    return PropertyValue(network->pathName(pin));
+  else if (stringEqual(property, "direction"))
+    return PropertyValue(network->direction(pin)->name());
+  else if (stringEqual(property, "is_register_clock")) {
+    const LibertyPort *port = network->libertyPort(pin);
+    return PropertyValue(port && port->isRegClk());
+  }
   else if (stringEqual(property, "clocks")) {
     ClockSet clks;
     sta->clocks(pin, clks);
@@ -793,12 +801,12 @@ pinSlewProperty(const Pin *pin,
   Slew slew = min_max->initValue();
   if (vertex) {
     Slew vertex_slew = sta->vertexSlew(vertex, rf, min_max);
-    if (fuzzyGreater(vertex_slew, slew, min_max))
+    if (delayGreater(vertex_slew, slew, min_max, sta))
       slew = vertex_slew;
   }
   if (bidirect_drvr_vertex) {
     Slew vertex_slew = sta->vertexSlew(bidirect_drvr_vertex, rf, min_max);
-    if (fuzzyGreater(vertex_slew, slew, min_max))
+    if (delayGreater(vertex_slew, slew, min_max, sta))
       slew = vertex_slew;
   }
   return PropertyValue(delayPropertyValue(slew, sta));
@@ -871,9 +879,9 @@ edgeDelayProperty(Edge *edge,
 	ArcDelay arc_delay = sta->arcDelay(edge, arc, dcalc_ap);
 	if (!delay_exists
 	    || ((min_max == MinMax::max()
-		 && arc_delay > delay)
+		 && delayGreater(arc_delay, delay, sta))
 		|| (min_max == MinMax::min()
-		    && arc_delay < delay)))
+		    && delayLess(arc_delay, delay, sta))))
 	  delay = arc_delay;
       }
     }
@@ -916,7 +924,9 @@ getProperty(Clock *clk,
   else if (stringEqual(property, "sources"))
     return PropertyValue(&clk->pins());
   else if (stringEqual(property, "propagated"))
-    return PropertyValue(clk->isPropagated() ? "1" : "0");
+    return PropertyValue(clk->isPropagated());
+  else if (stringEqual(property, "is_generated"))
+    return PropertyValue(clk->isGenerated());
   else
     throw PropertyUnknown("clock", property);
 }

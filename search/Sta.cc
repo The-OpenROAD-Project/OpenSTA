@@ -55,6 +55,8 @@
 #include "PathGroup.hh"
 #include "CheckTiming.hh"
 #include "CheckSlewLimits.hh"
+#include "CheckFanoutLimits.hh"
+#include "CheckCapacitanceLimits.hh"
 #include "CheckMinPulseWidths.hh"
 #include "CheckMinPeriods.hh"
 #include "CheckMaxSkews.hh"
@@ -256,6 +258,8 @@ Sta::Sta() :
   current_instance_(nullptr),
   check_timing_(nullptr),
   check_slew_limits_(nullptr),
+  check_fanout_limits_(nullptr),
+  check_capacitance_limits_(nullptr),
   check_min_pulse_widths_(nullptr),
   check_min_periods_(nullptr),
   check_max_skews_(nullptr),
@@ -438,6 +442,18 @@ Sta::makeCheckSlewLimits()
 }
 
 void
+Sta::makeCheckFanoutLimits()
+{
+  check_fanout_limits_ = new CheckFanoutLimits(this);
+}
+
+void
+Sta::makeCheckCapacitanceLimits()
+{
+  check_capacitance_limits_ = new CheckCapacitanceLimits(this);
+}
+
+void
 Sta::makeCheckMinPulseWidths()
 {
   check_min_pulse_widths_ = new CheckMinPulseWidths(this);
@@ -483,6 +499,8 @@ Sta::~Sta()
 {
   // Delete "top down" to minimize chance of referencing deleted memory.
   delete check_slew_limits_;
+  delete check_fanout_limits_;
+  delete check_capacitance_limits_;
   delete check_min_pulse_widths_;
   delete check_min_periods_;
   delete check_max_skews_;
@@ -537,8 +555,6 @@ Sta::clear()
 void
 Sta::networkChanged()
 {
-  // Remove sdc graph annotations.
-  sdc_->annotateGraph(false);
   // Everything else from clear().
   search_->clear();
   levelize_->clear();
@@ -980,14 +996,6 @@ Sta::setSlewLimit(Port *port,
 		  float slew)
 {
   sdc_->setSlewLimit(port, min_max, slew);
-}
-
-void
-Sta::setSlewLimit(Pin *pin,
-		  const MinMax *min_max,
-		  float slew)
-{
-  sdc_->setSlewLimit(pin, min_max, slew);
 }
 
 void
@@ -2675,7 +2683,7 @@ Sta::vertexWorstArrivalPath(Vertex *vertex,
     PathVertex *path = path_iter.next();
     Arrival arrival = path->arrival(this);
     if (!path->tag(this)->isGenClkSrcPath()
-	&& fuzzyGreater(arrival, worst_arrival, min_max)) {
+	&& delayGreater(arrival, worst_arrival, min_max, this)) {
       worst_arrival = arrival;
       worst_path.init(path);
     }
@@ -2695,7 +2703,7 @@ Sta::vertexWorstArrivalPath(Vertex *vertex,
     Arrival arrival = path->arrival(this);
     if (path->minMax(this) == min_max
 	&& !path->tag(this)->isGenClkSrcPath()
-	&& fuzzyGreater(arrival, worst_arrival, min_max)) {
+	&& delayGreater(arrival, worst_arrival, min_max, this)) {
       worst_arrival = arrival;
       worst_path.init(path);
     }
@@ -2715,7 +2723,7 @@ Sta::vertexWorstSlackPath(Vertex *vertex,
     PathVertex *path = path_iter.next();
     Slack slack = path->slack(this);
     if (!path->tag(this)->isGenClkSrcPath()
-	&& slack < min_slack) {
+	&& delayLess(slack, min_slack, this)) {
       min_slack = slack;
       worst_path.init(path);
     }
@@ -2736,7 +2744,7 @@ Sta::vertexWorstSlackPath(Vertex *vertex,
     if (path->minMax(this) == min_max
 	&& !path->tag(this)->isGenClkSrcPath()) {
       Slack slack = path->slack(this);
-      if (fuzzyLess(slack, min_slack)) {
+      if (delayLess(slack, min_slack, this)) {
 	min_slack = slack;
 	worst_path.init(path);
       }
@@ -2770,7 +2778,7 @@ Sta::vertexArrival(Vertex *vertex,
     if ((clk_edge == clk_edge_wildcard
 	 || clk_info->clkEdge() == clk_edge)
 	&& !clk_info->isGenClkSrcPath()
-	&& fuzzyGreater(path->arrival(this), arrival, min_max))
+	&& delayGreater(path->arrival(this), arrival, min_max, this))
       arrival = path_arrival;
   }
   return arrival;
@@ -2788,7 +2796,7 @@ Sta::vertexRequired(Vertex *vertex,
     const Path *path = path_iter.next();
     if (path->minMax(this) == min_max) {
       const Required path_required = path->required(this);
-      if (fuzzyGreater(path_required, required, req_min_max))
+      if (delayGreater(path_required, required, req_min_max, this))
 	required = path_required;
     }
   }
@@ -2818,7 +2826,7 @@ Sta::vertexRequired(Vertex *vertex,
     const Required path_required = path->required(this);
     if ((clk_edge == clk_edge_wildcard
 	 || path->clkEdge(search_) == clk_edge)
-	&& fuzzyGreater(path_required, required, min_max))
+	&& delayGreater(path_required, required, min_max, this))
       required = path_required;
   }
   return required;
@@ -2836,7 +2844,8 @@ Sta::netSlack(const Net *net,
     if (network_->isLoad(pin)) {
       Vertex *vertex = graph_->pinLoadVertex(pin);
       Slack pin_slack = vertexSlack(vertex, min_max);
-      slack = min(slack, pin_slack);
+      if (delayLess(pin_slack, slack, this))
+	slack = pin_slack;
     }
   }
   return slack;
@@ -2852,8 +2861,11 @@ Sta::pinSlack(const Pin *pin,
   Slack slack = MinMax::min()->initValue();
   if (vertex)
     slack = vertexSlack(vertex, min_max);
-  if (bidirect_drvr_vertex)
-    slack = min(slack, vertexSlack(bidirect_drvr_vertex, min_max));
+  if (bidirect_drvr_vertex) {
+    Slack slack1 = vertexSlack(bidirect_drvr_vertex, min_max);
+    if (delayLess(slack1, slack, this))
+      slack = slack1;
+  }
   return slack;
 }
 
@@ -2868,8 +2880,11 @@ Sta::pinSlack(const Pin *pin,
   Slack slack = MinMax::min()->initValue();
   if (vertex)
     slack = vertexSlack(vertex, rf, min_max);
-  if (bidirect_drvr_vertex)
-    slack = min(slack, vertexSlack(bidirect_drvr_vertex, rf, min_max));
+  if (bidirect_drvr_vertex) {
+    Slack slack1 = vertexSlack(bidirect_drvr_vertex, rf, min_max);
+    if (delayLess(slack1, slack, this))
+      slack = slack1;
+  }
   return slack;
 }
 
@@ -2885,7 +2900,7 @@ Sta::vertexSlack(Vertex *vertex,
     Path *path = path_iter.next();
     if (path->minMax(this) == min_max) {
       Slack path_slack = path->slack(this);
-      if (path_slack < slack)
+      if (delayLess(path_slack, slack, this))
 	slack = path_slack;
     }
   }
@@ -2903,7 +2918,7 @@ Sta::vertexSlack(Vertex *vertex,
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
     Slack path_slack = path->slack(this);
-    if (path_slack < slack)
+    if (delayLess(path_slack, slack, this))
       slack = path_slack;
   }
   return slack;
@@ -2942,7 +2957,7 @@ Sta::vertexSlack1(Vertex *vertex,
     Slack path_slack = path->slack(this);
     if ((clk_edge == clk_edge_wildcard
 	 || path->clkEdge(search_) == clk_edge)
-	&& path_slack < slack)
+	&& delayLess(path_slack, slack, this))
       slack = path_slack;
   }
   return slack;
@@ -2964,7 +2979,7 @@ Sta::vertexSlacks(Vertex *vertex,
     Slack path_slack = path->slack(this);
     int rf_index = path->rfIndex(this);
     int mm_index = path->minMax(this)->index();
-    if (path_slack < slacks[rf_index][mm_index])
+    if (delayLess(path_slack, slacks[rf_index][mm_index], this))
       slacks[rf_index][mm_index] = path_slack;
   }
 }
@@ -3159,7 +3174,7 @@ Sta::vertexSlew(Vertex *vertex,
   Slew mm_slew = min_max->initValue();
   for (DcalcAnalysisPt *dcalc_ap : corners_->dcalcAnalysisPts()) {
     Slew slew = graph_->slew(vertex, rf, dcalc_ap->index());
-    if (fuzzyGreater(slew, mm_slew, min_max))
+    if (delayGreater(slew, mm_slew, min_max, this))
       mm_slew = slew;
   }
   return mm_slew;
@@ -4781,7 +4796,7 @@ bool
 InstanceMaxSlewGreater::operator()(const Instance *inst1,
 				   const Instance *inst2) const
 {
-  return instMaxSlew(inst1) > instMaxSlew(inst2);
+  return delayGreater(instMaxSlew(inst1), instMaxSlew(inst2), sta_);
 }
 
 Slew
@@ -4798,7 +4813,7 @@ InstanceMaxSlewGreater::instMaxSlew(const Instance *inst) const
       for (RiseFall *rf : RiseFall::range()) {
 	for (DcalcAnalysisPt *dcalc_ap : sta_->corners()->dcalcAnalysisPts()) {
 	  Slew slew = graph->slew(vertex, rf, dcalc_ap->index());
-	  if (slew > max_slew)
+	  if (delayGreater(slew, max_slew, sta_))
 	    max_slew = slew;
 	}
       }
@@ -4823,13 +4838,13 @@ Sta::slowDrvrIterator()
   return new SlowDrvrIterator(insts);
 }
 
-////////////////////////////////////////////////////////////////'
+////////////////////////////////////////////////////////////////
 
 void
 Sta::checkSlewLimitPreamble()
 {
   if (sdc_->haveClkSlewLimits())
-    // Arrivals are needed to know what pin clock domains.
+    // Arrivals are needed to know pin clock domains.
     updateTiming(false);
   else
     findDelays();
@@ -4856,7 +4871,7 @@ Sta::pinSlewLimitViolations(const Corner *corner,
 void
 Sta::reportSlewLimitShortHeader()
 {
-  report_path_->reportSlewLimitShortHeader();
+  report_path_->reportLimitShortHeader(report_path_->fieldSlew());
 }
 
 void
@@ -4868,9 +4883,10 @@ Sta::reportSlewLimitShort(Pin *pin,
   const RiseFall *rf;
   Slew slew;
   float limit, slack;
-  check_slew_limits_->checkSlews(pin, corner, min_max,
-				 corner1, rf, slew, limit, slack);
-  report_path_->reportSlewLimitShort(pin, rf, slew, limit, slack);
+  check_slew_limits_->checkSlew(pin, corner, min_max, true,
+				corner1, rf, slew, limit, slack);
+  report_path_->reportLimitShort(report_path_->fieldSlew(), pin,
+				 delayAsFloat(slew), limit, slack);
 }
 
 void
@@ -4882,30 +4898,176 @@ Sta::reportSlewLimitVerbose(Pin *pin,
   const RiseFall *rf;
   Slew slew;
   float limit, slack;
-  check_slew_limits_->checkSlews(pin, corner, min_max,
-				 corner1, rf, slew, limit, slack);
-  report_path_->reportSlewLimitVerbose(pin, corner1, rf, slew,
-				       limit, slack, min_max);
+  check_slew_limits_->checkSlew(pin, corner, min_max, true,
+				corner1, rf, slew, limit, slack);
+  report_path_->reportLimitVerbose(report_path_->fieldSlew(), pin, rf,
+				   delayAsFloat(slew),
+				   limit, slack, min_max);
 }
 
 void
-Sta::checkSlews(const Pin *pin,
-		const Corner *corner,
-		const MinMax *min_max,
-		// Return values.
-		const Corner *&corner1,
-		const RiseFall *&rf,
-		Slew &slew,
-		float &limit,
-		float &slack)
+Sta::checkSlew(const Pin *pin,
+	       const Corner *corner,
+	       const MinMax *min_max,
+	       bool check_clks,
+	       // Return values.
+	       const Corner *&corner1,
+	       const RiseFall *&rf,
+	       Slew &slew,
+	       float &limit,
+	       float &slack)
 {
-  checkSlewLimitPreamble();
-  check_slew_limits_->init(min_max);
-  check_slew_limits_->checkSlews(pin, corner, min_max,
-				 corner1, rf, slew, limit, slack);
+  check_slew_limits_->checkSlew(pin, corner, min_max, check_clks,
+				corner1, rf, slew, limit, slack);
 }
 
 ////////////////////////////////////////////////////////////////'
+
+void
+Sta::checkFanoutLimitPreamble()
+{
+  if (check_fanout_limits_ == nullptr)
+    makeCheckFanoutLimits();
+  // For sim values and ideal clocks.
+  findDelays();
+}
+
+Pin *
+Sta::pinMinFanoutLimitSlack(const MinMax *min_max)
+{
+  checkFanoutLimitPreamble();
+  return check_fanout_limits_->pinMinFanoutLimitSlack(min_max);
+}
+
+PinSeq *
+Sta::pinFanoutLimitViolations(const MinMax *min_max)
+{
+  checkFanoutLimitPreamble();
+  return check_fanout_limits_->pinFanoutLimitViolations(min_max);
+}
+
+void
+Sta::reportFanoutLimitShortHeader()
+{
+  report_path_->reportLimitShortHeader(report_path_->fieldFanout());
+}
+
+void
+Sta::reportFanoutLimitShort(Pin *pin,
+			    const MinMax *min_max)
+{
+  float fanout, limit, slack;
+  check_fanout_limits_->checkFanout(pin, min_max,
+				    fanout, limit, slack);
+  report_path_->reportLimitShort(report_path_->fieldFanout(),
+				 pin, fanout, limit, slack);
+}
+
+void
+Sta::reportFanoutLimitVerbose(Pin *pin,
+			      const MinMax *min_max)
+{
+  float fanout, limit, slack;
+  check_fanout_limits_->checkFanout(pin, min_max,
+				    fanout, limit, slack);
+  report_path_->reportLimitVerbose(report_path_->fieldFanout(),
+				   pin, nullptr, fanout,
+				   limit, slack, min_max);
+}
+
+void
+Sta::checkFanout(const Pin *pin,
+		 const MinMax *min_max,
+		 // Return values.
+		 float &fanout,
+		 float &limit,
+		 float &slack)
+{
+  check_fanout_limits_->checkFanout(pin, min_max,
+				    fanout, limit, slack);
+}
+
+////////////////////////////////////////////////////////////////'
+
+void
+Sta::checkCapacitanceLimitPreamble()
+{
+  if (check_capacitance_limits_ == nullptr)
+    makeCheckCapacitanceLimits();
+  // For sim values and ideal clocks.
+  findDelays();
+}
+
+Pin *
+Sta::pinMinCapacitanceLimitSlack(const Corner *corner,
+			  const MinMax *min_max)
+{
+  checkCapacitanceLimitPreamble();
+  return check_capacitance_limits_->pinMinCapacitanceLimitSlack(corner, min_max);
+}
+
+PinSeq *
+Sta::pinCapacitanceLimitViolations(const Corner *corner,
+				   const MinMax *min_max)
+{
+  checkCapacitanceLimitPreamble();
+  return check_capacitance_limits_->pinCapacitanceLimitViolations(corner, min_max);
+}
+
+void
+Sta::reportCapacitanceLimitShortHeader()
+{
+  report_path_->reportLimitShortHeader(report_path_->fieldCapacitance());
+}
+
+void
+Sta::reportCapacitanceLimitShort(Pin *pin,
+				 const Corner *corner,
+				 const MinMax *min_max)
+{
+  const Corner *corner1;
+  const RiseFall *rf;
+  float capacitance, limit, slack;
+  check_capacitance_limits_->checkCapacitance(pin, corner, min_max,
+					      corner1, rf, capacitance,
+					      limit, slack);
+  report_path_->reportLimitShort(report_path_->fieldCapacitance(),
+				 pin, capacitance, limit, slack);
+}
+
+void
+Sta::reportCapacitanceLimitVerbose(Pin *pin,
+				   const Corner *corner,
+				   const MinMax *min_max)
+{
+  const Corner *corner1;
+  const RiseFall *rf;
+  float capacitance, limit, slack;
+  check_capacitance_limits_->checkCapacitance(pin, corner, min_max,
+					      corner1, rf, capacitance,
+					      limit, slack);
+  report_path_->reportLimitVerbose(report_path_->fieldCapacitance(),
+				   pin, rf, capacitance,
+				   limit, slack, min_max);
+}
+
+void
+Sta::checkCapacitance(const Pin *pin,
+		      const Corner *corner,
+		      const MinMax *min_max,
+		      // Return values.
+		      const Corner *&corner1,
+		      const RiseFall *&rf,
+		      float &capacitance,
+		      float &limit,
+		      float &slack)
+{
+  check_capacitance_limits_->checkCapacitance(pin, corner, min_max,
+					      corner1, rf, capacitance,
+					      limit, slack);
+}
+
+////////////////////////////////////////////////////////////////
 
 void
 Sta::minPulseWidthPreamble()

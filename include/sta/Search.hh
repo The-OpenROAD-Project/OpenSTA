@@ -752,7 +752,8 @@ public:
 		     const StaState *sta);
   void requiredSet(int arrival_index,
 		   Required required,
-		   const MinMax *min_max);
+		   const MinMax *min_max,
+		   const StaState *sta);
   // Return true if the requireds changed.
   bool requiredsSave(Vertex *vertex,
 		     const StaState *sta);

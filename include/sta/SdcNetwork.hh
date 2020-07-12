@@ -103,6 +103,11 @@ public:
   virtual VertexId vertexId(const Pin *pin) const;
   virtual void setVertexId(Pin *pin,
 			   VertexId id);
+  virtual void location(const Pin *pin,
+			// Return values.
+			double &x,
+			double &y,
+			bool &exists) const;
 
   virtual Net *net(const Term *term) const;
   virtual Pin *pin(const Term *term) const;
@@ -119,7 +124,6 @@ public:
   virtual void setPathDivider(char divider);
   virtual char pathEscape() const;
   virtual void setPathEscape(char escape);
-
 
   virtual bool isEditable() const;
   virtual LibertyLibrary *makeLibertyLibrary(const char *name,

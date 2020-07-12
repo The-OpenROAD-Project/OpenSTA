@@ -294,9 +294,9 @@ clkInfoCmp(const ClkInfo *clk_info1,
 
   const Arrival &insert1 = clk_info1->insertion();
   const Arrival &insert2 = clk_info2->insertion();
-  if (insert1 < insert2)
+  if (delayLess(insert1, insert2, sta))
     return -1;
-  if (insert1 > insert2)
+  if (delayGreater(insert1, insert2, sta))
     return 1;
 
   float latency1 = clk_info1->latency();

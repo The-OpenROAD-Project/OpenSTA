@@ -935,6 +935,17 @@ Network::findInstPinsMatching(const Instance *instance,
   }
 }
 
+void
+Network::location(const Pin *pin,
+		  // Return values.
+		  double &x,
+		  double &y,
+		  bool &exists) const
+{
+  x = y = 0.0;
+  exists = false;
+}
+
 int
 Network::instanceCount(Instance *inst)
 {

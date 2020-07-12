@@ -63,6 +63,7 @@ public:
   void reportPathEnd(PathEnd *end,
 		     PathEnd *prev_end);
   void reportPathEnds(PathEndSeq *ends);
+  // for debugging
   void reportPath(const Path *path);
 
   void reportShort(const PathEndUnconstrained *end,
@@ -137,34 +138,38 @@ public:
   void reportVerbose(MaxSkewCheck *check,
 		     string &result);
 
-  void reportSlewLimitShortHeader();
-  void reportSlewLimitShortHeader(string &result);
-  void reportSlewLimitShort(Pin *pin,
-			    const RiseFall *rf,
-			    Slew slew,
-			    float limit,
-			    float slack);
-  void reportSlewLimitShort(Pin *pin, const
-			    RiseFall *rf,
-			    Slew slew,
-			    float limit,
-			    float slack,
-			    string &result);
-  void reportSlewLimitVerbose(Pin *pin,
-			      const Corner *corner,
-			      const RiseFall *rf,
-			      Slew slew,
-			      float limit,
-			      float slack,
-			      const MinMax *min_max);
-  void reportSlewLimitVerbose(Pin *pin,
-			      const Corner *corner,
-			      const RiseFall *rf,
-			      Slew slew,
-			      float limit,
-			      float slack,
-			      const MinMax *min_max,
+  void reportLimitShortHeader(const ReportField *field);
+  void reportLimitShortHeader(const ReportField *field,
 			      string &result);
+  void reportLimitShort(const ReportField *field,
+			Pin *pin,
+			float value,
+			float limit,
+			float slack);
+  void reportLimitShort(const ReportField *field,
+			Pin *pin,
+			float value,
+			float limit,
+			float slack,
+			string &result);
+  void reportLimitVerbose(const ReportField *field,
+			  Pin *pin,
+			  const RiseFall *rf,
+			  float value,
+			  float limit,
+			  float slack,
+			  const MinMax *min_max);
+  void reportLimitVerbose(const ReportField *field,
+			  Pin *pin,
+			  const RiseFall *rf,
+			  float value,
+			  float limit,
+			  float slack,
+			  const MinMax *min_max,
+			  string &result);
+  ReportField *fieldSlew() const { return field_slew_; }
+  ReportField *fieldFanout() const { return field_fanout_; }
+  ReportField *fieldCapacitance() const { return field_capacitance_; }
 
 protected:
   void makeFields();
@@ -199,6 +204,8 @@ protected:
 		   string &result);
   void reportEndpoint(const PathEndOutputDelay *end,
 		      string &result);
+  void reportEndpointOutputDelay(const PathEndClkConstrained *end,
+				 string &result);
   void reportEndpoint(const PathEndPathDelay *end,
 		      string &result);
   void reportEndpoint(const PathEndGatedClock *end,
@@ -335,6 +342,10 @@ protected:
 		  string &result);
   void reportPath(const Path *path,
 		  string &result);
+  void reportPathFull(const Path *path,
+		      string &result);
+  void reportPathJson(const Path *path,
+		      string &result);
   void reportPathHeader(string &result);
   void reportPath1(const Path *path,
 		   PathExpanded &expanded,
@@ -453,12 +464,12 @@ protected:
 			ReportField *field,
 			string &result);
   void reportField(float value,
-		   ReportField *field,
+		   const ReportField *field,
 		   string &result);
   void reportField(const char *value,
-		   ReportField *field,
+		   const ReportField *field,
 		   string &result);
-  void reportFieldBlank(ReportField *field,
+  void reportFieldBlank(const ReportField *field,
 			string &result);
   void reportDashLine(string &result);
   void reportDashLine(int line_width,
@@ -514,6 +525,9 @@ protected:
 			     PathRef &ref_path);
   const char *asRisingFalling(const RiseFall *rf);
   const char *asRiseFall(const RiseFall *rf);
+  Delay delayIncr(Delay time,
+		  Delay prev,
+		  const MinMax *min_max);
 
   // Path options.
   ReportPathFormat format_;
@@ -564,7 +578,7 @@ public:
   void setWidth(int width);
   bool leftJustify() const { return left_justify_; }
   Unit *unit() const { return unit_; }
-  const char *blank() { return blank_; }
+  const char *blank() const { return blank_; }
   void setEnabled(bool enabled);
   bool enabled() const { return enabled_; }
 
