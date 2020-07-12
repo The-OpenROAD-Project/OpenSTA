@@ -268,7 +268,8 @@ Sta::Sta() :
   power_(nullptr),
   link_make_black_boxes_(true),
   update_genclks_(false),
-  equiv_cells_(nullptr)
+  equiv_cells_(nullptr),
+  graph_sdc_annotated_(false)
 {
 }
 
@@ -535,6 +536,7 @@ Sta::clear()
   // Constraints reference search filter, so clear search first.
   search_->clear();
   sdc_->clear();
+  graph_sdc_annotated_ = false;
   // corners are NOT cleared because they are used to index liberty files.
   levelize_->clear();
   if (parasitics_)
@@ -1202,6 +1204,19 @@ Sta::setClockLatency(Clock *clk,
 void
 Sta::sdcChangedGraph()
 {
+  if (graph_sdc_annotated_)
+    // Remove graph constraint annotations.
+    sdc_->annotateGraph(false);
+  graph_sdc_annotated_ = false;
+}
+
+void
+Sta::ensureGraphSdcAnnotated()
+{
+  if (!graph_sdc_annotated_) {
+    sdc_->annotateGraph(true);
+    graph_sdc_annotated_ = true;
+  }
 }
 
 void
@@ -1421,6 +1436,7 @@ Sta::removeDataCheck(Pin *from,
 void
 Sta::disable(Pin *pin)
 {
+  sdcChangedGraph();
   sdc_->disable(pin);
   // Levelization respects disabled edges.
   levelize_->invalid();
@@ -1431,6 +1447,7 @@ Sta::disable(Pin *pin)
 void
 Sta::removeDisable(Pin *pin)
 {
+  sdcChangedGraph();
   sdc_->removeDisable(pin);
   disableAfter();
   // Levelization respects disabled edges.
@@ -3189,7 +3206,6 @@ Sta::ensureGraph()
     makeGraph();
     // Update pointers to graph.
     updateComponentsState();
-    sdc_->annotateGraph(true);
   }
   return graph_;
 }
@@ -3205,6 +3221,7 @@ void
 Sta::ensureLevelized()
 {
   ensureGraph();
+  ensureGraphSdcAnnotated();
   // Need constant propagation before levelization to know edges that
   // are disabled by constants.
   sim_->ensureConstantsPropagated();
@@ -4403,6 +4420,7 @@ void
 Sta::findRegisterPreamble()
 {
   ensureGraph();
+  ensureGraphSdcAnnotated();
   sim_->ensureConstantsPropagated();
 }
 

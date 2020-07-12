@@ -31,7 +31,6 @@
 #include "Transition.hh"
 #include "PortDirection.hh"
 #include "Network.hh"
-#include "HpinDrvrLoad.hh"
 #include "RiseFallMinMax.hh"
 #include "Clock.hh"
 #include "ClockLatency.hh"
@@ -48,6 +47,7 @@
 #include "DeratingFactors.hh"
 #include "search/Levelize.hh"
 #include "Corner.hh"
+#include "Graph.hh"
 
 namespace sta {
 
@@ -1299,88 +1299,6 @@ ClkHpinDisableLess::operator()(const ClkHpinDisable *disable1,
   }
   else
     return clk_index1 < clk_index2;
-}
-
-class FindClkHpinDisables : public HpinDrvrLoadVisitor
-{
-public:
-  FindClkHpinDisables(Clock *clk,
-		      const Network *network,
-		      Sdc *sdc);
-  ~FindClkHpinDisables();
-  bool drvrLoadExists(Pin *drvr,
-		      Pin *load);
-
-protected:
-  virtual void visit(HpinDrvrLoad *drvr_load);
-  void makeClkHpinDisables(Pin *clk_src,
-			   Pin *drvr,
-			   Pin *load);
-
-  Clock *clk_;
-  PinPairSet drvr_loads_;
-  const Network *network_;
-  Sdc *sdc_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(FindClkHpinDisables);
-};
-
-FindClkHpinDisables::FindClkHpinDisables(Clock *clk,
-					 const Network *network,
-					 Sdc *sdc) :
-  HpinDrvrLoadVisitor(),
-  clk_(clk),
-  network_(network),
-  sdc_(sdc)
-{
-}
-
-FindClkHpinDisables::~FindClkHpinDisables()
-{
-  drvr_loads_.deleteContents();
-}
-
-void
-FindClkHpinDisables::visit(HpinDrvrLoad *drvr_load)
-{
-  Pin *drvr = drvr_load->drvr();
-  Pin *load = drvr_load->load();
-
-  makeClkHpinDisables(drvr, drvr, load);
-
-  PinSet *hpins_from_drvr = drvr_load->hpinsFromDrvr();
-  PinSet::Iterator hpin_iter(hpins_from_drvr);
-  while (hpin_iter.hasNext()) {
-    Pin *hpin = hpin_iter.next();
-    makeClkHpinDisables(hpin, drvr, load);
-  }
-  drvr_loads_.insert(new PinPair(drvr, load));
-}
-
-void
-FindClkHpinDisables::makeClkHpinDisables(Pin *clk_src,
-					 Pin *drvr,
-					 Pin *load)
-{
-  ClockSet *clks = sdc_->findClocks(clk_src);
-  ClockSet::Iterator clk_iter(clks);
-  while (clk_iter.hasNext()) {
-    Clock *clk = clk_iter.next();
-    if (clk != clk_)
-      // Do not propagate clock from source pin if another
-      // clock is defined on a hierarchical pin between the
-      // driver and load.
-      sdc_->makeClkHpinDisable(clk, drvr, load);
-  }
-}
-
-bool
-FindClkHpinDisables::drvrLoadExists(Pin *drvr,
-				    Pin *load)
-{
-  PinPair probe(drvr, load);
-  return drvr_loads_.hasKey(&probe);
 }
 
 void

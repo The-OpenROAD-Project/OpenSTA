@@ -141,6 +141,7 @@ set(STA_SOURCE
   sdc/RiseFallMinMax.cc
   sdc/RiseFallValues.cc
   sdc/Sdc.cc
+  sdc/SdcGraph.cc
   sdc/SdcCmdComment.cc
   sdc/WriteSdc.cc
   
