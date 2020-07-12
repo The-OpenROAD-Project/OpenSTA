@@ -970,7 +970,8 @@ Genclks::recordSrcPaths(Clock *gclk)
 	    && (src_path.isNull()
 		|| delayGreater(path->arrival(this),
 				src_path.arrival(this),
-				early_late))) {
+				early_late,
+				this))) {
 	  debugPrint4(debug_, "genclk", 2, "  %s insertion %s %s %s\n",
 		      network_->pathName(gclk_pin),
 		      early_late->asString(),

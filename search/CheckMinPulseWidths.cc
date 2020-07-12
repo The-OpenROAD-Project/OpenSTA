@@ -167,7 +167,7 @@ void
 MinPulseWidthViolatorsVisitor::visit(MinPulseWidthCheck &check,
 				     const StaState *sta)
 {
-  if (delayLess(check.slack(sta), 0.0)
+  if (delayLess(check.slack(sta), 0.0, sta)
       && (corner_ == nullptr
 	  || check.corner(sta) == corner_)) {
     MinPulseWidthCheck *copy = new MinPulseWidthCheck(check.openPath());
@@ -499,7 +499,7 @@ MinPulseWidthSlackLess::operator()(const MinPulseWidthCheck *check1,
   Slack slack2 = check2->slack(sta_);
   const Pin *pin1 = check1->pin(sta_);
   const Pin *pin2 = check2->pin(sta_);
-  return delayLess(slack1, slack2)
+  return delayLess(slack1, slack2, sta_)
     || (delayEqual(slack1, slack2)
 	// Break ties for the sake of regression stability.
 	&& (sta_->network()->pinLess(pin1, pin2)

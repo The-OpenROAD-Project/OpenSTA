@@ -1244,7 +1244,7 @@ PathEndLatchCheck::targetClkWidth(const StaState *sta) const
   if (enable_clk_info->isPulseClk())
     return disable_arrival - enable_arrival;
   else {
-    if (delayGreater(enable_arrival, disable_arrival)) {
+    if (delayGreater(enable_arrival, disable_arrival, sta)) {
       float period = enable_clk_info->clock()->period();
       disable_arrival += period;
     }
@@ -1999,14 +1999,14 @@ PathEnd::cmpSlack(const PathEnd *path_end1,
     // based on borrow time.
     if (delayEqual(borrow1, borrow2))
       return 0;
-    else if (delayGreater(borrow1, borrow2))
+    else if (delayGreater(borrow1, borrow2, sta))
       return -1;
     else
       return 1;
   }
   else if (delayEqual(slack1, slack2))
     return 0;
-  else if (delayLess(slack1, slack2))
+  else if (delayLess(slack1, slack2, sta))
     return -1;
   else
     return 1;
@@ -2022,7 +2022,7 @@ PathEnd::cmpArrival(const PathEnd *path_end1,
   const MinMax *min_max = path_end1->minMax(sta);
   if (delayEqual(arrival1, arrival2))
     return 0;
-  else if (delayLess(arrival1, arrival2, min_max))
+  else if (delayLess(arrival1, arrival2, min_max, sta))
     return -1;
   else
     return 1;

@@ -96,33 +96,42 @@ delayEqual(const Delay &delay1,
 	   const Delay &delay2);
 bool
 delayLess(const Delay &delay1,
-	  const Delay &delay2);
+	  const Delay &delay2,
+	  const StaState *sta);
 bool
 delayLess(const Delay &delay1,
 	  const Delay &delay2,
-	  const MinMax *min_max);
-bool
-delayLessEqual(const Delay &delay1,
-	       const Delay &delay2);
+	  const MinMax *min_max,
+	  const StaState *sta);
 bool
 delayLessEqual(const Delay &delay1,
 	       const Delay &delay2,
-	       const MinMax *min_max);
+	       const StaState *sta);
 bool
-delayGreater(const Delay &delay1,
-	     const Delay &delay2);
+delayLessEqual(const Delay &delay1,
+	       const Delay &delay2,
+	       const MinMax *min_max,
+	       const StaState *sta);
 bool
 delayGreater(const Delay &delay1,
 	     const Delay &delay2,
-	     const MinMax *min_max);
-bool
-delayGreaterEqual(const Delay &delay1,
-		  const Delay &delay2);
+	     const StaState *sta);
 bool
 delayGreaterEqual(const Delay &delay1,
 		  const Delay &delay2,
-		  const MinMax *min_max);
+		  const StaState *sta);
+bool
+delayGreaterEqual(const Delay &delay1,
+		  const Delay &delay2,
+		  const MinMax *min_max,
+		  const StaState *sta);
+bool
+delayGreater(const Delay &delay1,
+	     const Delay &delay2,
+	     const MinMax *min_max,
+	     const StaState *sta);
 
+// delay1-delay2 subtracting sigma instead of addiing.
 Delay
 delayRemove(const Delay &delay1,
 	    const Delay &delay2);

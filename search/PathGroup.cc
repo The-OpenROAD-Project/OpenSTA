@@ -101,19 +101,19 @@ PathGroup::savable(PathEnd *path_end)
     // without crpr first because it is expensive to find.
     Slack slack = path_end->slackNoCrpr(sta_);
     if (!delayIsInitValue(slack, min_max_)
- 	&& delayLessEqual(slack, threshold_)
- 	&& delayLessEqual(slack, slack_max_)) {
+ 	&& delayLessEqual(slack, threshold_, sta_)
+ 	&& delayLessEqual(slack, slack_max_, sta_)) {
       // Now check with crpr.
       slack = path_end->slack(sta_);
-      savable = delayLessEqual(slack, threshold_)
- 	&& delayLessEqual(slack, slack_max_)
- 	&& delayGreaterEqual(slack, slack_min_);
+      savable = delayLessEqual(slack, threshold_, sta_)
+ 	&& delayLessEqual(slack, slack_max_, sta_)
+ 	&& delayGreaterEqual(slack, slack_min_, sta_);
     }
   }
   else {
     const Arrival &arrival = path_end->dataArrivalTime(sta_);
     savable = !delayIsInitValue(arrival, min_max_)
-      && delayGreaterEqual(arrival, threshold_, min_max_);
+      && delayGreaterEqual(arrival, threshold_, min_max_, sta_);
   }
   return savable;
 }

@@ -578,7 +578,7 @@ ReportPath::reportFull(const PathEndLatchCheck *end,
   else
     reportTgtClk(end, result);
 
-  if (delayGreaterEqual(borrow, 0.0))
+  if (delayGreaterEqual(borrow, 0.0, this))
     reportLine("time borrowed from endpoint", borrow, req_time,
 	       early_late, result);
   else
@@ -659,7 +659,7 @@ ReportPath::reportBorrowing(const PathEndLatchCheck *end,
       reportLineTotalMinus("CRPR difference", crpr_diff, early_late, result);
     reportLineTotal("max time borrow", max_borrow, early_late, result);
   }
-  if (delayGreater(borrow, delay_zero)
+  if (delayGreater(borrow, delay_zero, this)
       && (!fuzzyZero(open_uncertainty)
 	  || !delayZero(open_crpr))) {
     reportDashLineTotal(result);
@@ -2050,7 +2050,7 @@ ReportPath::reportSrcClkAndPath(const Path *path,
       else if (clk_used_as_data) {
 	reportClkLine(clk, clk_name.c_str(), clk_end_rf, clk_time,
 		      early_late, result);
- 	if (delayGreater(clk_insertion, 0.0))
+ 	if (delayGreater(clk_insertion, 0.0, this))
 	  reportClkSrcLatency(clk_insertion, clk_time, early_late, result);
 	if (reportClkPath())
 	  reportPath1(path, expanded, true, time_offset, result);
@@ -2067,7 +2067,7 @@ ReportPath::reportSrcClkAndPath(const Path *path,
       }
       else {
 	if (is_path_delay) {
-	  if (delayGreater(clk_delay, 0.0))
+	  if (delayGreater(clk_delay, 0.0, this))
 	    reportLine(clkNetworkDelayIdealProp(is_prop), clk_delay,
 		       clk_end_time, early_late, result);
 	}
@@ -2613,7 +2613,7 @@ ReportPath::reportPath1(const Path *path,
       }
       Arrival time = latch_enable_time + latch_time_given;
       Arrival incr = latch_time_given;
-      if (delayGreaterEqual(incr, 0.0))
+      if (delayGreaterEqual(incr, 0.0, this))
 	reportLine("time given to startpoint", incr, time, early_late, result);
       else
 	reportLine("time borrowed from startpoint", incr, time,
