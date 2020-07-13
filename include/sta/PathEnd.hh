@@ -142,6 +142,7 @@ public:
   virtual TimingArc *checkArc() const { return nullptr; }
   // PathEndDataCheck data clock path.
   virtual const PathVertex *dataClkPath() const { return nullptr; }
+  virtual int setupDefaultCycles() const { return 1; }
 
   static bool less(const PathEnd *path_end1,
 		   const PathEnd *path_end2,
@@ -181,6 +182,7 @@ public:
   static float checkSetupMcpAdjustment(const ClockEdge *src_clk_edge,
 				       const ClockEdge *tgt_clk_edge,
 				       const MultiCyclePath *mcp,
+				       int default_cycles,
 				       Sdc *sdc);
 
 protected:
@@ -545,6 +547,8 @@ protected:
 		   Crpr crpr,
 		   bool crpr_valid);
   Arrival requiredTimeNoCrpr(const StaState *sta) const;
+  // setup uses zero cycle default
+  virtual int setupDefaultCycles() const { return 0; }
 
 private:
   PathVertex data_clk_path_;

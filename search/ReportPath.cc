@@ -947,8 +947,8 @@ ReportPath::reportFull(const PathEndDataCheck *end,
   reportShort(end, expanded, result);
   reportSrcPathArrival(end, expanded, result);
 
-  // Capture/target clock path reporting resembles both source (reportSrcPath)
-  // and target (reportTgtClk) clocks. 
+  // Data check target clock path reporting resembles 
+  // both source (reportSrcPath) and target (reportTgtClk) clocks. 
   // It is like a source because it can be a non-clock path.
   // It is like a target because crpr and uncertainty are reported.
   // It is always propagated, even if the clock is ideal.
@@ -960,12 +960,14 @@ ReportPath::reportFull(const PathEndDataCheck *end,
     float src_offset = end->sourceClkOffset(this);
     Delay clk_delay = end->targetClkDelay(this);
     Arrival clk_arrival = end->targetClkArrival(this);
-    float offset = delayAsFloat(clk_arrival - clk_delay + src_offset);
+    ClockEdge *tgt_clk_edge = end->targetClkEdge(this);
+    float prev = delayAsFloat(clk_arrival) + src_offset;
+    float offset = prev - delayAsFloat(clk_delay) - tgt_clk_edge->time();
     reportPath5(data_clk_path, clk_expanded, clk_expanded.startIndex(),
 		clk_expanded.size() - 1,
 		data_clk_path->clkInfo(search_)->isPropagated(), false,
 		// Delay to startpoint is already included.
-		clk_arrival + src_offset, offset, result);
+		prev, offset, result);
   }
   reportRequired(end, checkRoleReason(end), result);
   reportSlack(end, result);

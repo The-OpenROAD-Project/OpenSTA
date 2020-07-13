@@ -358,7 +358,9 @@ PathEnd::checkTgtClkDelay(const PathVertex *tgt_clk_path,
     const RiseFall *tgt_clk_rf = tgt_clk_edge->transition();
     insertion = search->clockInsertion(tgt_clk, tgt_src_pin, tgt_clk_rf,
 				       min_max, early_late, tgt_path_ap);
-    if (clk_info->isPropagated()) {
+    if (clk_info->isPropagated()
+	// Data check target clock is always propagated.
+	|| check_role->isDataCheck()) {
       // Propagated clock.  Propagated arrival is seeded with
       // early_late==path_min_max insertion delay.
       Arrival clk_arrival = tgt_clk_path->arrival(sta);
@@ -824,7 +826,7 @@ PathEndClkConstrainedMcp::checkMcpAdjustment(const Path *path,
     Sdc *sdc = sta->sdc();
     if (min_max == MinMax::max())
       return PathEnd::checkSetupMcpAdjustment(src_clk_edge, tgt_clk_edge,
-					      mcp_, sdc);
+					      mcp_, setupDefaultCycles(), sdc);
     else {
       // Hold check.
       // Default arrival clock is a proxy for the target clock.
@@ -874,6 +876,7 @@ float
 PathEnd::checkSetupMcpAdjustment(const ClockEdge *src_clk_edge,
 				 const ClockEdge *tgt_clk_edge,
 				 const MultiCyclePath *mcp,
+				 int default_cycles,
 				 Sdc *sdc)
 {
   if (mcp) {
@@ -887,7 +890,7 @@ PathEnd::checkSetupMcpAdjustment(const ClockEdge *src_clk_edge,
       const ClockEdge *clk_edge =
 	mcp->useEndClk() ? tgt_clk_edge : src_clk_edge;
       float period = clk_edge->clock()->period();
-      return (mult - 1) * period;
+      return (mult - default_cycles) * period;
     }
     else
       return 0.0;

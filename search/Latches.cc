@@ -92,7 +92,7 @@ Latches::latchRequired(const Path *data_path,
       + open_latency
       + open_uncertainty
       + PathEnd::checkSetupMcpAdjustment(data_clk_edge, enable_clk_edge, mcp,
-					 sdc_)
+					 1, sdc_)
       + open_crpr;
     debugPrint3(debug_, "latch", 1, "latch data %s %s enable %s\n",
 		network_->pathName(data_path->pin(this)),
