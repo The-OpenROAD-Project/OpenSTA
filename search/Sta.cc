@@ -570,6 +570,7 @@ Sta::networkChanged()
     check_min_periods_->clear();
   delete graph_;
   graph_ = nullptr;
+  graph_sdc_annotated_ = false;
   current_instance_ = nullptr;
   updateComponentsState();
 }
