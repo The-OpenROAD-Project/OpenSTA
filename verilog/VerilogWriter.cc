@@ -32,7 +32,7 @@ class VerilogWriter
 public:
   VerilogWriter(const char *filename,
 		bool sort,
-		LibertyCellSeq *remove_cells,
+		vector<LibertyCell*> *remove_cells,
 		FILE *stream,
 		Network *network);
   void writeModule(Instance *inst);
@@ -67,7 +67,7 @@ protected:
 void
 writeVerilog(const char *filename,
 	     bool sort,
-	     LibertyCellSeq *remove_cells,
+	     vector<LibertyCell*> *remove_cells,
 	     Network *network)
 {
   if (network->topInstance()) {
@@ -84,7 +84,7 @@ writeVerilog(const char *filename,
 
 VerilogWriter::VerilogWriter(const char *filename,
 			     bool sort,
-			     LibertyCellSeq *remove_cells,
+			     vector<LibertyCell*> *remove_cells,
 			     FILE *stream,
 			     Network *network) :
   filename_(filename),
@@ -93,8 +93,10 @@ VerilogWriter::VerilogWriter(const char *filename,
   network_(network),
   unconnected_net_index_(1)
 {
-  for(LibertyCell *lib_cell : *remove_cells)
-    remove_cells_.insert(network->cell(lib_cell));
+  if (remove_cells) {
+    for(LibertyCell *lib_cell : *remove_cells)
+      remove_cells_.insert(network->cell(lib_cell));
+  }
 }
 
 void

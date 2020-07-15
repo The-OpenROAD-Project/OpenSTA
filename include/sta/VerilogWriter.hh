@@ -16,16 +16,18 @@
 
 #pragma once
 
+#include <vector>
 #include "LibertyClass.hh"
 
 namespace sta {
 
+using std::vector;
 class Network;
 
 void
 writeVerilog(const char *filename,
 	     bool sort,
-	     LibertyCellSeq *remove_cells,
+	     vector<LibertyCell*> *remove_cells,
 	     Network *network);
 
 } // namespace
