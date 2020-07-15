@@ -25,6 +25,7 @@
 using sta::Sta;
 using sta::NetworkReader;
 using sta::readVerilogFile;
+using sta::LibertyCellSeq;
 
 %}
 
@@ -51,13 +52,14 @@ delete_verilog_reader()
 
 void
 write_verilog_cmd(const char *filename,
-		  bool sort)
+		  bool sort,
+		  LibertyCellSeq *remove_cells)
 {
   // This does NOT want the SDC (cmd) network because it wants
   // to see the sta internal names.
   Sta *sta = Sta::sta();
   Network *network = sta->network();
-  writeVerilog(filename, sort, network);
+  writeVerilog(filename, sort, remove_cells, network);
 }
 
 %} // inline

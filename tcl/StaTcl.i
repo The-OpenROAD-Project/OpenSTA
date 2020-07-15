@@ -429,6 +429,10 @@ using namespace sta;
   Tcl_SetObjResult(interp, list);
 }
 
+%typemap(in) LibertyCellSeq* {
+  $1 = tclListSeqLibertyCell($input, interp);
+}
+
 %typemap(out) TmpCellSeq* {
   Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   CellSeq *cells = $1;

@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include "LibertyClass.hh"
+
 namespace sta {
 
 class Network;
@@ -23,6 +25,7 @@ class Network;
 void
 writeVerilog(const char *filename,
 	     bool sort,
+	     LibertyCellSeq *remove_cells,
 	     Network *network);
 
 } // namespace

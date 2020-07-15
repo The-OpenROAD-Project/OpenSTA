@@ -1145,6 +1145,12 @@ proc parse_libcell_libport_inst_port_pin_edge_timing_arc_set_arg { objects \
     edges timing_arc_sets
 }
 
+proc parse_libcell_arg { objects } {
+  set libcells {}
+  get_object_args $objects {} libcells {} {} {} {} {} {} {} {}
+  return $libcells
+}
+
 proc parse_libcell_inst_arg { objects libcells_var insts_var } {
   upvar 1 $libcells_var libcells
   upvar 1 $insts_var insts
