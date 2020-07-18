@@ -17,12 +17,13 @@
 #pragma once
 
 #include <vector>
-#include "LibertyClass.hh"
 
 namespace sta {
 
 using std::vector;
+
 class Network;
+class LibertyCell;
 
 void
 writeVerilog(const char *filename,

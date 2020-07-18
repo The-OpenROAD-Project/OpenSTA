@@ -25,7 +25,6 @@
 using sta::Sta;
 using sta::NetworkReader;
 using sta::readVerilogFile;
-using sta::LibertyCellSeq;
 
 %}
 
