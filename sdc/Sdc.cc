@@ -1240,12 +1240,6 @@ Sdc::findClocksMatching(PatternMatch *pattern,
   }
 }
 
-ClockIterator *
-Sdc::clockIterator()
-{
-  return new ClockIterator(clocks_);
-}
-
 void
 Sdc::sortedClocks(ClockSeq &clks)
 {

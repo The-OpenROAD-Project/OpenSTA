@@ -699,9 +699,4 @@ sortClockSet(ClockSet *set,
   sort(clks, ClockNameLess());
 }
 
-ClockPinIterator::ClockPinIterator(Clock *clk) :
-  PinSet::Iterator(clk->pins())
-{
-}
-
 } // namespace

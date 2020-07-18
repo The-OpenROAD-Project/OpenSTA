@@ -1102,35 +1102,10 @@ Sta::removeClock(Clock *clk)
   search_->arrivalsInvalid();
 }
 
-Clock *
-Sta::findClock(const char *name) const
-{
-  return sdc_->findClock(name);
-}
-
-void
-Sta::findClocksMatching(PatternMatch *pattern,
-			ClockSeq *clks) const
-{
-  sdc_->findClocksMatching(pattern, clks);
-}
-
-ClockIterator *
-Sta::clockIterator() const
-{
-  return new ClockIterator(sdc_);
-}
-
 bool
 Sta::isClockSrc(const Pin *pin) const
 {
   return sdc_->isClock(pin);
-}
-
-Clock *
-Sta::defaultArrivalClock() const
-{
-  return sdc_->defaultArrivalClock();
 }
 
 void
@@ -2425,11 +2400,6 @@ void
 Sta::setCmdCorner(Corner *corner)
 {
   cmd_corner_ = corner;
-}
-
-void
-Sta::setPathMinMax(const MinMaxAll *)
-{
 }
 
 ////////////////////////////////////////////////////////////////

@@ -45,15 +45,6 @@ proc report_clock1 { clk } {
   }
 }
 
-proc_redirect read_parasitics {
-  variable native
-
-  if { $native } {
-    sta_warn "The read_parasitics command is deprecated. Use read_spef."
-  }
-  eval [concat read_spef $args]
-}
-
 proc check_setup_cmd { cmd cmd_args } {
   parse_key_args $cmd cmd_args keys {} flags {-verbose} 0
   # When nothing is everything.

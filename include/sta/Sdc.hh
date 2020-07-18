@@ -824,7 +824,6 @@ public:
   // Find the clocks defined for pin.
   ClockSet *findClocks(const Pin *pin) const;
   ClockSet *findLeafPinClocks(const Pin *pin) const;
-  ClockIterator *clockIterator() __attribute__ ((deprecated));
   void sortedClocks(ClockSeq &clks);
   ClockSeq *clocks() { return &clocks_; }
   ClockSeq &clks() { return clocks_; }
