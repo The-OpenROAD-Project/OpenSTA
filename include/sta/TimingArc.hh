@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "Machine.hh"
 #include "DisallowCopyAssign.hh"
 #include "Vector.hh"
 #include "Transition.hh"

@@ -17,6 +17,7 @@
 #pragma once
 
 #include <stdarg.h>
+#include "Machine.hh"
 #include "DisallowCopyAssign.hh"
 #include "Map.hh"
 #include "StringUtil.hh"

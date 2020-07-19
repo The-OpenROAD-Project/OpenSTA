@@ -18,6 +18,7 @@
 
 #include <string>
 
+#include "Machine.hh"
 #include "DisallowCopyAssign.hh"
 #include "StringSeq.hh"
 #include "LibertyClass.hh"

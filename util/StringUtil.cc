@@ -20,8 +20,8 @@
 #include <ctype.h>
 #include <stdio.h>
 
-#include "Mutex.hh"
 #include "Machine.hh"
+#include "Mutex.hh"
 
 namespace sta {
 

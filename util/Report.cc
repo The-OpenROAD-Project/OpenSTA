@@ -19,7 +19,6 @@
 #include <algorithm> // min
 
 #include "Error.hh"
-#include "Machine.hh"
 
 namespace sta {
 
