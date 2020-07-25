@@ -3806,7 +3806,9 @@ Sta::makeInstanceAfter(Instance *inst)
     while (port_iter.hasNext()) {
       LibertyPort *lib_port = port_iter.next();
       Pin *pin = network_->findPin(inst, lib_port);
-      connectPinAfter(pin);
+      // Internal pins may not exist.
+      if (pin)
+	connectPinAfter(pin);
     }
   }
 }
