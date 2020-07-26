@@ -329,7 +329,7 @@ swig_add_library(sta_swig
   SOURCES ${STA_SWIG_FILE}
 )
 
-swig_link_libraries(sta_swig
+target_link_libraries(sta_swig
   PUBLIC
   OpenSTA
 )
@@ -477,8 +477,8 @@ target_compile_options(sta
   )
 
 target_link_libraries(sta
-  OpenSTA
   sta_swig
+  OpenSTA
   ${TCL_LIBRARY}
   )
 
