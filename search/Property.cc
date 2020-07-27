@@ -36,6 +36,7 @@
 namespace sta {
 
 using std::string;
+using std::max;
 
 static PropertyValue
 pinSlewProperty(const Pin *pin,
@@ -690,6 +691,11 @@ getProperty(const LibertyPort *port,
   }
   else if (stringEqual(property, "is_register_clock"))
     return PropertyValue(port->isRegClk());
+  else if (stringEqual(property, "drive_resistance")) {
+    float drive = max(port->driveResistance(RiseFall::rise(), MinMax::max()),
+		      port->driveResistance(RiseFall::fall(), MinMax::max()));
+    return PropertyValue(drive);
+  }
   else if (stringEqual(property, "drive_resistance_rise_min"))
     return PropertyValue(port->driveResistance(RiseFall::rise(),
 					       MinMax::min()));
