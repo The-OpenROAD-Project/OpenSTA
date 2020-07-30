@@ -25,7 +25,24 @@ class PwrActivity;
 class PropActivityVisitor;
 class BfsFwdIterator;
 
+typedef std::pair<const Instance*, LibertyPort*> SeqPin;
+
+class SeqPinHash
+{
+public:
+  size_t operator()(const SeqPin &pin) const;
+};
+
+class SeqPinEqual
+{
+public:
+  bool operator()(const SeqPin &pin1,
+		  const SeqPin &pin2) const;
+};
+
 typedef UnorderedMap<const Pin*,PwrActivity> PwrActivityMap;
+typedef UnorderedMap<SeqPin, PwrActivity,
+		     SeqPinHash, SeqPinEqual> PwrSeqActivityMap;
 
 enum class PwrActivityOrigin
 {
@@ -94,6 +111,13 @@ public:
 		      float activity,
 		      float duty,
 		      PwrActivityOrigin origin);
+  void setSeqActivity(const Instance *reg,
+		      LibertyPort *output,
+		      PwrActivity &activity);
+  bool hasSeqActivity(const Instance *reg,
+		      LibertyPort *output);
+  PwrActivity seqActivity(const Instance *reg,
+			  LibertyPort *output);
   // Activity is toggles per second.
   PwrActivity findClkedActivity(const Pin *pin);
 
@@ -140,6 +164,8 @@ protected:
   PwrActivity findClkedActivity(const Pin *pin,
 				const Clock *inst_clk);
   PwrActivity findActivity(const Pin *pin);
+  PwrActivity findSeqActivity(const Instance *inst,
+			      LibertyPort *port);
   float portVoltage(LibertyCell *cell,
 		    const LibertyPort *port,
 		    const DcalcAnalysisPt *dcalc_ap);
@@ -172,6 +198,7 @@ private:
   PwrActivity global_activity_;
   PwrActivity input_activity_;
   PwrActivityMap activity_map_;
+  PwrSeqActivityMap seq_activity_map_;
   bool activities_valid_;
 
   friend class PropActivityVisitor;

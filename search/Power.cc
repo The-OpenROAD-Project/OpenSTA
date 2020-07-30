@@ -20,6 +20,7 @@
 
 #include "Debug.hh"
 #include "EnumNameMap.hh"
+#include "Hash.hh"
 #include "MinMax.hh"
 #include "Units.hh"
 #include "Transition.hh"
@@ -130,6 +131,47 @@ Power::setPinActivity(const Pin *pin,
   activity_map_[pin] = {activity, duty, origin};
   activities_valid_ = false;
 }
+
+// Sequential internal pins may not be in the netlist so their
+// activities are stored by instance/liberty_port pairs.
+void
+Power::setSeqActivity(const Instance *reg,
+		      LibertyPort *output,
+		      PwrActivity &activity)
+{
+  seq_activity_map_[SeqPin(reg, output)] = activity;
+  activities_valid_ = false;
+}
+
+bool
+Power::hasSeqActivity(const Instance *reg,
+		      LibertyPort *output)
+{
+  return seq_activity_map_.hasKey(SeqPin(reg, output));
+}
+
+PwrActivity
+Power::seqActivity(const Instance *reg,
+		   LibertyPort *output)
+{
+  return seq_activity_map_[SeqPin(reg, output)];
+}
+
+size_t
+SeqPinHash::operator()(const SeqPin &pin) const
+{
+  return hashSum(hashPtr(pin.first), hashPtr(pin.second));
+}
+
+bool
+SeqPinEqual::operator()(const SeqPin &pin1,
+			const SeqPin &pin2) const
+{
+  return pin1.first == pin2.first
+    && pin1.second == pin2.second;
+}
+
+////////////////////////////////////////////////////////////////
 
 void
 Power::power(const Corner *corner,
@@ -358,11 +400,14 @@ Power::evalActivity(FuncExpr *expr,
       else
 	return PwrActivity(0.0, 0.0, PwrActivityOrigin::constant);
     }
-    Pin *pin = network_->findPin(inst, port);
-    if (pin)
-      return findActivity(pin);
-    else
-      return PwrActivity(0.0, 0.0, PwrActivityOrigin::constant);
+    if (port->direction()->isInternal())
+      return findSeqActivity(inst, port);
+    else {
+      Pin *pin = network_->findPin(inst, port);
+      if (pin)
+	return findActivity(pin);
+    }
+    return PwrActivity(0.0, 0.0, PwrActivityOrigin::constant);
   }
   case FuncExpr::op_not: {
     PwrActivity activity1 = evalActivity(expr->left(), inst,
@@ -456,7 +501,7 @@ Power::seedActivities(BfsFwdIterator &bfs)
     const Pin *pin = vertex->pin();
     // Clock activities are baked in.
     if (!sdc_->isLeafPinClock(pin)
-	&& network_->direction(pin) != PortDirection::internal()) {
+	&& !network_->direction(pin)->isInternal()) {
       debugPrint1(debug_, "power_activity", 3, "seed %s\n",
 		  vertex->name(network_));
       PwrActivity &activity = pinActivity(pin);
@@ -484,9 +529,9 @@ Power::seedRegOutputActivities(const Instance *inst,
     // the sequential internal pins (IQ, IQN).
     InstancePinIterator *pin_iter = network_->pinIterator(inst);
     while (pin_iter->hasNext()) {
-      auto pin = pin_iter->next();
-      auto port = network_->libertyPort(pin);
-      auto func = port->function();
+      Pin *pin = pin_iter->next();
+      LibertyPort *port = network_->libertyPort(pin);
+      FuncExpr *func = port->function();
       if (func) {
 	Vertex *vertex = graph_->pinDrvrVertex(pin);
 	if (func->port() == seq->output()
@@ -507,15 +552,12 @@ Power::seedRegOutputActivities(const Instance *reg,
 			       LibertyPort *output,
 			       bool invert)
 {
-  const Pin *pin = network_->findPin(reg, output);
-  if (pin) {
-    PwrActivity activity = evalActivity(seq->data(), reg);
-    if (invert)
-      activity.set(activity.activity(),
-		   1.0 - activity.duty(),
-		   activity.origin());
-    setPinActivity(pin, activity);
-  }
+  PwrActivity activity = evalActivity(seq->data(), reg);
+  if (invert)
+    activity.set(activity.activity(),
+		 1.0 - activity.duty(),
+		 activity.origin());
+  setSeqActivity(reg, output, activity);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -951,12 +993,24 @@ Power::findActivity(const Pin *pin)
     return PwrActivity(2.0, 0.5, PwrActivityOrigin::clock);
   else if (global_activity_.isSet())
     return global_activity_;
-  else {
-    if (activity_map_.hasKey(pin)) {
-      PwrActivity &activity = activity_map_[pin];
-      if (activity.origin() != PwrActivityOrigin::unknown)
-	return activity;
-    }
+  else if (activity_map_.hasKey(pin)) {
+    PwrActivity &activity = activity_map_[pin];
+    if (activity.origin() != PwrActivityOrigin::unknown)
+      return activity;
+  }
+  return input_activity_;
+}
+
+PwrActivity
+Power::findSeqActivity(const Instance *inst,
+		       LibertyPort *port)
+{
+  if (global_activity_.isSet())
+    return global_activity_;
+  else if (hasSeqActivity(inst, port)) {
+    PwrActivity activity = seqActivity(inst, port);
+    if (activity.origin() != PwrActivityOrigin::unknown)
+      return activity;
   }
   return input_activity_;
 }
