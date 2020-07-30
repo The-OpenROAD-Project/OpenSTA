@@ -153,7 +153,7 @@ Power::power(const Corner *corner,
     LibertyCell *cell = network_->libertyCell(inst);
     if (cell) {
       PowerResult inst_power;
-      power(inst, corner, inst_power);
+      power(inst, cell, corner, inst_power);
       if (cell->isMacro()
 	  || cell->isMemory())
 	macro.incr(inst_power);
@@ -358,7 +358,7 @@ Power::evalActivity(FuncExpr *expr,
       else
 	return PwrActivity(0.0, 0.0, PwrActivityOrigin::constant);
     }
-    Pin *pin = network_->findPin(inst, port->name());
+    Pin *pin = network_->findPin(inst, port);
     if (pin)
       return findActivity(pin);
     else
