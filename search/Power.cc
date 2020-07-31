@@ -65,7 +65,7 @@ isPositiveUnate(const LibertyCell *cell,
 		const LibertyPort *from,
 		const LibertyPort *to);
 
-Power::Power(Sta *sta) :
+Power::Power(StaState *sta) :
   StaState(sta),
   global_activity_{0.0, 0.0, PwrActivityOrigin::unknown},
   input_activity_{0.1, 0.5, PwrActivityOrigin::input},

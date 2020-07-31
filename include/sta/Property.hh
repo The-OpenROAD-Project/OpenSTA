@@ -22,7 +22,7 @@
 #include "NetworkClass.hh"
 #include "SearchClass.hh"
 #include "SdcClass.hh"
-#include "Power.hh"
+#include "PowerClass.hh"
 
 namespace sta {
 

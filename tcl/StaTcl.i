@@ -68,7 +68,6 @@
 #include "PathEnd.hh"
 #include "PathGroup.hh"
 #include "PathAnalysisPt.hh"
-#include "Power.hh"
 #include "Property.hh"
 #include "WritePathSpice.hh"
 #include "Search.hh"
@@ -78,6 +77,7 @@
 #include "search/CheckMinPulseWidths.hh"
 #include "search/Levelize.hh"
 #include "search/ReportPath.hh"
+#include "search/Power.hh"
 
 namespace sta {
 

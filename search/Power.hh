@@ -16,12 +16,19 @@
 
 #pragma once
 
-#include "Sta.hh"
+#include <utility>
+
+#include "UnorderedMap.hh"
+#include "Network.hh"
+#include "SdcClass.hh"
+#include "PowerClass.hh"
+#include "StaState.hh"
 
 namespace sta {
 
-class PowerResult;
-class PwrActivity;
+class Sta;
+class Corner;
+class DcalcAnalysisPt;
 class PropActivityVisitor;
 class BfsFwdIterator;
 
@@ -44,47 +51,12 @@ typedef UnorderedMap<const Pin*,PwrActivity> PwrActivityMap;
 typedef UnorderedMap<SeqPin, PwrActivity,
 		     SeqPinHash, SeqPinEqual> PwrSeqActivityMap;
 
-enum class PwrActivityOrigin
-{
- global,
- input,
- user,
- propagated,
- clock,
- constant,
- defaulted,
- unknown
-};
-
-class PwrActivity
-{
-public:
-  PwrActivity();
-  PwrActivity(float activity,
-		float duty,
-		PwrActivityOrigin origin);
-  float activity() const { return activity_; }
-  float duty() const { return duty_; }
-  PwrActivityOrigin origin() { return origin_; }
-  const char *originName() const;
-  void set(float activity,
-	   float duty,
-	   PwrActivityOrigin origin);
-  bool isSet() const;
-
-private:
-  // In general activity is per clock cycle, NOT per second.
-  float activity_;
-  float duty_;
-  PwrActivityOrigin origin_;
-};
-
 // The Power class has access to Sta components directly for
 // convenience but also requires access to the Sta class member functions.
 class Power : public StaState
 {
 public:
-  Power(Sta *sta);
+  Power(StaState *sta);
   void power(const Corner *corner,
 	     // Return values.
 	     PowerResult &total,
@@ -202,23 +174,6 @@ private:
   bool activities_valid_;
 
   friend class PropActivityVisitor;
-};
-
-class PowerResult
-{
-public:
-  PowerResult();
-  void clear();
-  float &internal() { return internal_; }
-  float &switching() { return switching_; }
-  float &leakage() { return leakage_; }
-  float total() const;
-  void incr(PowerResult &result);
-  
-private:
-  float internal_;
-  float switching_;
-  float leakage_;
 };
 
 } // namespace

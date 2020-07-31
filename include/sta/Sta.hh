@@ -29,6 +29,7 @@
 #include "StaState.hh"
 #include "VertexVisitor.hh"
 #include "SearchClass.hh"
+#include "PowerClass.hh"
 
 struct Tcl_Interp;
 
