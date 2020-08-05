@@ -247,7 +247,7 @@ proc set_power_activity { args } {
     }
   }
   if { [info exists keys(-pins)] } {
-    set ports [get_pins_error "pins" $keys(-pins)]
+    set pins [get_pins $keys(-pins)]
     foreach pin $pins {
       if { [get_property $pin "direction"] == "input" } {
 	set_power_pin_activity $pin $activity $duty

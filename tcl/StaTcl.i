@@ -4830,8 +4830,8 @@ set_power_pin_activity(const Pin *pin,
 		       float activity,
 		       float duty)
 {
-  return Sta::sta()->power()->setPinActivity(pin, activity, duty,
-					     PwrActivityOrigin::user);
+  return Sta::sta()->power()->setUserActivity(pin, activity, duty,
+					      PwrActivityOrigin::user);
 }
 
 ////////////////////////////////////////////////////////////////

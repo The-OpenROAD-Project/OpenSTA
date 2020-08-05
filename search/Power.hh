@@ -75,14 +75,19 @@ public:
   void setInputPortActivity(const Port *input_port,
 			    float activity,
 			    float duty);
-  PwrActivity &pinActivity(const Pin *pin);
-  bool hasPinActivity(const Pin *pin);
-  void setPinActivity(const Pin *pin,
-		      PwrActivity &activity);
-  void setPinActivity(const Pin *pin,
-		      float activity,
-		      float duty,
-		      PwrActivityOrigin origin);
+  PwrActivity &activity(const Pin *pin);
+  void setUserActivity(const Pin *pin,
+		       float activity,
+		       float duty,
+		       PwrActivityOrigin origin);
+  // Activity is toggles per second.
+  PwrActivity findClkedActivity(const Pin *pin);
+
+protected:
+  void preamble();
+  void ensureActivities();
+  bool hasUserActivity(const Pin *pin);
+  PwrActivity &userActivity(const Pin *pin);
   void setSeqActivity(const Instance *reg,
 		      LibertyPort *output,
 		      PwrActivity &activity);
@@ -90,12 +95,9 @@ public:
 		      LibertyPort *output);
   PwrActivity seqActivity(const Instance *reg,
 			  LibertyPort *output);
-  // Activity is toggles per second.
-  PwrActivity findClkedActivity(const Pin *pin);
-
-protected:
-  void preamble();
-  void ensureActivities();
+  bool hasActivity(const Pin *pin);
+  void setActivity(const Pin *pin,
+		   PwrActivity &activity);
 
   void power(const Instance *inst,
 	     LibertyCell *cell,
@@ -167,8 +169,14 @@ protected:
 				     const LibertyPort *cofactor_port);
 
 private:
+  // Port/pin activities set by set_pin_activity.
+  // set_pin_activity -global
   PwrActivity global_activity_;
+  // set_pin_activity -input
   PwrActivity input_activity_;
+  // set_pin_activity -input_ports -pins
+  PwrActivityMap user_activity_map_;
+  // Propagated activities.
   PwrActivityMap activity_map_;
   PwrSeqActivityMap seq_activity_map_;
   bool activities_valid_;
