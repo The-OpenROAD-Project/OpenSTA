@@ -19,7 +19,6 @@
 #include <tcl.h>
 #include <stdlib.h>
 
-#include "util/Machine.hh"
 #include "StringUtil.hh"
 #include "Vector.hh"
 #include "Sta.hh"

@@ -347,7 +347,7 @@ DmpCeffTwoPoleDelayCalc::loadDelay(Parasitic *pole_residue,
 {
   ComplexFloat pole2, residue2;
   parasitics_->poleResidue(pole_residue, 1, pole2, residue2);
-  if (!fuzzyZero(drvr_slew_)
+  if (!delayZero(drvr_slew_)
       && pole2.imag() == 0.0
       && residue2.imag() == 0.0) {
     double p2 = pole2.real();

@@ -35,19 +35,6 @@ initDelayConstants()
   delay_init_values[MinMax::maxIndex()] = MinMax::max()->initValue();
 }
 
-const Delay &
-delayInitValue(const MinMax *min_max)
-{
-  return delay_init_values[min_max->index()];
-}
-
-bool
-delayIsInitValue(const Delay &delay,
-		 const MinMax *min_max)
-{
-  return fuzzyEqual(delay, min_max->initValue());
-}
-
 const char *
 delayAsString(const Delay &delay,
 	      const StaState *sta)
@@ -73,25 +60,91 @@ delayAsString(const Delay &delay,
   return unit->asString(delay, digits);
 }
 
-float
-delayAsFloat(const Delay &delay,
-	     const EarlyLate *,
+const Delay &
+delayInitValue(const MinMax *min_max)
+{
+  return delay_init_values[min_max->index()];
+}
+
+bool
+delayIsInitValue(const Delay &delay,
+		 const MinMax *min_max)
+{
+  return fuzzyEqual(delay, min_max->initValue());
+}
+
+bool
+delayZero(const Delay &delay)
+{
+  return fuzzyZero(delay);
+}
+
+bool
+delayInf(const Delay &delay)
+{
+  return fuzzyInf(delay);
+}
+
+bool
+delayEqual(const Delay &delay1,
+	   const Delay &delay2)
+{
+  return fuzzyEqual(delay1, delay2);
+}
+
+bool
+delayLess(const Delay &delay1,
+	  const Delay &delay2,
+	  const StaState *)
+{
+  return fuzzyLess(delay1, delay2);
+}
+
+bool
+delayLess(const Delay &delay1,
+	  const Delay &delay2,
+	  const MinMax *min_max,
+	  const StaState *)
+{
+  if (min_max == MinMax::max())
+    return fuzzyLess(delay1, delay2);
+  else
+    return fuzzyGreater(delay1, delay2);
+}
+
+bool
+delayLessEqual(const Delay &delay1,
+	       const Delay &delay2,
+	       const StaState *)
+{
+  return fuzzyLessEqual(delay1, delay2);
+}
+
+bool
+delayLessEqual(const Delay &delay1,
+	       const Delay &delay2,
+	       const MinMax *min_max,
+	       const StaState *)
+{
+  if (min_max == MinMax::max())
+    return fuzzyLessEqual(delay1, delay2);
+  else
+    return fuzzyGreaterEqual(delay1, delay2);
+}
+
+bool
+delayGreater(const Delay &delay1,
+	     const Delay &delay2,
 	     const StaState *)
 {
-  return delay;
-}
-
-float
-delaySigma2(const Delay &,
-	   const EarlyLate *)
-{
-  return 0.0;
+  return fuzzyGreater(delay1, delay2);
 }
 
 bool
-fuzzyGreater(const Delay &delay1,
+delayGreater(const Delay &delay1,
 	     const Delay &delay2,
-	     const MinMax *min_max)
+	     const MinMax *min_max,
+	     const StaState *)
 {
   if (min_max == MinMax::max())
     return fuzzyGreater(delay1, delay2);
@@ -100,36 +153,23 @@ fuzzyGreater(const Delay &delay1,
 }
 
 bool
-fuzzyGreaterEqual(const Delay &delay1,
+delayGreaterEqual(const Delay &delay1,
 		  const Delay &delay2,
-		  const MinMax *min_max)
+		  const StaState *)
+{
+  return fuzzyGreaterEqual(delay1, delay2);
+}
+
+bool
+delayGreaterEqual(const Delay &delay1,
+		  const Delay &delay2,
+		  const MinMax *min_max,
+		  const StaState *)
 {
   if (min_max == MinMax::max())
     return fuzzyGreaterEqual(delay1, delay2);
   else
     return fuzzyLessEqual(delay1, delay2);
-}
-
-bool
-fuzzyLess(const Delay &delay1,
-	  const Delay &delay2,
-	  const MinMax *min_max)
-{
-  if (min_max == MinMax::max())
-    return fuzzyLess(delay1, delay2);
-  else
-    return fuzzyGreater(delay1, delay2);
-}
-
-bool
-fuzzyLessEqual(const Delay &delay1,
-	       const Delay &delay2,
-	       const MinMax *min_max)
-{
-  if (min_max == MinMax::max())
-    return fuzzyLessEqual(delay1, delay2);
-  else
-    return fuzzyGreaterEqual(delay1, delay2);
 }
 
 Delay

@@ -24,7 +24,7 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14)
 cmake_policy(SET CMP0086 NEW)
 endif()
 
-project(STA VERSION 2.1.0
+project(STA VERSION 2.2.0
   LANGUAGES CXX
 )
 
@@ -141,6 +141,7 @@ set(STA_SOURCE
   sdc/RiseFallMinMax.cc
   sdc/RiseFallValues.cc
   sdc/Sdc.cc
+  sdc/SdcGraph.cc
   sdc/SdcCmdComment.cc
   sdc/WriteSdc.cc
   
@@ -329,7 +330,7 @@ swig_add_library(sta_swig
   SOURCES ${STA_SWIG_FILE}
 )
 
-swig_link_libraries(sta_swig
+target_link_libraries(sta_swig
   PUBLIC
   OpenSTA
 )
@@ -477,8 +478,8 @@ target_compile_options(sta
   )
 
 target_link_libraries(sta
-  OpenSTA
   sta_swig
+  OpenSTA
   ${TCL_LIBRARY}
   )
 

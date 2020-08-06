@@ -68,17 +68,16 @@
 #include "PathEnd.hh"
 #include "PathGroup.hh"
 #include "PathAnalysisPt.hh"
-#include "Power.hh"
 #include "Property.hh"
 #include "WritePathSpice.hh"
 #include "Search.hh"
 #include "Sta.hh"
-#include "util/Machine.hh"
 #include "search/Tag.hh"
 #include "search/CheckTiming.hh"
 #include "search/CheckMinPulseWidths.hh"
 #include "search/Levelize.hh"
 #include "search/ReportPath.hh"
+#include "search/Power.hh"
 
 namespace sta {
 
@@ -105,6 +104,8 @@ typedef Set<const char*, CharPtrLess> StringSet;
 typedef MinMaxAll MinMaxAllNull;
 typedef ClockSet TmpClockSet;
 typedef StringSeq TmpStringSeq;
+
+using std::vector;
 
 class CmdErrorNetworkNotLinked : public Exception
 {
@@ -188,6 +189,30 @@ tclListSeq(Tcl_Obj *const source,
     return nullptr;
 }
 
+template <class TYPE>
+vector<TYPE> *
+tclListStdSeq(Tcl_Obj *const source,
+	      swig_type_info *swig_type,
+	      Tcl_Interp *interp)
+{
+  int argc;
+  Tcl_Obj **argv;
+
+  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
+      && argc > 0) {
+    vector<TYPE> *seq = new vector<TYPE>;
+    for (int i = 0; i < argc; i++) {
+      void *obj;
+      // Ignore returned TCL_ERROR because can't get swig_type_info.
+      SWIG_ConvertPtr(argv[i], &obj, swig_type, false);
+      seq->push_back(reinterpret_cast<TYPE>(obj));
+    }
+    return seq;
+  }
+  else
+    return nullptr;
+}
+
 LibertyLibrarySeq *
 tclListSeqLibertyLibrary(Tcl_Obj *const source,
 			 Tcl_Interp *interp)
@@ -195,11 +220,11 @@ tclListSeqLibertyLibrary(Tcl_Obj *const source,
   return tclListSeq<LibertyLibrary*>(source, SWIGTYPE_p_LibertyLibrary, interp);
 }
 
-LibertyCellSeq *
+vector<LibertyCell*> *
 tclListSeqLibertyCell(Tcl_Obj *const source,
 		      Tcl_Interp *interp)
 {
-  return tclListSeq<LibertyCell*>(source, SWIGTYPE_p_LibertyCell, interp);
+  return tclListStdSeq<LibertyCell*>(source, SWIGTYPE_p_LibertyCell, interp);
 }
 
 template <class TYPE>
@@ -440,6 +465,10 @@ using namespace sta;
   }
   Tcl_SetObjResult(interp, list);
   delete cells;
+}
+
+%typemap(in) vector<LibertyCell*> * {
+  $1 = tclListSeqLibertyCell($input, interp);
 }
 
 %typemap(out) LibertyCellSeq* {
@@ -1065,6 +1094,8 @@ using namespace sta;
     $1 = ReportPathFormat::summary;
   else if (stringEq(arg, "slack_only"))
     $1 = ReportPathFormat::slack_only;
+  else if (stringEq(arg, "json"))
+    $1 = ReportPathFormat::json;
   else {
     tclError(interp, "Error: unknown path type %s.", arg);
     return TCL_ERROR;
@@ -4799,8 +4830,8 @@ set_power_pin_activity(const Pin *pin,
 		       float activity,
 		       float duty)
 {
-  return Sta::sta()->power()->setPinActivity(pin, activity, duty,
-					     PwrActivityOrigin::user);
+  return Sta::sta()->power()->setUserActivity(pin, activity, duty,
+					      PwrActivityOrigin::user);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -5307,6 +5338,20 @@ delays_invalid()
 {
   Sta *sta = Sta::sta();
   sta->delaysInvalid();
+}
+
+const char *
+pin_location(Pin *pin)
+{
+  Network *network = cmdNetwork();
+  double x, y;
+  bool exists;
+  network->location(pin, x, y, exists);
+  // return x/y as tcl list
+  if (exists)
+    return sta::stringPrintTmp("%f %f", x, y);
+  else
+    return "";
 }
 
 %} // inline

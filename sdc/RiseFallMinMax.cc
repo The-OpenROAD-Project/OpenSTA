@@ -163,6 +163,23 @@ RiseFallMinMax::hasValue() const
   return !empty();
 }
 
+void
+RiseFallMinMax::maxValue(// Return values
+			 float &max_value,
+			 bool &exists) const
+{
+  max_value = MinMax::max()->initValue();
+  exists = false;
+  for (int rf_index=0;rf_index<RiseFall::index_count;rf_index++) {
+    for (int mm_index = 0; mm_index < MinMax::index_count; mm_index++) {
+      if (exists_[rf_index][mm_index]) {
+	max_value = std::max(max_value, values_[rf_index][mm_index]);
+	exists = true;
+      }
+    }
+  }
+}
+
 bool
 RiseFallMinMax::empty() const
 {

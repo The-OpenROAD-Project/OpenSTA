@@ -117,7 +117,11 @@ public:
   void writeEnvironment() const;
   void writeOperatingConditions() const;
   void writeWireload() const;
-  void writePinLoads() const;
+  void writeNetLoads() const;
+  void writeNetLoad(Net *net,
+		    const MinMaxAll *min_max,
+		    float cap) const;
+  void writePortLoads() const;
   void writePortLoads(Port *port) const;
   void writePortFanout(Port *port) const;
   void writeDriveResistances() const;

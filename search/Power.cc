@@ -20,6 +20,7 @@
 
 #include "Debug.hh"
 #include "EnumNameMap.hh"
+#include "Hash.hh"
 #include "MinMax.hh"
 #include "Units.hh"
 #include "Transition.hh"
@@ -64,7 +65,7 @@ isPositiveUnate(const LibertyCell *cell,
 		const LibertyPort *from,
 		const LibertyPort *to);
 
-Power::Power(Sta *sta) :
+Power::Power(StaState *sta) :
   StaState(sta),
   global_activity_{0.0, 0.0, PwrActivityOrigin::unknown},
   input_activity_{0.1, 0.5, PwrActivityOrigin::input},
@@ -96,40 +97,92 @@ Power::setInputPortActivity(const Port *input_port,
   Instance *top_inst = network_->topInstance();
   const Pin *pin = network_->findPin(top_inst, input_port);
   if (pin) {
-    activity_map_[pin] = {activity, duty, PwrActivityOrigin::user};
+    user_activity_map_[pin] = {activity, duty, PwrActivityOrigin::user};
     activities_valid_ = false;
   }
 }
 
+void
+Power::setUserActivity(const Pin *pin,
+		      float activity,
+		      float duty,
+		      PwrActivityOrigin origin)
+{
+  user_activity_map_[pin] = {activity, duty, origin};
+  activities_valid_ = false;
+}
+
 PwrActivity &
-Power::pinActivity(const Pin *pin)
+Power::userActivity(const Pin *pin)
+{
+  return user_activity_map_[pin];
+}
+
+bool
+Power::hasUserActivity(const Pin *pin)
+{
+  return user_activity_map_.hasKey(pin);
+}
+
+void
+Power::setActivity(const Pin *pin,
+		   PwrActivity &activity)
+{
+  activity_map_[pin] = activity;
+}
+
+PwrActivity &
+Power::activity(const Pin *pin)
 {
   return activity_map_[pin];
 }
 
 bool
-Power::hasPinActivity(const Pin *pin)
+Power::hasActivity(const Pin *pin)
 {
   return activity_map_.hasKey(pin);
 }
 
+// Sequential internal pins may not be in the netlist so their
+// activities are stored by instance/liberty_port pairs.
 void
-Power::setPinActivity(const Pin *pin,
+Power::setSeqActivity(const Instance *reg,
+		      LibertyPort *output,
 		      PwrActivity &activity)
 {
-  activity_map_[pin] = activity;
+  seq_activity_map_[SeqPin(reg, output)] = activity;
   activities_valid_ = false;
 }
 
-void
-Power::setPinActivity(const Pin *pin,
-		      float activity,
-		      float duty,
-		      PwrActivityOrigin origin)
+bool
+Power::hasSeqActivity(const Instance *reg,
+		      LibertyPort *output)
 {
-  activity_map_[pin] = {activity, duty, origin};
-  activities_valid_ = false;
+  return seq_activity_map_.hasKey(SeqPin(reg, output));
 }
+
+PwrActivity
+Power::seqActivity(const Instance *reg,
+		   LibertyPort *output)
+{
+  return seq_activity_map_[SeqPin(reg, output)];
+}
+
+size_t
+SeqPinHash::operator()(const SeqPin &pin) const
+{
+  return hashSum(hashPtr(pin.first), hashPtr(pin.second));
+}
+
+bool
+SeqPinEqual::operator()(const SeqPin &pin1,
+			const SeqPin &pin2) const
+{
+  return pin1.first == pin2.first
+    && pin1.second == pin2.second;
+}
+
+////////////////////////////////////////////////////////////////
 
 void
 Power::power(const Corner *corner,
@@ -153,7 +206,7 @@ Power::power(const Corner *corner,
     LibertyCell *cell = network_->libertyCell(inst);
     if (cell) {
       PowerResult inst_power;
-      power(inst, corner, inst_power);
+      power(inst, cell, corner, inst_power);
       if (cell->isMacro()
 	  || cell->isMemory())
 	macro.incr(inst_power);
@@ -290,44 +343,48 @@ PropActivityVisitor::visit(Vertex *vertex)
   auto pin = vertex->pin();
   debugPrint1(debug_, "power_activity", 3, "visit %s\n",
 	      vertex->name(network_));
-  bool input_without_activity = false;
-  if (network_->isLoad(pin)) {
-    VertexInEdgeIterator edge_iter(vertex, graph_);
-    if (edge_iter.hasNext()) {
-      Edge *edge = edge_iter.next();
-      if (edge->isWire()) {
-	Vertex *from_vertex = edge->from(graph_);
-	const Pin *from_pin = from_vertex->pin();
-	PwrActivity &from_activity = power_->pinActivity(from_pin);
-	PwrActivity to_activity(from_activity.activity(),
-				from_activity.duty(),
-				PwrActivityOrigin::propagated);
-	if (!power_->hasPinActivity(pin))
-	  input_without_activity = true;
-	power_->setPinActivity(pin, to_activity);
+  if (power_->hasUserActivity(pin))
+    power_->setActivity(pin, power_->userActivity(pin));
+  else {
+    bool input_without_activity = false;
+    if (network_->isLoad(pin)) {
+      VertexInEdgeIterator edge_iter(vertex, graph_);
+      if (edge_iter.hasNext()) {
+	Edge *edge = edge_iter.next();
+	if (edge->isWire()) {
+	  Vertex *from_vertex = edge->from(graph_);
+	  const Pin *from_pin = from_vertex->pin();
+	  PwrActivity &from_activity = power_->activity(from_pin);
+	  PwrActivity to_activity(from_activity.activity(),
+				  from_activity.duty(),
+				  PwrActivityOrigin::propagated);
+	  if (!power_->hasActivity(pin))
+	    input_without_activity = true;
+	  power_->setActivity(pin, to_activity);
+	}
+      }
+      Instance *inst = network_->instance(pin);
+      auto cell = network_->libertyCell(inst);
+      if (cell && cell->hasSequentials()) {
+	debugPrint1(debug_, "power_activity", 3, "pending reg %s\n",
+		    network_->pathName(inst));
+	visited_regs_->insert(inst);
+	found_reg_without_activity_ = input_without_activity;
       }
     }
-    Instance *inst = network_->instance(pin);
-    auto cell = network_->libertyCell(inst);
-    if (cell && cell->hasSequentials()) {
-      debugPrint1(debug_, "power_activity", 3, "pending reg %s\n",
-		  network_->pathName(inst));
-      visited_regs_->insert(inst);
-      found_reg_without_activity_ = input_without_activity;
-    }
-  }
-  if (network_->isDriver(pin)) {
-    LibertyPort *port = network_->libertyPort(pin);
-    if (port) {
-      FuncExpr *func = port->function();
-      if (func) {
-	Instance *inst = network_->instance(pin);
-	PwrActivity activity = power_->evalActivity(func, inst);
-	power_->setPinActivity(pin, activity);
-	debugPrint3(debug_, "power_activity", 3, "set %s %.2e %.2f\n",
-		    vertex->name(network_),
-		    activity.activity(),
-		    activity.duty());
+    if (network_->isDriver(pin)) {
+      LibertyPort *port = network_->libertyPort(pin);
+      if (port) {
+	FuncExpr *func = port->function();
+	if (func) {
+	  Instance *inst = network_->instance(pin);
+	  PwrActivity activity = power_->evalActivity(func, inst);
+	  power_->setActivity(pin, activity);
+	  debugPrint3(debug_, "power_activity", 3, "set %s %.2e %.2f\n",
+		      vertex->name(network_),
+		      activity.activity(),
+		      activity.duty());
+	}
       }
     }
   }
@@ -358,11 +415,14 @@ Power::evalActivity(FuncExpr *expr,
       else
 	return PwrActivity(0.0, 0.0, PwrActivityOrigin::constant);
     }
-    Pin *pin = network_->findPin(inst, port->name());
-    if (pin)
-      return findActivity(pin);
-    else
-      return PwrActivity(0.0, 0.0, PwrActivityOrigin::constant);
+    if (port->direction()->isInternal())
+      return findSeqActivity(inst, port);
+    else {
+      Pin *pin = network_->findPin(inst, port);
+      if (pin)
+	return findActivity(pin);
+    }
+    return PwrActivity(0.0, 0.0, PwrActivityOrigin::constant);
   }
   case FuncExpr::op_not: {
     PwrActivity activity1 = evalActivity(expr->left(), inst,
@@ -424,14 +484,21 @@ Power::preamble()
 void
 Power::ensureActivities()
 {
+  // No need to propagate activites if global activity is set.
   if (!global_activity_.isSet()) {
     if (!activities_valid_) {
+      // Clear existing activities.
+      activity_map_.clear();
+      seq_activity_map_.clear();
+
       ActivitySrchPred activity_srch_pred(this);
       BfsFwdIterator bfs(BfsIndex::other, &activity_srch_pred, this);
       seedActivities(bfs);
       PropActivityVisitor visitor(this, &bfs);
       visitor.init();
+      // Propagate activities through combinational logic.
       bfs.visit(levelize_->maxLevel(), &visitor);
+      // Propagate activiities through registers.
       while (visitor.foundRegWithoutActivity()) {
 	InstanceSet *regs = visitor.stealVisitedRegs();
 	InstanceSet::Iterator reg_iter(regs);
@@ -441,7 +508,10 @@ Power::ensureActivities()
 	  seedRegOutputActivities(reg, bfs);
 	}
 	delete regs;
+
 	visitor.init();
+	// Propagate register output activities through
+	// combinational logic.
 	bfs.visit(levelize_->maxLevel(), &visitor);
       }
       activities_valid_ = true;
@@ -456,14 +526,14 @@ Power::seedActivities(BfsFwdIterator &bfs)
     const Pin *pin = vertex->pin();
     // Clock activities are baked in.
     if (!sdc_->isLeafPinClock(pin)
-	&& network_->direction(pin) != PortDirection::internal()) {
+	&& !network_->direction(pin)->isInternal()) {
       debugPrint1(debug_, "power_activity", 3, "seed %s\n",
 		  vertex->name(network_));
-      PwrActivity &activity = pinActivity(pin);
-      PwrActivityOrigin origin = activity.origin();
-      // Default inputs without explicit activities to the input default.
-      if (origin != PwrActivityOrigin::user)
-	setPinActivity(pin, input_activity_);
+      if (hasUserActivity(pin))
+	setActivity(pin, userActivity(pin));
+      else
+	// Default inputs without explicit activities to the input default.
+	setActivity(pin, input_activity_);
       Vertex *vertex = graph_->pinDrvrVertex(pin);
       bfs.enqueueAdjacentVertices(vertex);
     }
@@ -484,9 +554,9 @@ Power::seedRegOutputActivities(const Instance *inst,
     // the sequential internal pins (IQ, IQN).
     InstancePinIterator *pin_iter = network_->pinIterator(inst);
     while (pin_iter->hasNext()) {
-      auto pin = pin_iter->next();
-      auto port = network_->libertyPort(pin);
-      auto func = port->function();
+      Pin *pin = pin_iter->next();
+      LibertyPort *port = network_->libertyPort(pin);
+      FuncExpr *func = port->function();
       if (func) {
 	Vertex *vertex = graph_->pinDrvrVertex(pin);
 	if (func->port() == seq->output()
@@ -507,15 +577,12 @@ Power::seedRegOutputActivities(const Instance *reg,
 			       LibertyPort *output,
 			       bool invert)
 {
-  const Pin *pin = network_->findPin(reg, output);
-  if (pin) {
-    PwrActivity activity = evalActivity(seq->data(), reg);
-    if (invert)
-      activity.set(activity.activity(),
-		   1.0 - activity.duty(),
-		   activity.origin());
-    setPinActivity(pin, activity);
-  }
+  PwrActivity activity = evalActivity(seq->data(), reg);
+  if (invert)
+    activity.set(activity.activity(),
+		 1.0 - activity.duty(),
+		 activity.origin());
+  setSeqActivity(reg, output, activity);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -597,7 +664,7 @@ Power::findInputInternalPower(const Pin *pin,
       for (auto rf : RiseFall::range()) {
 	float slew = delayAsFloat(graph_->slew(vertex, rf,
 					       dcalc_ap->index()));
-	if (!fuzzyInf(slew)) {
+	if (!delayInf(slew)) {
 	  float table_energy = pwr->power(rf, pvt, slew, load_cap);
 	  energy += table_energy;
 	  tr_count++;
@@ -735,7 +802,7 @@ Power::findOutputInternalPower(const Pin *to_pin,
 	? delayAsFloat(graph_->slew(from_vertex, from_rf,
 				    dcalc_ap->index()))
 	: 0.0;
-      if (!fuzzyInf(slew)) {
+      if (!delayInf(slew)) {
 	float table_energy = pwr->power(to_rf, pvt, slew, load_cap);
 	energy += table_energy;
 	tr_count++;
@@ -951,12 +1018,24 @@ Power::findActivity(const Pin *pin)
     return PwrActivity(2.0, 0.5, PwrActivityOrigin::clock);
   else if (global_activity_.isSet())
     return global_activity_;
-  else {
-    if (activity_map_.hasKey(pin)) {
-      PwrActivity &activity = activity_map_[pin];
-      if (activity.origin() != PwrActivityOrigin::unknown)
-	return activity;
-    }
+  else if (activity_map_.hasKey(pin)) {
+    PwrActivity &activity = activity_map_[pin];
+    if (activity.origin() != PwrActivityOrigin::unknown)
+      return activity;
+  }
+  return input_activity_;
+}
+
+PwrActivity
+Power::findSeqActivity(const Instance *inst,
+		       LibertyPort *port)
+{
+  if (global_activity_.isSet())
+    return global_activity_;
+  else if (hasSeqActivity(inst, port)) {
+    PwrActivity activity = seqActivity(inst, port);
+    if (activity.origin() != PwrActivityOrigin::unknown)
+      return activity;
   }
   return input_activity_;
 }

@@ -556,8 +556,8 @@ VisitPathEnds::visitDataCheckEnd1(DataCheck *check,
 	      || exception->isMultiCycle())
 	  && (!filtered
 	      || search_->matchesFilter(path, tgt_clk_edge))) {
-	// No mcp for data checks.
-	PathEndDataCheck path_end(check, path, tgt_clk_path, nullptr, this);
+	MultiCyclePath *mcp=dynamic_cast<MultiCyclePath*>(exception);
+	PathEndDataCheck path_end(check, path, tgt_clk_path, mcp, this);
 	visitor->visit(&path_end);
 	is_constrained = true;
       }

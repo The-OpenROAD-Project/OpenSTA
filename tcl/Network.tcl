@@ -382,7 +382,7 @@ proc report_net_pin { pin verbose corner digits } {
 	puts -nonewline [port_capacitance_str $liberty_port $digits]
       }
     }
-    puts ""
+    puts "[pin_location_str $pin]"
   } elseif [$pin is_top_level_port] {
     puts -nonewline " [get_full_name $pin] [pin_direction $pin] port"
     if { $verbose } {
@@ -404,9 +404,20 @@ proc report_net_pin { pin verbose corner digits } {
 	puts -nonewline " pin [capacitances_str $cap_r_min $cap_r_max $cap_f_min $cap_f_max $digits]"
       }
     }
-    puts ""
+    puts "[pin_location_str $pin]"
   } elseif [$pin is_hierarchical] {
     puts " [get_full_name $pin] [pin_direction $pin]"
+  }
+}
+
+# Used by report_net
+proc pin_location_str { pin } {
+  set loc [pin_location $pin]
+  if { $loc != "" } {
+    lassign $loc x y
+    return " ([format_distance $x 0], [format_distance $y 0])"
+  } else {
+    return ""
   }
 }
 

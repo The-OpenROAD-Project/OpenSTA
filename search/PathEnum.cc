@@ -348,7 +348,7 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
       // Make the diverted path end to check slack with from_path crpr.
       makeDivertedPathEnd(from_path, arc, div_end, after_div_copy);
       // Only enumerate paths with greater slack.
-      if (fuzzyGreaterEqual(div_end->slack(sta_), path_end_slack_)) {
+      if (delayGreaterEqual(div_end->slack(sta_), path_end_slack_, sta_)) {
 	reportDiversion(arc, from_path);
 	path_enum_->makeDiversion(div_end, after_div_copy);
       }
@@ -356,7 +356,7 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
 	delete div_end;
     }
     // Only enumerate slower/faster paths.
-    else if (fuzzyLessEqual(to_arrival, before_div_arrival_, min_max)) {
+    else if (delayLessEqual(to_arrival, before_div_arrival_, min_max, sta_)) {
       PathEnd *div_end;
       PathEnumed *after_div_copy;
       makeDivertedPathEnd(from_path, arc, div_end, after_div_copy);

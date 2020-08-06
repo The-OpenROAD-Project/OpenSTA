@@ -18,6 +18,7 @@
 
 #include <functional>
 
+#include "Machine.hh"
 #include "DisallowCopyAssign.hh"
 #include "Vector.hh"
 #include "Map.hh"

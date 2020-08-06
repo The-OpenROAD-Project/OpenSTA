@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "StaConfig.hh"
-
 #pragma once
+
+#include "StaConfig.hh"
 
 #if (SSTA == 1)
   // Delays are Normal PDFs.

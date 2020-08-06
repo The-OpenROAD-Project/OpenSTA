@@ -824,7 +824,6 @@ public:
   // Find the clocks defined for pin.
   ClockSet *findClocks(const Pin *pin) const;
   ClockSet *findLeafPinClocks(const Pin *pin) const;
-  ClockIterator *clockIterator() __attribute__ ((deprecated));
   void sortedClocks(ClockSeq &clks);
   ClockSeq *clocks() { return &clocks_; }
   ClockSeq &clks() { return clocks_; }
@@ -990,11 +989,8 @@ public:
   void deleteException(ExceptionPath *exception);
   void recordException(ExceptionPath *exception);
   void unrecordException(ExceptionPath *exception);
-  // Annotate graph from constraints.  If the graph exists when the
-  // constraints are defined it is annotated incrementally.  This is
-  // called after building the graph to annotate any constraints that
-  // were defined before the graph is built.
-  void annotateGraph(bool annotate);
+  void annotateGraph();
+  void removeGraphAnnotations();
 
   // Network edit before/after methods.
   void disconnectPinBefore(Pin *pin);
@@ -1180,34 +1176,25 @@ protected:
   // Liberty library to look for defaults.
   LibertyLibrary *defaultLibertyLibrary();
   void annotateGraphConstrainOutputs();
-  void annotateDisables(bool annotate);
-  void annotateGraphDisabled(const Pin *pin,
-			     bool annotate);
-  void setEdgeDisabledInstPorts(DisabledInstancePorts *disabled_inst,
-				bool annotate);
+  void annotateDisables();
+  void annotateGraphDisabled(const Pin *pin);
+  void setEdgeDisabledInstPorts(DisabledInstancePorts *disabled_inst);
   void setEdgeDisabledInstFrom(Pin *from_pin,
-			       bool disable_checks,
-			       bool annotate);
+			       bool disable_checks);
   void setEdgeDisabledInstPorts(DisabledPorts *disabled_port,
-				Instance *inst,
-				bool annotate);
+				Instance *inst);
   void deleteClockLatenciesReferencing(Clock *clk);
   void deleteClockLatency(ClockLatency *latency);
   void deleteDeratingFactors();
-  void annotateGraphOutputDelays(bool annotate);
-  void annotateGraphDataChecks(bool annotate);
-  void annotateGraphConstrained(const PinSet *pins,
-				bool annotate);
-  void annotateGraphConstrained(const InstanceSet *insts,
-				bool annotate);
-  void annotateGraphConstrained(const Instance *inst,
-				bool annotate);
-  void annotateGraphConstrained(const Pin *pin,
-				bool annotate);
-  void annotateHierClkLatency(bool annotate);
+  void annotateGraphOutputDelays();
+  void annotateGraphDataChecks();
+  void annotateGraphConstrained(const PinSet *pins);
+  void annotateGraphConstrained(const InstanceSet *insts);
+  void annotateGraphConstrained(const Instance *inst);
+  void annotateGraphConstrained(const Pin *pin);
+  void annotateHierClkLatency();
   void annotateHierClkLatency(const Pin *hpin,
 			      ClockLatency *latency);
-  void deannotateHierClkLatency(const Pin *hpin);
   void initInstancePvtMaps();
   void pinCaps(const Pin *pin,
 	       const RiseFall *rf,
@@ -1257,9 +1244,6 @@ protected:
   void disconnectPinBefore(Pin *pin,
 			   ExceptionPathSet *exceptions);
   void clockGroupsDeleteClkRefs(Clock *clk);
-  void makeVertexClkHpinDisables(Clock *clk,
-				 Vertex *vertex,
-				 FindClkHpinDisables &visitor);
   void clearGroupPathMap();
 
   AnalysisType analysis_type_;

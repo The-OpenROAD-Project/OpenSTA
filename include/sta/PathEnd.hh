@@ -142,6 +142,7 @@ public:
   virtual TimingArc *checkArc() const { return nullptr; }
   // PathEndDataCheck data clock path.
   virtual const PathVertex *dataClkPath() const { return nullptr; }
+  virtual int setupDefaultCycles() const { return 1; }
 
   static bool less(const PathEnd *path_end1,
 		   const PathEnd *path_end2,
@@ -181,6 +182,7 @@ public:
   static float checkSetupMcpAdjustment(const ClockEdge *src_clk_edge,
 				       const ClockEdge *tgt_clk_edge,
 				       const MultiCyclePath *mcp,
+				       int default_cycles,
 				       Sdc *sdc);
 
 protected:
@@ -425,6 +427,7 @@ private:
 
 // Path constrained by an output delay.
 // If there is a reference pin, clk_path_ is the reference pin clock.
+// If there is a path delay PathEndPathDelay is used instead of this.
 class PathEndOutputDelay : public PathEndClkConstrainedMcp
 {
 public:
@@ -544,6 +547,8 @@ protected:
 		   Crpr crpr,
 		   bool crpr_valid);
   Arrival requiredTimeNoCrpr(const StaState *sta) const;
+  // setup uses zero cycle default
+  virtual int setupDefaultCycles() const { return 0; }
 
 private:
   PathVertex data_clk_path_;
@@ -555,6 +560,7 @@ private:
 
 // Path constrained by set_min/max_delay.
 // "Clocked" when path delay ends at timing check pin.
+// May end at output with set_output_delay.
 class PathEndPathDelay : public PathEndClkConstrained
 {
 public:
@@ -587,6 +593,7 @@ public:
   virtual PathDelay *pathDelay() const { return path_delay_; }
   virtual ArcDelay margin(const StaState *sta) const;
   virtual float sourceClkOffset(const StaState *sta) const;
+  virtual ClockEdge *targetClkEdge(const StaState *sta) const;
   virtual float targetClkTime(const StaState *sta) const;
   virtual Arrival targetClkArrivalNoCrpr(const StaState *sta) const;
   virtual float targetClkOffset(const StaState *sta) const;
@@ -594,6 +601,7 @@ public:
   virtual Required requiredTime(const StaState *sta) const;
   virtual int exceptPathCmp(const PathEnd *path_end,
 			    const StaState *sta) const;
+  bool hasOutputDelay() const { return output_delay_ != nullptr; }
 
 protected:
   PathEndPathDelay(PathDelay *path_delay,
@@ -610,8 +618,7 @@ protected:
   PathDelay *path_delay_;
   TimingArc *check_arc_;
   Edge *check_edge_;
-  // Output delay is nullptr when there is no timing check or output
-  // delay at the endpoint.
+  // Output delay is nullptr when there is no output delay at the endpoint.
   OutputDelay *output_delay_;
   // Source clk arrival for set_min/max_delay -ignore_clk_latency.
   Arrival src_clk_arrival_;

@@ -16,9 +16,9 @@
 
 #include "Stats.hh"
 
+#include "Machine.hh"
 #include "StringUtil.hh"
 #include "Debug.hh"
-#include "Machine.hh"
 
 namespace sta {
 

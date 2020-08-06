@@ -92,13 +92,13 @@ Latches::latchRequired(const Path *data_path,
       + open_latency
       + open_uncertainty
       + PathEnd::checkSetupMcpAdjustment(data_clk_edge, enable_clk_edge, mcp,
-					 sdc_)
+					 1, sdc_)
       + open_crpr;
     debugPrint3(debug_, "latch", 1, "latch data %s %s enable %s\n",
 		network_->pathName(data_path->pin(this)),
 		delayAsString(data_arrival, this),
 		delayAsString(enable_arrival, this));
-    if (data_arrival <= enable_arrival) {
+    if (delayLessEqual(data_arrival, enable_arrival, this)) {
       // Data arrives before latch opens.
       required = enable_arrival;
       borrow = 0.0;
@@ -108,7 +108,7 @@ Latches::latchRequired(const Path *data_path,
     else {
       // Data arrives while latch is transparent.
       borrow = data_arrival - enable_arrival;
-      if (borrow <= max_borrow)
+      if (delayLessEqual(borrow, max_borrow, this))
 	required = data_arrival;
       else {
 	borrow = max_borrow;
@@ -332,7 +332,7 @@ Latches::latchOutArrival(Path *data_path,
 	   latchRequired(data_path, enable_path, &disable_path, path_ap,
 			 required, borrow, adjusted_data_arrival,
 			 time_given_to_startpoint);
-	   if (borrow > 0.0) {
+	   if (delayGreater(borrow, 0.0, this)) {
 	     // Latch is transparent when data arrives.
 	     arc_delay = search_->deratedDelay(data_vertex, d_q_arc, d_q_edge,
 					       false, path_ap);

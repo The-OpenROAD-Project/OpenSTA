@@ -502,9 +502,16 @@ proc get_cells { args } {
     if { $args != {} } {
       sta_warn "patterns argument not supported with -of_objects."
     }
-    parse_pin_net_args $keys(-of_objects) pins nets
+    parse_port_pin_net_arg $keys(-of_objects) pins nets
     foreach pin $pins {
-      lappend insts [$pin instance]
+      if { [$pin is_top_level_port] } {
+	set net [get_nets [get_name $pin]]
+	if { $net != "NULL" } {
+	  lappend nets $net
+	}
+      } else {
+	lappend insts [$pin instance]
+      }
     }
     foreach net $nets {
       set pin_iter [$net pin_iterator]
@@ -997,7 +1004,7 @@ proc get_ports { args } {
   return $ports
 }
 
-variable filter_regexp1 {@?([a-zA-Z_]+) +(==|=~) +([0-9a-zA-Z_\*]+)}
+variable filter_regexp1 {@?([a-zA-Z_]+) *(==|=~) *([0-9a-zA-Z_\*]+)}
 variable filter_or_regexp "($filter_regexp1) +\\|\\| +($filter_regexp1)"
 variable filter_and_regexp "($filter_regexp1) +&& +($filter_regexp1)"
 

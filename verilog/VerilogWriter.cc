@@ -32,6 +32,7 @@ class VerilogWriter
 public:
   VerilogWriter(const char *filename,
 		bool sort,
+		vector<LibertyCell*> *remove_cells,
 		FILE *stream,
 		Network *network);
   void writeModule(Instance *inst);
@@ -54,6 +55,7 @@ protected:
 
   const char *filename_;
   bool sort_;
+  CellSet remove_cells_;
   FILE *stream_;
   Network *network_;
 
@@ -65,12 +67,13 @@ protected:
 void
 writeVerilog(const char *filename,
 	     bool sort,
+	     vector<LibertyCell*> *remove_cells,
 	     Network *network)
 {
   if (network->topInstance()) {
     FILE *stream = fopen(filename, "w");
     if (stream) {
-      VerilogWriter writer(filename, sort, stream, network);
+      VerilogWriter writer(filename, sort, remove_cells, stream, network);
       writer.writeModule(network->topInstance());
       fclose(stream);
     }
@@ -81,6 +84,7 @@ writeVerilog(const char *filename,
 
 VerilogWriter::VerilogWriter(const char *filename,
 			     bool sort,
+			     vector<LibertyCell*> *remove_cells,
 			     FILE *stream,
 			     Network *network) :
   filename_(filename),
@@ -89,6 +93,10 @@ VerilogWriter::VerilogWriter(const char *filename,
   network_(network),
   unconnected_net_index_(1)
 {
+  if (remove_cells) {
+    for(LibertyCell *lib_cell : *remove_cells)
+      remove_cells_.insert(network->cell(lib_cell));
+  }
 }
 
 void
@@ -165,12 +173,20 @@ VerilogWriter::verilogPortDir(PortDirection *dir)
     return "input";
   else if (dir == PortDirection::output())
     return "output";
-  else if (dir == PortDirection::bidirect())
-    return "inout";
   else if (dir == PortDirection::tristate())
     return "output";
-  else
+  else if (dir == PortDirection::bidirect())
+    return "inout";
+  else if (dir == PortDirection::power())
+    return "input";
+  else if (dir == PortDirection::ground())
+    return "input";
+  else if (dir == PortDirection::internal())
     return nullptr;
+  else {
+    internalError("unknown port direction");
+    return nullptr;
+  }
 }
 
 void
@@ -197,23 +213,25 @@ void
 VerilogWriter::writeChild(Instance *child)
 {
   Cell *child_cell = network_->cell(child);
-  const char *child_name = network_->name(child);
-  const char *child_vname = instanceVerilogName(child_name,
-						network_->pathEscape());
-  fprintf(stream_, " %s %s (",
-	  network_->name(child_cell),
-	  child_vname);
-  bool first_port = true;
-  CellPortIterator *port_iter = network_->portIterator(child_cell);
-  while (port_iter->hasNext()) {
-    Port *port = port_iter->next();
-    if (network_->hasMembers(port)) 
-      writeInstBusPin(child, port, first_port);
-    else 
-      writeInstPin(child, port, first_port);
+  if (!remove_cells_.hasKey(child_cell)) {
+    const char *child_name = network_->name(child);
+    const char *child_vname = instanceVerilogName(child_name,
+						  network_->pathEscape());
+    fprintf(stream_, " %s %s (",
+	    network_->name(child_cell),
+	    child_vname);
+    bool first_port = true;
+    CellPortIterator *port_iter = network_->portIterator(child_cell);
+    while (port_iter->hasNext()) {
+      Port *port = port_iter->next();
+      if (network_->hasMembers(port)) 
+	writeInstBusPin(child, port, first_port);
+      else 
+	writeInstPin(child, port, first_port);
+    }
+    delete port_iter;
+    fprintf(stream_, ");\n");
   }
-  delete port_iter;
-  fprintf(stream_, ");\n");
 }
 
 void

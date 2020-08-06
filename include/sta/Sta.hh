@@ -18,6 +18,7 @@
 
 #include <string>
 
+#include "Machine.hh"
 #include "DisallowCopyAssign.hh"
 #include "StringSeq.hh"
 #include "LibertyClass.hh"
@@ -28,6 +29,7 @@
 #include "StaState.hh"
 #include "VertexVisitor.hh"
 #include "SearchClass.hh"
+#include "PowerClass.hh"
 
 struct Tcl_Interp;
 
@@ -292,17 +294,8 @@ public:
   void removeClock(Clock *clk);
   // Update period/waveform for generated clocks from source pin clock.
   void updateGeneratedClks();
-  // Use Sdc::findClock
-  Clock *findClock(const char *name) const __attribute__ ((deprecated));
-  // Use findClocksMatching.
-  void findClocksMatching(PatternMatch *pattern,
-			  ClockSeq *clks) const __attribute__ ((deprecated));
-  // Use Sdc::clockIterator.
-  ClockIterator *clockIterator() const __attribute__ ((deprecated));
   // True if pin is defined as a clock source (pin may be hierarchical).
   bool isClockSrc(const Pin *pin) const;
-  // Use Sdc::defaultArrivalClock.
-  Clock *defaultArrivalClock() const __attribute__ ((deprecated));
   // Propagated (non-ideal) clocks.
   void setPropagatedClock(Clock *clk);
   void removePropagatedClock(Clock *clk);
@@ -873,42 +866,6 @@ public:
 				   bool removal,
 				   bool clk_gating_setup,
 				   bool clk_gating_hold);
-  PathEndSeq *reportTiming(ExceptionFrom *from,
-			   ExceptionThruSeq *thrus,
-			   ExceptionTo *to,
-			   // Use corner nullptr to report timing
-			   // for all corners.
-			   const Corner *corner,
-			   // max for setup checks.
-			   // min for hold checks.
-			   // min_max for setup and hold checks.
-			   const MinMaxAll *min_max,
-			   // Number of path ends to report in
-			   // each group.
-			   int group_count,
-			   // Number of paths to report for
-			   // each endpoint.
-			   int endpoint_count,
-			   // endpoint_count paths report unique pins
-			   // without rise/fall variations.
-			   bool unique_pins,
-			   // Min/max bounds for slack of
-			   // returned path ends.
-			   float slack_min,
-			   float slack_max,
-			   // Sort path ends by slack ignoring path groups.
-			   bool sort_by_slack,
-			   // Path groups to report.
-			   // Null or empty list reports all groups.
-			   PathGroupNameSet *group_names,
-			   // Predicates to filter the type of path
-			   // ends returned.
-			   bool setup,
-			   bool hold,
-			   bool recovery,
-			   bool removal,
-			   bool clk_gating_setup,
-			   bool clk_gating_hold) __attribute__ ((deprecated));
   void setReportPathFormat(ReportPathFormat format);
   void setReportPathFieldOrder(StringSeq *field_names);
   void setReportPathFields(bool report_input_pin,
@@ -947,7 +904,6 @@ public:
   void delaysInvalid();
   // Invalidate all arrival and required times.
   void arrivalsInvalid();
-  void setPathMinMax(const MinMaxAll *min_max) __attribute__ ((deprecated));
   void visitStartpoints(VertexVisitor *visitor);
   void visitEndpoints(VertexVisitor *visitor);
   // Find the fanin vertices for a group path.
@@ -1379,6 +1335,8 @@ protected:
   void findClkPins();
   void findClkPins(bool ideal_only,
 		   PinSet &clk_pins);
+  void sdcChangedGraph();
+  void ensureGraphSdcAnnotated();
 
   CmdNamespace cmd_namespace_;
   Instance *current_instance_;
@@ -1397,6 +1355,7 @@ protected:
   bool link_make_black_boxes_;
   bool update_genclks_;
   EquivCells *equiv_cells_;
+  bool graph_sdc_annotated_;
   // findClkPins
   PinSet clk_pins_;
   PinSet ideal_clk_pins_;

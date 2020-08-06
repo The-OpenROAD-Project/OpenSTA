@@ -16,58 +16,47 @@
 
 #pragma once
 
-#include "Sta.hh"
+#include <utility>
+
+#include "UnorderedMap.hh"
+#include "Network.hh"
+#include "SdcClass.hh"
+#include "PowerClass.hh"
+#include "StaState.hh"
 
 namespace sta {
 
-class PowerResult;
-class PwrActivity;
+class Sta;
+class Corner;
+class DcalcAnalysisPt;
 class PropActivityVisitor;
 class BfsFwdIterator;
 
-typedef UnorderedMap<const Pin*,PwrActivity> PwrActivityMap;
+typedef std::pair<const Instance*, LibertyPort*> SeqPin;
 
-enum class PwrActivityOrigin
-{
- global,
- input,
- user,
- propagated,
- clock,
- constant,
- defaulted,
- unknown
-};
-
-class PwrActivity
+class SeqPinHash
 {
 public:
-  PwrActivity();
-  PwrActivity(float activity,
-		float duty,
-		PwrActivityOrigin origin);
-  float activity() const { return activity_; }
-  float duty() const { return duty_; }
-  PwrActivityOrigin origin() { return origin_; }
-  const char *originName() const;
-  void set(float activity,
-	   float duty,
-	   PwrActivityOrigin origin);
-  bool isSet() const;
-
-private:
-  // In general activity is per clock cycle, NOT per second.
-  float activity_;
-  float duty_;
-  PwrActivityOrigin origin_;
+  size_t operator()(const SeqPin &pin) const;
 };
+
+class SeqPinEqual
+{
+public:
+  bool operator()(const SeqPin &pin1,
+		  const SeqPin &pin2) const;
+};
+
+typedef UnorderedMap<const Pin*,PwrActivity> PwrActivityMap;
+typedef UnorderedMap<SeqPin, PwrActivity,
+		     SeqPinHash, SeqPinEqual> PwrSeqActivityMap;
 
 // The Power class has access to Sta components directly for
 // convenience but also requires access to the Sta class member functions.
 class Power : public StaState
 {
 public:
-  Power(Sta *sta);
+  Power(StaState *sta);
   void power(const Corner *corner,
 	     // Return values.
 	     PowerResult &total,
@@ -86,20 +75,29 @@ public:
   void setInputPortActivity(const Port *input_port,
 			    float activity,
 			    float duty);
-  PwrActivity &pinActivity(const Pin *pin);
-  bool hasPinActivity(const Pin *pin);
-  void setPinActivity(const Pin *pin,
-		      PwrActivity &activity);
-  void setPinActivity(const Pin *pin,
-		      float activity,
-		      float duty,
-		      PwrActivityOrigin origin);
+  PwrActivity &activity(const Pin *pin);
+  void setUserActivity(const Pin *pin,
+		       float activity,
+		       float duty,
+		       PwrActivityOrigin origin);
   // Activity is toggles per second.
   PwrActivity findClkedActivity(const Pin *pin);
 
 protected:
   void preamble();
   void ensureActivities();
+  bool hasUserActivity(const Pin *pin);
+  PwrActivity &userActivity(const Pin *pin);
+  void setSeqActivity(const Instance *reg,
+		      LibertyPort *output,
+		      PwrActivity &activity);
+  bool hasSeqActivity(const Instance *reg,
+		      LibertyPort *output);
+  PwrActivity seqActivity(const Instance *reg,
+			  LibertyPort *output);
+  bool hasActivity(const Pin *pin);
+  void setActivity(const Pin *pin,
+		   PwrActivity &activity);
 
   void power(const Instance *inst,
 	     LibertyCell *cell,
@@ -140,6 +138,8 @@ protected:
   PwrActivity findClkedActivity(const Pin *pin,
 				const Clock *inst_clk);
   PwrActivity findActivity(const Pin *pin);
+  PwrActivity findSeqActivity(const Instance *inst,
+			      LibertyPort *port);
   float portVoltage(LibertyCell *cell,
 		    const LibertyPort *port,
 		    const DcalcAnalysisPt *dcalc_ap);
@@ -169,29 +169,19 @@ protected:
 				     const LibertyPort *cofactor_port);
 
 private:
+  // Port/pin activities set by set_pin_activity.
+  // set_pin_activity -global
   PwrActivity global_activity_;
+  // set_pin_activity -input
   PwrActivity input_activity_;
+  // set_pin_activity -input_ports -pins
+  PwrActivityMap user_activity_map_;
+  // Propagated activities.
   PwrActivityMap activity_map_;
+  PwrSeqActivityMap seq_activity_map_;
   bool activities_valid_;
 
   friend class PropActivityVisitor;
-};
-
-class PowerResult
-{
-public:
-  PowerResult();
-  void clear();
-  float &internal() { return internal_; }
-  float &switching() { return switching_; }
-  float &leakage() { return leakage_; }
-  float total() const;
-  void incr(PowerResult &result);
-  
-private:
-  float internal_;
-  float switching_;
-  float leakage_;
 };
 
 } // namespace

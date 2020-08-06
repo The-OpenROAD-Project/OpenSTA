@@ -578,7 +578,7 @@ ReportPath::reportFull(const PathEndLatchCheck *end,
   else
     reportTgtClk(end, result);
 
-  if (borrow >= 0.0)
+  if (delayGreaterEqual(borrow, 0.0, this))
     reportLine("time borrowed from endpoint", borrow, req_time,
 	       early_late, result);
   else
@@ -644,7 +644,7 @@ ReportPath::reportBorrowing(const PathEndLatchCheck *end,
     if (tgt_clk_path->clkInfo(search_)->isPropagated()) {
       auto width_msg = stdstrPrint("%s nominal pulse width", tgt_clk_name.c_str());
       reportLineTotal(width_msg.c_str(), nom_pulse_width, early_late, result);
-      if (!fuzzyZero(latency_diff))
+      if (!delayZero(latency_diff))
 	reportLineTotalMinus("clock latency difference", latency_diff,
 			     early_late, result);
     }
@@ -655,19 +655,19 @@ ReportPath::reportBorrowing(const PathEndLatchCheck *end,
     ArcDelay margin = end->margin(this);
     reportLineTotalMinus("library setup time", margin, early_late, result);
     reportDashLineTotal(result);
-    if (!fuzzyZero(crpr_diff))
+    if (!delayZero(crpr_diff))
       reportLineTotalMinus("CRPR difference", crpr_diff, early_late, result);
     reportLineTotal("max time borrow", max_borrow, early_late, result);
   }
-  if (fuzzyGreater(borrow, delay_zero)
+  if (delayGreater(borrow, delay_zero, this)
       && (!fuzzyZero(open_uncertainty)
-	  || !fuzzyZero(open_crpr))) {
+	  || !delayZero(open_crpr))) {
     reportDashLineTotal(result);
     reportLineTotal("actual time borrow", borrow, early_late, result);
     if (!fuzzyZero(open_uncertainty))
       reportLineTotal("open edge uncertainty", open_uncertainty,
 		      early_late, result);
-    if (!fuzzyZero(open_crpr))
+    if (!delayZero(open_crpr))
       reportLineTotal("open edge CRPR", open_crpr, early_late, result);
     reportDashLineTotal(result);
     reportLineTotal("time given to startpoint", time_given_to_startpoint,
@@ -705,12 +705,16 @@ void
 ReportPath::reportEndpoint(const PathEndPathDelay *end,
 			   string &result)
 {
-  Instance *inst = network_->instance(end->vertex(this)->pin());
-  const char *inst_name = cmd_network_->pathName(inst);
-  string clk_name = tgtClkName(end);
-  const char *reg_desc = clkRegLatchDesc(end);
-  auto reason = stdstrPrint("%s clocked by %s", reg_desc, clk_name.c_str());
-  reportEndpoint(inst_name, reason, result);
+  if (end->hasOutputDelay())
+    reportEndpointOutputDelay(end, result);
+  else {
+    Instance *inst = network_->instance(end->vertex(this)->pin());
+    const char *inst_name = cmd_network_->pathName(inst);
+    string clk_name = tgtClkName(end);
+    const char *reg_desc = clkRegLatchDesc(end);
+    auto reason = stdstrPrint("%s clocked by %s", reg_desc, clk_name.c_str());
+    reportEndpoint(inst_name, reason, result);
+  }
 }
 
 void
@@ -746,18 +750,16 @@ ReportPath::reportFull(const PathEndPathDelay *end,
   float delay = path_delay->delay();
   reportLine(delay_msg.c_str(), delay, delay, early_late, result);
   if (!path_delay->ignoreClkLatency()) {
-    const Path *tgt_clk_path = end->targetClkPath();
-    if (tgt_clk_path) {
-      float delay = 0.0;
-      if (path_delay)
-	delay = path_delay->delay();
+    Clock *tgt_clk = end->targetClk(this);
+    if (tgt_clk) {
+      const Path *tgt_clk_path = end->targetClkPath();
       if (reportClkPath()
-	  && isPropagated(tgt_clk_path))
+	  && isPropagated(tgt_clk_path, tgt_clk))
 	reportTgtClk(end, delay, result);
       else {
 	Arrival tgt_clk_delay = end->targetClkDelay(this);
 	Arrival tgt_clk_arrival = delay + tgt_clk_delay;
-	if (!fuzzyZero(tgt_clk_delay))
+	if (!delayZero(tgt_clk_delay))
 	  reportLine(clkNetworkDelayIdealProp(isPropagated(tgt_clk_path)),
 		     tgt_clk_delay, tgt_clk_arrival, early_late, result);
 	reportClkUncertainty(end, tgt_clk_arrival, result);
@@ -833,6 +835,13 @@ void
 ReportPath::reportEndpoint(const PathEndOutputDelay *end,
 			   string &result)
 {
+  reportEndpointOutputDelay(end, result);
+}
+
+void
+ReportPath::reportEndpointOutputDelay(const PathEndClkConstrained *end,
+				      string &result)
+{
   Vertex *vertex = end->vertex(this);
   Pin *pin = vertex->pin();
   const char *pin_name = cmd_network_->pathName(pin);
@@ -851,6 +860,7 @@ ReportPath::reportEndpoint(const PathEndOutputDelay *end,
     if (tgt_clk) {
       string clk_name = tgtClkName(end);
       auto reason = stdstrPrint("internal path endpoint clocked by %s", clk_name.c_str());
+
       reportEndpoint(pin_name, reason, result);
     }
     else
@@ -937,8 +947,8 @@ ReportPath::reportFull(const PathEndDataCheck *end,
   reportShort(end, expanded, result);
   reportSrcPathArrival(end, expanded, result);
 
-  // Capture/target clock path reporting resembles both source (reportSrcPath)
-  // and target (reportTgtClk) clocks. 
+  // Data check target clock path reporting resembles 
+  // both source (reportSrcPath) and target (reportTgtClk) clocks. 
   // It is like a source because it can be a non-clock path.
   // It is like a target because crpr and uncertainty are reported.
   // It is always propagated, even if the clock is ideal.
@@ -950,12 +960,14 @@ ReportPath::reportFull(const PathEndDataCheck *end,
     float src_offset = end->sourceClkOffset(this);
     Delay clk_delay = end->targetClkDelay(this);
     Arrival clk_arrival = end->targetClkArrival(this);
-    float offset = delayAsFloat(clk_arrival - clk_delay + src_offset);
+    ClockEdge *tgt_clk_edge = end->targetClkEdge(this);
+    float prev = delayAsFloat(clk_arrival) + src_offset;
+    float offset = prev - delayAsFloat(clk_delay) - tgt_clk_edge->time();
     reportPath5(data_clk_path, clk_expanded, clk_expanded.startIndex(),
 		clk_expanded.size() - 1,
 		data_clk_path->clkInfo(search_)->isPropagated(), false,
 		// Delay to startpoint is already included.
-		clk_arrival + src_offset, offset, result);
+		prev, offset, result);
   }
   reportRequired(end, checkRoleReason(end), result);
   reportSlack(end, result);
@@ -2040,13 +2052,24 @@ ReportPath::reportSrcClkAndPath(const Path *path,
       else if (clk_used_as_data) {
 	reportClkLine(clk, clk_name.c_str(), clk_end_rf, clk_time,
 		      early_late, result);
- 	if (clk_insertion > 0.0)
+ 	if (delayGreater(clk_insertion, 0.0, this))
 	  reportClkSrcLatency(clk_insertion, clk_time, early_late, result);
-	reportPath1(path, expanded, true, time_offset, result);
+	if (reportClkPath())
+	  reportPath1(path, expanded, true, time_offset, result);
+	else {
+	  Arrival clk_arrival = clk_end_time;
+	  Arrival end_arrival = path->arrival(this) + time_offset;
+	  Delay clk_delay = end_arrival - clk_arrival;
+	  reportLine("clock network delay", clk_delay,
+		     end_arrival, early_late, result);
+	  Vertex *end_vertex = path->vertex(this);
+	  reportLine(descriptionField(end_vertex).c_str(),
+		     end_arrival, early_late, clk_end_rf, result);
+	}
       }
       else {
 	if (is_path_delay) {
-	  if (clk_delay > 0.0)
+	  if (delayGreater(clk_delay, 0.0, this))
 	    reportLine(clkNetworkDelayIdealProp(is_prop), clk_delay,
 		       clk_end_time, early_late, result);
 	}
@@ -2494,10 +2517,75 @@ void
 ReportPath::reportPath(const Path *path,
 		       string &result)
 {
+  switch (format_) {
+  case ReportPathFormat::full:
+  case ReportPathFormat::full_clock:
+  case ReportPathFormat::full_clock_expanded:
+    reportPathFull(path, result);
+    break;
+  case ReportPathFormat::json:
+    reportPathJson(path, result);
+    break;
+  case ReportPathFormat::summary:
+  case ReportPathFormat::slack_only:
+  default:
+    internalError("unsupported path type");
+    break;
+  }
+}
+
+void
+ReportPath::reportPathFull(const Path *path,
+			   string &result)
+{
   reportPathHeader(result);
   PathExpanded expanded(path, this);
   reportSrcClkAndPath(path, expanded, 0.0, delay_zero, delay_zero,
 		      false, result);
+}
+
+void
+ReportPath::reportPathJson(const Path *path,
+			   string &result)
+{
+  result += "{ \"path\": [\n";
+  PathExpanded expanded(path, this);
+  for (auto i = expanded.startIndex(); i < expanded.size(); i++) {
+    PathRef *path = expanded.path(i);
+    const Pin *pin = path->vertex(this)->pin();
+    result += "    {\n";
+    result += "       \"pin\": \"";
+    result += network_->pathName(pin);
+    result += "\",\n";
+
+    double x, y;
+    bool exists;
+    string tmp;
+    network_->location(pin, x, y, exists);
+    if (exists) {
+      result += "       \"x\": ";
+      stringPrint(tmp, "%.9f", x);
+      result += tmp + ",\n";
+      result += "       \"y\": ";
+      stringPrint(tmp, "%.9f", y);
+      result += tmp + ",\n";
+    }
+
+    result += "       \"arrival\": ";
+    stringPrint(tmp, "%.3e", delayAsFloat(path->arrival(this)));
+    result += tmp + ",\n";
+    
+    result += "       \"slew\": ";
+    stringPrint(tmp, "%.3e", delayAsFloat(path->slew(this)));
+    result += tmp + "\n";
+
+    result += "    }";
+    if (i < expanded.size() - 1)
+      result += ",";
+    result += "\n";
+  }
+  result += "  ]\n";
+  result += "}\n";
 }
 
 void
@@ -2527,7 +2615,7 @@ ReportPath::reportPath1(const Path *path,
       }
       Arrival time = latch_enable_time + latch_time_given;
       Arrival incr = latch_time_given;
-      if (incr >= 0.0)
+      if (delayGreaterEqual(incr, 0.0, this))
 	reportLine("time given to startpoint", incr, time, early_late, result);
       else
 	reportLine("time borrowed from startpoint", incr, time,

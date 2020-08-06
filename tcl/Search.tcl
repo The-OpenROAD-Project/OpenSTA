@@ -227,7 +227,7 @@ proc parse_report_path_options { cmd args_var default_format
   if [info exists path_options(-format)] {
     set format $path_options(-format)
     set formats {full full_clock full_clock_expanded short \
-		   end slack_only summary}
+		   end slack_only summary json}
     if { [lsearch $formats $format] == -1 } {
       sta_error "-format $format not recognized."
     }

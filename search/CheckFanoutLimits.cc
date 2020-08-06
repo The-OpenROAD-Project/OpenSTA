@@ -182,15 +182,19 @@ CheckFanoutLimits::fanoutLoad(const Pin *pin) const
       Pin *pin = pin_iter->next();
       if (network->isLoad(pin)) {
 	LibertyPort *port = network->libertyPort(pin);
-	float fanout_load;
-	bool exists;
-	port->fanoutLoad(fanout_load, exists);
-	if (!exists) {
-	  LibertyLibrary *lib = port->libertyLibrary();
-	  lib->defaultFanoutLoad(fanout_load, exists);
+	if (port) {
+	  float fanout_load;
+	  bool exists;
+	  port->fanoutLoad(fanout_load, exists);
+	  if (!exists) {
+	    LibertyLibrary *lib = port->libertyLibrary();
+	    lib->defaultFanoutLoad(fanout_load, exists);
+	  }
+	  if (exists)
+	    fanout += fanout_load;
 	}
-	if (exists)
-	  fanout += fanout_load;
+	else
+	  fanout += 1;
       }
     }
     delete pin_iter;

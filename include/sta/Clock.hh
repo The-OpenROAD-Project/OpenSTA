@@ -294,12 +294,4 @@ void
 sortClockSet(ClockSet * set,
 	     ClockSeq &clks);
 
-// Clock source pins.
-class ClockPinIterator : public PinSet::Iterator
-{
-public:
-  // Use range iterator on Clock::pins().
-  ClockPinIterator(Clock *clk) __attribute__ ((deprecated));
-};
-
 } // namespace

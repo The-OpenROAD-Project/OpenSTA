@@ -16,7 +16,6 @@
 
 #include "Sta.hh"
 
-#include "util/Machine.hh"
 #include "DispatchQueue.hh"
 #include "ReportTcl.hh"
 #include "Debug.hh"
@@ -269,6 +268,7 @@ Sta::Sta() :
   link_make_black_boxes_(true),
   update_genclks_(false),
   equiv_cells_(nullptr),
+  graph_sdc_annotated_(false),
   clk_pins_valid_(false)
 {
 }
@@ -537,6 +537,7 @@ Sta::clear()
   // Constraints reference search filter, so clear search first.
   search_->clear();
   sdc_->clear();
+  graph_sdc_annotated_ = false;
   // corners are NOT cleared because they are used to index liberty files.
   levelize_->clear();
   if (parasitics_)
@@ -570,6 +571,7 @@ Sta::networkChanged()
     check_min_periods_->clear();
   delete graph_;
   graph_ = nullptr;
+  graph_sdc_annotated_ = false;
   current_instance_ = nullptr;
   updateComponentsState();
 }
@@ -1101,35 +1103,10 @@ Sta::removeClock(Clock *clk)
   search_->arrivalsInvalid();
 }
 
-Clock *
-Sta::findClock(const char *name) const
-{
-  return sdc_->findClock(name);
-}
-
-void
-Sta::findClocksMatching(PatternMatch *pattern,
-			ClockSeq *clks) const
-{
-  sdc_->findClocksMatching(pattern, clks);
-}
-
-ClockIterator *
-Sta::clockIterator() const
-{
-  return new ClockIterator(sdc_);
-}
-
 bool
 Sta::isClockSrc(const Pin *pin) const
 {
   return sdc_->isClock(pin);
-}
-
-Clock *
-Sta::defaultArrivalClock() const
-{
-  return sdc_->defaultArrivalClock();
 }
 
 void
@@ -1200,14 +1177,33 @@ Sta::setClockLatency(Clock *clk,
 		     const MinMaxAll *min_max,
 		     float delay)
 {
+  sdcChangedGraph();
   sdc_->setClockLatency(clk, pin, rf, min_max, delay);
   search_->arrivalsInvalid();
+}
+
+void
+Sta::sdcChangedGraph()
+{
+  if (graph_sdc_annotated_)
+    sdc_->removeGraphAnnotations();
+  graph_sdc_annotated_ = false;
+}
+
+void
+Sta::ensureGraphSdcAnnotated()
+{
+  if (!graph_sdc_annotated_) {
+    sdc_->annotateGraph();
+    graph_sdc_annotated_ = true;
+  }
 }
 
 void
 Sta::removeClockLatency(const Clock *clk,
 			const Pin *pin)
 {
+  sdcChangedGraph();
   sdc_->removeClockLatency(clk, pin);
   search_->arrivalsInvalid();
 }
@@ -1398,6 +1394,7 @@ Sta::setDataCheck(Pin *from,
 		  const SetupHoldAll *setup_hold,
 		  float margin)
 {
+  sdcChangedGraph();
   sdc_->setDataCheck(from, from_rf, to, to_rf, clk, setup_hold,margin);
   search_->requiredInvalid(to);
 }
@@ -1419,6 +1416,7 @@ Sta::removeDataCheck(Pin *from,
 void
 Sta::disable(Pin *pin)
 {
+  sdcChangedGraph();
   sdc_->disable(pin);
   // Levelization respects disabled edges.
   levelize_->invalid();
@@ -1429,6 +1427,7 @@ Sta::disable(Pin *pin)
 void
 Sta::removeDisable(Pin *pin)
 {
+  sdcChangedGraph();
   sdc_->removeDisable(pin);
   disableAfter();
   // Levelization respects disabled edges.
@@ -1442,6 +1441,7 @@ Sta::disable(Instance *inst,
 	     LibertyPort *from,
 	     LibertyPort *to)
 {
+  sdcChangedGraph();
   sdc_->disable(inst, from, to);
 
   if (from) {
@@ -1470,6 +1470,7 @@ Sta::removeDisable(Instance *inst,
 		   LibertyPort *from,
 		   LibertyPort *to)
 {
+  sdcChangedGraph();
   sdc_->removeDisable(inst, from, to);
 
   if (from) {
@@ -1514,6 +1515,7 @@ Sta::removeDisable(LibertyCell *cell,
 void
 Sta::disable(LibertyPort *port)
 {
+  sdcChangedGraph();
   sdc_->disable(port);
   disableAfter();
 }
@@ -1521,6 +1523,7 @@ Sta::disable(LibertyPort *port)
 void
 Sta::removeDisable(LibertyPort *port)
 {
+  sdcChangedGraph();
   sdc_->removeDisable(port);
   disableAfter();
 }
@@ -1882,6 +1885,7 @@ Sta::setOutputDelay(Pin *pin,
   sdc_->setOutputDelay(pin, rf, clk, clk_rf, ref_pin,
 		       source_latency_included,network_latency_included,
 		       min_max, add, delay);
+  sdcChangedGraph();
   search_->requiredInvalid(pin);
 }
 
@@ -1893,6 +1897,7 @@ Sta::removeOutputDelay(Pin *pin,
 		       MinMaxAll *min_max)
 {
   sdc_->removeOutputDelay(pin, rf, clk, clk_rf, min_max);
+  sdcChangedGraph();
   search_->arrivalInvalid(pin);
 }
 
@@ -2083,8 +2088,7 @@ Sta::removeConstraints()
   search_->clear();
   sim_->constantsInvalid();
   if (graph_)
-    // Remove graph constraint annotations.
-    sdc_->annotateGraph(false);
+    sdc_->removeGraphAnnotations();
   sdc_->clear();
 }
 
@@ -2403,11 +2407,6 @@ Sta::setCmdCorner(Corner *corner)
   cmd_corner_ = corner;
 }
 
-void
-Sta::setPathMinMax(const MinMaxAll *)
-{
-}
-
 ////////////////////////////////////////////////////////////////
 
 // from/thrus/to are owned and deleted by Search.
@@ -2675,7 +2674,7 @@ Sta::vertexWorstArrivalPath(Vertex *vertex,
     PathVertex *path = path_iter.next();
     Arrival arrival = path->arrival(this);
     if (!path->tag(this)->isGenClkSrcPath()
-	&& fuzzyGreater(arrival, worst_arrival, min_max)) {
+	&& delayGreater(arrival, worst_arrival, min_max, this)) {
       worst_arrival = arrival;
       worst_path.init(path);
     }
@@ -2695,7 +2694,7 @@ Sta::vertexWorstArrivalPath(Vertex *vertex,
     Arrival arrival = path->arrival(this);
     if (path->minMax(this) == min_max
 	&& !path->tag(this)->isGenClkSrcPath()
-	&& fuzzyGreater(arrival, worst_arrival, min_max)) {
+	&& delayGreater(arrival, worst_arrival, min_max, this)) {
       worst_arrival = arrival;
       worst_path.init(path);
     }
@@ -2715,7 +2714,7 @@ Sta::vertexWorstSlackPath(Vertex *vertex,
     PathVertex *path = path_iter.next();
     Slack slack = path->slack(this);
     if (!path->tag(this)->isGenClkSrcPath()
-	&& slack < min_slack) {
+	&& delayLess(slack, min_slack, this)) {
       min_slack = slack;
       worst_path.init(path);
     }
@@ -2736,7 +2735,7 @@ Sta::vertexWorstSlackPath(Vertex *vertex,
     if (path->minMax(this) == min_max
 	&& !path->tag(this)->isGenClkSrcPath()) {
       Slack slack = path->slack(this);
-      if (fuzzyLess(slack, min_slack)) {
+      if (delayLess(slack, min_slack, this)) {
 	min_slack = slack;
 	worst_path.init(path);
       }
@@ -2770,7 +2769,7 @@ Sta::vertexArrival(Vertex *vertex,
     if ((clk_edge == clk_edge_wildcard
 	 || clk_info->clkEdge() == clk_edge)
 	&& !clk_info->isGenClkSrcPath()
-	&& fuzzyGreater(path->arrival(this), arrival, min_max))
+	&& delayGreater(path->arrival(this), arrival, min_max, this))
       arrival = path_arrival;
   }
   return arrival;
@@ -2788,7 +2787,7 @@ Sta::vertexRequired(Vertex *vertex,
     const Path *path = path_iter.next();
     if (path->minMax(this) == min_max) {
       const Required path_required = path->required(this);
-      if (fuzzyGreater(path_required, required, req_min_max))
+      if (delayGreater(path_required, required, req_min_max, this))
 	required = path_required;
     }
   }
@@ -2818,7 +2817,7 @@ Sta::vertexRequired(Vertex *vertex,
     const Required path_required = path->required(this);
     if ((clk_edge == clk_edge_wildcard
 	 || path->clkEdge(search_) == clk_edge)
-	&& fuzzyGreater(path_required, required, min_max))
+	&& delayGreater(path_required, required, min_max, this))
       required = path_required;
   }
   return required;
@@ -2836,7 +2835,8 @@ Sta::netSlack(const Net *net,
     if (network_->isLoad(pin)) {
       Vertex *vertex = graph_->pinLoadVertex(pin);
       Slack pin_slack = vertexSlack(vertex, min_max);
-      slack = min(slack, pin_slack);
+      if (delayLess(pin_slack, slack, this))
+	slack = pin_slack;
     }
   }
   return slack;
@@ -2852,8 +2852,11 @@ Sta::pinSlack(const Pin *pin,
   Slack slack = MinMax::min()->initValue();
   if (vertex)
     slack = vertexSlack(vertex, min_max);
-  if (bidirect_drvr_vertex)
-    slack = min(slack, vertexSlack(bidirect_drvr_vertex, min_max));
+  if (bidirect_drvr_vertex) {
+    Slack slack1 = vertexSlack(bidirect_drvr_vertex, min_max);
+    if (delayLess(slack1, slack, this))
+      slack = slack1;
+  }
   return slack;
 }
 
@@ -2868,8 +2871,11 @@ Sta::pinSlack(const Pin *pin,
   Slack slack = MinMax::min()->initValue();
   if (vertex)
     slack = vertexSlack(vertex, rf, min_max);
-  if (bidirect_drvr_vertex)
-    slack = min(slack, vertexSlack(bidirect_drvr_vertex, rf, min_max));
+  if (bidirect_drvr_vertex) {
+    Slack slack1 = vertexSlack(bidirect_drvr_vertex, rf, min_max);
+    if (delayLess(slack1, slack, this))
+      slack = slack1;
+  }
   return slack;
 }
 
@@ -2885,7 +2891,7 @@ Sta::vertexSlack(Vertex *vertex,
     Path *path = path_iter.next();
     if (path->minMax(this) == min_max) {
       Slack path_slack = path->slack(this);
-      if (path_slack < slack)
+      if (delayLess(path_slack, slack, this))
 	slack = path_slack;
     }
   }
@@ -2903,7 +2909,7 @@ Sta::vertexSlack(Vertex *vertex,
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
     Slack path_slack = path->slack(this);
-    if (path_slack < slack)
+    if (delayLess(path_slack, slack, this))
       slack = path_slack;
   }
   return slack;
@@ -2942,7 +2948,7 @@ Sta::vertexSlack1(Vertex *vertex,
     Slack path_slack = path->slack(this);
     if ((clk_edge == clk_edge_wildcard
 	 || path->clkEdge(search_) == clk_edge)
-	&& path_slack < slack)
+	&& delayLess(path_slack, slack, this))
       slack = path_slack;
   }
   return slack;
@@ -2964,7 +2970,7 @@ Sta::vertexSlacks(Vertex *vertex,
     Slack path_slack = path->slack(this);
     int rf_index = path->rfIndex(this);
     int mm_index = path->minMax(this)->index();
-    if (path_slack < slacks[rf_index][mm_index])
+    if (delayLess(path_slack, slacks[rf_index][mm_index], this))
       slacks[rf_index][mm_index] = path_slack;
   }
 }
@@ -3159,7 +3165,7 @@ Sta::vertexSlew(Vertex *vertex,
   Slew mm_slew = min_max->initValue();
   for (DcalcAnalysisPt *dcalc_ap : corners_->dcalcAnalysisPts()) {
     Slew slew = graph_->slew(vertex, rf, dcalc_ap->index());
-    if (fuzzyGreater(slew, mm_slew, min_max))
+    if (delayGreater(slew, mm_slew, min_max, this))
       mm_slew = slew;
   }
   return mm_slew;
@@ -3174,7 +3180,6 @@ Sta::ensureGraph()
     makeGraph();
     // Update pointers to graph.
     updateComponentsState();
-    sdc_->annotateGraph(true);
   }
   return graph_;
 }
@@ -3190,6 +3195,7 @@ void
 Sta::ensureLevelized()
 {
   ensureGraph();
+  ensureGraphSdcAnnotated();
   // Need constant propagation before levelization to know edges that
   // are disabled by constants.
   sim_->ensureConstantsPropagated();
@@ -3806,7 +3812,9 @@ Sta::makeInstanceAfter(Instance *inst)
     while (port_iter.hasNext()) {
       LibertyPort *lib_port = port_iter.next();
       Pin *pin = network_->findPin(inst, lib_port);
-      connectPinAfter(pin);
+      // Internal pins may not exist.
+      if (pin)
+	connectPinAfter(pin);
     }
   }
 }
@@ -4392,6 +4400,7 @@ void
 Sta::findRegisterPreamble()
 {
   ensureGraph();
+  ensureGraphSdcAnnotated();
   sim_->ensureConstantsPropagated();
 }
 
@@ -4785,7 +4794,7 @@ bool
 InstanceMaxSlewGreater::operator()(const Instance *inst1,
 				   const Instance *inst2) const
 {
-  return instMaxSlew(inst1) > instMaxSlew(inst2);
+  return delayGreater(instMaxSlew(inst1), instMaxSlew(inst2), sta_);
 }
 
 Slew
@@ -4802,7 +4811,7 @@ InstanceMaxSlewGreater::instMaxSlew(const Instance *inst) const
       for (RiseFall *rf : RiseFall::range()) {
 	for (DcalcAnalysisPt *dcalc_ap : sta_->corners()->dcalcAnalysisPts()) {
 	  Slew slew = graph->slew(vertex, rf, dcalc_ap->index());
-	  if (slew > max_slew)
+	  if (delayGreater(slew, max_slew, sta_))
 	    max_slew = slew;
 	}
       }
@@ -4971,7 +4980,6 @@ Sta::checkFanout(const Pin *pin,
 		 float &limit,
 		 float &slack)
 {
-  checkFanoutLimitPreamble();
   check_fanout_limits_->checkFanout(pin, min_max,
 				    fanout, limit, slack);
 }
@@ -5050,7 +5058,6 @@ Sta::checkCapacitance(const Pin *pin,
 		      float &limit,
 		      float &slack)
 {
-  checkCapacitanceLimitPreamble();
   check_capacitance_limits_->checkCapacitance(pin, corner, min_max,
 					      corner1, rf, capacitance,
 					      limit, slack);
