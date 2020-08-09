@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include "GraphDelayCalc1.hh"
+
 #include "Debug.hh"
 #include "Stats.hh"
 #include "MinMax.hh"
@@ -34,7 +36,7 @@
 #include "ArcDelayCalc.hh"
 #include "DcalcAnalysisPt.hh"
 #include "NetCaps.hh"
-#include "GraphDelayCalc1.hh"
+#include "ClkNetwork.hh"
 
 namespace sta {
 
@@ -1387,7 +1389,7 @@ GraphDelayCalc1::edgeFromSlew(const Vertex *from_vertex,
 {
   const TimingRole *role = edge->role();
   if (role->genericRole() == TimingRole::regClkToQ()
-      && isIdealClk(from_vertex))
+      && clk_network_->isIdealClock(from_vertex->pin()))
     return idealClkSlew(from_vertex, from_rf, dcalc_ap->slewMinMax());
   else
     return graph_->slew(from_vertex, from_rf, dcalc_ap->index());
@@ -1399,7 +1401,7 @@ GraphDelayCalc1::idealClkSlew(const Vertex *vertex,
 			      const MinMax *min_max)
 {
   float slew = min_max->initValue();
-  const ClockSet *clks = idealClks(vertex);
+  const ClockSet *clks = clk_network_->idealClocks(vertex->pin());
   ClockSet::ConstIterator clk_iter(clks);
   while (clk_iter.hasNext()) {
     Clock *clk = clk_iter.next();
@@ -1585,7 +1587,7 @@ GraphDelayCalc1::checkEdgeClkSlew(const Vertex *from_vertex,
 				  const RiseFall *from_rf,
 				  const DcalcAnalysisPt *dcalc_ap)
 {
-  if (isIdealClk(from_vertex))
+  if (clk_network_->isIdealClock(from_vertex->pin()))
     return idealClkSlew(from_vertex, from_rf, dcalc_ap->checkClkSlewMinMax());
   else 
     return graph_->slew(from_vertex, from_rf, dcalc_ap->checkClkSlewIndex());
@@ -1674,15 +1676,49 @@ GraphDelayCalc1::setIdealClks(const Vertex *vertex,
 ClockSet *
 GraphDelayCalc1::idealClks(const Vertex *vertex)
 {
-  return ideal_clks_map_.findKey(vertex);
+  ClockSet *ideal_clks = ideal_clks_map_.findKey(vertex);
+  const ClockSet *ideal_clks2 = clk_network_->idealClocks(vertex->pin());
+  if (ideal_clks) {
+    for (Clock *clk : *ideal_clks) {
+      if (ideal_clks2) {
+	if (!ideal_clks2->findKey(clk))
+	  printf("pin %s clk_net missing1 %s\n",
+		 vertex->name(network_),
+		 clk->name());
+      }
+      else
+	printf("pin %s clk_net missing2 %s\n",
+	       vertex->name(network_),
+	       clk->name());
+    }
+    if (ideal_clks2) {
+      for (Clock *clk : *ideal_clks2) {
+	if (ideal_clks) {
+	  if (!ideal_clks->findKey(clk)) {
+	    printf("pin %s dcalc missing3 %s\n",
+		   vertex->name(network_),
+		   clk->name());
+	  }
+	}
+	else
+	  printf("pin %s dcalc missing4 %s\n",
+		 vertex->name(network_),
+		 clk->name());
+      }
+    }
+  }
+  return ideal_clks;
 }
 
 bool
 GraphDelayCalc1::isIdealClk(const Vertex *vertex)
 {
   const ClockSet *clks = idealClks(vertex);
-  return clks != 0
+  bool ideal = clks != 0
     && clks->size() > 0;
+  if (ideal != clk_network_->isIdealClock(vertex->pin()))
+    printf("ideal missmatch\n");
+  return ideal;
 }
 
 float
@@ -1765,7 +1801,7 @@ GraphDelayCalc1::reportDelayCalc(Edge *edge,
       const Slew &from_slew = checkEdgeClkSlew(from_vertex, from_rf, dcalc_ap);
       int slew_index = dcalc_ap->checkDataSlewIndex();
       const Slew &to_slew = graph_->slew(to_vertex, to_rf, slew_index);
-      bool from_ideal_clk = isIdealClk(from_vertex);
+      bool from_ideal_clk = clk_network_->isIdealClock(from_vertex->pin());
       const char *from_slew_annotation = from_ideal_clk ? " (ideal clock)" : nullptr;
       arc_delay_calc_->reportCheckDelay(cell, arc, from_slew, from_slew_annotation,
 					to_slew, related_out_cap, pvt, dcalc_ap,

@@ -1145,12 +1145,14 @@ public:
 
   ////////////////////////////////////////////////////////////////
 
-  void ensureClkPins();
-  bool isIdealClock(Pin *pin) const;
+  void ensureClkNetwork();
+  // Assumes ensureClkNetwork() has been called.
   bool isClock(Pin *pin) const;
+  // Assumes ensureClkNetwork() has been called.
+  bool isIdealClock(Pin *pin) const;
   void clkPinsInvalid();
 
-////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////
 
   void setTclInterp(Tcl_Interp *interp);
   Tcl_Interp *tclInterp();
@@ -1235,7 +1237,8 @@ protected:
   virtual void makeGraphDelayCalc();
   virtual void makeSim();
   virtual void makeSearch();
-  virtual void makeLatches();
+  virtual void makeLatches(); 
+  virtual void makeClkNetwork();
   virtual void makeCheckTiming();
   virtual void makeCheckSlewLimits();
   virtual void makeCheckFanoutLimits();
@@ -1330,11 +1333,6 @@ protected:
   void replaceCell(Instance *inst,
 		   Cell *to_cell,
 		   LibertyCell *to_lib_cell);
-  void clkPinsConnectPinAfter(Vertex *vertex);
-  void clkPinsDisconnectPinBefore(Vertex *vertex);
-  void findClkPins();
-  void findClkPins(bool ideal_only,
-		   PinSet &clk_pins);
   void sdcChangedGraph();
   void ensureGraphSdcAnnotated();
 
@@ -1356,10 +1354,6 @@ protected:
   bool update_genclks_;
   EquivCells *equiv_cells_;
   bool graph_sdc_annotated_;
-  // findClkPins
-  PinSet clk_pins_;
-  PinSet ideal_clk_pins_;
-  bool clk_pins_valid_;
 
   // Singleton sta used by tcl command interpreter.
   static Sta *sta_;

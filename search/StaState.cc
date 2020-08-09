@@ -39,6 +39,7 @@ StaState::StaState() :
   sim_(nullptr),
   search_(nullptr),
   latches_(nullptr),
+  clk_network_(nullptr),
   thread_count_(1),
   dispatch_queue_(nullptr),
   pocv_enabled_(false),
@@ -63,6 +64,7 @@ StaState::StaState(const StaState *sta) :
   sim_(sta->sim_),
   search_(sta->search_),
   latches_(sta->latches_),
+  clk_network_(sta->clk_network_),
   thread_count_(sta->thread_count_),
   dispatch_queue_(sta->dispatch_queue_),
   pocv_enabled_(sta->pocv_enabled_),
@@ -89,6 +91,7 @@ StaState::copyState(const StaState *sta)
   sim_ = sta->sim_;
   search_ = sta->search_;
   latches_ = sta->latches_;
+  clk_network_ = sta->clk_network_;
   thread_count_ = sta->thread_count_;
   dispatch_queue_ = sta->dispatch_queue_;
   pocv_enabled_ = sta->pocv_enabled_;

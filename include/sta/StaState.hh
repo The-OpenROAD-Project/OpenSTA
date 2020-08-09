@@ -36,6 +36,7 @@ class Parasitics;
 class ArcDelayCalc;
 class GraphDelayCalc;
 class Latches;
+class ClkNetwork;
 class DispatchQueue;
 
 // Most STA components use functionality in other components.
@@ -114,6 +115,7 @@ protected:
   Sim *sim_;
   Search *search_;
   Latches *latches_;
+  ClkNetwork *clk_network_;
   int thread_count_;
   DispatchQueue *dispatch_queue_;
   bool pocv_enabled_;

@@ -64,6 +64,7 @@
 #include "ReportPath.hh"
 #include "VisitPathGroupVertices.hh"
 #include "Genclks.hh"
+#include "ClkNetwork.hh"
 #include "Power.hh"
 
 namespace sta {
@@ -268,8 +269,7 @@ Sta::Sta() :
   link_make_black_boxes_(true),
   update_genclks_(false),
   equiv_cells_(nullptr),
-  graph_sdc_annotated_(false),
-  clk_pins_valid_(false)
+  graph_sdc_annotated_(false)
 {
 }
 
@@ -289,6 +289,7 @@ Sta::makeComponents()
   makeSim();
   makeSearch();
   makeLatches();
+  makeClkNetwork();
   makeSdcNetwork();
   makeReportPath();
   makePower();
@@ -348,6 +349,7 @@ Sta::updateComponentsState()
   report_path_->copyState(this);
   if (check_timing_)
     check_timing_->copyState(this);
+  clk_network_->copyState(this);
   if (power_)
     power_->copyState(this);
 }
@@ -479,6 +481,12 @@ Sta::makeReportPath()
 }
 
 void
+Sta::makeClkNetwork()
+{
+  clk_network_ = new ClkNetwork(this);
+}
+
+void
 Sta::makePower()
 {
   power_ = new Power(this);
@@ -525,6 +533,7 @@ Sta::~Sta()
   delete debug_;
   delete units_;
   delete report_;
+  delete clk_network_;
   delete power_;
   delete equiv_cells_;
   delete dispatch_queue_;
@@ -2090,6 +2099,7 @@ Sta::removeConstraints()
   if (graph_)
     sdc_->removeGraphAnnotations();
   sdc_->clear();
+  clk_network_->clear();
 }
 
 void
@@ -3107,7 +3117,7 @@ Sta::findDelays(Level level)
 void
 Sta::delayCalcPreamble()
 {
-  ensureLevelized();
+  ensureClkNetwork();
 }
 
 void
@@ -3986,8 +3996,10 @@ Sta::connectPinAfter(Pin *pin)
       EdgesThruHierPinIterator edge_iter(pin, network_, graph_);
       while (edge_iter.hasNext()) {
 	Edge *edge = edge_iter.next();
-	if (edge->role()->isWire())
+	if (edge->role()->isWire()) {
 	  connectDrvrPinAfter(edge->from(graph_));
+	  connectLoadPinAfter(edge->to(graph_));
+	}
       }
     }
     else {
@@ -4034,12 +4046,13 @@ Sta::connectDrvrPinAfter(Vertex *vertex)
     search_->endpointInvalid(to_vertex);
     sdc_->clkHpinDisablesChanged(to_vertex->pin());
   }
-  sdc_->clkHpinDisablesChanged(vertex->pin());
+  Pin *pin = vertex->pin();
+  sdc_->clkHpinDisablesChanged(pin);
   graph_delay_calc_->delayInvalid(vertex);
   search_->requiredInvalid(vertex);
   search_->endpointInvalid(vertex);
-  clkPinsConnectPinAfter(vertex);
   levelize_->invalidFrom(vertex);
+  clk_network_->connectPinAfter(pin);
 }
 
 void
@@ -4054,12 +4067,13 @@ Sta::connectLoadPinAfter(Vertex *vertex)
     search_->requiredInvalid(from_vertex);
     sdc_->clkHpinDisablesChanged(from_vertex->pin());
   }
-  sdc_->clkHpinDisablesChanged(vertex->pin());
+  Pin *pin = vertex->pin();
+  sdc_->clkHpinDisablesChanged(pin);
   graph_delay_calc_->delayInvalid(vertex);
   levelize_->invalidFrom(vertex);
   search_->arrivalInvalid(vertex);
   search_->endpointInvalid(vertex);
-  clkPinsConnectPinAfter(vertex);
+  clk_network_->connectPinAfter(pin);
 }
 
 void
@@ -4079,7 +4093,7 @@ Sta::disconnectPinBefore(Pin *pin)
 	  if (edge->role()->isWire())
 	    deleteEdge(edge);
 	}
-	clkPinsDisconnectPinBefore(vertex);
+	clk_network_->disconnectPinBefore(pin);
       }
     }
     if (network_->isLoad(pin)) {
@@ -4092,7 +4106,7 @@ Sta::disconnectPinBefore(Pin *pin)
 	  if (edge->role()->isWire())
 	    deleteEdge(edge);
 	}
-	clkPinsDisconnectPinBefore(vertex);
+	clk_network_->disconnectPinBefore(pin);
       }
     }
     if (network_->isHierarchical(pin)) {
@@ -4100,8 +4114,10 @@ Sta::disconnectPinBefore(Pin *pin)
       EdgesThruHierPinIterator edge_iter(pin, network_, graph_);
       while (edge_iter.hasNext()) {
 	Edge *edge = edge_iter.next();
-	if (edge->role()->isWire())
+	if (edge->role()->isWire()) {
 	  deleteEdge(edge);
+	  clk_network_->disconnectPinBefore(edge->from(graph_)->pin());
+	}
       }
     }
   }
@@ -4229,6 +4245,7 @@ Sta::deletePinBefore(Pin *pin)
     }
   }
   sim_->deletePinBefore(pin);
+  clk_network_->deletePinBefore(pin);
 }
 
 void
@@ -4926,7 +4943,7 @@ Sta::checkFanoutLimitPreamble()
 {
   if (check_fanout_limits_ == nullptr)
     makeCheckFanoutLimits();
-  ensureClkPins();
+  ensureClkNetwork();
 }
 
 Pin *
@@ -4991,7 +5008,7 @@ Sta::checkCapacitanceLimitPreamble()
 {
   if (check_capacitance_limits_ == nullptr)
     makeCheckCapacitanceLimits();
-  ensureClkPins();
+  ensureClkNetwork();
 }
 
 Pin *
@@ -5242,6 +5259,33 @@ Sta::power(const Instance *inst,
 {
   powerPreamble();
   power_->power(inst, corner, result);
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+Sta::ensureClkNetwork()
+{
+  ensureLevelized();
+  clk_network_->ensureClkNetwork();
+}
+
+bool
+Sta::isClock(Pin *pin) const
+{
+  return clk_network_->isClock(pin);
+}
+
+bool
+Sta::isIdealClock(Pin *pin) const
+{
+  return clk_network_->isIdealClock(pin);
+}
+
+void
+Sta::clkPinsInvalid()
+{
+  clk_network_->clkPinsInvalid();
 }
 
 } // namespace

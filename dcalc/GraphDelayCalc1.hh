@@ -18,6 +18,7 @@
 
 #include <mutex>
 
+#include "Delay.hh"
 #include "GraphDelayCalc.hh"
 
 namespace sta {

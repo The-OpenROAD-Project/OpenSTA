@@ -158,6 +158,7 @@ set(STA_SOURCE
   search/CheckSlewLimits.cc
   search/CheckTiming.cc
   search/ClkInfo.cc
+  search/ClkNetwork.cc
   search/ClkSkew.cc
   search/Corner.cc
   search/Crpr.cc
@@ -181,7 +182,6 @@ set(STA_SOURCE
   search/ReportPath.cc
   search/Search.cc
   search/SearchPred.cc
-  search/FindClkPins.cc
   search/Sim.cc
   search/Sta.cc
   search/StaState.cc
