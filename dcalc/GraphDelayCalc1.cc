@@ -230,7 +230,6 @@ GraphDelayCalc1::~GraphDelayCalc1()
   delete clk_pred_;
   delete iter_;
   deleteMultiDrvrNets();
-  clearIdealClkMap();
   delete observer_;
 }
 
@@ -293,7 +292,6 @@ GraphDelayCalc1::delaysInvalid()
   delays_seeded_ = false;
   incremental_ = false;
   iter_->clear();
-  clearIdealClkMap();
   // No need to keep track of incremental updates any more.
   invalid_delays_.clear();
   invalid_checks_.clear();
@@ -360,7 +358,6 @@ public:
   virtual ~FindVertexDelays();
   virtual void visit(Vertex *vertex);
   virtual VertexVisitor *copy();
-  virtual void levelFinished();
 
 protected:
   GraphDelayCalc1 *graph_delay_calc1_;
@@ -398,24 +395,6 @@ FindVertexDelays::visit(Vertex *vertex)
   graph_delay_calc1_->findVertexDelay(vertex, arc_delay_calc_, true);
 }
 
-void
-FindVertexDelays::levelFinished()
-{
-  graph_delay_calc1_->mergeIdealClks();
-}
-
-void
-GraphDelayCalc1::mergeIdealClks()
-{
-  for (auto vertex_clks : ideal_clks_map_next_) {
-    const Vertex *vertex = vertex_clks.first;
-    ClockSet *prev_clks = ideal_clks_map_.findKey(vertex);
-    delete prev_clks;
-    ideal_clks_map_[vertex] = vertex_clks.second;
-  }
-  ideal_clks_map_next_.clear();
-}
-
 // The logical structure of incremental delay calculation closely
 // resembles the incremental search arrival time algorithm
 // (Search::findArrivals).
@@ -437,7 +416,6 @@ GraphDelayCalc1::findDelays(Level level)
     if (incremental_)
       seedInvalidDelays();
 
-    mergeIdealClks();
     FindVertexDelays visitor(this, arc_delay_calc_, false);
     dcalc_count += iter_->visitParallel(level, &visitor);
 
@@ -578,7 +556,6 @@ GraphDelayCalc1::seedRootSlews()
   while (root_iter.hasNext()) {
     Vertex *vertex = root_iter.next();
     seedRootSlew(vertex, arc_delay_calc_);
-    findIdealClks(vertex);
   }
 }
 
@@ -857,7 +834,6 @@ GraphDelayCalc1::findVertexDelay(Vertex *vertex,
 				 bool propagate)
 {
   const Pin *pin = vertex->pin();
-  bool ideal_clks_changed = findIdealClks(vertex);
   // Don't clobber root slews.
   if (!vertex->isRoot()) {
     debugPrint2(debug_, "delay_calc", 2, "find delays %s (%s)\n",
@@ -871,7 +847,7 @@ GraphDelayCalc1::findVertexDelay(Vertex *vertex,
 	    enqueueTimingChecksEdges(vertex);
 	  // Enqueue adjacent vertices even if the delays did not
 	  // change when non-incremental to stride past annotations.
-	  if (delay_changed || ideal_clks_changed || !incremental_)
+	  if (delay_changed || !incremental_)
 	    iter_->enqueueAdjacentVertices(vertex);
 	}
       }
@@ -1594,132 +1570,6 @@ GraphDelayCalc1::checkEdgeClkSlew(const Vertex *from_vertex,
 }
 
 ////////////////////////////////////////////////////////////////
-
-bool
-GraphDelayCalc1::findIdealClks(Vertex *vertex)
-{
-  const Pin *pin = vertex->pin();
-  ClockSet *ideal_clks = nullptr;
-  if (sdc_->isLeafPinClock(pin)) {
-    // Seed ideal clocks pins.
-    if (!sdc_->isPropagatedClock(pin)) {
-      ClockSet *clks = sdc_->findLeafPinClocks(pin);
-      ClockSet::ConstIterator clk_iter(clks);
-      while (clk_iter.hasNext()) {
-	Clock *clk = clk_iter.next();
-	if (!clk->isPropagated()) {
-	  if (ideal_clks == nullptr) {
-	    ideal_clks = new ClockSet;
-	    debugPrint1(debug_, "ideal_clks", 1, " %s\n",
-			vertex->name(sdc_network_));
-	  }
-	  ideal_clks->insert(clk);
-	  debugPrint1(debug_, "ideal_clks", 1, "  %s\n", clk->name());
-	}
-      }
-    }
-  }
-  else {
-    if (!sdc_->isPropagatedClock(pin)) {
-      VertexInEdgeIterator edge_iter(vertex, graph_);
-      while (edge_iter.hasNext()) {
-	Edge *edge = edge_iter.next();
-	if (clk_pred_->searchThru(edge)) {
-	  Vertex *from_vertex = edge->from(graph_);
-	  ClockSet *from_clks = idealClks(from_vertex);
-	  if (from_clks) {
-	    ClockSet::ConstIterator from_clk_iter(from_clks);
-	    while (from_clk_iter.hasNext()) {
-	      Clock *from_clk = from_clk_iter.next();
-	      if (ideal_clks == nullptr) {
-		ideal_clks = new ClockSet;
-		debugPrint1(debug_, "ideal_clks", 1, " %s\n",
-			    vertex->name(sdc_network_));
-	      }
-	      ideal_clks->insert(from_clk);
-	      debugPrint1(debug_, "ideal_clks", 1, "  %s\n", from_clk->name());
-	    }
-	  }
-	}
-      }
-    }
-  }
-  return setIdealClks(vertex, ideal_clks);
-}
-
-void
-GraphDelayCalc1::clearIdealClkMap()
-{
-  ideal_clks_map_.deleteContentsClear();
-  ideal_clks_map_next_.deleteContentsClear();
-}
-
-bool
-GraphDelayCalc1::setIdealClks(const Vertex *vertex,
-			      ClockSet *clks)
-{
-  bool changed = false;
-  ClockSet *clks1 = ideal_clks_map_.findKey(vertex);
-  if (!ClockSet::equal(clks, clks1)) {
-    // Only lock for updates to vertex ideal clks.
-    // Finding ideal clks by level means only changes at the current
-    // delay calc level are changed.
-    UniqueLock lock(ideal_clks_map_next_lock_);
-    ideal_clks_map_next_[vertex] = clks;
-    changed = true;
-  }
-  else
-    delete clks;
-  return changed;
-}
-
-ClockSet *
-GraphDelayCalc1::idealClks(const Vertex *vertex)
-{
-  ClockSet *ideal_clks = ideal_clks_map_.findKey(vertex);
-  const ClockSet *ideal_clks2 = clk_network_->idealClocks(vertex->pin());
-  if (ideal_clks) {
-    for (Clock *clk : *ideal_clks) {
-      if (ideal_clks2) {
-	if (!ideal_clks2->findKey(clk))
-	  printf("pin %s clk_net missing1 %s\n",
-		 vertex->name(network_),
-		 clk->name());
-      }
-      else
-	printf("pin %s clk_net missing2 %s\n",
-	       vertex->name(network_),
-	       clk->name());
-    }
-    if (ideal_clks2) {
-      for (Clock *clk : *ideal_clks2) {
-	if (ideal_clks) {
-	  if (!ideal_clks->findKey(clk)) {
-	    printf("pin %s dcalc missing3 %s\n",
-		   vertex->name(network_),
-		   clk->name());
-	  }
-	}
-	else
-	  printf("pin %s dcalc missing4 %s\n",
-		 vertex->name(network_),
-		 clk->name());
-      }
-    }
-  }
-  return ideal_clks;
-}
-
-bool
-GraphDelayCalc1::isIdealClk(const Vertex *vertex)
-{
-  const ClockSet *clks = idealClks(vertex);
-  bool ideal = clks != 0
-    && clks->size() > 0;
-  if (ideal != clk_network_->isIdealClock(vertex->pin()))
-    printf("ideal missmatch\n");
-  return ideal;
-}
 
 float
 GraphDelayCalc1::ceff(Edge *edge,

@@ -4865,6 +4865,7 @@ Sta::checkSlewLimitPreamble()
     findDelays();
   if (check_slew_limits_ == nullptr)
     makeCheckSlewLimits();
+  ensureClkNetwork();
 }
 
 Pin *

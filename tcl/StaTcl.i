@@ -3768,7 +3768,21 @@ update_generated_clks()
 }
 
 bool
-pin_is_clock(const Pin *pin)
+is_clock(Pin *pin)
+{
+  Sta *sta = Sta::sta();
+  return sta->isClock(pin);
+}
+
+bool
+is_ideal_clock(Pin *pin)
+{
+  Sta *sta = Sta::sta();
+  return sta->isIdealClock(pin);
+}
+
+bool
+is_clock_search(const Pin *pin)
 {
   Sta *sta = Sta::sta();
   Graph *graph = sta->graph();
@@ -3779,7 +3793,7 @@ pin_is_clock(const Pin *pin)
 }
 
 bool
-pin_is_genclk_src(const Pin *pin)
+is_genclk_src(const Pin *pin)
 {
   Sta *sta = Sta::sta();
   Graph *graph = sta->graph();

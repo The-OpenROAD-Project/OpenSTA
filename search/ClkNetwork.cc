@@ -143,23 +143,13 @@ ClkNetwork::findClkPins(bool ideal_only,
 bool
 ClkNetwork::isClock(const Pin *pin) const
 {
-  ClockSet clks;
-  bool exists;
-  pin_clks_map_.findKey(pin, clks, exists);
-  if (exists && clks.empty())
-    printf("luse empty clks\n");
-  return exists;
+  return pin_clks_map_.hasKey(pin);
 }
 
 bool
 ClkNetwork::isIdealClock(const Pin *pin) const
 {
-  ClockSet clks;
-  bool exists;
-  pin_ideal_clks_map_.findKey(pin, clks, exists);
-  if (exists && clks.empty())
-    printf("luse empty clks\n");
-  return exists;
+  return pin_ideal_clks_map_.hasKey(pin);
 }
 
 const ClockSet *

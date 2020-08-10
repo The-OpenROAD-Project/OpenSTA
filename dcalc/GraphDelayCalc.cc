@@ -116,12 +116,6 @@ GraphDelayCalc::ceff(Edge *,
   return 0.0;
 }
 
-bool
-GraphDelayCalc::isIdealClk(const Vertex *vertex)
-{
-  return false;
-}
-
 void
 GraphDelayCalc::minPulseWidth(const Pin *pin,
 			      const RiseFall *hi_low,

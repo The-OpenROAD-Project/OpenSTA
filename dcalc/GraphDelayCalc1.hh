@@ -142,7 +142,6 @@ protected:
 		       ArcDelayCalc *arc_delay_calc,
 		       bool propagate);
   void enqueueTimingChecksEdges(Vertex *vertex);
-  bool findIdealClks(Vertex *vertex);
   bool findArcDelay(LibertyCell *drvr_cell,
 		    const Pin *drvr_pin,
 		    Vertex *drvr_vertex,
@@ -195,11 +194,6 @@ protected:
 			const RiseFall *from_rf,
 			const DcalcAnalysisPt *dcalc_ap);
   bool bidirectDrvrSlewFromLoad(const Vertex *vertex) const;
-  void clearIdealClkMap();
-  bool setIdealClks(const Vertex *vertex,
-		    ClockSet *clks);
-  ClockSet *idealClks(const Vertex *vertex);
-  virtual bool isIdealClk(const Vertex *vertex);
   Slew idealClkSlew(const Vertex *vertex,
 		    const RiseFall *rf,
 		    const MinMax *min_max);
@@ -214,7 +208,6 @@ protected:
 		Parasitic *drvr_parasitic,
 		const RiseFall *rf,
 		const DcalcAnalysisPt *dcalc_ap) const;
-  void mergeIdealClks();
 
   // Observer for edge delay changes.
   DelayCalcObserver *observer_;
@@ -235,9 +228,6 @@ protected:
   // Percentage (0.0:1.0) change in delay that causes downstream
   // delays to be recomputed during incremental delay calculation.
   float incremental_delay_tolerance_;
-  VertexIdealClksMap ideal_clks_map_;
-  VertexIdealClksMap ideal_clks_map_next_;
-  std::mutex ideal_clks_map_next_lock_;
 
   friend class FindVertexDelays;
   friend class MultiDrvrNet;

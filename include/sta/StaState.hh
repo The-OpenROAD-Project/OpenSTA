@@ -93,6 +93,8 @@ public:
   Search *search() const { return search_; }
   Latches *latches() { return latches_; }
   Latches *latches() const { return latches_; }
+  ClkNetwork *clkNetwork() { return clk_network_; }
+  ClkNetwork *clkNetwork() const { return clk_network_; }
   unsigned threadCount() const { return thread_count_; }
   bool pocvEnabled() const { return pocv_enabled_; }
   float sigmaFactor() const { return sigma_factor_; }

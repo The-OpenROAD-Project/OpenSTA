@@ -28,6 +28,7 @@
 #include "PathVertex.hh"
 #include "PortDirection.hh"
 #include "Search.hh"
+#include "ClkNetwork.hh"
 
 namespace sta {
 
@@ -147,13 +148,14 @@ CheckSlewLimits::checkSlews1(Vertex *vertex,
 			     float &limit,
 			     float &slack) const
 {
+  const Pin *pin = vertex->pin();
   if (!vertex->isDisabledConstraint()
       && !vertex->isConstant()
-      && !sta_->graphDelayCalc()->isIdealClk(vertex)) {
+      && !sta_->clkNetwork()->isIdealClock(pin)) {
     for (auto rf1 : RiseFall::range()) {
       float limit1;
       bool limit1_exists;
-      findLimit(vertex->pin(), vertex, rf1, min_max, check_clks,
+      findLimit(pin, vertex, rf1, min_max, check_clks,
 		limit1, limit1_exists);
       if (limit1_exists) {
 	checkSlew(vertex, corner1, rf1, min_max, limit1,
@@ -186,7 +188,7 @@ CheckSlewLimits::findLimit(const Pin *pin,
   bool exists1;
   if (check_clks) {
     // Look for clock slew limits.
-    bool is_clk = sta_->search()->isClock(vertex);
+    bool is_clk = sta_->clkNetwork()->isIdealClock(pin);
     ClockSet clks;
     clockDomains(vertex, clks);
     ClockSet::Iterator clk_iter(clks);
