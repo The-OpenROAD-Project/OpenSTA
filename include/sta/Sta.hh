@@ -1146,11 +1146,12 @@ public:
   ////////////////////////////////////////////////////////////////
 
   void ensureClkNetwork();
-  // Assumes ensureClkNetwork() has been called.
-  bool isClock(Pin *pin) const;
-  // Assumes ensureClkNetwork() has been called.
-  bool isIdealClock(Pin *pin) const;
   void clkPinsInvalid();
+  // The following functions assume ensureClkNetwork() has been called.
+  bool isClock(const Pin *pin) const;
+  bool isClock(const Net *net) const;
+  bool isIdealClock(const Pin *pin) const;
+  const PinSet *pins(const Clock *clk);
 
   ////////////////////////////////////////////////////////////////
 

@@ -39,9 +39,11 @@ public:
   void ensureClkNetwork();
   void clear();
   bool isClock(const Pin *pin) const;
+  bool isClock(const Net *net) const;
   bool isIdealClock(const Pin *pin) const;
   const ClockSet *clocks(const Pin *pin);
   const ClockSet *idealClocks(const Pin *pin);
+  const PinSet *pins(const Clock *clk);
   void clkPinsInvalid();
 
 protected:

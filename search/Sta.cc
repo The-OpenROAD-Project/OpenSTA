@@ -5272,15 +5272,27 @@ Sta::ensureClkNetwork()
 }
 
 bool
-Sta::isClock(Pin *pin) const
+Sta::isClock(const Pin *pin) const
 {
   return clk_network_->isClock(pin);
 }
 
 bool
-Sta::isIdealClock(Pin *pin) const
+Sta::isClock(const Net *net) const
+{
+  return clk_network_->isClock(net);
+}
+
+bool
+Sta::isIdealClock(const Pin *pin) const
 {
   return clk_network_->isIdealClock(pin);
+}
+
+const PinSet *
+Sta::pins(const Clock *clk)
+{
+  return clk_network_->pins(clk);
 }
 
 void

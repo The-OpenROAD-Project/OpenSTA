@@ -147,6 +147,22 @@ ClkNetwork::isClock(const Pin *pin) const
 }
 
 bool
+ClkNetwork::isClock(const Net *net) const
+{
+  bool is_clk = false;
+  NetConnectedPinIterator *pin_iter = network_->pinIterator(net);
+  while (pin_iter->hasNext()) {
+    Pin *pin = pin_iter->next();
+    if (isClock(pin)) {
+      is_clk = true;
+      break;
+    }
+  }
+  delete pin_iter;
+  return is_clk;
+}
+
+bool
 ClkNetwork::isIdealClock(const Pin *pin) const
 {
   return pin_ideal_clks_map_.hasKey(pin);
@@ -166,6 +182,15 @@ ClkNetwork::idealClocks(const Pin *pin)
 {
   if (pin_ideal_clks_map_.hasKey(pin))
     return &pin_ideal_clks_map_[pin];
+  else
+    return nullptr;
+}
+
+const PinSet *
+ClkNetwork::pins(const Clock *clk)
+{
+  if (clk_pins_map_.hasKey(clk))
+    return &clk_pins_map_[clk];
   else
     return nullptr;
 }
