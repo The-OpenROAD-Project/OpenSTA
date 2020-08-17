@@ -871,11 +871,9 @@ proc unset_port_delay { cmd swig_cmd cmd_args } {
   parse_key_args $cmd cmd_args \
     keys {-clock -reference_pin} \
     flags {-rise -fall -max -min -clock_fall }
-  check_argc_eq2 $cmd $cmd_args
+  check_argc_eq1 $cmd $cmd_args
   
-  set delay_arg [lindex $cmd_args 0]
-  set delay [time_ui_sta $delay_arg]
-  set pins [get_port_pins_error "pins" [lindex $cmd_args 1]]
+  set pins [get_port_pins_error "pins" [lindex $cmd_args 0]]
   
   set clk "NULL"
   if [info exists keys(-clock)] {
