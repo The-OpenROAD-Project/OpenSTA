@@ -3674,6 +3674,14 @@ Sta::setElmore(Pin *drvr_pin,
   delaysInvalidFrom(drvr_pin);
 }
 
+void
+Sta::deleteParasitics()
+{
+  parasitics_->deleteParasitics();
+  graph_delay_calc_->delaysInvalid();
+  search_->arrivalsInvalid();
+}
+
 ////////////////////////////////////////////////////////////////
 //
 // Network edit commands.

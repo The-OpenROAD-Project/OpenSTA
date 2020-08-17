@@ -1097,6 +1097,7 @@ public:
 		 const RiseFall *rf,
 		 const MinMaxAll *min_max,
 		 float elmore);
+  void deleteParasitics();
 
   // TCL network edit function support.
   virtual Instance *makeInstance(const char *name,
