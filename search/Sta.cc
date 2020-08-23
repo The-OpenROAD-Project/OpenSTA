@@ -2395,13 +2395,16 @@ Sta::makeCorners()
   corners_ = new Corners(this);
   StringSet corner_names;
   corner_names.insert("default");
-  makeCorners(&corner_names);
+  corners_->makeCorners(&corner_names);
+  cmd_corner_ = corners_->findCorner(0);
 }
 
 void
 Sta::makeCorners(StringSet *corner_names)
 {
+  parasitics_->deleteParasitics();
   corners_->makeCorners(corner_names);
+  corners_->makeParasiticAnalysisPtsSingle();
   cmd_corner_ = corners_->findCorner(0);
 }
 

@@ -100,7 +100,6 @@ Corners::makeCorners(StringSet *corner_names)
     corner_map_[corner->name()] = corner;
     index++;
   }
-  updateCornerParasiticAnalysisPts();
   makeAnalysisPts();
 }
 
@@ -108,7 +107,6 @@ void
 Corners::makeParasiticAnalysisPtsSingle()
 {
   if (parasitic_analysis_pts_.size() != 1) {
-    parasitics_->deleteParasitics();
     parasitic_analysis_pts_.deleteContentsClear();
     ParasiticAnalysisPt *ap = new ParasiticAnalysisPt("min_max", 0,
 						      MinMax::max());
@@ -121,7 +119,6 @@ void
 Corners::makeParasiticAnalysisPtsMinMax()
 {
   if (parasitic_analysis_pts_.size() != 2) {
-    parasitics_->deleteParasitics();
     parasitic_analysis_pts_.deleteContentsClear();
     parasitic_analysis_pts_.resize(MinMax::index_count);
     for (auto min_max : MinMax::range()) {
