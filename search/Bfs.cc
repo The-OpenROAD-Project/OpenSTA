@@ -189,6 +189,8 @@ BfsIterator::visitParallel(Level to_level,
 	  level_vertices.clear();
 	}
       }
+      for (VertexVisitor *visitor : visitors)
+	delete visitor;
     }
   }
   return visit_count;
