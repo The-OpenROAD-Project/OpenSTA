@@ -426,8 +426,10 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
 		    int index1, index2;
 		    parseBusName(port1->name(), bus_brkts_left, bus_brkts_right, escape_,
 				 bus_name, index1);
+		    stringDelete(bus_name);
 		    parseBusName(port2->name(), bus_brkts_left, bus_brkts_right, escape_,
 				 bus_name, index2);
+		    stringDelete(bus_name);
 		    return index1 > index2;
 		  });
     ConcretePort *port = makeBusPort(bus_name, bus_port->from(),

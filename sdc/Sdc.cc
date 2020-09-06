@@ -235,6 +235,7 @@ Sdc::initVariables()
   max_area_ = 0.0;
   path_delays_without_to_ = false;
   clk_hpin_disables_valid_ = false;
+  have_clk_slew_limits_ = false;
 }
 
 void
