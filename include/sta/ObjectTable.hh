@@ -43,8 +43,9 @@ public:
   void clear();
 
   // Objects are allocated in blocks of 128.
-  static constexpr ObjectId idx_bits = 7;
-  static constexpr ObjectId block_object_count = (1 << idx_bits);
+  static constexpr int idx_bits = 7;
+  static constexpr int block_object_count = (1 << idx_bits);
+  static constexpr int block_id_max = 1 << (object_id_bits - idx_bits);
 
 private:
   void makeBlock();
@@ -104,6 +105,8 @@ ObjectTable<TYPE>::makeBlock()
   BlockIdx block_index = blocks_.size();
   TableBlock<TYPE> *block = new TableBlock<TYPE>(block_index, this);
   blocks_.push_back(block);
+  if (blocks_.size() >= block_id_max)
+    internalError("max object table block count exceeded.");
   // ObjectId zero is reserved for object_id_null.
   int last = (block_index > 0) ? 0 : 1;
   for (int i = block_object_count - 1; i >= last; i--) {

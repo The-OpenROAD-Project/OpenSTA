@@ -13,6 +13,7 @@
 
 #include "Vector.hh"
 #include "ObjectId.hh"
+#include "Error.hh"
 
 namespace sta {
 
@@ -42,8 +43,9 @@ public:
   size_t size() const { return size_; }
   void clear();
 
-  static constexpr ObjectId idx_bits = 10;
-  static constexpr ObjectId block_size = (1 << idx_bits);
+  static constexpr int idx_bits = 7;
+  static constexpr int block_size = (1 << idx_bits);
+  static constexpr int block_id_max = 1 << (object_id_bits - idx_bits);
 
 private:
   ArrayBlock<TYPE> *makeBlock(uint32_t size);
@@ -129,6 +131,8 @@ void
 ArrayTable<TYPE>::pushBlock(ArrayBlock<TYPE> *block)
 {
   blocks_[blocks_size_++] = block;
+  if (blocks_size_ >= block_id_max)
+    internalError("max array table block count exceeded.");
   if (blocks_size_ == blocks_capacity_) {
     size_t new_capacity = blocks_capacity_ * 1.5;
     ArrayBlock<TYPE>** new_blocks = new ArrayBlock<TYPE>*[new_capacity];
