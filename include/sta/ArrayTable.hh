@@ -11,7 +11,6 @@
 
 #include <string.h> // memcpy
 
-#include "Vector.hh"
 #include "ObjectId.hh"
 #include "Error.hh"
 
