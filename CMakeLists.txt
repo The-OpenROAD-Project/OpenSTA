@@ -376,6 +376,8 @@ find_package(TCL)
 # Zlib
 include(FindZLIB)
 
+find_package(Threads)
+
 ################################################################
 #
 # Locate CUDD bdd package.
@@ -481,6 +483,7 @@ target_link_libraries(sta
   sta_swig
   OpenSTA
   ${TCL_LIBRARY}
+  ${CMAKE_THREAD_LIBS_INIT}
   )
 
 if (ZLIB_LIBRARIES)
@@ -492,11 +495,6 @@ if (CUDD_LIB)
 endif()
 
 message(STATUS "STA executable: ${STA_HOME}/app/sta")
-
-# g++ std::thread apparently still needs -pthreads.
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_link_libraries(sta -pthread)
-endif()
 
 target_compile_options(sta PUBLIC ${STA_COMPILE_OPTIONS})
 
