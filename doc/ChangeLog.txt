@@ -3,6 +3,18 @@ OpenSTA Timing Analyzer Release Notes
 
 This file summarizes user visible changes for each release.
 
+Release 2.2.0 2020/07/18
+-------------------------
+
+The report_units reports the current units used by commands.
+
+  report_units
+
+The report_check_types -min_fanout -max_fanout -max_capacitance -min_capacitance
+
+  report_check_types [-min_fanout] [-max_fanout] [-max_capacitance] [-min_capacitance]
+
+
 Release 2.0.0 2018/09/28
 -------------------------
 
