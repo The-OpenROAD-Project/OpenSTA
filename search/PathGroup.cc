@@ -897,15 +897,22 @@ PathGroups::makeGroupPathEnds(VertexSet *endpoints,
 			      const MinMaxAll *min_max,
 			      PathEndVisitor *visitor)
 {
-  Vector<MakeEndpointPathEnds*> visitors;
-  for (int i = 0; i < thread_count_; i++)
-    visitors.push_back(new MakeEndpointPathEnds(visitor, corner, min_max, this));
-  for (auto endpoint : *endpoints) {
-    dispatch_queue_->dispatch( [endpoint, &visitors](int i)
-			       { visitors[i]->visit(endpoint); } );
+  if (thread_count_ == 1) {
+    MakeEndpointPathEnds end_visitor(visitor, corner, min_max, this);
+    for (auto endpoint : *endpoints)
+      end_visitor.visit(endpoint);
   }
-  dispatch_queue_->finishTasks();
-  visitors.deleteContents();
+  else {
+    Vector<MakeEndpointPathEnds*> visitors;
+    for (int i = 0; i < thread_count_; i++)
+      visitors.push_back(new MakeEndpointPathEnds(visitor, corner, min_max, this));
+    for (auto endpoint : *endpoints) {
+      dispatch_queue_->dispatch( [endpoint, &visitors](int i)
+				 { visitors[i]->visit(endpoint); } );
+    }
+    dispatch_queue_->finishTasks();
+    visitors.deleteContents();
+  }
 }
 
 } // namespace
