@@ -83,9 +83,9 @@ private:
   Arrival insertion_;
   float latency_;
   size_t hash_;
-  unsigned int is_propagated_:1;
-  unsigned int is_gen_clk_src_path_:1;
-  unsigned int is_pulse_clk_:1;
+  bool is_propagated_:1;
+  bool is_gen_clk_src_path_:1;
+  bool is_pulse_clk_:1;
   unsigned int pulse_clk_sense_:RiseFall::index_bit_count;
   unsigned int path_ap_index_:path_ap_index_bit_count;
 };

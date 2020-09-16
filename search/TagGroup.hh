@@ -71,11 +71,11 @@ protected:
   ArrivalMap *arrival_map_;
   size_t hash_;
   unsigned int index_:tag_group_index_bits;
-  unsigned int has_clk_tag_:1;
-  unsigned int has_genclk_src_tag_:1;
-  unsigned int has_filter_tag_:1;
-  unsigned int has_loop_tag_:1;
-  unsigned int own_arrival_map_:1;
+  bool has_clk_tag_:1;
+  bool has_genclk_src_tag_:1;
+  bool has_filter_tag_:1;
+  bool has_loop_tag_:1;
+  bool own_arrival_map_:1;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(TagGroup);
