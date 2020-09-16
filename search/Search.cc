@@ -2258,16 +2258,18 @@ Search::clkPathArrival(const Path *clk_path,
 Arrival
 Search::pathClkPathArrival(const Path *path) const
 {
-  PathRef src_clk_path;
-  pathClkPathArrival1(path, src_clk_path);
-  if (!src_clk_path.isNull())
-    return clkPathArrival(&src_clk_path);
-  else {
-    // Check for input arrival clock.
-    ClockEdge *clk_edge = path->clkEdge(this);
-    if (clk_edge)
-      return clk_edge->time();
+  // Use crpr clk path to find the clock arrival at the source register.
+  ClkInfo *clk_info = path->clkInfo(this);
+  if (clk_info->isPropagated()) {
+    PathVertexRep &crpr_clk_path = clk_info->crprClkPath();
+    if (!crpr_clk_path.isNull()) {
+      return crpr_clk_path.arrival(this);
+    }
   }
+  // Check for input arrival clock.
+  ClockEdge *clk_edge = path->clkEdge(this);
+  if (clk_edge)
+    return clk_edge->time();
   return 0.0;
 }
 
@@ -2450,7 +2452,6 @@ Search::thruClkInfo(PathVertex *from_path,
   // the clkinfo.
   const Pin *gen_clk_src = nullptr;
   if (from_clk_info->isGenClkSrcPath()
-      && sdc_->crprActive()
       && sdc_->isClock(to_pin)) {
     // Don't care that it could be a regular clock root.
     gen_clk_src = to_pin;
@@ -2458,8 +2459,7 @@ Search::thruClkInfo(PathVertex *from_path,
   }
 
   PathVertex *to_crpr_clk_path = nullptr;
-  if (sdc_->crprActive()
-      && to_vertex->isRegClk()) {
+  if (to_vertex->isRegClk()) {
     to_crpr_clk_path = from_path;
     changed = true;
   }
