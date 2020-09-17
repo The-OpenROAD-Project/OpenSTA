@@ -449,10 +449,9 @@ target_include_directories(OpenSTA
   ${CUDD_INCLUDE}
   )
 
-target_compile_features(OpenSTA PUBLIC cxx_std_11)
-
 # Disable compiler specific extensions like gnu++11.
 set_target_properties(OpenSTA PROPERTIES CXX_EXTENSIONS OFF)
+target_compile_features(OpenSTA PUBLIC cxx_std_11)
 
 ###########################################################
 # Executable
