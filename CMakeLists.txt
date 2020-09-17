@@ -31,10 +31,6 @@ project(STA VERSION 2.2.0
 option(CUDD_DIR "CUDD BDD package directory")
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# Disable compiler specific extensions like gnu++11.
-set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(STA_HOME ${PROJECT_SOURCE_DIR})
 message(STATUS "STA version: ${PROJECT_VERSION}")
@@ -53,7 +49,6 @@ message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
 message(STATUS "Compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "Build CXX_FLAGS: ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}}")
-message(STATUS "STA CXX_FLAGS: ${STA_COMPILE_OPTIONS}")
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
 ################################################################
@@ -454,11 +449,10 @@ target_include_directories(OpenSTA
   ${CUDD_INCLUDE}
   )
 
-target_compile_features(OpenSTA
-  PUBLIC cxx_auto_type
-  )
+target_compile_features(OpenSTA PUBLIC cxx_std_11)
 
-target_compile_options(OpenSTA PUBLIC ${STA_COMPILE_OPTIONS})
+# Disable compiler specific extensions like gnu++11.
+set_target_properties(OpenSTA PROPERTIES CXX_EXTENSIONS OFF)
 
 ###########################################################
 # Executable
@@ -495,8 +489,6 @@ if (CUDD_LIB)
 endif()
 
 message(STATUS "STA executable: ${STA_HOME}/app/sta")
-
-target_compile_options(sta PUBLIC ${STA_COMPILE_OPTIONS})
 
 ################################################################
 # Install
