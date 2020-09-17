@@ -199,6 +199,13 @@ case directory.
 
 * William Scott authored the arnoldi delay calculator at Blaze, Inc which was subsequently licensed to Nefelus, Inc that has graciously contributed it to OpenSTA.
 
+## Contributions
+
+External code contributions are not supported.
+
+https://en.wikipedia.org/wiki/Contributor_License_Agreement
+https://opensource.google/docs/cla/
+
 ## License
 
 OpenSTA is dual licensed. It is released under GPL v3 as OpenSTA and
@@ -220,5 +227,3 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-
