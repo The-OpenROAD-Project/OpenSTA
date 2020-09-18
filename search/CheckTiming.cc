@@ -250,7 +250,8 @@ CheckTiming::hasClkedDepature(Pin *pin)
   OutputDelaySet *output_delays = sdc_->outputDelaysLeafPin(pin);
   if (output_delays) {
     for (OutputDelay *output_delay : *output_delays) {
-      if (output_delay->clkEdge() != nullptr)
+      if (output_delay->clkEdge() != nullptr
+	  || output_delay->refPin() != nullptr)
 	return true;
     }
   }
