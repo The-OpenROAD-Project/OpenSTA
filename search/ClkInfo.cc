@@ -129,8 +129,8 @@ ClkInfo::asString(const StaState *sta) const
     str += network->pathName(clk_src_);
   }
 
-  const Pin *crpr_clk_pin = crprClkPin(sta);
-  if (crpr_clk_pin) {
+  if (!crpr_clk_path_.isNull()) {
+    const Pin *crpr_clk_pin = crpr_clk_path_.vertex(sta)->pin();
     str += " crpr_pin ";
     str += network->pathName(crpr_clk_pin);
   }
@@ -157,15 +157,6 @@ ClkInfo::pulseClkSense() const
 {
   if (is_pulse_clk_)
     return RiseFall::find(pulse_clk_sense_);
-  else
-    return nullptr;
-}
-
-const Pin *
-ClkInfo::crprClkPin(const StaState *sta) const
-{
-  if (!crpr_clk_path_.isNull())
-    return crpr_clk_path_.vertex(sta)->pin();
   else
     return nullptr;
 }

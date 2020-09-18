@@ -59,10 +59,7 @@ public:
   // crpr resolution.
   PathVertexRep &crprClkPath() { return crpr_clk_path_; }
   const PathVertexRep &crprClkPath() const { return crpr_clk_path_; }
-  const Pin *crprClkPin(const StaState *sta) const;
-  // Much faster than crprClkPin.
   VertexId crprClkVertexId() const;
-  // Much faster than crprClkPin != nullptr
   bool hasCrprClkPin() const { return !crpr_clk_path_.isNull(); }
   bool refsFilter(const StaState *sta) const;
   // This clk_info/tag is used for a generated clock source path.
