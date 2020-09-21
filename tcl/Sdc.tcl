@@ -1130,9 +1130,16 @@ proc create_generated_clock { args } {
     flags {-invert -combinational -add}
   
   check_argc_eq1 "create_generated_clock" $args
-  set pins [get_port_pins_error "pins" [lindex $args 0]]
+  parse_port_pin_net_arg [lindex $args 0] pins nets
+  # Convert net args to net driver pin.
+  foreach net $nets {
+    set drivers [net_driver_pins $net]
+    if { $drivers != {} } {
+      lappend pins [lindex $drivers 0]
+    }
+  }
   if { $pins == {} } {
-    sta_error "empty ports/pins argument."
+    sta_error "empty ports/pins/nets argument."
   }
   set add [info exists flags(-add)]
   
