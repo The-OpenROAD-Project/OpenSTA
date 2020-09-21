@@ -388,20 +388,21 @@ WritePathSpice::writeStageInstances()
   streamPrint(spice_stream_, "*****************\n\n");
 
   for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
-    const char *stage_name = stageName(stage).c_str();
+    string stage_name = stageName(stage);
+    const char *stage_cname = stage_name.c_str();
     if (stage == stageFirst())
       streamPrint(spice_stream_, "x%s %s %s %s\n",
-		  stage_name,
+		  stage_cname,
 		  stageDrvrPinName(stage),
 		  stageLoadPinName(stage),
-		  stage_name);
+		  stage_cname);
     else 
       streamPrint(spice_stream_, "x%s %s %s %s %s\n",
-		  stage_name,
+		  stage_cname,
 		  stageGateInputPinName(stage),
 		  stageDrvrPinName(stage),
 		  stageLoadPinName(stage),
-		  stage_name);
+		  stage_cname);
   }
   streamPrint(spice_stream_, "\n");
 }
@@ -661,9 +662,10 @@ WritePathSpice::writeMeasureDelayStmt(Stage stage,
   const char *to_pin_name = network_->pathName(to_path->pin(this));
   const RiseFall *to_rf = to_path->transition(this);
   float to_threshold = power_voltage_ * default_library_->inputThreshold(to_rf);
+  string stage_name = stageName(stage);
   streamPrint(spice_stream_,
 	      ".measure tran %s_%s_delay_%s\n",
-	      stageName(stage).c_str(),
+	      stage_name.c_str(),
 	      from_pin_name,
 	      to_pin_name);
   streamPrint(spice_stream_,
@@ -696,9 +698,10 @@ WritePathSpice::writeMeasureSlewStmt(Stage stage,
     threshold1 = upper;
     threshold2 = lower;
   }
+  string stage_name = stageName(stage);
   streamPrint(spice_stream_,
 	      ".measure tran %s_%s_slew\n",
-	      stageName(stage).c_str(),
+	      stage_name.c_str(),
 	      pin_name);
   streamPrint(spice_stream_,
 	      "+trig v(%s) val=%.3f %s=last\n",
@@ -744,8 +747,9 @@ WritePathSpice::writeInputStage(Stage stage)
   // External driver not handled.
   const char *drvr_pin_name = stageDrvrPinName(stage);
   const char *load_pin_name = stageLoadPinName(stage);
+  string stage_name = stageName(stage);
   streamPrint(spice_stream_, ".subckt %s %s %s\n",
-	      stageName(stage).c_str(),
+	      stage_name.c_str(),
 	      drvr_pin_name,
 	      load_pin_name);
   writeStageParasitics(stage);
