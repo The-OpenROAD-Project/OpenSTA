@@ -236,32 +236,5 @@ proc replace_cell { instance lib_cell } {
   }
 }
 
-################################################################
-
-proc insert_buffer { buffer_name buffer_cell net load_pins buffer_out_net_name } {
-  set buffer_cell [sta::get_lib_cell_warn "buffer_cell" $buffer_cell]
-  set net [sta::get_net_warn "net" $net]
-  
-  if { [get_cells -quiet $buffer_name] != "" } {
-    sta_error "instance $buffer_name already exists."
-  }
-  if { [get_nets -quiet $buffer_out_net_name] != "" } {
-    sta_error "net $buffer_out_net_name already exists."
-  }
-  # Copy backslashes that will be removed by foreach.
-  set load_pins1 [string map {\\ \\\\} $load_pins]
-  set load_pins {}
-  foreach pin $load_pins1 {
-    set pin1 [get_port_pin_warn "pin" $pin]
-    if { $pin1 != "NULL" } {
-      lappend load_pins $pin1
-    }
-  }
-  if { $buffer_cell != "NULL" \
-	 &&  $net  != "NULL" } {
-    insert_buffer_cmd $buffer_name $buffer_cell $net $load_pins $buffer_out_net_name
-  }
-}
-
 # sta namespace end.
 }
