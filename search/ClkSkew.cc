@@ -270,6 +270,7 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
 	  PathVertex *tgt_path = tgt_iter.next();
 	  Clock *tgt_clk = tgt_path->clock(this);
 	  if (tgt_clk == src_clk
+	      && tgt_path->isClock(this)
 	      && tgt_rf->matches(tgt_path->transition(this))
 	      && tgt_path->minMax(this) == tgt_min_max
 	      && tgt_path->pathAnalysisPt(this)->corner() == src_corner) {
