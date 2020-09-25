@@ -171,7 +171,7 @@ ClkInfo::refsFilter(const StaState *sta) const
 ////////////////////////////////////////////////////////////////
 
 size_t
-ClkInfoHash::operator()(const ClkInfo *clk_info)
+ClkInfoHash::operator()(const ClkInfo *clk_info) const
 {
   return clk_info->hash();
 }
@@ -185,7 +185,7 @@ ClkInfoEqual::ClkInfoEqual(const StaState *sta) :
 
 bool
 ClkInfoEqual::operator()(const ClkInfo *clk_info1,
-			 const ClkInfo *clk_info2)
+			 const ClkInfo *clk_info2) const
 {
   return clkInfoEqual(clk_info1, clk_info2, sta_);
 }

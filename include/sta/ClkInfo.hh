@@ -102,7 +102,7 @@ protected:
 class ClkInfoHash
 {
 public:
-  size_t operator()(const ClkInfo *clk_info);
+  size_t operator()(const ClkInfo *clk_info) const;
 };
 
 class ClkInfoEqual
@@ -110,7 +110,7 @@ class ClkInfoEqual
 public:
   ClkInfoEqual(const StaState *sta);
   bool operator()(const ClkInfo *clk_info1,
-		  const ClkInfo *clk_info2);
+		  const ClkInfo *clk_info2) const;
 
 protected:
   const StaState *sta_;
