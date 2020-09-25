@@ -16,7 +16,7 @@
 
 #include "Machine.hh"
 
-#if defined(_WINDOWS) || defined(_WIN32)
+#ifdef WIN32
 
 #include <stdio.h>
 #include <windows.h> // GetSystemInfo
@@ -88,8 +88,10 @@ memoryUsage()
 }
 
 }
+#endif // WIN32
 
-#else // _WINDOWS
+// Common to macos and linux
+#if defined(__APPLE__) || defined(__linux__)
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -147,6 +149,13 @@ systemRunTime()
   return rusage.ru_stime.tv_sec + rusage.ru_stime.tv_usec * 1e-6;
 }
 
+}
+
+#endif // __APPLE__ || __linux__
+
+#ifdef __linux__
+
+namespace sta {
 // rusage->ru_maxrss is not set in linux so read it from /proc.
 size_t
 memoryUsage()
@@ -174,7 +183,20 @@ memoryUsage()
   }
   return memory;
 }
-
 }
 
-#endif // !_WINDOWS
+#endif // __linux__
+
+#ifdef __APPLE__
+
+namespace sta {
+size_t
+memoryUsage()
+{
+  struct rusage rusage;
+  getrusage(RUSAGE_SELF, &rusage);
+  return rusage.ru_maxrss;
+}
+}
+
+#endif // __apple__
