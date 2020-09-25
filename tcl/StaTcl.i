@@ -5317,7 +5317,7 @@ cputime()
 
 // Peak memory usage in bytes.
 unsigned long
-mem()
+memory_usage()
 {
   return memoryUsage();
 }

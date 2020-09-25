@@ -286,7 +286,7 @@ define_cmd_args "user_run_time" {}
 # Write run time statistics to filename.
 proc write_stats { filename } {
   if { ![catch {open $filename w} stream] } {
-    puts $stream "[elapsed_run_time] [user_run_time] [mem]"
+    puts $stream "[elapsed_run_time] [user_run_time] [memory_usage]"
     close $stream
   }
 }
