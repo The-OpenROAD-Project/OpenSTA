@@ -128,15 +128,10 @@ size_t
 LibExprParser::copyInput(char *buf,
 			 size_t max_size)
 {
-  size_t length = strlen(func_);
-  if (length == 0)
-    return 0;
-  else {
-    size_t count = std::min(length,  max_size);
-    strncpy(buf, func_, count);
-    func_ += count;
-    return count;
-  }
+  strncpy(buf, func_, max_size);
+  int count = strlen(buf);
+  func_ += count;
+  return count;
 }
 
 char *
