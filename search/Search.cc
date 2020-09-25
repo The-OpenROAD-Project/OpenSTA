@@ -2807,16 +2807,14 @@ Search::reportArrivalCountHistogram() const
     Vertex *vertex = vertex_iter.next();
     TagGroup *tag_group = tagGroup(vertex);
     if (tag_group) {
-      int arrival_count = tag_group->arrivalCount();
-      if (arrival_count >= static_cast<int>(vertex_counts.size()))
+      size_t arrival_count = tag_group->arrivalCount();
+      if (arrival_count >= vertex_counts.size())
 	vertex_counts.resize(arrival_count * 2);
       vertex_counts[arrival_count]++;
     }
   }
 
-  for (int arrival_count = 0;
-       arrival_count < static_cast<int>(vertex_counts.size());
-       arrival_count++) {
+  for (size_t arrival_count = 0; arrival_count < vertex_counts.size(); arrival_count++) {
     int vertex_count = vertex_counts[arrival_count];
     if (vertex_count > 0)
       report_->print("%6d %6d\n", arrival_count, vertex_count);
