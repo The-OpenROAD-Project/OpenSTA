@@ -28,7 +28,6 @@ class FindVertexDelays;
 class Corner;
 
 typedef Map<const Vertex*, MultiDrvrNet*> MultiDrvrNetMap;
-typedef Map<const Vertex*, ClockSet*> VertexIdealClksMap;
 
 // This class traverses the graph calling the arc delay calculator and
 // annotating delays on graph edges.
