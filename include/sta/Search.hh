@@ -521,9 +521,7 @@ protected:
 			     bool clk_gating_hold);
   bool matchesFilterTo(Path *path,
 		       const ClockEdge *to_clk_edge) const;
-  void pathClkPathArrival1(const Path *path,
-			   // Return value.
-			   PathRef &clk_path) const;
+  PathRef pathClkPathArrival1(const Path *path) const;
 
   ////////////////////////////////////////////////////////////////
 

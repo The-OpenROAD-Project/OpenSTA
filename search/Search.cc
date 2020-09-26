@@ -2258,24 +2258,22 @@ Search::clkPathArrival(const Path *clk_path,
 Arrival
 Search::pathClkPathArrival(const Path *path) const
 {
-  PathRef src_clk_path;
-  pathClkPathArrival1(path, src_clk_path);
-  if (!src_clk_path.isNull())
-    return clkPathArrival(&src_clk_path);
-  else {
-    // Check for input arrival clock.
-    ClockEdge *clk_edge = path->clkEdge(this);
-    if (clk_edge)
-      return clk_edge->time();
+  ClkInfo *clk_info = path->clkInfo(this);
+  if (clk_info->isPropagated()) {
+    PathRef src_clk_path =  pathClkPathArrival1(path);
+    if (!src_clk_path.isNull())
+      return clkPathArrival(&src_clk_path);
   }
+  // Check for input arrival clock.
+  ClockEdge *clk_edge = path->clkEdge(this);
+  if (clk_edge)
+    return clk_edge->time();
   return 0.0;
 }
 
 // PathExpanded::expand() and PathExpanded::clkPath().
-void
-Search::pathClkPathArrival1(const Path *path,
-			    // Return value.
-			    PathRef &clk_path) const
+PathRef
+Search::pathClkPathArrival1(const Path *path) const
 {
   PathRef p(path);
   while (!p.isNull()) {
@@ -2283,28 +2281,25 @@ Search::pathClkPathArrival1(const Path *path,
     TimingArc *prev_arc;
     p.prevPath(this, prev_path, prev_arc);
 
-    if (p.isClock(this)) {
-      clk_path.init(p);
-      return;
-    }
+    if (p.isClock(this))
+      return p;
     if (prev_arc) {
       TimingRole *prev_role = prev_arc->role();
       if (prev_role == TimingRole::regClkToQ()
 	  || prev_role == TimingRole::latchEnToQ()) {
 	p.prevPath(this, prev_path, prev_arc);
-	clk_path.init(prev_path);
-	return;
+	return prev_path;
       }
       else if (prev_role == TimingRole::latchDtoQ()) {
 	Edge *prev_edge = p.prevEdge(prev_arc, this);
 	PathVertex enable_path;
 	latches_->latchEnablePath(&p, prev_edge, enable_path);
-	clk_path.init(enable_path);
-	return;
+	return enable_path;
       }
     }
     p.init(prev_path);
   }
+  return PathRef();
 }
 
 ////////////////////////////////////////////////////////////////
