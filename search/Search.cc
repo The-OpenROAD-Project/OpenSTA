@@ -2745,10 +2745,9 @@ Search::reportArrivals(Vertex *vertex) const
       }
       report_->print(" %s", tag->asString(this));
       if (tag_group->hasClkTag()) {
-	PathVertex tmp;
-	PathVertex *prev = check_crpr_->clkPathPrev(vertex, arrival_index, tmp);
+	PathVertex prev = check_crpr_->clkPathPrev(vertex, arrival_index);
 	report_->print(" clk_prev=[%s]",
-		       prev && !prev->isNull() ? prev->name(this) : "NULL");
+		       prev.isNull() ? "NULL" : prev.name(this));
       }
       report_->print("\n");
     }

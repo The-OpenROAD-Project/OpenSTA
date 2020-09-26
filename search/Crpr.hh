@@ -51,14 +51,14 @@ public:
 		       Pin *&crpr_pin);
 
   // Previous clk path when crpr is enabled.
-  PathVertex *clkPathPrev(const PathVertex *path,
-			  PathVertex &tmp);
+  PathVertex clkPathPrev(const PathVertex *path);
   // For Search::reportArrivals.
-  PathVertex *clkPathPrev(Vertex *vertex,
-		   int arrival_index,
-		   PathVertex &tmp);
+  PathVertex clkPathPrev(Vertex *vertex,
+			 int arrival_index);
 
 private:
+  PathVertex *clkPathPrev(const PathVertex *path,
+			  PathVertex &tmp);
   Arrival otherMinMaxArrival(const PathVertex *path);
   void checkCrpr1(const Path *src_path,
 		  const PathVertex *tgt_clk_path,
