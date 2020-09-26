@@ -57,6 +57,7 @@ public:
   ~Tag();
   const char *asString(const StaState *sta) const;
   const char *asString(bool report_index,
+		       bool report_rf_min_max,
 		       const StaState *sta) const;
   ClkInfo *clkInfo() const { return clk_info_; }
   bool isClock() const { return is_clk_; }

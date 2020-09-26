@@ -86,11 +86,12 @@ Tag::~Tag()
 const char *
 Tag::asString(const StaState *sta) const
 {
-  return asString(true, sta);
+  return asString(true, true, sta);
 }
 
 const char *
 Tag::asString(bool report_index,
+	      bool report_rf_min_max,
 	      const StaState *sta) const
 {
   const Network *network = sta->network();
@@ -100,12 +101,14 @@ Tag::asString(bool report_index,
   if (report_index)
     str += stringPrintTmp("%4d ", index_);
 
-  const RiseFall *rf = transition();
-  PathAnalysisPt *path_ap = corners->findPathAnalysisPt(path_ap_index_);
-  str += stringPrintTmp("%s %s/%d ",
-			rf->asString(),
-			path_ap->pathMinMax()->asString(),
-			path_ap_index_);
+  if (report_rf_min_max) {
+    const RiseFall *rf = transition();
+    PathAnalysisPt *path_ap = corners->findPathAnalysisPt(path_ap_index_);
+    str += stringPrintTmp("%s %s/%d ",
+			  rf->asString(),
+			  path_ap->pathMinMax()->asString(),
+			  path_ap_index_);
+  }
 
   ClockEdge *clk_edge = clkEdge();
   if (clk_edge)
@@ -138,8 +141,8 @@ Tag::asString(bool report_index,
 
   const PathVertex crpr_clk_path(clk_info_->crprClkPath(), sta);
   if (!crpr_clk_path.isNull()) {
-    str += " crpr_clk ";
-    str += crpr_clk_path.name(sta);
+    str += " crpr_pin ";
+    str += network->pathName(crpr_clk_path.pin(sta));
   }
 
   if (input_delay_) {

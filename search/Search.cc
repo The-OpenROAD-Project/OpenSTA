@@ -2738,8 +2738,10 @@ Search::reportArrivals(Vertex *vertex) const
 	if (exists)
 	  report_->print(" / %s", delayAsString(arrivals[req_index], this));
       }
-      report_->print(" %s", tag->asString(this));
-      if (tag_group->hasClkTag()) {
+      report_->print(" %s", tag->asString(true, false, this));
+      bool report_clk_prev = false;
+      if (report_clk_prev
+	  && tag_group->hasClkTag()) {
 	PathVertex prev = check_crpr_->clkPathPrev(vertex, arrival_index);
 	report_->print(" clk_prev=[%s]",
 		       prev.isNull() ? "NULL" : prev.name(this));
@@ -2894,10 +2896,7 @@ Search::reportTags() const
   for (TagIndex i = 0; i < tag_next_; i++) {
     Tag *tag = tags_[i];
     if (tag)
-      report_->print("Tag %4u %4u %s\n",
-		     tag->index(),
-		     tag->hash() % tag_set_->capacity(),
-		     tag->asString(false, this)) ;
+      report_->print("%s\n", tag->asString(this)) ;
   }
   size_t long_hash = tag_set_->longestBucketHash();
   printf("Longest hash bucket length %d hash=%zu\n",
