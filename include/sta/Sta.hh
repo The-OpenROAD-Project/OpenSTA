@@ -1070,7 +1070,6 @@ public:
 		float coupling_cap_factor,
 		ReduceParasiticsTo reduce_to,
 		bool delete_after_reduce,
-		bool save,
 		bool quiet);
   // Parasitics.
   void findPiElmore(Pin *drvr_pin,

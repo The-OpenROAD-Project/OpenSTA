@@ -54,7 +54,6 @@ readSpefFile(const char *filename,
 	     const OperatingConditions *op_cond,
 	     const Corner *corner,
 	     const MinMax *cnst_min_max,
-	     bool save,
 	     bool quiet,
 	     Report *report,
 	     Network *network,
@@ -76,8 +75,6 @@ readSpefFile(const char *filename,
   }
   else
     throw FileNotReadable(filename);
-  if (success && save)
-    parasitics->save();
   return success;
 }
 

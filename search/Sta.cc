@@ -3576,7 +3576,6 @@ Sta::readSpef(const char *filename,
 	      float coupling_cap_factor,
 	      ReduceParasiticsTo reduce_to,
 	      bool delete_after_reduce,
-	      bool save,
 	      bool quiet)
 {
   Corner *corner = cmd_corner_;
@@ -3598,7 +3597,7 @@ Sta::readSpef(const char *filename,
 			      pin_cap_included,
 			      keep_coupling_caps, coupling_cap_factor,
 			      reduce_to, delete_after_reduce,
-			      op_cond, corner, cnst_min_max, save, quiet,
+			      op_cond, corner, cnst_min_max, quiet,
 			      report_, network_, parasitics_);
   graph_delay_calc_->delaysInvalid();
   search_->arrivalsInvalid();

@@ -19,7 +19,6 @@ namespace eval sta {
 define_cmd_args "read_spef" \
   {[-min]\
      [-max]\
-     [-elmore]\
      [-path path]\
      [-increment]\
      [-pin_cap_included]\
@@ -34,7 +33,7 @@ define_cmd_args "read_spef" \
 proc_redirect read_spef {
   parse_key_args "read_spef" args \
     keys {-path -coupling_reduction_factor -reduce_to} \
-    flags {-min -max -elmore -increment -pin_cap_included \
+    flags {-min -max -increment -pin_cap_included \
 	     -keep_capacitive_coupling \
 	     -delete_after_reduce -quiet -save}
   check_argc_eq1 "report_spef" $args
@@ -70,8 +69,7 @@ proc_redirect read_spef {
   set filename $args
   return [read_spef_cmd $filename $instance $min_max $increment \
 	    $pin_cap_included $keep_coupling_caps $coupling_reduction_factor \
-	    $reduce_to $delete_after_reduce \
-	    $save $quiet]
+	    $reduce_to $delete_after_reduce $quiet]
 }
 
 # set_pi_model [-min] [-max] drvr_pin c2 rpi c1
