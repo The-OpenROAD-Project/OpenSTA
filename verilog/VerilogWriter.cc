@@ -57,7 +57,7 @@ protected:
   const char *filename_;
   bool sort_;
   bool include_pwr_gnd_;
-  CellSet remove_cells_;
+  LibertyCellSet remove_cells_;
   FILE *stream_;
   Network *network_;
 
@@ -101,7 +101,7 @@ VerilogWriter::VerilogWriter(const char *filename,
 {
   if (remove_cells) {
     for(LibertyCell *lib_cell : *remove_cells)
-      remove_cells_.insert(network->cell(lib_cell));
+      remove_cells_.insert(lib_cell);
   }
 }
 
@@ -219,7 +219,8 @@ void
 VerilogWriter::writeChild(Instance *child)
 {
   Cell *child_cell = network_->cell(child);
-  if (!remove_cells_.hasKey(child_cell)) {
+  LibertyCell *lib_cell = network_->libertyCell(child_cell);
+  if (!remove_cells_.hasKey(lib_cell)) {
     const char *child_name = network_->name(child);
     const char *child_vname = instanceVerilogName(child_name,
 						  network_->pathEscape());
