@@ -32,6 +32,7 @@ class VerilogWriter
 public:
   VerilogWriter(const char *filename,
 		bool sort,
+		bool include_pwr_gnd_pins,
 		vector<LibertyCell*> *remove_cells,
 		FILE *stream,
 		Network *network);
@@ -55,6 +56,7 @@ protected:
 
   const char *filename_;
   bool sort_;
+  bool include_pwr_gnd_;
   CellSet remove_cells_;
   FILE *stream_;
   Network *network_;
@@ -67,13 +69,15 @@ protected:
 void
 writeVerilog(const char *filename,
 	     bool sort,
+	     bool include_pwr_gnd_pins,
 	     vector<LibertyCell*> *remove_cells,
 	     Network *network)
 {
   if (network->topInstance()) {
     FILE *stream = fopen(filename, "w");
     if (stream) {
-      VerilogWriter writer(filename, sort, remove_cells, stream, network);
+      VerilogWriter writer(filename, sort, include_pwr_gnd_pins,
+			   remove_cells, stream, network);
       writer.writeModule(network->topInstance());
       fclose(stream);
     }
@@ -84,11 +88,13 @@ writeVerilog(const char *filename,
 
 VerilogWriter::VerilogWriter(const char *filename,
 			     bool sort,
+			     bool include_pwr_gnd_pins,
 			     vector<LibertyCell*> *remove_cells,
 			     FILE *stream,
 			     Network *network) :
   filename_(filename),
   sort_(sort),
+  include_pwr_gnd_(include_pwr_gnd_pins),
   stream_(stream),
   network_(network),
   unconnected_net_index_(1)
@@ -224,10 +230,13 @@ VerilogWriter::writeChild(Instance *child)
     CellPortIterator *port_iter = network_->portIterator(child_cell);
     while (port_iter->hasNext()) {
       Port *port = port_iter->next();
-      if (network_->hasMembers(port)) 
-	writeInstBusPin(child, port, first_port);
-      else 
-	writeInstPin(child, port, first_port);
+      if (include_pwr_gnd_
+	  || !network_->direction(port)->isPowerGround()) {
+	if (network_->hasMembers(port))
+	  writeInstBusPin(child, port, first_port);
+	else
+	  writeInstPin(child, port, first_port);
+      }
     }
     delete port_iter;
     fprintf(stream_, ");\n");

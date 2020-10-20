@@ -43,6 +43,7 @@ public:
   virtual void deleteVertexBefore(Vertex *vertex);
   virtual void clear();
   virtual void findDelays(Level level);
+  virtual void findDelays(Vertex *drvr_vertex);
   virtual string *reportDelayCalc(Edge *edge,
 				  TimingArc *arc,
 				  const Corner *corner,

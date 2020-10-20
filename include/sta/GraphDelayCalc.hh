@@ -47,6 +47,8 @@ public:
   virtual void copyState(const StaState *sta);
   // Find arc delays and vertex slews thru level.
   virtual void findDelays(Level /* level */) {};
+  // Find and annotate drvr_vertex gate and load delays/slews.
+  virtual void findDelays(Vertex * /* drvr_vertex */) {};
   // Invalidate all delays/slews.
   virtual void delaysInvalid() {};
   // Invalidate vertex and downstream delays/slews.

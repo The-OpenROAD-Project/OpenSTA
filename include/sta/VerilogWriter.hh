@@ -28,6 +28,7 @@ class LibertyCell;
 void
 writeVerilog(const char *filename,
 	     bool sort,
+	     bool include_pwr_gnd,
 	     vector<LibertyCell*> *remove_cells,
 	     Network *network);
 

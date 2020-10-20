@@ -829,6 +829,12 @@ GraphDelayCalc1::findInputArcDelay(LibertyCell *drvr_cell,
 }
 
 void
+GraphDelayCalc1::findDelays(Vertex *drvr_vertex)
+{
+  findVertexDelay(drvr_vertex, arc_delay_calc_, true);
+}
+
+void
 GraphDelayCalc1::findVertexDelay(Vertex *vertex,
 				 ArcDelayCalc *arc_delay_calc,
 				 bool propagate)
