@@ -1989,7 +1989,13 @@ LibertyPort::capacitanceIsOneValue() const
 
 ////////////////////////////////////////////////////////////////
 
-// Use the min/max "drive" for all the timing arcs in the cell.
+float
+LibertyPort::driveResistance() const
+{
+  return driveResistance(nullptr, MinMax::max());
+}
+
+// Min/max "drive" for all cell timing arcs.
 float
 LibertyPort::driveResistance(const RiseFall *rf,
 			     const MinMax *min_max) const
@@ -2023,10 +2029,48 @@ LibertyPort::driveResistance(const RiseFall *rf,
 }
 
 float
-LibertyPort::driveResistance() const
+LibertyPort::intrinsicDelay() const
 {
-  return driveResistance(nullptr, MinMax::max());
+  return intrinsicDelay(nullptr, MinMax::max());
 }
+
+float
+LibertyPort::intrinsicDelay(const RiseFall *rf,
+			    const MinMax *min_max) const
+{
+  float max_delay = min_max->initValue();
+  bool found_delay = false;
+  LibertyCellTimingArcSetIterator set_iter(liberty_cell_, nullptr, this);
+  while (set_iter.hasNext()) {
+    TimingArcSet *set = set_iter.next();
+    if (!set->role()->isTimingCheck()) {
+      TimingArcSetArcIterator arc_iter(set);
+      while (arc_iter.hasNext()) {
+	TimingArc *arc = arc_iter.next();
+	if (rf == nullptr
+	    || arc->toTrans()->asRiseFall() == rf) {
+	  GateTimingModel *model = dynamic_cast<GateTimingModel*>(arc->model());
+	  if (model) {
+	    ArcDelay arc_delay;
+	    Slew slew;
+	    model->gateDelay(liberty_cell_, nullptr, 0.0, 0.0, 0.0, false,
+			     arc_delay, slew);
+	    float delay = delayAsFloat(arc_delay);
+	    if (min_max->compare(delay, max_delay))
+	      max_delay = delay;
+	    found_delay = true;
+	  }
+	}
+      }
+    }
+  }
+  if (found_delay)
+    return max_delay;
+  else
+    return 0.0;
+}
+
+////////////////////////////////////////////////////////////////
 
 void
 LibertyPort::setFunction(FuncExpr *func)

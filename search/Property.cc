@@ -691,23 +691,48 @@ getProperty(const LibertyPort *port,
   }
   else if (stringEqual(property, "is_register_clock"))
     return PropertyValue(port->isRegClk());
+
   else if (stringEqual(property, "drive_resistance")) {
-    float drive = max(port->driveResistance(RiseFall::rise(), MinMax::max()),
-		      port->driveResistance(RiseFall::fall(), MinMax::max()));
-    return PropertyValue(drive);
+    float res = port->driveResistance();
+    return PropertyValue(sta->units()->resistanceUnit()->asString(res, 6));
   }
-  else if (stringEqual(property, "drive_resistance_rise_min"))
-    return PropertyValue(port->driveResistance(RiseFall::rise(),
-					       MinMax::min()));
-  else if (stringEqual(property, "drive_resistance_rise_max"))
-    return PropertyValue(port->driveResistance(RiseFall::rise(),
-					       MinMax::max()));
-  else if (stringEqual(property, "drive_resistance_fall_min"))
-    return PropertyValue(port->driveResistance(RiseFall::fall(),
-					       MinMax::min()));
-  else if (stringEqual(property, "drive_resistance_fall_max"))
-    return PropertyValue(port->driveResistance(RiseFall::fall(),
-					       MinMax::max()));
+  else if (stringEqual(property, "drive_resistance_rise_min")) {
+    float res = port->driveResistance(RiseFall::rise(), MinMax::min());
+    return PropertyValue(sta->units()->resistanceUnit()->asString(res, 6));
+  }
+  else if (stringEqual(property, "drive_resistance_rise_max")) {
+    float res = port->driveResistance(RiseFall::rise(), MinMax::max());
+    return PropertyValue(sta->units()->resistanceUnit()->asString(res, 6));
+  }
+  else if (stringEqual(property, "drive_resistance_fall_min")) {
+    float res = port->driveResistance(RiseFall::fall(), MinMax::min());
+    return PropertyValue(sta->units()->resistanceUnit()->asString(res, 6));
+  }
+  else if (stringEqual(property, "drive_resistance_fall_max")) {
+    float res = port->driveResistance(RiseFall::fall(), MinMax::max());
+    return PropertyValue(sta->units()->resistanceUnit()->asString(res, 6));
+  }
+
+  else if (stringEqual(property, "intrinsic_delay")) {
+    float drive = port->intrinsicDelay();
+    return PropertyValue(sta->units()->timeUnit()->asString(drive, 6));
+  }
+  else if (stringEqual(property, "intrinsic_delay_rise_min")) {
+    float drive = port->intrinsicDelay(RiseFall::rise(), MinMax::min());
+    return PropertyValue(sta->units()->timeUnit()->asString(drive, 6));
+  }
+  else if (stringEqual(property, "intrinsic_delay_rise_max")) {
+    float drive = port->intrinsicDelay(RiseFall::rise(), MinMax::max());
+    return PropertyValue(sta->units()->timeUnit()->asString(drive, 6));
+  }
+  else if (stringEqual(property, "intrinsic_delay_fall_min")) {
+    float drive = port->intrinsicDelay(RiseFall::fall(), MinMax::min());
+    return PropertyValue(sta->units()->timeUnit()->asString(drive, 6));
+  }
+  else if (stringEqual(property, "intrinsic_delay_fall_max")) {
+    float drive = port->intrinsicDelay(RiseFall::fall(), MinMax::max());
+    return PropertyValue(sta->units()->timeUnit()->asString(drive, 6));
+  }
   else
     throw PropertyUnknown("liberty port", property);
 }

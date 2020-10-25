@@ -655,10 +655,14 @@ public:
   void setCapacitance(const RiseFall *rf,
 		      const MinMax *min_max,
 		      float cap);
-  float driveResistance(const RiseFall *rf,
-			const MinMax *min_max) const;
   // Max of rise/fall.
   float driveResistance() const;
+  float driveResistance(const RiseFall *rf,
+			const MinMax *min_max) const;
+  // Zero load delay.
+  float intrinsicDelay() const;
+  float intrinsicDelay(const RiseFall *rf,
+		       const MinMax *min_max) const;
   FuncExpr *function() const { return function_; }
   void setFunction(FuncExpr *func);
   FuncExpr *&functionRef() { return function_; }
