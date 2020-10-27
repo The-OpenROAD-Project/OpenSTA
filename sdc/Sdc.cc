@@ -403,6 +403,18 @@ Sdc::initInstancePvtMaps()
     instance_pvt_maps_[mm_index] = nullptr;
 }
 
+void
+Sdc::deleteNetBefore(Net *net)
+{
+  if (net_wire_cap_map_) {
+    for (int corner_index = 0; corner_index < corners_->count(); corner_index++) {
+      net_wire_cap_map_[corner_index].erase(net);
+      for (Pin *pin : *network_->drivers(net))
+	drvr_pin_wire_cap_map_[corner_index].erase(pin);
+    }
+  }
+}
+
 ////////////////////////////////////////////////////////////////
 
 bool

@@ -187,6 +187,7 @@ public:
   bool isConstrained(const Net *net) const;
   // Build data structures for search.
   void searchPreamble();
+  void deleteNetBefore(Net *net);
 
   // SWIG sdc interface.
   AnalysisType analysisType() { return analysis_type_; }

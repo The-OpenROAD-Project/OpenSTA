@@ -4170,6 +4170,7 @@ Sta::deleteNetBefore(Net *net)
     }
     delete pin_iter;
   }
+  sdc_->deleteNetBefore(net);
 }
 
 void
