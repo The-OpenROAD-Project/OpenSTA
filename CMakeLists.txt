@@ -479,6 +479,12 @@ target_link_libraries(sta
   ${CMAKE_THREAD_LIBS_INIT}
   )
 
+# tclReadline
+if (TCL_READLINE_LIBRARY)
+  add_definitions(-DENABLE_READLINE)
+  target_link_libraries(sta ${TCL_READLINE_LIBRARY})
+endif()
+
 if (ZLIB_LIBRARIES)
   target_link_libraries(sta ${ZLIB_LIBRARIES})
 endif()
