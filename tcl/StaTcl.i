@@ -5489,6 +5489,8 @@ find_ports_matching(const char *pattern,
 %extend LibertyCell {
 const char *name() { return self->name(); }
 bool is_leaf() { return self->isLeaf(); }
+bool is_buffer() { return self->isBuffer(); }
+bool is_inverter() { return self->isInverter(); }
 LibertyLibrary *liberty_library() { return self->libertyLibrary(); }
 Cell *cell() { return reinterpret_cast<Cell*>(self); }
 LibertyPort *
