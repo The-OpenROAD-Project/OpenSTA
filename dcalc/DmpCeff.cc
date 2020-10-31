@@ -145,7 +145,7 @@ public:
 		    float related_out_cap,
 		    double c2,
 		    double rpi,
-		    double c1) = 0;
+		    double c1);
   virtual void gateDelaySlew(double &delay,
 			     double &slew) = 0;
   virtual void loadDelaySlew(const Pin *load_pin,
@@ -166,14 +166,6 @@ public:
   double vCross() { return v_cross_; }
 
 protected:
-  void init(const LibertyLibrary *library,
-	    const LibertyCell *drvr_cell,
-	    const Pvt *pvt,
-	    const GateTableModel *gate_model,
-	    const RiseFall *rf,
-	    double rd,
-	    double in_slew,
-	    float related_out_cap);
   // Find driver parameters t0, delta_t, Ceff.
   bool findDriverParams(double &ceff);
   void gateCapDelaySlew(double cl,
@@ -233,6 +225,10 @@ protected:
   const GateTableModel *gate_model_;
   double in_slew_;
   float related_out_cap_;
+  double c2_;
+  double rpi_;
+  double c1_;
+
   double rd_;
   // Logic threshold (percentage of supply voltage).
   double vth_;
@@ -278,6 +274,9 @@ private:
 DmpAlg::DmpAlg(int nr_order,
 	       StaState *sta):
   StaState(sta),
+  c1_(0.0),
+  c2_(0.0),
+  rpi_(0.0),
   nr_order_(nr_order)
 {
   x_ = new double[nr_order_];
@@ -310,7 +309,11 @@ DmpAlg::init(const LibertyLibrary *drvr_library,
 	     const RiseFall *rf,
 	     double rd,
 	     double in_slew,
-	     float related_out_cap)
+	     float related_out_cap,
+	     // Pi model.
+	     double c2,
+	     double rpi,
+	     double c1)
 {
   drvr_library_ = drvr_library;
   drvr_cell_ = drvr_cell;
@@ -319,12 +322,16 @@ DmpAlg::init(const LibertyLibrary *drvr_library,
   rd_ = rd;
   in_slew_ = in_slew;
   related_out_cap_ = related_out_cap;
+  c2_ = c2;
+  rpi_ = rpi;
+  c1_ = c1;
   driver_valid_ = false;
   vth_ = drvr_library->outputThreshold(rf);
   vl_ = drvr_library->slewLowerThreshold(rf);
   vh_ = drvr_library->slewUpperThreshold(rf);
   slew_derate_ = drvr_library->slewDerateFromLibrary();
   elmore_slew_factor_ = log(vh_) - log(vl_);
+  
 }
 
 // Find Ceff, delta_t and t0 for the driver.
@@ -514,7 +521,7 @@ DmpAlg::findVoCrossing(double vth,
 	       error);
   if (error)
     fail(error);
-  return (error == 0);
+  return (error == nullptr);
 }
 
 static void
@@ -597,14 +604,14 @@ DmpAlg::loadDelaySlew(const Pin *,
       if (delay1 < 0.0) {
 	// Only report a problem if the difference is significant.
 	if (-delay1 > vth_time_tol * vo_delay_)
-	  fail("load delay less than zero\n");
+	  fail("load delay less than zero");
 	// Use elmore delay.
 	delay1 = 1.0 / p3_;
       }
       if (slew1 < gate_slew_) {
 	// Only report a problem if the difference is significant.
 	if ((gate_slew_ - slew1) > vth_time_tol * gate_slew_)
-	  fail("load slew less than driver slew\n");
+	  fail("load slew less than driver slew");
 	slew1 = static_cast<float>(gate_slew_);
       }
       delay = static_cast<float>(delay1);
@@ -632,8 +639,8 @@ DmpAlg::findVlCrossing(double vth,
   t = findRoot(evalVlEqns, this, t0_, ub, vth_time_tol, find_root_max_iter,
 	       error);
   if (error)
-    fail("findVlCrossing: Vl(t) did not cross threshold\n");
-  return (error == 0);
+    fail("findVlCrossing: Vl(t) did not cross threshold");
+  return (error == nullptr);
 }
 
 double
@@ -690,8 +697,13 @@ void
 DmpAlg::fail(const char *reason)
 {
   // Allow only failures to be reported with a unique debug flag.
-  if (debug_->check("delay_calc", 1) || debug_->check("delay_calc_dmp", 1))
-    debug_->print("delay_calc: DMP failed - %s", reason);
+  if (true || debug_->check("delay_calc", 1) || debug_->check("delay_calc_dmp", 1))
+    debug_->print("delay_calc: DMP failed - %s c2=%s rpi=%s c1=%s\n",
+		  reason,
+		  units_->capacitanceUnit()->asString(c2_),
+		  units_->resistanceUnit()->asString(rpi_),
+		  units_->capacitanceUnit()->asString(c1_));
+
 }
 
 ////////////////////////////////////////////////////////////////
@@ -744,12 +756,12 @@ DmpCap::init(const LibertyLibrary *drvr_library,
 	     double in_slew,
 	     float related_out_cap,
 	     double c2,
-	     double,
+	     double rpi,
 	     double c1)
 {
   debugPrint0(debug_, "delay_calc", 3, "Using DMP cap\n");
   DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf,
-	       rd, in_slew, related_out_cap);
+	       rd, in_slew, related_out_cap, c2, rpi, c1);
   ceff_ = c1 + c2;
 }
 
@@ -844,10 +856,6 @@ private:
   virtual double vl0(double t);
   virtual double dvl0dt(double t);
 
-  // Pi model.
-  double c1_;
-  double c2_;
-  double rpi_;
   // Poles/zero.
   double p1_;
   double p2_;
@@ -866,9 +874,6 @@ private:
 
 DmpPi::DmpPi(StaState *sta) :
   DmpAlg(3, sta),
-  c1_(0.0),
-  c2_(0.0),
-  rpi_(0.0),
   p1_(0.0),
   p2_(0.0),
   z1_(0.0),
@@ -898,10 +903,7 @@ DmpPi::init(const LibertyLibrary *drvr_library,
 {
   debugPrint0(debug_, "delay_calc", 3, "Using DMP Pi\n");
   DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf, rd,
-	       in_slew, related_out_cap);
-  c1_ = c1;
-  c2_ = c2;
-  rpi_ = rpi;
+	       in_slew, related_out_cap, c2, rpi, c1);
 
   // Find poles/zeros.
   z1_ = 1.0 / (rpi_ * c1_);
@@ -1168,8 +1170,6 @@ private:
   virtual double dvl0dt(double t);
   virtual double voCrossingUpperBound();
 
-  double c1_;
-  double rpi_;
   // Pole/zero.
   double p1_;
   double z1_;
@@ -1182,8 +1182,6 @@ private:
 
 DmpZeroC2::DmpZeroC2(StaState *sta) :
   DmpOnePole(sta),
-  c1_(0.0),
-  rpi_(0.0),
   p1_(0.0),
   z1_(0.0),
   k0_(0.0),
@@ -1202,15 +1200,14 @@ DmpZeroC2::init(const LibertyLibrary *drvr_library,
 		double rd,
 		double in_slew,
 		float related_out_cap,
-		double,
+		double c2,
 		double rpi,
 		double c1)
 {
   debugPrint0(debug_, "delay_calc", 3, "Using DMP C2=0\n");
   DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf, rd,
-	       in_slew, related_out_cap);
-  ceff_ = c1_ = c1;
-  rpi_ = rpi;
+	       in_slew, related_out_cap, c2, rpi, c1);
+  ceff_ = c1;
 
   z1_ = 1.0 / (rpi_ * c1_);
   p1_ = 1.0 / (c1_ * (rd_ + rpi_));
@@ -1289,11 +1286,11 @@ findRoot(void (*func)(void *state, double x, double &y, double &dy),
   func(state, x2, y2, dy);
 
   if ((y1 > 0.0 && y2 > 0.0) || (y1 < 0.0 && y2 < 0.0)) {
-    error = "findRoot: initial bounds do not surround a root\n";
+    error = "findRoot: initial bounds do not surround a root";
     return 0.0;
   }
 
-  error = 0;
+  error = nullptr;
   if (y1 == 0.0)
     return x1;
 
@@ -1336,7 +1333,7 @@ findRoot(void (*func)(void *state, double x, double &y, double &dy),
     else
       x2 = root;
   }
-  error = "findRoot: max iterations exceeded\n";
+  error = "findRoot: max iterations exceeded";
   return 0.0;
 }
 
@@ -1361,7 +1358,7 @@ newtonRaphson(const int max_iter,
 {
   for (int k = 0; k < max_iter; k++) {
     if (!eval(state)) {
-      error = "Newton-Raphson eval failed.\n";
+      error = "Newton-Raphson eval failed";
       return false;
     }
 
@@ -1386,7 +1383,7 @@ newtonRaphson(const int max_iter,
       return false;
     }
   }
-  error = "Newton-Raphson max iterations exceeded.\n";
+  error = "Newton-Raphson max iterations exceeded";
   return false;
 }
 
@@ -1420,7 +1417,7 @@ luDecomp(double **a,
 	big = temp;
     }
     if (big == 0.0) {
-      error = "LU decomposition: no non-zero row element.\n";
+      error = "LU decomposition: no non-zero row element";
       return false;
     }
     scale[i] = 1.0 / big;
