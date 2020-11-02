@@ -846,13 +846,13 @@ Power::findInputDuty(const Pin *to_pin,
       FuncExpr *when = pwr->when();
       Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
       if (func && func->hasPort(from_port)) {
-	PwrActivity from_activity = findActivity(from_pin);
-	PwrActivity to_activity = findActivity(to_pin);
+	float from_activity = findActivity(from_pin).activity();
+	float to_activity = findActivity(to_pin).activity();
 	float duty1 = evalActivityDifference(func, inst, from_port).duty();
-	if (to_activity.activity() == 0.0)
+	if (to_activity == 0.0)
 	  return 0.0;
 	else
-	  return from_activity.activity() / to_activity.activity() * duty1;
+	  return from_activity * duty1 / to_activity;
       }
       else if (when)
 	return evalActivity(when, inst).duty();
