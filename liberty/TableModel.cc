@@ -383,7 +383,7 @@ CheckTableModel::checkDelay(const LibertyCell *cell,
 			      from_slew, to_slew, related_out_cap);
     if (pocv_enabled && sigma_models_[EarlyLate::lateIndex()])
       sigma_late = findValue(library, cell, pvt,
-			     sigma_models_[EarlyLate::earlyIndex()],
+			     sigma_models_[EarlyLate::lateIndex()],
 			     from_slew, to_slew, related_out_cap);
     margin = makeDelay(mean, sigma_early, sigma_late);  
   }
