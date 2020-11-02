@@ -811,10 +811,11 @@ Power::findOutputInternalPower(const Pin *to_pin,
     if (tr_count)
       energy /= tr_count; // average non-inf energies
     auto duty_sum_iter = pg_duty_sum.find(related_pg_pin);
-    float duty_sum = duty_sum_iter == pg_duty_sum.end()
-      ? 0.0
-      : duty_sum_iter->second;
-    float weight = duty_sum == 0.0 ? duty : duty / duty_sum;
+    float weight = 0.0;
+    if (duty_sum_iter != pg_duty_sum.end()) {
+      float duty_sum = duty_sum_iter->second;
+      weight = duty / duty_sum;
+    }
     float port_internal = weight * energy * to_activity.activity();
     debugPrint9(debug_, "power", 2,  "%3s -> %-3s %6s  %.2f %.2f %.2f %9.2e %9.2e %s\n",
 		from_port->name(),
@@ -849,10 +850,14 @@ Power::findInputDuty(const Pin *to_pin,
 	float from_activity = findActivity(from_pin).activity();
 	float to_activity = findActivity(to_pin).activity();
 	float duty1 = evalActivityDifference(func, inst, from_port).duty();
-	if (to_activity == 0.0)
+	// Activities can get very small from multiplying probabilities
+	// through deep chains of logic. Dividing by very close to zero values
+	// can result in NaN/Inf depending on numerator.
+	float duty = from_activity * duty1 / to_activity;
+	if (!isnormal(duty))
 	  return 0.0;
 	else
-	  return from_activity * duty1 / to_activity;
+	  return duty;
       }
       else if (when)
 	return evalActivity(when, inst).duty();

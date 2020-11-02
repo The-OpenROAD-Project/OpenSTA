@@ -35,8 +35,8 @@ class PwrActivity
 public:
   PwrActivity();
   PwrActivity(float activity,
-		float duty,
-		PwrActivityOrigin origin);
+	      float duty,
+	      PwrActivityOrigin origin);
   float activity() const { return activity_; }
   float duty() const { return duty_; }
   PwrActivityOrigin origin() { return origin_; }

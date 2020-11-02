@@ -47,7 +47,7 @@ public:
 		  const SeqPin &pin2) const;
 };
 
-typedef UnorderedMap<const Pin*,PwrActivity> PwrActivityMap;
+typedef UnorderedMap<const Pin*, PwrActivity> PwrActivityMap;
 typedef UnorderedMap<SeqPin, PwrActivity,
 		     SeqPinHash, SeqPinEqual> PwrSeqActivityMap;
 
