@@ -47,10 +47,14 @@ public:
   bool isSet() const;
 
 private:
+  void check();
+
   // In general activity is per clock cycle, NOT per second.
   float activity_;
   float duty_;
   PwrActivityOrigin origin_;
+
+  static constexpr float min_activity = 1E-10;
 };
 
 class PowerResult

@@ -850,14 +850,16 @@ Power::findInputDuty(const Pin *to_pin,
 	float from_activity = findActivity(from_pin).activity();
 	float to_activity = findActivity(to_pin).activity();
 	float duty1 = evalActivityDifference(func, inst, from_port).duty();
-	// Activities can get very small from multiplying probabilities
-	// through deep chains of logic. Dividing by very close to zero values
-	// can result in NaN/Inf depending on numerator.
-	float duty = from_activity * duty1 / to_activity;
-	if (!isnormal(duty))
-	  return 0.0;
-	else
-	  return duty;
+	float duty = 0.0;
+	if (to_activity != 0.0F) {
+	  duty = from_activity * duty1 / to_activity;
+	  // Activities can get very small from multiplying probabilities
+	  // through deep chains of logic. Dividing by very close to zero values
+	  // can result in NaN/Inf depending on numerator.
+	  if (!isnormal(duty))
+	    duty = 0.0;
+	}
+	return duty;
       }
       else if (when)
 	return evalActivity(when, inst).duty();
@@ -1154,6 +1156,7 @@ PwrActivity::PwrActivity() :
   duty_(0.0),
   origin_(PwrActivityOrigin::unknown)
 {
+  check();
 }
 
 void
@@ -1164,6 +1167,17 @@ PwrActivity::set(float activity,
   activity_ = activity;
   duty_ = duty;
   origin_ = origin;
+  check();
+}
+
+void
+PwrActivity::check()
+{
+  // Activities can get very small from multiplying probabilities
+  // through deep chains of logic. Clip them to prevent floating
+  // point anomalies.
+  if (abs(activity_) < min_activity)
+    activity_ = 0.0;
 }
 
 bool
