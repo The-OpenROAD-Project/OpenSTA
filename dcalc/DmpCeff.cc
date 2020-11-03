@@ -694,14 +694,14 @@ DmpAlg::showVl()
 void
 DmpAlg::fail(const char *reason)
 {
-  // Allow only failures to be reported with a unique debug flag.
+  // Report failures with a unique debug flag.
   if (debug_->check("delay_calc", 1) || debug_->check("delay_calc_dmp", 1))
     debug_->print("delay_calc: DMP failed - %s c2=%s rpi=%s c1=%s rd=%s\n",
 		  reason,
 		  units_->capacitanceUnit()->asString(c2_),
 		  units_->resistanceUnit()->asString(rpi_),
 		  units_->capacitanceUnit()->asString(c1_),
-		  UNITS_->resistanceUnit()->asString(rd_));
+		  units_->resistanceUnit()->asString(rd_));
 }
 
 ////////////////////////////////////////////////////////////////
