@@ -96,7 +96,7 @@ findRoot(void (*func)(void *state, double x, double &y, double &dy),
 	 double x_tol,
 	 int max_iter,
 	 const char *&error);
-static bool
+static const char *
 newtonRaphson(const int max_iter,
 	      double x[],
 	      const int n,
@@ -110,19 +110,17 @@ newtonRaphson(const int max_iter,
 	      double **fjac,
 	      int *index,
 	      double *p,
-	      double *scale,
-	      const char *&error);
+	      double *scale);
 static void
 luSolve(double **a,
 	const int size,
 	const int *index,
 	double b[]);
-static bool
+static const char *
 luDecomp(double **a,
 	 const int size,
 	 int *index,
-	 double *scale,
-	 const char *&error);
+	 double *scale);
 
 ////////////////////////////////////////////////////////////////
 
@@ -167,7 +165,7 @@ public:
 
 protected:
   // Find driver parameters t0, delta_t, Ceff.
-  bool findDriverParams(double &ceff);
+  const char *findDriverParams(double ceff);
   void gateCapDelaySlew(double cl,
 			double &delay,
 			double &slew);
@@ -191,10 +189,10 @@ protected:
   void showX();
   void showFvec();
   void showJacobian();
-  bool findDriverDelaySlew(double &delay,
-			   double &slew);
-  bool findVoCrossing(double vth,
-		      double &t);
+  const char *findDriverDelaySlew(double &delay,
+				  double &slew);
+  double findVoCrossing(double vth,
+			const char *&error);
   void showVo();
   bool findVlCrossing(double vth,
 		      double &t);
@@ -335,21 +333,23 @@ DmpAlg::init(const LibertyLibrary *drvr_library,
 }
 
 // Find Ceff, delta_t and t0 for the driver.
-// Caller must initialize/retrieve x_[DmpParam::ceff] because
-// order 2 eqns don't have a ceff eqn.
-// Return true if successful.
-bool
-DmpAlg::findDriverParams(double &ceff)
+// Return error msg on failure.
+const char *
+DmpAlg::findDriverParams(double ceff)
 {
+  x_[DmpParam::ceff] = ceff;
   double t_vth, t_vl, slew;
   gateDelays(ceff, t_vth, t_vl, slew);
   double dt = slew / (vh_ - vl_);
   double t0 = t_vth + log(1.0 - vth_) * rd_ * ceff - vth_ * dt;
   x_[DmpParam::dt] = dt;
   x_[DmpParam::t0] = t0;
-  const char *nr_error;
-  if (newtonRaphson(100, x_, nr_order_, driver_param_tol, evalDmpEqnsState,
-		    this, fvec_, fjac_, index_, p_, scale_, nr_error)) {
+  const char *error = newtonRaphson(100, x_, nr_order_, driver_param_tol,
+				    evalDmpEqnsState,
+				    this, fvec_, fjac_, index_, p_, scale_);
+  if (error)
+    return error;
+  else {
     t0_ = x_[DmpParam::t0];
     dt_ = x_[DmpParam::dt];
     debugPrint3(debug_, "delay_calc", 3, "    t0 = %s dt = %s ceff = %s\n",
@@ -358,11 +358,7 @@ DmpAlg::findDriverParams(double &ceff)
 		units_->capacitanceUnit()->asString(x_[DmpParam::ceff]));
     if (debug_->check("delay_calc", 4))
       showVo();
-    return true;
-  }
-  else {
-    fail(nr_error);
-    return false;
+    return nullptr;
   }
 }
 
@@ -429,14 +425,18 @@ DmpAlg::dy(double t,
 	   double t0,
 	   double dt,
 	   double cl,
+	   // Return values.
 	   double &dydt0,
 	   double &dyddt,
 	   double &dydcl)
 {
   double t1 = t - t0;
+#if 0
   if (t1 <= 0.0)
     dydt0 = dyddt = dydcl = 0.0;
-  else if (t1 <= dt) {
+  else 
+#endif
+if (t1 <= dt) {
     dydt0 = -y0dt(t1, cl) / dt;
     dyddt = -y0(t1, cl) / (dt * dt);
     dydcl = y0dcl(t1, cl) / dt;
@@ -492,36 +492,34 @@ DmpAlg::showJacobian()
   }
 }
 
-// Return true if successful.
-bool
+// Return error msg on failure.
+const char *
 DmpAlg::findDriverDelaySlew(double &delay,
 			    double &slew)
 {
-  double tl, th;
-  if (findVoCrossing(vth_, delay)
-      && findVoCrossing(vl_, tl)
-      && findVoCrossing(vh_, th)) {
-    slew = (th - tl) / slew_derate_;
-    return true;
-  }
-  else
-    return false;
+  const char *error = nullptr;
+  delay = findVoCrossing(vth_, error);
+  if (error)
+    return error;
+  double tl = findVoCrossing(vl_, error);
+  if (error)
+    return error;
+  double th = findVoCrossing(vh_, error);
+  if (error)
+    return error;
+  slew = (th - tl) / slew_derate_;
+  return nullptr;
 }
 
 // Find t such that vo(t)=v.
 // Return true if successful.
-bool
+double
 DmpAlg::findVoCrossing(double vth,
-		       double &t)
+		       const char *&error)
 {
   v_cross_ = vth;
   double ub = voCrossingUpperBound();
-  const char *error;
-  t = findRoot(evalVoEqns, this, t0_, ub, vth_time_tol, find_root_max_iter,
-	       error);
-  if (error)
-    fail(error);
-  return (error == nullptr);
+  return findRoot(evalVoEqns, this, t0_, ub, vth_time_tol, find_root_max_iter, error);
 }
 
 static void
@@ -698,12 +696,12 @@ DmpAlg::fail(const char *reason)
 {
   // Allow only failures to be reported with a unique debug flag.
   if (debug_->check("delay_calc", 1) || debug_->check("delay_calc_dmp", 1))
-    debug_->print("delay_calc: DMP failed - %s c2=%s rpi=%s c1=%s\n",
+    debug_->print("delay_calc: DMP failed - %s c2=%s rpi=%s c1=%s rd=%s\n",
 		  reason,
 		  units_->capacitanceUnit()->asString(c2_),
 		  units_->resistanceUnit()->asString(rpi_),
-		  units_->capacitanceUnit()->asString(c1_));
-
+		  units_->capacitanceUnit()->asString(c1_),
+		  UNITS_->resistanceUnit()->asString(rd_));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -846,7 +844,7 @@ public:
   virtual double voCrossingUpperBound();
 
 private:
-  bool findDriverParamsPi();
+  const char *findDriverParamsPi();
   virtual double v0(double t);
   virtual double dv0dt(double t);
   double ipiIceff(double t0,
@@ -930,7 +928,14 @@ void
 DmpPi::gateDelaySlew(double &delay,
 		     double &slew)
 {
-  if (findDriverParamsPi()) {
+  const char *error = findDriverParamsPi();
+  if (error) {
+    fail(error);
+    // Driver calculation failed - use Ceff=c1+c2.
+    ceff_ = c1_ + c2_;
+    gateCapDelaySlew(ceff_, delay, slew);
+  }
+  else {
     ceff_ = x_[DmpParam::ceff];
     driver_valid_ = true;
     double table_slew;
@@ -940,25 +945,25 @@ DmpPi::gateDelaySlew(double &delay,
     // Vo slew is more accurate than table
     // (-8% max, -3% avg vs -32% max, -12% avg).
     // Need Vo delay to measure load wire delay waveform.
-    if (!findDriverDelaySlew(vo_delay_, slew))
-      // Fall back to table slew if findDriverDelaySlew fails.
+    const char *error = findDriverDelaySlew(vo_delay_, slew);
+    if (error) {
+      fail(error);
+      // Fall back to table slew.
       slew = table_slew;
-  }
-  else {
-    // Driver calculation failed - use Ceff=c1+c2.
-    ceff_ = c1_ + c2_;
-    gateCapDelaySlew(ceff_, delay, slew);
+    }
   }
   // Save for wire delay calc.
   gate_slew_ = slew;
 }
 
-bool
+const char *
 DmpPi::findDriverParamsPi()
 {
-  double ceff = c1_ + c2_;
-  x_[DmpParam::ceff] = ceff;
-  return findDriverParams(x_[DmpParam::ceff]);
+  const char *error;
+  error = findDriverParams(c2_ + c1_);
+  if (error)
+    error = findDriverParams(c2_);
+  return error;
 }
 
 // Given x_ as a vector of input parameters, fill fvec_ with the
@@ -1222,11 +1227,23 @@ void
 DmpZeroC2::gateDelaySlew(double &delay,
 			 double &slew)
 {
-  driver_valid_ = findDriverParams(c1_);
+#if 0
+  // Not converging to a reasonable solution. set_load10
+  const char *error = findDriverParams(c1_);
   ceff_ = c1_;
-  if (!findDriverDelaySlew(delay, slew))
-    // Fall back to table slew if findDriverDelaySlew fails.
+  driver_valid_ = (error == nullptr);
+  if (error == nullptr)
+    error = findDriverDelaySlew(delay, slew);
+  if (error) {
+    fail(error);
+    // Fall back to table slew.
     gateCapDelaySlew(ceff_, delay, slew);
+  }
+  vo_delay_ = delay;
+  gate_slew_ = slew;
+#endif
+  ceff_ = c1_;
+  gateCapDelaySlew(ceff_, delay, slew);
   vo_delay_ = delay;
   gate_slew_ = slew;
 }
@@ -1340,8 +1357,8 @@ findRoot(void (*func)(void *state, double x, double &y, double &dy),
 // Newton-Raphson iteration to find zeros of a function.
 // x_tol is percentage that all changes in x must be less than (1.0 = 100%).
 // Eval(state) is called to fill fvec and fjac (returns false if fails).
-// Return true if successful.
-static bool
+// Return error msg on failure.
+static const char *
 newtonRaphson(const int max_iter,
 	      double x[],
 	      const int size,
@@ -1353,20 +1370,19 @@ newtonRaphson(const int max_iter,
 	      double **fjac,
 	      int *index,
 	      double *p,
-	      double *scale,
-	      const char *&error)
+	      double *scale)
 {
   for (int k = 0; k < max_iter; k++) {
-    if (!eval(state)) {
-      error = "Newton-Raphson eval failed";
-      return false;
-    }
+    if (!eval(state))
+      return "Newton-Raphson eval failed";
 
     for (int i = 0; i < size; i++)
       // Right-hand side of linear equations.
       p[i] = -fvec[i];
-    const char *lu_error;
-    if (luDecomp(fjac, size, index, scale, lu_error)) {
+    const char *error = luDecomp(fjac, size, index, scale);
+    if (error)
+      return error;
+    else {
       luSolve(fjac, size, index, p);
 
       bool all_under_x_tol = true;
@@ -1376,15 +1392,10 @@ newtonRaphson(const int max_iter,
 	x[i] += p[i];
       }
       if (all_under_x_tol)
-	return true;
-    }
-    else {
-      error = lu_error;
-      return false;
+	return nullptr;
     }
   }
-  error = "Newton-Raphson max iterations exceeded";
-  return false;
+  return "Newton-Raphson max iterations exceeded";
 }
 
 // luDecomp, luSolve based on MatClass from C. R. Birchenhall,
@@ -1398,15 +1409,14 @@ newtonRaphson(const int max_iter,
 //
 // Replaces a[0..size-1][0..size-1] by the LU decomposition.
 // index[0..size-1] is an output vector of the row permutations.
-// Return true if successful.
-bool
+// Return error msg on failure.
+const char *
 luDecomp(double **a,
 	 const int size,
 	 int *index,
 	 // Temporary supplied by caller.
 	 // scale stores the implicit scaling of each row.
-	 double *scale,
-	 const char *&error)
+	 double *scale)
 {
   // Find implicit scaling factors.
   for (int i = 0; i < size; i++) {
@@ -1416,10 +1426,8 @@ luDecomp(double **a,
       if (temp > big)
 	big = temp;
     }
-    if (big == 0.0) {
-      error = "LU decomposition: no non-zero row element";
-      return false;
-    }
+    if (big == 0.0)
+      return "LU decomposition: no non-zero row element";
     scale[i] = 1.0 / big;
   }
   int size_1 = size - 1;
@@ -1469,7 +1477,7 @@ luDecomp(double **a,
 	a[i][j] *= pivot;
     }
   }
-  return true;
+  return nullptr;
 }
 
 // Solves the set of size linear equations a*x=b, assuming A is LU form
