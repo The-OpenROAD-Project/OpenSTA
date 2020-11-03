@@ -814,7 +814,8 @@ Power::findOutputInternalPower(const Pin *to_pin,
     float weight = 0.0;
     if (duty_sum_iter != pg_duty_sum.end()) {
       float duty_sum = duty_sum_iter->second;
-      weight = duty / duty_sum;
+      if (duty_sum != 0.0)
+	weight = duty / duty_sum;
     }
     float port_internal = weight * energy * to_activity.activity();
     debugPrint9(debug_, "power", 2,  "%3s -> %-3s %6s  %.2f %.2f %.2f %9.2e %9.2e %s\n",
