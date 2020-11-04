@@ -376,12 +376,8 @@ DmpAlg::gateCapDelaySlew(double ceff,
 {
   ArcDelay model_delay;
   Slew model_slew;
-  gate_model_->gateDelay(drvr_cell_, pvt_,
-			 static_cast<float>(in_slew_),
-			 static_cast<float>(ceff),
-			 related_out_cap_,
-			 pocv_enabled_,
-			 model_delay, model_slew);
+  gate_model_->gateDelay(drvr_cell_, pvt_, in_slew_, ceff, related_out_cap_,
+			 pocv_enabled_, model_delay, model_slew);
   delay = delayAsFloat(model_delay);
   slew = delayAsFloat(model_slew);
 }
@@ -576,12 +572,12 @@ DmpAlg::loadDelaySlew(const Pin *,
 {
   if (elmore == 0.0) {
     delay = 0.0;
-    slew = static_cast<float>(gate_slew_);
+    slew = gate_slew_;
   }
   else if (elmore < gate_slew_ * 1e-3) {
     // Elmore delay is small compared to driver slew.
-    delay = static_cast<float>(elmore);
-    slew = static_cast<float>(gate_slew_);
+    delay = elmore;
+    slew = gate_slew_;
   }
   else {
     elmore_ = elmore;
@@ -610,17 +606,17 @@ DmpAlg::loadDelaySlew(const Pin *,
 	// Only report a problem if the difference is significant.
 	if ((gate_slew_ - slew1) > vth_time_tol * gate_slew_)
 	  fail("load slew less than driver slew");
-	slew1 = static_cast<float>(gate_slew_);
+	slew1 = gate_slew_;
       }
-      delay = static_cast<float>(delay1);
-      slew = static_cast<float>(slew1);
+      delay = delay1;
+      slew = slew1;
     }
     else {
       // Failed - use elmore delay and driver slew.
-      delay = static_cast<float>(elmore_);
+      delay = elmore_;
       // solve v=1-exp(-t/rc) for t, elmore_slew_factor_ = t(vh) - t(vl)
       // slew = elmore * (log(vh_) - log(vl_))
-      slew = static_cast<float>(gate_slew_ + elmore * elmore_slew_factor_);
+      slew = gate_slew_ + elmore * elmore_slew_factor_;
     }
   }
 }
@@ -1616,8 +1612,8 @@ DmpCeffDelayCalc::gateDelay(const LibertyCell *drvr_cell,
 		     c2, rpi, c1);
     double dmp_gate_delay, dmp_drvr_slew;
     gateDelaySlew(dmp_gate_delay, dmp_drvr_slew);
-    gate_delay = static_cast<float>(dmp_gate_delay);
-    drvr_slew = static_cast<float>(dmp_drvr_slew);
+    gate_delay = dmp_gate_delay;
+    drvr_slew = dmp_drvr_slew;
   }
   else {
     LumpedCapDelayCalc::gateDelay(drvr_cell, arc, in_slew, load_cap,
@@ -1692,7 +1688,7 @@ DmpCeffDelayCalc::ceff(const LibertyCell *drvr_cell,
 	    drvr_parasitic, related_out_cap, pvt, dcalc_ap,
 	    gate_delay, drvr_slew);
   if (dmp_alg_)
-    return static_cast<float>(dmp_alg_->ceff());
+    return dmp_alg_->ceff();
   else
     return load_cap;
 }
