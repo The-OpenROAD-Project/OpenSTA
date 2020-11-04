@@ -1199,23 +1199,19 @@ void
 DmpZeroC2::gateDelaySlew(double &delay,
 			 double &slew)
 {
-#if 0
-  // Not converging to a reasonable solution. set_load10
-  const char *error = findDriverParams(c1_);
-  ceff_ = c1_;
-  driver_valid_ = (error == nullptr);
-  if (error == nullptr)
-    error = findDriverDelaySlew(delay, slew);
-  if (error) {
-    fail(error);
+  try {
+    findDriverParams(c1_);
+    ceff_ = c1_;
+    driver_valid_ = true;
+    findDriverDelaySlew(delay, slew);
+  }
+  catch (DmpError &error) {
+    fail(error.what());
     // Fall back to table slew.
+    driver_valid_ = false;
+    ceff_ = c1_;
     gateCapDelaySlew(ceff_, delay, slew);
   }
-  vo_delay_ = delay;
-  gate_slew_ = slew;
-#endif
-  ceff_ = c1_;
-  gateCapDelaySlew(ceff_, delay, slew);
   vo_delay_ = delay;
   gate_slew_ = slew;
 }
