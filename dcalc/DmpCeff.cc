@@ -268,7 +268,6 @@ protected:
   // Load rspf elmore delay.
   double elmore_;
   double p3_;
-  double elmore_slew_factor_;
 
 private:
   virtual double dvl0dt(double t) = 0;
@@ -336,8 +335,6 @@ DmpAlg::init(const LibertyLibrary *drvr_library,
   vl_ = drvr_library->slewLowerThreshold(rf);
   vh_ = drvr_library->slewUpperThreshold(rf);
   slew_derate_ = drvr_library->slewDerateFromLibrary();
-  elmore_slew_factor_ = log(vh_) - log(vl_);
-  
 }
 
 // Find Ceff, delta_t and t0 for the driver.
@@ -564,9 +561,6 @@ DmpAlg::loadDelaySlew(const Pin *,
       // Elmore delay is small compared to driver slew.
       || elmore < gate_slew_ * 1e-3) {
     delay = elmore;
-    // solve v=1-exp(-t/rc) for t, elmore_slew_factor_ = t(vh) - t(vl)
-    // slew = elmore * (log(vh_) - log(vl_))
-    //    slew = elmore * elmore_slew_factor_;
     slew = gate_slew_;
   }
   else {
@@ -600,11 +594,8 @@ DmpAlg::loadDelaySlew(const Pin *,
       slew = slew1;
     }
     catch (DmpError &error) {
-      // Failed - use elmore delay and driver slew.
       delay = elmore_;
-      // solve v=1-exp(-t/rc) for t, elmore_slew_factor_ = t(vh) - t(vl)
-      // slew = elmore * (log(vh_) - log(vl_))
-      slew = elmore * elmore_slew_factor_;
+      slew = gate_slew_;
     }
   }
 }
