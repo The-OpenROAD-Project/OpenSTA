@@ -1751,16 +1751,16 @@ gateModelRd(const LibertyCell *cell,
 	    const Pvt *pvt,
 	    bool pocv_enabled)
 {
-  float cap1 = static_cast<float>((c1 + c2) * .75);
-  float cap2 = cap1 * 1.1F;
-  float in_slew1 = static_cast<float>(in_slew);
+  float cap1 = (c1 + c2) * .75;
+  float cap2 = cap1 + 1e-15;
   ArcDelay d1, d2;
   Slew s1, s2;
-  gate_model->gateDelay(cell, pvt, in_slew1, cap1, related_out_cap, pocv_enabled,
+  gate_model->gateDelay(cell, pvt, in_slew, cap1, related_out_cap, pocv_enabled,
 			d1, s1);
-  gate_model->gateDelay(cell, pvt, in_slew1, cap2, related_out_cap, pocv_enabled,
+  gate_model->gateDelay(cell, pvt, in_slew, cap2, related_out_cap, pocv_enabled,
 			d2, s2);
-  return abs(delayAsFloat(d1) - delayAsFloat(d2)) / (cap2 - cap1);
+  float rd = abs(delayAsFloat(d1) - delayAsFloat(d2)) / (cap2 - cap1);
+  return rd;
 }
 
 void
