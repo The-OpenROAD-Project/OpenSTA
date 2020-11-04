@@ -779,8 +779,8 @@ DmpCap::loadDelaySlew(const Pin *,
 		      ArcDelay &delay,
 		      Slew &slew)
 {
-  delay = static_cast<float>(elmore);
-  slew = static_cast<float>(gate_slew_);
+  delay = elmore;
+  slew = gate_slew_;
 }
 
 bool
@@ -1645,22 +1645,25 @@ DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
 				   double rpi,
 				   double c1)
 {
-  double rd = gate_model
-    ? gateModelRd(drvr_cell, gate_model, in_slew, c2, c1,
-		  related_out_cap, pvt, pocv_enabled_)
-    : 0.0;
-  // Zero Rd means the table is constant and thus independent of load cap.
-  if (rd < 1e-2
-      // Rpi is small compared to Rd, which makes the load capacitive.
-      || rpi < rd * 1e-3
-      // c1/Rpi can be ignored.
-      || (c1 == 0.0 || c1 < c2 * 1e-3 || rpi == 0.0))
-    dmp_alg_ = dmp_cap_;
-  else if (c2 < c1 * 1e-3)
-    dmp_alg_ = dmp_zero_c2_;
+  double rd = 0.0;
+  if (gate_model) {
+    rd = gateModelRd(drvr_cell, gate_model, in_slew, c2, c1,
+		     related_out_cap, pvt, pocv_enabled_);
+    // Zero Rd means the table is constant and thus independent of load cap.
+    if (rd < 1e-2
+	// Rpi is small compared to Rd, which makes the load capacitive.
+	|| rpi < rd * 1e-3
+	// c1/Rpi can be ignored.
+	|| (c1 == 0.0 || c1 < c2 * 1e-3 || rpi == 0.0))
+      dmp_alg_ = dmp_cap_;
+    else if (c2 < c1 * 1e-3)
+      dmp_alg_ = dmp_zero_c2_;
+    else
+      // The full monty.
+      dmp_alg_ = dmp_pi_;
+  }
   else
-    // The full monty.
-    dmp_alg_ = dmp_pi_;
+    dmp_alg_ = dmp_cap_;
   dmp_alg_->init(drvr_library, drvr_cell, pvt, gate_model,
 		 drvr_rf_, rd, in_slew, related_out_cap, c2, rpi, c1);
   debugPrint6(debug_, "dmp_ceff", 3,
