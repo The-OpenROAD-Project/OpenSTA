@@ -2709,6 +2709,9 @@ ReportPath::reportPath5(const Path *path,
   const MinMax *min_max = path->minMax(this);
   DcalcAnalysisPt *dcalc_ap = path->pathAnalysisPt(this)->dcalcAnalysisPt();
   DcalcAPIndex ap_index = dcalc_ap->index();
+  PathRef clk_path;
+  expanded.clkPath(clk_path);
+  Vertex *clk_start = clk_path.vertex(this);
   for (size_t i = path_first_index; i <= path_last_index; i++) {
     PathRef *path1 = expanded.path(i);
     TimingArc *prev_arc = expanded.prevArc(i);
@@ -2717,7 +2720,7 @@ ReportPath::reportPath5(const Path *path,
     Arrival time = path1->arrival(this) + time_offset;
     Delay incr = 0.0;
     const char *line_case = nullptr;
-    bool is_clk_start = network_->isRegClkPin(pin);
+    bool is_clk_start = path1->vertex(this) == clk_start;
     bool is_clk = path1->isClock(search_);
     // Always show the search start point (register clk pin).
     // Skip reporting the clk tree unless it is requested.
