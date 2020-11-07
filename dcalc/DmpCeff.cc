@@ -338,13 +338,13 @@ DmpAlg::init(const LibertyLibrary *drvr_library,
 }
 
 // Find Ceff, delta_t and t0 for the driver.
-// Return error msg on failure.
 void
 DmpAlg::findDriverParams(double ceff)
 {
   x_[DmpParam::ceff] = ceff;
   double t_vth, t_vl, slew;
   gateDelays(ceff, t_vth, t_vl, slew);
+  // Scale slew to 0-100%
   double dt = slew / (vh_ - vl_);
   double t0 = t_vth + log(1.0 - vth_) * rd_ * ceff - vth_ * dt;
   x_[DmpParam::dt] = dt;
@@ -387,9 +387,10 @@ DmpAlg::gateDelays(double ceff,
 		   double &t_vl,
 		   double &slew)
 {
-  gateCapDelaySlew(ceff, t_vth, slew);
-  // Gate table slew is reported.  Convert to measured.
-  slew *= slew_derate_;
+  double table_slew;
+  gateCapDelaySlew(ceff, t_vth, table_slew);
+  // Convert reported/table slew to measured slew.
+  slew = table_slew * slew_derate_;
   t_vl = t_vth - slew * (vth_ - vl_) / (vh_ - vl_);
 }
 
@@ -488,10 +489,10 @@ void
 DmpAlg::findDriverDelaySlew(double &delay,
 			    double &slew)
 {
-  const char *error = nullptr;
   delay = findVoCrossing(vth_);
   double tl = findVoCrossing(vl_);
   double th = findVoCrossing(vh_);
+  // Convert measured slew to table slew.
   slew = (th - tl) / slew_derate_;
 }
 
@@ -576,6 +577,7 @@ DmpAlg::loadDelaySlew(const Pin *,
       double th = findVlCrossing(vh_);
       // Measure delay from Vo, the load dependent source excitation.
       double delay1 = load_delay - vo_delay_;
+      // Convert measured slew to reported/table slew.
       double slew1 = (th - tl) / slew_derate_;
       if (delay1 < 0.0) {
 	// Only report a problem if the difference is significant.
@@ -908,7 +910,9 @@ DmpPi::gateDelaySlew(double &delay,
     // (-8% max, -3% avg vs -32% max, -12% avg).
     // Need Vo delay to measure load wire delay waveform.
     try {
-      findDriverDelaySlew(vo_delay_, slew);
+      double vo_slew;
+      findDriverDelaySlew(vo_delay_, vo_slew);
+      slew = vo_slew;
     }
     catch (DmpError &error) {
       fail(error.what());
@@ -1082,8 +1086,8 @@ DmpOnePole::evalDmpEqns()
   double t0 = x_[DmpParam::t0];
   double dt = x_[DmpParam::dt];
 
-  double t_vth, t_vl, ignore, dummy;
-  gateDelays(ceff_, t_vth, t_vl, ignore);
+  double t_vth, t_vl, ignore1, ignore2;
+  gateDelays(ceff_, t_vth, t_vl, ignore1);
 
   if (dt <= 0.0)
     dt = x_[DmpParam::dt] = (t_vl - t_vth) / 100;
@@ -1099,12 +1103,12 @@ DmpOnePole::evalDmpEqns()
   dy(t_vl, t0, dt, ceff_,
      fjac_[DmpFunc::y20][DmpParam::t0],
      fjac_[DmpFunc::y20][DmpParam::dt],
-     dummy);
+     ignore2);
 
   dy(t_vth, t0, dt, ceff_,
      fjac_[DmpFunc::y50][DmpParam::t0],
      fjac_[DmpFunc::y50][DmpParam::dt],
-     dummy);
+     ignore2);
 
   if (debug_->check("dmp_ceff", 4)) {
     showJacobian();

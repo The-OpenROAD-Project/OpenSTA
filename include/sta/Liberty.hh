@@ -225,6 +225,8 @@ public:
   // (measured) thresholds for the table axes and value.  These slews
   // are scaled by slew_derate_from_library to get slews reported to
   // the user.
+  // slew(measured) = slew_derate_from_library * slew(table)
+  //   measured is from slew_lower_threshold to slew_upper_threshold
   float slewDerateFromLibrary() const;
   void setSlewDerateFromLibrary(float derate);
 
