@@ -46,6 +46,7 @@ using std::min;
 using std::max;
 using std::sqrt;
 using std::log;
+using std::exp;
 
 // Tolerance (as a scale of value) for driver parameters (Ceff, delta t, t0).
 static const double driver_param_tol = .01;
@@ -898,20 +899,21 @@ void
 DmpPi::gateDelaySlew(double &delay,
 		     double &slew)
 {
+  driver_valid_ = false;
   try {
     findDriverParamsPi();
     ceff_ = x_[DmpParam::ceff];
-    driver_valid_ = true;
-    double table_slew;
-    // Table gate delays are more accurate than using Vo waveform delay
-    // (-12% max, -5% avg vs 26% max, -7% avg).
-    gateCapDelaySlew(ceff_, delay, table_slew);
-    // Vo slew is more accurate than table
-    // (-8% max, -3% avg vs -32% max, -12% avg).
-    // Need Vo delay to measure load wire delay waveform.
+    double table_delay, table_slew;
+    gateCapDelaySlew(ceff_, table_delay, table_slew);
+    delay = table_delay;
+    //slew = table_slew;
     try {
-      double vo_slew;
-      findDriverDelaySlew(vo_delay_, vo_slew);
+      double vo_delay, vo_slew;
+      findDriverDelaySlew(vo_delay, vo_slew);
+      driver_valid_ = true;
+      // Save Vo delay to measure load wire delay waveform.
+      vo_delay_ = vo_delay;
+      //delay = vo_delay;
       slew = vo_slew;
     }
     catch (DmpError &error) {
@@ -923,11 +925,9 @@ DmpPi::gateDelaySlew(double &delay,
   catch (DmpError &error) {
     fail(error.what());
     // Driver calculation failed - use Ceff=c1+c2.
-    driver_valid_ = false;
     ceff_ = c1_ + c2_;
     gateCapDelaySlew(ceff_, delay, slew);
   }
-  // Save for wire delay calc.
   gate_slew_ = slew;
 }
 
@@ -969,13 +969,12 @@ DmpPi::evalDmpEqns()
   double exp_p2_dt = exp(-p2_ * dt);
   double exp_dt_rd_ceff = exp(-dt / (rd_ * ceff));
 
-  // y50 in the paper.
-  double y_t_vth = y(t_vth, t0, dt, ceff);
-  // y20 in the paper. Match Vl.
-  double y_t_vl = y(t_vl, t0, dt, ceff);
+  double y50 = y(t_vth, t0, dt, ceff);
+  // Match Vl.
+  double y20 = y(t_vl, t0, dt, ceff);
   fvec_[DmpFunc::ipi] = ipiIceff(t0, dt, ceff_time, ceff);
-  fvec_[DmpFunc::y50] = y_t_vth - vth_;
-  fvec_[DmpFunc::y20] = y_t_vl - vl_;
+  fvec_[DmpFunc::y50] = y50 - vth_;
+  fvec_[DmpFunc::y20] = y20 - vl_;
   fjac_[DmpFunc::ipi][DmpParam::t0] = 0.0;
   fjac_[DmpFunc::ipi][DmpParam::dt] =
     (-A_ * dt + B_ * dt * exp_p1_dt - (2 * B_ / p1_) * (1.0 - exp_p1_dt)
@@ -1206,8 +1205,9 @@ DmpZeroC2::gateDelaySlew(double &delay,
   try {
     findDriverParams(c1_);
     ceff_ = c1_;
-    driver_valid_ = true;
     findDriverDelaySlew(delay, slew);
+    driver_valid_ = true;
+    vo_delay_ = delay;
   }
   catch (DmpError &error) {
     fail(error.what());
@@ -1216,7 +1216,6 @@ DmpZeroC2::gateDelaySlew(double &delay,
     ceff_ = c1_;
     gateCapDelaySlew(ceff_, delay, slew);
   }
-  vo_delay_ = delay;
   gate_slew_ = slew;
 }
 
