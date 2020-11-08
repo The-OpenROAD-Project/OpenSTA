@@ -81,6 +81,7 @@ private:
 static double
 gateModelRd(const LibertyCell *cell,
 	    GateTableModel *gate_model,
+	    const RiseFall *rf,
 	    double in_slew,
 	    double c2,
 	    double c1,
@@ -1571,7 +1572,7 @@ DmpCeffDelayCalc::gateDelay(const LibertyCell *drvr_cell,
     float c2, rpi, c1;
     parasitics_->piModel(drvr_parasitic, c2, rpi, c1);
     setCeffAlgorithm(drvr_library_, drvr_cell, pvt, table_model,
-		     in_slew1, related_out_cap,
+		     drvr_rf_, in_slew1, related_out_cap,
 		     c2, rpi, c1);
     double dmp_gate_delay, dmp_drvr_slew;
     gateDelaySlew(dmp_gate_delay, dmp_drvr_slew);
@@ -1598,6 +1599,7 @@ DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
 				   const LibertyCell *drvr_cell,
 				   const Pvt *pvt,
 				   GateTableModel *gate_model,
+				   const RiseFall *rf,
 				   double in_slew,
 				   float related_out_cap,
 				   double c2,
@@ -1606,7 +1608,7 @@ DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
 {
   double rd = 0.0;
   if (gate_model) {
-    rd = gateModelRd(drvr_cell, gate_model, in_slew, c2, c1,
+    rd = gateModelRd(drvr_cell, gate_model, rf, in_slew, c2, c1,
 		     related_out_cap, pvt, pocv_enabled_);
     // Zero Rd means the table is constant and thus independent of load cap.
     if (rd < 1e-2
@@ -1706,6 +1708,7 @@ DmpCeffDelayCalc::reportGateDelay(const LibertyCell *drvr_cell,
 static double
 gateModelRd(const LibertyCell *cell,
 	    GateTableModel *gate_model,
+	    const RiseFall *rf,
 	    double in_slew,
 	    double c2,
 	    double c1,
@@ -1713,7 +1716,7 @@ gateModelRd(const LibertyCell *cell,
 	    const Pvt *pvt,
 	    bool pocv_enabled)
 {
-  float cap1 = (c1 + c2) * .75;
+  float cap1 = c1 + c2;
   float cap2 = cap1 + 1e-15;
   ArcDelay d1, d2;
   Slew s1, s2;
@@ -1721,7 +1724,8 @@ gateModelRd(const LibertyCell *cell,
 			d1, s1);
   gate_model->gateDelay(cell, pvt, in_slew, cap2, related_out_cap, pocv_enabled,
 			d2, s2);
-  float rd = abs(delayAsFloat(d1) - delayAsFloat(d2)) / (cap2 - cap1);
+  double vth = cell->libertyLibrary()->outputThreshold(rf);
+  float rd = -log(vth) * abs(delayAsFloat(d1) - delayAsFloat(d2)) / (cap2 - cap1);
   return rd;
 }
 

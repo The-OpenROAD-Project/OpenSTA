@@ -82,6 +82,7 @@ protected:
 			const LibertyCell *cell,
 			const Pvt *pvt,
 			GateTableModel *gate_model,
+			const RiseFall *rf,
 			double in_slew,
 			float related_out_cap,
 			double c2,
