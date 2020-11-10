@@ -3803,19 +3803,6 @@ Sta::disconnectPin(Pin *pin)
   network->disconnectPin(pin);
 }
 
-LibertyPort *
-Sta::findCellPort(LibertyCell *cell,
-		  PortDirection *dir)
-{
-  LibertyCellPortIterator port_iter(cell);
-  while (port_iter.hasNext()) {
-    LibertyPort *port = port_iter.next();
-    if (port->direction() == dir)
-      return port;
-  }
-  return nullptr;
-}
-
 ////////////////////////////////////////////////////////////////
 //
 // Network edit before/after methods.
@@ -4176,8 +4163,10 @@ Sta::deleteNetBefore(Net *net)
 void
 Sta::deleteInstanceBefore(Instance *inst)
 {
-  if (network_->isLeaf(inst)) 
+  if (network_->isLeaf(inst)) {
+    deleteInstancePinsBefore(inst);
     deleteLeafInstanceBefore(inst);
+  }
   else {
     // Delete hierarchical instance children.
     InstanceChildIterator *child_iter = network_->childIterator(inst);
@@ -4192,13 +4181,18 @@ Sta::deleteInstanceBefore(Instance *inst)
 void
 Sta::deleteLeafInstanceBefore(Instance *inst)
 {
+  sim_->deleteInstanceBefore(inst);
+}
+
+void
+Sta::deleteInstancePinsBefore(Instance *inst)
+{
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
     deletePinBefore(pin);
   }
   delete pin_iter;
-  sim_->deleteInstanceBefore(inst);
 }
 
 void
@@ -4207,52 +4201,56 @@ Sta::deletePinBefore(Pin *pin)
   if (graph_) {
     if (network_->isLoad(pin)) {
       Vertex *vertex = graph_->pinLoadVertex(pin);
+      if (vertex) {
+        levelize_->deleteVertexBefore(vertex);
+        graph_delay_calc_->deleteVertexBefore(vertex);
+        search_->deleteVertexBefore(vertex);
 
-      levelize_->deleteVertexBefore(vertex);
-      graph_delay_calc_->deleteVertexBefore(vertex);
-      search_->deleteVertexBefore(vertex);
-
-      VertexInEdgeIterator in_edge_iter(vertex, graph_);
-      while (in_edge_iter.hasNext()) {
-	Edge *edge = in_edge_iter.next();
-	if (edge->role()->isWire()) {
-	  Vertex *from = edge->from(graph_);
-	  // Only notify from vertex (to vertex will be deleted).
-	  search_->requiredInvalid(from);
-	}
-	levelize_->deleteEdgeBefore(edge);
+        VertexInEdgeIterator in_edge_iter(vertex, graph_);
+        while (in_edge_iter.hasNext()) {
+          Edge *edge = in_edge_iter.next();
+          if (edge->role()->isWire()) {
+            Vertex *from = edge->from(graph_);
+            // Only notify from vertex (to vertex will be deleted).
+            search_->requiredInvalid(from);
+          }
+          levelize_->deleteEdgeBefore(edge);
+        }
+        graph_->deleteVertex(vertex);
       }
-      graph_->deleteVertex(vertex);
     }
     if (network_->isDriver(pin)) {
       Vertex *vertex = graph_->pinDrvrVertex(pin);
+      if (vertex) {
+        levelize_->deleteVertexBefore(vertex);
+        graph_delay_calc_->deleteVertexBefore(vertex);
+        search_->deleteVertexBefore(vertex);
 
-      levelize_->deleteVertexBefore(vertex);
-      graph_delay_calc_->deleteVertexBefore(vertex);
-      search_->deleteVertexBefore(vertex);
-
-      VertexOutEdgeIterator edge_iter(vertex, graph_);
-      while (edge_iter.hasNext()) {
-	Edge *edge = edge_iter.next();
-	if (edge->role()->isWire()) {
-	  // Only notify to vertex (from will be deleted).
-	  Vertex *to = edge->to(graph_);
-	  // to->prev_paths point to vertex, so delete them.
-	  search_->arrivalInvalidDelete(to);
-	  graph_delay_calc_->delayInvalid(to);
-	  levelize_->relevelizeFrom(to);
-	}
-	levelize_->deleteEdgeBefore(edge);
+        VertexOutEdgeIterator edge_iter(vertex, graph_);
+        while (edge_iter.hasNext()) {
+          Edge *edge = edge_iter.next();
+          if (edge->role()->isWire()) {
+            // Only notify to vertex (from will be deleted).
+            Vertex *to = edge->to(graph_);
+            // to->prev_paths point to vertex, so delete them.
+            search_->arrivalInvalidDelete(to);
+            graph_delay_calc_->delayInvalid(to);
+            levelize_->relevelizeFrom(to);
+          }
+          levelize_->deleteEdgeBefore(edge);
+        }
+        graph_->deleteVertex(vertex);
       }
-      graph_->deleteVertex(vertex);
     }
     if (network_->direction(pin) == PortDirection::internal()) {
       // Internal pins are not loads or drivers.
       Vertex *vertex = graph_->pinLoadVertex(pin);
-      levelize_->deleteVertexBefore(vertex);
-      graph_delay_calc_->deleteVertexBefore(vertex);
-      search_->deleteVertexBefore(vertex);
-      graph_->deleteVertex(vertex);
+      if (vertex) {
+        levelize_->deleteVertexBefore(vertex);
+        graph_delay_calc_->deleteVertexBefore(vertex);
+        search_->deleteVertexBefore(vertex);
+        graph_->deleteVertex(vertex);
+      }
     }
   }
   sim_->deletePinBefore(pin);

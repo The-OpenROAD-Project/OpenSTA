@@ -1103,6 +1103,8 @@ public:
 				 LibertyCell *cell,
 				 Instance *parent);
   virtual void deleteInstance(Instance *inst);
+  void deleteLeafInstanceBefore(Instance *inst);
+  void deleteInstancePinsBefore(Instance *inst);
   // replace_cell
   virtual void replaceCell(Instance *inst,
 			   Cell *to_cell);
@@ -1322,18 +1324,15 @@ protected:
 		      int pin_level);
   void findRegisterPreamble();
   bool crossesHierarchy(Edge *edge) const;
-  void deleteLeafInstanceBefore(Instance *inst);
   void readLibertyAfter(LibertyLibrary *liberty,
 			Corner *corner,
 			const MinMax *min_max);
   void powerPreamble();
   void disableFanoutCrprPruning(Vertex *vertex,
 			      int &fanou);
-  LibertyPort *findCellPort(LibertyCell *cell,
-			    PortDirection *dir);
-  void replaceCell(Instance *inst,
-		   Cell *to_cell,
-		   LibertyCell *to_lib_cell);
+  virtual void replaceCell(Instance *inst,
+                           Cell *to_cell,
+                           LibertyCell *to_lib_cell);
   void sdcChangedGraph();
   void ensureGraphSdcAnnotated();
 
