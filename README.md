@@ -73,6 +73,9 @@ bison    1.35    3.0.4   3.5
 flex     2.5.4   2.6.4   2.5.35
 ```
 
+Note that flex versions before 2.6.4 contain 'register' declarations that
+are illegal in c++17.
+
 These packages are **optional**:
 
 ```
