@@ -281,9 +281,9 @@ private:
 DmpAlg::DmpAlg(int nr_order,
 	       StaState *sta):
   StaState(sta),
-  c1_(0.0),
   c2_(0.0),
   rpi_(0.0),
+  c1_(0.0),
   nr_order_(nr_order)
 {
   x_ = new double[nr_order_];
