@@ -1103,8 +1103,6 @@ public:
 				 LibertyCell *cell,
 				 Instance *parent);
   virtual void deleteInstance(Instance *inst);
-  void deleteLeafInstanceBefore(Instance *inst);
-  void deleteInstancePinsBefore(Instance *inst);
   // replace_cell
   virtual void replaceCell(Instance *inst,
 			   Cell *to_cell);
@@ -1124,6 +1122,8 @@ public:
   virtual void disconnectPin(Pin *pin);
   // Notify STA of network change.
   void networkChanged();
+  void deleteLeafInstanceBefore(Instance *inst);
+  void deleteInstancePinsBefore(Instance *inst);
 
   // Network edit before/after methods.
   void makeInstanceAfter(Instance *inst);
@@ -1329,7 +1329,7 @@ protected:
 			const MinMax *min_max);
   void powerPreamble();
   void disableFanoutCrprPruning(Vertex *vertex,
-			      int &fanou);
+				int &fanou);
   virtual void replaceCell(Instance *inst,
                            Cell *to_cell,
                            LibertyCell *to_lib_cell);
