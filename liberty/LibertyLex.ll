@@ -18,7 +18,6 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "util/FlexDisableRegister.hh"
 #include "liberty/LibertyParser.hh"
 #include "LibertyParse.hh"
 
