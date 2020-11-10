@@ -3809,19 +3809,22 @@ Sta::disconnectPin(Pin *pin)
 //
 ////////////////////////////////////////////////////////////////
 
-// Network::makePins with connectPinAfter.
 void
 Sta::makeInstanceAfter(Instance *inst)
 {
+  // There is no user "connect_pin" called for internal pins,
+  // so call it implicitly.
   LibertyCell *lib_cell = network_->libertyCell(inst);
-  if (lib_cell) {
+  if (lib_cell
+      && lib_cell->hasInternalPorts()) {
     LibertyCellPortBitIterator port_iter(lib_cell);
     while (port_iter.hasNext()) {
       LibertyPort *lib_port = port_iter.next();
-      Pin *pin = network_->findPin(inst, lib_port);
-      // Internal pins may not exist.
-      if (pin)
-	connectPinAfter(pin);
+      if (lib_port->direction()->isInternal()) {
+	Pin *pin = network_->findPin(inst, lib_port);
+	if (pin)
+	  connectPinAfter(pin);
+      }
     }
   }
 }
