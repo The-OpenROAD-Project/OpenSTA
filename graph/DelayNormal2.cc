@@ -57,6 +57,13 @@ Delay::Delay() :
 {
 }
 
+Delay::Delay(const Delay &delay) :
+  mean_(delay.mean_)
+{
+  sigma2_[EarlyLate::earlyIndex()] = delay.sigma2_[EarlyLate::earlyIndex()];
+  sigma2_[EarlyLate::lateIndex()] = delay.sigma2_[EarlyLate::lateIndex()];
+}
+
 Delay::Delay(float mean) :
   mean_(mean),
   sigma2_{0.0, 0.0}

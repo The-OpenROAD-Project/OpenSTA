@@ -67,12 +67,12 @@ private:
 template <class TYPE>
 ArrayTable<TYPE>::ArrayTable() :
   size_(0),
+  free_block_idx_(block_idx_null),
+  free_idx_(object_idx_null),
   blocks_size_(0),
   blocks_capacity_(1024),
   blocks_(new ArrayBlock<TYPE>*[blocks_capacity_]),
-  prev_blocks_(nullptr),
-  free_block_idx_(block_idx_null),
-  free_idx_(object_idx_null)
+  prev_blocks_(nullptr)
 {
 }
 
@@ -88,7 +88,7 @@ template <class TYPE>
 void
 ArrayTable<TYPE>::deleteBlocks()
 {
-  for (int i = 0; i < blocks_size_; i++)
+  for (size_t i = 0; i < blocks_size_; i++)
     delete blocks_[i];
 }
 

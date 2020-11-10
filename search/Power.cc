@@ -840,7 +840,6 @@ Power::findInputDuty(const Pin *to_pin,
 		     InternalPower *pwr)
 
 {
-  const char *related_pg_pin = pwr->relatedPgPin();
   const LibertyPort *from_port = pwr->relatedPort();
   if (from_port) {
     const Pin *from_pin = network_->findPin(inst, from_port);
@@ -885,28 +884,6 @@ isPositiveUnate(const LibertyCell *cell,
   }
   // default
   return true;
-}
-
-////////////////////////////////////////////////////////////////
-
-static bool
-isPortRef(FuncExpr *expr,
-	  const LibertyPort *port)
-{
-  return (expr->op() == FuncExpr::op_port
-	  && expr->port() == port)
-    || (expr->op() == FuncExpr::op_not
-	&& expr->left()->op() == FuncExpr::op_port
-	&& expr->left()->port() == port);
-}
-
-static FuncExpr *
-negate(FuncExpr *expr)
-{
-  if (expr->op() == FuncExpr::op_not)
-    return expr->left()->copy();
-  else
-    return FuncExpr::makeNot(expr->copy());
 }
 
 ////////////////////////////////////////////////////////////////

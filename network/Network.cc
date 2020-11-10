@@ -936,7 +936,7 @@ Network::findInstPinsMatching(const Instance *instance,
 }
 
 void
-Network::location(const Pin *pin,
+Network::location(const Pin *,
 		  // Return values.
 		  double &x,
 		  double &y,

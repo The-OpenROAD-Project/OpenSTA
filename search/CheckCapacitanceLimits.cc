@@ -204,7 +204,6 @@ CheckCapacitanceLimits::checkCapacitance(const Pin *pin,
 					 float &limit) const
 {
   const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
-  const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
   GraphDelayCalc *dcalc = sta_->graphDelayCalc();
   float cap = dcalc->loadCap(pin, dcalc_ap);
 
@@ -248,7 +247,6 @@ CheckCapacitanceLimits::pinCapacitanceLimitViolations(Instance *inst,
 						      PinSeq *violators)
 {
   const Network *network = sta_->network();
-  const Sim *sim = sta_->sim();
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
@@ -292,7 +290,6 @@ CheckCapacitanceLimits::pinMinCapacitanceLimitSlack(Instance *inst,
 						    float &min_slack)
 {
   const Network *network = sta_->network();
-  const Sim *sim = sta_->sim();
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
@@ -320,7 +317,6 @@ CheckCapacitanceLimits::checkPin(Pin *pin)
   const Sim *sim = sta_->sim();
   const Sdc *sdc = sta_->sdc();
   const Graph *graph = sta_->graph();
-  Search *search = sta_->search();
   Vertex *vertex = graph->pinLoadVertex(pin);
   return network->direction(pin)->isAnyOutput()
     && !sim->logicZeroOne(pin)

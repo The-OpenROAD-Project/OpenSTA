@@ -226,7 +226,6 @@ CheckFanoutLimits::pinFanoutLimitViolations(Instance *inst,
 					    PinSeq *violators)
 {
   const Network *network = sta_->network();
-  const Sim *sim = sta_->sim();
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();

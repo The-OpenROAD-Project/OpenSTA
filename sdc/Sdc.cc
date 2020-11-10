@@ -1540,7 +1540,6 @@ Sdc::removeClockLatency(const Clock *clk,
 void
 Sdc::deleteClockLatency(ClockLatency *latency)
 {
-  const Pin *pin = latency->pin();
   clk_latencies_.erase(latency);
   delete latency;
 }

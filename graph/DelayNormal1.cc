@@ -57,6 +57,12 @@ Delay::Delay() :
 {
 }
 
+Delay::Delay(const Delay &delay) :
+  mean_(delay.mean_),
+  sigma2_(delay.sigma2_)
+{
+}
+
 Delay::Delay(float mean) :
   mean_(mean),
   sigma2_(0.0)

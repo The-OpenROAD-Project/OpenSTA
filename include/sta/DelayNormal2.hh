@@ -28,6 +28,7 @@ class Delay
 {
 public:
   Delay();
+  Delay(const Delay &delay);
   Delay(float mean);
   Delay(float mean,
 	float sigma2_early,

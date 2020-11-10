@@ -267,7 +267,8 @@ PathVertex::setRequired(const Required &required,
   int arrival_count = tag_group->arrivalCount();
   if (!vertex_->hasRequireds()) {
     Arrival *new_arrivals = graph->makeArrivals(vertex_, arrival_count * 2);
-    memcpy(new_arrivals, arrivals, arrival_count * sizeof(Arrival));
+    for (int i = 0; i < arrival_count; i++)
+      new_arrivals[i] =arrivals[i];
     vertex_->setHasRequireds(true);
     arrivals = new_arrivals;
   }

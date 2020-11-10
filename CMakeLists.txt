@@ -449,6 +449,13 @@ target_include_directories(OpenSTA
   ${CUDD_INCLUDE}
   )
 
+target_compile_options(OpenSTA
+  PRIVATE
+  $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security>
+  $<$<CXX_COMPILER_ID:AppleClang>:-Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security>
+  $<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security>
+  )
+
 # Disable compiler specific extensions like gnu++11.
 set_target_properties(OpenSTA PROPERTIES CXX_EXTENSIONS OFF)
 target_compile_features(OpenSTA PUBLIC cxx_std_11)
@@ -464,13 +471,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${STA_HOME}/app)
 # on osx something is case insensitive. Using STA for the
 # lib name results in "No rule to make target ../depend.
 add_executable(sta app/Main.cc)
-
-target_compile_options(sta
-  PRIVATE
-  $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security>
-  $<$<CXX_COMPILER_ID:AppleClang>:-Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security>
-  $<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security>
-  )
 
 target_link_libraries(sta
   sta_swig
