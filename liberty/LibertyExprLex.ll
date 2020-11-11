@@ -18,6 +18,7 @@
 
 // Liberty function expression lexical analyzer
 
+#include "util/FlexDisableRegister.hh"
 #include "Debug.hh"
 #include "StringUtil.hh"
 #include "liberty/LibertyExprPvt.hh"

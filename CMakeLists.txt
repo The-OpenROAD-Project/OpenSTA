@@ -236,6 +236,9 @@ set(STA_TCL_FILES
 #
 ################################################################
 
+# Earlier versions of flex use 'register' declarations are deprecated in c++11
+# and  illegal in c++17.
+#find_package(FLEX 2.6.4)
 find_package(FLEX)
 find_package(BISON)
 

@@ -19,6 +19,7 @@
 #include <string.h>
 #include <string>
 
+#include "util/FlexDisableRegister.hh"
 #include "StringUtil.hh"
 #include "parasitics/SpefReaderPvt.hh"
 #include "SpefParse.hh"
