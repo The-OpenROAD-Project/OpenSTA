@@ -120,7 +120,11 @@ Network::libertyCell(const Instance *instance) const
 LibertyPort *
 Network::libertyPort(const Pin *pin) const
 {
-  return libertyPort(port(pin));
+  Port *port = this->port(pin);
+  if (port)
+    return libertyPort(port);
+  else
+    return nullptr;
 }
 
 bool
