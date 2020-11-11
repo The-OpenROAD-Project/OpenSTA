@@ -2351,6 +2351,17 @@ LibertyPort::cornerPort(int ap_index)
   return this;
 }
 
+const LibertyPort *
+LibertyPort::cornerPort(int ap_index) const
+{
+  if (ap_index < static_cast<int>(corner_ports_.size())) {
+    LibertyPort *corner_port = corner_ports_[ap_index];
+    if (corner_port)
+      return corner_port;
+  }
+  return this;
+}
+
 void
 LibertyPort::setCornerPort(LibertyPort *corner_port,
 			   int ap_index)

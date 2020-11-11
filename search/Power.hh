@@ -110,7 +110,7 @@ protected:
 			      LibertyCell *cell,
 			      PwrActivity &to_activity,
 			      float load_cap,
-			      const DcalcAnalysisPt *dcalc_ap,
+			      const Corner *corner,
 			      // Return values.
 			      PowerResult &result);
   void findOutputInternalPower(const Pin *to_pin,
@@ -119,18 +119,19 @@ protected:
 			       LibertyCell *cell,
 			       PwrActivity &to_activity,
 			       float load_cap,
-			       const DcalcAnalysisPt *dcalc_ap,
+			       const Corner *corner,
 			       // Return values.
 			       PowerResult &result);
   void findLeakagePower(const Instance *inst,
 			LibertyCell *cell,
+			const Corner *corner,
 			// Return values.
 			PowerResult &result);
   void findSwitchingPower(LibertyCell *cell,
 			  const LibertyPort *to_port,
 			  PwrActivity &activity,
 			  float load_cap,
-			  const DcalcAnalysisPt *dcalc_ap,
+			  const Corner *corner,
 			  // Return values.
 			  PowerResult &result);
   const Clock *findInstClk(const Instance *inst);

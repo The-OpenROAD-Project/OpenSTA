@@ -734,6 +734,7 @@ public:
   bool isDisabledConstraint() const { return is_disabled_constraint_; }
   void setIsDisabledConstraint(bool is_disabled);
   LibertyPort *cornerPort(int ap_index);
+  const LibertyPort *cornerPort(int ap_index) const;
   void setCornerPort(LibertyPort *corner_port,
 		     int ap_index);
   const char *relatedGroundPin() const { return related_ground_pin_; }
