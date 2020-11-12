@@ -1100,14 +1100,16 @@ Power::findClk(const Pin *to_pin)
 {
   const Clock *clk = nullptr;
   Vertex *to_vertex = graph_->pinDrvrVertex(to_pin);
-  VertexPathIterator path_iter(to_vertex, this);
-  while (path_iter.hasNext()) {
-    PathVertex *path = path_iter.next();
-    const Clock *path_clk = path->clock(this);
-    if (path_clk
-	&& (clk == nullptr
-	    || path_clk->period() < clk->period()))
-      clk = path_clk;
+  if (to_vertex) {
+    VertexPathIterator path_iter(to_vertex, this);
+    while (path_iter.hasNext()) {
+      PathVertex *path = path_iter.next();
+      const Clock *path_clk = path->clock(this);
+      if (path_clk
+	  && (clk == nullptr
+	      || path_clk->period() < clk->period()))
+	clk = path_clk;
+    }
   }
   return clk;
 }
