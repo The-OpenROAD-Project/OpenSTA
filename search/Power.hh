@@ -168,6 +168,10 @@ protected:
   PwrActivity evalActivityDifference(FuncExpr *expr,
 				     const Instance *inst,
 				     const LibertyPort *cofactor_port);
+  LibertyPort *findLinkPort(const LibertyCell *cell,
+			    const LibertyPort *corner_port);
+  Pin *findLinkPin(const Instance *inst,
+		   const LibertyPort *corner_port);
 
 private:
   // Port/pin activities set by set_pin_activity.

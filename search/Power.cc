@@ -418,7 +418,7 @@ Power::evalActivity(FuncExpr *expr,
     if (port->direction()->isInternal())
       return findSeqActivity(inst, port);
     else {
-      Pin *pin = network_->findPin(inst, port);
+      Pin *pin = findLinkPin(inst, port);
       if (pin)
 	return findActivity(pin);
     }
@@ -680,7 +680,7 @@ Power::findInputInternalPower(const Pin *pin,
       if (when) {
 	LibertyPort *out_corner_port = findExprOutPort(when);
 	if (out_corner_port) {
-	  const LibertyPort *out_port = cell->findLibertyPort(out_corner_port->name());
+	  const LibertyPort *out_port = findLinkPort(cell, out_corner_port);
 	  FuncExpr *func = out_port->function();
 	  if (func && func->hasPort(port))
 	    duty = evalActivityDifference(func, inst, port).duty();
@@ -795,9 +795,8 @@ Power::findOutputInternalPower(const Pin *to_pin,
     bool positive_unate = true;
     const LibertyPort *from_corner_port = pwr->relatedPort();
     if (from_corner_port) {
-      const LibertyPort *from_port = cell->findLibertyPort(from_corner_port->name());
-      positive_unate = isPositiveUnate(corner_cell, from_port, to_port);
-      const Pin *from_pin = network_->findPin(inst, from_port);
+      positive_unate = isPositiveUnate(corner_cell, from_corner_port, to_corner_port);
+      const Pin *from_pin = findLinkPin(inst, from_corner_port);
       if (from_pin) {
 	from_vertex = graph_->pinLoadVertex(from_pin);
       }
@@ -850,8 +849,10 @@ Power::findInputDuty(const Pin *to_pin,
 		     InternalPower *pwr)
 
 {
-  const LibertyPort *from_port = pwr->relatedPort();
-  if (from_port) {
+  const LibertyPort *from_corner_port = pwr->relatedPort();
+  if (from_corner_port) {
+    const LibertyPort *from_port = findLinkPort(network_->libertyCell(inst),
+						from_corner_port);
     const Pin *from_pin = network_->findPin(inst, from_port);
     if (from_pin) {
       FuncExpr *when = pwr->when();
@@ -879,6 +880,23 @@ Power::findInputDuty(const Pin *to_pin,
     }
   }
   return 0.0;
+}
+
+// Hack to find cell port that corresponds to corner_port.
+LibertyPort *
+Power::findLinkPort(const LibertyCell *cell,
+		    const LibertyPort *corner_port)
+{
+  return cell->findLibertyPort(corner_port->name());
+}
+
+Pin *
+Power::findLinkPin(const Instance *inst,
+		   const LibertyPort *corner_port)
+{
+  const LibertyCell *cell = network_->libertyCell(inst);
+  LibertyPort *port = findLinkPort(cell, corner_port);
+  return network_->findPin(inst, port);
 }
 
 static bool
