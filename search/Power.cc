@@ -1034,7 +1034,7 @@ PwrActivity
 Power::findActivity(const Pin *pin)
 {
   Vertex *vertex = graph_->pinLoadVertex(pin);
-  if (search_->isClock(vertex))
+  if (vertex && search_->isClock(vertex))
     return PwrActivity(2.0, 0.5, PwrActivityOrigin::clock);
   else if (global_activity_.isSet())
     return global_activity_;

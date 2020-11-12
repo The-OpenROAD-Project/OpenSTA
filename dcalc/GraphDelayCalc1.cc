@@ -476,7 +476,7 @@ FindNetDrvrs::operator()(Pin *pin)
 {
   Vertex *vertex = graph_->pinDrvrVertex(pin);
   if (isLeafDriver(pin, network_)
-      && !vertex->isRoot())
+      && !(vertex && vertex->isRoot()))
     drvr_pins_.insert(pin);
 }
 
