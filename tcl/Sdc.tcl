@@ -71,7 +71,7 @@ proc source_ { filename echo verbose } {
     set sdc_file $filename
     set sdc_line 1
     set cmd ""
-    set errors 0
+    set error {}
     while {![eof $stream]} {
       gets $stream line
       if { $line != "" } {
@@ -84,6 +84,8 @@ proc source_ { filename echo verbose } {
 	     && [info complete $cmd] } {
 	set error {}
 	set error_code [catch {uplevel \#0 $cmd} result]
+	# cmd consumed
+	set cmd ""
 	# Flush results printed outside tcl to stdout/stderr.
 	fflush
 	switch $error_code {
@@ -93,15 +95,16 @@ proc source_ { filename echo verbose } {
 	  3 { set error {invoked "break" outside of a loop.} }
 	  4 { set error {invoked "continue" outside of a loop.} }
 	}
-	set cmd ""
 	if { $error != {} } {
-	  if { [string first "Error" $error] == 0 } {
-	    puts $error
-	  } else {
-	    puts "Error: [file tail $sdc_file], $sdc_line $error"
-	  }
-	  set errors 1
-	  if { !$sta_continue_on_error } {
+	  if { $sta_continue_on_error } {
+	    # Only prepend error message with file/line once.
+	    if { [string first "Error" $error] == 0 } {
+	      puts $error
+	    } else {
+	      puts "Error: [file tail $sdc_file], $sdc_line $error"
+	    }
+            set error {}
+          } else {
 	    break
 	  }
 	}
@@ -112,6 +115,8 @@ proc source_ { filename echo verbose } {
     if { $cmd != {} } {
       sta_error "incomplete command at end of file."
     }
+    set error_sdc_file $sdc_file
+    set error_sdc_line $sdc_line
     if { [info exists sdc_file_save] } {
       set sdc_file $sdc_file_save
       set sdc_line $sdc_line_save
@@ -119,7 +124,14 @@ proc source_ { filename echo verbose } {
       unset sdc_file
       unset sdc_line
     }
-    return $errors
+    if { $error != {} } {
+      # Only prepend error message with file/line once.
+      if { [string first "Error" $error] == 0 } {
+	error $error
+      } else {
+	error "Error: [file tail $error_sdc_file], $error_sdc_line $error"
+      }
+    }
   }
 }
 

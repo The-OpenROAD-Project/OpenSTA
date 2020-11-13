@@ -57,7 +57,7 @@ findCmdLineKey(int &argc,
 int
 parseThreadsArg(int &argc,
 		char *argv[]);
-void
+int
 sourceTclFile(const char *filename,
 	      bool echo,
 	      bool verbose,

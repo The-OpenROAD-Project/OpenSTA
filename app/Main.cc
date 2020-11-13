@@ -130,9 +130,11 @@ staTclAppInit(int argc,
     if (argc == 2) {
       char *cmd_file = argv[1];
       if (cmd_file) {
-	sourceTclFile(cmd_file, false, false, interp);
-	if (exit_after_cmd_file)
-	  exit(EXIT_SUCCESS);
+	int result = sourceTclFile(cmd_file, false, false, interp);
+        if (exit_after_cmd_file) {
+          int exit_code = (result == TCL_OK) ? EXIT_SUCCESS : EXIT_FAILURE;
+          exit(exit_code);
+        }
       }
     }
   }

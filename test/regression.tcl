@@ -250,6 +250,7 @@ proc run_test_app { test cmd_file log_file } {
 proc run_test_plain { test cmd_file log_file } {
   global app_path app_options result_dir errorCode
   global report_stats
+  global test_expect_eror
 
   if { ![file exists $app_path] } {
     return "ERROR $app_path not found."
@@ -266,7 +267,8 @@ proc run_test_plain { test cmd_file log_file } {
     }
     close $run_stream
 
-    if { [catch [concat exec $app_path $app_options $run_file >& $log_file]] } {
+    if { [catch [concat exec $app_path $app_options $run_file >& $log_file]] \
+	   && ![info exists test_expect_eror($test)] } {
       set signal [lindex $errorCode 2]
       set error [lindex $errorCode 3]
       # Error strings are not consistent across platforms but signal

@@ -82,7 +82,7 @@ findCmdLineKey(int &argc,
 }
 
 // Use overridden version of source to echo cmds and results.
-void
+int
 sourceTclFile(const char *filename,
 	      bool echo,
 	      bool verbose,
@@ -93,7 +93,11 @@ sourceTclFile(const char *filename,
 	      echo ? "-echo " : "",
 	      verbose ? "-verbose " : "",
 	      filename);
-  Tcl_Eval(interp, cmd.c_str());
+  int code = Tcl_Eval(interp, cmd.c_str());
+  const char *result = Tcl_GetStringResult(interp);
+  if (result[0] != '\0')
+    printf("%s\n", result);
+  return code;
 }
 
 void
