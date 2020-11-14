@@ -96,6 +96,7 @@ Sdc::Sdc(StaState *sta) :
   port_cap_map_(nullptr),
   net_wire_cap_map_(nullptr),
   drvr_pin_wire_cap_map_(nullptr),
+  have_thru_hpin_exceptions_(false),
   first_from_pin_exceptions_(nullptr),
   first_from_clk_exceptions_(nullptr),
   first_from_inst_exceptions_(nullptr),
@@ -4717,6 +4718,21 @@ Sdc::recordException(ExceptionPath *exception)
   exceptions_.insert(exception);
   recordMergeHashes(exception);
   recordExceptionFirstPts(exception);
+  checkForThruHpins(exception);
+}
+
+void
+Sdc::checkForThruHpins(ExceptionPath *exception)
+{
+  ExceptionThruSeq *thrus = exception->thrus();
+  if (thrus) {
+    for (ExceptionThru *thru : *thrus) {
+      if (thru->edges()) {
+        have_thru_hpin_exceptions_ = true;
+        break;
+      }
+    }
+  }
 }
 
 void
@@ -5016,6 +5032,7 @@ Sdc::deleteExceptions()
 
   deleteExceptionPtHashMapSets(exception_merge_hash_);
   exception_merge_hash_.clear();
+  have_thru_hpin_exceptions_ = false;
 }
 
 void
@@ -5954,19 +5971,21 @@ Sdc::setUseDefaultArrivalClock(bool enable)
 void
 Sdc::connectPinAfter(Pin *pin)
 {
-  PinSet *drvrs = network_->drivers(pin);
-  ExceptionPathSet::Iterator except_iter(exceptions_);
-  while (except_iter.hasNext()) {
-    ExceptionPath *exception = except_iter.next();
-    ExceptionPt *first_pt = exception->firstPt();
-    ExceptionThruSeq::Iterator thru_iter(exception->thrus());
-    while (thru_iter.hasNext()) {
-      ExceptionThru *thru = thru_iter.next();
-      if (thru->edges()) {
-	thru->connectPinAfter(drvrs, network_);
-	if (first_pt == thru)
-	  recordExceptionEdges(exception, thru->edges(),
-			       first_thru_edge_exceptions_);
+  if (have_thru_hpin_exceptions_) {
+    PinSet *drvrs = network_->drivers(pin);
+    ExceptionPathSet::Iterator except_iter(exceptions_);
+    while (except_iter.hasNext()) {
+      ExceptionPath *exception = except_iter.next();
+      ExceptionPt *first_pt = exception->firstPt();
+      ExceptionThruSeq::Iterator thru_iter(exception->thrus());
+      while (thru_iter.hasNext()) {
+        ExceptionThru *thru = thru_iter.next();
+        if (thru->edges()) {
+          thru->connectPinAfter(drvrs, network_);
+          if (first_pt == thru)
+            recordExceptionEdges(exception, thru->edges(),
+                                 first_thru_edge_exceptions_);
+        }
       }
     }
   }
@@ -5975,18 +5994,20 @@ Sdc::connectPinAfter(Pin *pin)
 void
 Sdc::disconnectPinBefore(Pin *pin)
 {
-  ExceptionPathSet::Iterator except_iter(exceptions_);
-  while (except_iter.hasNext()) {
-    ExceptionPath *exception = except_iter.next();
-    ExceptionPt *first_pt = exception->firstPt();
-    ExceptionThruSeq::Iterator thru_iter(exception->thrus());
-    while (thru_iter.hasNext()) {
-      ExceptionThru *thru = thru_iter.next();
-      if (thru->edges()) {
-	thru->disconnectPinBefore(pin, network_);
-	if (thru == first_pt)
-	  recordExceptionEdges(exception, thru->edges(),
-			       first_thru_edge_exceptions_);
+  if (have_thru_hpin_exceptions_) {
+    ExceptionPathSet::Iterator except_iter(exceptions_);
+    while (except_iter.hasNext()) {
+      ExceptionPath *exception = except_iter.next();
+      ExceptionPt *first_pt = exception->firstPt();
+      ExceptionThruSeq::Iterator thru_iter(exception->thrus());
+      while (thru_iter.hasNext()) {
+        ExceptionThru *thru = thru_iter.next();
+        if (thru->edges()) {
+          thru->disconnectPinBefore(pin, network_);
+          if (thru == first_pt)
+            recordExceptionEdges(exception, thru->edges(),
+                                 first_thru_edge_exceptions_);
+        }
       }
     }
   }

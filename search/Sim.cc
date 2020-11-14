@@ -688,9 +688,8 @@ Sim::deletePinBefore(Pin *pin)
 void
 Sim::connectPinAfter(Pin *pin)
 {
-  // Incrementally update const_func_pins_.
-  recordConstPinFunc(pin);
   if (incremental_) {
+    recordConstPinFunc(pin);
     if (network_->isLoad(pin))
       invalid_load_pins_.insert(pin);
     if (network_->isDriver(pin))

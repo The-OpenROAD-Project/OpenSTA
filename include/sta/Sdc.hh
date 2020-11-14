@@ -1034,6 +1034,7 @@ protected:
   void deleteMatchingExceptions(ExceptionPath *exception);
   void findMatchingExceptions(ExceptionPath *exception,
 			      ExceptionPathSet &matches);
+  void checkForThruHpins(ExceptionPath *exception);
   void findMatchingExceptionsFirstFrom(ExceptionPath *exception,
 				       ExceptionPathSet &matches);
   void findMatchingExceptionsFirstThru(ExceptionPath *exception,
@@ -1334,6 +1335,7 @@ protected:
   PinSet disabled_clk_gating_checks_pin_;
   ExceptionPathSet exceptions_;
 
+  bool have_thru_hpin_exceptions_;
   // First pin/clock/instance/net/edge exception point to exception set map.
   PinExceptionsMap *first_from_pin_exceptions_;
   ClockExceptionsMap *first_from_clk_exceptions_;
