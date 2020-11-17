@@ -84,6 +84,7 @@ protected:
 			   bool propagate);
   void enqueue(const Instance *inst);
   void evalInstance(const Instance *inst);
+  LogicValue clockGateOutValue(const Instance *inst);
   TimingSense functionSense(const FuncExpr *expr,
 			    const Pin *input_pin,
 			    const Instance *inst);

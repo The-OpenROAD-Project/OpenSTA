@@ -913,24 +913,67 @@ Sim::evalInstance(const Instance *inst)
     if (dir->isAnyOutput()) {
       LibertyPort *port = network_->libertyPort(pin);
       if (port) {
+        LogicValue value = LogicValue::unknown;
 	FuncExpr *expr = port->function();
 	if (expr) {
-	  LogicValue value = evalExpr(expr, inst);
-	  FuncExpr *tri_en_expr = port->tristateEnable();
-	  if (tri_en_expr == nullptr
-	      || evalExpr(tri_en_expr, inst) == LogicValue::one) {
-	    debugPrint3(debug_, "sim", 2, " %s %s = %c\n",
-			port->name(),
-			expr->asString(),
-			logicValueString(value));
-	    if (value != logicValue(pin))
-	      setPinValue(pin, value, true);
-	  }
-	}
+          FuncExpr *tri_en_expr = port->tristateEnable();
+          if (tri_en_expr) {
+            if (evalExpr(tri_en_expr, inst) == LogicValue::one) {
+              value = evalExpr(expr, inst);
+              debugPrint3(debug_, "sim", 2, " %s tri_en=1 %s = %c\n",
+                          port->name(),
+                          expr->asString(),
+                          logicValueString(value));
+            }
+          }
+          else {
+            value = evalExpr(expr, inst);
+            debugPrint3(debug_, "sim", 2, " %s %s = %c\n",
+                        port->name(),
+                        expr->asString(),
+                        logicValueString(value));
+          }
+        }
+        else if (port->isClockGateOutPin()) {
+          value = clockGateOutValue(inst);
+          debugPrint2(debug_, "sim", 2, " %s gated_clk = %c\n",
+                      port->name(),
+                      logicValueString(value));
+        }
+        FuncExpr *tri_en_expr = port->tristateEnable();
+        if (tri_en_expr == nullptr
+            || evalExpr(tri_en_expr, inst) == LogicValue::one) {
+          debugPrint3(debug_, "sim", 2, " %s %s = %c\n",
+                      port->name(),
+                      expr ? expr->asString() : "gated_clk",
+                      logicValueString(value));
+          if (value != logicValue(pin))
+            setPinValue(pin, value, true);
+        }
       }
     }
   }
   delete pin_iter;
+}
+
+LogicValue
+Sim::clockGateOutValue(const Instance *inst)
+{
+  LibertyCell *cell = network_->libertyCell(inst);
+  LibertyCellPortIterator port_iter(cell);
+  while (port_iter.hasNext()) {
+    LibertyPort *port = port_iter.next();
+    if (port->isClockGateClockPin()
+        || port->isClockGateEnablePin()) {
+      Pin *gclk_pin = network_->findPin(inst, port);
+      if (gclk_pin) {
+        Vertex *gclk_vertex = graph_->pinLoadVertex(gclk_pin);
+        if (gclk_vertex->simValue() == LogicValue::zero)
+          return LogicValue::zero;
+      }
+    }
+  }
+  return LogicValue::unknown;
 }
 
 void

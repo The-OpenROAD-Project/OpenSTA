@@ -340,7 +340,7 @@ PropActivityVisitor::foundRegWithoutActivity() const
 void
 PropActivityVisitor::visit(Vertex *vertex)
 {
-  auto pin = vertex->pin();
+  Pin *pin = vertex->pin();
   debugPrint1(debug_, "power_activity", 3, "visit %s\n",
 	      vertex->name(network_));
   if (power_->hasUserActivity(pin))
@@ -1012,22 +1012,18 @@ PwrActivity
 Power::findClkedActivity(const Pin *pin,
 			 const Clock *inst_clk)
 {
+  PwrActivity activity = findActivity(pin);
   const Clock *clk = findClk(pin);
   if (clk == nullptr)
     clk = inst_clk;
   if (clk) {
     float period = clk->period();
-    if (period > 0.0) {
-      PwrActivity activity = findActivity(pin);
+    if (period > 0.0)
       return PwrActivity(activity.activity() / period,
 			 activity.duty(),
 			 activity.origin());
-    }
   }
-  // gotta find a clock someplace...
-  return PwrActivity(input_activity_.activity(),
-		     input_activity_.duty(),
-		     PwrActivityOrigin::defaulted);
+  return activity;
 }
 
 PwrActivity
@@ -1038,6 +1034,8 @@ Power::findActivity(const Pin *pin)
     return PwrActivity(2.0, 0.5, PwrActivityOrigin::clock);
   else if (global_activity_.isSet())
     return global_activity_;
+  else if (vertex && vertex->isConstant())
+    return PwrActivity(0.0, 0.0, PwrActivityOrigin::constant);
   else if (activity_map_.hasKey(pin)) {
     PwrActivity &activity = activity_map_[pin];
     if (activity.origin() != PwrActivityOrigin::unknown)
