@@ -5978,6 +5978,13 @@ requireds_clk_delays(const RiseFall *rf,
   return requireds;
 }
 
+float
+slack(MinMax *min_max)
+{
+  Sta *sta = Sta::sta();
+  return sta->vertexSlack(self, min_max);
+}
+
 TmpFloatSeq *
 slacks(RiseFall *rf)
 {
