@@ -258,6 +258,8 @@ public:
   TimingArc *cornerArc(int ap_index);
   void setCornerArc(TimingArc *corner_arc,
 		    int ap_index);
+  float driveResistance() const;
+  float intrinsicDelay() const;
 
   static bool equiv(const TimingArc *arc1,
 		    const TimingArc *arc2);

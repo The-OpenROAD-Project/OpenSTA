@@ -134,6 +134,34 @@ TimingArcAttrs::setOcvArcDepth(float depth)
   ocv_arc_depth_ = depth;
 }
 
+float
+TimingArc::driveResistance() const
+{
+  GateTimingModel *model = dynamic_cast<GateTimingModel*>(model_);
+  if (model) {
+    LibertyCell *cell = set_->libertyCell();
+    return model->driveResistance(cell, nullptr);
+  }
+  else
+    return 0.0;
+}
+
+float
+TimingArc::intrinsicDelay() const
+{
+  GateTimingModel *model = dynamic_cast<GateTimingModel*>(model_);
+  if (model) {
+    LibertyCell *cell = set_->libertyCell();
+    ArcDelay arc_delay;
+    Slew slew;
+    model->gateDelay(cell, nullptr, 0.0, 0.0, 0.0, false,
+                     arc_delay, slew);
+    return arc_delay;
+  }
+  else
+    return 0.0;
+}
+
 ////////////////////////////////////////////////////////////////
 
 TimingArcSet *TimingArcSet::wire_timing_arc_set_ = nullptr;

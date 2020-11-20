@@ -2011,11 +2011,10 @@ LibertyPort::driveResistance(const RiseFall *rf,
 	TimingArc *arc = arc_iter.next();
 	if (rf == nullptr
 	    || arc->toTrans()->asRiseFall() == rf) {
-	  GateTimingModel *model = dynamic_cast<GateTimingModel*>(arc->model());
-	  if (model) {
-	    float drive = model->driveResistance(liberty_cell_, nullptr);
-	    if (min_max->compare(drive, max_drive))
-	      max_drive = drive;
+          float drive = arc->driveResistance();
+          if (drive > 0.0) {
+            if (min_max->compare(drive, max_drive))
+              max_drive = drive;
 	    found_drive = true;
 	  }
 	}
@@ -2049,18 +2048,13 @@ LibertyPort::intrinsicDelay(const RiseFall *rf,
 	TimingArc *arc = arc_iter.next();
 	if (rf == nullptr
 	    || arc->toTrans()->asRiseFall() == rf) {
-	  GateTimingModel *model = dynamic_cast<GateTimingModel*>(arc->model());
-	  if (model) {
-	    ArcDelay arc_delay;
-	    Slew slew;
-	    model->gateDelay(liberty_cell_, nullptr, 0.0, 0.0, 0.0, false,
-			     arc_delay, slew);
-	    float delay = delayAsFloat(arc_delay);
+          float delay = arc->intrinsicDelay();
+          if (delay > 0.0) {
 	    if (min_max->compare(delay, max_delay))
 	      max_delay = delay;
 	    found_delay = true;
 	  }
-	}
+        }
       }
     }
   }
