@@ -1482,10 +1482,6 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
     delays[j] = t50_srmod + t50_sy - t50_sr;
     slews[j] = (tlo-thi)/slew_derate;
   }
-  debugPrint3(debug_, "arnoldi", 1, "slews[0] %s thi %s tlo %s\n",
-	      units_->timeUnit()->asString(slews[0]),
-	      units_->timeUnit()->asString(tlo),
-	      units_->timeUnit()->asString(thi));
 }
 
 } // namespace
