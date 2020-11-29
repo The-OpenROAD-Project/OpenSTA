@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef STA_HASHMAP_H
-#define STA_HASHMAP_H
+#pragma once
 
 #include <stddef.h>  // size_t
 #include "Hash.hh"
@@ -29,7 +28,7 @@ template <class OBJECT>
 class PtrHash
 {
 public:
-  Hash operator()(const OBJECT obj) const { return hashPtr(obj); }
+  size_t operator()(const OBJECT obj) const { return hashPtr(obj); }
 };
 
 template <class OBJECT>
@@ -77,8 +76,8 @@ public:
   void deleteContentsClear();
   void deleteArrayContentsClear();
   int longestBucketLength() const;
-  Hash longestBucketHash() const;
-  int bucketLength(Hash hash) const;
+  size_t longestBucketHash() const;
+  int bucketLength(size_t hash) const;
 
   void
   deleteContents()
@@ -539,11 +538,11 @@ HashMap<KEY, VALUE, HASH, EQUAL>::longestBucketLength() const
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
-Hash
+size_t
 HashMap<KEY, VALUE, HASH, EQUAL>::longestBucketHash() const
 {
   int longest = 0;
-  Hash longest_hash = 0;
+  size_t longest_hash = 0;
   for (size_t hash = 0; hash < capacity_; hash++) {
     int length = bucketLength(hash);
     if (length > longest) {
@@ -556,7 +555,7 @@ HashMap<KEY, VALUE, HASH, EQUAL>::longestBucketHash() const
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 int
-HashMap<KEY, VALUE, HASH, EQUAL>::bucketLength(Hash hash) const
+HashMap<KEY, VALUE, HASH, EQUAL>::bucketLength(size_t hash) const
 {
   int length = 0;
   for (HashMapBucket<KEY, VALUE> *bucket = table_[hash];
@@ -567,4 +566,3 @@ HashMap<KEY, VALUE, HASH, EQUAL>::bucketLength(Hash hash) const
 }
 
 } // namespace
-#endif
