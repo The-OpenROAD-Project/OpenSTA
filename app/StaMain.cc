@@ -18,6 +18,7 @@
 
 #include <tcl.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
 #include "StringUtil.hh"
 #include "Vector.hh"
@@ -137,6 +138,14 @@ unencode(const char *inits[])
   }
   *u = '\0';
   return unencoded;
+}
+
+// Hack until c++17 filesystem is better supported.
+bool
+is_regular_file(const char *filename)
+{
+  struct stat sb;
+  return stat(filename, &sb) == 0 && S_ISREG(sb.st_mode);
 }
 
 } // namespace

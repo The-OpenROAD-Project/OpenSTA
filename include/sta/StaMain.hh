@@ -62,5 +62,7 @@ sourceTclFile(const char *filename,
 	      bool echo,
 	      bool verbose,
 	      Tcl_Interp *interp);
+bool
+is_regular_file(const char *filename);
 
 } // namespace
