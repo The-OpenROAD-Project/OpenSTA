@@ -140,7 +140,7 @@ public:
   // Reduce parasitic network to reduce_to model.
   virtual void reduceTo(Parasitic *parasitic,
 			const Net *net,
-			ReduceParasiticsTo reduce_to,
+			ReducedParasiticType reduce_to,
 			const OperatingConditions *op_cond,
 			const Corner *corner,
 			const MinMax *cnst_min_max,

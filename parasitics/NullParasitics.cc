@@ -382,7 +382,7 @@ NullParasitics::otherNode(const ParasiticDevice *,
 void
 NullParasitics::reduceTo(Parasitic *,
 			 const Net *,
-			 ReduceParasiticsTo ,
+			 ReducedParasiticType ,
 			 const OperatingConditions *,
 			 const Corner *,
 			 const MinMax *,

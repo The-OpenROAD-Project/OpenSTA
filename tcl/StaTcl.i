@@ -1365,15 +1365,15 @@ using namespace sta;
   Tcl_SetObjResult(interp, obj);
 }
 
-%typemap(in) ReduceParasiticsTo {
+%typemap(in) ReducedParasiticType {
   int length;
   char *arg = Tcl_GetStringFromObj($input, &length);
   if (stringEq(arg, "pi_elmore"))
-    $1 = ReduceParasiticsTo::pi_elmore;
+    $1 = ReducedParasiticType::pi_elmore;
   else if (stringEq(arg, "pi_pole_residue2"))
-    $1 = ReduceParasiticsTo::pi_pole_residue2;
+    $1 = ReducedParasiticType::pi_pole_residue2;
   else if (stringEq(arg, "none"))
-    $1 = ReduceParasiticsTo::none;
+    $1 = ReducedParasiticType::none;
   else {
     tclError(interp, "Error: %s pi_elmore, pi_pole_residue2, or none.", arg);
     return TCL_ERROR;

@@ -1564,21 +1564,22 @@ ConcreteParasitics::otherNode(const ParasiticDevice *device,
 void
 ConcreteParasitics::reduceTo(Parasitic *parasitic,
 			     const Net *net,
-			     ReduceParasiticsTo reduce_to,
+			     ReducedParasiticType reduce_to,
 			     const OperatingConditions *op_cond,
 			     const Corner *corner,
 			     const MinMax *cnst_min_max,
 			     const ParasiticAnalysisPt *ap)
 {
   switch (reduce_to) {
-  case ReduceParasiticsTo::pi_elmore:
+  case ReducedParasiticType::pi_elmore:
     reduceToPiElmore(parasitic, net, op_cond, corner, cnst_min_max, ap);
     break;
-  case ReduceParasiticsTo::pi_pole_residue2:
+  case ReducedParasiticType::pi_pole_residue2:
     reduceToPiPoleResidue2(parasitic, net, op_cond, corner,
 			   cnst_min_max, ap);
     break;
-  case ReduceParasiticsTo::none:
+  case ReducedParasiticType::arnoldi:
+  case ReducedParasiticType::none:
     break;
   }
 }

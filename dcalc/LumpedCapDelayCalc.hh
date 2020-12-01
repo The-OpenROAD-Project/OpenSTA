@@ -30,6 +30,7 @@ public:
   virtual Parasitic *findParasitic(const Pin *drvr_pin,
 				   const RiseFall *rf,
 				   const DcalcAnalysisPt *dcalc_ap);
+  virtual ReducedParasiticType reducedParasiticType() const;
   virtual void inputPortDelay(const Pin *port_pin,
 			      float in_slew,
 			      const RiseFall *rf,

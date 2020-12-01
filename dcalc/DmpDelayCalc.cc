@@ -129,6 +129,7 @@ public:
   virtual Parasitic *findParasitic(const Pin *drvr_pin,
 				   const RiseFall *rf,
 				   const DcalcAnalysisPt *dcalc_ap);
+  virtual ReducedParasiticType reducedParasiticType() const;
   virtual void inputPortDelay(const Pin *port_pin,
 			      float in_slew,
 			      const RiseFall *rf,
@@ -250,6 +251,12 @@ DmpCeffTwoPoleDelayCalc::findParasitic(const Pin *drvr_pin,
     }
   }
   return nullptr;
+}
+
+ReducedParasiticType
+DmpCeffTwoPoleDelayCalc::reducedParasiticType() const
+{
+  return ReducedParasiticType::pi_pole_residue2;
 }
 
 void

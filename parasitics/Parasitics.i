@@ -24,7 +24,7 @@ using sta::Sta;
 using sta::cmdLinkedNetwork;
 using sta::Instance;
 using sta::MinMaxAll;
-using sta::ReduceParasiticsTo;
+using sta::ReducedParasiticType;
 using sta::RiseFall;
 using sta::Pin;
 using sta::TmpFloatSeq;
@@ -41,7 +41,7 @@ read_spef_cmd(const char *filename,
 	      bool pin_cap_included,
 	      bool keep_coupling_caps,
 	      float coupling_cap_factor,
-	      ReduceParasiticsTo reduce_to,
+	      ReducedParasiticType reduce_to,
 	      bool delete_after_reduce,
 	      bool quiet)
 {

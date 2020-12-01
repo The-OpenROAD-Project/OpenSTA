@@ -98,6 +98,12 @@ LumpedCapDelayCalc::findParasitic(const Pin *drvr_pin,
   return nullptr;
 }
 
+ReducedParasiticType
+LumpedCapDelayCalc::reducedParasiticType() const
+{
+  return ReducedParasiticType::pi_elmore;
+}
+
 void
 LumpedCapDelayCalc::finishDrvrPin()
 {

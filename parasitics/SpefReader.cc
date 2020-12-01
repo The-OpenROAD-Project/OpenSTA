@@ -49,7 +49,7 @@ readSpefFile(const char *filename,
 	     bool pin_cap_included,
 	     bool keep_coupling_caps,
 	     float coupling_cap_factor,
-	     ReduceParasiticsTo reduce_to,
+	     ReducedParasiticType reduce_to,
 	     bool delete_after_reduce,
 	     const OperatingConditions *op_cond,
 	     const Corner *corner,
@@ -86,7 +86,7 @@ SpefReader::SpefReader(const char *filename,
 		       bool pin_cap_included,
 		       bool keep_coupling_caps,
 		       float coupling_cap_factor,
-		       ReduceParasiticsTo reduce_to,
+		       ReducedParasiticType reduce_to,
 		       bool delete_after_reduce,
 		       const OperatingConditions *op_cond,
 		       const Corner *corner,
@@ -467,7 +467,7 @@ SpefReader::dspfFinish()
     // Checking "should" be done by report_annotated_parasitics.
     if (!quiet_)
       parasitics_->check(parasitic_);
-    if (reduce_to_ != ReduceParasiticsTo::none) {
+    if (reduce_to_ != ReducedParasiticType::none) {
       parasitics_->reduceTo(parasitic_, net_, reduce_to_, op_cond_,
 			    corner_, cnst_min_max_, ap_);
       if (delete_after_reduce_)

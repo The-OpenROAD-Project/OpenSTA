@@ -117,6 +117,7 @@ public:
   virtual Parasitic *findParasitic(const Pin *drvr_pin,
 				   const RiseFall *rf,
 				   const DcalcAnalysisPt *dcalc_ap);
+  virtual ReducedParasiticType reducedParasiticType() const;
   virtual void gateDelay(const LibertyCell *drvr_cell,
 			 TimingArc *arc,
 			 const Slew &in_slew,
@@ -304,6 +305,12 @@ ArnoldiDelayCalc::findParasitic(const Pin *drvr_pin,
     }
   }
   return nullptr;
+}
+
+ReducedParasiticType
+ArnoldiDelayCalc::reducedParasiticType() const
+{
+  return ReducedParasiticType::arnoldi;
 }
 
 void

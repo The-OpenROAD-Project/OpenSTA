@@ -1068,7 +1068,7 @@ public:
 		bool pin_cap_included,
 		bool keep_coupling_caps,
 		float coupling_cap_factor,
-		ReduceParasiticsTo reduce_to,
+		ReducedParasiticType reduce_to,
 		bool delete_after_reduce,
 		bool quiet);
   // Parasitics.
