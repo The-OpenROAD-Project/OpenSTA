@@ -111,7 +111,7 @@ public:
     if (exists)
       return values_[mm_index];
     else
-      internalError("uninitialized value reference");
+      criticalError(226, "uninitialized value reference");
   }
 
   void

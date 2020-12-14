@@ -430,7 +430,7 @@ CheckTiming::errorMsgSubst(const char *msg,
 	s++;
       }
       else
-	internalError("unknown print flag");
+	criticalError(245, "unknown print flag");
     }
     else
       error_msg += ch;

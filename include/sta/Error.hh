@@ -18,6 +18,7 @@
 
 #include <exception>
 #include "DisallowCopyAssign.hh"
+#include "Report.hh"
 
 namespace sta {
 
@@ -41,28 +42,6 @@ protected:
   int line_;
 };
 
-class InternalError : public ExceptionLine
-{
-public:
-  InternalError(const char *filename,
-		int line,
-		const char *msg);
-  virtual const char *what() const noexcept;
-
-protected:
-  const char *msg_;
-};
-
-// Report an error condition that should not be possible.
-// The default handler prints msg to stderr and exits.
-// The msg should NOT include a period or return, as these
-// are added by InternalError::asString().
-#define internalError(msg) \
-  throw sta::InternalError(__FILE__, __LINE__, msg)
-
-#define internalErrorNoThrow(msg) \
-  printf("Internal Error: %s:%d %s\n", __FILE__, __LINE__, msg)
-
 // Failure opening filename for reading.
 class FileNotReadable : public Exception
 {
@@ -84,5 +63,12 @@ public:
 protected:
   const char *filename_;
 };
+
+// Report an error condition that should not be possible.
+// The default handler prints msg to stderr and exits.
+// The msg should NOT include a period or return.
+// For only in those cases where a Report object is not available. 
+#define criticalError(id,msg) \
+  Report::defaultReport()->fileCritical(id, __FILE__, __LINE__, msg)
 
 } // namespace

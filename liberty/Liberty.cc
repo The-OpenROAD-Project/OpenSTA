@@ -325,7 +325,7 @@ LibertyLibrary::degradeWireSlew(const LibertyCell *cell,
     else if (var1 == TableAxisVariable::connect_delay)
       return model->findValue(this, cell, pvt, wire_delay, 0.0, 0.0);
     else {
-      internalError("unsupported slew degradation table axes");
+      criticalError(231, "unsupported slew degradation table axes");
       return 0.0;
     }
   }
@@ -341,12 +341,12 @@ LibertyLibrary::degradeWireSlew(const LibertyCell *cell,
 	     && var2 == TableAxisVariable::output_pin_transition)
       return model->findValue(this, cell, pvt, wire_delay, in_slew, 0.0);
     else {
-      internalError("unsupported slew degradation table axes");
+      criticalError(232, "unsupported slew degradation table axes");
       return 0.0;
     }
   }
   default:
-    internalError("unsupported slew degradation table order");
+    criticalError(233, "unsupported slew degradation table order");
     return 0.0;
   }
 }
@@ -376,7 +376,7 @@ LibertyLibrary::checkSlewDegradationAxes(Table *table)
 	  && var2 == TableAxisVariable::output_pin_transition);
   }
   default:
-    internalError("unsupported slew degradation table axes");
+    criticalError(234, "unsupported slew degradation table axes");
     return 0.0;
   }
 }
@@ -726,7 +726,7 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
 	port1->setCornerPort(port2, ap_index);
     }
     else
-      report->warn("cell %s/%s port %s not found in cell %s/%s.\n",
+      report->warn(2, "cell %s/%s port %s not found in cell %s/%s.",
 		   cell1->library()->name(),
 		   cell1->name(),
 		   port_name,
@@ -749,7 +749,7 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
       }
     }
     else
-      report->warn("cell %s/%s %s -> %s timing group %s not found in cell %s/%s.\n",
+      report->warn(3, "cell %s/%s %s -> %s timing group %s not found in cell %s/%s.",
 		   cell1->library()->name(),
 		   cell1->name(),
 		   arc_set1->from()->name(),
@@ -1126,7 +1126,7 @@ LibertyCell::addTimingArcSet(TimingArcSet *arc_set)
 {
   int set_index = timing_arc_sets_.size();
   if (set_index > timing_arc_set_index_max)
-    internalError("timing arc set max index exceeded");
+    criticalError(235, "timing arc set max index exceeded");
   timing_arc_sets_.push_back(arc_set);
 
   LibertyPort *from = arc_set->from();
@@ -1277,7 +1277,7 @@ LibertyCell::makeTimingArcMap(Report *)
     if (match != arc_set) {
       // Unfortunately these errors are common in some brain damaged
       // libraries.
-      // report->warn("cell %s/%s has duplicate %s -> %s %s timing groups.\n",
+      // report->warn("cell %s/%s has duplicate %s -> %s %s timing groups.",
       // 		   library_->name(),
       // 		   name_,
       // 		   match->from()->name(),
@@ -1292,7 +1292,7 @@ LibertyCell::makeTimingArcMap(Report *)
   timing_arc_sets_.resize(j);
 
   if (timing_arc_set_map_.size() != timing_arc_sets_.size())
-    internalError("timing arc count mismatch\n");
+    criticalError(205, "timing arc count mismatch");
 }
 
 void
@@ -1638,7 +1638,7 @@ LibertyCell::makeLatchEnables(Report *report,
 		  RiseFall *en_rf = latch_enable->enableTransition();
 		  RiseFall *check_rf = check_arc->fromTrans()->asRiseFall();
 		  if (check_rf == en_rf) {
-		    report->warn("cell %s/%s %s -> %s latch enable %s_edge timing arc is inconsistent with %s -> %s setup_%s check.\n",
+		    report->warn(4, "cell %s/%s %s -> %s latch enable %s_edge timing arc is inconsistent with %s -> %s setup_%s check.",
 				 library_->name(),
 				 name_,
 				 en->name(),
@@ -1653,7 +1653,7 @@ LibertyCell::makeLatchEnables(Report *report,
 		    TimingSense en_sense = en_func->portTimingSense(en);
 		    if (en_sense == TimingSense::positive_unate
 			&& en_rf != RiseFall::rise())
-		      report->warn("cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.\n",
+		      report->warn(5, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.",
 				   library_->name(),
 				   name_,
 				   en->name(),
@@ -1661,7 +1661,7 @@ LibertyCell::makeLatchEnables(Report *report,
 				   en_rf == RiseFall::rise()?"rising":"falling");
 		    else if (en_sense == TimingSense::negative_unate
 			     && en_rf != RiseFall::fall())
-		      report->warn("cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.\n",
+		      report->warn(6, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.",
 				   library_->name(),
 				   name_,
 				   en->name(),

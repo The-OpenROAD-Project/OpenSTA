@@ -741,7 +741,7 @@ Graph::arcDelayAnnotated(Edge *edge,
   if (arc_delay_annotated_.size()) {
     size_t index = (edge->arcDelays() + arc->index()) * ap_count_ + ap_index;
     if (index >= arc_delay_annotated_.size())
-      internalError("arc_delay_annotated array bounds exceeded");
+      report_->critical(208, "arc_delay_annotated array bounds exceeded");
     return arc_delay_annotated_[index];
   }
   else
@@ -756,7 +756,7 @@ Graph::setArcDelayAnnotated(Edge *edge,
 {
   size_t index = (edge->arcDelays() + arc->index()) * ap_count_ + ap_index;
   if (index >= arc_delay_annotated_.size())
-    internalError("arc_delay_annotated array bounds exceeded");
+    report_->critical(209, "arc_delay_annotated array bounds exceeded");
   arc_delay_annotated_[index] = annotated;
 }
 
@@ -768,7 +768,7 @@ Graph::wireDelayAnnotated(Edge *edge,
   size_t index = (edge->arcDelays() + TimingArcSet::wireArcIndex(rf)) * ap_count_
     + ap_index;
   if (index >= arc_delay_annotated_.size())
-    internalError("arc_delay_annotated array bounds exceeded");
+    report_->critical(210, "arc_delay_annotated array bounds exceeded");
   return arc_delay_annotated_[index];
 }
 
@@ -781,7 +781,7 @@ Graph::setWireDelayAnnotated(Edge *edge,
   size_t index = (edge->arcDelays() + TimingArcSet::wireArcIndex(rf)) * ap_count_
     + ap_index;
   if (index >= arc_delay_annotated_.size())
-    internalError("arc_delay_annotated array bounds exceeded");
+    report_->critical(228, "arc_delay_annotated array bounds exceeded");
   arc_delay_annotated_[index] = annotated;
 }
 

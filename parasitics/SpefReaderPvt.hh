@@ -81,8 +81,10 @@ public:
 		size_t max_size);
   // Translate from spf/spef namespace to sta namespace.
   char *translated(const char *token);
-  void warn(const char *fmt, ...)
-    __attribute__((format (printf, 2, 3)));
+  void warn(int id,
+            const char *fmt,
+            ...)
+    __attribute__((format (printf, 3, 4)));
   void setBusBrackets(char left,
 		      char right);
   void setTimeScale(float scale,

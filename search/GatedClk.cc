@@ -244,7 +244,7 @@ GatedClk::gatedClkActiveTrans(LogicValue active_value,
     leading_rf = RiseFall::fall();
     break;
   default:
-    internalError("illegal gated clock active value");
+    criticalError(249, "illegal gated clock active value");
     leading_rf = RiseFall::rise();
     break;
   }

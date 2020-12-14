@@ -571,7 +571,7 @@ PathEnum::makeDivertedPath(Path *path,
       is_latch_data = true;
   }
   if (!found_div)
-    internalError("diversion path not found");
+    criticalError(250, "diversion path not found");
 }
 
 void

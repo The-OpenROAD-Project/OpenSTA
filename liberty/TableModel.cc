@@ -239,7 +239,7 @@ GateTableModel::findAxisValues(const TableModel *model,
 			    related_out_cap);
     break;
   default:
-    internalError("unsupported table order");
+    criticalError(239, "unsupported table order");
   }
 }
 
@@ -308,7 +308,7 @@ GateTableModel::axisValue(TableAxis *axis,
   else if (var == TableAxisVariable::related_out_total_output_net_capacitance)
     return related_out_cap;
   else {
-    internalError("unsupported table axes");
+    criticalError(240, "unsupported table axes");
     return 0.0;
   }
 }
@@ -499,7 +499,7 @@ CheckTableModel::findAxisValues(float from_slew,
 			    related_out_cap);
     break;
   default:
-    internalError("unsupported table order");
+    criticalError(241, "unsupported table order");
   }
 }
 
@@ -517,7 +517,7 @@ CheckTableModel::axisValue(TableAxis *axis,
   else if (var == TableAxisVariable::related_out_total_output_net_capacitance)
     return related_out_cap;
   else {
-    internalError("unsupported table axes");
+    criticalError(242, "unsupported table axes");
     return 0.0;
   }
 }

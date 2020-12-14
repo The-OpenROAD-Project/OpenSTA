@@ -422,14 +422,14 @@ WritePathSpice::pgPortVoltage(LibertyPgPort *pg_port)
       else if (stringEqual(voltage_name, gnd_name_))
 	voltage = gnd_voltage_;
       else
-	report_->error("pg_pin %s/%s voltage %s not found,\n",
+	report_->error(24, "pg_pin %s/%s voltage %s not found,",
 		       pg_port->cell()->name(),
 		       pg_port->name(),
 		       voltage_name);
     }
   }
   else
-    report_->error("Liberty pg_port %s/%s missing voltage_name attribute,\n",
+    report_->error(25, "Liberty pg_port %s/%s missing voltage_name attribute,",
 		   pg_port->cell()->name(),
 		   pg_port->name());
   return voltage;
@@ -959,7 +959,7 @@ WritePathSpice::writeVoltageSource(LibertyCell *cell,
     if (pg_port)
       voltage = pgPortVoltage(pg_port);
     else
-      report_->error("%s pg_port %s not found,\n",
+      report_->error(26, "%s pg_port %s not found,",
 		     cell->name(),
 		     pg_port_name);
 
@@ -1013,7 +1013,7 @@ WritePathSpice::regPortValues(Stage stage,
 	dcalc_ap_index = drvr_path->dcalcAnalysisPt(this)->index();
       }
       else
-	report_->error("no register/latch found for path from %s to %s,\n",
+	report_->error(27, "no register/latch found for path from %s to %s,",
 		       stageGateInputPort(stage)->name(),
 		       stageDrvrPort(stage)->name());
     }
@@ -1380,7 +1380,7 @@ WritePathSpice::writeSubckts()
       lib_subckts_stream.close();
 
       if (!path_cell_names.empty()) {
-	report_->error("The following subkcts are missing from %s\n",
+	report_->error(28, "The following subkcts are missing from %s",
 		       lib_subckt_filename_);
 	for (const char *cell_name : path_cell_names)
 	  report_->printError(" %s\n", cell_name);
@@ -1438,7 +1438,7 @@ WritePathSpice::recordSpicePortNames(const char *cell_name,
 	  && pg_port == nullptr
 	  && !stringEqual(port_name, power_name_)
 	  && !stringEqual(port_name, gnd_name_))
-	report_->error("subckt %s port %s has no corresponding liberty port, pg_port and is not power or ground.\n",
+	report_->error(29, "subckt %s port %s has no corresponding liberty port, pg_port and is not power or ground.",
 		       cell_name, port_name);
       spice_port_names->push_back(port_name);
     }
@@ -1623,7 +1623,7 @@ streamPrint(ofstream &stream,
   va_start(args, fmt);
   char *result;
   if (vasprintf(&result, fmt, args) == -1)
-    internalError("out of memory");
+    criticalError(267, "out of memory");
   stream << result;
   free(result);
   va_end(args);

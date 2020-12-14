@@ -58,29 +58,34 @@ public:
     __attribute__((format (printf, 2, 3)));
   virtual void vprintError(const char *fmt, va_list args);
 
-  // Report error.
-  virtual void error(const char *fmt, ...)
-    __attribute__((format (printf, 2, 3)));
-  virtual void verror(const char *fmt, va_list args);
-  // Report error in a file.
-  virtual void fileError(const char *filename, int line, const char *fmt, ...)
-    __attribute__((format (printf, 4, 5)));
-  virtual void vfileError(const char *filename, int line, const char *fmt,
-			  va_list args);
-
   // Print to warning stream (same as error stream).
   virtual void printWarn(const char *fmt, ...)
     __attribute__((format (printf, 2, 3)));
   virtual void vprintWarn(const char *fmt, va_list args);
   // Report warning.
-  virtual void warn(const char *fmt, ...)
-    __attribute__((format (printf, 2, 3)));
-  virtual void vwarn(const char *fmt, va_list args);
+  virtual void warn(int id, const char *fmt, ...)
+    __attribute__((format (printf, 3, 4)));
   // Report warning in a file.
-  virtual void fileWarn(const char *filename, int line, const char *fmt, ...)
-    __attribute__((format (printf, 4, 5)));
-  virtual void vfileWarn(const char *filename, int line, const char *fmt,
+  virtual void fileWarn(int id, const char *filename, int line, const char *fmt, ...)
+    __attribute__((format (printf, 5, 6)));
+  virtual void vfileWarn(int id, const char *filename, int line, const char *fmt,
 			 va_list args);
+
+  // Critical. 
+  // Report error condition that should not be possible or that prevents execution.
+  // The default handler prints msg to stderr and exits.
+  virtual void critical(int id, const char *fmt, ...)
+    __attribute__((format (printf, 3, 4)));
+  virtual void fileCritical(int id, const char *filename, int line, const char *fmt, ...)
+    __attribute__((format (printf, 5, 6)));
+
+  virtual void error(int id, const char *fmt, ...)
+    __attribute__((format (printf, 3, 4)));
+  // Report error in a file.
+  virtual void fileError(int id, const char *filename, int line, const char *fmt, ...)
+    __attribute__((format (printf, 5, 6)));
+  virtual void vfileError(int id, const char *filename, int line, const char *fmt,
+			  va_list args);
 
   // Log output to filename until logEnd is called.
   virtual void logBegin(const char *filename);
@@ -95,6 +100,8 @@ public:
   virtual void redirectStringBegin();
   virtual const char *redirectStringEnd();
   virtual void setTclInterp(Tcl_Interp *) {}
+
+  static Report *defaultReport() { return default_; }
 
 protected:
   // Primitive to print output on the console.
@@ -116,6 +123,7 @@ protected:
   // Length of string in buffer.
   size_t buffer_length_;
   std::mutex buffer_lock_;
+  static Report *default_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Report);

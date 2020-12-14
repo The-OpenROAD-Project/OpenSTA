@@ -327,7 +327,7 @@ TagGroupBldr::copyArrivals(TagGroup *tag_group,
     bool exists2;
     tag_group->arrivalIndex(tag1, arrival_index2, exists2);
     if (!exists2)
-      internalError("tag group missing tag");
+      sta_->report()->critical(265, "tag group missing tag");
     arrivals[arrival_index2] = arrivals_[arrival_index1];
     if (prev_paths) {
       PathVertexRep *prev_path = &prev_paths_[arrival_index1];

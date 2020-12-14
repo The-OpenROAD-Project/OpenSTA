@@ -860,7 +860,7 @@ Sim::setPinValue(const Pin *pin,
   if (exists
       && value != constraint_value) {
     if (value != LogicValue::unknown)
-      report_->warn("propagated logic value %c differs from constraint value of %c on pin %s.\n",
+      report_->warn(15, "propagated logic value %c differs from constraint value of %c on pin %s.",
 		    logicValueString(value),
 		    logicValueString(constraint_value),
 		    sdc_network_->pathName(pin));

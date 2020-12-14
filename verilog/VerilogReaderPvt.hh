@@ -147,10 +147,12 @@ public:
   const char *filename() const { return filename_; }
   void incrLine();
   Report *report() const { return report_; }
-  void error(const char *filename,
+  void error(int id,
+             const char *filename,
 	     int line,
 	     const char *fmt, ...);
-  void warn(const char *filename,
+  void warn(int id,
+            const char *filename,
 	    int line,
 	    const char *fmt, ...);
   const char *zeroNetName() const { return zero_net_name_; }
@@ -236,12 +238,16 @@ protected:
 		   Instance *parent,
 		   VerilogBindingTbl *parent_bindings,
 		   bool is_leaf);
-  void linkWarn(const char *filename,
+  void linkWarn(int id,
+                const char *filename,
 		int line,
-		const char *msg, ...);
-  void linkError(const char *filename,
+		const char *msg, ...)
+    __attribute__((format (printf, 5, 6)));
+  void linkError(int id,
+                 const char *filename,
 		 int line,
-		 const char *msg, ...);
+		 const char *msg, ...)
+    __attribute__((format (printf, 5, 6)));
   bool reportLinkErrors(Report *report);
   bool haveLinkErrors();
   Cell *makeBlackBox(VerilogModuleInst *mod_inst,

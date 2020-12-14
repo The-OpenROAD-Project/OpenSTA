@@ -70,7 +70,7 @@ CheckCrpr::clkPathPrev(Vertex *vertex,
   if (prevs)
     return PathVertex(prevs[arrival_index], this);
   else {
-    internalError("missing prev paths");
+    criticalError(248, "missing prev paths");
     return PathVertex();
   }
 }

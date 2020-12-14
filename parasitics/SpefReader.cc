@@ -164,7 +164,7 @@ SpefReader::setBusBrackets(char left, char right)
 	|| (left == '<' && right == '>')
 	|| (left == ':' && right == '\0')
 	|| (left == '.' && right == '\0')))
-    warn("illegal bus delimiters.\n");
+    warn(167, "illegal bus delimiters.");
   bus_brkt_left_ = left;
   bus_brkt_right_ = right;
 }
@@ -231,11 +231,11 @@ SpefReader::incrLine()
 }
 
 void
-SpefReader::warn(const char *fmt, ...)
+SpefReader::warn(int id, const char *fmt, ...)
 {
   va_list args;
   va_start(args, fmt);
-  report_->vfileWarn(filename_, line_, fmt, args);
+  report_->vfileWarn(id, filename_, line_, fmt, args);
   va_end(args);
 }
 
@@ -248,7 +248,7 @@ SpefReader::setTimeScale(float scale,
   else if (stringEq(units, "PS"))
     time_scale_ = scale * 1E-12F;
   else
-    warn("unknown units %s.\n", units);
+    warn(168, "unknown units %s.", units);
   stringDelete(units);
 }
 
@@ -261,7 +261,7 @@ SpefReader::setCapScale(float scale,
   else if (stringEq(units, "FF"))
     cap_scale_ = scale * 1E-15F;
   else
-    warn("unknown units %s.\n", units);
+    warn(168, "unknown units %s.", units);
   stringDelete(units);
 }
 
@@ -274,7 +274,7 @@ SpefReader::setResScale(float scale,
   else if (stringEq(units, "KOHM"))
     res_scale_ = scale * 1E+3F;
   else
-    warn("unknown units %s.\n", units);
+    warn(170, "unknown units %s.", units);
   stringDelete(units);
 }
 
@@ -289,7 +289,7 @@ SpefReader::setInductScale(float scale,
   else if (stringEq(units, "UH"))
     induct_scale_ = scale * 1E-6F;
   else
-    warn("unknown units %s.\n", units);
+    warn(168, "unknown units %s.", units);
   stringDelete(units);
 }
 
@@ -312,7 +312,7 @@ SpefReader::nameMapLookup(char *name)
     if (exists)
       return mapped_name;
     else {
-      warn("no name map entry for %d.\n", index);
+      warn(169, "no name map entry for %d.", index);
       return 0;
     }
   }
@@ -331,7 +331,7 @@ SpefReader::portDirection(char *spef_dir)
   else if (stringEq(spef_dir, "B"))
     direction = PortDirection::bidirect();
   else
-    warn("unknown port direction %s.\n", spef_dir);
+    warn(170, "unknown port direction %s.", spef_dir);
   return direction;
 }
 
@@ -357,15 +357,15 @@ SpefReader::findPin(char *name)
       if (inst) {
 	pin = network_->findPin(inst, port_name);
 	if (pin == nullptr)
-	  warn("pin %s not found.\n", name);
+	  warn(171, "pin %s not found.", name);
       }
       else
-	warn("instance %s not found.\n", name);
+	warn(172, "instance %s not found.", name);
     }
     else {
       pin = findPortPinRelative(name);
       if (pin == nullptr)
-	warn("pin %s not found.\n", name);
+	warn(173, "pin %s not found.", name);
     }
   }
   return pin;
@@ -379,7 +379,7 @@ SpefReader::findNet(char *name)
   if (name) {
     net = findNetRelative(name);
     if (net == nullptr)
-      warn("net %s not found.\n", name);
+      warn(174, "net %s not found.", name);
   }
   return net;
 }
@@ -489,7 +489,7 @@ SpefReader::findParasiticNode(char *name)
   findParasiticNode(name, node, ext_net, ext_node_id, ext_pin);
   if (node == nullptr
       && (ext_net || ext_pin))
-    warn("%s not connected to net %s.\n", name, network_->pathName(net_));
+    warn(175, "%s not connected to net %s.", name, network_->pathName(net_));
   return node;
 }
 
@@ -524,7 +524,7 @@ SpefReader::findParasiticNode(char *name,
 	  else {
 	    // Replace delimiter for error message.
 	    *delim = delimiter_;
-	    warn("pin %s not found.\n", name);
+	    warn(176, "pin %s not found.", name);
 	  }
 	}
 	else {
@@ -544,7 +544,7 @@ SpefReader::findParasiticNode(char *name,
 	      }
 	    }
 	    else
-	      warn("node %s not a pin or net:number\n", name);
+	      warn(177, "node %s not a pin or net:number", name);
 	  }
 	}
       }
@@ -559,7 +559,7 @@ SpefReader::findParasiticNode(char *name,
 	    ext_pin = pin;
 	}
 	else
-	  warn("pin %s not found.\n", name);
+	  warn(178, "pin %s not found.", name);
       }
     }
   }
@@ -720,7 +720,7 @@ void spefFlushBuffer();
 int
 SpefParse_error(const char *msg)
 {
-  sta::spef_reader->warn("%s.\n", msg);
+  sta::spef_reader->warn(179, "%s.", msg);
   spefFlushBuffer();
   return 0;
 }

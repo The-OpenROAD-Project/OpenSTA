@@ -24,6 +24,8 @@ namespace sta {
 
 using std::min;
 
+Report *Report::default_ = nullptr;
+
 Report::Report() :
   log_stream_(nullptr),
   redirect_stream_(nullptr),
@@ -32,6 +34,7 @@ Report::Report() :
   buffer_(new char[buffer_size_]),
   buffer_length_(0)
 {
+  default_ = this;
 }
 
 Report::~Report()
@@ -145,45 +148,13 @@ Report::printDebug(const char *fmt, ...)
 }
 
 void
-Report::vprintDebug(const char *fmt, va_list args)
+Report::vprintDebug(const char *fmt,
+                    va_list args)
 {
   vprint(fmt, args);
 }
 
-void
-Report::error(const char *fmt, ...)
-{
-  printError("Error: ");
-  va_list args;
-  va_start(args, fmt);
-  vprintError(fmt, args);
-  va_end(args);
-}
-
-void
-Report::verror(const char *fmt, va_list args)
-{
-  printError("Error: ");
-  vprintError(fmt, args);
-}
-
-void
-Report::fileError(const char *filename, int line, const char *fmt, ...)
-{
-  printError("Error: %s, line %d ", filename, line);
-  va_list args;
-  va_start(args, fmt);
-  vprintError(fmt, args);
-  va_end(args);
-}
-
-void
-Report::vfileError(const char *filename, int line, const char *fmt,
-		    va_list args)
-{
-  printError("Error: %s, line %d ", filename, line);
-  vprintError(fmt, args);
-}
+////////////////////////////////////////////////////////////////
 
 void
 Report::printWarn(const char *fmt, ...)
@@ -195,45 +166,126 @@ Report::printWarn(const char *fmt, ...)
 }
 
 void
-Report::vprintWarn(const char *fmt, va_list args)
+Report::vprintWarn(const char *fmt,
+                   va_list args)
 {
   vprintError(fmt, args);
 }
 
 void
-Report::warn(const char *fmt, ...)
+Report::warn(int /* id */,
+             const char *fmt,
+             ...)
 {
   printWarn("Warning: ");
   va_list args;
   va_start(args, fmt);
   vprintWarn(fmt, args);
+  printWarn("\n");
   va_end(args);
 }
 
 void
-Report::vwarn(const char *fmt, va_list args)
-{
-  printWarn("Warning: ");
-  vprintWarn(fmt, args);
-}
-
-void
-Report::fileWarn(const char *filename, int line, const char *fmt, ...)
+Report::fileWarn(int /* id */,
+                 const char *filename,
+                 int line,
+                 const char *fmt,
+                 ...)
 {
   printWarn("Warning: %s, line %d ", filename, line);
   va_list args;
   va_start(args, fmt);
   vprintWarn(fmt, args);
+  printWarn("\n");
   va_end(args);
 }
 
 void
-Report::vfileWarn(const char *filename, int line, const char *fmt,
+Report::vfileWarn(int /* id */,
+                  const char *filename,
+                  int line,
+                  const char *fmt,
 		  va_list args)
 {
   printWarn("Warning: %s, line %d ", filename, line);
   vprintWarn(fmt, args);
+  printWarn("\n");
 }
+
+////////////////////////////////////////////////////////////////
+
+void
+Report::error(int /* id */,
+              const char *fmt, ...)
+{
+  printError("Error: ");
+  va_list args;
+  va_start(args, fmt);
+  vprintError(fmt, args);
+  printWarn("\n");
+  va_end(args);
+}
+
+void
+Report::fileError(int /* id */,
+                  const char *filename,
+                  int line,
+                  const char *fmt,
+                  ...)
+{
+  printError("Error: %s, line %d ", filename, line);
+  va_list args;
+  va_start(args, fmt);
+  vprintError(fmt, args);
+  printWarn("\n");
+  va_end(args);
+}
+
+void
+Report::vfileError(int /* id */,
+                   const char *filename,
+                   int line,
+                   const char *fmt,
+		    va_list args)
+{
+  printError("Error: %s, line %d ", filename, line);
+  vprintError(fmt, args);
+  printWarn("\n");
+} 
+
+////////////////////////////////////////////////////////////////
+
+void
+Report::critical(int /* id */,
+                 const char *fmt,
+                 ...)
+{
+  printError("Critical: ");
+  va_list args;
+  va_start(args, fmt);
+  vprintError(fmt, args);
+  printWarn("\n");
+  va_end(args);
+  exit(1);
+}
+
+void
+Report::fileCritical(int /* id */,
+                     const char *filename,
+                     int line,
+                     const char *fmt,
+                     ...)
+{
+  printError("Critical: %s, line %d ", filename, line);
+  va_list args;
+  va_start(args, fmt);
+  vprintError(fmt, args);
+  printWarn("\n");
+  va_end(args);
+  exit(1);
+}
+
+////////////////////////////////////////////////////////////////
 
 void
 Report::logBegin(const char *filename)

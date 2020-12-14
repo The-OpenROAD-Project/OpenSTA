@@ -36,21 +36,6 @@ ExceptionLine::ExceptionLine(const char *filename,
 {
 }
 
-InternalError::InternalError(const char *filename,
-			     int line,
-			     const char *msg) :
-  ExceptionLine(filename, line),
-  msg_(msg)
-{
-}
-
-const char *
-InternalError::what() const noexcept
-{
-  return stringPrintTmp("Internal error in %s:%d %s.",
-			filename_, line_, msg_);
-}
-
 FileNotReadable::FileNotReadable(const char *filename) :
   filename_(filename)
 {

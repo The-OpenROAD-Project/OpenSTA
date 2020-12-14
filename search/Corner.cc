@@ -353,7 +353,7 @@ Corner::findParasiticAnalysisPt(const MinMax *min_max) const
   else if (ap_count == 2)
     return parasitic_analysis_pts_[min_max->index()];
   else {
-    internalError("unknown parasitic analysis point count");
+    criticalError(246, "unknown parasitic analysis point count");
     return nullptr;
   }
 }
@@ -399,7 +399,7 @@ Corner::findDcalcAnalysisPt(const MinMax *min_max) const
   else if (ap_count == 2)
     return dcalc_analysis_pts_[min_max->index()];
   else {
-    internalError("unknown analysis point count");
+    criticalError(247, "unknown analysis point count");
     return nullptr;
   }
 }

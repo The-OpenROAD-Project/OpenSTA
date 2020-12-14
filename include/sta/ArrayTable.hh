@@ -131,7 +131,7 @@ ArrayTable<TYPE>::pushBlock(ArrayBlock<TYPE> *block)
 {
   blocks_[blocks_size_++] = block;
   if (blocks_size_ >= block_id_max)
-    internalError("max array table block count exceeded.");
+    criticalError(223, "max array table block count exceeded.");
   if (blocks_size_ == blocks_capacity_) {
     size_t new_capacity = blocks_capacity_ * 1.5;
     ArrayBlock<TYPE>** new_blocks = new ArrayBlock<TYPE>*[new_capacity];
@@ -177,12 +177,11 @@ TYPE &
 ArrayTable<TYPE>::ref(ObjectId id) const
 {
   if (id == object_id_null)
-    internalError("null ObjectId reference is undefined.");
-  else {
-    BlockIdx blk_idx = id >> idx_bits;
-    ObjectIdx obj_idx = id & idx_mask_;
-    return blocks_[blk_idx]->ref(obj_idx);
-  }
+    criticalError(222, "null ObjectId reference is undefined.");
+
+  BlockIdx blk_idx = id >> idx_bits;
+  ObjectIdx obj_idx = id & idx_mask_;
+  return blocks_[blk_idx]->ref(obj_idx);
 }
 
 template <class TYPE>

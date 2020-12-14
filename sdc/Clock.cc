@@ -474,7 +474,7 @@ Clock::generateEdgesClk(const Clock *src_clk)
       period_ += (*edge_shifts_)[2];
   }
   else
-    internalError("generated clock edges size is not three.");
+    criticalError(244, "generated clock edges size is not three.");
 }
 
 static bool

@@ -802,7 +802,7 @@ pos_integer:
 	INTEGER
 	{ int value = $1;
 	  if (value < 0)
-	    sta::spef_reader->warn("%d is not positive.\n", value);
+	    sta::spef_reader->warn(21, "%d is not positive.", value);
 	  $$ = value;
 	}
 ;
@@ -811,13 +811,13 @@ pos_number:
 	INTEGER
 	{ float value = static_cast<float>($1);
 	  if (value < 0)
-	    sta::spef_reader->warn("%.4f is not positive.\n", value);
+	    sta::spef_reader->warn(22, "%.4f is not positive.", value);
 	  $$ = value;
 	}
 |	FLOAT
 	{ float value = static_cast<float>($1);
 	  if (value < 0)
-	    sta::spef_reader->warn("%.4f is not positive.\n", value);
+	    sta::spef_reader->warn(23, "%.4f is not positive.", value);
 	  $$ = value;
 	}
 ;

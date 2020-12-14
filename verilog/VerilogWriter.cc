@@ -190,7 +190,7 @@ VerilogWriter::verilogPortDir(PortDirection *dir)
   else if (dir == PortDirection::internal())
     return nullptr;
   else {
-    internalError("unknown port direction");
+    criticalError(268, "unknown port direction");
     return nullptr;
   }
 }

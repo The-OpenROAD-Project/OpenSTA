@@ -743,7 +743,7 @@ GraphDelayCalc1::findPortIndex(LibertyCell *cell,
       return index;
     index++;
   }
-  internalError("port not found in cell");
+  report_->critical(207, "port not found in cell");
   return 0;
 }
 

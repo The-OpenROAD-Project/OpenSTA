@@ -73,7 +73,7 @@ LibExprParser::makeFuncExprPort(const char *port_name)
   if (port)
     expr = FuncExpr::makePort(port);
   else
-    report_->error("%s references unknown port %s.\n",
+    report_->error(7, "%s references unknown port %s.",
 		    error_msg_, port_name);
   stringDelete(port_name);
   return expr;
@@ -166,7 +166,7 @@ LibExprParser::tokenAppend(char ch)
 void
 LibExprParser::parseError(const char *msg)
 {
-  report_->printError("%s %s.\n", error_msg_, msg);
+  report_->error(206, "%s %s.", error_msg_, msg);
 }
 
 } // namespace

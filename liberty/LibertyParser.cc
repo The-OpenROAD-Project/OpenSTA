@@ -283,7 +283,7 @@ LibertySimpleAttr::~LibertySimpleAttr()
 LibertyAttrValueSeq *
 LibertySimpleAttr::values() const
 {
-  internalError("valueIterator called for LibertySimpleAttribute");
+  criticalError(236, "valueIterator called for LibertySimpleAttribute");
   return nullptr;
 }
 
@@ -364,7 +364,7 @@ LibertyStringAttrValue::~LibertyStringAttrValue()
 float
 LibertyStringAttrValue::floatValue()
 {
-  internalError("LibertyStringAttrValue called for float value");
+  criticalError(237, "LibertyStringAttrValue called for float value");
   return 0.0;
 }
 
@@ -394,7 +394,7 @@ LibertyFloatAttrValue::floatValue()
 const char *
 LibertyFloatAttrValue::stringValue()
 {
-  internalError("LibertyStringAttrValue called for float value");
+  criticalError(238, "LibertyStringAttrValue called for float value");
   return nullptr;
 }
 
@@ -417,8 +417,8 @@ makeLibertyDefine(LibertyAttrValueSeq *values,
     group->addDefine(define);
   }
   else
-    liberty_report->fileWarn(liberty_filename, line,
-			     "define does not have three arguments.\n");
+    liberty_report->fileWarn(24, liberty_filename, line,
+			     "define does not have three arguments.");
   return define;
 }
 
@@ -515,7 +515,7 @@ libertyIncludeBegin(const char *filename)
 {
   FILE *stream = fopen(filename, "r" );
   if (stream == nullptr)
-    libertyParseError("cannot open include file %s.\n", filename);
+    libertyParseError("cannot open include file %s.", filename);
   else {
     liberty_filename_prev = liberty_filename;
     liberty_line_prev = liberty_line;
@@ -555,7 +555,7 @@ libertyParseError(const char *fmt, ...)
 {
   va_list args;
   va_start(args, fmt);
-  sta::liberty_report->vfileError(sta::liberty_filename, sta::liberty_line,
+  sta::liberty_report->vfileError(25, sta::liberty_filename, sta::liberty_line,
 				  fmt, args);
   va_end(args);
 }
@@ -570,8 +570,8 @@ void libertyParseFlushBuffer();
 int
 LibertyParse_error(const char *msg)
 {
-  sta::liberty_report->fileError(sta::liberty_filename, sta::liberty_line,
-				 "%s.\n", msg);
+  sta::liberty_report->fileError(26, sta::liberty_filename, sta::liberty_line,
+				 "%s.", msg);
   libertyParseFlushBuffer();
   return 0;
 }

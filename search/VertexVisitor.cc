@@ -29,7 +29,7 @@ VertexPinCollector::VertexPinCollector(PinSet *pins) :
 VertexVisitor *
 VertexPinCollector::copy()
 {
-  internalError("VertexPinCollector::copy not supported.");
+  criticalError(266, "VertexPinCollector::copy not supported.");
   return nullptr;
 }
 

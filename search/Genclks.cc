@@ -286,7 +286,7 @@ Genclks::checkMaster(Clock *gclk)
 {
   ensureMaster(gclk);
   if (gclk->masterClk() == nullptr)
-    report_->warn("no master clock found for generated clock %s.\n",
+    report_->warn(10, "no master clock found for generated clock %s.",
 		  gclk->name());
 }
 
@@ -328,7 +328,7 @@ Genclks::ensureMaster(Clock *gclk)
 	iter.enqueueAdjacentVertices(vertex);
       }
       if (master_clk_count > 1)
-	report_->error("generated clock %s is in the fanout of multiple clocks.\n",
+	report_->error(11, "generated clock %s is in the fanout of multiple clocks.",
 		       gclk->name());
     }
     else {
@@ -379,7 +379,8 @@ Genclks::ensureMaster(Clock *gclk)
 	}
       }
       if (master_clk_count > 1)
-	report_->error("generated clock %s pin %s is in the fanout of multiple clocks.\n",
+	report_->error(12,
+                       "generated clock %s pin %s is in the fanout of multiple clocks.",
 		       gclk->name(),
 		       network_->pathName(src_pin));
     }
@@ -986,7 +987,7 @@ Genclks::recordSrcPaths(Clock *gclk)
 	// Don't warn if the master clock is ideal.
 	&& gclk->masterClk()
 	&& gclk->masterClk()->isPropagated())
-      report_->warn("generated clock %s source pin %s missing paths from master clock %s.\n",
+      report_->warn(13, "generated clock %s source pin %s missing paths from master clock %s.",
 		    gclk->name(),
 		    network_->pathName(gclk_pin),
 		    gclk->masterClk()->name());

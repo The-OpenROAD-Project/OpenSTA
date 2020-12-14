@@ -196,10 +196,10 @@ SdfReader::setTimescale(float multiplier,
     else if (stringEq(units, "ps"))
       timescale_ = multiplier * 1E-12F;
     else
-      sdfError("TIMESCALE units not us, ns, or ps.\n");
+      sdfError(180, "TIMESCALE units not us, ns, or ps.");
   }
   else
-      sdfError("TIMESCALE multiplier not 1, 10, or 100.\n");
+    sdfError(181, "TIMESCALE multiplier not 1, 10, or 100.");
   stringDelete(units);
 }
 
@@ -222,20 +222,20 @@ SdfReader::interconnect(const char *from_pin_name,
 	bool to_is_hier = network_->isHierarchical(to_pin);
 	if (from_is_hier || to_is_hier) {
 	  if (from_is_hier)
-	    sdfError("pin %s is a hierarchical pin.\n", from_pin_name);
+	    sdfError(182, "pin %s is a hierarchical pin.", from_pin_name);
 	  if (to_is_hier)
-	    sdfError("pin %s is a hierarchical pin.\n", to_pin_name);
+	    sdfError(183, "pin %s is a hierarchical pin.", to_pin_name);
 	}
 	else
-	  sdfError("INTERCONNECT from %s to %s not found.\n",
+	  sdfError(184, "INTERCONNECT from %s to %s not found.",
 		   from_pin_name, to_pin_name);
       }
     }
     else {
       if (from_pin == nullptr)
-	sdfError("pin %s not found.\n", from_pin_name);
+	sdfError(185, "pin %s not found.", from_pin_name);
       if (to_pin == nullptr)
-	sdfError("pin %s not found.\n", to_pin_name);
+	sdfError(186, "pin %s not found.", to_pin_name);
     }
   }
   stringDelete(from_pin_name);
@@ -253,7 +253,7 @@ SdfReader::port(const char *to_pin_name,
       ? network_->findPinRelative(instance_, to_pin_name)
       : network_->findPin(to_pin_name);
     if (to_pin == nullptr)
-      sdfError("pin %s not found.\n", to_pin_name);
+      sdfError(187, "pin %s not found.", to_pin_name);
     else {
       Vertex *vertex = graph_->pinLoadVertex(to_pin);
       VertexInEdgeIterator edge_iter(vertex, graph_);
@@ -309,9 +309,9 @@ SdfReader::setEdgeDelays(Edge *edge,
     }
   }
   else if (triple_count == 0)
-    sdfError("%s with no triples.\n", sdf_cmd);
+    sdfError(188, "%s with no triples.", sdf_cmd);
   else
-    sdfError("%s with more than 2 triples.\n", sdf_cmd);
+    sdfError(189, "%s with more than 2 triples.", sdf_cmd);
 }
 
 void
@@ -334,7 +334,7 @@ SdfReader::setInstance(const char *instance_name)
 	Cell *inst_cell = network_->cell(instance_);
 	const char *inst_cell_name = network_->name(inst_cell);
 	if (cell_name_ && !stringEqual(inst_cell_name, cell_name_))
-	  sdfError("instance %s cell %s does not match enclosing cell %s.\n",
+	  sdfError(190, "instance %s cell %s does not match enclosing cell %s.",
 		   instance_name,
 		   inst_cell_name,
 		   cell_name_);
@@ -428,7 +428,7 @@ SdfReader::iopath(SdfPortSpec *from_edge,
 	  }
 	}
 	if (!matched)
-	  sdfError("cell %s IOPATH %s -> %s not found.\n",
+	  sdfError(191, "cell %s IOPATH %s -> %s not found.",
 		   network_->cellName(instance_),
 		   from_port_name,
 		   to_port_name);
@@ -509,7 +509,7 @@ SdfReader::timingCheck1(TimingRole *role,
 	if (!matched
 	    // Only warn when non-null values are present.
 	    && triple->hasValue())
-	  sdfError("cell %s %s -> %s %s check not found.\n",
+	  sdfError(192, "cell %s %s -> %s %s check not found.",
 		   network_->cellName(instance_),
 		   data_port_name,
 		   clk_port_name,
@@ -1021,23 +1021,24 @@ SdfReader::getChars(char *buf,
 void
 SdfReader::notSupported(const char *feature)
 {
-  sdfError("%s not supported.\n", feature);
+  sdfError(193, "%s not supported.", feature);
 }
 
 void
 SdfReader::portNotFound(const char *port_name)
 {
-  sdfError("instance %s port %s not found.\n",
+  sdfError(194, "instance %s port %s not found.",
 	   network_->pathName(instance_),
 	   port_name);
 }
 
 void
-SdfReader::sdfError(const char *fmt, ...)
+SdfReader::sdfError(int id,
+                    const char *fmt, ...)
 {
   va_list args;
   va_start(args, fmt);
-  report_->vfileError(filename_, line_, fmt, args);
+  report_->vfileError(id, filename_, line_, fmt, args);
   va_end(args);
 }
 
@@ -1062,7 +1063,7 @@ SdfReader::findInstance(const char *name)
     stringPrint(inst_name, "%s%c%s", path_, divider_, name);
   Instance *inst = network_->findInstance(inst_name.c_str());
   if (inst == nullptr)
-    sdfError("instance %s not found.\n", inst_name.c_str());
+    sdfError(195, "instance %s not found.", inst_name.c_str());
   return inst;
 }
 
@@ -1103,7 +1104,7 @@ void sdfFlushBuffer();
 int
 SdfParse_error(const char *msg)
 {
-  sta::sdf_reader->sdfError("%s.\n", msg);
+  sta::sdf_reader->sdfError(196, "%s.\n", msg);
   sdfFlushBuffer();
   return 0;
 }

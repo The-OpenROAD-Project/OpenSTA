@@ -163,6 +163,7 @@ EstimateParasitics::estimatePiElmoreBalanced(const Pin *drvr_pin,
   else {
     Sdc *sdc = sta->sdc();
     Network *network = sta->network();
+    Report *report = sta->report();
     double res_fanout = wireload_res / fanout;
     double cap_fanout = wireload_cap / fanout;
     // Find admittance moments.
@@ -184,7 +185,7 @@ EstimateParasitics::estimatePiElmoreBalanced(const Pin *drvr_pin,
 	else if (network->isTopLevelPort(load_pin))
 	  load_cap = sdc->portExtCap(port, rf, min_max);
 	else
-	  internalError("load pin not leaf or top level");
+	  report->critical(212, "load pin not leaf or top level");
 	double cap = load_cap + cap_fanout;
 	double y2_ = res_fanout * cap * cap;
 	y1 += cap;

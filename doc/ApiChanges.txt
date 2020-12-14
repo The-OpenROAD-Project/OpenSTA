@@ -16,6 +16,10 @@
 
 This file summarizes STA API changes for each release.
 
+Release 2.1.1 2020/12/13
+Report::error, Report::warn functions now take a unique message ID as a first argument.
+InternalError has been renamed Report::cricical.
+
 Release 2.1.0 2020/04/05
 
 All public headers files have been moved to include/sta.

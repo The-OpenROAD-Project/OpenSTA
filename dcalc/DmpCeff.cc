@@ -1586,7 +1586,7 @@ DmpCeffDelayCalc::gateDelay(const LibertyCell *drvr_cell,
     if (drvr_parasitic
 	&& !unsuppored_model_warned_) {
       unsuppored_model_warned_ = true;
-      report_->warn("cell %s delay model not supported on SPF parasitics by DMP delay calculator\n",
+      report_->warn(1, "cell %s delay model not supported on SPF parasitics by DMP delay calculator",
 		    drvr_cell->name());
     }
   }

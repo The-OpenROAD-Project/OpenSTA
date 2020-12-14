@@ -287,7 +287,7 @@ ReportPath::reportPathEndHeader()
     report_->print(header);
     break;
   default:
-    internalError("unsupported path type");
+    report_->critical(255, "unsupported path type");
     break;
   }
 }
@@ -308,7 +308,7 @@ ReportPath::reportPathEndFooter()
     report_->print("\n");
     break;
   default:
-    internalError("unsupported path type");
+    report_->critical(256, "unsupported path type");
     break;
   }
 }
@@ -351,7 +351,7 @@ ReportPath::reportPathEnd(PathEnd *end,
     report_->print(result);
     break;
   default:
-    internalError("unsupported path type");
+    report_->critical(257, "unsupported path type");
     break;
   }
 }
@@ -2351,7 +2351,7 @@ ReportPath::reportGenClkSrcPath1(Clock *clk,
       Arrival pll_delay = search_->genclks()->pllDelay(clk, clk_rf, pll_ap);
       size_t path_length = src_expanded.size();
       if (path_length < 2)
-	internalError("generated clock pll source path too short.\n");
+	report_->critical(258, "generated clock pll source path too short.\n");
       PathRef *path0 = src_expanded.path(path_length - 2);
       Arrival time0 = path0->arrival(this) + gclk_time;
       PathRef *path1 = src_expanded.path(path_length - 1);
@@ -2529,7 +2529,7 @@ ReportPath::reportPath(const Path *path,
   case ReportPathFormat::summary:
   case ReportPathFormat::slack_only:
   default:
-    internalError("unsupported path type");
+    report_->critical(259, "unsupported path type");
     break;
   }
 }

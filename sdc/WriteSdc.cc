@@ -1329,7 +1329,7 @@ WriteSdc::writeExceptionCmd(ExceptionPath *exception) const
       fprintf(stream_, "group_path -name %s", exception->name());
   }
   else
-    internalError("unknown exception type");
+    report_->critical(214, "unknown exception type");
 }
 
 void
@@ -1900,7 +1900,8 @@ WriteSdc::setConstantCmd(Pin *pin) const
   case LogicValue::rise:
   case LogicValue::fall:
   default:
-    internalError("illegal set_logic value");
+    report_->critical(215, "illegal set_logic value");
+    return nullptr;
   }
 }
 
@@ -1943,7 +1944,8 @@ WriteSdc::caseAnalysisValueStr(Pin *pin) const
     return "falling";
   case LogicValue::unknown:
   default:
-    internalError("invalid set_case_analysis value");
+    report_->critical(216, "invalid set_case_analysis value");
+    return nullptr;
   }
 }
 
@@ -2966,53 +2968,31 @@ transRiseFallFlag(const RiseFallBoth *rf)
     return " -rise";
   else if (rf == RiseFallBoth::fall())
     return " -fall";
-  else if (rf == RiseFallBoth::riseFall())
+  else
     return "";
-  else {
-    internalError("unknown transition");
-  }
-  return nullptr;
 }
 
 static const char *
 minMaxFlag(const MinMaxAll *min_max)
 {
-  if (min_max == MinMaxAll::all())
-    return "";
-  else if (min_max == MinMaxAll::min())
+  if (min_max == MinMaxAll::min())
     return " -min";
   else if (min_max == MinMaxAll::max())
     return " -max";
-  else {
-    internalError("unknown MinMaxAll");
-    return nullptr;
-  }
+  else
+    return "";
 }
 
 static const char *
 minMaxFlag(const MinMax *min_max)
 {
-  if (min_max == MinMax::min())
-    return " -min";
-  else if (min_max == MinMax::max())
-    return " -max";
-  else {
-    internalError("unknown MinMax");
-    return nullptr;
-  }
+  return (min_max == MinMax::min()) ? " -min" : " -max";
 }
 
 static const char *
 earlyLateFlag(const MinMax *early_late)
 {
-  if (early_late == MinMax::min())
-    return "-early";
-  else if (early_late == MinMax::max())
-    return "-late";
-  else {
-    internalError("unknown EarlyLate");
-    return nullptr;
-  }
+  return (early_late == MinMax::min()) ? "-early" : "-late";
 }
 
 void
@@ -3027,14 +3007,7 @@ WriteSdc::writeSetupHoldFlag(const MinMaxAll *min_max) const
 static const char *
 setupHoldFlag(const MinMax *min_max)
 {
-  if (min_max == MinMax::min())
-    return " -hold";
-  else if (min_max == MinMax::max())
-    return " -setup";
-  else {
-    internalError("unknown MinMax");
-    return nullptr;
-  }
+  return (min_max == MinMax::min()) ?  " -hold" : " -setup";
 }
 
 void

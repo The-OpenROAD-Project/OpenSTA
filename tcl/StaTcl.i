@@ -2230,7 +2230,7 @@ set_cmd_namespace_cmd(const char *namespc)
   else if (stringEq(namespc, "sta"))
     Sta::sta()->setCmdNamespace(CmdNamespace::sta);
   else
-    internalError("unknown namespace");
+    criticalError(269, "unknown namespace");
 }
 
 bool
@@ -2748,7 +2748,7 @@ set_analysis_type_cmd(const char *analysis_type)
   else if (stringEq(analysis_type, "on_chip_variation"))
     type = AnalysisType::ocv;
   else {
-    internalError("unknown analysis type");
+    criticalError(270, "unknown analysis type");
     type = AnalysisType::single;
   }
   Sta::sta()->setAnalysisType(type);
@@ -2885,7 +2885,7 @@ set_wire_load_mode_cmd(const char *mode_name)
 {
   WireloadMode mode = stringWireloadMode(mode_name);
   if (mode == WireloadMode::unknown)
-    internalError("unknown wire load mode");
+    criticalError(271, "unknown wire load mode");
   else
     Sta::sta()->setWireloadMode(mode);
 }
@@ -4101,7 +4101,7 @@ set_crpr_mode(const char *mode)
   else if (stringEq(mode, "same_transition"))
     Sta::sta()->setCrprMode(CrprMode::same_transition);
   else
-    internalError("unknown common clk pessimism mode.");
+    criticalError(272, "unknown common clk pessimism mode.");
 }
 
 bool
@@ -4115,7 +4115,7 @@ set_pocv_enabled(bool enabled)
 {
 #if !SSTA
   if (enabled)
-    Sta::sta()->report()->error("POCV support requires compilation with SSTA=1.\n");
+    Sta::sta()->report()->error(204, "POCV support requires compilation with SSTA=1.");
 #endif
   return Sta::sta()->setPocvEnabled(enabled);
 }
@@ -5013,7 +5013,7 @@ set_clock_sense_cmd(PinSet *pins,
   else if (stop_propagation)
     sense = ClockSense::stop;
   else
-    internalError("unknown clock sense");
+    criticalError(273, "unknown clock sense");
   Sta::sta()->setClockSense(pins, clks, sense);
 }
 

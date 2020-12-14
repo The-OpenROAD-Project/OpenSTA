@@ -153,7 +153,9 @@ public:
   void incrLine();
   const char *filename() { return filename_; }
   int line() { return line_; }
-  void sdfError(const char *fmt, ...);
+  void sdfError(int id,
+                const char *fmt,
+                ...);
   void notSupported(const char *feature);
 
 private:

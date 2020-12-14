@@ -66,10 +66,10 @@ Parasitics::check(Parasitic *) const
 	res_count++;
     }
     if (res_count == 0)
-      report->warn("sub node %s has no resistor connections\n",
+      report->warn("sub node %s has no resistor connections",
 		   node->name(network));
     else if (res_count == 1)
-      report->warn("sub node %s has one resistor connection\n",
+      report->warn("sub node %s has one resistor connection",
 		   node->name(network));
   }
 #endif

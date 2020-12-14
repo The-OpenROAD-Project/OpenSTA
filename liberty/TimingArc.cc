@@ -248,7 +248,7 @@ TimingArcSet::addTimingArc(TimingArc *arc)
 {
   TimingArcIndex arc_index = arcs_.size();
   if (arc_index > timing_arc_index_max)
-    internalError("timing arc max index exceeded\n");
+    criticalError(243, "timing arc max index exceeded\n");
   arcs_.push_back(arc);
 
   int from_rf_index = arc->fromTrans()->asRiseFall()->index();

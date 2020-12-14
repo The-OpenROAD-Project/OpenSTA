@@ -186,7 +186,7 @@ InternalPowerModel::findAxisValues(float in_slew,
     axis_value3 = axisValue(model_->axis3(), in_slew, load_cap);
     break;
   default:
-    internalError("unsupported table order");
+    criticalError(229, "unsupported table order");
   }
 }
 
@@ -201,7 +201,7 @@ InternalPowerModel::axisValue(TableAxis *axis,
   else if (var == TableAxisVariable::total_output_net_capacitance)
     return load_cap;
   else {
-    internalError("unsupported table axes");
+    criticalError(230, "unsupported table axes");
     return 0.0;
   }
 }

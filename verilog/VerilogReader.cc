@@ -74,7 +74,8 @@ deleteVerilogReader()
 class VerilogError
 {
 public:
-  VerilogError(const char *filename,
+  VerilogError(int id,
+               const char *filename,
 	       int line,
 	       const char *msg,
 	       bool warn);
@@ -85,6 +86,7 @@ public:
 private:
   DISALLOW_COPY_AND_ASSIGN(VerilogError);
 
+  int id_;
   const char *filename_;
   int line_;
   const char *msg_;
@@ -93,10 +95,12 @@ private:
   friend class VerilogErrorCmp;
 };
 
-VerilogError::VerilogError(const char *filename,
+VerilogError::VerilogError(int id,
+                           const char *filename,
 			   int line,
 			   const char *msg,
 			   bool warn) :
+  id_(id),
   filename_(filename),
   line_(line),
   msg_(msg),
@@ -114,9 +118,9 @@ void
 VerilogError::report(Report *report)
 {
   if (warn_)
-    report->fileWarn(filename_, line_, "%s", msg_);
+    report->fileWarn(id_, filename_, line_, "%s", msg_);
   else
-    report->fileError(filename_, line_, "%s", msg_);
+    report->fileError(id_, filename_, line_, "%s", msg_);
 }
 
 class VerilogErrorCmp
@@ -320,8 +324,8 @@ VerilogReader::makeCellPorts(Cell *cell,
       }
     }
     else
-      warn(module->filename(), module->line(),
-	   "module %s repeated port name %s.\n",
+      warn(165, module->filename(), module->line(),
+	   "module %s repeated port name %s.",
 	   module->name(),
 	   port_name);
   }
@@ -346,8 +350,8 @@ VerilogReader::makeCellPort(Cell *cell,
     return port;
   }
   else {
-    warn(module->filename(), module->line(),
-	 "module %s missing declaration for port %s.\n",
+    warn(166, module->filename(), module->line(),
+	 "module %s missing declaration for port %s.",
 	 module->name(),
 	 port_name);
     return network_->makePort(cell, port_name);
@@ -388,8 +392,8 @@ VerilogReader::checkModuleDcls(VerilogModule *module,
 	|| dir->isOutput()
 	|| dir->isBidirect()) {
       if (port_names.findKey(port_name) == nullptr)
-	linkWarn(module->filename(), module->line(),
-		 "module %s declared signal %s is not in the port list.\n",
+	linkWarn(197, module->filename(), module->line(),
+		 "module %s declared signal %s is not in the port list.",
 		 module->name(),
 		 port_name);
     }
@@ -723,24 +727,26 @@ VerilogReader::reportStmtCounts()
 }
 
 void
-VerilogReader::error(const char *filename,
+VerilogReader::error(int id,
+                     const char *filename,
 		     int line,
 		     const char *fmt, ...)
 {
   va_list args;
   va_start(args, fmt);
-  report()->vfileError(filename, line, fmt, args);
+  report()->vfileError(id, filename, line, fmt, args);
   va_end(args);
 }
 
 void
-VerilogReader::warn(const char *filename,
+VerilogReader::warn(int id,
+                    const char *filename,
 		    int line,
 		    const char *fmt, ...)
 {
   va_list args;
   va_start(args, fmt);
-  report()->vfileWarn(filename, line, fmt, args);
+  report()->vfileWarn(id, filename, line, fmt, args);
   va_end(args);
 }
 
@@ -830,8 +836,8 @@ VerilogModule::parseDcl(VerilogDcl *dcl,
 	// input/output/inout dcls.
 	dcl_map_[net_name] = dcl;
       else if (!dcl->direction()->isInternal())
-	reader->warn(filename_, dcl->line(),
-		     "signal %s previously declared on line %d.\n",
+	reader->warn(18, filename_, dcl->line(),
+		     "signal %s previously declared on line %d.",
 		     reader->netVerilogName(net_name),
 		     existing_dcl->line());
     }
@@ -856,8 +862,8 @@ VerilogModule::checkInstanceName(VerilogInst *inst,
 	stringDelete(replacement_name);
       replacement_name = stringPrint("%s_%d", inst_name, i);
     } while (inst_names.findKey(replacement_name));
-    reader->warn(filename_, inst->line(),
-		 "instance name %s duplicated - renamed to %s.\n",
+    reader->warn(19, filename_, inst->line(),
+		 "instance name %s duplicated - renamed to %s.",
 		 reader->instanceVerilogName(inst_name),
 		 replacement_name);
     inst_name = replacement_name;
@@ -1497,8 +1503,8 @@ VerilogNetConstant::parseConstant10(const char *constant_str,
   if (length > max_length
       || (length == max_length
 	  && strcmp(tmp, reader->constant10Max()) > 0))
-    reader->warn(reader->filename(), reader->line(),
-		 "base 10 constant greater than %s not supported.\n",
+    reader->warn(20, reader->filename(), reader->line(),
+		 "base 10 constant greater than %s not supported.",
 		 reader->constant10Max());
   else {
     char *end;
@@ -1741,12 +1747,12 @@ VerilogReader::linkNetwork(const char *top_cell_name,
 	return top_instance;
     }
     else {
-      report->error("%s is not a verilog module.\n", top_cell_name);
+      report->error(162, "%s is not a verilog module.", top_cell_name);
       return nullptr;
     }
   }
   else {
-    report->error("%s is not a verilog module.\n", top_cell_name);
+    report->error(163, "%s is not a verilog module.", top_cell_name);
     return nullptr;
   }
 }
@@ -1803,14 +1809,14 @@ VerilogReader::makeModuleInstNetwork(VerilogModuleInst *mod_inst,
   if (cell == nullptr) {
     if (make_black_boxes) {
       cell = makeBlackBox(mod_inst, parent_module);
-      linkWarn(filename_, mod_inst->line(),
-	       "module %s not found.  Creating black box for %s.\n",
+      linkWarn(198, filename_, mod_inst->line(),
+	       "module %s not found.  Creating black box for %s.",
 	       mod_inst->moduleName(),
 	       verilogName(mod_inst));
     }
     else
-      linkError(filename_, mod_inst->line(),
-		"module %s not found for instance %s.\n",
+      linkError(199, filename_, mod_inst->line(),
+		"module %s not found for instance %s.",
 		mod_inst->moduleName(),
 		verilogName(mod_inst));
   }
@@ -1863,8 +1869,8 @@ VerilogReader::makeNamedInstPins(Cell *cell,
     if (port) {
       if (vpin->hasNet()
 	  && network_->size(port) != vpin->size(parent_module))
-	linkWarn(parent_module->filename(), mod_inst->line(),
-		 "instance %s port %s size %d does not match net size %d.\n",
+	linkWarn(200, parent_module->filename(), mod_inst->line(),
+		 "instance %s port %s size %d does not match net size %d.",
 		 verilogName(mod_inst),
 		 network_->name(port),
 		 network_->size(port),
@@ -1889,8 +1895,8 @@ VerilogReader::makeNamedInstPins(Cell *cell,
       }
     }
     else {
-      linkWarn(parent_module->filename(), mod_inst->line(),
-	       "instance %s port %s not found.\n",
+      linkWarn(201, parent_module->filename(), mod_inst->line(),
+	       "instance %s port %s not found.",
 	       verilogName(mod_inst),
 	       port_name);
     }
@@ -1913,8 +1919,8 @@ VerilogReader::makeOrderedInstPins(Cell *cell,
     VerilogNet *net = pin_iter.next();
     Port *port = port_iter->next();
     if (network_->size(port) != net->size(parent_module))
-      linkWarn(parent_module->filename(), mod_inst->line(),
-	       "instance %s port %s size %d does not match net size %d.\n",
+      linkWarn(202, parent_module->filename(), mod_inst->line(),
+	       "instance %s port %s size %d does not match net size %d.",
 	       verilogName(mod_inst),
 	       network_->name(port),
 	       network_->size(port),
@@ -2114,8 +2120,8 @@ VerilogReader::mergeAssignNet(VerilogAssign *assign,
     delete rhs_iter;
   }
   else
-    linkWarn(module->filename(), assign->line(),
-	     "assign left hand side size %d not equal right hand size %d.\n",
+    linkWarn(203, module->filename(), assign->line(),
+	     "assign left hand side size %d not equal right hand size %d.",
 	     lhs->size(module),
 	     rhs->size(module));
 }
@@ -2181,27 +2187,29 @@ VerilogBindingTbl::ensureNetBinding(const char *net_name,
 ////////////////////////////////////////////////////////////////
 
 void
-VerilogReader::linkWarn(const char *filename,
+VerilogReader::linkWarn(int id,
+                        const char *filename,
 			int line,
 			const char *msg, ...)
 {
   va_list args;
   va_start(args, msg);
   char *msg_str = stringPrintArgs(msg, args);
-  VerilogError *error = new VerilogError(filename, line, msg_str, true);
+  VerilogError *error = new VerilogError(id, filename, line, msg_str, true);
   link_errors_.push_back(error);
   va_end(args);
 }
 
 void
-VerilogReader::linkError(const char *filename,
+VerilogReader::linkError(int id,
+                         const char *filename,
 			 int line,
 			 const char *msg, ...)
 {
   va_list args;
   va_start(args, msg);
   char *msg_str = stringPrintArgs(msg, args);
-  VerilogError *error = new VerilogError(filename, line, msg_str, false);
+  VerilogError *error = new VerilogError(id, filename, line, msg_str, false);
   link_errors_.push_back(error);
   va_end(args);
 }
@@ -2234,7 +2242,8 @@ void verilogFlushBuffer();
 int
 VerilogParse_error(const char *msg)
 {
-  sta::verilog_reader->report()->fileError(sta::verilog_reader->filename(),
+  sta::verilog_reader->report()->fileError(164,
+                                           sta::verilog_reader->filename(),
 					   sta::verilog_reader->line(),
 					   "%s.\n", msg);
   verilogFlushBuffer();

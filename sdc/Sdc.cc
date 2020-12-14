@@ -2462,7 +2462,7 @@ Sdc::reportClkToClkMaxCycleWarnings()
   sort(clk_warnings2, ClockPairLess());
 
   for (auto pair : clk_warnings2) {
-    report_->warn("No common period was found between clocks %s and %s.\n",
+    report_->warn(9, "No common period was found between clocks %s and %s.",
 		  pair.first->name(),
 		  pair.second->name());
   }
@@ -4178,7 +4178,7 @@ Sdc::makeGroupPath(const char *name,
 {
   checkFromThrusTo(from, thrus, to);
   if (name && is_default)
-    internalError("group path name and is_default are mutually exclusive.");
+    report_->critical(213, "group path name and is_default are mutually exclusive.");
   else if (name) {
     GroupPath *group_path = new GroupPath(name, is_default, from, thrus, to,
 					  true, comment);

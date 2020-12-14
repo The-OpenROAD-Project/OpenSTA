@@ -604,7 +604,7 @@ void arnoldi1::calculate_poles_res(delay_work *D,double rdrive)
   dsave = d[0];
   d[0] += rdrive*ctot;
   if (!tridiagEV(order,d,e,p,v))
-    internalError("arnoldi delay calc failed.\n");
+    criticalError(204, "arnoldi delay calc failed.");
   d[0] = dsave;
 
   for (h=0;h<order;h++) {

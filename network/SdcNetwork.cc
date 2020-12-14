@@ -1023,7 +1023,7 @@ SdcNetwork::parsePath(const char *path,
     else
       *p++ = ch;
     if (p - inst_path + 1 > inst_path_length)
-      internalError("inst path string lenth estimate busted");
+      report_->critical(211, "inst path string lenth estimate busted");
   }
   *p = '\0';
   stringDelete(inst_path);
@@ -1095,7 +1095,7 @@ SdcNetwork::visitMatches(const Instance *parent,
       *p++ = ch;
     }
     if (p - inst_path + 1 > inst_path_length)
-      internalError("inst path string lenth estimate busted");
+      report_->critical(212, "inst path string lenth estimate exceeded");
   }
   *p = '\0';
   if (!found_match) {

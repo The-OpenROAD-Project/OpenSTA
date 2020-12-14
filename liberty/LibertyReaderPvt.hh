@@ -492,17 +492,20 @@ protected:
   FuncExpr *parseFunc(const char *func,
 		      const char *attr_name,
 		      int line);
-  void libWarn(LibertyStmt *stmt,
+  void libWarn(int id,
+               LibertyStmt *stmt,
 	       const char *fmt,
 	       ...)
-    __attribute__((format (printf, 3, 4)));
-  void libWarn(int line,
+    __attribute__((format (printf, 4, 5)));
+  void libWarn(int id,
+               int line,
 	       const char *fmt,
 	       ...)
-    __attribute__((format (printf, 3, 4)));
-  void libError(LibertyStmt *stmt,
+    __attribute__((format (printf, 4, 5)));
+  void libError(int id,
+                LibertyStmt *stmt,
 		const char *fmt, ...)
-    __attribute__((format (printf, 3, 4)));
+    __attribute__((format (printf, 4, 5)));
 
   const char *filename_;
   bool infer_latches_;

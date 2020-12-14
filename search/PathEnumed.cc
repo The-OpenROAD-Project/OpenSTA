@@ -120,18 +120,18 @@ PathEnumed::setArrival(Arrival arrival,
 }
 
 const Required &
-PathEnumed::required(const StaState *) const
+PathEnumed::required(const StaState *sta) const
 {
   // Required times are never needed for enumerated paths.
-  internalError("enumerated path required time\n");
+  sta->report()->critical(251, "enumerated path required time\n");
 }
 
 void
 PathEnumed::setRequired(const Required &,
-			const StaState *)
+			const StaState *sta)
 {
   // Required times are never needed for enumerated paths.
-  internalError("enumerated path required time\n");
+  sta->report()->critical(252, "enumerated path required time\n");
 }
 
 Path *
