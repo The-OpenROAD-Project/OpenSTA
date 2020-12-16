@@ -44,7 +44,7 @@ proc_redirect read_sdf {
       # -analysis_type is an implicit set_operating_conditions
       set_analysis_type_cmd $analysis_type
     } else {
-      sta_error "-analysis_type must be single, bc_wc or on_chip_variation"
+      sta_error 429 "-analysis_type must be single, bc_wc or on_chip_variation"
     }
   }
 
@@ -57,7 +57,7 @@ proc_redirect read_sdf {
     }
     if { $cond_use == "min_max" \
 	   && { [operating_condition_analysis_type] == "single" }} {
-      sta_error "-cond_use min_max cannot be used with analysis type single."
+      sta_error 430 "-cond_use min_max cannot be used with analysis type single."
     }
   }
 
@@ -105,7 +105,7 @@ proc parse_sdf_index { key index } {
   } elseif { $index == "sdf_max" } {
     return 2
   } else {
-    sta_error "$key must be sdf_min, sdf_typ, or sdf_max."
+    sta_error 431 "$key must be sdf_min, sdf_typ, or sdf_max."
   }
 }
 
@@ -207,7 +207,7 @@ proc_redirect write_sdf {
   if [info exists keys(-divider)] {
     set divider $keys(-divider)
     if { !($divider == "/" || $divider == ".") } {
-      sta_error "SDF -divider must be / or ."
+      sta_error 432 "SDF -divider must be / or ."
     }
   }
   set digits 3

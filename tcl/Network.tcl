@@ -22,7 +22,7 @@ proc set_cmd_namespace { namespc } {
   if { $namespc == "sdc" || $namespc == "sta" } {
     set_cmd_namespace_cmd $namespc
   } else {
-    sta_error "unknown namespace $namespc."
+    sta_error 589 "unknown namespace $namespc."
   }
 }
 
@@ -52,7 +52,7 @@ proc_redirect report_instance {
   if { $instance != "NULL" } {
     report_instance1 $instance $connections $verbose
   } else {
-    sta_error "instance $instance_path not found."
+    sta_error 590 "instance $instance_path not found."
   }
 }
 
@@ -271,10 +271,10 @@ proc_redirect report_net {
       if { $net != "NULL" } {
 	report_net1 $net $connections $verbose $hier_pins $corner $digits
       } else {
-	sta_error "net $net_path not found."
+	sta_error 591 "net $net_path not found."
       }
     } else {
-      sta_error "net $net_path not found."
+      sta_error 592 "net $net_path not found."
     }
   }
 }

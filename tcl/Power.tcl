@@ -220,7 +220,7 @@ proc set_power_activity { args } {
     set activity $keys(-activity)
     check_float "activity" $activity
     if { $activity < 0.0 } {
-      sta_warn "activity should be 0.0 to 1.0 or 2.0"
+      sta_warn 301 "activity should be 0.0 to 1.0 or 2.0"
     }
   }
   set duty 0.5
@@ -228,7 +228,7 @@ proc set_power_activity { args } {
     set duty $keys(-duty)
     check_float "duty" $duty
     if { $duty < 0.0 || $duty > 1.0 } {
-      sta_warn "duty should be 0.0 to 1.0"
+      sta_warn 302 "duty should be 0.0 to 1.0"
     }
   }
 

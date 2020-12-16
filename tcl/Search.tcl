@@ -143,7 +143,7 @@ proc_redirect report_path {
     flags {-max -min -all -tags} 0
 
   if { [info exists flags(-min)] && [info exists flags(-max)] } {
-    sta_error "-min and -max cannot both be specified."
+    sta_error 508 "-min and -max cannot both be specified."
   } elseif [info exists flags(-min)] {
     set min_max "min"
   } elseif [info exists flags(-max)] {
@@ -163,7 +163,7 @@ proc_redirect report_path {
 
   set pin [get_port_pin_error "pin" $pin_arg]
   if { [$pin is_hierarchical] } {
-    sta_error "pin '$pin_arg' is hierarchical."
+    sta_error 509 "pin '$pin_arg' is hierarchical."
   } else {
     foreach vertex [$pin vertices] {
       if { $vertex != "NULL" } {
@@ -229,7 +229,7 @@ proc parse_report_path_options { cmd args_var default_format
     set formats {full full_clock full_clock_expanded short \
 		   end slack_only summary json}
     if { [lsearch $formats $format] == -1 } {
-      sta_error "-format $format not recognized."
+      sta_error 510 "-format $format not recognized."
     }
   } else {
     set path_options(-format) $default_format
@@ -376,7 +376,7 @@ proc parse_path_group_arg { group_names } {
     if { [is_path_group_name $name] } {
       lappend names $name
     } else {
-      sta_warn "unknown path group '$name'."
+      sta_warn 318 "unknown path group '$name'."
     }
   }
   return $names

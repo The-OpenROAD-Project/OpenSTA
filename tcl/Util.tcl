@@ -41,7 +41,7 @@ proc parse_key_args { cmd arg_var key_var keys {flag_var ""} {flags {}} \
       if { $key_index >= 0 } {
 	set key $arg
 	if { [llength $args] == 1 } {
-	  sta_error "$cmd $key missing value."
+	  sta_error 400 "$cmd $key missing value."
 	}
 	set key_value($key) [lindex $args 1]
 	set args [lrange $args 1 end]
@@ -58,7 +58,7 @@ proc parse_key_args { cmd arg_var key_var keys {flag_var ""} {flags {}} \
 	  if { $key_index >= 0 } {
 	    set key [lindex $keys $key_index]
 	    if { [llength $args] == 1 } {
-	      sta_error "$cmd $key missing value."
+	      sta_error 401 "$cmd $key missing value."
 	    }
 	    set key_value($key) [lindex $args 1]
 	    set args [lrange $args 1 end]
@@ -68,7 +68,7 @@ proc parse_key_args { cmd arg_var key_var keys {flag_var ""} {flags {}} \
 	      set flag [lindex $flags $flag_index]
 	      set flag_present($flag) 1
 	    } elseif { $unknown_key_is_error } {
-	      sta_error "$cmd $arg is not a known keyword or flag."
+	      sta_error 402 "$cmd $arg is not a known keyword or flag."
 	    } else {
 	      lappend args_rtn $arg
 	    }
@@ -90,7 +90,7 @@ proc check_for_key_args { cmd arg_var } {
   while { $args != "" } {
     set arg [lindex $args 0]
     if { [is_keyword_arg $arg] } {
-      sta_error "$cmd $arg is not a known keyword or flag."
+      sta_error 403 "$cmd $arg is not a known keyword or flag."
     } else {
       lappend args_rtn $arg
     }
@@ -188,9 +188,9 @@ proc cmd_usage_error { cmd } {
   variable cmd_args
 
   if [info exists cmd_args($cmd)] {
-    sta_error "Usage: $cmd $cmd_args($cmd)"
+    sta_error 404 "Usage: $cmd $cmd_args($cmd)"
   } else {
-    sta_error "Usage: $cmd argument error"
+    sta_error 405 "Usage: $cmd argument error"
   }
 }
 
@@ -215,7 +215,7 @@ proc_redirect help {
       show_cmd_args $cmd
     }
   } else {
-    sta_warn "no commands match '$pattern'."
+    sta_warn 300 "no commands match '$pattern'."
   }
 }
 
@@ -251,7 +251,7 @@ proc show_cmd_args { cmd } {
 
 ################################################################
 
-proc sta_warn { msg } {
+proc sta_warn { id msg } {
   variable sdc_file
   variable sdc_line
   if { [info exists sdc_file] } {
@@ -261,7 +261,7 @@ proc sta_warn { msg } {
   }
 }
 
-proc sta_error { msg } {
+proc sta_error { id msg } {
   variable sdc_file
   variable sdc_line
   if { [info exists sdc_file] } {
@@ -271,11 +271,11 @@ proc sta_error { msg } {
   }
 }
 
-proc sta_warn_error { warn_error msg } {
+proc sta_warn_error { id warn_error msg } {
   if { $warn_error == "warn" } {
-    sta_warn $msg
+    sta_warn $id $msg
   } else {
-    sta_error $msg
+    sta_error $id $msg
   }
 }
 
@@ -305,45 +305,45 @@ define_cmd_args "log_end" {}
 
 proc check_argc_eq0 { cmd arglist } {
   if { $arglist != {} } {
-    sta_error "$cmd positional arguments not supported."
+    sta_error 406 "$cmd positional arguments not supported."
   }
 }
 
 proc check_argc_eq1 { cmd arglist } {
   if { [llength $arglist] != 1 } {
-    sta_error "$cmd requires one positional argument."
+    sta_error 407 "$cmd requires one positional argument."
   }
 }
 
 proc check_argc_eq0or1 { cmd arglist } {
   set argc [llength $arglist]
   if { $argc != 0 && $argc != 1 } {
-    sta_error "$cmd requires zero or one positional arguments."
+    sta_error 408 "$cmd requires zero or one positional arguments."
   }
 }
 
 proc check_argc_eq2 { cmd arglist } {
   if { [llength $arglist] != 2 } {
-    sta_error "$cmd requires two positional arguments."
+    sta_error 409 "$cmd requires two positional arguments."
   }
 }
 
 proc check_argc_eq1or2 { cmd arglist } {
   set argc [llength $arglist]
   if { $argc != 1 && $argc != 2 } {
-    sta_error "$cmd requires one or two positional arguments."
+    sta_error 410 "$cmd requires one or two positional arguments."
   }
 }
 
 proc check_argc_eq3 { cmd arglist } {
   if { [llength $arglist] != 3 } {
-    sta_error "$cmd requires three positional arguments."
+    sta_error 411 "$cmd requires three positional arguments."
   }
 }
 
 proc check_argc_eq4 { cmd arglist } {
   if { [llength $arglist] != 4 } {
-    sta_error "$cmd requires four positional arguments."
+    sta_error 412 "$cmd requires four positional arguments."
   }
 }
 
@@ -351,37 +351,37 @@ proc check_argc_eq4 { cmd arglist } {
 
 proc check_float { cmd_arg arg } {
   if {![string is double $arg]} {
-    sta_error "$cmd_arg '$arg' is not a float."
+    sta_error 413 "$cmd_arg '$arg' is not a float."
   }
 }
 
 proc check_positive_float { cmd_arg arg } {
   if {!([string is double $arg] && $arg >= 0.0)} {
-    sta_error "$cmd_arg '$arg' is not a positive float."
+    sta_error 414 "$cmd_arg '$arg' is not a positive float."
   }
 }
 
 proc check_integer { cmd_arg arg } {
   if {!([string is integer $arg])} {
-    sta_error "$cmd_arg '$arg' is not an integer."
+    sta_error 415 "$cmd_arg '$arg' is not an integer."
   }
 }
 
 proc check_positive_integer { cmd_arg arg } {
   if {!([string is integer $arg] && $arg >= 0)} {
-    sta_error "$cmd_arg '$arg' is not a positive integer."
+    sta_error 416 "$cmd_arg '$arg' is not a positive integer."
   }
 }
 
 proc check_cardinal { cmd_arg arg } {
   if {!([string is integer $arg] && $arg >= 1)} {
-    sta_error "$cmd_arg '$arg' is not an integer greater than or equal to one."
+    sta_error 417 "$cmd_arg '$arg' is not an integer greater than or equal to one."
   }
 }
 
 proc check_percent { cmd_arg arg } {
   if {!([string is double $arg] && $arg >= 0.0 && $arg <= 100.0)} {
-    sta_error "$cmd_arg '$arg' is not between 0 and 100."
+    sta_error 418 "$cmd_arg '$arg' is not between 0 and 100."
   }
 }
 

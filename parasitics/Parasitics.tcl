@@ -43,7 +43,7 @@ proc_redirect read_spef {
     set path $keys(-path)
     set instance [find_instance $path]
     if { $instance == "NULL" } {
-      sta_error "path instance '$path' not found."
+      sta_error 433 "path instance '$path' not found."
     }
   }
   set min_max [parse_min_max_all_flags flags]
@@ -60,7 +60,7 @@ proc_redirect read_spef {
   if [info exists keys(-reduce_to)] {
     set reduce_to $keys(-reduce_to)
     if { !($reduce_to == "pi_elmore" || $reduce_to == "pi_pole_residue2") } {
-      sta_error "-reduce_to must be pi_elmore or pi_pole_residue2."
+      sta_error 434 "-reduce_to must be pi_elmore or pi_pole_residue2."
     }
   }
   set delete_after_reduce [info exists flags(-delete_after_reduce)]

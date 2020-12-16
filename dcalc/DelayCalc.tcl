@@ -117,7 +117,7 @@ proc set_delay_calculator { alg } {
   if { [is_delay_calc_name $alg] } {
     set_delay_calculator_cmd $alg
   } else {
-    sta_error "delay calculator $alg not found."
+    sta_error 435 "delay calculator $alg not found."
   }
 }
 

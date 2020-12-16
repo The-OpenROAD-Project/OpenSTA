@@ -117,7 +117,7 @@ proc_redirect report_clock_skew {
   check_argc_eq0 "report_clock_skew" $args
 
   if { [info exists flags(-setup)] && [info exists flags(-hold)] } {
-    sta_error "report_clock_skew -setup and -hold are mutually exclusive options."
+    sta_error 419 "report_clock_skew -setup and -hold are mutually exclusive options."
   } elseif { [info exists flags(-setup)] } {
     set setup_hold "setup"
   } elseif { [info exists flags(-hold)] } {
@@ -192,7 +192,7 @@ proc find_timing_paths_cmd { cmd args_var } {
     } elseif { $mm_key == "min" || $mm_key == "max" || $mm_key == "min_max" } {
       set min_max $mm_key
     } else {
-      sta_error "$cmd -path_delay must be min, min_rise, min_fall, max, max_rise, max_fall or min_max."
+      sta_error 420 "$cmd -path_delay must be min, min_rise, min_fall, max, max_rise, max_fall or min_max."
     }
   }
 
@@ -202,7 +202,7 @@ proc find_timing_paths_cmd { cmd args_var } {
   set to [parse_to_arg1 keys $end_rf arg_error]
   if { $arg_error } {
     delete_from_thrus_to $from $thrus $to
-    sta_error "$cmd command failed."
+    sta_error 421 "$cmd command failed."
   }
 
   check_for_key_args $cmd args
@@ -221,7 +221,7 @@ proc find_timing_paths_cmd { cmd args_var } {
   if [info exists keys(-endpoint_count)] {
     set endpoint_count $keys(-endpoint_count)
     if { $endpoint_count < 1 } {
-      sta_error "-endpoint_count must be a positive integer."
+      sta_error 422 "-endpoint_count must be a positive integer."
     }
   }
 
@@ -229,7 +229,7 @@ proc find_timing_paths_cmd { cmd args_var } {
   if [info exists keys(-group_count)] {
     set group_count $keys(-group_count)
     if { $group_count < 1 } {
-      sta_error "-group_count must be a positive integer."
+      sta_error 423 "-group_count must be a positive integer."
     }
   }
 
@@ -260,9 +260,9 @@ proc find_timing_paths_cmd { cmd args_var } {
     delete_from_thrus_to $from $thrus $to
     set arg [lindex $args 0]
     if { [is_keyword_arg $arg] } {
-      sta_error "'$arg' is not a known keyword or flag."
+      sta_error 424 "'$arg' is not a known keyword or flag."
     } else {
-      sta_error "positional arguments not supported."
+      sta_error 425 "positional arguments not supported."
     }
   }
 
@@ -427,12 +427,12 @@ proc_redirect report_check_types {
 	   && (($setup && $hold) \
 		 || ($recovery && $removal) \
 		 || ($clk_gating_setup && $clk_gating_hold)) } {
-      sta_error "analysis type single is not consistent with doing both setup/max and hold/min checks."
+      sta_error 426 "analysis type single is not consistent with doing both setup/max and hold/min checks."
     }
   }
 
   if { $args != {} } {
-    sta_error "positional arguments not supported."
+    sta_error 427 "positional arguments not supported."
   }
 
   set corner [parse_corner_or_all keys]
@@ -861,7 +861,7 @@ proc set_assigned_transition { args } {
 
   set slew [lindex $args 0]
   if {![string is double $slew]} {
-    sta_error "set_assigned_transition transition is not a float."
+    sta_error 428 "set_assigned_transition transition is not a float."
   }
   set slew [time_ui_sta $slew]
   set pins [get_port_pins_error "pins" [lindex $args 1]]
