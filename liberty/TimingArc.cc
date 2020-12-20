@@ -146,7 +146,7 @@ TimingArc::driveResistance() const
     return 0.0;
 }
 
-float
+ArcDelay
 TimingArc::intrinsicDelay() const
 {
   GateTimingModel *model = dynamic_cast<GateTimingModel*>(model_);

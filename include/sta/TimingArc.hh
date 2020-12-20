@@ -20,6 +20,7 @@
 #include "DisallowCopyAssign.hh"
 #include "Vector.hh"
 #include "Transition.hh"
+#include "Delay.hh"
 #include "LibertyClass.hh"
 
 namespace sta {
@@ -259,7 +260,7 @@ public:
   void setCornerArc(TimingArc *corner_arc,
 		    int ap_index);
   float driveResistance() const;
-  float intrinsicDelay() const;
+  ArcDelay intrinsicDelay() const;
 
   static bool equiv(const TimingArc *arc1,
 		    const TimingArc *arc2);

@@ -23,6 +23,7 @@
 #include "RiseFallValues.hh"
 #include "MinMaxValues.hh"
 #include "Transition.hh"
+#include "Delay.hh"
 #include "LibertyClass.hh"
 
 namespace sta {
@@ -43,6 +44,7 @@ class OcvDerate;
 class TimingArcAttrs;
 class InternalPowerAttrs;
 class LibertyPgPort;
+class StaState;
 
 typedef Set<Library*> LibrarySet;
 typedef Map<const char*, TableTemplate*, CharPtrLess> TableTemplateMap;
@@ -169,9 +171,9 @@ public:
   void setDefaultBidirectPinCap(float cap);
 
   void defaultIntrinsic(const RiseFall *rf,
-			// Return values.
-			float &intrisic,
-			bool &exists) const;
+                        // Return values.
+                        float &intrisic,
+                        bool &exists) const;
   void setDefaultIntrinsic(const RiseFall *rf,
 			   float value);
   // Uses defaultOutputPinRes or defaultBidirectPinRes based on dir.
@@ -662,9 +664,10 @@ public:
   float driveResistance(const RiseFall *rf,
 			const MinMax *min_max) const;
   // Zero load delay.
-  float intrinsicDelay() const;
-  float intrinsicDelay(const RiseFall *rf,
-		       const MinMax *min_max) const;
+  ArcDelay intrinsicDelay(const StaState *sta) const;
+  ArcDelay intrinsicDelay(const RiseFall *rf,
+                          const MinMax *min_max,
+                          const StaState *sta) const;
   FuncExpr *function() const { return function_; }
   void setFunction(FuncExpr *func);
   FuncExpr *&functionRef() { return function_; }

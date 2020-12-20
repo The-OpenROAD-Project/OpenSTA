@@ -5978,7 +5978,7 @@ requireds_clk_delays(const RiseFall *rf,
   return requireds;
 }
 
-float
+Slack
 slack(MinMax *min_max)
 {
   Sta *sta = Sta::sta();

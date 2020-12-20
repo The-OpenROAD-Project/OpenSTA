@@ -2027,17 +2027,18 @@ LibertyPort::driveResistance(const RiseFall *rf,
     return 0.0;
 }
 
-float
-LibertyPort::intrinsicDelay() const
+ArcDelay
+LibertyPort::intrinsicDelay(const StaState *sta) const
 {
-  return intrinsicDelay(nullptr, MinMax::max());
+  return intrinsicDelay(nullptr, MinMax::max(), sta);
 }
 
-float
+ArcDelay
 LibertyPort::intrinsicDelay(const RiseFall *rf,
-			    const MinMax *min_max) const
+			    const MinMax *min_max,
+                            const StaState *sta) const
 {
-  float max_delay = min_max->initValue();
+  ArcDelay max_delay = min_max->initValue();
   bool found_delay = false;
   LibertyCellTimingArcSetIterator set_iter(liberty_cell_, nullptr, this);
   while (set_iter.hasNext()) {
@@ -2048,9 +2049,9 @@ LibertyPort::intrinsicDelay(const RiseFall *rf,
 	TimingArc *arc = arc_iter.next();
 	if (rf == nullptr
 	    || arc->toTrans()->asRiseFall() == rf) {
-          float delay = arc->intrinsicDelay();
-          if (delay > 0.0) {
-	    if (min_max->compare(delay, max_delay))
+          ArcDelay delay = arc->intrinsicDelay();
+          if (delayGreater(delay, 0.0, sta)) {
+	    if (delayGreater(delay, max_delay, min_max, sta))
 	      max_delay = delay;
 	    found_delay = true;
 	  }

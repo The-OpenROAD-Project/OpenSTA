@@ -58,8 +58,6 @@ Sim::Sim(StaState *sta) :
 Sim::~Sim()
 {
   delete observer_;
-  if (Cudd_CheckZeroRef(cudd_manager_) > 0)
-    internalErrorNoThrow("non-zero cudd reference counts");
   Cudd_Quit(cudd_manager_);
 }
 
@@ -198,7 +196,7 @@ Sim::funcBdd(const FuncExpr *expr,
     result = Cudd_ReadLogicZero(cudd_manager_);
     break;
   default:
-    internalError("unknown function operator");
+    report_->critical(596, "unknown function operator");
   }
   if (result)
     Cudd_Ref(result);

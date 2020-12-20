@@ -200,10 +200,9 @@ delayAsFloat(const Delay &delay,
     else if (early_late == EarlyLate::late())
       return delay.mean() + delay.sigma() * sta->sigmaFactor();
     else
-      internalError("unknown early/late value.");
+      sta->report()->critical(594, "unknown early/late value.");
   }
-  else
-    return delay.mean();
+  return delay.mean();
 }
 
 float

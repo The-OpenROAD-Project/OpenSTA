@@ -1674,18 +1674,18 @@ proc get_clock_error { arg_name arg } {
 proc get_clock_arg { arg_name arg error_proc } {
   set clk "NULL"
   if {[llength $arg] > 1} {
-    $error_proc "$arg_name arg must be a single clock, not a list."
+    $error_proc 597 "$arg_name arg must be a single clock, not a list."
   } elseif { [is_object $arg] } {
     set object_type [object_type $arg]
     if { $object_type == "Clock" } {
       set clk $arg
     } else {
-      $error_proc "$arg_name arg value is a $object_type, not a clock."
+      $error_proc 598 "$arg_name arg value is a $object_type, not a clock."
     }
   } elseif { $arg != {} } {
     set clk [find_clock $arg]
     if { $clk == "NULL" } {
-      $error_proc "$arg_name arg '$arg' clock not found."
+      $error_proc 599 "$arg_name arg '$arg' clock not found."
     }
   }
   return $clk
