@@ -3566,8 +3566,10 @@ Search::matchesFilter(Path *path,
 	   && filter_to_)
     // -to
     return matchesFilterTo(path, to_clk_edge);
-  else
+  else {
     report_->critical(262, "unexpected filter path");
+    return false;
+  }
 }
 
 // Similar to Constraints::exceptionMatchesTo.
