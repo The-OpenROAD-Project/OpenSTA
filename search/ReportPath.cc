@@ -2351,7 +2351,7 @@ ReportPath::reportGenClkSrcPath1(Clock *clk,
       Arrival pll_delay = search_->genclks()->pllDelay(clk, clk_rf, pll_ap);
       size_t path_length = src_expanded.size();
       if (path_length < 2)
-	report_->critical(258, "generated clock pll source path too short.\n");
+	report_->critical(258, "generated clock pll source path too short.");
       PathRef *path0 = src_expanded.path(path_length - 2);
       Arrival time0 = path0->arrival(this) + gclk_time;
       PathRef *path1 = src_expanded.path(path_length - 1);

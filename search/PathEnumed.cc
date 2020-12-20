@@ -123,7 +123,7 @@ const Required &
 PathEnumed::required(const StaState *sta) const
 {
   // Required times are never needed for enumerated paths.
-  sta->report()->critical(251, "enumerated path required time\n");
+  sta->report()->critical(251, "enumerated path required time");
   return delay_zero;
 }
 
@@ -132,7 +132,7 @@ PathEnumed::setRequired(const Required &,
 			const StaState *sta)
 {
   // Required times are never needed for enumerated paths.
-  sta->report()->critical(252, "enumerated path required time\n");
+  sta->report()->critical(252, "enumerated path required time");
 }
 
 Path *

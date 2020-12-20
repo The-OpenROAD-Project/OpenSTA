@@ -267,7 +267,7 @@ proc unit_prefix_scale { unit prefix } {
   } elseif { [string equal $prefix "f"] } {
     return 1E-15
   } else {
-    sta_error 514 "unknown $unit prefix '$prefix'."
+    sta_error 604 "unknown $unit prefix '$prefix'."
   }
 }
 
@@ -1942,7 +1942,7 @@ proc set_false_path { args } {
   } else {
     check_for_key_args $cmd args
     if { $args != {} } {
-      sta_warn 349 "'$args' ignored."
+      sta_warn 600 "'$args' ignored."
     }
     if { ($from == "NULL" && $thrus == "" && $to == "NULL") } {
       delete_from_thrus_to $from $thrus $to
@@ -2441,7 +2441,7 @@ proc set_driving_cell { args } {
 define_cmd_args "set_fanout_load" {fanout ports}
 
 proc set_fanout_load { fanout port_list } {
-  sta_warn 361 "set_fanout_load not supported."
+  sta_warn 601 "set_fanout_load not supported."
 }
 
 ################################################################
@@ -2901,7 +2901,7 @@ proc parse_to_arg1 { keys_var end_rf arg_error_var } {
   if {$to_pins == {} && $to_insts == {} && $to_clks == {}} {
     upvar 1 $arg_error_var arg_error
     set arg_error 1
-    sta_warn 370 "no valid objects specified for $key."
+    sta_warn 602 "no valid objects specified for $key."
     return "NULL"
   }
   return [make_exception_to $to_pins $to_clks $to_insts $to_rf $end_rf]
@@ -3063,7 +3063,7 @@ proc set_wire_load_model { args } {
     $lib_iter finish
   }
   if {$wireload == "NULL"} {
-    sta_error 583 "wire load model '$model_name' not found."
+    sta_error 605 "wire load model '$model_name' not found."
   }
   set objects $args
   set_wire_load_cmd $wireload $min_max

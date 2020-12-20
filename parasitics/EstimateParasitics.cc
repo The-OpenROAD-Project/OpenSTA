@@ -185,7 +185,7 @@ EstimateParasitics::estimatePiElmoreBalanced(const Pin *drvr_pin,
 	else if (network->isTopLevelPort(load_pin))
 	  load_cap = sdc->portExtCap(port, rf, min_max);
 	else
-	  report->critical(212, "load pin not leaf or top level");
+	  report->critical(597, "load pin not leaf or top level");
 	double cap = load_cap + cap_fanout;
 	double y2_ = res_fanout * cap * cap;
 	y1 += cap;

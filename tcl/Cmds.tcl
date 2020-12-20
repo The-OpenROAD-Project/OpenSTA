@@ -1872,7 +1872,7 @@ proc get_object_property { object prop } {
     } elseif { $object_type == "TimingArcSet" } {
       return [timing_arc_set_property $object $prop]
     } else {
-      sta_error 492 "get_property unsupported object type $object_type."
+      sta_error 606 "get_property unsupported object type $object_type."
     }
   } else {
     sta_error 493 "get_property $object is not an object."
@@ -1975,55 +1975,55 @@ proc write_path_spice { args } {
   if { [info exists keys(-spice_directory)] } {
     set spice_dir [file_expand_tilde $keys(-spice_directory)]
     if { ![file exists $spice_dir] } {
-      sta_error 496 "Directory $spice_dir not found.\n"
+      sta_error 496 "Directory $spice_dir not found."
     }
     if { ![file isdirectory $spice_dir] } {
-      sta_error 497 "$spice_dir is not a directory.\n"
+      sta_error 497 "$spice_dir is not a directory."
     }
     if { ![file writable $spice_dir] } {
-      sta_error 498 "Cannot write in $spice_dir.\n"
+      sta_error 498 "Cannot write in $spice_dir."
     }
   } else {
-    sta_error 499 "No -spice_directory specified.\n"
+    sta_error 499 "No -spice_directory specified."
   }
 
   if { [info exists keys(-lib_subckt_file)] } {
     set lib_subckt_file [file_expand_tilde $keys(-lib_subckt_file)]
     if { ![file readable $lib_subckt_file] } {
-      sta_error 500 "-lib_subckt_file $lib_subckt_file is not readable.\n"
+      sta_error 500 "-lib_subckt_file $lib_subckt_file is not readable."
     }
   } else {
-    sta_error 501 "No -lib_subckt_file specified.\n"
+    sta_error 501 "No -lib_subckt_file specified."
   }
 
   if { [info exists keys(-model_file)] } {
     set model_file [file_expand_tilde $keys(-model_file)]
     if { ![file readable $model_file] } {
-      sta_error 502 "-model_file $model_file is not readable.\n"
+      sta_error 502 "-model_file $model_file is not readable."
     }
   } else {
-    sta_error 503 "No -model_file specified.\n"
+    sta_error 503 "No -model_file specified."
   }
 
   if { [info exists keys(-power)] } {
     set power $keys(-power)
   } else {
-    sta_error 504 "No -power specified.\n"
+    sta_error 504 "No -power specified."
   }
 
   if { [info exists keys(-ground)] } {
     set ground $keys(-ground)
   } else {
-    sta_error 505 "No -ground specified.\n"
+    sta_error 505 "No -ground specified."
   }
 
   if { ![info exists keys(-path_args)] } {
-    sta_error 506 "No -path_args specified.\n"
+    sta_error 506 "No -path_args specified."
   }
   set path_args $keys(-path_args)
   set path_ends [eval [concat find_timing_paths $path_args]]
   if { $path_ends == {} } {
-    sta_error 507 "No paths found for -path_args $path_args.\n"
+    sta_error 507 "No paths found for -path_args $path_args."
   } else {
     set path_index 1
     foreach path_end $path_ends {

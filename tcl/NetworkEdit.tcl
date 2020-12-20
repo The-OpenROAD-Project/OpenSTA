@@ -169,7 +169,7 @@ proc disconnect_pin { net pin } {
 }
 
 proc disconnect_pins { net pins } {
-  sta_warn 372 "disconnect_pins is deprecated.  Use disconnect_pin."
+  sta_warn 603 "disconnect_pins is deprecated.  Use disconnect_pin."
   foreach pin $pins {
     disconnect_pin $net $pins
   }
