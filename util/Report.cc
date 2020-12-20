@@ -43,7 +43,8 @@ Report::~Report()
 }
 
 void
-Report::printToBuffer(const char *fmt, va_list args)
+Report::printToBuffer(const char *fmt,
+                      va_list args)
 {
   // Copy args in case we need to grow the buffer.
   va_list args_copy;
@@ -59,7 +60,8 @@ Report::printToBuffer(const char *fmt, va_list args)
 }
 
 size_t
-Report::printString(const char *buffer, size_t length)
+Report::printString(const char *buffer,
+                    size_t length)
 {
   size_t ret = length;
   if (redirect_to_string_)
@@ -88,7 +90,8 @@ Report::print(const string &str)
 }
 
 void
-Report::vprint(const char *fmt, va_list args)
+Report::vprint(const char *fmt,
+               va_list args)
 {
   std::unique_lock<std::mutex> lock(buffer_lock_);
   printToBuffer(fmt, args);
@@ -105,7 +108,8 @@ Report::print(const char *fmt, ...)
 }
 
 size_t
-Report::printError(const char *buffer, size_t length)
+Report::printError(const char *buffer,
+                   size_t length)
 {
   size_t ret = length;
   if (redirect_to_string_)
@@ -122,7 +126,8 @@ Report::printError(const char *buffer, size_t length)
 }
 
 void
-Report::vprintError(const char *fmt, va_list args)
+Report::vprintError(const char *fmt,
+                    va_list args)
 {
   std::unique_lock<std::mutex> lock(buffer_lock_);
   printToBuffer(fmt, args);
@@ -342,7 +347,8 @@ Report::redirectStringEnd()
 }
 
 void
-Report::redirectStringPrint(const char *buffer, size_t length)
+Report::redirectStringPrint(const char *buffer,
+                            size_t length)
 {
   redirect_string_.append(buffer, length);
 }

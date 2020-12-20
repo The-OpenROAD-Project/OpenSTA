@@ -5026,7 +5026,7 @@ Sta::checkCapacitanceLimitPreamble()
 
 Pin *
 Sta::pinMinCapacitanceLimitSlack(const Corner *corner,
-			  const MinMax *min_max)
+                                 const MinMax *min_max)
 {
   checkCapacitanceLimitPreamble();
   return check_capacitance_limits_->pinMinCapacitanceLimitSlack(corner, min_max);

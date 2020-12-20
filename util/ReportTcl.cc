@@ -312,19 +312,23 @@ ReportTcl::setTclInterp(Tcl_Interp *interp)
 }
 
 size_t
-ReportTcl::printConsole(const char *buffer, size_t length)
+ReportTcl::printConsole(const char *buffer,
+                        size_t length)
 {
   return printTcl(tcl_stdout_, buffer, length);
 }
 
 size_t
-ReportTcl::printErrorConsole(const char *buffer, size_t length)
+ReportTcl::printErrorConsole(const char *buffer,
+                             size_t length)
 {
   return printTcl(tcl_stderr_, buffer, length);
 }
 
 size_t
-ReportTcl::printTcl(Tcl_Channel channel, const char *buffer, size_t length)
+ReportTcl::printTcl(Tcl_Channel channel,
+                    const char *buffer,
+                    size_t length)
 {
   const Tcl_ChannelType *ch_type = Tcl_GetChannelType(channel);
   Tcl_DriverOutputProc *output_proc = Tcl_ChannelOutputProc(ch_type);
@@ -405,7 +409,9 @@ ReportTcl::redirectStringEnd()
 ////////////////////////////////////////////////////////////////
 
 static int
-encapOutputProc(ClientData instanceData, CONST84 char *buf, int toWrite, int *)
+encapOutputProc(ClientData instanceData,
+                CONST84 char *buf,
+                int toWrite, int *)
 {
   ReportTcl *report = reinterpret_cast<ReportTcl *>(instanceData);
   return report->printString(buf, toWrite);
@@ -422,13 +428,17 @@ encapErrorOutputProc(ClientData instanceData,
 }
 
 static int
-encapInputProc(ClientData, char *, int, int *)
+encapInputProc(ClientData,
+               char *,
+               int,
+               int *)
 {
   return -1;
 }
 
 static int
-encapCloseProc(ClientData instanceData, Tcl_Interp *)
+encapCloseProc(ClientData instanceData,
+               Tcl_Interp *)
 {
   ReportTcl *report = reinterpret_cast<ReportTcl *>(instanceData);
   report->logEnd();
@@ -438,19 +448,28 @@ encapCloseProc(ClientData instanceData, Tcl_Interp *)
 }
 
 static int
-encapSetOptionProc(ClientData, Tcl_Interp *, CONST84 char *, CONST84 char *)
+encapSetOptionProc(ClientData,
+                   Tcl_Interp *,
+                   CONST84 char *,
+                   CONST84 char *)
 {
   return 0;
 }
 
 static int
-encapGetOptionProc(ClientData, Tcl_Interp *, CONST84 char *, Tcl_DString *)
+encapGetOptionProc(ClientData,
+                   Tcl_Interp *,
+                   CONST84 char *,
+                   Tcl_DString *)
 {
   return 0;
 }
 
 static int
-encapSeekProc(ClientData, long, int, int *)
+encapSeekProc(ClientData,
+              long,
+              int,
+              int *)
 {
   return -1;
 }
@@ -461,13 +480,16 @@ encapWatchProc(ClientData, int)
 }
 
 static int
-encapGetHandleProc(ClientData, int, ClientData *)
+encapGetHandleProc(ClientData,
+                   int,
+                   ClientData *)
 {
   return TCL_ERROR;
 }
 
 static int
-encapBlockModeProc(ClientData, int)
+encapBlockModeProc(ClientData,
+                   int)
 {
   return 0;
 }

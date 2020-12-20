@@ -479,7 +479,7 @@ proc report_capacitance_limits { corner min_max all_violators verbose nosplit } 
       puts "${min_max} capacitance"
       puts ""
       if { $verbose } {
-	report_capacitance_limit_verbose $pin $corner $min_max
+        report_capacitance_limit_verbose $pin $corner $min_max
 	puts ""
       } else {
 	report_capacitance_limit_short_header

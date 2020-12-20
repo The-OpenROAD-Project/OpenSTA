@@ -192,29 +192,28 @@ CheckCapacitanceLimits::findLimit(const Pin *pin,
 
 void
 CheckCapacitanceLimits::checkCapacitance(const Pin *pin,
-					 const Corner *corner,
+					 const Corner *corner1,
 					 const MinMax *min_max,
 					 const RiseFall *rf1,
 					 float limit1,
 					 // Return values.
-					 const Corner *&corner1,
+					 const Corner *&corner,
 					 const RiseFall *&rf,
 					 float &capacitance,
 					 float &slack,
 					 float &limit) const
 {
-  const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
+  const DcalcAnalysisPt *dcalc_ap = corner1->findDcalcAnalysisPt(min_max);
   GraphDelayCalc *dcalc = sta_->graphDelayCalc();
   float cap = dcalc->loadCap(pin, dcalc_ap);
 
   float slack1 = (min_max == MinMax::max())
     ? limit1 - cap : cap - limit1;
-  if (corner == nullptr
-      || (slack1 < slack
-	  // Break ties for the sake of regression stability.
-	  || (fuzzyEqual(slack1, slack)
-	      && rf1->index() < rf->index()))) {
-    corner1 = corner;
+  if (slack1 < slack
+      // Break ties for the sake of regression stability.
+      || (fuzzyEqual(slack1, slack)
+          && rf1->index() < rf->index())) {
+    corner = corner1;
     rf = rf1;
     capacitance = cap;
     slack = slack1;

@@ -124,6 +124,7 @@ PathEnumed::required(const StaState *sta) const
 {
   // Required times are never needed for enumerated paths.
   sta->report()->critical(251, "enumerated path required time\n");
+  return delay_zero;
 }
 
 void

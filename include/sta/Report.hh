@@ -40,52 +40,81 @@ public:
 
   // Primitives to print output.
   // Return the number of characters written.
-  virtual size_t printString(const char *buffer, size_t length);
+  virtual size_t printString(const char *buffer,
+                             size_t length);
   virtual void print(const char *fmt, ...);
-  virtual void vprint(const char *fmt, va_list args);
+  virtual void vprint(const char *fmt,
+                      va_list args);
   void print(const string *str);
   void print(const string &str);
 
   // Print to debug stream (same as output stream).
   virtual void printDebug(const char *fmt, ...)
     __attribute__((format (printf, 2, 3)));
-  virtual void vprintDebug(const char *fmt, va_list args);
+  virtual void vprintDebug(const char *fmt,
+                           va_list args);
 
   // Print to error stream.
   // Return the number of characters written.
-  virtual size_t printError(const char *buffer, size_t length);
+  virtual size_t printError(const char *buffer,
+                            size_t length);
   virtual void printError(const char *fmt, ...)
     __attribute__((format (printf, 2, 3)));
-  virtual void vprintError(const char *fmt, va_list args);
+  virtual void vprintError(const char *fmt,
+                           va_list args);
 
   // Print to warning stream (same as error stream).
   virtual void printWarn(const char *fmt, ...)
     __attribute__((format (printf, 2, 3)));
-  virtual void vprintWarn(const char *fmt, va_list args);
+  virtual void vprintWarn(const char *fmt,
+                          va_list args);
+
+  ////////////////////////////////////////////////////////////////
+
   // Report warning.
-  virtual void warn(int id, const char *fmt, ...)
+  virtual void warn(int id,
+                    const char *fmt, ...)
     __attribute__((format (printf, 3, 4)));
   // Report warning in a file.
-  virtual void fileWarn(int id, const char *filename, int line, const char *fmt, ...)
+  virtual void fileWarn(int id,
+                        const char *filename,
+                        int line,
+                        const char *fmt, ...)
     __attribute__((format (printf, 5, 6)));
-  virtual void vfileWarn(int id, const char *filename, int line, const char *fmt,
+  virtual void vfileWarn(int id,
+                         const char *filename,
+                         int line,
+                         const char *fmt,
 			 va_list args);
+
+  virtual void error(int id,
+                     const char *fmt, ...)
+    __attribute__((format (printf, 3, 4)));
+  // Report error in a file.
+  virtual void fileError(int id,
+                         const char *filename,
+                         int line,
+                         const char *fmt, ...)
+    __attribute__((format (printf, 5, 6)));
+  virtual void vfileError(int id,
+                          const char *filename,
+                          int line,
+                          const char *fmt,
+			  va_list args);
 
   // Critical. 
   // Report error condition that should not be possible or that prevents execution.
   // The default handler prints msg to stderr and exits.
-  virtual void critical(int id, const char *fmt, ...)
+  virtual void critical(int id,
+                        const char *fmt,
+                        ...)
     __attribute__((format (printf, 3, 4)));
-  virtual void fileCritical(int id, const char *filename, int line, const char *fmt, ...)
+  virtual void fileCritical(int id,
+                            const char *filename,
+                            int line,
+                            const char *fmt,
+                            ...)
     __attribute__((format (printf, 5, 6)));
-
-  virtual void error(int id, const char *fmt, ...)
-    __attribute__((format (printf, 3, 4)));
-  // Report error in a file.
-  virtual void fileError(int id, const char *filename, int line, const char *fmt, ...)
-    __attribute__((format (printf, 5, 6)));
-  virtual void vfileError(int id, const char *filename, int line, const char *fmt,
-			  va_list args);
 
   // Log output to filename until logEnd is called.
   virtual void logBegin(const char *filename);
@@ -106,12 +135,16 @@ public:
 protected:
   // Primitive to print output on the console.
   // Return the number of characters written.
-  virtual size_t printConsole(const char *buffer, size_t length) = 0;
-  // Primitive to print error, warning and debug output.
+  virtual size_t printConsole(const char *buffer,
+                              size_t length) = 0;
+  // Primitive to print warning, error, critical and debug output.
   // Return the number of characters written.
-  virtual size_t printErrorConsole(const char *buffer, size_t length) = 0;
-  void printToBuffer(const char *fmt, va_list args);
-  void redirectStringPrint(const char *buffer, size_t length);
+  virtual size_t printErrorConsole(const char *buffer,
+                                   size_t length) = 0;
+  void printToBuffer(const char *fmt,
+                     va_list args);
+  void redirectStringPrint(const char *buffer,
+                           size_t length);
 
   FILE *log_stream_;
   FILE *redirect_stream_;
