@@ -66,7 +66,7 @@ proc_redirect read_spef {
   set delete_after_reduce [info exists flags(-delete_after_reduce)]
   set quiet [info exists flags(-quiet)]
   set save [info exists flags(-save)]
-  set filename $args
+  set filename [file nativename [lindex $args 0]]
   return [read_spef_cmd $filename $instance $min_max $increment \
 	    $pin_cap_included $keep_coupling_caps $coupling_reduction_factor \
 	    $reduce_to $delete_after_reduce $quiet]

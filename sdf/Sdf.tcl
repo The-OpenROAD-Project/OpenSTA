@@ -30,7 +30,7 @@ proc_redirect read_sdf {
     keys {-path -corner -analysis_type -type -min_type -max_type -cond_use} \
     flags {-unescaped_dividers -incremental_only}
   check_argc_eq1 "read_sdf" $args
-  set filename $args
+  set filename [file nativename [lindex $args 0]]
   set path ""
   if [info exists keys(-path)] {
     set path $keys(-path)
@@ -202,7 +202,7 @@ proc_redirect write_sdf {
     flags {-gzip -no_timestamp -no_version}
   check_argc_eq1 "write_sdf" $args
   set corner [parse_corner keys]
-  set filename $args
+  set filename [file nativename [lindex $args 0]]
   set divider "/"
   if [info exists keys(-divider)] {
     set divider $keys(-divider)

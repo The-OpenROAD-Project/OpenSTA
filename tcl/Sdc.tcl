@@ -33,7 +33,7 @@ proc_redirect read_sdc {
 
   check_argc_eq1 "read_sdc" $args
   set echo [info exists flags(-echo)]
-  set filename [lindex $args 0]
+  set filename [file nativename [lindex $args 0]]
   source_ $filename $echo 0
 }
 
@@ -52,7 +52,7 @@ proc_redirect source {
   }
   set echo [info exists flags(-echo)]
   set verbose [info exists flags(-verbose)]
-  set filename [lindex $args 0]
+  set filename [file nativename [lindex $args 0]]
   source_ $filename $echo $verbose
 }
 

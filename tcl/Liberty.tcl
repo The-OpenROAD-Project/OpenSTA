@@ -26,7 +26,7 @@ proc_redirect read_liberty {
     flags {-min -max -no_latch_infer}
   check_argc_eq1 "read_liberty" $args
 
-  set filename [file nativename $args]
+  set filename [file nativename [lindex $args 0]]
   set corner [parse_corner keys]
   set min_max [parse_min_max_all_flags flags]
   set infer_latches [expr ![info exists flags(-no_latch_infer)]]
