@@ -113,7 +113,7 @@ EOL \r?\n
 "include_file"[ \t]*"(".+")"[ \t]*";"? {
 #ifdef INCLUDE_SUPPORTED
 	if (sta::libertyInInclude())
-	  sta::libertyParseError("nested include_file's are not supported\n");
+	  sta::libertyParseError("nested include_file's are not supported");
 	else {
 	  char *filename = &yytext[strlen("include_file")];
 	  /* Skip blanks between include_file and '('. */
@@ -126,7 +126,7 @@ EOL \r?\n
 	    filename++;
 	  char *filename_end = strpbrk(filename, ")");
 	  if (filename_end == NULL)
-	    sta::libertyParseError("include_file missing ')'\n");
+	    sta::libertyParseError("include_file missing ')'");
 	  else {
 	    /* Trim trailing blanks. */
 	    while (isspace(filename_end[-1]) && filename_end > filename)
@@ -140,7 +140,7 @@ EOL \r?\n
 	  }
 	}
 #else
-	sta::libertyParseError("include_file is not supported.\n");
+	sta::libertyParseError("include_file is not supported.");
 #endif
 }
 

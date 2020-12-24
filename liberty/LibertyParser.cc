@@ -514,9 +514,7 @@ FILE *
 libertyIncludeBegin(const char *filename)
 {
   FILE *stream = fopen(filename, "r" );
-  if (stream == nullptr)
-    libertyParseError("cannot open include file %s.", filename);
-  else {
+  if (stream) {
     liberty_filename_prev = liberty_filename;
     liberty_line_prev = liberty_line;
     liberty_stream_prev = LibertyLex_in;
@@ -524,6 +522,8 @@ libertyIncludeBegin(const char *filename)
     liberty_filename = filename;
     liberty_line = 1;
   }
+  else
+    libertyParseError("cannot open include file %s.", filename);
   return stream;
 }
 
