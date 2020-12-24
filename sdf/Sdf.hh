@@ -153,6 +153,8 @@ public:
   void incrLine();
   const char *filename() { return filename_; }
   int line() { return line_; }
+  void sdfWarn(int id,
+               const char *fmt, ...);
   void sdfError(int id,
                 const char *fmt,
                 ...);

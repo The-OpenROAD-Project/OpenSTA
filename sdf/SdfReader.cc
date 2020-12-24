@@ -227,15 +227,15 @@ SdfReader::interconnect(const char *from_pin_name,
 	    sdfError(183, "pin %s is a hierarchical pin.", to_pin_name);
 	}
 	else
-	  sdfError(184, "INTERCONNECT from %s to %s not found.",
-		   from_pin_name, to_pin_name);
+	  sdfWarn(184, "INTERCONNECT from %s to %s not found.",
+                  from_pin_name, to_pin_name);
       }
     }
     else {
       if (from_pin == nullptr)
-	sdfError(185, "pin %s not found.", from_pin_name);
+	sdfWarn(185, "pin %s not found.", from_pin_name);
       if (to_pin == nullptr)
-	sdfError(186, "pin %s not found.", to_pin_name);
+	sdfWarn(186, "pin %s not found.", to_pin_name);
     }
   }
   stringDelete(from_pin_name);
@@ -253,7 +253,7 @@ SdfReader::port(const char *to_pin_name,
       ? network_->findPinRelative(instance_, to_pin_name)
       : network_->findPin(to_pin_name);
     if (to_pin == nullptr)
-      sdfError(187, "pin %s not found.", to_pin_name);
+      sdfWarn(187, "pin %s not found.", to_pin_name);
     else {
       Vertex *vertex = graph_->pinLoadVertex(to_pin);
       VertexInEdgeIterator edge_iter(vertex, graph_);
@@ -334,10 +334,10 @@ SdfReader::setInstance(const char *instance_name)
 	Cell *inst_cell = network_->cell(instance_);
 	const char *inst_cell_name = network_->name(inst_cell);
 	if (cell_name_ && !stringEqual(inst_cell_name, cell_name_))
-	  sdfError(190, "instance %s cell %s does not match enclosing cell %s.",
-		   instance_name,
-		   inst_cell_name,
-		   cell_name_);
+	  sdfWarn(190, "instance %s cell %s does not match enclosing cell %s.",
+                  instance_name,
+                  inst_cell_name,
+                  cell_name_);
       }
     }
     stringDelete(instance_name);
@@ -428,10 +428,10 @@ SdfReader::iopath(SdfPortSpec *from_edge,
 	  }
 	}
 	if (!matched)
-	  sdfError(191, "cell %s IOPATH %s -> %s not found.",
-		   network_->cellName(instance_),
-		   from_port_name,
-		   to_port_name);
+	  sdfWarn(191, "cell %s IOPATH %s -> %s not found.",
+                  network_->cellName(instance_),
+                  from_port_name,
+                  to_port_name);
       }
     }
   }
@@ -509,11 +509,11 @@ SdfReader::timingCheck1(TimingRole *role,
 	if (!matched
 	    // Only warn when non-null values are present.
 	    && triple->hasValue())
-	  sdfError(192, "cell %s %s -> %s %s check not found.",
-		   network_->cellName(instance_),
-		   data_port_name,
-		   clk_port_name,
-		   role->asString());
+	  sdfWarn(192, "cell %s %s -> %s %s check not found.",
+                  network_->cellName(instance_),
+                  data_port_name,
+                  clk_port_name,
+                  role->asString());
       }
     }
   }
@@ -1027,9 +1027,19 @@ SdfReader::notSupported(const char *feature)
 void
 SdfReader::portNotFound(const char *port_name)
 {
-  sdfError(194, "instance %s port %s not found.",
-	   network_->pathName(instance_),
-	   port_name);
+  sdfWarn(194, "instance %s port %s not found.",
+          network_->pathName(instance_),
+          port_name);
+}
+
+void
+SdfReader::sdfWarn(int id,
+                   const char *fmt, ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  report_->vfileWarn(id, filename_, line_, fmt, args);
+  va_end(args);
 }
 
 void
@@ -1063,7 +1073,7 @@ SdfReader::findInstance(const char *name)
     stringPrint(inst_name, "%s%c%s", path_, divider_, name);
   Instance *inst = network_->findInstance(inst_name.c_str());
   if (inst == nullptr)
-    sdfError(195, "instance %s not found.", inst_name.c_str());
+    sdfWarn(195, "instance %s not found.", inst_name.c_str());
   return inst;
 }
 
