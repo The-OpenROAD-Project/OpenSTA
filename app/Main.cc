@@ -126,8 +126,10 @@ staTclAppInit(int argc,
   bool exit_after_cmd_file = findCmdLineFlag(argc, argv, "-exit");
 
   if (argc > 2 ||
-      (argc > 1 && argv[1][0] == '-'))
+      (argc > 1 && argv[1][0] == '-')) {
     showUsage(argv[0], init_filename);
+    exit(1);
+  }
   else {
     if (argc == 2) {
       char *cmd_file = argv[1];
