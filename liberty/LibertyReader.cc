@@ -564,7 +564,7 @@ LibertyReader::beginLibrary(LibertyGroup *group)
     library_->setScaleFactors(scale_factors_);
   }
   else
-    libError(30, group, "library does not have a name.");
+    libError(30, group, "library missing name.");
 }
 
 // Energy scale is derived.
@@ -1248,7 +1248,7 @@ LibertyReader::beginTableTemplate(LibertyGroup *group,
       library_->addTableTemplate(tbl_template_, type);
     }
     else
-      libWarn(61, group, "table template does not have a name.");
+      libWarn(61, group, "table template missing name.");
     axis_var_[0] = axis_var_[1] = axis_var_[2] = TableAxisVariable::unknown;
     clearAxisValues();
   }
@@ -1401,7 +1401,7 @@ LibertyReader::endType(LibertyGroup *group)
     }
   }
   else
-    libWarn(66, group, "type does not have a name.");
+    libWarn(66, group, "type missing name.");
 }
 
 void
@@ -1596,7 +1596,7 @@ LibertyReader::beginOpCond(LibertyGroup *group)
     library_->addOperatingConditions(op_cond_);
   }
   else
-    libWarn(68, group, "operating_conditions does not have a name.");
+    libWarn(68, group, "operating_conditions missing name.");
 }
 
 void
@@ -1666,7 +1666,7 @@ LibertyReader::beginWireload(LibertyGroup *group)
     }
   }
   else
-    libWarn(69, group, "wire_load does not have a name.");
+    libWarn(69, group, "wire_load missing name.");
 }
 
 void
@@ -1724,7 +1724,7 @@ LibertyReader::beginWireloadSelection(LibertyGroup *group)
     }
   }
   else
-    libWarn(71, group, "wire_load_selection does not have a name.");
+    libWarn(71, group, "wire_load_selection missing name.");
 }
 
 void
@@ -1788,7 +1788,7 @@ LibertyReader::beginCell(LibertyGroup *group)
     in_bundle_ = false;
   }
   else
-    libWarn(78, group, "cell does not have a name.");
+    libWarn(78, group, "cell missing name.");
 }
 
 void
@@ -2067,13 +2067,13 @@ LibertyReader::beginScaledCell(LibertyGroup *group)
 	  libWarn(87, group, "operating conditions %s not found.", op_cond_name);
       }
       else
-	libWarn(88, group, "scaled_cell does not have an operating condition.");
+	libWarn(88, group, "scaled_cell missing operating condition.");
     }
     else
       libWarn(89, group, "scaled_cell cell %s has not been defined.", name);
   }
   else
-    libWarn(90, group, "scaled_cell does not have a name.");
+    libWarn(90, group, "scaled_cell missing name.");
 }
 
 void
@@ -4040,7 +4040,7 @@ LibertyReader::beginModeDef(LibertyGroup *group)
   if (name)
     mode_def_ = cell_->makeModeDef(name);
   else
-    libWarn(128, group, "mode definition does not have a name.");
+    libWarn(128, group, "mode definition missing name.");
 }
 
 void
@@ -4057,7 +4057,7 @@ LibertyReader::beginModeValue(LibertyGroup *group)
     if (name)
       mode_value_ = mode_def_->defineValue(name, nullptr, nullptr);
     else
-      libWarn(129, group, "mode value does not have a name.");
+      libWarn(129, group, "mode value missing name.");
   }
 }
 
@@ -4580,7 +4580,7 @@ LibertyReader::beginOcvDerate(LibertyGroup *group)
   if (name)
     ocv_derate_ = new OcvDerate(stringCopy(name));
   else
-    libWarn(149, group, "ocv_derate does not have a name.");
+    libWarn(149, group, "ocv_derate missing name.");
 }
 
 void
@@ -4633,7 +4633,7 @@ LibertyReader::visitRfType(LibertyAttr *attr)
   else if (stringEq(rf_name, "rise_and_fall"))
     rf_type_ = RiseFallBoth::riseFall();
   else
-    libError(150, attr, "unknown rf_type.");
+    libError(150, attr, "unknown rise/fall.");
 }
 
 void
