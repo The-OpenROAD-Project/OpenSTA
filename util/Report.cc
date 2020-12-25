@@ -159,6 +159,17 @@ Report::warn(int /* id */,
 }
 
 void
+Report::vwarn(int /* id */,
+              const char *fmt,
+              va_list args)
+{
+  printToBuffer("Warning: ");
+  printToBufferAppend(fmt, args);
+  printToBufferAppend("\n");
+  printBuffer();
+}
+
+void
 Report::fileWarn(int /* id */,
                  const char *filename,
                  int line,
@@ -167,7 +178,7 @@ Report::fileWarn(int /* id */,
 {
   va_list args;
   va_start(args, fmt);
-  printToBuffer("Warning: %s, line %d ", filename, line);
+  printToBuffer("Warning: %s line %d, ", filename, line);
   printToBufferAppend(fmt, args);
   printToBufferAppend("\n");
   printBuffer();
@@ -179,9 +190,9 @@ Report::vfileWarn(int /* id */,
                   const char *filename,
                   int line,
                   const char *fmt,
-		  va_list args)
+                  va_list args)
 {
-  printToBuffer("Warning: %s, line %d ", filename, line);
+  printToBuffer("Warning: %s line %d, ", filename, line);
   printToBufferAppend(fmt, args);
   printToBufferAppend("\n");
   printBuffer();
@@ -193,12 +204,21 @@ void
 Report::error(int /* id */,
               const char *fmt, ...)
 {
-  flush();
   va_list args;
   va_start(args, fmt);
   // No prefix msg, no \n.
   printToBuffer(fmt, args);
   va_end(args);
+  throw ExceptionMsg(buffer_);
+}
+
+void
+Report::verror(int /* id */,
+               const char *fmt,
+               va_list args)
+{
+  // No prefix msg, no \n.
+  printToBuffer(fmt, args);
   throw ExceptionMsg(buffer_);
 }
 
@@ -209,11 +229,10 @@ Report::fileError(int /* id */,
                   const char *fmt,
                   ...)
 {
-  flush();
   va_list args;
   va_start(args, fmt);
   // No prefix msg, no \n.
-  printToBuffer("%s, line %d ", filename, line);
+  printToBuffer("%s line %d, ", filename, line);
   printToBufferAppend(fmt, args);
   va_end(args);
   throw ExceptionMsg(buffer_);
@@ -226,9 +245,8 @@ Report::vfileError(int /* id */,
                    const char *fmt,
                    va_list args)
 {
-  flush();
   // No prefix msg, no \n.
-  printToBuffer("%s, line %d ", filename, line);
+  printToBuffer("%s line %d, ", filename, line);
   printToBufferAppend(fmt, args);
   throw ExceptionMsg(buffer_);
 } 
@@ -258,7 +276,7 @@ Report::fileCritical(int /* id */,
 {
   va_list args;
   va_start(args, fmt);
-  printToBuffer("Critical: %s, line %d ", filename, line, fmt, args);
+  printToBuffer("Critical: %s line %d, ", filename, line, fmt, args);
   printToBufferAppend(fmt, args);
   printToBufferAppend("\n");
   va_end(args);

@@ -47,7 +47,6 @@ public:
                       va_list args);
   void print(const string *str);
   void print(const string &str);
-  virtual void flush() {}
 
   ////////////////////////////////////////////////////////////////
 
@@ -55,6 +54,9 @@ public:
   virtual void warn(int id,
                     const char *fmt, ...)
     __attribute__((format (printf, 3, 4)));
+  virtual void vwarn(int id,
+                     const char *fmt,
+                     va_list args);
   // Report warning in a file.
   virtual void fileWarn(int id,
                         const char *filename,
@@ -65,11 +67,14 @@ public:
                          const char *filename,
                          int line,
                          const char *fmt,
-			 va_list args);
+                         va_list args);
 
   virtual void error(int id,
                      const char *fmt, ...)
     __attribute__((format (printf, 3, 4)));
+  virtual void verror(int id,
+                      const char *fmt,
+                      va_list args);
   // Report error in a file.
   virtual void fileError(int id,
                          const char *filename,
@@ -80,7 +85,7 @@ public:
                           const char *filename,
                           int line,
                           const char *fmt,
-			  va_list args);
+                          va_list args);
 
   // Critical. 
   // Report error condition that should not be possible or that prevents execution.

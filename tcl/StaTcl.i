@@ -1944,6 +1944,44 @@ git_sha1()
 }
 
 void
+report_error(int id,
+             const char *msg)
+{
+  Sta::sta()->report()->error(id, "%s", msg);
+}
+
+void
+report_file_error(int id,
+                  const char *filename,
+                  int line,
+                  const char *msg)
+{
+  Sta::sta()->report()->error(id, filename, line, "%s", msg);
+}
+
+void
+report_warn(int id,
+            const char *msg)
+{
+  Sta::sta()->report()->warn(id, "%s", msg);
+}
+
+void
+report_file_warn(int id,
+                 const char *filename,
+                 int line,
+                 const char *msg)
+{
+  Sta::sta()->report()->fileWarn(id, filename, line, "%s", msg);
+}
+
+void
+report(const char *msg)
+{
+  Sta::sta()->report()->print(msg);
+}
+
+void
 fflush()
 {
   fflush(stdout);

@@ -556,7 +556,7 @@ libertyParseError(const char *fmt, ...)
   va_list args;
   va_start(args, fmt);
   sta::liberty_report->vfileError(25, sta::liberty_filename, sta::liberty_line,
-				  fmt, args);
+                                  fmt, args);
   va_end(args);
 }
 

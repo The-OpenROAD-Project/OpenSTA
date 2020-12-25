@@ -2242,10 +2242,8 @@ void verilogFlushBuffer();
 int
 VerilogParse_error(const char *msg)
 {
-  sta::verilog_reader->report()->fileError(164,
-                                           sta::verilog_reader->filename(),
-					   sta::verilog_reader->line(),
-					   "%s.\n", msg);
+  sta::verilog_reader->report()->fileError(164, sta::verilog_reader->filename(),
+					   sta::verilog_reader->line(), "%s", msg);
   verilogFlushBuffer();
   return 0;
 }

@@ -251,13 +251,13 @@ proc show_cmd_args { cmd } {
 
 ################################################################
 
-proc sta_warn { id msg } {
+proc sta_warn { msg_id msg } {
   variable sdc_file
   variable sdc_line
   if { [info exists sdc_file] } {
-    puts "Warning: [file tail $sdc_file], $sdc_line $msg"
+    report_file_warn $msg_id [file tail $sdc_file] $sdc_line $msg
   } else {
-    puts "Warning: $msg"
+    report_warn $msg_id $msg
   }
 }
 
@@ -265,17 +265,17 @@ proc sta_error { id msg } {
   variable sdc_file
   variable sdc_line
   if { [info exists sdc_file] } {
-    error "Error: [file tail $sdc_file], $sdc_line $msg"
+    error "Error: [file tail $sdc_file] line $sdc_line, $msg"
   } else {
     error "Error: $msg"
   }
 }
 
-proc sta_warn_error { id warn_error msg } {
+proc sta_warn_error { msg_id warn_error msg } {
   if { $warn_error == "warn" } {
-    sta_warn $id $msg
+    sta_warn $msg_id $msg
   } else {
-    sta_error $id $msg
+    sta_error $$msg_id $msg
   }
 }
 
