@@ -47,27 +47,7 @@ public:
                       va_list args);
   void print(const string *str);
   void print(const string &str);
-
-  // Print to debug stream (same as output stream).
-  virtual void printDebug(const char *fmt, ...)
-    __attribute__((format (printf, 2, 3)));
-  virtual void vprintDebug(const char *fmt,
-                           va_list args);
-
-  // Print to error stream.
-  // Return the number of characters written.
-  virtual size_t printError(const char *buffer,
-                            size_t length);
-  virtual void printError(const char *fmt, ...)
-    __attribute__((format (printf, 2, 3)));
-  virtual void vprintError(const char *fmt,
-                           va_list args);
-
-  // Print to warning stream (same as error stream).
-  virtual void printWarn(const char *fmt, ...)
-    __attribute__((format (printf, 2, 3)));
-  virtual void vprintWarn(const char *fmt,
-                          va_list args);
+  virtual void flush() {}
 
   ////////////////////////////////////////////////////////////////
 
@@ -137,12 +117,15 @@ protected:
   // Return the number of characters written.
   virtual size_t printConsole(const char *buffer,
                               size_t length) = 0;
-  // Primitive to print warning, error, critical and debug output.
-  // Return the number of characters written.
-  virtual size_t printErrorConsole(const char *buffer,
-                                   size_t length) = 0;
+  void printToBuffer(const char *fmt,
+                     ...);
   void printToBuffer(const char *fmt,
                      va_list args);
+  void printToBufferAppend(const char *fmt,
+                           ...);
+  void printToBufferAppend(const char *fmt,
+                           va_list args);
+  void printBuffer();
   void redirectStringPrint(const char *buffer,
                            size_t length);
 

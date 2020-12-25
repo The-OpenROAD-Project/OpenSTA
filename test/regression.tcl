@@ -145,9 +145,9 @@ proc run_test { test } {
       incr errors(error)
 	
       # For some reason seg faults aren't echoed in the log - add them.
-      if [file exists $log_file] {
+      if { [llength $test_errors] > 1 && [file exists $log_file] } {
 	set log_ch [open $log_file "a"]
-	puts $log_ch "$test_errors"
+	puts $log_ch $test_errors
 	close $log_ch
       }
       

@@ -294,8 +294,13 @@ proc write_stats { filename } {
 ################################################################
 
 # Begin/end logging all output to a file.
+define_cmd_args "log_begin" { filename }
+
+proc log_begin { filename } {
+  log_begin_cmd [file nativename $filename]
+}
+
 # Defined by StaTcl.i
-define_cmd_args "log_begin" {filename}
 define_cmd_args "log_end" {}
 
 # set_debug is NOT in the global namespace

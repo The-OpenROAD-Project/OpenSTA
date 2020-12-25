@@ -22,7 +22,7 @@
   try { $function }
   catch (std::bad_alloc &) {
     fprintf(stderr, "Error: out of memory.\n");
-    exit(0);
+    exit(1);
   }
   catch (std::exception &excp) {
     Tcl_ResetResult(interp);

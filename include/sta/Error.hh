@@ -17,7 +17,7 @@
 #pragma once
 
 #include <exception>
-#include "DisallowCopyAssign.hh"
+
 #include "Report.hh"
 
 namespace sta {
@@ -29,6 +29,16 @@ public:
   Exception();
   virtual ~Exception() {}
   virtual const char *what() const noexcept = 0;
+};
+
+class ExceptionMsg : public Exception
+{
+public:
+  ExceptionMsg(const char *msg);
+  virtual const char *what() const noexcept;
+
+private:
+  string msg_;
 };
 
 class ExceptionLine : public Exception

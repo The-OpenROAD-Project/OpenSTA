@@ -324,11 +324,14 @@ pushPowerResultFloats(PowerResult &power,
 ////////////////////////////////////////////////////////////////
 
 void
-tclError(Tcl_Interp *interp,
-	 const char *msg,
-	 const char *arg)
+tclArgError(Tcl_Interp *interp,
+            const char *msg,
+            const char *arg)
 {
-  char *error = stringPrint(msg, arg);
+  // Swig does not add try/catch around arg parsing so this cannot use Report::error.
+  string error_msg = "Error: ";
+  error_msg += msg;
+  char *error = stringPrint(error_msg.c_str(), arg);
   Tcl_SetResult(interp, error, TCL_VOLATILE);
   stringDelete(error);
 }
@@ -867,7 +870,7 @@ using namespace sta;
 	floats->push_back(static_cast<float>(value));
       else {
 	delete floats;
-	tclError(interp, "Error: %s is not a floating point number.", arg);
+	tclArgError(interp, "%s is not a floating point number.", arg);
 	return TCL_ERROR;
       }
     }
@@ -915,7 +918,7 @@ using namespace sta;
 	ints->push_back(value);
       else {
 	delete ints;
-	tclError(interp, "Error: %s is not an integer.", arg);
+	tclArgError(interp, "%s is not an integer.", arg);
 	return TCL_ERROR;
       }
     }
@@ -930,7 +933,7 @@ using namespace sta;
   if (min_max)
     $1 = min_max;
   else {
-    tclError(interp, "Error: %s not min or max.", arg);
+    tclArgError(interp, "%s not min or max.", arg);
     return TCL_ERROR;
   }
 }
@@ -950,7 +953,7 @@ using namespace sta;
   if (min_max)
     $1 = min_max;
   else {
-    tclError(interp, "Error: %s not min, max or min_max.", arg);
+    tclArgError(interp, "%s not min, max or min_max.", arg);
     return TCL_ERROR;
   }
 }
@@ -965,7 +968,7 @@ using namespace sta;
     if (min_max)
       $1 = min_max;
     else {
-      tclError(interp, "Error: %s not min, max or min_max.", arg);
+      tclArgError(interp, "%s not min, max or min_max.", arg);
       return TCL_ERROR;
     }
   }
@@ -986,7 +989,7 @@ using namespace sta;
 	   || stringEqual(arg, "max"))
     $1 = MinMax::max();
   else {
-    tclError(interp, "Error: %s not setup, hold, min or max.", arg);
+    tclArgError(interp, "%s not setup, hold, min or max.", arg);
     return TCL_ERROR;
   }
 }
@@ -1005,7 +1008,7 @@ using namespace sta;
 	   || stringEqual(arg, "min_max"))
     $1 = SetupHoldAll::all();
   else {
-    tclError(interp, "Error: %s not setup, hold, setup_hold, min, max or min_max.", arg);
+    tclArgError(interp, "%s not setup, hold, setup_hold, min, max or min_max.", arg);
     return TCL_ERROR;
   }
 }
@@ -1018,7 +1021,7 @@ using namespace sta;
   if (early_late)
     $1 = early_late;
   else {
-    tclError(interp, "Error: %s not early/min or late/max.", arg);
+    tclArgError(interp, "%s not early/min, late/max or early_late/min_max.", arg);
     return TCL_ERROR;
   }
 }
@@ -1031,7 +1034,7 @@ using namespace sta;
   if (early_late)
     $1 = early_late;
   else {
-    tclError(interp, "Error: %s not early/min, late/max or early_late/min_max.", arg);
+    tclArgError(interp, "%s not early/min, late/max or early_late/min_max.", arg);
     return TCL_ERROR;
   }
 }
@@ -1046,7 +1049,7 @@ using namespace sta;
   else if (stringEq(arg, "cell_check"))
     $1 = TimingDerateType::cell_check;
   else {
-    tclError(interp, "Error: %s not clk or data.", arg);
+    tclArgError(interp, "%s not clk or data.", arg);
     return TCL_ERROR;
   }
 }
@@ -1059,7 +1062,7 @@ using namespace sta;
   else if (stringEq(arg, "data"))
     $1 = PathClkOrData::data;
   else {
-    tclError(interp, "Error: %s not clk or data.", arg);
+    tclArgError(interp, "%s not clk or data.", arg);
     return TCL_ERROR;
   }
 }
@@ -1072,7 +1075,7 @@ using namespace sta;
   else if (stringEq(arg, "slack"))
     $1 = sort_by_slack;
   else {
-    tclError(interp, "Error: %s not group or slack.", arg);
+    tclArgError(interp, "%s not group or slack.", arg);
     return TCL_ERROR;
   }
 }
@@ -1097,7 +1100,7 @@ using namespace sta;
   else if (stringEq(arg, "json"))
     $1 = ReportPathFormat::json;
   else {
-    tclError(interp, "Error: unknown path type %s.", arg);
+    tclArgError(interp, "unknown path type %s.", arg);
     return TCL_ERROR;
   }
 }
@@ -1375,7 +1378,7 @@ using namespace sta;
   else if (stringEq(arg, "none"))
     $1 = ReducedParasiticType::none;
   else {
-    tclError(interp, "Error: %s pi_elmore, pi_pole_residue2, or none.", arg);
+    tclArgError(interp, "%s pi_elmore, pi_pole_residue2, or none.", arg);
     return TCL_ERROR;
   }
 }
@@ -1978,7 +1981,7 @@ redirect_string_end()
 }
 
 void
-log_begin(const char *filename)
+log_begin_cmd(const char *filename)
 {
   Sta::sta()->report()->logBegin(filename);
 }

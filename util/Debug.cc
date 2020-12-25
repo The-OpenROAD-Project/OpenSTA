@@ -108,7 +108,7 @@ Debug::print(const char *fmt,
 {
   va_list args;
   va_start(args, fmt);
-  report_->vprintError(fmt, args);
+  report_->vprint(fmt, args);
   va_end(args);
 }
 

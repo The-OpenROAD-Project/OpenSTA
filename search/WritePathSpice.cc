@@ -1383,7 +1383,7 @@ WritePathSpice::writeSubckts()
 	report_->error(28, "The following subkcts are missing from %s",
 		       lib_subckt_filename_);
 	for (const char *cell_name : path_cell_names)
-	  report_->printError(" %s\n", cell_name);
+	  report_->print(" %s\n", cell_name);
       }
     }
     else {

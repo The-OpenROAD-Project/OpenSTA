@@ -44,19 +44,54 @@ Report::~Report()
 
 void
 Report::printToBuffer(const char *fmt,
+                      ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  printToBuffer(fmt, args);
+  va_end(args);
+}
+
+void
+Report::printToBuffer(const char *fmt,
                       va_list args)
+{
+  buffer_length_ = 0;
+  printToBufferAppend(fmt, args);
+}
+
+void
+Report::printToBufferAppend(const char *fmt,
+                            ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  printToBufferAppend(fmt, args);
+  va_end(args);
+}
+
+void
+Report::printToBufferAppend(const char *fmt,
+                            va_list args)
 {
   // Copy args in case we need to grow the buffer.
   va_list args_copy;
   va_copy(args_copy, args);
-  buffer_length_ = vsnprint(buffer_, buffer_size_, fmt, args);
+  int length = vsnprint(buffer_ + buffer_length_, buffer_size_, fmt, args);
   if (buffer_length_ >= buffer_size_) {
     delete [] buffer_;
     buffer_size_ = buffer_length_ * 2;
     buffer_ = new char[buffer_size_];
-    buffer_length_ = vsnprint(buffer_, buffer_size_, fmt, args_copy);
+    length = vsnprint(buffer_ + buffer_length_, buffer_size_, fmt, args_copy);
   }
+  buffer_length_ += length;
   va_end(args_copy);
+}
+
+void
+Report::printBuffer()
+{
+  printString(buffer_, buffer_length_);
 }
 
 size_t
@@ -107,86 +142,19 @@ Report::print(const char *fmt, ...)
   va_end(args);
 }
 
-size_t
-Report::printError(const char *buffer,
-                   size_t length)
-{
-  size_t ret = length;
-  if (redirect_to_string_)
-    redirectStringPrint(buffer, length);
-  else {
-    if (redirect_stream_)
-      ret = min(ret, fwrite(buffer, sizeof(char), length, redirect_stream_));
-    else
-      ret = min(ret, printErrorConsole(buffer, length));
-    if (log_stream_)
-      ret = min(ret, fwrite(buffer, sizeof(char), length, log_stream_));
-  }
-  return ret;
-}
-
-void
-Report::vprintError(const char *fmt,
-                    va_list args)
-{
-  std::unique_lock<std::mutex> lock(buffer_lock_);
-  printToBuffer(fmt, args);
-  printError(buffer_, buffer_length_);
-}
-
-void
-Report::printError(const char *fmt, ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  vprintError(fmt, args);
-  va_end(args);
-}
-
-void
-Report::printDebug(const char *fmt, ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  vprint(fmt, args);
-  va_end(args);
-}
-
-void
-Report::vprintDebug(const char *fmt,
-                    va_list args)
-{
-  vprint(fmt, args);
-}
-
 ////////////////////////////////////////////////////////////////
-
-void
-Report::printWarn(const char *fmt, ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  vprintError(fmt, args);
-  va_end(args);
-}
-
-void
-Report::vprintWarn(const char *fmt,
-                   va_list args)
-{
-  vprintError(fmt, args);
-}
 
 void
 Report::warn(int /* id */,
              const char *fmt,
              ...)
 {
-  printWarn("Warning: ");
   va_list args;
   va_start(args, fmt);
-  vprintWarn(fmt, args);
-  printWarn("\n");
+  printToBuffer("Warning: ");
+  printToBufferAppend(fmt, args);
+  printToBufferAppend("\n");
+  printBuffer();
   va_end(args);
 }
 
@@ -197,11 +165,12 @@ Report::fileWarn(int /* id */,
                  const char *fmt,
                  ...)
 {
-  printWarn("Warning: %s, line %d ", filename, line);
   va_list args;
   va_start(args, fmt);
-  vprintWarn(fmt, args);
-  printWarn("\n");
+  printToBuffer("Warning: %s, line %d ", filename, line);
+  printToBufferAppend(fmt, args);
+  printToBufferAppend("\n");
+  printBuffer();
   va_end(args);
 }
 
@@ -212,9 +181,10 @@ Report::vfileWarn(int /* id */,
                   const char *fmt,
 		  va_list args)
 {
-  printWarn("Warning: %s, line %d ", filename, line);
-  vprintWarn(fmt, args);
-  printWarn("\n");
+  printToBuffer("Warning: %s, line %d ", filename, line);
+  printToBufferAppend(fmt, args);
+  printToBufferAppend("\n");
+  printBuffer();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -223,12 +193,13 @@ void
 Report::error(int /* id */,
               const char *fmt, ...)
 {
-  printError("Error: ");
+  flush();
   va_list args;
   va_start(args, fmt);
-  vprintError(fmt, args);
-  printWarn("\n");
+  // No prefix msg, no \n.
+  printToBuffer(fmt, args);
   va_end(args);
+  throw ExceptionMsg(buffer_);
 }
 
 void
@@ -238,12 +209,14 @@ Report::fileError(int /* id */,
                   const char *fmt,
                   ...)
 {
-  printError("Error: %s, line %d ", filename, line);
+  flush();
   va_list args;
   va_start(args, fmt);
-  vprintError(fmt, args);
-  printWarn("\n");
+  // No prefix msg, no \n.
+  printToBuffer("%s, line %d ", filename, line);
+  printToBufferAppend(fmt, args);
   va_end(args);
+  throw ExceptionMsg(buffer_);
 }
 
 void
@@ -251,11 +224,13 @@ Report::vfileError(int /* id */,
                    const char *filename,
                    int line,
                    const char *fmt,
-		    va_list args)
+                   va_list args)
 {
-  printError("Error: %s, line %d ", filename, line);
-  vprintError(fmt, args);
-  printWarn("\n");
+  flush();
+  // No prefix msg, no \n.
+  printToBuffer("%s, line %d ", filename, line);
+  printToBufferAppend(fmt, args);
+  throw ExceptionMsg(buffer_);
 } 
 
 ////////////////////////////////////////////////////////////////
@@ -265,13 +240,13 @@ Report::critical(int /* id */,
                  const char *fmt,
                  ...)
 {
-  printError("Critical: ");
   va_list args;
   va_start(args, fmt);
-  vprintError(fmt, args);
-  printWarn("\n");
+  printToBuffer("Critical: ");
+  printToBufferAppend(fmt, args);
+  printToBufferAppend("\n");
+  printBuffer();
   va_end(args);
-  exit(1);
 }
 
 void
@@ -281,11 +256,11 @@ Report::fileCritical(int /* id */,
                      const char *fmt,
                      ...)
 {
-  printError("Critical: %s, line %d ", filename, line);
   va_list args;
   va_start(args, fmt);
-  vprintError(fmt, args);
-  printWarn("\n");
+  printToBuffer("Critical: %s, line %d ", filename, line, fmt, args);
+  printToBufferAppend(fmt, args);
+  printToBufferAppend("\n");
   va_end(args);
   exit(1);
 }

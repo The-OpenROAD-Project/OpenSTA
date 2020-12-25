@@ -28,6 +28,18 @@ Exception::Exception() :
 {
 }
 
+ExceptionMsg::ExceptionMsg(const char *msg) :
+  Exception(),
+  msg_(msg)
+{
+}
+
+const char *
+ExceptionMsg::what() const noexcept
+{
+  return msg_.c_str();
+}
+
 ExceptionLine::ExceptionLine(const char *filename,
 			     int line) :
   Exception(),

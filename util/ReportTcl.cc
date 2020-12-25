@@ -277,8 +277,11 @@ Tcl_ChannelType tcl_encap_type_stderr = {
 ////////////////////////////////////////////////////////////////
 
 ReportTcl::ReportTcl() :
-    Report(), interp_(nullptr), tcl_stdout_(nullptr), tcl_stderr_(nullptr),
-    tcl_encap_stdout_(nullptr), tcl_encap_stderr_(nullptr)
+    Report(), interp_(nullptr),
+    tcl_stdout_(nullptr),
+    tcl_stderr_(nullptr),
+    tcl_encap_stdout_(nullptr),
+    tcl_encap_stderr_(nullptr)
 {
 }
 
@@ -319,13 +322,6 @@ ReportTcl::printConsole(const char *buffer,
 }
 
 size_t
-ReportTcl::printErrorConsole(const char *buffer,
-                             size_t length)
-{
-  return printTcl(tcl_stderr_, buffer, length);
-}
-
-size_t
 ReportTcl::printTcl(Tcl_Channel channel,
                     const char *buffer,
                     size_t length)
@@ -340,69 +336,63 @@ ReportTcl::printTcl(Tcl_Channel channel,
                      &error_code);
 }
 
+void
+ReportTcl::flush()
+{
+  if (tcl_encap_stdout_)
+    Tcl_Flush(tcl_encap_stdout_);
+  if (tcl_encap_stderr_)
+    Tcl_Flush(tcl_encap_stderr_);
+}
+
 // Tcl_Main can eval multiple commands before the flushing the command
 // output, so the log/redirect commands must force a flush.
 void
 ReportTcl::logBegin(const char *filename)
 {
-  Tcl_Flush(tcl_encap_stdout_);
-  Tcl_Flush(tcl_encap_stderr_);
+  flush();
   Report::logBegin(filename);
 }
 
 void
 ReportTcl::logEnd()
 {
-  if (tcl_encap_stdout_)
-    Tcl_Flush(tcl_encap_stdout_);
-  if (tcl_encap_stderr_)
-    Tcl_Flush(tcl_encap_stderr_);
+  flush();
   Report::logEnd();
 }
 
 void
 ReportTcl::redirectFileBegin(const char *filename)
 {
-  Tcl_Flush(tcl_encap_stdout_);
-  Tcl_Flush(tcl_encap_stderr_);
+  flush();
   Report::redirectFileBegin(filename);
 }
 
 void
 ReportTcl::redirectFileAppendBegin(const char *filename)
 {
-  Tcl_Flush(tcl_encap_stdout_);
-  Tcl_Flush(tcl_encap_stderr_);
+  flush();
   Report::redirectFileAppendBegin(filename);
 }
 
 void
 ReportTcl::redirectFileEnd()
 {
-  if (tcl_encap_stdout_)
-    Tcl_Flush(tcl_encap_stdout_);
-  if (tcl_encap_stderr_)
-    Tcl_Flush(tcl_encap_stderr_);
+  flush();
   Report::redirectFileEnd();
 }
 
 void
 ReportTcl::redirectStringBegin()
 {
-  if (tcl_encap_stdout_)
-    Tcl_Flush(tcl_encap_stdout_);
-  if (tcl_encap_stderr_)
-    Tcl_Flush(tcl_encap_stderr_);
+  flush();
   Report::redirectStringBegin();
 }
 
 const char *
 ReportTcl::redirectStringEnd()
 {
-  if (tcl_encap_stdout_)
-    Tcl_Flush(tcl_encap_stdout_);
-  if (tcl_encap_stderr_)
-    Tcl_Flush(tcl_encap_stderr_);
+  flush();
   return Report::redirectStringEnd();
 }
 

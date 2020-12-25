@@ -328,8 +328,8 @@ Genclks::ensureMaster(Clock *gclk)
 	iter.enqueueAdjacentVertices(vertex);
       }
       if (master_clk_count > 1)
-	report_->error(11, "generated clock %s is in the fanout of multiple clocks.",
-		       gclk->name());
+	report_->warn(11, "generated clock %s is in the fanout of multiple clocks.",
+                      gclk->name());
     }
     else {
       Pin *src_pin = gclk->srcPin();
@@ -379,10 +379,10 @@ Genclks::ensureMaster(Clock *gclk)
 	}
       }
       if (master_clk_count > 1)
-	report_->error(12,
-                       "generated clock %s pin %s is in the fanout of multiple clocks.",
-		       gclk->name(),
-		       network_->pathName(src_pin));
+	report_->warn(12,
+                      "generated clock %s pin %s is in the fanout of multiple clocks.",
+                      gclk->name(),
+                      network_->pathName(src_pin));
     }
   }
 }
