@@ -303,7 +303,7 @@ proc_redirect report_checks {
   parse_report_path_options "report_checks" args "full" 0
   set path_ends [find_timing_paths_cmd "report_checks" args]
   if { $path_ends == {} } {
-    puts "No paths found."
+    report_line "No paths found."
   } else {
     report_path_ends $path_ends
   }
@@ -535,7 +535,7 @@ proc_redirect report_tns {
     set digits $sta_report_default_digits
   }
 
-  puts "tns [format_time [total_negative_slack_cmd "max"] $digits]"
+  report_line "tns [format_time [total_negative_slack_cmd "max"] $digits]"
 }
 
 ################################################################
@@ -557,7 +557,7 @@ proc_redirect report_wns {
   if { $slack > 0.0 } {
     set slack 0.0
   }
-  puts "wns [format_time $slack $digits]"
+  report_line "wns [format_time $slack $digits]"
 }
 
 ################################################################
@@ -575,7 +575,7 @@ proc_redirect report_worst_slack {
     set digits $sta_report_default_digits
   }
 
-  puts "worst slack [format_time [worst_slack_cmd "max"] $digits]"
+  report_line "worst slack [format_time [worst_slack_cmd "max"] $digits]"
 }
 
 ################################################################
@@ -1036,8 +1036,8 @@ define_sta_cmd_args "report_clock_properties" {[clocks]}
 proc_redirect report_clock_properties {
   check_argc_eq0or1 "report_clock_properties" $args
   update_generated_clks
-  puts "Clock                   Period          Waveform"
-  puts "----------------------------------------------------"
+  report_line "Clock                   Period          Waveform"
+  report_line "----------------------------------------------------"
   if { [llength $args] == 0 } {
     set clk_iter [clock_iterator]
     while {[$clk_iter has_next]} {
@@ -1054,51 +1054,19 @@ proc_redirect report_clock_properties {
 
 ################################################################
 
-define_sta_cmd_args "report_object_full_names" {[-verbose] objects}
+define_sta_cmd_args "report_object_full_names" {objects}
 
-proc report_object_full_names { args } {
-  parse_key_args "report_object_full_names" args keys {} flags {-verbose}
-
-  set objects [lindex $args 0]
-  if { [info exists flags(-verbose)] } {
-    puts -nonewline "{"
-    set first 1
-    foreach obj [sort_by_full_name $objects] {
-      if { !$first } {
-	puts -nonewline ", "
-      }
-      puts -nonewline \"[get_object_type $obj]:[get_full_name $obj]\"
-      set first 0
-    }
-    puts "}"
-  } else {
-    foreach obj [sort_by_full_name $objects] {
-      puts [get_full_name $obj]
-    }
+proc report_object_full_names { objects } {
+  foreach obj [sort_by_full_name $objects] {
+    report_line [get_full_name $obj]
   }
 }
 
-define_sta_cmd_args "report_object_names" {[-verbose] objects}
+define_sta_cmd_args "report_object_names" {objects}
 
-proc report_object_names { args } {
-  parse_key_args "report_object_names" args keys {} flags {-verbose}
-
-  set objects [lindex $args 0]
-  if { [info exists flags(-verbose)] } {
-    puts -nonewline "{"
-    set first 1
-    foreach obj [sort_by_name $objects] {
-      if { !$first } {
-	puts -nonewline ", "
-      }
-      puts -nonewline \"[get_object_type $obj]:[get_name $obj]\"
-      set first 0
-    }
-    puts "}"
-  } else {
-    foreach obj [sort_by_name $objects] {
-      puts [get_name $obj]
-    }
+proc report_object_names { objects } {
+  foreach obj [sort_by_name $objects] {
+    report_line [get_name $obj]
   }
 }
 
@@ -1109,7 +1077,7 @@ define_sta_cmd_args "report_units" {}
 proc report_units { args } {
   check_argc_eq0 "report_units" $args
   foreach unit {"time" "capacitance" "resistance" "voltage" "current" "power" "distance"} {
-    puts " $unit 1[unit_scale_abreviation $unit][unit_suffix $unit]"
+    report_line " $unit 1[unit_scale_abreviation $unit][unit_suffix $unit]"
   }
 }
 

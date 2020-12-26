@@ -38,7 +38,7 @@ public:
   Report();
   virtual ~Report();
 
-  // Primitives to print output.
+  // Primitive to print output.
   // Return the number of characters written.
   virtual size_t printString(const char *buffer,
                              size_t length);
@@ -47,6 +47,8 @@ public:
                       va_list args);
   void print(const string *str);
   void print(const string &str);
+  // Print line with return.
+  virtual void printLine(const char *line);
 
   ////////////////////////////////////////////////////////////////
 

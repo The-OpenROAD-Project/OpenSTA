@@ -76,7 +76,7 @@ proc source_ { filename echo verbose } {
       gets $stream line
       if { $line != "" } {
 	if {$echo} {
-	  puts $line
+	  report_line $line
 	}
       }
       append cmd $line "\n"
@@ -89,7 +89,7 @@ proc source_ { filename echo verbose } {
 	# Flush results printed outside tcl to stdout/stderr.
 	fflush
 	switch $error_code {
-	  0 { if { $verbose && $result != "" } { puts $result } }
+	  0 { if { $verbose && $result != "" } { report_line $result } }
 	  1 { set error $result }
 	  2 { set error {invoked "return" outside of a proc.} }
 	  3 { set error {invoked "break" outside of a loop.} }
@@ -99,9 +99,9 @@ proc source_ { filename echo verbose } {
 	  if { $sta_continue_on_error } {
 	    # Only prepend error message with file/line once.
 	    if { [string first "Error" $error] == 0 } {
-	      puts $error
+	      report_line $error
 	    } else {
-	      puts "Error: [file tail $sdc_file], $sdc_line $error"
+	      report_line "Error: [file tail $sdc_file], $sdc_line $error"
 	    }
             set error {}
           } else {
@@ -176,7 +176,7 @@ proc current_instance { {inst ""} } {
     set current_instance [get_instance_error "instance" $inst]
   }
   set cell [get_name [$current_instance cell]]
-  puts "Current instance is $cell."
+  report_line "Current instance is $cell."
   # Current instance state variable must be part of the sta state so
   # the tcl interpreter can be shared by multiple sdc files.
   set_current_instance $current_instance

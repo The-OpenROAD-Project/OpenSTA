@@ -225,25 +225,25 @@ proc show_cmd_args { cmd } {
   set max_col 80
   set indent 2
   set indent_str "  "
-  puts -nonewline $cmd
+  set line $cmd
   set col [string length $cmd]
   set arglist $cmd_args($cmd)
   # Break the arglist up into max_col length lines.
   while {1} {
-    if {[regexp {(^ *)([a-zA-Z0-9>_\|\-]+|\[.*\])(.*)} \
+    if {[regexp {(^ *)([a-zA-Z0-9_\\\|\-]+|\[.*\])(.*)} \
 	   $arglist ignore space arg rest]} {
       set arg_length [string length $arg]
       if { $col + $arg_length < $max_col } {
-	puts -nonewline " $arg"
+	set line "$line $arg"
 	set col [expr $col + $arg_length + 1]
       } else {
-	puts ""
-	puts -nonewline "$indent_str $arg"
+	report_line $line
+	set line "$line$indent_str $arg"
 	set col [expr $indent + $arg_length + 1]
       }
       set arglist $rest
     } else {
-      puts ""
+      report_line $line
       break
     }
   }

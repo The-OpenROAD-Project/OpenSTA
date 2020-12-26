@@ -59,7 +59,7 @@ proc report_delays_wrt_clk { vertex what clk clk_rf } {
     } else {
       set clk_str ""
     }
-    puts "$clk_str r $rise_fmt f $fall_fmt"
+    report_line "$clk_str r $rise_fmt f $fall_fmt"
   }
 }
 
@@ -94,7 +94,7 @@ proc report_wrt_clk { vertex what clk clk_rf } {
     } else {
       set clk_str ""
     }
-    puts "$clk_str r $rise_fmt f $fall_fmt"
+    report_line "$clk_str r $rise_fmt f $fall_fmt"
   }
 }
 
@@ -173,12 +173,12 @@ proc_redirect report_path {
 	  while {[$path_iter has_next]} {
 	    set path [$path_iter next]
 	    if { $first }  {
-	      puts "Tag group: [$vertex tag_group_index]"
+	      report_line "Tag group: [$vertex tag_group_index]"
 	    } else {
-	      puts ""
+	      report_line ""
 	    }
 	    if { $report_tags } {
-	      puts "Tag: [$path tag]"
+	      report_line "Tag: [$path tag]"
 	    }
 	    report_path_cmd $path
 	    delete_path_ref $path
@@ -189,7 +189,7 @@ proc_redirect report_path {
 	  set worst_path [vertex_worst_arrival_path_rf $vertex $tr $min_max]
 	  if { $worst_path != "NULL" } {
 	    if { $report_tags } {
-	      puts "Tag: [$worst_path tag]"
+	      report_line "Tag: [$worst_path tag]"
 	    }
 	    report_path_cmd $worst_path
 	    delete_path_ref $worst_path
@@ -386,33 +386,33 @@ proc report_slew_limits { corner min_max all_violators verbose nosplit } {
   if { $all_violators } {
     set violators [pin_slew_limit_violations $corner $min_max]
     if { $violators != {} } {
-      puts "${min_max} slew"
-      puts ""
+      report_line "${min_max} slew"
+      report_line ""
       if { $verbose } {
 	foreach pin $violators {
 	  report_slew_limit_verbose $pin $corner $min_max
-	  puts ""
+	  report_line ""
 	}
       } else {
 	report_slew_limit_short_header
 	foreach pin $violators {
 	  report_slew_limit_short $pin $corner $min_max
 	}
-	puts ""
+	report_line ""
       }
     }
   } else {
     set pin [pin_min_slew_limit_slack $corner $min_max]
     if { $pin != "NULL" } {
-      puts "${min_max} slew"
-      puts ""
+      report_line "${min_max} slew"
+      report_line ""
       if { $verbose } {
 	report_slew_limit_verbose $pin $corner $min_max
-	puts ""
+	report_line ""
       } else {
 	report_slew_limit_short_header
 	report_slew_limit_short $pin $corner $min_max
-	puts ""
+	report_line ""
       }
     }
   }
@@ -422,33 +422,33 @@ proc report_fanout_limits { min_max all_violators verbose nosplit } {
   if { $all_violators } {
     set violators [pin_fanout_limit_violations $min_max]
     if { $violators != {} } {
-      puts "${min_max} fanout"
-      puts ""
+      report_line "${min_max} fanout"
+      report_line ""
       if { $verbose } {
 	foreach pin $violators {
 	  report_fanout_limit_verbose $pin $min_max
-	  puts ""
+	  report_line ""
 	}
       } else {
 	report_fanout_limit_short_header
 	foreach pin $violators {
 	  report_fanout_limit_short $pin $min_max
 	}
-	puts ""
+	report_line ""
       }
     }
   } else {
     set pin [pin_min_fanout_limit_slack $min_max]
     if { $pin != "NULL" } {
-      puts "${min_max} fanout"
-      puts ""
+      report_line "${min_max} fanout"
+      report_line ""
       if { $verbose } {
 	report_fanout_limit_verbose $pin $min_max
-	puts ""
+	report_line ""
       } else {
 	report_fanout_limit_short_header
 	report_fanout_limit_short $pin $min_max
-	puts ""
+	report_line ""
       }
     }
   }
@@ -458,33 +458,33 @@ proc report_capacitance_limits { corner min_max all_violators verbose nosplit } 
   if { $all_violators } {
     set violators [pin_capacitance_limit_violations $corner $min_max]
     if { $violators != {} } {
-      puts "${min_max} capacitance"
-      puts ""
+      report_line "${min_max} capacitance"
+      report_line ""
       if { $verbose } {
 	foreach pin $violators {
 	  report_capacitance_limit_verbose $pin $corner $min_max
-	  puts ""
+	  report_line ""
 	}
       } else {
 	report_capacitance_limit_short_header
 	foreach pin $violators {
 	  report_capacitance_limit_short $pin $corner $min_max
 	}
-	puts ""
+	report_line ""
       }
     }
   } else {
     set pin [pin_min_capacitance_limit_slack $corner $min_max]
     if { $pin != "NULL" } {
-      puts "${min_max} capacitance"
-      puts ""
+      report_line "${min_max} capacitance"
+      report_line ""
       if { $verbose } {
         report_capacitance_limit_verbose $pin $corner $min_max
-	puts ""
+	report_line ""
       } else {
 	report_capacitance_limit_short_header
 	report_capacitance_limit_short $pin $corner $min_max
-	puts ""
+	report_line ""
       }
     }
   }

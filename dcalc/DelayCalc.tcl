@@ -82,10 +82,10 @@ proc report_edge_dcalc { edge corner min_max digits } {
     # Filter timing checks based on min_max.
     if {!(($min_max == "max" && $role == "hold") \
 	    || ($min_max=="min" && $role=="setup"))} {
-      puts "Library: [get_name $library]"
-      puts "Cell: [get_name $cell]"
-      puts "Arc sense: [$edge sense]"
-      puts "Arc type: $role"
+      report_line "Library: [get_name $library]"
+      report_line "Cell: [get_name $cell]"
+      report_line "Arc sense: [$edge sense]"
+      report_line "Arc type: $role"
 
       set arc_iter [$edge timing_arc_iterator]
       while {[$arc_iter has_next]} {
@@ -94,15 +94,14 @@ proc report_edge_dcalc { edge corner min_max digits } {
 	set from_rf [$arc from_trans]
 	set to [get_name [$to_pin port]]
 	set to_rf [$arc to_trans]
-	puts "$from $from_rf -> $to $to_rf"
-	puts -nonewline [report_delay_calc_cmd $edge $arc $corner $min_max $digits]
+	report_line "$from $from_rf -> $to $to_rf"
+        report_line [report_delay_calc_cmd $edge $arc $corner $min_max $digits]
 	if { [$edge delay_annotated $arc $corner $min_max] } {
 	  set delay [$edge arc_delay $arc $corner $min_max]
-	  puts "Annotated value = [format_time $delay $digits]"
+	  report_line "Annotated value = [format_time $delay $digits]"
 	}
-	puts ""
-	puts "............................................."
-	puts ""
+	report_line "............................................."
+	report_line ""
       }
       $arc_iter finish
     }

@@ -142,6 +142,13 @@ Report::print(const char *fmt, ...)
   va_end(args);
 }
 
+void
+Report::printLine(const char *line)
+{
+  printString(line, strlen(line));
+  printString("\n", 1);
+}
+
 ////////////////////////////////////////////////////////////////
 
 void

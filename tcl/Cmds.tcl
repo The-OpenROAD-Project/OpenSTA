@@ -27,21 +27,21 @@ proc report_clock1 { clk } {
 
   if { [$clk waveform_valid] } {
     set digits $sta_report_default_digits
-    puts -nonewline [format "%-20s" [get_name $clk]]
-    puts -nonewline [format "%10s" [format_time [$clk period] $digits]]
-    puts -nonewline "  "
     set waveform [$clk waveform]
     if { $waveform == {} } {
-      puts -nonewline "                    "
+      set wave "                    "
     } else {
+      set wave ""
       foreach edge $waveform {
-	puts -nonewline [format "%10s" [format_time $edge $digits]]
+	set wave "$wave[format "%10s" [format_time $edge $digits]]"
       }
     }
     if {[$clk is_generated]} {
-      puts -nonewline " (generated)"
+      set generated " (generated)"
+    } else {
+      set generated ""
     }
-    puts ""
+    report_line "[format %-20s [get_name $clk]][format %10s [format_time [$clk period] $digits]]  $wave$generated"
   }
 }
 
@@ -75,10 +75,10 @@ proc check_setup_cmd { cmd cmd_args } {
 		$generated_clocks]
   foreach error $errors {
     # First line is the error msg.
-    puts [lindex $error 0]
+    report_line [lindex $error 0]
     if { $verbose } {
       foreach obj [lrange $error 1 end] {
-	puts "  $obj"
+	report_line "  $obj"
       }
     }
   }

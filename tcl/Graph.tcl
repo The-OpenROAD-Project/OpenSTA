@@ -95,27 +95,25 @@ proc report_edges_ { vertex iter_proc wire_from_name_proc wire_to_name_proc } {
 proc report_edge_ { edge vertex_from_name_proc vertex_to_name_proc } {
   global sta_report_default_digits
 
-  puts -nonewline "[$vertex_from_name_proc [$edge from]] -> [$vertex_to_name_proc [$edge to]] [$edge role]"
   set latch_enable [$edge latch_d_to_q_en]
   if { $latch_enable != "" } {
-    puts " enable $latch_enable"
-  } else {
-    puts ""
+    set latch_enable " enable $latch_enable"
   }
+  report_line "[$vertex_from_name_proc [$edge from]] -> [$vertex_to_name_proc [$edge to]] [$edge role]$latch_enable"
 
   set disables [edge_disable_reason $edge]
   if { $disables != "" } {
-    puts "  Disabled by $disables"
+    report_line "  Disabled by $disables"
   }
 
   set cond [$edge cond]
   if { $cond != "" } {
-    puts "  Condition: $cond"
+    report_line "  Condition: $cond"
   }
 
   set mode_name [$edge mode_name]
   if { $mode_name != "" } {
-    puts "  Mode: $mode_name [$edge mode_value]"
+    report_line "  Mode: $mode_name [$edge mode_value]"
   }
 
   set iter [$edge timing_arc_iterator]
@@ -127,7 +125,7 @@ proc report_edge_ { edge vertex_from_name_proc vertex_to_name_proc } {
     if { [timing_arc_disabled $edge $arc] } {
       set disable_reason " disabled"
     }
-    puts "  [$arc from_trans] -> [$arc to_trans] $delays_fmt$disable_reason"
+    report_line "  [$arc from_trans] -> [$arc to_trans] $delays_fmt$disable_reason"
   }
   $iter finish
 }
@@ -217,16 +215,20 @@ proc report_constant { obj } {
 
 proc report_pin_constant { pin } {
   set sim_value [pin_sim_logic_value $pin]
-  puts -nonewline "[pin_property $pin lib_pin_name] $sim_value"
+
   set case_value [pin_case_logic_value $pin]
   if { $case_value != "X" } {
-    puts -nonewline " case=$case_value"
+    set case " case=$case_value"
+  } else {
+    set case ""
   }
   set logic_value [pin_logic_value $pin]
   if { $logic_value != "X" } {
-    puts -nonewline " logic=$logic_value"
+    set logic " logic=$logic_value"
+  } else {
+    set logic ""
   }
-  puts ""
+  report_line "[pin_property $pin lib_pin_name] $sim_value$case$logic"
 }
 
 ################################################################
@@ -236,21 +238,21 @@ proc report_disabled_edges {} {
     if { [$edge role] == "wire" } {
       set from_pin_name [get_full_name [[$edge from] pin]]
       set to_pin_name [get_full_name [[$edge to] pin]]
-      puts -nonewline "$from_pin_name $to_pin_name"
+      report_line "$from_pin_name $to_pin_name [edge_disable_reason_verbose $edge]"
     } else {
       set from_pin [[$edge from] pin]
       set to_pin [[$edge to] pin]
       set inst_name [get_full_name [$from_pin instance]]
       set from_port_name [get_name [$from_pin port]]
       set to_port_name [get_name [$to_pin port]]
-      puts -nonewline "$inst_name $from_port_name $to_port_name"
       set cond [$edge cond]
       if { $cond != "" } {
-	puts -nonewline " when: $cond"
+	set when " when: $cond"
+      } else {
+        set when ""
       }
+      report_line "$inst_name $from_port_name $to_port_name$when [edge_disable_reason_verbose $edge]"
     }
-    set reason [edge_disable_reason_verbose $edge]
-    puts " $reason"
   }
 }
 
@@ -297,7 +299,7 @@ proc report_slews { pin } {
 
   set pin1 [get_port_pin_error "pin" $pin]
   foreach vertex [$pin1 vertices] {
-    puts "[vertex_path_name $vertex] [rise_short_name] [format_times [$vertex slews rise] $sta_report_default_digits] [fall_short_name] [format_times [$vertex slews fall] $sta_report_default_digits]"
+    report_line "[vertex_path_name $vertex] [rise_short_name] [format_times [$vertex slews rise] $sta_report_default_digits] [fall_short_name] [format_times [$vertex slews fall] $sta_report_default_digits]"
   }
 }
 
@@ -330,7 +332,7 @@ proc vertex_name_ { vertex pin pin_name } {
 proc hier_pins_crossed_by_edge { edge } {
   set from_pins [hier_pins_above [[$edge from] pin]]
   set to_pins [hier_pins_above [[$edge to] pin]]
-  foreach p $to_pins { puts [$p path_name] }
+  foreach p $to_pins { report_line [$p path_name] }
   while { [llength $from_pins] > 0 \
 	    && [llength $to_pins] > 0 \
 	      && [lindex $from_pins 0] == [lindex $to_pins 0] } {
@@ -369,7 +371,7 @@ proc report_level { pin } {
   set pin1 [get_port_pin_error "pin" $pin]
   foreach vertex [$pin1 vertices] {
     if { $vertex != "NULL" } {
-      puts "[vertex_path_name $vertex] level = [$vertex level]"
+      report_line "[vertex_path_name $vertex] level = [$vertex level]"
     }
   }
 }
@@ -392,9 +394,9 @@ proc report_level_distribution {} {
   }
   $iter finish
 
-  puts "level  pin count"
+  report_line "level  pin count"
   for { set level 0 } { $level < $max_level } { incr level } {
-    puts "  $level      $count($level)"
+    report_line "  $level      $count($level)"
   }
 }
 
