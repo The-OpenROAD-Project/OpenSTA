@@ -17,6 +17,7 @@
 #include "Power.hh"
 
 #include <algorithm> // max
+#include <cmath>     // aps
 
 #include "Debug.hh"
 #include "EnumNameMap.hh"
@@ -59,6 +60,8 @@
 // transition_density = activity / clock_period
 
 namespace sta {
+
+using std::abs;
 
 static bool
 isPositiveUnate(const LibertyCell *cell,

@@ -17,6 +17,7 @@
 #include "Report.hh"
 
 #include <algorithm> // min
+#include <cstdlib>   // exit
 
 #include "Error.hh"
 
