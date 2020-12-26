@@ -4399,7 +4399,7 @@ LibertyReader::libWarn(int id,
 {
   va_list args;
   va_start(args, fmt);
-  report_->fileWarn(id, filename_, stmt->line(), fmt, args);
+  report_->vfileWarn(id, filename_, stmt->line(), fmt, args);
   va_end(args);
 }
 
