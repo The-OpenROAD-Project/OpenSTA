@@ -17,6 +17,7 @@
 #include "StaMain.hh"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <tcl.h>
 
 #include "StaConfig.hh"  // STA_VERSION

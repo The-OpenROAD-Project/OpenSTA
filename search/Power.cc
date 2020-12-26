@@ -1189,7 +1189,7 @@ PwrActivity::check()
   // Activities can get very small from multiplying probabilities
   // through deep chains of logic. Clip them to prevent floating
   // point anomalies.
-  if (abs(activity_) < min_activity)
+  if (fabs(activity_) < min_activity)
     activity_ = 0.0;
 }
 
