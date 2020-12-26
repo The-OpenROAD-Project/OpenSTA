@@ -31,12 +31,6 @@ using ::Tcl_GetChannelType;
 
 extern "C" {
 
-// Tcl8.4 adds const's to Tcl_ChannelType but earlier versions
-// don't have them.
-#ifndef CONST84
-#define CONST84
-#endif
-
 static int
 encapOutputProc(ClientData instanceData,
                 CONST84 char *buf,
@@ -79,7 +73,6 @@ static int
 encapBlockModeProc(ClientData instanceData, int mode);
 }  // extern "C"
 
-#ifdef TCL_CHANNEL_VERSION_5
 Tcl_ChannelType tcl_encap_type_stdout = {
     const_cast<char *>("file"),
     TCL_CHANNEL_VERSION_4,
@@ -119,160 +112,6 @@ Tcl_ChannelType tcl_encap_type_stderr = {
     nullptr,  // threadActionProc
     nullptr   // truncateProc
 };
-
-#else
-#ifdef TCL_CHANNEL_VERSION_4
-// Tcl 8.4.12
-Tcl_ChannelType tcl_encap_type_stdout = {
-    const_cast<char *>("file"),
-    TCL_CHANNEL_VERSION_4,
-    encapCloseProc,
-    encapInputProc,
-    encapOutputProc,
-    encapSeekProc,
-    encapSetOptionProc,
-    encapGetOptionProc,
-    encapWatchProc,
-    encapGetHandleProc,
-    nullptr,  // close2Proc
-    encapBlockModeProc,
-    nullptr,  // flushProc
-    nullptr,  // handlerProc
-    nullptr,  // wideSeekProc
-    nullptr   // threadActionProc
-};
-
-Tcl_ChannelType tcl_encap_type_stderr = {
-    const_cast<char *>("file"),
-    TCL_CHANNEL_VERSION_4,
-    encapCloseProc,
-    encapInputProc,
-    encapErrorOutputProc,
-    encapSeekProc,
-    encapSetOptionProc,
-    encapGetOptionProc,
-    encapWatchProc,
-    encapGetHandleProc,
-    nullptr,  // close2Proc
-    encapBlockModeProc,
-    nullptr,  // flushProc
-    nullptr,  // handlerProc
-    nullptr,  // wideSeekProc
-    nullptr   // threadActionProc
-};
-
-#else
-#ifdef TCL_CHANNEL_VERSION_3
-// Tcl 8.4
-Tcl_ChannelType tcl_encap_type_stdout = {
-    const_cast<char *>("file"),
-    TCL_CHANNEL_VERSION_3,
-    encapCloseProc,
-    encapInputProc,
-    encapOutputProc,
-    encapSeekProc,
-    encapSetOptionProc,
-    encapGetOptionProc,
-    encapWatchProc,
-    encapGetHandleProc,
-    nullptr,  // close2Proc
-    encapBlockModeProc,
-    nullptr,  // flushProc
-    nullptr,  // handlerProc
-    nullptr   // wideSeekProc
-};
-
-Tcl_ChannelType tcl_encap_type_stderr = {
-    const_cast<char *>("file"),
-    TCL_CHANNEL_VERSION_3,
-    encapCloseProc,
-    encapInputProc,
-    encapErrorOutputProc,
-    encapSeekProc,
-    encapSetOptionProc,
-    encapGetOptionProc,
-    encapWatchProc,
-    encapGetHandleProc,
-    nullptr,  // close2Proc
-    encapBlockModeProc,
-    nullptr,  // flushProc
-    nullptr,  // handlerProc
-    nullptr   // wideSeekProc
-};
-
-#else
-#ifdef TCL_CHANNEL_VERSION_2
-
-// Tcl 8.3.2
-Tcl_ChannelType tcl_encap_type_stdout = {
-    const_cast<char *>("file"),
-    TCL_CHANNEL_VERSION_2,
-    encapCloseProc,
-    encapInputProc,
-    encapOutputProc,
-    encapSeekProc,
-    encapSetOptionProc,
-    encapGetOptionProc,
-    encapWatchProc,
-    encapGetHandleProc,
-    nullptr,  // close2Proc
-    encapBlockModeProc,
-    nullptr,  // flushProc
-    nullptr   // handlerProc
-};
-
-Tcl_ChannelType tcl_encap_type_stderr = {
-    const_cast<char *>("file"),
-    TCL_CHANNEL_VERSION_2,
-    encapCloseProc,
-    encapInputProc,
-    encapErrorOutputProc,
-    encapSeekProc,
-    encapSetOptionProc,
-    encapGetOptionProc,
-    encapWatchProc,
-    encapGetHandleProc,
-    nullptr,  // close2Proc
-    encapBlockModeProc,
-    nullptr,  // flushProc
-    nullptr   // handlerProc
-};
-
-#else
-
-// Tcl 8.2
-Tcl_ChannelType tcl_encap_type_stdout = {
-    const_cast<char *>("file"),
-    encapBlockModeProc,
-    encapCloseProc,
-    encapInputProc,
-    encapOutputProc,
-    encapSeekProc,
-    encapSetOptionProc,
-    encapGetOptionProc,
-    encapWatchProc,
-    encapGetHandleProc,
-    nullptr  // close2Proc
-};
-
-Tcl_ChannelType tcl_encap_type_stderr = {
-    const_cast<char *>("file"),
-    encapBlockModeProc,
-    encapCloseProc,
-    encapInputProc,
-    encapErrorOutputProc,
-    encapSeekProc,
-    encapSetOptionProc,
-    encapGetOptionProc,
-    encapWatchProc,
-    encapGetHandleProc,
-    nullptr  // close2Proc
-};
-
-#endif
-#endif
-#endif
-#endif
 
 ////////////////////////////////////////////////////////////////
 
@@ -293,9 +132,6 @@ ReportTcl::~ReportTcl()
   Tcl_UnstackChannel(interp_, tcl_stderr_);
 }
 
-// Encapsulate the Tcl stdout and stderr channels to print to the
-// report object so that the output from Tcl puts and errors can be
-// logged and redirected.
 void
 ReportTcl::setTclInterp(Tcl_Interp *interp)
 {

@@ -22,9 +22,12 @@
 
 namespace sta {
 
+// Encapsulate the Tcl stdout and stderr channels to print to the
+// report object so that the output from Tcl puts and errors can be
+// logged and redirected.
+//
 // Output streams that talk to TCL channels.
-// This directs all output on the Report object to tcl stdout and stderr
-// channels.
+// This directs all output on the Report object to the Tcl stdout channel.
 // Tcl output channels are encapsulated to print to the Report object
 // that supports redirection and logging as well as printing to the
 // underlying channel.
