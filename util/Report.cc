@@ -18,6 +18,7 @@
 
 #include <algorithm> // min
 #include <cstdlib>   // exit
+#include <cstring>   // strlen
 
 #include "Error.hh"
 
