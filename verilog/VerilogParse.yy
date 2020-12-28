@@ -66,7 +66,7 @@ int VerilogLex_lex();
 %type <dcl_arg_seq> dcl_args
 %type <net> port net_scalar net_bit_select net_part_select
 %type <net> net_constant net_expr port_ref port_expr named_pin_net_expr
-%type <net> inst_named_pin net_named net_expr_concat
+%type <net> inst_named_pin net_named net_assign_target net_expr_concat
 %type <nets> port_list port_refs inst_ordered_pins
 %type <nets> inst_named_pins net_exprs inst_pins
 
@@ -334,9 +334,8 @@ net_assignments:
 	;
 
 net_assignment:
-	net_named { $<ival>$ = sta::verilog_reader->line(); } '=' net_expr
+	net_assign_target { $<ival>$ = sta::verilog_reader->line(); } '=' net_expr
 	{ $$ = sta::verilog_reader->makeAssign($1, $4, $<ival>2); }
-	;
 
 instance:
 	ID { $<ival>$ = sta::verilog_reader->line(); } ID '(' inst_pins ')' ';'
@@ -413,6 +412,11 @@ named_pin_net_expr:
 |	net_constant
 |	net_expr_concat
 	;
+
+net_assign_target:
+  net_named
+| net_expr_concat
+  ;
 
 net_named:
 	net_scalar
