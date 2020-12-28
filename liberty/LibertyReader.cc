@@ -1782,7 +1782,7 @@ LibertyReader::beginCell(LibertyGroup *group)
 {
   const char *name = group->firstName();
   if (name) {
-    debugPrint1(debug_, "liberty", 1, "cell %s\n", name);
+    debugPrint1(debug_, "liberty", 1, "cell %s", name);
     cell_ = builder_->makeCell(library_, name, filename_);
     in_bus_ = false;
     in_bundle_ = false;
@@ -2059,7 +2059,7 @@ LibertyReader::beginScaledCell(LibertyGroup *group)
       if (op_cond_name) {
 	op_cond_ = library_->findOperatingConditions(op_cond_name);
 	if (op_cond_) {
-	  debugPrint2(debug_, "liberty", 1, "scaled cell %s %s\n",
+	  debugPrint2(debug_, "liberty", 1, "scaled cell %s %s",
 		      name, op_cond_name);
 	  cell_ = library_->makeScaledCell(name, filename_);
 	}
@@ -2131,7 +2131,7 @@ LibertyReader::makeTimingArcs(LibertyPort *to_port,
     const char *from_port_name = related_port_iter.next();
     PortNameBitIterator from_port_iter(cell_, from_port_name, this, line);
     if (from_port_iter.hasNext()) {
-      debugPrint2(debug_, "liberty", 2, "  timing %s -> %s\n",
+      debugPrint2(debug_, "liberty", 2, "  timing %s -> %s",
 		  from_port_name, to_port->name());
       makeTimingArcs(from_port_name, from_port_iter, to_port,
 		     related_out_port, timing);
@@ -2304,7 +2304,7 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
       const char *related_port_name = related_port_iter.next();
       PortNameBitIterator related_port_iter(cell_, related_port_name, this, line);
       if (related_port_iter.hasNext()) {
-	debugPrint2(debug_, "liberty", 2, "  power %s -> %s\n",
+	debugPrint2(debug_, "liberty", 2, "  power %s -> %s",
 		    related_port_name, port->name());
 	makeInternalPowers(port, related_port_name, related_port_iter, power_group);
       }
@@ -2504,7 +2504,7 @@ LibertyReader::beginPin(LibertyGroup *group)
 	LibertyAttrValue *param = param_iter.next();
 	if (param->isString()) {
 	  const char *name = param->stringValue();
-	  debugPrint1(debug_, "liberty", 1, " port %s\n", name);
+	  debugPrint1(debug_, "liberty", 1, " port %s", name);
 	  PortNameBitIterator port_iter(cell_, name, this, group->line());
 	  while (port_iter.hasNext()) {
 	    LibertyPort *port = port_iter.next();
@@ -2524,7 +2524,7 @@ LibertyReader::beginPin(LibertyGroup *group)
 	LibertyAttrValue *param = param_iter.next();
 	if (param->isString()) {
 	  const char *name = param->stringValue();
-	  debugPrint1(debug_, "liberty", 1, " port %s\n", name);
+	  debugPrint1(debug_, "liberty", 1, " port %s", name);
 	  LibertyPort *port = findPort(name);
 	  if (port == nullptr)
 	    port = builder_->makePort(cell_, name);
@@ -2544,7 +2544,7 @@ LibertyReader::beginPin(LibertyGroup *group)
 	LibertyAttrValue *param = param_iter.next();
 	if (param->isString()) {
 	  const char *name = param->stringValue();
-	  debugPrint1(debug_, "liberty", 1, " port %s\n", name);
+	  debugPrint1(debug_, "liberty", 1, " port %s", name);
 	  if (isBusName(name, brkt_left, brkt_right, escape_))
 	    // Pins not inside a bus group with bus names are not really
 	    // busses, so escape the brackets.
@@ -2680,7 +2680,7 @@ LibertyReader::visitBusType(LibertyAttr *attr)
 	StringSeq::Iterator name_iter(bus_names_);
 	while (name_iter.hasNext()) {
 	  const char *name = name_iter.next();
-	  debugPrint1(debug_, "liberty", 1, " bus %s\n", name);
+	  debugPrint1(debug_, "liberty", 1, " bus %s", name);
 	  LibertyPort *port = builder_->makeBusPort(cell_, name,
 						    bus_dcl->from(),
 						    bus_dcl->to());
@@ -2723,7 +2723,7 @@ LibertyReader::visitMembers(LibertyAttr *attr)
       StringSeq::Iterator name_iter(bus_names_);
       while (name_iter.hasNext()) {
 	const char *name = name_iter.next();
-	debugPrint1(debug_, "liberty", 1, " bundle %s\n", name);
+	debugPrint1(debug_, "liberty", 1, " bundle %s", name);
 	ConcretePortSeq *members = new ConcretePortSeq;
 	LibertyAttrValueIterator value_iter(attr->values());
 	while (value_iter.hasNext()) {

@@ -859,11 +859,11 @@ WritePathSpice::writeSubcktInstVoltSrcs(Stage stage,
   const char *drvr_port_name = drvr_port->name();
   const char *inst_name = network_->pathName(inst);
 
-  debugPrint1(debug_, "write_spice", 2, "subckt %s\n", cell->name());
+  debugPrint1(debug_, "write_spice", 2, "subckt %s", cell->name());
   for (string subckt_port_sname : *spice_port_names) {
     const char *subckt_port_name = subckt_port_sname.c_str();
     LibertyPgPort *pg_port = cell->findPgPort(subckt_port_name);
-    debugPrint2(debug_, "write_spice", 2, " port %s%s\n",
+    debugPrint2(debug_, "write_spice", 2, " port %s%s",
 		subckt_port_name,
 		pg_port ? " pwr/gnd" : "");
     if (pg_port)
@@ -1383,7 +1383,7 @@ WritePathSpice::writeSubckts()
 	report_->error(28, "The following subkcts are missing from %s",
 		       lib_subckt_filename_);
 	for (const char *cell_name : path_cell_names)
-	  report_->print(" %s\n", cell_name);
+	  report_->reportLine(" %s", cell_name);
       }
     }
     else {
@@ -1404,7 +1404,7 @@ WritePathSpice::findPathCellnames(// Return values.
     if (arc) {
       LibertyCell *cell = arc->set()->libertyCell();
       if (cell) {
-	debugPrint1(debug_, "write_spice", 2, "cell %s\n", cell->name());
+	debugPrint1(debug_, "write_spice", 2, "cell %s", cell->name());
 	path_cell_names.insert(cell->name());
       }
       // Include side receivers.

@@ -176,12 +176,12 @@ ReportAnnotated::reportDelayCounts()
 		total, annotated_total);
   reportCount("net arcs to primary outputs", count_output_net,
 	      total, annotated_total);
-  report_->print("----------------------------------------------------------------\n");
-  report_->print("%-28s %10u  %10u  %10u\n",
-		 " ",
-		 total,
-		 annotated_total,
-		 total - annotated_total);
+  report_->reportLine("----------------------------------------------------------------");
+  report_->reportLine("%-28s %10u  %10u  %10u",
+                      " ",
+                      total,
+                      annotated_total,
+                      total - annotated_total);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -267,12 +267,12 @@ ReportAnnotated::reportCheckCounts()
   reportCheckCount(TimingRole::period(), total, annotated_total);
   reportCheckCount(TimingRole::skew(), total, annotated_total);
 
-  report_->print("----------------------------------------------------------------\n");
-  report_->print("%-28s %10u  %10u  %10u\n",
-		 " ",
-		 total,
-		 annotated_total,
-		 total - annotated_total);
+  report_->reportLine("----------------------------------------------------------------");
+  report_->reportLine("%-28s %10u  %10u  %10u",
+                      " ",
+                      total,
+                      annotated_total,
+                      total - annotated_total);
 }
 
 void
@@ -433,19 +433,19 @@ ReportAnnotated::reportCount(const char *title,
   if (report_role_[index]) {
     int count = edge_count_[index];
     int annotated_count = edge_annotated_count_[index];
-    report_->print("%-28s %10u  %10u  %10u\n",
-		   title,
-		   count,
-		   annotated_count,
-		   count - annotated_count);
+    report_->reportLine("%-28s %10u  %10u  %10u",
+                        title,
+                        count,
+                        annotated_count,
+                        count - annotated_count);
     if (report_constant_arcs_) {
       int const_count = edge_constant_count_[index];
       int const_annotated_count = edge_constant_annotated_count_[index];
-      report_->print("%-28s %10s  %10u  %10u\n",
-		     "constant arcs",
-		     "",
-		     const_annotated_count,
-		     const_count - const_annotated_count);
+      report_->reportLine("%-28s %10s  %10u  %10u",
+                          "constant arcs",
+                          "",
+                          const_annotated_count,
+                          const_count - const_annotated_count);
     }
     total += count;
     annotated_total += annotated_count;
@@ -512,14 +512,12 @@ ReportAnnotated::reportArcs(Vertex *vertex,
       }
       else
 	role_name = "delay";
-      report_->print(" %-18s %s -> %s",
-		     role_name,
-		     network_->pathName(from_pin),
-		     network_->pathName(to_pin));
       const char *cond = edge->timingArcSet()->sdfCond();
-      if (cond)
-	report_->print(" %s", cond);
-      report_->print("\n");
+      report_->reportLine(" %-18s %s -> %s %s",
+                          role_name,
+                          network_->pathName(from_pin),
+                          network_->pathName(to_pin),
+                          cond ? cond : "");
       i++;
     }
   }
@@ -545,9 +543,9 @@ ReportAnnotated::reportWidthPeriodArcs(Pin *pin,
 	edge_count_[period_index]++;
 	graph_->periodCheckAnnotation(pin, ap_index, value, annotated);
 	if (annotated == report_annotated) {
-	  report_->print(" %-18s %s\n",
-			 "period",
-			 network_->pathName(pin));
+	  report_->reportLine(" %-18s %s",
+                              "period",
+                              network_->pathName(pin));
 	  i++;
 	}
       }
@@ -567,9 +565,9 @@ ReportAnnotated::reportWidthPeriodArcs(Pin *pin,
 	}
       }
       if (report) {
-	report_->print(" %-18s %s\n",
-		       "min width",
-		       network_->pathName(pin));
+	report_->reportLine(" %-18s %s",
+                            "min width",
+                            network_->pathName(pin));
 	i++;
       }
     }

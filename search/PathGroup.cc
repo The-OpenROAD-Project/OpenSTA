@@ -686,7 +686,7 @@ MakePathEndsAll::vertexEnd(Vertex *)
 	// Only save the worst path end for each crpr tag.
 	// PathEnum will peel the others.
 	if (!unique_ends.hasKey(path_end)) {
-	  debugPrint4(debug, "path_enum", 5, "insert %s %s %s %d\n",
+	  debugPrint4(debug, "path_enum", 5, "insert %s %s %s %d",
 		      path_end->vertex(sta_)->name(network),
 		      path_end->typeName(),
 		      path_end->transition(sta_)->asString(),
@@ -700,7 +700,7 @@ MakePathEndsAll::vertexEnd(Vertex *)
 	  }
 	}
 	else
-	  debugPrint4(debug, "path_enum", 5, "prune %s %s %s %d\n",
+	  debugPrint4(debug, "path_enum", 5, "prune %s %s %s %d",
 		      path_end->vertex(sta_)->name(network),
 		      path_end->typeName(),
 		      path_end->transition(sta_)->asString(),

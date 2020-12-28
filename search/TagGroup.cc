@@ -106,7 +106,7 @@ void
 TagGroup::report(const StaState *sta) const
 {
   Report *report = sta->report();
-  report->print("Group %u hash = %u\n", index_, hash_);
+  report->reportLine("Group %u hash = %u", index_, hash_);
   arrivalMapReport(arrival_map_, sta);
 }
 
@@ -126,11 +126,11 @@ arrivalMapReport(const ArrivalMap *arrival_map,
     Tag *tag;
     int arrival_index;
     arrival_iter.next(tag, arrival_index);
-    report->print(" %2u %s\n",
-		  arrival_index,
-		  tag->asString(sta));
+    report->reportLine(" %2u %s",
+                       arrival_index,
+                       tag->asString(sta));
   }
-  report->print("\n");
+  report->reportLine("");
 }
 
 ////////////////////////////////////////////////////////////////

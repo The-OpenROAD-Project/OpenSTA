@@ -3006,7 +3006,7 @@ Sta::findRequired(Vertex *vertex)
     // path pruning on fanout vertices with DFS.
     int fanout = 0;
     disableFanoutCrprPruning(vertex, fanout);
-    debugPrint2(debug_, "search", 1, "resurrect pruned required %s fanout %d\n",
+    debugPrint2(debug_, "search", 1, "resurrect pruned required %s fanout %d",
 		vertex->name(sdc_network_),
 		fanout);
     // Find fanout arrivals and requireds with pruning disabled.
@@ -4613,7 +4613,7 @@ Sta::findFaninPins(Vertex *to,
 		   int inst_level,
 		   int pin_level)
 {
-  debugPrint1(debug_, "fanin", 1, "%s\n",
+  debugPrint1(debug_, "fanin", 1, "%s",
 	      to->name(sdc_network_));
   if (!visited.hasKey(to)) {
     visited.insert(to);
@@ -4723,7 +4723,7 @@ Sta::findFanoutPins(Vertex *from,
 		    int inst_level,
 		    int pin_level)
 {
-  debugPrint1(debug_, "fanout", 1, "%s\n",
+  debugPrint1(debug_, "fanout", 1, "%s",
 	      from->name(sdc_network_));
   if (!visited.hasKey(from)) {
     visited.insert(from);

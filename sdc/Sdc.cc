@@ -4243,7 +4243,7 @@ Sdc::makeLoopExceptions()
 void
 Sdc::makeLoopExceptions(GraphLoop *loop)
 {
-  debugPrint0(debug_, "loop", 2, "Loop false path\n");
+  debugPrint0(debug_, "loop", 2, "Loop false path");
   EdgeSeq::Iterator loop_edge_iter(loop->edges());
   while (loop_edge_iter.hasNext()) {
     Edge *edge = loop_edge_iter.next();
@@ -4289,7 +4289,7 @@ void
 Sdc::makeLoopExceptionThru(Pin *pin,
 			   ExceptionThruSeq *thrus)
 {
-  debugPrint1(debug_, "levelize", 2, " %s\n", network_->pathName(pin));
+  debugPrint1(debug_, "levelize", 2, " %s", network_->pathName(pin));
   PinSet *pins = new PinSet;
   pins->insert(pin);
   ExceptionThru *thru = makeExceptionThru(pins, nullptr, nullptr,
@@ -4313,7 +4313,7 @@ Sdc::deleteLoopExceptions()
 void
 Sdc::addException(ExceptionPath *exception)
 {
-  debugPrint1(debug_, "exception_merge", 1, "add exception for %s\n",
+  debugPrint1(debug_, "exception_merge", 1, "add exception for %s",
 	      exception->asString(network_));
 
   if (exception->isPathDelay()) {
@@ -4339,7 +4339,7 @@ Sdc::addException(ExceptionPath *exception)
     ExceptionTo *to = exception->to();    
     ExceptionTo *to1 = to ? to->clone() : nullptr;
     ExceptionPath *exception1 = exception->clone(from1, thrus1, to1, true);
-    debugPrint1(debug_, "exception_merge", 1, " split exception for %s\n",
+    debugPrint1(debug_, "exception_merge", 1, " split exception for %s",
 		exception1->asString(network_));
     addException1(exception1);
 
@@ -4349,7 +4349,7 @@ Sdc::addException(ExceptionPath *exception)
     ExceptionThruSeq *thrus2 = exceptionThrusClone(exception->thrus(), network_);
     ExceptionTo *to2 = to ? to->clone() : nullptr;
     ExceptionPath *exception2 = exception->clone(from2, thrus2, to2, true);
-    debugPrint1(debug_, "exception_merge", 1, " split exception for %s\n",
+    debugPrint1(debug_, "exception_merge", 1, " split exception for %s",
 		exception2->asString(network_));
     addException1(exception2);
 
@@ -4374,7 +4374,7 @@ Sdc::addException1(ExceptionPath *exception)
 				       to->transition(),
 				       to->endTransition(), true);
     ExceptionPath *exception1 = exception->clone(from1, thrus1, to1, true);
-    debugPrint1(debug_, "exception_merge", 1, " split exception for %s\n",
+    debugPrint1(debug_, "exception_merge", 1, " split exception for %s",
 		exception1->asString(network_));
     addException2(exception1);
 
@@ -4384,7 +4384,7 @@ Sdc::addException1(ExceptionPath *exception)
     ExceptionTo *to2 = new ExceptionTo(nullptr, clks2, nullptr, to->transition(),
 				       to->endTransition(), true);
     ExceptionPath *exception2 = exception->clone(from2, thrus2, to2, true);
-    debugPrint1(debug_, "exception_merge", 1, " split exception for %s\n",
+    debugPrint1(debug_, "exception_merge", 1, " split exception for %s",
 		exception2->asString(network_));
     addException2(exception2);
 
@@ -4447,7 +4447,7 @@ Sdc::addException2(ExceptionPath *exception)
 void
 Sdc::deleteMatchingExceptions(ExceptionPath *exception)
 {
-  debugPrint1(debug_, "exception_merge", 1, "find matches for %s\n",
+  debugPrint1(debug_, "exception_merge", 1, "find matches for %s",
 	      exception->asString(network_));
   ExceptionPathSet matches;
   findMatchingExceptions(exception, matches);
@@ -4751,7 +4751,7 @@ Sdc::recordMergeHash(ExceptionPath *exception,
 {
   size_t hash = exception->hash(missing_pt);
   debugPrint3(debug_, "exception_merge", 3,
-	      "record merge hash %zu %s missing %s\n",
+	      "record merge hash %zu %s missing %s",
 	      hash,
 	      exception->asString(network_),
 	      missing_pt->asString(network_));
@@ -4977,9 +4977,9 @@ Sdc::findMergeMatch(ExceptionPath *exception)
 	    // search at the endpoint.
 	    && exception->mergeable(match)
 	    && match->mergeablePts(exception, missing_pt, match_missing_pt)) {
-	  debugPrint1(debug_, "exception_merge", 1, "merge %s\n",
+	  debugPrint1(debug_, "exception_merge", 1, "merge %s",
 		      exception->asString(network_));
-	  debugPrint1(debug_, "exception_merge", 1, " with %s\n",
+	  debugPrint1(debug_, "exception_merge", 1, " with %s",
 		      match->asString(network_));
 	  // Unrecord the exception that is being merged away.
 	  unrecordException(exception);
@@ -5158,7 +5158,7 @@ Sdc::deleteExceptionsReferencing(Clock *clk)
 void
 Sdc::deleteException(ExceptionPath *exception)
 {
-  debugPrint1(debug_, "exception_merge", 2, "delete %s\n",
+  debugPrint1(debug_, "exception_merge", 2, "delete %s",
 	      exception->asString(network_));
   unrecordException(exception);
   delete exception;
@@ -5188,7 +5188,7 @@ Sdc::unrecordMergeHash(ExceptionPath *exception,
 {
   size_t hash = exception->hash(missing_pt);
   debugPrint3(debug_, "exception_merge", 3,
-	      "unrecord merge hash %zu %s missing %s\n",
+	      "unrecord merge hash %zu %s missing %s",
 	      hash,
 	      exception->asString(network_),
 	      missing_pt->asString(network_));
@@ -5380,7 +5380,7 @@ Sdc::resetPath(ExceptionFrom *from,
   while (except_iter.hasNext()) {
     ExceptionPath *match = except_iter.next();
     if (match->resetMatch(from, thrus, to, min_max)) {
-      debugPrint1(debug_, "exception_match", 3, "reset match %s\n",
+      debugPrint1(debug_, "exception_match", 3, "reset match %s",
 		  match->asString(network_));
       ExceptionPathSet expansions;
       expandException(match, expansions);

@@ -42,13 +42,13 @@ public:
   // Return the number of characters written.
   virtual size_t printString(const char *buffer,
                              size_t length);
-  virtual void print(const char *fmt, ...);
   virtual void vprint(const char *fmt,
                       va_list args);
   void print(const string *str);
   void print(const string &str);
   // Print line with return.
-  virtual void printLine(const char *line);
+  virtual void reportLine(const char *fmt, ...);
+  virtual void reportLineString(const char *line);
 
   ////////////////////////////////////////////////////////////////
 
@@ -147,6 +147,8 @@ protected:
   size_t buffer_length_;
   std::mutex buffer_lock_;
   static Report *default_;
+
+  friend class Debug;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Report);

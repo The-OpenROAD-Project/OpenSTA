@@ -388,9 +388,10 @@ ReportPath::reportEndpointHeader(PathEnd *end,
     const char *setup_hold = (end->minMax(this) == MinMax::min())
       ? "min_delay/hold"
       : "max_delay/setup";
-    report_->print("%s group %s\n\n",
-		   setup_hold,
-		   group->name());
+    report_->reportLine("%s group %s",
+                        setup_hold,
+                        group->name());
+    report_->reportLine("");
     string header;
     reportEndHeader(header);
     report_->print(header);

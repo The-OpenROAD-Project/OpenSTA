@@ -1592,7 +1592,7 @@ ConcreteParasitics::reduceToPiElmore(Parasitic *parasitic,
 				     const MinMax *cnst_min_max,
 				     const ParasiticAnalysisPt *ap)
 {
-  debugPrint1(debug_, "parasitic_reduce", 1, "Reduce net %s\n",
+  debugPrint1(debug_, "parasitic_reduce", 1, "Reduce net %s",
 	      network_->pathName(net));
   NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(net);
   while (pin_iter->hasNext()) {
@@ -1625,7 +1625,7 @@ ConcreteParasitics::reduceToPiPoleResidue2(Parasitic *parasitic,
 					   const MinMax *cnst_min_max,
 					   const ParasiticAnalysisPt *ap)
 {
-  debugPrint1(debug_, "parasitic_reduce", 1, "Reduce net %s\n",
+  debugPrint1(debug_, "parasitic_reduce", 1, "Reduce net %s",
 	      network_->pathName(net));
   NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(net);
   while (pin_iter->hasNext()) {

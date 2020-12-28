@@ -1713,7 +1713,7 @@ LibertyCell::makeLatchEnable(LibertyPort *d,
   latch_d_to_q_map_[d_to_q] = latch_enable;
   latch_check_map_[setup_check] = latch_enable;
   latch_data_ports_.insert(d);
-  debugPrint3(debug, "liberty", 2, "latch d=%s en=%s q=%s\n",
+  debugPrint3(debug, "liberty", 2, "latch d=%s en=%s q=%s",
 	      d->name(), en->name(), q->name());
   return latch_enable;
 }

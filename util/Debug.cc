@@ -62,12 +62,12 @@ int
 Debug::level(const char *what)
 {
   if (debug_map_) {
-  const char *key;
-  int dbg_level;
-  bool exists;
-  debug_map_->findKey(what, key, dbg_level, exists);
-  if (exists)
-    return dbg_level;
+    const char *key;
+    int dbg_level;
+    bool exists;
+    debug_map_->findKey(what, key, dbg_level, exists);
+    if (exists)
+      return dbg_level;
   }
   return 0;
 }
@@ -110,6 +110,20 @@ Debug::print(const char *fmt,
   va_start(args, fmt);
   report_->vprint(fmt, args);
   va_end(args);
+}
+
+void
+Debug::reportLine(const char *what,
+                  const char *fmt,
+                  ...) const
+{
+  va_list args;
+  va_start(args, fmt);
+  report_->printToBuffer(what);
+  report_->printToBufferAppend(": ");
+  report_->printToBufferAppend(fmt, args);
+  report_->printToBufferAppend("\n");
+  report_->printBuffer();
 }
 
 } // namespace

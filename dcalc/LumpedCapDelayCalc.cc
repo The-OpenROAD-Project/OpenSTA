@@ -155,7 +155,7 @@ LumpedCapDelayCalc::gateDelay(const LibertyCell *drvr_cell,
 {
   GateTimingModel *model = gateModel(arc, dcalc_ap);
   debugPrint3(debug_, "delay_calc", 3,
-	      "    in_slew = %s load_cap = %s related_load_cap = %s lumped\n",
+	      "    in_slew = %s load_cap = %s related_load_cap = %s lumped",
 	      delayAsString(in_slew, this),
 	      units()->capacitanceUnit()->asString(load_cap),
 	      units()->capacitanceUnit()->asString(related_out_cap));

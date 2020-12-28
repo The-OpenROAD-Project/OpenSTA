@@ -44,6 +44,64 @@ Report::~Report()
   delete [] buffer_;
 }
 
+size_t
+Report::printString(const char *buffer,
+                    size_t length)
+{
+  size_t ret = length;
+  if (redirect_to_string_)
+    redirectStringPrint(buffer, length);
+  else {
+    if (redirect_stream_)
+      ret = min(ret, fwrite(buffer, sizeof(char), length, redirect_stream_));
+    else
+      ret = min(ret, printConsole(buffer, length));
+    if (log_stream_)
+      ret = min(ret, fwrite(buffer, sizeof(char), length, log_stream_));
+  }
+  return ret;
+}
+
+void
+Report::print(const string *str)
+{
+  printString(str->c_str(), str->size());
+}
+
+void
+Report::print(const string &str)
+{
+  printString(str.c_str(), str.size());
+}
+
+void
+Report::vprint(const char *fmt,
+               va_list args)
+{
+  std::unique_lock<std::mutex> lock(buffer_lock_);
+  printToBuffer(fmt, args);
+  printString(buffer_, buffer_length_);
+}
+
+void
+Report::reportLine(const char *fmt, ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  vprint(fmt, args);
+  printString("\n", 1);
+  va_end(args);
+}
+
+void
+Report::reportLineString(const char *line)
+{
+  printString(line, strlen(line));
+  printString("\n", 1);
+}
+
+////////////////////////////////////////////////////////////////
+
 void
 Report::printToBuffer(const char *fmt,
                       ...)
@@ -94,61 +152,6 @@ void
 Report::printBuffer()
 {
   printString(buffer_, buffer_length_);
-}
-
-size_t
-Report::printString(const char *buffer,
-                    size_t length)
-{
-  size_t ret = length;
-  if (redirect_to_string_)
-    redirectStringPrint(buffer, length);
-  else {
-    if (redirect_stream_)
-      ret = min(ret, fwrite(buffer, sizeof(char), length, redirect_stream_));
-    else
-      ret = min(ret, printConsole(buffer, length));
-    if (log_stream_)
-      ret = min(ret, fwrite(buffer, sizeof(char), length, log_stream_));
-  }
-  return ret;
-}
-
-void
-Report::print(const string *str)
-{
-  printString(str->c_str(), str->size());
-}
-
-void
-Report::print(const string &str)
-{
-  printString(str.c_str(), str.size());
-}
-
-void
-Report::vprint(const char *fmt,
-               va_list args)
-{
-  std::unique_lock<std::mutex> lock(buffer_lock_);
-  printToBuffer(fmt, args);
-  printString(buffer_, buffer_length_);
-}
-
-void
-Report::print(const char *fmt, ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  vprint(fmt, args);
-  va_end(args);
-}
-
-void
-Report::printLine(const char *line)
-{
-  printString(line, strlen(line));
-  printString("\n", 1);
 }
 
 ////////////////////////////////////////////////////////////////
