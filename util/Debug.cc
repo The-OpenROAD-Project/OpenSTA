@@ -22,7 +22,7 @@ namespace sta {
 
 bool debug_on = false;
 
-Debug::Debug(Report *&report) :
+Debug::Debug(Report *report) :
   report_(report),
   debug_map_(nullptr),
   stats_level_(0)

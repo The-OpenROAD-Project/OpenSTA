@@ -37,21 +37,21 @@ typedef Map<const char *, int, CharPtrLess> DebugMap;
 class Debug
 {
 public:
-  explicit Debug(Report *&report);
+  explicit Debug(Report *report);
   ~Debug();
-  bool check(const char *what,
-	     int level) const;
   int level(const char *what);
   void setLevel(const char *what,
 		int level);
+  bool check(const char *what,
+	     int level) const;
   int statsLevel() const { return stats_level_; }
   void reportLine(const char *what,
-                 const char *fmt,
-                 ...) const
+                  const char *fmt,
+                  ...) const
     __attribute__((format (printf, 3, 4)));
 
 protected:
-  Report *&report_;
+  Report *report_;
   DebugMap *debug_map_;
   int stats_level_;
 
