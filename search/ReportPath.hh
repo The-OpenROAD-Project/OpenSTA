@@ -96,62 +96,46 @@ public:
   void reportFull(const PathEndDataCheck *end,
 		  string &result);
 
-  void reportEndHeader(string &result);
+  void reportEndHeader();
   void reportEndLine(PathEnd *end,
 		     string &result);
 
-  void reportSummaryHeader(string &result);
-  void reportSummaryLine(PathEnd *end,
-			 string &result);
+  void reportSummaryHeader();
+  void reportSummaryLine(PathEnd *end);
 
-  void reportSlackOnlyHeader(string &result);
-  void reportSlackOnly(PathEnd *end,
-		       string &result);
+  void reportSlackOnlyHeader();
+  void reportSlackOnly(PathEnd *end);
 
   void reportMpwCheck(MinPulseWidthCheck *check,
 		      bool verbose);
   void reportMpwChecks(MinPulseWidthCheckSeq *checks,
 		       bool verbose);
-  void reportMpwHeaderShort(string &result);
-  void reportShort(MinPulseWidthCheck *check,
-		   string &result);
-  void reportVerbose(MinPulseWidthCheck *check,
-		     string &result);
+  void reportMpwHeaderShort();
+  void reportShort(MinPulseWidthCheck *check);
+  void reportVerbose(MinPulseWidthCheck *check);
 
   void reportCheck(MinPeriodCheck *check,
 		   bool verbose);
   void reportChecks(MinPeriodCheckSeq *checks,
 		    bool verbose);
-  void reportPeriodHeaderShort(string &result);
-  void reportShort(MinPeriodCheck *check,
-		   string &result);
-  void reportVerbose(MinPeriodCheck *check,
-		     string &result);
+  void reportPeriodHeaderShort();
+  void reportShort(MinPeriodCheck *check);
+  void reportVerbose(MinPeriodCheck *check);
 
   void reportCheck(MaxSkewCheck *check,
 		   bool verbose);
   void reportChecks(MaxSkewCheckSeq *checks,
 		    bool verbose);
-  void reportMaxSkewHeaderShort(string &result);
-  void reportShort(MaxSkewCheck *check,
-		   string &result);
-  void reportVerbose(MaxSkewCheck *check,
-		     string &result);
+  void reportMaxSkewHeaderShort();
+  void reportShort(MaxSkewCheck *check);
+  void reportVerbose(MaxSkewCheck *check);
 
   void reportLimitShortHeader(const ReportField *field);
-  void reportLimitShortHeader(const ReportField *field,
-			      string &result);
   void reportLimitShort(const ReportField *field,
 			Pin *pin,
 			float value,
 			float limit,
 			float slack);
-  void reportLimitShort(const ReportField *field,
-			Pin *pin,
-			float value,
-			float limit,
-			float slack,
-			string &result);
   void reportLimitVerbose(const ReportField *field,
 			  Pin *pin,
 			  const RiseFall *rf,
@@ -159,14 +143,6 @@ public:
 			  float limit,
 			  float slack,
 			  const MinMax *min_max);
-  void reportLimitVerbose(const ReportField *field,
-			  Pin *pin,
-			  const RiseFall *rf,
-			  float value,
-			  float limit,
-			  float slack,
-			  const MinMax *min_max,
-			  string &result);
   ReportField *fieldSlew() const { return field_slew_; }
   ReportField *fieldFanout() const { return field_fanout_; }
   ReportField *fieldCapacitance() const { return field_capacitance_; }
@@ -334,6 +310,8 @@ protected:
 			string &result);
   void reportSpaceSlack(Slack slack,
 			string &result);
+  void reportSpaceSlack1(Slack slack,
+                         string &result);
   void reportSrcPathArrival(const PathEnd *end,
 			    PathExpanded &expanded,
 			    string &result);
@@ -474,6 +452,9 @@ protected:
   void reportDashLine(string &result);
   void reportDashLine(int line_width,
 		      string &result);
+  void reportDashLine(int line_width);
+  void makeDashLine(int line_width,
+                    string &result);
   void reportEndOfLine(string &result);
   string descriptionField(Vertex *vertex);
   bool reportClkPath() const;

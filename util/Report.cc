@@ -63,12 +63,6 @@ Report::printString(const char *buffer,
 }
 
 void
-Report::print(const string *str)
-{
-  printString(str->c_str(), str->size());
-}
-
-void
 Report::print(const string &str)
 {
   printString(str.c_str(), str.size());
@@ -97,6 +91,13 @@ void
 Report::reportLineString(const char *line)
 {
   printString(line, strlen(line));
+  printString("\n", 1);
+}
+
+void
+Report::reportLine(const string &line)
+{
+  printString(line.c_str(), line.length());
   printString("\n", 1);
 }
 

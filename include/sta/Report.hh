@@ -44,11 +44,11 @@ public:
                              size_t length);
   virtual void vprint(const char *fmt,
                       va_list args);
-  void print(const string *str);
   void print(const string &str);
   // Print line with return.
   virtual void reportLine(const char *fmt, ...);
   virtual void reportLineString(const char *line);
+  void reportLine(const string &line);
 
   ////////////////////////////////////////////////////////////////
 

@@ -489,7 +489,7 @@ ArnoldiReduce::makeRcmodelFromTs()
 		  p->ts,p-p0,
 		  units_->capacitanceUnit()->asString(p->c));
       if (p->is_term)
-	debug_->print(" term%d",p->tindex);
+	debug_->print(" term%d", p->tindex);
       if (p->in_edge)
 	debug_->print("  from T%d,P%ld r=%s",
 		      p->in_edge->from->ts,

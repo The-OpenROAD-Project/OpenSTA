@@ -164,9 +164,9 @@ ReportAnnotated::reportDelayAnnotation()
 void
 ReportAnnotated::reportDelayCounts()
 {
-  report_->print("                                                          Not   \n");
-  report_->print("Delay type                        Total    Annotated   Annotated\n");
-  report_->print("----------------------------------------------------------------\n");
+  report_->reportLine("                                                          Not   ");
+  report_->reportLine("Delay type                        Total    Annotated   Annotated");
+  report_->reportLine("----------------------------------------------------------------");
 
   int total = 0;
   int annotated_total = 0;
@@ -252,9 +252,9 @@ ReportAnnotated::reportCheckAnnotation()
 void
 ReportAnnotated::reportCheckCounts()
 {
-  report_->print("                                                          Not   \n");
-  report_->print("Check type                        Total    Annotated   Annotated\n");
-  report_->print("----------------------------------------------------------------\n");
+  report_->reportLine("                                                          Not   ");
+  report_->reportLine("Check type                        Total    Annotated   Annotated");
+  report_->reportLine("----------------------------------------------------------------");
 
   int total = 0;
   int annotated_total = 0;
@@ -466,9 +466,8 @@ ReportAnnotated::reportArcs(const char *header,
 			    bool report_annotated,
 			    PinSet &pins)
 {
-  report_->print("\n");
-  report_->print(header);
-  report_->print("\n");
+  report_->reportLine("");
+  report_->reportLine(header);
   PinSeq sorted_pins;
   sortPinSet(&pins, network_, sorted_pins);
   int i = 0;
