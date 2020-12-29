@@ -539,7 +539,7 @@ void
 Sim::ensureConstantsPropagated()
 {
   if (!valid_) {
-    Stats stats(debug_);
+    Stats stats(debug_, report_);
     ensureConstantFuncPins();
     instances_to_annotate_.clear();
     if (incremental_) {

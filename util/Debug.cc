@@ -103,16 +103,6 @@ Debug::setLevel(const char *what,
 }
 
 void
-Debug::print(const char *fmt,
-	     ...) const
-{
-  va_list args;
-  va_start(args, fmt);
-  report_->vprint(fmt, args);
-  va_end(args);
-}
-
-void
 Debug::reportLine(const char *what,
                   const char *fmt,
                   ...) const

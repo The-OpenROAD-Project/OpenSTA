@@ -783,7 +783,7 @@ Search::findClkArrivals()
 {
   if (!clk_arrivals_valid_) {
     genclks_->ensureInsertionDelays();
-    Stats stats(debug_);
+    Stats stats(debug_, report_);
     debugPrint0(debug_, "search", 1, "find clk arrivals");
     arrival_iter_->clear();
     seedClkVertexArrivals();
@@ -960,7 +960,7 @@ Search::findArrivals(Level level,
 {
   debugPrint1(debug_, "search", 1, "find arrivals to level %d", level);
   findArrivals1();
-  Stats stats(debug_);
+  Stats stats(debug_, report_);
   int arrival_count = arrival_iter_->visitParallel(level, arrival_visitor);
   stats.report("Find arrivals");
   if (arrival_iter_->empty()
@@ -3070,7 +3070,7 @@ Search::findRequireds()
 void
 Search::findRequireds(Level level)
 {
-  Stats stats(debug_);
+  Stats stats(debug_, report_);
   debugPrint1(debug_, "search", 1, "find requireds to level %d", level);
   RequiredVisitor req_visitor(this);
   if (!requireds_seeded_)
@@ -3118,7 +3118,8 @@ Search::endpoints()
       else {
 	if (debug_->check("endpoint", 2)
 	    && endpoints_->hasKey(vertex))
-	  debug_->print("endpoint: remove %s\n", vertex->name(sdc_network_));
+	  report_->reportLine("endpoint: remove %s",
+                              vertex->name(sdc_network_));
 	endpoints_->erase(vertex);
       }
     }

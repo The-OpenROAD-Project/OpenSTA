@@ -462,28 +462,29 @@ void
 DmpAlg::showX()
 {
   for (int i = 0; i < nr_order_; i++)
-    debug_->print("%4s %12.3e\n", dmp_param_index_strings[i], x_[i]);
+    report_->reportLine("%4s %12.3e", dmp_param_index_strings[i], x_[i]);
 }
 
 void
 DmpAlg::showFvec()
 {
   for (int i = 0; i < nr_order_; i++)
-    debug_->print("%4s %12.3e\n", dmp_func_index_strings[i], fvec_[i]);
+    report_->reportLine("%4s %12.3e", dmp_func_index_strings[i], fvec_[i]);
 }
 
 void
 DmpAlg::showJacobian()
 {
-  debug_->print("    ");
+  string line = "    ";
   for (int j = 0; j < nr_order_; j++)
-    debug_->print("%12s", dmp_param_index_strings[j]);
-  debug_->print("\n");
+    line += stdstrPrint("%12s", dmp_param_index_strings[j]);
+  report_->reportLine(line);
+  line.clear();
   for (int i = 0; i < nr_order_; i++) {
-    debug_->print("%4s ", dmp_func_index_strings[i]);
+    line += stdstrPrint("%4s ", dmp_func_index_strings[i]);
     for (int j = 0; j < nr_order_; j++)
-      debug_->print("%12.3e ", fjac_[i][j]);
-    debug_->print("\n");
+      line += stdstrPrint("%12.3e ", fjac_[i][j]);
+    report_->reportLine(line);
   }
 }
 
@@ -545,12 +546,10 @@ DmpAlg::dVoDt(double t)
 void
 DmpAlg::showVo()
 {
-  debug_->print("  t    vo(t)\n");
+  report_->reportLine("  t    vo(t)");
   double ub = voCrossingUpperBound();
   for (double t = t0_; t < t0_ + ub; t += dt_ / 10.0)
-    debug_->print(" %g %g\n", t, vo(t));
-  // debug_->print(" %.3g %.3g", t-t0_, vo(t)*3);
-  // debug_->print("\n");
+    report_->reportLine(" %g %g", t, vo(t));
 }
 
 void
@@ -658,10 +657,10 @@ DmpAlg::dVlDt(double t)
 void
 DmpAlg::showVl()
 {
-  debug_->print("  t    vl(t)\n");
+  report_->reportLine("  t    vl(t)");
   double ub = vlCrossingUpperBound();
   for (double t = t0_; t < t0_ + ub * 2.0; t += ub / 10.0)
-    debug_->print(" %g %g\n", t, vl(t));
+    report_->reportLine(" %g %g", t, vl(t));
 }
 
 void
@@ -669,12 +668,12 @@ DmpAlg::fail(const char *reason)
 {
   // Allow only failures to be reported with a unique debug flag.
   if (debug_->check("dmp_ceff", 1) || debug_->check("dmp_ceff_fail", 1))
-    debug_->print("delay_calc: DMP failed - %s c2=%s rpi=%s c1=%s rd=%s\n",
-		  reason,
-		  units_->capacitanceUnit()->asString(c2_),
-		  units_->resistanceUnit()->asString(rpi_),
-		  units_->capacitanceUnit()->asString(c1_),
-		  units_->resistanceUnit()->asString(rd_));
+    report_->reportLine("delay_calc: DMP failed - %s c2=%s rpi=%s c1=%s rd=%s",
+                        reason,
+                        units_->capacitanceUnit()->asString(c2_),
+                        units_->resistanceUnit()->asString(rpi_),
+                        units_->capacitanceUnit()->asString(c1_),
+                        units_->resistanceUnit()->asString(rd_));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1001,7 +1000,7 @@ DmpPi::evalDmpEqns()
     showX();
     showFvec();
     showJacobian();
-    debug_->print(".................\n");
+    report_->reportLine(".................");
   }
 }
 
@@ -1112,7 +1111,7 @@ DmpOnePole::evalDmpEqns()
 
   if (debug_->check("dmp_ceff", 4)) {
     showJacobian();
-    debug_->print(".................\n");
+    report_->reportLine(".................");
   }
 }
 

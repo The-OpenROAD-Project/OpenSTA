@@ -490,7 +490,7 @@ PathGroups::makePathEnds(ExceptionTo *to,
 			 const MinMaxAll *min_max,
 			 bool sort_by_slack)
 {
-  Stats stats(this->debug());
+  Stats stats(debug_, report_);
   makeGroupPathEnds(to, group_count_, endpoint_count_, unique_pins_,
 		    corner, min_max);
 

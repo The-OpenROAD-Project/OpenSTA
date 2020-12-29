@@ -642,7 +642,7 @@ Sta::readLiberty(const char *filename,
 		 const MinMaxAll *min_max,
 		 bool infer_latches)
 {
-  Stats stats(debug_);
+  Stats stats(debug_, report_);
   LibertyLibrary *library = readLibertyFile(filename, corner, min_max,
 					    infer_latches, network_);
   if (library
@@ -726,7 +726,7 @@ bool
 Sta::linkDesign(const char *top_cell_name)
 {
   clear();
-  Stats stats(debug_);
+  Stats stats(debug_, report_);
   bool status = network_->linkNetwork(top_cell_name,
 				      link_make_black_boxes_,
 				      report_);

@@ -45,9 +45,6 @@ public:
   void setLevel(const char *what,
 		int level);
   int statsLevel() const { return stats_level_; }
-  void print(const char *fmt,
-	     ...) const
-    __attribute__((format (printf, 2, 3)));
   void reportLine(const char *what,
                  const char *fmt,
                  ...) const

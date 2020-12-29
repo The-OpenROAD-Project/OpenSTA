@@ -402,7 +402,7 @@ void
 GraphDelayCalc1::findDelays(Level level)
 {
   if (arc_delay_calc_) {
-    Stats stats(debug_);
+    Stats stats(debug_, report_);
     int dcalc_count = 0;
     debugPrint1(debug_, "delay_calc", 1, "find delays to level %d", level);
     if (!delays_seeded_) {

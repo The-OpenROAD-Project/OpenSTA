@@ -114,7 +114,7 @@ Levelize::ensureLevelized()
 void
 Levelize::levelize()
 {
-  Stats stats(debug_);
+  Stats stats(debug_, report_);
   debugPrint0(debug_, "levelize", 1, "levelize");
   max_level_ = 0;
   clearLoopEdges();

@@ -486,16 +486,16 @@ ArnoldiReduce::makeRcmodelFromTs()
     for (k=0;k<ts_ordN;k++) {
       p = ts_pordV[k];
       debugPrint3(debug_, "arnoldi", 1, "T%d,P%ld c=%s",
-		  p->ts,p-p0,
+		  p->ts,
+                  p-p0,
 		  units_->capacitanceUnit()->asString(p->c));
       if (p->is_term)
-	debug_->print(" term%d", p->tindex);
+        debugPrint1(debug_, "arnoldi", 1, " term %d", p->tindex);
       if (p->in_edge)
-	debug_->print("  from T%d,P%ld r=%s",
-		      p->in_edge->from->ts,
-		      p->in_edge->from-p0,
-		      units_->resistanceUnit()->asString(p->r));
-      debug_->print("\n");
+	debugPrint3(debug_, "arnoldi", 1, "  from T%d,P%ld r=%s",
+                    p->in_edge->from->ts,
+                    p->in_edge->from-p0,
+                    units_->resistanceUnit()->asString(p->r));
     }
     for (i=0;i<nterms;i++)
       debugPrint2(debug_, "arnoldi", 1, "outV[%d] = T%d", i, outV[i]);
@@ -587,23 +587,25 @@ ArnoldiReduce::makeRcmodelFromTs()
   }
 
   if (debug_->check("arnoldi", 1)) {
-    debugPrint1(debug_, "arnoldi", 1,
-		"tridiagonal reduced matrix, drvr pin %s",
-		network_->pathName(drvr_pin_));
-    debugPrint2(debug_, "arnoldi", 1, "order %d n %d",order,n);
+    report_->reportLine("tridiagonal reduced matrix, drvr pin %s",
+                        network_->pathName(drvr_pin_));
+    report_->reportLine("order %d n %d",order,n);
     for (h=0;h<order;h++) {
-      debug_->print("d[%d] %s",
-		    h,
-		    units_->timeUnit()->asString(d[h]));
       if (h<order-1)
-	debug_->print("    e[%d] %s",
-		      h,
-		      units_->timeUnit()->asString(e[h]));
-      debug_->print("\n");
-      debug_->print("U[%d]",h);
+	report_->reportLine(" d[%d] %s    e[%d] %s",
+                            h,
+                            units_->timeUnit()->asString(d[h]),
+                            h,
+                            units_->timeUnit()->asString(e[h]));
+
+      else
+	report_->reportLine(" d[%d] %s",
+                            h,
+                            units_->timeUnit()->asString(d[h]));
+      string line = stdstrPrint("U[%d]",h);
       for (i=0;i<nterms;i++)
-	debug_->print(" %6.2e",U[h][i]);
-      debug_->print("\n");
+	line += stdstrPrint(" %6.2e",U[h][i]);
+      report_->reportLine(line);
     }
   }
 }
