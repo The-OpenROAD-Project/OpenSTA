@@ -79,10 +79,8 @@ public:
   const RiseFall *transition(const StaState *sta) const;
   PathAnalysisPt *pathAnalysisPt(const StaState *sta) const;
   PathAPIndex pathIndex(const StaState *sta) const;
-  virtual void reportShort(ReportPath *report,
-			   string &result) const = 0;
-  virtual void reportFull(ReportPath *report,
-			  string &result) const = 0;
+  virtual void reportShort(ReportPath *report) const = 0;
+  virtual void reportFull(ReportPath *report) const = 0;
 
   // Predicates for PathEnd type.
   // Default methods overridden by respective types.
@@ -221,10 +219,8 @@ public:
   virtual Type type() const;
   virtual const char *typeName() const;
   virtual PathEnd *copy();
-  virtual void reportShort(ReportPath *report,
-			   string &result) const;
-  virtual void reportFull(ReportPath *report,
-			  string &result) const;
+  virtual void reportShort(ReportPath *report) const;
+  virtual void reportFull(ReportPath *report) const;
   virtual bool isUnconstrained() const;
   virtual Required requiredTime(const StaState *sta) const;
   virtual Required requiredTimeOffset(const StaState *sta) const;
@@ -332,8 +328,8 @@ public:
   virtual PathEnd *copy();
   virtual Type type() const;
   virtual const char *typeName() const;
-  virtual void reportShort(ReportPath *report, string &result) const;
-  virtual void reportFull(ReportPath *report, string &result) const;
+  virtual void reportShort(ReportPath *report) const;
+  virtual void reportFull(ReportPath *report) const;
   virtual bool isCheck() const { return true; }
   virtual ArcDelay margin(const StaState *sta) const;
   virtual TimingRole *checkRole(const StaState *sta) const;
@@ -377,10 +373,8 @@ public:
   virtual PathEnd *copy();
   PathVertex *latchDisable();
   const PathVertex *latchDisable() const;
-  virtual void reportShort(ReportPath *report,
-			   string &result) const;
-  virtual void reportFull(ReportPath *report,
-			  string &result) const;
+  virtual void reportShort(ReportPath *report) const;
+  virtual void reportFull(ReportPath *report) const;
   virtual TimingRole *checkRole(const StaState *sta) const;
   virtual Required requiredTime(const StaState *sta) const;
   virtual Arrival borrow(const StaState *sta) const;
@@ -439,10 +433,8 @@ public:
   virtual PathEnd *copy();
   virtual Type type() const;
   virtual const char *typeName() const;
-  virtual void reportShort(ReportPath *report,
-			   string &result) const;
-  virtual void reportFull(ReportPath *report,
-			  string &result) const;
+  virtual void reportShort(ReportPath *report) const;
+  virtual void reportFull(ReportPath *report) const;
   virtual bool isOutputDelay() const { return true; }
   virtual ArcDelay margin(const StaState *sta) const;
   virtual TimingRole *checkRole(const StaState *sta) const;
@@ -490,10 +482,8 @@ public:
   virtual PathEnd *copy();
   virtual Type type() const;
   virtual const char *typeName() const;
-  virtual void reportShort(ReportPath *report,
-			   string &result) const;
-  virtual void reportFull(ReportPath *report,
-			  string &result) const;
+  virtual void reportShort(ReportPath *report) const;
+  virtual void reportFull(ReportPath *report) const;
   virtual bool isGatedClock() const { return true; }
   virtual ArcDelay margin(const StaState *) const { return margin_; }
   virtual TimingRole *checkRole(const StaState *sta) const;
@@ -527,10 +517,8 @@ public:
   virtual PathEnd *copy();
   virtual Type type() const;
   virtual const char *typeName() const;
-  virtual void reportShort(ReportPath *report,
-			   string &result) const;
-  virtual void reportFull(ReportPath *report,
-			  string &result) const;
+  virtual void reportShort(ReportPath *report) const;
+  virtual void reportFull(ReportPath *report) const;
   virtual bool isDataCheck() const { return true; }
   virtual TimingRole *checkRole(const StaState *sta) const;
   virtual ArcDelay margin(const StaState *sta) const;
@@ -583,10 +571,8 @@ public:
   virtual PathEnd *copy();
   virtual Type type() const;
   virtual const char *typeName() const;
-  virtual void reportShort(ReportPath *report,
-			   string &result) const;
-  virtual void reportFull(ReportPath *report,
-			  string &result) const;
+  virtual void reportShort(ReportPath *report) const;
+  virtual void reportFull(ReportPath *report) const;
   virtual bool isPathDelay() const { return true; }
   virtual TimingRole *checkRole(const StaState *sta) const;
   virtual bool pathDelayMarginIsExternal() const;

@@ -63,12 +63,6 @@ Report::printString(const char *buffer,
 }
 
 void
-Report::print(const string &str)
-{
-  printString(str.c_str(), str.size());
-}
-
-void
 Report::vprint(const char *fmt,
                va_list args)
 {

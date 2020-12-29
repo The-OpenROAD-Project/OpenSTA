@@ -451,10 +451,9 @@ PathEnd::checkInterClkUncertainty(const ClockEdge *src_clk_edge,
 ////////////////////////////////////////////////////////////////
 
 void
-PathEndUnconstrained::reportFull(ReportPath *report,
-				 string &result) const
+PathEndUnconstrained::reportFull(ReportPath *report) const
 {
-  report->reportFull(this, result);
+  report->reportFull(this);
 }
 
 Slack
@@ -464,10 +463,9 @@ PathEndUnconstrained::slackNoCrpr(const StaState *) const
 }
 
 void
-PathEndUnconstrained::reportShort(ReportPath *report,
-				  string &result) const
+PathEndUnconstrained::reportShort(ReportPath *report) const
 {
-  report->reportShort(this, result);
+  report->reportShort(this);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1009,17 +1007,15 @@ PathEndCheck::typeName() const
 }
 
 void
-PathEndCheck::reportFull(ReportPath *report,
-			 string &result) const
+PathEndCheck::reportFull(ReportPath *report) const
 {
-  report->reportFull(this, result);
+  report->reportFull(this);
 }
 
 void
-PathEndCheck::reportShort(ReportPath *report,
-			  string &result) const
+PathEndCheck::reportShort(ReportPath *report) const
 {
-  report->reportShort(this, result);
+  report->reportShort(this);
 }
 
 TimingRole *
@@ -1137,17 +1133,15 @@ PathEndLatchCheck::latchDisable() const
 }
 
 void
-PathEndLatchCheck::reportFull(ReportPath *report,
-			      string &result) const
+PathEndLatchCheck::reportFull(ReportPath *report) const
 {
-  report->reportFull(this, result);
+  report->reportFull(this);
 }
 
 void
-PathEndLatchCheck::reportShort(ReportPath *report,
-			       string &result) const
+PathEndLatchCheck::reportShort(ReportPath *report) const
 {
-  report->reportShort(this, result);
+  report->reportShort(this);
 }
 
 float
@@ -1321,17 +1315,15 @@ PathEndOutputDelay::typeName() const
 }
 
 void
-PathEndOutputDelay::reportFull(ReportPath *report,
-			       string &result) const
+PathEndOutputDelay::reportFull(ReportPath *report) const
 {
-  report->reportFull(this, result);
+  report->reportFull(this);
 }
 
 void
-PathEndOutputDelay::reportShort(ReportPath *report,
-				string &result) const
+PathEndOutputDelay::reportShort(ReportPath *report) const
 {
-  report->reportShort(this, result);
+  report->reportShort(this);
 }
 
 ArcDelay
@@ -1536,17 +1528,15 @@ PathEndGatedClock::checkRole(const StaState *) const
 }
 
 void
-PathEndGatedClock::reportFull(ReportPath *report,
-			      string &result) const
+PathEndGatedClock::reportFull(ReportPath *report) const
 {
-  report->reportFull(this, result);
+  report->reportFull(this);
 }
 
 void
-PathEndGatedClock::reportShort(ReportPath *report,
-			       string &result) const
+PathEndGatedClock::reportShort(ReportPath *report) const
 {
-  report->reportShort(this, result);
+  report->reportShort(this);
 }
 
 int
@@ -1655,17 +1645,15 @@ PathEndDataCheck::checkRole(const StaState *sta) const
 }
 
 void
-PathEndDataCheck::reportFull(ReportPath *report,
-			     string &result) const
+PathEndDataCheck::reportFull(ReportPath *report) const
 {
-  report->reportFull(this, result);
+  report->reportFull(this);
 }
 
 void
-PathEndDataCheck::reportShort(ReportPath *report,
-			      string &result) const
+PathEndDataCheck::reportShort(ReportPath *report) const
 {
-  report->reportShort(this, result);
+  report->reportShort(this);
 }
 
 int
@@ -1778,17 +1766,15 @@ PathEndPathDelay::findSrcClkArrival(const StaState *sta)
 }
 
 void
-PathEndPathDelay::reportFull(ReportPath *report,
-			     string &result) const
+PathEndPathDelay::reportFull(ReportPath *report) const
 {
-  report->reportFull(this, result);
+  report->reportFull(this);
 }
 
 void
-PathEndPathDelay::reportShort(ReportPath *report,
-			      string &result) const
+PathEndPathDelay::reportShort(ReportPath *report) const
 {
-  report->reportShort(this, result);
+  report->reportShort(this);
 }
 
 bool
