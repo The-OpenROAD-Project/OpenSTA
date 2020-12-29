@@ -63,20 +63,13 @@ Report::printString(const char *buffer,
 }
 
 void
-Report::vprint(const char *fmt,
-               va_list args)
-{
-  std::unique_lock<std::mutex> lock(buffer_lock_);
-  printToBuffer(fmt, args);
-  printString(buffer_, buffer_length_);
-}
-
-void
 Report::reportLine(const char *fmt, ...)
 {
   va_list args;
   va_start(args, fmt);
-  vprint(fmt, args);
+  std::unique_lock<std::mutex> lock(buffer_lock_);
+  printToBuffer(fmt, args);
+  printString(buffer_, buffer_length_);
   printString("\n", 1);
   va_end(args);
 }

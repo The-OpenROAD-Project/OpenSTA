@@ -42,12 +42,10 @@ public:
   // Return the number of characters written.
   virtual size_t printString(const char *buffer,
                              size_t length);
-  virtual void vprint(const char *fmt,
-                      va_list args);
   // Print line with return.
   virtual void reportLine(const char *fmt, ...);
   virtual void reportLineString(const char *line);
-  void reportLine(const string &line);
+  virtual void reportLine(const string &line);
 
   ////////////////////////////////////////////////////////////////
 
