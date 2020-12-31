@@ -2784,7 +2784,7 @@ Search::reportTagGroups() const
   for (TagGroupIndex i = 0; i < tag_group_next_; i++) {
     TagGroup *tag_group = tag_groups_[i];
     if (tag_group) {
-      report_->reportLine("Group %4u hash = %4u (%4u)",
+      report_->reportLine("Group %4u hash = %4lu (%4lu)",
                           i,
                           tag_group->hash(),
                           tag_group->hash() % tag_group_set_->capacity());
@@ -2792,7 +2792,7 @@ Search::reportTagGroups() const
     }
   }
   size_t long_hash = tag_group_set_->longestBucketHash();
-  report_->reportLine("Longest hash bucket length %lu hash=%lu",
+  report_->reportLine("Longest hash bucket length %d hash=%lu",
                       tag_group_set_->bucketLength(long_hash),
                       long_hash);
 }
@@ -2816,7 +2816,7 @@ Search::reportArrivalCountHistogram() const
   for (size_t arrival_count = 0; arrival_count < vertex_counts.size(); arrival_count++) {
     int vertex_count = vertex_counts[arrival_count];
     if (vertex_count > 0)
-      report_->reportLine("%6d %6d", arrival_count, vertex_count);
+      report_->reportLine("%6lu %6d", arrival_count, vertex_count);
   }
 }
 

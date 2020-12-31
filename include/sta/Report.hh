@@ -38,12 +38,9 @@ public:
   Report();
   virtual ~Report();
 
-  // Primitive to print output.
-  // Return the number of characters written.
-  virtual size_t printString(const char *buffer,
-                             size_t length);
   // Print line with return.
-  virtual void reportLine(const char *fmt, ...);
+  virtual void reportLine(const char *fmt, ...)
+    __attribute__((format (printf, 2, 3)));
   virtual void reportLineString(const char *line);
   virtual void reportLine(const string &line);
 
@@ -114,9 +111,16 @@ public:
   virtual const char *redirectStringEnd();
   virtual void setTclInterp(Tcl_Interp *) {}
 
+  // Primitive to print output.
+  // Return the number of characters written.
+  // public for use by ReportTcl encapsulated channel functions.
+  virtual size_t printString(const char *buffer,
+                             size_t length);
   static Report *defaultReport() { return default_; }
 
 protected:
+  virtual void printLine(const char *line,
+                         size_t length);
   // Primitive to print output on the console.
   // Return the number of characters written.
   virtual size_t printConsole(const char *buffer,
@@ -129,7 +133,7 @@ protected:
                            ...);
   void printToBufferAppend(const char *fmt,
                            va_list args);
-  void printBuffer();
+  void printBufferLine();
   void redirectStringPrint(const char *buffer,
                            size_t length);
 

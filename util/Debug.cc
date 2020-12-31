@@ -112,8 +112,8 @@ Debug::reportLine(const char *what,
   report_->printToBuffer(what);
   report_->printToBufferAppend(": ");
   report_->printToBufferAppend(fmt, args);
-  report_->printToBufferAppend("\n");
-  report_->printBuffer();
+  report_->printBufferLine();
+  va_end(args);
 }
 
 } // namespace

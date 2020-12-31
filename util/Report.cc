@@ -44,6 +44,14 @@ Report::~Report()
   delete [] buffer_;
 }
 
+void
+Report::printLine(const char *line,
+                  size_t length)
+{
+  printString(line, length);
+  printString("\n", 1);
+}
+
 size_t
 Report::printString(const char *buffer,
                     size_t length)
@@ -69,23 +77,20 @@ Report::reportLine(const char *fmt, ...)
   va_start(args, fmt);
   std::unique_lock<std::mutex> lock(buffer_lock_);
   printToBuffer(fmt, args);
-  printString(buffer_, buffer_length_);
-  printString("\n", 1);
+  printBufferLine();
   va_end(args);
 }
 
 void
 Report::reportLineString(const char *line)
 {
-  printString(line, strlen(line));
-  printString("\n", 1);
+  printLine(line, strlen(line));
 }
 
 void
 Report::reportLine(const string &line)
 {
-  printString(line.c_str(), line.length());
-  printString("\n", 1);
+  printLine(line.c_str(), line.length());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -137,9 +142,9 @@ Report::printToBufferAppend(const char *fmt,
 }
 
 void
-Report::printBuffer()
+Report::printBufferLine()
 {
-  printString(buffer_, buffer_length_);
+  printLine(buffer_, buffer_length_);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -153,8 +158,7 @@ Report::warn(int /* id */,
   va_start(args, fmt);
   printToBuffer("Warning: ");
   printToBufferAppend(fmt, args);
-  printToBufferAppend("\n");
-  printBuffer();
+  printBufferLine();
   va_end(args);
 }
 
@@ -165,8 +169,7 @@ Report::vwarn(int /* id */,
 {
   printToBuffer("Warning: ");
   printToBufferAppend(fmt, args);
-  printToBufferAppend("\n");
-  printBuffer();
+  printBufferLine();
 }
 
 void
@@ -180,8 +183,7 @@ Report::fileWarn(int /* id */,
   va_start(args, fmt);
   printToBuffer("Warning: %s line %d, ", filename, line);
   printToBufferAppend(fmt, args);
-  printToBufferAppend("\n");
-  printBuffer();
+  printBufferLine();
   va_end(args);
 }
 
@@ -194,8 +196,7 @@ Report::vfileWarn(int /* id */,
 {
   printToBuffer("Warning: %s line %d, ", filename, line);
   printToBufferAppend(fmt, args);
-  printToBufferAppend("\n");
-  printBuffer();
+  printBufferLine();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -262,8 +263,7 @@ Report::critical(int /* id */,
   va_start(args, fmt);
   printToBuffer("Critical: ");
   printToBufferAppend(fmt, args);
-  printToBufferAppend("\n");
-  printBuffer();
+  printBufferLine();
   va_end(args);
 }
 
@@ -278,7 +278,7 @@ Report::fileCritical(int /* id */,
   va_start(args, fmt);
   printToBuffer("Critical: %s line %d, ", filename, line, fmt, args);
   printToBufferAppend(fmt, args);
-  printToBufferAppend("\n");
+  printBufferLine();
   va_end(args);
   exit(1);
 }
