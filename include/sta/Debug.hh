@@ -72,52 +72,52 @@ debugCheck(const Debug *debug,
 // be expensive, so use macros.
 
 #define debugPrint0(debug, what, level, msg) \
-  if (debug_on && debug->check(what, level)) { \
+  if (sta::debug_on && debug->check(what, level)) { \
     debug->reportLine(what, "%s", msg); \
   }
 
 #define debugPrint1(debug, what, level, fmt, arg1) \
-  if (debug_on && debug->check(what, level)) { \
+  if (sta::debug_on && debug->check(what, level)) { \
     debug->reportLine(what, fmt, arg1); \
   }
 
 #define debugPrint2(debug, what, level, fmt, arg1, arg2) \
-  if (debug_on && debug->check(what, level)) { \
+  if (sta::debug_on && debug->check(what, level)) { \
     debug->reportLine(what, fmt, arg1, arg2); \
   }
 
 #define debugPrint3(debug, what, level, fmt, arg1, arg2, arg3) \
-  if (debug_on && debug->check(what, level)) { \
+  if (sta::debug_on && debug->check(what, level)) { \
     debug->reportLine(what, fmt, arg1, arg2, arg3); \
   }
 
 #define debugPrint4(debug, what, level, fmt, arg1, arg2, arg3, arg4) \
-  if (debug_on && debug->check(what, level)) { \
+  if (sta::debug_on && debug->check(what, level)) { \
     debug->reportLine(what, fmt, arg1, arg2, arg3, arg4); \
   }
 
 #define debugPrint5(debug, what, level, fmt, arg1, arg2, arg3, arg4, arg5) \
-  if (debug_on && debug->check(what, level)) { \
+  if (sta::debug_on && debug->check(what, level)) { \
     debug->reportLine(what, fmt, arg1, arg2, arg3, arg4, arg5); \
   }
 
 #define debugPrint6(debug,what,level,fmt,arg1,arg2,arg3,arg4,arg5,arg6) \
-  if (debug_on && debug->check(what, level)) { \
+  if (sta::debug_on && debug->check(what, level)) { \
     debug->reportLine(what, fmt, arg1, arg2, arg3, arg4, arg5, arg6); \
   }
 
 #define debugPrint7(debug,what,level,fmt,arg1,arg2,arg3,arg4,arg5,arg6,arg7) \
-  if (debug_on && debug->check(what, level)) { \
+  if (sta::debug_on && debug->check(what, level)) { \
     debug->reportLine(what, fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7);   \
   }
 
 #define debugPrint8(debug,what,level,fmt,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8) \
-  if (debug_on && debug->check(what, level)) { \
+  if (sta::debug_on && debug->check(what, level)) { \
     debug->reportLine(what, fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8); \
   }
 
 #define debugPrint9(debug,what,level,fmt,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9) \
-  if (debug_on && debug->check(what, level)) { \
+  if (sta::debug_on && debug->check(what, level)) { \
     debug->reportLine(what, fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9); \
   }
 
