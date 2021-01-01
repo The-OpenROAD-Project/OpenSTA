@@ -51,7 +51,7 @@ ClkNetwork::clear()
 void
 ClkNetwork::clkPinsInvalid()
 {
-  debugPrint0(debug_, "clk_network", 1, "clk network invalid");
+  debugPrint(debug_, "clk_network", 1, "clk network invalid");
   clk_pins_valid_ = false;
 }
 
@@ -98,7 +98,7 @@ ClkSearchPred::searchTo(const Vertex *to)
 void
 ClkNetwork::findClkPins()
 {
-  debugPrint0(debug_, "clk_network", 1, "find clk network");
+  debugPrint(debug_, "clk_network", 1, "find clk network");
   clear();
   findClkPins(false, pin_clks_map_);
   findClkPins(true, pin_ideal_clks_map_);

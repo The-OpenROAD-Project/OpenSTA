@@ -404,8 +404,8 @@ ArnoldiReduce::makeRcmodelDfs(ts_point *pdrv)
   } // while (stackN)
 
   if (loop)
-    debugPrint1(debug_, "arnoldi", 1, "net %s loop",
-		network_->pathName(drvr_pin_));
+    debugPrint(debug_, "arnoldi", 1, "net %s loop",
+               network_->pathName(drvr_pin_));
 }
 
 // makeRcmodelGetRC
@@ -431,10 +431,10 @@ ArnoldiReduce::getRC()
       if (p->in_edge && p->in_edge->resistor_)
         p->r = parasitics_->value(p->in_edge->resistor_, ap_);
       if (!(p->r>=0.0 && p->r<100e+3)) { // 0 < r < 100kohm
-	debugPrint2(debug_, "arnoldi", 1,
-		    "R value %g out of range, drvr pin %s",
-		    p->r,
-		    network_->pathName(drvr_pin_));
+	debugPrint(debug_, "arnoldi", 1,
+                   "R value %g out of range, drvr pin %s",
+                   p->r,
+                   network_->pathName(drvr_pin_));
       }
     }
   }
@@ -485,20 +485,20 @@ ArnoldiReduce::makeRcmodelFromTs()
   if (debug_->check("arnoldi", 1)) {
     for (k=0;k<ts_ordN;k++) {
       p = ts_pordV[k];
-      debugPrint3(debug_, "arnoldi", 1, "T%d,P%ld c=%s",
-		  p->ts,
-                  p-p0,
-		  units_->capacitanceUnit()->asString(p->c));
+      debugPrint(debug_, "arnoldi", 1, "T%d,P%ld c=%s",
+                 p->ts,
+                 p-p0,
+                 units_->capacitanceUnit()->asString(p->c));
       if (p->is_term)
-        debugPrint1(debug_, "arnoldi", 1, " term %d", p->tindex);
+        debugPrint(debug_, "arnoldi", 1, " term %d", p->tindex);
       if (p->in_edge)
-	debugPrint3(debug_, "arnoldi", 1, "  from T%d,P%ld r=%s",
-                    p->in_edge->from->ts,
-                    p->in_edge->from-p0,
-                    units_->resistanceUnit()->asString(p->r));
+	debugPrint(debug_, "arnoldi", 1, "  from T%d,P%ld r=%s",
+                   p->in_edge->from->ts,
+                   p->in_edge->from-p0,
+                   units_->resistanceUnit()->asString(p->r));
     }
     for (i=0;i<nterms;i++)
-      debugPrint2(debug_, "arnoldi", 1, "outV[%d] = T%d", i, outV[i]);
+      debugPrint(debug_, "arnoldi", 1, "outV[%d] = T%d", i, outV[i]);
   }
 
   int max_order = 5;
@@ -521,8 +521,8 @@ ArnoldiReduce::makeRcmodelFromTs()
 
   sum = 0.0;
   for (j=0;j<n;j++) sum += c[j];
-  debugPrint1(debug_, "arnoldi", 1, "ctot = %s",
-	      units_->capacitanceUnit()->asString(sum));
+  debugPrint(debug_, "arnoldi", 1, "ctot = %s",
+             units_->capacitanceUnit()->asString(sum));
   ctot_ = sum;
   sqc_ = sqrt(sum);
   double sqrt_ctot_inv = 1.0/sqc_;

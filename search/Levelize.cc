@@ -115,7 +115,7 @@ void
 Levelize::levelize()
 {
   Stats stats(debug_, report_);
-  debugPrint0(debug_, "levelize", 1, "levelize");
+  debugPrint(debug_, "levelize", 1, "levelize");
   max_level_ = 0;
   clearLoopEdges();
   deleteLoops();
@@ -145,7 +145,7 @@ Levelize::findRoots()
     Vertex *vertex = vertex_iter.next();
     setLevel(vertex, 0);
     if (isRoot(vertex)) {
-      debugPrint1(debug_, "levelize", 2, "root %s", vertex->name(sdc_network_));
+      debugPrint(debug_, "levelize", 2, "root %s", vertex->name(sdc_network_));
       roots_.insert(vertex);
       if (hasFanout(vertex, search_pred_, graph_))
 	// Color roots with no fanout black so that they are
@@ -209,8 +209,8 @@ Levelize::visit(Vertex *vertex,
 		EdgeSeq &path)
 {
   Pin *from_pin = vertex->pin();
-  debugPrint2(debug_, "levelize", 3, "level %d %s",
-	      level, vertex->name(sdc_network_));
+  debugPrint(debug_, "levelize", 3, "level %d %s",
+             level, vertex->name(sdc_network_));
   vertex->setColor(LevelColor::gray);
   setLevel(vertex, level);
   max_level_ = max(level, max_level_);
@@ -254,10 +254,10 @@ void
 Levelize::recordLoop(Edge *edge,
 		     EdgeSeq &path)
 {
-  debugPrint3(debug_, "levelize", 2, "Loop edge %s -> %s (%s)",
-	      edge->from(graph_)->name(sdc_network_),
-	      edge->to(graph_)->name(sdc_network_),
-	      edge->role()->asString());
+  debugPrint(debug_, "levelize", 2, "Loop edge %s -> %s (%s)",
+             edge->from(graph_)->name(sdc_network_),
+             edge->to(graph_)->name(sdc_network_),
+             edge->role()->asString());
   // Do not record loops if they have been invalidated.
   if (loops_) {
     EdgeSeq *loop_edges = loopEdges(path, edge);
@@ -276,7 +276,7 @@ EdgeSeq *
 Levelize::loopEdges(EdgeSeq &path,
 		    Edge *closing_edge)
 {
-  debugPrint0(debug_, "loop", 2, "Loop");
+  debugPrint(debug_, "loop", 2, "Loop");
   EdgeSeq *loop_edges = new EdgeSeq;
   // Skip the "head" of the path up to where closing_edge closes the loop.
   Pin *loop_pin = closing_edge->to(graph_)->pin();
@@ -288,16 +288,16 @@ Levelize::loopEdges(EdgeSeq &path,
     if (from_pin == loop_pin)
       copy = true;
     if (copy) {
-      debugPrint2(debug_, "loop", 2, " %s -> %s",
-		  edge->from(graph_)->name(sdc_network_),
-		  edge->to(graph_)->name(sdc_network_));
+      debugPrint(debug_, "loop", 2, " %s -> %s",
+                 edge->from(graph_)->name(sdc_network_),
+                 edge->to(graph_)->name(sdc_network_));
       loop_edges->push_back(edge);
       loop_edges_.insert(edge);
     }
   }
-  debugPrint2(debug_, "loop", 2, " %s -> %s",
-	      closing_edge->from(graph_)->name(sdc_network_),
-	      closing_edge->to(graph_)->name(sdc_network_));
+  debugPrint(debug_, "loop", 2, " %s -> %s",
+             closing_edge->from(graph_)->name(sdc_network_),
+             closing_edge->to(graph_)->name(sdc_network_));
   loop_edges->push_back(closing_edge);
   loop_edges_.insert(closing_edge);
   return loop_edges;
@@ -355,15 +355,15 @@ Levelize::levelizeCycles()
 void
 Levelize::invalid()
 {
-  debugPrint0(debug_, "levelize", 1, "levels invalid");
+  debugPrint(debug_, "levelize", 1, "levels invalid");
   clear();
 }
 
 void
 Levelize::invalidFrom(Vertex *vertex)
 {
-  debugPrint1(debug_, "levelize", 1, "level invalid from %s",
-	      vertex->name(sdc_network_));
+  debugPrint(debug_, "levelize", 1, "level invalid from %s",
+             vertex->name(sdc_network_));
   VertexInEdgeIterator edge_iter(vertex, graph_);
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
@@ -384,8 +384,8 @@ Levelize::deleteVertexBefore(Vertex *vertex)
 void
 Levelize::relevelizeFrom(Vertex *vertex)
 {
-  debugPrint1(debug_, "levelize", 1, "invalid relevelize from %s",
-	      vertex->name(sdc_network_));
+  debugPrint(debug_, "levelize", 1, "invalid relevelize from %s",
+             vertex->name(sdc_network_));
   relevelize_from_.insert(vertex);
   levels_valid_ = false;
 }
@@ -416,8 +416,8 @@ Levelize::relevelize()
   VertexSet::Iterator vertex_iter(relevelize_from_);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
-    debugPrint1(debug_, "levelize", 1, "relevelize from %s",
-		vertex->name(sdc_network_));
+    debugPrint(debug_, "levelize", 1, "relevelize from %s",
+               vertex->name(sdc_network_));
     if (search_pred_->searchFrom(vertex)) {
       if (isRoot(vertex)) {
 	setLevel(vertex, 0);

@@ -195,7 +195,7 @@ Genclks::ensureInsertionDelays()
 {
   if (!found_insertion_delays_) {
     Stats stats(debug_, report_);
-    debugPrint0(debug_, "genclk", 1, "find generated clk insertion delays");
+    debugPrint(debug_, "genclk", 1, "find generated clk insertion delays");
 
     ClockSeq gclks;
     for (auto clk : sdc_->clks()) {
@@ -314,9 +314,9 @@ Genclks::ensureMaster(Clock *gclk)
 	      // Master source pin can actually be a clock source pin.
 	      if (master_clk != gclk) {
 		gclk->setInferedMasterClk(master_clk);
-		debugPrint2(debug_, "genclk", 2, " %s master clk %s",
-			    gclk->name(),
-			    master_clk->name());
+		debugPrint(debug_, "genclk", 2, " %s master clk %s",
+                           gclk->name(),
+                           master_clk->name());
 		found_master = true;
 		master_clk_count++;
 	      }
@@ -341,9 +341,9 @@ Genclks::ensureMaster(Clock *gclk)
 	  // Master source pin can actually be a clock source pin.
 	  if (master_clk != gclk) {
 	    gclk->setInferedMasterClk(master_clk);
-	    debugPrint2(debug_, "genclk", 2, " %s master clk %s",
-			gclk->name(),
-			master_clk->name());
+	    debugPrint(debug_, "genclk", 2, " %s master clk %s",
+                       gclk->name(),
+                       master_clk->name());
 	    found_master = true;
 	    master_clk_count++;
 	  }
@@ -366,9 +366,9 @@ Genclks::ensureMaster(Clock *gclk)
 		// Master source pin can actually be a clock source pin.
 		if (master_clk != gclk) {
 		  gclk->setInferedMasterClk(master_clk);
-		  debugPrint2(debug_, "genclk", 2, " %s master clk %s",
-			      gclk->name(),
-			      master_clk->name());
+		  debugPrint(debug_, "genclk", 2, " %s master clk %s",
+                             gclk->name(),
+                             master_clk->name());
 		  master_clk_count++;
 		  break;
 		}
@@ -463,8 +463,8 @@ Genclks::findFanin(Clock *gclk,
     Vertex *vertex = iter.next();
     if (!fanins->hasKey(vertex)) {
       fanins->insert(vertex);
-      debugPrint2(debug_, "genclk", 2, "gen clk %s fanin %s",
-		  gclk->name(), vertex->name(sdc_network_));
+      debugPrint(debug_, "genclk", 2, "gen clk %s fanin %s",
+                 gclk->name(), vertex->name(sdc_network_));
       iter.enqueueAdjacentVertices(vertex);
     }
   }
@@ -568,8 +568,8 @@ GenClkInsertionSearchPred::isNonGeneratedClkPin(const Pin *pin) const
 void
 Genclks::findInsertionDelays(Clock *gclk)
 {
-  debugPrint1(debug_, "genclk", 2, "find gen clk %s insertion",
-	      gclk->name());
+  debugPrint(debug_, "genclk", 2, "find gen clk %s insertion",
+             gclk->name());
   GenclkInfo *genclk_info = makeGenclkInfo(gclk);
   FilterPath *src_filter = genclk_info->srcFilter();
   GenClkInsertionSearchPred srch_pred(gclk, nullptr, genclk_info, this);
@@ -670,9 +670,9 @@ Genclks::findLatchFdbkEdges(Vertex *from_vertex,
       Edge *edge = edge_iter.next();
       Vertex *to_vertex = edge->to(graph_);
       if (path_vertices.hasKey(to_vertex)) {
-	debugPrint2(debug_, "genclk", 2, " found feedback edge %s -> %s",
-		    from_vertex->name(sdc_network_),
-		    to_vertex->name(sdc_network_));
+	debugPrint(debug_, "genclk", 2, " found feedback edge %s -> %s",
+                   from_vertex->name(sdc_network_),
+                   to_vertex->name(sdc_network_));
 	if (fdbk_edges == nullptr)
 	  fdbk_edges = new EdgeSet;
 	fdbk_edges->insert(edge);
@@ -716,8 +716,8 @@ Genclks::seedSrcPins(Clock *gclk,
   Clock *master_clk = gclk->masterClk();
   for (Pin *master_pin : master_clk->leafPins()) {
     Vertex *vertex = graph_->pinDrvrVertex(master_pin);
-    debugPrint1(debug_, "genclk", 2, " seed src pin %s",
-		network_->pathName(master_pin));
+    debugPrint(debug_, "genclk", 2, " seed src pin %s",
+               network_->pathName(master_pin));
     TagGroupBldr tag_bldr(true, this);
     tag_bldr.init(vertex);
     copyGenClkSrcPaths(vertex, &tag_bldr);
@@ -868,8 +868,8 @@ GenclkSrcArrivalVisitor::visit(Vertex *vertex)
   const Graph *graph = sta_->graph();
   Search *search = sta_->search();
   Genclks *genclks = search->genclks();
-  debugPrint1(debug, "genclk", 2, "find gen clk insert arrival %s",
-	      vertex->name(sdc_network));
+  debugPrint(debug, "genclk", 2, "find gen clk insert arrival %s",
+             vertex->name(sdc_network));
   tag_bldr_->init(vertex);
   has_fanin_one_ = graph->hasFaninOne(vertex);
   genclks->copyGenClkSrcPaths(vertex, tag_bldr_);
@@ -973,11 +973,11 @@ Genclks::recordSrcPaths(Clock *gclk)
 				src_path.arrival(this),
 				early_late,
 				this))) {
-	  debugPrint4(debug_, "genclk", 2, "  %s insertion %s %s %s",
-		      network_->pathName(gclk_pin),
-		      early_late->asString(),
-		      rf->asString(),
-		      delayAsString(path->arrival(this), this));
+	  debugPrint(debug_, "genclk", 2, "  %s insertion %s %s %s",
+                     network_->pathName(gclk_pin),
+                     early_late->asString(),
+                     rf->asString(),
+                     delayAsString(path->arrival(this), this));
 	  src_path.init(path, this);
 	  found_src_paths = true;
 	}
@@ -1096,8 +1096,8 @@ Genclks::insertionDelay(const Clock *clk,
 void
 Genclks::findPllDelays(Clock *gclk)
 {
-  debugPrint1(debug_, "genclk", 2, "find gen clk %s pll delay",
-	      gclk->name());
+  debugPrint(debug_, "genclk", 2, "find gen clk %s pll delay",
+             gclk->name());
   FilterPath *pll_filter = makePllFilter(gclk);
   GenclkInfo *genclk_info = genclkInfo(gclk);
   genclk_info->setPllFilter(pll_filter);
@@ -1131,8 +1131,8 @@ Genclks::seedPllPin(const Clock *gclk,
 {
   Pin *pll_out_pin = gclk->pllOut();
   Vertex *vertex = graph_->pinDrvrVertex(pll_out_pin);
-  debugPrint1(debug_, "genclk", 2, " seed pllout pin %s",
-	      network_->pathName(pll_out_pin));
+  debugPrint(debug_, "genclk", 2, " seed pllout pin %s",
+             network_->pathName(pll_out_pin));
   TagGroupBldr tag_bldr(true, this);
   tag_bldr.init(vertex);
   copyGenClkSrcPaths(vertex, &tag_bldr);
@@ -1191,8 +1191,8 @@ PllArrivalVisitor::visit(Vertex *vertex)
   Graph *graph = sta_->graph();
   Search *search = sta_->search();
   Genclks *genclks = search->genclks();
-  debugPrint1(debug, "genclk", 2, "find gen clk pll arrival %s",
-	      vertex->name(sdc_network));
+  debugPrint(debug, "genclk", 2, "find gen clk pll arrival %s",
+             vertex->name(sdc_network));
   tag_bldr_->init(vertex);
   genclks->copyGenClkSrcPaths(vertex, tag_bldr_);
   has_fanin_one_ = graph->hasFaninOne(vertex);

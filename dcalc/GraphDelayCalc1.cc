@@ -287,7 +287,7 @@ GraphDelayCalc1::setObserver(DelayCalcObserver *observer)
 void
 GraphDelayCalc1::delaysInvalid()
 {
-  debugPrint0(debug_, "delay_calc", 1, "delays invalid");
+  debugPrint(debug_, "delay_calc", 1, "delays invalid");
   delays_exist_ = false;
   delays_seeded_ = false;
   incremental_ = false;
@@ -323,8 +323,8 @@ GraphDelayCalc1::delayInvalid(const Pin *pin)
 void
 GraphDelayCalc1::delayInvalid(Vertex *vertex)
 {
-  debugPrint1(debug_, "delay_calc", 2, "delays invalid %s",
-	      vertex->name(sdc_network_));
+  debugPrint(debug_, "delay_calc", 2, "delays invalid %s",
+             vertex->name(sdc_network_));
   if (graph_ && incremental_) {
     invalid_delays_.insert(vertex);
     // Invalidate driver that triggers dcalc for multi-driver nets.
@@ -404,7 +404,7 @@ GraphDelayCalc1::findDelays(Level level)
   if (arc_delay_calc_) {
     Stats stats(debug_, report_);
     int dcalc_count = 0;
-    debugPrint1(debug_, "delay_calc", 1, "find delays to level %d", level);
+    debugPrint(debug_, "delay_calc", 1, "find delays to level %d", level);
     if (!delays_seeded_) {
       iter_->clear();
       ensureMultiDrvrNetsFound();
@@ -427,7 +427,7 @@ GraphDelayCalc1::findDelays(Level level)
 
     delays_exist_ = true;
     incremental_ = true;
-    debugPrint1(debug_, "delay_calc", 1, "found %d delays", dcalc_count);
+    debugPrint(debug_, "delay_calc", 1, "found %d delays", dcalc_count);
     stats.report("Delay calc");
   }
 }
@@ -510,7 +510,7 @@ GraphDelayCalc1::ensureMultiDrvrNetsFound()
 void
 GraphDelayCalc1::makeMultiDrvrNet(PinSet &drvr_pins)
 {
-  debugPrint0(debug_, "delay_calc", 3, "multi-driver net");
+  debugPrint(debug_, "delay_calc", 3, "multi-driver net");
   VertexSet *drvr_vertices = new VertexSet;
   MultiDrvrNet *multi_drvr = new MultiDrvrNet(drvr_vertices);
   Level max_drvr_level = 0;
@@ -519,8 +519,8 @@ GraphDelayCalc1::makeMultiDrvrNet(PinSet &drvr_pins)
   while (pin_iter.hasNext()) {
     Pin *pin = pin_iter.next();
     Vertex *drvr_vertex = graph_->pinDrvrVertex(pin);
-    debugPrint1(debug_, "delay_calc", 3, " %s",
-		network_->pathName(pin));
+    debugPrint(debug_, "delay_calc", 3, " %s",
+               network_->pathName(pin));
     multi_drvr_net_map_[drvr_vertex] = multi_drvr;
     drvr_vertices->insert(drvr_vertex);
     Level drvr_level = drvr_vertex->level();
@@ -575,8 +575,8 @@ GraphDelayCalc1::seedDrvrSlew(Vertex *drvr_vertex,
 			      ArcDelayCalc *arc_delay_calc)
 {
   const Pin *drvr_pin = drvr_vertex->pin();
-  debugPrint1(debug_, "delay_calc", 2, "seed driver slew %s",
-	      drvr_vertex->name(sdc_network_));
+  debugPrint(debug_, "delay_calc", 2, "seed driver slew %s",
+             drvr_vertex->name(sdc_network_));
   InputDrive *drive = 0;
   if (network_->isTopLevelPort(drvr_pin)) {
     Port *port = network_->port(drvr_pin);
@@ -679,8 +679,8 @@ void
 GraphDelayCalc1::seedLoadSlew(Vertex *vertex)
 {
   const Pin *pin = vertex->pin();
-  debugPrint1(debug_, "delay_calc", 2, "seed load slew %s",
-	      vertex->name(sdc_network_));
+  debugPrint(debug_, "delay_calc", 2, "seed load slew %s",
+             vertex->name(sdc_network_));
   ClockSet *clks = sdc_->findLeafPinClocks(pin);
   initSlew(vertex);
   for (auto tr : RiseFall::range()) {
@@ -757,9 +757,9 @@ GraphDelayCalc1::findInputDriverDelay(LibertyCell *drvr_cell,
 				      LibertyPort *to_port,
 				      DcalcAnalysisPt *dcalc_ap)
 {
-  debugPrint2(debug_, "delay_calc", 2, "  driver cell %s %s",
-	      drvr_cell->name(),
-	      rf->asString());
+  debugPrint(debug_, "delay_calc", 2, "  driver cell %s %s",
+             drvr_cell->name(),
+             rf->asString());
   LibertyCellTimingArcSetIterator set_iter(drvr_cell);
   while (set_iter.hasNext()) {
     TimingArcSet *arc_set = set_iter.next();
@@ -789,12 +789,12 @@ GraphDelayCalc1::findInputArcDelay(LibertyCell *drvr_cell,
 				   float from_slew,
 				   DcalcAnalysisPt *dcalc_ap)
 {
-  debugPrint5(debug_, "delay_calc", 3, "  %s %s -> %s %s (%s)",
-	      arc->from()->name(),
-	      arc->fromTrans()->asString(),
-	      arc->to()->name(),
-	      arc->toTrans()->asString(),
-	      arc->role()->asString());
+  debugPrint(debug_, "delay_calc", 3, "  %s %s -> %s %s (%s)",
+             arc->from()->name(),
+             arc->fromTrans()->asString(),
+             arc->to()->name(),
+             arc->toTrans()->asString(),
+             arc->role()->asString());
   RiseFall *drvr_rf = arc->toTrans()->asRiseFall();
   if (drvr_rf) {
     DcalcAPIndex ap_index = dcalc_ap->index();
@@ -817,11 +817,11 @@ GraphDelayCalc1::findInputArcDelay(LibertyCell *drvr_cell,
 			       drvr_parasitic, 0.0, pvt, dcalc_ap,
 			       gate_delay, gate_slew);
     ArcDelay load_delay = gate_delay - intrinsic_delay;
-    debugPrint3(debug_, "delay_calc", 3,
-		"    gate delay = %s intrinsic = %s slew = %s",
-		delayAsString(gate_delay, this),
-		delayAsString(intrinsic_delay, this),
-		delayAsString(gate_slew, this));
+    debugPrint(debug_, "delay_calc", 3,
+               "    gate delay = %s intrinsic = %s slew = %s",
+               delayAsString(gate_delay, this),
+               delayAsString(intrinsic_delay, this),
+               delayAsString(gate_slew, this));
     graph_->setSlew(drvr_vertex, drvr_rf, ap_index, gate_slew);
     annotateLoadDelays(drvr_vertex, drvr_rf, load_delay, false, dcalc_ap,
 		       arc_delay_calc_);
@@ -842,9 +842,9 @@ GraphDelayCalc1::findVertexDelay(Vertex *vertex,
   const Pin *pin = vertex->pin();
   // Don't clobber root slews.
   if (!vertex->isRoot()) {
-    debugPrint2(debug_, "delay_calc", 2, "find delays %s (%s)",
-		vertex->name(sdc_network_),
-		network_->cellName(network_->instance(pin)));
+    debugPrint(debug_, "delay_calc", 2, "find delays %s (%s)",
+               vertex->name(sdc_network_),
+               network_->cellName(network_->instance(pin)));
     if (network_->isLeaf(pin)) {
       if (vertex->isDriver(network_)) {
 	bool delay_changed = findDriverDelays(vertex, arc_delay_calc);
@@ -1194,15 +1194,15 @@ GraphDelayCalc1::findArcDelay(LibertyCell *drvr_cell,
   RiseFall *drvr_rf = arc->toTrans()->asRiseFall();
   if (from_rf && drvr_rf) {
     DcalcAPIndex ap_index = dcalc_ap->index();
-    debugPrint7(debug_, "delay_calc", 3,
-		"  %s %s -> %s %s (%s) corner:%s/%s",
-		arc->from()->name(),
-		arc->fromTrans()->asString(),
-		arc->to()->name(),
-		arc->toTrans()->asString(),
-		arc->role()->asString(),
-		dcalc_ap->corner()->name(),
-		dcalc_ap->delayMinMax()->asString());
+    debugPrint(debug_, "delay_calc", 3,
+               "  %s %s -> %s %s (%s) corner:%s/%s",
+               arc->from()->name(),
+               arc->fromTrans()->asString(),
+               arc->to()->name(),
+               arc->toTrans()->asString(),
+               arc->role()->asString(),
+               dcalc_ap->corner()->name(),
+               dcalc_ap->delayMinMax()->asString());
     // Delay calculation is done even when the gate delays/slews are
     // annotated because the wire delays may not be annotated.
     const Slew from_slew = edgeFromSlew(from_vertex, from_rf, edge, dcalc_ap);
@@ -1223,10 +1223,10 @@ GraphDelayCalc1::findArcDelay(LibertyCell *drvr_cell,
 				related_out_cap, pvt, dcalc_ap,
 				gate_delay, gate_slew);
     }
-    debugPrint2(debug_, "delay_calc", 3,
-		"    gate delay = %s slew = %s",
-		delayAsString(gate_delay, this),
-		delayAsString(gate_slew, this));
+    debugPrint(debug_, "delay_calc", 3,
+               "    gate delay = %s slew = %s",
+               delayAsString(gate_delay, this),
+               delayAsString(gate_slew, this));
     // Merge slews.
     const Slew &drvr_slew = graph_->slew(drvr_vertex, drvr_rf, ap_index);
     const MinMax *slew_min_max = dcalc_ap->slewMinMax();
@@ -1416,11 +1416,11 @@ GraphDelayCalc1::annotateLoadDelays(Vertex *drvr_vertex,
       ArcDelay wire_delay;
       Slew load_slew;
       arc_delay_calc->loadDelay(load_pin, wire_delay, load_slew);
-      debugPrint3(debug_, "delay_calc", 3,
-		  "    %s load delay = %s slew = %s",
-		  load_vertex->name(sdc_network_),
-		  delayAsString(wire_delay, this),
-		  delayAsString(load_slew, this));
+      debugPrint(debug_, "delay_calc", 3,
+                 "    %s load delay = %s slew = %s",
+                 load_vertex->name(sdc_network_),
+                 delayAsString(wire_delay, this),
+                 delayAsString(load_slew, this));
       if (!load_vertex->slewAnnotated(drvr_rf, slew_min_max)) {
 	if (drvr_vertex->slewAnnotated(drvr_rf, slew_min_max)) {
 	  // Copy the driver slew to the load if it is annotated.
@@ -1461,9 +1461,9 @@ void
 GraphDelayCalc1::findCheckDelays(Vertex *vertex,
 				 ArcDelayCalc *arc_delay_calc)
 {
-  debugPrint2(debug_, "delay_calc", 2, "find checks %s (%s)",
-	      vertex->name(sdc_network_),
-	      network_->cellName(network_->instance(vertex->pin())));
+  debugPrint(debug_, "delay_calc", 2, "find checks %s (%s)",
+             vertex->name(sdc_network_),
+             network_->cellName(network_->instance(vertex->pin())));
   if (vertex->hasChecks()) {
     VertexInEdgeIterator edge_iter(vertex, graph_);
     while (edge_iter.hasNext()) {
@@ -1524,17 +1524,17 @@ GraphDelayCalc1::findCheckEdgeDelays(Edge *edge,
 						   dcalc_ap);
 	  int slew_index = dcalc_ap->checkDataSlewIndex();
 	  const Slew &to_slew = graph_->slew(to_vertex, to_rf, slew_index);
-	  debugPrint5(debug_, "delay_calc", 3,
-		      "  %s %s -> %s %s (%s)",
-		      arc_set->from()->name(),
-		      arc->fromTrans()->asString(),
-		      arc_set->to()->name(),
-		      arc->toTrans()->asString(),
-		      arc_set->role()->asString());
-	  debugPrint2(debug_, "delay_calc", 3,
-		      "    from_slew = %s to_slew = %s",
-		      delayAsString(from_slew, this),
-		      delayAsString(to_slew, this));
+	  debugPrint(debug_, "delay_calc", 3,
+                     "  %s %s -> %s %s (%s)",
+                     arc_set->from()->name(),
+                     arc->fromTrans()->asString(),
+                     arc_set->to()->name(),
+                     arc->toTrans()->asString(),
+                     arc_set->role()->asString());
+	  debugPrint(debug_, "delay_calc", 3,
+                     "    from_slew = %s to_slew = %s",
+                     delayAsString(from_slew, this),
+                     delayAsString(to_slew, this));
 	  float related_out_cap = 0.0;
 	  if (related_out_pin) {
 	    Parasitic *related_out_parasitic =
@@ -1549,9 +1549,9 @@ GraphDelayCalc1::findCheckEdgeDelays(Edge *edge,
 				     related_out_cap,
 				     pvt, dcalc_ap,
 				     check_delay);
-	  debugPrint1(debug_, "delay_calc", 3,
-		      "    check_delay = %s",
-		      delayAsString(check_delay, this));
+	  debugPrint(debug_, "delay_calc", 3,
+                     "    check_delay = %s",
+                     delayAsString(check_delay, this));
 	  graph_->setArcDelay(edge, arc, ap_index, check_delay);
 	  delay_changed = true;
 	}

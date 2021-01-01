@@ -69,56 +69,13 @@ debugCheck(const Debug *debug,
 }
 
 // Inlining a varargs function would eval the args, which can
-// be expensive, so use macros.
-
-#define debugPrint0(debug, what, level, msg) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->reportLine(what, "%s", msg); \
-  }
-
-#define debugPrint1(debug, what, level, fmt, arg1) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->reportLine(what, fmt, arg1); \
-  }
-
-#define debugPrint2(debug, what, level, fmt, arg1, arg2) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->reportLine(what, fmt, arg1, arg2); \
-  }
-
-#define debugPrint3(debug, what, level, fmt, arg1, arg2, arg3) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->reportLine(what, fmt, arg1, arg2, arg3); \
-  }
-
-#define debugPrint4(debug, what, level, fmt, arg1, arg2, arg3, arg4) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->reportLine(what, fmt, arg1, arg2, arg3, arg4); \
-  }
-
-#define debugPrint5(debug, what, level, fmt, arg1, arg2, arg3, arg4, arg5) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->reportLine(what, fmt, arg1, arg2, arg3, arg4, arg5); \
-  }
-
-#define debugPrint6(debug,what,level,fmt,arg1,arg2,arg3,arg4,arg5,arg6) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->reportLine(what, fmt, arg1, arg2, arg3, arg4, arg5, arg6); \
-  }
-
-#define debugPrint7(debug,what,level,fmt,arg1,arg2,arg3,arg4,arg5,arg6,arg7) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->reportLine(what, fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7);   \
-  }
-
-#define debugPrint8(debug,what,level,fmt,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->reportLine(what, fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8); \
-  }
-
-#define debugPrint9(debug,what,level,fmt,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->reportLine(what, fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9); \
+// be expensive, so use a macro.
+// Note that "##__VA_ARGS__" is a gcc extension to support zero arguments (no comma).
+// clang -Wno-gnu-zero-variadic-macro-arguments suppresses the warning.
+// c++20 has "__VA_OPT__" to deal with the zero arg case so this is temporary.
+#define debugPrint(debug, what, level, msg, ...)     \
+  if (sta::debug_on && debug->check(what, level)) {  \
+    debug->reportLine(what, msg, ##__VA_ARGS__); \
   }
 
 } // namespace

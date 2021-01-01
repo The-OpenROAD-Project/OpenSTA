@@ -247,8 +247,8 @@ PathGroupPathVisitor::visit(Vertex *vertex)
   visitFanoutPaths(vertex);
   if (vertex_matches_) {
     const Debug *debug = sta_->debug();
-    debugPrint1(debug, "visit_path_group", 1, "visit %s",
-		vertex->name(sta_->network()));
+    debugPrint(debug, "visit_path_group", 1, "visit %s",
+               vertex->name(sta_->network()));
     visitor_->visit(vertex);
     bkwd_iter_->enqueueAdjacentVertices(vertex);
   }
@@ -279,11 +279,11 @@ PathGroupPathVisitor::visitFromToPath(const Pin *,
     if (!to_path.isNull()) {
       if (matching_paths->hasKey(&to_path)) {
 	const Debug *debug = sta_->debug();
-	debugPrint4(debug, "visit_path_group", 2, "match %s %s -> %s %s",
-		    from_vertex->name(sta_->network()),
-		    from_tag->asString(sta_),
-		    to_vertex->name(sta_->network()),
-		    to_tag->asString(sta_));
+	debugPrint(debug, "visit_path_group", 2, "match %s %s -> %s %s",
+                   from_vertex->name(sta_->network()),
+                   from_tag->asString(sta_),
+                   to_vertex->name(sta_->network()),
+                   to_tag->asString(sta_));
 	fromMatches(from_vertex, from_tag, arrival_index);
       }
     }
@@ -294,12 +294,12 @@ PathGroupPathVisitor::visitFromToPath(const Pin *,
 	if (tagMatchNoCrpr(to_path->tag(sta_), to_tag)
 	    && matching_paths->hasKey(to_path)) {
 	  const Debug *debug = sta_->debug();
-	  debugPrint4(debug, "visit_path_group", 2, 
-		      "match crpr %s %s -> %s %s",
-		      from_vertex->name(sta_->network()),
-		      from_tag->asString(sta_),
-		      to_vertex->name(sta_->network()),
-		      to_tag->asString(sta_));
+	  debugPrint(debug, "visit_path_group", 2, 
+                     "match crpr %s %s -> %s %s",
+                     from_vertex->name(sta_->network()),
+                     from_tag->asString(sta_),
+                     to_vertex->name(sta_->network()),
+                     to_tag->asString(sta_));
 	  fromMatches(from_vertex, from_tag, arrival_index);
 	}
       }

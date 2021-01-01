@@ -859,13 +859,13 @@ WritePathSpice::writeSubcktInstVoltSrcs(Stage stage,
   const char *drvr_port_name = drvr_port->name();
   const char *inst_name = network_->pathName(inst);
 
-  debugPrint1(debug_, "write_spice", 2, "subckt %s", cell->name());
+  debugPrint(debug_, "write_spice", 2, "subckt %s", cell->name());
   for (string subckt_port_sname : *spice_port_names) {
     const char *subckt_port_name = subckt_port_sname.c_str();
     LibertyPgPort *pg_port = cell->findPgPort(subckt_port_name);
-    debugPrint2(debug_, "write_spice", 2, " port %s%s",
-		subckt_port_name,
-		pg_port ? " pwr/gnd" : "");
+    debugPrint(debug_, "write_spice", 2, " port %s%s",
+               subckt_port_name,
+               pg_port ? " pwr/gnd" : "");
     if (pg_port)
       writeVoltageSource(inst_name, subckt_port_name,
 			 pgPortVoltage(pg_port), volt_index);
@@ -1404,7 +1404,7 @@ WritePathSpice::findPathCellnames(// Return values.
     if (arc) {
       LibertyCell *cell = arc->set()->libertyCell();
       if (cell) {
-	debugPrint1(debug_, "write_spice", 2, "cell %s", cell->name());
+	debugPrint(debug_, "write_spice", 2, "cell %s", cell->name());
 	path_cell_names.insert(cell->name());
       }
       // Include side receivers.

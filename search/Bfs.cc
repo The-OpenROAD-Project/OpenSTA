@@ -232,7 +232,7 @@ BfsIterator::findNext(Level to_level)
 void
 BfsIterator::enqueue(Vertex *vertex)
 {
-  debugPrint1(debug_, "bfs", 2, "enqueue %s", vertex->name(sdc_network_));
+  debugPrint(debug_, "bfs", 2, "enqueue %s", vertex->name(sdc_network_));
   if (!vertex->bfsInQueue(bfs_index_)) {
     Level level = vertex->level();
     UniqueLock lock(queue_lock_);

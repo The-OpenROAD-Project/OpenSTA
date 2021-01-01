@@ -119,13 +119,13 @@ PathEnum::PathEnum(int group_count,
 void
 PathEnum::insert(PathEnd *path_end)
 {
-  debugPrint1(debug_, "path_enum", 1, "insert %s",
-	      path_end->path()->name(this));
-  debugPrint3(debug_, "path_enum", 2, "diversion %s %s %s",
-	      path_end->path()->name(this),
-	      cmp_slack_ ? "slack" : "delay",
-	      delayAsString(cmp_slack_ ? path_end->slack(this) :
-			    path_end->dataArrivalTime(this), this));
+  debugPrint(debug_, "path_enum", 1, "insert %s",
+             path_end->path()->name(this));
+  debugPrint(debug_, "path_enum", 2, "diversion %s %s %s",
+             path_end->path()->name(this),
+             cmp_slack_ ? "slack" : "delay",
+             delayAsString(cmp_slack_ ? path_end->slack(this) :
+                           path_end->dataArrivalTime(this), this));
   Diversion *div = new Diversion(path_end, path_end->path());
   div_queue_.push(div);
   div_count_++;
@@ -195,8 +195,8 @@ PathEnum::findNext()
     }
     else {
       // We have endpoint_count paths for this endpoint, so we are done with it.
-      debugPrint1(debug_, "path_enum", 1, "endpoint_count reached for %s",
-		  vertex->name(sdc_network_));
+      debugPrint(debug_, "path_enum", 1, "endpoint_count reached for %s",
+                 vertex->name(sdc_network_));
       deleteDiversionPathEnd(div);
     }
   }
@@ -330,12 +330,12 @@ PathEnumFaninVisitor::visitFromToPath(const Pin *,
 				      const PathAnalysisPt *path_ap)
 {
   const Debug *debug = sta_->debug();
-  debugPrint4(debug, "path_enum", 3, "visit fanin %s -> %s %s %s",
-	      from_path->name(sta_),
-	      to_vertex->name(sta_->network()),
-	      to_rf->asString(),
-	      delayAsString(sta_->search()->deratedDelay(from_vertex, arc, edge,
-							 false,path_ap),sta_));
+  debugPrint(debug, "path_enum", 3, "visit fanin %s -> %s %s %s",
+             from_path->name(sta_),
+             to_vertex->name(sta_->network()),
+             to_rf->asString(),
+             delayAsString(sta_->search()->deratedDelay(from_vertex, arc, edge,
+                                                        false,path_ap),sta_));
   // These paths fanin to before_div_ so we know to_vertex matches.
   if (to_rf->index() == before_div_rf_index_
       && path_ap->index() == before_div_ap_index_
@@ -434,7 +434,7 @@ PathEnum::makeDiversion(PathEnd *div_end,
 void
 PathEnum::pruneDiversionQueue()
 {
-  debugPrint0(debug_, "path_enum", 2, "prune queue");
+  debugPrint(debug_, "path_enum", 2, "prune queue");
   VertexPathCountMap path_counts;
   int end_count = 0;
   // Collect endpoint_count diversions per vertex.
@@ -590,10 +590,10 @@ PathEnum::updatePathHeadDelays(PathEnumedSeq &paths,
     ArcDelay arc_delay = search_->deratedDelay(edge->from(graph_),
 					       arc, edge, false, path_ap);
     Arrival arrival = prev_arrival + arc_delay;
-    debugPrint3(debug_, "path_enum", 3, "update arrival %s %s -> %s",
-		path->name(this),
-		delayAsString(path->arrival(this), this),
-		delayAsString(arrival, this));
+    debugPrint(debug_, "path_enum", 3, "update arrival %s %s -> %s",
+               path->name(this),
+               delayAsString(path->arrival(this), this),
+               delayAsString(arrival, this));
     path->setArrival(arrival, this);
     prev_arrival = arrival;
     if (sdc_->crprActive()) {

@@ -237,7 +237,8 @@ ReportTcl::redirectStringEnd()
 static int
 encapOutputProc(ClientData instanceData,
                 CONST84 char *buf,
-                int toWrite, int *)
+                int toWrite,
+                int *)
 {
   ReportTcl *report = reinterpret_cast<ReportTcl *>(instanceData);
   return report->printString(buf, toWrite);

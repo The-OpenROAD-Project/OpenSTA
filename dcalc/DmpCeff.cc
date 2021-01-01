@@ -355,10 +355,10 @@ DmpAlg::findDriverParams(double ceff)
 		this, fvec_, fjac_, index_, p_, scale_);
   t0_ = x_[DmpParam::t0];
   dt_ = x_[DmpParam::dt];
-  debugPrint3(debug_, "dmp_ceff", 3, "    t0 = %s dt = %s ceff = %s",
-	      units_->timeUnit()->asString(t0_),
-	      units_->timeUnit()->asString(dt_),
-	      units_->capacitanceUnit()->asString(x_[DmpParam::ceff]));
+  debugPrint(debug_, "dmp_ceff", 3, "    t0 = %s dt = %s ceff = %s",
+             units_->timeUnit()->asString(t0_),
+             units_->timeUnit()->asString(dt_),
+             units_->capacitanceUnit()->asString(x_[DmpParam::ceff]));
   if (debug_->check("dmp_ceff", 4))
     showVo();
 }
@@ -729,7 +729,7 @@ DmpCap::init(const LibertyLibrary *drvr_library,
 	     double rpi,
 	     double c1)
 {
-  debugPrint0(debug_, "dmp_ceff", 3, "Using DMP cap");
+  debugPrint(debug_, "dmp_ceff", 3, "Using DMP cap");
   DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf,
 	       rd, in_slew, related_out_cap, c2, rpi, c1);
   ceff_ = c1 + c2;
@@ -739,8 +739,8 @@ void
 DmpCap::gateDelaySlew(double &delay,
 		      double &slew)
 {
-  debugPrint1(debug_, "dmp_ceff", 3, "    ceff = %s",
-	      units_->capacitanceUnit()->asString(ceff_));
+  debugPrint(debug_, "dmp_ceff", 3, "    ceff = %s",
+             units_->capacitanceUnit()->asString(ceff_));
   gateCapDelaySlew(ceff_, delay, slew);
   gate_slew_ = slew;
 }
@@ -870,7 +870,7 @@ DmpPi::init(const LibertyLibrary *drvr_library,
 	    double rpi,
 	    double c1)
 {
-  debugPrint0(debug_, "dmp_ceff", 3, "Using DMP Pi");
+  debugPrint(debug_, "dmp_ceff", 3, "Using DMP Pi");
   DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf, rd,
 	       in_slew, related_out_cap, c2, rpi, c1);
 
@@ -1184,7 +1184,7 @@ DmpZeroC2::init(const LibertyLibrary *drvr_library,
 		double rpi,
 		double c1)
 {
-  debugPrint0(debug_, "dmp_ceff", 3, "Using DMP C2=0");
+  debugPrint(debug_, "dmp_ceff", 3, "Using DMP C2=0");
   DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf, rd,
 	       in_slew, related_out_cap, c2, rpi, c1);
   ceff_ = c1;
@@ -1626,14 +1626,14 @@ DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
     dmp_alg_ = dmp_cap_;
   dmp_alg_->init(drvr_library, drvr_cell, pvt, gate_model,
 		 drvr_rf_, rd, in_slew, related_out_cap, c2, rpi, c1);
-  debugPrint6(debug_, "dmp_ceff", 3,
-	      "    DMP in_slew = %s c2 = %s rpi = %s c1 = %s Rd = %s (%s alg)",
-	      units_->timeUnit()->asString(in_slew),
-	      units_->capacitanceUnit()->asString(c2),
-	      units_->resistanceUnit()->asString(rpi),
-	      units_->capacitanceUnit()->asString(c1),
-	      units_->resistanceUnit()->asString(rd),
-	      dmp_alg_->name());
+  debugPrint(debug_, "dmp_ceff", 3,
+             "    DMP in_slew = %s c2 = %s rpi = %s c1 = %s Rd = %s (%s alg)",
+             units_->timeUnit()->asString(in_slew),
+             units_->capacitanceUnit()->asString(c2),
+             units_->resistanceUnit()->asString(rpi),
+             units_->capacitanceUnit()->asString(c1),
+             units_->resistanceUnit()->asString(rd),
+             dmp_alg_->name());
 }
 
 float

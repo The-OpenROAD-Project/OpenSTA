@@ -119,6 +119,7 @@ public:
   static Report *defaultReport() { return default_; }
 
 protected:
+  // All sta print functions have an implicit return printed by this function.
   virtual void printLine(const char *line,
                          size_t length);
   // Primitive to print output on the console.
@@ -126,7 +127,9 @@ protected:
   virtual size_t printConsole(const char *buffer,
                               size_t length) = 0;
   void printToBuffer(const char *fmt,
-                     ...);
+                     ...)
+    __attribute__((format (printf, 2, 3)));
+
   void printToBuffer(const char *fmt,
                      va_list args);
   void printToBufferAppend(const char *fmt,

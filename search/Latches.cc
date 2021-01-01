@@ -94,10 +94,10 @@ Latches::latchRequired(const Path *data_path,
       + PathEnd::checkSetupMcpAdjustment(data_clk_edge, enable_clk_edge, mcp,
 					 1, sdc_)
       + open_crpr;
-    debugPrint3(debug_, "latch", 1, "latch data %s %s enable %s",
-		network_->pathName(data_path->pin(this)),
-		delayAsString(data_arrival, this),
-		delayAsString(enable_arrival, this));
+    debugPrint(debug_, "latch", 1, "latch data %s %s enable %s",
+               network_->pathName(data_path->pin(this)),
+               delayAsString(data_arrival, this),
+               delayAsString(enable_arrival, this));
     if (delayLessEqual(data_arrival, enable_arrival, this)) {
       // Data arrives before latch opens.
       required = enable_arrival;
