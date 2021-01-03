@@ -37,11 +37,6 @@ encapOutputProc(ClientData instanceData,
                 int toWrite,
                 int *errorCodePtr);
 static int
-encapErrorOutputProc(ClientData instanceData,
-                     CONST84 char *buf,
-                     int toWrite,
-                     int *errorCodePtr);
-static int
 encapCloseProc(ClientData instanceData, Tcl_Interp *interp);
 static int
 encapSetOptionProc(ClientData instanceData,
@@ -93,26 +88,6 @@ Tcl_ChannelType tcl_encap_type_stdout = {
     nullptr   // truncateProc
 };
 
-Tcl_ChannelType tcl_encap_type_stderr = {
-    const_cast<char *>("file"),
-    TCL_CHANNEL_VERSION_4,
-    encapCloseProc,
-    encapInputProc,
-    encapErrorOutputProc,
-    encapSeekProc,
-    encapSetOptionProc,
-    encapGetOptionProc,
-    encapWatchProc,
-    encapGetHandleProc,
-    nullptr,  // close2Proc
-    encapBlockModeProc,
-    nullptr,  // flushProc
-    nullptr,  // handlerProc
-    nullptr,  // wideSeekProc
-    nullptr,  // threadActionProc
-    nullptr   // truncateProc
-};
-
 ////////////////////////////////////////////////////////////////
 
 ReportTcl::ReportTcl() :
@@ -144,7 +119,7 @@ ReportTcl::setTclInterp(Tcl_Interp *interp)
                                        TCL_WRITABLE,
                                        tcl_stdout_);
   tcl_encap_stderr_ = Tcl_StackChannel(interp,
-                                       &tcl_encap_type_stderr,
+                                       &tcl_encap_type_stdout,
                                        this,
                                        TCL_WRITABLE,
                                        tcl_stderr_);
@@ -239,16 +214,6 @@ encapOutputProc(ClientData instanceData,
                 CONST84 char *buf,
                 int toWrite,
                 int *)
-{
-  ReportTcl *report = reinterpret_cast<ReportTcl *>(instanceData);
-  return report->printString(buf, toWrite);
-}
-
-static int
-encapErrorOutputProc(ClientData instanceData,
-                     CONST84 char *buf,
-                     int toWrite,
-                     int *)
 {
   ReportTcl *report = reinterpret_cast<ReportTcl *>(instanceData);
   return report->printString(buf, toWrite);
