@@ -109,7 +109,7 @@ Debug::reportLine(const char *what,
 {
   va_list args;
   va_start(args, fmt);
-  report_->printToBuffer(what);
+  report_->printToBuffer("%s", what);
   report_->printToBufferAppend(": ");
   report_->printToBufferAppend(fmt, args);
   report_->printBufferLine();

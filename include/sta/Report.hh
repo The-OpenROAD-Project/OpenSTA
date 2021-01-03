@@ -125,7 +125,7 @@ protected:
   // Primitive to print output on the console.
   // Return the number of characters written.
   virtual size_t printConsole(const char *buffer,
-                              size_t length) = 0;
+                              size_t length);
   void printToBuffer(const char *fmt,
                      ...)
     __attribute__((format (printf, 2, 3)));

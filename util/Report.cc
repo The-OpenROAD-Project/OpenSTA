@@ -44,6 +44,14 @@ Report::~Report()
   delete [] buffer_;
 }
 
+size_t
+Report::printConsole(const char *buffer,
+                     size_t length)
+{
+  printf("%s", buffer);
+  return length;
+}
+
 void
 Report::printLine(const char *line,
                   size_t length)
@@ -276,7 +284,7 @@ Report::fileCritical(int /* id */,
 {
   va_list args;
   va_start(args, fmt);
-  printToBuffer("Critical: %s line %d, ", filename, line, fmt, args);
+  printToBuffer("Critical: %s line %d, ", filename, line);
   printToBufferAppend(fmt, args);
   printBufferLine();
   va_end(args);
