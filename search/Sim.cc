@@ -66,9 +66,9 @@ Sim::functionSense(const FuncExpr *expr,
 		   const Pin *input_pin,
 		   const Instance *inst)
 {
-  debugPrint2(debug_, "sim", 4, "find sense pin %s %s",
-	      network_->pathName(input_pin),
-	      expr->asString());
+  debugPrint(debug_, "sim", 4, "find sense pin %s %s",
+             network_->pathName(input_pin),
+             expr->asString());
   bool increasing, decreasing;
   {
     UniqueLock lock(cudd_lock_);
@@ -92,7 +92,7 @@ Sim::functionSense(const FuncExpr *expr,
     sense = TimingSense::negative_unate;
   else
     sense = TimingSense::non_unate;
-  debugPrint1(debug_, "sim", 4, " %s", timingSenseString(sense));
+  debugPrint(debug_, "sim", 4, " %s", timingSenseString(sense));
   return sense;
 }
 
