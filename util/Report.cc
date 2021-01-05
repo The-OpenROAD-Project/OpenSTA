@@ -90,13 +90,19 @@ Report::reportLine(const char *fmt, ...)
 }
 
 void
+Report::reportBlankLine()
+{
+  printLine("", 0);
+}
+
+void
 Report::reportLineString(const char *line)
 {
   printLine(line, strlen(line));
 }
 
 void
-Report::reportLine(const string &line)
+Report::reportLineString(const string &line)
 {
   printLine(line.c_str(), line.length());
 }

@@ -42,7 +42,8 @@ public:
   virtual void reportLine(const char *fmt, ...)
     __attribute__((format (printf, 2, 3)));
   virtual void reportLineString(const char *line);
-  virtual void reportLine(const string &line);
+  virtual void reportLineString(const string &line);
+  virtual void reportBlankLine();
 
   ////////////////////////////////////////////////////////////////
 

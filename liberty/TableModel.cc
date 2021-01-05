@@ -845,14 +845,14 @@ Table1::report(const Units *units,
     line += unit1->asString(axis1_->axisValue(index1), digits);
     line += " ";
   }
-  report->reportLine(line);
+  report->reportLineString(line);
 
   line.clear();
   for (size_t index1 = 0; index1 < axis1_->size(); index1++) {
     line += table_unit->asString(tableValue(index1), digits);
     line += " ";
   }
-  report->reportLine(line);
+  report->reportLineString(line);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1036,7 +1036,7 @@ Table2::report(const Units *units,
     line += unit2->asString(axis2_->axisValue(index2), digits);
     line += " ";
   }
-  report->reportLine(line);
+  report->reportLineString(line);
 
   for (size_t index1 = 0; index1 < axis1_->size(); index1++) {
     line = unit1->asString(axis1_->axisValue(index1), digits);
@@ -1045,7 +1045,7 @@ Table2::report(const Units *units,
       line += table_unit->asString(tableValue(index1, index2), digits);
       line += " ";
     }
-    report->reportLine(line);
+    report->reportLineString(line);
   }
 }
 
@@ -1300,7 +1300,7 @@ Table3::report(const Units *units,
       line += unit3->asString(axis3_->axisValue(index3), digits);
       line += " ";
     }
-    report->reportLine(line);
+    report->reportLineString(line);
 
     for (size_t index2 = 0; index2 < axis2_->size(); index2++) {
       line = unit2->asString(axis2_->axisValue(index2),digits);
@@ -1309,7 +1309,7 @@ Table3::report(const Units *units,
         line += table_unit->asString(tableValue(index1, index2, index3), digits);
         line += " ";
       }
-      report->reportLine(line);
+      report->reportLineString(line);
     }
   }
 }

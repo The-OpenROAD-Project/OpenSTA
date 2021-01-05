@@ -466,7 +466,7 @@ ReportAnnotated::reportArcs(const char *header,
 			    bool report_annotated,
 			    PinSet &pins)
 {
-  report_->reportLine("");
+  report_->reportBlankLine();
   report_->reportLineString(header);
   PinSeq sorted_pins;
   sortPinSet(&pins, network_, sorted_pins);

@@ -162,7 +162,7 @@ ClkSkews::reportClkSkew(ClockSet *clks,
     }
     else
       report_->reportLine("No launch/capture paths found.");
-    report_->reportLine("");
+    report_->reportBlankLine();
   }
 
   skews.deleteContents();

@@ -478,13 +478,13 @@ DmpAlg::showJacobian()
   string line = "    ";
   for (int j = 0; j < nr_order_; j++)
     line += stdstrPrint("%12s", dmp_param_index_strings[j]);
-  report_->reportLine(line);
+  report_->reportLineString(line);
   line.clear();
   for (int i = 0; i < nr_order_; i++) {
     line += stdstrPrint("%4s ", dmp_func_index_strings[i]);
     for (int j = 0; j < nr_order_; j++)
       line += stdstrPrint("%12.3e ", fjac_[i][j]);
-    report_->reportLine(line);
+    report_->reportLineString(line);
   }
 }
 

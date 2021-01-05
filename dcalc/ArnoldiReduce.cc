@@ -605,7 +605,7 @@ ArnoldiReduce::makeRcmodelFromTs()
       string line = stdstrPrint("U[%d]",h);
       for (i=0;i<nterms;i++)
 	line += stdstrPrint(" %6.2e",U[h][i]);
-      report_->reportLine(line);
+      report_->reportLineString(line);
     }
   }
 }

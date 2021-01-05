@@ -946,7 +946,7 @@ ReportPath::reportEndHeader()
   reportField("Required", field_total_, line);
   line += ' ';
   reportField("Actual", field_total_, line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   // Line two.
   line.clear();
@@ -957,7 +957,7 @@ ReportPath::reportEndHeader()
   reportField("Delay", field_total_, line);
   line += ' ';
   reportField("Slack", field_total_, line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   reportDashLine(field_description_->width() + field_total_->width() * 3 + 3);
 }
@@ -972,7 +972,7 @@ ReportPath::reportEndLine(PathEnd *end)
   reportSpaceFieldDelay(end->requiredTimeOffset(this), early_late, line);
   reportSpaceFieldDelay(end->dataArrivalTimeOffset(this), early_late, line);
   reportSpaceSlack(end, line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -986,7 +986,7 @@ ReportPath::reportSummaryHeader()
   reportDescription("Endpoint", line);
   line += ' ';
   reportField("Slack", field_total_, line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   reportDashLine(field_description_->width() * 2 + field_total_->width() + 1);
 }
@@ -1006,7 +1006,7 @@ ReportPath::reportSummaryLine(PathEnd *end)
     reportSpaceFieldDelay(end->dataArrivalTimeOffset(this), early_late, line);
   else
     reportSpaceFieldDelay(end->slack(this), early_late, line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 }
 
 string
@@ -1052,7 +1052,7 @@ ReportPath::reportSlackOnlyHeader()
   reportDescription("Group", line);
   line += ' ';
   reportField("Slack", field_total_, line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   reportDashLine(field_description_->width() + field_total_->width() + 1);
 }
@@ -1067,7 +1067,7 @@ ReportPath::reportSlackOnly(PathEnd *end)
     reportSpaceFieldDelay(end->dataArrivalTimeOffset(this), early_late, line);
   else
     reportSpaceFieldDelay(end->slack(this), early_late, line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1121,7 +1121,7 @@ ReportPath::reportMpwHeaderShort()
   reportField("Required", field_total_, line);
   line += ' ';
   reportField("Actual", field_total_, line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   line.clear();
   reportDescription("Pin", line);
@@ -1131,7 +1131,7 @@ ReportPath::reportMpwHeaderShort()
   reportField("Width", field_total_, line);
   line += ' ';
   reportField("Slack", field_total_, line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   reportDashLine(field_description_->width() + field_total_->width() * 3 + 3);
 }
@@ -1147,7 +1147,7 @@ ReportPath::reportShort(MinPulseWidthCheck *check)
   reportSpaceFieldTime(check->minWidth(this), line);
   reportSpaceFieldDelay(check->width(this), EarlyLate::late(), line);
   reportSpaceSlack(check->slack(this), line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 }
 
 void
@@ -1157,7 +1157,7 @@ ReportPath::reportVerbose(MinPulseWidthCheck *check)
   const char *pin_name = cmd_network_->pathName(check->pin(this));
   line += "Pin: ";
   line += pin_name;
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   report_->reportLine("Check: sequential_clock_pulse_width");
   reportBlankLine();
@@ -1272,7 +1272,7 @@ ReportPath::reportPeriodHeaderShort()
   reportField("Min", field_total_, line);
   line += ' ';
   reportField("", field_total_, line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   line.clear();
   reportDescription("Pin", line);
@@ -1282,7 +1282,7 @@ ReportPath::reportPeriodHeaderShort()
   reportField("Period", field_total_, line);
   line += ' ';
   reportField("Slack", field_total_, line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   reportDashLine(field_description_->width() + field_total_->width() * 3 + 3);
 }
@@ -1296,7 +1296,7 @@ ReportPath::reportShort(MinPeriodCheck *check)
   reportSpaceFieldDelay(check->period(), EarlyLate::early(), line);
   reportSpaceFieldDelay(check->minPeriod(this), EarlyLate::early(), line);
   reportSpaceSlack(check->slack(this), line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 }
 
 void
@@ -1306,7 +1306,7 @@ ReportPath::reportVerbose(MinPeriodCheck *check)
   const char *pin_name = cmd_network_->pathName(check->pin());
   line += "Pin: ";
   line += pin_name;
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   reportLine("period", check->period(), EarlyLate::early());
   reportLine("min period", -check->minPeriod(this), EarlyLate::early());
@@ -1367,7 +1367,7 @@ ReportPath::reportMaxSkewHeaderShort()
   reportField("Actual", field_total_, line);
   line += ' ';
   reportField("", field_total_, line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   line.clear();
   reportDescription("Pin", line);
@@ -1377,7 +1377,7 @@ ReportPath::reportMaxSkewHeaderShort()
   reportField("Skew", field_total_, line);
   line += ' ';
   reportField("Slack", field_total_, line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   reportDashLine(field_description_->width() + field_total_->width() * 3 + 3);
 }
@@ -1398,7 +1398,7 @@ ReportPath::reportShort(MaxSkewCheck *check)
   reportSpaceFieldDelay(check->maxSkew(this), early_late, line);
   reportSpaceFieldDelay(check->skew(this), early_late, line);
   reportSpaceSlack(check->slack(this), line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 }
 
 void
@@ -1408,15 +1408,15 @@ ReportPath::reportVerbose(MaxSkewCheck *check)
   const char *clk_pin_name = cmd_network_->pathName(check->clkPin(this));
   line += "Constrained Pin: ";
   line += clk_pin_name;
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   const char *ref_pin_name = cmd_network_->pathName(check->refPin(this));
   line = "Reference   Pin: ";
   line += ref_pin_name;
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   line = "Check: max_skew";
-  report_->reportLine(line);
+  report_->reportLineString(line);
   reportBlankLine();
 
   reportPathHeader();
@@ -1486,7 +1486,7 @@ ReportPath::reportLimitShortHeader(const ReportField *field)
   reportField(field->title(), field, line);
   line += ' ';
   reportField("Slack", field, line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   reportDashLine(field_description_->width() + field->width() * 3 + 3);
 }
@@ -1510,7 +1510,7 @@ ReportPath::reportLimitShort(const ReportField *field,
   line += (slack >= 0.0)
     ? " (MET)"
     : " (VIOLATED)";
-  report_->reportLine(line);
+  report_->reportLineString(line);
 }
 
 void
@@ -1530,19 +1530,19 @@ ReportPath::reportLimitVerbose(const ReportField *field,
     line += rf->shortName();
   else
     line += ' ';
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   line = min_max->asString();
   line += ' ';
   line += field->name();
   line += ' ';
   reportField(limit, field, line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   line = field->name();
   line += "     ";
   reportField(value, field, line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   int name_width = strlen(field->name()) + 5;
   reportDashLine(name_width + field->width());
@@ -1554,7 +1554,7 @@ ReportPath::reportLimitVerbose(const ReportField *field,
   line += (slack >= 0.0)
     ? " (MET)"
     : " (VIOLATED)";
-  report_->reportLine(line);
+  report_->reportLineString(line);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1711,7 +1711,7 @@ ReportPath::reportStartEndPoint(const char *pt,
     line = key;
     line += ": ";
     line += pt;
-    report_->reportLine(line);
+    report_->reportLineString(line);
 
     line.clear();
     for (unsigned i = 0; i < strlen(key); i++)
@@ -1720,7 +1720,7 @@ ReportPath::reportStartEndPoint(const char *pt,
     line += "  (";
     line += reason;
     line += ")";
-    report_->reportLine(line);
+    report_->reportLineString(line);
   }
   else {
     line = key;
@@ -1729,7 +1729,7 @@ ReportPath::reportStartEndPoint(const char *pt,
     line += " (";
     line += reason;
     line += ")";
-    report_->reportLine(line);
+    report_->reportLineString(line);
   }
 }
 
@@ -1739,16 +1739,16 @@ ReportPath::reportGroup(const PathEnd *end)
   string line;
   line = "Path Group: ";
   line += search_->pathGroup(end)->name();
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   line = "Path Type: ";
   line += end->minMax(this)->asString();
-  report_->reportLine(line);
+  report_->reportLineString(line);
 
   if (corners_->multiCorner()) {
     line = "Corner: ";
     line += end->pathAnalysisPt(this)->corner()->name();
-    report_->reportLine(line);
+    report_->reportLineString(line);
   }
 }
 
@@ -2402,7 +2402,7 @@ ReportPath::reportPathJson(const Path *path)
     line = "       \"pin\": \"";
     line += network_->pathName(pin);
     line += "\",";
-    report_->reportLine(line);
+    report_->reportLineString(line);
 
     double x, y;
     bool exists;
@@ -2415,24 +2415,24 @@ ReportPath::reportPathJson(const Path *path)
       line += "       \"y\": ";
       stringPrint(tmp, "%.9f", y);
       line += tmp + ",";
-      report_->reportLine(line);
+      report_->reportLineString(line);
     }
 
     line = "       \"arrival\": ";
     stringPrint(tmp, "%.3e", delayAsFloat(path->arrival(this)));
     line += tmp;
     line += ",";
-    report_->reportLine(line);
+    report_->reportLineString(line);
 
     line = "       \"slew\": ";
     stringPrint(tmp, "%.3e", delayAsFloat(path->slew(this)));
     line += tmp;
-    report_->reportLine(line);
+    report_->reportLineString(line);
 
     line = "    }";
     if (i < expanded.size() - 1)
       line += ",";
-    report_->reportLine(line);
+    report_->reportLineString(line);
   }
   report_->reportLine("  ]");
   report_->reportLine("}");
@@ -2868,7 +2868,7 @@ ReportPath::reportPathHeader()
     }
   }
   trimRight(line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
   reportDashLine();
 }
 
@@ -2998,7 +2998,7 @@ ReportPath::reportLine(const char *what,
     }
     field_index++;
   }
-  report_->reportLine(line);
+  report_->reportLineString(line);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3034,7 +3034,7 @@ ReportPath::reportLineTotal1(const char *what,
     reportFieldDelayMinus(incr, early_late, field_total_, line);
   else
     reportFieldDelay(incr, early_late, field_total_, line);
-  report_->reportLine(line);
+  report_->reportLineString(line);
 }
 
 void
@@ -3208,7 +3208,7 @@ ReportPath::reportDashLine()
     }
   }
   line += "------";
-  report_->reportLine(line);
+  report_->reportLineString(line);
 }
 
 void
@@ -3217,13 +3217,13 @@ ReportPath::reportDashLine(int line_width)
   string line;
   for (int i = 0; i < line_width; i++)
     line += '-';
-  report_->reportLine(line);
+  report_->reportLineString(line);
 }
 
 void
 ReportPath::reportBlankLine()
 {
-  report_->reportLine("");
+  report_->reportBlankLine();
 }
 
 bool

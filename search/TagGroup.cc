@@ -130,7 +130,7 @@ arrivalMapReport(const ArrivalMap *arrival_map,
                        arrival_index,
                        tag->asString(sta));
   }
-  report->reportLine("");
+  report->reportBlankLine();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -326,9 +326,10 @@ TagGroupBldr::copyArrivals(TagGroup *tag_group,
     arrival_iter1.next(tag1, arrival_index1);
     bool exists2;
     tag_group->arrivalIndex(tag1, arrival_index2, exists2);
-    if (!exists2)
+    if (exists2)
+      arrivals[arrival_index2] = arrivals_[arrival_index1];
+    else
       sta_->report()->critical(265, "tag group missing tag");
-    arrivals[arrival_index2] = arrivals_[arrival_index1];
     if (prev_paths) {
       PathVertexRep *prev_path = &prev_paths_[arrival_index1];
       prev_paths[arrival_index2].init(prev_path);
