@@ -65,4 +65,11 @@ private:
     debug->reportLine(what, msg, ##__VA_ARGS__); \
   }
 
+// Sadly c++11 __VA_ARGS__ macros must have at least one arg, so this form
+// should be used when there are no args for the message.
+#define debugPrint0(debug, what, level, msg) \
+  if (debug->check(what, level)) {  \
+    debug->reportLine(what, msg); \
+  }
+
 } // namespace
