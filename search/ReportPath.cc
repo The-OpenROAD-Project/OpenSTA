@@ -814,7 +814,8 @@ ReportPath::reportEndpointOutputDelay(const PathEndClkConstrained *end)
   else {
     if (tgt_clk) {
       string clk_name = tgtClkName(end);
-      auto reason = stdstrPrint("internal path endpoint clocked by %s", clk_name.c_str());
+      auto reason = stdstrPrint("internal path endpoint clocked by %s",
+                                clk_name.c_str());
 
       reportEndpoint(pin_name, reason);
     }

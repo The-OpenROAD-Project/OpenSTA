@@ -170,9 +170,6 @@ stringPrint(string &str,
 char *
 stringPrintTmp(const char *fmt,
 	       ...)  __attribute__((format (printf, 1, 2)));
-// Caller owns returned string.
-char *
-integerString(int number);
 
 char *
 makeTmpString(size_t length);
