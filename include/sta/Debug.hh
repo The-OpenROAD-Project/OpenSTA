@@ -27,11 +27,6 @@ namespace sta {
 class Report;
 class Pin;
 
-// Flag that is set when any debug mode is enabled.
-// Debug macros bypass Debug::check map lookup unless some debug mode
-// is enabled.
-extern bool debug_on;
-
 typedef Map<const char *, int, CharPtrLess> DebugMap;
 
 class Debug
@@ -52,6 +47,7 @@ public:
 
 protected:
   Report *report_;
+  bool debug_on_;
   DebugMap *debug_map_;
   int stats_level_;
 
@@ -59,22 +55,13 @@ private:
   DISALLOW_COPY_AND_ASSIGN(Debug);
 };
 
-// Low overhead predicate.
-inline bool
-debugCheck(const Debug *debug,
-	   const char *what,
-	   int level)
-{
-  return debug_on && debug->check(what, level);
-}
-
 // Inlining a varargs function would eval the args, which can
 // be expensive, so use a macro.
 // Note that "##__VA_ARGS__" is a gcc extension to support zero arguments (no comma).
 // clang -Wno-gnu-zero-variadic-macro-arguments suppresses the warning.
 // c++20 has "__VA_OPT__" to deal with the zero arg case so this is temporary.
-#define debugPrint(debug, what, level, msg, ...)     \
-  if (sta::debug_on && debug->check(what, level)) {  \
+#define debugPrint(debug, what, level, msg, ...) \
+  if (debug->check(what, level)) {  \
     debug->reportLine(what, msg, ##__VA_ARGS__); \
   }
 

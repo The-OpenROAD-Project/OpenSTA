@@ -24,6 +24,7 @@ bool debug_on = false;
 
 Debug::Debug(Report *report) :
   report_(report),
+  debug_on_(false),
   debug_map_(nullptr),
   stats_level_(0)
 {
@@ -48,7 +49,8 @@ bool
 Debug::check(const char *what,
 	     int level) const
 {
-  if (debug_map_) {
+  if (debug_on_
+      && debug_map_) {
     int dbg_level;
     bool exists;
     debug_map_->findKey(what, dbg_level, exists);
@@ -88,8 +90,7 @@ Debug::setLevel(const char *what,
 	debug_map_->erase(what);
 	delete [] key;
       }
-      // debugCheck map lookup bypass
-      debug_on = (debug_map_->size() != 0);
+      debug_on_ = !debug_map_->empty();
     }
   }
   else {
@@ -98,7 +99,7 @@ Debug::setLevel(const char *what,
     if (debug_map_ == nullptr)
       debug_map_ = new DebugMap;
     (*debug_map_)[what_cpy] = level;
-    debug_on = true;
+    debug_on_ = true;
   }
 }
 

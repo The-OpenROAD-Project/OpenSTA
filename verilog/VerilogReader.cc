@@ -206,7 +206,7 @@ VerilogReader::init(const char *filename)
   if (library_ == nullptr)
     library_ = network_->makeLibrary("verilog", nullptr);
 
-  report_stmt_stats_ = debugCheck(debug_, "verilog", 1);
+  report_stmt_stats_ = debug_->check("verilog", 1);
   module_count_ = 0;
   inst_mod_count_ = 0;
   inst_lib_count_ = 0;
@@ -694,7 +694,7 @@ VerilogReader::incrLine()
 void
 VerilogReader::reportStmtCounts()
 {
-  if (debugCheck(debug_, "verilog", 1)) {
+  if (debug_->check("verilog", 1)) {
     report_->reportLine("Verilog stats");
     printClassMemory("modules", VerilogModule, module_count_);
     printClassMemory("module insts", VerilogModuleInst, inst_mod_count_);
