@@ -343,7 +343,8 @@ DmpAlg::init(const LibertyLibrary *drvr_library,
 void
 DmpAlg::findDriverParams(double ceff)
 {
-  x_[DmpParam::ceff] = ceff;
+  if (nr_order_ == 3)
+    x_[DmpParam::ceff] = ceff;
   double t_vth, t_vl, slew;
   gateDelays(ceff, t_vth, t_vl, slew);
   // Scale slew to 0-100%
