@@ -1620,7 +1620,7 @@ proc set_clock_transition { args } {
   
   foreach clk $clks {
     if { [$clk is_virtual] } {
-      sta_error 559 "transition time can not be specified for virtual clocks."
+      sta_warn 559 "transition time can not be specified for virtual clocks."
     } else {
       set_clock_slew_cmd $clk $tr $min_max [time_ui_sta $slew]
     }
