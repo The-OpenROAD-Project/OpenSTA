@@ -580,6 +580,7 @@ protected:
   float energy_scale_;
   float distance_scale_;
   bool have_resistance_unit_;
+  const char *default_operating_condition_;
   static constexpr char escape_ = '\\';
 
 private:

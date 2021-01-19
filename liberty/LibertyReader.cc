@@ -129,7 +129,8 @@ LibertyReader::readLibertyFile(const char *filename,
   ocv_derate_ = nullptr;
   pg_port_ = nullptr;
   have_resistance_unit_ = false;
-  
+  default_operating_condition_ = nullptr;
+
   for (auto rf_index : RiseFall::rangeIndex()) {
     have_input_threshold_[rf_index] = false;
     have_output_threshold_[rf_index] = false;
@@ -609,6 +610,17 @@ LibertyReader::endLibraryAttrs(LibertyGroup *group)
       libWarn(32, group, "default_wire_selection %s not found.",
 	      default_wireload_selection_);
     stringDelete(default_wireload_selection_);
+  }
+
+  if (default_operating_condition_) {
+    OperatingConditions *op_cond =
+      library_->findOperatingConditions(default_operating_condition_);
+    if (op_cond)
+      library_->setDefaultOperatingConditions(op_cond);
+    else
+      libWarn(60, group, "default_operating_condition %s not found.",
+	      default_operating_condition_);
+    stringDelete(default_operating_condition_);
   }
 
   bool missing_threshold = false;
@@ -1096,14 +1108,9 @@ void
 LibertyReader::visitDefaultOperatingConditions(LibertyAttr *attr)
 {
   if (library_) {
-    const char *op_cond_name = getAttrString(attr);
-    OperatingConditions *op_cond =
-      library_->findOperatingConditions(op_cond_name);
-    if (op_cond)
-      library_->setDefaultOperatingConditions(op_cond);
-    else
-      libWarn(60, attr, "default_operating_condition %s not found.",
-	      op_cond_name);
+    const char *value = getAttrString(attr);
+    if (value)
+      default_operating_condition_ = stringCopy(value);
   }
 }
 
