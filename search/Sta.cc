@@ -320,9 +320,10 @@ void
 Sta::setThreadCount(int thread_count)
 {
   thread_count_ = thread_count;
-  //  dispatch_queue_->setThreadCount(thread_count);
-  delete dispatch_queue_;
-  dispatch_queue_ = new DispatchQueue(thread_count);
+  if (dispatch_queue_)
+    dispatch_queue_->setThreadCount(thread_count);
+  else if (thread_count > 1)
+    dispatch_queue_ = new DispatchQueue(thread_count);
   updateComponentsState();
 }
 
