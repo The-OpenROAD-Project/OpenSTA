@@ -2621,7 +2621,8 @@ Sta::visitEndpoints(VertexVisitor *visitor)
 PinSet *
 Sta::findGroupPathPins(const char *group_path_name)
 {
-  if (!search_->havePathGroups()) {
+  if (!(search_->havePathGroups()
+        && search_->arrivalsValid())) {
     PathEndSeq *path_ends = findPathEnds(// from, thrus, to, unconstrained
 					 nullptr, nullptr, nullptr, false,
 					 // corner, min_max, 

@@ -651,6 +651,13 @@ Search::deleteVertexBefore(Vertex *vertex)
     invalid_endpoints_->erase(vertex);
 }
 
+bool
+Search::arrivalsValid()
+{
+  return arrivals_exist_
+    && invalid_requireds_.empty();
+}
+
 void
 Search::arrivalsInvalid()
 {
