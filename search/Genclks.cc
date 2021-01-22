@@ -195,7 +195,7 @@ Genclks::ensureInsertionDelays()
 {
   if (!found_insertion_delays_) {
     Stats stats(debug_, report_);
-    debugPrint(debug_, "genclk", 1, "find generated clk insertion delays");
+    debugPrint0(debug_, "genclk", 1, "find generated clk insertion delays");
 
     ClockSeq gclks;
     for (auto clk : sdc_->clks()) {

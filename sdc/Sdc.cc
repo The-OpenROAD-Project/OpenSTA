@@ -4243,7 +4243,7 @@ Sdc::makeLoopExceptions()
 void
 Sdc::makeLoopExceptions(GraphLoop *loop)
 {
-  debugPrint(debug_, "loop", 2, "Loop false path");
+  debugPrint0(debug_, "loop", 2, "Loop false path");
   EdgeSeq::Iterator loop_edge_iter(loop->edges());
   while (loop_edge_iter.hasNext()) {
     Edge *edge = loop_edge_iter.next();

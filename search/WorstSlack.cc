@@ -149,7 +149,7 @@ WorstSlack::initQueue(PathAPIndex path_ap_index,
 {
   Search *search = sta->search();
   const Debug *debug = sta->debug();
-  debugPrint(debug, "wns", 3, "init queue");
+  debugPrint0(debug, "wns", 3, "init queue");
 
   queue_.clear();
   worst_vertex_ = nullptr;
@@ -181,7 +181,7 @@ WorstSlack::sortQueue(PathAPIndex path_ap_index,
   if (queue_.size() > 0) {
     Search *search = sta->search();
     const Debug *debug = sta->debug();
-    debugPrint(debug, "wns", 3, "sort queue");
+    debugPrint0(debug, "wns", 3, "sort queue");
 
     VertexSeq vertices;
     vertices.reserve(queue_.size());
@@ -223,7 +223,7 @@ WorstSlack::findWorstInQueue(PathAPIndex path_ap_index,
 {
   Search *search = sta->search();
   const Debug *debug = sta->debug();
-  debugPrint(debug, "wns", 3, "find worst in queue");
+  debugPrint0(debug, "wns", 3, "find worst in queue");
 
   worst_vertex_ = nullptr;
   worst_slack_ = slack_init_;

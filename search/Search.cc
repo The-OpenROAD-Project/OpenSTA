@@ -392,7 +392,7 @@ Search::copyState(const StaState *sta)
 void
 Search::deletePaths()
 {
-  debugPrint(debug_, "search", 1, "delete paths");
+  debugPrint0(debug_, "search", 1, "delete paths");
   if (arrivals_exist_) {
     VertexIterator vertex_iter(graph_);
     while (vertex_iter.hasNext()) {
@@ -662,7 +662,7 @@ void
 Search::arrivalsInvalid()
 {
   if (arrivals_exist_) {
-    debugPrint(debug_, "search", 1, "arrivals invalid");
+    debugPrint0(debug_, "search", 1, "arrivals invalid");
     // Delete paths to make sure no state is left over.
     // For example, set_disable_timing strands a vertex, which means
     // the search won't revisit it to clear the previous arrival.
@@ -689,7 +689,7 @@ Search::arrivalsInvalid()
 void
 Search::requiredsInvalid()
 {
-  debugPrint(debug_, "search", 1, "requireds invalid");
+  debugPrint0(debug_, "search", 1, "requireds invalid");
   requireds_exist_ = false;
   requireds_seeded_ = false;
   invalid_requireds_.clear();
@@ -791,7 +791,7 @@ Search::findClkArrivals()
   if (!clk_arrivals_valid_) {
     genclks_->ensureInsertionDelays();
     Stats stats(debug_, report_);
-    debugPrint(debug_, "search", 1, "find clk arrivals");
+    debugPrint0(debug_, "search", 1, "find clk arrivals");
     arrival_iter_->clear();
     seedClkVertexArrivals();
     ClkArrivalSearchPred search_clk(this);
@@ -1129,7 +1129,7 @@ ArrivalVisitor::visit(Vertex *vertex)
 	    || !sdc->isPathDelayInternalEndpoint(pin)))
       search->arrivalIterator()->enqueueAdjacentVertices(vertex, adj_pred_);
     if (arrivals_changed) {
-      debugPrint(debug, "search", 4, "arrival changed");
+      debugPrint0(debug, "search", 4, "arrival changed");
       // Only update arrivals when delays change by more than
       // fuzzyEqual can distinguish.
       search->setVertexArrivals(vertex, tag_bldr_);

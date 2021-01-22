@@ -661,7 +661,7 @@ Power::findInputInternalPower(const Pin *pin,
     Vertex *vertex = graph_->pinLoadVertex(pin);
     debugPrint(debug_, "power", 2, " cap = %s",
                units_->capacitanceUnit()->asString(load_cap));
-    debugPrint(debug_, "power", 2, "       whena act/ns duty  energy    power");
+    debugPrint0(debug_, "power", 2, "       when  act/ns duty  energy    power");
     float internal = 0.0;
     for (InternalPower *pwr : *internal_pwrs) {
       const char *related_pg_pin = pwr->relatedPgPin();
@@ -806,8 +806,8 @@ Power::findOutputInternalPower(const Pin *to_pin,
     }
     float energy = 0.0;
     int tr_count = 0;
-    debugPrint(debug_, "power", 2,
-               "             when act/ns duty  wgt   energy    power");
+    debugPrint0(debug_, "power", 2,
+                "             when act/ns duty  wgt   energy    power");
     for (auto to_rf : RiseFall::range()) {
       // Use unateness to find from_rf.
       RiseFall *from_rf = positive_unate ? to_rf : to_rf->opposite();

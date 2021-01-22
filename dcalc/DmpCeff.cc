@@ -730,7 +730,7 @@ DmpCap::init(const LibertyLibrary *drvr_library,
 	     double rpi,
 	     double c1)
 {
-  debugPrint(debug_, "dmp_ceff", 3, "Using DMP cap");
+  debugPrint0(debug_, "dmp_ceff", 3, "Using DMP cap");
   DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf,
 	       rd, in_slew, related_out_cap, c2, rpi, c1);
   ceff_ = c1 + c2;
@@ -871,7 +871,7 @@ DmpPi::init(const LibertyLibrary *drvr_library,
 	    double rpi,
 	    double c1)
 {
-  debugPrint(debug_, "dmp_ceff", 3, "Using DMP Pi");
+  debugPrint0(debug_, "dmp_ceff", 3, "Using DMP Pi");
   DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf, rd,
 	       in_slew, related_out_cap, c2, rpi, c1);
 
@@ -1185,7 +1185,7 @@ DmpZeroC2::init(const LibertyLibrary *drvr_library,
 		double rpi,
 		double c1)
 {
-  debugPrint(debug_, "dmp_ceff", 3, "Using DMP C2=0");
+  debugPrint0(debug_, "dmp_ceff", 3, "Using DMP C2=0");
   DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf, rd,
 	       in_slew, related_out_cap, c2, rpi, c1);
   ceff_ = c1;
