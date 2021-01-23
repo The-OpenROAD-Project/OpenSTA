@@ -1058,7 +1058,8 @@ LibertyCell::isBuffer() const
   LibertyPort *output;
   bufferPorts(input, output);
   return input && output
-    && hasBufferFunc(input, output);
+    && hasBufferFunc(input, output)
+    && !is_level_shifter_;
 }
 
 bool
