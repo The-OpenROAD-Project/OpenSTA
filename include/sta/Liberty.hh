@@ -413,6 +413,8 @@ public:
   void setIsMemory(bool is_memory);
   bool isPad() const { return is_pad_; }
   void setIsPad(bool is_pad);
+  bool isLevelShifter() const { return is_level_shifter_; }
+  void setIsLevelShifter(bool is_level_shifter);
   bool interfaceTiming() const { return interface_timing_; }
   void setInterfaceTiming(bool value);
   bool isClockGateLatchPosedge() const;
@@ -536,6 +538,7 @@ protected:
   bool is_macro_;
   bool is_memory_;
   bool is_pad_;
+  bool is_level_shifter_;
   bool has_internal_ports_;
   bool interface_timing_;
   ClockGateType clock_gate_type_;

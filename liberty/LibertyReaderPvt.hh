@@ -184,6 +184,7 @@ public:
   virtual void visitIsMacro(LibertyAttr *attr);
   virtual void visitIsMemory(LibertyAttr *attr);
   virtual void visitIsPad(LibertyAttr *attr);
+  void visitIsLevelShifter(LibertyAttr *attr);
   virtual void visitInterfaceTiming(LibertyAttr *attr);
   virtual void visitScalingFactors(LibertyAttr *attr);
   virtual void visitCellLeakagePower(LibertyAttr *attr);
