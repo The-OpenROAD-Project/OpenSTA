@@ -942,7 +942,7 @@ LibertyCell::addPgPort(LibertyPgPort *pg_port)
 }
 
 LibertyPgPort *
-LibertyCell::findPgPort(const char *name)
+LibertyCell::findPgPort(const char *name) const
 {
   return pg_port_map_.findKey(name);
 }
@@ -2928,6 +2928,36 @@ void
 LibertyPgPort::setVoltageName(const char *voltage_name)
 {
   voltage_name_ = stringCopy(voltage_name);
+}
+
+bool
+LibertyPgPort::equiv(const LibertyPgPort *port1,
+                     const LibertyPgPort *port2)
+{
+  return stringEq(port1->name_, port2->name_)
+    && port1->pg_type_ == port2->pg_type_;
+}
+
+////////////////////////////////////////////////////////////////
+
+LibertyCellPgPortIterator::LibertyCellPgPortIterator(const LibertyCell *cell) :
+  iter_(const_cast<LibertyCell*>(cell)->pg_port_map_)
+{
+}
+
+bool
+LibertyCellPgPortIterator::hasNext()
+{
+  return iter_.hasNext();
+}
+
+LibertyPgPort *
+LibertyCellPgPortIterator::next()
+{
+  const char *name;
+  LibertyPgPort *port;
+  iter_.next(name, port);
+  return port;
 }
 
 } // namespace
