@@ -183,7 +183,7 @@ VerilogReader::read(const char *filename)
   // Use zlib to uncompress gzip'd files automagically.
   stream_ = gzopen(filename, "rb");
   if (stream_) {
-    Stats stats(debug_);
+    Stats stats(debug_, report_);
     init(filename);
     bool success = (::VerilogParse_parse() == 0);
     gzclose(stream_);
@@ -206,7 +206,7 @@ VerilogReader::init(const char *filename)
   if (library_ == nullptr)
     library_ = network_->makeLibrary("verilog", nullptr);
 
-  report_stmt_stats_ = debugCheck(debug_, "verilog", 1);
+  report_stmt_stats_ = debug_->check("verilog", 1);
   module_count_ = 0;
   inst_mod_count_ = 0;
   inst_lib_count_ = 0;
@@ -682,20 +682,20 @@ VerilogReader::incrLine()
 }
 
 #define printClassMemory(name, class_name, count) \
-  debug_->print(" %-20s %9d * %3d = %6.1fMb\n", \
-		name,					\
-		count,					\
-		static_cast<int>(sizeof(class_name)),	\
-		(count * sizeof(class_name) * 1e-6))
+  report_->reportLine(" %-20s %9d * %3d = %6.1fMb\n",         \
+                      name,                                   \
+                      count,                                  \
+                      static_cast<int>(sizeof(class_name)),   \
+                      (count * sizeof(class_name) * 1e-6))
 
 #define printStringMemory(name, count)	\
-  debug_->print(" %-20s                   %6.1fMb\n", name, count * 1e-6)
+  report_->reportLine(" %-20s                   %6.1fMb", name, count * 1e-6)
 
 void
 VerilogReader::reportStmtCounts()
 {
-  if (debugCheck(debug_, "verilog", 1)) {
-    debug_->print("Verilog stats\n");
+  if (debug_->check("verilog", 1)) {
+    report_->reportLine("Verilog stats");
     printClassMemory("modules", VerilogModule, module_count_);
     printClassMemory("module insts", VerilogModuleInst, inst_mod_count_);
     printClassMemory("liberty insts", VerilogLibertyInst, inst_lib_count_);

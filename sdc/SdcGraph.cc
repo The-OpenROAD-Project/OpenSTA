@@ -34,7 +34,7 @@ annotateGraphDisabledWireEdge(Pin *from_pin,
 void
 Sdc::annotateGraph()
 {
-  Stats stats(debug_);
+  Stats stats(debug_, report_);
   // All output pins are considered constrained because
   // they may be downstream from a set_min/max_delay -from that
   // does not have a set_output_delay.

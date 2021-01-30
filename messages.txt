@@ -316,3 +316,6 @@
  604 Sdc.tcl:270               unknown $unit prefix '$prefix'.
  605 Sdc.tcl:3066              wire load model '$model_name' not found.
  606 Cmds.tcl:1875             get_property unsupported object type $object_type.
+ 607 StaTcl.i                  unknown report path field %s
+ 608 StaTcl.i                  unknown report path field %s
+ 

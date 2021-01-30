@@ -1983,7 +1983,7 @@ void
 report_line(const char *msg)
 {
   Report *report = Sta::sta()->report();
-  report->printLine(msg);
+  report->reportLineString(msg);
 }
 
 void
@@ -4397,7 +4397,7 @@ set_report_path_field_properties(const char *field_name,
   if (field)
     field->setProperties(title, width, left_justify);
   else
-    sta->report()->print("Error: unknown report path field %s\n", field_name);
+    sta->report()->error(607, "unknown report path field %s", field_name);
 }
 
 void
@@ -4409,7 +4409,7 @@ set_report_path_field_width(const char *field_name,
   if (field)
     field->setWidth(width);
   else
-    sta->report()->print("Error: unknown report path field %s\n", field_name);
+    sta->report()->error(608, "unknown report path field %s", field_name);
 }
 
 void
@@ -5187,7 +5187,7 @@ report_loops()
   while (loop_iter.hasNext()) {
     GraphLoop *loop = loop_iter.next();
     loop->report(report, network, graph);
-    report->print("\n");
+    report->reportLine("");
   }
 }
 

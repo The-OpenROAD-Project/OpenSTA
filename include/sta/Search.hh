@@ -103,6 +103,7 @@ public:
 			   bool removal,
 			   bool clk_gating_setup,
 			   bool clk_gating_hold);
+  bool arrivalsValid();
   // Invalidate all arrival and required times.
   void arrivalsInvalid();
   // Invalidate vertex arrival time.

@@ -852,6 +852,7 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   is_macro_(false),
   is_memory_(false),
   is_pad_(false),
+  is_level_shifter_(false),
   has_internal_ports_(false),
   interface_timing_(false),
   clock_gate_type_(ClockGateType::none),
@@ -941,7 +942,7 @@ LibertyCell::addPgPort(LibertyPgPort *pg_port)
 }
 
 LibertyPgPort *
-LibertyCell::findPgPort(const char *name)
+LibertyCell::findPgPort(const char *name) const
 {
   return pg_port_map_.findKey(name);
 }
@@ -1009,6 +1010,12 @@ LibertyCell::LibertyCell::setIsPad(bool is_pad)
 }
 
 void
+LibertyCell::LibertyCell::setIsLevelShifter(bool is_level_shifter)
+{
+  is_level_shifter_ = is_level_shifter;
+}
+
+void
 LibertyCell::setInterfaceTiming(bool value)
 {
   interface_timing_ = value;
@@ -1051,7 +1058,8 @@ LibertyCell::isBuffer() const
   LibertyPort *output;
   bufferPorts(input, output);
   return input && output
-    && hasBufferFunc(input, output);
+    && hasBufferFunc(input, output)
+    && !is_level_shifter_;
 }
 
 bool
@@ -1713,8 +1721,8 @@ LibertyCell::makeLatchEnable(LibertyPort *d,
   latch_d_to_q_map_[d_to_q] = latch_enable;
   latch_check_map_[setup_check] = latch_enable;
   latch_data_ports_.insert(d);
-  debugPrint3(debug, "liberty", 2, "latch d=%s en=%s q=%s\n",
-	      d->name(), en->name(), q->name());
+  debugPrint(debug, "liberty", 2, "latch d=%s en=%s q=%s",
+             d->name(), en->name(), q->name());
   return latch_enable;
 }
 
@@ -2920,6 +2928,36 @@ void
 LibertyPgPort::setVoltageName(const char *voltage_name)
 {
   voltage_name_ = stringCopy(voltage_name);
+}
+
+bool
+LibertyPgPort::equiv(const LibertyPgPort *port1,
+                     const LibertyPgPort *port2)
+{
+  return stringEq(port1->name_, port2->name_)
+    && port1->pg_type_ == port2->pg_type_;
+}
+
+////////////////////////////////////////////////////////////////
+
+LibertyCellPgPortIterator::LibertyCellPgPortIterator(const LibertyCell *cell) :
+  iter_(const_cast<LibertyCell*>(cell)->pg_port_map_)
+{
+}
+
+bool
+LibertyCellPgPortIterator::hasNext()
+{
+  return iter_.hasNext();
+}
+
+LibertyPgPort *
+LibertyCellPgPortIterator::next()
+{
+  const char *name;
+  LibertyPgPort *port;
+  iter_.next(name, port);
+  return port;
 }
 
 } // namespace

@@ -38,17 +38,12 @@ public:
   Report();
   virtual ~Report();
 
-  // Primitive to print output.
-  // Return the number of characters written.
-  virtual size_t printString(const char *buffer,
-                             size_t length);
-  virtual void print(const char *fmt, ...);
-  virtual void vprint(const char *fmt,
-                      va_list args);
-  void print(const string *str);
-  void print(const string &str);
   // Print line with return.
-  virtual void printLine(const char *line);
+  virtual void reportLine(const char *fmt, ...)
+    __attribute__((format (printf, 2, 3)));
+  virtual void reportLineString(const char *line);
+  virtual void reportLineString(const string &line);
+  virtual void reportBlankLine();
 
   ////////////////////////////////////////////////////////////////
 
@@ -117,22 +112,32 @@ public:
   virtual const char *redirectStringEnd();
   virtual void setTclInterp(Tcl_Interp *) {}
 
+  // Primitive to print output.
+  // Return the number of characters written.
+  // public for use by ReportTcl encapsulated channel functions.
+  virtual size_t printString(const char *buffer,
+                             size_t length);
   static Report *defaultReport() { return default_; }
 
 protected:
+  // All sta print functions have an implicit return printed by this function.
+  virtual void printLine(const char *line,
+                         size_t length);
   // Primitive to print output on the console.
   // Return the number of characters written.
   virtual size_t printConsole(const char *buffer,
-                              size_t length) = 0;
+                              size_t length);
   void printToBuffer(const char *fmt,
-                     ...);
+                     ...)
+    __attribute__((format (printf, 2, 3)));
+
   void printToBuffer(const char *fmt,
                      va_list args);
   void printToBufferAppend(const char *fmt,
                            ...);
   void printToBufferAppend(const char *fmt,
                            va_list args);
-  void printBuffer();
+  void printBufferLine();
   void redirectStringPrint(const char *buffer,
                            size_t length);
 
@@ -147,6 +152,8 @@ protected:
   size_t buffer_length_;
   std::mutex buffer_lock_;
   static Report *default_;
+
+  friend class Debug;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Report);

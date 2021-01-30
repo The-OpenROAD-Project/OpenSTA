@@ -320,9 +320,10 @@ void
 Sta::setThreadCount(int thread_count)
 {
   thread_count_ = thread_count;
-  //  dispatch_queue_->setThreadCount(thread_count);
-  delete dispatch_queue_;
-  dispatch_queue_ = new DispatchQueue(thread_count);
+  if (dispatch_queue_)
+    dispatch_queue_->setThreadCount(thread_count);
+  else if (thread_count > 1)
+    dispatch_queue_ = new DispatchQueue(thread_count);
   updateComponentsState();
 }
 
@@ -642,7 +643,7 @@ Sta::readLiberty(const char *filename,
 		 const MinMaxAll *min_max,
 		 bool infer_latches)
 {
-  Stats stats(debug_);
+  Stats stats(debug_, report_);
   LibertyLibrary *library = readLibertyFile(filename, corner, min_max,
 					    infer_latches, network_);
   if (library
@@ -726,7 +727,7 @@ bool
 Sta::linkDesign(const char *top_cell_name)
 {
   clear();
-  Stats stats(debug_);
+  Stats stats(debug_, report_);
   bool status = network_->linkNetwork(top_cell_name,
 				      link_make_black_boxes_,
 				      report_);
@@ -2620,7 +2621,8 @@ Sta::visitEndpoints(VertexVisitor *visitor)
 PinSet *
 Sta::findGroupPathPins(const char *group_path_name)
 {
-  if (!search_->havePathGroups()) {
+  if (!(search_->havePathGroups()
+        && search_->arrivalsValid())) {
     PathEndSeq *path_ends = findPathEnds(// from, thrus, to, unconstrained
 					 nullptr, nullptr, nullptr, false,
 					 // corner, min_max, 
@@ -3006,9 +3008,9 @@ Sta::findRequired(Vertex *vertex)
     // path pruning on fanout vertices with DFS.
     int fanout = 0;
     disableFanoutCrprPruning(vertex, fanout);
-    debugPrint2(debug_, "search", 1, "resurrect pruned required %s fanout %d\n",
-		vertex->name(sdc_network_),
-		fanout);
+    debugPrint(debug_, "search", 1, "resurrect pruned required %s fanout %d",
+               vertex->name(sdc_network_),
+               fanout);
     // Find fanout arrivals and requireds with pruning disabled.
     search_->findArrivals();
     search_->findRequireds(vertex->level());
@@ -4613,8 +4615,8 @@ Sta::findFaninPins(Vertex *to,
 		   int inst_level,
 		   int pin_level)
 {
-  debugPrint1(debug_, "fanin", 1, "%s\n",
-	      to->name(sdc_network_));
+  debugPrint(debug_, "fanin", 1, "%s",
+             to->name(sdc_network_));
   if (!visited.hasKey(to)) {
     visited.insert(to);
     Pin *to_pin = to->pin();
@@ -4723,8 +4725,8 @@ Sta::findFanoutPins(Vertex *from,
 		    int inst_level,
 		    int pin_level)
 {
-  debugPrint1(debug_, "fanout", 1, "%s\n",
-	      from->name(sdc_network_));
+  debugPrint(debug_, "fanout", 1, "%s",
+             from->name(sdc_network_));
   if (!visited.hasKey(from)) {
     visited.insert(from);
     if (!search_->isEndpoint(from, pred)

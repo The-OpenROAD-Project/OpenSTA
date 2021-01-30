@@ -343,7 +343,8 @@ DmpAlg::init(const LibertyLibrary *drvr_library,
 void
 DmpAlg::findDriverParams(double ceff)
 {
-  x_[DmpParam::ceff] = ceff;
+  if (nr_order_ == 3)
+    x_[DmpParam::ceff] = ceff;
   double t_vth, t_vl, slew;
   gateDelays(ceff, t_vth, t_vl, slew);
   // Scale slew to 0-100%
@@ -355,10 +356,10 @@ DmpAlg::findDriverParams(double ceff)
 		this, fvec_, fjac_, index_, p_, scale_);
   t0_ = x_[DmpParam::t0];
   dt_ = x_[DmpParam::dt];
-  debugPrint3(debug_, "dmp_ceff", 3, "    t0 = %s dt = %s ceff = %s\n",
-	      units_->timeUnit()->asString(t0_),
-	      units_->timeUnit()->asString(dt_),
-	      units_->capacitanceUnit()->asString(x_[DmpParam::ceff]));
+  debugPrint(debug_, "dmp_ceff", 3, "    t0 = %s dt = %s ceff = %s",
+             units_->timeUnit()->asString(t0_),
+             units_->timeUnit()->asString(dt_),
+             units_->capacitanceUnit()->asString(x_[DmpParam::ceff]));
   if (debug_->check("dmp_ceff", 4))
     showVo();
 }
@@ -462,28 +463,29 @@ void
 DmpAlg::showX()
 {
   for (int i = 0; i < nr_order_; i++)
-    debug_->print("%4s %12.3e\n", dmp_param_index_strings[i], x_[i]);
+    report_->reportLine("%4s %12.3e", dmp_param_index_strings[i], x_[i]);
 }
 
 void
 DmpAlg::showFvec()
 {
   for (int i = 0; i < nr_order_; i++)
-    debug_->print("%4s %12.3e\n", dmp_func_index_strings[i], fvec_[i]);
+    report_->reportLine("%4s %12.3e", dmp_func_index_strings[i], fvec_[i]);
 }
 
 void
 DmpAlg::showJacobian()
 {
-  debug_->print("    ");
+  string line = "    ";
   for (int j = 0; j < nr_order_; j++)
-    debug_->print("%12s", dmp_param_index_strings[j]);
-  debug_->print("\n");
+    line += stdstrPrint("%12s", dmp_param_index_strings[j]);
+  report_->reportLineString(line);
+  line.clear();
   for (int i = 0; i < nr_order_; i++) {
-    debug_->print("%4s ", dmp_func_index_strings[i]);
+    line += stdstrPrint("%4s ", dmp_func_index_strings[i]);
     for (int j = 0; j < nr_order_; j++)
-      debug_->print("%12.3e ", fjac_[i][j]);
-    debug_->print("\n");
+      line += stdstrPrint("%12.3e ", fjac_[i][j]);
+    report_->reportLineString(line);
   }
 }
 
@@ -545,12 +547,10 @@ DmpAlg::dVoDt(double t)
 void
 DmpAlg::showVo()
 {
-  debug_->print("  t    vo(t)\n");
+  report_->reportLine("  t    vo(t)");
   double ub = voCrossingUpperBound();
   for (double t = t0_; t < t0_ + ub; t += dt_ / 10.0)
-    debug_->print(" %g %g\n", t, vo(t));
-  // debug_->print(" %.3g %.3g", t-t0_, vo(t)*3);
-  // debug_->print("\n");
+    report_->reportLine(" %g %g", t, vo(t));
 }
 
 void
@@ -658,10 +658,10 @@ DmpAlg::dVlDt(double t)
 void
 DmpAlg::showVl()
 {
-  debug_->print("  t    vl(t)\n");
+  report_->reportLine("  t    vl(t)");
   double ub = vlCrossingUpperBound();
   for (double t = t0_; t < t0_ + ub * 2.0; t += ub / 10.0)
-    debug_->print(" %g %g\n", t, vl(t));
+    report_->reportLine(" %g %g", t, vl(t));
 }
 
 void
@@ -669,12 +669,12 @@ DmpAlg::fail(const char *reason)
 {
   // Allow only failures to be reported with a unique debug flag.
   if (debug_->check("dmp_ceff", 1) || debug_->check("dmp_ceff_fail", 1))
-    debug_->print("delay_calc: DMP failed - %s c2=%s rpi=%s c1=%s rd=%s\n",
-		  reason,
-		  units_->capacitanceUnit()->asString(c2_),
-		  units_->resistanceUnit()->asString(rpi_),
-		  units_->capacitanceUnit()->asString(c1_),
-		  units_->resistanceUnit()->asString(rd_));
+    report_->reportLine("delay_calc: DMP failed - %s c2=%s rpi=%s c1=%s rd=%s",
+                        reason,
+                        units_->capacitanceUnit()->asString(c2_),
+                        units_->resistanceUnit()->asString(rpi_),
+                        units_->capacitanceUnit()->asString(c1_),
+                        units_->resistanceUnit()->asString(rd_));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -730,7 +730,7 @@ DmpCap::init(const LibertyLibrary *drvr_library,
 	     double rpi,
 	     double c1)
 {
-  debugPrint0(debug_, "dmp_ceff", 3, "Using DMP cap\n");
+  debugPrint0(debug_, "dmp_ceff", 3, "Using DMP cap");
   DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf,
 	       rd, in_slew, related_out_cap, c2, rpi, c1);
   ceff_ = c1 + c2;
@@ -740,8 +740,8 @@ void
 DmpCap::gateDelaySlew(double &delay,
 		      double &slew)
 {
-  debugPrint1(debug_, "dmp_ceff", 3, "    ceff = %s\n",
-	      units_->capacitanceUnit()->asString(ceff_));
+  debugPrint(debug_, "dmp_ceff", 3, "    ceff = %s",
+             units_->capacitanceUnit()->asString(ceff_));
   gateCapDelaySlew(ceff_, delay, slew);
   gate_slew_ = slew;
 }
@@ -871,7 +871,7 @@ DmpPi::init(const LibertyLibrary *drvr_library,
 	    double rpi,
 	    double c1)
 {
-  debugPrint0(debug_, "dmp_ceff", 3, "Using DMP Pi\n");
+  debugPrint0(debug_, "dmp_ceff", 3, "Using DMP Pi");
   DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf, rd,
 	       in_slew, related_out_cap, c2, rpi, c1);
 
@@ -1001,7 +1001,7 @@ DmpPi::evalDmpEqns()
     showX();
     showFvec();
     showJacobian();
-    debug_->print(".................\n");
+    report_->reportLine(".................");
   }
 }
 
@@ -1112,7 +1112,7 @@ DmpOnePole::evalDmpEqns()
 
   if (debug_->check("dmp_ceff", 4)) {
     showJacobian();
-    debug_->print(".................\n");
+    report_->reportLine(".................");
   }
 }
 
@@ -1185,7 +1185,7 @@ DmpZeroC2::init(const LibertyLibrary *drvr_library,
 		double rpi,
 		double c1)
 {
-  debugPrint0(debug_, "dmp_ceff", 3, "Using DMP C2=0\n");
+  debugPrint0(debug_, "dmp_ceff", 3, "Using DMP C2=0");
   DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf, rd,
 	       in_slew, related_out_cap, c2, rpi, c1);
   ceff_ = c1;
@@ -1627,14 +1627,14 @@ DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
     dmp_alg_ = dmp_cap_;
   dmp_alg_->init(drvr_library, drvr_cell, pvt, gate_model,
 		 drvr_rf_, rd, in_slew, related_out_cap, c2, rpi, c1);
-  debugPrint6(debug_, "dmp_ceff", 3,
-	      "    DMP in_slew = %s c2 = %s rpi = %s c1 = %s Rd = %s (%s alg)\n",
-	      units_->timeUnit()->asString(in_slew),
-	      units_->capacitanceUnit()->asString(c2),
-	      units_->resistanceUnit()->asString(rpi),
-	      units_->capacitanceUnit()->asString(c1),
-	      units_->resistanceUnit()->asString(rd),
-	      dmp_alg_->name());
+  debugPrint(debug_, "dmp_ceff", 3,
+             "    DMP in_slew = %s c2 = %s rpi = %s c1 = %s Rd = %s (%s alg)",
+             units_->timeUnit()->asString(in_slew),
+             units_->capacitanceUnit()->asString(c2),
+             units_->resistanceUnit()->asString(rpi),
+             units_->capacitanceUnit()->asString(c1),
+             units_->resistanceUnit()->asString(rd),
+             dmp_alg_->name());
 }
 
 float

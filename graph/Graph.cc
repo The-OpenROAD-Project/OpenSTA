@@ -67,7 +67,7 @@ Graph::~Graph()
 void
 Graph::makeGraph()
 {
-  Stats stats(debug_);
+  Stats stats(debug_, report_);
   makeVerticesAndEdges();
   makeWireEdges();
   stats.report("Make graph");

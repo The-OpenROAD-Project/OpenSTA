@@ -261,7 +261,7 @@ proc sta_warn { msg_id msg } {
   }
 }
 
-proc sta_error { id msg } {
+proc sta_error { msg_id msg } {
   variable sdc_file
   variable sdc_line
   if { [info exists sdc_file] } {
@@ -275,7 +275,7 @@ proc sta_warn_error { msg_id warn_error msg } {
   if { $warn_error == "warn" } {
     sta_warn $msg_id $msg
   } else {
-    sta_error $$msg_id $msg
+    sta_error $msg_id $msg
   }
 }
 

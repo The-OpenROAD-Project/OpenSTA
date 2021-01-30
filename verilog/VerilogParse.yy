@@ -2,17 +2,17 @@
 
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2020, Parallax Software, Inc.
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -64,7 +64,7 @@ int VerilogLex_lex();
 %type <assign> net_assignment
 %type <dcl_arg> dcl_arg
 %type <dcl_arg_seq> dcl_args
-%type <net> port net_scalar net_bit_select net_part_select
+%type <net> port net_scalar net_bit_select net_part_select net_assign_lhs
 %type <net> net_constant net_expr port_ref port_expr named_pin_net_expr
 %type <net> inst_named_pin net_named net_assign_target net_expr_concat
 %type <nets> port_list port_refs inst_ordered_pins
@@ -334,8 +334,13 @@ net_assignments:
 	;
 
 net_assignment:
-	net_assign_target { $<ival>$ = sta::verilog_reader->line(); } '=' net_expr
+	net_assign_lhs { $<ival>$ = sta::verilog_reader->line(); } '=' net_expr
 	{ $$ = sta::verilog_reader->makeAssign($1, $4, $<ival>2); }
+
+net_assign_lhs:
+        net_named
+        | net_expr_concat
+        ;
 
 instance:
 	ID { $<ival>$ = sta::verilog_reader->line(); } ID '(' inst_pins ')' ';'

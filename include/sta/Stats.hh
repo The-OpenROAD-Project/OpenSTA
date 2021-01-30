@@ -22,12 +22,14 @@
 namespace sta {
 
 class Debug;
+class Report;
 
 // Show run time and memory statistics if the "stats" debug flag is on.
 class Stats
 {
 public:
-  explicit Stats(Debug *debug);
+  explicit Stats(Debug *debug,
+                 Report *report);
   void report(const char *step);
 
 private:
@@ -38,6 +40,7 @@ private:
   double system_begin_;
   size_t memory_begin_;
   Debug *debug_;
+  Report *report_;
 };
 
 } // namespace

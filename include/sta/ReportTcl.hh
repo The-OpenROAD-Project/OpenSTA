@@ -48,7 +48,8 @@ public:
   virtual void setTclInterp(Tcl_Interp *interp);
 
 protected:
-  virtual size_t printConsole(const char *buffer, size_t length);
+  virtual size_t printConsole(const char *buffer,
+                              size_t length);
   void flush();
 
 private:
@@ -56,7 +57,9 @@ private:
   Tcl_ChannelType *makeEncapChannelType(Tcl_Channel channel,
 					char *channel_name,
 					Tcl_DriverOutputProc output_proc);
-  size_t printTcl(Tcl_Channel channel, const char *buffer, size_t length);
+  size_t printTcl(Tcl_Channel channel,
+                  const char *buffer,
+                  size_t length);
 
   Tcl_Interp *interp_;
   // The original tcl channels.

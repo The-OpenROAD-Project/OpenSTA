@@ -253,7 +253,7 @@ visitMinPulseWidthChecks(MinPulseWidthCheckVisitor *visitor)
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
     if (isClkEnd(vertex, graph)) {
-      debugPrint1(debug, "mpw", 1, "check mpw %s\n", vertex->name(sdc_network));
+      debugPrint(debug, "mpw", 1, "check mpw %s", vertex->name(sdc_network));
       visitMinPulseWidthChecks(vertex, visitor);
     }
   }
@@ -348,17 +348,17 @@ MinPulseWidthCheck::closePath(const StaState *sta,
 		open_tag->isSegmentStart(),
 		open_tag->states(),
 		false, sta);
-  debugPrint1(sta->debug(), "mpw", 3, " open  %s\n",
-	      open_tag->asString(sta));
-  debugPrint1(sta->debug(), "mpw", 3, " close %s\n",
-	      close_tag.asString(sta));
+  debugPrint(sta->debug(), "mpw", 3, " open  %s",
+             open_tag->asString(sta));
+  debugPrint(sta->debug(), "mpw", 3, " close %s",
+             close_tag.asString(sta));
   VertexPathIterator close_iter(open_path_.vertex(sta), close_rf,
 				close_ap, sta);
   while (close_iter.hasNext()) {
     PathVertex *close_path = close_iter.next();
     if (tagMatchNoPathAp(close_path->tag(sta), &close_tag)) {
-      debugPrint1(sta->debug(), "mpw", 3, " match %s\n",
-		  close_path->tag(sta)->asString(sta));
+      debugPrint(sta->debug(), "mpw", 3, " match %s",
+                 close_path->tag(sta)->asString(sta));
       close = close_path;
       break;
     }

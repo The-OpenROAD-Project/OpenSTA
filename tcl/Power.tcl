@@ -113,7 +113,7 @@ proc report_power_row { type row_result design_total field_width digits } {
   } else {
     set percent [expr $total / $design_total * 100]
   }
-  report_line "[format %-20s $type][power_col $internal $field_width $digits][power_col $switching $field_width $digits][power_col $leakage $field_width $digits][power_col $total $field_width $digits] [format %5.1f%% $percent]"
+  report_line "[format %-20s $type][power_col $internal $field_width $digits][power_col $switching $field_width $digits][power_col $leakage $field_width $digits][power_col $total $field_width $digits] [format %5.1f $percent]%"
 }
 
 proc is_nan { str } {

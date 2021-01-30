@@ -184,6 +184,7 @@ public:
   virtual void visitIsMacro(LibertyAttr *attr);
   virtual void visitIsMemory(LibertyAttr *attr);
   virtual void visitIsPad(LibertyAttr *attr);
+  void visitIsLevelShifter(LibertyAttr *attr);
   virtual void visitInterfaceTiming(LibertyAttr *attr);
   virtual void visitScalingFactors(LibertyAttr *attr);
   virtual void visitCellLeakagePower(LibertyAttr *attr);
@@ -580,6 +581,7 @@ protected:
   float energy_scale_;
   float distance_scale_;
   bool have_resistance_unit_;
+  const char *default_operating_condition_;
   static constexpr char escape_ = '\\';
 
 private:

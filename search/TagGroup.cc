@@ -106,7 +106,7 @@ void
 TagGroup::report(const StaState *sta) const
 {
   Report *report = sta->report();
-  report->print("Group %u hash = %u\n", index_, hash_);
+  report->reportLine("Group %u hash = %lu", index_, hash_);
   arrivalMapReport(arrival_map_, sta);
 }
 
@@ -126,11 +126,11 @@ arrivalMapReport(const ArrivalMap *arrival_map,
     Tag *tag;
     int arrival_index;
     arrival_iter.next(tag, arrival_index);
-    report->print(" %2u %s\n",
-		  arrival_index,
-		  tag->asString(sta));
+    report->reportLine(" %2u %s",
+                       arrival_index,
+                       tag->asString(sta));
   }
-  report->print("\n");
+  report->reportBlankLine();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -326,13 +326,15 @@ TagGroupBldr::copyArrivals(TagGroup *tag_group,
     arrival_iter1.next(tag1, arrival_index1);
     bool exists2;
     tag_group->arrivalIndex(tag1, arrival_index2, exists2);
-    if (!exists2)
-      sta_->report()->critical(265, "tag group missing tag");
-    arrivals[arrival_index2] = arrivals_[arrival_index1];
-    if (prev_paths) {
-      PathVertexRep *prev_path = &prev_paths_[arrival_index1];
-      prev_paths[arrival_index2].init(prev_path);
+    if (exists2) {
+      arrivals[arrival_index2] = arrivals_[arrival_index1];
+      if (prev_paths) {
+	PathVertexRep *prev_path = &prev_paths_[arrival_index1];
+	prev_paths[arrival_index2].init(prev_path);
+      }
     }
+    else
+      sta_->report()->critical(265, "tag group missing tag");
   }
 }
 

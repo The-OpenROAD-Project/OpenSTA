@@ -31,6 +31,7 @@ namespace sta {
 class LibertyCellIterator;
 class LibertyCellPortIterator;
 class LibertyCellPortBitIterator;
+class LibertyCellPgPortIterator;
 class LibertyPortMemberIterator;
 class ModeValueDef;
 class TestCell;
@@ -397,7 +398,8 @@ public:
   void findLibertyPortsMatching(PatternMatch *pattern,
 				LibertyPortSeq *ports) const;
   bool hasInternalPorts() const { return has_internal_ports_; }
-  LibertyPgPort *findPgPort(const char *name);
+  LibertyPgPort *findPgPort(const char *name) const;
+  size_t pgPortCount() const { return pg_port_map_.size(); }
   ScaleFactors *scaleFactors() const { return scale_factors_; }
   void setScaleFactors(ScaleFactors *scale_factors);
   ModeDef *makeModeDef(const char *name);
@@ -413,6 +415,8 @@ public:
   void setIsMemory(bool is_memory);
   bool isPad() const { return is_pad_; }
   void setIsPad(bool is_pad);
+  bool isLevelShifter() const { return is_level_shifter_; }
+  void setIsLevelShifter(bool is_level_shifter);
   bool interfaceTiming() const { return interface_timing_; }
   void setInterfaceTiming(bool value);
   bool isClockGateLatchPosedge() const;
@@ -536,6 +540,7 @@ protected:
   bool is_macro_;
   bool is_memory_;
   bool is_pad_;
+  bool is_level_shifter_;
   bool has_internal_ports_;
   bool interface_timing_;
   ClockGateType clock_gate_type_;
@@ -577,6 +582,7 @@ private:
 
   friend class LibertyLibrary;
   friend class LibertyCellPortIterator;
+  friend class LibertyCellPgPortIterator;
   friend class LibertyPort;
   friend class LibertyBuilder;
   friend class LibertyCellTimingArcSetIterator;
@@ -608,6 +614,19 @@ private:
   DISALLOW_COPY_AND_ASSIGN(LibertyCellPortBitIterator);
 
   ConcreteCellPortBitIterator *iter_;
+};
+
+class LibertyCellPgPortIterator : public Iterator<LibertyPgPort*>
+{
+public:
+  LibertyCellPgPortIterator(const LibertyCell *cell);
+  bool hasNext();
+  LibertyPgPort *next();
+
+private:
+  DISALLOW_COPY_AND_ASSIGN(LibertyCellPgPortIterator);
+
+  LibertyPgPortMap::Iterator iter_;
 };
 
 class LibertyCellTimingArcSetIterator : public TimingArcSetSeq::ConstIterator
@@ -1062,12 +1081,14 @@ public:
   LibertyPgPort(const char *name,
 		LibertyCell *cell);
   ~LibertyPgPort();
-  const char *name() { return name_; }
+  const char *name() const { return name_; }
   LibertyCell *cell() const { return cell_; }
   PgType pgType() const { return pg_type_; }
   void setPgType(PgType type);
   const char *voltageName() const { return voltage_name_; }
   void setVoltageName(const char *voltage_name);
+  static bool equiv(const LibertyPgPort *port1,
+		    const LibertyPgPort *port2);
 
 private:
   const char *name_;

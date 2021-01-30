@@ -16,13 +16,16 @@
 
 #include "TableModel.hh"
 
-#include "Report.hh"
+#include <string>
+
 #include "Error.hh"
 #include "EnumNameMap.hh"
 #include "Units.hh"
 #include "Liberty.hh"
 
 namespace sta {
+
+using std::string;
 
 static void
 deleteSigmaModels(TableModel *models[EarlyLate::index_count]);
@@ -732,7 +735,7 @@ Table0::report(const Units *units,
 {
   int digits = 4;
   const Unit *table_unit = units->timeUnit();
-  report->print("%s\n", table_unit->asString(value_, digits));
+  report->reportLine("%s", table_unit->asString(value_, digits));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -835,15 +838,21 @@ Table1::report(const Units *units,
   int digits = 4;
   const Unit *unit1 = tableVariableUnit(axis1_->variable(), units);
   const Unit *table_unit = units->timeUnit();
-  report->print("%s\n", tableVariableString(axis1_->variable()));
-  report->print("------------------------------\n");
-  for (size_t index1 = 0; index1 < axis1_->size(); index1++)
-    report->print("%s ", unit1->asString(axis1_->axisValue(index1), digits));
-  report->print("\n");
+  report->reportLine("%s", tableVariableString(axis1_->variable()));
+  report->reportLine("------------------------------");
+  string line;
+  for (size_t index1 = 0; index1 < axis1_->size(); index1++) {
+    line += unit1->asString(axis1_->axisValue(index1), digits);
+    line += " ";
+  }
+  report->reportLineString(line);
 
-  for (size_t index1 = 0; index1 < axis1_->size(); index1++)
-    report->print("%s ", table_unit->asString(tableValue(index1),digits));
-  report->print("\n");
+  line.clear();
+  for (size_t index1 = 0; index1 < axis1_->size(); index1++) {
+    line += table_unit->asString(tableValue(index1), digits);
+    line += " ";
+  }
+  report->reportLineString(line);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1020,19 +1029,23 @@ Table2::report(const Units *units,
   const Unit *table_unit = units->timeUnit();
   const Unit *unit1 = tableVariableUnit(axis1_->variable(), units);
   const Unit *unit2 = tableVariableUnit(axis2_->variable(), units);
-  report->print("%s\n", tableVariableString(axis2_->variable()));
-  report->print("     ------------------------------\n");
-  report->print("     ");
-  for (size_t index2 = 0; index2 < axis2_->size(); index2++)
-    report->print("%s ", unit2->asString(axis2_->axisValue(index2), digits));
-  report->print("\n");
+  report->reportLine("%s", tableVariableString(axis2_->variable()));
+  report->reportLine("     ------------------------------");
+  string line = "     ";
+  for (size_t index2 = 0; index2 < axis2_->size(); index2++) {
+    line += unit2->asString(axis2_->axisValue(index2), digits);
+    line += " ";
+  }
+  report->reportLineString(line);
 
   for (size_t index1 = 0; index1 < axis1_->size(); index1++) {
-    report->print("%s |", unit1->asString(axis1_->axisValue(index1), digits));
-    for (size_t index2 = 0; index2 < axis2_->size(); index2++)
-      report->print("%s ", table_unit->asString(tableValue(index1, index2),
-						digits));
-    report->print("\n");
+    line = unit1->asString(axis1_->axisValue(index1), digits);
+    line += " |";
+    for (size_t index2 = 0; index2 < axis2_->size(); index2++) {
+      line += table_unit->asString(tableValue(index1, index2), digits);
+      line += " ";
+    }
+    report->reportLineString(line);
   }
 }
 
@@ -1277,23 +1290,26 @@ Table3::report(const Units *units,
   const Unit *unit2 = tableVariableUnit(axis2_->variable(), units);
   const Unit *unit3 = tableVariableUnit(axis3_->variable(), units);
   for (size_t index1 = 0; index1 < axis1_->size(); index1++) {
-    report->print("%s %s\n", tableVariableString(axis1_->variable()),
-		  unit1->asString(axis1_->axisValue(index1), digits));
+    report->reportLine("%s %s", tableVariableString(axis1_->variable()),
+                       unit1->asString(axis1_->axisValue(index1), digits));
 
-    report->print("%s\n", tableVariableString(axis3_->variable()));
-    report->print("     ------------------------------\n");
-    report->print("     ");
-    for (size_t index3 = 0; index3 < axis3_->size(); index3++)
-      report->print("%s ", unit3->asString(axis3_->axisValue(index3), digits));
-    report->print("\n");
+    report->reportLine("%s", tableVariableString(axis3_->variable()));
+    report->reportLine("     ------------------------------");
+    string line = "     ";
+    for (size_t index3 = 0; index3 < axis3_->size(); index3++) {
+      line += unit3->asString(axis3_->axisValue(index3), digits);
+      line += " ";
+    }
+    report->reportLineString(line);
 
     for (size_t index2 = 0; index2 < axis2_->size(); index2++) {
-      report->print("%s |", unit2->asString(axis2_->axisValue(index2),digits));
-      for (size_t index3 = 0; index3 < axis3_->size(); index3++)
-	report->print("%s ", table_unit->asString(tableValue(index1, index2,
-							     index3),
-						  digits));
-      report->print("\n");
+      line = unit2->asString(axis2_->axisValue(index2),digits);
+      line += " |";
+      for (size_t index3 = 0; index3 < axis3_->size(); index3++) {
+        line += table_unit->asString(tableValue(index1, index2, index3), digits);
+        line += " ";
+      }
+      report->reportLineString(line);
     }
   }
 }

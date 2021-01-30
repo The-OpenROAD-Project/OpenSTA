@@ -490,7 +490,7 @@ PathGroups::makePathEnds(ExceptionTo *to,
 			 const MinMaxAll *min_max,
 			 bool sort_by_slack)
 {
-  Stats stats(this->debug());
+  Stats stats(debug_, report_);
   makeGroupPathEnds(to, group_count_, endpoint_count_, unique_pins_,
 		    corner, min_max);
 
@@ -686,11 +686,11 @@ MakePathEndsAll::vertexEnd(Vertex *)
 	// Only save the worst path end for each crpr tag.
 	// PathEnum will peel the others.
 	if (!unique_ends.hasKey(path_end)) {
-	  debugPrint4(debug, "path_enum", 5, "insert %s %s %s %d\n",
-		      path_end->vertex(sta_)->name(network),
-		      path_end->typeName(),
-		      path_end->transition(sta_)->asString(),
-		      path_end->path()->tag(sta_)->index());
+	  debugPrint(debug, "path_enum", 5, "insert %s %s %s %d",
+                     path_end->vertex(sta_)->name(network),
+                     path_end->typeName(),
+                     path_end->transition(sta_)->asString(),
+                     path_end->path()->tag(sta_)->index());
 	  // Give the group a copy of the path end because
 	  // it may delete it during pruning.
 	  if (group->savable(path_end)) {
@@ -700,11 +700,11 @@ MakePathEndsAll::vertexEnd(Vertex *)
 	  }
 	}
 	else
-	  debugPrint4(debug, "path_enum", 5, "prune %s %s %s %d\n",
-		      path_end->vertex(sta_)->name(network),
-		      path_end->typeName(),
-		      path_end->transition(sta_)->asString(),
-		      path_end->path()->tag(sta_)->index());
+	  debugPrint(debug, "path_enum", 5, "prune %s %s %s %d",
+                     path_end->vertex(sta_)->name(network),
+                     path_end->typeName(),
+                     path_end->transition(sta_)->asString(),
+                     path_end->path()->tag(sta_)->index());
       }
       // Clear ends for next vertex.
       PathEndSeq::Iterator end_iter2(ends);

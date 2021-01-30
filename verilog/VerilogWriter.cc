@@ -17,6 +17,7 @@
 #include "VerilogWriter.hh"
 
 #include <stdlib.h>
+#include <algorithm>
 
 #include "Error.hh"
 #include "Liberty.hh"
@@ -24,8 +25,12 @@
 #include "Network.hh"
 #include "NetworkCmp.hh"
 #include "VerilogNamespace.hh"
+#include "ParseBus.hh"
 
 namespace sta {
+
+using std::min;
+using std::max;
 
 class VerilogWriter
 {
@@ -41,6 +46,7 @@ public:
 protected:
   void writePorts(Cell *cell);
   void writePortDcls(Cell *cell);
+  void writeWireDcls(Instance *inst);
   const char *verilogPortDir(PortDirection *dir);
   void writeChildren(Instance *inst);
   void writeChild(Instance *child);
@@ -113,6 +119,8 @@ VerilogWriter::writeModule(Instance *inst)
 	  network_->name(cell));
   writePorts(cell);
   writePortDcls(cell);
+  fprintf(stream_, "\n");
+  writeWireDcls(inst);
   fprintf(stream_, "\n");
   writeChildren(inst);
   fprintf(stream_, "endmodule\n");
@@ -192,6 +200,44 @@ VerilogWriter::verilogPortDir(PortDirection *dir)
   else {
     criticalError(268, "unknown port direction");
     return nullptr;
+  }
+}
+
+typedef std::pair<int, int> BusIndexRange;
+
+void
+VerilogWriter::writeWireDcls(Instance *inst)
+{
+  Cell *cell = network_->cell(inst);
+  char escape = network_->pathEscape();
+  Map<const char*, BusIndexRange, CharPtrLess> bus_ranges;
+  NetIterator *net_iter = network_->netIterator(inst);
+  while (net_iter->hasNext()) {
+    Net *net = net_iter->next();
+    const char *net_name = network_->name(net);
+    if (network_->findPort(cell, net_name) == nullptr) {
+      if (isBusName(net_name, '[', ']', escape)) {
+        char *bus_name;
+        int index;
+        parseBusName(net_name, '[', ']', escape, bus_name, index);
+        BusIndexRange &range = bus_ranges[bus_name];
+        range.first = max(range.first, index);
+        range.second = min(range.second, index);
+      }
+      else
+        fprintf(stream_, " wire %s;\n",
+                netVerilogName(net_name, network_->pathEscape()));;
+    }
+  }
+  delete net_iter;
+
+  for (auto name_range : bus_ranges) {
+    const char *bus_name = name_range.first;
+    const BusIndexRange &range = name_range.second;
+    fprintf(stream_, " wire [%d:%d] %s;\n",
+            range.first,
+            range.second,
+            netVerilogName(bus_name, network_->pathEscape()));;
   }
 }
 

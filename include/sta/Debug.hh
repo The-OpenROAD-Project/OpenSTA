@@ -27,30 +27,27 @@ namespace sta {
 class Report;
 class Pin;
 
-// Flag that is set when any debug mode is enabled.
-// Debug macros bypass Debug::check map lookup unless some debug mode
-// is enabled.
-extern bool debug_on;
-
 typedef Map<const char *, int, CharPtrLess> DebugMap;
 
 class Debug
 {
 public:
-  explicit Debug(Report *&report);
+  explicit Debug(Report *report);
   ~Debug();
-  bool check(const char *what,
-	     int level) const;
   int level(const char *what);
   void setLevel(const char *what,
 		int level);
+  bool check(const char *what,
+	     int level) const;
   int statsLevel() const { return stats_level_; }
-  void print(const char *fmt,
-	     ...) const
-    __attribute__((format (printf, 2, 3)));
+  void reportLine(const char *what,
+                  const char *fmt,
+                  ...) const
+    __attribute__((format (printf, 3, 4)));
 
 protected:
-  Report *&report_;
+  Report *report_;
+  bool debug_on_;
   DebugMap *debug_map_;
   int stats_level_;
 
@@ -58,75 +55,21 @@ private:
   DISALLOW_COPY_AND_ASSIGN(Debug);
 };
 
-// Low overhead predicate.
-inline bool
-debugCheck(const Debug *debug,
-	   const char *what,
-	   int level)
-{
-  return debug_on && debug->check(what, level);
-}
-
 // Inlining a varargs function would eval the args, which can
-// be expensive, so use macros.
-
-#define debugPrint0(debug, what, level, msg)				    \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->print("%s: %s", what, msg); \
+// be expensive, so use a macro.
+// Note that "##__VA_ARGS__" is a gcc extension to support zero arguments (no comma).
+// clang -Wno-gnu-zero-variadic-macro-arguments suppresses the warning.
+// c++20 has "__VA_OPT__" to deal with the zero arg case so this is temporary.
+#define debugPrint(debug, what, level, msg, ...) \
+  if (debug->check(what, level)) {  \
+    debug->reportLine(what, msg, ##__VA_ARGS__); \
   }
 
-#define debugPrint1(debug, what, level, fmt, arg1) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->print("%s: ", what); \
-    debug->print(fmt, arg1); \
-  }
-
-#define debugPrint2(debug, what, level, fmt, arg1, arg2) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->print("%s: ", what); \
-    debug->print(fmt, arg1, arg2); \
-  }
-
-#define debugPrint3(debug, what, level, fmt, arg1, arg2, arg3) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->print("%s: ", what); \
-    debug->print(fmt, arg1, arg2, arg3); \
-  }
-
-#define debugPrint4(debug, what, level, fmt, arg1, arg2, arg3, arg4) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->print("%s: ", what); \
-    debug->print(fmt, arg1, arg2, arg3, arg4); \
-  }
-
-#define debugPrint5(debug, what, level, fmt, arg1, arg2, arg3, arg4, arg5) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->print("%s: ", what); \
-    debug->print(fmt, arg1, arg2, arg3, arg4, arg5); \
-  }
-
-#define debugPrint6(debug,what,level,fmt,arg1,arg2,arg3,arg4,arg5,arg6) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->print("%s: ", what); \
-    debug->print(fmt, arg1, arg2, arg3, arg4, arg5, arg6); \
-  }
-
-#define debugPrint7(debug,what,level,fmt,arg1,arg2,arg3,arg4,arg5,arg6,arg7) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->print("%s: ", what); \
-    debug->print(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7);	\
-  }
-
-#define debugPrint8(debug,what,level,fmt,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->print("%s: ", what); \
-    debug->print(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);	\
-  }
-
-#define debugPrint9(debug,what,level,fmt,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9) \
-  if (sta::debug_on && debug->check(what, level)) { \
-    debug->print("%s: ", what); \
-    debug->print(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);	\
+// Sadly c++11 __VA_ARGS__ macros must have at least one arg, so this form
+// should be used when there are no args for the message.
+#define debugPrint0(debug, what, level, msg) \
+  if (debug->check(what, level)) {  \
+    debug->reportLine(what, msg); \
   }
 
 } // namespace

@@ -392,7 +392,7 @@ Search::copyState(const StaState *sta)
 void
 Search::deletePaths()
 {
-  debugPrint0(debug_, "search", 1, "delete paths\n");
+  debugPrint0(debug_, "search", 1, "delete paths");
   if (arrivals_exist_) {
     VertexIterator vertex_iter(graph_);
     while (vertex_iter.hasNext()) {
@@ -565,10 +565,10 @@ Search::findFilteredArrivals()
   // Iterate until data arrivals at all latches stop changing.
   for (int pass = 1; pass <= 2 || havePendingLatchOutputs() ; pass++) {
     enqueuePendingLatchOutputs();
-    debugPrint1(debug_, "search", 1, "find arrivals pass %d\n", pass);
+    debugPrint(debug_, "search", 1, "find arrivals pass %d", pass);
     int arrival_count = arrival_iter_->visitParallel(max_level,
 						     arrival_visitor_);
-    debugPrint1(debug_, "search", 1, "found %d arrivals\n", arrival_count);
+    debugPrint(debug_, "search", 1, "found %d arrivals", arrival_count);
   }
   arrivals_exist_ = true;
 }
@@ -651,11 +651,18 @@ Search::deleteVertexBefore(Vertex *vertex)
     invalid_endpoints_->erase(vertex);
 }
 
+bool
+Search::arrivalsValid()
+{
+  return arrivals_exist_
+    && invalid_requireds_.empty();
+}
+
 void
 Search::arrivalsInvalid()
 {
   if (arrivals_exist_) {
-    debugPrint0(debug_, "search", 1, "arrivals invalid\n");
+    debugPrint0(debug_, "search", 1, "arrivals invalid");
     // Delete paths to make sure no state is left over.
     // For example, set_disable_timing strands a vertex, which means
     // the search won't revisit it to clear the previous arrival.
@@ -682,7 +689,7 @@ Search::arrivalsInvalid()
 void
 Search::requiredsInvalid()
 {
-  debugPrint0(debug_, "search", 1, "requireds invalid\n");
+  debugPrint0(debug_, "search", 1, "requireds invalid");
   requireds_exist_ = false;
   requireds_seeded_ = false;
   invalid_requireds_.clear();
@@ -695,8 +702,8 @@ void
 Search::arrivalInvalid(Vertex *vertex)
 {
   if (arrivals_exist_) {
-    debugPrint1(debug_, "search", 2, "arrival invalid %s\n",
-		vertex->name(sdc_network_));
+    debugPrint(debug_, "search", 2, "arrival invalid %s",
+               vertex->name(sdc_network_));
     if (!arrival_iter_->inQueue(vertex)) {
       // Lock for StaDelayCalcObserver called by delay calc threads.
       UniqueLock lock(invalid_arrivals_lock_);
@@ -765,8 +772,8 @@ void
 Search::requiredInvalid(Vertex *vertex)
 {
   if (requireds_exist_) {
-    debugPrint1(debug_, "search", 2, "required invalid %s\n",
-		vertex->name(sdc_network_));
+    debugPrint(debug_, "search", 2, "required invalid %s",
+               vertex->name(sdc_network_));
     if (!required_iter_->inQueue(vertex)) {
       // Lock for StaDelayCalcObserver called by delay calc threads.
       UniqueLock lock(invalid_arrivals_lock_);
@@ -783,8 +790,8 @@ Search::findClkArrivals()
 {
   if (!clk_arrivals_valid_) {
     genclks_->ensureInsertionDelays();
-    Stats stats(debug_);
-    debugPrint0(debug_, "search", 1, "find clk arrivals\n");
+    Stats stats(debug_, report_);
+    debugPrint0(debug_, "search", 1, "find clk arrivals");
     arrival_iter_->clear();
     seedClkVertexArrivals();
     ClkArrivalSearchPred search_clk(this);
@@ -916,7 +923,7 @@ Search::findAllArrivals(VertexVisitor *arrival_visitor)
   // Iterate until data arrivals at all latches stop changing.
   for (int pass = 1; pass == 1 || havePendingLatchOutputs(); pass++) {
     enqueuePendingLatchOutputs();
-    debugPrint1(debug_, "search", 1, "find arrivals pass %d\n", pass);
+    debugPrint(debug_, "search", 1, "find arrivals pass %d", pass);
     findArrivals(levelize_->maxLevel(), arrival_visitor);
   }
 }
@@ -958,9 +965,9 @@ void
 Search::findArrivals(Level level,
 		     VertexVisitor *arrival_visitor)
 {
-  debugPrint1(debug_, "search", 1, "find arrivals to level %d\n", level);
+  debugPrint(debug_, "search", 1, "find arrivals to level %d", level);
   findArrivals1();
-  Stats stats(debug_);
+  Stats stats(debug_, report_);
   int arrival_count = arrival_iter_->visitParallel(level, arrival_visitor);
   stats.report("Find arrivals");
   if (arrival_iter_->empty()
@@ -969,7 +976,7 @@ Search::findArrivals(Level level,
     arrivals_at_endpoints_exist_ = true;
   }
   arrivals_exist_ = true;
-  debugPrint1(debug_, "search", 1, "found %u arrivals\n", arrival_count);
+  debugPrint(debug_, "search", 1, "found %u arrivals", arrival_count);
 }
 
 void
@@ -1061,8 +1068,8 @@ ArrivalVisitor::visit(Vertex *vertex)
   const Graph *graph = sta_->graph();
   const Sdc *sdc = sta_->sdc();
   Search *search = sta_->search();
-  debugPrint1(debug, "search", 2, "find arrivals %s\n",
-	      vertex->name(sdc_network));
+  debugPrint(debug, "search", 2, "find arrivals %s",
+             vertex->name(sdc_network));
   Pin *pin = vertex->pin();
   // Don't clobber clock sources.
   if (!sdc->isLeafPinClock(pin)
@@ -1101,8 +1108,8 @@ ArrivalVisitor::visit(Vertex *vertex)
     // For example, "set_max_delay -to" from an unclocked source register.
     bool is_clk = tag_bldr_->hasClkTag();
     if (vertex->isRegClk() && !is_clk) {
-      debugPrint1(debug, "search", 2, "arrival seed unclked reg clk %s\n",
-		  network->pathName(pin));
+      debugPrint(debug, "search", 2, "arrival seed unclked reg clk %s",
+                 network->pathName(pin));
       search->makeUnclkedPaths(vertex, true, tag_bldr_);
     }
 
@@ -1122,7 +1129,7 @@ ArrivalVisitor::visit(Vertex *vertex)
 	    || !sdc->isPathDelayInternalEndpoint(pin)))
       search->arrivalIterator()->enqueueAdjacentVertices(vertex, adj_pred_);
     if (arrivals_changed) {
-      debugPrint0(debug, "search", 4, "arrival changed\n");
+      debugPrint0(debug, "search", 4, "arrival changed");
       // Only update arrivals when delays change by more than
       // fuzzyEqual can distinguish.
       search->setVertexArrivals(vertex, tag_bldr_);
@@ -1221,16 +1228,16 @@ ArrivalVisitor::visitFromToPath(const Pin *,
 {
   const Debug *debug = sta_->debug();
   const Network *sdc_network = sta_->sdcNetwork();
-  debugPrint1(debug, "search", 3, " %s\n",
-	      from_vertex->name(sdc_network));
-  debugPrint3(debug, "search", 3, "  %s -> %s %s\n",
-	      from_rf->asString(),
-	      to_rf->asString(),
-	      min_max->asString());
-  debugPrint1(debug, "search", 3, "  from tag: %s\n",
-	      from_tag->asString(sta_));
-  debugPrint1(debug, "search", 3, "  to tag  : %s\n",
-	      to_tag->asString(sta_));
+  debugPrint(debug, "search", 3, " %s",
+             from_vertex->name(sdc_network));
+  debugPrint(debug, "search", 3, "  %s -> %s %s",
+             from_rf->asString(),
+             to_rf->asString(),
+             min_max->asString());
+  debugPrint(debug, "search", 3, "  from tag: %s",
+             from_tag->asString(sta_));
+  debugPrint(debug, "search", 3, "  to tag  : %s",
+             to_tag->asString(sta_));
   ClkInfo *to_clk_info = to_tag->clkInfo();
   bool to_is_clk = to_tag->isClock();
   Arrival arrival;
@@ -1239,12 +1246,12 @@ ArrivalVisitor::visitFromToPath(const Pin *,
   tag_bldr_->tagMatchArrival(to_tag, tag_match, arrival, arrival_index);
   if (tag_match == nullptr
       || delayGreater(to_arrival, arrival, min_max, sta_)) {
-    debugPrint5(debug, "search", 3, "   %s + %s = %s %s %s\n",
-		delayAsString(from_path->arrival(sta_), sta_),
-		delayAsString(arc_delay, sta_),
-		delayAsString(to_arrival, sta_),
-		min_max == MinMax::max() ? ">" : "<",
-		tag_match ? delayAsString(arrival, sta_) : "MIA");
+    debugPrint(debug, "search", 3, "   %s + %s = %s %s %s",
+               delayAsString(from_path->arrival(sta_), sta_),
+               delayAsString(arc_delay, sta_),
+               delayAsString(to_arrival, sta_),
+               min_max == MinMax::max() ? ">" : "<",
+               tag_match ? delayAsString(arrival, sta_) : "MIA");
     PathVertexRep prev_path;
     if (to_tag->isClock() || to_tag->isGenClkSrcPath())
       prev_path.init(from_path, sta_);
@@ -1294,15 +1301,15 @@ ArrivalVisitor::pruneCrprArrivals()
 	Arrival max_arrival_max_crpr = (min_max == MinMax::max())
 	  ? max_arrival - max_crpr
 	  : max_arrival + max_crpr;
-	debugPrint4(debug, "search", 4, "  cmp %s %s - %s = %s\n",
-		    tag->asString(sta_),
-		    delayAsString(max_arrival, sta_),
-		    delayAsString(max_crpr, sta_),
-		    delayAsString(max_arrival_max_crpr, sta_));
+	debugPrint(debug, "search", 4, "  cmp %s %s - %s = %s",
+                   tag->asString(sta_),
+                   delayAsString(max_arrival, sta_),
+                   delayAsString(max_crpr, sta_),
+                   delayAsString(max_arrival_max_crpr, sta_));
 	Arrival arrival = tag_bldr_->arrival(arrival_index);
 	if (delayGreater(max_arrival_max_crpr, arrival, min_max, sta_)) {
-	  debugPrint1(debug, "search", 3, "  pruned %s\n",
-		      tag->asString(sta_));
+	  debugPrint(debug, "search", 3, "  pruned %s",
+                     tag->asString(sta_));
 	  tag_bldr_->deleteArrival(tag);
 	}
       }
@@ -1423,8 +1430,8 @@ Search::seedArrival(Vertex *vertex)
 	// Internal roots isolated by disabled pins are seeded with no clock.
 	|| (unconstrained_paths_
 	    && !network_->isTopLevelPort(pin))) {
-      debugPrint1(debug_, "search", 2, "arrival seed unclked root %s\n",
-		  network_->pathName(pin));
+      debugPrint(debug_, "search", 2, "arrival seed unclked root %s",
+                 network_->pathName(pin));
       TagGroupBldr tag_bldr(true, this);
       tag_bldr.init(vertex);
       if (makeUnclkedPaths(vertex, is_reg_clk, &tag_bldr))
@@ -1439,8 +1446,8 @@ Search::seedArrival(Vertex *vertex)
     }
   }
   else {
-    debugPrint1(debug_, "search", 2, "arrival enqueue %s\n",
-		network_->pathName(pin));
+    debugPrint(debug_, "search", 2, "arrival enqueue %s",
+               network_->pathName(pin));
     arrival_iter_->enqueue(vertex);
   }
 }
@@ -1462,8 +1469,8 @@ Search::seedClkArrivals(const Pin *pin,
 			TagGroupBldr *tag_bldr)
 {
   for (Clock *clk : *sdc_->findLeafPinClocks(pin)) {
-    debugPrint2(debug_, "search", 2, "arrival seed clk %s pin %s\n",
-		clk->name(), network_->pathName(pin));
+    debugPrint(debug_, "search", 2, "arrival seed clk %s pin %s",
+               clk->name(), network_->pathName(pin));
     for (PathAnalysisPt *path_ap : corners_->pathAnalysisPts()) {
       const MinMax *min_max = path_ap->pathMinMax();
       for (RiseFall *rf : RiseFall::range()) {
@@ -1737,11 +1744,11 @@ Search::seedInputDelayArrival(const Pin *pin,
 			      bool is_segment_start,
 			      TagGroupBldr *tag_bldr)
 {
-  debugPrint1(debug_, "search", 2,
-	      input_delay
-	      ? "arrival seed input arrival %s\n"
-	      : "arrival seed input %s\n",
-	      vertex->name(sdc_network_));
+  debugPrint(debug_, "search", 2,
+             input_delay
+             ? "arrival seed input arrival %s"
+             : "arrival seed input %s",
+             vertex->name(sdc_network_));
   ClockEdge *clk_edge = nullptr;
   const Pin *ref_pin = nullptr;
   if (input_delay) {
@@ -1989,8 +1996,8 @@ PathVisitor::visitFanoutPaths(Vertex *from_vertex)
       const Pin *to_pin = to_vertex->pin();
       if (pred_->searchTo(to_vertex)
 	  && pred_->searchThru(edge)) {
-	debugPrint1(sta_->debug(), "search", 3,
-		    " %s\n", to_vertex->name(sta_->network()));
+	debugPrint(sta_->debug(), "search", 3,
+                   " %s", to_vertex->name(sta_->network()));
 	if (!visitEdge(from_pin, from_vertex, edge, to_pin, to_vertex))
 	  break;
       }
@@ -2714,11 +2721,11 @@ Search::setVertexArrivals(Vertex *vertex,
 void
 Search::reportArrivals(Vertex *vertex) const
 {
-  report_->print("Vertex %s\n", vertex->name(sdc_network_));
+  report_->reportLine("Vertex %s", vertex->name(sdc_network_));
   TagGroup *tag_group = tagGroup(vertex);
   Arrival *arrivals = graph_->arrivals(vertex);
   if (tag_group) {
-    report_->print("Group %u\n", tag_group->index());
+    report_->reportLine("Group %u", tag_group->index());
     ArrivalMap::Iterator arrival_iter(tag_group->arrivalMap());
     while (arrival_iter.hasNext()) {
       Tag *tag;
@@ -2726,31 +2733,34 @@ Search::reportArrivals(Vertex *vertex) const
       arrival_iter.next(tag, arrival_index);
       PathAnalysisPt *path_ap = tag->pathAnalysisPt(this);
       const RiseFall *rf = tag->transition();
-      report_->print(" %d %s %s %s",
-		     arrival_index,
-		     rf->asString(),
-		     path_ap->pathMinMax()->asString(),
-		     delayAsString(arrivals[arrival_index], this));
+      const char *req = "?";
       if (vertex->hasRequireds()) {
 	int req_index;
 	bool exists;
 	tag_group->requiredIndex(tag, req_index, exists);
 	if (exists)
-	  report_->print(" / %s", delayAsString(arrivals[req_index], this));
+	  req = delayAsString(arrivals[req_index], this);
       }
-      report_->print(" %s", tag->asString(true, false, this));
       bool report_clk_prev = false;
+      const char *clk_prev = "";
       if (report_clk_prev
 	  && tag_group->hasClkTag()) {
 	PathVertex prev = check_crpr_->clkPathPrev(vertex, arrival_index);
-	report_->print(" clk_prev=[%s]",
-		       prev.isNull() ? "NULL" : prev.name(this));
+        if (!prev.isNull())
+          clk_prev = prev.name(this);
       }
-      report_->print("\n");
+      report_->reportLine(" %d %s %s %s / %s %s %s",
+                          arrival_index,
+                          rf->asString(),
+                          path_ap->pathMinMax()->asString(),
+                          delayAsString(arrivals[arrival_index], this),
+                          req,
+                          tag->asString(true, false, this),
+                          clk_prev);
     }
   }
   else
-    report_->print(" no arrivals\n");
+    report_->reportLine(" no arrivals");
 }
 
 TagGroup *
@@ -2781,17 +2791,17 @@ Search::reportTagGroups() const
   for (TagGroupIndex i = 0; i < tag_group_next_; i++) {
     TagGroup *tag_group = tag_groups_[i];
     if (tag_group) {
-      report_->print("Group %4u hash = %4u (%4u)\n",
-		     i,
-		     tag_group->hash(),
-		     tag_group->hash() % tag_group_set_->capacity());
+      report_->reportLine("Group %4u hash = %4lu (%4lu)",
+                          i,
+                          tag_group->hash(),
+                          tag_group->hash() % tag_group_set_->capacity());
       tag_group->reportArrivalMap(this);
     }
   }
   size_t long_hash = tag_group_set_->longestBucketHash();
-  report_->print("Longest hash bucket length %lu hash=%lu\n",
-		 tag_group_set_->bucketLength(long_hash),
-		 long_hash);
+  report_->reportLine("Longest hash bucket length %d hash=%lu",
+                      tag_group_set_->bucketLength(long_hash),
+                      long_hash);
 }
 
 void
@@ -2813,7 +2823,7 @@ Search::reportArrivalCountHistogram() const
   for (size_t arrival_count = 0; arrival_count < vertex_counts.size(); arrival_count++) {
     int vertex_count = vertex_counts[arrival_count];
     if (vertex_count > 0)
-      report_->print("%6d %6d\n", arrival_count, vertex_count);
+      report_->reportLine("%6lu %6d", arrival_count, vertex_count);
   }
 }
 
@@ -2896,12 +2906,12 @@ Search::reportTags() const
   for (TagIndex i = 0; i < tag_next_; i++) {
     Tag *tag = tags_[i];
     if (tag)
-      report_->print("%s\n", tag->asString(this)) ;
+      report_->reportLine("%s", tag->asString(this)) ;
   }
   size_t long_hash = tag_set_->longestBucketHash();
-  printf("Longest hash bucket length %d hash=%zu\n",
-	 tag_set_->bucketLength(long_hash),
-	 long_hash);
+  report_->reportLine("Longest hash bucket length %d hash=%zu",
+                      tag_set_->bucketLength(long_hash),
+                      long_hash);
 }
 
 void
@@ -2913,10 +2923,8 @@ Search::reportClkInfos() const
     clk_infos.push_back(clk_info);
   sort(clk_infos, ClkInfoLess(this));
   for (ClkInfo *clk_info : clk_infos)
-    report_->print("ClkInfo %s\n",
-		   clk_info->asString(this));
-  printf("%lu clk infos\n",
-	 clk_info_set_->size());
+    report_->reportLine("ClkInfo %s", clk_info->asString(this));
+  report_->reportLine("%lu clk infos", clk_info_set_->size());
 }
 
 ClkInfo *
@@ -3069,15 +3077,15 @@ Search::findRequireds()
 void
 Search::findRequireds(Level level)
 {
-  Stats stats(debug_);
-  debugPrint1(debug_, "search", 1, "find requireds to level %d\n", level);
+  Stats stats(debug_, report_);
+  debugPrint(debug_, "search", 1, "find requireds to level %d", level);
   RequiredVisitor req_visitor(this);
   if (!requireds_seeded_)
     seedRequireds();
   seedInvalidRequireds();
   int required_count = required_iter_->visitParallel(level, &req_visitor);
   requireds_exist_ = true;
-  debugPrint1(debug_, "search", 1, "found %d requireds\n", required_count);
+  debugPrint(debug_, "search", 1, "found %d requireds", required_count);
   stats.report("Find requireds");
 }
 
@@ -3101,8 +3109,8 @@ Search::endpoints()
     while (vertex_iter.hasNext()) {
       Vertex *vertex = vertex_iter.next();
       if (isEndpoint(vertex)) {
-	debugPrint1(debug_, "endpoint", 2, "insert %s\n",
-		    vertex->name(sdc_network_));
+	debugPrint(debug_, "endpoint", 2, "insert %s",
+                   vertex->name(sdc_network_));
 	endpoints_->insert(vertex);
       }
     }
@@ -3110,14 +3118,15 @@ Search::endpoints()
   if (invalid_endpoints_) {
     for (Vertex *vertex : *invalid_endpoints_) {
       if (isEndpoint(vertex)) {
-	debugPrint1(debug_, "endpoint", 2, "insert %s\n",
-		    vertex->name(sdc_network_));
+	debugPrint(debug_, "endpoint", 2, "insert %s",
+                   vertex->name(sdc_network_));
 	endpoints_->insert(vertex);
       }
       else {
 	if (debug_->check("endpoint", 2)
 	    && endpoints_->hasKey(vertex))
-	  debug_->print("endpoint: remove %s\n", vertex->name(sdc_network_));
+	  report_->reportLine("endpoint: remove %s",
+                              vertex->name(sdc_network_));
 	endpoints_->erase(vertex);
       }
     }
@@ -3130,8 +3139,8 @@ void
 Search::endpointInvalid(Vertex *vertex)
 {
   if (invalid_endpoints_) {
-    debugPrint1(debug_, "endpoint", 2, "invalid %s\n",
-		vertex->name(sdc_network_));
+    debugPrint(debug_, "endpoint", 2, "invalid %s",
+               vertex->name(sdc_network_));
     invalid_endpoints_->insert(vertex);
   }
 }
@@ -3252,8 +3261,8 @@ FindEndRequiredVisitor::visit(PathEnd *path_end)
 void
 Search::seedRequired(Vertex *vertex)
 {
-  debugPrint1(debug_, "search", 2, "required seed %s\n",
-	      vertex->name(sdc_network_));
+  debugPrint(debug_, "search", 2, "required seed %s",
+             vertex->name(sdc_network_));
   RequiredCmp required_cmp;
   FindEndRequiredVisitor seeder(&required_cmp, this);
   required_cmp.requiredsInit(vertex, this);
@@ -3339,16 +3348,16 @@ RequiredCmp::requiredsSave(Vertex *vertex,
       if (prev_reqs) {
 	Required prev_req = path->required(sta);
 	if (!delayEqual(prev_req, req)) {
-	  debugPrint2(debug, "search", 3, "required save %s -> %s\n",
-		      delayAsString(prev_req, sta),
-		      delayAsString(req, sta));
+	  debugPrint(debug, "search", 3, "required save %s -> %s",
+                     delayAsString(prev_req, sta),
+                     delayAsString(req, sta));
 	  path->setRequired(req, sta);
 	  requireds_changed = true;
 	}
       }
       else {
-	debugPrint1(debug, "search", 3, "required save MIA -> %s\n",
-		    delayAsString(req, sta));
+	debugPrint(debug, "search", 3, "required save MIA -> %s",
+                   delayAsString(req, sta));
 	path->setRequired(req, sta);
       }
     }
@@ -3392,8 +3401,8 @@ RequiredVisitor::visit(Vertex *vertex)
 {
   Search *search = sta_->search();
   const Debug *debug = sta_->debug();
-  debugPrint1(debug, "search", 2, "find required %s\n",
-	      vertex->name(sta_->network()));
+  debugPrint(debug, "search", 2, "find required %s",
+             vertex->name(sta_->network()));
   required_cmp_->requiredsInit(vertex, sta_);
   vertex->setRequiredsPruned(false);
   // Back propagate requireds from fanout.
@@ -3429,13 +3438,13 @@ RequiredVisitor::visitFromToPath(const Pin *,
   // Don't propagate required times through latch D->Q edges.
   if (edge->role() != TimingRole::latchDtoQ()) {
     const Debug *debug = sta_->debug();
-    debugPrint3(debug, "search", 3, "  %s -> %s %s\n",
-		from_rf->asString(),
-		to_rf->asString(),
-		min_max->asString());
-    debugPrint2(debug, "search", 3, "  from tag %2u: %s\n",
-		from_tag->index(),
-		from_tag->asString(sta_));
+    debugPrint(debug, "search", 3, "  %s -> %s %s",
+               from_rf->asString(),
+               to_rf->asString(),
+               min_max->asString());
+    debugPrint(debug, "search", 3, "  from tag %2u: %s",
+               from_tag->index(),
+               from_tag->asString(sta_));
     int arrival_index;
     bool arrival_exists;
     from_path->arrivalIndex(arrival_index, arrival_exists);
@@ -3446,15 +3455,15 @@ RequiredVisitor::visitFromToPath(const Pin *,
       PathVertex to_path(to_vertex, to_tag, sta_);
       Required to_required = to_path.required(sta_);
       Required from_required = to_required - arc_delay;
-      debugPrint2(debug, "search", 3, "  to tag   %2u: %s\n",
-		  to_tag->index(),
-		  to_tag->asString(sta_));
-      debugPrint5(debug, "search", 3, "  %s - %s = %s %s %s\n",
-		  delayAsString(to_required, sta_),
-		  delayAsString(arc_delay, sta_),
-		  delayAsString(from_required, sta_),
-		  min_max == MinMax::max() ? "<" : ">",
-		  delayAsString(required_cmp_->required(arrival_index), sta_));
+      debugPrint(debug, "search", 3, "  to tag   %2u: %s",
+                 to_tag->index(),
+                 to_tag->asString(sta_));
+      debugPrint(debug, "search", 3, "  %s - %s = %s %s %s",
+                 delayAsString(to_required, sta_),
+                 delayAsString(arc_delay, sta_),
+                 delayAsString(from_required, sta_),
+                 min_max == MinMax::max() ? "<" : ">",
+                 delayAsString(required_cmp_->required(arrival_index), sta_));
       required_cmp_->requiredSet(arrival_index, from_required, req_min, sta_);
     }
     else {
@@ -3469,16 +3478,16 @@ RequiredVisitor::visitFromToPath(const Pin *,
 	  if (tagMatchNoCrpr(to_path_tag, to_tag)) {
 	    Required to_required = to_path->required(sta_);
 	    Required from_required = to_required - arc_delay;
-	    debugPrint2(debug, "search", 3, "  to tag   %2u: %s\n",
-			to_path_tag->index(),
-			to_path_tag->asString(sta_));
-	    debugPrint5(debug, "search", 3, "  %s - %s = %s %s %s\n",
-			delayAsString(to_required, sta_),
-			delayAsString(arc_delay, sta_),
-			delayAsString(from_required, sta_),
-			min_max == MinMax::max() ? "<" : ">",
-			delayAsString(required_cmp_->required(arrival_index),
-				      sta_));
+	    debugPrint(debug, "search", 3, "  to tag   %2u: %s",
+                       to_path_tag->index(),
+                       to_path_tag->asString(sta_));
+	    debugPrint(debug, "search", 3, "  %s - %s = %s %s %s",
+                       delayAsString(to_required, sta_),
+                       delayAsString(arc_delay, sta_),
+                       delayAsString(from_required, sta_),
+                       min_max == MinMax::max() ? "<" : ">",
+                       delayAsString(required_cmp_->required(arrival_index),
+                                     sta_));
 	    required_cmp_->requiredSet(arrival_index, from_required, req_min, sta_);
 	    break;
 	  }
@@ -3667,8 +3676,8 @@ Search::tnsInvalid(Vertex *vertex)
 {
   if ((tns_exists_ || worst_slacks_)
       && isEndpoint(vertex)) {
-    debugPrint1(debug_, "tns", 2, "tns invalid %s\n",
-		vertex->name(sdc_network_));
+    debugPrint(debug_, "tns", 2, "tns invalid %s",
+               vertex->name(sdc_network_));
     UniqueLock lock(tns_lock_);
     invalid_tns_.insert(vertex);
   }
@@ -3681,8 +3690,8 @@ Search::updateInvalidTns()
   for (Vertex *vertex : invalid_tns_) {
     // Network edits can change endpointedness since tnsInvalid was called.
     if (isEndpoint(vertex)) {
-      debugPrint1(debug_, "tns", 2, "update tns %s\n",
-		  vertex->name(sdc_network_));
+      debugPrint(debug_, "tns", 2, "update tns %s",
+                 vertex->name(sdc_network_));
       SlackSeq slacks(path_ap_count);
       wnsSlacks(vertex, slacks);
 
@@ -3730,9 +3739,9 @@ Search::tnsIncr(Vertex *vertex,
 		PathAPIndex path_ap_index)
 {
   if (delayLess(slack, 0.0, this)) {
-    debugPrint2(debug_, "tns", 3, "tns+ %s %s\n",
-		delayAsString(slack, this),
-		vertex->name(sdc_network_));
+    debugPrint(debug_, "tns", 3, "tns+ %s %s",
+               delayAsString(slack, this),
+               vertex->name(sdc_network_));
     tns_[path_ap_index] += slack;
     if (tns_slacks_[path_ap_index].hasKey(vertex))
       report_->critical(263, "tns incr existing vertex");
@@ -3749,9 +3758,9 @@ Search::tnsDecr(Vertex *vertex,
   tns_slacks_[path_ap_index].findKey(vertex, slack, found);
   if (found
       && delayLess(slack, 0.0, this)) {
-    debugPrint2(debug_, "tns", 3, "tns- %s %s\n",
-		delayAsString(slack, this),
-		vertex->name(sdc_network_));
+    debugPrint(debug_, "tns", 3, "tns- %s %s",
+               delayAsString(slack, this),
+               vertex->name(sdc_network_));
     tns_[path_ap_index] -= slack;
     tns_slacks_[path_ap_index].erase(vertex);
   }
@@ -3810,8 +3819,8 @@ Search::wnsTnsPreamble()
   // Required times are only needed at endpoints.
   if (requireds_seeded_) {
     for (Vertex *vertex : invalid_requireds_) {
-      debugPrint1(debug_, "search", 2, "tns update required %s\n",
-		  vertex->name(sdc_network_));
+      debugPrint(debug_, "search", 2, "tns update required %s",
+                 vertex->name(sdc_network_));
       if (isEndpoint(vertex)) {
 	seedRequired(vertex);
 	// If the endpoint has fanout it's required time

@@ -344,8 +344,8 @@ void
 PropActivityVisitor::visit(Vertex *vertex)
 {
   Pin *pin = vertex->pin();
-  debugPrint1(debug_, "power_activity", 3, "visit %s\n",
-	      vertex->name(network_));
+  debugPrint(debug_, "power_activity", 3, "visit %s",
+             vertex->name(network_));
   if (power_->hasUserActivity(pin))
     power_->setActivity(pin, power_->userActivity(pin));
   else {
@@ -369,8 +369,8 @@ PropActivityVisitor::visit(Vertex *vertex)
       Instance *inst = network_->instance(pin);
       auto cell = network_->libertyCell(inst);
       if (cell && cell->hasSequentials()) {
-	debugPrint1(debug_, "power_activity", 3, "pending reg %s\n",
-		    network_->pathName(inst));
+	debugPrint(debug_, "power_activity", 3, "pending reg %s",
+                   network_->pathName(inst));
 	visited_regs_->insert(inst);
 	found_reg_without_activity_ = input_without_activity;
       }
@@ -383,10 +383,10 @@ PropActivityVisitor::visit(Vertex *vertex)
 	  Instance *inst = network_->instance(pin);
 	  PwrActivity activity = power_->evalActivity(func, inst);
 	  power_->setActivity(pin, activity);
-	  debugPrint3(debug_, "power_activity", 3, "set %s %.2e %.2f\n",
-		      vertex->name(network_),
-		      activity.activity(),
-		      activity.duty());
+	  debugPrint(debug_, "power_activity", 3, "set %s %.2e %.2f",
+                     vertex->name(network_),
+                     activity.activity(),
+                     activity.duty());
 	}
       }
     }
@@ -530,8 +530,8 @@ Power::seedActivities(BfsFwdIterator &bfs)
     // Clock activities are baked in.
     if (!sdc_->isLeafPinClock(pin)
 	&& !network_->direction(pin)->isInternal()) {
-      debugPrint1(debug_, "power_activity", 3, "seed %s\n",
-		  vertex->name(network_));
+      debugPrint(debug_, "power_activity", 3, "seed %s",
+                 vertex->name(network_));
       if (hasUserActivity(pin))
 	setActivity(pin, userActivity(pin));
       else
@@ -564,8 +564,8 @@ Power::seedRegOutputActivities(const Instance *inst,
 	Vertex *vertex = graph_->pinDrvrVertex(pin);
 	if (func->port() == seq->output()
 	    || func->port() == seq->outputInv()) {
-	  debugPrint1(debug_, "power_activity", 3, "enqueue reg output %s\n",
-		      vertex->name(network_));
+	  debugPrint(debug_, "power_activity", 3, "enqueue reg output %s",
+                     vertex->name(network_));
 	  bfs.enqueue(vertex);
 	}
       }
@@ -652,16 +652,16 @@ Power::findInputInternalPower(const Pin *pin,
   const LibertyPort *corner_port = port->cornerPort(lib_ap_index);
   auto internal_pwrs = corner_cell->internalPowers(corner_port);
   if (!internal_pwrs->empty()) {
-    debugPrint3(debug_, "power", 2, "internal input %s/%s (%s)\n",
-		network_->pathName(inst),
-		port->name(),
-		corner_cell->name());
+    debugPrint(debug_, "power", 2, "internal input %s/%s (%s)",
+               network_->pathName(inst),
+               port->name(),
+               corner_cell->name());
     const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(MinMax::max());
     const Pvt *pvt = dcalc_ap->operatingConditions();
     Vertex *vertex = graph_->pinLoadVertex(pin);
-    debugPrint1(debug_, "power", 2, " cap = %s\n",
-		units_->capacitanceUnit()->asString(load_cap));
-    debugPrint0(debug_, "power", 2, "       whena act/ns duty  energy    power\n");
+    debugPrint(debug_, "power", 2, " cap = %s",
+               units_->capacitanceUnit()->asString(load_cap));
+    debugPrint0(debug_, "power", 2, "       when  act/ns duty  energy    power");
     float internal = 0.0;
     for (InternalPower *pwr : *internal_pwrs) {
       const char *related_pg_pin = pwr->relatedPgPin();
@@ -694,14 +694,14 @@ Power::findInputInternalPower(const Pin *pin,
 	  duty = evalActivity(when, inst).duty();
       }
       float port_internal = energy * duty * activity.activity();
-      debugPrint7(debug_, "power", 2,  " %3s %6s  %.2f  %.2f %9.2e %9.2e %s\n",
-		  port->name(),
-		  when ? when->asString() : "",
-		  activity.activity() * 1e-9,
-		  duty,
-		  energy,
-		  port_internal,
-		  related_pg_pin ? related_pg_pin : "no pg_pin");
+      debugPrint(debug_, "power", 2,  " %3s %6s  %.2f  %.2f %9.2e %9.2e %s",
+                 port->name(),
+                 when ? when->asString() : "",
+                 activity.activity() * 1e-9,
+                 duty,
+                 energy,
+                 port_internal,
+                 related_pg_pin ? related_pg_pin : "no pg_pin");
       internal += port_internal;
     }
     result.internal() += internal;
@@ -768,17 +768,17 @@ Power::findOutputInternalPower(const Pin *to_pin,
 			       // Return values.
 			       PowerResult &result)
 {
-  debugPrint3(debug_, "power", 2, "internal output %s/%s (%s)\n",
-	      network_->pathName(inst),
-	      to_port->name(),
-	      cell->name());
+  debugPrint(debug_, "power", 2, "internal output %s/%s (%s)",
+             network_->pathName(inst),
+             to_port->name(),
+             cell->name());
   const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(MinMax::max());
   const Pvt *pvt = dcalc_ap->operatingConditions();
   int lib_ap_index = corner->libertyIndex(MinMax::max());
   LibertyCell *corner_cell = cell->cornerCell(lib_ap_index);
   const LibertyPort *to_corner_port = to_port->cornerPort(lib_ap_index);
-  debugPrint1(debug_, "power", 2, " cap = %s\n",
-	      units_->capacitanceUnit()->asString(load_cap));
+  debugPrint(debug_, "power", 2, " cap = %s",
+             units_->capacitanceUnit()->asString(load_cap));
   FuncExpr *func = to_port->function();
 
   map<const char*, float, StringLessIf> pg_duty_sum;
@@ -806,7 +806,8 @@ Power::findOutputInternalPower(const Pin *to_pin,
     }
     float energy = 0.0;
     int tr_count = 0;
-    debugPrint0(debug_, "power", 2, "             when act/ns duty  wgt   energy    power\n");
+    debugPrint0(debug_, "power", 2,
+                "             when act/ns duty  wgt   energy    power");
     for (auto to_rf : RiseFall::range()) {
       // Use unateness to find from_rf.
       RiseFall *from_rf = positive_unate ? to_rf : to_rf->opposite();
@@ -830,16 +831,16 @@ Power::findOutputInternalPower(const Pin *to_pin,
 	weight = duty / duty_sum;
     }
     float port_internal = weight * energy * to_activity.activity();
-    debugPrint9(debug_, "power", 2,  "%3s -> %-3s %6s  %.2f %.2f %.2f %9.2e %9.2e %s\n",
-		from_corner_port->name(),
-		to_port->name(),
-		when ? when->asString() : "",
-		to_activity.activity() * 1e-9,
-		duty,
-		weight,
-		energy,
-		port_internal,
-		related_pg_pin ? related_pg_pin : "no pg_pin");
+    debugPrint(debug_, "power", 2,  "%3s -> %-3s %6s  %.2f %.2f %.2f %9.2e %9.2e %s",
+               from_corner_port->name(),
+               to_port->name(),
+               when ? when->asString() : "",
+               to_activity.activity() * 1e-9,
+               duty,
+               weight,
+               energy,
+               port_internal,
+               related_pg_pin ? related_pg_pin : "no pg_pin");
     internal += port_internal;
   }
   result.internal() += internal;
@@ -942,18 +943,18 @@ Power::findLeakagePower(const Instance *,
 	if (port->direction()->isAnyInput())
 	  duty *= port->isClock() ? 0.25 : 0.5;
       }
-      debugPrint4(debug_, "power", 2, "leakage %s %s %.3e * %.2f\n",
-		  cell->name(),
-		  when->asString(),
-		  leak->power(),
-		  duty);
+      debugPrint(debug_, "power", 2, "leakage %s %s %.3e * %.2f",
+                 cell->name(),
+                 when->asString(),
+                 leak->power(),
+                 duty);
       cond_leakage += leak->power() * duty;
       found_cond = true;
     }
     else {
-      debugPrint2(debug_, "power", 2, "leakage default %s %.3e\n",
-		  cell->name(),
-		  leak->power());
+      debugPrint(debug_, "power", 2, "leakage default %s %.3e",
+                 cell->name(),
+                 leak->power());
       default_leakage += leak->power();
       found_default = true;
     }
@@ -963,9 +964,9 @@ Power::findLeakagePower(const Instance *,
   bool cell_leakage_exists;
   cell->leakagePower(cell_leakage, cell_leakage_exists);
   if (cell_leakage_exists)
-    debugPrint2(debug_, "power", 2, "leakage cell %s %.3e\n",
-		cell->name(),
-		cell_leakage);
+    debugPrint(debug_, "power", 2, "leakage cell %s %.3e",
+               cell->name(),
+               cell_leakage);
   // Ignore default leakages unless there are no conditional leakage groups.
   if (found_cond)
     leakage = cond_leakage;
@@ -973,9 +974,9 @@ Power::findLeakagePower(const Instance *,
     leakage = default_leakage;
   else if (cell_leakage_exists)
     leakage = cell_leakage;
-  debugPrint2(debug_, "power", 2, "leakage cell %s %.3e\n",
-	      cell->name(),
-	      leakage);
+  debugPrint(debug_, "power", 2, "leakage cell %s %.3e",
+             cell->name(),
+             leakage);
   result.leakage() += leakage;
 }
 
@@ -994,12 +995,12 @@ Power::findSwitchingPower(LibertyCell *cell,
   LibertyCell *corner_cell = cell->cornerCell(lib_ap_index);
   float volt = portVoltage(corner_cell, to_port, dcalc_ap);
   float switching = .5 * load_cap * volt * volt * activity.activity();
-  debugPrint5(debug_, "power", 2, "switching %s/%s activity = %.2e volt = %.2f %.3e\n",
-	      cell->name(),
-	      to_port->name(),
-	      activity.activity(),
-	      volt,
-	      switching);
+  debugPrint(debug_, "power", 2, "switching %s/%s activity = %.2e volt = %.2f %.3e",
+             cell->name(),
+             to_port->name(),
+             activity.activity(),
+             volt,
+             switching);
   result.switching() += switching;
 }
 

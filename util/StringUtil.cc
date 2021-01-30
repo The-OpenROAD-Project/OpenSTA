@@ -60,12 +60,6 @@ isDigits(const char *str)
 
 ////////////////////////////////////////////////////////////////
 
-char *
-integerString(int number)
-{
-  return stringPrint("%d", number);
-}
-
 // print for c++ strings.
 void
 stringPrint(string &str,

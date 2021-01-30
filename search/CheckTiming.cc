@@ -424,9 +424,7 @@ CheckTiming::errorMsgSubst(const char *msg,
 	s++;
       }
       else if (flag == 'd') {
-	const char *obj_str = integerString(obj_count);
-	error_msg += obj_str;
-	stringDelete(obj_str);
+	error_msg += std::to_string(obj_count);
 	s++;
       }
       else

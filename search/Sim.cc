@@ -66,9 +66,9 @@ Sim::functionSense(const FuncExpr *expr,
 		   const Pin *input_pin,
 		   const Instance *inst)
 {
-  debugPrint2(debug_, "sim", 4, "find sense pin %s %s\n",
-	      network_->pathName(input_pin),
-	      expr->asString());
+  debugPrint(debug_, "sim", 4, "find sense pin %s %s",
+             network_->pathName(input_pin),
+             expr->asString());
   bool increasing, decreasing;
   {
     UniqueLock lock(cudd_lock_);
@@ -92,7 +92,7 @@ Sim::functionSense(const FuncExpr *expr,
     sense = TimingSense::negative_unate;
   else
     sense = TimingSense::non_unate;
-  debugPrint1(debug_, "sim", 4, " %s\n", timingSenseString(sense));
+  debugPrint(debug_, "sim", 4, " %s", timingSenseString(sense));
   return sense;
 }
 
@@ -539,7 +539,7 @@ void
 Sim::ensureConstantsPropagated()
 {
   if (!valid_) {
-    Stats stats(debug_);
+    Stats stats(debug_, report_);
     ensureConstantFuncPins();
     instances_to_annotate_.clear();
     if (incremental_) {
@@ -755,9 +755,9 @@ Sim::setConstraintConstPins(LogicValueMap *value_map,
     LogicValue value;
     const Pin *pin;
     value_iter.next(pin, value);
-    debugPrint2(debug_, "sim", 2, "case pin %s = %c\n",
-		network_->pathName(pin),
-		logicValueString(value));
+    debugPrint(debug_, "sim", 2, "case pin %s = %c",
+               network_->pathName(pin),
+               logicValueString(value));
     if (network_->isHierarchical(pin)) {
       // Set the logic value on pins inside the instance of a hierarchical pin.
       bool pin_is_output = network_->direction(pin)->isAnyOutput();
@@ -789,13 +789,13 @@ Sim::setConstFuncPins(bool propagate)
     if (port) {
       FuncExpr *expr = port->function();
       if (expr->op() == FuncExpr::op_zero) {
-	debugPrint1(debug_, "sim", 2, "func pin %s = 0\n",
-		    network_->pathName(pin));
+	debugPrint(debug_, "sim", 2, "func pin %s = 0",
+                   network_->pathName(pin));
 	setPinValue(pin, LogicValue::zero, propagate);
       }
       else if (expr->op() == FuncExpr::op_one) {
-	debugPrint1(debug_, "sim", 2, "func pin %s = 1\n",
-		    network_->pathName(pin));
+	debugPrint(debug_, "sim", 2, "func pin %s = 1",
+                   network_->pathName(pin));
 	setPinValue(pin, LogicValue::one, propagate);
       }
     }
@@ -810,9 +810,9 @@ Sim::enqueueConstantPinInputs(bool propagate)
     LogicValue value;
     Pin *pin;
     const_iter->next(pin, value);
-    debugPrint2(debug_, "sim", 2, "network constant pin %s = %c\n",
-		network_->pathName(pin),
-		logicValueString(value));
+    debugPrint(debug_, "sim", 2, "network constant pin %s = %c",
+               network_->pathName(pin),
+               logicValueString(value));
     setPinValue(pin, value, propagate);
   }
   delete const_iter;
@@ -832,8 +832,8 @@ Sim::removePropagatedValue(const Pin *pin)
     if (!exists) {
       sdc_->logicValue(pin, constraint_value, exists);
       if (!exists) {
-	debugPrint1(debug_, "sim", 2, "pin %s remove prop constant\n",
-		    network_->pathName(pin));
+	debugPrint(debug_, "sim", 2, "pin %s remove prop constant",
+                   network_->pathName(pin));
 	Vertex *vertex, *bidirect_drvr_vertex;
 	graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
 	if (vertex)
@@ -864,9 +864,9 @@ Sim::setPinValue(const Pin *pin,
 		    sdc_network_->pathName(pin));
   }
   else {
-    debugPrint2(debug_, "sim", 3, "pin %s = %c\n",
-		network_->pathName(pin),
-		logicValueString(value));
+    debugPrint(debug_, "sim", 3, "pin %s = %c",
+               network_->pathName(pin),
+               logicValueString(value));
     Vertex *vertex, *bidirect_drvr_vertex;
     graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
     // Set vertex constant flags.
@@ -903,7 +903,7 @@ Sim::setPinValue(const Pin *pin,
 void
 Sim::evalInstance(const Instance *inst)
 {
-  debugPrint1(debug_, "sim", 2, "eval %s\n", network_->pathName(inst));
+  debugPrint(debug_, "sim", 2, "eval %s", network_->pathName(inst));
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
@@ -918,33 +918,33 @@ Sim::evalInstance(const Instance *inst)
           if (tri_en_expr) {
             if (evalExpr(tri_en_expr, inst) == LogicValue::one) {
               value = evalExpr(expr, inst);
-              debugPrint3(debug_, "sim", 2, " %s tri_en=1 %s = %c\n",
-                          port->name(),
-                          expr->asString(),
-                          logicValueString(value));
+              debugPrint(debug_, "sim", 2, " %s tri_en=1 %s = %c",
+                         port->name(),
+                         expr->asString(),
+                         logicValueString(value));
             }
           }
           else {
             value = evalExpr(expr, inst);
-            debugPrint3(debug_, "sim", 2, " %s %s = %c\n",
-                        port->name(),
-                        expr->asString(),
-                        logicValueString(value));
+            debugPrint(debug_, "sim", 2, " %s %s = %c",
+                       port->name(),
+                       expr->asString(),
+                       logicValueString(value));
           }
         }
         else if (port->isClockGateOutPin()) {
           value = clockGateOutValue(inst);
-          debugPrint2(debug_, "sim", 2, " %s gated_clk = %c\n",
-                      port->name(),
-                      logicValueString(value));
+          debugPrint(debug_, "sim", 2, " %s gated_clk = %c",
+                     port->name(),
+                     logicValueString(value));
         }
         FuncExpr *tri_en_expr = port->tristateEnable();
         if (tri_en_expr == nullptr
             || evalExpr(tri_en_expr, inst) == LogicValue::one) {
-          debugPrint3(debug_, "sim", 2, " %s %s = %c\n",
-                      port->name(),
-                      expr ? expr->asString() : "gated_clk",
-                      logicValueString(value));
+          debugPrint(debug_, "sim", 2, " %s %s = %c",
+                     port->name(),
+                     expr ? expr->asString() : "gated_clk",
+                     logicValueString(value));
           if (value != logicValue(pin))
             setPinValue(pin, value, true);
         }
@@ -1093,8 +1093,8 @@ Sim::clearSimValues()
 void
 Sim::clearInstSimValues(const Instance *inst)
 {
-  debugPrint1(debug_, "sim", 4, "clear %s\n",
-	      network_->pathName(inst));
+  debugPrint(debug_, "sim", 4, "clear %s",
+             network_->pathName(inst));
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
@@ -1123,9 +1123,9 @@ void
 Sim::annotateVertexEdges(const Instance *inst,
 			 bool annotate)
 {
-  debugPrint2(debug_, "sim", 4, "annotate %s %s\n",
-	      network_->pathName(inst),
-	      annotate ? "true" : "false");
+  debugPrint(debug_, "sim", 4, "annotate %s %s",
+             network_->pathName(inst),
+             annotate ? "true" : "false");
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
