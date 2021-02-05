@@ -27,6 +27,8 @@
 
 namespace sta {
 
+using std::max;
+
 typedef Map<ParasiticNode*, double> ParasiticNodeValueMap;
 typedef Map<ParasiticDevice*, double> ParasiticDeviceValueMap;
 typedef Set<ParasiticNode*> ParasiticNodeSet;
@@ -55,10 +57,12 @@ protected:
 		   ParasiticNode *node,
 		   ParasiticDevice *from_res,
 		   const ParasiticAnalysisPt *ap,
+                   double src_resistance,
 		   double &y1,
 		   double &y2,
 		   double &y3,
-		   double &dwn_cap);
+		   double &dwn_cap,
+                   double &max_resistance);
   void visit(ParasiticNode *node);
   bool isVisited(ParasiticNode *node);
   void leave(ParasiticNode *node);
@@ -118,7 +122,9 @@ ReduceToPi::reduceToPi(const Pin *drvr_pin,
   cnst_min_max_ = cnst_min_max;
 
   double y1, y2, y3, dcap;
-  reducePiDfs(drvr_pin, drvr_node, 0, ap, y1, y2, y3, dcap);
+  double max_resistance = 0.0;
+  reducePiDfs(drvr_pin, drvr_node, nullptr, ap, 0.0,
+              y1, y2, y3, dcap, max_resistance);
 
   if (y2 == 0.0 && y3 == 0.0) {
     // Capacitive load.
@@ -131,9 +137,12 @@ ReduceToPi::reduceToPi(const Pin *drvr_pin,
     c2 = y1 - y2 * y2 / y3;
     rpi = -y3 * y3 / (y2 * y2 * y2);
   }
+  if (stringEq(network_->pathName(drvr_pin),"ld"))
+    printf(" Pi model c2=%.3g rpi=%.3g c1=%.3g max_r=%.3g\n",
+             c2, rpi, c1, max_resistance);
   debugPrint(debug_, "parasitic_reduce", 2,
-             " Pi model c2=%.3g rpi=%.3g c1=%.3g",
-             c2, rpi, c1);
+             " Pi model c2=%.3g rpi=%.3g c1=%.3g max_r=%.3g",
+             c2, rpi, c1, max_resistance);
 }
 
 // Find admittance moments.
@@ -141,11 +150,13 @@ void
 ReduceToPi::reducePiDfs(const Pin *drvr_pin,
 			ParasiticNode *node,
 			ParasiticDevice *from_res,
-			const ParasiticAnalysisPt *ap,
+                        const ParasiticAnalysisPt *ap,
+			double src_resistance,
 			double &y1,
 			double &y2,
 			double &y3,
-			double &dwn_cap)
+			double &dwn_cap,
+                        double &max_resistance)
 {
   double coupling_cap = 0.0;
   ParasiticDeviceIterator *device_iter1 = parasitics_->deviceIterator(node);
@@ -160,6 +171,7 @@ ReduceToPi::reducePiDfs(const Pin *drvr_pin,
     + coupling_cap * coupling_cap_multiplier_
     + pinCapacitance(node);
   y2 = y3 = 0.0;
+  max_resistance = max(max_resistance, src_resistance);
 
   visit(node);
   ParasiticDeviceIterator *device_iter2 = parasitics_->deviceIterator(node);
@@ -178,16 +190,17 @@ ReduceToPi::reducePiDfs(const Pin *drvr_pin,
 	  markLoopResistor(device);
 	}	
 	else {
+	  double r = parasitics_->value(device, ap);
 	  double yd1, yd2, yd3, dcap;
-	  reducePiDfs(drvr_pin, onode, device, ap, yd1, yd2, yd3,dcap);
+	  reducePiDfs(drvr_pin, onode, device, ap, src_resistance + r,
+                      yd1, yd2, yd3, dcap, max_resistance);
 	  // Rule 3.  Upstream traversal of a series resistor.
 	  // Rule 4.  Parallel admittances add.
-	  double r = parasitics_->value(device, ap);
 	  y1 += yd1;
 	  y2 += yd2 - r * yd1 * yd1;
 	  y3 += yd3 - 2 * r * yd1 * yd2 + r * r * yd1 * yd1 * yd1;
 	  dwn_cap += dcap;
-	}
+        }
       }
     }
   }
