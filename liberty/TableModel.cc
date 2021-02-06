@@ -242,6 +242,9 @@ GateTableModel::findAxisValues(const TableModel *model,
 			    related_out_cap);
     break;
   default:
+    axis_value1 = 0.0;
+    axis_value2 = 0.0;
+    axis_value3 = 0.0;
     criticalError(239, "unsupported table order");
   }
 }

@@ -186,6 +186,9 @@ InternalPowerModel::findAxisValues(float in_slew,
     axis_value3 = axisValue(model_->axis3(), in_slew, load_cap);
     break;
   default:
+    axis_value1 = 0.0;
+    axis_value2 = 0.0;
+    axis_value3 = 0.0;
     criticalError(229, "unsupported table order");
   }
 }
