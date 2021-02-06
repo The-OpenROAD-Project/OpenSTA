@@ -137,9 +137,6 @@ ReduceToPi::reduceToPi(const Pin *drvr_pin,
     c2 = y1 - y2 * y2 / y3;
     rpi = -y3 * y3 / (y2 * y2 * y2);
   }
-  if (stringEq(network_->pathName(drvr_pin),"ld"))
-    printf(" Pi model c2=%.3g rpi=%.3g c1=%.3g max_r=%.3g\n",
-             c2, rpi, c1, max_resistance);
   debugPrint(debug_, "parasitic_reduce", 2,
              " Pi model c2=%.3g rpi=%.3g c1=%.3g max_r=%.3g",
              c2, rpi, c1, max_resistance);
