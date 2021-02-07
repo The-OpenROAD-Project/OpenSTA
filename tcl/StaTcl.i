@@ -5187,7 +5187,7 @@ report_loops()
   while (loop_iter.hasNext()) {
     GraphLoop *loop = loop_iter.next();
     loop->report(report, network, graph);
-    report->reportLine("");
+    report->reportLineString("");
   }
 }
 
