@@ -600,6 +600,7 @@ LibertyReader::endLibraryAttrs(LibertyGroup *group)
     else
       libWarn(31, group, "default_wire_load %s not found.", default_wireload_);
     stringDelete(default_wireload_);
+    default_wireload_ = nullptr;
   }
 
   if (default_wireload_selection_) {
@@ -611,6 +612,7 @@ LibertyReader::endLibraryAttrs(LibertyGroup *group)
       libWarn(32, group, "default_wire_selection %s not found.",
 	      default_wireload_selection_);
     stringDelete(default_wireload_selection_);
+    default_wireload_selection_ = nullptr;
   }
 
   if (default_operating_condition_) {
@@ -622,6 +624,7 @@ LibertyReader::endLibraryAttrs(LibertyGroup *group)
       libWarn(60, group, "default_operating_condition %s not found.",
 	      default_operating_condition_);
     stringDelete(default_operating_condition_);
+    default_operating_condition_ = nullptr;
   }
 
   bool missing_threshold = false;
@@ -1074,8 +1077,10 @@ LibertyReader::visitDefaultWireLoad(LibertyAttr *attr)
 {
   if (library_) {
     const char *value = getAttrString(attr);
-    if (value)
+    if (value) {
+      stringDelete(default_wireload_);
       default_wireload_ = stringCopy(value);
+    }
   }
 }
 
@@ -1100,8 +1105,10 @@ LibertyReader::visitDefaultWireLoadSelection(LibertyAttr *attr)
 {
   if (library_) {
     const char *value = getAttrString(attr);
-    if (value)
+    if (value) {
+      stringDelete(default_wireload_selection_);
       default_wireload_selection_ = stringCopy(value);
+    }
   }
 }
 
@@ -1110,8 +1117,10 @@ LibertyReader::visitDefaultOperatingConditions(LibertyAttr *attr)
 {
   if (library_) {
     const char *value = getAttrString(attr);
-    if (value)
+    if (value) {
+      stringDelete(default_operating_condition_);
       default_operating_condition_ = stringCopy(value);
+    }
   }
 }
 

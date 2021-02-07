@@ -80,7 +80,10 @@ public:
 	       const char *msg,
 	       bool warn);
   ~VerilogError();
-  void report(Report *report);
+  const char *msg() const { return msg_; }
+  const char *filename() const { return filename_; }
+  int id() const { return id_; }
+  int line() const { return line_; }
   bool warn() const { return warn_; }
 
 private:
@@ -112,15 +115,6 @@ VerilogError::~VerilogError()
 {
   // filename is owned by VerilogReader.
   stringDelete(msg_);
-}
-
-void
-VerilogError::report(Report *report)
-{
-  if (warn_)
-    report->fileWarn(id_, filename_, line_, "%s", msg_);
-  else
-    report->fileError(id_, filename_, line_, "%s", msg_);
 }
 
 class VerilogErrorCmp
@@ -2224,7 +2218,8 @@ VerilogReader::reportLinkErrors(Report *report)
   VerilogErrorSeq::Iterator error_iter(link_errors_);
   while (error_iter.hasNext()) {
     VerilogError *error = error_iter.next();
-    error->report(report);
+    // Report as warnings to avoid throwing.
+    report->fileWarn(error->id(), error->filename(), error->line(), "%s", error->msg());
     errors |= !error->warn();
     delete error;
   }
