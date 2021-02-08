@@ -89,18 +89,18 @@ LibertyBuilder::makeBusPortBit(ConcreteLibrary *library,
 				  library->busBrktLeft(),
 				  bit_index,
 				  library->busBrktRight());
-  ConcretePort *port = makePort(cell, bit_name, bit_index);
+  LibertyPort *port = makePort(cell, bit_name, bit_index);
   bus_port->addPortBit(port);
   cell->addPortBit(port);
 }
 
-ConcretePort *
+LibertyPort *
 LibertyBuilder::makePort(LibertyCell *cell,
 			 const char *bit_name,
 			 int bit_index)
 {
-  ConcretePort *port = new LibertyPort(cell, bit_name, false,
-				       bit_index, bit_index, false, nullptr);
+  LibertyPort *port = new LibertyPort(cell, bit_name, false,
+				      bit_index, bit_index, false, nullptr);
   return port;
 }
 

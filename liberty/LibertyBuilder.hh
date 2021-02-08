@@ -72,9 +72,9 @@ protected:
 		       int from_index,
 		       int to_index);
   // Bus port bit (internal to makeBusPortBits).
-  virtual ConcretePort *makePort(LibertyCell *cell,
-				 const char *bit_name,
-				 int bit_index);
+  virtual LibertyPort *makePort(LibertyCell *cell,
+                                const char *bit_name,
+                                int bit_index);
   void makeBusPortBit(ConcreteLibrary *library,
 		      LibertyCell *cell,
 		      ConcretePort *bus_port,

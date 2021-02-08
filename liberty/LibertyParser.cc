@@ -522,13 +522,8 @@ libertyIncludeBegin(const char *filename)
     liberty_filename = filename;
     liberty_line = 1;
   }
-  else {
-    // Copy the filename to the stack so it is deleted when
-    // libertyParseError throws an error.
-    string filename1(filename);
-    stringDelete(filename);
-    libertyParseError("cannot open include file %s.", filename1.c_str());
-  }
+  else
+    libertyParseError("cannot open include file %s.", filename);
   return stream;
 }
 
