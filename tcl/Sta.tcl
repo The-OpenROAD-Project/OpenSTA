@@ -937,7 +937,7 @@ proc get_fanin { args } {
       set thru_disabled 1
       set thru_constants 1
     } else {
-      cmd_usage_error "get_fanout"
+      cmd_usage_error "get_fanin"
     }
   }
   if { $only_insts } {
