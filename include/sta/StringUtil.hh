@@ -19,7 +19,6 @@
 #include <stdarg.h>
 #include <string.h>
 #include <string>
-#include "Machine.hh"
 #include "Vector.hh"
 
 namespace sta {

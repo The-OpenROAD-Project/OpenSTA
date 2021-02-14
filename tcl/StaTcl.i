@@ -35,6 +35,7 @@
 
 #include <limits>
 
+#include "Machine.hh"
 #include "StaConfig.hh"  // STA_VERSION
 #include "Stats.hh"
 #include "Report.hh"

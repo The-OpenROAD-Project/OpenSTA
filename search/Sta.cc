@@ -16,6 +16,7 @@
 
 #include "Sta.hh"
 
+#include "Machine.hh"
 #include "DispatchQueue.hh"
 #include "ReportTcl.hh"
 #include "Debug.hh"

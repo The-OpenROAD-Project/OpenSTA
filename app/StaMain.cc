@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
+#include "Machine.hh"
 #include "StringUtil.hh"
 #include "Vector.hh"
 #include "Sta.hh"

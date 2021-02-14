@@ -14,12 +14,43 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#if defined(WIN32)
-  #include "MachineWin32.cc"
-#elif defined(__APPLE__)
-  #include "MachineApple.cc"
-#elif defined(__linux__)
-  #include "MachineLinux.cc"
-#else
-  #include "MachineUnknown.cc"
-#endif
+#include "Machine.hh"
+
+namespace sta {
+
+int
+processorCount()
+{
+  return 1;
+}
+
+void
+initElapsedTime()
+{
+}
+
+double
+elapsedRunTime()
+{
+  return 0.0;
+}
+
+double
+userRunTime()
+{
+  return 0.0;
+}
+
+double
+systemRunTime()
+{
+  return 0.0;
+}
+
+size_t
+memoryUsage()
+{
+  return 0;
+}
+
+} // namespace

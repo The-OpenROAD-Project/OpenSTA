@@ -20,6 +20,7 @@
 #include <cstdlib>   // exit
 #include <cstring>   // strlen
 
+#include "Machine.hh"
 #include "Error.hh"
 
 namespace sta {

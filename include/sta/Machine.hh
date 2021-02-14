@@ -46,8 +46,6 @@
 #endif // _MSC_VER
 
 #if defined(_WINDOWS) || defined(_WIN32)
-  // Export class definitions to DLLs.
-  #define DllExport __declspec(dllexport)
   #include <stdarg.h>
   #define va_copy(d,s) ((d)=(s))
   #define strcasecmp _stricmp
@@ -60,8 +58,6 @@
     int vsnprint(char *str, size_t size, const char *fmt, va_list args);
   }
 #else
-  #define DllExport
-  #include <stdint.h>		// intptr_t
   #define vsnprint vsnprintf
 #endif // _WINDOWS
 
