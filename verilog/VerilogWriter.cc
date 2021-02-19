@@ -140,11 +140,14 @@ VerilogWriter::writePorts(Cell *cell)
   CellPortIterator *port_iter = network_->portIterator(cell);
   while (port_iter->hasNext()) {
     Port *port = port_iter->next();
-    if (!first)
-      fprintf(stream_, ",\n    ");
-    fprintf(stream_, "%s", portVerilogName(network_->name(port),
-					   network_->pathEscape()));
-    first = false;
+    if (include_pwr_gnd_
+        || !network_->direction(port)->isPowerGround()) {
+      if (!first)
+        fprintf(stream_, ",\n    ");
+      fprintf(stream_, "%s", portVerilogName(network_->name(port),
+                                             network_->pathEscape()));
+      first = false;
+    }
   }
   delete port_iter;
   fprintf(stream_, ");\n");
@@ -157,23 +160,26 @@ VerilogWriter::writePortDcls(Cell *cell)
   while (port_iter->hasNext()) {
     Port *port = port_iter->next();
     PortDirection *dir = network_->direction(port);
-    const char *port_name = portVerilogName(network_->name(port),
-					    network_->pathEscape());
-    const char *vtype = verilogPortDir(dir);
-    if (vtype) {
-      fprintf(stream_, " %s", vtype);
-      if (network_->isBus(port))
-	fprintf(stream_, " [%d:%d]",
-		network_->fromIndex(port),
-		network_->toIndex(port));
-      fprintf(stream_, " %s;\n", port_name);
-      if (dir->isTristate()) {
-	fprintf(stream_, " tri");
-	if (network_->isBus(port))
-	  fprintf(stream_, " [%d:%d]",
-		  network_->fromIndex(port),
-		  network_->toIndex(port));
-	fprintf(stream_, " %s;\n", port_name);
+    if (include_pwr_gnd_
+        || !network_->direction(port)->isPowerGround()) {
+      const char *port_name = portVerilogName(network_->name(port),
+                                              network_->pathEscape());
+      const char *vtype = verilogPortDir(dir);
+      if (vtype) {
+        fprintf(stream_, " %s", vtype);
+        if (network_->isBus(port))
+          fprintf(stream_, " [%d:%d]",
+                  network_->fromIndex(port),
+                  network_->toIndex(port));
+        fprintf(stream_, " %s;\n", port_name);
+        if (dir->isTristate()) {
+          fprintf(stream_, " tri");
+          if (network_->isBus(port))
+            fprintf(stream_, " [%d:%d]",
+                    network_->fromIndex(port),
+                    network_->toIndex(port));
+          fprintf(stream_, " %s;\n", port_name);
+        }
       }
     }
   }
