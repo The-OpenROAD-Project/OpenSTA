@@ -333,7 +333,7 @@ proc_redirect report_check_types {
 
   set violators [info exists flags(-violators)]
   if { [info exists flags(-all_violators)] } {
-    sta_warn "-all_violators is deprecated. Use -violators"
+    sta_warn 609 "-all_violators is deprecated. Use -violators"
     set violators 1
   }
 
@@ -408,12 +408,12 @@ proc_redirect report_check_types {
     set clk_gating_hold [info exists flags(-clock_gating_hold)]
     set max_slew [info exists flags(-max_slew)]
     if { [info exists flags(-max_transition)] } {
-      sta_warn "-max_transition deprecated. Use -max_slew."
+      sta_warn 610 "-max_transition deprecated. Use -max_slew."
       set max_slew 1
     }
     set min_slew [info exists flags(-min_slew)]
     if { [info exists flags(-min_transition)] } {
-      sta_warn "-min_transition deprecated. Use -min_slew."
+      sta_warn 611 "-min_transition deprecated. Use -min_slew."
       set min_slew 1
     }
     set max_fanout [info exists flags(-max_fanout)]

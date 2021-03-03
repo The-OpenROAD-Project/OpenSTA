@@ -52,7 +52,7 @@ proc_redirect read_sdf {
   if [info exists keys(-cond_use)] {
     set cond_use $keys(-cond_use)
     if { $cond_use != "min" && $cond_use != "max" && $cond_use != "min_max" } {
-      sta_warn "-cond_use must be min, max or min_max."
+      sta_warn 612 "-cond_use must be min, max or min_max."
       set cond_use "NULL"
     }
     if { $cond_use == "min_max" \
@@ -71,10 +71,10 @@ proc_redirect read_sdf {
       set index [parse_sdf_index "-type" $keys(-type)]
     }
     if [info exists keys(-min_type)] {
-      sta_warn "-min_type ignored by analysis_type single."
+      sta_warn 613 "-min_type ignored by analysis_type single."
     }
     if [info exists keys(-max_type)] {
-      sta_warn "-max_type ignored by analysis_type single."
+      sta_warn 614 "-max_type ignored by analysis_type single."
     }
     read_sdf_file_single $filename $path $corner $index $analysis_type \
       $unescaped_dividers $incremental_only $cond_use
@@ -90,7 +90,7 @@ proc_redirect read_sdf {
       set max_index [parse_sdf_index "-max_type" $keys(-max_type)]
     }
     if [info exists keys(-type)] {
-      sta_warn "-type ignored by analysis_type $analysis_type."
+      sta_warn 615 "-type ignored by analysis_type $analysis_type."
     }
     read_sdf_file_min_max $filename $path $corner $min_index $max_index \
       $analysis_type $unescaped_dividers $incremental_only $cond_use

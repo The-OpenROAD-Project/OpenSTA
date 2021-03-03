@@ -1719,7 +1719,7 @@ proc get_clocks_warn { arg_name arglist } {
 proc get_net_warn { arg_name arg } {
   set net "NULL"
   if {[llength $arg] > 1} {
-    sta_warn 314"$arg_name must be a single net."
+    sta_warn 314 "$arg_name must be a single net."
   } elseif { [is_object $arg] } {
     set object_type [object_type $arg]
     if { $object_type == "Net" } {
