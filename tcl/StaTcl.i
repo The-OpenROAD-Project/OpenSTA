@@ -108,21 +108,6 @@ typedef StringSeq TmpStringSeq;
 
 using std::vector;
 
-class CmdErrorNetworkNotLinked : public Exception
-{
-public:
-  virtual const char *what() const noexcept
-  { return "no network has been linked."; }
-};
-
-class CmdErrorNetworkNotEditable : public Exception
-{
-public:
-  virtual const char *what() const noexcept
-  { return "network does not support edits."; }
-};
-
-
 // Get the network for commands.
 Network *
 cmdNetwork()
@@ -139,7 +124,8 @@ cmdLinkedNetwork()
   if (network->isLinked())
     return network;
   else {
-    throw CmdErrorNetworkNotLinked();
+    Report *report = Sta::sta()->report();
+    report->error(201, "no network has been linked.");
     return nullptr;
   }
 }
@@ -152,7 +138,8 @@ cmdEditNetwork()
   if (network->isEditable())
     return dynamic_cast<NetworkEdit*>(network);
   else {
-    throw CmdErrorNetworkNotEditable();
+    Report *report = Sta::sta()->report();
+    report->error(202, "network does not support edits.");
     return nullptr;
   }
 }
