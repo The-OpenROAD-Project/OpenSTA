@@ -4705,20 +4705,14 @@ report_delay_calc_cmd(Edge *edge,
 
 ////////////////////////////////////////////////////////////////
 
-Pin *
-pin_min_slew_limit_slack(const Corner *corner,
-			 const MinMax *min_max)
-{
-  cmdLinkedNetwork();
-  return Sta::sta()->pinMinSlewLimitSlack(corner, min_max);
-}
-
 PinSeq *
-pin_slew_limit_violations(const Corner *corner,
-			  const MinMax *min_max)
+check_slew_limits(Net *net,
+                  bool violators,
+                  const Corner *corner,
+                  const MinMax *min_max)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->pinSlewLimitViolations(corner, min_max);
+  return Sta::sta()->checkSlewLimits(net, violators, corner, min_max);
 }
 
 void
