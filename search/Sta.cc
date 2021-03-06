@@ -4883,20 +4883,14 @@ Sta::checkSlewLimitPreamble()
   ensureClkNetwork();
 }
 
-Pin *
-Sta::pinMinSlewLimitSlack(const Corner *corner,
-			  const MinMax *min_max)
-{
-  checkSlewLimitPreamble();
-  return check_slew_limits_->pinMinSlewLimitSlack(corner, min_max);
-}
-
 PinSeq *
-Sta::pinSlewLimitViolations(const Corner *corner,
-			    const MinMax *min_max)
+Sta::checkSlewLimits(Net *net,
+                     bool violators,
+                     const Corner *corner,
+                     const MinMax *min_max)
 {
   checkSlewLimitPreamble();
-  return check_slew_limits_->pinSlewLimitViolations(corner, min_max);
+  return check_slew_limits_->checkSlewLimits(net, violators, corner, min_max);
 }
 
 void

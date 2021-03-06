@@ -604,14 +604,13 @@ public:
 	      ClockSet &clks);
 
   void checkSlewLimitPreamble();
-  // Return the pin with the min/max slew limit slack.
+  // Return pins with the min/max slew limit slack.
+  // net=null check all nets
   // corner=nullptr checks all corners.
-  Pin *pinMinSlewLimitSlack(const Corner *corner,
-			    const MinMax *min_max);
-  // Return all pins with min/max slew violations.
-  // corner=nullptr checks all corners.
-  PinSeq *pinSlewLimitViolations(const Corner *corner,
-				 const MinMax *min_max);
+  PinSeq *checkSlewLimits(Net *net,
+                          bool violators,
+                          const Corner *corner,
+                          const MinMax *min_max);
   void reportSlewLimitShortHeader();
   void reportSlewLimitShort(Pin *pin,
 			    const Corner *corner,

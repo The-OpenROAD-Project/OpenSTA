@@ -382,38 +382,22 @@ proc parse_path_group_arg { group_names } {
   return $names
 }
 
-proc report_slew_limits { corner min_max all_violators verbose nosplit } {
-  if { $all_violators } {
-    set violators [pin_slew_limit_violations $corner $min_max]
-    if { $violators != {} } {
-      report_line "${min_max} slew"
-      report_line ""
-      if { $verbose } {
-	foreach pin $violators {
-	  report_slew_limit_verbose $pin $corner $min_max
-	  report_line ""
-	}
-      } else {
-	report_slew_limit_short_header
-	foreach pin $violators {
-	  report_slew_limit_short $pin $corner $min_max
-	}
-	report_line ""
+proc report_slew_limits { net corner min_max violators verbose nosplit } {
+  set pins [check_slew_limits $net $violators $corner $min_max]
+  if { $pins != {} } {
+    report_line "${min_max} slew"
+    report_line ""
+    if { $verbose } {
+      foreach pin $pins {
+        report_slew_limit_verbose $pin $corner $min_max
+        report_line ""
       }
-    }
-  } else {
-    set pin [pin_min_slew_limit_slack $corner $min_max]
-    if { $pin != "NULL" } {
-      report_line "${min_max} slew"
-      report_line ""
-      if { $verbose } {
-	report_slew_limit_verbose $pin $corner $min_max
-	report_line ""
-      } else {
-	report_slew_limit_short_header
-	report_slew_limit_short $pin $corner $min_max
-	report_line ""
+    } else {
+      report_slew_limit_short_header
+      foreach pin $pins {
+        report_slew_limit_short $pin $corner $min_max
       }
+      report_line ""
     }
   }
 }

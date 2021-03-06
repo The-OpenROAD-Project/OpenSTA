@@ -322,13 +322,14 @@ define_sta_cmd_args "report_check_types" \
      [-max_fanout] [-min_fanout]\
      [-max_capacitance] [-min_capacitance]\
      [-min_pulse_width] [-min_period] [-max_skew]\
+     [-net net]\
      [-digits digits] [-no_line_splits]\
      [> filename] [>> filename]}
 
 proc_redirect report_check_types {
   variable path_options
 
-  parse_key_args "report_check_types" args keys {-corner}\
+  parse_key_args "report_check_types" args keys {-net -corner}\
     flags {-violators -all_violators -verbose -no_line_splits} 0
 
   set violators [info exists flags(-violators)]
@@ -353,6 +354,11 @@ proc_redirect report_check_types {
   }
 
   set corner [parse_corner_or_all keys]
+
+  set net "NULL"
+  if { [info exists keys(-net)] } {
+    set net [get_net_warn "-net" $keys(-net)]
+  }
 
   if { $args == {} } {
     if { $min_max == "max" || $min_max == "min_max" } {
@@ -468,10 +474,10 @@ proc_redirect report_check_types {
   }
 
   if { $max_slew } {
-    report_slew_limits $corner "max" $violators $verbose $nosplit
+    report_slew_limits $net $corner "max" $violators $verbose $nosplit
   }
   if { $min_slew } {
-    report_slew_limits $corner "min" $violators $verbose $nosplit
+    report_slew_limits $net $corner "min" $violators $verbose $nosplit
   }
   if { $max_fanout } {
     report_fanout_limits "max" $violators $verbose $nosplit

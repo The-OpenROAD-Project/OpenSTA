@@ -279,88 +279,83 @@ CheckSlewLimits::checkSlew(Vertex *vertex,
 }
 
 PinSeq *
-CheckSlewLimits::pinSlewLimitViolations(const Corner *corner,
-					const MinMax *min_max)
+CheckSlewLimits::checkSlewLimits(Net *net,
+                                 bool violators,
+                                 const Corner *corner,
+                                 const MinMax *min_max)
 {
   const Network *network = sta_->network();
-  PinSeq *violators = new PinSeq;
-  LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
-  while (inst_iter->hasNext()) {
-    Instance *inst = inst_iter->next();
-    pinSlewLimitViolations(inst, corner, min_max, violators);
+  PinSeq *slew_pins = new PinSeq;
+  Slack min_slack = MinMax::min()->initValue();
+  if (net) {
+    NetPinIterator *pin_iter = network->pinIterator(net);
+    while (pin_iter->hasNext()) {
+      Pin *pin = pin_iter->next();
+      checkSlewLimits(pin, violators, corner, min_max, slew_pins, min_slack);
+    }
+    delete pin_iter;
   }
-  delete inst_iter;
-  // Check top level ports.
-  pinSlewLimitViolations(network->topInstance(), corner, min_max, violators);
-  sort(violators, PinSlewLimitSlackLess(corner, min_max, this, sta_));
-  return violators;
+  else {
+    LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
+    while (inst_iter->hasNext()) {
+      Instance *inst = inst_iter->next();
+      checkSlewLimits(inst, violators,corner, min_max, slew_pins, min_slack);
+    }
+    delete inst_iter;
+    // Check top level ports.
+    checkSlewLimits(network->topInstance(), violators, corner, min_max,
+                    slew_pins, min_slack);
+  }
+  sort(slew_pins, PinSlewLimitSlackLess(corner, min_max, this, sta_));
+  // Keep the min slack pin unless all violators or net pins.
+  if (!slew_pins->empty() && !violators && net == nullptr)
+    slew_pins->resize(1);
+  return slew_pins;
 }
 
 void
-CheckSlewLimits::pinSlewLimitViolations(Instance *inst,
-					const Corner *corner,
-					const MinMax *min_max,
-					PinSeq *violators)
+CheckSlewLimits::checkSlewLimits(Instance *inst,
+                                 bool violators,
+                                 const Corner *corner,
+                                 const MinMax *min_max,
+                                 PinSeq *slew_pins,
+                                 float &min_slack)
 {
   const Network *network = sta_->network();
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    const Corner *corner1;
-    const RiseFall *rf;
-    Slew slew;
-    float limit, slack;
-    checkSlew(pin, corner, min_max, true, corner1, rf, slew, limit, slack);
-    if (rf && slack < 0.0 && !fuzzyInf(slack))
-      violators->push_back(pin);
+    checkSlewLimits(pin, violators, corner, min_max, slew_pins, min_slack);
   }
   delete pin_iter;
 }
 
-Pin *
-CheckSlewLimits::pinMinSlewLimitSlack(const Corner *corner,
-				      const MinMax *min_max)
-{
-  const Network *network = sta_->network();
-  Pin *min_slack_pin = nullptr;
-  float min_slack = MinMax::min()->initValue();
-  LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
-  while (inst_iter->hasNext()) {
-    Instance *inst = inst_iter->next();
-    pinMinSlewLimitSlack(inst, corner, min_max, min_slack_pin, min_slack);
-  }
-  delete inst_iter;
-  // Check top level ports.
-  pinMinSlewLimitSlack(network->topInstance(), corner, min_max,
-		       min_slack_pin, min_slack);
-  return min_slack_pin;
-}
-
 void
-CheckSlewLimits::pinMinSlewLimitSlack(Instance *inst,
-				      const Corner *corner,
-				      const MinMax *min_max,
-				      // Return values.
-				      Pin *&min_slack_pin,
-				      float &min_slack)
+CheckSlewLimits::checkSlewLimits(Pin *pin,
+                                 bool violators,
+                                 const Corner *corner,
+                                 const MinMax *min_max,
+                                 PinSeq *slew_pins,
+                                 float &min_slack)
 {
-  const Network *network = sta_->network();
-  InstancePinIterator *pin_iter = network->pinIterator(inst);
-  while (pin_iter->hasNext()) {
-    Pin *pin = pin_iter->next();
-    const Corner *corner1;
-    const RiseFall *rf;
-    Slew slew;
-    float limit, slack;
-    checkSlew(pin, corner, min_max, true, corner1, rf, slew, limit, slack);
-    if (rf
-	&& (min_slack_pin == nullptr
-	    || slack < min_slack)) {
-      min_slack_pin = pin;
-      min_slack = slack;
+  const Corner *corner1;
+  const RiseFall *rf;
+  Slew slew;
+  float limit, slack;
+  checkSlew(pin, corner, min_max, true, corner1, rf, slew, limit, slack);
+  if (!fuzzyInf(slack)) {
+    if (violators) {
+      if (slack < 0.0)
+        slew_pins->push_back(pin);
+    }
+    else {
+      if (slew_pins->empty()
+          || slack < min_slack) {
+        slew_pins->push_back(pin);
+        min_slack = slack;
+      }
     }
   }
-  delete pin_iter;
 }
 
 } // namespace
