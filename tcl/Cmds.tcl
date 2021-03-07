@@ -1448,7 +1448,7 @@ proc get_lib_cell_arg { arg_name arg error_proc } {
     if { $object_type == "LibertyCell" } {
       set lib_cell $arg
     } else {
-      $error_proc "$arg_name type '$object_type' is not a liberty cell."
+      $error_proc 700 "$arg_name type '$object_type' is not a liberty cell."
     }
     # Parse library_name/cell_name.
   } elseif {[regexp [cell_regexp] $arg ignore lib_name cell_name]} {
@@ -1456,15 +1456,15 @@ proc get_lib_cell_arg { arg_name arg error_proc } {
     if { $library != "NULL" } {
       set lib_cell [$library find_liberty_cell $cell_name]
       if { $lib_cell == "NULL" } {
-	$error_proc "liberty cell '$arg' not found."
+	$error_proc 701 "liberty cell '$arg' not found."
       }
     } else {
-      $error_proc "library '$lib_name' not found."
+      $error_proc 702  "library '$lib_name' not found."
     }
   } else {
     set lib_cell [find_liberty_cell $arg]
     if { $lib_cell == "NULL" } {
-      $error_proc "liberty cell '$arg' not found."
+      $error_proc 703 "liberty cell '$arg' not found."
     }
   }
   return $lib_cell
