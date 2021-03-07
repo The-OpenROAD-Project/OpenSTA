@@ -228,8 +228,9 @@ proc find_timing_paths_cmd { cmd args_var } {
   set group_count $endpoint_count
   if [info exists keys(-group_count)] {
     set group_count $keys(-group_count)
+    check_positive_integer "-group_count" $group_count
     if { $group_count < 1 } {
-      sta_error 423 "-group_count must be a positive integer."
+      sta_error 423 "-group_count must be >= 1."
     }
   }
 
@@ -486,10 +487,10 @@ proc_redirect report_check_types {
     report_fanout_limits "min" $violators $verbose $nosplit
   }
   if { $max_capacitance } {
-    report_capacitance_limits $corner "max" $violators $verbose $nosplit
+    report_capacitance_limits $net $corner "max" $violators $verbose $nosplit
   }
   if { $min_capacitance } {
-    report_capacitance_limits $corner "min" $violators $verbose $nosplit
+    report_capacitance_limits $net $corner "min" $violators $verbose $nosplit
   }
   if { $min_pulse_width } {
     if { $violators } {

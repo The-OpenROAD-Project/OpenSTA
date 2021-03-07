@@ -4775,20 +4775,14 @@ report_fanout_limit_verbose(Pin *pin,
 
 ////////////////////////////////////////////////////////////////
 
-Pin *
-pin_min_capacitance_limit_slack(const Corner *corner,
-				const MinMax *min_max)
-{
-  cmdLinkedNetwork();
-  return Sta::sta()->pinMinCapacitanceLimitSlack(corner, min_max);
-}
-
 PinSeq *
-pin_capacitance_limit_violations(const Corner *corner,
-				 const MinMax *min_max)
+check_capacitance_limits(Net *net,
+                         bool violators,
+                         const Corner *corner,
+                         const MinMax *min_max)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->pinCapacitanceLimitViolations(corner, min_max);
+  return Sta::sta()->checkCapacitanceLimits(net, violators, corner, min_max);
 }
 
 void

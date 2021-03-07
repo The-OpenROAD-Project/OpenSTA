@@ -222,91 +222,84 @@ CheckCapacitanceLimits::checkCapacitance(const Pin *pin,
 }
 
 PinSeq *
-CheckCapacitanceLimits::pinCapacitanceLimitViolations(const Corner *corner,
-						      const MinMax *min_max)
+CheckCapacitanceLimits::checkCapacitanceLimits(Net *net,
+                                               bool violators,
+                                               const Corner *corner,
+                                               const MinMax *min_max)
 {
   const Network *network = sta_->network();
-  PinSeq *violators = new PinSeq;
-  LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
-  while (inst_iter->hasNext()) {
-    Instance *inst = inst_iter->next();
-    pinCapacitanceLimitViolations(inst, corner, min_max, violators);
+  PinSeq *cap_pins = new PinSeq;
+  Slack min_slack = MinMax::min()->initValue();
+  if (net) {
+    NetPinIterator *pin_iter = network->pinIterator(net);
+    while (pin_iter->hasNext()) {
+      Pin *pin = pin_iter->next();
+      checkCapLimits(pin, violators, corner, min_max, cap_pins, min_slack);
+    }
+    delete pin_iter;
   }
-  delete inst_iter;
-  // Check top level ports.
-  pinCapacitanceLimitViolations(network->topInstance(), corner, min_max, violators);
-  sort(violators, PinCapacitanceLimitSlackLess(corner, min_max, this, sta_));
-  return violators;
+  else {
+    LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
+    while (inst_iter->hasNext()) {
+      Instance *inst = inst_iter->next();
+      checkCapLimits(inst, violators, corner, min_max, cap_pins, min_slack);
+    }
+    delete inst_iter;
+    // Check top level ports.
+    checkCapLimits(network->topInstance(), violators, corner, min_max,
+                   cap_pins, min_slack);
+  }
+  sort(cap_pins, PinCapacitanceLimitSlackLess(corner, min_max, this, sta_));
+  // Keep the min slack pin unless all violators or net pins.
+  if (!cap_pins->empty() && !violators && net == nullptr)
+    cap_pins->resize(1);
+  return cap_pins;
 }
 
 void
-CheckCapacitanceLimits::pinCapacitanceLimitViolations(Instance *inst,
-						      const Corner *corner,
-						      const MinMax *min_max,
-						      PinSeq *violators)
+CheckCapacitanceLimits::checkCapLimits(Instance *inst,
+                                       bool violators,
+                                       const Corner *corner,
+                                       const MinMax *min_max,
+                                       PinSeq *cap_pins,
+                                       float &min_slack)
 {
   const Network *network = sta_->network();
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    if (checkPin(pin)) {
-      const Corner *corner1;
-      const RiseFall *rf;
-      float capacitance, limit, slack;
-      checkCapacitance(pin, corner, min_max, corner1, rf, capacitance, limit, slack );
-      if (rf && slack < 0.0 && !fuzzyInf(slack))
-	violators->push_back(pin);
-    }
+    checkCapLimits(pin, violators, corner, min_max, cap_pins, min_slack);
   }
   delete pin_iter;
 }
 
-Pin *
-CheckCapacitanceLimits::pinMinCapacitanceLimitSlack(const Corner *corner,
-						    const MinMax *min_max)
-{
-  const Network *network = sta_->network();
-  Pin *min_slack_pin = nullptr;
-  float min_slack = MinMax::min()->initValue();
-  LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
-  while (inst_iter->hasNext()) {
-    Instance *inst = inst_iter->next();
-    pinMinCapacitanceLimitSlack(inst, corner, min_max, min_slack_pin, min_slack);
-  }
-  delete inst_iter;
-  // Check top level ports.
-  pinMinCapacitanceLimitSlack(network->topInstance(), corner, min_max,
-		       min_slack_pin, min_slack);
-  return min_slack_pin;
-}
-
 void
-CheckCapacitanceLimits::pinMinCapacitanceLimitSlack(Instance *inst,
-						    const Corner *corner,
-						    const MinMax *min_max,
-						    // Return values.
-						    Pin *&min_slack_pin,
-						    float &min_slack)
+CheckCapacitanceLimits::checkCapLimits(Pin *pin,
+                                       bool violators,
+                                       const Corner *corner,
+                                       const MinMax *min_max,
+                                       PinSeq *cap_pins,
+                                       float &min_slack)
 {
-  const Network *network = sta_->network();
-  InstancePinIterator *pin_iter = network->pinIterator(inst);
-  while (pin_iter->hasNext()) {
-    Pin *pin = pin_iter->next();
-    if (checkPin(pin)) {
-      const Corner *corner1;
-      const RiseFall *rf;
-      float capacitance, limit, slack;
-      checkCapacitance(pin, corner, min_max, corner1, rf, capacitance, limit, slack);
-      if (rf
-	  && !fuzzyInf(slack)
-	  && (min_slack_pin == nullptr
-	      || slack < min_slack)) {
-	min_slack_pin = pin;
-	min_slack = slack;
+  if (checkPin(pin)) {
+    const Corner *corner1;
+    const RiseFall *rf;
+    float capacitance, limit, slack;
+    checkCapacitance(pin, corner, min_max, corner1, rf, capacitance, limit, slack);
+    if (!fuzzyInf(slack)) {
+      if (violators) {
+        if (slack < 0.0)
+          cap_pins->push_back(pin);
+      }
+      else {
+        if (cap_pins->empty()
+            || slack < min_slack) {
+          cap_pins->push_back(pin);
+          min_slack = slack;
+        }
       }
     }
   }
-  delete pin_iter;
 }
 
 bool

@@ -438,38 +438,22 @@ proc report_fanout_limits { min_max all_violators verbose nosplit } {
   }
 }
 
-proc report_capacitance_limits { corner min_max all_violators verbose nosplit } {
-  if { $all_violators } {
-    set violators [pin_capacitance_limit_violations $corner $min_max]
-    if { $violators != {} } {
-      report_line "${min_max} capacitance"
-      report_line ""
-      if { $verbose } {
-	foreach pin $violators {
-	  report_capacitance_limit_verbose $pin $corner $min_max
-	  report_line ""
-	}
-      } else {
-	report_capacitance_limit_short_header
-	foreach pin $violators {
-	  report_capacitance_limit_short $pin $corner $min_max
-	}
-	report_line ""
-      }
-    }
-  } else {
-    set pin [pin_min_capacitance_limit_slack $corner $min_max]
-    if { $pin != "NULL" } {
-      report_line "${min_max} capacitance"
-      report_line ""
-      if { $verbose } {
+proc report_capacitance_limits { net corner min_max violators verbose nosplit } {
+  set pins [check_capacitance_limits $net $violators $corner $min_max]
+  if { $pins != {} } {
+    report_line "${min_max} capacitance"
+    report_line ""
+    if { $verbose } {
+      foreach pin $pins {
         report_capacitance_limit_verbose $pin $corner $min_max
-	report_line ""
-      } else {
-	report_capacitance_limit_short_header
-	report_capacitance_limit_short $pin $corner $min_max
-	report_line ""
+        report_line ""
       }
+    } else {
+      report_capacitance_limit_short_header
+      foreach pin $pins {
+        report_capacitance_limit_short $pin $corner $min_max
+      }
+      report_line ""
     }
   }
 }

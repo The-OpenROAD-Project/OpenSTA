@@ -5021,20 +5021,15 @@ Sta::checkCapacitanceLimitPreamble()
   ensureClkNetwork();
 }
 
-Pin *
-Sta::pinMinCapacitanceLimitSlack(const Corner *corner,
-                                 const MinMax *min_max)
-{
-  checkCapacitanceLimitPreamble();
-  return check_capacitance_limits_->pinMinCapacitanceLimitSlack(corner, min_max);
-}
-
 PinSeq *
-Sta::pinCapacitanceLimitViolations(const Corner *corner,
-				   const MinMax *min_max)
+Sta::checkCapacitanceLimits(Net *net,
+                            bool violators,
+                            const Corner *corner,
+                            const MinMax *min_max)
 {
   checkCapacitanceLimitPreamble();
-  return check_capacitance_limits_->pinCapacitanceLimitViolations(corner, min_max);
+  return check_capacitance_limits_->checkCapacitanceLimits(net, violators,
+                                                           corner, min_max);
 }
 
 void

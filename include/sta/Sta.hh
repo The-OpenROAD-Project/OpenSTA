@@ -649,14 +649,13 @@ public:
 		   float &slack);
 
   void checkCapacitanceLimitPreamble();
-  // Return the pin with the min/max capacitance limit slack.
+  // Return pins with the min/max slew limit slack.
+  // net=null check all nets
   // corner=nullptr checks all corners.
-  Pin *pinMinCapacitanceLimitSlack(const Corner *corner,
-				   const MinMax *min_max);
-  // Return all pins with min/max capacitance violations.
-  // corner=nullptr checks all corners.
-  PinSeq *pinCapacitanceLimitViolations(const Corner *corner,
-					const MinMax *min_max);
+  PinSeq *checkCapacitanceLimits(Net *net,
+                                 bool violators,
+                                 const Corner *corner,
+                                 const MinMax *min_max);
   void reportCapacitanceLimitShortHeader();
   void reportCapacitanceLimitShort(Pin *pin,
 				   const Corner *corner,
