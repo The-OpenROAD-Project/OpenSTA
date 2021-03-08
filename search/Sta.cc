@@ -4956,18 +4956,13 @@ Sta::checkFanoutLimitPreamble()
   ensureClkNetwork();
 }
 
-Pin *
-Sta::pinMinFanoutLimitSlack(const MinMax *min_max)
-{
-  checkFanoutLimitPreamble();
-  return check_fanout_limits_->pinMinFanoutLimitSlack(min_max);
-}
-
 PinSeq *
-Sta::pinFanoutLimitViolations(const MinMax *min_max)
+Sta::checkFanoutLimits(Net *net,
+                       bool violators,
+                       const MinMax *min_max)
 {
   checkFanoutLimitPreamble();
-  return check_fanout_limits_->pinFanoutLimitViolations(min_max);
+  return check_fanout_limits_->checkFanoutLimits(net, violators, min_max);
 }
 
 void

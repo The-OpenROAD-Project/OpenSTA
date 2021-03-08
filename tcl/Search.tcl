@@ -402,38 +402,22 @@ proc report_slew_limits { net corner min_max violators verbose nosplit } {
   }
 }
 
-proc report_fanout_limits { min_max all_violators verbose nosplit } {
-  if { $all_violators } {
-    set violators [pin_fanout_limit_violations $min_max]
-    if { $violators != {} } {
-      report_line "${min_max} fanout"
-      report_line ""
-      if { $verbose } {
-	foreach pin $violators {
-	  report_fanout_limit_verbose $pin $min_max
-	  report_line ""
-	}
-      } else {
-	report_fanout_limit_short_header
-	foreach pin $violators {
-	  report_fanout_limit_short $pin $min_max
-	}
-	report_line ""
+proc report_fanout_limits { net min_max violators verbose nosplit } {
+  set pins [check_fanout_limits $net $violators $min_max]
+  if { $pins != {} } {
+    report_line "${min_max} fanout"
+    report_line ""
+    if { $verbose } {
+      foreach pin $pins {
+        report_fanout_limit_verbose $pin $min_max
+        report_line ""
       }
-    }
-  } else {
-    set pin [pin_min_fanout_limit_slack $min_max]
-    if { $pin != "NULL" } {
-      report_line "${min_max} fanout"
-      report_line ""
-      if { $verbose } {
-	report_fanout_limit_verbose $pin $min_max
-	report_line ""
-      } else {
-	report_fanout_limit_short_header
-	report_fanout_limit_short $pin $min_max
-	report_line ""
+    } else {
+      report_fanout_limit_short_header
+      foreach pin $pins {
+        report_fanout_limit_short $pin $min_max
       }
+      report_line ""
     }
   }
 }

@@ -481,10 +481,10 @@ proc_redirect report_check_types {
     report_slew_limits $net $corner "min" $violators $verbose $nosplit
   }
   if { $max_fanout } {
-    report_fanout_limits "max" $violators $verbose $nosplit
+    report_fanout_limits $net "max" $violators $verbose $nosplit
   }
   if { $min_fanout } {
-    report_fanout_limits "min" $violators $verbose $nosplit
+    report_fanout_limits $net "min" $violators $verbose $nosplit
   }
   if { $max_capacitance } {
     report_capacitance_limits $net $corner "max" $violators $verbose $nosplit

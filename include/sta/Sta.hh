@@ -631,10 +631,12 @@ public:
 		 float &slack);
 
   void checkFanoutLimitPreamble();
-  // Return the pin with the min/max fanout limit slack.
-  Pin *pinMinFanoutLimitSlack(const MinMax *min_max);
-  // Return all pins with min/max fanout violations.
-  PinSeq *pinFanoutLimitViolations(const MinMax *min_max);
+  // Return pins with the min/max fanout limit slack.
+  // net=null check all nets
+  // corner=nullptr checks all corners.
+  PinSeq *checkFanoutLimits(Net *net,
+                            bool violators,
+                            const MinMax *min_max);
   void reportFanoutLimitShortHeader();
   void reportFanoutLimitShort(Pin *pin,
 			      const MinMax *min_max);

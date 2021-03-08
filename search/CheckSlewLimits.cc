@@ -278,6 +278,8 @@ CheckSlewLimits::checkSlew(Vertex *vertex,
   }
 }
 
+////////////////////////////////////////////////////////////////
+
 PinSeq *
 CheckSlewLimits::checkSlewLimits(Net *net,
                                  bool violators,

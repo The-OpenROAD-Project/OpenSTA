@@ -4739,18 +4739,13 @@ report_slew_limit_verbose(Pin *pin,
 
 ////////////////////////////////////////////////////////////////
 
-Pin *
-pin_min_fanout_limit_slack(const MinMax *min_max)
-{
-  cmdLinkedNetwork();
-  return Sta::sta()->pinMinFanoutLimitSlack(min_max);
-}
-
 PinSeq *
-pin_fanout_limit_violations(const MinMax *min_max)
+check_fanout_limits(Net *net,
+                    bool violators,
+                    const MinMax *min_max)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->pinFanoutLimitViolations(min_max);
+  return Sta::sta()->checkFanoutLimits(net, violators, min_max);
 }
 
 void

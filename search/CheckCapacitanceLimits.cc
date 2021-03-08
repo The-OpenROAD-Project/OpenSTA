@@ -221,6 +221,8 @@ CheckCapacitanceLimits::checkCapacitance(const Pin *pin,
   }
 }
 
+////////////////////////////////////////////////////////////////
+
 PinSeq *
 CheckCapacitanceLimits::checkCapacitanceLimits(Net *net,
                                                bool violators,
