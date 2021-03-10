@@ -132,11 +132,9 @@ EOL \r?\n
 	    while (isspace(filename_end[-1]) && filename_end > filename)
 	      filename_end--;
 	    *filename_end = '\0';
-	    FILE *stream = sta::libertyIncludeBegin(filename);
-	    if (stream) {
-	      yypush_buffer_state(yy_create_buffer(stream, YY_BUF_SIZE));
-	      BEGIN(INITIAL);
-	    }
+	    sta::libertyIncludeBegin(filename);
+            yypush_buffer_state(yy_create_buffer(nullptr, YY_BUF_SIZE));
+	    BEGIN(INITIAL);
 	  }
 	}
 #else

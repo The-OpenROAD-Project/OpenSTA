@@ -27,18 +27,18 @@
 
 int
 LibertyParse_parse();
-extern FILE *LibertyLex_in;
 
 namespace sta {
 
 typedef Vector<LibertyGroup*> LibertyGroupSeq;
 
 static const char *liberty_filename;
+static gzFile liberty_stream;
 static int liberty_line;
 // Previous lex reader state for include files.
 static const char *liberty_filename_prev;
 static int liberty_line_prev;
-static FILE *liberty_stream_prev;
+static gzFile liberty_stream_prev;
 
 static LibertyGroupVisitor *liberty_group_visitor;
 static LibertyGroupSeq liberty_group_stack;
@@ -59,8 +59,8 @@ parseLibertyFile(const char *filename,
 		 LibertyGroupVisitor *library_visitor,
 		 Report *report)
 {
-  LibertyLex_in = fopen(filename, "r");
-  if (LibertyLex_in) {
+  liberty_stream = gzopen(filename, "r");
+  if (liberty_stream) {
     liberty_group_visitor = library_visitor;
     liberty_group_stack.clear();
     liberty_filename = filename;
@@ -69,10 +69,34 @@ parseLibertyFile(const char *filename,
     liberty_line = 1;
     liberty_report = report;
     LibertyParse_parse();
-    fclose(LibertyLex_in);
+    gzclose(liberty_stream);
   }
   else
     throw FileNotReadable(filename);
+}
+
+void
+libertyGetChars(char *buf,
+                int &result,
+                size_t max_size)
+{
+  char *status = gzgets(liberty_stream, buf, max_size);
+  if (status == Z_NULL)
+    result = 0;  // YY_nullptr
+  else
+    result = strlen(buf);
+}
+
+void
+libertyGetChars(char *buf,
+                size_t &result,
+                size_t max_size)
+{
+  char *status = gzgets(liberty_stream, buf, max_size);
+  if (status == Z_NULL)
+    result = 0;  // YY_nullptr
+  else
+    result = strlen(buf);
 }
 
 void
@@ -510,30 +534,31 @@ libertyInInclude()
   return liberty_filename_prev != nullptr;
 }
 
-FILE *
+void
 libertyIncludeBegin(const char *filename)
 {
-  FILE *stream = fopen(filename, "r" );
+  gzFile stream = gzopen(filename, "r" );
   if (stream) {
+    liberty_stream_prev = liberty_stream;
     liberty_filename_prev = liberty_filename;
     liberty_line_prev = liberty_line;
-    liberty_stream_prev = LibertyLex_in;
 
+    liberty_stream = stream;
     liberty_filename = filename;
     liberty_line = 1;
   }
   else
     libertyParseError("cannot open include file %s.", filename);
-  return stream;
 }
 
 void
 libertyIncludeEnd()
 {
-  fclose(LibertyLex_in);
+  gzclose(liberty_stream);
+  liberty_stream = liberty_stream_prev;
   liberty_filename = liberty_filename_prev;
   liberty_line = liberty_line_prev;
-  LibertyLex_in = liberty_stream_prev;
+
   liberty_filename_prev = nullptr;
   liberty_stream_prev = nullptr;
 }
