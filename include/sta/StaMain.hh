@@ -44,6 +44,8 @@ initSta(int argc,
 void
 evalTclInit(Tcl_Interp *interp,
 	    const char *inits[]);
+char *
+unencode(const char *inits[]);
 
 bool
 findCmdLineFlag(int &argc,

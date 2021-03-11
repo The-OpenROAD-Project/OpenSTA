@@ -27,9 +27,6 @@
 
 namespace sta {
 
-static char *
-unencode(const char *inits[]);
-
 int
 parseThreadsArg(int &argc,
 		char *argv[])
@@ -118,7 +115,7 @@ evalTclInit(Tcl_Interp *interp,
   delete [] unencoded;
 }
 
-static char *
+char *
 unencode(const char *inits[])
 {
   size_t length = 0;
