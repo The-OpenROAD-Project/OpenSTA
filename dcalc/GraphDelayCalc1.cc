@@ -287,7 +287,7 @@ GraphDelayCalc1::setObserver(DelayCalcObserver *observer)
 void
 GraphDelayCalc1::delaysInvalid()
 {
-  debugPrint0(debug_, "delay_calc", 1, "delays invalid");
+  debugPrint(debug_, "delay_calc", 1, "delays invalid");
   delays_exist_ = false;
   delays_seeded_ = false;
   incremental_ = false;
@@ -510,7 +510,7 @@ GraphDelayCalc1::ensureMultiDrvrNetsFound()
 void
 GraphDelayCalc1::makeMultiDrvrNet(PinSet &drvr_pins)
 {
-  debugPrint0(debug_, "delay_calc", 3, "multi-driver net");
+  debugPrint(debug_, "delay_calc", 3, "multi-driver net");
   VertexSet *drvr_vertices = new VertexSet;
   MultiDrvrNet *multi_drvr = new MultiDrvrNet(drvr_vertices);
   Level max_drvr_level = 0;

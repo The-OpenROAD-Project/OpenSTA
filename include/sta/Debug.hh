@@ -59,16 +59,9 @@ private:
 // Note that "##__VA_ARGS__" is a gcc extension to support zero arguments (no comma).
 // clang -Wno-gnu-zero-variadic-macro-arguments suppresses the warning.
 // c++20 has "__VA_OPT__" to deal with the zero arg case so this is temporary.
-#define debugPrint(debug, what, level, msg, ...) \
+#define debugPrint(debug, what, level, ...) \
   if (debug->check(what, level)) {  \
-    debug->reportLine(what, msg, ##__VA_ARGS__); \
-  }
-
-// Sadly c++11 __VA_ARGS__ macros must have at least one arg, so this form
-// should be used when there are no args for the message.
-#define debugPrint0(debug, what, level, msg) \
-  if (debug->check(what, level)) {  \
-    debug->reportLine(what, msg); \
+    debug->reportLine(what, ##__VA_ARGS__); \
   }
 
 } // namespace

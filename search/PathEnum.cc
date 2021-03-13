@@ -434,7 +434,7 @@ PathEnum::makeDiversion(PathEnd *div_end,
 void
 PathEnum::pruneDiversionQueue()
 {
-  debugPrint0(debug_, "path_enum", 2, "prune queue");
+  debugPrint(debug_, "path_enum", 2, "prune queue");
   VertexPathCountMap path_counts;
   int end_count = 0;
   // Collect endpoint_count diversions per vertex.

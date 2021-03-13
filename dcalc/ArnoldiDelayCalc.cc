@@ -880,7 +880,7 @@ ArnoldiDelayCalc::pr_solve1(double s,
         // ignoring a typical error at drive node, that comes
         // from slight inaccuracies in rr
         if (!(rr[order-1]>1.0 && p[order-1]>500.0 && va>v1-0.002))
-	  debugPrint0(debug_, "arnoldi", 1, "err, pr_solve1, va<v1");
+	  debugPrint(debug_, "arnoldi", 1, "err, pr_solve1, va<v1");
       }
       tmin = ta; vmin = va;
     } else {
@@ -893,7 +893,7 @@ ArnoldiDelayCalc::pr_solve1(double s,
         pr_get_v(ta,s,order,p,rr,&va);
       }
       if (va>v1)
-	debugPrint0(debug_, "arnoldi", 1, "err, pr_solve1, va>v1");
+	debugPrint(debug_, "arnoldi", 1, "err, pr_solve1, va>v1");
       tmax = ta; vmax = va;
     }
   } else {
@@ -1460,7 +1460,7 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
       ceff = pr_ceff(s,r,mod->order,p,rr,ceff_time);
 
       if ((ceff-1e-20) < 0.0) {  // 1e-8pf
-	debugPrint0(debug_, "arnoldi", 1,
+	debugPrint(debug_, "arnoldi", 1,
                     "Invalid effective capacitance, using total capacitance");
 	ceff = ctot;
       }

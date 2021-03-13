@@ -115,7 +115,7 @@ void
 Levelize::levelize()
 {
   Stats stats(debug_, report_);
-  debugPrint0(debug_, "levelize", 1, "levelize");
+  debugPrint(debug_, "levelize", 1, "levelize");
   max_level_ = 0;
   clearLoopEdges();
   deleteLoops();
@@ -276,7 +276,7 @@ EdgeSeq *
 Levelize::loopEdges(EdgeSeq &path,
 		    Edge *closing_edge)
 {
-  debugPrint0(debug_, "loop", 2, "Loop");
+  debugPrint(debug_, "loop", 2, "Loop");
   EdgeSeq *loop_edges = new EdgeSeq;
   // Skip the "head" of the path up to where closing_edge closes the loop.
   Pin *loop_pin = closing_edge->to(graph_)->pin();
@@ -355,7 +355,7 @@ Levelize::levelizeCycles()
 void
 Levelize::invalid()
 {
-  debugPrint0(debug_, "levelize", 1, "levels invalid");
+  debugPrint(debug_, "levelize", 1, "levels invalid");
   clear();
 }
 
