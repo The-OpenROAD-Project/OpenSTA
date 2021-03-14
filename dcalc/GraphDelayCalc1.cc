@@ -323,7 +323,7 @@ GraphDelayCalc1::delayInvalid(const Pin *pin)
 void
 GraphDelayCalc1::delayInvalid(Vertex *vertex)
 {
-  debugPrint(debug_, "delay_calc", 2, "delays invalid %s",
+  debugPrint(debug_, "delay_calc", 2, "delay invalid %s",
              vertex->name(sdc_network_));
   if (graph_ && incremental_) {
     invalid_delays_.insert(vertex);

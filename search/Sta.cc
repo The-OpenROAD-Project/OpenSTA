@@ -3687,6 +3687,16 @@ Sta::deleteParasitics()
   search_->arrivalsInvalid();
 }
 
+Parasitic *
+Sta::makeParasiticNetwork(const Net *net,
+                          bool includes_pin_caps,
+                          const ParasiticAnalysisPt *ap)
+{
+  Parasitic *parasitic = parasitics_->makeParasiticNetwork(net, includes_pin_caps, ap);
+  delaysInvalidFromFanin(const_cast<Net*>(net));
+  return parasitic;
+}
+
 ////////////////////////////////////////////////////////////////
 //
 // Network edit commands.

@@ -1096,6 +1096,9 @@ public:
 		 const MinMaxAll *min_max,
 		 float elmore);
   void deleteParasitics();
+  Parasitic *makeParasiticNetwork(const Net *net,
+                                  bool includes_pin_caps,
+                                  const ParasiticAnalysisPt *ap);
 
   // TCL network edit function support.
   virtual Instance *makeInstance(const char *name,
