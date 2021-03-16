@@ -40,6 +40,8 @@
 #include "ParseBus.hh"
 #include "Network.hh"
 
+extern int LibertyParse_debug;
+
 namespace sta {
 
 static void
@@ -138,6 +140,7 @@ LibertyReader::readLibertyFile(const char *filename,
     have_slew_upper_threshold_[rf_index] = false;
   }
 
+  //::LibertyParse_debug = 1;
   parseLibertyFile(filename, this, report_);
   return library_;
 }

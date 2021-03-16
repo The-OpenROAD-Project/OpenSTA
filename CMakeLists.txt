@@ -256,7 +256,7 @@ flex_target(LibertyLex ${STA_HOME}/liberty/LibertyLex.ll ${CMAKE_CURRENT_BINARY_
   COMPILE_FLAGS --prefix=LibertyLex_
   )
 bison_target(LibertyParser ${STA_HOME}/liberty/LibertyParse.yy ${CMAKE_CURRENT_BINARY_DIR}/LibertyParse.cc
-  COMPILE_FLAGS --name-prefix=LibertyParse_
+  COMPILE_FLAGS "--name-prefix=LibertyParse_ -v"
   )
 add_flex_bison_dependency(LibertyLex LibertyParser)
 
