@@ -188,7 +188,7 @@ LumpedCapDelayCalc::loadDelay(const Pin *load_pin,
   Slew load_slew1 = drvr_slew_ * multi_drvr_slew_factor_;
   thresholdAdjust(load_pin, wire_delay1, load_slew1);
   wire_delay = wire_delay1;
-  load_slew = load_slew1 * multi_drvr_slew_factor_;
+  load_slew = load_slew1;
 }
 
 void
