@@ -225,7 +225,8 @@ PathRef::required(const StaState *sta) const
 }
 
 void
-PathRef::setRequired(const Required &required, const StaState *sta)
+PathRef::setRequired(const Required &required,
+                     const StaState *sta)
 {
   if (path_enumed_)
     return path_enumed_->setRequired(required, sta);
@@ -236,7 +237,8 @@ PathRef::setRequired(const Required &required, const StaState *sta)
 void
 PathRef::prevPath(const StaState *sta,
 		  // Return values.
-		  PathRef &prev_path, TimingArc *&prev_arc) const
+		  PathRef &prev_path,
+                  TimingArc *&prev_arc) const
 {
   if (path_enumed_)
     path_enumed_->prevPath(sta, prev_path, prev_arc);
