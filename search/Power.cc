@@ -266,7 +266,7 @@ ActivitySrchPred::searchFrom(const Vertex *)
 bool
 ActivitySrchPred::searchThru(Edge *edge)
 {
-  auto role = edge->role();
+  TimingRole *role = edge->role();
   return !(edge->isDisabledLoop()
 	   || role->isTimingCheck()
 	   || role == TimingRole::regClkToQ());
@@ -367,7 +367,7 @@ PropActivityVisitor::visit(Vertex *vertex)
 	}
       }
       Instance *inst = network_->instance(pin);
-      auto cell = network_->libertyCell(inst);
+      LibertyCell *cell = network_->libertyCell(inst);
       if (cell && cell->hasSequentials()) {
 	debugPrint(debug_, "power_activity", 3, "pending reg %s",
                    network_->pathName(inst));
@@ -506,7 +506,7 @@ Power::ensureActivities()
 	InstanceSet *regs = visitor.stealVisitedRegs();
 	InstanceSet::Iterator reg_iter(regs);
 	while (reg_iter.hasNext()) {
-	  auto reg = reg_iter.next();
+	  Instance *reg = reg_iter.next();
 	  // Propagate activiities across register D->Q.
 	  seedRegOutputActivities(reg, bfs);
 	}
@@ -525,7 +525,7 @@ Power::ensureActivities()
 void
 Power::seedActivities(BfsFwdIterator &bfs)
 {
-  for (auto vertex : levelize_->roots()) {
+  for (Vertex *vertex : levelize_->roots()) {
     const Pin *pin = vertex->pin();
     // Clock activities are baked in.
     if (!sdc_->isLeafPinClock(pin)
@@ -547,7 +547,7 @@ void
 Power::seedRegOutputActivities(const Instance *inst,
 			       BfsFwdIterator &bfs)
 {
-  auto cell = network_->libertyCell(inst);
+  LibertyCell *cell = network_->libertyCell(inst);
   LibertyCellSequentialIterator seq_iter(cell);
   while (seq_iter.hasNext()) {
     Sequential *seq = seq_iter.next();
@@ -650,7 +650,7 @@ Power::findInputInternalPower(const Pin *pin,
   int lib_ap_index = corner->libertyIndex(MinMax::max());
   LibertyCell *corner_cell = cell->cornerCell(lib_ap_index);
   const LibertyPort *corner_port = port->cornerPort(lib_ap_index);
-  auto internal_pwrs = corner_cell->internalPowers(corner_port);
+  InternalPowerSeq *internal_pwrs = corner_cell->internalPowers(corner_port);
   if (!internal_pwrs->empty()) {
     debugPrint(debug_, "power", 2, "internal input %s/%s (%s)",
                network_->pathName(inst),
@@ -667,7 +667,7 @@ Power::findInputInternalPower(const Pin *pin,
       const char *related_pg_pin = pwr->relatedPgPin();
       float energy = 0.0;
       int tr_count = 0;
-      for (auto rf : RiseFall::range()) {
+      for (RiseFall *rf : RiseFall::range()) {
 	float slew = delayAsFloat(graph_->slew(vertex, rf,
 					       dcalc_ap->index()));
 	if (!delayInf(slew)) {
@@ -808,7 +808,7 @@ Power::findOutputInternalPower(const Pin *to_pin,
     int tr_count = 0;
     debugPrint(debug_, "power", 2,
                 "             when act/ns duty  wgt   energy    power");
-    for (auto to_rf : RiseFall::range()) {
+    for (RiseFall *to_rf : RiseFall::range()) {
       // Use unateness to find from_rf.
       RiseFall *from_rf = positive_unate ? to_rf : to_rf->opposite();
       float slew = from_vertex
@@ -939,7 +939,7 @@ Power::findLeakagePower(const Instance *,
       FuncExprPortIterator port_iter(when);
       float duty = 1.0;
       while (port_iter.hasNext()) {
-	auto port = port_iter.next();
+	LibertyPort *port = port_iter.next();
 	if (port->direction()->isAnyInput())
 	  duty *= port->isClock() ? 0.25 : 0.5;
       }
@@ -1076,10 +1076,10 @@ Power::pgNameVoltage(LibertyCell *cell,
 		     const DcalcAnalysisPt *dcalc_ap)
 {
   if (pg_port_name) {
-    auto pg_port = cell->findPgPort(pg_port_name);
+    LibertyPgPort *pg_port = cell->findPgPort(pg_port_name);
     if (pg_port) {
-      auto volt_name = pg_port->voltageName();
-      auto library = cell->libertyLibrary();
+      const char *volt_name = pg_port->voltageName();
+      LibertyLibrary *library = cell->libertyLibrary();
       float voltage;
       bool exists;
       library->supplyVoltage(volt_name, voltage, exists);
