@@ -78,6 +78,7 @@ protected:
   void setConstraintConstPins(LogicValueMap *pin_value_map,
 			      bool propagate);
   void setConstFuncPins(bool propagate);
+  LogicValue pinConstFuncValue(Pin *pin);
   void enqueueConstantPinInputs(bool propagate);
   virtual void setPinValue(const Pin *pin,
 			   LogicValue value,

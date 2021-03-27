@@ -597,7 +597,9 @@ Sim::propagateFromInvalidDrvrsToLoads()
   PinSet::Iterator drvr_iter(invalid_drvr_pins_);
   while (drvr_iter.hasNext()) {
     Pin *drvr_pin = drvr_iter.next();
-    LogicValue value = logicValue(drvr_pin);
+    LogicValue value = const_func_pins_.hasKey(drvr_pin)
+      ? pinConstFuncValue(drvr_pin)
+      : logicValue(drvr_pin);
     PinConnectedPinIterator *load_iter=network_->connectedPinIterator(drvr_pin);
     while (load_iter->hasNext()) {
       Pin *load_pin = load_iter->next();
@@ -785,21 +787,26 @@ Sim::setConstFuncPins(bool propagate)
   PinSet::Iterator const_pin_iter(const_func_pins_);
   while (const_pin_iter.hasNext()) {
     Pin *pin = const_pin_iter.next();
-    LibertyPort *port = network_->libertyPort(pin);
-    if (port) {
-      FuncExpr *expr = port->function();
-      if (expr->op() == FuncExpr::op_zero) {
-	debugPrint(debug_, "sim", 2, "func pin %s = 0",
-                   network_->pathName(pin));
-	setPinValue(pin, LogicValue::zero, propagate);
-      }
-      else if (expr->op() == FuncExpr::op_one) {
-	debugPrint(debug_, "sim", 2, "func pin %s = 1",
-                   network_->pathName(pin));
-	setPinValue(pin, LogicValue::one, propagate);
-      }
-    }
+    LogicValue value = pinConstFuncValue(pin);
+    setPinValue(pin, value, propagate);
+    debugPrint(debug_, "sim", 2, "func pin %s = %c",
+               network_->pathName(pin),
+               logicValueString(value));
   }
+}
+
+LogicValue
+Sim::pinConstFuncValue(Pin *pin)
+{
+  LibertyPort *port = network_->libertyPort(pin);
+  if (port) {
+    FuncExpr *expr = port->function();
+    if (expr->op() == FuncExpr::op_zero)
+      return LogicValue::zero;
+    else if (expr->op() == FuncExpr::op_one)
+      return LogicValue::one;
+  }
+  return LogicValue::unknown;
 }
 
 void
