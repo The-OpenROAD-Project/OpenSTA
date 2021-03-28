@@ -4657,8 +4657,7 @@ vertex_worst_arrival_path(Vertex *vertex,
 			  const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  PathRef path;
-  sta->vertexWorstArrivalPath(vertex, min_max, path);
+  PathRef path = sta->vertexWorstArrivalPath(vertex, min_max);
   if (!path.isNull())
     return new PathRef(path);
   else
@@ -4671,8 +4670,7 @@ vertex_worst_arrival_path_rf(Vertex *vertex,
 			     MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  PathRef path;
-  sta->vertexWorstArrivalPath(vertex, rf, min_max, path);
+  PathRef path = sta->vertexWorstArrivalPath(vertex, rf, min_max);
   if (!path.isNull())
     return new PathRef(path);
   else
@@ -4684,8 +4682,7 @@ vertex_worst_slack_path(Vertex *vertex,
 			const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  PathRef path;
-  sta->vertexWorstSlackPath(vertex, min_max, path);
+  PathRef path = sta->vertexWorstSlackPath(vertex, min_max);
   if (!path.isNull())
     return new PathRef(path);
   else

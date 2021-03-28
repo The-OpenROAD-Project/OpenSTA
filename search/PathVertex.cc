@@ -542,6 +542,24 @@ VertexPathIterator::VertexPathIterator(Vertex *vertex,
   }
 }
 
+VertexPathIterator::VertexPathIterator(Vertex *vertex,
+				       const RiseFall *rf,
+				       const PathAnalysisPt *path_ap,
+				       const MinMax *min_max,
+				       const StaState *sta) :
+  search_(sta->search()),
+  vertex_(vertex),
+  rf_(rf),
+  path_ap_(path_ap),
+  min_max_(min_max)
+{
+  TagGroup *tag_group = search_->tagGroup(vertex);
+  if (tag_group) {
+    arrival_iter_.init(tag_group->arrivalMap());
+    findNext();
+  }
+}
+
 VertexPathIterator::~VertexPathIterator()
 {
 }

@@ -2677,13 +2677,12 @@ Sta::vertexPathIterator(Vertex *vertex,
   return new VertexPathIterator(vertex, rf, min_max, this);
 }
 
-void
+PathRef
 Sta::vertexWorstArrivalPath(Vertex *vertex,
 			    const RiseFall *rf,
-			    const MinMax *min_max,
-			    // Return value.
-			    PathRef &worst_path)
+			    const MinMax *min_max)
 {
+  PathRef worst_path;
   Arrival worst_arrival = min_max->initValue();
   VertexPathIterator path_iter(vertex, rf, min_max, this);
   while (path_iter.hasNext()) {
@@ -2695,35 +2694,22 @@ Sta::vertexWorstArrivalPath(Vertex *vertex,
       worst_path.init(path);
     }
   }
+  return worst_path;
 }
 
-void
+PathRef
 Sta::vertexWorstArrivalPath(Vertex *vertex,
-			    const MinMax *min_max,
-			    // Return value.
-			    PathRef &worst_path)
+			    const MinMax *min_max)
 {
-  Arrival worst_arrival = min_max->initValue();
-  VertexPathIterator path_iter(vertex, this);
-  while (path_iter.hasNext()) {
-    PathVertex *path = path_iter.next();
-    Arrival arrival = path->arrival(this);
-    if (path->minMax(this) == min_max
-	&& !path->tag(this)->isGenClkSrcPath()
-	&& delayGreater(arrival, worst_arrival, min_max, this)) {
-      worst_arrival = arrival;
-      worst_path.init(path);
-    }
-  }
+  return vertexWorstArrivalPath(vertex, nullptr, min_max);
 }
 
-void
+PathRef
 Sta::vertexWorstSlackPath(Vertex *vertex,
 			  const RiseFall *rf,
-			  const MinMax *min_max,
-			  // Return value.
-			  PathRef &worst_path)
+			  const MinMax *min_max)
 {
+  PathRef worst_path;
   Slack min_slack = MinMax::min()->initValue();
   VertexPathIterator path_iter(vertex, rf, min_max, this);
   while (path_iter.hasNext()) {
@@ -2735,28 +2721,15 @@ Sta::vertexWorstSlackPath(Vertex *vertex,
       worst_path.init(path);
     }
   }
+  return worst_path;
 }
 
-void
+PathRef
 Sta::vertexWorstSlackPath(Vertex *vertex,
-			  const MinMax *min_max,
-			  // Return value.
-			  PathRef &worst_path)
+			  const MinMax *min_max)
 
 {
-  Slack min_slack = MinMax::min()->initValue();
-  VertexPathIterator path_iter(vertex, this);
-  while (path_iter.hasNext()) {
-    PathVertex *path = path_iter.next();
-    if (path->minMax(this) == min_max
-	&& !path->tag(this)->isGenClkSrcPath()) {
-      Slack slack = path->slack(this);
-      if (delayLess(slack, min_slack, this)) {
-	min_slack = slack;
-	worst_path.init(path);
-      }
-    }
-  }
+  return vertexWorstSlackPath(vertex, nullptr, min_max);
 }
 
 Arrival
@@ -2795,19 +2768,15 @@ Required
 Sta::vertexRequired(Vertex *vertex,
 		    const MinMax *min_max)
 {
-  findRequired(vertex);
-  const MinMax *req_min_max = min_max->opposite();
-  Required required = req_min_max->initValue();
-  VertexPathIterator path_iter(vertex, this);
-  while (path_iter.hasNext()) {
-    const Path *path = path_iter.next();
-    if (path->minMax(this) == min_max) {
-      const Required path_required = path->required(this);
-      if (delayGreater(path_required, required, req_min_max, this))
-	required = path_required;
-    }
-  }
-  return required;
+  return vertexRequired(vertex, nullptr, clk_edge_wildcard, nullptr, min_max);
+}
+
+Required
+Sta::vertexRequired(Vertex *vertex,
+		    const RiseFall *rf,
+		    const MinMax *min_max)
+{
+  return vertexRequired(vertex, rf, clk_edge_wildcard, nullptr, min_max);
 }
 
 Required
@@ -2815,7 +2784,7 @@ Sta::vertexRequired(Vertex *vertex,
 		    const RiseFall *rf,
 		    const PathAnalysisPt *path_ap)
 {
-  return vertexRequired(vertex, rf, clk_edge_wildcard, path_ap);
+  return vertexRequired(vertex, rf, clk_edge_wildcard, path_ap, nullptr);
 }
 
 Required
@@ -2824,16 +2793,28 @@ Sta::vertexRequired(Vertex *vertex,
 		    const ClockEdge *clk_edge,
 		    const PathAnalysisPt *path_ap)
 {
+  return vertexRequired(vertex, rf, clk_edge, path_ap, nullptr);
+}
+
+Required
+Sta::vertexRequired(Vertex *vertex,
+		    const RiseFall *rf,
+		    const ClockEdge *clk_edge,
+		    const PathAnalysisPt *path_ap,
+		    const MinMax *min_max)
+{
   findRequired(vertex);
-  const MinMax *min_max = path_ap->pathMinMax()->opposite();
-  Required required = min_max->initValue();
-  VertexPathIterator path_iter(vertex, rf, path_ap, this);
+  const MinMax *req_min_max = min_max
+    ? min_max->opposite()
+    : path_ap->pathMinMax()->opposite();
+  Required required = req_min_max->initValue();
+  VertexPathIterator path_iter(vertex, rf, path_ap, min_max, this);
   while (path_iter.hasNext()) {
     const Path *path = path_iter.next();
     const Required path_required = path->required(this);
     if ((clk_edge == clk_edge_wildcard
 	 || path->clkEdge(search_) == clk_edge)
-	&& delayGreater(path_required, required, min_max, this))
+	&& delayGreater(path_required, required, req_min_max, this))
       required = path_required;
   }
   return required;

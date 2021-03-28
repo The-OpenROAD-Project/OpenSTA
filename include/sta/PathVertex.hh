@@ -123,6 +123,11 @@ public:
 		     const RiseFall *rf,
 		     const MinMax *min_max,
 		     const StaState *sta);
+  VertexPathIterator(Vertex *vertex,
+                     const RiseFall *rf,
+                     const PathAnalysisPt *path_ap,
+                     const MinMax *min_max,
+                     const StaState *sta);
   virtual ~VertexPathIterator();
   virtual bool hasNext();
   virtual PathVertex *next();

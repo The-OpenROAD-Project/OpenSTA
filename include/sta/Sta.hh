@@ -946,28 +946,16 @@ public:
   VertexPathIterator *vertexPathIterator(Vertex *vertex,
 					 const RiseFall *rf,
 					 const MinMax *min_max);
-  void
-  vertexWorstArrivalPath(Vertex *vertex,
-			 const RiseFall *rf,
-			 const MinMax *min_max,
-			 // Return value.
-			 PathRef &worst_path);
-  void
-  vertexWorstArrivalPath(Vertex *vertex,
-			 const MinMax *min_max,
-			 // Return value.
-			 PathRef &worst_path);
-  void
-  vertexWorstSlackPath(Vertex *vertex,
-		       const MinMax *min_max,
-		       // Return value.
-		       PathRef &worst_path);
-  void
-  vertexWorstSlackPath(Vertex *vertex,
-		       const RiseFall *rf,
-		       const MinMax *min_max,
-		       // Return value.
-		       PathRef &worst_path);
+  PathRef vertexWorstArrivalPath(Vertex *vertex,
+                                 const RiseFall *rf,
+                                 const MinMax *min_max);
+  PathRef vertexWorstArrivalPath(Vertex *vertex,
+                                 const MinMax *min_max);
+  PathRef vertexWorstSlackPath(Vertex *vertex,
+                               const MinMax *min_max);
+  PathRef vertexWorstSlackPath(Vertex *vertex,
+                               const RiseFall *rf,
+                               const MinMax *min_max);
 
   // The following arrival/required/slack functions incrementally
   // update timing to the level of the vertex.  They do NOT do multiple
@@ -983,6 +971,9 @@ public:
 			const PathAnalysisPt *path_ap);
   Required vertexRequired(Vertex *vertex,
 			  const MinMax *min_max);
+  Required vertexRequired(Vertex *vertex,
+                          const RiseFall *rf,
+                          const MinMax *min_max);
   // Min/max across all clock tags.
   Required vertexRequired(Vertex *vertex,
 			  const RiseFall *rf,
@@ -1283,6 +1274,11 @@ protected:
 		     const ClockEdge *clk_edge,
 		     const PathAnalysisPt *path_ap);
   void findRequired(Vertex *vertex);
+  Required vertexRequired(Vertex *vertex,
+                          const RiseFall *rf,
+                          const ClockEdge *clk_edge,
+                          const PathAnalysisPt *path_ap,
+                          const MinMax *min_max);
   void connectDrvrPinAfter(Vertex *vertex);
   void connectLoadPinAfter(Vertex *vertex);
   Path *latchEnablePath(Path *q_path,
