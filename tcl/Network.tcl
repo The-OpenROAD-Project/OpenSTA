@@ -167,12 +167,13 @@ proc_redirect report_lib_cell {
   check_argc_eq1 "report_lib_cell" $args
   set arg [lindex $args 0]
   set cell [get_lib_cell_warn "lib_cell" $arg]
+  set corner [cmd_corner]
   if { $cell != "NULL" } {
-    report_lib_cell_ $cell
+    report_lib_cell_ $cell $corner
   }
 }
 
-proc report_lib_cell_ { cell } {
+proc report_lib_cell_ { cell corner } {
   global sta_report_default_digits
 
   set lib [$cell liberty_library]
@@ -198,7 +199,7 @@ proc report_lib_cell_ { cell } {
     if { $func != "" } {
       set func " function=$func"
     }
-    report_line " $port_name [liberty_port_direction $port]$enable$func[port_capacitance_str $port $sta_report_default_digits]"
+    report_line " $port_name [liberty_port_direction $port]$enable$func[port_capacitance_str $port $corner $sta_report_default_digits]"
   }
   $iter finish
 }
@@ -223,38 +224,46 @@ proc report_cell_ { cell } {
   $iter finish
 }
 
-define_cmd_args "report_pin" {pin_path [> filename] [>> filename]}
+define_cmd_args "report_pin" {[-corner corner] [-digits digits] pin\
+                                [> filename] [>> filename]}
 
 proc_redirect report_pin {
+  global sta_report_default_digits
+
+  parse_key_args "report_pin" args keys {-corner -digits} \
+    flags {-connections -verbose -hier_pins}
+  set corner [parse_corner_or_default keys]
+  set digits $sta_report_default_digits
+  if { [info exists keys(-digits)] } {
+      set digits $keys(-digits)
+  }
   check_argc_eq1 "report_pin" $args
   set pin_path [lindex $args 0]
   set pin [get_pin_warn "pin" $pin_path]
+
   if { $pin != "NULL" } {
-    report_pin_ $pin
+    report_pin_ $pin $corner $digits
   }
 }
 
 ################################################################
 
 define_cmd_args "report_net" \
-  {[-connections] [-verbose] [-digits digits] [-hier_pins]\
+  {[-connections] [-verbose] [-corner corner] [-digits digits] [-hier_pins]\
      net_path [> filename] [>> filename]}
 
 # -hpins to show hierarchical pins
 proc_redirect report_net {
   global sta_report_default_digits
 
-  parse_key_args "report_net" args keys {-corner -digits -significant_digits} \
+  parse_key_args "report_net" args keys {-corner -digits} \
     flags {-connections -verbose -hier_pins}
   check_argc_eq1 "report_net" $args
 
-  set corner [parse_corner keys]
+  set corner [parse_corner_or_default keys]
   set digits $sta_report_default_digits
   if { [info exists keys(-digits)] } {
       set digits $keys(-digits)
-  }
-  if { [info exists keys(-significant_digits)] } {
-      set digits $keys(-significant_digits)
   }
 
   set connections [info exists flags(-connections)]
@@ -277,11 +286,6 @@ proc_redirect report_net {
       sta_error 592 "net $net_path not found."
     }
   }
-}
-
-proc report_net_ { net } {
-  global sta_report_default_digits
-  report_net1 $net 1 1 1 $corner $sta_report_default_digits
 }
 
 proc report_net1 { net connections verbose hier_pins corner digits } {
@@ -379,7 +383,7 @@ proc report_net_pin { pin verbose corner digits } {
     if { $verbose } {
       set liberty_port [$pin liberty_port]
       if { $liberty_port != "NULL" } {
-	set cap [port_capacitance_str $liberty_port $digits]
+	set cap [port_capacitance_str $liberty_port $corner $digits]
       }
     }
     report_line " [get_full_name $pin] [pin_direction $pin] ($cell_name)$cap[pin_location_str $pin]"
@@ -424,12 +428,10 @@ proc pin_location_str { pin } {
 
 ################################################################
 
-proc report_pin_ { pin } {
-  global sta_report_default_digits
-
+proc report_pin_ { pin corner digits } {
   set liberty_port [$pin liberty_port]
   if { $liberty_port != "NULL" } {
-    set cap [port_capacitance_str $liberty_port $sta_report_default_digits]
+    set cap [port_capacitance_str $liberty_port $corner $digits]
   } else {
     set cap ""
   }
@@ -463,7 +465,7 @@ proc pin_direction_desc { pin } {
 }
 
 # Do not preceed this field by a space in the caller.
-proc port_capacitance_str { liberty_port digits } {
+proc port_capacitance_str { liberty_port corner digits } {
   set cap_r_min [$liberty_port capacitance "rise" "min"]
   set cap_r_max [$liberty_port capacitance "rise" "max"]
   set cap_f_min [$liberty_port capacitance "fall" "min"]

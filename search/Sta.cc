@@ -3472,8 +3472,16 @@ Sta::setNetWireCap(Net *net,
 		   const MinMaxAll *min_max,
 		   float cap)
 {
-  for (MinMax *mm : min_max->range())
-    sdc_->setNetWireCap(net, subtract_pin_cap, corner, mm, cap);
+  if (corner == nullptr) {
+    for (Corner *corner : *corners_) {
+      for (MinMax *mm : min_max->range())
+        sdc_->setNetWireCap(net, subtract_pin_cap, corner, mm, cap);
+    }
+  }
+  else {
+    for (MinMax *mm : min_max->range())
+      sdc_->setNetWireCap(net, subtract_pin_cap, corner, mm, cap);
+  }
   delaysInvalidFromFanin(net);
 }
 
