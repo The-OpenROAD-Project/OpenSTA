@@ -2679,6 +2679,13 @@ Sta::vertexPathIterator(Vertex *vertex,
 
 PathRef
 Sta::vertexWorstArrivalPath(Vertex *vertex,
+			    const MinMax *min_max)
+{
+  return vertexWorstArrivalPath(vertex, nullptr, min_max);
+}
+
+PathRef
+Sta::vertexWorstArrivalPath(Vertex *vertex,
 			    const RiseFall *rf,
 			    const MinMax *min_max)
 {
@@ -2698,10 +2705,31 @@ Sta::vertexWorstArrivalPath(Vertex *vertex,
 }
 
 PathRef
-Sta::vertexWorstArrivalPath(Vertex *vertex,
-			    const MinMax *min_max)
+Sta::vertexWorstRequiredPath(Vertex *vertex,
+                             const MinMax *min_max)
 {
-  return vertexWorstArrivalPath(vertex, nullptr, min_max);
+  return vertexWorstRequiredPath(vertex, nullptr, min_max);
+}
+
+PathRef
+Sta::vertexWorstRequiredPath(Vertex *vertex,
+                             const RiseFall *rf,
+                             const MinMax *min_max)
+{
+  PathRef worst_path;
+  const MinMax *req_min_max = min_max->opposite();
+  Arrival worst_req = req_min_max->initValue();
+  VertexPathIterator path_iter(vertex, rf, min_max, this);
+  while (path_iter.hasNext()) {
+    PathVertex *path = path_iter.next();
+    const Required path_req = path->required(this);
+    if (!path->tag(this)->isGenClkSrcPath()
+	&& delayGreater(path_req, worst_req, req_min_max, this)) {
+      worst_req = path_req;
+      worst_path.init(path);
+    }
+  }
+  return worst_path;
 }
 
 PathRef

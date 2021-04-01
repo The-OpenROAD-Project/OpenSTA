@@ -951,6 +951,11 @@ public:
                                  const MinMax *min_max);
   PathRef vertexWorstArrivalPath(Vertex *vertex,
                                  const MinMax *min_max);
+  PathRef vertexWorstRequiredPath(Vertex *vertex,
+                                  const RiseFall *rf,
+                                  const MinMax *min_max);
+  PathRef vertexWorstRequiredPath(Vertex *vertex,
+                                  const MinMax *min_max);
   PathRef vertexWorstSlackPath(Vertex *vertex,
                                const MinMax *min_max);
   PathRef vertexWorstSlackPath(Vertex *vertex,

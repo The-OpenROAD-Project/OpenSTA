@@ -54,7 +54,7 @@ DcalcAnalysisPt::setCheckClkSlewIndex(DcalcAPIndex index)
 int 
 DcalcAnalysisPt::libertyIndex() const
 {
-  return index_; // same for now
+  return corner_->libertyIndex(min_max_);
 }
 
 } // namespace
