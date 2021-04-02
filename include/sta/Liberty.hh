@@ -660,6 +660,7 @@ public:
 		  bool &exists) const;
   void setFanoutLoad(float fanout_load);
   float capacitance() const;
+  float capacitance(const MinMax *min_max) const;
   float capacitance(const RiseFall *rf,
 		    const MinMax *min_max) const;
   void capacitance(const RiseFall *rf,

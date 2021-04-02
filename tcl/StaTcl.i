@@ -177,30 +177,6 @@ tclListSeq(Tcl_Obj *const source,
     return nullptr;
 }
 
-template <class TYPE>
-vector<TYPE> *
-tclListStdSeq(Tcl_Obj *const source,
-	      swig_type_info *swig_type,
-	      Tcl_Interp *interp)
-{
-  int argc;
-  Tcl_Obj **argv;
-
-  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
-      && argc > 0) {
-    vector<TYPE> *seq = new vector<TYPE>;
-    for (int i = 0; i < argc; i++) {
-      void *obj;
-      // Ignore returned TCL_ERROR because can't get swig_type_info.
-      SWIG_ConvertPtr(argv[i], &obj, swig_type, false);
-      seq->push_back(reinterpret_cast<TYPE>(obj));
-    }
-    return seq;
-  }
-  else
-    return nullptr;
-}
-
 LibertyLibrarySeq *
 tclListSeqLibertyLibrary(Tcl_Obj *const source,
 			 Tcl_Interp *interp)
@@ -212,7 +188,7 @@ vector<LibertyCell*> *
 tclListSeqLibertyCell(Tcl_Obj *const source,
 		      Tcl_Interp *interp)
 {
-  return tclListStdSeq<LibertyCell*>(source, SWIGTYPE_p_LibertyCell, interp);
+  return tclListSeq<LibertyCell*>(source, SWIGTYPE_p_LibertyCell, interp);
 }
 
 template <class TYPE>
@@ -2853,11 +2829,13 @@ set_instance_pvt(Instance *inst,
 
 float
 port_ext_pin_cap(Port *port,
-		 const RiseFall *rf,
 		 const MinMax *min_max)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->portExtPinCap(port, rf, min_max);
+  float pin_cap, wire_cap;
+  int fanout;
+  Sta::sta()->portExtCaps(port, min_max, pin_cap, wire_cap, fanout);
+  return pin_cap;
 }
 
 void
@@ -2871,11 +2849,13 @@ set_port_pin_cap(Port *port,
 
 float
 port_ext_wire_cap(Port *port,
-		  const RiseFall *rf,
-		  const MinMax *min_max)
+                  const MinMax *min_max)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->portExtWireCap(port, rf, min_max);
+  float pin_cap, wire_cap;
+  int fanout;
+  Sta::sta()->portExtCaps(port, min_max, pin_cap, wire_cap, fanout);
+  return wire_cap;
 }
 
 void
@@ -2888,20 +2868,23 @@ set_port_wire_cap(Port *port,
   Sta::sta()->setPortExtWireCap(port, subtract_pin_cap, rf, min_max, cap);
 }
 
-int
-port_ext_fanout(Port *port,
-		const MinMax *min_max)
-{
-  cmdLinkedNetwork();
-  return Sta::sta()->portExtFanout(port, min_max);
-}
-
 void
 set_port_ext_fanout_cmd(Port *port,
 			int fanout,
 			const MinMaxAll *min_max)
 {
   Sta::sta()->setPortExtFanout(port, fanout, min_max);
+}
+
+float
+port_ext_fanout(Port *port,
+                const MinMax *min_max)
+{
+  cmdLinkedNetwork();
+  float pin_cap, wire_cap;
+  int fanout;
+  Sta::sta()->portExtCaps(port, min_max, pin_cap, wire_cap, fanout);
+  return fanout;
 }
 
 void
@@ -5582,12 +5565,11 @@ tristate_enable()
 }
 
 float
-capacitance(const RiseFall *rf,
+capacitance(Corner *corner,
 	    const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  OperatingConditions *op_cond = sta->operatingConditions(min_max);
-  return self->capacitance(rf, min_max, op_cond, op_cond);
+  return sta->capacitance(self, corner, min_max);
 }
 
 } // LibertyPort methods
@@ -5780,35 +5762,32 @@ bool is_power() { return cmdLinkedNetwork()->isPower(self);}
 bool is_ground() { return cmdLinkedNetwork()->isGround(self);}
 
 float
-capacitance(const RiseFall *rf,
-	    const Corner *corner,
+capacitance(Corner *corner,
 	    const MinMax *min_max)
 {
   cmdLinkedNetwork();
   float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, rf, corner, min_max, pin_cap, wire_cap);
+  Sta::sta()->connectedCap(self, corner, min_max, pin_cap, wire_cap);
   return pin_cap + wire_cap;
 }
 
 float
-pin_capacitance(const RiseFall *rf,
-		const Corner *corner,
+pin_capacitance(Corner *corner,
 		const MinMax *min_max)
 {
   cmdLinkedNetwork();
   float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, rf, corner, min_max, pin_cap, wire_cap);
+  Sta::sta()->connectedCap(self, corner, min_max, pin_cap, wire_cap);
   return pin_cap;
 }
 
 float
-wire_capacitance(const RiseFall *rf,
-		 const Corner *corner,
+wire_capacitance(Corner *corner,
 		 const MinMax *min_max)
 {
   cmdLinkedNetwork();
   float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, rf, corner, min_max, pin_cap, wire_cap);
+  Sta::sta()->connectedCap(self, corner, min_max, pin_cap, wire_cap);
   return wire_cap;
 }
 

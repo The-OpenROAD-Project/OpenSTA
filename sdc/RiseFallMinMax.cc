@@ -151,6 +151,18 @@ RiseFallMinMax::value(const RiseFall *rf,
 }
 
 float
+RiseFallMinMax::value(const MinMax *min_max) const
+{
+  int mm_index = min_max->index();
+  float rise = values_[RiseFall::riseIndex()][mm_index];
+  float fall = values_[RiseFall::fallIndex()][mm_index];
+  if (min_max->compare(rise, fall))
+    return rise;
+  else
+    return fall;
+}
+
+float
 RiseFallMinMax::value(const RiseFall *rf,
 		      const MinMax *min_max) const
 {
@@ -201,9 +213,9 @@ RiseFallMinMax::hasValue(const RiseFall *rf, const MinMax *min_max) const
 void
 RiseFallMinMax::mergeWith(RiseFallMinMax *rfmm)
 {
-  for (auto min_max : MinMax::range()) {
+  for (MinMax *min_max : MinMax::range()) {
     int mm_index = min_max->index();
-    for (auto rf_index : RiseFall::rangeIndex()) {
+    for (int rf_index : RiseFall::rangeIndex()) {
       bool exists1 = exists_[rf_index][mm_index];
       bool exists2 = rfmm->exists_[rf_index][mm_index];
       if (exists1 && exists2) {

@@ -31,6 +31,7 @@ public:
   explicit RiseFallMinMax(float init_value);
   float value(const RiseFall *rf,
 	      const MinMax *min_max) const;
+  float value(const MinMax *min_max) const;
   void value(const RiseFall *rf,
 	     const MinMax *min_max,
 	     float &value,

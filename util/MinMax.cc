@@ -105,6 +105,16 @@ MinMax::compare(float value1,
   return compare_(value1, value2);
 }
 
+float
+MinMax::minMax(float value1,
+	       float value2) const
+{
+  if (compare_(value1, value2))
+    return value1;
+  else
+    return value2;
+}
+
 ////////////////////////////////////////////////////////////////
 
 MinMaxAll MinMaxAll::min_("min", 0, {MinMax::min()}, {MinMax::min()->index()});

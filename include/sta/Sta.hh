@@ -66,6 +66,7 @@ class EquivCells;
 typedef InstanceSeq::Iterator SlowDrvrIterator;
 typedef Vector<const char*> CheckError;
 typedef Vector<CheckError*> CheckErrorSeq;
+typedef Vector<Corner*> CornerSeq;
 
 enum class CmdNamespace { sta, sdc };
 
@@ -155,19 +156,16 @@ public:
 		    const RiseFallBoth *rf,
 		    const MinMaxAll *min_max,
 		    float slew);
-  // Port external pin load.
-  float portExtPinCap(Port *port,
-		      const RiseFall *rf,
-		      const MinMax *min_max);
   // Set port external pin load (set_load -pin port).
   void setPortExtPinCap(Port *port,
 			const RiseFallBoth *rf,
 			const MinMaxAll *min_max,
 			float cap);
-  // Port external wire load.
-  float portExtWireCap(Port *port,
-		       const RiseFall *rf,
-		       const MinMax *min_max);
+  void portExtCaps(Port *port,
+                   const MinMax *min_max,
+                   float &pin_cap,
+                   float &wire_cap,
+                   int &fanout);
   // Set port external wire load (set_load -wire port).
   void setPortExtWireCap(Port *port,
 			 bool subtract_pin_cap,
@@ -180,15 +178,16 @@ public:
 		     const Corner *corner,
 		     const MinMaxAll *min_max,
 		     float cap);
-  // Port external fanout (used by wireload models).
-  int portExtFanout(Port *port,
-		    const MinMax *min_max);
   // Set port external fanout (used by wireload models).
   void setPortExtFanout(Port *port,
 			int fanout,
 			const MinMaxAll *min_max);
   // Remove all "set_load net" annotations.
   void removeNetLoadCaps() const;
+  // Liberty port capacitance.
+  float capacitance(const LibertyPort *port,
+                    Corner *corner,
+                    const MinMax *min_max);
   // pin_cap  = net pin capacitances + port external pin capacitance,
   // wire_cap = annotated net capacitance + port external wire capacitance.
   void connectedCap(Pin *drvr_pin,
@@ -198,8 +197,7 @@ public:
 		    float &pin_cap,
 		    float &wire_cap) const;
   void connectedCap(Net *net,
-		    const RiseFall *rf,
-		    const Corner *corner,
+		    Corner *corner,
 		    const MinMax *min_max,
 		    float &pin_cap,
 		    float &wire_cap) const;
@@ -1338,6 +1336,7 @@ protected:
                            LibertyCell *to_lib_cell);
   void sdcChangedGraph();
   void ensureGraphSdcAnnotated();
+  CornerSeq makeCornerSeq(Corner *corner) const;
 
   CmdNamespace cmd_namespace_;
   Instance *current_instance_;

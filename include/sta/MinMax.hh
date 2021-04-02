@@ -53,6 +53,9 @@ public:
   // Max value1 > value2, Min value1 < value2.
   bool compare(float value1,
 	       float value2) const;
+  // min/max(value1, value2)
+  float minMax(float value1,
+	       float value2) const;
   MinMaxAll *asMinMaxAll() const;
   MinMax *opposite() const;
   // for range support.
@@ -60,8 +63,9 @@ public:
   static const std::array<MinMax*, 2> &range() { return range_; }
   // for (auto mm_index : MinMax::rangeIndex()) {}
   static const std::array<int, 2> &rangeIndex() { return range_index_; }
+  // Find MinMax from name.
   static MinMax *find(const char *min_max);
-  // Find transition from index.
+  // Find MinMax from index.
   static MinMax *find(int index);
   static const int index_max = 1;
   static const int index_count = 2;

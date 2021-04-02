@@ -202,7 +202,7 @@ private:
 };
 
 // Obsolete. Use range iteration instead.
-// for (auto tr : RiseFall::range()) {}
+// for (RiseFall *rf : RiseFall::range()) {}
 class RiseFallIterator : public Iterator<RiseFall*>
 {
 public:

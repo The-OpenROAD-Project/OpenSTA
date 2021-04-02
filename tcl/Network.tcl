@@ -232,7 +232,7 @@ proc_redirect report_pin {
 
   parse_key_args "report_pin" args keys {-corner -digits} \
     flags {-connections -verbose -hier_pins}
-  set corner [parse_corner_or_default keys]
+  set corner [parse_corner_or_all keys]
   set digits $sta_report_default_digits
   if { [info exists keys(-digits)] } {
       set digits $keys(-digits)
@@ -260,7 +260,7 @@ proc_redirect report_net {
     flags {-connections -verbose -hier_pins}
   check_argc_eq1 "report_net" $args
 
-  set corner [parse_corner_or_default keys]
+  set corner [parse_corner_or_all keys]
   set digits $sta_report_default_digits
   if { [info exists keys(-digits)] } {
       set digits $keys(-digits)
@@ -347,11 +347,9 @@ proc report_net_caps { net pins corner digits } {
 }
 
 proc report_net_cap { net caption cap_msg corner digits } {
-  set cap_r_min [$net $cap_msg "rise" $corner "min"]
-  set cap_r_max [$net $cap_msg "rise" $corner "max"]
-  set cap_f_min [$net $cap_msg "fall" $corner "min"]
-  set cap_f_max [$net $cap_msg "fall" $corner "max"]
-  report_line " $caption capacitance: [capacitances_str $cap_r_min $cap_r_max $cap_f_min $cap_f_max $digits]"
+  set cap_min [$net $cap_msg $corner "min"]
+  set cap_max [$net $cap_msg $corner "max"]
+  report_line " $caption capacitance: [capacitance_range_str $cap_min $cap_max $digits]"
 }
 
 proc report_net_pins { pins pin_pred verbose corner digits } {
@@ -392,21 +390,17 @@ proc report_net_pin { pin verbose corner digits } {
     set pin_cap ""
     if { $verbose } {
       set port [$pin port]
-      set cap_r_min [port_ext_wire_cap $port "rise" "min"]
-      set cap_r_max [port_ext_wire_cap $port "rise" "max"]
-      set cap_f_min [port_ext_wire_cap $port "fall" "min"]
-      set cap_f_max [port_ext_wire_cap $port "fall" "max"]
-      if { $cap_r_min > 0 || $cap_r_max > 0 || $cap_f_min > 0 || $cap_r_max > 0 } {
-	set wire_cap " wire [capacitances_str $cap_r_min $cap_r_max $cap_f_min $cap_f_max $digits]"
+      set cap_min [port_ext_wire_cap $port "min"]
+      set cap_max [port_ext_wire_cap $port "max"]
+      if { $cap_min > 0 || $cap_max > 0 } {
+	set wire_cap " wire [capacitance_range_str $cap_min $cap_max $digits]"
       }
 
       set port [$pin port]
-      set cap_r_min [port_ext_pin_cap $port "rise" "min"]
-      set cap_r_max [port_ext_pin_cap $port "rise" "max"]
-      set cap_f_min [port_ext_pin_cap $port "fall" "min"]
-      set cap_f_max [port_ext_pin_cap $port "fall" "max"]
-      if { $cap_r_min > 0 || $cap_r_max > 0 || $cap_f_min > 0 || $cap_r_max > 0} {
-	set pin_cap " pin [capacitances_str $cap_r_min $cap_r_max $cap_f_min $cap_f_max $digits]"
+      set cap_r_min [port_ext_pin_cap $port "min"]
+      set cap_r_max [port_ext_pin_cap $port "max"]
+      if { $cap_min > 0 || $cap_max > 0} {
+	set pin_cap " pin [capacitance_range_str $cap_min $cap_max $digits]"
       }
     }
     report_line " [get_full_name $pin] [pin_direction $pin] port$wire_cap$pin_cap[pin_location_str $pin]"
@@ -466,14 +460,20 @@ proc pin_direction_desc { pin } {
 
 # Do not preceed this field by a space in the caller.
 proc port_capacitance_str { liberty_port corner digits } {
-  set cap_r_min [$liberty_port capacitance "rise" "min"]
-  set cap_r_max [$liberty_port capacitance "rise" "max"]
-  set cap_f_min [$liberty_port capacitance "fall" "min"]
-  set cap_f_max [$liberty_port capacitance "fall" "max"]
-  if { $cap_r_min > 0 || $cap_r_max > 0 || $cap_f_min > 0 || $cap_r_max > 0 } {
-    return " [capacitances_str $cap_r_min $cap_r_max $cap_f_min $cap_f_max $digits]"
+  set cap_min [$liberty_port capacitance $corner "min"]
+  set cap_max [$liberty_port capacitance $corner "max"]
+  if { $cap_min > 0 || $cap_max > 0 } {
+    return " [capacitance_range_str $cap_min $cap_max $digits]"
   } else {
     return ""
+  }
+}
+
+proc capacitance_range_str { cap_min cap_max digits } {
+  if { $cap_min == $cap_max } {
+    return "[format_capacitance $cap_max $digits]"
+  } else {
+    return "[format_capacitance $cap_min $digits]-[format_capacitance $cap_max $digits]"
   }
 }
 

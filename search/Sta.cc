@@ -3403,24 +3403,6 @@ Sta::simLogicValue(const Pin *pin)
   return sim_->logicValue(pin);
 }
 
-float
-Sta::portExtPinCap(Port *port,
-		   const RiseFall *rf,
-		   const MinMax *min_max)
-{
-  float pin_cap, wire_cap;
-  int fanout;
-  bool pin_exists, wire_exists, fanout_exists;
-  sdc_->portExtCap(port, rf, min_max,
-		   pin_cap, pin_exists,
-		   wire_cap, wire_exists,
-		   fanout, fanout_exists);
-  if (pin_exists)
-    return pin_cap;
-  else
-    return 0.0;
-}
-
 void
 Sta::setPortExtPinCap(Port *port,
 		      const RiseFallBoth *rf,
@@ -3435,22 +3417,43 @@ Sta::setPortExtPinCap(Port *port,
   delaysInvalidFromFanin(port);
 }
 
-float
-Sta::portExtWireCap(Port *port,
-		    const RiseFall *rf,
-		    const MinMax *min_max)
+void
+Sta::portExtCaps(Port *port,
+                 const MinMax *min_max,
+                 float &pin_cap,
+                 float &wire_cap,
+                 int &fanout)
 {
-  float pin_cap, wire_cap;
-  int fanout;
-  bool pin_exists, wire_exists, fanout_exists;
-  sdc_->portExtCap(port, rf, min_max,
-		   pin_cap, pin_exists,
-		   wire_cap, wire_exists,
-		   fanout, fanout_exists);
-  if (wire_exists)
-    return wire_cap;
-  else
-    return 0.0;
+  bool pin_exists = false;
+  bool wire_exists = false;
+  bool fanout_exists = false;
+  for (RiseFall *rf : RiseFall::range()) {
+    float pin_cap1, wire_cap1;
+    int fanout1;
+    bool pin_exists1, wire_exists1, fanout_exists1;
+    sdc_->portExtCap(port, rf, min_max,
+                     pin_cap1, pin_exists1,
+                     wire_cap1, wire_exists1,
+                     fanout1, fanout_exists1);
+    if (pin_exists1) {
+      pin_cap = min_max->minMax(pin_cap, pin_cap1);
+      pin_exists = true;
+    }
+    if (wire_exists1) {
+      wire_cap = min_max->minMax(wire_cap, wire_cap1);
+      wire_exists = true;
+    }
+    if (fanout_exists1) {
+      fanout = min_max->minMax(fanout, fanout1);
+      fanout_exists = true;
+    }
+  }
+  if (!pin_exists)
+    pin_cap = 0.0;
+  if (!wire_exists)
+    wire_cap = 0.0;
+  if (!fanout_exists)
+    fanout = 0;
 }
 
 void
@@ -3474,13 +3477,6 @@ Sta::removeNetLoadCaps() const
 {
   sdc_->removeNetLoadCaps();
   graph_delay_calc_->delaysInvalid();
-}
-
-int
-Sta::portExtFanout(Port *port,
-		   const MinMax *min_max)
-{
-  return sdc_->portExtFanout(port, min_max);
 }
 
 void
@@ -3541,19 +3537,55 @@ Sta::connectedCap(Pin *drvr_pin,
 
 void
 Sta::connectedCap(Net *net,
-		  const RiseFall *rf,
-		  const Corner *corner,
+		  Corner *corner,
 		  const MinMax *min_max,
 		  float &pin_cap,
 		  float &wire_cap) const
 {
   Pin *drvr_pin = findNetParasiticDrvrPin(net);
-  if (drvr_pin)
-    connectedCap(drvr_pin, rf, corner, min_max, pin_cap, wire_cap);
+  if (drvr_pin) {
+    pin_cap = min_max->initValue();
+    wire_cap = min_max->initValue();
+    for (const Corner *corner : makeCornerSeq(corner)) {
+      for (RiseFall *rf : RiseFall::range()) {
+        float pin_cap1, wire_cap1;
+        connectedCap(drvr_pin, rf, corner, min_max, pin_cap1, wire_cap1);
+        pin_cap = min_max->minMax(pin_cap, pin_cap1);
+        wire_cap = min_max->minMax(wire_cap, wire_cap1);
+      }
+    }
+  }
   else {
     pin_cap = 0.0;
     wire_cap = 0.0;
   }
+}
+
+CornerSeq
+Sta::makeCornerSeq(Corner *corner) const
+{
+  CornerSeq corners;
+  if (corner)
+    corners.push_back(corner);
+  else
+    corners = corners_->corners();
+  return corners;
+}
+
+float
+Sta::capacitance(const LibertyPort *port,
+                 Corner *corner,
+                 const MinMax *min_max)
+{
+  OperatingConditions *op_cond = operatingConditions(min_max);
+  float cap = min_max->initValue();
+  for (const Corner *corner : makeCornerSeq(corner)) {
+    int lib_ap = corner->libertyIndex(min_max);
+    const LibertyPort *corner_port = port->cornerPort(lib_ap);
+    for (RiseFall *rf : RiseFall::range())
+      cap = min_max->minMax(cap, corner_port->capacitance(rf, min_max, op_cond, op_cond));
+  }
+  return cap;
 }
 
 // Look for a driver to find a parasitic if the net has one.

@@ -1949,6 +1949,12 @@ LibertyPort::capacitance() const
 }
 
 float
+LibertyPort::capacitance(const MinMax *min_max) const
+{
+  return capacitance_.value(min_max);
+}
+
+float
 LibertyPort::capacitance(const RiseFall *rf,
 			 const MinMax *min_max) const
 {
