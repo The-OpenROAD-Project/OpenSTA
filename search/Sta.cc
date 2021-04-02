@@ -1293,8 +1293,7 @@ Sta::removeClockUncertainty(Clock *from_clk,
 			    const RiseFallBoth *to_rf,
 			    const SetupHoldAll *setup_hold)
 {
-  sdc_->removeClockUncertainty(from_clk, from_rf, to_clk, to_rf,
-				       setup_hold);
+  sdc_->removeClockUncertainty(from_clk, from_rf, to_clk, to_rf, setup_hold);
   search_->arrivalsInvalid();
 }
 
@@ -1972,8 +1971,7 @@ Sta::makeGroupPath(const char *name,
 		   ExceptionTo *to,
 		   const char *comment)
 {
-  sdc_->makeGroupPath(name, is_default, from, thrus, to,
-			      comment);
+  sdc_->makeGroupPath(name, is_default, from, thrus, to, comment);
   search_->arrivalsInvalid();
 }
 
@@ -3427,6 +3425,9 @@ Sta::portExtCaps(Port *port,
   bool pin_exists = false;
   bool wire_exists = false;
   bool fanout_exists = false;
+  pin_cap = min_max->initValue();
+  wire_cap = min_max->initValue();
+  fanout = min_max->initValue();
   for (RiseFall *rf : RiseFall::range()) {
     float pin_cap1, wire_cap1;
     int fanout1;

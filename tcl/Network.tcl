@@ -396,9 +396,8 @@ proc report_net_pin { pin verbose corner digits } {
 	set wire_cap " wire [capacitance_range_str $cap_min $cap_max $digits]"
       }
 
-      set port [$pin port]
-      set cap_r_min [port_ext_pin_cap $port "min"]
-      set cap_r_max [port_ext_pin_cap $port "max"]
+      set cap_min [port_ext_pin_cap $port "min"]
+      set cap_max [port_ext_pin_cap $port "max"]
       if { $cap_min > 0 || $cap_max > 0} {
 	set pin_cap " pin [capacitance_range_str $cap_min $cap_max $digits]"
       }
