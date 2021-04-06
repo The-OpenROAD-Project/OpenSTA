@@ -1380,6 +1380,16 @@ using namespace sta;
   Tcl_SetObjResult(interp, obj);
 }
 
+%typemap(out) Corners* {
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
+  Corners *corners = $1;
+  for (Corner *corner : *corners) {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(corner, SWIGTYPE_p_Corner, false);
+    Tcl_ListObjAppendElement(interp, list, obj);
+  }
+  Tcl_SetObjResult(interp, list);
+}
+
 %typemap(out) PropertyValue {
   PropertyValue value = $1;
   switch (value.type()) {
@@ -2737,6 +2747,12 @@ Corner *
 find_corner(const char *corner_name)
 {
   return Sta::sta()->findCorner(corner_name);
+}
+
+Corners *
+corners()
+{
+  return Sta::sta()->corners();
 }
 
 bool
