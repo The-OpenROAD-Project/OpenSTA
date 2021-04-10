@@ -1771,56 +1771,6 @@ proc get_nets_arg { arg_name arglist warn_error } {
 
 ################################################################
 
-proc cell_regexp {} {
-  global hierarchy_separator
-  if { $hierarchy_separator == "." } {
-    set lib_regexp {[a-zA-Z0-9_]+}
-  } else {
-    set lib_regexp {[a-zA-Z0-9_\.]+}
-  }
-  set cell_regexp {[a-zA-Z0-9_]+}
-  return "^(${lib_regexp})${hierarchy_separator}(${cell_regexp})$"
-}
-
-proc cell_wild_regexp { divider } {
-  if { $divider == "." } {
-    set lib_regexp {[a-zA-Z0-9_*+?^$\{\}]+}
-  } else {
-    set lib_regexp {[a-zA-Z0-9_.*+?^$\{\}]+}
-  }
-  set cell_wild_regexp {[a-zA-Z0-9_.*+?^$\{\}]+}
-  return "^(${lib_regexp})${divider}(${cell_wild_regexp})$"
-}
-
-proc port_regexp {} {
-  global hierarchy_separator
-  if { $hierarchy_separator == "." } {
-    set lib_regexp {[a-zA-Z0-9_]+}
-  } else {
-    set lib_regexp {[a-zA-Z0-9_\.]+}
-  }
-  set id_regexp {[a-zA-Z0-9_]+(?:\[[0-9]+\])?}
-  return "^(${lib_regexp})${hierarchy_separator}(${id_regexp})${hierarchy_separator}(${id_regexp})$"
-}
-
-proc port_wild_regexp { divider } {
-  if { $divider == "." } {
-    set lib_regexp {[a-zA-Z0-9_]+}
-  } else {
-    set lib_regexp {[a-zA-Z0-9_\.]+}
-  }
-  set cell_regexp {[a-zA-Z0-9_]+}
-  set wild_regexp {[a-zA-Z0-9_.*+?^$\{\}]+}
-  return "^(${lib_regexp})${divider}(${wild_regexp})${divider}(${wild_regexp})$"
-}
-
-proc path_regexp {} {
-  global hierarchy_separator
-  set id_regexp {[a-zA-Z0-9_]+(?:\[[0-9]+\])?}
-  set prefix_regexp "${id_regexp}(?:${hierarchy_separator}${id_regexp})*"
-  return "^(${prefix_regexp})${hierarchy_separator}(${id_regexp})$"
-}
-
 proc get_property_cmd { cmd type_key cmd_args } {
   parse_key_args $cmd cmd_args keys $type_key flags {-quiet}
   set quiet [info exists flags(-quiet)]

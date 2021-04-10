@@ -650,7 +650,7 @@ proc get_lib_cells { args } {
       set divider $keys(-hsc)
       check_path_divider $divider
     }
-    set cell_regexp [cell_wild_regexp $divider]
+    set cell_regexp [cell_regexp_hsc $divider]
     set quiet [info exists flags(-quiet)]
     foreach pattern $patterns {
       if { ![regexp $cell_regexp $pattern ignore lib_name cell_pattern]} {
@@ -707,8 +707,8 @@ proc get_lib_pins { args } {
     set divider $keys(-hsc)
     check_path_divider $divider
   }
-  set port_regexp1 [port_wild_regexp $divider]
-  set port_regexp2 [cell_wild_regexp $divider]
+  set port_regexp1 [port_regexp_hsc $divider]
+  set port_regexp2 [cell_regexp_hsc $divider]
   set ports {}
   foreach pattern $patterns {
     # match library/cell/port
@@ -3233,6 +3233,26 @@ proc default_operating_conditions {} {
     sta_error 585 "no default operating conditions found."
   }
   return $op_cond
+}
+
+################################################################
+
+proc cell_regexp {} {
+  global hierarchy_separator
+  return [cell_regexp_hsc $hierarchy_separator]
+}
+
+proc cell_regexp_hsc { hsc } {
+  return "^(\[^${hsc}\]+)${hsc}(\[^${hsc}\]+)$"
+}
+
+proc port_regexp {} {
+  global hierarchy_separator
+  return [port_regexp_hsc $hierarchy_separator]
+}
+
+proc port_regexp_hsc { hsc } {
+  return "^(\[^${hsc}\]+)${hsc}(\[^${hsc}\]+)${hsc}(\[^${hsc}\]+)$"
 }
 
 # sta namespace end.

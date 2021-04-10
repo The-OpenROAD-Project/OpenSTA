@@ -236,5 +236,12 @@ proc replace_cell { instance lib_cell } {
   }
 }
 
+proc path_regexp {} {
+  global hierarchy_separator
+  set id_regexp "\[^${hierarchy_separator}\]+"
+  set prefix_regexp "${id_regexp}(?:${hierarchy_separator}${id_regexp})*"
+  return "^(${prefix_regexp})${hierarchy_separator}(${id_regexp})$"
+}
+
 # sta namespace end.
 }
