@@ -215,6 +215,13 @@ tclListSet(Tcl_Obj *const source,
     return nullptr;
 }
 
+PinSet *
+tclListSetPin(Tcl_Obj *const source,
+              Tcl_Interp *interp)
+{
+  return tclListSet<Pin*>(source, SWIGTYPE_p_Pin, interp);
+}
+
 StringSet *
 tclListSetConstChar(Tcl_Obj *const source,
 		    Tcl_Interp *interp)
@@ -1074,7 +1081,7 @@ using namespace sta;
 }
 
 %typemap(in) PinSet* {
-  $1 = tclListSet<Pin*>($input, SWIGTYPE_p_Pin, interp);
+  $1 = tclListSetPin($input, interp);
 }
 
 %typemap(out) PinSet* {
