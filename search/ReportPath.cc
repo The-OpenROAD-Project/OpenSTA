@@ -1521,7 +1521,8 @@ ReportPath::reportLimitVerbose(const ReportField *field,
 			       float value,
 			       float limit,
 			       float slack,
-			       const MinMax *min_max)
+			       const Corner *corner,
+                               const MinMax *min_max)
 {
   string line;
   line += "Pin ";
@@ -1531,6 +1532,12 @@ ReportPath::reportLimitVerbose(const ReportField *field,
     line += rf->shortName();
   else
     line += ' ';
+  // Don't report corner if the default corner is the only corner.
+  if (corner && corners_->count() > 1) {
+    line += " (corner ";
+    line += corner->name();
+    line += ")";
+  }
   report_->reportLineString(line);
 
   line = min_max->asString();

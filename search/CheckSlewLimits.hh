@@ -60,20 +60,20 @@ protected:
 		   bool check_clks,
 		   // Return values.
 		   const Corner *&corner1,
-		   const RiseFall *&rf,
-		   Slew &slew,
-		   float &limit,
-		   float &slack) const;
+		   const RiseFall *&rf1,
+		   Slew &slew1,
+		   float &limit1,
+		   float &slack1) const;
   void checkSlews1(Vertex *vertex,
-		   const Corner *corner1,
+		   const Corner *corner,
 		   const MinMax *min_max,
 		   bool check_clks,
 		   // Return values.
-		   const Corner *&corner,
-		   const RiseFall *&rf,
-		   Slew &slew,
-		   float &limit,
-		   float &slack) const;
+		   const Corner *&corner1,
+		   const RiseFall *&rf1,
+		   Slew &slew1,
+		   float &limit1,
+		   float &slack1) const;
   void checkSlew(Vertex *vertex,
 		 const Corner *corner1,
 		 const RiseFall *rf1,
@@ -87,12 +87,13 @@ protected:
 		 float &limit) const;
   void findLimit(const Pin *pin,
 		 const Vertex *vertex,
+                 const Corner *corner,
 		 const RiseFall *rf,
 		 const MinMax *min_max,
 		 bool check_clks,
 		 // Return values.
-		 float &limit1,
-		 bool &limit1_exists) const;
+		 float &limit,
+		 bool &limit_exists) const;
   void checkSlewLimits(Instance *inst,
                        bool violators,
                        const Corner *corner,

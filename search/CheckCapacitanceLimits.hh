@@ -54,24 +54,25 @@ protected:
   void checkCapacitance(const Pin *pin,
 			const Corner *corner,
 			const MinMax *min_max,
-			const RiseFall *rf1,
-			float limit1,
+			const RiseFall *rf,
+			float limit,
 			// Return values.
 			const Corner *&corner1,
-			const RiseFall *&rf,
-			float &capacitance,
-			float &slack,
-			float &limit) const;
+			const RiseFall *&rf1,
+			float &capacitance1,
+			float &slack1,
+			float &limit1) const;
   void checkCapacitance1(const Pin *pin,
-			 const Corner *corner1,
-			 const MinMax *min_max,
-			 // Return values.
-			 const Corner *&corner,
-			 const RiseFall *&rf,
-			 float &capacitance,
-			 float &limit,
-			 float &slack) const;
+                         const Corner *corner,
+                         const MinMax *min_max,
+                         // Return values.
+                         const Corner *&corner1,
+                         const RiseFall *&rf1,
+                         float &capacitance1,
+                         float &limit1,
+                         float &slack1) const;
   void findLimit(const Pin *pin,
+                 const Corner *corner,
 		 const MinMax *min_max,
 		 // Return values.
 		 float &limit,

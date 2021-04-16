@@ -89,49 +89,49 @@ CheckCapacitanceLimits::CheckCapacitanceLimits(const Sta *sta) :
 
 void
 CheckCapacitanceLimits::checkCapacitance(const Pin *pin,
-					 const Corner *corner1,
+					 const Corner *corner,
 					 const MinMax *min_max,
 					 // Return values.
-					 const Corner *&corner,
-					 const RiseFall *&rf,
-					 float &capacitance,
-					 float &limit,
-					 float &slack) const
+					 const Corner *&corner1,
+					 const RiseFall *&rf1,
+					 float &capacitance1,
+					 float &limit1,
+					 float &slack1) const
 {
-  corner = nullptr;
-  rf = nullptr;
-  capacitance = 0.0;
-  limit = 0.0;
-  slack = MinMax::min()->initValue();
-  if (corner1)
-    checkCapacitance1(pin, corner1, min_max,
-		      corner, rf, capacitance, limit, slack);
+  corner1 = nullptr;
+  rf1 = nullptr;
+  capacitance1 = 0.0;
+  limit1 = 0.0;
+  slack1 = MinMax::min()->initValue();
+  if (corner)
+    checkCapacitance1(pin, corner, min_max,
+		      corner1, rf1, capacitance1, limit1, slack1);
   else {
-    for (auto corner1 : *sta_->corners()) {
-      checkCapacitance1(pin, corner1, min_max,
-			corner, rf, capacitance, limit, slack);
+    for (auto corner : *sta_->corners()) {
+      checkCapacitance1(pin, corner, min_max,
+                        corner1, rf1, capacitance1, limit1, slack1);
     }
   }
 }
 
 void
 CheckCapacitanceLimits::checkCapacitance1(const Pin *pin,
-					  const Corner *corner1,
+					  const Corner *corner,
 					  const MinMax *min_max,
 					  // Return values.
-					  const Corner *&corner,
-					  const RiseFall *&rf,
-					  float &capacitance,
-					  float &limit,
-					  float &slack) const
+					  const Corner *&corner1,
+					  const RiseFall *&rf1,
+					  float &capacitance1,
+					  float &limit1,
+					  float &slack1) const
 {
-  float limit1;
-  bool limit1_exists;
-  findLimit(pin, min_max, limit1, limit1_exists);
-  if (limit1_exists) {
-    for (auto rf1 : RiseFall::range()) {
-      checkCapacitance(pin, corner1, min_max, rf1, limit1,
-		       corner, rf, capacitance, slack, limit);
+  float limit;
+  bool limit_exists;
+  findLimit(pin, corner, min_max, limit, limit_exists);
+  if (limit_exists) {
+    for (auto rf : RiseFall::range()) {
+      checkCapacitance(pin, corner, min_max, rf, limit,
+		       corner1, rf1, capacitance1, slack1, limit1);
     }
   }
 }
@@ -139,6 +139,7 @@ CheckCapacitanceLimits::checkCapacitance1(const Pin *pin,
 // return the tightest limit.
 void
 CheckCapacitanceLimits::findLimit(const Pin *pin,
+                                  const Corner *corner,
 				  const MinMax *min_max,
 				  // Return values.
 				  float &limit,
@@ -176,10 +177,11 @@ CheckCapacitanceLimits::findLimit(const Pin *pin,
     }
     LibertyPort *port = network->libertyPort(pin);
     if (port) {
-      port->capacitanceLimit(min_max, limit1, exists1);
+      LibertyPort *corner_port = port->cornerPort(corner->libertyIndex(min_max));
+      corner_port->capacitanceLimit(min_max, limit1, exists1);
       if (!exists1
 	  && port->direction()->isAnyOutput())
-	port->libertyLibrary()->defaultMaxCapacitance(limit1, exists1);
+	corner_port->libertyLibrary()->defaultMaxCapacitance(limit1, exists1);
       if (exists1
 	  && (!exists
 	      || min_max->compare(limit, limit1))) {
@@ -192,32 +194,32 @@ CheckCapacitanceLimits::findLimit(const Pin *pin,
 
 void
 CheckCapacitanceLimits::checkCapacitance(const Pin *pin,
-					 const Corner *corner1,
+					 const Corner *corner,
 					 const MinMax *min_max,
-					 const RiseFall *rf1,
-					 float limit1,
+					 const RiseFall *rf,
+					 float limit,
 					 // Return values.
-					 const Corner *&corner,
-					 const RiseFall *&rf,
-					 float &capacitance,
-					 float &slack,
-					 float &limit) const
+					 const Corner *&corner1,
+					 const RiseFall *&rf1,
+					 float &capacitance1,
+					 float &slack1,
+					 float &limit1) const
 {
-  const DcalcAnalysisPt *dcalc_ap = corner1->findDcalcAnalysisPt(min_max);
+  const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
   GraphDelayCalc *dcalc = sta_->graphDelayCalc();
   float cap = dcalc->loadCap(pin, dcalc_ap);
 
-  float slack1 = (min_max == MinMax::max())
-    ? limit1 - cap : cap - limit1;
-  if (slack1 < slack
+  float slack = (min_max == MinMax::max())
+    ? limit - cap : cap - limit;
+  if (slack < slack1
       // Break ties for the sake of regression stability.
-      || (fuzzyEqual(slack1, slack)
-          && rf1->index() < rf->index())) {
-    corner = corner1;
-    rf = rf1;
-    capacitance = cap;
-    slack = slack1;
-    limit = limit1;
+      || (fuzzyEqual(slack, slack1)
+          && rf->index() < rf1->index())) {
+    corner1 = corner;
+    rf1 = rf;
+    capacitance1 = cap;
+    slack1 = slack;
+    limit1 = limit;
   }
 }
 

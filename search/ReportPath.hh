@@ -126,6 +126,7 @@ public:
 			  float value,
 			  float limit,
 			  float slack,
+                          const Corner *corner,
 			  const MinMax *min_max);
   ReportField *fieldSlew() const { return field_slew_; }
   ReportField *fieldFanout() const { return field_fanout_; }

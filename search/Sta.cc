@@ -4965,13 +4965,13 @@ Sta::reportSlewLimitShort(Pin *pin,
 			  const MinMax *min_max)
 {
   const Corner *corner1;
-  const RiseFall *rf;
-  Slew slew;
-  float limit, slack;
+  const RiseFall *rf1;
+  Slew slew1;
+  float limit1, slack1;
   check_slew_limits_->checkSlew(pin, corner, min_max, true,
-				corner1, rf, slew, limit, slack);
+				corner1, rf1, slew1, limit1, slack1);
   report_path_->reportLimitShort(report_path_->fieldSlew(), pin,
-				 delayAsFloat(slew), limit, slack);
+				 delayAsFloat(slew1), limit1, slack1);
 }
 
 void
@@ -4980,14 +4980,14 @@ Sta::reportSlewLimitVerbose(Pin *pin,
 			    const MinMax *min_max)
 {
   const Corner *corner1;
-  const RiseFall *rf;
-  Slew slew;
-  float limit, slack;
+  const RiseFall *rf1;
+  Slew slew1;
+  float limit1, slack1;
   check_slew_limits_->checkSlew(pin, corner, min_max, true,
-				corner1, rf, slew, limit, slack);
-  report_path_->reportLimitVerbose(report_path_->fieldSlew(), pin, rf,
-				   delayAsFloat(slew),
-				   limit, slack, min_max);
+				corner1, rf1, slew1, limit1, slack1);
+  report_path_->reportLimitVerbose(report_path_->fieldSlew(), pin, rf1,
+				   delayAsFloat(slew1),
+				   limit1, slack1, corner1, min_max);
 }
 
 void
@@ -5051,7 +5051,7 @@ Sta::reportFanoutLimitVerbose(Pin *pin,
 				    fanout, limit, slack);
   report_path_->reportLimitVerbose(report_path_->fieldFanout(),
 				   pin, nullptr, fanout,
-				   limit, slack, min_max);
+				   limit, slack, nullptr, min_max);
 }
 
 void
@@ -5114,14 +5114,14 @@ Sta::reportCapacitanceLimitVerbose(Pin *pin,
 				   const MinMax *min_max)
 {
   const Corner *corner1;
-  const RiseFall *rf;
-  float capacitance, limit, slack;
+  const RiseFall *rf1;
+  float capacitance1, limit1, slack1;
   check_capacitance_limits_->checkCapacitance(pin, corner, min_max,
-					      corner1, rf, capacitance,
-					      limit, slack);
+					      corner1, rf1, capacitance1,
+					      limit1, slack1);
   report_path_->reportLimitVerbose(report_path_->fieldCapacitance(),
-				   pin, rf, capacitance,
-				   limit, slack, min_max);
+				   pin, rf1, capacitance1,
+				   limit1, slack1, corner1, min_max);
 }
 
 void
