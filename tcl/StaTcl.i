@@ -5894,11 +5894,8 @@ slews(RiseFall *rf)
 {
   Sta *sta = Sta::sta();
   TmpFloatSeq *floats = new FloatSeq;
-  DcalcAnalysisPtIterator ap_iter(sta);
-  while (ap_iter.hasNext()) {
-    DcalcAnalysisPt *dcalc_ap = ap_iter.next();
+  for (auto dcalc_ap : sta->corners()->dcalcAnalysisPts())
     floats->push_back(delayAsFloat(sta->vertexSlew(self, rf, dcalc_ap)));
-  }
   return floats;
 }
 
@@ -6104,11 +6101,8 @@ arc_delays(TimingArc *arc)
 {
   Sta *sta = Sta::sta();
   TmpFloatSeq *floats = new FloatSeq;
-  DcalcAnalysisPtIterator ap_iter(sta);
-  while (ap_iter.hasNext()) {
-    DcalcAnalysisPt *dcalc_ap = ap_iter.next();
+  for (auto dcalc_ap : sta->corners()->dcalcAnalysisPts())
     floats->push_back(delayAsFloat(sta->arcDelay(self, arc, dcalc_ap)));
-  }
   return floats;
 }
 
@@ -6118,12 +6112,9 @@ arc_delay_strings(TimingArc *arc,
 {
   Sta *sta = Sta::sta();
   StringSeq *delays = new StringSeq;
-  DcalcAnalysisPtIterator ap_iter(sta);
-  while (ap_iter.hasNext()) {
-    DcalcAnalysisPt *dcalc_ap = ap_iter.next();
+  for (auto dcalc_ap : sta->corners()->dcalcAnalysisPts())
     delays->push_back(delayAsString(sta->arcDelay(self, arc, dcalc_ap),
 				    sta, digits));
-  }
   return delays;
 }
 
