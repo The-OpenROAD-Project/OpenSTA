@@ -28,14 +28,4 @@ deleteContents(StringSet *strings)
   }
 }
 
-void
-deleteContents(StringSetEq *strings)
-{
-  StringSetEq::Iterator iter(strings);
-  while (iter.hasNext()) {
-    const char *string = iter.next();
-    stringDelete(string);
-  }
-}
-
 } // namespace

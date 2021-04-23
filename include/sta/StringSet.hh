@@ -22,11 +22,8 @@
 namespace sta {
 
 typedef Set<const char*, CharPtrLess> StringSet;
-typedef Set<const char*> StringSetEq;
 
 void
 deleteContents(StringSet *strings);
-void
-deleteContents(StringSetEq *strings);
 
 } // namespace
