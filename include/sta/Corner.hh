@@ -47,6 +47,7 @@ public:
   virtual ~Corners();
   void clear();
   int count() const;
+  void copy(Corners *corners);
   bool multiCorner() const;
   Corner *findCorner(const char *corner);
   Corner *findCorner(int corner_index);

@@ -100,6 +100,30 @@ Corners::makeCorners(StringSet *corner_names)
 }
 
 void
+Corners::copy(Corners *corners)
+{
+  clear();
+  int index = 0;
+  for (Corner *orig : corners->corners_) {
+    const char *name = orig->name();
+    Corner *corner = new Corner(name, index);
+    corners_.push_back(corner);
+    // Use the copied name in the map.
+    corner_map_[corner->name()] = corner;
+    index++;
+  }
+  makeAnalysisPts();
+  
+  parasitic_analysis_pts_.deleteContentsClear();
+  for (ParasiticAnalysisPt *orig_ap : corners->parasitic_analysis_pts_) {
+    ParasiticAnalysisPt *ap = new ParasiticAnalysisPt(orig_ap->name(), orig_ap->index(),
+						      orig_ap->minMax());
+    parasitic_analysis_pts_.push_back(ap);
+  }
+  updateCornerParasiticAnalysisPts();
+}
+
+void
 Corners::makeParasiticAnalysisPtsSingle()
 {
   if (parasitic_analysis_pts_.size() != 1) {
