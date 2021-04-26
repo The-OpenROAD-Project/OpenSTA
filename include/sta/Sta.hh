@@ -1009,7 +1009,12 @@ public:
 		    const PathAnalysisPt *path_ap);
   void vertexSlacks(Vertex *vertex,
 		    Slack (&slacks)[RiseFall::index_count][MinMax::index_count]);
-  // Slew for one delay calc analysis pt(corner).
+  // Slew for one corner.
+  Slew vertexSlew(Vertex *vertex,
+		  const RiseFall *rf,
+		  const Corner *corner,
+                  const MinMax *min_max);
+  // Slew for one delay calc analysis pt (corner min/max).
   Slew vertexSlew(Vertex *vertex,
 		  const RiseFall *rf,
 		  const DcalcAnalysisPt *dcalc_ap);

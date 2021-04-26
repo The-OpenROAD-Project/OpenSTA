@@ -292,14 +292,23 @@ proc edge_disable_reason_verbose { edge } {
 
 ################################################################
 
-define_cmd_args "report_slews" { pin }
+define_cmd_args "report_slews" {[-corner corner] pin}
 
-proc report_slews { pin } {
+proc report_slews { args } {
   global sta_report_default_digits
 
-  set pin1 [get_port_pin_error "pin" $pin]
-  foreach vertex [$pin1 vertices] {
-    report_line "[vertex_path_name $vertex] [rise_short_name] [format_times [$vertex slews rise] $sta_report_default_digits] [fall_short_name] [format_times [$vertex slews fall] $sta_report_default_digits]"
+  parse_key_args "report_slews" args keys {-corner} flags {}
+  check_argc_eq1 "report_slews" $args
+
+  set corner [parse_corner_or_all keys]
+  set pin [get_port_pin_error "pin" [lindex $args 0]]
+  set digits $sta_report_default_digits
+  foreach vertex [$pin vertices] {
+    if { $corner == "NULL" } {
+      report_line "[vertex_path_name $vertex] [rise_short_name] [format_time [$vertex slew rise min] $digits]:[format_time [$vertex slew rise max] $digits] [fall_short_name] [format_time [$vertex slew fall min] $digits]:[format_time [$vertex slew fall max] $digits]"
+    } else {
+      report_line "[vertex_path_name $vertex] [rise_short_name] [format_time [$vertex slew_corner rise $corner min] $digits]:[format_time [$vertex slew_corner rise $corner max] $digits] [fall_short_name] [format_time [$vertex slew_corner fall $corner min] $digits]:[format_time [$vertex slew_corner fall $corner max] $digits]"
+    }
   }
 }
 

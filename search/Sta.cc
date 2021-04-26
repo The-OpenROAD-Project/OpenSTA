@@ -3173,6 +3173,17 @@ Sta::setArcDelayAnnotated(Edge *edge,
 Slew
 Sta::vertexSlew(Vertex *vertex,
 		const RiseFall *rf,
+                const Corner *corner,
+                const MinMax *min_max)
+{
+  findDelays(vertex);
+  const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
+  return graph_->slew(vertex, rf, dcalc_ap->index());
+}
+
+Slew
+Sta::vertexSlew(Vertex *vertex,
+		const RiseFall *rf,
 		const DcalcAnalysisPt *dcalc_ap)
 {
   findDelays(vertex);

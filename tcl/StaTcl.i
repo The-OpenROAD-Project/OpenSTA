@@ -5889,22 +5889,21 @@ bool is_bidirect_driver() { return self->isBidirectDriver(); }
 int level() { return Sta::sta()->vertexLevel(self); }
 int tag_group_index() { return self->tagGroupIndex(); }
 
-TmpFloatSeq *
-slews(RiseFall *rf)
-{
-  Sta *sta = Sta::sta();
-  TmpFloatSeq *floats = new FloatSeq;
-  for (auto dcalc_ap : sta->corners()->dcalcAnalysisPts())
-    floats->push_back(delayAsFloat(sta->vertexSlew(self, rf, dcalc_ap)));
-  return floats;
-}
-
 Slew
 slew(const RiseFall *rf,
      const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
   return sta->vertexSlew(self, rf, min_max);
+}
+
+Slew
+slew_corner(const RiseFall *rf,
+            const Corner *corner,
+            const MinMax *min_max)
+{
+  Sta *sta = Sta::sta();
+  return sta->vertexSlew(self, rf, corner, min_max);
 }
 
 VertexOutEdgeIterator *
