@@ -16,101 +16,13 @@
 
 namespace eval sta {
 
-proc define_sta_cmd_args { cmd arglist } {
-  variable sta_cmd_args
-
-  set sta_cmd_args($cmd) $arglist
-}
-
-# Import Sta commands to global namespace.
-proc define_sta_cmds {} {
-  variable sta_cmd_args
-  variable native
-
-  foreach cmd [array names sta_cmd_args] {
-    define_cmd_args $cmd $sta_cmd_args($cmd)
-  }
-  define_report_path_fields
-  set native 1
-}
-
-proc define_report_path_fields {} {
-  variable report_path_field_width_extra
-
-  set_rise_fall_short_names "^" "v"
-  set_report_path_field_order { fanout capacitance slew \
-				 incr total edge case description }
-  set_report_path_field_properties "description" "Description" 36 1
-  set width $report_path_field_width_extra
-  set_report_path_field_properties "total" "Time" $width 0
-  set_report_path_field_properties "incr" "Delay" $width 0
-  set_report_path_field_properties "capacitance" "Cap" $width 0
-  set_report_path_field_properties "slew" "Slew" $width 0
-  set_report_path_field_properties "fanout" "Fanout" 6 0
-  set_report_path_field_properties "edge" " " 1 0
-  set_report_path_field_properties "case" " " 11 0
-}
-
 ################################################################
 #
-# Search commands
-#  
+# Non-SDC commands
+#
 ################################################################
 
-define_sta_cmd_args "check_setup" \
-  { [-verbose] [-no_input_delay] [-no_output_delay]\
-      [-multiple_clock] [-no_clock]\
-      [-unconstrained_endpoints] [-loops] [-generated_clocks]\
-      [> filename] [>> filename] }
-
-proc_redirect check_setup {
-  check_setup_cmd "check_setup" $args
-}
-
-proc check_setup_cmd { cmd cmd_args } {
-  parse_key_args $cmd cmd_args keys {} flags {-verbose} 0
-  # When nothing is everything.
-  if { $cmd_args == {} } {
-    set unconstrained_endpoints 1
-    set multiple_clock 1
-    set no_clock 1
-    set no_input_delay 1
-    set no_output_delay 1
-    set loops 1
-    set generated_clocks 1
-  } else {
-    parse_key_args $cmd cmd_args keys {} \
-      flags {-no_input_delay -no_output_delay -multiple_clock -no_clock \
-	        -unconstrained_endpoints -loops -generated_clocks}
-    set no_input_delay [info exists flags(-no_input_delay)]
-    set no_output_delay [info exists flags(-no_output_delay)]
-    set multiple_clock [info exists flags(-multiple_clock)]
-    set no_clock [info exists flags(-no_clock)]
-    set unconstrained_endpoints [info exists flags(-unconstrained_endpoints)]
-    set loops [info exists flags(-loops)]
-    set generated_clocks [info exists flags(-generated_clocks)]
-  }
-  set verbose [info exists flags(-verbose)]
-  set errors [check_timing_cmd $no_input_delay $no_output_delay \
-		$multiple_clock $no_clock \
-		$unconstrained_endpoints $loops \
-		$generated_clocks]
-  foreach error $errors {
-    # First line is the error msg.
-    report_line [lindex $error 0]
-    if { $verbose } {
-      foreach obj [lrange $error 1 end] {
-	report_line "  $obj"
-      }
-    }
-  }
-  # return value
-  expr [llength $errors] == 0
-}
-
-################################################################
-
-define_sta_cmd_args "delete_clock" {[-all] clocks}
+define_cmd_args "delete_clock" {[-all] clocks}
 
 proc delete_clock { args } {
   parse_key_args "delete_clock" args keys {} flags {-all}
@@ -128,7 +40,7 @@ proc delete_clock { args } {
 
 ################################################################
 
-define_sta_cmd_args "delete_generated_clock" {[-all] clocks}
+define_cmd_args "delete_generated_clock" {[-all] clocks}
 
 proc delete_generated_clock { args } {
   remove_gclk_cmd "delete_generated_clock" $args
@@ -136,540 +48,7 @@ proc delete_generated_clock { args } {
 
 ################################################################
 
-define_sta_cmd_args "find_timing" {[-full_update]}
-
-proc find_timing { args } {
-  parse_key_args "find_timing" args keys {} flags {-full_update}
-  find_timing_cmd [info exists flags(-full_update)]
-}
-
-################################################################
-
-define_sta_cmd_args "report_clock_skew" {[-setup|-hold]\
-					   [-clock clocks]\
-					   [-corner corner_name]]\
-					   [-digits digits]}
-
-proc_redirect report_clock_skew {
-  global sta_report_default_digits
-
-  parse_key_args "report_clock_skew" args \
-    keys {-clock -corner -digits} flags {-setup -hold}
-  check_argc_eq0 "report_clock_skew" $args
-
-  if { [info exists flags(-setup)] && [info exists flags(-hold)] } {
-    sta_error 419 "report_clock_skew -setup and -hold are mutually exclusive options."
-  } elseif { [info exists flags(-setup)] } {
-    set setup_hold "setup"
-  } elseif { [info exists flags(-hold)] } {
-    set setup_hold "hold"
-  } else {
-    set setup_hold "setup"
-  }
-
-  if [info exists keys(-clock)] {
-    set clks [get_clocks_warn "-clocks" $keys(-clock)]
-  } else {
-    set clks [all_clocks]
-  }
-  set corner [parse_corner_or_all keys]
-  if [info exists keys(-digits)] {
-    set digits $keys(-digits)
-    check_positive_integer "-digits" $digits
-  } else {
-    set digits $sta_report_default_digits
-  }
-  report_clk_skew $clks $corner $setup_hold $digits
-}
-
-################################################################
-
-define_sta_cmd_args "find_timing_paths" \
-  {[-from from_list|-rise_from from_list|-fall_from from_list]\
-     [-through through_list|-rise_through through_list|-fall_through through_list]\
-     [-to to_list|-rise_to to_list|-fall_to to_list]\
-     [-path_delay min|min_rise|min_fall|max|max_rise|max_fall|min_max]\
-     [-unconstrained]
-     [-corner corner_name]\
-     [-group_count path_count] \
-     [-endpoint_count path_count]\
-     [-unique_paths_to_endpoint]\
-     [-slack_max slack_max]\
-     [-slack_min slack_min]\
-     [-sort_by_slack]\
-     [-path_group group_name]}
-
-proc find_timing_paths { args } {
-  set path_ends [find_timing_paths_cmd "find_timing_paths" args]
-  return $path_ends
-}
-
-proc find_timing_paths_cmd { cmd args_var } {
-  global sta_report_unconstrained_paths
-  upvar 1 $args_var args
-
-  parse_key_args $cmd args \
-    keys {-from -rise_from -fall_from -to -rise_to -fall_to \
-	    -path_delay -corner -group_count -endpoint_count \
-	    -slack_max -slack_min -path_group} \
-    flags {-unconstrained -sort_by_slack -unique_paths_to_endpoint} 0
-
-  set min_max "max"
-  set end_rf "rise_fall"
-  if [info exists keys(-path_delay)] {
-    set mm_key $keys(-path_delay)
-    if { $mm_key == "max_rise" } {
-      set min_max "max"
-      set end_rf "rise"
-    } elseif { $mm_key == "max_fall" } {
-      set min_max "max"
-      set end_rf "fall"
-    } elseif { $mm_key == "min_rise" } {
-      set min_max "min"
-      set end_rf "rise"
-    } elseif { $mm_key == "min_fall" } {
-      set min_max "min"
-      set end_rf "fall"
-    } elseif { $mm_key == "min" || $mm_key == "max" || $mm_key == "min_max" } {
-      set min_max $mm_key
-    } else {
-      sta_error 420 "$cmd -path_delay must be min, min_rise, min_fall, max, max_rise, max_fall or min_max."
-    }
-  }
-
-  set arg_error 0
-  set from [parse_from_arg keys arg_error]
-  set thrus [parse_thrus_arg args arg_error]
-  set to [parse_to_arg1 keys $end_rf arg_error]
-  if { $arg_error } {
-    delete_from_thrus_to $from $thrus $to
-    sta_error 421 "$cmd command failed."
-  }
-
-  check_for_key_args $cmd args
-
-  if { [info exists flags(-unconstrained)] } {
-    set unconstrained 1
-  } elseif { [info exists sta_report_unconstrained_paths] } {
-    set unconstrained $sta_report_unconstrained_paths
-  } else {
-    set unconstrained 0
-  }
-
-  set corner [parse_corner_or_all keys]
-
-  set endpoint_count 1
-  if [info exists keys(-endpoint_count)] {
-    set endpoint_count $keys(-endpoint_count)
-    if { $endpoint_count < 1 } {
-      sta_error 422 "-endpoint_count must be a positive integer."
-    }
-  }
-
-  set group_count $endpoint_count
-  if [info exists keys(-group_count)] {
-    set group_count $keys(-group_count)
-    check_positive_integer "-group_count" $group_count
-    if { $group_count < 1 } {
-      sta_error 423 "-group_count must be >= 1."
-    }
-  }
-
-  set unique_pins [info exists flags(-unique_paths_to_endpoint)]
-
-  set slack_min "-1e+30"
-  if [info exist keys(-slack_min)] {
-    set slack_min $keys(-slack_min)
-    check_float "-slack_min" $slack_min
-    set slack_min [time_ui_sta $slack_min]
-  }
-
-  set slack_max "1e+30"
-  if [info exist keys(-slack_max)] {
-    set slack_max $keys(-slack_max)
-    check_float "-slack_max" $slack_max
-    set slack_max [time_ui_sta $slack_max]
-  }
-
-  set sort_by_slack [info exists flags(-sort_by_slack)]
-
-  set groups {}
-  if [info exists keys(-path_group)] {
-    set groups [parse_path_group_arg $keys(-path_group)]
-  }
-
-  if { [llength $args] != 0 } {
-    delete_from_thrus_to $from $thrus $to
-    set arg [lindex $args 0]
-    if { [is_keyword_arg $arg] } {
-      sta_error 424 "'$arg' is not a known keyword or flag."
-    } else {
-      sta_error 425 "positional arguments not supported."
-    }
-  }
-
-  set path_ends [find_path_ends $from $thrus $to $unconstrained \
-		   $corner $min_max \
-		   $group_count $endpoint_count $unique_pins \
-		   $slack_min $slack_max \
-		   $sort_by_slack $groups \
-		   1 1 1 1 1 1]
-  return $path_ends
-}
-
-################################################################
-
-define_sta_cmd_args "report_checks" \
-  {[-from from_list|-rise_from from_list|-fall_from from_list]\
-     [-through through_list|-rise_through through_list|-fall_through through_list]\
-     [-to to_list|-rise_to to_list|-fall_to to_list]\
-     [-unconstrained]\
-     [-path_delay min|min_rise|min_fall|max|max_rise|max_fall|min_max]\
-     [-corner corner_name]\
-     [-group_count path_count] \
-     [-endpoint_count path_count]\
-     [-unique_paths_to_endpoint]\
-     [-slack_max slack_max]\
-     [-slack_min slack_min]\
-     [-sort_by_slack]\
-     [-path_group group_name]\
-     [-format full|full_clock|full_clock_expanded|short|end|summary]\
-     [-fields [capacitance|slew|input_pin|net]]\
-     [-digits digits]\
-     [-no_line_splits]\
-     [> filename] [>> filename]}
-
-proc_redirect report_checks {
-  global sta_report_unconstrained_paths
-
-  parse_report_path_options "report_checks" args "full" 0
-  set path_ends [find_timing_paths_cmd "report_checks" args]
-  if { $path_ends == {} } {
-    report_line "No paths found."
-  } else {
-    report_path_ends $path_ends
-  }
-}
-
-################################################################
-
-define_sta_cmd_args "report_check_types" \
-  {[-violators] [-verbose]\
-     [-corner corner_name]\
-     [-format slack_only|end]\
-     [-max_delay] [-min_delay]\
-     [-recovery] [-removal]\
-     [-clock_gating_setup] [-clock_gating_hold]\
-     [-max_slew] [-min_slew]\
-     [-max_fanout] [-min_fanout]\
-     [-max_capacitance] [-min_capacitance]\
-     [-min_pulse_width] [-min_period] [-max_skew]\
-     [-net net]\
-     [-digits digits] [-no_line_splits]\
-     [> filename] [>> filename]}
-
-proc_redirect report_check_types {
-  variable path_options
-
-  parse_key_args "report_check_types" args keys {-net -corner}\
-    flags {-violators -all_violators -verbose -no_line_splits} 0
-
-  set violators [info exists flags(-violators)]
-  if { [info exists flags(-all_violators)] } {
-    sta_warn 609 "-all_violators is deprecated. Use -violators"
-    set violators 1
-  }
-
-  set verbose [info exists flags(-verbose)]
-  set nosplit [info exists flags(-no_line_splits)]
-
-  if { $verbose } {
-    set default_format "full"
-  } else {
-    set default_format "slack_only"
-  }
-  parse_report_path_options "report_check_types" args $default_format 0
-
-  set min_max "min_max"
-  if { [operating_condition_analysis_type] == "single" } {
-    set min_max "max"
-  }
-
-  set corner [parse_corner_or_all keys]
-
-  set net "NULL"
-  if { [info exists keys(-net)] } {
-    set net [get_net_warn "-net" $keys(-net)]
-  }
-
-  if { $args == {} } {
-    if { $min_max == "max" || $min_max == "min_max" } {
-      set setup 1
-      set recovery 1
-      set clk_gating_setup 1
-      set max_slew 1
-      set max_fanout 1
-      set max_capacitance 1
-    } else {
-      set setup 0
-      set recovery 0
-      set clk_gating_setup 0
-      set max_slew 0
-      set max_fanout 0
-      set max_capacitance 0
-    }
-    if { $min_max == "min" || $min_max == "min_max" } {
-      set hold 1
-      set removal 1
-      set clk_gating_hold 1
-      set min_slew 1
-      set min_fanout 1
-      set min_capacitance 1
-    } else {
-      set hold 0
-      set min_delay 0
-      set removal 0
-      set clk_gating_hold 0
-      set min_slew 0
-      set min_fanout 0
-      set min_capacitance 0
-    }
-    set min_pulse_width 1
-    set min_period 1
-    set max_skew 1
-  } else {
-    parse_key_args "report_check_types" args keys {} \
-      flags {-max_delay -min_delay -recovery -removal \
-	       -clock_gating_setup -clock_gating_hold \
-	       -max_slew -min_slew \
-	       -max_fanout -min_fanout \
-	       -max_capacitance -min_capacitance \
-	       -min_pulse_width \
-	       -min_period -max_skew \
-	       -max_transition -min_transition } 1
-
-    set setup [info exists flags(-max_delay)]
-    set hold [info exists flags(-min_delay)]
-    set recovery [info exists flags(-recovery)]
-    set removal [info exists flags(-removal)]
-    set clk_gating_setup [info exists flags(-clock_gating_setup)]
-    set clk_gating_hold [info exists flags(-clock_gating_hold)]
-    set max_slew [info exists flags(-max_slew)]
-    if { [info exists flags(-max_transition)] } {
-      sta_warn 610 "-max_transition deprecated. Use -max_slew."
-      set max_slew 1
-    }
-    set min_slew [info exists flags(-min_slew)]
-    if { [info exists flags(-min_transition)] } {
-      sta_warn 611 "-min_transition deprecated. Use -min_slew."
-      set min_slew 1
-    }
-    set max_fanout [info exists flags(-max_fanout)]
-    set min_fanout [info exists flags(-min_fanout)]
-    set max_capacitance [info exists flags(-max_capacitance)]
-    set min_capacitance [info exists flags(-min_capacitance)]
-    set min_pulse_width [info exists flags(-min_pulse_width)]
-    set min_period [info exists flags(-min_period)]
-    set max_skew [info exists flags(-max_skew)]
-    if { [operating_condition_analysis_type] == "single" \
-	   && (($setup && $hold) \
-		 || ($recovery && $removal) \
-		 || ($clk_gating_setup && $clk_gating_hold)) } {
-      sta_error 426 "analysis type single is not consistent with doing both setup/max and hold/min checks."
-    }
-  }
-
-  if { $args != {} } {
-    sta_error 427 "positional arguments not supported."
-  }
-
-  set corner [parse_corner_or_all keys]
-
-  if { $setup || $hold || $recovery || $removal \
-	 || $clk_gating_setup || $clk_gating_hold } {
-    if { ($setup && $hold) \
-	   || ($recovery && $removal) \
-	   || ($clk_gating_setup && $clk_gating_hold) } {
-      set path_min_max "min_max"
-    } elseif { $setup || $recovery || $clk_gating_setup } {
-      set path_min_max "max"
-    } elseif { $hold || $removal || $clk_gating_hold } {
-      set path_min_max "min"
-    }
-    if { $violators } {
-      set group_count $sta::group_count_max
-      set slack_min [expr -$sta::float_inf]
-      set slack_max 0.0
-    } else {
-      set group_count 1
-      set slack_min [expr -$sta::float_inf]
-      set slack_max $sta::float_inf
-    }
-    set path_ends [find_path_ends "NULL" {} "NULL" 0 \
-		     $corner $path_min_max $group_count 1 0 \
-		     $slack_min $slack_max \
-		     0 {} \
-		     $setup $hold \
-		     $recovery $removal \
-		     $clk_gating_setup $clk_gating_hold]
-    report_path_ends $path_ends
-  }
-
-  if { $max_slew } {
-    report_slew_limits $net $corner "max" $violators $verbose $nosplit
-  }
-  if { $min_slew } {
-    report_slew_limits $net $corner "min" $violators $verbose $nosplit
-  }
-  if { $max_fanout } {
-    report_fanout_limits $net "max" $violators $verbose $nosplit
-  }
-  if { $min_fanout } {
-    report_fanout_limits $net "min" $violators $verbose $nosplit
-  }
-  if { $max_capacitance } {
-    report_capacitance_limits $net $corner "max" $violators $verbose $nosplit
-  }
-  if { $min_capacitance } {
-    report_capacitance_limits $net $corner "min" $violators $verbose $nosplit
-  }
-  if { $min_pulse_width } {
-    if { $violators } {
-      set checks [min_pulse_width_violations $corner]
-      report_mpw_checks $checks $verbose
-    } else {
-      set check [min_pulse_width_check_slack $corner]
-      if { $check != "NULL" } {
-	report_mpw_check $check $verbose
-      }
-    }
-  }
-  if { $min_period } {
-    if { $violators } {
-      set checks [min_period_violations]
-      report_min_period_checks $checks $verbose
-    } else {
-      set check [min_period_check_slack]
-      if { $check != "NULL" } {
-	report_min_period_check $check $verbose
-      }
-    }
-  }
-  if { $max_skew } {
-    if { $violators } {
-      set checks [max_skew_violations]
-      report_max_skew_checks $checks $verbose
-    } else {
-      set check [max_skew_check_slack]
-      if { $check != "NULL" } {
-	report_max_skew_check $check $verbose
-      }
-    }
-  }
-}
-
-################################################################
-
-define_sta_cmd_args "report_tns" { [-digits digits]}
-
-proc_redirect report_tns {
-  global sta_report_default_digits
-
-  parse_key_args "report_tns" args keys {-digits} flags {}
-  if [info exists keys(-digits)] {
-    set digits $keys(-digits)
-    check_positive_integer "-digits" $digits
-  } else {
-    set digits $sta_report_default_digits
-  }
-
-  report_line "tns [format_time [total_negative_slack_cmd "max"] $digits]"
-}
-
-################################################################
-
-define_sta_cmd_args "report_wns" { [-digits digits]}
-
-proc_redirect report_wns {
-  global sta_report_default_digits
-
-  parse_key_args "report_wns" args keys {-digits} flags {}
-  if [info exists keys(-digits)] {
-    set digits $keys(-digits)
-    check_positive_integer "-digits" $digits
-  } else {
-    set digits $sta_report_default_digits
-  }
-
-  set slack [worst_slack_cmd "max"]
-  if { $slack > 0.0 } {
-    set slack 0.0
-  }
-  report_line "wns [format_time $slack $digits]"
-}
-
-################################################################
-
-define_sta_cmd_args "report_worst_slack" {[-min] [-max] [-digits digits]}
-
-proc_redirect report_worst_slack {
-  global sta_report_default_digits
-
-  parse_key_args "report_worst_slack" args keys {-digits} flags {-min -max}
-  set min_max [parse_min_max_flags flags]
-  if [info exists keys(-digits)] {
-    set digits $keys(-digits)
-    check_positive_integer "-digits" $digits
-  } else {
-    set digits $sta_report_default_digits
-  }
-
-  report_line "worst slack [format_time [worst_slack_cmd $min_max] $digits]"
-}
-
-################################################################
-
-define_sta_cmd_args "report_dcalc" \
-  {[-from from_pin] [-to to_pin] [-corner corner_name] [-min] [-max] [-digits digits]}
-
-proc_redirect report_dcalc {
-  report_dcalc_cmd "report_dcalc" $args "-digits"
-}
-
-################################################################
-
-define_sta_cmd_args "report_disabled_edges" {}
-
-################################################################
-
-define_sta_cmd_args "report_pulse_width_checks" \
-  {[-verbose] [-corner corner_name] [-digits digits] [-no_line_splits] [pins]\
-     [> filename] [>> filename]}
-
-proc_redirect report_pulse_width_checks {
-  variable path_options
-
-  parse_key_args "report_pulse_width_checks" args keys {-corner} \
-    flags {-verbose} 0
-  # Only -digits and -no_line_splits are respected.
-  parse_report_path_options "report_pulse_width_checks" args "full" 0
-  check_argc_eq0or1 "report_pulse_width_checks" $args
-  set corner [parse_corner_or_all keys]
-  set verbose [info exists flags(-verbose)]
-  if { [llength $args] == 1 } {
-    set pins [get_port_pins_error "pins" [lindex $args 0]]
-    set checks [min_pulse_width_check_pins $pins $corner]
-  } else {
-    set checks [min_pulse_width_checks $corner]
-  }
-  if { $checks != {} } {
-    report_mpw_checks $checks $verbose
-  }
-}
-
-################################################################
-
-define_sta_cmd_args "set_disable_inferred_clock_gating" { objects }
+define_cmd_args "set_disable_inferred_clock_gating" { objects }
 
 proc set_disable_inferred_clock_gating { objects } {
   set_disable_inferred_clock_gating_cmd $objects
@@ -687,7 +66,7 @@ proc set_disable_inferred_clock_gating_cmd { objects } {
 
 ################################################################
 
-define_sta_cmd_args "unset_case_analysis" {pins}
+define_cmd_args "unset_case_analysis" {pins}
 
 proc unset_case_analysis { pins } {
   set pins1 [get_port_pins_error "pins" $pins]
@@ -698,7 +77,7 @@ proc unset_case_analysis { pins } {
 
 ################################################################
 
-define_sta_cmd_args "unset_clock_groups" \
+define_cmd_args "unset_clock_groups" \
   {[-logically_exclusive] [-physically_exclusive]\
      [-asynchronous] [-name names] [-all]}
 				
@@ -758,7 +137,7 @@ proc unset_clk_groups_cmd { cmd cmd_args } {
 
 ################################################################
 
-define_sta_cmd_args "unset_clock_latency" {[-source] [-clock clock] objects}
+define_cmd_args "unset_clock_latency" {[-source] [-clock clock] objects}
 
 proc unset_clock_latency { args } {
   unset_clk_latency_cmd "unset_clock_latency" $args
@@ -802,7 +181,7 @@ proc unset_clk_latency_cmd { cmd cmd_args } {
 
 ################################################################
 
-define_sta_cmd_args "unset_clock_transition" {clocks}
+define_cmd_args "unset_clock_transition" {clocks}
 
 proc unset_clock_transition { args } {
   check_argc_eq1 "unset_clock_transition" $args
@@ -814,7 +193,7 @@ proc unset_clock_transition { args } {
 
 ################################################################
 
-define_sta_cmd_args "unset_clock_uncertainty" \
+define_cmd_args "unset_clock_uncertainty" \
   {[-from|-rise_from|-fall_from from_clock]\
      [-to|-rise_to|-fall_to to_clock] [-rise] [-fall]\
      [-setup] [-hold] [objects]}
@@ -900,7 +279,7 @@ proc unset_clk_uncertainty_cmd { cmd cmd_args } {
 
 ################################################################
 
-define_sta_cmd_args "unset_data_check" \
+define_cmd_args "unset_data_check" \
   {[-from from_pin] [-rise_from from_pin] [-fall_from from_pin]\
      [-to to_pin] [-rise_to to_pin] [-fall_to to_pin]\
      [-setup | -hold] [-clock clock]}
@@ -960,7 +339,7 @@ proc unset_data_checks_cmd { cmd cmd_args } {
 
 ################################################################
 
-define_sta_cmd_args "unset_disable_inferred_clock_gating" { objects }
+define_cmd_args "unset_disable_inferred_clock_gating" { objects }
 
 proc unset_disable_inferred_clock_gating { objects } {
   unset_disable_inferred_clock_gating_cmd $objects
@@ -978,7 +357,7 @@ proc unset_disable_inferred_clock_gating_cmd { objects } {
 
 ################################################################
 
-define_sta_cmd_args "unset_disable_timing" \
+define_cmd_args "unset_disable_timing" \
   {[-from from_port] [-to to_port] objects}
 
 proc unset_disable_timing { args } {
@@ -1077,7 +456,7 @@ proc unset_disable_timing_instance { inst from to } {
 
 ################################################################
 
-define_sta_cmd_args "unset_generated_clock" {[-all] clocks}
+define_cmd_args "unset_generated_clock" {[-all] clocks}
 
 proc unset_generated_clock { args } {
   unset_gclk_cmd "unset_generated_clock" $args
@@ -1101,7 +480,7 @@ proc remove_gclk_cmd { cmd cmd_args } {
 
 ################################################################
 
-define_sta_cmd_args "unset_input_delay" \
+define_cmd_args "unset_input_delay" \
   {[-rise] [-fall] [-max] [-min]\
      [-clock clock] [-clock_fall]\
      port_pin_list}
@@ -1112,7 +491,7 @@ proc unset_input_delay { args } {
 
 ################################################################
 
-define_sta_cmd_args "unset_output_delay" \
+define_cmd_args "unset_output_delay" \
   {[-rise] [-fall] [-max] [-min]\
      [-clock clock] [-clock_fall]\
      port_pin_list}
@@ -1150,7 +529,7 @@ proc unset_port_delay { cmd swig_cmd cmd_args } {
 
 ################################################################
 
-define_sta_cmd_args "unset_path_exceptions" \
+define_cmd_args "unset_path_exceptions" \
   {[-setup] [-hold] [-rise] [-fall] [-from from_list]\
      [-rise_from from_list] [-fall_from from_list]\
      [-through through_list] [-rise_through through_list]\
@@ -1200,7 +579,7 @@ proc unset_path_exceptions_cmd { cmd cmd_args } {
 
 ################################################################
 
-define_sta_cmd_args "unset_propagated_clock" {objects}
+define_cmd_args "unset_propagated_clock" {objects}
 
 proc unset_propagated_clock { objects } {
   parse_clk_port_pin_arg $objects clks pins
@@ -1214,7 +593,7 @@ proc unset_propagated_clock { objects } {
 
 ################################################################
 
-define_sta_cmd_args "unset_timing_derate" {}
+define_cmd_args "unset_timing_derate" {}
 
 proc unset_timing_derate { args } {
   check_argc_eq0 "unset_timing_derate" $args
@@ -1227,25 +606,25 @@ proc unset_timing_derate { args } {
 #  
 ################################################################
 
-define_sta_cmd_args "connect_pin" {net pin}
+define_cmd_args "connect_pin" {net pin}
 # deprecated 2.0.16 05/02/2019
-define_sta_cmd_args "connect_pins" {net pins}
+define_cmd_args "connect_pins" {net pins}
 
-define_sta_cmd_args "delete_instance" {inst}
+define_cmd_args "delete_instance" {inst}
 
-define_sta_cmd_args "delete_net" {net}
+define_cmd_args "delete_net" {net}
 
-define_sta_cmd_args "disconnect_pin" {net -all|pin}
+define_cmd_args "disconnect_pin" {net -all|pin}
 # deprecated 2.0.16 05/02/2019
-define_sta_cmd_args "disconnect_pins" {net -all|pins}
+define_cmd_args "disconnect_pins" {net -all|pins}
 
-define_sta_cmd_args "make_instance" {inst_path lib_cell}
+define_cmd_args "make_instance" {inst_path lib_cell}
 
-define_sta_cmd_args "make_net" {}
+define_cmd_args "make_net" {}
 
-define_sta_cmd_args "replace_cell" {instance lib_cell}
+define_cmd_args "replace_cell" {instance lib_cell}
 
-define_sta_cmd_args "insert_buffer" {buffer_name buffer_cell net load_pins\
+define_cmd_args "insert_buffer" {buffer_name buffer_cell net load_pins\
 				       buffer_out_net_name}
 
 ################################################################
@@ -1254,7 +633,7 @@ define_sta_cmd_args "insert_buffer" {buffer_name buffer_cell net load_pins\
 #  
 ################################################################
 
-define_sta_cmd_args "set_assigned_delay" \
+define_cmd_args "set_assigned_delay" \
   {-cell|-net [-rise] [-fall] [-corner corner_name] [-min] [-max]\
      [-from from_pins] [-to to_pins] delay}
 
@@ -1354,7 +733,7 @@ proc set_assigned_delay2 {from_vertex to_vertex to_rf corner min_max delay} {
 
 ################################################################
 
-define_sta_cmd_args "set_assigned_check" \
+define_cmd_args "set_assigned_check" \
   {-setup|-hold|-recovery|-removal [-rise] [-fall]\
      [-corner corner_name] [-min] [-max]\
      [-from from_pins] [-to to_pins] [-clock rise|fall]\
@@ -1470,7 +849,7 @@ proc set_assigned_check2 { from_vertex from_rf to_vertex to_rf \
 
 ################################################################a
 
-define_sta_cmd_args "set_assigned_transition" \
+define_cmd_args "set_assigned_transition" \
   {[-rise] [-fall] [-corner corner_name] [-min] [-max] slew pins}
 
 # Change the slew on a list of ports.
@@ -1504,7 +883,7 @@ proc set_assigned_transition { args } {
 ################################################################a
 
 # compatibility
-define_sta_cmd_args "read_parasitics" \
+define_cmd_args "read_parasitics" \
   {[-min]\
      [-max]\
      [-elmore]\
@@ -1525,7 +904,7 @@ define_sta_cmd_args "read_parasitics" \
 #
 ################################################################
 
-define_sta_cmd_args "delete_from_list" {list objs}
+define_cmd_args "delete_from_list" {list objs}
 
 proc delete_from_list { list objects } {
   delete_objects_from_list_cmd $list $objects
@@ -1572,7 +951,7 @@ proc delete_objects_from_list_cmd { list objects } {
 
 ################################################################
 
-define_sta_cmd_args "get_fanin" \
+define_cmd_args "get_fanin" \
   {-to sink_list [-flat] [-only_cells] [-startpoints_only]\
      [-levels level_count] [-pin_levels pin_count]\
      [-trace_arcs timing|enabled|all]}
@@ -1631,7 +1010,7 @@ proc get_fanin { args } {
 
 ################################################################
 
-define_sta_cmd_args "get_fanout" \
+define_cmd_args "get_fanout" \
   {-from source_list [-flat] [-only_cells] [-endpoints_only]\
      [-levels level_count] [-pin_levels pin_count]\
      [-trace_arcs timing|enabled|all]}
@@ -1689,12 +1068,12 @@ proc get_fanout { args } {
 
 ################################################################
 
-define_sta_cmd_args "get_name" {objects}
-define_sta_cmd_args "get_full_name" {objects}
+define_cmd_args "get_name" {objects}
+define_cmd_args "get_full_name" {objects}
 
 ################################################################
 
-define_sta_cmd_args "get_property" \
+define_cmd_args "get_property" \
   {[-object_type cell|pin|net|port|clock|timing_arc] object property}
 
 proc get_property { args } {
@@ -1841,7 +1220,7 @@ proc full_name_cmp { obj1 obj2 } {
 
 ################################################################
 
-define_sta_cmd_args "get_timing_edges" \
+define_cmd_args "get_timing_edges" \
   {[-from from_pin] [-to to_pin] [-of_objects objects] [-filter expr]}
 
 proc get_timing_edges { args } {
@@ -2002,7 +1381,7 @@ proc filter_timing_arcs1 { filter objects } {
 
 ################################################################
 
-define_sta_cmd_args "report_clock_properties" {[clocks]}
+define_cmd_args "report_clock_properties" {[clocks]}
 
 proc_redirect report_clock_properties {
   check_argc_eq0or1 "report_clock_properties" $args
@@ -2048,7 +1427,7 @@ proc report_clock1 { clk } {
 
 ################################################################
 
-define_sta_cmd_args "report_object_full_names" {objects}
+define_cmd_args "report_object_full_names" {objects}
 
 proc report_object_full_names { objects } {
   foreach obj [sort_by_full_name $objects] {
@@ -2056,7 +1435,7 @@ proc report_object_full_names { objects } {
   }
 }
 
-define_sta_cmd_args "report_object_names" {objects}
+define_cmd_args "report_object_names" {objects}
 
 proc report_object_names { objects } {
   foreach obj [sort_by_name $objects] {
@@ -2066,7 +1445,7 @@ proc report_object_names { objects } {
 
 ################################################################
 
-define_sta_cmd_args "report_units" {}
+define_cmd_args "report_units" {}
 
 proc report_units { args } {
   check_argc_eq0 "report_units" $args
@@ -2077,7 +1456,7 @@ proc report_units { args } {
 
 ################################################################
 
-define_sta_cmd_args "with_output_to_variable" { var { cmds }}
+define_cmd_args "with_output_to_variable" { var { cmds }}
 
 # with_output_to_variable variable { command args... }
 proc with_output_to_variable { var_name args } {
@@ -2090,7 +1469,7 @@ proc with_output_to_variable { var_name args } {
   return $ret
 }
 
-define_sta_cmd_args "set_pocv_sigma_factor" { factor }
+define_cmd_args "set_pocv_sigma_factor" { factor }
 
 ################################################################
 
