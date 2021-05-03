@@ -240,42 +240,24 @@ Power::power(const Instance *inst,
 
 ////////////////////////////////////////////////////////////////
 
-class ActivitySrchPred : public SearchPred
+class ActivitySrchPred : public SearchPred2
 {
 public:
   explicit ActivitySrchPred(const StaState *sta);
-  virtual bool searchFrom(const Vertex *from_vertex);
   virtual bool searchThru(Edge *edge);
-  virtual bool searchTo(const Vertex *);
-
-protected:
-  const StaState *sta_;
 };
 
 ActivitySrchPred::ActivitySrchPred(const StaState *sta) :
-  sta_(sta)
+  SearchPred2(sta)
 {
-}
-
-bool
-ActivitySrchPred::searchFrom(const Vertex *)
-{
-  return true;
 }
 
 bool
 ActivitySrchPred::searchThru(Edge *edge)
 {
   TimingRole *role = edge->role();
-  return !(edge->isDisabledLoop()
-	   || role->isTimingCheck()
-	   || role == TimingRole::regClkToQ());
-}
-
-bool
-ActivitySrchPred::searchTo(const Vertex *)
-{
-  return true;
+  return SearchPred2::searchThru(edge)
+    && role != TimingRole::regClkToQ();
 }
 
 ////////////////////////////////////////////////////////////////

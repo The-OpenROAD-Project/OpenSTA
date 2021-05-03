@@ -4,9 +4,9 @@
 0010 Genclks.cc:289            no master clock found for generated clock %s.
 0011 Genclks.cc:331            generated clock %s is in the fanout of multiple clocks.
 0013 Genclks.cc:990            generated clock %s source pin %s missing paths from master clock %s.
-0015 Sim.cc:861                propagated logic value %c differs from constraint value of %c on pin %s.
-0016 Sta.cc:2012               '%s' is not a valid startoint.
-0017 Sta.cc:2087               '%s' is not a valid endpoint.
+0015 Sim.cc:868                propagated logic value %c differs from constraint value of %c on pin %s.
+0016 Sta.cc:2010               '%s' is not a valid startoint.
+0017 Sta.cc:2085               '%s' is not a valid endpoint.
 0021 SpefParse.yy:805          %d is not positive.
 0022 SpefParse.yy:814          %.4f is not positive.
 0023 SpefParse.yy:820          %.4f is not positive.
@@ -16,12 +16,14 @@
 0027 WritePathSpice.cc:1016    no register/latch found for path from %s to %s,
 0028 WritePathSpice.cc:1383    The following subkcts are missing from %s
 0029 WritePathSpice.cc:1441    subckt %s port %s has no corresponding liberty port, pg_port and is not power or ground.
-0160 Sta.cc:2009               '%s' is not a valid startpoint.
-0161 Sta.cc:2084               '%s' is not a valid endpoint.
+0160 Sta.cc:2007               '%s' is not a valid startpoint.
+0161 Sta.cc:2082               '%s' is not a valid endpoint.
 0162 VerilogReader.cc:1744     %s is not a verilog module.
 0163 VerilogReader.cc:1749     %s is not a verilog module.
 0179 SpefReader.cc:723         %s.
-0204 StaTcl.i:4165             POCV support requires compilation with SSTA=1.
+0201 StaTcl.i:128              no network has been linked.
+0202 StaTcl.i:142              network does not support edits.
+0204 StaTcl.i:4158             POCV support requires compilation with SSTA=1.
 0207 GraphDelayCalc1.cc:746    port not found in cell
 0208 Graph.cc:744              arc_delay_annotated array bounds exceeded
 0209 Graph.cc:759              arc_delay_annotated array bounds exceeded
@@ -40,25 +42,25 @@
 0255 ReportPath.cc:287         unsupported path type
 0256 ReportPath.cc:308         unsupported path type
 0257 ReportPath.cc:347         unsupported path type
-0258 ReportPath.cc:2217        generated clock pll source path too short.
-0259 ReportPath.cc:2380        unsupported path type
+0258 ReportPath.cc:2224        generated clock pll source path too short.
+0259 ReportPath.cc:2387        unsupported path type
 0260 Search.cc:2666            max tag group index exceeded
 0261 Search.cc:2895            max tag index exceeded
 0262 Search.cc:3579            unexpected filter path
 0263 Search.cc:3747            tns incr existing vertex
-0264 Sta.cc:3880               corresponding timing arc set not found in equiv cells
+0264 Sta.cc:3951               corresponding timing arc set not found in equiv cells
 0265 TagGroup.cc:337           tag group missing tag
 0300 Util.tcl:218              no commands match '$pattern'.
 0301 Power.tcl:207             activity should be 0.0 to 1.0 or 2.0
 0302 Power.tcl:215             duty should be 0.0 to 1.0
-0303 Cmds.tcl:552              -clock ignored for clock objects.
-0304 Cmds.tcl:756              -from/-to keywords ignored for lib_pin, port and pin arguments.
-0305 Cmds.tcl:1038             object '$obj' not found.
-0313 Cmds.tcl:1707             unsupported object type $object_type.
-0314 Cmds.tcl:1722             $arg_name must be a single net.
-0315 Cmds.tcl:1728             $arg_name '$object_type' is not a net.
-0316 Cmds.tcl:1733             $arg_name '$arg' not found.
-0318 Search.tcl:379            unknown path group '$name'.
+0303 Sta.tcl:155               -clock ignored for clock objects.
+0304 Sta.tcl:384               -from/-to keywords ignored for lib_pin, port and pin arguments.
+0305 Cmds.tcl:166              object '$obj' not found.
+0313 Cmds.tcl:835              unsupported object type $object_type.
+0314 Cmds.tcl:850              $arg_name must be a single net.
+0315 Cmds.tcl:856              $arg_name '$object_type' is not a net.
+0316 Cmds.tcl:861              $arg_name '$arg' not found.
+0318 Search.tcl:1025           unknown path group '$name'.
 0319 Sdc.tcl:277               $unit scale [format %.0e $scale] does not match library scale [format %.0e $unit_scale].
 0320 Sdc.tcl:478               current_design for other than top cell not supported.
 0321 Sdc.tcl:515               patterns argument not supported with -of_objects.
@@ -131,16 +133,16 @@
 0416 Util.tcl:377              $cmd_arg '$arg' is not a positive integer.
 0417 Util.tcl:383              $cmd_arg '$arg' is not an integer greater than or equal to one.
 0418 Util.tcl:389              $cmd_arg '$arg' is not between 0 and 100.
-0419 Sta.tcl:120               report_clock_skew -setup and -hold are mutually exclusive options.
-0420 Sta.tcl:195               $cmd -path_delay must be min, min_rise, min_fall, max, max_rise, max_fall or min_max.
-0421 Sta.tcl:205               $cmd command failed.
-0422 Sta.tcl:224               -endpoint_count must be a positive integer.
-0423 Sta.tcl:232               -group_count must be a positive integer.
-0424 Sta.tcl:263               '$arg' is not a known keyword or flag.
-0425 Sta.tcl:265               positional arguments not supported.
-0426 Sta.tcl:430               analysis type single is not consistent with doing both setup/max and hold/min checks.
-0427 Sta.tcl:435               positional arguments not supported.
-0428 Sta.tcl:865               set_assigned_transition transition is not a float.
+0419 Search.tcl:342            report_clock_skew -setup and -hold are mutually exclusive options.
+0420 Search.tcl:136            $cmd -path_delay must be min, min_rise, min_fall, max, max_rise, max_fall or min_max.
+0421 Search.tcl:146            $cmd command failed.
+0422 Search.tcl:165            -endpoint_count must be a positive integer.
+0423 Search.tcl:174            -group_count must be >= 1.
+0424 Search.tcl:205            '$arg' is not a known keyword or flag.
+0425 Search.tcl:207            positional arguments not supported.
+0426 Search.tcl:524            analysis type single is not consistent with doing both setup/max and hold/min checks.
+0427 Search.tcl:529            positional arguments not supported.
+0428 Sta.tcl:867               set_assigned_transition transition is not a float.
 0429 Sdf.tcl:47                -analysis_type must be single, bc_wc or on_chip_variation
 0430 Sdf.tcl:60                -cond_use min_max cannot be used with analysis type single.
 0431 Sdf.tcl:108               $key must be sdf_min, sdf_typ, or sdf_max.
@@ -151,78 +153,78 @@
 0436 Variables.tcl:45          sta_report_default_digits must be a positive integer.
 0437 Variables.tcl:70          sta_crpr_mode must be pin or transition.
 0438 Variables.tcl:187         $var_name value must be 0 or 1.
-0439 Cmds.tcl:117              unsupported object type $list_type.
-0440 Cmds.tcl:139              -from/-to arguments not supported with -of_objects.
-0441 Cmds.tcl:277              unsupported -filter expression.
-0442 Cmds.tcl:295              $cmd missing -from argument.
-0443 Cmds.tcl:300              $cmd missing -to argument.
-0444 Cmds.tcl:305              $cmd delay is not a float.
-0445 Cmds.tcl:310              set_annotated_delay -cell and -net options are mutually excluive.
-0446 Cmds.tcl:316              $cmd pin [get_full_name $pin] is not attached to instance [get_full_name $inst].
-0447 Cmds.tcl:321              $cmd pin [get_full_name $pin] is not attached to instance [get_full_name $inst]
-0448 Cmds.tcl:326              $cmd -cell or -net required.
-0449 Cmds.tcl:384              $cmd missing -from argument.
-0450 Cmds.tcl:393              $cmd -clock must be rise or fall.
-0451 Cmds.tcl:400              $cmd missing -to argument.
-0452 Cmds.tcl:415              $cmd missing -setup|-hold|-recovery|-removal check type..
-0453 Cmds.tcl:423              $cmd check_value is not a float.
-0454 Cmds.tcl:503              the -all and -name options are mutually exclusive.
-0455 Cmds.tcl:506              either -all or -name options must be specified.
-0456 Cmds.tcl:514              one of -logically_exclusive, -physically_exclusive or -asynchronous is required.
-0457 Cmds.tcl:517              the keywords -logically_exclusive, -physically_exclusive and -asynchronous are mutually exclusive.
-0458 Cmds.tcl:564              -source '[$pin path_name]' is not a clock pin.
-0459 Cmds.tcl:622              -from/-to must be used together.
-0460 Cmds.tcl:642              -rise, -fall options not allowed for single clock uncertainty.
-0461 Cmds.tcl:677              missing -from, -rise_from or -fall_from argument.
-0462 Cmds.tcl:689              missing -to, -rise_to or -fall_to argument.
-0463 Cmds.tcl:808              -from/-to hierarchical instance not supported.
-0464 Cmds.tcl:850              $cmd command failed.
-0465 Cmds.tcl:857              positional arguments not supported.
-0466 Cmds.tcl:861              -from, -through or -to required.
-0467 Cmds.tcl:980              unsupported object type $object_type.
-0468 Cmds.tcl:1271             $corner_name is not the name of process corner.
-0469 Cmds.tcl:1276             -corner keyword required with multi-corner analysis.
-0470 Cmds.tcl:1291             $corner_name is not the name of process corner.
-0471 Cmds.tcl:1296             missing -corner arg.
-0472 Cmds.tcl:1307             $corner_name is not the name of process corner.
-0473 Cmds.tcl:1323             $corner_name is not the name of process corner.
-0474 Cmds.tcl:1348             both -min and -max specified.
-0475 Cmds.tcl:1362             both -min and -max specified.
-0476 Cmds.tcl:1389             only one of -early and -late can be specified.
-0477 Cmds.tcl:1395             -early or -late must be specified.
-0478 Cmds.tcl:1402             both -early and -late specified.
-0479 Cmds.tcl:1417             $arg_name must be a single library.
-0480 Cmds.tcl:1423             $arg_name type '$object_type' is not a library.
-0481 Cmds.tcl:1428             library '$arg' not found.
-0482 Cmds.tcl:1445             $arg_name must be a single lib cell.
-0483 Cmds.tcl:1501             $arg_name must be a single instance.
-0484 Cmds.tcl:1507             $arg_name type '$object_type' is not an instance.
-0485 Cmds.tcl:1512             instance '$arg' not found.
-0486 Cmds.tcl:1531             $arg_name type '$object_type' is not an instance.
-0487 Cmds.tcl:1538             instance '$arg' not found.
-0488 Cmds.tcl:1599             $arg_name type '$object_type' is not a pin or port.
-0489 Cmds.tcl:1606             pin '$arg' not found.
-0490 Cmds.tcl:1626             $arg_name type '$object_type' is not a port.
-0491 Cmds.tcl:1830             $cmd object is null.
-0492 Cmds.tcl:1835             $cmd $type_key must be specified with object name argument.
-0493 Cmds.tcl:1878             get_property $object is not an object.
-0494 Cmds.tcl:1901             $object_type not supported.
-0495 Cmds.tcl:1904             $object_type '$object_name' not found.
-0496 Cmds.tcl:1978             Directory $spice_dir not found.
-0497 Cmds.tcl:1981             $spice_dir is not a directory.
-0498 Cmds.tcl:1984             Cannot write in $spice_dir.
-0499 Cmds.tcl:1987             No -spice_directory specified.
-0500 Cmds.tcl:1993             -lib_subckt_file $lib_subckt_file is not readable.
-0501 Cmds.tcl:1996             No -lib_subckt_file specified.
-0502 Cmds.tcl:2002             -model_file $model_file is not readable.
-0503 Cmds.tcl:2005             No -model_file specified.
-0504 Cmds.tcl:2011             No -power specified.
-0505 Cmds.tcl:2017             No -ground specified.
-0506 Cmds.tcl:2021             No -path_args specified.
-0507 Cmds.tcl:2026             No paths found for -path_args $path_args.
-0508 Search.tcl:146            -min and -max cannot both be specified.
-0509 Search.tcl:166            pin '$pin_arg' is hierarchical.
-0510 Search.tcl:232            -format $format not recognized.
+0439 Sta.tcl:941               unsupported object type $list_type.
+0440 Sta.tcl:1239              -from/-to arguments not supported with -of_objects.
+0441 Sta.tcl:1377              unsupported -filter expression.
+0442 Sta.tcl:657               $cmd missing -from argument.
+0443 Sta.tcl:662               $cmd missing -to argument.
+0444 Sta.tcl:667               $cmd delay is not a float.
+0445 Sta.tcl:672               set_annotated_delay -cell and -net options are mutually excluive.
+0446 Sta.tcl:678               $cmd pin [get_full_name $pin] is not attached to instance [get_full_name $inst].
+0447 Sta.tcl:683               $cmd pin [get_full_name $pin] is not attached to instance [get_full_name $inst]
+0448 Sta.tcl:688               $cmd -cell or -net required.
+0449 Sta.tcl:757               $cmd missing -from argument.
+0450 Sta.tcl:766               $cmd -clock must be rise or fall.
+0451 Sta.tcl:773               $cmd missing -to argument.
+0452 Sta.tcl:788               $cmd missing -setup|-hold|-recovery|-removal check type..
+0453 Sta.tcl:796               $cmd check_value is not a float.
+0454 Sta.tcl:100               the -all and -name options are mutually exclusive.
+0455 Sta.tcl:103               either -all or -name options must be specified.
+0456 Sta.tcl:111               one of -logically_exclusive, -physically_exclusive or -asynchronous is required.
+0457 Sta.tcl:114               the keywords -logically_exclusive, -physically_exclusive and -asynchronous are mutually exclusive.
+0458 Sta.tcl:167               -source '[$pin path_name]' is not a clock pin.
+0459 Sta.tcl:246               -from/-to must be used together.
+0460 Sta.tcl:266               -rise, -fall options not allowed for single clock uncertainty.
+0461 Sta.tcl:310               missing -from, -rise_from or -fall_from argument.
+0462 Sta.tcl:322               missing -to, -rise_to or -fall_to argument.
+0463 Sta.tcl:436               -from/-to hierarchical instance not supported.
+0464 Sta.tcl:562               $cmd command failed.
+0465 Sta.tcl:569               positional arguments not supported.
+0466 Sta.tcl:573               -from, -through or -to required.
+0467 Cmds.tcl:108              unsupported object type $object_type.
+0468 Cmds.tcl:399              $corner_name is not the name of process corner.
+0469 Cmds.tcl:404              -corner keyword required with multi-corner analysis.
+0470 Cmds.tcl:419              $corner_name is not the name of process corner.
+0471 Cmds.tcl:424              missing -corner arg.
+0472 Cmds.tcl:435              $corner_name is not the name of process corner.
+0473 Cmds.tcl:451              $corner_name is not the name of process corner.
+0474 Cmds.tcl:476              both -min and -max specified.
+0475 Cmds.tcl:490              both -min and -max specified.
+0476 Cmds.tcl:517              only one of -early and -late can be specified.
+0477 Cmds.tcl:523              -early or -late must be specified.
+0478 Cmds.tcl:530              both -early and -late specified.
+0479 Cmds.tcl:545              $arg_name must be a single library.
+0480 Cmds.tcl:551              $arg_name type '$object_type' is not a library.
+0481 Cmds.tcl:556              library '$arg' not found.
+0482 Cmds.tcl:573              $arg_name must be a single lib cell.
+0483 Cmds.tcl:629              $arg_name must be a single instance.
+0484 Cmds.tcl:635              $arg_name type '$object_type' is not an instance.
+0485 Cmds.tcl:640              instance '$arg' not found.
+0486 Cmds.tcl:659              $arg_name type '$object_type' is not an instance.
+0487 Cmds.tcl:666              instance '$arg' not found.
+0488 Cmds.tcl:727              $arg_name type '$object_type' is not a pin or port.
+0489 Cmds.tcl:734              pin '$arg' not found.
+0490 Cmds.tcl:754              $arg_name type '$object_type' is not a port.
+0491 Sta.tcl:1091              $cmd object is null.
+0492 Sta.tcl:1096              $cmd $type_key must be specified with object name argument.
+0493 Sta.tcl:1139              get_property $object is not an object.
+0494 Sta.tcl:1162              $object_type not supported.
+0495 Sta.tcl:1165              $object_type '$object_name' not found.
+0496 Sta.tcl:1492              Directory $spice_dir not found.
+0497 Sta.tcl:1495              $spice_dir is not a directory.
+0498 Sta.tcl:1498              Cannot write in $spice_dir.
+0499 Sta.tcl:1501              No -spice_directory specified.
+0500 Sta.tcl:1507              -lib_subckt_file $lib_subckt_file is not readable.
+0501 Sta.tcl:1510              No -lib_subckt_file specified.
+0502 Sta.tcl:1516              -model_file $model_file is not readable.
+0503 Sta.tcl:1519              No -model_file specified.
+0504 Sta.tcl:1525              No -power specified.
+0505 Sta.tcl:1531              No -ground specified.
+0506 Sta.tcl:1535              No -path_args specified.
+0507 Sta.tcl:1540              No paths found for -path_args $path_args.
+0508 Search.tcl:792            -min and -max cannot both be specified.
+0509 Search.tcl:812            pin '$pin_arg' is hierarchical.
+0510 Search.tcl:878            -format $format not recognized.
 0511 Sdc.tcl:64                cannot open '$filename'.
 0512 Sdc.tcl:116               incomplete command at end of file.
 0513 Sdc.tcl:202               hierarchy separator must be one of '$sdc_dividers'.
@@ -303,8 +305,8 @@
 0588 NetworkEdit.tcl:135       unsupported object type $object_type.
 0589 Network.tcl:25            unknown namespace $namespc.
 0590 Network.tcl:55            instance $instance_path not found.
-0591 Network.tcl:274           net $net_path not found.
-0592 Network.tcl:277           net $net_path not found.
+0591 Network.tcl:283           net $net_path not found.
+0592 Network.tcl:286           net $net_path not found.
 0593 Link.tcl:28               missing top_cell_name argument and no current_design.
 0594 DelayNormal1.cc:203       unknown early/late value.
 0595 DelayNormal2.cc:378       unknown early/late value.
@@ -316,12 +318,12 @@
 0603 NetworkEdit.tcl:172       disconnect_pins is deprecated.  Use disconnect_pin.
 0604 Sdc.tcl:270               unknown $unit prefix '$prefix'.
 0605 Sdc.tcl:3066              wire load model '$model_name' not found.
-0606 Cmds.tcl:1875             get_property unsupported object type $object_type.
-0607 StaTcl.i:4401             unknown report path field %s
-0608 StaTcl.i:4413             unknown report path field %s
-0609 Sta.tcl:336               -all_violators is deprecated. Use -violators
-0610 Sta.tcl:411               -max_transition deprecated. Use -max_slew.
-0611 Sta.tcl:416               -min_transition deprecated. Use -min_slew.
+0606 Sta.tcl:1136              get_property unsupported object type $object_type.
+0607 StaTcl.i:4394             unknown report path field %s
+0608 StaTcl.i:4406             unknown report path field %s
+0609 Search.tcl:425            -all_violators is deprecated. Use -violators
+0610 Search.tcl:505            -max_transition deprecated. Use -max_slew.
+0611 Search.tcl:510            -min_transition deprecated. Use -min_slew.
 0612 Sdf.tcl:55                -cond_use must be min, max or min_max.
 0613 Sdf.tcl:74                -min_type ignored by analysis_type single.
 0614 Sdf.tcl:77                -max_type ignored by analysis_type single.
