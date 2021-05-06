@@ -44,6 +44,7 @@
 #include "DataCheck.hh"
 #include "DeratingFactors.hh"
 #include "Sdc.hh"
+#include "Fuzzy.hh"
 #include "WriteSdcPvt.hh"
 #include "StaState.hh"
 
@@ -425,9 +426,15 @@ WriteSdc::writeClock(Clock *clk) const
   if (clk->addToPins())
     fprintf(stream_, " -add");
   fprintf(stream_, " -period ");
-  writeTime(clk->period());
-  fprintf(stream_, " -waveform ");
-  writeFloatSeq(clk->waveform(), scaleTime(1.0));
+  float period = clk->period();
+  writeTime(period);
+  FloatSeq *waveform = clk->waveform();
+  if (!(waveform->size() == 2
+        && (*waveform)[0] == 0.0
+        && fuzzyEqual((*waveform)[1], period / 2.0))) {
+    fprintf(stream_, " -waveform ");
+    writeFloatSeq(waveform, scaleTime(1.0));
+  }
   writeCmdComment(clk);
   fprintf(stream_, " ");
   writeClockPins(clk);
