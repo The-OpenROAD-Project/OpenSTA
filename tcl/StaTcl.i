@@ -5388,6 +5388,12 @@ pin_location(Pin *pin)
     return "";
 }
 
+int
+endpoint_count()
+{
+  return Sta::sta()->endpointCount();
+}
+
 %} // inline
 
 ////////////////////////////////////////////////////////////////

@@ -2617,6 +2617,26 @@ Sta::visitEndpoints(VertexVisitor *visitor)
   search_->visitEndpoints(visitor);
 }
 
+class EndpointCounter : public VertexVisitor
+{
+public:
+  EndpointCounter() : count_(0) {}
+  virtual void visit(Vertex *) { count_++; }
+  int count() const { return count_; }
+  virtual EndpointCounter *copy() { return new EndpointCounter; }
+protected:
+  int count_;
+};
+
+int
+Sta::endpointCount()
+{
+  ensureGraph();
+  EndpointCounter counter;
+  search_->visitEndpoints(&counter);
+  return counter.count();
+}
+
 PinSet *
 Sta::findGroupPathPins(const char *group_path_name)
 {
