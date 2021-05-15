@@ -1052,17 +1052,24 @@ public:
   // Caller owns iterator and iterator->container().
   SlowDrvrIterator *slowDrvrIterator();
 
+  // Make parasitic analysis points.
+  // per_corner per_min_max     ap_count
+  //      false       false            1
+  //      false        true            2
+  //       true       false      corners
+  //       true        true    corners*2
+  void setParasiticAnalysisPts(bool per_corner,
+                               bool per_min_max);
   // Annotate hierarchical "instance" with parasitics.
   // The parasitic analysis point is ap_name.
-  // The parasitics are used by delay calculation analysis points
-  // specfied by min_max.
   // The parasitic memory footprint is much smaller if parasitic
   // networks (dspf) are reduced and deleted after reading each net
   // with reduce_to and delete_after_reduce.
   // Return true if successful.
   bool readSpef(const char *filename,
 		Instance *instance,
-		const MinMaxAll *min_max,
+		const Corner *corner,
+                const MinMaxAll *min_max,
 		bool increment,
 		bool pin_cap_included,
 		bool keep_coupling_caps,
@@ -1343,6 +1350,7 @@ protected:
   void sdcChangedGraph();
   void ensureGraphSdcAnnotated();
   CornerSeq makeCornerSeq(Corner *corner) const;
+  void makeParasiticAnalysisPts();
 
   CmdNamespace cmd_namespace_;
   Instance *current_instance_;
@@ -1362,6 +1370,8 @@ protected:
   bool update_genclks_;
   EquivCells *equiv_cells_;
   bool graph_sdc_annotated_;
+  bool parasitics_per_corner_;
+  bool parasitics_per_min_max_;
 
   // Singleton sta used by tcl command interpreter.
   static Sta *sta_;

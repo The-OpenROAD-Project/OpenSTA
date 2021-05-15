@@ -55,12 +55,9 @@ public:
   void analysisTypeChanged();
   void operatingConditionsChanged();
 
-  // Make one parasitic analysis point shared by all corners.
-  void makeParasiticAnalysisPtsSingle();
-  // Make min/max parasitic analysis points shared by all corners.
-  void makeParasiticAnalysisPtsMinMax();
-  // Make one parasitic analysis point for each corner.
-  void makeCornerParasiticAnalysisPts();
+  // Make one parasitic analysis points.
+  void makeParasiticAnalysisPts(bool per_corner,
+                                bool per_min_max);
   int parasiticAnalysisPtCount() const;
   ParasiticAnalysisPtSeq &parasiticAnalysisPts();
 
@@ -80,7 +77,6 @@ public:
 
 protected:
   void makeAnalysisPts();
-  void updateCornerParasiticAnalysisPts();
   void makeDcalcAnalysisPts(Corner *corner);
   DcalcAnalysisPt *makeDcalcAnalysisPt(Corner *corner,
 				       const MinMax *min_max,

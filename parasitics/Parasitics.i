@@ -36,7 +36,8 @@ using sta::TmpFloatSeq;
 bool
 read_spef_cmd(const char *filename,
 	      Instance *instance,
-	      MinMaxAll *min_max,
+	      const Corner *corner,
+              const MinMaxAll *min_max,
 	      bool increment,
 	      bool pin_cap_included,
 	      bool keep_coupling_caps,
@@ -46,7 +47,7 @@ read_spef_cmd(const char *filename,
 	      bool quiet)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->readSpef(filename, instance, min_max,
+  return Sta::sta()->readSpef(filename, instance, corner, min_max,
 			      increment, pin_cap_included,
 			      keep_coupling_caps, coupling_cap_factor,
 			      reduce_to, delete_after_reduce, quiet);

@@ -17,7 +17,8 @@
 namespace eval sta {
 
 define_cmd_args "read_spef" \
-  {[-min]\
+  {[-corner corner]\
+     [-min]\
      [-max]\
      [-path path]\
      [-increment]\
@@ -46,6 +47,7 @@ proc_redirect read_spef {
       sta_error 433 "path instance '$path' not found."
     }
   }
+  set corner [parse_corner_or_all keys]
   set min_max [parse_min_max_all_flags flags]
   set increment [info exists flags(-increment)]
   set coupling_reduction_factor 1.0
@@ -67,7 +69,7 @@ proc_redirect read_spef {
   set quiet [info exists flags(-quiet)]
   set save [info exists flags(-save)]
   set filename [file nativename [lindex $args 0]]
-  return [read_spef_cmd $filename $instance $min_max $increment \
+  return [read_spef_cmd $filename $instance $corner $min_max $increment \
 	    $pin_cap_included $keep_coupling_caps $coupling_reduction_factor \
 	    $reduce_to $delete_after_reduce $quiet]
 }

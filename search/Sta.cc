@@ -270,7 +270,10 @@ Sta::Sta() :
   link_make_black_boxes_(true),
   update_genclks_(false),
   equiv_cells_(nullptr),
-  graph_sdc_annotated_(false)
+  graph_sdc_annotated_(false),
+  // Default to same parasitics for each corner min/max.
+  parasitics_per_corner_(false),
+  parasitics_per_min_max_(false)
 {
 }
 
@@ -299,7 +302,7 @@ Sta::makeComponents()
 
   makeObservers();
   // This must follow updateComponentsState.
-  corners_->makeParasiticAnalysisPtsSingle();
+  makeParasiticAnalysisPts();
   setThreadCount(defaultThreadCount());
 }
 
@@ -2404,7 +2407,7 @@ Sta::makeCorners(StringSet *corner_names)
 {
   parasitics_->deleteParasitics();
   corners_->makeCorners(corner_names);
-  corners_->makeParasiticAnalysisPtsSingle();
+  makeParasiticAnalysisPts();
   cmd_corner_ = corners_->findCorner(0);
 }
 
@@ -3653,6 +3656,7 @@ Sta::setResistance(Net *net,
 bool
 Sta::readSpef(const char *filename,
 	      Instance *instance,
+              const Corner *corner,
 	      const MinMaxAll *min_max,
 	      bool increment,
 	      bool pin_cap_included,
@@ -3662,19 +3666,14 @@ Sta::readSpef(const char *filename,
 	      bool delete_after_reduce,
 	      bool quiet)
 {
-  Corner *corner = cmd_corner_;
-  const MinMax *cnst_min_max;
-  ParasiticAnalysisPt *ap;
-  if (min_max == MinMaxAll::all()) {
-    corners_->makeParasiticAnalysisPtsSingle();
-    ap = corner->findParasiticAnalysisPt(MinMax::max());
-    cnst_min_max = MinMax::max();
-  }
-  else {
-    corners_->makeParasiticAnalysisPtsMinMax();
-    cnst_min_max = min_max->asMinMax();
-    ap = corner->findParasiticAnalysisPt(cnst_min_max);
-  }
+  setParasiticAnalysisPts(corner != nullptr,
+                          min_max != MinMaxAll::all());
+  if (corner == nullptr)
+    corner = cmd_corner_;
+  const MinMax *cnst_min_max =  (min_max == MinMaxAll::all())
+    ? cnst_min_max = MinMax::max()
+    : cnst_min_max = min_max->asMinMax();
+  ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(cnst_min_max);
   const OperatingConditions *op_cond =
     sdc_->operatingConditions(cnst_min_max);
   bool success = readSpefFile(filename, instance, ap, increment,
@@ -3686,6 +3685,26 @@ Sta::readSpef(const char *filename,
   graph_delay_calc_->delaysInvalid();
   search_->arrivalsInvalid();
   return success;
+}
+
+void
+Sta::setParasiticAnalysisPts(bool per_corner,
+                             bool per_min_max)
+{
+  if (per_corner != parasitics_per_corner_
+      || per_min_max != parasitics_per_min_max_) {
+    deleteParasitics();
+    parasitics_per_corner_ = per_corner;
+    parasitics_per_min_max_ = per_min_max;
+    makeParasiticAnalysisPts();
+  }
+}
+
+void
+Sta::makeParasiticAnalysisPts()
+{
+  corners_->makeParasiticAnalysisPts(parasitics_per_corner_,
+                                     parasitics_per_min_max_);
 }
 
 void

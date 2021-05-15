@@ -114,32 +114,58 @@ Corners::copy(Corners *corners)
   }
   makeAnalysisPts();
   
-  parasitic_analysis_pts_.deleteContentsClear();
   for (ParasiticAnalysisPt *orig_ap : corners->parasitic_analysis_pts_) {
     ParasiticAnalysisPt *ap = new ParasiticAnalysisPt(orig_ap->name(), orig_ap->index(),
 						      orig_ap->minMax());
     parasitic_analysis_pts_.push_back(ap);
   }
-  updateCornerParasiticAnalysisPts();
-}
 
-void
-Corners::makeParasiticAnalysisPtsSingle()
-{
-  if (parasitic_analysis_pts_.size() != 1) {
-    parasitic_analysis_pts_.deleteContentsClear();
-    ParasiticAnalysisPt *ap = new ParasiticAnalysisPt("min_max", 0,
-						      MinMax::max());
-    parasitic_analysis_pts_.push_back(ap);
-    updateCornerParasiticAnalysisPts();
+  int i = 0;
+  for (Corner *orig : corners->corners_) {
+    Corner *corner = corners_[i];
+    for (ParasiticAnalysisPt *ap : orig->parasitic_analysis_pts_)
+      corner->addParasiticAP(parasitic_analysis_pts_[ap->index()]);
+    i++;
   }
 }
 
 void
-Corners::makeParasiticAnalysisPtsMinMax()
+Corners::makeParasiticAnalysisPts(bool per_corner,
+                                  bool per_min_max)
 {
-  if (parasitic_analysis_pts_.size() != 2) {
-    parasitic_analysis_pts_.deleteContentsClear();
+  parasitic_analysis_pts_.deleteContentsClear();
+  if (per_corner && per_min_max) {
+    // each corner has min/max parasitics
+    parasitic_analysis_pts_.resize(corners_.size() * MinMax::index_count);
+    for (Corner *corner : corners_) {
+      corner->setParasiticAnalysisPtcount(1);
+      for (MinMax *min_max : MinMax::range()) {
+        int mm_index = min_max->index();
+        int ap_index = corner->index() * MinMax::index_count + mm_index;
+        string ap_name = corner->name();
+        ap_name += "_";
+        ap_name += min_max->asString();
+        ParasiticAnalysisPt *ap = new ParasiticAnalysisPt(ap_name.c_str(),
+                                                          ap_index,
+                                                          min_max);
+        parasitic_analysis_pts_.push_back(ap);
+        corner->addParasiticAP(ap);
+      }
+    }
+  }
+  else if (per_corner && !per_min_max) {
+    // each corner has parasitics
+    parasitic_analysis_pts_.resize(corners_.size());
+    for (Corner *corner : corners_) {
+      corner->setParasiticAnalysisPtcount(1);
+      ParasiticAnalysisPt *ap = new ParasiticAnalysisPt("min_max", 0,
+                                                        MinMax::max());
+      parasitic_analysis_pts_.push_back(ap);
+      corner->addParasiticAP(ap);
+    }
+  }
+  else if (!per_corner && per_min_max) {
+    // min/max parasitics shared by all corners
     parasitic_analysis_pts_.resize(MinMax::index_count);
     for (MinMax *min_max : MinMax::range()) {
       int mm_index = min_max->index();
@@ -148,35 +174,20 @@ Corners::makeParasiticAnalysisPtsMinMax()
 							min_max);
       parasitic_analysis_pts_[mm_index] = ap;
     }
-    updateCornerParasiticAnalysisPts();
-  }
-}
-
-void
-Corners::updateCornerParasiticAnalysisPts()
-{
-  for (Corner *corner : corners_) {
-    corner->setParasiticAnalysisPtcount(parasitic_analysis_pts_.size());
-    for (ParasiticAnalysisPt *ap : parasitic_analysis_pts_)
-      corner->addParasiticAP(ap);
-  }
-}
-
-void
-Corners::makeCornerParasiticAnalysisPts()
-{
-  if (parasitic_analysis_pts_.size() != corners_.size()) {
-    parasitic_analysis_pts_.deleteContentsClear();
-    parasitic_analysis_pts_.resize(corners_.size());
-    MinMax *min_max = MinMax::max();
-    int ap_index = 0;
     for (Corner *corner : corners_) {
-      ParasiticAnalysisPt *ap = new ParasiticAnalysisPt(corner->name(),
-							ap_index,
-							min_max);
-      parasitic_analysis_pts_[ap_index] = ap;
+      corner->setParasiticAnalysisPtcount(2);
+      for (ParasiticAnalysisPt *ap : parasitic_analysis_pts_)
+        corner->addParasiticAP(ap);
+    }
+  }
+  else if (!per_corner && !per_min_max) {
+    // single parasitics shared by all corners
+    ParasiticAnalysisPt *ap = new ParasiticAnalysisPt("min_max", 0,
+						      MinMax::max());
+    parasitic_analysis_pts_.push_back(ap);
+    for (Corner *corner : corners_) {
+      corner->setParasiticAnalysisPtcount(1);
       corner->addParasiticAP(ap);
-      ap_index++;
     }
   }
 }
