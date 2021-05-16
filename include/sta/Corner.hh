@@ -116,7 +116,8 @@ public:
 
 protected:
   void setParasiticAnalysisPtcount(int ap_count);
-  void addParasiticAP(ParasiticAnalysisPt *path_ap);
+  void setParasiticAP(ParasiticAnalysisPt *path_ap,
+                      int ap_index);
   void setDcalcAnalysisPtcount(DcalcAPIndex ap_count);
   void addDcalcAP(DcalcAnalysisPt *dcalc_ap);
   void addPathAP(PathAnalysisPt *path_ap);
