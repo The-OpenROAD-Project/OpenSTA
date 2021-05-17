@@ -3670,9 +3670,9 @@ Sta::readSpef(const char *filename,
                           min_max != MinMaxAll::all());
   if (corner == nullptr)
     corner = cmd_corner_;
-  const MinMax *cnst_min_max =  (min_max == MinMaxAll::all())
-    ? cnst_min_max = MinMax::max()
-    : cnst_min_max = min_max->asMinMax();
+  const MinMax *cnst_min_max = (min_max == MinMaxAll::all())
+    ? MinMax::max()
+    : min_max->asMinMax();
   ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(cnst_min_max);
   const OperatingConditions *op_cond =
     sdc_->operatingConditions(cnst_min_max);
