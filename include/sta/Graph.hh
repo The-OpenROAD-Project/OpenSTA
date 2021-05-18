@@ -192,6 +192,9 @@ public:
   void removeDelaySlewAnnotations();
   VertexSet *regClkVertices() { return &reg_clk_vertices_; }
 
+  static const int vertex_level_bits = 24;
+  static const int vertex_level_max = (1<<vertex_level_bits)-1;
+
 protected:
   void makeVerticesAndEdges();
   Vertex *makeVertex(Pin *pin,
@@ -348,7 +351,7 @@ protected:
   unsigned int slew_annotated_:slew_annotated_bits;
 
   // 4 bytes (32 bits)
-  unsigned int level_:16;
+  unsigned int level_:Graph::vertex_level_bits;
   // Levelization search state.
   // LevelColor gcc barfs if this is dcl'd.
   unsigned color_:2;

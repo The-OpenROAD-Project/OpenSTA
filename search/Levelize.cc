@@ -215,6 +215,8 @@ Levelize::visit(Vertex *vertex,
   setLevel(vertex, level);
   max_level_ = max(level, max_level_);
   level += level_space;
+  if (level >= Graph::vertex_level_max)
+    criticalError(616, "maximum logic level exceeded");
 
   if (search_pred_->searchFrom(vertex)) {
     VertexOutEdgeIterator edge_iter(vertex, graph_);
@@ -226,7 +228,7 @@ Levelize::visit(Vertex *vertex,
 	LevelColor to_color = to_vertex->color();
 	if (to_color == LevelColor::gray)
 	  // Back edges form feedback loops.
-	  recordLoop(edge, path);
+          recordLoop(edge, path);
 	else if (to_color == LevelColor::white
 		 || to_vertex->level() < level) {
 	  path.push_back(edge);
@@ -248,6 +250,20 @@ Levelize::visit(Vertex *vertex,
     }
   }
   vertex->setColor(LevelColor::black);
+}
+
+void
+Levelize::reportPath(EdgeSeq &path) const
+{
+  bool first_edge = true;
+  EdgeSeq::Iterator edge_iter(path);
+  while (edge_iter.hasNext()) {
+    Edge *edge = edge_iter.next();
+    if (first_edge)
+      report_->reportLine(" %s", edge->from(graph_)->name(network_));
+    report_->reportLine(" %s", edge->to(graph_)->name(network_));
+    first_edge = false;
+  }
 }
 
 void

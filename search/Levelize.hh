@@ -71,6 +71,7 @@ protected:
   void ensureLatchLevels();
   void setLevel(Vertex  *vertex,
 		Level level);
+  void reportPath(EdgeSeq &path) const;
 
   SearchPred *search_pred_;
   bool levelized_;
