@@ -660,7 +660,7 @@ Power::findInputInternalPower(const Pin *pin,
       }
       if (tr_count)
 	energy /= tr_count; // average non-inf energies
-      float duty = .5; // fallback default
+      float duty = 1.0; // fallback default
       FuncExpr *when = pwr->when();
       if (when) {
 	LibertyPort *out_corner_port = findExprOutPort(when);
