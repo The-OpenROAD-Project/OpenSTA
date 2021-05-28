@@ -4718,6 +4718,13 @@ check_slew_limits(Net *net,
   return Sta::sta()->checkSlewLimits(net, violators, corner, min_max);
 }
 
+size_t
+max_slew_violation_count()
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->checkSlewLimits(nullptr, true, nullptr, MinMax::max())->size();
+}
+
 void
 report_slew_limit_short_header()
 {
@@ -4751,6 +4758,13 @@ check_fanout_limits(Net *net,
   return Sta::sta()->checkFanoutLimits(net, violators, min_max);
 }
 
+size_t
+max_fanout_violation_count()
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->checkFanoutLimits(nullptr, true, MinMax::max())->size();
+}
+
 void
 report_fanout_limit_short_header()
 {
@@ -4781,6 +4795,13 @@ check_capacitance_limits(Net *net,
 {
   cmdLinkedNetwork();
   return Sta::sta()->checkCapacitanceLimits(net, violators, corner, min_max);
+}
+
+size_t
+max_capacitance_violation_count()
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->checkCapacitanceLimits(nullptr, true,nullptr,MinMax::max())->size();
 }
 
 void
