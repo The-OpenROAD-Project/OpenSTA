@@ -718,12 +718,6 @@ SdfWriter::sdfEdge(const Transition *tr)
 ////////////////////////////////////////////////////////////////
 
 char *
-SdfWriter::sdfPortName(const Pin *pin)
-{
-  return const_cast<char *>(network_->portName(pin));
-}
-
-char *
 SdfWriter::sdfPathName(const Pin *pin)
 {
   Instance *inst = network_->instance(pin);
@@ -782,6 +776,32 @@ SdfWriter::sdfName(const Instance *inst)
       if (!(isalnum(ch) || ch == '_'))
 	// Insert escape.
 	*s++ = sdf_escape_;
+      *s++ = ch;
+    }
+    p++;
+  }
+  *s = '\0';
+  return sdf_name;
+}
+
+char *
+SdfWriter::sdfPortName(const Pin *pin)
+{
+  const char *name = network_->portName(pin);
+  char *sdf_name = makeTmpString(strlen(name) * 2 + 1);
+  const char *p = name;
+  char *s = sdf_name;
+  while (*p) {
+    char ch = *p;
+    if (ch == network_escape_) {
+      // Copy escape and escaped char.
+      *s++ = sdf_escape_;
+      *s++ = *++p;
+    }
+    else {
+      if (!(isalnum(ch) || ch == '_' || ch == '[' || ch == ']'))
+        // Insert escape.
+        *s++ = sdf_escape_;
       *s++ = ch;
     }
     p++;
