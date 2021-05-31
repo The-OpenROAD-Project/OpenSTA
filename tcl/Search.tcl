@@ -1011,6 +1011,24 @@ proc worst_slack1 { cmd args1 } {
 }
 
 ################################################################
+
+define_hidden_cmd_args "worst_clock_skew" {[-setup]|[-hold]}
+
+proc worst_clock_skew { args } {
+  parse_key_args "worst_clock_skew" args keys {} flags {-setup -hold}
+  check_argc_eq0 "worst_clock_skew" $args
+  if { ([info exists flags(-setup)] && [info exists flags(-hold)]) \
+         || (![info exists flags(-setup)] && ![info exists flags(-hold)]) } {
+    sta_error 616 "specify one of -setup and -hold."
+  } elseif { [info exists flags(-setup)] } {
+    set setup_hold "setup"
+  } elseif { [info exists flags(-hold)] } {
+    set setup_hold "hold"
+  }
+  return [time_sta_ui [worst_clk_skew_cmd $setup_hold]]
+}
+
+################################################################
 #
 # Helper functions
 #

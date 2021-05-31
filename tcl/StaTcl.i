@@ -4454,7 +4454,7 @@ report_clk_skew(ClockSet *clks,
 }
 
 float
-find_worst_clk_skew(const SetupHold *setup_hold)
+worst_clk_skew_cmd(const SetupHold *setup_hold)
 {
   cmdLinkedNetwork();
   return Sta::sta()->findWorstClkSkew(setup_hold);
