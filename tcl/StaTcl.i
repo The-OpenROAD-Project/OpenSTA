@@ -4453,6 +4453,13 @@ report_clk_skew(ClockSet *clks,
   delete clks;
 }
 
+float
+find_worst_clk_skew(const SetupHold *setup_hold)
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->findWorstClkSkew(setup_hold);
+}
+
 TmpPinSet *
 startpoints()
 {

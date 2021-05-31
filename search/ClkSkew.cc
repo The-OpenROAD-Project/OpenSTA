@@ -129,11 +129,8 @@ ClkSkews::reportClkSkew(ClockSet *clks,
 
   // Sort the clocks to report in a stable order.
   ClockSeq sorted_clks;
-  ClockSet::Iterator clk_iter1(clks);
-  while (clk_iter1.hasNext()) {
-    Clock *clk = clk_iter1.next();
+  for (Clock *clk : *clks)
     sorted_clks.push_back(clk);
-  }
   sort(sorted_clks, ClkNameLess());
 
   Unit *time_unit = units_->timeUnit();
@@ -166,6 +163,25 @@ ClkSkews::reportClkSkew(ClockSet *clks,
   }
 
   skews.deleteContents();
+}
+
+float
+ClkSkews::findWorstClkSkew(const Corner *corner,
+                           const SetupHold *setup_hold)
+{
+  ClockSet clks;
+  for (Clock *clk : *sdc_->clocks())
+    clks.insert(clk);
+  float worst_skew = INF;
+  ClkSkewMap skews;
+  findClkSkew(&clks, corner, setup_hold, skews);
+  for (auto clk_skew_itr : skews) {
+    ClkSkew *clk_skew = clk_skew_itr.second;
+    float skew = clk_skew->skew();
+    if (skew < worst_skew)
+      worst_skew = skew;
+  }
+  return worst_skew;
 }
 
 void

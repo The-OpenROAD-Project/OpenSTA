@@ -37,6 +37,9 @@ public:
 		     const Corner *corner,
 		     const SetupHold *setup_hold,
 		     int digits);
+  // Find worst clock skew.
+  float findWorstClkSkew(const Corner *corner,
+                         const SetupHold *setup_hold);
 
 protected:
   void findClkSkew(ClockSet *clks,

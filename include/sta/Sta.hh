@@ -878,6 +878,7 @@ public:
 		     const Corner *corner,
 		     const SetupHold *setup_hold,
 		     int digits);
+  float findWorstClkSkew(const SetupHold *setup_hold);
   // Header above reportPathEnd results.
   void reportPathEndHeader();
   // Footer below reportPathEnd results.
