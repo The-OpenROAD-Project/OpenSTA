@@ -4366,7 +4366,7 @@ Sdc::addException1(ExceptionPath *exception)
   if (to
       && (to->hasPins() || to->hasInstances())
       && to->hasClocks()) {
-    ExceptionFrom *from1 = exception->from()->clone();
+    ExceptionFrom *from1 = exception->from() ? exception->from()->clone() : nullptr;
     ExceptionThruSeq *thrus1 = exceptionThrusClone(exception->thrus(), network_);
     PinSet *pins1 = to->pins() ? new PinSet(*to->pins()) : nullptr;
     InstanceSet *insts1 = to->instances() ? new InstanceSet(*to->instances()) : nullptr;
@@ -4378,7 +4378,7 @@ Sdc::addException1(ExceptionPath *exception)
                exception1->asString(network_));
     addException2(exception1);
 
-    ExceptionFrom *from2 = exception->from()->clone();
+    ExceptionFrom *from2 = exception->from() ? exception->from()->clone() : nullptr;
     ExceptionThruSeq *thrus2 = exceptionThrusClone(exception->thrus(), network_);
     ClockSet *clks2 = new ClockSet(*to->clks());
     ExceptionTo *to2 = new ExceptionTo(nullptr, clks2, nullptr, to->transition(),
