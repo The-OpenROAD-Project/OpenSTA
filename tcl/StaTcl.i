@@ -5403,7 +5403,7 @@ delays_invalid()
 }
 
 const char *
-pin_location(Pin *pin)
+pin_location(const Pin *pin)
 {
   Network *network = cmdNetwork();
   double x, y;
@@ -5414,6 +5414,14 @@ pin_location(Pin *pin)
     return sta::stringPrintTmp("%f %f", x, y);
   else
     return "";
+}
+
+const char *
+port_location(const Port *port)
+{
+  Network *network = cmdNetwork();
+  const Pin *pin = network->findPin(network->topInstance(), port);
+  return pin_location(pin);
 }
 
 int
