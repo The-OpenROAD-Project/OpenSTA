@@ -191,7 +191,7 @@ define_cmd_args "set_power_activity" { [-global]\
 					 [-input]\
 					 [-input_ports ports]\
 					 [-pins pins]\
-					 [-activiity activity]\
+					 [-activity activity]\
 					 [-duty duty] }
 
 proc set_power_activity { args } {
