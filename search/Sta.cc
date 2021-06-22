@@ -3447,7 +3447,14 @@ Sta::simLogicValue(const Pin *pin)
 void
 Sta::findLogicConstants()
 {
+  ensureGraph();
   sim_->findLogicConstants();
+}
+
+void
+Sta::clearLogicConstants()
+{
+  sim_->clear();
 }
 
 void

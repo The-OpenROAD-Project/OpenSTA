@@ -569,6 +569,7 @@ Sim::findLogicConstants()
   enqueueConstantPinInputs();
   setConstFuncPins();
   propagateConstants(true);
+  valid_ = true;
 }
 
 void

@@ -1052,6 +1052,9 @@ public:
   // Propagate liberty constant functions and pins tied high/low through
   // combinational logic and registers.
   void findLogicConstants();
+  // Clear the constants found by findLogicConstants so they do not interfere
+  // with normal constant propagate for timing.
+  void clearLogicConstants();
 
   // Iterator for instances sorted by max driver pin slew.
   // Caller owns iterator and iterator->container().
