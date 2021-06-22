@@ -1049,6 +1049,10 @@ public:
   Vertex *maxArrivalCountVertex() const;
 
   LogicValue simLogicValue(const Pin *pin);
+  // Propagate liberty constant functions and pins tied high/low through
+  // combinational logic and registers.
+  void findLogicConstants();
+
   // Iterator for instances sorted by max driver pin slew.
   // Caller owns iterator and iterator->container().
   SlowDrvrIterator *slowDrvrIterator();

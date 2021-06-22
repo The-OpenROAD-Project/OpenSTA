@@ -60,6 +60,7 @@ public:
   virtual TimingSense functionSense(const Instance *inst,
 				    const Pin *from_pin,
 				    const Pin *to_pin);
+  void findLogicConstants();
 
   // Network edits.
   void deleteInstanceBefore(Instance *inst);
@@ -74,17 +75,16 @@ protected:
   void recordConstPinFunc(Pin *pin);
   virtual void seedConstants();
   void seedInvalidConstants();
-  void propagateConstants();
-  void setConstraintConstPins(LogicValueMap *pin_value_map,
-			      bool propagate);
-  void setConstFuncPins(bool propagate);
+  void propagateConstants(bool thru_sequentials);
+  void setConstraintConstPins(LogicValueMap *pin_value_map);
+  void setConstFuncPins();
   LogicValue pinConstFuncValue(Pin *pin);
-  void enqueueConstantPinInputs(bool propagate);
+  void enqueueConstantPinInputs();
   virtual void setPinValue(const Pin *pin,
-			   LogicValue value,
-			   bool propagate);
+			   LogicValue value);
   void enqueue(const Instance *inst);
-  void evalInstance(const Instance *inst);
+  void evalInstance(const Instance *inst,
+                    bool thru_sequentials);
   LogicValue clockGateOutValue(const Instance *inst);
   TimingSense functionSense(const FuncExpr *expr,
 			    const Pin *input_pin,

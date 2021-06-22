@@ -3445,6 +3445,12 @@ Sta::simLogicValue(const Pin *pin)
 }
 
 void
+Sta::findLogicConstants()
+{
+  sim_->findLogicConstants();
+}
+
+void
 Sta::setPortExtPinCap(Port *port,
 		      const RiseFallBoth *rf,
 		      const MinMaxAll *min_max,
