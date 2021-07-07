@@ -1889,10 +1889,16 @@ VerilogReader::makeNamedInstPins(Cell *cell,
       }
     }
     else {
-      linkWarn(201, parent_module->filename(), mod_inst->line(),
-	       "instance %s port %s not found.",
-	       verilogName(mod_inst),
-	       port_name);
+      LibertyPgPort *pg_port = nullptr;
+      LibertyCell *lib_cell = network_->libertyCell(cell);
+      if (lib_cell)
+        pg_port = lib_cell->findPgPort(port_name);
+      // Do not warn about connections to pg ports (which are ignored).
+      if (pg_port == nullptr)
+        linkWarn(201, parent_module->filename(), mod_inst->line(),
+                 "instance %s port %s not found.",
+                 verilogName(mod_inst),
+                 port_name);
     }
   }
 }
