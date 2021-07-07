@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#  regression -help | [-valgrind] [-report_stats] test1 [test2...]
+#  regression -help | [-threads threads] [-valgrind] [-report_stats] test1 [test2...]
 
 proc regression_main {} {
   setup

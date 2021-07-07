@@ -290,7 +290,7 @@ CheckSlewLimits::checkSlewLimits(Net *net,
 {
   const Network *network = sta_->network();
   PinSeq *slew_pins = new PinSeq;
-  Slack min_slack = MinMax::min()->initValue();
+  float min_slack = MinMax::min()->initValue();
   if (net) {
     NetPinIterator *pin_iter = network->pinIterator(net);
     while (pin_iter->hasNext()) {
