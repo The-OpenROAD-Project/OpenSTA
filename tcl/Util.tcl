@@ -230,7 +230,7 @@ proc show_cmd_args { cmd } {
   set arglist $cmd_args($cmd)
   # Break the arglist up into max_col length lines.
   while {1} {
-    if {[regexp {(^ *)([a-zA-Z0-9_\\\|\-]+|\[[^\[]+\])(.*)} \
+    if {[regexp {(^[\n ]*)([a-zA-Z0-9_\\\|\-]+|\[[^\[]+\])(.*)} \
 	   $arglist ignore space arg rest]} {
       set arg_length [string length $arg]
       if { $col + $arg_length < $max_col } {
