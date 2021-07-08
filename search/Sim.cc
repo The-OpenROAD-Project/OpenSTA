@@ -566,8 +566,9 @@ void
 Sim::findLogicConstants()
 {
   clear();
-  enqueueConstantPinInputs();
+  ensureConstantFuncPins();
   setConstFuncPins();
+  enqueueConstantPinInputs();
   propagateConstants(true);
   valid_ = true;
 }
@@ -942,14 +943,14 @@ Sim::evalInstance(const Instance *inst,
             }
           }
           else {
-            Sequential *sequential = nullptr;
-            if (thru_sequentials) {
-              LibertyPort *expr_port = expr->port();
-              if (expr_port) 
-                sequential = cell->outputPortSequential(expr_port);
-            }
+            LibertyPort *expr_port = expr->port();
+            Sequential *sequential = (thru_sequentials && expr_port) 
+              ? sequential = cell->outputPortSequential(expr_port)
+              : nullptr;
             if (sequential) {
               value = evalExpr(sequential->data(), inst);
+              if (expr_port == sequential->outputInv())
+                value = logicNot(value);
               debugPrint(debug_, "sim", 2, " %s seq %s = %c",
                          port->name(),
                          expr->asString(),
