@@ -31,7 +31,7 @@ using sta::readVerilogFile;
 %inline %{
 
 bool
-read_verilog(const char *filename)
+read_verilog_cmd(const char *filename)
 {
   Sta *sta = Sta::sta();
   NetworkReader *network = sta->networkReader();

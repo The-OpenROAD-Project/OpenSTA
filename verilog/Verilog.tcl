@@ -19,6 +19,10 @@ namespace eval sta {
 # Defined by SWIG interface Verilog.i.
 define_cmd_args "read_verilog" {filename}
 
+proc_redirect read_verilog {
+  read_verilog_cmd $args
+}
+
 define_cmd_args "write_verilog" {[-sort] [-include_pwr_gnd]\
 				   [-remove_cells cells] filename}
 

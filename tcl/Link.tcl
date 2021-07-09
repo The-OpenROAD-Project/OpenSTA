@@ -20,9 +20,15 @@ namespace eval sta {
 
 define_cmd_args "link_design" {[top_cell_name]}
 
-proc link_design { {top_cell_name ""} } {
+proc_redirect link_design {
   variable current_design_name
 
+  check_argc_eq0or1 "link_design" $args
+  if { $args == "" } {
+    set top_cell_name ""
+  } else {
+    set top_cell_name [lindex $args 0]
+  }
   if { $top_cell_name == "" } {
     if { $current_design_name == "" } {
       sta_error 593 "missing top_cell_name argument and no current_design."

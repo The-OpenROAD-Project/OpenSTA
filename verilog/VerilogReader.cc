@@ -1804,7 +1804,7 @@ VerilogReader::makeModuleInstNetwork(VerilogModuleInst *mod_inst,
     if (make_black_boxes) {
       cell = makeBlackBox(mod_inst, parent_module);
       linkWarn(198, filename_, mod_inst->line(),
-	       "module %s not found.  Creating black box for %s.",
+	       "module %s not found. Creating black box for %s.",
 	       mod_inst->moduleName(),
 	       verilogName(mod_inst));
     }
