@@ -945,7 +945,7 @@ Sim::evalInstance(const Instance *inst,
           else {
             LibertyPort *expr_port = expr->port();
             Sequential *sequential = (thru_sequentials && expr_port) 
-              ? sequential = cell->outputPortSequential(expr_port)
+              ? cell->outputPortSequential(expr_port)
               : nullptr;
             if (sequential) {
               value = evalExpr(sequential->data(), inst);
