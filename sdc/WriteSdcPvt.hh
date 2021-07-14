@@ -117,7 +117,7 @@ public:
   void writeEnvironment() const;
   void writeOperatingConditions() const;
   void writeWireload() const;
-  void writeNetLoads() const;
+  virtual void writeNetLoads() const;
   void writeNetLoad(Net *net,
 		    const MinMaxAll *min_max,
 		    float cap) const;
