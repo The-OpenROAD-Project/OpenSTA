@@ -6,8 +6,7 @@
 // disclosed in any form or fashion without the express
 // written consent of Parallax Software, Inc.
 
-#ifndef STA_VERTEX_ID_H
-#define STA_VERTEX_ID_H
+#pragma once
 
 #include "ObjectId.hh"
 

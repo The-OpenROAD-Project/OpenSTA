@@ -6,8 +6,7 @@
 // disclosed in any form or fashion without the express
 // written consent of Parallax Software, Inc.
 
-#ifndef STA_ARRAY_TABLE_H
-#define STA_ARRAY_TABLE_H
+#pragma once
 
 #include <string.h> // memcpy
 
@@ -226,4 +225,3 @@ ArrayBlock<TYPE>::~ArrayBlock()
 }
 
 } // Namespace
-#endif
