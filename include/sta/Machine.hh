@@ -50,12 +50,12 @@
   #define va_copy(d,s) ((d)=(s))
   #define strcasecmp _stricmp
   #define strncasecmp strncmp
-  #define strtof(nptr,endptr) static_cast<float>(strtod(nptr,endptr))
   #define strtoull _strtoui64
   // Flex doesn't check for unistd.h.
   #define YY_NO_UNISTD_H
   namespace sta {
     int vsnprint(char *str, size_t size, const char *fmt, va_list args);
+    int vasprintf(char **str, const char *fmt, va_list args);
   }
 #else
   #define vsnprint vsnprintf
@@ -89,4 +89,3 @@ size_t
 memoryUsage();
 
 } // namespace sta
-

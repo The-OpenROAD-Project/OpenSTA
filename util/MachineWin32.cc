@@ -1,18 +1,10 @@
-// OpenSTA, Static Timing Analyzer
+// Parallax Static Timing Analyzer
 // Copyright (c) 2021, Parallax Software, Inc.
+// All rights reserved.
 // 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// No part of this document may be copied, transmitted or
+// disclosed in any form or fashion without the express
+// written consent of Parallax Software, Inc.
 
 #include "Machine.hh"
 
@@ -42,6 +34,25 @@ vsnprint(char *str, size_t size, const char *fmt, va_list args)
     delete [] buffer;
   }
   return length;
+}
+
+int
+vasprintf(char **str, const char *fmt, va_list args)
+{
+  size_t size = 1024;
+  for (;;) {
+    size *= 2;
+    char *buffer = new char[size];
+    // Copy args before using them because consumption is destructive.
+    va_list args_copy2;
+    va_copy(args_copy2, args);
+    int length = vsnprintf(buffer, size, fmt, args_copy2);
+    if (length >= 0) {
+      *str = buffer;
+      return length;
+    }
+    delete[] buffer;
+  }
 }
 
 int

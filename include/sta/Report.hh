@@ -20,6 +20,7 @@
 #include <stdarg.h>
 #include <string>
 #include <mutex>
+#include "Machine.hh" // __attribute__
 #include "DisallowCopyAssign.hh"
 
 struct Tcl_Interp;
