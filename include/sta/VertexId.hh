@@ -18,5 +18,4 @@ typedef ObjectId VertexId;
 
 static constexpr VertexId vertex_id_null = object_id_null;
 
-} // Namespace
-#endif
+} // namespace
