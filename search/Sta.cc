@@ -3947,41 +3947,23 @@ Sta::disconnectPin(Pin *pin)
 void
 Sta::makeInstanceAfter(Instance *inst)
 {
-  // There is no user "connect_pin" called for internal pins,
-  // so call it implicitly.
-  LibertyCell *lib_cell = network_->libertyCell(inst);
-  if (lib_cell
-      && lib_cell->hasInternalPorts()) {
-    LibertyCellPortBitIterator port_iter(lib_cell);
-    while (port_iter.hasNext()) {
-      LibertyPort *lib_port = port_iter.next();
-      if (lib_port->direction()->isInternal()) {
-	Pin *pin = network_->findPin(inst, lib_port);
-	if (pin)
-	  connectPinAfter(pin);
-      }
-    }
-  }
-}
+  if (graph_) {
+    LibertyCell *lib_cell = network_->libertyCell(inst);
+    if (lib_cell) {
+      // Make vertices and internal instance edges.
+      LibertyCellPortBitIterator port_iter(lib_cell);
+      while (port_iter.hasNext()) {
+        LibertyPort *lib_port = port_iter.next();
+        Pin *pin = network_->findPin(inst, lib_port);
+        if (pin) {
+          Vertex *vertex, *bidir_drvr_vertex;
+          graph_->makePinVertices(pin, vertex, bidir_drvr_vertex);
 
-// Not used by Sta (connectPinAfter).
-void
-Sta::makePinAfter(Pin *pin)
-{
-  if (!network_->isHierarchical(pin) && graph_) {
-    Vertex *vertex, *bidir_drvr_vertex;
-    graph_->makePinVertices(pin, vertex, bidir_drvr_vertex);
-    graph_->makePinInstanceEdges(pin);
-    search_->arrivalInvalid(vertex);
-    search_->requiredInvalid(vertex);
-    if (bidir_drvr_vertex) {
-      search_->arrivalInvalid(bidir_drvr_vertex);
-      search_->requiredInvalid(bidir_drvr_vertex);
+        }
+      }
+      graph_->makeInstanceEdges(inst);
     }
-    if (network_->net(pin))
-      connectPinAfter(pin);
   }
-  sim_->makePinAfter(pin);
 }
 
 void
@@ -4139,12 +4121,7 @@ Sta::connectPinAfter(Pin *pin)
     }
     else {
       Vertex *vertex, *bidir_drvr_vertex;
-      if (network_->vertexId(pin) == vertex_id_null) {
-	graph_->makePinVertices(pin, vertex, bidir_drvr_vertex);
-	graph_->makePinInstanceEdges(pin);
-      }
-      else
-	graph_->pinVertices(pin, vertex, bidir_drvr_vertex);
+      graph_->pinVertices(pin, vertex, bidir_drvr_vertex);
       search_->arrivalInvalid(vertex);
       search_->requiredInvalid(vertex);
       if (bidir_drvr_vertex) {

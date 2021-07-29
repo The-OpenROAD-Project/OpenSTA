@@ -1144,8 +1144,6 @@ public:
 
   // Network edit before/after methods.
   void makeInstanceAfter(Instance *inst);
-  // Not used by Sta (connectPinAfter).
-  void makePinAfter(Pin *pin) __attribute__ ((deprecated));
   // Replace the instance cell with to_cell.
   // equivCells(from_cell, to_cell) must be true.
   virtual void replaceEquivCellBefore(Instance *inst,
