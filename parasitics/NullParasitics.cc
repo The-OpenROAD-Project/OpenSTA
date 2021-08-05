@@ -245,6 +245,11 @@ NullParasitics::deleteParasiticNetwork(const Net *,
 {
 }
 
+void
+NullParasitics::deleteParasiticNetworks(const Net *)
+{
+}
+
 ParasiticNode *
 NullParasitics::ensureParasiticNode(Parasitic *,
 				    const Net *,

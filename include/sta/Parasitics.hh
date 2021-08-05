@@ -155,6 +155,7 @@ public:
   // Delete parasitic network if it exists.
   virtual void deleteParasiticNetwork(const Net *net,
 				      const ParasiticAnalysisPt *ap) = 0;
+  virtual void deleteParasiticNetworks(const Net *net) = 0;
   // True if the parasitic network caps include pin capacitances.
   virtual bool includesPinCaps(Parasitic *parasitic) const = 0;
   // Parasitic network component builders.

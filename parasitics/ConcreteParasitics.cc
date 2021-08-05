@@ -1340,7 +1340,30 @@ ConcreteParasitics::deleteParasiticNetwork(const Net *net,
     if (parasitics) {
       int ap_index = ap->index();
       delete parasitics[ap_index];
-      parasitics[ap_index] = nullptr;
+      int ap_count = corners_->parasiticAnalysisPtCount();
+      if (ap_count == 1) {
+        // If there is only one parasitic we can remove the array and map entry.
+        delete [] parasitics;
+        parasitic_network_map_.erase(net);
+      }
+      else
+        parasitics[ap_index] = nullptr;
+    }
+  }
+}
+
+void
+ConcreteParasitics::deleteParasiticNetworks(const Net *net)
+{
+  if (!parasitic_network_map_.empty()) {
+    UniqueLock lock(lock_);
+    ConcreteParasiticNetwork **parasitics = parasitic_network_map_.findKey(net);
+    if (parasitics) {
+      int ap_count = corners_->parasiticAnalysisPtCount();
+      for (int i = 0; i < ap_count; i++)
+	delete parasitics[i];
+      delete [] parasitics;
+      parasitic_network_map_.erase(net);
     }
   }
 }
