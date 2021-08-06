@@ -5397,6 +5397,12 @@ Sta::isIdealClock(const Pin *pin) const
   return clk_network_->isIdealClock(pin);
 }
 
+bool
+Sta::isPropagatedClock(const Pin *pin) const
+{
+  return clk_network_->isPropagatedClock(pin);
+}
+
 const PinSet *
 Sta::pins(const Clock *clk)
 {

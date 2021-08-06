@@ -168,6 +168,13 @@ ClkNetwork::isIdealClock(const Pin *pin) const
   return pin_ideal_clks_map_.hasKey(pin);
 }
 
+bool
+ClkNetwork::isPropagatedClock(const Pin *pin) const
+{
+  return pin_clks_map_.hasKey(pin)
+    && !pin_ideal_clks_map_.hasKey(pin);
+}
+
 const ClockSet *
 ClkNetwork::clocks(const Pin *pin)
 {
