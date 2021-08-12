@@ -176,7 +176,8 @@ public:
 			    const char *name,
 			    int from_index,
 			    int to_index);
-  virtual void groupBusPorts(Cell *cell);
+  virtual void groupBusPorts(Cell *cell,
+                             std::function<bool(const char*)> port_is_big_endian);
   virtual Port *makeBundlePort(Cell *cell,
 			       const char *name,
 			       PortSeq *members);

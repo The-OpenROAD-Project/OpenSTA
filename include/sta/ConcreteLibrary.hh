@@ -117,7 +117,8 @@ public:
 			       ConcretePortSeq *members);
   // Group previously defined bus bit ports together.
   void groupBusPorts(const char bus_brkt_left,
-		     const char bus_brkt_right);
+		     const char bus_brkt_right,
+                     std::function<bool(const char*)> port_big_endian_pred);
   size_t portCount() const;
   void setName(const char *name);
   void addPort(ConcretePort *port);

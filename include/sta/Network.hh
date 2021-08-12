@@ -548,7 +548,8 @@ public:
 			    const char *name,
 			    int from_index,
 			    int to_index) = 0;
-  virtual void groupBusPorts(Cell *cell) = 0;
+  virtual void groupBusPorts(Cell *cell,
+                             std::function<bool(const char*)> port_is_big_endian) = 0;
   virtual Port *makeBundlePort(Cell *cell,
 			       const char *name,
 			       PortSeq *members) = 0;
