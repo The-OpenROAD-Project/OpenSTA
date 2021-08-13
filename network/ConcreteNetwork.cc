@@ -437,11 +437,12 @@ ConcreteNetwork::findLibrary(const char *name)
 }
 
 void
-ConcreteNetwork::deleteLibrary(ConcreteLibrary *library)
+ConcreteNetwork::deleteLibrary(Library *library)
 {
-  library_map_.erase(library->name());
-  library_seq_.eraseObject(library);
-  delete library;
+  ConcreteLibrary *clib = reinterpret_cast<ConcreteLibrary*>(library);
+  library_map_.erase(clib->name());
+  library_seq_.eraseObject(clib);
+  delete clib;
 }
 
 const char *

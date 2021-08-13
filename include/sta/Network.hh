@@ -533,6 +533,7 @@ public:
   virtual void setLinkFunc(LinkNetworkFunc *link) = 0;
   virtual Library *makeLibrary(const char *name,
 			       const char *filename) = 0;
+  virtual void deleteLibrary(Library *library) = 0;
   // Search the libraries in read order for a cell by name.
   virtual Cell *findAnyCell(const char *name) = 0;
   virtual Cell *makeCell(Library *library,

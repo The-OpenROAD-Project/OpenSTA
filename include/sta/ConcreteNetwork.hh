@@ -163,6 +163,7 @@ public:
 			       const char *filename);
   virtual LibertyLibrary *makeLibertyLibrary(const char *name,
 					     const char *filename);
+  virtual void deleteLibrary(Library *library);
   virtual Cell *makeCell(Library *library,
 			 const char *name,
 			 bool is_leaf,
@@ -238,7 +239,6 @@ public:
 
 protected:
   void addLibrary(ConcreteLibrary *library);
-  void deleteLibrary(ConcreteLibrary *library);
   void setName(const char *name);
   void clearConstantNets();
   virtual void visitConnectedPins(const Net *net,
