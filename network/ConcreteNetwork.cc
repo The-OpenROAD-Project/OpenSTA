@@ -639,12 +639,12 @@ ConcreteNetwork::makeBusPort(Cell *cell,
 
 void
 ConcreteNetwork::groupBusPorts(Cell *cell,
-                               std::function<bool(const char*)> port_is_big_endian)
+                               std::function<bool(const char*)> port_msb_first)
 {
   Library *lib = library(cell);
   ConcreteLibrary *clib = reinterpret_cast<ConcreteLibrary*>(lib);
   ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell);
-  ccell->groupBusPorts(clib->busBrktLeft(), clib->busBrktRight(), port_is_big_endian);
+  ccell->groupBusPorts(clib->busBrktLeft(), clib->busBrktRight(), port_msb_first);
 }
 
 Port *

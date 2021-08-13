@@ -376,7 +376,7 @@ typedef Map<const char*, BusPort*, CharPtrLess> BusPortMap;
 void
 ConcreteCell::groupBusPorts(const char bus_brkt_left,
 			    const char bus_brkt_right,
-                            std::function<bool(const char*)> port_is_big_endian)
+                            std::function<bool(const char*)> port_msb_first)
 {
   const char bus_brkts_left[2]{bus_brkt_left, '\0'};
   const char bus_brkts_right[2]{bus_brkt_right, '\0'};
@@ -416,7 +416,7 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
   while (bus_iter.hasNext()) {
     BusPort *bus_port = bus_iter.next();
     const char *bus_name = bus_port->name();
-    bool is_big_endian = port_is_big_endian(bus_name);
+    bool msb_first = port_msb_first(bus_name);
     ConcretePortSeq *members = bus_port->members();
     sort(members, [&](ConcretePort *port1,
 		      ConcretePort *port2) {
@@ -428,7 +428,7 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
 		    parseBusName(port2->name(), bus_brkts_left, bus_brkts_right, escape_,
 				 bus_name, index2);
 		    stringDelete(bus_name);
-		    return is_big_endian ? index1 > index2 : index1 < index2;
+		    return msb_first ? index1 > index2 : index1 < index2;
 		  });
 
     char *bus_name1;
