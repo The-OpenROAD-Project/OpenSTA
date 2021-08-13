@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <functional>
+
 #include "DisallowCopyAssign.hh"
 #include "Map.hh"
 #include "StringUtil.hh"
