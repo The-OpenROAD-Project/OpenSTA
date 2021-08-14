@@ -1102,15 +1102,14 @@ proc create_clock { args } {
     foreach edge $wave_arg {
       check_float "-waveform edge" $edge
       set edge [time_ui_sta $edge]
-      if { $first_edge && $edge > $period } {
-	set edge [expr $edge - $period]
+      if { $edge < 0 } {
+	sta_error 340 "negative clock -waveform edge time."
       }
       if { !$first_edge && $edge < $prev_edge } {
-	sta_warn 338 "adjusting non-increasing clock -waveform edge times."
-	set edge [expr $edge + $period]
+	sta_error 338 "non-increasing clock -waveform edge times."
       }
       if { $edge > [expr $period * 2] } {
-	sta_warn 339 "-waveform time greater than two periods."
+	sta_error 339 "-waveform time greater than two periods."
       }
       lappend waveform $edge
       set prev_edge $edge
