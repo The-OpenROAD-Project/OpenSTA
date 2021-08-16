@@ -1899,7 +1899,7 @@ WriteSdc::setConstantCmd(Pin *pin) const
   sdc_->logicValue(pin, value, exists);
   switch (value) {
   case LogicValue::zero:
-    return "set_LogicValue::zero";
+    return "set_logic_zero";
   case LogicValue::one:
     return "set_logic_one";
   case LogicValue::unknown:
