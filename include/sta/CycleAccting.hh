@@ -66,6 +66,7 @@ private:
 			     int tgt_cycle,
 			     float delay,
 			     float req);
+  int firstCycle(const ClockEdge *clk_edge) const;
 
   const ClockEdge *src_;
   const ClockEdge *tgt_;

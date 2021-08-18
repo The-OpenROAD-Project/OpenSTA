@@ -72,13 +72,13 @@ CycleAccting::findDelays(StaState *sta)
     bool tgt_past_src = false;
     bool src_past_tgt = false;
     int tgt_cycle, src_cycle;
-    for (tgt_cycle = (tgt_->time() < tgt_period) ? 0 : -1;
+    for (tgt_cycle = firstCycle(tgt_);
 	 tgt_cycle <= tgt_max_cycle;
 	 tgt_cycle++) {
       double tgt_cycle_start = tgt_cycle * tgt_period;
       double tgt_time = tgt_cycle_start + tgt_->time();
       double tgt_opp_time = tgt_cycle_start + tgt_opp_time1;
-      for (src_cycle = (src_->time() < src_period) ? 0 : -1;
+      for (src_cycle = firstCycle(src_);
 	   ;
 	   src_cycle++) {
 	double src_cycle_start = src_cycle * src_period;
@@ -203,6 +203,17 @@ CycleAccting::findDelays(StaState *sta)
   }
   else if (tgt_period > 0.0)
     findDefaultArrivalSrcDelays();
+}
+
+int
+CycleAccting::firstCycle(const ClockEdge *clk_edge) const
+{
+  if (clk_edge->time() < 0)
+    return 1;
+  else if (clk_edge->time() < clk_edge->clock()->period())
+    return 0;
+  else
+    return -1;
 }
 
 void
