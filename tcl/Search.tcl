@@ -360,7 +360,9 @@ proc_redirect report_clock_skew {
   } else {
     set digits $sta_report_default_digits
   }
-  report_clk_skew $clks $corner $setup_hold $digits
+  if { $clks != {} } {
+    report_clk_skew $clks $corner $setup_hold $digits
+  }
 }
 
 ################################################################
