@@ -35,15 +35,18 @@
 #if CUDD
 // https://davidkebo.com/cudd
 #include "cudd.h"
-#endif // CUDD
+#else
+#define Cudd_Init(ignore1, ignore2, ignore3, ignore4, ignore5) nullptr
+#define Cudd_Quit(ignore1)
+#endif
 
 namespace sta {
 
+static LogicValue
+logicNot(LogicValue value);
 static Pin *
 findDrvrPin(const Pin *pin,
 	    Network *network);
-
-#if CUDD
 
 Sim::Sim(StaState *sta) :
   StaState(sta),
@@ -61,6 +64,8 @@ Sim::~Sim()
   delete observer_;
   Cudd_Quit(cudd_manager_);
 }
+
+#if CUDD
 
 TimingSense
 Sim::functionSense(const FuncExpr *expr,
@@ -225,15 +230,6 @@ Sim::ensureNode(LibertyPort *port) const
 // No CUDD.
 
 static LogicValue
-logicNot(LogicValue value)
-{
-  static LogicValue logic_not[5] = {LogicValue::one, LogicValue::zero,
-				    LogicValue::unknown, LogicValue::unknown,
-				    LogicValue::unknown};
-  return logic_not[int(value)];
-}
-
-static LogicValue
 logicOr(LogicValue value1,
 	LogicValue value2)
 {
@@ -317,20 +313,6 @@ senseXor(TimingSense sense1,
      {TimingSense::unknown, TimingSense::unknown,
       TimingSense::unknown, TimingSense::unknown, TimingSense::unknown}};
   return xor_sense[int(sense1)][int(sense2)];
-}
-
-Sim::Sim(StaState *sta) :
-  StaState(sta),
-  observer_(nullptr),
-  valid_(false),
-  incremental_(false),
-  const_func_pins_valid_(false)
-{
-}
-
-Sim::~Sim()
-{
-  delete observer_;
 }
 
 TimingSense
@@ -514,6 +496,15 @@ Sim::evalExpr(const FuncExpr *expr,
 }
 
 #endif // CUDD
+
+static LogicValue
+logicNot(LogicValue value)
+{
+  static LogicValue logic_not[5] = {LogicValue::one, LogicValue::zero,
+				    LogicValue::unknown, LogicValue::unknown,
+				    LogicValue::unknown};
+  return logic_not[int(value)];
+}
 
 void
 Sim::clear()
