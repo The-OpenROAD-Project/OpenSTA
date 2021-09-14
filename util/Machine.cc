@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#if defined(WIN32)
+#if defined(WIN32) || defined(_WIN32)
   #include "MachineWin32.cc"
 #elif defined(__APPLE__)
   #include "MachineApple.cc"
