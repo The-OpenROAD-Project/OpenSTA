@@ -2702,10 +2702,18 @@ Search::setVertexArrivals(Vertex *vertex,
 	requiredInvalid(vertex);
         if (tag_group != prev_tag_group)
           // Requireds can only be reused if the tag group is unchanged.
-          vertex->deleteRequireds();
+          graph_->deleteRequireds(vertex, prev_tag_group->arrivalCount());
       }
     }
     else {
+      if (prev_tag_group) {
+        uint32_t prev_arrival_count = prev_tag_group->arrivalCount();
+        graph_->deleteArrivals(vertex, prev_arrival_count);
+        if (has_requireds) {
+          requiredInvalid(vertex);
+          graph_->deleteRequireds(vertex, prev_arrival_count);
+        }
+      }
       Arrival *arrivals = graph_->makeArrivals(vertex, arrival_count);
       prev_paths = nullptr;
       if  (tag_bldr->hasClkTag() || tag_bldr->hasGenClkSrcTag())
@@ -2713,11 +2721,6 @@ Search::setVertexArrivals(Vertex *vertex,
       tag_bldr->copyArrivals(tag_group, arrivals, prev_paths);
 
       vertex->setTagGroupIndex(tag_group->index());
-
-      if (has_requireds) {
-	requiredInvalid(vertex);
-	vertex->deleteRequireds();
-      }
     }
   }
 }
@@ -3363,7 +3366,11 @@ RequiredCmp::requiredsSave(Vertex *vertex,
     }
   }
   else if (prev_reqs) {
-    PathVertex::deleteRequireds(vertex, sta);
+    Graph *graph = sta->graph();
+    const Search *search = sta->search();
+    TagGroup *tag_group = search->tagGroup(vertex);
+    int arrival_count = tag_group->arrivalCount();
+    graph->deleteRequireds(vertex, arrival_count);
     requireds_changed = true;
   }
   return requireds_changed;

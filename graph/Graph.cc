@@ -17,9 +17,8 @@
 #include "Graph.hh"
 
 #include "DisallowCopyAssign.hh"
-#include "Stats.hh"
-#include "Error.hh"
 #include "Debug.hh"
+#include "Stats.hh"
 #include "MinMax.hh"
 #include "Mutex.hh"
 #include "Transition.hh"
@@ -500,10 +499,14 @@ Graph::deleteOutEdge(Vertex *vertex,
     Graph::edge(next)->vertex_out_prev_ = prev;
 }
 
+////////////////////////////////////////////////////////////////
+
 Arrival *
 Graph::makeArrivals(Vertex *vertex,
 		    uint32_t count)
 {
+  if (vertex->arrivals() != arrival_null)
+    debugPrint(debug_, "leaks", 617, "arrival leak");
   Arrival *arrivals;
   ArrivalId id;
   {
@@ -520,10 +523,20 @@ Graph::arrivals(Vertex *vertex)
   return arrivals_.pointer(vertex->arrivals());
 }
 
+void
+Graph::deleteArrivals(Vertex *vertex,
+                      uint32_t count)
+{
+  arrivals_.deleteArray(count);
+  vertex->setArrivals(arrival_null);
+}
+
 Required *
 Graph::makeRequireds(Vertex *vertex,
                      uint32_t count)
 {
+  if (vertex->requireds() != arrival_null)
+    debugPrint(debug_, "leaks", 617, "required leak");
   Required *requireds;
   ArrivalId id;
   {
@@ -538,6 +551,14 @@ Required *
 Graph::requireds(Vertex *vertex)
 {
   return arrivals_.pointer(vertex->requireds());
+}
+
+void
+Graph::deleteRequireds(Vertex *vertex,
+                       uint32_t count)
+{
+  arrivals_.deleteArray(count);
+  vertex->setRequireds(arrival_null);
 }
 
 void
@@ -571,6 +592,8 @@ Graph::clearPrevPaths()
 {
   prev_paths_.clear();
 }
+
+////////////////////////////////////////////////////////////////
 
 const Slew &
 Graph::slew(const Vertex *vertex,
@@ -1181,12 +1204,6 @@ void
 Vertex::setRequireds(ArrivalId id)
 {
   requireds_ = id;
-}
-
-void
-Vertex::deleteRequireds()
-{
-  requireds_ = arrival_null;
 }
 
 void

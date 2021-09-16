@@ -268,13 +268,6 @@ PathVertex::setRequired(const Required &required,
   requireds[arrival_index_] = required;
 }
 
-void
-PathVertex::deleteRequireds(Vertex *vertex,
-			    const StaState *)
-{
-  vertex->deleteRequireds();
-}
-
 bool
 PathVertex::equal(const PathVertex *path1,
 		  const PathVertex *path2)

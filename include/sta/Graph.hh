@@ -101,9 +101,13 @@ public:
   Arrival *makeArrivals(Vertex *vertex,
 			uint32_t count);
   Arrival *arrivals(Vertex *vertex);
+  void deleteArrivals(Vertex *vertex,
+                      uint32_t count);
   Required *makeRequireds(Vertex *vertex,
                           uint32_t count);
   Required *requireds(Vertex *vertex);
+  void deleteRequireds(Vertex *vertex,
+                       uint32_t count);
   void clearArrivals();
   size_t arrivalCount() const { return arrivals_.size(); }
   PathVertexRep *makePrevPaths(Vertex *vertex,
@@ -284,7 +288,6 @@ public:
   ArrivalId arrivals() { return arrivals_; }
   ArrivalId requireds() { return requireds_; }
   bool hasRequireds() const { return requireds_ != arrival_null; }
-  void deleteRequireds();
   PrevPathId prevPaths() const { return prev_paths_; }
   void setPrevPaths(PrevPathId id);
   TagGroupIndex tagGroupIndex() const;

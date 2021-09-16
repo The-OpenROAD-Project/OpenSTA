@@ -84,8 +84,6 @@ public:
 		// Return values.
 		PathVertex &prev_path,
 		TimingArc *&prev_arc) const;
-  static void deleteRequireds(Vertex *vertex,
-			      const StaState *sta);
   static bool equal(const PathVertex *path1,
 		    const PathVertex *path2);
 

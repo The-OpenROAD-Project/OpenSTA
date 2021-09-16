@@ -34,6 +34,7 @@ public:
   void make(uint32_t count,
 	    TYPE *&array,
 	    ObjectId &id);
+  void deleteArray(uint32_t count);
   // Grow as necessary and return pointer for id.
   TYPE *ensureId(ObjectId id);
   TYPE *pointer(ObjectId id) const;
@@ -142,6 +143,12 @@ ArrayTable<TYPE>::pushBlock(ArrayBlock<TYPE> *block)
     blocks_ = new_blocks;
     blocks_capacity_ = new_capacity;
   }
+}
+
+template <class TYPE>
+void
+ArrayTable<TYPE>::deleteArray(uint32_t)
+{
 }
 
 template <class TYPE>
