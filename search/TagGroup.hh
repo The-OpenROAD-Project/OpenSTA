@@ -57,10 +57,6 @@ public:
   void arrivalIndex(Tag *tag,
 		    int &arrival_index,
 		    bool &exists) const;
-  void requiredIndex(Tag *tag,
-		     int &req_index,
-		     bool &exists) const;
-  int requiredIndex(int arrival_index) const;
   ArrivalMap *arrivalMap() const { return arrival_map_; }
   bool hasTag(Tag *tag) const;
 

@@ -2685,10 +2685,7 @@ Search::setVertexArrivals(Vertex *vertex,
     bool has_requireds = vertex->hasRequireds();
     // Reuse arrival array if it is the same size.
     if (prev_tag_group
-	&& arrival_count == prev_tag_group->arrivalCount()
-	&& (!has_requireds
-	    // Requireds can only be reused if the tag group is unchanged.
-	    || tag_group == prev_tag_group)) {
+	&& arrival_count == prev_tag_group->arrivalCount()) {
       if  (tag_bldr->hasClkTag() || tag_bldr->hasGenClkSrcTag()) {
 	if (prev_paths == nullptr)
 	  prev_paths = graph_->makePrevPaths(vertex, arrival_count);
@@ -2700,6 +2697,13 @@ Search::setVertexArrivals(Vertex *vertex,
       }
       tag_bldr->copyArrivals(tag_group, prev_arrivals, prev_paths);
       vertex->setTagGroupIndex(tag_group->index());
+
+      if (has_requireds) {
+	requiredInvalid(vertex);
+        if (tag_group != prev_tag_group)
+          // Requireds can only be reused if the tag group is unchanged.
+          vertex->deleteRequireds();
+      }
     }
     else {
       Arrival *arrivals = graph_->makeArrivals(vertex, arrival_count);
@@ -2712,7 +2716,7 @@ Search::setVertexArrivals(Vertex *vertex,
 
       if (has_requireds) {
 	requiredInvalid(vertex);
-	vertex->setHasRequireds(false);
+	vertex->deleteRequireds();
       }
     }
   }
@@ -2724,6 +2728,7 @@ Search::reportArrivals(Vertex *vertex) const
   report_->reportLine("Vertex %s", vertex->name(sdc_network_));
   TagGroup *tag_group = tagGroup(vertex);
   Arrival *arrivals = graph_->arrivals(vertex);
+  Required *requireds = graph_->requireds(vertex);
   if (tag_group) {
     report_->reportLine("Group %u", tag_group->index());
     ArrivalMap::Iterator arrival_iter(tag_group->arrivalMap());
@@ -2734,13 +2739,8 @@ Search::reportArrivals(Vertex *vertex) const
       PathAnalysisPt *path_ap = tag->pathAnalysisPt(this);
       const RiseFall *rf = tag->transition();
       const char *req = "?";
-      if (vertex->hasRequireds()) {
-	int req_index;
-	bool exists;
-	tag_group->requiredIndex(tag, req_index, exists);
-	if (exists)
-	  req = delayAsString(arrivals[req_index], this);
-      }
+      if (requireds)
+        req = delayAsString(requireds[arrival_index], this);
       bool report_clk_prev = false;
       const char *clk_prev = "";
       if (report_clk_prev

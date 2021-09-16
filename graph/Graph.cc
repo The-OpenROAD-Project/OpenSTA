@@ -520,6 +520,26 @@ Graph::arrivals(Vertex *vertex)
   return arrivals_.pointer(vertex->arrivals());
 }
 
+Required *
+Graph::makeRequireds(Vertex *vertex,
+                     uint32_t count)
+{
+  Required *requireds;
+  ArrivalId id;
+  {
+    UniqueLock lock(arrivals_lock_);
+    arrivals_.make(count, requireds, id);
+  }
+  vertex->setRequireds(id);
+  return requireds;
+}
+
+Required *
+Graph::requireds(Vertex *vertex)
+{
+  return arrivals_.pointer(vertex->requireds());
+}
+
 void
 Graph::clearArrivals()
 {
@@ -1025,8 +1045,8 @@ Vertex::init(Pin *pin,
   in_edges_ = edge_id_null;
   out_edges_ = edge_id_null;
   arrivals_ = arrival_null;
+  requireds_ = arrival_null;
   prev_paths_ = prev_path_null;
-  has_requireds_ = false;
   tag_group_index_ = tag_group_index_max;
   slew_annotated_ = false;
   sim_value_ = unsigned(LogicValue::unknown);
@@ -1158,24 +1178,30 @@ Vertex::setArrivals(ArrivalId id)
 }
 
 void
+Vertex::setRequireds(ArrivalId id)
+{
+  requireds_ = id;
+}
+
+void
+Vertex::deleteRequireds()
+{
+  requireds_ = arrival_null;
+}
+
+void
 Vertex::setPrevPaths(PrevPathId prev_paths)
 {
   prev_paths_ = prev_paths;
 }
 
 void
-Vertex::setHasRequireds(bool has_req)
-{
-  has_requireds_ = has_req;
-}
-
-void
 Vertex::deletePaths()
 {
   arrivals_ = arrival_null;
+  requireds_ = arrival_null;
   prev_paths_ = prev_path_null;
   tag_group_index_ = tag_group_index_max;
-  has_requireds_ = false;
   crpr_path_pruning_disabled_ = false;
 }
 

@@ -87,22 +87,6 @@ TagGroup::arrivalIndex(Tag *tag,
 }
 
 void
-TagGroup::requiredIndex(Tag *tag,
-			int &req_index,
-			bool &exists) const
-{
-  arrivalIndex(tag, req_index, exists);
-  if (exists)
-    req_index += arrivalCount();
-}
-
-int
-TagGroup::requiredIndex(int arrival_index) const
-{
-  return arrival_index + arrivalCount();
-}
-
-void
 TagGroup::report(const StaState *sta) const
 {
   Report *report = sta->report();

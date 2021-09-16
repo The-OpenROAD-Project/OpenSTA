@@ -101,7 +101,11 @@ public:
   Arrival *makeArrivals(Vertex *vertex,
 			uint32_t count);
   Arrival *arrivals(Vertex *vertex);
+  Required *makeRequireds(Vertex *vertex,
+                          uint32_t count);
+  Required *requireds(Vertex *vertex);
   void clearArrivals();
+  size_t arrivalCount() const { return arrivals_.size(); }
   PathVertexRep *makePrevPaths(Vertex *vertex,
 			       uint32_t count);
   PathVertexRep *prevPaths(Vertex *vertex) const;
@@ -278,11 +282,11 @@ public:
   LevelColor color() const { return static_cast<LevelColor>(color_); }
   void setColor(LevelColor color);
   ArrivalId arrivals() { return arrivals_; }
+  ArrivalId requireds() { return requireds_; }
+  bool hasRequireds() const { return requireds_ != arrival_null; }
+  void deleteRequireds();
   PrevPathId prevPaths() const { return prev_paths_; }
   void setPrevPaths(PrevPathId id);
-  // Requireds optionally follow arrivals in the same array.
-  bool hasRequireds() const { return has_requireds_; }
-  void setHasRequireds(bool has_req);
   TagGroupIndex tagGroupIndex() const;
   void setTagGroupIndex(TagGroupIndex tag_index);
   // Slew is annotated by sdc set_annotated_transition cmd.
@@ -337,9 +341,11 @@ protected:
 	    bool is_bidirect_drvr,
 	    bool is_reg_clk);
   void setArrivals(ArrivalId id);
+  void setRequireds(ArrivalId id);
 
   Pin *pin_;
   ArrivalId arrivals_;
+  ArrivalId requireds_;
   PrevPathId prev_paths_;
   EdgeId in_edges_;		// Edges to this vertex.
   EdgeId out_edges_;		// Edges from this vertex.
@@ -357,7 +363,6 @@ protected:
   unsigned color_:2;
   // LogicValue gcc barfs if this is dcl'd.
   unsigned sim_value_:3;
-  bool has_requireds_:1;
   // Bidirect pins have two vertices.
   // This flag distinguishes the driver and load vertices.
   bool is_bidirect_drvr_:1;

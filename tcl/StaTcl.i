@@ -5301,6 +5301,12 @@ arrival_count()
   return Sta::sta()->arrivalCount();
 }
 
+int
+graph_arrival_count()
+{
+  return Sta::sta()->graph()->arrivalCount();
+}
+
 void
 delete_all_memory()
 {
