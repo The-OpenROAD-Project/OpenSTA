@@ -527,7 +527,7 @@ void
 Graph::deleteArrivals(Vertex *vertex,
                       uint32_t count)
 {
-  arrivals_.deleteArray(count);
+  arrivals_.destroy(vertex->arrivals(), count);
   vertex->setArrivals(arrival_null);
 }
 
@@ -557,7 +557,7 @@ void
 Graph::deleteRequireds(Vertex *vertex,
                        uint32_t count)
 {
-  arrivals_.deleteArray(count);
+  arrivals_.destroy(vertex->requireds(), count);
   vertex->setRequireds(arrival_null);
 }
 

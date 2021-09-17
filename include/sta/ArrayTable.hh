@@ -9,6 +9,7 @@
 #pragma once
 
 #include <string.h> // memcpy
+#include <vector>
 
 #include "ObjectId.hh"
 #include "Error.hh"
@@ -34,7 +35,8 @@ public:
   void make(uint32_t count,
 	    TYPE *&array,
 	    ObjectId &id);
-  void deleteArray(uint32_t count);
+  void destroy(ObjectId id,
+               uint32_t count);
   // Grow as necessary and return pointer for id.
   TYPE *ensureId(ObjectId id);
   TYPE *pointer(ObjectId id) const;
@@ -61,6 +63,8 @@ private:
   size_t blocks_capacity_;
   ArrayBlock<TYPE>* *blocks_;
   ArrayBlock<TYPE>* *prev_blocks_;
+  // Linked list of free arrays indexed by array size.
+  std::vector<ObjectId> free_list_;
   static constexpr ObjectId idx_mask_ = block_size - 1;
 };
 
@@ -98,17 +102,28 @@ ArrayTable<TYPE>::make(uint32_t count,
 		       TYPE *&array,
 		       ObjectId &id)
 {
-  ArrayBlock<TYPE> *block = blocks_size_ ? blocks_[free_block_idx_] : nullptr;
-  if ((free_idx_ == object_idx_null
-       && free_block_idx_ == block_idx_null)
-      || free_idx_ + count >= block->size()) {
-    uint32_t size = (count > block_size) ? count : block_size;
-    block = makeBlock(size);
+  // Check the free list for a previously destroyed array with the right size.
+  if (count < free_list_.size()
+      && free_list_[count] != object_id_null) {
+    id = free_list_[count];
+    array = pointer(id);
+
+    ObjectId *head = reinterpret_cast<ObjectId*>(array);
+    free_list_[count] = *head;
   }
-  // makeId(free_block_idx_, idx_bits)
-  id = (free_block_idx_ << idx_bits) + free_idx_;
-  array = block->pointer(free_idx_);
-  free_idx_ += count;
+  else {
+    ArrayBlock<TYPE> *block = blocks_size_ ? blocks_[free_block_idx_] : nullptr;
+    if ((free_idx_ == object_idx_null
+         && free_block_idx_ == block_idx_null)
+        || free_idx_ + count >= block->size()) {
+      uint32_t size = (count > block_size) ? count : block_size;
+      block = makeBlock(size);
+    }
+    // makeId(free_block_idx_, idx_bits)
+    id = (free_block_idx_ << idx_bits) + free_idx_;
+    array = block->pointer(free_idx_);
+    free_idx_ += count;
+  }
   size_ += count;
 }
 
@@ -147,8 +162,17 @@ ArrayTable<TYPE>::pushBlock(ArrayBlock<TYPE> *block)
 
 template <class TYPE>
 void
-ArrayTable<TYPE>::deleteArray(uint32_t)
+ArrayTable<TYPE>::destroy(ObjectId id,
+                          uint32_t count)
 {
+  if (count >= free_list_.size())
+    free_list_.resize(count + 1);
+  TYPE *array = pointer(id);
+  // Prepend id to the free list.
+  ObjectId *head = reinterpret_cast<ObjectId*>(array);
+  *head = free_list_[count];
+  free_list_[count] = id;
+  size_ -= count;
 }
 
 template <class TYPE>
@@ -199,6 +223,7 @@ ArrayTable<TYPE>::clear()
   size_ = 0;
   free_block_idx_ = block_idx_null;
   free_idx_ = object_idx_null;
+  free_list_.clear();
 }
 
 ////////////////////////////////////////////////////////////////
