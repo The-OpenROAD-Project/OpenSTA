@@ -540,8 +540,8 @@ Graph::makeRequireds(Vertex *vertex,
   Required *requireds;
   ArrivalId id;
   {
-    UniqueLock lock(arrivals_lock_);
-    arrivals_.make(count, requireds, id);
+    UniqueLock lock(requireds_lock_);
+    requireds_.make(count, requireds, id);
   }
   vertex->setRequireds(id);
   return requireds;
@@ -550,14 +550,14 @@ Graph::makeRequireds(Vertex *vertex,
 Required *
 Graph::requireds(Vertex *vertex)
 {
-  return arrivals_.pointer(vertex->requireds());
+  return requireds_.pointer(vertex->requireds());
 }
 
 void
 Graph::deleteRequireds(Vertex *vertex,
                        uint32_t count)
 {
-  arrivals_.destroy(vertex->requireds(), count);
+  requireds_.destroy(vertex->requireds(), count);
   vertex->setRequireds(arrival_null);
 }
 
@@ -565,6 +565,7 @@ void
 Graph::clearArrivals()
 {
   arrivals_.clear();
+  requireds_.clear();
 }
 
 PathVertexRep *

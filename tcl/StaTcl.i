@@ -5302,9 +5302,21 @@ arrival_count()
 }
 
 int
+required_count()
+{
+  return Sta::sta()->requiredCount();
+}
+
+int
 graph_arrival_count()
 {
   return Sta::sta()->graph()->arrivalCount();
+}
+
+int
+graph_required_count()
+{
+  return Sta::sta()->graph()->requiredCount();
 }
 
 void

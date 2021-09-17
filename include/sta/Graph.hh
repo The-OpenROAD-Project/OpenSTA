@@ -43,6 +43,7 @@ typedef ArrayTable<Delay> DelayTable;
 typedef ObjectTable<Vertex> VertexTable;
 typedef ObjectTable<Edge> EdgeTable;
 typedef ArrayTable<Arrival> ArrivalsTable;
+typedef ArrayTable<Required> RequiredsTable;
 typedef ArrayTable<PathVertexRep> PrevPathsTable;
 typedef Map<const Pin*, Vertex*> PinVertexMap;
 typedef Iterator<Edge*> VertexEdgeIterator;
@@ -110,6 +111,7 @@ public:
                        uint32_t count);
   void clearArrivals();
   size_t arrivalCount() const { return arrivals_.size(); }
+  size_t requiredCount() const { return requireds_.size(); }
   PathVertexRep *makePrevPaths(Vertex *vertex,
 			       uint32_t count);
   PathVertexRep *prevPaths(Vertex *vertex) const;
@@ -244,6 +246,8 @@ protected:
   int arc_count_;
   ArrivalsTable arrivals_;
   std::mutex arrivals_lock_;
+  RequiredsTable requireds_;
+  std::mutex requireds_lock_;
   PrevPathsTable prev_paths_;
   std::mutex prev_paths_lock_;
   Vector<bool> arc_delay_annotated_;

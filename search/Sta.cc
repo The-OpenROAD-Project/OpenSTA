@@ -3356,6 +3356,19 @@ Sta::arrivalCount() const
   return count;
 }
 
+int
+Sta::requiredCount() const
+{
+  int count = 0;
+  VertexIterator vertex_iter(graph_);
+  while (vertex_iter.hasNext()) {
+    Vertex *vertex = vertex_iter.next();
+    if (vertex->hasRequireds())
+      count += vertexArrivalCount(vertex);
+  }
+  return count;
+}
+
 TagIndex
 Sta::tagCount() const
 {

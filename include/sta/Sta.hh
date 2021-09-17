@@ -1045,6 +1045,7 @@ public:
   TagGroupIndex tagGroupCount() const;
   int clkInfoCount() const;
   int arrivalCount() const;
+  int requiredCount() const;
   int vertexArrivalCount(Vertex  *vertex) const;
   Vertex *maxArrivalCountVertex() const;
 
