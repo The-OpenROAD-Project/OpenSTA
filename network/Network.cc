@@ -521,7 +521,9 @@ Network::isLoad(const Pin *pin) const
   const Instance *inst = instance(pin);
   return (isLeaf(inst) && dir->isAnyInput())
     // isTopLevelPort(pin)
-    || (isTopInstance(inst) && dir->isAnyOutput());
+    || (isTopInstance(inst) && dir->isAnyOutput())
+    // Black box unknown ports are treated as loads.
+    || dir->isUnknown();
 }
 
 bool
