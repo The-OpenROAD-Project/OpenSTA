@@ -4135,23 +4135,25 @@ Sta::connectPinAfter(Pin *pin)
     else {
       Vertex *vertex, *bidir_drvr_vertex;
       graph_->pinVertices(pin, vertex, bidir_drvr_vertex);
-      search_->arrivalInvalid(vertex);
-      search_->requiredInvalid(vertex);
-      if (bidir_drvr_vertex) {
-	search_->arrivalInvalid(bidir_drvr_vertex);
-	search_->requiredInvalid(bidir_drvr_vertex);
-      }
+      if (vertex) {
+        search_->arrivalInvalid(vertex);
+        search_->requiredInvalid(vertex);
+        if (bidir_drvr_vertex) {
+          search_->arrivalInvalid(bidir_drvr_vertex);
+          search_->requiredInvalid(bidir_drvr_vertex);
+        }
 
-      // Make interconnect edges from/to pin.
-      if (network_->isDriver(pin)) {
-	graph_->makeWireEdgesFromPin(pin);
-	connectDrvrPinAfter(bidir_drvr_vertex ? bidir_drvr_vertex : vertex);
-      }
-      // Note that a bidirect is both a driver and a load so this
-      // is NOT an else clause for the above "if".
-      if (network_->isLoad(pin)) {
-	graph_->makeWireEdgesToPin(pin);
-	connectLoadPinAfter(vertex);
+        // Make interconnect edges from/to pin.
+        if (network_->isDriver(pin)) {
+          graph_->makeWireEdgesFromPin(pin);
+          connectDrvrPinAfter(bidir_drvr_vertex ? bidir_drvr_vertex : vertex);
+        }
+        // Note that a bidirect is both a driver and a load so this
+        // is NOT an else clause for the above "if".
+        if (network_->isLoad(pin)) {
+          graph_->makeWireEdgesToPin(pin);
+          connectLoadPinAfter(vertex);
+        }
       }
     }
   }

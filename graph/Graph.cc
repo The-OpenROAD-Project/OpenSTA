@@ -343,11 +343,13 @@ Graph::makeWireEdge(Pin *from_pin,
   Vertex *from_vertex, *from_bidirect_drvr_vertex;
   pinVertices(from_pin, from_vertex, from_bidirect_drvr_vertex);
   Vertex *to_vertex = pinLoadVertex(to_pin);
-  // From and/or to can be bidirect, but edge is always from driver to load.
-  if (from_bidirect_drvr_vertex)
-    makeEdge(from_bidirect_drvr_vertex, to_vertex, arc_set);
-  else
-    makeEdge(from_vertex, to_vertex, arc_set);
+  if (from_vertex && to_vertex) {
+    // From and/or to can be bidirect, but edge is always from driver to load.
+    if (from_bidirect_drvr_vertex)
+      makeEdge(from_bidirect_drvr_vertex, to_vertex, arc_set);
+    else
+      makeEdge(from_vertex, to_vertex, arc_set);
+  }
 }
 
 ////////////////////////////////////////////////////////////////

@@ -2058,7 +2058,7 @@ VerilogReader::makeBlackBoxNamedPorts(Cell *cell,
     Port *port = (size == 1)
       ? network_->makePort(cell, port_name)
       : network_->makeBusPort(cell, port_name, 0, size - 1);
-    network_->setDirection(port, PortDirection::bidirect());
+    network_->setDirection(port, PortDirection::unknown());
   }
 }
 
@@ -2077,7 +2077,7 @@ VerilogReader::makeBlackBoxOrderedPorts(Cell *cell,
       ? network_->makePort(cell, port_name)
       : network_->makeBusPort(cell, port_name, size - 1, 0);
     stringDelete(port_name);
-    network_->setDirection(port, PortDirection::bidirect());
+    network_->setDirection(port, PortDirection::unknown());
     port_index++;
   }
 }
