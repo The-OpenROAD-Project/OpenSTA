@@ -529,7 +529,10 @@ void
 Graph::deleteArrivals(Vertex *vertex,
                       uint32_t count)
 {
-  arrivals_.destroy(vertex->arrivals(), count);
+  {
+    UniqueLock lock(arrivals_lock_);
+    arrivals_.destroy(vertex->arrivals(), count);
+  }
   vertex->setArrivals(arrival_null);
 }
 
@@ -559,7 +562,10 @@ void
 Graph::deleteRequireds(Vertex *vertex,
                        uint32_t count)
 {
-  requireds_.destroy(vertex->requireds(), count);
+  {
+    UniqueLock lock(requireds_lock_);
+    requireds_.destroy(vertex->requireds(), count);
+  }
   vertex->setRequireds(arrival_null);
 }
 
