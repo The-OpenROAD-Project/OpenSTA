@@ -1075,5 +1075,34 @@ proc define_report_path_fields {} {
   set_report_path_field_properties "case" " " 11 0
 }
 
+################################################################
+
+define_cmd_args "report_clock_min_period" \
+  { [-clocks clocks] [-include_port_paths] }
+
+proc report_clock_min_period { args } {
+  parse_key_args "report_min_clock_period" args \
+    keys {-clocks} flags {-include_port_paths} 0
+  
+  if { [info exists keys(-clocks)] } {
+    set clks [get_clocks $keys(-clocks)]
+  } else {
+    set clks [all_clocks]
+  }
+  set include_port_paths [info exists flags(-include_port_paths)]
+
+  foreach clk $clks {
+    set min_period [sta::find_clk_min_period $clk $include_port_paths]
+    if { $min_period == 0.0 } {
+      set min_period 0
+      set fmax "INF"
+    } else {
+      # max frequency in MHz
+      set fmax [expr 1.0e-6 / $min_period]
+    }
+    puts "[get_name $clk] period_min = [sta::format_time $min_period 2] fmax = [format %.2f $fmax]"
+  }
+}
+
 # sta namespace end.
 }

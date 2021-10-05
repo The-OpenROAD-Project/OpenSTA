@@ -67,10 +67,13 @@
 #include "Genclks.hh"
 #include "ClkNetwork.hh"
 #include "Power.hh"
+#include "VisitPathEnds.hh"
+#include "PathExpanded.hh"
 
 namespace sta {
 
 using std::min;
+using std::max;
 
 static const ClockEdge *clk_edge_wildcard = reinterpret_cast<ClockEdge*>(1);
 
@@ -3029,6 +3032,91 @@ Sta::vertexSlacks(Vertex *vertex,
       slacks[rf_index][mm_index] = path_slack;
   }
 }
+
+////////////////////////////////////////////////////////////////
+
+class MinPeriodEndVisitor : public PathEndVisitor
+{
+public:
+  MinPeriodEndVisitor(const Clock *clk,
+                      bool include_port_paths,
+                      StaState *sta);
+  virtual PathEndVisitor *copy();
+  virtual void visit(PathEnd *path_end);
+  float minPeriod() const { return min_period_; }
+
+private:
+  bool pathIsFromInputPort(PathEnd *path_end);
+
+  const Clock *clk_;
+  bool include_port_paths_;
+  StaState *sta_;
+  float min_period_;
+};
+
+MinPeriodEndVisitor::MinPeriodEndVisitor(const Clock *clk,
+                                         bool include_port_paths,
+                                         StaState *sta) :
+  clk_(clk),
+  include_port_paths_(include_port_paths),
+  sta_(sta),
+  min_period_(0)
+{
+}
+
+PathEndVisitor *
+MinPeriodEndVisitor::copy()
+{
+  return new MinPeriodEndVisitor(clk_, include_port_paths_, sta_);
+}
+
+void
+MinPeriodEndVisitor::visit(PathEnd *path_end)
+{
+  Path *path = path_end->path();
+  ClockEdge *src_edge = path_end->sourceClkEdge(sta_);
+  ClockEdge *tgt_edge = path_end->targetClkEdge(sta_);
+  if (path->minMax(sta_) == MinMax::max()
+      && src_edge->clock() == clk_
+      && tgt_edge->clock() == clk_
+      // Only consider rise/rise and fall/fall paths.
+      && src_edge->transition() == tgt_edge->transition()
+      && (include_port_paths_
+          || !(path_end->isOutputDelay()
+               || pathIsFromInputPort(path_end)))) {
+    Slack slack = path_end->slack(sta_);
+    float period = clk_->period() - slack;
+    min_period_ = max(min_period_, period);
+  }
+}
+
+bool
+MinPeriodEndVisitor::pathIsFromInputPort(PathEnd *path_end)
+{
+  PathExpanded expanded(path_end->path(), sta_);
+  PathRef *start = expanded.startPath();
+  Graph *graph = sta_->graph();
+  const Pin *first_pin = start->pin(graph);
+  Network *network = sta_->network();
+  return network->isTopLevelPort(first_pin);
+}
+
+float
+Sta::findClkMinPeriod(const Clock *clk,
+                      bool include_port_paths)
+{
+  searchPreamble();
+  search_->findArrivals();
+  VisitPathEnds visit_ends(this);
+  MinPeriodEndVisitor min_period_visitor(clk, include_port_paths, this);
+  for (Vertex *vertex : *search_->endpoints()) {
+    findRequired(vertex);
+    visit_ends.visitPathEnds(vertex, &min_period_visitor);
+  }
+  return min_period_visitor.minPeriod();
+}
+
+////////////////////////////////////////////////////////////////
 
 void
 Sta::findRequired(Vertex *vertex)

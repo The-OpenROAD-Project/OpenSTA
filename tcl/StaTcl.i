@@ -4702,6 +4702,15 @@ vertex_worst_slack_path(Vertex *vertex,
     return nullptr;
 }
 
+Slack
+find_clk_min_period(const Clock *clk,
+                    bool ignore_port_paths)
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  return sta->findClkMinPeriod(clk, ignore_port_paths);
+}
+
 TmpString *
 report_delay_calc_cmd(Edge *edge,
 		      TimingArc *arc,

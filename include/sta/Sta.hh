@@ -964,6 +964,12 @@ public:
                                const RiseFall *rf,
                                const MinMax *min_max);
 
+  // Find the min clock period for rise/rise and fall/fall paths of a clock
+  // using the slack. This does NOT correctly predict min period when there
+  // are paths between different clocks.
+  float findClkMinPeriod(const Clock *clk,
+                         bool include_port_paths);
+
   // The following arrival/required/slack functions incrementally
   // update timing to the level of the vertex.  They do NOT do multiple
   // passes required propagate arrivals around latch loops.
