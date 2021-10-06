@@ -65,8 +65,8 @@ public:
   ConcreteCell *findCell(const char *name) const;
   void findCellsMatching(const PatternMatch *pattern,
 			 CellSeq *cells) const;
-  char busBrktLeft() { return bus_brkt_left_; }
-  char busBrktRight() { return bus_brkt_right_; }
+  char busBrktLeft() const { return bus_brkt_left_; }
+  char busBrktRight() const { return bus_brkt_right_; }
   void setBusBrkts(char left,
 		   char right);
 
