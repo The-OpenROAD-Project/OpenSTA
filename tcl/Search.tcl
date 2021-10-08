@@ -1087,7 +1087,7 @@ proc report_clock_min_period { args } {
   if { [info exists keys(-clocks)] } {
     set clks [get_clocks $keys(-clocks)]
   } else {
-    set clks [all_clocks]
+    set clks [sort_by_name [all_clocks]]
   }
   set include_port_paths [info exists flags(-include_port_paths)]
 

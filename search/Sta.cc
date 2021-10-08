@@ -3073,16 +3073,21 @@ MinPeriodEndVisitor::copy()
 void
 MinPeriodEndVisitor::visit(PathEnd *path_end)
 {
+  Network *network = sta_->network();
   Path *path = path_end->path();
   ClockEdge *src_edge = path_end->sourceClkEdge(sta_);
   ClockEdge *tgt_edge = path_end->targetClkEdge(sta_);
-  if (path->minMax(sta_) == MinMax::max()
+  PathEnd::Type end_type = path_end->type();
+  if ((end_type == PathEnd::Type::check
+       || end_type == PathEnd::Type::output_delay)
+      && path->minMax(sta_) == MinMax::max()
       && src_edge->clock() == clk_
       && tgt_edge->clock() == clk_
       // Only consider rise/rise and fall/fall paths.
       && src_edge->transition() == tgt_edge->transition()
+      && path_end->multiCyclePath() == nullptr
       && (include_port_paths_
-          || !(path_end->isOutputDelay()
+          || !(network->isTopLevelPort(path->pin(sta_))
                || pathIsFromInputPort(path_end)))) {
     Slack slack = path_end->slack(sta_);
     float period = clk_->period() - slack;
