@@ -59,6 +59,7 @@ protected:
   void writeInstBusPinBit(Instance *inst,
 			  Port *port,
 			  bool &first_member);
+  void writeAssigns(Instance *inst);
 
   const char *filename_;
   bool sort_;
@@ -123,6 +124,7 @@ VerilogWriter::writeModule(Instance *inst)
   writeWireDcls(inst);
   fprintf(stream_, "\n");
   writeChildren(inst);
+  writeAssigns(inst);
   fprintf(stream_, "endmodule\n");
   written_cells_.insert(cell);
 
@@ -373,6 +375,31 @@ VerilogWriter::writeInstBusPinBit(Instance *inst,
     fprintf(stream_, ",\n    ");
   fprintf(stream_, "%s", net_vname);
   first_member = false;
+}
+
+// Verilog "ports" are not distinct from nets.
+// Use an assign statement to alias the net when it is connected to
+// multiple output ports.
+void
+VerilogWriter::writeAssigns(Instance *inst)
+{
+  InstancePinIterator *pin_iter = network_->pinIterator(inst);
+  while (pin_iter->hasNext()) {
+    Pin *pin = pin_iter->next();
+    Term *term = network_->term(pin);
+    Net *net = network_->net(term);
+    Port *port = network_->port(pin);
+    if (network_->direction(port)->isAnyOutput()
+        && !stringEqual(network_->name(port), network_->name(net))) {
+      // Port name is different from net name.
+      fprintf(stream_, " assign %s = %s;\n",
+              netVerilogName(network_->name(port),
+                             network_->pathEscape()),
+              netVerilogName(network_->name(net),
+                             network_->pathEscape()));
+    }
+  }
+  delete pin_iter;
 }
 
 } // namespace
