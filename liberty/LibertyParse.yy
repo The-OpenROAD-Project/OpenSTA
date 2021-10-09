@@ -41,8 +41,8 @@ int LibertyLex_lex();
   sta::LibertyStmt *stmt;
 }
 
-%left '+' '|'
-%left '*' '&'
+%left '+' '-' '|'
+%left '*' '/' '&'
 %left '^'
 %left '!'
 
@@ -55,6 +55,8 @@ int LibertyLex_lex();
 %type <string> string expr expr_term expr_term1 volt_expr
 %type <line> line
 %type <ch> expr_op volt_op
+
+%expect 2
 
 %start file
 
