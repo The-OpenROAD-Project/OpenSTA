@@ -999,6 +999,19 @@ ConcreteParasitics::loadPinCapacitanceChanged(const Pin *pin)
   deleteReducedParasitics(pin);
 }
 
+void
+ConcreteParasitics::deleteReducedParasitics(const Net *net,
+                                            const ParasiticAnalysisPt *ap)
+{
+  if (!drvr_parasitic_map_.empty()) {
+    PinSet *drivers = network_->drivers(net);
+    if (drivers) {
+      for (auto drvr_pin : *drivers)
+        deleteDrvrReducedParasitics(drvr_pin, ap);
+    }
+  }
+}
+
 // Delete reduced models on pin's net.
 void
 ConcreteParasitics::deleteReducedParasitics(const Pin *pin)
@@ -1025,6 +1038,19 @@ ConcreteParasitics::deleteDrvrReducedParasitics(const Pin *drvr_pin)
     delete [] parasitics;
   }
   drvr_parasitic_map_[drvr_pin] = nullptr;
+}
+
+void
+ConcreteParasitics::deleteDrvrReducedParasitics(const Pin *drvr_pin,
+                                                const ParasiticAnalysisPt *ap)
+{
+  UniqueLock lock(lock_);
+  ConcreteParasitic **parasitics = drvr_parasitic_map_[drvr_pin];
+  if (parasitics) {
+    int ap_index = ap->index();
+    delete parasitics[ap_index];
+    parasitics[ap_index] = nullptr;
+  }
 }
 
 ////////////////////////////////////////////////////////////////

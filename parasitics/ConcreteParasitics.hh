@@ -193,6 +193,8 @@ public:
 				      const Corner *corner,
 				      const MinMax *cnst_min_max,
 				      const ParasiticAnalysisPt *ap);
+  void deleteReducedParasitics(const Net *net,
+                               const ParasiticAnalysisPt *ap);
   virtual void deleteDrvrReducedParasitics(const Pin *drvr_pin);
 
 protected:
@@ -201,6 +203,8 @@ protected:
   Parasitic *ensureRspf(const Pin *drvr_pin);
   void makeAnalysisPtAfter();
   void deleteReducedParasitics(const Pin *pin);
+  void deleteDrvrReducedParasitics(const Pin *drvr_pin,
+                                   const ParasiticAnalysisPt *ap);
 
   // Driver pin to array of parasitics indexed by analysis pt index
   // and transition.

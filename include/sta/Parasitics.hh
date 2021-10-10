@@ -60,6 +60,8 @@ public:
   virtual void deleteParasitics(const Pin *pin,
 				const ParasiticAnalysisPt *ap) = 0;
   virtual void deleteUnsavedParasitic(Parasitic *parasitic) = 0;
+  virtual void deleteReducedParasitics(const Net *net,
+                                       const ParasiticAnalysisPt *ap) = 0;
   virtual void deleteDrvrReducedParasitics(const Pin *drvr_pin) = 0;
 
   virtual bool isReducedParasiticNetwork(Parasitic *parasitic) const = 0;

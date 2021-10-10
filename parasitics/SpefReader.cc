@@ -448,9 +448,11 @@ SpefReader::dspfBegin(Net *net,
     if (increment_
 	&& parasitics_->findParasiticNetwork(net, ap_))
       parasitic_ = nullptr;
-    else
+    else {
+      parasitics_->deleteReducedParasitics(net, ap_);
       parasitic_ = parasitics_->makeParasiticNetwork(net, pin_cap_included_,
-						     ap_);
+                                                     ap_);
+    }
     net_ = net;
   }
   else {
