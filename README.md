@@ -155,23 +155,6 @@ If you make changes to `CMakeLists.txt` you may need to clean out
 existing CMake cached variable values by deleting all of the
 files in the build directory.
 
-### Run using Docker
-
-OpenSTA can be run as a [Docker](https://www.docker.com/) container.
-
-* Install Docker on [Windows](https://docs.docker.com/docker-for-windows/), [Mac](https://docs.docker.com/docker-for-mac/) or [Linux](https://docs.docker.com/install/).
-* Navigate to the directory where you have the input files.
-* Run OpenSTA as a binary using
-````
-docker run -it -v $(pwd):/data openroad/opensta
-````
-
-From the interactive terminal, use OpenSTA commands. You can read input files from `/data` directory inside the docker container (e.g. `read_liberty /data/liberty.lib`). You can use OpenSTA in non-interactive mode by passing a command file using the `-f` flag as follows.
-```
-docker run -it -v $(pwd):/data openroad/opensta /data/cmd_file
-```
-Note that the path after `-f` is the path inside container, not on the guest machine. 
-
 ## Bug Reports
 
 Use the Issues tab on the github repository to report bugs.
