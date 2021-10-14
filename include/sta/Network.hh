@@ -59,7 +59,7 @@ typedef Map<const Net*, PinSet*> NetDrvrPinsMap;
 //       Bus bit ports, which are one bit of a bus port such as D[0].
 //         Bus bit ports are always members of a bus.
 //   Instances are calls of cells in the design hierarchy
-//     Hierarchcial and leaf instances are in the network.
+//     Hierarchical and leaf instances are in the network.
 //     At the top of the hierarchy is a top level instance that
 //     has instances for the top level netlist.
 //   Pins are a connection between an instance and a net corresponding
