@@ -68,7 +68,7 @@ void
 parseBusRange(const char *name,
 	      const char *brkts_left,
 	      const char *brkts_right,
-	      char escape,
+	      const char escape,
 	      // Return values.
 	      char *&bus_name,
 	      int &from,
@@ -77,8 +77,8 @@ parseBusRange(const char *name,
 // Insert escapes before ch1 and ch2 in token.
 const char *
 escapeChars(const char *token,
-	    char ch1,
-	    char ch2,
-	    char escape);
+	    const char ch1,
+	    const char ch2,
+	    const char escape);
 
 } // namespace

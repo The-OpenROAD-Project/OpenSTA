@@ -49,7 +49,7 @@ void
 parseBusName(const char *name,
 	     const char brkt_left,
 	     const char brkt_right,
-	     char escape,
+	     const char escape,
 	     // Return values.
 	     char *&bus_name,
 	     int &index)
@@ -150,9 +150,9 @@ parseBusRange(const char *name,
 
 const char *
 escapeChars(const char *token,
-	    char ch1,
-	    char ch2,
-	    char escape)
+	    const char ch1,
+	    const char ch2,
+	    const char escape)
 {
   int result_length = 0;
   bool need_escapes = false;
