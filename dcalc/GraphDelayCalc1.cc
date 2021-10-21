@@ -840,11 +840,15 @@ GraphDelayCalc1::findVertexDelay(Vertex *vertex,
 				 bool propagate)
 {
   const Pin *pin = vertex->pin();
-  // Don't clobber root slews.
-  if (!vertex->isRoot()) {
-    debugPrint(debug_, "delay_calc", 2, "find delays %s (%s)",
-               vertex->name(sdc_network_),
-               network_->cellName(network_->instance(pin)));
+  debugPrint(debug_, "delay_calc", 2, "find delays %s (%s)",
+             vertex->name(sdc_network_),
+             network_->cellName(network_->instance(pin)));
+  if (vertex->isRoot()) {
+    seedRootSlew(vertex, arc_delay_calc);
+    if (propagate)
+      iter_->enqueueAdjacentVertices(vertex);
+  }
+  else {
     if (network_->isLeaf(pin)) {
       if (vertex->isDriver(network_)) {
 	bool delay_changed = findDriverDelays(vertex, arc_delay_calc);
