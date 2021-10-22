@@ -20,6 +20,7 @@
 #include "Liberty.hh"
 #include "Network.hh"
 #include "Sdc.hh"
+#include "InputDrive.hh"
 #include "DcalcAnalysisPt.hh"
 #include "GraphDelayCalc.hh"
 #include "StaState.hh"
@@ -163,6 +164,32 @@ CheckCapacitanceLimits::findLimit(const Pin *pin,
 	    || min_max->compare(limit, limit1))) {
 	limit = limit1;
 	exists = true;
+    }
+    InputDrive *drive = sdc->findInputDrive(port);
+    if (drive) {
+      for (auto min_max : MinMax::range()) {
+        for (auto rf : RiseFall::range()) {
+          LibertyCell *cell;
+          LibertyPort *from_port;
+          float *from_slews;
+          LibertyPort *to_port;
+          drive->driveCell(rf, min_max, cell, from_port, from_slews, to_port);
+          if (to_port) {
+            LibertyPort *corner_port = to_port->cornerPort(corner->libertyIndex(min_max));
+            corner_port->capacitanceLimit(min_max, limit1, exists1);
+            if (!exists1
+                && corner_port->direction()->isAnyOutput()
+                && min_max == MinMax::max())
+              corner_port->libertyLibrary()->defaultMaxSlew(limit1, exists1);
+            if (exists1
+                && (!exists
+                    || min_max->compare(limit, limit1))) {
+              limit = limit1;
+              exists = true;
+            }
+          }
+        }
+      }
     }
   }
   else {
@@ -314,7 +341,7 @@ CheckCapacitanceLimits::checkPin(Pin *pin)
   const Sdc *sdc = sta_->sdc();
   const Graph *graph = sta_->graph();
   Vertex *vertex = graph->pinLoadVertex(pin);
-  return network->direction(pin)->isAnyOutput()
+  return network->isDriver(pin)
     && !sim->logicZeroOne(pin)
     && !sdc->isDisabled(pin)
     && !(vertex && sta_->isIdealClock(pin));
