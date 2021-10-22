@@ -919,7 +919,7 @@ Sdc::fanoutLimit(Cell *cell,
 		 float &fanout,
 		 bool &exists)
 {
-  fanout = 0.0;
+  fanout = min_max->initValue();
   MinMaxFloatValues values;
   cell_fanout_limit_map_.findKey(cell, values, exists);
   if (exists)

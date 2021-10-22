@@ -20,6 +20,7 @@
 #include "Liberty.hh"
 #include "Network.hh"
 #include "Sdc.hh"
+#include "InputDrive.hh"
 #include "Sim.hh"
 #include "PortDirection.hh"
 #include "Graph.hh"
@@ -84,7 +85,7 @@ CheckFanoutLimits::checkFanout(const Pin *pin,
 			       float &slack) const
 {
   fanout = 0.0;
-  limit = 0.0;
+  limit = min_max->initValue();
   slack = MinMax::min()->initValue();
 
   float limit1;
@@ -106,10 +107,8 @@ CheckFanoutLimits::findLimit(const Pin *pin,
   const Network *network = sta_->network();
   Sdc *sdc = sta_->sdc();
 
-  // Default to top ("design") limit.
-  Cell *top_cell = network->cell(network->topInstance());
-  sdc->fanoutLimit(top_cell, min_max,
-		   limit, exists);
+  limit = min_max->initValue();
+  exists = false;
 
   float limit1;
   bool exists1;
@@ -122,8 +121,38 @@ CheckFanoutLimits::findLimit(const Pin *pin,
       limit = limit1;
       exists = true;
     }
+    InputDrive *drive = sdc->findInputDrive(port);
+    if (drive) {
+      for (auto min_max : MinMax::range()) {
+        for (auto rf : RiseFall::range()) {
+          LibertyCell *cell;
+          LibertyPort *from_port;
+          float *from_slews;
+          LibertyPort *to_port;
+          drive->driveCell(rf, min_max, cell, from_port, from_slews, to_port);
+          if (to_port) {
+            to_port->fanoutLimit(min_max, limit1, exists1);
+            if (!exists1
+                && min_max == MinMax::max()
+                && to_port->direction()->isAnyOutput())
+              to_port->libertyLibrary()->defaultMaxFanout(limit1, exists1);
+            if (exists1
+                && (!exists
+                    || min_max->compare(limit, limit1))) {
+              limit = limit1;
+              exists = true;
+            }
+          }
+        }
+      }
+    }
   }
   else {
+    // Default to top ("design") limit.
+    Cell *top_cell = network->cell(network->topInstance());
+    sdc->fanoutLimit(top_cell, min_max,
+                     limit, exists);
+
     Cell *cell = network->cell(network->instance(pin));
     sdc->fanoutLimit(cell, min_max,
 		     limit1, exists1);
@@ -175,30 +204,28 @@ CheckFanoutLimits::fanoutLoad(const Pin *pin) const
 {
   float fanout = 0;
   const Network *network = sta_->network();
-  Net *net = network->net(pin);
-  if (net) {
-    NetPinIterator *pin_iter = network->pinIterator(net);
-    while (pin_iter->hasNext()) {
-      Pin *pin = pin_iter->next();
-      if (network->isLoad(pin)) {
-	LibertyPort *port = network->libertyPort(pin);
-	if (port) {
-	  float fanout_load;
-	  bool exists;
-	  port->fanoutLoad(fanout_load, exists);
-	  if (!exists) {
-	    LibertyLibrary *lib = port->libertyLibrary();
-	    lib->defaultFanoutLoad(fanout_load, exists);
-	  }
-	  if (exists)
-	    fanout += fanout_load;
-	}
-	else
-	  fanout += 1;
+  NetConnectedPinIterator *pin_iter = network->connectedPinIterator(pin);
+  while (pin_iter->hasNext()) {
+    Pin *fanout_pin = pin_iter->next();
+    if (network->isLoad(fanout_pin)
+        && !network->isTopLevelPort(fanout_pin)) {
+      LibertyPort *port = network->libertyPort(fanout_pin);
+      if (port) {
+        float fanout_load;
+        bool exists;
+        port->fanoutLoad(fanout_load, exists);
+        if (!exists) {
+          LibertyLibrary *lib = port->libertyLibrary();
+          lib->defaultFanoutLoad(fanout_load, exists);
+        }
+        if (exists)
+          fanout += fanout_load;
       }
+      else
+        fanout += 1;
     }
-    delete pin_iter;
   }
+  delete pin_iter;
   return fanout;
 }
 
@@ -288,8 +315,8 @@ CheckFanoutLimits::checkPin(Pin *pin)
   const Sim *sim = sta_->sim();
   const Sdc *sdc = sta_->sdc();
   const Graph *graph = sta_->graph();
-  Vertex *vertex = graph->pinLoadVertex(pin);
-  return network->direction(pin)->isAnyOutput()
+  Vertex *vertex = graph->pinDrvrVertex(pin);
+  return network->isDriver(pin)
     && !sim->logicZeroOne(pin)
     && !sdc->isDisabled(pin)
     && !(vertex && sta_->isIdealClock(pin));
