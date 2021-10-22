@@ -108,6 +108,7 @@ InputDrive::setDriveCell(LibertyLibrary *library,
 void
 InputDrive::driveCell(const RiseFall *rf,
 		      const MinMax *min_max,
+                      // Return values.
 		      LibertyCell *&cell,
 		      LibertyPort *&from_port,
 		      float *&from_slews,
@@ -120,8 +121,12 @@ InputDrive::driveCell(const RiseFall *rf,
     from_slews = drive->fromSlews();
     to_port = drive->toPort();
   }
-  else
+  else {
     cell = nullptr;
+    from_port = nullptr;
+    from_slews = nullptr;
+    to_port = nullptr;
+  }
 }
 
 InputDriveCell *
