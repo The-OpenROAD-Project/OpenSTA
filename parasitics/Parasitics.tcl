@@ -33,7 +33,7 @@ define_cmd_args "read_spef" \
 
 proc_redirect read_spef {
   parse_key_args "read_spef" args \
-    keys {-path -coupling_reduction_factor -reduce_to} \
+    keys {-path -coupling_reduction_factor -reduce_to -corner} \
     flags {-min -max -increment -pin_cap_included \
 	     -keep_capacitive_coupling \
 	     -delete_after_reduce -quiet -save}
