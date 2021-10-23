@@ -110,6 +110,12 @@ CheckFanoutLimits::findLimit(const Pin *pin,
   limit = min_max->initValue();
   exists = false;
 
+  // Default to top ("design") limit.
+  // Applies to input ports as well as instance outputs.
+  Cell *top_cell = network->cell(network->topInstance());
+  sdc->fanoutLimit(top_cell, min_max,
+                   limit, exists);
+
   float limit1;
   bool exists1;
   if (network->isTopLevelPort(pin)) {
@@ -148,11 +154,6 @@ CheckFanoutLimits::findLimit(const Pin *pin,
     }
   }
   else {
-    // Default to top ("design") limit.
-    Cell *top_cell = network->cell(network->topInstance());
-    sdc->fanoutLimit(top_cell, min_max,
-                     limit, exists);
-
     Cell *cell = network->cell(network->instance(pin));
     sdc->fanoutLimit(cell, min_max,
 		     limit1, exists1);
