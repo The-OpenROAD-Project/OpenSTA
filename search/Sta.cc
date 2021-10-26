@@ -3090,7 +3090,7 @@ MinPeriodEndVisitor::visit(PathEnd *path_end)
           || !(network->isTopLevelPort(path->pin(sta_))
                || pathIsFromInputPort(path_end)))) {
     Slack slack = path_end->slack(sta_);
-    float period = clk_->period() - slack;
+    float period = clk_->period() - delayAsFloat(slack);
     min_period_ = max(min_period_, period);
   }
 }
