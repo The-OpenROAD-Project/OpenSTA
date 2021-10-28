@@ -31,6 +31,7 @@ class Corner;
 class DcalcAnalysisPt;
 class PropActivityVisitor;
 class BfsFwdIterator;
+class Vertex;
 
 typedef std::pair<const Instance*, LibertyPort*> SeqPin;
 
@@ -134,6 +135,9 @@ protected:
 			  const Corner *corner,
 			  // Return values.
 			  PowerResult &result);
+  float getSlew(Vertex *vertex,
+                const RiseFall *rf,
+                const Corner *corner);
   const Clock *findInstClk(const Instance *inst);
   const Clock *findClk(const Pin *to_pin);
   PwrActivity findClkedActivity(const Pin *pin,

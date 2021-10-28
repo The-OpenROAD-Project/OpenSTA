@@ -651,9 +651,7 @@ Power::findInputInternalPower(const Pin *pin,
       float energy = 0.0;
       int rf_count = 0;
       for (RiseFall *rf : RiseFall::range()) {
-        float slew = clk_network_->isIdealClock(pin)
-          ? clk_network_->idealClkSlew(pin, rf, MinMax::max())
-          : delayAsFloat(graph_->slew(vertex, rf, dcalc_ap->index()));
+        float slew = getSlew(vertex, rf, corner);
 	if (!delayInf(slew)) {
 	  float table_energy = pwr->power(rf, pvt, slew, load_cap);
 	  energy += table_energy;
@@ -690,6 +688,19 @@ Power::findInputInternalPower(const Pin *pin,
     }
     result.internal() += internal;
   }
+}
+
+float
+Power::getSlew(Vertex *vertex,
+               const RiseFall *rf,
+               const Corner *corner)
+{
+  const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(MinMax::max());
+  const Pin *pin = vertex->pin();
+  if (clk_network_->isIdealClock(pin))
+    return clk_network_->idealClkSlew(pin, rf, MinMax::max());
+  else
+    return delayAsFloat(graph_->slew(vertex, rf, dcalc_ap->index()));
 }
 
 LibertyPort *
@@ -796,8 +807,7 @@ Power::findOutputInternalPower(const Pin *to_pin,
       // Use unateness to find from_rf.
       RiseFall *from_rf = positive_unate ? to_rf : to_rf->opposite();
       float slew = from_vertex
-	? delayAsFloat(graph_->slew(from_vertex, from_rf,
-				    dcalc_ap->index()))
+	? getSlew(from_vertex, from_rf, corner)
 	: 0.0;
       if (!delayInf(slew)) {
 	float table_energy = pwr->power(to_rf, pvt, slew, load_cap);
