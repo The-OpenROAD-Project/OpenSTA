@@ -45,6 +45,7 @@
 #include "Sim.hh"
 #include "Search.hh"
 #include "Bfs.hh"
+#include "ClkNetwork.hh"
 
 // Related liberty not supported:
 // library
@@ -648,18 +649,19 @@ Power::findInputInternalPower(const Pin *pin,
     for (InternalPower *pwr : *internal_pwrs) {
       const char *related_pg_pin = pwr->relatedPgPin();
       float energy = 0.0;
-      int tr_count = 0;
+      int rf_count = 0;
       for (RiseFall *rf : RiseFall::range()) {
-	float slew = delayAsFloat(graph_->slew(vertex, rf,
-					       dcalc_ap->index()));
+        float slew = clk_network_->isIdealClock(pin)
+          ? clk_network_->idealClkSlew(pin, rf, MinMax::max())
+          : delayAsFloat(graph_->slew(vertex, rf, dcalc_ap->index()));
 	if (!delayInf(slew)) {
 	  float table_energy = pwr->power(rf, pvt, slew, load_cap);
 	  energy += table_energy;
-	  tr_count++;
+	  rf_count++;
 	}
       }
-      if (tr_count)
-	energy /= tr_count; // average non-inf energies
+      if (rf_count)
+	energy /= rf_count; // average non-inf energies
       float duty = 1.0; // fallback default
       FuncExpr *when = pwr->when();
       if (when) {
@@ -787,7 +789,7 @@ Power::findOutputInternalPower(const Pin *to_pin,
       }
     }
     float energy = 0.0;
-    int tr_count = 0;
+    int rf_count = 0;
     debugPrint(debug_, "power", 2,
                 "             when act/ns duty  wgt   energy    power");
     for (RiseFall *to_rf : RiseFall::range()) {
@@ -800,11 +802,11 @@ Power::findOutputInternalPower(const Pin *to_pin,
       if (!delayInf(slew)) {
 	float table_energy = pwr->power(to_rf, pvt, slew, load_cap);
 	energy += table_energy;
-	tr_count++;
+	rf_count++;
       }
     }
-    if (tr_count)
-      energy /= tr_count; // average non-inf energies
+    if (rf_count)
+      energy /= rf_count; // average non-inf energies
     auto duty_sum_iter = pg_duty_sum.find(related_pg_pin);
     float weight = 0.0;
     if (duty_sum_iter != pg_duty_sum.end()) {

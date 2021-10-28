@@ -202,4 +202,25 @@ ClkNetwork::pins(const Clock *clk)
     return nullptr;
 }
 
+float
+ClkNetwork::idealClkSlew(const Pin *pin,
+                         const RiseFall *rf,
+                         const MinMax *min_max)
+{
+  const ClockSet *clks = clk_network_->idealClocks(pin);
+  if (clks && !clks->empty()) {
+    float slew = min_max->initValue();
+    ClockSet::ConstIterator clk_iter(clks);
+    while (clk_iter.hasNext()) {
+      Clock *clk = clk_iter.next();
+      float clk_slew = clk->slew(rf, min_max);
+      if (min_max->compare(clk_slew, slew))
+        slew = clk_slew;
+    }
+    return slew;
+  }
+  else
+    return 0.0;
+}
+
 } // namespace

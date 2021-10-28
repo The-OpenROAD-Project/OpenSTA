@@ -1376,26 +1376,10 @@ GraphDelayCalc1::edgeFromSlew(const Vertex *from_vertex,
   const TimingRole *role = edge->role();
   if (role->genericRole() == TimingRole::regClkToQ()
       && clk_network_->isIdealClock(from_vertex->pin()))
-    return idealClkSlew(from_vertex, from_rf, dcalc_ap->slewMinMax());
+    return clk_network_->idealClkSlew(from_vertex->pin(), from_rf,
+                                      dcalc_ap->slewMinMax());
   else
     return graph_->slew(from_vertex, from_rf, dcalc_ap->index());
-}
-
-Slew
-GraphDelayCalc1::idealClkSlew(const Vertex *vertex,
-			      const RiseFall *rf,
-			      const MinMax *min_max)
-{
-  float slew = min_max->initValue();
-  const ClockSet *clks = clk_network_->idealClocks(vertex->pin());
-  ClockSet::ConstIterator clk_iter(clks);
-  while (clk_iter.hasNext()) {
-    Clock *clk = clk_iter.next();
-    float clk_slew = clk->slew(rf, min_max);
-    if (min_max->compare(clk_slew, slew))
-      slew = clk_slew;
-  }
-  return slew;
 }
 
 // Annotate wire arc delays and load pin slews.
@@ -1574,7 +1558,8 @@ GraphDelayCalc1::checkEdgeClkSlew(const Vertex *from_vertex,
 				  const DcalcAnalysisPt *dcalc_ap)
 {
   if (clk_network_->isIdealClock(from_vertex->pin()))
-    return idealClkSlew(from_vertex, from_rf, dcalc_ap->checkClkSlewMinMax());
+    return clk_network_->idealClkSlew(from_vertex->pin(), from_rf,
+                                      dcalc_ap->checkClkSlewMinMax());
   else 
     return graph_->slew(from_vertex, from_rf, dcalc_ap->checkClkSlewIndex());
 }

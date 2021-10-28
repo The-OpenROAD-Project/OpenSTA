@@ -5453,6 +5453,7 @@ Sta::powerPreamble()
   // Use arrivals to find clocking info.
   searchPreamble();
   search_->findAllArrivals();
+  ensureClkNetwork();
 }
 
 void

@@ -46,6 +46,9 @@ public:
   const ClockSet *idealClocks(const Pin *pin);
   const PinSet *pins(const Clock *clk);
   void clkPinsInvalid();
+  float idealClkSlew(const Pin *pin,
+                     const RiseFall *rf,
+                     const MinMax *min_max);
 
 protected:
   void deletePinBefore(const Pin *pin);

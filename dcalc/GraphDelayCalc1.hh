@@ -194,9 +194,6 @@ protected:
 			const RiseFall *from_rf,
 			const DcalcAnalysisPt *dcalc_ap);
   bool bidirectDrvrSlewFromLoad(const Vertex *vertex) const;
-  Slew idealClkSlew(const Vertex *vertex,
-		    const RiseFall *rf,
-		    const MinMax *min_max);
   MultiDrvrNet *multiDrvrNet(const Vertex *drvr_vertex) const;
   void loadCap(Parasitic *drvr_parasitic,
 	       bool has_set_load,

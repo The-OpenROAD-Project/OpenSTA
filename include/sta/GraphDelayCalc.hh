@@ -52,8 +52,7 @@ public:
   // Invalidate all delays/slews.
   virtual void delaysInvalid() {};
   // Invalidate vertex and downstream delays/slews.
-  virtual void delayInvalid(Vertex * /* vertex */) {}
-;
+  virtual void delayInvalid(Vertex * /* vertex */) {};
   virtual void delayInvalid(const Pin * /* pin */) {};
   virtual void deleteVertexBefore(Vertex * /* vertex */) {};
   // Reset to virgin state.
