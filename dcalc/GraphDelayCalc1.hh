@@ -138,6 +138,7 @@ protected:
   void initWireDelays(Vertex *drvr_vertex,
 		      bool init_load_slews);
   void initRootSlews(Vertex *vertex);
+  void zeroSlewAndWireDelays(Vertex *drvr_vertex);
   void findVertexDelay(Vertex *vertex,
 		       ArcDelayCalc *arc_delay_calc,
 		       bool propagate);
@@ -160,8 +161,7 @@ protected:
 			  bool merge,
 			  const DcalcAnalysisPt *dcalc_ap,
 			  ArcDelayCalc *arc_delay_calc);
-  void findCheckDelays(Vertex *vertex,
-		       ArcDelayCalc *arc_delay_calc);
+  void findLatchEdgeDelays(Edge *edge);
   void findCheckEdgeDelays(Edge *edge,
 			   ArcDelayCalc *arc_delay_calc);
   void findMultiDrvrGateDelay(MultiDrvrNet *multi_drvr,
@@ -213,9 +213,12 @@ protected:
   bool delays_exist_;
   // Vertices with invalid -to delays.
   VertexSet invalid_delays_;
-  // Vertices with invalid -from/-to timing checks.
-  VertexSet invalid_checks_;
-  std::mutex check_vertices_lock_;
+  // Timing check edges with invalid delays.
+  EdgeSet invalid_check_edges_;
+  // Latch D->Q edges with invalid delays.
+  EdgeSet invalid_latch_edges_;
+  // shared by invalid_check_edges_ and invalid_latch_edges_
+  std::mutex invalid_edge_lock_;
   SearchPred *search_pred_;
   SearchPred *search_non_latch_pred_;
   SearchPred *clk_pred_;

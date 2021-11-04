@@ -242,6 +242,12 @@ TimingRole::isDataCheck() const
 }
 
 bool
+TimingRole::isLatchDtoQ() const
+{
+  return this == latch_d_q_;
+}
+
+bool
 TimingRole::less(const TimingRole *role1,
 		 const TimingRole *role2)
 {
