@@ -120,11 +120,11 @@ proc trace_preset_clr_arcs_enabled { name1 name2 op } {
     preset_clr_arcs_enabled set_preset_clr_arcs_enabled
 }
 
-trace variable ::sta_disable_recovery_removal_checks "rw" \
-  sta::trace_disable_recovery_removal_checks
+trace variable ::sta_recovery_removal_checks_enabled "rw" \
+  sta::trace_recovery_removal_checks_enabled
 
-proc trace_disable_recovery_removal_checks { name1 name2 op } {
-  trace_bool_var $op ::sta_disable_recovery_removal_checks \
+proc trace_recovery_removal_checks_enabled { name1 name2 op } {
+  trace_boolean_var $op ::sta_recovery_removal_checks_enabled \
     recovery_removal_checks_enabled set_recovery_removal_checks_enabled
 }
 
