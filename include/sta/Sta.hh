@@ -897,8 +897,10 @@ public:
   // loops until the arrivals converge.
   // If full=false update arrivals incrementally.
   // If full=true update all arrivals from scratch.
-  // There is rarely any reason to call updateTiming directly because
+  // NOTE WELL: There is rarely any reason to call updateTiming directly because
   // arrival/required/slack functions implicitly update timing incrementally.
+  // If you are calling this function you are either very confused or there is
+  // bug that should be reported.
   void updateTiming(bool full);
   // Invalidate all delay calculations. Arrivals also invalidated.
   void delaysInvalid();
