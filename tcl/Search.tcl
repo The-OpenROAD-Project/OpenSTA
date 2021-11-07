@@ -75,8 +75,8 @@ proc check_setup_cmd { cmd cmd_args } {
 
 ################################################################
 
-define_cmd_args "find_timing" {[-full_update]}
-
+# Not a command because users have no reason to ever call this.
+# It is only useful for debugging incremental timing updates.
 proc find_timing { args } {
   parse_key_args "find_timing" args keys {} flags {-full_update}
   find_timing_cmd [info exists flags(-full_update)]
