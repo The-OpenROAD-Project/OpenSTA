@@ -2274,7 +2274,7 @@ Search::pathClkPathArrival(const Path *path) const
   // Check for input arrival clock.
   ClockEdge *clk_edge = path->clkEdge(this);
   if (clk_edge)
-    return clk_edge->time();
+    return clk_edge->time() + clk_info->latency();
   return 0.0;
 }
 
