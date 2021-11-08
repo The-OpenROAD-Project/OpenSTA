@@ -30,8 +30,7 @@ using sta::AnalysisType;
 using sta::MinMax;
 using sta::MinMaxAllNull;
 using sta::stringEq;
-using sta::readSdfSingle;
-using sta::readSdfMinMax;
+using sta::readSdf;
 using sta::reportAnnotatedDelay;
 using sta::reportAnnotatedCheck;
 
@@ -39,62 +38,27 @@ using sta::reportAnnotatedCheck;
 
 %inline %{
 
-// min/max index is:
-//  sdf_min = 0
-//  sdf_typ = 1
-//  sdf_max = 2
-
 // If unescaped_dividers is true path names do not have to escape
 // hierarchy dividers when the path name is quoted.
 // For example verilog "\mod1/mod2 " can be referenced as "mod1/mod2"
 // instead of the correct "mod1\/mod2".
 
-// Read sdf_index value from sdf triples.
 // Return true if successful.
 bool
-read_sdf_file_single(const char *filename,
-		     const char *path,
-		     Corner *corner,
-		     int sdf_index,
-		     AnalysisType analysis_type,
-		     bool unescaped_dividers,
-		     bool incremental_only,
-		     MinMaxAllNull *cond_use)
+read_sdf_file(const char *filename,
+              const char *path,
+              Corner *corner,
+              bool unescaped_dividers,
+              bool incremental_only,
+              MinMaxAllNull *cond_use)
 {
   cmdLinkedNetwork();
   Sta *sta = Sta::sta();
   sta->ensureGraph();
   if (stringEq(path, ""))
     path = NULL;
-  bool success = readSdfSingle(filename, path, corner, sdf_index,
-			       analysis_type, unescaped_dividers,
-			       incremental_only, cond_use, sta);
-  sta->search()->arrivalsInvalid();
-  return success;
-}
-
-// Read sdf_min_index and sdf_max_index values from sdf triples.
-// Return true if successful.
-bool
-read_sdf_file_min_max(const char *filename,
-		      const char *path,
-		      Corner *corner,
-		      int sdf_min_index,
-		      int sdf_max_index,
-		      AnalysisType analysis_type,
-		      bool unescaped_dividers,
-		      bool incremental_only,
-		      MinMaxAllNull *cond_use)
-{
-  cmdLinkedNetwork();
-  Sta *sta = Sta::sta();
-  sta->ensureGraph();
-  if (stringEq(path, ""))
-    path = NULL;
-  bool success = readSdfMinMax(filename, path, corner, sdf_min_index,
-			       sdf_max_index, analysis_type,
-			       unescaped_dividers, incremental_only,
-			       cond_use, sta);
+  bool success = readSdf(filename, path, corner, unescaped_dividers, incremental_only,
+                         cond_use, sta);
   sta->search()->arrivalsInvalid();
   return success;
 }

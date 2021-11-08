@@ -29,7 +29,8 @@
 #include "Graph.hh"
 #include "Corner.hh"
 #include "DcalcAnalysisPt.hh"
-#include "sdf/Sdf.hh"
+#include "Sdc.hh"
+#include "sdf/SdfReaderPvt.hh"
 
 extern int
 SdfParse_parse();
@@ -79,43 +80,20 @@ private:
 SdfReader *sdf_reader = nullptr;
 
 bool
-readSdfSingle(const char *filename,
-	      const char *path,
-	      Corner *corner,
-	      int sdf_index,
-              AnalysisType analysis_type,
-	      bool unescaped_dividers,
-	      bool incremental_only,
-	      MinMaxAll *cond_use,
-	      StaState *sta)
-{
-  int arc_index = corner->findDcalcAnalysisPt(MinMax::max())->index();
-  SdfReader reader(filename, path, arc_index, sdf_index,
-                   SdfReader::nullIndex(), SdfReader::nullIndex(),
-                   analysis_type, unescaped_dividers, incremental_only,
-		   cond_use, sta);
-  sdf_reader = &reader;
-  return reader.read();
-}
-
-bool
-readSdfMinMax(const char *filename,
-	      const char *path,
-	      Corner *corner,
-	      int sdf_min_index,
-	      int sdf_max_index,
-	      AnalysisType analysis_type,
-	      bool unescaped_dividers,
-	      bool incremental_only,
-	      MinMaxAll *cond_use,
-	      StaState *sta)
+readSdf(const char *filename,
+        const char *path,
+        Corner *corner,
+        bool unescaped_dividers,
+        bool incremental_only,
+        MinMaxAll *cond_use,
+        StaState *sta)
 {
   int arc_min_index = corner->findDcalcAnalysisPt(MinMax::min())->index();
   int arc_max_index = corner->findDcalcAnalysisPt(MinMax::max())->index();
   SdfReader reader(filename, path,
-		   arc_min_index, sdf_min_index,
-		   arc_max_index, sdf_max_index,
-		   analysis_type, unescaped_dividers, incremental_only,
+		   arc_min_index, arc_max_index, 
+		   sta->sdc()->analysisType(),
+                   unescaped_dividers, incremental_only,
 		   cond_use, sta);
   sdf_reader = &reader;
   return reader.read();
@@ -124,9 +102,7 @@ readSdfMinMax(const char *filename,
 SdfReader::SdfReader(const char *filename,
 		     const char *path,
                      int arc_min_index,
-		     int triple_min_index,
 		     int arc_max_index,
-		     int triple_max_index,
 		     AnalysisType analysis_type,
 		     bool unescaped_dividers,
 		     bool is_incremental_only,
@@ -135,8 +111,8 @@ SdfReader::SdfReader(const char *filename,
   StaState(sta),
   filename_(filename),
   path_(path),
-  triple_min_index_(triple_min_index),
-  triple_max_index_(triple_max_index),
+  triple_min_index_(0),
+  triple_max_index_(2),
   arc_delay_min_index_(arc_min_index),
   arc_delay_max_index_(arc_max_index),
   analysis_type_(analysis_type),
@@ -475,28 +451,25 @@ SdfReader::timingCheck1(TimingRole *role,
       Pin *data_pin = network_->findPin(instance_, data_port_name);
       Pin *clk_pin = network_->findPin(instance_, clk_port_name);
       if (data_pin && clk_pin) {
-	// Hack to match PT; always use triple max value for check.
-	if (triple_min_index_ != null_index_
-	    && triple_max_index_ != null_index_) {
-	  float **values = triple->values();
-	  float *value_min = values[triple_min_index_];
-	  float *value_max = values[triple_max_index_];
-          if (value_min && value_max) {
-	    switch (analysis_type_) {
-	    case AnalysisType::single:
-	      break;
-	    case AnalysisType::bc_wc:
-	      if (role->genericRole() == TimingRole::setup())
-		*value_min = *value_max;
-	      else
-		*value_max = *value_min;
-	      break;
-	    case AnalysisType::ocv:
-	      *value_min = *value_max;
-	      break;
-	    }
-	  }
-	}
+	// Hack: always use triple max value for check.
+        float **values = triple->values();
+        float *value_min = values[triple_min_index_];
+        float *value_max = values[triple_max_index_];
+        if (value_min && value_max) {
+          switch (analysis_type_) {
+          case AnalysisType::single:
+            break;
+          case AnalysisType::bc_wc:
+            if (role->genericRole() == TimingRole::setup())
+              *value_min = *value_max;
+            else
+              *value_max = *value_min;
+            break;
+          case AnalysisType::ocv:
+            *value_min = *value_max;
+            break;
+          }
+        }
 	bool matched = annotateCheckEdges(data_pin, data_edge,
 					  clk_pin, clk_edge, role,
 					  triple, false);
@@ -769,12 +742,8 @@ SdfReader::setEdgeArcDelaysCondUse(Edge *edge,
 				   SdfTriple *triple)
 {
   float **values = triple->values();
-  float *value_min = nullptr;
-  if (triple_min_index_ != null_index_)
-    value_min = values[triple_min_index_];
-  float *value_max = nullptr;
-  if (triple_max_index_ != null_index_)
-    value_max = values[triple_max_index_];
+  float *value_min = values[triple_min_index_];
+  float *value_max = value_max = values[triple_max_index_];
   MinMax *min, *max;
   if (cond_use_ == MinMaxAll::min()) {
     min = MinMax::min();

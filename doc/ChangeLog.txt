@@ -3,6 +3,13 @@ OpenSTA Timing Analyzer Release Notes
 
 This file summarizes user visible changes for each release.
 
+Release 2.3.1 2020/11/08
+-------------------------
+
+The read_sdf command no longer supports the -analysis_type, -type, -min_type,
+and -max_type arguments. Use the set_operating_conditions -analysis_type
+command to set the analysis type before read_sdf.
+
 Release 2.2.0 2020/07/18
 -------------------------
 

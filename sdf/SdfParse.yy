@@ -18,7 +18,7 @@
 
 #include <ctype.h>
 
-#include "sdf/Sdf.hh"
+#include "sdf/SdfReaderPvt.hh"
 
 int SdfLex_lex();
 #define SdfParse_lex SdfLex_lex

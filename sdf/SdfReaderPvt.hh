@@ -50,9 +50,7 @@ public:
   SdfReader(const char *filename,
 	    const char *path,
 	    int arc_min_index,
-	    int triple_min_index,
 	    int arc_max_index,
-	    int triple_max_index,
 	    AnalysisType analysis_type,
 	    bool unescaped_dividers,
 	    bool is_incremental_only,
@@ -60,8 +58,6 @@ public:
 	    StaState *sta);
   ~SdfReader();
   bool read();
-  // Arc/Triple index passed to read() to ignore arg.
-  static int nullIndex() { return null_index_; }
 
   void setDivider(char divider);
   void setTimescale(float multiplier, const char *units);

@@ -18,17 +18,14 @@ namespace eval sta {
 
 define_cmd_args "read_sdf" \
   {[-path path] [-corner corner_name]\
-     [-analysis_type single|bc_wc|on_chip_variation]\
-     [-type sdf_min|sdf_typ|sdf_max]\
-     [-min_type sdf_min|sdf_typ|sdf_max]\
-     [-max_type sdf_min|sdf_typ|sdf_max]\
      [-cond_use min|max|min_max]\
      [-unescaped_dividers] filename}
 
 proc_redirect read_sdf {
   parse_key_args "read_sdf" args \
-    keys {-path -corner -analysis_type -type -min_type -max_type -cond_use} \
+    keys {-path -corner -cond_use -analysis_type} \
     flags {-unescaped_dividers -incremental_only}
+
   check_argc_eq1 "read_sdf" $args
   set filename [file nativename [lindex $args 0]]
   set path ""
@@ -36,17 +33,6 @@ proc_redirect read_sdf {
     set path $keys(-path)
   }
   set corner [parse_corner keys]
-  if [info exists keys(-analysis_type)] {
-    set analysis_type $keys(-analysis_type)
-    if { $analysis_type == "single" \
-	   || $analysis_type == "bc_wc" \
-	   || $analysis_type == "on_chip_variation" } {
-      # -analysis_type is an implicit set_operating_conditions
-      set_analysis_type_cmd $analysis_type
-    } else {
-      sta_error 429 "-analysis_type must be single, bc_wc or on_chip_variation"
-    }
-  }
 
   set cond_use "NULL"
   if [info exists keys(-cond_use)] {
@@ -60,53 +46,14 @@ proc_redirect read_sdf {
       sta_error 430 "-cond_use min_max cannot be used with analysis type single."
     }
   }
+  if [info exists keys(-analysis_type)] {
+    sta_warn 617 "-analysis_type is deprecated. Use set_operating_conditions -analysis_type."
+  }
 
   set unescaped_dividers [info exists flags(-unescaped_dividers)]
-  set analysis_type [operating_condition_analysis_type]
   set incremental_only [info exists flags(-incremental_only)]
-  if { $analysis_type == "single" } {
-    # default sdf_max
-    set index 2
-    if [info exists keys(-type)] {
-      set index [parse_sdf_index "-type" $keys(-type)]
-    }
-    if [info exists keys(-min_type)] {
-      sta_warn 613 "-min_type ignored by analysis_type single."
-    }
-    if [info exists keys(-max_type)] {
-      sta_warn 614 "-max_type ignored by analysis_type single."
-    }
-    read_sdf_file_single $filename $path $corner $index $analysis_type \
-      $unescaped_dividers $incremental_only $cond_use
-  } elseif { $analysis_type == "bc_wc" \
-	       || $analysis_type == "on_chip_variation" } {
-    # default sdf_min, sdf_max
-    set min_index 0
-    set max_index 2
-    if [info exists keys(-min_type)] {
-      set min_index [parse_sdf_index "-min_type" $keys(-min_type)]
-    }
-    if [info exists keys(-max_type)] {
-      set max_index [parse_sdf_index "-max_type" $keys(-max_type)]
-    }
-    if [info exists keys(-type)] {
-      sta_warn 615 "-type ignored by analysis_type $analysis_type."
-    }
-    read_sdf_file_min_max $filename $path $corner $min_index $max_index \
-      $analysis_type $unescaped_dividers $incremental_only $cond_use
-  }
-}
-
-proc parse_sdf_index { key index } {
-  if { $index == "sdf_min" } {
-    return 0
-  } elseif { $index == "sdf_typ" } {
-    return 1
-  } elseif { $index == "sdf_max" } {
-    return 2
-  } else {
-    sta_error 431 "$key must be sdf_min, sdf_typ, or sdf_max."
-  }
+  read_sdf_file $filename $path $corner $unescaped_dividers \
+    $incremental_only $cond_use
 }
 
 ################################################################

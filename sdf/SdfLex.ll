@@ -17,7 +17,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "util/FlexDisableRegister.hh"
-#include "sdf/Sdf.hh"
+#include "sdf/SdfReaderPvt.hh"
 #include "SdfParse.hh"
 
 #define YY_NO_INPUT

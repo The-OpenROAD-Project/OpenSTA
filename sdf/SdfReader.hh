@@ -53,29 +53,13 @@ class StaState;
 // conditions and the maximum of the conditional delay values is used for
 // maximum operating conditions.
 
-// Read sdf_index value from sdf triples.
 bool
-readSdfSingle(const char *filename,
-	      const char *path,
-              Corner *corner,
-	      int sdf_index,
-	      AnalysisType analysis_type,
-	      bool unescaped_dividers,
-	      bool incremental_only,
-              MinMaxAll *cond_use,
-	      StaState *sta);
-
-// Read sdf_min_index and sdf_max_index values from sdf triples.
-bool
-readSdfMinMax(const char *filename,
-	      const char *path,
-	      Corner *corner,
-              int sdf_min_index,
-	      int sdf_max_index,
-	      AnalysisType analysis_type,
-	      bool unescaped_dividers,
-	      bool incremental_only,
-              MinMaxAll *cond_use,
-	      StaState *sta);
+readSdf(const char *filename,
+        const char *path,
+        Corner *corner,
+        bool unescaped_dividers,
+        bool incremental_only,
+        MinMaxAll *cond_use,
+        StaState *sta);
 
 } // namespace
