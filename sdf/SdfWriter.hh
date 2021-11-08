@@ -24,7 +24,8 @@ class Corner;
 void
 writeSdf(const char *filename,
 	 Corner *corner,
-	 char sdf_divider,
+	 char divider,
+         bool include_typ,
 	 int digits,
 	 bool gzip,
 	 bool no_timestamp,

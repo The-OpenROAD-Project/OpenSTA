@@ -140,13 +140,13 @@ proc_redirect report_annotated_check {
 }
 
 define_cmd_args "write_sdf" \
-  {[-corner corner_name] [-divider /|.] [-digits digits]\
-     [-gzip] [-no_timestamp] [-no_version] filename}
+  {[-corner corner_name] [-divider /|.] [-include_typ]\
+     [-digits digits] [-gzip] [-no_timestamp] [-no_version] filename}
 
 proc_redirect write_sdf {
   parse_key_args "write_sdf" args \
     keys {-corner -divider -digits -significant_digits} \
-    flags {-gzip -no_timestamp -no_version}
+    flags {-include_typ -gzip -no_timestamp -no_version}
   check_argc_eq1 "write_sdf" $args
   set corner [parse_corner keys]
   set filename [file nativename [lindex $args 0]]
@@ -160,16 +160,14 @@ proc_redirect write_sdf {
   set digits 3
   if [info exists keys(-digits)] {
     set digits $keys(-digits)
+    check_positive_integer "-digits" $digits
   }
-  if [info exists keys(-significant_digits)] {
-    set digits $keys(-significant_digits)
-  }
-  check_positive_integer "-digits" $digits
 
+  set include_typ [info exists flags(-include_typ)]
   set no_timestamp [info exists flags(-no_timestamp)]
   set no_version [info exists flags(-no_version)]
   set gzip [info exists flags(-gzip)]
-  write_sdf_cmd $filename $corner $divider $digits $gzip \
+  write_sdf_cmd $filename $corner $divider $include_typ $digits $gzip \
     $no_timestamp $no_version
 }
 

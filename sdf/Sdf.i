@@ -110,15 +110,16 @@ report_annotated_check_cmd(bool report_setup,
 void
 write_sdf_cmd(char *filename,
 	      Corner *corner,
-	      char sdf_divider,
-	      int digits,
+	      char divider,
+	      bool include_typ,
+              int digits,
 	      bool gzip,
 	      bool no_timestamp,
 	      bool no_version)
 {
   cmdLinkedNetwork();
   Sta *sta = Sta::sta();
-  sta->writeSdf(filename, corner, sdf_divider, digits, gzip,
+  sta->writeSdf(filename, corner, divider, include_typ, digits, gzip,
 		no_timestamp, no_version);
 }
 

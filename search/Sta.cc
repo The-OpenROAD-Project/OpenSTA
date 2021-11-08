@@ -3524,15 +3524,16 @@ Sta::setAnnotatedSlew(Vertex *vertex,
 void
 Sta::writeSdf(const char *filename,
 	      Corner *corner,
-	      char sdf_divider,
-	      int digits,
+	      char divider,
+	      bool include_typ,
+              int digits,
 	      bool gzip,
 	      bool no_timestamp,
 	      bool no_version)
 {
   findDelays();
-  sta::writeSdf(filename, corner, sdf_divider, digits, gzip, no_timestamp,
-		no_version, this);
+  sta::writeSdf(filename, corner, divider, include_typ, digits, gzip,
+                no_timestamp, no_version, this);
 }
 
 void
