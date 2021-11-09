@@ -744,7 +744,7 @@ SdfReader::setEdgeArcDelaysCondUse(Edge *edge,
 {
   float **values = triple->values();
   float *value_min = values[triple_min_index_];
-  float *value_max = value_max = values[triple_max_index_];
+  float *value_max = values[triple_max_index_];
   MinMax *min, *max;
   if (cond_use_ == MinMaxAll::min()) {
     min = MinMax::min();
