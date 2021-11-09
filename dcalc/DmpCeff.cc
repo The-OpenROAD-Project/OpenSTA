@@ -47,6 +47,7 @@ using std::max;
 using std::sqrt;
 using std::log;
 using std::exp;
+using std::isnan;
 
 // Tolerance (as a scale of value) for driver parameters (Ceff, delta t, t0).
 static const double driver_param_tol = .01;
@@ -1571,6 +1572,8 @@ DmpCeffDelayCalc::gateDelay(const LibertyCell *drvr_cell,
     float in_slew1 = delayAsFloat(in_slew);
     float c2, rpi, c1;
     parasitics_->piModel(drvr_parasitic, c2, rpi, c1);
+    if (isnan(c2) || isnan(c1) || isnan(rpi))
+      report_->error(618, "parasitic Pi model has NaNs.");
     setCeffAlgorithm(drvr_library_, drvr_cell, pvt, table_model,
 		     drvr_rf_, in_slew1, related_out_cap,
 		     c2, rpi, c1);
