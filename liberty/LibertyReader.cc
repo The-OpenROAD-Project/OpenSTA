@@ -971,8 +971,11 @@ LibertyReader::visitDefaultMaxTransition(LibertyAttr *attr)
     float value;
     bool exists;
     getAttrFloat(attr, value, exists);
-    if (exists)
+    if (exists) {
+      if (value == 0.0)
+	libWarn(160, attr, "default_max_transition is 0.0.");
       library_->setDefaultMaxSlew(value * time_scale_);
+    }
   }
 }
 
@@ -3074,6 +3077,8 @@ LibertyReader::visitMinMaxTransition(LibertyAttr *attr, MinMax *min_max)
     bool exists;
     getAttrFloat(attr, value, exists);
     if (exists) {
+      if (min_max == MinMax::max() && value == 0.0)
+	libWarn(161, attr, "max_transition is 0.0.");
       value *= time_scale_;
       visitPorts([&] (LibertyPort *port) {
 		   port->setSlewLimit(value, min_max);
