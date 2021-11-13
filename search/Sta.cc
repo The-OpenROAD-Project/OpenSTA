@@ -652,7 +652,7 @@ Sta::readLiberty(const char *filename,
 {
   Stats stats(debug_, report_);
   LibertyLibrary *library = readLibertyFile(filename, corner, min_max,
-					    infer_latches, network_);
+                                            infer_latches);
   if (library
       // The default library is the first library read.
       // This corresponds to a link_path of '*'.
@@ -669,11 +669,10 @@ LibertyLibrary *
 Sta::readLibertyFile(const char *filename,
 		     Corner *corner,
 		     const MinMaxAll *min_max,
-		     bool infer_latches,
-		     Network *network)
+		     bool infer_latches)
 {
   LibertyLibrary *liberty = sta::readLibertyFile(filename, infer_latches,
-						 network);
+						 network_);
   if (liberty) {
     // Don't map liberty cells if they are redefined by reading another
     // library with the same cell names.
@@ -690,10 +689,9 @@ Sta::readLibertyFile(const char *filename,
 
 LibertyLibrary *
 Sta::readLibertyFile(const char *filename,
-		     bool infer_latches,
-		     Network *network)
+		     bool infer_latches)
 {
-  return sta::readLibertyFile(filename, infer_latches, network);
+  return sta::readLibertyFile(filename, infer_latches, network_);
 }
 
 void
@@ -713,8 +711,7 @@ Sta::setMinLibrary(const char *min_filename,
   LibertyLibrary *max_lib = network_->findLibertyFilename(max_filename);
   if (max_lib) {
     LibertyLibrary *min_lib = readLibertyFile(min_filename, cmd_corner_,
-					      MinMaxAll::min(), false,
-					      network_);
+					      MinMaxAll::min(), false);
     return min_lib != nullptr;
   }
   else
