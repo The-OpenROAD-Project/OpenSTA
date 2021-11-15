@@ -63,6 +63,9 @@ proc source_ { filename echo verbose } {
   if [catch {open $filename r} stream] {
     sta_error 511 "cannot open '$filename'."
   } else {
+    if { [file extension $filename] == ".gz" } {
+      zlib push gunzip $stream
+    }
     # Save file and line in recursive call to source.
     if { [info exists sdc_file] } {
       set sdc_file_save $sdc_file
