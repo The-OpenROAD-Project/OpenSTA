@@ -4918,11 +4918,12 @@ void
 write_sdc_cmd(const char *filename,
 	      bool leaf,
 	      bool compatible,
-	      bool no_timestamp,
-	      int digits)
+	      int digits,
+              bool gzip,
+	      bool no_timestamp)
 {
   cmdLinkedNetwork();
-  Sta::sta()->writeSdc(filename, leaf, compatible, no_timestamp, digits);
+  Sta::sta()->writeSdc(filename, leaf, compatible, digits, gzip, no_timestamp);
 }
 
 void

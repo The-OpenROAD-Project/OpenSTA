@@ -31,14 +31,14 @@ public:
 	   bool map_hpins,
 	   bool native,
 	   int digits,
+           bool gzip,
 	   bool no_timestamp,
 	   Sdc *sdc);
   virtual ~WriteSdc();
   void write();
 
-  void openFile(const char *filename);
+  void openFile();
   void closeFile();
-  void flush();
   virtual void writeHeader() const;
   void writeTiming() const;
   void writeDisables() const;
@@ -245,7 +245,7 @@ public:
   void writeVariables() const;
   void writeCmdComment(SdcCmdComment *cmd) const;
 
-  FILE *stream() const { return stream_; }
+  gzFile stream() const { return stream_; }
 
 protected:
   Instance *instance_;
@@ -254,11 +254,12 @@ protected:
   bool map_hpins_;
   bool native_;
   int digits_;
+  bool gzip_;
   bool no_timestamp_;
   bool top_instance_;
   size_t instance_name_length_;
   Cell *cell_;
-  FILE *stream_;
+  gzFile stream_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(WriteSdc);

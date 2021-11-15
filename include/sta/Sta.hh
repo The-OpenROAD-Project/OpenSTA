@@ -926,9 +926,9 @@ public:
 		bool leaf,
 		// Replace non-sdc get functions with OpenSTA equivalents.
 		bool native,
-		bool no_timestamp,
-		int digits);
-
+		int digits,
+                bool gzip,
+		bool no_timestamp);
   // The sum of all negative endpoints slacks.
   // Incrementally updated.
   Slack totalNegativeSlack(const MinMax *min_max);

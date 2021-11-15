@@ -2118,11 +2118,12 @@ void
 Sta::writeSdc(const char *filename,
 	      bool leaf,
 	      bool native,
-	      bool no_timestamp,
-	      int digits)
+	      int digits,
+              bool gzip,
+	      bool no_timestamp)
 {
   sta::writeSdc(network_->topInstance(), filename, "write_sdc",
-		leaf, native, no_timestamp, digits, sdc_);
+		leaf, native, digits, gzip, no_timestamp, sdc_);
 }
 
 ////////////////////////////////////////////////////////////////

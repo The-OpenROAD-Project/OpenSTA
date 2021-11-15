@@ -141,27 +141,25 @@ proc source_ { filename echo verbose } {
 ################################################################
 
 define_cmd_args "write_sdc" \
-  {[-map_hpins] [-no_timestamp] [-digits digits] filename}
+  {[-map_hpins] [-digits digits] [-gzip] [-no_timestamp] filename}
 
 proc write_sdc { args } {
   parse_key_args "write_sdc" args keys {-digits -significant_digits} \
-    flags {-map_hpins -compatible -no_timestamp}
+    flags {-map_hpins -compatible -gzip -no_timestamp}
   check_argc_eq1 "write_sdc" $args
 
   set digits 4
   if { [info exists keys(-digits)] } {
     set digits $keys(-digits)
   }
-  if { [info exists keys(-significant_digits)] } {
-    set digits $keys(-significant_digits)
-  }
   check_positive_integer "-digits" $digits
 
   set filename [file nativename [lindex $args 0]]
+  set gzip [info exists flags(-gzip)]
   set no_timestamp [info exists flags(-no_timestamp)]
   set map_hpins [info exists flags(-map_hpins)]
   set native [expr ![info exists flags(-compatible)]]
-  write_sdc_cmd $filename $map_hpins $native $no_timestamp $digits
+  write_sdc_cmd $filename $map_hpins $native $digits $gzip $no_timestamp
 }
 
 ################################################################

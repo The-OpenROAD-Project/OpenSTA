@@ -31,8 +31,9 @@ writeSdc(Instance *instance,
 	 bool map_hpins,
 	 // Replace non-sdc get functions with OpenSTA equivalents.
 	 bool native,
-	 bool no_timestamp,
 	 int digits,
+         bool gzip,
+	 bool no_timestamp,
 	 Sdc *sdc);
 
 } // namespace
