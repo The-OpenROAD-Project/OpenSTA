@@ -542,15 +542,17 @@ Power::seedRegOutputActivities(const Instance *inst,
     while (pin_iter->hasNext()) {
       Pin *pin = pin_iter->next();
       LibertyPort *port = network_->libertyPort(pin);
-      FuncExpr *func = port->function();
-      if (func) {
-	Vertex *vertex = graph_->pinDrvrVertex(pin);
-	if (func->port() == seq->output()
-	    || func->port() == seq->outputInv()) {
-	  debugPrint(debug_, "power_activity", 3, "enqueue reg output %s",
-                     vertex->name(network_));
-	  bfs.enqueue(vertex);
-	}
+      if (port) {
+        FuncExpr *func = port->function();
+        if (func) {
+          Vertex *vertex = graph_->pinDrvrVertex(pin);
+          if (func->port() == seq->output()
+              || func->port() == seq->outputInv()) {
+            debugPrint(debug_, "power_activity", 3, "enqueue reg output %s",
+                       vertex->name(network_));
+            bfs.enqueue(vertex);
+          }
+        }
       }
     }
     delete pin_iter;
@@ -587,18 +589,20 @@ Power::power(const Instance *inst,
   while (pin_iter->hasNext()) {
     const Pin *to_pin = pin_iter->next();
     const LibertyPort *to_port = network_->libertyPort(to_pin);
-    float load_cap = to_port->direction()->isAnyOutput()
-      ? graph_delay_calc_->loadCap(to_pin, dcalc_ap)
-      : 0.0;
-    PwrActivity activity = findClkedActivity(to_pin, inst_clk);
-    if (to_port->direction()->isAnyOutput()) {
-      findSwitchingPower(cell, to_port, activity, load_cap, corner, result);
-      findOutputInternalPower(to_pin, to_port, inst, cell, activity,
-			      load_cap, corner, result);
+    if (to_port) {
+      float load_cap = to_port->direction()->isAnyOutput()
+        ? graph_delay_calc_->loadCap(to_pin, dcalc_ap)
+        : 0.0;
+      PwrActivity activity = findClkedActivity(to_pin, inst_clk);
+      if (to_port->direction()->isAnyOutput()) {
+        findSwitchingPower(cell, to_port, activity, load_cap, corner, result);
+        findOutputInternalPower(to_pin, to_port, inst, cell, activity,
+                                load_cap, corner, result);
+      }
+      if (to_port->direction()->isAnyInput())
+        findInputInternalPower(to_pin, to_port, inst, cell, activity,
+                               load_cap, corner, result);
     }
-    if (to_port->direction()->isAnyInput())
-      findInputInternalPower(to_pin, to_port, inst, cell, activity,
-			     load_cap, corner, result);
   }
   delete pin_iter;
   findLeakagePower(inst, cell, corner, result);
