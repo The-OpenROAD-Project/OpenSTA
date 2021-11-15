@@ -26,18 +26,18 @@ class WriteSdc : public StaState
 {
 public:
   WriteSdc(Instance *instance,
-	   const char *filename,
 	   const char *creator,
 	   bool map_hpins,
 	   bool native,
 	   int digits,
-           bool gzip,
 	   bool no_timestamp,
 	   Sdc *sdc);
   virtual ~WriteSdc();
-  void write();
+  void write(const char *filename,
+             bool gzip);
 
-  void openFile();
+  void openFile(const char *filename,
+                bool gzip);
   void closeFile();
   virtual void writeHeader() const;
   void writeTiming() const;
@@ -249,12 +249,10 @@ public:
 
 protected:
   Instance *instance_;
-  const char *filename_;
   const char *creator_;
   bool map_hpins_;
   bool native_;
   int digits_;
-  bool gzip_;
   bool no_timestamp_;
   bool top_instance_;
   size_t instance_name_length_;

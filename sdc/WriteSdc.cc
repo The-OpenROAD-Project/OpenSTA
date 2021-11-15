@@ -298,28 +298,24 @@ writeSdc(Instance *instance,
 	 bool no_timestamp,
 	 Sdc *sdc)
 {
-  WriteSdc writer(instance, filename, creator, map_hpins, native,
-		  digits, gzip, no_timestamp, sdc);
-  writer.write();
+  WriteSdc writer(instance, creator, map_hpins, native,
+		  digits, no_timestamp, sdc);
+  writer.write(filename, gzip);
 }
 
 WriteSdc::WriteSdc(Instance *instance,
-		   const char *filename,
 		   const char *creator,
 		   bool map_hpins,
 		   bool native,
 		   int digits,
-                   bool gzip,
 		   bool no_timestamp,
 		   Sdc *sdc) :
   StaState(sdc),
   instance_(instance),
-  filename_(filename),
   creator_(creator),
   map_hpins_(map_hpins),
   native_(native),
   digits_(digits),
-  gzip_(gzip),
   no_timestamp_(no_timestamp),
   top_instance_(instance == sdc_network_->topInstance()),
   instance_name_length_(strlen(sdc_network_->pathName(instance))),
@@ -332,9 +328,10 @@ WriteSdc::~WriteSdc()
 }
 
 void
-WriteSdc::write()
+WriteSdc::write(const char *filename,
+                bool gzip)
 {
-  openFile();
+  openFile(filename, gzip);
   writeHeader();
   writeTiming();
   writeEnvironment();
@@ -344,12 +341,12 @@ WriteSdc::write()
 }
 
 void
-WriteSdc::openFile()
-
+WriteSdc::openFile(const char *filename,
+                   bool gzip)
 {
-  stream_ = gzopen(filename_, gzip_ ? "wb" : "wT");
+  stream_ = gzopen(filename, gzip ? "wb" : "wT");
   if (stream_ == nullptr)
-    throw FileNotWritable(filename_);
+    throw FileNotWritable(filename);
 }
 
 void
