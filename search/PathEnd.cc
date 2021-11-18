@@ -433,13 +433,14 @@ PathEnd::checkInterClkUncertainty(const ClockEdge *src_clk_edge,
 {
   Sdc *sdc = sta->sdc();
   if (src_clk_edge
-      && src_clk_edge != sdc->defaultArrivalClockEdge()) {
+      && src_clk_edge != sdc->defaultArrivalClockEdge()
+      && tgt_clk_edge) {
     sdc->clockUncertainty(src_clk_edge->clock(),
-				  src_clk_edge->transition(),
-				  tgt_clk_edge->clock(),
-				  tgt_clk_edge->transition(),
-				  check_role->pathMinMax(),
-				  uncertainty, exists);
+                          src_clk_edge->transition(),
+                          tgt_clk_edge->clock(),
+                          tgt_clk_edge->transition(),
+                          check_role->pathMinMax(),
+                          uncertainty, exists);
     if (exists
 	&& check_role->genericRole() == TimingRole::setup())
       uncertainty = -uncertainty;
@@ -1889,10 +1890,8 @@ PathEndPathDelay::requiredTime(const StaState *sta) const
     float src_clk_offset = sourceClkOffset(sta);
     // Path delay includes target clk latency and timing check setup/hold 
     // margin or external departure at target.
-    if (minMax(sta) == MinMax::max())
-      return delay - src_clk_offset + tgt_clk_arrival - margin(sta);
-    else
-      return delay - src_clk_offset + tgt_clk_arrival + margin(sta);
+    return delay - src_clk_offset + tgt_clk_arrival
+      + ((minMax(sta) == MinMax::max()) ? -margin(sta) : margin(sta));
   }
 }
 
