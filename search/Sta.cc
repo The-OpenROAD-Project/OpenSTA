@@ -4080,30 +4080,32 @@ Sta::replaceEquivCellBefore(Instance *inst,
     while (pin_iter->hasNext()) {
       Pin *pin = pin_iter->next();
       LibertyPort *port = network_->libertyPort(pin);
-      if (port->direction()->isAnyInput()) {
-	Vertex *vertex = graph_->pinLoadVertex(pin);
-	replaceCellPinInvalidate(port, vertex, to_cell);
+      if (port) {
+        if (port->direction()->isAnyInput()) {
+          Vertex *vertex = graph_->pinLoadVertex(pin);
+          replaceCellPinInvalidate(port, vertex, to_cell);
 
-	// Replace the timing arc sets in the graph edges.
-	VertexOutEdgeIterator edge_iter(vertex, graph_);
-	while (edge_iter.hasNext()) {
-	  Edge *edge = edge_iter.next();
-	  Vertex *to_vertex = edge->to(graph_);
-	  if (network_->instance(to_vertex->pin()) == inst) {
-	    TimingArcSet *from_set = edge->timingArcSet();
-	    // Find corresponding timing arc set.
-	    TimingArcSet *to_set = to_cell->findTimingArcSet(from_set);
-	    if (to_set)
-	      edge->setTimingArcSet(to_set);
-	    else
-	      report_->critical(264, "corresponding timing arc set not found in equiv cells");
-	  }
-	}
-      }
-      else {
-	// Force delay calculation on output pins.
-	Vertex *vertex = graph_->pinDrvrVertex(pin);
-	graph_delay_calc_->delayInvalid(vertex);
+          // Replace the timing arc sets in the graph edges.
+          VertexOutEdgeIterator edge_iter(vertex, graph_);
+          while (edge_iter.hasNext()) {
+            Edge *edge = edge_iter.next();
+            Vertex *to_vertex = edge->to(graph_);
+            if (network_->instance(to_vertex->pin()) == inst) {
+              TimingArcSet *from_set = edge->timingArcSet();
+              // Find corresponding timing arc set.
+              TimingArcSet *to_set = to_cell->findTimingArcSet(from_set);
+              if (to_set)
+                edge->setTimingArcSet(to_set);
+              else
+                report_->critical(264, "corresponding timing arc set not found in equiv cells");
+            }
+          }
+        }
+        else {
+          // Force delay calculation on output pins.
+          Vertex *vertex = graph_->pinDrvrVertex(pin);
+          graph_delay_calc_->delayInvalid(vertex);
+        }
       }
     }
     delete pin_iter;
