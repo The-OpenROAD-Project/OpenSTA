@@ -470,8 +470,8 @@ Sdc::isConstrained(const Instance *inst) const
 	&& first_from_inst_exceptions_->hasKey(inst))
     || (first_thru_inst_exceptions_
 	&& first_thru_inst_exceptions_->hasKey(inst))
-    || (first_to_inst_exceptions_->hasKey(inst)
-	&& first_to_inst_exceptions_)
+    || (first_to_inst_exceptions_
+	&& first_to_inst_exceptions_->hasKey(inst))
     || inst_latch_borrow_limit_map_.hasKey(inst)
     || inst_min_pulse_width_map_.hasKey(inst);
 }
