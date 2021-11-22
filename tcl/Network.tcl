@@ -295,15 +295,11 @@ proc report_net1 { net connections verbose hier_pins corner digits } {
     if {$verbose} {
       report_net_caps $net $pins $corner $digits
     }
-    report_line "Driver pins"
-    report_net_pins $pins "is_driver" $verbose $corner $digits
-    report_line ""
-    report_line "Load pins"
-    report_net_pins $pins "is_load" $verbose $corner $digits
+    report_net_pins $pins "Driver pins" "is_driver" $verbose $corner $digits
+    report_net_pins $pins "Load pins" "is_load" $verbose $corner $digits
     if {$hier_pins} {
-      report_line ""
-      report_line "Hierarchical pins"
-      report_net_pins $pins "is_hierarchical" $verbose $corner $digits
+      report_net_pins $pins "Hierarchical pins" "is_hierarchical" \
+        $verbose $corner $digits
     }
     report_net_other_pins $pins $verbose $corner $digits
   }
@@ -352,11 +348,19 @@ proc report_net_cap { net caption cap_msg corner digits } {
   report_line " $caption capacitance: [capacitance_range_str $cap_min $cap_max $digits]"
 }
 
-proc report_net_pins { pins pin_pred verbose corner digits } {
+proc report_net_pins { pins header pin_pred verbose corner digits } {
+  set found 0
   foreach pin $pins {
     if {[$pin $pin_pred]} {
+      if { !$found } {
+        report_line $header
+        set found 1
+      }
       report_net_pin $pin $verbose $corner $digits
     }
+  }
+  if { $found } {
+    report_line ""
   }
 }
 
