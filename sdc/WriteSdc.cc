@@ -1369,12 +1369,12 @@ WriteSdc::writeExceptionFromTo(ExceptionFromTo *from_to,
 			       bool map_hpin_to_drvr) const
 {
   const RiseFallBoth *rf = from_to->transition();
-  const char *tr_prefix = "-";
+  const char *rf_prefix = "-";
   if (rf == RiseFallBoth::rise())
-    tr_prefix = "-rise_";
+    rf_prefix = "-rise_";
   else if (rf == RiseFallBoth::fall())
-    tr_prefix = "-fall_";
-  gzprintf(stream_, "\\\n    %s%s ", tr_prefix, from_to_key);
+    rf_prefix = "-fall_";
+  gzprintf(stream_, "\\\n    %s%s ", rf_prefix, from_to_key);
   bool multi_objs =
     ((from_to->pins() ? from_to->pins()->size() : 0)
      + (from_to->clks() ? from_to->clks()->size() : 0)
@@ -1416,12 +1416,12 @@ void
 WriteSdc::writeExceptionThru(ExceptionThru *thru) const
 {
   const RiseFallBoth *rf = thru->transition();
-  const char *tr_prefix = "-";
+  const char *rf_prefix = "-";
   if (rf == RiseFallBoth::rise())
-    tr_prefix = "-rise_";
+    rf_prefix = "-rise_";
   else if (rf == RiseFallBoth::fall())
-    tr_prefix = "-fall_";
-  gzprintf(stream_, "\\\n    %sthrough ", tr_prefix);
+    rf_prefix = "-fall_";
+  gzprintf(stream_, "\\\n    %sthrough ", rf_prefix);
   PinSeq pins;
   mapThruHpins(thru, pins);
   bool multi_objs =
@@ -1682,13 +1682,13 @@ WriteSdc::writeDriveResistances() const
     Port *port = port_iter->next();
     InputDrive *drive = sdc_->findInputDrive(port);
     if (drive) {
-      for (auto tr : RiseFall::range()) {
-	if (drive->driveResistanceMinMaxEqual(tr)) {
+      for (auto rf : RiseFall::range()) {
+	if (drive->driveResistanceMinMaxEqual(rf)) {
 	  float res;
 	  bool exists;
-	  drive->driveResistance(tr, MinMax::max(), res, exists);
+	  drive->driveResistance(rf, MinMax::max(), res, exists);
 	  gzprintf(stream_, "set_drive %s ",
-		  transRiseFallFlag(tr));
+		  transRiseFallFlag(rf));
 	  writeResistance(res);
 	  gzprintf(stream_, " ");
 	  writeGetPort(port);
@@ -1698,10 +1698,10 @@ WriteSdc::writeDriveResistances() const
 	  for (auto min_max : MinMax::range()) {
 	    float res;
 	    bool exists;
-	    drive->driveResistance(tr, min_max, res, exists);
+	    drive->driveResistance(rf, min_max, res, exists);
 	    if (exists) {
 	      gzprintf(stream_, "set_drive %s %s ",
-		      transRiseFallFlag(tr),
+		      transRiseFallFlag(rf),
 		      minMaxFlag(min_max));
 	      writeResistance(res);
 	      gzprintf(stream_, " ");
@@ -2103,15 +2103,15 @@ WriteSdc::writeDerating(DeratingFactors *factors,
 	}
       }
       else {
-	for (auto tr : RiseFall::range()) {
+	for (auto rf : RiseFall::range()) {
 	  float factor;
 	  bool exists;
-	  factors->factor(clk_data, tr, early_late, factor, exists);
+	  factors->factor(clk_data, rf, early_late, factor, exists);
 	  if (exists) {
 	    gzprintf(stream_, "set_timing_derate %s %s %s %s ",
 		    type_key,
 		    clk_data_key,
-		    transRiseFallFlag(tr),
+		    transRiseFallFlag(rf),
 		    earlyLateFlag(early_late));
 	    writeFloat(factor);
 	    if (write_obj) {
