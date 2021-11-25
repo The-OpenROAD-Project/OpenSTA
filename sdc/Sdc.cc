@@ -3939,7 +3939,8 @@ Sdc::exceptionToInvalid(const Pin *pin)
   Net *net = network_->net(pin);
   // Floating pins are invalid.
   if ((net == nullptr
-       && !network_->isTopLevelPort(pin))
+       && !(network_->isTopLevelPort(pin)
+            || network_->direction(pin)->isInternal()))
       || (net
 	  // Pins connected to power/ground are invalid.
 	  && (network_->isPower(net)

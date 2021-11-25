@@ -1421,7 +1421,7 @@ ExceptionTo::matchesFilter(const Pin *pin,
 			   const RiseFall *end_rf,
 			   const Network *network) const
 {
-  // "report -to reg" does match clock pins.
+  // "report -to reg" matches clock pins.
   return matches(pin, clk_edge, end_rf, true, network);
 }
 
@@ -1456,7 +1456,8 @@ ExceptionTo::matches(const Pin *pin,
 	&& (inst_matches_reg_clk_pin
 	    || !network->isRegClkPin(pin))
 	&& insts_->hasKey(network->instance(pin))
-	&& network->direction(pin)->isAnyInput()
+	&& (network->direction(pin)->isAnyInput()
+            || network->direction(pin)->isInternal())
 	&& rf_->matches(end_rf)
 	&& end_rf_->matches(end_rf))
     || (pins_ == nullptr

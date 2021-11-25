@@ -2027,11 +2027,12 @@ Sta::exceptionFromInvalid(const Pin *pin) const
     || (net
 	// Pins connected to power/ground are invalid.
 	&& (network_->isPower(net)
-	    || network_->isGround(net)))
+            || network_->isGround(net)))
     || !((network_->isTopLevelPort(pin)
 	  && network_->direction(pin)->isAnyInput())
 	 || network_->isRegClkPin(pin)
-	 || network_->isLatchData(pin));
+	 || network_->isLatchData(pin)
+         || network_->direction(pin)->isInternal());
 }
 
 void
