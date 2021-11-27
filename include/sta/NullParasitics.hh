@@ -35,6 +35,8 @@ public:
   virtual void deleteParasitics(const Pin *pin,
 				const ParasiticAnalysisPt *ap);
   virtual void deleteUnsavedParasitic(Parasitic *parasitic);
+  virtual void deleteReducedParasitics(const Net *net,
+                                       const ParasiticAnalysisPt *ap);
   virtual void deleteDrvrReducedParasitics(const Pin *drvr_pin);
 
   virtual float capacitance(Parasitic *parasitic) const;

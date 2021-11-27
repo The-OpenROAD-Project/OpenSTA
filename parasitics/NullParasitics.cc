@@ -61,6 +61,12 @@ NullParasitics::deleteUnsavedParasitic(Parasitic *)
 }
 
 void
+NullParasitics::deleteReducedParasitics(const Net *,
+                                        const ParasiticAnalysisPt *)
+{
+}
+
+void
 NullParasitics::deleteDrvrReducedParasitics(const Pin *)
 {
 }
