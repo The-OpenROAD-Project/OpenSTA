@@ -56,6 +56,7 @@ class ClockLatency;
 class ClockInsertion;
 class ClockGroup;
 class ClockGroups;
+class PortDelay;
 
 enum class AnalysisType { single, bc_wc, ocv };
 

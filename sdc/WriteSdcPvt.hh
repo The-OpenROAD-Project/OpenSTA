@@ -17,6 +17,10 @@
 #pragma once
 
 #include "DisallowCopyAssign.hh"
+#include "Zlib.hh"
+#include "NetworkClass.hh"
+#include "GraphClass.hh"
+#include "Sdc.hh"
 
 namespace sta {
 

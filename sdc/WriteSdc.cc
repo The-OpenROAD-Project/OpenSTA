@@ -20,7 +20,6 @@
 #include <algorithm>
 #include <time.h>
 
-#include "DisallowCopyAssign.hh"
 #include "Zlib.hh"
 #include "Report.hh"
 #include "Error.hh"
@@ -46,8 +45,8 @@
 #include "DeratingFactors.hh"
 #include "Sdc.hh"
 #include "Fuzzy.hh"
-#include "WriteSdcPvt.hh"
 #include "StaState.hh"
+#include "WriteSdcPvt.hh"
 
 namespace sta {
 
