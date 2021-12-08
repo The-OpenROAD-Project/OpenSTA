@@ -181,6 +181,8 @@ SdfWriter::write(const char *filename,
   arc_delay_max_index_ = dcalc_ap->index();
 
   stream_ = gzopen(filename, gzip ? "wb" : "wT");
+  if (stream_ == nullptr)
+    throw FileNotWritable(filename);
 
   writeHeader(default_lib, no_timestamp, no_version);
   writeInterconnects();
