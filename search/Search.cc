@@ -2630,41 +2630,37 @@ TagGroup *
 Search::findTagGroup(TagGroupBldr *tag_bldr)
 {
   TagGroup probe(tag_bldr);
+  UniqueLock lock(tag_group_lock_);
   TagGroup *tag_group = tag_group_set_->findKey(&probe);
   if (tag_group == nullptr) {
-    // Recheck with lock.
-    UniqueLock lock(tag_group_lock_);
-    tag_group = tag_group_set_->findKey(&probe);
-    if (tag_group == nullptr) {
-      TagGroupIndex tag_group_index;
-      if (tag_group_free_indices_.empty())
-	tag_group_index = tag_group_next_++;
-      else {
-	tag_group_index = tag_group_free_indices_.back();
-	tag_group_free_indices_.pop_back();
-      }
-      tag_group = tag_bldr->makeTagGroup(tag_group_index, this);
-      tag_groups_[tag_group_index] = tag_group;
-      tag_group_set_->insert(tag_group);
-      // If tag_groups_ needs to grow make the new array and copy the
-      // contents into it before updating tags_groups_ so that other threads
-      // can use Search::tagGroup(TagGroupIndex) without returning gubbish.
-      // std::vector doesn't seem to follow this protocol so multi-thread
-      // search fails occasionally if a vector is used for tag_groups_.
-      if (tag_group_next_ == tag_group_capacity_) {
-	TagGroupIndex new_capacity = nextMersenne(tag_group_capacity_);
-	TagGroup **new_tag_groups = new TagGroup*[new_capacity];
-	memcpy(new_tag_groups, tag_groups_,
-	       tag_group_capacity_ * sizeof(TagGroup*));
-	TagGroup **old_tag_groups = tag_groups_;
-	tag_groups_ = new_tag_groups;
-	tag_group_capacity_ = new_capacity;
-	delete [] old_tag_groups;
-	tag_group_set_->reserve(new_capacity);
-      }
-      if (tag_group_next_ > tag_group_index_max)
-	report_->critical(260, "max tag group index exceeded");
+    TagGroupIndex tag_group_index;
+    if (tag_group_free_indices_.empty())
+      tag_group_index = tag_group_next_++;
+    else {
+      tag_group_index = tag_group_free_indices_.back();
+      tag_group_free_indices_.pop_back();
     }
+    tag_group = tag_bldr->makeTagGroup(tag_group_index, this);
+    tag_groups_[tag_group_index] = tag_group;
+    tag_group_set_->insert(tag_group);
+    // If tag_groups_ needs to grow make the new array and copy the
+    // contents into it before updating tags_groups_ so that other threads
+    // can use Search::tagGroup(TagGroupIndex) without returning gubbish.
+    // std::vector doesn't seem to follow this protocol so multi-thread
+    // search fails occasionally if a vector is used for tag_groups_.
+    if (tag_group_next_ == tag_group_capacity_) {
+      TagGroupIndex new_capacity = nextMersenne(tag_group_capacity_);
+      TagGroup **new_tag_groups = new TagGroup*[new_capacity];
+      memcpy(new_tag_groups, tag_groups_,
+             tag_group_capacity_ * sizeof(TagGroup*));
+      TagGroup **old_tag_groups = tag_groups_;
+      tag_groups_ = new_tag_groups;
+      tag_group_capacity_ = new_capacity;
+      delete [] old_tag_groups;
+      tag_group_set_->reserve(new_capacity);
+    }
+    if (tag_group_next_ > tag_group_index_max)
+      report_->critical(260, "max tag group index exceeded");
   }
   return tag_group;
 }
@@ -2856,47 +2852,43 @@ Search::findTag(const RiseFall *rf,
 {
   Tag probe(0, rf->index(), path_ap->index(), clk_info, is_clk, input_delay,
 	    is_segment_start, states, false, this);
+  UniqueLock lock(tag_lock_);
   Tag *tag = tag_set_->findKey(&probe);
   if (tag == nullptr) {
-    // Recheck with lock.
-    UniqueLock lock(tag_lock_);
-    tag = tag_set_->findKey(&probe);
-    if (tag == nullptr) {
-      ExceptionStateSet *new_states = !own_states && states
-	? new ExceptionStateSet(*states) : states;
-      TagIndex tag_index;
-      if (tag_free_indices_.empty())
-	tag_index = tag_next_++;
-      else {
-	tag_index = tag_free_indices_.back();
-	tag_free_indices_.pop_back();
-      }
-      tag = new Tag(tag_index, rf->index(), path_ap->index(),
-		    clk_info, is_clk, input_delay, is_segment_start,
-		    new_states, true, this);
-      own_states = false;
-      // Make sure tag can be indexed in tags_ before it is visible to
-      // other threads via tag_set_.
-      tags_[tag_index] = tag;
-      tag_set_->insert(tag);
-      // If tags_ needs to grow make the new array and copy the
-      // contents into it before updating tags_ so that other threads
-      // can use Search::tag(TagIndex) without returning gubbish.
-      // std::vector doesn't seem to follow this protocol so multi-thread
-      // search fails occasionally if a vector is used for tags_.
-      if (tag_next_ == tag_capacity_) {
-	TagIndex new_capacity = nextMersenne(tag_capacity_);
-	Tag **new_tags = new Tag*[new_capacity];
-	memcpy(new_tags, tags_, tag_capacity_ * sizeof(Tag*));
-	Tag **old_tags = tags_;
-	tags_ = new_tags;
-	delete [] old_tags;
-	tag_capacity_ = new_capacity;
-	tag_set_->reserve(new_capacity);
-      }
-      if (tag_next_ > tag_index_max)
-	report_->critical(261, "max tag index exceeded");
+    ExceptionStateSet *new_states = !own_states && states
+      ? new ExceptionStateSet(*states) : states;
+    TagIndex tag_index;
+    if (tag_free_indices_.empty())
+      tag_index = tag_next_++;
+    else {
+      tag_index = tag_free_indices_.back();
+      tag_free_indices_.pop_back();
     }
+    tag = new Tag(tag_index, rf->index(), path_ap->index(),
+                  clk_info, is_clk, input_delay, is_segment_start,
+                  new_states, true, this);
+    own_states = false;
+    // Make sure tag can be indexed in tags_ before it is visible to
+    // other threads via tag_set_.
+    tags_[tag_index] = tag;
+    tag_set_->insert(tag);
+    // If tags_ needs to grow make the new array and copy the
+    // contents into it before updating tags_ so that other threads
+    // can use Search::tag(TagIndex) without returning gubbish.
+    // std::vector doesn't seem to follow this protocol so multi-thread
+    // search fails occasionally if a vector is used for tags_.
+    if (tag_next_ == tag_capacity_) {
+      TagIndex new_capacity = nextMersenne(tag_capacity_);
+      Tag **new_tags = new Tag*[new_capacity];
+      memcpy(new_tags, tags_, tag_capacity_ * sizeof(Tag*));
+      Tag **old_tags = tags_;
+      tags_ = new_tags;
+      delete [] old_tags;
+      tag_capacity_ = new_capacity;
+      tag_set_->reserve(new_capacity);
+    }
+    if (tag_next_ > tag_index_max)
+      report_->critical(261, "max tag index exceeded");
   }
   if (own_states)
     delete states;
