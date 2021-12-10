@@ -1621,7 +1621,7 @@ streamPrint(ofstream &stream,
 {
   va_list args;
   va_start(args, fmt);
-  char *result;
+  char *result = nullptr;
   if (vasprintf(&result, fmt, args) == -1)
     criticalError(267, "out of memory");
   stream << result;

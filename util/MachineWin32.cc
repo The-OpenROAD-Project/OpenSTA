@@ -18,7 +18,10 @@ namespace sta {
 // Windows returns -1 if the string does not fit rather than the
 // required string length as the standard specifies.
 int
-vsnprint(char *str, size_t size, const char *fmt, va_list args)
+vsnprint(char *str,
+         size_t size,
+         const char *fmt,
+         va_list args)
 {
   // Copy args before using them because consumption is destructive.
   va_list args_copy1;
@@ -37,7 +40,9 @@ vsnprint(char *str, size_t size, const char *fmt, va_list args)
 }
 
 int
-vasprintf(char **str, const char *fmt, va_list args)
+vasprintf(char **str,
+          const char *fmt,
+          va_list args)
 {
   size_t size = 1024;
   for (;;) {
