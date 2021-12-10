@@ -31,6 +31,11 @@ public:
   {
   }
 
+  explicit UnorderedSet(size_t size) :
+    std::unordered_set<KEY, HASH, EQUAL>(size)
+  {
+  }
+
   explicit UnorderedSet(size_t size,
 			const HASH &hash,
 			const EQUAL &equal) :

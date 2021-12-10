@@ -235,14 +235,14 @@ Search::init(StaState *sta)
   arrival_iter_ = new BfsFwdIterator(BfsIndex::arrival, nullptr, sta);
   required_iter_ = new BfsBkwdIterator(BfsIndex::required, search_adj_, sta);
   tag_capacity_ = 127;
-  tag_set_ = new TagHashSet(tag_capacity_, false);
+  tag_set_ = new TagSet(tag_capacity_);
   clk_info_set_ = new ClkInfoSet(ClkInfoLess(sta));
   tag_next_ = 0;
   tags_ = new Tag*[tag_capacity_];
   tag_group_capacity_ = 127;
   tag_groups_ = new TagGroup*[tag_group_capacity_];
   tag_group_next_ = 0;
-  tag_group_set_ = new TagGroupSet(tag_group_capacity_, false);
+  tag_group_set_ = new TagGroupSet(tag_group_capacity_);
   visit_path_ends_ = new VisitPathEnds(this);
   gated_clk_ = new GatedClk(this);
   path_groups_ = nullptr;
@@ -2793,13 +2793,17 @@ Search::reportTagGroups() const
       report_->reportLine("Group %4u hash = %4lu (%4lu)",
                           i,
                           tag_group->hash(),
-                          tag_group->hash() % tag_group_set_->capacity());
+                          tag_group->hash() % tag_group_set_->bucket_count());
       tag_group->reportArrivalMap(this);
     }
   }
-  size_t long_hash = tag_group_set_->longestBucketHash();
-  report_->reportLine("Longest hash bucket length %d hash=%lu",
-                      tag_group_set_->bucketLength(long_hash),
+  size_t long_hash = 0;
+  for (size_t i = 0; i < tag_group_set_->bucket_count(); i++) {
+    if (tag_group_set_->bucket_size(i) > long_hash)
+      long_hash = i;
+  }
+  report_->reportLine("Longest hash bucket length %zu hash=%zu",
+                      tag_group_set_->bucket_size(long_hash),
                       long_hash);
 }
 
@@ -2903,9 +2907,13 @@ Search::reportTags() const
     if (tag)
       report_->reportLine("%s", tag->asString(this)) ;
   }
-  size_t long_hash = tag_set_->longestBucketHash();
-  report_->reportLine("Longest hash bucket length %d hash=%zu",
-                      tag_set_->bucketLength(long_hash),
+  size_t long_hash = 0;
+  for (size_t i = 0; i < tag_set_->bucket_count(); i++) {
+    if (tag_set_->bucket_size(i) > long_hash)
+      long_hash = i;
+  }
+  report_->reportLine("Longest hash bucket length %zu hash=%zu",
+                      tag_set_->bucket_size(long_hash),
                       long_hash);
 }
 

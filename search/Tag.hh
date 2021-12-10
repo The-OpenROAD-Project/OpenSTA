@@ -120,14 +120,14 @@ public:
 class TagHash
 {
 public:
-  size_t operator()(const Tag *tag);
+  size_t operator()(const Tag *tag) const;
 };
 
 class TagEqual
 {
 public:
   bool operator()(const Tag *tag1,
-		  const Tag *tag2);
+		  const Tag *tag2) const;
 };
 
 int

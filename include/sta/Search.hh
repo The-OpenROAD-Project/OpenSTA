@@ -19,7 +19,7 @@
 #include <mutex>
 
 #include "MinMax.hh"
-#include "HashSet.hh"
+#include "UnorderedSet.hh"
 #include "Transition.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
@@ -55,8 +55,8 @@ class Genclks;
 class Corner;
 
 typedef Set<ClkInfo*, ClkInfoLess> ClkInfoSet;
-typedef HashSet<Tag*, TagHash, TagEqual> TagHashSet;
-typedef HashSet<TagGroup*, TagGroupHash, TagGroupEqual> TagGroupSet;
+typedef UnorderedSet<Tag*, TagHash, TagEqual> TagSet;
+typedef UnorderedSet<TagGroup*, TagGroupHash, TagGroupEqual> TagGroupSet;
 typedef Map<Vertex*, Slack> VertexSlackMap;
 typedef Vector<VertexSlackMap> VertexSlackMapSeq;
 typedef Vector<WorstSlacks> WorstSlacksSeq;
@@ -568,7 +568,7 @@ protected:
   ClkInfoSet *clk_info_set_;
   std::mutex clk_info_lock_;
   // Use pointer to tag set so Tag.hh does not need to be included.
-  TagHashSet *tag_set_;
+  TagSet *tag_set_;
   // Entries in tags_ may be missing where previous filter tags were deleted.
   TagIndex tag_capacity_;
   Tag **tags_;

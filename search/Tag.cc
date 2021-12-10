@@ -654,14 +654,14 @@ tagStateEqualCrpr(const Tag *tag1,
 ////////////////////////////////////////////////////////////////
 
 size_t
-TagHash::operator()(const Tag *tag)
+TagHash::operator()(const Tag *tag) const
 {
   return tag->hash();
 }
 
 bool
 TagEqual::operator()(const Tag *tag1,
-		     const Tag *tag2)
+		     const Tag *tag2) const
 {
   return tagEqual(tag1, tag2);
 }
