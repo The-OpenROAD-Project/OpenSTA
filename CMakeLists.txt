@@ -369,7 +369,7 @@ add_custom_command(OUTPUT ${STA_TCL_INIT}
 # CMAKE_FIND_FRAMEWORK LAST bypasses the version in the framework directory
 # but not the one in /usr/lib.
 # This calls cmake/FindTCL.cmake
-# Do not use REQUIRED because it also requires TK.
+# Do not use REQUIRED because it also requires TK, which is not used by OpenSTA.
 find_package(TCL)
 
 # Zlib

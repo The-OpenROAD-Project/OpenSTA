@@ -77,7 +77,7 @@ protected:
 // Report an error condition that should not be possible.
 // The default handler prints msg to stderr and exits.
 // The msg should NOT include a period or return.
-// For only in those cases where a Report object is not available. 
+// Only for use in those cases where a Report object is not available. 
 #define criticalError(id,msg) \
   Report::defaultReport()->fileCritical(id, __FILE__, __LINE__, msg)
 

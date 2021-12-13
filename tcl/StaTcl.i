@@ -4136,12 +4136,13 @@ crpr_mode()
 void
 set_crpr_mode(const char *mode)
 {
+  Sta *sta = Sta::sta();
   if (stringEq(mode, "same_pin"))
     Sta::sta()->setCrprMode(CrprMode::same_pin);
   else if (stringEq(mode, "same_transition"))
     Sta::sta()->setCrprMode(CrprMode::same_transition);
   else
-    criticalError(272, "unknown common clk pessimism mode.");
+    sta->report()->critical(272, "unknown common clk pessimism mode.");
 }
 
 bool
@@ -5063,16 +5064,15 @@ set_clock_sense_cmd(PinSet *pins,
 		    bool negative,
 		    bool stop_propagation)
 {
-  ClockSense sense;
+  Sta *sta = Sta::sta();
   if (positive)
-    sense = ClockSense::positive;
+    sta->setClockSense(pins, clks, ClockSense::positive);
   else if (negative)
-    sense = ClockSense::negative;
+    sta->setClockSense(pins, clks, ClockSense::negative);
   else if (stop_propagation)
-    sense = ClockSense::stop;
+    sta->setClockSense(pins, clks, ClockSense::stop);
   else
-    criticalError(273, "unknown clock sense");
-  Sta::sta()->setClockSense(pins, clks, sense);
+    sta->report()->critical(273, "unknown clock sense");
 }
 
 bool
