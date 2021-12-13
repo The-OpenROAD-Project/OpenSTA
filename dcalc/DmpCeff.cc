@@ -960,6 +960,9 @@ DmpPi::evalDmpEqns()
 
   double t_vth, t_vl, slew;
   gateDelays(ceff, t_vth, t_vl, slew);
+  if (slew == 0.0)
+    throw DmpError("eqn eval failed: slew = 0");
+
   double ceff_time = slew / (vh_ - vl_);
   if (ceff_time > 1.4 * dt)
     ceff_time = 1.4 * dt;
