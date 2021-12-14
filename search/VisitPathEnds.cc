@@ -540,13 +540,14 @@ VisitPathEnds::visitDataCheckEnd1(DataCheck *check,
   while (tgt_clk_path_iter.hasNext()) {
     PathVertex *tgt_clk_path = tgt_clk_path_iter.next();
     const ClockEdge *tgt_clk_edge = tgt_clk_path->clkEdge(this);
-    const Clock *tgt_clk = tgt_clk_edge ? tgt_clk_edge->clock() : nullptr;
-    ExceptionPath *exception = exceptionTo(path, pin, end_rf,
-					   tgt_clk_edge, min_max);
     // Ignore generated clock source paths.
-    if (!tgt_clk_path->clkInfo(this)->isGenClkSrcPath()
+    if (tgt_clk_edge
+        && !tgt_clk_path->clkInfo(this)->isGenClkSrcPath()
 	&& !search_->pathPropagatedToClkSrc(from_pin, tgt_clk_path)) {
       found_from_path = true;
+      const Clock *tgt_clk = tgt_clk_edge->clock();
+      ExceptionPath *exception = exceptionTo(path, pin, end_rf,
+                                             tgt_clk_edge, min_max);
       if (sdc_->sameClockGroup(src_clk, tgt_clk)
 	  && !sdc_->clkStopPropagation(from_pin, tgt_clk)
 	  // False paths and path delays override.

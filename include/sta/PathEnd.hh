@@ -520,6 +520,7 @@ public:
   virtual void reportShort(ReportPath *report) const;
   virtual void reportFull(ReportPath *report) const;
   virtual bool isDataCheck() const { return true; }
+  virtual ClockEdge *targetClkEdge(const StaState *sta) const;
   virtual TimingRole *checkRole(const StaState *sta) const;
   virtual ArcDelay margin(const StaState *sta) const;
   virtual int exceptPathCmp(const PathEnd *path_end,

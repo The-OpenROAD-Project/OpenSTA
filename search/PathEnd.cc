@@ -1606,6 +1606,13 @@ PathEndDataCheck::typeName() const
   return "data_check";
 }
 
+ClockEdge *
+PathEndDataCheck::targetClkEdge(const StaState *sta) const
+{
+  // clk_path_ can be null if data_clk_path is from an input port.
+  return data_clk_path_.clkEdge(sta);
+}
+
 Arrival
 PathEndDataCheck::requiredTimeNoCrpr(const StaState *sta) const
 {
