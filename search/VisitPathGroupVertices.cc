@@ -70,7 +70,7 @@ public:
 		       VertexPathSetMap *matching_path_map,
 		       const StaState *sta);
   virtual ~PathGroupPathVisitor();
-  virtual VertexVisitor *copy();
+  virtual VertexVisitor *copy() const;
   virtual void visit(Vertex *vertex);
 
 protected:
@@ -232,7 +232,7 @@ PathGroupPathVisitor::~PathGroupPathVisitor()
 }
 
 VertexVisitor *
-PathGroupPathVisitor::copy()
+PathGroupPathVisitor::copy() const
 {
   return new PathGroupPathVisitor(visitor_, bkwd_iter_, matching_path_map_,
 				  sta_);

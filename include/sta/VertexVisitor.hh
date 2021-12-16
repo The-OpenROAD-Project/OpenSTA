@@ -28,13 +28,10 @@ class VertexVisitor
 public:
   VertexVisitor() {}
   virtual ~VertexVisitor() {}
-  virtual VertexVisitor *copy() = 0;
+  virtual VertexVisitor *copy() const = 0;
   virtual void visit(Vertex *vertex) = 0;
   void operator()(Vertex *vertex) { visit(vertex); }
   virtual void levelFinished() {}
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(VertexVisitor);
 };
 
 // Collect visited pins into a PinSet.
@@ -44,7 +41,7 @@ public:
   VertexPinCollector(PinSet *pins);
   PinSet *pins() const { return pins_; }
   void visit(Vertex *vertex);
-  virtual VertexVisitor *copy();
+  virtual VertexVisitor *copy() const;
 
 protected:
   PinSet *pins_;

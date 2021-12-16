@@ -357,7 +357,7 @@ public:
 		   bool own_arc_delay_calc);
   virtual ~FindVertexDelays();
   virtual void visit(Vertex *vertex);
-  virtual VertexVisitor *copy();
+  virtual VertexVisitor *copy() const;
 
 protected:
   GraphDelayCalc1 *graph_delay_calc1_;
@@ -382,7 +382,7 @@ FindVertexDelays::~FindVertexDelays()
 }
 
 VertexVisitor *
-FindVertexDelays::copy()
+FindVertexDelays::copy() const
 {
   // Copy StaState::arc_delay_calc_ because it needs separate state
   // for each thread.

@@ -704,7 +704,7 @@ public:
   void init(bool always_to_endpoints,
 	    SearchPred *pred);
   virtual void visit(Vertex *vertex);
-  virtual VertexVisitor *copy();
+  virtual VertexVisitor *copy() const;
   // Return false to stop visiting.
   virtual bool visitFromToPath(const Pin *from_pin,
 			       Vertex *from_vertex,
@@ -770,7 +770,7 @@ class RequiredVisitor : public PathVisitor
 public:
   explicit RequiredVisitor(const StaState *sta);
   virtual ~RequiredVisitor();
-  virtual VertexVisitor *copy();
+  virtual VertexVisitor *copy() const;
   virtual void visit(Vertex *vertex);
 
 protected:

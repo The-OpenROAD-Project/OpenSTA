@@ -1041,7 +1041,7 @@ ArrivalVisitor::init(bool always_to_endpoints,
 
 
 VertexVisitor *
-ArrivalVisitor::copy()
+ArrivalVisitor::copy() const
 {
   return new ArrivalVisitor(always_to_endpoints_, pred_, sta_);
 }
@@ -3398,7 +3398,7 @@ RequiredVisitor::~RequiredVisitor()
 }
 
 VertexVisitor *
-RequiredVisitor::copy()
+RequiredVisitor::copy() const
 {
   return new RequiredVisitor(sta_);
 }

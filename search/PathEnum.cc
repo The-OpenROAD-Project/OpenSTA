@@ -230,7 +230,7 @@ public:
 		       PathRef &before_div,
 		       bool unique_pins,
 		       PathEnum *path_enum);
-  virtual VertexVisitor *copy();
+  virtual VertexVisitor *copy() const;
   virtual void visit(Vertex *) {}  // Not used.
   void visitFaninPathsThru(Vertex *vertex,
 			   Vertex *prev_vertex,
@@ -307,7 +307,7 @@ PathEnumFaninVisitor::visitFaninPathsThru(Vertex *vertex,
 }
 
 VertexVisitor *
-PathEnumFaninVisitor::copy()
+PathEnumFaninVisitor::copy() const
 {
   return new PathEnumFaninVisitor(path_end_, before_div_, unique_pins_,
 				  path_enum_);

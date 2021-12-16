@@ -845,7 +845,7 @@ public:
 		       const MinMaxAll *min_max,
 		       const StaState *sta);
   ~MakeEndpointPathEnds();
-  virtual VertexVisitor *copy();
+  virtual VertexVisitor *copy() const;
   virtual void visit(Vertex *vertex);
 
 private:
@@ -877,7 +877,7 @@ MakeEndpointPathEnds::~MakeEndpointPathEnds()
 }
 
 VertexVisitor *
-MakeEndpointPathEnds::copy()
+MakeEndpointPathEnds::copy() const
 {
   return new MakeEndpointPathEnds(path_end_visitor_, corner_, min_max_, sta_);
 }

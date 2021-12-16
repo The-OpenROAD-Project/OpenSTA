@@ -269,7 +269,7 @@ public:
   PropActivityVisitor(Power *power,
 		      BfsFwdIterator *bfs);
   ~PropActivityVisitor();
-  virtual VertexVisitor *copy();
+  virtual VertexVisitor *copy() const;
   virtual void visit(Vertex *vertex);
   void init();
   bool foundRegWithoutActivity() const;
@@ -297,7 +297,7 @@ PropActivityVisitor::~PropActivityVisitor()
 }
 
 VertexVisitor *
-PropActivityVisitor::copy()
+PropActivityVisitor::copy() const
 {
   return new PropActivityVisitor(power_, bfs_);
 }

@@ -809,7 +809,7 @@ public:
 			  BfsFwdIterator *insert_iter,
 			  GenclkInfo *genclk_info,
 			  const StaState *sta);
-  virtual VertexVisitor *copy();
+  virtual VertexVisitor *copy() const;
   virtual void visit(Vertex *vertex);
 
 protected:
@@ -854,7 +854,7 @@ GenclkSrcArrivalVisitor::GenclkSrcArrivalVisitor(Clock *gclk,
 }
 
 VertexVisitor *
-GenclkSrcArrivalVisitor::copy()
+GenclkSrcArrivalVisitor::copy() const
 {
   return new GenclkSrcArrivalVisitor(gclk_, insert_iter_, genclk_info_,
 				     always_to_endpoints_, pred_, sta_);

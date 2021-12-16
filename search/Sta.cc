@@ -2637,7 +2637,7 @@ public:
   EndpointCounter() : count_(0) {}
   virtual void visit(Vertex *) { count_++; }
   int count() const { return count_; }
-  virtual EndpointCounter *copy() { return new EndpointCounter; }
+  virtual EndpointCounter *copy()  const { return new EndpointCounter; }
 protected:
   int count_;
 };

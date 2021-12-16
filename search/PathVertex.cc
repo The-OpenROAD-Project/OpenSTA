@@ -311,7 +311,7 @@ public:
   PrevPathVisitor(const Path *path,
 		  SearchPred *pred,
 		  const StaState *sta);
-  virtual VertexVisitor *copy();
+  virtual VertexVisitor *copy() const;
   virtual void visit(Vertex *) {}
   virtual bool visitFromToPath(const Pin *from_pin,
 			       Vertex *from_vertex,
@@ -362,7 +362,7 @@ PrevPathVisitor::PrevPathVisitor(const Path *path,
 }
 
 VertexVisitor *
-PrevPathVisitor::copy()
+PrevPathVisitor::copy() const
 {
   return new PrevPathVisitor(path_, pred_, sta_);
 }
