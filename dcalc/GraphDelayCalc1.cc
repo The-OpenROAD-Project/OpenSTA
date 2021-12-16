@@ -352,9 +352,7 @@ GraphDelayCalc1::deleteVertexBefore(Vertex *vertex)
 class FindVertexDelays : public VertexVisitor
 {
 public:
-  FindVertexDelays(GraphDelayCalc1 *graph_delay_calc1,
-		   ArcDelayCalc *arc_delay_calc,
-		   bool own_arc_delay_calc);
+  FindVertexDelays(GraphDelayCalc1 *graph_delay_calc1);
   virtual ~FindVertexDelays();
   virtual void visit(Vertex *vertex);
   virtual VertexVisitor *copy() const;
@@ -362,23 +360,18 @@ public:
 protected:
   GraphDelayCalc1 *graph_delay_calc1_;
   ArcDelayCalc *arc_delay_calc_;
-  bool own_arc_delay_calc_;
 };
 
-FindVertexDelays::FindVertexDelays(GraphDelayCalc1 *graph_delay_calc1,
-				   ArcDelayCalc *arc_delay_calc,
-				   bool own_arc_delay_calc) :
+FindVertexDelays::FindVertexDelays(GraphDelayCalc1 *graph_delay_calc1) :
   VertexVisitor(),
   graph_delay_calc1_(graph_delay_calc1),
-  arc_delay_calc_(arc_delay_calc),
-  own_arc_delay_calc_(own_arc_delay_calc)
+  arc_delay_calc_(graph_delay_calc1_->arc_delay_calc_->copy())
 {
 }
 
 FindVertexDelays::~FindVertexDelays()
 {
-  if (own_arc_delay_calc_)
-    delete arc_delay_calc_;
+  delete arc_delay_calc_;
 }
 
 VertexVisitor *
@@ -386,7 +379,7 @@ FindVertexDelays::copy() const
 {
   // Copy StaState::arc_delay_calc_ because it needs separate state
   // for each thread.
-  return new FindVertexDelays(graph_delay_calc1_,arc_delay_calc_->copy(),true);
+  return new FindVertexDelays(graph_delay_calc1_);
 }
 
 void
@@ -416,7 +409,7 @@ GraphDelayCalc1::findDelays(Level level)
     if (incremental_)
       seedInvalidDelays();
 
-    FindVertexDelays visitor(this, arc_delay_calc_, false);
+    FindVertexDelays visitor(this);
     dcalc_count += iter_->visitParallel(level, &visitor);
 
     // Timing checks require slews at both ends of the arc,
