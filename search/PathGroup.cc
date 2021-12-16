@@ -518,13 +518,13 @@ PathGroups::makePathEnds(ExceptionTo *to,
 class MakePathEnds1 : public PathEndVisitor
 {
 public:
-  explicit MakePathEnds1(PathGroups *path_groups);
-  virtual PathEndVisitor *copy();
+  MakePathEnds1(PathGroups *path_groups);
+  MakePathEnds1(const MakePathEnds1&) = default;
+  virtual PathEndVisitor *copy() const;
   virtual void visit(PathEnd *path_end);
   virtual void vertexEnd(Vertex *vertex);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(MakePathEnds1);
   void visitPathEnd(PathEnd *path_end,
 		    PathGroup *group);
 
@@ -535,14 +535,14 @@ private:
 
 MakePathEnds1::MakePathEnds1(PathGroups *path_groups) :
   path_groups_(path_groups),
-  cmp_(path_groups){
-
+  cmp_(path_groups)
+{
 }
 
 PathEndVisitor *
-MakePathEnds1::copy()
+MakePathEnds1::copy() const
 {
-  return new MakePathEnds1(path_groups_);
+  return new MakePathEnds1(*this);
 }
 
 void
@@ -597,15 +597,15 @@ MakePathEnds1::vertexEnd(Vertex *)
 class MakePathEndsAll : public PathEndVisitor
 {
 public:
-  explicit MakePathEndsAll(int endpoint_count,
-			   PathGroups *path_groups);
+  MakePathEndsAll(int endpoint_count,
+                  PathGroups *path_groups);
+  MakePathEndsAll(const MakePathEndsAll&) = default;
   virtual ~MakePathEndsAll();
-  virtual PathEndVisitor *copy();
+  virtual PathEndVisitor *copy() const;
   virtual void visit(PathEnd *path_end);
   virtual void vertexEnd(Vertex *vertex);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(MakePathEndsAll);
   void visitPathEnd(PathEnd *path_end,
 		    PathGroup *group);
 
@@ -629,9 +629,9 @@ MakePathEndsAll::MakePathEndsAll(int endpoint_count,
 
 
 PathEndVisitor *
-MakePathEndsAll::copy()
+MakePathEndsAll::copy() const
 {
-  return new MakePathEndsAll(endpoint_count_, path_groups_);
+  return new MakePathEndsAll(*this);
 }
 
 MakePathEndsAll::~MakePathEndsAll()

@@ -3040,7 +3040,8 @@ public:
   MinPeriodEndVisitor(const Clock *clk,
                       bool include_port_paths,
                       StaState *sta);
-  virtual PathEndVisitor *copy();
+  MinPeriodEndVisitor(const MinPeriodEndVisitor &) = default;
+  virtual PathEndVisitor *copy() const;
   virtual void visit(PathEnd *path_end);
   float minPeriod() const { return min_period_; }
 
@@ -3064,9 +3065,9 @@ MinPeriodEndVisitor::MinPeriodEndVisitor(const Clock *clk,
 }
 
 PathEndVisitor *
-MinPeriodEndVisitor::copy()
+MinPeriodEndVisitor::copy() const
 {
-  return new MinPeriodEndVisitor(clk_, include_port_paths_, sta_);
+  return new MinPeriodEndVisitor(*this);
 }
 
 void

@@ -3211,7 +3211,7 @@ public:
 			 const StaState *sta);
   FindEndRequiredVisitor(const StaState *sta);
   virtual ~FindEndRequiredVisitor();
-  virtual PathEndVisitor *copy();
+  virtual PathEndVisitor *copy() const;
   virtual void visit(PathEnd *path_end);
 
 protected:
@@ -3242,7 +3242,7 @@ FindEndRequiredVisitor::~FindEndRequiredVisitor()
 }
 
 PathEndVisitor *
-FindEndRequiredVisitor::copy()
+FindEndRequiredVisitor::copy() const
 {
   return new FindEndRequiredVisitor(sta_);
 }
@@ -3861,7 +3861,8 @@ class FindEndSlackVisitor : public PathEndVisitor
 public:
   FindEndSlackVisitor(SlackSeq &slacks,
 		      const StaState *sta);
-  virtual PathEndVisitor *copy();
+  FindEndSlackVisitor(const FindEndSlackVisitor &) = default;
+  virtual PathEndVisitor *copy() const;
   virtual void visit(PathEnd *path_end);
 
 protected:
@@ -3877,10 +3878,9 @@ FindEndSlackVisitor::FindEndSlackVisitor(SlackSeq &slacks,
 }
 
 PathEndVisitor *
-FindEndSlackVisitor::copy()
+FindEndSlackVisitor::copy() const
 {
-
-  return new FindEndSlackVisitor(slacks_, sta_);
+  return new FindEndSlackVisitor(*this);
 }
 
 void

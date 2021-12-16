@@ -42,19 +42,18 @@ vertexPathSetMapInsertPath(VertexPathSetMap *matching_path_map,
 class VisitPathGroupEnds : public PathEndVisitor
 {
 public:
-  explicit VisitPathGroupEnds(PathGroup *path_group,
-			      VertexVisitor *vertex_visitor,
-			      VertexPathSetMap *matching_path_map,
-			      BfsBkwdIterator *bkwd_iter,
-			      StaState *sta);
-  virtual PathEndVisitor *copy();
+  VisitPathGroupEnds(PathGroup *path_group,
+                     VertexVisitor *vertex_visitor,
+                     VertexPathSetMap *matching_path_map,
+                     BfsBkwdIterator *bkwd_iter,
+                     StaState *sta);
+  VisitPathGroupEnds(const VisitPathGroupEnds&) = default;
+  virtual PathEndVisitor *copy() const;
   virtual void visit(PathEnd *path_end);
   virtual void vertexBegin(Vertex *vertex);
   virtual void vertexEnd(Vertex *vertex);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(VisitPathGroupEnds);
-
   PathGroup *path_group_;
   VertexVisitor *vertex_visitor_;
   BfsBkwdIterator *bkwd_iter_;
@@ -160,10 +159,9 @@ VisitPathGroupEnds::VisitPathGroupEnds(PathGroup *path_group,
 }
 
 PathEndVisitor *
-VisitPathGroupEnds::copy()
+VisitPathGroupEnds::copy() const
 {
-  return new VisitPathGroupEnds(path_group_, vertex_visitor_,
-				matching_path_map_, bkwd_iter_, sta_);
+  return new VisitPathGroupEnds(*this);
 }
 
 void

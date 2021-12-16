@@ -140,7 +140,7 @@ class PathEndVisitor
 {
 public:
   virtual ~PathEndVisitor() {}
-  virtual PathEndVisitor *copy() = 0;
+  virtual PathEndVisitor *copy() const = 0;
   // Begin visiting the path ends for a vertex / path_index.
   virtual void vertexBegin(Vertex *) {}
   // Visit a path end.  path_end is only valid during the call.
