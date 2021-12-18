@@ -83,7 +83,7 @@ Latches::latchRequired(const Path *data_path,
       ? TimingRole::setup()
       : TimingRole::latchSetup();
     CycleAccting *acct = sdc_->cycleAccting(data_clk_edge,
-						    enable_clk_edge);
+                                            enable_clk_edge);
     // checkTgtClkTime
     float tgt_clk_time = acct->requiredTime(check_role);
     // checkTgtClkArrival broken down into components.
