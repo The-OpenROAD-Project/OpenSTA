@@ -22,7 +22,6 @@
 #include "StringUtil.hh"
 #include "StringSet.hh"
 #include "Map.hh"
-#include "HashSet.hh"
 #include "UnorderedMap.hh"
 #include "MinMax.hh"
 #include "StaState.hh"
@@ -107,8 +106,6 @@ typedef Set<InputDelay*> InputDelaySet;
 typedef Map<const Pin*,InputDelaySet*> InputDelaysPinMap;
 typedef Set<OutputDelay*> OutputDelaySet;
 typedef Map<const Pin*,OutputDelaySet*> OutputDelaysPinMap;
-// Use HashSet so no read lock is required.
-typedef HashSet<CycleAccting*, CycleAcctingHash, CycleAcctingEqual> CycleAcctingSet;
 typedef Set<Instance*> InstanceSet;
 typedef UnorderedMap<const Pin*,ExceptionPathSet*> PinExceptionsMap;
 typedef Map<const Clock*,ExceptionPathSet*> ClockExceptionsMap;
@@ -1286,7 +1283,7 @@ protected:
   ClockGatingCheckMap clk_gating_check_map_;
   InstanceClockGatingCheckMap inst_clk_gating_check_map_;
   PinClockGatingCheckMap pin_clk_gating_check_map_;
-  CycleAcctingSet cycle_acctings_;
+  CycleAcctings cycle_acctings_;
   std::mutex cycle_acctings_lock_;
   DataChecksMap data_checks_from_map_;
   DataChecksMap data_checks_to_map_;

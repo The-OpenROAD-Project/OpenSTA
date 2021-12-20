@@ -16,13 +16,52 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
+#include "UnorderedSet.hh"
 #include "MinMax.hh"
 #include "TimingRole.hh"
 #include "StaState.hh"
 #include "SdcClass.hh"
 
 namespace sta {
+
+class CycleAcctingHash
+{
+public:
+  size_t operator()(const CycleAccting *acct) const;
+};
+
+class CycleAcctingEqual
+{
+public:
+  bool operator()(const CycleAccting *acct1,
+		  const CycleAccting *acct2) const;
+};
+
+class CycleAcctingLess
+{
+public:
+  bool operator()(const CycleAccting *acct1,
+		  const CycleAccting *acct2) const;
+};
+
+typedef UnorderedSet<CycleAccting*, CycleAcctingHash, CycleAcctingEqual> CycleAcctingSet;
+
+class CycleAcctings
+{
+public:
+  CycleAcctings(Sdc *sdc);
+  ~CycleAcctings();
+  void clear();
+  // Find the cycle accounting info for paths that start at src clock
+  // edge and end at target clock edge.
+  CycleAccting *cycleAccting(const ClockEdge *src,
+			     const ClockEdge *tgt);
+  void reportClkToClkMaxCycleWarnings(Report *report);
+
+private:
+  Sdc *sdc_;
+  CycleAcctingSet cycle_acctings_;
+};
 
 class CycleAccting
 {
@@ -79,26 +118,6 @@ private:
   // Target clock cycle offset.
   int tgt_cycle_[TimingRole::index_max + 1];
   bool max_cycles_exceeded_;
-};
-
-class CycleAcctingLess
-{
-public:
-  bool operator()(const CycleAccting *acct1,
-		  const CycleAccting *acct2) const;
-};
-
-class CycleAcctingHash
-{
-public:
-  size_t operator()(const CycleAccting *acct) const;
-};
-
-class CycleAcctingEqual
-{
-public:
-  bool operator()(const CycleAccting *acct1,
-		  const CycleAccting *acct2) const;
 };
 
 } // namespace

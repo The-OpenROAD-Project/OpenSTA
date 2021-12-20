@@ -844,13 +844,12 @@ public:
 		       const Corner *corner,
 		       const MinMaxAll *min_max,
 		       const StaState *sta);
+  MakeEndpointPathEnds(const MakeEndpointPathEnds &make_path_ends);
   ~MakeEndpointPathEnds();
   virtual VertexVisitor *copy() const;
   virtual void visit(Vertex *vertex);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(MakeEndpointPathEnds);
-
   VisitPathEnds *visit_path_ends_;
   PathEndVisitor *path_end_visitor_;
   const Corner *corner_;
@@ -867,6 +866,15 @@ MakeEndpointPathEnds::MakeEndpointPathEnds(PathEndVisitor *path_end_visitor,
   corner_(corner),
   min_max_(min_max),
   sta_(sta)
+{
+}
+
+MakeEndpointPathEnds::MakeEndpointPathEnds(const MakeEndpointPathEnds &make_path_ends) :
+  visit_path_ends_(new VisitPathEnds(make_path_ends.sta_)),
+  path_end_visitor_(make_path_ends.path_end_visitor_->copy()),
+  corner_(make_path_ends.corner_),
+  min_max_(make_path_ends.min_max_),
+  sta_(make_path_ends.sta_)
 {
 }
 
@@ -903,15 +911,14 @@ PathGroups::makeGroupPathEnds(VertexSet *endpoints,
       end_visitor.visit(endpoint);
   }
   else {
-    Vector<MakeEndpointPathEnds*> visitors;
-    for (int i = 0; i < thread_count_; i++)
-      visitors.push_back(new MakeEndpointPathEnds(visitor, corner, min_max, this));
+    Vector<MakeEndpointPathEnds> visitors(thread_count_,
+                                          MakeEndpointPathEnds(visitor, corner,
+                                                               min_max, this));
     for (auto endpoint : *endpoints) {
       dispatch_queue_->dispatch( [endpoint, &visitors](int i)
-				 { visitors[i]->visit(endpoint); } );
+      { visitors[i].visit(endpoint); } );
     }
     dispatch_queue_->finishTasks();
-    visitors.deleteContents();
   }
 }
 

@@ -24,8 +24,79 @@
 #include "Units.hh"
 #include "TimingRole.hh"
 #include "Clock.hh"
+#include "Sdc.hh"
 
 namespace sta {
+
+CycleAcctings::CycleAcctings(Sdc *sdc) :
+  sdc_(sdc)
+{
+}
+
+CycleAcctings::~CycleAcctings()
+{
+  clear();
+}
+
+void
+CycleAcctings::clear()
+{
+  cycle_acctings_.deleteContentsClear();
+}
+
+// Determine cycle accounting "on demand".
+CycleAccting *
+CycleAcctings::cycleAccting(const ClockEdge *src,
+                            const ClockEdge *tgt)
+{
+  if (src == nullptr)
+    src = tgt;
+  CycleAccting probe(src, tgt);
+  CycleAccting *acct = cycle_acctings_.findKey(&probe);
+  if (acct == nullptr) {
+    acct = new CycleAccting(src, tgt);
+    if (src == sdc_->defaultArrivalClockEdge())
+      acct->findDefaultArrivalSrcDelays();
+    else
+      acct->findDelays(sdc_);
+    cycle_acctings_.insert(acct);
+  }
+  return acct;
+}
+
+void
+CycleAcctings::reportClkToClkMaxCycleWarnings(Report *report)
+{
+  // Find cycle acctings that exceed max cycle count.  Eliminate
+  // duplicate warnings between different src/tgt clk edges.
+  ClockPairSet clk_warnings;
+  for (Clock *src_clk : *sdc_->clocks()) {
+    for (RiseFall *src_rf : RiseFall::range()) {
+      ClockEdge *src = src_clk->edge(src_rf);
+      for (Clock *tgt_clk : *sdc_->clocks()) {
+        for (RiseFall *tgt_rf : RiseFall::range()) {
+          ClockEdge *tgt = tgt_clk->edge(tgt_rf);
+          CycleAccting probe(src, tgt);
+          CycleAccting *acct = cycle_acctings_.findKey(&probe);
+          if (acct && acct->maxCyclesExceeded()) {
+            // Canonicalize the warning wrt src/tgt.
+            ClockPair clk_pair1(src_clk, tgt_clk);
+            ClockPair clk_pair2(tgt_clk, src_clk);
+            if (!clk_warnings.hasKey(clk_pair1)
+                && !clk_warnings.hasKey(clk_pair2)) {
+              report->warn(9, "No common period was found between clocks %s and %s.",
+                           src_clk->name(),
+                           tgt_clk->name());
+              clk_warnings.insert(clk_pair1);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////
 
 CycleAccting::CycleAccting(const ClockEdge *src,
 			   const ClockEdge *tgt) :

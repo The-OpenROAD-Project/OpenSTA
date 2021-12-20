@@ -30,7 +30,6 @@ class Sdc;
 class Clock;
 class ClockEdge;
 class CycleAccting;
-class CycleAcctingLess;
 class InputDelay;
 class OutputDelay;
 class FalsePath;

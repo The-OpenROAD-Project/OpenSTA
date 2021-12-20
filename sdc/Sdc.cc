@@ -92,6 +92,7 @@ Sdc::Sdc(StaState *sta) :
   clk_group_same_(nullptr),
   clk_sense_map_(network_),
   clk_gating_check_(nullptr),
+  cycle_acctings_(this),
   input_delay_index_(0),
   port_cap_map_(nullptr),
   net_wire_cap_map_(nullptr),
@@ -2413,65 +2414,20 @@ CycleAccting *
 Sdc::cycleAccting(const ClockEdge *src,
 		  const ClockEdge *tgt)
 {
-  if (src == nullptr)
-    src = tgt;
-  CycleAccting *acct;
-  CycleAccting probe(src, tgt);
-  acct = cycle_acctings_.findKey(&probe);
-  if (acct == nullptr) {
-    UniqueLock lock(cycle_acctings_lock_);
-    // Recheck with lock.
-    acct = cycle_acctings_.findKey(&probe);
-    if (acct == nullptr) {
-      acct = new CycleAccting(src, tgt);
-      if (src == defaultArrivalClockEdge())
-	acct->findDefaultArrivalSrcDelays();
-      else
-	acct->findDelays(this);
-      cycle_acctings_.insert(acct);
-    }
-  }
-  return acct;
+  UniqueLock lock(cycle_acctings_lock_);
+  return cycle_acctings_.cycleAccting(src, tgt);
 }
 
 void
 Sdc::reportClkToClkMaxCycleWarnings()
 {
-  // Find cycle acctings that exceed max cycle count.  Eliminate
-  // duplicate warnings between different src/tgt clk edges.
-  ClockPairSet clk_warnings;
-  ClockPairSeq clk_warnings2;
-  CycleAcctingSet::Iterator acct_iter(cycle_acctings_);
-  while (acct_iter.hasNext()) {
-    CycleAccting *acct = acct_iter.next();
-    if (acct->maxCyclesExceeded()) {
-      Clock *src = acct->src()->clock();
-      Clock *tgt = acct->target()->clock();
-      // Canonicalize the warning wrt src/tgt.
-      if (src->index() > tgt->index())
-	std::swap(src, tgt);
-      ClockPair clk_pair(src, tgt);
-      if (!clk_warnings.hasKey(clk_pair)) {
-	clk_warnings.insert(clk_pair);
-	clk_warnings2.push_back(clk_pair);
-      }
-    }
-  }
-
-  // Sort clk pairs so that results are stable.
-  sort(clk_warnings2, ClockPairLess());
-
-  for (auto pair : clk_warnings2) {
-    report_->warn(9, "No common period was found between clocks %s and %s.",
-		  pair.first->name(),
-		  pair.second->name());
-  }
+  cycle_acctings_.reportClkToClkMaxCycleWarnings(report_);
 }
 
 void
 Sdc::clearCycleAcctings()
 {
-  cycle_acctings_.deleteContentsClear();
+  cycle_acctings_.clear();
 }
 
 ////////////////////////////////////////////////////////////////
