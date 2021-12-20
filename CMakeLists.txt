@@ -329,6 +329,15 @@ swig_add_library(sta_swig
   SOURCES ${STA_SWIG_FILE}
 )
 
+get_target_property(SWIG_FILES sta_swig SOURCES)
+
+foreach(SWIG_FILE ${SWIG_FILES})
+  set_source_files_properties(${SWIG_FILE}
+    PROPERTIES
+    COMPILE_OPTIONS "-Wno-cast-qual;-Wno-missing-braces"
+  )
+endforeach()
+
 target_link_libraries(sta_swig
   PUBLIC
   OpenSTA
