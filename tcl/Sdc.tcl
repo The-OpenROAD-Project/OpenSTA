@@ -3159,6 +3159,9 @@ proc set_max_leakage_power { power {unit {}} } {
 define_cmd_args "define_corners" { corner1 [corner2]... }
 
 proc define_corners { args } {
+  if { [get_libs -quiet *] != {} } {
+    sta_error 373 "define_corners must be called before read_liberty."
+  }
   define_corners_cmd $args
 }
 
