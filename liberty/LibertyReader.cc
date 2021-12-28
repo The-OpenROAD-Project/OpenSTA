@@ -403,6 +403,9 @@ LibertyReader::defineVisitors()
 		     &LibertyReader::endLeakagePower);
   defineGroupVisitor("internal_power", &LibertyReader::beginInternalPower,
 		     &LibertyReader::endInternalPower);
+  // power group for both rise/fall
+  defineGroupVisitor("power", &LibertyReader::beginRisePower,
+		     &LibertyReader::endPower);
   defineGroupVisitor("fall_power", &LibertyReader::beginFallPower,
 		     &LibertyReader::endRiseFallPower);
   defineGroupVisitor("rise_power", &LibertyReader::beginRisePower,
@@ -4531,6 +4534,17 @@ LibertyReader::endRiseFallPower(LibertyGroup *)
   if (table_) {
     TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
     internal_power_->setModel(rf_, new InternalPowerModel(table_model));
+  }
+  endTableModel();
+}
+
+void
+LibertyReader::endPower(LibertyGroup *)
+{
+  if (table_) {
+    TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
+    internal_power_->setModel(RiseFall::rise(), new InternalPowerModel(table_model));
+    internal_power_->setModel(RiseFall::fall(), new InternalPowerModel(table_model));
   }
   endTableModel();
 }

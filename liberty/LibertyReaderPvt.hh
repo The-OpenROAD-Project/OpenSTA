@@ -367,6 +367,7 @@ public:
   virtual void beginFallPower(LibertyGroup *group);
   virtual void beginRisePower(LibertyGroup *group);
   virtual void endRiseFallPower(LibertyGroup *group);
+  virtual void endPower(LibertyGroup *group);
   virtual void visitRelatedGroundPin(LibertyAttr *attr);
   virtual void visitRelatedPowerPin(LibertyAttr *attr);
   virtual void visitRelatedPgPin(LibertyAttr *attr);
