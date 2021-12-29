@@ -4543,8 +4543,10 @@ LibertyReader::endPower(LibertyGroup *)
 {
   if (table_) {
     TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
-    internal_power_->setModel(RiseFall::rise(), new InternalPowerModel(table_model));
-    internal_power_->setModel(RiseFall::fall(), new InternalPowerModel(table_model));
+    // Share the model for rise/fall.
+    InternalPowerModel *power_model = new InternalPowerModel(table_model);
+    internal_power_->setModel(RiseFall::rise(), power_model);
+    internal_power_->setModel(RiseFall::fall(), power_model);
   }
   endTableModel();
 }

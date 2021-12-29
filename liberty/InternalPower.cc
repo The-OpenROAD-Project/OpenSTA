@@ -36,11 +36,11 @@ InternalPowerAttrs::~InternalPowerAttrs()
 void
 InternalPowerAttrs::deleteContents()
 {
-  for (auto tr_index : RiseFall::rangeIndex()) {
-    InternalPowerModel *model = models_[tr_index];
-    if (model)
-      delete model;
-  }
+  InternalPowerModel *rise_model = models_[RiseFall::riseIndex()];
+  InternalPowerModel *fall_model = models_[RiseFall::fallIndex()];
+  delete rise_model;
+  if (fall_model != rise_model)
+    delete fall_model;
   if (when_)
     when_->deleteSubexprs();
   stringDelete(related_pg_pin_);
