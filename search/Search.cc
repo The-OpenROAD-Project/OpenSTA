@@ -623,7 +623,8 @@ Search::seedFilterStarts()
     else {
       Vertex *vertex, *bidirect_drvr_vertex;
       graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-      seedArrival(vertex);
+      if (vertex)
+        seedArrival(vertex);
       if (bidirect_drvr_vertex)
 	seedArrival(bidirect_drvr_vertex);
     }
