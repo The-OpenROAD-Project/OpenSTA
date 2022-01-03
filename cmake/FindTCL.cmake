@@ -25,9 +25,6 @@
 set(TCL_POSSIBLE_NAMES tcl87 tcl8.7
   tcl86 tcl8.6
   tcl85 tcl8.5
-  tcl84 tcl8.4
-  tcl83 tcl8.3
-  tcl82 tcl8.2
   )
 
 # tcl lib path guesses.
