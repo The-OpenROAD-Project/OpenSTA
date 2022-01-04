@@ -11,8 +11,6 @@
 #include <stdio.h>
 #include <windows.h> // GetSystemInfo
 
-#include "StaConfig.hh" // HAVE_PTHREAD_H
-
 namespace sta {
 
 // Windows returns -1 if the string does not fit rather than the
@@ -63,13 +61,7 @@ vasprintf(char **str,
 int
 processorCount()
 {
-#if HAVE_PTHREAD_H
-  SYSTEM_INFO info;
-  GetSystemInfo(&info);
-  return info.dwNumberOfProcessors;
-#else
   return 1;
-#endif
 }
 
 void

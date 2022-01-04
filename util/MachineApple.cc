@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <thread>
 
 #include "StaConfig.hh"
 #include "StringUtil.hh"
@@ -32,11 +33,7 @@ static struct timeval elapsed_begin_time_;
 int
 processorCount()
 {
-#if HAVE_PTHREAD_H
-  return sysconf(_SC_NPROCESSORS_CONF);
-#else
-  return 1;
-#endif
+  return std::thread::hardware_concurrency();
 }
 
 void

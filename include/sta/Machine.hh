@@ -47,10 +47,13 @@
 
 #if defined(_WINDOWS) || defined(_WIN32)
   #include <stdarg.h>
+  #include <inttypes.h>
   #define va_copy(d,s) ((d)=(s))
-  #define strcasecmp _stricmp
-  #define strncasecmp strncmp
-  #define strtoull _strtoui64
+  #ifndef __GNUC__
+    #define strcasecmp _stricmp
+    #define strncasecmp strncmp
+    #define strtoull _strtoui64
+  #endif
   // Flex doesn't check for unistd.h.
   #define YY_NO_UNISTD_H
   namespace sta {
@@ -59,7 +62,7 @@
   }
 #else
   #define vsnprint vsnprintf
-#endif // _WINDOWS
+#endif
 
 #include <stddef.h>		// size_t
 
