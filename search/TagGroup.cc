@@ -163,30 +163,6 @@ TagGroupBldr::reportArrivalEntries() const
 }
 
 void
-TagGroupBldr::tagArrival(Tag *tag,
-			 // Return values.
-			 Arrival &arrival,
-			 int &arrival_index,
-			 bool &exists) const
-{
-  arrival_map_.findKey(tag, arrival_index, exists);
-  if (exists)
-    arrival = arrivals_[arrival_index];
-}
-
-void
-TagGroupBldr::tagArrival(Tag *tag,
-			 // Return values.
-			 Arrival &arrival,
-			 bool &exists) const
-{
-  int arrival_index;
-  arrival_map_.findKey(tag, arrival_index, exists);
-  if (exists)
-    arrival = arrivals_[arrival_index];
-}
-
-void
 TagGroupBldr::tagMatchArrival(Tag *tag,
 			      // Return values.
 			      Tag *&tag_match,

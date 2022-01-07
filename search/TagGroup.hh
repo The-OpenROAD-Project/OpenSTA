@@ -107,15 +107,6 @@ public:
   bool hasFilterTag() const { return has_filter_tag_; }
   bool hasLoopTag() const { return has_loop_tag_; }
   void deleteArrival(Tag *tag);
-  void tagArrival(Tag *tag,
-		  // Return values.
-		  Arrival &arrival,
-		  bool &exists) const;
-  void tagArrival(Tag *tag,
-		  // Return values.
-		  Arrival &arrival,
-		  int &arrival_index,
-		  bool &exists) const;
   void tagMatchArrival(Tag *tag,
 		       // Return values.
 		       Tag *&tag_match,

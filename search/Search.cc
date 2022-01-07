@@ -1198,10 +1198,11 @@ Search::arrivalsChanged(Vertex *vertex,
       int arrival_index1;
       arrival_iter1.next(tag1, arrival_index1);
       Arrival &arrival1 = arrivals1[arrival_index1];
+      Tag *tag2;
       Arrival arrival2;
-      bool arrival_exists2;
-      tag_bldr->tagArrival(tag1, arrival2, arrival_exists2);
-      if (!arrival_exists2
+      int arrival_index2;
+      tag_bldr->tagMatchArrival(tag1, tag2, arrival2, arrival_index2);
+      if (tag2 != tag1
 	  || !delayEqual(arrival1, arrival2))
 	return true;
     }
