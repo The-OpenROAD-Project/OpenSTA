@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -46,24 +46,23 @@
 #endif // _MSC_VER
 
 #if defined(_WINDOWS) || defined(_WIN32)
-  // Export class definitions to DLLs.
-  #define DllExport __declspec(dllexport)
   #include <stdarg.h>
+  #include <inttypes.h>
   #define va_copy(d,s) ((d)=(s))
-  #define strcasecmp _stricmp
-  #define strncasecmp strncmp
-  #define strtof(nptr,endptr) static_cast<float>(strtod(nptr,endptr))
-  #define strtoull _strtoui64
+  #ifndef __GNUC__
+    #define strcasecmp _stricmp
+    #define strncasecmp strncmp
+    #define strtoull _strtoui64
+  #endif
   // Flex doesn't check for unistd.h.
   #define YY_NO_UNISTD_H
   namespace sta {
     int vsnprint(char *str, size_t size, const char *fmt, va_list args);
+    int vasprintf(char **str, const char *fmt, va_list args);
   }
 #else
-  #define DllExport
-  #include <stdint.h>		// intptr_t
   #define vsnprint vsnprintf
-#endif // _WINDOWS
+#endif
 
 #include <stddef.h>		// size_t
 
@@ -93,4 +92,3 @@ size_t
 memoryUsage();
 
 } // namespace sta
-

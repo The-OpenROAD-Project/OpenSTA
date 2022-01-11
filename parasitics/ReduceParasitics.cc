@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "ReduceParasitics.hh"
 
@@ -26,6 +26,8 @@
 #include "Parasitics.hh"
 
 namespace sta {
+
+using std::max;
 
 typedef Map<ParasiticNode*, double> ParasiticNodeValueMap;
 typedef Map<ParasiticDevice*, double> ParasiticDeviceValueMap;
@@ -55,10 +57,12 @@ protected:
 		   ParasiticNode *node,
 		   ParasiticDevice *from_res,
 		   const ParasiticAnalysisPt *ap,
+                   double src_resistance,
 		   double &y1,
 		   double &y2,
 		   double &y3,
-		   double &dwn_cap);
+		   double &dwn_cap,
+                   double &max_resistance);
   void visit(ParasiticNode *node);
   bool isVisited(ParasiticNode *node);
   void leave(ParasiticNode *node);
@@ -118,7 +122,9 @@ ReduceToPi::reduceToPi(const Pin *drvr_pin,
   cnst_min_max_ = cnst_min_max;
 
   double y1, y2, y3, dcap;
-  reducePiDfs(drvr_pin, drvr_node, 0, ap, y1, y2, y3, dcap);
+  double max_resistance = 0.0;
+  reducePiDfs(drvr_pin, drvr_node, nullptr, ap, 0.0,
+              y1, y2, y3, dcap, max_resistance);
 
   if (y2 == 0.0 && y3 == 0.0) {
     // Capacitive load.
@@ -131,9 +137,9 @@ ReduceToPi::reduceToPi(const Pin *drvr_pin,
     c2 = y1 - y2 * y2 / y3;
     rpi = -y3 * y3 / (y2 * y2 * y2);
   }
-  debugPrint3(debug_, "parasitic_reduce", 2,
-	      " Pi model c2=%.3g rpi=%.3g c1=%.3g\n",
-	      c2, rpi, c1);
+  debugPrint(debug_, "parasitic_reduce", 2,
+             " Pi model c2=%.3g rpi=%.3g c1=%.3g max_r=%.3g",
+             c2, rpi, c1, max_resistance);
 }
 
 // Find admittance moments.
@@ -141,11 +147,13 @@ void
 ReduceToPi::reducePiDfs(const Pin *drvr_pin,
 			ParasiticNode *node,
 			ParasiticDevice *from_res,
-			const ParasiticAnalysisPt *ap,
+                        const ParasiticAnalysisPt *ap,
+			double src_resistance,
 			double &y1,
 			double &y2,
 			double &y3,
-			double &dwn_cap)
+			double &dwn_cap,
+                        double &max_resistance)
 {
   double coupling_cap = 0.0;
   ParasiticDeviceIterator *device_iter1 = parasitics_->deviceIterator(node);
@@ -160,6 +168,7 @@ ReduceToPi::reducePiDfs(const Pin *drvr_pin,
     + coupling_cap * coupling_cap_multiplier_
     + pinCapacitance(node);
   y2 = y3 = 0.0;
+  max_resistance = max(max_resistance, src_resistance);
 
   visit(node);
   ParasiticDeviceIterator *device_iter2 = parasitics_->deviceIterator(node);
@@ -173,22 +182,22 @@ ReduceToPi::reducePiDfs(const Pin *drvr_pin,
 	  && device != from_res) {
 	if (isVisited(onode)) {
 	  // Resistor loop.
-	  debugPrint1(debug_, "parasitic_reduce", 2,
-		      " loop detected thru resistor %s\n",
-		      parasitics_->name(device));
+	  debugPrint(debug_, "parasitic_reduce", 2, " loop detected thru resistor %s",
+                     parasitics_->name(device));
 	  markLoopResistor(device);
 	}	
 	else {
+	  double r = parasitics_->value(device, ap);
 	  double yd1, yd2, yd3, dcap;
-	  reducePiDfs(drvr_pin, onode, device, ap, yd1, yd2, yd3,dcap);
+	  reducePiDfs(drvr_pin, onode, device, ap, src_resistance + r,
+                      yd1, yd2, yd3, dcap, max_resistance);
 	  // Rule 3.  Upstream traversal of a series resistor.
 	  // Rule 4.  Parallel admittances add.
-	  double r = parasitics_->value(device, ap);
 	  y1 += yd1;
 	  y2 += yd2 - r * yd1 * yd1;
 	  y3 += yd3 - 2 * r * yd1 * yd2 + r * r * yd1 * yd1 * yd1;
 	  dwn_cap += dcap;
-	}
+        }
       }
     }
   }
@@ -196,9 +205,9 @@ ReduceToPi::reducePiDfs(const Pin *drvr_pin,
 
   setDownstreamCap(node, dwn_cap);
   leave(node);
-  debugPrint5(debug_, "parasitic_reduce", 3,
-	      " node %s y1=%.3g y2=%.3g y3=%.3g cap=%.3g\n",
-	      parasitics_->name(node), y1, y2, y3, dwn_cap);
+  debugPrint(debug_, "parasitic_reduce", 3,
+             " node %s y1=%.3g y2=%.3g y3=%.3g cap=%.3g",
+             parasitics_->name(node), y1, y2, y3, dwn_cap);
 }
 
 float
@@ -302,9 +311,8 @@ reduceToPiElmore(Parasitic *parasitic_network,
   ParasiticNode *drvr_node = parasitics->findNode(parasitic_network,
 						  drvr_pin);
   if (drvr_node) {
-    debugPrint1(sta->debug(), "parasitic_reduce", 1,
-		"Reduce driver %s\n",
-		sta->network()->pathName(drvr_pin));
+    debugPrint(sta->debug(), "parasitic_reduce", 1, "Reduce driver %s",
+               sta->network()->pathName(drvr_pin));
     ReduceToPiElmore reducer(sta);
     reducer.makePiElmore(parasitic_network, drvr_pin, drvr_node,
 			 coupling_cap_factor, RiseFall::rise(),
@@ -357,10 +365,9 @@ ReduceToPiElmore::reduceElmoreDfs(const Pin *drvr_pin,
   const Pin *pin = parasitics_->connectionPin(node);
   if (from_res && pin) {
     if (network_->isLoad(pin)) {
-      debugPrint2(debug_, "parasitic_reduce", 2,
-		  " Load %s elmore=%.3g\n",
-		  network_->pathName(pin),
-		  elmore);
+      debugPrint(debug_, "parasitic_reduce", 2, " Load %s elmore=%.3g",
+                 network_->pathName(pin),
+                 elmore);
       parasitics_->setElmore(pi_elmore, pin, elmore);
     }
   }
@@ -469,9 +476,8 @@ reduceToPiPoleResidue2(Parasitic *parasitic_network,
   Parasitics *parasitics = sta->parasitics();
   ParasiticNode *drvr_node = parasitics->findNode(parasitic_network, drvr_pin);
   if (drvr_node) {
-    debugPrint1(sta->debug(), "parasitic_reduce", 1,
-		"Reduce driver %s\n",
-		sta->network()->pathName(drvr_pin));
+    debugPrint(sta->debug(), "parasitic_reduce", 1, "Reduce driver %s",
+               sta->network()->pathName(drvr_pin));
     ReduceToPiPoleResidue2 reducer(sta);
     reducer.makePiPoleResidue2(parasitic_network, drvr_pin, drvr_node,
 			       coupling_cap_factor, RiseFall::rise(),
@@ -591,8 +597,7 @@ ReduceToPiPoleResidue2::findBranchCurrents(const Pin *drvr_pin,
   leave(node);
   if (from_res) {
     setCurrent(from_res, branch_i);
-    debugPrint1(debug_, "parasitic_reduce", 3,
-		" res i=%.3g\n", branch_i);
+    debugPrint(debug_, "parasitic_reduce", 3, " res i=%.3g", branch_i);
   }
   return branch_i;
 }
@@ -620,11 +625,10 @@ ReduceToPiPoleResidue2::findMoments(const Pin *drvr_pin,
 	double r_volt = r * current(device);
 	double onode_volt = from_volt - r_volt;
 	setMoment(onode, onode_volt, moment_index);
-	debugPrint3(debug_, "parasitic_reduce", 3,
-		    " moment %s %d %.3g\n",
-		    parasitics_->name(onode),
-		    moment_index,
-		    onode_volt);
+	debugPrint(debug_, "parasitic_reduce", 3, " moment %s %d %.3g",
+                   parasitics_->name(onode),
+                   moment_index,
+                   onode_volt);
 	findMoments(drvr_pin, onode, onode_volt, device, moment_index, ap);
       }
     }
@@ -689,9 +693,8 @@ ReduceToPiPoleResidue2::findPolesResidues(Parasitic *pi_pole_residue,
       || m1 / m2 == m2 / m3) {
     double p1 = -1.0 / m1;
     double k1 = 1.0;
-    debugPrint3(debug_, "parasitic_reduce", 3,
-		" load %s p1=%.3g k1=%.3g\n",
-		network_->pathName(load_pin), p1, k1);
+    debugPrint(debug_, "parasitic_reduce", 3, " load %s p1=%.3g k1=%.3g",
+               network_->pathName(load_pin), p1, k1);
     ComplexFloatSeq *poles = new ComplexFloatSeq(1);
     ComplexFloatSeq *residues = new ComplexFloatSeq(1);
     (*poles)[0] = ComplexFloat(p1, 0.0);
@@ -709,9 +712,9 @@ ReduceToPiPoleResidue2::findPolesResidues(Parasitic *pi_pole_residue,
       p1 = p;
       k1 = k;
     }
-    debugPrint5(debug_, "parasitic_reduce", 3,
-		" load %s p1=%.3g p2=%.3g k1=%.3g k2=%.3g\n",
-		network_->pathName(load_pin), p1, p2, k1, k2);
+    debugPrint(debug_, "parasitic_reduce", 3,
+               " load %s p1=%.3g p2=%.3g k1=%.3g k2=%.3g",
+               network_->pathName(load_pin), p1, p2, k1, k2);
 
     ComplexFloatSeq *poles = new ComplexFloatSeq(2);
     ComplexFloatSeq *residues = new ComplexFloatSeq(2);

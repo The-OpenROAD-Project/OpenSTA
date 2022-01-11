@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,17 +8,16 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
 #include <string>
 
-#include "Machine.hh"
 #include "DisallowCopyAssign.hh"
 #include "StringSeq.hh"
 #include "LibertyClass.hh"
@@ -67,6 +66,7 @@ class EquivCells;
 typedef InstanceSeq::Iterator SlowDrvrIterator;
 typedef Vector<const char*> CheckError;
 typedef Vector<CheckError*> CheckErrorSeq;
+typedef Vector<Corner*> CornerSeq;
 
 enum class CmdNamespace { sta, sdc };
 
@@ -156,19 +156,16 @@ public:
 		    const RiseFallBoth *rf,
 		    const MinMaxAll *min_max,
 		    float slew);
-  // Port external pin load.
-  float portExtPinCap(Port *port,
-		      const RiseFall *rf,
-		      const MinMax *min_max);
   // Set port external pin load (set_load -pin port).
   void setPortExtPinCap(Port *port,
 			const RiseFallBoth *rf,
 			const MinMaxAll *min_max,
 			float cap);
-  // Port external wire load.
-  float portExtWireCap(Port *port,
-		       const RiseFall *rf,
-		       const MinMax *min_max);
+  void portExtCaps(Port *port,
+                   const MinMax *min_max,
+                   float &pin_cap,
+                   float &wire_cap,
+                   int &fanout);
   // Set port external wire load (set_load -wire port).
   void setPortExtWireCap(Port *port,
 			 bool subtract_pin_cap,
@@ -181,15 +178,16 @@ public:
 		     const Corner *corner,
 		     const MinMaxAll *min_max,
 		     float cap);
-  // Port external fanout (used by wireload models).
-  int portExtFanout(Port *port,
-		    const MinMax *min_max);
   // Set port external fanout (used by wireload models).
   void setPortExtFanout(Port *port,
 			int fanout,
 			const MinMaxAll *min_max);
   // Remove all "set_load net" annotations.
   void removeNetLoadCaps() const;
+  // Liberty port capacitance.
+  float capacitance(const LibertyPort *port,
+                    Corner *corner,
+                    const MinMax *min_max);
   // pin_cap  = net pin capacitances + port external pin capacitance,
   // wire_cap = annotated net capacitance + port external wire capacitance.
   void connectedCap(Pin *drvr_pin,
@@ -199,8 +197,7 @@ public:
 		    float &pin_cap,
 		    float &wire_cap) const;
   void connectedCap(Net *net,
-		    const RiseFall *rf,
-		    const Corner *corner,
+		    Corner *corner,
 		    const MinMax *min_max,
 		    float &pin_cap,
 		    float &wire_cap) const;
@@ -605,14 +602,13 @@ public:
 	      ClockSet &clks);
 
   void checkSlewLimitPreamble();
-  // Return the pin with the min/max slew limit slack.
+  // Return pins with the min/max slew limit slack.
+  // net=null check all nets
   // corner=nullptr checks all corners.
-  Pin *pinMinSlewLimitSlack(const Corner *corner,
-			    const MinMax *min_max);
-  // Return all pins with min/max slew violations.
-  // corner=nullptr checks all corners.
-  PinSeq *pinSlewLimitViolations(const Corner *corner,
-				 const MinMax *min_max);
+  PinSeq *checkSlewLimits(Net *net,
+                          bool violators,
+                          const Corner *corner,
+                          const MinMax *min_max);
   void reportSlewLimitShortHeader();
   void reportSlewLimitShort(Pin *pin,
 			    const Corner *corner,
@@ -633,10 +629,12 @@ public:
 		 float &slack);
 
   void checkFanoutLimitPreamble();
-  // Return the pin with the min/max fanout limit slack.
-  Pin *pinMinFanoutLimitSlack(const MinMax *min_max);
-  // Return all pins with min/max fanout violations.
-  PinSeq *pinFanoutLimitViolations(const MinMax *min_max);
+  // Return pins with the min/max fanout limit slack.
+  // net=null check all nets
+  // corner=nullptr checks all corners.
+  PinSeq *checkFanoutLimits(Net *net,
+                            bool violators,
+                            const MinMax *min_max);
   void reportFanoutLimitShortHeader();
   void reportFanoutLimitShort(Pin *pin,
 			      const MinMax *min_max);
@@ -651,14 +649,13 @@ public:
 		   float &slack);
 
   void checkCapacitanceLimitPreamble();
-  // Return the pin with the min/max capacitance limit slack.
+  // Return pins with the min/max slew limit slack.
+  // net=null check all nets
   // corner=nullptr checks all corners.
-  Pin *pinMinCapacitanceLimitSlack(const Corner *corner,
-				   const MinMax *min_max);
-  // Return all pins with min/max capacitance violations.
-  // corner=nullptr checks all corners.
-  PinSeq *pinCapacitanceLimitViolations(const Corner *corner,
-					const MinMax *min_max);
+  PinSeq *checkCapacitanceLimits(Net *net,
+                                 bool violators,
+                                 const Corner *corner,
+                                 const MinMax *min_max);
   void reportCapacitanceLimitShortHeader();
   void reportCapacitanceLimitShort(Pin *pin,
 				   const Corner *corner,
@@ -756,7 +753,8 @@ public:
 			float slew);
   void writeSdf(const char *filename,
 		Corner *corner,
-		char sdf_divider,
+		char divider,
+                bool include_typ,
 		int digits,
 		bool gzip,
 		bool no_timestamp,
@@ -881,6 +879,7 @@ public:
 		     const Corner *corner,
 		     const SetupHold *setup_hold,
 		     int digits);
+  float findWorstClkSkew(const SetupHold *setup_hold);
   // Header above reportPathEnd results.
   void reportPathEndHeader();
   // Footer below reportPathEnd results.
@@ -899,6 +898,10 @@ public:
   // loops until the arrivals converge.
   // If full=false update arrivals incrementally.
   // If full=true update all arrivals from scratch.
+  // NOTE WELL: There is rarely any reason to call updateTiming directly because
+  // arrival/required/slack functions implicitly update timing incrementally.
+  // If you are calling this function you are either very confused or there is
+  // bug that should be reported.
   void updateTiming(bool full);
   // Invalidate all delay calculations. Arrivals also invalidated.
   void delaysInvalid();
@@ -906,6 +909,7 @@ public:
   void arrivalsInvalid();
   void visitStartpoints(VertexVisitor *visitor);
   void visitEndpoints(VertexVisitor *visitor);
+  int endpointCount();
   // Find the fanin vertices for a group path.
   // Vertices in the clock network are NOT included.
   // Return value is owned by the caller.
@@ -922,9 +926,9 @@ public:
 		bool leaf,
 		// Replace non-sdc get functions with OpenSTA equivalents.
 		bool native,
-		bool no_timestamp,
-		int digits);
-
+		int digits,
+                bool gzip,
+		bool no_timestamp);
   // The sum of all negative endpoints slacks.
   // Incrementally updated.
   Slack totalNegativeSlack(const MinMax *min_max);
@@ -947,28 +951,27 @@ public:
   VertexPathIterator *vertexPathIterator(Vertex *vertex,
 					 const RiseFall *rf,
 					 const MinMax *min_max);
-  void
-  vertexWorstArrivalPath(Vertex *vertex,
-			 const RiseFall *rf,
-			 const MinMax *min_max,
-			 // Return value.
-			 PathRef &worst_path);
-  void
-  vertexWorstArrivalPath(Vertex *vertex,
-			 const MinMax *min_max,
-			 // Return value.
-			 PathRef &worst_path);
-  void
-  vertexWorstSlackPath(Vertex *vertex,
-		       const MinMax *min_max,
-		       // Return value.
-		       PathRef &worst_path);
-  void
-  vertexWorstSlackPath(Vertex *vertex,
-		       const RiseFall *rf,
-		       const MinMax *min_max,
-		       // Return value.
-		       PathRef &worst_path);
+  PathRef vertexWorstArrivalPath(Vertex *vertex,
+                                 const RiseFall *rf,
+                                 const MinMax *min_max);
+  PathRef vertexWorstArrivalPath(Vertex *vertex,
+                                 const MinMax *min_max);
+  PathRef vertexWorstRequiredPath(Vertex *vertex,
+                                  const RiseFall *rf,
+                                  const MinMax *min_max);
+  PathRef vertexWorstRequiredPath(Vertex *vertex,
+                                  const MinMax *min_max);
+  PathRef vertexWorstSlackPath(Vertex *vertex,
+                               const MinMax *min_max);
+  PathRef vertexWorstSlackPath(Vertex *vertex,
+                               const RiseFall *rf,
+                               const MinMax *min_max);
+
+  // Find the min clock period for rise/rise and fall/fall paths of a clock
+  // using the slack. This does NOT correctly predict min period when there
+  // are paths between different clocks.
+  float findClkMinPeriod(const Clock *clk,
+                         bool include_port_paths);
 
   // The following arrival/required/slack functions incrementally
   // update timing to the level of the vertex.  They do NOT do multiple
@@ -984,6 +987,9 @@ public:
 			const PathAnalysisPt *path_ap);
   Required vertexRequired(Vertex *vertex,
 			  const MinMax *min_max);
+  Required vertexRequired(Vertex *vertex,
+                          const RiseFall *rf,
+                          const MinMax *min_max);
   // Min/max across all clock tags.
   Required vertexRequired(Vertex *vertex,
 			  const RiseFall *rf,
@@ -1016,7 +1022,12 @@ public:
 		    const PathAnalysisPt *path_ap);
   void vertexSlacks(Vertex *vertex,
 		    Slack (&slacks)[RiseFall::index_count][MinMax::index_count]);
-  // Slew for one delay calc analysis pt(corner).
+  // Slew for one corner.
+  Slew vertexSlew(Vertex *vertex,
+		  const RiseFall *rf,
+		  const Corner *corner,
+                  const MinMax *min_max);
+  // Slew for one delay calc analysis pt (corner min/max).
   Slew vertexSlew(Vertex *vertex,
 		  const RiseFall *rf,
 		  const DcalcAnalysisPt *dcalc_ap);
@@ -1045,30 +1056,45 @@ public:
   TagGroupIndex tagGroupCount() const;
   int clkInfoCount() const;
   int arrivalCount() const;
+  int requiredCount() const;
   int vertexArrivalCount(Vertex  *vertex) const;
   Vertex *maxArrivalCountVertex() const;
 
   LogicValue simLogicValue(const Pin *pin);
+  // Propagate liberty constant functions and pins tied high/low through
+  // combinational logic and registers.
+  void findLogicConstants();
+  // Clear the constants found by findLogicConstants so they do not interfere
+  // with normal constant propagate for timing.
+  void clearLogicConstants();
+
   // Iterator for instances sorted by max driver pin slew.
   // Caller owns iterator and iterator->container().
   SlowDrvrIterator *slowDrvrIterator();
 
+  // Make parasitic analysis points.
+  // per_corner per_min_max     ap_count
+  //      false       false            1
+  //      false        true            2
+  //       true       false      corners
+  //       true        true    corners*2
+  void setParasiticAnalysisPts(bool per_corner,
+                               bool per_min_max);
   // Annotate hierarchical "instance" with parasitics.
   // The parasitic analysis point is ap_name.
-  // The parasitics are used by delay calculation analysis points
-  // specfied by min_max.
   // The parasitic memory footprint is much smaller if parasitic
   // networks (dspf) are reduced and deleted after reading each net
   // with reduce_to and delete_after_reduce.
   // Return true if successful.
   bool readSpef(const char *filename,
 		Instance *instance,
-		const MinMaxAll *min_max,
+		const Corner *corner,
+                const MinMaxAll *min_max,
 		bool increment,
 		bool pin_cap_included,
 		bool keep_coupling_caps,
 		float coupling_cap_factor,
-		ReduceParasiticsTo reduce_to,
+		ReducedParasiticType reduce_to,
 		bool delete_after_reduce,
 		bool quiet);
   // Parasitics.
@@ -1097,6 +1123,9 @@ public:
 		 const MinMaxAll *min_max,
 		 float elmore);
   void deleteParasitics();
+  Parasitic *makeParasiticNetwork(const Net *net,
+                                  bool includes_pin_caps,
+                                  const ParasiticAnalysisPt *ap);
 
   // TCL network edit function support.
   virtual Instance *makeInstance(const char *name,
@@ -1122,11 +1151,11 @@ public:
   virtual void disconnectPin(Pin *pin);
   // Notify STA of network change.
   void networkChanged();
+  void deleteLeafInstanceBefore(Instance *inst);
+  void deleteInstancePinsBefore(Instance *inst);
 
   // Network edit before/after methods.
   void makeInstanceAfter(Instance *inst);
-  // Not used by Sta (connectPinAfter).
-  void makePinAfter(Pin *pin) __attribute__ ((deprecated));
   // Replace the instance cell with to_cell.
   // equivCells(from_cell, to_cell) must be true.
   virtual void replaceEquivCellBefore(Instance *inst,
@@ -1151,6 +1180,7 @@ public:
   bool isClock(const Pin *pin) const;
   bool isClock(const Net *net) const;
   bool isIdealClock(const Pin *pin) const;
+  bool isPropagatedClock(const Pin *pin) const;
   const PinSet *pins(const Clock *clk);
 
   ////////////////////////////////////////////////////////////////
@@ -1255,12 +1285,10 @@ protected:
   LibertyLibrary *readLibertyFile(const char *filename,
 				  Corner *corner,
 				  const MinMaxAll *min_max,
-				  bool infer_latches,
-				  Network *network);
+				  bool infer_latches);
   // Allow external Liberty reader to parse forms not used by Sta.
   virtual LibertyLibrary *readLibertyFile(const char *filename,
-					  bool infer_latches,
-					  Network *network);
+					  bool infer_latches);
   void delayCalcPreamble();
   void delaysInvalidFrom(Port *port);
   void delaysInvalidFromFanin(Port *port);
@@ -1279,6 +1307,11 @@ protected:
 		     const ClockEdge *clk_edge,
 		     const PathAnalysisPt *path_ap);
   void findRequired(Vertex *vertex);
+  Required vertexRequired(Vertex *vertex,
+                          const RiseFall *rf,
+                          const ClockEdge *clk_edge,
+                          const PathAnalysisPt *path_ap,
+                          const MinMax *min_max);
   void connectDrvrPinAfter(Vertex *vertex);
   void connectLoadPinAfter(Vertex *vertex);
   Path *latchEnablePath(Path *q_path,
@@ -1322,20 +1355,19 @@ protected:
 		      int pin_level);
   void findRegisterPreamble();
   bool crossesHierarchy(Edge *edge) const;
-  void deleteLeafInstanceBefore(Instance *inst);
   void readLibertyAfter(LibertyLibrary *liberty,
 			Corner *corner,
 			const MinMax *min_max);
   void powerPreamble();
   void disableFanoutCrprPruning(Vertex *vertex,
-			      int &fanou);
-  LibertyPort *findCellPort(LibertyCell *cell,
-			    PortDirection *dir);
-  void replaceCell(Instance *inst,
-		   Cell *to_cell,
-		   LibertyCell *to_lib_cell);
+				int &fanou);
+  virtual void replaceCell(Instance *inst,
+                           Cell *to_cell,
+                           LibertyCell *to_lib_cell);
   void sdcChangedGraph();
   void ensureGraphSdcAnnotated();
+  CornerSeq makeCornerSeq(Corner *corner) const;
+  void makeParasiticAnalysisPts();
 
   CmdNamespace cmd_namespace_;
   Instance *current_instance_;
@@ -1355,6 +1387,8 @@ protected:
   bool update_genclks_;
   EquivCells *equiv_cells_;
   bool graph_sdc_annotated_;
+  bool parasitics_per_corner_;
+  bool parasitics_per_min_max_;
 
   // Singleton sta used by tcl command interpreter.
   static Sta *sta_;

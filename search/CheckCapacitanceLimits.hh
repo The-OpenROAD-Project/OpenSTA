@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -42,49 +42,53 @@ public:
 			float &capacitance,
 			float &limit,
 			float &slack) const;
+  // Return pins with the min/max cap limit slack.
+  // net=null check all nets
   // corner=nullptr checks all corners.
-  PinSeq *pinCapacitanceLimitViolations(const Corner *corner,
-					const MinMax *min_max);
-  // corner=nullptr checks all corners.
-  Pin *pinMinCapacitanceLimitSlack(const Corner *corner,
-				   const MinMax *min_max);
+  PinSeq *checkCapacitanceLimits(Net *net,
+                                 bool violators,
+                                 const Corner *corner,
+                                 const MinMax *min_max);
 
 protected:
   void checkCapacitance(const Pin *pin,
 			const Corner *corner,
 			const MinMax *min_max,
-			const RiseFall *rf1,
-			float limit1,
+			const RiseFall *rf,
+			float limit,
 			// Return values.
 			const Corner *&corner1,
-			const RiseFall *&rf,
-			float &capacitance,
-			float &slack,
-			float &limit) const;
+			const RiseFall *&rf1,
+			float &capacitance1,
+			float &slack1,
+			float &limit1) const;
   void checkCapacitance1(const Pin *pin,
-			 const Corner *corner1,
-			 const MinMax *min_max,
-			 // Return values.
-			 const Corner *&corner,
-			 const RiseFall *&rf,
-			 float &capacitance,
-			 float &limit,
-			 float &slack) const;
+                         const Corner *corner,
+                         const MinMax *min_max,
+                         // Return values.
+                         const Corner *&corner1,
+                         const RiseFall *&rf1,
+                         float &capacitance1,
+                         float &limit1,
+                         float &slack1) const;
   void findLimit(const Pin *pin,
+                 const Corner *corner,
 		 const MinMax *min_max,
 		 // Return values.
 		 float &limit,
 		 bool &limit_exists) const;
-  void pinCapacitanceLimitViolations(Instance *inst,
-				     const Corner *corner,
-				     const MinMax *min_max,
-				     PinSeq *violators);
-  void pinMinCapacitanceLimitSlack(Instance *inst,
-				   const Corner *corner,
-				   const MinMax *min_max,
-				   // Return values.
-				   Pin *&min_slack_pin,
-				   float &min_slack);
+  void checkCapLimits(Instance *inst,
+                      bool violators,
+                      const Corner *corner,
+                      const MinMax *min_max,
+                      PinSeq *cap_pins,
+                      float &min_slack);
+  void checkCapLimits(Pin *pin,
+                      bool violators,
+                      const Corner *corner,
+                      const MinMax *min_max,
+                      PinSeq *cap_pins,
+                      float &min_slack);
   bool checkPin(Pin *pin);
 
   const Sta *sta_;

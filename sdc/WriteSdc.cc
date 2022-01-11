@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "WriteSdc.hh"
 
@@ -20,7 +20,7 @@
 #include <algorithm>
 #include <time.h>
 
-#include "DisallowCopyAssign.hh"
+#include "Zlib.hh"
 #include "Report.hh"
 #include "Error.hh"
 #include "Units.hh"
@@ -44,8 +44,9 @@
 #include "DataCheck.hh"
 #include "DeratingFactors.hh"
 #include "Sdc.hh"
-#include "WriteSdcPvt.hh"
+#include "Fuzzy.hh"
 #include "StaState.hh"
+#include "WriteSdcPvt.hh"
 
 namespace sta {
 
@@ -95,7 +96,7 @@ private:
 };
 
 WriteGetPort::WriteGetPort(const Port *port,
-			   const WriteSdc *writer) :
+                           const WriteSdc *writer) :
   port_(port),
   writer_(writer)
 {
@@ -140,7 +141,7 @@ void
 WriteGetPinAndClkKey::write() const
 {
   writer_->writeClockKey(clk_);
-  fprintf(writer_->stream(), " ");
+  gzprintf(writer_->stream(), " ");
   writer_->writeGetPin(pin_, map_hpin_to_drvr_);
 }
 
@@ -162,7 +163,7 @@ private:
 
 WriteGetPin::WriteGetPin(const Pin *pin,
 			 bool map_hpin_to_drvr,
-			 const WriteSdc *writer) :
+                         const WriteSdc *writer) :
   pin_(pin),
   map_hpin_to_drvr_(map_hpin_to_drvr),
   writer_(writer)
@@ -291,17 +292,17 @@ writeSdc(Instance *instance,
 	 const char *creator,
 	 bool map_hpins,
 	 bool native,
-	 bool no_timestamp,
 	 int digits,
+         bool gzip,
+	 bool no_timestamp,
 	 Sdc *sdc)
 {
-  WriteSdc writer(instance, filename, creator, map_hpins, native,
+  WriteSdc writer(instance, creator, map_hpins, native,
 		  digits, no_timestamp, sdc);
-  writer.write();
+  writer.write(filename, gzip);
 }
 
 WriteSdc::WriteSdc(Instance *instance,
-		   const char *filename,
 		   const char *creator,
 		   bool map_hpins,
 		   bool native,
@@ -310,7 +311,6 @@ WriteSdc::WriteSdc(Instance *instance,
 		   Sdc *sdc) :
   StaState(sdc),
   instance_(instance),
-  filename_(filename),
   creator_(creator),
   map_hpins_(map_hpins),
   native_(native),
@@ -327,9 +327,10 @@ WriteSdc::~WriteSdc()
 }
 
 void
-WriteSdc::write()
+WriteSdc::write(const char *filename,
+                bool gzip)
 {
-  openFile(filename_);
+  openFile(filename, gzip);
   writeHeader();
   writeTiming();
   writeEnvironment();
@@ -339,9 +340,10 @@ WriteSdc::write()
 }
 
 void
-WriteSdc::openFile(const char *filename)
+WriteSdc::openFile(const char *filename,
+                   bool gzip)
 {
-  stream_ = fopen(filename, "w");
+  stream_ = gzopen(filename, gzip ? "wb" : "wT");
   if (stream_ == nullptr)
     throw FileNotWritable(filename);
 }
@@ -349,31 +351,25 @@ WriteSdc::openFile(const char *filename)
 void
 WriteSdc::closeFile()
 {
-  fclose(stream_);
-}
-
-void
-WriteSdc::flush()
-{
-  fflush(stream_);
+  gzclose(stream_);
 }
 
 void
 WriteSdc::writeHeader() const
 {
   writeCommentSeparator();
-  fprintf(stream_, "# Created by %s\n", creator_);
+  gzprintf(stream_, "# Created by %s\n", creator_);
   if (!no_timestamp_) {
     time_t now;
     time(&now);
     char *time_str = ctime(&now);
     // Remove trailing \n.
     time_str[strlen(time_str) - 1] = '\0';
-    fprintf(stream_, "# %s\n", time_str);
+    gzprintf(stream_, "# %s\n", time_str);
   }
   writeCommentSeparator();
 
-  fprintf(stream_, "current_design %s\n", sdc_network_->name(cell_));
+  gzprintf(stream_, "current_design %s\n", sdc_network_->name(cell_));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -410,9 +406,9 @@ WriteSdc::writeClocks() const
     writeClockSlews(clk);
     writeClockUncertainty(clk);
     if (clk->isPropagated()) {
-      fprintf(stream_, "set_propagated_clock ");
+      gzprintf(stream_, "set_propagated_clock ");
       writeGetClock(clk);
-      fprintf(stream_, "\n");
+      gzprintf(stream_, "\n");
     }
   }
 }
@@ -420,73 +416,79 @@ WriteSdc::writeClocks() const
 void
 WriteSdc::writeClock(Clock *clk) const
 {
-  fprintf(stream_, "create_clock -name %s",
+  gzprintf(stream_, "create_clock -name %s",
 	  clk->name());
   if (clk->addToPins())
-    fprintf(stream_, " -add");
-  fprintf(stream_, " -period ");
-  writeTime(clk->period());
-  fprintf(stream_, " -waveform ");
-  writeFloatSeq(clk->waveform(), scaleTime(1.0));
+    gzprintf(stream_, " -add");
+  gzprintf(stream_, " -period ");
+  float period = clk->period();
+  writeTime(period);
+  FloatSeq *waveform = clk->waveform();
+  if (!(waveform->size() == 2
+        && (*waveform)[0] == 0.0
+        && fuzzyEqual((*waveform)[1], period / 2.0))) {
+    gzprintf(stream_, " -waveform ");
+    writeFloatSeq(waveform, scaleTime(1.0));
+  }
   writeCmdComment(clk);
-  fprintf(stream_, " ");
+  gzprintf(stream_, " ");
   writeClockPins(clk);
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 void
 WriteSdc::writeGeneratedClock(Clock *clk) const
 {
-  fprintf(stream_, "create_generated_clock -name %s",
+  gzprintf(stream_, "create_generated_clock -name %s",
 	  clk->name());
   if (clk->addToPins())
-    fprintf(stream_, " -add");
-  fprintf(stream_, " -source ");
+    gzprintf(stream_, " -add");
+  gzprintf(stream_, " -source ");
   writeGetPin(clk->srcPin(), true);
   Clock *master = clk->masterClk();
   if (master && !clk->masterClkInfered()) {
-    fprintf(stream_, " -master_clock ");
+    gzprintf(stream_, " -master_clock ");
     writeGetClock(master);
   }
   Pin *pll_out = clk->pllOut();
   if (pll_out) {
-    fprintf(stream_, " -pll_out ");
+    gzprintf(stream_, " -pll_out ");
     writeGetPin(pll_out, true);
   }
   Pin *pll_fdbk = clk->pllFdbk();
   if (pll_fdbk) {
-    fprintf(stream_, " -pll_feedback ");
+    gzprintf(stream_, " -pll_feedback ");
     writeGetPin(pll_fdbk, false);
   }
   if (clk->combinational())
-    fprintf(stream_, " -combinational");
+    gzprintf(stream_, " -combinational");
   int divide_by = clk->divideBy();
   if (divide_by != 0)
-    fprintf(stream_, " -divide_by %d", divide_by);
+    gzprintf(stream_, " -divide_by %d", divide_by);
   int multiply_by = clk->multiplyBy();
   if (multiply_by != 0)
-    fprintf(stream_, " -multiply_by %d", multiply_by);
+    gzprintf(stream_, " -multiply_by %d", multiply_by);
   float duty_cycle = clk->dutyCycle();
   if (duty_cycle != 0.0) {
-    fprintf(stream_, " -duty_cycle ");
+    gzprintf(stream_, " -duty_cycle ");
     writeFloat(duty_cycle);
   }
   if (clk->invert())
-    fprintf(stream_, " -invert");
+    gzprintf(stream_, " -invert");
   IntSeq *edges = clk->edges();
   if (edges && !edges->empty()) {
-    fprintf(stream_, " -edges ");
+    gzprintf(stream_, " -edges ");
     writeIntSeq(edges);
     FloatSeq *edge_shifts = clk->edgeShifts();
     if (edge_shifts && !edge_shifts->empty()) {
-      fprintf(stream_, " -edge_shift ");
+      gzprintf(stream_, " -edge_shift ");
       writeFloatSeq(edge_shifts, scaleTime(1.0));
     }
   }
   writeCmdComment(clk);
-  fprintf(stream_, " ");
+  gzprintf(stream_, " ");
   writeClockPins(clk);
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 void
@@ -496,7 +498,7 @@ WriteSdc::writeClockPins(Clock *clk) const
   PinSet &pins = clk->pins();
   if (!pins.empty()) {
     if (pins.size() > 1)
-      fprintf(stream_, "\\\n    ");
+      gzprintf(stream_, "\\\n    ");
     writeGetPins(&pins, true);
   }
 }
@@ -534,9 +536,9 @@ WriteSdc::writeClockUncertainty(Clock *clk,
 				const char *setup_hold,
 				float value) const
 {
-  fprintf(stream_, "set_clock_uncertainty %s", setup_hold);
+  gzprintf(stream_, "set_clock_uncertainty %s", setup_hold);
   writeTime(value);
-  fprintf(stream_, " %s\n", clk->name());
+  gzprintf(stream_, " %s\n", clk->name());
 }
 
 void
@@ -576,11 +578,11 @@ WriteSdc::writeClockUncertaintyPin(const Pin *pin,
 				   const char *setup_hold,
 				   float value) const
 {
-  fprintf(stream_, "set_clock_uncertainty %s", setup_hold);
+  gzprintf(stream_, "set_clock_uncertainty %s", setup_hold);
   writeTime(value);
-  fprintf(stream_, " ");
+  gzprintf(stream_, " ");
   writeGetPin(pin, true);
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 void
@@ -655,9 +657,9 @@ WriteSdc::writePropagatedClkPins() const
   PinSet::Iterator pin_iter(sdc_->propagated_clk_pins_);
   while (pin_iter.hasNext()) {
     const Pin *pin = pin_iter.next();
-    fprintf(stream_, "set_propagated_clock ");
+    gzprintf(stream_, "set_propagated_clock ");
     writeGetPin(pin, true);
-    fprintf(stream_, "\n");
+    gzprintf(stream_, "\n");
   }
 }
 
@@ -685,13 +687,13 @@ writeInterClockUncertainty(InterClockUncertainty *uncertainty) const
   float value;
   if (src_rise->equal(src_fall)
       && src_rise->isOneValue(value)) {
-    fprintf(stream_, "set_clock_uncertainty -from ");
+    gzprintf(stream_, "set_clock_uncertainty -from ");
     writeGetClock(src_clk);
-    fprintf(stream_, " -to ");
+    gzprintf(stream_, " -to ");
     writeGetClock(tgt_clk);
-    fprintf(stream_, " ");
+    gzprintf(stream_, " ");
     writeTime(value);
-    fprintf(stream_, "\n");
+    gzprintf(stream_, "\n");
   }
   else {
     for (auto src_rf : RiseFall::range()) {
@@ -702,16 +704,16 @@ writeInterClockUncertainty(InterClockUncertainty *uncertainty) const
 	  sdc_->clockUncertainty(src_clk, src_rf, tgt_clk, tgt_rf,
 					 setup_hold, value, exists);
 	  if (exists) {
-	    fprintf(stream_, "set_clock_uncertainty -%s_from ",
+	    gzprintf(stream_, "set_clock_uncertainty -%s_from ",
 		    src_rf == RiseFall::rise() ? "rise" : "fall");
 	    writeGetClock(uncertainty->src());
-	    fprintf(stream_, " -%s_to ",
+	    gzprintf(stream_, " -%s_to ",
 		    tgt_rf == RiseFall::rise() ? "rise" : "fall");
 	    writeGetClock(uncertainty->target());
-	    fprintf(stream_, " %s ",
+	    gzprintf(stream_, " %s ",
 		    setupHoldFlag(setup_hold));
 	    writeTime(value);
-	    fprintf(stream_, "\n");
+	    gzprintf(stream_, "\n");
 	  }
 	}
       }
@@ -827,25 +829,25 @@ WriteSdc::writePortDelay(PortDelay *port_delay,
 			 const MinMaxAll *min_max,
 			 const char *sdc_cmd) const
 {
-  fprintf(stream_, "%s ", sdc_cmd);
+  gzprintf(stream_, "%s ", sdc_cmd);
   writeTime(delay);
   ClockEdge *clk_edge = port_delay->clkEdge();
   if (clk_edge) {
     writeClockKey(clk_edge->clock());
     if (clk_edge->transition() == RiseFall::fall())
-      fprintf(stream_, " -clock_fall");
+      gzprintf(stream_, " -clock_fall");
   }
-  fprintf(stream_, "%s%s -add_delay ",
+  gzprintf(stream_, "%s%s -add_delay ",
 	  transRiseFallFlag(rf),
 	  minMaxFlag(min_max));
   Pin *ref_pin = port_delay->refPin();
   if (ref_pin) {
-    fprintf(stream_, "-reference_pin ");
+    gzprintf(stream_, "-reference_pin ");
     writeGetPin(ref_pin, true);
-    fprintf(stream_, " ");
+    gzprintf(stream_, " ");
   }
   writeGetPin(port_delay->pin(), is_input_delay);
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 class PinClockPairNameLess
@@ -909,15 +911,15 @@ WriteSdc::writeClockSense(PinClockPair &pin_clk,
     flag = "-negative";
   else if (sense == ClockSense::stop)
     flag = "-stop_propagation";
-  fprintf(stream_, "set_sense -type clock %s ", flag);
+  gzprintf(stream_, "set_sense -type clock %s ", flag);
   const Clock *clk = pin_clk.second;
   if (clk) {
-    fprintf(stream_, "-clock ");
+    gzprintf(stream_, "-clock ");
     writeGetClock(clk);
-    fprintf(stream_, " ");
+    gzprintf(stream_, " ");
   }
   writeGetPin(pin_clk.first, true);
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 class ClockGroupLess
@@ -981,15 +983,15 @@ WriteSdc::writeClockGroups() const
 void
 WriteSdc::writeClockGroups(ClockGroups *clk_groups) const
 {
-  fprintf(stream_, "set_clock_groups -name %s ", clk_groups->name());
+  gzprintf(stream_, "set_clock_groups -name %s ", clk_groups->name());
   if (clk_groups->logicallyExclusive())
-    fprintf(stream_, "-logically_exclusive \\\n");
+    gzprintf(stream_, "-logically_exclusive \\\n");
   else if (clk_groups->physicallyExclusive())
-    fprintf(stream_, "-physically_exclusive \\\n");
+    gzprintf(stream_, "-physically_exclusive \\\n");
   else if (clk_groups->asynchronous())
-    fprintf(stream_, "-asynchronous \\\n");
+    gzprintf(stream_, "-asynchronous \\\n");
   if (clk_groups->allowPaths())
-    fprintf(stream_, "-allow_paths \\\n");
+    gzprintf(stream_, "-allow_paths \\\n");
   Vector<ClockGroup*> groups;
   ClockGroupSet::Iterator group_iter1(clk_groups->groups());
   while (group_iter1.hasNext()) {
@@ -1002,13 +1004,13 @@ WriteSdc::writeClockGroups(ClockGroups *clk_groups) const
   while (group_iter2.hasNext()) {
     ClockGroup *clk_group = group_iter2.next();
     if (!first)
-      fprintf(stream_, "\\\n");
-    fprintf(stream_, " -group ");
+      gzprintf(stream_, "\\\n");
+    gzprintf(stream_, " -group ");
     writeGetClocks(clk_group->clks());
     first = false;
   }
   writeCmdComment(clk_groups);
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1034,9 +1036,9 @@ WriteSdc::writeDisabledCells() const
     DisabledCellPorts *disable = disabled_iter.next();
     LibertyCell *cell = disable->cell();
     if (disable->all()) {
-      fprintf(stream_, "set_disable_timing ");
+      gzprintf(stream_, "set_disable_timing ");
       writeGetLibCell(cell);
-      fprintf(stream_, "\n");
+      gzprintf(stream_, "\n");
     }
     if (disable->fromTo()) {
       LibertyPortPairSeq pairs;
@@ -1046,11 +1048,11 @@ WriteSdc::writeDisabledCells() const
 	LibertyPortPair *from_to = pair_iter.next();
 	const LibertyPort *from = from_to->first;
 	const LibertyPort *to = from_to->second;
-	fprintf(stream_, "set_disable_timing -from {%s} -to {%s} ",
+	gzprintf(stream_, "set_disable_timing -from {%s} -to {%s} ",
 		from->name(),
 		to->name());
 	writeGetLibCell(cell);
-	fprintf(stream_, "\n");
+	gzprintf(stream_, "\n");
       }
     }
     if (disable->from()) {
@@ -1059,10 +1061,10 @@ WriteSdc::writeDisabledCells() const
       LibertyPortSeq::Iterator from_iter(from);
       while (from_iter.hasNext()) {
 	LibertyPort *from_port = from_iter.next();
-	fprintf(stream_, "set_disable_timing -from {%s} ",
+	gzprintf(stream_, "set_disable_timing -from {%s} ",
 		from_port->name());
 	writeGetLibCell(cell);
-	fprintf(stream_, "\n");
+	gzprintf(stream_, "\n");
       }
     }
     if (disable->to()) {
@@ -1071,18 +1073,18 @@ WriteSdc::writeDisabledCells() const
       LibertyPortSeq::Iterator to_iter(to);
       while (to_iter.hasNext()) {
 	LibertyPort *to_port = to_iter.next();
-	fprintf(stream_, "set_disable_timing -to {%s} ",
+	gzprintf(stream_, "set_disable_timing -to {%s} ",
 		to_port->name());
 	writeGetLibCell(cell);
-	fprintf(stream_, "\n");
+	gzprintf(stream_, "\n");
       }
     }
     if (disable->timingArcSets()) {
       // The only syntax to disable timing arc sets disables all of the
       // cell's timing arc sets.
-      fprintf(stream_, "set_disable_timing ");
+      gzprintf(stream_, "set_disable_timing ");
       writeGetTimingArcsOfOjbects(cell);
-      fprintf(stream_, "\n");
+      gzprintf(stream_, "\n");
     }
   }
 }
@@ -1095,9 +1097,9 @@ WriteSdc::writeDisabledPorts() const
   PortSeq::Iterator port_iter(ports);
   while (port_iter.hasNext()) {
     Port *port = port_iter.next();
-    fprintf(stream_, "set_disable_timing ");
+    gzprintf(stream_, "set_disable_timing ");
     writeGetPort(port);
-    fprintf(stream_, "\n");
+    gzprintf(stream_, "\n");
   }
 }
 
@@ -1109,9 +1111,9 @@ WriteSdc::writeDisabledLibPorts() const
   LibertyPortSeq::Iterator port_iter(ports);
   while (port_iter.hasNext()) {
     LibertyPort *port = port_iter.next();
-    fprintf(stream_, "set_disable_timing ");
+    gzprintf(stream_, "set_disable_timing ");
     writeGetLibPin(port);
-    fprintf(stream_, "\n");
+    gzprintf(stream_, "\n");
   }
 }
 
@@ -1126,9 +1128,9 @@ WriteSdc::writeDisabledInstances() const
     DisabledInstancePorts *disable = disabled_iter.next();
     Instance *inst = disable->instance();
     if (disable->all()) {
-      fprintf(stream_, "set_disable_timing ");
+      gzprintf(stream_, "set_disable_timing ");
       writeGetInstance(inst);
-      fprintf(stream_, "\n");
+      gzprintf(stream_, "\n");
     }
     else if (disable->fromTo()) {
       LibertyPortPairSeq pairs;
@@ -1138,11 +1140,11 @@ WriteSdc::writeDisabledInstances() const
 	LibertyPortPair *from_to = pair_iter.next();
 	const LibertyPort *from_port = from_to->first;
 	const LibertyPort *to_port = from_to->second;
-	fprintf(stream_, "set_disable_timing -from {%s} -to {%s} ",
+	gzprintf(stream_, "set_disable_timing -from {%s} -to {%s} ",
 		from_port->name(),
 		to_port->name());
 	writeGetInstance(inst);
-	fprintf(stream_, "\n");
+	gzprintf(stream_, "\n");
       }
     }
     if (disable->from()) {
@@ -1151,10 +1153,10 @@ WriteSdc::writeDisabledInstances() const
       LibertyPortSeq::Iterator from_iter(from);
       while (from_iter.hasNext()) {
 	LibertyPort *from_port = from_iter.next();
-	fprintf(stream_, "set_disable_timing -from {%s} ",
+	gzprintf(stream_, "set_disable_timing -from {%s} ",
 		from_port->name());
 	writeGetInstance(inst);
-	fprintf(stream_, "\n");
+	gzprintf(stream_, "\n");
       }
     }
     if (disable->to()) {
@@ -1163,10 +1165,10 @@ WriteSdc::writeDisabledInstances() const
       LibertyPortSeq::Iterator to_iter(to);
       while (to_iter.hasNext()) {
 	LibertyPort *to_port = to_iter.next();
-	fprintf(stream_, "set_disable_timing -to {%s} ",
+	gzprintf(stream_, "set_disable_timing -to {%s} ",
 		to_port->name());
 	writeGetInstance(inst);
-	fprintf(stream_, "\n");
+	gzprintf(stream_, "\n");
       }
     }
   }
@@ -1180,9 +1182,9 @@ WriteSdc::writeDisabledPins() const
   PinSeq::Iterator pin_iter(pins);
   while (pin_iter.hasNext()) {
     Pin *pin = pin_iter.next();
-    fprintf(stream_, "set_disable_timing ");
+    gzprintf(stream_, "set_disable_timing ");
     writeGetPin(pin, false);
-    fprintf(stream_, "\n");
+    gzprintf(stream_, "\n");
   }
 }
 
@@ -1240,20 +1242,20 @@ WriteSdc::edgeSenseIsUnique(Edge *edge,
 void
 WriteSdc::writeDisabledEdge(Edge *edge) const
 {
-  fprintf(stream_, "set_disable_timing ");
+  gzprintf(stream_, "set_disable_timing ");
   writeGetTimingArcs(edge);
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 void
 WriteSdc::writeDisabledEdgeSense(Edge *edge) const
 {
-  fprintf(stream_, "set_disable_timing ");
+  gzprintf(stream_, "set_disable_timing ");
   const char *sense = timingSenseString(edge->sense());
   string filter;
   stringPrint(filter, "sense == %s", sense);
   writeGetTimingArcs(edge, filter.c_str());
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1289,57 +1291,57 @@ WriteSdc::writeException(ExceptionPath *exception) const
     writeExceptionTo(exception->to());
   writeExceptionValue(exception);
   writeCmdComment(exception);
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 void
 WriteSdc::writeExceptionCmd(ExceptionPath *exception) const
 {
   if (exception->isFalse()) {
-    fprintf(stream_, "set_false_path");
+    gzprintf(stream_, "set_false_path");
     writeSetupHoldFlag(exception->minMax());
   }
   else if (exception->isMultiCycle()) {
-    fprintf(stream_, "set_multicycle_path");
+    gzprintf(stream_, "set_multicycle_path");
     const MinMaxAll *min_max = exception->minMax();
     writeSetupHoldFlag(min_max);
     if (min_max == MinMaxAll::min()) {
       // For hold MCPs default is -start.
       if (exception->useEndClk())
-	fprintf(stream_, " -end");
+	gzprintf(stream_, " -end");
     }
     else {
       // For setup MCPs default is -end.
       if (!exception->useEndClk())
-	fprintf(stream_, " -start");
+	gzprintf(stream_, " -start");
     }
   }
   else if (exception->isPathDelay()) {
     if (exception->minMax() == MinMaxAll::max())
-      fprintf(stream_, "set_max_delay");
+      gzprintf(stream_, "set_max_delay");
     else
-      fprintf(stream_, "set_min_delay");
+      gzprintf(stream_, "set_min_delay");
     if (exception->ignoreClkLatency())
-      fprintf(stream_, " -ignore_clock_latency");
+      gzprintf(stream_, " -ignore_clock_latency");
   }
   else if (exception->isGroupPath()) {
     if (exception->isDefault())
-      fprintf(stream_, "group_path -default");
+      gzprintf(stream_, "group_path -default");
     else
-      fprintf(stream_, "group_path -name %s", exception->name());
+      gzprintf(stream_, "group_path -name %s", exception->name());
   }
   else
-    internalError("unknown exception type");
+    report_->critical(214, "unknown exception type");
 }
 
 void
 WriteSdc::writeExceptionValue(ExceptionPath *exception) const
 {
   if (exception->isMultiCycle())
-    fprintf(stream_, " %d",
+    gzprintf(stream_, " %d",
 	    exception->pathMultiplier());
   else if (exception->isPathDelay()) {
-    fprintf(stream_, " ");
+    gzprintf(stream_, " ");
     writeTime(exception->delay());
   }
 }
@@ -1355,7 +1357,7 @@ WriteSdc::writeExceptionTo(ExceptionTo *to) const
 {
   const RiseFallBoth *end_rf = to->endTransition();
   if (end_rf != RiseFallBoth::riseFall())
-    fprintf(stream_, "%s ", transRiseFallFlag(end_rf));
+    gzprintf(stream_, "%s ", transRiseFallFlag(end_rf));
   if (to->hasObjects())
     writeExceptionFromTo(to, "to", false);
 }
@@ -1366,18 +1368,18 @@ WriteSdc::writeExceptionFromTo(ExceptionFromTo *from_to,
 			       bool map_hpin_to_drvr) const
 {
   const RiseFallBoth *rf = from_to->transition();
-  const char *tr_prefix = "-";
+  const char *rf_prefix = "-";
   if (rf == RiseFallBoth::rise())
-    tr_prefix = "-rise_";
+    rf_prefix = "-rise_";
   else if (rf == RiseFallBoth::fall())
-    tr_prefix = "-fall_";
-  fprintf(stream_, "\\\n    %s%s ", tr_prefix, from_to_key);
+    rf_prefix = "-fall_";
+  gzprintf(stream_, "\\\n    %s%s ", rf_prefix, from_to_key);
   bool multi_objs =
     ((from_to->pins() ? from_to->pins()->size() : 0)
      + (from_to->clks() ? from_to->clks()->size() : 0)
      + (from_to->instances() ? from_to->instances()->size() : 0)) > 1;
   if (multi_objs)
-    fprintf(stream_, "[list ");
+    gzprintf(stream_, "[list ");
   bool first = true;
   if (from_to->pins()) {
     PinSeq pins;
@@ -1386,7 +1388,7 @@ WriteSdc::writeExceptionFromTo(ExceptionFromTo *from_to,
     while (pin_iter.hasNext()) {
       Pin *pin = pin_iter.next();
       if (multi_objs && !first)
-	fprintf(stream_, "\\\n           ");
+	gzprintf(stream_, "\\\n           ");
       writeGetPin(pin, map_hpin_to_drvr);
       first = false;
     }
@@ -1400,25 +1402,25 @@ WriteSdc::writeExceptionFromTo(ExceptionFromTo *from_to,
     while (inst_iter.hasNext()) {
       Instance *inst = inst_iter.next();
       if (multi_objs && !first)
-	fprintf(stream_, "\\\n           ");
+	gzprintf(stream_, "\\\n           ");
       writeGetInstance(inst);
       first = false;
     }
   }
   if (multi_objs)
-    fprintf(stream_, "]");
+    gzprintf(stream_, "]");
 }
 
 void
 WriteSdc::writeExceptionThru(ExceptionThru *thru) const
 {
   const RiseFallBoth *rf = thru->transition();
-  const char *tr_prefix = "-";
+  const char *rf_prefix = "-";
   if (rf == RiseFallBoth::rise())
-    tr_prefix = "-rise_";
+    rf_prefix = "-rise_";
   else if (rf == RiseFallBoth::fall())
-    tr_prefix = "-fall_";
-  fprintf(stream_, "\\\n    %sthrough ", tr_prefix);
+    rf_prefix = "-fall_";
+  gzprintf(stream_, "\\\n    %sthrough ", rf_prefix);
   PinSeq pins;
   mapThruHpins(thru, pins);
   bool multi_objs =
@@ -1426,14 +1428,14 @@ WriteSdc::writeExceptionThru(ExceptionThru *thru) const
      + (thru->nets() ? thru->nets()->size() : 0)
      + (thru->instances() ? thru->instances()->size() : 0)) > 1;
   if (multi_objs)
-    fprintf(stream_, "[list ");
+    gzprintf(stream_, "[list ");
   bool first = true;
   sort(pins, PinPathNameLess(network_));
   PinSeq::Iterator pin_iter(pins);
   while (pin_iter.hasNext()) {
     Pin *pin = pin_iter.next();
     if (multi_objs && !first)
-      fprintf(stream_, "\\\n           ");
+      gzprintf(stream_, "\\\n           ");
     writeGetPin(pin);
     first = false;
   }
@@ -1445,7 +1447,7 @@ WriteSdc::writeExceptionThru(ExceptionThru *thru) const
     while (net_iter.hasNext()) {
       Net *net = net_iter.next();
       if (multi_objs && !first)
-	fprintf(stream_, "\\\n           ");
+	gzprintf(stream_, "\\\n           ");
       writeGetNet(net);
       first = false;
     }
@@ -1457,13 +1459,13 @@ WriteSdc::writeExceptionThru(ExceptionThru *thru) const
     while (inst_iter.hasNext()) {
       Instance *inst = inst_iter.next();
       if (multi_objs && !first)
-	fprintf(stream_, "\\\n           ");
+	gzprintf(stream_, "\\\n           ");
       writeGetInstance(inst);
       first = false;
     }
   }
   if (multi_objs)
-    fprintf(stream_, "]");
+    gzprintf(stream_, "]");
 }
 
 void
@@ -1555,19 +1557,19 @@ WriteSdc::writeDataCheck(DataCheck *check,
     from_key = "-rise_from";
   else if (from_rf == RiseFallBoth::fall())
     from_key = "-fall_from";
-  fprintf(stream_, "set_data_check %s ", from_key);
+  gzprintf(stream_, "set_data_check %s ", from_key);
   writeGetPin(check->from(), true);
   const char *to_key = "-to";
   if (to_rf == RiseFallBoth::rise())
     to_key = "-rise_to";
   else if (to_rf == RiseFallBoth::fall())
     to_key = "-fall_to";
-  fprintf(stream_, " %s ", to_key);
+  gzprintf(stream_, " %s ", to_key);
   writeGetPin(check->to(), false);
-  fprintf(stream_, "%s ",
+  gzprintf(stream_, "%s ",
 	  setupHoldFlag(setup_hold));
   writeTime(margin);
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1594,7 +1596,7 @@ WriteSdc::writeOperatingConditions() const
 {
   OperatingConditions *cond = sdc_->operatingConditions(MinMax::max());
   if (cond)
-    fprintf(stream_, "set_operating_conditions %s\n", cond->name());
+    gzprintf(stream_, "set_operating_conditions %s\n", cond->name());
 }
 
 void
@@ -1602,7 +1604,7 @@ WriteSdc::writeWireload() const
 {
   WireloadMode wireload_mode = sdc_->wireloadMode();
   if (wireload_mode != WireloadMode::unknown)
-    fprintf(stream_, "set_wire_load_mode \"%s\"\n",
+    gzprintf(stream_, "set_wire_load_mode \"%s\"\n",
 	    wireloadModeString(wireload_mode));
 }
 
@@ -1635,12 +1637,12 @@ WriteSdc::writeNetLoad(Net *net,
 		       const MinMaxAll *min_max,
 		       float cap) const
 {
-  fprintf(stream_, "set_load ");
-  fprintf(stream_, "%s ", minMaxFlag(min_max));
+  gzprintf(stream_, "set_load ");
+  gzprintf(stream_, "%s ", minMaxFlag(min_max));
   writeCapacitance(cap);
-  fprintf(stream_, " ");
+  gzprintf(stream_, " ");
   writeGetNet(net);
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 void
@@ -1679,31 +1681,31 @@ WriteSdc::writeDriveResistances() const
     Port *port = port_iter->next();
     InputDrive *drive = sdc_->findInputDrive(port);
     if (drive) {
-      for (auto tr : RiseFall::range()) {
-	if (drive->driveResistanceMinMaxEqual(tr)) {
+      for (auto rf : RiseFall::range()) {
+	if (drive->driveResistanceMinMaxEqual(rf)) {
 	  float res;
 	  bool exists;
-	  drive->driveResistance(tr, MinMax::max(), res, exists);
-	  fprintf(stream_, "set_drive %s ",
-		  transRiseFallFlag(tr));
+	  drive->driveResistance(rf, MinMax::max(), res, exists);
+	  gzprintf(stream_, "set_drive %s ",
+		  transRiseFallFlag(rf));
 	  writeResistance(res);
-	  fprintf(stream_, " ");
+	  gzprintf(stream_, " ");
 	  writeGetPort(port);
-	  fprintf(stream_, "\n");
+	  gzprintf(stream_, "\n");
 	}
 	else {
 	  for (auto min_max : MinMax::range()) {
 	    float res;
 	    bool exists;
-	    drive->driveResistance(tr, min_max, res, exists);
+	    drive->driveResistance(rf, min_max, res, exists);
 	    if (exists) {
-	      fprintf(stream_, "set_drive %s %s ",
-		      transRiseFallFlag(tr),
+	      gzprintf(stream_, "set_drive %s %s ",
+		      transRiseFallFlag(rf),
 		      minMaxFlag(min_max));
 	      writeResistance(res);
-	      fprintf(stream_, " ");
+	      gzprintf(stream_, " ");
 	      writeGetPort(port);
-	      fprintf(stream_, "\n");
+	      gzprintf(stream_, "\n");
 	    }
 	  }
 	}
@@ -1780,27 +1782,27 @@ WriteSdc::writeDrivingCell(Port *port,
   LibertyPort *to_port = drive_cell->toPort();
   float *from_slews = drive_cell->fromSlews();
   LibertyLibrary *lib = drive_cell->library();
-  fprintf(stream_, "set_driving_cell");
+  gzprintf(stream_, "set_driving_cell");
   if (rf)
-    fprintf(stream_, " %s", transRiseFallFlag(rf));
+    gzprintf(stream_, " %s", transRiseFallFlag(rf));
   if (min_max)
-    fprintf(stream_, " %s", minMaxFlag(min_max));
+    gzprintf(stream_, " %s", minMaxFlag(min_max));
   // Only write -library if it was specified in the sdc.
   if (lib)
-    fprintf(stream_, " -library %s", lib->name());
-  fprintf(stream_, " -lib_cell %s", cell->name());
+    gzprintf(stream_, " -library %s", lib->name());
+  gzprintf(stream_, " -lib_cell %s", cell->name());
   if (from_port)
-    fprintf(stream_, " -from_pin {%s}",
+    gzprintf(stream_, " -from_pin {%s}",
 	    from_port->name());
-  fprintf(stream_,
+  gzprintf(stream_,
 	  " -pin {%s} -input_transition_rise ",
 	  to_port->name());
   writeTime(from_slews[RiseFall::riseIndex()]);
-  fprintf(stream_, " -input_transition_fall ");
+  gzprintf(stream_, " -input_transition_fall ");
   writeTime(from_slews[RiseFall::fallIndex()]);
-  fprintf(stream_, " ");
+  gzprintf(stream_, " ");
   writeGetPort(port);
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 void
@@ -1856,11 +1858,11 @@ WriteSdc::writeNetResistance(Net *net,
 			     const MinMaxAll *min_max,
 			     float res) const
 {
-  fprintf(stream_, "set_resistance ");
+  gzprintf(stream_, "set_resistance ");
   writeResistance(res);
-  fprintf(stream_, "%s ", minMaxFlag(min_max));
+  gzprintf(stream_, "%s ", minMaxFlag(min_max));
   writeGetNet(net);
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 void
@@ -1879,9 +1881,9 @@ void
 WriteSdc::writeConstant(Pin *pin) const
 {
   const char *cmd = setConstantCmd(pin);
-  fprintf(stream_, "%s ", cmd);
+  gzprintf(stream_, "%s ", cmd);
   writeGetPin(pin, false);
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 const char *
@@ -1892,7 +1894,7 @@ WriteSdc::setConstantCmd(Pin *pin) const
   sdc_->logicValue(pin, value, exists);
   switch (value) {
   case LogicValue::zero:
-    return "set_LogicValue::zero";
+    return "set_logic_zero";
   case LogicValue::one:
     return "set_logic_one";
   case LogicValue::unknown:
@@ -1900,7 +1902,8 @@ WriteSdc::setConstantCmd(Pin *pin) const
   case LogicValue::rise:
   case LogicValue::fall:
   default:
-    internalError("illegal set_logic value");
+    report_->critical(215, "illegal set_logic value");
+    return nullptr;
   }
 }
 
@@ -1921,9 +1924,9 @@ void
 WriteSdc::writeCaseAnalysis(Pin *pin) const
 {
   const char *value_str = caseAnalysisValueStr(pin);
-  fprintf(stream_, "set_case_analysis %s ", value_str);
+  gzprintf(stream_, "set_case_analysis %s ", value_str);
   writeGetPin(pin, false);
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 const char *
@@ -1943,7 +1946,8 @@ WriteSdc::caseAnalysisValueStr(Pin *pin) const
     return "falling";
   case LogicValue::unknown:
   default:
-    internalError("invalid set_case_analysis value");
+    report_->critical(216, "invalid set_case_analysis value");
+    return nullptr;
   }
 }
 
@@ -2023,9 +2027,9 @@ WriteSdc::writeDerating(DeratingFactorsGlobal *factors) const
 	&& (!cell_check_factors->hasValue()
 	    || (check_is_one_value && check_value == 1.0))) {
       if (delay_value != 1.0) {
-	fprintf(stream_, "set_timing_derate %s ", earlyLateFlag(early_late));
+	gzprintf(stream_, "set_timing_derate %s ", earlyLateFlag(early_late));
 	writeFloat(delay_value);
-	fprintf(stream_, "\n");
+	gzprintf(stream_, "\n");
       }
     }
     else {
@@ -2064,15 +2068,15 @@ WriteSdc::writeDerating(DeratingFactors *factors,
   factors->isOneValue(early_late, is_one_value, value);
   if (is_one_value) {
     if (value != 1.0) {
-      fprintf(stream_, "set_timing_derate %s %s ",
+      gzprintf(stream_, "set_timing_derate %s %s ",
 	      type_key,
 	      earlyLateFlag(early_late));
       writeFloat(value);
       if (write_obj) {
-	fprintf(stream_, " ");
+	gzprintf(stream_, " ");
 	write_obj->write();
       }
-      fprintf(stream_, "\n");
+      gzprintf(stream_, "\n");
     }
   }
   else {
@@ -2085,35 +2089,35 @@ WriteSdc::writeDerating(DeratingFactors *factors,
       factors->isOneValue(clk_data, early_late, is_one_value, value);
       if (is_one_value) {
 	if (value != 1.0) {
-	  fprintf(stream_, "set_timing_derate %s %s %s ",
+	  gzprintf(stream_, "set_timing_derate %s %s %s ",
 		  type_key,
 		  earlyLateFlag(early_late),
 		  clk_data_key);
 	  writeFloat(value);
 	  if (write_obj) {
-	    fprintf(stream_, " ");
+	    gzprintf(stream_, " ");
 	    write_obj->write();
 	  }
-	  fprintf(stream_, "\n");
+	  gzprintf(stream_, "\n");
 	}
       }
       else {
-	for (auto tr : RiseFall::range()) {
+	for (auto rf : RiseFall::range()) {
 	  float factor;
 	  bool exists;
-	  factors->factor(clk_data, tr, early_late, factor, exists);
+	  factors->factor(clk_data, rf, early_late, factor, exists);
 	  if (exists) {
-	    fprintf(stream_, "set_timing_derate %s %s %s %s ",
+	    gzprintf(stream_, "set_timing_derate %s %s %s %s ",
 		    type_key,
 		    clk_data_key,
-		    transRiseFallFlag(tr),
+		    transRiseFallFlag(rf),
 		    earlyLateFlag(early_late));
 	    writeFloat(factor);
 	    if (write_obj) {
-	      fprintf(stream_, " ");
+	      gzprintf(stream_, " ");
 	      write_obj->write();
 	    }
-	    fprintf(stream_, "\n");
+	    gzprintf(stream_, "\n");
 	  }
 	}
       }
@@ -2198,11 +2202,11 @@ WriteSdc::writeMinPulseWidth(const char *hi_low,
 			     float value,
 			     WriteSdcObject &write_obj) const
 {
-  fprintf(stream_, "set_min_pulse_width %s", hi_low);
+  gzprintf(stream_, "set_min_pulse_width %s", hi_low);
   writeTime(value);
-  fprintf(stream_, " ");
+  gzprintf(stream_, " ");
   write_obj.write();
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2216,11 +2220,11 @@ WriteSdc::writeLatchBorowLimits() const
     const Pin *pin;
     float limit;
     pin_iter.next(pin, limit);
-    fprintf(stream_, "set_max_time_borrow ");
+    gzprintf(stream_, "set_max_time_borrow ");
     writeTime(limit);
-    fprintf(stream_, " ");
+    gzprintf(stream_, " ");
     writeGetPin(pin, false);
-    fprintf(stream_, "\n");
+    gzprintf(stream_, "\n");
   }
   InstLatchBorrowLimitMap::Iterator
     inst_iter(sdc_->inst_latch_borrow_limit_map_);
@@ -2228,11 +2232,11 @@ WriteSdc::writeLatchBorowLimits() const
     const Instance *inst;
     float limit;
     inst_iter.next(inst, limit);
-    fprintf(stream_, "set_max_time_borrow ");
+    gzprintf(stream_, "set_max_time_borrow ");
     writeTime(limit);
-    fprintf(stream_, " ");
+    gzprintf(stream_, " ");
     writeGetInstance(inst);
-    fprintf(stream_, "\n");
+    gzprintf(stream_, "\n");
   }
   ClockLatchBorrowLimitMap::Iterator
     clk_iter(sdc_->clk_latch_borrow_limit_map_);
@@ -2240,11 +2244,11 @@ WriteSdc::writeLatchBorowLimits() const
     const Clock *clk;
     float limit;
     clk_iter.next(clk, limit);
-    fprintf(stream_, "set_max_time_borrow ");
+    gzprintf(stream_, "set_max_time_borrow ");
     writeTime(limit);
-    fprintf(stream_, " ");
+    gzprintf(stream_, " ");
     writeGetClock(clk);
-    fprintf(stream_, "\n");
+    gzprintf(stream_, "\n");
   }
 }
 
@@ -2258,9 +2262,9 @@ WriteSdc::writeSlewLimits() const
   bool exists;
   sdc_->slewLimit(cell_, min_max, slew, exists);
   if (exists) {
-    fprintf(stream_, "set_max_transition ");
+    gzprintf(stream_, "set_max_transition ");
     writeTime(slew);
-    fprintf(stream_, " [current_design]\n");
+    gzprintf(stream_, " [current_design]\n");
   }
 
   CellPortBitIterator *port_iter = sdc_network_->portBitIterator(cell_);
@@ -2268,11 +2272,11 @@ WriteSdc::writeSlewLimits() const
     Port *port = port_iter->next();
     sdc_->slewLimit(port, min_max, slew, exists);
     if (exists) {
-      fprintf(stream_, "set_max_transition ");
+      gzprintf(stream_, "set_max_transition ");
       writeTime(slew);
-      fprintf(stream_, " ");
+      gzprintf(stream_, " ");
       writeGetPort(port);
-      fprintf(stream_, "\n");
+      gzprintf(stream_, "\n");
     }
   }
   delete port_iter;
@@ -2335,11 +2339,11 @@ WriteSdc::writeClkSlewLimit(const char *clk_data,
 			    const Clock *clk,
 			    float limit) const
 {
-  fprintf(stream_, "set_max_transition %s%s", clk_data, rise_fall);
+  gzprintf(stream_, "set_max_transition %s%s", clk_data, rise_fall);
   writeTime(limit);
-  fprintf(stream_, " ");
+  gzprintf(stream_, " ");
   writeGetClock(clk);
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 void
@@ -2357,9 +2361,9 @@ WriteSdc::writeCapLimits(const MinMax *min_max,
   bool exists;
   sdc_->capacitanceLimit(cell_, min_max, cap, exists);
   if (exists) {
-    fprintf(stream_, "%s ", cmd);
+    gzprintf(stream_, "%s ", cmd);
     writeCapacitance(cap);
-    fprintf(stream_, " [current_design]\n");
+    gzprintf(stream_, " [current_design]\n");
   }
 
   PortCapLimitMap::Iterator port_iter(sdc_->port_cap_limit_map_);
@@ -2371,11 +2375,11 @@ WriteSdc::writeCapLimits(const MinMax *min_max,
     bool exists;
     values.value(min_max, cap, exists);
     if (exists) {
-      fprintf(stream_, "%s ", cmd);
+      gzprintf(stream_, "%s ", cmd);
       writeCapacitance(cap);
-      fprintf(stream_, " ");
+      gzprintf(stream_, " ");
       writeGetPort(port);
-      fprintf(stream_, "\n");
+      gzprintf(stream_, "\n");
     }
   }
 
@@ -2388,11 +2392,11 @@ WriteSdc::writeCapLimits(const MinMax *min_max,
     bool exists;
     values.value(min_max, cap, exists);
     if (exists) {
-      fprintf(stream_, "%s ", cmd);
+      gzprintf(stream_, "%s ", cmd);
       writeCapacitance(cap);
-      fprintf(stream_, " ");
+      gzprintf(stream_, " ");
       writeGetPin(pin, false);
-      fprintf(stream_, "\n");
+      gzprintf(stream_, "\n");
     }
   }
 }
@@ -2402,9 +2406,9 @@ WriteSdc::writeMaxArea() const
 {
   float max_area = sdc_->maxArea();
   if (max_area > 0.0) {
-    fprintf(stream_, "set_max_area ");
+    gzprintf(stream_, "set_max_area ");
     writeFloat(max_area);
-    fprintf(stream_, "\n");
+    gzprintf(stream_, "\n");
   }
 }
 
@@ -2423,9 +2427,9 @@ WriteSdc::writeFanoutLimits(const MinMax *min_max,
   bool exists;
   sdc_->fanoutLimit(cell_, min_max, fanout, exists);
   if (exists) {
-    fprintf(stream_, "%s ", cmd);
+    gzprintf(stream_, "%s ", cmd);
     writeFloat(fanout);
-    fprintf(stream_, " [current_design]\n");
+    gzprintf(stream_, " [current_design]\n");
   }
   else {
     CellPortBitIterator *port_iter = sdc_network_->portBitIterator(cell_);
@@ -2433,11 +2437,11 @@ WriteSdc::writeFanoutLimits(const MinMax *min_max,
       Port *port = port_iter->next();
       sdc_->fanoutLimit(port, min_max, fanout, exists);
       if (exists) {
-	fprintf(stream_, "%s ", cmd);
+	gzprintf(stream_, "%s ", cmd);
 	writeFloat(fanout);
-	fprintf(stream_, " ");
+	gzprintf(stream_, " ");
 	writeGetPort(port);
-	fprintf(stream_, "\n");
+	gzprintf(stream_, "\n");
       }
     }
     delete port_iter;
@@ -2451,15 +2455,15 @@ WriteSdc::writeVariables() const
 {
   if (sdc_->propagateAllClocks()) {
     if (native_)
-      fprintf(stream_, "set sta_propagate_all_clocks 1\n");
+      gzprintf(stream_, "set sta_propagate_all_clocks 1\n");
     else
-      fprintf(stream_, "set timing_all_clocks_propagated true\n");
+      gzprintf(stream_, "set timing_all_clocks_propagated true\n");
   }
   if (sdc_->presetClrArcsEnabled()) {
     if (native_)
-      fprintf(stream_, "set sta_preset_clear_arcs_enabled 1\n");
+      gzprintf(stream_, "set sta_preset_clear_arcs_enabled 1\n");
     else
-      fprintf(stream_, "set timing_enable_preset_clear_arcs true\n");
+      gzprintf(stream_, "set timing_enable_preset_clear_arcs true\n");
   }
 }
 
@@ -2468,9 +2472,9 @@ WriteSdc::writeVariables() const
 void
 WriteSdc::writeGetTimingArcsOfOjbects(LibertyCell *cell) const
 {
-  fprintf(stream_, "[%s -of_objects ", getTimingArcsCmd());
+  gzprintf(stream_, "[%s -of_objects ", getTimingArcsCmd());
   writeGetLibCell(cell);
-  fprintf(stream_, "]");
+  gzprintf(stream_, "]");
 }
 
 void
@@ -2483,15 +2487,15 @@ void
 WriteSdc::writeGetTimingArcs(Edge *edge,
 			     const char *filter) const
 {
-  fprintf(stream_, "[%s -from ", getTimingArcsCmd());
+  gzprintf(stream_, "[%s -from ", getTimingArcsCmd());
   Vertex *from_vertex = edge->from(graph_);
   writeGetPin(from_vertex->pin(), true);
-  fprintf(stream_, " -to ");
+  gzprintf(stream_, " -to ");
   Vertex *to_vertex = edge->to(graph_);
   writeGetPin(to_vertex->pin(), false);
   if (filter)
-    fprintf(stream_, " -filter {%s}", filter);
-  fprintf(stream_, "]");
+    gzprintf(stream_, " -filter {%s}", filter);
+  gzprintf(stream_, "]");
 }
 
 const char *
@@ -2505,7 +2509,7 @@ WriteSdc::getTimingArcsCmd() const
 void
 WriteSdc::writeGetLibCell(const LibertyCell *cell) const
 {
-  fprintf(stream_, "[get_lib_cells {%s/%s}]",
+  gzprintf(stream_, "[get_lib_cells {%s/%s}]",
 	  cell->libertyLibrary()->name(),
 	  cell->name());
 }
@@ -2515,7 +2519,7 @@ WriteSdc::writeGetLibPin(const LibertyPort *port) const
 {
   LibertyCell *cell = port->libertyCell();
   LibertyLibrary *lib = cell->libertyLibrary();
-  fprintf(stream_, "[get_lib_pins {%s/%s/%s}]",
+  gzprintf(stream_, "[get_lib_pins {%s/%s/%s}]",
 	  lib->name(),
 	  cell->name(),
 	  port->name());
@@ -2527,10 +2531,10 @@ WriteSdc::writeGetClocks(ClockSet *clks) const
   bool first = true;
   bool multiple = clks->size() > 1;
   if (multiple)
-    fprintf(stream_, "[list ");
+    gzprintf(stream_, "[list ");
   writeGetClocks(clks, multiple, first);
   if (multiple)
-    fprintf(stream_, "]");
+    gzprintf(stream_, "]");
 }
 
 void
@@ -2544,7 +2548,7 @@ WriteSdc::writeGetClocks(ClockSet *clks,
   while (clk_iter.hasNext()) {
     Clock *clk = clk_iter.next();
     if (multiple && !first)
-      fprintf(stream_, "\\\n           ");
+      gzprintf(stream_, "\\\n           ");
     writeGetClock(clk);
     first = false;
   }
@@ -2553,14 +2557,14 @@ WriteSdc::writeGetClocks(ClockSet *clks,
 void
 WriteSdc::writeGetClock(const Clock *clk) const
 {
-  fprintf(stream_, "[get_clocks {%s}]",
+  gzprintf(stream_, "[get_clocks {%s}]",
 	  clk->name());
 }
 
 void
 WriteSdc::writeGetPort(const Port *port) const
 {
-  fprintf(stream_, "[get_ports {%s}]", sdc_network_->name(port));
+  gzprintf(stream_, "[get_ports {%s}]", sdc_network_->name(port));
 }
 
 void
@@ -2592,27 +2596,27 @@ WriteSdc::writeGetPins1(PinSeq *pins) const
 {
   bool multiple = pins->size() > 1;
   if (multiple)
-    fprintf(stream_, "[list ");
+    gzprintf(stream_, "[list ");
   PinSeq::Iterator pin_iter(pins);
   bool first = true;
   while (pin_iter.hasNext()) {
     Pin *pin = pin_iter.next();
     if (multiple && !first)
-      fprintf(stream_, "\\\n          ");
+      gzprintf(stream_, "\\\n          ");
     writeGetPin(pin);
     first = false;
   }
   if (multiple)
-    fprintf(stream_, "]");
+    gzprintf(stream_, "]");
 }
 
 void
 WriteSdc::writeGetPin(const Pin *pin) const
 {
   if (sdc_network_->instance(pin) == instance_)
-    fprintf(stream_, "[get_ports {%s}]", sdc_network_->portName(pin));
+    gzprintf(stream_, "[get_ports {%s}]", sdc_network_->portName(pin));
   else
-    fprintf(stream_, "[get_pins {%s}]", pathName(pin));
+    gzprintf(stream_, "[get_pins {%s}]", pathName(pin));
 }
 
 void
@@ -2631,13 +2635,13 @@ WriteSdc::writeGetPin(const Pin *pin,
 void
 WriteSdc::writeGetNet(const Net *net) const
 {
-  fprintf(stream_, "[get_nets {%s}]", pathName(net));
+  gzprintf(stream_, "[get_nets {%s}]", pathName(net));
 }
 
 void
 WriteSdc::writeGetInstance(const Instance *inst) const
 {
-  fprintf(stream_, "[get_cells {%s}]", pathName(inst));
+  gzprintf(stream_, "[get_cells {%s}]", pathName(inst));
 }
 
 const char *
@@ -2674,14 +2678,14 @@ void
 WriteSdc::writeCommentSection(const char *line) const
 {
   writeCommentSeparator();
-  fprintf(stream_, "# %s\n", line);
+  gzprintf(stream_, "# %s\n", line);
   writeCommentSeparator();
 }
 
 void
 WriteSdc::writeCommentSeparator() const
 {
-  fprintf(stream_, "###############################################################################\n");
+  gzprintf(stream_, "###############################################################################\n");
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2779,20 +2783,20 @@ WriteSdc::writeRiseFallMinMaxCmd(const char *sdc_cmd,
 				 const MinMaxAll *min_max,
 				 WriteSdcObject &write_object) const
 {
-  fprintf(stream_, "%s%s%s ",
+  gzprintf(stream_, "%s%s%s ",
 	  sdc_cmd,
 	  transRiseFallFlag(rf),
 	  minMaxFlag(min_max));
   writeFloat(value / scale);
-  fprintf(stream_, " ");
+  gzprintf(stream_, " ");
   write_object.write();
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 void
 WriteSdc::writeClockKey(const Clock *clk) const
 {
-  fprintf(stream_, " -clock ");
+  gzprintf(stream_, " -clock ");
   writeGetClock(clk);
 }
 
@@ -2828,13 +2832,13 @@ WriteSdc::writeMinMaxFloatCmd(const char *sdc_cmd,
 			      const MinMaxAll *min_max,
 			      WriteSdcObject &write_object) const
 {
-  fprintf(stream_, "%s%s ",
+  gzprintf(stream_, "%s%s ",
 	  sdc_cmd,
 	  minMaxFlag(min_max));
   writeFloat(value / scale);
-  fprintf(stream_, " ");
+  gzprintf(stream_, " ");
   write_object.write();
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 void
@@ -2865,12 +2869,12 @@ WriteSdc::writeMinMaxIntCmd(const char *sdc_cmd,
 			    const MinMaxAll *min_max,
 			    WriteSdcObject &write_object) const
 {
-  fprintf(stream_, "%s%s ",
+  gzprintf(stream_, "%s%s ",
 	  sdc_cmd,
 	  minMaxFlag(min_max));
-  fprintf(stream_, "%d ", value);
+  gzprintf(stream_, "%d ", value);
   write_object.write();
-  fprintf(stream_, "\n");
+  gzprintf(stream_, "\n");
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2896,58 +2900,58 @@ WriteSdc::scaleResistance(float res) const
 void
 WriteSdc::writeFloat(float value) const
 {
-  fprintf(stream_, "%.*f", digits_, value);
+  gzprintf(stream_, "%.*f", digits_, value);
 }
 
 void
 WriteSdc::writeTime(float time) const
 {
-  fprintf(stream_, "%.*f", digits_, scaleTime(time));
+  gzprintf(stream_, "%.*f", digits_, scaleTime(time));
 }
 
 void
 WriteSdc::writeCapacitance(float cap) const
 {
-  fprintf(stream_, "%.*f", digits_, scaleCapacitance(cap));
+  gzprintf(stream_, "%.*f", digits_, scaleCapacitance(cap));
 }
 
 void
 WriteSdc::writeResistance(float res) const
 {
-  fprintf(stream_, "%.*f", digits_, scaleResistance(res));
+  gzprintf(stream_, "%.*f", digits_, scaleResistance(res));
 }
 
 void
 WriteSdc::writeFloatSeq(FloatSeq *floats,
 			float scale) const
 {
-  fprintf(stream_, "{");
+  gzprintf(stream_, "{");
   FloatSeq::ConstIterator iter(floats);
   bool first = true;
   while (iter.hasNext()) {
     float flt = iter.next();
     if (!first)
-      fprintf(stream_, " ");
+      gzprintf(stream_, " ");
     writeFloat(flt * scale);
     first = false;
   }
-  fprintf(stream_, "}");
+  gzprintf(stream_, "}");
 }
 
 void
 WriteSdc::writeIntSeq(IntSeq *ints) const
 {
-  fprintf(stream_, "{");
+  gzprintf(stream_, "{");
   IntSeq::ConstIterator iter(ints);
   bool first = true;
   while (iter.hasNext()) {
     int i = iter.next();
     if (!first)
-      fprintf(stream_, " ");
-    fprintf(stream_, "%d", i);
+      gzprintf(stream_, " ");
+    gzprintf(stream_, "%d", i);
     first = false;
   }
-  fprintf(stream_, "}");
+  gzprintf(stream_, "}");
 }
 
 
@@ -2966,75 +2970,46 @@ transRiseFallFlag(const RiseFallBoth *rf)
     return " -rise";
   else if (rf == RiseFallBoth::fall())
     return " -fall";
-  else if (rf == RiseFallBoth::riseFall())
+  else
     return "";
-  else {
-    internalError("unknown transition");
-  }
-  return nullptr;
 }
 
 static const char *
 minMaxFlag(const MinMaxAll *min_max)
 {
-  if (min_max == MinMaxAll::all())
-    return "";
-  else if (min_max == MinMaxAll::min())
+  if (min_max == MinMaxAll::min())
     return " -min";
   else if (min_max == MinMaxAll::max())
     return " -max";
-  else {
-    internalError("unknown MinMaxAll");
-    return nullptr;
-  }
+  else
+    return "";
 }
 
 static const char *
 minMaxFlag(const MinMax *min_max)
 {
-  if (min_max == MinMax::min())
-    return " -min";
-  else if (min_max == MinMax::max())
-    return " -max";
-  else {
-    internalError("unknown MinMax");
-    return nullptr;
-  }
+  return (min_max == MinMax::min()) ? " -min" : " -max";
 }
 
 static const char *
 earlyLateFlag(const MinMax *early_late)
 {
-  if (early_late == MinMax::min())
-    return "-early";
-  else if (early_late == MinMax::max())
-    return "-late";
-  else {
-    internalError("unknown EarlyLate");
-    return nullptr;
-  }
+  return (early_late == MinMax::min()) ? "-early" : "-late";
 }
 
 void
 WriteSdc::writeSetupHoldFlag(const MinMaxAll *min_max) const
 {
   if (min_max == MinMaxAll::min())
-    fprintf(stream_,  " -hold");
+    gzprintf(stream_,  " -hold");
   else if (min_max == MinMaxAll::max())
-    fprintf(stream_,  " -setup");
+    gzprintf(stream_,  " -setup");
 }
 
 static const char *
 setupHoldFlag(const MinMax *min_max)
 {
-  if (min_max == MinMax::min())
-    return " -hold";
-  else if (min_max == MinMax::max())
-    return " -setup";
-  else {
-    internalError("unknown MinMax");
-    return nullptr;
-  }
+  return (min_max == MinMax::min()) ?  " -hold" : " -setup";
 }
 
 void
@@ -3042,7 +3017,7 @@ WriteSdc::writeCmdComment(SdcCmdComment *cmd) const
 {
   const char *comment = cmd->comment();
   if (comment) {
-    fprintf(stream_,  " -comment {%s}", comment);
+    gzprintf(stream_,  " -comment {%s}", comment);
   }
 }
 

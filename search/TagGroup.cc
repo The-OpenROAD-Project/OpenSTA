@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "TagGroup.hh"
 
@@ -87,26 +87,10 @@ TagGroup::arrivalIndex(Tag *tag,
 }
 
 void
-TagGroup::requiredIndex(Tag *tag,
-			int &req_index,
-			bool &exists) const
-{
-  arrivalIndex(tag, req_index, exists);
-  if (exists)
-    req_index += arrivalCount();
-}
-
-int
-TagGroup::requiredIndex(int arrival_index) const
-{
-  return arrival_index + arrivalCount();
-}
-
-void
 TagGroup::report(const StaState *sta) const
 {
   Report *report = sta->report();
-  report->print("Group %u hash = %u\n", index_, hash_);
+  report->reportLine("Group %u hash = %lu", index_, hash_);
   arrivalMapReport(arrival_map_, sta);
 }
 
@@ -126,11 +110,11 @@ arrivalMapReport(const ArrivalMap *arrival_map,
     Tag *tag;
     int arrival_index;
     arrival_iter.next(tag, arrival_index);
-    report->print(" %2u %s\n",
-		  arrival_index,
-		  tag->asString(sta));
+    report->reportLine(" %2u %s",
+                       arrival_index,
+                       tag->asString(sta));
   }
-  report->print("\n");
+  report->reportBlankLine();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -176,30 +160,6 @@ void
 TagGroupBldr::reportArrivalEntries() const
 {
   arrivalMapReport(&arrival_map_, sta_);
-}
-
-void
-TagGroupBldr::tagArrival(Tag *tag,
-			 // Return values.
-			 Arrival &arrival,
-			 int &arrival_index,
-			 bool &exists) const
-{
-  arrival_map_.findKey(tag, arrival_index, exists);
-  if (exists)
-    arrival = arrivals_[arrival_index];
-}
-
-void
-TagGroupBldr::tagArrival(Tag *tag,
-			 // Return values.
-			 Arrival &arrival,
-			 bool &exists) const
-{
-  int arrival_index;
-  arrival_map_.findKey(tag, arrival_index, exists);
-  if (exists)
-    arrival = arrivals_[arrival_index];
 }
 
 void
@@ -326,13 +286,15 @@ TagGroupBldr::copyArrivals(TagGroup *tag_group,
     arrival_iter1.next(tag1, arrival_index1);
     bool exists2;
     tag_group->arrivalIndex(tag1, arrival_index2, exists2);
-    if (!exists2)
-      internalError("tag group missing tag");
-    arrivals[arrival_index2] = arrivals_[arrival_index1];
-    if (prev_paths) {
-      PathVertexRep *prev_path = &prev_paths_[arrival_index1];
-      prev_paths[arrival_index2].init(prev_path);
+    if (exists2) {
+      arrivals[arrival_index2] = arrivals_[arrival_index1];
+      if (prev_paths) {
+	PathVertexRep *prev_path = &prev_paths_[arrival_index1];
+	prev_paths[arrival_index2].init(prev_path);
+      }
     }
+    else
+      sta_->report()->critical(265, "tag group missing tag");
   }
 }
 

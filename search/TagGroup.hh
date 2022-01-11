@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -57,10 +57,6 @@ public:
   void arrivalIndex(Tag *tag,
 		    int &arrival_index,
 		    bool &exists) const;
-  void requiredIndex(Tag *tag,
-		     int &req_index,
-		     bool &exists) const;
-  int requiredIndex(int arrival_index) const;
   ArrivalMap *arrivalMap() const { return arrival_map_; }
   bool hasTag(Tag *tag) const;
 
@@ -111,15 +107,6 @@ public:
   bool hasFilterTag() const { return has_filter_tag_; }
   bool hasLoopTag() const { return has_loop_tag_; }
   void deleteArrival(Tag *tag);
-  void tagArrival(Tag *tag,
-		  // Return values.
-		  Arrival &arrival,
-		  bool &exists) const;
-  void tagArrival(Tag *tag,
-		  // Return values.
-		  Arrival &arrival,
-		  int &arrival_index,
-		  bool &exists) const;
   void tagMatchArrival(Tag *tag,
 		       // Return values.
 		       Tag *&tag_match,

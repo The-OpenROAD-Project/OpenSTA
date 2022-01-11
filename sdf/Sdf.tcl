@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2020, Parallax Software, Inc.
+# Copyright (c) 2022, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,105 +8,52 @@
 # 
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace eval sta {
 
 define_cmd_args "read_sdf" \
   {[-path path] [-corner corner_name]\
-     [-analysis_type single|bc_wc|on_chip_variation]\
-     [-type sdf_min|sdf_typ|sdf_max]\
-     [-min_type sdf_min|sdf_typ|sdf_max]\
-     [-max_type sdf_min|sdf_typ|sdf_max]\
      [-cond_use min|max|min_max]\
      [-unescaped_dividers] filename}
 
 proc_redirect read_sdf {
   parse_key_args "read_sdf" args \
-    keys {-path -corner -analysis_type -type -min_type -max_type -cond_use} \
+    keys {-path -corner -cond_use -analysis_type} \
     flags {-unescaped_dividers -incremental_only}
+
   check_argc_eq1 "read_sdf" $args
-  set filename $args
+  set filename [file nativename [lindex $args 0]]
   set path ""
   if [info exists keys(-path)] {
     set path $keys(-path)
   }
   set corner [parse_corner keys]
-  if [info exists keys(-analysis_type)] {
-    set analysis_type $keys(-analysis_type)
-    if { $analysis_type == "single" \
-	   || $analysis_type == "bc_wc" \
-	   || $analysis_type == "on_chip_variation" } {
-      # -analysis_type is an implicit set_operating_conditions
-      set_analysis_type_cmd $analysis_type
-    } else {
-      sta_error "-analysis_type must be single, bc_wc or on_chip_variation"
-    }
-  }
 
   set cond_use "NULL"
   if [info exists keys(-cond_use)] {
     set cond_use $keys(-cond_use)
     if { $cond_use != "min" && $cond_use != "max" && $cond_use != "min_max" } {
-      sta_warn "-cond_use must be min, max or min_max."
+      sta_warn 612 "-cond_use must be min, max or min_max."
       set cond_use "NULL"
     }
     if { $cond_use == "min_max" \
 	   && { [operating_condition_analysis_type] == "single" }} {
-      sta_error "-cond_use min_max cannot be used with analysis type single."
+      sta_error 430 "-cond_use min_max cannot be used with analysis type single."
     }
+  }
+  if [info exists keys(-analysis_type)] {
+    sta_warn 617 "-analysis_type is deprecated. Use set_operating_conditions -analysis_type."
   }
 
   set unescaped_dividers [info exists flags(-unescaped_dividers)]
-  set analysis_type [operating_condition_analysis_type]
   set incremental_only [info exists flags(-incremental_only)]
-  if { $analysis_type == "single" } {
-    # default sdf_max
-    set index 2
-    if [info exists keys(-type)] {
-      set index [parse_sdf_index "-type" $keys(-type)]
-    }
-    if [info exists keys(-min_type)] {
-      sta_warn "-min_type ignored by analysis_type single."
-    }
-    if [info exists keys(-max_type)] {
-      sta_warn "-max_type ignored by analysis_type single."
-    }
-    read_sdf_file_single $filename $path $corner $index $analysis_type \
-      $unescaped_dividers $incremental_only $cond_use
-  } elseif { $analysis_type == "bc_wc" \
-	       || $analysis_type == "on_chip_variation" } {
-    # default sdf_min, sdf_max
-    set min_index 0
-    set max_index 2
-    if [info exists keys(-min_type)] {
-      set min_index [parse_sdf_index "-min_type" $keys(-min_type)]
-    }
-    if [info exists keys(-max_type)] {
-      set max_index [parse_sdf_index "-max_type" $keys(-max_type)]
-    }
-    if [info exists keys(-type)] {
-      sta_warn "-type ignored by analysis_type $analysis_type."
-    }
-    read_sdf_file_min_max $filename $path $corner $min_index $max_index \
-      $analysis_type $unescaped_dividers $incremental_only $cond_use
-  }
-}
-
-proc parse_sdf_index { key index } {
-  if { $index == "sdf_min" } {
-    return 0
-  } elseif { $index == "sdf_typ" } {
-    return 1
-  } elseif { $index == "sdf_max" } {
-    return 2
-  } else {
-    sta_error "$key must be sdf_min, sdf_typ, or sdf_max."
-  }
+  read_sdf_file $filename $path $corner $unescaped_dividers \
+    $incremental_only $cond_use
 }
 
 ################################################################
@@ -193,36 +140,34 @@ proc_redirect report_annotated_check {
 }
 
 define_cmd_args "write_sdf" \
-  {[-corner corner_name] [-divider /|.] [-digits digits]\
-     [-gzip] [-no_timestamp] [-no_version] filename}
+  {[-corner corner_name] [-divider /|.] [-include_typ]\
+     [-digits digits] [-gzip] [-no_timestamp] [-no_version] filename}
 
 proc_redirect write_sdf {
   parse_key_args "write_sdf" args \
     keys {-corner -divider -digits -significant_digits} \
-    flags {-gzip -no_timestamp -no_version}
+    flags {-include_typ -gzip -no_timestamp -no_version}
   check_argc_eq1 "write_sdf" $args
   set corner [parse_corner keys]
-  set filename $args
+  set filename [file nativename [lindex $args 0]]
   set divider "/"
   if [info exists keys(-divider)] {
     set divider $keys(-divider)
     if { !($divider == "/" || $divider == ".") } {
-      sta_error "SDF -divider must be / or ."
+      sta_error 432 "SDF -divider must be / or ."
     }
   }
   set digits 3
   if [info exists keys(-digits)] {
     set digits $keys(-digits)
+    check_positive_integer "-digits" $digits
   }
-  if [info exists keys(-significant_digits)] {
-    set digits $keys(-significant_digits)
-  }
-  check_positive_integer "-digits" $digits
 
+  set include_typ [info exists flags(-include_typ)]
   set no_timestamp [info exists flags(-no_timestamp)]
   set no_version [info exists flags(-no_version)]
   set gzip [info exists flags(-gzip)]
-  write_sdf_cmd $filename $corner $divider $digits $gzip \
+  write_sdf_cmd $filename $corner $divider $include_typ $digits $gzip \
     $no_timestamp $no_version
 }
 

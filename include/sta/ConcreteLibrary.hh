@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,13 +8,15 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
+
+#include <functional>
 
 #include "DisallowCopyAssign.hh"
 #include "Vector.hh"
@@ -63,8 +65,8 @@ public:
   ConcreteCell *findCell(const char *name) const;
   void findCellsMatching(const PatternMatch *pattern,
 			 CellSeq *cells) const;
-  char busBrktLeft() { return bus_brkt_left_; }
-  char busBrktRight() { return bus_brkt_right_; }
+  char busBrktLeft() const { return bus_brkt_left_; }
+  char busBrktRight() const { return bus_brkt_right_; }
   void setBusBrkts(char left,
 		   char right);
 
@@ -117,7 +119,8 @@ public:
 			       ConcretePortSeq *members);
   // Group previously defined bus bit ports together.
   void groupBusPorts(const char bus_brkt_left,
-		     const char bus_brkt_right);
+		     const char bus_brkt_right,
+                     std::function<bool(const char*)> port_msb_first);
   size_t portCount() const;
   void setName(const char *name);
   void addPort(ConcretePort *port);

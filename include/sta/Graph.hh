@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -43,6 +43,7 @@ typedef ArrayTable<Delay> DelayTable;
 typedef ObjectTable<Vertex> VertexTable;
 typedef ObjectTable<Edge> EdgeTable;
 typedef ArrayTable<Arrival> ArrivalsTable;
+typedef ArrayTable<Required> RequiredsTable;
 typedef ArrayTable<PathVertexRep> PrevPathsTable;
 typedef Map<const Pin*, Vertex*> PinVertexMap;
 typedef Iterator<Edge*> VertexEdgeIterator;
@@ -101,7 +102,16 @@ public:
   Arrival *makeArrivals(Vertex *vertex,
 			uint32_t count);
   Arrival *arrivals(Vertex *vertex);
+  void deleteArrivals(Vertex *vertex,
+                      uint32_t count);
+  Required *makeRequireds(Vertex *vertex,
+                          uint32_t count);
+  Required *requireds(Vertex *vertex);
+  void deleteRequireds(Vertex *vertex,
+                       uint32_t count);
   void clearArrivals();
+  size_t arrivalCount() const { return arrivals_.size(); }
+  size_t requiredCount() const { return requireds_.size(); }
   PathVertexRep *makePrevPaths(Vertex *vertex,
 			       uint32_t count);
   PathVertexRep *prevPaths(Vertex *vertex) const;
@@ -192,6 +202,9 @@ public:
   void removeDelaySlewAnnotations();
   VertexSet *regClkVertices() { return &reg_clk_vertices_; }
 
+  static const int vertex_level_bits = 24;
+  static const int vertex_level_max = (1<<vertex_level_bits)-1;
+
 protected:
   void makeVerticesAndEdges();
   Vertex *makeVertex(Pin *pin,
@@ -233,6 +246,8 @@ protected:
   int arc_count_;
   ArrivalsTable arrivals_;
   std::mutex arrivals_lock_;
+  RequiredsTable requireds_;
+  std::mutex requireds_lock_;
   PrevPathsTable prev_paths_;
   std::mutex prev_paths_lock_;
   Vector<bool> arc_delay_annotated_;
@@ -275,11 +290,10 @@ public:
   LevelColor color() const { return static_cast<LevelColor>(color_); }
   void setColor(LevelColor color);
   ArrivalId arrivals() { return arrivals_; }
+  ArrivalId requireds() { return requireds_; }
+  bool hasRequireds() const { return requireds_ != arrival_null; }
   PrevPathId prevPaths() const { return prev_paths_; }
   void setPrevPaths(PrevPathId id);
-  // Requireds optionally follow arrivals in the same array.
-  bool hasRequireds() const { return has_requireds_; }
-  void setHasRequireds(bool has_req);
   TagGroupIndex tagGroupIndex() const;
   void setTagGroupIndex(TagGroupIndex tag_index);
   // Slew is annotated by sdc set_annotated_transition cmd.
@@ -334,9 +348,11 @@ protected:
 	    bool is_bidirect_drvr,
 	    bool is_reg_clk);
   void setArrivals(ArrivalId id);
+  void setRequireds(ArrivalId id);
 
   Pin *pin_;
   ArrivalId arrivals_;
+  ArrivalId requireds_;
   PrevPathId prev_paths_;
   EdgeId in_edges_;		// Edges to this vertex.
   EdgeId out_edges_;		// Edges from this vertex.
@@ -348,13 +364,12 @@ protected:
   unsigned int slew_annotated_:slew_annotated_bits;
 
   // 4 bytes (32 bits)
-  unsigned int level_:16;
+  unsigned int level_:Graph::vertex_level_bits;
   // Levelization search state.
   // LevelColor gcc barfs if this is dcl'd.
   unsigned color_:2;
   // LogicValue gcc barfs if this is dcl'd.
   unsigned sim_value_:3;
-  bool has_requireds_:1;
   // Bidirect pins have two vertices.
   // This flag distinguishes the driver and load vertices.
   bool is_bidirect_drvr_:1;

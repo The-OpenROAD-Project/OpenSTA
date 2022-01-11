@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,21 +8,26 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Report.hh"
 
 #include <algorithm> // min
+#include <cstdlib>   // exit
+#include <cstring>   // strlen
 
+#include "Machine.hh"
 #include "Error.hh"
 
 namespace sta {
 
 using std::min;
+
+Report *Report::default_ = nullptr;
 
 Report::Report() :
   log_stream_(nullptr),
@@ -32,6 +37,7 @@ Report::Report() :
   buffer_(new char[buffer_size_]),
   buffer_length_(0)
 {
+  default_ = this;
 }
 
 Report::~Report()
@@ -39,24 +45,25 @@ Report::~Report()
   delete [] buffer_;
 }
 
-void
-Report::printToBuffer(const char *fmt, va_list args)
+size_t
+Report::printConsole(const char *buffer,
+                     size_t length)
 {
-  // Copy args in case we need to grow the buffer.
-  va_list args_copy;
-  va_copy(args_copy, args);
-  buffer_length_ = vsnprint(buffer_, buffer_size_, fmt, args);
-  if (buffer_length_ >= buffer_size_) {
-    delete [] buffer_;
-    buffer_size_ = buffer_length_ * 2;
-    buffer_ = new char[buffer_size_];
-    buffer_length_ = vsnprint(buffer_, buffer_size_, fmt, args_copy);
-  }
-  va_end(args_copy);
+  printf("%s", buffer);
+  return length;
+}
+
+void
+Report::printLine(const char *line,
+                  size_t length)
+{
+  printString(line, length);
+  printString("\n", 1);
 }
 
 size_t
-Report::printString(const char *buffer, size_t length)
+Report::printString(const char *buffer,
+                    size_t length)
 {
   size_t ret = length;
   if (redirect_to_string_)
@@ -73,167 +80,225 @@ Report::printString(const char *buffer, size_t length)
 }
 
 void
-Report::print(const string *str)
-{
-  printString(str->c_str(), str->size());
-}
-
-void
-Report::print(const string &str)
-{
-  printString(str.c_str(), str.size());
-}
-
-void
-Report::vprint(const char *fmt, va_list args)
-{
-  std::unique_lock<std::mutex> lock(buffer_lock_);
-  printToBuffer(fmt, args);
-  printString(buffer_, buffer_length_);
-}
-
-void
-Report::print(const char *fmt, ...)
+Report::reportLine(const char *fmt, ...)
 {
   va_list args;
   va_start(args, fmt);
-  vprint(fmt, args);
+  std::unique_lock<std::mutex> lock(buffer_lock_);
+  printToBuffer(fmt, args);
+  printBufferLine();
   va_end(args);
 }
 
-size_t
-Report::printError(const char *buffer, size_t length)
+void
+Report::reportBlankLine()
 {
-  size_t ret = length;
-  if (redirect_to_string_)
-    redirectStringPrint(buffer, length);
-  else {
-    if (redirect_stream_)
-      ret = min(ret, fwrite(buffer, sizeof(char), length, redirect_stream_));
-    else
-      ret = min(ret, printErrorConsole(buffer, length));
-    if (log_stream_)
-      ret = min(ret, fwrite(buffer, sizeof(char), length, log_stream_));
+  printLine("", 0);
+}
+
+void
+Report::reportLineString(const char *line)
+{
+  printLine(line, strlen(line));
+}
+
+void
+Report::reportLineString(const string &line)
+{
+  printLine(line.c_str(), line.length());
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+Report::printToBuffer(const char *fmt,
+                      ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  printToBuffer(fmt, args);
+  va_end(args);
+}
+
+void
+Report::printToBuffer(const char *fmt,
+                      va_list args)
+{
+  buffer_length_ = 0;
+  printToBufferAppend(fmt, args);
+}
+
+void
+Report::printToBufferAppend(const char *fmt,
+                            ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  printToBufferAppend(fmt, args);
+  va_end(args);
+}
+
+void
+Report::printToBufferAppend(const char *fmt,
+                            va_list args)
+{
+  // Copy args in case we need to grow the buffer.
+  va_list args_copy;
+  va_copy(args_copy, args);
+  int length = vsnprint(buffer_ + buffer_length_, buffer_size_, fmt, args);
+  if (buffer_length_ >= buffer_size_) {
+    delete [] buffer_;
+    buffer_size_ = buffer_length_ * 2;
+    buffer_ = new char[buffer_size_];
+    length = vsnprint(buffer_ + buffer_length_, buffer_size_, fmt, args_copy);
   }
-  return ret;
+  buffer_length_ += length;
+  va_end(args_copy);
 }
 
 void
-Report::vprintError(const char *fmt, va_list args)
+Report::printBufferLine()
 {
-  std::unique_lock<std::mutex> lock(buffer_lock_);
+  printLine(buffer_, buffer_length_);
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+Report::warn(int /* id */,
+             const char *fmt,
+             ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  printToBuffer("Warning: ");
+  printToBufferAppend(fmt, args);
+  printBufferLine();
+  va_end(args);
+}
+
+void
+Report::vwarn(int /* id */,
+              const char *fmt,
+              va_list args)
+{
+  printToBuffer("Warning: ");
+  printToBufferAppend(fmt, args);
+  printBufferLine();
+}
+
+void
+Report::fileWarn(int /* id */,
+                 const char *filename,
+                 int line,
+                 const char *fmt,
+                 ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  printToBuffer("Warning: %s line %d, ", filename, line);
+  printToBufferAppend(fmt, args);
+  printBufferLine();
+  va_end(args);
+}
+
+void
+Report::vfileWarn(int /* id */,
+                  const char *filename,
+                  int line,
+                  const char *fmt,
+                  va_list args)
+{
+  printToBuffer("Warning: %s line %d, ", filename, line);
+  printToBufferAppend(fmt, args);
+  printBufferLine();
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+Report::error(int /* id */,
+              const char *fmt, ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  // No prefix msg, no \n.
   printToBuffer(fmt, args);
-  printError(buffer_, buffer_length_);
+  va_end(args);
+  throw ExceptionMsg(buffer_);
 }
 
 void
-Report::printError(const char *fmt, ...)
+Report::verror(int /* id */,
+               const char *fmt,
+               va_list args)
+{
+  // No prefix msg, no \n.
+  printToBuffer(fmt, args);
+  throw ExceptionMsg(buffer_);
+}
+
+void
+Report::fileError(int /* id */,
+                  const char *filename,
+                  int line,
+                  const char *fmt,
+                  ...)
 {
   va_list args;
   va_start(args, fmt);
-  vprintError(fmt, args);
+  // No prefix msg, no \n.
+  printToBuffer("%s line %d, ", filename, line);
+  printToBufferAppend(fmt, args);
+  va_end(args);
+  throw ExceptionMsg(buffer_);
+}
+
+void
+Report::vfileError(int /* id */,
+                   const char *filename,
+                   int line,
+                   const char *fmt,
+                   va_list args)
+{
+  // No prefix msg, no \n.
+  printToBuffer("%s line %d, ", filename, line);
+  printToBufferAppend(fmt, args);
+  throw ExceptionMsg(buffer_);
+} 
+
+////////////////////////////////////////////////////////////////
+
+void
+Report::critical(int /* id */,
+                 const char *fmt,
+                 ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  printToBuffer("Critical: ");
+  printToBufferAppend(fmt, args);
+  printBufferLine();
   va_end(args);
 }
 
 void
-Report::printDebug(const char *fmt, ...)
+Report::fileCritical(int /* id */,
+                     const char *filename,
+                     int line,
+                     const char *fmt,
+                     ...)
 {
   va_list args;
   va_start(args, fmt);
-  vprint(fmt, args);
+  printToBuffer("Critical: %s line %d, ", filename, line);
+  printToBufferAppend(fmt, args);
+  printBufferLine();
   va_end(args);
+  exit(1);
 }
 
-void
-Report::vprintDebug(const char *fmt, va_list args)
-{
-  vprint(fmt, args);
-}
-
-void
-Report::error(const char *fmt, ...)
-{
-  printError("Error: ");
-  va_list args;
-  va_start(args, fmt);
-  vprintError(fmt, args);
-  va_end(args);
-}
-
-void
-Report::verror(const char *fmt, va_list args)
-{
-  printError("Error: ");
-  vprintError(fmt, args);
-}
-
-void
-Report::fileError(const char *filename, int line, const char *fmt, ...)
-{
-  printError("Error: %s, line %d ", filename, line);
-  va_list args;
-  va_start(args, fmt);
-  vprintError(fmt, args);
-  va_end(args);
-}
-
-void
-Report::vfileError(const char *filename, int line, const char *fmt,
-		    va_list args)
-{
-  printError("Error: %s, line %d ", filename, line);
-  vprintError(fmt, args);
-}
-
-void
-Report::printWarn(const char *fmt, ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  vprintError(fmt, args);
-  va_end(args);
-}
-
-void
-Report::vprintWarn(const char *fmt, va_list args)
-{
-  vprintError(fmt, args);
-}
-
-void
-Report::warn(const char *fmt, ...)
-{
-  printWarn("Warning: ");
-  va_list args;
-  va_start(args, fmt);
-  vprintWarn(fmt, args);
-  va_end(args);
-}
-
-void
-Report::vwarn(const char *fmt, va_list args)
-{
-  printWarn("Warning: ");
-  vprintWarn(fmt, args);
-}
-
-void
-Report::fileWarn(const char *filename, int line, const char *fmt, ...)
-{
-  printWarn("Warning: %s, line %d ", filename, line);
-  va_list args;
-  va_start(args, fmt);
-  vprintWarn(fmt, args);
-  va_end(args);
-}
-
-void
-Report::vfileWarn(const char *filename, int line, const char *fmt,
-		  va_list args)
-{
-  printWarn("Warning: %s, line %d ", filename, line);
-  vprintWarn(fmt, args);
-}
+////////////////////////////////////////////////////////////////
 
 void
 Report::logBegin(const char *filename)
@@ -290,7 +355,8 @@ Report::redirectStringEnd()
 }
 
 void
-Report::redirectStringPrint(const char *buffer, size_t length)
+Report::redirectStringPrint(const char *buffer,
+                            size_t length)
 {
   redirect_string_.append(buffer, length);
 }

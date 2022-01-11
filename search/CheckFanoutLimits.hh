@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -35,8 +35,13 @@ public:
 		   float &fanout,
 		   float &limit,
 		   float &slack) const;
-  PinSeq *pinFanoutLimitViolations(const MinMax *min_max);
-  Pin *pinMinFanoutLimitSlack(const MinMax *min_max);
+  // Return pins with the min/max fanout limit slack.
+  // net=null check all nets
+  // corner=nullptr checks all corners.
+  PinSeq *checkFanoutLimits(Net *net,
+                            bool violators,
+                            const MinMax *min_max);
+
 
 protected:
   void checkFanout(const Pin *pin,
@@ -51,15 +56,17 @@ protected:
 		 // Return values.
 		 float &limit,
 		 bool &limit_exists) const;
-  void pinFanoutLimitViolations(Instance *inst,
-				const MinMax *min_max,
-				PinSeq *violators);
-  void pinMinFanoutLimitSlack(Instance *inst,
-			      const MinMax *min_max,
-			      // Return values.
-			      Pin *&min_slack_pin,
-			      float &min_slack);
   float fanoutLoad(const Pin *pin) const;
+  void checkFanoutLimits(Instance *inst,
+                         bool violators,
+                         const MinMax *min_max,
+                         PinSeq *fanout_pins,
+                         float &min_slack);
+  void checkFanoutLimits(Pin *pin,
+                         bool violators,
+                         const MinMax *min_max,
+                         PinSeq *fanout_pins,
+                         float &min_slack);
   bool checkPin(Pin *pin);
 
   const Sta *sta_;

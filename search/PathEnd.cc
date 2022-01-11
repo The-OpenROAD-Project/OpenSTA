@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "PathEnd.hh"
 
@@ -433,13 +433,14 @@ PathEnd::checkInterClkUncertainty(const ClockEdge *src_clk_edge,
 {
   Sdc *sdc = sta->sdc();
   if (src_clk_edge
-      && src_clk_edge != sdc->defaultArrivalClockEdge()) {
+      && src_clk_edge != sdc->defaultArrivalClockEdge()
+      && tgt_clk_edge) {
     sdc->clockUncertainty(src_clk_edge->clock(),
-				  src_clk_edge->transition(),
-				  tgt_clk_edge->clock(),
-				  tgt_clk_edge->transition(),
-				  check_role->pathMinMax(),
-				  uncertainty, exists);
+                          src_clk_edge->transition(),
+                          tgt_clk_edge->clock(),
+                          tgt_clk_edge->transition(),
+                          check_role->pathMinMax(),
+                          uncertainty, exists);
     if (exists
 	&& check_role->genericRole() == TimingRole::setup())
       uncertainty = -uncertainty;
@@ -451,10 +452,9 @@ PathEnd::checkInterClkUncertainty(const ClockEdge *src_clk_edge,
 ////////////////////////////////////////////////////////////////
 
 void
-PathEndUnconstrained::reportFull(ReportPath *report,
-				 string &result) const
+PathEndUnconstrained::reportFull(ReportPath *report) const
 {
-  report->reportFull(this, result);
+  report->reportFull(this);
 }
 
 Slack
@@ -464,10 +464,9 @@ PathEndUnconstrained::slackNoCrpr(const StaState *) const
 }
 
 void
-PathEndUnconstrained::reportShort(ReportPath *report,
-				  string &result) const
+PathEndUnconstrained::reportShort(ReportPath *report) const
 {
-  report->reportShort(this, result);
+  report->reportShort(this);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1009,17 +1008,15 @@ PathEndCheck::typeName() const
 }
 
 void
-PathEndCheck::reportFull(ReportPath *report,
-			 string &result) const
+PathEndCheck::reportFull(ReportPath *report) const
 {
-  report->reportFull(this, result);
+  report->reportFull(this);
 }
 
 void
-PathEndCheck::reportShort(ReportPath *report,
-			  string &result) const
+PathEndCheck::reportShort(ReportPath *report) const
 {
-  report->reportShort(this, result);
+  report->reportShort(this);
 }
 
 TimingRole *
@@ -1137,17 +1134,15 @@ PathEndLatchCheck::latchDisable() const
 }
 
 void
-PathEndLatchCheck::reportFull(ReportPath *report,
-			      string &result) const
+PathEndLatchCheck::reportFull(ReportPath *report) const
 {
-  report->reportFull(this, result);
+  report->reportFull(this);
 }
 
 void
-PathEndLatchCheck::reportShort(ReportPath *report,
-			       string &result) const
+PathEndLatchCheck::reportShort(ReportPath *report) const
 {
-  report->reportShort(this, result);
+  report->reportShort(this);
 }
 
 float
@@ -1321,17 +1316,15 @@ PathEndOutputDelay::typeName() const
 }
 
 void
-PathEndOutputDelay::reportFull(ReportPath *report,
-			       string &result) const
+PathEndOutputDelay::reportFull(ReportPath *report) const
 {
-  report->reportFull(this, result);
+  report->reportFull(this);
 }
 
 void
-PathEndOutputDelay::reportShort(ReportPath *report,
-				string &result) const
+PathEndOutputDelay::reportShort(ReportPath *report) const
 {
-  report->reportShort(this, result);
+  report->reportShort(this);
 }
 
 ArcDelay
@@ -1536,17 +1529,15 @@ PathEndGatedClock::checkRole(const StaState *) const
 }
 
 void
-PathEndGatedClock::reportFull(ReportPath *report,
-			      string &result) const
+PathEndGatedClock::reportFull(ReportPath *report) const
 {
-  report->reportFull(this, result);
+  report->reportFull(this);
 }
 
 void
-PathEndGatedClock::reportShort(ReportPath *report,
-			       string &result) const
+PathEndGatedClock::reportShort(ReportPath *report) const
 {
-  report->reportShort(this, result);
+  report->reportShort(this);
 }
 
 int
@@ -1615,6 +1606,13 @@ PathEndDataCheck::typeName() const
   return "data_check";
 }
 
+ClockEdge *
+PathEndDataCheck::targetClkEdge(const StaState *sta) const
+{
+  // clk_path_ can be null if data_clk_path is from an input port.
+  return data_clk_path_.clkEdge(sta);
+}
+
 Arrival
 PathEndDataCheck::requiredTimeNoCrpr(const StaState *sta) const
 {
@@ -1655,17 +1653,15 @@ PathEndDataCheck::checkRole(const StaState *sta) const
 }
 
 void
-PathEndDataCheck::reportFull(ReportPath *report,
-			     string &result) const
+PathEndDataCheck::reportFull(ReportPath *report) const
 {
-  report->reportFull(this, result);
+  report->reportFull(this);
 }
 
 void
-PathEndDataCheck::reportShort(ReportPath *report,
-			      string &result) const
+PathEndDataCheck::reportShort(ReportPath *report) const
 {
-  report->reportShort(this, result);
+  report->reportShort(this);
 }
 
 int
@@ -1778,17 +1774,15 @@ PathEndPathDelay::findSrcClkArrival(const StaState *sta)
 }
 
 void
-PathEndPathDelay::reportFull(ReportPath *report,
-			     string &result) const
+PathEndPathDelay::reportFull(ReportPath *report) const
 {
-  report->reportFull(this, result);
+  report->reportFull(this);
 }
 
 void
-PathEndPathDelay::reportShort(ReportPath *report,
-			      string &result) const
+PathEndPathDelay::reportShort(ReportPath *report) const
 {
-  report->reportShort(this, result);
+  report->reportShort(this);
 }
 
 bool
@@ -1903,10 +1897,8 @@ PathEndPathDelay::requiredTime(const StaState *sta) const
     float src_clk_offset = sourceClkOffset(sta);
     // Path delay includes target clk latency and timing check setup/hold 
     // margin or external departure at target.
-    if (minMax(sta) == MinMax::max())
-      return delay - src_clk_offset + tgt_clk_arrival - margin(sta);
-    else
-      return delay - src_clk_offset + tgt_clk_arrival + margin(sta);
+    return delay - src_clk_offset + tgt_clk_arrival
+      + ((minMax(sta) == MinMax::max()) ? -margin(sta) : margin(sta));
   }
 }
 

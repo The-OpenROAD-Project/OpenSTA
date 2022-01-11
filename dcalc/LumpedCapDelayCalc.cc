@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "LumpedCapDelayCalc.hh"
 
@@ -98,6 +98,12 @@ LumpedCapDelayCalc::findParasitic(const Pin *drvr_pin,
   return nullptr;
 }
 
+ReducedParasiticType
+LumpedCapDelayCalc::reducedParasiticType() const
+{
+  return ReducedParasiticType::pi_elmore;
+}
+
 void
 LumpedCapDelayCalc::finishDrvrPin()
 {
@@ -148,11 +154,11 @@ LumpedCapDelayCalc::gateDelay(const LibertyCell *drvr_cell,
 			      Slew &drvr_slew)
 {
   GateTimingModel *model = gateModel(arc, dcalc_ap);
-  debugPrint3(debug_, "delay_calc", 3,
-	      "    in_slew = %s load_cap = %s related_load_cap = %s lumped\n",
-	      delayAsString(in_slew, this),
-	      units()->capacitanceUnit()->asString(load_cap),
-	      units()->capacitanceUnit()->asString(related_out_cap));
+  debugPrint(debug_, "delay_calc", 3,
+             "    in_slew = %s load_cap = %s related_load_cap = %s lumped",
+             delayAsString(in_slew, this),
+             units()->capacitanceUnit()->asString(load_cap),
+             units()->capacitanceUnit()->asString(related_out_cap));
   if (model) {
     ArcDelay gate_delay1;
     Slew drvr_slew1;
@@ -182,7 +188,7 @@ LumpedCapDelayCalc::loadDelay(const Pin *load_pin,
   Slew load_slew1 = drvr_slew_ * multi_drvr_slew_factor_;
   thresholdAdjust(load_pin, wire_delay1, load_slew1);
   wire_delay = wire_delay1;
-  load_slew = load_slew1 * multi_drvr_slew_factor_;
+  load_slew = load_slew1;
 }
 
 void

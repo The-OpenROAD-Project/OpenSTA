@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "ClkNetwork.hh"
 
@@ -51,7 +51,7 @@ ClkNetwork::clear()
 void
 ClkNetwork::clkPinsInvalid()
 {
-  debugPrint0(debug_, "clk_network", 1, "clk network invalid\n");
+  debugPrint(debug_, "clk_network", 1, "clk network invalid");
   clk_pins_valid_ = false;
 }
 
@@ -98,7 +98,7 @@ ClkSearchPred::searchTo(const Vertex *to)
 void
 ClkNetwork::findClkPins()
 {
-  debugPrint0(debug_, "clk_network", 1, "find clk network\n");
+  debugPrint(debug_, "clk_network", 1, "find clk network");
   clear();
   findClkPins(false, pin_clks_map_);
   findClkPins(true, pin_ideal_clks_map_);
@@ -168,6 +168,13 @@ ClkNetwork::isIdealClock(const Pin *pin) const
   return pin_ideal_clks_map_.hasKey(pin);
 }
 
+bool
+ClkNetwork::isPropagatedClock(const Pin *pin) const
+{
+  return pin_clks_map_.hasKey(pin)
+    && !pin_ideal_clks_map_.hasKey(pin);
+}
+
 const ClockSet *
 ClkNetwork::clocks(const Pin *pin)
 {
@@ -193,6 +200,27 @@ ClkNetwork::pins(const Clock *clk)
     return &clk_pins_map_[clk];
   else
     return nullptr;
+}
+
+float
+ClkNetwork::idealClkSlew(const Pin *pin,
+                         const RiseFall *rf,
+                         const MinMax *min_max)
+{
+  const ClockSet *clks = clk_network_->idealClocks(pin);
+  if (clks && !clks->empty()) {
+    float slew = min_max->initValue();
+    ClockSet::ConstIterator clk_iter(clks);
+    while (clk_iter.hasNext()) {
+      Clock *clk = clk_iter.next();
+      float clk_slew = clk->slew(rf, min_max);
+      if (min_max->compare(clk_slew, slew))
+        slew = clk_slew;
+    }
+    return slew;
+  }
+  else
+    return 0.0;
 }
 
 } // namespace

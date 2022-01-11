@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2020, Parallax Software, Inc.
+# Copyright (c) 2022, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 # 
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace eval sta {
 
@@ -82,10 +82,10 @@ proc report_edge_dcalc { edge corner min_max digits } {
     # Filter timing checks based on min_max.
     if {!(($min_max == "max" && $role == "hold") \
 	    || ($min_max=="min" && $role=="setup"))} {
-      puts "Library: [get_name $library]"
-      puts "Cell: [get_name $cell]"
-      puts "Arc sense: [$edge sense]"
-      puts "Arc type: $role"
+      report_line "Library: [get_name $library]"
+      report_line "Cell: [get_name $cell]"
+      report_line "Arc sense: [$edge sense]"
+      report_line "Arc type: $role"
 
       set arc_iter [$edge timing_arc_iterator]
       while {[$arc_iter has_next]} {
@@ -94,15 +94,14 @@ proc report_edge_dcalc { edge corner min_max digits } {
 	set from_rf [$arc from_trans]
 	set to [get_name [$to_pin port]]
 	set to_rf [$arc to_trans]
-	puts "$from $from_rf -> $to $to_rf"
-	puts -nonewline [report_delay_calc_cmd $edge $arc $corner $min_max $digits]
+	report_line "$from $from_rf -> $to $to_rf"
+        report_line [report_delay_calc_cmd $edge $arc $corner $min_max $digits]
 	if { [$edge delay_annotated $arc $corner $min_max] } {
 	  set delay [$edge arc_delay $arc $corner $min_max]
-	  puts "Annotated value = [format_time $delay $digits]"
+	  report_line "Annotated value = [format_time $delay $digits]"
 	}
-	puts ""
-	puts "............................................."
-	puts ""
+	report_line "............................................."
+	report_line ""
       }
       $arc_iter finish
     }
@@ -117,7 +116,7 @@ proc set_delay_calculator { alg } {
   if { [is_delay_calc_name $alg] } {
     set_delay_calculator_cmd $alg
   } else {
-    sta_error "delay calculator $alg not found."
+    sta_error 435 "delay calculator $alg not found."
   }
 }
 

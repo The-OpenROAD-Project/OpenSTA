@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Delay.hh"
 
@@ -54,6 +54,12 @@ delayInitValue(const MinMax *min_max)
 Delay::Delay() :
   mean_(0.0),
   sigma2_(0.0)
+{
+}
+
+Delay::Delay(const Delay &delay) :
+  mean_(delay.mean_),
+  sigma2_(delay.sigma2_)
 {
 }
 
@@ -194,10 +200,9 @@ delayAsFloat(const Delay &delay,
     else if (early_late == EarlyLate::late())
       return delay.mean() + delay.sigma() * sta->sigmaFactor();
     else
-      internalError("unknown early/late value.");
+      sta->report()->critical(594, "unknown early/late value.");
   }
-  else
-    return delay.mean();
+  return delay.mean();
 }
 
 float

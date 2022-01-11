@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "ConcreteParasitics.hh"
 
@@ -999,6 +999,19 @@ ConcreteParasitics::loadPinCapacitanceChanged(const Pin *pin)
   deleteReducedParasitics(pin);
 }
 
+void
+ConcreteParasitics::deleteReducedParasitics(const Net *net,
+                                            const ParasiticAnalysisPt *ap)
+{
+  if (!drvr_parasitic_map_.empty()) {
+    PinSet *drivers = network_->drivers(net);
+    if (drivers) {
+      for (auto drvr_pin : *drivers)
+        deleteDrvrReducedParasitics(drvr_pin, ap);
+    }
+  }
+}
+
 // Delete reduced models on pin's net.
 void
 ConcreteParasitics::deleteReducedParasitics(const Pin *pin)
@@ -1025,6 +1038,19 @@ ConcreteParasitics::deleteDrvrReducedParasitics(const Pin *drvr_pin)
     delete [] parasitics;
   }
   drvr_parasitic_map_[drvr_pin] = nullptr;
+}
+
+void
+ConcreteParasitics::deleteDrvrReducedParasitics(const Pin *drvr_pin,
+                                                const ParasiticAnalysisPt *ap)
+{
+  UniqueLock lock(lock_);
+  ConcreteParasitic **parasitics = drvr_parasitic_map_[drvr_pin];
+  if (parasitics) {
+    int ap_index = ap->index();
+    delete parasitics[ap_index];
+    parasitics[ap_index] = nullptr;
+  }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1340,7 +1366,30 @@ ConcreteParasitics::deleteParasiticNetwork(const Net *net,
     if (parasitics) {
       int ap_index = ap->index();
       delete parasitics[ap_index];
-      parasitics[ap_index] = nullptr;
+      int ap_count = corners_->parasiticAnalysisPtCount();
+      if (ap_count == 1) {
+        // If there is only one parasitic we can remove the array and map entry.
+        delete [] parasitics;
+        parasitic_network_map_.erase(net);
+      }
+      else
+        parasitics[ap_index] = nullptr;
+    }
+  }
+}
+
+void
+ConcreteParasitics::deleteParasiticNetworks(const Net *net)
+{
+  if (!parasitic_network_map_.empty()) {
+    UniqueLock lock(lock_);
+    ConcreteParasiticNetwork **parasitics = parasitic_network_map_.findKey(net);
+    if (parasitics) {
+      int ap_count = corners_->parasiticAnalysisPtCount();
+      for (int i = 0; i < ap_count; i++)
+	delete parasitics[i];
+      delete [] parasitics;
+      parasitic_network_map_.erase(net);
     }
   }
 }
@@ -1564,21 +1613,22 @@ ConcreteParasitics::otherNode(const ParasiticDevice *device,
 void
 ConcreteParasitics::reduceTo(Parasitic *parasitic,
 			     const Net *net,
-			     ReduceParasiticsTo reduce_to,
+			     ReducedParasiticType reduce_to,
 			     const OperatingConditions *op_cond,
 			     const Corner *corner,
 			     const MinMax *cnst_min_max,
 			     const ParasiticAnalysisPt *ap)
 {
   switch (reduce_to) {
-  case ReduceParasiticsTo::pi_elmore:
+  case ReducedParasiticType::pi_elmore:
     reduceToPiElmore(parasitic, net, op_cond, corner, cnst_min_max, ap);
     break;
-  case ReduceParasiticsTo::pi_pole_residue2:
+  case ReducedParasiticType::pi_pole_residue2:
     reduceToPiPoleResidue2(parasitic, net, op_cond, corner,
 			   cnst_min_max, ap);
     break;
-  case ReduceParasiticsTo::none:
+  case ReducedParasiticType::arnoldi:
+  case ReducedParasiticType::none:
     break;
   }
 }
@@ -1591,8 +1641,8 @@ ConcreteParasitics::reduceToPiElmore(Parasitic *parasitic,
 				     const MinMax *cnst_min_max,
 				     const ParasiticAnalysisPt *ap)
 {
-  debugPrint1(debug_, "parasitic_reduce", 1, "Reduce net %s\n",
-	      network_->pathName(net));
+  debugPrint(debug_, "parasitic_reduce", 1, "Reduce net %s",
+             network_->pathName(net));
   NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(net);
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
@@ -1624,8 +1674,8 @@ ConcreteParasitics::reduceToPiPoleResidue2(Parasitic *parasitic,
 					   const MinMax *cnst_min_max,
 					   const ParasiticAnalysisPt *ap)
 {
-  debugPrint1(debug_, "parasitic_reduce", 1, "Reduce net %s\n",
-	      network_->pathName(net));
+  debugPrint(debug_, "parasitic_reduce", 1, "Reduce net %s",
+             network_->pathName(net));
   NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(net);
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();

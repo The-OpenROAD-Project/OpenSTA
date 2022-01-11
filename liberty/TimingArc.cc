@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "TimingModel.hh"
 
@@ -134,6 +134,34 @@ TimingArcAttrs::setOcvArcDepth(float depth)
   ocv_arc_depth_ = depth;
 }
 
+float
+TimingArc::driveResistance() const
+{
+  GateTimingModel *model = dynamic_cast<GateTimingModel*>(model_);
+  if (model) {
+    LibertyCell *cell = set_->libertyCell();
+    return model->driveResistance(cell, nullptr);
+  }
+  else
+    return 0.0;
+}
+
+ArcDelay
+TimingArc::intrinsicDelay() const
+{
+  GateTimingModel *model = dynamic_cast<GateTimingModel*>(model_);
+  if (model) {
+    LibertyCell *cell = set_->libertyCell();
+    ArcDelay arc_delay;
+    Slew slew;
+    model->gateDelay(cell, nullptr, 0.0, 0.0, 0.0, false,
+                     arc_delay, slew);
+    return arc_delay;
+  }
+  else
+    return 0.0;
+}
+
 ////////////////////////////////////////////////////////////////
 
 TimingArcSet *TimingArcSet::wire_timing_arc_set_ = nullptr;
@@ -220,7 +248,7 @@ TimingArcSet::addTimingArc(TimingArc *arc)
 {
   TimingArcIndex arc_index = arcs_.size();
   if (arc_index > timing_arc_index_max)
-    internalError("timing arc max index exceeded\n");
+    criticalError(243, "timing arc max index exceeded\n");
   arcs_.push_back(arc);
 
   int from_rf_index = arc->fromTrans()->asRiseFall()->index();

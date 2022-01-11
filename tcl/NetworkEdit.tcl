@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2020, Parallax Software, Inc.
+# Copyright (c) 2022, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 # 
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 # Network editing commands.
 
@@ -47,7 +47,7 @@ proc parse_connect_pin { arg } {
       set inst [$pin instance]
       set port [$pin port]
     } else {
-      sta_error "unsupported object type $object_type."
+      sta_error 586 "unsupported object type $object_type."
     }
   } else {
     if {[regexp $path_regexp $arg ignore path_name port_name]} {
@@ -77,7 +77,7 @@ proc parse_connect_pin { arg } {
 }
 
 proc connect_pins { net pins } {
-  sta_warn "connect_pins is deprecated.  Use connect_pin."
+  sta_warn 372 "connect_pins is deprecated.  Use connect_pin."
   # Visit the pins to make sure command will succeed.
   set insts_ports [parse_connect_pins $pins]
   if { $insts_ports == 0 } {
@@ -116,7 +116,7 @@ proc delete_instance { instance } {
     if { $object_type == "Instance" } {
       set inst $obj
     } else {
-      sta_error "unsupported object type $object_type."
+      sta_error 587 "unsupported object type $object_type."
     }
   } else {
     set inst [find_instance $instance]
@@ -132,7 +132,7 @@ proc delete_net { net } {
   if { [is_object $net] } {
     set object_type [object_type $net]
     if { $object_type != "Net" } {
-      sta_error "unsupported object type $object_type."
+      sta_error 588 "unsupported object type $object_type."
     }
   } else {
     set net [find_net $net]
@@ -169,7 +169,7 @@ proc disconnect_pin { net pin } {
 }
 
 proc disconnect_pins { net pins } {
-  sta_warn "disconnect_pins is deprecated.  Use disconnect_pin."
+  sta_warn 603 "disconnect_pins is deprecated.  Use disconnect_pin."
   foreach pin $pins {
     disconnect_pin $net $pins
   }
@@ -234,6 +234,13 @@ proc replace_cell { instance lib_cell } {
   } else {
     return 0
   }
+}
+
+proc path_regexp {} {
+  global hierarchy_separator
+  set id_regexp "\[^${hierarchy_separator}\]+"
+  set prefix_regexp "${id_regexp}(?:${hierarchy_separator}${id_regexp})*"
+  return "^(${prefix_regexp})${hierarchy_separator}(${id_regexp})$"
 }
 
 # sta namespace end.

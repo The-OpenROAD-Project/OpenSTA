@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Sdc.hh"
 
@@ -92,10 +92,12 @@ Sdc::Sdc(StaState *sta) :
   clk_group_same_(nullptr),
   clk_sense_map_(network_),
   clk_gating_check_(nullptr),
+  cycle_acctings_(this),
   input_delay_index_(0),
   port_cap_map_(nullptr),
   net_wire_cap_map_(nullptr),
   drvr_pin_wire_cap_map_(nullptr),
+  have_thru_hpin_exceptions_(false),
   first_from_pin_exceptions_(nullptr),
   first_from_clk_exceptions_(nullptr),
   first_from_inst_exceptions_(nullptr),
@@ -403,6 +405,18 @@ Sdc::initInstancePvtMaps()
     instance_pvt_maps_[mm_index] = nullptr;
 }
 
+void
+Sdc::deleteNetBefore(Net *net)
+{
+  if (net_wire_cap_map_) {
+    for (int corner_index = 0; corner_index < corners_->count(); corner_index++) {
+      net_wire_cap_map_[corner_index].erase(net);
+      for (Pin *pin : *network_->drivers(net))
+	drvr_pin_wire_cap_map_[corner_index].erase(pin);
+    }
+  }
+}
+
 ////////////////////////////////////////////////////////////////
 
 bool
@@ -457,8 +471,8 @@ Sdc::isConstrained(const Instance *inst) const
 	&& first_from_inst_exceptions_->hasKey(inst))
     || (first_thru_inst_exceptions_
 	&& first_thru_inst_exceptions_->hasKey(inst))
-    || (first_to_inst_exceptions_->hasKey(inst)
-	&& first_to_inst_exceptions_)
+    || (first_to_inst_exceptions_
+	&& first_to_inst_exceptions_->hasKey(inst))
     || inst_latch_borrow_limit_map_.hasKey(inst)
     || inst_min_pulse_width_map_.hasKey(inst);
 }
@@ -906,7 +920,7 @@ Sdc::fanoutLimit(Cell *cell,
 		 float &fanout,
 		 bool &exists)
 {
-  fanout = 0.0;
+  fanout = min_max->initValue();
   MinMaxFloatValues values;
   cell_fanout_limit_map_.findKey(cell, values, exists);
   if (exists)
@@ -1528,7 +1542,6 @@ Sdc::removeClockLatency(const Clock *clk,
 void
 Sdc::deleteClockLatency(ClockLatency *latency)
 {
-  const Pin *pin = latency->pin();
   clk_latencies_.erase(latency);
   delete latency;
 }
@@ -2401,65 +2414,20 @@ CycleAccting *
 Sdc::cycleAccting(const ClockEdge *src,
 		  const ClockEdge *tgt)
 {
-  if (src == nullptr)
-    src = tgt;
-  CycleAccting *acct;
-  CycleAccting probe(src, tgt);
-  acct = cycle_acctings_.findKey(&probe);
-  if (acct == nullptr) {
-    UniqueLock lock(cycle_acctings_lock_);
-    // Recheck with lock.
-    acct = cycle_acctings_.findKey(&probe);
-    if (acct == nullptr) {
-      acct = new CycleAccting(src, tgt);
-      if (src == defaultArrivalClockEdge())
-	acct->findDefaultArrivalSrcDelays();
-      else
-	acct->findDelays(this);
-      cycle_acctings_.insert(acct);
-    }
-  }
-  return acct;
+  UniqueLock lock(cycle_acctings_lock_);
+  return cycle_acctings_.cycleAccting(src, tgt);
 }
 
 void
 Sdc::reportClkToClkMaxCycleWarnings()
 {
-  // Find cycle acctings that exceed max cycle count.  Eliminate
-  // duplicate warnings between different src/tgt clk edges.
-  ClockPairSet clk_warnings;
-  ClockPairSeq clk_warnings2;
-  CycleAcctingSet::Iterator acct_iter(cycle_acctings_);
-  while (acct_iter.hasNext()) {
-    CycleAccting *acct = acct_iter.next();
-    if (acct->maxCyclesExceeded()) {
-      Clock *src = acct->src()->clock();
-      Clock *tgt = acct->target()->clock();
-      // Canonicalize the warning wrt src/tgt.
-      if (src->index() > tgt->index())
-	std::swap(src, tgt);
-      ClockPair clk_pair(src, tgt);
-      if (!clk_warnings.hasKey(clk_pair)) {
-	clk_warnings.insert(clk_pair);
-	clk_warnings2.push_back(clk_pair);
-      }
-    }
-  }
-
-  // Sort clk pairs so that results are stable.
-  sort(clk_warnings2, ClockPairLess());
-
-  for (auto pair : clk_warnings2) {
-    report_->warn("No common period was found between clocks %s and %s.\n",
-		  pair.first->name(),
-		  pair.second->name());
-  }
+  cycle_acctings_.reportClkToClkMaxCycleWarnings(report_);
 }
 
 void
 Sdc::clearCycleAcctings()
 {
-  cycle_acctings_.deleteContentsClear();
+  cycle_acctings_.clear();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3927,7 +3895,8 @@ Sdc::exceptionToInvalid(const Pin *pin)
   Net *net = network_->net(pin);
   // Floating pins are invalid.
   if ((net == nullptr
-       && !network_->isTopLevelPort(pin))
+       && !(network_->isTopLevelPort(pin)
+            || network_->direction(pin)->isInternal()))
       || (net
 	  // Pins connected to power/ground are invalid.
 	  && (network_->isPower(net)
@@ -4166,7 +4135,7 @@ Sdc::makeGroupPath(const char *name,
 {
   checkFromThrusTo(from, thrus, to);
   if (name && is_default)
-    internalError("group path name and is_default are mutually exclusive.");
+    report_->critical(213, "group path name and is_default are mutually exclusive.");
   else if (name) {
     GroupPath *group_path = new GroupPath(name, is_default, from, thrus, to,
 					  true, comment);
@@ -4231,7 +4200,7 @@ Sdc::makeLoopExceptions()
 void
 Sdc::makeLoopExceptions(GraphLoop *loop)
 {
-  debugPrint0(debug_, "loop", 2, "Loop false path\n");
+  debugPrint(debug_, "loop", 2, "Loop false path");
   EdgeSeq::Iterator loop_edge_iter(loop->edges());
   while (loop_edge_iter.hasNext()) {
     Edge *edge = loop_edge_iter.next();
@@ -4277,7 +4246,7 @@ void
 Sdc::makeLoopExceptionThru(Pin *pin,
 			   ExceptionThruSeq *thrus)
 {
-  debugPrint1(debug_, "levelize", 2, " %s\n", network_->pathName(pin));
+  debugPrint(debug_, "levelize", 2, " %s", network_->pathName(pin));
   PinSet *pins = new PinSet;
   pins->insert(pin);
   ExceptionThru *thru = makeExceptionThru(pins, nullptr, nullptr,
@@ -4301,8 +4270,8 @@ Sdc::deleteLoopExceptions()
 void
 Sdc::addException(ExceptionPath *exception)
 {
-  debugPrint1(debug_, "exception_merge", 1, "add exception for %s\n",
-	      exception->asString(network_));
+  debugPrint(debug_, "exception_merge", 1, "add exception for %s",
+             exception->asString(network_));
 
   if (exception->isPathDelay()) {
     recordPathDelayInternalStartpoints(exception);
@@ -4327,8 +4296,8 @@ Sdc::addException(ExceptionPath *exception)
     ExceptionTo *to = exception->to();    
     ExceptionTo *to1 = to ? to->clone() : nullptr;
     ExceptionPath *exception1 = exception->clone(from1, thrus1, to1, true);
-    debugPrint1(debug_, "exception_merge", 1, " split exception for %s\n",
-		exception1->asString(network_));
+    debugPrint(debug_, "exception_merge", 1, " split exception for %s",
+               exception1->asString(network_));
     addException1(exception1);
 
     ClockSet *clks2 = new ClockSet(*from->clks());
@@ -4337,8 +4306,8 @@ Sdc::addException(ExceptionPath *exception)
     ExceptionThruSeq *thrus2 = exceptionThrusClone(exception->thrus(), network_);
     ExceptionTo *to2 = to ? to->clone() : nullptr;
     ExceptionPath *exception2 = exception->clone(from2, thrus2, to2, true);
-    debugPrint1(debug_, "exception_merge", 1, " split exception for %s\n",
-		exception2->asString(network_));
+    debugPrint(debug_, "exception_merge", 1, " split exception for %s",
+               exception2->asString(network_));
     addException1(exception2);
 
     delete exception;
@@ -4354,7 +4323,7 @@ Sdc::addException1(ExceptionPath *exception)
   if (to
       && (to->hasPins() || to->hasInstances())
       && to->hasClocks()) {
-    ExceptionFrom *from1 = exception->from()->clone();
+    ExceptionFrom *from1 = exception->from() ? exception->from()->clone() : nullptr;
     ExceptionThruSeq *thrus1 = exceptionThrusClone(exception->thrus(), network_);
     PinSet *pins1 = to->pins() ? new PinSet(*to->pins()) : nullptr;
     InstanceSet *insts1 = to->instances() ? new InstanceSet(*to->instances()) : nullptr;
@@ -4362,18 +4331,18 @@ Sdc::addException1(ExceptionPath *exception)
 				       to->transition(),
 				       to->endTransition(), true);
     ExceptionPath *exception1 = exception->clone(from1, thrus1, to1, true);
-    debugPrint1(debug_, "exception_merge", 1, " split exception for %s\n",
-		exception1->asString(network_));
+    debugPrint(debug_, "exception_merge", 1, " split exception for %s",
+               exception1->asString(network_));
     addException2(exception1);
 
-    ExceptionFrom *from2 = exception->from()->clone();
+    ExceptionFrom *from2 = exception->from() ? exception->from()->clone() : nullptr;
     ExceptionThruSeq *thrus2 = exceptionThrusClone(exception->thrus(), network_);
     ClockSet *clks2 = new ClockSet(*to->clks());
     ExceptionTo *to2 = new ExceptionTo(nullptr, clks2, nullptr, to->transition(),
 				       to->endTransition(), true);
     ExceptionPath *exception2 = exception->clone(from2, thrus2, to2, true);
-    debugPrint1(debug_, "exception_merge", 1, " split exception for %s\n",
-		exception2->asString(network_));
+    debugPrint(debug_, "exception_merge", 1, " split exception for %s",
+               exception2->asString(network_));
     addException2(exception2);
 
     delete exception;
@@ -4435,8 +4404,8 @@ Sdc::addException2(ExceptionPath *exception)
 void
 Sdc::deleteMatchingExceptions(ExceptionPath *exception)
 {
-  debugPrint1(debug_, "exception_merge", 1, "find matches for %s\n",
-	      exception->asString(network_));
+  debugPrint(debug_, "exception_merge", 1, "find matches for %s",
+             exception->asString(network_));
   ExceptionPathSet matches;
   findMatchingExceptions(exception, matches);
 
@@ -4706,6 +4675,21 @@ Sdc::recordException(ExceptionPath *exception)
   exceptions_.insert(exception);
   recordMergeHashes(exception);
   recordExceptionFirstPts(exception);
+  checkForThruHpins(exception);
+}
+
+void
+Sdc::checkForThruHpins(ExceptionPath *exception)
+{
+  ExceptionThruSeq *thrus = exception->thrus();
+  if (thrus) {
+    for (ExceptionThru *thru : *thrus) {
+      if (thru->edges()) {
+        have_thru_hpin_exceptions_ = true;
+        break;
+      }
+    }
+  }
 }
 
 void
@@ -4723,11 +4707,11 @@ Sdc::recordMergeHash(ExceptionPath *exception,
 		     ExceptionPt *missing_pt)
 {
   size_t hash = exception->hash(missing_pt);
-  debugPrint3(debug_, "exception_merge", 3,
-	      "record merge hash %zu %s missing %s\n",
-	      hash,
-	      exception->asString(network_),
-	      missing_pt->asString(network_));
+  debugPrint(debug_, "exception_merge", 3,
+             "record merge hash %zu %s missing %s",
+             hash,
+             exception->asString(network_),
+             missing_pt->asString(network_));
   ExceptionPathSet *set = exception_merge_hash_.findKey(hash);
   if (set == nullptr) {
     set = new ExceptionPathSet;
@@ -4950,10 +4934,10 @@ Sdc::findMergeMatch(ExceptionPath *exception)
 	    // search at the endpoint.
 	    && exception->mergeable(match)
 	    && match->mergeablePts(exception, missing_pt, match_missing_pt)) {
-	  debugPrint1(debug_, "exception_merge", 1, "merge %s\n",
-		      exception->asString(network_));
-	  debugPrint1(debug_, "exception_merge", 1, " with %s\n",
-		      match->asString(network_));
+	  debugPrint(debug_, "exception_merge", 1, "merge %s",
+                     exception->asString(network_));
+	  debugPrint(debug_, "exception_merge", 1, " with %s",
+                     match->asString(network_));
 	  // Unrecord the exception that is being merged away.
 	  unrecordException(exception);
 	  unrecordMergeHashes(match);
@@ -5005,6 +4989,7 @@ Sdc::deleteExceptions()
 
   deleteExceptionPtHashMapSets(exception_merge_hash_);
   exception_merge_hash_.clear();
+  have_thru_hpin_exceptions_ = false;
 }
 
 void
@@ -5130,8 +5115,8 @@ Sdc::deleteExceptionsReferencing(Clock *clk)
 void
 Sdc::deleteException(ExceptionPath *exception)
 {
-  debugPrint1(debug_, "exception_merge", 2, "delete %s\n",
-	      exception->asString(network_));
+  debugPrint(debug_, "exception_merge", 2, "delete %s",
+             exception->asString(network_));
   unrecordException(exception);
   delete exception;
 }
@@ -5159,11 +5144,11 @@ Sdc::unrecordMergeHash(ExceptionPath *exception,
 		       ExceptionPt *missing_pt)
 {
   size_t hash = exception->hash(missing_pt);
-  debugPrint3(debug_, "exception_merge", 3,
-	      "unrecord merge hash %zu %s missing %s\n",
-	      hash,
-	      exception->asString(network_),
-	      missing_pt->asString(network_));
+  debugPrint(debug_, "exception_merge", 3,
+             "unrecord merge hash %zu %s missing %s",
+             hash,
+             exception->asString(network_),
+             missing_pt->asString(network_));
   ExceptionPathSet *matches = exception_merge_hash_.findKey(hash);
   if (matches)
     matches->erase(exception);
@@ -5352,8 +5337,8 @@ Sdc::resetPath(ExceptionFrom *from,
   while (except_iter.hasNext()) {
     ExceptionPath *match = except_iter.next();
     if (match->resetMatch(from, thrus, to, min_max)) {
-      debugPrint1(debug_, "exception_match", 3, "reset match %s\n",
-		  match->asString(network_));
+      debugPrint(debug_, "exception_match", 3, "reset match %s",
+                 match->asString(network_));
       ExceptionPathSet expansions;
       expandException(match, expansions);
       deleteException(match);
@@ -5943,19 +5928,21 @@ Sdc::setUseDefaultArrivalClock(bool enable)
 void
 Sdc::connectPinAfter(Pin *pin)
 {
-  PinSet *drvrs = network_->drivers(pin);
-  ExceptionPathSet::Iterator except_iter(exceptions_);
-  while (except_iter.hasNext()) {
-    ExceptionPath *exception = except_iter.next();
-    ExceptionPt *first_pt = exception->firstPt();
-    ExceptionThruSeq::Iterator thru_iter(exception->thrus());
-    while (thru_iter.hasNext()) {
-      ExceptionThru *thru = thru_iter.next();
-      if (thru->edges()) {
-	thru->connectPinAfter(drvrs, network_);
-	if (first_pt == thru)
-	  recordExceptionEdges(exception, thru->edges(),
-			       first_thru_edge_exceptions_);
+  if (have_thru_hpin_exceptions_) {
+    PinSet *drvrs = network_->drivers(pin);
+    ExceptionPathSet::Iterator except_iter(exceptions_);
+    while (except_iter.hasNext()) {
+      ExceptionPath *exception = except_iter.next();
+      ExceptionPt *first_pt = exception->firstPt();
+      ExceptionThruSeq::Iterator thru_iter(exception->thrus());
+      while (thru_iter.hasNext()) {
+        ExceptionThru *thru = thru_iter.next();
+        if (thru->edges()) {
+          thru->connectPinAfter(drvrs, network_);
+          if (first_pt == thru)
+            recordExceptionEdges(exception, thru->edges(),
+                                 first_thru_edge_exceptions_);
+        }
       }
     }
   }
@@ -5964,18 +5951,20 @@ Sdc::connectPinAfter(Pin *pin)
 void
 Sdc::disconnectPinBefore(Pin *pin)
 {
-  ExceptionPathSet::Iterator except_iter(exceptions_);
-  while (except_iter.hasNext()) {
-    ExceptionPath *exception = except_iter.next();
-    ExceptionPt *first_pt = exception->firstPt();
-    ExceptionThruSeq::Iterator thru_iter(exception->thrus());
-    while (thru_iter.hasNext()) {
-      ExceptionThru *thru = thru_iter.next();
-      if (thru->edges()) {
-	thru->disconnectPinBefore(pin, network_);
-	if (thru == first_pt)
-	  recordExceptionEdges(exception, thru->edges(),
-			       first_thru_edge_exceptions_);
+  if (have_thru_hpin_exceptions_) {
+    ExceptionPathSet::Iterator except_iter(exceptions_);
+    while (except_iter.hasNext()) {
+      ExceptionPath *exception = except_iter.next();
+      ExceptionPt *first_pt = exception->firstPt();
+      ExceptionThruSeq::Iterator thru_iter(exception->thrus());
+      while (thru_iter.hasNext()) {
+        ExceptionThru *thru = thru_iter.next();
+        if (thru->edges()) {
+          thru->disconnectPinBefore(pin, network_);
+          if (thru == first_pt)
+            recordExceptionEdges(exception, thru->edges(),
+                                 first_thru_edge_exceptions_);
+        }
       }
     }
   }

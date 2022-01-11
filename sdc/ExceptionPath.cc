@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "ExceptionPath.hh"
 
@@ -1421,7 +1421,7 @@ ExceptionTo::matchesFilter(const Pin *pin,
 			   const RiseFall *end_rf,
 			   const Network *network) const
 {
-  // "report -to reg" does match clock pins.
+  // "report -to reg" matches clock pins.
   return matches(pin, clk_edge, end_rf, true, network);
 }
 
@@ -1456,7 +1456,8 @@ ExceptionTo::matches(const Pin *pin,
 	&& (inst_matches_reg_clk_pin
 	    || !network->isRegClkPin(pin))
 	&& insts_->hasKey(network->instance(pin))
-	&& network->direction(pin)->isAnyInput()
+	&& (network->direction(pin)->isAnyInput()
+            || network->direction(pin)->isInternal())
 	&& rf_->matches(end_rf)
 	&& end_rf_->matches(end_rf))
     || (pins_ == nullptr

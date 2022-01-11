@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,15 +8,16 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
 #include "DisallowCopyAssign.hh"
+#include "Zlib.hh"
 #include "Vector.hh"
 #include "Map.hh"
 #include "Set.hh"
@@ -50,6 +51,20 @@ enum class LibertyAttrType { attr_string, attr_int, attr_double,
 			     attr_boolean, attr_unknown };
 
 enum class LibertyGroupType { library, cell, pin, timing, unknown };
+
+// flex YY_INPUT yy_n_chars arg changed definition from int to size_t,
+// so provide both forms.
+void
+libertyGetChars(char *buf,
+                size_t &result,
+                size_t max_size);
+void
+libertyGetChars(char *buf,
+                int &result,
+                size_t max_size);
+
+#define YY_INPUT(buf,result,max_size) \
+  sta::libertyGetChars(buf, result, max_size)
 
 // Abstract base class for liberty statements.
 class LibertyStmt
@@ -300,7 +315,7 @@ private:
   DISALLOW_COPY_AND_ASSIGN(LibertyGroupVisitor);
 };
 
-FILE *
+void
 libertyIncludeBegin(const char *filename);
 void
 libertyIncludeEnd();

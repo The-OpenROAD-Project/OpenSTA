@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -35,6 +35,8 @@ public:
   virtual void deleteParasitics(const Pin *pin,
 				const ParasiticAnalysisPt *ap);
   virtual void deleteUnsavedParasitic(Parasitic *parasitic);
+  virtual void deleteReducedParasitics(const Net *net,
+                                       const ParasiticAnalysisPt *ap);
   virtual void deleteDrvrReducedParasitics(const Pin *drvr_pin);
 
   virtual float capacitance(Parasitic *parasitic) const;
@@ -97,6 +99,7 @@ public:
   virtual bool includesPinCaps(Parasitic *parasitic) const;
   virtual void deleteParasiticNetwork(const Net *net,
 				      const ParasiticAnalysisPt *ap);
+  virtual void deleteParasiticNetworks(const Net *net);
   virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
 					     const Net *net,
 					     int id);
@@ -140,7 +143,7 @@ public:
   // Reduce parasitic network to reduce_to model.
   virtual void reduceTo(Parasitic *parasitic,
 			const Net *net,
-			ReduceParasiticsTo reduce_to,
+			ReducedParasiticType reduce_to,
 			const OperatingConditions *op_cond,
 			const Corner *corner,
 			const MinMax *cnst_min_max,

@@ -3,7 +3,7 @@
 %{
 
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -12,11 +12,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////
 //
@@ -35,6 +35,7 @@
 
 #include <limits>
 
+#include "Machine.hh"
 #include "StaConfig.hh"  // STA_VERSION
 #include "Stats.hh"
 #include "Report.hh"
@@ -107,21 +108,6 @@ typedef StringSeq TmpStringSeq;
 
 using std::vector;
 
-class CmdErrorNetworkNotLinked : public Exception
-{
-public:
-  virtual const char *what() const noexcept
-  { return "no network has been linked."; }
-};
-
-class CmdErrorNetworkNotEditable : public Exception
-{
-public:
-  virtual const char *what() const noexcept
-  { return "network does not support edits."; }
-};
-
-
 // Get the network for commands.
 Network *
 cmdNetwork()
@@ -138,7 +124,8 @@ cmdLinkedNetwork()
   if (network->isLinked())
     return network;
   else {
-    throw CmdErrorNetworkNotLinked();
+    Report *report = Sta::sta()->report();
+    report->error(201, "no network has been linked.");
     return nullptr;
   }
 }
@@ -151,7 +138,8 @@ cmdEditNetwork()
   if (network->isEditable())
     return dynamic_cast<NetworkEdit*>(network);
   else {
-    throw CmdErrorNetworkNotEditable();
+    Report *report = Sta::sta()->report();
+    report->error(202, "network does not support edits.");
     return nullptr;
   }
 }
@@ -189,30 +177,6 @@ tclListSeq(Tcl_Obj *const source,
     return nullptr;
 }
 
-template <class TYPE>
-vector<TYPE> *
-tclListStdSeq(Tcl_Obj *const source,
-	      swig_type_info *swig_type,
-	      Tcl_Interp *interp)
-{
-  int argc;
-  Tcl_Obj **argv;
-
-  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
-      && argc > 0) {
-    vector<TYPE> *seq = new vector<TYPE>;
-    for (int i = 0; i < argc; i++) {
-      void *obj;
-      // Ignore returned TCL_ERROR because can't get swig_type_info.
-      SWIG_ConvertPtr(argv[i], &obj, swig_type, false);
-      seq->push_back(reinterpret_cast<TYPE>(obj));
-    }
-    return seq;
-  }
-  else
-    return nullptr;
-}
-
 LibertyLibrarySeq *
 tclListSeqLibertyLibrary(Tcl_Obj *const source,
 			 Tcl_Interp *interp)
@@ -224,7 +188,7 @@ vector<LibertyCell*> *
 tclListSeqLibertyCell(Tcl_Obj *const source,
 		      Tcl_Interp *interp)
 {
-  return tclListStdSeq<LibertyCell*>(source, SWIGTYPE_p_LibertyCell, interp);
+  return tclListSeq<LibertyCell*>(source, SWIGTYPE_p_LibertyCell, interp);
 }
 
 template <class TYPE>
@@ -249,6 +213,13 @@ tclListSet(Tcl_Obj *const source,
   }
   else
     return nullptr;
+}
+
+PinSet *
+tclListSetPin(Tcl_Obj *const source,
+              Tcl_Interp *interp)
+{
+  return tclListSet<Pin*>(source, SWIGTYPE_p_Pin, interp);
 }
 
 StringSet *
@@ -324,11 +295,14 @@ pushPowerResultFloats(PowerResult &power,
 ////////////////////////////////////////////////////////////////
 
 void
-tclError(Tcl_Interp *interp,
-	 const char *msg,
-	 const char *arg)
+tclArgError(Tcl_Interp *interp,
+            const char *msg,
+            const char *arg)
 {
-  char *error = stringPrint(msg, arg);
+  // Swig does not add try/catch around arg parsing so this cannot use Report::error.
+  string error_msg = "Error: ";
+  error_msg += msg;
+  char *error = stringPrint(error_msg.c_str(), arg);
   Tcl_SetResult(interp, error, TCL_VOLATILE);
   stringDelete(error);
 }
@@ -867,7 +841,7 @@ using namespace sta;
 	floats->push_back(static_cast<float>(value));
       else {
 	delete floats;
-	tclError(interp, "Error: %s is not a floating point number.", arg);
+	tclArgError(interp, "%s is not a floating point number.", arg);
 	return TCL_ERROR;
       }
     }
@@ -915,7 +889,7 @@ using namespace sta;
 	ints->push_back(value);
       else {
 	delete ints;
-	tclError(interp, "Error: %s is not an integer.", arg);
+	tclArgError(interp, "%s is not an integer.", arg);
 	return TCL_ERROR;
       }
     }
@@ -930,7 +904,7 @@ using namespace sta;
   if (min_max)
     $1 = min_max;
   else {
-    tclError(interp, "Error: %s not min or max.", arg);
+    tclArgError(interp, "%s not min or max.", arg);
     return TCL_ERROR;
   }
 }
@@ -950,7 +924,7 @@ using namespace sta;
   if (min_max)
     $1 = min_max;
   else {
-    tclError(interp, "Error: %s not min, max or min_max.", arg);
+    tclArgError(interp, "%s not min, max or min_max.", arg);
     return TCL_ERROR;
   }
 }
@@ -965,7 +939,7 @@ using namespace sta;
     if (min_max)
       $1 = min_max;
     else {
-      tclError(interp, "Error: %s not min, max or min_max.", arg);
+      tclArgError(interp, "%s not min, max or min_max.", arg);
       return TCL_ERROR;
     }
   }
@@ -986,7 +960,7 @@ using namespace sta;
 	   || stringEqual(arg, "max"))
     $1 = MinMax::max();
   else {
-    tclError(interp, "Error: %s not setup, hold, min or max.", arg);
+    tclArgError(interp, "%s not setup, hold, min or max.", arg);
     return TCL_ERROR;
   }
 }
@@ -1005,7 +979,7 @@ using namespace sta;
 	   || stringEqual(arg, "min_max"))
     $1 = SetupHoldAll::all();
   else {
-    tclError(interp, "Error: %s not setup, hold, setup_hold, min, max or min_max.", arg);
+    tclArgError(interp, "%s not setup, hold, setup_hold, min, max or min_max.", arg);
     return TCL_ERROR;
   }
 }
@@ -1018,7 +992,7 @@ using namespace sta;
   if (early_late)
     $1 = early_late;
   else {
-    tclError(interp, "Error: %s not early/min or late/max.", arg);
+    tclArgError(interp, "%s not early/min, late/max or early_late/min_max.", arg);
     return TCL_ERROR;
   }
 }
@@ -1031,7 +1005,7 @@ using namespace sta;
   if (early_late)
     $1 = early_late;
   else {
-    tclError(interp, "Error: %s not early/min, late/max or early_late/min_max.", arg);
+    tclArgError(interp, "%s not early/min, late/max or early_late/min_max.", arg);
     return TCL_ERROR;
   }
 }
@@ -1046,7 +1020,7 @@ using namespace sta;
   else if (stringEq(arg, "cell_check"))
     $1 = TimingDerateType::cell_check;
   else {
-    tclError(interp, "Error: %s not clk or data.", arg);
+    tclArgError(interp, "%s not clk or data.", arg);
     return TCL_ERROR;
   }
 }
@@ -1059,7 +1033,7 @@ using namespace sta;
   else if (stringEq(arg, "data"))
     $1 = PathClkOrData::data;
   else {
-    tclError(interp, "Error: %s not clk or data.", arg);
+    tclArgError(interp, "%s not clk or data.", arg);
     return TCL_ERROR;
   }
 }
@@ -1072,7 +1046,7 @@ using namespace sta;
   else if (stringEq(arg, "slack"))
     $1 = sort_by_slack;
   else {
-    tclError(interp, "Error: %s not group or slack.", arg);
+    tclArgError(interp, "%s not group or slack.", arg);
     return TCL_ERROR;
   }
 }
@@ -1097,7 +1071,7 @@ using namespace sta;
   else if (stringEq(arg, "json"))
     $1 = ReportPathFormat::json;
   else {
-    tclError(interp, "Error: unknown path type %s.", arg);
+    tclArgError(interp, "unknown path type %s.", arg);
     return TCL_ERROR;
   }
 }
@@ -1107,7 +1081,7 @@ using namespace sta;
 }
 
 %typemap(in) PinSet* {
-  $1 = tclListSet<Pin*>($input, SWIGTYPE_p_Pin, interp);
+  $1 = tclListSetPin($input, interp);
 }
 
 %typemap(out) PinSet* {
@@ -1365,17 +1339,17 @@ using namespace sta;
   Tcl_SetObjResult(interp, obj);
 }
 
-%typemap(in) ReduceParasiticsTo {
+%typemap(in) ReducedParasiticType {
   int length;
   char *arg = Tcl_GetStringFromObj($input, &length);
   if (stringEq(arg, "pi_elmore"))
-    $1 = ReduceParasiticsTo::pi_elmore;
+    $1 = ReducedParasiticType::pi_elmore;
   else if (stringEq(arg, "pi_pole_residue2"))
-    $1 = ReduceParasiticsTo::pi_pole_residue2;
+    $1 = ReducedParasiticType::pi_pole_residue2;
   else if (stringEq(arg, "none"))
-    $1 = ReduceParasiticsTo::none;
+    $1 = ReducedParasiticType::none;
   else {
-    tclError(interp, "Error: %s pi_elmore, pi_pole_residue2, or none.", arg);
+    tclArgError(interp, "%s pi_elmore, pi_pole_residue2, or none.", arg);
     return TCL_ERROR;
   }
 }
@@ -1411,6 +1385,16 @@ using namespace sta;
 %typemap(out) Corner* {
   Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
   Tcl_SetObjResult(interp, obj);
+}
+
+%typemap(out) Corners* {
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
+  Corners *corners = $1;
+  for (Corner *corner : *corners) {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(corner, SWIGTYPE_p_Corner, false);
+    Tcl_ListObjAppendElement(interp, list, obj);
+  }
+  Tcl_SetObjResult(interp, list);
 }
 
 %typemap(out) PropertyValue {
@@ -1941,6 +1925,49 @@ git_sha1()
 }
 
 void
+report_error(int id,
+             const char *msg)
+{
+  Report *report = Sta::sta()->report();
+  report->error(id, "%s", msg);
+}
+
+void
+report_file_error(int id,
+                  const char *filename,
+                  int line,
+                  const char *msg)
+{
+  Report *report = Sta::sta()->report();
+  report->error(id, filename, line, "%s", msg);
+}
+
+void
+report_warn(int id,
+            const char *msg)
+{
+  Report *report = Sta::sta()->report();
+  report->warn(id, "%s", msg);
+}
+
+void
+report_file_warn(int id,
+                 const char *filename,
+                 int line,
+                 const char *msg)
+{
+  Report *report = Sta::sta()->report();
+  report->fileWarn(id, filename, line, "%s", msg);
+}
+
+void
+report_line(const char *msg)
+{
+  Report *report = Sta::sta()->report();
+  report->reportLineString(msg);
+}
+
+void
 fflush()
 {
   fflush(stdout);
@@ -1978,7 +2005,7 @@ redirect_string_end()
 }
 
 void
-log_begin(const char *filename)
+log_begin_cmd(const char *filename)
 {
   Sta::sta()->report()->logBegin(filename);
 }
@@ -2230,7 +2257,7 @@ set_cmd_namespace_cmd(const char *namespc)
   else if (stringEq(namespc, "sta"))
     Sta::sta()->setCmdNamespace(CmdNamespace::sta);
   else
-    internalError("unknown namespace");
+    criticalError(269, "unknown namespace");
 }
 
 bool
@@ -2729,6 +2756,12 @@ find_corner(const char *corner_name)
   return Sta::sta()->findCorner(corner_name);
 }
 
+Corners *
+corners()
+{
+  return Sta::sta()->corners();
+}
+
 bool
 multi_corner()
 {
@@ -2748,7 +2781,7 @@ set_analysis_type_cmd(const char *analysis_type)
   else if (stringEq(analysis_type, "on_chip_variation"))
     type = AnalysisType::ocv;
   else {
-    internalError("unknown analysis type");
+    criticalError(270, "unknown analysis type");
     type = AnalysisType::single;
   }
   Sta::sta()->setAnalysisType(type);
@@ -2819,11 +2852,13 @@ set_instance_pvt(Instance *inst,
 
 float
 port_ext_pin_cap(Port *port,
-		 const RiseFall *rf,
 		 const MinMax *min_max)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->portExtPinCap(port, rf, min_max);
+  float pin_cap, wire_cap;
+  int fanout;
+  Sta::sta()->portExtCaps(port, min_max, pin_cap, wire_cap, fanout);
+  return pin_cap;
 }
 
 void
@@ -2837,11 +2872,13 @@ set_port_pin_cap(Port *port,
 
 float
 port_ext_wire_cap(Port *port,
-		  const RiseFall *rf,
-		  const MinMax *min_max)
+                  const MinMax *min_max)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->portExtWireCap(port, rf, min_max);
+  float pin_cap, wire_cap;
+  int fanout;
+  Sta::sta()->portExtCaps(port, min_max, pin_cap, wire_cap, fanout);
+  return wire_cap;
 }
 
 void
@@ -2854,20 +2891,23 @@ set_port_wire_cap(Port *port,
   Sta::sta()->setPortExtWireCap(port, subtract_pin_cap, rf, min_max, cap);
 }
 
-int
-port_ext_fanout(Port *port,
-		const MinMax *min_max)
-{
-  cmdLinkedNetwork();
-  return Sta::sta()->portExtFanout(port, min_max);
-}
-
 void
 set_port_ext_fanout_cmd(Port *port,
 			int fanout,
 			const MinMaxAll *min_max)
 {
   Sta::sta()->setPortExtFanout(port, fanout, min_max);
+}
+
+float
+port_ext_fanout(Port *port,
+                const MinMax *min_max)
+{
+  cmdLinkedNetwork();
+  float pin_cap, wire_cap;
+  int fanout;
+  Sta::sta()->portExtCaps(port, min_max, pin_cap, wire_cap, fanout);
+  return fanout;
 }
 
 void
@@ -2885,7 +2925,7 @@ set_wire_load_mode_cmd(const char *mode_name)
 {
   WireloadMode mode = stringWireloadMode(mode_name);
   if (mode == WireloadMode::unknown)
-    internalError("unknown wire load mode");
+    criticalError(271, "unknown wire load mode");
   else
     Sta::sta()->setWireloadMode(mode);
 }
@@ -4096,12 +4136,13 @@ crpr_mode()
 void
 set_crpr_mode(const char *mode)
 {
+  Sta *sta = Sta::sta();
   if (stringEq(mode, "same_pin"))
     Sta::sta()->setCrprMode(CrprMode::same_pin);
   else if (stringEq(mode, "same_transition"))
     Sta::sta()->setCrprMode(CrprMode::same_transition);
   else
-    internalError("unknown common clk pessimism mode.");
+    sta->report()->critical(272, "unknown common clk pessimism mode.");
 }
 
 bool
@@ -4115,7 +4156,7 @@ set_pocv_enabled(bool enabled)
 {
 #if !SSTA
   if (enabled)
-    Sta::sta()->report()->error("POCV support requires compilation with SSTA=1.\n");
+    Sta::sta()->report()->error(204, "POCV support requires compilation with SSTA=1.");
 #endif
   return Sta::sta()->setPocvEnabled(enabled);
 }
@@ -4351,7 +4392,7 @@ set_report_path_field_properties(const char *field_name,
   if (field)
     field->setProperties(title, width, left_justify);
   else
-    sta->report()->print("Error: unknown report path field %s\n", field_name);
+    sta->report()->error(607, "unknown report path field %s", field_name);
 }
 
 void
@@ -4363,7 +4404,7 @@ set_report_path_field_width(const char *field_name,
   if (field)
     field->setWidth(width);
   else
-    sta->report()->print("Error: unknown report path field %s\n", field_name);
+    sta->report()->error(608, "unknown report path field %s", field_name);
 }
 
 void
@@ -4411,6 +4452,13 @@ report_clk_skew(ClockSet *clks,
   cmdLinkedNetwork();
   Sta::sta()->reportClkSkew(clks, corner, setup_hold, digits);
   delete clks;
+}
+
+float
+worst_clk_skew_cmd(const SetupHold *setup_hold)
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->findWorstClkSkew(setup_hold);
 }
 
 TmpPinSet *
@@ -4623,8 +4671,7 @@ vertex_worst_arrival_path(Vertex *vertex,
 			  const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  PathRef path;
-  sta->vertexWorstArrivalPath(vertex, min_max, path);
+  PathRef path = sta->vertexWorstArrivalPath(vertex, min_max);
   if (!path.isNull())
     return new PathRef(path);
   else
@@ -4637,8 +4684,7 @@ vertex_worst_arrival_path_rf(Vertex *vertex,
 			     MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  PathRef path;
-  sta->vertexWorstArrivalPath(vertex, rf, min_max, path);
+  PathRef path = sta->vertexWorstArrivalPath(vertex, rf, min_max);
   if (!path.isNull())
     return new PathRef(path);
   else
@@ -4650,12 +4696,20 @@ vertex_worst_slack_path(Vertex *vertex,
 			const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  PathRef path;
-  sta->vertexWorstSlackPath(vertex, min_max, path);
+  PathRef path = sta->vertexWorstSlackPath(vertex, min_max);
   if (!path.isNull())
     return new PathRef(path);
   else
     return nullptr;
+}
+
+Slack
+find_clk_min_period(const Clock *clk,
+                    bool ignore_port_paths)
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  return sta->findClkMinPeriod(clk, ignore_port_paths);
 }
 
 TmpString *
@@ -4671,20 +4725,21 @@ report_delay_calc_cmd(Edge *edge,
 
 ////////////////////////////////////////////////////////////////
 
-Pin *
-pin_min_slew_limit_slack(const Corner *corner,
-			 const MinMax *min_max)
+PinSeq *
+check_slew_limits(Net *net,
+                  bool violators,
+                  const Corner *corner,
+                  const MinMax *min_max)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->pinMinSlewLimitSlack(corner, min_max);
+  return Sta::sta()->checkSlewLimits(net, violators, corner, min_max);
 }
 
-PinSeq *
-pin_slew_limit_violations(const Corner *corner,
-			  const MinMax *min_max)
+size_t
+max_slew_violation_count()
 {
   cmdLinkedNetwork();
-  return Sta::sta()->pinSlewLimitViolations(corner, min_max);
+  return Sta::sta()->checkSlewLimits(nullptr, true, nullptr, MinMax::max())->size();
 }
 
 void
@@ -4711,18 +4766,20 @@ report_slew_limit_verbose(Pin *pin,
 
 ////////////////////////////////////////////////////////////////
 
-Pin *
-pin_min_fanout_limit_slack(const MinMax *min_max)
+PinSeq *
+check_fanout_limits(Net *net,
+                    bool violators,
+                    const MinMax *min_max)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->pinMinFanoutLimitSlack(min_max);
+  return Sta::sta()->checkFanoutLimits(net, violators, min_max);
 }
 
-PinSeq *
-pin_fanout_limit_violations(const MinMax *min_max)
+size_t
+max_fanout_violation_count()
 {
   cmdLinkedNetwork();
-  return Sta::sta()->pinFanoutLimitViolations(min_max);
+  return Sta::sta()->checkFanoutLimits(nullptr, true, MinMax::max())->size();
 }
 
 void
@@ -4747,20 +4804,21 @@ report_fanout_limit_verbose(Pin *pin,
 
 ////////////////////////////////////////////////////////////////
 
-Pin *
-pin_min_capacitance_limit_slack(const Corner *corner,
-				const MinMax *min_max)
+PinSeq *
+check_capacitance_limits(Net *net,
+                         bool violators,
+                         const Corner *corner,
+                         const MinMax *min_max)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->pinMinCapacitanceLimitSlack(corner, min_max);
+  return Sta::sta()->checkCapacitanceLimits(net, violators, corner, min_max);
 }
 
-PinSeq *
-pin_capacitance_limit_violations(const Corner *corner,
-				 const MinMax *min_max)
+size_t
+max_capacitance_violation_count()
 {
   cmdLinkedNetwork();
-  return Sta::sta()->pinCapacitanceLimitViolations(corner, min_max);
+  return Sta::sta()->checkCapacitanceLimits(nullptr, true,nullptr,MinMax::max())->size();
 }
 
 void
@@ -4861,11 +4919,12 @@ void
 write_sdc_cmd(const char *filename,
 	      bool leaf,
 	      bool compatible,
-	      bool no_timestamp,
-	      int digits)
+	      int digits,
+              bool gzip,
+	      bool no_timestamp)
 {
   cmdLinkedNetwork();
-  Sta::sta()->writeSdc(filename, leaf, compatible, no_timestamp, digits);
+  Sta::sta()->writeSdc(filename, leaf, compatible, digits, gzip, no_timestamp);
 }
 
 void
@@ -5005,16 +5064,15 @@ set_clock_sense_cmd(PinSet *pins,
 		    bool negative,
 		    bool stop_propagation)
 {
-  ClockSense sense;
+  Sta *sta = Sta::sta();
   if (positive)
-    sense = ClockSense::positive;
+    sta->setClockSense(pins, clks, ClockSense::positive);
   else if (negative)
-    sense = ClockSense::negative;
+    sta->setClockSense(pins, clks, ClockSense::negative);
   else if (stop_propagation)
-    sense = ClockSense::stop;
+    sta->setClockSense(pins, clks, ClockSense::stop);
   else
-    internalError("unknown clock sense");
-  Sta::sta()->setClockSense(pins, clks, sense);
+    sta->report()->critical(273, "unknown clock sense");
 }
 
 bool
@@ -5141,7 +5199,7 @@ report_loops()
   while (loop_iter.hasNext()) {
     GraphLoop *loop = loop_iter.next();
     loop->report(report, network, graph);
-    report->print("\n");
+    report->reportLineString("");
   }
 }
 
@@ -5253,6 +5311,24 @@ arrival_count()
   return Sta::sta()->arrivalCount();
 }
 
+int
+required_count()
+{
+  return Sta::sta()->requiredCount();
+}
+
+int
+graph_arrival_count()
+{
+  return Sta::sta()->graph()->arrivalCount();
+}
+
+int
+graph_required_count()
+{
+  return Sta::sta()->graph()->requiredCount();
+}
+
 void
 delete_all_memory()
 {
@@ -5355,7 +5431,7 @@ delays_invalid()
 }
 
 const char *
-pin_location(Pin *pin)
+pin_location(const Pin *pin)
 {
   Network *network = cmdNetwork();
   double x, y;
@@ -5366,6 +5442,20 @@ pin_location(Pin *pin)
     return sta::stringPrintTmp("%f %f", x, y);
   else
     return "";
+}
+
+const char *
+port_location(const Port *port)
+{
+  Network *network = cmdNetwork();
+  const Pin *pin = network->findPin(network->topInstance(), port);
+  return pin_location(pin);
+}
+
+int
+endpoint_count()
+{
+  return Sta::sta()->endpointCount();
 }
 
 %} // inline
@@ -5489,6 +5579,8 @@ find_ports_matching(const char *pattern,
 %extend LibertyCell {
 const char *name() { return self->name(); }
 bool is_leaf() { return self->isLeaf(); }
+bool is_buffer() { return self->isBuffer(); }
+bool is_inverter() { return self->isInverter(); }
 LibertyLibrary *liberty_library() { return self->libertyLibrary(); }
 Cell *cell() { return reinterpret_cast<Cell*>(self); }
 LibertyPort *
@@ -5566,12 +5658,11 @@ tristate_enable()
 }
 
 float
-capacitance(const RiseFall *rf,
+capacitance(Corner *corner,
 	    const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  OperatingConditions *op_cond = sta->operatingConditions(min_max);
-  return self->capacitance(rf, min_max, op_cond, op_cond);
+  return sta->capacitance(self, corner, min_max);
 }
 
 } // LibertyPort methods
@@ -5764,35 +5855,32 @@ bool is_power() { return cmdLinkedNetwork()->isPower(self);}
 bool is_ground() { return cmdLinkedNetwork()->isGround(self);}
 
 float
-capacitance(const RiseFall *rf,
-	    const Corner *corner,
+capacitance(Corner *corner,
 	    const MinMax *min_max)
 {
   cmdLinkedNetwork();
   float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, rf, corner, min_max, pin_cap, wire_cap);
+  Sta::sta()->connectedCap(self, corner, min_max, pin_cap, wire_cap);
   return pin_cap + wire_cap;
 }
 
 float
-pin_capacitance(const RiseFall *rf,
-		const Corner *corner,
+pin_capacitance(Corner *corner,
 		const MinMax *min_max)
 {
   cmdLinkedNetwork();
   float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, rf, corner, min_max, pin_cap, wire_cap);
+  Sta::sta()->connectedCap(self, corner, min_max, pin_cap, wire_cap);
   return pin_cap;
 }
 
 float
-wire_capacitance(const RiseFall *rf,
-		 const Corner *corner,
+wire_capacitance(Corner *corner,
 		 const MinMax *min_max)
 {
   cmdLinkedNetwork();
   float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, rf, corner, min_max, pin_cap, wire_cap);
+  Sta::sta()->connectedCap(self, corner, min_max, pin_cap, wire_cap);
   return wire_cap;
 }
 
@@ -5871,25 +5959,21 @@ bool is_bidirect_driver() { return self->isBidirectDriver(); }
 int level() { return Sta::sta()->vertexLevel(self); }
 int tag_group_index() { return self->tagGroupIndex(); }
 
-TmpFloatSeq *
-slews(RiseFall *rf)
-{
-  Sta *sta = Sta::sta();
-  TmpFloatSeq *floats = new FloatSeq;
-  DcalcAnalysisPtIterator ap_iter(sta);
-  while (ap_iter.hasNext()) {
-    DcalcAnalysisPt *dcalc_ap = ap_iter.next();
-    floats->push_back(delayAsFloat(sta->vertexSlew(self, rf, dcalc_ap)));
-  }
-  return floats;
-}
-
 Slew
 slew(const RiseFall *rf,
      const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
   return sta->vertexSlew(self, rf, min_max);
+}
+
+Slew
+slew_corner(const RiseFall *rf,
+            const Corner *corner,
+            const MinMax *min_max)
+{
+  Sta *sta = Sta::sta();
+  return sta->vertexSlew(self, rf, corner, min_max);
 }
 
 VertexOutEdgeIterator *
@@ -5974,6 +6058,13 @@ requireds_clk_delays(const RiseFall *rf,
 				       sta, digits));
   }
   return requireds;
+}
+
+Slack
+slack(MinMax *min_max)
+{
+  Sta *sta = Sta::sta();
+  return sta->vertexSlack(self, min_max);
 }
 
 TmpFloatSeq *
@@ -6079,11 +6170,8 @@ arc_delays(TimingArc *arc)
 {
   Sta *sta = Sta::sta();
   TmpFloatSeq *floats = new FloatSeq;
-  DcalcAnalysisPtIterator ap_iter(sta);
-  while (ap_iter.hasNext()) {
-    DcalcAnalysisPt *dcalc_ap = ap_iter.next();
+  for (auto dcalc_ap : sta->corners()->dcalcAnalysisPts())
     floats->push_back(delayAsFloat(sta->arcDelay(self, arc, dcalc_ap)));
-  }
   return floats;
 }
 
@@ -6093,12 +6181,9 @@ arc_delay_strings(TimingArc *arc,
 {
   Sta *sta = Sta::sta();
   StringSeq *delays = new StringSeq;
-  DcalcAnalysisPtIterator ap_iter(sta);
-  while (ap_iter.hasNext()) {
-    DcalcAnalysisPt *dcalc_ap = ap_iter.next();
+  for (auto dcalc_ap : sta->corners()->dcalcAnalysisPts())
     delays->push_back(delayAsString(sta->arcDelay(self, arc, dcalc_ap),
 				    sta, digits));
-  }
   return delays;
 }
 

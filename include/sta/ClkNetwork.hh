@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -41,10 +41,14 @@ public:
   bool isClock(const Pin *pin) const;
   bool isClock(const Net *net) const;
   bool isIdealClock(const Pin *pin) const;
+  bool isPropagatedClock(const Pin *pin) const;
   const ClockSet *clocks(const Pin *pin);
   const ClockSet *idealClocks(const Pin *pin);
   const PinSet *pins(const Clock *clk);
   void clkPinsInvalid();
+  float idealClkSlew(const Pin *pin,
+                     const RiseFall *rf,
+                     const MinMax *min_max);
 
 protected:
   void deletePinBefore(const Pin *pin);

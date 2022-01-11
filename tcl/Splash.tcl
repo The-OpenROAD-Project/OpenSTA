@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2020, Parallax Software, Inc.
+# Copyright (c) 2022, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 # 
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace eval sta {
 
@@ -25,7 +25,7 @@ namespace eval sta {
 define_cmd_args show_splash {}
 
 proc show_splash {} {
-  puts "OpenSTA [sta::version] [string range [sta::git_sha1] 0 9] Copyright (c) 2019, Parallax Software, Inc.
+  report_line "OpenSTA [sta::version] [string range [sta::git_sha1] 0 9] Copyright (c) 2021, Parallax Software, Inc.
 License GPLv3: GNU GPL version 3 <http://gnu.org/licenses/gpl.html>
 
 This is free software, and you are free to change and redistribute it
@@ -36,7 +36,7 @@ This program comes with ABSOLUTELY NO WARRANTY; for details type `show_warranty'
 define_cmd_args show_warranty {}
 
 proc show_warranty {} {
-  puts {15. Disclaimer of Warranty.
+  report_line {15. Disclaimer of Warranty.
 THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
 
 16. Limitation of Liability.
@@ -49,7 +49,7 @@ If the disclaimer of warranty and limitation of liability provided above cannot 
 define_cmd_args show_copying {}
 
 proc show_copying {} {
-  puts {                    GNU GENERAL PUBLIC LICENSE
+  report_line {                    GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
  Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>

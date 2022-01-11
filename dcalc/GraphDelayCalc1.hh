@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -138,6 +138,7 @@ protected:
   void initWireDelays(Vertex *drvr_vertex,
 		      bool init_load_slews);
   void initRootSlews(Vertex *vertex);
+  void zeroSlewAndWireDelays(Vertex *drvr_vertex);
   void findVertexDelay(Vertex *vertex,
 		       ArcDelayCalc *arc_delay_calc,
 		       bool propagate);
@@ -160,8 +161,7 @@ protected:
 			  bool merge,
 			  const DcalcAnalysisPt *dcalc_ap,
 			  ArcDelayCalc *arc_delay_calc);
-  void findCheckDelays(Vertex *vertex,
-		       ArcDelayCalc *arc_delay_calc);
+  void findLatchEdgeDelays(Edge *edge);
   void findCheckEdgeDelays(Edge *edge,
 			   ArcDelayCalc *arc_delay_calc);
   void findMultiDrvrGateDelay(MultiDrvrNet *multi_drvr,
@@ -194,9 +194,6 @@ protected:
 			const RiseFall *from_rf,
 			const DcalcAnalysisPt *dcalc_ap);
   bool bidirectDrvrSlewFromLoad(const Vertex *vertex) const;
-  Slew idealClkSlew(const Vertex *vertex,
-		    const RiseFall *rf,
-		    const MinMax *min_max);
   MultiDrvrNet *multiDrvrNet(const Vertex *drvr_vertex) const;
   void loadCap(Parasitic *drvr_parasitic,
 	       bool has_set_load,
@@ -216,9 +213,12 @@ protected:
   bool delays_exist_;
   // Vertices with invalid -to delays.
   VertexSet invalid_delays_;
-  // Vertices with invalid -from/-to timing checks.
-  VertexSet invalid_checks_;
-  std::mutex check_vertices_lock_;
+  // Timing check edges with invalid delays.
+  EdgeSet invalid_check_edges_;
+  // Latch D->Q edges with invalid delays.
+  EdgeSet invalid_latch_edges_;
+  // shared by invalid_check_edges_ and invalid_latch_edges_
+  std::mutex invalid_edge_lock_;
   SearchPred *search_pred_;
   SearchPred *search_non_latch_pred_;
   SearchPred *clk_pred_;

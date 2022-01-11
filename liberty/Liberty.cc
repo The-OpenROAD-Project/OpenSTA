@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Liberty.hh"
 
@@ -325,7 +325,7 @@ LibertyLibrary::degradeWireSlew(const LibertyCell *cell,
     else if (var1 == TableAxisVariable::connect_delay)
       return model->findValue(this, cell, pvt, wire_delay, 0.0, 0.0);
     else {
-      internalError("unsupported slew degradation table axes");
+      criticalError(231, "unsupported slew degradation table axes");
       return 0.0;
     }
   }
@@ -341,12 +341,12 @@ LibertyLibrary::degradeWireSlew(const LibertyCell *cell,
 	     && var2 == TableAxisVariable::output_pin_transition)
       return model->findValue(this, cell, pvt, wire_delay, in_slew, 0.0);
     else {
-      internalError("unsupported slew degradation table axes");
+      criticalError(232, "unsupported slew degradation table axes");
       return 0.0;
     }
   }
   default:
-    internalError("unsupported slew degradation table order");
+    criticalError(233, "unsupported slew degradation table order");
     return 0.0;
   }
 }
@@ -376,7 +376,7 @@ LibertyLibrary::checkSlewDegradationAxes(Table *table)
 	  && var2 == TableAxisVariable::output_pin_transition);
   }
   default:
-    internalError("unsupported slew degradation table axes");
+    criticalError(234, "unsupported slew degradation table axes");
     return 0.0;
   }
 }
@@ -726,7 +726,7 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
 	port1->setCornerPort(port2, ap_index);
     }
     else
-      report->warn("cell %s/%s port %s not found in cell %s/%s.\n",
+      report->warn(2, "cell %s/%s port %s not found in cell %s/%s.",
 		   cell1->library()->name(),
 		   cell1->name(),
 		   port_name,
@@ -749,7 +749,7 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
       }
     }
     else
-      report->warn("cell %s/%s %s -> %s timing group %s not found in cell %s/%s.\n",
+      report->warn(3, "cell %s/%s %s -> %s timing group %s not found in cell %s/%s.",
 		   cell1->library()->name(),
 		   cell1->name(),
 		   arc_set1->from()->name(),
@@ -852,6 +852,7 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   is_macro_(false),
   is_memory_(false),
   is_pad_(false),
+  is_level_shifter_(false),
   has_internal_ports_(false),
   interface_timing_(false),
   clock_gate_type_(ClockGateType::none),
@@ -941,7 +942,7 @@ LibertyCell::addPgPort(LibertyPgPort *pg_port)
 }
 
 LibertyPgPort *
-LibertyCell::findPgPort(const char *name)
+LibertyCell::findPgPort(const char *name) const
 {
   return pg_port_map_.findKey(name);
 }
@@ -1009,6 +1010,12 @@ LibertyCell::LibertyCell::setIsPad(bool is_pad)
 }
 
 void
+LibertyCell::LibertyCell::setIsLevelShifter(bool is_level_shifter)
+{
+  is_level_shifter_ = is_level_shifter;
+}
+
+void
 LibertyCell::setInterfaceTiming(bool value)
 {
   interface_timing_ = value;
@@ -1051,7 +1058,8 @@ LibertyCell::isBuffer() const
   LibertyPort *output;
   bufferPorts(input, output);
   return input && output
-    && hasBufferFunc(input, output);
+    && hasBufferFunc(input, output)
+    && !is_level_shifter_;
 }
 
 bool
@@ -1126,7 +1134,7 @@ LibertyCell::addTimingArcSet(TimingArcSet *arc_set)
 {
   int set_index = timing_arc_sets_.size();
   if (set_index > timing_arc_set_index_max)
-    internalError("timing arc set max index exceeded");
+    criticalError(235, "timing arc set max index exceeded");
   timing_arc_sets_.push_back(arc_set);
 
   LibertyPort *from = arc_set->from();
@@ -1277,7 +1285,7 @@ LibertyCell::makeTimingArcMap(Report *)
     if (match != arc_set) {
       // Unfortunately these errors are common in some brain damaged
       // libraries.
-      // report->warn("cell %s/%s has duplicate %s -> %s %s timing groups.\n",
+      // report->warn("cell %s/%s has duplicate %s -> %s %s timing groups.",
       // 		   library_->name(),
       // 		   name_,
       // 		   match->from()->name(),
@@ -1292,7 +1300,7 @@ LibertyCell::makeTimingArcMap(Report *)
   timing_arc_sets_.resize(j);
 
   if (timing_arc_set_map_.size() != timing_arc_sets_.size())
-    internalError("timing arc count mismatch\n");
+    criticalError(205, "timing arc count mismatch");
 }
 
 void
@@ -1638,7 +1646,7 @@ LibertyCell::makeLatchEnables(Report *report,
 		  RiseFall *en_rf = latch_enable->enableTransition();
 		  RiseFall *check_rf = check_arc->fromTrans()->asRiseFall();
 		  if (check_rf == en_rf) {
-		    report->warn("cell %s/%s %s -> %s latch enable %s_edge timing arc is inconsistent with %s -> %s setup_%s check.\n",
+		    report->warn(4, "cell %s/%s %s -> %s latch enable %s_edge timing arc is inconsistent with %s -> %s setup_%s check.",
 				 library_->name(),
 				 name_,
 				 en->name(),
@@ -1653,7 +1661,7 @@ LibertyCell::makeLatchEnables(Report *report,
 		    TimingSense en_sense = en_func->portTimingSense(en);
 		    if (en_sense == TimingSense::positive_unate
 			&& en_rf != RiseFall::rise())
-		      report->warn("cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.\n",
+		      report->warn(5, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.",
 				   library_->name(),
 				   name_,
 				   en->name(),
@@ -1661,7 +1669,7 @@ LibertyCell::makeLatchEnables(Report *report,
 				   en_rf == RiseFall::rise()?"rising":"falling");
 		    else if (en_sense == TimingSense::negative_unate
 			     && en_rf != RiseFall::fall())
-		      report->warn("cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.\n",
+		      report->warn(6, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.",
 				   library_->name(),
 				   name_,
 				   en->name(),
@@ -1713,8 +1721,8 @@ LibertyCell::makeLatchEnable(LibertyPort *d,
   latch_d_to_q_map_[d_to_q] = latch_enable;
   latch_check_map_[setup_check] = latch_enable;
   latch_data_ports_.insert(d);
-  debugPrint3(debug, "liberty", 2, "latch d=%s en=%s q=%s\n",
-	      d->name(), en->name(), q->name());
+  debugPrint(debug, "liberty", 2, "latch d=%s en=%s q=%s",
+             d->name(), en->name(), q->name());
   return latch_enable;
 }
 
@@ -1941,6 +1949,12 @@ LibertyPort::capacitance() const
 }
 
 float
+LibertyPort::capacitance(const MinMax *min_max) const
+{
+  return capacitance_.value(min_max);
+}
+
+float
 LibertyPort::capacitance(const RiseFall *rf,
 			 const MinMax *min_max) const
 {
@@ -2011,11 +2025,10 @@ LibertyPort::driveResistance(const RiseFall *rf,
 	TimingArc *arc = arc_iter.next();
 	if (rf == nullptr
 	    || arc->toTrans()->asRiseFall() == rf) {
-	  GateTimingModel *model = dynamic_cast<GateTimingModel*>(arc->model());
-	  if (model) {
-	    float drive = model->driveResistance(liberty_cell_, nullptr);
-	    if (min_max->compare(drive, max_drive))
-	      max_drive = drive;
+          float drive = arc->driveResistance();
+          if (drive > 0.0) {
+            if (min_max->compare(drive, max_drive))
+              max_drive = drive;
 	    found_drive = true;
 	  }
 	}
@@ -2028,17 +2041,18 @@ LibertyPort::driveResistance(const RiseFall *rf,
     return 0.0;
 }
 
-float
-LibertyPort::intrinsicDelay() const
+ArcDelay
+LibertyPort::intrinsicDelay(const StaState *sta) const
 {
-  return intrinsicDelay(nullptr, MinMax::max());
+  return intrinsicDelay(nullptr, MinMax::max(), sta);
 }
 
-float
+ArcDelay
 LibertyPort::intrinsicDelay(const RiseFall *rf,
-			    const MinMax *min_max) const
+			    const MinMax *min_max,
+                            const StaState *sta) const
 {
-  float max_delay = min_max->initValue();
+  ArcDelay max_delay = min_max->initValue();
   bool found_delay = false;
   LibertyCellTimingArcSetIterator set_iter(liberty_cell_, nullptr, this);
   while (set_iter.hasNext()) {
@@ -2049,18 +2063,13 @@ LibertyPort::intrinsicDelay(const RiseFall *rf,
 	TimingArc *arc = arc_iter.next();
 	if (rf == nullptr
 	    || arc->toTrans()->asRiseFall() == rf) {
-	  GateTimingModel *model = dynamic_cast<GateTimingModel*>(arc->model());
-	  if (model) {
-	    ArcDelay arc_delay;
-	    Slew slew;
-	    model->gateDelay(liberty_cell_, nullptr, 0.0, 0.0, 0.0, false,
-			     arc_delay, slew);
-	    float delay = delayAsFloat(arc_delay);
-	    if (min_max->compare(delay, max_delay))
+          ArcDelay delay = arc->intrinsicDelay();
+          if (delayGreater(delay, 0.0, sta)) {
+	    if (delayGreater(delay, max_delay, min_max, sta))
 	      max_delay = delay;
 	    found_delay = true;
 	  }
-	}
+        }
       }
     }
   }
@@ -2342,6 +2351,17 @@ LibertyPort::setIsDisabledConstraint(bool is_disabled)
 
 LibertyPort *
 LibertyPort::cornerPort(int ap_index)
+{
+  if (ap_index < static_cast<int>(corner_ports_.size())) {
+    LibertyPort *corner_port = corner_ports_[ap_index];
+    if (corner_port)
+      return corner_port;
+  }
+  return this;
+}
+
+const LibertyPort *
+LibertyPort::cornerPort(int ap_index) const
 {
   if (ap_index < static_cast<int>(corner_ports_.size())) {
     LibertyPort *corner_port = corner_ports_[ap_index];
@@ -2914,6 +2934,36 @@ void
 LibertyPgPort::setVoltageName(const char *voltage_name)
 {
   voltage_name_ = stringCopy(voltage_name);
+}
+
+bool
+LibertyPgPort::equiv(const LibertyPgPort *port1,
+                     const LibertyPgPort *port2)
+{
+  return stringEq(port1->name_, port2->name_)
+    && port1->pg_type_ == port2->pg_type_;
+}
+
+////////////////////////////////////////////////////////////////
+
+LibertyCellPgPortIterator::LibertyCellPgPortIterator(const LibertyCell *cell) :
+  iter_(const_cast<LibertyCell*>(cell)->pg_port_map_)
+{
+}
+
+bool
+LibertyCellPgPortIterator::hasNext()
+{
+  return iter_.hasNext();
+}
+
+LibertyPgPort *
+LibertyCellPgPortIterator::next()
+{
+  const char *name;
+  LibertyPgPort *port;
+  iter_.next(name, port);
+  return port;
 }
 
 } // namespace

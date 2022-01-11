@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "PathGroup.hh"
 
@@ -399,7 +399,7 @@ PathGroups::pathGroup(const PathEnd *path_end) const
   else if (path_end->isUnconstrained())
     return unconstrained_[mm_index];
   else {
-    internalError("unknown path end type");
+    report_->critical(253, "unknown path end type");
     return nullptr;
   }
 }
@@ -490,7 +490,7 @@ PathGroups::makePathEnds(ExceptionTo *to,
 			 const MinMaxAll *min_max,
 			 bool sort_by_slack)
 {
-  Stats stats(this->debug());
+  Stats stats(debug_, report_);
   makeGroupPathEnds(to, group_count_, endpoint_count_, unique_pins_,
 		    corner, min_max);
 
@@ -518,13 +518,13 @@ PathGroups::makePathEnds(ExceptionTo *to,
 class MakePathEnds1 : public PathEndVisitor
 {
 public:
-  explicit MakePathEnds1(PathGroups *path_groups);
-  virtual PathEndVisitor *copy();
+  MakePathEnds1(PathGroups *path_groups);
+  MakePathEnds1(const MakePathEnds1&) = default;
+  virtual PathEndVisitor *copy() const;
   virtual void visit(PathEnd *path_end);
   virtual void vertexEnd(Vertex *vertex);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(MakePathEnds1);
   void visitPathEnd(PathEnd *path_end,
 		    PathGroup *group);
 
@@ -535,14 +535,14 @@ private:
 
 MakePathEnds1::MakePathEnds1(PathGroups *path_groups) :
   path_groups_(path_groups),
-  cmp_(path_groups){
-
+  cmp_(path_groups)
+{
 }
 
 PathEndVisitor *
-MakePathEnds1::copy()
+MakePathEnds1::copy() const
 {
-  return new MakePathEnds1(path_groups_);
+  return new MakePathEnds1(*this);
 }
 
 void
@@ -597,15 +597,15 @@ MakePathEnds1::vertexEnd(Vertex *)
 class MakePathEndsAll : public PathEndVisitor
 {
 public:
-  explicit MakePathEndsAll(int endpoint_count,
-			   PathGroups *path_groups);
+  MakePathEndsAll(int endpoint_count,
+                  PathGroups *path_groups);
+  MakePathEndsAll(const MakePathEndsAll&) = default;
   virtual ~MakePathEndsAll();
-  virtual PathEndVisitor *copy();
+  virtual PathEndVisitor *copy() const;
   virtual void visit(PathEnd *path_end);
   virtual void vertexEnd(Vertex *vertex);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(MakePathEndsAll);
   void visitPathEnd(PathEnd *path_end,
 		    PathGroup *group);
 
@@ -629,9 +629,9 @@ MakePathEndsAll::MakePathEndsAll(int endpoint_count,
 
 
 PathEndVisitor *
-MakePathEndsAll::copy()
+MakePathEndsAll::copy() const
 {
-  return new MakePathEndsAll(endpoint_count_, path_groups_);
+  return new MakePathEndsAll(*this);
 }
 
 MakePathEndsAll::~MakePathEndsAll()
@@ -686,11 +686,11 @@ MakePathEndsAll::vertexEnd(Vertex *)
 	// Only save the worst path end for each crpr tag.
 	// PathEnum will peel the others.
 	if (!unique_ends.hasKey(path_end)) {
-	  debugPrint4(debug, "path_enum", 5, "insert %s %s %s %d\n",
-		      path_end->vertex(sta_)->name(network),
-		      path_end->typeName(),
-		      path_end->transition(sta_)->asString(),
-		      path_end->path()->tag(sta_)->index());
+	  debugPrint(debug, "path_enum", 5, "insert %s %s %s %d",
+                     path_end->vertex(sta_)->name(network),
+                     path_end->typeName(),
+                     path_end->transition(sta_)->asString(),
+                     path_end->path()->tag(sta_)->index());
 	  // Give the group a copy of the path end because
 	  // it may delete it during pruning.
 	  if (group->savable(path_end)) {
@@ -700,11 +700,11 @@ MakePathEndsAll::vertexEnd(Vertex *)
 	  }
 	}
 	else
-	  debugPrint4(debug, "path_enum", 5, "prune %s %s %s %d\n",
-		      path_end->vertex(sta_)->name(network),
-		      path_end->typeName(),
-		      path_end->transition(sta_)->asString(),
-		      path_end->path()->tag(sta_)->index());
+	  debugPrint(debug, "path_enum", 5, "prune %s %s %s %d",
+                     path_end->vertex(sta_)->name(network),
+                     path_end->typeName(),
+                     path_end->transition(sta_)->asString(),
+                     path_end->path()->tag(sta_)->index());
       }
       // Clear ends for next vertex.
       PathEndSeq::Iterator end_iter2(ends);
@@ -844,13 +844,12 @@ public:
 		       const Corner *corner,
 		       const MinMaxAll *min_max,
 		       const StaState *sta);
+  MakeEndpointPathEnds(const MakeEndpointPathEnds &make_path_ends);
   ~MakeEndpointPathEnds();
-  virtual VertexVisitor *copy();
+  virtual VertexVisitor *copy() const;
   virtual void visit(Vertex *vertex);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(MakeEndpointPathEnds);
-
   VisitPathEnds *visit_path_ends_;
   PathEndVisitor *path_end_visitor_;
   const Corner *corner_;
@@ -870,6 +869,15 @@ MakeEndpointPathEnds::MakeEndpointPathEnds(PathEndVisitor *path_end_visitor,
 {
 }
 
+MakeEndpointPathEnds::MakeEndpointPathEnds(const MakeEndpointPathEnds &make_path_ends) :
+  visit_path_ends_(new VisitPathEnds(make_path_ends.sta_)),
+  path_end_visitor_(make_path_ends.path_end_visitor_->copy()),
+  corner_(make_path_ends.corner_),
+  min_max_(make_path_ends.min_max_),
+  sta_(make_path_ends.sta_)
+{
+}
+
 MakeEndpointPathEnds::~MakeEndpointPathEnds()
 {
   delete visit_path_ends_;
@@ -877,7 +885,7 @@ MakeEndpointPathEnds::~MakeEndpointPathEnds()
 }
 
 VertexVisitor *
-MakeEndpointPathEnds::copy()
+MakeEndpointPathEnds::copy() const
 {
   return new MakeEndpointPathEnds(path_end_visitor_, corner_, min_max_, sta_);
 }
@@ -903,15 +911,14 @@ PathGroups::makeGroupPathEnds(VertexSet *endpoints,
       end_visitor.visit(endpoint);
   }
   else {
-    Vector<MakeEndpointPathEnds*> visitors;
-    for (int i = 0; i < thread_count_; i++)
-      visitors.push_back(new MakeEndpointPathEnds(visitor, corner, min_max, this));
+    Vector<MakeEndpointPathEnds> visitors(thread_count_,
+                                          MakeEndpointPathEnds(visitor, corner,
+                                                               min_max, this));
     for (auto endpoint : *endpoints) {
       dispatch_queue_->dispatch( [endpoint, &visitors](int i)
-				 { visitors[i]->visit(endpoint); } );
+      { visitors[i].visit(endpoint); } );
     }
     dispatch_queue_->finishTasks();
-    visitors.deleteContents();
   }
 }
 

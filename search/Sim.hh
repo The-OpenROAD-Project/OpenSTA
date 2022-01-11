@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -60,6 +60,7 @@ public:
   virtual TimingSense functionSense(const Instance *inst,
 				    const Pin *from_pin,
 				    const Pin *to_pin);
+  void findLogicConstants();
 
   // Network edits.
   void deleteInstanceBefore(Instance *inst);
@@ -74,16 +75,17 @@ protected:
   void recordConstPinFunc(Pin *pin);
   virtual void seedConstants();
   void seedInvalidConstants();
-  void propagateConstants();
-  void setConstraintConstPins(LogicValueMap *pin_value_map,
-			      bool propagate);
-  void setConstFuncPins(bool propagate);
-  void enqueueConstantPinInputs(bool propagate);
+  void propagateConstants(bool thru_sequentials);
+  void setConstraintConstPins(LogicValueMap *pin_value_map);
+  void setConstFuncPins();
+  LogicValue pinConstFuncValue(Pin *pin);
+  void enqueueConstantPinInputs();
   virtual void setPinValue(const Pin *pin,
-			   LogicValue value,
-			   bool propagate);
+			   LogicValue value);
   void enqueue(const Instance *inst);
-  void evalInstance(const Instance *inst);
+  void evalInstance(const Instance *inst,
+                    bool thru_sequentials);
+  LogicValue clockGateOutValue(const Instance *inst);
   TimingSense functionSense(const FuncExpr *expr,
 			    const Pin *input_pin,
 			    const Instance *inst);

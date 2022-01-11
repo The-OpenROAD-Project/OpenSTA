@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,13 +8,15 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
+
+#include <functional>
 
 #include "DisallowCopyAssign.hh"
 #include "Map.hh"
@@ -161,6 +163,7 @@ public:
 			       const char *filename);
   virtual LibertyLibrary *makeLibertyLibrary(const char *name,
 					     const char *filename);
+  virtual void deleteLibrary(Library *library);
   virtual Cell *makeCell(Library *library,
 			 const char *name,
 			 bool is_leaf,
@@ -176,7 +179,8 @@ public:
 			    const char *name,
 			    int from_index,
 			    int to_index);
-  virtual void groupBusPorts(Cell *cell);
+  virtual void groupBusPorts(Cell *cell,
+                             std::function<bool(const char*)> port_msb_first);
   virtual Port *makeBundlePort(Cell *cell,
 			       const char *name,
 			       PortSeq *members);
@@ -235,7 +239,6 @@ public:
 
 protected:
   void addLibrary(ConcreteLibrary *library);
-  void deleteLibrary(ConcreteLibrary *library);
   void setName(const char *name);
   void clearConstantNets();
   virtual void visitConnectedPins(const Net *net,

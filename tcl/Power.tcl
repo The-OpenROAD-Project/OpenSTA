@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2020, Parallax Software, Inc.
+# Copyright (c) 2022, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 # 
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 ################################################################
 #
@@ -69,11 +69,7 @@ proc report_power_design { corner digits } {
   report_title_dashes5 $field_width
   report_power_row "Total" $power_result $design_total $field_width $digits
 
-  puts -nonewline [format "%-20s" ""]
-  report_power_col_percent $design_internal  $design_total $field_width
-  report_power_col_percent $design_switching $design_total $field_width
-  report_power_col_percent $design_leakage   $design_total $field_width
-  puts ""
+  report_line "[format %-20s {}][power_col_percent $design_internal  $design_total $field_width][power_col_percent $design_switching $design_total $field_width][power_col_percent $design_leakage $design_total $field_width]"
 }
 
 proc max { x y } {
@@ -85,15 +81,11 @@ proc max { x y } {
 }
 
 proc report_power_title5 { title1 title2 title3 title4 title5 field_width } {
-  puts -nonewline [format "%-20s" $title1]
-  report_power_title4 $title2 $title3 $title4 $title5 $field_width
+  report_line "[format %-20s $title1] [format %${field_width}s $title2] [format %${field_width}s $title3] [format %${field_width}s $title4] [format %${field_width}s $title5]"
 }
 
 proc report_power_title4 { title1 title2 title3 title4 field_width } {
-  puts -nonewline [format " %${field_width}s" $title1]
-  puts -nonewline [format " %${field_width}s" $title2]
-  puts -nonewline [format " %${field_width}s" $title3]
-  puts [format " %${field_width}s" $title4]
+  report_line " [format %${field_width}s $title1] [format %${field_width}s $title2] [format  %${field_width}s $title3] [format %${field_width}s $title4]"
 }
 
 proc report_title_dashes5 { field_width } {
@@ -107,10 +99,11 @@ proc report_title_dashes4 { field_width } {
 }
 
 proc report_title_dashes { count } {
+  set line ""
   for {set i 0} {$i < $count} {incr i} {
-    puts -nonewline "-"
+    set line "-$line"
   }
-  puts ""
+  report_line $line
 }
 
 proc report_power_row { type row_result design_total field_width digits } {
@@ -120,40 +113,35 @@ proc report_power_row { type row_result design_total field_width digits } {
   } else {
     set percent [expr $total / $design_total * 100]
   }
-  puts -nonewline [format "%-20s" $type]
-  report_power_col $internal $field_width $digits
-  report_power_col $switching $field_width $digits
-  report_power_col $leakage $field_width $digits
-  report_power_col $total $field_width $digits
-  puts [format " %5.1f%%" $percent]
+  report_line "[format %-20s $type][power_col $internal $field_width $digits][power_col $switching $field_width $digits][power_col $leakage $field_width $digits][power_col $total $field_width $digits] [format %5.1f $percent]%"
 }
 
 proc is_nan { str } {
   return  [string match "*NaN" $str]
 }
 
-proc report_power_col { pwr field_width digits } {
+proc power_col { pwr field_width digits } {
   if { [is_nan $pwr] } {
-    puts -nonewline [format " %${field_width}s" $pwr]
+    format " %${field_width}s" $pwr
   } else {
-    puts -nonewline [format " %$field_width.${digits}e" $pwr]
+    format " %$field_width.${digits}e" $pwr
   }
 }
 
-proc report_power_col_percent { col_total total field_width } {
+proc power_col_percent { col_total total field_width } {
   if { $total == 0.0 || [is_nan $total]} {
     set percent 0.0
   } else {
     set percent [expr $col_total / $total * 100]
   }
-  puts -nonewline [format "%$field_width.1f%%" $percent]
+  format "%$field_width.1f%%" $percent
 }
 
 proc report_power_line { type pwr digits } {
   if { [is_nan $pwr] } {
-    puts [format "%-16s %s" $type $pwr]
+    report_line [format "%-16s %s" $type $pwr]
   } else {
-    puts [format "%-16s %.${digits}e" $type $pwr]
+    report_line [format "%-16s %.${digits}e" $type $pwr]
   }
 }
 
@@ -194,11 +182,7 @@ proc inst_pwr_cmp { inst_pwr1 inst_pwr2 } {
 
 proc report_power_inst { inst power_result field_width digits } {
   lassign $power_result internal switching leakage total
-  report_power_col $internal $field_width $digits
-  report_power_col $switching $field_width $digits
-  report_power_col $leakage $field_width $digits
-  report_power_col $total $field_width $digits
-  puts " [get_full_name $inst]"
+  report_line "[power_col $internal $field_width $digits][power_col $switching $field_width $digits][power_col $leakage $field_width $digits][power_col $total $field_width $digits] [get_full_name $inst]"
 }
 
 ################################################################
@@ -207,7 +191,7 @@ define_cmd_args "set_power_activity" { [-global]\
 					 [-input]\
 					 [-input_ports ports]\
 					 [-pins pins]\
-					 [-activiity activity]\
+					 [-activity activity]\
 					 [-duty duty] }
 
 proc set_power_activity { args } {
@@ -220,7 +204,7 @@ proc set_power_activity { args } {
     set activity $keys(-activity)
     check_float "activity" $activity
     if { $activity < 0.0 } {
-      sta_warn "activity should be 0.0 to 1.0 or 2.0"
+      sta_warn 301 "activity should be 0.0 to 1.0 or 2.0"
     }
   }
   set duty 0.5
@@ -228,7 +212,7 @@ proc set_power_activity { args } {
     set duty $keys(-duty)
     check_float "duty" $duty
     if { $duty < 0.0 || $duty > 1.0 } {
-      sta_warn "duty should be 0.0 to 1.0"
+      sta_warn 302 "duty should be 0.0 to 1.0"
     }
   }
 
@@ -262,7 +246,7 @@ proc power_find_nan { } {
     set power_result [instance_power $inst $corner]
     lassign $power_result internal switching leakage total
     if { [is_nan $internal] || [is_nan $switching] || [is_nan $leakage] } {
-      puts "[get_full_name $inst] $internal $switching $leakage"
+      report_line "[get_full_name $inst] $internal $switching $leakage"
       break
     }
   }

@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,13 +8,15 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
+
+#include <functional>
 
 #include "DisallowCopyAssign.hh"
 #include "Map.hh"
@@ -57,7 +59,7 @@ typedef Map<const Net*, PinSet*> NetDrvrPinsMap;
 //       Bus bit ports, which are one bit of a bus port such as D[0].
 //         Bus bit ports are always members of a bus.
 //   Instances are calls of cells in the design hierarchy
-//     Hierarchcial and leaf instances are in the network.
+//     Hierarchical and leaf instances are in the network.
 //     At the top of the hierarchy is a top level instance that
 //     has instances for the top level netlist.
 //   Pins are a connection between an instance and a net corresponding
@@ -531,6 +533,7 @@ public:
   virtual void setLinkFunc(LinkNetworkFunc *link) = 0;
   virtual Library *makeLibrary(const char *name,
 			       const char *filename) = 0;
+  virtual void deleteLibrary(Library *library) = 0;
   // Search the libraries in read order for a cell by name.
   virtual Cell *findAnyCell(const char *name) = 0;
   virtual Cell *makeCell(Library *library,
@@ -548,7 +551,8 @@ public:
 			    const char *name,
 			    int from_index,
 			    int to_index) = 0;
-  virtual void groupBusPorts(Cell *cell) = 0;
+  virtual void groupBusPorts(Cell *cell,
+                             std::function<bool(const char*)> port_msb_first) = 0;
   virtual Port *makeBundlePort(Cell *cell,
 			       const char *name,
 			       PortSeq *members) = 0;

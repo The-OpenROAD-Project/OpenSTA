@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -53,6 +53,9 @@ public:
   // Max value1 > value2, Min value1 < value2.
   bool compare(float value1,
 	       float value2) const;
+  // min/max(value1, value2)
+  float minMax(float value1,
+	       float value2) const;
   MinMaxAll *asMinMaxAll() const;
   MinMax *opposite() const;
   // for range support.
@@ -60,8 +63,9 @@ public:
   static const std::array<MinMax*, 2> &range() { return range_; }
   // for (auto mm_index : MinMax::rangeIndex()) {}
   static const std::array<int, 2> &rangeIndex() { return range_index_; }
+  // Find MinMax from name.
   static MinMax *find(const char *min_max);
-  // Find transition from index.
+  // Find MinMax from index.
   static MinMax *find(int index);
   static const int index_max = 1;
   static const int index_count = 2;

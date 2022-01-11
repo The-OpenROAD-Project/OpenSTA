@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -106,6 +106,7 @@ public:
 					  const ParasiticAnalysisPt *ap);
   virtual void deleteParasiticNetwork(const Net *net,
 				      const ParasiticAnalysisPt *ap);
+  virtual void deleteParasiticNetworks(const Net *net);
   virtual bool includesPinCaps(Parasitic *parasitic) const;
   virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
 					     const Net *net,
@@ -163,7 +164,7 @@ public:
 
   virtual void reduceTo(Parasitic *parasitic,
 			const Net *net,
-			ReduceParasiticsTo reduce_to,
+			ReducedParasiticType reduce_to,
 			const OperatingConditions *op_cond,
 			const Corner *corner,
 			const MinMax *cnst_min_max,
@@ -192,6 +193,8 @@ public:
 				      const Corner *corner,
 				      const MinMax *cnst_min_max,
 				      const ParasiticAnalysisPt *ap);
+  void deleteReducedParasitics(const Net *net,
+                               const ParasiticAnalysisPt *ap);
   virtual void deleteDrvrReducedParasitics(const Pin *drvr_pin);
 
 protected:
@@ -200,6 +203,8 @@ protected:
   Parasitic *ensureRspf(const Pin *drvr_pin);
   void makeAnalysisPtAfter();
   void deleteReducedParasitics(const Pin *pin);
+  void deleteDrvrReducedParasitics(const Pin *drvr_pin,
+                                   const ParasiticAnalysisPt *ap);
 
   // Driver pin to array of parasitics indexed by analysis pt index
   // and transition.

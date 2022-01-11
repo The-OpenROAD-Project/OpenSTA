@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "PathVertexRep.hh"
 
@@ -141,7 +141,7 @@ PathVertexRep::arrival(const StaState *sta) const
   bool arrival_exists;
   tag_group->arrivalIndex(tag, arrival_index, arrival_exists);
   if (!arrival_exists)
-    internalError("tag group missing tag");
+    sta->report()->critical(254, "tag group missing tag");
   Arrival *arrivals = graph->arrivals(vertex);
   return arrivals[arrival_index];
 }

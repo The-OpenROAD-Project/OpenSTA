@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "RiseFallMinMax.hh"
 
@@ -151,6 +151,18 @@ RiseFallMinMax::value(const RiseFall *rf,
 }
 
 float
+RiseFallMinMax::value(const MinMax *min_max) const
+{
+  int mm_index = min_max->index();
+  float rise = values_[RiseFall::riseIndex()][mm_index];
+  float fall = values_[RiseFall::fallIndex()][mm_index];
+  if (min_max->compare(rise, fall))
+    return rise;
+  else
+    return fall;
+}
+
+float
 RiseFallMinMax::value(const RiseFall *rf,
 		      const MinMax *min_max) const
 {
@@ -201,9 +213,9 @@ RiseFallMinMax::hasValue(const RiseFall *rf, const MinMax *min_max) const
 void
 RiseFallMinMax::mergeWith(RiseFallMinMax *rfmm)
 {
-  for (auto min_max : MinMax::range()) {
+  for (MinMax *min_max : MinMax::range()) {
     int mm_index = min_max->index();
-    for (auto rf_index : RiseFall::rangeIndex()) {
+    for (int rf_index : RiseFall::rangeIndex()) {
       bool exists1 = exists_[rf_index][mm_index];
       bool exists2 = rfmm->exists_[rf_index][mm_index];
       if (exists1 && exists2) {

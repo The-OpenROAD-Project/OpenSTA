@@ -1,7 +1,7 @@
 %{
 
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -10,11 +10,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include <string.h>
 
@@ -802,7 +802,7 @@ pos_integer:
 	INTEGER
 	{ int value = $1;
 	  if (value < 0)
-	    sta::spef_reader->warn("%d is not positive.\n", value);
+	    sta::spef_reader->warn(21, "%d is not positive.", value);
 	  $$ = value;
 	}
 ;
@@ -811,13 +811,13 @@ pos_number:
 	INTEGER
 	{ float value = static_cast<float>($1);
 	  if (value < 0)
-	    sta::spef_reader->warn("%.4f is not positive.\n", value);
+	    sta::spef_reader->warn(22, "%.4f is not positive.", value);
 	  $$ = value;
 	}
 |	FLOAT
 	{ float value = static_cast<float>($1);
 	  if (value < 0)
-	    sta::spef_reader->warn("%.4f is not positive.\n", value);
+	    sta::spef_reader->warn(23, "%.4f is not positive.", value);
 	  $$ = value;
 	}
 ;

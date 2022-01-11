@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -45,12 +45,13 @@ public:
 		 Slew &slew,
 		 float &limit,
 		 float &slack) const;
+  // Return pins with the min/max slew limit slack.
+  // net=null check all nets
   // corner=nullptr checks all corners.
-  PinSeq *pinSlewLimitViolations(const Corner *corner,
-				 const MinMax *min_max);
-  // corner=nullptr checks all corners.
-  Pin *pinMinSlewLimitSlack(const Corner *corner,
-			    const MinMax *min_max);
+  PinSeq *checkSlewLimits(Net *net,
+                          bool violators,
+                          const Corner *corner,
+                          const MinMax *min_max);
 
 protected:
   void checkSlews1(const Pin *pin,
@@ -59,20 +60,20 @@ protected:
 		   bool check_clks,
 		   // Return values.
 		   const Corner *&corner1,
-		   const RiseFall *&rf,
-		   Slew &slew,
-		   float &limit,
-		   float &slack) const;
+		   const RiseFall *&rf1,
+		   Slew &slew1,
+		   float &limit1,
+		   float &slack1) const;
   void checkSlews1(Vertex *vertex,
-		   const Corner *corner1,
+		   const Corner *corner,
 		   const MinMax *min_max,
 		   bool check_clks,
 		   // Return values.
-		   const Corner *&corner,
-		   const RiseFall *&rf,
-		   Slew &slew,
-		   float &limit,
-		   float &slack) const;
+		   const Corner *&corner1,
+		   const RiseFall *&rf1,
+		   Slew &slew1,
+		   float &limit1,
+		   float &slack1) const;
   void checkSlew(Vertex *vertex,
 		 const Corner *corner1,
 		 const RiseFall *rf1,
@@ -86,22 +87,25 @@ protected:
 		 float &limit) const;
   void findLimit(const Pin *pin,
 		 const Vertex *vertex,
+                 const Corner *corner,
 		 const RiseFall *rf,
 		 const MinMax *min_max,
 		 bool check_clks,
 		 // Return values.
-		 float &limit1,
-		 bool &limit1_exists) const;
-  void pinSlewLimitViolations(Instance *inst,
-			      const Corner *corner,
-			      const MinMax *min_max,
-			      PinSeq *violators);
-  void pinMinSlewLimitSlack(Instance *inst,
-			    const Corner *corner,
-			    const MinMax *min_max,
-			    // Return values.
-			    Pin *&min_slack_pin,
-			    float &min_slack);
+		 float &limit,
+		 bool &limit_exists) const;
+  void checkSlewLimits(Instance *inst,
+                       bool violators,
+                       const Corner *corner,
+                       const MinMax *min_max,
+                       PinSeq *slew_pins,
+                       float &min_slack);
+  void checkSlewLimits(Pin *pin,
+                       bool violators,
+                       const Corner *corner,
+                       const MinMax *min_max,
+                       PinSeq *slew_pins,
+                       float &min_slack);
   void clockDomains(const Vertex *vertex,
 		    // Return value.
 		    ClockSet &clks) const;

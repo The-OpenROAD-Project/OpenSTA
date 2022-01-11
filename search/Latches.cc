@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Latches.hh"
 
@@ -83,7 +83,7 @@ Latches::latchRequired(const Path *data_path,
       ? TimingRole::setup()
       : TimingRole::latchSetup();
     CycleAccting *acct = sdc_->cycleAccting(data_clk_edge,
-						    enable_clk_edge);
+                                            enable_clk_edge);
     // checkTgtClkTime
     float tgt_clk_time = acct->requiredTime(check_role);
     // checkTgtClkArrival broken down into components.
@@ -94,10 +94,10 @@ Latches::latchRequired(const Path *data_path,
       + PathEnd::checkSetupMcpAdjustment(data_clk_edge, enable_clk_edge, mcp,
 					 1, sdc_)
       + open_crpr;
-    debugPrint3(debug_, "latch", 1, "latch data %s %s enable %s\n",
-		network_->pathName(data_path->pin(this)),
-		delayAsString(data_arrival, this),
-		delayAsString(enable_arrival, this));
+    debugPrint(debug_, "latch", 1, "latch data %s %s enable %s",
+               network_->pathName(data_path->pin(this)),
+               delayAsString(data_arrival, this),
+               delayAsString(enable_arrival, this));
     if (delayLessEqual(data_arrival, enable_arrival, this)) {
       // Data arrives before latch opens.
       required = enable_arrival;

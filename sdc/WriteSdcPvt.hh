@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,15 +8,19 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
 #include "DisallowCopyAssign.hh"
+#include "Zlib.hh"
+#include "NetworkClass.hh"
+#include "GraphClass.hh"
+#include "Sdc.hh"
 
 namespace sta {
 
@@ -26,7 +30,6 @@ class WriteSdc : public StaState
 {
 public:
   WriteSdc(Instance *instance,
-	   const char *filename,
 	   const char *creator,
 	   bool map_hpins,
 	   bool native,
@@ -34,11 +37,12 @@ public:
 	   bool no_timestamp,
 	   Sdc *sdc);
   virtual ~WriteSdc();
-  void write();
+  void write(const char *filename,
+             bool gzip);
 
-  void openFile(const char *filename);
+  void openFile(const char *filename,
+                bool gzip);
   void closeFile();
-  void flush();
   virtual void writeHeader() const;
   void writeTiming() const;
   void writeDisables() const;
@@ -117,7 +121,7 @@ public:
   void writeEnvironment() const;
   void writeOperatingConditions() const;
   void writeWireload() const;
-  void writeNetLoads() const;
+  virtual void writeNetLoads() const;
   void writeNetLoad(Net *net,
 		    const MinMaxAll *min_max,
 		    float cap) const;
@@ -245,11 +249,10 @@ public:
   void writeVariables() const;
   void writeCmdComment(SdcCmdComment *cmd) const;
 
-  FILE *stream() const { return stream_; }
+  gzFile stream() const { return stream_; }
 
 protected:
   Instance *instance_;
-  const char *filename_;
   const char *creator_;
   bool map_hpins_;
   bool native_;
@@ -258,7 +261,7 @@ protected:
   bool top_instance_;
   size_t instance_name_length_;
   Cell *cell_;
-  FILE *stream_;
+  gzFile stream_;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(WriteSdc);

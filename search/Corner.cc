@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Corner.hh"
 
@@ -76,9 +76,7 @@ Corners::analysisTypeChanged()
 void
 Corners::operatingConditionsChanged()
 {
-  DcalcAnalysisPtSeq::Iterator ap_iter(dcalc_analysis_pts_);
-  while (ap_iter.hasNext()) {
-    DcalcAnalysisPt *dcalc_ap = ap_iter.next();
+  for (DcalcAnalysisPt *dcalc_ap : dcalc_analysis_pts_) {
     const MinMax *min_max = dcalc_ap->constraintMinMax();
     const OperatingConditions *op_cond =
       sdc_->operatingConditions(min_max);
@@ -91,9 +89,7 @@ Corners::makeCorners(StringSet *corner_names)
 {
   clear();
   int index = 0;
-  StringSet::Iterator name_iter(corner_names);
-  while (name_iter.hasNext()) {
-    const char *name = name_iter.next();
+  for (const char *name : *corner_names) {
     Corner *corner = new Corner(name, index);
     corners_.push_back(corner);
     // Use the copied name in the map.
@@ -104,45 +100,97 @@ Corners::makeCorners(StringSet *corner_names)
 }
 
 void
-Corners::makeParasiticAnalysisPtsSingle()
+Corners::copy(Corners *corners)
 {
-  if (parasitic_analysis_pts_.size() != 1) {
-    parasitic_analysis_pts_.deleteContentsClear();
-    ParasiticAnalysisPt *ap = new ParasiticAnalysisPt("min_max", 0,
-						      MinMax::max());
+  clear();
+  int index = 0;
+  for (Corner *orig : corners->corners_) {
+    const char *name = orig->name();
+    Corner *corner = new Corner(name, index);
+    corners_.push_back(corner);
+    // Use the copied name in the map.
+    corner_map_[corner->name()] = corner;
+    index++;
+  }
+  makeAnalysisPts();
+  
+  for (ParasiticAnalysisPt *orig_ap : corners->parasitic_analysis_pts_) {
+    ParasiticAnalysisPt *ap = new ParasiticAnalysisPt(orig_ap->name(), orig_ap->index(),
+						      orig_ap->minMax());
     parasitic_analysis_pts_.push_back(ap);
-    updateCornerParasiticAnalysisPts();
+  }
+
+  int i = 0;
+  for (Corner *orig : corners->corners_) {
+    Corner *corner = corners_[i];
+    auto &orig_aps = orig->parasitic_analysis_pts_;
+    auto &corner_aps = corner->parasitic_analysis_pts_;
+    corner_aps.resize(orig_aps.size());
+    for (ParasiticAnalysisPt *orig_ap : orig_aps) {
+      int ap_index = orig_ap->index();
+      corner_aps.push_back(parasitic_analysis_pts_[ap_index]);
+    }
+    i++;
   }
 }
 
 void
-Corners::makeParasiticAnalysisPtsMinMax()
+Corners::makeParasiticAnalysisPts(bool per_corner,
+                                  bool per_min_max)
 {
-  if (parasitic_analysis_pts_.size() != 2) {
-    parasitic_analysis_pts_.deleteContentsClear();
+  parasitic_analysis_pts_.deleteContentsClear();
+  if (per_corner && per_min_max) {
+    // each corner has min/max parasitics
+    for (Corner *corner : corners_) {
+      corner->setParasiticAnalysisPtcount(MinMax::index_count);
+      for (MinMax *min_max : MinMax::range()) {
+        int mm_index = min_max->index();
+        int ap_index = corner->index() * MinMax::index_count + mm_index;
+        string ap_name = corner->name();
+        ap_name += "_";
+        ap_name += min_max->asString();
+        ParasiticAnalysisPt *ap = new ParasiticAnalysisPt(ap_name.c_str(),
+                                                          ap_index,
+                                                          min_max);
+        parasitic_analysis_pts_.push_back(ap);
+        corner->setParasiticAP(ap, mm_index);
+      }
+    }
+  }
+  else if (per_corner && !per_min_max) {
+    // each corner has parasitics
+    for (Corner *corner : corners_) {
+      ParasiticAnalysisPt *ap = new ParasiticAnalysisPt(corner->name(),
+                                                        corner->index(),
+                                                        MinMax::max());
+      parasitic_analysis_pts_.push_back(ap);
+      corner->setParasiticAnalysisPtcount(1);
+      corner->setParasiticAP(ap, 0);
+    }
+  }
+  else if (!per_corner && per_min_max) {
+    // min/max parasitics shared by all corners
     parasitic_analysis_pts_.resize(MinMax::index_count);
-    for (auto min_max : MinMax::range()) {
+    for (MinMax *min_max : MinMax::range()) {
       int mm_index = min_max->index();
       ParasiticAnalysisPt *ap = new ParasiticAnalysisPt(min_max->asString(),
 							mm_index,
 							min_max);
       parasitic_analysis_pts_[mm_index] = ap;
+      for (Corner *corner : corners_) {
+        corner->setParasiticAnalysisPtcount(MinMax::index_count);
+        corner->setParasiticAP(ap, mm_index);
+      }
     }
-    updateCornerParasiticAnalysisPts();
   }
-}
-
-void
-Corners::updateCornerParasiticAnalysisPts()
-{
-  CornerSeq::Iterator corner_iter(corners_);
-  while (corner_iter.hasNext()) {
-    Corner *corner = corner_iter.next();
-    corner->setParasiticAnalysisPtcount(parasitic_analysis_pts_.size());
-    ParasiticAnalysisPtSeq::Iterator ap_iter(parasitic_analysis_pts_);
-    while (ap_iter.hasNext()) {
-      ParasiticAnalysisPt *ap = ap_iter.next();
-      corner->addParasiticAP(ap);
+  else if (!per_corner && !per_min_max) {
+    // single parasitics shared by all corners
+    ParasiticAnalysisPt *ap = new ParasiticAnalysisPt("min_max", 0,
+						      MinMax::max());
+    parasitic_analysis_pts_.push_back(ap);
+    for (Corner *corner : corners_) {
+      corner->setParasiticAnalysisPtcount(1);
+      corner->setParasiticAP(ap, 0);
     }
   }
 }
@@ -153,9 +201,7 @@ Corners::makeAnalysisPts()
   dcalc_analysis_pts_.deleteContentsClear();
   path_analysis_pts_.deleteContentsClear();
 
-  CornerSeq::Iterator corner_iter(corners_);
-  while (corner_iter.hasNext()) {
-    Corner *corner = corner_iter.next();
+  for (Corner *corner : corners_) {
     makeDcalcAnalysisPts(corner);
     makePathAnalysisPts(corner);
   }
@@ -353,7 +399,7 @@ Corner::findParasiticAnalysisPt(const MinMax *min_max) const
   else if (ap_count == 2)
     return parasitic_analysis_pts_[min_max->index()];
   else {
-    internalError("unknown parasitic analysis point count");
+    criticalError(246, "unknown parasitic analysis point count");
     return nullptr;
   }
 }
@@ -365,12 +411,10 @@ Corner::setParasiticAnalysisPtcount(int ap_count)
 }
 
 void 
-Corner::addParasiticAP(ParasiticAnalysisPt *ap)
+Corner::setParasiticAP(ParasiticAnalysisPt *ap,
+                       int index)
 {
-  if (parasitic_analysis_pts_.size() == 1)
-    parasitic_analysis_pts_[0] = ap;
-  else
-    parasitic_analysis_pts_[ap->minMax()->index()] = ap;
+  parasitic_analysis_pts_[index] = ap;
 }
 
 void
@@ -399,7 +443,7 @@ Corner::findDcalcAnalysisPt(const MinMax *min_max) const
   else if (ap_count == 2)
     return dcalc_analysis_pts_[min_max->index()];
   else {
-    internalError("unknown analysis point count");
+    criticalError(247, "unknown analysis point count");
     return nullptr;
   }
 }
@@ -433,63 +477,6 @@ int
 Corner::libertyIndex(const MinMax *min_max) const
 {
   return index_ * MinMax::index_count + min_max->index();
-}
-
-////////////////////////////////////////////////////////////////
-
-CornerIterator::CornerIterator(const StaState *sta) :
-  iter_(sta->corners()->corners())
-{
-}
-
-bool
-CornerIterator::hasNext()
-{
-  return iter_.hasNext();
-}
-
-Corner *
-CornerIterator::next()
-{
-  return iter_.next();
-}
-
-////////////////////////////////////////////////////////////////
-
-DcalcAnalysisPtIterator::DcalcAnalysisPtIterator(const StaState *sta) :
-  ap_iter_(sta->corners()->dcalcAnalysisPts())
-{
-}
-
-bool
-DcalcAnalysisPtIterator::hasNext()
-{
-  return ap_iter_.hasNext();
-}
-
-DcalcAnalysisPt *
-DcalcAnalysisPtIterator::next()
-{
-  return ap_iter_.next();
-}
-
-////////////////////////////////////////////////////////////////
-
-PathAnalysisPtIterator::PathAnalysisPtIterator(const StaState *sta) :
-  ap_iter_(sta->corners()->pathAnalysisPts())
-{
-}
-
-bool
-PathAnalysisPtIterator::hasNext()
-{
-  return ap_iter_.hasNext();
-}
-
-PathAnalysisPt *
-PathAnalysisPtIterator::next()
-{
-  return ap_iter_.next();
 }
 
 } // namespace

@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "LibertyParser.hh"
 
@@ -27,18 +27,18 @@
 
 int
 LibertyParse_parse();
-extern FILE *LibertyLex_in;
 
 namespace sta {
 
 typedef Vector<LibertyGroup*> LibertyGroupSeq;
 
 static const char *liberty_filename;
+static gzFile liberty_stream;
 static int liberty_line;
 // Previous lex reader state for include files.
 static const char *liberty_filename_prev;
 static int liberty_line_prev;
-static FILE *liberty_stream_prev;
+static gzFile liberty_stream_prev;
 
 static LibertyGroupVisitor *liberty_group_visitor;
 static LibertyGroupSeq liberty_group_stack;
@@ -59,8 +59,8 @@ parseLibertyFile(const char *filename,
 		 LibertyGroupVisitor *library_visitor,
 		 Report *report)
 {
-  LibertyLex_in = fopen(filename, "r");
-  if (LibertyLex_in) {
+  liberty_stream = gzopen(filename, "r");
+  if (liberty_stream) {
     liberty_group_visitor = library_visitor;
     liberty_group_stack.clear();
     liberty_filename = filename;
@@ -69,10 +69,34 @@ parseLibertyFile(const char *filename,
     liberty_line = 1;
     liberty_report = report;
     LibertyParse_parse();
-    fclose(LibertyLex_in);
+    gzclose(liberty_stream);
   }
   else
     throw FileNotReadable(filename);
+}
+
+void
+libertyGetChars(char *buf,
+                int &result,
+                size_t max_size)
+{
+  char *status = gzgets(liberty_stream, buf, max_size);
+  if (status == Z_NULL)
+    result = 0;  // YY_nullptr
+  else
+    result = strlen(buf);
+}
+
+void
+libertyGetChars(char *buf,
+                size_t &result,
+                size_t max_size)
+{
+  char *status = gzgets(liberty_stream, buf, max_size);
+  if (status == Z_NULL)
+    result = 0;  // YY_nullptr
+  else
+    result = strlen(buf);
 }
 
 void
@@ -283,7 +307,7 @@ LibertySimpleAttr::~LibertySimpleAttr()
 LibertyAttrValueSeq *
 LibertySimpleAttr::values() const
 {
-  internalError("valueIterator called for LibertySimpleAttribute");
+  criticalError(236, "valueIterator called for LibertySimpleAttribute");
   return nullptr;
 }
 
@@ -364,7 +388,7 @@ LibertyStringAttrValue::~LibertyStringAttrValue()
 float
 LibertyStringAttrValue::floatValue()
 {
-  internalError("LibertyStringAttrValue called for float value");
+  criticalError(237, "LibertyStringAttrValue called for float value");
   return 0.0;
 }
 
@@ -394,7 +418,7 @@ LibertyFloatAttrValue::floatValue()
 const char *
 LibertyFloatAttrValue::stringValue()
 {
-  internalError("LibertyStringAttrValue called for float value");
+  criticalError(238, "LibertyStringAttrValue called for float value");
   return nullptr;
 }
 
@@ -417,8 +441,8 @@ makeLibertyDefine(LibertyAttrValueSeq *values,
     group->addDefine(define);
   }
   else
-    liberty_report->fileWarn(liberty_filename, line,
-			     "define does not have three arguments.\n");
+    liberty_report->fileWarn(24, liberty_filename, line,
+			     "define does not have three arguments.");
   return define;
 }
 
@@ -510,30 +534,31 @@ libertyInInclude()
   return liberty_filename_prev != nullptr;
 }
 
-FILE *
+void
 libertyIncludeBegin(const char *filename)
 {
-  FILE *stream = fopen(filename, "r" );
-  if (stream == nullptr)
-    libertyParseError("cannot open include file %s.\n", filename);
-  else {
+  gzFile stream = gzopen(filename, "r" );
+  if (stream) {
+    liberty_stream_prev = liberty_stream;
     liberty_filename_prev = liberty_filename;
     liberty_line_prev = liberty_line;
-    liberty_stream_prev = LibertyLex_in;
 
+    liberty_stream = stream;
     liberty_filename = filename;
     liberty_line = 1;
   }
-  return stream;
+  else
+    libertyParseError("cannot open include file %s.", filename);
 }
 
 void
 libertyIncludeEnd()
 {
-  fclose(LibertyLex_in);
+  gzclose(liberty_stream);
+  liberty_stream = liberty_stream_prev;
   liberty_filename = liberty_filename_prev;
   liberty_line = liberty_line_prev;
-  LibertyLex_in = liberty_stream_prev;
+
   liberty_filename_prev = nullptr;
   liberty_stream_prev = nullptr;
 }
@@ -555,8 +580,8 @@ libertyParseError(const char *fmt, ...)
 {
   va_list args;
   va_start(args, fmt);
-  sta::liberty_report->vfileError(sta::liberty_filename, sta::liberty_line,
-				  fmt, args);
+  sta::liberty_report->vfileError(25, sta::liberty_filename, sta::liberty_line,
+                                  fmt, args);
   va_end(args);
 }
 
@@ -570,8 +595,8 @@ void libertyParseFlushBuffer();
 int
 LibertyParse_error(const char *msg)
 {
-  sta::liberty_report->fileError(sta::liberty_filename, sta::liberty_line,
-				 "%s.\n", msg);
+  sta::liberty_report->fileError(26, sta::liberty_filename, sta::liberty_line,
+				 "%s.", msg);
   libertyParseFlushBuffer();
   return 0;
 }

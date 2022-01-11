@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "VisitPathGroupVertices.hh"
 
@@ -42,19 +42,18 @@ vertexPathSetMapInsertPath(VertexPathSetMap *matching_path_map,
 class VisitPathGroupEnds : public PathEndVisitor
 {
 public:
-  explicit VisitPathGroupEnds(PathGroup *path_group,
-			      VertexVisitor *vertex_visitor,
-			      VertexPathSetMap *matching_path_map,
-			      BfsBkwdIterator *bkwd_iter,
-			      StaState *sta);
-  virtual PathEndVisitor *copy();
+  VisitPathGroupEnds(PathGroup *path_group,
+                     VertexVisitor *vertex_visitor,
+                     VertexPathSetMap *matching_path_map,
+                     BfsBkwdIterator *bkwd_iter,
+                     StaState *sta);
+  VisitPathGroupEnds(const VisitPathGroupEnds&) = default;
+  virtual PathEndVisitor *copy() const;
   virtual void visit(PathEnd *path_end);
   virtual void vertexBegin(Vertex *vertex);
   virtual void vertexEnd(Vertex *vertex);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(VisitPathGroupEnds);
-
   PathGroup *path_group_;
   VertexVisitor *vertex_visitor_;
   BfsBkwdIterator *bkwd_iter_;
@@ -71,7 +70,7 @@ public:
 		       VertexPathSetMap *matching_path_map,
 		       const StaState *sta);
   virtual ~PathGroupPathVisitor();
-  virtual VertexVisitor *copy();
+  virtual VertexVisitor *copy() const;
   virtual void visit(Vertex *vertex);
 
 protected:
@@ -160,10 +159,9 @@ VisitPathGroupEnds::VisitPathGroupEnds(PathGroup *path_group,
 }
 
 PathEndVisitor *
-VisitPathGroupEnds::copy()
+VisitPathGroupEnds::copy() const
 {
-  return new VisitPathGroupEnds(path_group_, vertex_visitor_,
-				matching_path_map_, bkwd_iter_, sta_);
+  return new VisitPathGroupEnds(*this);
 }
 
 void
@@ -234,7 +232,7 @@ PathGroupPathVisitor::~PathGroupPathVisitor()
 }
 
 VertexVisitor *
-PathGroupPathVisitor::copy()
+PathGroupPathVisitor::copy() const
 {
   return new PathGroupPathVisitor(visitor_, bkwd_iter_, matching_path_map_,
 				  sta_);
@@ -247,8 +245,8 @@ PathGroupPathVisitor::visit(Vertex *vertex)
   visitFanoutPaths(vertex);
   if (vertex_matches_) {
     const Debug *debug = sta_->debug();
-    debugPrint1(debug, "visit_path_group", 1, "visit %s\n",
-		vertex->name(sta_->network()));
+    debugPrint(debug, "visit_path_group", 1, "visit %s",
+               vertex->name(sta_->network()));
     visitor_->visit(vertex);
     bkwd_iter_->enqueueAdjacentVertices(vertex);
   }
@@ -279,11 +277,11 @@ PathGroupPathVisitor::visitFromToPath(const Pin *,
     if (!to_path.isNull()) {
       if (matching_paths->hasKey(&to_path)) {
 	const Debug *debug = sta_->debug();
-	debugPrint4(debug, "visit_path_group", 2, "match %s %s -> %s %s\n",
-		    from_vertex->name(sta_->network()),
-		    from_tag->asString(sta_),
-		    to_vertex->name(sta_->network()),
-		    to_tag->asString(sta_));
+	debugPrint(debug, "visit_path_group", 2, "match %s %s -> %s %s",
+                   from_vertex->name(sta_->network()),
+                   from_tag->asString(sta_),
+                   to_vertex->name(sta_->network()),
+                   to_tag->asString(sta_));
 	fromMatches(from_vertex, from_tag, arrival_index);
       }
     }
@@ -294,12 +292,12 @@ PathGroupPathVisitor::visitFromToPath(const Pin *,
 	if (tagMatchNoCrpr(to_path->tag(sta_), to_tag)
 	    && matching_paths->hasKey(to_path)) {
 	  const Debug *debug = sta_->debug();
-	  debugPrint4(debug, "visit_path_group", 2, 
-		      "match crpr %s %s -> %s %s\n",
-		      from_vertex->name(sta_->network()),
-		      from_tag->asString(sta_),
-		      to_vertex->name(sta_->network()),
-		      to_tag->asString(sta_));
+	  debugPrint(debug, "visit_path_group", 2, 
+                     "match crpr %s %s -> %s %s",
+                     from_vertex->name(sta_->network()),
+                     from_tag->asString(sta_),
+                     to_vertex->name(sta_->network()),
+                     to_tag->asString(sta_));
 	  fromMatches(from_vertex, from_tag, arrival_index);
 	}
       }

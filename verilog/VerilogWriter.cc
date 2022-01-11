@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,15 +8,16 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "VerilogWriter.hh"
 
 #include <stdlib.h>
+#include <algorithm>
 
 #include "Error.hh"
 #include "Liberty.hh"
@@ -24,8 +25,12 @@
 #include "Network.hh"
 #include "NetworkCmp.hh"
 #include "VerilogNamespace.hh"
+#include "ParseBus.hh"
 
 namespace sta {
+
+using std::min;
+using std::max;
 
 class VerilogWriter
 {
@@ -41,6 +46,7 @@ public:
 protected:
   void writePorts(Cell *cell);
   void writePortDcls(Cell *cell);
+  void writeWireDcls(Instance *inst);
   const char *verilogPortDir(PortDirection *dir);
   void writeChildren(Instance *inst);
   void writeChild(Instance *child);
@@ -53,6 +59,7 @@ protected:
   void writeInstBusPinBit(Instance *inst,
 			  Port *port,
 			  bool &first_member);
+  void writeAssigns(Instance *inst);
 
   const char *filename_;
   bool sort_;
@@ -114,7 +121,10 @@ VerilogWriter::writeModule(Instance *inst)
   writePorts(cell);
   writePortDcls(cell);
   fprintf(stream_, "\n");
+  writeWireDcls(inst);
+  fprintf(stream_, "\n");
   writeChildren(inst);
+  writeAssigns(inst);
   fprintf(stream_, "endmodule\n");
   written_cells_.insert(cell);
 
@@ -132,11 +142,14 @@ VerilogWriter::writePorts(Cell *cell)
   CellPortIterator *port_iter = network_->portIterator(cell);
   while (port_iter->hasNext()) {
     Port *port = port_iter->next();
-    if (!first)
-      fprintf(stream_, ",\n    ");
-    fprintf(stream_, "%s", portVerilogName(network_->name(port),
-					   network_->pathEscape()));
-    first = false;
+    if (include_pwr_gnd_
+        || !network_->direction(port)->isPowerGround()) {
+      if (!first)
+        fprintf(stream_, ",\n    ");
+      fprintf(stream_, "%s", portVerilogName(network_->name(port),
+                                             network_->pathEscape()));
+      first = false;
+    }
   }
   delete port_iter;
   fprintf(stream_, ");\n");
@@ -149,23 +162,26 @@ VerilogWriter::writePortDcls(Cell *cell)
   while (port_iter->hasNext()) {
     Port *port = port_iter->next();
     PortDirection *dir = network_->direction(port);
-    const char *port_name = portVerilogName(network_->name(port),
-					    network_->pathEscape());
-    const char *vtype = verilogPortDir(dir);
-    if (vtype) {
-      fprintf(stream_, " %s", vtype);
-      if (network_->isBus(port))
-	fprintf(stream_, " [%d:%d]",
-		network_->fromIndex(port),
-		network_->toIndex(port));
-      fprintf(stream_, " %s;\n", port_name);
-      if (dir->isTristate()) {
-	fprintf(stream_, " tri");
-	if (network_->isBus(port))
-	  fprintf(stream_, " [%d:%d]",
-		  network_->fromIndex(port),
-		  network_->toIndex(port));
-	fprintf(stream_, " %s;\n", port_name);
+    if (include_pwr_gnd_
+        || !network_->direction(port)->isPowerGround()) {
+      const char *port_name = portVerilogName(network_->name(port),
+                                              network_->pathEscape());
+      const char *vtype = verilogPortDir(dir);
+      if (vtype) {
+        fprintf(stream_, " %s", vtype);
+        if (network_->isBus(port))
+          fprintf(stream_, " [%d:%d]",
+                  network_->fromIndex(port),
+                  network_->toIndex(port));
+        fprintf(stream_, " %s;\n", port_name);
+        if (dir->isTristate()) {
+          fprintf(stream_, " tri");
+          if (network_->isBus(port))
+            fprintf(stream_, " [%d:%d]",
+                    network_->fromIndex(port),
+                    network_->toIndex(port));
+          fprintf(stream_, " %s;\n", port_name);
+        }
       }
     }
   }
@@ -190,8 +206,46 @@ VerilogWriter::verilogPortDir(PortDirection *dir)
   else if (dir == PortDirection::internal())
     return nullptr;
   else {
-    internalError("unknown port direction");
+    criticalError(268, "unknown port direction");
     return nullptr;
+  }
+}
+
+typedef std::pair<int, int> BusIndexRange;
+
+void
+VerilogWriter::writeWireDcls(Instance *inst)
+{
+  Cell *cell = network_->cell(inst);
+  char escape = network_->pathEscape();
+  Map<const char*, BusIndexRange, CharPtrLess> bus_ranges;
+  NetIterator *net_iter = network_->netIterator(inst);
+  while (net_iter->hasNext()) {
+    Net *net = net_iter->next();
+    const char *net_name = network_->name(net);
+    if (network_->findPort(cell, net_name) == nullptr) {
+      if (isBusName(net_name, '[', ']', escape)) {
+        char *bus_name;
+        int index;
+        parseBusName(net_name, '[', ']', escape, bus_name, index);
+        BusIndexRange &range = bus_ranges[bus_name];
+        range.first = max(range.first, index);
+        range.second = min(range.second, index);
+      }
+      else
+        fprintf(stream_, " wire %s;\n",
+                netVerilogName(net_name, network_->pathEscape()));;
+    }
+  }
+  delete net_iter;
+
+  for (auto name_range : bus_ranges) {
+    const char *bus_name = name_range.first;
+    const BusIndexRange &range = name_range.second;
+    fprintf(stream_, " wire [%d:%d] %s;\n",
+            range.first,
+            range.second,
+            netVerilogName(bus_name, network_->pathEscape()));;
   }
 }
 
@@ -321,6 +375,32 @@ VerilogWriter::writeInstBusPinBit(Instance *inst,
     fprintf(stream_, ",\n    ");
   fprintf(stream_, "%s", net_vname);
   first_member = false;
+}
+
+// Verilog "ports" are not distinct from nets.
+// Use an assign statement to alias the net when it is connected to
+// multiple output ports.
+void
+VerilogWriter::writeAssigns(Instance *inst)
+{
+  InstancePinIterator *pin_iter = network_->pinIterator(inst);
+  while (pin_iter->hasNext()) {
+    Pin *pin = pin_iter->next();
+    Term *term = network_->term(pin);
+    Net *net = network_->net(term);
+    Port *port = network_->port(pin);
+    if (port
+        && network_->direction(port)->isAnyOutput()
+        && !stringEqual(network_->name(port), network_->name(net))) {
+      // Port name is different from net name.
+      fprintf(stream_, " assign %s = %s;\n",
+              netVerilogName(network_->name(port),
+                             network_->pathEscape()),
+              netVerilogName(network_->name(net),
+                             network_->pathEscape()));
+    }
+  }
+  delete pin_iter;
 }
 
 } // namespace

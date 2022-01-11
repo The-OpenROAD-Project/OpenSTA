@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // (c) 2018 Nefelus, Inc.
 //
@@ -117,6 +117,7 @@ public:
   virtual Parasitic *findParasitic(const Pin *drvr_pin,
 				   const RiseFall *rf,
 				   const DcalcAnalysisPt *dcalc_ap);
+  virtual ReducedParasiticType reducedParasiticType() const;
   virtual void gateDelay(const LibertyCell *drvr_cell,
 			 TimingArc *arc,
 			 const Slew &in_slew,
@@ -304,6 +305,12 @@ ArnoldiDelayCalc::findParasitic(const Pin *drvr_pin,
     }
   }
   return nullptr;
+}
+
+ReducedParasiticType
+ArnoldiDelayCalc::reducedParasiticType() const
+{
+  return ReducedParasiticType::arnoldi;
 }
 
 void
@@ -597,7 +604,7 @@ void arnoldi1::calculate_poles_res(delay_work *D,double rdrive)
   dsave = d[0];
   d[0] += rdrive*ctot;
   if (!tridiagEV(order,d,e,p,v))
-    internalError("arnoldi delay calc failed.\n");
+    criticalError(204, "arnoldi delay calc failed.");
   d[0] = dsave;
 
   for (h=0;h<order;h++) {
@@ -873,7 +880,7 @@ ArnoldiDelayCalc::pr_solve1(double s,
         // ignoring a typical error at drive node, that comes
         // from slight inaccuracies in rr
         if (!(rr[order-1]>1.0 && p[order-1]>500.0 && va>v1-0.002))
-	  debugPrint0(debug_, "arnoldi", 1, "err, pr_solve1, va<v1\n");
+	  debugPrint(debug_, "arnoldi", 1, "err, pr_solve1, va<v1");
       }
       tmin = ta; vmin = va;
     } else {
@@ -886,7 +893,7 @@ ArnoldiDelayCalc::pr_solve1(double s,
         pr_get_v(ta,s,order,p,rr,&va);
       }
       if (va>v1)
-	debugPrint0(debug_, "arnoldi", 1, "err, pr_solve1, va>v1\n");
+	debugPrint(debug_, "arnoldi", 1, "err, pr_solve1, va>v1");
       tmax = ta; vmax = va;
     }
   } else {
@@ -1134,7 +1141,7 @@ ra_hinv(double y,
    ex = exp(-x);
    f =  x+ex-1.0-y;
    if (f<-1e-8 || f>1e-8)
-     debugPrint2(debug, "arnoldi", 1, "y f %g %g\n",y,f);
+     debugPrint(debug, "arnoldi", 1, "y f %g %g", y, f);
   return x;
 }
 
@@ -1268,11 +1275,10 @@ ArnoldiDelayCalc::ra_solve_for_s(delay_work *D,
   s = s - f/df;
 
   if (abs(f)>.5e-12) // .5ps
-    debugPrint3(debug_, "arnoldi", 1,
-		"ra_solve_for_s p %g tlohi %s err %s\n",
-		p,
-		units_->timeUnit()->asString(tlohi),
-		units_->timeUnit()->asString(f));
+    debugPrint(debug_, "arnoldi", 1, "ra_solve_for_s p %g tlohi %s err %s",
+               p,
+               units_->timeUnit()->asString(tlohi),
+               units_->timeUnit()->asString(f));
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -1389,8 +1395,8 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
   ArcDelay df;
   Slew sf;
 
-  debugPrint1(debug_, "arnoldi", 1, "\nctot=%s\n",
-	      units_->capacitanceUnit()->asString(ctot));
+  debugPrint(debug_, "arnoldi", 1, "ctot=%s",
+             units_->capacitanceUnit()->asString(ctot));
 
   rdelay = ra_rdelay_1(tab,ctot);
   if (rdelay == 0.0) {
@@ -1412,22 +1418,21 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
     double p = 1.0/(r*ctot);
     double thix,tlox;
     if (bad) printf("bad\n");
-    debugPrint2(debug_, "arnoldi", 1, "at r=%s s=%s\n",
-		units_->resistanceUnit()->asString(r),
-		units_->timeUnit()->asString(s));
+    debugPrint(debug_, "arnoldi", 1, "at r=%s s=%s",
+               units_->resistanceUnit()->asString(r),
+               units_->timeUnit()->asString(s));
     thix = ra_solve_for_t(p,s,vhi);
     tlox = ra_solve_for_t(p,s,vlo);
     tab->table->gateDelay(tab->cell, tab->pvt,tab->in_slew,
 			  ctot, tab->relcap, pocv_enabled_, df, sf);
-    debugPrint3(debug_, "arnoldi", 1,
-		"table slew (in_slew %s ctot %s) = %s\n",
-		units_->timeUnit()->asString(tab->in_slew),
-		units_->capacitanceUnit()->asString(ctot),
-		delayAsString(sf, this));
+    debugPrint(debug_, "arnoldi", 1, "table slew (in_slew %s ctot %s) = %s",
+               units_->timeUnit()->asString(tab->in_slew),
+               units_->capacitanceUnit()->asString(ctot),
+               delayAsString(sf, this));
     tlohi = slew_derate*delayAsFloat(sf);
-    debugPrint2(debug_, "arnoldi", 1, "tlohi %s %s\n",
-		units_->timeUnit()->asString(tlohi),
-		units_->timeUnit()->asString(tlox-thix));
+    debugPrint(debug_, "arnoldi", 1, "tlohi %s %s",
+               units_->timeUnit()->asString(tlohi),
+               units_->timeUnit()->asString(tlox-thix));
   }
   ceff = ctot;
   tab->table->gateDelay(tab->cell, tab->pvt, tab->in_slew,
@@ -1454,23 +1459,23 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
       ceff_time = s;
       ceff = pr_ceff(s,r,mod->order,p,rr,ceff_time);
 
-      if((ceff-1e-20) < 0.0) {  // 1e-8pf
-	debugPrint0(debug_, "arnoldi", 1,
-		    "Invalid effective capacitance, using total capacitance\n");
+      if ((ceff-1e-20) < 0.0) {  // 1e-8pf
+	debugPrint(debug_, "arnoldi", 1,
+                    "Invalid effective capacitance, using total capacitance");
 	ceff = ctot;
       }
 
       // new mvs at ceff
       s = ra_get_s(D,tab,r,ceff);
-      debugPrint1(debug_, "arnoldi", 1, "new mvs  s = %s\n",
-		  units_->timeUnit()->asString(s));
+      debugPrint(debug_, "arnoldi", 1, "new mvs  s = %s",
+                 units_->timeUnit()->asString(s));
     }
   }
-  debugPrint4(debug_, "arnoldi", 1, "r %s s %s ceff_time %s ceff %s\n",
-	      units_->resistanceUnit()->asString(r),
-	      units_->timeUnit()->asString(s),
-	      units_->timeUnit()->asString(ceff_time),
-	      units_->capacitanceUnit()->asString(ceff));
+  debugPrint(debug_, "arnoldi", 1, "r %s s %s ceff_time %s ceff %s",
+             units_->resistanceUnit()->asString(r),
+             units_->timeUnit()->asString(s),
+             units_->timeUnit()->asString(ceff_time),
+             units_->capacitanceUnit()->asString(ceff));
 
   tab->table->gateDelay(tab->cell, tab->pvt, tab->in_slew, ceff,
 			tab->relcap, pocv_enabled_, df, sf);
@@ -1482,10 +1487,6 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
     delays[j] = t50_srmod + t50_sy - t50_sr;
     slews[j] = (tlo-thi)/slew_derate;
   }
-  debugPrint3(debug_, "arnoldi", 1, "slews[0] %s thi %s tlo %s\n",
-	      units_->timeUnit()->asString(slews[0]),
-	      units_->timeUnit()->asString(tlo),
-	      units_->timeUnit()->asString(thi));
 }
 
 } // namespace

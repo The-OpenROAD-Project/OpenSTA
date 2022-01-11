@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "PathEnumed.hh"
 
@@ -120,18 +120,19 @@ PathEnumed::setArrival(Arrival arrival,
 }
 
 const Required &
-PathEnumed::required(const StaState *) const
+PathEnumed::required(const StaState *sta) const
 {
   // Required times are never needed for enumerated paths.
-  internalError("enumerated path required time\n");
+  sta->report()->critical(251, "enumerated path required time");
+  return delay_zero;
 }
 
 void
 PathEnumed::setRequired(const Required &,
-			const StaState *)
+			const StaState *sta)
 {
   // Required times are never needed for enumerated paths.
-  internalError("enumerated path required time\n");
+  sta->report()->critical(252, "enumerated path required time");
 }
 
 Path *

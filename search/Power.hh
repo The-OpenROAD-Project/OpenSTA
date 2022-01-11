@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -31,6 +31,7 @@ class Corner;
 class DcalcAnalysisPt;
 class PropActivityVisitor;
 class BfsFwdIterator;
+class Vertex;
 
 typedef std::pair<const Instance*, LibertyPort*> SeqPin;
 
@@ -47,7 +48,7 @@ public:
 		  const SeqPin &pin2) const;
 };
 
-typedef UnorderedMap<const Pin*,PwrActivity> PwrActivityMap;
+typedef UnorderedMap<const Pin*, PwrActivity> PwrActivityMap;
 typedef UnorderedMap<SeqPin, PwrActivity,
 		     SeqPinHash, SeqPinEqual> PwrSeqActivityMap;
 
@@ -110,7 +111,7 @@ protected:
 			      LibertyCell *cell,
 			      PwrActivity &to_activity,
 			      float load_cap,
-			      const DcalcAnalysisPt *dcalc_ap,
+			      const Corner *corner,
 			      // Return values.
 			      PowerResult &result);
   void findOutputInternalPower(const Pin *to_pin,
@@ -119,20 +120,24 @@ protected:
 			       LibertyCell *cell,
 			       PwrActivity &to_activity,
 			       float load_cap,
-			       const DcalcAnalysisPt *dcalc_ap,
+			       const Corner *corner,
 			       // Return values.
 			       PowerResult &result);
   void findLeakagePower(const Instance *inst,
 			LibertyCell *cell,
+			const Corner *corner,
 			// Return values.
 			PowerResult &result);
   void findSwitchingPower(LibertyCell *cell,
 			  const LibertyPort *to_port,
 			  PwrActivity &activity,
 			  float load_cap,
-			  const DcalcAnalysisPt *dcalc_ap,
+			  const Corner *corner,
 			  // Return values.
 			  PowerResult &result);
+  float getSlew(Vertex *vertex,
+                const RiseFall *rf,
+                const Corner *corner);
   const Clock *findInstClk(const Instance *inst);
   const Clock *findClk(const Pin *to_pin);
   PwrActivity findClkedActivity(const Pin *pin,
@@ -167,6 +172,10 @@ protected:
   PwrActivity evalActivityDifference(FuncExpr *expr,
 				     const Instance *inst,
 				     const LibertyPort *cofactor_port);
+  LibertyPort *findLinkPort(const LibertyCell *cell,
+			    const LibertyPort *corner_port);
+  Pin *findLinkPin(const Instance *inst,
+		   const LibertyPort *corner_port);
 
 private:
   // Port/pin activities set by set_pin_activity.

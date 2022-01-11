@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -22,9 +22,12 @@
 
 namespace sta {
 
+// Encapsulate the Tcl stdout and stderr channels to print to the
+// report object so that the output from Tcl puts and errors can be
+// logged and redirected.
+//
 // Output streams that talk to TCL channels.
-// This directs all output on the Report object to tcl stdout and stderr
-// channels.
+// This directs all output on the Report object to the Tcl stdout channel.
 // Tcl output channels are encapsulated to print to the Report object
 // that supports redirection and logging as well as printing to the
 // underlying channel.
@@ -45,15 +48,18 @@ public:
   virtual void setTclInterp(Tcl_Interp *interp);
 
 protected:
-  virtual size_t printConsole(const char *buffer, size_t length);
-  virtual size_t printErrorConsole(const char *buffer, size_t length);
+  virtual size_t printConsole(const char *buffer,
+                              size_t length);
+  void flush();
 
 private:
   DISALLOW_COPY_AND_ASSIGN(ReportTcl);
   Tcl_ChannelType *makeEncapChannelType(Tcl_Channel channel,
 					char *channel_name,
 					Tcl_DriverOutputProc output_proc);
-  size_t printTcl(Tcl_Channel channel, const char *buffer, size_t length);
+  size_t printTcl(Tcl_Channel channel,
+                  const char *buffer,
+                  size_t length);
 
   Tcl_Interp *interp_;
   // The original tcl channels.

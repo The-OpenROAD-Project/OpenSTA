@@ -1,6 +1,6 @@
 %{
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -9,11 +9,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include <ctype.h>
 #include <string.h>
@@ -113,7 +113,7 @@ EOL \r?\n
 "include_file"[ \t]*"(".+")"[ \t]*";"? {
 #ifdef INCLUDE_SUPPORTED
 	if (sta::libertyInInclude())
-	  sta::libertyParseError("nested include_file's are not supported\n");
+	  sta::libertyParseError("nested include_file's are not supported");
 	else {
 	  char *filename = &yytext[strlen("include_file")];
 	  /* Skip blanks between include_file and '('. */
@@ -126,21 +126,19 @@ EOL \r?\n
 	    filename++;
 	  char *filename_end = strpbrk(filename, ")");
 	  if (filename_end == NULL)
-	    sta::libertyParseError("include_file missing ')'\n");
+	    sta::libertyParseError("include_file missing ')'");
 	  else {
 	    /* Trim trailing blanks. */
 	    while (isspace(filename_end[-1]) && filename_end > filename)
 	      filename_end--;
 	    *filename_end = '\0';
-	    FILE *stream = sta::libertyIncludeBegin(filename);
-	    if (stream) {
-	      yypush_buffer_state(yy_create_buffer(stream, YY_BUF_SIZE));
-	      BEGIN(INITIAL);
-	    }
+	    sta::libertyIncludeBegin(filename);
+            yypush_buffer_state(yy_create_buffer(nullptr, YY_BUF_SIZE));
+	    BEGIN(INITIAL);
 	  }
 	}
 #else
-	sta::libertyParseError("include_file is not supported.\n");
+	sta::libertyParseError("include_file is not supported.");
 #endif
 }
 

@@ -1,6 +1,6 @@
 %{
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -9,12 +9,12 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-	
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -26,27 +26,37 @@ int LibertyLex_lex();
 // Use yacc generated parser errors.
 #define YYERROR_VERBOSE
 
+#define YYDEBUG 1
+
 %}
 
 %union {
   char *string;
   float number;
   int line;
+  char ch;
   sta::LibertyAttrValue *attr_value;
   sta::LibertyAttrValueSeq *attr_values;
   sta::LibertyGroup *group;
   sta::LibertyStmt *stmt;
 }
 
+%left '+' '-' '|'
+%left '*' '/' '&'
+%left '^'
+%left '!'
+
 %token <number> FLOAT
 %token <string> STRING KEYWORD
 
 %type <stmt> statement complex_attr simple_attr variable group file
 %type <attr_values> attr_values
-%type <attr_value> attr_value simple_attr_value
-%type <string> string
+%type <attr_value> attr_value
+%type <string> string expr expr_term expr_term1 volt_expr
 %type <line> line
-%type <number> volt_expr volt_token
+%type <ch> expr_op volt_op
+
+%expect 2
 
 %start file
 
@@ -61,11 +71,11 @@ file:
 
 group:
 	KEYWORD '(' ')' line '{'
-	{ sta::libertyGroupBegin($1, NULL, $4); }
+	{ sta::libertyGroupBegin($1, nullptr, $4); }
 	'}' semi_opt
 	{ $$ = sta::libertyGroupEnd(); }
 |	KEYWORD '(' ')' line '{'
-	{ sta::libertyGroupBegin($1, NULL, $4); }
+	{ sta::libertyGroupBegin($1, nullptr, $4); }
 	statements '}' semi_opt
 	{ $$ = sta::libertyGroupEnd(); }
 |	KEYWORD '(' attr_values ')' line '{'
@@ -95,23 +105,13 @@ statement:
 	;
 
 simple_attr:
-	KEYWORD ':' simple_attr_value line semi_opt
+	KEYWORD ':' attr_value line semi_opt
 	{ $$ = sta::makeLibertySimpleAttr($1, $3, $4); }
-	;
-
-simple_attr_value:
-	attr_value
-|	volt_expr
-	{ $$ = static_cast<sta::LibertyAttrValue*>(NULL); }
-/* Unquoted NOT function. */
-/* clocked_on : !CP; */
-|	'!' string
-	{ $$ = sta::makeLibertyStringAttrValue(sta::stringPrint("!%s", $2)); sta::stringDelete($2); }
 	;
 
 complex_attr:
 	KEYWORD '(' ')' line semi_opt
-	{ $$ = sta::makeLibertyComplexAttr($1, NULL, $4); }
+	{ $$ = sta::makeLibertyComplexAttr($1, nullptr, $4); }
 |	KEYWORD '(' attr_values ')' line semi_opt
 	{ $$ = sta::makeLibertyComplexAttr($1, $3, $5); }
 	;
@@ -146,29 +146,86 @@ string:
 attr_value:
 	FLOAT
 	{ $$ = sta::makeLibertyFloatAttrValue($1); }
-	| string
+|       expr
+	{ $$ = sta::makeLibertyStringAttrValue($1); }
+|	volt_expr
 	{ $$ = sta::makeLibertyStringAttrValue($1); }
 	;
 
 /* Voltage expressions are ignored. */
+/* Crafted to avoid conflicts with expr */
 volt_expr:
-	volt_token expr_op volt_token
-|	volt_expr expr_op volt_token
+        FLOAT volt_op FLOAT
+	{ $$ = sta::stringPrint("%e%c%e", $1, $2, $3); }
+|       string volt_op FLOAT
+	{ $$ = sta::stringPrint("%s%c%e", $1, $2, $3);
+          sta::stringDelete($1);
+        }
+|       FLOAT volt_op string
+	{ $$ = sta::stringPrint("%e%c%s", $1, $2, $3);
+          sta::stringDelete($3);
+        }
+|       volt_expr volt_op FLOAT
+	{ $$ = sta::stringPrint("%s%c%e", $1, $2, $3);
+          sta::stringDelete($1);
+        }
+        ;
+
+volt_op:
+	'+'
+        { $$ = '+'; }
+|	'-'
+        { $$ = '-'; }
+|	'*'
+        { $$ = '*'; }
+|	'/'
+        { $$ = '/'; }
 	;
 
-volt_token:
-	FLOAT
-|	KEYWORD
-	{ sta::stringDelete($1);
-	  $$ = 0.0;
-	}
+expr:
+        expr_term1
+|	expr_term1 expr_op expr
+	{ $$ = sta::stringPrint("%s%c%s", $1, $2, $3);
+          sta::stringDelete($1);
+          sta::stringDelete($3);
+        }
+	;
+
+expr_term:
+	string
+|	'0'
+	{ $$ = sta::stringPrint("0"); }
+|	'1'
+	{ $$ = sta::stringPrint("1"); }
+|	'(' expr ')'
+	{ $$ = sta::stringPrint("(%s)", $2);
+          sta::stringDelete($2);
+        }
+	;
+
+expr_term1:
+	expr_term
+|       '!' expr_term
+	{ $$ = sta::stringPrint("!%s", $2);
+          sta::stringDelete($2);
+        }
+|	expr_term '\''
+	{ $$ = sta::stringPrint("%s'", $1);
+          sta::stringDelete($1);
+        }
 	;
 
 expr_op:
 	'+'
-|	'-'
+        { $$ = '+'; }
+|	'|'
+        { $$ = '|'; }
 |	'*'
-|	'/'
+        { $$ = '*'; }
+|	'&'
+        { $$ = '&'; }
+|	'^'
+        { $$ = '^'; }
 	;
 
 semi_opt:

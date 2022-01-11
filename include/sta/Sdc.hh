@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -22,7 +22,6 @@
 #include "StringUtil.hh"
 #include "StringSet.hh"
 #include "Map.hh"
-#include "HashSet.hh"
 #include "UnorderedMap.hh"
 #include "MinMax.hh"
 #include "StaState.hh"
@@ -107,8 +106,6 @@ typedef Set<InputDelay*> InputDelaySet;
 typedef Map<const Pin*,InputDelaySet*> InputDelaysPinMap;
 typedef Set<OutputDelay*> OutputDelaySet;
 typedef Map<const Pin*,OutputDelaySet*> OutputDelaysPinMap;
-// Use HashSet so no read lock is required.
-typedef HashSet<CycleAccting*, CycleAcctingHash, CycleAcctingEqual> CycleAcctingSet;
 typedef Set<Instance*> InstanceSet;
 typedef UnorderedMap<const Pin*,ExceptionPathSet*> PinExceptionsMap;
 typedef Map<const Clock*,ExceptionPathSet*> ClockExceptionsMap;
@@ -187,6 +184,7 @@ public:
   bool isConstrained(const Net *net) const;
   // Build data structures for search.
   void searchPreamble();
+  void deleteNetBefore(Net *net);
 
   // SWIG sdc interface.
   AnalysisType analysisType() { return analysis_type_; }
@@ -1033,6 +1031,7 @@ protected:
   void deleteMatchingExceptions(ExceptionPath *exception);
   void findMatchingExceptions(ExceptionPath *exception,
 			      ExceptionPathSet &matches);
+  void checkForThruHpins(ExceptionPath *exception);
   void findMatchingExceptionsFirstFrom(ExceptionPath *exception,
 				       ExceptionPathSet &matches);
   void findMatchingExceptionsFirstThru(ExceptionPath *exception,
@@ -1284,7 +1283,7 @@ protected:
   ClockGatingCheckMap clk_gating_check_map_;
   InstanceClockGatingCheckMap inst_clk_gating_check_map_;
   PinClockGatingCheckMap pin_clk_gating_check_map_;
-  CycleAcctingSet cycle_acctings_;
+  CycleAcctings cycle_acctings_;
   std::mutex cycle_acctings_lock_;
   DataChecksMap data_checks_from_map_;
   DataChecksMap data_checks_to_map_;
@@ -1333,6 +1332,7 @@ protected:
   PinSet disabled_clk_gating_checks_pin_;
   ExceptionPathSet exceptions_;
 
+  bool have_thru_hpin_exceptions_;
   // First pin/clock/instance/net/edge exception point to exception set map.
   PinExceptionsMap *first_from_pin_exceptions_;
   ClockExceptionsMap *first_from_clk_exceptions_;

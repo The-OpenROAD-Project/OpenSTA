@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "EstimateParasitics.hh"
 
@@ -163,6 +163,7 @@ EstimateParasitics::estimatePiElmoreBalanced(const Pin *drvr_pin,
   else {
     Sdc *sdc = sta->sdc();
     Network *network = sta->network();
+    Report *report = sta->report();
     double res_fanout = wireload_res / fanout;
     double cap_fanout = wireload_cap / fanout;
     // Find admittance moments.
@@ -184,7 +185,7 @@ EstimateParasitics::estimatePiElmoreBalanced(const Pin *drvr_pin,
 	else if (network->isTopLevelPort(load_pin))
 	  load_cap = sdc->portExtCap(port, rf, min_max);
 	else
-	  internalError("load pin not leaf or top level");
+	  report->critical(597, "load pin not leaf or top level");
 	double cap = load_cap + cap_fanout;
 	double y2_ = res_fanout * cap * cap;
 	y1 += cap;

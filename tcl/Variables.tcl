@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2020, Parallax Software, Inc.
+# Copyright (c) 2022, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 # 
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace eval sta {
 
@@ -42,7 +42,7 @@ proc trace_report_default_digits { name1 name2 op } {
   if { $op == "w" } {
     if { !([string is integer $sta_report_default_digits] \
 	   && $sta_report_default_digits >= 0) } {
-      sta_error "sta_report_default_digits must be a positive integer."
+      sta_error 436 "sta_report_default_digits must be a positive integer."
     }
   }
 }
@@ -67,7 +67,7 @@ proc trace_crpr_mode { name1 name2 op } {
     if { $sta_crpr_mode == "same_pin" || $sta_crpr_mode == "same_transition" } {
       set_crpr_mode $sta_crpr_mode
     } else {
-      sta_error "sta_crpr_mode must be pin or transition."
+      sta_error 437 "sta_crpr_mode must be pin or transition."
     }
   }
 }
@@ -120,11 +120,11 @@ proc trace_preset_clr_arcs_enabled { name1 name2 op } {
     preset_clr_arcs_enabled set_preset_clr_arcs_enabled
 }
 
-trace variable ::sta_disable_recovery_removal_checks "rw" \
-  sta::trace_disable_recovery_removal_checks
+trace variable ::sta_recovery_removal_checks_enabled "rw" \
+  sta::trace_recovery_removal_checks_enabled
 
-proc trace_disable_recovery_removal_checks { name1 name2 op } {
-  trace_bool_var $op ::sta_disable_recovery_removal_checks \
+proc trace_recovery_removal_checks_enabled { name1 name2 op } {
+  trace_boolean_var $op ::sta_recovery_removal_checks_enabled \
     recovery_removal_checks_enabled set_recovery_removal_checks_enabled
 }
 
@@ -184,7 +184,7 @@ proc trace_boolean_var { op var_name get_proc set_proc } {
     } elseif { $var == 1 } {
       $set_proc 1
     } else {
-      sta_error "$var_name value must be 0 or 1."
+      sta_error 438 "$var_name value must be 0 or 1."
     }
   }
 }

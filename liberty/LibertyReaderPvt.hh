@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,17 +8,16 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
 #include <functional>
 
-#include "Machine.hh"
 #include "DisallowCopyAssign.hh"
 #include "Vector.hh"
 #include "Map.hh"
@@ -184,6 +183,7 @@ public:
   virtual void visitIsMacro(LibertyAttr *attr);
   virtual void visitIsMemory(LibertyAttr *attr);
   virtual void visitIsPad(LibertyAttr *attr);
+  void visitIsLevelShifter(LibertyAttr *attr);
   virtual void visitInterfaceTiming(LibertyAttr *attr);
   virtual void visitScalingFactors(LibertyAttr *attr);
   virtual void visitCellLeakagePower(LibertyAttr *attr);
@@ -367,6 +367,7 @@ public:
   virtual void beginFallPower(LibertyGroup *group);
   virtual void beginRisePower(LibertyGroup *group);
   virtual void endRiseFallPower(LibertyGroup *group);
+  virtual void endPower(LibertyGroup *group);
   virtual void visitRelatedGroundPin(LibertyAttr *attr);
   virtual void visitRelatedPowerPin(LibertyAttr *attr);
   virtual void visitRelatedPgPin(LibertyAttr *attr);
@@ -492,17 +493,20 @@ protected:
   FuncExpr *parseFunc(const char *func,
 		      const char *attr_name,
 		      int line);
-  void libWarn(LibertyStmt *stmt,
+  void libWarn(int id,
+               LibertyStmt *stmt,
 	       const char *fmt,
 	       ...)
-    __attribute__((format (printf, 3, 4)));
-  void libWarn(int line,
+    __attribute__((format (printf, 4, 5)));
+  void libWarn(int id,
+               int line,
 	       const char *fmt,
 	       ...)
-    __attribute__((format (printf, 3, 4)));
-  void libError(LibertyStmt *stmt,
+    __attribute__((format (printf, 4, 5)));
+  void libError(int id,
+                LibertyStmt *stmt,
 		const char *fmt, ...)
-    __attribute__((format (printf, 3, 4)));
+    __attribute__((format (printf, 4, 5)));
 
   const char *filename_;
   bool infer_latches_;
@@ -577,6 +581,7 @@ protected:
   float energy_scale_;
   float distance_scale_;
   bool have_resistance_unit_;
+  const char *default_operating_condition_;
   static constexpr char escape_ = '\\';
 
 private:

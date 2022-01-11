@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "ConcreteLibrary.hh"
 
@@ -375,7 +375,8 @@ typedef Map<const char*, BusPort*, CharPtrLess> BusPortMap;
 
 void
 ConcreteCell::groupBusPorts(const char bus_brkt_left,
-			    const char bus_brkt_right)
+			    const char bus_brkt_right,
+                            std::function<bool(const char*)> port_msb_first)
 {
   const char bus_brkts_left[2]{bus_brkt_left, '\0'};
   const char bus_brkts_right[2]{bus_brkt_right, '\0'};
@@ -395,12 +396,8 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
     if (bus_name) {
       if (!port->isBusBit()) {
 	BusPort *bus_port = port_map.findKey(bus_name);
-	if (bus_port) {
-	  // Treat it as [max:min]/[from:to], ie downto.
-	  bus_port->setFrom(std::max(index, bus_port->from()));
-	  bus_port->setTo(std::min(index, bus_port->to()));
+	if (bus_port)
 	  stringDelete(bus_name);
-	}
 	else {
 	  bus_port = new BusPort(bus_name, index, port->direction());
 	  port_map[bus_name] = bus_port;
@@ -419,6 +416,7 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
   while (bus_iter.hasNext()) {
     BusPort *bus_port = bus_iter.next();
     const char *bus_name = bus_port->name();
+    bool msb_first = port_msb_first(bus_name);
     ConcretePortSeq *members = bus_port->members();
     sort(members, [&](ConcretePort *port1,
 		      ConcretePort *port2) {
@@ -430,10 +428,21 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
 		    parseBusName(port2->name(), bus_brkts_left, bus_brkts_right, escape_,
 				 bus_name, index2);
 		    stringDelete(bus_name);
-		    return index1 > index2;
+		    return msb_first ? index1 > index2 : index1 < index2;
 		  });
-    ConcretePort *port = makeBusPort(bus_name, bus_port->from(),
-				     bus_port->to(), members);
+
+    char *bus_name1;
+    int from_index, to_index;
+    parseBusName((*members)[0]->name(),
+                 bus_brkts_left, bus_brkts_right, escape_,
+                 bus_name1, from_index);
+    stringDelete(bus_name1);
+    parseBusName((*members)[members->size() - 1]->name(),
+                 bus_brkts_left, bus_brkts_right, escape_,
+                 bus_name1, to_index);
+    stringDelete(bus_name1);
+
+    ConcretePort *port = makeBusPort(bus_name, from_index, to_index, members);
     port->setDirection(bus_port->direction());
     delete bus_port;
 

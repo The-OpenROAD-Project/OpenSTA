@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2020, Parallax Software, Inc.
+# Copyright (c) 2022, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 # 
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 # Network reporting commands.
 
@@ -22,7 +22,7 @@ proc set_cmd_namespace { namespc } {
   if { $namespc == "sdc" || $namespc == "sta" } {
     set_cmd_namespace_cmd $namespc
   } else {
-    sta_error "unknown namespace $namespc."
+    sta_error 589 "unknown namespace $namespc."
   }
 }
 
@@ -52,7 +52,7 @@ proc_redirect report_instance {
   if { $instance != "NULL" } {
     report_instance1 $instance $connections $verbose
   } else {
-    sta_error "instance $instance_path not found."
+    sta_error 590 "instance $instance_path not found."
   }
 }
 
@@ -62,11 +62,11 @@ proc report_instance1 { instance connections verbose } {
   } else {
     set inst_name [get_full_name $instance]
   }
-  puts "Instance $inst_name"
+  report_line "Instance $inst_name"
   set cell [instance_property $instance "cell"]
-  puts " Cell: [get_name $cell]"
-  puts " Library: [get_name [$cell library]]"
-  puts " Path cells: [instance_cell_path $instance]"
+  report_line " Cell: [get_name $cell]"
+  report_line " Library: [get_name [$cell library]]"
+  report_line " Path cells: [instance_cell_path $instance]"
   if { $connections } {
     report_instance_pins $instance $verbose
   }
@@ -87,7 +87,7 @@ proc report_instance_pins { instance verbose } {
 proc report_instance_pins1 {instance verbose header header_optional dirs} {
   set header_shown 0
   if { !$header_optional } {
-    puts $header
+    report_line $header
     set header_shown 1
   }
   set iter [$instance pin_iterator]
@@ -96,7 +96,7 @@ proc report_instance_pins1 {instance verbose header header_optional dirs} {
     set dir [pin_direction $pin]
     if { [lsearch $dirs $dir] !=  -1 } {
       if { !$header_shown } {
-	puts $header
+	report_line $header
 	set header_shown 1
       }
       report_instance_pin $pin $verbose
@@ -106,22 +106,22 @@ proc report_instance_pins1 {instance verbose header header_optional dirs} {
 }
 
 proc report_instance_pin { pin verbose } {
-  puts -nonewline "  [$pin port_name] [pin_direction $pin]"
   set net [$pin net]
   if { $net == "NULL" } {
-    puts " (unconnected)"
+    set net_name "(unconnected)"
   } else {
-    puts " [get_full_name [$net highest_connected_net]]"
-    if { $verbose } {
-      set pins [net_connected_pins_sorted $net]
-      foreach pin $pins {
-	if [$pin is_load] {
-	  if [$pin is_top_level_port] {
-	    puts "   [get_full_name $pin] [pin_direction $pin] port"
-	  } else {
-	    puts "   [get_full_name $pin] [pin_direction $pin]"
-	  }
-	}
+    set net_name [get_full_name [$net highest_connected_net]]
+  }
+  report_line "  [$pin port_name] [pin_direction $pin] $net_name"
+  if { $verbose && $net != "NULL" } {
+    set pins [net_connected_pins_sorted $net]
+    foreach pin $pins {
+      if [$pin is_load] {
+        if [$pin is_top_level_port] {
+          report_line "   [get_full_name $pin] [pin_direction $pin] port"
+        } else {
+          report_line "   [get_full_name $pin] [pin_direction $pin]"
+        }
       }
     }
   }
@@ -142,9 +142,9 @@ proc instance_cell_path { instance } {
 proc report_instance_children_ { instance } {
   set children [instance_sorted_children $instance]
   if { $children != {} } {
-    puts " Children:"
+    report_line " Children:"
     foreach child $children {
-      puts "  [get_name $child] ([instance_property $child ref_name])"
+      report_line "  [get_name $child] ([instance_property $child ref_name])"
     }
   }
 }
@@ -167,94 +167,103 @@ proc_redirect report_lib_cell {
   check_argc_eq1 "report_lib_cell" $args
   set arg [lindex $args 0]
   set cell [get_lib_cell_warn "lib_cell" $arg]
+  set corner [cmd_corner]
   if { $cell != "NULL" } {
-    report_lib_cell_ $cell
+    report_lib_cell_ $cell $corner
   }
 }
 
-proc report_lib_cell_ { cell } {
+proc report_lib_cell_ { cell corner } {
   global sta_report_default_digits
 
   set lib [$cell liberty_library]
-  puts "Cell [get_name $cell]"
-  puts "Library [get_name $lib]"
+  report_line "Cell [get_name $cell]"
+  report_line "Library [get_name $lib]"
   set filename [liberty_cell_property $cell "filename"]
   if { $filename != "" } {
-    puts "File $filename"
+    report_line "File $filename"
   }
   set iter [$cell liberty_port_iterator]
   while {[$iter has_next]} {
     set port [$iter next]
     if { [$port is_bus] } {
-      puts -nonewline " [$port bus_name] [liberty_port_direction $port]"
+      set port_name [$port bus_name]
     } else {
-      puts -nonewline " [get_name $port] [liberty_port_direction $port]"
+      set port_name [get_name $port]
     }
     set enable [$port tristate_enable]
     if { $enable != "" } {
-      puts -nonewline " enable=$enable"
+      set enable " enable=$enable"
     }
     set func [$port function]
     if { $func != "" } {
-      puts -nonewline " function=$func"
+      set func " function=$func"
     }
-    puts [port_capacitance_str $port $sta_report_default_digits]
+    report_line " $port_name [liberty_port_direction $port]$enable$func[port_capacitance_str $port $corner $sta_report_default_digits]"
   }
   $iter finish
 }
 
 proc report_cell_ { cell } {
   set lib [$cell library]
-  puts "Cell [get_name $cell]"
-  puts "Library [get_name $lib]"
+  report_line "Cell [get_name $cell]"
+  report_line "Library [get_name $lib]"
   set filename [liberty_cell_property $cell "filename"]
   if { $filename != "" } {
-    puts "File $filename"
+    report_line "File $filename"
   }
   set iter [$cell port_iterator]
   while {[$iter has_next]} {
     set port [$iter next]
     if { [$port is_bus] } {
-      puts " [$port bus_name] [port_direction $port]"
+      report_line " [$port bus_name] [port_direction $port]"
     } else {
-      puts " [get_name $port] [port_direction $port]"
+      report_line " [get_name $port] [port_direction $port]"
     }
   }
   $iter finish
 }
 
-define_cmd_args "report_pin" {pin_path [> filename] [>> filename]}
+define_cmd_args "report_pin" {[-corner corner] [-digits digits] pin\
+                                [> filename] [>> filename]}
 
 proc_redirect report_pin {
+  global sta_report_default_digits
+
+  parse_key_args "report_pin" args keys {-corner -digits} \
+    flags {-connections -verbose -hier_pins}
+  set corner [parse_corner_or_all keys]
+  set digits $sta_report_default_digits
+  if { [info exists keys(-digits)] } {
+      set digits $keys(-digits)
+  }
   check_argc_eq1 "report_pin" $args
   set pin_path [lindex $args 0]
   set pin [get_pin_warn "pin" $pin_path]
+
   if { $pin != "NULL" } {
-    report_pin_ $pin
+    report_pin_ $pin $corner $digits
   }
 }
 
 ################################################################
 
 define_cmd_args "report_net" \
-  {[-connections] [-verbose] [-digits digits] [-hier_pins]\
+  {[-connections] [-verbose] [-corner corner] [-digits digits] [-hier_pins]\
      net_path [> filename] [>> filename]}
 
 # -hpins to show hierarchical pins
 proc_redirect report_net {
   global sta_report_default_digits
 
-  parse_key_args "report_net" args keys {-corner -digits -significant_digits} \
+  parse_key_args "report_net" args keys {-corner -digits} \
     flags {-connections -verbose -hier_pins}
   check_argc_eq1 "report_net" $args
 
-  set corner [parse_corner keys]
+  set corner [parse_corner_or_all keys]
   set digits $sta_report_default_digits
   if { [info exists keys(-digits)] } {
       set digits $keys(-digits)
-  }
-  if { [info exists keys(-significant_digits)] } {
-      set digits $keys(-significant_digits)
   }
 
   set connections [info exists flags(-connections)]
@@ -271,35 +280,26 @@ proc_redirect report_net {
       if { $net != "NULL" } {
 	report_net1 $net $connections $verbose $hier_pins $corner $digits
       } else {
-	sta_error "net $net_path not found."
+	sta_error 591 "net $net_path not found."
       }
     } else {
-      sta_error "net $net_path not found."
+      sta_error 592 "net $net_path not found."
     }
   }
 }
 
-proc report_net_ { net } {
-  global sta_report_default_digits
-  report_net1 $net 1 1 1 $corner $sta_report_default_digits
-}
-
 proc report_net1 { net connections verbose hier_pins corner digits } {
-  puts "Net [get_full_name $net]"
+  report_line "Net [get_full_name $net]"
   if {$connections} {
     set pins [net_connected_pins_sorted $net]
     if {$verbose} {
       report_net_caps $net $pins $corner $digits
     }
-    puts "Driver pins"
-    report_net_pins $pins "is_driver" $verbose $corner $digits
-    puts ""
-    puts "Load pins"
-    report_net_pins $pins "is_load" $verbose $corner $digits
+    report_net_pins $pins "Driver pins" "is_driver" $verbose $corner $digits
+    report_net_pins $pins "Load pins" "is_load" $verbose $corner $digits
     if {$hier_pins} {
-      puts ""
-      puts "Hierarchical pins"
-      report_net_pins $pins "is_hierarchical" $verbose $corner $digits
+      report_net_pins $pins "Hierarchical pins" "is_hierarchical" \
+        $verbose $corner $digits
     }
     report_net_other_pins $pins $verbose $corner $digits
   }
@@ -336,25 +336,31 @@ proc report_net_caps { net pins corner digits } {
       incr load_count
     }
   }
-  puts " Number of drivers: $driver_count"
-  puts " Number of loads: $load_count"
-  puts " Number of pins: $pin_count"
-  puts ""
+  report_line " Number of drivers: $driver_count"
+  report_line " Number of loads: $load_count"
+  report_line " Number of pins: $pin_count"
+  report_line ""
 }
 
 proc report_net_cap { net caption cap_msg corner digits } {
-  set cap_r_min [$net $cap_msg "rise" $corner "min"]
-  set cap_r_max [$net $cap_msg "rise" $corner "max"]
-  set cap_f_min [$net $cap_msg "fall" $corner "min"]
-  set cap_f_max [$net $cap_msg "fall" $corner "max"]
-  puts " $caption capacitance: [capacitances_str $cap_r_min $cap_r_max $cap_f_min $cap_f_max $digits]"
+  set cap_min [$net $cap_msg $corner "min"]
+  set cap_max [$net $cap_msg $corner "max"]
+  report_line " $caption capacitance: [capacitance_range_str $cap_min $cap_max $digits]"
 }
 
-proc report_net_pins { pins pin_pred verbose corner digits } {
+proc report_net_pins { pins header pin_pred verbose corner digits } {
+  set found 0
   foreach pin $pins {
     if {[$pin $pin_pred]} {
+      if { !$found } {
+        report_line $header
+        set found 1
+      }
       report_net_pin $pin $verbose $corner $digits
     }
+  }
+  if { $found } {
+    report_line ""
   }
 }
 
@@ -363,8 +369,8 @@ proc report_net_other_pins { pins verbose corner digits } {
   foreach pin $pins {
     if { !([$pin is_driver] || [$pin is_load] || [$pin is_hierarchical]) } {
       if { !$header } {
-	puts ""
-	puts "Other pins"
+	report_line ""
+	report_line "Other pins"
 	set header 1
       }
       report_net_pin $pin $verbose $corner $digits
@@ -375,38 +381,34 @@ proc report_net_other_pins { pins verbose corner digits } {
 proc report_net_pin { pin verbose corner digits } {
   if [$pin is_leaf] {
     set cell_name [get_name [[$pin instance] cell]]
-    puts -nonewline " [get_full_name $pin] [pin_direction $pin] ($cell_name)"
+    set cap ""
     if { $verbose } {
       set liberty_port [$pin liberty_port]
       if { $liberty_port != "NULL" } {
-	puts -nonewline [port_capacitance_str $liberty_port $digits]
+	set cap [port_capacitance_str $liberty_port $corner $digits]
       }
     }
-    puts "[pin_location_str $pin]"
+    report_line " [get_full_name $pin] [pin_direction $pin] ($cell_name)$cap[pin_location_str $pin]"
   } elseif [$pin is_top_level_port] {
-    puts -nonewline " [get_full_name $pin] [pin_direction $pin] port"
+    set wire_cap ""
+    set pin_cap ""
     if { $verbose } {
       set port [$pin port]
-      set cap_r_min [port_ext_wire_cap $port "rise" "min"]
-      set cap_r_max [port_ext_wire_cap $port "rise" "max"]
-      set cap_f_min [port_ext_wire_cap $port "fall" "min"]
-      set cap_f_max [port_ext_wire_cap $port "fall" "max"]
-      if { $cap_r_min > 0 || $cap_r_max > 0 || $cap_f_min > 0 || $cap_r_max > 0 } {
-	puts -nonewline " wire [capacitances_str $cap_r_min $cap_r_max $cap_f_min $cap_f_max $digits]"
+      set cap_min [port_ext_wire_cap $port "min"]
+      set cap_max [port_ext_wire_cap $port "max"]
+      if { $cap_min > 0 || $cap_max > 0 } {
+	set wire_cap " wire [capacitance_range_str $cap_min $cap_max $digits]"
       }
 
-      set port [$pin port]
-      set cap_r_min [port_ext_pin_cap $port "rise" "min"]
-      set cap_r_max [port_ext_pin_cap $port "rise" "max"]
-      set cap_f_min [port_ext_pin_cap $port "fall" "min"]
-      set cap_f_max [port_ext_pin_cap $port "fall" "max"]
-      if { $cap_r_min > 0 || $cap_r_max > 0 || $cap_f_min > 0 || $cap_r_max > 0} {
-	puts -nonewline " pin [capacitances_str $cap_r_min $cap_r_max $cap_f_min $cap_f_max $digits]"
+      set cap_min [port_ext_pin_cap $port "min"]
+      set cap_max [port_ext_pin_cap $port "max"]
+      if { $cap_min > 0 || $cap_max > 0} {
+	set pin_cap " pin [capacitance_range_str $cap_min $cap_max $digits]"
       }
     }
-    puts "[pin_location_str $pin]"
+    report_line " [get_full_name $pin] [pin_direction $pin] port$wire_cap$pin_cap[pin_location_str $pin]"
   } elseif [$pin is_hierarchical] {
-    puts " [get_full_name $pin] [pin_direction $pin]"
+    report_line " [get_full_name $pin] [pin_direction $pin]"
   }
 }
 
@@ -423,14 +425,12 @@ proc pin_location_str { pin } {
 
 ################################################################
 
-proc report_pin_ { pin } {
-  global sta_report_default_digits
-
-  puts -nonewline "Pin [get_full_name $pin] [pin_direction_desc $pin]"
-
+proc report_pin_ { pin corner digits } {
   set liberty_port [$pin liberty_port]
   if { $liberty_port != "NULL" } {
-    puts -nonewline [port_capacitance_str $liberty_port $sta_report_default_digits]
+    set cap [port_capacitance_str $liberty_port $corner $digits]
+  } else {
+    set cap ""
   }
 
   if { [$pin is_top_level_port] } {
@@ -444,10 +444,11 @@ proc report_pin_ { pin } {
     set net [$pin net]
   }
   if { $net == "NULL" } {
-    puts " (unconnected)"
+    set net_name "(unconnected)"
   } else {
-    puts " [get_full_name [$net highest_connected_net]]"
+    set net_name [get_full_name [$net highest_connected_net]]
   }
+  report_line "Pin [get_full_name $pin] [pin_direction_desc $pin]$cap $net_name"
 }
 
 proc pin_direction_desc { pin } {
@@ -461,15 +462,21 @@ proc pin_direction_desc { pin } {
 }
 
 # Do not preceed this field by a space in the caller.
-proc port_capacitance_str { liberty_port digits } {
-  set cap_r_min [$liberty_port capacitance "rise" "min"]
-  set cap_r_max [$liberty_port capacitance "rise" "max"]
-  set cap_f_min [$liberty_port capacitance "fall" "min"]
-  set cap_f_max [$liberty_port capacitance "fall" "max"]
-  if { $cap_r_min > 0 || $cap_r_max > 0 || $cap_f_min > 0 || $cap_r_max > 0 } {
-    return " [capacitances_str $cap_r_min $cap_r_max $cap_f_min $cap_f_max $digits]"
+proc port_capacitance_str { liberty_port corner digits } {
+  set cap_min [$liberty_port capacitance $corner "min"]
+  set cap_max [$liberty_port capacitance $corner "max"]
+  if { $cap_min > 0 || $cap_max > 0 } {
+    return " [capacitance_range_str $cap_min $cap_max $digits]"
   } else {
     return ""
+  }
+}
+
+proc capacitance_range_str { cap_min cap_max digits } {
+  if { $cap_min == $cap_max } {
+    return "[format_capacitance $cap_max $digits]"
+  } else {
+    return "[format_capacitance $cap_min $digits]-[format_capacitance $cap_max $digits]"
   }
 }
 

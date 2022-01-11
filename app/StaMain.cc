@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,25 +8,24 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "StaMain.hh"
 
 #include <tcl.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
+#include "Machine.hh"
 #include "StringUtil.hh"
 #include "Vector.hh"
 #include "Sta.hh"
 
 namespace sta {
-
-static char *
-unencode(const char *inits[]);
 
 int
 parseThreadsArg(int &argc,
@@ -82,7 +81,7 @@ findCmdLineKey(int &argc,
 }
 
 // Use overridden version of source to echo cmds and results.
-void
+int
 sourceTclFile(const char *filename,
 	      bool echo,
 	      bool verbose,
@@ -93,7 +92,11 @@ sourceTclFile(const char *filename,
 	      echo ? "-echo " : "",
 	      verbose ? "-verbose " : "",
 	      filename);
-  Tcl_Eval(interp, cmd.c_str());
+  int code = Tcl_Eval(interp, cmd.c_str());
+  const char *result = Tcl_GetStringResult(interp);
+  if (result[0] != '\0')
+    printf("%s\n", result);
+  return code;
 }
 
 void
@@ -112,7 +115,7 @@ evalTclInit(Tcl_Interp *interp,
   delete [] unencoded;
 }
 
-static char *
+char *
 unencode(const char *inits[])
 {
   size_t length = 0;
@@ -133,6 +136,14 @@ unencode(const char *inits[])
   }
   *u = '\0';
   return unencoded;
+}
+
+// Hack until c++17 filesystem is better supported.
+bool
+is_regular_file(const char *filename)
+{
+  struct stat sb;
+  return stat(filename, &sb) == 0 && S_ISREG(sb.st_mode);
 }
 
 } // namespace

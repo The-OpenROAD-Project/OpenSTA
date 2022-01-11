@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,16 +8,17 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
 #include <exception>
-#include "DisallowCopyAssign.hh"
+
+#include "Report.hh"
 
 namespace sta {
 
@@ -30,6 +31,16 @@ public:
   virtual const char *what() const noexcept = 0;
 };
 
+class ExceptionMsg : public Exception
+{
+public:
+  ExceptionMsg(const char *msg);
+  virtual const char *what() const noexcept;
+
+private:
+  string msg_;
+};
+
 class ExceptionLine : public Exception
 {
 public:
@@ -40,28 +51,6 @@ protected:
   const char *filename_;
   int line_;
 };
-
-class InternalError : public ExceptionLine
-{
-public:
-  InternalError(const char *filename,
-		int line,
-		const char *msg);
-  virtual const char *what() const noexcept;
-
-protected:
-  const char *msg_;
-};
-
-// Report an error condition that should not be possible.
-// The default handler prints msg to stderr and exits.
-// The msg should NOT include a period or return, as these
-// are added by InternalError::asString().
-#define internalError(msg) \
-  throw sta::InternalError(__FILE__, __LINE__, msg)
-
-#define internalErrorNoThrow(msg) \
-  printf("Internal Error: %s:%d %s\n", __FILE__, __LINE__, msg)
 
 // Failure opening filename for reading.
 class FileNotReadable : public Exception
@@ -84,5 +73,12 @@ public:
 protected:
   const char *filename_;
 };
+
+// Report an error condition that should not be possible.
+// The default handler prints msg to stderr and exits.
+// The msg should NOT include a period or return.
+// Only for use in those cases where a Report object is not available. 
+#define criticalError(id,msg) \
+  Report::defaultReport()->fileCritical(id, __FILE__, __LINE__, msg)
 
 } // namespace

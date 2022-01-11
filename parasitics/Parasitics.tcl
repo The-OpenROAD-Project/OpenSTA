@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2020, Parallax Software, Inc.
+# Copyright (c) 2022, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,16 +8,17 @@
 # 
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 namespace eval sta {
 
 define_cmd_args "read_spef" \
-  {[-min]\
+  {[-corner corner]\
+     [-min]\
      [-max]\
      [-path path]\
      [-increment]\
@@ -32,7 +33,7 @@ define_cmd_args "read_spef" \
 
 proc_redirect read_spef {
   parse_key_args "read_spef" args \
-    keys {-path -coupling_reduction_factor -reduce_to} \
+    keys {-path -coupling_reduction_factor -reduce_to -corner} \
     flags {-min -max -increment -pin_cap_included \
 	     -keep_capacitive_coupling \
 	     -delete_after_reduce -quiet -save}
@@ -43,9 +44,10 @@ proc_redirect read_spef {
     set path $keys(-path)
     set instance [find_instance $path]
     if { $instance == "NULL" } {
-      sta_error "path instance '$path' not found."
+      sta_error 433 "path instance '$path' not found."
     }
   }
+  set corner [parse_corner_or_all keys]
   set min_max [parse_min_max_all_flags flags]
   set increment [info exists flags(-increment)]
   set coupling_reduction_factor 1.0
@@ -60,14 +62,14 @@ proc_redirect read_spef {
   if [info exists keys(-reduce_to)] {
     set reduce_to $keys(-reduce_to)
     if { !($reduce_to == "pi_elmore" || $reduce_to == "pi_pole_residue2") } {
-      sta_error "-reduce_to must be pi_elmore or pi_pole_residue2."
+      sta_error 434 "-reduce_to must be pi_elmore or pi_pole_residue2."
     }
   }
   set delete_after_reduce [info exists flags(-delete_after_reduce)]
   set quiet [info exists flags(-quiet)]
   set save [info exists flags(-save)]
-  set filename $args
-  return [read_spef_cmd $filename $instance $min_max $increment \
+  set filename [file nativename [lindex $args 0]]
+  return [read_spef_cmd $filename $instance $corner $min_max $increment \
 	    $pin_cap_included $keep_coupling_caps $coupling_reduction_factor \
 	    $reduce_to $delete_after_reduce $quiet]
 }

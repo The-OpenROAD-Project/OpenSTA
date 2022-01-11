@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "WritePathSpice.hh"
 
@@ -422,14 +422,14 @@ WritePathSpice::pgPortVoltage(LibertyPgPort *pg_port)
       else if (stringEqual(voltage_name, gnd_name_))
 	voltage = gnd_voltage_;
       else
-	report_->error("pg_pin %s/%s voltage %s not found,\n",
+	report_->error(24, "pg_pin %s/%s voltage %s not found,",
 		       pg_port->cell()->name(),
 		       pg_port->name(),
 		       voltage_name);
     }
   }
   else
-    report_->error("Liberty pg_port %s/%s missing voltage_name attribute,\n",
+    report_->error(25, "Liberty pg_port %s/%s missing voltage_name attribute,",
 		   pg_port->cell()->name(),
 		   pg_port->name());
   return voltage;
@@ -859,13 +859,13 @@ WritePathSpice::writeSubcktInstVoltSrcs(Stage stage,
   const char *drvr_port_name = drvr_port->name();
   const char *inst_name = network_->pathName(inst);
 
-  debugPrint1(debug_, "write_spice", 2, "subckt %s\n", cell->name());
+  debugPrint(debug_, "write_spice", 2, "subckt %s", cell->name());
   for (string subckt_port_sname : *spice_port_names) {
     const char *subckt_port_name = subckt_port_sname.c_str();
     LibertyPgPort *pg_port = cell->findPgPort(subckt_port_name);
-    debugPrint2(debug_, "write_spice", 2, " port %s%s\n",
-		subckt_port_name,
-		pg_port ? " pwr/gnd" : "");
+    debugPrint(debug_, "write_spice", 2, " port %s%s",
+               subckt_port_name,
+               pg_port ? " pwr/gnd" : "");
     if (pg_port)
       writeVoltageSource(inst_name, subckt_port_name,
 			 pgPortVoltage(pg_port), volt_index);
@@ -959,7 +959,7 @@ WritePathSpice::writeVoltageSource(LibertyCell *cell,
     if (pg_port)
       voltage = pgPortVoltage(pg_port);
     else
-      report_->error("%s pg_port %s not found,\n",
+      report_->error(26, "%s pg_port %s not found,",
 		     cell->name(),
 		     pg_port_name);
 
@@ -1013,7 +1013,7 @@ WritePathSpice::regPortValues(Stage stage,
 	dcalc_ap_index = drvr_path->dcalcAnalysisPt(this)->index();
       }
       else
-	report_->error("no register/latch found for path from %s to %s,\n",
+	report_->error(27, "no register/latch found for path from %s to %s,",
 		       stageGateInputPort(stage)->name(),
 		       stageDrvrPort(stage)->name());
     }
@@ -1380,10 +1380,10 @@ WritePathSpice::writeSubckts()
       lib_subckts_stream.close();
 
       if (!path_cell_names.empty()) {
-	report_->error("The following subkcts are missing from %s\n",
+	report_->error(28, "The following subkcts are missing from %s",
 		       lib_subckt_filename_);
 	for (const char *cell_name : path_cell_names)
-	  report_->printError(" %s\n", cell_name);
+	  report_->reportLine(" %s", cell_name);
       }
     }
     else {
@@ -1404,7 +1404,7 @@ WritePathSpice::findPathCellnames(// Return values.
     if (arc) {
       LibertyCell *cell = arc->set()->libertyCell();
       if (cell) {
-	debugPrint1(debug_, "write_spice", 2, "cell %s\n", cell->name());
+	debugPrint(debug_, "write_spice", 2, "cell %s", cell->name());
 	path_cell_names.insert(cell->name());
       }
       // Include side receivers.
@@ -1438,7 +1438,7 @@ WritePathSpice::recordSpicePortNames(const char *cell_name,
 	  && pg_port == nullptr
 	  && !stringEqual(port_name, power_name_)
 	  && !stringEqual(port_name, gnd_name_))
-	report_->error("subckt %s port %s has no corresponding liberty port, pg_port and is not power or ground.\n",
+	report_->error(29, "subckt %s port %s has no corresponding liberty port, pg_port and is not power or ground.",
 		       cell_name, port_name);
       spice_port_names->push_back(port_name);
     }
@@ -1621,9 +1621,9 @@ streamPrint(ofstream &stream,
 {
   va_list args;
   va_start(args, fmt);
-  char *result;
+  char *result = nullptr;
   if (vasprintf(&result, fmt, args) == -1)
-    internalError("out of memory");
+    criticalError(267, "out of memory");
   stream << result;
   free(result);
   va_end(args);

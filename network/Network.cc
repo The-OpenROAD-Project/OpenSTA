@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 
 #include "Network.hh"
@@ -120,7 +120,11 @@ Network::libertyCell(const Instance *instance) const
 LibertyPort *
 Network::libertyPort(const Pin *pin) const
 {
-  return libertyPort(port(pin));
+  Port *port = this->port(pin);
+  if (port)
+    return libertyPort(port);
+  else
+    return nullptr;
 }
 
 bool
@@ -517,7 +521,9 @@ Network::isLoad(const Pin *pin) const
   const Instance *inst = instance(pin);
   return (isLeaf(inst) && dir->isAnyInput())
     // isTopLevelPort(pin)
-    || (isTopInstance(inst) && dir->isAnyOutput());
+    || (isTopInstance(inst) && dir->isAnyOutput())
+    // Black box unknown ports are treated as loads.
+    || dir->isUnknown();
 }
 
 bool
@@ -936,7 +942,7 @@ Network::findInstPinsMatching(const Instance *instance,
 }
 
 void
-Network::location(const Pin *pin,
+Network::location(const Pin *,
 		  // Return values.
 		  double &x,
 		  double &y,

@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,15 +8,14 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "Machine.hh"
 #include "Zlib.hh"
 #include "Map.hh"
 #include "StringSeq.hh"
@@ -54,7 +53,7 @@ public:
 	     bool pin_cap_included,
 	     bool keep_coupling_caps,
 	     float coupling_cap_factor,
-	     ReduceParasiticsTo reduce_to,
+	     ReducedParasiticType reduce_to,
 	     bool delete_after_reduce,
 	     const OperatingConditions *op_cond,
 	     const Corner *corner,
@@ -81,8 +80,10 @@ public:
 		size_t max_size);
   // Translate from spf/spef namespace to sta namespace.
   char *translated(const char *token);
-  void warn(const char *fmt, ...)
-    __attribute__((format (printf, 2, 3)));
+  void warn(int id,
+            const char *fmt,
+            ...)
+    __attribute__((format (printf, 3, 4)));
   void setBusBrackets(char left,
 		      char right);
   void setTimeScale(float scale,
@@ -145,7 +146,7 @@ private:
   bool increment_;
   bool pin_cap_included_;
   bool keep_coupling_caps_;
-  ReduceParasiticsTo reduce_to_;
+  ReducedParasiticType reduce_to_;
   bool delete_after_reduce_;
   const OperatingConditions *op_cond_;
   const Corner *corner_;

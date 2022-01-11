@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,18 +8,18 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
 #include <mutex>
 
 #include "MinMax.hh"
-#include "HashSet.hh"
+#include "UnorderedSet.hh"
 #include "Transition.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
@@ -55,8 +55,8 @@ class Genclks;
 class Corner;
 
 typedef Set<ClkInfo*, ClkInfoLess> ClkInfoSet;
-typedef HashSet<Tag*, TagHash, TagEqual> TagHashSet;
-typedef HashSet<TagGroup*, TagGroupHash, TagGroupEqual> TagGroupSet;
+typedef UnorderedSet<Tag*, TagHash, TagEqual> TagSet;
+typedef UnorderedSet<TagGroup*, TagGroupHash, TagGroupEqual> TagGroupSet;
 typedef Map<Vertex*, Slack> VertexSlackMap;
 typedef Vector<VertexSlackMap> VertexSlackMapSeq;
 typedef Vector<WorstSlacks> WorstSlacksSeq;
@@ -103,6 +103,7 @@ public:
 			   bool removal,
 			   bool clk_gating_setup,
 			   bool clk_gating_hold);
+  bool arrivalsValid();
   // Invalidate all arrival and required times.
   void arrivalsInvalid();
   // Invalidate vertex arrival time.
@@ -567,7 +568,7 @@ protected:
   ClkInfoSet *clk_info_set_;
   std::mutex clk_info_lock_;
   // Use pointer to tag set so Tag.hh does not need to be included.
-  TagHashSet *tag_set_;
+  TagSet *tag_set_;
   // Entries in tags_ may be missing where previous filter tags were deleted.
   TagIndex tag_capacity_;
   Tag **tags_;
@@ -703,7 +704,7 @@ public:
   void init(bool always_to_endpoints,
 	    SearchPred *pred);
   virtual void visit(Vertex *vertex);
-  virtual VertexVisitor *copy();
+  virtual VertexVisitor *copy() const;
   // Return false to stop visiting.
   virtual bool visitFromToPath(const Pin *from_pin,
 			       Vertex *from_vertex,
@@ -769,7 +770,7 @@ class RequiredVisitor : public PathVisitor
 public:
   explicit RequiredVisitor(const StaState *sta);
   virtual ~RequiredVisitor();
-  virtual VertexVisitor *copy();
+  virtual VertexVisitor *copy() const;
   virtual void visit(Vertex *vertex);
 
 protected:

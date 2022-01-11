@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -53,29 +53,13 @@ class StaState;
 // conditions and the maximum of the conditional delay values is used for
 // maximum operating conditions.
 
-// Read sdf_index value from sdf triples.
 bool
-readSdfSingle(const char *filename,
-	      const char *path,
-              Corner *corner,
-	      int sdf_index,
-	      AnalysisType analysis_type,
-	      bool unescaped_dividers,
-	      bool incremental_only,
-              MinMaxAll *cond_use,
-	      StaState *sta);
-
-// Read sdf_min_index and sdf_max_index values from sdf triples.
-bool
-readSdfMinMax(const char *filename,
-	      const char *path,
-	      Corner *corner,
-              int sdf_min_index,
-	      int sdf_max_index,
-	      AnalysisType analysis_type,
-	      bool unescaped_dividers,
-	      bool incremental_only,
-              MinMaxAll *cond_use,
-	      StaState *sta);
+readSdf(const char *filename,
+        const char *path,
+        Corner *corner,
+        bool unescaped_dividers,
+        bool incremental_only,
+        MinMaxAll *cond_use,
+        StaState *sta);
 
 } // namespace

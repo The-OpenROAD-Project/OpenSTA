@@ -3,7 +3,7 @@
 %{
 
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -12,11 +12,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Sta.hh"
 
@@ -24,7 +24,7 @@ using sta::Sta;
 using sta::cmdLinkedNetwork;
 using sta::Instance;
 using sta::MinMaxAll;
-using sta::ReduceParasiticsTo;
+using sta::ReducedParasiticType;
 using sta::RiseFall;
 using sta::Pin;
 using sta::TmpFloatSeq;
@@ -36,17 +36,18 @@ using sta::TmpFloatSeq;
 bool
 read_spef_cmd(const char *filename,
 	      Instance *instance,
-	      MinMaxAll *min_max,
+	      const Corner *corner,
+              const MinMaxAll *min_max,
 	      bool increment,
 	      bool pin_cap_included,
 	      bool keep_coupling_caps,
 	      float coupling_cap_factor,
-	      ReduceParasiticsTo reduce_to,
+	      ReducedParasiticType reduce_to,
 	      bool delete_after_reduce,
 	      bool quiet)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->readSpef(filename, instance, min_max,
+  return Sta::sta()->readSpef(filename, instance, corner, min_max,
 			      increment, pin_cap_included,
 			      keep_coupling_caps, coupling_cap_factor,
 			      reduce_to, delete_after_reduce, quiet);

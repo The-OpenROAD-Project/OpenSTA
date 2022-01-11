@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "sdf/SdfReader.hh"
 
@@ -29,7 +29,8 @@
 #include "Graph.hh"
 #include "Corner.hh"
 #include "DcalcAnalysisPt.hh"
-#include "sdf/Sdf.hh"
+#include "Sdc.hh"
+#include "sdf/SdfReaderPvt.hh"
 
 extern int
 SdfParse_parse();
@@ -79,43 +80,20 @@ private:
 SdfReader *sdf_reader = nullptr;
 
 bool
-readSdfSingle(const char *filename,
-	      const char *path,
-	      Corner *corner,
-	      int sdf_index,
-              AnalysisType analysis_type,
-	      bool unescaped_dividers,
-	      bool incremental_only,
-	      MinMaxAll *cond_use,
-	      StaState *sta)
-{
-  int arc_index = corner->findDcalcAnalysisPt(MinMax::max())->index();
-  SdfReader reader(filename, path, arc_index, sdf_index,
-                   SdfReader::nullIndex(), SdfReader::nullIndex(),
-                   analysis_type, unescaped_dividers, incremental_only,
-		   cond_use, sta);
-  sdf_reader = &reader;
-  return reader.read();
-}
-
-bool
-readSdfMinMax(const char *filename,
-	      const char *path,
-	      Corner *corner,
-	      int sdf_min_index,
-	      int sdf_max_index,
-	      AnalysisType analysis_type,
-	      bool unescaped_dividers,
-	      bool incremental_only,
-	      MinMaxAll *cond_use,
-	      StaState *sta)
+readSdf(const char *filename,
+        const char *path,
+        Corner *corner,
+        bool unescaped_dividers,
+        bool incremental_only,
+        MinMaxAll *cond_use,
+        StaState *sta)
 {
   int arc_min_index = corner->findDcalcAnalysisPt(MinMax::min())->index();
   int arc_max_index = corner->findDcalcAnalysisPt(MinMax::max())->index();
   SdfReader reader(filename, path,
-		   arc_min_index, sdf_min_index,
-		   arc_max_index, sdf_max_index,
-		   analysis_type, unescaped_dividers, incremental_only,
+		   arc_min_index, arc_max_index, 
+		   sta->sdc()->analysisType(),
+                   unescaped_dividers, incremental_only,
 		   cond_use, sta);
   sdf_reader = &reader;
   return reader.read();
@@ -124,9 +102,7 @@ readSdfMinMax(const char *filename,
 SdfReader::SdfReader(const char *filename,
 		     const char *path,
                      int arc_min_index,
-		     int triple_min_index,
 		     int arc_max_index,
-		     int triple_max_index,
 		     AnalysisType analysis_type,
 		     bool unescaped_dividers,
 		     bool is_incremental_only,
@@ -135,8 +111,8 @@ SdfReader::SdfReader(const char *filename,
   StaState(sta),
   filename_(filename),
   path_(path),
-  triple_min_index_(triple_min_index),
-  triple_max_index_(triple_max_index),
+  triple_min_index_(0),
+  triple_max_index_(2),
   arc_delay_min_index_(arc_min_index),
   arc_delay_max_index_(arc_max_index),
   analysis_type_(analysis_type),
@@ -144,6 +120,7 @@ SdfReader::SdfReader(const char *filename,
   is_incremental_only_(is_incremental_only),
   cond_use_(cond_use),
   line_(1),
+  divider_('/'),
   escape_('\\'),
   instance_(nullptr),
   cell_name_(nullptr),
@@ -196,10 +173,10 @@ SdfReader::setTimescale(float multiplier,
     else if (stringEq(units, "ps"))
       timescale_ = multiplier * 1E-12F;
     else
-      sdfError("TIMESCALE units not us, ns, or ps.\n");
+      sdfError(180, "TIMESCALE units not us, ns, or ps.");
   }
   else
-      sdfError("TIMESCALE multiplier not 1, 10, or 100.\n");
+    sdfError(181, "TIMESCALE multiplier not 1, 10, or 100.");
   stringDelete(units);
 }
 
@@ -222,20 +199,20 @@ SdfReader::interconnect(const char *from_pin_name,
 	bool to_is_hier = network_->isHierarchical(to_pin);
 	if (from_is_hier || to_is_hier) {
 	  if (from_is_hier)
-	    sdfError("pin %s is a hierarchical pin.\n", from_pin_name);
+	    sdfError(182, "pin %s is a hierarchical pin.", from_pin_name);
 	  if (to_is_hier)
-	    sdfError("pin %s is a hierarchical pin.\n", to_pin_name);
+	    sdfError(183, "pin %s is a hierarchical pin.", to_pin_name);
 	}
 	else
-	  sdfError("INTERCONNECT from %s to %s not found.\n",
-		   from_pin_name, to_pin_name);
+	  sdfWarn(184, "INTERCONNECT from %s to %s not found.",
+                  from_pin_name, to_pin_name);
       }
     }
     else {
       if (from_pin == nullptr)
-	sdfError("pin %s not found.\n", from_pin_name);
+	sdfWarn(185, "pin %s not found.", from_pin_name);
       if (to_pin == nullptr)
-	sdfError("pin %s not found.\n", to_pin_name);
+	sdfWarn(186, "pin %s not found.", to_pin_name);
     }
   }
   stringDelete(from_pin_name);
@@ -253,7 +230,7 @@ SdfReader::port(const char *to_pin_name,
       ? network_->findPinRelative(instance_, to_pin_name)
       : network_->findPin(to_pin_name);
     if (to_pin == nullptr)
-      sdfError("pin %s not found.\n", to_pin_name);
+      sdfWarn(187, "pin %s not found.", to_pin_name);
     else {
       Vertex *vertex = graph_->pinLoadVertex(to_pin);
       VertexInEdgeIterator edge_iter(vertex, graph_);
@@ -309,9 +286,9 @@ SdfReader::setEdgeDelays(Edge *edge,
     }
   }
   else if (triple_count == 0)
-    sdfError("%s with no triples.\n", sdf_cmd);
+    sdfError(188, "%s with no triples.", sdf_cmd);
   else
-    sdfError("%s with more than 2 triples.\n", sdf_cmd);
+    sdfError(189, "%s with more than 2 triples.", sdf_cmd);
 }
 
 void
@@ -334,10 +311,10 @@ SdfReader::setInstance(const char *instance_name)
 	Cell *inst_cell = network_->cell(instance_);
 	const char *inst_cell_name = network_->name(inst_cell);
 	if (cell_name_ && !stringEqual(inst_cell_name, cell_name_))
-	  sdfError("instance %s cell %s does not match enclosing cell %s.\n",
-		   instance_name,
-		   inst_cell_name,
-		   cell_name_);
+	  sdfWarn(190, "instance %s cell %s does not match enclosing cell %s.",
+                  instance_name,
+                  inst_cell_name,
+                  cell_name_);
       }
     }
     stringDelete(instance_name);
@@ -428,10 +405,10 @@ SdfReader::iopath(SdfPortSpec *from_edge,
 	  }
 	}
 	if (!matched)
-	  sdfError("cell %s IOPATH %s -> %s not found.\n",
-		   network_->cellName(instance_),
-		   from_port_name,
-		   to_port_name);
+	  sdfWarn(191, "cell %s IOPATH %s -> %s not found.",
+                  network_->cellName(instance_),
+                  from_port_name,
+                  to_port_name);
       }
     }
   }
@@ -475,28 +452,25 @@ SdfReader::timingCheck1(TimingRole *role,
       Pin *data_pin = network_->findPin(instance_, data_port_name);
       Pin *clk_pin = network_->findPin(instance_, clk_port_name);
       if (data_pin && clk_pin) {
-	// Hack to match PT; always use triple max value for check.
-	if (triple_min_index_ != null_index_
-	    && triple_max_index_ != null_index_) {
-	  float **values = triple->values();
-	  float *value_min = values[triple_min_index_];
-	  float *value_max = values[triple_max_index_];
-          if (value_min && value_max) {
-	    switch (analysis_type_) {
-	    case AnalysisType::single:
-	      break;
-	    case AnalysisType::bc_wc:
-	      if (role->genericRole() == TimingRole::setup())
-		*value_min = *value_max;
-	      else
-		*value_max = *value_min;
-	      break;
-	    case AnalysisType::ocv:
-	      *value_min = *value_max;
-	      break;
-	    }
-	  }
-	}
+	// Hack: always use triple max value for check.
+        float **values = triple->values();
+        float *value_min = values[triple_min_index_];
+        float *value_max = values[triple_max_index_];
+        if (value_min && value_max) {
+          switch (analysis_type_) {
+          case AnalysisType::single:
+            break;
+          case AnalysisType::bc_wc:
+            if (role->genericRole() == TimingRole::setup())
+              *value_min = *value_max;
+            else
+              *value_max = *value_min;
+            break;
+          case AnalysisType::ocv:
+            *value_min = *value_max;
+            break;
+          }
+        }
 	bool matched = annotateCheckEdges(data_pin, data_edge,
 					  clk_pin, clk_edge, role,
 					  triple, false);
@@ -509,11 +483,11 @@ SdfReader::timingCheck1(TimingRole *role,
 	if (!matched
 	    // Only warn when non-null values are present.
 	    && triple->hasValue())
-	  sdfError("cell %s %s -> %s %s check not found.\n",
-		   network_->cellName(instance_),
-		   data_port_name,
-		   clk_port_name,
-		   role->asString());
+	  sdfWarn(192, "cell %s %s -> %s %s check not found.",
+                  network_->cellName(instance_),
+                  data_port_name,
+                  clk_port_name,
+                  role->asString());
       }
     }
   }
@@ -769,12 +743,8 @@ SdfReader::setEdgeArcDelaysCondUse(Edge *edge,
 				   SdfTriple *triple)
 {
   float **values = triple->values();
-  float *value_min = nullptr;
-  if (triple_min_index_ != null_index_)
-    value_min = values[triple_min_index_];
-  float *value_max = nullptr;
-  if (triple_max_index_ != null_index_)
-    value_max = values[triple_max_index_];
+  float *value_min = values[triple_min_index_];
+  float *value_max = values[triple_max_index_];
   MinMax *min, *max;
   if (cond_use_ == MinMaxAll::min()) {
     min = MinMax::min();
@@ -1021,23 +991,34 @@ SdfReader::getChars(char *buf,
 void
 SdfReader::notSupported(const char *feature)
 {
-  sdfError("%s not supported.\n", feature);
+  sdfError(193, "%s not supported.", feature);
 }
 
 void
 SdfReader::portNotFound(const char *port_name)
 {
-  sdfError("instance %s port %s not found.\n",
-	   network_->pathName(instance_),
-	   port_name);
+  sdfWarn(194, "instance %s port %s not found.",
+          network_->pathName(instance_),
+          port_name);
 }
 
 void
-SdfReader::sdfError(const char *fmt, ...)
+SdfReader::sdfWarn(int id,
+                   const char *fmt, ...)
 {
   va_list args;
   va_start(args, fmt);
-  report_->vfileError(filename_, line_, fmt, args);
+  report_->vfileWarn(id, filename_, line_, fmt, args);
+  va_end(args);
+}
+
+void
+SdfReader::sdfError(int id,
+                    const char *fmt, ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  report_->vfileError(id, filename_, line_, fmt, args);
   va_end(args);
 }
 
@@ -1062,7 +1043,7 @@ SdfReader::findInstance(const char *name)
     stringPrint(inst_name, "%s%c%s", path_, divider_, name);
   Instance *inst = network_->findInstance(inst_name.c_str());
   if (inst == nullptr)
-    sdfError("instance %s not found.\n", inst_name.c_str());
+    sdfWarn(195, "instance %s not found.", inst_name.c_str());
   return inst;
 }
 
@@ -1103,7 +1084,7 @@ void sdfFlushBuffer();
 int
 SdfParse_error(const char *msg)
 {
-  sta::sdf_reader->sdfError("%s.\n", msg);
+  sta::sdf_reader->sdfError(196, "%s.\n", msg);
   sdfFlushBuffer();
   return 0;
 }

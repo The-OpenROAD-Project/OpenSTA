@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "CheckTiming.hh"
 
@@ -424,13 +424,11 @@ CheckTiming::errorMsgSubst(const char *msg,
 	s++;
       }
       else if (flag == 'd') {
-	const char *obj_str = integerString(obj_count);
-	error_msg += obj_str;
-	stringDelete(obj_str);
+	error_msg += std::to_string(obj_count);
 	s++;
       }
       else
-	internalError("unknown print flag");
+	criticalError(245, "unknown print flag");
     }
     else
       error_msg += ch;

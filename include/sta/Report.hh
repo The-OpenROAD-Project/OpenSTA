@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -20,7 +20,7 @@
 #include <stdarg.h>
 #include <string>
 #include <mutex>
-#include "Machine.hh"
+#include "Machine.hh" // __attribute__
 #include "DisallowCopyAssign.hh"
 
 struct Tcl_Interp;
@@ -38,49 +38,65 @@ public:
   Report();
   virtual ~Report();
 
-  // Primitives to print output.
-  // Return the number of characters written.
-  virtual size_t printString(const char *buffer, size_t length);
-  virtual void print(const char *fmt, ...);
-  virtual void vprint(const char *fmt, va_list args);
-  void print(const string *str);
-  void print(const string &str);
-
-  // Print to debug stream (same as output stream).
-  virtual void printDebug(const char *fmt, ...)
+  // Print line with return.
+  virtual void reportLine(const char *fmt, ...)
     __attribute__((format (printf, 2, 3)));
-  virtual void vprintDebug(const char *fmt, va_list args);
+  virtual void reportLineString(const char *line);
+  virtual void reportLineString(const string &line);
+  virtual void reportBlankLine();
 
-  // Print to error stream.
-  // Return the number of characters written.
-  virtual size_t printError(const char *buffer, size_t length);
-  virtual void printError(const char *fmt, ...)
-    __attribute__((format (printf, 2, 3)));
-  virtual void vprintError(const char *fmt, va_list args);
+  ////////////////////////////////////////////////////////////////
 
-  // Report error.
-  virtual void error(const char *fmt, ...)
-    __attribute__((format (printf, 2, 3)));
-  virtual void verror(const char *fmt, va_list args);
-  // Report error in a file.
-  virtual void fileError(const char *filename, int line, const char *fmt, ...)
-    __attribute__((format (printf, 4, 5)));
-  virtual void vfileError(const char *filename, int line, const char *fmt,
-			  va_list args);
-
-  // Print to warning stream (same as error stream).
-  virtual void printWarn(const char *fmt, ...)
-    __attribute__((format (printf, 2, 3)));
-  virtual void vprintWarn(const char *fmt, va_list args);
   // Report warning.
-  virtual void warn(const char *fmt, ...)
-    __attribute__((format (printf, 2, 3)));
-  virtual void vwarn(const char *fmt, va_list args);
+  virtual void warn(int id,
+                    const char *fmt, ...)
+    __attribute__((format (printf, 3, 4)));
+  virtual void vwarn(int id,
+                     const char *fmt,
+                     va_list args);
   // Report warning in a file.
-  virtual void fileWarn(const char *filename, int line, const char *fmt, ...)
-    __attribute__((format (printf, 4, 5)));
-  virtual void vfileWarn(const char *filename, int line, const char *fmt,
-			 va_list args);
+  virtual void fileWarn(int id,
+                        const char *filename,
+                        int line,
+                        const char *fmt, ...)
+    __attribute__((format (printf, 5, 6)));
+  virtual void vfileWarn(int id,
+                         const char *filename,
+                         int line,
+                         const char *fmt,
+                         va_list args);
+
+  virtual void error(int id,
+                     const char *fmt, ...)
+    __attribute__((format (printf, 3, 4)));
+  virtual void verror(int id,
+                      const char *fmt,
+                      va_list args);
+  // Report error in a file.
+  virtual void fileError(int id,
+                         const char *filename,
+                         int line,
+                         const char *fmt, ...)
+    __attribute__((format (printf, 5, 6)));
+  virtual void vfileError(int id,
+                          const char *filename,
+                          int line,
+                          const char *fmt,
+                          va_list args);
+
+  // Critical. 
+  // Report error condition that should not be possible or that prevents execution.
+  // The default handler prints msg to stderr and exits.
+  virtual void critical(int id,
+                        const char *fmt,
+                        ...)
+    __attribute__((format (printf, 3, 4)));
+  virtual void fileCritical(int id,
+                            const char *filename,
+                            int line,
+                            const char *fmt,
+                            ...)
+    __attribute__((format (printf, 5, 6)));
 
   // Log output to filename until logEnd is called.
   virtual void logBegin(const char *filename);
@@ -96,15 +112,34 @@ public:
   virtual const char *redirectStringEnd();
   virtual void setTclInterp(Tcl_Interp *) {}
 
+  // Primitive to print output.
+  // Return the number of characters written.
+  // public for use by ReportTcl encapsulated channel functions.
+  virtual size_t printString(const char *buffer,
+                             size_t length);
+  static Report *defaultReport() { return default_; }
+
 protected:
+  // All sta print functions have an implicit return printed by this function.
+  virtual void printLine(const char *line,
+                         size_t length);
   // Primitive to print output on the console.
   // Return the number of characters written.
-  virtual size_t printConsole(const char *buffer, size_t length) = 0;
-  // Primitive to print error, warning and debug output.
-  // Return the number of characters written.
-  virtual size_t printErrorConsole(const char *buffer, size_t length) = 0;
-  void printToBuffer(const char *fmt, va_list args);
-  void redirectStringPrint(const char *buffer, size_t length);
+  virtual size_t printConsole(const char *buffer,
+                              size_t length);
+  void printToBuffer(const char *fmt,
+                     ...)
+    __attribute__((format (printf, 2, 3)));
+
+  void printToBuffer(const char *fmt,
+                     va_list args);
+  void printToBufferAppend(const char *fmt,
+                           ...);
+  void printToBufferAppend(const char *fmt,
+                           va_list args);
+  void printBufferLine();
+  void redirectStringPrint(const char *buffer,
+                           size_t length);
 
   FILE *log_stream_;
   FILE *redirect_stream_;
@@ -116,6 +151,9 @@ protected:
   // Length of string in buffer.
   size_t buffer_length_;
   std::mutex buffer_lock_;
+  static Report *default_;
+
+  friend class Debug;
 
 private:
   DISALLOW_COPY_AND_ASSIGN(Report);

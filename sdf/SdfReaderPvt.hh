@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -50,9 +50,7 @@ public:
   SdfReader(const char *filename,
 	    const char *path,
 	    int arc_min_index,
-	    int triple_min_index,
 	    int arc_max_index,
-	    int triple_max_index,
 	    AnalysisType analysis_type,
 	    bool unescaped_dividers,
 	    bool is_incremental_only,
@@ -60,8 +58,6 @@ public:
 	    StaState *sta);
   ~SdfReader();
   bool read();
-  // Arc/Triple index passed to read() to ignore arg.
-  static int nullIndex() { return null_index_; }
 
   void setDivider(char divider);
   void setTimescale(float multiplier, const char *units);
@@ -153,7 +149,11 @@ public:
   void incrLine();
   const char *filename() { return filename_; }
   int line() { return line_; }
-  void sdfError(const char *fmt, ...);
+  void sdfWarn(int id,
+               const char *fmt, ...);
+  void sdfError(int id,
+                const char *fmt,
+                ...);
   void notSupported(const char *feature);
 
 private:

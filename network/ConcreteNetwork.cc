@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "ConcreteNetwork.hh"
 
@@ -437,11 +437,12 @@ ConcreteNetwork::findLibrary(const char *name)
 }
 
 void
-ConcreteNetwork::deleteLibrary(ConcreteLibrary *library)
+ConcreteNetwork::deleteLibrary(Library *library)
 {
-  library_map_.erase(library->name());
-  library_seq_.eraseObject(library);
-  delete library;
+  ConcreteLibrary *clib = reinterpret_cast<ConcreteLibrary*>(library);
+  library_map_.erase(clib->name());
+  library_seq_.eraseObject(clib);
+  delete clib;
 }
 
 const char *
@@ -638,12 +639,13 @@ ConcreteNetwork::makeBusPort(Cell *cell,
 }
 
 void
-ConcreteNetwork::groupBusPorts(Cell *cell)
+ConcreteNetwork::groupBusPorts(Cell *cell,
+                               std::function<bool(const char*)> port_msb_first)
 {
   Library *lib = library(cell);
   ConcreteLibrary *clib = reinterpret_cast<ConcreteLibrary*>(lib);
   ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell);
-  ccell->groupBusPorts(clib->busBrktLeft(), clib->busBrktRight());
+  ccell->groupBusPorts(clib->busBrktLeft(), clib->busBrktRight(), port_msb_first);
 }
 
 Port *
@@ -1864,7 +1866,7 @@ ConcreteNetwork::linkNetwork(const char *top_cell_name,
     return top_instance_ != nullptr;
   }
   else {
-    report->error("cell type %s can not be linked.\n", top_cell_name);
+    report->error(8, "cell type %s can not be linked.", top_cell_name);
     return false;
   }
 }

@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2020, Parallax Software, Inc.
+# Copyright (c) 2021, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#  regression -help | [-valgrind] [-report_stats] test1 [test2...]
+#  regression -help | [-threads threads] [-valgrind] [-report_stats] test1 [test2...]
 
 proc regression_main {} {
   setup
@@ -145,9 +145,9 @@ proc run_test { test } {
       incr errors(error)
 	
       # For some reason seg faults aren't echoed in the log - add them.
-      if [file exists $log_file] {
+      if { [llength $test_errors] > 1 && [file exists $log_file] } {
 	set log_ch [open $log_file "a"]
-	puts $log_ch "$test_errors"
+	puts $log_ch $test_errors
 	close $log_ch
       }
       
@@ -250,6 +250,7 @@ proc run_test_app { test cmd_file log_file } {
 proc run_test_plain { test cmd_file log_file } {
   global app_path app_options result_dir errorCode
   global report_stats
+  global test_expect_eror
 
   if { ![file exists $app_path] } {
     return "ERROR $app_path not found."
@@ -266,7 +267,8 @@ proc run_test_plain { test cmd_file log_file } {
     }
     close $run_stream
 
-    if { [catch [concat exec $app_path $app_options $run_file >& $log_file]] } {
+    if { [catch [concat exec $app_path $app_options $run_file >& $log_file]] \
+	   && ![info exists test_expect_eror($test)] } {
       set signal [lindex $errorCode 2]
       set error [lindex $errorCode 3]
       # Error strings are not consistent across platforms but signal

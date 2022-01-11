@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,18 +8,17 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Graph.hh"
 
 #include "DisallowCopyAssign.hh"
-#include "Stats.hh"
-#include "Error.hh"
 #include "Debug.hh"
+#include "Stats.hh"
 #include "MinMax.hh"
 #include "Mutex.hh"
 #include "Transition.hh"
@@ -67,7 +66,7 @@ Graph::~Graph()
 void
 Graph::makeGraph()
 {
-  Stats stats(debug_);
+  Stats stats(debug_, report_);
   makeVerticesAndEdges();
   makeWireEdges();
   stats.report("Make graph");
@@ -344,11 +343,13 @@ Graph::makeWireEdge(Pin *from_pin,
   Vertex *from_vertex, *from_bidirect_drvr_vertex;
   pinVertices(from_pin, from_vertex, from_bidirect_drvr_vertex);
   Vertex *to_vertex = pinLoadVertex(to_pin);
-  // From and/or to can be bidirect, but edge is always from driver to load.
-  if (from_bidirect_drvr_vertex)
-    makeEdge(from_bidirect_drvr_vertex, to_vertex, arc_set);
-  else
-    makeEdge(from_vertex, to_vertex, arc_set);
+  if (from_vertex && to_vertex) {
+    // From and/or to can be bidirect, but edge is always from driver to load.
+    if (from_bidirect_drvr_vertex)
+      makeEdge(from_bidirect_drvr_vertex, to_vertex, arc_set);
+    else
+      makeEdge(from_vertex, to_vertex, arc_set);
+  }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -500,10 +501,14 @@ Graph::deleteOutEdge(Vertex *vertex,
     Graph::edge(next)->vertex_out_prev_ = prev;
 }
 
+////////////////////////////////////////////////////////////////
+
 Arrival *
 Graph::makeArrivals(Vertex *vertex,
 		    uint32_t count)
 {
+  if (vertex->arrivals() != arrival_null)
+    debugPrint(debug_, "leaks", 617, "arrival leak");
   Arrival *arrivals;
   ArrivalId id;
   {
@@ -521,9 +526,54 @@ Graph::arrivals(Vertex *vertex)
 }
 
 void
+Graph::deleteArrivals(Vertex *vertex,
+                      uint32_t count)
+{
+  {
+    UniqueLock lock(arrivals_lock_);
+    arrivals_.destroy(vertex->arrivals(), count);
+  }
+  vertex->setArrivals(arrival_null);
+}
+
+Required *
+Graph::makeRequireds(Vertex *vertex,
+                     uint32_t count)
+{
+  if (vertex->requireds() != arrival_null)
+    debugPrint(debug_, "leaks", 617, "required leak");
+  Required *requireds;
+  ArrivalId id;
+  {
+    UniqueLock lock(requireds_lock_);
+    requireds_.make(count, requireds, id);
+  }
+  vertex->setRequireds(id);
+  return requireds;
+}
+
+Required *
+Graph::requireds(Vertex *vertex)
+{
+  return requireds_.pointer(vertex->requireds());
+}
+
+void
+Graph::deleteRequireds(Vertex *vertex,
+                       uint32_t count)
+{
+  {
+    UniqueLock lock(requireds_lock_);
+    requireds_.destroy(vertex->requireds(), count);
+  }
+  vertex->setRequireds(arrival_null);
+}
+
+void
 Graph::clearArrivals()
 {
   arrivals_.clear();
+  requireds_.clear();
 }
 
 PathVertexRep *
@@ -551,6 +601,8 @@ Graph::clearPrevPaths()
 {
   prev_paths_.clear();
 }
+
+////////////////////////////////////////////////////////////////
 
 const Slew &
 Graph::slew(const Vertex *vertex,
@@ -741,7 +793,7 @@ Graph::arcDelayAnnotated(Edge *edge,
   if (arc_delay_annotated_.size()) {
     size_t index = (edge->arcDelays() + arc->index()) * ap_count_ + ap_index;
     if (index >= arc_delay_annotated_.size())
-      internalError("arc_delay_annotated array bounds exceeded");
+      report_->critical(208, "arc_delay_annotated array bounds exceeded");
     return arc_delay_annotated_[index];
   }
   else
@@ -756,7 +808,7 @@ Graph::setArcDelayAnnotated(Edge *edge,
 {
   size_t index = (edge->arcDelays() + arc->index()) * ap_count_ + ap_index;
   if (index >= arc_delay_annotated_.size())
-    internalError("arc_delay_annotated array bounds exceeded");
+    report_->critical(209, "arc_delay_annotated array bounds exceeded");
   arc_delay_annotated_[index] = annotated;
 }
 
@@ -768,7 +820,7 @@ Graph::wireDelayAnnotated(Edge *edge,
   size_t index = (edge->arcDelays() + TimingArcSet::wireArcIndex(rf)) * ap_count_
     + ap_index;
   if (index >= arc_delay_annotated_.size())
-    internalError("arc_delay_annotated array bounds exceeded");
+    report_->critical(210, "arc_delay_annotated array bounds exceeded");
   return arc_delay_annotated_[index];
 }
 
@@ -781,7 +833,7 @@ Graph::setWireDelayAnnotated(Edge *edge,
   size_t index = (edge->arcDelays() + TimingArcSet::wireArcIndex(rf)) * ap_count_
     + ap_index;
   if (index >= arc_delay_annotated_.size())
-    internalError("arc_delay_annotated array bounds exceeded");
+    report_->critical(228, "arc_delay_annotated array bounds exceeded");
   arc_delay_annotated_[index] = annotated;
 }
 
@@ -1025,8 +1077,8 @@ Vertex::init(Pin *pin,
   in_edges_ = edge_id_null;
   out_edges_ = edge_id_null;
   arrivals_ = arrival_null;
+  requireds_ = arrival_null;
   prev_paths_ = prev_path_null;
-  has_requireds_ = false;
   tag_group_index_ = tag_group_index_max;
   slew_annotated_ = false;
   sim_value_ = unsigned(LogicValue::unknown);
@@ -1158,24 +1210,24 @@ Vertex::setArrivals(ArrivalId id)
 }
 
 void
+Vertex::setRequireds(ArrivalId id)
+{
+  requireds_ = id;
+}
+
+void
 Vertex::setPrevPaths(PrevPathId prev_paths)
 {
   prev_paths_ = prev_paths;
 }
 
 void
-Vertex::setHasRequireds(bool has_req)
-{
-  has_requireds_ = has_req;
-}
-
-void
 Vertex::deletePaths()
 {
   arrivals_ = arrival_null;
+  requireds_ = arrival_null;
   prev_paths_ = prev_path_null;
   tag_group_index_ = tag_group_index_max;
-  has_requireds_ = false;
   crpr_path_pruning_disabled_ = false;
 }
 

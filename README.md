@@ -67,11 +67,14 @@ work, but these are the versions used for development.
 cmake    3.10.2 3.10.2   3.16.2
 clang    9.1.0           11.0.0
 gcc      3.3.2   7.3.0   
-tcl      8.2     8.6     8.6.6
+tcl      8.4     8.6     8.6.6
 swig     1.3.28  3.0.12  4.0.1
 bison    1.35    3.0.4   3.5
 flex     2.5.4   2.6.4   2.5.35
 ```
+
+Note that flex versions before 2.6.4 contain 'register' declarations that
+are illegal in c++17.
 
 These packages are **optional**:
 
@@ -89,6 +92,7 @@ or [here](https://sourceforge.net/projects/cudd-mirror/).
 Note that the file hierarchy of the CUDD installation changed with version 3.0.
 Some changes to CMakeLists.txt are required to support older versions.
 
+Use the USE_CUDD option to look for the cudd library.
 Use the CUDD_DIR option to set the install directory if it is not in
 one of the normal install directories.
 
@@ -102,7 +106,7 @@ make
 make install
 
 cd <opensta>/build
-cmake .. -DCUDD_DIR=$HOME/cudd
+cmake .. -DUSE_CUDD -DCUDD_DIR=$HOME/cudd
 ```
 
 The Zlib library is an optional.  If CMake finds libz, OpenSTA can
@@ -151,23 +155,6 @@ If you make changes to `CMakeLists.txt` you may need to clean out
 existing CMake cached variable values by deleting all of the
 files in the build directory.
 
-### Run using Docker
-
-OpenSTA can be run as a [Docker](https://www.docker.com/) container.
-
-* Install Docker on [Windows](https://docs.docker.com/docker-for-windows/), [Mac](https://docs.docker.com/docker-for-mac/) or [Linux](https://docs.docker.com/install/).
-* Navigate to the directory where you have the input files.
-* Run OpenSTA as a binary using
-````
-docker run -it -v $(pwd):/data openroad/opensta
-````
-
-From the interactive terminal, use OpenSTA commands. You can read input files from `/data` directory inside the docker container (e.g. `read_liberty /data/liberty.lib`). You can use OpenSTA in non-interactive mode by passing a command file using the `-f` flag as follows.
-```
-docker run -it -v $(pwd):/data openroad/opensta /data/cmd_file
-```
-Note that the path after `-f` is the path inside container, not on the guest machine. 
-
 ## Bug Reports
 
 Use the Issues tab on the github repository to report bugs.
@@ -213,7 +200,7 @@ is also licensed for commerical applications by Parallax Software without
 the GPL's requirements.
 
 OpenSTA, Static Timing Analyzer
-Copyright (c) 2020, Parallax Software, Inc.
+Copyright (c) 2022, Parallax Software, Inc.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -222,8 +209,9 @@ the Free Software Foundation, either version 3 of the License, or
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+

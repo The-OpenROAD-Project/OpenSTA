@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "ClkSkew.hh"
 
@@ -129,42 +129,59 @@ ClkSkews::reportClkSkew(ClockSet *clks,
 
   // Sort the clocks to report in a stable order.
   ClockSeq sorted_clks;
-  ClockSet::Iterator clk_iter1(clks);
-  while (clk_iter1.hasNext()) {
-    Clock *clk = clk_iter1.next();
+  for (Clock *clk : *clks)
     sorted_clks.push_back(clk);
-  }
   sort(sorted_clks, ClkNameLess());
 
   Unit *time_unit = units_->timeUnit();
   ClockSeq::Iterator clk_iter2(sorted_clks);
   while (clk_iter2.hasNext()) {
     Clock *clk = clk_iter2.next();
-    report_->print("Clock %s\n", clk->name());
+    report_->reportLine("Clock %s", clk->name());
     ClkSkew *clk_skew = skews.findKey(clk);
     if (clk_skew) {
-      report_->print("Latency      CRPR       Skew\n");
+      report_->reportLine("Latency      CRPR       Skew");
       PathVertex *src_path = clk_skew->srcPath();
       PathVertex *tgt_path = clk_skew->tgtPath();
-      report_->print("%s %s\n",
-		     sdc_network_->pathName(src_path->pin(this)),
-		     src_path->transition(this)->asString());
-      report_->print("%7s\n",
-		     time_unit->asString(clk_skew->srcLatency(this), digits));
-      report_->print("%s %s\n",
-		     sdc_network_->pathName(tgt_path->pin(this)),
-		     tgt_path->transition(this)->asString());
-      report_->print("%7s   %7s    %7s\n",
-		     time_unit->asString(clk_skew->tgtLatency(this), digits),
-		     time_unit->asString(delayAsFloat(-clk_skew->crpr(this)), digits),
-		     time_unit->asString(clk_skew->skew(), digits));
+      report_->reportLine("%s %s",
+                          sdc_network_->pathName(src_path->pin(this)),
+                          src_path->transition(this)->asString());
+      report_->reportLine("%7s",
+                          time_unit->asString(clk_skew->srcLatency(this), digits));
+      report_->reportLine("%s %s",
+                          sdc_network_->pathName(tgt_path->pin(this)),
+                          tgt_path->transition(this)->asString());
+      report_->reportLine("%7s   %7s    %7s",
+                          time_unit->asString(clk_skew->tgtLatency(this), digits),
+                          time_unit->asString(delayAsFloat(-clk_skew->crpr(this)),
+                                              digits),
+                          time_unit->asString(clk_skew->skew(), digits));
     }
     else
-      report_->print("No launch/capture paths found.\n");
-    report_->print("\n");
+      report_->reportLine("No launch/capture paths found.");
+    report_->reportBlankLine();
   }
 
   skews.deleteContents();
+}
+
+float
+ClkSkews::findWorstClkSkew(const Corner *corner,
+                           const SetupHold *setup_hold)
+{
+  ClockSet clks;
+  for (Clock *clk : *sdc_->clocks())
+    clks.insert(clk);
+  float worst_skew = INF;
+  ClkSkewMap skews;
+  findClkSkew(&clks, corner, setup_hold, skews);
+  for (auto clk_skew_itr : skews) {
+    ClkSkew *clk_skew = clk_skew_itr.second;
+    float skew = clk_skew->skew();
+    if (skew < worst_skew)
+      worst_skew = skew;
+  }
+  return worst_skew;
 }
 
 void
@@ -276,15 +293,16 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
 	      && tgt_path->pathAnalysisPt(this)->corner() == src_corner) {
 	    ClkSkew probe(src_path, tgt_path, this);
 	    ClkSkew *clk_skew = skews.findKey(src_clk);
-	    debugPrint8(debug_, "clk_skew", 2, "%s %s %s -> %s %s %s crpr = %s skew = %s\n",
-			network_->pathName(src_path->pin(this)),
-			src_path->transition(this)->asString(),
-			time_unit->asString(probe.srcLatency(this)),
-			network_->pathName(tgt_path->pin(this)),
-			tgt_path->transition(this)->asString(),
-			time_unit->asString(probe.tgtLatency(this)),
-			delayAsString(probe.crpr(this), this),
-			time_unit->asString(probe.skew()));
+	    debugPrint(debug_, "clk_skew", 2,
+                       "%s %s %s -> %s %s %s crpr = %s skew = %s",
+                       network_->pathName(src_path->pin(this)),
+                       src_path->transition(this)->asString(),
+                       time_unit->asString(probe.srcLatency(this)),
+                       network_->pathName(tgt_path->pin(this)),
+                       tgt_path->transition(this)->asString(),
+                       time_unit->asString(probe.tgtLatency(this)),
+                       delayAsString(probe.crpr(this), this),
+                       time_unit->asString(probe.skew()));
 	    if (clk_skew == nullptr) {
 	      clk_skew = new ClkSkew(probe);
 	      skews[src_clk] = clk_skew;
@@ -325,16 +343,16 @@ ClkSkews::findFanout(Vertex *from,
 		     // Return value.
 		     VertexSet &endpoints)
 {
-  debugPrint1(debug_, "fanout", 1, "%s\n",
-	      from->name(sdc_network_));
+  debugPrint(debug_, "fanout", 1, "%s",
+             from->name(sdc_network_));
   FanOutSrchPred pred(this);
   BfsFwdIterator fanout_iter(BfsIndex::other, &pred, this);
   fanout_iter.enqueue(from);
   while (fanout_iter.hasNext()) {
     Vertex *fanout = fanout_iter.next();
     if (fanout->hasChecks()) {
-      debugPrint1(debug_, "fanout", 1, " endpoint %s\n",
-		  fanout->name(sdc_network_));
+      debugPrint(debug_, "fanout", 1, " endpoint %s",
+                 fanout->name(sdc_network_));
       endpoints.insert(fanout);
     }
     fanout_iter.enqueueAdjacentVertices(fanout);

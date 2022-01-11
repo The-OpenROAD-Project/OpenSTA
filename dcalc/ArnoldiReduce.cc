@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // (c) 2018 Nefelus, Inc.
 //
@@ -404,9 +404,8 @@ ArnoldiReduce::makeRcmodelDfs(ts_point *pdrv)
   } // while (stackN)
 
   if (loop)
-    debugPrint1(debug_, "arnoldi", 1,
-		"net %s loop\n",
-		network_->pathName(drvr_pin_));
+    debugPrint(debug_, "arnoldi", 1, "net %s loop",
+               network_->pathName(drvr_pin_));
 }
 
 // makeRcmodelGetRC
@@ -432,10 +431,10 @@ ArnoldiReduce::getRC()
       if (p->in_edge && p->in_edge->resistor_)
         p->r = parasitics_->value(p->in_edge->resistor_, ap_);
       if (!(p->r>=0.0 && p->r<100e+3)) { // 0 < r < 100kohm
-	debugPrint2(debug_, "arnoldi", 1,
-		    "R value %g out of range, drvr pin %s\n",
-		    p->r,
-		    network_->pathName(drvr_pin_));
+	debugPrint(debug_, "arnoldi", 1,
+                   "R value %g out of range, drvr pin %s",
+                   p->r,
+                   network_->pathName(drvr_pin_));
       }
     }
   }
@@ -486,20 +485,20 @@ ArnoldiReduce::makeRcmodelFromTs()
   if (debug_->check("arnoldi", 1)) {
     for (k=0;k<ts_ordN;k++) {
       p = ts_pordV[k];
-      debugPrint3(debug_, "arnoldi", 1, "T%d,P%ld c=%s",
-		  p->ts,p-p0,
-		  units_->capacitanceUnit()->asString(p->c));
+      debugPrint(debug_, "arnoldi", 1, "T%d,P%ld c=%s",
+                 p->ts,
+                 p-p0,
+                 units_->capacitanceUnit()->asString(p->c));
       if (p->is_term)
-	debug_->print(" term%d",p->tindex);
+        debugPrint(debug_, "arnoldi", 1, " term %d", p->tindex);
       if (p->in_edge)
-	debug_->print("  from T%d,P%ld r=%s",
-		      p->in_edge->from->ts,
-		      p->in_edge->from-p0,
-		      units_->resistanceUnit()->asString(p->r));
-      debug_->print("\n");
+	debugPrint(debug_, "arnoldi", 1, "  from T%d,P%ld r=%s",
+                   p->in_edge->from->ts,
+                   p->in_edge->from-p0,
+                   units_->resistanceUnit()->asString(p->r));
     }
     for (i=0;i<nterms;i++)
-      debugPrint2(debug_, "arnoldi", 1, "outV[%d] = T%d\n",i,outV[i]);
+      debugPrint(debug_, "arnoldi", 1, "outV[%d] = T%d", i, outV[i]);
   }
 
   int max_order = 5;
@@ -522,8 +521,8 @@ ArnoldiReduce::makeRcmodelFromTs()
 
   sum = 0.0;
   for (j=0;j<n;j++) sum += c[j];
-  debugPrint1(debug_, "arnoldi", 1, "ctot = %s\n",
-	      units_->capacitanceUnit()->asString(sum));
+  debugPrint(debug_, "arnoldi", 1, "ctot = %s",
+             units_->capacitanceUnit()->asString(sum));
   ctot_ = sum;
   sqc_ = sqrt(sum);
   double sqrt_ctot_inv = 1.0/sqc_;
@@ -588,23 +587,25 @@ ArnoldiReduce::makeRcmodelFromTs()
   }
 
   if (debug_->check("arnoldi", 1)) {
-    debugPrint1(debug_, "arnoldi", 1,
-		"tridiagonal reduced matrix, drvr pin %s\n",
-		network_->pathName(drvr_pin_));
-    debugPrint2(debug_, "arnoldi", 1, "order %d n %d\n",order,n);
+    report_->reportLine("tridiagonal reduced matrix, drvr pin %s",
+                        network_->pathName(drvr_pin_));
+    report_->reportLine("order %d n %d",order,n);
     for (h=0;h<order;h++) {
-      debug_->print("d[%d] %s",
-		    h,
-		    units_->timeUnit()->asString(d[h]));
       if (h<order-1)
-	debug_->print("    e[%d] %s",
-		      h,
-		      units_->timeUnit()->asString(e[h]));
-      debug_->print("\n");
-      debug_->print("U[%d]",h);
+	report_->reportLine(" d[%d] %s    e[%d] %s",
+                            h,
+                            units_->timeUnit()->asString(d[h]),
+                            h,
+                            units_->timeUnit()->asString(e[h]));
+
+      else
+	report_->reportLine(" d[%d] %s",
+                            h,
+                            units_->timeUnit()->asString(d[h]));
+      string line = stdstrPrint("U[%d]",h);
       for (i=0;i<nterms;i++)
-	debug_->print(" %6.2e",U[h][i]);
-      debug_->print("\n");
+	line += stdstrPrint(" %6.2e",U[h][i]);
+      report_->reportLineString(line);
     }
   }
 }

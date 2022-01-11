@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "sdf/SdfWriter.hh"
 
@@ -47,7 +47,8 @@ public:
   void write(const char *filename,
 	     Corner *corner,
 	     char sdf_divider,
-	     int digits,
+	     bool include_typ,
+             int digits,
 	     bool gzip,
 	     bool no_timestamp,
 	     bool no_version);
@@ -94,10 +95,10 @@ protected:
 			float min_period);
   const char *sdfEdge(const Transition *tr);
   void writeArcDelays(Edge *edge);
-  void writeSdfTuple(RiseFallMinMax &delays,
-		     RiseFall *rf);
-  void writeSdfTuple(float min_delay,
-		     float max_delay);
+  void writeSdfTriple(RiseFallMinMax &delays,
+                      RiseFall *rf);
+  void writeSdfTriple(float min,
+                      float max);
   void writeSdfDelay(double delay);
   char *sdfPortName(const Pin *pin);
   char *sdfPathName(const Pin *pin);
@@ -108,6 +109,7 @@ private:
   DISALLOW_COPY_AND_ASSIGN(SdfWriter);
 
   char sdf_divider_;
+  bool include_typ_;
   float timescale_;
 
   char sdf_escape_;
@@ -124,6 +126,7 @@ void
 writeSdf(const char *filename,
 	 Corner *corner,
 	 char sdf_divider,
+         bool include_typ,
 	 int digits,
 	 bool gzip,
 	 bool no_timestamp,
@@ -131,7 +134,7 @@ writeSdf(const char *filename,
 	 StaState *sta)
 {
   SdfWriter writer(sta);
-  writer.write(filename, corner, sdf_divider, digits, gzip,
+  writer.write(filename, corner, sdf_divider, include_typ, digits, gzip,
 	       no_timestamp, no_version);
 }
 
@@ -152,12 +155,14 @@ void
 SdfWriter::write(const char *filename,
 		 Corner *corner,
 		 char sdf_divider,
+                 bool include_typ,
 		 int digits,
 		 bool gzip,
 		 bool no_timestamp,
 		 bool no_version)
 {
   sdf_divider_ = sdf_divider;
+  include_typ_ = include_typ;
   if (delay_format_ == nullptr)
     delay_format_ = new char[10];
   sprintf(delay_format_, "%%.%df", digits);
@@ -176,6 +181,8 @@ SdfWriter::write(const char *filename,
   arc_delay_max_index_ = dcalc_ap->index();
 
   stream_ = gzopen(filename, gzip ? "wb" : "wT");
+  if (stream_ == nullptr)
+    throw FileNotWritable(filename);
 
   writeHeader(default_lib, no_timestamp, no_version);
   writeInterconnects();
@@ -428,45 +435,49 @@ SdfWriter::writeArcDelays(Edge *edge)
   if (delays.hasValue(RiseFall::rise(), MinMax::min())
       && delays.hasValue(RiseFall::fall(), MinMax::min())) {
     // Rise and fall.
-    writeSdfTuple(delays, RiseFall::rise());
+    writeSdfTriple(delays, RiseFall::rise());
     // Merge rise/fall values if they are the same.
     if (!(fuzzyEqual(delays.value(RiseFall::rise(), MinMax::min()),
 		     delays.value(RiseFall::fall(), MinMax::min()))
 	  && fuzzyEqual(delays.value(RiseFall::rise(), MinMax::max()),
 			delays.value(RiseFall::fall(),MinMax::max())))) {
       gzprintf(stream_, " ");
-      writeSdfTuple(delays, RiseFall::fall());
+      writeSdfTriple(delays, RiseFall::fall());
     }
   }
   else if (delays.hasValue(RiseFall::rise(), MinMax::min()))
     // Rise only.
-    writeSdfTuple(delays, RiseFall::rise());
+    writeSdfTriple(delays, RiseFall::rise());
   else if (delays.hasValue(RiseFall::fall(), MinMax::min())) {
     // Fall only.
     gzprintf(stream_, "() ");
-    writeSdfTuple(delays, RiseFall::fall());
+    writeSdfTriple(delays, RiseFall::fall());
   }
 }
 
 void
-SdfWriter::writeSdfTuple(RiseFallMinMax &delays,
-			 RiseFall *rf)
+SdfWriter::writeSdfTriple(RiseFallMinMax &delays,
+                          RiseFall *rf)
 {
-  gzprintf(stream_, "(");
-  writeSdfDelay(delays.value(rf, MinMax::min()));
-  gzprintf(stream_, "::");
-  writeSdfDelay(delays.value(rf, MinMax::max()));
-  gzprintf(stream_, ")");
+  float min = delays.value(rf, MinMax::min());
+  float max = delays.value(rf, MinMax::max());
+  writeSdfTriple(min, max);
 }
 
 void
-SdfWriter::writeSdfTuple(float min_delay,
-			 float max_delay)
+SdfWriter::writeSdfTriple(float min,
+                          float max)
 {
   gzprintf(stream_, "(");
-  writeSdfDelay(min_delay);
-  gzprintf(stream_, "::");
-  writeSdfDelay(max_delay);
+  writeSdfDelay(min);
+  if (include_typ_) {
+    gzprintf(stream_, ":");
+    writeSdfDelay((min + max) / 2.0);
+    gzprintf(stream_, ":");
+  }
+  else
+    gzprintf(stream_, "::");
+  writeSdfDelay(max);
   gzprintf(stream_, ")");
 }
 
@@ -677,7 +688,7 @@ SdfWriter::writeCheck(Edge *edge,
 
   ArcDelay min_delay = graph_->arcDelay(edge, arc, arc_delay_min_index_);
   ArcDelay max_delay = graph_->arcDelay(edge, arc, arc_delay_max_index_);
-  writeSdfTuple(delayAsFloat(min_delay), delayAsFloat(max_delay));
+  writeSdfTriple(delayAsFloat(min_delay), delayAsFloat(max_delay));
 
   gzprintf(stream_, ")\n");
 }
@@ -691,7 +702,7 @@ SdfWriter::writeWidthCheck(const Pin *pin,
   gzprintf(stream_, "    (WIDTH (%s %s) ",
 	   sdfEdge(hi_low->asTransition()),
 	   sdfPortName(pin));
-  writeSdfTuple(min_width, max_width);
+  writeSdfTriple(min_width, max_width);
   gzprintf(stream_, ")\n");
 }
 
@@ -701,7 +712,7 @@ SdfWriter::writePeriodCheck(const Pin *pin,
 {
   gzprintf(stream_, "    (PERIOD %s ",
 	   sdfPortName(pin));
-  writeSdfTuple(min_period, min_period);
+  writeSdfTriple(min_period, min_period);
   gzprintf(stream_, ")\n");
 }
 
@@ -716,12 +727,6 @@ SdfWriter::sdfEdge(const Transition *tr)
 }
 
 ////////////////////////////////////////////////////////////////
-
-char *
-SdfWriter::sdfPortName(const Pin *pin)
-{
-  return const_cast<char *>(network_->portName(pin));
-}
 
 char *
 SdfWriter::sdfPathName(const Pin *pin)
@@ -782,6 +787,32 @@ SdfWriter::sdfName(const Instance *inst)
       if (!(isalnum(ch) || ch == '_'))
 	// Insert escape.
 	*s++ = sdf_escape_;
+      *s++ = ch;
+    }
+    p++;
+  }
+  *s = '\0';
+  return sdf_name;
+}
+
+char *
+SdfWriter::sdfPortName(const Pin *pin)
+{
+  const char *name = network_->portName(pin);
+  char *sdf_name = makeTmpString(strlen(name) * 2 + 1);
+  const char *p = name;
+  char *s = sdf_name;
+  while (*p) {
+    char ch = *p;
+    if (ch == network_escape_) {
+      // Copy escape and escaped char.
+      *s++ = sdf_escape_;
+      *s++ = *++p;
+    }
+    else {
+      if (!(isalnum(ch) || ch == '_' || ch == '[' || ch == ']'))
+        // Insert escape.
+        *s++ = sdf_escape_;
       *s++ = ch;
     }
     p++;

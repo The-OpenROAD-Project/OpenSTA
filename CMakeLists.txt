@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2020, Parallax Software, Inc.
+# Copyright (c) 2022, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 # 
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 cmake_minimum_required (VERSION 3.9)
 if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
@@ -24,10 +24,11 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14)
 cmake_policy(SET CMP0086 NEW)
 endif()
 
-project(STA VERSION 2.2.0
+project(STA VERSION 2.3.1
   LANGUAGES CXX
 )
 
+option(USE_CUDD "Use CUDD BDD package")
 option(CUDD_DIR "CUDD BDD package directory")
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -236,6 +237,9 @@ set(STA_TCL_FILES
 #
 ################################################################
 
+# Earlier versions of flex use 'register' declarations that are deprecated
+# in c++11 and illegal in c++17.
+#find_package(FLEX 2.6.4)
 find_package(FLEX)
 find_package(BISON)
 
@@ -252,7 +256,7 @@ flex_target(LibertyLex ${STA_HOME}/liberty/LibertyLex.ll ${CMAKE_CURRENT_BINARY_
   COMPILE_FLAGS --prefix=LibertyLex_
   )
 bison_target(LibertyParser ${STA_HOME}/liberty/LibertyParse.yy ${CMAKE_CURRENT_BINARY_DIR}/LibertyParse.cc
-  COMPILE_FLAGS --name-prefix=LibertyParse_
+  COMPILE_FLAGS "--name-prefix=LibertyParse_ -v"
   )
 add_flex_bison_dependency(LibertyLex LibertyParser)
 
@@ -325,6 +329,15 @@ swig_add_library(sta_swig
   SOURCES ${STA_SWIG_FILE}
 )
 
+get_target_property(SWIG_FILES sta_swig SOURCES)
+
+foreach(SWIG_FILE ${SWIG_FILES})
+  set_source_files_properties(${SWIG_FILE}
+    PROPERTIES
+    COMPILE_OPTIONS "-Wno-cast-qual;-Wno-missing-braces"
+  )
+endforeach()
+
 target_link_libraries(sta_swig
   PUBLIC
   OpenSTA
@@ -365,7 +378,7 @@ add_custom_command(OUTPUT ${STA_TCL_INIT}
 # CMAKE_FIND_FRAMEWORK LAST bypasses the version in the framework directory
 # but not the one in /usr/lib.
 # This calls cmake/FindTCL.cmake
-# Do not use REQUIRED because it also requires TK.
+# Do not use REQUIRED because it also requires TK, which is not used by OpenSTA.
 find_package(TCL)
 
 # Zlib
@@ -378,27 +391,29 @@ find_package(Threads)
 # Locate CUDD bdd package.
 #
 set(CUDD 0)
-find_library(CUDD_LIB
-  NAME cudd
-  PATHS ${CUDD_DIR}
-  PATH_SUFFIXES lib lib/cudd
-  )
-if (CUDD_LIB)
-  message(STATUS "CUDD library: ${CUDD_LIB}")
-  get_filename_component(CUDD_LIB_DIR "${CUDD_LIB}" PATH)
-  get_filename_component(CUDD_LIB_PARENT1 "${CUDD_LIB_DIR}" PATH)
-  find_file(CUDD_HEADER cudd.h
-    PATHS ${CUDD_LIB_PARENT1}/include ${CUDD_LIB_PARENT1}/include/cudd)
-  if (CUDD_HEADER)
-    get_filename_component(CUDD_INCLUDE "${CUDD_HEADER}" PATH)
-    message(STATUS "CUDD header: ${CUDD_HEADER}")
-    # CUDD referenced by StaConfig.hh.cmake
-    set(CUDD 1)
+if (USE_CUDD)
+  find_library(CUDD_LIB
+    NAME cudd
+    PATHS ${CUDD_DIR}
+    PATH_SUFFIXES lib lib/cudd
+    )
+  if (CUDD_LIB)
+    message(STATUS "CUDD library: ${CUDD_LIB}")
+    get_filename_component(CUDD_LIB_DIR "${CUDD_LIB}" PATH)
+    get_filename_component(CUDD_LIB_PARENT1 "${CUDD_LIB_DIR}" PATH)
+    find_file(CUDD_HEADER cudd.h
+      PATHS ${CUDD_LIB_PARENT1}/include ${CUDD_LIB_PARENT1}/include/cudd)
+    if (CUDD_HEADER)
+      get_filename_component(CUDD_INCLUDE "${CUDD_HEADER}" PATH)
+      message(STATUS "CUDD header: ${CUDD_HEADER}")
+      # CUDD referenced by StaConfig.hh.cmake
+      set(CUDD 1)
+    else()
+      message(STATUS "CUDD header: not found")
+    endif()
   else()
-    message(STATUS "CUDD header: not found")
+    message(STATUS "CUDD library: not found")
   endif()
-else()
-  message(STATUS "CUDD library: not found")
 endif()
 
 if("${SSTA}" STREQUAL "")
@@ -449,6 +464,13 @@ target_include_directories(OpenSTA
   ${CUDD_INCLUDE}
   )
 
+target_compile_options(OpenSTA
+  PRIVATE
+  $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security>
+  $<$<CXX_COMPILER_ID:AppleClang>:-Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security -Wno-gnu-zero-variadic-macro-arguments>
+  $<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security -Wno-gnu-zero-variadic-macro-arguments>
+  )
+
 # Disable compiler specific extensions like gnu++11.
 set_target_properties(OpenSTA PROPERTIES CXX_EXTENSIONS OFF)
 target_compile_features(OpenSTA PUBLIC cxx_std_11)
@@ -464,13 +486,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${STA_HOME}/app)
 # on osx something is case insensitive. Using STA for the
 # lib name results in "No rule to make target ../depend.
 add_executable(sta app/Main.cc)
-
-target_compile_options(sta
-  PRIVATE
-  $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security>
-  $<$<CXX_COMPILER_ID:AppleClang>:-Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security>
-  $<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security>
-  )
 
 target_link_libraries(sta
   sta_swig

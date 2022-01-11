@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -47,6 +47,7 @@ public:
   virtual ~Corners();
   void clear();
   int count() const;
+  void copy(Corners *corners);
   bool multiCorner() const;
   Corner *findCorner(const char *corner);
   Corner *findCorner(int corner_index);
@@ -54,8 +55,9 @@ public:
   void analysisTypeChanged();
   void operatingConditionsChanged();
 
-  void makeParasiticAnalysisPtsSingle();
-  void makeParasiticAnalysisPtsMinMax();
+  // Make one parasitic analysis points.
+  void makeParasiticAnalysisPts(bool per_corner,
+                                bool per_min_max);
   int parasiticAnalysisPtCount() const;
   ParasiticAnalysisPtSeq &parasiticAnalysisPts();
 
@@ -75,7 +77,6 @@ public:
 
 protected:
   void makeAnalysisPts();
-  void updateCornerParasiticAnalysisPts();
   void makeDcalcAnalysisPts(Corner *corner);
   DcalcAnalysisPt *makeDcalcAnalysisPt(Corner *corner,
 				       const MinMax *min_max,
@@ -115,7 +116,8 @@ public:
 
 protected:
   void setParasiticAnalysisPtcount(int ap_count);
-  void addParasiticAP(ParasiticAnalysisPt *path_ap);
+  void setParasiticAP(ParasiticAnalysisPt *path_ap,
+                      int ap_index);
   void setDcalcAnalysisPtcount(DcalcAPIndex ap_count);
   void addDcalcAP(DcalcAnalysisPt *dcalc_ap);
   void addPathAP(PathAnalysisPt *path_ap);
@@ -130,57 +132,6 @@ private:
 
   friend class Corners;
   DISALLOW_COPY_AND_ASSIGN(Corner);
-};
-
-// Obsolete. Use range iterator.
-// for (auto corner : *sta->corners()) {}
-class CornerIterator : public Iterator<Corner*>
-{
-public:
-  explicit CornerIterator(const StaState *sta);
-  virtual ~CornerIterator() {}
-  virtual bool hasNext();
-  virtual Corner *next();
-
-protected:
-  CornerSeq::ConstIterator iter_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(CornerIterator);
-};
-
-// Obsolete. Use range iterator.
-// for (auto dcalc_ap : sta->corners()->dcalcAnalysisPts()) {}
-class DcalcAnalysisPtIterator : public Iterator<DcalcAnalysisPt*>
-{
-public:
-  explicit DcalcAnalysisPtIterator(const StaState *sta);
-  virtual ~DcalcAnalysisPtIterator() {}
-  virtual bool hasNext();
-  virtual DcalcAnalysisPt *next();
-
-protected:
-  DcalcAnalysisPtSeq::ConstIterator ap_iter_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(DcalcAnalysisPtIterator);
-};
-
-// Obsolete. Use range iterator.
-// for (auto path_ap : sta->corners()->pathAnalysisPts()) {}
-class PathAnalysisPtIterator : public Iterator<PathAnalysisPt*>
-{
-public:
-  explicit PathAnalysisPtIterator(const StaState *sta);
-  virtual ~PathAnalysisPtIterator() {}
-  virtual bool hasNext();
-  virtual PathAnalysisPt *next();
-
-protected:
-  PathAnalysisPtSeq::ConstIterator ap_iter_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PathAnalysisPtIterator);
 };
 
 } // namespace

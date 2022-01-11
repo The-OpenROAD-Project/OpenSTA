@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "PathVertex.hh"
 
@@ -245,15 +245,12 @@ PathVertex::setArrival(Arrival arrival,
 const Required &
 PathVertex::required(const StaState *sta) const
 {
-  if (tag_ && vertex_->hasRequireds()) {
-    const Search *search = sta->search();
-    TagGroup *tag_group = search->tagGroup(vertex_);
-    int req_index = tag_group->requiredIndex(arrival_index_);
-    Arrival *arrivals = sta->graph()->arrivals(vertex_);
-    return arrivals[req_index];
+  if (tag_) {
+    Required *requireds = sta->graph()->requireds(vertex_);
+    if (requireds)
+      return requireds[arrival_index_];
   }
-  else
-    return delayInitValue(minMax(sta)->opposite());
+  return delayInitValue(minMax(sta)->opposite());
 }
 
 void
@@ -261,26 +258,14 @@ PathVertex::setRequired(const Required &required,
 			const StaState *sta)
 {
   Graph *graph = sta->graph();
-  const Search *search = sta->search();
-  TagGroup *tag_group = search->tagGroup(vertex_);
-  Arrival *arrivals = graph->arrivals(vertex_);
-  int arrival_count = tag_group->arrivalCount();
-  if (!vertex_->hasRequireds()) {
-    Arrival *new_arrivals = graph->makeArrivals(vertex_, arrival_count * 2);
-    memcpy(new_arrivals, arrivals, arrival_count * sizeof(Arrival));
-    vertex_->setHasRequireds(true);
-    arrivals = new_arrivals;
+  Required *requireds = graph->requireds(vertex_);
+  if (requireds == nullptr) {
+    const Search *search = sta->search();
+    TagGroup *tag_group = search->tagGroup(vertex_);
+    int arrival_count = tag_group->arrivalCount();
+    requireds = graph->makeRequireds(vertex_, arrival_count);
   }
-  int req_index = arrival_index_ + arrival_count;
-  arrivals[req_index] = required;
-}
-
-void
-PathVertex::deleteRequireds(Vertex *vertex,
-			    const StaState *)
-{
-  vertex->setHasRequireds(false);
-  // Don't bother reclaiming requieds from arrival table.
+  requireds[arrival_index_] = required;
 }
 
 bool
@@ -326,7 +311,7 @@ public:
   PrevPathVisitor(const Path *path,
 		  SearchPred *pred,
 		  const StaState *sta);
-  virtual VertexVisitor *copy();
+  virtual VertexVisitor *copy() const;
   virtual void visit(Vertex *) {}
   virtual bool visitFromToPath(const Pin *from_pin,
 			       Vertex *from_vertex,
@@ -377,7 +362,7 @@ PrevPathVisitor::PrevPathVisitor(const Path *path,
 }
 
 VertexVisitor *
-PrevPathVisitor::copy()
+PrevPathVisitor::copy() const
 {
   return new PrevPathVisitor(path_, pred_, sta_);
 }
@@ -532,6 +517,24 @@ VertexPathIterator::VertexPathIterator(Vertex *vertex,
   vertex_(vertex),
   rf_(rf),
   path_ap_(nullptr),
+  min_max_(min_max)
+{
+  TagGroup *tag_group = search_->tagGroup(vertex);
+  if (tag_group) {
+    arrival_iter_.init(tag_group->arrivalMap());
+    findNext();
+  }
+}
+
+VertexPathIterator::VertexPathIterator(Vertex *vertex,
+				       const RiseFall *rf,
+				       const PathAnalysisPt *path_ap,
+				       const MinMax *min_max,
+				       const StaState *sta) :
+  search_(sta->search()),
+  vertex_(vertex),
+  rf_(rf),
+  path_ap_(path_ap),
   min_max_(min_max)
 {
   TagGroup *tag_group = search_->tagGroup(vertex);

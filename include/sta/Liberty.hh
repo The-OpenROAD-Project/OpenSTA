@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -23,6 +23,7 @@
 #include "RiseFallValues.hh"
 #include "MinMaxValues.hh"
 #include "Transition.hh"
+#include "Delay.hh"
 #include "LibertyClass.hh"
 
 namespace sta {
@@ -30,6 +31,7 @@ namespace sta {
 class LibertyCellIterator;
 class LibertyCellPortIterator;
 class LibertyCellPortBitIterator;
+class LibertyCellPgPortIterator;
 class LibertyPortMemberIterator;
 class ModeValueDef;
 class TestCell;
@@ -43,6 +45,7 @@ class OcvDerate;
 class TimingArcAttrs;
 class InternalPowerAttrs;
 class LibertyPgPort;
+class StaState;
 
 typedef Set<Library*> LibrarySet;
 typedef Map<const char*, TableTemplate*, CharPtrLess> TableTemplateMap;
@@ -169,9 +172,9 @@ public:
   void setDefaultBidirectPinCap(float cap);
 
   void defaultIntrinsic(const RiseFall *rf,
-			// Return values.
-			float &intrisic,
-			bool &exists) const;
+                        // Return values.
+                        float &intrisic,
+                        bool &exists) const;
   void setDefaultIntrinsic(const RiseFall *rf,
 			   float value);
   // Uses defaultOutputPinRes or defaultBidirectPinRes based on dir.
@@ -225,6 +228,8 @@ public:
   // (measured) thresholds for the table axes and value.  These slews
   // are scaled by slew_derate_from_library to get slews reported to
   // the user.
+  // slew(measured) = slew_derate_from_library * slew(table)
+  //   measured is from slew_lower_threshold to slew_upper_threshold
   float slewDerateFromLibrary() const;
   void setSlewDerateFromLibrary(float derate);
 
@@ -393,7 +398,8 @@ public:
   void findLibertyPortsMatching(PatternMatch *pattern,
 				LibertyPortSeq *ports) const;
   bool hasInternalPorts() const { return has_internal_ports_; }
-  LibertyPgPort *findPgPort(const char *name);
+  LibertyPgPort *findPgPort(const char *name) const;
+  size_t pgPortCount() const { return pg_port_map_.size(); }
   ScaleFactors *scaleFactors() const { return scale_factors_; }
   void setScaleFactors(ScaleFactors *scale_factors);
   ModeDef *makeModeDef(const char *name);
@@ -409,6 +415,8 @@ public:
   void setIsMemory(bool is_memory);
   bool isPad() const { return is_pad_; }
   void setIsPad(bool is_pad);
+  bool isLevelShifter() const { return is_level_shifter_; }
+  void setIsLevelShifter(bool is_level_shifter);
   bool interfaceTiming() const { return interface_timing_; }
   void setInterfaceTiming(bool value);
   bool isClockGateLatchPosedge() const;
@@ -532,6 +540,7 @@ protected:
   bool is_macro_;
   bool is_memory_;
   bool is_pad_;
+  bool is_level_shifter_;
   bool has_internal_ports_;
   bool interface_timing_;
   ClockGateType clock_gate_type_;
@@ -573,6 +582,7 @@ private:
 
   friend class LibertyLibrary;
   friend class LibertyCellPortIterator;
+  friend class LibertyCellPgPortIterator;
   friend class LibertyPort;
   friend class LibertyBuilder;
   friend class LibertyCellTimingArcSetIterator;
@@ -606,6 +616,19 @@ private:
   ConcreteCellPortBitIterator *iter_;
 };
 
+class LibertyCellPgPortIterator : public Iterator<LibertyPgPort*>
+{
+public:
+  LibertyCellPgPortIterator(const LibertyCell *cell);
+  bool hasNext();
+  LibertyPgPort *next();
+
+private:
+  DISALLOW_COPY_AND_ASSIGN(LibertyCellPgPortIterator);
+
+  LibertyPgPortMap::Iterator iter_;
+};
+
 class LibertyCellTimingArcSetIterator : public TimingArcSetSeq::ConstIterator
 {
 public:
@@ -637,6 +660,7 @@ public:
 		  bool &exists) const;
   void setFanoutLoad(float fanout_load);
   float capacitance() const;
+  float capacitance(const MinMax *min_max) const;
   float capacitance(const RiseFall *rf,
 		    const MinMax *min_max) const;
   void capacitance(const RiseFall *rf,
@@ -660,9 +684,10 @@ public:
   float driveResistance(const RiseFall *rf,
 			const MinMax *min_max) const;
   // Zero load delay.
-  float intrinsicDelay() const;
-  float intrinsicDelay(const RiseFall *rf,
-		       const MinMax *min_max) const;
+  ArcDelay intrinsicDelay(const StaState *sta) const;
+  ArcDelay intrinsicDelay(const RiseFall *rf,
+                          const MinMax *min_max,
+                          const StaState *sta) const;
   FuncExpr *function() const { return function_; }
   void setFunction(FuncExpr *func);
   FuncExpr *&functionRef() { return function_; }
@@ -732,6 +757,7 @@ public:
   bool isDisabledConstraint() const { return is_disabled_constraint_; }
   void setIsDisabledConstraint(bool is_disabled);
   LibertyPort *cornerPort(int ap_index);
+  const LibertyPort *cornerPort(int ap_index) const;
   void setCornerPort(LibertyPort *corner_port,
 		     int ap_index);
   const char *relatedGroundPin() const { return related_ground_pin_; }
@@ -1056,12 +1082,14 @@ public:
   LibertyPgPort(const char *name,
 		LibertyCell *cell);
   ~LibertyPgPort();
-  const char *name() { return name_; }
+  const char *name() const { return name_; }
   LibertyCell *cell() const { return cell_; }
   PgType pgType() const { return pg_type_; }
   void setPgType(PgType type);
   const char *voltageName() const { return voltage_name_; }
   void setVoltageName(const char *voltage_name);
+  static bool equiv(const LibertyPgPort *port1,
+		    const LibertyPgPort *port2);
 
 private:
   const char *name_;

@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "CheckFanoutLimits.hh"
 
@@ -20,6 +20,7 @@
 #include "Liberty.hh"
 #include "Network.hh"
 #include "Sdc.hh"
+#include "InputDrive.hh"
 #include "Sim.hh"
 #include "PortDirection.hh"
 #include "Graph.hh"
@@ -84,7 +85,7 @@ CheckFanoutLimits::checkFanout(const Pin *pin,
 			       float &slack) const
 {
   fanout = 0.0;
-  limit = 0.0;
+  limit = min_max->initValue();
   slack = MinMax::min()->initValue();
 
   float limit1;
@@ -106,10 +107,14 @@ CheckFanoutLimits::findLimit(const Pin *pin,
   const Network *network = sta_->network();
   Sdc *sdc = sta_->sdc();
 
+  limit = min_max->initValue();
+  exists = false;
+
   // Default to top ("design") limit.
+  // Applies to input ports as well as instance outputs.
   Cell *top_cell = network->cell(network->topInstance());
   sdc->fanoutLimit(top_cell, min_max,
-		   limit, exists);
+                   limit, exists);
 
   float limit1;
   bool exists1;
@@ -121,6 +126,31 @@ CheckFanoutLimits::findLimit(const Pin *pin,
 	    || min_max->compare(limit, limit1))) {
       limit = limit1;
       exists = true;
+    }
+    InputDrive *drive = sdc->findInputDrive(port);
+    if (drive) {
+      for (auto min_max : MinMax::range()) {
+        for (auto rf : RiseFall::range()) {
+          LibertyCell *cell;
+          LibertyPort *from_port;
+          float *from_slews;
+          LibertyPort *to_port;
+          drive->driveCell(rf, min_max, cell, from_port, from_slews, to_port);
+          if (to_port) {
+            to_port->fanoutLimit(min_max, limit1, exists1);
+            if (!exists1
+                && min_max == MinMax::max()
+                && to_port->direction()->isAnyOutput())
+              to_port->libertyLibrary()->defaultMaxFanout(limit1, exists1);
+            if (exists1
+                && (!exists
+                    || min_max->compare(limit, limit1))) {
+              limit = limit1;
+              exists = true;
+            }
+          }
+        }
+      }
     }
   }
   else {
@@ -175,114 +205,108 @@ CheckFanoutLimits::fanoutLoad(const Pin *pin) const
 {
   float fanout = 0;
   const Network *network = sta_->network();
-  Net *net = network->net(pin);
+  NetConnectedPinIterator *pin_iter = network->connectedPinIterator(pin);
+  while (pin_iter->hasNext()) {
+    Pin *fanout_pin = pin_iter->next();
+    if (network->isLoad(fanout_pin)
+        && !network->isTopLevelPort(fanout_pin)) {
+      LibertyPort *port = network->libertyPort(fanout_pin);
+      if (port) {
+        float fanout_load;
+        bool exists;
+        port->fanoutLoad(fanout_load, exists);
+        if (!exists) {
+          LibertyLibrary *lib = port->libertyLibrary();
+          lib->defaultFanoutLoad(fanout_load, exists);
+        }
+        if (exists)
+          fanout += fanout_load;
+      }
+      else
+        fanout += 1;
+    }
+  }
+  delete pin_iter;
+  return fanout;
+}
+
+////////////////////////////////////////////////////////////////
+
+PinSeq *
+CheckFanoutLimits::checkFanoutLimits(Net *net,
+                                     bool violators,
+                                     const MinMax *min_max)
+{
+  const Network *network = sta_->network();
+  PinSeq *fanout_pins = new PinSeq;
+  float min_slack = MinMax::min()->initValue();
   if (net) {
     NetPinIterator *pin_iter = network->pinIterator(net);
     while (pin_iter->hasNext()) {
       Pin *pin = pin_iter->next();
-      if (network->isLoad(pin)) {
-	LibertyPort *port = network->libertyPort(pin);
-	if (port) {
-	  float fanout_load;
-	  bool exists;
-	  port->fanoutLoad(fanout_load, exists);
-	  if (!exists) {
-	    LibertyLibrary *lib = port->libertyLibrary();
-	    lib->defaultFanoutLoad(fanout_load, exists);
-	  }
-	  if (exists)
-	    fanout += fanout_load;
-	}
-	else
-	  fanout += 1;
-      }
+      checkFanoutLimits(pin, violators, min_max, fanout_pins, min_slack);
     }
     delete pin_iter;
   }
-  return fanout;
-}
-
-PinSeq *
-CheckFanoutLimits::pinFanoutLimitViolations(const MinMax *min_max)
-{
-  const Network *network = sta_->network();
-  PinSeq *violators = new PinSeq;
-  LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
-  while (inst_iter->hasNext()) {
-    Instance *inst = inst_iter->next();
-    pinFanoutLimitViolations(inst, min_max, violators);
+  else {
+    LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
+    while (inst_iter->hasNext()) {
+      Instance *inst = inst_iter->next();
+      checkFanoutLimits(inst, violators, min_max, fanout_pins, min_slack);
+    }
+    delete inst_iter;
+    // Check top level ports.
+    checkFanoutLimits(network->topInstance(), violators, min_max,
+                    fanout_pins, min_slack);
   }
-  delete inst_iter;
-
-  // Check top level ports.
-  pinFanoutLimitViolations(network->topInstance(), min_max, violators);
-  sort(violators, PinFanoutLimitSlackLess(min_max, this, sta_));
-  return violators;
+  sort(fanout_pins, PinFanoutLimitSlackLess(min_max, this, sta_));
+  // Keep the min slack pin unless all violators or net pins.
+  if (!fanout_pins->empty() && !violators && net == nullptr)
+    fanout_pins->resize(1);
+  return fanout_pins;
 }
 
 void
-CheckFanoutLimits::pinFanoutLimitViolations(Instance *inst,
-					    const MinMax *min_max,
-					    PinSeq *violators)
+CheckFanoutLimits::checkFanoutLimits(Instance *inst,
+                                     bool violators,
+                                     const MinMax *min_max,
+                                     PinSeq *fanout_pins,
+                                     float &min_slack)
 {
   const Network *network = sta_->network();
-  const Sim *sim = sta_->sim();
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
-    if (checkPin(pin)) {
-      float fanout;
-      float limit, slack;
-      checkFanout(pin, min_max, fanout, limit, slack );
-      if (slack < 0.0 && !fuzzyInf(slack))
-	violators->push_back(pin);
-    }
+    checkFanoutLimits(pin, violators, min_max, fanout_pins, min_slack);
   }
   delete pin_iter;
 }
 
-Pin *
-CheckFanoutLimits::pinMinFanoutLimitSlack(const MinMax *min_max)
-{
-  const Network *network = sta_->network();
-  Pin *min_slack_pin = nullptr;
-  float min_slack = MinMax::min()->initValue();
-  LeafInstanceIterator *inst_iter = network->leafInstanceIterator();
-  while (inst_iter->hasNext()) {
-    Instance *inst = inst_iter->next();
-    pinMinFanoutLimitSlack(inst, min_max, min_slack_pin, min_slack);
-  }
-  delete inst_iter;
-  // Check top level ports.
-  pinMinFanoutLimitSlack(network->topInstance(), min_max,
-			 min_slack_pin, min_slack);
-  return min_slack_pin;
-}
-
 void
-CheckFanoutLimits::pinMinFanoutLimitSlack(Instance *inst,
-					  const MinMax *min_max,
-					  // Return values.
-					  Pin *&min_slack_pin,
-					  float &min_slack)
+CheckFanoutLimits::checkFanoutLimits(Pin *pin,
+                                     bool violators,
+                                     const MinMax *min_max,
+                                     PinSeq *fanout_pins,
+                                     float &min_slack)
 {
-  const Network *network = sta_->network();
-  InstancePinIterator *pin_iter = network->pinIterator(inst);
-  while (pin_iter->hasNext()) {
-    Pin *pin = pin_iter->next();
-    if (checkPin(pin)) {
-      float fanout;
-      float limit, slack;
-      checkFanout(pin, min_max, fanout, limit, slack);
-      if (!fuzzyInf(slack)
-	  && (min_slack_pin == nullptr
-	      || slack < min_slack)) {
-	min_slack_pin = pin;
-	min_slack = slack;
+  if (checkPin(pin)) {
+    float fanout;
+    float limit, slack;
+    checkFanout(pin, min_max, fanout, limit, slack);
+    if (!fuzzyInf(slack)) {
+      if (violators) {
+        if (slack < 0.0)
+          fanout_pins->push_back(pin);
+      }
+      else {
+        if (fanout_pins->empty()
+            || slack < min_slack) {
+          fanout_pins->push_back(pin);
+          min_slack = slack;
+        }
       }
     }
   }
-  delete pin_iter;
 }
 
 bool
@@ -292,8 +316,8 @@ CheckFanoutLimits::checkPin(Pin *pin)
   const Sim *sim = sta_->sim();
   const Sdc *sdc = sta_->sdc();
   const Graph *graph = sta_->graph();
-  Vertex *vertex = graph->pinLoadVertex(pin);
-  return network->direction(pin)->isAnyOutput()
+  Vertex *vertex = graph->pinDrvrVertex(pin);
+  return network->isDriver(pin)
     && !sim->logicZeroOne(pin)
     && !sdc->isDisabled(pin)
     && !(vertex && sta_->isIdealClock(pin));

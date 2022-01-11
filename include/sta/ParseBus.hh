@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -68,7 +68,7 @@ void
 parseBusRange(const char *name,
 	      const char *brkts_left,
 	      const char *brkts_right,
-	      char escape,
+	      const char escape,
 	      // Return values.
 	      char *&bus_name,
 	      int &from,
@@ -77,8 +77,8 @@ parseBusRange(const char *name,
 // Insert escapes before ch1 and ch2 in token.
 const char *
 escapeChars(const char *token,
-	    char ch1,
-	    char ch2,
-	    char escape);
+	    const char ch1,
+	    const char ch2,
+	    const char escape);
 
 } // namespace

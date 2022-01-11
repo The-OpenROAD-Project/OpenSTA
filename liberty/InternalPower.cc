@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "InternalPower.hh"
 
@@ -36,11 +36,11 @@ InternalPowerAttrs::~InternalPowerAttrs()
 void
 InternalPowerAttrs::deleteContents()
 {
-  for (auto tr_index : RiseFall::rangeIndex()) {
-    InternalPowerModel *model = models_[tr_index];
-    if (model)
-      delete model;
-  }
+  InternalPowerModel *rise_model = models_[RiseFall::riseIndex()];
+  InternalPowerModel *fall_model = models_[RiseFall::fallIndex()];
+  delete rise_model;
+  if (fall_model != rise_model)
+    delete fall_model;
   if (when_)
     when_->deleteSubexprs();
   stringDelete(related_pg_pin_);
@@ -186,7 +186,10 @@ InternalPowerModel::findAxisValues(float in_slew,
     axis_value3 = axisValue(model_->axis3(), in_slew, load_cap);
     break;
   default:
-    internalError("unsupported table order");
+    axis_value1 = 0.0;
+    axis_value2 = 0.0;
+    axis_value3 = 0.0;
+    criticalError(229, "unsupported table order");
   }
 }
 
@@ -201,7 +204,7 @@ InternalPowerModel::axisValue(TableAxis *axis,
   else if (var == TableAxisVariable::total_output_net_capacitance)
     return load_cap;
   else {
-    internalError("unsupported table axes");
+    criticalError(230, "unsupported table axes");
     return 0.0;
   }
 }

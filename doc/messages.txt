@@ -1,0 +1,511 @@
+egrep "([eE]rror|[wW]arn)\([0-9]" */*.{cc,ll,yy} --exclude "build/*" include/sta/*.hh >doc/messages.txt
+egrep "(sta_error|sta_warn) \([0-9]" */*.tcl >>doc/messages.txt
+last used 593 
+
+dcalc/ArnoldiDelayCalc.cc:    criticalError(204, "arnoldi delay calc failed.");
+dcalc/DmpCeff.cc:      report_->warn(1, "cell %s delay model not supported on SPF parasitics by DMP delay calculator",
+liberty/InternalPower.cc:    criticalError(229, "unsupported table order");
+liberty/InternalPower.cc:    criticalError(230, "unsupported table axes");
+liberty/Liberty.cc:      criticalError(231, "unsupported slew degradation table axes");
+liberty/Liberty.cc:      criticalError(232, "unsupported slew degradation table axes");
+liberty/Liberty.cc:    criticalError(233, "unsupported slew degradation table order");
+liberty/Liberty.cc:    criticalError(234, "unsupported slew degradation table axes");
+liberty/Liberty.cc:      report->warn(2, "cell %s/%s port %s not found in cell %s/%s.",
+liberty/Liberty.cc:      report->warn(3, "cell %s/%s %s -> %s timing group %s not found in cell %s/%s.",
+liberty/Liberty.cc:    criticalError(235, "timing arc set max index exceeded");
+liberty/Liberty.cc:    criticalError(205, "timing arc count mismatch");
+liberty/Liberty.cc:		    report->warn(4, "cell %s/%s %s -> %s latch enable %s_edge timing arc is inconsistent with %s -> %s setup_%s check.",
+liberty/Liberty.cc:		      report->warn(5, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.",
+liberty/Liberty.cc:		      report->warn(6, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.",
+liberty/LibertyExpr.cc:    report_->error(7, "%s references unknown port %s.",
+liberty/LibertyExpr.cc:  report_->error(206, "%s %s.", error_msg_, msg);
+liberty/LibertyParser.cc:  criticalError(236, "valueIterator called for LibertySimpleAttribute");
+liberty/LibertyParser.cc:  criticalError(237, "LibertyStringAttrValue called for float value");
+liberty/LibertyParser.cc:  criticalError(238, "LibertyStringAttrValue called for float value");
+liberty/LibertyParser.cc:    liberty_report->fileWarn(24, liberty_filename, line,
+liberty/LibertyParser.cc:  sta::liberty_report->vfileError(25, sta::liberty_filename, sta::liberty_line,
+liberty/LibertyParser.cc:  sta::liberty_report->fileError(26, sta::liberty_filename, sta::liberty_line,
+liberty/LibertyReader.cc:      libWarn(53, group, "library %s already exists.", name);
+liberty/LibertyReader.cc:    libError(30, group, "library does not have a name.");
+liberty/LibertyReader.cc:      libWarn(31, group, "default_wire_load %s not found.", default_wireload_);
+liberty/LibertyReader.cc:      libWarn(32, group, "default_wire_selection %s not found.",
+liberty/LibertyReader.cc:      libWarn(33, group, "input_threshold_pct_%s not found.", tr->name());
+liberty/LibertyReader.cc:      libWarn(34, group, "output_threshold_pct_%s not found.", tr->name());
+liberty/LibertyReader.cc:      libWarn(35, group, "slew_lower_threshold_pct_%s not found.", tr->name());
+liberty/LibertyReader.cc:      libWarn(36, group, "slew_upper_threshold_pct_%s not found.", tr->name());
+liberty/LibertyReader.cc:    libError(37, group, "Library %s is missing one or more thresholds.",
+liberty/LibertyReader.cc:      libWarn(38, attr, "unknown unit multiplier %s.", mult_str);
+liberty/LibertyReader.cc:      libWarn(39, attr, "unknown unit scale %c.", scale_char);
+liberty/LibertyReader.cc:    libWarn(40, attr, "unknown unit suffix %s.", s + 1);
+liberty/LibertyReader.cc:		libWarn(41, attr, "capacitive_load_units are not ff or pf.");
+liberty/LibertyReader.cc:	      libWarn(42, attr, "capacitive_load_units are not a string.");
+liberty/LibertyReader.cc:	    libWarn(43, attr, "capacitive_load_units missing suffix.");
+liberty/LibertyReader.cc:	  libWarn(44, attr, "capacitive_load_units scale is not a float.");
+liberty/LibertyReader.cc:	libWarn(45, attr, "capacitive_load_units missing scale and suffix.");
+liberty/LibertyReader.cc:      libWarn(46, attr, "capacitive_load_unit missing values suffix.");
+liberty/LibertyReader.cc:	libWarn(47, attr, "delay_model %s not supported.", type_name);
+liberty/LibertyReader.cc:	libWarn(48, attr, "delay_model %s not supported.", type_name);
+liberty/LibertyReader.cc:	libWarn(49, attr, "delay_model %s not supported.", type_name);
+liberty/LibertyReader.cc:	libWarn(50, attr, "delay_model %s not supported.\n.", type_name);
+liberty/LibertyReader.cc:	libWarn(51, attr, "unknown delay_model %s\n.", type_name);
+liberty/LibertyReader.cc:      libWarn(52, attr, "unknown bus_naming_style format.");
+liberty/LibertyReader.cc:	      libWarn(54, attr, "voltage_map voltage is not a float.");
+liberty/LibertyReader.cc:	    libWarn(55, attr, "voltage_map missing voltage.");
+liberty/LibertyReader.cc:	  libWarn(56, attr, "voltage_map supply name is not a string.");
+liberty/LibertyReader.cc:	libWarn(57, attr, "voltage_map missing supply name and voltage.");
+liberty/LibertyReader.cc:      libWarn(58, attr, "voltage_map missing values suffix.");
+liberty/LibertyReader.cc:	libWarn(59, attr, "default_wire_load_mode %s not found.",
+liberty/LibertyReader.cc:      libWarn(60, attr, "default_operating_condition %s not found.",
+liberty/LibertyReader.cc:      libWarn(61, group, "table template does not have a name.");
+liberty/LibertyReader.cc:    libWarn(62, group, "missing variable_%d attribute.", index + 1);
+liberty/LibertyReader.cc:      libWarn(63, attr, "axis type %s not supported.", type);
+liberty/LibertyReader.cc:	libWarn(64, group, "bus type %s missing bit_from.", name);
+liberty/LibertyReader.cc:	libWarn(65, group, "bus type %s missing bit_to.", name);
+liberty/LibertyReader.cc:    libWarn(66, group, "type does not have a name.");
+liberty/LibertyReader.cc:    libWarn(67, group, "scaling_factors do not have a name.");
+liberty/LibertyReader.cc:    libWarn(68, group, "operating_conditions does not have a name.");
+liberty/LibertyReader.cc:    libWarn(69, group, "wire_load does not have a name.");
+liberty/LibertyReader.cc:      libWarn(70, attr, "fanout_length is missing length and fanout.");
+liberty/LibertyReader.cc:    libWarn(71, group, "wire_load_selection does not have a name.");
+liberty/LibertyReader.cc:		libWarn(72, attr, "wireload %s not found.", wireload_name);
+liberty/LibertyReader.cc:	      libWarn(73, attr,
+liberty/LibertyReader.cc:	    libWarn(74, attr, "wire_load_from_area min not a float.");
+liberty/LibertyReader.cc:	  libWarn(75, attr, "wire_load_from_area max not a float.");
+liberty/LibertyReader.cc:	libWarn(76, attr, "wire_load_from_area missing parameters.");
+liberty/LibertyReader.cc:      libWarn(77, attr, "wire_load_from_area missing parameters.");
+liberty/LibertyReader.cc:    libWarn(78, group, "cell does not have a name.");
+liberty/LibertyReader.cc:	libWarn(79, group, "cell %s ocv_derate_group %s not found.",
+liberty/LibertyReader.cc:      libWarn(80, line, "port %s function size does not match port size.",
+liberty/LibertyReader.cc:      libWarn(81, line, "%s %s bus width mismatch.", type, clk_attr);
+liberty/LibertyReader.cc:      libWarn(82, line, "%s %s bus width mismatch.", type, data_attr);
+liberty/LibertyReader.cc:      libWarn(83, line, "%s %s bus width mismatch.", type, "clear");
+liberty/LibertyReader.cc:      libWarn(84, line, "%s %s bus width mismatch.", type, "preset");
+liberty/LibertyReader.cc:      libWarn(85, line, "latch enable function is non-unate for port %s.",
+liberty/LibertyReader.cc:      libWarn(86, line, "latch enable function is unknown for port %s.",
+liberty/LibertyReader.cc:	  libWarn(87, group, "operating conditions %s not found.", op_cond_name);
+liberty/LibertyReader.cc:	libWarn(88, group, "scaled_cell does not have an operating condition.");
+liberty/LibertyReader.cc:      libWarn(89, group, "scaled_cell cell %s has not been defined.", name);
+liberty/LibertyReader.cc:    libWarn(90, group, "scaled_cell does not have a name.");
+liberty/LibertyReader.cc:      libWarn(91, group, "scaled_cell %s, %s port functions do not match cell port functions.",
+liberty/LibertyReader.cc:    libWarn(92, group, "scaled_cell ports do not match cell ports.");
+liberty/LibertyReader.cc:    libWarn(93, group, "scaled_cell %s, %s timing does not match cell timing.",
+liberty/LibertyReader.cc:    libWarn(94, line, "combinational timing to an input port.");
+liberty/LibertyReader.cc:	  visitor->libWarn(95, line_, "missing %s_transition.", tr->name());
+liberty/LibertyReader.cc:	  visitor->libWarn(96, line_, "missing cell_%s.", tr->name());
+liberty/LibertyReader.cc:	libWarn(97, timing->line(),
+liberty/LibertyReader.cc:	libWarn(98, power_group->line(),
+liberty/LibertyReader.cc:      libWarn(99, attr, "scaling_factors %s not found.", scale_factors_name);
+liberty/LibertyReader.cc:	  libWarn(100, group, "pin name is not a string.");
+liberty/LibertyReader.cc:	  libWarn(101, group, "pin name is not a string.");
+liberty/LibertyReader.cc:	  libWarn(102, group, "pin name is not a string.");
+liberty/LibertyReader.cc:      libWarn(103, group, "bus %s bus_type not found.", group->firstName());
+liberty/LibertyReader.cc:	libWarn(104, attr, "bus_type %s not found.", bus_type);
+liberty/LibertyReader.cc:      libWarn(105, attr, "bus_type is not a string.");
+liberty/LibertyReader.cc:      libWarn(106, group, "bundle %s member not found.", group->firstName());
+liberty/LibertyReader.cc:	    libWarn(107, attr, "member is not a string.");
+liberty/LibertyReader.cc:      libWarn(108, attr,"members attribute is missing values.");
+liberty/LibertyReader.cc:	libWarn(109, attr, "unknown port direction.");
+liberty/LibertyReader.cc:	libWarn(110,attr, "pulse_latch unknown pulse type.");
+liberty/LibertyReader.cc:	libWarn(111, attr, "unknown timing_type %s.", type_name);
+liberty/LibertyReader.cc:	libWarn(112, attr, "unknown timing_sense %s.", sense_name);
+liberty/LibertyReader.cc:	      libWarn(113, attr, "mode value is not a string.");
+liberty/LibertyReader.cc:	    libWarn(114, attr, "missing mode value.");
+liberty/LibertyReader.cc:	  libWarn(115, attr, "mode name is not a string.");
+liberty/LibertyReader.cc:	libWarn(116, attr, "mode missing values.");
+liberty/LibertyReader.cc:      libWarn(117, attr, "mode missing mode name and value.");
+liberty/LibertyReader.cc:      libWarn(118, group, "unsupported model axis.");
+liberty/LibertyReader.cc:      libWarn(119, group, "unsupported model axis.");
+liberty/LibertyReader.cc:      libWarn(120, group, "unsupported model axis.");
+liberty/LibertyReader.cc:      libWarn(121, group, "unsupported model axis.");
+liberty/LibertyReader.cc:      libWarn(122, group, "table template %s not found.", template_name);
+liberty/LibertyReader.cc:    libWarn(123, attr, "%s is missing values.", attr->name());
+liberty/LibertyReader.cc:      libWarn(124, attr, "%s is not a list of floats.", attr->name());
+liberty/LibertyReader.cc:      libWarn(125, attr, "table row has %u columns but axis has %d.",
+liberty/LibertyReader.cc:    libWarn(126, attr, "table has %u rows but axis has %d.",
+liberty/LibertyReader.cc:	libWarn(127, group, "lut output is not a string.");
+liberty/LibertyReader.cc:    libWarn(128, group, "mode definition does not have a name.");
+liberty/LibertyReader.cc:      libWarn(129, group, "mode value does not have a name.");
+liberty/LibertyReader.cc:    libWarn(130, attr, "when attribute inside table model.");
+liberty/LibertyReader.cc:      libWarn(131, attr, "%s attribute is not a string.", attr->name());
+liberty/LibertyReader.cc:    libWarn(132, attr, "%s is not a simple attribute.", attr->name());
+liberty/LibertyReader.cc:      libWarn(132, attr, "%s attribute is not an integer.",attr->name());
+liberty/LibertyReader.cc:    libWarn(133, attr, "%s is not a simple attribute.", attr->name());
+liberty/LibertyReader.cc:    libWarn(134, attr, "%s is not a simple attribute.", attr->name());
+liberty/LibertyReader.cc:	libWarn(135, attr, "%s value %s is not a float.",
+liberty/LibertyReader.cc:	  libWarn(136, attr, "%s missing values.", attr->name());
+liberty/LibertyReader.cc:      libWarn(137, attr, "%s missing values.", attr->name());
+liberty/LibertyReader.cc:    libWarn(138, attr, "%s is not a complex attribute.", attr->name());
+liberty/LibertyReader.cc:      libWarn(139, attr, "%s is not a float.", token);
+liberty/LibertyReader.cc:	libWarn(140, attr, "%s is missing values.", attr->name());
+liberty/LibertyReader.cc:      libWarn(141, attr, "%s has more than one string.", attr->name());
+liberty/LibertyReader.cc:      libWarn(142, attr, "%s is missing values.", attr->name());
+liberty/LibertyReader.cc:	libWarn(143, attr, "%s attribute is not boolean.", attr->name());
+liberty/LibertyReader.cc:      libWarn(144, attr, "%s attribute is not boolean.", attr->name());
+liberty/LibertyReader.cc:    libWarn(145, attr, "%s is not a simple attribute.", attr->name());
+liberty/LibertyReader.cc:      libWarn(146, attr, "attribute %s value %s not recognized.",
+liberty/LibertyReader.cc:    libWarn(147, attr, "unknown early/late value.");
+liberty/LibertyReader.cc:    libWarn(148, attr, "OCV derate group named %s not found.", derate_name);
+liberty/LibertyReader.cc:    libWarn(149, group, "ocv_derate does not have a name.");
+liberty/LibertyReader.cc:    libError(150, attr, "unknown rf_type.");
+liberty/LibertyReader.cc:    libWarn(151, attr, "unknown derate type.");
+liberty/LibertyReader.cc:      libWarn(152, group, "unsupported model axis.");
+liberty/LibertyReader.cc:      libWarn(153, group, "unsupported model axis.");
+liberty/LibertyReader.cc:      libWarn(154, group, "unsupported model axis.");
+liberty/LibertyReader.cc:      libError(155, attr, "unknown pg_type.");
+liberty/LibertyReader.cc:	    visitor_->libWarn(156, line_, "port %s subscript out of range.",
+liberty/LibertyReader.cc:	  visitor_->libWarn(157, line_, "port range %s of non-bus port %s.",
+liberty/LibertyReader.cc:      visitor_->libWarn(158, line_, "port %s not found.", port_name);
+liberty/LibertyReader.cc:      visitor_->libWarn(159, line_, "port %s not found.", bus_bit_name);
+liberty/TableModel.cc:    criticalError(239, "unsupported table order");
+liberty/TableModel.cc:    criticalError(240, "unsupported table axes");
+liberty/TableModel.cc:    criticalError(241, "unsupported table order");
+liberty/TableModel.cc:    criticalError(242, "unsupported table axes");
+liberty/TimingArc.cc:    criticalError(243, "timing arc max index exceeded\n");
+network/ConcreteNetwork.cc:    report->error(8, "cell type %s can not be linked.", top_cell_name);
+parasitics/SpefReader.cc:    warn(167, "illegal bus delimiters.");
+parasitics/SpefReader.cc:    warn(168, "unknown units %s.", units);
+parasitics/SpefReader.cc:    warn(168, "unknown units %s.", units);
+parasitics/SpefReader.cc:    warn(170, "unknown units %s.", units);
+parasitics/SpefReader.cc:    warn(168, "unknown units %s.", units);
+parasitics/SpefReader.cc:      warn(169, "no name map entry for %d.", index);
+parasitics/SpefReader.cc:    warn(170, "unknown port direction %s.", spef_dir);
+parasitics/SpefReader.cc:	  warn(171, "pin %s not found.", name);
+parasitics/SpefReader.cc:	warn(172, "instance %s not found.", name);
+parasitics/SpefReader.cc:	warn(173, "pin %s not found.", name);
+parasitics/SpefReader.cc:      warn(174, "net %s not found.", name);
+parasitics/SpefReader.cc:    warn(175, "%s not connected to net %s.", name, network_->pathName(net_));
+parasitics/SpefReader.cc:	    warn(176, "pin %s not found.", name);
+parasitics/SpefReader.cc:	      warn(177, "node %s not a pin or net:number", name);
+parasitics/SpefReader.cc:	  warn(178, "pin %s not found.", name);
+parasitics/SpefReader.cc:  sta::spef_reader->warn(179, "%s.", msg);
+sdc/Clock.cc:    criticalError(244, "generated clock edges size is not three.");
+sdc/Sdc.cc:    report_->warn(9, "No common period was found between clocks %s and %s.",
+sdf/SdfReader.cc:      sdfError(180, "TIMESCALE units not us, ns, or ps.");
+sdf/SdfReader.cc:    sdfError(181, "TIMESCALE multiplier not 1, 10, or 100.");
+sdf/SdfReader.cc:	    sdfError(182, "pin %s is a hierarchical pin.", from_pin_name);
+sdf/SdfReader.cc:	    sdfError(183, "pin %s is a hierarchical pin.", to_pin_name);
+sdf/SdfReader.cc:	  sdfError(184, "INTERCONNECT from %s to %s not found.",
+sdf/SdfReader.cc:	sdfError(185, "pin %s not found.", from_pin_name);
+sdf/SdfReader.cc:	sdfError(186, "pin %s not found.", to_pin_name);
+sdf/SdfReader.cc:      sdfError(187, "pin %s not found.", to_pin_name);
+sdf/SdfReader.cc:    sdfError(188, "%s with no triples.", sdf_cmd);
+sdf/SdfReader.cc:    sdfError(189, "%s with more than 2 triples.", sdf_cmd);
+sdf/SdfReader.cc:	  sdfError(190, "instance %s cell %s does not match enclosing cell %s.",
+sdf/SdfReader.cc:	  sdfError(191, "cell %s IOPATH %s -> %s not found.",
+sdf/SdfReader.cc:	  sdfError(192, "cell %s %s -> %s %s check not found.",
+sdf/SdfReader.cc:  sdfError(193, "%s not supported.", feature);
+sdf/SdfReader.cc:  sdfError(194, "instance %s port %s not found.",
+sdf/SdfReader.cc:    sdfError(195, "instance %s not found.", inst_name.c_str());
+sdf/SdfReader.cc:  sta::sdf_reader->sdfError(196, "%s.\n", msg);
+search/CheckTiming.cc:	criticalError(245, "unknown print flag");
+search/Corner.cc:    criticalError(246, "unknown parasitic analysis point count");
+search/Corner.cc:    criticalError(247, "unknown analysis point count");
+search/Crpr.cc:    criticalError(248, "missing prev paths");
+search/GatedClk.cc:    criticalError(249, "illegal gated clock active value");
+search/Genclks.cc:    report_->warn(10, "no master clock found for generated clock %s.",
+search/Genclks.cc:	report_->error(11, "generated clock %s is in the fanout of multiple clocks.",
+search/Genclks.cc:	report_->error(12,
+search/Genclks.cc:      report_->warn(13, "generated clock %s source pin %s missing paths from master clock %s.",
+search/PathEnum.cc:    criticalError(250, "diversion path not found");
+search/Sim.cc:      report_->warn(15, "propagated logic value %c differs from constraint value of %c on pin %s.",
+search/Sta.cc:	  report_->fileWarn(160, file, line, "'%s' is not a valid startpoint.",
+search/Sta.cc:	  report_->warn(16, "'%s' is not a valid startoint.",
+search/Sta.cc:	  report_->fileWarn(161, file, line, "'%s' is not a valid endpoint.",
+search/Sta.cc:	  report_->warn(17, "'%s' is not a valid endpoint.",
+search/VertexVisitor.cc:  criticalError(266, "VertexPinCollector::copy not supported.");
+search/WritePathSpice.cc:	report_->error(24, "pg_pin %s/%s voltage %s not found,",
+search/WritePathSpice.cc:    report_->error(25, "Liberty pg_port %s/%s missing voltage_name attribute,",
+search/WritePathSpice.cc:      report_->error(26, "%s pg_port %s not found,",
+search/WritePathSpice.cc:	report_->error(27, "no register/latch found for path from %s to %s,",
+search/WritePathSpice.cc:	report_->error(28, "The following subkcts are missing from %s",
+search/WritePathSpice.cc:	report_->error(29, "subckt %s port %s has no corresponding liberty port, pg_port and is not power or ground.",
+search/WritePathSpice.cc:    criticalError(267, "out of memory");
+verilog/VerilogReader.cc:      warn(165, module->filename(), module->line(),
+verilog/VerilogReader.cc:    warn(166, module->filename(), module->line(),
+verilog/VerilogReader.cc:	linkWarn(197, module->filename(), module->line(),
+verilog/VerilogReader.cc:	reader->warn(18, filename_, dcl->line(),
+verilog/VerilogReader.cc:    reader->warn(19, filename_, inst->line(),
+verilog/VerilogReader.cc:    reader->warn(20, reader->filename(), reader->line(),
+verilog/VerilogReader.cc:      report->error(162, "%s is not a verilog module.", top_cell_name);
+verilog/VerilogReader.cc:    report->error(163, "%s is not a verilog module.", top_cell_name);
+verilog/VerilogReader.cc:      linkWarn(198, filename_, mod_inst->line(),
+verilog/VerilogReader.cc:      linkError(199, filename_, mod_inst->line(),
+verilog/VerilogReader.cc:	linkWarn(200, parent_module->filename(), mod_inst->line(),
+verilog/VerilogReader.cc:      linkWarn(201, parent_module->filename(), mod_inst->line(),
+verilog/VerilogReader.cc:      linkWarn(202, parent_module->filename(), mod_inst->line(),
+verilog/VerilogReader.cc:    linkWarn(203, module->filename(), assign->line(),
+verilog/VerilogReader.cc:  sta::verilog_reader->report()->fileError(164,
+verilog/VerilogWriter.cc:    criticalError(268, "unknown port direction");
+parasitics/SpefParse.yy:	    sta::spef_reader->warn(21, "%d is not positive.", value);
+parasitics/SpefParse.yy:	    sta::spef_reader->warn(22, "%.4f is not positive.", value);
+parasitics/SpefParse.yy:	    sta::spef_reader->warn(23, "%.4f is not positive.", value);
+include/sta/ArrayTable.hh:    criticalError(223, "max array table block count exceeded.");
+include/sta/ArrayTable.hh:    criticalError(222, "null ObjectId reference is undefined.");
+include/sta/MinMaxValues.hh:      criticalError(226, "uninitialized value reference");
+include/sta/ObjectTable.hh:    criticalError(224, "max object table block count exceeded.");
+include/sta/ObjectTable.hh:    criticalError(225, "null ObjectId reference is undefined.");
+dcalc/DelayCalc.tcl:    sta_error 435 "delay calculator $alg not found."
+parasitics/Parasitics.tcl:      sta_error 433 "path instance '$path' not found."
+parasitics/Parasitics.tcl:      sta_error 434 "-reduce_to must be pi_elmore or pi_pole_residue2."
+sdf/Sdf.tcl:      sta_error 429 "-analysis_type must be single, bc_wc or on_chip_variation"
+sdf/Sdf.tcl:      sta_error 430 "-cond_use min_max cannot be used with analysis type single."
+sdf/Sdf.tcl:    sta_error 431 "$key must be sdf_min, sdf_typ, or sdf_max."
+sdf/Sdf.tcl:      sta_error 432 "SDF -divider must be / or ."
+tcl/Cmds.tcl:	sta_error 439 "unsupported object type $list_type."
+tcl/Cmds.tcl:      sta_error 440 "-from/-to arguments not supported with -of_objects."
+tcl/Cmds.tcl:    sta_error 441 "unsupported -filter expression."
+tcl/Cmds.tcl:    sta_error 442 "$cmd missing -from argument."
+tcl/Cmds.tcl:    sta_error 443 "$cmd missing -to argument."
+tcl/Cmds.tcl:    sta_error 444 "$cmd delay is not a float."
+tcl/Cmds.tcl:    sta_error 445 "set_annotated_delay -cell and -net options are mutually excluive."
+tcl/Cmds.tcl:	  sta_error 446 "$cmd pin [get_full_name $pin] is not attached to instance [get_full_name $inst]."
+tcl/Cmds.tcl:	  sta_error 447 "$cmd pin [get_full_name $pin] is not attached to instance [get_full_name $inst]"
+tcl/Cmds.tcl:    sta_error 448 "$cmd -cell or -net required."
+tcl/Cmds.tcl:    sta_error 449 "$cmd missing -from argument."
+tcl/Cmds.tcl:      sta_error 450 "$cmd -clock must be rise or fall."
+tcl/Cmds.tcl:    sta_error 451 "$cmd missing -to argument."
+tcl/Cmds.tcl:    sta_error 452 "$cmd missing -setup|-hold|-recovery|-removal check type.."
+tcl/Cmds.tcl:    sta_error 453 "$cmd check_value is not a float."
+tcl/Cmds.tcl:    sta_error 454 "the -all and -name options are mutually exclusive."
+tcl/Cmds.tcl:    sta_error 455 "either -all or -name options must be specified."
+tcl/Cmds.tcl:    sta_error 456 "one of -logically_exclusive, -physically_exclusive or -asynchronous is required."
+tcl/Cmds.tcl:    sta_error 457 "the keywords -logically_exclusive, -physically_exclusive and -asynchronous are mutually exclusive."
+tcl/Cmds.tcl:      sta_warn 303 "-clock ignored for clock objects."
+tcl/Cmds.tcl:	sta_error 458 "-source '[$pin path_name]' is not a clock pin."
+tcl/Cmds.tcl:    sta_error 459 "-from/-to must be used together."
+tcl/Cmds.tcl:      sta_error 460 "-rise, -fall options not allowed for single clock uncertainty."
+tcl/Cmds.tcl:    sta_error 461 "missing -from, -rise_from or -fall_from argument."
+tcl/Cmds.tcl:    sta_error 462 "missing -to, -rise_to or -fall_to argument."
+tcl/Cmds.tcl:    sta_warn 304 "-from/-to keywords ignored for lib_pin, port and pin arguments."
+tcl/Cmds.tcl:    sta_error 463 "-from/-to hierarchical instance not supported."
+tcl/Cmds.tcl:    sta_error 464 "$cmd command failed."
+tcl/Cmds.tcl:    sta_error 465 "positional arguments not supported."
+tcl/Cmds.tcl:    sta_error 466 "-from, -through or -to required."
+tcl/Cmds.tcl:	sta_error 467 "unsupported object type $object_type."
+tcl/Cmds.tcl:		      sta_warn 305 "object '$obj' not found."
+tcl/Cmds.tcl:      sta_error 468 "$corner_name is not the name of process corner."
+tcl/Cmds.tcl:    sta_error 469 "-corner keyword required with multi-corner analysis."
+tcl/Cmds.tcl:      sta_error 470 "$corner_name is not the name of process corner."
+tcl/Cmds.tcl:    sta_error 471 "missing -corner arg."
+tcl/Cmds.tcl:      sta_error 472 "$corner_name is not the name of process corner."
+tcl/Cmds.tcl:      sta_error 473 "$corner_name is not the name of process corner."
+tcl/Cmds.tcl:    sta_error 474 "both -min and -max specified."
+tcl/Cmds.tcl:    sta_error 475 "both -min and -max specified."
+tcl/Cmds.tcl:    sta_error 476 "only one of -early and -late can be specified."
+tcl/Cmds.tcl:    sta_error 477 "-early or -late must be specified."
+tcl/Cmds.tcl:    sta_error 478 "both -early and -late specified."
+tcl/Cmds.tcl:    sta_error 479 "$arg_name must be a single library."
+tcl/Cmds.tcl:      sta_error 480 "$arg_name type '$object_type' is not a library."
+tcl/Cmds.tcl:      sta_error 481 "library '$arg' not found."
+tcl/Cmds.tcl:    sta_error 482 "$arg_name must be a single lib cell."
+tcl/Cmds.tcl:    sta_error 483 "$arg_name must be a single instance."
+tcl/Cmds.tcl:      sta_error 484 "$arg_name type '$object_type' is not an instance."
+tcl/Cmds.tcl:      sta_error 485 "instance '$arg' not found."
+tcl/Cmds.tcl:	sta_error 486 "$arg_name type '$object_type' is not an instance."
+tcl/Cmds.tcl:	sta_error 487 "instance '$arg' not found."
+tcl/Cmds.tcl:	sta_error 488 "$arg_name type '$object_type' is not a pin or port."
+tcl/Cmds.tcl:	sta_error 489 "pin '$arg' not found."
+tcl/Cmds.tcl:	sta_error 490 "$arg_name type '$object_type' is not a port."
+tcl/Cmds.tcl:	sta_warn 313 "unsupported object type $object_type."
+tcl/Cmds.tcl:    sta_warn 314"$arg_name must be a single net."
+tcl/Cmds.tcl:      sta_warn 315 "$arg_name '$object_type' is not a net."
+tcl/Cmds.tcl:      sta_warn 316 "$arg_name '$arg' not found."
+tcl/Cmds.tcl:    sta_error 491 "$cmd object is null."
+tcl/Cmds.tcl:      sta_error 492 "$cmd $type_key must be specified with object name argument."
+tcl/Cmds.tcl:      sta_error 492 "get_property unsupported object type $object_type."
+tcl/Cmds.tcl:    sta_error 493 "get_property $object is not an object."
+tcl/Cmds.tcl:    sta_error 494 "$object_type not supported."
+tcl/Cmds.tcl:    sta_error 495 "$object_type '$object_name' not found."
+tcl/Cmds.tcl:      sta_error 496 "Directory $spice_dir not found.\n"
+tcl/Cmds.tcl:      sta_error 497 "$spice_dir is not a directory.\n"
+tcl/Cmds.tcl:      sta_error 498 "Cannot write in $spice_dir.\n"
+tcl/Cmds.tcl:    sta_error 499 "No -spice_directory specified.\n"
+tcl/Cmds.tcl:      sta_error 500 "-lib_subckt_file $lib_subckt_file is not readable.\n"
+tcl/Cmds.tcl:    sta_error 501 "No -lib_subckt_file specified.\n"
+tcl/Cmds.tcl:      sta_error 502 "-model_file $model_file is not readable.\n"
+tcl/Cmds.tcl:    sta_error 503 "No -model_file specified.\n"
+tcl/Cmds.tcl:    sta_error 504 "No -power specified.\n"
+tcl/Cmds.tcl:    sta_error 505 "No -ground specified.\n"
+tcl/Cmds.tcl:    sta_error 506 "No -path_args specified.\n"
+tcl/Cmds.tcl:    sta_error 507 "No paths found for -path_args $path_args.\n"
+tcl/Link.tcl:      sta_error 593 "missing top_cell_name argument and no current_design."
+tcl/Network.tcl:    sta_error 589 "unknown namespace $namespc."
+tcl/Network.tcl:    sta_error 590 "instance $instance_path not found."
+tcl/Network.tcl:	sta_error 591 "net $net_path not found."
+tcl/Network.tcl:      sta_error 592 "net $net_path not found."
+tcl/NetworkEdit.tcl:      sta_error 586 "unsupported object type $object_type."
+tcl/NetworkEdit.tcl:  sta_warn 372 "connect_pins is deprecated.  Use connect_pin."
+tcl/NetworkEdit.tcl:      sta_error 587 "unsupported object type $object_type."
+tcl/NetworkEdit.tcl:      sta_error 588 "unsupported object type $object_type."
+tcl/NetworkEdit.tcl:  sta_warn 372 "disconnect_pins is deprecated.  Use disconnect_pin."
+tcl/Power.tcl:      sta_warn 301 "activity should be 0.0 to 1.0 or 2.0"
+tcl/Power.tcl:      sta_warn 302 "duty should be 0.0 to 1.0"
+tcl/Sdc.tcl:    sta_error 511 "cannot open '$filename'."
+tcl/Sdc.tcl:      sta_error 512 "incomplete command at end of file."
+tcl/Sdc.tcl:    sta_error 513 "hierarchy separator must be one of '$sdc_dividers'."
+tcl/Sdc.tcl:	sta_error 514 "unknown unit $unit '$suffix'."
+tcl/Sdc.tcl:    sta_error 514 "unknown $unit prefix '$prefix'."
+tcl/Sdc.tcl:    sta_warn 319 "$unit scale [format %.0e $scale] does not match library scale [format %.0e $unit_scale]."
+tcl/Sdc.tcl:	sta_error 515 "unknown $unit unit '$suffix'."
+tcl/Sdc.tcl:    sta_warn 320 "current_design for other than top cell not supported."
+tcl/Sdc.tcl:      sta_warn 321 "patterns argument not supported with -of_objects."
+tcl/Sdc.tcl:	  sta_warn 322 "instance '$pattern' not found."
+tcl/Sdc.tcl:    sta_error 516 "unsupported -filter expression."
+tcl/Sdc.tcl:	sta_warn 323 "clock '$pattern' not found."
+tcl/Sdc.tcl:      sta_warn 324 "positional arguments not supported with -of_objects."
+tcl/Sdc.tcl:	  sta_warn 325 "library '$lib_name' not found."
+tcl/Sdc.tcl:	    sta_warn 326 "cell '$cell_pattern' not found."
+tcl/Sdc.tcl:	sta_warn 327 "library/cell/port '$pattern' not found."
+tcl/Sdc.tcl:	  sta_warn 328 "port '$port_pattern' not found."
+tcl/Sdc.tcl:	sta_warn 329 "library '$lib_name' not found."
+tcl/Sdc.tcl:    sta_warn 330 "-nocase ignored without -regexp."
+tcl/Sdc.tcl:	sta_warn 331 "library '$pattern' not found."
+tcl/Sdc.tcl:      sta_warn 332 "patterns argument not supported with -of_objects."
+tcl/Sdc.tcl:	sta_warn 333 "net '$pattern' not found."
+tcl/Sdc.tcl:      sta_warn 334 "patterns argument not supported with -of_objects."
+tcl/Sdc.tcl:	sta_warn 335 "pin '$pattern' not found."
+tcl/Sdc.tcl:    sta_error 517 "unsupported -filter expression."
+tcl/Sdc.tcl:      sta_warn 336 "patterns argument not supported with -of_objects."
+tcl/Sdc.tcl:	  sta_warn 337 "port '$pattern' not found."
+tcl/Sdc.tcl:    sta_error 518 "unsupported -filter expression."
+tcl/Sdc.tcl:      sta_error 519 "-add requires -name."
+tcl/Sdc.tcl:    sta_error 520 "-name or port_pin_list must be specified."
+tcl/Sdc.tcl:    sta_error 521 "missing -period argument."
+tcl/Sdc.tcl:      sta_error 522 "-waveform edge_list must have an even number of edge times."
+tcl/Sdc.tcl:	sta_warn 338 "adjusting non-increasing clock -waveform edge times."
+tcl/Sdc.tcl:	sta_warn 339 "-waveform time greater than two periods."
+tcl/Sdc.tcl:    sta_error 523 "empty ports/pins/nets argument."
+tcl/Sdc.tcl:      sta_error 524 "-add requires -name."
+tcl/Sdc.tcl:    sta_error 525 "name or port_pin_list must be specified."
+tcl/Sdc.tcl:    sta_error 526 "missing -source argument."
+tcl/Sdc.tcl:      sta_error 527 "-master_clock argument empty."
+tcl/Sdc.tcl:    sta_error 528 "-add requireds -master_clock."
+tcl/Sdc.tcl:    sta_error 529 "-multiply_by and -divide_by options are exclusive."
+tcl/Sdc.tcl:      sta_error 530 "-divide_by is not an integer greater than one."
+tcl/Sdc.tcl:      sta_error 531 "-combinational implies -divide_by 1."
+tcl/Sdc.tcl:      sta_error 532 "-multiply_by is not an integer greater than one."
+tcl/Sdc.tcl:	sta_error 533 "-duty_cycle is not a float between 0 and 100."
+tcl/Sdc.tcl:      sta_error 534 "-edges only supported for three edges."
+tcl/Sdc.tcl:	sta_error 535 "edges times are not monotonically increasing."
+tcl/Sdc.tcl:	sta_error 536 "-edge_shift length does not match -edges length."
+tcl/Sdc.tcl:    sta_error 537 "missing -multiply_by, -divide_by, -combinational or -edges argument."
+tcl/Sdc.tcl:      sta_error 538 "cannot specify -invert without -multiply_by, -divide_by or -combinational."
+tcl/Sdc.tcl:    sta_error 539 "-duty_cycle requires -multiply_by value."
+tcl/Sdc.tcl:      sta_error 540 "missing -pll_output argument."
+tcl/Sdc.tcl:      sta_error 541 "missing -pll_feedback argument."
+tcl/Sdc.tcl:      sta_error 542 "PLL output and feedback pins must be on the same instance."
+tcl/Sdc.tcl:      sta_error 543 "source pin must be on the same instance as the PLL output pin."
+tcl/Sdc.tcl:      sta_error 544 "PLL output must be one of the clock pins."
+tcl/Sdc.tcl:    sta_error 545 "group_path command failed."
+tcl/Sdc.tcl:    sta_error 546 "positional arguments not supported."
+tcl/Sdc.tcl:    sta_error 547 "-from, -through or -to required."
+tcl/Sdc.tcl:    sta_error 548 "-name and -default are mutually exclusive."
+tcl/Sdc.tcl:    sta_error 549 "-name or -default option is required."
+tcl/Sdc.tcl:    sta_error 550 "cannot specify both -high and -low."
+tcl/Sdc.tcl:    sta_error 551 "missing -setup or -hold argument."
+tcl/Sdc.tcl:      sta_error 552 "-high and -low only permitted for pins and instances."
+tcl/Sdc.tcl:      sta_error 553 "-high and -low only permitted for pins and instances."
+tcl/Sdc.tcl:    sta_error 554 "one of -logically_exclusive, -physically_exclusive or -asynchronous is required."
+tcl/Sdc.tcl:    sta_error 555 "the keywords -logically_exclusive, -physically_exclusive and -asynchronous are mutually exclusive."
+tcl/Sdc.tcl:	sta_warn 349 "unknown keyword argument $arg."
+tcl/Sdc.tcl:	sta_warn 341 "extra positional argument $arg."
+tcl/Sdc.tcl:      sta_warn 342 "-clock ignored for clock objects."
+tcl/Sdc.tcl:	sta_error 556 "-source '[get_full_name $pin]' is not a clock pin."
+tcl/Sdc.tcl:      sta_error 557 "-early/-late is only allowed with -source."
+tcl/Sdc.tcl:      sta_warn 343 "set_sense -type data not supported."
+tcl/Sdc.tcl:      sta_error 558 "set_sense -type clock|data"
+tcl/Sdc.tcl:  sta_warn 344 "set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock."
+tcl/Sdc.tcl:    sta_warn 345 "-pulse argument not supported."
+tcl/Sdc.tcl:    sta_warn 346 "-positive, -negative, -stop_propagation and -pulse are mutually exclusive."
+tcl/Sdc.tcl:      sta_warn 347 "hierarchical pin '[get_full_name $pin]' not supported."
+tcl/Sdc.tcl:      sta_error 559 "transition time can not be specified for virtual clocks."
+tcl/Sdc.tcl:    sta_error 560 "missing uncertainty value."
+tcl/Sdc.tcl:    sta_error 561 "-from/-to must be used together."
+tcl/Sdc.tcl:      sta_error 562 "-rise, -fall options not allowed for single clock uncertainty."
+tcl/Sdc.tcl:    sta_error 563 "missing -from, -rise_from or -fall_from argument."
+tcl/Sdc.tcl:    sta_error 564 "missing -to, -rise_to or -fall_to argument."
+tcl/Sdc.tcl:    sta_warn 348 "-from/-to keywords ignored for lib_pin, port and pin arguments."
+tcl/Sdc.tcl:    sta_error 565 "-from/-to hierarchical instance not supported."
+tcl/Sdc.tcl:      sta_error 566 "pin '[get_full_name $inst]${hierarchy_separator}${port_name}' not found."
+tcl/Sdc.tcl:      sta_error 567 "pin '[get_name $cell]${hierarchy_separator}${port_name}' not found."
+tcl/Sdc.tcl:      sta_warn 349 "'$args' ignored."
+tcl/Sdc.tcl:      sta_warn 350 "-from, -through or -to required."
+tcl/Sdc.tcl:      sta_warn 351 "-source_latency_included ignored with -reference_pin."
+tcl/Sdc.tcl:      sta_warn 352 "-network_latency_included ignored with -reference_pin."
+tcl/Sdc.tcl:      sta_warn 353 "$cmd not allowed on [pin_direction $pin] port '[get_full_name $pin]'."
+tcl/Sdc.tcl:      sta_warn 354 "$cmd relative to a clock defined on the same port/pin not allowed."
+tcl/Sdc.tcl:      sta_error 568 "missing delay argument."
+tcl/Sdc.tcl:      sta_warn 355 "'$args' ignored."
+tcl/Sdc.tcl:      sta_error 569 "missing path multiplier argument."
+tcl/Sdc.tcl:      sta_warn 356 "'$args' ignored."
+tcl/Sdc.tcl:      sta_error 570 "cannot use -start with -end."
+tcl/Sdc.tcl:      sta_warn 357 "virtual clock [get_name $clk] can not be propagated."
+tcl/Sdc.tcl:    sta_error 571 "value must be 0, zero, 1, one, rise, rising, fall, or falling."
+tcl/Sdc.tcl:	sta_error 572 "cell '$lib_name:$cell_name' not found."
+tcl/Sdc.tcl:	sta_error 573 "'$cell_name' not found."
+tcl/Sdc.tcl:    sta_error 574 "missing -lib_cell argument."
+tcl/Sdc.tcl:      sta_error 575 "port '$to_port_name' not found."
+tcl/Sdc.tcl:	  sta_error 576 "-pin argument required for cells with multiple outputs."
+tcl/Sdc.tcl:      sta_error 577 "port '$from_port_name' not found."
+tcl/Sdc.tcl:    sta_warn 358 "-multiply_by ignored."
+tcl/Sdc.tcl:    sta_warn 359 "-dont_scale ignored."
+tcl/Sdc.tcl:    sta_warn 360 "-no_design_rule ignored."
+tcl/Sdc.tcl:  sta_warn 361 "set_fanout_load not supported."
+tcl/Sdc.tcl:    sta_warn 361 "-clock not supported."
+tcl/Sdc.tcl:    sta_warn 362 "-clock_fall not supported."
+tcl/Sdc.tcl:      sta_warn 363 "-pin_load not allowed for net objects."
+tcl/Sdc.tcl:      sta_warn 364 "-wire_load not allowed for net objects."
+tcl/Sdc.tcl:      sta_warn 365 "-rise/-fall not allowed for net objects."
+tcl/Sdc.tcl:      sta_error 578 "port '[get_name $port]' is not an input."
+tcl/Sdc.tcl:    sta_warn 366 "-data_path, -clock_path, -rise, -fall ignored for ports and designs."
+tcl/Sdc.tcl:    sta_warn 367 "derating factor greater than 2.0."
+tcl/Sdc.tcl:	sta_warn 368 "-cell_delay and -cell_check flags ignored for net objects."
+tcl/Sdc.tcl:    sta_warn 369 "no valid objects specified for $key."
+tcl/Sdc.tcl:	  sta_warn 370 "no valid objects specified for $key"
+tcl/Sdc.tcl:    sta_warn 370 "no valid objects specified for $key."
+tcl/Sdc.tcl:      sta_error 579 "operating condition '$op_cond_name' not found."
+tcl/Sdc.tcl:      sta_error 580 "operating condition '$op_cond_name' not found."
+tcl/Sdc.tcl:      sta_error 581 "-analysis_type must be single, bc_wc or on_chip_variation."
+tcl/Sdc.tcl:  sta_warn 371 "set_wire_load_min_block_size not supported."
+tcl/Sdc.tcl:    sta_error 582 "mode must be top, enclosed or segmented."
+tcl/Sdc.tcl:    sta_error 583 "no wire load model specified."
+tcl/Sdc.tcl:    sta_error 583 "wire load model '$model_name' not found."
+tcl/Sdc.tcl:    sta_error 584 "wire load selection group '$selection_name' not found."
+tcl/Sdc.tcl:    sta_error 585 "no default operating conditions found."
+tcl/Search.tcl:    sta_error 508 "-min and -max cannot both be specified."
+tcl/Search.tcl:    sta_error 509 "pin '$pin_arg' is hierarchical."
+tcl/Search.tcl:      sta_error 510 "-format $format not recognized."
+tcl/Search.tcl:      sta_warn 318 "unknown path group '$name'."
+tcl/Sta.tcl:    sta_error 419 "report_clock_skew -setup and -hold are mutually exclusive options."
+tcl/Sta.tcl:      sta_error 420 "$cmd -path_delay must be min, min_rise, min_fall, max, max_rise, max_fall or min_max."
+tcl/Sta.tcl:    sta_error 421 "$cmd command failed."
+tcl/Sta.tcl:      sta_error 422 "-endpoint_count must be a positive integer."
+tcl/Sta.tcl:      sta_error 423 "-group_count must be a positive integer."
+tcl/Sta.tcl:      sta_error 424 "'$arg' is not a known keyword or flag."
+tcl/Sta.tcl:      sta_error 425 "positional arguments not supported."
+tcl/Sta.tcl:      sta_error 426 "analysis type single is not consistent with doing both setup/max and hold/min checks."
+tcl/Sta.tcl:    sta_error 427 "positional arguments not supported."
+tcl/Sta.tcl:    sta_error 428 "set_assigned_transition transition is not a float."
+tcl/Util.tcl:	  sta_error 400 "$cmd $key missing value."
+tcl/Util.tcl:	      sta_error 401 "$cmd $key missing value."
+tcl/Util.tcl:	      sta_error 402 "$cmd $arg is not a known keyword or flag."
+tcl/Util.tcl:      sta_error 403 "$cmd $arg is not a known keyword or flag."
+tcl/Util.tcl:    sta_error 404 "Usage: $cmd $cmd_args($cmd)"
+tcl/Util.tcl:    sta_error 405 "Usage: $cmd argument error"
+tcl/Util.tcl:    sta_warn 300 "no commands match '$pattern'."
+tcl/Util.tcl:    sta_error 406 "$cmd positional arguments not supported."
+tcl/Util.tcl:    sta_error 407 "$cmd requires one positional argument."
+tcl/Util.tcl:    sta_error 408 "$cmd requires zero or one positional arguments."
+tcl/Util.tcl:    sta_error 409 "$cmd requires two positional arguments."
+tcl/Util.tcl:    sta_error 410 "$cmd requires one or two positional arguments."
+tcl/Util.tcl:    sta_error 411 "$cmd requires three positional arguments."
+tcl/Util.tcl:    sta_error 412 "$cmd requires four positional arguments."
+tcl/Util.tcl:    sta_error 413 "$cmd_arg '$arg' is not a float."
+tcl/Util.tcl:    sta_error 414 "$cmd_arg '$arg' is not a positive float."
+tcl/Util.tcl:    sta_error 415 "$cmd_arg '$arg' is not an integer."
+tcl/Util.tcl:    sta_error 416 "$cmd_arg '$arg' is not a positive integer."
+tcl/Util.tcl:    sta_error 417 "$cmd_arg '$arg' is not an integer greater than or equal to one."
+tcl/Util.tcl:    sta_error 418 "$cmd_arg '$arg' is not between 0 and 100."
+tcl/Variables.tcl:      sta_error 436 "sta_report_default_digits must be a positive integer."
+tcl/Variables.tcl:      sta_error 437 "sta_crpr_mode must be pin or transition."
+tcl/Variables.tcl:      sta_error 438 "$var_name value must be 0 or 1."

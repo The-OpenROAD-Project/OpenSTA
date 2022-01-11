@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -35,8 +35,8 @@ class PwrActivity
 public:
   PwrActivity();
   PwrActivity(float activity,
-		float duty,
-		PwrActivityOrigin origin);
+	      float duty,
+	      PwrActivityOrigin origin);
   float activity() const { return activity_; }
   float duty() const { return duty_; }
   PwrActivityOrigin origin() { return origin_; }
@@ -47,10 +47,14 @@ public:
   bool isSet() const;
 
 private:
+  void check();
+
   // In general activity is per clock cycle, NOT per second.
   float activity_;
   float duty_;
   PwrActivityOrigin origin_;
+
+  static constexpr float min_activity = 1E-10;
 };
 
 class PowerResult

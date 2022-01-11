@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2020, Parallax Software, Inc.
+# Copyright (c) 2022, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 # 
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 # Network commands.
 
@@ -20,12 +20,18 @@ namespace eval sta {
 
 define_cmd_args "link_design" {[top_cell_name]}
 
-proc link_design { {top_cell_name ""} } {
+proc_redirect link_design {
   variable current_design_name
 
+  check_argc_eq0or1 "link_design" $args
+  if { $args == "" } {
+    set top_cell_name ""
+  } else {
+    set top_cell_name [lindex $args 0]
+  }
   if { $top_cell_name == "" } {
     if { $current_design_name == "" } {
-      sta_error "missing top_cell_name argument and no current_design."
+      sta_error 593 "missing top_cell_name argument and no current_design."
       return 0
     } else {
       set top_cell_name $current_design_name

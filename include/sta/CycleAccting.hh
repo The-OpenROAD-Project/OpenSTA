@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,21 +8,60 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
+#include "UnorderedSet.hh"
 #include "MinMax.hh"
 #include "TimingRole.hh"
 #include "StaState.hh"
 #include "SdcClass.hh"
 
 namespace sta {
+
+class CycleAcctingHash
+{
+public:
+  size_t operator()(const CycleAccting *acct) const;
+};
+
+class CycleAcctingEqual
+{
+public:
+  bool operator()(const CycleAccting *acct1,
+		  const CycleAccting *acct2) const;
+};
+
+class CycleAcctingLess
+{
+public:
+  bool operator()(const CycleAccting *acct1,
+		  const CycleAccting *acct2) const;
+};
+
+typedef UnorderedSet<CycleAccting*, CycleAcctingHash, CycleAcctingEqual> CycleAcctingSet;
+
+class CycleAcctings
+{
+public:
+  CycleAcctings(Sdc *sdc);
+  ~CycleAcctings();
+  void clear();
+  // Find the cycle accounting info for paths that start at src clock
+  // edge and end at target clock edge.
+  CycleAccting *cycleAccting(const ClockEdge *src,
+			     const ClockEdge *tgt);
+  void reportClkToClkMaxCycleWarnings(Report *report);
+
+private:
+  Sdc *sdc_;
+  CycleAcctingSet cycle_acctings_;
+};
 
 class CycleAccting
 {
@@ -66,6 +105,7 @@ private:
 			     int tgt_cycle,
 			     float delay,
 			     float req);
+  int firstCycle(const ClockEdge *clk_edge) const;
 
   const ClockEdge *src_;
   const ClockEdge *tgt_;
@@ -78,26 +118,6 @@ private:
   // Target clock cycle offset.
   int tgt_cycle_[TimingRole::index_max + 1];
   bool max_cycles_exceeded_;
-};
-
-class CycleAcctingLess
-{
-public:
-  bool operator()(const CycleAccting *acct1,
-		  const CycleAccting *acct2) const;
-};
-
-class CycleAcctingHash
-{
-public:
-  size_t operator()(const CycleAccting *acct) const;
-};
-
-class CycleAcctingEqual
-{
-public:
-  bool operator()(const CycleAccting *acct1,
-		  const CycleAccting *acct2) const;
 };
 
 } // namespace

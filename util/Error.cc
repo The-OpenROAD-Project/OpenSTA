@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Error.hh"
 
@@ -28,27 +28,24 @@ Exception::Exception() :
 {
 }
 
+ExceptionMsg::ExceptionMsg(const char *msg) :
+  Exception(),
+  msg_(msg)
+{
+}
+
+const char *
+ExceptionMsg::what() const noexcept
+{
+  return msg_.c_str();
+}
+
 ExceptionLine::ExceptionLine(const char *filename,
 			     int line) :
   Exception(),
   filename_(filename),
   line_(line)
 {
-}
-
-InternalError::InternalError(const char *filename,
-			     int line,
-			     const char *msg) :
-  ExceptionLine(filename, line),
-  msg_(msg)
-{
-}
-
-const char *
-InternalError::what() const noexcept
-{
-  return stringPrintTmp("Internal error in %s:%d %s.",
-			filename_, line_, msg_);
 }
 
 FileNotReadable::FileNotReadable(const char *filename) :

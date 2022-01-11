@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -147,10 +147,12 @@ public:
   const char *filename() const { return filename_; }
   void incrLine();
   Report *report() const { return report_; }
-  void error(const char *filename,
+  void error(int id,
+             const char *filename,
 	     int line,
 	     const char *fmt, ...);
-  void warn(const char *filename,
+  void warn(int id,
+            const char *filename,
 	    int line,
 	    const char *fmt, ...);
   const char *zeroNetName() const { return zero_net_name_; }
@@ -236,12 +238,16 @@ protected:
 		   Instance *parent,
 		   VerilogBindingTbl *parent_bindings,
 		   bool is_leaf);
-  void linkWarn(const char *filename,
+  void linkWarn(int id,
+                const char *filename,
 		int line,
-		const char *msg, ...);
-  void linkError(const char *filename,
+		const char *msg, ...)
+    __attribute__((format (printf, 5, 6)));
+  void linkError(int id,
+                 const char *filename,
 		 int line,
-		 const char *msg, ...);
+		 const char *msg, ...)
+    __attribute__((format (printf, 5, 6)));
   bool reportLinkErrors(Report *report);
   bool haveLinkErrors();
   Cell *makeBlackBox(VerilogModuleInst *mod_inst,

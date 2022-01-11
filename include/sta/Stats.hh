@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -22,12 +22,14 @@
 namespace sta {
 
 class Debug;
+class Report;
 
 // Show run time and memory statistics if the "stats" debug flag is on.
 class Stats
 {
 public:
-  explicit Stats(Debug *debug);
+  explicit Stats(Debug *debug,
+                 Report *report);
   void report(const char *step);
 
 private:
@@ -38,6 +40,7 @@ private:
   double system_begin_;
   size_t memory_begin_;
   Debug *debug_;
+  Report *report_;
 };
 
 } // namespace

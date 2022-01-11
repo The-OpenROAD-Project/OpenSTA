@@ -6,10 +6,10 @@
 // disclosed in any form or fashion without the express
 // written consent of Parallax Software, Inc.
 
-#ifndef STA_ARRAY_TABLE_H
-#define STA_ARRAY_TABLE_H
+#pragma once
 
 #include <string.h> // memcpy
+#include <vector>
 
 #include "ObjectId.hh"
 #include "Error.hh"
@@ -35,6 +35,8 @@ public:
   void make(uint32_t count,
 	    TYPE *&array,
 	    ObjectId &id);
+  void destroy(ObjectId id,
+               uint32_t count);
   // Grow as necessary and return pointer for id.
   TYPE *ensureId(ObjectId id);
   TYPE *pointer(ObjectId id) const;
@@ -61,18 +63,20 @@ private:
   size_t blocks_capacity_;
   ArrayBlock<TYPE>* *blocks_;
   ArrayBlock<TYPE>* *prev_blocks_;
+  // Linked list of free arrays indexed by array size.
+  std::vector<ObjectId> free_list_;
   static constexpr ObjectId idx_mask_ = block_size - 1;
 };
 
 template <class TYPE>
 ArrayTable<TYPE>::ArrayTable() :
   size_(0),
+  free_block_idx_(block_idx_null),
+  free_idx_(object_idx_null),
   blocks_size_(0),
   blocks_capacity_(1024),
   blocks_(new ArrayBlock<TYPE>*[blocks_capacity_]),
-  prev_blocks_(nullptr),
-  free_block_idx_(block_idx_null),
-  free_idx_(object_idx_null)
+  prev_blocks_(nullptr)
 {
 }
 
@@ -88,7 +92,7 @@ template <class TYPE>
 void
 ArrayTable<TYPE>::deleteBlocks()
 {
-  for (int i = 0; i < blocks_size_; i++)
+  for (size_t i = 0; i < blocks_size_; i++)
     delete blocks_[i];
 }
 
@@ -98,17 +102,28 @@ ArrayTable<TYPE>::make(uint32_t count,
 		       TYPE *&array,
 		       ObjectId &id)
 {
-  ArrayBlock<TYPE> *block = blocks_size_ ? blocks_[free_block_idx_] : nullptr;
-  if ((free_idx_ == object_idx_null
-       && free_block_idx_ == block_idx_null)
-      || free_idx_ + count >= block->size()) {
-    uint32_t size = (count > block_size) ? count : block_size;
-    block = makeBlock(size);
+  // Check the free list for a previously destroyed array with the right size.
+  if (count < free_list_.size()
+      && free_list_[count] != object_id_null) {
+    id = free_list_[count];
+    array = pointer(id);
+
+    ObjectId *head = reinterpret_cast<ObjectId*>(array);
+    free_list_[count] = *head;
   }
-  // makeId(free_block_idx_, idx_bits)
-  id = (free_block_idx_ << idx_bits) + free_idx_;
-  array = block->pointer(free_idx_);
-  free_idx_ += count;
+  else {
+    ArrayBlock<TYPE> *block = blocks_size_ ? blocks_[free_block_idx_] : nullptr;
+    if ((free_idx_ == object_idx_null
+         && free_block_idx_ == block_idx_null)
+        || free_idx_ + count >= block->size()) {
+      uint32_t size = (count > block_size) ? count : block_size;
+      block = makeBlock(size);
+    }
+    // makeId(free_block_idx_, idx_bits)
+    id = (free_block_idx_ << idx_bits) + free_idx_;
+    array = block->pointer(free_idx_);
+    free_idx_ += count;
+  }
   size_ += count;
 }
 
@@ -131,7 +146,7 @@ ArrayTable<TYPE>::pushBlock(ArrayBlock<TYPE> *block)
 {
   blocks_[blocks_size_++] = block;
   if (blocks_size_ >= block_id_max)
-    internalError("max array table block count exceeded.");
+    criticalError(223, "max array table block count exceeded.");
   if (blocks_size_ == blocks_capacity_) {
     size_t new_capacity = blocks_capacity_ * 1.5;
     ArrayBlock<TYPE>** new_blocks = new ArrayBlock<TYPE>*[new_capacity];
@@ -143,6 +158,21 @@ ArrayTable<TYPE>::pushBlock(ArrayBlock<TYPE> *block)
     blocks_ = new_blocks;
     blocks_capacity_ = new_capacity;
   }
+}
+
+template <class TYPE>
+void
+ArrayTable<TYPE>::destroy(ObjectId id,
+                          uint32_t count)
+{
+  if (count >= free_list_.size())
+    free_list_.resize(count + 1);
+  TYPE *array = pointer(id);
+  // Prepend id to the free list.
+  ObjectId *head = reinterpret_cast<ObjectId*>(array);
+  *head = free_list_[count];
+  free_list_[count] = id;
+  size_ -= count;
 }
 
 template <class TYPE>
@@ -177,12 +207,11 @@ TYPE &
 ArrayTable<TYPE>::ref(ObjectId id) const
 {
   if (id == object_id_null)
-    internalError("null ObjectId reference is undefined.");
-  else {
-    BlockIdx blk_idx = id >> idx_bits;
-    ObjectIdx obj_idx = id & idx_mask_;
-    return blocks_[blk_idx]->ref(obj_idx);
-  }
+    criticalError(222, "null ObjectId reference is undefined.");
+
+  BlockIdx blk_idx = id >> idx_bits;
+  ObjectIdx obj_idx = id & idx_mask_;
+  return blocks_[blk_idx]->ref(obj_idx);
 }
 
 template <class TYPE>
@@ -194,6 +223,7 @@ ArrayTable<TYPE>::clear()
   size_ = 0;
   free_block_idx_ = block_idx_null;
   free_idx_ = object_idx_null;
+  free_list_.clear();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -227,4 +257,3 @@ ArrayBlock<TYPE>::~ArrayBlock()
 }
 
 } // Namespace
-#endif

@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2020, Parallax Software, Inc.
+// Copyright (c) 2022, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -8,11 +8,11 @@
 // 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "VisitPathEnds.hh"
 
@@ -56,8 +56,8 @@ VisitPathEnds::visitPathEnds(Vertex *vertex,
   // Ignore slack on bidirect driver vertex.  The load vertex gets the slack.
   if (!vertex->isBidirectDriver()) {
     const Pin *pin = vertex->pin();
-    debugPrint1(debug_, "search", 2, "find end slack %s\n",
-		vertex->name(sdc_network_));
+    debugPrint(debug_, "search", 2, "find end slack %s",
+               vertex->name(sdc_network_));
     visitor->vertexBegin(vertex);
     bool is_constrained = false;
     visitClkedPathEnds(pin, vertex, corner, min_max, filtered, visitor,
@@ -540,13 +540,14 @@ VisitPathEnds::visitDataCheckEnd1(DataCheck *check,
   while (tgt_clk_path_iter.hasNext()) {
     PathVertex *tgt_clk_path = tgt_clk_path_iter.next();
     const ClockEdge *tgt_clk_edge = tgt_clk_path->clkEdge(this);
-    const Clock *tgt_clk = tgt_clk_edge ? tgt_clk_edge->clock() : nullptr;
-    ExceptionPath *exception = exceptionTo(path, pin, end_rf,
-					   tgt_clk_edge, min_max);
     // Ignore generated clock source paths.
-    if (!tgt_clk_path->clkInfo(this)->isGenClkSrcPath()
+    if (tgt_clk_edge
+        && !tgt_clk_path->clkInfo(this)->isGenClkSrcPath()
 	&& !search_->pathPropagatedToClkSrc(from_pin, tgt_clk_path)) {
       found_from_path = true;
+      const Clock *tgt_clk = tgt_clk_edge->clock();
+      ExceptionPath *exception = exceptionTo(path, pin, end_rf,
+                                             tgt_clk_edge, min_max);
       if (sdc_->sameClockGroup(src_clk, tgt_clk)
 	  && !sdc_->clkStopPropagation(from_pin, tgt_clk)
 	  // False paths and path delays override.
