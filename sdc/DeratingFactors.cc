@@ -19,7 +19,13 @@
 namespace sta {
 
 inline int
-TimingDerateIndex(TimingDerateType type)
+index(TimingDerateType type)
+{
+  return int(type);
+}
+
+inline int
+index(TimingDerateCellType type)
 {
   return int(type);
 }
@@ -101,7 +107,7 @@ DeratingFactorsGlobal::setFactor(TimingDerateType type,
 				 const EarlyLate *early_late,
 				 float factor)
 {
-  factors_[TimingDerateIndex(type)].setFactor(clk_data, rf, early_late, factor);
+  factors_[index(type)].setFactor(clk_data, rf, early_late, factor);
 }
 
 void
@@ -112,7 +118,18 @@ DeratingFactorsGlobal::factor(TimingDerateType type,
 			      float &factor,
 			      bool &exists) const
 {
-  factors_[TimingDerateIndex(type)].factor(clk_data, rf, early_late, factor, exists);
+  factors_[index(type)].factor(clk_data, rf, early_late, factor, exists);
+}
+
+void
+DeratingFactorsGlobal::factor(TimingDerateCellType type,
+			      PathClkOrData clk_data,
+			      const RiseFall *rf,
+			      const EarlyLate *early_late,
+			      float &factor,
+			      bool &exists) const
+{
+  factors_[index(type)].factor(clk_data, rf, early_late, factor, exists);
 }
 
 void
@@ -125,7 +142,7 @@ DeratingFactorsGlobal::clear()
 DeratingFactors *
 DeratingFactorsGlobal::factors(TimingDerateType type)
 {
-  return &factors_[TimingDerateIndex(type)];
+  return &factors_[index(type)];
 }
 
 ////////////////////////////////////////////////////////////////
@@ -136,24 +153,24 @@ DeratingFactorsCell::DeratingFactorsCell()
 }
 
 void
-DeratingFactorsCell::setFactor(TimingDerateType type,
+DeratingFactorsCell::setFactor(TimingDerateCellType type,
 			       PathClkOrData clk_data,
 			       const RiseFallBoth *rf,
 			       const EarlyLate *early_late,
 			       float factor)
 {
-  factors_[TimingDerateIndex(type)].setFactor(clk_data, rf, early_late, factor);
+  factors_[index(type)].setFactor(clk_data, rf, early_late, factor);
 }
 
 void
-DeratingFactorsCell::factor(TimingDerateType type,
+DeratingFactorsCell::factor(TimingDerateCellType type,
 			    PathClkOrData clk_data,
 			    const RiseFall *rf,
 			    const EarlyLate *early_late,
 			    float &factor,
 			    bool &exists) const
 {
-  factors_[TimingDerateIndex(type)].factor(clk_data, rf, early_late, factor, exists);
+  factors_[index(type)].factor(clk_data, rf, early_late, factor, exists);
 }
 
 void
@@ -164,9 +181,9 @@ DeratingFactorsCell::clear()
 }
 
 DeratingFactors *
-DeratingFactorsCell::factors(TimingDerateType type)
+DeratingFactorsCell::factors(TimingDerateCellType type)
 {
-  return &factors_[TimingDerateIndex(type)];
+  return &factors_[index(type)];
 }
 
 void
@@ -176,9 +193,9 @@ DeratingFactorsCell::isOneValue(const EarlyLate *early_late,
 {
   bool is_one_value1, is_one_value2;
   float value1, value2;
-  factors_[TimingDerateIndex(TimingDerateType::cell_delay)]
+  factors_[index(TimingDerateType::cell_delay)]
     .isOneValue(early_late, is_one_value1, value1);
-  factors_[TimingDerateIndex(TimingDerateType::cell_check)]
+  factors_[index(TimingDerateType::cell_check)]
     .isOneValue(early_late, is_one_value2, value2);
   is_one_value = is_one_value1
     && is_one_value2

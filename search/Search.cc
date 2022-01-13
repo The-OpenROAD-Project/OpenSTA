@@ -3009,14 +3009,14 @@ Search::timingDerate(Vertex *from_vertex,
 				 path_ap->pathMinMax());
   }
   else {
-    TimingDerateType derate_type;
+    TimingDerateCellType derate_type;
     const RiseFall *rf;
     if (role->isTimingCheck()) {
-      derate_type = TimingDerateType::cell_check;
+      derate_type = TimingDerateCellType::cell_check;
       rf = arc->toTrans()->asRiseFall();
     }
     else {
-       derate_type = TimingDerateType::cell_delay;
+       derate_type = TimingDerateCellType::cell_delay;
        rf = arc->fromTrans()->asRiseFall();
     }
     return sdc_->timingDerateInstance(pin, derate_type, derate_clk_data, rf,

@@ -97,7 +97,8 @@ enum class PathClkOrData { clk, data };
 const int path_clk_or_data_count = 2;
 
 enum class TimingDerateType { cell_delay, cell_check, net_delay };
-const int timing_derate_type_count = int(TimingDerateType::net_delay) + 1 ;
-const int timing_derate_cell_type_count = 2;
+constexpr int timing_derate_type_count = 3;
+enum class TimingDerateCellType { cell_delay, cell_check };
+constexpr int timing_derate_cell_type_count = 2;
 
 } // namespace

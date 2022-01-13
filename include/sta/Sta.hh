@@ -140,13 +140,13 @@ public:
 		       const EarlyLate *early_late,
 		       float derate);
   void setTimingDerate(const Instance *inst,
-		       TimingDerateType type,
+		       TimingDerateCellType type,
 		       PathClkOrData clk_data,
 		       const RiseFallBoth *rf,
 		       const EarlyLate *early_late,
 		       float derate);
   void setTimingDerate(const LibertyCell *cell,
-		       TimingDerateType type,
+		       TimingDerateCellType type,
 		       PathClkOrData clk_data,
 		       const RiseFallBoth *rf,
 		       const EarlyLate *early_late,

@@ -68,6 +68,12 @@ public:
 	      const EarlyLate *early_late,
 	      float &factor,
 	      bool &exists) const;
+  void factor(TimingDerateCellType type,
+	      PathClkOrData clk_data,
+	      const RiseFall *rf,
+	      const EarlyLate *early_late,
+	      float &factor,
+	      bool &exists) const;
   DeratingFactors *factors(TimingDerateType type);
   void clear();
 
@@ -81,26 +87,24 @@ class DeratingFactorsCell
 {
 public:
   DeratingFactorsCell();
-  void setFactor(TimingDerateType type,
+  void setFactor(TimingDerateCellType type,
 		 PathClkOrData clk_data,
 		 const RiseFallBoth *rf,
 		 const EarlyLate *early_late,
 		 float factor);
-  void factor(TimingDerateType type,
+  void factor(TimingDerateCellType type,
 	      PathClkOrData clk_data,
 	      const RiseFall *rf,
 	      const EarlyLate *early_late,
 	      float &factor,
 	      bool &exists) const;
-  DeratingFactors *factors(TimingDerateType type);
+  DeratingFactors *factors(TimingDerateCellType type);
   void clear();
   void isOneValue(const EarlyLate *early_late,
 		  bool &is_one_value,
 		  float &value) const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(DeratingFactorsCell);
-
   DeratingFactors factors_[timing_derate_cell_type_count];
 };
 

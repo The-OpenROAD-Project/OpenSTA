@@ -1020,7 +1020,20 @@ using namespace sta;
   else if (stringEq(arg, "cell_check"))
     $1 = TimingDerateType::cell_check;
   else {
-    tclArgError(interp, "%s not clk or data.", arg);
+    tclArgError(interp, "%s not net_delay, cell_delay or cell_check.", arg);
+    return TCL_ERROR;
+  }
+}
+
+%typemap(in) TimingDerateCellType {
+  int length;
+  char *arg = Tcl_GetStringFromObj($input, &length);
+  if (stringEq(arg, "cell_delay"))
+    $1 = TimingDerateCellType::cell_delay;
+  else if (stringEq(arg, "cell_check"))
+    $1 = TimingDerateCellType::cell_check;
+  else {
+    tclArgError(interp, "%s not cell_delay or cell_check.", arg);
     return TCL_ERROR;
   }
 }
@@ -3735,7 +3748,7 @@ set_timing_derate_net_cmd(const Net *net,
 
 void
 set_timing_derate_inst_cmd(const Instance *inst,
-			   TimingDerateType type,
+			   TimingDerateCellType type,
 			   PathClkOrData clk_data,
 			   const RiseFallBoth *rf,
 			   const EarlyLate *early_late,
@@ -3746,7 +3759,7 @@ set_timing_derate_inst_cmd(const Instance *inst,
 
 void
 set_timing_derate_cell_cmd(const LibertyCell *cell,
-			   TimingDerateType type,
+			   TimingDerateCellType type,
 			   PathClkOrData clk_data,
 			   const RiseFallBoth *rf,
 			   const EarlyLate *early_late,

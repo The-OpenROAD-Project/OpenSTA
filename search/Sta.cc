@@ -847,7 +847,7 @@ Sta::setTimingDerate(const Net *net,
 
 void
 Sta::setTimingDerate(const Instance *inst,
-		     TimingDerateType type,
+		     TimingDerateCellType type,
 		     PathClkOrData clk_data,
 		     const RiseFallBoth *rf,
 		     const EarlyLate *early_late,
@@ -861,7 +861,7 @@ Sta::setTimingDerate(const Instance *inst,
 
 void
 Sta::setTimingDerate(const LibertyCell *cell,
-		     TimingDerateType type,
+		     TimingDerateCellType type,
 		     PathClkOrData clk_data,
 		     const RiseFallBoth *rf,
 		     const EarlyLate *early_late,
