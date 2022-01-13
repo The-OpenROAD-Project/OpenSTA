@@ -27,11 +27,6 @@ class Graph;
 class Corner;
 class StaState;
 
-// Sdf index is:
-//  sdf_min = 0
-//  sdf_typ = 1
-//  sdf_max = 2
-//
 // If unescaped_dividers is true, path names in the SDF do not have to
 // escape hierarchy dividers when the path name is escaped.  For
 // example, the escaped Verilog instance name "\inst1/inst2 " can be

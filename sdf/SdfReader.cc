@@ -96,7 +96,9 @@ readSdf(const char *filename,
                    unescaped_dividers, incremental_only,
 		   cond_use, sta);
   sdf_reader = &reader;
-  return reader.read();
+  bool success = reader.read();
+  sdf_reader = nullptr;
+  return success;
 }
 
 SdfReader::SdfReader(const char *filename,
@@ -827,25 +829,23 @@ SdfReader::makePortSpec(Transition *tr,
 SdfPortSpec *
 SdfReader::makeCondPortSpec(char *cond_port)
 {
-  char *cond = cond_port;
   // Search from end to find port name because condition may contain spaces.
-  char *p = &cond_port[strlen(cond_port) - 1];
-  // Trim trailing port spaces.
-  while (*p != '\0' && isspace(*p))
-    p--;
-  p[1] = '\0';
-  while (*p != '\0' && !isspace(*p))
-    p--;
-  char *port = &p[1];
-  // Trim trailing cond spaces.
-  while (*p != '\0' && isspace(*p))
-    p--;
-  p[1] = '\0';
-  SdfPortSpec *port_spec = makePortSpec(Transition::riseFall(),
-					stringCopy(port),
-					stringCopy(cond));
-  stringDelete(cond_port);
-  return port_spec;
+  string cond_port1(cond_port);
+  trimRight(cond_port1);
+  auto port_idx = cond_port1.find_last_of(" ");
+  if (port_idx != cond_port1.npos) {
+    string port1 = cond_port1.substr(port_idx + 1);
+    auto cond_end = cond_port1.find_last_not_of(" ", port_idx);
+    if (cond_end != cond_port1.npos) {
+      string cond1 = cond_port1.substr(0, cond_end + 1);
+      SdfPortSpec *port_spec = makePortSpec(Transition::riseFall(),
+                                            stringCopy(port1.c_str()),
+                                            stringCopy(cond1.c_str()));
+      stringDelete(cond_port);
+      return port_spec;
+    }
+  }
+  return nullptr;
 }
 
 void
