@@ -72,6 +72,7 @@ readSpefFile(const char *filename,
     // yyparse returns 0 on success.
     success = (::SpefParse_parse() == 0);
     gzclose(stream);
+    spef_reader = nullptr;
   }
   else
     throw FileNotReadable(filename);
