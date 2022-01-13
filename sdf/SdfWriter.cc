@@ -164,8 +164,7 @@ SdfWriter::write(const char *filename,
   sdf_divider_ = sdf_divider;
   include_typ_ = include_typ;
   if (delay_format_ == nullptr)
-    delay_format_ = new char[10];
-  sprintf(delay_format_, "%%.%df", digits);
+    delay_format_ = stringPrint("%%.%df", digits);
 
   LibertyLibrary *default_lib = network_->defaultLibertyLibrary();
   timescale_ = default_lib->units()->timeUnit()->scale();

@@ -336,11 +336,9 @@ makeLibertyComplexAttr(const char *name,
         group->addAttribute(attr);
         return attr;
       }
-      else {
-        delete attr;
-        return nullptr;
-      }
     }
+    delete attr;
+    return nullptr;
   }
 }
 
