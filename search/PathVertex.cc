@@ -81,6 +81,8 @@ PathVertex::PathVertex(const PathVertexRep *path,
 {
   if (path)
     init(path->vertex(sta), path->tag(sta), sta);
+  else
+    init();
 }
 
 PathVertex::PathVertex(const PathVertexRep &path,
