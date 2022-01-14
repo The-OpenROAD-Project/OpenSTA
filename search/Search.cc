@@ -613,20 +613,22 @@ void
 Search::seedFilterStarts()
 {
   ExceptionPt *first_pt = filter_->firstPt();
-  PinSet first_pins;
-  first_pt->allPins(network_, &first_pins);
-  for (Pin *pin : first_pins) {
-    if (network_->isHierarchical(pin)) {
-      SeedFaninsThruHierPin visitor(graph_, this);
-      visitDrvrLoadsThruHierPin(pin, network_, &visitor);
-    }
-    else {
-      Vertex *vertex, *bidirect_drvr_vertex;
-      graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-      if (vertex)
-        seedArrival(vertex);
-      if (bidirect_drvr_vertex)
-	seedArrival(bidirect_drvr_vertex);
+  if (first_pt) {
+    PinSet first_pins;
+    first_pt->allPins(network_, &first_pins);
+    for (Pin *pin : first_pins) {
+      if (network_->isHierarchical(pin)) {
+        SeedFaninsThruHierPin visitor(graph_, this);
+        visitDrvrLoadsThruHierPin(pin, network_, &visitor);
+      }
+      else {
+        Vertex *vertex, *bidirect_drvr_vertex;
+        graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
+        if (vertex)
+          seedArrival(vertex);
+        if (bidirect_drvr_vertex)
+          seedArrival(bidirect_drvr_vertex);
+      }
     }
   }
 }
