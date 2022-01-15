@@ -1189,8 +1189,10 @@ ConcreteNetwork::replaceCell(Instance *inst,
     if (cpin) {
       ConcretePort *pin_cport = reinterpret_cast<ConcretePort*>(cpin->port());
       ConcretePort *cport = ccell->findPort(pin_cport->name());
-      rpins[cport->pinIndex()] = cpin;
-      cpin->port_ = cport;
+      if (cport) {
+        rpins[cport->pinIndex()] = cpin;
+        cpin->port_ = cport;
+      }
     }
   }
   delete [] pins;
@@ -1438,7 +1440,9 @@ void
 ConcreteNetwork::addConstantNet(Net *net,
 				LogicValue value)
 {
-  constant_nets_[int(value)].insert(net);
+  if (value == LogicValue::zero
+      || value == LogicValue::one)
+    constant_nets_[int(value)].insert(net);
 }
 
 ConstantPinIterator *

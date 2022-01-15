@@ -23,7 +23,6 @@
 #include "Mutex.hh"
 #include "Report.hh"
 #include "Debug.hh"
-#include "Error.hh"
 #include "Stats.hh"
 #include "Fuzzy.hh"
 #include "TimingRole.hh"
@@ -1192,7 +1191,8 @@ Search::arrivalsChanged(Vertex *vertex,
   Arrival *arrivals1 = graph_->arrivals(vertex);
   if (arrivals1) {
     TagGroup *tag_group = tagGroup(vertex);
-    if (tag_group->arrivalMap()->size() != tag_bldr->arrivalMap()->size())
+    if (tag_group == nullptr
+        || tag_group->arrivalMap()->size() != tag_bldr->arrivalMap()->size())
       return true;
     ArrivalMap::Iterator arrival_iter1(tag_group->arrivalMap());
     while (arrival_iter1.hasNext()) {
@@ -3373,9 +3373,13 @@ RequiredCmp::requiredsSave(Vertex *vertex,
     Graph *graph = sta->graph();
     const Search *search = sta->search();
     TagGroup *tag_group = search->tagGroup(vertex);
-    int arrival_count = tag_group->arrivalCount();
-    graph->deleteRequireds(vertex, arrival_count);
-    requireds_changed = true;
+    if (tag_group == nullptr)
+      requireds_changed = true;
+    else {
+      int arrival_count = tag_group->arrivalCount();
+      graph->deleteRequireds(vertex, arrival_count);
+      requireds_changed = true;
+    }
   }
   return requireds_changed;
 }

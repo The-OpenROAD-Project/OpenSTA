@@ -1197,7 +1197,7 @@ ConcreteParasitics::findPiPoleResidue(const Pin *drvr_pin,
 	ap_rf_index = parasiticAnalysisPtIndex(ap, RiseFall::rise());
 	parasitic = parasitics[ap_rf_index];
       }
-      if (parasitic->isPiPoleResidue())
+      if (parasitic && parasitic->isPiPoleResidue())
 	return parasitic;
     }
   }

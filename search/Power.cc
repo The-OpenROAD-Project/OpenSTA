@@ -544,14 +544,14 @@ Power::seedRegOutputActivities(const Instance *inst,
       LibertyPort *port = network_->libertyPort(pin);
       if (port) {
         FuncExpr *func = port->function();
-        if (func) {
-          Vertex *vertex = graph_->pinDrvrVertex(pin);
-          if (func->port() == seq->output()
-              || func->port() == seq->outputInv()) {
-            debugPrint(debug_, "power_activity", 3, "enqueue reg output %s",
-                       vertex->name(network_));
-            bfs.enqueue(vertex);
-          }
+        Vertex *vertex = graph_->pinDrvrVertex(pin);
+        if (vertex
+            && func
+            && (func->port() == seq->output()
+                || func->port() == seq->outputInv())) {
+          debugPrint(debug_, "power_activity", 3, "enqueue reg output %s",
+                     vertex->name(network_));
+          bfs.enqueue(vertex);
         }
       }
     }
@@ -637,60 +637,64 @@ Power::findInputInternalPower(const Pin *pin,
   int lib_ap_index = corner->libertyIndex(MinMax::max());
   LibertyCell *corner_cell = cell->cornerCell(lib_ap_index);
   const LibertyPort *corner_port = port->cornerPort(lib_ap_index);
-  InternalPowerSeq *internal_pwrs = corner_cell->internalPowers(corner_port);
-  if (!internal_pwrs->empty()) {
-    debugPrint(debug_, "power", 2, "internal input %s/%s (%s)",
-               network_->pathName(inst),
-               port->name(),
-               corner_cell->name());
-    const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(MinMax::max());
-    const Pvt *pvt = dcalc_ap->operatingConditions();
-    Vertex *vertex = graph_->pinLoadVertex(pin);
-    debugPrint(debug_, "power", 2, " cap = %s",
-               units_->capacitanceUnit()->asString(load_cap));
-    debugPrint(debug_, "power", 2, "       when  act/ns duty  energy    power");
-    float internal = 0.0;
-    for (InternalPower *pwr : *internal_pwrs) {
-      const char *related_pg_pin = pwr->relatedPgPin();
-      float energy = 0.0;
-      int rf_count = 0;
-      for (RiseFall *rf : RiseFall::range()) {
-        float slew = getSlew(vertex, rf, corner);
-	if (!delayInf(slew)) {
-	  float table_energy = pwr->power(rf, pvt, slew, load_cap);
-	  energy += table_energy;
-	  rf_count++;
-	}
-      }
-      if (rf_count)
-	energy /= rf_count; // average non-inf energies
-      float duty = 1.0; // fallback default
-      FuncExpr *when = pwr->when();
-      if (when) {
-	LibertyPort *out_corner_port = findExprOutPort(when);
-	if (out_corner_port) {
-	  const LibertyPort *out_port = findLinkPort(cell, out_corner_port);
-	  FuncExpr *func = out_port->function();
-	  if (func && func->hasPort(port))
-	    duty = evalActivityDifference(func, inst, port).duty();
-	  else
-	    duty = evalActivity(when, inst).duty();
-	}
-	else
-	  duty = evalActivity(when, inst).duty();
-      }
-      float port_internal = energy * duty * activity.activity();
-      debugPrint(debug_, "power", 2,  " %3s %6s  %.2f  %.2f %9.2e %9.2e %s",
+  if (corner_cell && corner_port) {
+    InternalPowerSeq *internal_pwrs = corner_cell->internalPowers(corner_port);
+    if (!internal_pwrs->empty()) {
+      debugPrint(debug_, "power", 2, "internal input %s/%s (%s)",
+                 network_->pathName(inst),
                  port->name(),
-                 when ? when->asString() : "",
-                 activity.activity() * 1e-9,
-                 duty,
-                 energy,
-                 port_internal,
-                 related_pg_pin ? related_pg_pin : "no pg_pin");
-      internal += port_internal;
+                 corner_cell->name());
+      const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(MinMax::max());
+      const Pvt *pvt = dcalc_ap->operatingConditions();
+      Vertex *vertex = graph_->pinLoadVertex(pin);
+      debugPrint(debug_, "power", 2, " cap = %s",
+                 units_->capacitanceUnit()->asString(load_cap));
+      debugPrint(debug_, "power", 2, "       when  act/ns duty  energy    power");
+      float internal = 0.0;
+      for (InternalPower *pwr : *internal_pwrs) {
+        const char *related_pg_pin = pwr->relatedPgPin();
+        float energy = 0.0;
+        int rf_count = 0;
+        for (RiseFall *rf : RiseFall::range()) {
+          float slew = getSlew(vertex, rf, corner);
+          if (!delayInf(slew)) {
+            float table_energy = pwr->power(rf, pvt, slew, load_cap);
+            energy += table_energy;
+            rf_count++;
+          }
+        }
+        if (rf_count)
+          energy /= rf_count; // average non-inf energies
+        float duty = 1.0; // fallback default
+        FuncExpr *when = pwr->when();
+        if (when) {
+          LibertyPort *out_corner_port = findExprOutPort(when);
+          if (out_corner_port) {
+            const LibertyPort *out_port = findLinkPort(cell, out_corner_port);
+            if (out_port) {
+              FuncExpr *func = out_port->function();
+              if (func && func->hasPort(port))
+                duty = evalActivityDifference(func, inst, port).duty();
+              else
+                duty = evalActivity(when, inst).duty();
+            }
+          }
+          else
+            duty = evalActivity(when, inst).duty();
+        }
+        float port_internal = energy * duty * activity.activity();
+        debugPrint(debug_, "power", 2,  " %3s %6s  %.2f  %.2f %9.2e %9.2e %s",
+                   port->name(),
+                   when ? when->asString() : "",
+                   activity.activity() * 1e-9,
+                   duty,
+                   energy,
+                   port_internal,
+                   related_pg_pin ? related_pg_pin : "no pg_pin");
+        internal += port_internal;
+      }
+      result.internal() += internal;
     }
-    result.internal() += internal;
   }
 }
 
@@ -714,7 +718,7 @@ Power::findExprOutPort(FuncExpr *expr)
   switch (expr->op()) {
   case FuncExpr::op_port:
     port = expr->port();
-    if (port->direction()->isAnyOutput())
+    if (port && port->direction()->isAnyOutput())
       return expr->port();
     return nullptr;
   case FuncExpr::op_not:
@@ -830,7 +834,7 @@ Power::findOutputInternalPower(const Pin *to_pin,
     }
     float port_internal = weight * energy * to_activity.activity();
     debugPrint(debug_, "power", 2,  "%3s -> %-3s %6s  %.2f %.2f %.2f %9.2e %9.2e %s",
-               from_corner_port->name(),
+               from_corner_port ? from_corner_port->name() : "-" ,
                to_port->name(),
                when ? when->asString() : "",
                to_activity.activity() * 1e-9,

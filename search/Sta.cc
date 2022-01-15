@@ -4134,11 +4134,12 @@ Sta::replaceCellPinInvalidate(LibertyPort *from_port,
 			      LibertyCell *to_cell)
 {
   LibertyPort *to_port = to_cell->findLibertyPort(from_port->name());
-  if (!libertyPortCapsEqual(to_port, from_port)
-      // If this is an ideal clock pin, do not invalidate
-      // arrivals and delay calc on the clock pin driver.
-      && !(to_port->isClock()
-	   && idealClockMode()))
+  if (to_port == nullptr
+      || (!libertyPortCapsEqual(to_port, from_port)
+          // If this is an ideal clock pin, do not invalidate
+          // arrivals and delay calc on the clock pin driver.
+          && !(to_port->isClock()
+               && idealClockMode())))
     // Input port capacitance changed, so invalidate delay
     // calculation from input driver.
     delaysInvalidFromFanin(vertex);

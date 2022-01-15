@@ -78,11 +78,11 @@ memoryUsage()
   size_t memory = 0;
   FILE *status = fopen(proc_filename.c_str(), "r");
   if (status) {
-    const size_t line_length = 128;
+    constexpr size_t line_length = 128;
     char line[line_length];
     while (fgets(line, line_length, status) != nullptr) {
       char *field = strtok(line, " \t");
-      if (stringEq(field, "VmRSS:")) {
+      if (field && stringEq(field, "VmRSS:")) {
 	char *size = strtok(nullptr, " \t");
 	if (size) {
 	  char *ignore;

@@ -155,42 +155,52 @@ Latches::latchBorrowInfo(const Path *data_path,
 			 Delay &max_borrow,
 			 bool &borrow_limit_exists)
 {
-  const ClockEdge *data_clk_edge = data_path->clkEdge(this);
-  const ClockEdge *enable_clk_edge = enable_path->clkEdge(this);
-  const ClockEdge *disable_clk_edge = disable_path->clkEdge(this);
-  bool is_pulse_clk = enable_path->clkInfo(this)->isPulseClk();
-  nom_pulse_width = is_pulse_clk ? 0.0F : enable_clk_edge->pulseWidth();
-  open_uncertainty = PathEnd::checkClkUncertainty(data_clk_edge, enable_clk_edge,
-						  enable_path,
-						  TimingRole::latchSetup(), this);
-  if (ignore_clk_latency) {
+  if (data_path && enable_path && disable_path) {
+    const ClockEdge *data_clk_edge = data_path->clkEdge(this);
+    const ClockEdge *enable_clk_edge = enable_path->clkEdge(this);
+    const ClockEdge *disable_clk_edge = disable_path->clkEdge(this);
+    bool is_pulse_clk = enable_path->clkInfo(this)->isPulseClk();
+    nom_pulse_width = is_pulse_clk ? 0.0F : enable_clk_edge->pulseWidth();
+    open_uncertainty = PathEnd::checkClkUncertainty(data_clk_edge, enable_clk_edge,
+                                                    enable_path,
+                                                    TimingRole::latchSetup(), this);
+    if (ignore_clk_latency) {
       open_latency = 0.0;
       latency_diff = 0.0;
       open_crpr = 0.0;
       crpr_diff = 0.0;
+    }
+    else {
+      CheckCrpr *check_crpr = search_->checkCrpr();
+      open_crpr = check_crpr->checkCrpr(data_path, enable_path);
+      Crpr close_crpr = check_crpr->checkCrpr(data_path, disable_path);
+      crpr_diff = open_crpr - close_crpr;
+      open_latency = PathEnd::checkTgtClkDelay(enable_path, enable_clk_edge,
+                                               TimingRole::setup(), this);
+      Arrival close_latency = PathEnd::checkTgtClkDelay(disable_path,
+                                                        disable_clk_edge,
+                                                        TimingRole::latchSetup(),
+                                                        this);
+      latency_diff = open_latency - close_latency;
+    }
+    float borrow_limit;
+    sdc_->latchBorrowLimit(data_path->pin(this), disable_path->pin(this),
+                           enable_clk_edge->clock(),
+                           borrow_limit, borrow_limit_exists);
+    if (borrow_limit_exists)
+      max_borrow = borrow_limit;
+    else
+      max_borrow = nom_pulse_width - delayAsFloat(latency_diff)
+        - delayAsFloat(crpr_diff) - delayAsFloat(margin);
   }
   else {
-    CheckCrpr *check_crpr = search_->checkCrpr();
-    open_crpr = check_crpr->checkCrpr(data_path, enable_path);
-    Crpr close_crpr = check_crpr->checkCrpr(data_path, disable_path);
-    crpr_diff = open_crpr - close_crpr;
-    open_latency = PathEnd::checkTgtClkDelay(enable_path, enable_clk_edge,
-					     TimingRole::setup(), this);
-    Arrival close_latency = PathEnd::checkTgtClkDelay(disable_path,
-						      disable_clk_edge,
-						      TimingRole::latchSetup(),
-						      this);
-    latency_diff = open_latency - close_latency;
+    nom_pulse_width = 0.0;
+    open_uncertainty = 0.0;
+    open_latency = 0.0;
+    latency_diff = 0.0;
+    open_crpr = 0.0;
+    crpr_diff = 0.0;
   }
-  float borrow_limit;
-  sdc_->latchBorrowLimit(data_path->pin(this), disable_path->pin(this),
-				 enable_clk_edge->clock(),
-				 borrow_limit, borrow_limit_exists);
-  if (borrow_limit_exists)
-    max_borrow = borrow_limit;
-  else
-    max_borrow = nom_pulse_width - delayAsFloat(latency_diff)
-      - delayAsFloat(crpr_diff) - delayAsFloat(margin);
 }
 
 void

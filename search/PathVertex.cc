@@ -231,7 +231,12 @@ Arrival
 PathVertex::arrival(const StaState *sta) const
 {
   Arrival *arrivals = sta->graph()->arrivals(vertex_);
-  return arrivals[arrival_index_];
+  if (arrivals)
+    return arrivals[arrival_index_];
+  else {
+    sta->report()->error(620, "missing arrivals.");
+    return 0.0;
+  }
 }
 
 void
@@ -240,7 +245,10 @@ PathVertex::setArrival(Arrival arrival,
 {
   if (tag_) {
     Arrival *arrivals = sta->graph()->arrivals(vertex_);
-    arrivals[arrival_index_] = arrival;
+    if (arrivals)
+      arrivals[arrival_index_] = arrival;
+    else
+      sta->report()->error(621, "missing arrivals.");
   }
 }
 
@@ -264,8 +272,12 @@ PathVertex::setRequired(const Required &required,
   if (requireds == nullptr) {
     const Search *search = sta->search();
     TagGroup *tag_group = search->tagGroup(vertex_);
-    int arrival_count = tag_group->arrivalCount();
-    requireds = graph->makeRequireds(vertex_, arrival_count);
+    if (tag_group) {
+      int arrival_count = tag_group->arrivalCount();
+      requireds = graph->makeRequireds(vertex_, arrival_count);
+    }
+    else
+      sta->report()->error(622, "missing requireds.");
   }
   requireds[arrival_index_] = required;
 }

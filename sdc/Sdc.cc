@@ -284,14 +284,14 @@ Sdc::deleteConstraints()
     delete checks;
   }
 
-  for (auto input_delay : input_delays_)
+  for (InputDelay *input_delay : input_delays_)
     delete input_delay;
   input_delay_pin_map_.deleteContents();
   input_delay_leaf_pin_map_.deleteContents();
   input_delay_ref_pin_map_.deleteContents();
   input_delay_internal_pin_map_.deleteContents();
 
-  for (auto output_delay : output_delays_)
+  for (OutputDelay *output_delay : output_delays_)
     delete output_delay;
   output_delay_pin_map_.deleteContents();
   output_delay_ref_pin_map_.deleteContents();
@@ -2071,7 +2071,7 @@ Sdc::removeClockGroupsLogicallyExclusive(const char *name)
 {
   if (name) {
     ClockGroups *groups = clk_groups_name_map_.findKey(name);
-    if (groups->logicallyExclusive())
+    if (groups && groups->logicallyExclusive())
       removeClockGroups(groups);
   }
   else {
@@ -2089,7 +2089,7 @@ Sdc::removeClockGroupsPhysicallyExclusive(const char *name)
 {
   if (name) {
     ClockGroups *groups = clk_groups_name_map_.findKey(name);
-    if (groups->physicallyExclusive())
+    if (groups && groups->physicallyExclusive())
       removeClockGroups(groups);
   }
   else {
@@ -2107,7 +2107,7 @@ Sdc::removeClockGroupsAsynchronous(const char *name)
 {
   if (name) {
     ClockGroups *groups = clk_groups_name_map_.findKey(name);
-    if (groups->asynchronous())
+    if (groups && groups->asynchronous())
       removeClockGroups(groups);
   }
   else {

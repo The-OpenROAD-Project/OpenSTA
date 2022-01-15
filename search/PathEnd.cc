@@ -1243,8 +1243,9 @@ PathEndLatchCheck::targetClkWidth(const StaState *sta) const
     return disable_arrival - enable_arrival;
   else {
     if (delayGreater(enable_arrival, disable_arrival, sta)) {
-      float period = enable_clk_info->clock()->period();
-      disable_arrival += period;
+      Clock *disable_clk = enable_clk_info->clock();
+      if (disable_clk)
+        disable_arrival += disable_clk->period();
     }
     return disable_arrival - enable_arrival;
   }

@@ -21,9 +21,11 @@
 
 namespace sta {
 
-TokenParser::TokenParser(const char *str, const char *delimiters) :
+TokenParser::TokenParser(const char *str,
+                         const char *delimiters) :
   delimiters_(delimiters),
   token_(const_cast<char*>(str)),
+  token_delimiter_('\0'),
   first_(true)
 {
   // Skip leading spaces.

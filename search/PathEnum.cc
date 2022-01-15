@@ -470,11 +470,17 @@ PathEnum::divSlack(Path *before_div,
 {
   Arrival arc_arrival = before_div->arrival(this);
   Edge *div_edge = divEdge(before_div, div_arc);
-  ArcDelay div_delay = search_->deratedDelay(div_edge->from(graph_),
-					     div_arc, div_edge,
-					     false, path_ap);
-  Arrival div_arrival = search_->clkPathArrival(after_div) + div_delay;
-  return div_arrival - arc_arrival;
+  if (div_edge) {
+    ArcDelay div_delay = search_->deratedDelay(div_edge->from(graph_),
+                                               div_arc, div_edge,
+                                               false, path_ap);
+    Arrival div_arrival = search_->clkPathArrival(after_div) + div_delay;
+    return div_arrival - arc_arrival;
+  }
+  else {
+    report()->error(619, "path diversion missing edge.");
+    return 0.0;
+  }
 }
 
 Edge *
@@ -586,28 +592,30 @@ PathEnum::updatePathHeadDelays(PathEnumedSeq &paths,
     PathEnumed *path = paths[i];
     TimingArc *arc = path->prevArc(this);
     Edge *edge = path->prevEdge(arc, this);
-    PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
-    ArcDelay arc_delay = search_->deratedDelay(edge->from(graph_),
-					       arc, edge, false, path_ap);
-    Arrival arrival = prev_arrival + arc_delay;
-    debugPrint(debug_, "path_enum", 3, "update arrival %s %s -> %s",
-               path->name(this),
-               delayAsString(path->arrival(this), this),
-               delayAsString(arrival, this));
-    path->setArrival(arrival, this);
-    prev_arrival = arrival;
-    if (sdc_->crprActive()) {
-      // When crpr is enabled the diverion may be from another crpr clk pin,
-      // so update the tags to use the corresponding ClkInfo.
-      Tag *tag = path->tag(this);
-      Tag *updated_tag = search_->findTag(path->transition(this),
-					  path_ap,
-					  clk_info,
-					  tag->isClock(),
-					  tag->inputDelay(),
-					  tag->isSegmentStart(),
-					  tag->states(), false);
-      path->setTag(updated_tag);
+    if (edge) {
+      PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
+      ArcDelay arc_delay = search_->deratedDelay(edge->from(graph_),
+                                                 arc, edge, false, path_ap);
+      Arrival arrival = prev_arrival + arc_delay;
+      debugPrint(debug_, "path_enum", 3, "update arrival %s %s -> %s",
+                 path->name(this),
+                 delayAsString(path->arrival(this), this),
+                 delayAsString(arrival, this));
+      path->setArrival(arrival, this);
+      prev_arrival = arrival;
+      if (sdc_->crprActive()) {
+        // When crpr is enabled the diverion may be from another crpr clk pin,
+        // so update the tags to use the corresponding ClkInfo.
+        Tag *tag = path->tag(this);
+        Tag *updated_tag = search_->findTag(path->transition(this),
+                                            path_ap,
+                                            clk_info,
+                                            tag->isClock(),
+                                            tag->inputDelay(),
+                                            tag->isSegmentStart(),
+                                            tag->states(), false);
+        path->setTag(updated_tag);
+      }
     }
   }
 }

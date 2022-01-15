@@ -306,16 +306,18 @@ void
 SdfWriter::writeInterconnectFromPin(Pin *drvr_pin)
 {
   Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
-  VertexOutEdgeIterator edge_iter(drvr_vertex, graph_);
-  while (edge_iter.hasNext()) {
-    Edge *edge = edge_iter.next();
-    if (edge->isWire()) {
-      Pin *load_pin = edge->to(graph_)->pin();
-      gzprintf(stream_, "    (INTERCONNECT %s %s ",
-	       sdfPathName(drvr_pin),
-	       sdfPathName(load_pin));
-      writeArcDelays(edge);
-      gzprintf(stream_, ")\n");
+  if (drvr_vertex) {
+    VertexOutEdgeIterator edge_iter(drvr_vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      if (edge->isWire()) {
+        Pin *load_pin = edge->to(graph_)->pin();
+        gzprintf(stream_, "    (INTERCONNECT %s %s ",
+                 sdfPathName(drvr_pin),
+                 sdfPathName(load_pin));
+        writeArcDelays(edge);
+        gzprintf(stream_, ")\n");
+      }
     }
   }
 }

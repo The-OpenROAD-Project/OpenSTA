@@ -161,7 +161,8 @@ CheckCrpr::checkCrpr1(const Path *src_path,
     src_clk_path1.isNull() ? nullptr : &src_clk_path1;
   const MinMax *src_clk_min_max =
     src_clk_path ? src_clk_path->minMax(this) : src_path->minMax(this);
-  if (crprPossible(src_clk, tgt_clk)
+  if (src_clk && tgt_clk
+      && crprPossible(src_clk, tgt_clk)
       && src_clk_info->isPropagated()
       && tgt_clk_info->isPropagated()
       // Note that crpr clk min/max is NOT the same as the path min max.
@@ -374,7 +375,8 @@ CheckCrpr::outputDelayCrpr1(const Path *src_path,
   ClkInfo *src_clk_info = src_path->tag(this)->clkInfo();
   Clock *tgt_clk = tgt_clk_edge->clock();
   Clock *src_clk = src_path->clock(this);
-  if (src_clk_info->isPropagated()
+  if (src_clk && tgt_clk
+      && src_clk_info->isPropagated()
       && tgt_clk->isGenerated()
       && tgt_clk->isPropagated()
       && crprPossible(src_clk, tgt_clk)) {

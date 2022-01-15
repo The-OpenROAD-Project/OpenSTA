@@ -146,6 +146,7 @@ public:
   LibertyCell *libertyCell() const;
   LibertyPort *from() const { return from_; }
   LibertyPort *to() const { return to_; }
+  bool isWire() const;
   LibertyPort *relatedOut() const { return related_out_; }
   TimingRole *role() const { return role_; };
   TimingSense sense() const;
