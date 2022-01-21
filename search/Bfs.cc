@@ -181,8 +181,10 @@ BfsIterator::visitParallel(Level to_level,
           size_t vertex_count = level_vertices.size();
           if (vertex_count < thread_count) {
             for (Vertex *vertex : level_vertices) {
-              vertex->setBfsInQueue(bfs_index_, false);
-              visitor->visit(vertex);
+              if (vertex) {
+                vertex->setBfsInQueue(bfs_index_, false);
+                visitor->visit(vertex);
+              }
             }
           }
           else {
@@ -194,8 +196,10 @@ BfsIterator::visitParallel(Level to_level,
               dispatch_queue_->dispatch( [=](int) {
                 for (size_t i = from; i < to; i++) {
                   Vertex *vertex = level_vertices[i];
-                  vertex->setBfsInQueue(bfs_index_, false);
-                  visitors[k]->visit(vertex);
+                  if (vertex) {
+                    vertex->setBfsInQueue(bfs_index_, false);
+                    visitors[k]->visit(vertex);
+                  }
                 }
               });
               from = to;
