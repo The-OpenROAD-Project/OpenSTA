@@ -116,7 +116,13 @@ ArrayTable<TYPE>::make(uint32_t count,
     if ((free_idx_ == object_idx_null
          && free_block_idx_ == block_idx_null)
         || free_idx_ + count >= block->size()) {
-      uint32_t size = (count > block_size) ? count : block_size;
+      uint32_t size = block_size;
+      if (blocks_size_ == 0
+          // First block starts at idx 1.
+          && count > block_size - 1)
+        size = count + 1;
+      else if (count > block_size)
+        size = count;
       block = makeBlock(size);
     }
     // makeId(free_block_idx_, idx_bits)
