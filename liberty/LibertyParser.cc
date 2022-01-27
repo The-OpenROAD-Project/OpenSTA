@@ -546,8 +546,11 @@ libertyIncludeBegin(const char *filename)
     liberty_filename = filename;
     liberty_line = 1;
   }
-  else
-    libertyParseError("cannot open include file %s.", filename);
+  else {
+    string file(filename);
+    stringDelete(filename);
+    libertyParseError("cannot open include file %s.", file.c_str());
+  }
 }
 
 void
