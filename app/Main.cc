@@ -157,11 +157,14 @@ staTclAppInit(int argc,
     Tcl_Eval(interp, "sta::show_splash");
 
   if (!findCmdLineFlag(argc, argv, "-no_init")) {
-    string init_path = getenv("HOME");
-    init_path += "/";
-    init_path += init_filename;
-    if (is_regular_file(init_path.c_str()))
-      sourceTclFile(init_path.c_str(), true, true, interp);
+    const char *home = getenv("HOME");
+    if (home) {
+      string init_path = home;
+      init_path += "/";
+      init_path += init_filename;
+      if (is_regular_file(init_path.c_str()))
+        sourceTclFile(init_path.c_str(), true, true, interp);
+    }
   }
 
   bool exit_after_cmd_file = findCmdLineFlag(argc, argv, "-exit");

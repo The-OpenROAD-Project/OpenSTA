@@ -199,8 +199,10 @@ ReportPath::setReportFieldOrder(StringSeq *field_names)
   while (name_iter.hasNext()) {
     const char *field_name = name_iter.next();
     ReportField *field = findField(field_name);
-    next_fields.push_back(field);
-    field->setEnabled(true);
+    if (field) {
+      next_fields.push_back(field);
+      field->setEnabled(true);
+    }
   }
   // Push remaining disabled fields on the end.
   ReportFieldSeq::Iterator field_iter2(fields_);
@@ -373,7 +375,7 @@ ReportPath::reportEndpointHeader(PathEnd *end,
   if (prev_end)
     prev_group = search_->pathGroup(prev_end);
   PathGroup *group = search_->pathGroup(end);
-  if (group != prev_group) {
+  if (group && group != prev_group) {
     if (prev_group)
       reportBlankLine();
     const char *setup_hold = (end->minMax(this) == MinMax::min())
@@ -1746,7 +1748,8 @@ ReportPath::reportGroup(const PathEnd *end)
 {
   string line;
   line = "Path Group: ";
-  line += search_->pathGroup(end)->name();
+  PathGroup *group = search_->pathGroup(end);
+  line += group ? group->name() : "(none)";
   report_->reportLineString(line);
 
   line = "Path Type: ";
@@ -2196,43 +2199,45 @@ ReportPath::reportGenClkSrcPath1(Clock *clk,
     ClkInfo *src_clk_info = src_path.clkInfo(search_);
     ClockEdge *src_clk_edge = src_clk_info->clkEdge();
     Clock *src_clk = src_clk_info->clock();
-    bool skip_first_path = false;
-    const RiseFall *src_clk_rf = src_clk_edge->transition();
-    const Pin *src_clk_pin = src_clk_info->clkSrc();
-    if (src_clk->isGeneratedWithPropagatedMaster()
-	&& src_clk_info->isPropagated()) {
-      skip_first_path = reportGenClkSrcPath1(src_clk, src_clk_pin,
-					     src_clk_rf, early_late, path_ap,
-					     gclk_time, time_offset,
-					     clk_used_as_data);
+    if (src_clk) {
+      bool skip_first_path = false;
+      const RiseFall *src_clk_rf = src_clk_edge->transition();
+      const Pin *src_clk_pin = src_clk_info->clkSrc();
+      if (src_clk->isGeneratedWithPropagatedMaster()
+          && src_clk_info->isPropagated()) {
+        skip_first_path = reportGenClkSrcPath1(src_clk, src_clk_pin,
+                                               src_clk_rf, early_late, path_ap,
+                                               gclk_time, time_offset,
+                                               clk_used_as_data);
+      }
+      else {
+        const Arrival insertion = search_->clockInsertion(src_clk, src_clk_pin,
+                                                          src_clk_rf,
+                                                          path_ap->pathMinMax(),
+                                                          early_late, path_ap);
+        reportClkSrcLatency(insertion, gclk_time, early_late);
+      }
+      PathExpanded src_expanded(&src_path, this);
+      if (clk->pllOut()) {
+        reportPath4(&src_path, src_expanded, skip_first_path, true,
+                    clk_used_as_data, gclk_time);
+        PathAnalysisPt *pll_ap=path_ap->insertionAnalysisPt(min_max->opposite());
+        Arrival pll_delay = search_->genclks()->pllDelay(clk, clk_rf, pll_ap);
+        size_t path_length = src_expanded.size();
+        if (path_length < 2)
+          report_->critical(258, "generated clock pll source path too short.");
+        PathRef *path0 = src_expanded.path(path_length - 2);
+        Arrival time0 = path0->arrival(this) + gclk_time;
+        PathRef *path1 = src_expanded.path(path_length - 1);
+        reportPathLine(path1, -pll_delay, time0 - pll_delay, "pll_delay");
+      }
+      else
+        reportPath4(&src_path, src_expanded, skip_first_path, false,
+                    clk_used_as_data, gclk_time);
+      if (!clk->isPropagated())
+        reportLine("clock network delay (ideal)", 0.0,
+                   src_path.arrival(this), min_max);
     }
-    else {
-      const Arrival insertion = search_->clockInsertion(src_clk, src_clk_pin,
-							src_clk_rf,
-							path_ap->pathMinMax(),
-							early_late, path_ap);
-      reportClkSrcLatency(insertion, gclk_time, early_late);
-    }
-    PathExpanded src_expanded(&src_path, this);
-    if (clk->pllOut()) {
-      reportPath4(&src_path, src_expanded, skip_first_path, true,
-		  clk_used_as_data, gclk_time);
-      PathAnalysisPt *pll_ap=path_ap->insertionAnalysisPt(min_max->opposite());
-      Arrival pll_delay = search_->genclks()->pllDelay(clk, clk_rf, pll_ap);
-      size_t path_length = src_expanded.size();
-      if (path_length < 2)
-	report_->critical(258, "generated clock pll source path too short.");
-      PathRef *path0 = src_expanded.path(path_length - 2);
-      Arrival time0 = path0->arrival(this) + gclk_time;
-      PathRef *path1 = src_expanded.path(path_length - 1);
-      reportPathLine(path1, -pll_delay, time0 - pll_delay, "pll_delay");
-    }
-    else
-      reportPath4(&src_path, src_expanded, skip_first_path, false,
-		  clk_used_as_data, gclk_time);
-    if (!clk->isPropagated())
-      reportLine("clock network delay (ideal)", 0.0,
-                 src_path.arrival(this), min_max);
   }
   else {
     if (clk->isPropagated())
@@ -2832,15 +2837,17 @@ ReportPath::pathInputDelayRefPath(const Path *path,
   Pin *ref_pin = input_delay->refPin();
   RiseFall *ref_rf = input_delay->refTransition();
   Vertex *ref_vertex = graph_->pinDrvrVertex(ref_pin);
-  const PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
-  const ClockEdge *clk_edge = path->clkEdge(this);
-  VertexPathIterator path_iter(ref_vertex, ref_rf, path_ap, this);
-  while (path_iter.hasNext()) {
-    PathVertex *path = path_iter.next();
-    if (path->isClock(this)
-	&& path->clkEdge(this) == clk_edge) {
-      ref_path.init(path);
-      break;
+  if (ref_vertex) {
+    const PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
+    const ClockEdge *clk_edge = path->clkEdge(this);
+    VertexPathIterator path_iter(ref_vertex, ref_rf, path_ap, this);
+    while (path_iter.hasNext()) {
+      PathVertex *path = path_iter.next();
+      if (path->isClock(this)
+          && path->clkEdge(this) == clk_edge) {
+        ref_path.init(path);
+        break;
+      }
     }
   }
 }
@@ -2851,8 +2858,7 @@ ReportPath::loadCap(Pin *drvr_pin,
 		    DcalcAnalysisPt *dcalc_ap)
 {
   Parasitic *parasitic = nullptr;
-  if (arc_delay_calc_)
-    parasitic = arc_delay_calc_->findParasitic(drvr_pin, rf, dcalc_ap);
+  parasitic = arc_delay_calc_->findParasitic(drvr_pin, rf, dcalc_ap);
   float load_cap = graph_delay_calc_->loadCap(drvr_pin, parasitic, rf, dcalc_ap);
   arc_delay_calc_->finishDrvrPin();
   return load_cap;

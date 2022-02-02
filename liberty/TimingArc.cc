@@ -227,6 +227,12 @@ TimingArcSet::~TimingArcSet()
   arcs_.deleteContents();
 }
 
+bool
+TimingArcSet::isWire() const
+{
+  return this == wire_timing_arc_set_;
+}
+
 LibertyCell *
 TimingArcSet::libertyCell() const
 {

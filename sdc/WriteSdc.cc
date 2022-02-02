@@ -2049,9 +2049,9 @@ WriteSdc::writeDerating(DeratingFactorsCell *factors,
 			WriteSdcObject *write_obj) const
 {
   for (auto early_late : EarlyLate::range()) {
-    DeratingFactors *delay_factors=factors->factors(TimingDerateType::cell_delay);
+    DeratingFactors *delay_factors=factors->factors(TimingDerateCellType::cell_delay);
     writeDerating(delay_factors, TimingDerateType::cell_delay, early_late, write_obj);
-    DeratingFactors *check_factors=factors->factors(TimingDerateType::cell_check);
+    DeratingFactors *check_factors=factors->factors(TimingDerateCellType::cell_check);
     writeDerating(check_factors, TimingDerateType::cell_check, early_late, write_obj);
   }
 }

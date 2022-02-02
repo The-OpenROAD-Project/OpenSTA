@@ -284,14 +284,14 @@ Sdc::deleteConstraints()
     delete checks;
   }
 
-  for (auto input_delay : input_delays_)
+  for (InputDelay *input_delay : input_delays_)
     delete input_delay;
   input_delay_pin_map_.deleteContents();
   input_delay_leaf_pin_map_.deleteContents();
   input_delay_ref_pin_map_.deleteContents();
   input_delay_internal_pin_map_.deleteContents();
 
-  for (auto output_delay : output_delays_)
+  for (OutputDelay *output_delay : output_delays_)
     delete output_delay;
   output_delay_pin_map_.deleteContents();
   output_delay_ref_pin_map_.deleteContents();
@@ -570,7 +570,7 @@ Sdc::setTimingDerate(const Net *net,
   if (net_derating_factors_ == nullptr)
     net_derating_factors_ = new NetDeratingFactorsMap;
   DeratingFactorsNet *factors = net_derating_factors_->findKey(net);
-  if (factors == nullptr) {
+  if (factors == nullptr) { 
     factors = new DeratingFactorsNet;
     (*net_derating_factors_)[net] = factors;
   }
@@ -579,7 +579,7 @@ Sdc::setTimingDerate(const Net *net,
 
 void
 Sdc::setTimingDerate(const Instance *inst,
-		     TimingDerateType type,
+		     TimingDerateCellType type,
 		     PathClkOrData clk_data,
 		     const RiseFallBoth *rf,
 		     const EarlyLate *early_late,
@@ -597,7 +597,7 @@ Sdc::setTimingDerate(const Instance *inst,
 
 void
 Sdc::setTimingDerate(const LibertyCell *cell,
-		     TimingDerateType type,
+		     TimingDerateCellType type,
 		     PathClkOrData clk_data,
 		     const RiseFallBoth *rf,
 		     const EarlyLate *early_late,
@@ -615,7 +615,7 @@ Sdc::setTimingDerate(const LibertyCell *cell,
 
 float
 Sdc::timingDerateInstance(const Pin *pin,
-			  TimingDerateType type,
+			  TimingDerateCellType type,
 			  PathClkOrData clk_data,
 			  const RiseFall *rf,
 			  const EarlyLate *early_late) const
@@ -694,31 +694,19 @@ void
 Sdc::deleteDeratingFactors()
 {
   if (net_derating_factors_) {
-    NetDeratingFactorsMap::Iterator net_iter(net_derating_factors_);
-    while (net_iter.hasNext()) {
-      DeratingFactorsNet *factors = net_iter.next();
-      delete factors;
-    }
+    net_derating_factors_->deleteContents();
     delete net_derating_factors_;
     net_derating_factors_ = nullptr;
   }
 
   if (inst_derating_factors_) {
-    InstDeratingFactorsMap::Iterator inst_iter(inst_derating_factors_);
-    while (inst_iter.hasNext()) {
-      DeratingFactorsCell *factors = inst_iter.next();
-      delete factors;
-    }
+    inst_derating_factors_->deleteContents();
     delete inst_derating_factors_;
     inst_derating_factors_ = nullptr;
   }
 
   if (cell_derating_factors_) {
-    CellDeratingFactorsMap::Iterator cell_iter(cell_derating_factors_);
-    while (cell_iter.hasNext()) {
-      DeratingFactorsCell *factors = cell_iter.next();
-      delete factors;
-    }
+    cell_derating_factors_->deleteContents();
     delete cell_derating_factors_;
     cell_derating_factors_ = nullptr;
   }
@@ -2083,7 +2071,7 @@ Sdc::removeClockGroupsLogicallyExclusive(const char *name)
 {
   if (name) {
     ClockGroups *groups = clk_groups_name_map_.findKey(name);
-    if (groups->logicallyExclusive())
+    if (groups && groups->logicallyExclusive())
       removeClockGroups(groups);
   }
   else {
@@ -2101,7 +2089,7 @@ Sdc::removeClockGroupsPhysicallyExclusive(const char *name)
 {
   if (name) {
     ClockGroups *groups = clk_groups_name_map_.findKey(name);
-    if (groups->physicallyExclusive())
+    if (groups && groups->physicallyExclusive())
       removeClockGroups(groups);
   }
   else {
@@ -2119,7 +2107,7 @@ Sdc::removeClockGroupsAsynchronous(const char *name)
 {
   if (name) {
     ClockGroups *groups = clk_groups_name_map_.findKey(name);
-    if (groups->asynchronous())
+    if (groups && groups->asynchronous())
       removeClockGroups(groups);
   }
   else {

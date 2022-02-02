@@ -135,7 +135,10 @@ VertexSet *
 Genclks::fanins(const Clock *clk)
 {
   GenclkInfo *genclk_info = genclkInfo(clk);
-  return genclk_info->fanins();
+  if (genclk_info)
+    return genclk_info->fanins();
+  else
+    return nullptr;
 }
 
 Vertex *
@@ -616,14 +619,18 @@ EdgeSet *
 Genclks::latchFdbkEdges(const Clock *clk)
 {
   GenclkInfo *genclk_info = genclkInfo(clk);
-  return genclk_info->fdbkEdges();
+  if (genclk_info)
+    return genclk_info->fdbkEdges();
+  else
+    return nullptr;
 }
 
 void
 Genclks::findLatchFdbkEdges(const Clock *clk)
 {
   GenclkInfo *genclk_info = genclkInfo(clk);
-  if (!genclk_info->foundLatchFdbkEdges())
+  if (genclk_info
+      && !genclk_info->foundLatchFdbkEdges())
     findLatchFdbkEdges(clk, genclk_info);
 }
 
@@ -716,24 +723,26 @@ Genclks::seedSrcPins(Clock *gclk,
   Clock *master_clk = gclk->masterClk();
   for (Pin *master_pin : master_clk->leafPins()) {
     Vertex *vertex = graph_->pinDrvrVertex(master_pin);
-    debugPrint(debug_, "genclk", 2, " seed src pin %s",
-               network_->pathName(master_pin));
-    TagGroupBldr tag_bldr(true, this);
-    tag_bldr.init(vertex);
-    copyGenClkSrcPaths(vertex, &tag_bldr);
-    for (auto path_ap : corners_->pathAnalysisPts()) {
-      const MinMax *min_max = path_ap->pathMinMax();
-      const EarlyLate *early_late = min_max;
-      for (auto tr : RiseFall::range()) {
-	Tag *tag = makeTag(gclk, master_clk, master_pin, tr, src_filter,
-			   path_ap);
-	Arrival insert = search_->clockInsertion(master_clk, master_pin, tr,
-						 min_max, early_late, path_ap);
-	tag_bldr.setArrival(tag, insert, nullptr);
+    if (vertex) {
+      debugPrint(debug_, "genclk", 2, " seed src pin %s",
+                 network_->pathName(master_pin));
+      TagGroupBldr tag_bldr(true, this);
+      tag_bldr.init(vertex);
+      copyGenClkSrcPaths(vertex, &tag_bldr);
+      for (auto path_ap : corners_->pathAnalysisPts()) {
+        const MinMax *min_max = path_ap->pathMinMax();
+        const EarlyLate *early_late = min_max;
+        for (auto tr : RiseFall::range()) {
+          Tag *tag = makeTag(gclk, master_clk, master_pin, tr, src_filter,
+                             path_ap);
+          Arrival insert = search_->clockInsertion(master_clk, master_pin, tr,
+                                                   min_max, early_late, path_ap);
+          tag_bldr.setArrival(tag, insert, nullptr);
+        }
       }
+      search_->setVertexArrivals(vertex, &tag_bldr);
+      insert_iter.enqueueAdjacentVertices(vertex);
     }
-    search_->setVertexArrivals(vertex, &tag_bldr);
-    insert_iter.enqueueAdjacentVertices(vertex);
   }
 }
 
@@ -903,17 +912,19 @@ Genclks::copyGenClkSrcPaths(Vertex *vertex,
   if (arrivals) {
     PathVertexRep *prev_paths = graph_->prevPaths(vertex);
     TagGroup *tag_group = search_->tagGroup(vertex);
-    ArrivalMap::Iterator arrival_iter(tag_group->arrivalMap());
-    while (arrival_iter.hasNext()) {
-      Tag *tag;
-      int arrival_index;
-      arrival_iter.next(tag, arrival_index);
-      if (tag->isGenClkSrcPath()) {
-	Arrival arrival = arrivals[arrival_index];
-	PathVertexRep *prev_path = prev_paths
-	  ? &prev_paths[arrival_index]
-	  : nullptr;
-	tag_bldr->setArrival(tag, arrival, prev_path);
+    if (tag_group) {
+      ArrivalMap::Iterator arrival_iter(tag_group->arrivalMap());
+      while (arrival_iter.hasNext()) {
+        Tag *tag;
+        int arrival_index;
+        arrival_iter.next(tag, arrival_index);
+        if (tag->isGenClkSrcPath()) {
+          Arrival arrival = arrivals[arrival_index];
+          PathVertexRep *prev_path = prev_paths
+            ? &prev_paths[arrival_index]
+            : nullptr;
+          tag_bldr->setArrival(tag, arrival, prev_path);
+        }
       }
     }
   }
@@ -1100,13 +1111,15 @@ Genclks::findPllDelays(Clock *gclk)
              gclk->name());
   FilterPath *pll_filter = makePllFilter(gclk);
   GenclkInfo *genclk_info = genclkInfo(gclk);
-  genclk_info->setPllFilter(pll_filter);
-  ClkTreeSearchPred srch_pred(this);
-  BfsFwdIterator pll_iter(BfsIndex::other, &srch_pred, this);
-  seedPllPin(gclk, pll_filter, pll_iter);
-  // Propagate arrivals to pll feedback pin level.
-  findPllArrivals(gclk, pll_iter);
-  sdc_->unrecordException(pll_filter);
+  if (genclk_info) {
+    genclk_info->setPllFilter(pll_filter);
+    ClkTreeSearchPred srch_pred(this);
+    BfsFwdIterator pll_iter(BfsIndex::other, &srch_pred, this);
+    seedPllPin(gclk, pll_filter, pll_iter);
+    // Propagate arrivals to pll feedback pin level.
+    findPllArrivals(gclk, pll_iter);
+    sdc_->unrecordException(pll_filter);
+  }
 }
 
 FilterPath *
@@ -1131,19 +1144,21 @@ Genclks::seedPllPin(const Clock *gclk,
 {
   Pin *pll_out_pin = gclk->pllOut();
   Vertex *vertex = graph_->pinDrvrVertex(pll_out_pin);
-  debugPrint(debug_, "genclk", 2, " seed pllout pin %s",
-             network_->pathName(pll_out_pin));
-  TagGroupBldr tag_bldr(true, this);
-  tag_bldr.init(vertex);
-  copyGenClkSrcPaths(vertex, &tag_bldr);
-  for (auto path_ap : corners_->pathAnalysisPts()) {
-    for (auto tr : RiseFall::range()) {
-      Tag *tag = makeTag(gclk, gclk, pll_out_pin, tr, pll_filter, path_ap);
-      tag_bldr.setArrival(tag, 0.0, nullptr);
+  if (vertex) {
+    debugPrint(debug_, "genclk", 2, " seed pllout pin %s",
+               network_->pathName(pll_out_pin));
+    TagGroupBldr tag_bldr(true, this);
+    tag_bldr.init(vertex);
+    copyGenClkSrcPaths(vertex, &tag_bldr);
+    for (auto path_ap : corners_->pathAnalysisPts()) {
+      for (auto tr : RiseFall::range()) {
+        Tag *tag = makeTag(gclk, gclk, pll_out_pin, tr, pll_filter, path_ap);
+        tag_bldr.setArrival(tag, 0.0, nullptr);
+      }
     }
+    search_->setVertexArrivals(vertex, &tag_bldr);
+    pll_iter.enqueueAdjacentVertices(vertex);
   }
-  search_->setVertexArrivals(vertex, &tag_bldr);
-  pll_iter.enqueueAdjacentVertices(vertex);
 }
 
 class PllEvalPred : public EvalPred

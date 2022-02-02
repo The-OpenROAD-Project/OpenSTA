@@ -979,7 +979,8 @@ WritePathSpice::gatePortValues(Stage stage,
 
   Edge *gate_edge = stageGateEdge(stage);
   LibertyPort *drvr_port = stageDrvrPort(stage);
-  if (gate_edge->role()->genericRole() == TimingRole::regClkToQ()) 
+  if (gate_edge
+      && gate_edge->role()->genericRole() == TimingRole::regClkToQ()) 
     regPortValues(stage, port_values, clk, dcalc_ap_index);
   else if (drvr_port->function()) {
     Pin *input_pin = stageGateInputPin(stage);

@@ -808,35 +808,37 @@ VerilogModule::parseDcl(VerilogDcl *dcl,
 {
   for (VerilogDclArg *arg : *dcl->args()) {
     const char *net_name = arg->netName();
-    VerilogDcl *existing_dcl = dcl_map_[net_name];
-    if (existing_dcl) {
-      PortDirection *existing_dir = existing_dcl->direction();
-      if (existing_dir->isInternal())
-	// wire dcl can be used as modifier for input/inout dcls.
-	// Ignore the wire dcl.
-	dcl_map_[net_name] = dcl;
-      else if (dcl->direction()->isTristate()) {
-	if (existing_dir->isOutput())
-	// tri dcl can be used as modifier for input/output/inout dcls.
-	// Keep the tristate dcl for outputs because it is more specific
-	// but ignore it for inputs and bidirs.
-	dcl_map_[net_name] = dcl;
+    if (net_name) {
+      VerilogDcl *existing_dcl = dcl_map_[net_name];
+      if (existing_dcl) {
+        PortDirection *existing_dir = existing_dcl->direction();
+        if (existing_dir->isInternal())
+          // wire dcl can be used as modifier for input/inout dcls.
+          // Ignore the wire dcl.
+          dcl_map_[net_name] = dcl;
+        else if (dcl->direction()->isTristate()) {
+          if (existing_dir->isOutput())
+            // tri dcl can be used as modifier for input/output/inout dcls.
+            // Keep the tristate dcl for outputs because it is more specific
+            // but ignore it for inputs and bidirs.
+            dcl_map_[net_name] = dcl;
+        }
+        else if (dcl->direction()->isPowerGround()
+                 && (existing_dir->isOutput()
+                     || existing_dir->isInput()
+                     || existing_dir->isBidirect()))
+          // supply0/supply1 dcl can be used as modifier for
+          // input/output/inout dcls.
+          dcl_map_[net_name] = dcl;
+        else if (!dcl->direction()->isInternal())
+          reader->warn(18, filename_, dcl->line(),
+                       "signal %s previously declared on line %d.",
+                       reader->netVerilogName(net_name),
+                       existing_dcl->line());
       }
-      else if (dcl->direction()->isPowerGround()
-	       && (existing_dir->isOutput()
-		   || existing_dir->isInput()
-		   || existing_dir->isBidirect()))
-	// supply0/supply1 dcl can be used as modifier for
-	// input/output/inout dcls.
-	dcl_map_[net_name] = dcl;
-      else if (!dcl->direction()->isInternal())
-	reader->warn(18, filename_, dcl->line(),
-		     "signal %s previously declared on line %d.",
-		     reader->netVerilogName(net_name),
-		     existing_dcl->line());
+      else
+        dcl_map_[net_name] = dcl;
     }
-    else
-      dcl_map_[net_name] = dcl;
   }
 }
 
@@ -1840,7 +1842,8 @@ VerilogReader::makeModuleInstNetwork(VerilogModuleInst *mod_inst,
     }
     if (!is_leaf) {
       VerilogModule *module = this->module(cell);
-      makeModuleInstBody(module, inst, &bindings, make_black_boxes);
+      if (module)
+        makeModuleInstBody(module, inst, &bindings, make_black_boxes);
     }
   }
 }

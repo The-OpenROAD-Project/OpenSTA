@@ -506,6 +506,7 @@ delay_work_create()
   D->slew_derate = 0.0;
   D->slew_factor = 0.0;
   for (j=0;j<2;j++) {
+    D->cV[j].slew_derate = 0.0;
     D->cV[j].vlo = 0.0;
     D->cV[j].vhi = 0.0;
     D->cV[j].vlg = 0.0;

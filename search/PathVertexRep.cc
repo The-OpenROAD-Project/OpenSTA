@@ -137,13 +137,21 @@ PathVertexRep::arrival(const StaState *sta) const
   Tag *tag = search->tag(tag_index_);
   Vertex *vertex = graph->vertex(vertex_id_);
   TagGroup *tag_group = search->tagGroup(vertex);
-  int arrival_index;
-  bool arrival_exists;
-  tag_group->arrivalIndex(tag, arrival_index, arrival_exists);
-  if (!arrival_exists)
-    sta->report()->critical(254, "tag group missing tag");
-  Arrival *arrivals = graph->arrivals(vertex);
-  return arrivals[arrival_index];
+  if (tag_group) {
+    int arrival_index;
+    bool arrival_exists;
+    tag_group->arrivalIndex(tag, arrival_index, arrival_exists);
+    if (!arrival_exists)
+      sta->report()->critical(254, "tag group missing tag");
+    Arrival *arrivals = graph->arrivals(vertex);
+    if (arrivals)
+      return arrivals[arrival_index];
+    else
+      sta->report()->critical(624, "missing arrivals");
+  }
+  else
+    sta->report()->error(623, "missing arrivals.");
+  return 0.0;
 }
 
 void

@@ -644,6 +644,7 @@ GraphDelayCalc1::seedNoDrvrCellSlew(Vertex *drvr_vertex,
 				 parasitic, dcalc_ap);
   annotateLoadDelays(drvr_vertex, rf, drive_delay, false, dcalc_ap,
 		     arc_delay_calc);
+  arc_delay_calc->finishDrvrPin();
 }
 
 void

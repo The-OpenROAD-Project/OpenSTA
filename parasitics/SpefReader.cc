@@ -72,6 +72,7 @@ readSpefFile(const char *filename,
     // yyparse returns 0 on success.
     success = (::SpefParse_parse() == 0);
     gzclose(stream);
+    spef_reader = nullptr;
   }
   else
     throw FileNotReadable(filename);
@@ -313,7 +314,7 @@ SpefReader::nameMapLookup(char *name)
       return mapped_name;
     else {
       warn(169, "no name map entry for %d.", index);
-      return 0;
+      return nullptr;
     }
   }
   else
@@ -350,17 +351,19 @@ SpefReader::findPin(char *name)
     if (delim) {
       *delim = '\0';
       name = nameMapLookup(name);
-      Instance *inst = findInstanceRelative(name);
-      // Replace delimiter for error messages.
-      *delim = delimiter_;
-      const char *port_name = delim + 1;
-      if (inst) {
-	pin = network_->findPin(inst, port_name);
-	if (pin == nullptr)
-	  warn(171, "pin %s not found.", name);
+      if (name) {
+        Instance *inst = findInstanceRelative(name);
+        // Replace delimiter for error messages.
+        *delim = delimiter_;
+        const char *port_name = delim + 1;
+        if (inst) {
+          pin = network_->findPin(inst, port_name);
+          if (pin == nullptr)
+            warn(171, "pin %s not found.", name);
+        }
+        else
+          warn(172, "instance %s not found.", name);
       }
-      else
-	warn(172, "instance %s not found.", name);
     }
     else {
       pin = findPortPinRelative(name);

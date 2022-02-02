@@ -329,17 +329,16 @@ makeLibertyComplexAttr(const char *name,
   }
   else {
     LibertyAttr *attr = new LibertyComplexAttr(name, values, line);
-    if (liberty_group_visitor)
+    if (liberty_group_visitor) {
       liberty_group_visitor->visitAttr(attr);
-    if (liberty_group_visitor->save(attr)) {
-      LibertyGroup *group = libertyGroup();
-      group->addAttribute(attr);
-      return attr;
+      if (liberty_group_visitor->save(attr)) {
+        LibertyGroup *group = libertyGroup();
+        group->addAttribute(attr);
+        return attr;
+      }
     }
-    else {
-      delete attr;
-      return nullptr;
-    }
+    delete attr;
+    return nullptr;
   }
 }
 

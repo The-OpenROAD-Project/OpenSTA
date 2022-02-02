@@ -97,8 +97,7 @@ protected:
 };
 
 typedef int PathAPIndex;
-typedef int TagIndex;
-typedef int TagGroupTagIndex;
+typedef unsigned TagIndex;
 typedef Vector<Tag*> TagSeq;
 typedef Vector<MinPulseWidthCheck*> MinPulseWidthCheckSeq;
 typedef Vector<MinPeriodCheck*> MinPeriodCheckSeq;
@@ -124,8 +123,8 @@ enum class ReportPathFormat { full,
 };
 
 static const int tag_index_bits = 24;
-static const int tag_index_max = (1 << tag_index_bits) - 1;
-static const int tag_index_null = tag_index_max;
+static const TagIndex tag_index_max = (1 << tag_index_bits) - 1;
+static const TagIndex tag_index_null = tag_index_max;
 static const int path_ap_index_bit_count = 4;
 
 } // namespace

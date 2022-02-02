@@ -204,13 +204,15 @@ CheckTiming::checkLoops()
 	  error->push_back(pin_name);
 	  last_edge = edge;
 	}
-	error->push_back(stringCopy("| loop cut point"));
-	const Pin *pin = last_edge->to(graph_)->pin();
-	const char *pin_name = stringCopy(sdc_network_->pathName(pin));
-	error->push_back(pin_name);
+        if (last_edge) {
+          error->push_back(stringCopy("| loop cut point"));
+          const Pin *pin = last_edge->to(graph_)->pin();
+          const char *pin_name = stringCopy(sdc_network_->pathName(pin));
+          error->push_back(pin_name);
 
-	// Separator between loops.
-	error->push_back(stringCopy("--------------------------------"));
+          // Separator between loops.
+          error->push_back(stringCopy("--------------------------------"));
+        }
       }
     }
     errors_.push_back(error);

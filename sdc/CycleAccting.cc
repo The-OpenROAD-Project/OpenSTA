@@ -142,10 +142,9 @@ CycleAccting::findDelays(StaState *sta)
     }
     bool tgt_past_src = false;
     bool src_past_tgt = false;
-    int tgt_cycle, src_cycle;
-    for (tgt_cycle = firstCycle(tgt_);
-	 tgt_cycle <= tgt_max_cycle;
-	 tgt_cycle++) {
+    int tgt_cycle = firstCycle(tgt_);
+    int src_cycle = 0;
+    while (tgt_cycle <= tgt_max_cycle) {
       double tgt_cycle_start = tgt_cycle * tgt_period;
       double tgt_time = tgt_cycle_start + tgt_->time();
       double tgt_opp_time = tgt_cycle_start + tgt_opp_time1;
@@ -266,6 +265,7 @@ CycleAccting::findDelays(StaState *sta)
 	  }
 	}
       }
+      tgt_cycle++;
     }
     max_cycles_exceeded_ = true;
     debugPrint(debug, "cycle_acct", 1,

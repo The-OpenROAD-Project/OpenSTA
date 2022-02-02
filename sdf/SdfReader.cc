@@ -96,7 +96,9 @@ readSdf(const char *filename,
                    unescaped_dividers, incremental_only,
 		   cond_use, sta);
   sdf_reader = &reader;
-  return reader.read();
+  bool success = reader.read();
+  sdf_reader = nullptr;
+  return success;
 }
 
 SdfReader::SdfReader(const char *filename,
@@ -361,54 +363,56 @@ SdfReader::iopath(SdfPortSpec *from_edge,
       // instance may not have the pin.
       if (from_pin && to_pin) {
 	Vertex *to_vertex = graph_->pinDrvrVertex(to_pin);
-	size_t triple_count = triples->size();
-	bool matched = false;
-	// Fanin < fanout, so search for driver from load.
-	// Search for multiple matching edges because of
-	// tristate enable/disable.
-	VertexInEdgeIterator edge_iter(to_vertex, graph_);
-	while (edge_iter.hasNext()) {
-	  Edge *edge = edge_iter.next();
-	  TimingArcSet *arc_set = edge->timingArcSet();
-	  const char *lib_cond = arc_set->sdfCond();
-	  const TimingRole *edge_role = arc_set->role();
-	  bool cond_use_flag = cond_use_ && cond && lib_cond == nullptr
-	    && !(!is_incremental_only_ && in_incremental_);
-	  if (edge->from(graph_)->pin() == from_pin
-	      && edge_role->sdfRole() == TimingRole::sdfIopath()
-	      && (cond_use_flag
-		  || (!condelse && condMatch(cond, lib_cond))
-		  // condelse matches the default (unconditional) arc.
-		  || (condelse && lib_cond == nullptr))) {
-	    matched = true;
-	    TimingArcSetArcIterator arc_iter(arc_set);
-	    while (arc_iter.hasNext()) {
-	      TimingArc *arc = arc_iter.next();
-	      if ((from_edge->transition() == Transition::riseFall())
-		  || (arc->fromTrans() == from_edge->transition())) {
-		size_t triple_index = arc->toTrans()->sdfTripleIndex();
-		SdfTriple *triple = nullptr;
-		if (triple_index < triple_count)
-		  triple = (*triples)[triple_index];
-		if (triple_count == 1)
-		  triple = (*triples)[0];
-		// Rules for matching when triple is missing not implemented.
-		// See SDF pg 3-17.
-		if (triple) {
-		  if (cond_use_flag)
-		    setEdgeArcDelaysCondUse(edge, arc, triple);
-		  else
-		    setEdgeArcDelays(edge, arc, triple);
-		}
-	      }
-	    }
-	  }
-	}
-	if (!matched)
-	  sdfWarn(191, "cell %s IOPATH %s -> %s not found.",
-                  network_->cellName(instance_),
-                  from_port_name,
-                  to_port_name);
+	if (to_vertex) {
+          size_t triple_count = triples->size();
+          bool matched = false;
+          // Fanin < fanout, so search for driver from load.
+          // Search for multiple matching edges because of
+          // tristate enable/disable.
+          VertexInEdgeIterator edge_iter(to_vertex, graph_);
+          while (edge_iter.hasNext()) {
+            Edge *edge = edge_iter.next();
+            TimingArcSet *arc_set = edge->timingArcSet();
+            const char *lib_cond = arc_set->sdfCond();
+            const TimingRole *edge_role = arc_set->role();
+            bool cond_use_flag = cond_use_ && cond && lib_cond == nullptr
+              && !(!is_incremental_only_ && in_incremental_);
+            if (edge->from(graph_)->pin() == from_pin
+                && edge_role->sdfRole() == TimingRole::sdfIopath()
+                && (cond_use_flag
+                    || (!condelse && condMatch(cond, lib_cond))
+                    // condelse matches the default (unconditional) arc.
+                    || (condelse && lib_cond == nullptr))) {
+              matched = true;
+              TimingArcSetArcIterator arc_iter(arc_set);
+              while (arc_iter.hasNext()) {
+                TimingArc *arc = arc_iter.next();
+                if ((from_edge->transition() == Transition::riseFall())
+                    || (arc->fromTrans() == from_edge->transition())) {
+                  size_t triple_index = arc->toTrans()->sdfTripleIndex();
+                  SdfTriple *triple = nullptr;
+                  if (triple_index < triple_count)
+                    triple = (*triples)[triple_index];
+                  if (triple_count == 1)
+                    triple = (*triples)[0];
+                  // Rules for matching when triple is missing not implemented.
+                  // See SDF pg 3-17.
+                  if (triple) {
+                    if (cond_use_flag)
+                      setEdgeArcDelaysCondUse(edge, arc, triple);
+                    else
+                      setEdgeArcDelays(edge, arc, triple);
+                  }
+                }
+              }
+            }
+          }
+          if (!matched)
+            sdfWarn(191, "cell %s IOPATH %s -> %s not found.",
+                    network_->cellName(instance_),
+                    from_port_name,
+                    to_port_name);
+        }
       }
     }
   }
@@ -697,11 +701,13 @@ SdfReader::setDevicePinDelays(Pin *to_pin,
 			      SdfTripleSeq *triples)
 {
   Vertex *vertex = graph_->pinDrvrVertex(to_pin);
-  VertexInEdgeIterator edge_iter(vertex, graph_);
-  while (edge_iter.hasNext()) {
-    Edge *edge = edge_iter.next();
-    if (edge->role()->sdfRole() == TimingRole::sdfIopath())
-      setEdgeDelays(edge, triples, "DEVICE");
+  if (vertex) {
+    VertexInEdgeIterator edge_iter(vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      if (edge->role()->sdfRole() == TimingRole::sdfIopath())
+        setEdgeDelays(edge, triples, "DEVICE");
+    }
   }
 }
 
@@ -827,25 +833,23 @@ SdfReader::makePortSpec(Transition *tr,
 SdfPortSpec *
 SdfReader::makeCondPortSpec(char *cond_port)
 {
-  char *cond = cond_port;
   // Search from end to find port name because condition may contain spaces.
-  char *p = &cond_port[strlen(cond_port) - 1];
-  // Trim trailing port spaces.
-  while (*p != '\0' && isspace(*p))
-    p--;
-  p[1] = '\0';
-  while (*p != '\0' && !isspace(*p))
-    p--;
-  char *port = &p[1];
-  // Trim trailing cond spaces.
-  while (*p != '\0' && isspace(*p))
-    p--;
-  p[1] = '\0';
-  SdfPortSpec *port_spec = makePortSpec(Transition::riseFall(),
-					stringCopy(port),
-					stringCopy(cond));
-  stringDelete(cond_port);
-  return port_spec;
+  string cond_port1(cond_port);
+  trimRight(cond_port1);
+  auto port_idx = cond_port1.find_last_of(" ");
+  if (port_idx != cond_port1.npos) {
+    string port1 = cond_port1.substr(port_idx + 1);
+    auto cond_end = cond_port1.find_last_not_of(" ", port_idx);
+    if (cond_end != cond_port1.npos) {
+      string cond1 = cond_port1.substr(0, cond_end + 1);
+      SdfPortSpec *port_spec = makePortSpec(Transition::riseFall(),
+                                            stringCopy(port1.c_str()),
+                                            stringCopy(cond1.c_str()));
+      stringDelete(cond_port);
+      return port_spec;
+    }
+  }
+  return nullptr;
 }
 
 void

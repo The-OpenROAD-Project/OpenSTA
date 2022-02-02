@@ -933,12 +933,16 @@ getProperty(TimingArcSet *arc_set,
 {
   if (stringEqual(property, "name")
       || stringEqual(property, "full_name")) {
-    auto from = arc_set->from()->name();
-    auto to = arc_set->to()->name();
-    auto cell_name = arc_set->libertyCell()->name();
-    string name;
-    stringPrint(name, "%s %s -> %s", cell_name, from, to);
-    return PropertyValue(name);
+    if (arc_set->isWire())
+      return PropertyValue("wire");
+    else {
+      auto from = arc_set->from()->name();
+      auto to = arc_set->to()->name();
+      auto cell_name = arc_set->libertyCell()->name();
+      string name;
+      stringPrint(name, "%s %s -> %s", cell_name, from, to);
+      return PropertyValue(name);
+    }
   }
   else
     throw PropertyUnknown("timing arc", property);

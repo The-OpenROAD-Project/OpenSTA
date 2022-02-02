@@ -79,9 +79,11 @@ enum class ClockGateType { none, latch_posedge, latch_negedge, other };
 
 enum class DelayModelType { cmos_linear, cmos_pwl, cmos2, table, polynomial, dcm };
 
-enum class ScaleFactorPvt { process, volt, temp, count, unknown };
+enum class ScaleFactorPvt { process, volt, temp, unknown };
+constexpr int scale_factor_pvt_count = int(ScaleFactorPvt::unknown) + 1;
 
-enum class TableTemplateType { delay, power, output_current, ocv, count };
+enum class TableTemplateType { delay, power, output_current, ocv };
+constexpr int table_template_type_count = int(TableTemplateType::ocv) + 1;
 
 void
 initLiberty();
@@ -300,7 +302,7 @@ protected:
   Units *units_;
   DelayModelType delay_model_type_;
   BusDclMap bus_dcls_;
-  TableTemplateMap template_maps_[int(TableTemplateType::count)];
+  TableTemplateMap template_maps_[table_template_type_count];
   float nominal_process_;
   float nominal_voltage_;
   float nominal_temperature_;
@@ -912,7 +914,7 @@ public:
 
 protected:
   const char *name_;
-  float scales_[scale_factor_type_count][int(ScaleFactorPvt::count)][RiseFall::index_count];
+  float scales_[scale_factor_type_count][scale_factor_pvt_count][RiseFall::index_count];
 
 private:
   DISALLOW_COPY_AND_ASSIGN(ScaleFactors);

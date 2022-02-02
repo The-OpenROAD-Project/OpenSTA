@@ -23,7 +23,6 @@
 #include "Mutex.hh"
 #include "Report.hh"
 #include "Debug.hh"
-#include "Error.hh"
 #include "Stats.hh"
 #include "Fuzzy.hh"
 #include "TimingRole.hh"
@@ -613,20 +612,22 @@ void
 Search::seedFilterStarts()
 {
   ExceptionPt *first_pt = filter_->firstPt();
-  PinSet first_pins;
-  first_pt->allPins(network_, &first_pins);
-  for (Pin *pin : first_pins) {
-    if (network_->isHierarchical(pin)) {
-      SeedFaninsThruHierPin visitor(graph_, this);
-      visitDrvrLoadsThruHierPin(pin, network_, &visitor);
-    }
-    else {
-      Vertex *vertex, *bidirect_drvr_vertex;
-      graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
-      if (vertex)
-        seedArrival(vertex);
-      if (bidirect_drvr_vertex)
-	seedArrival(bidirect_drvr_vertex);
+  if (first_pt) {
+    PinSet first_pins;
+    first_pt->allPins(network_, &first_pins);
+    for (Pin *pin : first_pins) {
+      if (network_->isHierarchical(pin)) {
+        SeedFaninsThruHierPin visitor(graph_, this);
+        visitDrvrLoadsThruHierPin(pin, network_, &visitor);
+      }
+      else {
+        Vertex *vertex, *bidirect_drvr_vertex;
+        graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
+        if (vertex)
+          seedArrival(vertex);
+        if (bidirect_drvr_vertex)
+          seedArrival(bidirect_drvr_vertex);
+      }
     }
   }
 }
@@ -1190,7 +1191,8 @@ Search::arrivalsChanged(Vertex *vertex,
   Arrival *arrivals1 = graph_->arrivals(vertex);
   if (arrivals1) {
     TagGroup *tag_group = tagGroup(vertex);
-    if (tag_group->arrivalMap()->size() != tag_bldr->arrivalMap()->size())
+    if (tag_group == nullptr
+        || tag_group->arrivalMap()->size() != tag_bldr->arrivalMap()->size())
       return true;
     ArrivalMap::Iterator arrival_iter1(tag_group->arrivalMap());
     while (arrival_iter1.hasNext()) {
@@ -3009,14 +3011,14 @@ Search::timingDerate(Vertex *from_vertex,
 				 path_ap->pathMinMax());
   }
   else {
-    TimingDerateType derate_type;
+    TimingDerateCellType derate_type;
     const RiseFall *rf;
     if (role->isTimingCheck()) {
-      derate_type = TimingDerateType::cell_check;
+      derate_type = TimingDerateCellType::cell_check;
       rf = arc->toTrans()->asRiseFall();
     }
     else {
-       derate_type = TimingDerateType::cell_delay;
+       derate_type = TimingDerateCellType::cell_delay;
        rf = arc->fromTrans()->asRiseFall();
     }
     return sdc_->timingDerateInstance(pin, derate_type, derate_clk_data, rf,
@@ -3371,9 +3373,13 @@ RequiredCmp::requiredsSave(Vertex *vertex,
     Graph *graph = sta->graph();
     const Search *search = sta->search();
     TagGroup *tag_group = search->tagGroup(vertex);
-    int arrival_count = tag_group->arrivalCount();
-    graph->deleteRequireds(vertex, arrival_count);
-    requireds_changed = true;
+    if (tag_group == nullptr)
+      requireds_changed = true;
+    else {
+      int arrival_count = tag_group->arrivalCount();
+      graph->deleteRequireds(vertex, arrival_count);
+      requireds_changed = true;
+    }
   }
   return requireds_changed;
 }

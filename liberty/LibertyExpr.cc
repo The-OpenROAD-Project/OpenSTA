@@ -39,7 +39,9 @@ parseFuncExpr(const char *func,
     LibExprParser parser(func, cell, error_msg, report);
     libexpr_parser = &parser;
     LibertyExprParse_parse();
-    return parser.result();
+    FuncExpr *expr = parser.result();
+    libexpr_parser = nullptr;
+    return expr;
   }
   else
     return nullptr;

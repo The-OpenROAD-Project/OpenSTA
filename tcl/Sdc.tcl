@@ -553,9 +553,9 @@ proc get_cells { args } {
 	set insts [concat $insts $matches]
       }
     }
-    if [info exists keys(-filter)] {
-      set insts [filter_insts1 $keys(-filter) $insts]
-    }
+  }
+  if [info exists keys(-filter)] {
+    set insts [filter_insts1 $keys(-filter) $insts]
   }
   return $insts
 }
@@ -582,7 +582,7 @@ proc filter_insts1 { filter objects } {
   } elseif { [regexp $filter_regexp1 $filter ignore attr_name op arg] } {
     set filtered_objects [filter_insts $attr_name $op $arg $objects]
   } else {
-    sta_error 516 "unsupported -filter expression."
+    sta_error 516 "unsupported instance -filter expression."
   }
   return $filtered_objects
 }
@@ -967,7 +967,7 @@ proc filter_pins1 { filter objects } {
   } elseif { [regexp $filter_regexp1 $filter ignore attr_name op arg] } {
     set filtered_objects [filter_pins $attr_name $op $arg $objects]
   } else {
-    sta_error 517 "unsupported -filter expression."
+    sta_error 517 "unsupported pin -filter expression."
   }
   return $filtered_objects
 }
@@ -1043,7 +1043,7 @@ proc filter_ports1 { filter objects } {
   } elseif { [regexp $filter_regexp1 $filter ignore attr_name op arg] } {
     set filtered_objects [filter_ports $attr_name $op $arg $objects]
   } else {
-    sta_error 518 "unsupported -filter expression."
+    sta_error 518 "unsupported port -filter expression."
   }
   return $filtered_objects
 }

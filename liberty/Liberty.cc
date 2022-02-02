@@ -88,7 +88,7 @@ LibertyLibrary::LibertyLibrary(const char *name,
   buffers_(nullptr)
 {
   // Scalar templates are builtin.
-  for (int i = 0; i != int(TableTemplateType::count); i++) {
+  for (int i = 0; i != table_template_type_count; i++) {
     TableTemplateType type = static_cast<TableTemplateType>(i);
     TableTemplate *scalar_template = new TableTemplate("scalar", nullptr,
 						       nullptr, nullptr);
@@ -107,7 +107,7 @@ LibertyLibrary::LibertyLibrary(const char *name,
 LibertyLibrary::~LibertyLibrary()
 {
   bus_dcls_.deleteContents();
-  for (int i = 0; i < int(TableTemplateType::count); i++)
+  for (int i = 0; i < table_template_type_count; i++)
     template_maps_[i].deleteContents();
   scale_factors_map_.deleteContents();
   delete scale_factors_;
@@ -2719,7 +2719,7 @@ ScaleFactors::ScaleFactors(const char *name) :
   name_(stringCopy(name))
 {
   for (int type = 0; type < scale_factor_type_count; type++) {
-    for (int pvt = 0; pvt < int(ScaleFactorPvt::count); pvt++) {
+    for (int pvt = 0; pvt < scale_factor_pvt_count; pvt++) {
       for (auto tr_index : RiseFall::rangeIndex()) {
 	scales_[type][pvt][tr_index] = 0.0;
       }
@@ -2776,7 +2776,7 @@ void
 ScaleFactors::print()
 {
   printf("%10s", " ");
-  for (int pvt_index = 0; pvt_index < int(ScaleFactorPvt::count); pvt_index++) {
+  for (int pvt_index = 0; pvt_index < scale_factor_pvt_count; pvt_index++) {
     ScaleFactorPvt pvt = (ScaleFactorPvt) pvt_index;
     printf("%10s", scaleFactorPvtName(pvt));
   }
@@ -2784,7 +2784,7 @@ ScaleFactors::print()
   for (int type_index = 0; type_index < scale_factor_type_count; type_index++) {
     ScaleFactorType type = (ScaleFactorType) type_index;
     printf("%10s ", scaleFactorTypeName(type));
-    for (int pvt_index = 0; pvt_index < int(ScaleFactorPvt::count); pvt_index++) {
+    for (int pvt_index = 0; pvt_index < scale_factor_pvt_count; pvt_index++) {
       if (scaleFactorTypeRiseFallSuffix(type)
 	  || scaleFactorTypeRiseFallPrefix(type)
 	  || scaleFactorTypeLowHighSuffix(type)) {

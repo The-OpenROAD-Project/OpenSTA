@@ -468,12 +468,14 @@ Sim::evalExpr(const FuncExpr *expr,
 {
   switch (expr->op()) {
   case FuncExpr::op_port: {
-    Pin *pin = network_->findPin(inst, expr->port()->name());
-    if (pin)
-      return logicValue(pin);
-    else
-      // Internal ports don't have instance pins.
-      return LogicValue::unknown;
+    LibertyPort *port = expr->port();
+    if (port) {
+      Pin *pin = network_->findPin(inst, port->name());
+      if (pin)
+        return logicValue(pin);
+    }
+    // Internal ports don't have instance pins.
+    return LogicValue::unknown;
   }
   case FuncExpr::op_not:
     return logicNot(evalExpr(expr->left(), inst));

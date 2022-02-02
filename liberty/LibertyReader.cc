@@ -464,7 +464,7 @@ LibertyReader::defineScalingFactorVisitors()
   for (int type_index = 0; type_index < scale_factor_type_count; type_index++) {
     ScaleFactorType type = static_cast<ScaleFactorType>(type_index);
     const char *type_name = scaleFactorTypeName(type);
-    for (int pvt_index = 0; pvt_index < int(ScaleFactorPvt::count); pvt_index++) {
+    for (int pvt_index = 0; pvt_index < scale_factor_pvt_count; pvt_index++) {
       ScaleFactorPvt pvt = static_cast<ScaleFactorPvt>(pvt_index);
       const char *pvt_name = scaleFactorPvtName(pvt);
       if (scaleFactorTypeRiseFallSuffix(type)) {
@@ -718,57 +718,59 @@ LibertyReader::parseUnits(LibertyAttr *attr,
 			  Unit *unit)
 {
   const char *unit_str = getAttrString(attr);
-  unsigned unit_str_length = strlen(unit_str);
+  if (unit_str) {
+    unsigned unit_str_length = strlen(unit_str);
 
-  // Unit format is <multipler_digits><scale_suffix_char><unit_suffix>.
-  // Find the multiplier digits.
-  char *mult_str = makeTmpString(unit_str_length);
-  const char *s = unit_str;
-  char *m = mult_str;
-  for (; *s; s++) {
-    char ch = *s;
-    if (isdigit(ch))
-      *m++ = ch;
-    else
-      break;
+    // Unit format is <multipler_digits><scale_suffix_char><unit_suffix>.
+    // Find the multiplier digits.
+    char *mult_str = makeTmpString(unit_str_length);
+    const char *s = unit_str;
+    char *m = mult_str;
+    for (; *s; s++) {
+      char ch = *s;
+      if (isdigit(ch))
+        *m++ = ch;
+      else
+        break;
+    }
+    *m = '\0';
+
+    float mult = 1.0F;
+    if (*mult_str != '\0') {
+      if (stringEq(mult_str, "1"))
+        mult = 1.0F;
+      else if (stringEq(mult_str, "10"))
+        mult = 10.0F;
+      else if (stringEq(mult_str, "100"))
+        mult = 100.0F;
+      else
+        libWarn(38, attr, "unknown unit multiplier %s.", mult_str);
+    }
+
+    float scale_mult = 1.0F;
+    if (*s && stringEqual(s + 1, unit_suffix)) {
+      char scale_char = tolower(*s);
+      if (scale_char == 'k')
+        scale_mult = 1E+3F;
+      else if (scale_char == 'm')
+        scale_mult = 1E-3F;
+      else if (scale_char == 'u')
+        scale_mult = 1E-6F;
+      else if (scale_char == 'n')
+        scale_mult = 1E-9F;
+      else if (scale_char == 'p')
+        scale_mult = 1E-12F;
+      else if (scale_char == 'f')
+        scale_mult = 1E-15F;
+      else
+        libWarn(39, attr, "unknown unit scale %c.", scale_char);
+    }
+    else if (!stringEqual(s, unit_suffix))
+      libWarn(40, attr, "unknown unit suffix %s.", s + 1);
+
+    scale_var = scale_mult * mult;
+    unit->setScale(scale_var);
   }
-  *m = '\0';
-
-  float mult = 1.0F;
-  if (*mult_str != '\0') {
-    if (stringEq(mult_str, "1"))
-      mult = 1.0F;
-    else if (stringEq(mult_str, "10"))
-      mult = 10.0F;
-    else if (stringEq(mult_str, "100"))
-      mult = 100.0F;
-    else
-      libWarn(38, attr, "unknown unit multiplier %s.", mult_str);
-  }
-
-  float scale_mult = 1.0F;
-  if (*s && stringEqual(s + 1, unit_suffix)) {
-    char scale_char = tolower(*s);
-    if (scale_char == 'k')
-      scale_mult = 1E+3F;
-    else if (scale_char == 'm')
-      scale_mult = 1E-3F;
-    else if (scale_char == 'u')
-      scale_mult = 1E-6F;
-    else if (scale_char == 'n')
-      scale_mult = 1E-9F;
-    else if (scale_char == 'p')
-      scale_mult = 1E-12F;
-    else if (scale_char == 'f')
-      scale_mult = 1E-15F;
-    else
-      libWarn(39, attr, "unknown unit scale %c.", scale_char);
-  }
-  else if (!stringEqual(s, unit_suffix))
-    libWarn(40, attr, "unknown unit suffix %s.", s + 1);
-
-  scale_var = scale_mult * mult;
-  unit->setScale(scale_var);
 }
 
 void

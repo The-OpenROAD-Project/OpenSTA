@@ -25,6 +25,10 @@ namespace sta {
 
 Stats::Stats(Debug *debug,
              Report *report) :
+  elapsed_begin_(0.0),
+  user_begin_(0.0),
+  system_begin_(0.0),
+  memory_begin_(0),
   debug_(debug),
   report_(report)
 {
