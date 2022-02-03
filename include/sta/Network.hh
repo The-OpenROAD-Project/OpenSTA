@@ -107,8 +107,8 @@ public:
   virtual LibraryIterator *libraryIterator() const = 0;
   virtual LibertyLibraryIterator *libertyLibraryIterator() const = 0;
   virtual Library *findLibrary(const char *name) = 0;
-  // Find liberty library by filename.
   virtual LibertyLibrary *findLiberty(const char *name) = 0;
+  // Find liberty library by filename.
   virtual LibertyLibrary *findLibertyFilename(const char *filename);
   virtual const char *name(const Library *library) const = 0;
   virtual Cell *findCell(const Library *library,

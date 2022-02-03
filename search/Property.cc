@@ -519,10 +519,6 @@ getProperty(const Library *lib,
   if (stringEqual(property, "name")
       || stringEqual(property, "full_name"))
     return PropertyValue(network->name(lib));
-#if 0
-  else if (stringEqual(property, "filename"))
-    return PropertyValue(network->filename(lib));
-#endif
   else
     throw PropertyUnknown("library", property);
 }
@@ -571,6 +567,8 @@ getProperty(const LibertyCell *cell,
     return PropertyValue(cell->isInverter());
   else if (stringEqual(property, "dont_use"))
     return PropertyValue(cell->dontUse());
+  else if (stringEqual(property, "area"))
+    return PropertyValue(cell->area());
   else
     throw PropertyUnknown("liberty cell", property);
 }
