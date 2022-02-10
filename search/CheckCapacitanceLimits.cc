@@ -167,26 +167,24 @@ CheckCapacitanceLimits::findLimit(const Pin *pin,
     }
     InputDrive *drive = sdc->findInputDrive(port);
     if (drive) {
-      for (auto min_max : MinMax::range()) {
-        for (auto rf : RiseFall::range()) {
-          LibertyCell *cell;
-          LibertyPort *from_port;
-          float *from_slews;
-          LibertyPort *to_port;
-          drive->driveCell(rf, min_max, cell, from_port, from_slews, to_port);
-          if (to_port) {
-            LibertyPort *corner_port = to_port->cornerPort(corner->libertyIndex(min_max));
-            corner_port->capacitanceLimit(min_max, limit1, exists1);
-            if (!exists1
-                && corner_port->direction()->isAnyOutput()
-                && min_max == MinMax::max())
-              corner_port->libertyLibrary()->defaultMaxSlew(limit1, exists1);
-            if (exists1
-                && (!exists
-                    || min_max->compare(limit, limit1))) {
-              limit = limit1;
-              exists = true;
-            }
+      for (auto rf : RiseFall::range()) {
+        LibertyCell *cell;
+        LibertyPort *from_port;
+        float *from_slews;
+        LibertyPort *to_port;
+        drive->driveCell(rf, min_max, cell, from_port, from_slews, to_port);
+        if (to_port) {
+          LibertyPort *corner_port = to_port->cornerPort(corner->libertyIndex(min_max));
+          corner_port->capacitanceLimit(min_max, limit1, exists1);
+          if (!exists1
+              && corner_port->direction()->isAnyOutput()
+              && min_max == MinMax::max())
+            corner_port->libertyLibrary()->defaultMaxSlew(limit1, exists1);
+          if (exists1
+              && (!exists
+                  || min_max->compare(limit, limit1))) {
+            limit = limit1;
+            exists = true;
           }
         }
       }

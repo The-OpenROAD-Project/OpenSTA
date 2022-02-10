@@ -129,25 +129,23 @@ CheckFanoutLimits::findLimit(const Pin *pin,
     }
     InputDrive *drive = sdc->findInputDrive(port);
     if (drive) {
-      for (auto min_max : MinMax::range()) {
-        for (auto rf : RiseFall::range()) {
-          LibertyCell *cell;
-          LibertyPort *from_port;
-          float *from_slews;
-          LibertyPort *to_port;
-          drive->driveCell(rf, min_max, cell, from_port, from_slews, to_port);
-          if (to_port) {
-            to_port->fanoutLimit(min_max, limit1, exists1);
-            if (!exists1
-                && min_max == MinMax::max()
-                && to_port->direction()->isAnyOutput())
-              to_port->libertyLibrary()->defaultMaxFanout(limit1, exists1);
-            if (exists1
-                && (!exists
-                    || min_max->compare(limit, limit1))) {
-              limit = limit1;
-              exists = true;
-            }
+      for (auto rf : RiseFall::range()) {
+        LibertyCell *cell;
+        LibertyPort *from_port;
+        float *from_slews;
+        LibertyPort *to_port;
+        drive->driveCell(rf, min_max, cell, from_port, from_slews, to_port);
+        if (to_port) {
+          to_port->fanoutLimit(min_max, limit1, exists1);
+          if (!exists1
+              && min_max == MinMax::max()
+              && to_port->direction()->isAnyOutput())
+            to_port->libertyLibrary()->defaultMaxFanout(limit1, exists1);
+          if (exists1
+              && (!exists
+                  || min_max->compare(limit, limit1))) {
+            limit = limit1;
+            exists = true;
           }
         }
       }
