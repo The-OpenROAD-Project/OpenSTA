@@ -47,55 +47,15 @@ StaState::StaState() :
 {
 }
 
-StaState::StaState(const StaState *sta) :
-  report_(sta->report_),
-  debug_(sta->debug_),
-  units_(sta->units_),
-  network_(sta->network_),
-  sdc_network_(sta->sdc_network_),
-  cmd_network_(sta->cmd_network_),
-  sdc_(sta->sdc_),
-  corners_(sta->corners_),
-  graph_(sta->graph_),
-  levelize_(sta->levelize_),
-  parasitics_(sta->parasitics_),
-  arc_delay_calc_(sta->arc_delay_calc_),
-  graph_delay_calc_(sta->graph_delay_calc_),
-  sim_(sta->sim_),
-  search_(sta->search_),
-  latches_(sta->latches_),
-  clk_network_(sta->clk_network_),
-  thread_count_(sta->thread_count_),
-  dispatch_queue_(sta->dispatch_queue_),
-  pocv_enabled_(sta->pocv_enabled_),
-  sigma_factor_(sta->sigma_factor_)
+StaState::StaState(const StaState *sta)
 {
+  *this = *sta;
 }
 
 void
 StaState::copyState(const StaState *sta)
 {
-  report_ = sta->report_;
-  debug_ = sta->debug_;
-  units_ = sta->units_;
-  network_ = sta->network_;
-  sdc_network_ = sta->sdc_network_;
-  cmd_network_ = sta->cmd_network_;
-  sdc_ = sta->sdc_;
-  corners_ = sta->corners_;
-  graph_ = sta->graph_;
-  levelize_ = sta->levelize_;
-  parasitics_ = sta->parasitics_;
-  arc_delay_calc_ = sta->arc_delay_calc_;
-  graph_delay_calc_ = sta->graph_delay_calc_;
-  sim_ = sta->sim_;
-  search_ = sta->search_;
-  latches_ = sta->latches_;
-  clk_network_ = sta->clk_network_;
-  thread_count_ = sta->thread_count_;
-  dispatch_queue_ = sta->dispatch_queue_;
-  pocv_enabled_ = sta->pocv_enabled_;
-  sigma_factor_ = sta->sigma_factor_;
+  *this = *sta;
 }
 
 void

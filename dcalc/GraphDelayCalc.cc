@@ -30,12 +30,6 @@ GraphDelayCalc::GraphDelayCalc(StaState *sta) :
 }
 
 void
-GraphDelayCalc::copyState(const StaState *sta)
-{
-  StaState::copyState(sta);
-}
-
-void
 GraphDelayCalc::setObserver(DelayCalcObserver *observer)
 {
   // Observer not needed by GraphDelayCalc.

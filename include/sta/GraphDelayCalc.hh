@@ -44,7 +44,6 @@ class GraphDelayCalc : public StaState
 public:
   explicit GraphDelayCalc(StaState *sta);
   virtual ~GraphDelayCalc() {}
-  virtual void copyState(const StaState *sta);
   // Find arc delays and vertex slews thru level.
   virtual void findDelays(Level /* level */) {};
   // Find and annotate drvr_vertex gate and load delays/slews.
