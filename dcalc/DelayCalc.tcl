@@ -91,9 +91,9 @@ proc report_edge_dcalc { edge corner min_max digits } {
       while {[$arc_iter has_next]} {
 	set arc [$arc_iter next]
 	set from [get_name [$from_pin port]]
-	set from_rf [$arc from_trans]
+	set from_rf [$arc from_edge]
 	set to [get_name [$to_pin port]]
-	set to_rf [$arc to_trans]
+	set to_rf [$arc to_edge]
 	report_line "$from $from_rf -> $to $to_rf"
         report_line [report_delay_calc_cmd $edge $arc $corner $min_max $digits]
 	if { [$edge delay_annotated $arc $corner $min_max] } {

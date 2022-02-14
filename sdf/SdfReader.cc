@@ -282,7 +282,7 @@ SdfReader::setEdgeDelays(Edge *edge,
       if (triple_count == 1)
 	triple_index = 0;
       else
-	triple_index = arc->toTrans()->sdfTripleIndex();
+	triple_index = arc->toEdge()->sdfTripleIndex();
       SdfTriple *triple = (*triples)[triple_index];
       setEdgeArcDelays(edge, arc, triple);
     }
@@ -388,8 +388,8 @@ SdfReader::iopath(SdfPortSpec *from_edge,
               while (arc_iter.hasNext()) {
                 TimingArc *arc = arc_iter.next();
                 if ((from_edge->transition() == Transition::riseFall())
-                    || (arc->fromTrans() == from_edge->transition())) {
-                  size_t triple_index = arc->toTrans()->sdfTripleIndex();
+                    || (arc->fromEdge() == from_edge->transition())) {
+                  size_t triple_index = arc->toEdge()->sdfTripleIndex();
                   SdfTriple *triple = nullptr;
                   if (triple_index < triple_count)
                     triple = (*triples)[triple_index];
@@ -532,9 +532,9 @@ SdfReader::annotateCheckEdges(Pin *data_pin,
 	while (arc_iter.hasNext()) {
 	  TimingArc *arc = arc_iter.next();
 	  if (((data_edge->transition() == Transition::riseFall())
-	       || (arc->toTrans() == data_edge->transition()))
+	       || (arc->toEdge() == data_edge->transition()))
 	      && ((clk_edge->transition() == Transition::riseFall())
-		  || (arc->fromTrans() == clk_edge->transition()))) {
+		  || (arc->fromEdge() == clk_edge->transition()))) {
 	    setEdgeArcDelays(edge, arc, triple);
 	  }
 	}

@@ -125,7 +125,7 @@ proc report_edge_ { edge vertex_from_name_proc vertex_to_name_proc } {
     if { [timing_arc_disabled $edge $arc] } {
       set disable_reason " disabled"
     }
-    report_line "  [$arc from_trans] -> [$arc to_trans] $delays_fmt$disable_reason"
+    report_line "  [$arc from_edge] -> [$arc to_edge] $delays_fmt$disable_reason"
   }
   $iter finish
 }

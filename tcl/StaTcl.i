@@ -5727,10 +5727,10 @@ void finish() { delete self; }
 %extend TimingArc {
 LibertyPort *from() { return self->from(); }
 LibertyPort *to() { return self->to(); }
-Transition *from_trans() { return self->fromTrans(); }
-const char *from_trans_name() { return self->fromTrans()->asRiseFall()->name(); }
-Transition *to_trans() { return self->toTrans(); }
-const char *to_trans_name() { return self->toTrans()->asRiseFall()->name(); }
+Transition *from_edge() { return self->fromEdge(); }
+const char *from_edge_name() { return self->fromEdge()->asRiseFall()->name(); }
+Transition *to_edge() { return self->toEdge(); }
+const char *to_edge_name() { return self->toEdge()->asRiseFall()->name(); }
 TimingRole *role() { return self->role(); }
 } // TimingArc methods
 

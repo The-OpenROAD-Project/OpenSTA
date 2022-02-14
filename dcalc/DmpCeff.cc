@@ -1566,7 +1566,7 @@ DmpCeffDelayCalc::gateDelay(const LibertyCell *drvr_cell,
 			    Slew &drvr_slew)
 {
   input_port_ = false;
-  drvr_rf_ = arc->toTrans()->asRiseFall();
+  drvr_rf_ = arc->toEdge()->asRiseFall();
   drvr_library_ = drvr_cell->libertyLibrary();
   drvr_parasitic_ = drvr_parasitic;
   GateTimingModel *model = gateModel(arc, dcalc_ap);

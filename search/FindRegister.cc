@@ -284,7 +284,7 @@ FindRegVisitor::findInferedSequential(LibertyCell *cell,
     TimingArcSet *set = set_iter.next();
     TimingArcSetArcIterator arc_iter(set);
     TimingArc *arc = arc_iter.next();
-    RiseFall *arc_clk_rf = arc->fromTrans()->asRiseFall();
+    RiseFall *arc_clk_rf = arc->fromEdge()->asRiseFall();
     bool tr_matches = (clk_rf == RiseFallBoth::riseFall()
 		       || (arc_clk_rf == clk_rf1
 			   && clk_sense == TimingSense::positive_unate)

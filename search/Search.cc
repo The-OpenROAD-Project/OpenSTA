@@ -2063,7 +2063,7 @@ PathVisitor::visitArc(const Pin *from_pin,
 		      PathAnalysisPt *path_ap)
 {
   if (arc) {
-    RiseFall *to_rf = arc->toTrans()->asRiseFall();
+    RiseFall *to_rf = arc->toEdge()->asRiseFall();
     if (searchThru(from_vertex, from_rf, edge, to_vertex, to_rf))
       return visitFromPath(from_pin, from_vertex, from_rf, from_path,
 			   edge, arc, to_pin, to_vertex, to_rf,
@@ -3006,7 +3006,7 @@ Search::timingDerate(Vertex *from_vertex,
   TimingRole *role = edge->role();
   const Pin *pin = from_vertex->pin();
   if (role->isWire()) {
-    const RiseFall *rf = arc->toTrans()->asRiseFall();
+    const RiseFall *rf = arc->toEdge()->asRiseFall();
     return sdc_->timingDerateNet(pin, derate_clk_data, rf,
 				 path_ap->pathMinMax());
   }
@@ -3015,11 +3015,11 @@ Search::timingDerate(Vertex *from_vertex,
     const RiseFall *rf;
     if (role->isTimingCheck()) {
       derate_type = TimingDerateCellType::cell_check;
-      rf = arc->toTrans()->asRiseFall();
+      rf = arc->toEdge()->asRiseFall();
     }
     else {
        derate_type = TimingDerateCellType::cell_delay;
-       rf = arc->fromTrans()->asRiseFall();
+       rf = arc->fromEdge()->asRiseFall();
     }
     return sdc_->timingDerateInstance(pin, derate_type, derate_clk_data, rf,
 				      path_ap->pathMinMax());

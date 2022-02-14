@@ -721,7 +721,7 @@ proc set_assigned_delay2 {from_vertex to_vertex to_rf corner min_max delay} {
       while {[$arc_iter has_next]} {
 	set arc [$arc_iter next]
 	if { $to_rf == "rise_fall" \
-	       || $to_rf eq [$arc to_trans_name] } {
+	       || $to_rf eq [$arc to_edge_name] } {
 	  set_arc_delay $edge $arc $corner $min_max $delay
 	}
       }
@@ -833,9 +833,9 @@ proc set_assigned_check2 { from_vertex from_rf to_vertex to_rf \
       while {[$arc_iter has_next]} {
 	set arc [$arc_iter next]
 	if { ($from_rf eq "rise_fall" \
-		|| $from_rf eq [$arc from_trans_name]) \
+		|| $from_rf eq [$arc from_edge_name]) \
 	       && ($to_rf eq "rise_fall" \
-		     || $to_rf eq [$arc to_trans_name]) \
+		     || $to_rf eq [$arc to_edge_name]) \
 	       && [$arc role] eq $role \
 	       && ($cond eq "" || [$arc sdf_cond] eq $cond) } {
 	  set_arc_delay $edge $arc $corner $min_max $check_value

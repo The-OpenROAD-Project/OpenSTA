@@ -363,7 +363,7 @@ Latches::latchOutArrival(Path *data_path,
 				    en_clk_info->uncertainties(),
 				    path_ap,
 				    crpr_clk_path);
-	     RiseFall *q_rf = d_q_arc->toTrans()->asRiseFall();
+	     RiseFall *q_rf = d_q_arc->toEdge()->asRiseFall();
 	     ExceptionStateSet *states = nullptr;
 	     // Latch data pin is a valid exception -from pin.
 	     if (sdc_->exceptionFromStates(data_path->pin(this),
@@ -425,8 +425,8 @@ Latches::latchSetupMargin(Vertex *data_vertex,
 	TimingArcSetArcIterator arc_iter(arc_set);
 	while (arc_iter.hasNext()) {
 	  TimingArc *check_arc = arc_iter.next();
-	  if (check_arc->toTrans()->asRiseFall() == data_rf
-	      && check_arc->fromTrans()->asRiseFall() == disable_rf)
+	  if (check_arc->toEdge()->asRiseFall() == data_rf
+	      && check_arc->fromEdge()->asRiseFall() == disable_rf)
 	    return search_->deratedDelay(from_vertex, check_arc, edge,
 					 false, path_ap);
 	}

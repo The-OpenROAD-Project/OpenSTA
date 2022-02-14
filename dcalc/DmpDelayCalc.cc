@@ -285,7 +285,7 @@ DmpCeffTwoPoleDelayCalc::gateDelay(const LibertyCell *drvr_cell,
 {
   parasitic_is_pole_residue_ = parasitics_->isPiPoleResidue(drvr_parasitic);
   const LibertyLibrary *drvr_library = drvr_cell->libertyLibrary();
-  const RiseFall *rf = arc->toTrans()->asRiseFall();
+  const RiseFall *rf = arc->toEdge()->asRiseFall();
   vth_ = drvr_library->outputThreshold(rf);
   vl_ = drvr_library->slewLowerThreshold(rf);
   vh_ = drvr_library->slewUpperThreshold(rf);

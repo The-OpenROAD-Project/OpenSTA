@@ -1567,7 +1567,7 @@ class LatchEnable
 public:
   LatchEnable(LibertyPort *data,
 	      LibertyPort *enable,
-	      RiseFall *enable_rf,
+	      RiseFall *enable_edge,
 	      FuncExpr *enable_func,
 	      LibertyPort *output,
 	      TimingArcSet *d_to_q,
@@ -1577,7 +1577,7 @@ public:
   LibertyPort *output() const { return output_; }
   LibertyPort *enable() const { return enable_; }
   FuncExpr *enableFunc() const { return enable_func_; }
-  RiseFall *enableTransition() const { return enable_rf_; }
+  RiseFall *enableEdge() const { return enable_edge_; }
   TimingArcSet *dToQ() const { return d_to_q_; }
   TimingArcSet *enToQ() const { return en_to_q_; }
   TimingArcSet *setupCheck() const { return setup_check_; }
@@ -1587,7 +1587,7 @@ private:
 
   LibertyPort *data_;
   LibertyPort *enable_;
-  RiseFall *enable_rf_;
+  RiseFall *enable_edge_;
   FuncExpr *enable_func_;
   LibertyPort *output_;
   TimingArcSet *d_to_q_;
@@ -1597,7 +1597,7 @@ private:
 
 LatchEnable::LatchEnable(LibertyPort *data,
 			 LibertyPort *enable,
-			 RiseFall *enable_rf,
+			 RiseFall *enable_edge,
 			 FuncExpr *enable_func,
 			 LibertyPort *output,
 			 TimingArcSet *d_to_q,
@@ -1605,7 +1605,7 @@ LatchEnable::LatchEnable(LibertyPort *data,
 			 TimingArcSet *setup_check) :
   data_(data),
   enable_(enable),
-  enable_rf_(enable_rf),
+  enable_edge_(enable_edge),
   enable_func_(enable_func),
   output_(output),
   d_to_q_(d_to_q),
@@ -1643,8 +1643,8 @@ LibertyCell::makeLatchEnables(Report *report,
 		TimingArcSetArcIterator check_arc_iter(setup_check);
 		if (check_arc_iter.hasNext()) {
 		  TimingArc *check_arc = check_arc_iter.next();
-		  RiseFall *en_rf = latch_enable->enableTransition();
-		  RiseFall *check_rf = check_arc->fromTrans()->asRiseFall();
+		  RiseFall *en_rf = latch_enable->enableEdge();
+		  RiseFall *check_rf = check_arc->fromEdge()->asRiseFall();
 		  if (check_rf == en_rf) {
 		    report->warn(4, "cell %s/%s %s -> %s latch enable %s_edge timing arc is inconsistent with %s -> %s setup_%s check.",
 				 library_->name(),
@@ -1780,23 +1780,23 @@ LibertyCell::latchEnable(TimingArcSet *d_to_q_set,
 			 // Return values.
 			 LibertyPort *&enable_port,
 			 FuncExpr *&enable_func,
-			 RiseFall *&enable_rf) const
+			 RiseFall *&enable_edge) const
 {
   enable_port = nullptr;
   LatchEnable *latch_enable = latch_d_to_q_map_.findKey(d_to_q_set);
   if (latch_enable) {
     enable_port = latch_enable->enable();
     enable_func = latch_enable->enableFunc();
-    enable_rf = latch_enable->enableTransition();
+    enable_edge = latch_enable->enableEdge();
   }
 }
 
 RiseFall *
-LibertyCell::latchCheckEnableTrans(TimingArcSet *check_set)
+LibertyCell::latchCheckEnableEdge(TimingArcSet *check_set)
 {
   LatchEnable *latch_enable = latch_check_map_.findKey(check_set);
   if (latch_enable)
-    return latch_enable->enableTransition();
+    return latch_enable->enableEdge();
   else
     return nullptr;
 }
@@ -2024,7 +2024,7 @@ LibertyPort::driveResistance(const RiseFall *rf,
       while (arc_iter.hasNext()) {
 	TimingArc *arc = arc_iter.next();
 	if (rf == nullptr
-	    || arc->toTrans()->asRiseFall() == rf) {
+	    || arc->toEdge()->asRiseFall() == rf) {
           float drive = arc->driveResistance();
           if (drive > 0.0) {
             if (min_max->compare(drive, max_drive))
@@ -2062,7 +2062,7 @@ LibertyPort::intrinsicDelay(const RiseFall *rf,
       while (arc_iter.hasNext()) {
 	TimingArc *arc = arc_iter.next();
 	if (rf == nullptr
-	    || arc->toTrans()->asRiseFall() == rf) {
+	    || arc->toEdge()->asRiseFall() == rf) {
           ArcDelay delay = arc->intrinsicDelay();
           if (delayGreater(delay, 0.0, sta)) {
 	    if (delayGreater(delay, max_delay, min_max, sta))

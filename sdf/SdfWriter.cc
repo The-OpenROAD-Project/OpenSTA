@@ -425,7 +425,7 @@ SdfWriter::writeArcDelays(Edge *edge)
   TimingArcSetArcIterator arc_iter(arc_set);
   while (arc_iter.hasNext()) {
     TimingArc *arc = arc_iter.next();
-    RiseFall *rf = arc->toTrans()->asRiseFall();
+    RiseFall *rf = arc->toEdge()->asRiseFall();
     ArcDelay min_delay = graph_->arcDelay(edge, arc, arc_delay_min_index_);
     delays.setValue(rf, MinMax::min(), delayAsFloat(min_delay));
 
@@ -582,8 +582,8 @@ SdfWriter::writeCheck(Edge *edge,
   TimingArcSetArcIterator arc_iter(arc_set);
   while (arc_iter.hasNext()) {
     TimingArc *arc = arc_iter.next();
-    RiseFall *clk_rf = arc->fromTrans()->asRiseFall();
-    RiseFall *data_rf = arc->toTrans()->asRiseFall();;
+    RiseFall *clk_rf = arc->fromEdge()->asRiseFall();
+    RiseFall *data_rf = arc->toEdge()->asRiseFall();;
     arcs[clk_rf->index()][data_rf->index()] = arc;
   }
 
@@ -662,7 +662,7 @@ SdfWriter::writeCheck(Edge *edge,
 
   if (use_data_edge)
     gzprintf(stream_, "(%s %s)",
-	     sdfEdge(arc->toTrans()),
+	     sdfEdge(arc->toEdge()),
 	     sdfPortName(to_pin));
   else
     gzprintf(stream_, "%s", sdfPortName(to_pin));
@@ -677,7 +677,7 @@ SdfWriter::writeCheck(Edge *edge,
 
   if (use_clk_edge)
     gzprintf(stream_, "(%s %s)",
-	     sdfEdge(arc->fromTrans()),
+	     sdfEdge(arc->fromEdge()),
 	     sdfPortName(from_pin));
   else
     gzprintf(stream_, "%s", sdfPortName(from_pin));

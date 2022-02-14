@@ -149,8 +149,8 @@ VisitPathEnds::visitCheckEnd(const Pin *pin,
       TimingArcSetArcIterator arc_iter(arc_set);
       while (arc_iter.hasNext()) {
 	TimingArc *check_arc = arc_iter.next();
-	RiseFall *clk_rf = check_arc->fromTrans()->asRiseFall();
-	if (check_arc->toTrans()->asRiseFall() == end_rf
+	RiseFall *clk_rf = check_arc->fromEdge()->asRiseFall();
+	if (check_arc->toEdge()->asRiseFall() == end_rf
 	    && clk_rf) {
 	  VertexPathIterator tgt_clk_path_iter(tgt_clk_vertex, clk_rf,
 					       tgt_clk_path_ap, this);
@@ -253,8 +253,8 @@ VisitPathEnds::visitCheckEndUnclked(const Pin *pin,
       TimingArcSetArcIterator arc_iter(arc_set);
       while (arc_iter.hasNext()) {
 	TimingArc *check_arc = arc_iter.next();
-	RiseFall *clk_rf = check_arc->fromTrans()->asRiseFall();
-	if (check_arc->toTrans()->asRiseFall() == end_rf
+	RiseFall *clk_rf = check_arc->fromEdge()->asRiseFall();
+	if (check_arc->toEdge()->asRiseFall() == end_rf
 	    && clk_rf
 	    && (!filtered
 		|| search_->matchesFilter(path, nullptr))) {

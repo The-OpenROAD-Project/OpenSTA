@@ -766,8 +766,8 @@ GraphDelayCalc1::findInputDriverDelay(LibertyCell *drvr_cell,
       TimingArcSetArcIterator arc_iter(arc_set);
       while (arc_iter.hasNext()) {
 	TimingArc *arc = arc_iter.next();
-	if (arc->toTrans()->asRiseFall() == rf) {
-	  float from_slew = from_slews[arc->fromTrans()->index()];
+	if (arc->toEdge()->asRiseFall() == rf) {
+	  float from_slew = from_slews[arc->fromEdge()->index()];
 	  findInputArcDelay(drvr_cell, drvr_pin, drvr_vertex,
 			    arc, from_slew, dcalc_ap);
 	}
@@ -789,11 +789,11 @@ GraphDelayCalc1::findInputArcDelay(LibertyCell *drvr_cell,
 {
   debugPrint(debug_, "delay_calc", 3, "  %s %s -> %s %s (%s)",
              arc->from()->name(),
-             arc->fromTrans()->asString(),
+             arc->fromEdge()->asString(),
              arc->to()->name(),
-             arc->toTrans()->asString(),
+             arc->toEdge()->asString(),
              arc->role()->asString());
-  RiseFall *drvr_rf = arc->toTrans()->asRiseFall();
+  RiseFall *drvr_rf = arc->toEdge()->asRiseFall();
   if (drvr_rf) {
     DcalcAPIndex ap_index = dcalc_ap->index();
     const Pvt *pvt = dcalc_ap->operatingConditions();
@@ -1023,7 +1023,7 @@ GraphDelayCalc1::findDriverEdgeDelays(LibertyCell *drvr_cell,
     TimingArcSetArcIterator arc_iter(arc_set);
     while (arc_iter.hasNext()) {
       TimingArc *arc = arc_iter.next();
-      const RiseFall *rf = arc->toTrans()->asRiseFall();
+      const RiseFall *rf = arc->toEdge()->asRiseFall();
       Parasitic *parasitic = arc_delay_calc->findParasitic(drvr_pin, rf,
 							   dcalc_ap);
       float related_out_cap = 0.0;
@@ -1267,16 +1267,16 @@ GraphDelayCalc1::findArcDelay(LibertyCell *drvr_cell,
 			      ArcDelayCalc *arc_delay_calc)
 {
   bool delay_changed = false;
-  RiseFall *from_rf = arc->fromTrans()->asRiseFall();
-  RiseFall *drvr_rf = arc->toTrans()->asRiseFall();
+  RiseFall *from_rf = arc->fromEdge()->asRiseFall();
+  RiseFall *drvr_rf = arc->toEdge()->asRiseFall();
   if (from_rf && drvr_rf) {
     DcalcAPIndex ap_index = dcalc_ap->index();
     debugPrint(debug_, "delay_calc", 3,
                "  %s %s -> %s %s (%s) corner:%s/%s",
                arc->from()->name(),
-               arc->fromTrans()->asString(),
+               arc->fromEdge()->asString(),
                arc->to()->name(),
-               arc->toTrans()->asString(),
+               arc->toEdge()->asString(),
                arc->role()->asString(),
                dcalc_ap->corner()->name(),
                dcalc_ap->delayMinMax()->asString());
@@ -1350,7 +1350,7 @@ GraphDelayCalc1::multiDrvrGateDelay(MultiDrvrNet *multi_drvr,
 			    intrinsic_delay, intrinsic_slew);
   ArcDelay parallel_delay;
   Slew parallel_slew;
-  const RiseFall *drvr_rf = arc->toTrans()->asRiseFall();
+  const RiseFall *drvr_rf = arc->toEdge()->asRiseFall();
   multi_drvr->parallelDelaySlew(drvr_rf, dcalc_ap, arc_delay_calc, this,
 				parallel_delay, parallel_slew);
 
@@ -1396,10 +1396,10 @@ GraphDelayCalc1::findMultiDrvrGateDelay(MultiDrvrNet *multi_drvr,
 	TimingArcSetArcIterator arc_iter(arc_set1);
 	while (arc_iter.hasNext()) {
 	  TimingArc *arc1 = arc_iter.next();
-	  RiseFall *drvr_rf1 = arc1->toTrans()->asRiseFall();
+	  RiseFall *drvr_rf1 = arc1->toEdge()->asRiseFall();
 	  if (drvr_rf1 == drvr_rf) {
 	    Vertex *from_vertex1 = edge1->from(graph_);
-	    RiseFall *from_rf1 = arc1->fromTrans()->asRiseFall();
+	    RiseFall *from_rf1 = arc1->fromEdge()->asRiseFall();
 	    Slew from_slew1 = edgeFromSlew(from_vertex1, from_rf1, edge1, dcalc_ap);
 	    ArcDelay intrinsic_delay1;
 	    Slew intrinsic_slew1;
@@ -1538,8 +1538,8 @@ GraphDelayCalc1::findCheckEdgeDelays(Edge *edge,
   TimingArcSetArcIterator arc_iter(arc_set);
   while (arc_iter.hasNext()) {
     TimingArc *arc = arc_iter.next();
-    RiseFall *from_rf = arc->fromTrans()->asRiseFall();
-    RiseFall *to_rf = arc->toTrans()->asRiseFall();
+    RiseFall *from_rf = arc->fromEdge()->asRiseFall();
+    RiseFall *to_rf = arc->toEdge()->asRiseFall();
     if (from_rf && to_rf) {
       const LibertyPort *related_out_port = arc_set->relatedOut();
       const Pin *related_out_pin = 0;
@@ -1558,9 +1558,9 @@ GraphDelayCalc1::findCheckEdgeDelays(Edge *edge,
 	  debugPrint(debug_, "delay_calc", 3,
                      "  %s %s -> %s %s (%s)",
                      arc_set->from()->name(),
-                     arc->fromTrans()->asString(),
+                     arc->fromEdge()->asString(),
                      arc_set->to()->name(),
-                     arc->toTrans()->asString(),
+                     arc->toEdge()->asString(),
                      arc_set->role()->asString());
 	  debugPrint(debug_, "delay_calc", 3,
                      "    from_slew = %s to_slew = %s",
@@ -1624,8 +1624,8 @@ GraphDelayCalc1::ceff(Edge *edge,
   const Pvt *pvt = sdc_->pvt(inst, dcalc_ap->constraintMinMax());
   if (pvt == nullptr)
     pvt = dcalc_ap->operatingConditions();
-  RiseFall *from_rf = arc->fromTrans()->asRiseFall();
-  RiseFall *to_rf = arc->toTrans()->asRiseFall();
+  RiseFall *from_rf = arc->fromEdge()->asRiseFall();
+  RiseFall *to_rf = arc->toEdge()->asRiseFall();
   if (from_rf && to_rf) {
     const LibertyPort *related_out_port = arc_set->relatedOut();
     const Pin *related_out_pin = 0;
@@ -1671,8 +1671,8 @@ GraphDelayCalc1::reportDelayCalc(Edge *edge,
   const Pvt *pvt = sdc_->pvt(inst, dcalc_ap->constraintMinMax());
   if (pvt == nullptr)
     pvt = dcalc_ap->operatingConditions();
-  RiseFall *from_rf = arc->fromTrans()->asRiseFall();
-  RiseFall *to_rf = arc->toTrans()->asRiseFall();
+  RiseFall *from_rf = arc->fromEdge()->asRiseFall();
+  RiseFall *to_rf = arc->toEdge()->asRiseFall();
   if (from_rf && to_rf) {
     const LibertyPort *related_out_port = arc_set->relatedOut();
     const Pin *related_out_pin = 0;

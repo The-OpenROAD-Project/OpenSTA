@@ -257,7 +257,7 @@ TimingArcSet::addTimingArc(TimingArc *arc)
     criticalError(243, "timing arc max index exceeded\n");
   arcs_.push_back(arc);
 
-  int from_rf_index = arc->fromTrans()->asRiseFall()->index();
+  int from_rf_index = arc->fromEdge()->asRiseFall()->index();
   if (from_arc1_[from_rf_index] == nullptr)
     from_arc1_[from_rf_index] = arc;
   else if (from_arc2_[from_rf_index] == nullptr)
@@ -277,7 +277,7 @@ TimingArcSet::deleteTimingArc(TimingArc *arc)
     arcs_[arc->index()] = last_arc;
     arcs_.pop_back();
   }
-  int from_rf_index = arc->fromTrans()->asRiseFall()->index();
+  int from_rf_index = arc->fromEdge()->asRiseFall()->index();
   if (from_arc1_[from_rf_index] == arc) {
     from_arc1_[from_rf_index] = from_arc2_[from_rf_index];
     from_arc2_[from_rf_index] = nullptr;
@@ -332,13 +332,13 @@ TimingArcSet::isRisingFallingEdge() const
 {
   int arc_count = arcs_.size();
   if (arc_count == 2) {
-    RiseFall *from_rf1 = arcs_[0]->fromTrans()->asRiseFall();
-    RiseFall *from_rf2 = arcs_[1]->fromTrans()->asRiseFall();
+    RiseFall *from_rf1 = arcs_[0]->fromEdge()->asRiseFall();
+    RiseFall *from_rf2 = arcs_[1]->fromEdge()->asRiseFall();
     if (from_rf1 == from_rf2)
       return from_rf1;
   }
   if (arcs_.size() == 1)
-    return arcs_[0]->fromTrans()->asRiseFall();
+    return arcs_[0]->fromEdge()->asRiseFall();
   else
     return nullptr;
 }
@@ -476,15 +476,15 @@ timingArcsLess(const TimingArcSet *set1,
   while (arc_iter1.hasNext() && arc_iter2.hasNext()) {
     TimingArc *arc1 = arc_iter1.next();
     TimingArc *arc2 = arc_iter2.next();
-    int from_index1 = arc1->fromTrans()->index();
-    int from_index2 = arc2->fromTrans()->index();
+    int from_index1 = arc1->fromEdge()->index();
+    int from_index2 = arc2->fromEdge()->index();
     if (from_index1 < from_index2)
       return true;
     if (from_index1 > from_index2)
       return false;
     // from_index1 == from_index2
-    int to_index1 = arc1->toTrans()->index();
-    int to_index2 = arc2->toTrans()->index();
+    int to_index1 = arc1->toEdge()->index();
+    int to_index2 = arc2->toEdge()->index();
     if (to_index1 < to_index2)
       return true;
     if (to_index1 > to_index2)
@@ -575,8 +575,8 @@ bool
 TimingArc::equiv(const TimingArc *arc1,
 		 const TimingArc *arc2)
 {
-  return arc1->fromTrans() == arc2->fromTrans()
-    && arc1->toTrans() == arc2->toTrans();
+  return arc1->fromEdge() == arc2->fromEdge()
+    && arc1->toEdge() == arc2->toEdge();
 }
 
 void

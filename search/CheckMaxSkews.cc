@@ -198,8 +198,8 @@ CheckMaxSkews:: visitMaxSkewChecks(Vertex *vertex,
       TimingArcSetArcIterator arc_iter(arc_set);
       while (arc_iter.hasNext()) {
 	TimingArc *arc = arc_iter.next();
-	RiseFall *clk_rf = arc->fromTrans()->asRiseFall();
-	RiseFall *ref_rf = arc->toTrans()->asRiseFall();
+	RiseFall *clk_rf = arc->fromEdge()->asRiseFall();
+	RiseFall *ref_rf = arc->toEdge()->asRiseFall();
 	VertexPathIterator clk_path_iter(vertex, clk_rf, clk_min_max, search);
 	while (clk_path_iter.hasNext()) {
 	  PathVertex *clk_path = clk_path_iter.next();

@@ -459,7 +459,7 @@ public:
 		   LibertyPort *&enable_port,
 		   FuncExpr *&enable_func,
 		   RiseFall *&enable_rf) const;
-  RiseFall *latchCheckEnableTrans(TimingArcSet *check_set);
+  RiseFall *latchCheckEnableEdge(TimingArcSet *check_set);
   bool isDisabledConstraint() const { return is_disabled_constraint_; }
   LibertyCell *cornerCell(int ap_index);
 

@@ -174,7 +174,7 @@ LumpedCapDelayCalc::gateDelay(const LibertyCell *drvr_cell,
     drvr_slew = delay_zero;
     drvr_slew_ = 0.0;
   }
-  drvr_rf_ = arc->toTrans()->asRiseFall();
+  drvr_rf_ = arc->toEdge()->asRiseFall();
   drvr_library_ = drvr_cell->libertyLibrary();
   multi_drvr_slew_factor_ = 1.0F;
 }
