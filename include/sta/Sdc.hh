@@ -18,7 +18,6 @@
 
 #include <mutex>
 
-#include "DisallowCopyAssign.hh"
 #include "StringUtil.hh"
 #include "StringSet.hh"
 #include "Map.hh"
@@ -1392,8 +1391,6 @@ protected:
   EdgeClockLatencyMap edge_clk_latency_;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(Sdc);
-
   friend class WriteSdc;
   friend class FindNetCaps;
   friend class ClockGroupIterator;
@@ -1407,8 +1404,8 @@ public:
 
 private:
   ClockIterator(ClockSeq &clocks);
+
   friend class Sdc;
-  DISALLOW_COPY_AND_ASSIGN(ClockIterator);
 };
 
 class ClockGroupIterator : public ClockGroupsNameMap::Iterator
@@ -1420,7 +1417,6 @@ private:
   ClockGroupIterator(ClockGroupsNameMap &clk_groups_name_map);
 
   friend class Sdc;
-  DISALLOW_COPY_AND_ASSIGN(ClockGroupIterator);
 };
 
 class GroupPathIterator : public GroupPathMap::Iterator
@@ -1432,7 +1428,6 @@ private:
   GroupPathIterator(GroupPathMap &group_path_map);
 
   friend class Sdc;
-  DISALLOW_COPY_AND_ASSIGN(GroupPathIterator);
 };
 
 } // namespace

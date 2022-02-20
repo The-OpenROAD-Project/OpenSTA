@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "TimingModel.hh"
 
 namespace sta {
@@ -50,9 +49,6 @@ protected:
 
   float intrinsic_;
   float resistance_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(GateLinearModel);
 };
 
 class CheckLinearModel : public CheckTimingModel
@@ -81,9 +77,6 @@ protected:
   virtual void setIsScaled(bool is_scaled);
 
   float intrinsic_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(CheckLinearModel);
 };
 
 } // namespace

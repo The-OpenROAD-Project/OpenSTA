@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "Vector.hh"
 #include "SearchClass.hh"
 #include "Path.hh"

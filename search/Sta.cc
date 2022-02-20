@@ -106,8 +106,6 @@ public:
   virtual void checkDelayChangedTo(Vertex *vertex);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(StaDelayCalcObserver);
-
   Search *search_;
 };
 
@@ -148,8 +146,6 @@ public:
   virtual void fanoutEdgesChangeAfter(Vertex *vertex);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(StaSimObserver);
-
   GraphDelayCalc *graph_delay_calc_;
   Levelize *levelize_;
   Search *search_;
@@ -203,8 +199,6 @@ public:
   virtual void levelChangedBefore(Vertex *vertex);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(StaLevelizeObserver);
-
   Search *search_;
 };
 
@@ -2572,25 +2566,31 @@ Sta::updateTiming(bool full)
   search_->findAllArrivals();
 }
 
+////////////////////////////////////////////////////////////////
+
 void
 Sta::reportClkSkew(ClockSet *clks,
 		   const Corner *corner,
 		   const SetupHold *setup_hold,
 		   int digits)
 {
-  ensureClkArrivals();
-  if (clk_skews_ == nullptr)
-    clk_skews_ = new ClkSkews(this);
+  clkSkewPreamble();
   clk_skews_->reportClkSkew(clks, corner, setup_hold, digits);
 }
 
 float
 Sta::findWorstClkSkew(const SetupHold *setup_hold)
 {
+  clkSkewPreamble();
+  return clk_skews_->findWorstClkSkew(cmd_corner_, setup_hold);
+}
+
+void
+Sta::clkSkewPreamble()
+{
   ensureClkArrivals();
   if (clk_skews_ == nullptr)
     clk_skews_ = new ClkSkews(this);
-  return clk_skews_->findWorstClkSkew(cmd_corner_, setup_hold);
 }
 
 ////////////////////////////////////////////////////////////////

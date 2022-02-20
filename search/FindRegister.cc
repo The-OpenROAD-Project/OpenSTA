@@ -16,7 +16,6 @@
 
 #include "FindRegister.hh"
 
-#include "DisallowCopyAssign.hh"
 #include "TimingRole.hh"
 #include "FuncExpr.hh"
 #include "TimingArc.hh"
@@ -47,8 +46,6 @@ public:
   virtual bool searchFrom(const Vertex *from_vertex);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(FindRegClkPred);
-
   Clock *clk_;
 };
 
@@ -90,7 +87,6 @@ public:
 		 bool latches);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(FindRegVisitor);
   void visitRegs(const Pin *clk_pin,
 		 TimingSense clk_sense,
 		 const RiseFallBoth *clk_rf,
@@ -328,7 +324,6 @@ public:
 			bool latches);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(FindRegInstances);
   virtual void visitReg(Instance *inst);
   virtual void visitSequential(Instance *inst,
 			       Sequential *seq);
@@ -388,7 +383,6 @@ public:
 		   bool latches);
 
 protected:
-  DISALLOW_COPY_AND_ASSIGN(FindRegPins);
   virtual void visitReg(Instance *inst);
   virtual void visitSequential(Instance *inst,
 			       Sequential *seq);
@@ -468,7 +462,6 @@ public:
   explicit FindRegDataPins(StaState *sta);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(FindRegDataPins);
   virtual bool matchPin(Pin *pin);
   virtual FuncExpr *seqExpr1(Sequential *seq);
   virtual FuncExpr *seqExpr2(Sequential *seq);
@@ -535,7 +528,6 @@ public:
   explicit FindRegClkPins(StaState *sta);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(FindRegClkPins);
   virtual bool matchPin(Pin *pin);
   virtual FuncExpr *seqExpr1(Sequential *seq);
   virtual FuncExpr *seqExpr2(Sequential *seq);
@@ -593,7 +585,6 @@ public:
   explicit FindRegAsyncPins(StaState *sta);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(FindRegAsyncPins);
   virtual bool matchPin(Pin *pin);
   virtual FuncExpr *seqExpr1(Sequential *seq) { return seq->clear(); }
   virtual FuncExpr *seqExpr2(Sequential *seq) { return seq->preset(); }
@@ -638,7 +629,6 @@ public:
   explicit FindRegOutputPins(StaState *sta);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(FindRegOutputPins);
   virtual bool matchPin(Pin *pin);
   virtual void visitSequential(Instance *inst,
 			       Sequential *seq);

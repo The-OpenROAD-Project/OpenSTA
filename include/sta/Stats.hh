@@ -17,7 +17,6 @@
 #pragma once
 
 #include <stddef.h>  // size_t
-#include "DisallowCopyAssign.hh"
 
 namespace sta {
 
@@ -33,8 +32,6 @@ public:
   void report(const char *step);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(Stats);
-
   double elapsed_begin_;
   double user_begin_;
   double system_begin_;

@@ -18,7 +18,6 @@
 
 #include <mutex>
 
-#include "DisallowCopyAssign.hh"
 #include "Map.hh"
 #include "Vector.hh"
 #include "SdcClass.hh"
@@ -94,9 +93,6 @@ protected:
   float threshold_;
   std::mutex lock_;
   const StaState *sta_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PathGroup);
 };
 
 class PathGroups : public StaState
@@ -197,9 +193,6 @@ protected:
   static const char *gated_clk_group_name_;
   static const char *async_group_name_;
   static const char *unconstrained_group_name_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PathGroups);
 };
 
 } // namespace

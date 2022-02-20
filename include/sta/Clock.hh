@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "MinMax.hh"
 #include "RiseFallMinMax.hh"
 #include "SdcClass.hh"
@@ -192,8 +191,6 @@ protected:
   FloatSeq *edge_shifts_;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(Clock);
-
   friend class Sdc;
 };
 
@@ -213,7 +210,6 @@ public:
 
   friend class Clock;  // builder
 private:
-  DISALLOW_COPY_AND_ASSIGN(ClockEdge);
   ClockEdge(Clock *clock, RiseFall *rf);
   void setTime(float time);
 
@@ -266,8 +262,6 @@ public:
   bool empty() const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(InterClockUncertainty);
-
   const Clock *src_;
   const Clock *target_;
   RiseFallMinMax uncertainties_[RiseFall::index_count];

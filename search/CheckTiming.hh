@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "Vector.hh"
 #include "StringSeq.hh"
 #include "NetworkClass.hh"
@@ -68,9 +67,6 @@ protected:
 		     string &error_msg);
 
   CheckErrorSeq errors_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(CheckTiming);
 };
 
 } // namespace

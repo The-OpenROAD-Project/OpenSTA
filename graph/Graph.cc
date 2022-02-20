@@ -16,7 +16,6 @@
 
 #include "Graph.hh"
 
-#include "DisallowCopyAssign.hh"
 #include "Debug.hh"
 #include "Stats.hh"
 #include "MinMax.hh"
@@ -112,9 +111,6 @@ protected:
   int &bidirect_count_;
   int &load_count_;
   const Network *network_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(FindNetDrvrLoadCounts);
 };
 
 FindNetDrvrLoadCounts::FindNetDrvrLoadCounts(Pin *drvr_pin,
@@ -308,7 +304,6 @@ public:
   MakeEdgesThruHierPin(Graph *graph);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(MakeEdgesThruHierPin);
   virtual void visit(Pin *drvr,
 		     Pin *load);
 

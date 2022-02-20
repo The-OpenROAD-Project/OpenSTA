@@ -19,7 +19,6 @@
 #include <algorithm>
 #include <cmath> // abs
 
-#include "DisallowCopyAssign.hh"
 #include "Mutex.hh"
 #include "Report.hh"
 #include "Debug.hh"
@@ -165,9 +164,6 @@ public:
   SearchThru(TagGroupBldr *tag_bldr,
 	     const StaState *sta);
   virtual bool searchThru(Edge *edge);
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(SearchThru);
 };
 
 SearchThru::SearchThru(TagGroupBldr *tag_bldr,
@@ -584,9 +580,6 @@ protected:
 
   Graph *graph_;
   Search *search_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(SeedFaninsThruHierPin);
 };
 
 SeedFaninsThruHierPin::SeedFaninsThruHierPin(Graph *graph,

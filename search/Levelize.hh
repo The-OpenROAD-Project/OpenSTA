@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "NetworkClass.hh"
 #include "SdcClass.hh"
 #include "GraphClass.hh"
@@ -85,9 +84,6 @@ protected:
   EdgeSet disabled_loop_edges_;
   EdgeSet latch_d_to_q_edges_;
   LevelizeObserver *observer_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(Levelize);
 };
 
 // Loops broken by levelization may not necessarily be combinational.
@@ -105,8 +101,6 @@ public:
 	      Graph *graph) const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(GraphLoop);
-
   EdgeSeq *edges_;
 };
 
@@ -116,9 +110,6 @@ public:
   LevelizeObserver() {}
   virtual ~LevelizeObserver() {}
   virtual void levelChangedBefore(Vertex *vertex) = 0;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(LevelizeObserver);
 };
 
 } // namespace

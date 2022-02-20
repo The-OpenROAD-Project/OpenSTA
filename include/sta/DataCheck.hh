@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "MinMax.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
@@ -57,8 +56,6 @@ public:
 			bool &one_value) const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(DataCheck);
-
   Pin *from_;
   Pin *to_;
   Clock *clk_;

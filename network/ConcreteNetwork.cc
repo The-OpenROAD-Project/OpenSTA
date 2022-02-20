@@ -16,7 +16,6 @@
 
 #include "ConcreteNetwork.hh"
 
-#include "DisallowCopyAssign.hh"
 #include "PatternMatch.hh"
 #include "Report.hh"
 #include "Liberty.hh"
@@ -83,7 +82,6 @@ public:
   Net *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ConcreteInstanceNetIterator);
   void findNext();
 
   ConcreteInstanceNetMap::Iterator iter_;
@@ -135,7 +133,6 @@ public:
   Pin *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ConcreteInstancePinIterator);
   void findNext();
 
   ConcretePin **pins_;
@@ -190,8 +187,6 @@ public:
   Pin *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ConcreteNetPinIterator);
-
   ConcretePin *next_;
 };
 
@@ -224,8 +219,6 @@ public:
   Term *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ConcreteNetTermIterator);
-
   ConcreteTerm *next_;
 };
 
@@ -309,8 +302,6 @@ public:
   virtual Library *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ConcreteLibraryIterator1);
-
   ConcreteLibraryIterator iter_;
 };
 
@@ -348,7 +339,6 @@ public:
   virtual LibertyLibrary *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ConcreteLibertyLibraryIterator);
   void findNext();
 
   ConcreteLibrarySeq::ConstIterator iter_;
@@ -678,8 +668,6 @@ public:
   virtual Port *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ConcreteCellPortIterator1);
-
   ConcreteCellPortIterator *iter_;
 };
 
@@ -717,8 +705,6 @@ public:
   virtual Port *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ConcreteCellPortBitIterator1);
-
   ConcreteCellPortBitIterator *iter_;
 };
 
@@ -858,8 +844,6 @@ public:
   virtual Port *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ConcretePortMemberIterator1);
-
   ConcretePortMemberIterator *iter_;
 };
 
@@ -1814,8 +1798,6 @@ public:
 	    Net *clone_net);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ConcreteBindingTbl);
-
   BindingMap map_;
   NetworkEdit *network_;
 };

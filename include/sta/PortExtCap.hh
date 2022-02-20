@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "MinMax.hh"
 #include "Transition.hh"
 #include "RiseFallMinMax.hh"
@@ -58,8 +57,6 @@ public:
   FanoutValues *fanout() { return &fanout_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(PortExtCap);
-
   Port *port_;
   RiseFallMinMax pin_cap_;
   RiseFallMinMax wire_cap_;

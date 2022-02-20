@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "Vector.hh"
 #include "Set.hh"
 #include "Transition.hh"
@@ -85,8 +84,6 @@ protected:
   void findHash();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(Tag);
-
   ClkInfo *clk_info_;
   InputDelay *input_delay_;
   ExceptionStateSet *states_;

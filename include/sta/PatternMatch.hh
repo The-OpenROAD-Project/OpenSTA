@@ -17,7 +17,6 @@
 #pragma once
 
 #include <string>
-#include "DisallowCopyAssign.hh"
 #include "Error.hh"
 
 // Don't require all of tcl.h.
@@ -54,7 +53,6 @@ public:
   bool hasWildcards() const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(PatternMatch);
   void compileRegexp();
 
   const char *pattern_;

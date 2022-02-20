@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "Transition.hh"
 #include "SearchClass.hh"
 #include "PathVertexRep.hh"
@@ -70,8 +69,6 @@ protected:
   void findHash(const StaState *sta);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ClkInfo);
-
   ClockEdge *clk_edge_;
   const Pin *clk_src_;
   const Pin *gen_clk_src_;

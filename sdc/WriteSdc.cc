@@ -76,9 +76,6 @@ public:
   WriteSdcObject() {}
   virtual ~WriteSdcObject() {}
   virtual void write() const = 0;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(WriteSdcObject);
 };
 
 class WriteGetPort : public WriteSdcObject
@@ -89,8 +86,6 @@ public:
   virtual void write() const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(WriteGetPort);
-
   const Port *port_;
   const WriteSdc *writer_;
 };
@@ -118,8 +113,6 @@ public:
   virtual void write() const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(WriteGetPinAndClkKey);
-
   const Pin *pin_;
   bool map_hpin_to_drvr_;
   const Clock *clk_;
@@ -154,8 +147,6 @@ public:
   virtual void write() const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(WriteGetPin);
-
   const Pin *pin_;
   bool map_hpin_to_drvr_;
   const WriteSdc *writer_;
@@ -184,8 +175,6 @@ public:
   virtual void write() const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(WriteGetNet);
-
   const Net *net_;
   const WriteSdc *writer_;
 };
@@ -211,8 +200,6 @@ public:
   virtual void write() const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(WriteGetInstance);
-
   const Instance *inst_;
   const WriteSdc *writer_;
 };
@@ -238,8 +225,6 @@ public:
   virtual void write() const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(WriteGetLibCell);
-
   const LibertyCell *cell_;
   const WriteSdc *writer_;
 };
@@ -265,8 +250,6 @@ public:
   virtual void write() const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(WriteGetClock);
-
   const Clock *clk_;
   const WriteSdc *writer_;
 };

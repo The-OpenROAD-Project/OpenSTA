@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "Vector.hh"
 #include "LibertyClass.hh"
 
@@ -72,9 +71,6 @@ protected:
   // Fanout length extrapolation slope.
   float slope_;
   FanoutLengthSeq fanout_lengths_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(Wireload);
 };
 
 class WireloadSelection
@@ -89,8 +85,6 @@ public:
   const Wireload *findWireload(float area) const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(WireloadSelection);
-
   const char *name_;
   WireloadForAreaSeq wireloads_;
 };

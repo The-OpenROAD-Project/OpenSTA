@@ -18,7 +18,6 @@
 
 #include <string>
 
-#include "DisallowCopyAssign.hh"
 #include "StringSeq.hh"
 #include "SearchClass.hh"
 #include "PathEnd.hh"
@@ -454,9 +453,6 @@ protected:
 
   static const float field_blank_;
   static const float field_skip_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(ReportPath);
 };
 
 class ReportField

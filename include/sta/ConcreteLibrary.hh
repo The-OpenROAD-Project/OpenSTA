@@ -18,7 +18,6 @@
 
 #include <functional>
 
-#include "DisallowCopyAssign.hh"
 #include "Vector.hh"
 #include "Map.hh"
 #include "StringUtil.hh"
@@ -82,8 +81,6 @@ protected:
   ConcreteCellMap cell_map_;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ConcreteLibrary);
-
   friend class ConcreteCell;
 };
 
@@ -161,8 +158,6 @@ protected:
   bool is_leaf_;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ConcreteCell);
-
   friend class ConcreteLibrary;
   friend class ConcreteCellPortBitIterator;
 };
@@ -241,8 +236,6 @@ protected:
   ConcretePortSeq *member_ports_;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ConcretePort);
-
   friend class ConcreteCell;
 };
 
@@ -254,7 +247,6 @@ public:
   virtual ConcretePort *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ConcreteCellPortBitIterator);
   void findNext();
 
   ConcretePortSeq::ConstIterator port_iter_;

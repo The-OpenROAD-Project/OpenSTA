@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "GraphClass.hh"
 #include "Delay.hh"
 #include "StaState.hh"
@@ -45,9 +44,6 @@ protected:
 
   MaxSkewCheckSeq checks_;
   StaState *sta_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(CheckMaxSkews);
 };
 
 class MaxSkewCheck

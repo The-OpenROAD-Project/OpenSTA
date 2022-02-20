@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "SdcClass.hh"
 #include "StaState.hh"
 #include "SearchClass.hh"

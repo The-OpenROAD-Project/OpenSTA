@@ -18,7 +18,6 @@
 
 #include <cmath> // abs
 
-#include "DisallowCopyAssign.hh"
 #include "Report.hh"
 #include "Debug.hh"
 #include "Fuzzy.hh"
@@ -39,6 +38,7 @@ namespace sta {
 
 using std::abs;
 
+// Source/target clock skew.
 class ClkSkew
 {
 public:
@@ -234,8 +234,7 @@ ClkSkews::findClkSkewFrom(Vertex *src_vertex,
 			  const SetupHold *setup_hold,
 			  ClkSkewMap &skews)
 {
-  VertexSet endpoints;
-  findFanout(q_vertex, endpoints);
+  VertexSet endpoints = findFanout(q_vertex);
   VertexSet::Iterator end_iter(endpoints);
   while (end_iter.hasNext()) {
     Vertex *end = end_iter.next();
@@ -338,13 +337,12 @@ FanOutSrchPred::searchThru(Edge *edge)
     || role == TimingRole::tristateDisable();
 }
 
-void
-ClkSkews::findFanout(Vertex *from,
-		     // Return value.
-		     VertexSet &endpoints)
+VertexSet
+ClkSkews::findFanout(Vertex *from)
 {
   debugPrint(debug_, "fanout", 1, "%s",
              from->name(sdc_network_));
+  VertexSet endpoints;
   FanOutSrchPred pred(this);
   BfsFwdIterator fanout_iter(BfsIndex::other, &pred, this);
   fanout_iter.enqueue(from);
@@ -357,6 +355,7 @@ ClkSkews::findFanout(Vertex *from,
     }
     fanout_iter.enqueueAdjacentVertices(fanout);
   }
+  return endpoints;
 }
 
 } // namespace

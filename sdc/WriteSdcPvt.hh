@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "Zlib.hh"
 #include "NetworkClass.hh"
 #include "GraphClass.hh"
@@ -262,9 +261,6 @@ protected:
   size_t instance_name_length_;
   Cell *cell_;
   gzFile stream_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(WriteSdc);
 };
 
 } // namespace

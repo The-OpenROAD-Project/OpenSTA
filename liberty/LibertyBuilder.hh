@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "Vector.hh"
 #include "Transition.hh"
 #include "LibertyClass.hh"
@@ -139,8 +138,6 @@ protected:
 					bool to_rise,
 					bool to_fall,
 					TimingArcAttrs *attrs);
-private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyBuilder);
 };
 
 } // namespace

@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "Error.hh"
 #include "Set.hh"
 #include "SdcCmdComment.hh"
@@ -128,9 +127,6 @@ protected:
   bool own_pts_;
   int priority_;
   ExceptionState *states_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(ExceptionPath);
 };
 
 // set_false_path
@@ -161,9 +157,6 @@ public:
   virtual bool overrides(ExceptionPath *exception) const;
   virtual int typePriority() const;
   virtual bool tighterThan(ExceptionPath *exception) const;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(FalsePath);
 };
 
 // Loop paths are false paths used to disable paths around
@@ -177,9 +170,6 @@ public:
   virtual ExceptionPathType type() const { return ExceptionPathType::loop; }
   virtual const char *typeString() const;
   virtual bool mergeable(ExceptionPath *exception) const;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(LoopPath);
 };
 
 // set_max_delay/set_min_delay
@@ -212,9 +202,6 @@ public:
 protected:
   bool ignore_clk_latency_;
   float delay_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PathDelay);
 };
 
 // set_multicycle_path
@@ -253,9 +240,6 @@ public:
 protected:
   bool use_end_clk_;
   int path_multiplier_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(MultiCyclePath);
 };
 
 // Filter used restrict path reporting -from/-thru nets/pins.
@@ -281,9 +265,6 @@ public:
 			  const MinMaxAll *min_max);
   virtual int typePriority() const;
   virtual bool tighterThan(ExceptionPath *exception) const;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(FilterPath);
 };
 
 class GroupPath : public ExceptionPath
@@ -314,9 +295,6 @@ public:
 protected:
   const char *name_;
   bool is_default_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(GroupPath);
 };
 
 // Base class for Exception from/thru/to.
@@ -368,9 +346,6 @@ protected:
   static const size_t hash_pin  =  5;
   static const size_t hash_net  =  7;
   static const size_t hash_inst = 11;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(ExceptionPt);
 };
 
 class ExceptionFromTo : public ExceptionPt
@@ -420,9 +395,6 @@ protected:
   PinSet *pins_;
   ClockSet *clks_;
   InstanceSet *insts_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(ExceptionFromTo);
 };
 
 class ExceptionFrom : public ExceptionFromTo
@@ -441,9 +413,6 @@ public:
 protected:
   virtual const char *cmdKeyword() const;
   virtual void findHash();
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(ExceptionFrom);
 };
 
 class ExceptionTo : public ExceptionFromTo
@@ -486,9 +455,6 @@ protected:
 
   // -rise|-fall endpoint transition.
   const RiseFallBoth *end_rf_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(ExceptionTo);
 };
 
 class ExceptionThru : public ExceptionPt
@@ -565,9 +531,6 @@ protected:
   EdgePinsSet *edges_;
   NetSet *nets_;
   InstanceSet *insts_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(ExceptionThru);
 };
 
 ExceptionThruSeq *
@@ -583,8 +546,6 @@ public:
   ExceptionPt *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ExceptionPtIterator);
-
   const ExceptionPath *exception_;
   bool from_done_;
   ExceptionThruSeq::Iterator thru_iter_;
@@ -616,7 +577,6 @@ protected:
   const Network *network_;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ExpandedExceptionVisitor);
   void expandFrom();
   void expandThrus(ExceptionFrom *expanded_from);
   void expandThru(ExceptionFrom *expanded_from,
@@ -647,8 +607,6 @@ public:
   size_t hash() const;
   
 private:
-  DISALLOW_COPY_AND_ASSIGN(ExceptionState);
-
   ExceptionPath *exception_;
   ExceptionThru *next_thru_;
   ExceptionState *next_state_;

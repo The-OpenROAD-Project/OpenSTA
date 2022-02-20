@@ -18,7 +18,6 @@
 
 #include <algorithm>
 
-#include "DisallowCopyAssign.hh"
 #include "MinMax.hh"
 #include "TimingRole.hh"
 #include "Units.hh"
@@ -2458,9 +2457,6 @@ protected:
 
   PinPairSet *pairs_;
   const Network *network_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(InsertPinPairsThru);
 };
 
 InsertPinPairsThru::InsertPinPairsThru(PinPairSet *pairs,
@@ -2512,9 +2508,6 @@ protected:
 
   PinPairSet *pairs_;
   const Network *network_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(DeletePinPairsThru);
 };
 
 DeletePinPairsThru::DeletePinPairsThru(PinPairSet *pairs,

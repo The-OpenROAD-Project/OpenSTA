@@ -116,9 +116,6 @@ public:
 protected:
   bool annotate_;
   Graph *graph_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(DisableHpinEdgeVisitor);
 };
 
 DisableHpinEdgeVisitor::DisableHpinEdgeVisitor(Graph *graph) :

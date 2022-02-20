@@ -17,7 +17,6 @@
 #pragma once
 
 #include <stdarg.h>
-#include "DisallowCopyAssign.hh"
 #include "Map.hh"
 #include "StringUtil.hh"
 
@@ -49,9 +48,6 @@ protected:
   bool debug_on_;
   DebugMap *debug_map_;
   int stats_level_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(Debug);
 };
 
 // Inlining a varargs function would eval the args, which can

@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "Path.hh"
 
 namespace sta {
@@ -66,9 +65,6 @@ protected:
   Arrival arrival_;
   VertexId vertex_id_;
   unsigned int tag_index_:tag_index_bits;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PathEnumed);
 };
 
 void deletePathEnumed(PathEnumed *path);

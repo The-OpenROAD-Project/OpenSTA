@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "Map.hh"
 #include "NetworkClass.hh"
 #include "LibertyClass.hh"
@@ -54,8 +53,6 @@ public:
   bool all() const { return all_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(DisabledPorts);
-
   bool all_;
   LibertyPortSet *from_;
   LibertyPortSet *to_;
@@ -77,8 +74,6 @@ public:
   using DisabledPorts::isDisabled;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(DisabledCellPorts);
-
   LibertyCell *cell_;
   TimingArcSetSet *arc_sets_;
 };
@@ -91,8 +86,6 @@ public:
   Instance *instance() const { return inst_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(DisabledInstancePorts);
-
   Instance *inst_;
 };
 

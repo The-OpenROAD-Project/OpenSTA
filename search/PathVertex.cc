@@ -18,7 +18,6 @@
 
 #include <cmath>
 
-#include "DisallowCopyAssign.hh"
 #include "Fuzzy.hh"
 #include "Graph.hh"
 #include "ExceptionPath.hh"
@@ -298,9 +297,6 @@ class PrevPred2 : public SearchPred0
 public:
   explicit PrevPred2(const StaState *sta);
   virtual bool searchThru(Edge *edge);
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PrevPred2);
 };
 
 PrevPred2::PrevPred2(const StaState *sta) :
@@ -355,9 +351,6 @@ protected:
   PathVertex prev_path_;
   TimingArc *prev_arc_;
   float dcalc_tol_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PrevPathVisitor);
 };
 
 PrevPathVisitor::PrevPathVisitor(const Path *path,

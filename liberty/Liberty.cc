@@ -16,7 +16,6 @@
 
 #include "Liberty.hh"
 
-#include "DisallowCopyAssign.hh"
 #include "EnumNameMap.hh"
 #include "Report.hh"
 #include "Debug.hh"
@@ -1583,8 +1582,6 @@ public:
   TimingArcSet *setupCheck() const { return setup_check_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(LatchEnable);
-
   LibertyPort *data_;
   LibertyPort *enable_;
   RiseFall *enable_edge_;

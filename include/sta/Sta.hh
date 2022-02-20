@@ -18,7 +18,6 @@
 
 #include <string>
 
-#include "DisallowCopyAssign.hh"
 #include "StringSeq.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
@@ -1368,6 +1367,7 @@ protected:
   void ensureGraphSdcAnnotated();
   CornerSeq makeCornerSeq(Corner *corner) const;
   void makeParasiticAnalysisPts();
+  void clkSkewPreamble();
 
   CmdNamespace cmd_namespace_;
   Instance *current_instance_;
@@ -1392,9 +1392,6 @@ protected:
 
   // Singleton sta used by tcl command interpreter.
   static Sta *sta_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(Sta);
 };
 
 } // namespace

@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
-
 namespace sta {
 
 class Report;
@@ -52,8 +50,6 @@ public:
   void tokenAppend(char ch);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(LibExprParser);
-
   const char *func_;
   LibertyCell *cell_;
   const char *error_msg_;

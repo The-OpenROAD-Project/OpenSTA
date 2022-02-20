@@ -21,7 +21,6 @@
 #include <string>
 #include <mutex>
 #include "Machine.hh" // __attribute__
-#include "DisallowCopyAssign.hh"
 
 struct Tcl_Interp;
 
@@ -154,9 +153,6 @@ protected:
   static Report *default_;
 
   friend class Debug;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(Report);
 };
 
 } // namespace

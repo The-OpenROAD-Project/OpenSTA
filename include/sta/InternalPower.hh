@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "LibertyClass.hh"
 #include "Transition.hh"
 
@@ -43,9 +42,6 @@ protected:
   FuncExpr *when_;
   InternalPowerModel *models_[RiseFall::index_count];
   const  char *related_pg_pin_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(InternalPowerAttrs);
 };
 
 class InternalPower
@@ -72,9 +68,6 @@ protected:
   FuncExpr *when_;
   const  char *related_pg_pin_;
   InternalPowerModel *models_[RiseFall::index_count];
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(InternalPower);
 };
 
 class InternalPowerModel
@@ -107,9 +100,6 @@ protected:
   bool checkAxis(TableAxis *axis);
 
   TableModel *model_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(InternalPowerModel);
 };
 
 } // namespace

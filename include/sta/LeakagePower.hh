@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "LibertyClass.hh"
 
 namespace sta {
@@ -35,9 +34,6 @@ public:
 protected:
   FuncExpr *when_;
   float power_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(LeakagePowerAttrs);
 };
 
 class LeakagePower
@@ -54,9 +50,6 @@ protected:
   LibertyCell *cell_;
   FuncExpr *when_;
   float power_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(LeakagePower);
 };
 
 } // namespace

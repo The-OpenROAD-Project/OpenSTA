@@ -106,8 +106,6 @@ protected:
   char *sdfName(const Instance *inst);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(SdfWriter);
-
   char sdf_divider_;
   bool include_typ_;
   float timescale_;

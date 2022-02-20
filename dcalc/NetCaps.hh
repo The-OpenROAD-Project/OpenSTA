@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
-
 namespace sta {
 
 // Constraints::pinNetCap return values.
@@ -39,8 +37,6 @@ public:
   bool hasSetLoad() const { return has_set_load_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(NetCaps);
-
   float pin_cap_;
   float wire_cap_;
   float fanout_;

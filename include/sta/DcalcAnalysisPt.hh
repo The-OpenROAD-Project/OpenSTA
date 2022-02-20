@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "Iterator.hh"
 #include "MinMax.hh"
 #include "LibertyClass.hh"
@@ -63,8 +62,6 @@ public:
   int libertyIndex() const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(DcalcAnalysisPt);
-
   Corner *corner_;
   DcalcAPIndex index_;
   DcalcAPIndex check_clk_slew_index_;

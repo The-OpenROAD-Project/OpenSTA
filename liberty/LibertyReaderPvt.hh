@@ -18,7 +18,6 @@
 
 #include <functional>
 
-#include "DisallowCopyAssign.hh"
 #include "Vector.hh"
 #include "Map.hh"
 #include "StringSeq.hh"
@@ -585,8 +584,6 @@ protected:
   static constexpr char escape_ = '\\';
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyReader);
-
   friend class PortNameBitIterator;
   friend class TimingGroup;
 };
@@ -614,9 +611,6 @@ protected:
   bool invert_;
   const char *attr_name_;
   int line_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyFunc);
 };
 
 // Port attributes that refer to other ports cannot be parsed
@@ -636,8 +630,6 @@ public:
   int line() const { return line_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(PortGroup);
-
   LibertyPortSeq *ports_;
   TimingGroupSeq timings_;
   InternalPowerGroupSeq internal_power_groups_;
@@ -686,9 +678,6 @@ protected:
   LogicValue clr_preset_var1_;
   LogicValue clr_preset_var2_;
   int line_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(SequentialGroup);
 };
 
 // Liberty group with related_pins group attribute.
@@ -707,9 +696,6 @@ protected:
   StringSeq *related_port_names_;
   bool is_one_to_one_;
   int line_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(RelatedPortGroup);
 };
 
 class TimingGroup : public TimingArcAttrs, public RelatedPortGroup
@@ -767,9 +753,6 @@ protected:
   TableModel *transition_[RiseFall::index_count];
   TableModel *delay_sigma_[RiseFall::index_count][EarlyLate::index_count];
   TableModel *slew_sigma_[RiseFall::index_count][EarlyLate::index_count];
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(TimingGroup);
 };
 
 class InternalPowerGroup : public InternalPowerAttrs, public RelatedPortGroup
@@ -777,11 +760,6 @@ class InternalPowerGroup : public InternalPowerAttrs, public RelatedPortGroup
 public:
   explicit InternalPowerGroup(int line);
   virtual ~InternalPowerGroup();
-
-protected:
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(InternalPowerGroup);
 };
 
 class LeakagePowerGroup : public LeakagePowerAttrs
@@ -792,9 +770,6 @@ public:
 
 protected:
   int line_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(LeakagePowerGroup);
 };
 
 // Named port iterator.  Port name can be:
@@ -829,9 +804,6 @@ protected:
   int range_to_;
   int range_bit_;
   unsigned size_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PortNameBitIterator);
 };
 
 } // namespace

@@ -58,8 +58,6 @@ public:
   void setFoundLatchFdbkEdges(bool found);
 
 protected:
-  DISALLOW_COPY_AND_ASSIGN(GenclkInfo);
-
   Clock *gclk_;
   Level gclk_level_;
   VertexSet *fanins_;
@@ -241,9 +239,6 @@ public:
 
 protected:
   const StaState *sta_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(GenClkMasterSearchPred);
 };
 
 GenClkMasterSearchPred::GenClkMasterSearchPred(const StaState *sta) :
@@ -419,8 +414,6 @@ public:
   virtual bool searchTo(const Vertex *to_vertex);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(GenClkFaninSrchPred);
-
   bool combinational_;
 };
 
@@ -503,7 +496,6 @@ public:
   virtual bool searchTo(const Vertex *to_vertex);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(GenClkInsertionSearchPred);
   bool isNonGeneratedClkPin(const Pin *pin) const;
 
   Clock *gclk_;
@@ -778,8 +770,6 @@ public:
   virtual bool searchTo(const Vertex *to_vertex);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(GenClkArrivalSearchPred);
-
   bool combinational_;
 };
 

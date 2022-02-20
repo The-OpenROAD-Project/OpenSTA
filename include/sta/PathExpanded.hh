@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "TimingArc.hh"
 #include "GraphClass.hh"
 #include "SearchClass.hh"
@@ -70,9 +69,6 @@ protected:
   // Index of the startpoint.
   size_t start_index_;
   const StaState *sta_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PathExpanded);
 };
 
 } // namespace

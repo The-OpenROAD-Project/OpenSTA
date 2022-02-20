@@ -16,7 +16,6 @@
 
 #include "CheckMaxSkews.hh"
 
-#include "DisallowCopyAssign.hh"
 #include "TimingRole.hh"
 #include "TimingArc.hh"
 #include "Liberty.hh"
@@ -37,9 +36,6 @@ public:
   virtual ~MaxSkewCheckVisitor() {}
   virtual void visit(MaxSkewCheck &check,
 		     const StaState *sta) = 0;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(MaxSkewCheckVisitor);
 };
 
 CheckMaxSkews::CheckMaxSkews(StaState *sta) :
@@ -66,8 +62,6 @@ public:
 		     const StaState *sta);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(MaxSkewChecksVisitor);
-
   MaxSkewCheckSeq &checks_;
 };
 
@@ -92,7 +86,6 @@ public:
 		     const StaState *sta);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(MaxSkewViolatorsVisititor);
   MaxSkewCheckSeq &checks_;
 };
 
@@ -130,8 +123,6 @@ public:
   MaxSkewCheck *minSlackCheck();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(MaxSkewSlackVisitor);
-
   MaxSkewCheck *min_slack_check_;
 };
 

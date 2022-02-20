@@ -19,7 +19,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "DisallowCopyAssign.hh"
 #include "Report.hh"
 
 namespace sta {
@@ -33,9 +32,6 @@ public:
 protected:
   virtual size_t printConsole(const char *buffer, size_t length);
   virtual size_t printErrorConsole(const char *buffer, size_t length);
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(ReportStd);
 };
 
 Report *

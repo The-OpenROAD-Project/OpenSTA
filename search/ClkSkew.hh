@@ -63,9 +63,7 @@ protected:
 		   const Corner *corner,
 		   const SetupHold *setup_hold,
 		   ClkSkewMap &skews);
-  void findFanout(Vertex *from,
-		  // Return value.
-		  VertexSet &endpoints);
+  VertexSet findFanout(Vertex *from);
 };
     
 } // namespace

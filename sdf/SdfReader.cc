@@ -19,7 +19,6 @@
 #include <stdarg.h>
 #include <ctype.h>
 
-#include "DisallowCopyAssign.hh"
 #include "Error.hh"
 #include "Report.hh"
 #include "MinMax.hh"
@@ -48,8 +47,6 @@ public:
   bool hasValue() const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(SdfTriple);
-
   float *values_[3];
 };
 
@@ -70,8 +67,6 @@ public:
   const char *cond() const { return cond_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(SdfPortSpec);
-
   Transition *tr_;
   const char *port_;
   const char *cond_;   // timing checks only

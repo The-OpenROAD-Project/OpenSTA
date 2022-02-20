@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "MinMax.hh"
 #include "NetworkClass.hh"
 #include "SdcClass.hh"
@@ -45,8 +44,6 @@ public:
   void setDelays(RiseFallMinMax *delays);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ClockInsertion);
-
   const Clock *clk_;
   const Pin *pin_;
   RiseFallMinMax delays_[EarlyLate::index_count];

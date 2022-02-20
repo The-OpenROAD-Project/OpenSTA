@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "SearchClass.hh"
 #include "Path.hh"
 
@@ -131,7 +130,6 @@ public:
   virtual PathVertex *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(VertexPathIterator);
   void findNext();
 
   const Search *search_;

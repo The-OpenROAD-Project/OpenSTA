@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "SdcClass.hh"
 #include "RiseFallMinMax.hh"
 
@@ -31,8 +30,6 @@ public:
   LogicValue activeValue() const { return active_value_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ClockGatingCheck);
-
   RiseFallMinMax margins_;
   LogicValue active_value_;
 };

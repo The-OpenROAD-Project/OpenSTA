@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "NetworkClass.hh"
 
 namespace sta {
@@ -55,7 +54,6 @@ public:
   bool isUnknown() const { return this == unknown_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(PortDirection);
   PortDirection(const char *name,
 		int index);
 

@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
 
@@ -65,8 +64,6 @@ protected:
   LibertyPort *output_inv_;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(Sequential);
-
   friend class LibertyCell;
 };
 

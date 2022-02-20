@@ -17,7 +17,6 @@
 #pragma once
 
 #include <string>
-#include "DisallowCopyAssign.hh"
 #include "MinMax.hh"
 #include "Vector.hh"
 #include "Transition.hh"
@@ -117,9 +116,6 @@ protected:
   TableModel *delay_sigma_models_[EarlyLate::index_count];
   TableModel *slew_model_;
   TableModel *slew_sigma_models_[EarlyLate::index_count];
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(GateTableModel);
 };
 
 class CheckTableModel : public CheckTimingModel
@@ -185,9 +181,6 @@ protected:
 
   TableModel *model_;
   TableModel *sigma_models_[EarlyLate::index_count];
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(CheckTableModel);
 };
 
 // Wrapper class for Table to apply scale factors.
@@ -243,9 +236,6 @@ protected:
   unsigned scale_factor_type_:scale_factor_bits;
   unsigned tr_index_:RiseFall::index_bit_count;
   bool is_scaled_:1;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(TableModel);
 };
 
 // Abstract base class for tables.
@@ -283,9 +273,6 @@ public:
 			   string *result) const = 0;
   virtual void report(const Units *units,
 		      Report *report) const = 0;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(Table);
 };
 
 // Zero dimension (scalar) table.
@@ -312,7 +299,6 @@ public:
   using Table::findValue;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(Table0);
   float value_;
 };
 
@@ -345,8 +331,6 @@ public:
   using Table::findValue;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(Table1);
-
   FloatSeq *values_;
   TableAxis *axis1_;
   bool own_axis1_;
@@ -385,8 +369,6 @@ public:
   using Table::findValue;
 
 protected:
-  DISALLOW_COPY_AND_ASSIGN(Table2);
-
   FloatTable *values_;
   // Row.
   TableAxis *axis1_;
@@ -431,8 +413,6 @@ public:
   using Table::findValue;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(Table3);
-
   TableAxis *axis3_;
   bool own_axis3_;
 };
@@ -450,8 +430,6 @@ public:
   size_t findAxisIndex(float value) const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(TableAxis);
-
   TableAxisVariable variable_;
   FloatSeq *values_;
 };

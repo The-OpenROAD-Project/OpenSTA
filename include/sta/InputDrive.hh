@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "MinMax.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
@@ -75,8 +74,6 @@ public:
   RiseFallMinMax *slews() { return &slews_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(InputDrive);
-
   RiseFallMinMax slews_;
   RiseFallMinMax drive_resistances_;
   // Separate rise/fall/min/max drive cells.
@@ -104,8 +101,6 @@ public:
   bool equal(InputDriveCell *drive) const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(InputDriveCell);
-
   LibertyLibrary *library_;
   LibertyCell *cell_;
   LibertyPort *from_port_;

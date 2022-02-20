@@ -18,7 +18,6 @@
 
 #include <functional>
 
-#include "DisallowCopyAssign.hh"
 #include "Network.hh"
 
 namespace sta {
@@ -164,9 +163,6 @@ protected:
   Network *network_;
   // network_ if it supports edits.
   NetworkEdit *network_edit_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(NetworkNameAdapter);
 };
 
 ////////////////////////////////////////////////////////////////
@@ -253,9 +249,6 @@ protected:
 		    PinSeq *pins) const;
 
   const char *staToSdc(const char *sta_name) const;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(SdcNetwork);
 };
 
 // Encapsulate a network to map names to/from the sdc namespace.

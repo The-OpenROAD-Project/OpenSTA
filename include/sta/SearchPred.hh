@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "NetworkClass.hh"
 #include "GraphClass.hh"
 #include "LibertyClass.hh"
@@ -50,9 +49,6 @@ public:
   virtual bool searchThru(Edge *edge) = 0;
   // Search is allowed to to_pin.
   virtual bool searchTo(const Vertex *to_vertex) = 0;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(SearchPred);
 };
 
 class SearchPred0 : public SearchPred
@@ -78,9 +74,6 @@ public:
 
 protected:
   const StaState *sta_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(SearchPred0);
 };
 
 // SearchPred0 unless
@@ -90,9 +83,6 @@ class SearchPred1 : public SearchPred0
 public:
   explicit SearchPred1(const StaState *sta);
   virtual bool searchThru(Edge *edge);
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(SearchPred1);
 };
 
 // SearchPred1 unless
@@ -102,9 +92,6 @@ class SearchPred2 : public SearchPred1
 public:
   explicit SearchPred2(const StaState *sta);
   virtual bool searchThru(Edge *edge);
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(SearchPred2);
 };
 
 // SearchPred2 unless
@@ -114,9 +101,6 @@ class SearchPredNonLatch2 : public SearchPred2
 public:
   explicit SearchPredNonLatch2(const StaState *sta);
   virtual bool searchThru(Edge *edge);
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(SearchPredNonLatch2);
 };
 
 // SearchPred2 unless
@@ -126,9 +110,6 @@ class SearchPredNonReg2 : public SearchPred2
 public:
   explicit SearchPredNonReg2(const StaState *sta);
   virtual bool searchThru(Edge *edge);
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(SearchPredNonReg2);
 };
 
 // Predicate for BFS search to stop at the end of the clock tree.
@@ -138,9 +119,6 @@ class ClkTreeSearchPred : public SearchPred1
 public:
   explicit ClkTreeSearchPred(const StaState *sta);
   virtual bool searchThru(Edge *edge);
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(ClkTreeSearchPred);
 };
 
 bool

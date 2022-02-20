@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "Vector.hh"
 #include "Map.hh"
 #include "Iterator.hh"
@@ -72,9 +71,6 @@ protected:
   bool has_filter_tag_:1;
   bool has_loop_tag_:1;
   bool own_arrival_map_:1;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(TagGroup);
 };
 
 class TagGroupHash
@@ -140,9 +136,6 @@ protected:
   bool has_filter_tag_;
   bool has_loop_tag_;
   const StaState *sta_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(TagGroupBldr);
 };
 
 void

@@ -18,7 +18,6 @@
 
 #include <functional>
 
-#include "DisallowCopyAssign.hh"
 #include "Map.hh"
 #include "Set.hh"
 #include "StringUtil.hh"
@@ -261,8 +260,6 @@ protected:
   CellNetworkViewMap cell_network_view_map_;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ConcreteNetwork);
-
   friend class ConcreteLibertyLibraryIterator;
 };
 
@@ -306,8 +303,6 @@ protected:
   ConcreteInstanceNetMap *nets_;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ConcreteInstance);
-
   friend class ConcreteNetwork;
   friend class ConcreteInstancePinIterator;
 };
@@ -339,8 +334,6 @@ protected:
   VertexId vertex_id_;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ConcretePin);
-
   friend class ConcreteNetwork;
   friend class ConcreteNet;
   friend class ConcreteNetPinIterator;
@@ -364,8 +357,6 @@ protected:
   ConcreteTerm *net_next_;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ConcreteTerm);
-
   friend class ConcreteNetwork;
   friend class ConcreteNet;
   friend class ConcreteNetTermIterator;
@@ -384,7 +375,6 @@ public:
   ConcreteNet *mergedInto() { return merged_into_; }
 
 protected:
-  DISALLOW_COPY_AND_ASSIGN(ConcreteNet);
   ConcreteNet(const char *name,
 	      ConcreteInstance *instance);
   ~ConcreteNet();

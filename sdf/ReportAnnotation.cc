@@ -16,7 +16,6 @@
 
 #include "sdf/ReportAnnotation.hh"
 
-#include "DisallowCopyAssign.hh"
 #include "StringUtil.hh"
 #include "Report.hh"
 #include "TimingRole.hh"
@@ -105,9 +104,6 @@ protected:
   bool report_role_[count_index_max];
   PinSet unannotated_pins_;
   PinSet annotated_pins_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(ReportAnnotated);
 };
 
 

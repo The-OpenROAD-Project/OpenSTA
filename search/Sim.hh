@@ -20,7 +20,6 @@
 #include <mutex>
 
 #include "StaConfig.hh"  // CUDD
-#include "DisallowCopyAssign.hh"
 #include "Map.hh"
 #include "NetworkClass.hh"
 #include "GraphClass.hh"
@@ -140,9 +139,6 @@ protected:
   mutable BddSymbolTable symtab_;
   mutable std::mutex cudd_lock_;
 #endif // CUDD
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(Sim);
 };
 
 // Abstract base class for Sim value change observer.
@@ -154,9 +150,6 @@ public:
   virtual void valueChangeAfter(Vertex *vertex) = 0;
   virtual void faninEdgesChangeAfter(Vertex *vertex) = 0;
   virtual void fanoutEdgesChangeAfter(Vertex *vertex) = 0;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(SimObserver);
 };
 
 bool

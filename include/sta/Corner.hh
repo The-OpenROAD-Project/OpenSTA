@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "MinMax.hh"
 #include "Vector.hh"
 #include "StringSet.hh"
@@ -93,8 +92,6 @@ private:
   ParasiticAnalysisPtSeq parasitic_analysis_pts_;
   DcalcAnalysisPtSeq dcalc_analysis_pts_;
   PathAnalysisPtSeq path_analysis_pts_;
-
-  DISALLOW_COPY_AND_ASSIGN(Corners);
 };
 
 class Corner
@@ -131,7 +128,6 @@ private:
   LibertySeq liberty_[MinMax::index_count];
 
   friend class Corners;
-  DISALLOW_COPY_AND_ASSIGN(Corner);
 };
 
 } // namespace

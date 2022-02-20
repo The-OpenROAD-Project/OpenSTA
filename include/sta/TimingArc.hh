@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "Vector.hh"
 #include "Transition.hh"
 #include "Delay.hh"
@@ -123,9 +122,6 @@ protected:
   const char *mode_value_;
   float ocv_arc_depth_;
   TimingModel *models_[RiseFall::index_count];
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(TimingArcAttrs);
 };
 
 // A timing arc set is a group of related timing arcs between from/to
@@ -221,18 +217,12 @@ protected:
   TimingArc *from_arc2_[RiseFall::index_count];
 
   static TimingArcSet *wire_timing_arc_set_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(TimingArcSet);
 };
 
 class TimingArcSetArcIterator : public TimingArcSeq::ConstIterator
 {
 public:
   TimingArcSetArcIterator(const TimingArcSet *set);
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(TimingArcSetArcIterator);
 };
 
 // A timing arc is a single from/to transition between two ports.
@@ -281,8 +271,6 @@ protected:
   Vector<TimingArc*> corner_arcs_;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(TimingArc);
-
   friend class LibertyLibrary;
   friend class LibertyCell;
   friend class TimingArcSet;

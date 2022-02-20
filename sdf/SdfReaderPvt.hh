@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "Zlib.hh"
 #include "Vector.hh"
 #include "TimingRole.hh"
@@ -157,7 +156,6 @@ public:
   void notSupported(const char *feature);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(SdfReader);
   int readSdfFile1(Network *network,
 		   Graph *graph,
 		   const char *filename);

@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "Transition.hh"
 
 namespace sta {
@@ -38,8 +37,6 @@ public:
   void clear();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(RiseFallValues);
-
   float values_[RiseFall::index_count];
   bool exists_[RiseFall::index_count];
 };

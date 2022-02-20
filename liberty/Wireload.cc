@@ -18,7 +18,6 @@
 
 #include <algorithm>
 
-#include "DisallowCopyAssign.hh"
 #include "StringUtil.hh"
 #include "Liberty.hh"
 
@@ -165,8 +164,6 @@ public:
   const Wireload *wireload() const { return wireload_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(WireloadForArea);
-
   float min_area_;
   float max_area_;
   const Wireload *wireload_;

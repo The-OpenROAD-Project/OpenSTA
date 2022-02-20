@@ -16,7 +16,6 @@
 
 #include "PathEnum.hh"
 
-#include "DisallowCopyAssign.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "Fuzzy.hh"
@@ -52,8 +51,6 @@ public:
   Path *divPath() const { return after_div_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(Diversion);
-
   PathEnd *path_end_;
   Path *after_div_;
 };
@@ -251,7 +248,6 @@ public:
 			       const PathAnalysisPt *path_ap);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(PathEnumFaninVisitor);
   void makeDivertedPathEnd(Path *after_div,
 			   TimingArc *div_arc,
 			   // Return values.

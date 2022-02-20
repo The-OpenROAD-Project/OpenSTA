@@ -18,7 +18,6 @@
 
 #include <algorithm>
 
-#include "DisallowCopyAssign.hh"
 #include "Stats.hh"
 #include "Debug.hh"
 #include "Mutex.hh"
@@ -1319,9 +1318,6 @@ protected:
   PinPairSet drvr_loads_;
   const Network *network_;
   Sdc *sdc_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(FindClkHpinDisables);
 };
 
 FindClkHpinDisables::FindClkHpinDisables(Clock *clk,
@@ -3193,9 +3189,6 @@ protected:
   float &fanout_;
   bool &has_set_load_;
   const Sdc *sdc_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(FindNetCaps);
 };
 
 FindNetCaps::FindNetCaps(const RiseFall *rf,
@@ -3603,9 +3596,6 @@ protected:
 
   PinPairSet *pairs_;
   Graph *graph_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(DisableEdgesThruHierPin);
 };
 
 DisableEdgesThruHierPin::DisableEdgesThruHierPin(PinPairSet *pairs,
@@ -3650,9 +3640,6 @@ protected:
 
   PinPairSet *pairs_;
   Graph *graph_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(RemoveDisableEdgesThruHierPin);
 };
 
 RemoveDisableEdgesThruHierPin::RemoveDisableEdgesThruHierPin(PinPairSet *pairs,
@@ -5264,9 +5251,6 @@ public:
 
 private:
   ExceptionPathSet &expansions_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(ExpandException);
 };
 
 ExpandException::ExpandException(ExceptionPath *exception,

@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
-
 namespace sta {
 
 class Report;

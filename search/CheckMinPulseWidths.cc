@@ -17,7 +17,6 @@
 #include "CheckMinPulseWidths.hh"
 
 #include "Debug.hh"
-#include "DisallowCopyAssign.hh"
 #include "TimingRole.hh"
 #include "Liberty.hh"
 #include "Network.hh"
@@ -54,9 +53,6 @@ public:
   virtual ~MinPulseWidthCheckVisitor() {}
   virtual void visit(MinPulseWidthCheck &check,
 		     const StaState *sta) = 0;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(MinPulseWidthCheckVisitor);
 };
 
 CheckMinPulseWidths::CheckMinPulseWidths(StaState *sta) :
@@ -86,8 +82,6 @@ public:
 		     const StaState *sta);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(MinPulseWidthChecksVisitor);
-
   const Corner *corner_;
   MinPulseWidthCheckSeq &checks_;
 };
@@ -149,8 +143,6 @@ public:
 		     const StaState *sta);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(MinPulseWidthViolatorsVisitor);
-
   const Corner *corner_;
   MinPulseWidthCheckSeq &checks_;
 };
@@ -196,8 +188,6 @@ public:
   MinPulseWidthCheck *minSlackCheck();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(MinPulseWidthSlackVisitor);
-
   const Corner *corner_;
   MinPulseWidthCheck *min_slack_check_;
 };

@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "SdcClass.hh"
 #include "SearchClass.hh"
 #include "StaState.hh"
@@ -55,9 +54,6 @@ protected:
 
   MinPulseWidthCheckSeq checks_;
   StaState *sta_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(CheckMinPulseWidths);
 };
 
 class MinPulseWidthCheck
@@ -89,9 +85,6 @@ public:
 protected:
   // Open path of the pulse.
   PathRef open_path_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(MinPulseWidthCheck);
 };
 
 class MinPulseWidthSlackLess

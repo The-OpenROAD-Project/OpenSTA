@@ -18,7 +18,6 @@
 
 #include <string>
 
-#include "DisallowCopyAssign.hh"
 #include "LibertyClass.hh"
 #include "GraphClass.hh"
 #include "SdcClass.hh"
@@ -207,9 +206,6 @@ protected:
 				     Arrival src_clk_arrival,
 				     const StaState *sta);
   PathRef path_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PathEnd);
 };
 
 class PathEndUnconstrained : public PathEnd
@@ -228,9 +224,6 @@ public:
   virtual Slack slack(const StaState *sta) const;
   virtual Slack slackNoCrpr(const StaState *sta) const;
   virtual float sourceClkOffset(const StaState *sta) const;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PathEndUnconstrained);
 };
 
 class PathEndClkConstrained : public PathEnd
@@ -279,9 +272,6 @@ protected:
   PathVertex clk_path_;
   mutable Crpr crpr_;
   mutable bool crpr_valid_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PathEndClkConstrained);
 };
 
 class PathEndClkConstrainedMcp : public PathEndClkConstrained
@@ -310,9 +300,6 @@ protected:
 		    const StaState *sta) const;
 
   MultiCyclePath *mcp_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PathEndClkConstrainedMcp);
 };
 
 // Path constrained by timing check.
@@ -348,9 +335,6 @@ protected:
 
   TimingArc *check_arc_;
   Edge *check_edge_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PathEndCheck);
 };
 
 // PathEndClkConstrained::clk_path_ is the latch enable.
@@ -415,8 +399,6 @@ private:
   PathDelay *path_delay_;
   // Source clk arrival for set_max_delay -ignore_clk_latency.
   Arrival src_clk_arrival_;
-
-  DISALLOW_COPY_AND_ASSIGN(PathEndLatchCheck);
 };
 
 // Path constrained by an output delay.
@@ -464,9 +446,6 @@ protected:
 		   Arrival &latency) const;
 
   OutputDelay *output_delay_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PathEndOutputDelay);
 };
 
 // Clock path constrained clock gating signal.
@@ -501,9 +480,6 @@ protected:
 
   TimingRole *check_role_;
   ArcDelay margin_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PathEndGatedClock);
 };
 
 class PathEndDataCheck : public PathEndClkConstrainedMcp
@@ -542,9 +518,6 @@ protected:
 private:
   PathVertex data_clk_path_;
   DataCheck *check_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PathEndDataCheck);
 };
 
 // Path constrained by set_min/max_delay.
@@ -609,9 +582,6 @@ protected:
   OutputDelay *output_delay_;
   // Source clk arrival for set_min/max_delay -ignore_clk_latency.
   Arrival src_clk_arrival_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PathEndPathDelay);
 };
 
 ////////////////////////////////////////////////////////////////

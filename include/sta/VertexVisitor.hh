@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "NetworkClass.hh"
 #include "GraphClass.hh"
 

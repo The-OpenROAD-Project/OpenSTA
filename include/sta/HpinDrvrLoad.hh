@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "Set.hh"
 #include "NetworkClass.hh"
 
@@ -46,9 +45,6 @@ public:
   HpinDrvrLoadVisitor() {}
   virtual ~HpinDrvrLoadVisitor() {}
   virtual void visit(HpinDrvrLoad *drvr_load) = 0;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(HpinDrvrLoadVisitor);
 };
 
 class HpinDrvrLoad

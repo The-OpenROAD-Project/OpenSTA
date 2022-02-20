@@ -83,7 +83,6 @@ public:
   bool maxCyclesExceeded() const { return max_cycles_exceeded_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(CycleAccting);
   void setHoldAccting(int src_cycle,
 		      int tgt_cycle,
 		      float delay,

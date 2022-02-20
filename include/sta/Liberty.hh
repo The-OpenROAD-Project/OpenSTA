@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "MinMax.hh"
 #include "RiseFallMinMax.hh"
 #include "ConcreteLibrary.hh"
@@ -349,8 +348,6 @@ protected:
   static constexpr float slew_upper_threshold_default_ = .8;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyLibrary);
-
   friend class LibertyCell;
   friend class LibertyCellIterator;
   friend class TableTemplateIterator;
@@ -365,8 +362,6 @@ public:
   LibertyCell *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyCellIterator);
-
   ConcreteCellMap::ConstIterator iter_;
 };
 
@@ -580,8 +575,6 @@ protected:
   LibertyPgPortMap pg_port_map_;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyCell);
-
   friend class LibertyLibrary;
   friend class LibertyCellPortIterator;
   friend class LibertyCellPgPortIterator;
@@ -599,8 +592,6 @@ public:
   LibertyPort *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyCellPortIterator);
-
   ConcretePortSeq::ConstIterator iter_;
 };
 
@@ -613,8 +604,6 @@ public:
   LibertyPort *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyCellPortBitIterator);
-
   ConcreteCellPortBitIterator *iter_;
 };
 
@@ -626,8 +615,6 @@ public:
   LibertyPgPort *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyCellPgPortIterator);
-
   LibertyPgPortMap::Iterator iter_;
 };
 
@@ -817,8 +804,6 @@ protected:
   bool is_disabled_constraint_:1;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyPort);
-
   friend class LibertyLibrary;
   friend class LibertyCell;
   friend class LibertyBuilder;
@@ -838,8 +823,6 @@ public:
   virtual LibertyPort *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyPortMemberIterator);
-
   ConcretePortMemberIterator *iter_;
 };
 
@@ -862,9 +845,6 @@ protected:
   float process_;
   float voltage_;
   float temperature_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(Pvt);
 };
 
 class OperatingConditions : public Pvt
@@ -884,9 +864,6 @@ public:
 protected:
   const char *name_;
   WireloadTree wire_load_tree_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(OperatingConditions);
 };
 
 class ScaleFactors
@@ -915,9 +892,6 @@ public:
 protected:
   const char *name_;
   float scales_[scale_factor_type_count][scale_factor_pvt_count][RiseFall::index_count];
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(ScaleFactors);
 };
 
 class BusDcl
@@ -935,9 +909,6 @@ protected:
   const char *name_;
   int from_;
   int to_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(BusDcl);
 };
 
 // Cell mode_definition group.
@@ -960,8 +931,6 @@ protected:
   ModeValueMap values_;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ModeDef);
-
   friend class LibertyCell;
 };
 
@@ -987,8 +956,6 @@ protected:
   const char *sdf_cond_;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ModeValueDef);
-
   friend class ModeDef;
 };
 
@@ -1015,9 +982,6 @@ protected:
   TableAxis *axis1_;
   TableAxis *axis2_;
   TableAxis *axis3_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(TableTemplate);
 };
 
 class TestCell
@@ -1046,9 +1010,6 @@ protected:
   LibertyPort *scan_enable_;
   LibertyPort *scan_out_;
   LibertyPort *scan_out_inv_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(TestCell);
 };
 
 class OcvDerate

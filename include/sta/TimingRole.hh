@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "MinMax.hh"
 #include "Map.hh"
 #include "StringUtil.hh"
@@ -90,7 +89,6 @@ private:
 	     // generic_type = nullptr means type is the same as this.
 	     TimingRole *generic_role,
 	     int index);
-  DISALLOW_COPY_AND_ASSIGN(TimingRole);
 
   const char *name_;
   bool is_timing_check_;

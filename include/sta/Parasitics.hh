@@ -17,7 +17,6 @@
 #pragma once
 
 #include <complex>
-#include "DisallowCopyAssign.hh"
 #include "StaState.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
@@ -303,9 +302,6 @@ protected:
 
   Parasitics(StaState *sta);
   Net *findParasiticNet(const Pin *pin) const;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(Parasitics);
 };
 
 // Managed by the Corner class.

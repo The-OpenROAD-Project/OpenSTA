@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "Zlib.hh"
 #include "Vector.hh"
 #include "Map.hh"
@@ -80,9 +79,6 @@ public:
 
 protected:
   int line_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyStmt);
 };
 
 // Groups are a type keyword with a set of parameters and statements
@@ -119,27 +115,18 @@ protected:
   LibertyAttrMap *attr_map_;
   LibertyGroupSeq *subgroups_;
   LibertyDefineMap *define_map_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyGroup);
 };
 
 class LibertySubgroupIterator : public LibertyGroupSeq::Iterator
 {
 public:
   explicit LibertySubgroupIterator(LibertyGroup *group);
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(LibertySubgroupIterator);
 };
 
 class LibertyAttrIterator : public LibertyAttrSeq::Iterator
 {
 public:
   explicit LibertyAttrIterator(LibertyGroup *group);
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyAttrIterator);
 };
 
 // Abstract base class for attributes.
@@ -158,9 +145,6 @@ public:
 
 protected:
   const char *name_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyAttr);
 };
 
 // Abstract base class for simple attributes.
@@ -178,8 +162,6 @@ public:
   virtual LibertyAttrValueSeq *values() const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(LibertySimpleAttr);
-
   LibertyAttrValue *value_;
 };
 
@@ -198,8 +180,6 @@ public:
   virtual LibertyAttrValueSeq *values() const { return values_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyComplexAttr);
-
   LibertyAttrValueSeq *values_;
 };
 
@@ -213,9 +193,6 @@ public:
   virtual bool isFloat() = 0;
   virtual float floatValue() = 0;
   virtual const char *stringValue() = 0;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyAttrValue);
 };
 
 class LibertyStringAttrValue : public LibertyAttrValue
@@ -229,8 +206,6 @@ public:
   virtual const char *stringValue();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyStringAttrValue);
-
   const char *value_;
 };
 
@@ -244,8 +219,6 @@ public:
   virtual const char *stringValue();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyFloatAttrValue);
-
   float value_;
 };
 
@@ -266,8 +239,6 @@ public:
   LibertyAttrType valueType() const { return value_type_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyDefine);
-
   const char *name_;
   LibertyGroupType group_type_;
   LibertyAttrType value_type_;
@@ -291,8 +262,6 @@ public:
   float value() const { return value_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyVariable);
-
   const char *var_;
   float value_;
 };
@@ -310,9 +279,6 @@ public:
   virtual bool save(LibertyGroup *group) = 0;
   virtual bool save(LibertyAttr *attr) = 0;
   virtual bool save(LibertyVariable *variable) = 0;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(LibertyGroupVisitor);
 };
 
 void

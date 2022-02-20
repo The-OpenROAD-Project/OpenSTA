@@ -17,7 +17,6 @@
 #pragma once
 
 #include <tcl.h>
-#include "DisallowCopyAssign.hh"
 #include "Report.hh"
 
 namespace sta {
@@ -53,7 +52,6 @@ protected:
   void flush();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ReportTcl);
   Tcl_ChannelType *makeEncapChannelType(Tcl_Channel channel,
 					char *channel_name,
 					Tcl_DriverOutputProc output_proc);

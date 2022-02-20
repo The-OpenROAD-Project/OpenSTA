@@ -18,7 +18,6 @@
 
 #include <stdlib.h>
 
-#include "DisallowCopyAssign.hh"
 #include "PatternMatch.hh"
 #include "PortDirection.hh"
 #include "ParseBus.hh"
@@ -327,8 +326,6 @@ public:
   PortDirection *direction() { return direction_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(BusPort);
-
   const char *name_;
   int from_;
   int to_;

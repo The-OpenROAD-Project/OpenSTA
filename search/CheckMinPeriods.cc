@@ -16,7 +16,6 @@
 
 #include "CheckMinPeriods.hh"
 
-#include "DisallowCopyAssign.hh"
 #include "Liberty.hh"
 #include "Network.hh"
 #include "Sdc.hh"
@@ -36,9 +35,6 @@ public:
   virtual ~MinPeriodCheckVisitor() {}
   virtual void visit(MinPeriodCheck &check,
 		     StaState *sta) = 0;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(MinPeriodCheckVisitor);
 };
 
 CheckMinPeriods::CheckMinPeriods(StaState *sta) :
@@ -65,8 +61,6 @@ public:
 		     StaState *sta);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(MinPeriodViolatorsVisitor);
-
   MinPeriodCheckSeq &checks_;
 };
 
@@ -138,8 +132,6 @@ public:
   MinPeriodCheck *minSlackCheck();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(MinPeriodSlackVisitor);
-
   MinPeriodCheck *min_slack_check_;
 };
 

@@ -627,9 +627,6 @@ class ClkArrivalSearchPred : public EvalPred
 public:
   ClkArrivalSearchPred(const StaState *sta);
   virtual bool searchThru(Edge *edge);
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(ClkArrivalSearchPred);
 };
 
 // Class for visiting fanin/fanout paths of a vertex.
@@ -812,9 +809,6 @@ protected:
 			   Search *search);
 
   TagGroupBldr *tag_bldr_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(DynLoopSrchPred);
 };
 
 } // namespace

@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "Parasitics.hh"
 
 namespace sta {
@@ -186,9 +185,6 @@ public:
 
   virtual void disconnectPinBefore(const Pin *pin);
   virtual void loadPinCapacitanceChanged(const Pin *pin);
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(NullParasitics);
 };
 
 } // namespace

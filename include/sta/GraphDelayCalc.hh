@@ -17,7 +17,6 @@
 #pragma once
 
 #include <string>
-#include "DisallowCopyAssign.hh"
 #include "GraphClass.hh"
 #include "DcalcAnalysisPt.hh"
 #include "StaState.hh"
@@ -118,9 +117,6 @@ public:
 		 // Return values.
 		 float &min_period,
 		 bool &exists);
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(GraphDelayCalc);
 };
 
 // Abstract base class for edge delay change observer.
@@ -132,9 +128,6 @@ public:
   virtual void delayChangedFrom(Vertex *vertex) = 0;
   virtual void delayChangedTo(Vertex *vertex) = 0;
   virtual void checkDelayChangedTo(Vertex *vertex) = 0;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(DelayCalcObserver);
 };
 
 } // namespace

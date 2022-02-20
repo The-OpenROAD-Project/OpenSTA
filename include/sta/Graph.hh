@@ -18,7 +18,6 @@
 
 #include <mutex>
 
-#include "DisallowCopyAssign.hh"
 #include "Iterator.hh"
 #include "Map.hh"
 #include "Vector.hh"
@@ -269,9 +268,6 @@ protected:
   friend class VertexInEdgeIterator;
   friend class VertexOutEdgeIterator;
   friend class MakeEdgesThruHierPin;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(Graph);
 };
 
 // Each Vertex corresponds to one network pin.
@@ -388,8 +384,6 @@ protected:
   unsigned object_idx_:VertexTable::idx_bits;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(Vertex);
-
   friend class Graph;
   friend class Edge;
   friend class VertexInEdgeIterator;
@@ -459,8 +453,6 @@ protected:
   unsigned object_idx_:VertexTable::idx_bits;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(Edge);
-
   friend class Graph;
   friend class GraphDelays1;
   friend class GraphSlewsDelays1;
@@ -479,7 +471,6 @@ public:
   virtual Vertex *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(VertexIterator);
   bool findNextPin();
   void findNext();
 
@@ -503,8 +494,6 @@ public:
   Edge *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(VertexInEdgeIterator);
-
   Edge *next_;
   const Graph *graph_;
 };
@@ -518,8 +507,6 @@ public:
   Edge *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(VertexOutEdgeIterator);
-
   Edge *next_;
   const Graph *graph_;
 };
@@ -535,8 +522,6 @@ public:
   virtual Edge *next() { return edge_iter_.next(); }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(EdgesThruHierPinIterator);
-
   EdgeSet edges_;
   EdgeSet::Iterator edge_iter_;
 };

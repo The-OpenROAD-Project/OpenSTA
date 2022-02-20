@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "MinMax.hh"
 #include "LibertyClass.hh"
 #include "SdcClass.hh"
@@ -48,8 +47,6 @@ public:
   bool hasValue() const;
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(DeratingFactors);
-
   RiseFallMinMax factors_[path_clk_or_data_count];
 };
 
@@ -78,8 +75,6 @@ public:
   void clear();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(DeratingFactorsGlobal);
-
   DeratingFactors factors_[timing_derate_type_count];
 };
 
@@ -112,9 +107,6 @@ class DeratingFactorsNet : public DeratingFactors
 {
 public:
   DeratingFactorsNet();
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(DeratingFactorsNet);
 };
 
 } // namespace

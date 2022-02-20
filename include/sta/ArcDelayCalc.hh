@@ -17,7 +17,6 @@
 #pragma once
 
 #include <string>
-#include "DisallowCopyAssign.hh"
 #include "MinMax.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
@@ -137,9 +136,6 @@ protected:
 			       const DcalcAnalysisPt *dcalc_ap) const;
   TimingModel *model(TimingArc *arc,
 		     const DcalcAnalysisPt *dcalc_ap) const;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(ArcDelayCalc);
 };
 
 } // namespace

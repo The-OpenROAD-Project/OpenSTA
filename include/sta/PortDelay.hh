@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "RiseFallMinMax.hh"
 #include "SdcClass.hh"
 
@@ -54,9 +53,6 @@ protected:
   Pin *ref_pin_;
   RiseFallMinMax delays_;
   PinSet leaf_pins_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(PortDelay);
 };
 
 class InputDelay : public PortDelay
@@ -72,8 +68,6 @@ protected:
 	     Network *network);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(InputDelay);
-
   int index_;
 
   friend class Sdc;
@@ -90,8 +84,6 @@ protected:
 	      Network *network);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(OutputDelay);
-
   friend class Sdc;
 };
 

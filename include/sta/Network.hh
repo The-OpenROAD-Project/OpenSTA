@@ -18,7 +18,6 @@
 
 #include <functional>
 
-#include "DisallowCopyAssign.hh"
 #include "Map.hh"
 #include "StringUtil.hh"
 #include "LibertyClass.hh"
@@ -479,9 +478,6 @@ protected:
   char divider_;
   char escape_;
   NetDrvrPinsMap net_drvr_pin_map_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(Network);
 };
 
 // Network API to support network edits.
@@ -519,8 +515,6 @@ public:
 			 Net *into_net) = 0;
   virtual Net *mergedInto(Net *net) = 0;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(NetworkEdit);
 };
 
 // Network API to support the Parallax readers.
@@ -575,9 +569,6 @@ public:
 			      LogicValue const_value) = 0;
 
   using NetworkEdit::makeInstance;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(NetworkReader);
 };
 
 Instance *
@@ -595,9 +586,6 @@ public:
   virtual bool hasNext() = 0;
   virtual void next(Pin *&pin,
 		    LogicValue &value) = 0;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(ConstantPinIterator);
 };
 
 // Implementation class for Network::constantPinIterator().
@@ -612,7 +600,6 @@ public:
   virtual void next(Pin *&pin, LogicValue &value);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(NetworkConstantPinIterator);
   void findConstantPins(NetSet &nets,
 			PinSet &pins);
 
@@ -630,9 +617,6 @@ public:
   virtual ~HierPinThruVisitor() {}
   virtual void visit(Pin *drvr,
 		     Pin *load) = 0;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(HierPinThruVisitor);
 };
 
 class PinVisitor
@@ -658,9 +642,6 @@ protected:
   PinSeq &loads_;
   PinSeq &drvrs_;
   const Network *network_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(FindNetDrvrLoads);
 };
 
 // Visit driver/loads pins through a hierarcial pin.

@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "MinMax.hh"
 #include "NetworkClass.hh"
 #include "Transition.hh"
@@ -49,8 +48,6 @@ public:
   void setDelays(RiseFallMinMax *delays);
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ClockLatency);
-
   const Clock *clk_;
   const Pin *pin_;
   RiseFallMinMax delays_;

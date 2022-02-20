@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
 #include "SdcCmdComment.hh"
 #include "SdcClass.hh"
 
@@ -31,8 +30,6 @@ public:
   ClockSet *clks() const { return clks_; }
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(ClockGroup);
-
   ClockSet *clks_;
 };
 
@@ -62,8 +59,6 @@ private:
   bool asynchronous_;
   bool allow_paths_;
   ClockGroupSet groups_;
-
-  DISALLOW_COPY_AND_ASSIGN(ClockGroups);
 };
 
 } // namespace

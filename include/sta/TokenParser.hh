@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include "DisallowCopyAssign.hh"
-
 namespace sta {
 
 // Iterate over the tokens in str separated by character sep.
@@ -36,8 +34,6 @@ public:
   char *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(TokenParser);
-
   const char *delimiters_;
   char *token_;
   char *token_end_;

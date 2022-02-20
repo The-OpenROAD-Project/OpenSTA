@@ -18,7 +18,6 @@
 
 #include <array>
 #include <vector>
-#include "DisallowCopyAssign.hh"
 #include "Iterator.hh"
 #include "Map.hh"
 #include "StringUtil.hh"
@@ -77,9 +76,6 @@ protected:
   static RiseFall fall_;
   static const std::array<RiseFall*, 2> range_;
   static const std::array<int, 2> range_index_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(RiseFall);
 };
 
 // Rise/fall/risefall transition.
@@ -128,9 +124,6 @@ protected:
   static RiseFallBoth rise_;
   static RiseFallBoth fall_;
   static RiseFallBoth rise_fall_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(RiseFallBoth);
 };
 
 // General SDF transition.
@@ -196,9 +189,6 @@ private:
 
   static TransitionMap transition_map_;
   static int max_index_;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(Transition);
 };
 
 // Obsolete. Use range iteration instead.
@@ -213,8 +203,6 @@ public:
   virtual RiseFall *next();
 
 private:
-  DISALLOW_COPY_AND_ASSIGN(RiseFallIterator);
-
   int index_;
   int index_max_;
 };
