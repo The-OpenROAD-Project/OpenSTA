@@ -63,6 +63,7 @@
 namespace sta {
 
 using std::abs;
+using std::isnormal;
 
 static bool
 isPositiveUnate(const LibertyCell *cell,
