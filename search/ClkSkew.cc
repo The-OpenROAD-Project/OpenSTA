@@ -315,7 +315,7 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
   }
 }
 
-class FanOutSrchPred : public SearchPred0
+class FanOutSrchPred : public SearchPred1
 {
 public:
   FanOutSrchPred(const StaState *sta);
@@ -323,7 +323,7 @@ public:
 };
 
 FanOutSrchPred::FanOutSrchPred(const StaState *sta) :
-  SearchPred0(sta)
+  SearchPred1(sta)
 {
 }
 
@@ -331,10 +331,11 @@ bool
 FanOutSrchPred::searchThru(Edge *edge)
 {
   TimingRole *role = edge->role();
-  return role == TimingRole::wire()
-    || role == TimingRole::combinational()
-    || role == TimingRole::tristateEnable()
-    || role == TimingRole::tristateDisable();
+  return SearchPred1::searchThru(edge)
+    && (role == TimingRole::wire()
+        || role == TimingRole::combinational()
+        || role == TimingRole::tristateEnable()
+        || role == TimingRole::tristateDisable());
 }
 
 VertexSet
