@@ -5810,39 +5810,6 @@ vertices()
   return vertices;
 }
 
-float
-capacitance(const RiseFall *rf,
-	    const Corner *corner,
-	    const MinMax *min_max)
-{
-  cmdLinkedNetwork();
-  float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, rf, corner, min_max, pin_cap, wire_cap);
-  return pin_cap + wire_cap;
-}
-
-float
-pin_capacitance(const RiseFall *rf,
-		const Corner *corner,
-		const MinMax *min_max)
-{
-  cmdLinkedNetwork();
-  float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, rf, corner, min_max, pin_cap, wire_cap);
-  return pin_cap;
-}
-
-float
-wire_capacitance(const RiseFall *rf,
-		 const Corner *corner,
-		 const MinMax *min_max)
-{
-  cmdLinkedNetwork();
-  float pin_cap, wire_cap;
-  Sta::sta()->connectedCap(self, rf, corner, min_max, pin_cap, wire_cap);
-  return wire_cap;
-}
-
 } // Pin methods
 
 %extend PinConnectedPinIterator {
