@@ -214,6 +214,8 @@ GraphDelayCalc1::GraphDelayCalc1(StaState *sta) :
   observer_(nullptr),
   delays_seeded_(false),
   incremental_(false),
+  delays_exist_(false),
+  invalid_delays_(new VertexSet(graph_)),
   search_pred_(new SearchPred1(sta)),
   search_non_latch_pred_(new SearchPredNonLatch2(sta)),
   clk_pred_(new ClkTreeSearchPred(sta)),
@@ -226,6 +228,7 @@ GraphDelayCalc1::GraphDelayCalc1(StaState *sta) :
 GraphDelayCalc1::~GraphDelayCalc1()
 {
   delete search_pred_;
+  delete invalid_delays_;
   delete search_non_latch_pred_;
   delete clk_pred_;
   delete iter_;
@@ -293,7 +296,7 @@ GraphDelayCalc1::delaysInvalid()
   incremental_ = false;
   iter_->clear();
   // No need to keep track of incremental updates any more.
-  invalid_delays_.clear();
+  invalid_delays_->clear();
   invalid_check_edges_.clear();
   invalid_latch_edges_.clear();
 }
@@ -326,11 +329,11 @@ GraphDelayCalc1::delayInvalid(Vertex *vertex)
   debugPrint(debug_, "delay_calc", 2, "delay invalid %s",
              vertex->name(sdc_network_));
   if (graph_ && incremental_) {
-    invalid_delays_.insert(vertex);
+    invalid_delays_->insert(vertex);
     // Invalidate driver that triggers dcalc for multi-driver nets.
     MultiDrvrNet *multi_drvr = multiDrvrNet(vertex);
     if (multi_drvr)
-      invalid_delays_.insert(multi_drvr->dcalcDrvr());
+      invalid_delays_->insert(multi_drvr->dcalcDrvr());
   }
 }
 
@@ -339,7 +342,7 @@ GraphDelayCalc1::deleteVertexBefore(Vertex *vertex)
 {
   iter_->deleteVertexBefore(vertex);
   if (incremental_)
-    invalid_delays_.erase(vertex);
+    invalid_delays_->erase(vertex);
   MultiDrvrNet *multi_drvr = multiDrvrNet(vertex);
   if (multi_drvr) {
     multi_drvr->drvrs()->erase(vertex);
@@ -432,9 +435,7 @@ GraphDelayCalc1::findDelays(Level level)
 void
 GraphDelayCalc1::seedInvalidDelays()
 {
-  VertexSet::Iterator vertex_iter(invalid_delays_);
-  while (vertex_iter.hasNext()) {
-    Vertex *vertex = vertex_iter.next();
+  for (Vertex *vertex : *invalid_delays_) {
     if (vertex->isRoot())
       seedRootSlew(vertex, arc_delay_calc_);
     else {
@@ -442,7 +443,7 @@ GraphDelayCalc1::seedInvalidDelays()
 	iter_->enqueue(vertex);
     }
   }
-  invalid_delays_.clear();
+  invalid_delays_->clear();
 }
 
 class FindNetDrvrs : public PinVisitor
@@ -508,7 +509,7 @@ void
 GraphDelayCalc1::makeMultiDrvrNet(PinSet &drvr_pins)
 {
   debugPrint(debug_, "delay_calc", 3, "multi-driver net");
-  VertexSet *drvr_vertices = new VertexSet;
+  VertexSet *drvr_vertices = new VertexSet(graph_);
   MultiDrvrNet *multi_drvr = new MultiDrvrNet(drvr_vertices);
   Level max_drvr_level = 0;
   Vertex *max_drvr = nullptr;
@@ -549,11 +550,8 @@ GraphDelayCalc1::multiDrvrNet(const Vertex *drvr_vertex) const
 void
 GraphDelayCalc1::seedRootSlews()
 {
-  VertexSet::Iterator root_iter(levelize_->roots());
-  while (root_iter.hasNext()) {
-    Vertex *vertex = root_iter.next();
+  for (Vertex *vertex : *levelize_->roots())
     seedRootSlew(vertex, arc_delay_calc_);
-  }
 }
 
 void
@@ -919,9 +917,7 @@ GraphDelayCalc1::findDriverDelays(Vertex *drvr_vertex,
     Vertex *dcalc_drvr = multi_drvr->dcalcDrvr();
     if (drvr_vertex == dcalc_drvr) {
       bool init_load_slews = true;
-      VertexSet::Iterator drvr_iter(multi_drvr->drvrs());
-      while (drvr_iter.hasNext()) {
-	Vertex *drvr_vertex = drvr_iter.next();
+      for (Vertex *drvr_vertex : *multi_drvr->drvrs()) {
 	// Only init load slews once so previous driver dcalc results
 	// aren't clobbered.
 	delay_changed |= findDriverDelays1(drvr_vertex, init_load_slews,
@@ -1381,9 +1377,7 @@ GraphDelayCalc1::findMultiDrvrGateDelay(MultiDrvrNet *multi_drvr,
 {
   ArcDelay delay_sum = 1.0;
   Slew slew_sum = 1.0;
-  VertexSet::Iterator drvr_iter(multi_drvr->drvrs());
-  while (drvr_iter.hasNext()) {
-    Vertex *drvr_vertex1 = drvr_iter.next();
+  for (Vertex *drvr_vertex1 : *multi_drvr->drvrs()) {
     Pin *drvr_pin1 = drvr_vertex1->pin();
     Instance *drvr_inst1 = network_->instance(drvr_pin1);
     LibertyCell *drvr_cell1 = network_->libertyCell(drvr_inst1);

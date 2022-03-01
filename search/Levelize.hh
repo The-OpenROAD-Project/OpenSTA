@@ -44,7 +44,7 @@ public:
   void deleteEdgeBefore(Edge *edge);
   int maxLevel() const { return max_level_; }
   // Vertices with no fanin edges.
-  VertexSet &roots() { return roots_; }
+  VertexSet *roots() { return roots_; }
   bool isRoot(Vertex *vertex);
   // Reset to virgin state.
   void clear();
@@ -77,8 +77,8 @@ protected:
   bool levels_valid_;
   Level max_level_;
   Level level_space_;
-  VertexSet roots_;
-  VertexSet relevelize_from_;
+  VertexSet *roots_;
+  VertexSet *relevelize_from_;
   GraphLoopSeq *loops_;
   EdgeSet loop_edges_;
   EdgeSet disabled_loop_edges_;

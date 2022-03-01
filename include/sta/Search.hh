@@ -548,15 +548,15 @@ protected:
   // Requireds have been seeded by searching arrivals to all endpoints.
   bool requireds_seeded_;
   // Vertices with invalid arrival times to update and search from.
-  VertexSet invalid_arrivals_;
+  VertexSet *invalid_arrivals_;
   std::mutex invalid_arrivals_lock_;
   BfsFwdIterator *arrival_iter_;
   // Vertices with invalid required times to update and search from.
-  VertexSet invalid_requireds_;
+  VertexSet *invalid_requireds_;
   BfsBkwdIterator *required_iter_;
   bool tns_exists_;
   // Endpoint vertices with slacks that have changed since tns was found.
-  VertexSet invalid_tns_;
+  VertexSet *invalid_tns_;
   // Indexed by path_ap->index().
   SlackSeq tns_;
   // Indexed by path_ap->index().
@@ -585,7 +585,7 @@ protected:
   TagGroupIndex tag_group_capacity_;
   std::mutex tag_group_lock_;
   // Latches data outputs to queue on the next search pass.
-  VertexSet pending_latch_outputs_;
+  VertexSet *pending_latch_outputs_;
   std::mutex pending_latch_outputs_lock_;
   VertexSet *endpoints_;
   VertexSet *invalid_endpoints_;

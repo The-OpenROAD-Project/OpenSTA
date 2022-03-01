@@ -509,7 +509,7 @@ Power::ensureActivities()
 void
 Power::seedActivities(BfsFwdIterator &bfs)
 {
-  for (Vertex *vertex : levelize_->roots()) {
+  for (Vertex *vertex : *levelize_->roots()) {
     const Pin *pin = vertex->pin();
     // Clock activities are baked in.
     if (!sdc_->isLeafPinClock(pin)

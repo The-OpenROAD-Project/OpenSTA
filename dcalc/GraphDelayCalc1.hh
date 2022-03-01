@@ -212,7 +212,7 @@ protected:
   bool incremental_;
   bool delays_exist_;
   // Vertices with invalid -to delays.
-  VertexSet invalid_delays_;
+  VertexSet *invalid_delays_;
   // Timing check edges with invalid delays.
   EdgeSet invalid_check_edges_;
   // Latch D->Q edges with invalid delays.

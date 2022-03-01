@@ -22,6 +22,7 @@
 #include "Vector.hh"
 #include "GraphClass.hh"
 #include "SearchClass.hh"
+#include "StaState.hh"
 
 namespace sta {
 
@@ -66,36 +67,29 @@ private:
   Search *search_;
 };
 
-class WorstSlack
+class WorstSlack : public StaState
 {
 public:
-  WorstSlack();
+  WorstSlack(StaState *sta);
+  ~WorstSlack();
   WorstSlack(const WorstSlack &);
   void worstSlack(PathAPIndex path_ap_index,
-		  const StaState *sta,
 		  // Return values.
 		  Slack &worst_slack,
 		  Vertex *&worst_vertex);
   void updateWorstSlack(Vertex *vertex,
 			SlackSeq &slacks,
-			PathAPIndex path_ap_index,
-			const StaState *sta);
+			PathAPIndex path_ap_index);
   void deleteVertexBefore(Vertex *vertex);
 
 protected:
-  void findWorstSlack(PathAPIndex path_ap_index,
-		      const StaState *sta);
-  void initQueue(PathAPIndex path_ap_index,
-		 const StaState *sta);
-  void findWorstInQueue(PathAPIndex path_ap_index,
-			const StaState *sta);
+  void findWorstSlack(PathAPIndex path_ap_index);
+  void initQueue(PathAPIndex path_ap_index);
+  void findWorstInQueue(PathAPIndex path_ap_index);
   void setWorstSlack(Vertex *vertex,
-		     Slack slack,
-		     const StaState *sta);
-  void sortQueue(PathAPIndex path_ap_index,
-		 const StaState *sta);
-  void checkQueue(PathAPIndex path_ap_index,
-		  const StaState *sta);
+		     Slack slack);
+  void sortQueue(PathAPIndex path_ap_index);
+  void checkQueue(PathAPIndex path_ap_index);
 
   Slack slack_init_;
   // Vertex with the worst slack.
@@ -104,7 +98,7 @@ protected:
   Slack worst_slack_;
   Slack slack_threshold_;
   // Vertices with slack < threshold_
-  VertexSet queue_;
+  VertexSet *queue_;
   // Queue is sorted and pruned to min_queue_size_ vertices when it
   // reaches max_queue_size_.
   int min_queue_size_;

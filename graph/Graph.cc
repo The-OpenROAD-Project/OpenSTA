@@ -48,14 +48,18 @@ Graph::Graph(StaState *sta,
   have_arc_delays_(have_arc_delays),
   ap_count_(ap_count),
   width_check_annotations_(nullptr),
-  period_check_annotations_(nullptr)
+  period_check_annotations_(nullptr),
+  reg_clk_vertices_(new VertexSet(graph_))
 {
+  // For the benifit of reg_clk_vertices_ that references graph_.
+  graph_ = this;
 }
 
 Graph::~Graph()
 {
   delete vertices_;
   delete edges_;
+  delete reg_clk_vertices_;
   deleteSlewTables();
   deleteArcDelayTables();
   removeWidthCheckAnnotations();
@@ -396,7 +400,7 @@ Graph::makeVertex(Pin *pin,
   vertex->init(pin, is_bidirect_drvr, is_reg_clk);
   makeVertexSlews(vertex);
   if (is_reg_clk)
-    reg_clk_vertices_.insert(vertex);
+    reg_clk_vertices_->insert(vertex);
   return vertex;
 }
 
@@ -432,7 +436,7 @@ void
 Graph::deleteVertex(Vertex *vertex)
 {
   if (vertex->isRegClk())
-    reg_clk_vertices_.erase(vertex);
+    reg_clk_vertices_->erase(vertex);
   Pin *pin = vertex->pin_;
   if (vertex->isBidirectDriver())
     pin_bidirect_drvr_vertex_map_.erase(pin_bidirect_drvr_vertex_map_
@@ -1597,6 +1601,25 @@ EdgesThruHierPinIterator::EdgesThruHierPinIterator(const Pin *hpin,
   FindEdgesThruHierPinVisitor visitor(edges_, graph);
   visitDrvrLoadsThruHierPin(hpin, network, &visitor);
   edge_iter_.init(edges_);
+}
+
+////////////////////////////////////////////////////////////////
+
+VertexIdLess::VertexIdLess(Graph *&graph) :
+  graph_(graph)
+{
+}
+
+bool
+VertexIdLess::operator()(const Vertex *vertex1,
+                         const Vertex *vertex2) const
+{
+  return graph_->id(vertex1) < graph_->id(vertex2);
+}
+
+VertexSet::VertexSet(Graph *&graph) :
+  Set<Vertex*, VertexIdLess>(VertexIdLess(graph))
+{
 }
 
 } // namespace

@@ -153,9 +153,7 @@ CheckTiming::checkRegClks(bool reg_multiple_clks,
 			  bool reg_no_clks)
 {
   PinSet no_clk_pins, multiple_clk_pins;
-  VertexSet::ConstIterator reg_clk_iter(graph_->regClkVertices());
-  while (reg_clk_iter.hasNext()) {
-    Vertex *vertex = reg_clk_iter.next();
+  for (Vertex *vertex : *graph_->regClkVertices()) {
     Pin *pin = vertex->pin();
     ClockSet clks;
     search_->clocks(vertex, clks);
@@ -318,7 +316,7 @@ CheckTiming::checkGeneratedClocks()
     if (clk->isGenerated()) {
       search_->genclks()->checkMaster(clk);
       bool found_clk = false;
-      VertexSet src_vertices;
+      VertexSet src_vertices(graph_);
       clk->srcPinVertices(src_vertices, network_, graph_);
       VertexSet::Iterator vertex_iter(src_vertices);
       while (vertex_iter.hasNext()) {

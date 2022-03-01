@@ -389,7 +389,7 @@ void
 Genclks::seedSrcPins(Clock *clk,
 		     BfsBkwdIterator &iter)
 {
-  VertexSet src_vertices;
+  VertexSet src_vertices(graph_);
   clk->srcPinVertices(src_vertices, network_, graph_);
   VertexSet::Iterator vertex_iter(src_vertices);
   while (vertex_iter.hasNext()) {
@@ -583,7 +583,7 @@ Genclks::makeGenclkInfo(Clock *gclk)
 {
   FilterPath *src_filter = makeSrcFilter(gclk);
   Level gclk_level = clkPinMaxLevel(gclk);
-  VertexSet *fanins = new VertexSet;
+  VertexSet *fanins = new VertexSet(graph_);
   findFanin(gclk, fanins);
   GenclkInfo *genclk_info = new GenclkInfo(gclk, gclk_level, fanins,
 					    src_filter);
@@ -643,8 +643,8 @@ Genclks::findLatchFdbkEdges(const Clock *gclk,
   EdgeSet *fdbk_edges = nullptr;
   for (Pin *pin : gclk->masterClk()->leafPins()) {
     Vertex *vertex = graph_->pinDrvrVertex(pin);
-    VertexSet path_vertices;
-    VertexSet visited_vertices;
+    VertexSet path_vertices(graph_);
+    VertexSet visited_vertices(graph_);
     SearchPred1 srch_pred(this);
     findLatchFdbkEdges(vertex, gclk_level, srch_pred, path_vertices,
 		       visited_vertices, fdbk_edges);

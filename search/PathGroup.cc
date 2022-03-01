@@ -808,7 +808,7 @@ PathGroups::makeGroupPathEnds(ExceptionTo *to,
     makeGroupPathEnds(search->endpoints(), corner, min_max, visitor);
   else {
     // Only visit -to filter pins.
-    VertexSet endpoints;
+    VertexSet endpoints(graph_);
     PinSet pins;
     to->allPins(network, &pins);
     PinSet::Iterator pin_iter(pins);

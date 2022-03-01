@@ -139,7 +139,7 @@ FindRegVisitor::visitRegs(ClockSet *clks,
     while (clk_iter.hasNext()) {
       Clock *clk = clk_iter.next();
       FindRegClkPred clk_pred(clk, this);
-      VertexSet visited_vertices;
+      VertexSet visited_vertices(graph_);
       for (Pin *pin : clk->leafPins()) {
 	Vertex *vertex, *bidirect_drvr_vertex;
 	graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
@@ -158,9 +158,7 @@ FindRegVisitor::visitRegs(ClockSet *clks,
     }
   }
   else {
-    VertexSet::ConstIterator reg_clk_iter(graph_->regClkVertices());
-    while (reg_clk_iter.hasNext()) {
-      Vertex *vertex = reg_clk_iter.next();
+    for (Vertex *vertex : *graph_->regClkVertices()) {
       visitRegs(vertex->pin(), TimingSense::positive_unate,
 		RiseFallBoth::riseFall(),
 		edge_triggered, latches);

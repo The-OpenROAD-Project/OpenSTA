@@ -2794,6 +2794,26 @@ Sta::vertexWorstSlackPath(Vertex *vertex,
 
 Arrival
 Sta::vertexArrival(Vertex *vertex,
+                   const MinMax *min_max)
+{
+  searchPreamble();
+  search_->findArrivals(vertex->level());
+  Arrival arrival = min_max->initValue();
+  VertexPathIterator path_iter(vertex, this);
+  while (path_iter.hasNext()) {
+    Path *path = path_iter.next();
+    const Arrival &path_arrival = path->arrival(this);
+    ClkInfo *clk_info = path->clkInfo(search_);
+    if (path->minMax(this) == min_max
+	&& !clk_info->isGenClkSrcPath()
+	&& delayGreater(path->arrival(this), arrival, min_max, this))
+      arrival = path_arrival;
+  }
+  return arrival;
+}
+
+Arrival
+Sta::vertexArrival(Vertex *vertex,
 		   const RiseFall *rf,
 		   const PathAnalysisPt *path_ap)
 {
@@ -4813,7 +4833,7 @@ Sta::findFaninPins(Vertex *vertex,
 		   PinSet *fanin,
 		   SearchPred &pred)
 {
-  VertexSet visited;
+  VertexSet visited(graph_);
   findFaninPins(vertex, flat, inst_levels,
 		pin_levels, visited, &pred, 0, 0);
   VertexSet::Iterator visited_iter(visited);
@@ -4923,7 +4943,7 @@ Sta::findFanoutPins(Vertex *vertex,
 		    PinSet *fanout,
 		    SearchPred &pred)
 {
-  VertexSet visited;
+  VertexSet visited(graph_);
   findFanoutPins(vertex, flat, inst_levels,
 		 pin_levels, visited, &pred, 0, 0);
   VertexSet::Iterator visited_iter(visited);

@@ -118,11 +118,8 @@ visitPathGroupVertices(PathGroup *path_group,
   VisitPathGroupEnds end_visitor(path_group, visitor, &matching_path_map,
 				 &bkwd_iter, sta);
   VisitPathEnds visit_path_ends(sta);
-  VertexSet::Iterator end_iter(search->endpoints());
-  while (end_iter.hasNext()) {
-    Vertex *vertex = end_iter.next();
+  for(Vertex *vertex : *search->endpoints())
     visit_path_ends.visitPathEnds(vertex, &end_visitor);
-  }
 
   // Search backward from the path ends thru vertices that have arrival tags
   // that match path_group end paths.

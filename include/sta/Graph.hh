@@ -199,7 +199,7 @@ public:
 				float period);
   // Remove all delay and slew annotations.
   void removeDelaySlewAnnotations();
-  VertexSet *regClkVertices() { return &reg_clk_vertices_; }
+  VertexSet *regClkVertices() { return reg_clk_vertices_; }
 
   static const int vertex_level_bits = 24;
   static const int vertex_level_max = (1<<vertex_level_bits)-1;
@@ -261,7 +261,7 @@ protected:
   // Sdf period check annotations.
   PeriodCheckAnnotations *period_check_annotations_;
   // Register/latch clock vertices to search from.
-  VertexSet reg_clk_vertices_;
+  VertexSet *reg_clk_vertices_;
 
   friend class Vertex;
   friend class VertexIterator;
@@ -524,6 +524,24 @@ public:
 private:
   EdgeSet edges_;
   EdgeSet::Iterator edge_iter_;
+};
+
+class VertexIdLess
+{
+public:
+  VertexIdLess(Graph *&graph);
+  bool operator()(const Vertex *vertex1,
+		  const Vertex *vertex2) const;
+
+private:
+  Graph *&graph_;
+};
+
+class VertexSet : public Set<Vertex*, VertexIdLess>
+{
+public:
+  VertexSet(Graph *&graph);
+  VertexSet(const VertexSet &set);
 };
 
 } // namespace

@@ -984,6 +984,8 @@ public:
   Arrival vertexArrival(Vertex *vertex,
 			const RiseFall *rf,
 			const PathAnalysisPt *path_ap);
+  Arrival vertexArrival(Vertex *vertex,
+                        const MinMax *min_max);
   Required vertexRequired(Vertex *vertex,
 			  const MinMax *min_max);
   Required vertexRequired(Vertex *vertex,

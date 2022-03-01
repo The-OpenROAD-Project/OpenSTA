@@ -190,9 +190,7 @@ ClkSkews::findClkSkew(ClockSet *clks,
 		      const SetupHold *setup_hold,
 		      ClkSkewMap &skews)
 {	      
-  VertexSet::ConstIterator reg_clk_iter(graph_->regClkVertices());
-  while (reg_clk_iter.hasNext()) {
-    Vertex *src_vertex = reg_clk_iter.next();
+  for (Vertex *src_vertex : *graph_->regClkVertices()) {
     if (hasClkPaths(src_vertex, clks)) {
       VertexOutEdgeIterator edge_iter(src_vertex, graph_);
       while (edge_iter.hasNext()) {
@@ -343,7 +341,7 @@ ClkSkews::findFanout(Vertex *from)
 {
   debugPrint(debug_, "fanout", 1, "%s",
              from->name(sdc_network_));
-  VertexSet endpoints;
+  VertexSet endpoints(graph_);
   FanOutSrchPred pred(this);
   BfsFwdIterator fanout_iter(BfsIndex::other, &pred, this);
   fanout_iter.enqueue(from);

@@ -225,6 +225,9 @@ Search::init(StaState *sta)
   arrivals_seeded_ = false;
   requireds_exist_ = false;
   requireds_seeded_ = false;
+  invalid_arrivals_ = new VertexSet(graph_);
+  invalid_requireds_ = new VertexSet(graph_);
+  invalid_tns_ = new VertexSet(graph_);
   tns_exists_ = false;
   worst_slacks_ = nullptr;
   arrival_iter_ = new BfsFwdIterator(BfsIndex::arrival, nullptr, sta);
@@ -238,6 +241,7 @@ Search::init(StaState *sta)
   tag_groups_ = new TagGroup*[tag_group_capacity_];
   tag_group_next_ = 0;
   tag_group_set_ = new TagGroupSet(tag_group_capacity_);
+  pending_latch_outputs_ = new VertexSet(graph_);
   visit_path_ends_ = new VisitPathEnds(this);
   gated_clk_ = new GatedClk(this);
   path_groups_ = nullptr;
@@ -273,7 +277,11 @@ Search::~Search()
   delete arrival_iter_;
   delete required_iter_;
   delete endpoints_;
+  delete invalid_arrivals_;
+  delete invalid_requireds_;
+  delete invalid_tns_;
   delete invalid_endpoints_;
+  delete pending_latch_outputs_;
   delete visit_path_ends_;
   delete gated_clk_;
   delete worst_slacks_;
@@ -295,10 +303,10 @@ Search::clear()
   requireds_seeded_ = false;
   tns_exists_ = false;
   clearWorstSlack();
-  invalid_arrivals_.clear();
+  invalid_arrivals_->clear();
   arrival_iter_->clear();
-  invalid_requireds_.clear();
-  invalid_tns_.clear();
+  invalid_requireds_->clear();
+  invalid_tns_->clear();
   required_iter_->clear();
   endpointsInvalid();
   deletePathGroups();
@@ -633,12 +641,12 @@ Search::deleteVertexBefore(Vertex *vertex)
   if (arrivals_exist_) {
     deletePaths(vertex);
     arrival_iter_->deleteVertexBefore(vertex);
-    invalid_arrivals_.erase(vertex);
+    invalid_arrivals_->erase(vertex);
   }
   if (requireds_exist_) {
     required_iter_->deleteVertexBefore(vertex);
-    invalid_requireds_.erase(vertex);
-    invalid_tns_.erase(vertex);
+    invalid_requireds_->erase(vertex);
+    invalid_tns_->erase(vertex);
   }
   if (endpoints_)
     endpoints_->erase(vertex);
@@ -650,7 +658,7 @@ bool
 Search::arrivalsValid()
 {
   return arrivals_exist_
-    && invalid_requireds_.empty();
+    && invalid_requireds_->empty();
 }
 
 void
@@ -673,11 +681,11 @@ Search::arrivalsInvalid()
     arrival_iter_->clear();
     required_iter_->clear();
     // No need to keep track of incremental updates any more.
-    invalid_arrivals_.clear();
-    invalid_requireds_.clear();
+    invalid_arrivals_->clear();
+    invalid_requireds_->clear();
     tns_exists_ = false;
     clearWorstSlack();
-    invalid_tns_.clear();
+    invalid_tns_->clear();
   }
 }
 
@@ -687,10 +695,10 @@ Search::requiredsInvalid()
   debugPrint(debug_, "search", 1, "requireds invalid");
   requireds_exist_ = false;
   requireds_seeded_ = false;
-  invalid_requireds_.clear();
+  invalid_requireds_->clear();
   tns_exists_ = false;
   clearWorstSlack();
-  invalid_tns_.clear();
+  invalid_tns_->clear();
 }
 
 void
@@ -702,7 +710,7 @@ Search::arrivalInvalid(Vertex *vertex)
     if (!arrival_iter_->inQueue(vertex)) {
       // Lock for StaDelayCalcObserver called by delay calc threads.
       UniqueLock lock(invalid_arrivals_lock_);
-      invalid_arrivals_.insert(vertex);
+      invalid_arrivals_->insert(vertex);
     }
     tnsInvalid(vertex);
   }
@@ -772,7 +780,7 @@ Search::requiredInvalid(Vertex *vertex)
     if (!required_iter_->inQueue(vertex)) {
       // Lock for StaDelayCalcObserver called by delay calc threads.
       UniqueLock lock(invalid_arrivals_lock_);
-      invalid_requireds_.insert(vertex);
+      invalid_requireds_->insert(vertex);
     }
     tnsInvalid(vertex);
   }
@@ -926,19 +934,19 @@ Search::findAllArrivals(VertexVisitor *arrival_visitor)
 bool
 Search::havePendingLatchOutputs()
 {
-  return pending_latch_outputs_.size() > 0;
+  return !pending_latch_outputs_->empty();
 }
 
 void
 Search::clearPendingLatchOutputs()
 {
-  pending_latch_outputs_.clear();
+  pending_latch_outputs_->clear();
 }
 
 void
 Search::enqueuePendingLatchOutputs()
 {
-  for (Vertex *latch_vertex : pending_latch_outputs_)
+  for (Vertex *latch_vertex : *pending_latch_outputs_)
     arrival_iter_->enqueue(latch_vertex);
   clearPendingLatchOutputs();
 }
@@ -966,7 +974,7 @@ Search::findArrivals(Level level,
   int arrival_count = arrival_iter_->visitParallel(level, arrival_visitor);
   stats.report("Find arrivals");
   if (arrival_iter_->empty()
-      && invalid_arrivals_.empty()) {
+      && invalid_arrivals_->empty()) {
     clk_arrivals_valid_ = true;
     arrivals_at_endpoints_exist_ = true;
   }
@@ -1360,7 +1368,7 @@ Search::enqueueLatchDataOutputs(Vertex *vertex)
     if (latches_->isLatchDtoQ(out_edge)) {
       Vertex *out_vertex = out_edge->to(graph_);
       UniqueLock lock(pending_latch_outputs_lock_);
-      pending_latch_outputs_.insert(out_vertex);
+      pending_latch_outputs_->insert(out_vertex);
     }
   }
 }
@@ -1368,7 +1376,7 @@ Search::enqueueLatchDataOutputs(Vertex *vertex)
 void
 Search::seedArrivals()
 {
-  VertexSet vertices;
+  VertexSet vertices(graph_);
   findClockVertices(vertices);
   findRootVertices(vertices);
   findInputDrvrVertices(vertices);
@@ -1394,9 +1402,9 @@ Search::findClockVertices(VertexSet &vertices)
 void
 Search::seedInvalidArrivals()
 {
-  for (Vertex *vertex : invalid_arrivals_)
+  for (Vertex *vertex : *invalid_arrivals_)
     seedArrival(vertex);
-  invalid_arrivals_.clear();
+  invalid_arrivals_->clear();
 }
 
 void
@@ -1605,7 +1613,7 @@ Search::makeUnclkedPaths(Vertex *vertex,
 void
 Search::findRootVertices(VertexSet &vertices)
 {
-  for (Vertex *vertex : levelize_->roots()) {
+  for (Vertex *vertex : *levelize_->roots()) {
     const Pin *pin = vertex->pin();
     if (!sdc_->isLeafPinClock(pin)
 	&& !sdc_->hasInputDelay(pin)
@@ -3103,8 +3111,8 @@ VertexSet *
 Search::endpoints()
 {
   if (endpoints_ == nullptr) {
-    endpoints_ = new VertexSet;
-    invalid_endpoints_ = new VertexSet;
+    endpoints_ = new VertexSet(graph_);
+    invalid_endpoints_ = new VertexSet(graph_);
     VertexIterator vertex_iter(graph_);
     while (vertex_iter.hasNext()) {
       Vertex *vertex = vertex_iter.next();
@@ -3193,9 +3201,9 @@ Search::endpointsInvalid()
 void
 Search::seedInvalidRequireds()
 {
-  for (Vertex *vertex : invalid_requireds_)
+  for (Vertex *vertex : *invalid_requireds_)
     required_iter_->enqueue(vertex);
-  invalid_requireds_.clear();
+  invalid_requireds_->clear();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3687,7 +3695,7 @@ Search::tnsInvalid(Vertex *vertex)
     debugPrint(debug_, "tns", 2, "tns invalid %s",
                vertex->name(sdc_network_));
     UniqueLock lock(tns_lock_);
-    invalid_tns_.insert(vertex);
+    invalid_tns_->insert(vertex);
   }
 }
 
@@ -3695,7 +3703,7 @@ void
 Search::updateInvalidTns()
 {
   PathAPIndex path_ap_count = corners_->pathAnalysisPtCount();
-  for (Vertex *vertex : invalid_tns_) {
+  for (Vertex *vertex : *invalid_tns_) {
     // Network edits can change endpointedness since tnsInvalid was called.
     if (isEndpoint(vertex)) {
       debugPrint(debug_, "tns", 2, "update tns %s",
@@ -3709,7 +3717,7 @@ Search::updateInvalidTns()
 	worst_slacks_->updateWorstSlacks(vertex, slacks);
     }
   }
-  invalid_tns_.clear();
+  invalid_tns_->clear();
 }
 
 void
@@ -3826,7 +3834,7 @@ Search::wnsTnsPreamble()
   findAllArrivals();
   // Required times are only needed at endpoints.
   if (requireds_seeded_) {
-    for (Vertex *vertex : invalid_requireds_) {
+    for (Vertex *vertex : *invalid_requireds_) {
       debugPrint(debug_, "search", 2, "tns update required %s",
                  vertex->name(sdc_network_));
       if (isEndpoint(vertex)) {
@@ -3839,7 +3847,7 @@ Search::wnsTnsPreamble()
 	  required_iter_->enqueue(vertex);
       }
     }
-    invalid_requireds_.clear();
+    invalid_requireds_->clear();
   }
   else
     seedRequireds();

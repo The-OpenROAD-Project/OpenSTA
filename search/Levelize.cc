@@ -40,6 +40,8 @@ Levelize::Levelize(StaState *sta) :
   levels_valid_(false),
   max_level_(0),
   level_space_(10),
+  roots_(new VertexSet(graph_)),
+  relevelize_from_(new VertexSet(graph_)),
   loops_(nullptr),
   observer_(nullptr)
 {
@@ -47,6 +49,8 @@ Levelize::Levelize(StaState *sta) :
 
 Levelize::~Levelize()
 {
+  delete roots_;
+  delete relevelize_from_;
   delete search_pred_;
   delete observer_;
   deleteLoops();
@@ -70,8 +74,8 @@ Levelize::clear()
 {
   levelized_ = false;
   levels_valid_ = false;
-  roots_.clear();
-  relevelize_from_.clear();
+  roots_->clear();
+  relevelize_from_->clear();
   clearLoopEdges();
   deleteLoops();
 }
@@ -146,7 +150,7 @@ Levelize::findRoots()
     setLevel(vertex, 0);
     if (isRoot(vertex)) {
       debugPrint(debug_, "levelize", 2, "root %s", vertex->name(sdc_network_));
-      roots_.insert(vertex);
+      roots_->insert(vertex);
       if (hasFanout(vertex, search_pred_, graph_))
 	// Color roots with no fanout black so that they are
 	// not treated as degenerate loops by levelizeCycles().
@@ -183,11 +187,8 @@ Levelize::sortRoots(VertexSeq &roots)
 {
   // roots_ is a set so insert/delete are fast for incremental changes.
   // Copy the set into a vector for sorting.
-  VertexSet::Iterator root_iter(roots_);
-  while (root_iter.hasNext()) {
-    Vertex *root = root_iter.next();
+  for (Vertex *root : *roots_)
     roots.push_back(root);
-  }
   sort(roots, VertexNameLess(network_));
 }
 
@@ -362,7 +363,7 @@ Levelize::levelizeCycles()
     // root".
     if (vertex->color() == LevelColor::white) {
       EdgeSeq path;
-      roots_.insert(vertex);
+      roots_->insert(vertex);
       visit(vertex, 0, level_space_, path);
     }
   }
@@ -384,17 +385,17 @@ Levelize::invalidFrom(Vertex *vertex)
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
     Vertex *from_vertex = edge->from(graph_);
-    relevelize_from_.insert(from_vertex);
+    relevelize_from_->insert(from_vertex);
   }
-  relevelize_from_.insert(vertex);
+  relevelize_from_->insert(vertex);
   levels_valid_ = false;
 }
 
 void
 Levelize::deleteVertexBefore(Vertex *vertex)
 {
-  roots_.erase(vertex);
-  relevelize_from_.erase(vertex);
+  roots_->erase(vertex);
+  relevelize_from_->erase(vertex);
 }
 
 void
@@ -402,7 +403,7 @@ Levelize::relevelizeFrom(Vertex *vertex)
 {
   debugPrint(debug_, "levelize", 1, "invalid relevelize from %s",
              vertex->name(sdc_network_));
-  relevelize_from_.insert(vertex);
+  relevelize_from_->insert(vertex);
   levels_valid_ = false;
 }
 
@@ -429,15 +430,13 @@ Levelize::deleteEdgeBefore(Edge *edge)
 void
 Levelize::relevelize()
 {
-  VertexSet::Iterator vertex_iter(relevelize_from_);
-  while (vertex_iter.hasNext()) {
-    Vertex *vertex = vertex_iter.next();
+  for (Vertex *vertex : *relevelize_from_) {
     debugPrint(debug_, "levelize", 1, "relevelize from %s",
                vertex->name(sdc_network_));
     if (search_pred_->searchFrom(vertex)) {
       if (isRoot(vertex)) {
 	setLevel(vertex, 0);
-	roots_.insert(vertex);
+	roots_->insert(vertex);
       }
       EdgeSeq path;
       visit(vertex, vertex->level(), 1, path);
@@ -445,7 +444,7 @@ Levelize::relevelize()
   }
   ensureLatchLevels();
   levels_valid_ = true;
-  relevelize_from_.clear();
+  relevelize_from_->clear();
 }
 
 bool

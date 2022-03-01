@@ -32,11 +32,11 @@ class VertexIterator;
 class VertexInEdgeIterator;
 class VertexOutEdgeIterator;
 class GraphLoop;
+class VertexSet;
 
 typedef ObjectId VertexId;
 typedef ObjectId EdgeId;
 typedef ObjectId ArcId;
-typedef Set<Vertex*> VertexSet;
 typedef Vector<Vertex*> VertexSeq;
 typedef Vector<Edge*> EdgeSeq;
 typedef Set<Edge*> EdgeSet;
