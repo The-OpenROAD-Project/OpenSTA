@@ -106,7 +106,7 @@ make
 make install
 
 cd <opensta>/build
-cmake .. -DUSE_CUDD -DCUDD_DIR=$HOME/cudd
+cmake .. -DUSE_CUDD=ON -DCUDD_DIR=$HOME/cudd
 ```
 
 The Zlib library is an optional.  If CMake finds libz, OpenSTA can
