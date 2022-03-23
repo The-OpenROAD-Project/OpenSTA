@@ -242,7 +242,7 @@ Power::power(const Instance *inst,
 
 ////////////////////////////////////////////////////////////////
 
-class ActivitySrchPred : public SearchPred2
+class ActivitySrchPred : public SearchPredNonLatch2
 {
 public:
   explicit ActivitySrchPred(const StaState *sta);
@@ -250,7 +250,7 @@ public:
 };
 
 ActivitySrchPred::ActivitySrchPred(const StaState *sta) :
-  SearchPred2(sta)
+  SearchPredNonLatch2(sta)
 {
 }
 
@@ -258,7 +258,7 @@ bool
 ActivitySrchPred::searchThru(Edge *edge)
 {
   TimingRole *role = edge->role();
-  return SearchPred2::searchThru(edge)
+  return SearchPredNonLatch2::searchThru(edge)
     && role != TimingRole::regClkToQ();
 }
 
