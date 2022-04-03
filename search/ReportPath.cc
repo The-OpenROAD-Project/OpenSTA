@@ -2801,12 +2801,6 @@ ReportPath::reportInputExternalDelay(const Path *first_path,
 	pathInputDelayRefPath(first_path, input_delay, ref_path);
 	if (!ref_path.isNull() && reportClkPath()) {
 	  PathExpanded ref_expanded(&ref_path, this);
-	  float ref_offset = time_offset;
-	  ClkInfo *ref_clk_info = ref_path.clkInfo(this);
-	  // Ref clk does not include latency for non-ideal clocks.
-	  // Remove it to compensate for reportPath5 adding it.
-	  if (!ref_clk_info->isPropagated())
-	    ref_offset -= ref_clk_info->latency();
 	  reportPath3(&ref_path, ref_expanded, false, true,
 		      delay_zero, 0.0);
 	}
