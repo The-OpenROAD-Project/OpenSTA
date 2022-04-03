@@ -991,8 +991,11 @@ LibertyReader::visitDefaultMaxFanout(LibertyAttr *attr)
     float value;
     bool exists;
     getAttrFloat(attr, value, exists);
-    if (exists)
+    if (exists) {
+      if (value == 0.0)
+	libWarn(16, attr, "default_max_fanout is 0.0.");
       library_->setDefaultMaxFanout(value);
+    }
   }
 }
 
@@ -1078,8 +1081,11 @@ LibertyReader::visitDefaultFanoutLoad(LibertyAttr *attr)
     float value;
     bool exists;
     getAttrFloat(attr, value, exists);
-    if (exists)
+    if (exists) {
+      if (value == 0.0)
+	libWarn(163, attr, "default_fanout_load is 0.0.");
       library_->setDefaultFanoutLoad(value);
+    }
   }
 }
 
@@ -4184,7 +4190,7 @@ LibertyReader::getAttrInt(LibertyAttr *attr,
       exists = true;
     }
     else
-      libWarn(132, attr, "%s attribute is not an integer.",attr->name());
+      libWarn(162, attr, "%s attribute is not an integer.",attr->name());
   }
   else
     libWarn(133, attr, "%s is not a simple attribute.", attr->name());

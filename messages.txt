@@ -1,18 +1,19 @@
 0001 DmpCeff.cc:1595           cell %s delay model not supported on SPF parasitics by DMP delay calculator
-0002 Liberty.cc:729            cell %s/%s port %s not found in cell %s/%s.
-0003 Liberty.cc:752            cell %s/%s %s -> %s timing group %s not found in cell %s/%s.
-0004 Liberty.cc:1649           cell %s/%s %s -> %s latch enable %s_edge timing arc is inconsistent with %s -> %s setup_%s check.
-0005 Liberty.cc:1664           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.
-0006 Liberty.cc:1672           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.
+0002 Liberty.cc:728            cell %s/%s port %s not found in cell %s/%s.
+0003 Liberty.cc:751            cell %s/%s %s -> %s timing group %s not found in cell %s/%s.
+0004 Liberty.cc:1646           cell %s/%s %s -> %s latch enable %s_edge timing arc is inconsistent with %s -> %s setup_%s check.
+0005 Liberty.cc:1661           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.
+0006 Liberty.cc:1669           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.
 0007 LibertyExpr.cc:78         %s references unknown port %s.
-0008 ConcreteNetwork.cc:1873   cell type %s can not be linked.
+0008 ConcreteNetwork.cc:1855   cell type %s can not be linked.
 0009 CycleAccting.cc:87        No common period was found between clocks %s and %s.
-0010 Genclks.cc:292            no master clock found for generated clock %s.
-0011 Genclks.cc:334            generated clock %s is in the fanout of multiple clocks.
-0013 Genclks.cc:1001           generated clock %s source pin %s missing paths from master clock %s.
+0010 Genclks.cc:287            no master clock found for generated clock %s.
+0011 Genclks.cc:329            generated clock %s is in the fanout of multiple clocks.
+0013 Genclks.cc:991            generated clock %s source pin %s missing paths from master clock %s.
 0015 Sim.cc:871                propagated logic value %c differs from constraint value of %c on pin %s.
-0016 Sta.cc:2013               '%s' is not a valid startoint.
-0017 Sta.cc:2089               '%s' is not a valid endpoint.
+0016 LibertyReader.cc:996      default_max_fanout is 0.0.
+0017 Sta.cc:2083               '%s' is not a valid endpoint.
+0018 Sta.cc:2007               '%s' is not a valid startoint.
 0021 SpefParse.yy:805          %d is not positive.
 0022 SpefParse.yy:814          %.4f is not positive.
 0023 SpefParse.yy:820          %.4f is not positive.
@@ -22,26 +23,157 @@
 0027 WritePathSpice.cc:1017    no register/latch found for path from %s to %s,
 0028 WritePathSpice.cc:1384    The following subkcts are missing from %s
 0029 WritePathSpice.cc:1442    subckt %s port %s has no corresponding liberty port, pg_port and is not power or ground.
-0160 Sta.cc:2010               '%s' is not a valid startpoint.
-0161 Sta.cc:2086               '%s' is not a valid endpoint.
-0162 VerilogReader.cc:1746     %s is not a verilog module.
-0163 VerilogReader.cc:1751     %s is not a verilog module.
+0030 LibertyReader.cc:575      library missing name.
+0031 LibertyReader.cc:607      default_wire_load %s not found.
+0032 LibertyReader.cc:618      default_wire_selection %s not found.
+0033 LibertyReader.cc:640      input_threshold_pct_%s not found.
+0034 LibertyReader.cc:644      output_threshold_pct_%s not found.
+0035 LibertyReader.cc:648      slew_lower_threshold_pct_%s not found.
+0036 LibertyReader.cc:652      slew_upper_threshold_pct_%s not found.
+0037 LibertyReader.cc:657      Library %s is missing one or more thresholds.
+0038 LibertyReader.cc:747      unknown unit multiplier %s.
+0039 LibertyReader.cc:766      unknown unit scale %c.
+0040 LibertyReader.cc:769      unknown unit suffix %s.
+0041 LibertyReader.cc:795      capacitive_load_units are not ff or pf.
+0042 LibertyReader.cc:798      capacitive_load_units are not a string.
+0043 LibertyReader.cc:801      capacitive_load_units missing suffix.
+0044 LibertyReader.cc:804      capacitive_load_units scale is not a float.
+0045 LibertyReader.cc:807      capacitive_load_units missing scale and suffix.
+0046 LibertyReader.cc:810      capacitive_load_unit missing values suffix.
+0047 LibertyReader.cc:828      delay_model %s not supported.
+0048 LibertyReader.cc:832      delay_model %s not supported.
+0049 LibertyReader.cc:836      delay_model %s not supported.
+0050 LibertyReader.cc:841      delay_model %s not supported.
+.
+0051 LibertyReader.cc:844      unknown delay_model %s
+.
+0052 LibertyReader.cc:863      unknown bus_naming_style format.
+0053 LibertyReader.cc:541      library %s already exists.
+0054 LibertyReader.cc:884      voltage_map voltage is not a float.
+0055 LibertyReader.cc:887      voltage_map missing voltage.
+0056 LibertyReader.cc:890      voltage_map supply name is not a string.
+0057 LibertyReader.cc:893      voltage_map missing supply name and voltage.
+0058 LibertyReader.cc:896      voltage_map missing values suffix.
+0059 LibertyReader.cc:1114     default_wire_load_mode %s not found.
+0060 LibertyReader.cc:630      default_operating_condition %s not found.
+0061 LibertyReader.cc:1285     table template missing name.
+0062 LibertyReader.cc:1330     missing variable_%d attribute.
+0063 LibertyReader.cc:1372     axis type %s not supported.
+0064 LibertyReader.cc:1432     bus type %s missing bit_from.
+0065 LibertyReader.cc:1434     bus type %s missing bit_to.
+0066 LibertyReader.cc:1438     type missing name.
+0067 LibertyReader.cc:1465     scaling_factors do not have a name.
+0068 LibertyReader.cc:1633     operating_conditions missing name.
+0069 LibertyReader.cc:1703     wire_load missing name.
+0070 LibertyReader.cc:1746     fanout_length is missing length and fanout.
+0071 LibertyReader.cc:1761     wire_load_selection missing name.
+0072 LibertyReader.cc:1792     wireload %s not found.
+0074 LibertyReader.cc:1799     wire_load_from_area min not a float.
+0075 LibertyReader.cc:1802     wire_load_from_area max not a float.
+0076 LibertyReader.cc:1805     wire_load_from_area missing parameters.
+0077 LibertyReader.cc:1808     wire_load_from_area missing parameters.
+0078 LibertyReader.cc:1825     cell missing name.
+0079 LibertyReader.cc:1848     cell %s ocv_derate_group %s not found.
+0080 LibertyReader.cc:1884     port %s function size does not match port size.
+0081 LibertyReader.cc:1953     %s %s bus width mismatch.
+0082 LibertyReader.cc:1964     %s %s bus width mismatch.
+0083 LibertyReader.cc:1974     clear
+0084 LibertyReader.cc:1984     preset
+0085 LibertyReader.cc:2020     latch enable function is non-unate for port %s.
+0086 LibertyReader.cc:2025     latch enable function is unknown for port %s.
+0087 LibertyReader.cc:2101     operating conditions %s not found.
+0088 LibertyReader.cc:2104     scaled_cell missing operating condition.
+0089 LibertyReader.cc:2107     scaled_cell cell %s has not been defined.
+0090 LibertyReader.cc:2110     scaled_cell missing name.
+0091 LibertyReader.cc:2136     scaled_cell %s, %s port functions do not match cell port functions.
+0092 LibertyReader.cc:2141     scaled_cell ports do not match cell ports.
+0093 LibertyReader.cc:2143     scaled_cell %s, %s timing does not match cell timing.
+0094 LibertyReader.cc:2162     combinational timing to an input port.
+0095 LibertyReader.cc:2249     missing %s_transition.
+0096 LibertyReader.cc:2251     missing cell_%s.
+0099 LibertyReader.cc:2517     scaling_factors %s not found.
+0100 LibertyReader.cc:2560     pin name is not a string.
+0101 LibertyReader.cc:2579     pin name is not a string.
+0102 LibertyReader.cc:2601     pin name is not a string.
+0103 LibertyReader.cc:2679     bus %s bus_type not found.
+0104 LibertyReader.cc:2736     bus_type %s not found.
+0105 LibertyReader.cc:2739     bus_type is not a string.
+0106 LibertyReader.cc:2757     bundle %s member not found.
+0107 LibertyReader.cc:2784     member is not a string.
+0108 LibertyReader.cc:2791     members attribute is missing values.
+0109 LibertyReader.cc:2834     unknown port direction.
+0110 LibertyReader.cc:3204     pulse_latch unknown pulse type.
+0111 LibertyReader.cc:3581     unknown timing_type %s.
+0112 LibertyReader.cc:3601     unknown timing_sense %s.
+0113 LibertyReader.cc:3641     mode value is not a string.
+0114 LibertyReader.cc:3644     missing mode value.
+0115 LibertyReader.cc:3647     mode name is not a string.
+0116 LibertyReader.cc:3650     mode missing values.
+0117 LibertyReader.cc:3653     mode missing mode name and value.
+0118 LibertyReader.cc:3728     unsupported model axis.
+0119 LibertyReader.cc:3756     unsupported model axis.
+0120 LibertyReader.cc:3786     unsupported model axis.
+0121 LibertyReader.cc:3822     unsupported model axis.
+0122 LibertyReader.cc:3874     table template %s not found.
+0123 LibertyReader.cc:3961     %s is missing values.
+0124 LibertyReader.cc:3986     %s is not a list of floats.
+0125 LibertyReader.cc:3988     table row has %u columns but axis has %d.
+0126 LibertyReader.cc:3998     table has %u rows but axis has %d.
+0127 LibertyReader.cc:4052     lut output is not a string.
+0128 LibertyReader.cc:4090     mode definition missing name.
+0129 LibertyReader.cc:4107     mode value missing name.
+0130 LibertyReader.cc:4121     when attribute inside table model.
+0131 LibertyReader.cc:4170     %s attribute is not a string.
+0132 LibertyReader.cc:4173     %s is not a simple attribute.
+0133 LibertyReader.cc:4196     %s is not a simple attribute.
+0134 LibertyReader.cc:4209     %s is not a simple attribute.
+0135 LibertyReader.cc:4233     %s value %s is not a float.
+0136 LibertyReader.cc:4262     %s missing values.
+0137 LibertyReader.cc:4266     %s missing values.
+0138 LibertyReader.cc:4269     %s is not a complex attribute.
+0139 LibertyReader.cc:4295     %s is not a float.
+0140 LibertyReader.cc:4314     %s is missing values.
+0141 LibertyReader.cc:4317     %s has more than one string.
+0142 LibertyReader.cc:4326     %s is missing values.
+0143 LibertyReader.cc:4351     %s attribute is not boolean.
+0144 LibertyReader.cc:4354     %s attribute is not boolean.
+0145 LibertyReader.cc:4357     %s is not a simple attribute.
+0146 LibertyReader.cc:4373     attribute %s value %s not recognized.
+0147 LibertyReader.cc:4403     unknown early/late value.
+0148 LibertyReader.cc:4627     OCV derate group named %s not found.
+0149 LibertyReader.cc:4643     ocv_derate missing name.
+0150 LibertyReader.cc:4696     unknown rise/fall.
+0151 LibertyReader.cc:4716     unknown derate type.
+0152 LibertyReader.cc:4747     unsupported model axis.
+0153 LibertyReader.cc:4780     unsupported model axis.
+0154 LibertyReader.cc:4813     unsupported model axis.
+0155 LibertyReader.cc:4886     unknown pg_type.
+0156 LibertyReader.cc:5263     port %s subscript out of range.
+0157 LibertyReader.cc:5267     port range %s of non-bus port %s.
+0158 LibertyReader.cc:5281     port %s not found.
+0159 LibertyReader.cc:5351     port %s not found.
+0160 LibertyReader.cc:981      default_max_transition is 0.0.
+0161 LibertyReader.cc:3092     max_transition is 0.0.
+0162 LibertyReader.cc:4193     %s attribute is not an integer.
+0163 LibertyReader.cc:1086     default_fanout_load is 0.0.
 0179 SpefReader.cc:728         %s.
+0190 VerilogReader.cc:1728     %s is not a verilog module.
+0191 VerilogReader.cc:1733     %s is not a verilog module.
 0201 StaTcl.i:128              no network has been linked.
 0202 StaTcl.i:142              network does not support edits.
 0204 StaTcl.i:4172             POCV support requires compilation with SSTA=1.
 0206 LibertyExpr.cc:171        %s %s.
-0207 GraphDelayCalc1.cc:743    port not found in cell
-0208 Graph.cc:796              arc_delay_annotated array bounds exceeded
-0209 Graph.cc:811              arc_delay_annotated array bounds exceeded
-0210 Graph.cc:823              arc_delay_annotated array bounds exceeded
+0207 GraphDelayCalc1.cc:742    port not found in cell
+0208 Graph.cc:795              arc_delay_annotated array bounds exceeded
+0209 Graph.cc:810              arc_delay_annotated array bounds exceeded
+0210 Graph.cc:822              arc_delay_annotated array bounds exceeded
 0211 SdcNetwork.cc:1026        inst path string lenth estimate busted
 0212 SdcNetwork.cc:1098        inst path string lenth estimate exceeded
-0213 Sdc.cc:4126               group path name and is_default are mutually exclusive.
-0214 WriteSdc.cc:1334          unknown exception type
-0215 WriteSdc.cc:1905          illegal set_logic value
-0216 WriteSdc.cc:1949          invalid set_case_analysis value
-0228 Graph.cc:836              arc_delay_annotated array bounds exceeded
+0213 Sdc.cc:4113               group path name and is_default are mutually exclusive.
+0214 WriteSdc.cc:1317          unknown exception type
+0215 WriteSdc.cc:1888          illegal set_logic value
+0216 WriteSdc.cc:1932          invalid set_case_analysis value
+0228 Graph.cc:835              arc_delay_annotated array bounds exceeded
 0251 PathEnumed.cc:126         enumerated path required time
 0252 PathEnumed.cc:135         enumerated path required time
 0253 PathGroup.cc:402          unknown path end type
@@ -51,12 +183,14 @@
 0257 ReportPath.cc:349         unsupported path type
 0258 ReportPath.cc:2228        generated clock pll source path too short.
 0259 ReportPath.cc:2392        unsupported path type
-0260 Search.cc:2667            max tag group index exceeded
-0261 Search.cc:2899            max tag index exceeded
-0262 Search.cc:3594            unexpected filter path
-0263 Search.cc:3762            tns incr existing vertex
-0264 Sta.cc:4102               corresponding timing arc set not found in equiv cells
+0260 Search.cc:2668            max tag group index exceeded
+0261 Search.cc:2900            max tag index exceeded
+0262 Search.cc:3595            unexpected filter path
+0263 Search.cc:3763            tns incr existing vertex
+0264 Sta.cc:4122               corresponding timing arc set not found in equiv cells
 0265 TagGroup.cc:297           tag group missing tag
+0266 Sta.cc:2080               '%s' is not a valid endpoint.
+0267 Sta.cc:2004               '%s' is not a valid startpoint.
 0272 StaTcl.i:4158             unknown common clk pessimism mode.
 0273 StaTcl.i:5088             unknown clock sense
 0300 Util.tcl:218              no commands match '$pattern'.
@@ -238,9 +372,9 @@
 0513 Sdc.tcl:203               hierarchy separator must be one of '$sdc_dividers'.
 0514 Sdc.tcl:249               unknown unit $unit '$suffix'.
 0515 Sdc.tcl:322               unknown $unit unit '$suffix'.
-0516 Sdc.tcl:585               unsupported -filter expression.
-0517 Sdc.tcl:970               unsupported -filter expression.
-0518 Sdc.tcl:1046              unsupported -filter expression.
+0516 Sdc.tcl:585               unsupported instance -filter expression.
+0517 Sdc.tcl:970               unsupported pin -filter expression.
+0518 Sdc.tcl:1046              unsupported port -filter expression.
 0519 Sdc.tcl:1079              -add requires -name.
 0520 Sdc.tcl:1084              -name or port_pin_list must be specified.
 0521 Sdc.tcl:1092              missing -period argument.
@@ -336,9 +470,9 @@
 0616 Search.tcl:1024           specify one of -setup and -hold.
 0617 Sdf.tcl:50                -analysis_type is deprecated. Use set_operating_conditions -analysis_type.
 0618 DmpCeff.cc:1579           parasitic Pi model has NaNs.
-0619 PathEnum.cc:481           path diversion missing edge.
-0620 PathVertex.cc:237         missing arrivals.
-0621 PathVertex.cc:251         missing arrivals.
-0622 PathVertex.cc:280         missing requireds.
+0619 PathEnum.cc:477           path diversion missing edge.
+0620 PathVertex.cc:236         missing arrivals.
+0621 PathVertex.cc:250         missing arrivals.
+0622 PathVertex.cc:279         missing requireds.
 0623 PathVertexRep.cc:153      missing arrivals.
 0624 PathVertexRep.cc:150      missing arrivals
