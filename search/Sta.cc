@@ -5187,6 +5187,26 @@ Sta::checkSlew(const Pin *pin,
 				corner1, rf, slew, limit, slack);
 }
 
+float
+Sta::maxSlewCheckSlack()
+{
+  checkSlewLimitPreamble();
+  PinSeq *pins = check_slew_limits_->checkSlewLimits(nullptr, false, nullptr,
+                                                     MinMax::max());
+  float slack = INF;
+  if (!pins->empty()) {
+    Pin *pin = (*pins)[0];
+    const Corner *corner;
+    const RiseFall *rf;
+    Slew slew;
+    float limit;
+    check_slew_limits_->checkSlew(pin, nullptr, MinMax::max(), true,
+                                  corner, rf, slew, limit, slack);
+  }
+  delete pins;
+  return slack;
+}
+
 ////////////////////////////////////////////////////////////////'
 
 void
@@ -5245,6 +5265,23 @@ Sta::checkFanout(const Pin *pin,
 {
   check_fanout_limits_->checkFanout(pin, min_max,
 				    fanout, limit, slack);
+}
+
+float
+Sta::maxFanoutCheckSlack()
+{
+  checkFanoutLimitPreamble();
+  PinSeq *pins = check_fanout_limits_->checkFanoutLimits(nullptr, false, MinMax::max());
+  float slack = INF;
+  if (!pins->empty()) {
+    Pin *pin = (*pins)[0];
+    float fanout;
+    float limit;
+    check_fanout_limits_->checkFanout(pin, MinMax::max(), true,
+                                      fanout, limit, slack);
+  }
+  delete pins;
+  return slack;
 }
 
 ////////////////////////////////////////////////////////////////'
@@ -5319,6 +5356,27 @@ Sta::checkCapacitance(const Pin *pin,
   check_capacitance_limits_->checkCapacitance(pin, corner, min_max,
 					      corner1, rf, capacitance,
 					      limit, slack);
+}
+
+float
+Sta::maxCapacitanceCheckSlack()
+{
+  checkCapacitanceLimitPreamble();
+  PinSeq *pins = check_capacitance_limits_->checkCapacitanceLimits(nullptr, false,
+                                                                   nullptr,
+                                                                   MinMax::max());
+  float slack = INF;
+  if (!pins->empty()) {
+    Pin *pin = (*pins)[0];
+    const Corner *corner;
+    const RiseFall *rf;
+    float capacitance;
+    float limit;
+    check_capacitance_limits_->checkCapacitance(pin, nullptr, MinMax::max(),
+                                                corner, rf, capacitance, limit, slack);
+  }
+  delete pins;
+  return slack;
 }
 
 ////////////////////////////////////////////////////////////////
