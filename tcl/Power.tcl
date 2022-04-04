@@ -59,8 +59,8 @@ proc report_power_design { corner digits } {
   lassign $totals design_internal design_switching design_leakage design_total
 
   set field_width [max [expr $digits + 6] 10]
-  report_power_title5 "Group" "Internal" "Switching" "Leakage" "Total" $field_width
-  report_power_title5 "     " "Power"    "Power"     "Power"   "Power" $field_width
+  report_power_title5       "Group" "Internal" "Switching" "Leakage" "Total" $field_width
+  report_power_title5_units "     " "Power"    "Power"     "Power"   "Power" "(Watts)" $field_width
   report_title_dashes5 $field_width
   report_power_row "Sequential"    $sequential    $design_total $field_width $digits
   report_power_row "Combinational" $combinational $design_total $field_width $digits
@@ -84,8 +84,16 @@ proc report_power_title5 { title1 title2 title3 title4 title5 field_width } {
   report_line "[format %-20s $title1] [format %${field_width}s $title2] [format %${field_width}s $title3] [format %${field_width}s $title4] [format %${field_width}s $title5]"
 }
 
+proc report_power_title5_units { title1 title2 title3 title4 title5 units field_width } {
+  report_line "[format %-20s $title1] [format %${field_width}s $title2] [format %${field_width}s $title3] [format %${field_width}s $title4] [format %${field_width}s $title5] $units"
+}
+
 proc report_power_title4 { title1 title2 title3 title4 field_width } {
   report_line " [format %${field_width}s $title1] [format %${field_width}s $title2] [format  %${field_width}s $title3] [format %${field_width}s $title4]"
+}
+
+proc report_power_title4_units { title1 title2 title3 title4 units field_width } {
+  report_line " [format %${field_width}s $title1] [format %${field_width}s $title2] [format  %${field_width}s $title3] [format %${field_width}s $title4] $units"
 }
 
 proc report_title_dashes5 { field_width } {
@@ -155,8 +163,8 @@ proc report_power_insts { insts corner digits } {
 
   set field_width [max [expr $digits + 6] 10]
 
-  report_power_title4 "Internal" "Switching" "Leakage" "Total" $field_width
-  report_power_title4 "Power"    "Power"     "Power"   "Power" $field_width
+  report_power_title4       "Internal" "Switching" "Leakage" "Total" $field_width
+  report_power_title4_units "Power"    "Power"     "Power"   "Power" "(Watts)" $field_width
   report_title_dashes4 $field_width
 
   foreach inst_pwr $inst_pwrs {
