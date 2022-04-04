@@ -41,15 +41,15 @@ public:
   PinSeq *checkFanoutLimits(Net *net,
                             bool violators,
                             const MinMax *min_max);
+
+protected:
   void checkFanout(const Pin *pin,
 		   const MinMax *min_max,
 		   float limit1,
 		   // Return values.
 		   float &fanout,
-		   float &slack,
-		   float &limit) const;
-
-protected:
+		   float &limit,
+		   float &slack) const;
   void findLimit(const Pin *pin,
 		 const MinMax *min_max,
 		 // Return values.

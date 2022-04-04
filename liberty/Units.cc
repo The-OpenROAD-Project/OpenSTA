@@ -58,6 +58,18 @@ Unit::operator=(const Unit &unit)
   digits_ = unit.digits_;
 }
 
+double
+Unit::staToUser(double value)
+{
+  return value / scale_;
+}
+
+double
+Unit::userToSta(double value)
+{
+  return value * scale_;
+}
+
 void
 Unit::setScale(float scale)
 {

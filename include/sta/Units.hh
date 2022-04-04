@@ -26,6 +26,10 @@ public:
   Unit(float scale,
        const char *suffix,
        int digits);
+  // Convert from sta units to user interface units.
+  double staToUser(double value);
+  // Convert from user interface units to sta units.
+  double userToSta(double value);
   void operator=(const Unit &unit);
   float scale() const { return scale_; }
   void setScale(float scale);

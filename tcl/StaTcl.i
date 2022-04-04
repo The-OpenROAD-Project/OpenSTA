@@ -3918,89 +3918,91 @@ format_area(const char *value,
 
 ////////////////////////////////////////////////////////////////
 
-// Unit converstion from sta unit to user interface and visa versa.
+// <unit>_sta_ui conversion from sta units to user interface units.
+// <unit>_ui_sta conversion from user interface units to sta units.
+
 double
 time_ui_sta(double value)
 {
-  return value * Sta::sta()->units()->timeUnit()->scale();
+  return Sta::sta()->units()->timeUnit()->userToSta(value);
 }
 
 double
 time_sta_ui(double value)
 {
-  return value / Sta::sta()->units()->timeUnit()->scale();
+  return Sta::sta()->units()->timeUnit()->staToUser(value);
 }
 
 double
 capacitance_ui_sta(double value)
 {
-  return value * Sta::sta()->units()->capacitanceUnit()->scale();
+  return Sta::sta()->units()->capacitanceUnit()->userToSta(value);
 }
 
 double
 capacitance_sta_ui(double value)
 {
-  return value / Sta::sta()->units()->capacitanceUnit()->scale();
+  return Sta::sta()->units()->capacitanceUnit()->staToUser(value);
 }
 
 double
 resistance_ui_sta(double value)
 {
-  return value * Sta::sta()->units()->resistanceUnit()->scale();
+  return Sta::sta()->units()->resistanceUnit()->userToSta(value);
 }
 
 double
 resistance_sta_ui(double value)
 {
-  return value / Sta::sta()->units()->resistanceUnit()->scale();
+  return Sta::sta()->units()->resistanceUnit()->staToUser(value);
 }
 
 double
 voltage_ui_sta(double value)
 {
-  return value * Sta::sta()->units()->voltageUnit()->scale();
+  return Sta::sta()->units()->voltageUnit()->userToSta(value);
 }
 
 double
 voltage_sta_ui(double value)
 {
-  return value / Sta::sta()->units()->voltageUnit()->scale();
+  return Sta::sta()->units()->voltageUnit()->staToUser(value);
 }
 
 double
 current_ui_sta(double value)
 {
-  return value * Sta::sta()->units()->currentUnit()->scale();
+  return Sta::sta()->units()->currentUnit()->userToSta(value);
 }
 
 double
 current_sta_ui(double value)
 {
-  return value / Sta::sta()->units()->currentUnit()->scale();
+  return Sta::sta()->units()->currentUnit()->staToUser(value);
 }
 
 double
 power_ui_sta(double value)
 {
-  return value * Sta::sta()->units()->powerUnit()->scale();
+  return Sta::sta()->units()->powerUnit()->userToSta(value);
 }
 
 double
 power_sta_ui(double value)
 {
-  return value / Sta::sta()->units()->powerUnit()->scale();
+  return Sta::sta()->units()->powerUnit()->staToUser(value);
 }
 
 double
 distance_ui_sta(double value)
 {
-  return value * Sta::sta()->units()->distanceUnit()->scale();
+  return Sta::sta()->units()->distanceUnit()->userToSta(value);
 }
 
 double
 distance_sta_ui(double value)
 {
-  return value / Sta::sta()->units()->distanceUnit()->scale();
+  return Sta::sta()->units()->distanceUnit()->staToUser(value);
 }
 
 double
@@ -4759,7 +4761,8 @@ float
 max_slew_check_slack()
 {
   cmdLinkedNetwork();
-  return Sta::sta()->maxSlewCheckSlack();
+  Sta *sta = Sta::sta();
+  return sta->units()->timeUnit()->staToUser(sta->maxSlewCheckSlack());
 }
 
 void
@@ -4852,7 +4855,8 @@ float
 max_capacitance_check_slack()
 {
   cmdLinkedNetwork();
-  return Sta::sta()->maxCapacitanceCheckSlack();
+  Sta *sta = Sta::sta();
+  return sta->units()->capacitanceUnit()->staToUser(sta->maxCapacitanceCheckSlack());
 }
 
 void

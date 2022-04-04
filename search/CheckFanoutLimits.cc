@@ -93,7 +93,7 @@ CheckFanoutLimits::checkFanout(const Pin *pin,
   findLimit(pin, min_max, limit1, limit1_exists);
   if (limit1_exists)
     checkFanout(pin, min_max, limit1,
-		fanout, slack, limit);
+		fanout, limit, slack);
 }
   
 // return the tightest limit.
@@ -184,8 +184,8 @@ CheckFanoutLimits::checkFanout(const Pin *pin,
 			       float limit1,
 			       // Return values.
 			       float &fanout,
-			       float &slack,
-			       float &limit) const
+			       float &limit,
+			       float &slack) const
 {
   float fanout1 = fanoutLoad(pin);
   float slack1 = (min_max == MinMax::max())

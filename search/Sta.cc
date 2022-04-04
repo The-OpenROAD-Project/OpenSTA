@@ -5277,7 +5277,7 @@ Sta::maxFanoutCheckSlack()
     Pin *pin = (*pins)[0];
     float fanout;
     float limit;
-    check_fanout_limits_->checkFanout(pin, MinMax::max(), true,
+    check_fanout_limits_->checkFanout(pin, MinMax::max(),
                                       fanout, limit, slack);
   }
   delete pins;
