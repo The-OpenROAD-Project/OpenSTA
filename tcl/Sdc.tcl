@@ -226,6 +226,7 @@ proc set_units { args } {
   check_unit "current" -current "A" keys
   check_unit "power" -power "W" keys
   check_unit "distance" -distance "m" keys
+  check_unit "power" -power "w" keys
 }
 
 proc check_unit { unit key unit_name key_var } {
