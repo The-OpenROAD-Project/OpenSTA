@@ -626,7 +626,11 @@ public:
 		 Slew &slew,
 		 float &limit,
 		 float &slack);
-  float maxSlewCheckSlack();
+  void maxSlewCheck(// Return values.
+                    Pin *&pin,
+                    Slew &slew,
+                    float &slack,
+                    float &limit);
 
   void checkFanoutLimitPreamble();
   // Return pins with the min/max fanout limit slack.
@@ -647,7 +651,11 @@ public:
 		   float &fanout,
 		   float &limit,
 		   float &slack);
-  float maxFanoutCheckSlack();
+  void maxFanoutCheck(// Return values.
+                      Pin *&pin,
+                      float &fanout,
+                      float &slack,
+                      float &limit);
 
   void checkCapacitanceLimitPreamble();
   // Return pins with the min/max slew limit slack.
@@ -674,7 +682,11 @@ public:
 			float &capacitance,
 			float &limit,
 			float &slack);
-  float maxCapacitanceCheckSlack();
+  void maxCapacitanceCheck(// Return values.
+                           Pin *&pin,
+                           float &capacitance,
+                           float &slack,
+                           float &limit);
 
   // Min pulse width check with the least slack.
   // corner=nullptr checks all corners.

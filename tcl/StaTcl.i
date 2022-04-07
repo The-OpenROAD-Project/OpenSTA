@@ -4762,7 +4762,25 @@ max_slew_check_slack()
 {
   cmdLinkedNetwork();
   Sta *sta = Sta::sta();
-  return sta->units()->timeUnit()->staToUser(sta->maxSlewCheckSlack());
+  Pin *pin;
+  Slew slew;
+  float slack;
+  float limit;
+  sta->maxSlewCheck(pin, slew, slack, limit);
+  return sta->units()->timeUnit()->staToUser(slack);
+}
+
+float
+max_slew_check_limit()
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  Pin *pin;
+  Slew slew;
+  float slack;
+  float limit;
+  sta->maxSlewCheck(pin, slew, slack, limit);
+  return sta->units()->timeUnit()->staToUser(limit);
 }
 
 void
@@ -4809,7 +4827,26 @@ float
 max_fanout_check_slack()
 {
   cmdLinkedNetwork();
-  return Sta::sta()->maxFanoutCheckSlack();
+  Sta *sta = Sta::sta();
+  Pin *pin;
+  float fanout;
+  float slack;
+  float limit;
+  sta->maxFanoutCheck(pin, fanout, slack, limit);
+  return slack;;
+}
+
+float
+max_fanout_check_limit()
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  Pin *pin;
+  float fanout;
+  float slack;
+  float limit;
+  sta->maxFanoutCheck(pin, fanout, slack, limit);
+  return limit;;
 }
 
 void
@@ -4856,7 +4893,25 @@ max_capacitance_check_slack()
 {
   cmdLinkedNetwork();
   Sta *sta = Sta::sta();
-  return sta->units()->capacitanceUnit()->staToUser(sta->maxCapacitanceCheckSlack());
+  Pin *pin;
+  float capacitance;
+  float slack;
+  float limit;
+  sta->maxCapacitanceCheck(pin, capacitance, slack, limit);
+  return sta->units()->capacitanceUnit()->staToUser(slack);
+}
+
+float
+max_capacitance_check_limit()
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  Pin *pin;
+  float capacitance;
+  float slack;
+  float limit;
+  sta->maxCapacitanceCheck(pin, capacitance, slack, limit);
+  return sta->units()->capacitanceUnit()->staToUser(limit);
 }
 
 void
