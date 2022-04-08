@@ -1109,17 +1109,17 @@ proc report_clock_min_period { args } {
 
 # max slew slack / limit
 proc max_slew_check_slack_limit {} {
-  return [eval [sta::max_slew_check_slack] / [sta::max_slew_check_limit]]
+  return [expr "[sta::max_slew_check_slack] / [sta::max_slew_check_limit]"]
 }
 
 # max cap slack / limit
 proc max_capacitance_check_slack_limit {} {
-  return [eval [sta::max_capacitance_check_slack] / [sta::max_capacitance_check_limit]]
+  return [expr [sta::max_capacitance_check_slack] / [sta::max_capacitance_check_limit]]
 }
 
 # max fanout slack / limit
 proc max_fanout_check_slack_limit {} {
-  return [eval [sta::max_fanout_check_slack] / [sta::max_fanout_check_limit]]
+  return [expr [sta::max_fanout_check_slack] / [sta::max_fanout_check_limit]]
 }
 
 # sta namespace end.
