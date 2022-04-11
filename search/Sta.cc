@@ -5283,6 +5283,7 @@ Sta::maxFanoutCheck(// Return values.
   pin = nullptr;
   fanout = 0;
   slack = INF;
+  limit = INF;
   if (!pins->empty()) {
     pin = (*pins)[0];
     check_fanout_limits_->checkFanout(pin, MinMax::max(),
