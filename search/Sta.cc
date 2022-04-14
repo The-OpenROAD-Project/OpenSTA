@@ -5211,6 +5211,19 @@ Sta::maxSlewCheck(// Return values.
   delete pins;
 }
 
+void
+Sta::findSlewLimit(const Pin *pin,
+                   const Corner *corner,
+                   const MinMax *min_max,
+                   // Return values.
+                   float &limit,
+                   bool &exists)
+{
+  checkSlewLimitPreamble();
+  check_slew_limits_->findLimit(pin, corner, min_max,
+                                limit, exists);
+}
+
 ////////////////////////////////////////////////////////////////'
 
 void

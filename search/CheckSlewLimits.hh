@@ -52,6 +52,12 @@ public:
                           bool violators,
                           const Corner *corner,
                           const MinMax *min_max);
+  void findLimit(const Pin *pin,
+                 const Corner *corner,
+                 const MinMax *min_max,
+                 // Return values.
+                 float &limit,
+                 bool &exists) const;
 
 protected:
   void checkSlews1(const Pin *pin,

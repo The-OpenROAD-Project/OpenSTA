@@ -155,10 +155,10 @@ CheckSlewLimits::checkSlews1(Vertex *vertex,
       && !sta_->clkNetwork()->isIdealClock(pin)) {
     for (auto rf : RiseFall::range()) {
       float limit;
-      bool limit_exists;
+      bool exists;
       findLimit(pin, vertex, corner, rf, min_max, check_clks,
-		limit, limit_exists);
-      if (limit_exists) {
+		limit, exists);
+      if (exists) {
 	checkSlew(vertex, corner, rf, min_max, limit,
 		  corner1, rf1, slew1, slack1, limit1);
       }
@@ -166,7 +166,25 @@ CheckSlewLimits::checkSlews1(Vertex *vertex,
   }
 }
 
-// return the tightest limit.
+void
+CheckSlewLimits::findLimit(const Pin *pin,
+                           const Corner *corner,
+			   const MinMax *min_max,
+			   // Return values.
+			   float &limit,
+			   bool &exists) const
+{
+  limit = INF;
+  exists = false;
+  for (auto rf : RiseFall::range()) {
+    float limit;
+    bool exists;
+    findLimit(pin, nullptr, corner, rf, min_max, false,
+              limit, exists);
+  }
+}
+
+// Return the tightest limit.
 void
 CheckSlewLimits::findLimit(const Pin *pin,
 			   const Vertex *vertex,

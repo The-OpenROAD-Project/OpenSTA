@@ -631,6 +631,12 @@ public:
                     Slew &slew,
                     float &slack,
                     float &limit);
+  void findSlewLimit(const Pin *pin,
+                     const Corner *corner,
+                     const MinMax *min_max,
+                     // Return values.
+                     float &limit,
+                     bool &exists);
 
   void checkFanoutLimitPreamble();
   // Return pins with the min/max fanout limit slack.
