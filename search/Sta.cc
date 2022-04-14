@@ -5212,7 +5212,7 @@ Sta::maxSlewCheck(// Return values.
 }
 
 void
-Sta::findSlewLimit(const Pin *pin,
+Sta::findSlewLimit(const LibertyPort *port,
                    const Corner *corner,
                    const MinMax *min_max,
                    // Return values.
@@ -5220,7 +5220,7 @@ Sta::findSlewLimit(const Pin *pin,
                    bool &exists)
 {
   checkSlewLimitPreamble();
-  check_slew_limits_->findLimit(pin, corner, min_max,
+  check_slew_limits_->findLimit(port, corner, min_max,
                                 limit, exists);
 }
 

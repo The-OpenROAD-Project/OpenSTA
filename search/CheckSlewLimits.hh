@@ -52,7 +52,7 @@ public:
                           bool violators,
                           const Corner *corner,
                           const MinMax *min_max);
-  void findLimit(const Pin *pin,
+  void findLimit(const LibertyPort *port,
                  const Corner *corner,
                  const MinMax *min_max,
                  // Return values.

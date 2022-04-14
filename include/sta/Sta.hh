@@ -631,7 +631,7 @@ public:
                     Slew &slew,
                     float &slack,
                     float &limit);
-  void findSlewLimit(const Pin *pin,
+  void findSlewLimit(const LibertyPort *port,
                      const Corner *corner,
                      const MinMax *min_max,
                      // Return values.
