@@ -255,18 +255,23 @@ CheckSlewLimits::findLimit(const LibertyPort *port,
 
   const Network *network = sta_->network();
   Sdc *sdc = sta_->sdc();
+  float limit1;
+  bool exists1;
 
   // Default to top ("design") limit.
   Cell *top_cell = network->cell(network->topInstance());
   sdc->slewLimit(top_cell, min_max,
-		 limit, exists);
+		 limit1, exists1);
+  if (exists1) {
+    limit = limit1;
+    exists = true;
+  }
 
   if (port) {
     const LibertyPort *corner_port = port->cornerPort(corner->libertyIndex(min_max));
-    float limit1;
-    bool exists1;
     corner_port->slewLimit(min_max, limit1, exists1);
     if (!exists1
+        // default_max_transition only applies to outputs.
         && corner_port->direction()->isAnyOutput()
         && min_max == MinMax::max())
       corner_port->libertyLibrary()->defaultMaxSlew(limit1, exists1);

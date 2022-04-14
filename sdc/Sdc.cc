@@ -779,7 +779,8 @@ Sdc::haveClkSlewLimits() const
 }
 
 void
-Sdc::slewLimit(Clock *clk, const RiseFall *rf,
+Sdc::slewLimit(Clock *clk,
+               const RiseFall *rf,
 	       const PathClkOrData clk_data,
 	       const MinMax *min_max,
 	       float &slew,
@@ -794,7 +795,7 @@ Sdc::slewLimit(Port *port,
 	       float &slew,
 	       bool &exists)
 {
-  slew = 0.0;
+  slew = INF;
   MinMaxFloatValues values;
   port_slew_limit_map_.findKey(port, values, exists);
   if (exists)
@@ -816,7 +817,7 @@ Sdc::slewLimit(Cell *cell,
 	       float &slew,
 	       bool &exists)
 {
-  slew = 0.0;
+  slew = INF;
   MinMaxFloatValues values;
   cell_slew_limit_map_.findKey(cell, values, exists);
   if (exists)

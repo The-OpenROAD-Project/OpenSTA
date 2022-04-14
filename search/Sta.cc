@@ -5219,7 +5219,8 @@ Sta::findSlewLimit(const LibertyPort *port,
                    float &limit,
                    bool &exists)
 {
-  checkSlewLimitPreamble();
+  if (check_slew_limits_ == nullptr)
+    makeCheckSlewLimits();
   check_slew_limits_->findLimit(port, corner, min_max,
                                 limit, exists);
 }
