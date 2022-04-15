@@ -49,10 +49,11 @@ public:
 	      type_instance, type_pin, type_pins, type_net,
 	      type_clk, type_clks, type_path_refs, type_pwr_activity };
   PropertyValue();
-  PropertyValue(const char *value);
-  PropertyValue(string &value);
-  PropertyValue(float value);
-  PropertyValue(bool value);
+  explicit PropertyValue(const char *value);
+  explicit PropertyValue(string &value);
+  explicit PropertyValue(float value);
+  explicit PropertyValue(double value);
+  explicit PropertyValue(bool value);
   PropertyValue(Library *value);
   PropertyValue(Cell *value);
   PropertyValue(Port *value);

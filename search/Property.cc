@@ -63,9 +63,15 @@ edgeDelayProperty(Edge *edge,
 		  const RiseFall *rf,
 		  const MinMax *min_max,
 		  Sta *sta);
-static float
+static PropertyValue
 delayPropertyValue(Delay delay,
 		   Sta *sta);
+static PropertyValue
+resistancePropertyValue(Delay delay,
+                        Sta *sta);
+static PropertyValue
+capacitancePropertyValue(Delay delay,
+                         Sta *sta);
 
 ////////////////////////////////////////////////////////////////
 
@@ -117,6 +123,12 @@ PropertyValue::PropertyValue(std::string &value) :
 }
 
 PropertyValue::PropertyValue(float value) :
+  type_(type_float),
+  float_(value)
+{
+}
+
+PropertyValue::PropertyValue(double value) :
   type_(type_float),
   float_(value)
 {
@@ -685,55 +697,55 @@ getProperty(const LibertyPort *port,
     return PropertyValue(port->direction()->name());
   else if (stringEqual(property, "capacitance")) {
     float cap = port->capacitance(RiseFall::rise(), MinMax::max());
-    return PropertyValue(sta->units()->capacitanceUnit()->asString(cap, 6));
+    return capacitancePropertyValue(cap, sta);
   }
   else if (stringEqual(property, "is_register_clock"))
     return PropertyValue(port->isRegClk());
 
   else if (stringEqual(property, "drive_resistance")) {
     float res = port->driveResistance();
-    return PropertyValue(sta->units()->resistanceUnit()->asString(res, 6));
+    return resistancePropertyValue(res, sta);
   }
   else if (stringEqual(property, "drive_resistance_rise_min")) {
     float res = port->driveResistance(RiseFall::rise(), MinMax::min());
-    return PropertyValue(sta->units()->resistanceUnit()->asString(res, 6));
+    return resistancePropertyValue(res, sta);
   }
   else if (stringEqual(property, "drive_resistance_rise_max")) {
     float res = port->driveResistance(RiseFall::rise(), MinMax::max());
-    return PropertyValue(sta->units()->resistanceUnit()->asString(res, 6));
+    return resistancePropertyValue(res, sta);
   }
   else if (stringEqual(property, "drive_resistance_fall_min")) {
     float res = port->driveResistance(RiseFall::fall(), MinMax::min());
-    return PropertyValue(sta->units()->resistanceUnit()->asString(res, 6));
+    return resistancePropertyValue(res, sta);
   }
   else if (stringEqual(property, "drive_resistance_fall_max")) {
     float res = port->driveResistance(RiseFall::fall(), MinMax::max());
-    return PropertyValue(sta->units()->resistanceUnit()->asString(res, 6));
+    return resistancePropertyValue(res, sta);
   }
 
   else if (stringEqual(property, "intrinsic_delay")) {
-    float drive = delayAsFloat(port->intrinsicDelay(sta));
-    return PropertyValue(sta->units()->timeUnit()->asString(drive, 6));
+    ArcDelay delay = port->intrinsicDelay(sta);
+    return delayPropertyValue(delay, sta);
   }
   else if (stringEqual(property, "intrinsic_delay_rise_min")) {
-    float drive = delayAsFloat(port->intrinsicDelay(RiseFall::rise(),
-                                                    MinMax::min(), sta));
-    return PropertyValue(sta->units()->timeUnit()->asString(drive, 6));
+    ArcDelay delay = port->intrinsicDelay(RiseFall::rise(),
+                                          MinMax::min(), sta);
+    return delayPropertyValue(delay, sta);
   }
   else if (stringEqual(property, "intrinsic_delay_rise_max")) {
-    float drive = delayAsFloat(port->intrinsicDelay(RiseFall::rise(),
-                                                    MinMax::max(), sta));
-    return PropertyValue(sta->units()->timeUnit()->asString(drive, 6));
+    ArcDelay delay = port->intrinsicDelay(RiseFall::rise(),
+                                          MinMax::max(), sta);
+    return delayPropertyValue(delay, sta);
   }
   else if (stringEqual(property, "intrinsic_delay_fall_min")) {
-    float drive = delayAsFloat(port->intrinsicDelay(RiseFall::fall(),
-                                                    MinMax::min(), sta));
-    return PropertyValue(sta->units()->timeUnit()->asString(drive, 6));
+    ArcDelay delay = port->intrinsicDelay(RiseFall::fall(),
+                                          MinMax::min(), sta);
+    return delayPropertyValue(delay, sta);
   }
   else if (stringEqual(property, "intrinsic_delay_fall_max")) {
-    float drive = delayAsFloat(port->intrinsicDelay(RiseFall::fall(),
-                                                    MinMax::max(), sta));
-    return PropertyValue(sta->units()->timeUnit()->asString(drive, 6));
+    ArcDelay delay = port->intrinsicDelay(RiseFall::fall(),
+                                          MinMax::max(), sta);
+    return delayPropertyValue(delay, sta);
   }
   else
     throw PropertyUnknown("liberty port", property);
@@ -873,7 +885,7 @@ getProperty(Edge *edge,
     auto graph = sta->graph();
     const char *from = edge->from(graph)->name(network);
     const char *to = edge->to(graph)->name(network);
-    return stringPrintTmp("%s -> %s", from, to);
+    return PropertyValue(stringPrintTmp("%s -> %s", from, to));
   }
   if (stringEqual(property, "delay_min_fall"))
     return edgeDelayProperty(edge, RiseFall::fall(), MinMax::min(), sta);
@@ -957,7 +969,7 @@ getProperty(Clock *clk,
       || stringEqual(property, "full_name"))
     return PropertyValue(clk->name());
   else if (stringEqual(property, "period"))
-    return PropertyValue(sta->units()->timeUnit()->asString(clk->period(), 6));
+    return PropertyValue(sta->units()->timeUnit()->staToUser(clk->period()));
   else if (stringEqual(property, "sources"))
     return PropertyValue(&clk->pins());
   else if (stringEqual(property, "propagated"))
@@ -1019,11 +1031,25 @@ getProperty(PathRef *path,
     throw PropertyUnknown("path", property);
 }
 
-static float
+static PropertyValue
 delayPropertyValue(Delay delay,
 		   Sta *sta)
 {
-  return delayAsFloat(delay) / sta->units()->timeUnit()->scale();
+  return PropertyValue(sta->units()->timeUnit()->staToUser(delayAsFloat(delay)));
+}
+
+static PropertyValue
+resistancePropertyValue(Delay delay,
+                        Sta *sta)
+{
+  return PropertyValue(sta->units()->resistanceUnit()->staToUser(delayAsFloat(delay)));
+}
+
+static PropertyValue
+capacitancePropertyValue(Delay delay,
+                         Sta *sta)
+{
+  return PropertyValue(sta->units()->capacitanceUnit()->staToUser(delayAsFloat(delay)));
 }
 
 } // namespace
