@@ -1420,9 +1420,9 @@ using namespace sta;
     Tcl_SetResult(interp, const_cast<char*>(value.stringValue()), TCL_VOLATILE);
     break;
   case PropertyValue::Type::type_float: {
-    char *float_string = stringPrint("%.6e", value.floatValue());
-    Tcl_SetResult(interp, float_string, TCL_VOLATILE);
-    stringDelete(float_string);
+    const Unit *unit = value.unit();
+    const char *float_string = unit->asString(value.floatValue(), 6);
+    Tcl_SetResult(interp, const_cast<char*>(float_string), TCL_VOLATILE);
   }
     break;
   case PropertyValue::Type::type_bool: {

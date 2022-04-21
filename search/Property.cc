@@ -67,10 +67,10 @@ static PropertyValue
 delayPropertyValue(Delay delay,
 		   Sta *sta);
 static PropertyValue
-resistancePropertyValue(Delay delay,
+resistancePropertyValue(float res,
                         Sta *sta);
 static PropertyValue
-capacitancePropertyValue(Delay delay,
+capacitancePropertyValue(float cap,
                          Sta *sta);
 
 ////////////////////////////////////////////////////////////////
@@ -106,97 +106,107 @@ PropertyUnknown::what() const noexcept
 ////////////////////////////////////////////////////////////////
 
 PropertyValue::PropertyValue() :
-  type_(type_none)
+  type_(type_none),
+  unit_(nullptr)
 {
 }
 
 PropertyValue::PropertyValue(const char *value) :
   type_(type_string),
-  string_(stringCopy(value))
+  string_(stringCopy(value)),
+  unit_(nullptr)
 {
 }
 
 PropertyValue::PropertyValue(std::string &value) :
   type_(type_string),
-  string_(stringCopy(value.c_str()))
+  string_(stringCopy(value.c_str())),
+  unit_(nullptr)
 {
 }
 
-PropertyValue::PropertyValue(float value) :
+PropertyValue::PropertyValue(float value,
+                             const Unit *unit) :
   type_(type_float),
-  float_(value)
-{
-}
-
-PropertyValue::PropertyValue(double value) :
-  type_(type_float),
-  float_(value)
+  float_(value),
+  unit_(unit)
 {
 }
 
 PropertyValue::PropertyValue(bool value) :
   type_(type_bool),
-  bool_(value)
+  bool_(value),
+  unit_(nullptr)
 {
 }
 
 PropertyValue::PropertyValue(LibertyLibrary *value) :
   type_(type_liberty_library),
-  liberty_library_(value)
+  liberty_library_(value),
+  unit_(nullptr)
 {
 }
 
 PropertyValue::PropertyValue(LibertyCell *value) :
   type_(type_liberty_cell),
-  liberty_cell_(value)
+  liberty_cell_(value),
+  unit_(nullptr)
 {
 }
 
 PropertyValue::PropertyValue(LibertyPort *value) :
   type_(type_liberty_port),
-  liberty_port_(value)
+  liberty_port_(value),
+  unit_(nullptr)
 {
 }
 
 PropertyValue::PropertyValue(Library *value) :
   type_(type_library),
-  library_(value)
+  library_(value),
+  unit_(nullptr)
 {
 }
 
 PropertyValue::PropertyValue(Cell *value) :
   type_(type_cell),
-  cell_(value)
+  cell_(value),
+  unit_(nullptr)
 {
 }
 
 PropertyValue::PropertyValue(Port *value) :
   type_(type_port),
-  port_(value)
+  port_(value),
+  unit_(nullptr)
 {
 }
 
 PropertyValue::PropertyValue(Instance *value) :
   type_(type_instance),
-  inst_(value)
+  inst_(value),
+  unit_(nullptr)
 {
 }
 
 PropertyValue::PropertyValue(Pin *value) :
   type_(type_pin),
-  pin_(value)
+  pin_(value),
+  unit_(nullptr)
 {
 }
 
 PropertyValue::PropertyValue(PinSeq *value) :
   type_(type_pins),
-  pins_(value)
+  pins_(value),
+  unit_(nullptr)
 {
 }
 
 PropertyValue::PropertyValue(PinSet *value) :
   type_(type_pins),
-  pins_(new PinSeq)
+  pins_(new PinSeq),
+  unit_(nullptr)
 {
   PinSet::Iterator pin_iter(value);
   while (pin_iter.hasNext()) {
@@ -207,25 +217,29 @@ PropertyValue::PropertyValue(PinSet *value) :
 
 PropertyValue::PropertyValue(Net *value) :
   type_(type_net),
-  net_(value)
+  net_(value),
+  unit_(nullptr)
 {
 }
 
 PropertyValue::PropertyValue(Clock *value) :
   type_(type_clk),
-  clk_(value)
+  clk_(value),
+  unit_(nullptr)
 {
 }
 
 PropertyValue::PropertyValue(ClockSeq *value) :
   type_(type_clks),
-  clks_(new ClockSeq(*value))
+  clks_(new ClockSeq(*value)),
+  unit_(nullptr)
 {
 }
 
 PropertyValue::PropertyValue(ClockSet *value) :
   type_(type_clks),
-  clks_(new ClockSeq)
+  clks_(new ClockSeq),
+  unit_(nullptr)
 {
   ClockSet::Iterator clk_iter(value);
   while (clk_iter.hasNext()) {
@@ -236,18 +250,21 @@ PropertyValue::PropertyValue(ClockSet *value) :
 
 PropertyValue::PropertyValue(PathRefSeq *value) :
   type_(type_path_refs),
-  path_refs_(new PathRefSeq(*value))
+  path_refs_(new PathRefSeq(*value)),
+  unit_(nullptr)
 {
 }
 
 PropertyValue::PropertyValue(PwrActivity *value) :
   type_(type_pwr_activity),
-  pwr_activity_(*value)
+  pwr_activity_(*value),
+  unit_(nullptr)
 {
 }
 
 PropertyValue::PropertyValue(const PropertyValue &value) :
-  type_(value.type_)
+  type_(value.type_),
+  unit_(value.unit_)
 {
   switch (type_) {
   case Type::type_none:
@@ -307,7 +324,9 @@ PropertyValue::PropertyValue(const PropertyValue &value) :
 }
 
 PropertyValue::PropertyValue(PropertyValue &&value) :
-  type_(value.type_)
+  type_(value.type_),
+  unit_(value.unit_)
+
 {
   switch (type_) {
   case Type::type_none:
@@ -396,6 +415,8 @@ PropertyValue &
 PropertyValue::operator=(const PropertyValue &value)
 {
   type_ = value.type_;
+  unit_ = value.unit_;
+
   switch (type_) {
   case Type::type_none:
     break;
@@ -458,6 +479,8 @@ PropertyValue &
 PropertyValue::operator=(PropertyValue &&value)
 {
   type_ = value.type_;
+  unit_ = value.unit_;
+
   switch (type_) {
   case Type::type_none:
     break;
@@ -854,7 +877,7 @@ pinSlewProperty(const Pin *pin,
     if (delayGreater(vertex_slew, slew, min_max, sta))
       slew = vertex_slew;
   }
-  return PropertyValue(delayPropertyValue(slew, sta));
+  return delayPropertyValue(slew, sta);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -969,7 +992,7 @@ getProperty(Clock *clk,
       || stringEqual(property, "full_name"))
     return PropertyValue(clk->name());
   else if (stringEqual(property, "period"))
-    return PropertyValue(sta->units()->timeUnit()->staToUser(clk->period()));
+    return PropertyValue(clk->period(), sta->units()->timeUnit());
   else if (stringEqual(property, "sources"))
     return PropertyValue(&clk->pins());
   else if (stringEqual(property, "propagated"))
@@ -1035,21 +1058,21 @@ static PropertyValue
 delayPropertyValue(Delay delay,
 		   Sta *sta)
 {
-  return PropertyValue(sta->units()->timeUnit()->staToUser(delayAsFloat(delay)));
+  return PropertyValue(delayAsFloat(delay), sta->units()->timeUnit());
 }
 
 static PropertyValue
-resistancePropertyValue(Delay delay,
+resistancePropertyValue(float res,
                         Sta *sta)
 {
-  return PropertyValue(sta->units()->resistanceUnit()->staToUser(delayAsFloat(delay)));
+  return PropertyValue(res, sta->units()->resistanceUnit());
 }
 
 static PropertyValue
-capacitancePropertyValue(Delay delay,
+capacitancePropertyValue(float cap,
                          Sta *sta)
 {
-  return PropertyValue(sta->units()->capacitanceUnit()->staToUser(delayAsFloat(delay)));
+  return PropertyValue(cap, sta->units()->capacitanceUnit());
 }
 
 } // namespace
