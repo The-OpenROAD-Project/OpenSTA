@@ -956,6 +956,7 @@ public:
 			   const MinMax *min_max);
   // Worst endpoint slack and vertex.
   // Incrementally updated.
+  Slack worstSlack(const MinMax *min_max);
   void worstSlack(const MinMax *min_max,
 		  // Return values.
 		  Slack &worst_slack,

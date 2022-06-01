@@ -3206,6 +3206,16 @@ Sta::totalNegativeSlack(const Corner *corner,
   return search_->totalNegativeSlack(corner, min_max);
 }
 
+Slack
+Sta::worstSlack(const MinMax *min_max)
+{
+  searchPreamble();
+  Slack worst_slack;
+  Vertex *worst_vertex;
+  search_->worstSlack(min_max, worst_slack, worst_vertex);
+  return worst_slack;
+}
+
 void
 Sta::worstSlack(const MinMax *min_max,
 		// Return values.
@@ -3213,7 +3223,7 @@ Sta::worstSlack(const MinMax *min_max,
 		Vertex *&worst_vertex)
 {
   searchPreamble();
-  return search_->worstSlack(min_max, worst_slack, worst_vertex);
+  search_->worstSlack(min_max, worst_slack, worst_vertex);
 }
 
 void
