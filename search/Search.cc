@@ -658,7 +658,7 @@ bool
 Search::arrivalsValid()
 {
   return arrivals_exist_
-    && invalid_requireds_->empty();
+    && invalid_arrivals_->empty();
 }
 
 void
@@ -3834,7 +3834,8 @@ Search::wnsTnsPreamble()
   findAllArrivals();
   // Required times are only needed at endpoints.
   if (requireds_seeded_) {
-    for (Vertex *vertex : *invalid_requireds_) {
+    for (auto itr = invalid_requireds_->begin(); itr != invalid_requireds_->end(); ) {
+      Vertex *vertex = *itr;
       debugPrint(debug_, "search", 2, "tns update required %s",
                  vertex->name(sdc_network_));
       if (isEndpoint(vertex)) {
@@ -3845,9 +3846,11 @@ Search::wnsTnsPreamble()
 	// the required time is requested later.
 	if (hasFanout(vertex, search_adj_, graph_))
 	  required_iter_->enqueue(vertex);
+        itr = invalid_requireds_->erase(itr);
       }
+      else
+        itr++;
     }
-    invalid_requireds_->clear();
   }
   else
     seedRequireds();
