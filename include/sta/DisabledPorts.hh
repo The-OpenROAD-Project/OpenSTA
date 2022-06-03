@@ -44,9 +44,13 @@ public:
   void removeDisabledFrom(LibertyPort *port);
   void setDisabledTo(LibertyPort *port);
   void removeDisabledTo(LibertyPort *port);
-  void setDisabledFromTo(LibertyPort *from, LibertyPort *to);
-  void removeDisabledFromTo(LibertyPort *from, LibertyPort *to);
-  bool isDisabled(LibertyPort *from, LibertyPort *to, const TimingRole *role);
+  void setDisabledFromTo(LibertyPort *from,
+                         LibertyPort *to);
+  void removeDisabledFromTo(LibertyPort *from,
+                            LibertyPort *to);
+  bool isDisabled(LibertyPort *from,
+                  LibertyPort *to,
+                  const TimingRole *role);
   LibertyPortPairSet *fromTo() const { return from_to_; }
   LibertyPortSet *from() const { return from_; }
   LibertyPortSet *to() const { return to_; }

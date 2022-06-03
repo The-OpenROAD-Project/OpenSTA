@@ -86,7 +86,8 @@ DisabledPorts::removeDisabledTo(LibertyPort *port)
 }
 
 void
-DisabledPorts::setDisabledFromTo(LibertyPort *from, LibertyPort *to)
+DisabledPorts::setDisabledFromTo(LibertyPort *from,
+                                 LibertyPort *to)
 {
   if (from_to_ == nullptr)
     from_to_ = new LibertyPortPairSet;
@@ -98,7 +99,8 @@ DisabledPorts::setDisabledFromTo(LibertyPort *from, LibertyPort *to)
 }
 
 void
-DisabledPorts::removeDisabledFromTo(LibertyPort *from, LibertyPort *to)
+DisabledPorts::removeDisabledFromTo(LibertyPort *from,
+                                    LibertyPort *to)
 {
   if (from_to_) {
     LibertyPortPair probe(from, to);
@@ -111,7 +113,8 @@ DisabledPorts::removeDisabledFromTo(LibertyPort *from, LibertyPort *to)
 }
 
 bool
-DisabledPorts::isDisabled(LibertyPort *from, LibertyPort *to,
+DisabledPorts::isDisabled(LibertyPort *from,
+                          LibertyPort *to,
 			  const TimingRole *role)
 {
   LibertyPortPair pair(from, to);
