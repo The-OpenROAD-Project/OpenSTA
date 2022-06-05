@@ -69,7 +69,7 @@ protected:
   Network *network_;
 
   Set<Cell*> written_cells_;
-  Set<Instance*> pending_children_;
+  Vector<Instance*> pending_children_;
   int unconnected_net_index_;
 };
 
@@ -128,6 +128,11 @@ VerilogWriter::writeModule(Instance *inst)
   fprintf(stream_, "endmodule\n");
   written_cells_.insert(cell);
 
+  if (sort_)
+    sort(pending_children_, [this](const Instance *inst1,
+                                   const Instance *inst2) {
+      return stringLess(network_->cellName(inst1), network_->cellName(inst2));
+    });
   for (auto child : pending_children_) {
     Cell *child_cell = network_->cell(child);
     if (!written_cells_.hasKey(child_cell))
@@ -257,13 +262,17 @@ VerilogWriter::writeChildren(Instance *inst)
   while (child_iter->hasNext()) {
     Instance *child = child_iter->next();
     children.push_back(child);
-    if (network_->isHierarchical(child))
-      pending_children_.insert(child);
+    if (network_->isHierarchical(child)) {
+      pending_children_.push_back(child);
+    }
   }
   delete child_iter;
 
   if (sort_)
-    sort(children, InstancePathNameLess(network_));
+    sort(children, [this](const Instance *inst1,
+                          const Instance *inst2) {
+      return stringLess(network_->name(inst1), network_->name(inst2));
+    });
 
   for (auto child : children)
     writeChild(child);
