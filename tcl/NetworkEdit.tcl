@@ -114,7 +114,7 @@ proc delete_instance { instance } {
   if { [is_object $instance] } {
     set object_type [object_type $instance]
     if { $object_type == "Instance" } {
-      set inst $obj
+      set inst $instance
     } else {
       sta_error 587 "unsupported object type $object_type."
     }
