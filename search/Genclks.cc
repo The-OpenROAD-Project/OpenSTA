@@ -154,7 +154,7 @@ Genclks::srcPathVertex(const Pin *pin) const
 }
 
 Level
-Genclks::clkPinMaxLevel(Clock *clk) const
+Genclks::clkPinMaxLevel(const Clock *clk) const
 {
   Level max_level = 0;
   for (Pin *pin : clk->leafPins()) {

@@ -82,7 +82,7 @@ public:
 		   const RiseFall *rf,
 		   const PathAnalysisPt *path_ap) const;
   Vertex *srcPathVertex(const Pin *pin) const;
-  Level clkPinMaxLevel(Clock *clk) const;
+  Level clkPinMaxLevel(const Clock *clk) const;
   void copyGenClkSrcPaths(Vertex *vertex,
 			  TagGroupBldr *tag_bldr);
 
