@@ -50,6 +50,7 @@
 #include "TimingRole.hh"
 #include "TimingArc.hh"
 #include "Liberty.hh"
+#include "LibertyWriter.hh"
 #include "EquivCells.hh"
 #include "Wireload.hh"
 #include "PortDirection.hh"
@@ -2172,6 +2173,13 @@ set_min_library_cmd(char *min_filename,
 		    char *max_filename)
 {
   return Sta::sta()->setMinLibrary(min_filename, max_filename);
+}
+
+void
+write_liberty_cmd(LibertyLibrary *library,
+                  char *filename)
+{
+  writeLiberty(library, filename);
 }
 
 Library *

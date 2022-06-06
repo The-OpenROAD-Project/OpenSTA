@@ -33,5 +33,15 @@ proc_redirect read_liberty {
   read_liberty_cmd $filename $corner $min_max $infer_latches
 }
 
+define_cmd_args "write_liberty" {library filename}
+
+proc write_liberty { args } {
+  check_argc_eq2 "write_liberty" $args
+
+  set library [get_liberty_error "library" [lindex $args 0]]
+  set filename [file nativename [lindex $args 1]]
+  write_liberty_cmd $library $filename
+}
+
 # sta namespace end
 }
