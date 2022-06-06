@@ -43,8 +43,6 @@ typedef Set<TimingModel*> TimingModelSet;
 typedef Set<FuncExpr*> FuncExprSet;
 typedef Set<LatchEnable*> LatchEnableSet;
 
-bool LibertyLibrary::found_rise_fall_caps_ = false;
-
 void
 initLiberty()
 {

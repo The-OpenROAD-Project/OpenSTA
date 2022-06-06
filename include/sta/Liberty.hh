@@ -340,8 +340,6 @@ protected:
   SupplyVoltageMap supply_voltage_map_;
   LibertyCellSeq *buffers_;
 
-  // Set if any library has rise/fall capacitances.
-  static bool found_rise_fall_caps_;
   static constexpr float input_threshold_default_ = .5;
   static constexpr float output_threshold_default_ = .5;
   static constexpr float slew_lower_threshold_default_ = .2;
