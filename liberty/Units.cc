@@ -77,7 +77,7 @@ Unit::setScale(float scale)
 }
 
 const char *
-Unit::scaleAbreviation()
+Unit::scaleAbreviation() const
 {
   if (fuzzyEqual(scale_, 1E+6))
     return "M";

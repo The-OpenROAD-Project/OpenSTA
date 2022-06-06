@@ -20,9 +20,12 @@
 
 namespace sta {
 
+class StaState;
+
 void
 writeLiberty(LibertyLibrary *lib,
-             const char *filename);
+             const char *filename,
+             StaState *sta);
 
 } // namespace
 

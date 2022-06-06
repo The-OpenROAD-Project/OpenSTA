@@ -2179,7 +2179,7 @@ void
 write_liberty_cmd(LibertyLibrary *library,
                   char *filename)
 {
-  writeLiberty(library, filename);
+  writeLiberty(library, filename, Sta::sta());
 }
 
 Library *

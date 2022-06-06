@@ -33,7 +33,7 @@ public:
   void operator=(const Unit &unit);
   float scale() const { return scale_; }
   void setScale(float scale);
-  const char *scaleAbreviation();
+  const char *scaleAbreviation() const;
   const char *suffix() const { return suffix_; }
   void setSuffix(const char *suffix);
   int digits() const { return digits_; }

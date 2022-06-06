@@ -133,7 +133,7 @@ public:
 			TableTemplateType type);
   TableTemplate *findTableTemplate(const char *name,
 				   TableTemplateType type);
-  float nominalProcess() { return nominal_process_; }
+  float nominalProcess() const { return nominal_process_; }
   void setNominalProcess(float process);
   float nominalVoltage() const { return nominal_voltage_; }
   void setNominalVoltage(float voltage);
