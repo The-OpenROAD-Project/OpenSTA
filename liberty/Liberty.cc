@@ -192,6 +192,19 @@ LibertyLibrary::findTableTemplate(const char *name,
   return template_maps_[int(type)][name];
 }
 
+TableTemplateSeq
+LibertyLibrary::tableTemplates() const
+{
+  TableTemplateSeq tbl_templates;
+  for (int type = 0; type < table_template_type_count; type++) {
+    for (auto name_template : template_maps_[type]) {
+      TableTemplate *tbl_template = name_template.second;
+      tbl_templates.push_back(tbl_template);
+    }
+  }
+  return tbl_templates;
+}
+
 void
 LibertyLibrary::setNominalProcess(float process)
 {

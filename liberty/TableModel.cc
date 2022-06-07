@@ -556,9 +556,11 @@ CheckTableModel::checkAxis(TableAxis *axis)
 ////////////////////////////////////////////////////////////////
 
 TableModel::TableModel(Table *table,
+                       TableTemplate *tbl_template,
 		       ScaleFactorType scale_factor_type,
 		       RiseFall *rf) :
   table_(table),
+  tbl_template_(tbl_template),
   scale_factor_type_(int(scale_factor_type)),
   tr_index_(rf->index()),
   is_scaled_(false)
@@ -604,6 +606,14 @@ TableAxis *
 TableModel::axis3() const
 {
   return table_->axis3();
+}
+
+float
+TableModel::value(size_t index1,
+                  size_t index2,
+                  size_t index3) const
+{
+  return table_->value(index1, index2, index3);
 }
 
 float
@@ -703,6 +713,14 @@ Table0::Table0(float value) :
 }
 
 float
+Table0::value(size_t,
+              size_t,
+              size_t) const
+{
+  return value_;
+}
+
+float
 Table0::findValue(float,
 		  float,
 		  float) const
@@ -761,7 +779,15 @@ Table1::~Table1()
 }
 
 float
-Table1::tableValue(size_t index1) const
+Table1::value(size_t index1,
+              size_t,
+              size_t) const
+{
+  return value(index1);
+}
+
+float
+Table1::value(size_t index1) const
 {
   return (*values_)[index1];
 }
@@ -772,14 +798,14 @@ Table1::findValue(float value1,
 		  float) const
 {
   if (axis1_->size() == 1)
-    return tableValue(value1);
+    return value(value1);
   else {
     size_t index1 = axis1_->findAxisIndex(value1);
     float x1 = value1;
     float x1l = axis1_->axisValue(index1);
     float x1u = axis1_->axisValue(index1 + 1);
-    float y1 = tableValue(index1);
-    float y2 = tableValue(index1 + 1);
+    float y1 = value(index1);
+    float y2 = value(index1 + 1);
     float dx1 = (x1 - x1l) / (x1u - x1l);
     return (1 - dx1) * y1 + dx1 * y2;
   }
@@ -821,9 +847,9 @@ Table1::reportValue(const char *result_name, const
     *result += "    --------------------\n";
 
     *result += "| ";
-    *result += table_unit->asString(tableValue(index1), digits);
+    *result += table_unit->asString(value(index1), digits);
     *result += "     ";
-    *result += table_unit->asString(tableValue(index1 + 1),
+    *result += table_unit->asString(value(index1 + 1),
 				    digits);
     *result += '\n';
   }
@@ -852,7 +878,7 @@ Table1::report(const Units *units,
 
   line.clear();
   for (size_t index1 = 0; index1 < axis1_->size(); index1++) {
-    line += table_unit->asString(tableValue(index1), digits);
+    line += table_unit->asString(value(index1), digits);
     line += " ";
   }
   report->reportLineString(line);
@@ -885,8 +911,16 @@ Table2::~Table2()
 }
 
 float
-Table2::tableValue(size_t index1,
-		   size_t index2) const
+Table2::value(size_t index1,
+              size_t index2,
+              size_t) const
+{
+  return value(index1, index2);
+}
+
+float
+Table2::value(size_t index1,
+              size_t index2) const
 {
   FloatSeq *row = (*values_)[index1];
   return (*row)[index2];
@@ -902,15 +936,15 @@ Table2::findValue(float value1,
   size_t size2 = axis2_->size();
   if (size1 == 1) {
     if (size2 == 1)
-      return tableValue(0, 0);
+      return value(0, 0);
     else {
       size_t index2 = axis2_->findAxisIndex(value2);
       float x2 = value2;
-      float y00 = tableValue(0, index2);
+      float y00 = value(0, index2);
       float x2l = axis2_->axisValue(index2);
       float x2u = axis2_->axisValue(index2 + 1);
       float dx2 = (x2 - x2l) / (x2u - x2l);
-      float y01 = tableValue(0, index2 + 1);
+      float y01 = value(0, index2 + 1);
       float tbl_value
 	= (1 - dx2) * y00
 	+      dx2  * y01;
@@ -920,11 +954,11 @@ Table2::findValue(float value1,
   else if (size2 == 1) {
     size_t index1 = axis1_->findAxisIndex(value1);
     float x1 = value1;
-    float y00 = tableValue(index1, 0);
+    float y00 = value(index1, 0);
     float x1l = axis1_->axisValue(index1);
     float x1u = axis1_->axisValue(index1 + 1);
     float dx1 = (x1 - x1l) / (x1u - x1l);
-    float y10 = tableValue(index1 + 1, 0);
+    float y10 = value(index1 + 1, 0);
     float tbl_value
       = (1 - dx1) * y00
       +      dx1  * y10;
@@ -935,16 +969,16 @@ Table2::findValue(float value1,
     size_t index2 = axis2_->findAxisIndex(value2);
     float x1 = value1;
     float x2 = value2;
-    float y00 = tableValue(index1, index2);
+    float y00 = value(index1, index2);
     float x1l = axis1_->axisValue(index1);
     float x1u = axis1_->axisValue(index1 + 1);
     float dx1 = (x1 - x1l) / (x1u - x1l);
-    float y10 = tableValue(index1 + 1, index2);
-    float y11 = tableValue(index1 + 1, index2 + 1);
+    float y10 = value(index1 + 1, index2);
+    float y11 = value(index1 + 1, index2 + 1);
     float x2l = axis2_->axisValue(index2);
     float x2u = axis2_->axisValue(index2 + 1);
     float dx2 = (x2 - x2l) / (x2u - x2l);
-    float y01 = tableValue(index1, index2 + 1);
+    float y01 = value(index1, index2 + 1);
     float tbl_value
       = (1 - dx1) * (1 - dx2) * y00
       +      dx1  * (1 - dx2) * y10
@@ -1000,20 +1034,20 @@ Table2::reportValue(const char *result_name,
   *result += unit1->asString(axis1_->axisValue(index1), digits);
   *result += " | ";
 
-  *result += table_unit->asString(tableValue(index1, index2), digits);
+  *result += table_unit->asString(value(index1, index2), digits);
   if (axis2_->size() != 1) {
     *result += "     ";
-    *result += table_unit->asString(tableValue(index1, index2 + 1), digits);
+    *result += table_unit->asString(value(index1, index2 + 1), digits);
   }
   *result += '\n';
 
   if (axis1_->size() != 1) {
     *result += unit1->asString(axis1_->axisValue(index1 + 1), digits);
     *result += " | ";
-    *result += table_unit->asString(tableValue(index1 + 1, index2), digits);
+    *result += table_unit->asString(value(index1 + 1, index2), digits);
     if (axis2_->size() != 1) {
       *result += "     ";
-      *result +=table_unit->asString(tableValue(index1 + 1, index2 + 1),digits);
+      *result +=table_unit->asString(value(index1 + 1, index2 + 1),digits);
     }
   }
   *result += '\n';
@@ -1045,7 +1079,7 @@ Table2::report(const Units *units,
     line = unit1->asString(axis1_->axisValue(index1), digits);
     line += " |";
     for (size_t index2 = 0; index2 < axis2_->size(); index2++) {
-      line += table_unit->asString(tableValue(index1, index2), digits);
+      line += table_unit->asString(value(index1, index2), digits);
       line += " ";
     }
     report->reportLineString(line);
@@ -1074,9 +1108,9 @@ Table3::~Table3()
 }
 
 float
-Table3::tableValue(size_t index1,
-		   size_t index2,
-		   size_t index3) const
+Table3::value(size_t index1,
+              size_t index2,
+              size_t index3) const
 {
   size_t row = index1 * axis2_->size() + index2;
   return values_->operator[](row)->operator[](index3);
@@ -1097,7 +1131,7 @@ Table3::findValue(float value1,
   float dx1 = 0.0;
   float dx2 = 0.0;
   float dx3 = 0.0;
-  float y000 = tableValue(index1, index2, index3);
+  float y000 = value(index1, index2, index3);
   float y001 = 0.0;
   float y010 = 0.0;
   float y011 = 0.0;
@@ -1110,28 +1144,28 @@ Table3::findValue(float value1,
     float x1l = axis1_->axisValue(index1);
     float x1u = axis1_->axisValue(index1 + 1);
     dx1 = (x1 - x1l) / (x1u - x1l);
-    y100 = tableValue(index1 + 1, index2, index3);
+    y100 = value(index1 + 1, index2, index3);
     if (axis3_->size() != 1)
-      y101 = tableValue(index1 + 1, index2, index3 + 1);
+      y101 = value(index1 + 1, index2, index3 + 1);
     if (axis2_->size() != 1) {
-      y110 = tableValue(index1 + 1, index2 + 1, index3);
+      y110 = value(index1 + 1, index2 + 1, index3);
       if (axis3_->size() != 1)
-	y111 = tableValue(index1 + 1, index2 + 1, index3 + 1);
+	y111 = value(index1 + 1, index2 + 1, index3 + 1);
     }
   }
   if (axis2_->size() != 1) {
     float x2l = axis2_->axisValue(index2);
     float x2u = axis2_->axisValue(index2 + 1);
     dx2 = (x2 - x2l) / (x2u - x2l);
-    y010 = tableValue(index1, index2 + 1, index3);
+    y010 = value(index1, index2 + 1, index3);
     if (axis3_->size() != 1)
-      y011 = tableValue(index1, index2 + 1, index3 + 1);
+      y011 = value(index1, index2 + 1, index3 + 1);
   }
   if (axis3_->size() != 1) {
     float x3l = axis3_->axisValue(index3);
     float x3u = axis3_->axisValue(index3 + 1);
     dx3 = (x3 - x3l) / (x3u - x3l);
-    y001 = tableValue(index1, index2, index3 + 1);
+    y001 = value(index1, index2, index3 + 1);
   }
 
   float tbl_value
@@ -1216,11 +1250,11 @@ Table3::reportValue(const char *result_name,
     *result += " ";
     *result += unit1->asString(axis1_->axisValue(index1+1), digits);
     *result += "   v   / ";
-    *result += table_unit->asString(tableValue(index1+1,index2,index3),
+    *result += table_unit->asString(value(index1+1,index2,index3),
 				    digits);
     if (axis3_->size() != 1) {
       *result += "     ";
-      *result += table_unit->asString(tableValue(index1+1,index2,index3+1),
+      *result += table_unit->asString(value(index1+1,index2,index3+1),
 				      digits);
     }
   }
@@ -1234,10 +1268,10 @@ Table3::reportValue(const char *result_name,
   *result += "  ";
   *result += unit2->asString(axis2_->axisValue(index2), digits);
   *result += " | ";
-  *result += table_unit->asString(tableValue(index1, index2, index3), digits);
+  *result += table_unit->asString(value(index1, index2, index3), digits);
   if (axis3_->size() != 1) {
     *result += "     ";
-    *result += table_unit->asString(tableValue(index1, index2, index3+1),
+    *result += table_unit->asString(value(index1, index2, index3+1),
 				    digits);
   }
   *result += '\n';
@@ -1245,11 +1279,11 @@ Table3::reportValue(const char *result_name,
   *result += "           |/ ";
   if (axis1_->size() != 1
       && axis2_->size() != 1) {
-    *result += table_unit->asString(tableValue(index1+1,index2+1,index3),
+    *result += table_unit->asString(value(index1+1,index2+1,index3),
 				    digits);
     if (axis3_->size() != 1) {
       *result += "     ";
-      *result +=table_unit->asString(tableValue(index1+1,index2+1,index3+1),
+      *result +=table_unit->asString(value(index1+1,index2+1,index3+1),
 				     digits);
     }
   }
@@ -1259,11 +1293,11 @@ Table3::reportValue(const char *result_name,
   *result += unit2->asString(axis2_->axisValue(index2 + 1), digits);
   *result += " | ";
   if (axis2_->size() != 1) {
-    *result += table_unit->asString(tableValue(index1, index2+1, index3),
+    *result += table_unit->asString(value(index1, index2+1, index3),
 				    digits);
     if (axis3_->size() != 1) {
       *result += "     ";
-      *result +=table_unit->asString(tableValue(index1, index2+1,index3+1),
+      *result +=table_unit->asString(value(index1, index2+1,index3+1),
 				     digits);
     }
   }
@@ -1309,7 +1343,7 @@ Table3::report(const Units *units,
       line = unit2->asString(axis2_->axisValue(index2),digits);
       line += " |";
       for (size_t index3 = 0; index3 < axis3_->size(); index3++) {
-        line += table_unit->asString(tableValue(index1, index2, index3), digits);
+        line += table_unit->asString(value(index1, index2, index3), digits);
         line += " ";
       }
       report->reportLineString(line);

@@ -141,6 +141,7 @@ public:
 				bool pocv_enabled,
 				int digits,
 				string *result) const;
+  const TableModel *model() const { return model_; }
 
   // Check the axes before making the model.
   // Return true if the model axes are supported.
@@ -188,15 +189,20 @@ class TableModel
 {
 public:
   TableModel(Table *table,
+             TableTemplate *tbl_template,
 	     ScaleFactorType scale_factor_type,
 	     RiseFall *rf);
   ~TableModel();
   void setScaleFactorType(ScaleFactorType type);
   int order() const;
+  TableTemplate *tblTemplate() const { return tbl_template_; }
   TableAxis *axis1() const;
   TableAxis *axis2() const;
   TableAxis *axis3() const;
   void setIsScaled(bool is_scaled);
+  float value(size_t index1,
+              size_t index2,
+              size_t index3) const;
   // Table interpolated lookup.
   float findValue(float value1,
 		  float value2,
@@ -232,6 +238,7 @@ protected:
 			    string *result) const;
 
   Table *table_;
+  TableTemplate *tbl_template_;
   // ScaleFactorType gcc barfs if this is dcl'd.
   unsigned scale_factor_type_:scale_factor_bits;
   unsigned tr_index_:RiseFall::index_bit_count;
@@ -250,6 +257,9 @@ public:
   virtual TableAxis *axis2() const { return nullptr; }
   virtual TableAxis *axis3() const { return nullptr; }
   void setIsScaled(bool is_scaled);
+  virtual float value(size_t axis_idx1,
+                      size_t axis_idx2,
+                      size_t axis_idx3) const = 0;
   // Table interpolated lookup.
   virtual float findValue(float value1,
 			  float value2,
@@ -281,6 +291,9 @@ class Table0 : public Table
 public:
   Table0(float value);
   virtual int order() const { return 0; }
+  virtual float value(size_t index1,
+                      size_t index2,
+                      size_t index3) const;
   virtual float findValue(float value1,
 			  float value2,
 			  float value3) const;
@@ -312,7 +325,10 @@ public:
   virtual ~Table1();
   virtual int order() const { return 1; }
   virtual TableAxis *axis1() const { return axis1_; }
-  float tableValue(size_t index1) const;
+  virtual float value(size_t index1,
+                      size_t index2,
+                      size_t index3) const;
+  float value(size_t index1) const;
   virtual float findValue(float value1,
 			  float value2,
 			  float value3) const;
@@ -349,8 +365,11 @@ public:
   virtual int order() const { return 2; }
   TableAxis *axis1() const { return axis1_; }
   TableAxis *axis2() const { return axis2_; }
-  float tableValue(size_t index1,
-		   size_t index2) const;
+  virtual float value(size_t index1,
+                      size_t index2,
+                      size_t index3) const;
+  float value(size_t index1,
+              size_t index2) const;
   virtual float findValue(float value1,
 			  float value2,
 			  float value3) const;
@@ -392,9 +411,9 @@ public:
   virtual ~Table3();
   virtual int order() const { return 3; }
   TableAxis *axis3() const { return axis3_; }
-  float tableValue(size_t index1,
-		   size_t index2,
-		   size_t index3) const;
+  virtual float value(size_t index1,
+                      size_t index2,
+                      size_t index3) const;
   virtual float findValue(float value1,
 			  float value2,
 			  float value3) const;

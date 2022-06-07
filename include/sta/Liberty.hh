@@ -48,6 +48,7 @@ class StaState;
 
 typedef Set<Library*> LibrarySet;
 typedef Map<const char*, TableTemplate*, CharPtrLess> TableTemplateMap;
+typedef Vector<TableTemplate*> TableTemplateSeq;
 typedef Map<const char*, BusDcl *, CharPtrLess> BusDclMap;
 typedef Map<const char*, ScaleFactors*, CharPtrLess> ScaleFactorsMap;
 typedef Map<const char*, Wireload*, CharPtrLess> WireloadMap;
@@ -133,6 +134,7 @@ public:
 			TableTemplateType type);
   TableTemplate *findTableTemplate(const char *name,
 				   TableTemplateType type);
+  TableTemplateSeq tableTemplates() const;
   float nominalProcess() const { return nominal_process_; }
   void setNominalProcess(float process);
   float nominalVoltage() const { return nominal_voltage_; }

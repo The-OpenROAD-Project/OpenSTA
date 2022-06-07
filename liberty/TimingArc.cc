@@ -219,6 +219,7 @@ TimingArcSet::init(LibertyCell *cell)
   for (auto tr_index : RiseFall::rangeIndex()) {
     from_arc1_[tr_index] = nullptr;
     from_arc2_[tr_index] = nullptr;
+    to_arc_[tr_index] = nullptr;
   }
 }
 
@@ -262,6 +263,9 @@ TimingArcSet::addTimingArc(TimingArc *arc)
     from_arc1_[from_rf_index] = arc;
   else if (from_arc2_[from_rf_index] == nullptr)
     from_arc2_[from_rf_index] = arc;
+
+  int to_rf_index = arc->toEdge()->asRiseFall()->index();
+  to_arc_[to_rf_index] = arc;
 
   return arc_index;
 }
@@ -309,11 +313,17 @@ void
 TimingArcSet::arcsFrom(const RiseFall *from_rf,
 		       // Return values.
 		       TimingArc *&arc1,
-		       TimingArc *&arc2)
+		       TimingArc *&arc2) const
 {
   int tr_index = from_rf->index();
   arc1 = from_arc1_[tr_index];
   arc2 = from_arc2_[tr_index];
+}
+
+TimingArc *
+TimingArcSet::arcTo(const RiseFall *to_rf) const
+{
+  return to_arc_[to_rf->index()];
 }
 
 TimingSense

@@ -3721,7 +3721,8 @@ LibertyReader::endCellRiseFall(LibertyGroup *group)
 {
   if (table_) {
     if (GateTableModel::checkAxes(table_)) {
-      TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
+      TableModel *table_model = new TableModel(table_, tbl_template_,
+                                               scale_factor_type_, rf_);
       timing_->setCell(rf_, table_model);
     }
     else {
@@ -3749,7 +3750,8 @@ LibertyReader::endRiseFallTransition(LibertyGroup *group)
 {
   if (table_) {
     if (GateTableModel::checkAxes(table_)) {
-      TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
+      TableModel *table_model = new TableModel(table_, tbl_template_,
+                                               scale_factor_type_, rf_);
       timing_->setTransition(rf_, table_model);
     }
     else {
@@ -3779,7 +3781,8 @@ LibertyReader::endRiseFallConstraint(LibertyGroup *group)
 {
   if (table_) {
     if (CheckTableModel::checkAxes(table_)) {
-      TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
+      TableModel *table_model = new TableModel(table_, tbl_template_,
+                                               scale_factor_type_, rf_);
       timing_->setConstraint(rf_, table_model);
     }
     else {
@@ -3815,7 +3818,8 @@ LibertyReader::endRiseFallTransitionDegredation(LibertyGroup *group)
 {
   if (table_) {
     if (LibertyLibrary::checkSlewDegradationAxes(table_)) {
-      TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
+      TableModel *table_model = new TableModel(table_, tbl_template_,
+                                               scale_factor_type_, rf_);
       library_->setWireSlewDegradationTable(table_model, rf_);
     }
     else {
@@ -3911,7 +3915,7 @@ LibertyReader::visitValues(LibertyAttr *attr)
 
 void
 LibertyReader::makeTable(LibertyAttr *attr,
-			 float scale)
+                         float scale)
 {
   if (attr->isComplex()) {
     makeTableAxis(0);
@@ -4540,7 +4544,8 @@ void
 LibertyReader::endRiseFallPower(LibertyGroup *)
 {
   if (table_) {
-    TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
+    TableModel *table_model = new TableModel(table_, tbl_template_,
+                                             scale_factor_type_, rf_);
     internal_power_->setModel(rf_, new InternalPowerModel(table_model));
   }
   endTableModel();
@@ -4550,7 +4555,8 @@ void
 LibertyReader::endPower(LibertyGroup *)
 {
   if (table_) {
-    TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
+    TableModel *table_model = new TableModel(table_, tbl_template_,
+                                             scale_factor_type_, rf_);
     // Share the model for rise/fall.
     InternalPowerModel *power_model = new InternalPowerModel(table_model);
     internal_power_->setModel(RiseFall::rise(), power_model);
@@ -4735,7 +4741,8 @@ LibertyReader::endOcvSigmaCell(LibertyGroup *group)
 {
   if (table_) {
     if (GateTableModel::checkAxes(table_)) {
-      TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
+      TableModel *table_model = new TableModel(table_, tbl_template_,
+                                               scale_factor_type_, rf_);
       if (sigma_type_ == EarlyLateAll::all()) {
 	timing_->setDelaySigma(rf_, EarlyLate::min(), table_model);
 	timing_->setDelaySigma(rf_, EarlyLate::max(), table_model);
@@ -4768,7 +4775,8 @@ LibertyReader::endOcvSigmaTransition(LibertyGroup *group)
 {
   if (table_) {
     if (GateTableModel::checkAxes(table_)) {
-      TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
+      TableModel *table_model = new TableModel(table_, tbl_template_,
+                                               scale_factor_type_, rf_);
       if (sigma_type_ == EarlyLateAll::all()) {
 	timing_->setSlewSigma(rf_, EarlyLate::min(), table_model);
 	timing_->setSlewSigma(rf_, EarlyLate::max(), table_model);
@@ -4801,7 +4809,8 @@ LibertyReader::endOcvSigmaConstraint(LibertyGroup *group)
 {
   if (table_) {
     if (CheckTableModel::checkAxes(table_)) {
-      TableModel *table_model = new TableModel(table_, scale_factor_type_, rf_);
+      TableModel *table_model = new TableModel(table_, tbl_template_,
+                                               scale_factor_type_, rf_);
       if (sigma_type_ == EarlyLateAll::all()) {
 	timing_->setConstraintSigma(rf_, EarlyLate::min(), table_model);
 	timing_->setConstraintSigma(rf_, EarlyLate::max(), table_model);

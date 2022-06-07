@@ -24,6 +24,8 @@
 #include "Liberty.hh"
 #include "TimingRole.hh"
 #include "TimingArc.hh"
+#include "TimingModel.hh"
+#include "TableModel.hh"
 #include "StaState.hh"
 
 namespace sta {
@@ -40,9 +42,20 @@ public:
 protected:
   void writeHeader();
   void writeFooter();
+  void writeTableTemplates();
+  void writeTableTemplate(TableTemplate *tbl_template);
+  void writeCells();
   void writeCell(const LibertyCell *cell);
   void writePort(const LibertyPort *port);
   void writeTimingArcSet(const TimingArcSet *arc_set);
+  void writeTimingModels(const TimingArc *arc,
+                         RiseFall *rf);
+  void writeTableModel(const TableModel *model);
+  void writeTableModel0(const TableModel *model);
+  void writeTableModel2(const TableModel *model);
+  void writeTableAxis(TableAxis *axis,
+                      int index);
+
   const char *asString(bool value);
   const char *asString(const PortDirection *dir);
   const char *timingTypeString(const TimingArcSet *arc_set);
@@ -87,11 +100,10 @@ void
 LibertyWriter::writeLibrary()
 {
   writeHeader();
-  LibertyCellIterator cell_iter(library_);
-  while (cell_iter.hasNext()) {
-    const LibertyCell *cell = cell_iter.next();
-    writeCell(cell);
-  }
+  fprintf(stream_, "\n");
+  writeTableTemplates();
+  fprintf(stream_, "\n");
+  writeCells();
   writeFooter();
 }
   
@@ -175,6 +187,64 @@ LibertyWriter::writeHeader()
 }
 
 void
+LibertyWriter::writeTableTemplates()
+{
+  for (TableTemplate *tbl_template : library_->tableTemplates())
+    writeTableTemplate(tbl_template);
+}
+
+void
+LibertyWriter::writeTableTemplate(TableTemplate *tbl_template)
+{
+  fprintf(stream_, "  lu_table_template(%s) {\n", tbl_template->name());
+  TableAxis *axis1 = tbl_template->axis1();
+  TableAxis *axis2 = tbl_template->axis2();
+  TableAxis *axis3 = tbl_template->axis3();
+  if (axis1)
+    fprintf(stream_, "    variable_1 : %s;\n",
+            tableVariableString(axis1->variable()));
+  if (axis2)
+    fprintf(stream_, "    variable_2 : %s;\n",
+            tableVariableString(axis2->variable()));
+  if (axis3)
+    fprintf(stream_, "    variable_3 : %s;\n",
+            tableVariableString(axis3->variable()));
+  if (axis1)
+    writeTableAxis(axis1, 1);
+  if (axis2)
+    writeTableAxis(axis2, 2);
+  if (axis3)
+    writeTableAxis(axis3, 3);
+  fprintf(stream_, "  }\n");
+}
+
+void
+LibertyWriter::writeTableAxis(TableAxis *axis,
+                              int index)
+{
+  fprintf(stream_, "    index_%d (\"", index);
+  const Unit *unit = tableVariableUnit(axis->variable(), library_->units());
+  bool first = true;
+  for (size_t i = 0; i < axis->size(); i++) {
+    if (!first)
+      fprintf(stream_, ",  ");      
+    fprintf(stream_, "%s", unit->asString(axis->axisValue(i), 5));
+    first = false;
+  }
+  fprintf(stream_, "\");\n");
+}
+
+void
+LibertyWriter::writeCells()
+{
+  LibertyCellIterator cell_iter(library_);
+  while (cell_iter.hasNext()) {
+    const LibertyCell *cell = cell_iter.next();
+    writeCell(cell);
+  }
+}
+
+void
 LibertyWriter::writeCell(const LibertyCell *cell)
 {
   fprintf(stream_, "  cell (\"%s\") {\n", cell->name());
@@ -196,10 +266,10 @@ void
 LibertyWriter::writePort(const LibertyPort *port)
 {
   fprintf(stream_, "    pin(\"%s\") {\n", port->name());
+  fprintf(stream_, "      direction : %s;\n" , asString(port->direction()));
   auto func = port->function();
   if (func)
     fprintf(stream_, "      function : \"%s\";\n", func->asString());
-  fprintf(stream_, "      direction : %s;\n" , asString(port->direction()));
   if (port->isClock())
     fprintf(stream_, "      clock : true;\n");
   fprintf(stream_, "      capacitance : %s;\n",
@@ -237,7 +307,94 @@ LibertyWriter::writeTimingArcSet(const TimingArcSet *arc_set)
   const char *timing_type = timingTypeString(arc_set);
   if (timing_type)
     fprintf(stream_, "        timing_type : %s;\n", timing_type);
+
+  for (RiseFall *rf : RiseFall::range()) {
+    TimingArc *arc = arc_set->arcTo(rf);
+    if (arc)
+      writeTimingModels(arc, rf);
+  }
+
   fprintf(stream_, "      }\n");
+}
+
+void
+LibertyWriter::writeTimingModels(const TimingArc *arc,
+                                 RiseFall *rf)
+{
+  TimingModel *model = arc->model();
+  const GateTableModel *gate_model = dynamic_cast<GateTableModel*>(model);
+  const CheckTableModel *check_model = dynamic_cast<CheckTableModel*>(model);
+  if (gate_model) {
+    const TableModel *delay_model = gate_model->delayModel();
+    const char *template_name = delay_model->tblTemplate()->name();
+    fprintf(stream_, "	cell_%s(%s) {\n", rf->name(), template_name);
+    writeTableModel(delay_model);
+    fprintf(stream_, "	}\n");
+
+    const TableModel *slew_model = gate_model->slewModel();
+    template_name = slew_model->tblTemplate()->name();
+    fprintf(stream_, "	%s_transition(%s) {\n", rf->name(), template_name);
+    writeTableModel(slew_model);
+    fprintf(stream_, "	}\n");
+  } else if (check_model) {
+    const TableModel *model = check_model->model();
+    const char *template_name = model->tblTemplate()->name();
+    fprintf(stream_, "	%s_constraint(%s) {\n", rf->name(), template_name);
+    writeTableModel(model);
+    fprintf(stream_, "	}\n");
+  }
+  else
+    criticalError(701, "timing model not supported.");
+}
+
+void
+LibertyWriter::writeTableModel(const TableModel *model)
+{
+  switch (model->order()) {
+  case 0:
+    writeTableModel0(model);
+    break;
+  case 1:
+    break;
+  case 2:
+    writeTableModel2(model);
+    break;
+  case 3:
+    criticalError(701, "3 axis table models not supported.");  
+    break;
+  }
+}
+
+void
+LibertyWriter::writeTableModel0(const TableModel *model)
+{
+  float value = model->value(0, 0, 0);
+  fprintf(stream_, "          values(\"%s\");\n",
+          time_unit_->asString(value, 5));
+}
+
+void
+LibertyWriter::writeTableModel2(const TableModel *model)
+{
+  fprintf(stream_, "          values(\"");
+  bool first_row = true;
+  for (size_t index1 = 0; index1 < model->axis1()->size(); index1++) {
+    if (!first_row) {
+      fprintf(stream_, "\\\n");
+      fprintf(stream_, "                 \"");
+    }
+    bool first_col = true;
+    for (size_t index2 = 0; index2 < model->axis2()->size(); index2++) {
+      float value = model->value(index1, index2, 0);
+      if (!first_col)
+        fprintf(stream_, ",");
+      fprintf(stream_, "%s", time_unit_->asString(value, 5));
+      first_col = false;
+    }
+    fprintf(stream_, "\"");
+    first_row = false;
+  }
+  fprintf(stream_, ");\n");
 }
 
 void

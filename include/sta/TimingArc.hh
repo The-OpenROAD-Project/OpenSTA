@@ -154,7 +154,8 @@ public:
   void arcsFrom(const RiseFall *from_rf,
 		// Return values.
 		TimingArc *&arc1,
-		TimingArc *&arc2);
+		TimingArc *&arc2) const;
+  TimingArc *arcTo(const RiseFall *to_rf) const;
   const TimingArcSeq &arcs() const { return arcs_; }
   // Use the TimingArcSetArcIterator(arc_set) constructor instead.
   TimingArcSetArcIterator *timingArcIterator() __attribute__ ((deprecated));
@@ -215,6 +216,7 @@ protected:
   bool is_disabled_constraint_;
   TimingArc *from_arc1_[RiseFall::index_count];
   TimingArc *from_arc2_[RiseFall::index_count];
+  TimingArc *to_arc_[RiseFall::index_count];
 
   static TimingArcSet *wire_timing_arc_set_;
 };
