@@ -33,8 +33,7 @@ proc_redirect read_liberty {
   read_liberty_cmd $filename $corner $min_max $infer_latches
 }
 
-define_cmd_args "write_liberty" {library filename}
-
+# for regression testing
 proc write_liberty { args } {
   check_argc_eq2 "write_liberty" $args
 

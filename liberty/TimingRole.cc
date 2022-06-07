@@ -107,9 +107,9 @@ TimingRole::init()
 				     MinMax::max(),TimingRole::setup(),23);
   data_check_hold_ = new TimingRole("data check hold", false, true, false,
 				    MinMax::min(), TimingRole::hold(), 24);
-  non_seq_setup_ = new TimingRole("setup", false, true, true,
+  non_seq_setup_ = new TimingRole("non-sequential setup", false, true, true,
 				  MinMax::max(), TimingRole::setup(), 25);
-  non_seq_hold_ = new TimingRole("hold", false, true, true,
+  non_seq_hold_ = new TimingRole("non-sequential hold", false, true, true,
 				 MinMax::min(), TimingRole::hold(), 26);
 }
 

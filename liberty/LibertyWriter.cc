@@ -274,8 +274,14 @@ LibertyWriter::writePort(const LibertyPort *port)
     fprintf(stream_, "      function : \"%s\";\n", func->asString());
   auto tristate_enable = port->tristateEnable();
   if (tristate_enable) {
-    FuncExpr three_state(FuncExpr::op_not, tristate_enable, nullptr, nullptr);
-    fprintf(stream_, "      three_state : \"%s\";\n", three_state.asString());
+    if (tristate_enable->op() == FuncExpr::op_not) {
+      FuncExpr *three_state = tristate_enable->left();
+      fprintf(stream_, "      three_state : \"%s\";\n", three_state->asString());
+    }
+    else {
+      FuncExpr three_state(FuncExpr::op_not, tristate_enable, nullptr, nullptr);
+      fprintf(stream_, "      three_state : \"%s\";\n", three_state.asString());
+    }
   }
   if (port->isClock())
     fprintf(stream_, "      clock : true;\n");
@@ -351,7 +357,10 @@ LibertyWriter::writeTimingModels(const TimingArc *arc,
     fprintf(stream_, "	}\n");
   }
   else
-    criticalError(701, "timing model not supported.");
+    report_->error(701, "%s/%s/%s timing model not supported.",
+                   library_->name(),
+                   arc->from()->libertyCell()->name(),
+                   arc->from()->name());
 }
 
 void
@@ -367,7 +376,7 @@ LibertyWriter::writeTableModel(const TableModel *model)
     writeTableModel2(model);
     break;
   case 3:
-    criticalError(701, "3 axis table models not supported.");  
+    report_->error(702, "3 axis table models not supported.");  
     break;
   }
 }
@@ -477,10 +486,26 @@ LibertyWriter::timingTypeString(const TimingArcSet *arc_set)
     else
       return "hold_falling";
   }
+  else if (role == TimingRole::nonSeqSetup()) {
+    const TimingArc *arc = arc_set->arcs()[0];
+    if (arc->fromEdge()->asRiseFall() == RiseFall::rise())
+      return "non_seq_setup_rising";
+    else
+      return "non_seq_setup_falling";
+  }
+  else if (role == TimingRole::nonSeqHold()) {
+    const TimingArc *arc = arc_set->arcs()[0];
+    if (arc->fromEdge()->asRiseFall() == RiseFall::rise())
+      return "non_seq_hold_rising";
+    else
+      return "non_seq_hold_falling";
+  }
   else {
-    report_->reportLine("timing arc type %s not supported yet.",
-                        role->asString());
-    criticalError(700, "timing arc type not supported yet.");
+    report_->error(703, "%s/%s/%s timing arc type %s not supported.",
+                   library_->name(),
+                   arc_set->from()->libertyCell()->name(),
+                   arc_set->from()->name(),
+                   role->asString());
     return nullptr;
   }
 }
