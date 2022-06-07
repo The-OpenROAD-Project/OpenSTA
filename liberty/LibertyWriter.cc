@@ -196,26 +196,28 @@ LibertyWriter::writeTableTemplates()
 void
 LibertyWriter::writeTableTemplate(TableTemplate *tbl_template)
 {
-  fprintf(stream_, "  lu_table_template(%s) {\n", tbl_template->name());
   TableAxis *axis1 = tbl_template->axis1();
   TableAxis *axis2 = tbl_template->axis2();
   TableAxis *axis3 = tbl_template->axis3();
-  if (axis1)
+  // skip scalar templates
+  if (axis1) {
+    fprintf(stream_, "  lu_table_template(%s) {\n", tbl_template->name());
     fprintf(stream_, "    variable_1 : %s;\n",
             tableVariableString(axis1->variable()));
-  if (axis2)
-    fprintf(stream_, "    variable_2 : %s;\n",
-            tableVariableString(axis2->variable()));
-  if (axis3)
-    fprintf(stream_, "    variable_3 : %s;\n",
-            tableVariableString(axis3->variable()));
-  if (axis1)
-    writeTableAxis(axis1, 1);
-  if (axis2)
-    writeTableAxis(axis2, 2);
-  if (axis3)
-    writeTableAxis(axis3, 3);
-  fprintf(stream_, "  }\n");
+    if (axis2)
+      fprintf(stream_, "    variable_2 : %s;\n",
+              tableVariableString(axis2->variable()));
+    if (axis3)
+      fprintf(stream_, "    variable_3 : %s;\n",
+              tableVariableString(axis3->variable()));
+    if (axis1)
+      writeTableAxis(axis1, 1);
+    if (axis2)
+      writeTableAxis(axis2, 2);
+    if (axis3)
+      writeTableAxis(axis3, 3);
+    fprintf(stream_, "  }\n");
+  }
 }
 
 void
@@ -270,6 +272,11 @@ LibertyWriter::writePort(const LibertyPort *port)
   auto func = port->function();
   if (func)
     fprintf(stream_, "      function : \"%s\";\n", func->asString());
+  auto tristate_enable = port->tristateEnable();
+  if (tristate_enable) {
+    FuncExpr three_state(FuncExpr::op_not, tristate_enable, nullptr, nullptr);
+    fprintf(stream_, "      three_state : \"%s\";\n", three_state.asString());
+  }
   if (port->isClock())
     fprintf(stream_, "      clock : true;\n");
   fprintf(stream_, "      capacitance : %s;\n",
@@ -447,8 +454,13 @@ LibertyWriter::timingTypeString(const TimingArcSet *arc_set)
   }
   else if (role == TimingRole::latchDtoQ())
     return nullptr;
-  else if (role == TimingRole::regSetClr())
+  else if (role == TimingRole::regSetClr()) {
+    const TimingArc *arc = arc_set->arcs()[0];
+    if (arc->toEdge()->asRiseFall() == RiseFall::rise())
+      return "preset";
+    else
       return "clear";
+  }
   else if (role == TimingRole::setup()
            || role == TimingRole::recovery()) {
     const TimingArc *arc = arc_set->arcs()[0];

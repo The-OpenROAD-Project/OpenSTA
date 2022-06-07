@@ -34,6 +34,10 @@ public:
 		 op_zero};
 
   // Constructors.
+  FuncExpr(Operator op,
+	   FuncExpr *left,
+	   FuncExpr *right,
+	   LibertyPort *port);
   static FuncExpr *makePort(LibertyPort *port);
   static FuncExpr *makeNot(FuncExpr *expr);
   static FuncExpr *makeAnd(FuncExpr *left,
@@ -72,10 +76,6 @@ public:
   bool checkSize(LibertyPort *port);
 
 private:
-  FuncExpr(Operator op,
-	   FuncExpr *left,
-	   FuncExpr *right,
-	   LibertyPort *port);
   const char *asString(bool with_parens) const;
   const char *asStringSubexpr(bool with_parens,
 			      char op) const;
