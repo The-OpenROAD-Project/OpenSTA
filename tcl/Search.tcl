@@ -1031,6 +1031,20 @@ proc worst_clock_skew { args } {
 }
 
 ################################################################
+
+define_cmd_args "write_timing_model" {[-corner corner] cell_name filename}
+
+proc write_timing_model { args } {
+  parse_key_args "write_timing_model" args keys {corner} flags {}
+  check_argc_eq2 "write_timing_model" $args
+
+  set cell_name [lindex $args 0]
+  set filename [lindex $args 1]
+  set corner [parse_corner keys]
+  write_timing_model_cmd $cell_name [file nativename $filename] $corner
+}
+
+################################################################
 #
 # Helper functions
 #

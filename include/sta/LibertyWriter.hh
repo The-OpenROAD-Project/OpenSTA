@@ -28,5 +28,3 @@ writeLiberty(LibertyLibrary *lib,
              StaState *sta);
 
 } // namespace
-
-

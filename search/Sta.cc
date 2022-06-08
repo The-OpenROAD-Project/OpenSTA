@@ -69,6 +69,7 @@
 #include "Power.hh"
 #include "VisitPathEnds.hh"
 #include "PathExpanded.hh"
+#include "MakeTimingModel.hh"
 
 namespace sta {
 
@@ -5565,6 +5566,17 @@ Sta::equivCells(LibertyCell *cell)
 }
 
 ////////////////////////////////////////////////////////////////
+
+void
+Sta::writeTimingModel(const char *cell_name,
+                      const char *filename,
+                      const Corner *corner)
+{
+  sta::writeTimingModel(cell_name, filename, corner, this);
+}
+
+////////////////////////////////////////////////////////////////
+
 void
 Sta::powerPreamble()
 {

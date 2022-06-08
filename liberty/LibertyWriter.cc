@@ -250,7 +250,9 @@ void
 LibertyWriter::writeCell(const LibertyCell *cell)
 {
   fprintf(stream_, "  cell (\"%s\") {\n", cell->name());
-  fprintf(stream_, "    area : %.3f \n", cell->area());
+  float area = cell->area();
+  if (area > 0.0)
+    fprintf(stream_, "    area : %.3f \n", area);
   if (cell->isMacro())
     fprintf(stream_, "    is_macro : true;\n");
 

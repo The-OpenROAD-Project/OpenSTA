@@ -164,6 +164,7 @@ set(STA_SOURCE
   search/Genclks.cc
   search/Latches.cc
   search/Levelize.cc
+  search/MakeTimingModel.cc
   search/Path.cc
   search/PathAnalysisPt.cc
   search/PathEnd.cc
@@ -189,7 +190,7 @@ set(STA_SOURCE
   search/VisitPathGroupVertices.cc
   search/WorstSlack.cc
   search/WritePathSpice.cc
-  
+
   util/Debug.cc
   util/DispatchQueue.cc
   util/Error.cc

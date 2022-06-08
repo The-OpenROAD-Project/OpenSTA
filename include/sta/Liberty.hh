@@ -27,6 +27,7 @@
 
 namespace sta {
 
+class WriteTimingModel;
 class LibertyCellIterator;
 class LibertyCellPortIterator;
 class LibertyCellPortBitIterator;
@@ -644,6 +645,7 @@ public:
   LibertyLibrary *libertyLibrary() const { return liberty_cell_->libertyLibrary(); }
   LibertyPort *findLibertyMember(int index) const;
   LibertyPort *findLibertyBusBit(int index) const;
+  void setDirection(PortDirection *dir);
   void fanoutLoad(// Return values.
 		  float &fanout_load,
 		  bool &exists) const;
@@ -769,7 +771,6 @@ protected:
 	      bool is_bundle,
 	      ConcretePortSeq *members);
   virtual ~LibertyPort();
-  void setDirection(PortDirection *dir);
   void setMinPort(LibertyPort *min);
   void addScaledPort(OperatingConditions *op_cond,
 		     LibertyPort *scaled_port);

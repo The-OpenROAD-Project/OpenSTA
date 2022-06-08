@@ -5043,6 +5043,16 @@ write_path_spice_cmd(PathRef *path,
 		 power_name, gnd_name, sta);
 }
 
+void
+write_timing_model_cmd(const char *cell_name,
+                       const char *filename,
+                       const Corner *corner)
+{
+  Sta::sta()->writeTimingModel(cell_name, filename, corner);
+}
+
+////////////////////////////////////////////////////////////////
+
 bool
 liberty_supply_exists(const char *supply_name)
 {
