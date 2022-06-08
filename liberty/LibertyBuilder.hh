@@ -59,6 +59,14 @@ public:
   LeakagePower *makeLeakagePower(LibertyCell *cell,
 				 LeakagePowerAttrs *attrs);
 
+  TimingArcSet *makeFromTransitionArcs(LibertyCell *cell,
+				       LibertyPort *from_port,
+				       LibertyPort *to_port,
+				       LibertyPort *related_out,
+				       RiseFall *from_rf,
+				       TimingRole *role,
+				       TimingArcAttrs *attrs);
+
 protected:
   ConcretePort *makeBusPort(const char *name,
 			    int from_index,
@@ -111,13 +119,6 @@ protected:
 				 LibertyPort *related_out,
 				 RiseFall *from_rf,
 				 TimingArcAttrs *attrs);
-  TimingArcSet *makeFromTransitionArcs(LibertyCell *cell,
-				       LibertyPort *from_port,
-				       LibertyPort *to_port,
-				       LibertyPort *related_out,
-				       RiseFall *from_rf,
-				       TimingRole *role,
-				       TimingArcAttrs *attrs);
   TimingArcSet *makePresetClrArcs(LibertyCell *cell,
 				  LibertyPort *from_port,
 				  LibertyPort *to_port,

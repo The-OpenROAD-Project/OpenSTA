@@ -47,6 +47,11 @@ private:
   void findInputSetupHolds();
   void findClkedOutputPaths();
 
+  LibertyPort *modelPort(const Pin *pin);
+  TimingModel *makeScalarCheckModel(float value,
+                                    ScaleFactorType scale_factor_type,
+                                    RiseFall *rf);
+
   Sta *sta_;
   LibertyLibrary *library_;
   LibertyCell *cell_;

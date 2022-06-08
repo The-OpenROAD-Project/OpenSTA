@@ -20,6 +20,8 @@
 #include "Units.hh"
 #include "Transition.hh"
 #include "Liberty.hh"
+#include "TimingArc.hh"
+#include "TableModel.hh"
 #include "liberty/LibertyBuilder.hh"
 #include "LibertyWriter.hh"
 #include "Network.hh"
@@ -29,6 +31,7 @@
 #include "dcalc/GraphDelayCalc1.hh"
 #include "Sdc.hh"
 #include "StaState.hh"
+#include "PathEnd.hh"
 #include "Sta.hh"
 
 namespace sta {
@@ -89,6 +92,7 @@ MakeTimingModel::makeTimingModel(const char *cell_name,
   findClkedOutputPaths();
 #endif
   findInputSetupHolds();
+  cell_->finish(false, report_, debug_);
 }
 
 void
@@ -190,41 +194,64 @@ MakeTimingModel::findInputSetupHolds()
     Pin *input_pin = input_iter->next();    
     if (network_->direction(input_pin)->isInput()
         && !sta_->isClockSrc(input_pin)) {
+      LibertyPort *input_port = modelPort(input_pin);
       for (Clock *clk : *sdc_->clocks()) {
-        for (RiseFall *clk_rf : RiseFall::range()) {
-          for (MinMax *min_max : MinMax::range()) {
-            MinMaxAll *min_max2 = min_max->asMinMaxAll();
-            bool setup = min_max == MinMax::max();
-            bool hold = !setup;
-            for (RiseFall *input_rf : RiseFall::range()) {
-              sdc_->setInputDelay(input_pin, RiseFallBoth::riseFall(), clk, clk_rf,
-                                  nullptr, false, false, min_max2, false, 0.0);
+        for (const Pin *clk_pin : clk->pins()) {
+          LibertyPort *clk_port = modelPort(clk_pin);
+          for (RiseFall *clk_rf : RiseFall::range()) {
+            for (MinMax *min_max : MinMax::range()) {
+              MinMaxAll *min_max2 = min_max->asMinMaxAll();
+              bool setup = min_max == MinMax::max();
+              bool hold = !setup;
+              TimingRole *role = setup ? TimingRole::setup() : TimingRole::hold();
+              TimingArcAttrs *attrs = nullptr;
+              for (RiseFall *input_rf : RiseFall::range()) {
+                sdc_->setInputDelay(input_pin, RiseFallBoth::riseFall(), clk, clk_rf,
+                                    nullptr, false, false, min_max2, false, 0.0);
         
-              PinSet *from_pins = new PinSet;
-              from_pins->insert(input_pin);
-              ExceptionFrom *from = sta_->makeExceptionFrom(from_pins, nullptr, nullptr,
-                                                            input_rf->asRiseFallBoth());
+                PinSet *from_pins = new PinSet;
+                from_pins->insert(input_pin);
+                ExceptionFrom *from = sta_->makeExceptionFrom(from_pins, nullptr, nullptr,
+                                                              input_rf->asRiseFallBoth());
 
-              ClockSet *to_clks = new ClockSet;
-              to_clks->insert(clk);
-              ExceptionTo *to = sta_->makeExceptionTo(nullptr, to_clks, nullptr,
-                                                      clk_rf->asRiseFallBoth(),
-                                                      RiseFallBoth::riseFall());
-              PathEndSeq *ends = sta_->findPathEnds(from, nullptr, to, false, corner_,
-                                                    min_max2,
-                                                    1, 1, false,
-                                                    -INF, INF, false, nullptr,
-                                                    setup, hold, setup, hold, setup, hold);
-              if (!ends->empty()) {
-                debugPrint(debug_, "timing_model", 1, "%s %s %s -> clock %s %s",
-                           setup ? "setup" : "hold",
-                           network_->pathName(input_pin),
-                           input_rf->asString(),
-                           clk->name(),
-                           clk_rf->asString());
-                PathEnd *end = (*ends)[0];
-                sta_->reportPathEnd(end);
+                ClockSet *to_clks = new ClockSet;
+                to_clks->insert(clk);
+                ExceptionTo *to = sta_->makeExceptionTo(nullptr, to_clks, nullptr,
+                                                        clk_rf->asRiseFallBoth(),
+                                                        RiseFallBoth::riseFall());
+                PathEndSeq *ends = sta_->findPathEnds(from, nullptr, to, false, corner_,
+                                                      min_max2,
+                                                      1, 1, false,
+                                                      -INF, INF, false, nullptr,
+                                                      setup, hold, setup, hold, setup, hold);
+                if (!ends->empty()) {
+                  PathEnd *end = (*ends)[0];
+                  debugPrint(debug_, "timing_model", 1, "%s %s %s -> clock %s %s",
+                             setup ? "setup" : "hold",
+                             network_->pathName(input_pin),
+                             input_rf->asString(),
+                             clk->name(),
+                             clk_rf->asString());
+                  if (debug_->check("timing_model", 2))
+                    sta_->reportPathEnd(end);
+                  Arrival data_arrival = end->path()->arrival(sta_);
+                  Delay clk_latency = end->targetClkDelay(sta_);
+                  ArcDelay check_setup = end->margin(sta_);
+                  float margin = data_arrival - clk_latency + check_setup;
+
+                  ScaleFactorType scale_type = setup
+                    ? ScaleFactorType::setup
+                    : ScaleFactorType::hold;
+                  TimingModel *check_model = makeScalarCheckModel(margin, scale_type, input_rf);
+                  if (attrs == nullptr)
+                    attrs = new TimingArcAttrs();
+                  attrs->setModel(input_rf, check_model);
+                }
               }
+              if (attrs)
+                lib_builder_->makeFromTransitionArcs(cell_, clk_port,
+                                                     input_port, nullptr,
+                                                     clk_rf, role, attrs);
             }
           }
         }
@@ -271,6 +298,26 @@ MakeTimingModel::findClkedOutputPaths()
       }
     }
   }
+}
+
+LibertyPort *
+MakeTimingModel::modelPort(const Pin *pin)
+{
+  return cell_->findLibertyPort(network_->name(network_->port(pin)));
+}
+
+TimingModel *
+MakeTimingModel::makeScalarCheckModel(float value,
+                                      ScaleFactorType scale_factor_type,
+                                      RiseFall *rf)
+{
+  Table *table = new Table0(value);
+  TableTemplate *tbl_template =
+    library_->findTableTemplate("scalar", TableTemplateType::delay);
+  TableModel *table_model = new TableModel(table, tbl_template,
+                                           scale_factor_type, rf);
+  CheckTableModel *check_model = new CheckTableModel(table_model, nullptr);
+  return check_model;
 }
 
 } // namespace

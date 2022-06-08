@@ -352,7 +352,7 @@ CheckTableModel::CheckTableModel(TableModel *model,
   model_(model)
 {
   for (auto el_index : EarlyLate::rangeIndex())
-    sigma_models_[el_index] = sigma_models[el_index];
+    sigma_models_[el_index] = sigma_models ? sigma_models[el_index] : nullptr;
 }
 
 CheckTableModel::~CheckTableModel()
