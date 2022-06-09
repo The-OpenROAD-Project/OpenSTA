@@ -31,11 +31,8 @@ public:
   MakeTimingModel(const Corner *corner,
                    Sta *sta);
   ~MakeTimingModel();
-  void writeTimingModel(const char *cell_name,
-                        const char *filename);
-  void makeTimingModel(const char *cell_name,
-                       const char *filename);
-  void writeLibertyFile(const char *filename);
+  LibertyLibrary *makeTimingModel(const char *cell_name,
+                                  const char *filename);
 
 private:
   void makeLibrary(const char *cell_name,
@@ -51,6 +48,9 @@ private:
   TimingModel *makeScalarCheckModel(float value,
                                     ScaleFactorType scale_factor_type,
                                     RiseFall *rf);
+  TimingModel *makeScalarGateModel(Delay delay,
+                                   Slew slew,
+                                   RiseFall *rf);
 
   Sta *sta_;
   LibertyLibrary *library_;

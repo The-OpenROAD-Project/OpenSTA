@@ -46,8 +46,8 @@ GateTableModel::GateTableModel(TableModel *delay_model,
   slew_model_(slew_model)
 {
   for (auto el_index : EarlyLate::rangeIndex()) {
-    slew_sigma_models_[el_index] = slew_sigma_models[el_index];
-    delay_sigma_models_[el_index] = delay_sigma_models[el_index];
+    slew_sigma_models_[el_index] = slew_sigma_models ? slew_sigma_models[el_index] : nullptr;
+    delay_sigma_models_[el_index] = delay_sigma_models ? delay_sigma_models[el_index] : nullptr;
   }
 }
 

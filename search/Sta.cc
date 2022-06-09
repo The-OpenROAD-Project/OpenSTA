@@ -28,6 +28,7 @@
 #include "EquivCells.hh"
 #include "Liberty.hh"
 #include "liberty/LibertyReader.hh"
+#include "LibertyWriter.hh"
 #include "SdcNetwork.hh"
 #include "MakeConcreteNetwork.hh"
 #include "PortDirection.hh"
@@ -5572,7 +5573,9 @@ Sta::writeTimingModel(const char *cell_name,
                       const char *filename,
                       const Corner *corner)
 {
-  sta::writeTimingModel(cell_name, filename, corner, this);
+  MakeTimingModel maker(corner, this);
+  LibertyLibrary *library = maker.makeTimingModel(cell_name, filename);
+  writeLiberty(library, filename, this);
 }
 
 ////////////////////////////////////////////////////////////////

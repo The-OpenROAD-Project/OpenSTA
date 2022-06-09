@@ -52,6 +52,7 @@ protected:
                          RiseFall *rf);
   void writeTableModel(const TableModel *model);
   void writeTableModel0(const TableModel *model);
+  void writeTableModel1(const TableModel *model);
   void writeTableModel2(const TableModel *model);
   void writeTableAxis(TableAxis *axis,
                       int index);
@@ -373,6 +374,7 @@ LibertyWriter::writeTableModel(const TableModel *model)
     writeTableModel0(model);
     break;
   case 1:
+    writeTableModel1(model);
     break;
   case 2:
     writeTableModel2(model);
@@ -389,6 +391,21 @@ LibertyWriter::writeTableModel0(const TableModel *model)
   float value = model->value(0, 0, 0);
   fprintf(stream_, "          values(\"%s\");\n",
           time_unit_->asString(value, 5));
+}
+
+void
+LibertyWriter::writeTableModel1(const TableModel *model)
+{
+  fprintf(stream_, "          values(\"");
+  bool first_col = true;
+  for (size_t index1 = 0; index1 < model->axis1()->size(); index1++) {
+    float value = model->value(index1, 0, 0);
+    if (!first_col)
+      fprintf(stream_, ",");
+    fprintf(stream_, "%s", time_unit_->asString(value, 5));
+    first_col = false;
+  }
+  fprintf(stream_, "\");\n");
 }
 
 void

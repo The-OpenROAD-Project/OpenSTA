@@ -23,7 +23,6 @@
 #include "TimingArc.hh"
 #include "TableModel.hh"
 #include "liberty/LibertyBuilder.hh"
-#include "LibertyWriter.hh"
 #include "Network.hh"
 #include "PortDirection.hh"
 #include "Corner.hh"
@@ -35,16 +34,6 @@
 #include "Sta.hh"
 
 namespace sta {
-
-void
-writeTimingModel(const char *cell_name,
-                 const char *filename,
-                 const Corner *corner,
-                 Sta *sta)
-{
-  MakeTimingModel writer(corner, sta);
-  writer.writeTimingModel(cell_name, filename);
-}
 
 MakeTimingModel::MakeTimingModel(const Corner *corner,
                                  Sta *sta) :
@@ -61,21 +50,7 @@ MakeTimingModel::~MakeTimingModel()
   delete lib_builder_;
 }
 
-void
-MakeTimingModel::writeTimingModel(const char *cell_name,
-                                  const char *filename)
-{
-  makeTimingModel(cell_name, filename);
-  writeLibertyFile(filename);
-}
-
-void
-MakeTimingModel::writeLibertyFile(const char *filename)
-{
-  writeLiberty(library_, filename, this);
-}
-
-void
+LibertyLibrary *
 MakeTimingModel::makeTimingModel(const char *cell_name,
                                  const char *filename)
 {
@@ -86,13 +61,11 @@ MakeTimingModel::makeTimingModel(const char *cell_name,
   for (Clock *clk : *sdc_->clocks())
     sta_->setPropagatedClock(clk);
 
-#if 0
   findInputToOutputPaths();
   findInputSetupHolds();
   findClkedOutputPaths();
-#endif
-  findClkedOutputPaths();
   cell_->finish(false, report_, debug_);
+  return library_;
 }
 
 void
@@ -269,37 +242,52 @@ MakeTimingModel::findClkedOutputPaths()
   while (output_iter->hasNext()) {
     Pin *output_pin = output_iter->next();    
     if (network_->direction(output_pin)->isOutput()) {
+      LibertyPort *output_port = modelPort(output_pin);
       for (Clock *clk : *sdc_->clocks()) {
-        for (RiseFall *clk_rf : RiseFall::range()) {
-          for (RiseFall *output_rf : RiseFall::range()) {
-            RiseFallBoth *output_rf1 = output_rf->asRiseFallBoth();
-            MinMax *min_max = MinMax::max();
-            MinMaxAll *min_max1 = min_max->asMinMaxAll();
-            sta_->setOutputDelay(output_pin, output_rf1, clk, clk_rf,
-                                 nullptr, false, false, min_max1, false, 0.0);
+        for (const Pin *clk_pin : clk->pins()) {
+          LibertyPort *clk_port = modelPort(clk_pin);
+          for (RiseFall *clk_rf : RiseFall::range()) {
+            TimingArcAttrs *attrs = nullptr;
+            for (RiseFall *output_rf : RiseFall::range()) {
+              RiseFallBoth *output_rf1 = output_rf->asRiseFallBoth();
+              MinMax *min_max = MinMax::max();
+              MinMaxAll *min_max1 = min_max->asMinMaxAll();
+              sta_->setOutputDelay(output_pin, output_rf1, clk, clk_rf,
+                                   nullptr, false, false, min_max1, false, 0.0);
         
-            ClockSet *from_clks = new ClockSet;
-            from_clks->insert(clk);
-            ExceptionFrom *from = sta_->makeExceptionFrom(nullptr, from_clks, nullptr,
-                                                          clk_rf->asRiseFallBoth());
-            PinSet *to_pins = new PinSet;
-            to_pins->insert(output_pin);
-            ExceptionTo *to = sta_->makeExceptionTo(to_pins, nullptr, nullptr,
-                                                    output_rf1, output_rf1);
+              ClockSet *from_clks = new ClockSet;
+              from_clks->insert(clk);
+              ExceptionFrom *from = sta_->makeExceptionFrom(nullptr, from_clks, nullptr,
+                                                            clk_rf->asRiseFallBoth());
+              PinSet *to_pins = new PinSet;
+              to_pins->insert(output_pin);
+              ExceptionTo *to = sta_->makeExceptionTo(to_pins, nullptr, nullptr,
+                                                      output_rf1, output_rf1);
 
-            PathEndSeq *ends = sta_->findPathEnds(from, nullptr, to, false, corner_, min_max1,
-                                                  1, 1, false, -INF, INF, false, nullptr,
-                                                  true, false, false, false, false, false);
-            if (!ends->empty()) {
-              debugPrint(debug_, "make_timing_model", 1, "clock %s -> output %s",
-                         clk->name(),
-                         network_->pathName(output_pin));
-              PathEnd *end = (*ends)[0];
-              if (debug_->check("make_timing_model", 2))
-                sta_->reportPathEnd(end);
+              PathEndSeq *ends = sta_->findPathEnds(from, nullptr, to, false, corner_, min_max1,
+                                                    1, 1, false, -INF, INF, false, nullptr,
+                                                    true, false, false, false, false, false);
+              if (!ends->empty()) {
+                debugPrint(debug_, "make_timing_model", 1, "clock %s -> output %s",
+                           clk->name(),
+                           network_->pathName(output_pin));
+                PathEnd *end = (*ends)[0];
+                if (debug_->check("make_timing_model", 2))
+                  sta_->reportPathEnd(end);
+                Arrival delay = end->path()->arrival(sta_);
+                Slew slew = end->path()->slew(sta_);
+                TimingModel *check_model = makeScalarGateModel(delay, slew, output_rf);
+                if (attrs == nullptr)
+                  attrs = new TimingArcAttrs();
+                attrs->setModel(output_rf, check_model);
+              }
+              sta_->removeOutputDelay(output_pin, output_rf1, clk, clk_rf, MinMaxAll::max());
             }
-            sta_->removeOutputDelay(output_pin, RiseFallBoth::riseFall(),
-                                    clk, clk_rf, MinMaxAll::max());
+            if (attrs)
+              lib_builder_->makeFromTransitionArcs(cell_, clk_port,
+                                                   output_port, nullptr,
+                                                   clk_rf, TimingRole::regClkToQ(),
+                                                   attrs);
           }
         }
       }
@@ -325,6 +313,24 @@ MakeTimingModel::makeScalarCheckModel(float value,
                                            scale_factor_type, rf);
   CheckTableModel *check_model = new CheckTableModel(table_model, nullptr);
   return check_model;
+}
+
+TimingModel *
+MakeTimingModel::makeScalarGateModel(Delay delay,
+                                     Slew slew,
+                                     RiseFall *rf)
+{
+  Table *delay_table = new Table0(delay);
+  Table *slew_table = new Table0(slew);
+  TableTemplate *tbl_template =
+    library_->findTableTemplate("scalar", TableTemplateType::delay);
+  TableModel *delay_model = new TableModel(delay_table, tbl_template,
+                                           ScaleFactorType::cell, rf);
+  TableModel *slew_model = new TableModel(slew_table, tbl_template,
+                                          ScaleFactorType::cell, rf);
+  GateTableModel *gate_model = new GateTableModel(delay_model, nullptr,
+                                                  slew_model, nullptr);
+  return gate_model;
 }
 
 } // namespace
