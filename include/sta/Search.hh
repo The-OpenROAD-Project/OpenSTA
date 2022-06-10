@@ -348,6 +348,10 @@ public:
   GatedClk *gatedClk() { return gated_clk_; }
   Genclks *genclks() { return genclks_; }
   void findClkVertexPins(PinSet &clk_pins);
+  void findFilteredArrivals(ExceptionFrom *from,
+                            ExceptionThruSeq *thrus,
+                            ExceptionTo *to,
+                            bool unconstrained);
 
 protected:
   void init(StaState *sta);

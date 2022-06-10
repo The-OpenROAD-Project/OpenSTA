@@ -16,6 +16,8 @@
 
 #include "MakeTimingModel.hh"
 
+#include <map>
+
 #include "Debug.hh"
 #include "Units.hh"
 #include "Transition.hh"
@@ -30,8 +32,11 @@
 #include "dcalc/GraphDelayCalc1.hh"
 #include "Sdc.hh"
 #include "StaState.hh"
+#include "Graph.hh"
 #include "PathEnd.hh"
+#include "Search.hh"
 #include "Sta.hh"
+#include "VisitPathEnds.hh"
 
 namespace sta {
 
@@ -61,7 +66,11 @@ MakeTimingModel::makeTimingModel(const char *cell_name,
   for (Clock *clk : *sdc_->clocks())
     sta_->setPropagatedClock(clk);
 
+#if 0
   //findInputToOutputPaths();
+  findInputSetupHolds();
+#endif
+  sta_->searchPreamble();
   findInputSetupHolds();
   findClkedOutputPaths();
 
@@ -142,7 +151,10 @@ MakeTimingModel::makePorts()
   delete port_iter;
 }
 
+////////////////////////////////////////////////////////////////
+
 // input -> output combinational paths
+// too slow to use
 void
 MakeTimingModel::findInputToOutputPaths()
 {
@@ -183,75 +195,150 @@ MakeTimingModel::findInputToOutputPaths()
   }
 }
 
+////////////////////////////////////////////////////////////////
+
+typedef std::map<ClockEdge*, RiseFallMinMax> ClockMargins;
+
+class MakeEndTimingArcs : public PathEndVisitor
+{
+public:
+  MakeEndTimingArcs(Sta *sta);
+  MakeEndTimingArcs(const MakeEndTimingArcs&) = default;
+  virtual ~MakeEndTimingArcs() {}
+  virtual PathEndVisitor *copy() const;
+  virtual void visit(PathEnd *path_end);
+  void setInputPin(const Pin *input_pin);
+  void setInputRf(const RiseFall *input_rf);
+  const ClockMargins &margins() const { return margins_; }
+
+private:
+  Sta *sta_;
+  const Pin *input_pin_;
+  const RiseFall *input_rf_;
+  ClockMargins margins_;
+};
+
+MakeEndTimingArcs::MakeEndTimingArcs(Sta *sta) :
+  sta_(sta)
+{
+}
+
+PathEndVisitor *
+MakeEndTimingArcs::copy() const
+{
+  return new MakeEndTimingArcs(*this);
+}
+
+void
+MakeEndTimingArcs::setInputPin(const Pin *input_pin)
+{
+  input_pin_ = input_pin;
+  margins_.clear();
+}
+
+void
+MakeEndTimingArcs::setInputRf(const RiseFall *input_rf)
+{
+  input_rf_ = input_rf;
+}
+
+void
+MakeEndTimingArcs::visit(PathEnd *path_end)
+{
+  ClockEdge *tgt_clk_edge = path_end->targetClkEdge(sta_);
+  Debug *debug = sta_->debug();
+  const MinMax *min_max = path_end->minMax(sta_);
+  debugPrint(debug, "make_timing_model", 2, "%s %s %s %s -> clock %s",
+             path_end->typeName(),
+             min_max->asString(),
+             sta_->network()->pathName(input_pin_),
+             input_rf_->shortName(),
+             tgt_clk_edge->name());
+  if (debug->check("make_timing_model", 3))
+    sta_->reportPathEnd(path_end);
+  Arrival data_arrival = path_end->path()->arrival(sta_);
+  Delay clk_latency = path_end->targetClkDelay(sta_);
+  ArcDelay check_setup = path_end->margin(sta_);
+  float margin = data_arrival - clk_latency + check_setup;
+  RiseFallMinMax &margins = margins_[tgt_clk_edge];
+  margins.setValue(input_rf_, min_max, margin);
+}
+
 // input -> register setup/hold
+// Use default input arrival (set_input_delay with no clock) from inputs
+// to find downstream register checks and output ports.
 void
 MakeTimingModel::findInputSetupHolds()
 {
+  Debug *debug = sta_->debug();
+  VisitPathEnds visit_ends(sta_);
+  MakeEndTimingArcs end_visitor(sta_);
   InstancePinIterator *input_iter = network_->pinIterator(network_->topInstance());
   while (input_iter->hasNext()) {
     Pin *input_pin = input_iter->next();    
     if (network_->direction(input_pin)->isInput()
         && !sta_->isClockSrc(input_pin)) {
-      LibertyPort *input_port = modelPort(input_pin);
-      for (Clock *clk : *sdc_->clocks()) {
-        for (const Pin *clk_pin : clk->pins()) {
-          LibertyPort *clk_port = modelPort(clk_pin);
-          for (RiseFall *clk_rf : RiseFall::range()) {
-            for (MinMax *min_max : MinMax::range()) {
-              MinMaxAll *min_max1 = min_max->asMinMaxAll();
-              bool setup = min_max == MinMax::max();
-              bool hold = !setup;
+      end_visitor.setInputPin(input_pin);
+      for (RiseFall *input_rf : RiseFall::range()) {
+        RiseFallBoth *input_rf1 = input_rf->asRiseFallBoth();
+        sta_->setInputDelay(input_pin, input_rf1,
+                            sdc_->defaultArrivalClock(),
+                            sdc_->defaultArrivalClockEdge()->transition(),
+                            nullptr, false, false, MinMaxAll::all(), false, 0.0);
+
+        PinSet *from_pins = new PinSet;
+        from_pins->insert(input_pin);
+        ExceptionFrom *from = sta_->makeExceptionFrom(from_pins, nullptr, nullptr,
+                                                      input_rf1);
+        search_->deleteFilteredArrivals();
+        search_->findFilteredArrivals(from, nullptr, nullptr, false);
+
+        end_visitor.setInputRf(input_rf);
+        for (Vertex *end : *search_->endpoints())
+          visit_ends.visitPathEnds(end, corner_, MinMaxAll::all(), true, &end_visitor);
+
+        sta_->removeInputDelay(input_pin, input_rf1,
+                               sdc_->defaultArrivalClock(),
+                               sdc_->defaultArrivalClockEdge()->transition(),
+                               MinMaxAll::all());
+      }
+
+      const ClockMargins &clk_margins = end_visitor.margins();
+      for (auto clk_edge_margins : clk_margins) {
+        ClockEdge *clk_edge = clk_edge_margins.first;
+        RiseFallMinMax &margins = clk_edge_margins.second;
+        for (MinMax *min_max : MinMax::range()) {
+          bool setup = (min_max == MinMax::max());
+          TimingArcAttrs *attrs = nullptr;
+          for (RiseFall *input_rf : RiseFall::range()) {
+            float margin;
+            bool exists;
+            margins.value(input_rf, min_max, margin, exists);
+            if (exists) {
+              debugPrint(debug, "make_timing_model", 1, "%s %s %s -> clock %s %s",
+                         sta_->network()->pathName(input_pin),
+                         input_rf->shortName(),
+                         min_max == MinMax::max() ? "setup" : "hold",
+                         clk_edge->name(),
+                         delayAsString(margin, sta_));
+              ScaleFactorType scale_type = setup
+                ? ScaleFactorType::setup
+                : ScaleFactorType::hold;
+              TimingModel *check_model = makeScalarCheckModel(margin, scale_type, input_rf);
+              if (attrs == nullptr)
+                attrs = new TimingArcAttrs();
+              attrs->setModel(input_rf, check_model);
+            }
+          }
+          if (attrs) {
+            LibertyPort *input_port = modelPort(input_pin);
+            for (const Pin *clk_pin : clk_edge->clock()->pins()) {
+              LibertyPort *clk_port = modelPort(clk_pin);
+              RiseFall *clk_rf = clk_edge->transition();
               TimingRole *role = setup ? TimingRole::setup() : TimingRole::hold();
-              TimingArcAttrs *attrs = nullptr;
-              for (RiseFall *input_rf : RiseFall::range()) {
-                RiseFallBoth *input_rf1 = input_rf->asRiseFallBoth();
-                sta_->setInputDelay(input_pin, input_rf1, clk, clk_rf,
-                                    nullptr, false, false, min_max1, false, 0.0);
-        
-                PinSet *from_pins = new PinSet;
-                from_pins->insert(input_pin);
-                ExceptionFrom *from = sta_->makeExceptionFrom(from_pins, nullptr, nullptr,
-                                                              input_rf1);
-
-                ClockSet *to_clks = new ClockSet;
-                to_clks->insert(clk);
-                ExceptionTo *to = sta_->makeExceptionTo(nullptr, to_clks, nullptr,
-                                                        clk_rf->asRiseFallBoth(),
-                                                        RiseFallBoth::riseFall());
-                PathEndSeq *ends = sta_->findPathEnds(from, nullptr, to, false, corner_,
-                                                      min_max1,
-                                                      1, 1, false,
-                                                      -INF, INF, false, nullptr,
-                                                      setup, hold, setup, hold, setup, hold);
-                if (!ends->empty()) {
-                  PathEnd *end = (*ends)[0];
-                  debugPrint(debug_, "make_timing_model", 1, "%s %s %s -> clock %s %s",
-                             setup ? "setup" : "hold",
-                             network_->pathName(input_pin),
-                             input_rf->asString(),
-                             clk->name(),
-                             clk_rf->asString());
-                  if (debug_->check("make_timing_model", 2))
-                    sta_->reportPathEnd(end);
-                  Arrival data_arrival = end->path()->arrival(sta_);
-                  Delay clk_latency = end->targetClkDelay(sta_);
-                  ArcDelay check_setup = end->margin(sta_);
-                  float margin = data_arrival - clk_latency + check_setup;
-
-                  ScaleFactorType scale_type = setup
-                    ? ScaleFactorType::setup
-                    : ScaleFactorType::hold;
-                  TimingModel *check_model = makeScalarCheckModel(margin, scale_type, input_rf);
-                  if (attrs == nullptr)
-                    attrs = new TimingArcAttrs();
-                  attrs->setModel(input_rf, check_model);
-                }
-                sta_->removeInputDelay(input_pin, input_rf1, clk, clk_rf, min_max1);
-              }
-              if (attrs)
-                lib_builder_->makeFromTransitionArcs(cell_, clk_port,
-                                                     input_port, nullptr,
-                                                     clk_rf, role, attrs);
+              lib_builder_->makeFromTransitionArcs(cell_, clk_port,
+                                                   input_port, nullptr,
+                                                   clk_rf, role, attrs);
             }
           }
         }
@@ -260,6 +347,9 @@ MakeTimingModel::findInputSetupHolds()
   }
 }
 
+////////////////////////////////////////////////////////////////
+
+// Rewrite to use non-filtered arrivals at outputs from each clock.
 void
 MakeTimingModel::findClkedOutputPaths()
 {

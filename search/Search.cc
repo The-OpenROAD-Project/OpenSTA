@@ -443,6 +443,30 @@ Search::findPathEnds(ExceptionFrom *from,
 		     bool clk_gating_setup,
 		     bool clk_gating_hold)
 {
+  findFilteredArrivals(from, thrus, to, unconstrained);
+  if (!sdc_->recoveryRemovalChecksEnabled())
+    recovery = removal = false;
+  if (!sdc_->gatedClkChecksEnabled())
+    clk_gating_setup = clk_gating_hold = false;
+  path_groups_ = makePathGroups(group_count, endpoint_count, unique_pins,
+				slack_min, slack_max,
+				group_names, setup, hold,
+				recovery, removal,
+				clk_gating_setup, clk_gating_hold);
+  ensureDownstreamClkPins();
+  PathEndSeq *path_ends = path_groups_->makePathEnds(to, unconstrained_paths_,
+						     corner, min_max,
+						     sort_by_slack);
+  sdc_->reportClkToClkMaxCycleWarnings();
+  return path_ends;
+}
+
+void
+Search::findFilteredArrivals(ExceptionFrom *from,
+                             ExceptionThruSeq *thrus,
+                             ExceptionTo *to,
+                             bool unconstrained)
+{
   unconstrained_paths_ = unconstrained;
   // Delete results from last findPathEnds.
   // Filtered arrivals are deleted by Sta::searchPreamble.
@@ -462,21 +486,6 @@ Search::findPathEnds(ExceptionFrom *from,
     //  -from clocks
     //  -to
     findAllArrivals();
-  if (!sdc_->recoveryRemovalChecksEnabled())
-    recovery = removal = false;
-  if (!sdc_->gatedClkChecksEnabled())
-    clk_gating_setup = clk_gating_hold = false;
-  path_groups_ = makePathGroups(group_count, endpoint_count, unique_pins,
-				slack_min, slack_max,
-				group_names, setup, hold,
-				recovery, removal,
-				clk_gating_setup, clk_gating_hold);
-  ensureDownstreamClkPins();
-  PathEndSeq *path_ends = path_groups_->makePathEnds(to, unconstrained_paths_,
-						     corner, min_max,
-						     sort_by_slack);
-  sdc_->reportClkToClkMaxCycleWarnings();
-  return path_ends;
 }
 
 // From/thrus/to are used to make a filter exception.  If the last
@@ -3981,7 +3990,10 @@ Search::deletePathGroups()
 PathGroup *
 Search::pathGroup(const PathEnd *path_end) const
 {
-  return path_groups_->pathGroup(path_end);
+  if (path_groups_)
+    return path_groups_->pathGroup(path_end);
+  else
+    return nullptr;
 }
 
 bool
