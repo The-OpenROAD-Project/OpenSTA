@@ -172,9 +172,9 @@ public:
 			   int index) const = 0;
   virtual int fromIndex(const Port *port) const = 0;
   virtual int toIndex(const Port *port) const = 0;
-  // Predicate to determine if subscript is within bus range.
-  //     (toIndex > fromIndex) && fromIndex <= subscript <= toIndex
-  //  || (fromIndex > toIndex) && fromIndex >= subscript >= toIndex
+  // Predicate to determine if index is within bus range.
+  //     (toIndex > fromIndex) && fromIndex <= index <= toIndex
+  //  || (fromIndex > toIndex) && fromIndex >= index >= toIndex
   bool busIndexInRange(const Port *port,
 		       int index);
   // Find Bundle/bus member by index.

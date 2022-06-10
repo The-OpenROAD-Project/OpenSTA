@@ -178,6 +178,15 @@ LibertyLibrary::findBusDcl(const char *name) const
   return bus_dcls_.findKey(name);
 }
 
+BusDclSeq
+LibertyLibrary::busDcls() const
+{
+  BusDclSeq dcls;
+  for (auto name_dcl : bus_dcls_)
+    dcls.push_back(name_dcl.second);
+  return dcls;
+}
+
 void
 LibertyLibrary::addTableTemplate(TableTemplate *tbl_template,
 				 TableTemplateType type)
@@ -1844,12 +1853,14 @@ LibertyCellPortBitIterator::next()
 LibertyPort::LibertyPort(LibertyCell *cell,
 			 const char *name,
 			 bool is_bus,
-			 int from_index,
+			 BusDcl *bus_dcl,
+                         int from_index,
 			 int to_index,
 			 bool is_bundle,
 			 ConcretePortSeq *members) :
   ConcretePort(cell, name, is_bus, from_index, to_index, is_bundle, members),
   liberty_cell_(cell),
+  bus_dcl_(bus_dcl),
   function_(nullptr),
   tristate_enable_(nullptr),
   scaled_ports_(nullptr),

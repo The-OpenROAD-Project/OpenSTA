@@ -41,7 +41,7 @@ LibertyPort *
 LibertyBuilder::makePort(LibertyCell *cell,
 			 const char *name)
 {
-  LibertyPort *port = new LibertyPort(cell, name, false, -1, -1, false, nullptr);
+  LibertyPort *port = new LibertyPort(cell, name, false, nullptr, -1, -1, false, nullptr);
   cell->addPort(port);
   return port;
 }
@@ -49,10 +49,12 @@ LibertyBuilder::makePort(LibertyCell *cell,
 LibertyPort *
 LibertyBuilder::makeBusPort(LibertyCell *cell,
 			    const char *name,
-			    int from_index,
-			    int to_index)
+                            int from_index,
+			    int to_index,
+			    BusDcl *bus_dcl)
 {
-  LibertyPort *port = new LibertyPort(cell, name, true, from_index, to_index,
+  LibertyPort *port = new LibertyPort(cell, name, true, bus_dcl,
+                                      from_index, to_index,
 				      false, new ConcretePortSeq);
   cell->addPort(port);
   makeBusPortBits(cell->library(), cell, port, name, from_index, to_index);
@@ -99,7 +101,7 @@ LibertyBuilder::makePort(LibertyCell *cell,
 			 const char *bit_name,
 			 int bit_index)
 {
-  LibertyPort *port = new LibertyPort(cell, bit_name, false,
+  LibertyPort *port = new LibertyPort(cell, bit_name, false, nullptr,
 				      bit_index, bit_index, false, nullptr);
   return port;
 }
@@ -109,7 +111,7 @@ LibertyBuilder::makeBundlePort(LibertyCell *cell,
 			       const char *name,
 			       ConcretePortSeq *members)
 {
-  LibertyPort *port = new LibertyPort(cell, name, false, -1, -1, true, members);
+  LibertyPort *port = new LibertyPort(cell, name, false, nullptr, -1, -1, true, members);
   cell->addPort(port);
   return port;
 }

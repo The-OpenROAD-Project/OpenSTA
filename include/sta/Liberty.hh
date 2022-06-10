@@ -49,6 +49,7 @@ class StaState;
 typedef Set<Library*> LibrarySet;
 typedef Map<const char*, TableTemplate*, CharPtrLess> TableTemplateMap;
 typedef Map<const char*, BusDcl *, CharPtrLess> BusDclMap;
+typedef Vector<BusDcl *> BusDclSeq;
 typedef Map<const char*, ScaleFactors*, CharPtrLess> ScaleFactorsMap;
 typedef Map<const char*, Wireload*, CharPtrLess> WireloadMap;
 typedef Map<const char*, WireloadSelection*, CharPtrLess> WireloadSelectionMap;
@@ -129,6 +130,7 @@ public:
   void setDelayModelType(DelayModelType type);
   void addBusDcl(BusDcl *bus_dcl);
   BusDcl *findBusDcl(const char *name) const;
+  BusDclSeq busDcls() const;
   void addTableTemplate(TableTemplate *tbl_template,
 			TableTemplateType type);
   TableTemplate *findTableTemplate(const char *name,
@@ -642,6 +644,8 @@ public:
   LibertyLibrary *libertyLibrary() const { return liberty_cell_->libertyLibrary(); }
   LibertyPort *findLibertyMember(int index) const;
   LibertyPort *findLibertyBusBit(int index) const;
+  BusDcl *busDcl() const { return bus_dcl_; }
+  void setDirection(PortDirection *dir);
   void fanoutLoad(// Return values.
 		  float &fanout_load,
 		  bool &exists) const;
@@ -762,24 +766,25 @@ protected:
   LibertyPort(LibertyCell *cell,
 	      const char *name,
 	      bool is_bus,
-	      int from_index,
+	      BusDcl *bus_dcl,
+              int from_index,
 	      int to_index,
 	      bool is_bundle,
 	      ConcretePortSeq *members);
   virtual ~LibertyPort();
-  void setDirection(PortDirection *dir);
   void setMinPort(LibertyPort *min);
   void addScaledPort(OperatingConditions *op_cond,
 		     LibertyPort *scaled_port);
 
   LibertyCell *liberty_cell_;
+  BusDcl *bus_dcl_;
   FuncExpr *function_;
   FuncExpr *tristate_enable_;
   ScaledPortMap *scaled_ports_;
   RiseFallMinMax capacitance_;
-  MinMaxFloatValues slew_limit_; // inputs and outputs
+  MinMaxFloatValues slew_limit_;   // inputs and outputs
   MinMaxFloatValues cap_limit_;    // outputs
-  float fanout_load_; // inputs
+  float fanout_load_;              // inputs
   bool fanout_load_exists_;
   MinMaxFloatValues fanout_limit_; // outputs
   float min_period_;
