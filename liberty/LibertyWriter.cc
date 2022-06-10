@@ -17,6 +17,7 @@
 #include "LibertyWriter.hh"
 
 #include <stdlib.h>
+#include <algorithm>
 
 #include "Units.hh"
 #include "FuncExpr.hh"
@@ -29,6 +30,8 @@
 #include "StaState.hh"
 
 namespace sta {
+
+using std::abs;
 
 class LibertyWriter
 {
@@ -44,9 +47,12 @@ protected:
   void writeFooter();
   void writeTableTemplates();
   void writeTableTemplate(TableTemplate *tbl_template);
+  void writeBusDcls();
   void writeCells();
   void writeCell(const LibertyCell *cell);
   void writePort(const LibertyPort *port);
+  void writeBusPort(const LibertyPort *port);
+  void writePortAttrs(const LibertyPort *port);
   void writeTimingArcSet(const TimingArcSet *arc_set);
   void writeTimingModels(const TimingArc *arc,
                          RiseFall *rf);
@@ -103,6 +109,7 @@ LibertyWriter::writeLibrary()
   writeHeader();
   fprintf(stream_, "\n");
   writeTableTemplates();
+  writeBusDcls();
   fprintf(stream_, "\n");
   writeCells();
   writeFooter();
@@ -238,6 +245,21 @@ LibertyWriter::writeTableAxis(TableAxis *axis,
 }
 
 void
+LibertyWriter::writeBusDcls()
+{
+  BusDclSeq dcls = library_->busDcls();
+  for (BusDcl *dcl : dcls) {
+    fprintf(stream_, "  type (\"%s\") {\n", dcl->name());
+    fprintf(stream_, "    base_type : array;\n");
+    fprintf(stream_, "    data_type : bit;\n");
+    fprintf(stream_, "    bit_width : %d;\n", abs(dcl->from() - dcl->to() + 1));
+    fprintf(stream_, "    bit_from : %d;\n", dcl->from());
+    fprintf(stream_, "    bit_to : %d;\n", dcl->to());
+    fprintf(stream_, "  }\n");
+  }
+}
+
+void
 LibertyWriter::writeCells()
 {
   LibertyCellIterator cell_iter(library_);
@@ -257,10 +279,17 @@ LibertyWriter::writeCell(const LibertyCell *cell)
   if (cell->isMacro())
     fprintf(stream_, "    is_macro : true;\n");
 
-  LibertyCellPortBitIterator port_iter(cell);
+  LibertyCellPortIterator port_iter(cell);
   while (port_iter.hasNext()) {
     const LibertyPort *port = port_iter.next();
-    writePort(port);
+    if (port->isBus())
+      writeBusPort(port);
+    else if (port->isBundle())
+      report_->error(704, "%s/%s bundled ports not supported.",
+                     library_->name(),
+                     cell->name());
+    else
+      writePort(port);
   }
 
   fprintf(stream_, "  }\n");
@@ -268,9 +297,32 @@ LibertyWriter::writeCell(const LibertyCell *cell)
 }
 
 void
+LibertyWriter::writeBusPort(const LibertyPort *port)
+{
+  fprintf(stream_, "    bus(\"%s\") {\n", port->name());
+  if (port->busDcl())
+    fprintf(stream_, "      bus_type : %s;\n", port->busDcl()->name());
+  writePortAttrs(port);
+
+  LibertyPortMemberIterator member_iter(port);
+  while (member_iter.hasNext()) {
+    LibertyPort *member = member_iter.next();
+    writePort(member);
+  }
+  fprintf(stream_, "    }\n");
+}
+
+void
 LibertyWriter::writePort(const LibertyPort *port)
 {
   fprintf(stream_, "    pin(\"%s\") {\n", port->name());
+  writePortAttrs(port);
+  fprintf(stream_, "    }\n");
+}
+
+void
+LibertyWriter::writePortAttrs(const LibertyPort *port)
+{
   fprintf(stream_, "      direction : %s;\n" , asString(port->direction()));
   auto func = port->function();
   if (func)
@@ -308,8 +360,6 @@ LibertyWriter::writePort(const LibertyPort *port)
     const TimingArcSet *arc_set = set_iter.next();
     writeTimingArcSet(arc_set);
   }
-
-  fprintf(stream_, "    }\n");
 }
 
 void

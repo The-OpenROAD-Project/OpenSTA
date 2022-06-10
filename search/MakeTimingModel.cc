@@ -61,9 +61,10 @@ MakeTimingModel::makeTimingModel(const char *cell_name,
   for (Clock *clk : *sdc_->clocks())
     sta_->setPropagatedClock(clk);
 
-  findInputToOutputPaths();
+  //findInputToOutputPaths();
   findInputSetupHolds();
   findClkedOutputPaths();
+
   cell_->finish(false, report_, debug_);
   return library_;
 }
@@ -106,16 +107,39 @@ void
 MakeTimingModel::makePorts()
 {
   const DcalcAnalysisPt *dcalc_ap = corner_->findDcalcAnalysisPt(min_max_);
-  InstancePinIterator *pin_iter = network_->pinIterator(network_->topInstance());
-  while (pin_iter->hasNext()) {
-    Pin *pin = pin_iter->next();    
-    Port *port = network_->port(pin);
-    LibertyPort *lib_port = lib_builder_->makePort(cell_, network_->name(port));
-    lib_port->setDirection(network_->direction(port));
-    float load_cap = graph_delay_calc_->loadCap(pin, dcalc_ap);
-    lib_port->setCapacitance(load_cap);
+  Instance *top_inst = network_->topInstance();
+  Cell *top_cell = network_->cell(top_inst);
+  CellPortIterator *port_iter = network_->portIterator(top_cell);
+  while (port_iter->hasNext()) {
+    Port *port = port_iter->next();
+    const char *port_name = network_->name(port);
+    if (network_->isBus(port)) {
+      int from_index = network_->fromIndex(port);
+      int to_index = network_->toIndex(port);
+      BusDcl *bus_dcl = new BusDcl(port_name, from_index, to_index);
+      library_->addBusDcl(bus_dcl);
+      LibertyPort *lib_port = lib_builder_->makeBusPort(cell_, port_name,
+                                                        from_index, to_index,
+                                                        bus_dcl);
+      lib_port->setDirection(network_->direction(port));
+      PortMemberIterator *member_iter = network_->memberIterator(port);
+      while (member_iter->hasNext()) {
+        Port *bit_port = member_iter->next();
+        Pin *pin = network_->findPin(top_inst, bit_port);
+        LibertyPort *lib_bit_port = modelPort(pin);
+        float load_cap = graph_delay_calc_->loadCap(pin, dcalc_ap);
+        lib_bit_port->setCapacitance(load_cap);
+      }
+    }
+    else {
+      LibertyPort *lib_port = lib_builder_->makePort(cell_, port_name);
+      lib_port->setDirection(network_->direction(port));
+      Pin *pin = network_->findPin(top_inst, port);
+      float load_cap = graph_delay_calc_->loadCap(pin, dcalc_ap);
+      lib_port->setCapacitance(load_cap);
+    }
   }
-  delete pin_iter;
+  delete port_iter;
 }
 
 // input -> output combinational paths
@@ -150,7 +174,8 @@ MakeTimingModel::findInputToOutputPaths()
                        network_->pathName(input_pin),
                        network_->pathName(output_pin));
             PathEnd *end = (*ends)[0];
-            sta_->reportPathEnd(end);
+            if (debug_->check("make_timing_model", 2))
+              sta_->reportPathEnd(end);
           }
         }
       }
