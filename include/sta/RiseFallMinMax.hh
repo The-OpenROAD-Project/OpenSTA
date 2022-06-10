@@ -54,6 +54,9 @@ public:
   void mergeValue(const RiseFallBoth *rf,
 		  const MinMaxAll *min_max,
 		  float value);
+  void mergeValue(const RiseFall *rf,
+		  const MinMax *min_max,
+		  float value);
   void setValues(RiseFallMinMax *values);
   void removeValue(const RiseFallBoth *rf,
 		   const MinMax *min_max);

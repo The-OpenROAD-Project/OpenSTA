@@ -2721,7 +2721,7 @@ Sdc::findInputDelay(const Pin *pin,
 
 void
 Sdc::removeInputDelay(Pin *pin,
-		      RiseFallBoth *rf,
+		      const RiseFallBoth *rf,
 		      Clock *clk,
 		      RiseFall *clk_rf,
 		      MinMaxAll *min_max)

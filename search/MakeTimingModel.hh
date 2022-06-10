@@ -16,14 +16,31 @@
 
 #pragma once
 
+#include <map>
+
 #include "LibertyClass.hh"
+#include "SdcClass.hh"
 #include "SearchClass.hh"
 #include "StaState.hh"
+#include "RiseFallMinMax.hh"
 
 namespace sta {
 
 class Sta;
 class LibertyBuilder;
+
+class OutputDelays
+{
+public:
+  OutputDelays();
+  TimingSense timingSense() const;
+
+  RiseFallMinMax delays;
+  bool rf_path_exists[RiseFall::index_count][RiseFall::index_count];
+};
+
+typedef std::map<ClockEdge*, RiseFallMinMax> ClockMargins;
+typedef std::map<const Pin *, OutputDelays> OutputPinDelays;
 
 class MakeTimingModel : public StaState
 {
@@ -40,17 +57,21 @@ private:
   void makeCell(const char *cell_name,
                  const char *filename);
   void makePorts();
-  void findInputToOutputPaths();
-  void findInputSetupHolds();
+  void findTimingFromInputs();
   void findClkedOutputPaths();
-
-  LibertyPort *modelPort(const Pin *pin);
+  void findOutputDelays(const RiseFall *input_rf,
+                        OutputPinDelays &output_pin_delays);
+  void makeSetupHoldTimingArcs(const Pin *input_pin,
+                               const ClockMargins &clk_margins);
+  void makeInputOutputTimingArcs(const Pin *input_pin,
+                                 OutputPinDelays &output_pin_delays);
   TimingModel *makeScalarCheckModel(float value,
                                     ScaleFactorType scale_factor_type,
                                     RiseFall *rf);
   TimingModel *makeScalarGateModel(Delay delay,
                                    Slew slew,
                                    RiseFall *rf);
+  LibertyPort *modelPort(const Pin *pin);
 
   Sta *sta_;
   LibertyLibrary *library_;

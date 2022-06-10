@@ -475,7 +475,7 @@ public:
   void removeClockGroupsAsynchronous(const char *name);
   bool sameClockGroup(const Clock *clk1,
 		      const Clock *clk2);
- // Clocks explicitly excluded by set_clock_group.
+  // Clocks explicitly excluded by set_clock_group.
   bool sameClockGroupExplicit(const Clock *clk1,
 			      const Clock *clk2);
   ClockGroupIterator *clockGroupIterator();
@@ -531,7 +531,7 @@ public:
 		     const MinMaxAll *min_max,
 		     bool add, float delay);
   void removeInputDelay(Pin *pin,
-			RiseFallBoth *rf,
+			const RiseFallBoth *rf,
 			Clock *clk,
 			RiseFall *clk_rf,
 			MinMaxAll *min_max);

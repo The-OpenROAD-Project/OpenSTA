@@ -67,6 +67,13 @@ public:
 				       RiseFall *from_rf,
 				       TimingRole *role,
 				       TimingArcAttrs *attrs);
+  TimingArcSet *makeCombinationalArcs(LibertyCell *cell,
+				      LibertyPort *from_port,
+				      LibertyPort *to_port,
+				      LibertyPort *related_out,
+				      bool to_rise,
+				      bool to_fall,
+				      TimingArcAttrs *attrs);
 
 protected:
   ConcretePort *makeBusPort(const char *name,
@@ -102,13 +109,6 @@ protected:
 			   RiseFall *from_rf,
 			   RiseFall *to_rf,
 			   TimingModel *model);
-  TimingArcSet *makeCombinationalArcs(LibertyCell *cell,
-				      LibertyPort *from_port,
-				      LibertyPort *to_port,
-				      LibertyPort *related_out,
-				      bool to_rise,
-				      bool to_fall,
-				      TimingArcAttrs *attrs);
   TimingArcSet *makeLatchDtoQArcs(LibertyCell *cell,
 				  LibertyPort *from_port,
 				  LibertyPort *to_port,

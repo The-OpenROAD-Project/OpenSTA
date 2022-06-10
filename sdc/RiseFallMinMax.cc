@@ -107,6 +107,20 @@ RiseFallMinMax::mergeValue(const RiseFallBoth *rf,
 }
 
 void
+RiseFallMinMax::mergeValue(const RiseFall *rf,
+			   const MinMax *min_max,
+			   float value)
+{
+  int rf_index = rf->index();
+  int mm_index = min_max->index();
+  if (!exists_[rf_index][mm_index]
+      || min_max->compare(value, values_[rf_index][mm_index])) {
+    values_[rf_index][mm_index] = value;
+    exists_[rf_index][mm_index] = true;
+  }
+}
+
+void
 RiseFallMinMax::setValue(const RiseFallBoth *rf,
 			 const MinMax *min_max,
 			 float value)
