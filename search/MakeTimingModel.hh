@@ -39,7 +39,7 @@ public:
   bool rf_path_exists[RiseFall::index_count][RiseFall::index_count];
 };
 
-typedef std::map<ClockEdge*, RiseFallMinMax> ClockMargins;
+typedef std::map<ClockEdge*, RiseFallMinMax> ClockEdgeDelays;
 typedef std::map<const Pin *, OutputDelays> OutputPinDelays;
 
 class MakeTimingModel : public StaState
@@ -62,7 +62,7 @@ private:
   void findOutputDelays(const RiseFall *input_rf,
                         OutputPinDelays &output_pin_delays);
   void makeSetupHoldTimingArcs(const Pin *input_pin,
-                               const ClockMargins &clk_margins);
+                               const ClockEdgeDelays &clk_margins);
   void makeInputOutputTimingArcs(const Pin *input_pin,
                                  OutputPinDelays &output_pin_delays);
   TimingModel *makeScalarCheckModel(float value,
