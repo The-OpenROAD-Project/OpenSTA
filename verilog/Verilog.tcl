@@ -20,7 +20,7 @@ namespace eval sta {
 define_cmd_args "read_verilog" {filename}
 
 proc_redirect read_verilog {
-  read_verilog_cmd $args
+  read_verilog_cmd [file nativename [lindex $args 0]]
 }
 
 define_cmd_args "write_verilog" {[-sort] [-include_pwr_gnd]\

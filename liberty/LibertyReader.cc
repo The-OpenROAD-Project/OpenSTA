@@ -2726,9 +2726,8 @@ LibertyReader::visitBusType(LibertyAttr *attr)
 	while (name_iter.hasNext()) {
 	  const char *name = name_iter.next();
 	  debugPrint(debug_, "liberty", 1, " bus %s", name);
-	  LibertyPort *port = builder_->makeBusPort(cell_, name,
-						    bus_dcl->from(),
-						    bus_dcl->to());
+	  LibertyPort *port = builder_->makeBusPort(cell_, name, bus_dcl->from(),
+                                                    bus_dcl->to(), bus_dcl);
 	  ports_->push_back(port);
 	}
       }
@@ -3360,14 +3359,14 @@ LibertyReader::beginSequential(LibertyGroup *group,
     LibertyPort *out_port_inv = nullptr;
     if (out_name) {
       if (has_size)
-	out_port = builder_->makeBusPort(cell_, out_name, size - 1, 0);
+	out_port = builder_->makeBusPort(cell_, out_name, size - 1, 0, nullptr);
       else
 	out_port = builder_->makePort(cell_,out_name);
       out_port->setDirection(PortDirection::internal());
     }
     if (out_inv_name) {
       if (has_size)
-	out_port_inv = builder_->makeBusPort(cell_, out_inv_name, size - 1, 0);
+	out_port_inv = builder_->makeBusPort(cell_, out_inv_name, size - 1, 0, nullptr);
       else
 	out_port_inv = builder_->makePort(cell_, out_inv_name);
       out_port_inv->setDirection(PortDirection::internal());

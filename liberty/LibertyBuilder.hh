@@ -40,7 +40,8 @@ public:
   virtual LibertyPort *makeBusPort(LibertyCell *cell,
 				   const char *name,
 				   int from_index,
-				   int to_index);
+				   int to_index,
+                                   BusDcl *bus_dcl);
   virtual LibertyPort *makeBundlePort(LibertyCell *cell,
 				      const char *name,
 				      ConcretePortSeq *members);
