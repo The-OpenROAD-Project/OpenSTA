@@ -36,6 +36,7 @@ public:
   TimingSense timingSense() const;
 
   RiseFallMinMax delays;
+  // input edge -> output edge path exists for unateness
   bool rf_path_exists[RiseFall::index_count][RiseFall::index_count];
 };
 
@@ -80,11 +81,5 @@ private:
   MinMax *min_max_;
   LibertyBuilder *lib_builder_;
 };
-
-void
-writeTimingModel(const char *cell_name,
-                 const char *filename,
-                 const Corner *corner,
-                 Sta *sta);
 
 } // namespace

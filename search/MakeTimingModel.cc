@@ -486,11 +486,6 @@ TimingSense
 OutputDelays::timingSense() const
 {
   if (rf_path_exists[RiseFall::riseIndex()][RiseFall::riseIndex()]
-      && rf_path_exists[RiseFall::riseIndex()][RiseFall::fallIndex()]
-      && rf_path_exists[RiseFall::fallIndex()][RiseFall::riseIndex()]
-      && rf_path_exists[RiseFall::fallIndex()][RiseFall::fallIndex()])
-    return TimingSense::non_unate;
-  else if (rf_path_exists[RiseFall::riseIndex()][RiseFall::riseIndex()]
            && rf_path_exists[RiseFall::fallIndex()][RiseFall::fallIndex()]
            && !rf_path_exists[RiseFall::riseIndex()][RiseFall::fallIndex()]
            && !rf_path_exists[RiseFall::fallIndex()][RiseFall::riseIndex()])
