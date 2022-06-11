@@ -16,6 +16,7 @@
 
 #include "MakeTimingModel.hh"
 
+#include <algorithm>
 #include <map>
 
 #include "Debug.hh"
@@ -39,6 +40,8 @@
 #include "VisitPathEnds.hh"
 
 namespace sta {
+
+using std::max;
 
 MakeTimingModel::MakeTimingModel(const Corner *corner,
                                  Sta *sta) :
@@ -208,12 +211,20 @@ MakeEndTimingArcs::visit(PathEnd *path_end)
              min_max->asString());
   if (debug->check("make_timing_model", 3))
     sta_->reportPathEnd(path_end);
-  Arrival data_arrival = path_end->path()->arrival(sta_);
+  Arrival data_delay = path_end->path()->arrival(sta_);
   Delay clk_latency = path_end->targetClkDelay(sta_);
-  ArcDelay check_setup = path_end->margin(sta_);
-  float margin = data_arrival - clk_latency + check_setup;
+  ArcDelay check_margin = path_end->margin(sta_);
+  Delay margin = min_max == MinMax::max()
+    ? data_delay - clk_latency + check_margin
+    : clk_latency - data_delay + check_margin;
+  float delay1 = delayAsFloat(margin, MinMax::max(), sta_);
   RiseFallMinMax &margins = margins_[tgt_clk_edge];
-  margins.mergeValue(input_rf_, min_max, margin);
+  float max_margin;
+  bool max_exists;
+  margins.value(input_rf_, min_max, max_margin, max_exists);
+  // Always max margin, even for min/hold checks.
+  margins.setValue(input_rf_, min_max,
+                   max_exists ? max(max_margin, delay1) : delay1);
 }
 
 // input -> register setup/hold
@@ -279,7 +290,8 @@ MakeTimingModel::findOutputDelays(const RiseFall *input_rf,
           const MinMax *min_max = path->minMax(sta_);
           Arrival delay = path->arrival(sta_);
           OutputDelays &delays = output_pin_delays[output_pin];
-          delays.delays.mergeValue(output_rf, min_max, delay);
+          delays.delays.mergeValue(output_rf, min_max,
+                                   delayAsFloat(delay, min_max, sta_));
           delays.rf_path_exists[input_rf->index()][output_rf->index()] = true;
         }
       }
@@ -394,7 +406,8 @@ MakeTimingModel::findClkedOutputPaths()
           const MinMax *min_max = path->minMax(sta_);
           Arrival delay = path->arrival(sta_);
           RiseFallMinMax &delays = clk_delays[clk_edge];
-          delays.mergeValue(output_rf, min_max, delay);
+          delays.mergeValue(output_rf, min_max,
+                            delayAsFloat(delay, min_max, sta_));
         }
       }
       for (auto clk_edge_delay : clk_delays) {
@@ -448,8 +461,8 @@ MakeTimingModel::makeScalarGateModel(Delay delay,
                                      Slew slew,
                                      RiseFall *rf)
 {
-  Table *delay_table = new Table0(delay);
-  Table *slew_table = new Table0(slew);
+  Table *delay_table = new Table0(delayAsFloat(delay));
+  Table *slew_table = new Table0(delayAsFloat(slew));
   TableTemplate *tbl_template =
     library_->findTableTemplate("scalar", TableTemplateType::delay);
   TableModel *delay_model = new TableModel(delay_table, tbl_template,
