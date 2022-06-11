@@ -710,17 +710,15 @@ GraphDelayCalc1::driveCellDefaultFromPort(LibertyCell *cell,
 {
   LibertyPort *from_port = 0;
   int from_port_index = 0;
-  LibertyCellTimingArcSetIterator set_iter(cell);
+  LibertyCellTimingArcSetIterator set_iter(cell, nullptr, to_port);
   while (set_iter.hasNext()) {
     TimingArcSet *arc_set = set_iter.next();
-    if (arc_set->to() == to_port) {
-      LibertyPort *set_from_port = arc_set->from();
-      int set_from_port_index = findPortIndex(cell, set_from_port);
-      if (from_port == nullptr
-	  || set_from_port_index < from_port_index) {
-	from_port = set_from_port;
-	from_port_index = set_from_port_index;
-      }
+    LibertyPort *set_from_port = arc_set->from();
+    int set_from_port_index = findPortIndex(cell, set_from_port);
+    if (from_port == nullptr
+        || set_from_port_index < from_port_index) {
+      from_port = set_from_port;
+      from_port_index = set_from_port_index;
     }
   }
   return from_port;
@@ -756,19 +754,16 @@ GraphDelayCalc1::findInputDriverDelay(LibertyCell *drvr_cell,
   debugPrint(debug_, "delay_calc", 2, "  driver cell %s %s",
              drvr_cell->name(),
              rf->asString());
-  LibertyCellTimingArcSetIterator set_iter(drvr_cell);
+  LibertyCellTimingArcSetIterator set_iter(drvr_cell, from_port, to_port);
   while (set_iter.hasNext()) {
     TimingArcSet *arc_set = set_iter.next();
-    if (arc_set->from() == from_port
-	&& arc_set->to() == to_port) {
-      TimingArcSetArcIterator arc_iter(arc_set);
-      while (arc_iter.hasNext()) {
-	TimingArc *arc = arc_iter.next();
-	if (arc->toEdge()->asRiseFall() == rf) {
-	  float from_slew = from_slews[arc->fromEdge()->index()];
-	  findInputArcDelay(drvr_cell, drvr_pin, drvr_vertex,
-			    arc, from_slew, dcalc_ap);
-	}
+    TimingArcSetArcIterator arc_iter(arc_set);
+    while (arc_iter.hasNext()) {
+      TimingArc *arc = arc_iter.next();
+      if (arc->toEdge()->asRiseFall() == rf) {
+        float from_slew = from_slews[arc->fromEdge()->index()];
+        findInputArcDelay(drvr_cell, drvr_pin, drvr_vertex,
+                          arc, from_slew, dcalc_ap);
       }
     }
   }
