@@ -213,7 +213,7 @@ MakeEndTimingArcs::visit(PathEnd *path_end)
   ArcDelay check_setup = path_end->margin(sta_);
   float margin = data_arrival - clk_latency + check_setup;
   RiseFallMinMax &margins = margins_[tgt_clk_edge];
-  margins.setValue(input_rf_, min_max, margin);
+  margins.mergeValue(input_rf_, min_max, margin);
 }
 
 // input -> register setup/hold
