@@ -26,7 +26,7 @@ RiseFallMinMax::RiseFallMinMax()
 void
 RiseFallMinMax::clear()
 {
-  for (int rf_index=0; rf_index<RiseFall::index_count; rf_index++) {
+  for (int rf_index = 0; rf_index<RiseFall::index_count; rf_index++) {
     for (int mm_index = 0; mm_index < MinMax::index_count; mm_index++) {
       exists_[rf_index][mm_index] = false;
     }
@@ -35,7 +35,7 @@ RiseFallMinMax::clear()
 
 RiseFallMinMax::RiseFallMinMax(float init_value)
 {
-  for (int rf_index=0 ; rf_index < RiseFall::index_count ; rf_index++) {
+  for (int rf_index = 0 ; rf_index < RiseFall::index_count ; rf_index++) {
     for (int mm_index = 0; mm_index < MinMax::index_count; mm_index++) {
       values_[rf_index][mm_index] = init_value;
       exists_[rf_index][mm_index] = true;
@@ -45,7 +45,7 @@ RiseFallMinMax::RiseFallMinMax(float init_value)
 
 RiseFallMinMax::RiseFallMinMax(const RiseFallMinMax *rfmm)
 {
-  for (int rf_index=0 ; rf_index < RiseFall::index_count ; rf_index++) {
+  for (int rf_index = 0 ; rf_index < RiseFall::index_count ; rf_index++) {
     for (int mm_index = 0; mm_index < MinMax::index_count; mm_index++) {
       values_[rf_index][mm_index] = rfmm->values_[rf_index][mm_index];
       exists_[rf_index][mm_index] = rfmm->exists_[rf_index][mm_index];
@@ -146,7 +146,7 @@ RiseFallMinMax::setValue(const RiseFall *rf,
 void
 RiseFallMinMax::setValues(RiseFallMinMax *values)
 {
-  for (int rf_index=0 ; rf_index < RiseFall::index_count ; rf_index++) {
+  for (int rf_index = 0 ; rf_index < RiseFall::index_count ; rf_index++) {
     for (int mm_index = 0; mm_index < MinMax::index_count; mm_index++) {
       values_[rf_index][mm_index] = values->values_[rf_index][mm_index];
       exists_[rf_index][mm_index] = values->exists_[rf_index][mm_index];
@@ -196,7 +196,7 @@ RiseFallMinMax::maxValue(// Return values
 {
   max_value = MinMax::max()->initValue();
   exists = false;
-  for (int rf_index=0 ; rf_index < RiseFall::index_count ; rf_index++) {
+  for (int rf_index = 0 ; rf_index < RiseFall::index_count ; rf_index++) {
     for (int mm_index = 0; mm_index < MinMax::index_count; mm_index++) {
       if (exists_[rf_index][mm_index]) {
 	max_value = std::max(max_value, values_[rf_index][mm_index]);
@@ -209,7 +209,7 @@ RiseFallMinMax::maxValue(// Return values
 bool
 RiseFallMinMax::empty() const
 {
-  for (int rf_index=0 ; rf_index < RiseFall::index_count ; rf_index++) {
+  for (int rf_index = 0 ; rf_index < RiseFall::index_count ; rf_index++) {
     for (int mm_index = 0; mm_index < MinMax::index_count; mm_index++) {
       if (exists_[rf_index][mm_index])
 	return false;
@@ -248,7 +248,7 @@ RiseFallMinMax::mergeWith(RiseFallMinMax *rfmm)
 bool
 RiseFallMinMax::equal(const RiseFallMinMax *values) const
 {
-  for (int rf_index=0 ; rf_index < RiseFall::index_count ; rf_index++) {
+  for (int rf_index = 0 ; rf_index < RiseFall::index_count ; rf_index++) {
     for (int mm_index = 0; mm_index < MinMax::index_count; mm_index++) {
       bool exists1 = exists_[rf_index][mm_index];
       bool exists2 = values->exists_[rf_index][mm_index];
@@ -274,7 +274,7 @@ RiseFallMinMax::isOneValue(float &value) const
 {
   if (exists_[0][0]) {
     value = values_[0][0];
-    for (int rf_index=0 ; rf_index < RiseFall::index_count ; rf_index++) {
+    for (int rf_index = 0 ; rf_index < RiseFall::index_count ; rf_index++) {
       for (int mm_index=0; mm_index<MinMax::index_count;mm_index++) {
 	if (!exists_[rf_index][mm_index]
 	    || values_[rf_index][mm_index] != value)
@@ -295,7 +295,7 @@ RiseFallMinMax::isOneValue(const MinMax *min_max,
   int mm_index = min_max->index();
   if (exists_[0][mm_index]) {
     value = values_[0][mm_index];
-    for (int rf_index=0 ; rf_index < RiseFall::index_count ; rf_index++) {
+    for (int rf_index = 0 ; rf_index < RiseFall::index_count ; rf_index++) {
       if (!exists_[rf_index][mm_index]
 	  || values_[rf_index][mm_index] != value)
 	return false;

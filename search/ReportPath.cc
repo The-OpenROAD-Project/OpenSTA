@@ -1008,7 +1008,7 @@ ReportPath::reportSummaryLine(PathEnd *end)
   if (end->isUnconstrained())
     reportSpaceFieldDelay(end->dataArrivalTimeOffset(this), early_late, line);
   else
-    reportSpaceFieldDelay(end->slack(this), early_late, line);
+    reportSpaceFieldDelay(end->slack(this), EarlyLate::early(), line);
   report_->reportLineString(line);
 }
 

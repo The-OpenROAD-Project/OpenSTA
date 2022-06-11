@@ -447,6 +447,7 @@ public:
   float axisValue(size_t index) const { return (*values_)[index]; }
   // Find the index for value such that axis[index] <= value < axis[index+1].
   size_t findAxisIndex(float value) const;
+  FloatSeq *values() const { return values_; }
 
 private:
   TableAxisVariable variable_;
