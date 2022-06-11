@@ -26,7 +26,7 @@ RiseFallMinMax::RiseFallMinMax()
 void
 RiseFallMinMax::clear()
 {
-  for (int tr_index=0; tr_index<RiseFall::index_count; tr_index++) {
+  for (int rf_index=0; rf_index<RiseFall::index_count; rf_index++) {
     for (int mm_index = 0; mm_index < MinMax::index_count; mm_index++) {
       exists_[rf_index][mm_index] = false;
     }
