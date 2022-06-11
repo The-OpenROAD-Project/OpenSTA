@@ -69,9 +69,13 @@ private:
   TimingModel *makeScalarCheckModel(float value,
                                     ScaleFactorType scale_factor_type,
                                     RiseFall *rf);
-  TimingModel *makeScalarGateModel(Delay delay,
+  TimingModel *makeGateModelScalar(Delay delay,
                                    Slew slew,
                                    RiseFall *rf);
+  TimingModel *makeGateModelTable(const Pin *output_pin,
+                                  Delay delay,
+                                  RiseFall *rf);
+  TableAxis *loadCapacitanceAxis(const TableModel *table);
   LibertyPort *modelPort(const Pin *pin);
 
   Sta *sta_;
@@ -80,6 +84,7 @@ private:
   const Corner *corner_;
   MinMax *min_max_;
   LibertyBuilder *lib_builder_;
+  int tbl_template_index_;
 };
 
 } // namespace

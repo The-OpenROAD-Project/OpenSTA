@@ -38,6 +38,7 @@
 #include "Search.hh"
 #include "Sta.hh"
 #include "VisitPathEnds.hh"
+#include "ArcDelayCalc.hh"
 
 namespace sta {
 
@@ -49,7 +50,8 @@ MakeTimingModel::MakeTimingModel(const Corner *corner,
   sta_(sta),
   corner_(corner),
   min_max_(MinMax::max()),
-  lib_builder_(new LibertyBuilder)
+  lib_builder_(new LibertyBuilder),
+  tbl_template_index_(1)
 {
 }
 
@@ -62,6 +64,7 @@ LibertyLibrary *
 MakeTimingModel::makeTimingModel(const char *cell_name,
                                  const char *filename)
 {
+  tbl_template_index_ = 1;
   makeLibrary(cell_name, filename);
   makeCell(cell_name, filename);
   makePorts();
@@ -348,10 +351,8 @@ void
 MakeTimingModel::makeInputOutputTimingArcs(const Pin *input_pin,
                                            OutputPinDelays &output_pin_delays)
 {
-  const DcalcAnalysisPt *dcalc_ap = corner_->findDcalcAnalysisPt(min_max_);
   for (auto out_pin_delay : output_pin_delays) {
     const Pin *output_pin = out_pin_delay.first;
-    Vertex *output_vertex = graph_->pinLoadVertex(output_pin);
     OutputDelays &output_delays = out_pin_delay.second;
     TimingArcAttrs *attrs = nullptr;
     for (RiseFall *output_rf : RiseFall::range()) {
@@ -365,8 +366,7 @@ MakeTimingModel::makeInputOutputTimingArcs(const Pin *input_pin,
                    network_->pathName(output_pin),
                    output_rf->shortName(),
                    delayAsString(delay, sta_));
-        Slew slew = graph_->slew(output_vertex, output_rf, dcalc_ap->index());
-        TimingModel *gate_model = makeScalarGateModel(delay, slew, output_rf);
+        TimingModel *gate_model = makeGateModelTable(output_pin, delay, output_rf);
         if (attrs == nullptr)
           attrs = new TimingArcAttrs();
         attrs->setModel(output_rf, gate_model);
@@ -389,7 +389,6 @@ MakeTimingModel::makeInputOutputTimingArcs(const Pin *input_pin,
 void
 MakeTimingModel::findClkedOutputPaths()
 {
-  const DcalcAnalysisPt *dcalc_ap = corner_->findDcalcAnalysisPt(min_max_);
   InstancePinIterator *output_iter = network_->pinIterator(network_->topInstance());
   while (output_iter->hasNext()) {
     Pin *output_pin = output_iter->next();    
@@ -419,8 +418,7 @@ MakeTimingModel::findClkedOutputPaths()
           TimingArcAttrs *attrs = nullptr;
           for (RiseFall *output_rf : RiseFall::range()) {
             float delay = delays.value(output_rf, min_max_);
-            Slew slew = graph_->slew(output_vertex, output_rf, dcalc_ap->index());
-            TimingModel *gate_model = makeScalarGateModel(delay, slew, output_rf);
+            TimingModel *gate_model = makeGateModelTable(output_pin, delay, output_rf);
             if (attrs == nullptr)
               attrs = new TimingArcAttrs();
             attrs->setModel(output_rf, gate_model);
@@ -457,7 +455,7 @@ MakeTimingModel::makeScalarCheckModel(float value,
 }
 
 TimingModel *
-MakeTimingModel::makeScalarGateModel(Delay delay,
+MakeTimingModel::makeGateModelScalar(Delay delay,
                                      Slew slew,
                                      RiseFall *rf)
 {
@@ -472,6 +470,117 @@ MakeTimingModel::makeScalarGateModel(Delay delay,
   GateTableModel *gate_model = new GateTableModel(delay_model, nullptr,
                                                   slew_model, nullptr);
   return gate_model;
+}
+
+// Eval the driver pin model along its load capacitance
+// axis and add the input to output 'delay' to the table values.
+TimingModel *
+MakeTimingModel::makeGateModelTable(const Pin *output_pin,
+                                    Delay delay,
+                                    RiseFall *rf)
+{
+  const char *output_port_name = network_->name(network_->port(output_pin));
+  const DcalcAnalysisPt *dcalc_ap = corner_->findDcalcAnalysisPt(min_max_);
+  const Pvt *pvt = dcalc_ap->operatingConditions();
+  const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
+  int lib_index = dcalc_ap->libertyIndex();
+
+  PinSet *drvrs = network_->drivers(network_->net(network_->term(output_pin)));
+  const Pin *drvr_pin = *drvrs->begin();
+  const LibertyPort *drvr_port = network_->libertyPort(drvr_pin);
+  if (drvr_port) {
+    const LibertyCell *drvr_cell = drvr_port->libertyCell();
+    LibertyCellTimingArcSetIterator set_iter(drvr_cell, nullptr, drvr_port);
+    while (set_iter.hasNext()) {
+      TimingArcSet *arc_set = set_iter.next();
+      TimingArcSetArcIterator arc_iter(arc_set);
+      while (arc_iter.hasNext()) {
+        TimingArc *drvr_arc = arc_iter.next();
+        // Use the first timing arc to simplify life.
+        if (drvr_arc->toEdge()->asRiseFall() == rf) {
+          const LibertyPort *gate_in_port = drvr_arc->from();
+          const Instance *drvr_inst = network_->instance(drvr_pin);
+          const Pin *gate_in_pin = network_->findPin(drvr_inst, gate_in_port);
+          if (gate_in_pin) {
+            Vertex *gate_in_vertex = graph_->pinLoadVertex(gate_in_pin);
+            Slew in_slew = graph_->slew(gate_in_vertex,
+                                        drvr_arc->fromEdge()->asRiseFall(),
+                                        dcalc_ap->index());
+            TimingModel *drvr_model = drvr_arc->cornerArc(lib_index)->model(op_cond);
+            GateTableModel *drvr_gate_model = dynamic_cast<GateTableModel*>(drvr_model);
+            if (drvr_gate_model) {
+              float output_load_cap = graph_delay_calc_->loadCap(output_pin, dcalc_ap);
+              ArcDelay drvr_self_delay;
+              Slew drvr_self_slew;
+              drvr_gate_model->gateDelay(drvr_cell, pvt, in_slew,
+                                         output_load_cap, 0.0, false,
+                                         drvr_self_delay, drvr_self_slew);
+
+              const TableModel *drvr_table = drvr_gate_model->delayModel();
+              const TableAxis *drvr_load_axis = loadCapacitanceAxis(drvr_table);
+              const FloatSeq *drvr_axis_values = drvr_load_axis->values();
+
+              FloatSeq *load_values = new FloatSeq;
+              FloatSeq *slew_values = new FloatSeq;
+              for (size_t i = 0; i < drvr_axis_values->size(); i++) {
+                float load_cap = (*drvr_axis_values)[i];
+                // get slew from driver input pin
+                ArcDelay gate_delay;
+                Slew gate_slew;
+                drvr_gate_model->gateDelay(drvr_cell, pvt, in_slew,
+                                           load_cap, 0.0, false,
+                                           gate_delay, gate_slew);
+                // Remove the self delay driving the output pin net load cap.
+                load_values->push_back(delay + gate_delay - drvr_self_delay);
+                slew_values->push_back(gate_slew);
+              }
+
+              FloatSeq *axis_values = new FloatSeq(*drvr_axis_values);
+              TableAxis *load_axis =
+                new TableAxis(TableAxisVariable::total_output_net_capacitance,
+                              axis_values);
+          
+              Table *delay_table = new Table1(load_values, load_axis, true);
+              Table *slew_table = new Table1(slew_values, load_axis, true);
+
+              string template_name;
+              template_name += output_port_name;
+              template_name += "_";;
+              template_name += std::to_string(tbl_template_index_++);
+
+              TableTemplate *tbl_template = new TableTemplate(template_name.c_str());
+              tbl_template->setAxis1(load_axis);
+              library_->addTableTemplate(tbl_template, TableTemplateType::delay);
+
+              TableModel *delay_model = new TableModel(delay_table, tbl_template,
+                                                       ScaleFactorType::cell, rf);
+              TableModel *slew_model = new TableModel(slew_table, tbl_template,
+                                                      ScaleFactorType::cell, rf);
+              GateTableModel *gate_model = new GateTableModel(delay_model, nullptr,
+                                                              slew_model, nullptr);
+              return gate_model;
+            }
+          }
+        }
+      }
+    }
+  }
+  Vertex *output_vertex = graph_->pinLoadVertex(output_pin);
+  Slew slew = graph_->slew(output_vertex, rf, dcalc_ap->index());
+  return makeGateModelScalar(delay, slew, rf);
+}
+
+TableAxis *
+MakeTimingModel::loadCapacitanceAxis(const TableModel *table)
+{
+  if (table->axis1()->variable() == TableAxisVariable::total_output_net_capacitance)
+    return table->axis1();
+  else if (table->axis2()->variable() == TableAxisVariable::total_output_net_capacitance)
+    return table->axis2();
+  else if (table->axis3()->variable() == TableAxisVariable::total_output_net_capacitance)
+    return table->axis3();
+  else
+    return nullptr;
 }
 
 OutputDelays::OutputDelays()
