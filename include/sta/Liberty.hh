@@ -417,8 +417,8 @@ public:
   TimingArcSet *findTimingArcSet(unsigned arc_set_index) const;
   bool hasTimingArcs(LibertyPort *port) const;
 
-  InternalPowerSeq *internalPowers();
-  InternalPowerSeq *internalPowers(const LibertyPort *port);
+  const InternalPowerSeq &internalPowers() const { return internal_powers_; }
+  const InternalPowerSeq &internalPowers(const LibertyPort *port);
   LeakagePowerSeq *leakagePowers() { return &leakage_powers_; }
   void leakagePower(// Return values.
 		    float &leakage,

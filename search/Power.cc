@@ -637,8 +637,8 @@ Power::findInputInternalPower(const Pin *pin,
   LibertyCell *corner_cell = cell->cornerCell(lib_ap_index);
   const LibertyPort *corner_port = port->cornerPort(lib_ap_index);
   if (corner_cell && corner_port) {
-    InternalPowerSeq *internal_pwrs = corner_cell->internalPowers(corner_port);
-    if (!internal_pwrs->empty()) {
+    const InternalPowerSeq &internal_pwrs = corner_cell->internalPowers(corner_port);
+    if (!internal_pwrs.empty()) {
       debugPrint(debug_, "power", 2, "internal input %s/%s (%s)",
                  network_->pathName(inst),
                  port->name(),
@@ -650,7 +650,7 @@ Power::findInputInternalPower(const Pin *pin,
                  units_->capacitanceUnit()->asString(load_cap));
       debugPrint(debug_, "power", 2, "       when  act/ns duty  energy    power");
       float internal = 0.0;
-      for (InternalPower *pwr : *internal_pwrs) {
+      for (InternalPower *pwr : internal_pwrs) {
         const char *related_pg_pin = pwr->relatedPgPin();
         float energy = 0.0;
         int rf_count = 0;
@@ -784,7 +784,7 @@ Power::findOutputInternalPower(const Pin *to_pin,
   FuncExpr *func = to_port->function();
 
   map<const char*, float, StringLessIf> pg_duty_sum;
-  for (InternalPower *pwr : *corner_cell->internalPowers(to_corner_port)) {
+  for (InternalPower *pwr : corner_cell->internalPowers(to_corner_port)) {
     float duty = findInputDuty(to_pin, inst, func, pwr);
     const char *related_pg_pin = pwr->relatedPgPin();
     // Note related_pg_pin may be null.
@@ -792,7 +792,7 @@ Power::findOutputInternalPower(const Pin *to_pin,
   }
 
   float internal = 0.0;
-  for (InternalPower *pwr : *corner_cell->internalPowers(to_corner_port)) {
+  for (InternalPower *pwr : corner_cell->internalPowers(to_corner_port)) {
     FuncExpr *when = pwr->when();
     const char *related_pg_pin = pwr->relatedPgPin();
     float duty = findInputDuty(to_pin, inst, func, pwr);
