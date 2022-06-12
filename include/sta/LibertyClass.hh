@@ -54,7 +54,6 @@ class TimingRole;
 class Transition;
 class RiseFall;
 class RiseFallBoth;
-class LibertyCellSequentialIterator;
 
 typedef Vector<LibertyLibrary*> LibertyLibrarySeq;
 typedef Vector<LibertyCell*> LibertyCellSeq;

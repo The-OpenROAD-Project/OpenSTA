@@ -532,9 +532,7 @@ Power::seedRegOutputActivities(const Instance *inst,
 			       BfsFwdIterator &bfs)
 {
   LibertyCell *cell = network_->libertyCell(inst);
-  LibertyCellSequentialIterator seq_iter(cell);
-  while (seq_iter.hasNext()) {
-    Sequential *seq = seq_iter.next();
+  for (Sequential *seq : cell->sequentials()) {
     seedRegOutputActivities(inst, seq, seq->output(), false);
     seedRegOutputActivities(inst, seq, seq->outputInv(), true);
     // Enqueue register output pins with functions that reference

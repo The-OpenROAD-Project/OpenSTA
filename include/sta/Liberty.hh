@@ -442,6 +442,7 @@ public:
 		    bool &exists) const;
   bool leakagePowerExists() const { return leakage_power_exists_; }
 
+  const SequentialSeq &sequentials() const { return sequentials_; }
   bool hasSequentials() const;
   // Find the sequential with the output connected to an (internal) port.
   Sequential *outputPortSequential(LibertyPort *port);
@@ -584,7 +585,6 @@ private:
   friend class LibertyCellPgPortIterator;
   friend class LibertyPort;
   friend class LibertyBuilder;
-  friend class LibertyCellSequentialIterator;
 };
 
 class LibertyCellPortIterator : public Iterator<LibertyPort*>
@@ -619,13 +619,6 @@ public:
 
 private:
   LibertyPgPortMap::Iterator iter_;
-};
-
-class LibertyCellSequentialIterator : public SequentialSeq::ConstIterator
-{
-public:
-  LibertyCellSequentialIterator(const LibertyCell *cell) :
-    SequentialSeq::ConstIterator(cell->sequentials_) {}
 };
 
 ////////////////////////////////////////////////////////////////

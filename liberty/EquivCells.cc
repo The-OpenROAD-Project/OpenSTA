@@ -221,9 +221,7 @@ static unsigned
 hashCellSequentials(const LibertyCell *cell)
 {
   unsigned hash = 0;
-  LibertyCellSequentialIterator seq_iter(cell);
-  while (seq_iter.hasNext()) {
-    Sequential *seq = seq_iter.next();
+  for (Sequential *seq : cell->sequentials()) {
     hash += hashFuncExpr(seq->clock()) * 3;
     hash += hashFuncExpr(seq->data()) * 5;
     hash += hashPort(seq->output()) * 7;
@@ -332,11 +330,14 @@ bool
 equivCellSequentials(const LibertyCell *cell1,
 		     const LibertyCell *cell2)
 {
-  LibertyCellSequentialIterator seq_iter1(cell1);
-  LibertyCellSequentialIterator seq_iter2(cell2);
-  while (seq_iter1.hasNext() && seq_iter2.hasNext()) {
-    Sequential *seq1 = seq_iter1.next();
-    Sequential *seq2 = seq_iter2.next();
+  const SequentialSeq &seqs1 = cell1->sequentials();
+  const SequentialSeq &seqs2 = cell2->sequentials();
+  auto seq_itr1 = seqs1.begin(), seq_itr2 = seqs2.begin();
+  for (;
+       seq_itr1 != seqs1.end() && seq_itr2 != seqs2.end();
+       seq_itr1++, seq_itr2++) {
+    const Sequential *seq1 = *seq_itr1;
+    const Sequential *seq2 = *seq_itr2;
     if (!(FuncExpr::equiv(seq1->clock(), seq2->clock())
 	  && FuncExpr::equiv(seq1->data(), seq2->data())
 	  && LibertyPort::equiv(seq1->output(), seq2->output())
@@ -345,7 +346,7 @@ equivCellSequentials(const LibertyCell *cell1,
 	  && FuncExpr::equiv(seq1->preset(), seq2->preset())))
       return false;
   }
-  return !seq_iter1.hasNext() && !seq_iter2.hasNext();
+  return seq_itr1 == seqs1.end() && seq_itr2 == seqs2.end();
 }
 
 bool

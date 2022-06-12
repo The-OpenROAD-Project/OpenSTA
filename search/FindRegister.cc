@@ -235,10 +235,8 @@ FindRegVisitor::findSequential(const Pin *clk_pin,
 {
   has_seqs = false;
   matches = false;
-  LibertyCellSequentialIterator seq_iter(cell);
-  while (seq_iter.hasNext()) {
+  for (Sequential *seq : cell->sequentials()) {
     has_seqs = true;
-    Sequential *seq = seq_iter.next();
     if ((seq->isRegister() && edge_triggered)
 	|| (seq->isLatch() && latches)) {
       if (clk_rf == RiseFallBoth::riseFall()) {
