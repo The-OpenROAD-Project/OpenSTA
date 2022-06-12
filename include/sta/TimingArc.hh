@@ -25,7 +25,6 @@ namespace sta {
 
 class TimingArcAttrs;
 class WireTimingArc;
-class WireTimingArcSetArcIterator;
 
 typedef int TimingArcIndex;
 typedef Vector<TimingArc*> TimingArcSeq;
