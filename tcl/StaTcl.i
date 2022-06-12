@@ -586,6 +586,16 @@ using namespace sta;
   Tcl_SetObjResult(interp, list);
 }
 
+%typemap(out) const TimingArcSeq& {
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
+  const TimingArcSeq *arcs = $1;
+  for (TimingArc *arc : *arcs) {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(arc, SWIGTYPE_p_TimingArc, false);
+    Tcl_ListObjAppendElement(interp, list, obj);
+  }
+  Tcl_SetObjResult(interp, list);
+}
+
 %typemap(out) Wireload* {
   Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
   Tcl_SetObjResult(interp, obj);
@@ -1647,13 +1657,6 @@ class TimingArcSet
 private:
   TimingArcSet();
   ~TimingArcSet();
-};
-
-class TimingArcSetArcIterator
-{
-private:
-  TimingArcSetArcIterator();
-  ~TimingArcSetArcIterator();
 };
 
 class TimingArc
@@ -5822,12 +5825,6 @@ const char *to_edge_name() { return self->toEdge()->asRiseFall()->name(); }
 TimingRole *role() { return self->role(); }
 } // TimingArc methods
 
-%extend TimingArcSetArcIterator {
-bool has_next() { return self->hasNext(); }
-TimingArc *next() { return self->next(); }
-void finish() { delete self; }
-}
-
 %extend Instance {
 Instance *parent() { return cmdLinkedNetwork()->parent(self); }
 Cell *cell() { return cmdLinkedNetwork()->cell(self); }
@@ -6215,8 +6212,8 @@ Pin *from_pin() { return self->from(Sta::sta()->graph())->pin(); }
 Pin *to_pin() { return self->to(Sta::sta()->graph())->pin(); }
 TimingRole *role() { return self->role(); }
 const char *sense() { return timingSenseString(self->sense()); }
-TimingArcSetArcIterator *
-timing_arc_iterator() { return new TimingArcSetArcIterator(self->timingArcSet()); }
+const TimingArcSeq &
+timing_arcs() { return self->timingArcSet()->arcs(); }
 bool is_disabled_loop() { return Sta::sta()->isDisabledLoop(self); }
 bool is_disabled_constraint() { return Sta::sta()->isDisabledConstraint(self);}
 bool is_disabled_constant() { return Sta::sta()->isDisabledConstant(self); }

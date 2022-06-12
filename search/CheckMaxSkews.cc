@@ -186,9 +186,7 @@ CheckMaxSkews:: visitMaxSkewChecks(Vertex *vertex,
     if (edge->role() == TimingRole::skew()) {
       Vertex *ref_vertex = edge->from(graph);
       TimingArcSet *arc_set = edge->timingArcSet();
-      TimingArcSetArcIterator arc_iter(arc_set);
-      while (arc_iter.hasNext()) {
-	TimingArc *arc = arc_iter.next();
+      for (TimingArc *arc : arc_set->arcs()) {
 	RiseFall *clk_rf = arc->fromEdge()->asRiseFall();
 	RiseFall *ref_rf = arc->toEdge()->asRiseFall();
 	VertexPathIterator clk_path_iter(vertex, clk_rf, clk_min_max, search);

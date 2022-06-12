@@ -420,9 +420,7 @@ SdfWriter::writeArcDelays(Edge *edge)
 {
   RiseFallMinMax delays;
   TimingArcSet *arc_set = edge->timingArcSet();
-  TimingArcSetArcIterator arc_iter(arc_set);
-  while (arc_iter.hasNext()) {
-    TimingArc *arc = arc_iter.next();
+  for (TimingArc *arc : arc_set->arcs()) {
     RiseFall *rf = arc->toEdge()->asRiseFall();
     ArcDelay min_delay = graph_->arcDelay(edge, arc, arc_delay_min_index_);
     delays.setValue(rf, MinMax::min(), delayAsFloat(min_delay));
@@ -577,9 +575,7 @@ SdfWriter::writeCheck(Edge *edge,
   // Examine the arcs to see if the check requires clk or data edge specifiers.
   TimingArc *arcs[RiseFall::index_count][RiseFall::index_count] = 
     {{nullptr, nullptr}, {nullptr, nullptr}};
-  TimingArcSetArcIterator arc_iter(arc_set);
-  while (arc_iter.hasNext()) {
-    TimingArc *arc = arc_iter.next();
+  for (TimingArc *arc : arc_set->arcs()) {
     RiseFall *clk_rf = arc->fromEdge()->asRiseFall();
     RiseFall *data_rf = arc->toEdge()->asRiseFall();;
     arcs[clk_rf->index()][data_rf->index()] = arc;
@@ -593,11 +589,8 @@ SdfWriter::writeCheck(Edge *edge,
     writeEdgeCheck(edge, sdf_check, RiseFall::fallIndex(), arcs);
   else {
     // No special case; write all the checks with data and clock edge specifiers.
-    TimingArcSetArcIterator arc_iter(arc_set);
-    while (arc_iter.hasNext()) {
-      TimingArc *arc = arc_iter.next();
+    for (TimingArc *arc : arc_set->arcs())
       writeCheck(edge, arc, sdf_check, true, true);
-    }
   }
 }
 

@@ -753,9 +753,7 @@ GraphDelayCalc1::findInputDriverDelay(LibertyCell *drvr_cell,
              drvr_cell->name(),
              rf->asString());
   for (TimingArcSet *arc_set : drvr_cell->timingArcSets(from_port, to_port)) {
-    TimingArcSetArcIterator arc_iter(arc_set);
-    while (arc_iter.hasNext()) {
-      TimingArc *arc = arc_iter.next();
+    for (TimingArc *arc : arc_set->arcs()) {
       if (arc->toEdge()->asRiseFall() == rf) {
         float from_slew = from_slews[arc->fromEdge()->index()];
         findInputArcDelay(drvr_cell, drvr_pin, drvr_vertex,
@@ -1007,9 +1005,7 @@ GraphDelayCalc1::findDriverEdgeDelays(LibertyCell *drvr_cell,
     const Pvt *pvt = sdc_->pvt(drvr_inst, dcalc_ap->constraintMinMax());
     if (pvt == nullptr)
       pvt = dcalc_ap->operatingConditions();
-    TimingArcSetArcIterator arc_iter(arc_set);
-    while (arc_iter.hasNext()) {
-      TimingArc *arc = arc_iter.next();
+    for (TimingArc *arc : arc_set->arcs()) {
       const RiseFall *rf = arc->toEdge()->asRiseFall();
       Parasitic *parasitic = arc_delay_calc->findParasitic(drvr_pin, rf,
 							   dcalc_ap);
@@ -1378,9 +1374,7 @@ GraphDelayCalc1::findMultiDrvrGateDelay(MultiDrvrNet *multi_drvr,
 	Edge *edge1 = edge_iter.next();
 	TimingArcSet *arc_set1 = edge1->timingArcSet();
 	const LibertyPort *related_out_port = arc_set1->relatedOut();
-	TimingArcSetArcIterator arc_iter(arc_set1);
-	while (arc_iter.hasNext()) {
-	  TimingArc *arc1 = arc_iter.next();
+        for (TimingArc *arc1 : arc_set1->arcs()) {
 	  RiseFall *drvr_rf1 = arc1->toEdge()->asRiseFall();
 	  if (drvr_rf1 == drvr_rf) {
 	    Vertex *from_vertex1 = edge1->from(graph_);
@@ -1520,9 +1514,7 @@ GraphDelayCalc1::findCheckEdgeDelays(Edge *edge,
              network_->portName(from_vertex->pin()),
              network_->portName(to_pin));
   bool delay_changed = false;
-  TimingArcSetArcIterator arc_iter(arc_set);
-  while (arc_iter.hasNext()) {
-    TimingArc *arc = arc_iter.next();
+  for (TimingArc *arc : arc_set->arcs()) {
     RiseFall *from_rf = arc->fromEdge()->asRiseFall();
     RiseFall *to_rf = arc->toEdge()->asRiseFall();
     if (from_rf && to_rf) {

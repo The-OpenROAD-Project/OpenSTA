@@ -422,9 +422,7 @@ Latches::latchSetupMargin(Vertex *data_vertex,
 	  && !edge->isDisabledCond()
 	  && !sdc_->isDisabledCondDefault(edge)) {
 	TimingArcSet *arc_set = edge->timingArcSet();
-	TimingArcSetArcIterator arc_iter(arc_set);
-	while (arc_iter.hasNext()) {
-	  TimingArc *check_arc = arc_iter.next();
+        for (TimingArc *check_arc : arc_set->arcs()) {
 	  if (check_arc->toEdge()->asRiseFall() == data_rf
 	      && check_arc->fromEdge()->asRiseFall() == disable_rf)
 	    return search_->deratedDelay(from_vertex, check_arc, edge,

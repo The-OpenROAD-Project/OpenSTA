@@ -353,8 +353,6 @@ protected:
 private:
   friend class LibertyCell;
   friend class LibertyCellIterator;
-  friend class TableTemplateIterator;
-  friend class OperatingConditionsIterator;
 };
 
 class LibertyCellIterator : public Iterator<LibertyCell*>
@@ -366,21 +364,6 @@ public:
 
 private:
   ConcreteCellMap::ConstIterator iter_;
-};
-
-class TableTemplateIterator : public TableTemplateMap::ConstIterator
-{
-public:
-  TableTemplateIterator(const LibertyLibrary *library,
-			TableTemplateType type) :
-    TableTemplateMap::ConstIterator(library->template_maps_[int(type)]) {}
-};
-
-class OperatingConditionsIterator : public OperatingConditionsMap::ConstIterator
-{
-public:
-  OperatingConditionsIterator(const LibertyLibrary *library) :
-    OperatingConditionsMap::ConstIterator(library->operating_conditions_) {}
 };
 
 ////////////////////////////////////////////////////////////////

@@ -490,9 +490,7 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
   if (drvr_port) {
     const LibertyCell *drvr_cell = drvr_port->libertyCell();
     for (TimingArcSet *arc_set : drvr_cell->timingArcSets(nullptr, drvr_port)) {
-      TimingArcSetArcIterator arc_iter(arc_set);
-      while (arc_iter.hasNext()) {
-        TimingArc *drvr_arc = arc_iter.next();
+      for (TimingArc *drvr_arc : arc_set->arcs()) {
         // Use the first timing arc to simplify life.
         if (drvr_arc->toEdge()->asRiseFall() == rf) {
           const LibertyPort *gate_in_port = drvr_arc->from();

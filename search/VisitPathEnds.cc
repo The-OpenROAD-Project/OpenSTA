@@ -146,9 +146,7 @@ VisitPathEnds::visitCheckEnd(const Pin *pin,
     if (checkEdgeEnabled(edge)
 	&& check_role->pathMinMax() == min_max) {
       TimingArcSet *arc_set = edge->timingArcSet();
-      TimingArcSetArcIterator arc_iter(arc_set);
-      while (arc_iter.hasNext()) {
-	TimingArc *check_arc = arc_iter.next();
+      for (TimingArc *check_arc : arc_set->arcs()) {
 	RiseFall *clk_rf = check_arc->fromEdge()->asRiseFall();
 	if (check_arc->toEdge()->asRiseFall() == end_rf
 	    && clk_rf) {
@@ -250,9 +248,7 @@ VisitPathEnds::visitCheckEndUnclked(const Pin *pin,
     if (checkEdgeEnabled(edge)
 	&& check_role->pathMinMax() == min_max) {
       TimingArcSet *arc_set = edge->timingArcSet();
-      TimingArcSetArcIterator arc_iter(arc_set);
-      while (arc_iter.hasNext()) {
-	TimingArc *check_arc = arc_iter.next();
+      for (TimingArc *check_arc : arc_set->arcs()) {
 	RiseFall *clk_rf = check_arc->fromEdge()->asRiseFall();
 	if (check_arc->toEdge()->asRiseFall() == end_rf
 	    && clk_rf

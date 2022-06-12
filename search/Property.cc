@@ -937,9 +937,7 @@ edgeDelayProperty(Edge *edge,
   ArcDelay delay = 0.0;
   bool delay_exists = false;
   TimingArcSet *arc_set = edge->timingArcSet();
-  TimingArcSetArcIterator arc_iter(arc_set);
-  while (arc_iter.hasNext()) {
-    TimingArc *arc = arc_iter.next();
+  for (TimingArc *arc : arc_set->arcs()) {
     RiseFall *to_rf = arc->toEdge()->asRiseFall();
     if (to_rf == rf) {
       for (auto corner : *sta->corners()) {

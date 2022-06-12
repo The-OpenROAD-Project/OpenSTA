@@ -757,11 +757,14 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
     auto arc_set2 = cell2->findTimingArcSet(arc_set1);
     if (arc_set2) {
       if (link) {
-	TimingArcSetArcIterator arc_iter1(arc_set1);
-	TimingArcSetArcIterator arc_iter2(arc_set2);
-	while (arc_iter1.hasNext() && arc_iter2.hasNext()) {
-	  TimingArc *arc1 = arc_iter1.next();
-	  TimingArc *arc2 = arc_iter2.next();
+        const TimingArcSeq &arcs1 = arc_set1->arcs();
+        const TimingArcSeq &arcs2 = arc_set2->arcs();
+        auto arc_itr1 = arcs1.begin(), arc_itr2 = arcs2.begin();
+        for (;
+             arc_itr1 != arcs1.end() && arc_itr2 != arcs2.end();
+             arc_itr1++, arc_itr2++) {
+          TimingArc *arc1 = *arc_itr1;
+          TimingArc *arc2 = *arc_itr2;
 	  if (TimingArc::equiv(arc1, arc2))
 	    arc1->setCornerArc(arc2, ap_index);
 	}
@@ -841,8 +844,7 @@ LibertyLibrary::supplyExists(const char *supply_name) const
 
 ////////////////////////////////////////////////////////////////
 
-LibertyCellIterator::LibertyCellIterator(const LibertyLibrary *
-						       library):
+LibertyCellIterator::LibertyCellIterator(const LibertyLibrary *library) :
   iter_(library->cell_map_)
 {
 }
@@ -1474,11 +1476,15 @@ LibertyCell::addScaledCell(OperatingConditions *op_cond,
        set_itr1++, set_itr2++) {
     TimingArcSet *arc_set1 = *set_itr1;
     TimingArcSet *arc_set2 = *set_itr2;
-    TimingArcSetArcIterator arc_iter1(arc_set1);
-    TimingArcSetArcIterator arc_iter2(arc_set2);
-    while (arc_iter1.hasNext() && arc_iter2.hasNext()) {
-      TimingArc *arc = arc_iter1.next();
-      TimingArc *scaled_arc = arc_iter2.next();
+    const TimingArcSeq &arcs1 = arc_set1->arcs();
+    const TimingArcSeq &arcs2 = arc_set2->arcs();
+    auto arc_itr1 = arcs1.begin(), arc_itr2 = arcs2.begin();
+    for (;
+         arc_itr1 != arcs1.end() && arc_itr2 != arcs2.end();
+         arc_itr1++, arc_itr2++) {
+      TimingArc *arc = *arc_itr1;
+      const TimingArc *scaled_arc = *arc_itr2;
+
       if (TimingArc::equiv(arc, scaled_arc)) {
 	TimingModel *model = scaled_arc->model();
 	model->setIsScaled(true);
@@ -1638,7 +1644,6 @@ LibertyCell::makeLatchEnables(Report *report,
       if (en_to_q->role() == TimingRole::latchEnToQ()) {
 	LibertyPort *en = en_to_q->from();
 	LibertyPort *q = en_to_q->to();
-
         for (TimingArcSet *d_to_q : timingArcSets(nullptr, q)) {
 	  if (d_to_q->role() == TimingRole::latchDtoQ()) {
 	    LibertyPort *d = d_to_q->from();
@@ -1648,13 +1653,11 @@ LibertyCell::makeLatchEnables(Report *report,
 							    en_to_q,
 							    setup_check,
 							    debug);
-		TimingArcSetArcIterator check_arc_iter(setup_check);
-		if (check_arc_iter.hasNext()) {
-		  TimingArc *check_arc = check_arc_iter.next();
+                for (TimingArc *check_arc : setup_check->arcs()) {
 		  RiseFall *en_rf = latch_enable->enableEdge();
 		  RiseFall *check_rf = check_arc->fromEdge()->asRiseFall();
-		  if (check_rf == en_rf) {
-		    report->warn(4, "cell %s/%s %s -> %s latch enable %s_edge timing arc is inconsistent with %s -> %s setup_%s check.",
+		  if (check_rf == en_rf)
+		    report->warn(4, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with %s -> %s setup_%s check.",
 				 library_->name(),
 				 name_,
 				 en->name(),
@@ -1663,7 +1666,6 @@ LibertyCell::makeLatchEnables(Report *report,
 				 en->name(),
 				 d->name(),
 				 check_rf==RiseFall::rise()?"rising":"falling");
-		  }
 		  FuncExpr *en_func = latch_enable->enableFunc();
 		  if (en_func) {
 		    TimingSense en_sense = en_func->portTimingSense(en);
@@ -1684,7 +1686,6 @@ LibertyCell::makeLatchEnables(Report *report,
 				   q->name(),
 				   en_rf == RiseFall::rise()?"rising":"falling");
 		  }
-		  break;
 		}
 	      }
 	    }
@@ -2022,9 +2023,7 @@ LibertyPort::driveResistance(const RiseFall *rf,
   bool found_drive = false;
   for (TimingArcSet *arc_set : liberty_cell_->timingArcSets(nullptr, this)) {
     if (!arc_set->role()->isTimingCheck()) {
-      TimingArcSetArcIterator arc_iter(arc_set);
-      while (arc_iter.hasNext()) {
-	TimingArc *arc = arc_iter.next();
+      for (TimingArc *arc : arc_set->arcs()) {
 	if (rf == nullptr
 	    || arc->toEdge()->asRiseFall() == rf) {
           float drive = arc->driveResistance();
@@ -2058,9 +2057,7 @@ LibertyPort::intrinsicDelay(const RiseFall *rf,
   bool found_delay = false;
   for (TimingArcSet *arc_set : liberty_cell_->timingArcSets(nullptr, this)) {
     if (!arc_set->role()->isTimingCheck()) {
-      TimingArcSetArcIterator arc_iter(arc_set);
-      while (arc_iter.hasNext()) {
-	TimingArc *arc = arc_iter.next();
+      for (TimingArc *arc : arc_set->arcs()) {
 	if (rf == nullptr
 	    || arc->toEdge()->asRiseFall() == rf) {
           ArcDelay delay = arc->intrinsicDelay();

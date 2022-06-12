@@ -717,15 +717,12 @@ proc set_assigned_delay2 {from_vertex to_vertex to_rf corner min_max delay} {
     set edge [$edge_iter next]
     if { [$edge to] == $to_vertex \
 	   && ![timing_role_is_check [$edge role]] } {
-      set arc_iter [$edge timing_arc_iterator]
-      while {[$arc_iter has_next]} {
-	set arc [$arc_iter next]
+      foreach arc [$edge timing_arcs] {
 	if { $to_rf == "rise_fall" \
 	       || $to_rf eq [$arc to_edge_name] } {
 	  set_arc_delay $edge $arc $corner $min_max $delay
 	}
       }
-      $arc_iter finish
     }
   }
   $edge_iter finish
@@ -829,9 +826,7 @@ proc set_assigned_check2 { from_vertex from_rf to_vertex to_rf \
   while {[$edge_iter has_next]} {
     set edge [$edge_iter next]
     if { [$edge to] == $to_vertex } {
-      set arc_iter [$edge timing_arc_iterator]
-      while {[$arc_iter has_next]} {
-	set arc [$arc_iter next]
+      foreach arc [$edge timing_arcs] {
 	if { ($from_rf eq "rise_fall" \
 		|| $from_rf eq [$arc from_edge_name]) \
 	       && ($to_rf eq "rise_fall" \
@@ -841,7 +836,6 @@ proc set_assigned_check2 { from_vertex from_rf to_vertex to_rf \
 	  set_arc_delay $edge $arc $corner $min_max $check_value
 	}
       }
-      $arc_iter finish
     }
   }
   $edge_iter finish
@@ -1292,16 +1286,6 @@ proc instance_edges { inst } {
   }
   $pin_iter finish
   return $edges
-}
-
-proc libcell_timing_arc_sets { libcell } {
-  set arc_sets {}
-  set arc_iter [$libcell timing_arc_set_iterator]
-  while { [$arc_iter has_next] } {
-    lappend arc_sets [$arc_iter next]
-  }
-  $arc_iter finish
-  return $arc_sets
 }
 
 proc get_timing_arcs_from_to { from_pin_arg to_pin_arg } {

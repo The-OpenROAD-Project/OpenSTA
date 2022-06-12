@@ -270,9 +270,7 @@ SdfReader::setEdgeDelays(Edge *edge,
   if (triple_count == 1
       || triple_count == 2) {
     TimingArcSet *arc_set = edge->timingArcSet();
-    TimingArcSetArcIterator arc_iter(arc_set);
-    while (arc_iter.hasNext()) {
-      TimingArc *arc = arc_iter.next();
+    for (TimingArc *arc : arc_set->arcs()) {
       size_t triple_index;
       if (triple_count == 1)
 	triple_index = 0;
@@ -379,9 +377,7 @@ SdfReader::iopath(SdfPortSpec *from_edge,
                     // condelse matches the default (unconditional) arc.
                     || (condelse && lib_cond == nullptr))) {
               matched = true;
-              TimingArcSetArcIterator arc_iter(arc_set);
-              while (arc_iter.hasNext()) {
-                TimingArc *arc = arc_iter.next();
+              for (TimingArc *arc : arc_set->arcs()) {
                 if ((from_edge->transition() == Transition::riseFall())
                     || (arc->fromEdge() == from_edge->transition())) {
                   size_t triple_index = arc->toEdge()->sdfTripleIndex();
@@ -523,9 +519,7 @@ SdfReader::annotateCheckEdges(Pin *data_pin,
 	       && edge_role->genericRole() == sdf_role->genericRole()))
 	  && cond_matches) {
 	TimingArcSet *arc_set = edge->timingArcSet();
-	TimingArcSetArcIterator arc_iter(arc_set);
-	while (arc_iter.hasNext()) {
-	  TimingArc *arc = arc_iter.next();
+        for (TimingArc *arc : arc_set->arcs()) {
 	  if (((data_edge->transition() == Transition::riseFall())
 	       || (arc->toEdge() == data_edge->transition()))
 	      && ((clk_edge->transition() == Transition::riseFall())

@@ -116,9 +116,7 @@ proc report_edge_ { edge vertex_from_name_proc vertex_to_name_proc } {
     report_line "  Mode: $mode_name [$edge mode_value]"
   }
 
-  set iter [$edge timing_arc_iterator]
-  while {[$iter has_next]} {
-    set arc [$iter next]
+  foreach arc [$edge timing_arcs] {
     set delays [$edge arc_delay_strings $arc $sta_report_default_digits]
     set delays_fmt [format_delays $delays]
     set disable_reason ""
@@ -127,7 +125,6 @@ proc report_edge_ { edge vertex_from_name_proc vertex_to_name_proc } {
     }
     report_line "  [$arc from_edge] -> [$arc to_edge] $delays_fmt$disable_reason"
   }
-  $iter finish
 }
 
 # Separate list elements with colons.

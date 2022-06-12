@@ -1659,9 +1659,7 @@ hasDisabledArcs(Edge *edge,
 		Graph *graph)
 {
   TimingArcSet *arc_set = edge->timingArcSet();
-  TimingArcSetArcIterator arc_iter(arc_set);
-  while (arc_iter.hasNext()) {
-    TimingArc *arc = arc_iter.next();
+  for (TimingArc *arc : arc_set->arcs()) {
     if (!searchThru(edge, arc, graph))
       return true;
   }

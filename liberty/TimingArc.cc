@@ -244,12 +244,6 @@ TimingArcSet::libertyCell() const
     return nullptr;
 }
 
-TimingArcSetArcIterator *
-TimingArcSet::timingArcIterator()
-{
-  return new TimingArcSetArcIterator(this);
-}
-
 TimingArcIndex
 TimingArcSet::addTimingArc(TimingArc *arc)
 {
@@ -396,18 +390,23 @@ TimingArcSet::equiv(const TimingArcSet *set1,
 }
 
 static bool
-timingArcsEquiv(const TimingArcSet *set1,
-		const TimingArcSet *set2)
+timingArcsEquiv(const TimingArcSet *arc_set1,
+		const TimingArcSet *arc_set2)
 {
-  TimingArcSetArcIterator arc_iter1(set1);
-  TimingArcSetArcIterator arc_iter2(set2);
-  while (arc_iter1.hasNext() && arc_iter2.hasNext()) {
-    TimingArc *arc1 = arc_iter1.next();
-    TimingArc *arc2 = arc_iter2.next();
+  const TimingArcSeq &arcs1 = arc_set1->arcs();
+  const TimingArcSeq &arcs2 = arc_set2->arcs();
+  if (arcs1.size() != arcs2.size())
+    return false;
+  auto arc_itr1 = arcs1.begin(), arc_itr2 = arcs2.begin();
+  for (;
+       arc_itr1 != arcs1.end() && arc_itr2 != arcs2.end();
+       arc_itr1++, arc_itr2++) {
+    const TimingArc *arc1 = *arc_itr1;
+    const TimingArc *arc2 = *arc_itr2;
     if (!TimingArc::equiv(arc1, arc2))
       return false;
   }
-  return !arc_iter1.hasNext() && !arc_iter2.hasNext();
+  return true;
 }
 
 bool
@@ -478,14 +477,21 @@ timingArcSetLess(const TimingArcSet *set1,
 }
 
 static bool
-timingArcsLess(const TimingArcSet *set1,
-	       const TimingArcSet *set2)
+timingArcsLess(const TimingArcSet *arc_set1,
+	       const TimingArcSet *arc_set2)
 {
-  TimingArcSetArcIterator arc_iter1(set1);
-  TimingArcSetArcIterator arc_iter2(set2);
-  while (arc_iter1.hasNext() && arc_iter2.hasNext()) {
-    TimingArc *arc1 = arc_iter1.next();
-    TimingArc *arc2 = arc_iter2.next();
+  const TimingArcSeq &arcs1 = arc_set1->arcs();
+  const TimingArcSeq &arcs2 = arc_set2->arcs();
+  if (arcs1.size() < arcs2.size())
+    return true;
+  if (arcs1.size() > arcs2.size())
+    return false;
+  auto arc_itr1 = arcs1.begin(), arc_itr2 = arcs2.begin();
+  for (;
+       arc_itr1 != arcs1.end() && arc_itr2 != arcs2.end();
+       arc_itr1++, arc_itr2++) {
+    const TimingArc *arc1 = *arc_itr1;
+    const TimingArc *arc2 = *arc_itr2;
     int from_index1 = arc1->fromEdge()->index();
     int from_index2 = arc2->fromEdge()->index();
     if (from_index1 < from_index2)
@@ -501,7 +507,7 @@ timingArcsLess(const TimingArcSet *set1,
       return false;
     // Continue if arc transitions are equal.
   }
-  return !arc_iter1.hasNext() && arc_iter2.hasNext();
+  return false;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -527,13 +533,6 @@ TimingArcSet::destroy()
 {
   delete wire_timing_arc_set_;
   wire_timing_arc_set_ = nullptr;
-}
-
-////////////////////////////////////////////////////////////////
-
-TimingArcSetArcIterator::TimingArcSetArcIterator(const TimingArcSet *set) :
-  TimingArcSeq::ConstIterator(set->arcs())
-{
 }
 
 ////////////////////////////////////////////////////////////////

@@ -26,7 +26,6 @@ namespace sta {
 class TimingArcAttrs;
 class WireTimingArc;
 class WireTimingArcSetArcIterator;
-class TimingArcSetArcIterator;
 
 typedef int TimingArcIndex;
 typedef Vector<TimingArc*> TimingArcSeq;
@@ -157,8 +156,6 @@ public:
 		TimingArc *&arc2) const;
   TimingArc *arcTo(const RiseFall *to_rf) const;
   const TimingArcSeq &arcs() const { return arcs_; }
-  // Use the TimingArcSetArcIterator(arc_set) constructor instead.
-  TimingArcSetArcIterator *timingArcIterator() __attribute__ ((deprecated));
   TimingArcIndex addTimingArc(TimingArc *arc);
   void deleteTimingArc(TimingArc *arc);
   TimingArc *findTimingArc(unsigned arc_index);
@@ -219,12 +216,6 @@ protected:
   TimingArc *to_arc_[RiseFall::index_count];
 
   static TimingArcSet *wire_timing_arc_set_;
-};
-
-class TimingArcSetArcIterator : public TimingArcSeq::ConstIterator
-{
-public:
-  TimingArcSetArcIterator(const TimingArcSet *set);
 };
 
 // A timing arc is a single from/to transition between two ports.

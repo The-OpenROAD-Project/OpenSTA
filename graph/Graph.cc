@@ -873,9 +873,7 @@ Graph::removeDelayAnnotated(Edge *edge)
 {
   edge->setDelayAnnotationIsIncremental(false);
   TimingArcSet *arc_set = edge->timingArcSet();
-  TimingArcSetArcIterator arc_iter(arc_set);
-  while (arc_iter.hasNext()) {
-    TimingArc *arc = arc_iter.next();
+  for (TimingArc *arc : arc_set->arcs()) {
     for (DcalcAPIndex ap_index = 0; ap_index < ap_count_; ap_index++) {
       setArcDelayAnnotated(edge, arc, ap_index, false);
     }
@@ -886,9 +884,7 @@ bool
 Graph::delayAnnotated(Edge *edge)
 {
   TimingArcSet *arc_set = edge->timingArcSet();
-  TimingArcSetArcIterator arc_iter(arc_set);
-  while (arc_iter.hasNext()) {
-    TimingArc *arc = arc_iter.next();
+  for (TimingArc *arc : arc_set->arcs()) {
     for (DcalcAPIndex ap_index = 0; ap_index < ap_count_; ap_index++) {
       if (arcDelayAnnotated(edge, arc, ap_index))
 	return true;
