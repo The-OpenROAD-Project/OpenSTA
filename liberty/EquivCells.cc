@@ -355,11 +355,9 @@ equivCellTimingArcSets(const LibertyCell *cell1,
   if (cell1->timingArcSetCount() != cell2->timingArcSetCount())
     return false;
   else {
-    LibertyCellTimingArcSetIterator set_iter1(cell1);
-    while (set_iter1.hasNext()) {
-      TimingArcSet *set1 = set_iter1.next();
-      TimingArcSet *set2 = cell2->findTimingArcSet(set1);
-      if (!(set2 && TimingArcSet::equiv(set1, set2)))
+    for (TimingArcSet *arc_set1 : cell1->timingArcSets()) {
+      TimingArcSet *arc_set2 = cell2->findTimingArcSet(arc_set1);
+      if (!(arc_set2 && TimingArcSet::equiv(arc_set1, arc_set2)))
 	return false;
     }
     return true;

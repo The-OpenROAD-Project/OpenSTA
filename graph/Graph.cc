@@ -185,9 +185,7 @@ Graph::makePortInstanceEdges(const Instance *inst,
 			     LibertyCell *cell,
 			     LibertyPort *from_to_port)
 {
-  LibertyCellTimingArcSetIterator timing_iter(cell);
-  while (timing_iter.hasNext()) {
-    TimingArcSet *arc_set = timing_iter.next();
+  for (TimingArcSet *arc_set : cell->timingArcSets()) {
     LibertyPort *from_port = arc_set->from();
     LibertyPort *to_port = arc_set->to();
     if ((from_to_port == nullptr

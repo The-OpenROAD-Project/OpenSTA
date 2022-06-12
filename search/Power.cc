@@ -911,9 +911,9 @@ isPositiveUnate(const LibertyCell *cell,
 		const LibertyPort *from,
 		const LibertyPort *to)
 {
-  TimingArcSetSeq *arc_sets = cell->timingArcSets(from, to);
-  if (arc_sets && !arc_sets->empty()) {
-    TimingSense sense = (*arc_sets)[0]->sense();
+  const TimingArcSetSeq &arc_sets = cell->timingArcSets(from, to);
+  if (!arc_sets.empty()) {
+    TimingSense sense = arc_sets[0]->sense();
     return sense == TimingSense::positive_unate
       || sense == TimingSense::non_unate;
   }

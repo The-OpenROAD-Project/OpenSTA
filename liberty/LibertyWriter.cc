@@ -354,12 +354,8 @@ LibertyWriter::writePortAttrs(const LibertyPort *port)
     fprintf(stream_, "      max_capacitance : %s;\n",
             cap_unit_->asString(limit, 3));
 
-  LibertyCellTimingArcSetIterator set_iter(port->libertyCell(),
-                                           nullptr, port);
-  while (set_iter.hasNext()) {
-    const TimingArcSet *arc_set = set_iter.next();
+  for (TimingArcSet *arc_set : port->libertyCell()->timingArcSets(nullptr,port))
     writeTimingArcSet(arc_set);
-  }
 }
 
 void

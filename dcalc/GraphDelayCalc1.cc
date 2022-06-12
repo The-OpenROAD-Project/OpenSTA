@@ -710,9 +710,7 @@ GraphDelayCalc1::driveCellDefaultFromPort(LibertyCell *cell,
 {
   LibertyPort *from_port = 0;
   int from_port_index = 0;
-  LibertyCellTimingArcSetIterator set_iter(cell, nullptr, to_port);
-  while (set_iter.hasNext()) {
-    TimingArcSet *arc_set = set_iter.next();
+  for (TimingArcSet *arc_set : cell->timingArcSets(nullptr, to_port)) {
     LibertyPort *set_from_port = arc_set->from();
     int set_from_port_index = findPortIndex(cell, set_from_port);
     if (from_port == nullptr
@@ -754,9 +752,7 @@ GraphDelayCalc1::findInputDriverDelay(LibertyCell *drvr_cell,
   debugPrint(debug_, "delay_calc", 2, "  driver cell %s %s",
              drvr_cell->name(),
              rf->asString());
-  LibertyCellTimingArcSetIterator set_iter(drvr_cell, from_port, to_port);
-  while (set_iter.hasNext()) {
-    TimingArcSet *arc_set = set_iter.next();
+  for (TimingArcSet *arc_set : drvr_cell->timingArcSets(from_port, to_port)) {
     TimingArcSetArcIterator arc_iter(arc_set);
     while (arc_iter.hasNext()) {
       TimingArc *arc = arc_iter.next();

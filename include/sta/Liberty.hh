@@ -424,9 +424,10 @@ public:
   bool isClockGateOther() const;
   bool isClockGate() const;
   void setClockGateType(ClockGateType type);
+  const TimingArcSetSeq &timingArcSets() const { return timing_arc_sets_; }
   // from or to may be nullptr to wildcard.
-  TimingArcSetSeq *timingArcSets(const LibertyPort *from,
-				 const LibertyPort *to) const;
+  const TimingArcSetSeq &timingArcSets(const LibertyPort *from,
+                                       const LibertyPort *to) const;
   size_t timingArcSetCount() const;
   // Find a timing arc set equivalent to key.
   TimingArcSet *findTimingArcSet(TimingArcSet *key) const;
@@ -583,7 +584,6 @@ private:
   friend class LibertyCellPgPortIterator;
   friend class LibertyPort;
   friend class LibertyBuilder;
-  friend class LibertyCellTimingArcSetIterator;
   friend class LibertyCellSequentialIterator;
 };
 
@@ -619,16 +619,6 @@ public:
 
 private:
   LibertyPgPortMap::Iterator iter_;
-};
-
-class LibertyCellTimingArcSetIterator : public TimingArcSetSeq::ConstIterator
-{
-public:
-  LibertyCellTimingArcSetIterator(const LibertyCell *cell);
-  // from or to may be nullptr to wildcard.
-  LibertyCellTimingArcSetIterator(const LibertyCell *cell,
-				  const LibertyPort *from,
-				  const LibertyPort *to);
 };
 
 class LibertyCellSequentialIterator : public SequentialSeq::ConstIterator

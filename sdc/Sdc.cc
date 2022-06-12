@@ -382,11 +382,8 @@ Sdc::removeLibertyAnnotations()
       LibertyPortPair *pair = from_to_iter.next();
       const LibertyPort *from = pair->first;
       const LibertyPort *to = pair->second;
-      LibertyCellTimingArcSetIterator arc_iter(cell, from, to);
-      while (arc_iter.hasNext()) {
-	TimingArcSet *arc_set = arc_iter.next();
+      for (TimingArcSet *arc_set : cell->timingArcSets(from, to))
 	arc_set->setIsDisabledConstraint(false);
-      }
     }
   }
 
@@ -3408,11 +3405,8 @@ Sdc::disable(LibertyCell *cell,
   }
   if (from && to) {
     disabled_cell->setDisabledFromTo(from, to);
-    LibertyCellTimingArcSetIterator arc_iter(cell, from, to);
-    while (arc_iter.hasNext()) {
-      TimingArcSet *arc_set = arc_iter.next();
+    for (TimingArcSet *arc_set : cell->timingArcSets(from, to))
       arc_set->setIsDisabledConstraint(true);
-    }
   }
   else if (from) {
     disabled_cell->setDisabledFrom(from);
@@ -3437,11 +3431,8 @@ Sdc::removeDisable(LibertyCell *cell,
   if (disabled_cell) {
     if (from && to) {
       disabled_cell->removeDisabledFromTo(from, to);
-      LibertyCellTimingArcSetIterator arc_iter(cell, from, to);
-      while (arc_iter.hasNext()) {
-	TimingArcSet *arc_set = arc_iter.next();
-	arc_set->setIsDisabledConstraint(false);
-      }
+      for (TimingArcSet *arc_set : cell->timingArcSets(from, to))
+        arc_set->setIsDisabledConstraint(false);
     }
     else if (from) {
       disabled_cell->removeDisabledFrom(from);
@@ -3884,10 +3875,8 @@ Sdc::exceptionToInvalid(const Pin *pin)
   LibertyPort *port = network_->libertyPort(pin);
   if (port) {
     LibertyCell *cell = port->libertyCell();
-    LibertyCellTimingArcSetIterator set_iter(cell, nullptr, port);
-    while (set_iter.hasNext()) {
-      TimingArcSet *set = set_iter.next();
-      TimingRole *role = set->role();
+    for (TimingArcSet *arc_set : cell->timingArcSets(nullptr, port)) {
+      TimingRole *role = arc_set->role();
       if (role->genericRole() == TimingRole::regClkToQ())
 	return true;
     }
@@ -4050,9 +4039,7 @@ Sdc::hasLibertyChecks(const Pin *pin)
   if (cell) {
     LibertyPort *port = network_->libertyPort(pin);
     if (port) {
-      LibertyCellTimingArcSetIterator timing_iter(cell, nullptr, port);
-      while (timing_iter.hasNext()) {
-	TimingArcSet *arc_set = timing_iter.next();
+      for (TimingArcSet *arc_set : cell->timingArcSets(nullptr, port)) {
 	if (arc_set->role()->isTimingCheck())
 	  return true;
       }

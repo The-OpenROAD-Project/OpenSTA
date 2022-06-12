@@ -1353,20 +1353,26 @@ LibertyCell::makeTimingArcPortMaps()
   }
 }
 
-TimingArcSetSeq *
+const TimingArcSetSeq &
 LibertyCell::timingArcSets(const LibertyPort *from,
 			   const LibertyPort *to) const
 {
+  TimingArcSetSeq *arc_sets = nullptr;
   if (from && to) {
     LibertyPortPair port_pair(from, to);
-    return port_timing_arc_set_map_.findKey(port_pair);
+    arc_sets = port_timing_arc_set_map_.findKey(port_pair);
   }
   else if (from)
-    return timing_arc_set_from_map_.findKey(from);
+    arc_sets = timing_arc_set_from_map_.findKey(from);
   else if (to)
-    return timing_arc_set_to_map_.findKey(to);
-  else
-    return nullptr;
+    arc_sets = timing_arc_set_to_map_.findKey(to);
+
+  if (arc_sets)
+    return *arc_sets;
+  else {
+    static TimingArcSetSeq null_set;
+    return null_set;
+  }
 }
 
 TimingArcSet *
@@ -1461,11 +1467,13 @@ LibertyCell::addScaledCell(OperatingConditions *op_cond,
     port->addScaledPort(op_cond, scaled_port);
   }
 
-  LibertyCellTimingArcSetIterator set_iter1(this);
-  LibertyCellTimingArcSetIterator set_iter2(scaled_cell);
-  while (set_iter1.hasNext() && set_iter2.hasNext()) {
-    TimingArcSet *arc_set1 = set_iter1.next();
-    TimingArcSet *arc_set2 = set_iter2.next();
+  const TimingArcSetSeq &arc_sets1 = this->timingArcSets();
+  const TimingArcSetSeq &arc_sets2 = scaled_cell->timingArcSets();
+  for (auto set_itr1 = arc_sets1.begin(), set_itr2 = arc_sets2.begin();
+       set_itr1 != arc_sets1.end() && set_itr2 != arc_sets2.end();
+       set_itr1++, set_itr2++) {
+    TimingArcSet *arc_set1 = *set_itr1;
+    TimingArcSet *arc_set2 = *set_itr2;
     TimingArcSetArcIterator arc_iter1(arc_set1);
     TimingArcSetArcIterator arc_iter2(arc_set2);
     while (arc_iter1.hasNext() && arc_iter2.hasNext()) {
@@ -1566,20 +1574,6 @@ LibertyCell::addOcvDerate(OcvDerate *derate)
 
 ////////////////////////////////////////////////////////////////
 
-LibertyCellTimingArcSetIterator::LibertyCellTimingArcSetIterator(const LibertyCell *cell) :
-  TimingArcSetSeq::ConstIterator(&cell->timing_arc_sets_)
-{
-}
-
-LibertyCellTimingArcSetIterator::LibertyCellTimingArcSetIterator(const LibertyCell *cell,
-								 const LibertyPort *from,
-								 const LibertyPort *to):
-  TimingArcSetSeq::ConstIterator(cell->timingArcSets(from, to))
-{
-}
-  
-////////////////////////////////////////////////////////////////
-
 // Latch enable port/function for a latch D->Q timing arc set.
 class LatchEnable
 {
@@ -1644,14 +1638,11 @@ LibertyCell::makeLatchEnables(Report *report,
       if (en_to_q->role() == TimingRole::latchEnToQ()) {
 	LibertyPort *en = en_to_q->from();
 	LibertyPort *q = en_to_q->to();
-	LibertyCellTimingArcSetIterator to_iter(this, nullptr, q);
-	while (to_iter.hasNext()) {
-	  TimingArcSet *d_to_q = to_iter.next();
+
+        for (TimingArcSet *d_to_q : timingArcSets(nullptr, q)) {
 	  if (d_to_q->role() == TimingRole::latchDtoQ()) {
 	    LibertyPort *d = d_to_q->from();
-	    LibertyCellTimingArcSetIterator check_iter(this, en, d);
-	    while (check_iter.hasNext()) {
-	      TimingArcSet *setup_check = check_iter.next();
+            for (TimingArcSet *setup_check : timingArcSets(en, d)) {
 	      if (setup_check->role() == TimingRole::setup()) {
 		LatchEnable *latch_enable = makeLatchEnable(d, en, q, d_to_q,
 							    en_to_q,
@@ -1749,16 +1740,12 @@ LibertyCell::inferLatchRoles(Debug *debug)
   if (hasInferedRegTimingArcs()) {
     // Hunt down potential latch D/EN/Q triples.
     LatchEnableSet latch_enables;
-    LibertyCellTimingArcSetIterator set_iter(this);
-    while (set_iter.hasNext()) {
-      TimingArcSet *en_to_q = set_iter.next();
+    for (TimingArcSet *en_to_q : timingArcSets()) {
       // Locate potential d->q arcs from reg clk->q arcs.
       if (en_to_q->role() == TimingRole::regClkToQ()) {
 	LibertyPort *en = en_to_q->from();
 	LibertyPort *q = en_to_q->to();
-	LibertyCellTimingArcSetIterator to_iter(this, nullptr, q);
-	while (to_iter.hasNext()) {
-	  TimingArcSet *d_to_q = to_iter.next();
+        for (TimingArcSet *d_to_q : timingArcSets(nullptr, q)) {
 	  // Look for combinational d->q arcs.
 	  TimingRole *d_to_q_role = d_to_q->role();
 	  if ((d_to_q_role == TimingRole::combinational()
@@ -1770,9 +1757,7 @@ LibertyCell::inferLatchRoles(Debug *debug)
 	      || d_to_q_role == TimingRole::latchDtoQ()) {
 	    LibertyPort *d = d_to_q->from();
 	    // Check for setup check from en -> d.
-	    LibertyCellTimingArcSetIterator check_iter(this, en, d);
-	    while (check_iter.hasNext()) {
-	      TimingArcSet *setup_check = check_iter.next();
+            for (TimingArcSet *setup_check : timingArcSets(en, d)) {
 	      if (setup_check->role() == TimingRole::setup()) {
 		makeLatchEnable(d, en, q, d_to_q, en_to_q, setup_check, debug);
 		d_to_q->setRole(TimingRole::latchDtoQ());
@@ -2035,11 +2020,9 @@ LibertyPort::driveResistance(const RiseFall *rf,
 {
   float max_drive = min_max->initValue();
   bool found_drive = false;
-  LibertyCellTimingArcSetIterator set_iter(liberty_cell_, nullptr, this);
-  while (set_iter.hasNext()) {
-    TimingArcSet *set = set_iter.next();
-    if (!set->role()->isTimingCheck()) {
-      TimingArcSetArcIterator arc_iter(set);
+  for (TimingArcSet *arc_set : liberty_cell_->timingArcSets(nullptr, this)) {
+    if (!arc_set->role()->isTimingCheck()) {
+      TimingArcSetArcIterator arc_iter(arc_set);
       while (arc_iter.hasNext()) {
 	TimingArc *arc = arc_iter.next();
 	if (rf == nullptr
@@ -2073,11 +2056,9 @@ LibertyPort::intrinsicDelay(const RiseFall *rf,
 {
   ArcDelay max_delay = min_max->initValue();
   bool found_delay = false;
-  LibertyCellTimingArcSetIterator set_iter(liberty_cell_, nullptr, this);
-  while (set_iter.hasNext()) {
-    TimingArcSet *set = set_iter.next();
-    if (!set->role()->isTimingCheck()) {
-      TimingArcSetArcIterator arc_iter(set);
+  for (TimingArcSet *arc_set : liberty_cell_->timingArcSets(nullptr, this)) {
+    if (!arc_set->role()->isTimingCheck()) {
+      TimingArcSetArcIterator arc_iter(arc_set);
       while (arc_iter.hasNext()) {
 	TimingArc *arc = arc_iter.next();
 	if (rf == nullptr

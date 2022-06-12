@@ -576,6 +576,16 @@ using namespace sta;
   Tcl_SetObjResult(interp, obj);
 }
 
+%typemap(out) const TimingArcSetSeq& {
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
+  const TimingArcSetSeq *arc_sets = $1;
+  for (TimingArcSet *arc_set : *arc_sets) {
+    Tcl_Obj *obj = SWIG_NewInstanceObj(arc_set, SWIGTYPE_p_TimingArcSet, false);
+    Tcl_ListObjAppendElement(interp, list, obj);
+  }
+  Tcl_SetObjResult(interp, list);
+}
+
 %typemap(out) Wireload* {
   Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
   Tcl_SetObjResult(interp, obj);
@@ -1238,16 +1248,6 @@ using namespace sta;
   Tcl_SetObjResult(interp, obj);
 }
 
-%typemap(out) TimingArcSetArcIterator* {
-  Tcl_Obj *obj=SWIG_NewInstanceObj($1, $1_descriptor, false);
-  Tcl_SetObjResult(interp, obj);
-}
-
-%typemap(out) LibertyCellTimingArcSetIterator* {
-  Tcl_Obj *obj=SWIG_NewInstanceObj($1, $1_descriptor, false);
-  Tcl_SetObjResult(interp, obj);
-}
-
 %typemap(out) CheckErrorSeq & {
   Tcl_Obj *error_list = Tcl_NewListObj(0, nullptr);
   CheckErrorSeq *check_errors = $1;
@@ -1647,13 +1647,6 @@ class TimingArcSet
 private:
   TimingArcSet();
   ~TimingArcSet();
-};
-
-class LibertyCellTimingArcSetIterator
-{
-private:
-  LibertyCellTimingArcSetIterator();
-  ~LibertyCellTimingArcSetIterator();
 };
 
 class TimingArcSetArcIterator
@@ -5714,8 +5707,11 @@ find_liberty_ports_matching(const char *pattern,
 LibertyCellPortIterator *
 liberty_port_iterator() { return new LibertyCellPortIterator(self); }
 
-LibertyCellTimingArcSetIterator *
-timing_arc_set_iterator() { return new LibertyCellTimingArcSetIterator(self); }
+const TimingArcSetSeq &
+timing_arc_sets()
+{
+  return self->timingArcSets();
+}
 
 } // LibertyCell methods
 
@@ -5815,12 +5811,6 @@ full_name()
 }
 
 } // TimingArcSet methods
-
-%extend LibertyCellTimingArcSetIterator {
-bool has_next() { return self->hasNext(); }
-TimingArcSet *next() { return self->next(); }
-void finish() { delete self; }
-}
 
 %extend TimingArc {
 LibertyPort *from() { return self->from(); }

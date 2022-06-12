@@ -1268,7 +1268,7 @@ proc get_timing_arcs_objects { object_arg } {
   } elseif { $libcells != {} } {
     set arc_sets {}
     foreach libcell $libcells {
-      lappend arc_sets [libcell_timing_arc_sets $libcell]
+      lappend arc_sets [$libcell timing_arc_sets]
     }
     return $arc_sets
   }
