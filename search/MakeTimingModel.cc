@@ -479,7 +479,6 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                                     Delay delay,
                                     RiseFall *rf)
 {
-  const char *output_port_name = network_->name(network_->port(output_pin));
   const DcalcAnalysisPt *dcalc_ap = corner_->findDcalcAnalysisPt(min_max_);
   const Pvt *pvt = dcalc_ap->operatingConditions();
   const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
@@ -543,9 +542,7 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
               Table *delay_table = new Table1(load_values, load_axis, true);
               Table *slew_table = new Table1(slew_values, load_axis, true);
 
-              string template_name;
-              template_name += output_port_name;
-              template_name += "_";;
+              string template_name = "template_";
               template_name += std::to_string(tbl_template_index_++);
 
               TableTemplate *tbl_template = new TableTemplate(template_name.c_str());
