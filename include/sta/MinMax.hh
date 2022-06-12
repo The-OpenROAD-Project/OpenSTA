@@ -126,23 +126,4 @@ private:
   static MinMaxAll all_;
 };
 
-////////////////////////////////////////////////////////////////
-
-// Obsolete. Use range iteration.
-class MinMaxIterator : public Iterator<MinMax*>
-{
-public:
-  MinMaxIterator() : index_(0), index_max_(MinMax::index_max) {}
-  explicit MinMaxIterator(const MinMaxAll *min_max);
-  bool hasNext() { return index_ <= index_max_; }
-  MinMax *next()
-  { return (index_++ == 0) ? MinMax::min() : MinMax::max(); }
-
-private:
-  int index_;
-  int index_max_;
-};
-
-typedef MinMaxIterator EarlyLateIterator;
-
 } // namespace

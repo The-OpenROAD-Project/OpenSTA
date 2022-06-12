@@ -98,7 +98,6 @@ set(STA_SOURCE
   liberty/TableModel.cc
   liberty/TimingArc.cc
   liberty/TimingRole.cc
-  liberty/Transition.cc
   liberty/Units.cc
   liberty/Wireload.cc
   
@@ -135,7 +134,6 @@ set(STA_SOURCE
   sdc/PinPair.cc
   sdc/PortDelay.cc
   sdc/PortExtCap.cc
-  sdc/RiseFallMinMax.cc
   sdc/RiseFallValues.cc
   sdc/Sdc.cc
   sdc/SdcGraph.cc
@@ -202,11 +200,13 @@ set(STA_SOURCE
   util/Report.cc
   util/ReportStd.cc
   util/ReportTcl.cc
+  util/RiseFallMinMax.cc
   util/Stats.cc
   util/StringSeq.cc
   util/StringSet.cc
   util/StringUtil.cc
   util/TokenParser.cc
+  util/Transition.cc
   
   verilog/VerilogReader.cc
   verilog/VerilogWriter.cc

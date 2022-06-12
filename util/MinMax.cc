@@ -171,18 +171,4 @@ MinMaxAll::find(const char *min_max)
     return nullptr;
 }
 
-////////////////////////////////////////////////////////////////
-
-MinMaxIterator::MinMaxIterator(const MinMaxAll *min_max)
-{
-  if (min_max == MinMaxAll::all()) {
-    index_ = 0;
-    index_max_ = MinMax::index_max;
-  }
-  else {
-    index_ = min_max->asMinMax()->index();
-    index_max_ = index_;
-  }
-}
-
 } // namespace

@@ -105,26 +105,26 @@ RiseFall::asTransition() const
 ////////////////////////////////////////////////////////////////
 
 RiseFallBoth RiseFallBoth::rise_("rise", "^", 0,
-					   RiseFall::rise(),
-					   {RiseFall::rise()},
-					   {RiseFall::riseIndex()});
+                                 RiseFall::rise(),
+                                 {RiseFall::rise()},
+                                 {RiseFall::riseIndex()});
 RiseFallBoth RiseFallBoth::fall_("fall", "v", 1,
-					   RiseFall::fall(),
-					   {RiseFall::fall()},
-					   {RiseFall::fallIndex()});
+                                 RiseFall::fall(),
+                                 {RiseFall::fall()},
+                                 {RiseFall::fallIndex()});
 RiseFallBoth RiseFallBoth::rise_fall_("rise_fall", "rf", 2,
-						nullptr,
-						{RiseFall::rise(),
-						 RiseFall::fall()},
-						{RiseFall::riseIndex(),
-						 RiseFall::fallIndex()});
+                                      nullptr,
+                                      {RiseFall::rise(),
+                                       RiseFall::fall()},
+                                      {RiseFall::riseIndex(),
+                                       RiseFall::fallIndex()});
 
 RiseFallBoth::RiseFallBoth(const char *name,
-				     const char *short_name,
-				     int sdf_triple_index,
-				     RiseFall *as_rise_fall,
-				     std::vector<RiseFall*> range,
-				     std::vector<int> range_index) :
+                           const char *short_name,
+                           int sdf_triple_index,
+                           RiseFall *as_rise_fall,
+                           std::vector<RiseFall*> range,
+                           std::vector<int> range_index) :
   name_(name),
   short_name_(stringCopy(short_name)),
   sdf_triple_index_(sdf_triple_index),
@@ -238,39 +238,6 @@ Transition::setName(const char *name)
 {
   stringDelete(name_);
   name_ = stringCopy(name);
-}
-
-////////////////////////////////////////////////////////////////
-
-RiseFallIterator::RiseFallIterator(const RiseFallBoth *rf)
-{
-  if (rf == RiseFallBoth::riseFall()) {
-    index_ = 0;
-    index_max_ = RiseFall::index_max;
-  }
-  else {
-    index_ = rf->asRiseFall()->index();
-    index_max_ = index_;
-  }
-}
-
-void
-RiseFallIterator::init()
-{
-  index_ = 0;
-  index_max_ = RiseFall::index_max;
-}
-
-bool
-RiseFallIterator::hasNext()
-{
-  return index_ <= index_max_;
-}
-
-RiseFall *
-RiseFallIterator::next()
-{
-  return (index_++ == 0) ? RiseFall::rise() : RiseFall::fall();
 }
 
 } // namespace

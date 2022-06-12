@@ -191,20 +191,4 @@ private:
   static int max_index_;
 };
 
-// Obsolete. Use range iteration instead.
-// for (RiseFall *rf : RiseFall::range()) {}
-class RiseFallIterator : public Iterator<RiseFall*>
-{
-public:
-  RiseFallIterator() : index_(0), index_max_(RiseFall::index_max) {}
-  explicit RiseFallIterator(const RiseFallBoth *rf);
-  void init();
-  virtual bool hasNext();
-  virtual RiseFall *next();
-
-private:
-  int index_;
-  int index_max_;
-};
-
 } // namespace
