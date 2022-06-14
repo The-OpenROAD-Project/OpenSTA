@@ -48,6 +48,7 @@ MakeTimingModel::MakeTimingModel(const Corner *corner,
                                  Sta *sta) :
   StaState(sta),
   sta_(sta),
+  cell_(nullptr),
   corner_(corner),
   min_max_(MinMax::max()),
   lib_builder_(new LibertyBuilder),
@@ -177,7 +178,9 @@ private:
 };
 
 MakeEndTimingArcs::MakeEndTimingArcs(Sta *sta) :
-  sta_(sta)
+  sta_(sta),
+  input_pin_(nullptr),
+  input_rf_(nullptr)
 {
 }
 
@@ -274,6 +277,7 @@ MakeTimingModel::findTimingFromInputs()
       makeInputOutputTimingArcs(input_pin, output_delays);
     }
   }
+  delete input_iter;
 }
 
 void
@@ -300,6 +304,7 @@ MakeTimingModel::findOutputDelays(const RiseFall *input_rf,
       }
     }
   }
+  delete output_iter;
 }
 
 void
@@ -341,6 +346,7 @@ MakeTimingModel::makeSetupHoldTimingArcs(const Pin *input_pin,
           lib_builder_->makeFromTransitionArcs(cell_, clk_port,
                                                input_port, nullptr,
                                                clk_rf, role, attrs);
+          cell_->addTimingArcAttrs(attrs);
         }
       }
     }
@@ -423,15 +429,18 @@ MakeTimingModel::findClkedOutputPaths()
               attrs = new TimingArcAttrs();
             attrs->setModel(output_rf, gate_model);
           }
-          if (attrs)
+          if (attrs) {
             lib_builder_->makeFromTransitionArcs(cell_, clk_port,
                                                  output_port, nullptr,
                                                  clk_rf, TimingRole::regClkToQ(),
                                                  attrs);
+            cell_->addTimingArcAttrs(attrs);
+          }
         }
       }
     }
   }
+  delete output_iter;
 }
 
 LibertyPort *
