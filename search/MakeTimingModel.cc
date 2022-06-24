@@ -423,7 +423,7 @@ MakeTimingModel::findClkedOutputPaths()
           RiseFall *clk_rf = clk_edge->transition();
           TimingArcAttrs *attrs = nullptr;
           for (RiseFall *output_rf : RiseFall::range()) {
-            float delay = delays.value(output_rf, min_max_);
+            float delay = delays.value(output_rf, min_max_) - clk_edge->time();
             TimingModel *gate_model = makeGateModelTable(output_pin, delay, output_rf);
             if (attrs == nullptr)
               attrs = new TimingArcAttrs();
