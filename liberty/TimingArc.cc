@@ -67,9 +67,11 @@ TimingArcAttrs::~TimingArcAttrs()
 {
   if (cond_)
     cond_->deleteSubexprs();
+  if (sdf_cond_start_ != sdf_cond_)
+    stringDelete(sdf_cond_start_);
+  if (sdf_cond_end_ != sdf_cond_)
+    stringDelete(sdf_cond_end_);
   stringDelete(sdf_cond_);
-  stringDelete(sdf_cond_start_);
-  stringDelete(sdf_cond_end_);
   stringDelete(mode_name_);
   stringDelete(mode_value_);
   delete models_[RiseFall::riseIndex()];
