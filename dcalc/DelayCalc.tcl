@@ -84,7 +84,10 @@ proc report_edge_dcalc { edge corner min_max digits } {
 	    || ($min_max=="min" && $role=="setup"))} {
       report_line "Library: [get_name $library]"
       report_line "Cell: [get_name $cell]"
-      report_line "Arc sense: [$edge sense]"
+      set sense [$edge sense]
+      if { $sense != "unknown" } {
+        report_line "Arc sense: $sense"
+      }
       report_line "Arc type: $role"
 
       foreach arc [$edge timing_arcs] {

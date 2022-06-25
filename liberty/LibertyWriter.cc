@@ -363,9 +363,11 @@ LibertyWriter::writeTimingArcSet(const TimingArcSet *arc_set)
 {
   fprintf(stream_, "      timing() {\n");
   fprintf(stream_, "        related_pin : \"%s\";\n", arc_set->from()->name());
-  if (arc_set->sense() != TimingSense::non_unate)
+  TimingSense sense = arc_set->sense();
+  if (sense != TimingSense::unknown
+      && sense != TimingSense::non_unate)
     fprintf(stream_, "        timing_sense : %s;\n",
-            timingSenseString(arc_set->sense()));
+            timingSenseString(sense));
   const char *timing_type = timingTypeString(arc_set);
   if (timing_type)
     fprintf(stream_, "        timing_type : %s;\n", timing_type);

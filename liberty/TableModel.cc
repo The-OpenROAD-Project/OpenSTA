@@ -774,8 +774,8 @@ Table1::Table1(FloatSeq *values,
 Table1::~Table1()
 {
   delete values_;
-  if (own_axis1_)
-    delete axis1_;
+  //if (own_axis1_)
+  //delete axis1_;
 }
 
 float

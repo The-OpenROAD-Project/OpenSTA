@@ -346,7 +346,6 @@ MakeTimingModel::makeSetupHoldTimingArcs(const Pin *input_pin,
           lib_builder_->makeFromTransitionArcs(cell_, clk_port,
                                                input_port, nullptr,
                                                clk_rf, role, attrs);
-          cell_->addTimingArcAttrs(attrs);
         }
       }
     }
@@ -434,7 +433,6 @@ MakeTimingModel::findClkedOutputPaths()
                                                  output_port, nullptr,
                                                  clk_rf, TimingRole::regClkToQ(),
                                                  attrs);
-            cell_->addTimingArcAttrs(attrs);
           }
         }
       }

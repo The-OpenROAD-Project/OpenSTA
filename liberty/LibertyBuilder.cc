@@ -465,7 +465,7 @@ LibertyBuilder::makeTristateEnableArcs(LibertyCell *cell,
 				       TimingArcAttrs *attrs)
 {
   TimingArcSet *arc_set = makeTimingArcSet(cell, from_port, to_port, related_out,
-					   TimingRole::tristateEnable(),attrs);
+					   TimingRole::tristateEnable(), attrs);
   FuncExpr *tristate_enable = to_port->tristateEnable();
   TimingSense sense = attrs->timingSense();
   if (sense == TimingSense::unknown && tristate_enable)

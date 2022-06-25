@@ -85,8 +85,8 @@ class TimingArcAttrs
 {
 public:
   TimingArcAttrs();
+  TimingArcAttrs(TimingSense sense);
   virtual ~TimingArcAttrs();
-  void deleteContents();
   TimingType timingType() const { return timing_type_; }
   void setTimingType(TimingType type);
   TimingSense timingSense() const { return timing_sense_; }
@@ -194,12 +194,14 @@ public:
 
 protected:
   void init(LibertyCell *cell);
-  TimingArcSet(TimingRole *role);
+  TimingArcSet(TimingRole *role,
+               TimingArcAttrs *attrs);
 
   LibertyPort *from_;
   LibertyPort *to_;
   LibertyPort *related_out_;
   TimingRole *role_;
+  TimingArcAttrs *attrs_;
   TimingArcSeq arcs_;
   FuncExpr *cond_;
   bool is_cond_default_;
@@ -214,6 +216,7 @@ protected:
   TimingArc *from_arc2_[RiseFall::index_count];
   TimingArc *to_arc_[RiseFall::index_count];
 
+  static TimingArcAttrs *wire_timing_arc_attrs_;
   static TimingArcSet *wire_timing_arc_set_;
 };
 

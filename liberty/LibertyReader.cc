@@ -1903,7 +1903,6 @@ LibertyReader::makeTimingArcs(PortGroup *port_group)
       LibertyPort *port = port_iter.next();
       makeTimingArcs(port, timing);
     }
-    cell_->addTimingArcAttrs(timing);
   }
 }
 

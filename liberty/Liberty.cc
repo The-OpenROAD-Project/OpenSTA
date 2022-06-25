@@ -894,7 +894,6 @@ LibertyCell::~LibertyCell()
   mode_defs_.deleteContents();
   latch_d_to_q_map_.deleteContents();
 
-  deleteTimingArcAttrs();
   timing_arc_sets_.deleteContents();
   port_timing_arc_set_map_.deleteContents();
   timing_arc_set_from_map_.deleteContents();
@@ -912,15 +911,6 @@ LibertyCell::~LibertyCell()
   ocv_derate_map_.deleteContents();
 
   pg_port_map_.deleteContents();
-}
-
-void
-LibertyCell::deleteTimingArcAttrs()
-{
-  for (auto attrs : timing_arc_attrs_) {
-    attrs->deleteContents();
-    delete attrs;
-  }
 }
 
 LibertyPort *
@@ -1166,12 +1156,6 @@ LibertyCell::addTimingArcSet(TimingArcSet *arc_set)
   if (role->isTimingCheck())
     from->setIsCheckClk(true);
   return set_index;
-}
-
-void
-LibertyCell::addTimingArcAttrs(TimingArcAttrs *attrs)
-{
-  timing_arc_attrs_.push_back(attrs);
 }
 
 void

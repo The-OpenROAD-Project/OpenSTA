@@ -1973,8 +1973,12 @@ report_file_warn(int id,
 void
 report_line(const char *msg)
 {
-  Report *report = Sta::sta()->report();
-  report->reportLineString(msg);
+  Sta *sta = Sta::sta();
+  if (sta)
+    sta->report()->reportLineString(msg);
+  else
+    // After sta::delete_all_memory souce -echo prints the cmd file line
+    printf("%s\n", msg);
 }
 
 void

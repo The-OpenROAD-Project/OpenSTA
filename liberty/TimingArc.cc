@@ -47,15 +47,21 @@ TimingArcAttrs::TimingArcAttrs() :
 {
 }
 
-// Destructor does NOT delete contents because it is a component
-// of TimingGroup (that is deleted after building the LibertyCell)
-// and (potentially) multiple TimingArcSets.
-TimingArcAttrs::~TimingArcAttrs()
+TimingArcAttrs::TimingArcAttrs(TimingSense sense) :
+  timing_type_(TimingType::combinational),
+  timing_sense_(sense),
+  cond_(nullptr),
+  sdf_cond_(nullptr),
+  sdf_cond_start_(nullptr),
+  sdf_cond_end_(nullptr),
+  mode_name_(nullptr),
+  mode_value_(nullptr),
+  ocv_arc_depth_(0.0),
+  models_{nullptr, nullptr}
 {
 }
 
-void
-TimingArcAttrs::deleteContents()
+TimingArcAttrs::~TimingArcAttrs()
 {
   if (cond_)
     cond_->deleteSubexprs();
@@ -164,6 +170,7 @@ TimingArc::intrinsicDelay() const
 
 ////////////////////////////////////////////////////////////////
 
+TimingArcAttrs *TimingArcSet::wire_timing_arc_attrs_ = nullptr;
 TimingArcSet *TimingArcSet::wire_timing_arc_set_ = nullptr;
 
 TimingArcSet::TimingArcSet(LibertyCell *cell,
@@ -176,6 +183,7 @@ TimingArcSet::TimingArcSet(LibertyCell *cell,
   to_(to),
   related_out_(related_out),
   role_(role),
+  attrs_(attrs),
   cond_(attrs->cond()),
   is_cond_default_(false),
   sdf_cond_start_(attrs->sdfCondStart()),
@@ -193,11 +201,13 @@ TimingArcSet::TimingArcSet(LibertyCell *cell,
   init(cell);
 }
 
-TimingArcSet::TimingArcSet(TimingRole *role) :
+TimingArcSet::TimingArcSet(TimingRole *role,
+                           TimingArcAttrs *attrs) :
   from_(nullptr),
   to_(nullptr),
   related_out_(nullptr),
   role_(role),
+  attrs_(attrs),
   cond_(nullptr),
   is_cond_default_(false),
   sdf_cond_start_(nullptr),
@@ -226,6 +236,7 @@ TimingArcSet::init(LibertyCell *cell)
 TimingArcSet::~TimingArcSet()
 {
   arcs_.deleteContents();
+  delete attrs_;
 }
 
 bool
@@ -323,12 +334,7 @@ TimingArcSet::arcTo(const RiseFall *to_rf) const
 TimingSense
 TimingArcSet::sense() const
 {
-  if (arcs_.size() == 1)
-    return arcs_[0]->sense();
-  else if (arcs_.size() == 2 && arcs_[0]->sense() == arcs_[1]->sense())
-    return arcs_[0]->sense();
-  else
-    return TimingSense::non_unate;
+  return attrs_->timingSense();
 }
 
 RiseFall *
@@ -521,7 +527,8 @@ TimingArcSet::wireArcIndex(const RiseFall *rf)
 void
 TimingArcSet::init()
 {
-  wire_timing_arc_set_ = new TimingArcSet(TimingRole::wire());
+  wire_timing_arc_attrs_ = new TimingArcAttrs(TimingSense::positive_unate);
+  wire_timing_arc_set_ = new TimingArcSet(TimingRole::wire(), wire_timing_arc_attrs_);
   new TimingArc(wire_timing_arc_set_, Transition::rise(),
 		Transition::rise(), nullptr);
   new TimingArc(wire_timing_arc_set_, Transition::fall(),
@@ -533,6 +540,7 @@ TimingArcSet::destroy()
 {
   delete wire_timing_arc_set_;
   wire_timing_arc_set_ = nullptr;
+  wire_timing_arc_attrs_ = nullptr;
 }
 
 ////////////////////////////////////////////////////////////////

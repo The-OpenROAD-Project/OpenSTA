@@ -72,7 +72,6 @@ typedef Map<const char *, ModeDef*, CharPtrLess> ModeDefMap;
 typedef Map<const char *, ModeValueDef*, CharPtrLess> ModeValueMap;
 typedef Map<TimingArcSet*, LatchEnable*> LatchEnableMap;
 typedef Map<const char *, OcvDerate*, CharPtrLess> OcvDerateMap;
-typedef Vector<TimingArcAttrs*> TimingArcAttrsSeq;
 typedef Vector<InternalPowerAttrs*> InternalPowerAttrsSeq;
 typedef Map<const char *, float, CharPtrLess> SupplyVoltageMap;
 typedef Map<const char *, LibertyPgPort*, CharPtrLess> LibertyPgPortMap;
@@ -467,7 +466,6 @@ public:
   void addScaledCell(OperatingConditions *op_cond,
 		     LibertyCell *scaled_cell);
   unsigned addTimingArcSet(TimingArcSet *set);
-  void addTimingArcAttrs(TimingArcAttrs *attrs);
   void addInternalPower(InternalPower *power);
   void addInternalPowerAttrs(InternalPowerAttrs *attrs);
   void addLeakagePower(LeakagePower *power);
@@ -496,7 +494,6 @@ protected:
   void addPort(ConcretePort *port);
   void setHasInternalPorts(bool has_internal);
   void setLibertyLibrary(LibertyLibrary *library);
-  void deleteTimingArcAttrs();
   void makeLatchEnables(Report *report,
 			Debug *debug);
   FuncExpr *findLatchEnableFunc(LibertyPort *data,
@@ -534,7 +531,6 @@ protected:
   LibertyPortPairTimingArcMap port_timing_arc_set_map_;
   LibertyPortTimingArcMap timing_arc_set_from_map_;
   LibertyPortTimingArcMap timing_arc_set_to_map_;
-  TimingArcAttrsSeq timing_arc_attrs_;
   bool has_infered_reg_timing_arcs_;
   InternalPowerSeq internal_powers_;
   PortInternalPowerSeq port_internal_powers_;
