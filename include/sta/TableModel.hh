@@ -17,6 +17,8 @@
 #pragma once
 
 #include <string>
+#include <memory>
+
 #include "MinMax.hh"
 #include "Vector.hh"
 #include "Transition.hh"
@@ -81,7 +83,7 @@ protected:
 		  float &slew,
 		  float &cap) const;
   virtual void setIsScaled(bool is_scaled);
-  float axisValue(TableAxis *axis,
+  float axisValue(TableAxisPtr axis,
 		  float load_cap,
 		  float in_slew,
 		  float related_out_cap) const;
@@ -110,7 +112,7 @@ protected:
 		      float &axis_value1,
 		      float &axis_value2,
 		      float &axis_value3) const;
-  static bool checkAxis(TableAxis *axis);
+  static bool checkAxis(TableAxisPtr axis);
 
   TableModel *delay_model_;
   TableModel *delay_sigma_models_[EarlyLate::index_count];
@@ -163,7 +165,7 @@ protected:
 		      float &axis_value1,
 		      float &axis_value2,
 		      float &axis_value3) const;
-  float axisValue(TableAxis *axis,
+  float axisValue(TableAxisPtr axis,
 		  float load_cap,
 		  float in_slew,
 		  float related_out_cap) const;
@@ -178,7 +180,7 @@ protected:
 			float related_out_cap,
 			int digits,
 			string *result) const;
-  static bool checkAxis(TableAxis *axis);
+  static bool checkAxis(TableAxisPtr axis);
 
   TableModel *model_;
   TableModel *sigma_models_[EarlyLate::index_count];
@@ -196,9 +198,9 @@ public:
   void setScaleFactorType(ScaleFactorType type);
   int order() const;
   TableTemplate *tblTemplate() const { return tbl_template_; }
-  TableAxis *axis1() const;
-  TableAxis *axis2() const;
-  TableAxis *axis3() const;
+  TableAxisPtr axis1() const;
+  TableAxisPtr axis2() const;
+  TableAxisPtr axis3() const;
   void setIsScaled(bool is_scaled);
   float value(size_t index1,
               size_t index2,
@@ -253,9 +255,9 @@ public:
   virtual ~Table() {}
   void setScaleFactorType(ScaleFactorType type);
   virtual int order() const = 0;
-  virtual TableAxis *axis1() const { return nullptr; }
-  virtual TableAxis *axis2() const { return nullptr; }
-  virtual TableAxis *axis3() const { return nullptr; }
+  virtual TableAxisPtr axis1() const { return nullptr; }
+  virtual TableAxisPtr axis2() const { return nullptr; }
+  virtual TableAxisPtr axis3() const { return nullptr; }
   void setIsScaled(bool is_scaled);
   virtual float value(size_t axis_idx1,
                       size_t axis_idx2,
@@ -320,11 +322,10 @@ class Table1 : public Table
 {
 public:
   Table1(FloatSeq *values,
-	 TableAxis *axis1,
-	 bool own_axis1);
+	 TableAxisPtr axis1);
   virtual ~Table1();
   virtual int order() const { return 1; }
-  virtual TableAxis *axis1() const { return axis1_; }
+  virtual TableAxisPtr axis1() const { return axis1_; }
   virtual float value(size_t index1,
                       size_t index2,
                       size_t index3) const;
@@ -348,8 +349,7 @@ public:
 
 private:
   FloatSeq *values_;
-  TableAxis *axis1_;
-  bool own_axis1_;
+  TableAxisPtr axis1_;
 };
 
 // Two dimensional table.
@@ -357,14 +357,12 @@ class Table2 : public Table
 {
 public:
   Table2(FloatTable *values,
-	 TableAxis *axis1,
-	 bool own_axis1,
-	 TableAxis *axis2,
-	 bool own_axis2);
+	 TableAxisPtr axis1,
+	 TableAxisPtr axis2);
   virtual ~Table2();
   virtual int order() const { return 2; }
-  TableAxis *axis1() const { return axis1_; }
-  TableAxis *axis2() const { return axis2_; }
+  TableAxisPtr axis1() const { return axis1_; }
+  TableAxisPtr axis2() const { return axis2_; }
   virtual float value(size_t index1,
                       size_t index2,
                       size_t index3) const;
@@ -390,11 +388,9 @@ public:
 protected:
   FloatTable *values_;
   // Row.
-  TableAxis *axis1_;
-  bool own_axis1_;
+  TableAxisPtr axis1_;
   // Column.
-  TableAxis *axis2_;
-  bool own_axis2_;
+  TableAxisPtr axis2_;
 };
 
 // Three dimensional table.
@@ -402,15 +398,12 @@ class Table3 : public Table2
 {
 public:
   Table3(FloatTable *values,
-	 TableAxis *axis1,
-	 bool own_axis1,
-	 TableAxis *axis2,
-	 bool own_axis2,
-	 TableAxis *axis3,
-	 bool own_axis3);
-  virtual ~Table3();
+	 TableAxisPtr axis1,
+	 TableAxisPtr axis2,
+	 TableAxisPtr axis3);
+  virtual ~Table3() {}
   virtual int order() const { return 3; }
-  TableAxis *axis3() const { return axis3_; }
+  TableAxisPtr axis3() const { return axis3_; }
   virtual float value(size_t index1,
                       size_t index2,
                       size_t index3) const;
@@ -432,8 +425,7 @@ public:
   using Table::findValue;
 
 private:
-  TableAxis *axis3_;
-  bool own_axis3_;
+  TableAxisPtr axis3_;
 };
 
 class TableAxis

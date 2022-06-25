@@ -1298,33 +1298,30 @@ void
 LibertyReader::endTableTemplate(LibertyGroup *group)
 {
   if (tbl_template_) {
-    TableAxis *axis;
-    makeAxis(0, group, axis);
-    if (axis)
-      tbl_template_->setAxis1(axis);
-    makeAxis(1, group, axis);
-    if (axis)
-      tbl_template_->setAxis2(axis);
-    makeAxis(2, group, axis);
-    if (axis)
-      tbl_template_->setAxis3(axis);
+    TableAxisPtr axis1 = makeAxis(0, group);
+    if (axis1)
+      tbl_template_->setAxis1(axis1);
+    TableAxisPtr axis2 = makeAxis(1, group);
+    if (axis2)
+      tbl_template_->setAxis2(axis2);
+    TableAxisPtr axis3 = makeAxis(2, group);
+    if (axis3)
+      tbl_template_->setAxis3(axis3);
     tbl_template_ = nullptr;
   }
 }
 
-void
+TableAxisPtr
 LibertyReader::makeAxis(int index,
-			LibertyGroup *group,
-			TableAxis *&axis)
+			LibertyGroup *group)
 {
-  axis = nullptr;
   TableAxisVariable axis_var = axis_var_[index];
   FloatSeq *axis_values = axis_values_[index];
   if (axis_var != TableAxisVariable::unknown && axis_values) {
     const Units *units = library_->units();
     float scale = tableVariableUnit(axis_var, units)->scale();
     scaleFloats(axis_values, scale);
-    axis = new TableAxis(axis_var, axis_values);
+    return std::make_shared<TableAxis>(axis_var, axis_values);
   }
   else if (axis_var == TableAxisVariable::unknown && axis_values) {
     libWarn(62, group, "missing variable_%d attribute.", index + 1);
@@ -1333,6 +1330,7 @@ LibertyReader::makeAxis(int index,
   }
   // No warning for missing index_xx attributes because they are
   // not required by ic_shell.
+  return nullptr;
 }
 
 static void
@@ -3878,7 +3876,6 @@ LibertyReader::beginTable(LibertyGroup *group,
       axis_[0] = axis_[1] = axis_[2] = nullptr;
     }
     clearAxisValues();
-    own_axis_[0] = own_axis_[1] = own_axis_[2] = false;
     table_ = nullptr;
     table_model_scale_ = scale;
   }
@@ -3926,25 +3923,20 @@ LibertyReader::makeTable(LibertyAttr *attr,
       FloatTable *table = makeFloatTable(attr,
 					 axis_[0]->size()*axis_[1]->size(),
 					 axis_[2]->size(), scale);
-      table_ = new Table3(table,
-                          axis_[0], own_axis_[0],
-                          axis_[1], own_axis_[1],
-                          axis_[2], own_axis_[2]);
+      table_ = new Table3(table, axis_[0], axis_[1], axis_[2]);
     }
     else if (axis_[0] && axis_[1]) {
       // Row    variable1/axis[0]
       // Column variable2/axis[1]
       FloatTable *table = makeFloatTable(attr, axis_[0]->size(),
 					 axis_[1]->size(), scale);
-      table_ = new Table2(table,
-                          axis_[0], own_axis_[0],
-                          axis_[1], own_axis_[1]);
+      table_ = new Table2(table, axis_[0], axis_[1]);
     }
     else if (axis_[0]) {
       FloatTable *table = makeFloatTable(attr, 1, axis_[0]->size(), scale);
       FloatSeq *values = (*table)[0];
       delete table;
-      table_ = new Table1(values, axis_[0], own_axis_[0]);
+      table_ = new Table1(values, axis_[0]);
     }
     else {
       FloatTable *table = makeFloatTable(attr, 1, 1, scale);
@@ -4017,8 +4009,7 @@ LibertyReader::makeTableAxis(int index)
     const Units *units = library_->units();
     float scale = tableVariableUnit(var, units)->scale();
     scaleFloats(values, scale);
-    axis_[index] = new TableAxis(var, values);
-    own_axis_[index] = true;
+    axis_[index] = std::make_shared<TableAxis>(var, values);
   }
 }
 

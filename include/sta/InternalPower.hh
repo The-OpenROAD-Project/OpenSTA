@@ -93,11 +93,11 @@ protected:
 		      float &axis_value1,
 		      float &axis_value2,
 		      float &axis_value3) const;
-  float axisValue(TableAxis *axis,
+  float axisValue(TableAxisPtr axis,
 		  float in_slew,
 		  float load_cap) const;
   bool checkAxes(const TableModel *model);
-  bool checkAxis(TableAxis *axis);
+  bool checkAxis(TableAxisPtr axis);
 
   TableModel *model_;
 };

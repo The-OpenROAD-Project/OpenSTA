@@ -194,7 +194,7 @@ InternalPowerModel::findAxisValues(float in_slew,
 }
 
 float
-InternalPowerModel::axisValue(TableAxis *axis,
+InternalPowerModel::axisValue(TableAxisPtr axis,
 			      float in_slew,
 			      float load_cap) const
 {
@@ -212,9 +212,9 @@ InternalPowerModel::axisValue(TableAxis *axis,
 bool
 InternalPowerModel::checkAxes(const TableModel *model)
 {
-  TableAxis *axis1 = model->axis1();
-  TableAxis *axis2 = model->axis2();
-  TableAxis *axis3 = model->axis3();
+  TableAxisPtr axis1 = model->axis1();
+  TableAxisPtr axis2 = model->axis2();
+  TableAxisPtr axis3 = model->axis3();
   bool axis_ok = true;
   if (axis1)
     axis_ok &= checkAxis(model->axis1());
@@ -225,7 +225,7 @@ InternalPowerModel::checkAxes(const TableModel *model)
 }
 
 bool
-InternalPowerModel::checkAxis(TableAxis *axis)
+InternalPowerModel::checkAxis(TableAxisPtr axis)
 {
   TableAxisVariable var = axis->variable();
   return var == TableAxisVariable::constrained_pin_transition

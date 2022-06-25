@@ -932,24 +932,24 @@ class TableTemplate
 public:
   explicit TableTemplate(const char *name);
   TableTemplate(const char *name,
-		TableAxis *axis1,
-		TableAxis *axis2,
-		TableAxis *axis3);
+		TableAxisPtr axis1,
+		TableAxisPtr axis2,
+		TableAxisPtr axis3);
   ~TableTemplate();
   const char *name() const { return name_; }
   void setName(const char *name);
-  TableAxis *axis1() const { return axis1_; }
-  void setAxis1(TableAxis *axis);
-  TableAxis *axis2() const { return axis2_; }
-  void setAxis2(TableAxis *axis);
-  TableAxis *axis3() const { return axis3_; }
-  void setAxis3(TableAxis *axis);
+  TableAxisPtr axis1() const { return axis1_; }
+  void setAxis1(TableAxisPtr axis);
+  TableAxisPtr axis2() const { return axis2_; }
+  void setAxis2(TableAxisPtr axis);
+  TableAxisPtr axis3() const { return axis3_; }
+  void setAxis3(TableAxisPtr axis);
 
 protected:
   const char *name_;
-  TableAxis *axis1_;
-  TableAxis *axis2_;
-  TableAxis *axis3_;
+  TableAxisPtr axis1_;
+  TableAxisPtr axis2_;
+  TableAxisPtr axis3_;
 };
 
 class TestCell

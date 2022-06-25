@@ -481,9 +481,8 @@ protected:
 		     LibertyAttr *attr);
   void visitIndex(int index,
 		  LibertyAttr *attr);
-  void makeAxis(int index,
-		LibertyGroup *group,
-		TableAxis *&axis);
+  TableAxisPtr makeAxis(int index,
+                        LibertyGroup *group);
   FloatSeq *readFloatSeq(LibertyAttr *attr,
 			 float scale);
   void variableValue(const char *var,
@@ -564,8 +563,7 @@ protected:
   PathType path_type_;
   LibertyPgPort *pg_port_;
   ScaleFactorType scale_factor_type_;
-  TableAxis *axis_[3];
-  bool own_axis_[3];
+  TableAxisPtr axis_[3];
   Table *table_;
   float table_model_scale_;
   ModeDef *mode_def_;

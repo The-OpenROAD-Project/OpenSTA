@@ -575,25 +575,23 @@ WritePathSpice::slewAxisMinValue(TimingArc *arc)
   GateTableModel *gate_model = dynamic_cast<GateTableModel*>(arc->model());
   if (gate_model) {
     const TableModel *model = gate_model->delayModel();
-    TableAxis *axis;
-    TableAxisVariable var;
-    axis = model->axis1();
-    var = axis->variable();
-    if (var == TableAxisVariable::input_transition_time
-	|| var == TableAxisVariable::input_net_transition)
-      return axis->axisValue(0);
+    TableAxisPtr axis1 = model->axis1();
+    TableAxisVariable var1 = axis1->variable();
+    if (var1 == TableAxisVariable::input_transition_time
+	|| var1 == TableAxisVariable::input_net_transition)
+      return axis1->axisValue(0);
 
-    axis = model->axis2();
-    var = axis->variable();
-    if (var == TableAxisVariable::input_transition_time
-	|| var == TableAxisVariable::input_net_transition)
-      return axis->axisValue(0);
+    TableAxisPtr axis2 = model->axis2();
+    TableAxisVariable var2 = axis2->variable();
+    if (var2 == TableAxisVariable::input_transition_time
+	|| var2 == TableAxisVariable::input_net_transition)
+      return axis2->axisValue(0);
 
-    axis = model->axis3();
-    var = axis->variable();
-    if (var == TableAxisVariable::input_transition_time
-	|| var == TableAxisVariable::input_net_transition)
-      return axis->axisValue(0);
+    TableAxisPtr axis3 = model->axis3();
+    TableAxisVariable var3 = axis3->variable();
+    if (var3 == TableAxisVariable::input_transition_time
+	|| var3 == TableAxisVariable::input_net_transition)
+      return axis3->axisValue(0);
   }
   return 0.0;
 }

@@ -268,9 +268,9 @@ GateTableModel::maxCapSlew(const LibertyCell *cell,
 			   float &cap) const
 {
   const LibertyLibrary *library = cell->libertyLibrary();
-  TableAxis *axis1 = slew_model_->axis1();
-  TableAxis *axis2 = slew_model_->axis2();
-  TableAxis *axis3 = slew_model_->axis3();
+  TableAxisPtr axis1 = slew_model_->axis1();
+  TableAxisPtr axis2 = slew_model_->axis2();
+  TableAxisPtr axis3 = slew_model_->axis3();
   if (axis1
       && axis1->variable() == TableAxisVariable::total_output_net_capacitance) {
     cap = axis1->axisValue(axis1->size() - 1);
@@ -300,7 +300,7 @@ GateTableModel::maxCapSlew(const LibertyCell *cell,
 }
 
 float
-GateTableModel::axisValue(TableAxis *axis,
+GateTableModel::axisValue(TableAxisPtr axis,
 			  float in_slew,
 			  float load_cap,
 			  float related_out_cap) const
@@ -322,9 +322,9 @@ GateTableModel::axisValue(TableAxis *axis,
 bool
 GateTableModel::checkAxes(const Table *table)
 {
-  TableAxis *axis1 = table->axis1();
-  TableAxis *axis2 = table->axis2();
-  TableAxis *axis3 = table->axis3();
+  TableAxisPtr axis1 = table->axis1();
+  TableAxisPtr axis2 = table->axis2();
+  TableAxisPtr axis3 = table->axis3();
   bool axis_ok = true;
   if (axis1)
     axis_ok &= checkAxis(table->axis1());
@@ -336,7 +336,7 @@ GateTableModel::checkAxes(const Table *table)
 }
 
 bool
-GateTableModel::checkAxis(TableAxis *axis)
+GateTableModel::checkAxis(TableAxisPtr axis)
 {
   TableAxisVariable var = axis->variable();
   return var == TableAxisVariable::total_output_net_capacitance
@@ -510,7 +510,7 @@ CheckTableModel::findAxisValues(float from_slew,
 }
 
 float
-CheckTableModel::axisValue(TableAxis *axis,
+CheckTableModel::axisValue(TableAxisPtr axis,
 			   float from_slew,
 			   float to_slew,
 			   float related_out_cap) const
@@ -531,9 +531,9 @@ CheckTableModel::axisValue(TableAxis *axis,
 bool
 CheckTableModel::checkAxes(const Table *table)
 {
-  TableAxis *axis1 = table->axis1();
-  TableAxis *axis2 = table->axis2();
-  TableAxis *axis3 = table->axis3();
+  TableAxisPtr axis1 = table->axis1();
+  TableAxisPtr axis2 = table->axis2();
+  TableAxisPtr axis3 = table->axis3();
   bool axis_ok = true;
   if (axis1)
     axis_ok &= checkAxis(table->axis1());
@@ -545,7 +545,7 @@ CheckTableModel::checkAxes(const Table *table)
 }
 
 bool
-CheckTableModel::checkAxis(TableAxis *axis)
+CheckTableModel::checkAxis(TableAxisPtr axis)
 {
   TableAxisVariable var = axis->variable();
   return var == TableAxisVariable::constrained_pin_transition
@@ -590,19 +590,19 @@ TableModel::setIsScaled(bool is_scaled)
   is_scaled_ = is_scaled;
 }
 
-TableAxis *
+TableAxisPtr 
 TableModel::axis1() const
 {
   return table_->axis1();
 }
 
-TableAxis *
+TableAxisPtr 
 TableModel::axis2() const
 {
   return table_->axis2();
 }
 
-TableAxis *
+TableAxisPtr 
 TableModel::axis3() const
 {
   return table_->axis3();
@@ -762,20 +762,16 @@ Table0::report(const Units *units,
 ////////////////////////////////////////////////////////////////
 
 Table1::Table1(FloatSeq *values,
-	       TableAxis *axis1,
-	       bool own_axis1) :
+	       TableAxisPtr axis1) :
   Table(),
   values_(values),
-  axis1_(axis1),
-  own_axis1_(own_axis1)
+  axis1_(axis1)
 {
 }
 
 Table1::~Table1()
 {
   delete values_;
-  if (own_axis1_)
-    delete axis1_;
 }
 
 float
@@ -887,16 +883,12 @@ Table1::report(const Units *units,
 ////////////////////////////////////////////////////////////////
 
 Table2::Table2(FloatTable *values,
-	       TableAxis *axis1,
-	       bool own_axis1,
-	       TableAxis *axis2,
-	       bool own_axis2) :
+	       TableAxisPtr axis1,
+	       TableAxisPtr axis2) :
   Table(),
   values_(values),
   axis1_(axis1),
-  own_axis1_(own_axis1),
-  axis2_(axis2),
-  own_axis2_(own_axis2)
+  axis2_(axis2)
 {
 }
 
@@ -904,10 +896,6 @@ Table2::~Table2()
 {
   values_->deleteContents();
   delete values_;
-  if (own_axis1_)
-    delete axis1_;
-  if (own_axis2_)
-    delete axis2_;
 }
 
 float
@@ -1089,22 +1077,12 @@ Table2::report(const Units *units,
 ////////////////////////////////////////////////////////////////
 
 Table3::Table3(FloatTable *values,
-	       TableAxis *axis1,
-	       bool own_axis1,
-	       TableAxis *axis2,
-	       bool own_axis2,
-	       TableAxis *axis3,
-	       bool own_axis3) :
-  Table2(values, axis1, own_axis1, axis2, own_axis2),
-  axis3_(axis3),
-  own_axis3_(own_axis3)
+	       TableAxisPtr axis1,
+	       TableAxisPtr axis2,
+	       TableAxisPtr axis3) :
+  Table2(values, axis1, axis2),
+  axis3_(axis3)
 {
-}
-
-Table3::~Table3()
-{
-  if (own_axis3_)
-    delete axis3_;
 }
 
 float

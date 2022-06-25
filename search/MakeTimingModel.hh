@@ -75,7 +75,7 @@ private:
   TimingModel *makeGateModelTable(const Pin *output_pin,
                                   Delay delay,
                                   RiseFall *rf);
-  TableAxis *loadCapacitanceAxis(const TableModel *table);
+  TableAxisPtr loadCapacitanceAxis(const TableModel *table);
   LibertyPort *modelPort(const Pin *pin);
 
   Sta *sta_;

@@ -337,7 +337,7 @@ LibertyLibrary::degradeWireSlew(const LibertyCell *cell,
   case 0:
     return model->findValue(this, cell, pvt, 0.0, 0.0, 0.0);
   case 1: {
-    TableAxis *axis1 = model->axis1();
+    TableAxisPtr axis1 = model->axis1();
     TableAxisVariable var1 = axis1->variable();
     if (var1 == TableAxisVariable::output_pin_transition)
       return model->findValue(this, cell, pvt, in_slew, 0.0, 0.0);
@@ -349,8 +349,8 @@ LibertyLibrary::degradeWireSlew(const LibertyCell *cell,
     }
   }
   case 2: {
-    TableAxis *axis1 = model->axis1();
-    TableAxis *axis2 = model->axis2();
+    TableAxisPtr axis1 = model->axis1();
+    TableAxisPtr axis2 = model->axis2();
     TableAxisVariable var1 = axis1->variable();
     TableAxisVariable var2 = axis2->variable();
     if (var1 == TableAxisVariable::output_pin_transition
@@ -379,14 +379,14 @@ LibertyLibrary::checkSlewDegradationAxes(Table *table)
   case 0:
     return true;
   case 1: {
-    TableAxis *axis1 = table->axis1();
+    TableAxisPtr axis1 = table->axis1();
     TableAxisVariable var1 = axis1->variable();
     return var1 == TableAxisVariable::output_pin_transition
       || var1 == TableAxisVariable::connect_delay;
   }
   case 2: {
-    TableAxis *axis1 = table->axis1();
-    TableAxis *axis2 = table->axis2();
+    TableAxisPtr axis1 = table->axis1();
+    TableAxisPtr axis2 = table->axis2();
     TableAxisVariable var1 = axis1->variable();
     TableAxisVariable var2 = axis2->variable();
     return (var1 == TableAxisVariable::output_pin_transition
@@ -2510,9 +2510,9 @@ TableTemplate::TableTemplate(const char *name) :
 }
 
 TableTemplate::TableTemplate(const char *name,
-			     TableAxis *axis1,
-			     TableAxis *axis2,
-			     TableAxis *axis3) :
+                             TableAxisPtr axis1,
+                             TableAxisPtr axis2,
+                             TableAxisPtr axis3) :
   name_(stringCopy(name)),
   axis1_(axis1),
   axis2_(axis2),
@@ -2523,9 +2523,6 @@ TableTemplate::TableTemplate(const char *name,
 TableTemplate::~TableTemplate()
 {
   stringDelete(name_);
-  delete axis1_;
-  delete axis2_;
-  delete axis3_;
 }
 
 void
@@ -2536,19 +2533,19 @@ TableTemplate::setName(const char *name)
 }
 
 void
-TableTemplate::setAxis1(TableAxis *axis)
+TableTemplate::setAxis1(TableAxisPtr axis)
 {
   axis1_ = axis;
 }
 
 void
-TableTemplate::setAxis2(TableAxis *axis)
+TableTemplate::setAxis2(TableAxisPtr axis)
 {
   axis2_ = axis;
 }
 
 void
-TableTemplate::setAxis3(TableAxis *axis)
+TableTemplate::setAxis3(TableAxisPtr axis)
 {
   axis3_ = axis;
 }

@@ -69,6 +69,7 @@ typedef Set<LibertyCell*> LibertyCellSet;
 typedef Vector<float> FloatSeq;
 typedef Vector<FloatSeq*> FloatTable;
 typedef std::shared_ptr<TimingArcAttrs> TimingArcAttrsPtr;
+typedef std::shared_ptr<TableAxis> TableAxisPtr;
 
 enum class ScaleFactorType : unsigned {
   pin_cap,

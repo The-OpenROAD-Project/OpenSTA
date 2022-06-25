@@ -519,7 +519,7 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                                          drvr_self_delay, drvr_self_slew);
 
               const TableModel *drvr_table = drvr_gate_model->delayModel();
-              const TableAxis *drvr_load_axis = loadCapacitanceAxis(drvr_table);
+              const TableAxisPtr drvr_load_axis = loadCapacitanceAxis(drvr_table);
               const FloatSeq *drvr_axis_values = drvr_load_axis->values();
 
               FloatSeq *load_values = new FloatSeq;
@@ -538,12 +538,12 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
               }
 
               FloatSeq *axis_values = new FloatSeq(*drvr_axis_values);
-              TableAxis *load_axis =
-                new TableAxis(TableAxisVariable::total_output_net_capacitance,
-                              axis_values);
+              TableAxisPtr load_axis =
+                std::make_shared<TableAxis>(TableAxisVariable::total_output_net_capacitance,
+                                            axis_values);
           
-              Table *delay_table = new Table1(load_values, load_axis, true);
-              Table *slew_table = new Table1(slew_values, load_axis, true);
+              Table *delay_table = new Table1(load_values, load_axis);
+              Table *slew_table = new Table1(slew_values, load_axis);
 
               string template_name = "template_";
               template_name += std::to_string(tbl_template_index_++);
@@ -570,7 +570,7 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
   return makeGateModelScalar(delay, slew, rf);
 }
 
-TableAxis *
+TableAxisPtr
 MakeTimingModel::loadCapacitanceAxis(const TableModel *table)
 {
   if (table->axis1()->variable() == TableAxisVariable::total_output_net_capacitance)
