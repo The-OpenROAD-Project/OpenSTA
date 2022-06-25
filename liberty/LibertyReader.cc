@@ -4931,8 +4931,7 @@ PortGroup::PortGroup(LibertyPortSeq *ports,
 
 PortGroup::~PortGroup()
 {
-  // TimingGroups and IntternalPower are NOT deleted because ownership is transfered
-  // to LibertyCell::timing_arc_attrs_ by LibertyReader::makeTimingArcs.
+  timings_.deleteContents();
   delete ports_;
 }
 
@@ -5073,8 +5072,6 @@ TimingGroup::TimingGroup(int line) :
 
 TimingGroup::~TimingGroup()
 {
-  // TimingAttrs contents are not deleted because they are referenced
-  // by TimingArcSets.
   if (related_output_port_name_)
     stringDelete(related_output_port_name_);
 }
