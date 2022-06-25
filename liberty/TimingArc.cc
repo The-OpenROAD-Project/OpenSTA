@@ -24,6 +24,8 @@
 
 namespace sta {
 
+using std::make_shared;
+
 static bool
 timingArcsEquiv(const TimingArcSet *set1,
 		const TimingArcSet *set2);
@@ -171,7 +173,7 @@ TimingArc::intrinsicDelay() const
 
 ////////////////////////////////////////////////////////////////
 
-TimingArcAttrs *TimingArcSet::wire_timing_arc_attrs_ = nullptr;
+TimingArcAttrsPtr TimingArcSet::wire_timing_arc_attrs_ = nullptr;
 TimingArcSet *TimingArcSet::wire_timing_arc_set_ = nullptr;
 
 TimingArcSet::TimingArcSet(LibertyCell *cell,
@@ -179,7 +181,7 @@ TimingArcSet::TimingArcSet(LibertyCell *cell,
 			   LibertyPort *to,
 			   LibertyPort *related_out,
 			   TimingRole *role,
-			   TimingArcAttrs *attrs) :
+			   TimingArcAttrsPtr attrs) :
   from_(from),
   to_(to),
   related_out_(related_out),
@@ -193,7 +195,7 @@ TimingArcSet::TimingArcSet(LibertyCell *cell,
 }
 
 TimingArcSet::TimingArcSet(TimingRole *role,
-                           TimingArcAttrs *attrs) :
+                           TimingArcAttrsPtr attrs) :
   from_(nullptr),
   to_(nullptr),
   related_out_(nullptr),
@@ -222,7 +224,6 @@ TimingArcSet::init(LibertyCell *cell)
 TimingArcSet::~TimingArcSet()
 {
   arcs_.deleteContents();
-  delete attrs_;
 }
 
 bool
@@ -514,7 +515,7 @@ TimingArcSet::wireArcIndex(const RiseFall *rf)
 void
 TimingArcSet::init()
 {
-  wire_timing_arc_attrs_ = new TimingArcAttrs(TimingSense::positive_unate);
+  wire_timing_arc_attrs_ = make_shared<TimingArcAttrs>(TimingSense::positive_unate);
   wire_timing_arc_set_ = new TimingArcSet(TimingRole::wire(), wire_timing_arc_attrs_);
   new TimingArc(wire_timing_arc_set_, Transition::rise(),
 		Transition::rise(), nullptr);

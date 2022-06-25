@@ -698,11 +698,12 @@ protected:
   int line_;
 };
 
-class TimingGroup : public TimingArcAttrs, public RelatedPortGroup
+class TimingGroup : public RelatedPortGroup
 {
 public:
   explicit TimingGroup(int line);
   virtual ~TimingGroup();
+  TimingArcAttrsPtr attrs() { return attrs_; }
   const char *relatedOutputPortName()const {return related_output_port_name_;}
   void setRelatedOutputPortName(const char *name);
   void intrinsic(RiseFall *rf,
@@ -742,6 +743,7 @@ protected:
   void makeLinearModels(LibertyLibrary *library);
   void makeTableModels(LibertyReader *visitor);
 
+  TimingArcAttrsPtr attrs_;
   const char *related_output_port_name_;
   float intrinsic_[RiseFall::index_count];
   bool intrinsic_exists_[RiseFall::index_count];

@@ -2154,8 +2154,8 @@ LibertyReader::makeTimingArcs(LibertyPort *to_port,
     related_out_port = findPort(related_out_port_name);
   int line = timing->line();
   PortDirection *to_port_dir = to_port->direction();
-  // Should be more comprehensive (timing checks on inputs, etc).
-  TimingType type = timing->timingType();
+  // Checks should be more comprehensive (timing checks on inputs, etc).
+  TimingType type = timing->attrs()->timingType();
   if (type == TimingType::combinational &&
       to_port_dir->isInput())
     libWarn(94, line, "combinational timing to an input port.");
@@ -2194,65 +2194,66 @@ TimingGroup::makeTimingModels(LibertyLibrary *library,
 void
 TimingGroup::makeLinearModels(LibertyLibrary *library)
 {
-  for (auto tr : RiseFall::range()) {
-    int tr_index = tr->index();
-    float intr = intrinsic_[tr_index];
-    bool intr_exists = intrinsic_exists_[tr_index];
+  for (auto rf : RiseFall::range()) {
+    int rf_index = rf->index();
+    float intr = intrinsic_[rf_index];
+    bool intr_exists = intrinsic_exists_[rf_index];
     if (!intr_exists)
-      library->defaultIntrinsic(tr, intr, intr_exists);
+      library->defaultIntrinsic(rf, intr, intr_exists);
     TimingModel *model = nullptr;
-    if (timingTypeIsCheck(timing_type_)) {
+    if (timingTypeIsCheck(attrs_->timingType())) {
       if (intr_exists)
 	model = new CheckLinearModel(intr);
     }
     else {
-      float res = resistance_[tr_index];
-      bool res_exists = resistance_exists_[tr_index];
+      float res = resistance_[rf_index];
+      bool res_exists = resistance_exists_[rf_index];
       if (!res_exists)
-	library->defaultPinResistance(tr, PortDirection::output(),
+	library->defaultPinResistance(rf, PortDirection::output(),
 				      res, res_exists);
       if (!res_exists)
 	res = 0.0F;
       if (intr_exists)
 	model = new GateLinearModel(intr, res);
     }
-    models_[tr_index] = model;
+    attrs_->setModel(rf, model);
   }
 }
 
 void
 TimingGroup::makeTableModels(LibertyReader *visitor)
 {
-  for (auto tr : RiseFall::range()) {
-    int tr_index = tr->index();
-    TableModel *cell = cell_[tr_index];
-    TableModel *constraint = constraint_[tr_index];
-    TableModel *transition = transition_[tr_index];
+  for (auto rf : RiseFall::range()) {
+    int rf_index = rf->index();
+    TableModel *cell = cell_[rf_index];
+    TableModel *constraint = constraint_[rf_index];
+    TableModel *transition = transition_[rf_index];
     if (cell || transition) {
-      models_[tr_index] = new GateTableModel(cell, delay_sigma_[tr_index],
-					     transition, slew_sigma_[tr_index]);
-      if (timing_type_ == TimingType::clear
-	  || timing_type_ == TimingType::combinational
-	  || timing_type_ == TimingType::combinational_fall
-	  || timing_type_ == TimingType::combinational_rise
-	  || timing_type_ == TimingType::falling_edge
-	  || timing_type_ == TimingType::preset
-	  || timing_type_ == TimingType::rising_edge
-	  || timing_type_ == TimingType::three_state_disable
-	  || timing_type_ == TimingType::three_state_disable_rise
-	  || timing_type_ == TimingType::three_state_disable_fall
-	  || timing_type_ == TimingType::three_state_enable
-	  || timing_type_ == TimingType::three_state_enable_fall
-	  || timing_type_ == TimingType::three_state_enable_rise) {
+      attrs_->setModel(rf, new GateTableModel(cell, delay_sigma_[rf_index],
+                                              transition, slew_sigma_[rf_index]));
+      TimingType timing_type = attrs_->timingType();
+      if (timing_type == TimingType::clear
+	  || timing_type == TimingType::combinational
+	  || timing_type == TimingType::combinational_fall
+	  || timing_type == TimingType::combinational_rise
+	  || timing_type == TimingType::falling_edge
+	  || timing_type == TimingType::preset
+	  || timing_type == TimingType::rising_edge
+	  || timing_type == TimingType::three_state_disable
+	  || timing_type == TimingType::three_state_disable_rise
+	  || timing_type == TimingType::three_state_disable_fall
+	  || timing_type == TimingType::three_state_enable
+	  || timing_type == TimingType::three_state_enable_fall
+	  || timing_type == TimingType::three_state_enable_rise) {
 	if (transition == nullptr)
-	  visitor->libWarn(95, line_, "missing %s_transition.", tr->name());
+	  visitor->libWarn(95, line_, "missing %s_transition.", rf->name());
 	if (cell == nullptr)
-	  visitor->libWarn(96, line_, "missing cell_%s.", tr->name());
+	  visitor->libWarn(96, line_, "missing cell_%s.", rf->name());
       }
     }
     if (constraint)
-      models_[tr_index] = new CheckTableModel(constraint,
-					      constraint_sigma_[tr_index]);
+      attrs_->setModel(rf, new CheckTableModel(constraint,
+                                               constraint_sigma_[rf_index]));
   }
 }
 
@@ -2268,7 +2269,7 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
     if (from_port_iter.hasNext()) {
       LibertyPort *from_port = from_port_iter.next();
       builder_->makeTimingArcs(cell_, from_port, to_port,
-			       related_out_port, timing);
+			       related_out_port, timing->attrs());
     }
   }
   else if (from_port_iter.size() > 1 && !to_port->hasMembers()) {
@@ -2276,7 +2277,7 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
     while (from_port_iter.hasNext()) {
       LibertyPort *from_port = from_port_iter.next();
       builder_->makeTimingArcs(cell_, from_port, to_port,
-			       related_out_port, timing);
+			       related_out_port, timing->attrs());
     }
   }
   else if (from_port_iter.size() == 1 && to_port->hasMembers()) {
@@ -2287,7 +2288,7 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
       while (bit_iter.hasNext()) {
 	LibertyPort *to_port_bit = bit_iter.next();
 	builder_->makeTimingArcs(cell_, from_port, to_port_bit,
-				 related_out_port, timing);
+				 related_out_port, timing->attrs());
       }
     }
   }
@@ -2300,7 +2301,7 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
 	  LibertyPort *from_port_bit = from_port_iter.next();
 	  LibertyPort *to_port_bit = to_iter.next();
 	  builder_->makeTimingArcs(cell_, from_port_bit, to_port_bit,
-				   related_out_port, timing);
+				   related_out_port, timing->attrs());
 	}
       }
       else
@@ -2316,7 +2317,7 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
 	while (to_iter.hasNext()) {
 	  LibertyPort *to_port_bit = to_iter.next();
 	  builder_->makeTimingArcs(cell_, from_port_bit, to_port_bit,
-				   related_out_port, timing);
+				   related_out_port, timing->attrs());
 	}
       }
     }
@@ -3493,7 +3494,7 @@ LibertyReader::endTiming(LibertyGroup *)
     for (auto tr : RiseFall::range()) {
       TableModel *model = timing_->constraint(tr);
       if (model) {
-	ScaleFactorType type=timingTypeScaleFactorType(timing_->timingType());
+	ScaleFactorType type=timingTypeScaleFactorType(timing_->attrs()->timingType());
 	model->setScaleFactorType(type);
       }
     }
@@ -3578,7 +3579,7 @@ LibertyReader::visitTimingType(LibertyAttr *attr)
       if (type == TimingType::unknown)
 	libWarn(111, attr, "unknown timing_type %s.", type_name);
       else
-	timing_->setTimingType(type);
+	timing_->attrs()->setTimingType(type);
     }
   }
 }
@@ -3590,11 +3591,11 @@ LibertyReader::visitTimingSense(LibertyAttr *attr)
     const char *sense_name = getAttrString(attr);
     if (sense_name) {
       if (stringEq(sense_name, "non_unate"))
-	timing_->setTimingSense(TimingSense::non_unate);
+	timing_->attrs()->setTimingSense(TimingSense::non_unate);
       else if (stringEq(sense_name, "positive_unate"))
-	timing_->setTimingSense(TimingSense::positive_unate);
+	timing_->attrs()->setTimingSense(TimingSense::positive_unate);
       else if (stringEq(sense_name, "negative_unate"))
-	timing_->setTimingSense(TimingSense::negative_unate);
+	timing_->attrs()->setTimingSense(TimingSense::negative_unate);
       else
 	libWarn(112, attr, "unknown timing_sense %s.", sense_name);
     }
@@ -3607,7 +3608,7 @@ LibertyReader::visitSdfCondStart(LibertyAttr *attr)
   if (timing_) {
     const char *cond = getAttrString(attr);
     if (cond)
-      timing_->setSdfCondStart(cond);
+      timing_->attrs()->setSdfCondStart(cond);
   }
 }
 
@@ -3617,7 +3618,7 @@ LibertyReader::visitSdfCondEnd(LibertyAttr *attr)
   if (timing_) {
     const char *cond = getAttrString(attr);
     if (cond)
-      timing_->setSdfCondEnd(cond);
+      timing_->attrs()->setSdfCondEnd(cond);
   }
 }
 
@@ -3630,11 +3631,11 @@ LibertyReader::visitMode(LibertyAttr *attr)
       if (value_iter.hasNext()) {
 	LibertyAttrValue *value = value_iter.next();
 	if (value->isString()) {
-	  timing_->setModeName(value->stringValue());
+	  timing_->attrs()->setModeName(value->stringValue());
 	  if (value_iter.hasNext()) {
 	    value = value_iter.next();
 	    if (value->isString())
-	      timing_->setModeValue(value->stringValue());
+	      timing_->attrs()->setModeValue(value->stringValue());
 	    else
 	      libWarn(113, attr, "mode value is not a string.");
 	  }
@@ -4123,7 +4124,7 @@ LibertyReader::visitWhen(LibertyAttr *attr)
   if (timing_) {
     const char *func = getAttrString(attr);
     if (func)
-      makeLibertyFunc(func, timing_->condRef(), false, "when", attr);
+      makeLibertyFunc(func, timing_->attrs()->condRef(), false, "when", attr);
   }
   if (internal_power_) {
     const char *func = getAttrString(attr);
@@ -4148,7 +4149,7 @@ LibertyReader::visitSdfCond(LibertyAttr *attr)
   else if (timing_) {
     const char *cond = getAttrString(attr);
     if (cond)
-      timing_->setSdfCond(cond);
+      timing_->attrs()->setSdfCond(cond);
   }
   // sdf_cond can also appear inside minimum_period groups.
 }
@@ -4606,7 +4607,7 @@ LibertyReader::visitOcvArcDepth(LibertyAttr *attr)
   getAttrFloat(attr, value, exists);
   if (exists) {
     if (timing_)
-      timing_->setOcvArcDepth(value);
+      timing_->attrs()->setOcvArcDepth(value);
     else if (cell_)
       cell_->setOcvArcDepth(value);
     else
@@ -5049,8 +5050,8 @@ RelatedPortGroup::setIsOneToOne(bool one)
 ////////////////////////////////////////////////////////////////
 
 TimingGroup::TimingGroup(int line) :
-  TimingArcAttrs(),
   RelatedPortGroup(line),
+  attrs_(std::make_shared<TimingArcAttrs>()),
   related_output_port_name_(nullptr)
 {
   for (auto rf_index : RiseFall::rangeIndex()) {

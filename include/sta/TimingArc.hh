@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include "Vector.hh"
 #include "Transition.hh"
 #include "Delay.hh"
@@ -135,7 +137,7 @@ public:
 	       LibertyPort *to,
 	       LibertyPort *related_out,
 	       TimingRole *role,
-	       TimingArcAttrs *attrs);
+	       TimingArcAttrsPtr attrs);
   virtual ~TimingArcSet();
   LibertyCell *libertyCell() const;
   LibertyPort *from() const { return from_; }
@@ -195,13 +197,14 @@ public:
 protected:
   void init(LibertyCell *cell);
   TimingArcSet(TimingRole *role,
-               TimingArcAttrs *attrs);
+               TimingArcAttrsPtr attrs);
 
   LibertyPort *from_;
   LibertyPort *to_;
   LibertyPort *related_out_;
   TimingRole *role_;
-  TimingArcAttrs *attrs_;
+  // TimingArcAttrs are shared by TimingArcSets in a bus with timing groups. 
+  TimingArcAttrsPtr attrs_;
   TimingArcSeq arcs_;
   bool is_cond_default_;
   unsigned index_;
@@ -210,7 +213,7 @@ protected:
   TimingArc *from_arc2_[RiseFall::index_count];
   TimingArc *to_arc_[RiseFall::index_count];
 
-  static TimingArcAttrs *wire_timing_arc_attrs_;
+  static TimingArcAttrsPtr wire_timing_arc_attrs_;
   static TimingArcSet *wire_timing_arc_set_;
 };
 

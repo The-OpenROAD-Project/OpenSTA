@@ -316,7 +316,7 @@ MakeTimingModel::makeSetupHoldTimingArcs(const Pin *input_pin,
     RiseFallMinMax &margins = clk_edge_margins.second;
     for (MinMax *min_max : MinMax::range()) {
       bool setup = (min_max == MinMax::max());
-      TimingArcAttrs *attrs = nullptr;
+      TimingArcAttrsPtr attrs = nullptr;
       for (RiseFall *input_rf : RiseFall::range()) {
         float margin;
         bool exists;
@@ -333,7 +333,7 @@ MakeTimingModel::makeSetupHoldTimingArcs(const Pin *input_pin,
             : ScaleFactorType::hold;
           TimingModel *check_model = makeScalarCheckModel(margin, scale_type, input_rf);
           if (attrs == nullptr)
-            attrs = new TimingArcAttrs();
+            attrs = std::make_shared<TimingArcAttrs>();
           attrs->setModel(input_rf, check_model);
         }
       }
@@ -359,7 +359,7 @@ MakeTimingModel::makeInputOutputTimingArcs(const Pin *input_pin,
   for (auto out_pin_delay : output_pin_delays) {
     const Pin *output_pin = out_pin_delay.first;
     OutputDelays &output_delays = out_pin_delay.second;
-    TimingArcAttrs *attrs = nullptr;
+    TimingArcAttrsPtr attrs = nullptr;
     for (RiseFall *output_rf : RiseFall::range()) {
       MinMax *min_max = MinMax::max();
       float delay;
@@ -373,7 +373,7 @@ MakeTimingModel::makeInputOutputTimingArcs(const Pin *input_pin,
                    delayAsString(delay, sta_));
         TimingModel *gate_model = makeGateModelTable(output_pin, delay, output_rf);
         if (attrs == nullptr)
-          attrs = new TimingArcAttrs();
+          attrs = std::make_shared<TimingArcAttrs>();
         attrs->setModel(output_rf, gate_model);
       }
     }
@@ -420,12 +420,12 @@ MakeTimingModel::findClkedOutputPaths()
         for (const Pin *clk_pin : clk_edge->clock()->pins()) {
           LibertyPort *clk_port = modelPort(clk_pin);
           RiseFall *clk_rf = clk_edge->transition();
-          TimingArcAttrs *attrs = nullptr;
+          TimingArcAttrsPtr attrs = nullptr;
           for (RiseFall *output_rf : RiseFall::range()) {
             float delay = delays.value(output_rf, min_max_) - clk_edge->time();
             TimingModel *gate_model = makeGateModelTable(output_pin, delay, output_rf);
             if (attrs == nullptr)
-              attrs = new TimingArcAttrs();
+              attrs = std::make_shared<TimingArcAttrs>();
             attrs->setModel(output_rf, gate_model);
           }
           if (attrs) {
