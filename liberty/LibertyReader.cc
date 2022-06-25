@@ -3925,38 +3925,32 @@ LibertyReader::makeTable(LibertyAttr *attr,
       FloatTable *table = makeFloatTable(attr,
 					 axis_[0]->size()*axis_[1]->size(),
 					 axis_[2]->size(), scale);
-      if (table)
-	table_ = new Table3(table,
-			    axis_[0], own_axis_[0],
-			    axis_[1], own_axis_[1],
-			    axis_[2], own_axis_[2]);
+      table_ = new Table3(table,
+                          axis_[0], own_axis_[0],
+                          axis_[1], own_axis_[1],
+                          axis_[2], own_axis_[2]);
     }
     else if (axis_[0] && axis_[1]) {
       // Row    variable1/axis[0]
       // Column variable2/axis[1]
       FloatTable *table = makeFloatTable(attr, axis_[0]->size(),
 					 axis_[1]->size(), scale);
-      if (table)
-	table_ = new Table2(table,
-			    axis_[0], own_axis_[0],
-			    axis_[1], own_axis_[1]);
+      table_ = new Table2(table,
+                          axis_[0], own_axis_[0],
+                          axis_[1], own_axis_[1]);
     }
     else if (axis_[0]) {
       FloatTable *table = makeFloatTable(attr, 1, axis_[0]->size(), scale);
-      if (table) {
-	FloatSeq *values = (*table)[0];
-	delete table;
-	table_ = new Table1(values, axis_[0], own_axis_[0]);
-      }
+      FloatSeq *values = (*table)[0];
+      delete table;
+      table_ = new Table1(values, axis_[0], own_axis_[0]);
     }
     else {
       FloatTable *table = makeFloatTable(attr, 1, 1, scale);
-      if (table) {
-	float value = (*(*table)[0])[0];
-	delete (*table)[0];
-	delete table;
-	table_ = new Table0(value);
-      }
+      float value = (*(*table)[0])[0];
+      delete (*table)[0];
+      delete table;
+      table_ = new Table0(value);
     }
   }
   else

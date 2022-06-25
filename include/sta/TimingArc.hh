@@ -159,19 +159,19 @@ public:
   void deleteTimingArc(TimingArc *arc);
   TimingArc *findTimingArc(unsigned arc_index);
   void setRole(TimingRole *role);
-  FuncExpr *cond() const { return cond_; }
+  FuncExpr *cond() const { return attrs_->cond(); }
   // Cond default is the timing arcs with no condition when there are
   // other conditional timing arcs between the same pins.
   bool isCondDefault() const { return is_cond_default_; }
   void setIsCondDefault(bool is_default);
   // SDF IOPATHs match sdfCond.
   // sdfCond (IOPATH) reuses sdfCondStart (timing check) variable.
-  const char *sdfCond() const { return sdf_cond_start_; }
+  const char *sdfCond() const { return attrs_->sdfCondStart(); }
   // SDF timing checks match sdfCondStart/sdfCondEnd.
-  const char *sdfCondStart() const { return sdf_cond_start_; }
-  const char *sdfCondEnd() const { return sdf_cond_end_; }
-  const char *modeName() const { return mode_name_; }
-  const char *modeValue() const { return mode_value_; }
+  const char *sdfCondStart() const { return attrs_->sdfCondStart(); }
+  const char *sdfCondEnd() const { return attrs_->sdfCondEnd(); }
+  const char *modeName() const { return attrs_->modeName(); }
+  const char *modeValue() const { return attrs_->modeValue(); }
   // Timing arc set index in cell.
   TimingArcIndex index() const { return index_; }
   bool isDisabledConstraint() const { return is_disabled_constraint_; }
@@ -203,13 +203,7 @@ protected:
   TimingRole *role_;
   TimingArcAttrs *attrs_;
   TimingArcSeq arcs_;
-  FuncExpr *cond_;
   bool is_cond_default_;
-  const char *sdf_cond_start_;
-  const char *sdf_cond_end_;
-  const char *mode_name_;
-  const char *mode_value_;
-  float ocv_arc_depth_;
   unsigned index_;
   bool is_disabled_constraint_;
   TimingArc *from_arc1_[RiseFall::index_count];

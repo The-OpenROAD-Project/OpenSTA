@@ -91,6 +91,7 @@ TimingArcAttrs::setSdfCond(const char *cond)
 {
   stringDelete(sdf_cond_);
   sdf_cond_ = stringCopy(cond);
+  sdf_cond_start_ = sdf_cond_end_ = sdf_cond_;
 }
 
 void
@@ -184,20 +185,10 @@ TimingArcSet::TimingArcSet(LibertyCell *cell,
   related_out_(related_out),
   role_(role),
   attrs_(attrs),
-  cond_(attrs->cond()),
   is_cond_default_(false),
-  sdf_cond_start_(attrs->sdfCondStart()),
-  sdf_cond_end_(attrs->sdfCondEnd()),
-  mode_name_(attrs->modeName()),
-  mode_value_(attrs->modeValue()),
-  ocv_arc_depth_(attrs->ocvArcDepth()),
   index_(0),
   is_disabled_constraint_(false)
 {
-  const char *sdf_cond = attrs->sdfCond();
-  if (sdf_cond)
-    sdf_cond_start_ = sdf_cond_end_ = sdf_cond;
-
   init(cell);
 }
 
@@ -208,12 +199,7 @@ TimingArcSet::TimingArcSet(TimingRole *role,
   related_out_(nullptr),
   role_(role),
   attrs_(attrs),
-  cond_(nullptr),
   is_cond_default_(false),
-  sdf_cond_start_(nullptr),
-  sdf_cond_end_(nullptr),
-  mode_name_(nullptr),
-  mode_value_(nullptr),
   index_(0),
   is_disabled_constraint_(false)
 {
@@ -363,15 +349,16 @@ float
 TimingArcSet::ocvArcDepth() const
 {
   if (from_) {
-    if (ocv_arc_depth_ != 0.0)
-      return ocv_arc_depth_;
+    float depth = attrs_->ocvArcDepth();
+    if (depth != 0.0)
+      return depth;
     else {
       LibertyCell *cell = from_->libertyCell();
-      float depth = cell->ocvArcDepth();
+      depth = cell->ocvArcDepth();
       if (depth != 0.0)
 	return depth;
       else {
-	float depth = cell->libertyLibrary()->ocvArcDepth();
+	depth = cell->libertyLibrary()->ocvArcDepth();
 	if (depth != 0.0)
 	  return depth;
       }
