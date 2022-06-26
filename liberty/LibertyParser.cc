@@ -547,7 +547,8 @@ libertyIncludeBegin(const char *filename)
     liberty_line = 1;
   }
   else
-    libertyParseError("cannot open include file %s.", filename);
+    liberty_report->fileWarn(25, sta::liberty_filename, sta::liberty_line,
+                             "cannot open include file %s.", filename);
 }
 
 void
@@ -582,6 +583,12 @@ libertyParseError(const char *fmt, ...)
   sta::liberty_report->vfileError(25, sta::liberty_filename, sta::liberty_line,
                                   fmt, args);
   va_end(args);
+}
+
+void
+deleteLibertyGroups()
+{
+  liberty_group_stack.deleteContentsClear();
 }
 
 } // namespace
