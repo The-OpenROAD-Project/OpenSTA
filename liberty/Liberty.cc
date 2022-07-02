@@ -1728,10 +1728,9 @@ LibertyCell::inferLatchRoles(Debug *debug)
 	  // Look for combinational d->q arcs.
 	  TimingRole *d_to_q_role = d_to_q->role();
 	  if ((d_to_q_role == TimingRole::combinational()
-	       && ((d_to_q->arcCount() == 2
-		    && (d_to_q->sense() == TimingSense::positive_unate
-			|| d_to_q->sense() == TimingSense::negative_unate))
-		   || (d_to_q->arcCount() == 4)))
+	       && d_to_q->arcCount() == 2
+               && (d_to_q->sense() == TimingSense::positive_unate
+                   || d_to_q->sense() == TimingSense::negative_unate))
 	      // Previously identified as D->Q arc.
 	      || d_to_q_role == TimingRole::latchDtoQ()) {
 	    LibertyPort *d = d_to_q->from();
