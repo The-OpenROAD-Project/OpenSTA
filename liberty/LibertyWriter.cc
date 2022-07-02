@@ -282,14 +282,16 @@ LibertyWriter::writeCell(const LibertyCell *cell)
   LibertyCellPortIterator port_iter(cell);
   while (port_iter.hasNext()) {
     const LibertyPort *port = port_iter.next();
-    if (port->isBus())
-      writeBusPort(port);
-    else if (port->isBundle())
-      report_->error(704, "%s/%s bundled ports not supported.",
-                     library_->name(),
-                     cell->name());
-    else
-      writePort(port);
+    if (!port->direction()->isInternal()) {
+      if (port->isBus())
+        writeBusPort(port);
+      else if (port->isBundle())
+        report_->error(704, "%s/%s bundled ports not supported.",
+                       library_->name(),
+                       cell->name());
+      else
+        writePort(port);
+    }
   }
 
   fprintf(stream_, "  }\n");
@@ -325,7 +327,10 @@ LibertyWriter::writePortAttrs(const LibertyPort *port)
 {
   fprintf(stream_, "      direction : %s;\n" , asString(port->direction()));
   auto func = port->function();
-  if (func)
+  if (func
+      // cannot ref internal ports until sequentials are written
+      && !(func->port()
+           && func->port()->direction()->isInternal()))
     fprintf(stream_, "      function : \"%s\";\n", func->asString());
   auto tristate_enable = port->tristateEnable();
   if (tristate_enable) {
