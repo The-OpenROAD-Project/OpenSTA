@@ -597,7 +597,7 @@ define_cmd_args "unset_timing_derate" {}
 
 proc unset_timing_derate { args } {
   check_argc_eq0 "unset_timing_derate" $args
-  reset_timing_derate_cmd
+  unset_timing_derate_cmd
 }
 
 ################################################################
