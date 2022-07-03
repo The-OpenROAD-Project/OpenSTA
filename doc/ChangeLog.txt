@@ -3,6 +3,12 @@ OpenSTA Timing Analyzer Release Notes
 
 This file summarizes user visible changes for each release.
 
+Release 2.3.2 2022/07/03
+-------------------------
+
+The liberty default_wire_load is now ignored. You must explicitly set the wire load
+model with the set_wire_load_model command to apply wire load model based parasitics.
+
 Release 2.3.1 2020/11/08
 -------------------------
 

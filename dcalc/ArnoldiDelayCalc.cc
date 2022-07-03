@@ -276,7 +276,7 @@ ArnoldiDelayCalc::findParasitic(const Pin *drvr_pin,
     const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
     const Corner *corner = dcalc_ap->corner();
     if (parasitic_network == nullptr) {
-      Wireload *wireload = sdc_->wireloadDefaulted(cnst_min_max);
+      Wireload *wireload = sdc_->wireload(cnst_min_max);
       if (wireload) {
 	float pin_cap, wire_cap, fanout;
 	bool has_wire_cap;

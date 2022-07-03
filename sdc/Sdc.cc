@@ -5623,18 +5623,6 @@ Sdc::isCompleteTo(ExceptionState *state,
 ////////////////////////////////////////////////////////////////
 
 Wireload *
-Sdc::wireloadDefaulted(const MinMax *min_max)
-{
-  Wireload *wireload1 = wireload(min_max);
-  if (wireload1 == nullptr) {
-    LibertyLibrary *default_lib = network_->defaultLibertyLibrary();
-    if (default_lib)
-      wireload1 = default_lib->defaultWireload();
-  }
-  return wireload1;
-}
-
-Wireload *
 Sdc::wireload(const MinMax *min_max)
 {
   return wireload_[min_max->index()];

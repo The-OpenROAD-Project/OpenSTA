@@ -740,8 +740,6 @@ public:
   Clock *findClock(const char *name) const;
   virtual void findClocksMatching(PatternMatch *pattern,
 				  ClockSeq *clks) const;
-  // Wireload set by set_wire_load_model or default library default_wire_load.
-  Wireload *wireloadDefaulted(const MinMax *min_max);
   Wireload *wireload(const MinMax *min_max);
   void setWireload(Wireload *wireload,
 		   const MinMaxAll *min_max);
