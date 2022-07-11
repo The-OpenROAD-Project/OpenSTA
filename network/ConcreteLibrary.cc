@@ -140,6 +140,7 @@ ConcreteCell::~ConcreteCell()
   if (filename_)
     stringDelete(filename_);
   ports_.deleteContents();
+  attribute_map_.deleteArrayContents();
 }
 
 void
@@ -266,6 +267,18 @@ void
 ConcreteCell::setIsLeaf(bool is_leaf)
 {
   is_leaf_ = is_leaf;
+}
+
+void
+ConcreteCell::setAttribute(const char* key, const char* value)
+{
+  attribute_map_.insert(key, stringCopy(value));
+}
+
+const char *
+ConcreteCell::getAttribute(const char* key) const 
+{
+  return attribute_map_.findKey(key);
 }
 
 ConcretePort *

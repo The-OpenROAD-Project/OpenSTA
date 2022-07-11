@@ -122,6 +122,12 @@ NetworkNameAdapter::id(const Cell *cell) const
   return network_->id(cell);
 }
 
+const char *
+NetworkNameAdapter::getAttribute(const Cell *cell, const char *key) const
+{
+  return network_->getAttribute(cell, key);
+}
+
 Library *
 NetworkNameAdapter::library(const Cell *cell) const
 {
@@ -325,6 +331,12 @@ Cell *
 NetworkNameAdapter::cell(const Instance *instance) const
 {
   return network_->cell(instance);
+}
+
+const char *
+NetworkNameAdapter::getAttribute(const Instance *inst, const char *key) const
+{
+  return network_->getAttribute(inst, key);
 }
 
 Instance *

@@ -557,6 +557,15 @@ ConcreteNetwork::setIsLeaf(Cell *cell,
   ccell->setIsLeaf(is_leaf);
 }
 
+void
+ConcreteNetwork::setAttribute(Cell *cell,
+			   const char *key,
+         const char *value)
+{
+  ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell);
+  ccell->setAttribute(key, value);
+}
+
 Library *
 ConcreteNetwork::library(const Cell *cell) const
 {
@@ -595,6 +604,13 @@ ConcreteNetwork::filename(const Cell *cell)
 {
   const ConcreteCell *ccell = reinterpret_cast<const ConcreteCell*>(cell);
   return ccell->filename();
+}
+
+const char *
+ConcreteNetwork::getAttribute(const Cell *cell, const char *key) const
+{
+  const ConcreteCell *ccell = reinterpret_cast<const ConcreteCell*>(cell);
+  return ccell->getAttribute(key);
 }
 
 Port *
@@ -919,6 +935,13 @@ ConcreteNetwork::id(const Instance *instance) const
   const ConcreteInstance *inst =
     reinterpret_cast<const ConcreteInstance*>(instance);
   return inst->id();
+}
+
+const char *
+ConcreteNetwork::getAttribute(const Instance *inst, const char *key) const
+{
+  const ConcreteInstance *cinst = reinterpret_cast<const ConcreteInstance*>(inst);
+  return cinst->getAttribute(key);
 }
 
 Cell *
@@ -1325,6 +1348,15 @@ ConcreteNetwork::connect(Instance *inst,
   return connect(inst, reinterpret_cast<Port*>(port), net);
 }
 
+void
+ConcreteNetwork::setAttribute(Instance *inst,
+			   const char *key,
+         const char *value)
+{
+  ConcreteInstance *cinst = reinterpret_cast<ConcreteInstance*>(inst);
+  cinst->setAttribute(key, value);
+}
+
 Pin *
 ConcreteNetwork::connect(Instance *inst,
 			 Port *port,
@@ -1564,6 +1596,7 @@ ConcreteInstance::~ConcreteInstance()
   stringDelete(name_);
   delete children_;
   delete nets_;
+  attribute_map_.deleteArrayContents();
 }
 
 Instance *
@@ -1646,6 +1679,18 @@ InstanceChildIterator *
 ConcreteInstance::childIterator() const
 {
   return new ConcreteInstanceChildIterator(children_);
+}
+
+void
+ConcreteInstance::setAttribute(const char *key, const char *value)
+{
+  attribute_map_.insert(key, stringCopy(value));
+}
+
+const char *
+ConcreteInstance::getAttribute(const char *key) const
+{
+  return attribute_map_.findKey(key);
 }
 
 void
