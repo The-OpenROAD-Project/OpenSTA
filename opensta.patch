@@ -1,0 +1,923 @@
+diff --git a/include/sta/ConcreteLibrary.hh b/include/sta/ConcreteLibrary.hh
+--- a/include/sta/ConcreteLibrary.hh
++++ b/include/sta/ConcreteLibrary.hh
+@@ -1,16 +1,16 @@
+ // OpenSTA, Static Timing Analyzer
+ // Copyright (c) 2020, Parallax Software, Inc.
+-// 
++//
+ // This program is free software: you can redistribute it and/or modify
+ // it under the terms of the GNU General Public License as published by
+ // the Free Software Foundation, either version 3 of the License, or
+ // (at your option) any later version.
+-// 
++//
+ // This program is distributed in the hope that it will be useful,
+ // but WITHOUT ANY WARRANTY; without even the implied warranty of
+ // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ // GNU General Public License for more details.
+-// 
++//
+ // You should have received a copy of the GNU General Public License
+ // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ 
+@@ -39,6 +39,7 @@ class LibertyCell;
+ class LibertyPort;
+ 
+ typedef Map<const char*, ConcreteCell*, CharPtrLess> ConcreteCellMap;
++typedef Map<const char*, const char*> AttributeMap;
+ typedef Vector<ConcretePort*> ConcretePortSeq;
+ typedef Map<const char*, ConcretePort*, CharPtrLess> ConcretePortMap;
+ typedef ConcreteCellMap::ConstIterator ConcreteLibraryCellIterator;
+@@ -107,6 +108,7 @@ public:
+   ConcreteCellPortBitIterator *portBitIterator() const;
+   bool isLeaf() const { return is_leaf_; }
+   void setIsLeaf(bool is_leaf);
++  void setAttribute(const char *key, const char *value);
+ 
+   // Cell acts as port factory.
+   ConcretePort *makePort(const char *name);
+@@ -159,6 +161,7 @@ protected:
+   // Port bit count (expanded buses).
+   int port_bit_count_;
+   bool is_leaf_;
++  AttributeMap attribute_map_;
+ 
+ private:
+   DISALLOW_COPY_AND_ASSIGN(ConcreteCell);
+diff --git a/include/sta/ConcreteNetwork.hh b/include/sta/ConcreteNetwork.hh
+--- a/include/sta/ConcreteNetwork.hh
++++ b/include/sta/ConcreteNetwork.hh
+@@ -75,6 +75,7 @@ public:
+ 				 CellSeq *cells) const;
+ 
+   virtual const char *name(const Cell *cell) const;
++  virtual const char *getAttributeValue(const char *key) const;
+   virtual Library *library(const Cell *cell) const;
+   virtual LibertyCell *libertyCell(Cell *cell) const;
+   virtual const LibertyCell *libertyCell(const Cell *cell) const;
+diff --git a/include/sta/Network.hh b/include/sta/Network.hh
+--- a/include/sta/Network.hh
++++ b/include/sta/Network.hh
+@@ -111,6 +111,7 @@ public:
+   virtual LibertyLibrary *findLiberty(const char *name) = 0;
+   virtual LibertyLibrary *findLibertyFilename(const char *filename);
+   virtual const char *name(const Library *library) const = 0;
++  virtual const char *getAttributeValue(const char * key) = 0;
+   virtual Cell *findCell(const Library *library,
+ 			 const char *name) const = 0;
+   // Search the design (non-liberty) libraries for cells matching pattern.
+diff --git a/network/ConcreteLibrary.cc b/network/ConcreteLibrary.cc
+--- a/network/ConcreteLibrary.cc
++++ b/network/ConcreteLibrary.cc
+@@ -1,16 +1,16 @@
+ // OpenSTA, Static Timing Analyzer
+ // Copyright (c) 2021, Parallax Software, Inc.
+-// 
++//
+ // This program is free software: you can redistribute it and/or modify
+ // it under the terms of the GNU General Public License as published by
+ // the Free Software Foundation, either version 3 of the License, or
+ // (at your option) any later version.
+-// 
++//
+ // This program is distributed in the hope that it will be useful,
+ // but WITHOUT ANY WARRANTY; without even the implied warranty of
+ // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ // GNU General Public License for more details.
+-// 
++//
+ // You should have received a copy of the GNU General Public License
+ // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ 
+@@ -259,6 +259,11 @@ ConcreteCell::setIsLeaf(bool is_leaf)
+   is_leaf_ = is_leaf;
+ }
+ 
++void
++ConcreteCell::setAttribute(const char* key, const char* value) {
++
++}
++
+ ConcretePort *
+ ConcreteCell::findPort(const char *name) const
+ {
+diff --git a/verilog/VerilogLex.ll b/verilog/VerilogLex.ll
+--- a/verilog/VerilogLex.ll
++++ b/verilog/VerilogLex.ll
+@@ -2,17 +2,17 @@
+ 
+ // OpenSTA, Static Timing Analyzer
+ // Copyright (c) 2021, Parallax Software, Inc.
+-// 
++//
+ // This program is free software: you can redistribute it and/or modify
+ // it under the terms of the GNU General Public License as published by
+ // the Free Software Foundation, either version 3 of the License, or
+ // (at your option) any later version.
+-// 
++//
+ // This program is distributed in the hope that it will be useful,
+ // but WITHOUT ANY WARRANTY; without even the implied warranty of
+ // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ // GNU General Public License for more details.
+-// 
++//
+ // You should have received a copy of the GNU General Public License
+ // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ 
+@@ -41,7 +41,6 @@ verilogFlushBuffer()
+ %option never-interactive
+ 
+ %x COMMENT
+-%x ATTRIBUTE
+ %x QSTRING
+ 
+ SIGN	"+"|"-"
+@@ -77,21 +76,6 @@ ID_TOKEN {ID_ESCAPED_TOKEN}|{ID_ALPHA_TO
+ 	}
+ }
+ 
+-"(*"	{ BEGIN ATTRIBUTE; }
+-<ATTRIBUTE>{
+-.
+-
+-{EOL}	{ sta::verilog_reader->incrLine(); }
+-
+-"*)"	{ BEGIN INITIAL; }
+-
+-<<EOF>> {
+-	VerilogParse_error("unterminated attribute");
+-	BEGIN(INITIAL);
+-	yyterminate();
+-	}
+-}
+-
+ {SIGN}?{UNSIGNED_NUMBER}?"'"[bB][01_xz]+ {
+   VerilogParse_lval.constant = sta::stringCopy(VerilogLex_text);
+   return CONSTANT;
+@@ -121,6 +105,8 @@ ID_TOKEN {ID_ESCAPED_TOKEN}|{ID_ALPHA_TO
+   return ((int) VerilogLex_text[0]);
+ }
+ 
++"(*" { return ATTRIBUTE_OPEN; }
++"*)" { return ATTRIBUTE_CLOSED; }
+ assign { return ASSIGN; }
+ endmodule { return ENDMODULE; }
+ inout { return INOUT; }
+diff --git a/verilog/VerilogParse.yy b/verilog/VerilogParse.yy
+--- a/verilog/VerilogParse.yy
++++ b/verilog/VerilogParse.yy
+@@ -2,21 +2,23 @@
+ 
+ // OpenSTA, Static Timing Analyzer
+ // Copyright (c) 2021, Parallax Software, Inc.
+-// 
++//
+ // This program is free software: you can redistribute it and/or modify
+ // it under the terms of the GNU General Public License as published by
+ // the Free Software Foundation, either version 3 of the License, or
+ // (at your option) any later version.
+-// 
++//
+ // This program is distributed in the hope that it will be useful,
+ // but WITHOUT ANY WARRANTY; without even the implied warranty of
+ // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ // GNU General Public License for more details.
+-// 
++//
+ // You should have received a copy of the GNU General Public License
+ // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ 
+ #include <stdlib.h>
++#include <string>
++#include <iostream>
+ 
+ #include "PortDirection.hh"
+ #include "verilog/VerilogReaderPvt.hh"
+@@ -33,6 +35,7 @@ int VerilogLex_lex();
+   int ival;
+   const char *string;
+   const char *constant;
++	const char *attribute_spec_value;
+   sta::VerilogModule *module;
+   sta::VerilogStmt *stmt;
+   sta::VerilogStmtSeq *stmt_seq;
+@@ -44,10 +47,17 @@ int VerilogLex_lex();
+   sta::VerilogNet *net;
+   sta::VerilogNetBitSelect *net_bit;
+   sta::VerilogNetSeq *nets;
++	sta::VerilogAttributeEntry *attribute_entry;
++	sta::VerilogAttributeEntrySeq *attribute_seq;
++	sta::VerilogAttributeStmt *attribute_stmt;
++	sta::VerilogAttributeStmtSeq *attribute_stmt_seq;
+ }
+ 
++%define parse.error verbose
++
+ %token INT CONSTANT ID STRING MODULE ENDMODULE ASSIGN PARAMETER DEFPARAM
+ %token WIRE WAND WOR TRI INPUT OUTPUT INOUT SUPPLY1 SUPPLY0 REG
++%token ATTRIBUTE_OPEN ATTRIBUTE_CLOSED
+ 
+ %left '-' '+'
+ %left '*' '/'
+@@ -55,8 +65,10 @@ int VerilogLex_lex();
+ 
+ %type <string> ID STRING
+ %type <ival> WIRE WAND WOR TRI INPUT OUTPUT INOUT SUPPLY1 SUPPLY0
++%type <ival> ATTRIBUTE_OPEN ATTRIBUTE_CLOSED
+ %type <ival> INT parameter_exprs parameter_expr module_begin
+ %type <constant> CONSTANT
++%type <attribute_spec_value> attr_spec_value
+ %type <port_type> dcl_type port_dcl_type
+ %type <stmt> stmt declaration instance parameter parameter_dcls parameter_dcl
+ %type <stmt> defparam param_values param_value port_dcl
+@@ -69,6 +81,10 @@ int VerilogLex_lex();
+ %type <net> inst_named_pin net_named net_expr_concat
+ %type <nets> port_list port_refs inst_ordered_pins
+ %type <nets> inst_named_pins net_exprs inst_pins
++%type <attribute_entry> attr_spec
++%type <attribute_seq> attr_specs
++%type <attribute_stmt> attribute_instance
++%type <attribute_stmt_seq> attribute_instance_seq
+ 
+ %start file
+ 
+@@ -92,14 +108,14 @@ module_begin:
+ 	;
+ 
+ module:
+-	module_begin ID ';' stmts ENDMODULE
+-	{ sta::verilog_reader->makeModule($2, new sta::VerilogNetSeq,$4,$1);}
+-|	module_begin ID '(' ')' ';' stmts ENDMODULE
+-	{ sta::verilog_reader->makeModule($2, new sta::VerilogNetSeq,$6,$1);}
+-|	module_begin ID '(' port_list ')' ';' stmts ENDMODULE
+-	{ sta::verilog_reader->makeModule($2, $4, $7, $1); }
+-|	module_begin ID '(' port_dcls ')' ';' stmts ENDMODULE
+-	{ sta::verilog_reader->makeModule($2, $4, $7, $1); }
++	attribute_instance_seq module_begin ID ';' stmts ENDMODULE
++	{ sta::verilog_reader->makeModule($3, new sta::VerilogNetSeq, $5, $1, $2);}
++|	attribute_instance_seq module_begin ID '(' ')' ';' stmts ENDMODULE
++	{ sta::verilog_reader->makeModule($3, new sta::VerilogNetSeq, $7, $1, $2);}
++|	attribute_instance_seq module_begin ID '(' port_list ')' ';' stmts ENDMODULE
++	{ sta::verilog_reader->makeModule($3, $5, $8, $1, $2); }
++|	attribute_instance_seq module_begin ID '(' port_dcls ')' ';' stmts ENDMODULE
++	{ sta::verilog_reader->makeModule($3, $5, $8, $1, $2); }
+ 	;
+ 
+ port_list:
+@@ -157,11 +173,12 @@ port_dcls:
+ 	;
+ 
+ port_dcl:
+-	port_dcl_type { $<ival>$ = sta::verilog_reader->line(); } dcl_arg
+-	{ $$ = sta::verilog_reader->makeDcl($1, $3, $<ival>2); }
+-|	port_dcl_type { $<ival>$ = sta::verilog_reader->line(); }
+-	'[' INT ':' INT ']' dcl_arg
+-	{ $$ = sta::verilog_reader->makeDclBus($1, $4, $6, $8, $<ival>2); }
++	attribute_instance_seq port_dcl_type
++	{ $<ival>$ = sta::verilog_reader->line(); } dcl_arg
++	{ $$ = sta::verilog_reader->makeDcl($2, $4, $1, $<ival>3); }
++|	attribute_instance_seq port_dcl_type
++  { $<ival>$ = sta::verilog_reader->line(); } '[' INT ':' INT ']' dcl_arg
++	{ $$ = sta::verilog_reader->makeDclBus($2, $5, $7, $9, $1, $<ival>3); }
+ 	;
+ 
+ port_dcl_type:
+@@ -282,11 +299,11 @@ param_value:
+ 	;
+ 
+ declaration:
+-	dcl_type { $<ival>$ = sta::verilog_reader->line(); } dcl_args ';'
+-	{ $$ = sta::verilog_reader->makeDcl($1, $3, $<ival>2); }
+-|	dcl_type { $<ival>$ = sta::verilog_reader->line(); }
++	attribute_instance_seq dcl_type { $<ival>$ = sta::verilog_reader->line(); } dcl_args ';'
++	{ $$ = sta::verilog_reader->makeDcl($2, $4, $1, $<ival>3); }
++|	attribute_instance_seq dcl_type { $<ival>$ = sta::verilog_reader->line(); }
+ 	'[' INT ':' INT ']' dcl_args ';'
+-	{ $$ = sta::verilog_reader->makeDclBus($1, $4, $6, $8, $<ival>2); }
++	{ $$ = sta::verilog_reader->makeDclBus($2, $5, $7, $9, $1,$<ival>3); }
+ 	;
+ 
+ dcl_type:
+@@ -344,11 +361,11 @@ net_assign_lhs:
+         ;
+ 
+ instance:
+-	ID { $<ival>$ = sta::verilog_reader->line(); } ID '(' inst_pins ')' ';'
+-	{ $$ = sta::verilog_reader->makeModuleInst($1, $3, $5, $<ival>2); }
+-|	ID { $<ival>$ = sta::verilog_reader->line(); } parameter_values
++	attribute_instance_seq ID { $<ival>$ = sta::verilog_reader->line(); } ID '(' inst_pins ')' ';'
++	{ $$ = sta::verilog_reader->makeModuleInst($2, $4, $6, $1, $<ival>3); }
++|	attribute_instance_seq ID { $<ival>$ = sta::verilog_reader->line(); } parameter_values
+ 	   ID '(' inst_pins ')' ';'
+-	{ $$ = sta::verilog_reader->makeModuleInst($1, $4, $6, $<ival>2); }
++	{ $$ = sta::verilog_reader->makeModuleInst($2, $5, $7, $1, $<ival>3); }
+ 	;
+ 
+ parameter_values:
+@@ -467,4 +484,46 @@ net_expr:
+ |	net_expr_concat
+ 	;
+ 
++attribute_instance_seq:
++	// empty
++	{ $$ = new sta::VerilogAttributeStmtSeq; }
++|	attribute_instance_seq attribute_instance
++	{ if ($2) $1->push_back($2); }
++	;
++
++attribute_instance:
++	ATTRIBUTE_OPEN attr_specs ATTRIBUTE_CLOSED
++	{
++		$$ = new sta::VerilogAttributeStmt($2);
++	}
++	;
++
++attr_specs:
++	attr_spec
++	{
++		$$ = new sta::VerilogAttributeEntrySeq;
++		$$->push_back($1);
++	}
++| attr_spec ',' attr_spec
++	{ $$->push_back($3); }
++	;
++
++attr_spec:
++	ID
++	{ $$ = new sta::VerilogAttributeEntry($1, "1");}
++| ID '=' attr_spec_value
++	{
++		$$ = new sta::VerilogAttributeEntry($1, $3);
++	}
++	;
++
++attr_spec_value:
++	CONSTANT
++	{$$ = $1;}
++| STRING
++	{$$ = $1;}
++| INT
++  {$$ = sta::stringCopy(std::to_string($1).c_str());}
++	;
++
+ %%
+diff --git a/verilog/VerilogReader.cc b/verilog/VerilogReader.cc
+--- a/verilog/VerilogReader.cc
++++ b/verilog/VerilogReader.cc
+@@ -1,22 +1,23 @@
+ // OpenSTA, Static Timing Analyzer
+ // Copyright (c) 2021, Parallax Software, Inc.
+-// 
++//
+ // This program is free software: you can redistribute it and/or modify
+ // it under the terms of the GNU General Public License as published by
+ // the Free Software Foundation, either version 3 of the License, or
+ // (at your option) any later version.
+-// 
++//
+ // This program is distributed in the hope that it will be useful,
+ // but WITHOUT ANY WARRANTY; without even the implied warranty of
+ // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ // GNU General Public License for more details.
+-// 
++//
+ // You should have received a copy of the GNU General Public License
+ // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ 
+ #include "VerilogReader.hh"
+ 
+ #include <stdlib.h>
++#include <iostream>
+ 
+ #include "DisallowCopyAssign.hh"
+ #include "Debug.hh"
+@@ -27,6 +28,7 @@
+ #include "PortDirection.hh"
+ #include "Network.hh"
+ #include "VerilogNamespace.hh"
++#include "third_party/open_road/src/sta/include/sta/StringUtil.hh"
+ #include "verilog/VerilogReaderPvt.hh"
+ 
+ extern int
+@@ -259,6 +261,7 @@ void
+ VerilogReader::makeModule(const char *name,
+ 			  VerilogNetSeq *ports,
+ 			  VerilogStmtSeq *stmts,
++        VerilogAttributeStmtSeq *attribute_stmts,
+ 			  int line)
+ {
+   Cell *cell = network_->findCell(library_, name);
+@@ -269,7 +272,7 @@ VerilogReader::makeModule(const char *na
+     network_->deleteCell(cell);
+   }
+   VerilogModule *module = new VerilogModule(name, ports, stmts,
+-					    filename_, line, this);
++					    attribute_stmts, filename_, line, this);
+   cell = network_->makeCell(library_, name, false, filename_);
+   module_map_[cell] = module;
+   makeCellPorts(cell, module, ports);
+@@ -280,6 +283,7 @@ void
+ VerilogReader::makeModule(const char *name,
+ 			  VerilogStmtSeq *port_dcls,
+ 			  VerilogStmtSeq *stmts,
++        VerilogAttributeStmtSeq *attribute_stmts,
+ 			  int line)
+ {
+   VerilogNetSeq *ports = new VerilogNetSeq;
+@@ -297,7 +301,7 @@ VerilogReader::makeModule(const char *na
+     }
+   }
+   delete port_dcls;
+-  makeModule(name, ports, stmts, line);
++  makeModule(name, ports, stmts, attribute_stmts, line);
+ }
+ 
+ void
+@@ -397,6 +401,7 @@ VerilogReader::checkModuleDcls(VerilogMo
+ VerilogDcl *
+ VerilogReader::makeDcl(PortDirection *dir,
+ 		       VerilogDclArgSeq *args,
++           VerilogAttributeStmtSeq* attribute_stmts,
+ 		       int line)
+ {
+   if (dir->isInternal()) {
+@@ -416,24 +421,25 @@ VerilogReader::makeDcl(PortDirection *di
+     delete args;
+     if (assign_args) {
+       dcl_count_++;
+-      return new VerilogDcl(dir, assign_args, line);
++      return new VerilogDcl(dir, assign_args, attribute_stmts, line);
+     }
+     else
+       return nullptr;
+   }
+   else {
+     dcl_count_++;
+-    return new VerilogDcl(dir, args, line);
++    return new VerilogDcl(dir, args, attribute_stmts, line);
+   }
+ }
+ 
+ VerilogDcl *
+ VerilogReader::makeDcl(PortDirection *dir,
+ 		       VerilogDclArg *arg,
++           VerilogAttributeStmtSeq* attribute_stmts,
+ 		       int line)
+ {
+   dcl_count_++;
+-  return new VerilogDcl(dir, arg, line);
++  return new VerilogDcl(dir, arg, attribute_stmts, line);
+ }
+ 
+ VerilogDclBus *
+@@ -441,10 +447,12 @@ VerilogReader::makeDclBus(PortDirection 
+ 			  int from_index,
+ 			  int to_index,
+ 			  VerilogDclArg *arg,
++        VerilogAttributeStmtSeq* attribute_stmts,
+ 			  int line)
+ {
+   dcl_bus_count_++;
+-  return new VerilogDclBus(dir, from_index, to_index, arg, line);
++  return new VerilogDclBus(dir, from_index, to_index, arg, attribute_stmts,
++                           line);
+ }
+ 
+ VerilogDclBus *
+@@ -452,10 +460,12 @@ VerilogReader::makeDclBus(PortDirection 
+ 			  int from_index,
+ 			  int to_index,
+ 			  VerilogDclArgSeq *args,
++        VerilogAttributeStmtSeq* attribute_stmts,
+ 			  int line)
+ {
+   dcl_bus_count_++;
+-  return new VerilogDclBus(dir, from_index, to_index, args, line);
++  return new VerilogDclBus(dir, from_index, to_index, args, attribute_stmts,
++                           line);
+ }
+ 
+ VerilogDclArg *
+@@ -522,6 +532,7 @@ VerilogInst *
+ VerilogReader::makeModuleInst(const char *module_name,
+ 			      const char *inst_name,
+ 			      VerilogNetSeq *pins,
++            VerilogAttributeStmtSeq* attribute_stmts,
+ 			      const int line)
+ {
+   Cell *cell = network_->findAnyCell(module_name);
+@@ -560,7 +571,7 @@ VerilogReader::makeModuleInst(const char
+       net_port_ref_scalar_net_count_--;
+     }
+     VerilogInst *inst = new VerilogLibertyInst(liberty_cell, inst_name,
+-					       net_names, line);
++					       net_names, attribute_stmts, line);
+     stringDelete(module_name);
+     delete pins;
+     if (report_stmt_stats_) {
+@@ -571,7 +582,7 @@ VerilogReader::makeModuleInst(const char
+     return inst;
+   }
+   else {
+-    VerilogInst *inst = new VerilogModuleInst(module_name, inst_name, pins, line);
++    VerilogInst *inst = new VerilogModuleInst(module_name, inst_name, pins, attribute_stmts, line);
+     if (report_stmt_stats_) {
+       inst_module_names_ += strlen(module_name) + 1;
+       inst_names_ += strlen(inst_name) + 1;
+@@ -768,6 +779,7 @@ VerilogReader::netVerilogName(const char
+ VerilogModule::VerilogModule(const char *name,
+ 			     VerilogNetSeq *ports,
+ 			     VerilogStmtSeq *stmts,
++           VerilogAttributeStmtSeq *attribute_stmts,
+ 			     const char *filename,
+ 			     int line,
+ 			     VerilogReader *reader) :
+@@ -775,7 +787,8 @@ VerilogModule::VerilogModule(const char 
+   name_(name),
+   filename_(filename),
+   ports_(ports),
+-  stmts_(stmts)
++  stmts_(stmts),
++  attribute_stmts_(attribute_stmts)
+ {
+   parseStmts(reader);
+ }
+@@ -786,6 +799,8 @@ VerilogModule::~VerilogModule()
+   delete ports_;
+   stmts_->deleteContents();
+   delete stmts_;
++  attribute_stmts_->deleteContents();
++  delete attribute_stmts_;
+   stringDelete(name_);
+ }
+ 
+@@ -880,15 +895,19 @@ VerilogStmt::VerilogStmt(int line) :
+ }
+ 
+ VerilogInst::VerilogInst(const char *inst_name,
++         VerilogAttributeStmtSeq* attribute_stmts,
+ 				 const int line) :
+   VerilogStmt(line),
+-  inst_name_(inst_name)
++  inst_name_(inst_name),
++  attribute_stmts_(attribute_stmts)
+ {
+ }
+ 
+ VerilogInst::~VerilogInst()
+ {
+   stringDelete(inst_name_);
++  attribute_stmts_->deleteContents();
++  delete attribute_stmts_;
+ }
+ 
+ void
+@@ -901,8 +920,9 @@ VerilogInst::setInstanceName(const char 
+ VerilogModuleInst::VerilogModuleInst(const char *module_name,
+ 				     const char *inst_name,
+ 				     VerilogNetSeq *pins,
++             VerilogAttributeStmtSeq* attribute_stmts,
+ 				     int line) :
+-  VerilogInst(inst_name, line),
++  VerilogInst(inst_name, attribute_stmts, line),
+   module_name_(module_name),
+   pins_(pins)
+ {
+@@ -936,8 +956,9 @@ VerilogModuleInst::namedPins()
+ VerilogLibertyInst::VerilogLibertyInst(LibertyCell *cell,
+ 				       const char *inst_name,
+ 				       const char **net_names,
++               VerilogAttributeStmtSeq* attribute_stmts,
+ 				       const int line) :
+-  VerilogInst(inst_name, line),
++  VerilogInst(inst_name, attribute_stmts, line),
+   cell_(cell),
+   net_names_(net_names)
+ {
+@@ -957,27 +978,33 @@ VerilogLibertyInst::~VerilogLibertyInst(
+ 
+ VerilogDcl::VerilogDcl(PortDirection *dir,
+ 		       VerilogDclArgSeq *args,
++           VerilogAttributeStmtSeq* attribute_stmts,
+ 		       int line) :
+   VerilogStmt(line),
+   dir_(dir),
+-  args_(args)
++  args_(args),
++  attribute_stmts_(attribute_stmts)
+ {
+ }
+ 
+ VerilogDcl::VerilogDcl(PortDirection *dir,
+ 		       VerilogDclArg *arg,
++           VerilogAttributeStmtSeq* attribute_stmts,
+ 		       int line) :
+   VerilogStmt(line),
+   dir_(dir)
+ {
+   args_ = new VerilogDclArgSeq;
+   args_->push_back(arg);
++  attribute_stmts_ = attribute_stmts;
+ }
+ 
+ VerilogDcl::~VerilogDcl()
+ {
+   args_->deleteContents();
+   delete args_;
++  attribute_stmts_->deleteContents();
++  delete attribute_stmts_;
+ }
+ 
+ void
+@@ -996,8 +1023,9 @@ VerilogDclBus::VerilogDclBus(PortDirecti
+ 			     int from_index,
+ 			     int to_index,
+ 			     VerilogDclArgSeq *args,
++           VerilogAttributeStmtSeq* attribute_stmts,
+ 			     int line) :
+-  VerilogDcl(dir, args, line),
++  VerilogDcl(dir, args, attribute_stmts, line),
+   from_index_(from_index),
+   to_index_(to_index)
+ {
+@@ -1007,8 +1035,9 @@ VerilogDclBus::VerilogDclBus(PortDirecti
+ 			     int from_index,
+ 			     int to_index,
+ 			     VerilogDclArg *arg,
++           VerilogAttributeStmtSeq* attribute_stmts,
+ 			     int line) :
+-  VerilogDcl(dir, arg, line),
++  VerilogDcl(dir, arg, attribute_stmts, line),
+   from_index_(from_index),
+   to_index_(to_index)
+ {
+@@ -1662,6 +1691,51 @@ VerilogNetPortRefPart::name()
+   return name_;
+ }
+ 
++VerilogAttributeEntry::VerilogAttributeEntry(const char *key,
++               const char * value) :
++  key_(key),
++  value_(value)
++{
++}
++
++VerilogAttributeEntry::~VerilogAttributeEntry()
++{
++  stringDelete(key_);
++  stringDelete(value_);
++}
++
++
++const char *
++VerilogAttributeEntry::key()
++{
++  return key_;
++}
++
++const char *
++VerilogAttributeEntry::value()
++{
++  return value_;
++}
++
++VerilogAttributeStmt::VerilogAttributeStmt(
++    VerilogAttributeEntrySeq* attribute_sequence):
++    attribute_sequence_(attribute_sequence)
++{
++}
++
++VerilogAttributeStmt::~VerilogAttributeStmt()
++{
++  attribute_sequence_->deleteContents();
++  delete attribute_sequence_;
++}
++
++VerilogAttributeEntrySeq*
++VerilogAttributeStmt::attribute_sequence()
++{
++  return attribute_sequence_;
++}
++
++
+ ////////////////////////////////////////////////////////////////
+ //
+ // Link verilog network
+@@ -2161,7 +2235,7 @@ VerilogBindingTbl::find(const char *name
+ }
+ 
+ void
+-VerilogBindingTbl::bind(const char *name, 
++VerilogBindingTbl::bind(const char *name,
+ 			Net *net)
+ {
+   map_[name] = net;
+diff --git a/verilog/VerilogReaderPvt.hh b/verilog/VerilogReaderPvt.hh
+--- a/verilog/VerilogReaderPvt.hh
++++ b/verilog/VerilogReaderPvt.hh
+@@ -1,16 +1,16 @@
+ // OpenSTA, Static Timing Analyzer
+ // Copyright (c) 2021, Parallax Software, Inc.
+-// 
++//
+ // This program is free software: you can redistribute it and/or modify
+ // it under the terms of the GNU General Public License as published by
+ // the Free Software Foundation, either version 3 of the License, or
+ // (at your option) any later version.
+-// 
++//
+ // This program is distributed in the hope that it will be useful,
+ // but WITHOUT ANY WARRANTY; without even the implied warranty of
+ // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ // GNU General Public License for more details.
+-// 
++//
+ // You should have received a copy of the GNU General Public License
+ // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ 
+@@ -35,6 +35,8 @@ namespace sta {
+ 
+ class Debug;
+ class Report;
++class VerilogAttributeEntry;
++class VerilogAttributeStmt;
+ class VerilogReader;
+ class VerilogStmt;
+ class VerilogNet;
+@@ -58,6 +60,8 @@ class VerilogNetPortRef;
+ class VerilogError;
+ class LibertyCell;
+ 
++typedef Vector<VerilogAttributeStmt*> VerilogAttributeStmtSeq;
++typedef Vector<VerilogAttributeEntry*> VerilogAttributeEntrySeq;
+ typedef Vector<VerilogNet*> VerilogNetSeq;
+ typedef Vector<VerilogStmt*> VerilogStmtSeq;
+ typedef Map<const char*, VerilogDcl*, CharPtrLess> VerilogDclMap;
+@@ -87,16 +91,20 @@ public:
+   void makeModule(const char *module_name,
+ 		  VerilogNetSeq *ports,
+ 		  VerilogStmtSeq *stmts,
++      VerilogAttributeStmtSeq *attribute_stmts,
+ 		  int line);
+   void makeModule(const char *module_name,
+ 		  VerilogStmtSeq *port_dcls,
+ 		  VerilogStmtSeq *stmts,
++      VerilogAttributeStmtSeq *attribute_stmts,
+ 		  int line);
+   VerilogDcl *makeDcl(PortDirection *dir,
+ 		      VerilogDclArgSeq *args,
++          VerilogAttributeStmtSeq* attribute_stmts,
+ 		      int line);
+   VerilogDcl *makeDcl(PortDirection *dir,
+ 		      VerilogDclArg *arg,
++          VerilogAttributeStmtSeq* attribute_stmts,
+ 		      int line);
+   VerilogDclArg *makeDclArg(const char *net_name);
+   VerilogDclArg*makeDclArg(VerilogAssign *assign);
+@@ -104,15 +112,18 @@ public:
+ 			    int from_index,
+ 			    int to_index,
+ 			    VerilogDclArg *arg,
++          VerilogAttributeStmtSeq* attribute_stmts,
+ 			    int line);
+   VerilogDclBus *makeDclBus(PortDirection *dir,
+ 			    int from_index,
+ 			    int to_index,
+ 			    VerilogDclArgSeq *args,
++          VerilogAttributeStmtSeq* attribute_stmts,
+ 			    int line);
+   VerilogInst *makeModuleInst(const char *module_name,
+ 			      const char *inst_name,
+ 			      VerilogNetSeq *pins,
++            VerilogAttributeStmtSeq* attribute_stmts,
+ 			      const int line);
+   VerilogAssign *makeAssign(VerilogNet *lhs,
+ 			    VerilogNet *rhs,
+@@ -328,12 +339,14 @@ public:
+   VerilogModule(const char *name,
+ 		VerilogNetSeq *ports,
+ 		VerilogStmtSeq *stmts,
++    VerilogAttributeStmtSeq *attribute_stmts,
+ 		const char *filename,
+ 		int line,
+ 		VerilogReader *reader);
+   virtual ~VerilogModule();
+   const char *name() { return name_; }
+   const char *filename() { return filename_; }
++  VerilogAttributeStmtSeq *attribute_stmts() { return attribute_stmts_; }
+   VerilogNetSeq *ports() { return ports_; }
+   VerilogDcl *declaration(const char *net_name);
+   VerilogStmtSeq *stmts() { return stmts_; }
+@@ -353,6 +366,7 @@ private:
+   VerilogNetSeq *ports_;
+   VerilogStmtSeq *stmts_;
+   VerilogDclMap dcl_map_;
++  VerilogAttributeStmtSeq *attribute_stmts_;
+ };
+ 
+ class VerilogDcl : public VerilogStmt
+@@ -360,9 +374,11 @@ class VerilogDcl : public VerilogStmt
+ public:
+   VerilogDcl(PortDirection *dir,
+ 	     VerilogDclArgSeq *args,
++       VerilogAttributeStmtSeq *attribute_stmts,
+ 	     int line);
+   VerilogDcl(PortDirection *dir,
+ 	     VerilogDclArg *arg,
++       VerilogAttributeStmtSeq *attribute_stmts,
+ 	     int line);
+   virtual ~VerilogDcl();
+   const char *portName();
+@@ -379,6 +395,7 @@ private:
+ 
+   PortDirection *dir_;
+   VerilogDclArgSeq *args_;
++  VerilogAttributeStmtSeq *attribute_stmts_;
+ };
+ 
+ class VerilogDclBus : public VerilogDcl
+@@ -388,11 +405,13 @@ public:
+ 		int from_index,
+ 		int to_index,
+ 		VerilogDclArgSeq *args,
++    VerilogAttributeStmtSeq* attribute_stmts,
+ 		int line);
+   VerilogDclBus(PortDirection *dir,
+ 		int from_index,
+ 		int to_index,
+ 		VerilogDclArg *arg,
++    VerilogAttributeStmtSeq* attribute_stmts,
+ 		int line);
+   virtual bool isBus() const { return true; }
+   int fromIndex() const { return from_index_; }
+@@ -446,16 +465,19 @@ class VerilogInst : public VerilogStmt
+ {
+ public:
+   VerilogInst(const char *inst_name,
++      VerilogAttributeStmtSeq* attribute_stmts,
+ 		  const int line);
+   virtual ~VerilogInst();
+   virtual bool isInstance() const { return true; }
+   const char *instanceName() const { return inst_name_; }
++  VerilogAttributeStmtSeq* attribute_stmts() const { return attribute_stmts_; }
+   void setInstanceName(const char *inst_name);
+ 
+ private:
+   DISALLOW_COPY_AND_ASSIGN(VerilogInst);
+ 
+   const char *inst_name_;
++  VerilogAttributeStmtSeq* attribute_stmts_;
+ };
+ 
+ class VerilogModuleInst : public VerilogInst
+@@ -464,6 +486,7 @@ public:
+   VerilogModuleInst(const char *module_name,
+ 		    const char *inst_name,
+ 		    VerilogNetSeq *pins,
++        VerilogAttributeStmtSeq* attribute_stmts,
+ 		    const int line);
+   virtual ~VerilogModuleInst();
+   virtual bool isModuleInst() const { return true; }
+@@ -488,6 +511,7 @@ public:
+   VerilogLibertyInst(LibertyCell *cell,
+ 		     const char *inst_name,
+ 		     const char **net_names,
++         VerilogAttributeStmtSeq* attribute_stmts,
+ 		     const int line);
+   virtual ~VerilogLibertyInst();
+   virtual bool isLibertyInst() const { return true; }
+@@ -729,4 +753,32 @@ class VerilogNetNameIterator : public It
+ {
+ };
+ 
++class VerilogAttributeStmt
++{
++public:
++  VerilogAttributeStmt(VerilogAttributeEntrySeq *attribute_sequence);
++  VerilogAttributeEntrySeq *attribute_sequence();
++  virtual ~VerilogAttributeStmt();
++
++private:
++  DISALLOW_COPY_AND_ASSIGN(VerilogAttributeStmt);
++  VerilogAttributeEntrySeq *attribute_sequence_;
++
++};
++
++class VerilogAttributeEntry
++{
++public:
++  VerilogAttributeEntry(const char *key, const char *value);
++  virtual const char *key();
++  virtual const char *value();
++  virtual ~VerilogAttributeEntry();
++
++private:
++  DISALLOW_COPY_AND_ASSIGN(VerilogAttributeEntry);
++  const char *key_;
++  const char *value_;
++
++};
++
+ } // namespace

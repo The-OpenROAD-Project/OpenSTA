@@ -26,6 +26,7 @@
 #include "PortDirection.hh"
 #include "Network.hh"
 #include "VerilogNamespace.hh"
+#include "StringUtil.hh"
 #include "verilog/VerilogReaderPvt.hh"
 
 extern int
@@ -253,6 +254,7 @@ void
 VerilogReader::makeModule(const char *module_vname,
 			  VerilogNetSeq *ports,
 			  VerilogStmtSeq *stmts,
+        VerilogAttributeStmtSeq *attribute_stmts,
 			  int line)
 {
   const char *module_name = moduleVerilogToSta(module_vname);
@@ -264,8 +266,15 @@ VerilogReader::makeModule(const char *module_vname,
     network_->deleteCell(cell);
   }
   VerilogModule *module = new VerilogModule(module_name, ports, stmts,
-					    filename_, line, this);
+					    attribute_stmts, filename_, line, this);
   cell = network_->makeCell(library_, module_name, false, filename_);
+
+  for (VerilogAttributeStmt *stmt : *attribute_stmts) {
+    for (VerilogAttributeEntry *entry : *stmt->attribute_sequence()) {
+      network_->setAttribute(cell, entry->key(), entry->value());
+    }
+  } 
+  
   module_map_[cell] = module;
   makeCellPorts(cell, module, ports);
   module_count_++;
@@ -276,6 +285,7 @@ void
 VerilogReader::makeModule(const char *module_name,
 			  VerilogStmtSeq *port_dcls,
 			  VerilogStmtSeq *stmts,
+        VerilogAttributeStmtSeq *attribute_stmts,
 			  int line)
 {
   VerilogNetSeq *ports = new VerilogNetSeq;
@@ -292,7 +302,7 @@ VerilogReader::makeModule(const char *module_name,
     }
   }
   delete port_dcls;
-  makeModule(module_name, ports, stmts, line);
+  makeModule(module_name, ports, stmts, attribute_stmts, line);
 }
 
 void
@@ -392,6 +402,7 @@ VerilogReader::checkModuleDcls(VerilogModule *module,
 VerilogDcl *
 VerilogReader::makeDcl(PortDirection *dir,
 		       VerilogDclArgSeq *args,
+           VerilogAttributeStmtSeq* attribute_stmts,
 		       int line)
 {
   if (dir->isInternal()) {
@@ -411,24 +422,25 @@ VerilogReader::makeDcl(PortDirection *dir,
     delete args;
     if (assign_args) {
       dcl_count_++;
-      return new VerilogDcl(dir, assign_args, line);
+      return new VerilogDcl(dir, assign_args, attribute_stmts, line);
     }
     else
       return nullptr;
   }
   else {
     dcl_count_++;
-    return new VerilogDcl(dir, args, line);
+    return new VerilogDcl(dir, args, attribute_stmts, line);
   }
 }
 
 VerilogDcl *
 VerilogReader::makeDcl(PortDirection *dir,
 		       VerilogDclArg *arg,
+           VerilogAttributeStmtSeq* attribute_stmts,
 		       int line)
 {
   dcl_count_++;
-  return new VerilogDcl(dir, arg, line);
+  return new VerilogDcl(dir, arg, attribute_stmts, line);
 }
 
 VerilogDclBus *
@@ -436,10 +448,12 @@ VerilogReader::makeDclBus(PortDirection *dir,
 			  int from_index,
 			  int to_index,
 			  VerilogDclArg *arg,
+        VerilogAttributeStmtSeq* attribute_stmts,
 			  int line)
 {
   dcl_bus_count_++;
-  return new VerilogDclBus(dir, from_index, to_index, arg, line);
+  return new VerilogDclBus(dir, from_index, to_index, arg, attribute_stmts,
+                           line);
 }
 
 VerilogDclBus *
@@ -447,10 +461,12 @@ VerilogReader::makeDclBus(PortDirection *dir,
 			  int from_index,
 			  int to_index,
 			  VerilogDclArgSeq *args,
+        VerilogAttributeStmtSeq* attribute_stmts,
 			  int line)
 {
   dcl_bus_count_++;
-  return new VerilogDclBus(dir, from_index, to_index, args, line);
+  return new VerilogDclBus(dir, from_index, to_index, args, attribute_stmts,
+                           line);
 }
 
 VerilogDclArg *
@@ -530,6 +546,7 @@ VerilogInst *
 VerilogReader::makeModuleInst(const char *module_vname,
 			      const char *inst_vname,
 			      VerilogNetSeq *pins,
+            VerilogAttributeStmtSeq* attribute_stmts,
 			      const int line)
 {
   const char *module_name = moduleVerilogToSta(module_vname);
@@ -570,7 +587,7 @@ VerilogReader::makeModuleInst(const char *module_vname,
       net_port_ref_scalar_net_count_--;
     }
     VerilogInst *inst = new VerilogLibertyInst(liberty_cell, inst_name,
-					       net_names, line);
+					       net_names, attribute_stmts, line);
     delete pins;
     if (report_stmt_stats_) {
       inst_names_ += strlen(inst_name) + 1;
@@ -582,7 +599,7 @@ VerilogReader::makeModuleInst(const char *module_vname,
     return inst;
   }
   else {
-    VerilogInst *inst = new VerilogModuleInst(module_name, inst_name, pins, line);
+    VerilogInst *inst = new VerilogModuleInst(module_name, inst_name, pins, attribute_stmts, line);
     if (report_stmt_stats_) {
       inst_module_names_ += strlen(module_name) + 1;
       inst_names_ += strlen(inst_name) + 1;
@@ -800,6 +817,7 @@ VerilogReader::netVerilogName(const char *net_name)
 VerilogModule::VerilogModule(const char *name,
 			     VerilogNetSeq *ports,
 			     VerilogStmtSeq *stmts,
+           VerilogAttributeStmtSeq *attribute_stmts,
 			     const char *filename,
 			     int line,
 			     VerilogReader *reader) :
@@ -807,7 +825,8 @@ VerilogModule::VerilogModule(const char *name,
   name_(stringCopy(name)),
   filename_(filename),
   ports_(ports),
-  stmts_(stmts)
+  stmts_(stmts),
+  attribute_stmts_(attribute_stmts)
 {
   parseStmts(reader);
 }
@@ -818,6 +837,8 @@ VerilogModule::~VerilogModule()
   delete ports_;
   stmts_->deleteContents();
   delete stmts_;
+  attribute_stmts_->deleteContents();
+  delete attribute_stmts_;
   stringDelete(name_);
 }
 
@@ -914,15 +935,19 @@ VerilogStmt::VerilogStmt(int line) :
 }
 
 VerilogInst::VerilogInst(const char *inst_name,
+         VerilogAttributeStmtSeq* attribute_stmts,
                          const int line) :
   VerilogStmt(line),
-  inst_name_(stringCopy(inst_name))
+  inst_name_(stringCopy(inst_name)),
+  attribute_stmts_(attribute_stmts)
 {
 }
 
 VerilogInst::~VerilogInst()
 {
   stringDelete(inst_name_);
+  attribute_stmts_->deleteContents();
+  delete attribute_stmts_;
 }
 
 void
@@ -935,8 +960,9 @@ VerilogInst::setInstanceName(const char *inst_name)
 VerilogModuleInst::VerilogModuleInst(const char *module_name,
 				     const char *inst_name,
 				     VerilogNetSeq *pins,
+             VerilogAttributeStmtSeq* attribute_stmts,
 				     int line) :
-  VerilogInst(inst_name, line),
+  VerilogInst(inst_name, attribute_stmts, line),
   module_name_(stringCopy(module_name)),
   pins_(pins)
 {
@@ -970,8 +996,9 @@ VerilogModuleInst::namedPins()
 VerilogLibertyInst::VerilogLibertyInst(LibertyCell *cell,
 				       const char *inst_name,
 				       const char **net_names,
+               VerilogAttributeStmtSeq* attribute_stmts,
 				       const int line) :
-  VerilogInst(inst_name, line),
+  VerilogInst(inst_name, attribute_stmts, line),
   cell_(cell),
   net_names_(net_names)
 {
@@ -991,27 +1018,33 @@ VerilogLibertyInst::~VerilogLibertyInst()
 
 VerilogDcl::VerilogDcl(PortDirection *dir,
 		       VerilogDclArgSeq *args,
+           VerilogAttributeStmtSeq* attribute_stmts,
 		       int line) :
   VerilogStmt(line),
   dir_(dir),
-  args_(args)
+  args_(args),
+  attribute_stmts_(attribute_stmts)
 {
 }
 
 VerilogDcl::VerilogDcl(PortDirection *dir,
 		       VerilogDclArg *arg,
+           VerilogAttributeStmtSeq* attribute_stmts,
 		       int line) :
   VerilogStmt(line),
   dir_(dir)
 {
   args_ = new VerilogDclArgSeq;
   args_->push_back(arg);
+  attribute_stmts_ = attribute_stmts;
 }
 
 VerilogDcl::~VerilogDcl()
 {
   args_->deleteContents();
   delete args_;
+  attribute_stmts_->deleteContents();
+  delete attribute_stmts_;
 }
 
 void
@@ -1030,8 +1063,9 @@ VerilogDclBus::VerilogDclBus(PortDirection *dir,
 			     int from_index,
 			     int to_index,
 			     VerilogDclArgSeq *args,
+           VerilogAttributeStmtSeq* attribute_stmts,
 			     int line) :
-  VerilogDcl(dir, args, line),
+  VerilogDcl(dir, args, attribute_stmts, line),
   from_index_(from_index),
   to_index_(to_index)
 {
@@ -1041,8 +1075,9 @@ VerilogDclBus::VerilogDclBus(PortDirection *dir,
 			     int from_index,
 			     int to_index,
 			     VerilogDclArg *arg,
+           VerilogAttributeStmtSeq* attribute_stmts,
 			     int line) :
-  VerilogDcl(dir, arg, line),
+  VerilogDcl(dir, arg, attribute_stmts, line),
   from_index_(from_index),
   to_index_(to_index)
 {
@@ -1676,6 +1711,51 @@ VerilogNetPortRefPart::name()
   return name_;
 }
 
+VerilogAttributeEntry::VerilogAttributeEntry(const char *key,
+               const char * value) :
+  key_(key),
+  value_(value)
+{
+}
+
+VerilogAttributeEntry::~VerilogAttributeEntry()
+{
+  stringDelete(key_);
+  stringDelete(value_);
+}
+
+
+const char *
+VerilogAttributeEntry::key()
+{
+  return key_;
+}
+
+const char *
+VerilogAttributeEntry::value()
+{
+  return value_;
+}
+
+VerilogAttributeStmt::VerilogAttributeStmt(
+    VerilogAttributeEntrySeq* attribute_sequence):
+    attribute_sequence_(attribute_sequence)
+{
+}
+
+VerilogAttributeStmt::~VerilogAttributeStmt()
+{
+  attribute_sequence_->deleteContents();
+  delete attribute_sequence_;
+}
+
+VerilogAttributeEntrySeq*
+VerilogAttributeStmt::attribute_sequence()
+{
+  return attribute_sequence_;
+}
+
+
 ////////////////////////////////////////////////////////////////
 //
 // Link verilog network
@@ -1832,6 +1912,13 @@ VerilogReader::makeModuleInstNetwork(VerilogModuleInst *mod_inst,
       cell = network_->cell(lib_cell);
     Instance *inst = network_->makeInstance(cell, mod_inst->instanceName(),
 					    parent);
+    VerilogAttributeStmtSeq *attribute_stmts = mod_inst->attribute_stmts();
+    for (VerilogAttributeStmt *stmt : *attribute_stmts) {
+      for (VerilogAttributeEntry *entry : *stmt->attribute_sequence()) {
+        network_->setAttribute(inst, entry->key(), entry->value());
+      }
+    }
+
     if (lib_cell) {
       // Make all pins so timing arcs are built.
       LibertyCellPortBitIterator port_iter(lib_cell);
@@ -2012,6 +2099,12 @@ VerilogReader::makeLibertyInst(VerilogLibertyInst *lib_inst,
   Cell *cell = reinterpret_cast<Cell*>(lib_cell);
   Instance *inst = network_->makeInstance(cell, lib_inst->instanceName(),
 					  parent);
+  VerilogAttributeStmtSeq *attribute_stmts = lib_inst->attribute_stmts();
+  for (VerilogAttributeStmt *stmt : *attribute_stmts) {
+    for (VerilogAttributeEntry *entry : *stmt->attribute_sequence()) {
+      network_->setAttribute(inst, entry->key(), entry->value());
+    }
+  }
   const char **net_names = lib_inst->netNames();
   LibertyCellPortBitIterator port_iter(lib_cell);
   while (port_iter.hasNext()) {
@@ -2174,7 +2267,7 @@ VerilogBindingTbl::find(const char *name, NetworkReader *network)
 }
 
 void
-VerilogBindingTbl::bind(const char *name, 
+VerilogBindingTbl::bind(const char *name,
 			Net *net)
 {
   map_[name] = net;

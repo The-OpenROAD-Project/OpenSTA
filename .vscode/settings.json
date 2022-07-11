@@ -1,0 +1,10 @@
+{
+    "cmake.configureSettings": {
+        "TCL_LIBRARY": "/usr/local/opt/tcl-tk/lib/libtcl8.6.dylib",
+        "TCL_HEADER": "/usr/local/opt/tcl-tk/include"
+    },
+    "files.associations": {
+        "map": "cpp",
+        "vector": "cpp"
+    }
+}

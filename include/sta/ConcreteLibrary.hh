@@ -38,6 +38,7 @@ class LibertyCell;
 class LibertyPort;
 
 typedef Map<const char*, ConcreteCell*, CharPtrLess> ConcreteCellMap;
+typedef Map<std::string, const char*> AttributeMap;
 typedef Vector<ConcretePort*> ConcretePortSeq;
 typedef Map<const char*, ConcretePort*, CharPtrLess> ConcretePortMap;
 typedef ConcreteCellMap::ConstIterator ConcreteLibraryCellIterator;
@@ -105,6 +106,8 @@ public:
   ConcreteCellPortBitIterator *portBitIterator() const;
   bool isLeaf() const { return is_leaf_; }
   void setIsLeaf(bool is_leaf);
+  void setAttribute(const char *key, const char *value);
+  const char *getAttribute(const char *key) const;
 
   // Cell acts as port factory.
   ConcretePort *makePort(const char *name);
@@ -158,6 +161,7 @@ protected:
   // Port bit count (expanded buses).
   int port_bit_count_;
   bool is_leaf_;
+  AttributeMap attribute_map_;
 
 private:
   friend class ConcreteLibrary;

@@ -5450,11 +5450,13 @@ void finish() { delete self; }
 } // LibertyLibraryIterator methods
 
 %extend Cell {
+const char *name() { return cmdNetwork()->name(self); }
 Library *library() { return cmdNetwork()->library(self); }
 LibertyCell *liberty_cell() { return cmdNetwork()->libertyCell(self); }
 bool is_leaf() { return cmdNetwork()->isLeaf(self); }
 CellPortIterator *
 port_iterator() { return cmdNetwork()->portIterator(self); }
+const char *get_attribute(const char *key) { return cmdNetwork()->getAttribute(self, key); }
 
 Port *
 find_port(const char *name)

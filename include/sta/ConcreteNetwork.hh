@@ -38,6 +38,7 @@ class ConcreteBindingTbl;
 class ConcreteLibertyLibraryIterator;
 
 typedef Vector<ConcreteLibrary*> ConcreteLibrarySeq;
+typedef Map<std::string, const char*> AttributeMap;
 typedef Map<const char*, ConcreteLibrary*, CharPtrLess> ConcreteLibraryMap;
 typedef ConcreteLibrarySeq::ConstIterator ConcreteLibraryIterator;
 typedef Map<const char *, ConcreteInstance*,
@@ -73,6 +74,7 @@ public:
                             const PatternMatch *pattern) const override;
 
   const char *name(const Cell *cell) const override;
+  const char *getAttribute(const Cell *cell, const char *key) const override;
   ObjectId id(const Cell *cell) const override;
   Library *library(const Cell *cell) const override;
   LibertyCell *libertyCell(Cell *cell) const override;
@@ -109,6 +111,7 @@ public:
   PortMemberIterator *memberIterator(const Port *port) const override;
 
   const char *name(const Instance *instance) const override;
+  const char *getAttribute(const Instance *inst, const char *key) const override;
   ObjectId id(const Instance *instance) const override;
   Cell *cell(const Instance *instance) const override;
   Instance *parent(const Instance *instance) const override;
@@ -176,6 +179,9 @@ public:
                const char *name) override;
   void setIsLeaf(Cell *cell,
                  bool is_leaf) override;
+  void setAttribute(Cell *cell,
+			 const char *key,
+       const char *value) override;
   Port *makePort(Cell *cell,
                  const char *name) override;
   Port *makeBusPort(Cell *cell,
@@ -207,6 +213,9 @@ public:
   Pin *connect(Instance *inst,
                LibertyPort *port,
                Net *net) override;
+  void setAttribute(Instance *inst,
+		       const char *key,
+		       const char *value) override;
   void disconnectPin(Pin *pin) override;
   void deletePin(Pin *pin) override;
   Net *makeNet(const char *name,
@@ -286,6 +295,8 @@ public:
   InstanceNetIterator *netIterator() const;
   Instance *findChild(const char *name) const;
   InstanceChildIterator *childIterator() const;
+  void setAttribute(const char *key, const char *value);
+  const char *getAttribute(const char *key) const;
   void addChild(ConcreteInstance *child);
   void deleteChild(ConcreteInstance *child);
   void addPin(ConcretePin *pin);
@@ -311,6 +322,7 @@ protected:
   ConcretePin **pins_;
   ConcreteInstanceChildMap *children_;
   ConcreteInstanceNetMap *nets_;
+  AttributeMap attribute_map_;
 
 private:
   friend class ConcreteNetwork;
