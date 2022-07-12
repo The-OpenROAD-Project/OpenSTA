@@ -143,7 +143,8 @@ ClkNetwork::findClkPins(bool ideal_only,
 bool
 ClkNetwork::isClock(const Pin *pin) const
 {
-  return pin_clks_map_.hasKey(pin);
+  return network_->isRegClkPin(pin)
+    || pin_clks_map_.hasKey(pin);
 }
 
 bool
