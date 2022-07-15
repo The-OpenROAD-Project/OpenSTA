@@ -27,6 +27,8 @@
 #include <algorithm> // abs, min
 #include <cmath>    // sqrt, log
 
+#include <boost/math/special_functions/lambert_w.hpp>
+
 #include "Report.hh"
 #include "Debug.hh"
 #include "Units.hh"
@@ -48,6 +50,8 @@ using std::sqrt;
 using std::log;
 using std::exp;
 using std::isnan;
+using boost::math::lambert_w0;
+
 
 // Tolerance (as a scale of value) for driver parameters (Ceff, delta t, t0).
 static const double driver_param_tol = .01;
@@ -506,8 +510,14 @@ double
 DmpAlg::findVoCrossing(double vth)
 {
   v_cross_ = vth;
-  double ub = voCrossingUpperBound();
-  return findRoot(evalVoEqns, this, t0_, ub, vth_time_tol, find_root_max_iter);
+  // double ub = voCrossingUpperBound();
+  // return findRoot(evalVoEqns, this, t0_, ub, vth_time_tol, find_root_max_iter);
+  double rc_value = (rd_* ceff_);
+  double b = (v_cross_*dt_)/rc_value + 1;
+  double lambert_w = b + lambert_w0(-exp(-b));
+  double vo_crossing_time = (lambert_w * rc_value) + t0_;
+ 
+  return vo_crossing_time;
 }
 
 static void

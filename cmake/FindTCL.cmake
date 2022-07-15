@@ -30,7 +30,7 @@ set(TCL_POSSIBLE_NAMES tcl87 tcl8.7
 # tcl lib path guesses.
 if (NOT TCL_LIB_PATHS)
   if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(TCL_LIB_PATHS /usr/local/lib /opt/homebrew/opt/tcl-tk/lib)
+    set(TCL_LIB_PATHS /usr/local/lib /opt/homebrew/opt/tcl-tk/lib /usr/local/Cellar/tcl-tk/8.6.12_1/lib)
     set(TCL_NO_DEFAULT_PATH TRUE)
   elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(TCL_LIB_PATHS /usr/lib /usr/local/lib)

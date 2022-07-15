@@ -388,6 +388,11 @@ include(FindZLIB)
 
 find_package(Threads)
 
+find_package(Boost)
+
+INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
+
+
 ################################################################
 #
 # Locate CUDD bdd package.
@@ -503,6 +508,8 @@ endif()
 if (CUDD_LIB)
   target_link_libraries(sta ${CUDD_LIB})
 endif()
+
+target_link_libraries(sta ${Boost_LIBRARIES})
 
 message(STATUS "STA executable: ${STA_HOME}/app/sta")
 
