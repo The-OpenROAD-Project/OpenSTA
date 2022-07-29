@@ -1668,7 +1668,13 @@ proc set_clock_uncertainty { args } {
   
   if { [info exists keys(-to)] } {
     set to_key "-to"
-    set to_rf "rise_fall"
+    if { [info exists flags(-rise)] } {
+      set to_rf "rise"
+    } elseif { [info exists flags(-fall)] } {
+      set to_rf "fall"
+    } else {
+      set to_rf "rise_fall"
+    }
   } elseif { [info exists keys(-rise_to)] } {
     set to_key "-rise_to"
     set to_rf "rise"
