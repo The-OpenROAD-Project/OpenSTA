@@ -946,11 +946,10 @@ public:
 			ExceptionStateSet *&states) const;
   // Return hierarchical -thru exceptions that start between
   // from_pin and to_pin.
-  void exceptionThruStates(const Pin *from_pin,
-			   const Pin *to_pin,
-			   const RiseFall *to_rf,
-			   const MinMax *min_max,
-			   ExceptionStateSet *&states) const;
+  ExceptionStateSet *exceptionThruStates(const Pin *from_pin,
+                                         const Pin *to_pin,
+                                         const RiseFall *to_rf,
+                                         const MinMax *min_max) const;
   // Find the highest priority exception with first exception pt at
   // pin/clk end.
   void exceptionTo(ExceptionPathType type,

@@ -5467,13 +5467,13 @@ Sdc::filterRegQStates(const Pin *to_pin,
   }
 }
 
-void
+ExceptionStateSet *
 Sdc::exceptionThruStates(const Pin *from_pin,
 			 const Pin *to_pin,
 			 const RiseFall *to_rf,
-			 const MinMax *min_max,
-			 ExceptionStateSet *&states) const
+			 const MinMax *min_max) const
 {
+  ExceptionStateSet *states = nullptr;
   if (first_thru_pin_exceptions_)
     exceptionThruStates(first_thru_pin_exceptions_->findKey(to_pin),
 			to_rf, min_max, states);
@@ -5489,6 +5489,7 @@ Sdc::exceptionThruStates(const Pin *from_pin,
     exceptionThruStates(first_thru_inst_exceptions_->findKey(to_inst),
 			to_rf, min_max, states);
   }
+  return states;
 }
 
 void

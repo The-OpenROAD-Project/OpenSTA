@@ -2552,35 +2552,40 @@ Search::mutateTag(Tag *from_tag,
     bool state_change = false;
     for (auto state : *from_states) {
       ExceptionPath *exception = state->exception();
-      if (state->isComplete()
-	  && exception->isFalse()
-	  && !from_is_clk)
-	// Don't propagate a completed false path -thru unless it is a
-	// clock (which ignores exceptions).
-	return nullptr;
-
-      if (state->matchesNextThru(from_pin,to_pin,to_rf,min_max,network_)) {
-	// Found a -thru that we've been waiting for.
-	if (state->nextState()->isComplete()
-	    && exception->isLoop())
-	  // to_pin/edge completes a loop path.
-	  return nullptr;
+      // One edge may traverse multiple hierarchical thru pins.
+      while (state->matchesNextThru(from_pin,to_pin,to_rf,min_max,network_)) {
+        // Found a -thru that we've been waiting for.
+        state = state->nextState();
 	state_change = true;
-	break;
+        break;
       }
+      if (state_change)
+        break;
+
+      // Don't propagate a completed false path -thru unless it is a
+      // clock. Clocks carry the completed false path to disable
+      // downstream paths that use the clock as data.
+      if ((state->isComplete()
+           && exception->isFalse()
+           && !from_is_clk)
+          // to_pin/edge completes a loop path.
+          || (exception->isLoop()
+              && state->isComplete()))
+	return nullptr;
 
       // Kill path delay tags past the -to pin.
       if ((exception->isPathDelay()
            && sdc_->isCompleteTo(state, from_pin, from_rf, min_max))
           // Kill loop tags at register clock pins.
-          || (to_is_reg_clk
-              && exception->isLoop())) {
+          || (exception->isLoop()
+              && to_is_reg_clk)) {
 	state_change = true;
-	break;
+        break;
       }
     }
+
     // Get the set of -thru exceptions starting at to_pin/edge.
-    sdc_->exceptionThruStates(from_pin, to_pin, to_rf, min_max, new_states);
+    new_states = sdc_->exceptionThruStates(from_pin, to_pin, to_rf, min_max);
     if (new_states || state_change) {
       // Second pass to apply state changes and add updated existing
       // states to new states.
@@ -2588,26 +2593,23 @@ Search::mutateTag(Tag *from_tag,
 	new_states = new ExceptionStateSet;
       for (auto state : *from_states) {
 	ExceptionPath *exception = state->exception();
-	if (state->isComplete()
-	    && exception->isFalse()
-	    && !from_is_clk) {
-	  // Don't propagate a completed false path -thru unless it is a
-	  // clock. Clocks carry the completed false path to disable
-	  // downstream paths that use the clock as data.
-	  delete new_states;
-	  return nullptr;
-	}
 	// One edge may traverse multiple hierarchical thru pins.
 	while (state->matchesNextThru(from_pin,to_pin,to_rf,min_max,network_))
 	  // Found a -thru that we've been waiting for.
 	  state = state->nextState();
 
-	if (state->isComplete()
-	    && exception->isLoop()) {
-	  // to_pin/edge completes a loop path.
-	  delete new_states;
-	  return nullptr;
-	}
+      // Don't propagate a completed false path -thru unless it is a
+      // clock. Clocks carry the completed false path to disable
+      // downstream paths that use the clock as data.
+      if ((state->isComplete()
+           && exception->isFalse()
+           && !from_is_clk)
+          // to_pin/edge completes a loop path.
+          || (exception->isLoop()
+              && state->isComplete())) {
+        delete new_states;
+	return nullptr;
+      }
 
         // Kill path delay tags past the -to pin.
 	if (!((exception->isPathDelay()
@@ -2621,7 +2623,7 @@ Search::mutateTag(Tag *from_tag,
   }
   else
     // Get the set of -thru exceptions starting at to_pin/edge.
-    sdc_->exceptionThruStates(from_pin, to_pin, to_rf, min_max, new_states);
+    new_states = sdc_->exceptionThruStates(from_pin, to_pin, to_rf, min_max);
 
   if (new_states)
     return findTag(to_rf, path_ap, to_clk_info, to_is_clk,
