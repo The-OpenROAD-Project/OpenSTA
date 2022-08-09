@@ -5620,6 +5620,20 @@ Sdc::isCompleteTo(ExceptionState *state,
 			  min_max, match_min_max_exactly, require_to_pin);
 }
 
+bool
+Sdc::isCompleteTo(ExceptionState *state,
+		  const Pin *pin,
+		  const RiseFall *rf,
+		  const MinMax *min_max) const
+{
+  ExceptionPath *exception = state->exception();
+  ExceptionTo *to = exception->to();
+  return state->nextThru() == nullptr
+    && to
+    && exception->matches(min_max, true)
+    && to->matches(pin, rf, network_);
+}
+
 ////////////////////////////////////////////////////////////////
 
 Wireload *

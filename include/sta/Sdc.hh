@@ -976,6 +976,10 @@ public:
 		    const MinMax *min_max,
 		    bool match_min_max_exactly,
 		    bool require_to_pin) const;
+  bool isCompleteTo(ExceptionState *state,
+                    const Pin *pin,
+                    const RiseFall *rf,
+                    const MinMax *min_max) const;
   bool isPathDelayInternalStartpoint(const Pin *pin) const;
   PinSet *pathDelayInternalStartpoints() const;
   bool isPathDelayInternalEndpoint(const Pin *pin) const;

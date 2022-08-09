@@ -1134,11 +1134,9 @@ ArrivalVisitor::visit(Vertex *vertex)
 	  && network->isLatchData(pin))
 	search->enqueueLatchDataOutputs(vertex);
     }
-    if ((!search->arrivalsAtEndpointsExist()
-	 || always_to_endpoints_
-	 || arrivals_changed)
-	&& (network->isRegClkPin(pin)
-	    || !sdc->isPathDelayInternalEndpoint(pin)))
+    if (!search->arrivalsAtEndpointsExist()
+        || always_to_endpoints_
+        || arrivals_changed)
       search->arrivalIterator()->enqueueAdjacentVertices(vertex, adj_pred_);
     if (arrivals_changed) {
       debugPrint(debug, "search", 4, "arrival changed");
@@ -2033,27 +2031,22 @@ PathVisitor::visitEdge(const Pin *from_pin,
     VertexPathIterator from_iter(from_vertex, search);
     while (from_iter.hasNext()) {
       PathVertex *from_path = from_iter.next();
-      Tag *from_tag = from_path->tag(sta_);
-      // Only propagate seeded paths from segment startpoint.
-      if (!search->isSegmentStart(from_pin)
-	  || from_tag->isSegmentStart()) {
-	PathAnalysisPt *path_ap = from_path->pathAnalysisPt(sta_);
-	const MinMax *min_max = path_ap->pathMinMax();
-	const RiseFall *from_rf = from_path->transition(sta_);
-	// Do not propagate paths from a clock source unless they are
-	// defined on the from pin.
-	if (!search->pathPropagatedToClkSrc(from_pin, from_path)) {
-	  TimingArc *arc1, *arc2;
-	  arc_set->arcsFrom(from_rf, arc1, arc2);
-	  if (!visitArc(from_pin, from_vertex, from_rf, from_path,
-			edge, arc1, to_pin, to_vertex,
-			min_max, path_ap))
-	    return false;
-	  if (!visitArc(from_pin, from_vertex, from_rf, from_path,
-			edge, arc2, to_pin, to_vertex,
-			min_max, path_ap))
-	    return false;
-	}
+      PathAnalysisPt *path_ap = from_path->pathAnalysisPt(sta_);
+      const MinMax *min_max = path_ap->pathMinMax();
+      const RiseFall *from_rf = from_path->transition(sta_);
+      // Do not propagate paths from a clock source unless they are
+      // defined on the from pin.
+      if (!search->pathPropagatedToClkSrc(from_pin, from_path)) {
+        TimingArc *arc1, *arc2;
+        arc_set->arcsFrom(from_rf, arc1, arc2);
+        if (!visitArc(from_pin, from_vertex, from_rf, from_path,
+                      edge, arc1, to_pin, to_vertex,
+                      min_max, path_ap))
+          return false;
+        if (!visitArc(from_pin, from_vertex, from_rf, from_path,
+                      edge, arc2, to_pin, to_vertex,
+                      min_max, path_ap))
+          return false;
       }
     }
   }
@@ -2565,6 +2558,10 @@ Search::mutateTag(Tag *from_tag,
 	// Don't propagate a completed false path -thru unless it is a
 	// clock (which ignores exceptions).
 	return nullptr;
+      // Don't propagate path delay tags past the -to pin.
+      if (exception->isPathDelay()
+          && sdc_->isCompleteTo(state, from_pin, from_rf, min_max))
+        return nullptr;
       if (state->matchesNextThru(from_pin,to_pin,to_rf,min_max,network_)) {
 	// Found a -thru that we've been waiting for.
 	if (state->nextState()->isComplete()

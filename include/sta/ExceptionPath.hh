@@ -439,6 +439,9 @@ public:
   bool matches(const Pin *pin,
 	       const RiseFall *end_rf) const;
   bool matches(const Clock *clk) const;
+  bool matches(const Pin *pin,
+               const RiseFall *end_rf,
+               const Network *network) const;
   bool matchesFilter(const Pin *pin,
 		     const ClockEdge *clk_edge,
 		     const RiseFall *end_rf,

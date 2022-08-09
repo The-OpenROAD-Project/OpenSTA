@@ -1467,6 +1467,23 @@ ExceptionTo::matches(const Pin *pin,
 
 bool
 ExceptionTo::matches(const Pin *pin,
+ 		     const RiseFall *end_rf,
+		     const Network *network) const
+{
+  return (pins_
+	  && pins_->hasKey(const_cast<Pin*>(pin))
+	  && rf_->matches(end_rf)
+	  && end_rf_->matches(end_rf))
+    || (insts_
+	&& insts_->hasKey(network->instance(pin))
+	&& (network->direction(pin)->isAnyInput()
+            || network->direction(pin)->isInternal())
+	&& rf_->matches(end_rf)
+	&& end_rf_->matches(end_rf));
+}
+
+bool
+ExceptionTo::matches(const Pin *pin,
 		     const RiseFall *end_rf) const
 {
   return (pins_
