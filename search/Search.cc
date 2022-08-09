@@ -2558,10 +2558,7 @@ Search::mutateTag(Tag *from_tag,
 	// Don't propagate a completed false path -thru unless it is a
 	// clock (which ignores exceptions).
 	return nullptr;
-      // Don't propagate path delay tags past the -to pin.
-      if (exception->isPathDelay()
-          && sdc_->isCompleteTo(state, from_pin, from_rf, min_max))
-        return nullptr;
+
       if (state->matchesNextThru(from_pin,to_pin,to_rf,min_max,network_)) {
 	// Found a -thru that we've been waiting for.
 	if (state->nextState()->isComplete()
@@ -2571,8 +2568,13 @@ Search::mutateTag(Tag *from_tag,
 	state_change = true;
 	break;
       }
-      // Kill loop tags at register clock pins.
-      if (to_is_reg_clk && exception->isLoop()) {
+
+      // Kill path delay tags past the -to pin.
+      if ((exception->isPathDelay()
+           && sdc_->isCompleteTo(state, from_pin, from_rf, min_max))
+          // Kill loop tags at register clock pins.
+          || (to_is_reg_clk
+              && exception->isLoop())) {
 	state_change = true;
 	break;
       }
@@ -2607,9 +2609,12 @@ Search::mutateTag(Tag *from_tag,
 	  return nullptr;
 	}
 
-	// Kill loop tags at register clock pins.
-	if (!(to_is_reg_clk
-	      && exception->isLoop()))
+        // Kill path delay tags past the -to pin.
+	if (!((exception->isPathDelay()
+               && sdc_->isCompleteTo(state, from_pin, from_rf, min_max))
+              // Kill loop tags at register clock pins.
+              || (to_is_reg_clk
+                  && exception->isLoop())))
 	  new_states->insert(state);
       }
     }

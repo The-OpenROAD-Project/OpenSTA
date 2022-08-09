@@ -607,7 +607,18 @@ PathDelay::mergeable(ExceptionPath *exception) const
   return ExceptionPath::mergeable(exception)
     && overrides(exception)
     && exception->ignoreClkLatency() == ignore_clk_latency_
-    && exception->delay() == delay_;
+    && exception->delay() == delay_
+    // path delays -to pin/inst may be along the same path because they
+    // can be internal pins and not restricted to normal endpoints.
+    // This means that
+    //   set_max_delay -to p1
+    //   set_max_delay -to p2
+    // is not the same as
+    //   set_max_delay -to {p1 p2}
+    // when p1 and p2 are on the same path because once endpoint
+    // is encountered the exception is not complete.
+    && to_ == nullptr
+    && exception->to() == nullptr;
 }
 
 bool
