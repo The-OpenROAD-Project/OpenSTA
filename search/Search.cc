@@ -1107,7 +1107,7 @@ ArrivalVisitor::visit(Vertex *vertex)
       search->seedInputSegmentArrival(pin, vertex, tag_bldr_);
     if (sdc->isPathDelayInternalStartpoint(pin))
       // set_min/max_delay on internal pin.
-      search->makeUnclkedPaths(vertex, true, tag_bldr_);
+      search->makeUnclkedPaths(vertex, true, true, tag_bldr_);
     if (sdc->isPathDelayInternalEndpoint(pin)
 	&& sdc->isLeafPinClock(pin))
       // set_min/max_delay on internal pin also a clock src. Bizzaroland.
@@ -1122,7 +1122,7 @@ ArrivalVisitor::visit(Vertex *vertex)
     if (vertex->isRegClk() && !is_clk) {
       debugPrint(debug, "search", 2, "arrival seed unclked reg clk %s",
                  network->pathName(pin));
-      search->makeUnclkedPaths(vertex, true, tag_bldr_);
+      search->makeUnclkedPaths(vertex, true, false, tag_bldr_);
     }
 
     bool arrivals_changed = search->arrivalsChanged(vertex, tag_bldr_);
@@ -1446,8 +1446,8 @@ Search::seedArrival(Vertex *vertex)
                  network_->pathName(pin));
       TagGroupBldr tag_bldr(true, this);
       tag_bldr.init(vertex);
-      if (makeUnclkedPaths(vertex, is_reg_clk, &tag_bldr))
-	// Only search downstream if there were no false paths from here.
+      if (makeUnclkedPaths(vertex, is_reg_clk, false, &tag_bldr))
+	// Only search downstream if there are no false paths from here.
 	arrival_iter_->enqueueAdjacentVertices(vertex, search_adj_);
       setVertexArrivals(vertex, &tag_bldr);
     }
@@ -1598,7 +1598,8 @@ Search::clkDataTag(const Pin *pin,
 bool
 Search::makeUnclkedPaths(Vertex *vertex,
 			 bool is_segment_start,
-			 TagGroupBldr *tag_bldr)
+			 bool require_exception,
+                         TagGroupBldr *tag_bldr)
 {
   bool search_from = false;
   const Pin *pin = vertex->pin();
@@ -1606,7 +1607,8 @@ Search::makeUnclkedPaths(Vertex *vertex,
     const MinMax *min_max = path_ap->pathMinMax();
     for (RiseFall *rf : RiseFall::range()) {
       Tag *tag = fromUnclkedInputTag(pin, rf, min_max, path_ap,
-				     is_segment_start);
+				     is_segment_start,
+                                     require_exception);
       if (tag) {
 	tag_bldr->setArrival(tag, delay_zero, nullptr);
 	search_from = true;
@@ -2325,16 +2327,17 @@ Search::fromUnclkedInputTag(const Pin *pin,
 			    const RiseFall *rf,
 			    const MinMax *min_max,
 			    const PathAnalysisPt *path_ap,
-			    bool is_segment_start)
+			    bool is_segment_start,
+                            bool require_exception)
 {
   ExceptionStateSet *states = nullptr;
-  if (sdc_->exceptionFromStates(pin, rf, nullptr, nullptr, min_max, states)) {
+  if (sdc_->exceptionFromStates(pin, rf, nullptr, nullptr, min_max, states)
+      && (!require_exception || states)) {
     ClkInfo *clk_info = findClkInfo(nullptr, nullptr, false, 0.0, path_ap);
     return findTag(rf, path_ap, clk_info, false, nullptr,
-		   is_segment_start, states, true);
+                   is_segment_start, states, true);
   }
-  else
-    return nullptr;
+  return nullptr;
 }
 
 Tag *

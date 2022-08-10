@@ -220,7 +220,8 @@ public:
 			   const RiseFall *rf,
 			   const MinMax *min_max,
  			   const PathAnalysisPt *path_ap,
-			   bool is_segment_start);
+			   bool is_segment_start,
+                           bool require_exception);
   Tag *fromRegClkTag(const Pin *from_pin,
 		     const RiseFall *from_rf,
 		     Clock *clk,
@@ -265,7 +266,10 @@ public:
   bool arrivalsAtEndpointsExist()const{return arrivals_at_endpoints_exist_;}
   bool makeUnclkedPaths(Vertex *vertex,
 			bool is_segment_start,
+                        bool require_exception,
 			TagGroupBldr *tag_bldr);
+  bool makeUnclkedPaths2(Vertex *vertex,
+                         TagGroupBldr *tag_bldr);
   bool isSegmentStart(const Pin *pin);
   bool isInputArrivalSrchStart(Vertex *vertex);
   void seedInputSegmentArrival(const Pin *pin,

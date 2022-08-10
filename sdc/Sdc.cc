@@ -5343,11 +5343,11 @@ Sdc::exceptionFromStates(const Pin *pin,
   if (pin) {
     if (srch_from && first_from_pin_exceptions_)
       srch_from &= exceptionFromStates(first_from_pin_exceptions_->findKey(pin),
-				       nullptr, rf, min_max, include_filter,
+				       pin, rf, min_max, include_filter,
 				       states);
     if (srch_from && first_thru_pin_exceptions_)
       srch_from &= exceptionFromStates(first_thru_pin_exceptions_->findKey(pin),
-				       nullptr, rf, min_max, include_filter,
+				       pin, rf, min_max, include_filter,
 				       states);
 
     if (srch_from
