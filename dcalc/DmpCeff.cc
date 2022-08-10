@@ -46,7 +46,6 @@ using std::min;
 using std::max;
 using std::sqrt;
 using std::log;
-using std::exp;
 using std::isnan;
 
 // Tolerance (as a scale of value) for driver parameters (Ceff, delta t, t0).
@@ -67,6 +66,9 @@ static const char *dmp_param_index_strings[] = {"t0", "dt", "Ceff"};
 enum DmpFunc { y20, y50, ipi };
 
 static const char *dmp_func_index_strings[] = {"y20", "y50", "Ipi"};
+
+static double
+exp2(double x);
 
 class DmpError : public Exception
 {
@@ -417,7 +419,7 @@ double
 DmpAlg::y0(double t,
 	   double cl)
 {
-  return t - rd_ * cl * (1.0 - exp(-t / (rd_ * cl)));
+  return t - rd_ * cl * (1.0 - exp2(-t / (rd_ * cl)));
 }
 
 void
@@ -450,14 +452,14 @@ double
 DmpAlg::y0dt(double t,
 	     double cl)
 {
-  return 1.0 - exp(-t / (rd_ * cl));
+  return 1.0 - exp2(-t / (rd_ * cl));
 }
 
 double
 DmpAlg::y0dcl(double t,
 	      double cl)
 {
-  return rd_ * ((1.0 + t / (rd_ * cl)) * exp(-t / (rd_ * cl)) - 1);
+  return rd_ * ((1.0 + t / (rd_ * cl)) * exp2(-t / (rd_ * cl)) - 1);
 }
 
 void
@@ -970,9 +972,9 @@ DmpPi::evalDmpEqns()
   if (dt <= 0.0)
     throw DmpError("eqn eval failed: dt < 0");
 
-  double exp_p1_dt = exp(-p1_ * dt);
-  double exp_p2_dt = exp(-p2_ * dt);
-  double exp_dt_rd_ceff = exp(-dt / (rd_ * ceff));
+  double exp_p1_dt = exp2(-p1_ * dt);
+  double exp_p2_dt = exp2(-p2_ * dt);
+  double exp_dt_rd_ceff = exp2(-dt / (rd_ * ceff));
 
   double y50 = y(t_vth, t0, dt, ceff);
   // Match Vl.
@@ -988,7 +990,7 @@ DmpPi::evalDmpEqns()
 		     - 2 * rd_ * ceff * (1.0 - exp_dt_rd_ceff)))
     / (rd_ * dt * dt * dt);
   fjac_[DmpFunc::ipi][DmpParam::ceff] =
-    (2 * rd_ * ceff - dt - (2 * rd_ * ceff + dt) * exp(-dt / (rd_ * ceff)))
+    (2 * rd_ * ceff - dt - (2 * rd_ * ceff + dt) * exp2(-dt / (rd_ * ceff)))
     / (dt * dt);
 
   dy(t_vl, t0, dt, ceff,
@@ -1015,9 +1017,9 @@ DmpPi::ipiIceff(double, double dt,
 		double ceff_time,
 		double ceff)
 {
-  double exp_p1_dt = exp(-p1_ * ceff_time);
-  double exp_p2_dt = exp(-p2_ * ceff_time);
-  double exp_dt_rd_ceff = exp(-ceff_time / (rd_ * ceff));
+  double exp_p1_dt = exp2(-p1_ * ceff_time);
+  double exp_p2_dt = exp2(-p2_ * ceff_time);
+  double exp_dt_rd_ceff = exp2(-ceff_time / (rd_ * ceff));
   double ipi = (A_ * ceff_time + (B_ / p1_) * (1.0 - exp_p1_dt)
 	       + (D_ / p2_) * (1.0 - exp_p2_dt))
     / (rd_ * ceff_time * dt);
@@ -1030,13 +1032,13 @@ DmpPi::ipiIceff(double, double dt,
 double
 DmpPi::v0(double t)
 {
-  return k0_ * (k1_ + k2_ * t + k3_ * exp(-p1_ * t) + k4_ * exp(-p2_ * t));
+  return k0_ * (k1_ + k2_ * t + k3_ * exp2(-p1_ * t) + k4_ * exp2(-p2_ * t));
 }
 
 double
 DmpPi::dv0dt(double t)
 {
-  return k0_ * (k2_ - k3_ * p1_ * exp(-p1_ * t) - k4_ * p2_ * exp(-p2_ * t));
+  return k0_ * (k2_ - k3_ * p1_ * exp2(-p1_ * t) - k4_ * p2_ * exp2(-p2_ * t));
 }
 
 double
@@ -1047,7 +1049,7 @@ DmpPi::vl0(double t)
   double D4 = -p3_ * k0_ * k4_ / (p2_ - p3_);
   double D5 = k0_ * (k2_ / p3_ - k1_ + p3_ * k3_ / (p1_ - p3_)
 		    + p3_ * k4_ / (p2_ - p3_));
-  return D1 + t + D3 * exp(-p1_ * t) + D4 * exp(-p2_ * t) + D5 * exp(-p3_ * t);
+  return D1 + t + D3 * exp2(-p1_ * t) + D4 * exp2(-p2_ * t) + D5 * exp2(-p3_ * t);
 }
 
 double
@@ -1063,8 +1065,8 @@ DmpPi::dvl0dt(double t)
   double D4 = -p3_ * k0_ * k4_ / (p2_ - p3_);
   double D5 = k0_ * (k2_ / p3_ - k1_ + p3_ * k3_ / (p1_ - p3_)
 		    + p3_ * k4_ / (p2_ - p3_));
-  return 1.0 - D3 * p1_ * exp(-p1_ * t) - D4 * p2_ * exp(-p2_ * t)
-    - D5 * p3_ * exp(-p3_ * t);
+  return 1.0 - D3 * p1_ * exp2(-p1_ * t) - D4 * p2_ * exp2(-p2_ * t)
+    - D5 * p3_ * exp2(-p3_ * t);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1227,13 +1229,13 @@ DmpZeroC2::gateDelaySlew(double &delay,
 double
 DmpZeroC2::v0(double t)
 {
-  return k0_ * (k1_ + k2_ * t + k3_ * exp(-p1_ * t));
+  return k0_ * (k1_ + k2_ * t + k3_ * exp2(-p1_ * t));
 }
 
 double
 DmpZeroC2::dv0dt(double t)
 {
-  return k0_ * (k2_ - k3_ * p1_ * exp(-p1_ * t));
+  return k0_ * (k2_ - k3_ * p1_ * exp2(-p1_ * t));
 }
 
 double
@@ -1242,7 +1244,7 @@ DmpZeroC2::vl0(double t)
   double D1 = k0_ * (k1_ - k2_ / p3_);
   double D3 = -p3_ * k0_ * k3_ / (p1_ - p3_);
   double D5 = k0_ * (k2_ / p3_ - k1_ + p3_ * k3_ / (p1_ - p3_));
-  return D1 + t + D3 * exp(-p1_ * t) + D5 * exp(-p3_ * t);
+  return D1 + t + D3 * exp2(-p1_ * t) + D5 * exp2(-p3_ * t);
 }
 
 double
@@ -1250,7 +1252,7 @@ DmpZeroC2::dvl0dt(double t)
 {
   double D3 = -p3_ * k0_ * k3_ / (p1_ - p3_);
   double D5 = k0_ * (k2_ / p3_ - k1_ + p3_ * k3_ / (p1_ - p3_));
-  return 1.0 - D3 * p1_ * exp(-p1_ * t) - D5 * p3_ * exp(-p3_ * t);
+  return 1.0 - D3 * p1_ * exp2(-p1_ * t) - D5 * p3_ * exp2(-p3_ * t);
 }
 
 double
@@ -1766,6 +1768,32 @@ DmpError::DmpError(const char *what) :
   what_(what)
 {
   //printf("DmpError %s\n", what);
+}
+
+// This saves about 2.5% in overall run time on designs with SPEF.
+// https://codingforspeed.com/using-faster-exponential-approximation
+static double
+exp2(double x)
+{
+  if (x < -12.0)
+    // exp(-12) = 6.1e-6
+    return 0.0;
+  else {
+    double y = 1.0 + x / 4096.0;
+    y *= y;
+    y *= y;
+    y *= y;
+    y *= y;
+    y *= y;
+    y *= y;
+    y *= y;
+    y *= y;
+    y *= y;
+    y *= y;
+    y *= y;
+    y *= y;
+    return y;
+  }
 }
 
 } // namespace
