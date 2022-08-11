@@ -1103,7 +1103,7 @@ ArrivalVisitor::visit(Vertex *vertex)
     search->seedInputSegmentArrival(pin, vertex, tag_bldr_);
   if (sdc->isPathDelayInternalStartpoint(pin))
     // set_min/max_delay -from internal pin.
-    search->makeUnclkedPaths(vertex, true, true, tag_bldr_);
+    search->makeUnclkedPaths(vertex, false, true, tag_bldr_);
   if (sdc->isLeafPinClock(pin))
     // set_min/max_delay -to internal pin also a clock src. Bizzaroland.
     // Re-seed the clock arrivals on top of the propagated paths.
@@ -1642,8 +1642,7 @@ Search::findInputDrvrVertices(VertexSet &vertices)
 bool
 Search::isSegmentStart(const Pin *pin)
 {
-  return (sdc_->isPathDelayInternalStartpoint(pin)
-	  || sdc_->isInputDelayInternal(pin))
+  return sdc_->isInputDelayInternal(pin)
     && !sdc_->isLeafPinClock(pin);
 }
 
@@ -2078,8 +2077,7 @@ Search::pathPropagatedToClkSrc(const Pin *pin,
   const Tag *tag = path->tag(this);
   if (!tag->isGenClkSrcPath()
       // Clock source can have input arrivals from unrelated clock.
-      && tag->inputDelay() == nullptr
-      && sdc_->isPathDelayInternalEndpoint(pin)) {
+      && tag->inputDelay() == nullptr) {
     ClockSet *clks = sdc_->findLeafPinClocks(pin);
     return clks
       && !clks->hasKey(tag->clock());
