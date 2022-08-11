@@ -2029,20 +2029,16 @@ PathVisitor::visitEdge(const Pin *from_pin,
       PathAnalysisPt *path_ap = from_path->pathAnalysisPt(sta_);
       const MinMax *min_max = path_ap->pathMinMax();
       const RiseFall *from_rf = from_path->transition(sta_);
-      // Do not propagate paths from a clock source unless they are
-      // defined on the from pin.
-      if (!search->pathPropagatedToClkSrc(from_pin, from_path)) {
-        TimingArc *arc1, *arc2;
-        arc_set->arcsFrom(from_rf, arc1, arc2);
-        if (!visitArc(from_pin, from_vertex, from_rf, from_path,
-                      edge, arc1, to_pin, to_vertex,
-                      min_max, path_ap))
-          return false;
-        if (!visitArc(from_pin, from_vertex, from_rf, from_path,
-                      edge, arc2, to_pin, to_vertex,
-                      min_max, path_ap))
-          return false;
-      }
+      TimingArc *arc1, *arc2;
+      arc_set->arcsFrom(from_rf, arc1, arc2);
+      if (!visitArc(from_pin, from_vertex, from_rf, from_path,
+                    edge, arc1, to_pin, to_vertex,
+                    min_max, path_ap))
+        return false;
+      if (!visitArc(from_pin, from_vertex, from_rf, from_path,
+                    edge, arc2, to_pin, to_vertex,
+                    min_max, path_ap))
+        return false;
     }
   }
   return true;
@@ -2068,22 +2064,6 @@ PathVisitor::visitArc(const Pin *from_pin,
 			   min_max, path_ap);
   }
   return true;
-}
-
-bool
-Search::pathPropagatedToClkSrc(const Pin *pin,
-			       Path *path)
-{
-  const Tag *tag = path->tag(this);
-  if (!tag->isGenClkSrcPath()
-      // Clock source can have input arrivals from unrelated clock.
-      && tag->inputDelay() == nullptr) {
-    ClockSet *clks = sdc_->findLeafPinClocks(pin);
-    return clks
-      && !clks->hasKey(tag->clock());
-  }
-  else
-    return false;
 }
 
 bool
@@ -2194,12 +2174,17 @@ PathVisitor::visitFromPath(const Pin *from_pin,
     }
   }
   else if (from_tag->isClock()) {
+    ClockSet *clks = sdc->findLeafPinClocks(from_pin);
     // Disable edges from hierarchical clock source pins that do
     // not go thru the hierarchical pin and edges from clock source pins
     // that traverse a hierarchical source pin of a different clock.
     // Clock arrivals used as data also need to be disabled.
     if (!(role == TimingRole::wire()
-	  && sdc->clkDisabledByHpinThru(clk, from_pin, to_pin))) {
+	  && sdc->clkDisabledByHpinThru(clk, from_pin, to_pin))
+        // Generated clock source pins have arrivals for the source clock.
+        // Do not propagate them past the generated clock source pin.
+        && !(clks
+             && !clks->hasKey(from_tag->clock()))) {
       // Propagate arrival as non-clock at the end of the clock tree.
       bool to_propagates_clk =
 	!sdc->clkStopPropagation(clk,from_pin,from_rf,to_pin,to_rf)

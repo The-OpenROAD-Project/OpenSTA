@@ -162,62 +162,60 @@ VisitPathEnds::visitCheckEnd(const Pin *pin,
 						   tgt_clk_edge, min_max);
 	    // Ignore generated clock source paths.
 	    if (!tgt_clk_info->isGenClkSrcPath()
-		&& !search_->pathPropagatedToClkSrc(tgt_pin, tgt_clk_path)) {
-	      if (tgt_clk_path->isClock(this)) {
-		check_clked = true;
-		if (!filtered
-		    || search_->matchesFilter(path, tgt_clk_edge)) {
-		  if (src_clk_edge
-		      && tgt_clk != sdc_->defaultArrivalClock()
-		      && sdc_->sameClockGroup(src_clk, tgt_clk)
-		      && !sdc_->clkStopPropagation(tgt_pin, tgt_clk)
-		      && (search_->checkDefaultArrivalPaths()
-			  || src_clk_edge
-			  != sdc_->defaultArrivalClockEdge())
-		      // False paths and path delays override
-		      // paths.
-		      && (exception == nullptr
-			  || exception->isFilter()
-			  || exception->isGroupPath()
-			  || exception->isMultiCycle())) {
-		    MultiCyclePath *mcp=dynamic_cast<MultiCyclePath*>(exception);
-		    if (network_->isLatchData(pin)
-			&& check_role == TimingRole::setup()) {
-		      PathEndLatchCheck path_end(path, check_arc, edge,
-						 tgt_clk_path, mcp, nullptr,
-						 this);
-		      visitor->visit(&path_end);
-		      is_constrained = true;
-		    }
-		    else {
-		      PathEndCheck path_end(path, check_arc, edge,
-					    tgt_clk_path, mcp, this);
-		      visitor->visit(&path_end);
-		      is_constrained = true;
-		    }
-		  }
-		  else if (exception
-			   && exception->isPathDelay()
-			   && (src_clk == nullptr
-			       || sdc_->sameClockGroup(src_clk,
-							       tgt_clk))) {
-		    PathDelay *path_delay = dynamic_cast<PathDelay*>(exception);
-		    if (network_->isLatchData(pin)
-			&& check_role == TimingRole::setup()) {
-		      PathEndLatchCheck path_end(path, check_arc, edge,
-						 tgt_clk_path, nullptr,
-						 path_delay, this);
-		      visitor->visit(&path_end);
-		    }
-		    else {
-		      PathEndPathDelay path_end(path_delay, path, tgt_clk_path,
-						check_arc, edge, this);
-		      visitor->visit(&path_end);
-		      is_constrained = true;
-		    }
-		  }
-		}
-	      }
+                && tgt_clk_path->isClock(this)) {
+              check_clked = true;
+              if (!filtered
+                  || search_->matchesFilter(path, tgt_clk_edge)) {
+                if (src_clk_edge
+                    && tgt_clk != sdc_->defaultArrivalClock()
+                    && sdc_->sameClockGroup(src_clk, tgt_clk)
+                    && !sdc_->clkStopPropagation(tgt_pin, tgt_clk)
+                    && (search_->checkDefaultArrivalPaths()
+                        || src_clk_edge
+                        != sdc_->defaultArrivalClockEdge())
+                    // False paths and path delays override
+                    // paths.
+                    && (exception == nullptr
+                        || exception->isFilter()
+                        || exception->isGroupPath()
+                        || exception->isMultiCycle())) {
+                  MultiCyclePath *mcp=dynamic_cast<MultiCyclePath*>(exception);
+                  if (network_->isLatchData(pin)
+                      && check_role == TimingRole::setup()) {
+                    PathEndLatchCheck path_end(path, check_arc, edge,
+                                               tgt_clk_path, mcp, nullptr,
+                                               this);
+                    visitor->visit(&path_end);
+                    is_constrained = true;
+                  }
+                  else {
+                    PathEndCheck path_end(path, check_arc, edge,
+                                          tgt_clk_path, mcp, this);
+                    visitor->visit(&path_end);
+                    is_constrained = true;
+                  }
+                }
+                else if (exception
+                         && exception->isPathDelay()
+                         && (src_clk == nullptr
+                             || sdc_->sameClockGroup(src_clk,
+                                                     tgt_clk))) {
+                  PathDelay *path_delay = dynamic_cast<PathDelay*>(exception);
+                  if (network_->isLatchData(pin)
+                      && check_role == TimingRole::setup()) {
+                    PathEndLatchCheck path_end(path, check_arc, edge,
+                                               tgt_clk_path, nullptr,
+                                               path_delay, this);
+                    visitor->visit(&path_end);
+                  }
+                  else {
+                    PathEndPathDelay path_end(path_delay, path, tgt_clk_path,
+                                              check_arc, edge, this);
+                    visitor->visit(&path_end);
+                    is_constrained = true;
+                  }
+                }
+              }
 	    }
 	  }
 	}
@@ -412,7 +410,6 @@ VisitPathEnds::visitGatedClkEnd(const Pin *pin,
 	    && clk_edge != sdc_->defaultArrivalClockEdge()
 	    // Ignore generated clock source paths.
 	    && !path->clkInfo(this)->isGenClkSrcPath()
-	    && !search_->pathPropagatedToClkSrc(clk_pin, clk_path)
 	    && !sdc_->clkStopPropagation(pin, clk)
 	    && clk_vertex->hasDownstreamClkPin()) {
 	  TimingRole *check_role = (min_max == MinMax::max())
@@ -538,8 +535,7 @@ VisitPathEnds::visitDataCheckEnd1(DataCheck *check,
     const ClockEdge *tgt_clk_edge = tgt_clk_path->clkEdge(this);
     // Ignore generated clock source paths.
     if (tgt_clk_edge
-        && !tgt_clk_path->clkInfo(this)->isGenClkSrcPath()
-	&& !search_->pathPropagatedToClkSrc(from_pin, tgt_clk_path)) {
+        && !tgt_clk_path->clkInfo(this)->isGenClkSrcPath()) {
       found_from_path = true;
       const Clock *tgt_clk = tgt_clk_edge->clock();
       ExceptionPath *exception = exceptionTo(path, pin, end_rf,
@@ -583,7 +579,6 @@ VisitPathEnds::visitUnconstrainedPathEnds(const Pin *pin,
 	&& min_max->matches(path_min_max)
 	// Ignore generated clock source paths.
 	&& !path->clkInfo(this)->isGenClkSrcPath()
- 	&& !search_->pathPropagatedToClkSrc(pin, path)
 	&& (!filtered
 	    || search_->matchesFilter(path, nullptr))
 	&& !falsePathTo(path, pin, path->transition(this),

@@ -340,8 +340,6 @@ public:
  			Vertex *vertex,
  			TagGroupBldr *tag_bldr);
   void ensureDownstreamClkPins();
-  bool pathPropagatedToClkSrc(const Pin *pin,
-			      Path *path);
   // Check paths from inputs from the default arrival clock
   // (missing set_input_delay).
   virtual bool checkDefaultArrivalPaths() { return true; }
