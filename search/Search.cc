@@ -1083,71 +1083,65 @@ ArrivalVisitor::visit(Vertex *vertex)
   debugPrint(debug, "search", 2, "find arrivals %s",
              vertex->name(sdc_network));
   Pin *pin = vertex->pin();
-  // Don't clobber clock sources.
-  if (!sdc->isLeafPinClock(pin)
-      // Unless it is an internal path delay endpoint.
-      || sdc->isPathDelayInternalEndpoint(pin)) {
-    tag_bldr_->init(vertex);
-    has_fanin_one_ = graph->hasFaninOne(vertex);
-    if (crpr_active_
-	&& !has_fanin_one_)
-      tag_bldr_no_crpr_->init(vertex);
+  tag_bldr_->init(vertex);
+  has_fanin_one_ = graph->hasFaninOne(vertex);
+  if (crpr_active_
+      && !has_fanin_one_)
+    tag_bldr_no_crpr_->init(vertex);
 
-    visitFaninPaths(vertex);
-    if (crpr_active_
-	&& search->crprPathPruningEnabled()
-	&& !vertex->crprPathPruningDisabled()
-	&& !has_fanin_one_)
-      pruneCrprArrivals();
+  visitFaninPaths(vertex);
+  if (crpr_active_
+      && search->crprPathPruningEnabled()
+      && !vertex->crprPathPruningDisabled()
+      && !has_fanin_one_)
+    pruneCrprArrivals();
 
-    // Insert paths that originate here but 
-    if (!network->isTopLevelPort(pin)
-	&& sdc->hasInputDelay(pin))
-      // set_input_delay on internal pin.
-      search->seedInputSegmentArrival(pin, vertex, tag_bldr_);
-    if (sdc->isPathDelayInternalStartpoint(pin))
-      // set_min/max_delay on internal pin.
-      search->makeUnclkedPaths(vertex, true, true, tag_bldr_);
-    if (sdc->isPathDelayInternalEndpoint(pin)
-	&& sdc->isLeafPinClock(pin))
-      // set_min/max_delay on internal pin also a clock src. Bizzaroland.
-      // Re-seed the clock arrivals on top of the propagated paths.
-      search->seedClkArrivals(pin, vertex, tag_bldr_);
-    // Register/latch clock pin that is not connected to a declared clock.
-    // Seed with unclocked tag, zero arrival and allow search thru reg
-    // clk->q edges.
-    // These paths are required to report path delays from unclocked registers
-    // For example, "set_max_delay -to" from an unclocked source register.
-    bool is_clk = tag_bldr_->hasClkTag();
-    if (vertex->isRegClk() && !is_clk) {
-      debugPrint(debug, "search", 2, "arrival seed unclked reg clk %s",
-                 network->pathName(pin));
-      search->makeUnclkedPaths(vertex, true, false, tag_bldr_);
-    }
-
-    bool arrivals_changed = search->arrivalsChanged(vertex, tag_bldr_);
-    // If vertex is a latch data input arrival that changed from the
-    // previous eval pass enqueue the latch outputs to be re-evaled on the
-    // next pass.
-    if (network->isLatchData(pin)) {
-      if (arrivals_changed
-	  && network->isLatchData(pin))
-	search->enqueueLatchDataOutputs(vertex);
-    }
-    if (!search->arrivalsAtEndpointsExist()
-        || always_to_endpoints_
-        || arrivals_changed)
-      search->arrivalIterator()->enqueueAdjacentVertices(vertex, adj_pred_);
-    if (arrivals_changed) {
-      debugPrint(debug, "search", 4, "arrival changed");
-      // Only update arrivals when delays change by more than
-      // fuzzyEqual can distinguish.
-      search->setVertexArrivals(vertex, tag_bldr_);
-      search->tnsInvalid(vertex);
-      constrainedRequiredsInvalid(vertex, is_clk);
-    }
-    enqueueRefPinInputDelays(pin);
+  // Insert paths that originate here.
+  if (!network->isTopLevelPort(pin)
+      && sdc->hasInputDelay(pin))
+    // set_input_delay on internal pin.
+    search->seedInputSegmentArrival(pin, vertex, tag_bldr_);
+  if (sdc->isPathDelayInternalStartpoint(pin))
+    // set_min/max_delay -from internal pin.
+    search->makeUnclkedPaths(vertex, true, true, tag_bldr_);
+  if (sdc->isLeafPinClock(pin))
+    // set_min/max_delay -to internal pin also a clock src. Bizzaroland.
+    // Re-seed the clock arrivals on top of the propagated paths.
+    search->seedClkArrivals(pin, vertex, tag_bldr_);
+  // Register/latch clock pin that is not connected to a declared clock.
+  // Seed with unclocked tag, zero arrival and allow search thru reg
+  // clk->q edges.
+  // These paths are required to report path delays from unclocked registers
+  // For example, "set_max_delay -to" from an unclocked source register.
+  bool is_clk = tag_bldr_->hasClkTag();
+  if (vertex->isRegClk() && !is_clk) {
+    debugPrint(debug, "search", 2, "arrival seed unclked reg clk %s",
+               network->pathName(pin));
+    search->makeUnclkedPaths(vertex, true, false, tag_bldr_);
   }
+
+  bool arrivals_changed = search->arrivalsChanged(vertex, tag_bldr_);
+  // If vertex is a latch data input arrival that changed from the
+  // previous eval pass enqueue the latch outputs to be re-evaled on the
+  // next pass.
+  if (network->isLatchData(pin)) {
+    if (arrivals_changed
+        && network->isLatchData(pin))
+      search->enqueueLatchDataOutputs(vertex);
+  }
+  if (!search->arrivalsAtEndpointsExist()
+      || always_to_endpoints_
+      || arrivals_changed)
+    search->arrivalIterator()->enqueueAdjacentVertices(vertex, adj_pred_);
+  if (arrivals_changed) {
+    debugPrint(debug, "search", 4, "arrival changed");
+    // Only update arrivals when delays change by more than
+    // fuzzyEqual can distinguish.
+    search->setVertexArrivals(vertex, tag_bldr_);
+    search->tnsInvalid(vertex);
+    constrainedRequiredsInvalid(vertex, is_clk);
+  }
+  enqueueRefPinInputDelays(pin);
 }
 
 // When a clock arrival changes, the required time changes for any
