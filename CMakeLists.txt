@@ -134,7 +134,6 @@ set(STA_SOURCE
   sdc/PinPair.cc
   sdc/PortDelay.cc
   sdc/PortExtCap.cc
-  sdc/RiseFallValues.cc
   sdc/Sdc.cc
   sdc/SdcGraph.cc
   sdc/SdcCmdComment.cc
@@ -201,6 +200,7 @@ set(STA_SOURCE
   util/ReportStd.cc
   util/ReportTcl.cc
   util/RiseFallMinMax.cc
+  util/RiseFallValues.cc
   util/Stats.cc
   util/StringSeq.cc
   util/StringSet.cc
