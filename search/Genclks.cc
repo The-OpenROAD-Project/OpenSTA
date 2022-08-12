@@ -856,26 +856,22 @@ VertexVisitor *
 GenclkSrcArrivalVisitor::copy() const
 {
   return new GenclkSrcArrivalVisitor(gclk_, insert_iter_, genclk_info_,
-				     always_to_endpoints_, pred_, sta_);
+				     always_to_endpoints_, pred_, this);
 }
 
 void
 GenclkSrcArrivalVisitor::visit(Vertex *vertex)
 {
-  const Debug *debug = sta_->debug();
-  const Network *sdc_network = sta_->sdcNetwork();
-  const Graph *graph = sta_->graph();
-  Search *search = sta_->search();
-  Genclks *genclks = search->genclks();
-  debugPrint(debug, "genclk", 2, "find gen clk insert arrival %s",
-             vertex->name(sdc_network));
+  Genclks *genclks = search_->genclks();
+  debugPrint(debug_, "genclk", 2, "find gen clk insert arrival %s",
+             vertex->name(sdc_network_));
   tag_bldr_->init(vertex);
-  has_fanin_one_ = graph->hasFaninOne(vertex);
+  has_fanin_one_ = graph_->hasFaninOne(vertex);
   genclks->copyGenClkSrcPaths(vertex, tag_bldr_);
   visitFaninPaths(vertex);
   // Propagate beyond the clock tree to reach generated clk roots.
   insert_iter_->enqueueAdjacentVertices(vertex, &srch_pred_);
-  search->setVertexArrivals(vertex, tag_bldr_);
+  search_->setVertexArrivals(vertex, tag_bldr_);
 }
 
 void
@@ -1191,19 +1187,15 @@ PllArrivalVisitor::PllArrivalVisitor(const StaState *sta,
 void
 PllArrivalVisitor::visit(Vertex *vertex)
 {
-  const Debug *debug = sta_->debug();
-  const Network *sdc_network = sta_->network();
-  Graph *graph = sta_->graph();
-  Search *search = sta_->search();
-  Genclks *genclks = search->genclks();
-  debugPrint(debug, "genclk", 2, "find gen clk pll arrival %s",
-             vertex->name(sdc_network));
+  Genclks *genclks = search_->genclks();
+  debugPrint(debug_, "genclk", 2, "find gen clk pll arrival %s",
+             vertex->name(sdc_network_));
   tag_bldr_->init(vertex);
   genclks->copyGenClkSrcPaths(vertex, tag_bldr_);
-  has_fanin_one_ = graph->hasFaninOne(vertex);
+  has_fanin_one_ = graph_->hasFaninOne(vertex);
   visitFaninPaths(vertex);
   pll_iter_.enqueueAdjacentVertices(vertex);
-  search->setVertexArrivals(vertex, tag_bldr_);
+  search_->setVertexArrivals(vertex, tag_bldr_);
 }
 
 void

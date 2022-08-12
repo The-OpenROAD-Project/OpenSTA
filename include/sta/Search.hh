@@ -637,7 +637,7 @@ public:
 
 // Class for visiting fanin/fanout paths of a vertex.
 // This used by forward/backward search to find arrival/required path times.
-class PathVisitor : public VertexVisitor
+class PathVisitor : public VertexVisitor, public StaState
 {
 public:
   // Uses search->evalPred() for search predicate.
@@ -691,7 +691,6 @@ protected:
 			       const MinMax *min_max,
 			       const PathAnalysisPt *path_ap) = 0;
   SearchPred *pred_;
-  const StaState *sta_;
 };
 
 // Visitor called during forward search to record an
