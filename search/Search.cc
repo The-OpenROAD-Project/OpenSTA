@@ -2176,7 +2176,7 @@ PathVisitor::visitFromPath(const Pin *from_pin,
   }
   else {
     arc_delay = search_->deratedDelay(from_vertex, arc, edge, false, path_ap);
-    if (!delayEqual(arc_delay, min_max->initValue())) {
+    if (!delayInf(arc_delay)) {
       to_arrival = from_arrival + arc_delay;
       to_tag = search_->thruTag(from_tag, edge, to_rf, min_max, path_ap);
     }
