@@ -2001,10 +2001,10 @@ Sta::checkExceptionFromPins(ExceptionFrom *from,
       const Pin *pin = pin_iter.next();
       if (exceptionFromInvalid(pin)) {
 	if (line)
-	  report_->fileWarn(267, file, line, "'%s' is not a valid startpoint.",
+	  report_->fileWarn(267, file, line, "'%s' is not a valid start point.",
 			    cmd_network_->pathName(pin));
 	else
-	  report_->warn(18, "'%s' is not a valid startoint.",
+	  report_->warn(18, "'%s' is not a valid start point.",
 			cmd_network_->pathName(pin));
       }
     }
