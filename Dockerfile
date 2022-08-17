@@ -26,6 +26,9 @@ RUN wget https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.sh && \
     && yum clean -y all
 
 # Install any git version > 2.6.5
+RUN yum remove -y git* && yum install -y rh-git227
+RUN rm -f /usr/bin/git; ln -s /opt/rh/rh-git227/root/bin/git /usr/bin/git
+
 RUN yum remove -y git* && yum install -y git224
 
 # Install SWIG
@@ -58,9 +61,8 @@ WORKDIR /OpenSTA
 
 # Build
 RUN mkdir build
-#RUN cd buld && cmake .. -DCUDD=$HOME/cudd
-RUN cd build && cmake ..
-RUN make -j 8
+#RUN cd buld && cmake .. -DCUDD=$HOME/cudd && make -j 8
+RUN cd build && cmake .. && make -j 8
 
 # Run sta on entry
 ENTRYPOINT ["OpenSTA/app/sta"]
