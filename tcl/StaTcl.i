@@ -80,6 +80,7 @@
 #include "search/Levelize.hh"
 #include "search/ReportPath.hh"
 #include "search/Power.hh"
+#include "search/ReadVcd.hh"
 
 namespace sta {
 
@@ -5567,6 +5568,12 @@ int
 endpoint_count()
 {
   return Sta::sta()->endpointCount();
+}
+
+void
+read_vcd(const char *filename)
+{
+  readVcdFile(filename);
 }
 
 %} // inline
