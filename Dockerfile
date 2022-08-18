@@ -29,8 +29,6 @@ RUN wget https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.sh && \
 RUN yum remove -y git* && yum install -y rh-git227
 RUN rm -f /usr/bin/git; ln -s /opt/rh/rh-git227/root/bin/git /usr/bin/git
 
-RUN yum remove -y git* && yum install -y git224
-
 # Install SWIG
 RUN yum remove -y swig \
     && wget https://github.com/swig/swig/archive/rel-4.0.1.tar.gz \
