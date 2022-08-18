@@ -330,10 +330,16 @@ PropActivityVisitor::visit(Vertex *vertex)
   Pin *pin = vertex->pin();
   debugPrint(debug_, "power_activity", 3, "visit %s",
              vertex->name(network_));
-  if (power_->hasUserActivity(pin))
-    power_->setActivity(pin, power_->userActivity(pin));
+  bool input_without_activity = false;
+  if (power_->hasUserActivity(pin)) {
+    PwrActivity &activity = power_->userActivity(pin);
+    debugPrint(debug_, "power_activity", 3, "set %s %.2e %.2f",
+               vertex->name(network_),
+               activity.activity(),
+               activity.duty());
+    power_->setActivity(pin, activity);
+  }
   else {
-    bool input_without_activity = false;
     if (network_->isLoad(pin)) {
       VertexInEdgeIterator edge_iter(vertex, graph_);
       if (edge_iter.hasNext()) {
@@ -350,14 +356,6 @@ PropActivityVisitor::visit(Vertex *vertex)
 	  power_->setActivity(pin, to_activity);
 	}
       }
-      Instance *inst = network_->instance(pin);
-      LibertyCell *cell = network_->libertyCell(inst);
-      if (cell && cell->hasSequentials()) {
-	debugPrint(debug_, "power_activity", 3, "pending reg %s",
-                   network_->pathName(inst));
-	visited_regs_->insert(inst);
-	found_reg_without_activity_ = input_without_activity;
-      }
     }
     if (network_->isDriver(pin)) {
       LibertyPort *port = network_->libertyPort(pin);
@@ -373,6 +371,16 @@ PropActivityVisitor::visit(Vertex *vertex)
                      activity.duty());
 	}
       }
+    }
+  }
+  if (network_->isLoad(pin)) {
+    Instance *inst = network_->instance(pin);
+    LibertyCell *cell = network_->libertyCell(inst);
+    if (cell && cell->hasSequentials()) {
+      debugPrint(debug_, "power_activity", 3, "pending reg %s",
+                 network_->pathName(inst));
+      visited_regs_->insert(inst);
+      found_reg_without_activity_ |= input_without_activity;
     }
   }
   bfs_->enqueueAdjacentVertices(vertex);
