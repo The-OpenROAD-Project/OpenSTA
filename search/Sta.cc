@@ -5610,6 +5610,13 @@ Sta::power(const Instance *inst,
   power_->power(inst, corner, result);
 }
 
+PwrActivity
+Sta::findClkedActivity(const Pin *pin)
+{
+  powerPreamble();
+  return power_->findClkedActivity(pin);
+}
+
 ////////////////////////////////////////////////////////////////
 
 void

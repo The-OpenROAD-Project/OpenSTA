@@ -85,7 +85,6 @@ public:
   PwrActivity findClkedActivity(const Pin *pin);
 
 protected:
-  void preamble();
   void ensureActivities();
   bool hasUserActivity(const Pin *pin);
   PwrActivity &userActivity(const Pin *pin);

@@ -204,7 +204,7 @@ Power::power(const Corner *corner,
   macro.clear();
   pad.clear();
 
-  preamble();
+  ensureActivities();
   LeafInstanceIterator *inst_iter = network_->leafInstanceIterator();
   while (inst_iter->hasNext()) {
     Instance *inst = inst_iter->next();
@@ -235,7 +235,7 @@ Power::power(const Instance *inst,
 {
   LibertyCell *cell = network_->libertyCell(inst);
   if (cell) {
-    preamble();
+    ensureActivities();
     power(inst, cell, corner, result);
   }
 }
@@ -469,12 +469,6 @@ Power::evalActivity(FuncExpr *expr,
 }
 
 ////////////////////////////////////////////////////////////////
-
-void
-Power::preamble()
-{
-  ensureActivities();
-}
 
 void
 Power::ensureActivities()
@@ -1018,6 +1012,7 @@ Power::findClkedActivity(const Pin *pin)
 {
   const Instance *inst = network_->instance(pin);
   const Clock *inst_clk = findInstClk(inst);
+  ensureActivities();
   return findClkedActivity(pin, inst_clk);
 }
 
