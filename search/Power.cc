@@ -433,8 +433,7 @@ Power::evalActivity(FuncExpr *expr,
 					 cofactor_port, cofactor_positive);
     float p1 = 1.0 - activity1.duty();
     float p2 = 1.0 - activity2.duty();
-    return PwrActivity(activity1.activity() * p2
-		       + activity2.activity() * p1,
+    return PwrActivity(activity1.activity() * p2 + activity2.activity() * p1,
 		       1.0 - p1 * p2,
 		       PwrActivityOrigin::propagated);
   }
@@ -454,9 +453,11 @@ Power::evalActivity(FuncExpr *expr,
 					 cofactor_port, cofactor_positive);
     PwrActivity activity2 = evalActivity(expr->right(), inst,
 					 cofactor_port, cofactor_positive);
-    float p1 = activity1.duty() * (1.0 - activity2.duty());
-    float p2 = activity2.duty() * (1.0 - activity1.duty());
-    return PwrActivity(activity1.activity() * p1 + activity2.activity() * p2,
+    float d1 = activity1.duty();
+    float d2 = activity2.duty();
+    float p1 = d1 * (1.0 - d2);
+    float p2 = (1.0 - d1) * d2;
+    return PwrActivity(activity1.activity() + activity2.activity(),
 		       p1 + p2,
 		       PwrActivityOrigin::propagated);
   }
