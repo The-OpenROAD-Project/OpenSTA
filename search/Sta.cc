@@ -5567,12 +5567,14 @@ Sta::equivCells(LibertyCell *cell)
 ////////////////////////////////////////////////////////////////
 
 void
-Sta::writeTimingModel(const char *cell_name,
+Sta::writeTimingModel(const char *lib_name,
+                      const char *cell_name,
                       const char *filename,
                       const Corner *corner)
 {
   MakeTimingModel maker(corner, this);
-  LibertyLibrary *library = maker.makeTimingModel(cell_name, filename);
+  LibertyLibrary *library = maker.makeTimingModel(lib_name, cell_name,
+                                                  filename);
   writeLiberty(library, filename, this);
 }
 
@@ -5608,6 +5610,13 @@ Sta::power(const Instance *inst,
 {
   powerPreamble();
   power_->power(inst, corner, result);
+}
+
+PwrActivity
+Sta::findClkedActivity(const Pin *pin)
+{
+  powerPreamble();
+  return power_->findClkedActivity(pin);
 }
 
 ////////////////////////////////////////////////////////////////

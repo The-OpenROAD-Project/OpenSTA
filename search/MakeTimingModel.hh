@@ -49,11 +49,12 @@ public:
   MakeTimingModel(const Corner *corner,
                    Sta *sta);
   ~MakeTimingModel();
-  LibertyLibrary *makeTimingModel(const char *cell_name,
+  LibertyLibrary *makeTimingModel(const char *lib_name,
+                                  const char *cell_name,
                                   const char *filename);
 
 private:
-  void makeLibrary(const char *cell_name,
+  void makeLibrary(const char *lib_name,
                    const char *filename);
   void makeCell(const char *cell_name,
                  const char *filename);

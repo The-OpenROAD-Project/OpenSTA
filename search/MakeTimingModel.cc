@@ -62,11 +62,12 @@ MakeTimingModel::~MakeTimingModel()
 }
 
 LibertyLibrary *
-MakeTimingModel::makeTimingModel(const char *cell_name,
+MakeTimingModel::makeTimingModel(const char *lib_name,
+                                 const char *cell_name,
                                  const char *filename)
 {
   tbl_template_index_ = 1;
-  makeLibrary(cell_name, filename);
+  makeLibrary(lib_name, filename);
   makeCell(cell_name, filename);
   makePorts();
 
@@ -84,10 +85,10 @@ MakeTimingModel::makeTimingModel(const char *cell_name,
 }
 
 void
-MakeTimingModel::makeLibrary(const char *cell_name,
+MakeTimingModel::makeLibrary(const char *lib_name,
                              const char *filename)
 {
-  library_ = network_->makeLibertyLibrary(cell_name, filename);
+  library_ = network_->makeLibertyLibrary(lib_name, filename);
   LibertyLibrary *default_lib = network_->defaultLibertyLibrary();
   *library_->units()->timeUnit() = *default_lib->units()->timeUnit();
   *library_->units()->capacitanceUnit() = *default_lib->units()->capacitanceUnit();

@@ -1266,8 +1266,10 @@ public:
 	     const Corner *corner,
 	     // Return values.
 	     PowerResult &result);
+  PwrActivity findClkedActivity(const Pin *pin);
 
-  void writeTimingModel(const char *cell_name,
+  void writeTimingModel(const char *lib_name,
+                        const char *cell_name,
                         const char *filename,
                         const Corner *corner);
 

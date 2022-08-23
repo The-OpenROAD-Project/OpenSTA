@@ -204,7 +204,7 @@ Power::power(const Corner *corner,
   macro.clear();
   pad.clear();
 
-  preamble();
+  ensureActivities();
   LeafInstanceIterator *inst_iter = network_->leafInstanceIterator();
   while (inst_iter->hasNext()) {
     Instance *inst = inst_iter->next();
@@ -235,7 +235,7 @@ Power::power(const Instance *inst,
 {
   LibertyCell *cell = network_->libertyCell(inst);
   if (cell) {
-    preamble();
+    ensureActivities();
     power(inst, cell, corner, result);
   }
 }
@@ -330,10 +330,16 @@ PropActivityVisitor::visit(Vertex *vertex)
   Pin *pin = vertex->pin();
   debugPrint(debug_, "power_activity", 3, "visit %s",
              vertex->name(network_));
-  if (power_->hasUserActivity(pin))
-    power_->setActivity(pin, power_->userActivity(pin));
+  bool input_without_activity = false;
+  if (power_->hasUserActivity(pin)) {
+    PwrActivity &activity = power_->userActivity(pin);
+    debugPrint(debug_, "power_activity", 3, "set %s %.2e %.2f",
+               vertex->name(network_),
+               activity.activity(),
+               activity.duty());
+    power_->setActivity(pin, activity);
+  }
   else {
-    bool input_without_activity = false;
     if (network_->isLoad(pin)) {
       VertexInEdgeIterator edge_iter(vertex, graph_);
       if (edge_iter.hasNext()) {
@@ -350,14 +356,6 @@ PropActivityVisitor::visit(Vertex *vertex)
 	  power_->setActivity(pin, to_activity);
 	}
       }
-      Instance *inst = network_->instance(pin);
-      LibertyCell *cell = network_->libertyCell(inst);
-      if (cell && cell->hasSequentials()) {
-	debugPrint(debug_, "power_activity", 3, "pending reg %s",
-                   network_->pathName(inst));
-	visited_regs_->insert(inst);
-	found_reg_without_activity_ = input_without_activity;
-      }
     }
     if (network_->isDriver(pin)) {
       LibertyPort *port = network_->libertyPort(pin);
@@ -373,6 +371,16 @@ PropActivityVisitor::visit(Vertex *vertex)
                      activity.duty());
 	}
       }
+    }
+  }
+  if (network_->isLoad(pin)) {
+    Instance *inst = network_->instance(pin);
+    LibertyCell *cell = network_->libertyCell(inst);
+    if (cell && cell->hasSequentials()) {
+      debugPrint(debug_, "power_activity", 3, "pending reg %s",
+                 network_->pathName(inst));
+      visited_regs_->insert(inst);
+      found_reg_without_activity_ |= input_without_activity;
     }
   }
   bfs_->enqueueAdjacentVertices(vertex);
@@ -425,8 +433,7 @@ Power::evalActivity(FuncExpr *expr,
 					 cofactor_port, cofactor_positive);
     float p1 = 1.0 - activity1.duty();
     float p2 = 1.0 - activity2.duty();
-    return PwrActivity(activity1.activity() * p2
-		       + activity2.activity() * p1,
+    return PwrActivity(activity1.activity() * p2 + activity2.activity() * p1,
 		       1.0 - p1 * p2,
 		       PwrActivityOrigin::propagated);
   }
@@ -446,9 +453,11 @@ Power::evalActivity(FuncExpr *expr,
 					 cofactor_port, cofactor_positive);
     PwrActivity activity2 = evalActivity(expr->right(), inst,
 					 cofactor_port, cofactor_positive);
-    float p1 = activity1.duty() * (1.0 - activity2.duty());
-    float p2 = activity2.duty() * (1.0 - activity1.duty());
-    return PwrActivity(activity1.activity() * p1 + activity2.activity() * p2,
+    float d1 = activity1.duty();
+    float d2 = activity2.duty();
+    float p1 = d1 * (1.0 - d2);
+    float p2 = (1.0 - d1) * d2;
+    return PwrActivity(activity1.activity() + activity2.activity(),
 		       p1 + p2,
 		       PwrActivityOrigin::propagated);
   }
@@ -461,12 +470,6 @@ Power::evalActivity(FuncExpr *expr,
 }
 
 ////////////////////////////////////////////////////////////////
-
-void
-Power::preamble()
-{
-  ensureActivities();
-}
 
 void
 Power::ensureActivities()
@@ -1010,6 +1013,7 @@ Power::findClkedActivity(const Pin *pin)
 {
   const Instance *inst = network_->instance(pin);
   const Clock *inst_clk = findInstClk(inst);
+  ensureActivities();
   return findClkedActivity(pin, inst_clk);
 }
 
