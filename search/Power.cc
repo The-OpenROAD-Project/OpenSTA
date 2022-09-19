@@ -337,6 +337,8 @@ PropActivityVisitor::visit(Vertex *vertex)
                vertex->name(network_),
                activity.activity(),
                activity.duty());
+    if (!power_->hasActivity(pin))
+      input_without_activity = true;
     power_->setActivity(pin, activity);
   }
   else {
@@ -567,12 +569,15 @@ Power::seedRegOutputActivities(const Instance *reg,
 			       LibertyPort *output,
 			       bool invert)
 {
-  PwrActivity activity = evalActivity(seq->data(), reg);
-  if (invert)
-    activity.set(activity.activity(),
-		 1.0 - activity.duty(),
-		 activity.origin());
-  setSeqActivity(reg, output, activity);
+  const Pin *out_pin = network_->findPin(reg, output);
+  if (!hasUserActivity(out_pin)) {
+    PwrActivity activity = evalActivity(seq->data(), reg);
+    if (invert)
+      activity.set(activity.activity(),
+                   1.0 - activity.duty(),
+                   activity.origin());
+    setSeqActivity(reg, output, activity);
+  }
 }
 
 ////////////////////////////////////////////////////////////////
