@@ -190,10 +190,12 @@ TimingArcSet::TimingArcSet(LibertyCell *cell,
   role_(role),
   attrs_(attrs),
   is_cond_default_(false),
-  index_(0),
-  is_disabled_constraint_(false)
+  index_(cell->addTimingArcSet(this)),
+  is_disabled_constraint_(false),
+  from_arc1_{nullptr, nullptr},
+  from_arc2_{nullptr, nullptr},
+  to_arc_{nullptr, nullptr}
 {
-  init(cell);
 }
 
 TimingArcSet::TimingArcSet(TimingRole *role,
@@ -205,22 +207,11 @@ TimingArcSet::TimingArcSet(TimingRole *role,
   attrs_(attrs),
   is_cond_default_(false),
   index_(0),
-  is_disabled_constraint_(false)
+  is_disabled_constraint_(false),
+  from_arc1_{nullptr, nullptr},
+  from_arc2_{nullptr, nullptr},
+  to_arc_{nullptr, nullptr}
 {
-  init(nullptr);
-}
-
-void
-TimingArcSet::init(LibertyCell *cell)
-{
-  if (cell)
-    index_ = cell->addTimingArcSet(this);
-
-  for (auto tr_index : RiseFall::rangeIndex()) {
-    from_arc1_[tr_index] = nullptr;
-    from_arc2_[tr_index] = nullptr;
-    to_arc_[tr_index] = nullptr;
-  }
 }
 
 TimingArcSet::~TimingArcSet()

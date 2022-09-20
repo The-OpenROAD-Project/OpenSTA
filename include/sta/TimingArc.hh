@@ -195,7 +195,6 @@ public:
   static int wireArcCount() { return 2; }
 
 protected:
-  void init(LibertyCell *cell);
   TimingArcSet(TimingRole *role,
                TimingArcAttrsPtr attrs);
 
