@@ -406,16 +406,11 @@ LibertyBuilder::makeFromTransitionArcs(LibertyCell *cell,
 {
   TimingArcSet *arc_set = makeTimingArcSet(cell, from_port, to_port,
 					   related_out, role, attrs);
-  TimingModel *model;
-  RiseFall *to_rf;
-  to_rf = RiseFall::rise();
-  model = attrs->model(to_rf);
-  if (model)
-    makeTimingArc(arc_set, from_rf, to_rf, model);
-  to_rf = RiseFall::fall();
-  model = attrs->model(to_rf);
-  if (model)
-    makeTimingArc(arc_set, from_rf, to_rf, model);
+  for (auto to_rf : RiseFall::range()) {
+    TimingModel *model = attrs->model(to_rf);
+    if (model)
+      makeTimingArc(arc_set, from_rf, to_rf, model);
+  }
   return arc_set;
 }
 
