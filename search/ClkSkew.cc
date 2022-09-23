@@ -172,7 +172,7 @@ ClkSkews::findWorstClkSkew(const Corner *corner,
   ClockSet clks;
   for (Clock *clk : *sdc_->clocks())
     clks.insert(clk);
-  float worst_skew = INF;
+  float worst_skew = 0.0;
   ClkSkewMap skews;
   findClkSkew(&clks, corner, setup_hold, skews);
   for (auto clk_skew_itr : skews) {
