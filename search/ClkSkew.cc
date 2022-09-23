@@ -172,16 +172,21 @@ ClkSkews::findWorstClkSkew(const Corner *corner,
   ClockSet clks;
   for (Clock *clk : *sdc_->clocks())
     clks.insert(clk);
-  float worst_skew = 0.0;
   ClkSkewMap skews;
   findClkSkew(&clks, corner, setup_hold, skews);
-  for (auto clk_skew_itr : skews) {
-    ClkSkew *clk_skew = clk_skew_itr.second;
-    float skew = clk_skew->skew();
-    if (skew < worst_skew)
-      worst_skew = skew;
+  if (!skews.empty()) {
+    float worst_skew = INF;
+    for (auto clk_skew_itr : skews) {
+      ClkSkew *clk_skew = clk_skew_itr.second;
+      float skew = clk_skew->skew();
+      if (skew < worst_skew)
+        worst_skew = skew;
+    }
+    return worst_skew;
   }
-  return worst_skew;
+  else
+    // Degenerate design without launch/capture registers.
+    return 0.0;
 }
 
 void
