@@ -41,6 +41,7 @@
 #include "MakeConcreteParasitics.hh"
 #include "Parasitics.hh"
 #include "parasitics/SpefReader.hh"
+#include "parasitics/ReportParasiticAnnotation.hh"
 #include "DelayCalc.hh"
 #include "ArcDelayCalc.hh"
 #include "dcalc/GraphDelayCalc1.hh"
@@ -3864,6 +3865,14 @@ Sta::makeParasiticAnalysisPts()
 {
   corners_->makeParasiticAnalysisPts(parasitics_per_corner_,
                                      parasitics_per_min_max_);
+}
+
+void
+Sta::reportParasiticAnnotation(bool report_unannotated,
+                               const Corner *corner)
+{
+  ensureGraph();
+  sta::reportParasiticAnnotation(report_unannotated, corner, this);
 }
 
 void

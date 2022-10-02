@@ -53,6 +53,14 @@ read_spef_cmd(const char *filename,
 			      reduce_to, delete_after_reduce, quiet);
 }
 
+void
+report_parasitic_annotation_cmd(bool report_unannotated,
+                                const Corner *corner)
+{
+  cmdLinkedNetwork();
+  Sta::sta()->reportParasiticAnnotation(report_unannotated, corner);
+}
+
 TmpFloatSeq *
 find_pi_elmore(Pin *drvr_pin,
 	       RiseFall *rf,

@@ -74,6 +74,17 @@ proc_redirect read_spef {
 	    $reduce_to $delete_after_reduce $quiet]
 }
 
+define_cmd_args "report_parasitic_annotation" {}
+
+proc_redirect report_parasitic_annotation {
+  parse_key_args "report_parasitic_annotation" args \
+    keys {} flags {-report_unannotated}
+  check_argc_eq0 "report_parasitic_annotation" $args
+
+  set report_unannotated [info exists flags(-report_unannotated)]
+  report_parasitic_annotation_cmd $report_unannotated [sta::cmd_corner]
+}
+
 # set_pi_model [-min] [-max] drvr_pin c2 rpi c1
 proc set_pi_model { args } {
   parse_key_args "set_pi_model" args keys {} flags {-max -min}

@@ -1120,6 +1120,8 @@ public:
 		ReducedParasiticType reduce_to,
 		bool delete_after_reduce,
 		bool quiet);
+  void reportParasiticAnnotation(bool report_unannotated,
+                                 const Corner *corner);
   // Parasitics.
   void findPiElmore(Pin *drvr_pin,
 		    const RiseFall *rf,

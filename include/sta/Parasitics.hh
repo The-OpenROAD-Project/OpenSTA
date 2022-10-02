@@ -39,10 +39,11 @@ typedef Iterator<ParasiticNode*> ParasiticNodeIterator;
 // Parasitic annotation for a pin or net may exist for one analysis point
 // and not another.
 // If there is only one parasitic for both rise and fall transitions
-// the sta parasitic readers will save it under the rise transition.
+// the parasitic readers will save it under the rise transition.
 class Parasitics : public StaState
 {
 public:
+  Parasitics(StaState *sta);
   virtual ~Parasitics() {}
   virtual bool haveParasitics() = 0;
   // Clear all state.
@@ -137,7 +138,7 @@ public:
   virtual void poleResidue(const Parasitic *parasitic,
 			   int pole_index,
 			   ComplexFloat &pole,
-			   ComplexFloat &residue) const=0;
+			   ComplexFloat &residue) const = 0;
 
   ////////////////////////////////////////////////////////////////
   // Parasitic Network (detailed parasitics).
@@ -300,7 +301,6 @@ protected:
 				   float fanout,
 				   const ParasiticAnalysisPt *ap);
 
-  Parasitics(StaState *sta);
   Net *findParasiticNet(const Pin *pin) const;
 };
 
