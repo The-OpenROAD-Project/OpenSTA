@@ -3872,6 +3872,7 @@ Sta::reportParasiticAnnotation(bool report_unannotated,
                                const Corner *corner)
 {
   ensureGraph();
+  findDelays();
   sta::reportParasiticAnnotation(report_unannotated, corner, this);
 }
 

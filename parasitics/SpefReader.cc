@@ -447,14 +447,27 @@ SpefReader::dspfBegin(Net *net,
 		      SpefTriple *total_cap)
 {
   if (net) {
+    Net *parasitic_owner = net;
+    if (!network_->isTopInstance(instance_)) {
+      NetTermIterator *term_iter = network_->termIterator(net);
+      if (term_iter->hasNext()) {
+        Term *term = term_iter->next();
+        Pin *hpin = network_->pin(term);
+        parasitic_owner = network_->net(hpin);
+      }
+      delete term_iter;
+    }
     // Incremental parasitics do not overwrite existing parasitics.
-    if (increment_
-	&& parasitics_->findParasiticNetwork(net, ap_))
-      parasitic_ = nullptr;
+    if (increment_) {
+      parasitic_ = parasitics_->findParasiticNetwork(parasitic_owner, ap_);
+      if( parasitic_ == nullptr)
+        parasitic_ = parasitics_->makeParasiticNetwork(parasitic_owner,
+                                                       pin_cap_included_, ap_);
+    }
     else {
-      parasitics_->deleteReducedParasitics(net, ap_);
-      parasitic_ = parasitics_->makeParasiticNetwork(net, pin_cap_included_,
-                                                     ap_);
+      parasitics_->deleteReducedParasitics(parasitic_owner, ap_);
+      parasitic_ = parasitics_->makeParasiticNetwork(parasitic_owner,
+                                                     pin_cap_included_, ap_);
     }
     net_ = net;
   }
@@ -469,7 +482,6 @@ void
 SpefReader::dspfFinish()
 {
   if (parasitic_) {
-    // Checking "should" be done by report_annotated_parasitics.
     if (!quiet_)
       parasitics_->check(parasitic_);
     if (reduce_to_ != ReducedParasiticType::none) {
