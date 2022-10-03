@@ -3296,7 +3296,7 @@ Sdc::portCapacitance(Instance *inst,
   Pvt *inst_pvt = nullptr;
   if (inst)
     inst_pvt = pvt(inst, min_max);
-  LibertyPort *corner_port = port->cornerPort(corner->libertyIndex(min_max));
+  LibertyPort *corner_port = port->cornerPort(corner, min_max);
   return corner_port->capacitance(rf, min_max, op_cond, inst_pvt);
 }
 

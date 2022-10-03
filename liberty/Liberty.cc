@@ -36,6 +36,7 @@
 #include "EquivCells.hh"
 #include "Network.hh"
 #include "PortDirection.hh"
+#include "Corner.hh"
 
 namespace sta {
 
@@ -1498,12 +1499,28 @@ LibertyCell::setIsDisabledConstraint(bool is_disabled)
 }
 
 LibertyCell *
-LibertyCell::cornerCell(int ap_index)
+LibertyCell::cornerCell(const Corner *corner,
+                        const MinMax *min_max)
 {
-  if (ap_index < static_cast<int>(corner_cells_.size()))
+  if (corner_cells_.empty())
+    return this;
+  else {
+    int ap_index = corner->libertyIndex(min_max);
     return corner_cells_[ap_index];
-  else
-    return nullptr;
+  }
+}
+
+const LibertyCell *
+LibertyCell::cornerCell(const Corner *corner,
+                        const MinMax *min_max) const
+{
+  if (corner_cells_.empty())
+    return this;
+  else {
+    int ap_index = corner->libertyIndex(min_max);
+    return corner_cells_[ap_index];
+  }
+
 }
 
 void
@@ -2324,25 +2341,27 @@ LibertyPort::setIsDisabledConstraint(bool is_disabled)
 }
 
 LibertyPort *
-LibertyPort::cornerPort(int ap_index)
+LibertyPort::cornerPort(const Corner *corner,
+                        const MinMax *min_max)
 {
-  if (ap_index < static_cast<int>(corner_ports_.size())) {
-    LibertyPort *corner_port = corner_ports_[ap_index];
-    if (corner_port)
-      return corner_port;
+  if (corner_ports_.empty())
+    return this;
+  else {
+    int ap_index = corner->libertyIndex(min_max);
+    return corner_ports_[ap_index];
   }
-  return this;
 }
 
 const LibertyPort *
-LibertyPort::cornerPort(int ap_index) const
+LibertyPort::cornerPort(const Corner *corner,
+                        const MinMax *min_max) const
 {
-  if (ap_index < static_cast<int>(corner_ports_.size())) {
-    LibertyPort *corner_port = corner_ports_[ap_index];
-    if (corner_port)
-      return corner_port;
+  if (corner_ports_.empty())
+    return this;
+  else {
+    int ap_index = corner->libertyIndex(min_max);
+    return corner_ports_[ap_index];
   }
-  return this;
 }
 
 void

@@ -46,6 +46,7 @@ class TimingArcAttrs;
 class InternalPowerAttrs;
 class LibertyPgPort;
 class StaState;
+class Corner;
 
 typedef Set<Library*> LibrarySet;
 typedef Map<const char*, TableTemplate*, CharPtrLess> TableTemplateMap;
@@ -443,7 +444,10 @@ public:
 		   RiseFall *&enable_rf) const;
   RiseFall *latchCheckEnableEdge(TimingArcSet *check_set);
   bool isDisabledConstraint() const { return is_disabled_constraint_; }
-  LibertyCell *cornerCell(int ap_index);
+  LibertyCell *cornerCell(const Corner *corner,
+                          const MinMax *min_max);
+  const LibertyCell *cornerCell(const Corner *corner,
+                                const MinMax *min_max) const;
 
   // AOCV
   float ocvArcDepth() const;
@@ -712,8 +716,10 @@ public:
 		   RiseFall *sense);
   bool isDisabledConstraint() const { return is_disabled_constraint_; }
   void setIsDisabledConstraint(bool is_disabled);
-  LibertyPort *cornerPort(int ap_index);
-  const LibertyPort *cornerPort(int ap_index) const;
+  LibertyPort *cornerPort(const Corner *corner,
+                          const MinMax *min_max);
+  const LibertyPort *cornerPort(const Corner *corner,
+                                const MinMax *min_max) const;
   void setCornerPort(LibertyPort *corner_port,
 		     int ap_index);
   const char *relatedGroundPin() const { return related_ground_pin_; }

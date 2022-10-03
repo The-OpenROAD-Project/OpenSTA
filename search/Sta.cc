@@ -3775,8 +3775,7 @@ Sta::capacitance(const LibertyPort *port,
   OperatingConditions *op_cond = operatingConditions(min_max);
   float cap = min_max->initValue();
   for (const Corner *corner : makeCornerSeq(corner)) {
-    int lib_ap = corner->libertyIndex(min_max);
-    const LibertyPort *corner_port = port->cornerPort(lib_ap);
+    const LibertyPort *corner_port = port->cornerPort(corner, min_max);
     for (RiseFall *rf : RiseFall::range())
       cap = min_max->minMax(cap, corner_port->capacitance(rf, min_max, op_cond, op_cond));
   }
