@@ -784,9 +784,8 @@ Power::findOutputInternalPower(const Pin *to_pin,
              cell->name());
   const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(MinMax::max());
   const Pvt *pvt = dcalc_ap->operatingConditions();
-  const MinMax *min_max = MinMax::max();
-  LibertyCell *corner_cell = cell->cornerCell(corner, min_max);
-  const LibertyPort *to_corner_port = to_port->cornerPort(corner, min_max);
+  LibertyCell *corner_cell = cell->cornerCell(dcalc_ap);
+  const LibertyPort *to_corner_port = to_port->cornerPort(dcalc_ap);
   debugPrint(debug_, "power", 2, " cap = %s",
              units_->capacitanceUnit()->asString(load_cap));
   FuncExpr *func = to_port->function();
@@ -999,7 +998,7 @@ Power::findSwitchingPower(LibertyCell *cell,
 {
   MinMax *mm = MinMax::max();
   const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
-  LibertyCell *corner_cell = cell->cornerCell(corner, MinMax::max());
+  LibertyCell *corner_cell = cell->cornerCell(dcalc_ap);
   float volt = portVoltage(corner_cell, to_port, dcalc_ap);
   float switching = .5 * load_cap * volt * volt * activity.activity();
   debugPrint(debug_, "power", 2, "switching %s/%s activity = %.2e volt = %.2f %.3e",

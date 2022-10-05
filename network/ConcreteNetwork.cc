@@ -1849,6 +1849,8 @@ ConcreteNetwork::linkNetwork(const char *top_cell_name,
     clearConstantNets();
     deleteTopInstance();
     top_instance_ = link_func_(top_cell_name, make_black_boxes, report, this);
+    if (top_instance_)
+      checkNetworkLibertyCorners();
     return top_instance_ != nullptr;
   }
   else {

@@ -37,11 +37,10 @@
 #include "Network.hh"
 #include "PortDirection.hh"
 #include "Corner.hh"
+#include "DcalcAnalysisPt.hh"
 
 namespace sta {
 
-typedef Set<TimingModel*> TimingModelSet;
-typedef Set<FuncExpr*> FuncExprSet;
 typedef Set<LatchEnable*> LatchEnableSet;
 
 void
@@ -783,6 +782,23 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
   }
 }
 
+void
+LibertyLibrary::checkCorners(LibertyCell *cell,
+                             Corners *corners,
+                             Report *report)
+{
+  for (const Corner *corner : *corners) {
+    for (auto min_max : MinMax::range()) {
+      if (!cell->checkCornerCell(corner, min_max))
+        report->error(705, "Liberty cell %s/%s for corner %s/%s not found",
+                      cell->libertyLibrary()->name(),
+                      cell->name(),
+                      corner->name(),
+                      min_max->asString());
+    }
+  }
+}
+
 ////////////////////////////////////////////////////////////////
 
 float
@@ -1502,25 +1518,34 @@ LibertyCell *
 LibertyCell::cornerCell(const Corner *corner,
                         const MinMax *min_max)
 {
-  if (corner_cells_.empty())
-    return this;
-  else {
-    int ap_index = corner->libertyIndex(min_max);
-    return corner_cells_[ap_index];
-  }
+  return cornerCell(corner->libertyIndex(min_max));
 }
 
-const LibertyCell *
-LibertyCell::cornerCell(const Corner *corner,
-                        const MinMax *min_max) const
+LibertyCell *
+LibertyCell::cornerCell(const DcalcAnalysisPt *dcalc_ap)
+{
+  return cornerCell(dcalc_ap->libertyIndex());
+}
+
+LibertyCell *
+LibertyCell::cornerCell(int ap_index)
 {
   if (corner_cells_.empty())
     return this;
-  else {
-    int ap_index = corner->libertyIndex(min_max);
+  else if (ap_index < static_cast<int>(corner_cells_.size()))
     return corner_cells_[ap_index];
-  }
+  else
+    return nullptr;
+}
 
+bool
+LibertyCell::checkCornerCell(const Corner *corner,
+                             const MinMax *min_max) const
+{
+  int lib_index = corner->libertyIndex(min_max);
+  return corner_cells_.empty()
+    || (lib_index <= static_cast<int>(corner_cells_.size())
+        && corner_cells_[lib_index]);
 }
 
 void
@@ -2344,24 +2369,48 @@ LibertyPort *
 LibertyPort::cornerPort(const Corner *corner,
                         const MinMax *min_max)
 {
-  if (corner_ports_.empty())
-    return this;
-  else {
-    int ap_index = corner->libertyIndex(min_max);
-    return corner_ports_[ap_index];
-  }
+  return cornerPort(corner->libertyIndex(min_max));
 }
 
 const LibertyPort *
 LibertyPort::cornerPort(const Corner *corner,
                         const MinMax *min_max) const
 {
+  return cornerPort(corner->libertyIndex(min_max));
+}
+
+LibertyPort *
+LibertyPort::cornerPort(const DcalcAnalysisPt *dcalc_ap)
+{
+  return cornerPort(dcalc_ap->libertyIndex());
+}
+
+const LibertyPort *
+LibertyPort::cornerPort(const DcalcAnalysisPt *dcalc_ap) const
+{
+  return cornerPort(dcalc_ap->libertyIndex());
+}
+
+LibertyPort *
+LibertyPort::cornerPort(int ap_index)
+{
   if (corner_ports_.empty())
     return this;
-  else {
-    int ap_index = corner->libertyIndex(min_max);
+  else if (ap_index < static_cast<int>(corner_ports_.size()))
     return corner_ports_[ap_index];
-  }
+  else
+    return nullptr;
+}
+
+const LibertyPort *
+LibertyPort::cornerPort(int ap_index) const
+{
+  if (corner_ports_.empty())
+    return this;
+  else if (ap_index < static_cast<int>(corner_ports_.size()))
+    return corner_ports_[ap_index];
+  else
+    return nullptr;
 }
 
 void

@@ -21,6 +21,7 @@
 #include "PatternMatch.hh"
 #include "Liberty.hh"
 #include "PortDirection.hh"
+#include "Corner.hh"
 
 namespace sta {
 
@@ -92,6 +93,47 @@ void
 Network::setDefaultLibertyLibrary(LibertyLibrary *library)
 {
   default_liberty_ = library;
+}
+
+void
+Network::checkLibertyCorners()
+{
+  if (corners_->count() > 1) {
+    LibertyLibraryIterator *lib_iter = libertyLibraryIterator();
+    LibertyCellSet cells;
+    while (lib_iter->hasNext()) {
+      LibertyLibrary *lib = lib_iter->next();
+      LibertyCellIterator cell_iter(lib);
+      while (cell_iter.hasNext()) {
+        LibertyCell *cell = cell_iter.next();
+        LibertyCell *link_cell = findLibertyCell(cell->name());
+        cells.insert(link_cell);
+      }
+    }
+    delete lib_iter;
+
+    for (LibertyCell *cell : cells)
+      LibertyLibrary::checkCorners(cell, corners_, report_);
+  }
+}
+
+void
+Network::checkNetworkLibertyCorners()
+{
+  if (corners_->count() > 1) {
+    LibertyCellSet network_cells;
+    LeafInstanceIterator *leaf_iter = network_->leafInstanceIterator();
+    while (leaf_iter->hasNext()) {
+      const Instance *inst = leaf_iter->next();
+      LibertyCell *cell = libertyCell(inst);
+      if (cell)
+        network_cells.insert(cell);
+    }
+    delete leaf_iter;
+
+    for (LibertyCell *cell : network_cells)
+      LibertyLibrary::checkCorners(cell, corners_, report_);
+  }
 }
 
 // Only used by Sta::setMinLibrary so linear search is acceptable.

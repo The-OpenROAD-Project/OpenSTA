@@ -127,6 +127,11 @@ public:
   // This corresponds to a link_path of '*'.
   LibertyLibrary *defaultLibertyLibrary() const;
   void setDefaultLibertyLibrary(LibertyLibrary *library);
+  // Check liberty cells used by the network to make sure they exist
+  // for all the defined corners.
+  void checkNetworkLibertyCorners();
+  // Check liberty cells to make sure they exist for all the defined corners.
+  void checkLibertyCorners();
 
   ////////////////////////////////////////////////////////////////
   // Cell functions.
@@ -514,7 +519,6 @@ public:
   virtual void mergeInto(Net *net,
 			 Net *into_net) = 0;
   virtual Net *mergedInto(Net *net) = 0;
-
 };
 
 // Network API to support the Parallax readers.
