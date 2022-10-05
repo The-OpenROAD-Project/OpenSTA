@@ -1400,6 +1400,8 @@ protected:
   CornerSeq makeCornerSeq(Corner *corner) const;
   void makeParasiticAnalysisPts();
   void clkSkewPreamble();
+  void setCmdNamespace1(CmdNamespace namespc);
+  void setThreadCount1(int thread_count);
 
   CmdNamespace cmd_namespace_;
   Instance *current_instance_;

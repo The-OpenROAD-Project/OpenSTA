@@ -297,13 +297,13 @@ Sta::makeComponents()
   makeSdcNetwork();
   makeReportPath();
   makePower();
-  setCmdNamespace(CmdNamespace::sdc);
+  setCmdNamespace1(CmdNamespace::sdc);
+  setThreadCount1(defaultThreadCount());
   updateComponentsState();
 
   makeObservers();
   // This must follow updateComponentsState.
   makeParasiticAnalysisPts();
-  setThreadCount(defaultThreadCount());
 }
 
 void
@@ -323,19 +323,23 @@ Sta::defaultThreadCount() const
 void
 Sta::setThreadCount(int thread_count)
 {
+  setThreadCount1(thread_count);
+  updateComponentsState();
+}
+
+void
+Sta::setThreadCount1(int thread_count)
+{
   thread_count_ = thread_count;
   if (dispatch_queue_)
     dispatch_queue_->setThreadCount(thread_count);
   else if (thread_count > 1)
     dispatch_queue_ = new DispatchQueue(thread_count);
-  updateComponentsState();
 }
 
 void
 Sta::updateComponentsState()
 {
-  // These components do not use StaState:
-  //  units_
   network_->copyState(this);
   cmd_network_->copyState(this);
   sdc_network_->copyState(this);
@@ -612,6 +616,13 @@ Sta::cmdNamespace()
 void
 Sta::setCmdNamespace(CmdNamespace namespc)
 {
+  setCmdNamespace1(namespc);
+  updateComponentsState();
+}
+
+void
+Sta::setCmdNamespace1(CmdNamespace namespc)
+{
   cmd_namespace_ = namespc;
   switch (cmd_namespace_) {
   case CmdNamespace::sta:
@@ -621,7 +632,6 @@ Sta::setCmdNamespace(CmdNamespace namespc)
     cmd_network_ = sdc_network_;
     break;
   }
-  updateComponentsState();
 }
 
 Instance *
