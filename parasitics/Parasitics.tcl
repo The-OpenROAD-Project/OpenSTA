@@ -21,7 +21,6 @@ define_cmd_args "read_spef" \
      [-min]\
      [-max]\
      [-path path]\
-     [-increment]\
      [-pin_cap_included]\
      [-keep_capacitive_coupling]\
      [-coupling_reduction_factor factor]\
@@ -34,8 +33,7 @@ define_cmd_args "read_spef" \
 proc_redirect read_spef {
   parse_key_args "read_spef" args \
     keys {-path -coupling_reduction_factor -reduce_to -corner} \
-    flags {-min -max -increment -pin_cap_included \
-	     -keep_capacitive_coupling \
+    flags {-min -max -increment -pin_cap_included -keep_capacitive_coupling \
 	     -delete_after_reduce -quiet -save}
   check_argc_eq1 "report_spef" $args
 
@@ -49,7 +47,6 @@ proc_redirect read_spef {
   }
   set corner [parse_corner_or_all keys]
   set min_max [parse_min_max_all_flags flags]
-  set increment [info exists flags(-increment)]
   set coupling_reduction_factor 1.0
   if [info exists keys(-coupling_reduction_factor)] {
     set coupling_reduction_factor $keys(-coupling_reduction_factor)
@@ -69,7 +66,10 @@ proc_redirect read_spef {
   set quiet [info exists flags(-quiet)]
   set save [info exists flags(-save)]
   set filename [file nativename [lindex $args 0]]
-  return [read_spef_cmd $filename $instance $corner $min_max $increment \
+  if { [info exists flags(-increment)] } {
+    sta_warn 706 "read_spef -increment is deprecated."
+  }
+  return [read_spef_cmd $filename $instance $corner $min_max \
 	    $pin_cap_included $keep_coupling_caps $coupling_reduction_factor \
 	    $reduce_to $delete_after_reduce $quiet]
 }

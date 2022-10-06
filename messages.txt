@@ -1,19 +1,20 @@
+Warning: 705 duplicated
 0001 DmpCeff.cc:1597           cell %s delay model not supported on SPF parasitics by DMP delay calculator
 0002 Liberty.cc:748            cell %s/%s port %s not found in cell %s/%s.
 0003 Liberty.cc:774            cell %s/%s %s -> %s timing group %s not found in cell %s/%s.
-0004 Liberty.cc:1638           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with %s -> %s setup_%s check.
-0005 Liberty.cc:1652           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.
-0006 Liberty.cc:1660           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.
+0004 Liberty.cc:1680           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with %s -> %s setup_%s check.
+0005 Liberty.cc:1694           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.
+0006 Liberty.cc:1702           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.
 0007 LibertyExpr.cc:78         %s references unknown port %s.
-0008 ConcreteNetwork.cc:1855   cell type %s can not be linked.
+0008 ConcreteNetwork.cc:1857   cell type %s can not be linked.
 0009 CycleAccting.cc:87        No common period was found between clocks %s and %s.
 0010 Genclks.cc:287            no master clock found for generated clock %s.
 0011 Genclks.cc:329            generated clock %s is in the fanout of multiple clocks.
 0013 Genclks.cc:987            generated clock %s source pin %s missing paths from master clock %s.
 0015 Sim.cc:871                propagated logic value %c differs from constraint value of %c on pin %s.
 0016 LibertyReader.cc:996      default_max_fanout is 0.0.
-0017 Sta.cc:2083               '%s' is not a valid endpoint.
-0018 Sta.cc:2007               '%s' is not a valid start point.
+0017 Sta.cc:2094               '%s' is not a valid endpoint.
+0018 Sta.cc:2018               '%s' is not a valid start point.
 0021 SpefParse.yy:805          %d is not positive.
 0022 SpefParse.yy:814          %.4f is not positive.
 0023 SpefParse.yy:820          %.4f is not positive.
@@ -161,7 +162,7 @@
 0166 LibertyReader.cc:2290     timing group from output port.
 0167 LibertyReader.cc:2308     timing group from output port.
 0168 LibertyReader.cc:2323     timing group from output port.
-0179 SpefReader.cc:728         %s.
+0179 SpefReader.cc:725         %s.
 0190 VerilogReader.cc:1728     %s is not a verilog module.
 0191 VerilogReader.cc:1733     %s is not a verilog module.
 0201 StaTcl.i:129              no network has been linked.
@@ -192,10 +193,10 @@
 0261 Search.cc:2869            max tag index exceeded
 0262 Search.cc:3561            unexpected filter path
 0263 Search.cc:3729            tns incr existing vertex
-0264 Sta.cc:4132               corresponding timing arc set not found in equiv cells
+0264 Sta.cc:4150               corresponding timing arc set not found in equiv cells
 0265 TagGroup.cc:297           tag group missing tag
-0266 Sta.cc:2080               '%s' is not a valid endpoint.
-0267 Sta.cc:2004               '%s' is not a valid start point.
+0266 Sta.cc:2091               '%s' is not a valid endpoint.
+0267 Sta.cc:2015               '%s' is not a valid start point.
 0272 StaTcl.i:4168             unknown common clk pessimism mode.
 0273 StaTcl.i:5187             unknown clock sense
 0300 Util.tcl:218              no commands match '$pattern'.
@@ -294,8 +295,8 @@
 0428 Sta.tcl:861               set_assigned_transition transition is not a float.
 0430 Sdf.tcl:46                -cond_use min_max cannot be used with analysis type single.
 0432 Sdf.tcl:157               SDF -divider must be / or .
-0433 Parasitics.tcl:47         path instance '$path' not found.
-0434 Parasitics.tcl:65         -reduce_to must be pi_elmore or pi_pole_residue2.
+0433 Parasitics.tcl:45         path instance '$path' not found.
+0434 Parasitics.tcl:62         -reduce_to must be pi_elmore or pi_pole_residue2.
 0435 DelayCalc.tcl:119         delay calculator $alg not found.
 0436 Variables.tcl:45          sta_report_default_digits must be a positive integer.
 0437 Variables.tcl:70          sta_crpr_mode must be pin or transition.
@@ -485,3 +486,5 @@
 0702 LibertyWriter.cc:436      3 axis table models not supported.
 0703 LibertyWriter.cc:576      %s/%s/%s timing arc type %s not supported.
 0704 LibertyWriter.cc:289      %s/%s bundled ports not supported.
+0705 LumpedCapDelayCalc.cc:168 gate delay input variable is NaN
+0705 Liberty.cc:793            Liberty cell %s/%s for corner %s/%s not found

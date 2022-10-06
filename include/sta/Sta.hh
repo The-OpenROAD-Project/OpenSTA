@@ -1113,7 +1113,6 @@ public:
 		Instance *instance,
 		const Corner *corner,
                 const MinMaxAll *min_max,
-		bool increment,
 		bool pin_cap_included,
 		bool keep_coupling_caps,
 		float coupling_cap_factor,

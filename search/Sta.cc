@@ -3827,7 +3827,6 @@ Sta::readSpef(const char *filename,
 	      Instance *instance,
               const Corner *corner,
 	      const MinMaxAll *min_max,
-	      bool increment,
 	      bool pin_cap_included,
 	      bool keep_coupling_caps,
 	      float coupling_cap_factor,
@@ -3845,9 +3844,9 @@ Sta::readSpef(const char *filename,
   ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(cnst_min_max);
   const OperatingConditions *op_cond =
     sdc_->operatingConditions(cnst_min_max);
-  bool success = readSpefFile(filename, instance, ap, increment,
-			      pin_cap_included,
-			      keep_coupling_caps, coupling_cap_factor,
+  bool success = readSpefFile(filename, instance, ap,
+			      pin_cap_included, keep_coupling_caps,
+                              coupling_cap_factor,
 			      reduce_to, delete_after_reduce,
 			      op_cond, corner, cnst_min_max, quiet,
 			      report_, network_, parasitics_);

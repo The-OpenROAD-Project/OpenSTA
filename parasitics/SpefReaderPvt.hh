@@ -49,7 +49,6 @@ public:
 	     gzFile stream,
 	     Instance *instance,
 	     ParasiticAnalysisPt *ap,
-	     bool increment,
 	     bool pin_cap_included,
 	     bool keep_coupling_caps,
 	     float coupling_cap_factor,
@@ -143,7 +142,6 @@ private:
   const char *filename_;
   Instance *instance_;
   const ParasiticAnalysisPt *ap_;
-  bool increment_;
   bool pin_cap_included_;
   bool keep_coupling_caps_;
   ReducedParasiticType reduce_to_;
