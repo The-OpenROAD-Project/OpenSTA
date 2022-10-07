@@ -208,30 +208,32 @@ void
 MakeEndTimingArcs::visit(PathEnd *path_end)
 {
   ClockEdge *tgt_clk_edge = path_end->targetClkEdge(sta_);
-  Debug *debug = sta_->debug();
-  const MinMax *min_max = path_end->minMax(sta_);
-  debugPrint(debug, "make_timing_model", 2, "%s %s -> clock %s %s %s",
-             sta_->network()->pathName(input_pin_),
-             input_rf_->shortName(),
-             tgt_clk_edge->name(),
-             path_end->typeName(),
-             min_max->asString());
-  if (debug->check("make_timing_model", 3))
-    sta_->reportPathEnd(path_end);
-  Arrival data_delay = path_end->path()->arrival(sta_);
-  Delay clk_latency = path_end->targetClkDelay(sta_);
-  ArcDelay check_margin = path_end->margin(sta_);
-  Delay margin = min_max == MinMax::max()
-    ? data_delay - clk_latency + check_margin
-    : clk_latency - data_delay + check_margin;
-  float delay1 = delayAsFloat(margin, MinMax::max(), sta_);
-  RiseFallMinMax &margins = margins_[tgt_clk_edge];
-  float max_margin;
-  bool max_exists;
-  margins.value(input_rf_, min_max, max_margin, max_exists);
-  // Always max margin, even for min/hold checks.
-  margins.setValue(input_rf_, min_max,
-                   max_exists ? max(max_margin, delay1) : delay1);
+  if (tgt_clk_edge) {
+    Debug *debug = sta_->debug();
+    const MinMax *min_max = path_end->minMax(sta_);
+    debugPrint(debug, "make_timing_model", 2, "%s %s -> clock %s %s %s",
+               sta_->network()->pathName(input_pin_),
+               input_rf_->shortName(),
+               tgt_clk_edge->name(),
+               path_end->typeName(),
+               min_max->asString());
+    if (debug->check("make_timing_model", 3))
+      sta_->reportPathEnd(path_end);
+    Arrival data_delay = path_end->path()->arrival(sta_);
+    Delay clk_latency = path_end->targetClkDelay(sta_);
+    ArcDelay check_margin = path_end->margin(sta_);
+    Delay margin = min_max == MinMax::max()
+      ? data_delay - clk_latency + check_margin
+      : clk_latency - data_delay + check_margin;
+    float delay1 = delayAsFloat(margin, MinMax::max(), sta_);
+    RiseFallMinMax &margins = margins_[tgt_clk_edge];
+    float max_margin;
+    bool max_exists;
+    margins.value(input_rf_, min_max, max_margin, max_exists);
+    // Always max margin, even for min/hold checks.
+    margins.setValue(input_rf_, min_max,
+                     max_exists ? max(max_margin, delay1) : delay1);
+  }
 }
 
 // input -> register setup/hold
