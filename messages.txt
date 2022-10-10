@@ -1,28 +1,29 @@
-0001 DmpCeff.cc:1595           cell %s delay model not supported on SPF parasitics by DMP delay calculator
-0002 Liberty.cc:739            cell %s/%s port %s not found in cell %s/%s.
-0003 Liberty.cc:762            cell %s/%s %s -> %s timing group %s not found in cell %s/%s.
-0004 Liberty.cc:1657           cell %s/%s %s -> %s latch enable %s_edge timing arc is inconsistent with %s -> %s setup_%s check.
-0005 Liberty.cc:1672           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.
-0006 Liberty.cc:1680           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.
+Warning: 705 duplicated
+0001 DmpCeff.cc:1597           cell %s delay model not supported on SPF parasitics by DMP delay calculator
+0002 Liberty.cc:748            cell %s/%s port %s not found in cell %s/%s.
+0003 Liberty.cc:774            cell %s/%s %s -> %s timing group %s not found in cell %s/%s.
+0004 Liberty.cc:1680           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with %s -> %s setup_%s check.
+0005 Liberty.cc:1694           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.
+0006 Liberty.cc:1702           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.
 0007 LibertyExpr.cc:78         %s references unknown port %s.
-0008 ConcreteNetwork.cc:1855   cell type %s can not be linked.
+0008 ConcreteNetwork.cc:1857   cell type %s can not be linked.
 0009 CycleAccting.cc:87        No common period was found between clocks %s and %s.
 0010 Genclks.cc:287            no master clock found for generated clock %s.
 0011 Genclks.cc:329            generated clock %s is in the fanout of multiple clocks.
-0013 Genclks.cc:991            generated clock %s source pin %s missing paths from master clock %s.
+0013 Genclks.cc:987            generated clock %s source pin %s missing paths from master clock %s.
 0015 Sim.cc:871                propagated logic value %c differs from constraint value of %c on pin %s.
 0016 LibertyReader.cc:996      default_max_fanout is 0.0.
-0017 Sta.cc:2083               '%s' is not a valid endpoint.
-0018 Sta.cc:2007               '%s' is not a valid startoint.
+0017 Sta.cc:2094               '%s' is not a valid endpoint.
+0018 Sta.cc:2018               '%s' is not a valid start point.
 0021 SpefParse.yy:805          %d is not positive.
 0022 SpefParse.yy:814          %.4f is not positive.
 0023 SpefParse.yy:820          %.4f is not positive.
 0024 WritePathSpice.cc:425     pg_pin %s/%s voltage %s not found,
 0025 WritePathSpice.cc:432     Liberty pg_port %s/%s missing voltage_name attribute,
-0026 WritePathSpice.cc:962     %s pg_port %s not found,
-0027 WritePathSpice.cc:1017    no register/latch found for path from %s to %s,
-0028 WritePathSpice.cc:1384    The following subkcts are missing from %s
-0029 WritePathSpice.cc:1442    subckt %s port %s has no corresponding liberty port, pg_port and is not power or ground.
+0026 WritePathSpice.cc:960     %s pg_port %s not found,
+0027 WritePathSpice.cc:1015    no register/latch found for path from %s to %s,
+0028 WritePathSpice.cc:1382    The following subkcts are missing from %s
+0029 WritePathSpice.cc:1440    subckt %s port %s has no corresponding liberty port, pg_port and is not power or ground.
 0030 LibertyReader.cc:575      library missing name.
 0031 LibertyReader.cc:607      default_wire_load %s not found.
 0032 LibertyReader.cc:618      default_wire_selection %s not found.
@@ -57,123 +58,128 @@
 0059 LibertyReader.cc:1114     default_wire_load_mode %s not found.
 0060 LibertyReader.cc:630      default_operating_condition %s not found.
 0061 LibertyReader.cc:1285     table template missing name.
-0062 LibertyReader.cc:1330     missing variable_%d attribute.
-0063 LibertyReader.cc:1372     axis type %s not supported.
-0064 LibertyReader.cc:1432     bus type %s missing bit_from.
-0065 LibertyReader.cc:1434     bus type %s missing bit_to.
-0066 LibertyReader.cc:1438     type missing name.
-0067 LibertyReader.cc:1465     scaling_factors do not have a name.
-0068 LibertyReader.cc:1633     operating_conditions missing name.
-0069 LibertyReader.cc:1703     wire_load missing name.
-0070 LibertyReader.cc:1746     fanout_length is missing length and fanout.
-0071 LibertyReader.cc:1761     wire_load_selection missing name.
-0072 LibertyReader.cc:1792     wireload %s not found.
-0074 LibertyReader.cc:1799     wire_load_from_area min not a float.
-0075 LibertyReader.cc:1802     wire_load_from_area max not a float.
-0076 LibertyReader.cc:1805     wire_load_from_area missing parameters.
-0077 LibertyReader.cc:1808     wire_load_from_area missing parameters.
-0078 LibertyReader.cc:1825     cell missing name.
-0079 LibertyReader.cc:1848     cell %s ocv_derate_group %s not found.
-0080 LibertyReader.cc:1884     port %s function size does not match port size.
-0081 LibertyReader.cc:1953     %s %s bus width mismatch.
-0082 LibertyReader.cc:1964     %s %s bus width mismatch.
-0083 LibertyReader.cc:1974     clear
-0084 LibertyReader.cc:1984     preset
-0085 LibertyReader.cc:2020     latch enable function is non-unate for port %s.
-0086 LibertyReader.cc:2025     latch enable function is unknown for port %s.
-0087 LibertyReader.cc:2101     operating conditions %s not found.
-0088 LibertyReader.cc:2104     scaled_cell missing operating condition.
-0089 LibertyReader.cc:2107     scaled_cell cell %s has not been defined.
-0090 LibertyReader.cc:2110     scaled_cell missing name.
-0091 LibertyReader.cc:2136     scaled_cell %s, %s port functions do not match cell port functions.
-0092 LibertyReader.cc:2141     scaled_cell ports do not match cell ports.
-0093 LibertyReader.cc:2143     scaled_cell %s, %s timing does not match cell timing.
-0094 LibertyReader.cc:2162     combinational timing to an input port.
-0095 LibertyReader.cc:2249     missing %s_transition.
-0096 LibertyReader.cc:2251     missing cell_%s.
-0099 LibertyReader.cc:2517     scaling_factors %s not found.
-0100 LibertyReader.cc:2560     pin name is not a string.
-0101 LibertyReader.cc:2579     pin name is not a string.
-0102 LibertyReader.cc:2601     pin name is not a string.
-0103 LibertyReader.cc:2679     bus %s bus_type not found.
-0104 LibertyReader.cc:2736     bus_type %s not found.
-0105 LibertyReader.cc:2739     bus_type is not a string.
-0106 LibertyReader.cc:2757     bundle %s member not found.
-0107 LibertyReader.cc:2784     member is not a string.
-0108 LibertyReader.cc:2791     members attribute is missing values.
-0109 LibertyReader.cc:2834     unknown port direction.
-0110 LibertyReader.cc:3204     pulse_latch unknown pulse type.
-0111 LibertyReader.cc:3581     unknown timing_type %s.
-0112 LibertyReader.cc:3601     unknown timing_sense %s.
-0113 LibertyReader.cc:3641     mode value is not a string.
-0114 LibertyReader.cc:3644     missing mode value.
-0115 LibertyReader.cc:3647     mode name is not a string.
-0116 LibertyReader.cc:3650     mode missing values.
-0117 LibertyReader.cc:3653     mode missing mode name and value.
-0118 LibertyReader.cc:3729     unsupported model axis.
-0119 LibertyReader.cc:3758     unsupported model axis.
-0120 LibertyReader.cc:3789     unsupported model axis.
-0121 LibertyReader.cc:3826     unsupported model axis.
-0122 LibertyReader.cc:3878     table template %s not found.
-0123 LibertyReader.cc:3965     %s is missing values.
-0124 LibertyReader.cc:3990     %s is not a list of floats.
-0125 LibertyReader.cc:3992     table row has %u columns but axis has %d.
-0126 LibertyReader.cc:4002     table has %u rows but axis has %d.
-0127 LibertyReader.cc:4056     lut output is not a string.
-0128 LibertyReader.cc:4094     mode definition missing name.
-0129 LibertyReader.cc:4111     mode value missing name.
-0130 LibertyReader.cc:4125     when attribute inside table model.
-0131 LibertyReader.cc:4174     %s attribute is not a string.
-0132 LibertyReader.cc:4177     %s is not a simple attribute.
-0133 LibertyReader.cc:4200     %s is not a simple attribute.
-0134 LibertyReader.cc:4213     %s is not a simple attribute.
-0135 LibertyReader.cc:4237     %s value %s is not a float.
-0136 LibertyReader.cc:4266     %s missing values.
-0137 LibertyReader.cc:4270     %s missing values.
-0138 LibertyReader.cc:4273     %s is not a complex attribute.
-0139 LibertyReader.cc:4299     %s is not a float.
-0140 LibertyReader.cc:4318     %s is missing values.
-0141 LibertyReader.cc:4321     %s has more than one string.
-0142 LibertyReader.cc:4330     %s is missing values.
-0143 LibertyReader.cc:4355     %s attribute is not boolean.
-0144 LibertyReader.cc:4358     %s attribute is not boolean.
-0145 LibertyReader.cc:4361     %s is not a simple attribute.
-0146 LibertyReader.cc:4377     attribute %s value %s not recognized.
-0147 LibertyReader.cc:4407     unknown early/late value.
-0148 LibertyReader.cc:4633     OCV derate group named %s not found.
-0149 LibertyReader.cc:4649     ocv_derate missing name.
-0150 LibertyReader.cc:4702     unknown rise/fall.
-0151 LibertyReader.cc:4722     unknown derate type.
-0152 LibertyReader.cc:4754     unsupported model axis.
-0153 LibertyReader.cc:4788     unsupported model axis.
-0154 LibertyReader.cc:4822     unsupported model axis.
-0155 LibertyReader.cc:4895     unknown pg_type.
-0156 LibertyReader.cc:5272     port %s subscript out of range.
-0157 LibertyReader.cc:5276     port range %s of non-bus port %s.
-0158 LibertyReader.cc:5290     port %s not found.
-0159 LibertyReader.cc:5360     port %s not found.
+0062 LibertyReader.cc:1327     missing variable_%d attribute.
+0063 LibertyReader.cc:1370     axis type %s not supported.
+0064 LibertyReader.cc:1430     bus type %s missing bit_from.
+0065 LibertyReader.cc:1432     bus type %s missing bit_to.
+0066 LibertyReader.cc:1436     type missing name.
+0067 LibertyReader.cc:1463     scaling_factors do not have a name.
+0068 LibertyReader.cc:1631     operating_conditions missing name.
+0069 LibertyReader.cc:1701     wire_load missing name.
+0070 LibertyReader.cc:1744     fanout_length is missing length and fanout.
+0071 LibertyReader.cc:1759     wire_load_selection missing name.
+0072 LibertyReader.cc:1790     wireload %s not found.
+0074 LibertyReader.cc:1797     wire_load_from_area min not a float.
+0075 LibertyReader.cc:1800     wire_load_from_area max not a float.
+0076 LibertyReader.cc:1803     wire_load_from_area missing parameters.
+0077 LibertyReader.cc:1806     wire_load_from_area missing parameters.
+0078 LibertyReader.cc:1823     cell missing name.
+0079 LibertyReader.cc:1846     cell %s ocv_derate_group %s not found.
+0080 LibertyReader.cc:1882     port %s function size does not match port size.
+0081 LibertyReader.cc:1950     %s %s bus width mismatch.
+0082 LibertyReader.cc:1961     %s %s bus width mismatch.
+0083 LibertyReader.cc:1971     clear
+0084 LibertyReader.cc:1981     preset
+0085 LibertyReader.cc:2017     latch enable function is non-unate for port %s.
+0086 LibertyReader.cc:2022     latch enable function is unknown for port %s.
+0087 LibertyReader.cc:2098     operating conditions %s not found.
+0088 LibertyReader.cc:2101     scaled_cell missing operating condition.
+0089 LibertyReader.cc:2104     scaled_cell cell %s has not been defined.
+0090 LibertyReader.cc:2107     scaled_cell missing name.
+0091 LibertyReader.cc:2133     scaled_cell %s, %s port functions do not match cell port functions.
+0092 LibertyReader.cc:2138     scaled_cell ports do not match cell ports.
+0093 LibertyReader.cc:2140     scaled_cell %s, %s timing does not match cell timing.
+0094 LibertyReader.cc:2159     combinational timing to an input port.
+0095 LibertyReader.cc:2247     missing %s_transition.
+0096 LibertyReader.cc:2249     missing cell_%s.
+0099 LibertyReader.cc:2525     scaling_factors %s not found.
+0100 LibertyReader.cc:2568     pin name is not a string.
+0101 LibertyReader.cc:2587     pin name is not a string.
+0102 LibertyReader.cc:2609     pin name is not a string.
+0103 LibertyReader.cc:2687     bus %s bus_type not found.
+0104 LibertyReader.cc:2743     bus_type %s not found.
+0105 LibertyReader.cc:2746     bus_type is not a string.
+0106 LibertyReader.cc:2764     bundle %s member not found.
+0107 LibertyReader.cc:2791     member is not a string.
+0108 LibertyReader.cc:2798     members attribute is missing values.
+0109 LibertyReader.cc:2841     unknown port direction.
+0110 LibertyReader.cc:3211     pulse_latch unknown pulse type.
+0111 LibertyReader.cc:3588     unknown timing_type %s.
+0112 LibertyReader.cc:3608     unknown timing_sense %s.
+0113 LibertyReader.cc:3648     mode value is not a string.
+0114 LibertyReader.cc:3651     missing mode value.
+0115 LibertyReader.cc:3654     mode name is not a string.
+0116 LibertyReader.cc:3657     mode missing values.
+0117 LibertyReader.cc:3660     mode missing mode name and value.
+0118 LibertyReader.cc:3736     unsupported model axis.
+0119 LibertyReader.cc:3765     unsupported model axis.
+0120 LibertyReader.cc:3796     unsupported model axis.
+0121 LibertyReader.cc:3833     unsupported model axis.
+0122 LibertyReader.cc:3885     table template %s not found.
+0123 LibertyReader.cc:3960     %s is missing values.
+0124 LibertyReader.cc:3985     %s is not a list of floats.
+0125 LibertyReader.cc:3987     table row has %u columns but axis has %d.
+0126 LibertyReader.cc:3997     table has %u rows but axis has %d.
+0127 LibertyReader.cc:4050     lut output is not a string.
+0128 LibertyReader.cc:4088     mode definition missing name.
+0129 LibertyReader.cc:4105     mode value missing name.
+0130 LibertyReader.cc:4119     when attribute inside table model.
+0131 LibertyReader.cc:4168     %s attribute is not a string.
+0132 LibertyReader.cc:4171     %s is not a simple attribute.
+0133 LibertyReader.cc:4194     %s is not a simple attribute.
+0134 LibertyReader.cc:4207     %s is not a simple attribute.
+0135 LibertyReader.cc:4231     %s value %s is not a float.
+0136 LibertyReader.cc:4260     %s missing values.
+0137 LibertyReader.cc:4264     %s missing values.
+0138 LibertyReader.cc:4267     %s is not a complex attribute.
+0139 LibertyReader.cc:4293     %s is not a float.
+0140 LibertyReader.cc:4312     %s is missing values.
+0141 LibertyReader.cc:4315     %s has more than one string.
+0142 LibertyReader.cc:4324     %s is missing values.
+0143 LibertyReader.cc:4349     %s attribute is not boolean.
+0144 LibertyReader.cc:4352     %s attribute is not boolean.
+0145 LibertyReader.cc:4355     %s is not a simple attribute.
+0146 LibertyReader.cc:4371     attribute %s value %s not recognized.
+0147 LibertyReader.cc:4401     unknown early/late value.
+0148 LibertyReader.cc:4627     OCV derate group named %s not found.
+0149 LibertyReader.cc:4643     ocv_derate missing name.
+0150 LibertyReader.cc:4696     unknown rise/fall.
+0151 LibertyReader.cc:4716     unknown derate type.
+0152 LibertyReader.cc:4748     unsupported model axis.
+0153 LibertyReader.cc:4782     unsupported model axis.
+0154 LibertyReader.cc:4816     unsupported model axis.
+0155 LibertyReader.cc:4889     unknown pg_type.
+0156 LibertyReader.cc:5263     port %s subscript out of range.
+0157 LibertyReader.cc:5267     port range %s of non-bus port %s.
+0158 LibertyReader.cc:5281     port %s not found.
+0159 LibertyReader.cc:5351     port %s not found.
 0160 LibertyReader.cc:981      default_max_transition is 0.0.
-0161 LibertyReader.cc:3092     max_transition is 0.0.
-0162 LibertyReader.cc:4197     %s attribute is not an integer.
+0161 LibertyReader.cc:3099     max_transition is 0.0.
+0162 LibertyReader.cc:4191     %s attribute is not an integer.
 0163 LibertyReader.cc:1086     default_fanout_load is 0.0.
-0179 SpefReader.cc:728         %s.
+0164 LibertyReader.cc:2270     timing group from output port.
+0165 LibertyReader.cc:2280     timing group from output port.
+0166 LibertyReader.cc:2290     timing group from output port.
+0167 LibertyReader.cc:2308     timing group from output port.
+0168 LibertyReader.cc:2323     timing group from output port.
+0179 SpefReader.cc:725         %s.
 0190 VerilogReader.cc:1728     %s is not a verilog module.
 0191 VerilogReader.cc:1733     %s is not a verilog module.
 0201 StaTcl.i:129              no network has been linked.
 0202 StaTcl.i:143              network does not support edits.
 0204 StaTcl.i:4182             POCV support requires compilation with SSTA=1.
 0206 LibertyExpr.cc:171        %s %s.
-0207 GraphDelayCalc1.cc:742    port not found in cell
-0208 Graph.cc:795              arc_delay_annotated array bounds exceeded
-0209 Graph.cc:810              arc_delay_annotated array bounds exceeded
-0210 Graph.cc:822              arc_delay_annotated array bounds exceeded
+0207 GraphDelayCalc1.cc:738    port not found in cell
+0208 Graph.cc:793              arc_delay_annotated array bounds exceeded
+0209 Graph.cc:808              arc_delay_annotated array bounds exceeded
+0210 Graph.cc:820              arc_delay_annotated array bounds exceeded
 0211 SdcNetwork.cc:1026        inst path string lenth estimate busted
 0212 SdcNetwork.cc:1098        inst path string lenth estimate exceeded
-0213 Sdc.cc:4114               group path name and is_default are mutually exclusive.
+0213 Sdc.cc:4101               group path name and is_default are mutually exclusive.
 0214 WriteSdc.cc:1317          unknown exception type
 0215 WriteSdc.cc:1888          illegal set_logic value
 0216 WriteSdc.cc:1932          invalid set_case_analysis value
-0228 Graph.cc:835              arc_delay_annotated array bounds exceeded
+0228 Graph.cc:833              arc_delay_annotated array bounds exceeded
 0251 PathEnumed.cc:126         enumerated path required time
 0252 PathEnumed.cc:135         enumerated path required time
 0253 PathGroup.cc:402          unknown path end type
@@ -183,16 +189,16 @@
 0257 ReportPath.cc:349         unsupported path type
 0258 ReportPath.cc:2228        generated clock pll source path too short.
 0259 ReportPath.cc:2392        unsupported path type
-0260 Search.cc:2668            max tag group index exceeded
-0261 Search.cc:2900            max tag index exceeded
-0262 Search.cc:3595            unexpected filter path
-0263 Search.cc:3763            tns incr existing vertex
-0264 Sta.cc:4132               corresponding timing arc set not found in equiv cells
+0260 Search.cc:2637            max tag group index exceeded
+0261 Search.cc:2869            max tag index exceeded
+0262 Search.cc:3561            unexpected filter path
+0263 Search.cc:3729            tns incr existing vertex
+0264 Sta.cc:4150               corresponding timing arc set not found in equiv cells
 0265 TagGroup.cc:297           tag group missing tag
-0266 Sta.cc:2080               '%s' is not a valid endpoint.
-0267 Sta.cc:2004               '%s' is not a valid startpoint.
+0266 Sta.cc:2091               '%s' is not a valid endpoint.
+0267 Sta.cc:2015               '%s' is not a valid start point.
 0272 StaTcl.i:4168             unknown common clk pessimism mode.
-0273 StaTcl.i:5176             unknown clock sense
+0273 StaTcl.i:5187             unknown clock sense
 0300 Util.tcl:218              no commands match '$pattern'.
 0301 Power.tcl:215             activity should be 0.0 to 1.0 or 2.0
 0302 Power.tcl:223             duty should be 0.0 to 1.0
@@ -203,7 +209,7 @@
 0314 Cmds.tcl:850              $arg_name must be a single net.
 0315 Cmds.tcl:856              $arg_name '$object_type' is not a net.
 0316 Cmds.tcl:861              $arg_name '$arg' not found.
-0318 Search.tcl:1045           unknown path group '$name'.
+0318 Search.tcl:1073           unknown path group '$name'.
 0319 Sdc.tcl:279               $unit scale [format %.0e $scale] does not match library scale [format %.0e $unit_scale].
 0320 Sdc.tcl:480               current_design for other than top cell not supported.
 0321 Sdc.tcl:517               patterns argument not supported with -of_objects.
@@ -232,32 +238,32 @@
 0345 Sdc.tcl:1575              -pulse argument not supported.
 0346 Sdc.tcl:1584              -positive, -negative, -stop_propagation and -pulse are mutually exclusive.
 0347 Sdc.tcl:1597              hierarchical pin '[get_full_name $pin]' not supported.
-0348 Sdc.tcl:1799              -from/-to keywords ignored for lib_pin, port and pin arguments.
+0348 Sdc.tcl:1805              -from/-to keywords ignored for lib_pin, port and pin arguments.
 0349 Sdc.tcl:1467              unknown keyword argument $arg.
-0350 Sdc.tcl:1947              -from, -through or -to required.
-0351 Sdc.tcl:2026              -source_latency_included ignored with -reference_pin.
-0352 Sdc.tcl:2029              -network_latency_included ignored with -reference_pin.
-0353 Sdc.tcl:2048              $cmd not allowed on [pin_direction $pin] port '[get_full_name $pin]'.
-0354 Sdc.tcl:2050              $cmd relative to a clock defined on the same port/pin not allowed.
-0355 Sdc.tcl:2093              '$args' ignored.
-0356 Sdc.tcl:2223              '$args' ignored.
-0357 Sdc.tcl:2270              virtual clock [get_name $clk] can not be propagated.
-0358 Sdc.tcl:2419              -multiply_by ignored.
-0359 Sdc.tcl:2422              -dont_scale ignored.
-0360 Sdc.tcl:2425              -no_design_rule ignored.
-0361 Sdc.tcl:2466              -clock not supported.
-0362 Sdc.tcl:2469              -clock_fall not supported.
-0363 Sdc.tcl:2515              -pin_load not allowed for net objects.
-0364 Sdc.tcl:2518              -wire_load not allowed for net objects.
-0365 Sdc.tcl:2521              -rise/-fall not allowed for net objects.
-0366 Sdc.tcl:2654              -data_path, -clock_path, -rise, -fall ignored for ports and designs.
-0367 Sdc.tcl:2724              derating factor greater than 2.0.
-0368 Sdc.tcl:2761              -cell_delay and -cell_check flags ignored for net objects.
-0369 Sdc.tcl:2820              no valid objects specified for $key.
-0370 Sdc.tcl:2853              no valid objects specified for $key
-0371 Sdc.tcl:3014              set_wire_load_min_block_size not supported.
+0350 Sdc.tcl:1953              -from, -through or -to required.
+0351 Sdc.tcl:2032              -source_latency_included ignored with -reference_pin.
+0352 Sdc.tcl:2035              -network_latency_included ignored with -reference_pin.
+0353 Sdc.tcl:2054              $cmd not allowed on [pin_direction $pin] port '[get_full_name $pin]'.
+0354 Sdc.tcl:2056              $cmd relative to a clock defined on the same port/pin not allowed.
+0355 Sdc.tcl:2099              '$args' ignored.
+0356 Sdc.tcl:2229              '$args' ignored.
+0357 Sdc.tcl:2276              virtual clock [get_name $clk] can not be propagated.
+0358 Sdc.tcl:2425              -multiply_by ignored.
+0359 Sdc.tcl:2428              -dont_scale ignored.
+0360 Sdc.tcl:2431              -no_design_rule ignored.
+0361 Sdc.tcl:2472              -clock not supported.
+0362 Sdc.tcl:2475              -clock_fall not supported.
+0363 Sdc.tcl:2521              -pin_load not allowed for net objects.
+0364 Sdc.tcl:2524              -wire_load not allowed for net objects.
+0365 Sdc.tcl:2527              -rise/-fall not allowed for net objects.
+0366 Sdc.tcl:2660              -data_path, -clock_path, -rise, -fall ignored for ports and designs.
+0367 Sdc.tcl:2730              derating factor greater than 2.0.
+0368 Sdc.tcl:2767              -cell_delay and -cell_check flags ignored for net objects.
+0369 Sdc.tcl:2826              no valid objects specified for $key.
+0370 Sdc.tcl:2859              no valid objects specified for $key
+0371 Sdc.tcl:3020              set_wire_load_min_block_size not supported.
 0372 NetworkEdit.tcl:80        connect_pins is deprecated.  Use connect_pin.
-0373 Sdc.tcl:3164              define_corners must be called before read_liberty.
+0373 Sdc.tcl:3170              define_corners must be called before read_liberty.
 0400 Util.tcl:44               $cmd $key missing value.
 0401 Util.tcl:61               $cmd $key missing value.
 0402 Util.tcl:71               $cmd $arg is not a known keyword or flag.
@@ -286,18 +292,18 @@
 0425 Search.tcl:207            positional arguments not supported.
 0426 Search.tcl:526            analysis type single is not consistent with doing both setup/max and hold/min checks.
 0427 Search.tcl:531            positional arguments not supported.
-0428 Sta.tcl:867               set_assigned_transition transition is not a float.
+0428 Sta.tcl:861               set_assigned_transition transition is not a float.
 0430 Sdf.tcl:46                -cond_use min_max cannot be used with analysis type single.
 0432 Sdf.tcl:157               SDF -divider must be / or .
-0433 Parasitics.tcl:47         path instance '$path' not found.
-0434 Parasitics.tcl:65         -reduce_to must be pi_elmore or pi_pole_residue2.
+0433 Parasitics.tcl:45         path instance '$path' not found.
+0434 Parasitics.tcl:62         -reduce_to must be pi_elmore or pi_pole_residue2.
 0435 DelayCalc.tcl:119         delay calculator $alg not found.
 0436 Variables.tcl:45          sta_report_default_digits must be a positive integer.
 0437 Variables.tcl:70          sta_crpr_mode must be pin or transition.
 0438 Variables.tcl:187         $var_name value must be 0 or 1.
-0439 Sta.tcl:941               unsupported object type $list_type.
-0440 Sta.tcl:1239              -from/-to arguments not supported with -of_objects.
-0441 Sta.tcl:1377              unsupported -filter expression.
+0439 Sta.tcl:935               unsupported object type $list_type.
+0440 Sta.tcl:1233              -from/-to arguments not supported with -of_objects.
+0441 Sta.tcl:1361              unsupported -filter expression.
 0442 Sta.tcl:657               $cmd missing -from argument.
 0443 Sta.tcl:662               $cmd missing -to argument.
 0444 Sta.tcl:667               $cmd delay is not a float.
@@ -305,11 +311,11 @@
 0446 Sta.tcl:678               $cmd pin [get_full_name $pin] is not attached to instance [get_full_name $inst].
 0447 Sta.tcl:683               $cmd pin [get_full_name $pin] is not attached to instance [get_full_name $inst]
 0448 Sta.tcl:688               $cmd -cell or -net required.
-0449 Sta.tcl:757               $cmd missing -from argument.
-0450 Sta.tcl:766               $cmd -clock must be rise or fall.
-0451 Sta.tcl:773               $cmd missing -to argument.
-0452 Sta.tcl:788               $cmd missing -setup|-hold|-recovery|-removal check type..
-0453 Sta.tcl:796               $cmd check_value is not a float.
+0449 Sta.tcl:754               $cmd missing -from argument.
+0450 Sta.tcl:763               $cmd -clock must be rise or fall.
+0451 Sta.tcl:770               $cmd missing -to argument.
+0452 Sta.tcl:785               $cmd missing -setup|-hold|-recovery|-removal check type..
+0453 Sta.tcl:793               $cmd check_value is not a float.
 0454 Sta.tcl:100               the -all and -name options are mutually exclusive.
 0455 Sta.tcl:103               either -all or -name options must be specified.
 0456 Sta.tcl:111               one of -logically_exclusive, -physically_exclusive or -asynchronous is required.
@@ -347,23 +353,23 @@
 0488 Cmds.tcl:727              $arg_name type '$object_type' is not a pin or port.
 0489 Cmds.tcl:734              pin '$arg' not found.
 0490 Cmds.tcl:754              $arg_name type '$object_type' is not a port.
-0491 Sta.tcl:1091              $cmd object is null.
-0492 Sta.tcl:1096              $cmd $type_key must be specified with object name argument.
-0493 Sta.tcl:1139              get_property $object is not an object.
-0494 Sta.tcl:1162              $object_type not supported.
-0495 Sta.tcl:1165              $object_type '$object_name' not found.
-0496 Sta.tcl:1492              Directory $spice_dir not found.
-0497 Sta.tcl:1495              $spice_dir is not a directory.
-0498 Sta.tcl:1498              Cannot write in $spice_dir.
-0499 Sta.tcl:1501              No -spice_directory specified.
-0500 Sta.tcl:1507              -lib_subckt_file $lib_subckt_file is not readable.
-0501 Sta.tcl:1510              No -lib_subckt_file specified.
-0502 Sta.tcl:1516              -model_file $model_file is not readable.
-0503 Sta.tcl:1519              No -model_file specified.
-0504 Sta.tcl:1525              No -power specified.
-0505 Sta.tcl:1531              No -ground specified.
-0506 Sta.tcl:1535              No -path_args specified.
-0507 Sta.tcl:1540              No paths found for -path_args $path_args.
+0491 Sta.tcl:1085              $cmd object is null.
+0492 Sta.tcl:1090              $cmd $type_key must be specified with object name argument.
+0493 Sta.tcl:1133              get_property $object is not an object.
+0494 Sta.tcl:1156              $object_type not supported.
+0495 Sta.tcl:1159              $object_type '$object_name' not found.
+0496 Sta.tcl:1476              Directory $spice_dir not found.
+0497 Sta.tcl:1479              $spice_dir is not a directory.
+0498 Sta.tcl:1482              Cannot write in $spice_dir.
+0499 Sta.tcl:1485              No -spice_directory specified.
+0500 Sta.tcl:1491              -lib_subckt_file $lib_subckt_file is not readable.
+0501 Sta.tcl:1494              No -lib_subckt_file specified.
+0502 Sta.tcl:1500              -model_file $model_file is not readable.
+0503 Sta.tcl:1503              No -model_file specified.
+0504 Sta.tcl:1509              No -power specified.
+0505 Sta.tcl:1515              No -ground specified.
+0506 Sta.tcl:1519              No -path_args specified.
+0507 Sta.tcl:1524              No paths found for -path_args $path_args.
 0508 Search.tcl:794            -min and -max cannot both be specified.
 0509 Search.tcl:814            pin '$pin_arg' is hierarchical.
 0510 Search.tcl:880            -format $format not recognized.
@@ -417,31 +423,31 @@
 0558 Sdc.tcl:1552              set_sense -type clock|data
 0559 Sdc.tcl:1621              transition time can not be specified for virtual clocks.
 0560 Sdc.tcl:1642              missing uncertainty value.
-0561 Sdc.tcl:1684              -from/-to must be used together.
-0562 Sdc.tcl:1704              -rise, -fall options not allowed for single clock uncertainty.
-0563 Sdc.tcl:1745              missing -from, -rise_from or -fall_from argument.
-0564 Sdc.tcl:1757              missing -to, -rise_to or -fall_to argument.
-0565 Sdc.tcl:1829              -from/-to hierarchical instance not supported.
-0566 Sdc.tcl:1861              pin '[get_full_name $inst]${hierarchy_separator}${port_name}' not found.
-0567 Sdc.tcl:1902              pin '[get_name $cell]${hierarchy_separator}${port_name}' not found.
-0568 Sdc.tcl:2087              missing delay argument.
-0569 Sdc.tcl:2218              missing path multiplier argument.
-0570 Sdc.tcl:2230              cannot use -start with -end.
-0571 Sdc.tcl:2298              value must be 0, zero, 1, one, rise, rising, fall, or falling.
-0572 Sdc.tcl:2356              cell '$lib_name:$cell_name' not found.
-0573 Sdc.tcl:2362              '$cell_name' not found.
-0574 Sdc.tcl:2366              missing -lib_cell argument.
-0575 Sdc.tcl:2374              port '$to_port_name' not found.
-0576 Sdc.tcl:2386              -pin argument required for cells with multiple outputs.
-0577 Sdc.tcl:2401              port '$from_port_name' not found.
-0578 Sdc.tcl:2608              port '[get_name $port]' is not an input.
-0579 Sdc.tcl:2970              operating condition '$op_cond_name' not found.
-0580 Sdc.tcl:2988              operating condition '$op_cond_name' not found.
-0581 Sdc.tcl:3002              -analysis_type must be single, bc_wc or on_chip_variation.
-0582 Sdc.tcl:3027              mode must be top, enclosed or segmented.
-0583 Sdc.tcl:3042              no wire load model specified.
-0584 Sdc.tcl:3103              wire load selection group '$selection_name' not found.
-0585 Sdc.tcl:3234              no default operating conditions found.
+0561 Sdc.tcl:1690              -from/-to must be used together.
+0562 Sdc.tcl:1710              -rise, -fall options not allowed for single clock uncertainty.
+0563 Sdc.tcl:1751              missing -from, -rise_from or -fall_from argument.
+0564 Sdc.tcl:1763              missing -to, -rise_to or -fall_to argument.
+0565 Sdc.tcl:1835              -from/-to hierarchical instance not supported.
+0566 Sdc.tcl:1867              pin '[get_full_name $inst]${hierarchy_separator}${port_name}' not found.
+0567 Sdc.tcl:1908              pin '[get_name $cell]${hierarchy_separator}${port_name}' not found.
+0568 Sdc.tcl:2093              missing delay argument.
+0569 Sdc.tcl:2224              missing path multiplier argument.
+0570 Sdc.tcl:2236              cannot use -start with -end.
+0571 Sdc.tcl:2304              value must be 0, zero, 1, one, rise, rising, fall, or falling.
+0572 Sdc.tcl:2362              cell '$lib_name:$cell_name' not found.
+0573 Sdc.tcl:2368              '$cell_name' not found.
+0574 Sdc.tcl:2372              missing -lib_cell argument.
+0575 Sdc.tcl:2380              port '$to_port_name' not found.
+0576 Sdc.tcl:2392              -pin argument required for cells with multiple outputs.
+0577 Sdc.tcl:2407              port '$from_port_name' not found.
+0578 Sdc.tcl:2614              port '[get_name $port]' is not an input.
+0579 Sdc.tcl:2976              operating condition '$op_cond_name' not found.
+0580 Sdc.tcl:2994              operating condition '$op_cond_name' not found.
+0581 Sdc.tcl:3008              -analysis_type must be single, bc_wc or on_chip_variation.
+0582 Sdc.tcl:3033              mode must be top, enclosed or segmented.
+0583 Sdc.tcl:3048              no wire load model specified.
+0584 Sdc.tcl:3109              wire load selection group '$selection_name' not found.
+0585 Sdc.tcl:3240              no default operating conditions found.
 0586 NetworkEdit.tcl:50        unsupported object type $object_type.
 0587 NetworkEdit.tcl:119       unsupported object type $object_type.
 0588 NetworkEdit.tcl:135       unsupported object type $object_type.
@@ -454,13 +460,13 @@
 0595 DelayNormal2.cc:378       unknown early/late value.
 0596 Sim.cc:205                unknown function operator
 0597 EstimateParasitics.cc:188 load pin not leaf or top level
-0600 Sdc.tcl:1943              '$args' ignored.
-0601 Sdc.tcl:2442              set_fanout_load not supported.
-0602 Sdc.tcl:2902              no valid objects specified for $key.
+0600 Sdc.tcl:1949              '$args' ignored.
+0601 Sdc.tcl:2448              set_fanout_load not supported.
+0602 Sdc.tcl:2908              no valid objects specified for $key.
 0603 NetworkEdit.tcl:172       disconnect_pins is deprecated.  Use disconnect_pin.
 0604 Sdc.tcl:272               unknown $unit prefix '$prefix'.
-0605 Sdc.tcl:3064              wire load model '$model_name' not found.
-0606 Sta.tcl:1136              get_property unsupported object type $object_type.
+0605 Sdc.tcl:3070              wire load model '$model_name' not found.
+0606 Sta.tcl:1130              get_property unsupported object type $object_type.
 0607 StaTcl.i:4418             unknown report path field %s
 0608 StaTcl.i:4430             unknown report path field %s
 0609 Search.tcl:427            -all_violators is deprecated. Use -violators
@@ -469,13 +475,16 @@
 0612 Sdf.tcl:41                -cond_use must be min, max or min_max.
 0616 Search.tcl:1024           specify one of -setup and -hold.
 0617 Sdf.tcl:50                -analysis_type is deprecated. Use set_operating_conditions -analysis_type.
-0618 DmpCeff.cc:1579           parasitic Pi model has NaNs.
-0619 PathEnum.cc:477           path diversion missing edge.
+0618 DmpCeff.cc:1581           parasitic Pi model has NaNs.
+0619 PathEnum.cc:474           path diversion missing edge.
 0620 PathVertex.cc:236         missing arrivals.
 0621 PathVertex.cc:250         missing arrivals.
 0622 PathVertex.cc:279         missing requireds.
 0623 PathVertexRep.cc:153      missing arrivals.
 0624 PathVertexRep.cc:150      missing arrivals
-0701 LibertyWriter.cc:360      %s/%s/%s timing model not supported.
-0702 LibertyWriter.cc:379      3 axis table models not supported.
-0703 LibertyWriter.cc:504      %s/%s/%s timing arc type %s not supported.
+0701 LibertyWriter.cc:416      %s/%s/%s timing model not supported.
+0702 LibertyWriter.cc:436      3 axis table models not supported.
+0703 LibertyWriter.cc:576      %s/%s/%s timing arc type %s not supported.
+0704 LibertyWriter.cc:289      %s/%s bundled ports not supported.
+0705 LumpedCapDelayCalc.cc:168 gate delay input variable is NaN
+0705 Liberty.cc:793            Liberty cell %s/%s for corner %s/%s not found

@@ -41,6 +41,7 @@
 #include "MakeConcreteParasitics.hh"
 #include "Parasitics.hh"
 #include "parasitics/SpefReader.hh"
+#include "parasitics/ReportParasiticAnnotation.hh"
 #include "DelayCalc.hh"
 #include "ArcDelayCalc.hh"
 #include "dcalc/GraphDelayCalc1.hh"
@@ -296,13 +297,13 @@ Sta::makeComponents()
   makeSdcNetwork();
   makeReportPath();
   makePower();
-  setCmdNamespace(CmdNamespace::sdc);
+  setCmdNamespace1(CmdNamespace::sdc);
+  setThreadCount1(defaultThreadCount());
   updateComponentsState();
 
   makeObservers();
   // This must follow updateComponentsState.
   makeParasiticAnalysisPts();
-  setThreadCount(defaultThreadCount());
 }
 
 void
@@ -322,19 +323,23 @@ Sta::defaultThreadCount() const
 void
 Sta::setThreadCount(int thread_count)
 {
+  setThreadCount1(thread_count);
+  updateComponentsState();
+}
+
+void
+Sta::setThreadCount1(int thread_count)
+{
   thread_count_ = thread_count;
   if (dispatch_queue_)
     dispatch_queue_->setThreadCount(thread_count);
   else if (thread_count > 1)
     dispatch_queue_ = new DispatchQueue(thread_count);
-  updateComponentsState();
 }
 
 void
 Sta::updateComponentsState()
 {
-  // These components do not use StaState:
-  //  units_
   network_->copyState(this);
   cmd_network_->copyState(this);
   sdc_network_->copyState(this);
@@ -611,6 +616,13 @@ Sta::cmdNamespace()
 void
 Sta::setCmdNamespace(CmdNamespace namespc)
 {
+  setCmdNamespace1(namespc);
+  updateComponentsState();
+}
+
+void
+Sta::setCmdNamespace1(CmdNamespace namespc)
+{
   cmd_namespace_ = namespc;
   switch (cmd_namespace_) {
   case CmdNamespace::sta:
@@ -620,7 +632,6 @@ Sta::setCmdNamespace(CmdNamespace namespc)
     cmd_network_ = sdc_network_;
     break;
   }
-  updateComponentsState();
 }
 
 Instance *
@@ -3774,8 +3785,7 @@ Sta::capacitance(const LibertyPort *port,
   OperatingConditions *op_cond = operatingConditions(min_max);
   float cap = min_max->initValue();
   for (const Corner *corner : makeCornerSeq(corner)) {
-    int lib_ap = corner->libertyIndex(min_max);
-    const LibertyPort *corner_port = port->cornerPort(lib_ap);
+    const LibertyPort *corner_port = port->cornerPort(corner, min_max);
     for (RiseFall *rf : RiseFall::range())
       cap = min_max->minMax(cap, corner_port->capacitance(rf, min_max, op_cond, op_cond));
   }
@@ -3817,7 +3827,6 @@ Sta::readSpef(const char *filename,
 	      Instance *instance,
               const Corner *corner,
 	      const MinMaxAll *min_max,
-	      bool increment,
 	      bool pin_cap_included,
 	      bool keep_coupling_caps,
 	      float coupling_cap_factor,
@@ -3835,9 +3844,9 @@ Sta::readSpef(const char *filename,
   ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(cnst_min_max);
   const OperatingConditions *op_cond =
     sdc_->operatingConditions(cnst_min_max);
-  bool success = readSpefFile(filename, instance, ap, increment,
-			      pin_cap_included,
-			      keep_coupling_caps, coupling_cap_factor,
+  bool success = readSpefFile(filename, instance, ap,
+			      pin_cap_included, keep_coupling_caps,
+                              coupling_cap_factor,
 			      reduce_to, delete_after_reduce,
 			      op_cond, corner, cnst_min_max, quiet,
 			      report_, network_, parasitics_);
@@ -3864,6 +3873,15 @@ Sta::makeParasiticAnalysisPts()
 {
   corners_->makeParasiticAnalysisPts(parasitics_per_corner_,
                                      parasitics_per_min_max_);
+}
+
+void
+Sta::reportParasiticAnnotation(bool report_unannotated,
+                               const Corner *corner)
+{
+  ensureGraph();
+  findDelays();
+  sta::reportParasiticAnnotation(report_unannotated, corner, this);
 }
 
 void

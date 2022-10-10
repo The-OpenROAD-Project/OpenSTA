@@ -38,7 +38,6 @@ read_spef_cmd(const char *filename,
 	      Instance *instance,
 	      const Corner *corner,
               const MinMaxAll *min_max,
-	      bool increment,
 	      bool pin_cap_included,
 	      bool keep_coupling_caps,
 	      float coupling_cap_factor,
@@ -48,9 +47,17 @@ read_spef_cmd(const char *filename,
 {
   cmdLinkedNetwork();
   return Sta::sta()->readSpef(filename, instance, corner, min_max,
-			      increment, pin_cap_included,
-			      keep_coupling_caps, coupling_cap_factor,
-			      reduce_to, delete_after_reduce, quiet);
+			      pin_cap_included, keep_coupling_caps,
+                              coupling_cap_factor, reduce_to,
+                              delete_after_reduce, quiet);
+}
+
+void
+report_parasitic_annotation_cmd(bool report_unannotated,
+                                const Corner *corner)
+{
+  cmdLinkedNetwork();
+  Sta::sta()->reportParasiticAnnotation(report_unannotated, corner);
 }
 
 TmpFloatSeq *

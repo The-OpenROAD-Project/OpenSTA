@@ -344,6 +344,7 @@ VisitPathEnds::visitOutputDelayEnd1(OutputDelay *output_delay,
   // but the exception may be -to clk.
   ExceptionPath *exception = exceptionTo(path, pin, end_rf, tgt_clk_edge,
 					 min_max);
+  ClockEdge *src_clk_edge = path->clkEdge(this);
   if (exception
       && exception->isPathDelay()) {
     PathDelay *path_delay = dynamic_cast<PathDelay*>(exception);
@@ -351,7 +352,11 @@ VisitPathEnds::visitOutputDelayEnd1(OutputDelay *output_delay,
     visitor->visit(&path_end);
     is_constrained = true;
   }
-  else if (tgt_clk_edge
+  else if (src_clk_edge
+           && (search_->checkDefaultArrivalPaths()
+               || src_clk_edge
+               != sdc_->defaultArrivalClockEdge())
+           && tgt_clk_edge
 	   && sdc_->sameClockGroup(path->clock(this), tgt_clk_edge->clock())
 	   // False paths and path delays override.
 	   && (exception == nullptr

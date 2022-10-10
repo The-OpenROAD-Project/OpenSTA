@@ -2760,14 +2760,16 @@ ReportPath::drvrFanout(Vertex *drvr,
   VertexOutEdgeIterator iter(drvr, graph_);
   while (iter.hasNext()) {
     Edge *edge = iter.next();
-    Pin *pin = edge->to(graph_)->pin();
-    if (network_->isTopLevelPort(pin)) {
-      // Output port counts as a fanout.
-      Port *port = network_->port(pin);
-      fanout += sdc_->portExtFanout(port, min_max) + 1;
+    if (edge->isWire()) {
+      Pin *pin = edge->to(graph_)->pin();
+      if (network_->isTopLevelPort(pin)) {
+        // Output port counts as a fanout.
+        Port *port = network_->port(pin);
+        fanout += sdc_->portExtFanout(port, min_max) + 1;
+      }
+      else
+        fanout++;
     }
-    else
-      fanout++;
   }
   return fanout;
 }

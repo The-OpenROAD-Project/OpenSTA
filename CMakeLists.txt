@@ -116,6 +116,7 @@ set(STA_SOURCE
   parasitics/NullParasitics.cc
   parasitics/Parasitics.cc
   parasitics/ReduceParasitics.cc
+  parasitics/ReportParasiticAnnotation.cc
   parasitics/SpefNamespace.cc
   parasitics/SpefReader.cc
   parasitics/SpefReaderPvt.hh

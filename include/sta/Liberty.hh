@@ -46,8 +46,10 @@ class TimingArcAttrs;
 class InternalPowerAttrs;
 class LibertyPgPort;
 class StaState;
+class Corner;
+class Corners;
+class DcalcAnalysisPt;
 
-typedef Set<Library*> LibrarySet;
 typedef Map<const char*, TableTemplate*, CharPtrLess> TableTemplateMap;
 typedef Vector<TableTemplate*> TableTemplateSeq;
 typedef Map<const char*, BusDcl *, CharPtrLess> BusDclMap;
@@ -294,6 +296,10 @@ public:
 		bool link,
 		int ap_index,
 		Report *report);
+  static void
+  checkCorners(LibertyCell *cell,
+               Corners *corners,
+               Report *report);
 
 protected:
   float degradeWireSlew(const LibertyCell *cell,
@@ -443,6 +449,9 @@ public:
 		   RiseFall *&enable_rf) const;
   RiseFall *latchCheckEnableEdge(TimingArcSet *check_set);
   bool isDisabledConstraint() const { return is_disabled_constraint_; }
+  LibertyCell *cornerCell(const Corner *corner,
+                          const MinMax *min_max);
+  LibertyCell *cornerCell(const DcalcAnalysisPt *dcalc_ap);
   LibertyCell *cornerCell(int ap_index);
 
   // AOCV
@@ -489,6 +498,9 @@ public:
   void bufferPorts(// Return values.
 		   LibertyPort *&input,
 		   LibertyPort *&output) const;
+  // Check all liberty cells to make sure they exist
+  // for all the defined corners.
+  static void checkLibertyCorners();
 
 protected:
   void addPort(ConcretePort *port);
@@ -515,6 +527,8 @@ protected:
 		     const LibertyPort *output) const;
   bool hasInverterFunc(const LibertyPort *input,
 		       const LibertyPort *output) const;
+  bool checkCornerCell(const Corner *corner,
+                       const MinMax *min_max) const;
 
   LibertyLibrary *liberty_library_;
   float area_;
@@ -712,6 +726,12 @@ public:
 		   RiseFall *sense);
   bool isDisabledConstraint() const { return is_disabled_constraint_; }
   void setIsDisabledConstraint(bool is_disabled);
+  LibertyPort *cornerPort(const Corner *corner,
+                          const MinMax *min_max);
+  const LibertyPort *cornerPort(const Corner *corner,
+                                const MinMax *min_max) const;
+  LibertyPort *cornerPort(const DcalcAnalysisPt *dcalc_ap);
+  const LibertyPort *cornerPort(const DcalcAnalysisPt *dcalc_ap) const;
   LibertyPort *cornerPort(int ap_index);
   const LibertyPort *cornerPort(int ap_index) const;
   void setCornerPort(LibertyPort *corner_port,

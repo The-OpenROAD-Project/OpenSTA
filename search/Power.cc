@@ -337,6 +337,8 @@ PropActivityVisitor::visit(Vertex *vertex)
                vertex->name(network_),
                activity.activity(),
                activity.duty());
+    if (!power_->hasActivity(pin))
+      input_without_activity = true;
     power_->setActivity(pin, activity);
   }
   else {
@@ -567,12 +569,15 @@ Power::seedRegOutputActivities(const Instance *reg,
 			       LibertyPort *output,
 			       bool invert)
 {
-  PwrActivity activity = evalActivity(seq->data(), reg);
-  if (invert)
-    activity.set(activity.activity(),
-		 1.0 - activity.duty(),
-		 activity.origin());
-  setSeqActivity(reg, output, activity);
+  const Pin *out_pin = network_->findPin(reg, output);
+  if (!hasUserActivity(out_pin)) {
+    PwrActivity activity = evalActivity(seq->data(), reg);
+    if (invert)
+      activity.set(activity.activity(),
+                   1.0 - activity.duty(),
+                   activity.origin());
+    setSeqActivity(reg, output, activity);
+  }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -636,9 +641,9 @@ Power::findInputInternalPower(const Pin *pin,
 			      // Return values.
 			      PowerResult &result)
 {
-  int lib_ap_index = corner->libertyIndex(MinMax::max());
-  LibertyCell *corner_cell = cell->cornerCell(lib_ap_index);
-  const LibertyPort *corner_port = port->cornerPort(lib_ap_index);
+  const MinMax *min_max = MinMax::max();
+  LibertyCell *corner_cell = cell->cornerCell(corner, min_max);
+  const LibertyPort *corner_port = port->cornerPort(corner, min_max);
   if (corner_cell && corner_port) {
     const InternalPowerSeq &internal_pwrs = corner_cell->internalPowers(corner_port);
     if (!internal_pwrs.empty()) {
@@ -779,9 +784,8 @@ Power::findOutputInternalPower(const Pin *to_pin,
              cell->name());
   const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(MinMax::max());
   const Pvt *pvt = dcalc_ap->operatingConditions();
-  int lib_ap_index = corner->libertyIndex(MinMax::max());
-  LibertyCell *corner_cell = cell->cornerCell(lib_ap_index);
-  const LibertyPort *to_corner_port = to_port->cornerPort(lib_ap_index);
+  LibertyCell *corner_cell = cell->cornerCell(dcalc_ap);
+  const LibertyPort *to_corner_port = to_port->cornerPort(dcalc_ap);
   debugPrint(debug_, "power", 2, " cap = %s",
              units_->capacitanceUnit()->asString(load_cap));
   FuncExpr *func = to_port->function();
@@ -931,8 +935,7 @@ Power::findLeakagePower(const Instance *,
 			// Return values.
 			PowerResult &result)
 {
-  int lib_ap_index = corner->libertyIndex(MinMax::max());
-  LibertyCell *corner_cell = cell->cornerCell(lib_ap_index);
+  LibertyCell *corner_cell = cell->cornerCell(corner, MinMax::max());
   float cond_leakage = 0.0;
   bool found_cond = false;
   float default_leakage = 0.0;
@@ -995,8 +998,7 @@ Power::findSwitchingPower(LibertyCell *cell,
 {
   MinMax *mm = MinMax::max();
   const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
-  int lib_ap_index = corner->libertyIndex(MinMax::max());
-  LibertyCell *corner_cell = cell->cornerCell(lib_ap_index);
+  LibertyCell *corner_cell = cell->cornerCell(dcalc_ap);
   float volt = portVoltage(corner_cell, to_port, dcalc_ap);
   float switching = .5 * load_cap * volt * volt * activity.activity();
   debugPrint(debug_, "power", 2, "switching %s/%s activity = %.2e volt = %.2f %.3e",

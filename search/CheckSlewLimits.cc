@@ -224,7 +224,7 @@ CheckSlewLimits::findLimit(const Pin *pin,
         LibertyPort *to_port;
         drive->driveCell(rf, min_max, cell, from_port, from_slews, to_port);
         if (to_port) {
-          LibertyPort *corner_port = to_port->cornerPort(corner->libertyIndex(min_max));
+          LibertyPort *corner_port = to_port->cornerPort(corner, min_max);
           corner_port->slewLimit(min_max, limit1, exists1);
           if (!exists1
               && corner_port->direction()->isAnyOutput()
@@ -268,7 +268,7 @@ CheckSlewLimits::findLimit(const LibertyPort *port,
   }
 
   if (port) {
-    const LibertyPort *corner_port = port->cornerPort(corner->libertyIndex(min_max));
+    const LibertyPort *corner_port = port->cornerPort(corner, min_max);
     corner_port->slewLimit(min_max, limit1, exists1);
     if (!exists1
         // default_max_transition only applies to outputs.

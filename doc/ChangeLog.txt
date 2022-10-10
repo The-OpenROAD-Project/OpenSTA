@@ -3,6 +3,10 @@ OpenSTA Timing Analyzer Release Notes
 
 This file summarizes user visible changes for each release.
 
+The report_parasitics_annotation command reports SPEF annotation completeness.
+
+  report_parasitics_annotation [-report_unannotated]
+
 Release 2.3.2 2022/07/03
 -------------------------
 

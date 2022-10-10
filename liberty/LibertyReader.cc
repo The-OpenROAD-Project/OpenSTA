@@ -2266,6 +2266,8 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
     // one -> one
     if (from_port_iter.hasNext()) {
       LibertyPort *from_port = from_port_iter.next();
+      if (from_port->direction()->isOutput())
+        libWarn(164, timing->line(), "timing group from output port.");
       builder_->makeTimingArcs(cell_, from_port, to_port,
 			       related_out_port, timing->attrs());
     }
@@ -2274,6 +2276,8 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
     // bus -> one
     while (from_port_iter.hasNext()) {
       LibertyPort *from_port = from_port_iter.next();
+      if (from_port->direction()->isOutput())
+        libWarn(165, timing->line(), "timing group from output port.");
       builder_->makeTimingArcs(cell_, from_port, to_port,
 			       related_out_port, timing->attrs());
     }
@@ -2282,6 +2286,8 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
     // one -> bus
     if (from_port_iter.hasNext()) {
       LibertyPort *from_port = from_port_iter.next();
+      if (from_port->direction()->isOutput())
+        libWarn(166, timing->line(), "timing group from output port.");
       LibertyPortMemberIterator bit_iter(to_port);
       while (bit_iter.hasNext()) {
 	LibertyPort *to_port_bit = bit_iter.next();
@@ -2298,6 +2304,8 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
 	while (from_port_iter.hasNext() && to_iter.hasNext()) {
 	  LibertyPort *from_port_bit = from_port_iter.next();
 	  LibertyPort *to_port_bit = to_iter.next();
+          if (from_port_bit->direction()->isOutput())
+            libWarn(167, timing->line(), "timing group from output port.");
 	  builder_->makeTimingArcs(cell_, from_port_bit, to_port_bit,
 				   related_out_port, timing->attrs());
 	}
@@ -2311,6 +2319,8 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
     else {
       while (from_port_iter.hasNext()) {
 	LibertyPort *from_port_bit = from_port_iter.next();
+        if (from_port_bit->direction()->isOutput())
+          libWarn(168, timing->line(), "timing group from output port.");
 	LibertyPortMemberIterator to_iter(to_port);
 	while (to_iter.hasNext()) {
 	  LibertyPort *to_port_bit = to_iter.next();
