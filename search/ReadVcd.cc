@@ -20,8 +20,11 @@
 #include <map>
 #include <algorithm>
 
-#include "Zlib.hh"
 #include "ReadVcd.hh"
+
+#include "Zlib.hh"
+#include "Report.hh"
+#include "StaState.hh"
 
 namespace sta {
 
@@ -37,10 +40,10 @@ class VcdValue;
 typedef vector<VcdValue> VcdValues;
 typedef int64_t VarTime;
 
-class VcdReader
+class VcdReader : public StaState
 {
 public:
-  VcdReader();
+  VcdReader(StaState *sta);
   void read(const char *filename);
   void reportWaveforms();
 
@@ -63,6 +66,9 @@ private:
 
   gzFile stream_;
   string token_;
+  const char *filename_;
+  int file_line_;
+  int stmt_line_;
 
   string date_;
   string comment_;
@@ -122,10 +128,11 @@ private:
 };
 
 void
-readVcdFile(const char *filename)
+readVcdFile(const char *filename,
+            StaState *sta)
 
 {
-  VcdReader reader;
+  VcdReader reader(sta);
   reader.read(filename);
   reader.reportWaveforms();
 }
@@ -135,6 +142,9 @@ VcdReader::read(const char *filename)
 {
   stream_ = gzopen(filename, "r");
   if (stream_) {
+    filename_ = filename;
+    file_line_ = 1;
+    stmt_line_ = 1;
     string token = getToken();
     while (!token.empty()) {
       if (token == "$date")
@@ -166,7 +176,9 @@ VcdReader::read(const char *filename)
   }
 }
 
-VcdReader::VcdReader() :
+VcdReader::VcdReader(StaState *sta) :
+  StaState(sta),
+  stmt_line_(0),
   time_unit_scale_(0.0),
   max_var_name_length_(0),
   max_var_width_(0),
@@ -182,7 +194,7 @@ VcdReader::parseTimescale()
   size_t last;
   time_scale_ = std::stod(timescale, &last);
   if (last == token_.size())
-    printf("Missing timescale units\n");
+    report_->fileError(800, filename_, stmt_line_, "Missing timescale units.");
   time_unit_ = timescale.substr(last + 1);
   if (time_unit_ == "fs")
     time_unit_scale_ = 1e-15;
@@ -191,7 +203,7 @@ VcdReader::parseTimescale()
   else if (time_unit_ == "ns")
     time_unit_scale_ = 1e-9;
   else
-    printf("unknown timescale unit\n");
+    report_->fileError(801, filename_, stmt_line_, "Unknown timescale unit.");
 }
 
 void
@@ -199,7 +211,7 @@ VcdReader::parseVar()
 {
   vector<string> tokens = readStmtTokens();
   if (tokens.size() != 4)
-    printf("$var syntax error\n");
+    report_->fileError(802, filename_, stmt_line_, "Variable syntax error.");
   else {
     string type_name = tokens[0];
     VcdVar::VarType type = VcdVar::wire;
@@ -208,7 +220,9 @@ VcdReader::parseVar()
     else if (type_name == "reg")
       type = VcdVar::reg;
     else
-    printf("$var unknown variable type\n");
+      report_->fileError(803, filename_, stmt_line_,
+                         "Unknown variable type %s.",
+                         type_name.c_str());
 
     int width = stoi(tokens[1]);
     string id = tokens[2];
@@ -249,7 +263,7 @@ VcdReader::parseVarValues()
   while (!token.empty()) {
     if (token[0] == '#') {
       time_ = stoll(token.substr(1));
-      printf("time = %lld\n", time_);
+      //printf("time = %lld\n", time_);
     }
     else if (token[0] == '0'
              || token[0] == '1'
@@ -272,9 +286,9 @@ VcdReader::parseVarValues()
         string id = getToken();
         auto var_itr = id_var_map_.find(id);
         if (var_itr == id_var_map_.end())
-          printf("unknown var %s\n", id.c_str());
+          ("unknown variable %s\n", id.c_str());
         VcdVar *var = var_itr->second;
-        printf("%s = %lld\n", var->name().c_str(), bus_value);
+        //printf("%s = %lld\n", var->name().c_str(), bus_value);
         var->pushBusValue(time_, bus_value);
       }
     }
@@ -289,7 +303,8 @@ VcdReader::appendVarValue(string id,
 {
   auto var_itr = id_var_map_.find(id);
   if (var_itr == id_var_map_.end())
-    printf("unknown var %s\n", id.c_str());
+    report_->fileError(800, filename_, stmt_line_, "Unknown var %s",
+                       id.c_str());
   VcdVar *var = var_itr->second;
   var->pushValue(time_, value);
 }
@@ -323,6 +338,7 @@ VcdReader::varMinTimeDelta()
 string
 VcdReader::readStmtString()
 {
+  stmt_line_ = file_line_;
   string line;
   string token = getToken();
   while (!token.empty() && token != "$end") {
@@ -337,6 +353,7 @@ VcdReader::readStmtString()
 vector<string>
 VcdReader::readStmtTokens()
 {
+  stmt_line_ = file_line_;
   vector<string> tokens;
   string token = getToken();
   while (!token.empty() && token != "$end") {
@@ -351,12 +368,19 @@ VcdReader::getToken()
 {
   string token;
   int ch = gzgetc(stream_);
+  if (ch == '\n')
+    file_line_++;
   // skip whitespace
-  while (ch != EOF && isspace(ch))
+  while (ch != EOF && isspace(ch)) {
     ch = gzgetc(stream_);
+    if (ch == '\n')
+      file_line_++;
+  }
   while (ch != EOF && !isspace(ch)) {
     token.push_back(ch);
     ch = gzgetc(stream_);
+    if (ch == '\n')
+      file_line_++;
   }
   if (ch == EOF)
     return "";

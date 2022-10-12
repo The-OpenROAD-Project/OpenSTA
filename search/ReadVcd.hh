@@ -18,7 +18,10 @@
 
 namespace sta {
 
+class StaState;
+
 void
-readVcdFile(const char *filename);
+readVcdFile(const char *filename,
+            StaState *sta);
 
 }

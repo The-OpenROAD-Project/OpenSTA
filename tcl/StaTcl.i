@@ -5574,7 +5574,7 @@ endpoint_count()
 void
 read_vcd(const char *filename)
 {
-  readVcdFile(filename);
+  readVcdFile(filename, Sta::sta());
 }
 
 %} // inline
