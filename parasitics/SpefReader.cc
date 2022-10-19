@@ -118,6 +118,10 @@ SpefReader::SpefReader(const char *filename,
   network_(network),
   parasitics_(parasitics),
   triple_index_(0),
+  time_scale_(1.0),
+  cap_scale_(1.0),
+  res_scale_(1.0),
+  induct_scale_(1.0),
   design_flow_(nullptr),
   parasitic_(nullptr)
 {
