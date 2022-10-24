@@ -79,9 +79,23 @@ are illegal in c++17.
 These packages are **optional**:
 
 ```
-libz     1.1.4   1.2.5     1.2.8
-cudd             2.4.1     3.0.0
+tclreadline                   2.3.8
+libz        1.1.4   1.2.5     1.2.8
+cudd                2.4.1     3.0.0
 ```
+
+The [TCL readline library](https://tclreadline.sourceforge.net/tclreadline.html)
+links the GNU readline library to the TCL interpreter for command line editing 
+On OSX, Homebrew does not support tclreadline, but the macports system does
+(see https://www.macports.org). To enable TCL readline support use the following
+Cmake option:
+
+```
+cmake .. -DUSE_TCL_READLINE=ON
+```
+
+The Zlib library is an optional.  If CMake finds libz, OpenSTA can
+read Verilog, SDF, SPF, and SPEF files compressed with gzip.
 
 CUDD is a binary decision diageram (BDD) package that is used to
 improve conditional timing arc handling. OpenSTA does not require it
@@ -108,9 +122,6 @@ make install
 cd <opensta>/build
 cmake .. -DUSE_CUDD=ON -DCUDD_DIR=$HOME/cudd
 ```
-
-The Zlib library is an optional.  If CMake finds libz, OpenSTA can
-read Verilog, SDF, SPF, and SPEF files compressed with gzip.
 
 ### Installing with CMake
 

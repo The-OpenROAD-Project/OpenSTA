@@ -215,6 +215,7 @@ set(STA_SOURCE
 
 # Source files.
 set(STA_TCL_FILES
+  tcl/Init.tcl
   tcl/Util.tcl
   tcl/Graph.tcl
   tcl/Liberty.tcl
@@ -384,6 +385,31 @@ add_custom_command(OUTPUT ${STA_TCL_INIT}
 # Do not use REQUIRED because it also requires TK, which is not used by OpenSTA.
 find_package(TCL)
 
+option(USE_TCL_READLINE "Use TCL readliine package")
+
+set(TCL_READLINE 0)
+# check for tclReadline
+if (USE_TCL_READLINE)
+  find_library(TCL_READLINE_LIBRARY tclreadline)
+  if (TCL_READLINE_LIBRARY)
+    message(STATUS "TCL readline: ${TCL_READLINE_LIBRARY}")
+    # Referenced by StaConfig.hh.cmake
+    set(TCL_READLINE 1)
+
+    get_filename_component(TCL_READLINE_LIB_DIR "${TCL_READLINE_LIBRARY}" PATH)
+    get_filename_component(TCL_READLINE_LIB_PARENT "${TCL_READLINE_LIB_DIR}" PATH)
+    find_file(TCL_READLINE_HEADER tclreadline.h
+      PATHS ${TCL_READLINE_LIB_PARENT}
+      PATH_SUFFIXES include
+      NO_DEFAULT_PATH
+      )
+    message(STATUS "TCL readline header: ${TCL_READLINE_HEADER}")
+    get_filename_component(TCL_READLINE_INCLUDE "${TCL_READLINE_HEADER}" PATH)
+  else()
+    message(STATUS "TCL readline: not found")
+  endif()
+endif()
+
 # Zlib
 include(FindZLIB)
 
@@ -409,7 +435,7 @@ if (USE_CUDD)
     if (CUDD_HEADER)
       get_filename_component(CUDD_INCLUDE "${CUDD_HEADER}" PATH)
       message(STATUS "CUDD header: ${CUDD_HEADER}")
-      # CUDD referenced by StaConfig.hh.cmake
+      # Referenced by StaConfig.hh.cmake
       set(CUDD 1)
     else()
       message(STATUS "CUDD header: not found")
@@ -460,6 +486,7 @@ target_include_directories(OpenSTA
   PUBLIC
   include
   ${TCL_INCLUDE_PATH}
+  ${TCL_READLINE_INCLUDE}
 
   PRIVATE
   include/sta
@@ -496,6 +523,10 @@ target_link_libraries(sta
   ${TCL_LIBRARY}
   ${CMAKE_THREAD_LIBS_INIT}
   )
+
+if (TCL_READLINE_LIBRARY)
+  target_link_libraries(sta ${TCL_READLINE_LIBRARY})
+endif()
 
 if (ZLIB_LIBRARIES)
   target_link_libraries(sta ${ZLIB_LIBRARIES})

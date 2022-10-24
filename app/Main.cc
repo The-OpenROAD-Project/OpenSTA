@@ -15,14 +15,16 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "StaMain.hh"
+#include "StaConfig.hh"  // STA_VERSION
 
 #include <stdio.h>
 #include <cstdlib>              // exit
 #include <tcl.h>
+#if TCL_READLINE
+  #include <tclreadline.h>
+#endif
 
-#include "StaConfig.hh"  // STA_VERSION
 #include "Sta.hh"
-
 
 namespace sta {
 extern const char *tcl_inits[];
@@ -109,7 +111,16 @@ staTclAppInit(int argc,
 	      Tcl_Interp *interp)
 {
   // source init.tcl
-  Tcl_Init(interp);
+  if (Tcl_Init(interp) == TCL_ERROR)
+    return TCL_ERROR;
+
+#if TCL_READLINE
+  if (Tclreadline_Init(interp) == TCL_ERROR)
+    return TCL_ERROR;
+  Tcl_StaticPackage(interp, "tclreadline", Tclreadline_Init, Tclreadline_SafeInit);
+  if (Tcl_EvalFile(interp, TCLRL_LIBRARY "/tclreadlineInit.tcl") != TCL_OK)
+    printf("Failed to load tclreadline.tcl\n");
+#endif
 
   initStaApp(argc, argv, interp);
 
@@ -146,7 +157,11 @@ staTclAppInit(int argc,
       }
     }
   }
+#if TCL_READLINE
+  return Tcl_Eval(interp, "::tclreadline::Loop");
+#else
   return TCL_OK;
+#endif
 }
 
 static void
@@ -166,9 +181,7 @@ initStaApp(int &argc,
   Sta_Init(interp);
   // Eval encoded sta TCL sources.
   evalTclInit(interp, tcl_inits);
-  // Import exported commands from sta namespace to global namespace.
-  Tcl_Eval(interp, "sta::define_sta_cmds");
-  Tcl_Eval(interp, "namespace import sta::*");
+  Tcl_Eval(interp, "init_sta");
 }
 
 static void
