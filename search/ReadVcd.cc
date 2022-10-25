@@ -87,7 +87,7 @@ private:
 class VcdVar
 {
 public:
-  enum VarType {wire, reg};
+  enum VarType {wire, reg, parameter};
   VcdVar(string name,
          VarType type,
          int width,
@@ -190,12 +190,19 @@ VcdReader::VcdReader(StaState *sta) :
 void
 VcdReader::parseTimescale()
 {
-  string timescale = readStmtString();
-  size_t last;
-  time_scale_ = std::stod(timescale, &last);
-  if (last == token_.size())
-    report_->fileError(800, filename_, stmt_line_, "Missing timescale units.");
-  time_unit_ = timescale.substr(last + 1);
+  vector<string> tokens = readStmtTokens();
+  if (tokens.size() == 1) {
+    size_t last;
+    time_scale_ = std::stod(tokens[0], &last);
+    time_unit_ = tokens[0].substr(last);
+  }
+  else if (tokens.size() == 2) {
+    time_scale_ = std::stod(tokens[0]);
+    time_unit_ = tokens[1];
+  }
+  else
+    report_->fileError(800, filename_, stmt_line_, "timescale syntax error.");
+
   if (time_unit_ == "fs")
     time_unit_scale_ = 1e-15;
   else if (time_unit_ == "ps")
@@ -210,15 +217,16 @@ void
 VcdReader::parseVar()
 {
   vector<string> tokens = readStmtTokens();
-  if (tokens.size() != 4)
-    report_->fileError(802, filename_, stmt_line_, "Variable syntax error.");
-  else {
+  if (tokens.size() == 4
+      || tokens.size() == 5) {
     string type_name = tokens[0];
     VcdVar::VarType type = VcdVar::wire;
     if (type_name == "wire")
       type = VcdVar::wire;
     else if (type_name == "reg")
       type = VcdVar::reg;
+    else if (type_name == "parameter")
+      type = VcdVar::parameter;
     else
       report_->fileError(803, filename_, stmt_line_,
                          "Unknown variable type %s.",
@@ -227,10 +235,15 @@ VcdReader::parseVar()
     int width = stoi(tokens[1]);
     string id = tokens[2];
     string name = tokens[3];
+    // iverilog separates bus base name from bit range.
+    if (tokens.size() == 5)
+      name += tokens[4];
     vars_.push_back(VcdVar(name, type, width,  id));
     max_var_name_length_ = std::max(max_var_name_length_, name.size());
     max_var_width_ = std::max(max_var_width_, width);
   }
+  else
+    report_->fileError(802, filename_, stmt_line_, "Variable syntax error.");
 }
 
 void
@@ -286,7 +299,8 @@ VcdReader::parseVarValues()
         string id = getToken();
         auto var_itr = id_var_map_.find(id);
         if (var_itr == id_var_map_.end())
-          ("unknown variable %s\n", id.c_str());
+          report_->fileError(804, filename_, stmt_line_,
+                             "unknown variable %s", id.c_str());
         VcdVar *var = var_itr->second;
         //printf("%s = %lld\n", var->name().c_str(), bus_value);
         var->pushBusValue(time_, bus_value);
@@ -303,8 +317,8 @@ VcdReader::appendVarValue(string id,
 {
   auto var_itr = id_var_map_.find(id);
   if (var_itr == id_var_map_.end())
-    report_->fileError(800, filename_, stmt_line_, "Unknown var %s",
-                       id.c_str());
+    report_->fileError(805, filename_, stmt_line_,
+                       "Unknown variable %s", id.c_str());
   VcdVar *var = var_itr->second;
   var->pushValue(time_, value);
 }
@@ -323,13 +337,15 @@ VcdReader::varMinTimeDelta()
 {
   VarTime min_delta = std::numeric_limits<VarTime>::max();
   for (VcdVar &var : vars_) {
-    VcdValues var_values = var.values();
-    VarTime prev_time = var_values[0].time();
-    for (VcdValue &value : var_values) {
-      VarTime time_delta = value.time() - prev_time;
-      if (time_delta > 0)
-        min_delta = min(min_delta, time_delta);
-      prev_time = value.time();
+    const VcdValues &var_values = var.values();
+    if (!var_values.empty()) {
+      VarTime prev_time = var_values[0].time();
+      for (const VcdValue &value : var_values) {
+        VarTime time_delta = value.time() - prev_time;
+        if (time_delta > 0)
+          min_delta = min(min_delta, time_delta);
+        prev_time = value.time();
+      }
     }
   }
   return min_delta;
@@ -396,55 +412,52 @@ VcdReader::reportWaveforms()
   // Characters per time sample.
   int zoom = (max_var_width_ + 7) / 4;
   int time_delta = varMinTimeDelta();
-  // for (double time = 0.0; time < time_max_; time += time_delta) {
-  //   //printf("%-*g", time_delta * zoom - 1, time * time_scale_ * time_unit_scale_);
-  //   printf("%g", time * time_scale_ * time_unit_scale_);
-  // }
-  // printf("\n");
 
   for (VcdVar &var : vars_) {
     printf(" %-*s",
            static_cast<int>(max_var_name_length_),
            var.name().c_str());
     VcdValues var_values = var.values();
-    size_t value_index = 0;
-    VcdValue var_value = var_values[value_index];
-    VcdValue prev_var_value = var_values[value_index];
-    VarTime next_value_time = var_values[value_index + 1].time();
-    for (double time = 0.0; time < time_max_; time += time_delta) {
-      if (time >= next_value_time) {
-        if (value_index < var_values.size() - 1)
-          value_index++;
-        var_value = var_values[value_index];
-        if (value_index < var_values.size())
-          next_value_time = var_values[value_index + 1].time();
-      }
-      if (var_value.value()) {
-        // 01UZX
-        char value = var_value.value();
-        char prev_value = prev_var_value.value();
-        if (var.width() == 1) {
-          if (value == '0' || value == '1') {
-            for (int z = 0; z < zoom; z++) {
-              if (z == 0
-                  && value != prev_value
-                  && (prev_value == '0'
-                      || prev_value == '1'))
-                printf("%s", prev_value == '1' ? "╲" : "╱");
-              else
-                printf("%s", value == '1' ? "▔" : "▁");
+    if (!var_values.empty()) {
+      size_t value_index = 0;
+      VcdValue var_value = var_values[value_index];
+      VcdValue prev_var_value = var_values[value_index];
+      VarTime next_value_time = var_values[value_index + 1].time();
+      for (double time = 0.0; time < time_max_; time += time_delta) {
+        if (time >= next_value_time) {
+          if (value_index < var_values.size() - 1)
+            value_index++;
+          var_value = var_values[value_index];
+          if (value_index < var_values.size())
+            next_value_time = var_values[value_index + 1].time();
+        }
+        if (var_value.value()) {
+          // 01UZX
+          char value = var_value.value();
+          char prev_value = prev_var_value.value();
+          if (var.width() == 1) {
+            if (value == '0' || value == '1') {
+              for (int z = 0; z < zoom; z++) {
+                if (z == 0
+                    && value != prev_value
+                    && (prev_value == '0'
+                        || prev_value == '1'))
+                  printf("%s", prev_value == '1' ? "╲" : "╱");
+                else
+                  printf("%s", value == '1' ? "▔" : "▁");
+              }
             }
+            else
+              printf("%-*c", zoom, value);
           }
           else
             printf("%-*c", zoom, value);
         }
         else
-          printf("%-*c", zoom, value);
+          // bus
+          printf("%-*llX", zoom, var_value.busValue());
+        prev_var_value = var_value;
       }
-      else
-        // bus
-        printf("%-*llX", zoom, var_value.busValue());
-      prev_var_value = var_value;
     }
     printf("\n");
   }
