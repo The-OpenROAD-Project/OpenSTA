@@ -22,7 +22,6 @@
 #include "Report.hh"
 #include "StringUtil.hh"
 #include "StaState.hh"
-#include "Vcd.hh"
 
 namespace sta {
 
@@ -32,13 +31,6 @@ using std::isspace;
 // https://en.wikipedia.org/wiki/Value_change_dump#Structure.2FSyntax
 // Much better syntax definition
 // https://web.archive.org/web/20120323132708/http://www.beyondttl.com/vcd.php
-
-
-static void
-reportWaveforms(Vcd &vcd,
-                Report *report);
-
-////////////////////////////////////////////////////////////////
 
 class VcdReader : public StaState
 {
@@ -69,14 +61,13 @@ private:
   VcdScope scope_;
 };
 
-void
-reportVcdWaveforms(const char *filename,
-                   StaState *sta)
+Vcd
+readVcdFile(const char *filename,
+            StaState *sta)
 
 {
   VcdReader reader(sta);
-  Vcd vcd = reader.read(filename);
-  reportWaveforms(vcd, sta->report());
+  return reader.read(filename);
 }
 
 Vcd
@@ -330,7 +321,19 @@ VcdReader::getToken()
 
 ////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////
+static void
+reportWaveforms(Vcd &vcd,
+                Report *report);
+
+void
+reportVcdWaveforms(const char *filename,
+                   StaState *sta)
+
+{
+  VcdReader reader(sta);
+  Vcd vcd = reader.read(filename);
+  reportWaveforms(vcd, sta->report());
+}
 
 static void
 reportWaveforms(Vcd &vcd,

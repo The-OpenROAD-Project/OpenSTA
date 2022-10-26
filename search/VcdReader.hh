@@ -16,11 +16,13 @@
 
 #pragma once
 
+#include "Vcd.hh"
+
 namespace sta {
 
 class StaState;
 
-void
+Vcd
 readVcdFile(const char *filename,
             StaState *sta);
 
