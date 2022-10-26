@@ -72,7 +72,6 @@ class Vcd : public StaState
 public:
   Vcd(StaState *sta);
   VcdValues &values(VcdVar &var);
-  void reportWaveforms();
 
   const string &date() const { return date_; }
   void setDate(const string &date);
@@ -89,10 +88,13 @@ public:
   void setTimeMax(VarTime time_max);
   VarTime minDeltaTime() const { return min_delta_time_; }
   void setMinDeltaTime(VarTime min_delta_time);
+  vector<VcdVar> vars() { return vars_; }
   void makeVar(string &name,
                VcdVar::VarType type,
                int width,
                string &id);
+  int maxVarWidth() const { return max_var_width_; }
+  int maxVarNameLength() const { return max_var_name_length_; }
   bool varIdValid(string &id);
   void varAppendValue(string &id,
                       VarTime time,
@@ -134,6 +136,10 @@ private:
   uint64_t bus_value_;
 };
 
+static void
+reportWaveforms(Vcd &vcd,
+                Report *report);
+
 ////////////////////////////////////////////////////////////////
 
 class VcdReader : public StaState
@@ -172,7 +178,7 @@ readVcdFile(const char *filename,
 {
   VcdReader reader(sta);
   Vcd vcd = reader.read(filename);
-  vcd.reportWaveforms();
+  reportWaveforms(vcd, sta->report());
 }
 
 Vcd
@@ -435,75 +441,6 @@ Vcd::Vcd(StaState *sta) :
 {
 }
 
-void
-Vcd::reportWaveforms()
-{
-  report_->reportLine("Date: %s", date_.c_str());
-  report_->reportLine("Timescale: %.2f%s", time_scale_, time_unit_.c_str());
-  // Characters per time sample.
-  int zoom = (max_var_width_ + 7) / 4;
-  int time_delta = min_delta_time_;
-
-  for (VcdVar &var : vars_) {
-    string line;
-    stringPrint(line, " %-*s",
-                static_cast<int>(max_var_name_length_),
-                var.name().c_str());
-    const VcdValues &var_values = values(var);
-    if (!var_values.empty()) {
-      size_t value_index = 0;
-      VcdValue var_value = var_values[value_index];
-      VcdValue prev_var_value = var_values[value_index];
-      VarTime next_value_time = var_values[value_index + 1].time();
-      for (double time = 0.0; time < time_max_; time += time_delta) {
-        if (time >= next_value_time) {
-          if (value_index < var_values.size() - 1)
-            value_index++;
-          var_value = var_values[value_index];
-          if (value_index < var_values.size())
-            next_value_time = var_values[value_index + 1].time();
-        }
-        if (var_value.value()) {
-          // 01UZX
-          char value = var_value.value();
-          char prev_value = prev_var_value.value();
-          if (var.width() == 1) {
-            if (value == '0' || value == '1') {
-              for (int z = 0; z < zoom; z++) {
-                if (z == 0
-                    && value != prev_value
-                    && (prev_value == '0'
-                        || prev_value == '1'))
-                  line += (prev_value == '1') ? "╲" : "╱";
-                else
-                  line += (value == '1') ? "▔" : "▁";
-              }
-            }
-            else {
-              string field;
-              stringPrint(field, "%-*c", zoom, value);
-              line += field;
-            }
-          }
-          else {
-            string field;
-            stringPrint(field, "%-*c", zoom, value);
-            line += field;
-          }
-        }
-        else {
-          // bus
-          string field;
-          stringPrint(field, "%-*llX", zoom, var_value.busValue());
-          line += field;
-        }
-        prev_var_value = var_value;
-      }
-    }
-    report_->reportLineString(line);
-  }
-}
-
 ////////////////////////////////////////////////////////////////
 
 void
@@ -621,6 +558,79 @@ VcdValue::VcdValue(VarTime time,
   value_(value),
   bus_value_(bus_value)
 {
+}
+
+////////////////////////////////////////////////////////////////
+
+static void
+reportWaveforms(Vcd &vcd,
+                Report *report)
+{
+  report->reportLine("Date: %s", vcd.date().c_str());
+  report->reportLine("Timescale: %.2f%s", vcd.timeScale(), vcd.timeUnit().c_str());
+  // Characters per time sample.
+  int zoom = (vcd.maxVarWidth() + 7) / 4;
+  int time_delta = vcd.minDeltaTime();
+
+  int max_var_name_length = vcd.maxVarNameLength();
+  for (VcdVar &var : vcd.vars()) {
+    string line;
+    stringPrint(line, " %-*s",
+                static_cast<int>(max_var_name_length),
+                var.name().c_str());
+    const VcdValues &var_values = vcd.values(var);
+    if (!var_values.empty()) {
+      size_t value_index = 0;
+      VcdValue var_value = var_values[value_index];
+      VcdValue prev_var_value = var_values[value_index];
+      VarTime next_value_time = var_values[value_index + 1].time();
+      for (double time = 0.0; time < vcd.timeMax(); time += time_delta) {
+        if (time >= next_value_time) {
+          if (value_index < var_values.size() - 1)
+            value_index++;
+          var_value = var_values[value_index];
+          if (value_index < var_values.size())
+            next_value_time = var_values[value_index + 1].time();
+        }
+        if (var_value.value()) {
+          // 01UZX
+          char value = var_value.value();
+          char prev_value = prev_var_value.value();
+          if (var.width() == 1) {
+            if (value == '0' || value == '1') {
+              for (int z = 0; z < zoom; z++) {
+                if (z == 0
+                    && value != prev_value
+                    && (prev_value == '0'
+                        || prev_value == '1'))
+                  line += (prev_value == '1') ? "╲" : "╱";
+                else
+                  line += (value == '1') ? "▔" : "▁";
+              }
+            }
+            else {
+              string field;
+              stringPrint(field, "%-*c", zoom, value);
+              line += field;
+            }
+          }
+          else {
+            string field;
+            stringPrint(field, "%-*c", zoom, value);
+            line += field;
+          }
+        }
+        else {
+          // bus
+          string field;
+          stringPrint(field, "%-*llX", zoom, var_value.busValue());
+          line += field;
+        }
+        prev_var_value = var_value;
+      }
+    }
+    report->reportLineString(line);
+  }
 }
 
 }
