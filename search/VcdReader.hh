@@ -24,4 +24,8 @@ void
 readVcdFile(const char *filename,
             StaState *sta);
 
+void
+reportVcdWaveforms(const char *filename,
+                   StaState *sta);
+
 }

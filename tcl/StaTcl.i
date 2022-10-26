@@ -80,7 +80,7 @@
 #include "search/Levelize.hh"
 #include "search/ReportPath.hh"
 #include "search/Power.hh"
-#include "search/ReadVcd.hh"
+#include "search/VcdReader.hh"
 
 namespace sta {
 
@@ -5572,9 +5572,9 @@ endpoint_count()
 }
 
 void
-read_vcd(const char *filename)
+report_vcd_waveforms(const char *filename)
 {
-  readVcdFile(filename, Sta::sta());
+  reportVcdWaveforms(filename, Sta::sta());
 }
 
 %} // inline

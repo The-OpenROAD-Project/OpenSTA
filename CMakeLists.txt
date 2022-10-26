@@ -173,7 +173,6 @@ set(STA_SOURCE
   search/PathRef.cc
   search/PathVertex.cc
   search/PathVertexRep.cc
-  search/ReadVcd.cc
   search/Power.cc
   search/Property.cc
   search/ReportPath.cc
@@ -184,6 +183,8 @@ set(STA_SOURCE
   search/StaState.cc
   search/Tag.cc
   search/TagGroup.cc
+  search/Vcd.cc
+  search/VcdReader.cc
   search/VertexVisitor.cc
   search/VisitPathEnds.cc
   search/VisitPathGroupVertices.cc

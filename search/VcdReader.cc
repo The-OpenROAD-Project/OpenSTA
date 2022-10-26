@@ -14,127 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <string>
 #include <cctype>
-#include <vector>
-#include <map>
-#include <algorithm>
 
-#include "ReadVcd.hh"
+#include "VcdReader.hh"
 
 #include "Zlib.hh"
 #include "Report.hh"
 #include "StringUtil.hh"
 #include "StaState.hh"
+#include "Vcd.hh"
 
 namespace sta {
 
-using std::string;
 using std::isspace;
-using std::vector;
-using std::map;
-using std::max;
-using std::min;
-
-class VcdVar;
-class VcdValue;
-typedef vector<VcdValue> VcdValues;
-typedef int64_t VarTime;
-typedef vector<string> VcdScope;
 
 // Very imprecise syntax definition
 // https://en.wikipedia.org/wiki/Value_change_dump#Structure.2FSyntax
 // Much better syntax definition
 // https://web.archive.org/web/20120323132708/http://www.beyondttl.com/vcd.php
 
-class VcdVar
-{
-public:
-  enum VarType {wire, reg, parameter};
-  VcdVar(string name,
-         VarType type,
-         int width,
-         string id);
-  const string& name() const { return name_; }
-  VarType type() const { return type_; }
-  int width() const { return width_; }
-  const string& id() const { return id_; }
-
-private:
-  string name_;
-  VarType type_;
-  int width_;
-  string id_;
-};
-
-class Vcd : public StaState
-{
-public:
-  Vcd(StaState *sta);
-  VcdValues &values(VcdVar &var);
-
-  const string &date() const { return date_; }
-  void setDate(const string &date);
-  const string &comment() const { return comment_; }
-  void setComment(const string &comment);
-  const string &version() const { return version_; }
-  void setVersion(const string &version); 
-  double timeScale() const { return time_scale_; }
-  void setTimeScale(double time_scale);
-  const string &timeUnit() const { return time_unit_; }
-  void setTimeUnit(const string &time_unit,
-                   double time_unit_scale);
-  VarTime timeMax() const { return time_max_; }
-  void setTimeMax(VarTime time_max);
-  VarTime minDeltaTime() const { return min_delta_time_; }
-  void setMinDeltaTime(VarTime min_delta_time);
-  vector<VcdVar> vars() { return vars_; }
-  void makeVar(string &name,
-               VcdVar::VarType type,
-               int width,
-               string &id);
-  int maxVarWidth() const { return max_var_width_; }
-  int maxVarNameLength() const { return max_var_name_length_; }
-  bool varIdValid(string &id);
-  void varAppendValue(string &id,
-                      VarTime time,
-                      char value);
-  void varAppendBusValue(string &id,
-                         VarTime time,
-                         int64_t bus_value);
-
-private:
-  string date_;
-  string comment_;
-  string version_;
-  double time_scale_;
-  string time_unit_;
-  double time_unit_scale_;
-
-  vector<VcdVar> vars_;
-  size_t max_var_name_length_;
-  int max_var_width_;
-  map<string, VcdValues> id_values_map_;
-  VarTime min_delta_time_;
-  VarTime time_max_;
-};
-
-class VcdValue
-{
-public:
-  VcdValue(VarTime time,
-           char value,
-           uint64_t bus_value);
-  VarTime time() const { return time_; }
-  char value() const { return value_; }
-  uint64_t busValue() const { return bus_value_; }
-
-private:
-  VarTime time_;
-  // 01XUZ or '\0' when width > 1 to use bus_value_.
-  char value_;
-  uint64_t bus_value_;
-};
 
 static void
 reportWaveforms(Vcd &vcd,
@@ -172,8 +70,8 @@ private:
 };
 
 void
-readVcdFile(const char *filename,
-            StaState *sta)
+reportVcdWaveforms(const char *filename,
+                   StaState *sta)
 
 {
   VcdReader reader(sta);
@@ -274,13 +172,13 @@ VcdReader::parseVar()
   if (tokens.size() == 4
       || tokens.size() == 5) {
     string type_name = tokens[0];
-    VcdVar::VarType type = VcdVar::wire;
+    VcdVarType type = VcdVarType::wire;
     if (type_name == "wire")
-      type = VcdVar::wire;
+      type = VcdVarType::wire;
     else if (type_name == "reg")
-      type = VcdVar::reg;
+      type = VcdVarType::reg;
     else if (type_name == "parameter")
-      type = VcdVar::parameter;
+      type = VcdVarType::parameter;
     else
       report_->fileError(803, filename_, stmt_line_,
                          "Unknown variable type %s.",
@@ -431,134 +329,6 @@ VcdReader::getToken()
 }
 
 ////////////////////////////////////////////////////////////////
-
-Vcd::Vcd(StaState *sta) :
-  StaState(sta),
-  time_unit_scale_(0.0),
-  max_var_name_length_(0),
-  max_var_width_(0),
-  time_max_(0)
-{
-}
-
-////////////////////////////////////////////////////////////////
-
-void
-Vcd::setTimeUnit(const string &time_unit,
-                 double time_unit_scale)
-{
-  time_unit_ = time_unit;
-  time_unit_scale_ = time_unit_scale;
-}
-
-void
-Vcd::setDate(const string &date)
-{
-  date_ = date;
-}
-
-void
-Vcd::setComment(const string &comment)
-{
-  comment_ = comment;
-}
-
-void
-Vcd::setVersion(const string &version)
-{
-  version_ = version;
-}
-
-void
-Vcd::setTimeScale(double time_scale)
-{
-  time_scale_ = time_scale;
-}
-
-void
-Vcd::setMinDeltaTime(VarTime min_delta_time)
-{
-  min_delta_time_ = min_delta_time;
-}
-
-void
-Vcd::setTimeMax(VarTime time_max)
-{
-  time_max_ = time_max;
-}
-
-void
-Vcd::makeVar(string &name,
-             VcdVar::VarType type,
-             int width,
-             string &id)
-{
-  vars_.push_back(VcdVar(name, type, width, id));
-  max_var_name_length_ = std::max(max_var_name_length_, name.size());
-  max_var_width_ = std::max(max_var_width_, width);
-  // Make entry for var ID.
-  id_values_map_[id].clear();
-}
-
-bool
-Vcd::varIdValid(string &id)
-{
-  return id_values_map_.find(id) != id_values_map_.end();
-}
-
-void
-Vcd::varAppendValue(string &id,
-                    VarTime time,
-                    char value)
-{
-  VcdValues &values = id_values_map_[id];
-  values.push_back(VcdValue(time, value, 0));
-}
-
-void
-Vcd::varAppendBusValue(string &id,
-                       VarTime time,
-                       int64_t bus_value)
-{
-  VcdValues &values = id_values_map_[id];
-  values.push_back(VcdValue(time, '\0', bus_value));
-}
-
-VcdValues &
-Vcd::values(VcdVar &var)
-{
-  if (id_values_map_.find(var.id()) ==  id_values_map_.end()) {
-    report_->error(805, "Unknown variable %s ID %s",
-                   var.name().c_str(),
-                   var.id().c_str());
-    static VcdValues empty;
-    return empty;
-  }
-  else
-    return id_values_map_[var.id()];
-}
-
-////////////////////////////////////////////////////////////////
-
-VcdVar::VcdVar(string name,
-               VarType type,
-               int width,
-               string id) :
-  name_(name),
-  type_(type),
-  width_(width),
-  id_(id)
-{
-}
-
-VcdValue::VcdValue(VarTime time,
-                   char value,
-                   uint64_t bus_value) :
-  time_(time),
-  value_(value),
-  bus_value_(bus_value)
-{
-}
 
 ////////////////////////////////////////////////////////////////
 
