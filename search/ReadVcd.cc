@@ -61,12 +61,11 @@ private:
   void makeVarIdMap();
   void appendVarValue(string id,
                       char value);
-  size_t varMaxValueCount();
   VarTime varMinTimeDelta();
   string getToken();
   string readStmtString();
   vector<string> readStmtTokens();
-
+  VcdValues &values(VcdVar &var);
 
   gzFile stream_;
   string token_;
@@ -83,7 +82,7 @@ private:
   vector<VcdVar> vars_;
   size_t max_var_name_length_;
   int max_var_width_;
-  map<string, VcdVar*> id_var_map_;
+  map<string, VcdValues> id_values_map_;
   VarTime time_;
   VarTime time_max_;
 };
@@ -100,18 +99,12 @@ public:
   VarType type() const { return type_; }
   int width() const { return width_; }
   const string& id() const { return id_; }
-  void pushValue(VarTime time,
-                 char value);
-  void pushBusValue(VarTime time,
-                    VarTime bus_value);
-  VcdValues values() { return values_; }
 
 private:
   string name_;
   VarType type_;
   int width_;
   string id_;
-  VcdValues values_;
 };
 
 class VcdValue
@@ -268,15 +261,13 @@ VcdReader::parseUpscope()
   readStmtTokens();
 }
 
-// vars_ grows so the map has to be built after the vars.
+// Make entries for each ID used by variables.
 void
 VcdReader::makeVarIdMap()
 {
   for (VcdVar &var : vars_) {
     const string &id = var.id();
-    // Use the first variable definition which has the highest scope.
-    if (id_var_map_.find(id) == id_var_map_.end())
-      id_var_map_[id] = &var;
+    id_values_map_[id].clear();
   }
 }
 
@@ -306,12 +297,12 @@ VcdReader::parseVarValues()
         char *end;
         int64_t bus_value = strtol(bin.c_str(), &end, 2);
         string id = getToken();
-        auto var_itr = id_var_map_.find(id);
-        if (var_itr == id_var_map_.end())
+        auto values_itr = id_values_map_.find(id);
+        if (values_itr == id_values_map_.end())
           report_->fileError(804, filename_, stmt_line_,
                              "unknown variable %s", id.c_str());
-        VcdVar *var = var_itr->second;
-        var->pushBusValue(time_, bus_value);
+        VcdValues &values = values_itr->second;
+        values.push_back(VcdValue(time_, '\0', bus_value));
       }
     }
     token = getToken();
@@ -323,29 +314,27 @@ void
 VcdReader::appendVarValue(string id,
                           char value)
 {
-  auto var_itr = id_var_map_.find(id);
-  if (var_itr == id_var_map_.end())
+  auto values_itr = id_values_map_.find(id);
+  if (values_itr == id_values_map_.end())
     report_->fileError(805, filename_, stmt_line_,
                        "Unknown variable %s", id.c_str());
-  VcdVar *var = var_itr->second;
-  var->pushValue(time_, value);
+  VcdValues &values = values_itr->second;
+  values.push_back(VcdValue(time_, value, 0));
 }
 
-size_t
-VcdReader::varMaxValueCount()
+VcdValues &
+VcdReader::values(VcdVar &var)
 {
-  size_t max_count = 0;
-  for (VcdVar &var : vars_)
-    max_count = max(max_count, var.values().size());
-  return max_count;
+  return id_values_map_[var.id()];
 }
+
 
 VarTime
 VcdReader::varMinTimeDelta()
 {
   VarTime min_delta = std::numeric_limits<VarTime>::max();
   for (VcdVar &var : vars_) {
-    const VcdValues &var_values = var.values();
+    const VcdValues &var_values = values(var);
     if (!var_values.empty()) {
       VarTime prev_time = var_values[0].time();
       for (const VcdValue &value : var_values) {
@@ -425,8 +414,7 @@ VcdReader::reportWaveforms()
     printf(" %-*s",
            static_cast<int>(max_var_name_length_),
            var.name().c_str());
-    // WRONG - copies vector
-    VcdValues var_values = var.values();
+    const VcdValues &var_values = values(var);
     if (!var_values.empty()) {
       size_t value_index = 0;
       VcdValue var_value = var_values[value_index];
@@ -483,20 +471,6 @@ VcdVar::VcdVar(string name,
   width_(width),
   id_(id)
 {
-}
-
-void
-VcdVar::pushValue(VarTime time,
-                  char value)
-{
-  values_.push_back(VcdValue(time, value, 0));
-}
-
-void
-VcdVar::pushBusValue(VarTime time,
-                     int64_t bus_value)
-{
-  values_.push_back(VcdValue(time, '\0', bus_value));
 }
 
 VcdValue::VcdValue(VarTime time,
