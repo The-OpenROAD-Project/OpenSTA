@@ -40,6 +40,11 @@ class VcdValue;
 typedef vector<VcdValue> VcdValues;
 typedef int64_t VarTime;
 
+// Very imprecise syntax definition
+// https://en.wikipedia.org/wiki/Value_change_dump#Structure.2FSyntax
+// Much better syntax definition
+// https://web.archive.org/web/20120323132708/http://www.beyondttl.com/vcd.php
+
 class VcdReader : public StaState
 {
 public:
@@ -52,7 +57,6 @@ private:
   void parseVar();
   void parseScope();
   void parseUpscope();
-  void parseDumpvars();
   void parseVarValues();
   void makeVarIdMap();
   void appendVarValue(string id,
@@ -149,28 +153,33 @@ VcdReader::read(const char *filename)
     while (!token.empty()) {
       if (token == "$date")
         date_ = readStmtString();
-      if (token == "$comment")
+      else if (token == "$comment")
         comment_ = readStmtString();
       else if (token == "$version")
         version_ = readStmtString();
       else if (token == "$timescale")
         parseTimescale();
-      if (token == "$var")
+      else if (token == "$var")
         parseVar();
       else if (token == "$scope")
         parseScope();
       else if (token == "$upscope")
         parseUpscope();
-      else if (token == "$dumpvars")
-        parseDumpvars();
       else if (token == "$enddefinitions") {
         // empty body
         readStmtString();
         makeVarIdMap();
-        parseVarValues();
       }
+      else if (token == "$dumpall")
+        parseVarValues();
+      else if (token == "$dumpvars")
+        // Initial values.
+        parseVarValues();
+      else if (token[0] == '$')
+        report_->fileError(800, filename_, stmt_line_, "unhandled vcd command.");
+      else
+        parseVarValues();
       token = getToken();
-
     }
     gzclose(stream_);
   }
@@ -238,6 +247,7 @@ VcdReader::parseVar()
     // iverilog separates bus base name from bit range.
     if (tokens.size() == 5)
       name += tokens[4];
+
     vars_.push_back(VcdVar(name, type, width,  id));
     max_var_name_length_ = std::max(max_var_name_length_, name.size());
     max_var_width_ = std::max(max_var_width_, width);
@@ -249,24 +259,25 @@ VcdReader::parseVar()
 void
 VcdReader::parseScope()
 {
+  readStmtTokens();
 }
 
 void
 VcdReader::parseUpscope()
 {
-}
-
-void
-VcdReader::parseDumpvars()
-{
+  readStmtTokens();
 }
 
 // vars_ grows so the map has to be built after the vars.
 void
 VcdReader::makeVarIdMap()
 {
-  for (VcdVar &var : vars_)
-    id_var_map_[var.id()] = &var;
+  for (VcdVar &var : vars_) {
+    const string &id = var.id();
+    // Use the first variable definition which has the highest scope.
+    if (id_var_map_.find(id) == id_var_map_.end())
+      id_var_map_[id] = &var;
+  }
 }
 
 void
@@ -274,10 +285,8 @@ VcdReader::parseVarValues()
 {
   string token = getToken();
   while (!token.empty()) {
-    if (token[0] == '#') {
+    if (token[0] == '#')
       time_ = stoll(token.substr(1));
-      //printf("time = %lld\n", time_);
-    }
     else if (token[0] == '0'
              || token[0] == '1'
              || token[0] == 'X'
@@ -302,7 +311,6 @@ VcdReader::parseVarValues()
           report_->fileError(804, filename_, stmt_line_,
                              "unknown variable %s", id.c_str());
         VcdVar *var = var_itr->second;
-        //printf("%s = %lld\n", var->name().c_str(), bus_value);
         var->pushBusValue(time_, bus_value);
       }
     }
@@ -417,6 +425,7 @@ VcdReader::reportWaveforms()
     printf(" %-*s",
            static_cast<int>(max_var_name_length_),
            var.name().c_str());
+    // WRONG - copies vector
     VcdValues var_values = var.values();
     if (!var_values.empty()) {
       size_t value_index = 0;
