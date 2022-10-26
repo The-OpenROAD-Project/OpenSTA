@@ -24,6 +24,7 @@
 
 #include "Zlib.hh"
 #include "Report.hh"
+#include "StringUtil.hh"
 #include "StaState.hh"
 
 namespace sta {
@@ -62,7 +63,6 @@ private:
   void makeVarIdMap();
   void appendVarValue(string id,
                       char value);
-  VarTime varMinTimeDelta();
   string getToken();
   string readStmtString();
   vector<string> readStmtTokens();
@@ -85,6 +85,8 @@ private:
   int max_var_width_;
   map<string, VcdValues> id_values_map_;
   VarTime time_;
+  VarTime prev_time_;
+  VarTime min_delta_time_;
   VarTime time_max_;
   VcdScope scope_;
 };
@@ -187,6 +189,8 @@ VcdReader::VcdReader(StaState *sta) :
   max_var_name_length_(0),
   max_var_width_(0),
   time_(0),
+  prev_time_(0),
+  min_delta_time_(std::numeric_limits<VarTime>::max()),
   time_max_(0)
 {
 }
@@ -294,8 +298,12 @@ VcdReader::parseVarValues()
 {
   string token = getToken();
   while (!token.empty()) {
-    if (token[0] == '#')
+    if (token[0] == '#') {
+      prev_time_ = time_;
       time_ = stoll(token.substr(1));
+      if (time_ > prev_time_)
+        min_delta_time_ = min(time_ - prev_time_, min_delta_time_);
+    }
     else if (token[0] == '0'
              || token[0] == '1'
              || token[0] == 'X'
@@ -343,27 +351,15 @@ VcdReader::appendVarValue(string id,
 VcdValues &
 VcdReader::values(VcdVar &var)
 {
-  return id_values_map_[var.id()];
-}
-
-
-VarTime
-VcdReader::varMinTimeDelta()
-{
-  VarTime min_delta = std::numeric_limits<VarTime>::max();
-  for (VcdVar &var : vars_) {
-    const VcdValues &var_values = values(var);
-    if (!var_values.empty()) {
-      VarTime prev_time = var_values[0].time();
-      for (const VcdValue &value : var_values) {
-        VarTime time_delta = value.time() - prev_time;
-        if (time_delta > 0)
-          min_delta = min(min_delta, time_delta);
-        prev_time = value.time();
-      }
-    }
+  if (id_values_map_.find(var.id()) ==  id_values_map_.end()) {
+    report_->error(805, "Unknown variable %s ID %s",
+                   var.name().c_str(),
+                   var.id().c_str());
+    static VcdValues empty;
+    return empty;
   }
-  return min_delta;
+  else
+    return id_values_map_[var.id()];
 }
 
 string
@@ -422,16 +418,17 @@ VcdReader::getToken()
 void
 VcdReader::reportWaveforms()
 {
-  printf("Date: %s\n", date_.c_str());
-  printf("Timescale: %.2f%s\n", time_scale_, time_unit_.c_str());
+  report_->reportLine("Date: %s", date_.c_str());
+  report_->reportLine("Timescale: %.2f%s", time_scale_, time_unit_.c_str());
   // Characters per time sample.
   int zoom = (max_var_width_ + 7) / 4;
-  int time_delta = varMinTimeDelta();
+  int time_delta = min_delta_time_;
 
   for (VcdVar &var : vars_) {
-    printf(" %-*s",
-           static_cast<int>(max_var_name_length_),
-           var.name().c_str());
+    string line;
+    stringPrint(line, " %-*s",
+                static_cast<int>(max_var_name_length_),
+                var.name().c_str());
     const VcdValues &var_values = values(var);
     if (!var_values.empty()) {
       size_t value_index = 0;
@@ -457,24 +454,33 @@ VcdReader::reportWaveforms()
                     && value != prev_value
                     && (prev_value == '0'
                         || prev_value == '1'))
-                  printf("%s", prev_value == '1' ? "╲" : "╱");
+                  line += (prev_value == '1') ? "╲" : "╱";
                 else
-                  printf("%s", value == '1' ? "▔" : "▁");
+                  line += (value == '1') ? "▔" : "▁";
               }
             }
-            else
-              printf("%-*c", zoom, value);
+            else {
+              string field;
+              stringPrint(field, "%-*c", zoom, value);
+              line += field;
+            }
           }
-          else
-            printf("%-*c", zoom, value);
+          else {
+            string field;
+            stringPrint(field, "%-*c", zoom, value);
+            line += field;
+          }
         }
-        else
+        else {
           // bus
-          printf("%-*llX", zoom, var_value.busValue());
+          string field;
+          stringPrint(field, "%-*llX", zoom, var_value.busValue());
+          line += field;
+        }
         prev_var_value = var_value;
       }
     }
-    printf("\n");
+    report_->reportLineString(line);
   }
 }
 
