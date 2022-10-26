@@ -39,6 +39,7 @@ class VcdVar;
 class VcdValue;
 typedef vector<VcdValue> VcdValues;
 typedef int64_t VarTime;
+typedef vector<string> VcdScope;
 
 // Very imprecise syntax definition
 // https://en.wikipedia.org/wiki/Value_change_dump#Structure.2FSyntax
@@ -85,6 +86,7 @@ private:
   map<string, VcdValues> id_values_map_;
   VarTime time_;
   VarTime time_max_;
+  VcdScope scope_;
 };
 
 class VcdVar
@@ -236,7 +238,20 @@ VcdReader::parseVar()
 
     int width = stoi(tokens[1]);
     string id = tokens[2];
-    string name = tokens[3];
+    string name;
+
+    int level = 0;
+    for (string &context : scope_) {
+      // Skip the first 2 levels of scope.
+      //  -test bench module
+      //  -design instance
+      if (level > 1) {
+        name += context;
+        name += '/';
+      }
+      level++;
+    }
+    name += tokens[3];
     // iverilog separates bus base name from bit range.
     if (tokens.size() == 5)
       name += tokens[4];
@@ -252,13 +267,16 @@ VcdReader::parseVar()
 void
 VcdReader::parseScope()
 {
-  readStmtTokens();
+  vector<string> tokens = readStmtTokens();
+  string &scope = tokens[1];
+  scope_.push_back(scope);
 }
 
 void
 VcdReader::parseUpscope()
 {
   readStmtTokens();
+  scope_.pop_back();
 }
 
 // Make entries for each ID used by variables.
