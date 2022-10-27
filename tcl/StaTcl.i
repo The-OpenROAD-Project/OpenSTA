@@ -81,6 +81,7 @@
 #include "search/ReportPath.hh"
 #include "search/Power.hh"
 #include "search/VcdReader.hh"
+#include "search/ReadVcdActivities.hh"
 
 namespace sta {
 
@@ -5006,6 +5007,12 @@ set_power_pin_activity(const Pin *pin,
 {
   return Sta::sta()->power()->setUserActivity(pin, activity, duty,
 					      PwrActivityOrigin::user);
+}
+
+void
+read_vcd_activities(const char *filename)
+{
+  readVcdActivities(filename, Sta::sta());
 }
 
 ////////////////////////////////////////////////////////////////

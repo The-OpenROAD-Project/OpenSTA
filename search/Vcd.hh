@@ -37,7 +37,7 @@ typedef vector<VcdValue> VcdValues;
 typedef int64_t VarTime;
 typedef vector<string> VcdScope;
 
-enum class VcdVarType { wire, reg, parameter };
+enum class VcdVarType { wire, reg, parameter, real };
 
 class Vcd : public StaState
 {
@@ -54,6 +54,7 @@ public:
   double timeScale() const { return time_scale_; }
   void setTimeScale(double time_scale);
   const string &timeUnit() const { return time_unit_; }
+  double timeUnitScale() const { return time_unit_scale_; }
   void setTimeUnit(const string &time_unit,
                    double time_unit_scale);
   VarTime timeMax() const { return time_max_; }
@@ -127,4 +128,4 @@ private:
   uint64_t bus_value_;
 };
 
-}
+} // namespace

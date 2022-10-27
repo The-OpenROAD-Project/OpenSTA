@@ -175,6 +175,7 @@ set(STA_SOURCE
   search/PathVertexRep.cc
   search/Power.cc
   search/Property.cc
+  search/ReadVcdActivities.cc
   search/ReportPath.cc
   search/Search.cc
   search/SearchPred.cc

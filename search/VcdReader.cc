@@ -21,7 +21,6 @@
 #include "Zlib.hh"
 #include "Report.hh"
 #include "StringUtil.hh"
-#include "StaState.hh"
 
 namespace sta {
 
@@ -170,6 +169,8 @@ VcdReader::parseVar()
       type = VcdVarType::reg;
     else if (type_name == "parameter")
       type = VcdVarType::parameter;
+    else if (type_name == "real")
+      type = VcdVarType::real;
     else
       report_->fileError(803, filename_, stmt_line_,
                          "Unknown variable type %s.",
@@ -221,33 +222,35 @@ VcdReader::parseVarValues()
 {
   string token = getToken();
   while (!token.empty()) {
-    if (token[0] == '#') {
+    char char0 = toupper(token[0]);
+    if (char0 == '#') {
       prev_time_ = time_;
       time_ = stoll(token.substr(1));
       if (time_ > prev_time_)
         vcd_->setMinDeltaTime(min(time_ - prev_time_, vcd_->minDeltaTime()));
     }
-    else if (token[0] == '0'
-             || token[0] == '1'
-             || token[0] == 'X'
-             || token[0] == 'U'
-             || token[0] == 'Z') {
+    else if (char0 == '0'
+             || char0 == '1'
+             || char0 == 'X'
+             || char0 == 'U'
+             || char0 == 'Z') {
       string id = token.substr(1);
       if (!vcd_->varIdValid(id))
         report_->fileError(804, filename_, stmt_line_,
                            "unknown variable %s", id.c_str());
-      vcd_->varAppendValue(id, time_, token[0]);
+      vcd_->varAppendValue(id, time_, char0);
     }
-    else if (token[0] == 'b') {
-      if (token[1] == 'X'
-          || token[1] == 'U'
-          || token[1] == 'Z') {
+    else if (char0 == 'B') {
+      char char1 = toupper(token[1]);
+      if (char1 == 'X'
+          || char1 == 'U'
+          || char1 == 'Z') {
         string id = getToken();
         if (!vcd_->varIdValid(id))
           report_->fileError(804, filename_, stmt_line_,
                              "unknown variable %s", id.c_str());
         // Bus mixed 0/1/X/U not supported.
-        vcd_->varAppendValue(id, time_, token[1]);
+        vcd_->varAppendValue(id, time_, char1);
       }
       else {
         string bin = token.substr(1);
@@ -330,8 +333,7 @@ reportVcdWaveforms(const char *filename,
                    StaState *sta)
 
 {
-  VcdReader reader(sta);
-  Vcd vcd = reader.read(filename);
+  Vcd vcd = readVcdFile(filename, sta);
   reportWaveforms(vcd, sta->report());
 }
 
