@@ -173,9 +173,7 @@ set(STA_SOURCE
   search/PathRef.cc
   search/PathVertex.cc
   search/PathVertexRep.cc
-  search/Power.cc
   search/Property.cc
-  search/ReadVcdActivities.cc
   search/ReportPath.cc
   search/Search.cc
   search/SearchPred.cc
@@ -184,13 +182,16 @@ set(STA_SOURCE
   search/StaState.cc
   search/Tag.cc
   search/TagGroup.cc
-  search/Vcd.cc
-  search/VcdReader.cc
   search/VertexVisitor.cc
   search/VisitPathEnds.cc
   search/VisitPathGroupVertices.cc
   search/WorstSlack.cc
   search/WritePathSpice.cc
+
+  power/Power.cc
+  power/ReadVcdActivities.cc
+  power/Vcd.cc
+  power/VcdReader.cc
 
   util/Debug.cc
   util/DispatchQueue.cc
@@ -229,10 +230,10 @@ set(STA_TCL_FILES
   tcl/Cmds.tcl
   tcl/Variables.tcl
   tcl/Sta.tcl
-  tcl/Power.tcl
   tcl/Splash.tcl
   dcalc/DelayCalc.tcl
   parasitics/Parasitics.tcl
+  power/Power.tcl
   sdf/Sdf.tcl
   verilog/Verilog.tcl
   )
@@ -315,18 +316,20 @@ set_property(SOURCE ${STA_SWIG_FILE}
   -I${STA_HOME}/sdf
   -I${STA_HOME}/dcalc
   -I${STA_HOME}/parasitics
+  -I${STA_HOME}/power
   -I${STA_HOME}/verilog
 )
 
 set_property(SOURCE ${STA_SWIG_FILE}
   PROPERTY DEPENDS
+  ${STA_HOME}/dcalc/DelayCalc.i
+  ${STA_HOME}/parasitics/Parasitics.i
+  ${STA_HOME}/power/Power.i
+  ${STA_HOME}/sdf/Sdf.i
   ${STA_HOME}/tcl/Exception.i
   ${STA_HOME}/tcl/StaTcl.i
-  ${STA_HOME}/verilog/Verilog.i
   ${STA_HOME}/tcl/NetworkEdit.i
-  ${STA_HOME}/sdf/Sdf.i
-  ${STA_HOME}/parasitics/Parasitics.i
-  ${STA_HOME}/dcalc/DelayCalc.i
+  ${STA_HOME}/verilog/Verilog.i
 )
 
 swig_add_library(sta_swig

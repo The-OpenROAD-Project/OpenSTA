@@ -68,7 +68,7 @@
 #include "VisitPathGroupVertices.hh"
 #include "Genclks.hh"
 #include "ClkNetwork.hh"
-#include "Power.hh"
+#include "power/Power.hh"
 #include "VisitPathEnds.hh"
 #include "PathExpanded.hh"
 #include "MakeTimingModel.hh"

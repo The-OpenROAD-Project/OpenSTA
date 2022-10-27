@@ -79,9 +79,6 @@
 #include "search/CheckMinPulseWidths.hh"
 #include "search/Levelize.hh"
 #include "search/ReportPath.hh"
-#include "search/Power.hh"
-#include "search/VcdReader.hh"
-#include "search/ReadVcdActivities.hh"
 
 namespace sta {
 
@@ -4948,75 +4945,6 @@ report_capacitance_limit_verbose(Pin *pin,
 
 ////////////////////////////////////////////////////////////////
 
-TmpFloatSeq *
-design_power(const Corner *corner)
-{
-  cmdLinkedNetwork();
-  PowerResult total, sequential, combinational, macro, pad;
-  Sta::sta()->power(corner, total, sequential, combinational, macro, pad);
-  FloatSeq *floats = new FloatSeq;
-  pushPowerResultFloats(total, floats);
-  pushPowerResultFloats(sequential, floats);
-  pushPowerResultFloats(combinational, floats);
-  pushPowerResultFloats(macro, floats);
-  pushPowerResultFloats(pad, floats);
-  return floats;
-}
-
-TmpFloatSeq *
-instance_power(Instance *inst,
-	       const Corner *corner)
-{
-  cmdLinkedNetwork();
-  PowerResult power;
-  Sta::sta()->power(inst, corner, power);
-  FloatSeq *floats = new FloatSeq;
-  floats->push_back(power.internal());
-  floats->push_back(power.switching());
-  floats->push_back(power.leakage());
-  floats->push_back(power.total());
-  return floats;
-}
-
-void
-set_power_global_activity(float activity,
-			  float duty)
-{
-  Sta::sta()->power()->setGlobalActivity(activity, duty);
-}
-
-void
-set_power_input_activity(float activity,
-			 float duty)
-{
-  return Sta::sta()->power()->setInputActivity(activity, duty);
-}
-
-void
-set_power_input_port_activity(const Port *input_port,
-			      float activity,
-			      float duty)
-{
-  return Sta::sta()->power()->setInputPortActivity(input_port, activity, duty);
-}
-
-void
-set_power_pin_activity(const Pin *pin,
-		       float activity,
-		       float duty)
-{
-  return Sta::sta()->power()->setUserActivity(pin, activity, duty,
-					      PwrActivityOrigin::user);
-}
-
-void
-read_vcd_activities(const char *filename)
-{
-  readVcdActivities(filename, Sta::sta());
-}
-
-////////////////////////////////////////////////////////////////
-
 EdgeSeq *
 disabled_edges_sorted()
 {
@@ -5576,12 +5504,6 @@ int
 endpoint_count()
 {
   return Sta::sta()->endpointCount();
-}
-
-void
-report_vcd_waveforms(const char *filename)
-{
-  reportVcdWaveforms(filename, Sta::sta());
 }
 
 %} // inline
