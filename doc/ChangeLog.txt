@@ -7,6 +7,11 @@ The report_parasitics_annotation command reports SPEF annotation completeness.
 
   report_parasitics_annotation [-report_unannotated]
 
+The read_power_activities command reads a verilog vcd file and extracts
+pin activities for power analysis.
+
+  read_power_activities -vcd filename
+
 Release 2.3.3 2022/09/24
 -------------------------
 

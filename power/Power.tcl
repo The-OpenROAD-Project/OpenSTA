@@ -31,7 +31,8 @@ define_cmd_args "report_power" \
 proc_redirect report_power {
   global sta_report_default_digits
 
-  parse_key_args "report_power" args keys {-instances -corner -digits} flags {} 1
+  parse_key_args "report_power" args \
+    keys {-instances -corner -digits} flags {}
 
   if { [info exists keys(-digits)] } {
     set digits $keys(-digits)
@@ -205,7 +206,7 @@ define_cmd_args "set_power_activity" { [-global]\
 proc set_power_activity { args } {
   parse_key_args "set_power_activity" args \
     keys {-input_ports -pins -activity -duty} \
-    flags {-global -input} 1
+    flags {-global -input}
 
   set activity 0.0
   if { [info exists keys(-activity)] } {
@@ -248,8 +249,18 @@ proc set_power_activity { args } {
 
 ################################################################
 
-# Defined in StaTcl.i
-define_cmd_args "read_vcd_activities" { filename }
+define_cmd_args "read_power_activities" { -vcd filename }
+
+proc read_power_activities { args } {
+  parse_key_args "read_power_activities" args \
+    keys {-vcd} flags {}
+
+  check_arg1 $args
+  set filename [file nativename [lindex $args 0]]
+  read_vcd_activities $filename
+}
+
+################################################################
 
 proc power_find_nan { } {
   set corner [cmd_corner]
