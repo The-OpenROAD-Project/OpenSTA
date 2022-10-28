@@ -30,7 +30,7 @@
 #include "PathEnd.hh"
 #include "PathExpanded.hh"
 #include "PathRef.hh"
-#include "Power.hh"
+#include "power/Power.hh"
 #include "Sta.hh"
 
 namespace sta {

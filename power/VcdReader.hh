@@ -1,5 +1,3 @@
-%module sta
-
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2022, Parallax Software, Inc.
 // 
@@ -16,11 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-%include "Exception.i"
-%include "StaTcl.i"
-%include "Verilog.i"
-%include "NetworkEdit.i"
-%include "Sdf.i"
-%include "DelayCalc.i"
-%include "Parasitics.i"
-%include "Power.i"
+#pragma once
+
+#include "Vcd.hh"
+
+namespace sta {
+
+class StaState;
+
+Vcd
+readVcdFile(const char *filename,
+            StaState *sta);
+
+void
+reportVcdWaveforms(const char *filename,
+                   StaState *sta);
+
+}

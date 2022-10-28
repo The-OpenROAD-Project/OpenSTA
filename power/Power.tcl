@@ -246,6 +246,11 @@ proc set_power_activity { args } {
   }
 }
 
+################################################################
+
+# Defined in StaTcl.i
+define_cmd_args "read_vcd_activities" { filename }
+
 proc power_find_nan { } {
   set corner [cmd_corner]
   foreach inst [network_leaf_instances] {
