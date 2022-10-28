@@ -62,16 +62,16 @@ setVcdActivities(Vcd &vcd,
   for (Clock *clk : *sta->sdc()->clocks())
     clk_period = min(clk->period(), clk_period);
 
-  VarTime time_max = vcd.timeMax();
+  VcdTime time_max = vcd.timeMax();
   for (VcdVar &var : vcd.vars()) {
     const VcdValues &var_values = vcd.values(var);
     if (!var_values.empty()) {
       int transition_count = 0;
       char prev_value = var_values[0].value();
-      VarTime prev_time = var_values[0].time();
-      VarTime high_time = 0;
+      VcdTime prev_time = var_values[0].time();
+      VcdTime high_time = 0;
       for (const VcdValue &var_value : var_values) {
-        VarTime time = var_value.time();
+        VcdTime time = var_value.time();
         char value = var_value.value();
         if (prev_value == '1')
           high_time += time - prev_time;

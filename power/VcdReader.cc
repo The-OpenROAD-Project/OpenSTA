@@ -55,8 +55,8 @@ private:
   int stmt_line_;
 
   Vcd *vcd_;
-  VarTime time_;
-  VarTime prev_time_;
+  VcdTime time_;
+  VcdTime prev_time_;
   VcdScope scope_;
 };
 
@@ -358,7 +358,7 @@ reportWaveforms(Vcd &vcd,
       size_t value_index = 0;
       VcdValue var_value = var_values[value_index];
       VcdValue prev_var_value = var_values[value_index];
-      VarTime next_value_time = var_values[value_index + 1].time();
+      VcdTime next_value_time = var_values[value_index + 1].time();
       for (double time = 0.0; time < vcd.timeMax(); time += time_delta) {
         if (time >= next_value_time) {
           if (value_index < var_values.size() - 1)

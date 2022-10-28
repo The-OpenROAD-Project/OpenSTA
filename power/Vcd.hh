@@ -34,7 +34,7 @@ using std::min;
 class VcdVar;
 class VcdValue;
 typedef vector<VcdValue> VcdValues;
-typedef int64_t VarTime;
+typedef int64_t VcdTime;
 typedef vector<string> VcdScope;
 
 enum class VcdVarType { wire, reg, parameter, real };
@@ -57,10 +57,10 @@ public:
   double timeUnitScale() const { return time_unit_scale_; }
   void setTimeUnit(const string &time_unit,
                    double time_unit_scale);
-  VarTime timeMax() const { return time_max_; }
-  void setTimeMax(VarTime time_max);
-  VarTime minDeltaTime() const { return min_delta_time_; }
-  void setMinDeltaTime(VarTime min_delta_time);
+  VcdTime timeMax() const { return time_max_; }
+  void setTimeMax(VcdTime time_max);
+  VcdTime minDeltaTime() const { return min_delta_time_; }
+  void setMinDeltaTime(VcdTime min_delta_time);
   vector<VcdVar> vars() { return vars_; }
   void makeVar(string &name,
                VcdVarType type,
@@ -70,10 +70,10 @@ public:
   int maxVarNameLength() const { return max_var_name_length_; }
   bool varIdValid(string &id);
   void varAppendValue(string &id,
-                      VarTime time,
+                      VcdTime time,
                       char value);
   void varAppendBusValue(string &id,
-                         VarTime time,
+                         VcdTime time,
                          int64_t bus_value);
 
 private:
@@ -88,8 +88,8 @@ private:
   size_t max_var_name_length_;
   int max_var_width_;
   map<string, VcdValues> id_values_map_;
-  VarTime min_delta_time_;
-  VarTime time_max_;
+  VcdTime min_delta_time_;
+  VcdTime time_max_;
 };
 
 class VcdVar
@@ -114,15 +114,15 @@ private:
 class VcdValue
 {
 public:
-  VcdValue(VarTime time,
+  VcdValue(VcdTime time,
            char value,
            uint64_t bus_value);
-  VarTime time() const { return time_; }
+  VcdTime time() const { return time_; }
   char value() const { return value_; }
   uint64_t busValue() const { return bus_value_; }
 
 private:
-  VarTime time_;
+  VcdTime time_;
   // 01XUZ or '\0' when width > 1 to use bus_value_.
   char value_;
   uint64_t bus_value_;

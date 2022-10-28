@@ -64,13 +64,13 @@ Vcd::setTimeScale(double time_scale)
 }
 
 void
-Vcd::setMinDeltaTime(VarTime min_delta_time)
+Vcd::setMinDeltaTime(VcdTime min_delta_time)
 {
   min_delta_time_ = min_delta_time;
 }
 
 void
-Vcd::setTimeMax(VarTime time_max)
+Vcd::setTimeMax(VcdTime time_max)
 {
   time_max_ = time_max;
 }
@@ -96,7 +96,7 @@ Vcd::varIdValid(string &id)
 
 void
 Vcd::varAppendValue(string &id,
-                    VarTime time,
+                    VcdTime time,
                     char value)
 {
   VcdValues &values = id_values_map_[id];
@@ -105,7 +105,7 @@ Vcd::varAppendValue(string &id,
 
 void
 Vcd::varAppendBusValue(string &id,
-                       VarTime time,
+                       VcdTime time,
                        int64_t bus_value)
 {
   VcdValues &values = id_values_map_[id];
@@ -139,7 +139,7 @@ VcdVar::VcdVar(string name,
 {
 }
 
-VcdValue::VcdValue(VarTime time,
+VcdValue::VcdValue(VcdTime time,
                    char value,
                    uint64_t bus_value) :
   time_(time),
