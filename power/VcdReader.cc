@@ -20,6 +20,7 @@
 
 #include "Zlib.hh"
 #include "Report.hh"
+#include "Error.hh"
 #include "StringUtil.hh"
 
 namespace sta {
@@ -111,6 +112,8 @@ VcdReader::read(const char *filename)
     }
     gzclose(stream_);
   }
+  else
+    throw FileNotReadable(filename);
   return vcd;
 }
 
@@ -137,7 +140,7 @@ VcdReader::parseTimescale()
     setTimeUnit(tokens[1]);
   }
   else
-    report_->fileError(800, filename_, stmt_line_, "timescale syntax error.");
+    report_->fileError(801, filename_, stmt_line_, "timescale syntax error.");
 }
 
 void
@@ -151,7 +154,7 @@ VcdReader::setTimeUnit(const string &time_unit)
   else if (time_unit == "ns")
     time_unit_scale = 1e-9;
   else
-    report_->fileError(801, filename_, stmt_line_, "Unknown timescale unit.");
+    report_->fileError(802, filename_, stmt_line_, "Unknown timescale unit.");
   vcd_->setTimeUnit(time_unit, time_unit_scale);;
 }
 
@@ -199,7 +202,7 @@ VcdReader::parseVar()
     vcd_->makeVar(name, type, width, id);
   }
   else
-    report_->fileError(802, filename_, stmt_line_, "Variable syntax error.");
+    report_->fileError(804, filename_, stmt_line_, "Variable syntax error.");
 }
 
 void
@@ -236,7 +239,7 @@ VcdReader::parseVarValues()
              || char0 == 'Z') {
       string id = token.substr(1);
       if (!vcd_->varIdValid(id))
-        report_->fileError(804, filename_, stmt_line_,
+        report_->fileError(805, filename_, stmt_line_,
                            "unknown variable %s", id.c_str());
       vcd_->varAppendValue(id, time_, char0);
     }
@@ -247,7 +250,7 @@ VcdReader::parseVarValues()
           || char1 == 'Z') {
         string id = getToken();
         if (!vcd_->varIdValid(id))
-          report_->fileError(804, filename_, stmt_line_,
+          report_->fileError(806, filename_, stmt_line_,
                              "unknown variable %s", id.c_str());
         // Bus mixed 0/1/X/U not supported.
         vcd_->varAppendValue(id, time_, char1);
@@ -258,7 +261,7 @@ VcdReader::parseVarValues()
         int64_t bus_value = strtol(bin.c_str(), &end, 2);
         string id = getToken();
         if (!vcd_->varIdValid(id))
-          report_->fileError(804, filename_, stmt_line_,
+          report_->fileError(807, filename_, stmt_line_,
                              "unknown variable %s", id.c_str());
         else
           vcd_->varAppendBusValue(id, time_, bus_value);

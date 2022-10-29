@@ -1,4 +1,3 @@
-Warning: 705 duplicated
 0001 DmpCeff.cc:1597           cell %s delay model not supported on SPF parasitics by DMP delay calculator
 0002 Liberty.cc:748            cell %s/%s port %s not found in cell %s/%s.
 0003 Liberty.cc:774            cell %s/%s %s -> %s timing group %s not found in cell %s/%s.
@@ -162,12 +161,12 @@ Warning: 705 duplicated
 0166 LibertyReader.cc:2290     timing group from output port.
 0167 LibertyReader.cc:2308     timing group from output port.
 0168 LibertyReader.cc:2323     timing group from output port.
-0179 SpefReader.cc:725         %s.
+0179 SpefReader.cc:733         %s.
 0190 VerilogReader.cc:1728     %s is not a verilog module.
 0191 VerilogReader.cc:1733     %s is not a verilog module.
-0201 StaTcl.i:129              no network has been linked.
-0202 StaTcl.i:143              network does not support edits.
-0204 StaTcl.i:4182             POCV support requires compilation with SSTA=1.
+0201 StaTcl.i:128              no network has been linked.
+0202 StaTcl.i:142              network does not support edits.
+0204 StaTcl.i:4181             POCV support requires compilation with SSTA=1.
 0206 LibertyExpr.cc:171        %s %s.
 0207 GraphDelayCalc1.cc:738    port not found in cell
 0208 Graph.cc:793              arc_delay_annotated array bounds exceeded
@@ -197,11 +196,11 @@ Warning: 705 duplicated
 0265 TagGroup.cc:297           tag group missing tag
 0266 Sta.cc:2091               '%s' is not a valid endpoint.
 0267 Sta.cc:2015               '%s' is not a valid start point.
-0272 StaTcl.i:4168             unknown common clk pessimism mode.
-0273 StaTcl.i:5187             unknown clock sense
+0272 StaTcl.i:4167             unknown common clk pessimism mode.
+0273 StaTcl.i:5123             unknown clock sense
 0300 Util.tcl:218              no commands match '$pattern'.
-0301 Power.tcl:215             activity should be 0.0 to 1.0 or 2.0
-0302 Power.tcl:223             duty should be 0.0 to 1.0
+0301 Power.tcl:218             activity should be 0.0 to 1.0 or 2.0
+0302 Power.tcl:226             duty should be 0.0 to 1.0
 0303 Sta.tcl:155               -clock ignored for clock objects.
 0304 Sta.tcl:384               -from/-to keywords ignored for lib_pin, port and pin arguments.
 0305 Cmds.tcl:166              object '$obj' not found.
@@ -467,8 +466,8 @@ Warning: 705 duplicated
 0604 Sdc.tcl:272               unknown $unit prefix '$prefix'.
 0605 Sdc.tcl:3070              wire load model '$model_name' not found.
 0606 Sta.tcl:1130              get_property unsupported object type $object_type.
-0607 StaTcl.i:4418             unknown report path field %s
-0608 StaTcl.i:4430             unknown report path field %s
+0607 StaTcl.i:4417             unknown report path field %s
+0608 StaTcl.i:4429             unknown report path field %s
 0609 Search.tcl:427            -all_violators is deprecated. Use -violators
 0610 Search.tcl:507            -max_transition deprecated. Use -max_slew.
 0611 Search.tcl:512            -min_transition deprecated. Use -min_slew.
@@ -486,5 +485,11 @@ Warning: 705 duplicated
 0702 LibertyWriter.cc:436      3 axis table models not supported.
 0703 LibertyWriter.cc:576      %s/%s/%s timing arc type %s not supported.
 0704 LibertyWriter.cc:289      %s/%s bundled ports not supported.
-0705 LumpedCapDelayCalc.cc:168 gate delay input variable is NaN
 0705 Liberty.cc:793            Liberty cell %s/%s for corner %s/%s not found
+0706 Parasitics.tcl:70         read_spef -increment is deprecated.
+0710 LumpedCapDelayCalc.cc:168 gate delay input variable is NaN
+0800 VcdReader.cc:108          unhandled vcd command.
+0801 VcdReader.cc:143          timescale syntax error.
+0802 VcdReader.cc:157          Unknown timescale unit.
+0804 VcdReader.cc:205          Variable syntax error.
+0805 Vcd.cc:119                Unknown variable %s ID %s

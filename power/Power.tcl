@@ -34,6 +34,7 @@ proc_redirect report_power {
   parse_key_args "report_power" args \
     keys {-instances -corner -digits} flags {}
 
+  check_argc_eq0 "report_power" $args
   if { [info exists keys(-digits)] } {
     set digits $keys(-digits)
     check_positive_integer "-digits" $digits
@@ -208,6 +209,7 @@ proc set_power_activity { args } {
     keys {-input_ports -pins -activity -duty} \
     flags {-global -input}
 
+  check_argc_eq0 "set_power_activity" $args
   set activity 0.0
   if { [info exists keys(-activity)] } {
     set activity $keys(-activity)
@@ -253,9 +255,9 @@ define_cmd_args "read_power_activities" { -vcd filename }
 
 proc read_power_activities { args } {
   parse_key_args "read_power_activities" args \
-    keys {-vcd} flags {}
+    keys {} flags {-vcd}
 
-  check_arg1 $args
+  check_argc_eq1 "set_power_activity" $args
   set filename [file nativename [lindex $args 0]]
   read_vcd_activities $filename
 }

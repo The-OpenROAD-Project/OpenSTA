@@ -165,7 +165,7 @@ LumpedCapDelayCalc::gateDelay(const LibertyCell *drvr_cell,
     float in_slew1 = delayAsFloat(in_slew);
     // NaNs cause seg faults during table lookup.
     if (isnan(load_cap) || isnan(related_out_cap) || isnan(in_slew))
-      report_->error(705, "gate delay input variable is NaN");
+      report_->error(710, "gate delay input variable is NaN");
     model->gateDelay(drvr_cell, pvt, in_slew1, load_cap, related_out_cap,
 		     pocv_enabled_, gate_delay1, drvr_slew1);
     gate_delay = gate_delay1;
