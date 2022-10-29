@@ -175,11 +175,11 @@ ClkSkews::findWorstClkSkew(const Corner *corner,
   ClkSkewMap skews;
   findClkSkew(&clks, corner, setup_hold, skews);
   if (!skews.empty()) {
-    float worst_skew = INF;
+    float worst_skew = 0.0;
     for (auto clk_skew_itr : skews) {
       ClkSkew *clk_skew = clk_skew_itr.second;
       float skew = clk_skew->skew();
-      if (skew < worst_skew)
+      if (abs(skew) > abs(worst_skew))
         worst_skew = skew;
     }
     return worst_skew;
@@ -309,7 +309,7 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
 	      clk_skew = new ClkSkew(probe);
 	      skews[src_clk] = clk_skew;
 	    }
-	    else if (fuzzyGreater(probe.skew(), clk_skew->skew()))
+	    else if (abs(probe.skew()), abs(clk_skew->skew()))
 	      *clk_skew = probe;
 	  }
 	}
