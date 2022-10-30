@@ -35,13 +35,17 @@ static void
 setVcdActivities(Vcd &vcd,
                  Sta *sta);
 static void
-setPinActivity(const char *pin_name,
-               int transition_count,
-               float activity,
-               float duty,
-               Debug *debug,
-               Network *network,
-               Power *power);
+findVarActivity(const char *pin_name,
+                int value_bit,
+                const VcdValues &var_values,
+                Vcd &vcd,
+                float clk_period,
+                Debug *debug,
+                Network *network,
+                Power *power);
+
+////////////////////////////////////////////////////////////////
+
 void
 readVcdActivities(const char *filename,
                   Sta *sta)
@@ -58,55 +62,48 @@ setVcdActivities(Vcd &vcd,
   Network *network = sta->network();
   Power *power = sta->power();
 
-  float clk_period = 0.0;
+  float clk_period = INF;
   for (Clock *clk : *sta->sdc()->clocks())
     clk_period = min(clk->period(), clk_period);
 
-  VcdTime time_max = vcd.timeMax();
   for (VcdVar &var : vcd.vars()) {
     const VcdValues &var_values = vcd.values(var);
     if (!var_values.empty()) {
-      int transition_count = 0;
-      char prev_value = var_values[0].value();
-      VcdTime prev_time = var_values[0].time();
-      VcdTime high_time = 0;
-      for (const VcdValue &var_value : var_values) {
-        VcdTime time = var_value.time();
-        char value = var_value.value();
-        if (prev_value == '1')
-          high_time += time - prev_time;
-        transition_count++;
-        prev_time = time;
-        prev_value = value;
-      }
-      if (prev_value == '1')
-        high_time += time_max - prev_time;
-      float duty = static_cast<float>(high_time) / time_max;
-      float activity = transition_count
-        / (time_max * vcd.timeUnitScale() / clk_period);
-
       string var_name = var.name();
       if (var_name[0] == '\\')
         var_name += ' ';
       const char *sta_name = verilogToSta(var_name.c_str());
-      if (var.width() == 1) {
-        setPinActivity(sta_name, transition_count, activity, duty,
-                       debug, network, power);
-      }
+
+      if (var.width() == 1)
+        findVarActivity(sta_name, 0, var_values, vcd,
+                  clk_period, debug, network, power);
       else {
         char *bus_name;
         int from, to;
         parseBusRange(sta_name, '[', ']', '\\',
                       bus_name, from, to);
-        if (from > to)
-          swap(from, to);
-        for (int bit = from; bit <= to; bit++) {
-          string name = bus_name;
-          name += '[';
-          name += to_string(bit);
-          name += ']';
-          setPinActivity(name.c_str(), transition_count, activity, duty,
-                       debug, network, power);
+        int value_bit = 0;
+        if (to < from) {
+          for (int bus_bit = to; bus_bit <= from; bus_bit++) {
+            string pin_name = bus_name;
+            pin_name += '[';
+            pin_name += to_string(bus_bit);
+            pin_name += ']';
+            findVarActivity(pin_name.c_str(), value_bit, var_values, vcd,
+                            clk_period, debug, network, power);
+            value_bit++;
+          }
+        }
+        else {
+          for (int bus_bit = to; bus_bit >= from; bus_bit--) {
+            string pin_name = bus_name;
+            pin_name += '[';
+            pin_name += to_string(bus_bit);
+            pin_name += ']';
+            findVarActivity(pin_name.c_str(), value_bit, var_values, vcd,
+                            clk_period, debug, network, power);
+            value_bit++;
+          }
         }
       }
     }
@@ -114,17 +111,42 @@ setVcdActivities(Vcd &vcd,
 }
 
 static void
-setPinActivity(const char *pin_name,
-               int transition_count,
-               float activity,
-               float duty,
-               Debug *debug,
-               Network *network,
-               Power *power)
+findVarActivity(const char *pin_name,
+                int value_bit,
+                const VcdValues &var_values,
+                Vcd &vcd,
+                float clk_period,
+                Debug *debug,
+                Network *network,
+                Power *power)
 {
+  int transition_count = 0;
+  char prev_value = var_values[0].value();
+  VcdTime prev_time = var_values[0].time();
+  VcdTime high_time = 0;
+  for (const VcdValue &var_value : var_values) {
+    VcdTime time = var_value.time();
+    char value = var_value.value();
+    if (value == '\0') {
+      uint64_t bus_value = var_value.busValue();
+      value = ((bus_value >> value_bit) & 0x1) ? '1' : '0';
+    }
+    if (prev_value == '1')
+      high_time += time - prev_time;
+    transition_count++;
+    prev_time = time;
+    prev_value = value;
+  }
+  VcdTime time_max = vcd.timeMax();
+  if (prev_value == '1')
+    high_time += time_max - prev_time;
+  float duty = static_cast<float>(high_time) / time_max;
+  float activity = transition_count
+    / (time_max * vcd.timeUnitScale() / clk_period);
+
   Pin *pin = network->findPin(pin_name);
   if (pin) {
-    debugPrint(debug, "vcd_activities", 1,
+    debugPrint(debug, "read_vcd_activities", 1,
                "%s transitions %d activity %.2f duty %.2f",
                pin_name,
                transition_count,
