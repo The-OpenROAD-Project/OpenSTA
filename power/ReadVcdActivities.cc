@@ -31,62 +31,83 @@ using std::min;
 using std::swap;
 using std::to_string;
 
-static void
-setVcdActivities(Vcd &vcd,
-                 const char *scope,
-                 Sta *sta);
-static void
-findVarActivity(const char *pin_name,
-                int value_bit,
-                const VcdValues &var_values,
-                Vcd &vcd,
-                float clk_period,
-                Debug *debug,
-                Network *network,
-                Power *power);
+class ReadVcdActivities : public StaState
+{
+public:
+  ReadVcdActivities(const char *filename,
+                    const char *scope,
+                    Sta *sta);
+  void readActivities();
 
-////////////////////////////////////////////////////////////////
+private:
+  void setActivities();
+  void findVarActivity(const char *pin_name,
+                       int value_bit,
+                       const VcdValues &var_values);
+
+  const char *filename_;
+  const char *scope_;
+  Vcd vcd_;
+  float clk_period_;
+  Sta *sta_;
+  Power *power_;
+};
 
 void
 readVcdActivities(const char *filename,
                   const char *scope,
                   Sta *sta)
 {
-  Vcd vcd = readVcdFile(filename, sta);
-  setVcdActivities(vcd, scope, sta);
+  ReadVcdActivities reader(filename, scope, sta);
+  reader.readActivities();
 }
 
-static void
-setVcdActivities(Vcd &vcd,
-                 const char *scope,
-                 Sta *sta)
+ReadVcdActivities::ReadVcdActivities(const char *filename,
+                                     const char *scope,
+                                     Sta *sta) :
+  StaState(sta),
+  filename_(filename),
+  scope_(scope),
+  vcd_(sta),
+  sta_(sta),
+  power_(sta->power())
 {
-  Debug *debug = sta->debug();
-  Network *network = sta->network();
-  Power *power = sta->power();
+}
 
-  float clk_period = INF;
-  size_t scope_length = strlen(scope);
-  for (Clock *clk : *sta->sdc()->clocks())
-    clk_period = min(clk->period(), clk_period);
+void
+ReadVcdActivities::readActivities()
+{
+  vcd_ = readVcdFile(filename_, sta_);
 
-  for (VcdVar &var : vcd.vars()) {
-    const VcdValues &var_values = vcd.values(var);
+  clk_period_ = INF;
+  for (Clock *clk : *sta_->sdc()->clocks())
+    clk_period_ = min(clk->period(), clk_period_);
+
+  //checkClkPeriods();
+  
+  setActivities();
+}
+
+void
+ReadVcdActivities::setActivities()
+{
+  size_t scope_length = strlen(scope_);
+  for (VcdVar &var : vcd_.vars()) {
+    const VcdValues &var_values = vcd_.values(var);
     if (!var_values.empty()
         && (var.type() == VcdVarType::wire
             || var.type() == VcdVarType::reg)) {
       string var_name = var.name();
       // string::starts_with in c++20
       if (scope_length
-          && var_name.substr(0, scope_length) == scope)
+          && var_name.substr(0, scope_length) == scope_)
         var_name = var_name.substr(scope_length + 1);
       if (var_name[0] == '\\')
         var_name += ' ';
       const char *sta_name = verilogToSta(var_name.c_str());
 
       if (var.width() == 1)
-        findVarActivity(sta_name, 0, var_values, vcd,
-                  clk_period, debug, network, power);
+        findVarActivity(sta_name, 0, var_values);
       else {
         char *bus_name;
         int from, to;
@@ -99,8 +120,7 @@ setVcdActivities(Vcd &vcd,
             pin_name += '[';
             pin_name += to_string(bus_bit);
             pin_name += ']';
-            findVarActivity(pin_name.c_str(), value_bit, var_values, vcd,
-                            clk_period, debug, network, power);
+            findVarActivity(pin_name.c_str(), value_bit, var_values);
             value_bit++;
           }
         }
@@ -110,8 +130,7 @@ setVcdActivities(Vcd &vcd,
             pin_name += '[';
             pin_name += to_string(bus_bit);
             pin_name += ']';
-            findVarActivity(pin_name.c_str(), value_bit, var_values, vcd,
-                            clk_period, debug, network, power);
+            findVarActivity(pin_name.c_str(), value_bit, var_values);
             value_bit++;
           }
         }
@@ -120,15 +139,10 @@ setVcdActivities(Vcd &vcd,
   }
 }
 
-static void
-findVarActivity(const char *pin_name,
-                int value_bit,
-                const VcdValues &var_values,
-                Vcd &vcd,
-                float clk_period,
-                Debug *debug,
-                Network *network,
-                Power *power)
+void
+ReadVcdActivities::findVarActivity(const char *pin_name,
+                                   int value_bit,
+                                   const VcdValues &var_values)
 {
   int transition_count = 0;
   char prev_value = var_values[0].value();
@@ -147,23 +161,23 @@ findVarActivity(const char *pin_name,
     prev_time = time;
     prev_value = value;
   }
-  VcdTime time_max = vcd.timeMax();
+  VcdTime time_max = vcd_.timeMax();
   if (prev_value == '1')
     high_time += time_max - prev_time;
   float duty = static_cast<float>(high_time) / time_max;
   float activity = transition_count
-    / (time_max * vcd.timeUnitScale() / clk_period);
+    / (time_max * vcd_.timeUnitScale() / clk_period_);
 
-  Pin *pin = network->findPin(pin_name);
+  Pin *pin = network_->findPin(pin_name);
   if (pin) {
-    debugPrint(debug, "read_vcd_activities", 1,
+    debugPrint(debug_, "read_vcd_activities", 1,
                "%s transitions %d activity %.2f duty %.2f",
                pin_name,
                transition_count,
                activity,
                duty);
-    power->setUserActivity(pin, activity, duty,
-                           PwrActivityOrigin::user);
+    power_->setUserActivity(pin, activity, duty,
+                            PwrActivityOrigin::user);
   }
 }
 
