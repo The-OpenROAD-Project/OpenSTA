@@ -110,9 +110,10 @@ set_power_pin_activity(const Pin *pin,
 }
 
 void
-read_vcd_activities(const char *filename)
+read_vcd_activities(const char *filename,
+                    const char *scope)
 {
-  readVcdActivities(filename, Sta::sta());
+  readVcdActivities(filename, scope, Sta::sta());
 }
 
 void

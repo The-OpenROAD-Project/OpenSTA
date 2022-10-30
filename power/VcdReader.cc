@@ -183,16 +183,9 @@ VcdReader::parseVar()
     string id = tokens[2];
     string name;
 
-    int level = 0;
     for (string &context : scope_) {
-      // Skip the first 2 levels of scope.
-      //  -test bench module
-      //  -design instance
-      if (level > 1) {
-        name += context;
-        name += '/';
-      }
-      level++;
+      name += context;
+      name += '/';
     }
     name += tokens[3];
     // iverilog separates bus base name from bit range.

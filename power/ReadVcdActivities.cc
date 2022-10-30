@@ -33,6 +33,7 @@ using std::to_string;
 
 static void
 setVcdActivities(Vcd &vcd,
+                 const char *scope,
                  Sta *sta);
 static void
 findVarActivity(const char *pin_name,
@@ -48,14 +49,16 @@ findVarActivity(const char *pin_name,
 
 void
 readVcdActivities(const char *filename,
+                  const char *scope,
                   Sta *sta)
 {
   Vcd vcd = readVcdFile(filename, sta);
-  setVcdActivities(vcd, sta);
+  setVcdActivities(vcd, scope, sta);
 }
 
 static void
 setVcdActivities(Vcd &vcd,
+                 const char *scope,
                  Sta *sta)
 {
   Debug *debug = sta->debug();
@@ -63,13 +66,20 @@ setVcdActivities(Vcd &vcd,
   Power *power = sta->power();
 
   float clk_period = INF;
+  size_t scope_length = strlen(scope);
   for (Clock *clk : *sta->sdc()->clocks())
     clk_period = min(clk->period(), clk_period);
 
   for (VcdVar &var : vcd.vars()) {
     const VcdValues &var_values = vcd.values(var);
-    if (!var_values.empty()) {
+    if (!var_values.empty()
+        && (var.type() == VcdVarType::wire
+            || var.type() == VcdVarType::reg)) {
       string var_name = var.name();
+      // string::starts_with in c++20
+      if (scope_length
+          && var_name.substr(0, scope_length) == scope)
+        var_name = var_name.substr(scope_length + 1);
       if (var_name[0] == '\\')
         var_name += ' ';
       const char *sta_name = verilogToSta(var_name.c_str());

@@ -251,15 +251,19 @@ proc set_power_activity { args } {
 
 ################################################################
 
-define_cmd_args "read_power_activities" { -vcd filename }
+define_cmd_args "read_power_activities" { [-scope scope] -vcd filename }
 
 proc read_power_activities { args } {
   parse_key_args "read_power_activities" args \
-    keys {} flags {-vcd}
+    keys {-scope} flags {-vcd}
 
   check_argc_eq1 "set_power_activity" $args
   set filename [file nativename [lindex $args 0]]
-  read_vcd_activities $filename
+  set scope ""
+  if { [info exists keys(-scope)] } {
+    set scope $keys(-scope)
+  }
+  read_vcd_activities $filename $scope
 }
 
 ################################################################
