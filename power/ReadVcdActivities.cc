@@ -213,7 +213,10 @@ ReadVcdActivities::checkClkPeriod(const Pin *pin,
   ClockSet *clks = sdc_->findLeafPinClocks(pin);
   if (clks) {
     for (Clock *clk : *clks) {
-      //printf("%.2e %.2e\n", clk->period(), sim_period);
+      report_->warn(806, "clock %s vcd period %s differs from clock definition %s",
+                    clk->name(),
+                    delayAsString(clk->period(), this),
+                    delayAsString(sim_period, this));
     }
   }
 }
