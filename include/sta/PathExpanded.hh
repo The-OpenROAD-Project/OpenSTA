@@ -20,6 +20,7 @@
 #include "GraphClass.hh"
 #include "SearchClass.hh"
 #include "StaState.hh"
+#include "PathRef.hh"
 
 namespace sta {
 
