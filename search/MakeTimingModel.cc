@@ -344,11 +344,13 @@ MakeTimingModel::makeSetupHoldTimingArcs(const Pin *input_pin,
         LibertyPort *input_port = modelPort(input_pin);
         for (const Pin *clk_pin : clk_edge->clock()->pins()) {
           LibertyPort *clk_port = modelPort(clk_pin);
-          RiseFall *clk_rf = clk_edge->transition();
-          TimingRole *role = setup ? TimingRole::setup() : TimingRole::hold();
-          lib_builder_->makeFromTransitionArcs(cell_, clk_port,
-                                               input_port, nullptr,
-                                               clk_rf, role, attrs);
+          if (clk_port) {
+            RiseFall *clk_rf = clk_edge->transition();
+            TimingRole *role = setup ? TimingRole::setup() : TimingRole::hold();
+            lib_builder_->makeFromTransitionArcs(cell_, clk_port,
+                                                 input_port, nullptr,
+                                                 clk_rf, role, attrs);
+          }
         }
       }
     }
@@ -422,20 +424,22 @@ MakeTimingModel::findClkedOutputPaths()
         RiseFallMinMax &delays = clk_edge_delay.second;
         for (const Pin *clk_pin : clk_edge->clock()->pins()) {
           LibertyPort *clk_port = modelPort(clk_pin);
-          RiseFall *clk_rf = clk_edge->transition();
-          TimingArcAttrsPtr attrs = nullptr;
-          for (RiseFall *output_rf : RiseFall::range()) {
-            float delay = delays.value(output_rf, min_max_) - clk_edge->time();
-            TimingModel *gate_model = makeGateModelTable(output_pin, delay, output_rf);
-            if (attrs == nullptr)
-              attrs = std::make_shared<TimingArcAttrs>();
-            attrs->setModel(output_rf, gate_model);
-          }
-          if (attrs) {
-            lib_builder_->makeFromTransitionArcs(cell_, clk_port,
-                                                 output_port, nullptr,
-                                                 clk_rf, TimingRole::regClkToQ(),
-                                                 attrs);
+          if (clk_port) {
+            RiseFall *clk_rf = clk_edge->transition();
+            TimingArcAttrsPtr attrs = nullptr;
+            for (RiseFall *output_rf : RiseFall::range()) {
+              float delay = delays.value(output_rf, min_max_) - clk_edge->time();
+              TimingModel *gate_model = makeGateModelTable(output_pin, delay, output_rf);
+              if (attrs == nullptr)
+                attrs = std::make_shared<TimingArcAttrs>();
+              attrs->setModel(output_rf, gate_model);
+            }
+            if (attrs) {
+              lib_builder_->makeFromTransitionArcs(cell_, clk_port,
+                                                   output_port, nullptr,
+                                                   clk_rf, TimingRole::regClkToQ(),
+                                                   attrs);
+            }
           }
         }
       }
