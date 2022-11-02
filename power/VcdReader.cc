@@ -344,11 +344,11 @@ reportWaveforms(Vcd &vcd,
   int time_delta = vcd.minDeltaTime();
 
   int max_var_name_length = vcd.maxVarNameLength();
-  for (VcdVar &var : vcd.vars()) {
+  for (VcdVar *var : vcd.vars()) {
     string line;
     stringPrint(line, " %-*s",
                 static_cast<int>(max_var_name_length),
-                var.name().c_str());
+                var->name().c_str());
     const VcdValues &var_values = vcd.values(var);
     if (!var_values.empty()) {
       size_t value_index = 0;
@@ -367,7 +367,7 @@ reportWaveforms(Vcd &vcd,
           // 01UZX
           char value = var_value.value();
           char prev_value = prev_var_value.value();
-          if (var.width() == 1) {
+          if (var->width() == 1) {
             if (value == '0' || value == '1') {
               for (int z = 0; z < zoom; z++) {
                 if (z == 0
@@ -401,6 +401,27 @@ reportWaveforms(Vcd &vcd,
       }
     }
     report->reportLineString(line);
+  }
+}
+
+void
+reportVcdVarValues(const char *filename,
+                   const char *var_name,
+                   StaState *sta)
+{
+  Vcd vcd = readVcdFile(filename, sta);
+  VcdVar *var = vcd.var(var_name);
+  if (var) {
+    Report *report = sta->report();
+    for (const VcdValue &var_value : vcd.values(var)) {
+      double time = var_value.time() * vcd.timeUnitScale();
+      char value = var_value.value();
+      if (value == '\0')
+        report->reportLine("%.2e %llu",
+                           time, var_value.busValue());
+      else
+        report->reportLine("%.2e %c", time, value);
+    }
   }
 }
 

@@ -29,7 +29,50 @@ Vcd::Vcd(StaState *sta) :
 {
 }
 
-////////////////////////////////////////////////////////////////
+Vcd::Vcd(const Vcd &vcd) :
+  StaState(vcd),
+  date_(vcd.date_),
+  comment_(vcd.comment_),
+  version_(vcd.version_),
+  time_scale_(vcd.time_scale_),
+  time_unit_(vcd.time_unit_),
+  time_unit_scale_(vcd.time_unit_scale_),
+  vars_(vcd.vars_),
+  var_name_map_(vcd.var_name_map_),
+  max_var_name_length_(vcd.max_var_name_length_),
+  max_var_width_(vcd.max_var_width_),
+  id_values_map_(vcd.id_values_map_),
+  min_delta_time_(vcd.min_delta_time_),
+  time_max_(vcd.time_max_)
+{
+}
+
+Vcd&
+Vcd::operator=(Vcd &&vcd1)
+{
+  date_ = vcd1.date_;
+  comment_ = vcd1.comment_;
+  version_ = vcd1.version_;
+  time_scale_ = vcd1.time_scale_;
+  time_unit_ = vcd1.time_unit_;
+  time_unit_scale_ = vcd1.time_unit_scale_;
+  vars_ = vcd1.vars_;
+  var_name_map_ = vcd1.var_name_map_;
+  max_var_name_length_ = vcd1.max_var_name_length_;
+  max_var_width_ = vcd1.max_var_width_;
+  id_values_map_ = vcd1.id_values_map_;
+  min_delta_time_ = vcd1.min_delta_time_;
+  time_max_ = vcd1.time_max_;
+
+  vcd1.vars_.clear();
+  return *this;
+}
+
+Vcd::~Vcd()
+{
+  for (VcdVar *var : vars_)
+    delete var;
+}
 
 void
 Vcd::setTimeUnit(const string &time_unit,
@@ -72,7 +115,7 @@ Vcd::setMinDeltaTime(VcdTime min_delta_time)
 void
 Vcd::setTimeMax(VcdTime time_max)
 {
-  time_max_ = time_max;
+ time_max_ = time_max;
 }
 
 void
@@ -81,11 +124,19 @@ Vcd::makeVar(string &name,
              int width,
              string &id)
 {
-  vars_.push_back(VcdVar(name, type, width, id));
+  VcdVar *var = new VcdVar(name, type, width, id);
+  vars_.push_back(var);
+  var_name_map_[name] = var;
   max_var_name_length_ = std::max(max_var_name_length_, name.size());
   max_var_width_ = std::max(max_var_width_, width);
   // Make entry for var ID.
   id_values_map_[id].clear();
+}
+
+VcdVar *
+Vcd::var(const string name)
+{
+  return var_name_map_[name];
 }
 
 bool
@@ -113,17 +164,17 @@ Vcd::varAppendBusValue(string &id,
 }
 
 VcdValues &
-Vcd::values(VcdVar &var)
+Vcd::values(VcdVar *var)
 {
-  if (id_values_map_.find(var.id()) ==  id_values_map_.end()) {
+  if (id_values_map_.find(var->id()) ==  id_values_map_.end()) {
     report_->error(805, "Unknown variable %s ID %s",
-                   var.name().c_str(),
-                   var.id().c_str());
+                   var->name().c_str(),
+                   var->id().c_str());
     static VcdValues empty;
     return empty;
   }
   else
-    return id_values_map_[var.id()];
+    return id_values_map_[var->id()];
 }
 
 ////////////////////////////////////////////////////////////////

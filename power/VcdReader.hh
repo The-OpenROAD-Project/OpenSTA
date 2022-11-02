@@ -30,4 +30,10 @@ void
 reportVcdWaveforms(const char *filename,
                    StaState *sta);
 
-}
+void
+reportVcdVarValues(const char *filename,
+                   const char *var_name,
+                   StaState *sta);
+
+} // namespace
+

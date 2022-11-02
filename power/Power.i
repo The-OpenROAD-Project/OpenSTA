@@ -122,4 +122,12 @@ report_vcd_waveforms(const char *filename)
   reportVcdWaveforms(filename, Sta::sta());
 }
 
+// debugging
+void
+report_vcd_var_values(const char *filename,
+                      const char *var_name)
+{
+  reportVcdVarValues(filename, var_name, Sta::sta());
+}
+
 %} // inline

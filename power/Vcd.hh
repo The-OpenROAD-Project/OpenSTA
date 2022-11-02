@@ -36,6 +36,7 @@ class VcdValue;
 typedef vector<VcdValue> VcdValues;
 typedef int64_t VcdTime;
 typedef vector<string> VcdScope;
+typedef map<string, VcdVar*> VcdNameMap;
 
 enum class VcdVarType { wire, reg, parameter, real };
 
@@ -43,7 +44,12 @@ class Vcd : public StaState
 {
 public:
   Vcd(StaState *sta);
-  VcdValues &values(VcdVar &var);
+  Vcd(const Vcd &vcd);
+  // Move copy assignment.
+  Vcd& operator=(Vcd &&vcd1);
+  ~Vcd();
+  VcdVar *var(const string name);
+  VcdValues &values(VcdVar *var);
 
   const string &date() const { return date_; }
   void setDate(const string &date);
@@ -61,7 +67,7 @@ public:
   void setTimeMax(VcdTime time_max);
   VcdTime minDeltaTime() const { return min_delta_time_; }
   void setMinDeltaTime(VcdTime min_delta_time);
-  vector<VcdVar> vars() { return vars_; }
+  vector<VcdVar*> vars() { return vars_; }
   void makeVar(string &name,
                VcdVarType type,
                int width,
@@ -84,7 +90,8 @@ private:
   string time_unit_;
   double time_unit_scale_;
 
-  vector<VcdVar> vars_;
+  vector<VcdVar*> vars_;
+  VcdNameMap var_name_map_;
   size_t max_var_name_length_;
   int max_var_width_;
   map<string, VcdValues> id_values_map_;
