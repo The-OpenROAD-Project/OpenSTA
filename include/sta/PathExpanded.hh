@@ -19,6 +19,7 @@
 #include "TimingArc.hh"
 #include "GraphClass.hh"
 #include "SearchClass.hh"
+#include "PathRef.hh"
 #include "StaState.hh"
 
 namespace sta {
