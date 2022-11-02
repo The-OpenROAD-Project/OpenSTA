@@ -190,7 +190,8 @@ ReadVcdActivities::findVarActivity(const VcdValues &var_values,
     }
     if (prev_value == '1')
       high_time += time - prev_time;
-    transition_count++;
+    if (value != prev_value)
+      transition_count++;
     prev_time = time;
     prev_value = value;
   }
