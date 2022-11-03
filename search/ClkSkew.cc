@@ -309,7 +309,7 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
 	      clk_skew = new ClkSkew(probe);
 	      skews[src_clk] = clk_skew;
 	    }
-	    else if (abs(probe.skew()), abs(clk_skew->skew()))
+	    else if (abs(probe.skew()) > abs(clk_skew->skew()))
 	      *clk_skew = probe;
 	  }
 	}

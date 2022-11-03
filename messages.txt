@@ -491,5 +491,6 @@
 0800 VcdReader.cc:108          unhandled vcd command.
 0801 VcdReader.cc:143          timescale syntax error.
 0802 VcdReader.cc:157          Unknown timescale unit.
-0804 VcdReader.cc:205          Variable syntax error.
-0805 Vcd.cc:119                Unknown variable %s ID %s
+0804 VcdReader.cc:198          Variable syntax error.
+0805 Vcd.cc:170                Unknown variable %s ID %s
+0806 ReadVcdActivities.cc:216  clock %s vcd period %s differs from clock definition %s
