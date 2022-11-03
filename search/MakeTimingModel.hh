@@ -59,6 +59,7 @@ private:
   void makeCell(const char *cell_name,
                  const char *filename);
   void makePorts();
+  void checkClock(Clock *clk);
   void findTimingFromInputs();
   void findClkedOutputPaths();
   void findOutputDelays(const RiseFall *input_rf,

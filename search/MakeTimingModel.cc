@@ -71,8 +71,10 @@ MakeTimingModel::makeTimingModel(const char *lib_name,
   makeCell(cell_name, filename);
   makePorts();
 
-  for (Clock *clk : *sdc_->clocks())
+  for (Clock *clk : *sdc_->clocks()) {
     sta_->setPropagatedClock(clk);
+    checkClock(clk);
+  }
 
   sta_->searchPreamble();
   graph_ = sta_->graph();
@@ -155,6 +157,17 @@ MakeTimingModel::makePorts()
     }
   }
   delete port_iter;
+}
+
+void
+MakeTimingModel::checkClock(Clock *clk)
+{
+  for (const Pin *pin : clk->leafPins()) {
+    if (!network_->isTopLevelPort(pin))
+      report_->warn(810, "clock %s pin %s is inside model block.",
+                    clk->name(),
+                    network_->pathName(pin));
+  }
 }
 
 ////////////////////////////////////////////////////////////////
