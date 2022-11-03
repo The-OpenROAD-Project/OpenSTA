@@ -74,7 +74,7 @@ proc_redirect read_spef {
 	    $reduce_to $delete_after_reduce $quiet]
 }
 
-define_cmd_args "report_parasitic_annotation" {}
+define_cmd_args "report_parasitic_annotation" {-report_unannotated}
 
 proc_redirect report_parasitic_annotation {
   parse_key_args "report_parasitic_annotation" args \
