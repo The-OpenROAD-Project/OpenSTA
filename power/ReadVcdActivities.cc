@@ -46,18 +46,20 @@ private:
   void findVarActivity(const VcdValues &var_values,
                        int value_bit,
                        // Return values.
-                       int &transition_count,
-                       float &activity,
-                       float &duty);
+                       double &transition_count,
+                       double &activity,
+                       double &duty);
   void checkClkPeriod(const Pin *pin,
-                      int transition_count);
+                      double transition_count);
 
   const char *filename_;
   const char *scope_;
   Vcd vcd_;
-  float clk_period_;
+  double clk_period_;
   Sta *sta_;
   Power *power_;
+
+  static constexpr double sim_clk_period_tolerance_ = .1;
 };
 
 void
@@ -88,7 +90,7 @@ ReadVcdActivities::readActivities()
 
   clk_period_ = INF;
   for (Clock *clk : *sta_->sdc()->clocks())
-    clk_period_ = min(clk->period(), clk_period_);
+    clk_period_ = min(static_cast<double>(clk->period()), clk_period_);
 
   setActivities();
 }
@@ -151,12 +153,11 @@ ReadVcdActivities::setVarActivity(const char *pin_name,
 {
   const Pin *pin = network_->findPin(pin_name);
   if (pin) {
-    int transition_count;
-    float activity, duty;
+    double transition_count, activity, duty;
     findVarActivity(var_values, value_bit,
                     transition_count, activity, duty);
     debugPrint(debug_, "read_vcd_activities", 1,
-               "%s transitions %d activity %.2f duty %.2f",
+               "%s transitions %.1f activity %.2f duty %.2f",
                pin_name,
                transition_count,
                activity,
@@ -173,11 +174,11 @@ void
 ReadVcdActivities::findVarActivity(const VcdValues &var_values,
                                    int value_bit,
                                    // Return values.
-                                   int &transition_count,
-                                   float &activity,
-                                   float &duty)
+                                   double &transition_count,
+                                   double &activity,
+                                   double &duty)
 {
-  transition_count = 0;
+  transition_count = 0.0;
   char prev_value = var_values[0].value();
   VcdTime prev_time = var_values[0].time();
   VcdTime high_time = 0;
@@ -191,32 +192,40 @@ ReadVcdActivities::findVarActivity(const VcdValues &var_values,
     if (prev_value == '1')
       high_time += time - prev_time;
     if (value != prev_value)
-      transition_count++;
+      transition_count += (value == 'X'
+                           || value == 'Z'
+                           || prev_value == 'X'
+                           || prev_value == 'Z')
+        ? .5
+        : 1.0;
     prev_time = time;
     prev_value = value;
   }
   VcdTime time_max = vcd_.timeMax();
   if (prev_value == '1')
     high_time += time_max - prev_time;
-  duty = static_cast<float>(high_time) / time_max;
+  duty = static_cast<double>(high_time) / time_max;
   activity = transition_count
     / (time_max * vcd_.timeUnitScale() / clk_period_);
 }
 
 void
 ReadVcdActivities::checkClkPeriod(const Pin *pin,
-                                  int transition_count)
+                                  double transition_count)
 {
   VcdTime time_max = vcd_.timeMax();
-  float sim_period = time_max * vcd_.timeUnitScale() / ((transition_count - 1) / 2.0);
+  double sim_period = time_max * vcd_.timeUnitScale() / (transition_count / 2.0);
 
   ClockSet *clks = sdc_->findLeafPinClocks(pin);
   if (clks) {
     for (Clock *clk : *clks) {
-      report_->warn(806, "clock %s vcd period %s differs from clock definition %s",
-                    clk->name(),
-                    delayAsString(clk->period(), this),
-                    delayAsString(sim_period, this));
+      double clk_period = clk->period();
+      if (abs((clk_period - sim_period) / clk_period) > .1)
+        // Warn if sim clock period differs from SDC by 10%.
+        report_->warn(806, "clock %s vcd period %s differs from SDC clock period %s",
+                      clk->name(),
+                      delayAsString(sim_period, this),
+                      delayAsString(clk_period, this));
     }
   }
 }
