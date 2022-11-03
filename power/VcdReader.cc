@@ -395,7 +395,7 @@ reportWaveforms(Vcd &vcd,
         else {
           // bus
           string field;
-          stringPrint(field, "%-*llX", zoom, var_value.busValue());
+          stringPrint(field, "%-*" PRIX64, zoom, var_value.busValue());
           line += field;
         }
         prev_var_value = var_value;
