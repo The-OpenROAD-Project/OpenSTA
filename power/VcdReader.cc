@@ -15,6 +15,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include <cctype>
+#include <cinttypes>
 
 #include "VcdReader.hh"
 
@@ -417,7 +418,7 @@ reportVcdVarValues(const char *filename,
       double time = var_value.time() * vcd.timeUnitScale();
       char value = var_value.value();
       if (value == '\0')
-        report->reportLine("%.2e %llu",
+        report->reportLine("%.2e %" PRIu64,
                            time, var_value.busValue());
       else
         report->reportLine("%.2e %c", time, value);
