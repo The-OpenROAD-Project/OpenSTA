@@ -120,6 +120,7 @@ VcdReader::read(const char *filename)
 
 VcdReader::VcdReader(StaState *sta) :
   StaState(sta),
+  file_line_(0),
   stmt_line_(0),
   vcd_(nullptr),
   time_(0),

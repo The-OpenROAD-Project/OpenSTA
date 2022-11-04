@@ -22,9 +22,11 @@ namespace sta {
 
 Vcd::Vcd(StaState *sta) :
   StaState(sta),
-  time_unit_scale_(0.0),
+  time_scale_(1.0),
+  time_unit_scale_(1.0),
   max_var_name_length_(0),
   max_var_width_(0),
+  min_delta_time_(0),
   time_max_(0)
 {
 }

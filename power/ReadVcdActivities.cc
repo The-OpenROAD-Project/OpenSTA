@@ -78,6 +78,7 @@ ReadVcdActivities::ReadVcdActivities(const char *filename,
   filename_(filename),
   scope_(scope),
   vcd_(sta),
+  clk_period_(0.0),
   sta_(sta),
   power_(sta->power())
 {
@@ -141,6 +142,7 @@ ReadVcdActivities::setActivities()
             value_bit++;
           }
         }
+        stringDelete(bus_name);
       }
     }
   }
