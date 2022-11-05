@@ -729,8 +729,9 @@ SdfWriter::sdfPathName(const Pin *pin)
   else {
     char *inst_path = sdfPathName(inst);
     const char *port_name = sdfPortName(pin);
-    char *sdf_name = makeTmpString(strlen(inst_path)+1+strlen(port_name)+1);
-    sprintf(sdf_name, "%s%c%s", inst_path, sdf_divider_, port_name);
+    size_t length = strlen(inst_path) + 1 + strlen(port_name) + 1;
+    char *sdf_name = makeTmpString(length);
+    snprintf(sdf_name, length, "%s%c%s", inst_path, sdf_divider_, port_name);
     return sdf_name;
   }
 }

@@ -344,7 +344,9 @@ get_target_property(SWIG_FILES sta_swig SOURCES)
 foreach(SWIG_FILE ${SWIG_FILES})
   set_source_files_properties(${SWIG_FILE}
     PROPERTIES
-    COMPILE_OPTIONS "-Wno-cast-qual;-Wno-missing-braces"
+    # No simple way to modify the swig template that emits code full of warnings
+    # so suppress them.
+    COMPILE_OPTIONS "-Wno-cast-qual;-Wno-missing-braces;-Wno-deprecated-declarations"
   )
 endforeach()
 
