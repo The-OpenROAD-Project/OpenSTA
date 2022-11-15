@@ -1086,23 +1086,6 @@ proc report_path_ends { path_ends } {
   report_path_end_footer
 }
 
-proc define_report_path_fields {} {
-  variable report_path_field_width_extra
-
-  set_rise_fall_short_names "^" "v"
-  set_report_path_field_order { fanout capacitance slew \
-				 incr total edge case description }
-  set_report_path_field_properties "description" "Description" 36 1
-  set width $report_path_field_width_extra
-  set_report_path_field_properties "total" "Time" $width 0
-  set_report_path_field_properties "incr" "Delay" $width 0
-  set_report_path_field_properties "capacitance" "Cap" $width 0
-  set_report_path_field_properties "slew" "Slew" $width 0
-  set_report_path_field_properties "fanout" "Fanout" 6 0
-  set_report_path_field_properties "edge" " " 1 0
-  set_report_path_field_properties "case" " " 11 0
-}
-
 ################################################################
 
 define_cmd_args "report_clock_min_period" \

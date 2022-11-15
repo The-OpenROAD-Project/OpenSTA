@@ -14,11 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-proc init_sta {} {
+proc init_sta_cmds {} {
   global auto_index
 
   # Import exported commands from sta namespace to global namespace.
-  sta::define_sta_cmds
   namespace import sta::*
 
   if { [info exists tclreadline::version] } {

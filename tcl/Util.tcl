@@ -395,50 +395,45 @@ proc check_percent { cmd_arg arg } {
 
 ################################################################
 
-# The builtin Tcl "source" and "unknown" commands are redefined by sta.
-# This rename provides a mechanism to refer to the original TCL
-# command.
-# Protected so this file can be reloaded without blowing up.
-if { ![info exists renamed_source] } {
-  rename source builtin_source
-  rename unknown builtin_unknown
-  set renamed_source 1
-}
-
-# Numeric expressions eval to themselves so braces aren't required
-# around bus names like foo[2] or foo[*].
+# Bus signal names like foo[2] or bar[31:0] use brackets that
+# look like "eval" to TCL. Catch the numeric "function" with the
+# namespace's unknown handler and return the value instead of an error.
 proc sta_unknown { args } {
   global errorCode errorInfo
   
   set name [lindex $args 0]
-  if { [llength $args] == 1 \
-	 && ([string is integer $name] || [string equal $name "*"]) } {
+  if { [llength $args] == 1 && [is_bus_subscript $args] } {
     return "\[$args\]"
-  } else {
-    # Implement command name abbreviation from init.tcl/unknown.
-    # Remove restrictions in that version that prevent it from
-    # running in non-interactive interpreters.
-    
-    set ret [catch {set cmds [info commands $name*]} msg]
-    if {[string equal $name "::"]} {
-      set name ""
+  }
+
+  # Command name abbreviation support.
+  set ret [catch {set cmds [info commands $name*]} msg]
+  if {[string equal $name "::"]} {
+    set name ""
+  }
+  if { $ret != 0 } {
+    return -code $ret -errorcode $errorCode \
+      "error in unknown while checking if \"$name\" is a unique command abbreviation: $msg"
     }
-    if {$ret != 0} {
-      return -code $ret -errorcode $errorCode \
-	"error in unknown while checking if \"$name\" is a unique command abbreviation: $msg"
-    }
-    if {[llength $cmds] == 1} {
-      return [uplevel 1 [lreplace $args 0 0 $cmds]]
-    }
-    if {[llength $cmds]} {
-      if {[string equal $name ""]} {
-	return -code error "empty command name \"\""
-      } else {
-	return -code error \
-	  "ambiguous command name \"$name\": [lsort $cmds]"
-      }
+  if { [llength $cmds] == 1 } {
+    return [uplevel 1 [lreplace $args 0 0 $cmds]]
+  }
+  if { [llength $cmds] > 1 } {
+    if {[string equal $name ""]} {
+      return -code error "empty command name \"\""
+    } else {
+      return -code error \
+        "ambiguous command name \"$name\": [lsort $cmds]"
     }
   }
+
+  ::unknown {*}$args
+}
+
+proc is_bus_subscript { subscript } {
+  return [expr [string is integer $subscript] \
+            || [string match $subscript "*"] \
+            || [regexp {[0-9]+:[0-9]} $subscript]]
 }
 
 namespace unknown sta_unknown

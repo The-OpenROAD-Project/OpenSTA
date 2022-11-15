@@ -181,7 +181,7 @@ initStaApp(int &argc,
   Sta_Init(interp);
   // Eval encoded sta TCL sources.
   evalTclInit(interp, tcl_inits);
-  Tcl_Eval(interp, "init_sta");
+  Tcl_Eval(interp, "init_sta_cmds");
 }
 
 static void
