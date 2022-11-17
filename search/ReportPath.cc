@@ -2218,22 +2218,8 @@ ReportPath::reportGenClkSrcPath1(Clock *clk,
         reportClkSrcLatency(insertion, gclk_time, early_late);
       }
       PathExpanded src_expanded(&src_path, this);
-      if (clk->pllOut()) {
-        reportPath4(&src_path, src_expanded, skip_first_path, true,
-                    clk_used_as_data, gclk_time);
-        PathAnalysisPt *pll_ap=path_ap->insertionAnalysisPt(min_max->opposite());
-        Arrival pll_delay = search_->genclks()->pllDelay(clk, clk_rf, pll_ap);
-        size_t path_length = src_expanded.size();
-        if (path_length < 2)
-          report_->critical(258, "generated clock pll source path too short.");
-        PathRef *path0 = src_expanded.path(path_length - 2);
-        Arrival time0 = path0->arrival(this) + gclk_time;
-        PathRef *path1 = src_expanded.path(path_length - 1);
-        reportPathLine(path1, -pll_delay, time0 - pll_delay, "pll_delay");
-      }
-      else
-        reportPath4(&src_path, src_expanded, skip_first_path, false,
-                    clk_used_as_data, gclk_time);
+      reportPath4(&src_path, src_expanded, skip_first_path, false,
+                  clk_used_as_data, gclk_time);
       if (!clk->isPropagated())
         reportLine("clock network delay (ideal)", 0.0,
                    src_path.arrival(this), min_max);

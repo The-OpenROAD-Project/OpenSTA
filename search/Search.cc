@@ -2097,15 +2097,6 @@ PathVisitor::visitFromPath(const Pin *from_pin,
 	  }
 	}
       }
-      else {
-	// PLL out to feedback path.
-	to_tag = search_->thruTag(from_tag, edge, to_rf, min_max, path_ap);
-	if (to_tag) {
-	  arc_delay = search_->deratedDelay(from_vertex, arc, edge, true,
-					   path_ap);
-	  to_arrival = from_arrival + arc_delay;
-	}
-      }
     }
   }
   else if (role->genericRole() == TimingRole::regClkToQ()) {
@@ -3497,15 +3488,6 @@ Search::ensureDownstreamClkPins()
     for (Vertex *vertex : *graph_->regClkVertices())
       iter.enqueue(vertex);
 
-    // Enqueue PLL feedback pins.
-    VertexIterator vertex_iter(graph_);
-    while (vertex_iter.hasNext()) {
-      Vertex *vertex = vertex_iter.next();
-      Pin *pin = vertex->pin();
-      const LibertyPort *port = network_->libertyPort(pin);
-      if (port && port->isPllFeedbackPin())
-	iter.enqueue(vertex);
-    }
     while (iter.hasNext()) {
       Vertex *vertex = iter.next();
       vertex->setHasDownstreamClkPin(true);

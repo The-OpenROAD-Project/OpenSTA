@@ -445,6 +445,13 @@ proc all_registers { args } {
     set edge_triggered 1
     set level_sensitive 1
   }
+  if { [expr [info exists flags(-cells)] \
+          + [info exists flags(-data_pins)] \
+          + [info exists flags(-clock_pins)] \
+          +  [info exists flags(-async_pins)] \
+          + [info exists flags(-output_pins)]] > 1 } {
+    sta_error 807 "only one of -cells, -data_pins, -clock_pins, -async_pins, -output_pins are suppported."
+  }
   if [info exists flags(-cells)] {
     return [find_register_instances $clks $clk_rf \
 	      $edge_triggered $level_sensitive]
@@ -1139,13 +1146,12 @@ define_cmd_args "create_generated_clock" \
      [-divide_by divisor | -multiply_by multiplier]\
      [-duty_cycle duty_cycle] [-invert] [-edges edge_list]\
      [-edge_shift edge_shift_list] [-combinational] [-add]\
-     [-pll_output pll_out_pin] [-pll_feedback pll_fdbk_pin]\
      [-comment comment] port_pin_list}
 
 proc create_generated_clock { args } {
   parse_key_args "create_generated_clock" args keys \
     {-name -source -master_clock -divide_by -multiply_by \
-       -duty_cycle -edges -edge_shift -pll_output -pll_feedback -comment} \
+       -duty_cycle -edges -edge_shift -comment} \
     flags {-invert -combinational -add}
   
   check_argc_eq1 "create_generated_clock" $args
@@ -1187,8 +1193,6 @@ proc create_generated_clock { args } {
   set duty_cycle 0
   set edges {}
   set edge_shifts {}
-  set pll_out "NULL"
-  set pll_feedback "NULL"
   
   set combinational [info exists flags(-combinational)]
   
@@ -1264,31 +1268,9 @@ proc create_generated_clock { args } {
     sta_error 539 "-duty_cycle requires -multiply_by value."
   }
   
-  if { [info exists keys(-pll_feedback)] || [info exists keys(-pll_output)] } {
-    if {![info exists keys(-pll_output)] } {
-      sta_error 540 "missing -pll_output argument."
-    }
-    if { ![info exists keys(-pll_feedback)] } {
-      sta_error 541 "missing -pll_feedback argument."
-    }
-    set pll_feedback [get_pin_error "-pll_feedback" $keys(-pll_feedback)]
-    set pll_out [get_pin_error "-pll_output" $keys(-pll_output)]
-    set pll_inst [$pll_out instance]
-    if { [$pll_feedback instance] != $pll_inst } {
-      sta_error 542 "PLL output and feedback pins must be on the same instance."
-    }
-    if { [$source_pin instance] != $pll_inst } {
-      sta_error 543 "source pin must be on the same instance as the PLL output pin."
-    }
-    if { [lsearch $pins $pll_out] == -1 } {
-      sta_error 544 "PLL output must be one of the clock pins."
-    }
-  }
-  
   set comment [parse_comment_key keys]
   
   make_generated_clock $name $pins $add $source_pin $master_clk \
-    $pll_out $pll_feedback \
     $divide_by $multiply_by $duty_cycle $invert $combinational \
     $edges $edge_shifts $comment
 }

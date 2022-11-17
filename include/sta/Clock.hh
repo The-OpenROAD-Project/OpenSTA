@@ -105,8 +105,6 @@ public:
   Clock *masterClk() const { return master_clk_; }
   bool masterClkInfered() const { return master_clk_infered_; }
   void setInferedMasterClk(Clock *master_clk);
-  Pin *pllOut() const { return pll_out_; }
-  Pin *pllFdbk() const { return pll_fdbk_; }
   int divideBy() const { return divide_by_; }
   int multiplyBy() const { return multiply_by_; }
   float dutyCycle() const { return duty_cycle_; }
@@ -138,8 +136,6 @@ protected:
 			bool add_to_pins,
 			Pin *src_pin,
 			Clock *master_clk,
-			Pin *pll_out,
-			Pin *pll_fdbk,
 			int divide_by,
 			int multiply_by,
 			float duty_cycle,
@@ -165,8 +161,6 @@ protected:
   bool add_to_pins_;
   // Hierarchical pins in pins_ become driver pins through the pin.
   PinSet leaf_pins_;
-  Pin *pll_out_;
-  Pin *pll_fdbk_;
   float period_;
   FloatSeq *waveform_;
   bool waveform_valid_;

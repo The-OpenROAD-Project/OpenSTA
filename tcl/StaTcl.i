@@ -2990,8 +2990,6 @@ make_generated_clock(const char *name,
 		     bool add_to_pins,
 		     Pin *src_pin,
 		     Clock *master_clk,
-		     Pin *pll_out,
-		     Pin *pll_fdbk,
 		     int divide_by,
 		     int multiply_by,
 		     float duty_cycle,
@@ -3003,7 +3001,7 @@ make_generated_clock(const char *name,
 {
   cmdLinkedNetwork();
   Sta::sta()->makeGeneratedClock(name, pins, add_to_pins,
-				 src_pin, master_clk, pll_out, pll_fdbk,
+				 src_pin, master_clk,
 				 divide_by, multiply_by, duty_cycle, invert,
 				 combinational, edges, edge_shifts,
 				 comment);

@@ -433,16 +433,6 @@ WriteSdc::writeGeneratedClock(Clock *clk) const
     gzprintf(stream_, " -master_clock ");
     writeGetClock(master);
   }
-  Pin *pll_out = clk->pllOut();
-  if (pll_out) {
-    gzprintf(stream_, " -pll_out ");
-    writeGetPin(pll_out, true);
-  }
-  Pin *pll_fdbk = clk->pllFdbk();
-  if (pll_fdbk) {
-    gzprintf(stream_, " -pll_feedback ");
-    writeGetPin(pll_fdbk, false);
-  }
   if (clk->combinational())
     gzprintf(stream_, " -combinational");
   int divide_by = clk->divideBy();

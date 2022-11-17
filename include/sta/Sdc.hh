@@ -348,8 +348,6 @@ public:
 				    bool add_to_pins,
 				    Pin *src_pin,
 				    Clock *master_clk,
-				    Pin *pll_out,
-				    Pin *pll_fdbk,
 				    int divide_by,
 				    int multiply_by,
 				    float duty_cycle,

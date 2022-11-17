@@ -36,8 +36,6 @@ Clock::Clock(const char *name,
 	     int index) :
   name_(stringCopy(name)),
   add_to_pins_(false),
-  pll_out_(nullptr),
-  pll_fdbk_(nullptr),
   period_(0.0),
   waveform_(nullptr),
   waveform_valid_(false),
@@ -312,8 +310,6 @@ Clock::initGeneratedClk(PinSet *pins,
 			bool add_to_pins,
 			Pin *src_pin,
 			Clock *master_clk,
-			Pin *pll_out,
-			Pin *pll_fdbk,
 			int divide_by,
 			int multiply_by,
 			float duty_cycle,
@@ -332,8 +328,6 @@ Clock::initGeneratedClk(PinSet *pins,
   master_clk_ = master_clk;
   master_clk_infered_ = false;
   waveform_valid_ = false;
-  pll_out_= pll_out;
-  pll_fdbk_ = pll_fdbk;
   divide_by_ = divide_by;
   multiply_by_ = multiply_by;
   duty_cycle_ = duty_cycle;

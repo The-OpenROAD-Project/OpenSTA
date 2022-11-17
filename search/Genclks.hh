@@ -78,9 +78,6 @@ public:
 	       const PathAnalysisPt *path_ap,
 	       // Return value.
 	       PathVertex &src_path) const;
-  Arrival pllDelay(const Clock *clk,
-		   const RiseFall *rf,
-		   const PathAnalysisPt *path_ap) const;
   Vertex *srcPathVertex(const Pin *pin) const;
   Level clkPinMaxLevel(const Clock *clk) const;
   void copyGenClkSrcPaths(Vertex *vertex,
@@ -99,15 +96,6 @@ private:
 		   const PathAnalysisPt *path_ap) const;
   bool matchesSrcFilter(Path *path,
 			const Clock *gclk) const;
-  void findPllDelays(Clock *gclk);
-  FilterPath *makePllFilter(const Clock *gclk);
-  bool matchesPllFilter(Path *path,
-			FilterPath *pll_filter) const;
-  void seedPllPin(const Clock *gclk,
-		  FilterPath *pll_filter,
-			BfsFwdIterator &pll_iter);
-  void findPllArrivals(const Clock *gclk,
-		       BfsFwdIterator &pll_iter);
   void seedSrcPins(Clock *gclk,
 		   FilterPath *src_filter,
 		   BfsFwdIterator &insert_iter);
