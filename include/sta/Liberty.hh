@@ -88,6 +88,12 @@ constexpr int scale_factor_pvt_count = int(ScaleFactorPvt::unknown) + 1;
 enum class TableTemplateType { delay, power, output_current, ocv };
 constexpr int table_template_type_count = int(TableTemplateType::ocv) + 1;
 
+enum class LevelShifterType { HL, LH, HL_LH };
+
+enum class SwitchCellType { coarse_grain, fine_grain };
+
+////////////////////////////////////////////////////////////////
+
 void
 initLiberty();
 void
@@ -117,6 +123,8 @@ timingSenseString(TimingSense sense);
 TimingSense
 timingSenseOpposite(TimingSense sense);
 
+////////////////////////////////////////////////////////////////
+
 class LibertyLibrary : public ConcreteLibrary
 {
 public:
@@ -145,6 +153,7 @@ public:
   void setNominalVoltage(float voltage);
   float nominalTemperature() const { return nominal_temperature_; }
   void setNominalTemperature(float temperature);
+
   void setScaleFactors(ScaleFactors *scales);
   // Add named scale factor group.
   void addScaleFactors(ScaleFactors *scales);
@@ -159,6 +168,7 @@ public:
 		    int tr_index,
 		    const LibertyCell *cell,
 		    const Pvt *pvt) const;
+
   void setWireSlewDegradationTable(TableModel *model,
 				   RiseFall *rf);
   TableModel *wireSlewDegradationTable(const RiseFall *rf) const;
@@ -173,8 +183,10 @@ public:
 
   float defaultInputPinCap() const { return default_input_pin_cap_; }
   void setDefaultInputPinCap(float cap);
+
   float defaultOutputPinCap() const { return default_output_pin_cap_; }
   void setDefaultOutputPinCap(float cap);
+
   float defaultBidirectPinCap() const { return default_bidirect_pin_cap_; }
   void setDefaultBidirectPinCap(float cap);
 
@@ -196,6 +208,7 @@ public:
 			     bool &exists) const;
   void setDefaultBidirectPinRes(const RiseFall *rf,
 				float value);
+
   void defaultOutputPinRes(const RiseFall *rf,
 			   // Return values.
 			   float &res,
@@ -206,12 +219,15 @@ public:
   void defaultMaxSlew(float &slew,
 		      bool &exists) const;
   void setDefaultMaxSlew(float slew);
+
   void defaultMaxCapacitance(float &cap,
 			     bool &exists) const;
   void setDefaultMaxCapacitance(float cap);
+
   void defaultMaxFanout(float &fanout,
 			bool &exists) const;
   void setDefaultMaxFanout(float fanout);
+
   void defaultFanoutLoad(// Return values.
 			 float &fanout,
 			 bool &exists) const;
@@ -248,7 +264,6 @@ public:
   Wireload *defaultWireload() const;
   WireloadSelection *findWireloadSelection(const char *name) const;
   WireloadSelection *defaultWireloadSelection() const;
-
   void addWireload(Wireload *wireload);
   WireloadMode defaultWireloadMode() const;
   void setDefaultWireloadMode(WireloadMode mode);
@@ -405,6 +420,14 @@ public:
   void setIsPad(bool is_pad);
   bool isLevelShifter() const { return is_level_shifter_; }
   void setIsLevelShifter(bool is_level_shifter);
+  LevelShifterType levelShifterType() const { return level_shifter_type_; }
+  void setLevelShifterType(LevelShifterType level_shifter_type);
+  bool isIsolationCell() const { return is_isolation_cell_; }
+  void setIsIsolationCell(bool is_isolation_cell);
+  bool alwaysOn() const { return always_on_; }
+  void setAlwaysOn(bool always_on);
+  SwitchCellType switchCellType() const { return switch_cell_type_; }
+  void setSwitchCellType(SwitchCellType switch_cell_type);
   bool interfaceTiming() const { return interface_timing_; }
   void setInterfaceTiming(bool value);
   bool isClockGateLatchPosedge() const;
@@ -537,7 +560,10 @@ protected:
   bool is_memory_;
   bool is_pad_;
   bool is_level_shifter_;
-  bool has_internal_ports_;
+  LevelShifterType level_shifter_type_;
+  bool is_isolation_cell_;
+  bool always_on_;
+  SwitchCellType switch_cell_type_;
   bool interface_timing_;
   ClockGateType clock_gate_type_;
   TimingArcSetSeq timing_arc_sets_;
@@ -571,6 +597,7 @@ protected:
   float leakage_power_;
   bool leakage_power_exists_;
   LibertyPgPortMap pg_port_map_;
+  bool has_internal_ports_;
 
 private:
   friend class LibertyLibrary;
@@ -713,6 +740,19 @@ public:
   void setIsClockGateOutPin(bool is_clk_gate_out);
   bool isPllFeedbackPin() const { return is_pll_feedback_pin_; }
   void setIsPllFeedbackPin(bool is_pll_feedback_pin);
+
+  bool isolationCellDataPin() const { return isolation_cell_data_pin_; }
+  void setIsolationCellDataPin(bool isolation_cell_data_pin);
+
+  bool isolationCellEnablePin() const { return isolation_cell_enable_pin_; }
+  void setIsolationCellEnablePin(bool isolation_cell_enable_pin);
+
+  bool levelShifterDataPin() const { return level_shifter_data_pin_; }
+  void setLevelShifterDataPin(bool level_shifter_data_pin);
+
+  bool switchPin() const { return switch_pin_; }
+  void setSwitchPin(bool switch_pin);
+
   // Has register/latch rise/fall edges from pin.
   bool isRegClk() const { return is_reg_clk_; }
   void setIsRegClk(bool is_clk);
@@ -789,6 +829,10 @@ protected:
   bool is_clk_gate_enable_pin_:1;
   bool is_clk_gate_out_pin_:1;
   bool is_pll_feedback_pin_:1;
+  bool isolation_cell_data_pin_:1;
+  bool isolation_cell_enable_pin_:1;
+  bool level_shifter_data_pin_:1;
+  bool switch_pin_:1;
   bool is_disabled_constraint_:1;
 
 private:

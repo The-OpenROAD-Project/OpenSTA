@@ -891,7 +891,10 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   is_memory_(false),
   is_pad_(false),
   is_level_shifter_(false),
-  has_internal_ports_(false),
+  level_shifter_type_(LevelShifterType::HL_LH),
+  is_isolation_cell_(false),
+  always_on_(false),
+  switch_cell_type_(SwitchCellType::fine_grain),
   interface_timing_(false),
   clock_gate_type_(ClockGateType::none),
   has_infered_reg_timing_arcs_(false),
@@ -901,7 +904,8 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   ocv_derate_(nullptr),
   is_disabled_constraint_(false),
   leakage_power_(0.0),
-  leakage_power_exists_(false)
+  leakage_power_exists_(false),
+  has_internal_ports_(false)
 {
   liberty_cell_ = this;
 }
@@ -1038,9 +1042,33 @@ LibertyCell::LibertyCell::setIsPad(bool is_pad)
 }
 
 void
-LibertyCell::LibertyCell::setIsLevelShifter(bool is_level_shifter)
+LibertyCell::setIsLevelShifter(bool is_level_shifter)
 {
   is_level_shifter_ = is_level_shifter;
+}
+
+void
+LibertyCell::setLevelShifterType(LevelShifterType level_shifter_type)
+{
+  level_shifter_type_ = level_shifter_type;
+}
+
+void
+LibertyCell::setIsIsolationCell(bool is_isolation_cell)
+{
+  is_isolation_cell_ = is_isolation_cell;
+}
+
+void
+LibertyCell::setAlwaysOn(bool always_on)
+{
+  always_on_ = always_on;
+}
+
+void
+LibertyCell::setSwitchCellType(SwitchCellType switch_cell_type)
+{
+  switch_cell_type_ = switch_cell_type;
 }
 
 void
@@ -1898,6 +1926,10 @@ LibertyPort::LibertyPort(LibertyCell *cell,
   is_clk_gate_enable_pin_(false),
   is_clk_gate_out_pin_(false),
   is_pll_feedback_pin_(false),
+  isolation_cell_data_pin_(false),
+  isolation_cell_enable_pin_(false),
+  level_shifter_data_pin_(false),
+  switch_pin_(false),
   is_disabled_constraint_(false)
 {
   liberty_port_ = this;
@@ -2349,6 +2381,30 @@ void
 LibertyPort::setIsPllFeedbackPin(bool is_pll_feedback_pin)
 {
   is_pll_feedback_pin_ = is_pll_feedback_pin;
+}
+
+void
+LibertyPort::setIsolationCellDataPin(bool isolation_cell_data_pin)
+{
+  isolation_cell_data_pin_ = isolation_cell_data_pin;
+}
+
+void
+LibertyPort::setIsolationCellEnablePin(bool isolation_cell_enable_pin)
+{
+  isolation_cell_enable_pin_ = isolation_cell_enable_pin;
+}
+
+void
+LibertyPort::setLevelShifterDataPin(bool level_shifter_data_pin)
+{
+  level_shifter_data_pin_ = level_shifter_data_pin;
+}
+
+void
+LibertyPort::setSwitchPin(bool switch_pin)
+{
+  switch_pin_ = switch_pin;
 }
 
 void

@@ -56,6 +56,7 @@ typedef Vector<LibertyFunc*> LibertyFuncSeq;
 typedef Vector<TimingGroup*> TimingGroupSeq;
 typedef Vector<InternalPowerGroup*> InternalPowerGroupSeq;
 typedef Vector<LeakagePowerGroup*> LeakagePowerGroupSeq;
+typedef void (LibertyPort::*LibertyPortBoolSetter)(bool value);
 
 class LibertyReader : public LibertyGroupVisitor
 {
@@ -182,7 +183,11 @@ public:
   virtual void visitIsMacro(LibertyAttr *attr);
   virtual void visitIsMemory(LibertyAttr *attr);
   virtual void visitIsPad(LibertyAttr *attr);
-  void visitIsLevelShifter(LibertyAttr *attr);
+  virtual void visitIsLevelShifter(LibertyAttr *attr);
+  virtual void visitLevelShifterType(LibertyAttr *attr);
+  virtual void visitIsIsolationCell(LibertyAttr *attr);
+  virtual void visitAlwaysOn(LibertyAttr *attr);
+  virtual void visitSwitchCellType(LibertyAttr *attr);
   virtual void visitInterfaceTiming(LibertyAttr *attr);
   virtual void visitScalingFactors(LibertyAttr *attr);
   virtual void visitCellLeakagePower(LibertyAttr *attr);
@@ -233,6 +238,12 @@ public:
   virtual void visitSignalType(LibertyAttr *attr);
   EarlyLateAll *getAttrEarlyLate(LibertyAttr *attr);
   virtual void visitClock(LibertyAttr *attr);
+  virtual void visitIsolationCellDataPin(LibertyAttr *attr);
+  virtual void visitIsolationCellEnablePin(LibertyAttr *attr);
+  virtual void visitLevelShifterDataPin(LibertyAttr *attr);
+  virtual void visitSwitchPin(LibertyAttr *attr);
+  void visitPortBoolAttr(LibertyAttr *attr,
+                         LibertyPortBoolSetter setter);
 
   virtual void beginScalingFactors(LibertyGroup *group);
   virtual void endScalingFactors(LibertyGroup *group);

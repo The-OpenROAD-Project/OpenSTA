@@ -164,6 +164,7 @@ LibertyReader::defineAttrVisitor(const char *attr_name,
 void
 LibertyReader::defineVisitors()
 {
+  // Library
   defineGroupVisitor("library", &LibertyReader::beginLibrary,
 		     &LibertyReader::endLibrary);
   defineAttrVisitor("time_unit", &LibertyReader::visitTimeUnit);
@@ -281,6 +282,7 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("wire_load_from_area",
 		    &LibertyReader::visitWireloadFromArea);
 
+  // Cells
   defineGroupVisitor("cell", &LibertyReader::beginCell,
 		     &LibertyReader::endCell);
   defineGroupVisitor("scaled_cell", &LibertyReader::beginScaledCell,
@@ -293,9 +295,14 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("is_memory", &LibertyReader::visitIsMemory);
   defineAttrVisitor("is_pad", &LibertyReader::visitIsPad);
   defineAttrVisitor("is_level_shifter", &LibertyReader::visitIsLevelShifter);
+  defineAttrVisitor("level_shifter_type", &LibertyReader::visitLevelShifterType);
+  defineAttrVisitor("is_isolation_cell", &LibertyReader::visitIsIsolationCell);
+  defineAttrVisitor("always_on", &LibertyReader::visitAlwaysOn);
+  defineAttrVisitor("switch_cell_type", &LibertyReader::visitSwitchCellType);
   defineAttrVisitor("interface_timing", &LibertyReader::visitInterfaceTiming);
   defineAttrVisitor("scaling_factors", &LibertyReader::visitScalingFactors);
 
+  // Pins
   defineGroupVisitor("pin", &LibertyReader::beginPin,&LibertyReader::endPin);
   defineGroupVisitor("bus", &LibertyReader::beginBus,&LibertyReader::endBus);
   defineGroupVisitor("bundle", &LibertyReader::beginBundle,
@@ -337,6 +344,15 @@ LibertyReader::defineVisitors()
 		    &LibertyReader::visitIsPllFeedbackPin);
   defineAttrVisitor("signal_type", &LibertyReader::visitSignalType);
 
+  defineAttrVisitor("isolation_cell_data_pin",
+                    &LibertyReader::visitIsolationCellDataPin);
+  defineAttrVisitor("isolation_cell_enable_pin",
+                    &LibertyReader::visitIsolationCellEnablePin);
+  defineAttrVisitor("level_shifter_data_pin",
+                    &LibertyReader::visitLevelShifterDataPin);
+  defineAttrVisitor("switch_pin", &LibertyReader::visitSwitchPin);
+
+  // Register/latch
   defineGroupVisitor("ff", &LibertyReader::beginFF, &LibertyReader::endFF);
   defineGroupVisitor("ff_bank", &LibertyReader::beginFFBank,
 		     &LibertyReader::endFFBank);
@@ -2503,6 +2519,58 @@ LibertyReader::visitIsLevelShifter(LibertyAttr *attr)
 }
 
 void
+LibertyReader::visitLevelShifterType(LibertyAttr *attr)
+{
+  if (cell_) {
+    const char *level_shifter_type = getAttrString(attr);
+    if (stringEq(level_shifter_type, "HL"))
+      cell_->setLevelShifterType(LevelShifterType::HL);
+    else if (stringEq(level_shifter_type, "LH"))
+      cell_->setLevelShifterType(LevelShifterType::LH);
+    else if (stringEq(level_shifter_type, "HL_LH"))
+      cell_->setLevelShifterType(LevelShifterType::HL_LH);
+    else
+      libWarn(900, attr, "level_shifter_type must be HL, LH, or HL_LH");
+  }
+}
+
+void
+LibertyReader::visitIsIsolationCell(LibertyAttr *attr)
+{
+  if (cell_) {
+    bool is_isolation_cell, exists;
+    getAttrBool(attr, is_isolation_cell, exists);
+    if (exists)
+      cell_->setIsIsolationCell(is_isolation_cell);
+  }
+}
+
+void
+LibertyReader::visitAlwaysOn(LibertyAttr *attr)
+{
+  if (cell_) {
+    bool always_on, exists;
+    getAttrBool(attr, always_on, exists);
+    if (exists)
+      cell_->setAlwaysOn(always_on);
+  }
+}
+
+void
+LibertyReader::visitSwitchCellType(LibertyAttr *attr)
+{
+  if (cell_) {
+    const char *switch_cell_type = getAttrString(attr);
+    if (stringEq(switch_cell_type, "coarse_grain"))
+      cell_->setSwitchCellType(SwitchCellType::coarse_grain);
+    else if (stringEq(switch_cell_type, "fine_grain"))
+      cell_->setSwitchCellType(SwitchCellType::fine_grain);
+    else
+      libWarn(901, attr, "switch_cell_type must be coarse_grain or fine_grain");
+  }
+}
+
+void
 LibertyReader::visitInterfaceTiming(LibertyAttr *attr)
 {
   if (cell_) {
@@ -3223,65 +3291,25 @@ LibertyReader::visitPulseClock(LibertyAttr *attr)
 void
 LibertyReader::visitClockGateClockPin(LibertyAttr *attr)
 {
-  if (cell_) {
-    bool value, exists;
-    getAttrBool(attr, value, exists);
-    if (exists) {
-      LibertyPortSeq::Iterator port_iter(ports_);
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
-	port->setIsClockGateClockPin(value);
-      }
-    }
-  }
+  visitPortBoolAttr(attr, &LibertyPort::setIsClockGateClockPin);
 }
 
 void
 LibertyReader::visitClockGateEnablePin(LibertyAttr *attr)
 {
-  if (cell_) {
-    bool value, exists;
-    getAttrBool(attr, value, exists);
-    if (exists) {
-      LibertyPortSeq::Iterator port_iter(ports_);
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
-	port->setIsClockGateEnablePin(value);
-      }
-    }
-  }
+  visitPortBoolAttr(attr, &LibertyPort::setIsClockGateEnablePin);
 }
 
 void
 LibertyReader::visitClockGateOutPin(LibertyAttr *attr)
 {
-  if (cell_) {
-    bool value, exists;
-    getAttrBool(attr, value, exists);
-    if (exists) {
-      LibertyPortSeq::Iterator port_iter(ports_);
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
-	port->setIsClockGateOutPin(value);
-      }
-    }
-  }
+  visitPortBoolAttr(attr, &LibertyPort::setIsClockGateOutPin);
 }
 
 void
 LibertyReader::visitIsPllFeedbackPin(LibertyAttr *attr)
 {
-  if (cell_) {
-    bool value, exists;
-    getAttrBool(attr, value, exists);
-    if (exists) {
-      LibertyPortSeq::Iterator port_iter(ports_);
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
-	port->setIsPllFeedbackPin(value);
-      }
-    }
-  }
+  visitPortBoolAttr(attr, &LibertyPort::setIsPllFeedbackPin);
 }
 
 void
@@ -3298,6 +3326,47 @@ LibertyReader::visitSignalType(LibertyAttr *attr)
 	test_cell_->setScanOut(port_);
       if (stringEq(type, "test_scan_out_inverted"))
 	test_cell_->setScanOutInv(port_);
+    }
+  }
+}
+
+void
+LibertyReader::visitIsolationCellDataPin(LibertyAttr *attr)
+{
+  visitPortBoolAttr(attr, &LibertyPort::setIsolationCellDataPin);
+}
+
+void
+LibertyReader::visitIsolationCellEnablePin(LibertyAttr *attr)
+{
+  visitPortBoolAttr(attr, &LibertyPort::setIsolationCellEnablePin);
+}
+
+void
+LibertyReader::visitLevelShifterDataPin(LibertyAttr *attr)
+{
+  visitPortBoolAttr(attr, &LibertyPort::setLevelShifterDataPin);
+}
+
+void
+LibertyReader::visitSwitchPin(LibertyAttr *attr)
+{
+  visitPortBoolAttr(attr, &LibertyPort::setSwitchPin);
+}
+
+void
+LibertyReader::visitPortBoolAttr(LibertyAttr *attr,
+                                 LibertyPortBoolSetter setter)
+{
+  if (cell_) {
+    bool value, exists;
+    getAttrBool(attr, value, exists);
+    if (exists) {
+      LibertyPortSeq::Iterator port_iter(ports_);
+      while (port_iter.hasNext()) {
+	LibertyPort *port = port_iter.next();
+	(port->*setter)(value);
+      }
     }
   }
 }
