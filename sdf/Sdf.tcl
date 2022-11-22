@@ -17,7 +17,7 @@
 namespace eval sta {
 
 define_cmd_args "read_sdf" \
-  {[-path path] [-corner corner_name]\
+  {[-path path] [-corner corner]\
      [-cond_use min|max|min_max]\
      [-unescaped_dividers] filename}
 
@@ -140,7 +140,7 @@ proc_redirect report_annotated_check {
 }
 
 define_cmd_args "write_sdf" \
-  {[-corner corner_name] [-divider /|.] [-include_typ]\
+  {[-corner corner] [-divider /|.] [-include_typ]\
      [-digits digits] [-gzip] [-no_timestamp] [-no_version] filename}
 
 proc_redirect write_sdf {

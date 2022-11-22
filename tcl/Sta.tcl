@@ -634,7 +634,7 @@ define_cmd_args "insert_buffer" {buffer_name buffer_cell net load_pins\
 ################################################################
 
 define_cmd_args "set_assigned_delay" \
-  {-cell|-net [-rise] [-fall] [-corner corner_name] [-min] [-max]\
+  {-cell|-net [-rise] [-fall] [-corner corner] [-min] [-max]\
      [-from from_pins] [-to to_pins] delay}
 
 # Change the delay for timing arcs between from_pins and to_pins matching
@@ -732,20 +732,18 @@ proc set_assigned_delay2 {from_vertex to_vertex to_rf corner min_max delay} {
 
 define_cmd_args "set_assigned_check" \
   {-setup|-hold|-recovery|-removal [-rise] [-fall]\
-     [-corner corner_name] [-min] [-max]\
+     [-corner corner] [-min] [-max]\
      [-from from_pins] [-to to_pins] [-clock rise|fall]\
-     [-cond sdf_cond] [-worst] check_value}
+     [-cond sdf_cond] check_value}
 
-# -worst is ignored.
 proc set_assigned_check { args } {
   set_assigned_check_cmd "set_assigned_check" $args
 }
 
-# -worst is ignored.
 proc set_assigned_check_cmd { cmd cmd_args } {
   parse_key_args $cmd cmd_args \
     keys {-from -to -corner -clock -cond} \
-    flags {-setup -hold -recovery -removal -rise -fall -max -min -worst}
+    flags {-setup -hold -recovery -removal -rise -fall -max -min}
   check_argc_eq1 $cmd $cmd_args
 
   if { [info exists keys(-from)] } {
@@ -844,7 +842,7 @@ proc set_assigned_check2 { from_vertex from_rf to_vertex to_rf \
 ################################################################a
 
 define_cmd_args "set_assigned_transition" \
-  {[-rise] [-fall] [-corner corner_name] [-min] [-max] slew pins}
+  {[-rise] [-fall] [-corner corner] [-min] [-max] slew pins}
 
 # Change the slew on a list of ports.
 proc set_assigned_transition { args } {
@@ -1136,7 +1134,8 @@ proc get_object_property { object prop } {
 
 proc get_property_object_type { object_type object_name quiet } {
   set object "NULL"
-  if { $object_type == "cell" } {
+  if { $object_type == "instance" \
+       || $object_type == "cell"} {
     set object [get_cells -quiet $object_name]
   } elseif { $object_type == "pin" } {
     set object [get_pins -quiet $object_name]
@@ -1146,11 +1145,14 @@ proc get_property_object_type { object_type object_name quiet } {
     set object [get_ports -quiet $object_name]
   } elseif { $object_type == "clock" } {
     set object [get_clocks -quiet $object_name]
-  } elseif { $object_type == "lib_cell" } {
+  } elseif { $object_type == "liberty_cell" \
+               || $object_type == "lib_cell"} {
     set object [get_lib_cells -quiet $object_name]
-  } elseif { $object_type == "lib_pin" } {
+  } elseif { $object_type == "liberty_port" \
+               || $object_type == "lib_pin" } {
     set object [get_lib_pins -quiet $object_name]
-  } elseif { $object_type == "lib" } {
+  } elseif { $object_type == "library" \
+             || $object_type == "lib"} {
     set object [get_libs -quiet $object_name]
   } else {
     sta_error 494 "$object_type not supported."
@@ -1166,13 +1168,13 @@ proc get_object_type { obj } {
   if { $object_type == "Clock" } {
     return "clock"
   } elseif { $object_type == "LibertyCell" } {
-    return "libcell"
+    return "lib_cell"
   } elseif { $object_type == "LibertyPort" } {
-    return "libpin"
+    return "lib_pin"
   } elseif { $object_type == "Cell" } {
-    return "design"
-  } elseif { $object_type == "Instance" } {
     return "cell"
+  } elseif { $object_type == "Instance" } {
+    return "instance"
   } elseif { $object_type == "Port" } {
     return "port"
   } elseif { $object_type == "Pin" } {

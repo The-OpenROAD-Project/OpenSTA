@@ -90,7 +90,7 @@ define_cmd_args "find_timing_paths" \
      [-to to_list|-rise_to to_list|-fall_to to_list]\
      [-path_delay min|min_rise|min_fall|max|max_rise|max_fall|min_max]\
      [-unconstrained]
-     [-corner corner_name]\
+     [-corner corner]\
      [-group_count path_count] \
      [-endpoint_count path_count]\
      [-unique_paths_to_endpoint]\
@@ -328,7 +328,7 @@ proc delays_are_inf { delays } {
 
 define_cmd_args "report_clock_skew" {[-setup|-hold]\
 					   [-clock clocks]\
-					   [-corner corner_name]]\
+					   [-corner corner]]\
 					   [-digits digits]}
 
 proc_redirect report_clock_skew {
@@ -373,7 +373,7 @@ define_cmd_args "report_checks" \
      [-to to_list|-rise_to to_list|-fall_to to_list]\
      [-unconstrained]\
      [-path_delay min|min_rise|min_fall|max|max_rise|max_fall|min_max]\
-     [-corner corner_name]\
+     [-corner corner]\
      [-group_count path_count] \
      [-endpoint_count path_count]\
      [-unique_paths_to_endpoint]\
@@ -403,7 +403,7 @@ proc_redirect report_checks {
 
 define_cmd_args "report_check_types" \
   {[-violators] [-verbose]\
-     [-corner corner_name]\
+     [-corner corner]\
      [-format slack_only|end]\
      [-max_delay] [-min_delay]\
      [-recovery] [-removal]\
@@ -679,7 +679,7 @@ proc report_capacitance_limits { net corner min_max violators verbose nosplit } 
 ################################################################
 
 define_cmd_args "report_dcalc" \
-  {[-from from_pin] [-to to_pin] [-corner corner_name] [-min] [-max] [-digits digits]}
+  {[-from from_pin] [-to to_pin] [-corner corner] [-min] [-max] [-digits digits]}
 
 proc_redirect report_dcalc {
   report_dcalc_cmd "report_dcalc" $args "-digits"
@@ -751,7 +751,7 @@ proc_redirect report_worst_slack {
 ################################################################
 
 define_cmd_args "report_pulse_width_checks" \
-  {[-verbose] [-corner corner_name] [-digits digits] [-no_line_splits] [pins]\
+  {[-verbose] [-corner corner] [-digits digits] [-no_line_splits] [pins]\
      [> filename] [>> filename]}
 
 proc_redirect report_pulse_width_checks {
