@@ -938,8 +938,9 @@ Power::findLeakagePower(const Instance *,
   LibertyCell *corner_cell = cell->cornerCell(corner, MinMax::max());
   float cond_leakage = 0.0;
   bool found_cond = false;
-  float default_leakage = 0.0;
-  bool found_default = false;
+  float uncond_leakage = 0.0;
+  bool found_uncond = false;
+  float cond_duty_sum = 0.0;
   for (LeakagePower *leak : *corner_cell->leakagePowers()) {
     FuncExpr *when = leak->when();
     if (when) {
@@ -956,32 +957,38 @@ Power::findLeakagePower(const Instance *,
                  leak->power(),
                  duty);
       cond_leakage += leak->power() * duty;
+      if (leak->power() > 0.0)
+        cond_duty_sum += duty;
       found_cond = true;
     }
     else {
-      debugPrint(debug_, "power", 2, "leakage default %s %.3e",
+      debugPrint(debug_, "power", 2, "leakage -- %s %.3e",
                  cell->name(),
                  leak->power());
-      default_leakage += leak->power();
-      found_default = true;
+      uncond_leakage += leak->power();
+      found_uncond = true;
     }
   }
   float leakage = 0.0;
   float cell_leakage;
   bool cell_leakage_exists;
   cell->leakagePower(cell_leakage, cell_leakage_exists);
-  if (cell_leakage_exists)
-    debugPrint(debug_, "power", 2, "leakage cell %s %.3e",
+  if (cell_leakage_exists) {
+    float duty = 1.0 - cond_duty_sum;
+    debugPrint(debug_, "power", 2, "leakage cell %s %.3e * %.2f",
                cell->name(),
-               cell_leakage);
-  // Ignore default leakages unless there are no conditional leakage groups.
+               cell_leakage,
+               duty);
+    cell_leakage *= duty;
+  }
+  // Ignore unconditional leakage unless there are no conditional leakage groups.
   if (found_cond)
     leakage = cond_leakage;
-  else if (found_default)
-    leakage = default_leakage;
-  else if (cell_leakage_exists)
-    leakage = cell_leakage;
-  debugPrint(debug_, "power", 2, "leakage cell %s %.3e",
+  else if (found_uncond)
+    leakage = uncond_leakage;
+  if (cell_leakage_exists)
+    leakage += cell_leakage;
+  debugPrint(debug_, "power", 2, "leakage %s %.3e",
              cell->name(),
              leakage);
   result.leakage() += leakage;
