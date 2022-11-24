@@ -572,10 +572,13 @@ Power::seedRegOutputActivities(const Instance *reg,
   const Pin *out_pin = network_->findPin(reg, output);
   if (!hasUserActivity(out_pin)) {
     PwrActivity activity = evalActivity(seq->data(), reg);
+    // Register output activity cannnot exceed one transition per clock cycle,
+    // but latch output can.
+    if (seq->isRegister()
+        && activity.activity() > 1.0)
+      activity.setActivity(1.0);
     if (invert)
-      activity.set(activity.activity(),
-                   1.0 - activity.duty(),
-                   activity.origin());
+      activity.setDuty(1.0 - activity.duty());
     setSeqActivity(reg, output, activity);
   }
 }
@@ -1188,6 +1191,18 @@ PwrActivity::PwrActivity() :
   origin_(PwrActivityOrigin::unknown)
 {
   check();
+}
+
+void
+PwrActivity::setActivity(float activity)
+{
+  activity_ = activity;
+}
+
+void
+PwrActivity::setDuty(float duty)
+{
+  duty_ = duty;
 }
 
 void

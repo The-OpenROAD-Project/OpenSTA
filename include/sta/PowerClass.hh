@@ -38,7 +38,9 @@ public:
 	      float duty,
 	      PwrActivityOrigin origin);
   float activity() const { return activity_; }
+  void setActivity(float activity);
   float duty() const { return duty_; }
+  void setDuty(float duty);
   PwrActivityOrigin origin() { return origin_; }
   const char *originName() const;
   void set(float activity,
