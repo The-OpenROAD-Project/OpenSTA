@@ -3291,25 +3291,25 @@ LibertyReader::visitPulseClock(LibertyAttr *attr)
 void
 LibertyReader::visitClockGateClockPin(LibertyAttr *attr)
 {
-  visitPortBoolAttr(attr, &LibertyPort::setIsClockGateClockPin);
+  visitPortBoolAttr(attr, &LibertyPort::setIsClockGateClock);
 }
 
 void
 LibertyReader::visitClockGateEnablePin(LibertyAttr *attr)
 {
-  visitPortBoolAttr(attr, &LibertyPort::setIsClockGateEnablePin);
+  visitPortBoolAttr(attr, &LibertyPort::setIsClockGateEnable);
 }
 
 void
 LibertyReader::visitClockGateOutPin(LibertyAttr *attr)
 {
-  visitPortBoolAttr(attr, &LibertyPort::setIsClockGateOutPin);
+  visitPortBoolAttr(attr, &LibertyPort::setIsClockGateOut);
 }
 
 void
 LibertyReader::visitIsPllFeedbackPin(LibertyAttr *attr)
 {
-  visitPortBoolAttr(attr, &LibertyPort::setIsPllFeedbackPin);
+  visitPortBoolAttr(attr, &LibertyPort::setIsPllFeedback);
 }
 
 void
@@ -3333,25 +3333,25 @@ LibertyReader::visitSignalType(LibertyAttr *attr)
 void
 LibertyReader::visitIsolationCellDataPin(LibertyAttr *attr)
 {
-  visitPortBoolAttr(attr, &LibertyPort::setIsolationCellDataPin);
+  visitPortBoolAttr(attr, &LibertyPort::setIsolationCellData);
 }
 
 void
 LibertyReader::visitIsolationCellEnablePin(LibertyAttr *attr)
 {
-  visitPortBoolAttr(attr, &LibertyPort::setIsolationCellEnablePin);
+  visitPortBoolAttr(attr, &LibertyPort::setIsolationCellEnable);
 }
 
 void
 LibertyReader::visitLevelShifterDataPin(LibertyAttr *attr)
 {
-  visitPortBoolAttr(attr, &LibertyPort::setLevelShifterDataPin);
+  visitPortBoolAttr(attr, &LibertyPort::setLevelShifterData);
 }
 
 void
 LibertyReader::visitSwitchPin(LibertyAttr *attr)
 {
-  visitPortBoolAttr(attr, &LibertyPort::setSwitchPin);
+  visitPortBoolAttr(attr, &LibertyPort::setIsSwitch);
 }
 
 void

@@ -958,7 +958,7 @@ Sim::evalInstance(const Instance *inst,
             }
           }
         }
-        else if (port->isClockGateOutPin()) {
+        else if (port->isClockGateOut()) {
           value = clockGateOutValue(inst);
           debugPrint(debug_, "sim", 2, " %s gated_clk = %c",
                      port->name(),
@@ -979,8 +979,8 @@ Sim::clockGateOutValue(const Instance *inst)
   LibertyCellPortIterator port_iter(cell);
   while (port_iter.hasNext()) {
     LibertyPort *port = port_iter.next();
-    if (port->isClockGateClockPin()
-        || port->isClockGateEnablePin()) {
+    if (port->isClockGateClock()
+        || port->isClockGateEnable()) {
       Pin *gclk_pin = network_->findPin(inst, port);
       if (gclk_pin) {
         Vertex *gclk_vertex = graph_->pinLoadVertex(gclk_pin);

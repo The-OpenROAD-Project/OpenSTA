@@ -732,26 +732,26 @@ public:
 			float min_width);
   bool isClock() const;
   void setIsClock(bool is_clk);
-  bool isClockGateClockPin() const { return is_clk_gate_clk_pin_; }
-  void setIsClockGateClockPin(bool is_clk_gate_clk);
-  bool isClockGateEnablePin() const { return is_clk_gate_enable_pin_; }
-  void setIsClockGateEnablePin(bool is_clk_gate_enable);
-  bool isClockGateOutPin() const { return is_clk_gate_out_pin_; }
-  void setIsClockGateOutPin(bool is_clk_gate_out);
-  bool isPllFeedbackPin() const { return is_pll_feedback_pin_; }
-  void setIsPllFeedbackPin(bool is_pll_feedback_pin);
+  bool isClockGateClock() const { return is_clk_gate_clk_; }
+  void setIsClockGateClock(bool is_clk_gate_clk);
+  bool isClockGateEnable() const { return is_clk_gate_enable_; }
+  void setIsClockGateEnable(bool is_clk_gate_enable);
+  bool isClockGateOut() const { return is_clk_gate_out_; }
+  void setIsClockGateOut(bool is_clk_gate_out);
+  bool isPllFeedback() const { return is_pll_feedback_; }
+  void setIsPllFeedback(bool is_pll_feedback);
 
-  bool isolationCellDataPin() const { return isolation_cell_data_pin_; }
-  void setIsolationCellDataPin(bool isolation_cell_data_pin);
+  bool isolationCellData() const { return isolation_cell_data_; }
+  void setIsolationCellData(bool isolation_cell_data);
 
-  bool isolationCellEnablePin() const { return isolation_cell_enable_pin_; }
-  void setIsolationCellEnablePin(bool isolation_cell_enable_pin);
+  bool isolationCellEnable() const { return isolation_cell_enable_; }
+  void setIsolationCellEnable(bool isolation_cell_enable);
 
-  bool levelShifterDataPin() const { return level_shifter_data_pin_; }
-  void setLevelShifterDataPin(bool level_shifter_data_pin);
+  bool levelShifterData() const { return level_shifter_data_; }
+  void setLevelShifterData(bool level_shifter_data);
 
-  bool switchPin() const { return switch_pin_; }
-  void setSwitchPin(bool switch_pin);
+  bool isSwitch() const { return is_switch_; }
+  void setIsSwitch(bool is_switch);
 
   // Has register/latch rise/fall edges from pin.
   bool isRegClk() const { return is_reg_clk_; }
@@ -825,14 +825,14 @@ protected:
   bool is_clk_:1;
   bool is_reg_clk_:1;
   bool is_check_clk_:1;
-  bool is_clk_gate_clk_pin_:1;
-  bool is_clk_gate_enable_pin_:1;
-  bool is_clk_gate_out_pin_:1;
-  bool is_pll_feedback_pin_:1;
-  bool isolation_cell_data_pin_:1;
-  bool isolation_cell_enable_pin_:1;
-  bool level_shifter_data_pin_:1;
-  bool switch_pin_:1;
+  bool is_clk_gate_clk_:1;
+  bool is_clk_gate_enable_:1;
+  bool is_clk_gate_out_:1;
+  bool is_pll_feedback_:1;
+  bool isolation_cell_data_:1;
+  bool isolation_cell_enable_:1;
+  bool level_shifter_data_:1;
+  bool is_switch_:1;
   bool is_disabled_constraint_:1;
 
 private:
