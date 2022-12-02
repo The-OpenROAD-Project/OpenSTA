@@ -328,6 +328,7 @@ void
 PropActivityVisitor::visit(Vertex *vertex)
 {
   Pin *pin = vertex->pin();
+  Instance *inst = network_->instance(pin);
   debugPrint(debug_, "power_activity", 3, "visit %s",
              vertex->name(network_));
   bool input_without_activity = false;
@@ -372,20 +373,69 @@ PropActivityVisitor::visit(Vertex *vertex)
                      activity.activity(),
                      activity.duty());
 	}
+        if (port->isClockGateOut()) {
+          const Pin *enable, *clk, *gclk;
+          power_->clockGatePins(inst, enable, clk, gclk);
+          if (enable && clk && gclk) {
+            PwrActivity activity1 = power_->findActivity(clk);
+            PwrActivity activity2 = power_->findActivity(enable);
+            float p1 = activity1.duty();
+            float p2 = activity2.duty();
+            PwrActivity activity(activity1.activity() * p2 + activity2.activity() * p1,
+                                 p1 * p2,
+                                 PwrActivityOrigin::propagated);
+            power_->setActivity(gclk, activity);
+            debugPrint(debug_, "power_activity", 3, "gated_clk %s %.2e %.2f",
+                       network_->pathName(gclk),
+                       activity.activity(),
+                       activity.duty());
+          }
+        }
       }
     }
   }
+  LibertyCell *cell = network_->libertyCell(inst);
   if (network_->isLoad(pin)) {
-    Instance *inst = network_->instance(pin);
-    LibertyCell *cell = network_->libertyCell(inst);
     if (cell && cell->hasSequentials()) {
-      debugPrint(debug_, "power_activity", 3, "pending reg %s",
+      debugPrint(debug_, "power_activity", 3, "pending seq %s",
                  network_->pathName(inst));
       visited_regs_->insert(inst);
       found_reg_without_activity_ |= input_without_activity;
     }
   }
   bfs_->enqueueAdjacentVertices(vertex);
+
+  // Gated clock cells latch the enable so there is no EN->GCLK timing arc.
+  if (cell && cell->isClockGate()) {
+    const Pin *enable, *clk, *gclk;
+    power_->clockGatePins(inst, enable, clk, gclk);
+    Vertex *gclk_vertex = graph_->pinDrvrVertex(gclk);
+    bfs_->enqueue(gclk_vertex);
+  }
+}
+
+void
+Power::clockGatePins(const Instance *inst,
+                     // Return values.
+                     const Pin *&enable,
+                     const Pin *&clk,
+                     const Pin *&gclk) const
+{
+  enable = nullptr;
+  clk = nullptr;
+  gclk = nullptr;
+  InstancePinIterator *pin_iter = network_->pinIterator(inst);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    const LibertyPort *port = network_->libertyPort(pin);
+    if (port->isClockGateEnable())
+      enable = pin;
+    if (port->isClockGateClock())
+      clk = pin;
+    if (port->isClockGateOut())
+      gclk = pin;
+  }
+  delete pin_iter;
 }
 
 PwrActivity
@@ -1051,12 +1101,18 @@ PwrActivity
 Power::findActivity(const Pin *pin)
 {
   Vertex *vertex = graph_->pinLoadVertex(pin);
-  if (vertex && search_->isClock(vertex))
+  if (vertex && vertex->isConstant())
+    return PwrActivity(0.0, 0.0, PwrActivityOrigin::constant);
+  else if (vertex && search_->isClock(vertex)) {
+    if (activity_map_.hasKey(pin)) {
+      PwrActivity &activity = activity_map_[pin];
+      if (activity.origin() != PwrActivityOrigin::unknown)
+        return activity;
+    }
     return PwrActivity(2.0, 0.5, PwrActivityOrigin::clock);
+  }
   else if (global_activity_.isSet())
     return global_activity_;
-  else if (vertex && vertex->isConstant())
-    return PwrActivity(0.0, 0.0, PwrActivityOrigin::constant);
   else if (activity_map_.hasKey(pin)) {
     PwrActivity &activity = activity_map_[pin];
     if (activity.origin() != PwrActivityOrigin::unknown)

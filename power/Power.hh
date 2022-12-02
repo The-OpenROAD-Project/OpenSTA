@@ -175,6 +175,11 @@ protected:
 			    const LibertyPort *corner_port);
   Pin *findLinkPin(const Instance *inst,
 		   const LibertyPort *corner_port);
+  void clockGatePins(const Instance *inst,
+                     // Return values.
+                     const Pin *&enable,
+                     const Pin *&clk,
+                     const Pin *&gclk) const;
 
 private:
   // Port/pin activities set by set_pin_activity.
