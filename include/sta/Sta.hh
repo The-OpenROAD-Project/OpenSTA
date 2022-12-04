@@ -1056,6 +1056,8 @@ public:
   Slew vertexSlew(Vertex *vertex,
 		  const RiseFall *rf,
 		  const MinMax *min_max);
+  Slew vertexSlew(Vertex *vertex,
+		  const MinMax *min_max);
   ArcDelay arcDelay(Edge *edge,
 		    TimingArc *arc,
 		    const DcalcAnalysisPt *dcalc_ap);

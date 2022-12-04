@@ -3360,10 +3360,26 @@ Sta::vertexSlew(Vertex *vertex,
 {
   findDelays(vertex);
   Slew mm_slew = min_max->initValue();
-  for (DcalcAnalysisPt *dcalc_ap : corners_->dcalcAnalysisPts()) {
+  for (const DcalcAnalysisPt *dcalc_ap : corners_->dcalcAnalysisPts()) {
     Slew slew = graph_->slew(vertex, rf, dcalc_ap->index());
     if (delayGreater(slew, mm_slew, min_max, this))
       mm_slew = slew;
+  }
+  return mm_slew;
+}
+
+Slew
+Sta::vertexSlew(Vertex *vertex,
+                const MinMax *min_max)
+{
+  findDelays(vertex);
+  Slew mm_slew = min_max->initValue();
+  for (const DcalcAnalysisPt *dcalc_ap : corners_->dcalcAnalysisPts()) {
+    for (const RiseFall *rf : RiseFall::range()) {
+      Slew slew = graph_->slew(vertex, rf, dcalc_ap->index());
+      if (delayGreater(slew, mm_slew, min_max, this))
+        mm_slew = slew;
+    }
   }
   return mm_slew;
 }
