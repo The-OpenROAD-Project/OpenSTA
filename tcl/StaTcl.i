@@ -5501,7 +5501,13 @@ port_location(const Port *port)
 int
 endpoint_count()
 {
-  return Sta::sta()->endpointCount();
+  return Sta::sta()->endpoints()->size();
+}
+
+int
+endpoint_violation_count(const MinMax *min_max)
+{
+  return  Sta::sta()->endpointViolationCount(min_max);
 }
 
 %} // inline

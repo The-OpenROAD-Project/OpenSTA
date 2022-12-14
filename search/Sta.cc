@@ -2639,24 +2639,22 @@ Sta::visitEndpoints(VertexVisitor *visitor)
   search_->visitEndpoints(visitor);
 }
 
-class EndpointCounter : public VertexVisitor
-{
-public:
-  EndpointCounter() : count_(0) {}
-  virtual void visit(Vertex *) { count_++; }
-  int count() const { return count_; }
-  virtual EndpointCounter *copy()  const { return new EndpointCounter; }
-protected:
-  int count_;
-};
-
-int
-Sta::endpointCount()
+VertexSet *
+Sta::endpoints()
 {
   ensureGraph();
-  EndpointCounter counter;
-  search_->visitEndpoints(&counter);
-  return counter.count();
+  return search_->endpoints();
+}
+
+int
+Sta::endpointViolationCount(const MinMax *min_max)
+{
+  int violations = 0;
+  for (Vertex *end : *search_->endpoints()) {
+    if (vertexSlack(end, min_max) < 0.0)
+      violations++;
+  }
+  return violations;
 }
 
 PinSet *

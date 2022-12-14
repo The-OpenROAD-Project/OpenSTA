@@ -170,8 +170,6 @@ public:
   void deleteFilter();
   void deleteFilteredArrivals();
 
-  // Endpoints are discovered during arrival search, so are only
-  // defined after findArrivals.
   VertexSet *endpoints();
   void endpointsInvalid();
 

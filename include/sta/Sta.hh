@@ -927,7 +927,8 @@ public:
   void arrivalsInvalid();
   void visitStartpoints(VertexVisitor *visitor);
   void visitEndpoints(VertexVisitor *visitor);
-  int endpointCount();
+  VertexSet *endpoints();
+  int endpointViolationCount(const MinMax *min_max);
   // Find the fanin vertices for a group path.
   // Vertices in the clock network are NOT included.
   // Return value is owned by the caller.
