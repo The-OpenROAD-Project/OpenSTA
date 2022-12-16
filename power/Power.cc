@@ -395,28 +395,24 @@ PropActivityVisitor::visit(Vertex *vertex)
     }
   }
   LibertyCell *cell = network_->libertyCell(inst);
-  if (network_->isLoad(pin)) {
-    if (cell && cell->hasSequentials()) {
+  if (network_->isLoad(pin) && cell) {
+    if (cell->hasSequentials()) {
       debugPrint(debug_, "power_activity", 3, "pending seq %s",
                  network_->pathName(inst));
       visited_regs_->insert(inst);
       found_reg_without_activity_ |= input_without_activity;
     }
-  }
-  bfs_->enqueueAdjacentVertices(vertex);
-
-  // ca53 gf12 failing
-#if 0
-  // Gated clock cells latch the enable so there is no EN->GCLK timing arc.
-  if (cell && cell->isClockGate()) {
-    const Pin *enable, *clk, *gclk;
-    power_->clockGatePins(inst, enable, clk, gclk);
-    if (gclk) {
-      Vertex *gclk_vertex = graph_->pinDrvrVertex(gclk);
-      bfs_->enqueue(gclk_vertex);
+    // Gated clock cells latch the enable so there is no EN->GCLK timing arc.
+    if (cell->isClockGate()) {
+      const Pin *enable, *clk, *gclk;
+      power_->clockGatePins(inst, enable, clk, gclk);
+      if (gclk) {
+        Vertex *gclk_vertex = graph_->pinDrvrVertex(gclk);
+        bfs_->enqueue(gclk_vertex);
+      }
     }
   }
-#endif
+  bfs_->enqueueAdjacentVertices(vertex);
 }
 
 void
