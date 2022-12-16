@@ -405,13 +405,18 @@ PropActivityVisitor::visit(Vertex *vertex)
   }
   bfs_->enqueueAdjacentVertices(vertex);
 
+  // ca53 gf12 failing
+#if 0
   // Gated clock cells latch the enable so there is no EN->GCLK timing arc.
   if (cell && cell->isClockGate()) {
     const Pin *enable, *clk, *gclk;
     power_->clockGatePins(inst, enable, clk, gclk);
-    Vertex *gclk_vertex = graph_->pinDrvrVertex(gclk);
-    bfs_->enqueue(gclk_vertex);
+    if (gclk) {
+      Vertex *gclk_vertex = graph_->pinDrvrVertex(gclk);
+      bfs_->enqueue(gclk_vertex);
+    }
   }
+#endif
 }
 
 void
