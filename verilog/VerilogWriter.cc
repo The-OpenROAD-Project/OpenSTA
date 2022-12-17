@@ -61,6 +61,12 @@ protected:
 			  bool &first_member);
   void writeAssigns(Instance *inst);
 
+  int findUnconnectedNetCount();
+  int findNCcount(Instance *inst);
+  int findChildNCcount(Instance *child);
+  int findPortNCcount(Instance *inst,
+                      Port *port);
+
   const char *filename_;
   bool sort_;
   bool include_pwr_gnd_;
@@ -252,6 +258,11 @@ VerilogWriter::writeWireDcls(Instance *inst)
             range.second,
             netVerilogName(bus_name, network_->pathEscape()));;
   }
+
+  // Wire net dcls for writeInstBusPinBit.
+  int nc_count = findUnconnectedNetCount();
+  for (int i = 1; i < nc_count + 1; i++)
+    fprintf(stream_, " wire _NC%d;\n", i);
 }
 
 void
@@ -410,6 +421,67 @@ VerilogWriter::writeAssigns(Instance *inst)
     }
   }
   delete pin_iter;
+}
+
+////////////////////////////////////////////////////////////////
+
+// Walk the hierarch counting unconnected nets used to connect to
+// bus ports with concatenation.
+int
+VerilogWriter::findUnconnectedNetCount()
+{
+  return findNCcount(network_->topInstance());
+}
+
+int
+VerilogWriter::findNCcount(Instance *inst)
+{
+  int nc_count = 0;
+  InstanceChildIterator *child_iter = network_->childIterator(inst);
+  while (child_iter->hasNext()) {
+    Instance *child = child_iter->next();
+    nc_count += findChildNCcount(child);
+  }
+  delete child_iter;
+  return nc_count;
+}
+
+int
+VerilogWriter::findChildNCcount(Instance *child)
+{
+  int nc_count = 0;
+  Cell *child_cell = network_->cell(child);
+  LibertyCell *lib_cell = network_->libertyCell(child_cell);
+  if (!remove_cells_.hasKey(lib_cell)) {
+    CellPortIterator *port_iter = network_->portIterator(child_cell);
+    while (port_iter->hasNext()) {
+      Port *port = port_iter->next();
+      if (network_->hasMembers(port))
+        nc_count += findPortNCcount(child, port);
+    }
+  }
+  return nc_count;
+}
+
+int
+VerilogWriter::findPortNCcount(Instance *inst,
+                               Port *port)
+{
+  int nc_count = 0;
+  LibertyPort *lib_port = network_->libertyPort(port);
+  if (lib_port) {
+    Cell *cell = network_->cell(inst);
+    LibertyPortMemberIterator member_iter(lib_port);
+    while (member_iter.hasNext()) {
+      LibertyPort *lib_member = member_iter.next();
+      Port *member = network_->findPort(cell, lib_member->name());
+      Pin *pin = network_->findPin(inst, member);
+      if (pin == nullptr
+          || network_->net(pin) == nullptr)
+        nc_count++;
+    }
+  }
+  return nc_count;
 }
 
 } // namespace
