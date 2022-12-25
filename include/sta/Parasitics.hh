@@ -224,6 +224,15 @@ public:
   virtual ParasiticNode *otherNode(const ParasiticDevice *device,
 				   ParasiticNode *node) const = 0;
 
+  // Return true if all loads are annoatated.
+  virtual bool checkAnnotation(Parasitic *parasitic_network,
+                               const Pin *drvr_pin) = 0;
+  virtual bool checkAnnotation(const Pin *drvr_pin,
+                               ParasiticNode *drvr_node) = 0;
+  // Return loads missing path from driver.
+  virtual PinSet unannotatedLoads(Parasitic *parasitic_network,
+                                  const Pin *drvr_pin) = 0;
+
   // Reduce parasitic network to reduce_to model.
   virtual void reduceTo(Parasitic *parasitic,
 			const Net *net,

@@ -18,6 +18,7 @@
 
 #include "Report.hh"
 #include "Network.hh"
+#include "NetworkCmp.hh"
 #include "Graph.hh"
 #include "Corner.hh"
 #include "Parasitics.hh"
@@ -43,10 +44,9 @@ private:
   bool report_unannotated_;
   const Corner *corner_;
   const MinMax *min_max_;
-  const DcalcAnalysisPt *dcalc_ap_;
-  const ParasiticAnalysisPt *parasitics_ap_;
-  NetSet unannotated_nets_;
-  VertexSet partially_annotated_drvrs_;
+  const ParasiticAnalysisPt *parasitic_ap_;
+  PinSeq unannotated_;
+  PinSeq partially_annotated_;
 };
 
 void
@@ -65,9 +65,7 @@ ReportParasiticAnnotation::ReportParasiticAnnotation(bool report_unannotated,
   report_unannotated_(report_unannotated),
   corner_(corner),
   min_max_(MinMax::max()),
-  dcalc_ap_(corner_->findDcalcAnalysisPt(min_max_)),
-  parasitics_ap_(corner_->findParasiticAnalysisPt(min_max_)),
-  partially_annotated_drvrs_(graph_)
+  parasitic_ap_(corner_->findParasiticAnalysisPt(min_max_))
 {
 }
 
@@ -81,35 +79,24 @@ ReportParasiticAnnotation::report()
 void
 ReportParasiticAnnotation::reportAnnotationCounts()
 {
-  report_->reportLine("Found %lu unannotated nets.", unannotated_nets_.size());
+  report_->reportLine("Found %lu unannotated drivers.", unannotated_.size());
   if (report_unannotated_) {
-    for (const Net *net : unannotated_nets_)
-      report_->reportLine(" %s", network_->pathName(net));
+    sort(unannotated_, PinPathNameLess(network_));
+    for (Pin *drvr_pin : unannotated_)
+      report_->reportLine(" %s", network_->pathName(drvr_pin));
   }
 
-  report_->reportLine("Found %lu partially unannotated nets.",
-                      partially_annotated_drvrs_.size());
+  report_->reportLine("Found %lu partially unannotated drivers.",
+                      partially_annotated_.size());
   if (report_unannotated_) {
-    const RiseFall *rf = RiseFall::rise();
-    for (Vertex *vertex : partially_annotated_drvrs_) {
-      Pin *drvr_pin = vertex->pin();
-      Net *net = network_->isTopLevelPort(drvr_pin)
-        ? network_->net(network_->term(drvr_pin))
-        : network_->net(drvr_pin);
-      report_->reportLine(" %s", network_->pathName(net));
+    sort(partially_annotated_, PinPathNameLess(network_));
+    for (Pin *drvr_pin : partially_annotated_) {
+      report_->reportLine(" %s", network_->pathName(drvr_pin));
 
-      Parasitic *parasitic = arc_delay_calc_->findParasitic(drvr_pin, rf, dcalc_ap_);
-      VertexOutEdgeIterator edge_iter(vertex, graph_);
-      while (edge_iter.hasNext()) {
-        Edge *edge = edge_iter.next();
-        Vertex *load_vertex = edge->to(graph_);
-        Pin *load_pin = load_vertex->pin();
-        bool elmore_exists = false;
-        float elmore = 0.0;
-        parasitics_->findElmore(parasitic, load_pin, elmore, elmore_exists);
-        if (!elmore_exists)
-          report_->reportLine("  %s", network_->pathName(load_pin));
-      }
+      Parasitic *parasitic = parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap_);
+      PinSet unannotated_loads = parasitics_->unannotatedLoads(parasitic, drvr_pin);
+      for (Pin *load_pin : unannotated_loads)
+        report_->reportLine("  %s", network_->pathName(load_pin));
     }
   }
 }
@@ -117,33 +104,18 @@ ReportParasiticAnnotation::reportAnnotationCounts()
 void
 ReportParasiticAnnotation::findCounts()
 {
-  const RiseFall *rf = RiseFall::rise();
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
     if (vertex->isDriver(network_)) {
       Pin *drvr_pin = vertex->pin();
-      Parasitic *parasitic = arc_delay_calc_->findParasitic(drvr_pin, rf, dcalc_ap_);
+      Parasitic *parasitic = parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap_);
       if (parasitic) {
-        VertexOutEdgeIterator edge_iter(vertex, graph_);
-        while (edge_iter.hasNext()) {
-          Edge *edge = edge_iter.next();
-          Vertex *load_vertex = edge->to(graph_);
-          Pin *load_pin = load_vertex->pin();
-          bool elmore_exists = false;
-          float elmore = 0.0;
-          parasitics_->findElmore(parasitic, load_pin, elmore, elmore_exists);
-          if (!elmore_exists)
-            partially_annotated_drvrs_.insert(vertex);
-        }
+        if (!parasitics_->checkAnnotation(parasitic, drvr_pin))
+          partially_annotated_.push_back(drvr_pin);
       }
-      else {
-        Net *net = network_->isTopLevelPort(drvr_pin)
-          ? network_->net(network_->term(drvr_pin))
-          : network_->net(drvr_pin);
-        if (net)
-          unannotated_nets_.insert(net);
-      }
+      else 
+        unannotated_.push_back(drvr_pin);
     }
   }
 }

@@ -31,8 +31,8 @@ using std::max;
 
 typedef Map<ParasiticNode*, double> ParasiticNodeValueMap;
 typedef Map<ParasiticDevice*, double> ParasiticDeviceValueMap;
-typedef Set<ParasiticNode*> ParasiticNodeSet;
 typedef Set<ParasiticDevice*> ParasiticDeviceSet;
+typedef Set<ParasiticNode*> ParasiticNodeSet;
 
 class ReduceToPi : public StaState
 {
@@ -314,13 +314,15 @@ reduceToPiElmore(Parasitic *parasitic_network,
     debugPrint(sta->debug(), "parasitic_reduce", 1, "Reduce driver %s",
                sta->network()->pathName(drvr_pin));
     ReduceToPiElmore reducer(sta);
-    reducer.makePiElmore(parasitic_network, drvr_pin, drvr_node,
-			 coupling_cap_factor, RiseFall::rise(),
-			 op_cond, corner, cnst_min_max, ap);
-    if (!reducer.pinCapsOneValue())
+    if (parasitics->checkAnnotation(drvr_pin, drvr_node)) {
       reducer.makePiElmore(parasitic_network, drvr_pin, drvr_node,
-			   coupling_cap_factor, RiseFall::fall(),
-			   op_cond, corner, cnst_min_max, ap);
+                           coupling_cap_factor, RiseFall::rise(),
+                           op_cond, corner, cnst_min_max, ap);
+      if (!reducer.pinCapsOneValue())
+        reducer.makePiElmore(parasitic_network, drvr_pin, drvr_node,
+                             coupling_cap_factor, RiseFall::fall(),
+                             op_cond, corner, cnst_min_max, ap);
+    }
   }
 }
 
@@ -479,13 +481,15 @@ reduceToPiPoleResidue2(Parasitic *parasitic_network,
     debugPrint(sta->debug(), "parasitic_reduce", 1, "Reduce driver %s",
                sta->network()->pathName(drvr_pin));
     ReduceToPiPoleResidue2 reducer(sta);
-    reducer.makePiPoleResidue2(parasitic_network, drvr_pin, drvr_node,
-			       coupling_cap_factor, RiseFall::rise(),
-			       op_cond, corner, cnst_min_max, ap);
-    if (!reducer.pinCapsOneValue())
+    if (parasitics->checkAnnotation(drvr_pin, drvr_node)) {
       reducer.makePiPoleResidue2(parasitic_network, drvr_pin, drvr_node,
-				 coupling_cap_factor, RiseFall::fall(),
-				 op_cond, corner, cnst_min_max, ap);
+                                 coupling_cap_factor, RiseFall::rise(),
+                                 op_cond, corner, cnst_min_max, ap);
+      if (!reducer.pinCapsOneValue())
+        reducer.makePiPoleResidue2(parasitic_network, drvr_pin, drvr_node,
+                                   coupling_cap_factor, RiseFall::fall(),
+                                   op_cond, corner, cnst_min_max, ap);
+    }
   }
 }
 

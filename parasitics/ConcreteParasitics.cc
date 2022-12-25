@@ -1610,6 +1610,82 @@ ConcreteParasitics::otherNode(const ParasiticDevice *device,
 
 ////////////////////////////////////////////////////////////////
 
+bool
+ConcreteParasitics::checkAnnotation(Parasitic *parasitic_network,
+                                    const Pin *drvr_pin)
+{
+  ParasiticNode *drvr_node = findNode(parasitic_network, drvr_pin);
+  if (drvr_node)
+    return checkAnnotation(drvr_pin, drvr_node);
+  return false;
+}
+
+bool
+ConcreteParasitics::checkAnnotation(const Pin *drvr_pin,
+                                    ParasiticNode *drvr_node)
+{
+  PinSet unannotated_loads = checkAnnotation1(drvr_pin, drvr_node);
+  return unannotated_loads.empty();
+}
+
+PinSet
+ConcreteParasitics::unannotatedLoads(Parasitic *parasitic_network,
+                                     const Pin *drvr_pin)
+{
+  ParasiticNode *drvr_node = findNode(parasitic_network, drvr_pin);
+  if (drvr_node)
+    return checkAnnotation1(drvr_pin, drvr_node);
+  return PinSet();
+}
+
+PinSet
+ConcreteParasitics::checkAnnotation1(const Pin *drvr_pin,
+                                     ParasiticNode *drvr_node)
+{
+  PinSet loads;
+  NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(drvr_pin);
+  while (pin_iter->hasNext()) {
+    Pin *pin = pin_iter->next();
+    if (network_->isLoad(pin) && !network_->isHierarchical(pin))
+      loads.insert(pin);
+  }
+  delete pin_iter;
+
+  ParasiticNodeSet visited_nodes;
+  checkAnnotation2(drvr_pin, drvr_node, nullptr, loads, visited_nodes);
+  return loads;
+}
+
+void
+ConcreteParasitics::checkAnnotation2(const Pin *drvr_pin,
+                                     ParasiticNode *node,
+                                     ParasiticDevice *from_res,
+                                     PinSet &loads,
+                                     ParasiticNodeSet &visited_nodes)
+{
+  const Pin *pin = parasitics_->connectionPin(node);
+  if (pin)
+    loads.erase(const_cast<Pin*>(pin));
+
+  visited_nodes.insert(node);
+  ParasiticDeviceIterator *device_iter = parasitics_->deviceIterator(node);
+  while (device_iter->hasNext()) {
+    ParasiticDevice *device = device_iter->next();
+    if (parasitics_->isResistor(device)) {
+      ParasiticNode *onode = parasitics_->otherNode(device, node);
+      // One commercial extractor creates resistors with identical from/to nodes.
+      if (onode != node
+	  && device != from_res
+          && visited_nodes.find(onode) == visited_nodes.end())
+        checkAnnotation2(drvr_pin, onode, device, loads, visited_nodes);
+    }
+  }
+  delete device_iter;
+  visited_nodes.erase(node);
+}
+
+////////////////////////////////////////////////////////////////
+
 void
 ConcreteParasitics::reduceTo(Parasitic *parasitic,
 			     const Net *net,

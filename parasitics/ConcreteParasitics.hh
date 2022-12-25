@@ -35,6 +35,7 @@ class ConcreteParasiticDevice;
 
 typedef Map<const Pin*, ConcreteParasitic**> ConcreteParasiticMap;
 typedef Map<const Net*, ConcreteParasiticNetwork**> ConcreteParasiticNetworkMap;
+typedef Set<ParasiticNode*> ParasiticNodeSet;
 
 // This class acts as a BUILDER for all parasitics.
 class ConcreteParasitics : public Parasitics, public EstimateParasitics
@@ -150,6 +151,15 @@ public:
   virtual ParasiticNode *otherNode(const ParasiticDevice *device,
 				   ParasiticNode *node) const;
 
+  // Return true if all loads are annoatated.
+  virtual bool checkAnnotation(Parasitic *parasitic_network,
+                               const Pin *drvr_pin);
+  virtual bool checkAnnotation(const Pin *drvr_pin,
+                               ParasiticNode *drvr_node);
+  // Return loads missing path from driver.
+  virtual PinSet unannotatedLoads(Parasitic *parasitic_network,
+                                  const Pin *drvr_pin);
+
   virtual Parasitic *estimatePiElmore(const Pin *drvr_pin,
 				      const RiseFall *rf,
 				      const Wireload *wireload,
@@ -205,6 +215,13 @@ protected:
   void deleteReducedParasitics(const Pin *pin);
   void deleteDrvrReducedParasitics(const Pin *drvr_pin,
                                    const ParasiticAnalysisPt *ap);
+  PinSet checkAnnotation1(const Pin *drvr_pin,
+                          ParasiticNode *drvr_node);
+  void checkAnnotation2(const Pin *drvr_pin,
+                        ParasiticNode *node,
+                        ParasiticDevice *from_res,
+                        PinSet &loads,
+                        ParasiticNodeSet &visited_nodes);
 
   // Driver pin to array of parasitics indexed by analysis pt index
   // and transition.
