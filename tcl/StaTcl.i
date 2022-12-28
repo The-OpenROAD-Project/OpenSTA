@@ -2393,6 +2393,13 @@ find_pin(const char *path_name)
   return cmdLinkedNetwork()->findPin(path_name);
 }
 
+Pin *
+get_port_pin(const Port *port)
+{
+  Network *network = cmdLinkedNetwork();
+  return network->findPin(network->topInstance(), port);
+}
+
 TmpPinSeq *
 find_pins_matching(const char *pattern,
 		   bool regexp,
