@@ -4132,10 +4132,14 @@ LibertyReader::endLut(LibertyGroup *)
 void
 LibertyReader::beginTestCell(LibertyGroup *)
 {
-  test_cell_ = new TestCell;
-  cell_->setTestCell(test_cell_);
-  save_cell_ = cell_;
-  cell_ = nullptr;
+  if (cell_->testCell())
+    libWarn(169, group, "cell %s test_cell redefinition.", cell_->name());
+  else {
+    test_cell_ = new TestCell;
+    cell_->setTestCell(test_cell_);
+    save_cell_ = cell_;
+    cell_ = nullptr;
+  }
 }
 
 void
