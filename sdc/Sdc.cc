@@ -1932,12 +1932,6 @@ Sdc::makeClockGroup(ClockGroups *clk_groups,
   clk_groups->makeClockGroup(clks);
 }
 
-ClockGroupIterator *
-Sdc::clockGroupIterator()
-{
-  return new ClockGroupIterator(clk_groups_name_map_);
-}
-
 void
 Sdc::ensureClkGroupExclusions()
 {
@@ -6006,18 +6000,6 @@ ClockIterator::ClockIterator(Sdc *sdc) :
 
 ClockIterator::ClockIterator(ClockSeq &clocks) :
   ClockSeq::Iterator(clocks)
-{
-}
-
-////////////////////////////////////////////////////////////////
-
-ClockGroupIterator::ClockGroupIterator(Sdc *sdc) :
-  ClockGroupsNameMap::Iterator(sdc->clk_groups_name_map_)
-{
-}
-
-ClockGroupIterator::ClockGroupIterator(ClockGroupsNameMap &clk_groups_name_map) :
-  ClockGroupsNameMap::Iterator(clk_groups_name_map)
 {
 }
 

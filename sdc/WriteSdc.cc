@@ -946,9 +946,8 @@ ClockGroupLess::operator()(const ClockGroup *clk_group1,
 void
 WriteSdc::writeClockGroups() const
 {
-  ClockGroupIterator groups_iter(sdc_);
-  while (groups_iter.hasNext()) {
-    ClockGroups *clk_groups = groups_iter.next();
+  for (auto name_groups : sdc_->clk_groups_name_map_) {
+    ClockGroups *clk_groups = name_groups.second;
     writeClockGroups(clk_groups);
   }
 }

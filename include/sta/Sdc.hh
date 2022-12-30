@@ -50,7 +50,6 @@ class FindNetCaps;
 class ClkHpinDisable;
 class FindClkHpinDisables;
 class Corner;
-class ClockGroupIterator;
 class GroupPathIterator;
 class ClockPinIterator;
 class ClockIterator;
@@ -476,7 +475,6 @@ public:
   // Clocks explicitly excluded by set_clock_group.
   bool sameClockGroupExplicit(const Clock *clk1,
 			      const Clock *clk2);
-  ClockGroupIterator *clockGroupIterator();
   void setClockSense(PinSet *pins,
 		     ClockSet *clks,
 		     ClockSense sense);
@@ -1392,7 +1390,6 @@ protected:
 private:
   friend class WriteSdc;
   friend class FindNetCaps;
-  friend class ClockGroupIterator;
   friend class GroupPathIterator;
 };
 
@@ -1403,17 +1400,6 @@ public:
 
 private:
   ClockIterator(ClockSeq &clocks);
-
-  friend class Sdc;
-};
-
-class ClockGroupIterator : public ClockGroupsNameMap::Iterator
-{
-public:
-  ClockGroupIterator(Sdc *sdc);
-
-private:
-  ClockGroupIterator(ClockGroupsNameMap &clk_groups_name_map);
 
   friend class Sdc;
 };
