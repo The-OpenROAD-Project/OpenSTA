@@ -4130,7 +4130,7 @@ LibertyReader::endLut(LibertyGroup *)
 
 // Find scan ports in test_cell group.
 void
-LibertyReader::beginTestCell(LibertyGroup *)
+LibertyReader::beginTestCell(LibertyGroup *group)
 {
   if (cell_->testCell())
     libWarn(169, group, "cell %s test_cell redefinition.", cell_->name());
