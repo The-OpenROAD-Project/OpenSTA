@@ -220,25 +220,32 @@ MakeEndTimingArcs::setInputRf(const RiseFall *input_rf)
 void
 MakeEndTimingArcs::visit(PathEnd *path_end)
 {
+  Path *src_path = path_end->path();
+  Clock *src_clk = src_path->clock(sta_);
   ClockEdge *tgt_clk_edge = path_end->targetClkEdge(sta_);
-  if (tgt_clk_edge) {
+  if (src_clk == sta_->sdc()->defaultArrivalClock()
+      && tgt_clk_edge) {
+    Network *network = sta_->network();
     Debug *debug = sta_->debug();
     const MinMax *min_max = path_end->minMax(sta_);
-    debugPrint(debug, "make_timing_model", 2, "%s %s -> clock %s %s %s",
-               sta_->network()->pathName(input_pin_),
-               input_rf_->shortName(),
-               tgt_clk_edge->name(),
-               path_end->typeName(),
-               min_max->asString());
-    if (debug->check("make_timing_model", 3))
-      sta_->reportPathEnd(path_end);
-    Arrival data_delay = path_end->path()->arrival(sta_);
+    Arrival data_delay = src_path->arrival(sta_);
     Delay clk_latency = path_end->targetClkDelay(sta_);
     ArcDelay check_margin = path_end->margin(sta_);
     Delay margin = min_max == MinMax::max()
       ? data_delay - clk_latency + check_margin
       : clk_latency - data_delay + check_margin;
     float delay1 = delayAsFloat(margin, MinMax::max(), sta_);
+    debugPrint(debug, "make_timing_model", 2, "%s %s -> %s clock %s %s %s %s",
+               network->pathName(input_pin_),
+               input_rf_->shortName(),
+               network->pathName(src_path->pin(sta_)),
+               tgt_clk_edge->name(),
+               path_end->typeName(),
+               min_max->asString(),
+               delayAsString(margin, sta_));
+    if (debug->check("make_timing_model", 3))
+      sta_->reportPathEnd(path_end);
+
     RiseFallMinMax &margins = margins_[tgt_clk_edge];
     float max_margin;
     bool max_exists;
