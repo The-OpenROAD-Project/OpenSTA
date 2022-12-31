@@ -79,7 +79,7 @@ proc report_instance_pins { instance verbose } {
   report_instance_pins1 $instance $verbose \
     " Input pins:" 0 {"input" "bidirect"}
   report_instance_pins1 $instance $verbose \
-    " Output pins:" 0 {"output" "bidirect"}
+    " Output pins:" 0 {"output" "bidirect" "tristate"}
   report_instance_pins1 $instance $verbose \
     " Other pins:" 1 {"internal" "power" "ground" "unknown"}
 }
