@@ -5,7 +5,6 @@ link_design gcd
 
 read_sdc gcd_sky130hd.sdc
 read_spef gcd_sky130hd.spef
-set_power_activity -activity .1 -input_ports clk
 set_power_activity -input -activity .1
 set_power_activity -input_port reset -activity 0
 report_power

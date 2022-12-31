@@ -1,0 +1,11 @@
+Warning: gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_11.
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             3.11e-04   4.31e-05   2.96e-10   3.54e-04  43.2%
+Combinational          1.74e-04   2.92e-04   6.98e-10   4.66e-04  56.8%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  4.85e-04   3.35e-04   9.94e-10   8.20e-04 100.0%
+                          59.2%      40.8%       0.0%

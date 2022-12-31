@@ -101,11 +101,13 @@ proc list_delete { list delete } {
 
 # Record tests in sta/examples
 record_example_tests {
-  example1
-  example2
-  example3
-  example4
-  example5
+  sdf_delays
+  delay_calc
+  min_max_delays
+  spef_parasitics
+  multi_corner
+  power
+  power_vcd
 }
 
 define_test_group fast [group_tests all]
