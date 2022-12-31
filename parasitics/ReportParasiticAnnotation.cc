@@ -19,6 +19,7 @@
 #include "Report.hh"
 #include "Network.hh"
 #include "NetworkCmp.hh"
+#include "PortDirection.hh"
 #include "Graph.hh"
 #include "Corner.hh"
 #include "Parasitics.hh"
@@ -107,15 +108,17 @@ ReportParasiticAnnotation::findCounts()
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
-    if (vertex->isDriver(network_)) {
-      Pin *drvr_pin = vertex->pin();
-      Parasitic *parasitic = parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap_);
+    Pin *pin = vertex->pin();
+    PortDirection *dir = network_->direction(pin);
+    if (vertex->isDriver(network_)
+        && !dir->isInternal()) {
+      Parasitic *parasitic = parasitics_->findParasiticNetwork(pin, parasitic_ap_);
       if (parasitic) {
-        if (!parasitics_->checkAnnotation(parasitic, drvr_pin))
-          partially_annotated_.push_back(drvr_pin);
+        if (!parasitics_->checkAnnotation(parasitic, pin))
+          partially_annotated_.push_back(pin);
       }
       else 
-        unannotated_.push_back(drvr_pin);
+        unannotated_.push_back(pin);
     }
   }
 }
