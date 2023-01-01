@@ -36,6 +36,7 @@ class ConcreteParasiticDevice;
 typedef Map<const Pin*, ConcreteParasitic**> ConcreteParasiticMap;
 typedef Map<const Net*, ConcreteParasiticNetwork**> ConcreteParasiticNetworkMap;
 typedef Set<ParasiticNode*> ParasiticNodeSet;
+typedef Set<ParasiticDevice*> ParasiticDeviceSet;
 
 // This class acts as a BUILDER for all parasitics.
 class ConcreteParasitics : public Parasitics, public EstimateParasitics
@@ -221,7 +222,8 @@ protected:
                         ParasiticNode *node,
                         ParasiticDevice *from_res,
                         PinSet &loads,
-                        ParasiticNodeSet &visited_nodes);
+                        ParasiticNodeSet &visited_nodes,
+                        ParasiticDeviceSet &loop_resistors);
 
   // Driver pin to array of parasitics indexed by analysis pt index
   // and transition.

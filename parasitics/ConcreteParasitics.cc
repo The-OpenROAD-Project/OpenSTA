@@ -1652,7 +1652,9 @@ ConcreteParasitics::checkAnnotation1(const Pin *drvr_pin,
   delete pin_iter;
 
   ParasiticNodeSet visited_nodes;
-  checkAnnotation2(drvr_pin, drvr_node, nullptr, loads, visited_nodes);
+  ParasiticDeviceSet loop_resistors;
+  checkAnnotation2(drvr_pin, drvr_node, nullptr, loads,
+                   visited_nodes, loop_resistors);
   return loads;
 }
 
@@ -1661,7 +1663,8 @@ ConcreteParasitics::checkAnnotation2(const Pin *drvr_pin,
                                      ParasiticNode *node,
                                      ParasiticDevice *from_res,
                                      PinSet &loads,
-                                     ParasiticNodeSet &visited_nodes)
+                                     ParasiticNodeSet &visited_nodes,
+                                     ParasiticDeviceSet &loop_resistors)
 {
   const Pin *pin = parasitics_->connectionPin(node);
   if (pin)
@@ -1671,13 +1674,19 @@ ConcreteParasitics::checkAnnotation2(const Pin *drvr_pin,
   ParasiticDeviceIterator *device_iter = parasitics_->deviceIterator(node);
   while (device_iter->hasNext()) {
     ParasiticDevice *device = device_iter->next();
-    if (parasitics_->isResistor(device)) {
+    if (parasitics_->isResistor(device)
+        && loop_resistors.find(device) == loop_resistors.end()) {
       ParasiticNode *onode = parasitics_->otherNode(device, node);
       // One commercial extractor creates resistors with identical from/to nodes.
       if (onode != node
-	  && device != from_res
-          && visited_nodes.find(onode) == visited_nodes.end())
-        checkAnnotation2(drvr_pin, onode, device, loads, visited_nodes);
+	  && device != from_res) {
+        if (visited_nodes.find(onode) == visited_nodes.end())
+          checkAnnotation2(drvr_pin, onode, device, loads,
+                           visited_nodes, loop_resistors);
+        else
+          // resistor loop
+          loop_resistors.insert(device);
+      }
     }
   }
   delete device_iter;
