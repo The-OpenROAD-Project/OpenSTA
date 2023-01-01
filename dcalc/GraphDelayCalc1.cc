@@ -1269,12 +1269,12 @@ GraphDelayCalc1::findArcDelay(LibertyCell *drvr_cell,
     ArcDelay gate_delay;
     Slew gate_slew;
     if (multi_drvr
-	&& network_->direction(drvr_pin)->isOutput())
-      multiDrvrGateDelay(multi_drvr, drvr_cell, drvr_pin, arc,
-			 pvt, dcalc_ap, from_slew, drvr_parasitic,
-			 related_out_cap,
-			 arc_delay_calc,
-			 gate_delay, gate_slew);
+        && arc->to()->direction()->isOutput())
+      parallelGateDelay(multi_drvr, drvr_cell, drvr_pin, arc,
+                        pvt, dcalc_ap, from_slew, drvr_parasitic,
+                        related_out_cap,
+                        arc_delay_calc,
+                        gate_delay, gate_slew);
     else {
       float load_cap = loadCap(drvr_pin, multi_drvr, drvr_parasitic,
 			       drvr_rf, dcalc_ap);
@@ -1312,19 +1312,19 @@ GraphDelayCalc1::findArcDelay(LibertyCell *drvr_cell,
 }
 
 void
-GraphDelayCalc1::multiDrvrGateDelay(MultiDrvrNet *multi_drvr,
-				    LibertyCell *drvr_cell,
-				    const Pin *drvr_pin,
-				    TimingArc *arc,
-				    const Pvt *pvt,
-				    const DcalcAnalysisPt *dcalc_ap,
-				    const Slew from_slew,
-				    Parasitic *drvr_parasitic,
-				    float related_out_cap,
-				    ArcDelayCalc *arc_delay_calc,
-				    // Return values.
-				    ArcDelay &gate_delay,
-				    Slew &gate_slew)
+GraphDelayCalc1::parallelGateDelay(MultiDrvrNet *multi_drvr,
+                                   LibertyCell *drvr_cell,
+                                   const Pin *drvr_pin,
+                                   TimingArc *arc,
+                                   const Pvt *pvt,
+                                   const DcalcAnalysisPt *dcalc_ap,
+                                   const Slew from_slew,
+                                   Parasitic *drvr_parasitic,
+                                   float related_out_cap,
+                                   ArcDelayCalc *arc_delay_calc,
+                                   // Return values.
+                                   ArcDelay &gate_delay,
+                                   Slew &gate_slew)
 {
   ArcDelay intrinsic_delay;
   Slew intrinsic_slew;

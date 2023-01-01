@@ -172,19 +172,19 @@ protected:
 			      // Return values.
 			      ArcDelay &parallel_delay,
 			      Slew &parallel_slew);
-  void multiDrvrGateDelay(MultiDrvrNet *multi_drvr,
-			  LibertyCell *drvr_cell,
-			  const Pin *drvr_pin,
-			  TimingArc *arc,
-			  const Pvt *pvt,
-			  const DcalcAnalysisPt *dcalc_ap,
-			  const Slew from_slew,
-			  Parasitic *drvr_parasitic,
-			  float related_out_cap,
-			  ArcDelayCalc *arc_delay_calc,
-			  // Return values.
-			  ArcDelay &gate_delay,
-			  Slew &gate_slew);
+  void parallelGateDelay(MultiDrvrNet *multi_drvr,
+                         LibertyCell *drvr_cell,
+                         const Pin *drvr_pin,
+                         TimingArc *arc,
+                         const Pvt *pvt,
+                         const DcalcAnalysisPt *dcalc_ap,
+                         const Slew from_slew,
+                         Parasitic *drvr_parasitic,
+                         float related_out_cap,
+                         ArcDelayCalc *arc_delay_calc,
+                         // Return values.
+                         ArcDelay &gate_delay,
+                         Slew &gate_slew);
   void deleteMultiDrvrNets();
   Slew edgeFromSlew(const Vertex *from_vertex,
 		    const RiseFall *from_rf,
