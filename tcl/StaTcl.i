@@ -184,13 +184,6 @@ tclListSeqLibertyLibrary(Tcl_Obj *const source,
   return tclListSeq<LibertyLibrary*>(source, SWIGTYPE_p_LibertyLibrary, interp);
 }
 
-vector<LibertyCell*> *
-tclListSeqLibertyCell(Tcl_Obj *const source,
-		      Tcl_Interp *interp)
-{
-  return tclListSeq<LibertyCell*>(source, SWIGTYPE_p_LibertyCell, interp);
-}
-
 template <class TYPE>
 Set<TYPE> *
 tclListSet(Tcl_Obj *const source,
@@ -428,6 +421,10 @@ using namespace sta;
   Tcl_SetObjResult(interp, list);
 }
 
+%typemap(in) CellSeq* {
+  $1 = tclListSeq<Cell*>($input, SWIGTYPE_p_Cell, interp);
+}
+
 %typemap(out) TmpCellSeq* {
   Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   CellSeq *cells = $1;
@@ -439,10 +436,6 @@ using namespace sta;
   }
   Tcl_SetObjResult(interp, list);
   delete cells;
-}
-
-%typemap(in) vector<LibertyCell*> * {
-  $1 = tclListSeqLibertyCell($input, interp);
 }
 
 %typemap(out) LibertyCellSeq* {

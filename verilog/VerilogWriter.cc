@@ -38,7 +38,7 @@ public:
   VerilogWriter(const char *filename,
 		bool sort,
 		bool include_pwr_gnd_pins,
-		vector<LibertyCell*> *remove_cells,
+		CellSeq *remove_cells,
 		FILE *stream,
 		Network *network);
   void writeModule(Instance *inst);
@@ -70,7 +70,7 @@ protected:
   const char *filename_;
   bool sort_;
   bool include_pwr_gnd_;
-  LibertyCellSet remove_cells_;
+  CellSet remove_cells_;
   FILE *stream_;
   Network *network_;
 
@@ -83,7 +83,7 @@ void
 writeVerilog(const char *filename,
 	     bool sort,
 	     bool include_pwr_gnd_pins,
-	     vector<LibertyCell*> *remove_cells,
+	     CellSeq *remove_cells,
 	     Network *network)
 {
   if (network->topInstance()) {
@@ -102,7 +102,7 @@ writeVerilog(const char *filename,
 VerilogWriter::VerilogWriter(const char *filename,
 			     bool sort,
 			     bool include_pwr_gnd_pins,
-			     vector<LibertyCell*> *remove_cells,
+			     CellSeq *remove_cells,
 			     FILE *stream,
 			     Network *network) :
   filename_(filename),
@@ -113,7 +113,7 @@ VerilogWriter::VerilogWriter(const char *filename,
   unconnected_net_index_(1)
 {
   if (remove_cells) {
-    for(LibertyCell *lib_cell : *remove_cells)
+    for(Cell *lib_cell : *remove_cells)
       remove_cells_.insert(lib_cell);
   }
 }
@@ -293,8 +293,7 @@ void
 VerilogWriter::writeChild(Instance *child)
 {
   Cell *child_cell = network_->cell(child);
-  LibertyCell *lib_cell = network_->libertyCell(child_cell);
-  if (!remove_cells_.hasKey(lib_cell)) {
+  if (!remove_cells_.hasKey(child_cell)) {
     const char *child_name = network_->name(child);
     const char *child_vname = instanceVerilogName(child_name,
 						  network_->pathEscape());
@@ -451,8 +450,7 @@ VerilogWriter::findChildNCcount(Instance *child)
 {
   int nc_count = 0;
   Cell *child_cell = network_->cell(child);
-  LibertyCell *lib_cell = network_->libertyCell(child_cell);
-  if (!remove_cells_.hasKey(lib_cell)) {
+  if (!remove_cells_.hasKey(child_cell)) {
     CellPortIterator *port_iter = network_->portIterator(child_cell);
     while (port_iter->hasNext()) {
       Port *port = port_iter->next();
