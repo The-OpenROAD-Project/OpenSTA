@@ -224,6 +224,9 @@ public:
 			const RiseFall *rf,
 			const EarlyLate *early_late) const;
   void unsetTimingDerate();
+  static void moveDeratingFactors(Sdc *from,
+                                  Sdc *to);
+
   void setInputSlew(Port *port, const RiseFallBoth *rf,
 		    const MinMaxAll *min_max, float slew);
   // Set the rise/fall drive resistance on design port.

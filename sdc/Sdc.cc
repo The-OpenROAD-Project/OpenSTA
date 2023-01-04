@@ -687,6 +687,28 @@ Sdc::unsetTimingDerate()
 }
 
 void
+Sdc::moveDeratingFactors(Sdc *from,
+                         Sdc *to)
+{
+  if (from->derating_factors_) {
+    to->derating_factors_ = from->derating_factors_;
+    from->derating_factors_ = nullptr;
+  }
+  if (from->net_derating_factors_) {
+    to->net_derating_factors_ = from->net_derating_factors_;
+    from->net_derating_factors_ = nullptr;
+  }
+  if (from->inst_derating_factors_) {
+    to->inst_derating_factors_ = from->inst_derating_factors_;
+    from->inst_derating_factors_ = nullptr;
+  }
+  if (from->cell_derating_factors_) {
+    to->cell_derating_factors_ = from->cell_derating_factors_;
+    from->cell_derating_factors_ = nullptr;
+  }
+}
+
+void
 Sdc::deleteDeratingFactors()
 {
   if (net_derating_factors_) {
