@@ -2790,6 +2790,33 @@ Sdc::deleteInputDelay(InputDelay *input_delay)
   delete input_delay;
 }
 
+void
+Sdc::movePortDelays(Sdc *from,
+                    Sdc *to)
+{
+  to->input_delays_ = from->input_delays_;
+  from->input_delays_.clear();
+  to->input_delay_pin_map_ = from->input_delay_pin_map_;
+  from->input_delay_pin_map_.clear();
+  to->input_delay_index_ = from->input_delay_index_;
+  from->input_delay_index_ = 0;
+  to->input_delay_ref_pin_map_ = from->input_delay_ref_pin_map_;
+  from->input_delay_ref_pin_map_.clear();
+  to->input_delay_leaf_pin_map_ = from->input_delay_leaf_pin_map_;
+  from->input_delay_leaf_pin_map_.clear();
+  to->input_delay_internal_pin_map_ = from->input_delay_internal_pin_map_;
+  from->input_delay_internal_pin_map_.clear();
+
+  to->output_delays_ = from->output_delays_;
+  from->output_delays_.clear();
+  to->output_delay_pin_map_ = from->output_delay_pin_map_;
+  from->output_delay_pin_map_.clear();
+  to->output_delay_ref_pin_map_ = from->output_delay_ref_pin_map_;
+  from->output_delay_ref_pin_map_.clear();
+  to->output_delay_leaf_pin_map_ = from->output_delay_leaf_pin_map_;
+  from->output_delay_leaf_pin_map_.clear();
+}
+
 ////////////////////////////////////////////////////////////////
 
 void
@@ -3380,6 +3407,21 @@ Sdc::ensurePortExtPinCap(Port *port)
     (*port_cap_map_)[port] = port_cap;
   }
   return port_cap;
+}
+
+void
+Sdc::movePortExtCaps(Sdc *from,
+                     Sdc *to)
+{
+  if (from->port_cap_map_) {
+    to->port_cap_map_ = from->port_cap_map_;
+    from->port_cap_map_ = nullptr;
+  }
+
+  if (from->net_wire_cap_map_) {
+    to->net_wire_cap_map_ = from->net_wire_cap_map_;
+    from->net_wire_cap_map_ = nullptr;
+  }
 }
 
 ////////////////////////////////////////////////////////////////

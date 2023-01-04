@@ -80,6 +80,9 @@ private:
   TableAxisPtr loadCapacitanceAxis(const TableModel *table);
   LibertyPort *modelPort(const Pin *pin);
 
+  void saveSdc();
+  void restoreSdc();
+
   Sta *sta_;
   LibertyLibrary *library_;
   LibertyCell *cell_;
@@ -87,6 +90,7 @@ private:
   MinMax *min_max_;
   LibertyBuilder *lib_builder_;
   int tbl_template_index_;
+  Sdc *sdc_backup_;
 };
 
 } // namespace

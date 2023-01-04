@@ -1140,7 +1140,7 @@ GraphDelayCalc1::netCaps(const Pin *drvr_pin,
 			 float &fanout,
 			 bool &has_set_load) const
 {
-  MultiDrvrNet *multi_drvr = 0;
+  MultiDrvrNet *multi_drvr = nullptr;
   if (graph_) {
     Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
     multi_drvr = multiDrvrNet(drvr_vertex);

@@ -52,7 +52,8 @@ MakeTimingModel::MakeTimingModel(const Corner *corner,
   corner_(corner),
   min_max_(MinMax::max()),
   lib_builder_(new LibertyBuilder),
-  tbl_template_index_(1)
+  tbl_template_index_(1),
+  sdc_backup_(nullptr)
 {
 }
 
@@ -66,15 +67,12 @@ MakeTimingModel::makeTimingModel(const char *lib_name,
                                  const char *cell_name,
                                  const char *filename)
 {
+  saveSdc();
+
   tbl_template_index_ = 1;
   makeLibrary(lib_name, filename);
   makeCell(cell_name, filename);
   makePorts();
-
-  for (Clock *clk : *sdc_->clocks()) {
-    sta_->setPropagatedClock(clk);
-    checkClock(clk);
-  }
 
   sta_->searchPreamble();
   graph_ = sta_->graph();
@@ -83,7 +81,28 @@ MakeTimingModel::makeTimingModel(const char *lib_name,
   findClkedOutputPaths();
 
   cell_->finish(false, report_, debug_);
+  saveSdc();
+
   return library_;
+}
+
+// Move set_input_delay/set_output_delay/set_load's to the side.
+void
+MakeTimingModel::saveSdc()
+{
+  sdc_backup_ = new Sdc(this);
+  Sdc::movePortDelays(sdc_, sdc_backup_);
+  Sdc::movePortExtCaps(sdc_, sdc_backup_);
+  sta_->delaysInvalid();
+}
+
+void
+MakeTimingModel::restoreSdc()
+{
+  Sdc::movePortDelays(sdc_backup_, sdc_);
+  Sdc::movePortExtCaps(sdc_backup_, sdc_);
+  sta_->delaysInvalid();
+  delete sdc_backup_;
 }
 
 void
@@ -277,7 +296,7 @@ MakeTimingModel::findTimingFromInputs()
         sta_->setInputDelay(input_pin, input_rf1,
                             sdc_->defaultArrivalClock(),
                             sdc_->defaultArrivalClockEdge()->transition(),
-                            nullptr, false, false, MinMaxAll::all(), false, 0.0);
+                            nullptr, false, false, MinMaxAll::all(), true, 0.0);
 
         PinSet *from_pins = new PinSet;
         from_pins->insert(input_pin);

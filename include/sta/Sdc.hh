@@ -545,6 +545,9 @@ public:
 			 Clock *clk,
 			 RiseFall *clk_rf,
 			 MinMaxAll *min_max);
+  static void movePortDelays(Sdc *from,
+                             Sdc *to);
+
   // Set port external pin load (set_load -pin_load port).
   void setPortExtPinCap(Port *port,
 			const RiseFall *rf,
@@ -557,6 +560,8 @@ public:
 			 const Corner *corner,
 			 const MinMax *min_max,
 			 float cap);
+  static void movePortExtCaps(Sdc *from,
+                              Sdc *to);
   // Remove all "set_load" and "set_fanout_load" annotations.
   void removeLoadCaps();
   // Remove all "set_load net" annotations.
