@@ -3564,7 +3564,7 @@ LibertyReader::makeTimingGroup(int line)
 }
 
 void
-LibertyReader::endTiming(LibertyGroup *)
+LibertyReader::endTiming(LibertyGroup *group)
 {
   if (timing_) {
     // Set scale factor type in constraint tables.
@@ -3575,6 +3575,8 @@ LibertyReader::endTiming(LibertyGroup *)
 	model->setScaleFactorType(type);
       }
     }
+    if (timing_->relatedPortNames() == nullptr)
+      libWarn(170, group, "timing group missing related_pin/related_bus_pin.");
     timing_ = nullptr;
   }
 }
