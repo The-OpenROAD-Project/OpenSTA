@@ -30,6 +30,8 @@ namespace sta {
 using std::min;
 using std::to_string;
 
+typedef Set<const Pin*> ConstPinSet;
+
 class ReadVcdActivities : public StaState
 {
 public:
@@ -40,6 +42,9 @@ public:
 
 private:
   void setActivities();
+  void setVarActivity(VcdVar *var,
+                      string &var_name,
+                      const VcdValues &var_value);
   void setVarActivity(const char *pin_name,
                       const VcdValues &var_values,
                       int value_bit);
@@ -58,6 +63,7 @@ private:
   double clk_period_;
   Sta *sta_;
   Power *power_;
+  ConstPinSet annotated_pins_;
 
   static constexpr double sim_clk_period_tolerance_ = .1;
 };
@@ -94,6 +100,7 @@ ReadVcdActivities::readActivities()
     clk_period_ = min(static_cast<double>(clk->period()), clk_period_);
 
   setActivities();
+  report_->reportLine("Annotated %lu pin activities.", annotated_pins_.size());
 }
 
 void
@@ -107,44 +114,57 @@ ReadVcdActivities::setActivities()
             || var->type() == VcdVarType::reg)) {
       string var_name = var->name();
       // string::starts_with in c++20
-      if (scope_length
-          && var_name.substr(0, scope_length) == scope_)
-        var_name = var_name.substr(scope_length + 1);
-      if (var_name[0] == '\\')
-        var_name += ' ';
-      const char *sta_name = verilogToSta(var_name.c_str());
+      if (scope_length) {
+        if (var_name.substr(0, scope_length) == scope_) {
+          var_name = var_name.substr(scope_length + 1);
+          setVarActivity(var, var_name, var_values);
+        }
+      }
+      else
+        setVarActivity(var, var_name, var_values);
+    }
+  }
+}
 
-      if (var->width() == 1)
-        setVarActivity(sta_name, var_values, 0);
-      else {
-        char *bus_name;
-        int from, to;
-        parseBusRange(sta_name, '[', ']', '\\',
-                      bus_name, from, to);
-        int value_bit = 0;
-        if (to < from) {
-          for (int bus_bit = to; bus_bit <= from; bus_bit++) {
-            string pin_name = bus_name;
-            pin_name += '[';
-            pin_name += to_string(bus_bit);
-            pin_name += ']';
-            setVarActivity(pin_name.c_str(), var_values, value_bit);
-            value_bit++;
-          }
-        }
-        else {
-          for (int bus_bit = to; bus_bit >= from; bus_bit--) {
-            string pin_name = bus_name;
-            pin_name += '[';
-            pin_name += to_string(bus_bit);
-            pin_name += ']';
-            setVarActivity(pin_name.c_str(), var_values, value_bit);
-            value_bit++;
-          }
-        }
-        stringDelete(bus_name);
+void
+ReadVcdActivities::setVarActivity(VcdVar *var,
+                                  string &var_name,
+                                  const VcdValues &var_values)
+{
+  // var names include the leading \ but not the trailing space so add it.
+  if (var_name[0] == '\\')
+    var_name += ' ';
+  const char *sta_name = verilogToSta(var_name.c_str());
+
+  if (var->width() == 1)
+    setVarActivity(sta_name, var_values, 0);
+  else {
+    char *bus_name;
+    int from, to;
+    parseBusRange(sta_name, '[', ']', '\\',
+                  bus_name, from, to);
+    int value_bit = 0;
+    if (to < from) {
+      for (int bus_bit = to; bus_bit <= from; bus_bit++) {
+        string pin_name = bus_name;
+        pin_name += '[';
+        pin_name += to_string(bus_bit);
+        pin_name += ']';
+        setVarActivity(pin_name.c_str(), var_values, value_bit);
+        value_bit++;
       }
     }
+    else {
+      for (int bus_bit = to; bus_bit >= from; bus_bit--) {
+        string pin_name = bus_name;
+        pin_name += '[';
+        pin_name += to_string(bus_bit);
+        pin_name += ']';
+        setVarActivity(pin_name.c_str(), var_values, value_bit);
+        value_bit++;
+      }
+    }
+    stringDelete(bus_name);
   }
 }
 
@@ -166,9 +186,13 @@ ReadVcdActivities::setVarActivity(const char *pin_name,
                duty);
     if (sdc_->isLeafPinClock(pin))
       checkClkPeriod(pin, transition_count);
-    else
+    else {
       power_->setUserActivity(pin, activity, duty,
                               PwrActivityOrigin::user);
+      if (annotated_pins_.hasKey(pin))
+        printf("luse\n");
+      annotated_pins_.insert(pin);
+    }
   }
 }
 

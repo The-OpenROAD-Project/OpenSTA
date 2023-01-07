@@ -19,6 +19,9 @@ app/libOpenSTA.*
 app/sta.exe
 app/sta.dSYM
 
+# iverilog turd
+examples/gcd_tb
+
 doc/._Sta.docx
 
 test/results
