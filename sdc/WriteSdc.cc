@@ -467,7 +467,6 @@ WriteSdc::writeGeneratedClock(Clock *clk) const
 void
 WriteSdc::writeClockPins(Clock *clk) const
 {
-  // Sort pins.
   PinSet &pins = clk->pins();
   if (!pins.empty()) {
     if (pins.size() > 1)
