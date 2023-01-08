@@ -22,6 +22,8 @@
 
 namespace sta {
 
+typedef Set<HpinDrvrLoad*, HpinDrvrLoadLess> HpinDrvrLoads;
+
 static void
 visitPinsAboveNet2(const Pin *hpin,
 		   Net *above_net,

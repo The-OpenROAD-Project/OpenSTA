@@ -36,8 +36,6 @@ public:
 		  const HpinDrvrLoad *drvr_load2) const;
 };
 
-typedef Set<HpinDrvrLoad*, HpinDrvrLoadLess> HpinDrvrLoads;
-
 // Abstract base class for visitDrvrLoadsThruHierPin visitor.
 class HpinDrvrLoadVisitor
 {
