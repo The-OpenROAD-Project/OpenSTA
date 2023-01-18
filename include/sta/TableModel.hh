@@ -74,7 +74,7 @@ public:
   const TableModel *slewModel() const { return slew_model_;  }
   // Check the axes before making the model.
   // Return true if the model axes are supported.
-  static bool checkAxes(const Table *table);
+  static bool checkAxes(const TablePtr table);
 
 protected:
   void maxCapSlew(const LibertyCell *cell,
@@ -147,7 +147,7 @@ public:
 
   // Check the axes before making the model.
   // Return true if the model axes are supported.
-  static bool checkAxes(const Table *table);
+  static bool checkAxes(const TablePtr table);
 
 protected:
   virtual void setIsScaled(bool is_scaled);
@@ -190,11 +190,10 @@ protected:
 class TableModel
 {
 public:
-  TableModel(Table *table,
+  TableModel(TablePtr table,
              TableTemplate *tbl_template,
 	     ScaleFactorType scale_factor_type,
 	     RiseFall *rf);
-  ~TableModel();
   void setScaleFactorType(ScaleFactorType type);
   int order() const;
   TableTemplate *tblTemplate() const { return tbl_template_; }
@@ -239,7 +238,7 @@ protected:
 			    int digits,
 			    string *result) const;
 
-  Table *table_;
+  TablePtr table_;
   TableTemplate *tbl_template_;
   // ScaleFactorType gcc barfs if this is dcl'd.
   unsigned scale_factor_type_:scale_factor_bits;

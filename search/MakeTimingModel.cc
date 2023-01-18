@@ -43,6 +43,7 @@
 namespace sta {
 
 using std::max;
+using std::make_shared;
 
 MakeTimingModel::MakeTimingModel(const Corner *corner,
                                  Sta *sta) :
@@ -500,7 +501,7 @@ MakeTimingModel::makeScalarCheckModel(float value,
                                       ScaleFactorType scale_factor_type,
                                       RiseFall *rf)
 {
-  Table *table = new Table0(value);
+  TablePtr table = make_shared<Table0>(value);
   TableTemplate *tbl_template =
     library_->findTableTemplate("scalar", TableTemplateType::delay);
   TableModel *table_model = new TableModel(table, tbl_template,
@@ -514,8 +515,8 @@ MakeTimingModel::makeGateModelScalar(Delay delay,
                                      Slew slew,
                                      RiseFall *rf)
 {
-  Table *delay_table = new Table0(delayAsFloat(delay));
-  Table *slew_table = new Table0(delayAsFloat(slew));
+  TablePtr delay_table = make_shared<Table0>(delayAsFloat(delay));
+  TablePtr slew_table = make_shared<Table0>(delayAsFloat(slew));
   TableTemplate *tbl_template =
     library_->findTableTemplate("scalar", TableTemplateType::delay);
   TableModel *delay_model = new TableModel(delay_table, tbl_template,
@@ -590,8 +591,8 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                 std::make_shared<TableAxis>(TableAxisVariable::total_output_net_capacitance,
                                             axis_values);
           
-              Table *delay_table = new Table1(load_values, load_axis);
-              Table *slew_table = new Table1(slew_values, load_axis);
+              TablePtr delay_table = make_shared<Table1>(load_values, load_axis);
+              TablePtr slew_table = make_shared<Table1>(slew_values, load_axis);
 
               string template_name = "template_";
               template_name += std::to_string(tbl_template_index_++);

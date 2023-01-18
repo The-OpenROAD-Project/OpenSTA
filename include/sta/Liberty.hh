@@ -179,7 +179,7 @@ public:
 			float wire_delay) const;
   // Check for supported axis variables.
   // Return true if axes are supported.
-  static bool checkSlewDegradationAxes(Table *table);
+  static bool checkSlewDegradationAxes(TablePtr table);
 
   float defaultInputPinCap() const { return default_input_pin_cap_; }
   void setDefaultInputPinCap(float cap);
@@ -1050,18 +1050,18 @@ public:
   OcvDerate(const char *name);
   ~OcvDerate();
   const char *name() const { return name_; }
-  Table *derateTable(const RiseFall *rf,
-		     const EarlyLate *early_late,
-		     PathType path_type);
+  TablePtr derateTable(const RiseFall *rf,
+                       const EarlyLate *early_late,
+                       PathType path_type);
   void setDerateTable(const RiseFall *rf,
 		      const EarlyLate *early_late,
 		      PathType path_type,
-		      Table *derate);
+		      TablePtr derate);
 
 private:
   const char *name_;
   // [rf_type][derate_type][path_type]
-  Table *derate_[RiseFall::index_count][EarlyLate::index_count][path_type_count];
+  TablePtr derate_[RiseFall::index_count][EarlyLate::index_count][path_type_count];
 };
 
 // Power/ground port.

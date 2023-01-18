@@ -320,7 +320,7 @@ GateTableModel::axisValue(TableAxisPtr axis,
 }
 
 bool
-GateTableModel::checkAxes(const Table *table)
+GateTableModel::checkAxes(const TablePtr table)
 {
   TableAxisPtr axis1 = table->axis1();
   TableAxisPtr axis2 = table->axis2();
@@ -529,7 +529,7 @@ CheckTableModel::axisValue(TableAxisPtr axis,
 }
 
 bool
-CheckTableModel::checkAxes(const Table *table)
+CheckTableModel::checkAxes(const TablePtr table)
 {
   TableAxisPtr axis1 = table->axis1();
   TableAxisPtr axis2 = table->axis2();
@@ -555,7 +555,7 @@ CheckTableModel::checkAxis(TableAxisPtr axis)
 
 ////////////////////////////////////////////////////////////////
 
-TableModel::TableModel(Table *table,
+TableModel::TableModel(TablePtr table,
                        TableTemplate *tbl_template,
 		       ScaleFactorType scale_factor_type,
 		       RiseFall *rf) :
@@ -565,11 +565,6 @@ TableModel::TableModel(Table *table,
   tr_index_(rf->index()),
   is_scaled_(false)
 {
-}
-
-TableModel::~TableModel()
-{
-  delete table_;
 }
 
 int

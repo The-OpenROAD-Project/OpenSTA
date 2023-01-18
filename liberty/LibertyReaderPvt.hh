@@ -575,7 +575,7 @@ protected:
   LibertyPgPort *pg_port_;
   ScaleFactorType scale_factor_type_;
   TableAxisPtr axis_[3];
-  Table *table_;
+  TablePtr table_;
   float table_model_scale_;
   ModeDef *mode_def_;
   ModeValueDef *mode_value_;

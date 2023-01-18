@@ -373,7 +373,7 @@ LibertyLibrary::degradeWireSlew(const LibertyCell *cell,
 // Check for supported axis variables.
 // Return true if axes are supported.
 bool
-LibertyLibrary::checkSlewDegradationAxes(Table *table)
+LibertyLibrary::checkSlewDegradationAxes(TablePtr table)
 {
   switch (table->order()) {
   case 0:
@@ -2964,28 +2964,9 @@ OcvDerate::OcvDerate(const char *name) :
 OcvDerate::~OcvDerate()
 {
   stringDelete(name_);
-  // Derating table models can be shared in multiple places in derate_;
-  // Collect them in a set to avoid duplicate deletes.
-  Set<Table*> models;
-  for (auto el_index : EarlyLate::rangeIndex()) {
-    for (auto tr_index : RiseFall::rangeIndex()) {
-      Table *derate;
-      derate = derate_[tr_index][el_index][int(PathType::clk)];
-      if (derate)
-	models.insert(derate);
-      derate = derate_[tr_index][el_index][int(PathType::data)];
-      if (derate)
-	models.insert(derate);
-    }
-  }
-  Set<Table*>::Iterator model_iter(models);
-  while (model_iter.hasNext()) {
-    Table *model = model_iter.next();
-    delete model;
-  }
 }
 
-Table *
+TablePtr
 OcvDerate::derateTable(const RiseFall *rf,
 		       const EarlyLate *early_late,
 		       PathType path_type)
@@ -2997,7 +2978,7 @@ void
 OcvDerate::setDerateTable(const RiseFall *rf,
 			  const EarlyLate *early_late,
 			  const PathType path_type,
-			  Table *derate)
+			  TablePtr derate)
 {
   derate_[rf->index()][early_late->index()][int(path_type)] = derate;
 }
