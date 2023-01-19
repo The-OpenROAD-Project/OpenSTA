@@ -18,6 +18,55 @@
 
 namespace eval sta {
 
+define_cmd_args "make_instance" {inst_path lib_cell}
+
+proc make_instance { inst_path lib_cell } {
+  set lib_cell [get_lib_cell_warn "lib_cell" $lib_cell]
+  if { $lib_cell != "NULL" } {
+    set path_regexp [path_regexp]
+    if {[regexp $path_regexp $inst_path ignore path_name inst_name]} {
+      set parent [find_instance $path_name]
+      if { $parent == "NULL" } {
+	# Parent instance not found.  This could be a typo, but since
+	# SDC does not escape hierarchy dividers it can also be
+	# an escaped name.
+	set inst_name $inst_path
+	set parent [top_instance]
+      }
+    } else {
+      set inst_name $inst_path
+      set parent [top_instance]
+    }
+    return [make_instance_cmd $inst_name $lib_cell $parent]
+  } else {
+    return 0
+  }
+}
+
+################################################################
+
+define_cmd_args "make_net" {}
+
+proc make_net { net_path } {
+  # Copy backslashes that will be removed by foreach.
+  set net_path [string map {\\ \\\\} $net_path]
+  set path_regexp [path_regexp]
+  if {[regexp $path_regexp $net_path ignore path_name net_name]} {
+    set parent [find_instance $path_name]
+    if { $parent == "NULL" } {
+      return 0
+    }
+  } else {
+    set parent [top_instance]
+    set net_name $net_path
+  }
+  return [make_net_cmd $net_name $parent]
+}
+
+################################################################
+
+define_cmd_args "connect_pin" {net pin}
+
 proc connect_pin { net pin } {
   set insts_port [parse_connect_pin $pin]
   if { $insts_port == 0 } {
@@ -110,39 +159,7 @@ proc parse_connect_pins { arg } {
 
 ################################################################
 
-proc delete_instance { instance } {
-  if { [is_object $instance] } {
-    set object_type [object_type $instance]
-    if { $object_type == "Instance" } {
-      set inst $instance
-    } else {
-      sta_error 587 "unsupported object type $object_type."
-    }
-  } else {
-    set inst [find_instance $instance]
-  }
-  if { $inst != "NULL" } {
-    delete_instance_cmd $inst
-  }
-}
-
-################################################################
-
-proc delete_net { net } {
-  if { [is_object $net] } {
-    set object_type [object_type $net]
-    if { $object_type != "Net" } {
-      sta_error 588 "unsupported object type $object_type."
-    }
-  } else {
-    set net [find_net $net]
-  }
-  if { $net != "NULL" } {
-    delete_net_cmd $net
-  }
-}
-
-################################################################
+define_cmd_args "disconnect_pin" {net -all|pin}
 
 proc disconnect_pin { net pin } {
   set net [get_net_warn "net" $net]
@@ -168,57 +185,47 @@ proc disconnect_pin { net pin } {
   }
 }
 
-proc disconnect_pins { net pins } {
-  sta_warn 603 "disconnect_pins is deprecated.  Use disconnect_pin."
-  foreach pin $pins {
-    disconnect_pin $net $pins
-  }
-}
-
 ################################################################
 
-proc make_instance { inst_path lib_cell } {
-  set lib_cell [get_lib_cell_warn "lib_cell" $lib_cell]
-  if { $lib_cell != "NULL" } {
-    set path_regexp [path_regexp]
-    if {[regexp $path_regexp $inst_path ignore path_name inst_name]} {
-      set parent [find_instance $path_name]
-      if { $parent == "NULL" } {
-	# Parent instance not found.  This could be a typo, but since
-	# SDC does not escape hierarchy dividers it can also be
-	# an escaped name.
-	set inst_name $inst_path
-	set parent [top_instance]
-      }
+define_cmd_args "delete_instance" {inst}
+
+proc delete_instance { instance } {
+  if { [is_object $instance] } {
+    set object_type [object_type $instance]
+    if { $object_type == "Instance" } {
+      set inst $instance
     } else {
-      set inst_name $inst_path
-      set parent [top_instance]
+      sta_error 587 "unsupported object type $object_type."
     }
-    return [make_instance_cmd $inst_name $lib_cell $parent]
   } else {
-    return 0
+    set inst [find_instance $instance]
+  }
+  if { $inst != "NULL" } {
+    delete_instance_cmd $inst
   }
 }
 
 ################################################################
 
-proc make_net { net_path } {
-  # Copy backslashes that will be removed by foreach.
-  set net_path [string map {\\ \\\\} $net_path]
-  set path_regexp [path_regexp]
-  if {[regexp $path_regexp $net_path ignore path_name net_name]} {
-    set parent [find_instance $path_name]
-    if { $parent == "NULL" } {
-      return 0
+define_cmd_args "delete_net" {net}
+
+proc delete_net { net } {
+  if { [is_object $net] } {
+    set object_type [object_type $net]
+    if { $object_type != "Net" } {
+      sta_error 588 "unsupported object type $object_type."
     }
   } else {
-    set parent [top_instance]
-    set net_name $net_path
+    set net [find_net $net]
   }
-  return [make_net_cmd $net_name $parent]
+  if { $net != "NULL" } {
+    delete_net_cmd $net
+  }
 }
 
 ################################################################
+
+define_cmd_args "replace_cell" {instance lib_cell}
 
 proc replace_cell { instance lib_cell } {
   set cell [get_lib_cell_warn "lib_cell" $lib_cell]
@@ -235,6 +242,8 @@ proc replace_cell { instance lib_cell } {
     return 0
   }
 }
+
+################################################################
 
 proc path_regexp {} {
   global hierarchy_separator

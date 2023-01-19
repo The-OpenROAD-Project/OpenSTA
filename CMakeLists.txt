@@ -221,17 +221,20 @@ set(STA_SOURCE
 set(STA_TCL_FILES
   tcl/Init.tcl
   tcl/Util.tcl
+  tcl/CmdArgs.tcl
+  tcl/CmdUtil.tcl
   tcl/Graph.tcl
   tcl/Liberty.tcl
   tcl/Link.tcl
   tcl/Network.tcl
   tcl/NetworkEdit.tcl
+  tcl/Property.tcl
   tcl/Sdc.tcl
   tcl/Search.tcl
-  tcl/Cmds.tcl
-  tcl/Variables.tcl
   tcl/Sta.tcl
   tcl/Splash.tcl
+  tcl/Variables.tcl
+  tcl/WritePathSpice.tcl
   dcalc/DelayCalc.tcl
   parasitics/Parasitics.tcl
   power/Power.tcl

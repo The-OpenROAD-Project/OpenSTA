@@ -18,26 +18,6 @@
 
 namespace eval sta {
 
-proc set_cmd_namespace { namespc } {
-  if { $namespc == "sdc" || $namespc == "sta" } {
-    set_cmd_namespace_cmd $namespc
-  } else {
-    sta_error 589 "unknown namespace $namespc."
-  }
-}
-
-################################################################
-
-define_cmd_args "report_cell" \
-  {[-connections] [-verbose] instance_path [> filename] [>> filename]}
-
-# Alias for report_instance.
-proc_redirect report_cell {
-  eval report_instance $args
-}
-
-################################################################
-
 define_cmd_args "report_instance" \
   {[-connections] [-verbose] instance_path [> filename] [>> filename]}
 
@@ -222,28 +202,6 @@ proc report_cell_ { cell } {
     }
   }
   $iter finish
-}
-
-define_cmd_args "report_pin" {[-corner corner] [-digits digits] pin\
-                                [> filename] [>> filename]}
-
-proc_redirect report_pin {
-  global sta_report_default_digits
-
-  parse_key_args "report_pin" args keys {-corner -digits} \
-    flags {-connections -verbose -hier_pins}
-  set corner [parse_corner_or_all keys]
-  set digits $sta_report_default_digits
-  if { [info exists keys(-digits)] } {
-      set digits $keys(-digits)
-  }
-  check_argc_eq1 "report_pin" $args
-  set pin_path [lindex $args 0]
-  set pin [get_pin_warn "pin" $pin_path]
-
-  if { $pin != "NULL" } {
-    report_pin_ $pin $corner $digits
-  }
 }
 
 ################################################################
@@ -495,55 +453,6 @@ proc capacitances_str { cap_r_min cap_r_max cap_f_min cap_f_max digits } {
   } else {
     return "r [format_capacitance $cap_r_min $digits]:[format_capacitance $cap_r_max $digits] f [format_capacitance $cap_f_min $digits]:[format_capacitance $cap_f_max $digits]"
   }
-}
-
-################################################################
-#
-# Debugging functions
-#
-################################################################
-
-proc_redirect report_network {
-  report_hierarchy [top_instance]
-}
-
-proc report_hierarchy { inst } {
-  report_instance1 $inst 1 1
-  foreach child [instance_sorted_children $inst] {
-    report_hierarchy $child
-  }
-}
-
-proc port_direction_any_input { dir } {
-  return [expr { $dir == "input" || $dir == "bidirect" } ]
-}
-
-proc port_direction_any_output { dir } {
-  return [expr { $dir == "output" \
-		   || $dir == "bidirect" \
-		   || $dir == "tristate" } ]
-}
-
-# collect instance pins into list
-proc instance_pins { instance } {
-  set pins {}
-  set iter [$instance pin_iterator]
-  while {[$iter has_next]} {
-    lappend pins [$iter next]
-  }
-  $iter finish
-  return $pins
-}
-
-# collect ports into a list
-proc cell_ports { cell } {
-  set ports {}
-  set iter [$cell port_iterator]
-  while {[$iter has_next]} {
-    lappend ports [$iter next]
-  }
-  $iter finish
-  return $ports
 }
 
 # sta namespace end

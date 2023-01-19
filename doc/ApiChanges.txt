@@ -16,7 +16,7 @@
 
 This file summarizes STA API changes for each release.
 
-Release 2.4.0 2023/01/??
+Release 2.4.0 2023/01/19
 -------------------------
 
 The Network API and associated containers now 'const' the network class objects.

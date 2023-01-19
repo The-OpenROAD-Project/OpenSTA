@@ -1109,6 +1109,41 @@ proc report_clock_min_period { args } {
   }
 }
 
+################################################################
+
+define_cmd_args "set_disable_inferred_clock_gating" { objects }
+
+proc set_disable_inferred_clock_gating { objects } {
+  set_disable_inferred_clock_gating_cmd $objects
+}
+
+proc set_disable_inferred_clock_gating_cmd { objects } {
+  parse_inst_port_pin_arg $objects insts pins
+  foreach inst $insts {
+    disable_clock_gating_check_inst $inst
+  }
+  foreach pin $pins {
+    disable_clock_gating_check_pin $pin
+  }
+}
+
+################################################################
+
+define_cmd_args "unset_disable_inferred_clock_gating" { objects }
+
+proc unset_disable_inferred_clock_gating { objects } {
+  unset_disable_inferred_clock_gating_cmd $objects
+}
+
+proc unset_disable_inferred_clock_gating_cmd { objects } {
+  parse_inst_port_pin_arg $objects insts pins
+  foreach inst $insts {
+    unset_disable_clock_gating_check_inst $inst
+  }
+  foreach pin $pins {
+    unset_disable_clock_gating_check_pin $pin
+  }
+}
 
 ################################################################
 

@@ -3,6 +3,9 @@ OpenSTA Timing Analyzer Release Notes
 
 This file summarizes user visible changes for each release.
 
+Release 2.4.0 2023/01/19
+-------------------------
+
 The report_parasitics_annotation command reports SPEF annotation completeness.
 
   report_parasitics_annotation [-report_unannotated]
@@ -11,6 +14,8 @@ The read_power_activities command reads a verilog vcd file and extracts
 pin activities for power analysis.
 
   read_power_activities -vcd filename
+
+The report_cell command has been removed; use report_instance.
 
 Release 2.3.3 2022/09/24
 -------------------------
