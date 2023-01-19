@@ -64,7 +64,7 @@ public:
                                        const ParasiticAnalysisPt *ap) = 0;
   virtual void deleteDrvrReducedParasitics(const Pin *drvr_pin) = 0;
 
-  virtual bool isReducedParasiticNetwork(Parasitic *parasitic) const = 0;
+  virtual bool isReducedParasiticNetwork(const Parasitic *parasitic) const = 0;
   // Flag this parasitic as reduced from a parasitic network.
   virtual void setIsReducedParasiticNetwork(Parasitic *parasitic,
 					    bool is_reduced) = 0;
@@ -76,7 +76,7 @@ public:
   // Pi model driver load with elmore delays to load pins (RSPF).
   // This follows the SPEF documentation of c2/c1, with c2 being the
   // capacitor on the driver pin.
-  virtual bool isPiElmore(Parasitic *parasitic) const = 0;
+  virtual bool isPiElmore(const Parasitic *parasitic) const = 0;
   virtual Parasitic *findPiElmore(const Pin *drvr_pin,
 				  const RiseFall *rf,
 				  const ParasiticAnalysisPt *ap) const = 0;
@@ -89,8 +89,8 @@ public:
 
   ////////////////////////////////////////////////////////////////
   // Pi models are common to PiElmore and PiPoleResidue.
-  virtual bool isPiModel(Parasitic *parasitic) const = 0;
-  virtual void piModel(Parasitic *parasitic,
+  virtual bool isPiModel(const Parasitic *parasitic) const = 0;
+  virtual void piModel(const Parasitic *parasitic,
 		       float &c2,
 		       float &rpi,
 		       float &c1) const = 0;
@@ -103,7 +103,7 @@ public:
   ////////////////////////////////////////////////////////////////
   // Elmore driver to load delay.
   // Common to LumpedElmore and PiElmore parasitics.
-  virtual void findElmore(Parasitic *parasitic,
+  virtual void findElmore(const Parasitic *parasitic,
 			  const Pin *load_pin,
 			  float &elmore,
 			  bool &exists) const = 0;
@@ -114,7 +114,7 @@ public:
 
   ////////////////////////////////////////////////////////////////
   // Pi model driver load with pole/residue interconnect model to load pins.
-  virtual bool isPiPoleResidue(Parasitic* parasitic) const = 0;
+  virtual bool isPiPoleResidue(const Parasitic* parasitic) const = 0;
   virtual Parasitic *findPiPoleResidue(const Pin *drvr_pin,
 				       const RiseFall *rf,
 				       const ParasiticAnalysisPt *ap) const=0;
@@ -310,7 +310,7 @@ protected:
 				   float fanout,
 				   const ParasiticAnalysisPt *ap);
 
-  Net *findParasiticNet(const Pin *pin) const;
+  const Net *findParasiticNet(const Pin *pin) const;
 };
 
 // Managed by the Corner class.

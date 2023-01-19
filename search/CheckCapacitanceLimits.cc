@@ -39,8 +39,8 @@ public:
 			       const MinMax *min_max,
 			       CheckCapacitanceLimits *check_capacitance_limit,
 			       const StaState *sta);
-  bool operator()(Pin *pin1,
-		  Pin *pin2) const;
+  bool operator()(const Pin *pin1,
+		  const Pin *pin2) const;
 
 private:
   const Corner *corner_;
@@ -62,8 +62,8 @@ PinCapacitanceLimitSlackLess::PinCapacitanceLimitSlackLess(const Corner *corner,
 }
 
 bool
-PinCapacitanceLimitSlackLess::operator()(Pin *pin1,
-					 Pin *pin2) const
+PinCapacitanceLimitSlackLess::operator()(const Pin *pin1,
+					 const Pin *pin2) const
 {
   const Corner *corner1, *corner2;
   const RiseFall *rf1, *rf2;
@@ -168,13 +168,13 @@ CheckCapacitanceLimits::findLimit(const Pin *pin,
     InputDrive *drive = sdc->findInputDrive(port);
     if (drive) {
       for (auto rf : RiseFall::range()) {
-        LibertyCell *cell;
-        LibertyPort *from_port;
+        const LibertyCell *cell;
+        const LibertyPort *from_port;
         float *from_slews;
-        LibertyPort *to_port;
+        const LibertyPort *to_port;
         drive->driveCell(rf, min_max, cell, from_port, from_slews, to_port);
         if (to_port) {
-          LibertyPort *corner_port = to_port->cornerPort(corner, min_max);
+          const LibertyPort *corner_port = to_port->cornerPort(corner, min_max);
           corner_port->capacitanceLimit(min_max, limit1, exists1);
           if (!exists1
               && corner_port->direction()->isAnyOutput()
@@ -250,19 +250,19 @@ CheckCapacitanceLimits::checkCapacitance(const Pin *pin,
 
 ////////////////////////////////////////////////////////////////
 
-PinSeq *
-CheckCapacitanceLimits::checkCapacitanceLimits(Net *net,
+PinSeq
+CheckCapacitanceLimits::checkCapacitanceLimits(const Net *net,
                                                bool violators,
                                                const Corner *corner,
                                                const MinMax *min_max)
 {
   const Network *network = sta_->network();
-  PinSeq *cap_pins = new PinSeq;
+  PinSeq cap_pins;
   float min_slack = MinMax::min()->initValue();
   if (net) {
     NetPinIterator *pin_iter = network->pinIterator(net);
     while (pin_iter->hasNext()) {
-      Pin *pin = pin_iter->next();
+      const Pin *pin = pin_iter->next();
       checkCapLimits(pin, violators, corner, min_max, cap_pins, min_slack);
     }
     delete pin_iter;
@@ -280,17 +280,17 @@ CheckCapacitanceLimits::checkCapacitanceLimits(Net *net,
   }
   sort(cap_pins, PinCapacitanceLimitSlackLess(corner, min_max, this, sta_));
   // Keep the min slack pin unless all violators or net pins.
-  if (!cap_pins->empty() && !violators && net == nullptr)
-    cap_pins->resize(1);
+  if (!cap_pins.empty() && !violators && net == nullptr)
+    cap_pins.resize(1);
   return cap_pins;
 }
 
 void
-CheckCapacitanceLimits::checkCapLimits(Instance *inst,
+CheckCapacitanceLimits::checkCapLimits(const Instance *inst,
                                        bool violators,
                                        const Corner *corner,
                                        const MinMax *min_max,
-                                       PinSeq *cap_pins,
+                                       PinSeq &cap_pins,
                                        float &min_slack)
 {
   const Network *network = sta_->network();
@@ -303,11 +303,11 @@ CheckCapacitanceLimits::checkCapLimits(Instance *inst,
 }
 
 void
-CheckCapacitanceLimits::checkCapLimits(Pin *pin,
+CheckCapacitanceLimits::checkCapLimits(const Pin *pin,
                                        bool violators,
                                        const Corner *corner,
                                        const MinMax *min_max,
-                                       PinSeq *cap_pins,
+                                       PinSeq &cap_pins,
                                        float &min_slack)
 {
   if (checkPin(pin)) {
@@ -318,12 +318,12 @@ CheckCapacitanceLimits::checkCapLimits(Pin *pin,
     if (!fuzzyInf(slack)) {
       if (violators) {
         if (slack < 0.0)
-          cap_pins->push_back(pin);
+          cap_pins.push_back(pin);
       }
       else {
-        if (cap_pins->empty()
+        if (cap_pins.empty()
             || slack < min_slack) {
-          cap_pins->push_back(pin);
+          cap_pins.push_back(pin);
           min_slack = slack;
         }
       }
@@ -332,7 +332,7 @@ CheckCapacitanceLimits::checkCapLimits(Pin *pin,
 }
 
 bool
-CheckCapacitanceLimits::checkPin(Pin *pin)
+CheckCapacitanceLimits::checkPin(const Pin *pin)
 {
   const Network *network = sta_->network();
   const Sim *sim = sta_->sim();

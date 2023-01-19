@@ -27,7 +27,7 @@ class PathVertex;
 class ClkInfo
 {
 public:
-  ClkInfo(ClockEdge *clk_edge,
+  ClkInfo(const ClockEdge *clk_edge,
 	  const Pin *clk_src,
 	  bool is_propagated,
 	  const Pin *gen_clk_src,
@@ -41,8 +41,8 @@ public:
 	  const StaState *sta);
   ~ClkInfo();
   const char *asString(const StaState *sta) const;
-  ClockEdge *clkEdge() const { return clk_edge_; }
-  Clock *clock() const;
+  const ClockEdge *clkEdge() const { return clk_edge_; }
+  const Clock *clock() const;
   const Pin *clkSrc() const { return clk_src_; }
   bool isPropagated() const { return is_propagated_; }
   const Pin *genClkSrc() const { return gen_clk_src_; }
@@ -69,7 +69,7 @@ protected:
   void findHash(const StaState *sta);
 
 private:
-  ClockEdge *clk_edge_;
+  const ClockEdge *clk_edge_;
   const Pin *clk_src_;
   const Pin *gen_clk_src_;
   PathVertexRep crpr_clk_path_;

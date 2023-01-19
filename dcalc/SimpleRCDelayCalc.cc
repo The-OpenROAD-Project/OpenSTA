@@ -46,7 +46,7 @@ void
 SimpleRCDelayCalc::inputPortDelay(const Pin *port_pin,
 				  float in_slew,
 				  const RiseFall *rf,
-				  Parasitic *parasitic,
+				  const Parasitic *parasitic,
 				  const DcalcAnalysisPt *dcalc_ap)
 {
   pvt_ = dcalc_ap->operatingConditions();
@@ -55,10 +55,10 @@ SimpleRCDelayCalc::inputPortDelay(const Pin *port_pin,
 
 void
 SimpleRCDelayCalc::gateDelay(const LibertyCell *drvr_cell,
-			     TimingArc *arc,
+			     const TimingArc *arc,
 			     const Slew &in_slew,
 			     float load_cap,
-			     Parasitic *drvr_parasitic,
+			     const Parasitic *drvr_parasitic,
 			     float related_out_cap,
 			     const Pvt *pvt,
 			     const DcalcAnalysisPt *dcalc_ap,

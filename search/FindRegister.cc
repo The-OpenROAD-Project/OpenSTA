@@ -140,7 +140,7 @@ FindRegVisitor::visitRegs(ClockSet *clks,
       Clock *clk = clk_iter.next();
       FindRegClkPred clk_pred(clk, this);
       VertexSet visited_vertices(graph_);
-      for (Pin *pin : clk->leafPins()) {
+      for (const Pin *pin : clk->leafPins()) {
 	Vertex *vertex, *bidirect_drvr_vertex;
 	graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
 	visitFanoutRegs(vertex, TimingSense::positive_unate,
@@ -309,32 +309,31 @@ class FindRegInstances : public FindRegVisitor
 {
 public:
   explicit FindRegInstances(StaState *sta);
-  InstanceSet *findRegs(ClockSet *clks,
-			const RiseFallBoth *clk_rf,
-			bool edge_triggered,
-			bool latches);
+  InstanceSet findRegs(ClockSet *clks,
+                       const RiseFallBoth *clk_rf,
+                       bool edge_triggered,
+                       bool latches);
 
 private:
   virtual void visitReg(Instance *inst);
   virtual void visitSequential(Instance *inst,
 			       Sequential *seq);
 
-  InstanceSet *regs_;
+  InstanceSet regs_;
 };
 
 FindRegInstances::FindRegInstances(StaState *sta) :
   FindRegVisitor(sta),
-  regs_(nullptr)
+  regs_(network_)
 {
 }
 
-InstanceSet *
+InstanceSet
 FindRegInstances::findRegs(ClockSet *clks,
 			   const RiseFallBoth *clk_rf,
 			   bool edge_triggered,
 			   bool latches)
 {
-  regs_ = new InstanceSet;
   visitRegs(clks, clk_rf, edge_triggered, latches);
   return regs_;
 }
@@ -348,10 +347,10 @@ FindRegInstances::visitSequential(Instance *,
 void
 FindRegInstances::visitReg(Instance *inst)
 {
-  regs_->insert(inst);
+  regs_.insert(inst);
 }
 
-InstanceSet *
+InstanceSet
 findRegInstances(ClockSet *clks,
 		 const RiseFallBoth *clk_rf,
 		 bool edge_triggered,
@@ -367,11 +366,11 @@ findRegInstances(ClockSet *clks,
 class FindRegPins : public FindRegVisitor
 {
 public:
-  explicit FindRegPins(StaState *sta);
-  PinSet *findPins(ClockSet *clks,
-		   const RiseFallBoth *clk_rf,
-		   bool edge_triggered,
-		   bool latches);
+  FindRegPins(StaState *sta);
+  PinSet findPins(ClockSet *clks,
+                  const RiseFallBoth *clk_rf,
+                  bool edge_triggered,
+                  bool latches);
 
 protected:
   virtual void visitReg(Instance *inst);
@@ -385,22 +384,21 @@ protected:
   virtual FuncExpr *seqExpr1(Sequential *seq) = 0;
   virtual FuncExpr *seqExpr2(Sequential *seq) = 0;
 
-  PinSet *pins_;
+  PinSet pins_;
 };
 
 FindRegPins::FindRegPins(StaState *sta) :
   FindRegVisitor(sta),
-  pins_(nullptr)
+  pins_(network_)
 {
 }
 
-PinSet *
+PinSet
 FindRegPins::findPins(ClockSet *clks,
 		      const RiseFallBoth *clk_rf,
 		      bool edge_triggered,
 		      bool latches)
 {
-  pins_ = new PinSet;
   visitRegs(clks, clk_rf, edge_triggered, latches);
   return pins_;
 }
@@ -424,7 +422,7 @@ FindRegPins::visitExpr(FuncExpr *expr,
       LibertyPort *port = port_iter.next();
       Pin *pin = network_->findPin(inst, port);
       if (pin)
-	pins_->insert(pin);
+	pins_.insert(pin);
     }
   }
 }
@@ -436,7 +434,7 @@ FindRegPins::visitReg(Instance *inst)
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
     if (matchPin(pin))
-      pins_->insert(pin);
+      pins_.insert(pin);
   }
   delete pin_iter;
 }
@@ -500,7 +498,7 @@ hasMinPulseWidthCheck(LibertyPort *port)
   return exists;
 }
 
-PinSet *
+PinSet
 findRegDataPins(ClockSet *clks,
 		const RiseFallBoth *clk_rf,
 		bool edge_triggered,
@@ -555,7 +553,7 @@ FindRegClkPins::seqExpr2(Sequential *)
   return nullptr;
 }
 
-PinSet *
+PinSet
 findRegClkPins(ClockSet *clks,
 	       const RiseFallBoth *clk_rf,
 	       bool edge_triggered,
@@ -597,7 +595,7 @@ FindRegAsyncPins::matchPin(Pin *pin)
   return false;
 }
 
-PinSet *
+PinSet
 findRegAsyncPins(ClockSet *clks,
 		 const RiseFallBoth *clk_rf,
 		 bool edge_triggered,
@@ -670,7 +668,7 @@ FindRegOutputPins::visitOutput(LibertyPort *port,
       if (func
 	  && func->port()
 	  && func->port() == port)
-	pins_->insert(pin);
+	pins_.insert(pin);
     }
     delete pin_iter;
   }
@@ -688,7 +686,7 @@ FindRegOutputPins::seqExpr2(Sequential *)
   return nullptr;
 }
 
-PinSet *
+PinSet
 findRegOutputPins(ClockSet *clks,
 		  const RiseFallBoth *clk_rf,
 		  bool edge_triggered,

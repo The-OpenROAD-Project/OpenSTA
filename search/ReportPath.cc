@@ -712,7 +712,7 @@ ReportPath::reportFull(const PathEndPathDelay *end)
   float delay = path_delay->delay();
   reportLine(delay_msg.c_str(), delay, delay, early_late);
   if (!path_delay->ignoreClkLatency()) {
-    Clock *tgt_clk = end->targetClk(this);
+    const Clock *tgt_clk = end->targetClk(this);
     if (tgt_clk) {
       const Path *tgt_clk_path = end->targetClkPath();
       if (reportClkPath()
@@ -744,7 +744,7 @@ ReportPath::isPropagated(const Path *clk_path)
 
 bool
 ReportPath::isPropagated(const Path *clk_path,
-			 Clock *clk)
+			 const Clock *clk)
 {
   if (clk_path)
     return clk_path->clkInfo(search_)->isPropagated();
@@ -802,7 +802,7 @@ ReportPath::reportEndpointOutputDelay(const PathEndClkConstrained *end)
   Vertex *vertex = end->vertex(this);
   Pin *pin = vertex->pin();
   const char *pin_name = cmd_network_->pathName(pin);
-  Clock *tgt_clk = end->targetClk(this);
+  const Clock *tgt_clk = end->targetClk(this);
   if (network_->isTopLevelPort(pin)) {
     // Pin direction is "output" even for bidirects.
     if (tgt_clk) {
@@ -911,7 +911,7 @@ ReportPath::reportFull(const PathEndDataCheck *end)
     float src_offset = end->sourceClkOffset(this);
     Delay clk_delay = end->targetClkDelay(this);
     Arrival clk_arrival = end->targetClkArrival(this);
-    ClockEdge *tgt_clk_edge = end->targetClkEdge(this);
+    const ClockEdge *tgt_clk_edge = end->targetClkEdge(this);
     float prev = delayAsFloat(clk_arrival) + src_offset;
     float offset = prev - delayAsFloat(clk_delay) - tgt_clk_edge->time();
     reportPath5(data_clk_path, clk_expanded, clk_expanded.startIndex(),
@@ -1167,8 +1167,8 @@ ReportPath::reportVerbose(MinPulseWidthCheck *check)
   reportPathHeader();
 
   const EarlyLate *open_el = EarlyLate::late();
-  ClockEdge *open_clk_edge = check->openClkEdge(this);
-  Clock *open_clk = open_clk_edge->clock();
+  const ClockEdge *open_clk_edge = check->openClkEdge(this);
+  const Clock *open_clk = open_clk_edge->clock();
   const char *open_clk_name = open_clk->name();
   const char *open_rise_fall = asRiseFall(open_clk_edge->transition());
   float open_clk_time = open_clk_edge->time();
@@ -1184,8 +1184,8 @@ ReportPath::reportVerbose(MinPulseWidthCheck *check)
   reportBlankLine();
 
   const EarlyLate *close_el = EarlyLate::late();
-  ClockEdge *close_clk_edge = check->closeClkEdge(this);
-  Clock *close_clk = close_clk_edge->clock();
+  const ClockEdge *close_clk_edge = check->closeClkEdge(this);
+  const Clock *close_clk = close_clk_edge->clock();
   const char *close_clk_name = close_clk->name();
   const char *close_rise_fall = asRiseFall(close_clk_edge->transition());
   float close_offset = check->closeOffset(this);
@@ -1438,8 +1438,8 @@ void
 ReportPath::reportSkewClkPath(const char *arrival_msg,
 			      const PathVertex *clk_path)
 {
-  ClockEdge *clk_edge = clk_path->clkEdge(this);
-  Clock *clk = clk_edge->clock();
+  const ClockEdge *clk_edge = clk_path->clkEdge(this);
+  const Clock *clk = clk_edge->clock();
   const EarlyLate *early_late = clk_path->minMax(this);
   const RiseFall *clk_rf = clk_edge->transition();
   const RiseFall *clk_end_rf = clk_path->transition(this);
@@ -1578,8 +1578,8 @@ ReportPath::reportStartpoint(const PathEnd *end,
   TimingArc *prev_arc = expanded.startPrevArc();
   Edge *prev_edge = start->prevEdge(prev_arc, this);
   Pin *pin = start->pin(graph_);
-  ClockEdge *clk_edge = path->clkEdge(this);
-  Clock *clk = path->clock(search_);
+  const ClockEdge *clk_edge = path->clkEdge(this);
+  const Clock *clk = path->clock(search_);
   const char *pin_name = cmd_network_->pathName(pin);
   if (pathFromClkPin(path, pin)) {
     const char *clk_name = clk->name();
@@ -1647,7 +1647,7 @@ bool
 ReportPath::pathFromClkPin(const Path *path,
 			   const Pin *start_pin)
 {
-  Clock *clk = path->clock(search_);
+  const Clock *clk = path->clock(search_);
   return clk
     && clk->leafPins().hasKey(const_cast<Pin*>(start_pin));
 }
@@ -1775,7 +1775,7 @@ ReportPath::checkRoleReason(const PathEnd *end)
 string
 ReportPath::tgtClkName(const PathEnd *end)
 {
-  ClockEdge *tgt_clk_edge = end->targetClkEdge(this);
+  const ClockEdge *tgt_clk_edge = end->targetClkEdge(this);
   const Clock *tgt_clk = tgt_clk_edge->clock();
   const RiseFall *clk_rf = tgt_clk_edge->transition();
   const RiseFall *clk_end_rf = end->targetClkEndTrans(this);
@@ -1856,7 +1856,7 @@ ReportPath::reportSrcClkAndPath(const Path *path,
 				Arrival clk_latency,
 				bool is_path_delay)
 {
-  ClockEdge *clk_edge = path->clkEdge(this);
+  const ClockEdge *clk_edge = path->clkEdge(this);
   const MinMax *min_max = path->minMax(this);
   if (clk_edge) {
     Clock *clk = clk_edge->clock();
@@ -1894,7 +1894,7 @@ ReportPath::reportSrcClkAndPath(const Path *path,
 	InputDelay *input_delay = pathInputDelay(first_path);
 	if (input_delay) {
 	  path_from_input = true;
-	  Pin *ref_pin = input_delay->refPin();
+	  const Pin *ref_pin = input_delay->refPin();
 	  if (ref_pin && clk->isPropagated()) {
 	    PathRef ref_path;
 	    pathInputDelayRefPath(first_path, input_delay, ref_path);
@@ -1983,7 +1983,7 @@ void
 ReportPath::reportTgtClk(const PathEnd *end,
 			 float prev_time)
 {
-  Clock *clk = end->targetClk(this);
+  const Clock *clk = end->targetClk(this);
   const Path *clk_path = end->targetClkPath();
   reportTgtClk(end, prev_time, isPropagated(clk_path, clk));
 }
@@ -2145,7 +2145,7 @@ ReportPath::reportClkLine(const Clock *clk,
 
 bool
 ReportPath::reportGenClkSrcPath(const Path *clk_path,
-				Clock *clk,
+				const Clock *clk,
 				const RiseFall *clk_rf,
 				const MinMax *min_max,
 				const EarlyLate *early_late)
@@ -2159,7 +2159,7 @@ ReportPath::reportGenClkSrcPath(const Path *clk_path,
 
 void
 ReportPath::reportGenClkSrcAndPath(const Path *path,
-				   Clock *clk,
+				   const Clock *clk,
 				   const RiseFall *clk_rf,
 				   const EarlyLate *early_late,
 				   const PathAnalysisPt *path_ap,
@@ -2182,7 +2182,7 @@ ReportPath::reportGenClkSrcAndPath(const Path *path,
 }
 
 bool
-ReportPath::reportGenClkSrcPath1(Clock *clk,
+ReportPath::reportGenClkSrcPath1(const Clock *clk,
 				 const Pin *clk_pin,
 				 const RiseFall *clk_rf,
 				 const EarlyLate *early_late,
@@ -2197,8 +2197,8 @@ ReportPath::reportGenClkSrcPath1(Clock *clk,
   search_->genclks()->srcPath(clk, clk_pin, clk_rf, insert_ap, src_path);
   if (!src_path.isNull()) {
     ClkInfo *src_clk_info = src_path.clkInfo(search_);
-    ClockEdge *src_clk_edge = src_clk_info->clkEdge();
-    Clock *src_clk = src_clk_info->clock();
+    const ClockEdge *src_clk_edge = src_clk_info->clkEdge();
+    const Clock *src_clk = src_clk_info->clock();
     if (src_clk) {
       bool skip_first_path = false;
       const RiseFall *src_clk_rf = src_clk_edge->transition();
@@ -2610,7 +2610,7 @@ ReportPath::reportPath5(const Path *path,
 	incr = 0.0;
 	if (!propagated_clk) {
 	  // Ideal clock.
-	  ClockEdge *src_clk_edge = path->clkEdge(this);
+	   const ClockEdge *src_clk_edge = path->clkEdge(this);
 	  time = search_->clkPathArrival(path1) + time_offset;
 	  if (src_clk_edge) {
 	    Clock *src_clk = src_clk_edge->clock();
@@ -2626,8 +2626,8 @@ ReportPath::reportPath5(const Path *path,
 	// Zero the clock network delays for ideal clocks.
 	incr = 0.0;
 	time = prev_time;
-	ClockEdge *src_clk_edge = path->clkEdge(this);
-	Clock *src_clk = src_clk_edge->clock();
+	const ClockEdge *src_clk_edge = path->clkEdge(this);
+	const Clock *src_clk = src_clk_edge->clock();
 	RiseFall *src_clk_rf = src_clk_edge->transition();
 	slew = src_clk->slew(src_clk_rf, min_max);
 	line_case = "clk_ideal";
@@ -2673,7 +2673,7 @@ ReportPath::reportPath5(const Path *path,
 	    else
 	      what2 = "(unconnected)";
 	  }
-	  float fanout = drvrFanout(vertex, min_max);
+	  float fanout = drvrFanout(vertex, dcalc_ap->corner(), min_max);
 	  reportLine(what2.c_str(), cap, field_blank_, fanout,
 		     field_blank_, field_blank_, false, min_max,
                      nullptr, line_case);
@@ -2740,6 +2740,7 @@ ReportPath::descriptionField(Vertex *vertex)
 
 float
 ReportPath::drvrFanout(Vertex *drvr,
+                       const Corner *corner,
 		       const MinMax *min_max)
 {
   float fanout = 0.0;
@@ -2751,7 +2752,7 @@ ReportPath::drvrFanout(Vertex *drvr,
       if (network_->isTopLevelPort(pin)) {
         // Output port counts as a fanout.
         Port *port = network_->port(pin);
-        fanout += sdc_->portExtFanout(port, min_max) + 1;
+        fanout += sdc_->portExtFanout(port, corner, min_max) + 1;
       }
       else
         fanout++;
@@ -2816,7 +2817,7 @@ ReportPath::pathInputDelayRefPath(const Path *path,
 				  // Return value.
 				  PathRef &ref_path)
 {
-  Pin *ref_pin = input_delay->refPin();
+  const Pin *ref_pin = input_delay->refPin();
   RiseFall *ref_rf = input_delay->refTransition();
   Vertex *ref_vertex = graph_->pinDrvrVertex(ref_pin);
   if (ref_vertex) {

@@ -239,7 +239,7 @@ public:
   unsigned index() const { return index_; }
   TimingModel *model(const OperatingConditions *op_cond) const;
   TimingModel *model() const { return model_; }
-  TimingArc *cornerArc(int ap_index);
+  const TimingArc *cornerArc(int ap_index) const;
   void setCornerArc(TimingArc *corner_arc,
 		    int ap_index);
   float driveResistance() const;

@@ -32,6 +32,7 @@
 #include "Clock.hh"
 #include "DataCheck.hh"
 #include "CycleAccting.hh"
+#include "ExceptionPath.hh"
 
 namespace sta {
 
@@ -50,24 +51,33 @@ class FindNetCaps;
 class ClkHpinDisable;
 class FindClkHpinDisables;
 class Corner;
-class GroupPathIterator;
 class ClockPinIterator;
 class ClockIterator;
 
+using std::vector;
+
 typedef std::pair<const Pin*, const Clock*> PinClockPair;
 
-class ClockInsertionPinClkLess
+class ClockInsertionkLess
 {
 public:
+  ClockInsertionkLess(const Network *network);
   bool operator()(const ClockInsertion *insert1,
 		  const ClockInsertion *insert2) const;
+
+private:
+  const Network *network_;
 };
 
-class ClockLatencyPinClkLess
+class ClockLatencyLess
 {
 public:
+  ClockLatencyLess(const Network *network);
   bool operator()(const ClockLatency *latency1,
 		  const ClockLatency *latency2) const;
+
+private:
+  const Network *network_;
 };
 
 // This is symmetric with respect to the clocks
@@ -94,53 +104,55 @@ protected:
 class ClkHpinDisableLess
 { 
 public:
+  ClkHpinDisableLess(const Network *network);
   bool operator()(const ClkHpinDisable *disable1,
 		  const ClkHpinDisable *disable2) const;
+
+private:
+  const Network *network_;
 };
 
 typedef Map<const char*,Clock*, CharPtrLess> ClockNameMap;
-typedef UnorderedMap<const Pin*, ClockSet*> ClockPinMap;
+typedef UnorderedMap<const Pin*, ClockSet*, PinIdHash> ClockPinMap;
 typedef Set<InputDelay*> InputDelaySet;
-typedef Map<const Pin*,InputDelaySet*> InputDelaysPinMap;
+typedef Map<const Pin*, InputDelaySet*, PinIdLess> InputDelaysPinMap;
 typedef Set<OutputDelay*> OutputDelaySet;
-typedef Map<const Pin*,OutputDelaySet*> OutputDelaysPinMap;
-typedef Set<Instance*> InstanceSet;
+typedef Map<const Pin*,OutputDelaySet*, PinIdLess> OutputDelaysPinMap;
 typedef UnorderedMap<const Pin*,ExceptionPathSet*> PinExceptionsMap;
 typedef Map<const Clock*,ExceptionPathSet*> ClockExceptionsMap;
 typedef Map<const Instance*,ExceptionPathSet*> InstanceExceptionsMap;
 typedef Map<const Net*,ExceptionPathSet*> NetExceptionsMap;
-typedef UnorderedMap<const EdgePins*,ExceptionPathSet*,
+typedef UnorderedMap<EdgePins, ExceptionPathSet*,
 		     PinPairHash, PinPairEqual> EdgeExceptionsMap;
 typedef Vector<ExceptionThru*> ExceptionThruSeq;
 typedef Map<const Port*,InputDrive*> InputDriveMap;
 typedef Map<int, ExceptionPathSet*, std::less<int> > ExceptionPathPtHash;
-typedef Set<ClockLatency*, ClockLatencyPinClkLess> ClockLatencies;
+typedef Set<ClockLatency*, ClockLatencyLess> ClockLatencies;
 typedef Map<const Pin*, ClockUncertainties*> PinClockUncertaintyMap;
-typedef Set<InterClockUncertainty*,
-	    InterClockUncertaintyLess> InterClockUncertaintySet;
+typedef Set<InterClockUncertainty*, InterClockUncertaintyLess> InterClockUncertaintySet;
 typedef Map<const Clock*, ClockGatingCheck*> ClockGatingCheckMap;
 typedef Map<const Instance*, ClockGatingCheck*> InstanceClockGatingCheckMap;
 typedef Map<const Pin*, ClockGatingCheck*> PinClockGatingCheckMap;
-typedef Set<ClockInsertion*, ClockInsertionPinClkLess> ClockInsertions;
+typedef Set<ClockInsertion*, ClockInsertionkLess> ClockInsertions;
 typedef Map<const Pin*, float> PinLatchBorrowLimitMap;
 typedef Map<const Instance*, float> InstLatchBorrowLimitMap;
 typedef Map<const Clock*, float> ClockLatchBorrowLimitMap;
 typedef Set<DataCheck*, DataCheckLess> DataCheckSet;
 typedef Map<const Pin*, DataCheckSet*> DataChecksMap;
-typedef Map<Port*, PortExtCap*> PortExtCapMap;
-typedef Map<Net*, MinMaxFloatValues> NetResistanceMap;
-typedef Map<Port*, MinMaxFloatValues> PortSlewLimitMap;
+typedef Map<const Net*, MinMaxFloatValues> NetResistanceMap;
+typedef Map<const Port*, MinMaxFloatValues> PortSlewLimitMap;
 typedef Map<const Pin*, MinMaxFloatValues> PinSlewLimitMap;
-typedef Map<Cell*, MinMaxFloatValues> CellSlewLimitMap;
-typedef Map<Cell*, MinMaxFloatValues> CellCapLimitMap;
-typedef Map<Port*, MinMaxFloatValues> PortCapLimitMap;
-typedef Map<Pin*, MinMaxFloatValues> PinCapLimitMap;
-typedef Map<Port*, MinMaxFloatValues> PortFanoutLimitMap;
-typedef Map<Cell*, MinMaxFloatValues> CellFanoutLimitMap;
-typedef Map<Net*, MinMaxFloatValues> NetWireCapMap;
-typedef Map<Pin*, MinMaxFloatValues*> PinWireCapMap;
-typedef Map<Instance*, Pvt*> InstancePvtMap;
-typedef Map<Edge*, ClockLatency*> EdgeClockLatencyMap;
+typedef Map<const Cell*, MinMaxFloatValues> CellSlewLimitMap;
+typedef Map<const Cell*, MinMaxFloatValues> CellCapLimitMap;
+typedef Map<const Port*, MinMaxFloatValues> PortCapLimitMap;
+typedef Map<const Pin*, MinMaxFloatValues> PinCapLimitMap;
+typedef Map<const Port*, MinMaxFloatValues> PortFanoutLimitMap;
+typedef Map<const Cell*, MinMaxFloatValues> CellFanoutLimitMap;
+typedef Map<const Port*, PortExtCap*, PortIdLess> PortExtCapMap;
+typedef Map<const Net*, MinMaxFloatValues, NetIdLess> NetWireCapMap;
+typedef Map<const Pin*, MinMaxFloatValues*, PinIdLess> PinWireCapMap;
+typedef Map<const Instance*, Pvt*> InstancePvtMap;
+typedef Map<const Edge*, ClockLatency*> EdgeClockLatencyMap;
 typedef Map<const Pin*, RiseFallValues*> PinMinPulseWidthMap;
 typedef Map<const Clock*, RiseFallValues*> ClockMinPulseWidthMap;
 typedef Map<const Instance*, RiseFallValues*> InstMinPulseWidthMap;
@@ -152,16 +164,16 @@ typedef Map<const Clock*, ClockGroupsSet*> ClockGroupsClkMap;
 typedef Map<const char*, ClockGroups*, CharPtrLess> ClockGroupsNameMap;
 typedef Map<PinClockPair, ClockSense, PinClockPairLess> ClockSenseMap;
 typedef Set<ClkHpinDisable*, ClkHpinDisableLess> ClkHpinDisables;
-typedef Set<GroupPath*> GroupPathSet;
+typedef Set<GroupPath*, ExceptionPathLess> GroupPathSet;
 typedef Map<const char*, GroupPathSet*, CharPtrLess> GroupPathMap;
 typedef Set<ClockPair, ClockPairLess> ClockPairSet;
 
 void
-findLeafLoadPins(Pin *pin,
+findLeafLoadPins(const Pin *pin,
 		 const Network *network,
 		 PinSet *leaf_pins);
 void
-findLeafDriverPins(Pin *pin,
+findLeafDriverPins(const Pin *pin,
 		   const Network *network,
 		   PinSet *leaf_pins);
 
@@ -172,6 +184,7 @@ public:
   ~Sdc();
   // Note that Search may reference a Filter exception removed by clear().
   void clear();
+  void makeCornersAfter(Corners *corners);
   // Return true if pin is referenced by any constraint.
   bool isConstrained(const Pin *pin) const;
   // Return true if inst is referenced by any constraint.
@@ -182,7 +195,7 @@ public:
   bool isConstrained(const Net *net) const;
   // Build data structures for search.
   void searchPreamble();
-  void deleteNetBefore(Net *net);
+  void deleteNetBefore(const Net *net);
 
   // SWIG sdc interface.
   AnalysisType analysisType() { return analysis_type_; }
@@ -227,34 +240,36 @@ public:
   static void moveDeratingFactors(Sdc *from,
                                   Sdc *to);
 
-  void setInputSlew(Port *port, const RiseFallBoth *rf,
-		    const MinMaxAll *min_max, float slew);
+  void setInputSlew(const Port *port,
+                    const RiseFallBoth *rf,
+		    const MinMaxAll *min_max,
+                    float slew);
   // Set the rise/fall drive resistance on design port.
-  void setDriveResistance(Port *port,
+  void setDriveResistance(const Port *port,
 			  const RiseFallBoth *rf,
 			  const MinMaxAll *min_max,
 			  float res);
   // Set the drive on design port using external cell timing arcs of
   // cell driven by from_slews between from_port and to_port.
-  void setDriveCell(LibertyLibrary *library,
-		    LibertyCell *cell,
-		    Port *port,
-		    LibertyPort *from_port,
+  void setDriveCell(const LibertyLibrary *library,
+		    const LibertyCell *cell,
+		    const Port *port,
+		    const LibertyPort *from_port,
 		    float *from_slews,
-		    LibertyPort *to_port,
+		    const LibertyPort *to_port,
 		    const RiseFallBoth *rf,
 		    const MinMaxAll *min_max);
-  void setLatchBorrowLimit(Pin *pin,
+  void setLatchBorrowLimit(const Pin *pin,
 			   float limit);
-  void setLatchBorrowLimit(Instance *inst,
+  void setLatchBorrowLimit(const Instance *inst,
 			   float limit);
-  void setLatchBorrowLimit(Clock *clk,
+  void setLatchBorrowLimit(const Clock *clk,
 			   float limit);
   // Return the latch borrow limit respecting precidence if multiple
   // limits apply.
-  void latchBorrowLimit(Pin *data_pin,
-			Pin *enable_pin,
-			Clock *clk,
+  void latchBorrowLimit(const Pin *data_pin,
+			const Pin *enable_pin,
+			const Clock *clk,
 			// Return values.
 			float &limit,
 			bool &exists);
@@ -442,7 +457,7 @@ public:
 		      // Return values.
 		      float &insertion,
 		      bool &exists) const;
-  ClockInsertions *clockInsertions() { return clk_insertions_; }
+  const ClockInsertions &clockInsertions() const { return clk_insertions_; }
   // Clock uncertainty.
   virtual void setClockUncertainty(Pin *pin,
 				   const SetupHoldAll *setup_hold,
@@ -520,44 +535,47 @@ public:
 		       const SetupHoldAll *setup_hold);
   DataCheckSet *dataChecksFrom(const Pin *from) const;
   DataCheckSet *dataChecksTo(const Pin *to) const;
-  void setInputDelay(Pin *pin,
+  void setInputDelay(const Pin *pin,
 		     const RiseFallBoth *rf,
-		     Clock *clk,
+		     const Clock *clk,
 		     const RiseFall *clk_rf,
-		     Pin *ref_pin,
+		     const Pin *ref_pin,
 		     bool source_latency_included,
 		     bool network_latency_included,
 		     const MinMaxAll *min_max,
-		     bool add, float delay);
-  void removeInputDelay(Pin *pin,
+		     bool add,
+                     float delay);
+  void removeInputDelay(const Pin *pin,
 			const RiseFallBoth *rf,
-			Clock *clk,
-			RiseFall *clk_rf,
-			MinMaxAll *min_max);
-  void setOutputDelay(Pin *pin,
+			const Clock *clk,
+			const RiseFall *clk_rf,
+			const MinMaxAll *min_max);
+  void setOutputDelay(const Pin *pin,
 		      const RiseFallBoth *rf,
-		      Clock *clk,
+		      const Clock *clk,
 		      const RiseFall *clk_tr,
-		      Pin *ref_pin,
+		      const Pin *ref_pin,
 		      bool source_latency_included,
 		      bool network_latency_included,
 		      const MinMaxAll *min_max,
-		      bool add, float delay);
-  void removeOutputDelay(Pin *pin,
-			 RiseFallBoth *rf,
-			 Clock *clk,
-			 RiseFall *clk_rf,
-			 MinMaxAll *min_max);
+		      bool add,
+                      float delay);
+  void removeOutputDelay(const Pin *pin,
+			 const RiseFallBoth *rf,
+			 const Clock *clk,
+			 const RiseFall *clk_rf,
+			 const MinMaxAll *min_max);
   static void movePortDelays(Sdc *from,
                              Sdc *to);
 
   // Set port external pin load (set_load -pin_load port).
-  void setPortExtPinCap(Port *port,
+  void setPortExtPinCap(const Port *port,
 			const RiseFall *rf,
+                        const Corner *corner,
 			const MinMax *min_max,
 			float cap);
   // Set port external wire load (set_load -wire port).
-  void setPortExtWireCap(Port *port,
+  void setPortExtWireCap(const Port *port,
 			 bool subtract_pin_cap,
 			 const RiseFall *rf,
 			 const Corner *corner,
@@ -565,18 +583,15 @@ public:
 			 float cap);
   static void movePortExtCaps(Sdc *from,
                               Sdc *to);
-  // Remove all "set_load" and "set_fanout_load" annotations.
-  void removeLoadCaps();
-  // Remove all "set_load net" annotations.
-  void removeNetLoadCaps();
-  void setNetWireCap(Net *net,
+  void setNetWireCap(const Net *net,
 		     bool subtract_pin_cap,
 		     const Corner *corner,
 		     const MinMax *min_max,
 		     float cap);
-  bool hasNetWireCap(Net *net) const;
+  bool hasNetWireCap(const Net *net) const;
   // True if driver pin net has wire capacitance.
-  bool drvrPinHasWireCap(const Pin *pin);
+  bool drvrPinHasWireCap(const Pin *pin,
+                         const Corner *corner);
   // Net wire capacitance (set_load -wire net).
   void drvrPinWireCap(const Pin *drvr_pin,
 		      const Corner *corner,
@@ -590,15 +605,16 @@ public:
 		       const OperatingConditions *op_cond,
 		       const Corner *corner,
 		       const MinMax *min_max);
-  void setResistance(Net *net,
+  void setResistance(const Net *net,
 		     const MinMaxAll *min_max,
 		     float res);
-  void resistance(Net *net,
+  void resistance(const Net *net,
 		  const MinMax *min_max,
 		  float &res,
 		  bool &exists);
-  NetResistanceMap *netResistances() { return &net_res_map_; }
-  void setPortExtFanout(Port *port,
+  NetResistanceMap &netResistances() { return net_res_map_; }
+  void setPortExtFanout(const Port *port,
+                        const Corner *corner,
 			const MinMax *min_max,
 			int fanout);
   // set_disable_timing cell [-from] [-to]
@@ -628,7 +644,7 @@ public:
 		     LibertyPort *from,
 		     LibertyPort *to);
   // set_disable_timing pin
-  void disable(Pin *pin);
+  void disable(const Pin *pin);
   void removeDisable(Pin *pin);
   // set_disable_timing [get_timing_arc -of_objects instance]]
   void disable(Edge *edge);
@@ -652,11 +668,11 @@ public:
   bool isDisabled(Edge *edge);
   bool isDisabled(TimingArcSet *arc_set) const;
   DisabledCellPortsMap *disabledCellPorts();
-  DisabledInstancePortsMap *disabledInstancePorts();
-  PinSet *disabledPins() { return &disabled_pins_; }
-  PortSet *disabledPorts() { return &disabled_ports_; }
-  LibertyPortSet *disabledLibPorts() { return &disabled_lib_ports_; }
-  EdgeSet *disabledEdges() { return &disabled_edges_; }
+  const DisabledInstancePortsMap *disabledInstancePorts() const;
+  const PinSet *disabledPins() const { return &disabled_pins_; }
+  const PortSet *disabledPorts() const { return &disabled_ports_; }
+  const LibertyPortSet *disabledLibPorts() const { return &disabled_lib_ports_; }
+  const EdgeSet *disabledEdges() const { return &disabled_edges_; }
   void disableClockGatingCheck(Instance *inst);
   void disableClockGatingCheck(Pin *pin);
   void removeDisableClockGatingCheck(Instance *inst);
@@ -664,16 +680,18 @@ public:
   bool isDisableClockGatingCheck(const Pin *pin);
   bool isDisableClockGatingCheck(const Instance *inst);
   // set_LogicValue::zero, set_LogicValue::one, set_logic_dc
-  void setLogicValue(Pin *pin,
+  void setLogicValue(const Pin *pin,
 		     LogicValue value);
   // set_case_analysis
-  void setCaseAnalysis(Pin *pin,
+  void setCaseAnalysis(const Pin *pin,
 		       LogicValue value);
-  void removeCaseAnalysis(Pin *pin);
+  void removeCaseAnalysis(const Pin *pin);
   void logicValue(const Pin *pin,
 		  LogicValue &value,
 		  bool &exists);
-  void caseLogicValue(const Pin *pin, LogicValue &value, bool &exists);
+  void caseLogicValue(const Pin *pin,
+                      LogicValue &value,
+                      bool &exists);
   // Pin has set_case_analysis or set_logic constant value.
   bool hasLogicValue(const Pin *pin);
   // The from/thrus/to arguments passed into the following functions
@@ -716,8 +734,8 @@ public:
 		     ExceptionThruSeq *thrus,
 		     ExceptionTo *to,
 		     const char *comment);
-  GroupPathIterator *groupPathIterator();
   bool isGroupPathName(const char *group_name);
+  GroupPathMap &groupPaths() { return group_path_map_; }
   void addException(ExceptionPath *exception);
   // The pin/clk/instance/net set arguments passed into the following
   // functions that make exception from/thru/to's are owned by the
@@ -741,9 +759,6 @@ public:
   FilterPath *makeFilterPath(ExceptionFrom *from,
 			     ExceptionThruSeq *thrus,
 			     ExceptionTo *to);
-  Clock *findClock(const char *name) const;
-  virtual void findClocksMatching(PatternMatch *pattern,
-				  ClockSeq *clks) const;
   Wireload *wireload(const MinMax *min_max);
   void setWireload(Wireload *wireload,
 		   const MinMaxAll *min_max);
@@ -803,17 +818,19 @@ public:
 
   // STA interface.
   InputDelaySet *refPinInputDelays(const Pin *ref_pin) const;
-  LogicValueMap *logicValues() { return &logic_value_map_; }
-  LogicValueMap *caseLogicValues() { return &case_value_map_; }
+  LogicValueMap &logicValues() { return logic_value_map_; }
+  LogicValueMap &caseLogicValues() { return case_value_map_; }
   // Returns nullptr if set_operating_conditions has not been called.
   OperatingConditions *operatingConditions(const MinMax *min_max);
   // Instance specific process/voltage/temperature.
-  Pvt *pvt(Instance *inst, const MinMax *min_max) const;
+  const Pvt *pvt(Instance *inst, const MinMax *min_max) const;
   // Pvt may be shared among multiple instances.
-  void setPvt(Instance *inst,
+  void setPvt(const Instance *inst,
 	      const MinMaxAll *min_max,
-	      Pvt *pvt);
+	      const Pvt &pvt);
   InputDrive *findInputDrive(Port *port);
+  Clock *findClock(const char *name) const;
+  virtual ClockSeq findClocksMatching(PatternMatch *pattern) const;
   // True if pin is defined as a clock source (pin may be hierarchical).
   bool isClock(const Pin *pin) const;
   // True if pin is a clock source vertex.
@@ -882,15 +899,17 @@ public:
 
   const OutputDelaySet &outputDelays() const { return output_delays_; }
   // Pin -> output delays.
-  const OutputDelaysPinMap &outputDelayPinMap() const { return output_delay_pin_map_; }
+  const OutputDelaysPinMap &outputDelaysPinMap() const { return output_delay_pin_map_; }
   // Output delays on leaf_pin.
   OutputDelaySet *outputDelaysLeafPin(const Pin *leaf_pin);
   bool hasOutputDelay(const Pin *leaf_pin) const;
 
-  PortExtCap *portExtCap(Port *port) const;
-  bool hasPortExtCap(Port *port) const;
-  void portExtCap(Port *port,
+  PortExtCap *portExtCap(const Port *port,
+                         const Corner *corner) const;
+  bool hasPortExtCap(const Port *port) const;
+  void portExtCap(const Port *port,
 		  const RiseFall *rf,
+                  const Corner *corner,
 		  const MinMax *min_max,
 		  // Return values.
 		  float &pin_cap,
@@ -899,8 +918,9 @@ public:
 		  bool &has_wire_cap,
 		  int &fanout,
 		  bool &has_fanout) const;
-  float portExtCap(Port *port,
+  float portExtCap(const Port *port,
 		   const RiseFall *rf,
+                   const Corner *corner,
 		   const MinMax *min_max) const;
   // Connected total capacitance.
   //  pin_cap  = pin capacitance + port external pin
@@ -914,12 +934,14 @@ public:
 		    float &wire_cap,
 		    float &fanout,
 		    bool &has_set_load) const;
-  void portExtFanout(Port *port,
+  void portExtFanout(const Port *port,
+                     const Corner *corner,
 		     const MinMax *min_max,
 		     // Return values.
 		     int &fanout,
 		     bool &exists);
   int portExtFanout(Port *port,
+                    const Corner *corner,
 		    const MinMax *min_max);
   // Return true if search should proceed from pin/clk (no false paths
   // start at pin/clk).  When thru is true, consider -thru exceptions
@@ -984,7 +1006,7 @@ public:
                     const RiseFall *rf,
                     const MinMax *min_max) const;
   bool isPathDelayInternalStartpoint(const Pin *pin) const;
-  PinSet *pathDelayInternalStartpoints() const;
+  const PinSet &pathDelayInternalStartpoints() const;
   bool isPathDelayInternalEndpoint(const Pin *pin) const;
   ExceptionPathSet *exceptions() { return &exceptions_; }
   void deleteExceptions();
@@ -995,12 +1017,12 @@ public:
   void removeGraphAnnotations();
 
   // Network edit before/after methods.
-  void disconnectPinBefore(Pin *pin);
-  void connectPinAfter(Pin *pin);
-  void clkHpinDisablesChanged(Pin *pin);
-  void makeClkHpinDisable(Clock *clk,
-			  Pin *drvr,
-			  Pin *load);
+  void disconnectPinBefore(const Pin *pin);
+  void connectPinAfter(const Pin *pin);
+  void clkHpinDisablesChanged(const Pin *pin);
+  void makeClkHpinDisable(const Clock *clk,
+			  const Pin *drvr,
+			  const Pin *load);
   void ensureClkHpinDisables();
   bool bidirectDrvrSlewFromLoad(const Pin *pin) const;
 
@@ -1008,11 +1030,6 @@ protected:
   void initVariables();
   void clearCycleAcctings();
   void removeLibertyAnnotations();
-  void deleteExceptionMap(PinExceptionsMap *&exception_map);
-  void deleteExceptionMap(InstanceExceptionsMap *&exception_map);
-  void deleteExceptionMap(NetExceptionsMap *&exception_map);
-  void deleteExceptionMap(ClockExceptionsMap *&exception_map);
-  void deleteExceptionMap(EdgeExceptionsMap *&exception_map);
   void deleteExceptionsReferencing(Clock *clk);
   void deleteClkPinMappings(Clock *clk);
   void deleteExceptionPtHashMapSets(ExceptionPathPtHash &map);
@@ -1020,8 +1037,9 @@ protected:
   virtual void deletePinClocks(Clock *defining_clk,
 			       PinSet *pins);
   void makeDefaultArrivalClock();
-  InputDrive *ensureInputDrive(Port *port);
-  PortExtCap *ensurePortExtPinCap(Port *port);
+  InputDrive *ensureInputDrive(const Port *port);
+  PortExtCap *ensurePortExtPinCap(const Port *port,
+                                  const Corner *corner);
   ExceptionPath *findMergeMatch(ExceptionPath *exception);
   void addException1(ExceptionPath *exception);
   void addException2(ExceptionPath *exception);
@@ -1044,15 +1062,15 @@ protected:
 				     ExceptionPathSet &matches);
   void findMatchingExceptionsClks(ExceptionPath *exception,
 				  ClockSet *clks,
-				  ClockExceptionsMap *exception_map,
+				  ClockExceptionsMap &exception_map,
 				  ExceptionPathSet &matches);
   void findMatchingExceptionsPins(ExceptionPath *exception,
 				  PinSet *pins,
-				  PinExceptionsMap *exception_map,
+				  PinExceptionsMap &exception_map,
 				  ExceptionPathSet &matches);
   void findMatchingExceptionsInsts(ExceptionPath *exception,
 				   InstanceSet *insts,
-				   InstanceExceptionsMap *exception_map,
+				   InstanceExceptionsMap &exception_map,
 				   ExceptionPathSet &matches);
   void findMatchingExceptions(ExceptionPath *exception,
 			      ExceptionPathSet *potential_matches,
@@ -1067,43 +1085,43 @@ protected:
   void recordExceptionFirstTo(ExceptionPath *exception);
   void recordExceptionClks(ExceptionPath *exception,
 			   ClockSet *clks,
-			   ClockExceptionsMap *&exception_map);
+			   ClockExceptionsMap &exception_map);
   void recordExceptionInsts(ExceptionPath *exception,
 			    InstanceSet *insts,
-			    InstanceExceptionsMap *&exception_map);
+			    InstanceExceptionsMap &exception_map);
   void recordExceptionPins(ExceptionPath *exception,
 			   PinSet *pins,
-			   PinExceptionsMap *&exception_map);
+			   PinExceptionsMap &exception_map);
   void recordExceptionNets(ExceptionPath *exception,
 			   NetSet *nets,
-			   NetExceptionsMap *&exception_map);
+			   NetExceptionsMap &exception_map);
   void recordExceptionHpin(ExceptionPath *exception,
 			   Pin *pin,
-			   PinExceptionsMap *&exception_map);
+			   PinExceptionsMap &exception_map);
   void recordExceptionEdges(ExceptionPath *exception,
 			    EdgePinsSet *edges,
-			    EdgeExceptionsMap *&exception_map);
+			    EdgeExceptionsMap &exception_map);
   void recordMergeHash(ExceptionPath *exception, ExceptionPt *missing_pt);
   void recordMergeHashes(ExceptionPath *exception);
   void unrecordExceptionFirstPts(ExceptionPath *exception);
   void unrecordExceptionClks(ExceptionPath *exception,
 			     ClockSet *clks,
-			     ClockExceptionsMap *exception_map);
+			     ClockExceptionsMap &exception_map);
   void unrecordExceptionPins(ExceptionPath *exception,
 			     PinSet *pins,
-			     PinExceptionsMap *exception_map);
+			     PinExceptionsMap &exception_map);
   void unrecordExceptionInsts(ExceptionPath *exception,
 			      InstanceSet *insts,
-			      InstanceExceptionsMap *exception_map);
+			      InstanceExceptionsMap &exception_map);
   void unrecordExceptionEdges(ExceptionPath *exception,
 			      EdgePinsSet *edges,
-			      EdgeExceptionsMap *exception_map);
+			      EdgeExceptionsMap &exception_map);
   void unrecordExceptionNets(ExceptionPath *exception,
 			     NetSet *nets,
-			     NetExceptionsMap *exception_map);
+			     NetExceptionsMap &exception_map);
   void unrecordExceptionHpin(ExceptionPath *exception,
 			     Pin *pin,
-			     PinExceptionsMap *&exception_map);
+			     PinExceptionsMap &exception_map);
   void unrecordMergeHashes(ExceptionPath *exception);
   void unrecordMergeHash(ExceptionPath *exception,
 			 ExceptionPt *missing_pt);
@@ -1142,33 +1160,29 @@ protected:
 		   ExceptionPath *&hi_priority_exception,
 		   int &hi_priority) const;
   void makeLoopPath(ExceptionThruSeq *thrus);
-  void makeLoopException(Pin *loop_input_pin,
-			 Pin *loop_pin,
-			 Pin *loop_prev_pin);
-  void makeLoopExceptionThru(Pin *pin,
+  void makeLoopException(const Pin *loop_input_pin,
+			 const Pin *loop_pin,
+			 const Pin *loop_prev_pin);
+  void makeLoopExceptionThru(const Pin *pin,
 			     ExceptionThruSeq *thrus);
   void deleteLoopExceptions();
   void deleteConstraints();
   InputDelay *findInputDelay(const Pin *pin,
-			     ClockEdge *clk_edge,
-			     Pin *ref_pin);
-  InputDelay *makeInputDelay(Pin *pin,
-			     ClockEdge *clk_edge,
-			     Pin *ref_pin);
-  void deleteInputDelays(Pin *pin,
+			     const ClockEdge *clk_edge);
+  InputDelay *makeInputDelay(const Pin *pin,
+			     const ClockEdge *clk_edge);
+  void deleteInputDelays(const Pin *pin,
 			 InputDelay *except);
-  void deleteInputDelaysReferencing(Clock *clk);
+  void deleteInputDelaysReferencing(const Clock *clk);
   void deleteInputDelay(InputDelay *input_delay);
   OutputDelay *findOutputDelay(const Pin *pin,
-			       ClockEdge *clk_edge,
-			       Pin *ref_pin);
-  OutputDelay *makeOutputDelay(Pin *pin,
-			       ClockEdge *clk_edge,
-			       Pin *ref_pin);
-  void deleteOutputDelays(Pin *pin, OutputDelay *except);
-  void deleteOutputDelaysReferencing(Clock *clk);
+			       const ClockEdge *clk_edge);
+  OutputDelay *makeOutputDelay(const Pin *pin,
+			       const ClockEdge *clk_edge);
+  void deleteOutputDelays(const Pin *pin,
+                          OutputDelay *except);
+  void deleteOutputDelaysReferencing(const Clock *clk);
   void deleteOutputDelay(OutputDelay *output_delay);
-  void deleteInstancePvts();
   void deleteClockInsertion(ClockInsertion *insertion);
   void deleteClockInsertionsReferencing(Clock *clk);
   void deleteInterClockUncertainty(InterClockUncertainty *uncertainties);
@@ -1198,7 +1212,6 @@ protected:
   void annotateHierClkLatency();
   void annotateHierClkLatency(const Pin *hpin,
 			      ClockLatency *latency);
-  void initInstancePvtMaps();
   void pinCaps(const Pin *pin,
 	       const RiseFall *rf,
 	       const OperatingConditions *op_cond,
@@ -1244,18 +1257,18 @@ protected:
 		    const Clock *clk,
 		    const RiseFall *from_rf,
 		    const RiseFall *to_rf) const;
-  void disconnectPinBefore(Pin *pin,
+  void disconnectPinBefore(const Pin *pin,
 			   ExceptionPathSet *exceptions);
   void clockGroupsDeleteClkRefs(Clock *clk);
   void clearGroupPathMap();
 
   AnalysisType analysis_type_;
   OperatingConditions *operating_conditions_[MinMax::index_count];
-  InstancePvtMap *instance_pvt_maps_[MinMax::index_count];
+  InstancePvtMap instance_pvt_maps_[MinMax::index_count];
   DeratingFactorsGlobal *derating_factors_;
-  NetDeratingFactorsMap *net_derating_factors_;
-  InstDeratingFactorsMap *inst_derating_factors_;
-  CellDeratingFactorsMap *cell_derating_factors_;
+  NetDeratingFactorsMap net_derating_factors_;
+  InstDeratingFactorsMap inst_derating_factors_;
+  CellDeratingFactorsMap cell_derating_factors_;
   // Clock sequence retains clock definition order.
   // This is important for getting consistent regression results,
   // which iterating over the name map can't provide.
@@ -1273,15 +1286,15 @@ protected:
   bool clk_hpin_disables_valid_;
   PinSet propagated_clk_pins_;
   ClockLatencies clk_latencies_;
-  ClockInsertions *clk_insertions_;
+  ClockInsertions clk_insertions_;
   PinClockUncertaintyMap pin_clk_uncertainty_map_;
   InterClockUncertaintySet inter_clk_uncertainties_;
   // clk_groups name -> clk_groups
   ClockGroupsNameMap clk_groups_name_map_;
   // clk to clk paths excluded by clock groups.
-  ClockPairSet *clk_group_exclusions_;
+  ClockPairSet clk_group_exclusions_;
   // clks in the same set_clock_group set.
-  ClockPairSet *clk_group_same_;
+  ClockPairSet clk_group_same_;
   ClockSenseMap clk_sense_map_;
   ClockGatingCheck *clk_gating_check_;
   ClockGatingCheckMap clk_gating_check_map_;
@@ -1294,11 +1307,11 @@ protected:
 
   InputDelaySet input_delays_;
   InputDelaysPinMap input_delay_pin_map_;
-  int input_delay_index_;
   InputDelaysPinMap input_delay_ref_pin_map_;
   // Input delays on hierarchical pins are indexed by the load pins.
   InputDelaysPinMap input_delay_leaf_pin_map_;
   InputDelaysPinMap input_delay_internal_pin_map_;
+  int input_delay_index_;
 
   OutputDelaySet output_delays_;
   OutputDelaysPinMap output_delay_pin_map_;
@@ -1318,12 +1331,12 @@ protected:
   //  set_load port
   //  set_fanout_load port
   // Indexed by corner_index.
-  PortExtCapMap *port_cap_map_;
+  vector<PortExtCapMap> port_ext_cap_maps_;
   // set_load net
   // Indexed by corner_index.
-  NetWireCapMap *net_wire_cap_map_;
+  vector<NetWireCapMap> net_wire_cap_maps_;
   // Indexed by corner_index.
-  PinWireCapMap *drvr_pin_wire_cap_map_;
+  vector<PinWireCapMap> drvr_pin_wire_cap_maps_;
   NetResistanceMap net_res_map_;
   PinSet disabled_pins_;
   PortSet disabled_ports_;
@@ -1338,25 +1351,24 @@ protected:
 
   bool have_thru_hpin_exceptions_;
   // First pin/clock/instance/net/edge exception point to exception set map.
-  PinExceptionsMap *first_from_pin_exceptions_;
-  ClockExceptionsMap *first_from_clk_exceptions_;
-  InstanceExceptionsMap *first_from_inst_exceptions_;
-  PinExceptionsMap *first_thru_pin_exceptions_;
-  InstanceExceptionsMap *first_thru_inst_exceptions_;
+  PinExceptionsMap first_from_pin_exceptions_;
+  ClockExceptionsMap first_from_clk_exceptions_;
+  InstanceExceptionsMap first_from_inst_exceptions_;
+  PinExceptionsMap first_thru_pin_exceptions_;
+  InstanceExceptionsMap first_thru_inst_exceptions_;
   // Nets that have exception -thru nets.
-  NetExceptionsMap *first_thru_net_exceptions_;
-  PinExceptionsMap *first_to_pin_exceptions_;
-  ClockExceptionsMap *first_to_clk_exceptions_;
-  InstanceExceptionsMap *first_to_inst_exceptions_;
+  NetExceptionsMap first_thru_net_exceptions_;
+  PinExceptionsMap first_to_pin_exceptions_;
+  ClockExceptionsMap first_to_clk_exceptions_;
+  InstanceExceptionsMap first_to_inst_exceptions_;
   // Edges that traverse hierarchical exception pins.
-  EdgeExceptionsMap *first_thru_edge_exceptions_;
-
+  EdgeExceptionsMap first_thru_edge_exceptions_;
   // Exception hash with one missing from/thru/to point, used for merging.
   ExceptionPathPtHash exception_merge_hash_;
   // Path delay -from pin internal startpoints.
-  PinSet *path_delay_internal_startpoints_;
+  PinSet path_delay_internal_startpoints_;
   // Path delay -to pin internal endpoints.
-  PinSet *path_delay_internal_endpoints_;
+  PinSet path_delay_internal_endpoints_;
   // There is a path delay exception without a -to.
   bool path_delays_without_to_;
   // Group path exception names.
@@ -1399,28 +1411,6 @@ private:
   friend class WriteSdc;
   friend class FindNetCaps;
   friend class GroupPathIterator;
-};
-
-class ClockIterator : public ClockSeq::Iterator
-{
-public:
-  ClockIterator(Sdc *sdc);
-
-private:
-  ClockIterator(ClockSeq &clocks);
-
-  friend class Sdc;
-};
-
-class GroupPathIterator : public GroupPathMap::Iterator
-{
-public:
-  GroupPathIterator(Sdc *sdc);
-
-private:
-  GroupPathIterator(GroupPathMap &group_path_map);
-
-  friend class Sdc;
 };
 
 } // namespace

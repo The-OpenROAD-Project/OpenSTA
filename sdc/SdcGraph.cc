@@ -26,8 +26,8 @@
 namespace sta {
 
 static void
-annotateGraphDisabledWireEdge(Pin *from_pin,
-			      Pin *to_pin,
+annotateGraphDisabledWireEdge(const Pin *from_pin,
+			      const Pin *to_pin,
 			      Graph *graph);
 
 // Annotate constraints to the timing graph.
@@ -64,7 +64,7 @@ Sdc::annotateDisables()
 {
   PinSet::Iterator pin_iter(disabled_pins_);
   while (pin_iter.hasNext()) {
-    Pin *pin = pin_iter.next();
+    const Pin *pin = pin_iter.next();
     annotateGraphDisabled(pin);
   }
 
@@ -82,22 +82,16 @@ Sdc::annotateDisables()
   Instance *top_inst = network_->topInstance();
   PortSet::Iterator port_iter(disabled_ports_);
   while (port_iter.hasNext()) {
-    Port *port = port_iter.next();
+    const Port *port = port_iter.next();
     Pin *pin = network_->findPin(top_inst, port);
     annotateGraphDisabled(pin);
   }
 
-  PinPairSet::Iterator pair_iter(disabled_wire_edges_);
-  while (pair_iter.hasNext()) {
-    PinPair *pair = pair_iter.next();
-    annotateGraphDisabledWireEdge(pair->first, pair->second, graph_);
-  }
+  for (const PinPair &pair : disabled_wire_edges_)
+    annotateGraphDisabledWireEdge(pair.first, pair.second, graph_);
 
-  EdgeSet::Iterator edge_iter(disabled_edges_);
-  while (edge_iter.hasNext()) {
-    Edge *edge = edge_iter.next();
+  for (Edge *edge : disabled_edges_)
     edge->setIsDisabledConstraint(true);
-  }
 
   DisabledInstancePortsMap::Iterator disable_inst_iter(disabled_inst_ports_);
   while (disable_inst_iter.hasNext()) {
@@ -110,8 +104,8 @@ class DisableHpinEdgeVisitor : public HierPinThruVisitor
 {
 public:
   DisableHpinEdgeVisitor(Graph *graph);
-  virtual void visit(Pin *from_pin,
-		     Pin *to_pin);
+  virtual void visit(const Pin *from_pin,
+		     const Pin *to_pin);
 
 protected:
   bool annotate_;
@@ -125,15 +119,15 @@ DisableHpinEdgeVisitor::DisableHpinEdgeVisitor(Graph *graph) :
 }
 
 void
-DisableHpinEdgeVisitor::visit(Pin *from_pin,
-			      Pin *to_pin)
+DisableHpinEdgeVisitor::visit(const Pin *from_pin,
+			      const Pin *to_pin)
 {
   annotateGraphDisabledWireEdge(from_pin, to_pin, graph_);
 }
 
 static void
-annotateGraphDisabledWireEdge(Pin *from_pin,
-			      Pin *to_pin,
+annotateGraphDisabledWireEdge(const Pin *from_pin,
+			      const Pin *to_pin,
 			      Graph *graph)
 {
   Vertex *from_vertex = graph->pinDrvrVertex(from_pin);
@@ -208,24 +202,24 @@ Sdc::setEdgeDisabledInstPorts(DisabledPorts *disabled_port,
   }
 
   // Disable from/to pins.
-  LibertyPortPairSet::Iterator from_to_iter(disabled_port->fromTo());
-  while (from_to_iter.hasNext()) {
-    LibertyPortPair *pair = from_to_iter.next();
-    const LibertyPort *from_port = pair->first;
-    const LibertyPort *to_port = pair->second;
-    Pin *from_pin = network_->findPin(inst, from_port);
-    Pin *to_pin = network_->findPin(inst, to_port);
-    if (from_pin && network_->direction(from_pin)->isAnyInput()
-	&& to_pin) {
-      Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
-      Vertex *to_vertex = graph_->pinDrvrVertex(to_pin);
-      if (from_vertex && to_vertex) {
-	VertexOutEdgeIterator edge_iter(from_vertex, graph_);
-	while (edge_iter.hasNext()) {
-	  Edge *edge = edge_iter.next();
-	  if (edge->to(graph_) == to_vertex)
-	    edge->setIsDisabledConstraint(true);
-	}
+  if (disabled_port->fromTo()) {
+    for (const LibertyPortPair &from_to : *disabled_port->fromTo()) {
+      const LibertyPort *from_port = from_to.first;
+      const LibertyPort *to_port = from_to.second;
+      Pin *from_pin = network_->findPin(inst, from_port);
+      Pin *to_pin = network_->findPin(inst, to_port);
+      if (from_pin && network_->direction(from_pin)->isAnyInput()
+          && to_pin) {
+        Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
+        Vertex *to_vertex = graph_->pinDrvrVertex(to_pin);
+        if (from_vertex && to_vertex) {
+          VertexOutEdgeIterator edge_iter(from_vertex, graph_);
+          while (edge_iter.hasNext()) {
+            Edge *edge = edge_iter.next();
+            if (edge->to(graph_) == to_vertex)
+              edge->setIsDisabledConstraint(true);
+          }
+        }
       }
     }
   }
@@ -253,7 +247,7 @@ void
 Sdc::annotateGraphOutputDelays()
 {
   for (OutputDelay *output_delay : output_delays_) {
-    for (Pin *lpin : output_delay->leafPins())
+    for (const Pin *lpin : output_delay->leafPins())
       annotateGraphConstrained(lpin);
   }
 }

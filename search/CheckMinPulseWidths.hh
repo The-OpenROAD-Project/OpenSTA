@@ -78,8 +78,8 @@ public:
   Arrival openDelay(const StaState *sta) const;
   Arrival closeDelay(const StaState *sta) const;
   float closeOffset(const StaState *sta) const;
-  ClockEdge *openClkEdge(const StaState *sta) const;
-  ClockEdge *closeClkEdge(const StaState *sta) const;
+  const ClockEdge *openClkEdge(const StaState *sta) const;
+  const ClockEdge *closeClkEdge(const StaState *sta) const;
   Crpr commonClkPessimism(const StaState *sta) const;
 
 protected:

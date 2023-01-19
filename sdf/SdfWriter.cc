@@ -740,10 +740,10 @@ SdfWriter::sdfPathName(const Pin *pin)
 char *
 SdfWriter::sdfPathName(const Instance *instance)
 {
-  ConstInstanceSeq inst_path;
+  InstanceSeq inst_path;
   network_->path(instance, inst_path);
   size_t name_length = 0;
-  ConstInstanceSeq::Iterator path_iter1(inst_path);
+  InstanceSeq::Iterator path_iter1(inst_path);
   while (path_iter1.hasNext()) {
     const Instance *inst = path_iter1.next();
     name_length += strlen(sdfName(inst)) + 1;

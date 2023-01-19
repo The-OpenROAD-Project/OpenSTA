@@ -65,9 +65,7 @@ Tag::Tag(TagIndex index,
   findHash();
   if (states_) {
     FilterPath *filter = sta->search()->filter();
-    ExceptionStateSet::ConstIterator state_iter(states_);
-    while (state_iter.hasNext()) {
-      ExceptionState *state = state_iter.next();
+    for (ExceptionState *state : *states_) {
       ExceptionPath *exception = state->exception();
       if (exception->isLoop())
 	is_loop_ = true;
@@ -110,7 +108,7 @@ Tag::asString(bool report_index,
 			  path_ap_index_);
   }
 
-  ClockEdge *clk_edge = clkEdge();
+  const ClockEdge *clk_edge = clkEdge();
   if (clk_edge)
     str += clk_edge->name();
   else
@@ -154,9 +152,7 @@ Tag::asString(bool report_index,
     str += " segment_start";
 
   if (states_) {
-    ExceptionStateSet::ConstIterator state_iter(states_);
-    while (state_iter.hasNext()) {
-      ExceptionState *state = state_iter.next();
+    for (ExceptionState *state : *states_) {
       ExceptionPath *exception = state->exception();
       str += " ";
       str += exception->asString(network);
@@ -196,13 +192,13 @@ Tag::setStates(ExceptionStateSet *states)
   states_ = states;
 }
 
-ClockEdge *
+const ClockEdge *
 Tag::clkEdge() const
 {
   return clk_info_->clkEdge();
 }
 
-Clock *
+const Clock *
 Tag::clock() const
 {
   return clk_info_->clock();
@@ -220,15 +216,13 @@ Tag::isGenClkSrcPath() const
   return clk_info_->isGenClkSrcPath();
 }
 
-Clock *
+const Clock *
 Tag::genClkSrcPathClk(const StaState *sta) const
 {
   if (clk_info_->isGenClkSrcPath()
       && states_) {
     FilterPath *filter = sta->search()->filter();
-    ExceptionStateSet::ConstIterator state_iter(states_);
-    while (state_iter.hasNext()) {
-      ExceptionState *state = state_iter.next();
+    for (ExceptionState *state : *states_) {
       ExceptionPath *except = state->exception();
       if (except->isFilter()
 	  && except != filter) {
@@ -237,7 +231,7 @@ Tag::genClkSrcPathClk(const StaState *sta) const
 	  ClockSet *clks = to->clks();
 	  if (clks && clks->size() == 1) {
 	    ClockSet::Iterator clk_iter(clks);
-	    Clock *clk = clk_iter.next();
+	    const Clock *clk = clk_iter.next();
 	    return clk;
 	  }
 	}
@@ -257,11 +251,8 @@ Tag::findHash()
   hashIncr(hash_, is_clk_);
   hashIncr(hash_, is_segment_start_);
   if (states_) {
-    ExceptionStateSet::Iterator state_iter(states_);
-    while (state_iter.hasNext()) {
-      ExceptionState *state = state_iter.next();
+    for (ExceptionState *state : *states_)
       hashIncr(hash_, state->hash());
-    }
   }
   match_hash_ = hash_;
 
@@ -271,7 +262,7 @@ Tag::findHash()
     hashIncr(hash_, input_delay_->index());
 
   // Finish match_hash_.
-  ClockEdge *clk_edge = clk_info_->clkEdge();
+  const ClockEdge *clk_edge = clk_info_->clkEdge();
   if (clk_edge)
     hashIncr(match_hash_, clk_edge->index());
   hashIncr(match_hash_, clk_info_->isGenClkSrcPath());

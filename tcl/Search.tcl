@@ -231,13 +231,10 @@ proc report_delays_wrt_clks { pin_arg what } {
     if { $vertex != "NULL" } {
       report_delays_wrt_clk $vertex $what "NULL" "rise"
       report_delays_wrt_clk $vertex $what [default_arrival_clock] "rise"
-      set clk_iter [clock_iterator]
-      while {[$clk_iter has_next]} {
-	set clk [$clk_iter next]
+      foreach clk [all_clocks] {
 	report_delays_wrt_clk $vertex $what $clk "rise"
 	report_delays_wrt_clk $vertex $what $clk "fall"
       }
-      $clk_iter finish
     }
   }
 }
@@ -266,13 +263,10 @@ proc report_wrt_clks { pin_arg what } {
     if { $vertex != "NULL" } {
       report_wrt_clk $vertex $what "NULL" "rise"
       report_wrt_clk $vertex $what [default_arrival_clock] "rise"
-      set clk_iter [clock_iterator]
-      while {[$clk_iter has_next]} {
-	set clk [$clk_iter next]
+      foreach clk [all_clocks] {
 	report_wrt_clk $vertex $what $clk "rise"
 	report_wrt_clk $vertex $what $clk "fall"
       }
-      $clk_iter finish
     }
   }
 }

@@ -48,10 +48,10 @@ public:
   // Return pins with the min/max slew limit slack.
   // net=null check all nets
   // corner=nullptr checks all corners.
-  PinSeq *checkSlewLimits(Net *net,
-                          bool violators,
-                          const Corner *corner,
-                          const MinMax *min_max);
+  PinSeq checkSlewLimits(const Net *net,
+                         bool violators,
+                         const Corner *corner,
+                         const MinMax *min_max);
   void findLimit(const LibertyPort *port,
                  const Corner *corner,
                  const MinMax *min_max,
@@ -100,17 +100,17 @@ protected:
 		 // Return values.
 		 float &limit,
 		 bool &limit_exists) const;
-  void checkSlewLimits(Instance *inst,
+  void checkSlewLimits(const Instance *inst,
                        bool violators,
                        const Corner *corner,
                        const MinMax *min_max,
-                       PinSeq *slew_pins,
+                       PinSeq &slew_pins,
                        float &min_slack);
-  void checkSlewLimits(Pin *pin,
+  void checkSlewLimits(const Pin *pin,
                        bool violators,
                        const Corner *corner,
                        const MinMax *min_max,
-                       PinSeq *slew_pins,
+                       PinSeq &slew_pins,
                        float &min_slack);
   void clockDomains(const Vertex *vertex,
 		    // Return value.

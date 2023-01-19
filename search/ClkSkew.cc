@@ -174,19 +174,15 @@ ClkSkews::findWorstClkSkew(const Corner *corner,
     clks.insert(clk);
   ClkSkewMap skews;
   findClkSkew(&clks, corner, setup_hold, skews);
-  if (!skews.empty()) {
-    float worst_skew = 0.0;
-    for (auto clk_skew_itr : skews) {
-      ClkSkew *clk_skew = clk_skew_itr.second;
-      float skew = clk_skew->skew();
-      if (abs(skew) > abs(worst_skew))
-        worst_skew = skew;
-    }
-    return worst_skew;
+  float worst_skew = 0.0;
+  for (auto clk_skew_itr : skews) {
+    ClkSkew *clk_skew = clk_skew_itr.second;
+    float skew = clk_skew->skew();
+    if (abs(skew) > abs(worst_skew))
+      worst_skew = skew;
   }
-  else
-    // Degenerate design without launch/capture registers.
-    return 0.0;
+  skews.deleteContents();
+  return worst_skew;
 }
 
 void
@@ -221,8 +217,8 @@ ClkSkews::hasClkPaths(Vertex *vertex,
   VertexPathIterator path_iter(vertex, this);
   while (path_iter.hasNext()) {
     PathVertex *path = path_iter.next();
-    Clock *path_clk = path->clock(this);
-    if (clks->hasKey(path_clk))
+    const Clock *path_clk = path->clock(this);
+    if (clks->hasKey(const_cast<Clock*>(path_clk)))
       return true;
   }
   return false;
@@ -277,24 +273,24 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
   VertexPathIterator src_iter(src_vertex, this);
   while (src_iter.hasNext()) {
     PathVertex *src_path = src_iter.next();
-    Clock *src_clk = src_path->clock(this);
+    const Clock *src_clk = src_path->clock(this);
     if (src_rf->matches(src_path->transition(this))
 	&& src_path->minMax(this) == setup_hold
-	&& clks->hasKey(src_clk)) {
+	&& clks->hasKey(const_cast<Clock*>(src_clk))) {
       Corner *src_corner = src_path->pathAnalysisPt(this)->corner();
       if (corner == nullptr
 	  || src_corner == corner) {
 	VertexPathIterator tgt_iter(tgt_vertex, this);
 	while (tgt_iter.hasNext()) {
 	  PathVertex *tgt_path = tgt_iter.next();
-	  Clock *tgt_clk = tgt_path->clock(this);
+	  const Clock *tgt_clk = tgt_path->clock(this);
 	  if (tgt_clk == src_clk
 	      && tgt_path->isClock(this)
 	      && tgt_rf->matches(tgt_path->transition(this))
 	      && tgt_path->minMax(this) == tgt_min_max
 	      && tgt_path->pathAnalysisPt(this)->corner() == src_corner) {
 	    ClkSkew probe(src_path, tgt_path, this);
-	    ClkSkew *clk_skew = skews.findKey(src_clk);
+	    ClkSkew *clk_skew = skews.findKey(const_cast<Clock*>(src_clk));
 	    debugPrint(debug_, "clk_skew", 2,
                        "%s %s %s -> %s %s %s crpr = %s skew = %s",
                        network_->pathName(src_path->pin(this)),

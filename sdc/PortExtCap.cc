@@ -18,7 +18,7 @@
 
 namespace sta {
 
-PortExtCap::PortExtCap(Port *port) :
+PortExtCap::PortExtCap(const Port *port) :
   port_(port)
 {
 }

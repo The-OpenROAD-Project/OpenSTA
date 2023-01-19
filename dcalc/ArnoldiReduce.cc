@@ -451,7 +451,7 @@ ArnoldiReduce::pinCapacitance(ParasiticNode *node)
     if (lib_port)
       pin_cap = sdc_->pinCapacitance(pin,rf_, op_cond_, corner_, cnst_min_max_);
     else if (network_->isTopLevelPort(pin))
-      pin_cap = sdc_->portExtCap(port, rf_, cnst_min_max_);
+      pin_cap = sdc_->portExtCap(port, rf_, corner_, cnst_min_max_);
   }
   return pin_cap;
 }

@@ -314,22 +314,28 @@ public:
   virtual NetSet *nets() = 0;
   virtual EdgePinsSet *edges() = 0;
   size_t hash() const;
-  virtual int nameCmp(ExceptionPt *pt, const Network *network) const = 0;
-  virtual void mergeInto(ExceptionPt *pt) = 0;
+  virtual int compare(ExceptionPt *pt,
+                      const Network *network) const = 0;
+  virtual void mergeInto(ExceptionPt *pt,
+                         const Network *network) = 0;
   // All pins and instance/net pins.
   virtual void allPins(const Network *network,
 		       PinSet *pins) = 0;
   virtual int typePriority() const = 0;
   virtual const char *asString(const Network *network) const = 0;
   virtual size_t objectCount() const = 0;
-  virtual void addPin(Pin *pin) = 0;
+  virtual void addPin(const Pin *pin,
+                      const Network *network) = 0;
   virtual void addClock(Clock *clk) = 0;
-  virtual void addInstance(Instance *inst) = 0;
-  virtual void addNet(Net *net) = 0;
-  virtual void addEdge(EdgePins *edge) = 0;
+  virtual void addInstance(const Instance *inst,
+                           const Network *network) = 0;
+  virtual void addNet(const Net *net,
+                      const Network *network) = 0;
+  virtual void addEdge(const EdgePins &edge,
+                       const Network *network) = 0;
   virtual void connectPinAfter(PinSet *,
 			       Network *network) = 0;
-  virtual void disconnectPinBefore(Pin *pin,
+  virtual void disconnectPinBefore(const Pin *pin,
 				   Network *network) = 0;
 
 protected:
@@ -351,10 +357,12 @@ protected:
 class ExceptionFromTo : public ExceptionPt
 {
 public:
-  ExceptionFromTo(PinSet *pins, ClockSet *clks,
+  ExceptionFromTo(PinSet *pins,
+                  ClockSet *clks,
 		  InstanceSet *insts,
 		  const RiseFallBoth *rf,
-		  bool own_pts);
+		  bool own_pts,
+                  const Network *network);
   ~ExceptionFromTo();
   virtual PinSet *pins() { return pins_; }
   bool hasPins() const;
@@ -365,31 +373,39 @@ public:
   virtual NetSet *nets() { return nullptr; }
   virtual EdgePinsSet *edges() { return nullptr; }
   bool hasObjects() const;
-  void deleteObjects(ExceptionFromTo *pt);
+  void deleteObjects(ExceptionFromTo *pt,
+                     const Network *network);
   virtual void allPins(const Network *network,
 		       PinSet *pins);
   bool equal(ExceptionFromTo *from_to) const;
-  virtual int nameCmp(ExceptionPt *pt,
+  virtual int compare(ExceptionPt *pt,
 		      const Network *network) const;
-  virtual void mergeInto(ExceptionPt *pt);
+  virtual void mergeInto(ExceptionPt *pt,
+                         const Network *network);
   virtual const char *asString(const Network *network) const;
   virtual size_t objectCount() const;
   void deleteClock(Clock *clk);
-  virtual void addPin(Pin *pin);
+  virtual void addPin(const Pin *pin,
+                      const Network *network);
   virtual void addClock(Clock *clk);
-  virtual void addInstance(Instance *inst);
-  virtual void addNet(Net *) {}
-  virtual void addEdge(EdgePins *) {}
+  virtual void addInstance(const Instance *inst,
+                           const Network *network);
+  virtual void addNet(const Net *,
+                      const Network *) {}
+  virtual void addEdge(const EdgePins &,
+                       const Network *) {}
   virtual void connectPinAfter(PinSet *,
 			       Network *) {}
-  virtual void disconnectPinBefore(Pin *,
+  virtual void disconnectPinBefore(const Pin *,
 				   Network *) {}
 
 protected:
-  virtual void findHash();
+  virtual void findHash(const Network *network);
 
-  void deletePin(Pin *pin);
-  void deleteInstance(Instance *inst);
+  void deletePin(const Pin *pin,
+                 const Network *network);
+  void deleteInstance(const Instance *inst,
+                      const Network *network);
   virtual const char *cmdKeyword() const = 0;
 
   PinSet *pins_;
@@ -404,15 +420,16 @@ public:
 		ClockSet *clks,
 		InstanceSet *insts,
 		const RiseFallBoth *rf,
-		bool own_pts);
-  ExceptionFrom *clone();
+		bool own_pts,
+                const Network *network);
+  ExceptionFrom *clone(const Network *network);
   virtual bool isFrom() const { return true; }
   bool intersectsPts(ExceptionFrom *from) const;
   virtual int typePriority() const { return 0; }
 
 protected:
   virtual const char *cmdKeyword() const;
-  virtual void findHash();
+  virtual void findHash(const Network *network);
 };
 
 class ExceptionTo : public ExceptionFromTo
@@ -425,8 +442,9 @@ public:
 	      const RiseFallBoth *rf,
 	      // -rise|-fall endpoint transition.
 	      const RiseFallBoth *end_rf,
-	      bool own_pts);
-  ExceptionTo *clone();
+	      bool own_pts,
+              const Network *network);
+  ExceptionTo *clone(const Network *network);
   virtual bool isTo() const { return true; }
   const char *asString(const Network *network) const;
   const RiseFallBoth *endTransition() { return end_rf_; }
@@ -446,7 +464,8 @@ public:
 		     const ClockEdge *clk_edge,
 		     const RiseFall *end_rf,
 		     const Network *network) const;
-  virtual int nameCmp(ExceptionPt *pt, const Network *network) const;
+  virtual int compare(ExceptionPt *pt,
+                      const Network *network) const;
 
 protected:
   bool matches(const Pin *pin,
@@ -479,7 +498,8 @@ public:
   InstanceSet *instances() { return insts_; }
   virtual ClockSet *clks() { return nullptr; }
   bool hasObjects() const;
-  void deleteObjects(ExceptionThru *pt);
+  void deleteObjects(ExceptionThru *pt,
+                     const Network *network);
   virtual void allPins(const Network *network,
 		       PinSet *pins);
   bool matches(const Pin *from_pin,
@@ -487,41 +507,49 @@ public:
 	       const RiseFall *to_rf,
 	       const Network *network);
   bool equal(ExceptionThru *thru) const;
-  virtual int nameCmp(ExceptionPt *pt,
+  virtual int compare(ExceptionPt *pt,
 		      const Network *network) const;
-  virtual void mergeInto(ExceptionPt *pt);
+  virtual void mergeInto(ExceptionPt *pt,
+                         const Network *network);
   bool intersectsPts(ExceptionThru *thru) const;
   virtual int typePriority() const { return 2; }
   virtual size_t objectCount() const;
   virtual void connectPinAfter(PinSet *drvrs,
 			       Network *network);
-  virtual void disconnectPinBefore(Pin *pin,
+  virtual void disconnectPinBefore(const Pin *pin,
 				   Network *network);
 
 protected:
-  void findHash();
-  virtual void addPin(Pin *pin);
-  virtual void addEdge(EdgePins *edge);
-  virtual void addNet(Net *net);
-  virtual void addInstance(Instance *inst);
+  void findHash(const Network *network);
+  virtual void addPin(const Pin *pin,
+                      const Network *network);
+  virtual void addEdge(const EdgePins &edge,
+                       const Network *network);
+  virtual void addNet(const Net *net,
+                      const Network *network);
+  virtual void addInstance(const Instance *inst,
+                           const Network *network);
   virtual void addClock(Clock *) {}
-  void deletePin(Pin *pin);
-  void deleteEdge(EdgePins *edge);
-  void deleteNet(Net *net);
-  void deleteInstance(Instance *inst);
+  void deletePin(const Pin *pin,
+                 const Network *network);
+  void deleteEdge(const EdgePins &edge);
+  void deleteNet(const Net *net,
+                 const Network *network);
+  void deleteInstance(const Instance *inst,
+                      const Network *network);
   void makeAllEdges(const Network *network);
   void makePinEdges(const Network *network);
   void makeNetEdges(const Network *network);
   void makeInstEdges(const Network *network);
   void makeHpinEdges(const Pin *pin,
 		     const Network *network);
-  void makePinEdges(Pin *pin,
+  void makePinEdges(const Pin *pin,
 		    const Network *network);
-  void makeNetEdges(Net *net,
+  void makeNetEdges(const Net *net,
 		    const Network *network);
   void makeInstEdges(Instance *inst,
 		     Network *network);
-  void deletePinEdges(Pin *pin,
+  void deletePinEdges(const Pin *pin,
 		      Network *network);
   void deleteNetEdges(Net *net,
 		      const Network *network);
@@ -598,6 +626,7 @@ public:
 		 ExceptionThru *next_thru,
 		 int index);
   ExceptionPath *exception() { return exception_; }
+  const ExceptionPath *exception() const { return exception_; }
   bool matchesNextThru(const Pin *from_pin,
 		       const Pin *to_pin,
 		       const RiseFall *to_rf,
@@ -607,6 +636,7 @@ public:
   ExceptionThru *nextThru() const { return next_thru_; }
   ExceptionState *nextState() const { return next_state_; }
   void setNextState(ExceptionState *next_state);
+  int index() const { return index_; }
   size_t hash() const;
   
 private:
@@ -623,22 +653,21 @@ public:
   virtual const char *what() const noexcept;
 };
 
+class ExceptionPathLess
+{
+public:
+  ExceptionPathLess(const Network *network);
+  bool operator()(const ExceptionPath *except1,
+		  const ExceptionPath *except2) const;
+
+private:
+  const Network *network_;
+};
+
 // Throws EmptyExpceptionPt it finds an empty exception point.
 void
 checkFromThrusTo(ExceptionFrom *from,
 		 ExceptionThruSeq *thrus,
 		 ExceptionTo *to);
-
-void
-sortExceptions(ExceptionPathSet *set,
-	       ExceptionPathSeq &exceptions,
-	       Network *network);
-
-bool
-intersects(PinSet *set1,
-	   PinSet *set2);
-bool
-intersects(ClockSet *set1,
-	   ClockSet *set2);
 
 } // namespace

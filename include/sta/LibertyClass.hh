@@ -151,8 +151,6 @@ public:
 class LibertyPortPairLess
 {
 public:
-  bool operator()(const LibertyPortPair *pair1,
-		  const LibertyPortPair *pair2) const;
   bool operator()(const LibertyPortPair &pair1,
 		  const LibertyPortPair &pair2) const;
 };

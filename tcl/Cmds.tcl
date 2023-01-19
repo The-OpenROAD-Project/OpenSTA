@@ -447,6 +447,7 @@ proc parse_corner_or_default { keys_var } {
   }
 }
 
+# Return NULL for all.
 proc parse_corner_or_all { keys_var } {
   upvar 1 $keys_var keys
 

@@ -1375,12 +1375,9 @@ proc_redirect report_clock_properties {
   report_line "Clock                   Period          Waveform"
   report_line "----------------------------------------------------"
   if { [llength $args] == 0 } {
-    set clk_iter [clock_iterator]
-    while {[$clk_iter has_next]} {
-      set clk [$clk_iter next]
+    foreach clk [all_clocks] {
       report_clock1 $clk
     }
-    $clk_iter finish
   } else {
     foreach clk [get_clocks_warn "clock_name" [lindex $args 0]] {
       report_clock1 $clk

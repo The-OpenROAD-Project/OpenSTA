@@ -37,13 +37,13 @@ public:
 class VertexPinCollector : public VertexVisitor
 {
 public:
-  VertexPinCollector(PinSet *pins);
-  PinSet *pins() const { return pins_; }
+  VertexPinCollector(PinSet &pins);
+  const PinSet &pins() const { return pins_; }
   void visit(Vertex *vertex);
   virtual VertexVisitor *copy() const;
 
 protected:
-  PinSet *pins_;
+  PinSet &pins_;
 };
 
 } // namespace

@@ -66,13 +66,13 @@ Path::clkInfo(const StaState *sta) const
   return tag(sta)->clkInfo();
 }
 
-ClockEdge *
+const ClockEdge *
 Path::clkEdge(const StaState *sta) const
 {
   return tag(sta)->clkEdge();
 }
 
-Clock *
+const Clock *
 Path::clock(const StaState *sta) const
 {
   return tag(sta)->clock();
@@ -221,8 +221,8 @@ Path::cmpClk(const Path *path1,
 	     const Path *path2,
 	     const StaState *sta)
 {
-  ClockEdge *clk_edge1 = path1->clkEdge(sta);
-  ClockEdge *clk_edge2 = path2->clkEdge(sta);
+  const ClockEdge *clk_edge1 = path1->clkEdge(sta);
+  const ClockEdge *clk_edge2 = path2->clkEdge(sta);
   if (clk_edge1 && clk_edge2) {
     int index1 = clk_edge1->index();
     int index2 = clk_edge2->index();

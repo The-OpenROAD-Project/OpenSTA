@@ -133,13 +133,13 @@ public:
   virtual Edge *makeEdge(Vertex *from,
 			 Vertex *to,
 			 TimingArcSet *arc_set);
-  virtual void makeWireEdge(Pin *from_pin,
-			    Pin *to_pin);
-  void makePinInstanceEdges(Pin *pin);
+  virtual void makeWireEdge(const Pin *from_pin,
+			    const Pin *to_pin);
+  void makePinInstanceEdges(const Pin *pin);
   void makeInstanceEdges(const Instance *inst);
-  void makeWireEdgesToPin(Pin *to_pin);
-  void makeWireEdgesThruPin(Pin *hpin);
-  virtual void makeWireEdgesFromPin(Pin *drvr_pin);
+  void makeWireEdgesToPin(const Pin *to_pin);
+  void makeWireEdgesThruPin(const Pin *hpin);
+  virtual void makeWireEdgesFromPin(const Pin *drvr_pin);
   virtual void deleteEdge(Edge *edge);
   virtual ArcDelay arcDelay(const Edge *edge,
 			    const TimingArc *arc,
@@ -211,10 +211,10 @@ protected:
 		     bool is_reg_clk);
   virtual void makeEdgeArcDelays(Edge *edge);
   void makePinVertices(const Instance *inst);
-  void makeWireEdgesFromPin(Pin *drvr_pin,
+  void makeWireEdgesFromPin(const Pin *drvr_pin,
 			    PinSet &visited_drvrs);
   void makeWireEdges();
-  virtual void makeInstDrvrWireEdges(Instance *inst,
+  virtual void makeInstDrvrWireEdges(const Instance *inst,
 				     PinSet &visited_drvrs);
   virtual void makePortInstanceEdges(const Instance *inst,
 				     LibertyCell *cell,

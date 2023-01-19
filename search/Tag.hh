@@ -60,8 +60,8 @@ public:
 		       const StaState *sta) const;
   ClkInfo *clkInfo() const { return clk_info_; }
   bool isClock() const { return is_clk_; }
-  ClockEdge *clkEdge() const;
-  Clock *clock() const;
+  const ClockEdge *clkEdge() const;
+  const Clock *clock() const;
   const Pin *clkSrc() const;
   int trIndex() const { return tr_index_; }
   const RiseFall *transition() const;
@@ -71,7 +71,7 @@ public:
   ExceptionStateSet *states() const { return states_; }
   void setStates(ExceptionStateSet *states);
   bool isGenClkSrcPath() const;
-  Clock *genClkSrcPathClk(const StaState *sta) const;
+  const Clock *genClkSrcPathClk(const StaState *sta) const;
   // Input delay at search startpoint (not propagated).
   InputDelay *inputDelay() const { return input_delay_; }
   bool isLoop() const { return is_loop_; }

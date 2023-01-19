@@ -127,7 +127,7 @@ GraphDelayCalc::minPulseWidth(const Pin *pin,
     LibertyPort *port = network_->libertyPort(pin);
     if (port) {
       Instance *inst = network_->instance(pin);
-      Pvt *pvt = inst ? sdc_->pvt(inst, min_max) : nullptr;
+      const Pvt *pvt = inst ? sdc_->pvt(inst, min_max) : nullptr;
       OperatingConditions *op_cond=sdc_->operatingConditions(min_max);
       port->minPulseWidth(hi_low, op_cond, pvt, min_width, exists);
     }
@@ -160,7 +160,7 @@ GraphDelayCalc::minPeriod(const Pin *pin,
       // Liberty library.
       Instance *inst = network_->instance(pin);
       OperatingConditions *op_cond = sdc_->operatingConditions(min_max);
-      Pvt *pvt = inst ? sdc_->pvt(inst, min_max) : nullptr;
+      const Pvt *pvt = inst ? sdc_->pvt(inst, min_max) : nullptr;
       port->minPeriod(op_cond, pvt, min_period, exists);
     }
   }

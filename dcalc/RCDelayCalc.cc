@@ -39,7 +39,7 @@ void
 RCDelayCalc::inputPortDelay(const Pin *,
 			    float in_slew,
 			    const RiseFall *rf,
-			    Parasitic *parasitic,
+			    const Parasitic *parasitic,
 			    const DcalcAnalysisPt *)
 {
   drvr_parasitic_ = parasitic;

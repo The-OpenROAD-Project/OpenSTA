@@ -78,11 +78,11 @@ InputDrive::driveResistanceMinMaxEqual(const RiseFall *rf)
 }
 
 void
-InputDrive::setDriveCell(LibertyLibrary *library,
-			 LibertyCell *cell,
-			 LibertyPort *from_port,
+InputDrive::setDriveCell(const LibertyLibrary *library,
+			 const LibertyCell *cell,
+			 const LibertyPort *from_port,
 			 float *from_slews,
-			 LibertyPort *to_port,
+			 const LibertyPort *to_port,
 			 const RiseFallBoth *rf,
 			 const MinMaxAll *min_max)
 {
@@ -109,10 +109,10 @@ void
 InputDrive::driveCell(const RiseFall *rf,
 		      const MinMax *min_max,
                       // Return values.
-		      LibertyCell *&cell,
-		      LibertyPort *&from_port,
+		      const LibertyCell *&cell,
+		      const LibertyPort *&from_port,
 		      float *&from_slews,
-		      LibertyPort *&to_port)
+		      const LibertyPort *&to_port)
 {
   InputDriveCell *drive = drive_cells_[rf->index()][min_max->index()];
   if (drive) {
@@ -170,11 +170,11 @@ InputDrive::slew(const RiseFall *rf,
 
 ////////////////////////////////////////////////////////////////
 
-InputDriveCell::InputDriveCell(LibertyLibrary *library,
-			       LibertyCell *cell,
-			       LibertyPort *from_port,
+InputDriveCell::InputDriveCell(const LibertyLibrary *library,
+			       const LibertyCell *cell,
+			       const LibertyPort *from_port,
 			       float *from_slews,
-			       LibertyPort *to_port) :
+			       const LibertyPort *to_port) :
   library_(library),
   cell_(cell),
   from_port_(from_port),
@@ -184,25 +184,25 @@ InputDriveCell::InputDriveCell(LibertyLibrary *library,
 }
 
 void
-InputDriveCell::setLibrary(LibertyLibrary *library)
+InputDriveCell::setLibrary(const LibertyLibrary *library)
 {
   library_ = library;
 }
 
 void
-InputDriveCell::setCell(LibertyCell *cell)
+InputDriveCell::setCell(const LibertyCell *cell)
 {
   cell_ = cell;
 }
 
 void
-InputDriveCell::setFromPort(LibertyPort *from_port)
+InputDriveCell::setFromPort(const LibertyPort *from_port)
 {
   from_port_ = from_port;
 }
 
 void
-InputDriveCell::setToPort(LibertyPort *to_port)
+InputDriveCell::setToPort(const LibertyPort *to_port)
 {
   to_port_ = to_port;
 }
@@ -215,7 +215,7 @@ InputDriveCell::setFromSlews(float *from_slews)
 }
 
 bool
-InputDriveCell::equal(InputDriveCell *drive) const
+InputDriveCell::equal(const InputDriveCell *drive) const
 {
   int rise_index = RiseFall::riseIndex();
   int fall_index = RiseFall::fallIndex();

@@ -17,6 +17,7 @@
 #include "DataCheck.hh"
 
 #include "Clock.hh"
+#include "Network.hh"
 
 namespace sta {
 
@@ -56,14 +57,14 @@ DataCheck::removeMargin(const RiseFallBoth *from_rf,
 			const RiseFallBoth *to_rf,
 			const SetupHoldAll *setup_hold)
 {
-  for (auto from_rf_index : from_rf->rangeIndex())
+  for (int from_rf_index : from_rf->rangeIndex())
     margins_[from_rf_index].removeValue(to_rf, setup_hold);
 }
 
 bool
 DataCheck::empty() const
 {
-  for (auto tr_index : RiseFall::rangeIndex()) {
+  for (int tr_index : RiseFall::rangeIndex()) {
     if (!margins_[tr_index].empty())
       return false;
   }
@@ -90,7 +91,7 @@ DataCheck::marginIsOneValue(SetupHold *setup_hold,
 ////////////////////////////////////////////////////////////////
 
 DataCheckLess::DataCheckLess(const Network *network) :
-  pin_less_(network)
+  network_(network)
 {
 }
 
@@ -104,12 +105,11 @@ DataCheckLess::operator()(const DataCheck *check1,
   const Pin *to2 = check2->to();
   const Clock *clk1 = check1->clk();
   const Clock *clk2 = check2->clk();
-  int clk_cmp = clkCmp(clk1, clk2);
-  return pin_less_(from1, from2)
+  return network_->id(from1) < network_->id(from2)
     || (from1 == from2
-	&& (pin_less_(to1, to2)
+	&& (network_->id(to1) < network_->id(to2)
 	    || (to1 == to2
-		&& clk_cmp < 0)));
+		&& clkCmp(clk1, clk2) < 0)));
 }
 
 } // namespace

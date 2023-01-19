@@ -83,7 +83,7 @@ ReportParasiticAnnotation::reportAnnotationCounts()
   report_->reportLine("Found %lu unannotated drivers.", unannotated_.size());
   if (report_unannotated_) {
     sort(unannotated_, PinPathNameLess(network_));
-    for (Pin *drvr_pin : unannotated_)
+    for (const Pin *drvr_pin : unannotated_)
       report_->reportLine(" %s", network_->pathName(drvr_pin));
   }
 
@@ -91,12 +91,12 @@ ReportParasiticAnnotation::reportAnnotationCounts()
                       partially_annotated_.size());
   if (report_unannotated_) {
     sort(partially_annotated_, PinPathNameLess(network_));
-    for (Pin *drvr_pin : partially_annotated_) {
+    for (const Pin *drvr_pin : partially_annotated_) {
       report_->reportLine(" %s", network_->pathName(drvr_pin));
 
       Parasitic *parasitic = parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap_);
       PinSet unannotated_loads = parasitics_->unannotatedLoads(parasitic, drvr_pin);
-      for (Pin *load_pin : unannotated_loads)
+      for (const Pin *load_pin : unannotated_loads)
         report_->reportLine("  %s", network_->pathName(load_pin));
     }
   }

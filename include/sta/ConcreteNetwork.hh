@@ -60,20 +60,21 @@ public:
 			   Report *report);
   virtual Instance *topInstance() const;
 
+  virtual const char *name(const Library *library) const;
+  virtual ObjectId id(const Library *library) const;
   virtual LibraryIterator *libraryIterator() const;
   virtual LibertyLibraryIterator *libertyLibraryIterator() const ;
   virtual Library *findLibrary(const char *name);
-  virtual const char *name(const Library *library) const;
   virtual LibertyLibrary *findLiberty(const char *name);
   virtual LibertyLibrary *libertyLibrary(Library *library) const;
   virtual Cell *findCell(const Library *library,
 			 const char *name) const;
   virtual Cell *findAnyCell(const char *name);
-  virtual void findCellsMatching(const Library *library,
-				 const PatternMatch *pattern,
-				 CellSeq *cells) const;
+  virtual CellSeq findCellsMatching(const Library *library,
+                                    const PatternMatch *pattern) const;
 
   virtual const char *name(const Cell *cell) const;
+  virtual ObjectId id(const Cell *cell) const;
   virtual Library *library(const Cell *cell) const;
   virtual LibertyCell *libertyCell(Cell *cell) const;
   virtual const LibertyCell *libertyCell(const Cell *cell) const;
@@ -82,15 +83,15 @@ public:
   virtual const char *filename(const Cell *cell);
   virtual Port *findPort(const Cell *cell,
 			 const char *name) const;
-  virtual void findPortsMatching(const Cell *cell,
-				 const PatternMatch *pattern,
-				 PortSeq *ports) const;
+  virtual PortSeq findPortsMatching(const Cell *cell,
+				 const PatternMatch *pattern) const;
   virtual bool isLeaf(const Cell *cell) const;
   virtual CellPortIterator *portIterator(const Cell *cell) const;
   virtual CellPortBitIterator *portBitIterator(const Cell *cell) const;
   virtual int portBitCount(const Cell *cell) const;
 
   virtual const char *name(const Port *port) const;
+  virtual ObjectId id(const Port *port) const;
   virtual Cell *cell(const Port *port) const;
   virtual LibertyPort *libertyPort(const Port *port) const;
   virtual PortDirection *direction(const Port *port) const;
@@ -109,6 +110,7 @@ public:
   virtual PortMemberIterator *memberIterator(const Port *port) const;
 
   virtual const char *name(const Instance *instance) const;
+  virtual ObjectId id(const Instance *instance) const;
   virtual Cell *cell(const Instance *instance) const;
   virtual Instance *parent(const Instance *instance) const;
   virtual bool isLeaf(const Instance *instance) const;
@@ -126,6 +128,7 @@ public:
   virtual InstanceNetIterator *
   netIterator(const Instance *instance) const;
 
+  virtual ObjectId id(const Pin *pin) const;
   virtual Instance *instance(const Pin *pin) const;
   virtual Net *net(const Pin *pin) const;
   virtual Term *term(const Pin *pin) const;
@@ -135,15 +138,17 @@ public:
   virtual void setVertexId(Pin *pin,
 			   VertexId id);
 
+  virtual ObjectId id(const Term *term) const;
   virtual Net *net(const Term *term) const;
   virtual Pin *pin(const Term *term) const;
 
+  virtual const char *name(const Net *net) const;
+  virtual ObjectId id(const Net *net) const;
   virtual Net *findNet(const Instance *instance,
 		       const char *net_name) const;
   virtual void findInstNetsMatching(const Instance *instance,
-				    const PatternMatch *pattern,
-				    NetSeq *nets) const;
-  virtual const char *name(const Net *net) const;
+                                    const PatternMatch *pattern,
+                                    NetSeq &matches) const;
   virtual Instance *instance(const Net *net) const;
   virtual bool isPower(const Net *net) const;
   virtual bool isGround(const Net *net) const;
@@ -227,6 +232,8 @@ public:
   virtual void setLinkFunc(LinkNetworkFunc *link);
   void setTopInstance(Instance *top_inst);
 
+  static ObjectId nextObjectId();
+
   using Network::netIterator;
   using Network::findPin;
   using Network::findNet;
@@ -242,7 +249,7 @@ protected:
   void clearConstantNets();
   virtual void visitConnectedPins(const Net *net,
 				  PinVisitor &visitor,
-				  ConstNetSet &visited_nets) const;
+				  NetSet &visited_nets) const;
   Instance *makeConcreteInstance(ConcreteCell *cell,
 				 const char *name,
 				 Instance *parent);
@@ -258,6 +265,7 @@ protected:
   NetSet constant_nets_[2];  // LogicValue::zero/one
   LinkNetworkFunc *link_func_;
   CellNetworkViewMap cell_network_view_map_;
+  static ObjectId object_id_;
 
 private:
   friend class ConcreteLibertyLibraryIterator;
@@ -267,13 +275,14 @@ class ConcreteInstance
 {
 public:
   const char *name() const { return name_; }
+  ObjectId id() const { return id_; }
   Cell *cell() const;
   ConcreteInstance *parent() const { return parent_; }
   ConcretePin *findPin(const char *port_name) const;
   ConcretePin *findPin(const Port *port) const;
   ConcreteNet *findNet(const char *net_name) const;
   void findNetsMatching(const PatternMatch *pattern,
-			NetSeq *nets) const;
+                        NetSeq &matches) const;
   InstanceNetIterator *netIterator() const;
   Instance *findChild(const char *name) const;
   InstanceChildIterator *childIterator() const;
@@ -289,13 +298,14 @@ public:
   void initPins();
 
 protected:
-  ConcreteInstance(ConcreteCell *cell,
-		   const char *name,
-		   ConcreteInstance *parent);
+  ConcreteInstance(const char *name,
+		   ConcreteCell *cell,
+                   ConcreteInstance *parent);
   ~ConcreteInstance();
 
-  ConcreteCell *cell_;
   const char *name_;
+  ObjectId id_;
+  ConcreteCell *cell_;
   ConcreteInstance *parent_;
   // Array of pins indexed by pin->port->index().
   ConcretePin **pins_;
@@ -315,6 +325,7 @@ public:
   ConcreteNet *net() const { return net_; }
   ConcretePort *port() const { return port_; }
   ConcreteTerm *term() const { return term_; }
+  ObjectId id() const { return id_; }
   VertexId vertexId() const { return vertex_id_; }
   void setVertexId(VertexId id);
 
@@ -328,6 +339,7 @@ protected:
   ConcretePort *port_;
   ConcreteNet *net_;
   ConcreteTerm *term_;
+  ObjectId id_;
   // Doubly linked list of net pins.
   ConcretePin *net_next_;
   ConcretePin *net_prev_;
@@ -343,6 +355,7 @@ class ConcreteTerm
 {
 public:
   const char *name() const;
+  ObjectId id() const { return id_; }
   ConcreteNet *net() const { return net_; }
   ConcretePin *pin() const { return pin_; }
 
@@ -353,6 +366,7 @@ protected:
 
   ConcretePin *pin_;
   ConcreteNet *net_;
+  ObjectId id_;
   // Linked list of net terms.
   ConcreteTerm *net_next_;
 
@@ -366,6 +380,7 @@ class ConcreteNet
 {
 public:
   const char *name() const { return name_; }
+  ObjectId id() const { return id_; }
   ConcreteInstance *instance() const { return instance_; }
   void addPin(ConcretePin *pin);
   void deletePin(ConcretePin *pin);
@@ -379,6 +394,7 @@ protected:
 	      ConcreteInstance *instance);
   ~ConcreteNet();
   const char *name_;
+  ObjectId id_;
   ConcreteInstance *instance_;
   // Pointer to head of linked list of pins.
   ConcretePin *pins_;

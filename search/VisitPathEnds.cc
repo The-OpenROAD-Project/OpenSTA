@@ -133,8 +133,8 @@ VisitPathEnds::visitCheckEnd(const Pin *pin,
 			     PathEndVisitor *visitor,
 			     bool &is_constrained)
 {
-  ClockEdge *src_clk_edge = path->clkEdge(this);
-  Clock *src_clk = path->clock(this);
+  const ClockEdge *src_clk_edge = path->clkEdge(this);
+  const Clock *src_clk = path->clock(this);
   const MinMax *min_max = path_ap->pathMinMax();
   const PathAnalysisPt *tgt_clk_path_ap = path_ap->tgtClkAnalysisPt();
   bool check_clked = false;
@@ -301,7 +301,7 @@ VisitPathEnds::visitOutputDelayEnd(const Pin *pin,
       output_delay->delays()->value(end_rf, min_max, margin, exists);
       if (exists) {
 	const Pin *ref_pin = output_delay->refPin();
-	ClockEdge *tgt_clk_edge = output_delay->clkEdge();
+	const ClockEdge *tgt_clk_edge = output_delay->clkEdge();
 	if (!filtered
 	    || search_->matchesFilter(path, tgt_clk_edge)) {
 	  if (ref_pin) {
@@ -344,7 +344,7 @@ VisitPathEnds::visitOutputDelayEnd1(OutputDelay *output_delay,
   // but the exception may be -to clk.
   ExceptionPath *exception = exceptionTo(path, pin, end_rf, tgt_clk_edge,
 					 min_max);
-  ClockEdge *src_clk_edge = path->clkEdge(this);
+  const ClockEdge *src_clk_edge = path->clkEdge(this);
   if (exception
       && exception->isPathDelay()) {
     PathDelay *path_delay = dynamic_cast<PathDelay*>(exception);
@@ -383,7 +383,7 @@ VisitPathEnds::visitGatedClkEnd(const Pin *pin,
 				PathEndVisitor *visitor,
 				bool &is_constrained)
 {
-  ClockEdge *src_clk_edge = path->clkEdge(this);
+  const ClockEdge *src_clk_edge = path->clkEdge(this);
   if (src_clk_edge) {
     GatedClk *gated_clk = search_->gatedClk();
     Clock *src_clk = src_clk_edge->clock();
@@ -492,7 +492,7 @@ VisitPathEnds::visitDataCheckEnd(const Pin *pin,
 				 PathEndVisitor *visitor,
 				 bool &is_constrained)
 {
-  ClockEdge *src_clk_edge = path->clkEdge(this);
+  const ClockEdge *src_clk_edge = path->clkEdge(this);
   if (src_clk_edge) {
     DataCheckSet *checks = sdc_->dataChecksTo(pin);
     if (checks) {

@@ -105,7 +105,7 @@ void
 PathExpanded::expandGenclk(PathRef *clk_path)
 {
   if (!clk_path->isNull()) {
-    Clock *src_clk = clk_path->clock(sta_);
+    const Clock *src_clk = clk_path->clock(sta_);
     if (src_clk && src_clk->isGenerated()) {
       PathVertex src_path;
       sta_->search()->genclks()->srcPath(clk_path, src_path);

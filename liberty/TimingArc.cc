@@ -583,8 +583,8 @@ TimingArc::setIndex(unsigned index)
   index_ = index;
 }
 
-TimingArc *
-TimingArc::cornerArc(int ap_index)
+const TimingArc *
+TimingArc::cornerArc(int ap_index) const
 {
   if (ap_index < static_cast<int>(corner_arcs_.size())) {
     TimingArc *corner_arc = corner_arcs_[ap_index];

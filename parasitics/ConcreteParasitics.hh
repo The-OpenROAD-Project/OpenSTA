@@ -55,32 +55,42 @@ public:
 				const ParasiticAnalysisPt *ap);
   virtual void deleteUnsavedParasitic(Parasitic *parasitic);
 
-  virtual bool isReducedParasiticNetwork(Parasitic *parasitic) const;
+  virtual bool isReducedParasiticNetwork(const Parasitic *parasitic) const;
   virtual void setIsReducedParasiticNetwork(Parasitic *parasitic,
 					    bool is_reduced);
 
   virtual float capacitance(Parasitic *parasitic) const;
 
-  virtual bool isPiElmore(Parasitic *parasitic) const;
+  virtual bool isPiElmore(const Parasitic *parasitic) const;
   virtual Parasitic *findPiElmore(const Pin *drvr_pin,
 				  const RiseFall *rf,
 				  const ParasiticAnalysisPt *ap) const;
   virtual Parasitic *makePiElmore(const Pin *drvr_pin,
 				  const RiseFall *rf,
 				  const ParasiticAnalysisPt *ap,
-				  float c2, float rpi, float c1);
+				  float c2,
+                                  float rpi,
+                                  float c1);
 
-  virtual bool isPiModel(Parasitic *parasitic) const;
-  virtual void piModel(Parasitic *parasitic, float &c2, float &rpi,
+  virtual bool isPiModel(const Parasitic *parasitic) const;
+  virtual void piModel(const Parasitic *parasitic,
+                       float &c2,
+                       float &rpi,
 		       float &c1) const;
-  virtual void setPiModel(Parasitic *parasitic, float c2, float rpi, float c1);
+  virtual void setPiModel(Parasitic *parasitic,
+                          float c2,
+                          float rpi,
+                          float c1);
 
-  virtual void findElmore(Parasitic *parasitic, const Pin *load_pin,
-			  float &elmore, bool &exists) const;
-  virtual void setElmore(Parasitic *parasitic, const Pin *load_pin,
+  virtual void findElmore(const Parasitic *parasitic,
+                          const Pin *load_pin,
+			  float &elmore,
+                          bool &exists) const;
+  virtual void setElmore(Parasitic *parasitic,
+                         const Pin *load_pin,
 			 float elmore);
 
-  virtual bool isPiPoleResidue(Parasitic* parasitic) const;
+  virtual bool isPiPoleResidue(const Parasitic* parasitic) const;
   virtual Parasitic *findPiPoleResidue(const Pin *drvr_pin,
 				       const RiseFall *rf,
 				       const ParasiticAnalysisPt *ap) const;

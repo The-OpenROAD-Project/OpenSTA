@@ -30,12 +30,13 @@ typedef MinMaxIntValues FanoutValues;
 class PortExtCap
 {
 public:
-  explicit PortExtCap(Port *port);
-  Port *port() { return port_; }
+  PortExtCap(const Port *port);
+  const Port *port() { return port_; }
   void pinCap(const RiseFall *rf,
 	      const MinMax *min_max,
 	      // Return values.
-	      float &cap, bool &exists);
+	      float &cap,
+              bool &exists);
   RiseFallMinMax *pinCap() { return &pin_cap_; }
   void setPinCap(float cap,
 		 const RiseFall *rf,
@@ -43,7 +44,8 @@ public:
   void wireCap(const RiseFall *rf,
 	       const MinMax *min_max,
 	       // Return values.
-	       float &cap, bool &exists);
+	       float &cap,
+               bool &exists);
   RiseFallMinMax *wireCap() { return &wire_cap_; }
   void setWireCap(float cap,
 		  const RiseFall *rf,
@@ -57,7 +59,7 @@ public:
   FanoutValues *fanout() { return &fanout_; }
 
 private:
-  Port *port_;
+  const Port *port_;
   RiseFallMinMax pin_cap_;
   RiseFallMinMax wire_cap_;
   FanoutValues fanout_;

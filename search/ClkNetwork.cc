@@ -32,6 +32,11 @@ ClkNetwork::ClkNetwork(StaState *sta) :
 {
 }
 
+ClkNetwork::~ClkNetwork()
+{
+  clk_pins_map_.deleteContentsClear();
+}
+
 void
 ClkNetwork::ensureClkNetwork()
 {
@@ -44,7 +49,7 @@ ClkNetwork::clear()
 {
   clk_pins_valid_ = false;
   pin_clks_map_.clear();
-  clk_pins_map_.clear();
+  clk_pins_map_.deleteContentsClear();
   pin_ideal_clks_map_.clear();
 }
 
@@ -114,8 +119,12 @@ ClkNetwork::findClkPins(bool ideal_only,
   for (Clock *clk : sdc_->clks()) {
     if (!ideal_only
 	|| !clk->isPropagated()) {
-      PinSet &clk_pins = clk_pins_map_[clk];
-      for (Pin *pin : clk->leafPins()) {
+      PinSet *clk_pins = clk_pins_map_[clk];
+      if (clk_pins == nullptr) {
+        clk_pins = new PinSet(network_);
+        clk_pins_map_[clk] = clk_pins;
+      }
+      for (const Pin *pin : clk->leafPins()) {
 	if (!ideal_only
 	    || !sdc_->isPropagatedClock(pin)) {
 	  Vertex *vertex, *bidirect_drvr_vertex;
@@ -127,12 +136,12 @@ ClkNetwork::findClkPins(bool ideal_only,
       }
       while (bfs.hasNext()) {
 	Vertex *vertex = bfs.next();
-	Pin *pin = vertex->pin();
+	const Pin *pin = vertex->pin();
 	if (!ideal_only
 	    || !sdc_->isPropagatedClock(pin)) {
-	  clk_pins.insert(pin);
+	  clk_pins->insert(pin);
 	  ClockSet &pin_clks = pin_clks_map[pin];
-	  pin_clks.insert(clk);
+          pin_clks.insert(clk);
 	  bfs.enqueueAdjacentVertices(vertex);
 	}
       }
@@ -153,7 +162,7 @@ ClkNetwork::isClock(const Net *net) const
   bool is_clk = false;
   NetConnectedPinIterator *pin_iter = network_->pinIterator(net);
   while (pin_iter->hasNext()) {
-    Pin *pin = pin_iter->next();
+    const Pin *pin = pin_iter->next();
     if (isClock(pin)) {
       is_clk = true;
       break;
@@ -198,7 +207,7 @@ const PinSet *
 ClkNetwork::pins(const Clock *clk)
 {
   if (clk_pins_map_.hasKey(clk))
-    return &clk_pins_map_[clk];
+    return clk_pins_map_[clk];
   else
     return nullptr;
 }

@@ -21,18 +21,6 @@
 
 namespace sta {
 
-class ClockGroup
-{
-public:
-  ClockGroup(ClockSet *clks);
-  ~ClockGroup();
-  bool isMember(const Clock *clk);
-  ClockSet *clks() const { return clks_; }
-
-private:
-  ClockSet *clks_;
-};
-
 class ClockGroups : public SdcCmdComment
 {
 public:
@@ -43,7 +31,7 @@ public:
 	      bool allow_paths,
 	      const char *comment);
   ~ClockGroups();
-  ClockGroup *makeClockGroup(ClockSet *clks);
+  void makeClockGroup(ClockSet *clks);
   const char *name() const { return name_; }
   ClockGroupSet *groups() { return &groups_; }
   bool logicallyExclusive() const { return logically_exclusive_; }

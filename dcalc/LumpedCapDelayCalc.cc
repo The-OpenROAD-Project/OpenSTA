@@ -51,8 +51,9 @@ LumpedCapDelayCalc::findParasitic(const Pin *drvr_pin,
 				  const RiseFall *rf,
 				  const DcalcAnalysisPt *dcalc_ap)
 {
+  const Corner *corner = dcalc_ap->corner();
   // set_load has precidence over parasitics.
-  if (!sdc_->drvrPinHasWireCap(drvr_pin)) {
+  if (!sdc_->drvrPinHasWireCap(drvr_pin, corner)) {
     Parasitic *parasitic = nullptr;
     const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
     if (parasitics_->haveParasitics()) {
@@ -66,7 +67,7 @@ LumpedCapDelayCalc::findParasitic(const Pin *drvr_pin,
       if (parasitic_network) {
 	parasitics_->reduceToPiElmore(parasitic_network, drvr_pin,
 				      dcalc_ap->operatingConditions(),
-				      dcalc_ap->corner(),
+				      corner,
 				      dcalc_ap->constraintMinMax(),
 				      parasitic_ap);
 	parasitic = parasitics_->findPiElmore(drvr_pin, rf, parasitic_ap);
@@ -85,7 +86,7 @@ LumpedCapDelayCalc::findParasitic(const Pin *drvr_pin,
       parasitic = parasitics_->estimatePiElmore(drvr_pin, rf, wireload,
 						fanout, pin_cap,
 						dcalc_ap->operatingConditions(),
-						dcalc_ap->corner(),
+						corner,
 						cnst_min_max,
 						parasitic_ap);
       // Estimated parasitics are not recorded in the "database", so
@@ -118,7 +119,7 @@ LumpedCapDelayCalc::finishDrvrPin()
 void
 LumpedCapDelayCalc::inputPortDelay(const Pin *, float in_slew,
 				   const RiseFall *rf,
-				   Parasitic *,
+				   const Parasitic *,
 				   const DcalcAnalysisPt *)
 {
   drvr_slew_ = in_slew;
@@ -129,10 +130,10 @@ LumpedCapDelayCalc::inputPortDelay(const Pin *, float in_slew,
 
 float
 LumpedCapDelayCalc::ceff(const LibertyCell *,
-			 TimingArc *,
+			 const TimingArc *,
 			 const Slew &,
 			 float load_cap,
-			 Parasitic *,
+			 const Parasitic *,
 			 float,
 			 const Pvt *,
 			 const DcalcAnalysisPt *)
@@ -142,10 +143,10 @@ LumpedCapDelayCalc::ceff(const LibertyCell *,
 
 void
 LumpedCapDelayCalc::gateDelay(const LibertyCell *drvr_cell,
-			      TimingArc *arc,
+			      const TimingArc *arc,
 			      const Slew &in_slew,
 			      float load_cap,
-			      Parasitic *,
+			      const Parasitic *,
 			      float related_out_cap,
 			      const Pvt *pvt,
 			      const DcalcAnalysisPt *dcalc_ap,
@@ -239,10 +240,10 @@ LumpedCapDelayCalc::thresholdLibrary(const Pin *load_pin)
 
 void
 LumpedCapDelayCalc::reportGateDelay(const LibertyCell *drvr_cell,
-				    TimingArc *arc,
+				    const TimingArc *arc,
 				    const Slew &in_slew,
 				    float load_cap,
-				    Parasitic *,
+				    const Parasitic *,
 				    float related_out_cap,
 				    const Pvt *pvt,
 				    const DcalcAnalysisPt *dcalc_ap,
@@ -259,7 +260,7 @@ LumpedCapDelayCalc::reportGateDelay(const LibertyCell *drvr_cell,
 
 void
 LumpedCapDelayCalc::checkDelay(const LibertyCell *cell,
-			       TimingArc *arc,
+			       const TimingArc *arc,
 			       const Slew &from_slew,
 			       const Slew &to_slew,
 			       float related_out_cap,
@@ -281,7 +282,7 @@ LumpedCapDelayCalc::checkDelay(const LibertyCell *cell,
 
 void
 LumpedCapDelayCalc::reportCheckDelay(const LibertyCell *cell,
-				     TimingArc *arc,
+				     const TimingArc *arc,
 				     const Slew &from_slew,
 				     const char *from_slew_annotation,
 				     const Slew &to_slew,

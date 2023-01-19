@@ -55,17 +55,17 @@ void
 UnitDelayCalc::inputPortDelay(const Pin *,
 			      float,
 			      const RiseFall *,
-			      Parasitic *,
+			      const Parasitic *,
 			      const DcalcAnalysisPt *)
 {
 }
 
 void
 UnitDelayCalc::gateDelay(const LibertyCell *,
-			 TimingArc *,
+			 const TimingArc *,
 			 const Slew &,
 			 float,
-			 Parasitic *,
+			 const Parasitic *,
 			 float,
 			 const Pvt *, const DcalcAnalysisPt *,
 			 // Return values.
@@ -86,10 +86,10 @@ UnitDelayCalc::loadDelay(const Pin *,
 
 float
 UnitDelayCalc::ceff(const LibertyCell *,
-		    TimingArc *,
+		    const TimingArc *,
 		    const Slew &,
 		    float,
-		    Parasitic *,
+		    const Parasitic *,
 		    float,
 		    const Pvt *,
 		    const DcalcAnalysisPt *)
@@ -99,10 +99,10 @@ UnitDelayCalc::ceff(const LibertyCell *,
 
 void
 UnitDelayCalc::reportGateDelay(const LibertyCell *,
-			       TimingArc *,
+			       const TimingArc *,
 			       const Slew &,
 			       float,
-			       Parasitic *,
+			       const Parasitic *,
 			       float,
 			       const Pvt *,
 			       const DcalcAnalysisPt *,
@@ -115,7 +115,7 @@ UnitDelayCalc::reportGateDelay(const LibertyCell *,
 
 void
 UnitDelayCalc::checkDelay(const LibertyCell *,
-			  TimingArc *,
+			  const TimingArc *,
 			  const Slew &,
 			  const Slew &,
 			  float,
@@ -129,7 +129,7 @@ UnitDelayCalc::checkDelay(const LibertyCell *,
 
 void
 UnitDelayCalc::reportCheckDelay(const LibertyCell *,
-				TimingArc *,
+				const TimingArc *,
 				const Slew &,
 				const char *,
 				const Slew &,

@@ -34,7 +34,6 @@ public:
   float period() const { return period_; }
   // Virtual clocks have no pins.
   bool isVirtual() const;
-  PinSet &pins() { return pins_; }
   const PinSet &pins() const { return pins_; }
   // The clock source pin's leaf pins.
   //  If the source pin is hierarchical, the leaf pins are:
@@ -44,7 +43,7 @@ public:
   const PinSet &leafPins() const { return leaf_pins_; }
   // Clock pin used by input/output delay for propagated generated
   // clock insertion delay.
-  Pin *defaultPin() const;
+  const Pin *defaultPin() const;
   bool addToPins() const { return add_to_pins_; }
   void setAddToPins(bool add_to_pins);
   FloatSeq *waveform() { return waveform_; }
@@ -69,7 +68,7 @@ public:
 	       const MinMaxAll *min_max,
 	       float slew);
   void removeSlew();
-  RiseFallMinMax *slews() { return &slews_; }
+  const RiseFallMinMax &slews() const { return slews_; }
   void setSlewLimit(const RiseFallBoth *rf,
 		    const PathClkOrData clk_data,
 		    const MinMax *min_max,
@@ -94,8 +93,8 @@ public:
   void setPeriod(float period);
   void setWaveform(FloatSeq *waveform);
 
-  void addPin(Pin *pin);
-  void deletePin(Pin *pin);
+  void addPin(const Pin *pin);
+  void deletePin(const Pin *pin);
   void makeLeafPins(const Network *network);
 
   bool isGenerated() const;
@@ -123,9 +122,10 @@ public:
   void waveformInvalid();
 
 protected:
-  // Private to Constraints::makeClock.
+  // Private to Sdc::makeClock.
   Clock(const char *name,
-	int index);
+	int index,
+        const Network *network);
   void initClk(PinSet *pins,
 	       bool add_to_pins,
 	       float period,
@@ -218,16 +218,17 @@ int
 clkCmp(const Clock *clk1,
        const Clock *clk2);
 int
-clkEdgeCmp(ClockEdge *clk_edge1,
-	   ClockEdge *clk_edge2);
+clkEdgeCmp(const ClockEdge *clk_edge1,
+	   const ClockEdge *clk_edge2);
 bool
-clkEdgeLess(ClockEdge *clk_edge1,
-	    ClockEdge *clk_edge2);
+clkEdgeLess(const ClockEdge *clk_edge1,
+	    const ClockEdge *clk_edge2);
 
 class ClockNameLess
 {
 public:
-  bool operator()(const Clock *clk1, const Clock *clk2);
+  bool operator()(const Clock *clk1,
+                  const Clock *clk2);
 };
 
 ////////////////////////////////////////////////////////////////
@@ -278,8 +279,10 @@ public:
   }
 };
 
-void
-sortClockSet(ClockSet * set,
-	     ClockSeq &clks);
+ClockSeq
+sortByName(ClockSet *set);
+int
+compare(const ClockSet *set1,
+        const ClockSet *set2);
 
 } // namespace

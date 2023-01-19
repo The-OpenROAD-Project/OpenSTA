@@ -110,9 +110,8 @@ CheckMinPeriods::visitMinPeriodChecks(Vertex *vertex,
   bool exists;
   graph_dcalc->minPeriod(pin, min_period, exists);
   if (exists) {
-    ClockSet clks;
-    search->clocks(vertex, clks);
-    ClockSet::Iterator clk_iter(clks);
+    const ClockSet clks = search->clocks(vertex);
+    ClockSet::ConstIterator clk_iter(clks);
     while (clk_iter.hasNext()) {
       Clock *clk = clk_iter.next();
       MinPeriodCheck check(pin, clk);

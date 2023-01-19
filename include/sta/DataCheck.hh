@@ -25,8 +25,6 @@
 
 namespace sta {
 
-class PinPathNameLess;
-
 class DataCheck
 {
 public:
@@ -65,12 +63,12 @@ private:
 class DataCheckLess
 {
 public:
-  explicit DataCheckLess(const Network *network);
+  DataCheckLess(const Network *network);
   bool operator()(const DataCheck *check1,
 		  const DataCheck *check2) const;
 
 private:
-  PinPathNameLess pin_less_;
+  const Network *network_;
 };
 
 } // namespace

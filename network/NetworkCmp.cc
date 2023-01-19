@@ -74,50 +74,48 @@ InstancePathNameLess::operator()(const Instance *inst1,
 
 ////////////////////////////////////////////////////////////////
 
-void
-sortPinSet(PinSet *set,
-	   const Network *network,
-	   PinSeq &pins)
+PinSeq
+sortByPathName(const PinSet *set,
+              const Network *network)
 {
-  PinSet::Iterator pin_iter(set);
-  while (pin_iter.hasNext())
-    pins.push_back(pin_iter.next());
+  PinSeq pins;
+  for (const Pin *pin : *set)
+    pins.push_back(pin);
   sort(pins, PinPathNameLess(network));
+  return pins;
 }
 
-void
-sortPortSet(PortSet *set,
-	    const Network *network,
-	    PortSeq &ports)
+PortSeq
+sortByName(const PortSet *set,
+           const Network *network)
 {
-  PortSet::Iterator port_iter(set);
-  while (port_iter.hasNext())
-    ports.push_back(port_iter.next());
+  PortSeq ports;
+  for (const Port *port : *set)
+    ports.push_back(port);
   sort(ports, PortNameLess(network));
+  return ports;
 }
 
-void
-sortInstanceSet(InstanceSet *set,
-		const Network *network,
-		InstanceSeq &insts)
+InstanceSeq
+sortByPathName(InstanceSet *set,
+              const Network *network)
 {
-  InstanceSet::Iterator inst_iter(set);
-  while (inst_iter.hasNext())
-    insts.push_back(inst_iter.next());
-  // Sort ports so regression results are portable.
+  InstanceSeq insts;
+  for (const Instance *inst : *set)
+    insts.push_back(inst);
   sort(insts, InstancePathNameLess(network));
+  return insts;
 }
 
-void
-sortNetSet(NetSet *set,
-	   const Network *network,
-	   NetSeq &nets)
+NetSeq
+sortByPathName(NetSet *set,
+              const Network *network)
 {
-  NetSet::Iterator net_iter(set);
-  while (net_iter.hasNext())
-    nets.push_back(net_iter.next());
-  // Sort nets so regression results are netable.
+  NetSeq nets;
+  for (const Net *net : *set)
+    nets.push_back(net);
   sort(nets, NetPathNameLess(network));
+  return nets;
 }
 
 } // namespace

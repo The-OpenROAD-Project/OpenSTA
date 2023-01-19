@@ -350,14 +350,7 @@ proc set_unit_values { unit key unit_name key_var } {
 define_cmd_args "all_clocks" {}
 
 proc all_clocks { } {
-  set clks {}
-  set clk_iter [clock_iterator]
-  while {[$clk_iter has_next]} {
-    set clk [$clk_iter next]
-    lappend clks $clk
-  }
-  $clk_iter finish
-  return $clks
+  return [get_clocks -quiet *]
 }
 
 ################################################################
@@ -2474,7 +2467,7 @@ proc set_input_transition { args } {
 ################################################################
 
 define_cmd_args "set_load" \
-  {[-rise] [-fall] [-max] [-min] [-subtract_pin_load]\
+  {[-corner corner] [-rise] [-fall] [-max] [-min] [-subtract_pin_load]\
      [-pin_load] [-wire_load] capacitance objects}
 
 proc set_load { args } {
@@ -2499,11 +2492,11 @@ proc set_load { args } {
     # -pin_load is the default.
     if { $pin_load || (!$pin_load && !$wire_load) } {
       foreach port $ports {
-	set_port_pin_cap $port $tr $min_max $cap
+	set_port_ext_pin_cap $port $tr $corner $min_max $cap
       }
     } elseif { $wire_load } {
       foreach port $ports {
-	set_port_wire_cap $port $subtract_pin_load $tr $min_max $cap
+	set_port_ext_wire_cap $port $subtract_pin_load $tr $corner $min_max $cap
       }
     }
   }
@@ -2668,10 +2661,10 @@ proc set_max_transition { args } {
 ################################################################
 
 define_cmd_args "set_port_fanout_number" \
-  {[-max] [-min] fanout ports}
+  {[-corner corner] [-max] [-min] fanout ports}
 
 proc set_port_fanout_number { args } {
-  parse_key_args "set_port_fanout_number" args keys {} flags {-max -min}
+  parse_key_args "set_port_fanout_number" args keys {-corner} flags {-max -min}
   set min_max [parse_min_max_all_check_flags flags]
   
   check_argc_eq2 "set_port_fanout_number" $args
@@ -2679,8 +2672,9 @@ proc set_port_fanout_number { args } {
   set fanout [lindex $args 0]
   check_positive_integer "fanout" $fanout
   set ports [get_ports_error "ports" [lindex $args 1]]
+  set corner [parse_corner_or_all keys]
   foreach port $ports {
-    set_port_ext_fanout_cmd $port $fanout $min_max
+    set_port_ext_fanout_cmd $port $fanout $corner $min_max
   }
 }
 

@@ -16,6 +16,24 @@
 
 This file summarizes STA API changes for each release.
 
+Release 2.4.0 2023/01/??
+-------------------------
+
+The Network API and associated containers now 'const' the network class objects.
+The Network API now requires network objects to have and "id" function that
+returns an ObjectId (unsigned int) that is unique to the object among objects
+of the same type. 
+
+  virtual ObjectId id(const Instance *instance) const = 0;
+
+Object IDs are used for comparing and hashing network objects.
+If network Ids are not available in the host application database object pointers
+can be cast to intptr_t. Using pointers as object Ids can result in memory layout
+dependent results that are inconsistent from run to run or across host systems.
+
+Many Network and Sta class functions now return collections rather than pointers
+to temporary collections that the caller would have to delete.
+
 Release 2.3.1 2022/06/12
 -------------------------
 LibertyCellTimingArcSetIterator has been removed.

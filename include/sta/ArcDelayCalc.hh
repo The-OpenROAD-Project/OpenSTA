@@ -60,16 +60,16 @@ public:
   virtual void inputPortDelay(const Pin *port_pin,
 			      float in_slew,
 			      const RiseFall *rf,
-			      Parasitic *parasitic,
+			      const Parasitic *parasitic,
 			      const DcalcAnalysisPt *dcalc_ap) = 0;
 
   // Find the delay and slew for arc driving drvr_pin.
   virtual void gateDelay(const LibertyCell *drvr_cell,
-			 TimingArc *arc,
+			 const TimingArc *arc,
 			 const Slew &in_slew,
 			 // Pass in load_cap or drvr_parasitic.
 			 float load_cap,
-			 Parasitic *drvr_parasitic,
+			 const Parasitic *drvr_parasitic,
 			 float related_out_cap,
 			 const Pvt *pvt,
 			 const DcalcAnalysisPt *dcalc_ap,
@@ -85,10 +85,10 @@ public:
   virtual void setMultiDrvrSlewFactor(float factor) = 0;
   // Ceff for parasitics with pi models.
   virtual float ceff(const LibertyCell *drvr_cell,
-		     TimingArc *arc,
+		     const TimingArc *arc,
 		     const Slew &in_slew,
 		     float load_cap,
-		     Parasitic *drvr_parasitic,
+		     const Parasitic *drvr_parasitic,
 		     float related_out_cap,
 		     const Pvt *pvt,
 		     const DcalcAnalysisPt *dcalc_ap) = 0;
@@ -96,7 +96,7 @@ public:
   // Find the delay for a timing check arc given the arc's
   // from/clock, to/data slews and related output pin parasitic.
   virtual void checkDelay(const LibertyCell *drvr_cell,
-			  TimingArc *arc,
+			  const TimingArc *arc,
 			  const Slew &from_slew,
 			  const Slew &to_slew,
 			  float related_out_cap,
@@ -106,11 +106,11 @@ public:
 			  ArcDelay &margin) = 0;
   // Report delay and slew calculation.
   virtual void reportGateDelay(const LibertyCell *drvr_cell,
-			       TimingArc *arc,
+			       const TimingArc *arc,
 			       const Slew &in_slew,
 			       // Pass in load_cap or drvr_parasitic.
 			       float load_cap,
-			       Parasitic *drvr_parasitic,
+			       const Parasitic *drvr_parasitic,
 			       float related_out_cap,
 			       const Pvt *pvt,
 			       const DcalcAnalysisPt *dcalc_ap,
@@ -118,7 +118,7 @@ public:
 			       string *result) = 0;
   // Report timing check delay calculation.
   virtual void reportCheckDelay(const LibertyCell *cell,
-				TimingArc *arc,
+				const TimingArc *arc,
 				const Slew &from_slew,
 				const char *from_slew_annotation,
 				const Slew &to_slew,
@@ -130,11 +130,11 @@ public:
   virtual void finishDrvrPin() = 0;
 
 protected:
-  GateTimingModel *gateModel(TimingArc *arc,
+  GateTimingModel *gateModel(const TimingArc *arc,
 			     const DcalcAnalysisPt *dcalc_ap) const;
-  CheckTimingModel *checkModel(TimingArc *arc,
+  CheckTimingModel *checkModel(const TimingArc *arc,
 			       const DcalcAnalysisPt *dcalc_ap) const;
-  TimingModel *model(TimingArc *arc,
+  TimingModel *model(const TimingArc *arc,
 		     const DcalcAnalysisPt *dcalc_ap) const;
 };
 

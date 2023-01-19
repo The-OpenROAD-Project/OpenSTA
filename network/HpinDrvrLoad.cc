@@ -51,10 +51,10 @@ visitHpinDrvrLoads(const Pin *pin,
 		   const Network *network,
 		   HpinDrvrLoadVisitor *visitor)
 {
-  NetSet visited;
+  NetSet visited(network);
   HpinDrvrLoads above_drvrs;
   HpinDrvrLoads above_loads;
-  PinSet hpin_path;
+  PinSet hpin_path(network);
   Net *above_net = network->net(pin);
   if (above_net) {
     visitPinsAboveNet2(pin, above_net, visited, 
@@ -113,7 +113,7 @@ visitPinsAboveNet2(const Pin *hpin,
   // Visit above net pins.
   NetPinIterator *pin_iter = network->pinIterator(above_net);
   while (pin_iter->hasNext()) {
-    Pin *above_pin = pin_iter->next();
+    const Pin *above_pin = pin_iter->next();
     if (above_pin != hpin) {
       if (network->isDriver(above_pin)) {
 	HpinDrvrLoad *drvr = new HpinDrvrLoad(above_pin, nullptr,
@@ -185,7 +185,7 @@ visitPinsBelowNet2(const Pin *hpin,
   // Visit below net pins.
   NetPinIterator *pin_iter = network->pinIterator(below_net);
   while (pin_iter->hasNext()) {
-    Pin *below_pin = pin_iter->next();
+    const Pin *below_pin = pin_iter->next();
     if (below_pin != hpin) {
       if (above_net && !visited.hasKey(above_net))
 	visitPinsAboveNet2(below_pin, above_net,
@@ -260,8 +260,8 @@ visitHpinDrvrLoads(HpinDrvrLoads drvrs,
 
 ////////////////////////////////////////////////////////////////
 
-HpinDrvrLoad::HpinDrvrLoad(Pin *drvr,
-			   Pin *load,
+HpinDrvrLoad::HpinDrvrLoad(const Pin *drvr,
+			   const Pin *load,
 			   PinSet *hpins_from_drvr,
 			   PinSet *hpins_to_load) :
   drvr_(drvr),
@@ -271,8 +271,8 @@ HpinDrvrLoad::HpinDrvrLoad(Pin *drvr,
 {
 }
 
-HpinDrvrLoad::HpinDrvrLoad(Pin *drvr,
-			   Pin *load) :
+HpinDrvrLoad::HpinDrvrLoad(const Pin *drvr,
+			   const Pin *load) :
   drvr_(drvr),
   load_(load)
 {
@@ -292,20 +292,20 @@ HpinDrvrLoad::report(const Network *network)
 	 load_ ? network->pathName(load_) : "-");
   PinSet::Iterator pin_iter(hpins_from_drvr_);
   while (pin_iter.hasNext()) {
-    Pin *pin = pin_iter.next();
+    const Pin *pin = pin_iter.next();
     printf("%s ", network->pathName(pin)); 
   }
   printf("* "); 
   PinSet::Iterator pin_iter2(hpins_to_load_);
   while (pin_iter2.hasNext()) {
-    Pin *pin = pin_iter2.next();
+    const Pin *pin = pin_iter2.next();
     printf("%s ", network->pathName(pin)); 
  }
   printf("\n");
 }
 
 void 
-HpinDrvrLoad::setDrvr(Pin *drvr)
+HpinDrvrLoad::setDrvr(const Pin *drvr)
 {
   drvr_ = drvr;
 }
@@ -314,11 +314,11 @@ bool
 HpinDrvrLoadLess::operator()(const HpinDrvrLoad *drvr_load1,
 			     const HpinDrvrLoad *drvr_load2) const
 {
-  Pin *load1 = drvr_load1->load();
-  Pin *load2 = drvr_load2->load();
+  const Pin *load1 = drvr_load1->load();
+  const Pin *load2 = drvr_load2->load();
   if (load1 == load2) {
-    Pin *drvr1 = drvr_load1->drvr();
-    Pin *drvr2 = drvr_load2->drvr();
+    const Pin *drvr1 = drvr_load1->drvr();
+    const Pin *drvr2 = drvr_load2->drvr();
     return drvr1 < drvr2;
   }
   else

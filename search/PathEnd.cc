@@ -99,7 +99,7 @@ PathEnd::pathAnalysisPt(const StaState *sta) const
   return path_.pathAnalysisPt(sta);
 }
 
-ClockEdge *
+const ClockEdge *
 PathEnd::sourceClkEdge(const StaState *sta) const
 {
   return path_.clkEdge(sta);
@@ -130,7 +130,7 @@ PathEnd::targetClkEndTrans(const StaState *sta) const
   if (clk_path)
     return clk_path->transition(sta);
   else {
-    ClockEdge *clk_edge = targetClkEdge(sta);
+    const ClockEdge *clk_edge = targetClkEdge(sta);
     if (clk_edge)
       return clk_edge->transition();
     else
@@ -156,13 +156,13 @@ PathEnd::sourceClkInsertionDelay(const StaState *) const
   return delay_zero;
 }
 
-Clock *
+const Clock *
 PathEnd::targetClk(const StaState *) const
 {
   return nullptr;
 }
 
-ClockEdge *
+const ClockEdge *
 PathEnd::targetClkEdge(const StaState *) const
 {
   return nullptr;
@@ -624,7 +624,7 @@ PathEndClkConstrained::targetClkOffset(const StaState *sta) const
   return acct->targetTimeOffset(check_role);
 }
 
-ClockEdge *
+const ClockEdge *
 PathEndClkConstrained::targetClkEdge(const StaState *sta) const
 {
   if (!clk_path_.isNull())
@@ -633,10 +633,10 @@ PathEndClkConstrained::targetClkEdge(const StaState *sta) const
     return nullptr;
 }
 
-Clock *
+const Clock *
 PathEndClkConstrained::targetClk(const StaState *sta) const
 {
-  ClockEdge *clk_edge = targetClkEdge(sta);
+  const ClockEdge *clk_edge = targetClkEdge(sta);
   if (clk_edge)
     return clk_edge->clock();
   else
@@ -1243,7 +1243,7 @@ PathEndLatchCheck::targetClkWidth(const StaState *sta) const
     return disable_arrival - enable_arrival;
   else {
     if (delayGreater(enable_arrival, disable_arrival, sta)) {
-      Clock *disable_clk = enable_clk_info->clock();
+      const Clock *disable_clk = enable_clk_info->clock();
       if (disable_clk)
         disable_arrival += disable_clk->period();
     }
@@ -1357,7 +1357,7 @@ PathEndOutputDelay::checkRole(const StaState *sta) const
     return TimingRole::outputHold();
 }
 
-ClockEdge *
+const ClockEdge *
 PathEndOutputDelay::targetClkEdge(const StaState *sta) const
 {
   if (!clk_path_.isNull())
@@ -1607,7 +1607,7 @@ PathEndDataCheck::typeName() const
   return "data_check";
 }
 
-ClockEdge *
+const ClockEdge *
 PathEndDataCheck::targetClkEdge(const StaState *sta) const
 {
   // clk_path_ can be null if data_clk_path is from an input port.
@@ -1831,7 +1831,7 @@ PathEnd::pathDelaySrcClkOffset(const PathRef &path,
 			       const StaState *sta)
 {
   float offset = 0.0;
-  ClockEdge *clk_edge = path.clkEdge(sta);
+  const ClockEdge *clk_edge = path.clkEdge(sta);
   if (clk_edge) {
     if (path_delay->ignoreClkLatency())
       offset = -delayAsFloat(src_clk_arrival);
@@ -1843,7 +1843,7 @@ PathEnd::pathDelaySrcClkOffset(const PathRef &path,
   return offset;
 }
 
-ClockEdge *
+const ClockEdge *
 PathEndPathDelay::targetClkEdge(const StaState *sta) const
 {
   if (!clk_path_.isNull())
@@ -1867,7 +1867,7 @@ PathEndPathDelay::targetClkTime(const StaState *sta) const
 Arrival
 PathEndPathDelay::targetClkArrivalNoCrpr(const StaState *sta) const
 {
-  ClockEdge *tgt_clk_edge = targetClkEdge(sta);
+  const ClockEdge *tgt_clk_edge = targetClkEdge(sta);
   if (tgt_clk_edge)
     return targetClkDelay(sta)
       + targetClkUncertainty(sta);

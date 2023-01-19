@@ -16,32 +16,57 @@
 
 #include "PinPair.hh"
 
+#include "Network.hh"
+
 namespace sta {
 
-bool
-PinPairLess::operator()(const PinPair *pair1,
-			const PinPair *pair2) const
+PinPairLess::PinPairLess(const Network *network) :
+  network_(network)
 {
-  return pair1->first < pair2->first
-    || (pair1->first == pair2->first
-	&& pair1->second < pair2->second);
 }
 
 bool
-PinPairEqual::operator()(const PinPair *pair1,
-			 const PinPair *pair2) const
+PinPairLess::operator()(const PinPair &pair1,
+			const PinPair &pair2) const
 {
-  return pair1->first == pair2->first
-    && pair1->second == pair2->second;
+  const Pin *pair1_pin1 = pair1.first;
+  const Pin *pair1_pin2 = pair1.second;
+  const Pin *pair2_pin1 = pair2.first;
+  const Pin *pair2_pin2 = pair2.second;
+  return (pair1_pin1 == nullptr && pair2_pin1)
+    || (pair1_pin1 && pair2_pin1
+        && (network_->id(pair1_pin1) < network_->id(pair2_pin1)
+            || (pair1_pin1 == pair2_pin1
+                && ((pair1_pin2 == nullptr && pair2_pin2)
+                    || (pair1_pin2 && pair2_pin2
+                        && network_->id(pair1_pin2) < network_->id(pair2_pin2))))));
+}
+
+bool
+PinPairEqual::operator()(const PinPair &pair1,
+			 const PinPair &pair2) const
+{
+  return pair1.first == pair2.first
+    && pair1.second == pair2.second;
+}
+
+PinPairHash::PinPairHash(const Network *network) :
+  network_(network)
+{
 }
 
 size_t
-PinPairHash::operator()(const PinPair *pair) const
+PinPairHash::operator()(const PinPair &pair) const
 {
   size_t hash = hash_init_value;
-  hashIncr(hash, hashPtr(pair->first));
-  hashIncr(hash, hashPtr(pair->second));
+  hashIncr(hash, network_->id(pair.first));
+  hashIncr(hash, network_->id(pair.second));
   return hash;
+}
+
+PinPairSet::PinPairSet(const Network *network) :
+  Set<PinPair, PinPairLess>(PinPairLess(network))
+{
 }
 
 } // namespace

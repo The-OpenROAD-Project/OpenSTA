@@ -29,7 +29,7 @@ public:
   virtual void inputPortDelay(const Pin *port_pin,
 			      float in_slew,
 			      const RiseFall *rf,
-			      Parasitic *parasitic,
+			      const Parasitic *parasitic,
 			      const DcalcAnalysisPt *dcalc_ap);
 
 protected:
@@ -40,7 +40,7 @@ protected:
 			 Slew &load_slew);
 
   const LibertyCell *drvr_cell_;
-  Parasitic *drvr_parasitic_;
+  const Parasitic *drvr_parasitic_;
 };
 
 } // namespace

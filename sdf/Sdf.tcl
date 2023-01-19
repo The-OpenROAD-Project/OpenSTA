@@ -59,11 +59,11 @@ proc_redirect read_sdf {
 ################################################################
 
 define_cmd_args "report_annotated_delay" \
-  {[-cell] [-net] [-from_in_ports] [-to_out_ports] [-max_line lines]\
+  {[-cell] [-net] [-from_in_ports] [-to_out_ports] [-max_lines liness]\
      [-list_annotated] [-list_not_annotated] [-constant_arcs]}
 
 proc_redirect report_annotated_delay {
-  parse_key_args "report_annotated_delay" args keys {-max_line} \
+  parse_key_args "report_annotated_delay" args keys {-max_lines} \
     flags {-cell -net -from_in_ports -to_out_ports -list_annotated \
 	     -list_not_annotated -constant_arcs}
   if { [info exists flags(-cell)] || [info exists flags(-net)] \
@@ -80,26 +80,26 @@ proc_redirect report_annotated_delay {
     set report_out_nets 1
   }
 
-  set max_line 0
-  if { [info exists keys(-max_line)] } {
-    set max_line $keys(-max_line)
-    check_positive_integer "-max_line" $max_line
+  set max_lines 0
+  if { [info exists keys(-max_lines)] } {
+    set max_lines $keys(-max_lines)
+    check_positive_integer "-max_lines" $max_lines
   }
 
   report_annotated_delay_cmd $report_cells $report_nets \
     $report_in_nets $report_out_nets \
-    $max_line [info exists flags(-list_annotated)] \
+    $max_lines [info exists flags(-list_annotated)] \
     [info exists flags(-list_not_annotated)] \
     [info exists flags(-constant_arcs)]
 }
 
 define_cmd_args "report_annotated_check" \
   {[-setup] [-hold] [-recovery] [-removal] [-nochange] [-width] [-period]\
-     [-max_skew] [-max_line lines] [-list_annotated] [-list_not_annotated]\
+     [-max_skew] [-max_lines liness] [-list_annotated] [-list_not_annotated]\
      [-constant_arcs]}
 
 proc_redirect report_annotated_check {
-  parse_key_args "report_annotated_check" args keys {-max_line} \
+  parse_key_args "report_annotated_check" args keys {-max_lines} \
     flags {-setup -hold -recovery -removal -nochange -width -period \
 	     -max_skew -list_annotated -list_not_annotated -constant_arcs}
   if { [info exists flags(-setup)] || [info exists flags(-hold)] \
@@ -125,16 +125,16 @@ proc_redirect report_annotated_check {
     set report_max_skew 1
   }
 
-  set max_line 0
-  if { [info exists keys(-max_line)] } {
-    set max_line $keys(-max_line)
-    check_positive_integer "-max_line" $max_line
+  set max_lines 0
+  if { [info exists keys(-max_lines)] } {
+    set max_lines $keys(-max_lines)
+    check_positive_integer "-max_lines" $max_lines
   }
 
   report_annotated_check_cmd $report_setup $report_hold \
     $report_recovery $report_removal $report_nochange \
     $report_width $report_period $report_max_skew \
-    $max_line [info exists flags(-list_annotated)] \
+    $max_lines [info exists flags(-list_annotated)] \
     [info exists flags(-list_not_annotated)] \
     [info exists flags(-constant_arcs)]
 }

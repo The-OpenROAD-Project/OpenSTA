@@ -83,7 +83,7 @@ private:
 
 static double
 gateModelRd(const LibertyCell *cell,
-	    GateTableModel *gate_model,
+	    const GateTableModel *gate_model,
 	    const RiseFall *rf,
 	    double in_slew,
 	    double c2,
@@ -1546,7 +1546,7 @@ void
 DmpCeffDelayCalc::inputPortDelay(const Pin *port_pin,
 				 float in_slew,
 				 const RiseFall *rf,
-				 Parasitic *parasitic,
+				 const Parasitic *parasitic,
 				 const DcalcAnalysisPt *dcalc_ap)
 {
   dmp_alg_ = nullptr;
@@ -1556,10 +1556,10 @@ DmpCeffDelayCalc::inputPortDelay(const Pin *port_pin,
 
 void
 DmpCeffDelayCalc::gateDelay(const LibertyCell *drvr_cell,
-			    TimingArc *arc,
+			    const TimingArc *arc,
 			    const Slew &in_slew,
 			    float load_cap,
-			    Parasitic *drvr_parasitic,
+			    const Parasitic *drvr_parasitic,
 			    float related_out_cap,
 			    const Pvt *pvt,
 			    const DcalcAnalysisPt *dcalc_ap,
@@ -1606,7 +1606,7 @@ void
 DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
 				   const LibertyCell *drvr_cell,
 				   const Pvt *pvt,
-				   GateTableModel *gate_model,
+				   const GateTableModel *gate_model,
 				   const RiseFall *rf,
 				   double in_slew,
 				   float related_out_cap,
@@ -1647,10 +1647,10 @@ DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
 
 float
 DmpCeffDelayCalc::ceff(const LibertyCell *drvr_cell,
-		       TimingArc *arc,
+		       const TimingArc *arc,
 		       const Slew &in_slew,
 		       float load_cap,
-		       Parasitic *drvr_parasitic,
+		       const Parasitic *drvr_parasitic,
 		       float related_out_cap,
 		       const Pvt *pvt,
 		       const DcalcAnalysisPt *dcalc_ap)
@@ -1668,10 +1668,10 @@ DmpCeffDelayCalc::ceff(const LibertyCell *drvr_cell,
 
 void
 DmpCeffDelayCalc::reportGateDelay(const LibertyCell *drvr_cell,
-				  TimingArc *arc,
+				  const TimingArc *arc,
 				  const Slew &in_slew,
 				  float load_cap,
-				  Parasitic *drvr_parasitic,
+				  const Parasitic *drvr_parasitic,
 				  float related_out_cap,
 				  const Pvt *pvt,
 				  const DcalcAnalysisPt *dcalc_ap,
@@ -1715,7 +1715,7 @@ DmpCeffDelayCalc::reportGateDelay(const LibertyCell *drvr_cell,
 
 static double
 gateModelRd(const LibertyCell *cell,
-	    GateTableModel *gate_model,
+	    const GateTableModel *gate_model,
 	    const RiseFall *rf,
 	    double in_slew,
 	    double c2,

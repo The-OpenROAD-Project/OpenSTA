@@ -31,6 +31,11 @@ public:
   {
   }
 
+  explicit UnorderedMap(const HASH &hash) :
+    std::unordered_map<KEY, VALUE, HASH, EQUAL>(0, hash, std::equal_to<KEY>())
+  {
+  }
+
   explicit UnorderedMap(size_t size,
 			const HASH &hash,
 			const EQUAL &equal) :
@@ -99,6 +104,19 @@ public:
     Iterator iter(this);
     while (iter.hasNext())
       delete iter.next();
+  }
+
+  void
+  deleteKeysContents()
+  {
+    Iterator iter(this);
+    while (iter.hasNext()) {
+      KEY key;
+      VALUE value;
+      iter.next(key, value);
+      delete key;
+      delete value;
+    }
   }
 
   void

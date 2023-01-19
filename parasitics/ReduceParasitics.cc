@@ -226,7 +226,7 @@ ReduceToPi::pinCapacitance(ParasiticNode *node)
       }
     }
     else if (network_->isTopLevelPort(pin))
-      pin_cap = sdc_->portExtCap(port, rf_, cnst_min_max_);
+      pin_cap = sdc_->portExtCap(port, rf_, corner_, cnst_min_max_);
   }
   return pin_cap;
 }
@@ -535,7 +535,7 @@ ReduceToPiPoleResidue2::findPolesResidues(Parasitic *parasitic_network,
 
   PinConnectedPinIterator *pin_iter = network_->connectedPinIterator(drvr_pin);
   while (pin_iter->hasNext()) {
-    Pin *pin = pin_iter->next();
+    const Pin *pin = pin_iter->next();
     if (network_->isLoad(pin)) {
       ParasiticNode *load_node = parasitics_->findNode(parasitic_network, pin);
       if (load_node) {

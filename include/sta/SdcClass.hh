@@ -53,7 +53,6 @@ class DataCheck;
 class Wireload;
 class ClockLatency;
 class ClockInsertion;
-class ClockGroup;
 class ClockGroups;
 class PortDelay;
 
@@ -66,28 +65,56 @@ enum class ClockSense { positive, negative, stop };
 
 typedef std::pair<const Clock*, const Clock*> ClockPair;
 
+class ClockIndexLess
+{
+public:
+  bool operator()(const Clock *clk1,
+                  const Clock *clk2) const;
+};
+
 typedef Vector<float> FloatSeq;
 typedef Vector<int> IntSeq;
 typedef Vector<Clock*> ClockSeq;
-typedef Set<Clock*> ClockSet;
+typedef Set<Clock*, ClockIndexLess> ClockSet;
+typedef ClockSet ClockGroup;
 typedef Vector<PinSet*> PinSetSeq;
 typedef MinMax SetupHold;
 typedef MinMaxAll SetupHoldAll;
 typedef Vector<ExceptionThru*> ExceptionThruSeq;
-typedef Set<LibertyPortPair*, LibertyPortPairLess> LibertyPortPairSet;
-typedef Map<Instance*, DisabledInstancePorts*> DisabledInstancePortsMap;
-typedef Map<LibertyCell*, DisabledCellPorts*> DisabledCellPortsMap;
+typedef Set<LibertyPortPair, LibertyPortPairLess> LibertyPortPairSet;
+typedef Map<const Instance*, DisabledInstancePorts*> DisabledInstancePortsMap;
+typedef Map<const LibertyCell*, DisabledCellPorts*> DisabledCellPortsMap;
 typedef MinMaxValues<float> ClockUncertainties;
 typedef Set<ExceptionPath*> ExceptionPathSet;
 typedef PinPair EdgePins;
 typedef PinPairSet EdgePinsSet;
 typedef Map<const Pin*, LogicValue> LogicValueMap;
-typedef Set<ClockGroup*> ClockGroupSet;
+
+class ClockSetLess
+{
+public:
+  bool operator()(const ClockSet *set1,
+                  const ClockSet *set2) const;
+};
+
+typedef Set<ClockGroup*, ClockSetLess> ClockGroupSet;
 
 // For Search.
 class ExceptionState;
+
+class ExceptionStateLess
+{
+public:
+  ExceptionStateLess(const Network *network);
+  bool operator()(const ExceptionState *state1,
+                  const ExceptionState *state2) const;
+
+private:
+  const Network *network_;
+};
+
 class ExceptionPath;
-typedef Set<ExceptionState*> ExceptionStateSet;
+typedef Set<ExceptionState*, ExceptionStateLess> ExceptionStateSet;
 
 enum class CrprMode { same_pin, same_transition };
 

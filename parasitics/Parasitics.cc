@@ -32,7 +32,7 @@ Parasitics::Parasitics(StaState *sta) :
 {
 }
 
-Net *
+const Net *
 Parasitics::findParasiticNet(const Pin *pin) const
 {
   Net *net = network_->net(pin);

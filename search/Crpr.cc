@@ -154,8 +154,8 @@ CheckCrpr::checkCrpr1(const Path *src_path,
   crpr_pin = nullptr;
   ClkInfo *src_clk_info = src_path->tag(this)->clkInfo();
   ClkInfo *tgt_clk_info = tgt_clk_path->tag(this)->clkInfo();
-  Clock *src_clk = src_clk_info->clock();
-  Clock *tgt_clk = tgt_clk_info->clock();
+  const Clock *src_clk = src_clk_info->clock();
+  const Clock *tgt_clk = tgt_clk_info->clock();
   const PathVertex src_clk_path1(src_clk_info->crprClkPath(), this);
   const PathVertex *src_clk_path =
     src_clk_path1.isNull() ? nullptr : &src_clk_path1;
@@ -270,7 +270,7 @@ CheckCrpr::genClkSrcPaths(const PathVertex *path,
 			  PathVertexSeq &gclk_paths)
 {
   ClkInfo *clk_info = path->clkInfo(this);
-  ClockEdge *clk_edge = clk_info->clkEdge();
+  const ClockEdge *clk_edge = clk_info->clkEdge();
   const Pin *clk_src = clk_info->clkSrc();
   PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
   gclk_paths.push_back(path);
@@ -373,8 +373,8 @@ CheckCrpr::outputDelayCrpr1(const Path *src_path,
   crpr = 0.0;
   crpr_pin = nullptr;
   ClkInfo *src_clk_info = src_path->tag(this)->clkInfo();
-  Clock *tgt_clk = tgt_clk_edge->clock();
-  Clock *src_clk = src_path->clock(this);
+  const Clock *tgt_clk = tgt_clk_edge->clock();
+  const Clock *src_clk = src_path->clock(this);
   if (src_clk && tgt_clk
       && src_clk_info->isPropagated()
       && tgt_clk->isGenerated()
@@ -391,8 +391,8 @@ CheckCrpr::outputDelayCrpr1(const Path *src_path,
 }
 
 bool
-CheckCrpr::crprPossible(Clock *clk1,
-			Clock *clk2)
+CheckCrpr::crprPossible(const Clock *clk1,
+			const Clock *clk2)
 {
   return clk1 && clk2
     && !clk1->isVirtual()

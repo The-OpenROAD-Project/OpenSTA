@@ -72,8 +72,8 @@ private:
 			// Return values.
 			Crpr &crpr,
 			Pin *&crpr_pin);
-  bool crprPossible(Clock *clk1,
-		    Clock *clk2);
+  bool crprPossible(const Clock *clk1,
+		    const Clock *clk2);
   void genClkSrcPaths(const PathVertex *path,
 		      PathVertexSeq &gclk_paths);
   void findCrpr(const PathVertex *src_clk_path,

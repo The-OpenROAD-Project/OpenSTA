@@ -146,7 +146,7 @@ Level
 Genclks::clkPinMaxLevel(const Clock *clk) const
 {
   Level max_level = 0;
-  for (Pin *pin : clk->leafPins()) {
+  for (const Pin *pin : clk->leafPins()) {
     Vertex *vertex = srcPathVertex(pin);
     max_level = max(max_level, vertex->level());
   }
@@ -422,7 +422,7 @@ Genclks::seedClkVertices(Clock *clk,
 			 BfsBkwdIterator &iter,
 			 VertexSet *fanins)
 {
-  for (Pin *pin : clk->leafPins()) {
+  for (const Pin *pin : clk->leafPins()) {
     Vertex *vertex, *bidirect_drvr_vertex;
     graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
     fanins->insert(vertex);
@@ -592,7 +592,7 @@ Genclks::findLatchFdbkEdges(const Clock *gclk,
 {
   Level gclk_level = genclk_info->gclkLevel();
   EdgeSet *fdbk_edges = nullptr;
-  for (Pin *pin : gclk->masterClk()->leafPins()) {
+  for (const Pin *pin : gclk->masterClk()->leafPins()) {
     Vertex *vertex = graph_->pinDrvrVertex(pin);
     VertexSet path_vertices(graph_);
     VertexSet visited_vertices(graph_);
@@ -645,7 +645,7 @@ Genclks::makeSrcFilter(Clock *gclk)
   const RiseFallBoth *rf = RiseFallBoth::riseFall();
   ExceptionFrom *from = sdc_->makeExceptionFrom(nullptr,from_clks,nullptr,rf);
 
-  PinSet *thru_pins = new PinSet;
+  PinSet *thru_pins = new PinSet(network_);
   thru_pins->insert(gclk->srcPin());
   ExceptionThru *thru = sdc_->makeExceptionThru(thru_pins,nullptr,nullptr,rf);
   ExceptionThruSeq *thrus = new ExceptionThruSeq;
@@ -664,7 +664,7 @@ Genclks::seedSrcPins(Clock *gclk,
 		     BfsFwdIterator &insert_iter)
 {
   Clock *master_clk = gclk->masterClk();
-  for (Pin *master_pin : master_clk->leafPins()) {
+  for (const Pin *master_pin : master_clk->leafPins()) {
     Vertex *vertex = graph_->pinDrvrVertex(master_pin);
     if (vertex) {
       debugPrint(debug_, "genclk", 2, " seed src pin %s",
@@ -702,7 +702,7 @@ Genclks::makeTag(const Clock *gclk,
   // from the get go.
   if (master_pin == gclk->srcPin())
     state = state->nextState();
-  ExceptionStateSet *states = new ExceptionStateSet;
+  ExceptionStateSet *states = new ExceptionStateSet(network_);
   states->insert(state);
   ClkInfo *clk_info = search_->findClkInfo(master_clk->edge(master_rf),
 					   master_pin, true, nullptr, true,
@@ -893,7 +893,7 @@ Genclks::recordSrcPaths(Clock *gclk)
   bool invert = gclk->invert();
   bool has_edges = gclk->edges() != nullptr;
 
-  for (Pin *gclk_pin : gclk->leafPins()) {
+  for (const Pin *gclk_pin : gclk->leafPins()) {
     PathVertexRep *src_paths = new PathVertexRep[path_count];
     genclk_src_paths_.insert(ClockPinPair(gclk, gclk_pin), src_paths);
 
@@ -902,7 +902,7 @@ Genclks::recordSrcPaths(Clock *gclk)
     VertexPathIterator path_iter(gclk_vertex, this);
     while (path_iter.hasNext()) {
       PathVertex *path = path_iter.next();
-      ClockEdge *src_clk_edge = path->clkEdge(this);
+      const ClockEdge *src_clk_edge = path->clkEdge(this);
       if (src_clk_edge
 	  && matchesSrcFilter(path, gclk)) {
 	const EarlyLate *early_late = path->minMax(this);
@@ -970,7 +970,7 @@ Genclks::srcPath(Path *clk_path,
 		 PathVertex &src_path) const
 {
   const Pin *src_pin = clk_path->pin(this);
-  ClockEdge *clk_edge = clk_path->clkEdge(this);
+  const ClockEdge *clk_edge = clk_path->clkEdge(this);
   const PathAnalysisPt *path_ap = clk_path->pathAnalysisPt(this);
   const EarlyLate *early_late = clk_path->minMax(this);
   PathAnalysisPt *insert_ap = path_ap->insertionAnalysisPt(early_late);
@@ -1044,13 +1044,22 @@ ClockPinPairLess::operator()(const ClockPinPair &pair1,
 class ClockPinPairHash
 {
 public:
+  ClockPinPairHash(const Network *network);
   size_t operator()(const ClockPinPair &pair) const;
+
+private:
+  const Network *network_;
 };
+
+ClockPinPairHash::ClockPinPairHash(const Network *network) :
+  network_(network)
+{
+}
 
 size_t
 ClockPinPairHash::operator()(const ClockPinPair &pair) const
 {
-  return hashSum(pair.first->index(), hashPtr(pair.second));
+  return hashSum(pair.first->index(), network_->id(pair.second));
 }
 
 class ClockPinPairEqual

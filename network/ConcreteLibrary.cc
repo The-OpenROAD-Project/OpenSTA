@@ -21,6 +21,7 @@
 #include "PatternMatch.hh"
 #include "PortDirection.hh"
 #include "ParseBus.hh"
+#include "ConcreteNetwork.hh"
 
 namespace sta {
 
@@ -30,6 +31,7 @@ ConcreteLibrary::ConcreteLibrary(const char *name,
 				 const char *filename,
 				 bool is_liberty) :
   name_(stringCopy(name)),
+  id_(ConcreteNetwork::nextObjectId()),
   filename_(stringCopy(filename)),
   is_liberty_(is_liberty),
   bus_brkt_left_('['),
@@ -49,7 +51,7 @@ ConcreteLibrary::makeCell(const char *name,
 			  bool is_leaf,
 			  const char *filename)
 {
-  ConcreteCell *cell = new ConcreteCell(this, name, is_leaf, filename);
+  ConcreteCell *cell = new ConcreteCell(name, filename, is_leaf, this);
   addCell(cell);
   return cell;
 }
@@ -87,16 +89,17 @@ ConcreteLibrary::findCell(const char *name) const
   return cell_map_.findKey(name);
 }
 
-void
-ConcreteLibrary::findCellsMatching(const PatternMatch *pattern,
-				   CellSeq *cells) const
+CellSeq
+ConcreteLibrary::findCellsMatching(const PatternMatch *pattern) const
 {
+  CellSeq matches;
   ConcreteLibraryCellIterator cell_iter=ConcreteLibraryCellIterator(cell_map_);
   while (cell_iter.hasNext()) {
     ConcreteCell *cell = cell_iter.next();
     if (pattern->match(cell->name()))
-      cells->push_back(reinterpret_cast<Cell*>(cell));
+      matches.push_back(reinterpret_cast<Cell*>(cell));
   }
+  return matches;
 }
 
 void
@@ -109,13 +112,14 @@ ConcreteLibrary::setBusBrkts(char left,
 
 ////////////////////////////////////////////////////////////////
 
-ConcreteCell::ConcreteCell(ConcreteLibrary *library,
-			   const char *name,
+ConcreteCell::ConcreteCell(const char *name,
+			   const char *filename,
 			   bool is_leaf,
-			   const char *filename):
-  library_(library),
+                           ConcreteLibrary *library) :
   name_(stringCopy(name)),
+  id_(ConcreteNetwork::nextObjectId()),
   filename_(stringCopy(filename)),
+  library_(library),
   liberty_cell_(nullptr),
   ext_cell_(nullptr),
   port_bit_count_(0),
@@ -155,7 +159,7 @@ ConcreteCell::setExtCell(void *ext_cell)
 ConcretePort *
 ConcreteCell::makePort(const char *name)
 {
-  ConcretePort *port = new ConcretePort(this, name, false, -1, -1, false, nullptr);
+  ConcretePort *port = new ConcretePort(name, false, -1, -1, false, nullptr, this);
   addPort(port);
   return port;
 }
@@ -164,8 +168,7 @@ ConcretePort *
 ConcreteCell::makeBundlePort(const char *name,
 			     ConcretePortSeq *members)
 {
-  ConcretePort *port = new ConcretePort(this, name, false, -1, -1,
-					true, members);
+  ConcretePort *port = new ConcretePort(name, false, -1, -1, true, members, this);
   addPort(port);
   return port;
 }
@@ -175,8 +178,8 @@ ConcreteCell::makeBusPort(const char *name,
 			  int from_index,
 			  int to_index)
 {
-  ConcretePort *port = new ConcretePort(this, name, true, from_index, to_index,
-					false, new ConcretePortSeq);
+  ConcretePort *port = new ConcretePort(name, true, from_index, to_index,
+					false, new ConcretePortSeq, this);
   addPort(port);
   makeBusPortBits(port, name, from_index, to_index);
   return port;
@@ -188,8 +191,8 @@ ConcreteCell::makeBusPort(const char *name,
 			  int to_index,
 			  ConcretePortSeq *members)
 {
-  ConcretePort *port = new ConcretePort(this, name, true, from_index, to_index,
-					false, members);
+  ConcretePort *port = new ConcretePort(name, true, from_index, to_index,
+					false, members, this);
   addPort(port);
   return port;
 }
@@ -230,8 +233,8 @@ ConcretePort *
 ConcreteCell::makePort(const char *bit_name,
 		       int bit_index)
 {
-  ConcretePort *port = new ConcretePort(this, bit_name, false, bit_index,
-					bit_index, false, nullptr);
+  ConcretePort *port = new ConcretePort(bit_name, false, bit_index,
+					bit_index, false, nullptr, this);
   addPortBit(port);
   return port;
 }
@@ -270,10 +273,10 @@ ConcreteCell::portCount() const
   return ports_.size();
 }
 
-void
-ConcreteCell::findPortsMatching(const PatternMatch *pattern,
-				PortSeq *ports) const
+PortSeq
+ConcreteCell::findPortsMatching(const PatternMatch *pattern) const
 {
+  PortSeq matches;
   char bus_brkt_right = library_->busBrktRight();
   const char *pattern1 = pattern->pattern();
   bool bus_pattern = (pattern1[strlen(pattern1) - 1] == bus_brkt_right);
@@ -285,14 +288,15 @@ ConcreteCell::findPortsMatching(const PatternMatch *pattern,
       while (member_iter->hasNext()) {
 	ConcretePort *port_bit = member_iter->next();
 	if (pattern->match(port_bit->name()))
-	  ports->push_back(reinterpret_cast<Port*>(port_bit));
+	  matches.push_back(reinterpret_cast<Port*>(port_bit));
       }
       delete member_iter;
     }
     else if (pattern->match(port->name()))
-      ports->push_back(reinterpret_cast<Port*>(port));
+      matches.push_back(reinterpret_cast<Port*>(port));
   }
   delete port_iter;
+  return matches;
 }
 
 ConcreteCellPortIterator *
@@ -456,14 +460,15 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
 
 ////////////////////////////////////////////////////////////////
 
-ConcretePort::ConcretePort(ConcreteCell *cell,
-			   const char *name,
+ConcretePort::ConcretePort(const char *name,
 			   bool is_bus,
 			   int from_index,
 			   int to_index,
 			   bool is_bundle,
-			   ConcretePortSeq *member_ports) :
+			   ConcretePortSeq *member_ports,
+                           ConcreteCell *cell) :
   name_(stringCopy(name)),
+  id_(ConcreteNetwork::nextObjectId()),
   cell_(cell),
   direction_(PortDirection::unknown()),
   liberty_port_(nullptr),

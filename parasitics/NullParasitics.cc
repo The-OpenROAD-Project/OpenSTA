@@ -97,13 +97,13 @@ NullParasitics::makePiElmore(const Pin *,
 }
 
 bool
-NullParasitics::isPiElmore(Parasitic *) const
+NullParasitics::isPiElmore(const Parasitic *) const
 {
   return false;
 }
 
 bool
-NullParasitics::isReducedParasiticNetwork(Parasitic *) const
+NullParasitics::isReducedParasiticNetwork(const Parasitic *) const
 {
   return false;
 }
@@ -115,7 +115,7 @@ NullParasitics::setIsReducedParasiticNetwork(Parasitic *,
 }
 
 void
-NullParasitics::piModel(Parasitic *,
+NullParasitics::piModel(const Parasitic *,
 			float &,
 			float &,
 			float &) const
@@ -131,7 +131,7 @@ NullParasitics::setPiModel(Parasitic *,
 }
 
 void
-NullParasitics::findElmore(Parasitic *,
+NullParasitics::findElmore(const Parasitic *,
 			   const Pin *,
 			   float &,
 			   bool &) const
@@ -146,13 +146,13 @@ NullParasitics::setElmore(Parasitic *,
 }
 
 bool
-NullParasitics::isPiModel(Parasitic*) const
+NullParasitics::isPiModel(const Parasitic*) const
 {
   return false;
 }
 
 bool
-NullParasitics::isPiPoleResidue(Parasitic* ) const
+NullParasitics::isPiPoleResidue(const Parasitic* ) const
 {
   return false;
 }

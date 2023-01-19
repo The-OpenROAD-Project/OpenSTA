@@ -207,19 +207,20 @@ protected:
 			   Arrival clk_insertion,
 			   Arrival clk_latency,
 			   bool is_path_delay);
-  bool reportGenClkSrcPath(const Path *clk_path, Clock *clk,
+  bool reportGenClkSrcPath(const Path *clk_path,
+                           const Clock *clk,
 			   const RiseFall *clk_rf,
 			   const MinMax *min_max,
 			   const EarlyLate *early_late);
   void reportGenClkSrcAndPath(const Path *path,
-			      Clock *clk,
+			      const Clock *clk,
 			      const RiseFall *clk_rf,
 			      const EarlyLate *early_late,
 			      const PathAnalysisPt *path_ap,
 			      float time_offset,
 			      float path_time_offset,
 			      bool clk_used_as_data);
-  bool reportGenClkSrcPath1(Clock *clk,
+  bool reportGenClkSrcPath1(const Clock *clk,
 			    const Pin *clk_pin,
 			    const RiseFall *clk_rf,
 			    const EarlyLate *early_late,
@@ -386,6 +387,7 @@ protected:
 		const RiseFall *rf,
 		DcalcAnalysisPt *dcalc_ap);
   float drvrFanout(Vertex *drvr,
+                   const Corner *corner,
 		   const MinMax *min_max);
   const char *mpwCheckHiLow(MinPulseWidthCheck *check);
   void reportSkewClkPath(const char *arrival_msg,
@@ -400,7 +402,7 @@ protected:
 		   PathRef &clk_path) const;
   bool isPropagated(const Path *clk_path);
   bool isPropagated(const Path *clk_path,
-		    Clock *clk);
+		    const Clock *clk);
   bool pathFromClkPin(PathExpanded &expanded);
   bool pathFromClkPin(const Path *path,
 		      const Pin *start_pin);

@@ -132,8 +132,7 @@ public:
 		 const char *filename);
   virtual ~LibertyLibrary();
   LibertyCell *findLibertyCell(const char *name) const;
-  void findLibertyCellsMatching(PatternMatch *pattern,
-				LibertyCellSeq *cells);
+  LibertyCellSeq findLibertyCellsMatching(PatternMatch *pattern);
   // Liberty cells that are buffers.
   LibertyCellSeq *buffers();
 
@@ -398,8 +397,7 @@ public:
   LibertyLibrary *libertyLibrary() const { return liberty_library_; }
   LibertyLibrary *libertyLibrary() { return liberty_library_; }
   LibertyPort *findLibertyPort(const char *name) const;
-  void findLibertyPortsMatching(PatternMatch *pattern,
-				LibertyPortSeq *ports) const;
+  LibertyPortSeq findLibertyPortsMatching(PatternMatch *pattern) const;
   bool hasInternalPorts() const { return has_internal_ports_; }
   LibertyPgPort *findPgPort(const char *name) const;
   size_t pgPortCount() const { return pg_port_map_.size(); }
@@ -842,9 +840,8 @@ private:
   friend class LibertyReader;
 };
 
-void
-sortLibertyPortSet(LibertyPortSet *set,
-		   LibertyPortSeq &ports);
+LibertyPortSeq
+sortByName(const LibertyPortSet *set);
 
 class LibertyPortMemberIterator : public Iterator<LibertyPort*>
 {

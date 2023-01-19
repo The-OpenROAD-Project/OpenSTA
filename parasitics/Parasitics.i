@@ -27,7 +27,6 @@ using sta::MinMaxAll;
 using sta::ReducedParasiticType;
 using sta::RiseFall;
 using sta::Pin;
-using sta::TmpFloatSeq;
 
 %}
 
@@ -60,7 +59,7 @@ report_parasitic_annotation_cmd(bool report_unannotated,
   Sta::sta()->reportParasiticAnnotation(report_unannotated, corner);
 }
 
-TmpFloatSeq *
+FloatSeq
 find_pi_elmore(Pin *drvr_pin,
 	       RiseFall *rf,
 	       MinMax *min_max)
@@ -68,13 +67,13 @@ find_pi_elmore(Pin *drvr_pin,
   float c2, rpi, c1;
   bool exists;
   Sta::sta()->findPiElmore(drvr_pin, rf, min_max, c2, rpi, c1, exists);
-  TmpFloatSeq *floats = new FloatSeq;
+  FloatSeq pi_elmore;
   if (exists) {
-    floats->push_back(c2);
-    floats->push_back(rpi);
-    floats->push_back(c1);
+    pi_elmore.push_back(c2);
+    pi_elmore.push_back(rpi);
+    pi_elmore.push_back(c1);
   }
-  return floats;
+  return pi_elmore;
 }
 
 float

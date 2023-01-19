@@ -99,6 +99,17 @@ public:
   }
 
   void
+  deleteKeysContents()
+  {
+    for (auto key_value : this) {
+      KEY key = key_value.first;
+      VALUE value = key_value.second;
+      delete key;
+      delete value;
+    }
+  }
+
+  void
   deleteArrayContents()
   {
     Iterator iter(this);

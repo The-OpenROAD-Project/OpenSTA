@@ -82,8 +82,8 @@ MakeTimingModel::makeTimingModel(const char *lib_name,
   findClkedOutputPaths();
 
   cell_->finish(false, report_, debug_);
-  saveSdc();
-
+  restoreSdc();
+  
   return library_;
 }
 
@@ -104,8 +104,8 @@ MakeTimingModel::restoreSdc()
   Sdc::movePortDelays(sdc_backup_, sdc_);
   Sdc::movePortExtCaps(sdc_backup_, sdc_);
   Sdc::moveDeratingFactors(sdc_backup_, sdc_);
-  sta_->delaysInvalid();
   delete sdc_backup_;
+  sta_->delaysInvalid();
 }
 
 void
@@ -243,8 +243,8 @@ void
 MakeEndTimingArcs::visit(PathEnd *path_end)
 {
   Path *src_path = path_end->path();
-  Clock *src_clk = src_path->clock(sta_);
-  ClockEdge *tgt_clk_edge = path_end->targetClkEdge(sta_);
+  const Clock *src_clk = src_path->clock(sta_);
+  const ClockEdge *tgt_clk_edge = path_end->targetClkEdge(sta_);
   if (src_clk == sta_->sdc()->defaultArrivalClock()
       && tgt_clk_edge) {
     Network *network = sta_->network();
@@ -301,7 +301,7 @@ MakeTimingModel::findTimingFromInputs()
                             sdc_->defaultArrivalClockEdge()->transition(),
                             nullptr, false, false, MinMaxAll::all(), true, 0.0);
 
-        PinSet *from_pins = new PinSet;
+        PinSet *from_pins = new PinSet(network_);
         from_pins->insert(input_pin);
         ExceptionFrom *from = sta_->makeExceptionFrom(from_pins, nullptr, nullptr,
                                                       input_rf1);
@@ -357,7 +357,7 @@ MakeTimingModel::makeSetupHoldTimingArcs(const Pin *input_pin,
                                          const ClockEdgeDelays &clk_margins)
 {
   for (auto clk_edge_margins : clk_margins) {
-    ClockEdge *clk_edge = clk_edge_margins.first;
+    const ClockEdge *clk_edge = clk_edge_margins.first;
     RiseFallMinMax &margins = clk_edge_margins.second;
     for (MinMax *min_max : MinMax::range()) {
       bool setup = (min_max == MinMax::max());
@@ -451,7 +451,7 @@ MakeTimingModel::findClkedOutputPaths()
       VertexPathIterator path_iter(output_vertex, this);
       while (path_iter.hasNext()) {
         PathVertex *path = path_iter.next();
-        ClockEdge *clk_edge = path->clkEdge(sta_);
+        const ClockEdge *clk_edge = path->clkEdge(sta_);
         if (clk_edge) {
           const RiseFall *output_rf = path->transition(sta_);
           const MinMax *min_max = path->minMax(sta_);
@@ -462,7 +462,7 @@ MakeTimingModel::findClkedOutputPaths()
         }
       }
       for (auto clk_edge_delay : clk_delays) {
-        ClockEdge *clk_edge = clk_edge_delay.first;
+        const ClockEdge *clk_edge = clk_edge_delay.first;
         RiseFallMinMax &delays = clk_edge_delay.second;
         for (const Pin *clk_pin : clk_edge->clock()->pins()) {
           LibertyPort *clk_port = modelPort(clk_pin);

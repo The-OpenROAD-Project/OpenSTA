@@ -33,9 +33,12 @@ static bool
 isPowerOfTwo(int i);
 
 Clock::Clock(const char *name,
-	     int index) :
+	     int index,
+             const Network *network) :
   name_(stringCopy(name)),
+  pins_(network),
   add_to_pins_(false),
+  leaf_pins_(network),
   period_(0.0),
   waveform_(nullptr),
   waveform_valid_(false),
@@ -99,7 +102,7 @@ Clock::makeLeafPins(const Network *network)
   leaf_pins_.clear();
   PinSet::Iterator pin_iter(pins_);
   while (pin_iter.hasNext()) {
-    Pin *pin = pin_iter.next();
+    const Pin *pin = pin_iter.next();
     findLeafDriverPins(pin, network, &leaf_pins_);
   }
 }
@@ -135,14 +138,14 @@ Clock::~Clock()
 }
 
 void
-Clock::addPin(Pin *pin)
+Clock::addPin(const Pin *pin)
 {
   pins_.insert(pin);
   leaf_pins_.insert(pin);
 }
 
 void
-Clock::deletePin(Pin *pin)
+Clock::deletePin(const Pin *pin)
 {
   pins_.erase(pin);
 }
@@ -167,7 +170,7 @@ Clock::setClkEdgeTime(const RiseFall *rf)
   clk_edges_[rf->index()]->setTime(time);
 }
 
-Pin *
+const Pin *
 Clock::defaultPin() const
 {
   PinSet::ConstIterator pin_iter(leaf_pins_);
@@ -493,11 +496,11 @@ Clock::srcPinVertices(VertexSet &src_vertices,
 {
   if (network->isHierarchical(src_pin_)) {
     // Use the clocks on a non-hierarchical pin on the same net.
-    PinSet leaf_pins;
+    PinSet leaf_pins(network);
     findLeafDriverPins(src_pin_, network, &leaf_pins);
     PinSet::Iterator pin_iter(leaf_pins);
     while (pin_iter.hasNext()) {
-      Pin *pin = pin_iter.next();
+      const Pin *pin = pin_iter.next();
       Vertex *vertex, *bidirect_drvr_vertex;
       graph->pinVertices(pin, vertex, bidirect_drvr_vertex);
       if (vertex)
@@ -585,8 +588,8 @@ clkCmp(const Clock *clk1,
 }
 
 int
-clkEdgeCmp(ClockEdge *clk_edge1,
-	   ClockEdge *clk_edge2)
+clkEdgeCmp(const ClockEdge *clk_edge1,
+	   const ClockEdge *clk_edge2)
 {
   if (clk_edge1 == nullptr && clk_edge2)
     return -1;
@@ -607,8 +610,8 @@ clkEdgeCmp(ClockEdge *clk_edge1,
 }
 
 bool
-clkEdgeLess(ClockEdge *clk_edge1,
-	    ClockEdge *clk_edge2)
+clkEdgeLess(const ClockEdge *clk_edge1,
+	    const ClockEdge *clk_edge2)
 {
   return clkEdgeCmp(clk_edge1, clk_edge2) < 0;
 }
@@ -683,14 +686,59 @@ ClockNameLess::operator()(const Clock *clk1,
   return stringLess(clk1->name(), clk2->name());
 }
 
-void
-sortClockSet(ClockSet *set,
-	     ClockSeq &clks)
+
+bool
+ClockIndexLess::operator()(const Clock *clk1,
+                           const Clock *clk2) const
 {
-  ClockSet::Iterator clk_iter(set);
-  while (clk_iter.hasNext())
-    clks.push_back(clk_iter.next());
+  return (clk1 == nullptr && clk2)
+    || (clk1 && clk2
+        && clk1->index() < clk2->index());
+}
+
+ClockSeq
+sortByName(ClockSet *set)
+{
+  ClockSeq clks;
+  for (Clock *clk : *set)
+    clks.push_back(clk);
   sort(clks, ClockNameLess());
+  return clks;
+}
+
+////////////////////////////////////////////////////////////////
+
+bool
+ClockSetLess::operator()(const ClockSet *set1,
+                         const ClockSet *set2) const
+{
+  return sta::compare(set1, set2) < 0;
+}
+
+int
+compare(const ClockSet *set1,
+        const ClockSet *set2)
+{
+  size_t size1 = set1 ? set1->size() : 0;
+  size_t size2 = set2 ? set2->size() : 0;
+  if (size1 == size2) {
+    ClockSet::ConstIterator iter1(set1);
+    ClockSet::ConstIterator iter2(set2);
+    while (iter1.hasNext() && iter2.hasNext()) {
+      Clock *clk1 = iter1.next();
+      Clock *clk2 = iter2.next();
+      int id1 = clk1->index();
+      int id2 = clk2->index();
+      if (id1 < id2)
+        return -1;
+      else if (id1 > id2)
+        return 1;
+    }
+    // Sets are equal.
+    return 0;
+  }
+  else
+    return (size1 > size2) ? 1 : -1;
 }
 
 } // namespace

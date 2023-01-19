@@ -71,11 +71,11 @@ public:
   }
 
   static bool
-  intersects(std::set<KEY, CMP> &set1,
-	     std::set<KEY, CMP> &set2);
+  intersects(const std::set<KEY, CMP> &set1,
+	     const std::set<KEY, CMP> &set2);
   static bool
-  intersects(std::set<KEY, CMP> *set1,
-	     std::set<KEY, CMP> *set2);
+  intersects(const std::set<KEY, CMP> *set1,
+	     const std::set<KEY, CMP> *set2);
 
   // Java style container itererator
   //  Set::Iterator<Key*> iter(set);
@@ -174,16 +174,16 @@ Set<KEY, CMP>::isSubset(const std::set<KEY, CMP> *set2)
 
 template <class KEY, class CMP>
 bool
-Set<KEY, CMP>::intersects(std::set<KEY, CMP> &set1,
-			  std::set<KEY, CMP> &set2)
+Set<KEY, CMP>::intersects(const std::set<KEY, CMP> &set1,
+			  const std::set<KEY, CMP> &set2)
 {
   return intersects(&set1, &set2);
 }
 
 template <class KEY, class CMP>
 bool
-Set<KEY, CMP>::intersects(std::set<KEY, CMP> *set1,
-			  std::set<KEY, CMP> *set2)
+Set<KEY, CMP>::intersects(const std::set<KEY, CMP> *set1,
+			  const std::set<KEY, CMP> *set2)
 {
   if (set1 && !set1->empty()
       && set2 && !set2->empty()) {

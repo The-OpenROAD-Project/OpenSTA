@@ -124,7 +124,7 @@ CheckMinPulseWidths::check(PinSeq *pins,
   MinPulseWidthChecksVisitor visitor(corner, checks_);
   PinSeq::Iterator pin_iter(pins);
   while (pin_iter.hasNext()) {
-    Pin *pin = pin_iter.next();
+    const Pin *pin = pin_iter.next();
     Vertex *vertex = graph->pinLoadVertex(pin);
     visitMinPulseWidthChecks(vertex, &visitor);
   }
@@ -381,13 +381,13 @@ MinPulseWidthCheck::closeDelay(const StaState *sta) const
   return closeArrival(sta) - closeClkEdge(sta)->time();
 }
 
-ClockEdge *
+const ClockEdge *
 MinPulseWidthCheck::openClkEdge(const StaState *sta) const
 {
   return open_path_.clkEdge(sta->search());
 }
 
-ClockEdge *
+const ClockEdge *
 MinPulseWidthCheck::closeClkEdge(const StaState *sta) const
 {
   Tag *open_tag = open_path_.tag(sta);
@@ -398,8 +398,8 @@ MinPulseWidthCheck::closeClkEdge(const StaState *sta) const
 float
 MinPulseWidthCheck::closeOffset(const StaState *sta) const
 {
-  ClockEdge *open_clk_edge = openClkEdge(sta);
-  ClockEdge *close_clk_edge = closeClkEdge(sta);
+  const ClockEdge *open_clk_edge = openClkEdge(sta);
+  const ClockEdge *close_clk_edge = closeClkEdge(sta);
   if (open_clk_edge->time() > close_clk_edge->time())
     return open_clk_edge->clock()->period();
   else
@@ -435,7 +435,7 @@ minPulseWidth(const Path *path,
 	      bool &exists)
 {
   Pin *pin = path->pin(sta);
-  Clock *clk = path->clock(sta);
+  const Clock *clk = path->clock(sta);
   const RiseFall *rf = path->transition(sta);
   Sdc *sdc = sta->sdc();
   // set_min_pulse_width command.

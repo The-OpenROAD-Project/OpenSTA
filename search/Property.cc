@@ -156,56 +156,56 @@ PropertyValue::PropertyValue(bool value) :
 {
 }
 
-PropertyValue::PropertyValue(LibertyLibrary *value) :
+PropertyValue::PropertyValue(const LibertyLibrary *value) :
   type_(type_liberty_library),
   liberty_library_(value),
   unit_(nullptr)
 {
 }
 
-PropertyValue::PropertyValue(LibertyCell *value) :
+PropertyValue::PropertyValue(const LibertyCell *value) :
   type_(type_liberty_cell),
   liberty_cell_(value),
   unit_(nullptr)
 {
 }
 
-PropertyValue::PropertyValue(LibertyPort *value) :
+PropertyValue::PropertyValue(const LibertyPort *value) :
   type_(type_liberty_port),
   liberty_port_(value),
   unit_(nullptr)
 {
 }
 
-PropertyValue::PropertyValue(Library *value) :
+PropertyValue::PropertyValue(const Library *value) :
   type_(type_library),
   library_(value),
   unit_(nullptr)
 {
 }
 
-PropertyValue::PropertyValue(Cell *value) :
+PropertyValue::PropertyValue(const Cell *value) :
   type_(type_cell),
   cell_(value),
   unit_(nullptr)
 {
 }
 
-PropertyValue::PropertyValue(Port *value) :
+PropertyValue::PropertyValue(const Port *value) :
   type_(type_port),
   port_(value),
   unit_(nullptr)
 {
 }
 
-PropertyValue::PropertyValue(Instance *value) :
+PropertyValue::PropertyValue(const Instance *value) :
   type_(type_instance),
   inst_(value),
   unit_(nullptr)
 {
 }
 
-PropertyValue::PropertyValue(Pin *value) :
+PropertyValue::PropertyValue(const Pin *value) :
   type_(type_pin),
   pin_(value),
   unit_(nullptr)
@@ -226,19 +226,31 @@ PropertyValue::PropertyValue(PinSet *value) :
 {
   PinSet::Iterator pin_iter(value);
   while (pin_iter.hasNext()) {
-    Pin *pin = pin_iter.next();
+    const Pin *pin = pin_iter.next();
     pins_->push_back( pin);
   }
 }
 
-PropertyValue::PropertyValue(Net *value) :
+PropertyValue::PropertyValue(const PinSet &value) :
+  type_(type_pins),
+  pins_(new PinSeq),
+  unit_(nullptr)
+{
+  PinSet::ConstIterator pin_iter(value);
+  while (pin_iter.hasNext()) {
+    const Pin *pin = pin_iter.next();
+    pins_->push_back( pin);
+  }
+}
+
+PropertyValue::PropertyValue(const Net *value) :
   type_(type_net),
   net_(value),
   unit_(nullptr)
 {
 }
 
-PropertyValue::PropertyValue(Clock *value) :
+PropertyValue::PropertyValue(const Clock *value) :
   type_(type_clk),
   clk_(value),
   unit_(nullptr)
@@ -862,8 +874,7 @@ getProperty(const Pin *pin,
     return PropertyValue(port && port->isRegClk());
   }
   else if (stringEqual(property, "clocks")) {
-    ClockSet clks;
-    sta->clocks(pin, clks);
+    ClockSet clks = sta->clocks(pin);
     return PropertyValue(&clks);
   }
   else if (stringEqual(property, "activity")) {
@@ -1077,7 +1088,7 @@ getProperty(Clock *clk,
   else if (stringEqual(property, "period"))
     return PropertyValue(clk->period(), sta->units()->timeUnit());
   else if (stringEqual(property, "sources"))
-    return PropertyValue(&clk->pins());
+    return PropertyValue(clk->pins());
   else if (stringEqual(property, "propagated"))
     return PropertyValue(clk->isPropagated());
   else if (stringEqual(property, "is_generated"))

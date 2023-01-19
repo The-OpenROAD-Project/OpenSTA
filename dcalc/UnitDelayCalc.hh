@@ -31,10 +31,10 @@ public:
 				   const DcalcAnalysisPt *dcalc_ap);
   virtual ReducedParasiticType reducedParasiticType() const;
   virtual void gateDelay(const LibertyCell *drvr_cell,
-			 TimingArc *arc,
+			 const TimingArc *arc,
 			 const Slew &in_slew,
 			 float load_cap,
-			 Parasitic *drvr_parasitic,
+			 const Parasitic *drvr_parasitic,
 			 float related_out_cap,
 			 const Pvt *pvt,
 			 const DcalcAnalysisPt *dcalc_ap,
@@ -47,20 +47,20 @@ public:
 			 Slew &load_slew);
   virtual void setMultiDrvrSlewFactor(float) {}
   virtual float ceff(const LibertyCell *drvr_cell,
-		     TimingArc *arc,
+		     const TimingArc *arc,
 		     const Slew &in_slew,
 		     float load_cap,
-		     Parasitic *drvr_parasitic,
+		     const Parasitic *drvr_parasitic,
 		     float related_out_cap,
 		     const Pvt *pvt,
 		     const DcalcAnalysisPt *dcalc_ap);
   virtual void inputPortDelay(const Pin *port_pin,
 			      float in_slew,
 			      const RiseFall *rf,
-			      Parasitic *parasitic,
+			      const Parasitic *parasitic,
 			      const DcalcAnalysisPt *dcalc_ap);
   virtual void checkDelay(const LibertyCell *cell,
-			  TimingArc *arc,
+			  const TimingArc *arc,
 			  const Slew &from_slew,
 			  const Slew &to_slew,
 			  float related_out_cap,
@@ -69,17 +69,17 @@ public:
 			  // Return values.
 			  ArcDelay &margin);
   virtual void reportGateDelay(const LibertyCell *drvr_cell,
-			       TimingArc *arc,
+			       const TimingArc *arc,
 			       const Slew &in_slew,
 			       float load_cap,
-			       Parasitic *drvr_parasitic,
+			       const Parasitic *drvr_parasitic,
 			       float related_out_cap,
 			       const Pvt *pvt,
 			       const DcalcAnalysisPt *dcalc_ap,
 			       int digits,
 			       string *result);
   virtual void reportCheckDelay(const LibertyCell *cell,
-				TimingArc *arc,
+				const TimingArc *arc,
 				const Slew &from_slew,
 				const char *from_slew_annotation,
 				const Slew &to_slew,

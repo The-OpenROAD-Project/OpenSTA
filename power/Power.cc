@@ -74,6 +74,7 @@ Power::Power(StaState *sta) :
   StaState(sta),
   global_activity_{0.0, 0.0, PwrActivityOrigin::unknown},
   input_activity_{0.1, 0.5, PwrActivityOrigin::input},
+  seq_activity_map_(100, SeqPinHash(network_), SeqPinEqual()),
   activities_valid_(false)
 {
 }
@@ -173,10 +174,15 @@ Power::seqActivity(const Instance *reg,
   return seq_activity_map_[SeqPin(reg, output)];
 }
 
+SeqPinHash::SeqPinHash(const Network *network) :
+  network_(network)
+{
+}
+
 size_t
 SeqPinHash::operator()(const SeqPin &pin) const
 {
-  return hashSum(hashPtr(pin.first), hashPtr(pin.second));
+  return hashSum(network_->id(pin.first), pin.second->id());
 }
 
 bool
@@ -210,8 +216,7 @@ Power::power(const Corner *corner,
     Instance *inst = inst_iter->next();
     LibertyCell *cell = network_->libertyCell(inst);
     if (cell) {
-      PowerResult inst_power;
-      power(inst, cell, corner, inst_power);
+      PowerResult inst_power = power(inst, cell, corner);
       if (cell->isMacro()
 	  || cell->isMemory())
 	macro.incr(inst_power);
@@ -227,17 +232,16 @@ Power::power(const Corner *corner,
   delete inst_iter;
 }
 
-void
+PowerResult
 Power::power(const Instance *inst,
-	     const Corner *corner,
-	     // Return values.
-	     PowerResult &result)
+	     const Corner *corner)
 {
   LibertyCell *cell = network_->libertyCell(inst);
   if (cell) {
     ensureActivities();
-    power(inst, cell, corner, result);
+    return power(inst, cell, corner);
   }
+  return PowerResult();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -306,7 +310,7 @@ PropActivityVisitor::copy() const
 void
 PropActivityVisitor::init()
 {
-  visited_regs_ = new InstanceSet;
+  visited_regs_ = new InstanceSet(network_);
   found_reg_without_activity_ = false;
 }
 
@@ -546,7 +550,7 @@ Power::ensureActivities()
 	InstanceSet *regs = visitor.stealVisitedRegs();
 	InstanceSet::Iterator reg_iter(regs);
 	while (reg_iter.hasNext()) {
-	  Instance *reg = reg_iter.next();
+	  const Instance *reg = reg_iter.next();
 	  // Propagate activiities across register D->Q.
 	  seedRegOutputActivities(reg, bfs);
 	}
@@ -636,13 +640,12 @@ Power::seedRegOutputActivities(const Instance *reg,
 
 ////////////////////////////////////////////////////////////////
 
-void
+PowerResult
 Power::power(const Instance *inst,
 	     LibertyCell *cell,
-	     const Corner *corner,
-	     // Return values.
-	     PowerResult &result)
+	     const Corner *corner)
 {
+  PowerResult result;
   MinMax *mm = MinMax::max();
   const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
   const Clock *inst_clk = findInstClk(inst);
@@ -667,6 +670,7 @@ Power::power(const Instance *inst,
   }
   delete pin_iter;
   findLeakagePower(inst, cell, corner, result);
+  return result;
 }
 
 const Clock *

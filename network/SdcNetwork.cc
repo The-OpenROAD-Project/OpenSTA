@@ -86,6 +86,12 @@ NetworkNameAdapter::name(const Library *library) const
   return network_->name(library);
 }
 
+ObjectId
+NetworkNameAdapter::id(const Library *library) const
+{
+  return network_->id(library);
+}
+
 Cell *
 NetworkNameAdapter::findCell(const Library *library,
 			     const char *name) const
@@ -93,12 +99,11 @@ NetworkNameAdapter::findCell(const Library *library,
   return network_->findCell(library, name);
 }
 
-void
+CellSeq
 NetworkNameAdapter::findCellsMatching(const Library *library,
-				      const PatternMatch *pattern,
-				      CellSeq *cells) const
+				      const PatternMatch *pattern) const
 {
-  network_->findCellsMatching(library, pattern, cells);
+  return network_->findCellsMatching(library, pattern);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -107,6 +112,12 @@ const char *
 NetworkNameAdapter::name(const Cell *cell) const
 {
   return network_->name(cell);
+}
+
+ObjectId
+NetworkNameAdapter::id(const Cell *cell) const
+{
+  return network_->id(cell);
 }
 
 Library *
@@ -152,12 +163,11 @@ NetworkNameAdapter::findPort(const Cell *cell,
   return network_->findPort(cell, name);
 }
 
-void
+PortSeq
 NetworkNameAdapter::findPortsMatching(const Cell *cell,
-				      const PatternMatch *pattern,
-				      PortSeq *ports) const
+				      const PatternMatch *pattern) const
 {
-  network_->findPortsMatching(cell, pattern, ports);
+  return network_->findPortsMatching(cell, pattern);
 }
 
 bool
@@ -190,6 +200,12 @@ const char *
 NetworkNameAdapter::name(const Port *port) const
 {
   return network_->name(port);
+}
+
+ObjectId
+NetworkNameAdapter::id(const Port *port) const
+{
+  return network_->id(port);
 }
 
 Cell *
@@ -297,6 +313,12 @@ NetworkNameAdapter::memberIterator(const Port *port) const
 
 ////////////////////////////////////////////////////////////////
 
+ObjectId
+NetworkNameAdapter::id(const Instance *instance) const
+{
+  return network_->id(instance);
+}
+
 Cell *
 NetworkNameAdapter::cell(const Instance *instance) const
 {
@@ -347,6 +369,12 @@ NetworkNameAdapter::netIterator(const Instance *instance) const
   return network_->netIterator(instance);
 }
 
+ObjectId
+NetworkNameAdapter::id(const Pin *pin) const
+{
+  return network_->id(pin);
+}
+
 Port *
 NetworkNameAdapter::port(const Pin *pin) const
 {
@@ -377,6 +405,12 @@ NetworkNameAdapter::direction(const Pin *pin) const
   return network_->direction(pin);
 }
 
+ObjectId
+NetworkNameAdapter::id(const Term *term) const
+{
+  return network_->id(term);
+}
+
 Net *
 NetworkNameAdapter::net(const Term *term) const
 {
@@ -387,6 +421,12 @@ Pin *
 NetworkNameAdapter::pin(const Term *term) const
 {
   return network_->pin(term);
+}
+
+ObjectId
+NetworkNameAdapter::id(const Net *net) const
+{
+  return network_->id(net);
 }
 
 Instance *
@@ -611,13 +651,12 @@ SdcNetwork::findPort(const Cell *cell,
   return port;
 }
 
-void
+PortSeq
 SdcNetwork::findPortsMatching(const Cell *cell,
-			      const PatternMatch *pattern,
-			      PortSeq *ports) const
+			      const PatternMatch *pattern) const
 {
-  network_->findPortsMatching(cell, pattern, ports);
-  if (ports->empty()) {
+  PortSeq matches = network_->findPortsMatching(cell, pattern);
+  if (matches.empty()) {
     // Look for matches after escaping brackets.
     char *bus_name;
     int index;
@@ -625,19 +664,20 @@ SdcNetwork::findPortsMatching(const Cell *cell,
     if (bus_name) {
       const char *escaped1 = escapeBrackets(pattern->pattern(), this);
       PatternMatch escaped_pattern1(escaped1, pattern);
-      network_->findPortsMatching(cell, &escaped_pattern1, ports);
-      if (ports->empty()
+      matches = network_->findPortsMatching(cell, &escaped_pattern1);
+      if (matches.empty()
 	  && bus_name[strlen(bus_name) - 1] == ']') {
 	// Try escaping base foo\[0\][1]
 	const char *escaped2 = stringPrintTmp("%s[%d]",
 					      escapeBrackets(bus_name, this),
 					      index);
 	PatternMatch escaped_pattern2(escaped2, pattern);
-	network_->findPortsMatching(cell, &escaped_pattern2, ports);
+	matches = network_->findPortsMatching(cell, &escaped_pattern2);
       }
       stringDelete(bus_name);
     }
   }
+  return matches;
 }
 
 const char *
@@ -704,18 +744,27 @@ SdcNetwork::findInstance(const char *path_name) const
   return child;
 }
 
-void
+InstanceSeq
 SdcNetwork::findInstancesMatching(const Instance *context,
-				  const PatternMatch *pattern,
-				  InstanceSeq *insts) const
+				  const PatternMatch *pattern) const
+{
+  InstanceSeq matches;
+  findInstancesMatching1(context, pattern, matches);
+  return matches;
+}
+
+void
+SdcNetwork::findInstancesMatching1(const Instance *context,
+                                   const PatternMatch *pattern,
+                                   InstanceSeq &matches) const
 {
   visitMatches(context, pattern,
 	       [&](const Instance *instance,
 		   const PatternMatch *tail)
 	       {
-		 size_t match_count = insts->size();
-		 network_->findChildrenMatching(instance, tail, insts);
-		 return insts->size() != match_count;
+		 size_t match_count = matches.size();
+		 network_->findChildrenMatching(instance, tail, matches);
+		 return matches.size() != match_count;
 	       });
 }
 
@@ -756,38 +805,39 @@ SdcNetwork::findNet(const Instance *instance,
   return net;
 }
 
-void
+NetSeq
 SdcNetwork::findNetsMatching(const Instance *parent,
-			     const PatternMatch *pattern,
-			     NetSeq *nets) const
+			     const PatternMatch *pattern) const
 {
+  NetSeq matches;
   visitMatches(parent, pattern,
 	       [&](const Instance *instance,
 		   const PatternMatch *tail)
 	       {
-		 size_t match_count = nets->size();
-		 network_->findInstNetsMatching(instance, tail, nets);
-		 return nets->size() != match_count;
+		 size_t match_count = matches.size();
+		 network_->findInstNetsMatching(instance, tail, matches);
+		 return matches.size() != match_count;
 	       });
+  return matches;
 }
 
 void
 SdcNetwork::findInstNetsMatching(const Instance *instance,
 				 const PatternMatch *pattern,
-				 NetSeq *nets) const
+				 NetSeq &matches) const
 {
-  network_->findInstNetsMatching(instance, pattern, nets);
-  if (nets->empty()) {
+  network_->findInstNetsMatching(instance, pattern, matches);
+  if (matches.empty()) {
     // Look for matches after escaping path dividers.
     const PatternMatch escaped_dividers(escapeDividers(pattern->pattern(),
 						       this),
 					pattern);
-    network_->findInstNetsMatching(instance, &escaped_dividers, nets);
-    if (nets->empty()) {
+    network_->findInstNetsMatching(instance, &escaped_dividers, matches);
+    if (matches.empty()) {
       // Look for matches after escaping brackets.
       const PatternMatch escaped_brkts(escapeBrackets(pattern->pattern(),this),
 				       pattern);
-      network_->findInstNetsMatching(instance, &escaped_brkts, nets);
+      network_->findInstNetsMatching(instance, &escaped_brkts, matches);
     }
   }
 }
@@ -833,11 +883,11 @@ SdcNetwork::findPin(const Instance *instance,
 }
 
 // Top level ports are not considered pins by get_pins.
-void
+PinSeq
 SdcNetwork::findPinsMatching(const Instance *instance,
-			     const PatternMatch *pattern,
-			     PinSeq *pins) const
+			     const PatternMatch *pattern) const
 {
+  PinSeq matches;
   if (stringEq(pattern->pattern(), "*")) {
     // Pattern of '*' matches all child instance pins.
     InstanceChildIterator *child_iter = childIterator(instance);
@@ -845,8 +895,8 @@ SdcNetwork::findPinsMatching(const Instance *instance,
       Instance *child = child_iter->next();
       InstancePinIterator *pin_iter = pinIterator(child);
       while (pin_iter->hasNext()) {
-	Pin *pin = pin_iter->next();
-	pins->push_back(pin);
+	const Pin *pin = pin_iter->next();
+	matches.push_back(pin);
       }
       delete pin_iter;
     }
@@ -857,14 +907,15 @@ SdcNetwork::findPinsMatching(const Instance *instance,
 		 [&](const Instance *instance,
 		     const PatternMatch *tail)
 		 {
-		   return visitPinTail(instance, tail, pins);
+		   return visitPinTail(instance, tail, matches);
 		 });
+  return matches;
 }
 
 bool
 SdcNetwork::visitPinTail(const Instance *instance,
 			 const PatternMatch *tail,
-			 PinSeq *pins) const
+			 PinSeq &matches) const
 {
   bool found_match = false;
   if (instance != network_->topInstance()) {
@@ -879,17 +930,17 @@ SdcNetwork::visitPinTail(const Instance *instance,
 	PortMemberIterator *member_iter = network_->memberIterator(port);
 	while (member_iter->hasNext()) {
 	  Port *member_port = member_iter->next();
-	  Pin *pin = network_->findPin(instance, member_port);
+	  const Pin *pin = network_->findPin(instance, member_port);
 	  if (pin) {
 	    if (bus_matches) {
-	      pins->push_back(pin);
+	      matches.push_back(pin);
 	      found_match = true;
 	    }
 	    else {
 	      const char *member_name = network_->name(member_port);
 	      if (tail->match(member_name)
 		  || tail->match(escapeDividers(member_name, network_))) {
-		pins->push_back(pin);
+		matches.push_back(pin);
 		found_match = true;
 	      }
 	    }
@@ -901,7 +952,7 @@ SdcNetwork::visitPinTail(const Instance *instance,
 	       || tail->match(escapeDividers(port_name, network_))) {
 	Pin *pin = network_->findPin(instance, port);
 	if (pin) {
-	  pins->push_back(pin);
+	  matches.push_back(pin);
 	  found_match = true;
 	}
       }
@@ -1067,19 +1118,19 @@ SdcNetwork::visitMatches(const Instance *parent,
       *p = '\0';
       PatternMatch matcher(inst_path, pattern);
       InstanceSeq matches;
-      findChildrenMatching(parent, &matcher, &matches);
+      findChildrenMatching(parent, &matcher, matches);
       if (has_brkts && matches.empty()) {
 	// Look for matches after escaping brackets.
 	const PatternMatch escaped_brkts(escapeBrackets(inst_path, this),
 					 pattern); 
-	network_->findChildrenMatching(parent, &escaped_brkts, &matches);
+	network_->findChildrenMatching(parent, &escaped_brkts, matches);
       }
       if (!matches.empty()) {
 	// Found instance matches for the sub-path up to this divider.
 	const PatternMatch tail_pattern(s + 1, pattern);
 	InstanceSeq::Iterator match_iter(matches);
 	while (match_iter.hasNext()) {
-	  Instance *match = match_iter.next();
+	  const Instance *match = match_iter.next();
 	  // Recurse to save the iterator state so we can iterate over
 	  // multiple nested partial matches.
 	  found_match |= visitMatches(match, &tail_pattern, visit_tail);

@@ -45,10 +45,10 @@ public:
   // Return pins with the min/max cap limit slack.
   // net=null check all nets
   // corner=nullptr checks all corners.
-  PinSeq *checkCapacitanceLimits(Net *net,
-                                 bool violators,
-                                 const Corner *corner,
-                                 const MinMax *min_max);
+  PinSeq checkCapacitanceLimits(const Net *net,
+                                bool violators,
+                                const Corner *corner,
+                                const MinMax *min_max);
 
 protected:
   void checkCapacitance(const Pin *pin,
@@ -77,19 +77,19 @@ protected:
 		 // Return values.
 		 float &limit,
 		 bool &limit_exists) const;
-  void checkCapLimits(Instance *inst,
+  void checkCapLimits(const Instance *inst,
                       bool violators,
                       const Corner *corner,
                       const MinMax *min_max,
-                      PinSeq *cap_pins,
+                      PinSeq &cap_pins,
                       float &min_slack);
-  void checkCapLimits(Pin *pin,
+  void checkCapLimits(const Pin *pin,
                       bool violators,
                       const Corner *corner,
                       const MinMax *min_max,
-                      PinSeq *cap_pins,
+                      PinSeq &cap_pins,
                       float &min_slack);
-  bool checkPin(Pin *pin);
+  bool checkPin(const Pin *pin);
 
   const Sta *sta_;
 };

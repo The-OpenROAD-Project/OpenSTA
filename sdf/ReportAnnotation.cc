@@ -78,7 +78,7 @@ protected:
   void reportArcs(Vertex *vertex,
 		  bool report_annotated,
 		  int &i);
-  void reportWidthPeriodArcs(Pin *pin,
+  void reportWidthPeriodArcs(const Pin *pin,
 			     bool report_annotated,
 			     int &i);
   void reportCount(const char *title,
@@ -140,7 +140,9 @@ ReportAnnotated::ReportAnnotated(bool report_cells,
   max_lines_(max_lines),
   list_annotated_(list_annotated),
   list_unannotated_(list_unannotated),
-  report_constant_arcs_(report_constant_arcs)
+  report_constant_arcs_(report_constant_arcs),
+  unannotated_pins_(sta->network()),
+  annotated_pins_(sta->network())
 {
   init();
   report_role_[TimingRole::sdfIopath()->index()] = report_cells;
@@ -224,7 +226,9 @@ ReportAnnotated::ReportAnnotated(bool report_setup,
   max_lines_(max_lines),
   list_annotated_(list_annotated),
   list_unannotated_(list_unannotated),
-  report_constant_arcs_(report_constant_arcs)
+  report_constant_arcs_(report_constant_arcs),
+  unannotated_pins_(sta->network()),
+  annotated_pins_(sta->network())
 {
   init();
   report_role_[TimingRole::setup()->index()] = report_setup;
@@ -464,19 +468,17 @@ ReportAnnotated::reportArcs(const char *header,
 {
   report_->reportBlankLine();
   report_->reportLineString(header);
-  PinSeq sorted_pins;
-  sortPinSet(&pins, network_, sorted_pins);
+  PinSeq pins1 = sortByPathName(&pins, network_);
   int i = 0;
-  PinSeq::Iterator pin_iter(sorted_pins);
-  while (pin_iter.hasNext()
-	 && (max_lines_ == 0 || i < max_lines_)) {
-    Pin *pin = pin_iter.next();
+  for (const Pin *pin : pins1) {
     Vertex *vertex, *bidirect_drvr_vertex;
     graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
     reportArcs(vertex, report_annotated, i);
     if (bidirect_drvr_vertex)
       reportArcs(bidirect_drvr_vertex, report_annotated, i);
     reportWidthPeriodArcs(pin, report_annotated, i);
+    if (max_lines_ != 0 && i > max_lines_)
+      break;
   }
 }
 
@@ -519,7 +521,7 @@ ReportAnnotated::reportArcs(Vertex *vertex,
 }
 
 void
-ReportAnnotated::reportWidthPeriodArcs(Pin *pin,
+ReportAnnotated::reportWidthPeriodArcs(const Pin *pin,
 				       bool report_annotated,
 				       int &i)
 {

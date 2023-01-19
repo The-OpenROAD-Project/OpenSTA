@@ -25,7 +25,6 @@
 namespace sta {
 
 struct delay_work;
-class rcmodel;
 
 class GateTableModel;
 class Pin;
@@ -71,7 +70,7 @@ public:
 
 struct timing_table
 {
-  GateTableModel *table;
+  const GateTableModel *table;
   const LibertyCell *cell;
   const Pvt *pvt;
   float in_slew;

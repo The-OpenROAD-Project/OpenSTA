@@ -392,16 +392,17 @@ proc report_net_pin { pin verbose corner digits } {
   } elseif [$pin is_top_level_port] {
     set wire_cap ""
     set pin_cap ""
+    set corner [sta::cmd_corner]
     if { $verbose } {
       set port [$pin port]
-      set cap_min [port_ext_wire_cap $port "min"]
-      set cap_max [port_ext_wire_cap $port "max"]
+      set cap_min [port_ext_wire_cap $port $corner "min"]
+      set cap_max [port_ext_wire_cap $port $corner "max"]
       if { $cap_min > 0 || $cap_max > 0 } {
 	set wire_cap " wire [capacitance_range_str $cap_min $cap_max $digits]"
       }
 
-      set cap_min [port_ext_pin_cap $port "min"]
-      set cap_max [port_ext_pin_cap $port "max"]
+      set cap_min [port_ext_pin_cap $port $corner "min"]
+      set cap_max [port_ext_pin_cap $port $corner "max"]
       if { $cap_min > 0 || $cap_max > 0} {
 	set pin_cap " pin [capacitance_range_str $cap_min $cap_max $digits]"
       }

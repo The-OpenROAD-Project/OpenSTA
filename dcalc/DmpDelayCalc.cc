@@ -35,10 +35,10 @@ public:
   DmpCeffElmoreDelayCalc(StaState *sta);
   virtual ArcDelayCalc *copy();
   virtual void gateDelay(const LibertyCell *drvr_cell,
-			 TimingArc *arc,
+			 const TimingArc *arc,
 			 const Slew &in_slew,
 			 float load_cap,
-			 Parasitic *drvr_parasitic,
+			 const Parasitic *drvr_parasitic,
 			 float related_out_cap,
 			 const Pvt *pvt,
 			 const DcalcAnalysisPt *dcalc_ap,
@@ -69,10 +69,10 @@ DmpCeffElmoreDelayCalc::copy()
 
 void
 DmpCeffElmoreDelayCalc::gateDelay(const LibertyCell *drvr_cell,
-				  TimingArc *arc,
+				  const TimingArc *arc,
 				  const Slew &in_slew,
 				  float load_cap,
-				  Parasitic *drvr_parasitic,
+				  const Parasitic *drvr_parasitic,
 				  float related_out_cap,
 				  const Pvt *pvt,
 				  const DcalcAnalysisPt *dcalc_ap,
@@ -133,13 +133,13 @@ public:
   virtual void inputPortDelay(const Pin *port_pin,
 			      float in_slew,
 			      const RiseFall *rf,
-			      Parasitic *parasitic,
+			      const Parasitic *parasitic,
 			      const DcalcAnalysisPt *dcalc_ap);
   virtual void gateDelay(const LibertyCell *drvr_cell,
-			 TimingArc *arc,
+			 const TimingArc *arc,
 			 const Slew &in_slew,
 			 float load_cap,
-			 Parasitic *drvr_parasitic,
+			 const Parasitic *drvr_parasitic,
 			 float related_out_cap,
 			 const Pvt *pvt,
 			 const DcalcAnalysisPt *dcalc_ap,
@@ -201,8 +201,9 @@ DmpCeffTwoPoleDelayCalc::findParasitic(const Pin *drvr_pin,
 				       const RiseFall *rf,
 				       const DcalcAnalysisPt *dcalc_ap)
 {
+  const Corner *corner = dcalc_ap->corner();
   // set_load has precidence over parasitics.
-  if (!sdc_->drvrPinHasWireCap(drvr_pin)) {
+  if (!sdc_->drvrPinHasWireCap(drvr_pin, corner)) {
     Parasitic *parasitic = nullptr;
     const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
     if (parasitics_->haveParasitics()) {
@@ -221,7 +222,7 @@ DmpCeffTwoPoleDelayCalc::findParasitic(const Pin *drvr_pin,
       if (parasitic_network) {
 	parasitics_->reduceToPiPoleResidue2(parasitic_network, drvr_pin,
 					    dcalc_ap->operatingConditions(),
-					    dcalc_ap->corner(),
+					    corner,
 					    dcalc_ap->constraintMinMax(),
 					    parasitic_ap);
 	parasitic = parasitics_->findPiPoleResidue(drvr_pin, rf, parasitic_ap);
@@ -240,7 +241,7 @@ DmpCeffTwoPoleDelayCalc::findParasitic(const Pin *drvr_pin,
       parasitic = parasitics_->estimatePiElmore(drvr_pin, rf, wireload,
 						fanout, pin_cap,
 						dcalc_ap->operatingConditions(),
-						dcalc_ap->corner(),
+						corner,
 						cnst_min_max,
 						parasitic_ap);
       // Estimated parasitics are not recorded in the "database", so
@@ -263,7 +264,7 @@ void
 DmpCeffTwoPoleDelayCalc::inputPortDelay(const Pin *port_pin,
 					float in_slew,
 					const RiseFall *rf,
-					Parasitic *parasitic,
+					const Parasitic *parasitic,
 					const DcalcAnalysisPt *dcalc_ap)
 {
   parasitic_is_pole_residue_ = parasitics_->isPiPoleResidue(parasitic);
@@ -272,10 +273,10 @@ DmpCeffTwoPoleDelayCalc::inputPortDelay(const Pin *port_pin,
 
 void
 DmpCeffTwoPoleDelayCalc::gateDelay(const LibertyCell *drvr_cell,
-				   TimingArc *arc,
+				   const TimingArc *arc,
 				   const Slew &in_slew,
 				   float load_cap,
-				   Parasitic *drvr_parasitic,
+				   const Parasitic *drvr_parasitic,
 				   float related_out_cap,
 				   const Pvt *pvt,
 				   const DcalcAnalysisPt *dcalc_ap,

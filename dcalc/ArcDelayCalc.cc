@@ -28,23 +28,23 @@ ArcDelayCalc::ArcDelayCalc(StaState *sta):
 }
 
 TimingModel *
-ArcDelayCalc::model(TimingArc *arc,
+ArcDelayCalc::model(const TimingArc *arc,
 		    const DcalcAnalysisPt *dcalc_ap) const
 {
   const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
-  TimingArc *corner_arc = arc->cornerArc(dcalc_ap->libertyIndex());
+  const TimingArc *corner_arc = arc->cornerArc(dcalc_ap->libertyIndex());
   return corner_arc->model(op_cond);
 }
 
 GateTimingModel *
-ArcDelayCalc::gateModel(TimingArc *arc,
+ArcDelayCalc::gateModel(const TimingArc *arc,
 			const DcalcAnalysisPt *dcalc_ap) const
 {
   return dynamic_cast<GateTimingModel*>(model(arc, dcalc_ap));
 }
 
 CheckTimingModel *
-ArcDelayCalc::checkModel(TimingArc *arc,
+ArcDelayCalc::checkModel(const TimingArc *arc,
 			 const DcalcAnalysisPt *dcalc_ap) const
 {
   return dynamic_cast<CheckTimingModel*>(model(arc, dcalc_ap));

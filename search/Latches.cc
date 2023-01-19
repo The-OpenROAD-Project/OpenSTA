@@ -242,8 +242,8 @@ Latches::latchEnableOtherPath(Path *path,
 				   PathVertex &other_path)
 {
   Vertex *vertex = path->vertex(this);
-  ClockEdge *clk_edge = path->clkEdge(this);
-  ClockEdge *other_clk_edge =
+  const ClockEdge *clk_edge = path->clkEdge(this);
+  const ClockEdge *other_clk_edge =
     path->clkInfo(this)->isPulseClk() ? clk_edge:clk_edge->opposite();
   RiseFall *other_rf = path->transition(this)->opposite();
   VertexPathIterator path_iter(vertex, other_rf, tgt_clk_path_ap, this);
@@ -328,7 +328,7 @@ Latches::latchOutArrival(Path *data_path,
     while (enable_iter.hasNext()) {
       PathVertex *enable_path = enable_iter.next();
        ClkInfo *en_clk_info = enable_path->clkInfo(this);
-       ClockEdge *en_clk_edge = en_clk_info->clkEdge();
+       const ClockEdge *en_clk_edge = en_clk_info->clkEdge();
        if (enable_path->isClock(this)) {
 	 ExceptionPath *excpt = exceptionTo(data_path, en_clk_edge);
 	 // D->Q is disabled when if there is a path delay -to D or EN clk.
@@ -391,7 +391,7 @@ Latches::latchOutArrival(Path *data_path,
 
 ExceptionPath *
 Latches::exceptionTo(Path *data_path,
- 		     ClockEdge *en_clk_edge)
+ 		     const ClockEdge *en_clk_edge)
 {
   // Look for exceptions -to data or -to enable clk.
   return search_->exceptionTo(ExceptionPathType::any,

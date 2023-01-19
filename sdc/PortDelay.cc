@@ -21,15 +21,16 @@
 
 namespace sta {
 
-PortDelay::PortDelay(Pin *pin,
-		     ClockEdge *clk_edge,
-		     Pin *ref_pin) :
+PortDelay::PortDelay(const Pin *pin,
+		     const ClockEdge *clk_edge,
+                     const Network *network) :
   pin_(pin),
   clk_edge_(clk_edge),
   source_latency_included_(false),
   network_latency_included_(false),
-  ref_pin_(ref_pin),
-  delays_()
+  ref_pin_(nullptr),
+  delays_(),
+  leaf_pins_(network)
 {
 }
 
@@ -40,6 +41,12 @@ PortDelay::clock() const
     return clk_edge_->clock();
   else
     return nullptr;
+}
+
+void
+PortDelay::setRefPin(const Pin *ref_pin)
+{
+  ref_pin_ = ref_pin;
 }
 
 bool
@@ -76,22 +83,20 @@ PortDelay::refTransition() const
     return RiseFall::rise();
 }
 
-InputDelay::InputDelay(Pin *pin,
-		       ClockEdge *clk_edge,
-		       Pin *ref_pin,
+InputDelay::InputDelay(const Pin *pin,
+		       const ClockEdge *clk_edge,
 		       int index,
-		       Network *network) :
-  PortDelay(pin, clk_edge, ref_pin),
+		       const Network *network) :
+  PortDelay(pin, clk_edge, network),
   index_(index)
 {
   findLeafLoadPins(pin, network, &leaf_pins_);
 }
 
-OutputDelay::OutputDelay(Pin *pin,
-			 ClockEdge *clk_edge,
-			 Pin *ref_pin,
-			 Network *network) :
-  PortDelay(pin, clk_edge, ref_pin)
+OutputDelay::OutputDelay(const Pin *pin,
+			 const ClockEdge *clk_edge,
+			 const Network *network) :
+  PortDelay(pin, clk_edge, network)
 {
   if (network)
     findLeafDriverPins(pin, network, &leaf_pins_);
@@ -106,10 +111,10 @@ PortDelayLess::PortDelayLess(const Network *network) :
 
 bool
 PortDelayLess::operator() (const PortDelay *delay1,
-			   const PortDelay *delay2) const
+                           const PortDelay *delay2) const
 {
-  Pin *pin1 = delay1->pin();
-  Pin *pin2 = delay2->pin();
+  const Pin *pin1 = delay1->pin();
+  const Pin *pin2 = delay2->pin();
   int pin_cmp = network_->pathNameCmp(pin1, pin2);
   if (pin_cmp < 0)
     return true;

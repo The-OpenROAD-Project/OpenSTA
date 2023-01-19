@@ -54,18 +54,19 @@ public:
   PropertyValue(float value,
                 const Unit *unit);
   explicit PropertyValue(bool value);
-  PropertyValue(Library *value);
-  PropertyValue(Cell *value);
-  PropertyValue(Port *value);
-  PropertyValue(LibertyLibrary *value);
-  PropertyValue(LibertyCell *value);
-  PropertyValue(LibertyPort *value);
-  PropertyValue(Instance *value);
-  PropertyValue(Pin *value);
+  PropertyValue(const Library *value);
+  PropertyValue(const Cell *value);
+  PropertyValue(const Port *value);
+  PropertyValue(const LibertyLibrary *value);
+  PropertyValue(const LibertyCell *value);
+  PropertyValue(const LibertyPort *value);
+  PropertyValue(const Instance *value);
+  PropertyValue(const Pin *value);
   PropertyValue(PinSeq *value);
   PropertyValue(PinSet *value);
-  PropertyValue(Net *value);
-  PropertyValue(Clock *value);
+  PropertyValue(const PinSet &value);
+  PropertyValue(const Net *value);
+  PropertyValue(const Clock *value);
   PropertyValue(ClockSeq *value);
   PropertyValue(ClockSet *value);
   PropertyValue(PathRefSeq *value);
@@ -81,17 +82,17 @@ public:
   const char *stringValue() const { return string_; }
   float floatValue() const { return float_; }
   bool boolValue() const { return bool_; }
-  LibertyLibrary *libertyLibrary() const { return liberty_library_; }
-  LibertyCell *libertyCell() const { return liberty_cell_; }
-  LibertyPort *libertyPort() const { return liberty_port_; }
-  Library *library() const { return library_; }
-  Cell *cell() const { return cell_; }
-  Port *port() const { return port_; }
-  Instance *instance() const { return inst_; }
-  Pin *pin() const { return pin_; }
+  const LibertyLibrary *libertyLibrary() const { return liberty_library_; }
+  const LibertyCell *libertyCell() const { return liberty_cell_; }
+  const LibertyPort *libertyPort() const { return liberty_port_; }
+  const Library *library() const { return library_; }
+  const Cell *cell() const { return cell_; }
+  const Port *port() const { return port_; }
+  const Instance *instance() const { return inst_; }
+  const Pin *pin() const { return pin_; }
   PinSeq *pins() const { return pins_; }
-  Net *net() const { return net_; }
-  Clock *clock() const { return clk_; }
+  const Net *net() const { return net_; }
+  const Clock *clock() const { return clk_; }
   ClockSeq *clocks() const { return clks_; }
   PathRefSeq *pathRefs() const { return path_refs_; }
   PwrActivity pwrActivity() const { return pwr_activity_; }
@@ -107,17 +108,17 @@ private:
     const char *string_;
     float float_;
     bool bool_;
-    Library *library_;
-    Cell *cell_;
-    Port *port_;
-    LibertyLibrary *liberty_library_;
-    LibertyCell *liberty_cell_;
-    LibertyPort *liberty_port_;
-    Instance *inst_;
-    Pin *pin_;
+    const Library *library_;
+    const Cell *cell_;
+    const Port *port_;
+    const LibertyLibrary *liberty_library_;
+    const LibertyCell *liberty_cell_;
+    const LibertyPort *liberty_port_;
+    const Instance *inst_;
+    const Pin *pin_;
     PinSeq *pins_;
-    Net *net_;
-    Clock *clk_;
+    const Net *net_;
+    const Clock *clk_;
     ClockSeq *clks_;
     PathRefSeq *path_refs_;
     PwrActivity pwr_activity_;

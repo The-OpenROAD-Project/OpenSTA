@@ -20,24 +20,6 @@
 
 namespace sta {
 
-ClockGroup::ClockGroup(ClockSet *clks) :
-  clks_(clks)
-{
-}
-
-ClockGroup::~ClockGroup()
-{
-  delete clks_;
-}
-
-bool
-ClockGroup::isMember(const Clock *clk)
-{
-  return clks_->hasKey(const_cast<Clock*>(clk));
-}
-
-////////////////////////////////////////////////////////////////
-
 ClockGroups::ClockGroups(const char *name,
 			 bool logically_exclusive,
 			 bool physically_exclusive,
@@ -59,26 +41,24 @@ ClockGroups::~ClockGroups()
   groups_.deleteContentsClear();
 }
 
-ClockGroup *
+void
 ClockGroups::makeClockGroup(ClockSet *clks)
 {
-  ClockGroup *group = new ClockGroup(clks);
-  groups_.insert(group);
-  return group;
+  groups_.insert(clks);
 }
 
 void
 ClockGroups::removeClock(Clock *clk)
 {
-  ClockGroupSet::Iterator group_iter(groups_);
-  while (group_iter.hasNext()) {
-    ClockGroup *group = group_iter.next();
-    ClockSet *clks = group->clks();
-    clks->erase(clk);
-    if (clks->empty()) {
-      groups_.erase(group);
+  for (auto itr = groups_.cbegin(); itr != groups_.cend(); ) {
+    ClockGroup *group = *itr;
+    group->erase(clk);
+    if (group->empty()) {
+      itr = groups_.erase(itr);
       delete group;
     }
+    else
+      itr++;
   }
 }
 

@@ -101,7 +101,7 @@ protected:
 			    const Path *disable_path,
 			    const PathAnalysisPt *path_ap);
   ExceptionPath *exceptionTo(Path *data_path,
-			     ClockEdge *en_clk_edge);
+			     const ClockEdge *en_clk_edge);
 };
 
 } // namespace

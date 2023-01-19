@@ -52,6 +52,8 @@ nextMersenne(size_t n)
 size_t
 hashString(const char *str);
 
+// Pointer hashing is strongly discouraged because it causes results to change
+// from run to run. Use Network::id functions instead.
 #if __WORDSIZE == 64
   #define hashPtr(ptr) (reinterpret_cast<intptr_t>(ptr) >> 3)
 #else

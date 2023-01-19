@@ -26,7 +26,7 @@
 namespace sta {
 
 typedef Map<const Pin*, ClockSet> PinClksMap;
-typedef Map<const Clock *, PinSet> ClkPinsMap;
+typedef Map<const Clock *, PinSet*> ClkPinsMap;
 
 class Sta;
 
@@ -36,6 +36,7 @@ class ClkNetwork : public StaState
 {
 public:
   ClkNetwork(StaState *sta);
+  ~ClkNetwork();
   void ensureClkNetwork();
   void clear();
   bool isClock(const Pin *pin) const;

@@ -37,10 +37,7 @@ DisabledPorts::~DisabledPorts()
 {
   delete from_;
   delete to_;
-  if (from_to_) {
-    from_to_->deleteContents();
-    delete from_to_;
-  }
+  delete from_to_;
 }
 
 void
@@ -92,10 +89,7 @@ DisabledPorts::setDisabledFromTo(LibertyPort *from,
   if (from_to_ == nullptr)
     from_to_ = new LibertyPortPairSet;
   LibertyPortPair pair(from, to);
-  if (!from_to_->hasKey(&pair)) {
-    LibertyPortPair *pair = new LibertyPortPair(from, to);
-    from_to_->insert(pair);
-  }
+  from_to_->insert(pair);
 }
 
 void
@@ -103,12 +97,8 @@ DisabledPorts::removeDisabledFromTo(LibertyPort *from,
                                     LibertyPort *to)
 {
   if (from_to_) {
-    LibertyPortPair probe(from, to);
-    LibertyPortPair *pair = from_to_->findKey(&probe);
-    if (pair) {
-      from_to_->erase(pair);
-      delete pair;
-    }
+    LibertyPortPair from_to(from, to);
+    from_to_->erase(from_to);
   }
 }
 
@@ -117,12 +107,12 @@ DisabledPorts::isDisabled(LibertyPort *from,
                           LibertyPort *to,
 			  const TimingRole *role)
 {
-  LibertyPortPair pair(from, to);
+  LibertyPortPair from_to(from, to);
   // set_disable_timing instance does not disable timing checks.
   return (all_ && !role->isTimingCheck())
     || (from_ && from_->hasKey(from))
     || (to_ && to_->hasKey(to))
-    || (from_to_ && from_to_->hasKey(&pair));
+    || (from_to_ && from_to_->hasKey(from_to));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -182,14 +172,16 @@ DisabledCellPortsLess::operator()(const DisabledCellPorts *disable1,
 		    disable2->cell()->name());
 }
 
-void
-sortDisabledCellPortsMap(DisabledCellPortsMap *cell_map,
-			 DisabledCellPortsSeq &disables)
+DisabledCellPortsSeq
+sortByName(DisabledCellPortsMap *cell_map)
 {
-  DisabledCellPortsMap::Iterator disabled_iter(cell_map);
-  while (disabled_iter.hasNext())
-    disables.push_back(disabled_iter.next());
+  DisabledCellPortsSeq disables;
+  for (auto cell_disable : *cell_map) {
+    DisabledCellPorts *disable = cell_disable.second;
+    disables.push_back(disable);
+  }
   sort(disables, DisabledCellPortsLess());
+  return disables;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -203,36 +195,38 @@ DisabledInstancePorts::DisabledInstancePorts(Instance *inst) :
 class DisabledInstPortsLess
 {
 public:
-  explicit DisabledInstPortsLess(Network *network);
+  explicit DisabledInstPortsLess(const Network *network);
   bool operator()(const DisabledInstancePorts *disable1,
 		  const DisabledInstancePorts *disable2);
 
 private:
-  Network *network_;
+  const Network *network_;
 };
 
-DisabledInstPortsLess::DisabledInstPortsLess(Network *network) :
+DisabledInstPortsLess::DisabledInstPortsLess(const Network *network) :
   network_(network)
 {
 }
 
 bool
 DisabledInstPortsLess::operator()(const DisabledInstancePorts *disable1,
-				 const DisabledInstancePorts *disable2)
+                                  const DisabledInstancePorts *disable2)
 {
   return stringLess(network_->pathName(disable1->instance()),
 		    network_->pathName(disable2->instance()));
 }
 
-void
-sortDisabledInstancePortsMap(DisabledInstancePortsMap *inst_map,
-			     Network *network,
-			     DisabledInstancePortsSeq &disables)
+DisabledInstancePortsSeq
+sortByPathName(const DisabledInstancePortsMap *inst_map,
+               const Network *network)
 {
-  DisabledInstancePortsMap::Iterator disabled_iter(inst_map);
-  while (disabled_iter.hasNext())
-    disables.push_back(disabled_iter.next());
+  DisabledInstancePortsSeq disables;
+  for (auto inst_disable : *inst_map) {
+    DisabledInstancePorts *disable = inst_disable.second;
+    disables.push_back(disable);
+  }
   sort(disables, DisabledInstPortsLess(network));
+  return disables;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -240,30 +234,30 @@ sortDisabledInstancePortsMap(DisabledInstancePortsMap *inst_map,
 class LibertyPortPairNameLess
 {
 public:
-  bool operator()(const LibertyPortPair *pair1,
-		  const LibertyPortPair *pair2);
+  bool operator()(const LibertyPortPair &pair1,
+		  const LibertyPortPair &pair2);
 };
 
 bool
-LibertyPortPairNameLess::operator()(const LibertyPortPair *pair1,
-				    const LibertyPortPair *pair2)
+LibertyPortPairNameLess::operator()(const LibertyPortPair &pair1,
+				    const LibertyPortPair &pair2)
 {
-  const char *from1 = pair1->first->name();
-  const char *from2 = pair2->first->name();
-  const char *to1 = pair1->second->name();
-  const char *to2 = pair2->second->name();
+  const char *from1 = pair1.first->name();
+  const char *from2 = pair2.first->name();
+  const char *to1 = pair1.second->name();
+  const char *to2 = pair2.second->name();
   return stringLess(from1, from2)
     || (stringEq(from1, from2) && stringLess(to1, to2));
 }
 
-void
-sortLibertyPortPairSet(LibertyPortPairSet *sets,
-		       LibertyPortPairSeq &pairs)
+LibertyPortPairSeq
+sortByName(const LibertyPortPairSet *set)
 {
-  LibertyPortPairSet::Iterator pair_iter(sets);
-  while (pair_iter.hasNext())
-    pairs.push_back(pair_iter.next());
+  LibertyPortPairSeq pairs;
+  for (const LibertyPortPair &pair : *set)
+    pairs.push_back(pair);
   sort(pairs, LibertyPortPairNameLess());
+  return pairs;
 }
 
 }

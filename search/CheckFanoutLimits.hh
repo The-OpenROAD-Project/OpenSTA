@@ -38,9 +38,9 @@ public:
   // Return pins with the min/max fanout limit slack.
   // net=null check all nets
   // corner=nullptr checks all corners.
-  PinSeq *checkFanoutLimits(Net *net,
-                            bool violators,
-                            const MinMax *min_max);
+  PinSeq checkFanoutLimits(const Net *net,
+                           bool violators,
+                           const MinMax *min_max);
 
 protected:
   void checkFanout(const Pin *pin,
@@ -56,17 +56,17 @@ protected:
 		 float &limit,
 		 bool &limit_exists) const;
   float fanoutLoad(const Pin *pin) const;
-  void checkFanoutLimits(Instance *inst,
+  void checkFanoutLimits(const Instance *inst,
                          bool violators,
                          const MinMax *min_max,
-                         PinSeq *fanout_pins,
+                         PinSeq &fanout_pins,
                          float &min_slack);
-  void checkFanoutLimits(Pin *pin,
+  void checkFanoutLimits(const Pin *pin,
                          bool violators,
                          const MinMax *min_max,
-                         PinSeq *fanout_pins,
+                         PinSeq &fanout_pins,
                          float &min_slack);
-  bool checkPin(Pin *pin);
+  bool checkPin(const Pin *pin);
 
   const Sta *sta_;
 };

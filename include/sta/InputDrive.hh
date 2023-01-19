@@ -47,20 +47,20 @@ public:
   bool hasDriveResistance(const RiseFall *rf,
 			  const MinMax *min_max);
   bool driveResistanceMinMaxEqual(const RiseFall *rf);
-  void setDriveCell(LibertyLibrary *library,
-		    LibertyCell *cell,
-		    LibertyPort *from_port,
+  void setDriveCell(const LibertyLibrary *library,
+		    const LibertyCell *cell,
+		    const LibertyPort *from_port,
 		    float *from_slews,
-		    LibertyPort *to_port,
+		    const LibertyPort *to_port,
 		    const RiseFallBoth *rf,
 		    const MinMaxAll *min_max);
   void driveCell(const RiseFall *rf,
 		 const MinMax *min_max,
                  // Return values.
-		 LibertyCell *&cell,
-		 LibertyPort *&from_port,
+		 const LibertyCell *&cell,
+		 const LibertyPort *&from_port,
 		 float *&from_slews,
-		 LibertyPort *&to_port);
+		 const LibertyPort *&to_port);
   InputDriveCell *driveCell(const RiseFall *rf,
 			    const MinMax *min_max);
   bool hasDriveCell(const RiseFall *rf,
@@ -83,29 +83,29 @@ private:
 class InputDriveCell
 {
 public:
-  InputDriveCell(LibertyLibrary *library,
-		 LibertyCell *cell,
-		 LibertyPort *from_port,
+  InputDriveCell(const LibertyLibrary *library,
+		 const LibertyCell *cell,
+		 const LibertyPort *from_port,
 		 float *from_slews,
-		 LibertyPort *to_port);
-  LibertyLibrary *library() const { return library_; }
-  void setLibrary(LibertyLibrary *library);
-  LibertyCell *cell() const { return cell_; }
-  void setCell(LibertyCell *cell);
-  LibertyPort *fromPort() const { return from_port_; }
-  void setFromPort(LibertyPort *from_port);
+		 const LibertyPort *to_port);
+  const LibertyLibrary *library() const { return library_; }
+  void setLibrary(const LibertyLibrary *library);
+  const LibertyCell *cell() const { return cell_; }
+  void setCell(const LibertyCell *cell);
+  const LibertyPort *fromPort() const { return from_port_; }
+  void setFromPort(const LibertyPort *from_port);
   float *fromSlews() { return from_slews_; }
   void setFromSlews(float *from_slews);
-  LibertyPort *toPort() const { return to_port_; }
-  void setToPort(LibertyPort *to_port);
-  bool equal(InputDriveCell *drive) const;
+  const LibertyPort *toPort() const { return to_port_; }
+  void setToPort(const LibertyPort *to_port);
+  bool equal(const InputDriveCell *drive) const;
 
 private:
-  LibertyLibrary *library_;
-  LibertyCell *cell_;
-  LibertyPort *from_port_;
+  const LibertyLibrary *library_;
+  const LibertyCell *cell_;
+  const LibertyPort *from_port_;
   float from_slews_[RiseFall::index_count];
-  LibertyPort *to_port_;
+  const LibertyPort *to_port_;
 };
 
 } // namespace

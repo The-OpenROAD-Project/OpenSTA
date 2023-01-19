@@ -255,11 +255,8 @@ PathGroups::makeGroups(int group_count,
 {
   int mm_index = min_max->index();
   if (setup_hold) {
-    GroupPathIterator group_path_iter(sdc_);
-    while (group_path_iter.hasNext()) {
-      const char *name;
-      GroupPathSet *groups;
-      group_path_iter.next(name, groups);
+    for (auto name_group : sdc_->groupPaths()) {
+      const char *name = name_group.first;
       if (reportGroup(name, group_names)) {
 	PathGroup *group = PathGroup::makePathGroupSlack(name, group_count,
 							 endpoint_count, unique_pins,
@@ -389,7 +386,7 @@ PathGroups::pathGroup(const PathEnd *path_end) const
     // Path delays that end at timing checks are part of the target clk group
     // unless -ignore_clock_latency is true.
     PathDelay *path_delay = path_end->pathDelay();
-    Clock *tgt_clk = path_end->targetClk(this);
+    const Clock *tgt_clk = path_end->targetClk(this);
     if (tgt_clk
 	&& !path_delay->ignoreClkLatency())
       return findPathGroup(tgt_clk, min_max);
@@ -422,11 +419,8 @@ PathGroups::pushGroupPathEnds(PathEndSeq *path_ends)
 {
   for (auto min_max : MinMax::range()) {
     int mm_index =  min_max->index();
-    GroupPathIterator group_path_iter(sdc_);
-    while (group_path_iter.hasNext()) {
-      const char *name;
-      GroupPathSet *groups;
-      group_path_iter.next(name, groups);
+    for (auto name_group : sdc_->groupPaths()) {
+      const char *name = name_group.first;
       PathGroup *path_group = findPathGroup(name, min_max);
       if (path_group)
 	path_group->pushEnds(path_ends);
@@ -737,14 +731,11 @@ PathGroups::makeGroupPathEnds(ExceptionTo *to,
 
     for (auto path_min_max : MinMax::range()) {
       int mm_index =  path_min_max->index();
-      GroupPathIterator group_path_iter(sdc_);
-      while (group_path_iter.hasNext()) {
-	const char *name;
-	GroupPathSet *groups;
-	group_path_iter.next(name, groups);
-	PathGroup *group = findPathGroup(name, path_min_max);
-	if (group)
-	  enumPathEnds(group, group_count, endpoint_count, unique_pins, true);
+      for (auto name_group : sdc_->groupPaths()) {
+        const char *name = name_group.first;
+        PathGroup *group = findPathGroup(name, path_min_max);
+        if (group)
+          enumPathEnds(group, group_count, endpoint_count, unique_pins, true);
       }
 
       for (auto clk : sdc_->clks()) {
@@ -809,7 +800,7 @@ PathGroups::makeGroupPathEnds(ExceptionTo *to,
   else {
     // Only visit -to filter pins.
     VertexSet endpoints(graph_);
-    PinSet pins;
+    PinSet pins(network);
     to->allPins(network, &pins);
     PinSet::Iterator pin_iter(pins);
     while (pin_iter.hasNext()) {

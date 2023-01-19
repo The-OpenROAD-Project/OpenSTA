@@ -25,7 +25,7 @@ namespace sta {
 
 class ClkSkew;
 
-typedef Map<Clock*, ClkSkew*> ClkSkewMap;
+typedef Map<const Clock*, ClkSkew*> ClkSkewMap;
 
 // Find and report min clock skews.
 class ClkSkews : public StaState

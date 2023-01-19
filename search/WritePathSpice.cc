@@ -365,7 +365,7 @@ WritePathSpice::maxTime()
   TimingArc *next_arc = stageGateArc(input_stage + 1);
   float input_slew = findSlew(input_path, rf, next_arc);
   if (input_path->isClock(this)) {
-    Clock *clk = input_path->clock(this);
+    const Clock *clk = input_path->clock(this);
     float period = clk->period();
     float first_edge_offset = period / 10;
     float max_time = period * clk_cycle_count_ + first_edge_offset;
@@ -498,8 +498,8 @@ WritePathSpice::writeClkWaveform()
   Stage input_stage = stageFirst();
   PathRef *input_path = stageDrvrPath(input_stage);
   TimingArc *next_arc = stageGateArc(input_stage + 1);
-  ClockEdge *clk_edge = input_path->clkEdge(this);
-  Clock *clk = clk_edge->clock();
+  const ClockEdge *clk_edge = input_path->clkEdge(this);
+  const Clock *clk = clk_edge->clock();
   float period = clk->period();
   float time_offset = clkWaveformTImeOffset(clk);
   RiseFall *rf0, *rf1;
@@ -790,7 +790,7 @@ WritePathSpice::writeGateStage(Stage stage)
   port_values.clear();
   auto pin_iter = network_->connectedPinIterator(drvr_pin);
   while (pin_iter->hasNext()) {
-    Pin *pin = pin_iter->next();
+    const Pin *pin = pin_iter->next();
     if (pin != drvr_pin
 	&& pin != load_pin
 	&& network_->direction(pin)->isAnyInput()

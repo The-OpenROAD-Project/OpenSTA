@@ -74,16 +74,13 @@ isDelayCalcName(const char *name)
   return delay_calcs->hasKey(name);
 }
 
-StringSeq *
+StringSeq
 delayCalcNames()
 {
-  StringSeq *names = new StringSeq;
-  DelayCalcMap::Iterator dcalc_iter(delay_calcs);
-  while (dcalc_iter.hasNext()) {
-    MakeArcDelayCalc maker;
-    const char *name;
-    dcalc_iter.next(name, maker);
-    names->push_back(name);
+  StringSeq names;
+  for (auto name_dcalc : *delay_calcs) {
+    const char *name = name_dcalc.first;
+    names.push_back(name);
   }
   return names;
 }

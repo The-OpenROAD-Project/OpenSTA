@@ -104,7 +104,7 @@ public:
   virtual Slack slack(const StaState *sta) const = 0;
   virtual Slack slackNoCrpr(const StaState *sta) const = 0;
   virtual Arrival borrow(const StaState *sta) const;
-  ClockEdge *sourceClkEdge(const StaState *sta) const;
+  const ClockEdge *sourceClkEdge(const StaState *sta) const;
   // Time offset for the path start so the path begins in the correct
   // source cycle.
   virtual float sourceClkOffset(const StaState *sta) const = 0;
@@ -112,8 +112,8 @@ public:
   virtual Delay sourceClkInsertionDelay(const StaState *sta) const;
   virtual PathVertex *targetClkPath();
   virtual const PathVertex *targetClkPath() const;
-  virtual Clock *targetClk(const StaState *sta) const;
-  virtual ClockEdge *targetClkEdge(const StaState *sta) const;
+  virtual const Clock *targetClk(const StaState *sta) const;
+  virtual const ClockEdge *targetClkEdge(const StaState *sta) const;
   const RiseFall *targetClkEndTrans(const StaState *sta) const;
   // Target clock with cycle accounting and source clock offsets.
   virtual float targetClkTime(const StaState *sta) const;
@@ -232,8 +232,8 @@ public:
   virtual float sourceClkOffset(const StaState *sta) const;
   virtual Delay sourceClkLatency(const StaState *sta) const;
   virtual Delay sourceClkInsertionDelay(const StaState *sta) const;
-  virtual Clock *targetClk(const StaState *sta) const;
-  virtual ClockEdge *targetClkEdge(const StaState *sta) const;
+  virtual const Clock *targetClk(const StaState *sta) const;
+  virtual const ClockEdge *targetClkEdge(const StaState *sta) const;
   virtual PathVertex *targetClkPath();
   virtual const PathVertex *targetClkPath() const;
   virtual float targetClkTime(const StaState *sta) const;
@@ -420,7 +420,7 @@ public:
   virtual bool isOutputDelay() const { return true; }
   virtual ArcDelay margin(const StaState *sta) const;
   virtual TimingRole *checkRole(const StaState *sta) const;
-  virtual ClockEdge *targetClkEdge(const StaState *sta) const;
+  virtual const ClockEdge *targetClkEdge(const StaState *sta) const;
   virtual Arrival targetClkArrivalNoCrpr(const StaState *sta) const;
   virtual Delay targetClkDelay(const StaState *sta) const;
   virtual Delay targetClkInsertionDelay(const StaState *sta) const;
@@ -496,7 +496,7 @@ public:
   virtual void reportShort(ReportPath *report) const;
   virtual void reportFull(ReportPath *report) const;
   virtual bool isDataCheck() const { return true; }
-  virtual ClockEdge *targetClkEdge(const StaState *sta) const;
+  virtual const ClockEdge *targetClkEdge(const StaState *sta) const;
   virtual TimingRole *checkRole(const StaState *sta) const;
   virtual ArcDelay margin(const StaState *sta) const;
   virtual int exceptPathCmp(const PathEnd *path_end,
@@ -553,7 +553,7 @@ public:
   virtual PathDelay *pathDelay() const { return path_delay_; }
   virtual ArcDelay margin(const StaState *sta) const;
   virtual float sourceClkOffset(const StaState *sta) const;
-  virtual ClockEdge *targetClkEdge(const StaState *sta) const;
+  virtual const ClockEdge *targetClkEdge(const StaState *sta) const;
   virtual float targetClkTime(const StaState *sta) const;
   virtual Arrival targetClkArrivalNoCrpr(const StaState *sta) const;
   virtual float targetClkOffset(const StaState *sta) const;

@@ -93,11 +93,11 @@ CheckTiming::check(bool no_input_delay,
 void
 CheckTiming::checkNoInputDelay()
 {
-  PinSet no_arrival;
+  PinSet no_arrival(network_);
   Instance *top_inst = network_->topInstance();
   InstancePinIterator *pin_iter = network_->pinIterator(top_inst);
   while (pin_iter->hasNext()) {
-    Pin *pin = pin_iter->next();
+    const Pin *pin = pin_iter->next();
     if (!sdc_->isClock(pin)) {
       PortDirection *dir = network_->direction(pin);
       if (dir->isAnyInput()
@@ -113,7 +113,7 @@ CheckTiming::checkNoInputDelay()
 void
 CheckTiming::checkNoOutputDelay()
 {
-  PinSet no_departure;
+  PinSet no_departure(network_);
   checkNoOutputDelay(no_departure);
   pushPinErrors("Warning: There %is %d output port%s missing set_output_delay.",
 		no_departure);
@@ -125,7 +125,7 @@ CheckTiming::checkNoOutputDelay(PinSet &no_departure)
   Instance *top_inst = network_->topInstance();
   InstancePinIterator *pin_iter = network_->pinIterator(top_inst);
   while (pin_iter->hasNext()) {
-    Pin *pin = pin_iter->next();
+    const Pin *pin = pin_iter->next();
     PortDirection *dir = network_->direction(pin);
     if (dir->isAnyOutput()
 	&& !sdc_->hasOutputDelay(pin))
@@ -152,11 +152,11 @@ void
 CheckTiming::checkRegClks(bool reg_multiple_clks,
 			  bool reg_no_clks)
 {
-  PinSet no_clk_pins, multiple_clk_pins;
+  PinSet no_clk_pins(network_);
+  PinSet multiple_clk_pins(network_);
   for (Vertex *vertex : *graph_->regClkVertices()) {
-    Pin *pin = vertex->pin();
-    ClockSet clks;
-    search_->clocks(vertex, clks);
+    const Pin *pin = vertex->pin();
+    ClockSet clks = search_->clocks(vertex);
     if (reg_no_clks && clks.empty())
       no_clk_pins.insert(pin);
     if (reg_multiple_clks && clks.size() > 1)
@@ -220,7 +220,7 @@ CheckTiming::checkLoops()
 void
 CheckTiming::checkUnconstrainedEndpoints()
 {
-  PinSet unconstrained_ends;
+  PinSet unconstrained_ends(network_);
   checkUnconstraintedOutputs(unconstrained_ends);
   checkUnconstrainedSetups(unconstrained_ends);
   pushPinErrors("Warning: There %is %d unconstrained endpoint%s.",
@@ -355,11 +355,8 @@ CheckTiming::pushPinErrors(const char *msg,
     error->push_back(stringCopy(error_msg.c_str()));
     // Sort the error pins so the output is independent of the order
     // the the errors are discovered.
-    PinSeq pin_seq;
-    sortPinSet(&pins, network_, pin_seq);
-    PinSeq::Iterator pin_iter(pin_seq);
-    while (pin_iter.hasNext()) {
-      const Pin *pin = pin_iter.next();
+    PinSeq pins1 = sortByPathName(&pins, network_);
+    for (const Pin *pin : pins1) {
       const char *pin_name = stringCopy(sdc_network_->pathName(pin));
       error->push_back(pin_name);
     }
@@ -380,11 +377,8 @@ CheckTiming::pushClkErrors(const char *msg,
     error->push_back(stringCopy(error_msg.c_str()));
     // Sort the error clks so the output is independent of the order
     // the the errors are discovered.
-    ClockSeq clk_seq;
-    sortClockSet(&clks, clk_seq);
-    ClockSeq::Iterator clk_iter(clk_seq);
-    while (clk_iter.hasNext()) {
-      const Clock *clk = clk_iter.next();
+    ClockSeq clks1 = sortByName(&clks);
+    for (const Clock *clk : clks1) {
       const char *clk_name = stringCopy(clk->name());
       error->push_back(clk_name);
     }

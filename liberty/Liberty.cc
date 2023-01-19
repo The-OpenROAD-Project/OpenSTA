@@ -132,16 +132,17 @@ LibertyLibrary::findLibertyCell(const char *name) const
   return static_cast<LibertyCell*>(findCell(name));
 }
 
-void
-LibertyLibrary::findLibertyCellsMatching(PatternMatch *pattern,
-					 LibertyCellSeq *cells)
+LibertyCellSeq
+LibertyLibrary::findLibertyCellsMatching(PatternMatch *pattern)
 {
+  LibertyCellSeq matches;
   LibertyCellIterator cell_iter(this);
   while (cell_iter.hasNext()) {
     LibertyCell *cell = cell_iter.next();
     if (pattern->match(cell->name()))
-      cells->push_back(cell);
+      matches.push_back(cell);
   }
+  return matches;
 }
 
 LibertyCellSeq *
@@ -790,7 +791,7 @@ LibertyLibrary::checkCorners(LibertyCell *cell,
   for (const Corner *corner : *corners) {
     for (auto min_max : MinMax::range()) {
       if (!cell->checkCornerCell(corner, min_max))
-        report->error(705, "Liberty cell %s/%s for corner %s/%s not found",
+        report->error(705, "Liberty cell %s/%s for corner %s/%s not found.",
                       cell->libertyLibrary()->name(),
                       cell->name(),
                       corner->name(),
@@ -883,7 +884,7 @@ LibertyCellIterator::next()
 LibertyCell::LibertyCell(LibertyLibrary *library,
 			 const char *name,
 			 const char *filename) :
-  ConcreteCell(library, name, true, filename),
+  ConcreteCell(name, filename, true, library),
   liberty_library_(library),
   area_(0.0),
   dont_use_(false),
@@ -940,16 +941,17 @@ LibertyCell::findLibertyPort(const char *name) const
   return static_cast<LibertyPort*>(findPort(name));
 }
 
-void
-LibertyCell::findLibertyPortsMatching(PatternMatch *pattern,
-				      LibertyPortSeq *ports) const
+LibertyPortSeq
+LibertyCell::findLibertyPortsMatching(PatternMatch *pattern) const
 {
+  LibertyPortSeq matches;
   LibertyCellPortIterator port_iter(this);
   while (port_iter.hasNext()) {
     LibertyPort *port = port_iter.next();
     if (pattern->match(port->name()))
-      ports->push_back(port);
+      matches.push_back(port);
   }
+  return matches;
 }
 
 void
@@ -1570,9 +1572,9 @@ bool
 LibertyCell::checkCornerCell(const Corner *corner,
                              const MinMax *min_max) const
 {
-  int lib_index = corner->libertyIndex(min_max);
+  unsigned lib_index = corner->libertyIndex(min_max);
   return corner_cells_.empty()
-    || (lib_index <= static_cast<int>(corner_cells_.size())
+    || (lib_index < corner_cells_.size()
         && corner_cells_[lib_index]);
 }
 
@@ -1904,7 +1906,7 @@ LibertyPort::LibertyPort(LibertyCell *cell,
 			 int to_index,
 			 bool is_bundle,
 			 ConcretePortSeq *members) :
-  ConcretePort(cell, name, is_bus, from_index, to_index, is_bundle, members),
+  ConcretePort(name, is_bus, from_index, to_index, is_bundle, members, cell),
   liberty_cell_(cell),
   bus_dcl_(bus_dcl),
   function_(nullptr),
@@ -2492,14 +2494,14 @@ LibertyPort::setRelatedPowerPin(const char *related_power_pin)
 
 ////////////////////////////////////////////////////////////////
 
-void
-sortLibertyPortSet(LibertyPortSet *set,
-		   LibertyPortSeq &ports)
+LibertyPortSeq
+sortByName(const LibertyPortSet *set)
 {
-  LibertyPortSet::Iterator port_iter(set);
-  while (port_iter.hasNext())
-    ports.push_back(port_iter.next());
+  LibertyPortSeq ports;
+  for (LibertyPort *port : *set)
+    ports.push_back(port);
   sort(ports, LibertyPortNameLess());
+  return ports;
 }
 
 bool
@@ -2510,21 +2512,14 @@ LibertyPortNameLess::operator()(const LibertyPort *port1,
 }
 
 bool
-LibertyPortPairLess::operator()(const LibertyPortPair *pair1,
-				const LibertyPortPair *pair2) const
-{
-  return pair1->first < pair2->first
-    || (pair1->first == pair2->first
-	&& pair1->second < pair2->second);
-}
-
-bool
 LibertyPortPairLess::operator()(const LibertyPortPair &pair1,
 				const LibertyPortPair &pair2) const
 {
-  return pair1.first < pair2.first
-    || (pair1.first == pair2.first
-	&& pair1.second < pair2.second);
+  ObjectId id1 = pair1.first->id();
+  ObjectId id2 = pair2.first->id();
+  return id1 < id2
+    || (id1 == id2
+	&& pair1.second->id() < pair2.second->id());
 }
 
 ////////////////////////////////////////////////////////////////

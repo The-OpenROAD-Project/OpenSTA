@@ -21,7 +21,7 @@
 
 namespace sta {
 
-VertexPinCollector::VertexPinCollector(PinSet *pins) :
+VertexPinCollector::VertexPinCollector(PinSet &pins) :
   pins_(pins)
 {
 }
@@ -36,7 +36,7 @@ VertexPinCollector::copy() const
 void
 VertexPinCollector::visit(Vertex *vertex)
 {
-  pins_->insert(vertex->pin());
+  pins_.insert(vertex->pin());
 }
 
 } // namespace

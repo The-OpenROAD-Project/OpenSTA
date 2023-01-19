@@ -32,19 +32,20 @@ public:
 			   bool make_black_boxes,
 			   Report *report);
 
+  virtual const char *name(const Library *library) const;
+  virtual ObjectId id(const Library *library) const;
   virtual LibraryIterator *libraryIterator() const;
   virtual LibertyLibraryIterator *libertyLibraryIterator() const;
   virtual Library *findLibrary(const char *name);
   virtual LibertyLibrary *findLibertyFilename(const char *filename);
   virtual LibertyLibrary *findLiberty(const char *name);
-  virtual const char *name(const Library *library) const;
   virtual Cell *findCell(const Library *library,
 			 const char *name) const;
-  virtual void findCellsMatching(const Library *library,
-				 const PatternMatch *pattern,
-				 CellSeq *cells) const;
+  virtual CellSeq findCellsMatching(const Library *library,
+                                    const PatternMatch *pattern) const;
 
   virtual const char *name(const Cell *cell) const;
+  virtual ObjectId id(const Cell *cell) const;
   virtual Library *library(const Cell *cell) const;
   virtual LibertyCell *libertyCell(Cell *cell) const;
   virtual const LibertyCell *libertyCell(const Cell *cell) const;
@@ -53,15 +54,15 @@ public:
   virtual const char *filename(const Cell *cell);
   virtual Port *findPort(const Cell *cell,
 			 const char *name) const;
-  virtual void findPortsMatching(const Cell *cell,
-				 const PatternMatch *pattern,
-				 PortSeq *ports) const;
+  virtual PortSeq findPortsMatching(const Cell *cell,
+                                    const PatternMatch *pattern) const;
   virtual bool isLeaf(const Cell *cell) const;
   virtual CellPortIterator *portIterator(const Cell *cell) const;
   virtual CellPortBitIterator *portBitIterator(const Cell *cell) const;
   virtual int portBitCount(const Cell *cell) const;
 
   virtual const char *name(const Port *port) const;
+  virtual ObjectId id(const Port *port) const;
   virtual Cell *cell(const Port *port) const;
   virtual LibertyPort *libertyPort(const Port *port) const;
   virtual PortDirection *direction(const Port *port) const;
@@ -78,6 +79,7 @@ public:
   virtual PortMemberIterator *memberIterator(const Port *port) const;
   virtual bool hasMembers(const Port *port) const;
 
+  virtual ObjectId id(const Instance *instance) const;
   virtual Instance *topInstance() const;
   virtual Cell *cell(const Instance *instance) const;
   virtual Instance *parent(const Instance *instance) const;
@@ -94,6 +96,7 @@ public:
   virtual InstanceNetIterator *
   netIterator(const Instance *instance) const;
 
+  virtual ObjectId id(const Pin *pin) const;
   virtual Port *port(const Pin *pin) const;
   virtual Instance *instance(const Pin *pin) const;
   virtual Net *net(const Pin *pin) const;
@@ -108,9 +111,11 @@ public:
 			double &y,
 			bool &exists) const;
 
+  virtual ObjectId id(const Term *term) const;
   virtual Net *net(const Term *term) const;
   virtual Pin *pin(const Term *term) const;
 
+  virtual ObjectId id(const Net *net) const;
   virtual Instance *instance(const Net *net) const;
   virtual bool isPower(const Net *net) const;
   virtual bool isGround(const Net *net) const;
@@ -151,6 +156,7 @@ public:
 
   // Any overloaded functions from the base class must be listed here.
   using Network::name;
+  using Network::id;
   using Network::isLeaf;
   using Network::netIterator;
   using Network::findPin;
@@ -175,9 +181,8 @@ public:
 
   virtual Port *findPort(const Cell *cell,
 			 const char *name) const;
-  virtual void findPortsMatching(const Cell *cell,
-				 const PatternMatch *pattern,
-				 PortSeq *ports) const;
+  virtual PortSeq findPortsMatching(const Cell *cell,
+                                    const PatternMatch *pattern) const;
   virtual const char *name(const Port *port) const;
   virtual const char *busName(const Port *port) const;
 
@@ -185,30 +190,28 @@ public:
   virtual const char *pathName(const Instance *instance) const;
   virtual const char *pathName(const Pin *pin) const;
   virtual const char *portName(const Pin *pin) const;
+
   virtual const char *name(const Net *net) const;
   virtual const char *pathName(const Net *net) const;
 
   virtual Instance *findInstance(const char *path_name) const;
-  virtual void findInstancesMatching(const Instance *context,
-				     const PatternMatch *pattern,
-				     InstanceSeq *insts) const;
+  virtual InstanceSeq findInstancesMatching(const Instance *context,
+                                            const PatternMatch *pattern) const;
   virtual Net *findNet(const char *path_name) const;
   virtual Net *findNet(const Instance *instance,
 		       const char *net_name) const;
-  virtual void findNetsMatching(const Instance *parent,
-				const PatternMatch *pattern,
-				NetSeq *nets) const;
+  virtual NetSeq findNetsMatching(const Instance *parent,
+                                  const PatternMatch *pattern) const;
   virtual void findInstNetsMatching(const Instance *instance,
 				    const PatternMatch *pattern,
-				    NetSeq *nets) const;
+				    NetSeq &nets) const;
   virtual Instance *findChild(const Instance *parent,
 			      const char *name) const;
   virtual Pin *findPin(const char *path_name) const;
   virtual Pin *findPin(const Instance *instance,
 		       const char *port_name) const;
-  virtual void findPinsMatching(const Instance *instance,
-				const PatternMatch *pattern,
-				PinSeq *pins) const;
+  virtual PinSeq findPinsMatching(const Instance *instance,
+                                  const PatternMatch *pattern) const;
 
   virtual Instance *makeInstance(LibertyCell *cell,
 				 const char *name,
@@ -221,6 +224,7 @@ public:
   //  findInstPinsMatching(instance, pattern)
 
   using Network::name;
+  using Network::id;
   using Network::findPin;
 
 protected:
@@ -246,7 +250,10 @@ protected:
 		    visit_tail) const;
   bool visitPinTail(const Instance *instance,
 		    const PatternMatch *tail,
-		    PinSeq *pins) const;
+		    PinSeq &matches) const;
+  void findInstancesMatching1(const Instance *context,
+                              const PatternMatch *pattern,
+                              InstanceSeq &matches) const;
 
   const char *staToSdc(const char *sta_name) const;
 };

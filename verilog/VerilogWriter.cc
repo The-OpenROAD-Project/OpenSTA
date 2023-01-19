@@ -74,7 +74,7 @@ protected:
   FILE *stream_;
   Network *network_;
 
-  Set<Cell*> written_cells_;
+  CellSet written_cells_;
   Vector<Instance*> pending_children_;
   int unconnected_net_index_;
 };
@@ -108,8 +108,10 @@ VerilogWriter::VerilogWriter(const char *filename,
   filename_(filename),
   sort_(sort),
   include_pwr_gnd_(include_pwr_gnd_pins),
+  remove_cells_(network),
   stream_(stream),
   network_(network),
+  written_cells_(network),
   unconnected_net_index_(1)
 {
   if (remove_cells) {
@@ -457,6 +459,7 @@ VerilogWriter::findChildNCcount(Instance *child)
       if (network_->hasMembers(port))
         nc_count += findPortNCcount(child, port);
     }
+    delete port_iter;
   }
   return nc_count;
 }

@@ -37,113 +37,13 @@ insertPinPairsThruHierPin(const Pin *hpin,
 			  const Network *network,
 			  PinPairSet *pairs);
 static void
-insertPinPairsThruNet(Net *net,
+insertPinPairsThruNet(const Net *net,
 		      const Network *network,
 		      PinPairSet *pairs);
 static void
 deletePinPairsThruHierPin(const Pin *hpin, 
 			  const Network *network,
 			  PinPairSet *pairs);
-static int
-setNameCmp(PinSet *set1,
-	   PinSet *set2,
-	   const Network *network)
-{
-  size_t size1 = set1 ? set1->size() : 0;
-  size_t size2 = set2 ? set2->size() : 0;
-  if (size1 == size2) {
-    PinSet::ConstIterator iter1(set1);
-    PinSet::ConstIterator iter2(set2);
-    while (iter1.hasNext() && iter2.hasNext()) {
-      Pin *pin1 = iter1.next();
-      Pin *pin2 = iter2.next();
-      const char *name1 = network->pathName(pin1);
-      const char *name2 = network->pathName(pin2);
-      int cmp = strcmp(name1, name2);
-      if (cmp != 0)
-	return cmp;
-    }
-    // Sets are equal.
-    return 0;
-  }
-  else
-    return (size1 > size2) ? 1 : -1;
-}
-
-static int
-setNameCmp(ClockSet *set1,
-	   ClockSet *set2)
-{
-  size_t size1 = set1 ? set1->size() : 0;
-  size_t size2 = set2 ? set2->size() : 0;
-  if (size1 == size2) {
-    ClockSet::ConstIterator iter1(set1);
-    ClockSet::ConstIterator iter2(set2);
-    while (iter1.hasNext() && iter2.hasNext()) {
-      Clock *clk1 = iter1.next();
-      Clock *clk2 = iter2.next();
-      int cmp = clk1->index() - clk2->index();
-      if (cmp != 0)
-	return cmp;
-    }
-    // Sets are equal.
-    return 0;
-  }
-  else
-    return (size1 > size2) ? 1 : -1;
-}
-
-static int
-setNameCmp(InstanceSet *set1,
-	   InstanceSet *set2,
-	   const Network *network)
-{
-  size_t size1 = set1 ? set1->size() : 0;
-  size_t size2 = set2 ? set2->size() : 0;
-  if (size1 == size2) {
-    InstanceSet::ConstIterator iter1(set1);
-    InstanceSet::ConstIterator iter2(set2);
-    while (iter1.hasNext() && iter2.hasNext()) {
-      Instance *inst1 = iter1.next();
-      Instance *inst2 = iter2.next();
-      const char *name1 = network->pathName(inst1);
-      const char *name2 = network->pathName(inst2);
-      int cmp = strcmp(name1, name2);
-      if (cmp != 0)
-	return cmp;
-    }
-    // Sets are equal.
-    return 0;
-  }
-  else
-    return (size1 > size2) ? 1 : -1;
-}
-
-static int
-setNameCmp(NetSet *set1,
-	   NetSet *set2,
-	   const Network *network)
-{
-  size_t size1 = set1 ? set1->size() : 0;
-  size_t size2 = set2 ? set2->size() : 0;
-  if (size1 == size2) {
-    NetSet::ConstIterator iter1(set1);
-    NetSet::ConstIterator iter2(set2);
-    while (iter1.hasNext() && iter2.hasNext()) {
-      Net *net1 = iter1.next();
-      Net *net2 = iter2.next();
-      const char *name1 = network->pathName(net1);
-      const char *name2 = network->pathName(net2);
-      int cmp = strcmp(name1, name2);
-      if (cmp != 0)
-	return cmp;
-    }
-    // Sets are equal.
-    return 0;
-  }
-  else
-    return (size1 > size2) ? 1 : -1;
-}
 
 ////////////////////////////////////////////////////////////////
 
@@ -166,9 +66,7 @@ checkFromThrusTo(ExceptionFrom *from,
 			      && (to->endTransition()
  				  == RiseFallBoth::riseFall()))));
   if (thrus) {
-    ExceptionThruSeq::Iterator thru_iter(thrus);
-    while (thru_iter.hasNext()) {
-      ExceptionThru *thru = thru_iter.next();
+    for (ExceptionThru *thru : *thrus) {
       if (!thru->hasObjects())
 	found_empty = true;
     }
@@ -414,15 +312,15 @@ ExceptionPath::fromThruToString(const Network *network) const
   if (thrus_) {
     str += " -thru";
     bool first_thru = true;
-    ExceptionThruSeq::Iterator thru_iter(thrus_);
-    while (thru_iter.hasNext()) {
-      ExceptionThru *thru = thru_iter.next();
-      if (!first_thru)
-	str += " &&";
-      str += " {";
-      str += thru->asString(network);
-      str += "}";
-      first_thru = false;
+    if (thrus_) {
+      for (ExceptionThru *thru : *thrus_) {
+        if (!first_thru)
+          str += " &&";
+        str += " {";
+        str += thru->asString(network);
+        str += "}";
+        first_thru = false;
+      }
     }
   }
 
@@ -445,19 +343,17 @@ ExceptionPath::makeStates()
 {
   if (thrus_) {
     ExceptionState *prev_state = nullptr;
-    ExceptionThruSeq::Iterator thru_iter(thrus_);
     bool first = true;
     int index = 0;
-    while (thru_iter.hasNext()) {
-      ExceptionThru *thru = thru_iter.next();
+    for (ExceptionThru *thru : *thrus_) {
       // No state for first -thru if no -from,since it kicks off the exception.
       if (!(from_ == nullptr && first)) {
-	ExceptionState *state = new ExceptionState(this, thru, index);
-	if (prev_state)
-	  prev_state->setNextState(state);
-	else
-	  states_ = state;
-	prev_state = state;
+        ExceptionState *state = new ExceptionState(this, thru, index);
+        if (prev_state)
+          prev_state->setNextState(state);
+        else
+          states_ = state;
+        prev_state = state;
       }
       first = false;
       index++;
@@ -936,7 +832,8 @@ GroupPath::tighterThan(ExceptionPath *) const
 bool
 GroupPath::mergeable(ExceptionPath *exception) const
 {
-  return ExceptionPath::mergeable(exception)
+  return stringEqIf(name_, exception->name())
+    && ExceptionPath::mergeable(exception)
     && overrides(exception);
 }
 
@@ -972,7 +869,8 @@ ExceptionFromTo::ExceptionFromTo(PinSet *pins,
 				 ClockSet *clks,
 				 InstanceSet *insts,
 				 const RiseFallBoth *rf,
-				 bool own_pts) :
+				 bool own_pts,
+                                 const Network *network) :
   ExceptionPt(rf, own_pts),
   pins_(pins),
   clks_(clks),
@@ -994,7 +892,7 @@ ExceptionFromTo::ExceptionFromTo(PinSet *pins,
       delete insts_;
     insts_ = nullptr;
   }
-  findHash();
+  findHash(network);
 }
 
 ExceptionFromTo::~ExceptionFromTo()
@@ -1035,19 +933,14 @@ ExceptionFromTo::allPins(const Network *network,
 			 PinSet *pins)
 {
   if (pins_) {
-    PinSet::Iterator pin_iter(pins_);
-    while (pin_iter.hasNext()) {
-      Pin *pin = pin_iter.next();
+    for (const Pin *pin : *pins_)
       pins->insert(pin);
-    }
   }
   if (insts_) {
-    InstanceSet::Iterator inst_iter(insts_);
-    while (inst_iter.hasNext()) {
-      Instance *inst = inst_iter.next();
+    for (const Instance *inst : *insts_) {
       InstancePinIterator *pin_iter = network->pinIterator(inst);
       while (pin_iter->hasNext()) {
-	Pin *pin = pin_iter->next();
+	const Pin *pin = pin_iter->next();
 	pins->insert(pin);
       }
       delete pin_iter;
@@ -1056,34 +949,25 @@ ExceptionFromTo::allPins(const Network *network,
 }
 
 void
-ExceptionFromTo::findHash()
+ExceptionFromTo::findHash(const Network *network)
 {
   hash_ = 0;
   if (pins_) {
     size_t hash = 0;
-    PinSet::Iterator pin_iter(pins_);
-    while (pin_iter.hasNext()) {
-      const Pin *pin = pin_iter.next();
-      hash += hashPtr(pin);
-    }
+    for (const Pin *pin : *pins_)
+      hash += network->id(pin);
     hash_ += hash * hash_pin;
   }
   if (clks_) {
     size_t hash = 0;
-    ClockSet::Iterator clk_iter(clks_);
-    while (clk_iter.hasNext()) {
-      Clock *clk = clk_iter.next();
+    for (Clock *clk : *clks_)
       hash += clk->index();
-    }
     hash_ += hash * hash_clk;
   }
   if (insts_) {
     size_t hash = 0;
-    InstanceSet::Iterator inst_iter(insts_);
-    while (inst_iter.hasNext()) {
-      Instance *inst = inst_iter.next();
-      hash += hashPtr(inst);
-    }
+    for (const Instance *inst : *insts_)
+      hash += network->id(inst);
     hash_ += hash * hash_inst;
   }
 }
@@ -1098,16 +982,16 @@ ExceptionFromTo::equal(ExceptionFromTo *from_to) const
 }
 
 int
-ExceptionFromTo::nameCmp(ExceptionPt *pt2,
+ExceptionFromTo::compare(ExceptionPt *pt2,
 			 const Network *network) const
 {
   int priority_cmp = typePriority() - pt2->typePriority();
   if (priority_cmp == 0) {
-    int pin_cmp = setNameCmp(pins_, pt2->pins(), network);
+    int pin_cmp = PinSet::compare(pins_, pt2->pins(), network);
     if (pin_cmp == 0) {
-      int clk_cmp = setNameCmp(clks_, pt2->clks());
+      int clk_cmp = sta::compare(clks_, pt2->clks());
       if (clk_cmp == 0) {
-	int inst_cmp = setNameCmp(insts_, pt2->instances(), network);
+	int inst_cmp = InstanceSet::compare(insts_, pt2->instances(), network);
 	if (inst_cmp == 0)
 	  return rf_->index() - pt2->transition()->index();
 	else
@@ -1124,69 +1008,54 @@ ExceptionFromTo::nameCmp(ExceptionPt *pt2,
 }
 
 void
-ExceptionFromTo::mergeInto(ExceptionPt *pt)
+ExceptionFromTo::mergeInto(ExceptionPt *pt,
+                           const Network *network)
 {
   if (pins_) {
-    PinSet::Iterator pin_iter(pins_);
-    while (pin_iter.hasNext()) {
-      Pin *pin = pin_iter.next();
-      pt->addPin(pin);
-    }
+    for (const Pin *pin : *pins_)
+      pt->addPin(pin, network);
   }
   if (clks_) {
-    ClockSet::Iterator clk_iter(clks_);
-    while (clk_iter.hasNext()) {
-      Clock *clk = clk_iter.next();
+    for (Clock *clk : *clks_)
       pt->addClock(clk);
-    }
   }
   if (insts_) {
-    InstanceSet::Iterator inst_iter(insts_);
-    while (inst_iter.hasNext()) {
-      Instance *inst = inst_iter.next();
-      pt->addInstance(inst);
-    }
+    for (const Instance *inst : *insts_)
+      pt->addInstance(inst, network);
   }
 }
 
 void
-ExceptionFromTo::deleteObjects(ExceptionFromTo *pt)
+ExceptionFromTo::deleteObjects(ExceptionFromTo *pt,
+                               const Network *network)
 {
   PinSet *pins = pt->pins();
   if (pins && pins_) {
-    PinSet::Iterator pin_iter(pins);
-    while (pin_iter.hasNext()) {
-      Pin *pin = pin_iter.next();
-      deletePin(pin);
-    }
+    for (const Pin *pin : *pins)
+      deletePin(pin, network);
   }
   ClockSet *clks = pt->clks();
   if (clks && clks_) {
-    ClockSet::Iterator clk_iter(clks);
-    while (clk_iter.hasNext()) {
-      Clock *clk = clk_iter.next();
+    for (Clock *clk : *clks)
       deleteClock(clk);
-    }
   }
   InstanceSet *insts = pt->instances();
   if (insts && insts_) {
-    InstanceSet::Iterator inst_iter(insts);
-    while (inst_iter.hasNext()) {
-      Instance *inst = inst_iter.next();
-      deleteInstance(inst);
-    }
+    for (const Instance *inst : *insts)
+      deleteInstance(inst, network);
   }
 }
 
 void
-ExceptionFromTo::addPin(Pin *pin)
+ExceptionFromTo::addPin(const Pin *pin,
+                        const Network *network)
 {
   if (pins_ == nullptr)
-    pins_ = new PinSet;
+    pins_ = new PinSet(network);
   if (!pins_->hasKey(pin)) {
     pins_->insert(pin);
     // Incrementally update hash.
-    hash_ += hashPtr(pin) * hash_pin;
+    hash_ += network->id(pin) * hash_pin;
   }
 }
 
@@ -1203,24 +1072,26 @@ ExceptionFromTo::addClock(Clock *clk)
 }
 
 void
-ExceptionFromTo::addInstance(Instance *inst)
+ExceptionFromTo::addInstance(const Instance *inst,
+                             const Network *network)
 {
   if (insts_ == nullptr)
-    insts_ = new InstanceSet;
+    insts_ = new InstanceSet(network);
   if (!insts_->hasKey(inst)) {
     insts_->insert(inst);
     // Incrementally update hash.
-    hash_ += hashPtr(inst) * hash_inst;
+    hash_ += network->id(inst) * hash_inst;
   }
 }
 
 void
-ExceptionFromTo::deletePin(Pin *pin)
+ExceptionFromTo::deletePin(const Pin *pin,
+                           const Network *network)
 {
   if (pins_) {
     pins_->erase(pin);
     // Incrementally update hash.
-    hash_ -= hashPtr(pin) * hash_pin;
+    hash_ -= network->id(pin) * hash_pin;
   }
 }
 
@@ -1235,12 +1106,13 @@ ExceptionFromTo::deleteClock(Clock *clk)
 }
 
 void
-ExceptionFromTo::deleteInstance(Instance *inst)
+ExceptionFromTo::deleteInstance(const Instance *inst,
+                                const Network *network)
 {
   if (insts_) {
     insts_->erase(inst);
     // Incrementally update hash.
-    hash_ -= hashPtr(inst) * hash_inst;
+    hash_ -= network->id(inst) * hash_inst;
   }
 }
 
@@ -1255,45 +1127,39 @@ ExceptionFromTo::asString(const Network *network) const
   int obj_count = 0;
   bool first = true;
   if (pins_) {
-    PinSeq pins;
-    sortPinSet(pins_, network, pins);
-    PinSeq::Iterator pin_iter(pins);
-    while (pin_iter.hasNext()
-	   && obj_count < as_string_max_objects_) {
-      const Pin *pin = pin_iter.next();
+    PinSeq pins = sortByPathName(pins_, network);
+    for (const Pin *pin : pins) {
       if (!first)
 	str += ", ";
       str += network->pathName(pin);
       first = false;
       obj_count++;
+      if (obj_count > as_string_max_objects_)
+        break;
     }
   }
   if (clks_) {
-    ClockSeq clks;
-    sortClockSet(clks_, clks);
-    ClockSeq::Iterator clk_iter(clks);
-    while (clk_iter.hasNext()
-	   && obj_count < as_string_max_objects_) {
-      Clock *clk = clk_iter.next();
+    ClockSeq clks = sortByName(clks_);
+    for (Clock *clk : clks) {
       if (!first)
 	str += ", ";
       str += clk->name();
       first = false;
       obj_count++;
+      if (obj_count > as_string_max_objects_)
+        break;
     }
   }
   if (insts_) {
-    InstanceSeq insts;
-    sortInstanceSet(insts_, network, insts);
-    InstanceSeq::Iterator inst_iter(insts);
-    while (inst_iter.hasNext()
-	   && obj_count < as_string_max_objects_) {
+    InstanceSeq insts = sortByPathName(insts_, network);
+    for (const Instance *inst : insts) {
       if (!first)
 	str += ", ";
-      Instance *inst = inst_iter.next();
       str += network->pathName(inst);
       first = false;
       obj_count++;
+      if (obj_count > as_string_max_objects_)
+        break;
     }
   }
   if (obj_count == as_string_max_objects_)
@@ -1325,20 +1191,21 @@ ExceptionFrom::ExceptionFrom(PinSet *pins,
 			     ClockSet *clks,
 			     InstanceSet *insts,
 			     const RiseFallBoth *rf,
-			     bool own_pts) :
-  ExceptionFromTo(pins, clks, insts, rf, own_pts)
+			     bool own_pts,
+                             const Network *network) :
+  ExceptionFromTo(pins, clks, insts, rf, own_pts, network)
 {
 }
 
 void
-ExceptionFrom::findHash()
+ExceptionFrom::findHash(const Network *network)
 {
-  ExceptionFromTo::findHash();
+  ExceptionFromTo::findHash(network);
   hash_ += rf_->index() * 31 + 29;
 }
 
 ExceptionFrom *
-ExceptionFrom::clone()
+ExceptionFrom::clone(const Network *network)
 {
   PinSet *pins = nullptr;
   if (pins_)
@@ -1349,7 +1216,7 @@ ExceptionFrom::clone()
   InstanceSet *insts = nullptr;
   if (insts_)
     insts = new InstanceSet(*insts_);
-  return new ExceptionFrom(pins, clks, insts, rf_, true);
+  return new ExceptionFrom(pins, clks, insts, rf_, true, network);
 }
 
 bool
@@ -1379,14 +1246,15 @@ ExceptionTo::ExceptionTo(PinSet *pins,
 			 InstanceSet *insts,
 			 const RiseFallBoth *rf,
 			 const RiseFallBoth *end_rf,
-			 bool own_pts) :
-  ExceptionFromTo(pins, clks, insts, rf, own_pts),
+			 bool own_pts,
+                         const Network *network) :
+  ExceptionFromTo(pins, clks, insts, rf, own_pts, network),
   end_rf_(end_rf)
 {
 }
 
 ExceptionTo *
-ExceptionTo::clone()
+ExceptionTo::clone(const Network *network)
 {
   PinSet *pins = nullptr;
   if (pins_)
@@ -1397,7 +1265,7 @@ ExceptionTo::clone()
   InstanceSet *insts = nullptr;
   if (insts_)
     insts = new InstanceSet(*insts_);
-  return new ExceptionTo(pins, clks, insts, rf_, end_rf_, true);
+  return new ExceptionTo(pins, clks, insts, rf_, end_rf_, true, network);
 }
 
 const char *
@@ -1526,11 +1394,11 @@ ExceptionTo::cmdKeyword() const
 }
 
 int
-ExceptionTo::nameCmp(ExceptionPt *pt2,
+ExceptionTo::compare(ExceptionPt *pt2,
 		     const Network *network) const
 {
   ExceptionTo *to2 = dynamic_cast<ExceptionTo*>(pt2);
-  int cmp = ExceptionFromTo::nameCmp(pt2, network);
+  int cmp = ExceptionFromTo::compare(pt2, network);
   if (cmp == 0)
     return end_rf_->index() - to2->endTransition()->index();
   else
@@ -1568,7 +1436,7 @@ ExceptionThru::ExceptionThru(PinSet *pins,
     insts_ = nullptr;
   }
   makeAllEdges(network);
-  findHash();
+  findHash(network);
 }
 
 void
@@ -1585,9 +1453,7 @@ ExceptionThru::makeAllEdges(const Network *network)
 void
 ExceptionThru::makePinEdges(const Network *network)
 {
-  PinSet::Iterator pin_iter(pins_);
-  while (pin_iter.hasNext()) {
-    Pin *pin = pin_iter.next();
+  for (const Pin *pin : *pins_) {
     if (network->isHierarchical(pin))
       makeHpinEdges(pin, network);
   }
@@ -1596,7 +1462,7 @@ ExceptionThru::makePinEdges(const Network *network)
 // Call after the pin has been deleted from pins_,
 // but before the pin has been deleted from the netlist.
 void
-ExceptionThru::deletePinEdges(Pin *pin,
+ExceptionThru::deletePinEdges(const Pin *pin,
 			      Network *network)
 {
   // Incrementally delete only edges through (hier) or from/to (leaf) the pin.
@@ -1608,25 +1474,23 @@ ExceptionThru::deletePinEdges(Pin *pin,
       if (drvrs) {
 	// Some edges originating at drvrs may not actually go through pin, so
 	// still must use deletePinPairsThruHierPin to identify specific edges.
-	EdgePinsSet::Iterator edge_iter(edges_);
-	while (edge_iter.hasNext()) {
-	  EdgePins *edge_pins = edge_iter.next();
-	  Pin *p_first = edge_pins->first;
-	  if (drvrs->hasKey(p_first)) {
-	    deletePinPairsThruHierPin(pin, network, edges_);
-	    break;
-	  }
-	}
+	if (edges_) {
+	  for (const EdgePins &edge_pins : *edges_) {
+            const Pin *p_first = edge_pins.first;
+            if (drvrs->hasKey(p_first)) {
+              deletePinPairsThruHierPin(pin, network, edges_);
+              break;
+            }
+          }
+        }
       }
     }
     else {
-      EdgePinsSet::Iterator edge_iter(edges_);
-      while (edge_iter.hasNext()) {
-        EdgePins *edge_pins = edge_iter.next();
-        if (edge_pins->first == pin
-            || edge_pins->second == pin) {
+      // erase prevents range iteration.
+      for (const EdgePins &edge_pins : *edges_) {
+        if (edge_pins.first == pin
+            || edge_pins.second == pin) {
           edges_->erase(edge_pins);
-          delete edge_pins;
         }
       }
     }
@@ -1638,7 +1502,7 @@ ExceptionThru::makeHpinEdges(const Pin *pin,
 			     const Network *network)
 {
   if (edges_ == nullptr)
-    edges_ = new EdgePinsSet;
+    edges_ = new EdgePinsSet(network);
   // Add edges thru pin to edges_.
   insertPinPairsThruHierPin(pin, network, edges_);
 }
@@ -1646,22 +1510,20 @@ ExceptionThru::makeHpinEdges(const Pin *pin,
 void
 ExceptionThru::makeNetEdges(const Network *network)
 {
-  NetSet::Iterator net_iter(nets_);
-  while (net_iter.hasNext()) {
-    Net *net = net_iter.next();
+  for (const Net *net : *nets_) {
     if (edges_ == nullptr)
-      edges_ = new EdgePinsSet;
+      edges_ = new EdgePinsSet(network);
     // Add edges thru pin to edges_.
     insertPinPairsThruNet(net, network, edges_);
   }
 }
 
 void
-ExceptionThru::makeNetEdges(Net *net,
+ExceptionThru::makeNetEdges(const Net *net,
 			    const Network *network)
 {
   if (edges_ == nullptr)
-    edges_ = new EdgePinsSet;
+    edges_ = new EdgePinsSet(network);
   // Add edges thru pin to edges_.
   insertPinPairsThruNet(net, network, edges_);
 }
@@ -1669,9 +1531,7 @@ ExceptionThru::makeNetEdges(Net *net,
 void
 ExceptionThru::makeInstEdges(const Network *network)
 {
-  InstanceSet::Iterator inst_iter(insts_);
-  while (inst_iter.hasNext()) {
-    Instance *inst = inst_iter.next();
+  for (const Instance *inst : *insts_) {
     if (network->isHierarchical(inst)) {
       InstancePinIterator *pin_iter = network->pinIterator(inst);
       while (pin_iter->hasNext()) {
@@ -1720,10 +1580,7 @@ ExceptionThru::~ExceptionThru()
     delete pins_;
     delete nets_;
     delete insts_;
-    if (edges_) {
-      edges_->deleteContents();
-      delete edges_;
-    }
+    delete edges_;
   }
 }
 
@@ -1734,45 +1591,39 @@ ExceptionThru::asString(const Network *network) const
   bool first = true;
   int obj_count = 0;
   if (pins_) {
-    PinSeq pins;
-    sortPinSet(pins_, network, pins);
-    PinSeq::Iterator pin_iter(pins);
-    while (pin_iter.hasNext()
-	   && obj_count < as_string_max_objects_) {
-      const Pin *pin = pin_iter.next();
+    PinSeq pins = sortByPathName(pins_, network);
+    for (const Pin *pin : pins) {
       if (!first)
 	str += ", ";
       str += network->pathName(pin);
       first = false;
       obj_count++;
+      if (obj_count > as_string_max_objects_)
+        break;
     }
   }
   if (nets_) {
-    NetSeq nets;
-    sortNetSet(nets_, network, nets);
-    NetSeq::Iterator net_iter(nets);
-    while (net_iter.hasNext()
-	   && obj_count < as_string_max_objects_) {
-      const Net *net = net_iter.next();
+    NetSeq nets = sortByPathName(nets_, network);
+    for (const Net *net : nets) {
       if (!first)
 	str += ", ";
       str += network->pathName(net);
       first = false;
       obj_count++;
+      if (obj_count > as_string_max_objects_)
+        break;
     }
   }
   if (insts_) {
-    InstanceSeq insts;
-    sortInstanceSet(insts_, network, insts);
-    InstanceSeq::Iterator inst_iter(insts);
-    while (inst_iter.hasNext()
-	   && obj_count < as_string_max_objects_) {
+    InstanceSeq insts = sortByPathName(insts_, network);
+    for (const Instance *inst : insts) {
       if (!first)
 	str += ", ";
-      Instance *inst = inst_iter.next();
       str += network->pathName(inst);
       first = false;
       obj_count++;
+      if (obj_count > as_string_max_objects_)
+        break;
     }
   }
   if (obj_count == as_string_max_objects_)
@@ -1793,9 +1644,7 @@ exceptionThrusClone(ExceptionThruSeq *thrus,
 {
   if (thrus) {
     ExceptionThruSeq *thrus_cpy = new ExceptionThruSeq;
-    ExceptionThruSeq::Iterator thru_iter(thrus);
-    while (thru_iter.hasNext()) {
-      ExceptionThru *thru = thru_iter.next();
+    for (ExceptionThru *thru : *thrus) {
       ExceptionThru *thru_cpy = thru->clone(network);
       thrus_cpy->push_back(thru_cpy);
     }
@@ -1830,87 +1679,93 @@ ExceptionThru::hasObjects() const
 
 
 void
-ExceptionThru::addPin(Pin *pin)
+ExceptionThru::addPin(const Pin *pin,
+                      const Network *network)
 {
   if (pins_ == nullptr)
-    pins_ = new PinSet;
+    pins_ = new PinSet(network);
   if (!pins_->hasKey(pin)) {
     pins_->insert(pin);
     // Incrementally update hash.
-    hash_ += hashPtr(pin) * hash_pin;
+    hash_ += network->id(pin) * hash_pin;
   }
 }
 
 void
-ExceptionThru::addNet(Net *net)
+ExceptionThru::addNet(const Net *net,
+                      const Network *network)
 {
   if (nets_ == nullptr)
-    nets_ = new NetSet;
+    nets_ = new NetSet(network);
   if (!nets_->hasKey(net)) {
     nets_->insert(net);
     // Incrementally update hash.
-    hash_ += hashPtr(net) * hash_net;
+    hash_ += network->id(net) * hash_net;
   }
 }
 
 void
-ExceptionThru::addInstance(Instance *inst)
+ExceptionThru::addInstance(const Instance *inst,
+                           const Network *network)
 {
   if (insts_ == nullptr)
-    insts_ = new InstanceSet;
+    insts_ = new InstanceSet(network);
   if (!insts_->hasKey(inst)) {
     insts_->insert(inst);
     // Incrementally update hash.
-    hash_ += hashPtr(inst) * hash_inst;
+    hash_ += network->id(inst) * hash_inst;
   }
 }
 
 void
-ExceptionThru::addEdge(EdgePins *edge)
+ExceptionThru::addEdge(const EdgePins &edge,
+                       const Network *network)
 {
   if (edges_ == nullptr)
-    edges_ = new EdgePinsSet;
+    edges_ = new EdgePinsSet(network);
   edges_->insert(edge);
   // Hash is unchanged because edges are derived from hierarchical pins.
 }
 
 void
-ExceptionThru::deletePin(Pin *pin)
+ExceptionThru::deletePin(const Pin *pin,
+                         const Network *network)
 {
   if (pins_) {
     pins_->erase(pin);
     // Incrementally update hash.
-    hash_ -= hashPtr(pin) * hash_pin;
+    hash_ -= network->id(pin) * hash_pin;
   }
 }
 
 void
-ExceptionThru::deleteNet(Net *net)
+ExceptionThru::deleteNet(const Net *net,
+                         const Network *network)
 {
   if (nets_) {
     nets_->erase(net);
     // Incrementally update hash.
-    hash_ -= hashPtr(net) * hash_net;
+    hash_ -= network->id(net) * hash_net;
   }
 }
 
 void
-ExceptionThru::deleteInstance(Instance *inst)
+ExceptionThru::deleteInstance(const Instance *inst,
+                              const Network *network)
 {
   if (insts_) {
     insts_->erase(inst);
     // Incrementally update hash.
-    hash_ -= hashPtr(inst) * hash_inst;
+    hash_ -= network->id(inst) * hash_inst;
   }
 }
 
 void
-ExceptionThru::deleteEdge(EdgePins *edge)
+ExceptionThru::deleteEdge(const EdgePins &edge)
 {
-  if (edges_) {
-    edges_->erase(edge);
+  if (edges_)
     // Hash is unchanged because edges are derived from hierarchical pins.
-  }
+    edges_->erase(edge);
 }
 
 void
@@ -1918,16 +1773,11 @@ ExceptionThru::allPins(const Network *network,
 		       PinSet *pins)
 {
   if (pins_) {
-    PinSet::Iterator pin_iter(pins_);
-    while (pin_iter.hasNext()) {
-      Pin *pin = pin_iter.next();
+    for (const Pin *pin : *pins_)
       pins->insert(pin);
-    }
   }
   if (insts_) {
-    InstanceSet::Iterator inst_iter(insts_);
-    while (inst_iter.hasNext()) {
-      Instance *inst = inst_iter.next();
+    for (const Instance *inst : *insts_) {
       InstancePinIterator *pin_iter = network->pinIterator(inst);
       while (pin_iter->hasNext()) {
 	Pin *pin = pin_iter->next();
@@ -1937,12 +1787,10 @@ ExceptionThru::allPins(const Network *network,
     }
   }
   if (nets_) {
-    NetSet::Iterator net_iter(nets_);
-    while (net_iter.hasNext()) {
-      Net *net = net_iter.next();
+    for (const Net *net : *nets_) {
       NetConnectedPinIterator *pin_iter = network->connectedPinIterator(net);
       while (pin_iter->hasNext()) {
-	Pin *pin = pin_iter->next();
+	const Pin *pin = pin_iter->next();
 	pins->insert(pin);
       }
       delete pin_iter;
@@ -1956,43 +1804,34 @@ ExceptionThru::matches(const Pin *from_pin,
 		       const RiseFall *to_rf,
 		       const Network *network)
 {
-  EdgePins edge_pins(const_cast<Pin*>(from_pin), const_cast<Pin*>(to_pin));
-  return ((pins_ && pins_->hasKey(const_cast<Pin*>(to_pin)))
-	  || (edges_ && edges_->hasKey(&edge_pins))
+  EdgePins edge_pins(from_pin, to_pin);
+  return ((pins_ && pins_->hasKey(to_pin))
+	  || (edges_ && edges_->hasKey(edge_pins))
 	  || (nets_ && to_pin && nets_->hasKey(network->net(to_pin)))
 	  || (insts_ && to_pin && insts_->hasKey(network->instance(to_pin))))
     && rf_->matches(to_rf);
 }
 
 void
-ExceptionThru::findHash()
+ExceptionThru::findHash(const Network *network)
 {
   hash_ = 0;
   if (pins_) {
     size_t hash = 0;
-    PinSet::Iterator pin_iter(pins_);
-    while (pin_iter.hasNext()) {
-      const Pin *pin = pin_iter.next();
-      hash += hashPtr(pin);
-    }
+    for (const Pin *pin : *pins_)
+      hash += network->id(pin);
     hash_ += hash * hash_pin;
   }
   if (nets_) {
     size_t hash = 0;
-    NetSet::Iterator net_iter(nets_);
-    while (net_iter.hasNext()) {
-      Net *net = net_iter.next();
-      hash += hashPtr(net);
-    }
+    for (const Net *net : *nets_)
+      hash += network->id(net);
     hash_ += hash * hash_net;
   }
   if (insts_) {
     size_t hash = 0;
-    InstanceSet::Iterator inst_iter(insts_);
-    while (inst_iter.hasNext()) {
-      Instance *inst = inst_iter.next();
-      hash += hashPtr(inst);
-    }
+    for (const Instance *inst : *insts_)
+      hash += network->id(inst);
     hash_ += hash * hash_inst;
   }
   hash_ += rf_->index() * 13;
@@ -2009,16 +1848,16 @@ ExceptionThru::equal(ExceptionThru *thru) const
 }
 
 int
-ExceptionThru::nameCmp(ExceptionPt *pt2,
+ExceptionThru::compare(ExceptionPt *pt2,
 		       const Network *network) const
 {
   int priority_cmp = typePriority() - pt2->typePriority();
   if (priority_cmp == 0) {
-    int pin_cmp = setNameCmp(pins_, pt2->pins(), network);
+    int pin_cmp = PinSet::compare(pins_, pt2->pins(), network);
     if (pin_cmp == 0) {
-      int net_cmp = setNameCmp(nets_, pt2->nets(), network);
+      int net_cmp = NetSet::compare(nets_, pt2->nets(), network);
       if (net_cmp == 0) {
-	int inst_cmp = setNameCmp(insts_, pt2->instances(), network);
+	int inst_cmp = InstanceSet::compare(insts_, pt2->instances(), network);
 	if (inst_cmp == 0)
 	  return rf_->index() - pt2->transition()->index();
 	else
@@ -2035,74 +1874,52 @@ ExceptionThru::nameCmp(ExceptionPt *pt2,
 }
 
 void
-ExceptionThru::mergeInto(ExceptionPt *pt)
+ExceptionThru::mergeInto(ExceptionPt *pt,
+                         const Network *network)
 {
   if (pins_) {
-    PinSet::Iterator pin_iter(pins_);
-    while (pin_iter.hasNext()) {
-      Pin *pin = pin_iter.next();
-      pt->addPin(pin);
-    }
+    for (const Pin *pin : *pins_)
+      pt->addPin(pin, network);
   }
   if (edges_) {
-    EdgePinsSet::Iterator edge_iter(edges_);
-    while (edge_iter.hasNext()) {
-      EdgePins *edge = edge_iter.next();
-      pt->addEdge(edge);
-    }
+    for (const EdgePins &edge : *edges_)
+      pt->addEdge(edge, network);
     // EdgePins are now owned by acquirer.
     edges_->clear();
   }
   if (nets_) {
-    NetSet::Iterator net_iter(nets_);
-    while (net_iter.hasNext()) {
-      Net *net = net_iter.next();
-      pt->addNet(net);
-    }
+    for (const Net *net : *nets_)
+      pt->addNet(net, network);
   }
   if (insts_) {
-    InstanceSet::Iterator inst_iter(insts_);
-    while (inst_iter.hasNext()) {
-      Instance *inst = inst_iter.next();
-      pt->addInstance(inst);
-    }
+    for (const Instance *inst : *insts_)
+      pt->addInstance(inst, network);
   }
 }
 
 void
-ExceptionThru::deleteObjects(ExceptionThru *pt)
+ExceptionThru::deleteObjects(ExceptionThru *pt,
+                             const Network *network)
 {
   PinSet *pins = pt->pins();
   if (pins && pins_) {
-    PinSet::Iterator pin_iter(pins);
-    while (pin_iter.hasNext()) {
-      Pin *pin = pin_iter.next();
-      deletePin(pin);
-    }
+    for (const Pin *pin : *pins)
+      deletePin(pin, network);
   }
   EdgePinsSet *edges = pt->edges();
   if (edges && edges_) {
-    EdgePinsSet::Iterator edge_iter(edges);
-    while (edge_iter.hasNext()) {
-      EdgePins *edge = edge_iter.next();
+    for (const EdgePins &edge : *edges)
       deleteEdge(edge);
-    }
   }
   NetSet *nets = pt->nets();
   if (nets && nets_) {
-    NetSet::Iterator net_iter(nets);
-    while (net_iter.hasNext()) {
-      Net *net = net_iter.next();
-      deleteNet(net);
-    }
+    for (const Net *net : *nets)
+      deleteNet(net, network);
   }
   InstanceSet *insts = pt->instances();
   if (insts && insts_) {
-    InstanceSet::Iterator inst_iter(insts);
-    while (inst_iter.hasNext()) {
-      Instance *inst = inst_iter.next();
-      deleteInstance(inst);
-    }
+    for (const Instance *inst : *insts)
+      deleteInstance(inst, network);
   }
 }
 
@@ -2150,41 +1967,41 @@ ExceptionThru::connectPinAfter(PinSet *drvrs,
 
   // No enabled edges if no driver.
   if (drvrs && !drvrs->empty()) {
-    PinSet::Iterator pin_iter(pins_);
-    while (pin_iter.hasNext()) {
-      Pin *thru_pin = pin_iter.next();
-      if (network->isHierarchical(thru_pin)) {
-	PinSet *thru_pin_drvrs = network->drivers(thru_pin);
-	if (PinSet::intersects(drvrs, thru_pin_drvrs))
-	  makePinEdges(thru_pin, network);
+    if (pins_) {
+      for (const Pin *thru_pin : *pins_) {
+        if (network->isHierarchical(thru_pin)) {
+          PinSet *thru_pin_drvrs = network->drivers(thru_pin);
+          if (PinSet::intersects(drvrs, thru_pin_drvrs))
+            makePinEdges(thru_pin, network);
+        }
       }
     }
-    InstanceSet::Iterator inst_iter(insts_);
-    while (inst_iter.hasNext()) {
-      Instance *inst = inst_iter.next();
-      if (network->isHierarchical(inst)) {
-	InstancePinIterator *inst_pin_iter = network->pinIterator(inst);
-	while (inst_pin_iter->hasNext()) {
-	  Pin *inst_pin = inst_pin_iter->next();
-	  PinSet *inst_pin_drvrs = network->drivers(inst_pin);
-	  if (PinSet::intersects(drvrs, inst_pin_drvrs))
-	    makePinEdges(inst_pin, network);
-	}
-	delete inst_pin_iter;
+    if (insts_) {
+      for (const Instance *inst : *insts_) {
+        if (network->isHierarchical(inst)) {
+          InstancePinIterator *inst_pin_iter = network->pinIterator(inst);
+          while (inst_pin_iter->hasNext()) {
+            Pin *inst_pin = inst_pin_iter->next();
+            PinSet *inst_pin_drvrs = network->drivers(inst_pin);
+            if (PinSet::intersects(drvrs, inst_pin_drvrs))
+              makePinEdges(inst_pin, network);
+          }
+          delete inst_pin_iter;
+        }
       }
     }
-    NetSet::Iterator net_iter(nets_);
-    while (net_iter.hasNext()) {
-      Net *net = net_iter.next();
-      PinSet *net_drvrs = network->drivers(net);
-      if (PinSet::intersects(drvrs, net_drvrs))
-	makeNetEdges(net, network);
+    if (nets_) {
+      for (const Net *net : *nets_) {
+        PinSet *net_drvrs = network->drivers(net);
+        if (PinSet::intersects(drvrs, net_drvrs))
+          makeNetEdges(net, network);
+      }
     }
   }
 }
 
 void
-ExceptionThru::makePinEdges(Pin *pin,
+ExceptionThru::makePinEdges(const Pin *pin,
 			    const Network *network)
 {
   if (network->isHierarchical(pin))
@@ -2192,7 +2009,7 @@ ExceptionThru::makePinEdges(Pin *pin,
 }
 
 void
-ExceptionThru::disconnectPinBefore(Pin *pin,
+ExceptionThru::disconnectPinBefore(const Pin *pin,
  				   Network *network)
 {
   // Remove edges from/to leaf pin and through hier pin.
@@ -2249,29 +2066,29 @@ ExpandedExceptionVisitor::visitExpansions()
   ExceptionFrom *from = exception_->from();
   if (from) {
     const RiseFallBoth *rf = from->transition();
-    PinSet::Iterator pin_iter(from->pins());
-    while (pin_iter.hasNext()) {
-      Pin *pin = pin_iter.next();
-      PinSet pins;
-      pins.insert(pin);
-      ExceptionFrom expanded_from(&pins, nullptr, nullptr, rf, false);
-      expandThrus(&expanded_from);
+    if (from->pins()) {
+      for (const Pin *pin : *from->pins()) {
+        PinSet pins(network_);
+        pins.insert(pin);
+        ExceptionFrom expanded_from(&pins, nullptr, nullptr, rf, false, network_);
+        expandThrus(&expanded_from);
+      }
     }
-    ClockSet::Iterator clk_iter(from->clks());
-    while (clk_iter.hasNext()) {
-      Clock *clk = clk_iter.next();
-      ClockSet clks;
-      clks.insert(clk);
-      ExceptionFrom expanded_from(nullptr, &clks, nullptr, rf, false);
-      expandThrus(&expanded_from);
+    if (from->clks()) {
+      for (Clock *clk : *from->clks()) {
+        ClockSet clks;
+        clks.insert(clk);
+        ExceptionFrom expanded_from(nullptr, &clks, nullptr, rf, false, network_);
+        expandThrus(&expanded_from);
+      }
     }
-    InstanceSet::Iterator inst_iter(from->instances());
-    while (inst_iter.hasNext()) {
-      Instance *inst = inst_iter.next();
-      InstanceSet insts;
-      insts.insert(inst);
-      ExceptionFrom expanded_from(nullptr, nullptr, &insts, rf, false);
-      expandThrus(&expanded_from);
+    if (from->instances()) {
+      for (const Instance *inst : *from->instances()) {
+        InstanceSet insts(network_);
+        insts.insert(inst);
+        ExceptionFrom expanded_from(nullptr, nullptr, &insts, rf, false, network_);
+        expandThrus(&expanded_from);
+      }
     }
   }
   else
@@ -2300,35 +2117,35 @@ ExpandedExceptionVisitor::expandThru(ExceptionFrom *expanded_from,
   if (thru_iter.hasNext()) {
     ExceptionThru *thru = thru_iter.next();
     const RiseFallBoth *rf = thru->transition();
-    PinSet::Iterator pin_iter(thru->pins());
-    while (pin_iter.hasNext()) {
-      Pin *pin = pin_iter.next();
-      PinSet pins;
-      pins.insert(pin);
-      ExceptionThru expanded_thru(&pins, nullptr, nullptr, rf, false, network_);
-      expanded_thrus->push_back(&expanded_thru);
-      expandThru(expanded_from, thru_iter, expanded_thrus);
-      expanded_thrus->pop_back();
+    if (thru->pins()) {
+      for (const Pin *pin : *thru->pins()) {
+        PinSet pins(network_);
+        pins.insert(pin);
+        ExceptionThru expanded_thru(&pins, nullptr, nullptr, rf, false, network_);
+        expanded_thrus->push_back(&expanded_thru);
+        expandThru(expanded_from, thru_iter, expanded_thrus);
+        expanded_thrus->pop_back();
+      }
     }
-    NetSet::Iterator net_iter(thru->nets());
-    while (net_iter.hasNext()) {
-      Net *net = net_iter.next();
-      NetSet nets;
-      nets.insert(net);
-      ExceptionThru expanded_thru(nullptr, &nets, nullptr, rf, false, network_);
-      expanded_thrus->push_back(&expanded_thru);
-      expandThru(expanded_from, thru_iter, expanded_thrus);
-      expanded_thrus->pop_back();
+    if (thru->nets()) {
+      for (const Net *net : *thru->nets()) {
+        NetSet nets(network_);
+        nets.insert(net);
+        ExceptionThru expanded_thru(nullptr, &nets, nullptr, rf, false, network_);
+        expanded_thrus->push_back(&expanded_thru);
+        expandThru(expanded_from, thru_iter, expanded_thrus);
+        expanded_thrus->pop_back();
+      }
     }
-    InstanceSet::Iterator inst_iter(thru->instances());
-    while (inst_iter.hasNext()) {
-      Instance *inst = inst_iter.next();
-      InstanceSet insts;
-      insts.insert(inst);
-      ExceptionThru expanded_thru(nullptr, nullptr, &insts, rf, false, network_);
-      expanded_thrus->push_back(&expanded_thru);
-      expandThru(expanded_from, thru_iter, expanded_thrus);
-      expanded_thrus->pop_back();
+    if (thru->instances()) {
+      for (const Instance *inst : *thru->instances()) {
+        InstanceSet insts(network_);
+        insts.insert(inst);
+        ExceptionThru expanded_thru(nullptr, nullptr, &insts, rf, false, network_);
+        expanded_thrus->push_back(&expanded_thru);
+        expandThru(expanded_from, thru_iter, expanded_thrus);
+        expanded_thrus->pop_back();
+      }
     }
   }
   else
@@ -2344,29 +2161,29 @@ ExpandedExceptionVisitor::expandTo(ExceptionFrom *expanded_from,
   if (to) {
     const RiseFallBoth *rf = to->transition();
     const RiseFallBoth *end_rf = to->endTransition();
-    PinSet::Iterator pin_iter(to->pins());
-    while (pin_iter.hasNext()) {
-      Pin *pin = pin_iter.next();
-      PinSet pins;
-      pins.insert(pin);
-      ExceptionTo expanded_to(&pins, nullptr, nullptr, rf, end_rf, false);
-      visit(expanded_from, expanded_thrus, &expanded_to);
+    if (to->pins()) {
+      for (const Pin *pin : *to->pins()) {
+        PinSet pins(network_);
+        pins.insert(pin);
+        ExceptionTo expanded_to(&pins, nullptr, nullptr, rf, end_rf, false, network_);
+        visit(expanded_from, expanded_thrus, &expanded_to);
+      }
     }
-    ClockSet::Iterator clk_iter(to->clks());
-    while (clk_iter.hasNext()) {
-      Clock *clk = clk_iter.next();
-      ClockSet clks;
-      clks.insert(clk);
-      ExceptionTo expanded_to(nullptr, &clks, nullptr, rf, end_rf, false);
-      visit(expanded_from, expanded_thrus, &expanded_to);
+    if (to->clks()) {
+      for (Clock *clk : *to->clks()) {
+        ClockSet clks;
+        clks.insert(clk);
+        ExceptionTo expanded_to(nullptr, &clks, nullptr, rf, end_rf, false, network_);
+        visit(expanded_from, expanded_thrus, &expanded_to);
+      }
     }
-    InstanceSet::Iterator inst_iter(to->instances());
-    while (inst_iter.hasNext()) {
-      Instance *inst = inst_iter.next();
-      InstanceSet insts;
-      insts.insert(inst);
-      ExceptionTo expanded_to(nullptr, nullptr, &insts, rf, end_rf, false);
-      visit(expanded_from, expanded_thrus, &expanded_to);
+    if (to->instances()) {
+      for (const Instance *inst : *to->instances()) {
+        InstanceSet insts(network_);
+        insts.insert(inst);
+        ExceptionTo expanded_to(nullptr, nullptr, &insts, rf, end_rf, false, network_);
+        visit(expanded_from, expanded_thrus, &expanded_to);
+      }
     }
   }
   else
@@ -2417,27 +2234,33 @@ ExceptionState::hash() const
   return hashSum(exception_->hash(), index_);
 }
 
-////////////////////////////////////////////////////////////////
-
-class ExceptionLess
-{
-public:
-  explicit ExceptionLess(const Network *network);
-  bool operator()(ExceptionPath *except1,
-		  ExceptionPath *except2);
-
-private:
-  const Network *network_;
-};
-
-ExceptionLess::ExceptionLess(const Network *network) :
+ExceptionStateLess::ExceptionStateLess(const Network *network) :
   network_(network)
 {
 }
 
 bool
-ExceptionLess::operator()(ExceptionPath *except1,
-			  ExceptionPath *except2)
+ExceptionStateLess::operator()(const ExceptionState *state1,
+                               const ExceptionState *state2) const
+{
+  const ExceptionPath *except1 = state1->exception();
+  const ExceptionPath *except2 = state2->exception();
+  ExceptionPathLess except_less(network_);
+  return except_less(except1, except2)
+    || (except1 == except2
+        && state1->index() < state2->index());
+}
+
+////////////////////////////////////////////////////////////////
+
+ExceptionPathLess::ExceptionPathLess(const Network *network) :
+  network_(network)
+{
+}
+
+bool
+ExceptionPathLess::operator()(const ExceptionPath *except1,
+                              const ExceptionPath *except2) const
 {
   int priority1 = except1->typePriority() + except1->minMax()->index();
   int priority2 = except2->typePriority() + except2->minMax()->index();
@@ -2447,7 +2270,7 @@ ExceptionLess::operator()(ExceptionPath *except1,
     while (pt_iter1.hasNext() && pt_iter2.hasNext()) {
       ExceptionPt *pt1 = pt_iter1.next();
       ExceptionPt *pt2 = pt_iter2.next();
-      int cmp = pt1->nameCmp(pt2, network_);
+      int cmp = pt1->compare(pt2, network_);
       if (cmp != 0)
 	return cmp < 0;
     }
@@ -2456,19 +2279,6 @@ ExceptionLess::operator()(ExceptionPath *except1,
   }
   else
     return (priority1 < priority2);
-}
-
-void
-sortExceptions(ExceptionPathSet *set,
-	       ExceptionPathSeq &exceptions,
-	       Network *network)
-{
-  ExceptionPathSet::Iterator except_iter(set);
-  while (except_iter.hasNext()) {
-    ExceptionPath *exception = except_iter.next();
-    exceptions.push_back(exception);
-  }
-  sort(exceptions, ExceptionLess(network));
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2480,8 +2290,8 @@ public:
 		     const Network *network);
 
 protected:
-  virtual void visit(Pin *drvr,
-		     Pin *load);
+  virtual void visit(const Pin *drvr,
+		     const Pin *load);
 
   PinPairSet *pairs_;
   const Network *network_;
@@ -2496,14 +2306,11 @@ InsertPinPairsThru::InsertPinPairsThru(PinPairSet *pairs,
 }
 
 void
-InsertPinPairsThru::visit(Pin *drvr,
-			  Pin *load)
+InsertPinPairsThru::visit(const Pin *drvr,
+			  const Pin *load)
 {
-  PinPair probe(drvr, load);
-  if (!pairs_->hasKey(&probe)) {
-    PinPair *pair = new PinPair(drvr, load);
-    pairs_->insert(pair);
-  }
+  PinPair pair(drvr, load);
+  pairs_->insert(pair);
 }
 
 static void
@@ -2516,7 +2323,7 @@ insertPinPairsThruHierPin(const Pin *hpin,
 }
 
 static void
-insertPinPairsThruNet(Net *net,
+insertPinPairsThruNet(const Net *net,
 		      const Network *network,
 		      PinPairSet *pairs)
 {
@@ -2531,8 +2338,8 @@ public:
 		     const Network *network);
 
 protected:
-  virtual void visit(Pin *drvr,
-                     Pin *load);
+  virtual void visit(const Pin *drvr,
+                     const Pin *load);
 
   PinPairSet *pairs_;
   const Network *network_;
@@ -2547,11 +2354,11 @@ DeletePinPairsThru::DeletePinPairsThru(PinPairSet *pairs,
 }
 
 void
-DeletePinPairsThru::visit(Pin *drvr,
-			  Pin *load)
+DeletePinPairsThru::visit(const Pin *drvr,
+			  const Pin *load)
 {
-  PinPair probe(drvr, load);
-  pairs_->erase(&probe);
+  PinPair pair(drvr, load);
+  pairs_->erase(pair);
 }
 
 static void

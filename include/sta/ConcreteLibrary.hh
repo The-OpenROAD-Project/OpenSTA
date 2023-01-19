@@ -53,6 +53,7 @@ public:
   virtual ~ConcreteLibrary();
   const char *name() const { return name_; }
   void setName(const char *name);
+  ObjectId id() const { return id_; }
   bool isLiberty() const { return is_liberty_; }
   const char *filename() const { return filename_; }
   void addCell(ConcreteCell *cell);
@@ -62,8 +63,7 @@ public:
   void deleteCell(ConcreteCell *cell);
   ConcreteLibraryCellIterator *cellIterator() const;
   ConcreteCell *findCell(const char *name) const;
-  void findCellsMatching(const PatternMatch *pattern,
-			 CellSeq *cells) const;
+  CellSeq findCellsMatching(const PatternMatch *pattern) const;
   char busBrktLeft() const { return bus_brkt_left_; }
   char busBrktRight() const { return bus_brkt_right_; }
   void setBusBrkts(char left,
@@ -74,6 +74,7 @@ protected:
 		  const char *cell_name);
 
   const char *name_;
+  ObjectId id_;
   const char *filename_;
   bool is_liberty_;
   char bus_brkt_left_;
@@ -89,17 +90,17 @@ class ConcreteCell
 public:
   // Use ConcreteLibrary::deleteCell.
   virtual ~ConcreteCell();
-  ConcreteLibrary *library() const { return library_; }
   const char *name() const { return name_; }
+  ObjectId id() const { return id_; }
   const char *filename() const { return filename_; }
+  ConcreteLibrary *library() const { return library_; }
   LibertyCell *libertyCell() const { return liberty_cell_; }
   void setLibertyCell(LibertyCell *cell);
   void *extCell() const { return ext_cell_; }
   void setExtCell(void *ext_cell);
   int portBitCount() const { return port_bit_count_; }
   ConcretePort *findPort(const char *name) const;
-  void findPortsMatching(const PatternMatch *pattern,
-			 PortSeq *ports) const;
+  PortSeq findPortsMatching(const PatternMatch *pattern) const;
   ConcreteCellPortIterator *portIterator() const;
   ConcreteCellPortBitIterator *portBitIterator() const;
   bool isLeaf() const { return is_leaf_; }
@@ -124,10 +125,10 @@ public:
   void addPortBit(ConcretePort *port);
 
 protected:
-  ConcreteCell(ConcreteLibrary *library,
-	       const char *name,
-	       bool is_leaf,
-	       const char *filename);
+  ConcreteCell(const char *name,
+	       const char *filename,
+               bool is_leaf,
+               ConcreteLibrary *library);
   ConcretePort *makeBusPort(const char *name,
 			    int from_index,
 			    int to_index,
@@ -143,10 +144,11 @@ protected:
 		      const char *name,
 		      int index);
 
-  ConcreteLibrary *library_;
   const char *name_;
+  ObjectId id_;
   // Filename is optional.
   const char *filename_;
+  ConcreteLibrary *library_;
   LibertyCell *liberty_cell_;
   // External application cell.
   void *ext_cell_;
@@ -167,6 +169,7 @@ class ConcretePort
 public:
   virtual ~ConcretePort();
   const char *name() const { return name_; }
+  ObjectId id() const { return id_; }
   const char *busName() const;
   Cell *cell() const;
   ConcreteLibrary *library() const { return cell_->library(); }
@@ -212,15 +215,16 @@ public:
 
 protected:
   // Constructors for factory in cell class.
-  ConcretePort(ConcreteCell *cell,
-	       const char *name,
-	       bool is_bus,
+  ConcretePort(const char *name,
+               bool is_bus,
 	       int from_index,
 	       int to_index,
 	       bool is_bundle,
-	       ConcretePortSeq *member_ports);
+	       ConcretePortSeq *member_ports,
+               ConcreteCell *cell);
 
   const char *name_;
+  ObjectId id_;
   ConcreteCell *cell_;
   PortDirection *direction_;
   LibertyPort *liberty_port_;

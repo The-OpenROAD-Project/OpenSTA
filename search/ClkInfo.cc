@@ -35,7 +35,7 @@ clkInfoCmp(const ClkInfo *clk_info1,
 	   const ClkInfo *clk_info2,
 	   const StaState *sta);
 
-ClkInfo::ClkInfo(ClockEdge *clk_edge,
+ClkInfo::ClkInfo(const ClockEdge *clk_edge,
 		 const Pin *clk_src,
 		 bool is_propagated,
                  const Pin *gen_clk_src,
@@ -143,7 +143,7 @@ ClkInfo::asString(const StaState *sta) const
   return result;
 }
 
-Clock *
+const Clock *
 ClkInfo::clock() const
 {
   if (clk_edge_)
@@ -237,8 +237,8 @@ clkInfoCmp(const ClkInfo *clk_info1,
 	   const ClkInfo *clk_info2,
 	   const StaState *sta)
 {
-  ClockEdge *clk_edge1 = clk_info1->clkEdge();
-  ClockEdge *clk_edge2 = clk_info2->clkEdge();
+  const ClockEdge *clk_edge1 = clk_info1->clkEdge();
+  const ClockEdge *clk_edge2 = clk_info2->clkEdge();
   int edge_index1 = clk_edge1 ? clk_edge1->index() : -1;
   int edge_index2 = clk_edge2 ? clk_edge2->index() : -1;
   if (edge_index1 < edge_index2)

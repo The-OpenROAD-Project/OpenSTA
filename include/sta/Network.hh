@@ -31,7 +31,6 @@ class Report;
 class PatternMatch;
 class PinVisitor;
 
-typedef Set<const Net*> ConstNetSet;
 typedef Map<const char*, LibertyLibrary*, CharPtrLess> LibertyLibraryMap;
 // Link network function returns top level instance.
 // Return nullptr if link fails.
@@ -103,20 +102,19 @@ public:
 
   ////////////////////////////////////////////////////////////////
   // Library functions.
+  virtual const char *name(const Library *library) const = 0;
+  virtual ObjectId id(const Library *library) const = 0;
   virtual LibraryIterator *libraryIterator() const = 0;
   virtual LibertyLibraryIterator *libertyLibraryIterator() const = 0;
   virtual Library *findLibrary(const char *name) = 0;
   virtual LibertyLibrary *findLiberty(const char *name) = 0;
   // Find liberty library by filename.
   virtual LibertyLibrary *findLibertyFilename(const char *filename);
-  virtual const char *name(const Library *library) const = 0;
   virtual Cell *findCell(const Library *library,
 			 const char *name) const = 0;
   // Search the design (non-liberty) libraries for cells matching pattern.
-  virtual void findCellsMatching(const Library *library,
-				 const PatternMatch *pattern,
-				 // Return value.
-				 CellSeq *cells) const = 0;
+  virtual CellSeq findCellsMatching(const Library *library,
+                                    const PatternMatch *pattern) const = 0;
   // Search liberty libraries for cell name.
   virtual LibertyCell *findLibertyCell(const char *name) const;
   virtual LibertyLibrary *makeLibertyLibrary(const char *name,
@@ -136,6 +134,7 @@ public:
   ////////////////////////////////////////////////////////////////
   // Cell functions.
   virtual const char *name(const Cell *cell) const = 0;
+  virtual ObjectId id(const Cell *cell) const = 0;
   virtual Library *library(const Cell *cell) const = 0;
   virtual LibertyLibrary *libertyLibrary(const Cell *cell) const;
   // Find the corresponding liberty cell.
@@ -148,10 +147,8 @@ public:
   // Name can be a simple, bundle, bus, or bus bit name.
   virtual Port *findPort(const Cell *cell,
 			 const char *name) const = 0;
-  virtual void findPortsMatching(const Cell *cell,
-				 const PatternMatch *pattern,
-				 // Return value.
-				 PortSeq *ports) const = 0;
+  virtual PortSeq findPortsMatching(const Cell *cell,
+                                    const PatternMatch *pattern) const = 0;
   virtual bool isLeaf(const Cell *cell) const = 0;
   virtual CellPortIterator *portIterator(const Cell *cell) const = 0;
   // Iterate over port bits (expanded buses).
@@ -162,6 +159,7 @@ public:
   ////////////////////////////////////////////////////////////////
   // Port functions
   virtual const char *name(const Port *port) const = 0;
+  virtual ObjectId id(const Port *port) const = 0;
   virtual Cell *cell(const Port *port) const = 0;
   virtual LibertyPort *libertyPort(const Port *port) const = 0;
   virtual PortDirection *direction(const Port *port) const = 0;
@@ -193,6 +191,9 @@ public:
 
   ////////////////////////////////////////////////////////////////
   // Instance functions
+  // Name local to containing cell/instance.
+  virtual const char *name(const Instance *instance) const = 0;
+  virtual ObjectId id(const Instance *instance) const = 0;
   // Top level instance of the design (defined after link).
   virtual Instance *topInstance() const = 0;
   virtual bool isTopInstance(const Instance *inst) const;
@@ -201,16 +202,10 @@ public:
   Instance *findInstanceRelative(const Instance *inst,
 				 const char *path_name) const;
   // Default implementation uses linear search.
-  virtual void findInstancesMatching(const Instance *context,
-				     const PatternMatch *pattern,
-				     // Return value.
-				     InstanceSeq *insts) const;
-  virtual void findInstancesHierMatching(const Instance *instance,
-					 const PatternMatch *pattern,
-					 // Return value.
-					 InstanceSeq *insts) const;
-  // Name local to containing cell/instance.
-  virtual const char *name(const Instance *instance) const = 0;
+  virtual InstanceSeq findInstancesMatching(const Instance *context,
+                                            const PatternMatch *pattern) const;
+  virtual InstanceSeq findInstancesHierMatching(const Instance *instance,
+                                                const PatternMatch *pattern) const;
   // Hierarchical path name.
   virtual const char *pathName(const Instance *instance) const;
   bool pathNameLess(const Instance *inst1,
@@ -220,7 +215,7 @@ public:
   // Path from instance up to top level (last in the sequence).
   void path(const Instance *inst,
 	    // Return value.
-	    ConstInstanceSeq &path) const;
+	    InstanceSeq &path) const;
   virtual Cell *cell(const Instance *instance) const = 0;
   virtual const char *cellName(const Instance *instance) const;
   virtual LibertyLibrary *libertyLibrary(const Instance *instance) const;
@@ -232,8 +227,8 @@ public:
 			      const char *name) const = 0;
   virtual void findChildrenMatching(const Instance *parent,
 				    const PatternMatch *pattern,
-				    // Return value.
-				    InstanceSeq *insts) const;
+                                    // Return value.
+                                    InstanceSeq &matches) const;
   // Is inst inside of hier_inst?
   bool isInside(const Instance *inst,
 		const Instance *hier_inst) const;
@@ -260,6 +255,9 @@ public:
 
   ////////////////////////////////////////////////////////////////
   // Pin functions
+  // Name is instance_name/port_name (the same as path name).
+  virtual const char *name(const Pin *pin) const;
+  virtual ObjectId id(const Pin *pin) const = 0;
   virtual Pin *findPin(const char *path_name) const;
   virtual Pin *findPin(const Instance *instance,
 		       const char *port_name) const = 0;
@@ -271,18 +269,12 @@ public:
   Pin *findPinRelative(const Instance *inst,
 		       const char *path_name) const;
   // Default implementation uses linear search.
-  virtual void findPinsMatching(const Instance *instance,
-				const PatternMatch *pattern,
-				// Return value.
-				PinSeq *pins) const;
+  virtual PinSeq findPinsMatching(const Instance *instance,
+                                  const PatternMatch *pattern) const;
   // Traverse the hierarchy from instance down and find pins matching
   // pattern of the form instance_name/port_name.
-  virtual void findPinsHierMatching(const Instance *instance,
-				    const PatternMatch *pattern,
-				    // Return value.
-				    PinSeq *pins) const;
-  // Name is instance_name/port_name (the same as path name).
-  virtual const char *name(const Pin *pin) const;
+  virtual PinSeq findPinsHierMatching(const Instance *instance,
+                                      const PatternMatch *pattern) const;
   virtual const char *portName(const Pin *pin) const;
   // Path name is instance_name/port_name.
   virtual const char *pathName(const Pin *pin) const;
@@ -317,7 +309,7 @@ public:
   // and child nets it is hierarchically connected to (port, leaf and
   // hierarchical pins).
   virtual PinConnectedPinIterator *connectedPinIterator(const Pin *pin) const;
-  virtual void visitConnectedPins(Pin *pin,
+  virtual void visitConnectedPins(const Pin *pin,
 				  PinVisitor &visitor) const;
 
   // Find driver pins for the net connected to pin.
@@ -344,6 +336,7 @@ public:
   // Terminal functions
   // Name is instance_name/port_name (the same as path name).
   virtual const char *name(const Term *term) const;
+  virtual ObjectId id(const Term *term) const = 0;
   virtual const char *portName(const Term *term) const;
   // Path name is instance_name/port_name (pin name).
   virtual const char *pathName(const Term *term) const;
@@ -352,28 +345,25 @@ public:
 
   ////////////////////////////////////////////////////////////////
   // Net functions
+  virtual const char *name(const Net *net) const = 0; // no hierarchy prefix
+  virtual ObjectId id(const Net *net) const = 0;
   virtual Net *findNet(const char *path_name) const;
   // Find net relative to hierarchical instance.
   Net *findNetRelative(const Instance *inst,
 		       const char *path_name) const;
   // Default implementation uses linear search.
-  virtual void findNetsMatching(const Instance *context,
-				const PatternMatch *pattern,
-				// Return value.
-				NetSeq *nets) const;
+  virtual NetSeq findNetsMatching(const Instance *context,
+                                  const PatternMatch *pattern) const;
   virtual Net *findNet(const Instance *instance,
 		       const char *net_name) const = 0;
   // Traverse the hierarchy from instance down and find nets matching
   // pattern of the form instance_name/net_name.
-  virtual void findNetsHierMatching(const Instance *instance,
-				    const PatternMatch *pattern,
-				    // Return value.
-				    NetSeq *nets) const;
+  virtual NetSeq findNetsHierMatching(const Instance *instance,
+                                      const PatternMatch *pattern) const;
+  // Primitive used by findNetsMatching.
   virtual void findInstNetsMatching(const Instance *instance,
-				    const PatternMatch *pattern,
-				    // Return value.
-				    NetSeq *nets) const = 0;
-  virtual const char *name(const Net *net) const = 0; // no hierarchy prefix
+                                    const PatternMatch *pattern,
+                                    NetSeq &matches) const = 0;
   virtual const char *pathName(const Net *net) const;
   bool pathNameLess(const Net *net1,
 		    const Net *net2) const;
@@ -390,7 +380,7 @@ public:
   virtual bool isConnected(const Net *net1,
 			   const Net *net2) const;
   virtual Net *highestNetAbove(Net *net) const;
-  virtual Net *highestConnectedNet(Net *net) const;
+  virtual const Net *highestConnectedNet(Net *net) const;
   virtual void connectedNets(Net *net,
 			     NetSet *nets) const;
   virtual void connectedNets(const Pin *pin,
@@ -445,35 +435,45 @@ protected:
   void findInstancesMatching1(const Instance *context,
 			      size_t context_name_length,
 			      const PatternMatch *pattern,
-			      // Return value.
-			      InstanceSeq *insts) const;
+			      InstanceSeq &insts) const;
+  void findInstancesHierMatching1(const Instance *instance,
+                                  const PatternMatch *pattern,
+                                  InstanceSeq &matches) const;
+  void findNetsMatching(const Instance *context,
+                        const PatternMatch *pattern,
+                        NetSeq &matches) const;
+  void findNetsHierMatching(const Instance *instance,
+                            const PatternMatch *pattern,
+                            NetSeq &matches) const;
+  void findPinsHierMatching(const Instance *instance,
+                            const PatternMatch *pattern,
+                            // Return value.
+                            PinSeq &matches) const;
   bool isConnected(const Net *net,
 		   const Pin *pin,
-		   ConstNetSet &nets) const;
+		   NetSet &nets) const;
   bool isConnected(const Net *net1,
 		   const Net *net2,
-		   ConstNetSet &nets) const;
+		   NetSet &nets) const;
   int hierarchyLevel(const Net *net) const;
   virtual void visitConnectedPins(const Net *net,
 				  PinVisitor &visitor,
-				  ConstNetSet &visited_nets) const;
+				  NetSet &visited_nets) const;
   // Default implementation uses linear search.
   virtual void findInstPinsMatching(const Instance *instance,
-				    const PatternMatch *pattern,
-				    // Return value.
-				    PinSeq *pins) const;
+                                    const PatternMatch *pattern,
+                                    // Return value.
+                                    PinSeq &matches) const;
   void findInstPinsHierMatching(const Instance *parent,
-				const PatternMatch *pattern,
-				// Return value.
-				PinSeq *pins) const;
+                                const PatternMatch *pattern,
+                                // Return value.
+                                PinSeq &matches) const;
   // findNet using linear search.
   Net *findNetLinear(const Instance *instance,
 		     const char *net_name) const;
   // findNetsMatching using linear search.
-  void findNetsMatchingLinear(const Instance *instance,
-			      const PatternMatch *pattern,
-			      // Return value.
-			      NetSeq *nets) const;
+  NetSeq findNetsMatchingLinear(const Instance *instance,
+                                const PatternMatch *pattern) const;
   // Connect/disconnect net/pins should clear the net->drvrs map.
   // Incrementally maintaining the map is expensive because 
   // nets may be connected across hierarchy levels.
@@ -588,7 +588,7 @@ public:
   ConstantPinIterator() {}
   virtual ~ConstantPinIterator() {}
   virtual bool hasNext() = 0;
-  virtual void next(Pin *&pin,
+  virtual void next(const Pin *&pin,
 		    LogicValue &value) = 0;
 };
 
@@ -601,7 +601,7 @@ public:
 			      NetSet &one_nets);
   ~NetworkConstantPinIterator();
   virtual bool hasNext();
-  virtual void next(Pin *&pin, LogicValue &value);
+  virtual void next(const Pin *&pin, LogicValue &value);
 
 private:
   void findConstantPins(NetSet &nets,
@@ -619,29 +619,29 @@ class HierPinThruVisitor
 public:
   HierPinThruVisitor() {}
   virtual ~HierPinThruVisitor() {}
-  virtual void visit(Pin *drvr,
-		     Pin *load) = 0;
+  virtual void visit(const Pin *drvr,
+		     const Pin *load) = 0;
 };
 
 class PinVisitor
 {
 public:
   virtual ~PinVisitor() {}
-  virtual void operator()(Pin *pin) = 0;
+  virtual void operator()(const Pin *pin) = 0;
 };
 
 class FindNetDrvrLoads : public PinVisitor
 {
 public:
-  FindNetDrvrLoads(Pin *drvr_pin,
+  FindNetDrvrLoads(const Pin *drvr_pin,
 		   PinSet &visited_drvrs,
 		   PinSeq &loads,
 		   PinSeq &drvrs,
 		   const Network *network);
-  virtual void operator()(Pin *pin);
+  virtual void operator()(const Pin *pin);
 
 protected:
-  Pin *drvr_pin_;
+  const Pin *drvr_pin_;
   PinSet &visited_drvrs_;
   PinSeq &loads_;
   PinSeq &drvrs_;
@@ -654,7 +654,7 @@ visitDrvrLoadsThruHierPin(const Pin *hpin,
 			  const Network *network,
 			  HierPinThruVisitor *visitor);
 void
-visitDrvrLoadsThruNet(Net *net,
+visitDrvrLoadsThruNet(const Net *net,
 		      const Network *network,
 		      HierPinThruVisitor *visitor);
 

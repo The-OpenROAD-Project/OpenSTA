@@ -34,8 +34,7 @@ registerDelayCalc(const char *name,
 		  MakeArcDelayCalc maker);
 bool
 isDelayCalcName(const char *name);
-// Caller owns return value.
-StringSeq *
+StringSeq
 delayCalcNames();
 void
 deleteDelayCalcs();

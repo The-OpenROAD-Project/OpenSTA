@@ -29,14 +29,14 @@ class ConcreteParasiticNode;
 typedef Map<const Pin*, float> ConcreteElmoreLoadMap;
 typedef ConcreteElmoreLoadMap::Iterator ConcretePiElmoreLoadIterator;
 typedef Map<const Pin*, ConcretePoleResidue*> ConcretePoleResidueMap;
-typedef std::pair<const Net*, int> NetId;
-struct NetIdLess
+typedef std::pair<const Net*, int> NetIdPair;
+struct NetIdPairLess
 {
-  bool operator()(const NetId *net_id1,
-		  const NetId *net_id2) const;
+  bool operator()(const NetIdPair *net_id1,
+		  const NetIdPair *net_id2) const;
 };
-typedef Map<NetId*, ConcreteParasiticSubNode*,
-	    NetIdLess > ConcreteParasiticSubNodeMap;
+typedef Map<NetIdPair*, ConcreteParasiticSubNode*,
+	    NetIdPairLess > ConcreteParasiticSubNodeMap;
 typedef Map<const Pin*,
 	    ConcreteParasiticPinNode*> ConcreteParasiticPinNodeMap;
 typedef Vector<ConcreteParasiticDevice*> ConcreteParasiticDeviceSeq;
@@ -427,7 +427,7 @@ public:
   ConcreteParasiticPinNodeMap *pinNodes() { return &pin_nodes_; }
   ConcreteParasiticSubNodeMap *subNodes() { return &sub_nodes_; }
   void disconnectPin(const Pin *pin,
-		     Net *net);
+		     const Net *net);
   virtual ParasiticDeviceIterator *deviceIterator();
   virtual ParasiticNodeIterator *nodeIterator();
   virtual void devices(// Return value.
