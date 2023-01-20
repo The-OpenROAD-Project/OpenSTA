@@ -423,7 +423,7 @@ Search::deletePaths(Vertex *vertex)
 // from/thrus/to are owned and deleted by Search.
 // Returned sequence is owned by the caller.
 // PathEnds are owned by Search PathGroups and deleted on next call.
-PathEndSeq *
+PathEndSeq
 Search::findPathEnds(ExceptionFrom *from,
 		     ExceptionThruSeq *thrus,
 		     ExceptionTo *to,
@@ -455,9 +455,9 @@ Search::findPathEnds(ExceptionFrom *from,
 				recovery, removal,
 				clk_gating_setup, clk_gating_hold);
   ensureDownstreamClkPins();
-  PathEndSeq *path_ends = path_groups_->makePathEnds(to, unconstrained_paths_,
-						     corner, min_max,
-						     sort_by_slack);
+  PathEndSeq path_ends = path_groups_->makePathEnds(to, unconstrained_paths_,
+                                                    corner, min_max,
+                                                    sort_by_slack);
   sdc_->reportClkToClkMaxCycleWarnings();
   return path_ends;
 }

@@ -2437,7 +2437,7 @@ Sta::setCmdCorner(Corner *corner)
 // from/thrus/to are owned and deleted by Search.
 // Returned sequence is owned by the caller.
 // PathEnds are owned by Search PathGroups and deleted on next call.
-PathEndSeq *
+PathEndSeq
 Sta::findPathEnds(ExceptionFrom *from,
 		  ExceptionThruSeq *thrus,
 		  ExceptionTo *to,
@@ -2667,21 +2667,19 @@ Sta::findGroupPathPins(const char *group_path_name)
 {
   if (!(search_->havePathGroups()
         && search_->arrivalsValid())) {
-    PathEndSeq *path_ends = findPathEnds(// from, thrus, to, unconstrained
-					 nullptr, nullptr, nullptr, false,
-					 // corner, min_max, 
-					 nullptr, MinMaxAll::max(),
-					 // group_count, endpoint_count, unique_pins
-					 1, 1, false,
-					 -INF, INF, // slack_min, slack_max,
-					 false, // sort_by_slack
-					 nullptr, // group_names
-					 // setup, hold, recovery, removal, 
-					 true, true, true, true,
-					 // clk_gating_setup, clk_gating_hold
-					 true, true);
-    // No use for the path end sequence.
-    delete path_ends;
+    PathEndSeq path_ends = findPathEnds(// from, thrus, to, unconstrained
+                                        nullptr, nullptr, nullptr, false,
+                                        // corner, min_max, 
+                                        nullptr, MinMaxAll::max(),
+                                        // group_count, endpoint_count, unique_pins
+                                        1, 1, false,
+                                        -INF, INF, // slack_min, slack_max,
+                                        false, // sort_by_slack
+                                        nullptr, // group_names
+                                        // setup, hold, recovery, removal, 
+                                        true, true, true, true,
+                                        // clk_gating_setup, clk_gating_hold
+                                        true, true);
   }
 
   PathGroup *path_group = search_->findPathGroup(group_path_name,

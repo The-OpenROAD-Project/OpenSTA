@@ -158,11 +158,11 @@ PathGroup::prune()
 }
 
 void
-PathGroup::pushEnds(PathEndSeq *path_ends)
+PathGroup::pushEnds(PathEndSeq &path_ends)
 {
   ensureSortedMaxPaths();
   for (PathEnd *path_end : path_ends_)
-    path_ends->push_back(path_end);
+    path_ends.push_back(path_end);
 }
 
 PathGroupIterator *
@@ -415,7 +415,7 @@ PathGroups::groupPathTo(const PathEnd *path_end) const
 }
 
 void
-PathGroups::pushGroupPathEnds(PathEndSeq *path_ends)
+PathGroups::pushGroupPathEnds(PathEndSeq &path_ends)
 {
   for (auto min_max : MinMax::range()) {
     int mm_index =  min_max->index();
@@ -448,7 +448,7 @@ PathGroups::pushGroupPathEnds(PathEndSeq *path_ends)
 }
 
 void
-PathGroups::pushUnconstrainedPathEnds(PathEndSeq *path_ends,
+PathGroups::pushUnconstrainedPathEnds(PathEndSeq &path_ends,
 				      const MinMaxAll *min_max)
 {
   Set<PathGroup *> groups;
@@ -477,7 +477,7 @@ typedef Set<PathEnd*, PathEndNoCrprLess> PathEndNoCrprSet;
 static bool
 exceptionToEmpty(ExceptionTo *to);
 
-PathEndSeq *
+PathEndSeq
 PathGroups::makePathEnds(ExceptionTo *to,
 			 bool unconstrained_paths,
 			 const Corner *corner,
@@ -488,16 +488,16 @@ PathGroups::makePathEnds(ExceptionTo *to,
   makeGroupPathEnds(to, group_count_, endpoint_count_, unique_pins_,
 		    corner, min_max);
 
-  PathEndSeq *path_ends = new PathEndSeq;
+  PathEndSeq path_ends;
   pushGroupPathEnds(path_ends);
   if (sort_by_slack) {
     sort(path_ends, PathEndLess(this));
-    if (static_cast<int>(path_ends->size()) > group_count_)
-      path_ends->resize(group_count_);
+    if (static_cast<int>(path_ends.size()) > group_count_)
+      path_ends.resize(group_count_);
   }
 
   if (unconstrained_paths
-      && path_ends->empty())
+      && path_ends.empty())
     // No constrained paths, so report unconstrained paths.
     pushUnconstrainedPathEnds(path_ends, min_max);
 

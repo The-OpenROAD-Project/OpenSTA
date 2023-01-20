@@ -1155,6 +1155,10 @@ using namespace sta;
   Tcl_SetObjResult(interp, list);
 }
 
+%typemap(out) PathEndSeq {
+  seqTclList<PathEndSeq, PathEnd>($1, SWIGTYPE_p_PathEnd, interp);
+}
+
 %typemap(out) MinPulseWidthCheckSeqIterator* {
   Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
   Tcl_SetObjResult(interp, obj);
@@ -4153,7 +4157,7 @@ set_propagate_all_clocks(bool prop)
 
 ////////////////////////////////////////////////////////////////
 
-PathEndSeq *
+PathEndSeq
 find_path_ends(ExceptionFrom *from,
 	       ExceptionThruSeq *thrus,
 	       ExceptionTo *to,
@@ -4176,15 +4180,15 @@ find_path_ends(ExceptionFrom *from,
 {
   cmdLinkedNetwork();
   Sta *sta = Sta::sta();
-  PathEndSeq *ends = sta->findPathEnds(from, thrus, to, unconstrained,
-				       corner, delay_min_max,
-				       group_count, endpoint_count, unique_pins,
-				       slack_min, slack_max,
-				       sort_by_slack,
-				       groups->size() ? groups : nullptr,
-				       setup, hold,
-				       recovery, removal,
-				       clk_gating_setup, clk_gating_hold);
+  PathEndSeq ends = sta->findPathEnds(from, thrus, to, unconstrained,
+                                      corner, delay_min_max,
+                                      group_count, endpoint_count, unique_pins,
+                                      slack_min, slack_max,
+                                      sort_by_slack,
+                                      groups->size() ? groups : nullptr,
+                                      setup, hold,
+                                      recovery, removal,
+                                      clk_gating_setup, clk_gating_hold);
   delete groups;
   return ends;
 }

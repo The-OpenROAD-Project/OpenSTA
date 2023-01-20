@@ -82,27 +82,26 @@ public:
   bool unconstrainedPaths() const { return unconstrained_paths_; }
   // from/thrus/to are owned and deleted by Search.
   // Use corner nullptr to report timing for all corners.
-  // Returned sequence is owned by the caller.
   // PathEnds are owned by Search PathGroups and deleted on next call.
-  PathEndSeq *findPathEnds(ExceptionFrom *from,
-			   ExceptionThruSeq *thrus,
-			   ExceptionTo *to,
-			   bool unconstrained,
-			   const Corner *corner,
-			   const MinMaxAll *min_max,
-			   int group_count,
-			   int endpoint_count,
-			   bool unique_pins,
-			   float slack_min,
-			   float slack_max,
-			   bool sort_by_slack,
-			   PathGroupNameSet *group_names,
-			   bool setup,
-			   bool hold,
-			   bool recovery,
-			   bool removal,
-			   bool clk_gating_setup,
-			   bool clk_gating_hold);
+  PathEndSeq findPathEnds(ExceptionFrom *from,
+                          ExceptionThruSeq *thrus,
+                          ExceptionTo *to,
+                          bool unconstrained,
+                          const Corner *corner,
+                          const MinMaxAll *min_max,
+                          int group_count,
+                          int endpoint_count,
+                          bool unique_pins,
+                          float slack_min,
+                          float slack_max,
+                          bool sort_by_slack,
+                          PathGroupNameSet *group_names,
+                          bool setup,
+                          bool hold,
+                          bool recovery,
+                          bool removal,
+                          bool clk_gating_setup,
+                          bool clk_gating_hold);
   bool arrivalsValid();
   // Invalidate all arrival and required times.
   void arrivalsInvalid();

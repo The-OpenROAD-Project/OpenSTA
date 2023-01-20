@@ -58,7 +58,7 @@ public:
   const PathEndSeq &pathEnds() const { return path_ends_; }
   void insert(PathEnd *path_end);
   // Push group_count into path_ends.
-  void pushEnds(PathEndSeq *path_ends);
+  void pushEnds(PathEndSeq &path_ends);
   // Predicates to determine if a PathEnd is worth saving.
   virtual bool savable(PathEnd *path_end);
   int maxPaths() const { return group_count_; }
@@ -114,13 +114,12 @@ public:
 	     const StaState *sta);
   ~PathGroups();
   // Use corner nullptr to make PathEnds for all corners.
-  // Returned PathEndSeq is owned by the caller.
   // The PathEnds in the vector are owned by the PathGroups.
-  PathEndSeq *makePathEnds(ExceptionTo *to,
-			   bool unconstrained_paths,
-			   const Corner *corner,
-			   const MinMaxAll *min_max,
-			   bool sort_by_slack);
+  PathEndSeq makePathEnds(ExceptionTo *to,
+                          bool unconstrained_paths,
+                          const Corner *corner,
+                          const MinMaxAll *min_max,
+                          bool sort_by_slack);
   PathGroup *findPathGroup(const char *name,
 			   const MinMax *min_max) const;
   PathGroup *findPathGroup(const Clock *clock,
@@ -150,8 +149,8 @@ protected:
 		    bool unique_pins,
 		    bool cmp_slack);
 
-  void pushGroupPathEnds(PathEndSeq *path_ends);
-  void pushUnconstrainedPathEnds(PathEndSeq *path_ends,
+  void pushGroupPathEnds(PathEndSeq &path_ends);
+  void pushUnconstrainedPathEnds(PathEndSeq &path_ends,
 				 const MinMaxAll *min_max);
 
   void makeGroups(int group_count,

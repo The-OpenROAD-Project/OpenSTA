@@ -841,45 +841,45 @@ public:
 				     bool generated_clks);
   // Path from/thrus/to filter.
   // from/thrus/to are owned and deleted by Search.
-  // Returned sequence is owned by the caller.
-  // PathEnds are owned by Search PathGroups and deleted on next call.
-  virtual PathEndSeq *findPathEnds(ExceptionFrom *from,
-				   ExceptionThruSeq *thrus,
-				   ExceptionTo *to,
-				   bool unconstrained,
-				   // Use corner nullptr to report timing
-				   // for all corners.
-				   const Corner *corner,
-				   // max for setup checks.
-				   // min for hold checks.
-				   // min_max for setup and hold checks.
-				   const MinMaxAll *min_max,
-				   // Number of path ends to report in
-				   // each group.
-				   int group_count,
-				   // Number of paths to report for
-				   // each endpoint.
-				   int endpoint_count,
-				   // endpoint_count paths report unique pins
-				   // without rise/fall variations.
-				   bool unique_pins,
-				   // Min/max bounds for slack of
-				   // returned path ends.
-				   float slack_min,
-				   float slack_max,
-				   // Sort path ends by slack ignoring path groups.
-				   bool sort_by_slack,
-				   // Path groups to report.
-				   // Null or empty list reports all groups.
-				   PathGroupNameSet *group_names,
-				   // Predicates to filter the type of path
-				   // ends returned.
-				   bool setup,
-				   bool hold,
-				   bool recovery,
-				   bool removal,
-				   bool clk_gating_setup,
-				   bool clk_gating_hold);
+  // PathEnds in the returned PathEndSeq are owned by Search PathGroups
+  // and deleted on next call.
+  virtual PathEndSeq findPathEnds(ExceptionFrom *from,
+                                  ExceptionThruSeq *thrus,
+                                  ExceptionTo *to,
+                                  bool unconstrained,
+                                  // Use corner nullptr to report timing
+                                  // for all corners.
+                                  const Corner *corner,
+                                  // max for setup checks.
+                                  // min for hold checks.
+                                  // min_max for setup and hold checks.
+                                  const MinMaxAll *min_max,
+                                  // Number of path ends to report in
+                                  // each group.
+                                  int group_count,
+                                  // Number of paths to report for
+                                  // each endpoint.
+                                  int endpoint_count,
+                                  // endpoint_count paths report unique pins
+                                  // without rise/fall variations.
+                                  bool unique_pins,
+                                  // Min/max bounds for slack of
+                                  // returned path ends.
+                                  float slack_min,
+                                  float slack_max,
+                                  // Sort path ends by slack ignoring path groups.
+                                  bool sort_by_slack,
+                                  // Path groups to report.
+                                  // Null or empty list reports all groups.
+                                  PathGroupNameSet *group_names,
+                                  // Predicates to filter the type of path
+                                  // ends returned.
+                                  bool setup,
+                                  bool hold,
+                                  bool recovery,
+                                  bool removal,
+                                  bool clk_gating_setup,
+                                  bool clk_gating_hold);
   void setReportPathFormat(ReportPathFormat format);
   void setReportPathFieldOrder(StringSeq *field_names);
   void setReportPathFields(bool report_input_pin,
