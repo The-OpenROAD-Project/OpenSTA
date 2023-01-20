@@ -87,6 +87,9 @@ public:
   PwrActivity findClkedActivity(const Pin *pin);
 
 protected:
+  void powerInside(const Instance *hinst,
+                   const Corner *corner,
+                   PowerResult &result);
   void ensureActivities();
   bool hasUserActivity(const Pin *pin);
   PwrActivity &userActivity(const Pin *pin);

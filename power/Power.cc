@@ -236,12 +236,38 @@ PowerResult
 Power::power(const Instance *inst,
 	     const Corner *corner)
 {
+  if (network_->isHierarchical(inst)) {
+    PowerResult result;
+    powerInside(inst, corner, result);
+    return result;
+  }
   LibertyCell *cell = network_->libertyCell(inst);
   if (cell) {
     ensureActivities();
     return power(inst, cell, corner);
   }
   return PowerResult();
+}
+
+void
+Power::powerInside(const Instance *hinst,
+                   const Corner *corner,
+                   PowerResult &result)
+{
+  InstanceChildIterator *child_iter = network_->childIterator(hinst);
+  while (child_iter->hasNext()) {
+    Instance *child = child_iter->next();
+    if (network_->isHierarchical(child))
+      powerInside(child, corner, result);
+    else {
+      LibertyCell *cell = network_->libertyCell(child);
+      if (cell) {
+        PowerResult inst_power = power(child, cell, corner);
+        result.incr(inst_power);
+      }
+    }
+  }
+  delete child_iter;
 }
 
 ////////////////////////////////////////////////////////////////
