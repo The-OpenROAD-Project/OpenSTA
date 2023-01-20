@@ -197,10 +197,10 @@ PathGroup::clear()
 
 ////////////////////////////////////////////////////////////////
 
-const char *PathGroups::path_delay_group_name_ = "**default**";
-const char *PathGroups::gated_clk_group_name_ = "**clock_gating_default**";
-const char *PathGroups::async_group_name_ = "**async_default**";
-const char *PathGroups::unconstrained_group_name_ = "(none)";
+const char *PathGroups::path_delay_group_name_ = "path delay";
+const char *PathGroups::gated_clk_group_name_ = "gated clock";
+const char *PathGroups::async_group_name_ = "asynchronous";
+const char *PathGroups::unconstrained_group_name_ = "unconstrained";
 
 bool
 PathGroups::isGroupPathName(const char *group_name)
