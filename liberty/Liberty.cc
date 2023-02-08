@@ -1919,6 +1919,7 @@ LibertyPort::LibertyPort(LibertyCell *cell,
   pulse_clk_sense_(nullptr),
   related_ground_pin_(nullptr),
   related_power_pin_(nullptr),
+  receiver_model_(nullptr),
   min_pulse_width_exists_(false),
   min_period_exists_(false),
   is_clk_(false),
@@ -2490,6 +2491,12 @@ void
 LibertyPort::setRelatedPowerPin(const char *related_power_pin)
 {
   related_power_pin_ = stringCopy(related_power_pin);
+}
+
+void
+LibertyPort::setReceiverModel(ReceiverModelPtr receiver_model)
+{
+  receiver_model_ = receiver_model;
 }
 
 ////////////////////////////////////////////////////////////////

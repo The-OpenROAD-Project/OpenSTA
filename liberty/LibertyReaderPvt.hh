@@ -57,6 +57,7 @@ typedef Vector<TimingGroup*> TimingGroupSeq;
 typedef Vector<InternalPowerGroup*> InternalPowerGroupSeq;
 typedef Vector<LeakagePowerGroup*> LeakagePowerGroupSeq;
 typedef void (LibertyPort::*LibertyPortBoolSetter)(bool value);
+typedef Vector<OutputCurrentWaveform*> OutputCurrentWaveformSeq;
 
 class LibertyReader : public LibertyGroupVisitor
 {
@@ -297,7 +298,6 @@ public:
 
   virtual void beginTiming(LibertyGroup *group);
   virtual void endTiming(LibertyGroup *group);
-  virtual TimingGroup *makeTimingGroup(int line);
   virtual void visitRelatedPin(LibertyAttr *attr);
   virtual void visitRelatedPin(LibertyAttr *attr,
 			       RelatedPortGroup *group);
@@ -419,6 +419,30 @@ public:
   virtual void visitPgType(LibertyAttr *attr);
   virtual void visitVoltageName(LibertyAttr *attr);
 
+  // ccs receiver
+  virtual void beginReceiverCapacitance(LibertyGroup *group);
+  virtual void endReceiverCapacitance(LibertyGroup *group);
+  virtual void beginReceiverCapacitance1Rise(LibertyGroup *group);
+  virtual void endReceiverCapacitanceRiseFall(LibertyGroup *group);
+  virtual void beginReceiverCapacitance1Fall(LibertyGroup *group);
+  virtual void beginReceiverCapacitance2Rise(LibertyGroup *group);
+  virtual void beginReceiverCapacitance2Fall(LibertyGroup *group);
+  void beginReceiverCapacitance(LibertyGroup *group,
+                                int index,
+                                RiseFall *rf);
+  void endReceiverCapacitance(LibertyGroup *group,
+                              int index,
+                              RiseFall *rf);
+  // ccs
+  void beginOutputCurrentRise(LibertyGroup *group);
+  void beginOutputCurrentFall(LibertyGroup *group);
+  void beginOutputCurrent(RiseFall *rf,
+                          LibertyGroup *group);
+  void endOutputCurrentRiseFall(LibertyGroup *group);
+  void beginVector(LibertyGroup *group);
+  void endVector(LibertyGroup *group);
+  void visitReferenceTime(LibertyAttr *attr);
+
   // Visitors for derived classes to overload.
   virtual void beginGroup1(LibertyGroup *) {}
   virtual void beginGroup2(LibertyGroup *) {}
@@ -453,6 +477,7 @@ protected:
   void parseNames(const char *name_str);
   void clearAxisValues();
   void makeTableAxis(int index);
+
   StringSeq *parseNameList(const char *name_list);
   LibertyPort *findPort(const char *port_name);
   LibertyPort *findPort(LibertyCell *cell,
@@ -567,6 +592,7 @@ protected:
   LeakagePowerGroup *leakage_power_;
   LeakagePowerGroupSeq leakage_powers_;
   RiseFall *rf_;
+  int index_;
   OcvDerate *ocv_derate_;
   RiseFallBoth *rf_type_;
   EarlyLateAll *derate_type_;
@@ -590,6 +616,12 @@ protected:
   float distance_scale_;
   bool have_resistance_unit_;
   const char *default_operating_condition_;
+  ReceiverModelPtr receiver_model_;
+  OutputCurrentWaveformSeq output_current_waveforms_;
+  OutputCurrent *output_current_;
+  float reference_time_;
+  bool reference_time_exists_;
+
   static constexpr char escape_ = '\\';
 
 private:
@@ -636,12 +668,15 @@ public:
   void addTimingGroup(TimingGroup *timing);
   InternalPowerGroupSeq *internalPowerGroups() { return &internal_power_groups_; }
   void addInternalPowerGroup(InternalPowerGroup *internal_power);
+  ReceiverModel *receiverModel() const { return receiver_model_; }
+  void setReceiverModel(ReceiverModelPtr receiver_model);
   int line() const { return line_; }
 
 private:
   LibertyPortSeq *ports_;
   TimingGroupSeq timings_;
   InternalPowerGroupSeq internal_power_groups_;
+  ReceiverModel *receiver_model_;
   int line_;
 };
 
@@ -747,10 +782,14 @@ public:
   void setConstraintSigma(RiseFall *rf,
 			  EarlyLate *early_late,
 			  TableModel *model);
-
+  void setReceiverModel(ReceiverModelPtr receiver_model);
+  OutputCurrent *outputCurrent(RiseFall *rf);
+  void setOutputCurrent(RiseFall *rf,
+                        OutputCurrent *output_current);
+  
 protected:
   void makeLinearModels(LibertyLibrary *library);
-  void makeTableModels(LibertyReader *visitor);
+  void makeTableModels(LibertyReader *reader);
 
   TimingArcAttrsPtr attrs_;
   const char *related_output_port_name_;
@@ -764,6 +803,8 @@ protected:
   TableModel *transition_[RiseFall::index_count];
   TableModel *delay_sigma_[RiseFall::index_count][EarlyLate::index_count];
   TableModel *slew_sigma_[RiseFall::index_count][EarlyLate::index_count];
+  OutputCurrent *output_current_[RiseFall::index_count];
+  ReceiverModelPtr receiver_model_;
 };
 
 class InternalPowerGroup : public InternalPowerAttrs, public RelatedPortGroup

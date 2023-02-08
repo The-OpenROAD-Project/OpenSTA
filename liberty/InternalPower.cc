@@ -19,6 +19,7 @@
 #include "FuncExpr.hh"
 #include "TableModel.hh"
 #include "Liberty.hh"
+#include "Units.hh"
 
 namespace sta {
 
@@ -152,7 +153,8 @@ InternalPowerModel::reportPower(const LibertyCell *cell,
 		   axis_value1, axis_value2, axis_value3);
     const LibertyLibrary *library = cell->libertyLibrary();
     model_->reportValue("Power", library, cell, pvt,
-			axis_value1, nullptr, axis_value2, axis_value3, digits, result);
+			axis_value1, nullptr, axis_value2, axis_value3,
+                        library->units()->powerUnit(), digits, result);
   }
 }
 
@@ -212,9 +214,9 @@ InternalPowerModel::axisValue(TableAxisPtr axis,
 bool
 InternalPowerModel::checkAxes(const TableModel *model)
 {
-  TableAxisPtr axis1 = model->axis1();
-  TableAxisPtr axis2 = model->axis2();
-  TableAxisPtr axis3 = model->axis3();
+  const TableAxisPtr axis1 = model->axis1();
+  const TableAxisPtr axis2 = model->axis2();
+  const TableAxisPtr axis3 = model->axis3();
   bool axis_ok = true;
   if (axis1)
     axis_ok &= checkAxis(model->axis1());

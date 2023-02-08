@@ -24,7 +24,7 @@ namespace sta {
 
 using std::string;
 
-// Abstract base class for timing models.
+// Abstract base class for GateTimingModel and CheckTimingModel.
 class TimingModel
 {
 public:
@@ -36,7 +36,7 @@ protected:
   friend class LibertyCell;
 };
 
-// Abstract base class for gate timing models.
+// Abstract base class for LinearModel and TableModel.
 class GateTimingModel : public TimingModel
 {
 public:

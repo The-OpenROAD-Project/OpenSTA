@@ -57,6 +57,7 @@ class TimingRole;
 class Transition;
 class RiseFall;
 class RiseFallBoth;
+class ReceiverModel;
 
 typedef Vector<LibertyLibrary*> LibertyLibrarySeq;
 typedef Vector<LibertyCell*> LibertyCellSeq;
@@ -66,11 +67,10 @@ typedef Vector<LibertyPort*> LibertyPortSeq;
 typedef Set<LibertyPort*> LibertyPortSet;
 typedef std::pair<const LibertyPort*,const LibertyPort*> LibertyPortPair;
 typedef Set<LibertyCell*> LibertyCellSet;
-typedef Vector<float> FloatSeq;
-typedef Vector<FloatSeq*> FloatTable;
 typedef std::shared_ptr<Table> TablePtr;
 typedef std::shared_ptr<TimingArcAttrs> TimingArcAttrsPtr;
 typedef std::shared_ptr<TableAxis> TableAxisPtr;
+typedef std::shared_ptr<ReceiverModel> ReceiverModelPtr;
 
 enum class ScaleFactorType : unsigned {
   pin_cap,
