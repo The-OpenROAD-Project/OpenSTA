@@ -67,16 +67,20 @@ LibExprParser::~LibExprParser()
   stringDelete(token_);
 }
 
+LibertyPort *
+libertyReaderFindPort(LibertyCell *cell,
+                      const char *port_name);
+
 FuncExpr *
 LibExprParser::makeFuncExprPort(const char *port_name)
 {
-  LibertyPort *port = cell_->findLibertyPort(port_name);
   FuncExpr *expr = nullptr;
+  LibertyPort *port = libertyReaderFindPort(cell_, port_name);
   if (port)
     expr = FuncExpr::makePort(port);
   else
-    report_->error(7, "%s references unknown port %s.",
-		    error_msg_, port_name);
+    report_->warn(7, "%s references unknown port %s.",
+                  error_msg_, port_name);
   stringDelete(port_name);
   return expr;
 }

@@ -1118,7 +1118,7 @@ SdcNetwork::visitMatches(const Instance *parent,
       *p = '\0';
       PatternMatch matcher(inst_path, pattern);
       InstanceSeq matches;
-      findChildrenMatching(parent, &matcher, matches);
+      network_->findChildrenMatching(parent, &matcher, matches);
       if (has_brkts && matches.empty()) {
 	// Look for matches after escaping brackets.
 	const PatternMatch escaped_brkts(escapeBrackets(inst_path, this),

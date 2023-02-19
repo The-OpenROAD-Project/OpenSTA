@@ -2499,6 +2499,26 @@ LibertyPort::setReceiverModel(ReceiverModelPtr receiver_model)
   receiver_model_ = receiver_model;
 }
 
+const char *
+portLibertyToSta(const char *port_name)
+{
+  constexpr char bus_brkt_left = '[';
+  constexpr char bus_brkt_right = ']';
+  size_t name_length = strlen(port_name);
+  char *sta_name = makeTmpString(name_length * 2);
+  //char *sta_name = new char[name_length * 2];//makeTmpString(name_length * 2);
+  char *p = sta_name;
+  for (size_t i = 0; i < name_length; i++) {
+    char ch = port_name[i];
+    if (ch == bus_brkt_left
+        || ch == bus_brkt_right)
+      *p++ = '\\';
+    *p++ = ch;
+  }
+  *p++ = '\0';
+  return sta_name;
+}
+
 ////////////////////////////////////////////////////////////////
 
 LibertyPortSeq

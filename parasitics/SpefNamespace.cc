@@ -22,8 +22,10 @@
 namespace sta {
 
 char *
-spefToSta(const char *token, char spef_divider,
-	  char path_divider, char path_escape)
+spefToSta(const char *token,
+          char spef_divider,
+	  char path_divider,
+          char path_escape)
 {
   const char spef_escape = '\\';
   char *trans_token = new char[strlen(token) + 1];
@@ -63,8 +65,10 @@ spefToSta(const char *token, char spef_divider,
 }
 
 char *
-staToSpef(const char *token, char spef_divider,
-	  char path_divider, char path_escape)
+staToSpef(const char *token,
+          char spef_divider,
+	  char path_divider,
+          char path_escape)
 {
   const char spef_escape = '\\';
   char *trans_token = new char[strlen(token) + 1];

@@ -85,10 +85,15 @@ EOL	\r?\n
 
 "//"[^\n]*{EOL} { sta::sdf_reader->incrLine(); }
 
-("-"|"+")?([0-9]*)("."[0-9]+)?([eE]("-"|"+")?[0-9]+)? {
+("-"|"+")?([0-9]*)("."[0-9]+)([eE]("-"|"+")?[0-9]+)? {
 	SdfParse_lval.number = static_cast<float>(atof(yytext));
-	return NUMBER;
+	return FNUMBER;
 	}
+
+"+"?[0-9]+ {
+	SdfParse_lval.integer = atoi(yytext);
+        return DNUMBER;
+        }
 
 ":"|"{"|"}"|"["|"]"|","|"*"|";"|"="|"-"|"+"|"|"|"("|")"|{HCHAR}	{
 	return ((int) yytext[0]);
@@ -178,13 +183,8 @@ COND	{
 <COND_EXPR>.   { sdf_token += yytext[0]; }
 
 {ID}	{
-	SdfParse_lval.string = sta::stringCopy(sta::sdf_reader->unescaped(yytext));
+	SdfParse_lval.string = sta::stringCopy(yytext);
 	return ID;
-	}
-
-{ID}({HCHAR}{ID})* {
-	SdfParse_lval.string = sta::stringCopy(sta::sdf_reader->unescaped(yytext));
-	return PATH;
 	}
 
 {EOL}	{ sta::sdf_reader->incrLine(); }

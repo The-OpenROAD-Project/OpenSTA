@@ -19,11 +19,6 @@
 namespace sta {
 
 const char *
-staToVerilog(const char *sta_name,
-	     const char escape);
-const char *
-verilogToSta(const char *verilog_name);
-const char *
 instanceVerilogName(const char *sta_name,
 		    const char escape);
 const char *
@@ -32,5 +27,14 @@ netVerilogName(const char *sta_name,
 const char *
 portVerilogName(const char *sta_name,
 		const char escape);
+
+const char *
+moduleVerilogToSta(const char *sta_name);
+const char *
+instanceVerilogToSta(const char *sta_name);
+const char *
+netVerilogToSta(const char *sta_name);
+const char *
+portVerilogToSta(const char *sta_name);
 
 } // namespace

@@ -131,11 +131,7 @@ ReadVcdActivities::setVarActivity(VcdVar *var,
                                   string &var_name,
                                   const VcdValues &var_values)
 {
-  // var names include the leading \ but not the trailing space so add it.
-  if (var_name[0] == '\\')
-    var_name += ' ';
-  const char *sta_name = verilogToSta(var_name.c_str());
-
+  const char *sta_name = netVerilogToSta(var_name.c_str());
   if (var->width() == 1)
     setVarActivity(sta_name, var_values, 0);
   else {

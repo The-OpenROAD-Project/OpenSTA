@@ -38,7 +38,7 @@ public:
   virtual LibertyPort *makePort(LibertyCell *cell,
 				const char *name);
   virtual LibertyPort *makeBusPort(LibertyCell *cell,
-				   const char *name,
+				   const char *bus_name,
 				   int from_index,
 				   int to_index,
                                    BusDcl *bus_dcl);
@@ -83,7 +83,7 @@ protected:
   void makeBusPortBits(ConcreteLibrary *library,
 		       LibertyCell *cell,
 		       ConcretePort *bus_port,
-		       const char *name,
+		       const char *bus_name,
 		       int from_index,
 		       int to_index);
   // Bus port bit (internal to makeBusPortBits).
@@ -93,7 +93,7 @@ protected:
   void makeBusPortBit(ConcreteLibrary *library,
 		      LibertyCell *cell,
 		      ConcretePort *bus_port,
-		      const char *name,
+		      const char *bus_name,
 		      int index);
   virtual TimingArcSet *makeTimingArcSet(LibertyCell *cell,
 					 LibertyPort *from,

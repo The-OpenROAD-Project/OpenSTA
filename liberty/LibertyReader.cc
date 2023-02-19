@@ -2852,9 +2852,9 @@ LibertyReader::beginPin(LibertyGroup *group)
       while (param_iter.hasNext()) {
 	LibertyAttrValue *param = param_iter.next();
 	if (param->isString()) {
-	  const char *name = param->stringValue();
-	  debugPrint(debug_, "liberty", 1, " port %s", name);
-	  PortNameBitIterator port_iter(cell_, name, this, group->line());
+	  const char *port_name = param->stringValue();
+	  debugPrint(debug_, "liberty", 1, " port %s", port_name);
+	  PortNameBitIterator port_iter(cell_, port_name, this, group->line());
 	  while (port_iter.hasNext()) {
 	    LibertyPort *port = port_iter.next();
 	    ports_->push_back(port);
@@ -2885,8 +2885,6 @@ LibertyReader::beginPin(LibertyGroup *group)
     }
     else {
       ports_ = new LibertyPortSeq;
-      char brkt_left = library_->busBrktLeft();
-      char brkt_right = library_->busBrktRight();
       // Multiple port names can share group def.
       LibertyAttrValueIterator param_iter(group->params());
       while (param_iter.hasNext()) {
@@ -2894,10 +2892,6 @@ LibertyReader::beginPin(LibertyGroup *group)
 	if (param->isString()) {
 	  const char *name = param->stringValue();
 	  debugPrint(debug_, "liberty", 1, " port %s", name);
-	  if (isBusName(name, brkt_left, brkt_right, escape_))
-	    // Pins not inside a bus group with bus names are not really
-	    // busses, so escape the brackets.
-	    name = escapeChars(name, brkt_left, brkt_right, escape_);
 	  LibertyPort *port = builder_->makePort(cell_, name);
 	  ports_->push_back(port);
 	}
@@ -3101,21 +3095,29 @@ LibertyReader::findPort(const char *port_name)
   return findPort(cell_, port_name);
 }
 
+// Also used by LibExprParser::makeFuncExprPort.
+LibertyPort *
+libertyReaderFindPort(LibertyCell *cell,
+                      const char *port_name)
+{
+  LibertyPort *port = cell->findLibertyPort(port_name);
+  if (port == nullptr) {
+    const LibertyLibrary *library = cell->libertyLibrary();
+    char brkt_left = library->busBrktLeft();
+    char brkt_right = library->busBrktRight();
+    const char escape = '\\';
+    // Pins at top level with bus names have escaped brackets.
+    port_name = escapeChars(port_name, brkt_left, brkt_right, escape);
+    port = cell->findLibertyPort(port_name);
+  }
+  return port;
+}
+
 LibertyPort *
 LibertyReader::findPort(LibertyCell *cell,
 			const char *port_name)
 {
-  LibertyPort *port = cell->findLibertyPort(port_name);
-  if (port == nullptr) {
-    char brkt_left = library_->busBrktLeft();
-    char brkt_right = library_->busBrktRight();
-    if (isBusName(port_name, brkt_left, brkt_right, escape_)) {
-      // Pins at top level with bus names have escaped brackets.
-      port_name = escapeChars(port_name, brkt_left, brkt_right, escape_);
-      port = cell->findLibertyPort(port_name);
-    }
-  }
-  return port;
+  return libertyReaderFindPort(cell, port_name);
 }
 
 void
@@ -3795,7 +3797,10 @@ LibertyReader::endTiming(LibertyGroup *group)
 	model->setScaleFactorType(type);
       }
     }
-    if (timing_->relatedPortNames() == nullptr)
+    TimingType timing_type = timing_->attrs()->timingType();
+    if (timing_->relatedPortNames() == nullptr
+        && !(timing_type == TimingType::min_clock_tree_path
+             || timing_type == TimingType::max_clock_tree_path))
       libWarn(170, group, "timing group missing related_pin/related_bus_pin.");
   }
   timing_ = nullptr;
@@ -5548,7 +5553,7 @@ PortNameBitIterator::PortNameBitIterator(LibertyCell *cell,
 void
 PortNameBitIterator::init(const char *port_name)
 {
-  LibertyPort *port = visitor_->findPort(cell_, port_name);
+  LibertyPort *port = visitor_->findPort(port_name);
   if (port) {
     if (port->isBus())
       bit_iterator_ = new LibertyPortMemberIterator(port);
@@ -5564,7 +5569,7 @@ PortNameBitIterator::init(const char *port_name)
     parseBusRange(port_name, library->busBrktLeft(), library->busBrktRight(),
 		  '\\', bus_name, from, to);
     if (bus_name) {
-      port = visitor_->findPort(cell_, port_name);
+      port = visitor_->findPort(port_name);
       if (port) {
 	if (port->isBus()) {
 	  if (port->busIndexInRange(from)
@@ -5656,7 +5661,7 @@ PortNameBitIterator::findRangeBusNameNext()
 					      library->busBrktLeft(),
 					      range_bit_,
 					      library->busBrktRight());
-    range_name_next_ = visitor_->findPort(cell_, bus_bit_name);
+    range_name_next_ = visitor_->findPort(bus_bit_name);
     if (range_name_next_) {
       if (range_from_ > range_to_)
 	range_bit_--;

@@ -49,7 +49,7 @@ libertyExprFlushBuffer()
 
 %x ESCAPED_STRING
 
-PORT	[A-Za-z_]([A-Za-z0-9_\[\]])*
+PORT	[A-Za-z_]([A-Za-z0-9_\.\[\]])*
 OP	"'"|"!"|"^"|"*"|"&"|"+"|"|"|1|0
 PAREN	"("|")"
 BLANK	[ \t\r]

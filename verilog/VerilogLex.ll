@@ -138,7 +138,7 @@ wire { return WIRE; }
 wor { return WOR; }
 
 {ID_TOKEN}("."{ID_TOKEN})* {
-	VerilogParse_lval.string = sta::stringCopy(sta::verilogToSta(VerilogLex_text));
+	VerilogParse_lval.string = sta::stringCopy(VerilogLex_text);
 	return ID;
 }
 

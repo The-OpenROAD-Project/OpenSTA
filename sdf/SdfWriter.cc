@@ -792,23 +792,33 @@ char *
 SdfWriter::sdfPortName(const Pin *pin)
 {
   const char *name = network_->portName(pin);
-  char *sdf_name = makeTmpString(strlen(name) * 2 + 1);
-  const char *p = name;
+  size_t name_length = strlen(name);
+  char *sdf_name = makeTmpString(name_length * 2 + 1);
   char *s = sdf_name;
-  while (*p) {
-    char ch = *p;
+
+  constexpr char bus_brkt_left = '[';
+  constexpr char bus_brkt_right = ']';
+  size_t bus_index = name_length;
+  if (name_length >= 4
+      && name[name_length - 1] == bus_brkt_right) {
+    const char *left = strrchr(name, bus_brkt_left);
+    if (left)
+      bus_index = left - name;
+  }
+  for (size_t i = 0; i < name_length; i++) {
+    char ch = name[i];
     if (ch == network_escape_) {
       // Copy escape and escaped char.
       *s++ = sdf_escape_;
-      *s++ = *++p;
+      *s++ = name[++i];
     }
     else {
-      if (!(isalnum(ch) || ch == '_' || ch == '[' || ch == ']'))
+      if (!(isalnum(ch) || ch == '_')
+          && !(i >= bus_index && (ch == bus_brkt_right || ch == bus_brkt_left)))
         // Insert escape.
         *s++ = sdf_escape_;
       *s++ = ch;
     }
-    p++;
   }
   *s = '\0';
   return sdf_name;
