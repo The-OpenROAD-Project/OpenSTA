@@ -607,7 +607,8 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                 TableModel *slew_model = new TableModel(slew_table, tbl_template,
                                                         ScaleFactorType::cell, rf);
                 GateTableModel *gate_model = new GateTableModel(delay_model, nullptr,
-                                                                slew_model, nullptr);
+                                                                slew_model, nullptr,
+                                                                nullptr, nullptr);
                 return gate_model;
               }
             }
