@@ -3704,6 +3704,13 @@ Sta::setPortExtWireCap(const Port *port,
 }
 
 void
+Sta::removeNetLoadCaps() const
+{
+  sdc_->removeNetLoadCaps();
+  graph_delay_calc_->delaysInvalid();
+}
+
+void
 Sta::setPortExtFanout(const Port *port,
 		      int fanout,
                       const Corner *corner,

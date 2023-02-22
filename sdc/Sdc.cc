@@ -299,17 +299,24 @@ Sdc::deleteConstraints()
   clearGroupPathMap();
   deleteDeratingFactors();
 
-  for (int corner_index = 0; corner_index < corners_->count(); corner_index++) {
-    port_ext_cap_maps_[corner_index].deleteContentsClear();
-    net_wire_cap_maps_[corner_index].clear();
-  }
-  port_ext_cap_maps_.clear();
-  net_wire_cap_maps_.clear();
+  removeNetLoadCaps();
 
   clk_sense_map_.clear();
 
   for (int mm_index : MinMax::rangeIndex())
     instance_pvt_maps_[mm_index].deleteContentsClear();
+}
+
+void
+Sdc::removeNetLoadCaps()
+{
+  if (!net_wire_cap_maps_.empty()) {
+    for (int corner_index = 0; corner_index < corners_->count(); corner_index++) {
+      net_wire_cap_maps_[corner_index].clear();
+      drvr_pin_wire_cap_maps_[corner_index].clear();
+      port_ext_cap_maps_[corner_index].deleteContentsClear();
+    }
+  }
 }
 
 void
@@ -365,10 +372,7 @@ void
 Sdc::makeCornersAfter(Corners *corners)
 {
   corners_ = corners;
-  port_ext_cap_maps_.clear();
-  net_wire_cap_maps_.clear();
-  drvr_pin_wire_cap_maps_.clear();
-
+  removeNetLoadCaps();
   port_ext_cap_maps_.resize(corners_->count(), PortExtCapMap(PortIdLess(network_)));
   net_wire_cap_maps_.resize(corners_->count(), NetWireCapMap(NetIdLess(network_)));
   drvr_pin_wire_cap_maps_.resize(corners_->count(), PinWireCapMap(PinIdLess(network_)));

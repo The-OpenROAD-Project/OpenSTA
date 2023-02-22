@@ -179,6 +179,8 @@ public:
 		     const Corner *corner,
 		     const MinMaxAll *min_max,
 		     float cap);
+  // Remove all "set_load net" annotations.
+  void removeNetLoadCaps() const;
   // Set port external fanout (used by wireload models).
   void setPortExtFanout(const Port *port,
 			int fanout,

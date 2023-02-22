@@ -583,6 +583,8 @@ public:
 			 float cap);
   static void movePortExtCaps(Sdc *from,
                               Sdc *to);
+  // Remove all "set_load net" annotations.
+  void removeNetLoadCaps();
   void setNetWireCap(const Net *net,
 		     bool subtract_pin_cap,
 		     const Corner *corner,
