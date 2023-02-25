@@ -3962,10 +3962,8 @@ Sta::findElmore(Pin *drvr_pin,
   Corner *corner = cmd_corner_;
   const ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(min_max);
   Parasitic *pi_elmore = parasitics_->findPiElmore(drvr_pin, rf, ap);
-  if (pi_elmore) {
-    exists = false;
+  if (pi_elmore)
     parasitics_->findElmore(pi_elmore, load_pin, elmore, exists);
-  }
   else
     exists = false;
 }

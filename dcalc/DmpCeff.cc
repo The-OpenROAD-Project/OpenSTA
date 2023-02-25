@@ -265,8 +265,8 @@ protected:
   double *p_;
   int *index_;
 
-  // Gate slew used to check load delay.
-  double gate_slew_;
+  // Driver slew used to check load delay.
+  double drvr_slew_;
   double vo_delay_;
   // True if the driver parameters are valid for finding the load delays.
   bool driver_valid_;
@@ -565,9 +565,9 @@ DmpAlg::loadDelaySlew(const Pin *,
   if (!driver_valid_
       || elmore == 0.0
       // Elmore delay is small compared to driver slew.
-      || elmore < gate_slew_ * 1e-3) {
+      || elmore < drvr_slew_ * 1e-3) {
     delay = elmore;
-    slew = gate_slew_;
+    slew = drvr_slew_;
   }
   else {
     // Use the driver thresholds and rely on thresholdAdjust to
@@ -591,18 +591,18 @@ DmpAlg::loadDelaySlew(const Pin *,
 	// Use elmore delay.
 	delay1 = elmore;
       }
-      if (slew1 < gate_slew_) {
+      if (slew1 < drvr_slew_) {
 	// Only report a problem if the difference is significant.
-	if ((gate_slew_ - slew1) > vth_time_tol * gate_slew_)
+	if ((drvr_slew_ - slew1) > vth_time_tol * drvr_slew_)
 	  fail("load slew less than driver slew");
-	slew1 = gate_slew_;
+	slew1 = drvr_slew_;
       }
       delay = delay1;
       slew = slew1;
     }
     catch (DmpError &error) {
       delay = elmore_;
-      slew = gate_slew_;
+      slew = drvr_slew_;
     }
   }
 }
@@ -746,7 +746,7 @@ DmpCap::gateDelaySlew(double &delay,
   debugPrint(debug_, "dmp_ceff", 3, "    ceff = %s",
              units_->capacitanceUnit()->asString(ceff_));
   gateCapDelaySlew(ceff_, delay, slew);
-  gate_slew_ = slew;
+  drvr_slew_ = slew;
 }
 
 void
@@ -756,7 +756,7 @@ DmpCap::loadDelaySlew(const Pin *,
 		      Slew &slew)
 {
   delay = elmore;
-  slew = gate_slew_;
+  slew = drvr_slew_;
 }
 
 void
@@ -932,7 +932,7 @@ DmpPi::gateDelaySlew(double &delay,
     ceff_ = c1_ + c2_;
     gateCapDelaySlew(ceff_, delay, slew);
   }
-  gate_slew_ = slew;
+  drvr_slew_ = slew;
 }
 
 void
@@ -1223,7 +1223,7 @@ DmpZeroC2::gateDelaySlew(double &delay,
     ceff_ = c1_;
     gateCapDelaySlew(ceff_, delay, slew);
   }
-  gate_slew_ = slew;
+  drvr_slew_ = slew;
 }
 
 double
