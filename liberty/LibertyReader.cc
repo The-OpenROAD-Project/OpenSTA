@@ -2551,29 +2551,31 @@ LibertyReader::visitReferenceTime(LibertyAttr *attr)
 void
 LibertyReader::endVector(LibertyGroup *group)
 {
-  FloatSeq *axis_values1 = axis_values_[0];
-  FloatSeq *axis_values2 = axis_values_[1];
-  if (axis_values1->size() == 1 && axis_values2->size() == 1) {
-    // Convert 1x1xN Table3 to Table1.
-    float axis_value1 = (*axis_values1)[0];
-    float axis_value2 = (*axis_values2)[0];
-    Table3 *table3 = dynamic_cast<Table3*>(table_.get());
-    FloatTable *values3 = table3->values3();
-    // Steal the values.
-    FloatSeq *values = (*values3)[0];
-    (*values3)[0] = nullptr;
-    Table1 *table1 = new Table1(values, axis_[2]);
-    OutputCurrentWaveform *waveform = new OutputCurrentWaveform(axis_value1,
-                                                                axis_value2,
-                                                                axis_[2], table1,
-                                                                reference_time_);
-    output_current_waveforms_.push_back(waveform);
+  if (timing_) {
+    FloatSeq *axis_values1 = axis_values_[0];
+    FloatSeq *axis_values2 = axis_values_[1];
+    if (axis_values1->size() == 1 && axis_values2->size() == 1) {
+      // Convert 1x1xN Table3 to Table1.
+      float axis_value1 = (*axis_values1)[0];
+      float axis_value2 = (*axis_values2)[0];
+      Table3 *table3 = dynamic_cast<Table3*>(table_.get());
+      FloatTable *values3 = table3->values3();
+      // Steal the values.
+      FloatSeq *values = (*values3)[0];
+      (*values3)[0] = nullptr;
+      Table1 *table1 = new Table1(values, axis_[2]);
+      OutputCurrentWaveform *waveform = new OutputCurrentWaveform(axis_value1,
+                                                                  axis_value2,
+                                                                  axis_[2], table1,
+                                                                  reference_time_);
+      output_current_waveforms_.push_back(waveform);
+    }
+    else
+      libWarn(912, group->line(), "vector index_1 and index_2 must have one value.");
+    if (!reference_time_exists_)
+      libWarn(908, group->line(), "vector reference_time not found.");
+    reference_time_exists_ = false;
   }
-  else
-    libWarn(912, group->line(), "vector index_1 and index_2 must have one value.");
-  if (!reference_time_exists_)
-    libWarn(908, group->line(), "vector reference_time not found.");
-  reference_time_exists_ = false;
 }
 
 ///////////////////////////////////////////////////////////////
