@@ -369,10 +369,15 @@ Sdc::deleteNetBefore(const Net *net)
 }
 
 void
+Sdc::makeCornersBefore()
+{
+  removeNetLoadCaps();
+}
+
+void
 Sdc::makeCornersAfter(Corners *corners)
 {
   corners_ = corners;
-  removeNetLoadCaps();
   port_ext_cap_maps_.resize(corners_->count(), PortExtCapMap(PortIdLess(network_)));
   net_wire_cap_maps_.resize(corners_->count(), NetWireCapMap(NetIdLess(network_)));
   drvr_pin_wire_cap_maps_.resize(corners_->count(), PinWireCapMap(PinIdLess(network_)));

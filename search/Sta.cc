@@ -2412,6 +2412,7 @@ Sta::makeCorners()
 void
 Sta::makeCorners(StringSet *corner_names)
 {
+  sdc_->makeCornersBefore();
   parasitics_->deleteParasitics();
   corners_->makeCorners(corner_names);
   makeParasiticAnalysisPts();

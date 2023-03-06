@@ -184,6 +184,7 @@ public:
   ~Sdc();
   // Note that Search may reference a Filter exception removed by clear().
   void clear();
+  void makeCornersBefore();
   void makeCornersAfter(Corners *corners);
   // Return true if pin is referenced by any constraint.
   bool isConstrained(const Pin *pin) const;
