@@ -1815,13 +1815,13 @@ VerilogReader::makeModuleInstNetwork(VerilogModuleInst *mod_inst,
   if (cell == nullptr) {
     if (make_black_boxes) {
       cell = makeBlackBox(mod_inst, parent_module);
-      linkWarn(198, filename_, mod_inst->line(),
+      linkWarn(198, parent_module->filename(), mod_inst->line(),
 	       "module %s not found. Creating black box for %s.",
 	       mod_inst->moduleName(),
 	       verilogName(mod_inst));
     }
     else
-      linkError(199, filename_, mod_inst->line(),
+      linkError(199, parent_module->filename(), mod_inst->line(),
 		"module %s not found for instance %s.",
 		mod_inst->moduleName(),
 		verilogName(mod_inst));
@@ -2256,8 +2256,8 @@ void verilogFlushBuffer();
 int
 VerilogParse_error(const char *msg)
 {
+  verilogFlushBuffer();
   sta::verilog_reader->report()->fileError(164, sta::verilog_reader->filename(),
 					   sta::verilog_reader->line(), "%s", msg);
-  verilogFlushBuffer();
   return 0;
 }

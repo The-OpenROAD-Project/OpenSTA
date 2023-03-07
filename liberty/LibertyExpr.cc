@@ -183,7 +183,7 @@ LibExprParser::parseError(const char *msg)
 int
 LibertyExprParse_error(const char *msg)
 {
-  sta::libexpr_parser->parseError(msg);
   libertyExprFlushBuffer();
+  sta::libexpr_parser->parseError(msg);
   return 0;
 }

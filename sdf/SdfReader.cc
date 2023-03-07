@@ -1104,7 +1104,7 @@ void sdfFlushBuffer();
 int
 SdfParse_error(const char *msg)
 {
-  sta::sdf_reader->sdfError(196, "%s.\n", msg);
   sdfFlushBuffer();
+  sta::sdf_reader->sdfError(196, "%s.\n", msg);
   return 0;
 }

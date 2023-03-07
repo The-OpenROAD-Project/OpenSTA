@@ -730,7 +730,7 @@ void spefFlushBuffer();
 int
 SpefParse_error(const char *msg)
 {
-  sta::spef_reader->warn(179, "%s.", msg);
   spefFlushBuffer();
+  sta::spef_reader->warn(179, "%s.", msg);
   return 0;
 }

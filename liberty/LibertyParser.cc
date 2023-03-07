@@ -601,8 +601,8 @@ void libertyParseFlushBuffer();
 int
 LibertyParse_error(const char *msg)
 {
+  libertyParseFlushBuffer();
   sta::liberty_report->fileError(26, sta::liberty_filename, sta::liberty_line,
 				 "%s.", msg);
-  libertyParseFlushBuffer();
   return 0;
 }
