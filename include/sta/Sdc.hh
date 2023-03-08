@@ -936,7 +936,7 @@ public:
 		    float &pin_cap,
 		    float &wire_cap,
 		    float &fanout,
-		    bool &has_set_load) const;
+		    bool &has_net_load) const;
   void portExtFanout(const Port *port,
                      const Corner *corner,
 		     const MinMax *min_max,
@@ -1222,8 +1222,7 @@ protected:
 	       const MinMax *min_max,
 	       float &pin_cap,
 	       float &wire_cap,
-	       float &fanout,
-	       bool &has_ext_cap) const;
+	       float &fanout) const;
   void netCaps(const Pin *drvr_pin,
 	       const RiseFall *rf,
 	       const OperatingConditions *op_cond,
@@ -1233,7 +1232,7 @@ protected:
 	       float &pin_cap,
 	       float &wire_cap,
 	       float &fanout,
-	       bool &has_set_load) const;
+               bool &has_net_load) const;
   // connectedCap pin_cap.
   float connectedPinCap(const Pin *pin,
 			const RiseFall *rf,

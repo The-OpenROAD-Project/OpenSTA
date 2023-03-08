@@ -253,7 +253,7 @@ protected:
   TableTemplate *tbl_template_;
   // ScaleFactorType gcc barfs if this is dcl'd.
   unsigned scale_factor_type_:scale_factor_bits;
-  unsigned tr_index_:RiseFall::index_bit_count;
+  unsigned rf_index_:RiseFall::index_bit_count;
   bool is_scaled_:1;
 };
 

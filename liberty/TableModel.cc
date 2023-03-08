@@ -609,7 +609,7 @@ TableModel::TableModel(TablePtr table,
   table_(table),
   tbl_template_(tbl_template),
   scale_factor_type_(int(scale_factor_type)),
-  tr_index_(rf->index()),
+  rf_index_(rf->index()),
   is_scaled_(false)
 {
 }
@@ -681,7 +681,7 @@ TableModel::scaleFactor(const LibertyLibrary *library,
     return 1.0F;
   else
     return library->scaleFactor(static_cast<ScaleFactorType>(scale_factor_type_),
-				tr_index_, cell, pvt);
+				rf_index_, cell, pvt);
 }
 
 void
