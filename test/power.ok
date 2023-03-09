@@ -2,10 +2,10 @@ Warning: gcd_sky130hd.v line 527, module sky130_fd_sc_hd__tapvpwrvgnd_1 not foun
 Group                  Internal  Switching    Leakage      Total
                           Power      Power      Power      Power (Watts)
 ----------------------------------------------------------------
-Sequential             3.11e-04   4.31e-05   2.96e-10   3.54e-04  43.2%
-Combinational          1.74e-04   2.92e-04   6.98e-10   4.66e-04  56.8%
+Sequential             3.41e-04   8.87e-05   2.96e-10   4.30e-04  35.1%
+Combinational          3.18e-04   4.78e-04   6.98e-10   7.96e-04  64.9%
 Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
 ----------------------------------------------------------------
-Total                  4.85e-04   3.35e-04   9.94e-10   8.20e-04 100.0%
-                          59.2%      40.8%       0.0%
+Total                  6.59e-04   5.66e-04   9.94e-10   1.23e-03 100.0%
+                          53.8%      46.2%       0.0%
