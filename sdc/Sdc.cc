@@ -388,10 +388,9 @@ Sdc::makeCornersAfter(Corners *corners)
 bool
 Sdc::isConstrained(const Pin *pin) const
 {
-  Pin *pin1 = const_cast<Pin*>(pin);
   Port *port = network_->isTopLevelPort(pin) ? network_->port(pin) : nullptr;
   return clock_pin_map_.hasKey(pin)
-    || propagated_clk_pins_.hasKey(pin1)
+    || propagated_clk_pins_.hasKey(pin)
     || hasClockLatency(pin)
     || hasClockInsertion(pin)
     || pin_clk_uncertainty_map_.hasKey(pin)
@@ -400,14 +399,10 @@ Sdc::isConstrained(const Pin *pin) const
     || data_checks_to_map_.hasKey(pin)
     || input_delay_pin_map_.hasKey(pin)
     || output_delay_pin_map_.hasKey(pin)
-    || port_slew_limit_map_.hasKey(port)
-    || pin_cap_limit_map_.hasKey(pin1)
-    || port_cap_limit_map_.hasKey(port)
-    || port_fanout_limit_map_.hasKey(port)
-    || hasPortExtCap(port)
-    || disabled_pins_.hasKey(pin1)
+    || pin_cap_limit_map_.hasKey(pin)
+    || disabled_pins_.hasKey(pin)
     || disabled_ports_.hasKey(port)
-    || disabled_clk_gating_checks_pin_.hasKey(pin1)
+    || disabled_clk_gating_checks_pin_.hasKey(pin)
     || first_from_pin_exceptions_.hasKey(pin)
     || first_thru_pin_exceptions_.hasKey(pin)
     || first_to_pin_exceptions_.hasKey(pin)
@@ -415,18 +410,21 @@ Sdc::isConstrained(const Pin *pin) const
     || logic_value_map_.hasKey(pin)
     || case_value_map_.hasKey(pin)
     || pin_latch_borrow_limit_map_.hasKey(pin)
-    || pin_min_pulse_width_map_.hasKey(pin);
+    || pin_min_pulse_width_map_.hasKey(pin)
+    || (port && (port_slew_limit_map_.hasKey(port)
+                 || port_cap_limit_map_.hasKey(port)
+                 || port_fanout_limit_map_.hasKey(port)
+                 || hasPortExtCap(port)));
 }
 
 bool
 Sdc::isConstrained(const Instance *inst) const
 {
-  Instance *inst1 = const_cast<Instance*>(inst);
-  return instance_pvt_maps_[MinMax::minIndex()].hasKey(inst1)
-    || instance_pvt_maps_[MinMax::maxIndex()].hasKey(inst1)
+  return instance_pvt_maps_[MinMax::minIndex()].hasKey(inst)
+    || instance_pvt_maps_[MinMax::maxIndex()].hasKey(inst)
     || inst_derating_factors_.hasKey(inst)
     || inst_clk_gating_check_map_.hasKey(inst)
-    || disabled_inst_ports_.hasKey(inst1)
+    || disabled_inst_ports_.hasKey(inst)
     || first_from_inst_exceptions_.hasKey(inst)
     || first_thru_inst_exceptions_.hasKey(inst)
     || first_to_inst_exceptions_.hasKey(inst)
@@ -437,10 +435,9 @@ Sdc::isConstrained(const Instance *inst) const
 bool
 Sdc::isConstrained(const Net *net) const
 {
-  Net *net1 = const_cast<Net*>(net);
   return net_derating_factors_.hasKey(net)
-    || hasNetWireCap(net1)
-    || net_res_map_.hasKey(net1)
+    || hasNetWireCap(net)
+    || net_res_map_.hasKey(net)
     || first_thru_net_exceptions_.hasKey(net);
 }
 
@@ -1362,7 +1359,7 @@ Sdc::clkDisabledByHpinThru(const Clock *clk,
 			   const Pin *from_pin,
 			   const Pin *to_pin)
 {
-  if (clk->leafPins().hasKey(const_cast<Pin*>(from_pin))) {
+  if (clk->leafPins().hasKey(from_pin)) {
     ClkHpinDisable probe(clk, from_pin, to_pin);
     return clk_hpin_disables_.hasKey(&probe);
   }
@@ -1401,7 +1398,7 @@ Sdc::removePropagatedClock(Pin *pin)
 bool
 Sdc::isPropagatedClock(const Pin *pin)
 {
-  return propagated_clk_pins_.hasKey(const_cast<Pin*>(pin));
+  return propagated_clk_pins_.hasKey(pin);
 }
 
 void
@@ -3180,7 +3177,7 @@ Sdc::netCaps(const Pin *drvr_pin,
   has_net_load = false;
   FindNetCaps visitor(rf, op_cond, corner, min_max, pin_cap,
 		      wire_cap, fanout, has_net_load, this);
-  network_->visitConnectedPins(const_cast<Pin*>(drvr_pin), visitor);
+  network_->visitConnectedPins(drvr_pin, visitor);
 }
 
 void
@@ -3618,7 +3615,7 @@ Sdc::isDisabled(const Pin *pin) const
 {
   Port *port = network_->port(pin);
   LibertyPort *lib_port = network_->libertyPort(pin);
-  return disabled_pins_.hasKey(const_cast<Pin*>(pin))
+  return disabled_pins_.hasKey(pin)
     || disabled_ports_.hasKey(port)
     || disabled_lib_ports_.hasKey(lib_port);
 }
@@ -3638,8 +3635,7 @@ Sdc::isDisabled(const Instance *inst,
     LibertyCell *cell = network_->libertyCell(inst);
     LibertyPort *from_port = network_->libertyPort(from_pin);
     LibertyPort *to_port = network_->libertyPort(to_pin);
-    DisabledInstancePorts *disabled_inst =
-      disabled_inst_ports_.findKey(const_cast<Instance*>(inst));
+    DisabledInstancePorts *disabled_inst = disabled_inst_ports_.findKey(inst);
     DisabledCellPorts *disabled_cell = disabled_cell_ports_.findKey(cell);
     return (disabled_inst
 	    && disabled_inst->isDisabled(from_port, to_port, role))
@@ -3700,13 +3696,13 @@ Sdc::removeDisableClockGatingCheck(Pin *pin)
 bool
 Sdc::isDisableClockGatingCheck(const Instance *inst)
 {
-  return disabled_clk_gating_checks_inst_.hasKey(const_cast<Instance*>(inst));
+  return disabled_clk_gating_checks_inst_.hasKey(inst);
 }
 
 bool
 Sdc::isDisableClockGatingCheck(const Pin *pin)
 {
-  return disabled_clk_gating_checks_pin_.hasKey(const_cast<Pin*>(pin));
+  return disabled_clk_gating_checks_pin_.hasKey(pin);
 }
 
 ////////////////////////////////////////////////////////////////
