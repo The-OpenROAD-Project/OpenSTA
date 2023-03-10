@@ -53,185 +53,181 @@ class ConcreteNetwork : public NetworkReader
 {
 public:
   ConcreteNetwork();
-  virtual ~ConcreteNetwork();
-  virtual void clear();
-  virtual bool linkNetwork(const char *top_cell_name,
-			   bool make_black_boxes,
-			   Report *report);
-  virtual Instance *topInstance() const;
+  ~ConcreteNetwork();
+  void clear() override;
+  bool linkNetwork(const char *top_cell_name,
+                   bool make_black_boxes,
+                   Report *report) override;
+  Instance *topInstance() const override;
 
-  virtual const char *name(const Library *library) const;
-  virtual ObjectId id(const Library *library) const;
-  virtual LibraryIterator *libraryIterator() const;
-  virtual LibertyLibraryIterator *libertyLibraryIterator() const ;
-  virtual Library *findLibrary(const char *name);
-  virtual LibertyLibrary *findLiberty(const char *name);
-  virtual LibertyLibrary *libertyLibrary(Library *library) const;
-  virtual Cell *findCell(const Library *library,
-			 const char *name) const;
-  virtual Cell *findAnyCell(const char *name);
-  virtual CellSeq findCellsMatching(const Library *library,
-                                    const PatternMatch *pattern) const;
+  const char *name(const Library *library) const override;
+  ObjectId id(const Library *library) const override;
+  LibraryIterator *libraryIterator() const override;
+  LibertyLibraryIterator *libertyLibraryIterator() const override;
+  Library *findLibrary(const char *name) override;
+  LibertyLibrary *findLiberty(const char *name) override;
+  Cell *findCell(const Library *library,
+                 const char *name) const override;
+  Cell *findAnyCell(const char *name) override;
+  CellSeq findCellsMatching(const Library *library,
+                            const PatternMatch *pattern) const override;
 
-  virtual const char *name(const Cell *cell) const;
-  virtual ObjectId id(const Cell *cell) const;
-  virtual Library *library(const Cell *cell) const;
-  virtual LibertyCell *libertyCell(Cell *cell) const;
-  virtual const LibertyCell *libertyCell(const Cell *cell) const;
-  virtual Cell *cell(LibertyCell *cell) const;
-  virtual const Cell *cell(const LibertyCell *cell) const;
-  virtual const char *filename(const Cell *cell);
-  virtual Port *findPort(const Cell *cell,
-			 const char *name) const;
-  virtual PortSeq findPortsMatching(const Cell *cell,
-				 const PatternMatch *pattern) const;
-  virtual bool isLeaf(const Cell *cell) const;
-  virtual CellPortIterator *portIterator(const Cell *cell) const;
-  virtual CellPortBitIterator *portBitIterator(const Cell *cell) const;
-  virtual int portBitCount(const Cell *cell) const;
+  const char *name(const Cell *cell) const override;
+  ObjectId id(const Cell *cell) const override;
+  Library *library(const Cell *cell) const override;
+  LibertyCell *libertyCell(Cell *cell) const override;
+  const LibertyCell *libertyCell(const Cell *cell) const override;
+  Cell *cell(LibertyCell *cell) const override;
+  const Cell *cell(const LibertyCell *cell) const override;
+  const char *filename(const Cell *cell) override;
+  Port *findPort(const Cell *cell,
+                 const char *name) const override;
+  PortSeq findPortsMatching(const Cell *cell,
+                            const PatternMatch *pattern) const override;
+  bool isLeaf(const Cell *cell) const override;
+  CellPortIterator *portIterator(const Cell *cell) const override;
+  CellPortBitIterator *portBitIterator(const Cell *cell) const override;
+  int portBitCount(const Cell *cell) const override;
 
-  virtual const char *name(const Port *port) const;
-  virtual ObjectId id(const Port *port) const;
-  virtual Cell *cell(const Port *port) const;
-  virtual LibertyPort *libertyPort(const Port *port) const;
-  virtual PortDirection *direction(const Port *port) const;
-  virtual bool isBundle(const Port *port) const;
-  virtual bool hasMembers(const Port *port) const;
+  const char *name(const Port *port) const override;
+  ObjectId id(const Port *port) const override;
+  Cell *cell(const Port *port) const override;
+  LibertyPort *libertyPort(const Port *port) const override;
+  PortDirection *direction(const Port *port) const override;
+  bool isBundle(const Port *port) const override;
+  bool hasMembers(const Port *port) const override;
 
-  virtual bool isBus(const Port *port) const;
-  virtual int size(const Port *port) const;
-  virtual const char *busName(const Port *port) const;
-  virtual Port *findBusBit(const Port *port,
-			   int index) const;
-  virtual int fromIndex(const Port *port) const;
-  virtual int toIndex(const Port *port) const;
-  virtual Port *findMember(const Port *port,
-			   int index) const;
-  virtual PortMemberIterator *memberIterator(const Port *port) const;
+  bool isBus(const Port *port) const override;
+  int size(const Port *port) const override;
+  const char *busName(const Port *port) const override;
+  Port *findBusBit(const Port *port,
+                   int index) const override;
+  int fromIndex(const Port *port) const override;
+  int toIndex(const Port *port) const override;
+  Port *findMember(const Port *port,
+                   int index) const override;
+  PortMemberIterator *memberIterator(const Port *port) const override;
 
-  virtual const char *name(const Instance *instance) const;
-  virtual ObjectId id(const Instance *instance) const;
-  virtual Cell *cell(const Instance *instance) const;
-  virtual Instance *parent(const Instance *instance) const;
-  virtual bool isLeaf(const Instance *instance) const;
-  virtual Instance *findChild(const Instance *parent,
-			      const char *name) const;
-  virtual Pin *findPin(const Instance *instance,
-		       const char *port_name) const;
-  virtual Pin *findPin(const Instance *instance,
-		       const Port *port) const;
+  const char *name(const Instance *instance) const override;
+  ObjectId id(const Instance *instance) const override;
+  Cell *cell(const Instance *instance) const override;
+  Instance *parent(const Instance *instance) const override;
+  bool isLeaf(const Instance *instance) const override;
+  Instance *findChild(const Instance *parent,
+                      const char *name) const override;
+  Pin *findPin(const Instance *instance,
+               const char *port_name) const override;
+  Pin *findPin(const Instance *instance,
+               const Port *port) const override;
 
-  virtual InstanceChildIterator *
-  childIterator(const Instance *instance) const;
-  virtual InstancePinIterator *
-  pinIterator(const Instance *instance) const;
-  virtual InstanceNetIterator *
-  netIterator(const Instance *instance) const;
+  InstanceChildIterator *
+  childIterator(const Instance *instance) const override;
+  InstancePinIterator *
+  pinIterator(const Instance *instance) const override;
+  InstanceNetIterator *
+  netIterator(const Instance *instance) const override;
 
-  virtual ObjectId id(const Pin *pin) const;
-  virtual Instance *instance(const Pin *pin) const;
-  virtual Net *net(const Pin *pin) const;
-  virtual Term *term(const Pin *pin) const;
-  virtual Port *port(const Pin *pin) const;
-  virtual PortDirection *direction(const Pin *pin) const;
-  virtual VertexId vertexId(const Pin *pin) const;
-  virtual void setVertexId(Pin *pin,
-			   VertexId id);
+  ObjectId id(const Pin *pin) const override;
+  Instance *instance(const Pin *pin) const override;
+  Net *net(const Pin *pin) const override;
+  Term *term(const Pin *pin) const override;
+  Port *port(const Pin *pin) const override;
+  PortDirection *direction(const Pin *pin) const override;
+  VertexId vertexId(const Pin *pin) const override;
+  void setVertexId(Pin *pin,
+                   VertexId id) override;
 
-  virtual ObjectId id(const Term *term) const;
-  virtual Net *net(const Term *term) const;
-  virtual Pin *pin(const Term *term) const;
+  ObjectId id(const Term *term) const override;
+  Net *net(const Term *term) const override;
+  Pin *pin(const Term *term) const override;
 
-  virtual const char *name(const Net *net) const;
-  virtual ObjectId id(const Net *net) const;
-  virtual Net *findNet(const Instance *instance,
-		       const char *net_name) const;
-  virtual void findInstNetsMatching(const Instance *instance,
-                                    const PatternMatch *pattern,
-                                    NetSeq &matches) const;
-  virtual Instance *instance(const Net *net) const;
-  virtual bool isPower(const Net *net) const;
-  virtual bool isGround(const Net *net) const;
-  virtual NetPinIterator *pinIterator(const Net *net) const;
-  virtual NetTermIterator *termIterator(const Net *net) const;
-  virtual void mergeInto(Net *net,
-			 Net *into_net);
-  virtual Net *mergedInto(Net *net);
+  const char *name(const Net *net) const override;
+  ObjectId id(const Net *net) const override;
+  Net *findNet(const Instance *instance,
+               const char *net_name) const override;
+  void findInstNetsMatching(const Instance *instance,
+                            const PatternMatch *pattern,
+                            NetSeq &matches) const override;
+  Instance *instance(const Net *net) const override;
+  bool isPower(const Net *net) const override;
+  bool isGround(const Net *net) const override;
+  NetPinIterator *pinIterator(const Net *net) const override;
+  NetTermIterator *termIterator(const Net *net) const override;
+  void mergeInto(Net *net,
+                 Net *into_net) override;
+  Net *mergedInto(Net *net) override;
 
-  virtual ConstantPinIterator *constantPinIterator();
+  ConstantPinIterator *constantPinIterator() override;
   void addConstantNet(Net *net,
-		      LogicValue value);
+		      LogicValue value) override;
 
   // Edit methods.
-  virtual Library *makeLibrary(const char *name,
-			       const char *filename);
-  virtual LibertyLibrary *makeLibertyLibrary(const char *name,
-					     const char *filename);
-  virtual void deleteLibrary(Library *library);
-  virtual Cell *makeCell(Library *library,
-			 const char *name,
-			 bool is_leaf,
-			 const char *filename);
-  virtual void deleteCell(Cell *cell);
-  virtual void setName(Cell *cell,
-		       const char *name);
-  virtual void setIsLeaf(Cell *cell,
-			 bool is_leaf);
-  virtual Port *makePort(Cell *cell,
-			 const char *name);
-  virtual Port *makeBusPort(Cell *cell,
-			    const char *name,
-			    int from_index,
-			    int to_index);
-  virtual void groupBusPorts(Cell *cell,
-                             std::function<bool(const char*)> port_msb_first);
-  virtual Port *makeBundlePort(Cell *cell,
-			       const char *name,
-			       PortSeq *members);
-  virtual void setDirection(Port *port,
-			    PortDirection *dir);
+  Library *makeLibrary(const char *name,
+                       const char *filename) override;
+  LibertyLibrary *makeLibertyLibrary(const char *name,
+                                     const char *filename) override;
+  void deleteLibrary(Library *library) override;
+  Cell *makeCell(Library *library,
+                 const char *name,
+                 bool is_leaf,
+                 const char *filename) override;
+  void deleteCell(Cell *cell) override;
+  void setName(Cell *cell,
+               const char *name) override;
+  void setIsLeaf(Cell *cell,
+                 bool is_leaf) override;
+  Port *makePort(Cell *cell,
+                 const char *name) override;
+  Port *makeBusPort(Cell *cell,
+                    const char *name,
+                    int from_index,
+                    int to_index) override;
+  void groupBusPorts(Cell *cell,
+                     std::function<bool(const char*)> port_msb_first) override;
+  Port *makeBundlePort(Cell *cell,
+                       const char *name,
+                       PortSeq *members) override;
+  void setDirection(Port *port,
+                    PortDirection *dir) override;
   // For NetworkEdit.
-  virtual Instance *makeInstance(LibertyCell *cell,
-				 const char *name,
-				 Instance *parent);
-  void makePins(Instance *inst);
+  Instance *makeInstance(LibertyCell *cell,
+                         const char *name,
+                         Instance *parent) override;
+  void makePins(Instance *inst) override;
   // For linking.
-  virtual Instance *makeInstance(Cell *cell,
-				 const char *name,
-				 Instance *parent);
-  virtual void replaceCell(Instance *inst,
-			   Cell *cell);
-  virtual void deleteInstance(Instance *inst);
-  virtual Pin *connect(Instance *inst,
-		       Port *port,
-		       Net *net);
-  virtual Pin *connect(Instance *inst,
-		       LibertyPort *port,
-		       Net *net);
-  virtual void disconnectPin(Pin *pin);
-  virtual void deletePin(Pin *pin);
-  virtual Net *makeNet(const char *name,
-		       Instance *parent);
-  virtual void deleteNet(Net *net);
+  Instance *makeInstance(Cell *cell,
+                         const char *name,
+                         Instance *parent) override;
+  void replaceCell(Instance *inst,
+                   Cell *cell) override;
+  void deleteInstance(Instance *inst) override;
+  Pin *connect(Instance *inst,
+               Port *port,
+               Net *net) override;
+  Pin *connect(Instance *inst,
+               LibertyPort *port,
+               Net *net) override;
+  void disconnectPin(Pin *pin) override;
+  void deletePin(Pin *pin) override;
+  Net *makeNet(const char *name,
+               Instance *parent) override;
+  void deleteNet(Net *net) override;
 
   // For NetworkReader API.
-  virtual Term *makeTerm(Pin *pin,
-			 Net *net);
-  virtual Pin *makePin(Instance *inst,
-		       Port *port,
-		       Net *net);
+  Term *makeTerm(Pin *pin,
+                 Net *net) override;
+  Pin *makePin(Instance *inst,
+               Port *port,
+               Net *net) override;
 
   // Instance is the network view for cell.
-  virtual void setCellNetworkView(Cell *cell,
-				  Instance *inst);
-  virtual Instance *cellNetworkView(Cell *cell);
-  virtual void deleteCellNetworkViews();
-  void deleteTopInstance();
+  void setCellNetworkView(Cell *cell,
+                          Instance *inst) override;
+  Instance *cellNetworkView(Cell *cell) override;
+  void deleteCellNetworkViews() override;
 
-  virtual void readNetlistBefore();
-  virtual void setLinkFunc(LinkNetworkFunc *link);
-  void setTopInstance(Instance *top_inst);
-
+  void readNetlistBefore() override;
+  void setLinkFunc(LinkNetworkFunc *link) override;
   static ObjectId nextObjectId();
 
   using Network::netIterator;
@@ -244,12 +240,14 @@ public:
   using Network::isLeaf;
 
 protected:
+  void setTopInstance(Instance *top_inst);
+  void deleteTopInstance();
   void addLibrary(ConcreteLibrary *library);
   void setName(const char *name);
   void clearConstantNets();
-  virtual void visitConnectedPins(const Net *net,
-				  PinVisitor &visitor,
-				  NetSet &visited_nets) const;
+  void visitConnectedPins(const Net *net,
+                          PinVisitor &visitor,
+                          NetSet &visited_nets) const override;
   Instance *makeConcreteInstance(ConcreteCell *cell,
 				 const char *name,
 				 Instance *parent);

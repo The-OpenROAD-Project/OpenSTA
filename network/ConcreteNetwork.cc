@@ -476,13 +476,6 @@ ConcreteNetwork::findLiberty(const char *name)
   return nullptr;
 }
 
-LibertyLibrary *
-ConcreteNetwork::libertyLibrary(Library *library) const
-{
-  ConcreteLibrary *lib = reinterpret_cast<ConcreteLibrary*>(library);
-  return static_cast<LibertyLibrary*>(lib);
-}
-
 Cell *
 ConcreteNetwork::makeCell(Library *library,
 			  const char *name,
