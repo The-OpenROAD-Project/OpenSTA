@@ -274,6 +274,10 @@ Sdc::deleteConstraints()
     checks->deleteContents();
     delete checks;
   }
+  for (auto pin_data_check : data_checks_to_map_) {
+    DataCheckSet *checks = pin_data_check.second;
+    delete checks;
+  }
 
   input_delays_.deleteContents();
   input_delay_pin_map_.deleteContents();
