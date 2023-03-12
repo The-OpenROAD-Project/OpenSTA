@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -140,10 +140,14 @@ stringAppend(char *&str1,
   str1 += strlen(str2);
 }
 
+void
+stringDeleteCheck(const char *str);
+
 // Delete for strings allocated with new char[].
 inline void
 stringDelete(const char *str)
 {
+  stringDeleteCheck(str);
   delete [] str;
 }
 
@@ -177,6 +181,8 @@ void
 initTmpStrings();
 void
 deleteTmpStrings();
+bool
+isTmpString(const char *str);
 
 ////////////////////////////////////////////////////////////////
 

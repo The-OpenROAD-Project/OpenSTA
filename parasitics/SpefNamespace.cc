@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,8 +22,10 @@
 namespace sta {
 
 char *
-spefToSta(const char *token, char spef_divider,
-	  char path_divider, char path_escape)
+spefToSta(const char *token,
+          char spef_divider,
+	  char path_divider,
+          char path_escape)
 {
   const char spef_escape = '\\';
   char *trans_token = new char[strlen(token) + 1];
@@ -63,8 +65,10 @@ spefToSta(const char *token, char spef_divider,
 }
 
 char *
-staToSpef(const char *token, char spef_divider,
-	  char path_divider, char path_escape)
+staToSpef(const char *token,
+          char spef_divider,
+	  char path_divider,
+          char path_escape)
 {
   const char spef_escape = '\\';
   char *trans_token = new char[strlen(token) + 1];

@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,6 +33,12 @@ class Unit;
 class Units;
 class Report;
 class Table;
+class OutputCurrent;
+class OutputCurrentWaveform;
+
+typedef Vector<float> FloatSeq;
+typedef Vector<FloatSeq*> FloatTable;
+typedef Vector<OutputCurrentWaveform*> OutputCurrentWaveformSeq;
 
 TableAxisVariable
 stringTableAxisVariable(const char *variable);
@@ -48,7 +54,9 @@ public:
   GateTableModel(TableModel *delay_model,
 		 TableModel *delay_sigma_models[EarlyLate::index_count],
 		 TableModel *slew_model,
-		 TableModel *slew_sigma_models[EarlyLate::index_count]);
+		 TableModel *slew_sigma_models[EarlyLate::index_count],
+                 ReceiverModelPtr receiver_model,
+                 OutputCurrent *output_current);
   virtual ~GateTableModel();
   virtual void gateDelay(const LibertyCell *cell,
 			 const Pvt *pvt,
@@ -118,6 +126,8 @@ protected:
   TableModel *delay_sigma_models_[EarlyLate::index_count];
   TableModel *slew_model_;
   TableModel *slew_sigma_models_[EarlyLate::index_count];
+  ReceiverModelPtr receiver_model_;
+  OutputCurrent *output_current_;
 };
 
 class CheckTableModel : public CheckTimingModel
@@ -223,7 +233,8 @@ public:
 		   const char *comment1,
 		   float value2,
 		   float value3,
-		   int digits,
+		   const Unit *table_unit,
+                   int digits,
 		   string *result) const;
   void report(const Units *units,
 	      Report *report) const;
@@ -242,11 +253,11 @@ protected:
   TableTemplate *tbl_template_;
   // ScaleFactorType gcc barfs if this is dcl'd.
   unsigned scale_factor_type_:scale_factor_bits;
-  unsigned tr_index_:RiseFall::index_bit_count;
+  unsigned rf_index_:RiseFall::index_bit_count;
   bool is_scaled_:1;
 };
 
-// Abstract base class for tables.
+// Abstract base class for 0, 1, 2, or 3 dimesnion float tables.
 class Table
 {
 public:
@@ -280,6 +291,7 @@ public:
 			   const char *comment1,
 			   float value2,
 			   float value3,
+                           const Unit *table_unit,
 			   int digits,
 			   string *result) const = 0;
   virtual void report(const Units *units,
@@ -306,6 +318,7 @@ public:
 			   const char *comment1,
 			   float value2,
 			   float value3,
+                           const Unit *table_unit,
 			   int digits,
 			   string *result) const;
   virtual void report(const Units *units,
@@ -340,6 +353,7 @@ public:
 			   const char *comment1,
 			   float value2,
 			   float value3,
+                           const Unit *table_unit,
 			   int digits,
 			   string *result) const;
   virtual void report(const Units *units,
@@ -370,6 +384,7 @@ public:
   virtual float findValue(float value1,
 			  float value2,
 			  float value3) const;
+  FloatTable *values3() { return values_; }
   virtual void reportValue(const char *result_name,
 			   const LibertyLibrary *library,
 			   const LibertyCell *cell,
@@ -378,6 +393,7 @@ public:
 			   const char *comment1,
 			   float value2,
 			   float value3,
+                           const Unit *table_unit,
 			   int digits,
 			   string *result) const;
   virtual void report(const Units *units,
@@ -417,6 +433,7 @@ public:
 			   const char *comment1,
 			   float value2,
 			   float value3,
+                           const Unit *table_unit,
 			   int digits,
 			   string *result) const;
   virtual void report(const Units *units,
@@ -434,15 +451,96 @@ public:
 	    FloatSeq *values);
   ~TableAxis();
   TableAxisVariable variable() const { return variable_; }
+  const char *variableString() const;
+  const Unit *unit(const Units *units);
   size_t size() const { return values_->size(); }
   float axisValue(size_t index) const { return (*values_)[index]; }
   // Find the index for value such that axis[index] <= value < axis[index+1].
   size_t findAxisIndex(float value) const;
+  void findAxisIndex(float value,
+                     // Return values.
+                     size_t &index,
+                     bool &exists) const;
   FloatSeq *values() const { return values_; }
 
 private:
   TableAxisVariable variable_;
   FloatSeq *values_;
+};
+
+////////////////////////////////////////////////////////////////
+
+class ReceiverModel
+{
+public:
+  ReceiverModel();
+  ~ReceiverModel();
+  void setCapacitanceModel(TableModel *table_model,
+                           int index,
+                           RiseFall *rf);
+  static bool checkAxes(TablePtr table);
+
+private:
+  TableModel *capacitance_models_[2][RiseFall::index_count];
+};
+
+class OutputCurrentWaveform
+{
+public:
+  OutputCurrentWaveform(float axis_value1,
+                        float axis_value2,
+                        TableAxisPtr axis,
+                        Table1 *currents,
+                        float reference_time);
+  ~OutputCurrentWaveform();
+  float axisValue1() const { return axis_value1_; }
+  float axisValue2() const { return axis_value2_; }
+  TableAxisPtr axis() const { return axis_; }
+  Table1 *currents() const { return currents_; }
+  float referenceTime() const { return reference_time_; }
+  void reportWaveform(const Units *units,
+                      int digits,
+                      string *result);
+  static bool checkAxes(TableTemplate *tbl_template);
+  
+private:
+  float axis_value1_;
+  float axis_value2_;
+  TableAxisPtr axis_;
+  Table1 *currents_;
+  float reference_time_;
+};
+
+// Two dimensional table of one dimensional time/current tables.
+class OutputCurrent
+{
+public:
+  OutputCurrent(TableAxisPtr axis1,
+                TableAxisPtr axis2,
+                Vector<OutputCurrentWaveform*> &waveforms);
+  ~OutputCurrent();
+  void reportWaveform(const LibertyCell *cell,
+                      const Pvt *pvt,
+                      float in_slew,
+                      float load_cap,
+                      int digits,
+                      string *result) const;
+
+private:
+  void findAxisValues(float in_slew,
+                      float load_cap,
+                      // Return values.
+                      float &axis_value1,
+                      float &axis_value2) const;
+  float axisValue(TableAxisPtr axis,
+                  float in_slew,
+                  float load_cap) const;
+
+  // Row.
+  TableAxisPtr axis1_;
+  // Column.
+  TableAxisPtr axis2_;
+  OutputCurrentWaveformSeq waveforms_;
 };
 
 } // namespace

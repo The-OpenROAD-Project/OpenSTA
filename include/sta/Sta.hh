@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -179,6 +179,8 @@ public:
 		     const Corner *corner,
 		     const MinMaxAll *min_max,
 		     float cap);
+  // Remove all "set_load net" annotations.
+  void removeNetLoadCaps() const;
   // Set port external fanout (used by wireload models).
   void setPortExtFanout(const Port *port,
 			int fanout,

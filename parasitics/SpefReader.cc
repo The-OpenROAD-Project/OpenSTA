@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -730,7 +730,7 @@ void spefFlushBuffer();
 int
 SpefParse_error(const char *msg)
 {
-  sta::spef_reader->warn(179, "%s.", msg);
   spefFlushBuffer();
+  sta::spef_reader->warn(179, "%s.", msg);
   return 0;
 }

@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -209,13 +209,34 @@ makeTmpString(size_t length)
   size_t tmp_length = tmp_string_lengths_[tmp_string_next_];
   if (tmp_length < length) {
     // String isn't long enough.  Make a new one.
-    stringDelete(tmp_str);
+    delete [] tmp_str;
     tmp_str = new char[length];
     tmp_strings_[tmp_string_next_] = tmp_str;
     tmp_string_lengths_[tmp_string_next_] = length;
   }
   tmp_string_next_++;
   return tmp_str;
+}
+
+void
+stringDeleteCheck(const char *str)
+{
+  if (isTmpString(str)) {
+    printf("Critical error: stringDelete for tmp string.");
+    exit(1);
+  }
+}
+
+bool
+isTmpString(const char *str)
+{
+  if (tmp_strings_) {
+    for (int i = 0; i < tmp_string_count_; i++) {
+      if (str == tmp_strings_[i])
+        return true;
+    }
+  }
+  return false;
 }
 
 ////////////////////////////////////////////////////////////////

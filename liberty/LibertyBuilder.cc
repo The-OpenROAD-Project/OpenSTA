@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -39,25 +39,28 @@ LibertyBuilder::makeCell(LibertyLibrary *library,
 
 LibertyPort *
 LibertyBuilder::makePort(LibertyCell *cell,
-			 const char *name)
+			 const char *port_name)
 {
-  LibertyPort *port = new LibertyPort(cell, name, false, nullptr, -1, -1, false, nullptr);
+  const char *sta_name = portLibertyToSta(port_name);
+  LibertyPort *port = new LibertyPort(cell, sta_name, false, nullptr,
+                                      -1, -1, false, nullptr);
   cell->addPort(port);
   return port;
 }
 
 LibertyPort *
 LibertyBuilder::makeBusPort(LibertyCell *cell,
-			    const char *name,
+			    const char *bus_name,
                             int from_index,
 			    int to_index,
 			    BusDcl *bus_dcl)
 {
-  LibertyPort *port = new LibertyPort(cell, name, true, bus_dcl,
+  string sta_name = portLibertyToSta(bus_name);
+  LibertyPort *port = new LibertyPort(cell, sta_name.c_str(), true, bus_dcl,
                                       from_index, to_index,
 				      false, new ConcretePortSeq);
   cell->addPort(port);
-  makeBusPortBits(cell->library(), cell, port, name, from_index, to_index);
+  makeBusPortBits(cell->library(), cell, port, sta_name.c_str(), from_index, to_index);
   return port;
 }
 
@@ -65,17 +68,17 @@ void
 LibertyBuilder::makeBusPortBits(ConcreteLibrary *library,
 				LibertyCell *cell,
 				ConcretePort *bus_port,
-				const char *name,
+				const char *bus_name,
 				int from_index,
 				int to_index)
 {
   if (from_index < to_index) {
     for (int index = from_index; index <= to_index; index++)
-      makeBusPortBit(library, cell, bus_port, name, index);
+      makeBusPortBit(library, cell, bus_port, bus_name, index);
   }
   else {
     for (int index = from_index; index >= to_index; index--)
-      makeBusPortBit(library, cell, bus_port, name, index);
+      makeBusPortBit(library, cell, bus_port, bus_name, index);
   }
 }
 

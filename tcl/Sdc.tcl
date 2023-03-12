@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2022, Parallax Software, Inc.
+# Copyright (c) 2023, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -975,7 +975,7 @@ proc get_ports { args } {
   return $ports
 }
 
-variable filter_regexp1 {@?([a-zA-Z_]+) *(==|=~) *([0-9a-zA-Z_\*]+)}
+variable filter_regexp1 {@?([a-zA-Z_]+) *(==|!=|=~) *([0-9a-zA-Z_\*]+)}
 variable filter_or_regexp "($filter_regexp1) +\\|\\| +($filter_regexp1)"
 variable filter_and_regexp "($filter_regexp1) +&& +($filter_regexp1)"
 

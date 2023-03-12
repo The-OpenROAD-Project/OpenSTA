@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -108,6 +108,12 @@ public:
 			 SdfPortSpec *clk_edge,
 			 SdfTriple *rec_triple,
 			 SdfTriple *rem_triple);
+  void timingCheckSetupHold1(SdfPortSpec *data_edge,
+                             SdfPortSpec *clk_edge,
+                             SdfTriple *setup_triple,
+                             SdfTriple *hold_triple,
+                             TimingRole *setup_role,
+                             TimingRole *hold_role);
   void timingCheckNochange(SdfPortSpec *data_edge,
 			   SdfPortSpec *clk_edge,
 			   SdfTriple *before_triple,
@@ -129,8 +135,10 @@ public:
   SdfPortSpec *makePortSpec(Transition *tr,
 			    const char *port,
 			    const char *cond);
-  SdfPortSpec *makeCondPortSpec(char *cond_port);
-  const char *unescaped(const char *s);
+  SdfPortSpec *makeCondPortSpec(const char *cond_port);
+  const char *unescaped(const char *token);
+  char *makePath(const char *head,
+                 const char *tail);
   // Parser state used to control lexer for COND handling.
   bool inTimingCheck() { return in_timing_check_; }
   void setInTimingCheck(bool in);
@@ -169,10 +177,11 @@ private:
   bool condMatch(const char *sdf_cond,
 		 const char *lib_cond);
   void timingCheck1(TimingRole *role,
-		    SdfPortSpec *data_edge,
-		    SdfPortSpec *clk_edge,
-		    SdfTriple *triple,
-		    bool warn);
+                    Port *data_port,
+                    SdfPortSpec *data_edge,
+                    Port *clk_port,
+                    SdfPortSpec *clk_edge,
+                    SdfTriple *triple);
   bool annotateCheckEdges(Pin *data_pin,
 			  SdfPortSpec *data_edge,
 			  Pin *clk_pin,
@@ -181,7 +190,6 @@ private:
 			  SdfTriple *triple,
 			  bool match_generic);
   void deletePortSpec(SdfPortSpec *edge);
-  void portNotFound(const char *port_name);
   Pin *findPin(const char *name);
   Instance *findInstance(const char *name);
   void setEdgeDelays(Edge *edge,
@@ -189,6 +197,8 @@ private:
 		     const char *sdf_cmd);
   void setDevicePinDelays(Pin *to_pin,
 			  SdfTripleSeq *triples);
+  Port *findPort(const Cell *cell,
+                 const char *port_name);
 
   const char *filename_;
   const char *path_;

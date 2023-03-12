@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ namespace sta {
 
 using std::string;
 
-// Abstract base class for timing models.
+// Abstract base class for GateTimingModel and CheckTimingModel.
 class TimingModel
 {
 public:
@@ -36,7 +36,7 @@ protected:
   friend class LibertyCell;
 };
 
-// Abstract base class for gate timing models.
+// Abstract base class for LinearModel and TableModel.
 class GateTimingModel : public TimingModel
 {
 public:

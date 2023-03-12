@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -41,9 +41,13 @@ appendSpaces(string *result,
 GateTableModel::GateTableModel(TableModel *delay_model,
 			       TableModel *delay_sigma_models[EarlyLate::index_count],
 			       TableModel *slew_model,
-			       TableModel *slew_sigma_models[EarlyLate::index_count]) :
+			       TableModel *slew_sigma_models[EarlyLate::index_count],
+                               ReceiverModelPtr receiver_model,
+                               OutputCurrent *output_current) :
   delay_model_(delay_model),
-  slew_model_(slew_model)
+  slew_model_(slew_model),
+  receiver_model_(receiver_model),
+  output_current_(output_current)
 {
   for (auto el_index : EarlyLate::rangeIndex()) {
     slew_sigma_models_[el_index] = slew_sigma_models ? slew_sigma_models[el_index] : nullptr;
@@ -55,6 +59,7 @@ GateTableModel::~GateTableModel()
 {
   delete delay_model_;
   delete slew_model_;
+  delete output_current_;
   deleteSigmaModels(slew_sigma_models_);
   deleteSigmaModels(delay_sigma_models_);
 }
@@ -160,6 +165,8 @@ GateTableModel::reportGateDelay(const LibertyCell *cell,
 			      load_cap, related_out_cap);
   if (drvr_slew < 0.0)
     *result += "Negative slew clipped to 0.0\n";
+  if (output_current_)
+    output_current_->reportWaveform(cell, pvt, in_slew, load_cap, digits, result);
 }
 
 void
@@ -180,7 +187,7 @@ GateTableModel::reportTableLookup(const char *result_name,
 		   axis_value1, axis_value2, axis_value3);
     model->reportValue(result_name, library, cell, pvt,
 		       axis_value1, nullptr, axis_value2, axis_value3,
-		       digits, result);
+		       library->units()->timeUnit(), digits, result);
   }
 }
 
@@ -327,11 +334,11 @@ GateTableModel::checkAxes(const TablePtr table)
   TableAxisPtr axis3 = table->axis3();
   bool axis_ok = true;
   if (axis1)
-    axis_ok &= checkAxis(table->axis1());
+    axis_ok &= checkAxis(axis1);
   if (axis2)
-    axis_ok &= checkAxis(table->axis2());
+    axis_ok &= checkAxis(axis2);
   if (axis3)
-    axis_ok &= checkAxis(table->axis3());
+    axis_ok &= checkAxis(axis3);
   return axis_ok;
 }
 
@@ -343,6 +350,46 @@ GateTableModel::checkAxis(TableAxisPtr axis)
     || var == TableAxisVariable::input_transition_time
     || var == TableAxisVariable::input_net_transition
     || var == TableAxisVariable::related_out_total_output_net_capacitance;
+}
+
+////////////////////////////////////////////////////////////////
+
+ReceiverModel::ReceiverModel() :
+  capacitance_models_{{nullptr, nullptr}, {nullptr, nullptr}}
+{
+}
+
+ReceiverModel::~ReceiverModel()
+{
+  for (int index = 0; index < 2; index++) {
+    for (auto rf_index : RiseFall::rangeIndex())
+      delete capacitance_models_[index][rf_index];
+  }
+}
+
+void
+ReceiverModel::setCapacitanceModel(TableModel *table_model,
+                                   int index,
+                                   RiseFall *rf)
+{
+  capacitance_models_[index][rf->index()] = table_model;
+}
+
+bool
+ReceiverModel::checkAxes(TablePtr table)
+{
+  TableAxisPtr axis1 = table->axis1();
+  TableAxisPtr axis2 = table->axis2();
+  TableAxisPtr axis3 = table->axis3();
+  return (axis1 && axis1->variable() == TableAxisVariable::input_net_transition
+          && axis2 == nullptr
+          && axis3 == nullptr)
+    || (axis1 && axis1->variable() == TableAxisVariable::input_net_transition
+          && axis2 && axis2->variable() == TableAxisVariable::total_output_net_capacitance
+          && axis3 == nullptr)
+    || (axis1 && axis1->variable() == TableAxisVariable::total_output_net_capacitance
+          && axis2 && axis2->variable() == TableAxisVariable::input_net_transition
+          && axis3 == nullptr);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -464,7 +511,7 @@ CheckTableModel::reportTableDelay(const char *result_name,
     reportPvt(library, pvt, digits, result);
     model_->reportValue(result_name, library, cell, pvt,
 			axis_value1, from_slew_annotation, axis_value2,
-			axis_value3, digits, result);
+			axis_value3, library->units()->timeUnit(), digits, result);
   }
 }
 
@@ -536,11 +583,11 @@ CheckTableModel::checkAxes(const TablePtr table)
   TableAxisPtr axis3 = table->axis3();
   bool axis_ok = true;
   if (axis1)
-    axis_ok &= checkAxis(table->axis1());
+    axis_ok &= checkAxis(axis1);
   if (axis2)
-    axis_ok &= checkAxis(table->axis2());
+    axis_ok &= checkAxis(axis2);
   if (axis3)
-    axis_ok &= checkAxis(table->axis3());
+    axis_ok &= checkAxis(axis3);
   return axis_ok;
 }
 
@@ -562,7 +609,7 @@ TableModel::TableModel(TablePtr table,
   table_(table),
   tbl_template_(tbl_template),
   scale_factor_type_(int(scale_factor_type)),
-  tr_index_(rf->index()),
+  rf_index_(rf->index()),
   is_scaled_(false)
 {
 }
@@ -634,7 +681,7 @@ TableModel::scaleFactor(const LibertyLibrary *library,
     return 1.0F;
   else
     return library->scaleFactor(static_cast<ScaleFactorType>(scale_factor_type_),
-				tr_index_, cell, pvt);
+				rf_index_, cell, pvt);
 }
 
 void
@@ -646,16 +693,15 @@ TableModel::reportValue(const char *result_name,
 			const char *comment1,
 			float value2,
 			float value3,
+                        const Unit *table_unit,
 			int digits,
 			string *result) const
 {
   table_->reportValue("Table value", library, cell, pvt, value1,
-		      comment1, value2, value3, digits, result);
+		      comment1, value2, value3, table_unit, digits, result);
 
   reportPvtScaleFactor(library, cell, pvt, digits, result);
 
-  const Units *units = library->units();
-  const Unit *table_unit = units->timeUnit();
   *result += result_name;
   *result += " = ";
   *result += table_unit->asString(findValue(library, cell, pvt,
@@ -725,18 +771,17 @@ Table0::findValue(float,
 
 void
 Table0::reportValue(const char *result_name,
-		    const LibertyLibrary *library,
+		    const LibertyLibrary *,
 		    const LibertyCell *,
 		    const Pvt *,
 		    float value1,
 		    const char *comment1,
 		    float value2,
 		    float value3,
+                    const Unit *table_unit,
 		    int digits,
 		    string *result) const
 {
-  const Units *units = library->units();
-  const Unit *table_unit = units->timeUnit();
   *result += result_name;
   *result += " constant = ";
   *result += table_unit->asString(findValue(value1, value2, value3), digits);
@@ -811,16 +856,15 @@ Table1::reportValue(const char *result_name, const
 		    const char *comment1,
 		    float value2,
 		    float value3,
+                    const Unit *table_unit,
 		    int digits,
 		    string *result) const
 {
-  TableAxisVariable var1 = axis1_->variable();
   const Units *units = library->units();
-  const Unit *table_unit = units->timeUnit();
-  const Unit *unit1 = tableVariableUnit(var1, units);
+  const Unit *unit1 = axis1_->unit(units);
   *result += "Table is indexed by\n";
   *result += "  ";
-  *result += tableVariableString(var1);
+  *result += axis1_->variableString();
   *result += " = ";
   *result += unit1->asString(value1, digits);
   if (comment1)
@@ -856,7 +900,7 @@ Table1::report(const Units *units,
 	       Report *report) const
 {
   int digits = 4;
-  const Unit *unit1 = tableVariableUnit(axis1_->variable(), units);
+  const Unit *unit1 = axis1_->unit(units);
   const Unit *table_unit = units->timeUnit();
   report->reportLine("%s", tableVariableString(axis1_->variable()));
   report->reportLine("------------------------------");
@@ -980,17 +1024,15 @@ Table2::reportValue(const char *result_name,
 		    const char *comment1,
 		    float value2,
 		    float value3,
+                    const Unit *table_unit,
 		    int digits,
 		    string *result) const
 {
-  TableAxisVariable var1 = axis1_->variable();
-  TableAxisVariable var2 = axis2_->variable();
   const Units *units = library->units();
-  const Unit *table_unit = units->timeUnit();
-  const Unit *unit1 = tableVariableUnit(var1, units);
-  const Unit *unit2 = tableVariableUnit(var2, units);
+  const Unit *unit1 = axis1_->unit(units);
+  const Unit *unit2 = axis2_->unit(units);
   *result += "------- ";
-  *result += tableVariableString(var1),
+  *result += axis1_->variableString(),
   *result += " = ";
   *result += unit1->asString(value1, digits);
   if (comment1)
@@ -998,7 +1040,7 @@ Table2::reportValue(const char *result_name,
   *result += '\n';
 
   *result += "|       ";
-  *result += tableVariableString(var2);
+  *result += axis2_->variableString();
   *result += " = ";
   *result += unit2->asString(value2, digits);
   *result += '\n';
@@ -1047,8 +1089,8 @@ Table2::report(const Units *units,
 {
   int digits = 4;
   const Unit *table_unit = units->timeUnit();
-  const Unit *unit1 = tableVariableUnit(axis1_->variable(), units);
-  const Unit *unit2 = tableVariableUnit(axis2_->variable(), units);
+  const Unit *unit1 = axis1_->unit(units);
+  const Unit *unit2 = axis2_->unit(units);
   report->reportLine("%s", tableVariableString(axis2_->variable()));
   report->reportLine("     ------------------------------");
   string line = "     ";
@@ -1173,20 +1215,17 @@ Table3::reportValue(const char *result_name,
 		    const char *comment1,
 		    float value2,
 		    float value3,
+                    const Unit *table_unit,
 		    int digits,
 		    string *result) const
 {
-  TableAxisVariable var1 = axis1_->variable();
-  TableAxisVariable var2 = axis2_->variable();
-  TableAxisVariable var3 = axis3_->variable();
   const Units *units = library->units();
-  const Unit *table_unit = units->timeUnit();
-  const Unit *unit1 = tableVariableUnit(var1, units);
-  const Unit *unit2 = tableVariableUnit(var2, units);
-  const Unit *unit3 = tableVariableUnit(var3, units);
+  const Unit *unit1 = axis1_->unit(units);
+  const Unit *unit2 = axis2_->unit(units);
+  const Unit *unit3 = axis3_->unit(units);
 
   *result += "   --------- ";
-  *result += tableVariableString(var1),
+  *result += axis1_->variableString(),
   *result += " = ";
   *result += unit1->asString(value1, digits);
   if (comment1)
@@ -1194,13 +1233,13 @@ Table3::reportValue(const char *result_name,
   *result += '\n';
 
   *result += "   |    ---- ";
-  *result += tableVariableString(var2),
+  *result += axis2_->variableString(),
   *result += " = ";
   *result += unit2->asString(value2, digits);
   *result += '\n';
 
   *result += "   |    |    ";
-  *result += tableVariableString(var3);
+  *result += axis3_->variableString();
   *result += " = ";
   *result += unit3->asString(value3, digits);
   *result += '\n';
@@ -1296,9 +1335,9 @@ Table3::report(const Units *units,
 {
   int digits = 4;
   const Unit *table_unit = units->timeUnit();
-  const Unit *unit1 = tableVariableUnit(axis1_->variable(), units);
-  const Unit *unit2 = tableVariableUnit(axis2_->variable(), units);
-  const Unit *unit3 = tableVariableUnit(axis3_->variable(), units);
+  const Unit *unit1 = axis1_->unit(units);
+  const Unit *unit2 = axis2_->unit(units);
+  const Unit *unit3 = axis3_->unit(units);
   for (size_t index1 = 0; index1 < axis1_->size(); index1++) {
     report->reportLine("%s %s", tableVariableString(axis1_->variable()),
                        unit1->asString(axis1_->axisValue(index1), digits));
@@ -1361,6 +1400,47 @@ TableAxis::findAxisIndex(float value) const
     }
     return lower;
   }
+}
+
+void
+TableAxis::findAxisIndex(float value,
+                         // Return values.
+                         size_t &index,
+                         bool &exists) const
+{
+  int max = static_cast<int>(values_->size()) - 1;
+  if (!values_->empty()
+      && value >= (*values_)[0]
+      && value <= (*values_)[max]) {
+    int lower = -1;
+    int upper = max + 1;
+    bool ascend = ((*values_)[max] >= (*values_)[0]);
+    while (upper - lower > 1) {
+      int mid = (upper + lower) >> 1;
+      if (value == (*values_)[mid]) {
+        index = mid;
+        exists = true;
+        return;
+      }
+      if ((value > (*values_)[mid]) == ascend)
+	lower = mid;
+      else
+	upper = mid;
+    }
+  }
+  exists = false;
+}
+
+const char *
+TableAxis::variableString() const
+{
+  return tableVariableString(variable_);
+}
+
+const Unit *
+TableAxis::unit(const Units *units)
+{
+  return tableVariableUnit(variable_, units);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1430,6 +1510,122 @@ tableVariableUnit(TableAxisVariable variable,
   }
   // Prevent warnings from lame compilers.
   return nullptr;
+}
+
+////////////////////////////////////////////////////////////////
+
+OutputCurrentWaveform::OutputCurrentWaveform(float axis_value1,
+                                             float axis_value2,
+                                             TableAxisPtr axis,
+                                             Table1 *currents,
+                                             float reference_time) :
+  axis_value1_(axis_value1),
+  axis_value2_(axis_value2),
+  axis_(axis),
+  currents_(currents),
+  reference_time_(reference_time)
+{
+}
+
+OutputCurrentWaveform::~OutputCurrentWaveform()
+{
+  delete currents_;
+}
+
+bool
+OutputCurrentWaveform::checkAxes(TableTemplate *tbl_template)
+{
+  TableAxisPtr axis1 = tbl_template->axis1();
+  TableAxisPtr axis2 = tbl_template->axis2();
+  TableAxisPtr axis3 = tbl_template->axis3();
+  return (axis1 && axis1->variable() == TableAxisVariable::input_net_transition
+          && axis2->variable() == TableAxisVariable::time
+          && axis3 == nullptr)
+    || (axis1 && axis1->variable() == TableAxisVariable::input_net_transition
+          && axis2 && axis2->variable() == TableAxisVariable::total_output_net_capacitance
+          && axis3->variable() == TableAxisVariable::time)
+    || (axis1 && axis1->variable() == TableAxisVariable::total_output_net_capacitance
+          && axis2 && axis2->variable() == TableAxisVariable::input_net_transition
+          && axis3->variable() == TableAxisVariable::time);
+}
+
+void
+OutputCurrentWaveform::reportWaveform(const Units *units,
+                                      int digits,
+                                      string *result)
+{
+  const Unit *time_unit = units->timeUnit();
+  const Unit *current_unit = units->currentUnit();
+  for (size_t i = 0; i < axis_->values()->size(); i++) {
+    *result += time_unit->asString(axis_->axisValue(i), digits);
+    *result += " ";
+  }
+  *result += '\n';
+  for (size_t i = 0; i < currents_->axis1()->size(); i++) {
+    *result += current_unit->asString(currents_->value(i), digits);
+    *result += " ";
+  }
+  *result += '\n';
+}
+
+////////////////////////////////////////////////////////////////
+
+OutputCurrent::OutputCurrent(TableAxisPtr axis1,
+                             TableAxisPtr axis2,
+                             OutputCurrentWaveformSeq &waveforms) :
+  axis1_(axis1),
+  axis2_(axis2),
+  waveforms_(waveforms)
+{
+}
+
+OutputCurrent::~OutputCurrent()
+{
+  waveforms_.deleteContents();
+}
+
+void
+OutputCurrent::reportWaveform(const LibertyCell *cell,
+                              const Pvt *,
+                              float in_slew,
+                              float load_cap,
+                              int digits,
+                              string *result) const
+{
+  float axis_value1, axis_value2;
+  findAxisValues(in_slew, load_cap,
+                 axis_value1, axis_value2);
+  size_t index1 = axis1_->findAxisIndex(axis_value1);
+  size_t index2 = axis2_->findAxisIndex(axis_value2);
+  size_t index = index1 * axis2_->size() + index2;
+  waveforms_[index]->reportWaveform(cell->libertyLibrary()->units(), digits, result);
+}
+
+void
+OutputCurrent::findAxisValues(float in_slew,
+                              float load_cap,
+                              // Return values.
+                              float &axis_value1,
+                              float &axis_value2) const
+{
+  axis_value1 = axisValue(axis1_, in_slew, load_cap);
+  axis_value2 = axisValue(axis2_, in_slew, load_cap);
+}
+
+float
+OutputCurrent::axisValue(TableAxisPtr axis,
+                         float in_slew,
+                         float load_cap) const
+{
+  TableAxisVariable var = axis->variable();
+  if (var == TableAxisVariable::input_net_transition)
+    return in_slew;
+  else if (var == TableAxisVariable::total_output_net_capacitance)
+    return load_cap;
+  else {
+    criticalError(240, "unsupported table axes");
+    return 0.0;
+  }
 }
 
 } // namespace

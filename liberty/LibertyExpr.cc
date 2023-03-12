@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -67,16 +67,20 @@ LibExprParser::~LibExprParser()
   stringDelete(token_);
 }
 
+LibertyPort *
+libertyReaderFindPort(LibertyCell *cell,
+                      const char *port_name);
+
 FuncExpr *
 LibExprParser::makeFuncExprPort(const char *port_name)
 {
-  LibertyPort *port = cell_->findLibertyPort(port_name);
   FuncExpr *expr = nullptr;
+  LibertyPort *port = libertyReaderFindPort(cell_, port_name);
   if (port)
     expr = FuncExpr::makePort(port);
   else
-    report_->error(7, "%s references unknown port %s.",
-		    error_msg_, port_name);
+    report_->warn(7, "%s references unknown port %s.",
+                  error_msg_, port_name);
   stringDelete(port_name);
   return expr;
 }
@@ -179,7 +183,7 @@ LibExprParser::parseError(const char *msg)
 int
 LibertyExprParse_error(const char *msg)
 {
-  sta::libexpr_parser->parseError(msg);
   libertyExprFlushBuffer();
+  sta::libexpr_parser->parseError(msg);
   return 0;
 }

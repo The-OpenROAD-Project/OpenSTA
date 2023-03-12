@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -524,7 +524,8 @@ MakeTimingModel::makeGateModelScalar(Delay delay,
   TableModel *slew_model = new TableModel(slew_table, tbl_template,
                                           ScaleFactorType::cell, rf);
   GateTableModel *gate_model = new GateTableModel(delay_model, nullptr,
-                                                  slew_model, nullptr);
+                                                  slew_model, nullptr,
+                                                  nullptr, nullptr);
   return gate_model;
 }
 
@@ -606,7 +607,8 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                 TableModel *slew_model = new TableModel(slew_table, tbl_template,
                                                         ScaleFactorType::cell, rf);
                 GateTableModel *gate_model = new GateTableModel(delay_model, nullptr,
-                                                                slew_model, nullptr);
+                                                                slew_model, nullptr,
+                                                                nullptr, nullptr);
                 return gate_model;
               }
             }

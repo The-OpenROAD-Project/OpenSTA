@@ -3,7 +3,7 @@
 %{
 
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -2426,12 +2426,15 @@ filter_ports(const char *property,
   Sta *sta = Sta::sta();
   PortSeq filtered_ports;
   bool exact_match = stringEq(op, "==");
+  bool pattern_match = stringEq(op, "=~");
+  bool not_match = stringEq(op, "!=");
   for (const Port *port : *ports) {
     PropertyValue value(getProperty(port, property, sta));
     const char *prop = value.stringValue();
     if (prop &&
 	((exact_match && stringEq(prop, pattern))
-	 || (!exact_match && patternMatch(pattern, prop))))
+         || (not_match && !stringEq(prop, pattern))
+	 || (pattern_match && patternMatch(pattern, prop))))
       filtered_ports.push_back(port);
   }
   delete ports;
@@ -2447,13 +2450,16 @@ filter_insts(const char *property,
   Sta *sta = Sta::sta();
   cmdLinkedNetwork();
   bool exact_match = stringEq(op, "==");
+  bool pattern_match = stringEq(op, "=~");
+  bool not_match = stringEq(op, "!=");
   InstanceSeq filtered_insts;
   for (const Instance *inst : *insts) {
     PropertyValue value(getProperty(inst, property, sta));
     const char *prop = value.stringValue();
     if (prop &&
 	((exact_match && stringEq(prop, pattern))
-	 || (!exact_match && patternMatch(pattern, prop))))
+         || (not_match && !stringEq(prop, pattern))
+	 || (pattern_match && patternMatch(pattern, prop))))
       filtered_insts.push_back(inst);
   }
   delete insts;
@@ -2469,12 +2475,15 @@ filter_pins(const char *property,
   Sta *sta = Sta::sta();
   PinSeq filtered_pins;
   bool exact_match = stringEq(op, "==");
+  bool pattern_match = stringEq(op, "=~");
+  bool not_match = stringEq(op, "!=");
   for (const Pin *pin : *pins) {
     PropertyValue value(getProperty(pin, property, sta));
     const char *prop = value.stringValue();
     if (prop &&
 	((exact_match && stringEq(prop, pattern))
-	 || (!exact_match && patternMatch(pattern, prop))))
+         || (not_match && !stringEq(prop, pattern))
+	 || (pattern_match && patternMatch(pattern, prop))))
       filtered_pins.push_back(pin);
   }
   delete pins;
@@ -2675,12 +2684,15 @@ filter_timing_arcs(const char *property,
   Sta *sta = Sta::sta();
   EdgeSeq filtered_edges;
   bool exact_match = stringEq(op, "==");
+  bool pattern_match = stringEq(op, "=~");
+  bool not_match = stringEq(op, "!=");
   for (Edge *edge : *edges) {
     PropertyValue value(getProperty(edge, property, sta));
     const char *prop = value.stringValue();
     if (prop &&
 	((exact_match && stringEq(prop, pattern))
-	 || (!exact_match && patternMatch(pattern, prop))))
+         || (not_match && !stringEq(prop, pattern))
+	 || (pattern_match && patternMatch(pattern, prop))))
       filtered_edges.push_back(edge);
   }
   delete edges;

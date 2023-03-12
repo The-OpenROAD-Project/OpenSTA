@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -184,6 +184,7 @@ public:
   ~Sdc();
   // Note that Search may reference a Filter exception removed by clear().
   void clear();
+  void makeCornersBefore();
   void makeCornersAfter(Corners *corners);
   // Return true if pin is referenced by any constraint.
   bool isConstrained(const Pin *pin) const;
@@ -583,6 +584,8 @@ public:
 			 float cap);
   static void movePortExtCaps(Sdc *from,
                               Sdc *to);
+  // Remove all "set_load net" annotations.
+  void removeNetLoadCaps();
   void setNetWireCap(const Net *net,
 		     bool subtract_pin_cap,
 		     const Corner *corner,
@@ -933,7 +936,7 @@ public:
 		    float &pin_cap,
 		    float &wire_cap,
 		    float &fanout,
-		    bool &has_set_load) const;
+		    bool &has_net_load) const;
   void portExtFanout(const Port *port,
                      const Corner *corner,
 		     const MinMax *min_max,
@@ -1219,8 +1222,7 @@ protected:
 	       const MinMax *min_max,
 	       float &pin_cap,
 	       float &wire_cap,
-	       float &fanout,
-	       bool &has_ext_cap) const;
+	       float &fanout) const;
   void netCaps(const Pin *drvr_pin,
 	       const RiseFall *rf,
 	       const OperatingConditions *op_cond,
@@ -1230,7 +1232,7 @@ protected:
 	       float &pin_cap,
 	       float &wire_cap,
 	       float &fanout,
-	       bool &has_set_load) const;
+               bool &has_net_load) const;
   // connectedCap pin_cap.
   float connectedPinCap(const Pin *pin,
 			const RiseFall *rf,

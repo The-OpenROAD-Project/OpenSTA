@@ -1,7 +1,7 @@
 %{
 
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ libertyExprFlushBuffer()
 
 %x ESCAPED_STRING
 
-PORT	[A-Za-z_]([A-Za-z0-9_\[\]])*
+PORT	[A-Za-z_]([A-Za-z0-9_\.\[\]])*
 OP	"'"|"!"|"^"|"*"|"&"|"+"|"|"|1|0
 PAREN	"("|")"
 BLANK	[ \t\r]

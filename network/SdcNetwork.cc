@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -1118,7 +1118,7 @@ SdcNetwork::visitMatches(const Instance *parent,
       *p = '\0';
       PatternMatch matcher(inst_path, pattern);
       InstanceSeq matches;
-      findChildrenMatching(parent, &matcher, matches);
+      network_->findChildrenMatching(parent, &matcher, matches);
       if (has_brkts && matches.empty()) {
 	// Look for matches after escaping brackets.
 	const PatternMatch escaped_brkts(escapeBrackets(inst_path, this),

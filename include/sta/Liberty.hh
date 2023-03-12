@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ enum class DelayModelType { cmos_linear, cmos_pwl, cmos2, table, polynomial, dcm
 enum class ScaleFactorPvt { process, volt, temp, unknown };
 constexpr int scale_factor_pvt_count = int(ScaleFactorPvt::unknown) + 1;
 
-enum class TableTemplateType { delay, power, output_current, ocv };
+enum class TableTemplateType { delay, power, output_current, capacitance, ocv };
 constexpr int table_template_type_count = int(TableTemplateType::ocv) + 1;
 
 enum class LevelShifterType { HL, LH, HL_LH };
@@ -778,6 +778,8 @@ public:
   void setRelatedGroundPin(const char *related_ground_pin);
   const char *relatedPowerPin() const { return related_power_pin_; }
   void setRelatedPowerPin(const char *related_power_pin);
+  ReceiverModelPtr receiverModel() const { return receiver_model_; }
+  void setReceiverModel(ReceiverModelPtr receiver_model);
 
   static bool equiv(const LibertyPort *port1,
 		    const LibertyPort *port2);
@@ -817,6 +819,7 @@ protected:
   const char *related_ground_pin_;
   const char *related_power_pin_;
   Vector<LibertyPort*> corner_ports_;
+  ReceiverModelPtr receiver_model_;
 
   unsigned int min_pulse_width_exists_:RiseFall::index_count;
   bool min_period_exists_:1;
@@ -1089,5 +1092,8 @@ private:
   const char *voltage_name_;
   LibertyCell *cell_;
 };
+
+const char *
+portLibertyToSta(const char *port_name);
 
 } // namespace

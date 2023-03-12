@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -474,13 +474,6 @@ ConcreteNetwork::findLiberty(const char *name)
     }
   }
   return nullptr;
-}
-
-LibertyLibrary *
-ConcreteNetwork::libertyLibrary(Library *library) const
-{
-  ConcreteLibrary *lib = reinterpret_cast<ConcreteLibrary*>(library);
-  return static_cast<LibertyLibrary*>(lib);
 }
 
 Cell *

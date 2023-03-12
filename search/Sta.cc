@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -2412,6 +2412,7 @@ Sta::makeCorners()
 void
 Sta::makeCorners(StringSet *corner_names)
 {
+  sdc_->makeCornersBefore();
   parasitics_->deleteParasitics();
   corners_->makeCorners(corner_names);
   makeParasiticAnalysisPts();
@@ -3704,6 +3705,13 @@ Sta::setPortExtWireCap(const Port *port,
 }
 
 void
+Sta::removeNetLoadCaps() const
+{
+  sdc_->removeNetLoadCaps();
+  graph_delay_calc_->delaysInvalid();
+}
+
+void
 Sta::setPortExtFanout(const Port *port,
 		      int fanout,
                       const Corner *corner,
@@ -3955,10 +3963,8 @@ Sta::findElmore(Pin *drvr_pin,
   Corner *corner = cmd_corner_;
   const ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(min_max);
   Parasitic *pi_elmore = parasitics_->findPiElmore(drvr_pin, rf, ap);
-  if (pi_elmore) {
-    exists = false;
+  if (pi_elmore)
     parasitics_->findElmore(pi_elmore, load_pin, elmore, exists);
-  }
   else
     exists = false;
 }

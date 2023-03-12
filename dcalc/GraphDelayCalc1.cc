@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@ public:
 	       float &pin_cap,
 	       float &wire_cap,
 	       float &fanout,
-	       bool &has_set_load);
+	       bool &has_net_load);
   void findCaps(const GraphDelayCalc1 *dcalc,
 		const Sdc *sdc);
 
@@ -162,7 +162,7 @@ MultiDrvrNet::netCaps(const RiseFall *drvr_rf,
 		      float &pin_cap,
 		      float &wire_cap,
 		      float &fanout,
-		      bool &has_set_load)
+		      bool &has_net_load)
 {
   int index = dcalc_ap->index() * RiseFall::index_count
     + drvr_rf->index();
@@ -170,7 +170,7 @@ MultiDrvrNet::netCaps(const RiseFall *drvr_rf,
   pin_cap = net_caps.pinCap();
   wire_cap = net_caps.wireCap();
   fanout = net_caps.fanout();
-  has_set_load = net_caps.hasSetLoad();
+  has_net_load = net_caps.hasSetLoad();
 }
 
 void
@@ -191,11 +191,11 @@ MultiDrvrNet::findCaps(const GraphDelayCalc1 *dcalc,
       int index = ap_index * RiseFall::index_count + drvr_rf_index;
       NetCaps &net_caps = net_caps_[index];
       float pin_cap, wire_cap, fanout;
-      bool has_set_load;
+      bool has_net_load;
       // Find pin and external pin/wire capacitance.
       sdc->connectedCap(drvr_pin, drvr_rf, op_cond, corner, min_max,
-			pin_cap, wire_cap, fanout, has_set_load);
-      net_caps.init(pin_cap, wire_cap, fanout, has_set_load);
+			pin_cap, wire_cap, fanout, has_net_load);
+      net_caps.init(pin_cap, wire_cap, fanout, has_net_load);
     }
   }
 }
@@ -1077,15 +1077,15 @@ GraphDelayCalc1::loadCap(const Pin *drvr_pin,
 			 const DcalcAnalysisPt *dcalc_ap) const
 {
   float pin_cap, wire_cap;
-  bool has_set_load;
+  bool has_net_load;
   float fanout;
   if (multi_drvr)
     multi_drvr->netCaps(rf, dcalc_ap,
-			pin_cap, wire_cap, fanout, has_set_load);
+			pin_cap, wire_cap, fanout, has_net_load);
   else
     netCaps(drvr_pin, rf, dcalc_ap,
-	    pin_cap, wire_cap, fanout, has_set_load);
-  loadCap(drvr_parasitic, has_set_load, pin_cap, wire_cap);
+	    pin_cap, wire_cap, fanout, has_net_load);
+  loadCap(drvr_parasitic, has_net_load, pin_cap, wire_cap);
   return wire_cap + pin_cap;
 }
 
@@ -1098,23 +1098,23 @@ GraphDelayCalc1::loadCap(const Pin *drvr_pin,
 			 float &pin_cap,
 			 float &wire_cap) const
 {
-  bool has_set_load;
+  bool has_net_load;
   float fanout;
   // Find pin and external pin/wire capacitance.
   netCaps(drvr_pin, rf, dcalc_ap,
-	  pin_cap, wire_cap, fanout, has_set_load);
-  loadCap(drvr_parasitic, has_set_load, pin_cap, wire_cap);
+	  pin_cap, wire_cap, fanout, has_net_load);
+  loadCap(drvr_parasitic, has_net_load, pin_cap, wire_cap);
 }
 
 void
 GraphDelayCalc1::loadCap(Parasitic *drvr_parasitic,
-			 bool has_set_load,
+			 bool has_net_load,
 			 // Return values.
 			 float &pin_cap,
 			 float &wire_cap) const
 {
-  // set_load has precidence over parasitics.
-  if (!has_set_load && drvr_parasitic) {
+  // set_load net has precidence over parasitics.
+  if (!has_net_load && drvr_parasitic) {
     if (parasitics_->isParasiticNetwork(drvr_parasitic))
       wire_cap += parasitics_->capacitance(drvr_parasitic);
     else {
@@ -1138,7 +1138,7 @@ GraphDelayCalc1::netCaps(const Pin *drvr_pin,
 			 float &pin_cap,
 			 float &wire_cap,
 			 float &fanout,
-			 bool &has_set_load) const
+			 bool &has_net_load) const
 {
   MultiDrvrNet *multi_drvr = nullptr;
   if (graph_) {
@@ -1147,14 +1147,14 @@ GraphDelayCalc1::netCaps(const Pin *drvr_pin,
   }
   if (multi_drvr)
     multi_drvr->netCaps(rf, dcalc_ap,
-			pin_cap, wire_cap, fanout, has_set_load);
+			pin_cap, wire_cap, fanout, has_net_load);
   else {
     const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
     const Corner *corner = dcalc_ap->corner();
     const MinMax *min_max = dcalc_ap->constraintMinMax();
     // Find pin and external pin/wire capacitance.
     sdc_->connectedCap(drvr_pin, rf, op_cond, corner, min_max,
-		       pin_cap, wire_cap, fanout, has_set_load);
+		       pin_cap, wire_cap, fanout, has_net_load);
   }
 }
 

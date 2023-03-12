@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2022, Parallax Software, Inc.
+// Copyright (c) 2023, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -299,16 +299,15 @@ class PropActivityVisitor : public VertexVisitor, StaState
 public:
   PropActivityVisitor(Power *power,
 		      BfsFwdIterator *bfs);
-  ~PropActivityVisitor();
   virtual VertexVisitor *copy() const;
   virtual void visit(Vertex *vertex);
-  void init();
-  bool foundRegWithoutActivity() const;
-  InstanceSet *stealVisitedRegs();
+  InstanceSet &visitedRegs() { return visited_regs_; }
 
 private:
-  InstanceSet *visited_regs_;
-  bool found_reg_without_activity_;
+  bool setActivityCheck(const Pin *pin,
+                        PwrActivity &activity);
+
+  InstanceSet visited_regs_;
   Power *power_;
   BfsFwdIterator *bfs_;
 };
@@ -316,15 +315,10 @@ private:
 PropActivityVisitor::PropActivityVisitor(Power *power,
 					 BfsFwdIterator *bfs) :
   StaState(power),
-  visited_regs_(nullptr),
+  visited_regs_(network_),
   power_(power),
   bfs_(bfs)
 {
-}
-
-PropActivityVisitor::~PropActivityVisitor()
-{
-  delete visited_regs_;
 }
 
 VertexVisitor *
@@ -334,43 +328,20 @@ PropActivityVisitor::copy() const
 }
 
 void
-PropActivityVisitor::init()
-{
-  visited_regs_ = new InstanceSet(network_);
-  found_reg_without_activity_ = false;
-}
-
-InstanceSet *
-PropActivityVisitor::stealVisitedRegs()
-{
-  InstanceSet *visited_regs = visited_regs_;
-  visited_regs_ = nullptr;
-  return visited_regs;
-}
-
-bool
-PropActivityVisitor::foundRegWithoutActivity() const
-{
-  return found_reg_without_activity_;
-}
-
-void
 PropActivityVisitor::visit(Vertex *vertex)
 {
   Pin *pin = vertex->pin();
   Instance *inst = network_->instance(pin);
   debugPrint(debug_, "power_activity", 3, "visit %s",
              vertex->name(network_));
-  bool input_without_activity = false;
+  bool changed = false;
   if (power_->hasUserActivity(pin)) {
     PwrActivity &activity = power_->userActivity(pin);
     debugPrint(debug_, "power_activity", 3, "set %s %.2e %.2f",
                vertex->name(network_),
                activity.activity(),
                activity.duty());
-    if (!power_->hasActivity(pin))
-      input_without_activity = true;
-    power_->setActivity(pin, activity);
+    changed = setActivityCheck(pin, activity);
   }
   else {
     if (network_->isLoad(pin)) {
@@ -384,9 +355,7 @@ PropActivityVisitor::visit(Vertex *vertex)
 	  PwrActivity to_activity(from_activity.activity(),
 				  from_activity.duty(),
 				  PwrActivityOrigin::propagated);
-	  if (!power_->hasActivity(pin))
-	    input_without_activity = true;
-	  power_->setActivity(pin, to_activity);
+	  changed = setActivityCheck(pin, to_activity);
 	}
       }
     }
@@ -395,9 +364,8 @@ PropActivityVisitor::visit(Vertex *vertex)
       if (port) {
 	FuncExpr *func = port->function();
 	if (func) {
-	  Instance *inst = network_->instance(pin);
 	  PwrActivity activity = power_->evalActivity(func, inst);
-	  power_->setActivity(pin, activity);
+	  changed = setActivityCheck(pin, activity);
 	  debugPrint(debug_, "power_activity", 3, "set %s %.2e %.2f",
                      vertex->name(network_),
                      activity.activity(),
@@ -414,7 +382,7 @@ PropActivityVisitor::visit(Vertex *vertex)
             PwrActivity activity(activity1.activity() * p2 + activity2.activity() * p1,
                                  p1 * p2,
                                  PwrActivityOrigin::propagated);
-            power_->setActivity(gclk, activity);
+            changed = setActivityCheck(gclk, activity);
             debugPrint(debug_, "power_activity", 3, "gated_clk %s %.2e %.2f",
                        network_->pathName(gclk),
                        activity.activity(),
@@ -424,25 +392,41 @@ PropActivityVisitor::visit(Vertex *vertex)
       }
     }
   }
-  LibertyCell *cell = network_->libertyCell(inst);
-  if (network_->isLoad(pin) && cell) {
-    if (cell->hasSequentials()) {
-      debugPrint(debug_, "power_activity", 3, "pending seq %s",
-                 network_->pathName(inst));
-      visited_regs_->insert(inst);
-      found_reg_without_activity_ |= input_without_activity;
-    }
-    // Gated clock cells latch the enable so there is no EN->GCLK timing arc.
-    if (cell->isClockGate()) {
-      const Pin *enable, *clk, *gclk;
-      power_->clockGatePins(inst, enable, clk, gclk);
-      if (gclk) {
-        Vertex *gclk_vertex = graph_->pinDrvrVertex(gclk);
-        bfs_->enqueue(gclk_vertex);
+  if (changed) {
+    LibertyCell *cell = network_->libertyCell(inst);
+    if (network_->isLoad(pin) && cell) {
+      if (cell->hasSequentials()) {
+        debugPrint(debug_, "power_activity", 3, "pending seq %s",
+                   network_->pathName(inst));
+        visited_regs_.insert(inst);
+      }
+      // Gated clock cells latch the enable so there is no EN->GCLK timing arc.
+      if (cell->isClockGate()) {
+        const Pin *enable, *clk, *gclk;
+        power_->clockGatePins(inst, enable, clk, gclk);
+        if (gclk) {
+          Vertex *gclk_vertex = graph_->pinDrvrVertex(gclk);
+          bfs_->enqueue(gclk_vertex);
+        }
       }
     }
+    bfs_->enqueueAdjacentVertices(vertex);
   }
-  bfs_->enqueueAdjacentVertices(vertex);
+}
+
+// Return true if the activity changed.
+bool
+PropActivityVisitor::setActivityCheck(const Pin *pin,
+                                      PwrActivity &activity)
+{
+  PwrActivity &prev_activity = power_->activity(pin);
+  if (abs(activity.activity() - prev_activity.activity()) > .001
+      || abs(activity.duty() - prev_activity.duty()) > .001) {
+    power_->setActivity(pin, activity);
+    return true;
+  }
+  else
+    return false;
 }
 
 void
@@ -568,24 +552,21 @@ Power::ensureActivities()
       BfsFwdIterator bfs(BfsIndex::other, &activity_srch_pred, this);
       seedActivities(bfs);
       PropActivityVisitor visitor(this, &bfs);
-      visitor.init();
       // Propagate activities through combinational logic.
       bfs.visit(levelize_->maxLevel(), &visitor);
       // Propagate activiities through registers.
-      while (visitor.foundRegWithoutActivity()) {
-	InstanceSet *regs = visitor.stealVisitedRegs();
+      InstanceSet regs = std::move(visitor.visitedRegs());
+      while (!regs.empty()) {
 	InstanceSet::Iterator reg_iter(regs);
 	while (reg_iter.hasNext()) {
 	  const Instance *reg = reg_iter.next();
 	  // Propagate activiities across register D->Q.
 	  seedRegOutputActivities(reg, bfs);
 	}
-	delete regs;
-
-	visitor.init();
 	// Propagate register output activities through
 	// combinational logic.
 	bfs.visit(levelize_->maxLevel(), &visitor);
+        regs = std::move(visitor.visitedRegs());
       }
       activities_valid_ = true;
     }
