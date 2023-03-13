@@ -230,6 +230,10 @@ public:
   void setLinkFunc(LinkNetworkFunc *link) override;
   static ObjectId nextObjectId();
 
+  // Used by external tools.
+  void setTopInstance(Instance *top_inst);
+  void deleteTopInstance();
+
   using Network::netIterator;
   using Network::findPin;
   using Network::findNet;
@@ -240,8 +244,6 @@ public:
   using Network::isLeaf;
 
 protected:
-  void setTopInstance(Instance *top_inst);
-  void deleteTopInstance();
   void addLibrary(ConcreteLibrary *library);
   void setName(const char *name);
   void clearConstantNets();
