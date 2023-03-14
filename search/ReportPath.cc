@@ -253,10 +253,8 @@ ReportPath::setDigits(int digits)
 {
   digits_ = digits;
 
-  if (plus_zero_) {
-    stringDelete(plus_zero_);
-    stringDelete(minus_zero_);
-  }
+  stringDelete(plus_zero_);
+  stringDelete(minus_zero_);
   minus_zero_ = stringPrint("-%.*f", digits_, 0.0);
   plus_zero_  = stringPrint("%.*f", digits_, 0.0);
 }
@@ -3164,11 +3162,16 @@ ReportPath::reportField(float value,
     reportFieldBlank(field, line);
   else {
     Unit *unit = field->unit();
-    const char *value_str = (unit)
-      ? unit->asString(value, digits_)
+    if (unit) {
+      const char *value_str = unit->asString(value, digits_);
+      reportField(value_str, field, line);
+    }
+    else {
       // fanout
-      : stringPrintTmp("%.0f", value);
-    reportField(value_str, field, line);
+      string value_str;
+      stringPrint(value_str, "%.0f", value);
+      reportField(value_str.c_str(), field, line);
+    }
   }
 }
 
