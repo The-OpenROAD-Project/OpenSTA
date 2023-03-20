@@ -2537,7 +2537,7 @@ LibertyReader::beginVector(LibertyGroup *group)
     beginTable(group, TableTemplateType::output_current, 1.0);
     scale_factor_type_ = ScaleFactorType::unknown;
     reference_time_exists_ = false;
-    if (!OutputCurrentWaveform::checkAxes(tbl_template_))
+    if (tbl_template_ && !OutputCurrentWaveform::checkAxes(tbl_template_))
       libWarn(118, group, "unsupported model axis.");
   }
 }
@@ -2551,7 +2551,7 @@ LibertyReader::visitReferenceTime(LibertyAttr *attr)
 void
 LibertyReader::endVector(LibertyGroup *group)
 {
-  if (timing_) {
+  if (timing_ && tbl_template_) {
     FloatSeq *axis_values1 = axis_values_[0];
     FloatSeq *axis_values2 = axis_values_[1];
     if (axis_values1->size() == 1 && axis_values2->size() == 1) {
