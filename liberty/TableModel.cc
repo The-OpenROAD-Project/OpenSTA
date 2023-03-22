@@ -26,6 +26,10 @@
 namespace sta {
 
 using std::string;
+using std::min;
+using std::max;
+using std::abs;
+using std::make_shared;
 
 static void
 deleteSigmaModels(TableModel *models[EarlyLate::index_count]);
@@ -43,15 +47,19 @@ GateTableModel::GateTableModel(TableModel *delay_model,
 			       TableModel *slew_model,
 			       TableModel *slew_sigma_models[EarlyLate::index_count],
                                ReceiverModelPtr receiver_model,
-                               OutputCurrent *output_current) :
+                               OutputWaveforms *output_waveforms) :
   delay_model_(delay_model),
   slew_model_(slew_model),
   receiver_model_(receiver_model),
-  output_current_(output_current)
+  output_waveforms_(output_waveforms)
 {
   for (auto el_index : EarlyLate::rangeIndex()) {
-    slew_sigma_models_[el_index] = slew_sigma_models ? slew_sigma_models[el_index] : nullptr;
-    delay_sigma_models_[el_index] = delay_sigma_models ? delay_sigma_models[el_index] : nullptr;
+    slew_sigma_models_[el_index] = slew_sigma_models
+      ? slew_sigma_models[el_index]
+      : nullptr;
+    delay_sigma_models_[el_index] = delay_sigma_models
+      ? delay_sigma_models[el_index]
+      : nullptr;
   }
 }
 
@@ -59,7 +67,7 @@ GateTableModel::~GateTableModel()
 {
   delete delay_model_;
   delete slew_model_;
-  delete output_current_;
+  delete output_waveforms_;
   deleteSigmaModels(slew_sigma_models_);
   deleteSigmaModels(delay_sigma_models_);
 }
@@ -165,8 +173,6 @@ GateTableModel::reportGateDelay(const LibertyCell *cell,
 			      load_cap, related_out_cap);
   if (drvr_slew < 0.0)
     *result += "Negative slew clipped to 0.0\n";
-  if (output_current_)
-    output_current_->reportWaveform(cell, pvt, in_slew, load_cap, digits, result);
 }
 
 void
@@ -801,6 +807,13 @@ Table0::report(const Units *units,
 
 ////////////////////////////////////////////////////////////////
 
+Table1::Table1() :
+  Table(),
+  values_(nullptr),
+  axis1_(nullptr)
+{
+}
+
 Table1::Table1(FloatSeq *values,
 	       TableAxisPtr axis1) :
   Table(),
@@ -809,9 +822,28 @@ Table1::Table1(FloatSeq *values,
 {
 }
 
+Table1::Table1(Table1 &&table) :
+  Table(),
+  values_(table.values_),
+  axis1_(table.axis1_)
+{
+  table.values_ = nullptr;
+  table.axis1_ = nullptr;
+}
+
 Table1::~Table1()
 {
   delete values_;
+}
+
+Table1 &
+Table1::operator=(Table1 &&table)
+{
+  values_ = table.values_;
+  axis1_ = table.axis1_;
+  table.values_ = nullptr;
+  table.axis1_ = nullptr;
+  return *this;
 }
 
 float
@@ -833,6 +865,19 @@ Table1::findValue(float value1,
 		  float,
 		  float) const
 {
+  return findValue(value1);
+}
+
+float
+Table1::findValue(float value1) const
+{
+  return findValue(value1, true);
+}
+
+float
+Table1::findValue(float value1,
+                  bool extrapolate) const
+{
   if (axis1_->size() == 1)
     return value(value1);
   else {
@@ -843,7 +888,12 @@ Table1::findValue(float value1,
     float y1 = value(index1);
     float y2 = value(index1 + 1);
     float dx1 = (x1 - x1l) / (x1u - x1l);
-    return (1 - dx1) * y1 + dx1 * y2;
+    if (x1 <= x1l && !extrapolate)
+      return y1;
+    else if (x1 >= x1u && !extrapolate)
+      return y2;
+    else
+      return (1 - dx1) * y1 + dx1 * y2;
   }
 }
 
@@ -1514,26 +1564,67 @@ tableVariableUnit(TableAxisVariable variable,
 
 ////////////////////////////////////////////////////////////////
 
-OutputCurrentWaveform::OutputCurrentWaveform(float axis_value1,
-                                             float axis_value2,
-                                             TableAxisPtr axis,
-                                             Table1 *currents,
-                                             float reference_time) :
-  axis_value1_(axis_value1),
-  axis_value2_(axis_value2),
-  axis_(axis),
+OutputWaveform::OutputWaveform(float slew,
+                               float cap,
+                               Table1 *currents,
+                               float reference_time) :
+  slew_(slew),
+  cap_(cap),
   currents_(currents),
+  voltages_(nullptr),
   reference_time_(reference_time)
 {
 }
 
-OutputCurrentWaveform::~OutputCurrentWaveform()
+OutputWaveform::OutputWaveform(float slew,
+                               float cap,
+                               Table1 *currents,
+                               Table1 *voltages,
+                               float reference_time) :
+  slew_(slew),
+  cap_(cap),
+  currents_(currents),
+  voltages_(voltages),
+  reference_time_(reference_time)
+{
+}
+
+OutputWaveform::~OutputWaveform()
 {
   delete currents_;
+  delete voltages_;
+}
+
+Table1 *
+OutputWaveform::voltages()
+{
+  if (voltages_ == nullptr) {
+    FloatSeq *voltages = new FloatSeq;
+    voltages_ = new Table1(voltages, currents_->axis1());
+
+    // i = C dv/dt 
+    // Integrate current waveform to find voltage waveform.
+    TableAxisPtr time_axis = currents_->axis1();
+    float prev_time = time_axis->axisValue(0);
+    float prev_current = currents_->value(0);
+    float voltage = 0.0;
+    voltages->push_back(voltage);
+    bool invert = currents_->value(time_axis->size() - 1) < 0.0;
+    for (size_t i = 1; i < time_axis->size(); i++) {
+      float time = time_axis->axisValue(i);
+      float current = currents_->value(i);
+      float dv = (current + prev_current) / 2.0 * (time - prev_time) / cap_;
+      voltage += invert ? -dv : dv;
+      voltages->push_back(voltage);
+      prev_time = time;
+      prev_current = current;
+    }
+  }
+  return voltages_;
 }
 
 bool
-OutputCurrentWaveform::checkAxes(TableTemplate *tbl_template)
+OutputWaveform::checkAxes(TableTemplate *tbl_template)
 {
   TableAxisPtr axis1 = tbl_template->axis1();
   TableAxisPtr axis2 = tbl_template->axis2();
@@ -1549,83 +1640,181 @@ OutputCurrentWaveform::checkAxes(TableTemplate *tbl_template)
           && axis3->variable() == TableAxisVariable::time);
 }
 
-void
-OutputCurrentWaveform::reportWaveform(const Units *units,
-                                      int digits,
-                                      string *result)
+string
+OutputWaveform::reportCurrentWaveform(const Units *units,
+                                      int digits) const
 {
+  TableAxisPtr time_axis = currents_->axis1();
   const Unit *time_unit = units->timeUnit();
   const Unit *current_unit = units->currentUnit();
-  for (size_t i = 0; i < axis_->values()->size(); i++) {
-    *result += time_unit->asString(axis_->axisValue(i), digits);
-    *result += " ";
+  return reportWaveform(currents_, time_unit, current_unit, digits);
+}
+
+string
+OutputWaveform::reportVoltageWaveform(const Units *units,
+                                      int digits) const
+{
+  TableAxisPtr time_axis = voltages_->axis1();
+  const Unit *time_unit = units->timeUnit();
+  const Unit *voltage_unit = units->voltageUnit();
+  return reportWaveform(voltages_, time_unit, voltage_unit, digits);
+}
+
+string
+OutputWaveform::reportWaveform(const Table1 *waveform,
+                               const Unit *time_unit,
+                               const Unit *waveform_unit,
+                               int digits) const
+{
+  string result;
+  TableAxisPtr time_axis = waveform->axis1();
+  for (size_t i = 0; i < time_axis->values()->size(); i++) {
+    float time = time_axis->axisValue(i);
+    result += time_unit->asString(time, digits);
+    result += " ";
   }
-  *result += '\n';
-  for (size_t i = 0; i < currents_->axis1()->size(); i++) {
-    *result += current_unit->asString(currents_->value(i), digits);
-    *result += " ";
+  result += '\n';
+
+  for (size_t i = 0; i < time_axis->size(); i++) {
+    float value = waveform->value(i);
+    result += waveform_unit->asString(value, digits);
+    result += " ";
   }
-  *result += '\n';
+  return result;
 }
 
 ////////////////////////////////////////////////////////////////
 
-OutputCurrent::OutputCurrent(TableAxisPtr axis1,
-                             TableAxisPtr axis2,
-                             OutputCurrentWaveformSeq &waveforms) :
-  axis1_(axis1),
-  axis2_(axis2),
+OutputWaveforms::OutputWaveforms(TableAxisPtr slew_axis,
+                                 TableAxisPtr cap_axis,
+                                 OutputWaveformSeq &waveforms) :
+  slew_axis_(slew_axis),
+  cap_axis_(cap_axis),
   waveforms_(waveforms)
 {
 }
 
-OutputCurrent::~OutputCurrent()
+OutputWaveforms::~OutputWaveforms()
 {
   waveforms_.deleteContents();
 }
 
-void
-OutputCurrent::reportWaveform(const LibertyCell *cell,
-                              const Pvt *,
-                              float in_slew,
-                              float load_cap,
-                              int digits,
-                              string *result) const
+OutputWaveform
+OutputWaveforms::voltageWaveform(float slew,
+                                 float cap)
 {
-  float axis_value1, axis_value2;
-  findAxisValues(in_slew, load_cap,
-                 axis_value1, axis_value2);
-  size_t index1 = axis1_->findAxisIndex(axis_value1);
-  size_t index2 = axis2_->findAxisIndex(axis_value2);
-  size_t index = index1 * axis2_->size() + index2;
-  waveforms_[index]->reportWaveform(cell->libertyLibrary()->units(), digits, result);
-}
+  size_t slew_index = slew_axis_->findAxisIndex(slew);
+  size_t cap_index = cap_axis_->findAxisIndex(cap);
+  size_t wave_index00 = slew_index * cap_axis_->size() + cap_index;
+  size_t wave_index01 = slew_index * cap_axis_->size() + (cap_index + 1);
+  size_t wave_index10 = (slew_index + 1) * cap_axis_->size() + cap_index;
+  size_t wave_index11 = (slew_index + 1) * cap_axis_->size() + (cap_index + 1);
+  OutputWaveform *waveform00 = waveforms_[wave_index00];
+  OutputWaveform *waveform01 = waveforms_[wave_index01];
+  OutputWaveform *waveform10 = waveforms_[wave_index10];
+  OutputWaveform *waveform11 = waveforms_[wave_index11];
+  const Table1 *voltages00 = waveform00->voltages();
+  const Table1 *voltages01 = waveform01->voltages();
+  const Table1 *voltages10 = waveform10->voltages();
+  const Table1 *voltages11 = waveform11->voltages();
+  TableAxisPtr time_axis00 = voltages00->axis1();
+  TableAxisPtr time_axis01 = voltages01->axis1();
+  TableAxisPtr time_axis10 = voltages10->axis1();
+  TableAxisPtr time_axis11 = voltages11->axis1();
 
-void
-OutputCurrent::findAxisValues(float in_slew,
-                              float load_cap,
-                              // Return values.
-                              float &axis_value1,
-                              float &axis_value2) const
-{
-  axis_value1 = axisValue(axis1_, in_slew, load_cap);
-  axis_value2 = axisValue(axis2_, in_slew, load_cap);
-}
+  // Find time axis min/max.
+  size_t time_step_count = 20;
+  float time_min = time_axis00->min();
+  time_min = min(time_min, time_axis01->min());
+  time_min = min(time_min, time_axis10->min());
+  time_min = min(time_min, time_axis11->min());
+  float time_max = time_axis00->max();
+  time_max = max(time_max, time_axis01->max());
+  time_max = max(time_max, time_axis10->max());
+  time_max = max(time_max, time_axis11->max());
+  float time_step = (time_max - time_min) / time_step_count;
+  FloatSeq *time_values = new FloatSeq;
+  TableAxisPtr time_axis = make_shared<TableAxis>(time_axis00->variable(),
+                                                  time_values);
 
-float
-OutputCurrent::axisValue(TableAxisPtr axis,
-                         float in_slew,
-                         float load_cap) const
-{
-  TableAxisVariable var = axis->variable();
-  if (var == TableAxisVariable::input_net_transition)
-    return in_slew;
-  else if (var == TableAxisVariable::total_output_net_capacitance)
-    return load_cap;
-  else {
-    criticalError(240, "unsupported table axes");
-    return 0.0;
+  // Interpolate waveform samples at time steps.
+  float volt_max = voltages00->value(voltages00->values()->size() - 1);
+  size_t index1 = slew_index;
+  size_t index2 = cap_index;
+  float x1 = slew;
+  float x2 = cap;
+  float x1l = slew_axis_->axisValue(index1);
+  float x1u = slew_axis_->axisValue(index1 + 1);
+  float dx1 = (x1 - x1l) / (x1u - x1l);
+  float x2l = cap_axis_->axisValue(index2);
+  float x2u = cap_axis_->axisValue(index2 + 1);
+  float dx2 = (x2 - x2l) / (x2u - x2l);
+  FloatSeq *voltages = new FloatSeq;
+  bool waveform_started = false;
+  float prev_volt = 0.0;
+  constexpr float volt_tol = .01;
+  float volt_end = volt_max * (1.0 - volt_tol);
+  for (size_t i = 0; i <= time_step_count; i++) {
+    float time = time_min + time_step * i;
+    float y00 = voltages00->findValue(time, true);
+    float y10 = voltages10->findValue(time, true);
+    float y11 = voltages11->findValue(time, true);
+    float y01 = voltages01->findValue(time, true);
+    float voltage
+      = (1 - dx1) * (1 - dx2) * y00
+      +      dx1  * (1 - dx2) * y10
+      +      dx1  *      dx2  * y11
+      + (1 - dx1) *      dx2  * y01;
+    if (voltage > volt_tol)
+      waveform_started = true;
+    if (waveform_started) {
+      time_values->push_back(time);
+      voltages->push_back(voltage);
+    }
+    if (prev_volt > volt_end)
+      break;
+    prev_volt = voltage;
   }
+
+  // Interpolate reference time.
+  // (only depends on slew)
+  float ref_time
+    = (1 - dx1) * waveform00->referenceTime()
+    +      dx1  * waveform10->referenceTime();
+
+  Table1 *waveform = new Table1(voltages, time_axis);
+  return OutputWaveform(slew, cap, nullptr, waveform, ref_time);
+}
+
+////////////////////////////////////////////////////////////////
+
+DriverWaveform::DriverWaveform(const char *name,
+                               TablePtr waveforms) :
+  name_(name),
+  waveforms_(waveforms)
+{
+}
+
+DriverWaveform::~DriverWaveform()
+{
+  stringDelete(name_);
+}
+
+Table1
+DriverWaveform::waveform(float slew)
+{
+  TableAxisPtr volt_axis = waveforms_->axis2();
+  FloatSeq *time_values = new FloatSeq;
+  FloatSeq *volt_values = new FloatSeq;
+  for (float volt : *volt_axis->values()) {
+    float time = waveforms_->findValue(slew, volt, 0.0);
+    time_values->push_back(time);
+    volt_values->push_back(volt);
+  }
+  TableAxisPtr time_axis = make_shared<TableAxis>(TableAxisVariable::time,
+                                                  time_values);
+  Table1 waveform(volt_values, time_axis);
+  return waveform;
 }
 
 } // namespace

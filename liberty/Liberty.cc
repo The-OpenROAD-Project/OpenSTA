@@ -82,7 +82,8 @@ LibertyLibrary::LibertyLibrary(const char *name,
   default_operating_conditions_(nullptr),
   ocv_arc_depth_(0.0),
   default_ocv_derate_(nullptr),
-  buffers_(nullptr)
+  buffers_(nullptr),
+  driver_waveform_default_(nullptr)
 {
   // Scalar templates are builtin.
   for (int i = 0; i != table_template_type_count; i++) {
@@ -858,6 +859,23 @@ bool
 LibertyLibrary::supplyExists(const char *supply_name) const
 {
   return supply_voltage_map_.hasKey(supply_name);
+}
+
+DriverWaveform *
+LibertyLibrary::findDriverWaveform(const char *name)
+{
+  return driver_waveform_map_[name];
+}
+
+void
+LibertyLibrary::addDriverWaveform(DriverWaveform *driver_waveform)
+{
+  if (driver_waveform->name())
+    driver_waveform_map_[driver_waveform->name()] = driver_waveform;
+  else {
+    delete driver_waveform_default_;
+    driver_waveform_default_ = driver_waveform;
+  }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1920,6 +1938,7 @@ LibertyPort::LibertyPort(LibertyCell *cell,
   related_ground_pin_(nullptr),
   related_power_pin_(nullptr),
   receiver_model_(nullptr),
+  driver_waveform_{nullptr, nullptr},
   min_pulse_width_exists_(false),
   min_period_exists_(false),
   is_clk_(false),
@@ -2517,6 +2536,19 @@ portLibertyToSta(const char *port_name)
   }
   *p++ = '\0';
   return sta_name;
+}
+
+DriverWaveform *
+LibertyPort::driverWaveform(const RiseFall *rf) const
+{
+  return driver_waveform_[rf->index()];
+}
+
+void
+LibertyPort::setDriverWaveform(DriverWaveform *driver_waveform,
+                               const RiseFall *rf)
+{
+  driver_waveform_[rf->index()] = driver_waveform;
 }
 
 ////////////////////////////////////////////////////////////////

@@ -81,7 +81,7 @@ private:
   void writeHeader();
   void writeStageInstances();
   void writeInputSource();
-  void writeStepVoltSource(const Pin *pin,
+  void writeRampVoltSource(const Pin *pin,
 			   const RiseFall *rf,
 			   float slew,
 			   float time,
@@ -137,6 +137,11 @@ private:
   void writeWaveformEdge(const RiseFall *rf,
 			 float time,
 			 float slew);
+  void writeWaveformVoltSource(const Pin *pin,
+                               DriverWaveform *drvr_waveform,
+                               const RiseFall *rf,
+                               float slew,
+                               int &volt_index);
   void writeClkedStepSource(const Pin *pin,
 			    const RiseFall *rf,
 			    const Clock *clk,
@@ -164,6 +169,7 @@ private:
 			  int &volt_index);
   float slewAxisMinValue(TimingArc *arc);
   float pgPortVoltage(LibertyPgPort *pg_port);
+  void writePrintStmt();
 
   // Stage "accessors".
   //
@@ -323,6 +329,7 @@ WritePathSpice::writeSpice()
     // Find subckt port names as a side-effect of writeSubckts.
     writeSubckts();
     writeHeader();
+    writePrintStmt();
     writeStageInstances();
     writeMeasureStmts();
     writeInputSource();
@@ -369,6 +376,18 @@ WritePathSpice::writeHeader()
   float time_step = max_time / 1e+3;
   streamPrint(spice_stream_, ".tran %.3g %.3g\n\n",
 	      time_step, max_time);
+  streamPrint(spice_stream_, ".options nomod\n");
+}
+
+void
+WritePathSpice::writePrintStmt()
+{
+  streamPrint(spice_stream_, ".print tran");
+  for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
+    streamPrint(spice_stream_, " v(%s)", stageDrvrPinName(stage));
+    streamPrint(spice_stream_, " v(%s)", stageLoadPinName(stage));
+  }
+  streamPrint(spice_stream_, "\n\n");
 }
 
 float
@@ -477,11 +496,55 @@ WritePathSpice::writeInputWaveform()
   float time0 = slew0;
   int volt_index = 1;
   const Pin *drvr_pin = stageDrvrPin(input_stage);
-  writeStepVoltSource(drvr_pin, rf, slew0, time0, volt_index);
+  const Pin *load_pin = stageLoadPin(input_stage);
+  const LibertyPort *load_port = network_->libertyPort(load_pin);
+  DriverWaveform *drvr_waveform = nullptr;
+  if (load_port)
+    drvr_waveform = load_port->driverWaveform(rf);
+  if (drvr_waveform)
+    writeWaveformVoltSource(drvr_pin, drvr_waveform,
+                            rf, slew0, volt_index);
+  else
+    writeRampVoltSource(drvr_pin, rf, slew0, time0, volt_index);
 }
 
 void
-WritePathSpice::writeStepVoltSource(const Pin *pin,
+WritePathSpice::writeWaveformVoltSource(const Pin *pin,
+                                        DriverWaveform *drvr_waveform,
+                                        const RiseFall *rf,
+                                        float slew,
+                                        int &volt_index)
+{
+  float volt0, volt1, volt_factor;
+  if (rf == RiseFall::rise()) {
+    volt0 = gnd_voltage_;
+    volt1 = power_voltage_;
+    volt_factor = power_voltage_;
+  }
+  else {
+    volt0 = power_voltage_;
+    volt1 = gnd_voltage_;
+    volt_factor = -power_voltage_;
+  }
+  streamPrint(spice_stream_, "v%d %s 0 pwl(\n",
+	      volt_index,
+	      network_->pathName(pin));
+  streamPrint(spice_stream_, "+%.3e %.3e\n", 0.0, volt0);
+  Table1 waveform = drvr_waveform->waveform(slew);
+  TableAxisPtr time_axis = waveform.axis1();
+  for (size_t time_index = 0; time_index <  time_axis->size(); time_index++) {
+    float time = time_axis->axisValue(time_index);
+    float wave_volt = waveform.value(time_index);
+    float volt = volt0 + wave_volt * volt_factor;
+    streamPrint(spice_stream_, "+%.3e %.3e\n", time, volt);
+  }
+  streamPrint(spice_stream_, "+%.3e %.3e\n", maxTime(), volt1);
+  streamPrint(spice_stream_, "+)\n");
+  volt_index++;
+}
+
+void
+WritePathSpice::writeRampVoltSource(const Pin *pin,
 				    const RiseFall *rf,
 				    float slew,
 				    float time,
@@ -942,7 +1005,7 @@ WritePathSpice::writeClkedStepSource(const Pin *pin,
   Vertex *vertex = graph_->pinLoadVertex(pin);
   float slew = findSlew(vertex, rf, nullptr, dcalc_ap_index);
   float time = clkWaveformTImeOffset(clk) + clk->period() / 2.0;
-  writeStepVoltSource(pin, rf, slew, time, volt_index);
+  writeRampVoltSource(pin, rf, slew, time, volt_index);
 }
 
 void

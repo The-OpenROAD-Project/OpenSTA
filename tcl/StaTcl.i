@@ -49,6 +49,7 @@
 #include "Transition.hh"
 #include "TimingRole.hh"
 #include "TimingArc.hh"
+#include "TableModel.hh"
 #include "Liberty.hh"
 #include "LibertyWriter.hh"
 #include "EquivCells.hh"
@@ -567,13 +568,13 @@ using namespace sta;
 %typemap(in) RiseFall* {
   int length;
   const char *arg = Tcl_GetStringFromObj($input, &length);
-  RiseFall *tr = RiseFall::find(arg);
-  if (tr == nullptr) {
-    Tcl_SetResult(interp,const_cast<char*>("Error: unknown transition name."),
+  RiseFall *rf = RiseFall::find(arg);
+  if (rf == nullptr) {
+    Tcl_SetResult(interp,const_cast<char*>("Error: unknown rise/fall edge."),
 		  TCL_STATIC);
     return TCL_ERROR;
   }
-  $1 = tr;
+  $1 = rf;
 }
 
 %typemap(out) RiseFall* {
@@ -873,6 +874,44 @@ using namespace sta;
     }
   }
   $1 = ints;
+}
+
+%typemap(out) Table1 {
+  Table1 &table = $1;
+  Tcl_Obj *list3 = Tcl_NewListObj(0, nullptr);
+  Tcl_Obj *list1 = Tcl_NewListObj(0, nullptr);
+  for (float f : *table.axis1()->values()) {
+    Tcl_Obj *obj = Tcl_NewDoubleObj(f);
+    Tcl_ListObjAppendElement(interp, list1, obj);
+  }
+  Tcl_Obj *list2 = Tcl_NewListObj(0, nullptr);
+  for (float f : *table.values()) {
+    Tcl_Obj *obj = Tcl_NewDoubleObj(f);
+    Tcl_ListObjAppendElement(interp, list2, obj);
+  }
+  Tcl_ListObjAppendElement(interp, list3, list1);
+  Tcl_ListObjAppendElement(interp, list3, list2);
+  Tcl_SetObjResult(interp, list3);
+}
+
+%typemap(out) Table1* {
+  Table1 *table = $1;
+  Tcl_Obj *list3 = Tcl_NewListObj(0, nullptr);
+  if (table) {
+    Tcl_Obj *list1 = Tcl_NewListObj(0, nullptr);
+    for (float f : *table->axis1()->values()) {
+      Tcl_Obj *obj = Tcl_NewDoubleObj(f);
+      Tcl_ListObjAppendElement(interp, list1, obj);
+    }
+    Tcl_Obj *list2 = Tcl_NewListObj(0, nullptr);
+    for (float f : *table->values()) {
+      Tcl_Obj *obj = Tcl_NewDoubleObj(f);
+      Tcl_ListObjAppendElement(interp, list2, obj);
+    }
+    Tcl_ListObjAppendElement(interp, list3, list1);
+    Tcl_ListObjAppendElement(interp, list3, list2);
+  }
+  Tcl_SetObjResult(interp, list3);
 }
 
 %typemap(in) MinMax* {
@@ -4586,17 +4625,6 @@ find_clk_min_period(const Clock *clk,
   return sta->findClkMinPeriod(clk, ignore_port_paths);
 }
 
-TmpString *
-report_delay_calc_cmd(Edge *edge,
-		      TimingArc *arc,
-		      const Corner *corner,
-		      const MinMax *min_max,
-		      int digits)
-{
-  cmdLinkedNetwork();
-  return Sta::sta()->reportDelayCalc(edge, arc, corner, min_max, digits);
-}
-
 ////////////////////////////////////////////////////////////////
 
 PinSeq
@@ -5601,6 +5629,9 @@ full_name()
 			to);
 }
 
+TimingArcSeq &
+timing_arcs() { return self->arcs(); }
+
 } // TimingArcSet methods
 
 %extend TimingArc {
@@ -5611,6 +5642,24 @@ const char *from_edge_name() { return self->fromEdge()->asRiseFall()->name(); }
 Transition *to_edge() { return self->toEdge(); }
 const char *to_edge_name() { return self->toEdge()->asRiseFall()->name(); }
 TimingRole *role() { return self->role(); }
+
+Table1
+voltage_waveform(float in_slew,
+                 float load_cap)
+{
+  GateTableModel *gate_model = dynamic_cast<GateTableModel*>(self->model());
+  if (gate_model) {
+    OutputWaveforms *output_waveforms = gate_model->outputWaveforms();
+    if (output_waveforms) {
+      OutputWaveform voltage_waveform =
+        output_waveforms->voltageWaveform(in_slew, load_cap);
+      Table1 voltages(std::move(*voltage_waveform.voltages()));
+      return voltages;
+    }
+  }
+  return Table1();
+}
+
 } // TimingArc methods
 
 %extend Instance {

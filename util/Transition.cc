@@ -56,11 +56,13 @@ RiseFall::opposite() const
 }
 
 RiseFall *
-RiseFall::find(const char *tr_str)
+RiseFall::find(const char *rf_str)
 {
-  if (stringEq(tr_str, rise_.name()))
+  if (stringEq(rf_str, rise_.name())
+      || stringEq(rf_str, rise_.shortName()))
     return &rise_;
-  else if (stringEq(tr_str, fall_.name()))
+  else if (stringEq(rf_str, fall_.name())
+           || stringEq(rf_str, fall_.shortName()))
     return &fall_;
   else
     return nullptr;

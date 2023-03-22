@@ -33,12 +33,12 @@ class Unit;
 class Units;
 class Report;
 class Table;
-class OutputCurrent;
-class OutputCurrentWaveform;
+class OutputWaveforms;
+class OutputWaveform;
 
 typedef Vector<float> FloatSeq;
 typedef Vector<FloatSeq*> FloatTable;
-typedef Vector<OutputCurrentWaveform*> OutputCurrentWaveformSeq;
+typedef Vector<OutputWaveform*> OutputWaveformSeq;
 
 TableAxisVariable
 stringTableAxisVariable(const char *variable);
@@ -56,7 +56,7 @@ public:
 		 TableModel *slew_model,
 		 TableModel *slew_sigma_models[EarlyLate::index_count],
                  ReceiverModelPtr receiver_model,
-                 OutputCurrent *output_current);
+                 OutputWaveforms *output_waveforms);
   virtual ~GateTableModel();
   virtual void gateDelay(const LibertyCell *cell,
 			 const Pvt *pvt,
@@ -80,6 +80,8 @@ public:
 
   const TableModel *delayModel() const { return delay_model_; }
   const TableModel *slewModel() const { return slew_model_;  }
+  ReceiverModelPtr receiverModel() const { return receiver_model_; }
+  OutputWaveforms *outputWaveforms() const { return output_waveforms_; }
   // Check the axes before making the model.
   // Return true if the model axes are supported.
   static bool checkAxes(const TablePtr table);
@@ -127,7 +129,7 @@ protected:
   TableModel *slew_model_;
   TableModel *slew_sigma_models_[EarlyLate::index_count];
   ReceiverModelPtr receiver_model_;
-  OutputCurrent *output_current_;
+  OutputWaveforms *output_waveforms_;
 };
 
 class CheckTableModel : public CheckTimingModel
@@ -333,15 +335,21 @@ private:
 class Table1 : public Table
 {
 public:
+  Table1();
   Table1(FloatSeq *values,
 	 TableAxisPtr axis1);
   virtual ~Table1();
+  Table1(Table1 &&table);
+  Table1 &operator= (Table1 &&table);
   virtual int order() const { return 1; }
   virtual TableAxisPtr axis1() const { return axis1_; }
   virtual float value(size_t index1,
                       size_t index2,
                       size_t index3) const;
   float value(size_t index1) const;
+  float findValue(float value1) const;
+  float findValue(float value1,
+                  bool extrapolate) const;
   virtual float findValue(float value1,
 			  float value2,
 			  float value3) const;
@@ -358,6 +366,7 @@ public:
 			   string *result) const;
   virtual void report(const Units *units,
 		      Report *report) const;
+  FloatSeq *values() const { return values_; }
   using Table::findValue;
 
 private:
@@ -462,6 +471,8 @@ public:
                      size_t &index,
                      bool &exists) const;
   FloatSeq *values() const { return values_; }
+  float min() const { return (*values_)[0]; }
+  float max() const { return (*values_)[values_->size() - 1]; }
 
 private:
   TableAxisVariable variable_;
@@ -484,63 +495,74 @@ private:
   TableModel *capacitance_models_[2][RiseFall::index_count];
 };
 
-class OutputCurrentWaveform
+class OutputWaveform
 {
 public:
-  OutputCurrentWaveform(float axis_value1,
-                        float axis_value2,
-                        TableAxisPtr axis,
-                        Table1 *currents,
-                        float reference_time);
-  ~OutputCurrentWaveform();
-  float axisValue1() const { return axis_value1_; }
-  float axisValue2() const { return axis_value2_; }
-  TableAxisPtr axis() const { return axis_; }
+  OutputWaveform(float axis_value1,
+                 float axis_value2,
+                 Table1 *currents,
+                 float reference_time);
+  OutputWaveform(float slew,
+                 float cap,
+                 Table1 *currents,
+                 Table1 *voltages,
+                 float reference_time);
+  ~OutputWaveform();
+  float slew() const { return slew_; }
+  float cap() const { return cap_; }
+  TableAxisPtr timeAxis() const { return currents_->axis1(); }
   Table1 *currents() const { return currents_; }
+  Table1 *voltages();
   float referenceTime() const { return reference_time_; }
-  void reportWaveform(const Units *units,
-                      int digits,
-                      string *result);
   static bool checkAxes(TableTemplate *tbl_template);
+  string reportCurrentWaveform(const Units *units,
+                               int digits) const;
+  string reportVoltageWaveform(const Units *units,
+                               int digits) const;
+  string reportWaveform(const Table1 *waveform,
+                        const Unit *time_unit,
+                        const Unit *waveform_unit,
+                        int digits) const;
   
 private:
-  float axis_value1_;
-  float axis_value2_;
-  TableAxisPtr axis_;
+  float slew_;
+  float cap_;
   Table1 *currents_;
+  Table1 *voltages_;
   float reference_time_;
 };
 
-// Two dimensional table of one dimensional time/current tables.
-class OutputCurrent
+// Two dimensional (slew/cap) table of one dimensional time/current tables.
+class OutputWaveforms
 {
 public:
-  OutputCurrent(TableAxisPtr axis1,
-                TableAxisPtr axis2,
-                Vector<OutputCurrentWaveform*> &waveforms);
-  ~OutputCurrent();
-  void reportWaveform(const LibertyCell *cell,
-                      const Pvt *pvt,
-                      float in_slew,
-                      float load_cap,
-                      int digits,
-                      string *result) const;
+  OutputWaveforms(TableAxisPtr slew_axis,
+                  TableAxisPtr cap_axis,
+                  Vector<OutputWaveform*> &waveforms);
+  ~OutputWaveforms();
+  OutputWaveform voltageWaveform(float in_slew,
+                                        float load_cap);
 
 private:
-  void findAxisValues(float in_slew,
-                      float load_cap,
-                      // Return values.
-                      float &axis_value1,
-                      float &axis_value2) const;
-  float axisValue(TableAxisPtr axis,
-                  float in_slew,
-                  float load_cap) const;
-
   // Row.
-  TableAxisPtr axis1_;
+  TableAxisPtr slew_axis_;
   // Column.
-  TableAxisPtr axis2_;
-  OutputCurrentWaveformSeq waveforms_;
+  TableAxisPtr cap_axis_;
+  OutputWaveformSeq waveforms_;
+};
+
+class DriverWaveform
+{
+public:
+  DriverWaveform(const char *name,
+                 TablePtr waveforms);
+  ~DriverWaveform();
+  const char *name() const { return name_; }
+  Table1 waveform(float slew);
+
+private:
+  const char *name_;
+  TablePtr waveforms_;
 };
 
 } // namespace

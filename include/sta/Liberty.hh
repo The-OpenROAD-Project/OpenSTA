@@ -49,6 +49,7 @@ class StaState;
 class Corner;
 class Corners;
 class DcalcAnalysisPt;
+class DriverWaveform;
 
 typedef Map<const char*, TableTemplate*, CharPtrLess> TableTemplateMap;
 typedef Vector<TableTemplate*> TableTemplateSeq;
@@ -77,6 +78,7 @@ typedef Map<const char *, OcvDerate*, CharPtrLess> OcvDerateMap;
 typedef Vector<InternalPowerAttrs*> InternalPowerAttrsSeq;
 typedef Map<const char *, float, CharPtrLess> SupplyVoltageMap;
 typedef Map<const char *, LibertyPgPort*, CharPtrLess> LibertyPgPortMap;
+typedef Map<const char *, DriverWaveform*, CharPtrLess> DriverWaveformMap;
 
 enum class ClockGateType { none, latch_posedge, latch_negedge, other };
 
@@ -315,6 +317,10 @@ public:
                Corners *corners,
                Report *report);
 
+  DriverWaveform *findDriverWaveform(const char *name);
+  DriverWaveform *driverWaveformDefault() { return driver_waveform_default_; }
+  void addDriverWaveform(DriverWaveform *driver_waveform);
+
 protected:
   float degradeWireSlew(const LibertyCell *cell,
 			const Pvt *pvt,
@@ -363,6 +369,9 @@ protected:
   OcvDerateMap ocv_derate_map_;
   SupplyVoltageMap supply_voltage_map_;
   LibertyCellSeq *buffers_;
+  DriverWaveformMap driver_waveform_map_;
+  // Unnamed driver waveform.
+  DriverWaveform *driver_waveform_default_;
 
   static constexpr float input_threshold_default_ = .5;
   static constexpr float output_threshold_default_ = .5;
@@ -780,6 +789,9 @@ public:
   void setRelatedPowerPin(const char *related_power_pin);
   ReceiverModelPtr receiverModel() const { return receiver_model_; }
   void setReceiverModel(ReceiverModelPtr receiver_model);
+  DriverWaveform *driverWaveform(const RiseFall *rf) const;
+  void setDriverWaveform(DriverWaveform *driver_waveform,
+                         const RiseFall *rf);
 
   static bool equiv(const LibertyPort *port1,
 		    const LibertyPort *port2);
@@ -820,6 +832,7 @@ protected:
   const char *related_power_pin_;
   Vector<LibertyPort*> corner_ports_;
   ReceiverModelPtr receiver_model_;
+  DriverWaveform *driver_waveform_[RiseFall::index_count];
 
   unsigned int min_pulse_width_exists_:RiseFall::index_count;
   bool min_period_exists_:1;
