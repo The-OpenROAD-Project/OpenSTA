@@ -63,6 +63,7 @@
 namespace sta {
 
 using std::abs;
+using std::max;
 using std::isnormal;
 
 static bool
@@ -302,12 +303,16 @@ public:
   virtual VertexVisitor *copy() const;
   virtual void visit(Vertex *vertex);
   InstanceSet &visitedRegs() { return visited_regs_; }
+  void init();
+  float maxChange() const { return max_change_; }
 
 private:
   bool setActivityCheck(const Pin *pin,
                         PwrActivity &activity);
 
+  static constexpr float change_tolerance_ = .01;
   InstanceSet visited_regs_;
+  float max_change_;
   Power *power_;
   BfsFwdIterator *bfs_;
 };
@@ -325,6 +330,12 @@ VertexVisitor *
 PropActivityVisitor::copy() const
 {
   return new PropActivityVisitor(power_, bfs_);
+}
+
+void
+PropActivityVisitor::init()
+{
+  max_change_ = 0.0;
 }
 
 void
@@ -420,8 +431,12 @@ PropActivityVisitor::setActivityCheck(const Pin *pin,
                                       PwrActivity &activity)
 {
   PwrActivity &prev_activity = power_->activity(pin);
-  if (abs(activity.activity() - prev_activity.activity()) > .001
-      || abs(activity.duty() - prev_activity.duty()) > .001) {
+  float activity_delta = abs(activity.activity() - prev_activity.activity());
+  float duty_delta = abs(activity.duty() - prev_activity.duty());
+  if (activity_delta > change_tolerance_
+      || duty_delta > change_tolerance_) {
+    max_change_ = max(max_change_, activity_delta);
+    max_change_ = max(max_change_, duty_delta);
     power_->setActivity(pin, activity);
     return true;
   }
@@ -556,8 +571,10 @@ Power::ensureActivities()
       bfs.visit(levelize_->maxLevel(), &visitor);
       // Propagate activiities through registers.
       InstanceSet regs = std::move(visitor.visitedRegs());
-      while (!regs.empty()) {
-	InstanceSet::Iterator reg_iter(regs);
+      int pass = 1;
+      while (!regs.empty() && pass < max_activity_passes_) {
+        visitor.init();
+        InstanceSet::Iterator reg_iter(regs);
 	while (reg_iter.hasNext()) {
 	  const Instance *reg = reg_iter.next();
 	  // Propagate activiities across register D->Q.
@@ -567,6 +584,9 @@ Power::ensureActivities()
 	// combinational logic.
 	bfs.visit(levelize_->maxLevel(), &visitor);
         regs = std::move(visitor.visitedRegs());
+        debugPrint(debug_, "power_activity", 1, "Pass %d change %.2f",
+                   pass, visitor.maxChange());
+        pass++;
       }
       activities_valid_ = true;
     }
@@ -615,7 +635,7 @@ Power::seedRegOutputActivities(const Instance *inst,
             && func
             && (func->port() == seq->output()
                 || func->port() == seq->outputInv())) {
-          debugPrint(debug_, "power_activity", 3, "enqueue reg output %s",
+          debugPrint(debug_, "power_reg", 1, "enqueue reg output %s",
                      vertex->name(network_));
           bfs.enqueue(vertex);
         }
