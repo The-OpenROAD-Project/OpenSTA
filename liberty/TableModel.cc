@@ -1590,6 +1590,7 @@ OutputWaveforms::OutputWaveforms(TableAxisPtr slew_axis,
   slew_axis_(slew_axis),
   cap_axis_(cap_axis),
   current_waveforms_(current_waveforms),
+  voltage_waveforms_(current_waveforms.size()),
   ref_times_(ref_times)
 {
 }
@@ -1628,10 +1629,12 @@ OutputWaveforms::voltageWaveform(float slew,
   size_t wave_index01 = slew_index * cap_axis_->size() + (cap_index + 1);
   size_t wave_index10 = (slew_index + 1) * cap_axis_->size() + cap_index;
   size_t wave_index11 = (slew_index + 1) * cap_axis_->size() + (cap_index + 1);
-  const Table1 *values00 = voltageWaveform(wave_index00, cap);
-  const Table1 *values01 = voltageWaveform(wave_index01, cap);
-  const Table1 *values10 = voltageWaveform(wave_index10, cap);
-  const Table1 *values11 = voltageWaveform(wave_index11, cap);
+  float cap0 = cap_axis_->axisValue(cap_index);
+  float cap1 = cap_axis_->axisValue(cap_index + 1);
+  const Table1 *values00 = voltageWaveform(wave_index00, cap0);
+  const Table1 *values01 = voltageWaveform(wave_index01, cap1);
+  const Table1 *values10 = voltageWaveform(wave_index10, cap0);
+  const Table1 *values11 = voltageWaveform(wave_index11, cap1);
   TableAxisPtr time_axis00 = values00->axis1();
   TableAxisPtr time_axis01 = values01->axis1();
   TableAxisPtr time_axis10 = values10->axis1();
