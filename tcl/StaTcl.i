@@ -3789,6 +3789,14 @@ format_voltage(const char *value,
 }
 
 const char *
+format_current(const char *value,
+	       int digits)
+{
+  float value1 = strtof(value, nullptr);
+  return Sta::sta()->units()->currentUnit()->asString(value1, digits);
+}
+
+const char *
 format_power(const char *value,
 	     int digits)
 {
@@ -5649,12 +5657,25 @@ voltage_waveform(float in_slew,
 {
   GateTableModel *gate_model = dynamic_cast<GateTableModel*>(self->model());
   if (gate_model) {
-    OutputWaveforms *output_waveforms = gate_model->outputWaveforms();
-    if (output_waveforms) {
-      OutputWaveform voltage_waveform =
-        output_waveforms->voltageWaveform(in_slew, load_cap);
-      Table1 voltages(std::move(*voltage_waveform.voltages()));
-      return voltages;
+    OutputWaveforms *waveforms = gate_model->outputWaveforms();
+    if (waveforms) {
+      Table1 waveform = waveforms->voltageWaveform(in_slew, load_cap);
+      return waveform;
+    }
+  }
+  return Table1();
+}
+
+Table1
+current_waveform(float in_slew,
+                 float load_cap)
+{
+  GateTableModel *gate_model = dynamic_cast<GateTableModel*>(self->model());
+  if (gate_model) {
+    OutputWaveforms *waveforms = gate_model->outputWaveforms();
+    if (waveforms) {
+      Table1 waveform = waveforms->currentWaveform(in_slew, load_cap);
+      return waveform;
     }
   }
   return Table1();

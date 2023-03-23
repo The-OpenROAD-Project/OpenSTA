@@ -2517,7 +2517,8 @@ LibertyReader::endOutputCurrentRiseFall(LibertyGroup *group)
                                                   slew_values);
   TableAxisPtr cap_axis = make_shared<TableAxis>(TableAxisVariable::total_output_net_capacitance,
                                                  cap_values);
-  Vector<OutputWaveform*> waveforms(slew_axis->size() * cap_axis->size());
+  FloatSeq *ref_times = new FloatSeq(slew_values->size());
+  Table1Seq current_waveforms(slew_axis->size() * cap_axis->size());
   for (OutputWaveform *waveform : output_currents_) {
     size_t slew_index, cap_index;
     bool slew_exists, cap_exists;
@@ -2525,14 +2526,18 @@ LibertyReader::endOutputCurrentRiseFall(LibertyGroup *group)
     cap_axis->findAxisIndex(waveform->cap(), cap_index, cap_exists);
     if (slew_exists && cap_exists) {
       size_t index = slew_index * cap_axis->size() + cap_index;
-      waveforms[index] = waveform;
+      current_waveforms[index] = waveform->currents();
+      (*ref_times)[slew_index] = waveform->referenceTime();
     }
     else
       libWarn(913, group, "output current waveform %.2e %.2e not found.",
               waveform->slew(),
               waveform->cap());
   }
-  OutputWaveforms *output_current = new OutputWaveforms(slew_axis, cap_axis, waveforms);
+  Table1 *ref_time_tbl = new Table1(ref_times, slew_axis);
+  OutputWaveforms *output_current = new OutputWaveforms(slew_axis, cap_axis,
+                                                        current_waveforms,
+                                                        ref_time_tbl);
   timing_->setOutputWaveforms(rf_, output_current);
 }
 
@@ -2543,7 +2548,7 @@ LibertyReader::beginVector(LibertyGroup *group)
     beginTable(group, TableTemplateType::output_current, current_scale_);
     scale_factor_type_ = ScaleFactorType::unknown;
     reference_time_exists_ = false;
-    if (tbl_template_ && !OutputWaveform::checkAxes(tbl_template_))
+    if (tbl_template_ && !OutputWaveforms::checkAxes(tbl_template_))
       libWarn(118, group, "unsupported model axis.");
   }
 }
@@ -5752,6 +5757,24 @@ PortNameBitIterator::findRangeBusNameNext()
   }
   else
     range_name_next_ = nullptr;
+}
+
+////////////////////////////////////////////////////////////////
+
+OutputWaveform::OutputWaveform(float slew,
+                               float cap,
+                               Table1 *currents,
+                               float reference_time) :
+  slew_(slew),
+  cap_(cap),
+  currents_(currents),
+  reference_time_(reference_time)
+{
+}
+
+OutputWaveform::~OutputWaveform()
+{
+  delete currents_;
 }
 
 } // namespace

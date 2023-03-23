@@ -45,6 +45,7 @@ class LeakagePowerGroup;
 class PortNameBitIterator;
 class TimingArcBuilder;
 class LibertyAttr;
+class OutputWaveform;
 
 typedef void (LibertyReader::*LibraryAttrVisitor)(LibertyAttr *attr);
 typedef void (LibertyReader::*LibraryGroupVisitor)(LibertyGroup *group);
@@ -866,6 +867,26 @@ protected:
   int range_to_;
   int range_bit_;
   unsigned size_;
+};
+
+class OutputWaveform
+{
+public:
+  OutputWaveform(float axis_value1,
+                 float axis_value2,
+                 Table1 *currents,
+                 float reference_time);
+  ~OutputWaveform();
+  float slew() const { return slew_; }
+  float cap() const { return cap_; }
+  Table1 *currents() const { return currents_; }
+  float referenceTime() const { return reference_time_; }
+  
+private:
+  float slew_;
+  float cap_;
+  Table1 *currents_;
+  float reference_time_;
 };
 
 } // namespace

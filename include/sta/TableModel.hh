@@ -34,11 +34,11 @@ class Units;
 class Report;
 class Table;
 class OutputWaveforms;
-class OutputWaveform;
+class Table1;
 
 typedef Vector<float> FloatSeq;
 typedef Vector<FloatSeq*> FloatTable;
-typedef Vector<OutputWaveform*> OutputWaveformSeq;
+typedef Vector<Table1*> Table1Seq;
 
 TableAxisVariable
 stringTableAxisVariable(const char *variable);
@@ -275,16 +275,16 @@ public:
                       size_t axis_idx2,
                       size_t axis_idx3) const = 0;
   // Table interpolated lookup.
-  virtual float findValue(float value1,
-			  float value2,
-			  float value3) const = 0;
+  virtual float findValue(float axis_value1,
+			  float axis_value2,
+			  float axis_value3) const = 0;
   // Table interpolated lookup with scale factor.
   float findValue(const LibertyLibrary *library,
 		  const LibertyCell *cell,
 		  const Pvt *pvt,
-		  float value1,
-		  float value2,
-		  float value3) const;
+		  float axis_value1,
+		  float axis_value2,
+		  float axis_value3) const;
   virtual void reportValue(const char *result_name,
 			   const LibertyLibrary *library,
 			   const LibertyCell *cell,
@@ -306,12 +306,12 @@ class Table0 : public Table
 public:
   Table0(float value);
   virtual int order() const { return 0; }
-  virtual float value(size_t index1,
-                      size_t index2,
-                      size_t index3) const;
-  virtual float findValue(float value1,
-			  float value2,
-			  float value3) const;
+  virtual float value(size_t axis_index1,
+                      size_t axis_index2,
+                      size_t axis_index3) const;
+  virtual float findValue(float axis_value1,
+			  float axis_value2,
+			  float axis_value3) const;
   virtual void reportValue(const char *result_name,
 			   const LibertyLibrary *library,
 			   const LibertyCell *cell,
@@ -343,13 +343,17 @@ public:
   Table1 &operator= (Table1 &&table);
   virtual int order() const { return 1; }
   virtual TableAxisPtr axis1() const { return axis1_; }
-  virtual float value(size_t index1,
-                      size_t index2,
-                      size_t index3) const;
+  virtual float value(size_t axis_index1,
+                      size_t axis_index2,
+                      size_t axis_index3) const;
   float value(size_t index1) const;
-  float findValue(float value1) const;
-  float findValue(float value1,
-                  bool extrapolate) const;
+  float findValue(float axis_value1) const;
+  void findValue(float axis_value1,
+                 // Return values.
+                 float &value,
+                 bool &extrapolated) const;
+  float findValueClip(float axis_value1,
+                      float clip_value) const;
   virtual float findValue(float value1,
 			  float value2,
 			  float value3) const;
@@ -385,14 +389,14 @@ public:
   virtual int order() const { return 2; }
   TableAxisPtr axis1() const { return axis1_; }
   TableAxisPtr axis2() const { return axis2_; }
-  virtual float value(size_t index1,
-                      size_t index2,
-                      size_t index3) const;
-  float value(size_t index1,
-              size_t index2) const;
-  virtual float findValue(float value1,
-			  float value2,
-			  float value3) const;
+  virtual float value(size_t axis_index1,
+                      size_t axis_index2,
+                      size_t axis_index3) const;
+  float value(size_t axis_index1,
+              size_t axis_index2) const;
+  virtual float findValue(float axis_value1,
+			  float axis_value2,
+			  float axis_value3) const;
   FloatTable *values3() { return values_; }
   virtual void reportValue(const char *result_name,
 			   const LibertyLibrary *library,
@@ -428,12 +432,12 @@ public:
   virtual ~Table3() {}
   virtual int order() const { return 3; }
   TableAxisPtr axis3() const { return axis3_; }
-  virtual float value(size_t index1,
-                      size_t index2,
-                      size_t index3) const;
-  virtual float findValue(float value1,
-			  float value2,
-			  float value3) const;
+  virtual float value(size_t axis_index1,
+                      size_t axis_index2,
+                      size_t axis_index3) const;
+  virtual float findValue(float axis_value1,
+			  float axis_value2,
+			  float axis_value3) const;
   virtual void reportValue(const char *result_name,
 			   const LibertyLibrary *library,
 			   const LibertyCell *cell,
@@ -495,60 +499,33 @@ private:
   TableModel *capacitance_models_[2][RiseFall::index_count];
 };
 
-class OutputWaveform
-{
-public:
-  OutputWaveform(float axis_value1,
-                 float axis_value2,
-                 Table1 *currents,
-                 float reference_time);
-  OutputWaveform(float slew,
-                 float cap,
-                 Table1 *currents,
-                 Table1 *voltages,
-                 float reference_time);
-  ~OutputWaveform();
-  float slew() const { return slew_; }
-  float cap() const { return cap_; }
-  TableAxisPtr timeAxis() const { return currents_->axis1(); }
-  Table1 *currents() const { return currents_; }
-  Table1 *voltages();
-  float referenceTime() const { return reference_time_; }
-  static bool checkAxes(TableTemplate *tbl_template);
-  string reportCurrentWaveform(const Units *units,
-                               int digits) const;
-  string reportVoltageWaveform(const Units *units,
-                               int digits) const;
-  string reportWaveform(const Table1 *waveform,
-                        const Unit *time_unit,
-                        const Unit *waveform_unit,
-                        int digits) const;
-  
-private:
-  float slew_;
-  float cap_;
-  Table1 *currents_;
-  Table1 *voltages_;
-  float reference_time_;
-};
-
 // Two dimensional (slew/cap) table of one dimensional time/current tables.
 class OutputWaveforms
 {
 public:
   OutputWaveforms(TableAxisPtr slew_axis,
                   TableAxisPtr cap_axis,
-                  Vector<OutputWaveform*> &waveforms);
+                  Table1Seq &current_waveforms,
+                  Table1 *ref_times);
   ~OutputWaveforms();
-  OutputWaveform voltageWaveform(float in_slew,
-                                        float load_cap);
+  Table1 voltageWaveform(float in_slew,
+                         float load_cap);
+  Table1 currentWaveform(float slew,
+                         float cap);
+  float referenceTime(float slew);
+  static bool checkAxes(TableTemplate *tbl_template);
 
 private:
+  Table1 *voltageWaveform(size_t wave_index,
+                          float cap);
+
   // Row.
   TableAxisPtr slew_axis_;
   // Column.
   TableAxisPtr cap_axis_;
-  OutputWaveformSeq waveforms_;
+  Table1Seq current_waveforms_;
+  Table1Seq voltage_waveforms_;
+  Table1 *ref_times_;
 };
 
 class DriverWaveform
