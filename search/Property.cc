@@ -48,6 +48,11 @@ pinSlewProperty(const Pin *pin,
 		const MinMax *min_max,
 		Sta *sta);
 static PropertyValue
+pinArrivalProperty(const Pin *pin,
+                   const RiseFall *rf,
+                   const MinMax *min_max,
+                   Sta *sta);
+static PropertyValue
 pinSlackProperty(const Pin *pin,
 		 const MinMax *min_max,
 		 Sta *sta);
@@ -882,6 +887,15 @@ getProperty(const Pin *pin,
     return PropertyValue(&activity);
   }
 
+  else if (stringEqual(property, "arrival_max_rise"))
+    return pinArrivalProperty(pin, RiseFall::rise(), MinMax::max(), sta);
+  else if (stringEqual(property, "arrival_max_fall"))
+    return pinArrivalProperty(pin, RiseFall::fall(), MinMax::max(), sta);
+  else if (stringEqual(property, "arrival_min_rise"))
+    return pinArrivalProperty(pin, RiseFall::rise(), MinMax::min(), sta);
+  else if (stringEqual(property, "arrival_min_fall"))
+    return pinArrivalProperty(pin, RiseFall::fall(), MinMax::min(), sta);
+
   else if (stringEqual(property, "slack_max"))
     return pinSlackProperty(pin, MinMax::max(), sta);
   else if (stringEqual(property, "slack_max_fall"))
@@ -910,6 +924,16 @@ getProperty(const Pin *pin,
 
   else
     throw PropertyUnknown("pin", property);
+}
+
+static PropertyValue
+pinArrivalProperty(const Pin *pin,
+                   const RiseFall *rf,
+                   const MinMax *min_max,
+                   Sta *sta)
+{
+  Arrival arrival = sta->pinArrival(pin, rf, min_max);;
+  return PropertyValue(delayPropertyValue(arrival, sta));
 }
 
 static PropertyValue

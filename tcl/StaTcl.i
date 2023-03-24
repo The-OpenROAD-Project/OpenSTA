@@ -5917,7 +5917,7 @@ arrivals_clk(const RiseFall *rf,
     clk_edge = clk->edge(clk_rf);
   for (auto path_ap : sta->corners()->pathAnalysisPts()) {
     arrivals.push_back(delayAsFloat(sta->vertexArrival(self, rf, clk_edge,
-                                                       path_ap)));
+                                                       path_ap, nullptr)));
   }
   return arrivals;
 }
@@ -5935,7 +5935,7 @@ arrivals_clk_delays(const RiseFall *rf,
     clk_edge = clk->edge(clk_rf);
   for (auto path_ap : sta->corners()->pathAnalysisPts()) {
     arrivals.push_back(delayAsString(sta->vertexArrival(self, rf, clk_edge,
-                                                        path_ap),
+                                                        path_ap, nullptr),
                                      sta, digits));
   }
   return arrivals;
