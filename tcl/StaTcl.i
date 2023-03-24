@@ -5947,15 +5947,15 @@ requireds_clk(const RiseFall *rf,
 	      const RiseFall *clk_rf)
 {
   Sta *sta = Sta::sta();
-  FloatSeq requires;
+  FloatSeq requireds;
   const ClockEdge *clk_edge = nullptr;
   if (clk)
     clk_edge = clk->edge(clk_rf);
   for (auto path_ap : sta->corners()->pathAnalysisPts()) {
-    requires.push_back(delayAsFloat(sta->vertexRequired(self, rf, clk_edge,
+    requireds.push_back(delayAsFloat(sta->vertexRequired(self, rf, clk_edge,
                                                       path_ap)));
   }
-  return requires;
+  return requireds;
 }
 
 StringSeq
