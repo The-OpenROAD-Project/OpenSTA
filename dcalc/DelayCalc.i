@@ -48,4 +48,15 @@ set_delay_calc_incremental_tolerance(float tol)
   sta::Sta::sta()->setIncrementalDelayTolerance(tol);
 }
 
+TmpString *
+report_delay_calc_cmd(Edge *edge,
+		      TimingArc *arc,
+		      const Corner *corner,
+		      const MinMax *min_max,
+		      int digits)
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->reportDelayCalc(edge, arc, corner, min_max, digits);
+}
+
 %} // inline

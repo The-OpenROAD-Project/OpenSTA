@@ -45,6 +45,7 @@ class LeakagePowerGroup;
 class PortNameBitIterator;
 class TimingArcBuilder;
 class LibertyAttr;
+class OutputWaveform;
 
 typedef void (LibertyReader::*LibraryAttrVisitor)(LibertyAttr *attr);
 typedef void (LibertyReader::*LibraryGroupVisitor)(LibertyGroup *group);
@@ -57,7 +58,7 @@ typedef Vector<TimingGroup*> TimingGroupSeq;
 typedef Vector<InternalPowerGroup*> InternalPowerGroupSeq;
 typedef Vector<LeakagePowerGroup*> LeakagePowerGroupSeq;
 typedef void (LibertyPort::*LibertyPortBoolSetter)(bool value);
-typedef Vector<OutputCurrentWaveform*> OutputCurrentWaveformSeq;
+typedef Vector<OutputWaveform*> OutputWaveformSeq;
 
 class LibertyReader : public LibertyGroupVisitor
 {
@@ -443,6 +444,15 @@ public:
   void endVector(LibertyGroup *group);
   void visitReferenceTime(LibertyAttr *attr);
 
+  void beginNormalizedDriverWaveform(LibertyGroup *group);
+  void endNormalizedDriverWaveform(LibertyGroup *group);
+  void visitDriverWaveformName(LibertyAttr *attr);
+
+  void visitDriverWaveformRise(LibertyAttr *attr);
+  void visitDriverWaveformFall(LibertyAttr *attr);
+  void visitDriverWaveformRiseFall(LibertyAttr *attr,
+                                   const RiseFall *rf);
+
   // Visitors for derived classes to overload.
   virtual void beginGroup1(LibertyGroup *) {}
   virtual void beginGroup2(LibertyGroup *) {}
@@ -617,10 +627,11 @@ protected:
   bool have_resistance_unit_;
   const char *default_operating_condition_;
   ReceiverModelPtr receiver_model_;
-  OutputCurrentWaveformSeq output_current_waveforms_;
-  OutputCurrent *output_current_;
+  OutputWaveformSeq output_currents_;
+  OutputWaveforms *output_waveforms_;
   float reference_time_;
   bool reference_time_exists_;
+  const char *driver_waveform_name_;
 
   static constexpr char escape_ = '\\';
 
@@ -783,9 +794,9 @@ public:
 			  EarlyLate *early_late,
 			  TableModel *model);
   void setReceiverModel(ReceiverModelPtr receiver_model);
-  OutputCurrent *outputCurrent(RiseFall *rf);
-  void setOutputCurrent(RiseFall *rf,
-                        OutputCurrent *output_current);
+  OutputWaveforms *outputWaveforms(RiseFall *rf);
+  void setOutputWaveforms(RiseFall *rf,
+                        OutputWaveforms *output_current);
   
 protected:
   void makeLinearModels(LibertyLibrary *library);
@@ -803,7 +814,7 @@ protected:
   TableModel *transition_[RiseFall::index_count];
   TableModel *delay_sigma_[RiseFall::index_count][EarlyLate::index_count];
   TableModel *slew_sigma_[RiseFall::index_count][EarlyLate::index_count];
-  OutputCurrent *output_current_[RiseFall::index_count];
+  OutputWaveforms *output_waveforms_[RiseFall::index_count];
   ReceiverModelPtr receiver_model_;
 };
 
@@ -856,6 +867,26 @@ protected:
   int range_to_;
   int range_bit_;
   unsigned size_;
+};
+
+class OutputWaveform
+{
+public:
+  OutputWaveform(float axis_value1,
+                 float axis_value2,
+                 Table1 *currents,
+                 float reference_time);
+  ~OutputWaveform();
+  float slew() const { return slew_; }
+  float cap() const { return cap_; }
+  Table1 *currents() const { return currents_; }
+  float referenceTime() const { return reference_time_; }
+  
+private:
+  float slew_;
+  float cap_;
+  Table1 *currents_;
+  float reference_time_;
 };
 
 } // namespace

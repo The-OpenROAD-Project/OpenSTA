@@ -52,6 +52,21 @@ See doc/OpenSTA.pdf for command documentiaton.
 See doc/StaApi.txt for timing engine API documentiaton.
 See doc/ChangeLog.txt for changes to commands.
 
+OpenSTA is dual licensed. It is released under GPL v3 as OpenSTA and
+is also licensed for commerical applications by Parallax Software without
+the GPL's requirements.
+
+OpenSTA is open source, meaning the sources are published and can be compiled locally.
+Derivatives works are supported as long as they adhere to the GPL license requirements.
+However, OpenSTA is not supported by a public community of developers as many other
+open source projects are. The copyright and develpment are exclusive to Parallax
+Software. OpenSTA does not accept external code contributions.
+
+The official git repository is located at
+https://github.com/jjcherry56/OpenSTA.git. Any forks from this code
+base have not passed extensive regression testing which is not
+publicly available.
+
 ## Build
 
 OpenSTA is built with CMake.
@@ -197,18 +212,7 @@ case directory.
 
 * William Scott authored the arnoldi delay calculator at Blaze, Inc which was subsequently licensed to Nefelus, Inc that has graciously contributed it to OpenSTA.
 
-## Contributions
-
-External code contributions are not supported.
-
-https://en.wikipedia.org/wiki/Contributor_License_Agreement
-https://opensource.google/docs/cla/
-
 ## License
-
-OpenSTA is dual licensed. It is released under GPL v3 as OpenSTA and
-is also licensed for commerical applications by Parallax Software without
-the GPL's requirements.
 
 OpenSTA, Static Timing Analyzer
 Copyright (c) 2023, Parallax Software, Inc.
@@ -225,4 +229,3 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
-

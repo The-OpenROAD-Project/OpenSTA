@@ -48,6 +48,8 @@ namespace sta {
 using std::string;
 using std::ofstream;
 using std::ifstream;
+using std::max;
+using std::set;
 
 typedef Map<string, StringVector*> CellSpicePortNames;
 typedef int Stage;
@@ -79,7 +81,7 @@ private:
   void writeHeader();
   void writeStageInstances();
   void writeInputSource();
-  void writeStepVoltSource(const Pin *pin,
+  void writeRampVoltSource(const Pin *pin,
 			   const RiseFall *rf,
 			   float slew,
 			   float time,
@@ -98,8 +100,8 @@ private:
 			       DcalcAPIndex dcalc_ap_index);
   void writeStageParasitics(Stage stage);
   void writeSubckts();
-  void findPathCellnames(// Return values.
-			 StringSet &path_cell_names);
+  set<string> findPathCellnames();
+  void findPathCellSubckts(set<string> &path_cell_names);
   void recordSpicePortNames(const char *cell_name,
 			    StringVector &tokens);
   float maxTime();
@@ -135,6 +137,11 @@ private:
   void writeWaveformEdge(const RiseFall *rf,
 			 float time,
 			 float slew);
+  void writeWaveformVoltSource(const Pin *pin,
+                               DriverWaveform *drvr_waveform,
+                               const RiseFall *rf,
+                               float slew,
+                               int &volt_index);
   void writeClkedStepSource(const Pin *pin,
 			    const RiseFall *rf,
 			    const Clock *clk,
@@ -162,6 +169,7 @@ private:
 			  int &volt_index);
   float slewAxisMinValue(TimingArc *arc);
   float pgPortVoltage(LibertyPgPort *pg_port);
+  void writePrintStmt();
 
   // Stage "accessors".
   //
@@ -321,6 +329,7 @@ WritePathSpice::writeSpice()
     // Find subckt port names as a side-effect of writeSubckts.
     writeSubckts();
     writeHeader();
+    writePrintStmt();
     writeStageInstances();
     writeMeasureStmts();
     writeInputSource();
@@ -330,6 +339,18 @@ WritePathSpice::writeSpice()
   }
   else
     throw FileNotWritable(spice_filename_);
+}
+
+// Use c++17 fs::path(filename).stem()
+static string
+filenameStem(const char *filename)
+{
+  string filename1 = filename;
+  const size_t last_slash_idx = filename1.find_last_of("\\/");
+  if (last_slash_idx != std::string::npos)
+    return filename1.substr(last_slash_idx + 1);
+  else
+    return filename1;
 }
 
 void
@@ -348,12 +369,25 @@ WritePathSpice::writeHeader()
   float temp = pvt->temperature();
   streamPrint(spice_stream_, ".temp %.1f\n", temp);
   streamPrint(spice_stream_, ".include \"%s\"\n", model_filename_);
-  streamPrint(spice_stream_, ".include \"%s\"\n", subckt_filename_);
+  string subckt_filename_stem = filenameStem(subckt_filename_);
+  streamPrint(spice_stream_, ".include \"%s\"\n", subckt_filename_stem.c_str());
 
   float max_time = maxTime();
   float time_step = max_time / 1e+3;
   streamPrint(spice_stream_, ".tran %.3g %.3g\n\n",
 	      time_step, max_time);
+  streamPrint(spice_stream_, ".options nomod\n");
+}
+
+void
+WritePathSpice::writePrintStmt()
+{
+  streamPrint(spice_stream_, ".print tran");
+  for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
+    streamPrint(spice_stream_, " v(%s)", stageDrvrPinName(stage));
+    streamPrint(spice_stream_, " v(%s)", stageLoadPinName(stage));
+  }
+  streamPrint(spice_stream_, "\n\n");
 }
 
 float
@@ -373,9 +407,8 @@ WritePathSpice::maxTime()
   }
   else {
     float end_slew = findSlew(path_);
-    float max_time = delayAsFloat(input_slew
-				  + path_->arrival(this)
-				  + end_slew * 2) * 1.5;
+    float arrival = delayAsFloat(path_->arrival(this));
+    float max_time = input_slew / 2.0 + arrival + end_slew;
     return max_time;
   }
 }
@@ -463,11 +496,55 @@ WritePathSpice::writeInputWaveform()
   float time0 = slew0;
   int volt_index = 1;
   const Pin *drvr_pin = stageDrvrPin(input_stage);
-  writeStepVoltSource(drvr_pin, rf, slew0, time0, volt_index);
+  const Pin *load_pin = stageLoadPin(input_stage);
+  const LibertyPort *load_port = network_->libertyPort(load_pin);
+  DriverWaveform *drvr_waveform = nullptr;
+  if (load_port)
+    drvr_waveform = load_port->driverWaveform(rf);
+  if (drvr_waveform)
+    writeWaveformVoltSource(drvr_pin, drvr_waveform,
+                            rf, slew0, volt_index);
+  else
+    writeRampVoltSource(drvr_pin, rf, slew0, time0, volt_index);
 }
 
 void
-WritePathSpice::writeStepVoltSource(const Pin *pin,
+WritePathSpice::writeWaveformVoltSource(const Pin *pin,
+                                        DriverWaveform *drvr_waveform,
+                                        const RiseFall *rf,
+                                        float slew,
+                                        int &volt_index)
+{
+  float volt0, volt1, volt_factor;
+  if (rf == RiseFall::rise()) {
+    volt0 = gnd_voltage_;
+    volt1 = power_voltage_;
+    volt_factor = power_voltage_;
+  }
+  else {
+    volt0 = power_voltage_;
+    volt1 = gnd_voltage_;
+    volt_factor = -power_voltage_;
+  }
+  streamPrint(spice_stream_, "v%d %s 0 pwl(\n",
+	      volt_index,
+	      network_->pathName(pin));
+  streamPrint(spice_stream_, "+%.3e %.3e\n", 0.0, volt0);
+  Table1 waveform = drvr_waveform->waveform(slew);
+  TableAxisPtr time_axis = waveform.axis1();
+  for (size_t time_index = 0; time_index <  time_axis->size(); time_index++) {
+    float time = time_axis->axisValue(time_index);
+    float wave_volt = waveform.value(time_index);
+    float volt = volt0 + wave_volt * volt_factor;
+    streamPrint(spice_stream_, "+%.3e %.3e\n", time, volt);
+  }
+  streamPrint(spice_stream_, "+%.3e %.3e\n", maxTime(), volt1);
+  streamPrint(spice_stream_, "+)\n");
+  volt_index++;
+}
+
+void
+WritePathSpice::writeRampVoltSource(const Pin *pin,
 				    const RiseFall *rf,
 				    float slew,
 				    float time,
@@ -928,7 +1005,7 @@ WritePathSpice::writeClkedStepSource(const Pin *pin,
   Vertex *vertex = graph_->pinLoadVertex(pin);
   float slew = findSlew(vertex, rf, nullptr, dcalc_ap_index);
   float time = clkWaveformTImeOffset(clk) + clk->period() / 2.0;
-  writeStepVoltSource(pin, rf, slew, time, volt_index);
+  writeRampVoltSource(pin, rf, slew, time, volt_index);
 }
 
 void
@@ -1342,8 +1419,8 @@ WritePathSpice::nodeName(ParasiticNode *node)
 void
 WritePathSpice::writeSubckts()
 {
-  StringSet path_cell_names;
-  findPathCellnames(path_cell_names);
+  set<string> path_cell_names = findPathCellnames();
+  findPathCellSubckts(path_cell_names);
 
   ifstream lib_subckts_stream(lib_subckt_filename_);
   if (lib_subckts_stream.is_open()) {
@@ -1357,7 +1434,7 @@ WritePathSpice::writeSubckts()
 	if (tokens.size() >= 2
 	    && stringEqual(tokens[0].c_str(), ".subckt")) {
 	  const char *cell_name = tokens[1].c_str();
-	  if (path_cell_names.hasKey(cell_name)) {
+	  if (path_cell_names.find(cell_name) != path_cell_names.end()) {
 	    subckts_stream << line << "\n";
 	    bool found_ends = false;
 	    while (getline(lib_subckts_stream, line)) {
@@ -1379,10 +1456,14 @@ WritePathSpice::writeSubckts()
       lib_subckts_stream.close();
 
       if (!path_cell_names.empty()) {
-	report_->error(28, "The following subkcts are missing from %s",
-		       lib_subckt_filename_);
-	for (const char *cell_name : path_cell_names)
-	  report_->reportLine(" %s", cell_name);
+	string missing_cells;
+        for (const string &cell_name : path_cell_names) {
+	  missing_cells += "\n";
+	  missing_cells += cell_name;
+        }
+	report_->error(28, "The subkct file %s is missing definitions for %s",
+		       lib_subckt_filename_,
+                       missing_cells.c_str());
       }
     }
     else {
@@ -1394,10 +1475,10 @@ WritePathSpice::writeSubckts()
     throw FileNotReadable(lib_subckt_filename_);
 }
 
-void
-WritePathSpice::findPathCellnames(// Return values.
-				  StringSet &path_cell_names)
+set<string>
+WritePathSpice::findPathCellnames()
 {
+  set<string> path_cell_names;
   for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
     TimingArc *arc = stageGateArc(stage);
     if (arc) {
@@ -1420,6 +1501,47 @@ WritePathSpice::findPathCellnames(// Return values.
       delete pin_iter;
     }
   }
+  return path_cell_names;
+}
+
+// Subckts can call subckts (asap7).
+void
+WritePathSpice::findPathCellSubckts(set<string> &path_cell_names)
+{
+  ifstream lib_subckts_stream(lib_subckt_filename_);
+  if (lib_subckts_stream.is_open()) {
+    string line;
+    while (getline(lib_subckts_stream, line)) {
+      // .subckt <cell_name> [args..]
+      StringVector tokens;
+      split(line, " \t", tokens);
+      if (tokens.size() >= 2
+          && stringEqual(tokens[0].c_str(), ".subckt")) {
+        const char *cell_name = tokens[1].c_str();
+        if (path_cell_names.find(cell_name) != path_cell_names.end()) {
+          // Scan the subckt definition for subckt calls.
+          string stmt;
+          while (getline(lib_subckts_stream, line)) {
+            if (line[0] == '+')
+              stmt += line.substr(1);
+            else {
+              // Process previous statement.
+              if (tolower(stmt[0]) == 'x') {
+                split(stmt, " \t", tokens);
+                string &subckt_cell = tokens[tokens.size() - 1];
+                path_cell_names.insert(subckt_cell);
+              }
+              stmt = line;
+            }
+            if (stringBeginEqual(line.c_str(), ".ends"))
+              break;
+          }
+        }
+      }
+    }
+  }
+  else
+    throw FileNotReadable(lib_subckt_filename_);
 }
 
 void

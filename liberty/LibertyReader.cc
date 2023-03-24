@@ -501,10 +501,14 @@ LibertyReader::defineVisitors()
   defineGroupVisitor("output_current_fall",
                     &LibertyReader::beginOutputCurrentFall,
                     &LibertyReader::endOutputCurrentRiseFall);
-  defineGroupVisitor("vector",
-                    &LibertyReader::beginVector,
-                    &LibertyReader::endVector);
+  defineGroupVisitor("vector", &LibertyReader::beginVector, &LibertyReader::endVector);
   defineAttrVisitor("reference_time", &LibertyReader::visitReferenceTime);
+  defineGroupVisitor("normalized_driver_waveform",
+                     &LibertyReader::beginNormalizedDriverWaveform,
+                     &LibertyReader::endNormalizedDriverWaveform);
+  defineAttrVisitor("driver_waveform_name", &LibertyReader::visitDriverWaveformName);
+  defineAttrVisitor("driver_waveform_rise", &LibertyReader::visitDriverWaveformRise);
+  defineAttrVisitor("driver_waveform_fall", &LibertyReader::visitDriverWaveformFall);
 }
 
 void
@@ -2283,7 +2287,7 @@ TimingGroup::makeTableModels(LibertyReader *reader)
                                               transition,
                                               slew_sigma_[rf_index],
                                               receiver_model_,
-                                              output_current_[rf_index]));
+                                              output_waveforms_[rf_index]));
       TimingType timing_type = attrs_->timingType();
       if (timing_type == TimingType::clear
 	  || timing_type == TimingType::combinational
@@ -2480,8 +2484,10 @@ void
 LibertyReader::beginOutputCurrent(RiseFall *rf,
                                   LibertyGroup *group)
 {
-  if (timing_)
+  if (timing_) {
     rf_ = rf;
+    output_currents_.clear();
+  }
   else
     libWarn(907, group, "output_current_%s group not in timing group.",
             rf->name());
@@ -2490,54 +2496,59 @@ LibertyReader::beginOutputCurrent(RiseFall *rf,
 void
 LibertyReader::endOutputCurrentRiseFall(LibertyGroup *group)
 {
-  Set<float> axis_set1, axis_set2;
-  FloatSeq *axis_values1 = new FloatSeq;
-  FloatSeq *axis_values2 = new FloatSeq;
-  for (OutputCurrentWaveform *waveform : output_current_waveforms_) {
-    float axis_value1 = waveform->axisValue1();
-    if (!axis_set1.hasKey(axis_value1)) {
-      axis_set1.insert(axis_value1);
-      axis_values1->push_back(axis_value1);
+  Set<float> slew_set, cap_set;
+  FloatSeq *slew_values = new FloatSeq;
+  FloatSeq *cap_values = new FloatSeq;
+  for (OutputWaveform *waveform : output_currents_) {
+    float slew = waveform->slew();
+    if (!slew_set.hasKey(slew)) {
+      slew_set.insert(slew);
+      slew_values->push_back(slew);
     }
-    float axis_value2 = waveform->axisValue2();
-    if (!axis_set2.hasKey(axis_value2)) {
-      axis_set2.insert(axis_value2);
-      axis_values2->push_back(axis_value2);
+    float cap = waveform->cap();
+    if (!cap_set.hasKey(cap)) {
+      cap_set.insert(cap);
+      cap_values->push_back(cap);
     }
   }
-  sort(axis_values1, std::less<float>());
-  sort(axis_values2, std::less<float>());
-  TableAxisPtr axis1 = std::make_shared<TableAxis>(axis_[0]->variable(),
-                                                   axis_values1);
-  TableAxisPtr axis2 = std::make_shared<TableAxis>(axis_[1]->variable(),
-                                                   axis_values2);
-  Vector<OutputCurrentWaveform*> waveforms(axis1->size() * axis2->size());
-  for (OutputCurrentWaveform *waveform : output_current_waveforms_) {
-    size_t index1, index2;
-    bool exists1, exists2;
-    axis1->findAxisIndex(waveform->axisValue1(), index1, exists1);
-    axis2->findAxisIndex(waveform->axisValue2(), index2, exists2);
-    if (exists1 && exists2) {
-      size_t index = index1 * axis2->size() + index2;
-      waveforms[index] = waveform;
+  sort(slew_values, std::less<float>());
+  sort(cap_values, std::less<float>());
+  TableAxisPtr slew_axis = make_shared<TableAxis>(TableAxisVariable::input_net_transition,
+                                                  slew_values);
+  TableAxisPtr cap_axis = make_shared<TableAxis>(TableAxisVariable::total_output_net_capacitance,
+                                                 cap_values);
+  FloatSeq *ref_times = new FloatSeq(slew_values->size());
+  Table1Seq current_waveforms(slew_axis->size() * cap_axis->size());
+  for (OutputWaveform *waveform : output_currents_) {
+    size_t slew_index, cap_index;
+    bool slew_exists, cap_exists;
+    slew_axis->findAxisIndex(waveform->slew(), slew_index, slew_exists);
+    cap_axis->findAxisIndex(waveform->cap(), cap_index, cap_exists);
+    if (slew_exists && cap_exists) {
+      size_t index = slew_index * cap_axis->size() + cap_index;
+      current_waveforms[index] = waveform->currents();
+      (*ref_times)[slew_index] = waveform->referenceTime();
     }
     else
       libWarn(913, group, "output current waveform %.2e %.2e not found.",
-              waveform->axisValue1(),
-              waveform->axisValue2());
+              waveform->slew(),
+              waveform->cap());
   }
-  OutputCurrent *output_current = new OutputCurrent(axis1, axis2, waveforms);
-  timing_->setOutputCurrent(rf_, output_current);
+  Table1 *ref_time_tbl = new Table1(ref_times, slew_axis);
+  OutputWaveforms *output_current = new OutputWaveforms(slew_axis, cap_axis,
+                                                        current_waveforms,
+                                                        ref_time_tbl);
+  timing_->setOutputWaveforms(rf_, output_current);
 }
 
 void
 LibertyReader::beginVector(LibertyGroup *group)
 {
   if (timing_) {
-    beginTable(group, TableTemplateType::output_current, 1.0);
+    beginTable(group, TableTemplateType::output_current, current_scale_);
     scale_factor_type_ = ScaleFactorType::unknown;
     reference_time_exists_ = false;
-    if (!OutputCurrentWaveform::checkAxes(tbl_template_))
+    if (tbl_template_ && !OutputWaveforms::checkAxes(tbl_template_))
       libWarn(118, group, "unsupported model axis.");
   }
 }
@@ -2546,35 +2557,106 @@ void
 LibertyReader::visitReferenceTime(LibertyAttr *attr)
 {
   getAttrFloat(attr, reference_time_, reference_time_exists_);
+  if (reference_time_exists_)
+    reference_time_ *= time_scale_;
 }
 
 void
 LibertyReader::endVector(LibertyGroup *group)
 {
-  if (timing_) {
-    FloatSeq *axis_values1 = axis_values_[0];
-    FloatSeq *axis_values2 = axis_values_[1];
-    if (axis_values1->size() == 1 && axis_values2->size() == 1) {
+  if (timing_ && tbl_template_) {
+    FloatSeq *slew_values = axis_values_[0];
+    FloatSeq *cap_values = axis_values_[1];
+    // Canonicalize axis order.
+    if (tbl_template_->axis1()->variable() == TableAxisVariable::input_net_transition) {
+      slew_values = axis_values_[0];
+      cap_values = axis_values_[1];
+    }
+    else {
+      slew_values = axis_values_[1];
+      cap_values = axis_values_[0];
+    }
+
+    if (slew_values->size() == 1 && cap_values->size() == 1) {
       // Convert 1x1xN Table3 to Table1.
-      float axis_value1 = (*axis_values1)[0];
-      float axis_value2 = (*axis_values2)[0];
+      float slew = (*slew_values)[0];
+      float cap = (*cap_values)[0];
       Table3 *table3 = dynamic_cast<Table3*>(table_.get());
       FloatTable *values3 = table3->values3();
       // Steal the values.
       FloatSeq *values = (*values3)[0];
       (*values3)[0] = nullptr;
       Table1 *table1 = new Table1(values, axis_[2]);
-      OutputCurrentWaveform *waveform = new OutputCurrentWaveform(axis_value1,
-                                                                  axis_value2,
-                                                                  axis_[2], table1,
-                                                                  reference_time_);
-      output_current_waveforms_.push_back(waveform);
+      OutputWaveform *waveform = new OutputWaveform(slew, cap, table1, reference_time_);
+      output_currents_.push_back(waveform);
     }
     else
-      libWarn(912, group->line(), "vector index_1 and index_2 must have one value.");
+      libWarn(912,group->line(), "vector index_1 and index_2 must have exactly one value.");
     if (!reference_time_exists_)
       libWarn(908, group->line(), "vector reference_time not found.");
     reference_time_exists_ = false;
+  }
+}
+
+///////////////////////////////////////////////////////////////
+
+void
+LibertyReader::beginNormalizedDriverWaveform(LibertyGroup *group)
+{
+  beginTable(group, TableTemplateType::delay, time_scale_);
+  driver_waveform_name_ = nullptr;
+}
+
+void
+LibertyReader::visitDriverWaveformName(LibertyAttr *attr)
+{
+  driver_waveform_name_ = stringCopy(getAttrString(attr));
+}
+
+void
+LibertyReader::endNormalizedDriverWaveform(LibertyGroup *group)
+{
+  if (table_) {
+    if (table_->axis1()->variable() == TableAxisVariable::input_net_transition) {
+      if (table_->axis2()->variable() == TableAxisVariable::normalized_voltage) {
+        // Null driver_waveform_name_ means it is the default unnamed waveform.
+        DriverWaveform *driver_waveform = new DriverWaveform(driver_waveform_name_,
+                                                             table_);
+        library_->addDriverWaveform(driver_waveform);
+
+      }
+      else
+        libWarn(914, group, "normalized_driver_waveform variable_2 must be normalized_voltage");
+    }
+    else
+      libWarn(915, group, "normalized_driver_waveform variable_1 must be input_net_transition");
+  }
+  endTableModel();
+}
+
+void
+LibertyReader::visitDriverWaveformRise(LibertyAttr *attr)
+{
+  visitDriverWaveformRiseFall(attr, RiseFall::rise());
+}
+
+void
+LibertyReader::visitDriverWaveformFall(LibertyAttr *attr)
+{
+  visitDriverWaveformRiseFall(attr, RiseFall::fall());
+}
+
+void
+LibertyReader::visitDriverWaveformRiseFall(LibertyAttr *attr,
+                                           const RiseFall *rf)
+{
+  if (ports_) {
+    const char *driver_waveform_name = getAttrString(attr);
+    DriverWaveform *driver_waveform = library_->findDriverWaveform(driver_waveform_name);
+    if (driver_waveform) {
+      for (LibertyPort *port : *ports_) 
+        port->setDriverWaveform(driver_waveform, rf);
+    }
   }
 }
 
@@ -5365,7 +5447,7 @@ TimingGroup::TimingGroup(int line) :
     intrinsic_exists_[rf_index] = false;
     resistance_[rf_index] = 0.0F;
     resistance_exists_[rf_index] = false;
-    output_current_[rf_index] = nullptr;
+    output_waveforms_[rf_index] = nullptr;
 
     for (auto el_index : EarlyLate::rangeIndex()) {
       delay_sigma_[rf_index][el_index] = nullptr;
@@ -5496,17 +5578,17 @@ TimingGroup::setReceiverModel(ReceiverModelPtr receiver_model)
   receiver_model_ = receiver_model;
 }
 
-OutputCurrent *
-TimingGroup::outputCurrent(RiseFall *rf)
+OutputWaveforms *
+TimingGroup::outputWaveforms(RiseFall *rf)
 {
-  return output_current_[rf->index()];
+  return output_waveforms_[rf->index()];
 }
 
 void
-TimingGroup::setOutputCurrent(RiseFall *rf,
-                              OutputCurrent *output_current)
+TimingGroup::setOutputWaveforms(RiseFall *rf,
+                                OutputWaveforms *output_waveforms)
 {
-  output_current_[rf->index()] = output_current;
+  output_waveforms_[rf->index()] = output_waveforms;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -5675,6 +5757,24 @@ PortNameBitIterator::findRangeBusNameNext()
   }
   else
     range_name_next_ = nullptr;
+}
+
+////////////////////////////////////////////////////////////////
+
+OutputWaveform::OutputWaveform(float slew,
+                               float cap,
+                               Table1 *currents,
+                               float reference_time) :
+  slew_(slew),
+  cap_(cap),
+  currents_(currents),
+  reference_time_(reference_time)
+{
+}
+
+OutputWaveform::~OutputWaveform()
+{
+  delete currents_;
 }
 
 } // namespace
