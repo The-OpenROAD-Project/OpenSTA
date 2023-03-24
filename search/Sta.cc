@@ -3256,7 +3256,7 @@ Sta::worstSlack(const Corner *corner,
 
 ////////////////////////////////////////////////////////////////
 
-string *
+string
 Sta::reportDelayCalc(Edge *edge,
 		     TimingArc *arc,
 		     const Corner *corner,

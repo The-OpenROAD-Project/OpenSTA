@@ -33,13 +33,12 @@ using std::make_shared;
 
 static void
 deleteSigmaModels(TableModel *models[EarlyLate::index_count]);
-static void
+static string
 reportPvt(const LibertyLibrary *library,
 	  const Pvt *pvt,
-	  int digits,
-	  string *result);
+	  int digits);
 static void
-appendSpaces(string *result,
+appendSpaces(string &result,
 	     int count);
 
 GateTableModel::GateTableModel(TableModel *delay_model,
@@ -136,46 +135,46 @@ GateTableModel::gateDelay(const LibertyCell *cell,
   drvr_slew = makeDelay(slew, sigma_early, sigma_late);
 }
 
-void
+string
 GateTableModel::reportGateDelay(const LibertyCell *cell,
 				const Pvt *pvt,
 				float in_slew,
 				float load_cap,
 				float related_out_cap,
 				bool pocv_enabled,
-				int digits,
-				string *result) const
+				int digits) const
 {
   const LibertyLibrary *library = cell->libertyLibrary();
-  reportPvt(library, pvt, digits, result);
-  reportTableLookup("Delay", library, cell, pvt, delay_model_, in_slew,
-		    load_cap, related_out_cap, digits, result);
+  string result = reportPvt(library, pvt, digits);
+  result += reportTableLookup("Delay", library, cell, pvt, delay_model_, in_slew,
+                              load_cap, related_out_cap, digits);
   if (pocv_enabled && delay_sigma_models_[EarlyLate::earlyIndex()])
-    reportTableLookup("Delay sigma(early)", library, cell, pvt,
-		      delay_sigma_models_[EarlyLate::earlyIndex()],
-		      in_slew, load_cap, related_out_cap, digits, result);
+    result += reportTableLookup("Delay sigma(early)", library, cell, pvt,
+                                delay_sigma_models_[EarlyLate::earlyIndex()],
+                                in_slew, load_cap, related_out_cap, digits);
   if (pocv_enabled && delay_sigma_models_[EarlyLate::lateIndex()])
-    reportTableLookup("Delay sigma(late)", library, cell, pvt,
-		      delay_sigma_models_[EarlyLate::lateIndex()],
-		      in_slew, load_cap, related_out_cap, digits, result);
-  *result += '\n';
-  reportTableLookup("Slew", library, cell, pvt, slew_model_, in_slew,
-		    load_cap, related_out_cap, digits, result);
+    result += reportTableLookup("Delay sigma(late)", library, cell, pvt,
+                                delay_sigma_models_[EarlyLate::lateIndex()],
+                                in_slew, load_cap, related_out_cap, digits);
+  result += '\n';
+  result += reportTableLookup("Slew", library, cell, pvt, slew_model_, in_slew,
+		    load_cap, related_out_cap, digits);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::earlyIndex()])
-    reportTableLookup("Slew sigma(early)", library, cell, pvt,
+    result += reportTableLookup("Slew sigma(early)", library, cell, pvt,
 		      slew_sigma_models_[EarlyLate::earlyIndex()],
-		      in_slew, load_cap, related_out_cap, digits, result);
+		      in_slew, load_cap, related_out_cap, digits);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::lateIndex()])
-    reportTableLookup("Slew sigma(late)", library, cell, pvt,
+    result += reportTableLookup("Slew sigma(late)", library, cell, pvt,
 		      slew_sigma_models_[EarlyLate::lateIndex()],
-		      in_slew, load_cap, related_out_cap, digits, result);
+		      in_slew, load_cap, related_out_cap, digits);
   float drvr_slew = findValue(library, cell, pvt, slew_model_, in_slew,
 			      load_cap, related_out_cap);
   if (drvr_slew < 0.0)
-    *result += "Negative slew clipped to 0.0\n";
+    result += "Negative slew clipped to 0.0\n";
+  return result;
 }
 
-void
+string
 GateTableModel::reportTableLookup(const char *result_name,
 				  const LibertyLibrary *library,
 				  const LibertyCell *cell,
@@ -184,17 +183,17 @@ GateTableModel::reportTableLookup(const char *result_name,
 				  float in_slew,
 				  float load_cap,
 				  float related_out_cap,
-				  int digits,
-				  string *result) const
+				  int digits) const
 {
   if (model) {
     float axis_value1, axis_value2, axis_value3;
     findAxisValues(model, in_slew, load_cap, related_out_cap,
 		   axis_value1, axis_value2, axis_value3);
-    model->reportValue(result_name, library, cell, pvt,
-		       axis_value1, nullptr, axis_value2, axis_value3,
-		       library->units()->timeUnit(), digits, result);
+    return model->reportValue(result_name, library, cell, pvt,
+                              axis_value1, nullptr, axis_value2, axis_value3,
+                              library->units()->timeUnit(), digits);
   }
+  return "";
 }
 
 float
@@ -470,7 +469,7 @@ CheckTableModel::findValue(const LibertyLibrary *library,
     return 0.0;
 }
 
-void
+string
 CheckTableModel::reportCheckDelay(const LibertyCell *cell,
 				  const Pvt *pvt,
 				  float from_slew,
@@ -478,26 +477,26 @@ CheckTableModel::reportCheckDelay(const LibertyCell *cell,
 				  float to_slew,
 				  float related_out_cap,
 				  bool pocv_enabled,
-				  int digits,
-				  string *result) const
+				  int digits) const
 {
   const LibertyLibrary *library = cell->libertyLibrary();
-  reportTableDelay("Check", library, cell, pvt, model_,
-		   from_slew, from_slew_annotation, to_slew,
-		   related_out_cap, digits, result);
+  string result = reportTableDelay("Check", library, cell, pvt, model_,
+                                   from_slew, from_slew_annotation, to_slew,
+                                   related_out_cap, digits);
   if (pocv_enabled && sigma_models_[EarlyLate::earlyIndex()])
-    reportTableDelay("Check sigma early", library, cell, pvt,
-		     sigma_models_[EarlyLate::earlyIndex()],
-		     from_slew, from_slew_annotation, to_slew,
-		     related_out_cap, digits, result);
+    result += reportTableDelay("Check sigma early", library, cell, pvt,
+                               sigma_models_[EarlyLate::earlyIndex()],
+                               from_slew, from_slew_annotation, to_slew,
+                               related_out_cap, digits);
   if (pocv_enabled && sigma_models_[EarlyLate::lateIndex()])
-    reportTableDelay("Check sigma late", library, cell, pvt,
-		     sigma_models_[EarlyLate::lateIndex()],
-		     from_slew, from_slew_annotation, to_slew,
-		     related_out_cap, digits, result);
+    result += reportTableDelay("Check sigma late", library, cell, pvt,
+                               sigma_models_[EarlyLate::lateIndex()],
+                               from_slew, from_slew_annotation, to_slew,
+                               related_out_cap, digits);
+  return result;
 }
 
-void
+string
 CheckTableModel::reportTableDelay(const char *result_name,
 				  const LibertyLibrary *library,
 				  const LibertyCell *cell,
@@ -507,18 +506,19 @@ CheckTableModel::reportTableDelay(const char *result_name,
 				  const char *from_slew_annotation,
 				  float to_slew,
 				  float related_out_cap,
-				  int digits,
-				  string *result) const
+				  int digits) const
 {
   if (model) {
     float axis_value1, axis_value2, axis_value3;
     findAxisValues(from_slew, to_slew, related_out_cap,
 		   axis_value1, axis_value2, axis_value3);
-    reportPvt(library, pvt, digits, result);
-    model_->reportValue(result_name, library, cell, pvt,
-			axis_value1, from_slew_annotation, axis_value2,
-			axis_value3, library->units()->timeUnit(), digits, result);
+    string result = reportPvt(library, pvt, digits);
+    result += model_->reportValue(result_name, library, cell, pvt,
+                                  axis_value1, from_slew_annotation, axis_value2,
+                                  axis_value3, library->units()->timeUnit(), digits);
+    return result;
   }
+  return "";
 }
 
 void
@@ -690,7 +690,7 @@ TableModel::scaleFactor(const LibertyLibrary *library,
 				rf_index_, cell, pvt);
 }
 
-void
+string
 TableModel::reportValue(const char *result_name,
 			const LibertyLibrary *library,
 			const LibertyCell *cell,
@@ -700,55 +700,55 @@ TableModel::reportValue(const char *result_name,
 			float value2,
 			float value3,
                         const Unit *table_unit,
-			int digits,
-			string *result) const
+			int digits) const
 {
-  table_->reportValue("Table value", library, cell, pvt, value1,
-		      comment1, value2, value3, table_unit, digits, result);
+  string result = table_->reportValue("Table value", library, cell, pvt, value1,
+                                      comment1, value2, value3, table_unit, digits);
 
-  reportPvtScaleFactor(library, cell, pvt, digits, result);
+  result += reportPvtScaleFactor(library, cell, pvt, digits);
 
-  *result += result_name;
-  *result += " = ";
-  *result += table_unit->asString(findValue(library, cell, pvt,
+  result += result_name;
+  result += " = ";
+  result += table_unit->asString(findValue(library, cell, pvt,
 					    value1, value2, value3), digits);
-  *result += '\n';
+  result += '\n';
+  return result;
 }
 
-static void
+static string
 reportPvt(const LibertyLibrary *library,
 	  const Pvt *pvt,
-	  int digits,
-	  string *result)
+	  int digits)
 {
   if (pvt == nullptr)
     pvt = library->defaultOperatingConditions();
   if (pvt) {
-    string pvt_str;
-    stringPrint(pvt_str, "P = %.*f V = %.*f T = %.*f\n",
+    string result;
+    stringPrint(result, "P = %.*f V = %.*f T = %.*f\n",
 		digits, pvt->process(),
 		digits, pvt->voltage(),
 		digits, pvt->temperature());
-    *result += pvt_str;
+    return result;
   }
+  return "";
 }
 
-void
+string
 TableModel::reportPvtScaleFactor(const LibertyLibrary *library,
 				 const LibertyCell *cell,
 				 const Pvt *pvt,
-				 int digits,
-				 string *result) const
+				 int digits) const
 {
   if (pvt == nullptr)
     pvt = library->defaultOperatingConditions();
   if (pvt) {
-    string scale_str;
-    stringPrint(scale_str, "PVT scale factor = %.*f\n",
+    string result;
+    stringPrint(result, "PVT scale factor = %.*f\n",
 		digits,
 		scaleFactor(library, cell, pvt));
-    *result += scale_str;
+    return result;
   }
+  return "";
 }
 
 ////////////////////////////////////////////////////////////////
@@ -775,7 +775,7 @@ Table0::findValue(float,
   return value_;
 }
 
-void
+string
 Table0::reportValue(const char *result_name,
 		    const LibertyLibrary *,
 		    const LibertyCell *,
@@ -785,15 +785,15 @@ Table0::reportValue(const char *result_name,
 		    float value2,
 		    float value3,
                     const Unit *table_unit,
-		    int digits,
-		    string *result) const
+		    int digits) const
 {
-  *result += result_name;
-  *result += " constant = ";
-  *result += table_unit->asString(findValue(value1, value2, value3), digits);
+  string result = result_name;
+  result += " constant = ";
+  result += table_unit->asString(findValue(value1, value2, value3), digits);
   if (comment1)
-    *result += comment1;
-  *result += '\n';
+    result += comment1;
+  result += '\n';
+  return result;
 }
 
 void
@@ -913,7 +913,7 @@ Table1::findValue(float axis_value1,
   }
 }
 
-void
+string
 Table1::reportValue(const char *result_name, const
 		    LibertyLibrary *library,
 		    const LibertyCell *,
@@ -923,42 +923,41 @@ Table1::reportValue(const char *result_name, const
 		    float value2,
 		    float value3,
                     const Unit *table_unit,
-		    int digits,
-		    string *result) const
+		    int digits) const
 {
   const Units *units = library->units();
   const Unit *unit1 = axis1_->unit(units);
-  *result += "Table is indexed by\n";
-  *result += "  ";
-  *result += axis1_->variableString();
-  *result += " = ";
-  *result += unit1->asString(value1, digits);
+  string result = "Table is indexed by\n  ";
+  result += axis1_->variableString();
+  result += " = ";
+  result += unit1->asString(value1, digits);
   if (comment1)
-    *result += comment1;
-  *result += '\n';
+    result += comment1;
+  result += '\n';
 
   if (axis1_->size() != 1) {
     size_t index1 = axis1_->findAxisIndex(value1);
-    *result += "  ";
-    *result += unit1->asString(axis1_->axisValue(index1), digits);
-    *result += "      ";
-    *result += unit1->asString(axis1_->axisValue(index1 + 1), digits);
-    *result += '\n';
+    result += "  ";
+    result += unit1->asString(axis1_->axisValue(index1), digits);
+    result += "      ";
+    result += unit1->asString(axis1_->axisValue(index1 + 1), digits);
+    result += '\n';
 
-    *result += "    --------------------\n";
+    result += "    --------------------\n";
 
-    *result += "| ";
-    *result += table_unit->asString(value(index1), digits);
-    *result += "     ";
-    *result += table_unit->asString(value(index1 + 1),
+    result += "| ";
+    result += table_unit->asString(value(index1), digits);
+    result += "     ";
+    result += table_unit->asString(value(index1 + 1),
 				    digits);
-    *result += '\n';
+    result += '\n';
   }
 
-  *result += result_name;
-  *result += " = ";
-  *result += table_unit->asString(findValue(value1, value2, value3), digits);
-  *result += '\n';
+  result += result_name;
+  result += " = ";
+  result += table_unit->asString(findValue(value1, value2, value3), digits);
+  result += '\n';
+  return result;
 }
 
 void
@@ -1081,7 +1080,7 @@ Table2::findValue(float axis_value1,
   }
 }
 
-void
+string
 Table2::reportValue(const char *result_name,
 		    const LibertyLibrary *library,
 		    const LibertyCell *,
@@ -1091,62 +1090,62 @@ Table2::reportValue(const char *result_name,
 		    float value2,
 		    float value3,
                     const Unit *table_unit,
-		    int digits,
-		    string *result) const
+		    int digits) const
 {
   const Units *units = library->units();
   const Unit *unit1 = axis1_->unit(units);
   const Unit *unit2 = axis2_->unit(units);
-  *result += "------- ";
-  *result += axis1_->variableString(),
-  *result += " = ";
-  *result += unit1->asString(value1, digits);
+  string result = "------- ";
+  result += axis1_->variableString(),
+  result += " = ";
+  result += unit1->asString(value1, digits);
   if (comment1)
-    *result += comment1;
-  *result += '\n';
+    result += comment1;
+  result += '\n';
 
-  *result += "|       ";
-  *result += axis2_->variableString();
-  *result += " = ";
-  *result += unit2->asString(value2, digits);
-  *result += '\n';
+  result += "|       ";
+  result += axis2_->variableString();
+  result += " = ";
+  result += unit2->asString(value2, digits);
+  result += '\n';
 
   size_t index1 = axis1_->findAxisIndex(value1);
   size_t index2 = axis2_->findAxisIndex(value2);
-  *result += "|        ";
-  *result += unit2->asString(axis2_->axisValue(index2), digits);
+  result += "|        ";
+  result += unit2->asString(axis2_->axisValue(index2), digits);
   if (axis2_->size() != 1) {
-    *result += "     ";
-    *result += unit2->asString(axis2_->axisValue(index2 + 1), digits);
+    result += "     ";
+    result += unit2->asString(axis2_->axisValue(index2 + 1), digits);
   }
-  *result += '\n';
+  result += '\n';
 
-  *result += "v      --------------------\n";
-  *result += unit1->asString(axis1_->axisValue(index1), digits);
-  *result += " | ";
+  result += "v      --------------------\n";
+  result += unit1->asString(axis1_->axisValue(index1), digits);
+  result += " | ";
 
-  *result += table_unit->asString(value(index1, index2), digits);
+  result += table_unit->asString(value(index1, index2), digits);
   if (axis2_->size() != 1) {
-    *result += "     ";
-    *result += table_unit->asString(value(index1, index2 + 1), digits);
+    result += "     ";
+    result += table_unit->asString(value(index1, index2 + 1), digits);
   }
-  *result += '\n';
+  result += '\n';
 
   if (axis1_->size() != 1) {
-    *result += unit1->asString(axis1_->axisValue(index1 + 1), digits);
-    *result += " | ";
-    *result += table_unit->asString(value(index1 + 1, index2), digits);
+    result += unit1->asString(axis1_->axisValue(index1 + 1), digits);
+    result += " | ";
+    result += table_unit->asString(value(index1 + 1, index2), digits);
     if (axis2_->size() != 1) {
-      *result += "     ";
-      *result +=table_unit->asString(value(index1 + 1, index2 + 1),digits);
+      result += "     ";
+      result +=table_unit->asString(value(index1 + 1, index2 + 1),digits);
     }
   }
-  *result += '\n';
+  result += '\n';
 
-  *result += result_name;
-  *result += " = ";
-  *result += table_unit->asString(findValue(value1, value2, value3), digits);
-  *result += '\n';
+  result += result_name;
+  result += " = ";
+  result += table_unit->asString(findValue(value1, value2, value3), digits);
+  result += '\n';
+  return result;
 }
 
 void
@@ -1272,7 +1271,7 @@ Table3::findValue(float axis_value1,
 // 0.00  0.20 | 0.10     0.20
 //            |/ 0.30     0.32
 //       0.40 | 0.20     0.30
-void
+string
 Table3::reportValue(const char *result_name,
 		    const LibertyLibrary *library,
 		    const LibertyCell *,
@@ -1282,117 +1281,117 @@ Table3::reportValue(const char *result_name,
 		    float value2,
 		    float value3,
                     const Unit *table_unit,
-		    int digits,
-		    string *result) const
+		    int digits) const
 {
   const Units *units = library->units();
   const Unit *unit1 = axis1_->unit(units);
   const Unit *unit2 = axis2_->unit(units);
   const Unit *unit3 = axis3_->unit(units);
 
-  *result += "   --------- ";
-  *result += axis1_->variableString(),
-  *result += " = ";
-  *result += unit1->asString(value1, digits);
+  string result = "   --------- ";
+  result += axis1_->variableString(),
+  result += " = ";
+  result += unit1->asString(value1, digits);
   if (comment1)
-    *result += comment1;
-  *result += '\n';
+    result += comment1;
+  result += '\n';
 
-  *result += "   |    ---- ";
-  *result += axis2_->variableString(),
-  *result += " = ";
-  *result += unit2->asString(value2, digits);
-  *result += '\n';
+  result += "   |    ---- ";
+  result += axis2_->variableString(),
+  result += " = ";
+  result += unit2->asString(value2, digits);
+  result += '\n';
 
-  *result += "   |    |    ";
-  *result += axis3_->variableString();
-  *result += " = ";
-  *result += unit3->asString(value3, digits);
-  *result += '\n';
+  result += "   |    |    ";
+  result += axis3_->variableString();
+  result += " = ";
+  result += unit3->asString(value3, digits);
+  result += '\n';
 
   size_t axis_index1 = axis1_->findAxisIndex(value1);
   size_t axis_index2 = axis2_->findAxisIndex(value2);
   size_t axis_index3 = axis3_->findAxisIndex(value3);
 
-  *result += "   |    |    ";
-  *result += unit3->asString(axis3_->axisValue(axis_index3), digits);
+  result += "   |    |    ";
+  result += unit3->asString(axis3_->axisValue(axis_index3), digits);
   if (axis3_->size() != 1) {
-    *result += "     ";
-    *result += unit3->asString(axis3_->axisValue(axis_index3 + 1), digits);
+    result += "     ";
+    result += unit3->asString(axis3_->axisValue(axis_index3 + 1), digits);
   }
-  *result += '\n';
+  result += '\n';
 
-  *result += "   v    |    --------------------\n";
+  result += "   v    |    --------------------\n";
 
   if (axis1_->size() != 1) {
-    *result += " ";
-    *result += unit1->asString(axis1_->axisValue(axis_index1+1), digits);
-    *result += "   v   / ";
-    *result += table_unit->asString(value(axis_index1+1,axis_index2,axis_index3),
+    result += " ";
+    result += unit1->asString(axis1_->axisValue(axis_index1+1), digits);
+    result += "   v   / ";
+    result += table_unit->asString(value(axis_index1+1,axis_index2,axis_index3),
 				    digits);
     if (axis3_->size() != 1) {
-      *result += "     ";
-      *result += table_unit->asString(value(axis_index1+1,axis_index2,axis_index3+1),
+      result += "     ";
+      result += table_unit->asString(value(axis_index1+1,axis_index2,axis_index3+1),
 				      digits);
     }
   }
   else {
     appendSpaces(result, digits+3);
-    *result += "   v   / ";
+    result += "   v   / ";
   }
-  *result += '\n';
+  result += '\n';
 
-  *result += unit1->asString(axis1_->axisValue(axis_index1), digits);
-  *result += "  ";
-  *result += unit2->asString(axis2_->axisValue(axis_index2), digits);
-  *result += " | ";
-  *result += table_unit->asString(value(axis_index1, axis_index2, axis_index3), digits);
+  result += unit1->asString(axis1_->axisValue(axis_index1), digits);
+  result += "  ";
+  result += unit2->asString(axis2_->axisValue(axis_index2), digits);
+  result += " | ";
+  result += table_unit->asString(value(axis_index1, axis_index2, axis_index3), digits);
   if (axis3_->size() != 1) {
-    *result += "     ";
-    *result += table_unit->asString(value(axis_index1, axis_index2, axis_index3+1),
+    result += "     ";
+    result += table_unit->asString(value(axis_index1, axis_index2, axis_index3+1),
 				    digits);
   }
-  *result += '\n';
+  result += '\n';
 
-  *result += "           |/ ";
+  result += "           |/ ";
   if (axis1_->size() != 1
       && axis2_->size() != 1) {
-    *result += table_unit->asString(value(axis_index1+1,axis_index2+1,axis_index3),
+    result += table_unit->asString(value(axis_index1+1,axis_index2+1,axis_index3),
 				    digits);
     if (axis3_->size() != 1) {
-      *result += "     ";
-      *result +=table_unit->asString(value(axis_index1+1,axis_index2+1,axis_index3+1),
+      result += "     ";
+      result +=table_unit->asString(value(axis_index1+1,axis_index2+1,axis_index3+1),
 				     digits);
     }
   }
-  *result += '\n';
+  result += '\n';
 
-  *result += "      ";
-  *result += unit2->asString(axis2_->axisValue(axis_index2 + 1), digits);
-  *result += " | ";
+  result += "      ";
+  result += unit2->asString(axis2_->axisValue(axis_index2 + 1), digits);
+  result += " | ";
   if (axis2_->size() != 1) {
-    *result += table_unit->asString(value(axis_index1, axis_index2+1, axis_index3),
-				    digits);
+    result += table_unit->asString(value(axis_index1, axis_index2+1, axis_index3),
+                                   digits);
     if (axis3_->size() != 1) {
-      *result += "     ";
-      *result +=table_unit->asString(value(axis_index1, axis_index2+1,axis_index3+1),
-				     digits);
+      result += "     ";
+      result +=table_unit->asString(value(axis_index1, axis_index2+1,axis_index3+1),
+                                    digits);
     }
   }
-  *result += '\n';
+  result += '\n';
 
-  *result += result_name;
-  *result += " = ";
-  *result += table_unit->asString(findValue(value1, value2, value3), digits);
-  *result += '\n';
+  result += result_name;
+  result += " = ";
+  result += table_unit->asString(findValue(value1, value2, value3), digits);
+  result += '\n';
+  return result;
 }
 
 static void
-appendSpaces(string *result,
+appendSpaces(string &result,
 	     int count)
 {
   while (count--)
-    *result += ' ';
+    result += ' ';
 }
 
 void

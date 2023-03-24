@@ -25,12 +25,12 @@ class RCDelayCalc : public LumpedCapDelayCalc
 {
 public:
   RCDelayCalc(StaState *sta);
-  virtual ArcDelayCalc *copy();
-  virtual void inputPortDelay(const Pin *port_pin,
-			      float in_slew,
-			      const RiseFall *rf,
-			      const Parasitic *parasitic,
-			      const DcalcAnalysisPt *dcalc_ap);
+  ArcDelayCalc *copy() override;
+  void inputPortDelay(const Pin *port_pin,
+                      float in_slew,
+                      const RiseFall *rf,
+                      const Parasitic *parasitic,
+                      const DcalcAnalysisPt *dcalc_ap) override;
 
 protected:
   // Helper function for input ports driving dspf parasitic.

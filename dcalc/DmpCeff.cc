@@ -1666,7 +1666,7 @@ DmpCeffDelayCalc::ceff(const LibertyCell *drvr_cell,
     return load_cap;
 }
 
-void
+string
 DmpCeffDelayCalc::reportGateDelay(const LibertyCell *drvr_cell,
 				  const TimingArc *arc,
 				  const Slew &in_slew,
@@ -1675,8 +1675,7 @@ DmpCeffDelayCalc::reportGateDelay(const LibertyCell *drvr_cell,
 				  float related_out_cap,
 				  const Pvt *pvt,
 				  const DcalcAnalysisPt *dcalc_ap,
-				  int digits,
-				  string *result)
+				  int digits)
 {
   ArcDelay gate_delay;
   Slew drvr_slew;
@@ -1685,6 +1684,7 @@ DmpCeffDelayCalc::reportGateDelay(const LibertyCell *drvr_cell,
 	    gate_delay, drvr_slew);
   GateTimingModel *model = gateModel(arc, dcalc_ap);
   float c_eff = 0.0;
+  string result;
   if (drvr_parasitic_ && dmp_alg_) {
     c_eff = dmp_alg_->ceff();
     const LibertyLibrary *drvr_library = drvr_cell->libertyLibrary();
@@ -1693,24 +1693,24 @@ DmpCeffDelayCalc::reportGateDelay(const LibertyCell *drvr_cell,
     const Unit *res_unit = units->resistanceUnit();
     float c2, rpi, c1;
     parasitics_->piModel(drvr_parasitic_, c2, rpi, c1);
-    *result += "Pi model C2=";
-    *result += cap_unit->asString(c2, digits);
-    *result += " Rpi=";
-    *result += res_unit->asString(rpi, digits);
-    *result += " C1=";
-    *result += cap_unit->asString(c1, digits);
-    *result += ", Ceff=";
-    *result += cap_unit->asString(c_eff, digits);
-    *result += '\n';
+    result += "Pi model C2=";
+    result += cap_unit->asString(c2, digits);
+    result += " Rpi=";
+    result += res_unit->asString(rpi, digits);
+    result += " C1=";
+    result += cap_unit->asString(c1, digits);
+    result += ", Ceff=";
+    result += cap_unit->asString(c_eff, digits);
+    result += '\n';
   }
   else
     c_eff = load_cap;
   if (model) {
     float in_slew1 = delayAsFloat(in_slew);
-    model->reportGateDelay(drvr_cell, pvt, in_slew1, c_eff,
-			   related_out_cap, pocv_enabled_,
-			   digits, result);
+    result += model->reportGateDelay(drvr_cell, pvt, in_slew1, c_eff,
+                                     related_out_cap, pocv_enabled_, digits);
   }
+  return result;
 }
 
 static double

@@ -44,11 +44,11 @@ public:
   virtual void clear();
   virtual void findDelays(Level level);
   virtual void findDelays(Vertex *drvr_vertex);
-  virtual string *reportDelayCalc(Edge *edge,
-				  TimingArc *arc,
-				  const Corner *corner,
-				  const MinMax *min_max,
-				  int digits);
+  virtual string reportDelayCalc(Edge *edge,
+                                 TimingArc *arc,
+                                 const Corner *corner,
+                                 const MinMax *min_max,
+                                 int digits);
   virtual float incrementalDelayTolerance();
   virtual void setIncrementalDelayTolerance(float tol);
   virtual void setObserver(DelayCalcObserver *observer);

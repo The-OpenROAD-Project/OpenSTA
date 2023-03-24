@@ -403,6 +403,13 @@ using namespace sta;
 ////////////////////////////////////////////////////////////////
 
 // String that is deleted after crossing over to tcland.
+%typemap(out) string {
+  string &str = $1;
+  // String is volatile because it is deleted.
+  Tcl_SetResult(interp, const_cast<char*>(str.c_str()), TCL_VOLATILE);
+}
+
+// String that is deleted after crossing over to tcland.
 %typemap(out) TmpString* {
   string *str = $1;
   if (str) {
