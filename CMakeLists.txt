@@ -510,7 +510,7 @@ set(CXX_FLAGS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-sec
 
 target_compile_options(OpenSTA
   PRIVATE
-  $<$<CXX_COMPILER_ID:GNU>:${CXX_FLAGS} -Wp>
+  $<$<CXX_COMPILER_ID:GNU>:${CXX_FLAGS}>
   $<$<CXX_COMPILER_ID:Clang>:${CXX_FLAGS} -Wno-gnu-zero-variadic-macro-arguments>
   $<$<CXX_COMPILER_ID:AppleClang>:${CXX_FLAGS} -Wno-gnu-zero-variadic-macro-arguments>
   )
