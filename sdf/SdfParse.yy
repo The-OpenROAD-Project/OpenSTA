@@ -128,8 +128,10 @@ celltype:
 ;
 
 cell_instance:
-	'(' INSTANCE ')'	{ sta::sdf_reader->setInstance(NULL); }
-|	'(' INSTANCE '*' ')'	{ sta::sdf_reader->setInstanceWildcard(); }
+	'(' INSTANCE ')'
+        { sta::sdf_reader->setInstance(NULL); }
+|	'(' INSTANCE '*' ')'
+        { sta::sdf_reader->setInstanceWildcard(); }
 |	'(' INSTANCE path ')'
 	{ sta::sdf_reader->setInstance($3); }
 ;
@@ -266,7 +268,10 @@ port:
 	ID
         { $$ = sta::sdf_reader->unescaped($1); }
         | ID '[' DNUMBER ']'
-        { $$ = sta::stringPrint("%s[%d]", sta::sdf_reader->unescaped($1), $3); }
+        { const char *bus_name = sta::sdf_reader->unescaped($1);
+          $$ = sta::stringPrint("%s[%d]", bus_name, $3);
+          sta::stringDelete(bus_name);
+        }
 ;
 
 port_instance:
@@ -292,7 +297,7 @@ port_tchk:
 |	'(' COND EXPR_ID_CLOSE
 	{ $$ = sta::sdf_reader->makeCondPortSpec($3); }
 |	'(' COND EXPR_OPEN port_transition port_instance ')' ')'
-        { $$ = sta::sdf_reader->makePortSpec($4, $5, $3); sta::stringDelete($3); }
+        { $$ = sta::sdf_reader->makePortSpec($4, $5, $3); }
 ;
 
 value:

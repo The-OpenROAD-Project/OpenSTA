@@ -94,83 +94,84 @@ Tag::asString(bool report_index,
 {
   const Network *network = sta->network();
   const Corners *corners = sta->corners();
-  string str;
+  string result;
 
   if (report_index)
-    str += stringPrintTmp("%4d ", index_);
+    result += std::to_string(index_);
 
   if (report_rf_min_max) {
     const RiseFall *rf = transition();
     PathAnalysisPt *path_ap = corners->findPathAnalysisPt(path_ap_index_);
-    str += stringPrintTmp("%s %s/%d ",
-			  rf->asString(),
-			  path_ap->pathMinMax()->asString(),
-			  path_ap_index_);
+    result += rf->asString();
+    result += " ";
+    result += path_ap->pathMinMax()->asString();
+    result += "/";
+    result += std::to_string(path_ap_index_);
   }
 
   const ClockEdge *clk_edge = clkEdge();
   if (clk_edge)
-    str += clk_edge->name();
+    result += clk_edge->name();
   else
-    str += "unclocked";
+    result += "unclocked";
 
   bool is_genclk_src = clk_info_->isGenClkSrcPath();
   if (is_clk_ || is_genclk_src) {
-    str += " (";
+    result += " (";
     if (is_clk_) {
-      str += "clock";
+      result += "clock";
       if (clk_info_->isPropagated())
-	str += " prop";
+	result += " prop";
       else
-	str += " ideal";
+	result += " ideal";
       if (is_genclk_src)
-	str += " ";
+	result += " ";
     }
     if (clk_info_->isGenClkSrcPath())
-      str += "genclk";
-    str += ")";
+      result += "genclk";
+    result += ")";
   }
 
   const Pin *clk_src = clkSrc();
   if (clk_src) {
-    str += " clk_src ";
-    str += network->pathName(clk_src);
+    result += " clk_src ";
+    result += network->pathName(clk_src);
   }
 
   const PathVertex crpr_clk_path(clk_info_->crprClkPath(), sta);
   if (!crpr_clk_path.isNull()) {
-    str += " crpr_pin ";
-    str += network->pathName(crpr_clk_path.pin(sta));
+    result += " crpr_pin ";
+    result += network->pathName(crpr_clk_path.pin(sta));
   }
 
   if (input_delay_) {
-    str += " input ";
-    str += network->pathName(input_delay_->pin());
+    result += " input ";
+    result += network->pathName(input_delay_->pin());
   }
 
   if (is_segment_start_)
-    str += " segment_start";
+    result += " segment_start";
 
   if (states_) {
     for (ExceptionState *state : *states_) {
       ExceptionPath *exception = state->exception();
-      str += " ";
-      str += exception->asString(network);
+      result += " ";
+      result += exception->asString(network);
       if (state->nextThru()) {
-	str += " (next thru ";
-	str += state->nextThru()->asString(network);
-	str += ")";
+	result += " (next thru ";
+	result += state->nextThru()->asString(network);
+	result += ")";
       }
       else {
 	if (exception->thrus() != nullptr)
-	  str += " (thrus complete)";
+	  result += " (thrus complete)";
       }
     }
   }
 
-  char *result = makeTmpString(str.size() + 1);
-  strcpy(result, str.c_str());
-  return result;
+  char *tmp = makeTmpString(result.size() + 1);
+  strcpy(tmp, result.c_str());
+  return tmp;
 }
 
 const RiseFall *

@@ -1106,7 +1106,7 @@ private:
   LibertyCell *cell_;
 };
 
-const char *
+string
 portLibertyToSta(const char *port_name);
 
 } // namespace

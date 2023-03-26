@@ -861,7 +861,7 @@ protected:
   LibertyPort *port_;
   LibertyPortMemberIterator *bit_iterator_;
   LibertyPort *range_bus_port_;
-  const char *range_bus_name_;
+  string range_bus_name_;
   LibertyPort *range_name_next_;
   int range_from_;
   int range_to_;

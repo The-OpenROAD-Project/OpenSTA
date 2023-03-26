@@ -16,25 +16,29 @@
 
 #pragma once
 
+#include <string>
+
 namespace sta {
 
-const char *
+using std::string;
+
+string
 instanceVerilogName(const char *sta_name,
 		    const char escape);
-const char *
+string
 netVerilogName(const char *sta_name,
 	       const char escape);
-const char *
+string
 portVerilogName(const char *sta_name,
 		const char escape);
 
-const char *
+string
 moduleVerilogToSta(const char *sta_name);
-const char *
+string
 instanceVerilogToSta(const char *sta_name);
-const char *
+string
 netVerilogToSta(const char *sta_name);
-const char *
+string
 portVerilogToSta(const char *sta_name);
 
 } // namespace
