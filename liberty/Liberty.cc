@@ -125,6 +125,8 @@ LibertyLibrary::~LibertyLibrary()
     stringDelete(supply_name);
   }
   delete buffers_;
+  driver_waveform_map_.deleteContents();
+  delete driver_waveform_default_;
 }
 
 LibertyCell *

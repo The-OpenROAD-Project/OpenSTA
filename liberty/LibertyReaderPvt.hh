@@ -880,8 +880,9 @@ public:
   float slew() const { return slew_; }
   float cap() const { return cap_; }
   Table1 *currents() const { return currents_; }
-  float referenceTime() const { return reference_time_; }
-  
+  Table1 *stealCurrents();
+  float referenceTime() { return reference_time_; }
+
 private:
   float slew_;
   float cap_;

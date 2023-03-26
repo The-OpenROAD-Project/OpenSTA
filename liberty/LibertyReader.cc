@@ -2526,7 +2526,7 @@ LibertyReader::endOutputCurrentRiseFall(LibertyGroup *group)
     cap_axis->findAxisIndex(waveform->cap(), cap_index, cap_exists);
     if (slew_exists && cap_exists) {
       size_t index = slew_index * cap_axis->size() + cap_index;
-      current_waveforms[index] = waveform->currents();
+      current_waveforms[index] = waveform->stealCurrents();
       (*ref_times)[slew_index] = waveform->referenceTime();
     }
     else
@@ -2539,6 +2539,7 @@ LibertyReader::endOutputCurrentRiseFall(LibertyGroup *group)
                                                         current_waveforms,
                                                         ref_time_tbl);
   timing_->setOutputWaveforms(rf_, output_current);
+  output_currents_.deleteContentsClear();
 }
 
 void
@@ -5775,6 +5776,14 @@ OutputWaveform::OutputWaveform(float slew,
 OutputWaveform::~OutputWaveform()
 {
   delete currents_;
+}
+
+Table1 *
+OutputWaveform::stealCurrents()
+{
+  Table1 *currents = currents_;
+  currents_ = nullptr;
+  return currents;
 }
 
 } // namespace
