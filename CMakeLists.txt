@@ -506,7 +506,7 @@ target_include_directories(OpenSTA
   )
 
 # common to gcc/clang
-set(CXX_FLAGS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security)
+set(CXX_FLAGS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security -Wp)
 
 target_compile_options(OpenSTA
   PRIVATE

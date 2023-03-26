@@ -558,13 +558,14 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
             Slew in_slew = graph_->slew(gate_in_vertex,
                                         drvr_arc->fromEdge()->asRiseFall(),
                                         dcalc_ap->index());
+            float in_slew1 = delayAsFloat(in_slew);
             TimingModel *drvr_model = drvr_arc->cornerArc(lib_index)->model(op_cond);
             GateTableModel *drvr_gate_model = dynamic_cast<GateTableModel*>(drvr_model);
             if (drvr_gate_model) {
               float output_load_cap = graph_delay_calc_->loadCap(output_pin, dcalc_ap);
               ArcDelay drvr_self_delay;
               Slew drvr_self_slew;
-              drvr_gate_model->gateDelay(drvr_cell, pvt, in_slew,
+              drvr_gate_model->gateDelay(drvr_cell, pvt, in_slew1,
                                          output_load_cap, 0.0, false,
                                          drvr_self_delay, drvr_self_slew);
 
@@ -579,12 +580,13 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                   // get slew from driver input pin
                   ArcDelay gate_delay;
                   Slew gate_slew;
-                  drvr_gate_model->gateDelay(drvr_cell, pvt, in_slew,
+                  drvr_gate_model->gateDelay(drvr_cell, pvt, in_slew1,
                                              load_cap, 0.0, false,
                                              gate_delay, gate_slew);
                   // Remove the self delay driving the output pin net load cap.
-                  load_values->push_back(delay + gate_delay - drvr_self_delay);
-                  slew_values->push_back(gate_slew);
+                  load_values->push_back(delayAsFloat(delay + gate_delay
+                                                      - drvr_self_delay));
+                  slew_values->push_back(delayAsFloat(gate_slew));
                 }
 
                 FloatSeq *axis_values = new FloatSeq(*drvr_axis_values);
