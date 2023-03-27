@@ -44,7 +44,7 @@ public:
   PatternMatch(const char *pattern);
   PatternMatch(const char *pattern,
 	       const PatternMatch *inherit_from);
-  PatternMatch(string pattern,
+  PatternMatch(const string &pattern,
 	       const PatternMatch *inherit_from);
   bool match(const char *str) const;
   bool match(const string &str) const;

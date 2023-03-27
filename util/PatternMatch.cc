@@ -57,7 +57,7 @@ PatternMatch::PatternMatch(const char *pattern,
     compileRegexp();
 }
 
-PatternMatch::PatternMatch(string pattern,
+PatternMatch::PatternMatch(const string &pattern,
 			   const PatternMatch *inherit_from) :
   pattern_(pattern.c_str()),
   is_regexp_(inherit_from->is_regexp_),
