@@ -57,7 +57,7 @@ is also licensed for commerical applications by Parallax Software without
 the GPL's requirements.
 
 OpenSTA is open source, meaning the sources are published and can be compiled locally.
-Derivatives works are supported as long as they adhere to the GPL license requirements.
+Derivative works are supported as long as they adhere to the GPL license requirements.
 However, OpenSTA is not supported by a public community of developers as many other
 open source projects are. The copyright and develpment are exclusive to Parallax
 Software. OpenSTA does not accept external code contributions.
