@@ -93,7 +93,7 @@ proc parse_args {} {
 }
 
 proc expand_tests { argv } {
-  global test_groups
+  global test_groups errors
 
   set tests {}
   foreach arg $argv {
@@ -111,7 +111,8 @@ proc expand_tests { argv } {
       lappend tests $arg
     } else {
       puts "Error: test $arg not found."
-    }
+      incr errors(no_cmd)
+   }
   }
   return $tests
 }
