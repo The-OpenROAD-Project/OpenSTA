@@ -289,13 +289,13 @@ proc report_wrt_clk { vertex what clk clk_rf } {
   }
 }
 
-proc rise_fall_short_name { tr } {
-  if { $tr eq "rise" } {
+proc rise_fall_short_name { rf } {
+  if { $rf == "rise" } {
     return [rise_short_name]
-  } elseif { $tr eq "fall" } {
+  } elseif { $rf == "fall" } {
     return [fall_short_name]
   } else {
-    error "unknown transition name $tr"
+    error "unknown transition name $rf"
   }
 }
 
