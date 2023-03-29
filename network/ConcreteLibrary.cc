@@ -342,7 +342,7 @@ private:
 BusPort::BusPort(const char *name,
 		 int from,
 		 PortDirection *direction) :
-  name_(name),
+  name_(stringCopy(name)),
   from_(from),
   to_(from),
   direction_(direction),
