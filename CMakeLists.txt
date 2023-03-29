@@ -506,7 +506,6 @@ target_include_directories(OpenSTA
   )
 
 set(CXX_COMMON_FLAGS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security -Wp,-D_GLIBCXX_ASSERTIONS)
-
 target_compile_options(OpenSTA
   PRIVATE
   $<$<CXX_COMPILER_ID:GNU>:${CXX_COMMON_FLAGS}>
