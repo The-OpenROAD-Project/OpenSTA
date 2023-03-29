@@ -505,14 +505,13 @@ target_include_directories(OpenSTA
   ${CUDD_INCLUDE}
   )
 
-# common to gcc/clang
 set(CXX_COMMON_FLAGS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security -Wp,-D_GLIBCXX_ASSERTIONS)
 
 target_compile_options(OpenSTA
   PRIVATE
   $<$<CXX_COMPILER_ID:GNU>:${CXX_COMMON_FLAGS}>
-  $<$<CXX_COMPILER_ID:Clang>:${CXX_COMMON_FLAGS} -Wno-gnu-zero-variadic-macro-arguments>
   $<$<CXX_COMPILER_ID:AppleClang>:${CXX_COMMON_FLAGS} -Wno-gnu-zero-variadic-macro-arguments>
+  $<$<CXX_COMPILER_ID:Clang>:${CXX_COMMON_FLAGS} -Wno-gnu-zero-variadic-macro-arguments>
   )
 
 # Disable compiler specific extensions like gnu++11.
