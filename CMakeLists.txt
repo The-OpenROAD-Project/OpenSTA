@@ -473,7 +473,10 @@ configure_file(${STA_HOME}/util/StaConfig.hh.cmake
 # compatibility with configure
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${STA_HOME}/app)
 
-add_library(OpenSTA
+add_library(OpenSTA)
+
+target_sources(OpenSTA
+  PRIVATE
   ${STA_SOURCE}
 
   ${STA_TCL_INIT}
@@ -492,6 +495,23 @@ add_library(OpenSTA
   ${FLEX_VerilogLex_OUTPUTS}
   ${BISON_VerilogParser_OUTPUTS}
 )
+
+target_link_libraries(OpenSTA
+  ${TCL_LIBRARY}
+  ${CMAKE_THREAD_LIBS_INIT}
+  )
+
+if (TCL_READLINE_LIBRARY)
+  target_link_libraries(OpenSTA ${TCL_READLINE_LIBRARY})
+endif()
+
+if (ZLIB_LIBRARIES)
+  target_link_libraries(OpenSTA ${ZLIB_LIBRARIES})
+endif()
+
+if (CUDD_LIB)
+  target_link_libraries(OpenSTA ${CUDD_LIB})
+endif()
 
 target_include_directories(OpenSTA
   PUBLIC
@@ -532,21 +552,7 @@ add_executable(sta app/Main.cc)
 target_link_libraries(sta
   sta_swig
   OpenSTA
-  ${TCL_LIBRARY}
-  ${CMAKE_THREAD_LIBS_INIT}
   )
-
-if (TCL_READLINE_LIBRARY)
-  target_link_libraries(sta ${TCL_READLINE_LIBRARY})
-endif()
-
-if (ZLIB_LIBRARIES)
-  target_link_libraries(sta ${ZLIB_LIBRARIES})
-endif()
-
-if (CUDD_LIB)
-  target_link_libraries(sta ${CUDD_LIB})
-endif()
 
 message(STATUS "STA executable: ${STA_HOME}/app/sta")
 
