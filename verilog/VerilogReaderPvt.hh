@@ -32,6 +32,9 @@ VerilogParse_error(const char *msg);
 
 namespace sta {
 
+using std::string;
+using std::set;
+
 class Debug;
 class Report;
 class VerilogReader;
@@ -117,6 +120,7 @@ public:
 			    VerilogNet *rhs,
 			    int line);
   VerilogNetScalar *makeNetScalar(const char *name);
+  VerilogNetPortRef *makeNetNamedPortRefScalarNet(const char *port_vname);
   VerilogNetPortRef *makeNetNamedPortRefScalarNet(const char *port_name,
 						  const char *net_name);
   VerilogNetPortRef *makeNetNamedPortRefBitSelect(const char *port_name,
@@ -160,11 +164,11 @@ public:
   void reportStmtCounts();
   const char *constant10Max() const { return constant10_max_; }
   size_t constant10MaxLength() const { return constant10_max_length_; }
-  const char *
+  string
   verilogName(VerilogModuleInst *inst);
-  const char *
+  string
   instanceVerilogName(const char *inst_name);
-  const char *
+  string
   netVerilogName(const char *net_name);
 
 protected:
@@ -178,9 +182,9 @@ protected:
   void makeNamedPortRefCellPorts(Cell *cell,
 				 VerilogModule *module,
 				 VerilogNet *mod_port,
-				 StringSet &port_names);
+				 set<string> &port_names);
   void checkModuleDcls(VerilogModule *module,
-		       StringSet &port_names);
+		       set<string> &port_names);
   void makeModuleInstBody(VerilogModule *module,
 			  Instance *inst,
 			  VerilogBindingTbl *bindings,
@@ -488,8 +492,8 @@ class VerilogNet
 public:
   VerilogNet() {}
   virtual ~VerilogNet() {}
-  virtual bool isNamed() = 0;
-  virtual const char *name() = 0;
+  virtual bool isNamed() const = 0;
+  virtual const string &name() const = 0;
   virtual bool isNamedPortRef() { return false; }
   virtual bool isNamedPortRefScalarNet() const { return false; }
   virtual int size(VerilogModule *module) = 0;
@@ -503,23 +507,27 @@ class VerilogNetUnnamed : public VerilogNet
 {
 public:
   VerilogNetUnnamed() {}
-  virtual bool isNamed() { return false; }
-  virtual const char *name() { return nullptr; }
+  bool isNamed() const override { return false; }
+  const string &name() const override { return null_; }
+
+private:
+  static const string null_;
 };
 
 class VerilogNetNamed : public VerilogNet
 {
 public:
   explicit VerilogNetNamed(const char *name);
+  explicit VerilogNetNamed(const string &name);
   virtual ~VerilogNetNamed();
-  virtual bool isNamed() { return true; }
+  bool isNamed() const override { return true; }
   virtual bool isScalar() const = 0;
-  virtual const char *name() { return name_; }
-  const char *baseName() { return name_; }
+  const string &name() const override { return name_; }
+  const string baseName() const { return name_; }
   void setName(const char *name);
 
 protected:
-  const char *name_;
+  string name_;
 };
 
 // Named net reference, which could be the name of a scalar or bus signal.
@@ -538,7 +546,6 @@ class VerilogNetBitSelect : public VerilogNetNamed
 public:
   VerilogNetBitSelect(const char *name,
 		      int index);
-  virtual const char *name();
   int index() { return index_; }
   virtual bool isScalar() const { return false; }
   virtual int size(VerilogModule *module);
@@ -620,6 +627,7 @@ public:
 class VerilogNetPortRefScalarNet : public VerilogNetPortRef
 {
 public:
+  VerilogNetPortRefScalarNet(const char *name);
   VerilogNetPortRefScalarNet(const char *name,
 			     const char *net_name);
   virtual ~VerilogNetPortRefScalarNet();
@@ -658,10 +666,10 @@ public:
   VerilogNetPortRefBit(const char *name,
 		       int index,
 		       VerilogNet *net);
-  virtual const char *name();
+  const string &name() const override { return bit_name_; }
 
 private:
-  int index_;
+  string bit_name_;
 };
 
 class VerilogNetPortRefPart : public VerilogNetPortRefBit
@@ -671,7 +679,7 @@ public:
 			int from_index,
 			int to_index,
 			VerilogNet *net);
-  virtual const char *name();
+  const string &name() const override;
   int toIndex() const { return to_index_; }
 
 private:

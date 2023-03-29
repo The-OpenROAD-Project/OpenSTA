@@ -24,28 +24,27 @@ class GateLinearModel : public GateTimingModel
 {
 public:
   GateLinearModel(float intrinsic, float resistance);
-  // gate delay calculation
-  virtual void gateDelay(const LibertyCell *cell,
-			 const Pvt *pvt,
-			 float load_cap, float in_slew,
-			 float related_out_cap,
-			 bool pocv_enabled,
-			 // return values
-			 ArcDelay &gate_delay,
-			 Slew &drvr_slew) const;
-  virtual void reportGateDelay(const LibertyCell *cell,
-			       const Pvt *pvt,
-			       float load_cap,
-			       float in_slew,
-			       float related_out_cap,
-			       bool pocv_enabled,
-			       int digits,
-			       string *result) const;
-  virtual float driveResistance(const LibertyCell *cell,
-				const Pvt *pvt) const;
+  void gateDelay(const LibertyCell *cell,
+                 const Pvt *pvt,
+                 float in_slew,
+                 float load_cap,
+                 float related_out_cap,
+                 bool pocv_enabled,
+                 // Return values.
+                 ArcDelay &gate_delay,
+                 Slew &drvr_slew) const override;
+  string reportGateDelay(const LibertyCell *cell,
+                         const Pvt *pvt,
+                         float in_slew,
+                         float load_cap,
+                         float related_out_cap,
+                         bool pocv_enabled,
+                         int digits) const override;
+  float driveResistance(const LibertyCell *cell,
+                        const Pvt *pvt) const override;
 
 protected:
-  virtual void setIsScaled(bool is_scaled);
+  void setIsScaled(bool is_scaled) override;
 
   float intrinsic_;
   float resistance_;
@@ -55,26 +54,25 @@ class CheckLinearModel : public CheckTimingModel
 {
 public:
   explicit CheckLinearModel(float intrinsic);
-  // Timing check margin delay calculation.
-  virtual void checkDelay(const LibertyCell *cell,
-			  const Pvt *pvt,
-			  float from_slew,
-			  float to_slew,
-			  float related_out_cap,
-			  bool pocv_enabled,
-			  ArcDelay &margin) const;
-  virtual void reportCheckDelay(const LibertyCell *cell,
-				const Pvt *pvt,
-				float from_slew,
-				const char *from_slew_annotation,
-				float to_slew,
-				float related_out_cap,
-				bool pocv_enabled,
-				int digits,
-				string *result) const;
+  void checkDelay(const LibertyCell *cell,
+                  const Pvt *pvt,
+                  float from_slew,
+                  float to_slew,
+                  float related_out_cap,
+                  bool pocv_enabled,
+                  // Return values.
+                  ArcDelay &margin) const override;
+  string reportCheckDelay(const LibertyCell *cell,
+                          const Pvt *pvt,
+                          float from_slew,
+                          const char *from_slew_annotation,
+                          float to_slew,
+                          float related_out_cap,
+                          bool pocv_enabled,
+                          int digits) const override;
 
 protected:
-  virtual void setIsScaled(bool is_scaled);
+  void setIsScaled(bool is_scaled) override;
 
   float intrinsic_;
 };

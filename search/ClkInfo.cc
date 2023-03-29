@@ -113,34 +113,35 @@ ClkInfo::asString(const StaState *sta) const
 {
   Network *network = sta->network();
   Corners *corners = sta->corners();
-  string str;
+  string result;
 
   PathAnalysisPt *path_ap = corners->findPathAnalysisPt(path_ap_index_);
-  str += stringPrintTmp("%s/%d ",
-			path_ap->pathMinMax()->asString(),
-			path_ap_index_);
+  result += path_ap->pathMinMax()->asString();
+  result += "/";
+  result += std::to_string(path_ap_index_);
+
   if (clk_edge_)
-    str += clk_edge_->name();
+    result += clk_edge_->name();
   else
-    str += "unclocked";
+    result += "unclocked";
 
   if (clk_src_) {
-    str += " clk_src ";
-    str += network->pathName(clk_src_);
+    result += " clk_src ";
+    result += network->pathName(clk_src_);
   }
 
   if (!crpr_clk_path_.isNull()) {
     const Pin *crpr_clk_pin = crpr_clk_path_.vertex(sta)->pin();
-    str += " crpr_pin ";
-    str += network->pathName(crpr_clk_pin);
+    result += " crpr_pin ";
+    result += network->pathName(crpr_clk_pin);
   }
 
   if (is_gen_clk_src_path_)
-    str += " genclk";
+    result += " genclk";
 
-  char *result = makeTmpString(str.size() + 1);
-  strcpy(result, str.c_str());
-  return result;
+  char *tmp = makeTmpString(result.size() + 1);
+  strcpy(tmp, result.c_str());
+  return tmp;
 }
 
 const Clock *

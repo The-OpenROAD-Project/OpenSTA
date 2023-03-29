@@ -57,6 +57,18 @@ PatternMatch::PatternMatch(const char *pattern,
     compileRegexp();
 }
 
+PatternMatch::PatternMatch(const string &pattern,
+			   const PatternMatch *inherit_from) :
+  pattern_(pattern.c_str()),
+  is_regexp_(inherit_from->is_regexp_),
+  nocase_(inherit_from->nocase_),
+  interp_(inherit_from->interp_),
+  regexp_(nullptr)
+{
+  if (is_regexp_)
+    compileRegexp();
+}
+
 void
 PatternMatch::compileRegexp()
 {
@@ -87,6 +99,12 @@ PatternMatch::hasWildcards() const
     return regexpWildcards(pattern_);
   else
     return patternWildcards(pattern_);
+}
+
+bool
+PatternMatch::match(const string &str) const
+{
+  return match(str.c_str());
 }
 
 bool

@@ -394,7 +394,7 @@ inst_named_pins:
 inst_named_pin:
 //      Scalar port.
 	'.' ID '(' ')'
-	{ $$ = sta::verilog_reader->makeNetNamedPortRefScalarNet($2, NULL); }
+	{ $$ = sta::verilog_reader->makeNetNamedPortRefScalarNet($2); }
 |	'.' ID '(' ID ')'
 	{ $$ = sta::verilog_reader->makeNetNamedPortRefScalarNet($2, $4); }
 |	'.' ID '(' ID '[' INT ']' ')'

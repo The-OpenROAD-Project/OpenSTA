@@ -43,30 +43,30 @@ GateLinearModel::gateDelay(const LibertyCell *,
   drvr_slew = 0.0;
 }
 
-void
+string
 GateLinearModel::reportGateDelay(const LibertyCell *cell,
 				 const Pvt *,
 				 float,
 				 float load_cap,
 				 float,
 				 bool,
-				 int digits,
-				 string *result) const
+				 int digits) const
 {
   const LibertyLibrary *library = cell->libertyLibrary();
   const Units *units = library->units();
   const Unit *time_unit = units->timeUnit();
   const Unit *res_unit = units->resistanceUnit();
   const Unit *cap_unit = units->capacitanceUnit();
-  *result += "Delay = ";
-  *result += time_unit->asString(intrinsic_, digits);
-  *result += " + ";
-  *result += res_unit->asString(resistance_, digits);
-  *result += " * ";
-  *result += cap_unit->asString(load_cap, digits);
-  *result += " = ";
+  string result = "Delay = ";
+  result += time_unit->asString(intrinsic_, digits);
+  result += " + ";
+  result += res_unit->asString(resistance_, digits);
+  result += " * ";
+  result += cap_unit->asString(load_cap, digits);
+  result += " = ";
   float delay = intrinsic_ + resistance_ * load_cap;
-  *result += time_unit->asString(delay, digits);
+  result += time_unit->asString(delay, digits);
+  return result;
 }
 
 float
@@ -98,7 +98,7 @@ CheckLinearModel::checkDelay(const LibertyCell *,
   margin = intrinsic_;
 }
 
-void
+string
 CheckLinearModel::reportCheckDelay(const LibertyCell *cell,
 				   const Pvt *,
 				   float,
@@ -106,14 +106,14 @@ CheckLinearModel::reportCheckDelay(const LibertyCell *cell,
 				   float,
 				   float,
 				   bool,
-				   int digits,
-				   string *result) const
+				   int digits) const
 {
   const LibertyLibrary *library = cell->libertyLibrary();
   const Units *units = library->units();
   const Unit *time_unit = units->timeUnit();
-  *result += "Check = ";
-  *result += time_unit->asString(intrinsic_, digits);
+  string result = "Check = ";
+  result += time_unit->asString(intrinsic_, digits);
+  return result;
 }
 
 void

@@ -1629,7 +1629,7 @@ GraphDelayCalc1::ceff(Edge *edge,
 
 ////////////////////////////////////////////////////////////////
 
-string *
+string
 GraphDelayCalc1::reportDelayCalc(Edge *edge,
 				 TimingArc *arc,
 				 const Corner *corner,
@@ -1643,7 +1643,7 @@ GraphDelayCalc1::reportDelayCalc(Edge *edge,
   Instance *inst = network_->instance(to_pin);
   LibertyCell *cell = network_->libertyCell(inst);
   TimingArcSet *arc_set = edge->timingArcSet();
-  string *result = new string;
+  string result;
   DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
   const Pvt *pvt = sdc_->pvt(inst, dcalc_ap->constraintMinMax());
   if (pvt == nullptr)
@@ -1668,19 +1668,19 @@ GraphDelayCalc1::reportDelayCalc(Edge *edge,
       const Slew &to_slew = graph_->slew(to_vertex, to_rf, slew_index);
       bool from_ideal_clk = clk_network_->isIdealClock(from_vertex->pin());
       const char *from_slew_annotation = from_ideal_clk ? " (ideal clock)" : nullptr;
-      arc_delay_calc_->reportCheckDelay(cell, arc, from_slew, from_slew_annotation,
-					to_slew, related_out_cap, pvt, dcalc_ap,
-					digits, result);
+      result = arc_delay_calc_->reportCheckDelay(cell, arc, from_slew,
+                                                 from_slew_annotation, to_slew,
+                                                 related_out_cap, pvt, dcalc_ap,
+                                                 digits);
     }
     else {
       Parasitic *to_parasitic =
 	arc_delay_calc_->findParasitic(to_pin, to_rf, dcalc_ap);
       const Slew &from_slew = edgeFromSlew(from_vertex, from_rf, edge, dcalc_ap);
       float load_cap = loadCap(to_pin, to_parasitic, to_rf, dcalc_ap);
-      arc_delay_calc_->reportGateDelay(cell, arc,
-				       from_slew, load_cap, to_parasitic,
-				       related_out_cap, pvt, dcalc_ap,
-				       digits, result);
+      result = arc_delay_calc_->reportGateDelay(cell, arc,
+                                                from_slew, load_cap, to_parasitic,
+                                                related_out_cap, pvt, dcalc_ap, digits);
     }
     arc_delay_calc_->finishDrvrPin();
   }

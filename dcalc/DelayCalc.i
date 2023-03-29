@@ -48,7 +48,7 @@ set_delay_calc_incremental_tolerance(float tol)
   sta::Sta::sta()->setIncrementalDelayTolerance(tol);
 }
 
-TmpString *
+string
 report_delay_calc_cmd(Edge *edge,
 		      TimingArc *arc,
 		      const Corner *corner,

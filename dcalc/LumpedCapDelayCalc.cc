@@ -165,7 +165,7 @@ LumpedCapDelayCalc::gateDelay(const LibertyCell *drvr_cell,
     Slew drvr_slew1;
     float in_slew1 = delayAsFloat(in_slew);
     // NaNs cause seg faults during table lookup.
-    if (isnan(load_cap) || isnan(related_out_cap) || isnan(in_slew))
+    if (isnan(load_cap) || isnan(related_out_cap) || isnan(delayAsFloat(in_slew)))
       report_->error(710, "gate delay input variable is NaN");
     model->gateDelay(drvr_cell, pvt, in_slew1, load_cap, related_out_cap,
 		     pocv_enabled_, gate_delay1, drvr_slew1);
@@ -238,7 +238,7 @@ LumpedCapDelayCalc::thresholdLibrary(const Pin *load_pin)
   }
 }
 
-void
+string
 LumpedCapDelayCalc::reportGateDelay(const LibertyCell *drvr_cell,
 				    const TimingArc *arc,
 				    const Slew &in_slew,
@@ -247,15 +247,15 @@ LumpedCapDelayCalc::reportGateDelay(const LibertyCell *drvr_cell,
 				    float related_out_cap,
 				    const Pvt *pvt,
 				    const DcalcAnalysisPt *dcalc_ap,
-				    int digits,
-				    string *result)
+				    int digits)
 {
   GateTimingModel *model = gateModel(arc, dcalc_ap);
   if (model) {
     float in_slew1 = delayAsFloat(in_slew);
-    model->reportGateDelay(drvr_cell, pvt, in_slew1, load_cap,
-			   related_out_cap, false, digits, result);
+    return model->reportGateDelay(drvr_cell, pvt, in_slew1, load_cap,
+                                  related_out_cap, false, digits);
   }
+  return "";
 }
 
 void
@@ -280,7 +280,7 @@ LumpedCapDelayCalc::checkDelay(const LibertyCell *cell,
     margin = delay_zero;
 }
 
-void
+string
 LumpedCapDelayCalc::reportCheckDelay(const LibertyCell *cell,
 				     const TimingArc *arc,
 				     const Slew &from_slew,
@@ -289,16 +289,16 @@ LumpedCapDelayCalc::reportCheckDelay(const LibertyCell *cell,
 				     float related_out_cap,
 				     const Pvt *pvt,
 				     const DcalcAnalysisPt *dcalc_ap,
-				     int digits,
-				     string *result)
+				     int digits)
 {
   CheckTimingModel *model = checkModel(arc, dcalc_ap);
   if (model) {
     float from_slew1 = delayAsFloat(from_slew);
     float to_slew1 = delayAsFloat(to_slew);
-    model->reportCheckDelay(cell, pvt, from_slew1, from_slew_annotation, to_slew1,
-			    related_out_cap, false, digits, result);
+    return model->reportCheckDelay(cell, pvt, from_slew1, from_slew_annotation, to_slew1,
+                                   related_out_cap, false, digits);
   }
+  return "";
 }
 
 void

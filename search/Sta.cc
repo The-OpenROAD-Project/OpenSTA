@@ -2657,7 +2657,7 @@ Sta::endpointViolationCount(const MinMax *min_max)
 {
   int violations = 0;
   for (Vertex *end : *search_->endpoints()) {
-    if (vertexSlack(end, min_max) < 0.0)
+    if (delayLess(vertexSlack(end, min_max), 0.0, this))
       violations++;
   }
   return violations;
@@ -2815,7 +2815,8 @@ Sta::pinArrival(const Pin *pin,
   if (bidirect_vertex) {
     Arrival arrival1 = vertexArrival(bidirect_vertex, rf, clk_edge_wildcard,
                                      nullptr, min_max);
-    arrival = min_max->minMax(arrival, arrival1);
+    if (delayLess(arrival1, arrival, this))
+      arrival = arrival1;
   }
   return arrival;
 }
@@ -3256,7 +3257,7 @@ Sta::worstSlack(const Corner *corner,
 
 ////////////////////////////////////////////////////////////////
 
-string *
+string
 Sta::reportDelayCalc(Edge *edge,
 		     TimingArc *arc,
 		     const Corner *corner,

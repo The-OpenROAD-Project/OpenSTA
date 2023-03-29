@@ -36,14 +36,14 @@ GraphDelayCalc::setObserver(DelayCalcObserver *observer)
   delete observer;
 }
 
-string *
+string
 GraphDelayCalc::reportDelayCalc(Edge *,
 				TimingArc *,
 				const Corner *,
 				const MinMax *,
 				int)
 {
-  return new string;
+  return "";
 }
 
 float

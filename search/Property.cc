@@ -1028,7 +1028,9 @@ getProperty(Edge *edge,
     auto graph = sta->graph();
     const char *from = edge->from(graph)->name(network);
     const char *to = edge->to(graph)->name(network);
-    return PropertyValue(stringPrintTmp("%s -> %s", from, to));
+    string full_name;
+    stringPrint(full_name, "%s -> %s", from, to);
+    return PropertyValue(full_name);
   }
   if (stringEqual(property, "delay_min_fall"))
     return edgeDelayProperty(edge, RiseFall::fall(), MinMax::min(), sta);

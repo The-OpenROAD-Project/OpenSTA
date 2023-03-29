@@ -210,6 +210,8 @@ SdfReader::interconnect(const char *from_pin_name,
 	sdfWarn(186, "pin %s not found.", to_pin_name);
     }
   }
+  stringDelete(from_pin_name);
+  stringDelete(to_pin_name);
   deleteTripleSeq(triples);
 }
 
@@ -234,6 +236,7 @@ SdfReader::port(const char *to_pin_name,
       }
     }
   }
+  stringDelete(to_pin_name);
   deleteTripleSeq(triples);
 }
 
@@ -312,6 +315,7 @@ SdfReader::setInstance(const char *instance_name)
   }
   else
     instance_ = nullptr;
+  stringDelete(instance_name);
 }
 
 void
@@ -399,6 +403,7 @@ SdfReader::iopath(SdfPortSpec *from_edge,
       }
     }
   }
+  stringDelete(to_port_name);
   deletePortSpec(from_edge);
   deleteTripleSeq(triples);
   stringDelete(cond);
@@ -688,6 +693,7 @@ SdfReader::device(const char *to_port_name,
       setDevicePinDelays(to_pin, triples);
     }
   }
+  stringDelete(to_port_name);
   deleteTripleSeq(triples);
 }
 
@@ -822,7 +828,10 @@ SdfReader::makePortSpec(Transition *tr,
 			const char *port,
 			const char *cond)
 {
-  return new SdfPortSpec(tr, port, cond);
+  SdfPortSpec *port_spec = new SdfPortSpec(tr, port, cond);
+  stringDelete(port);
+  stringDelete(cond);
+  return port_spec;
 }
 
 SdfPortSpec *
@@ -837,9 +846,9 @@ SdfReader::makeCondPortSpec(const char *cond_port)
     auto cond_end = cond_port1.find_last_not_of(" ", port_idx);
     if (cond_end != cond_port1.npos) {
       string cond1 = cond_port1.substr(0, cond_end + 1);
-      SdfPortSpec *port_spec = makePortSpec(Transition::riseFall(),
-                                            port1.c_str(),
-                                            cond1.c_str());
+      SdfPortSpec *port_spec = new SdfPortSpec(Transition::riseFall(),
+                                               port1.c_str(),
+                                               cond1.c_str());
       stringDelete(cond_port);
       return port_spec;
     }
@@ -919,7 +928,7 @@ SdfReader::unescaped(const char *token)
 {
   char path_escape = network_->pathEscape();
   char path_divider = network_->pathDivider();
-  char *unescaped = makeTmpString(strlen(token) + 1);
+  char *unescaped = new char[strlen(token) + 1];
   char *u = unescaped;
   size_t token_length = strlen(token);
 
@@ -962,10 +971,12 @@ char *
 SdfReader::makePath(const char *head,
                     const char *tail)
 {
-  char *path = stringPrintTmp("%s%c%s",
-                              head,
-                              network_->pathDivider(),
-                              tail);
+  char *path = stringPrint("%s%c%s",
+                           head,
+                           network_->pathDivider(),
+                           tail);
+  sta::stringDelete(head);
+  sta::stringDelete(tail);
   return path;
 }
 

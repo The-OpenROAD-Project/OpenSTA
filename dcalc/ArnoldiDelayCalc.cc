@@ -113,42 +113,40 @@ class ArnoldiDelayCalc : public RCDelayCalc
 public:
   ArnoldiDelayCalc(StaState *sta);
   virtual ~ArnoldiDelayCalc();
-  virtual ArcDelayCalc *copy();
-  virtual Parasitic *findParasitic(const Pin *drvr_pin,
-				   const RiseFall *rf,
-				   const DcalcAnalysisPt *dcalc_ap);
-  virtual ReducedParasiticType reducedParasiticType() const;
-  virtual void gateDelay(const LibertyCell *drvr_cell,
-			 const TimingArc *arc,
-			 const Slew &in_slew,
-			 // Pass in load_cap or drvr_parasitic.
-			 float load_cap,
-			 const Parasitic *drvr_parasitic,
-			 float related_out_cap,
-			 const Pvt *pvt,
-			 const DcalcAnalysisPt *dcalc_ap,
-			 // Return values.
-			 ArcDelay &gate_delay,
-			 Slew &drvr_slew);
-  virtual void loadDelay(const Pin *load_pin,
-			 // Return values.
-			 ArcDelay &wire_delay,
-			 Slew &load_slew);
-  virtual void inputPortDelay(const Pin *port_pin,
-			      float in_slew,
-			      const RiseFall *rf,
-			      const Parasitic *parasitic,
-			      const DcalcAnalysisPt *dcalc_ap);
-  virtual void reportGateDelay(const LibertyCell *drvr_cell,
-			       const TimingArc *arc,
-			       const Slew &in_slew,
-			       float load_cap,
-			       const Parasitic *,
-			       float related_out_cap,
-			       const Pvt *pvt,
-			       const DcalcAnalysisPt *dcalc_ap,
-			       int digits,
-			       string *result);
+  ArcDelayCalc *copy() override;
+  Parasitic *findParasitic(const Pin *drvr_pin,
+                           const RiseFall *rf,
+                           const DcalcAnalysisPt *dcalc_ap) override;
+  ReducedParasiticType reducedParasiticType() const override;
+  void inputPortDelay(const Pin *port_pin,
+                      float in_slew,
+                      const RiseFall *rf,
+                      const Parasitic *parasitic,
+                      const DcalcAnalysisPt *dcalc_ap) override;
+  void gateDelay(const LibertyCell *drvr_cell,
+                 const TimingArc *arc,
+                 const Slew &in_slew,
+                 float load_cap,
+                 const Parasitic *drvr_parasitic,
+                 float related_out_cap,
+                 const Pvt *pvt,
+                 const DcalcAnalysisPt *dcalc_ap,
+                 // Return values.
+                 ArcDelay &gate_delay,
+                 Slew &drvr_slew) override;
+  void loadDelay(const Pin *load_pin,
+                 // Return values.
+                 ArcDelay &wire_delay,
+                 Slew &load_slew) override;
+  string reportGateDelay(const LibertyCell *drvr_cell,
+                         const TimingArc *arc,
+                         const Slew &in_slew,
+                         float load_cap,
+                         const Parasitic *drvr_parasitic,
+                         float related_out_cap,
+                         const Pvt *pvt,
+                         const DcalcAnalysisPt *dcalc_ap,
+                         int digits) override;
   void delay_work_set_thresholds(delay_work *D,
 				 double lo,
 				 double hi,
@@ -455,7 +453,7 @@ ArnoldiDelayCalc::loadDelay(const Pin *load_pin,
   thresholdAdjust(load_pin, wire_delay, load_slew);
 }
 
-void
+string
 ArnoldiDelayCalc::reportGateDelay(const LibertyCell *,
 				  const TimingArc *,
 				  const Slew &,
@@ -464,9 +462,9 @@ ArnoldiDelayCalc::reportGateDelay(const LibertyCell *,
 				  float,
 				  const Pvt *,
 				  const DcalcAnalysisPt *,
-				  int,
-				  string *)
+				  int)
 {
+  return "";
 }
 
 ////////////////////////////////////////////////////////////////

@@ -523,38 +523,42 @@ LibertyReader::defineScalingFactorVisitors()
       if (scaleFactorTypeRiseFallSuffix(type)) {
 	for (auto tr : RiseFall::range()) {
 	  const char *tr_name = (tr == RiseFall::rise()) ? "rise":"fall";
-	  const char *attr_name = stringPrintTmp("k_%s_%s_%s",
-						 pvt_name,
-						 type_name,
-						 tr_name);
-	  defineAttrVisitor(attr_name,&LibertyReader::visitScaleFactorSuffix);
+	  string attr_name;
+          stringPrint(attr_name, "k_%s_%s_%s",
+                      pvt_name,
+                      type_name,
+                      tr_name);
+	  defineAttrVisitor(attr_name.c_str() ,&LibertyReader::visitScaleFactorSuffix);
 	}
       }
       else if (scaleFactorTypeRiseFallPrefix(type)) {
 	for (auto tr : RiseFall::range()) {
 	  const char *tr_name = (tr == RiseFall::rise()) ? "rise":"fall";
-	  const char *attr_name = stringPrintTmp("k_%s_%s_%s",
-						 pvt_name,
-						 tr_name,
-						 type_name);
-	  defineAttrVisitor(attr_name,&LibertyReader::visitScaleFactorPrefix);
+	  string attr_name;
+          stringPrint(attr_name, "k_%s_%s_%s",
+                      pvt_name,
+                      tr_name,
+                      type_name);
+	  defineAttrVisitor(attr_name.c_str(),&LibertyReader::visitScaleFactorPrefix);
 	}
       }
       else if (scaleFactorTypeLowHighSuffix(type)) {
 	for (auto tr : RiseFall::range()) {
 	  const char *tr_name = (tr == RiseFall::rise()) ? "high":"low";
-	  const char *attr_name = stringPrintTmp("k_%s_%s_%s",
-						 pvt_name,
-						 tr_name,
-						 type_name);
-	  defineAttrVisitor(attr_name,&LibertyReader::visitScaleFactorHiLow);
+	  string attr_name;
+          stringPrint(attr_name, "k_%s_%s_%s",
+                      pvt_name,
+                      tr_name,
+                      type_name);
+	  defineAttrVisitor(attr_name.c_str(),&LibertyReader::visitScaleFactorHiLow);
 	}
       }
       else {
-	const char *attr_name = stringPrintTmp("k_%s_%s",
-					       pvt_name,
-					       type_name);
-	defineAttrVisitor(attr_name,&LibertyReader::visitScaleFactor);
+	  string attr_name;
+          stringPrint(attr_name, "k_%s_%s",
+                      pvt_name,
+                      type_name);
+          defineAttrVisitor(attr_name.c_str(),&LibertyReader::visitScaleFactor);
       }
     }
   }
@@ -770,39 +774,32 @@ LibertyReader::parseUnits(LibertyAttr *attr,
 			  float &scale_var,
 			  Unit *unit)
 {
-  const char *unit_str = getAttrString(attr);
-  if (unit_str) {
-    unsigned unit_str_length = strlen(unit_str);
-
+  string units = getAttrString(attr);
+  if (!units.empty()) {
     // Unit format is <multipler_digits><scale_suffix_char><unit_suffix>.
     // Find the multiplier digits.
-    char *mult_str = makeTmpString(unit_str_length);
-    const char *s = unit_str;
-    char *m = mult_str;
-    for (; *s; s++) {
-      char ch = *s;
-      if (isdigit(ch))
-        *m++ = ch;
-      else
-        break;
-    }
-    *m = '\0';
-
+    string units = getAttrString(attr);
+    size_t mult_end = units.find_first_not_of("01234567890");
     float mult = 1.0F;
-    if (*mult_str != '\0') {
-      if (stringEq(mult_str, "1"))
+    string scale_suffix;
+    if (mult_end != units.npos) {
+      string unit_mult = units.substr(0, mult_end);
+      scale_suffix = units.substr(mult_end);
+      if (unit_mult == "1")
         mult = 1.0F;
-      else if (stringEq(mult_str, "10"))
+      else if (unit_mult == "10")
         mult = 10.0F;
-      else if (stringEq(mult_str, "100"))
+      else if (unit_mult == "100")
         mult = 100.0F;
       else
-        libWarn(38, attr, "unknown unit multiplier %s.", mult_str);
+        libWarn(38, attr, "unknown unit multiplier %s.", unit_mult.c_str());
     }
+    else
+      scale_suffix = units;
 
     float scale_mult = 1.0F;
-    if (*s && stringEqual(s + 1, unit_suffix)) {
-      char scale_char = tolower(*s);
+    if (scale_suffix.size() >= 2 && scale_suffix.substr(1) == unit_suffix) {
+      char scale_char = tolower(scale_suffix[0]);
       if (scale_char == 'k')
         scale_mult = 1E+3F;
       else if (scale_char == 'm')
@@ -818,8 +815,8 @@ LibertyReader::parseUnits(LibertyAttr *attr,
       else
         libWarn(39, attr, "unknown unit scale %c.", scale_char);
     }
-    else if (!stringEqual(s, unit_suffix))
-      libWarn(40, attr, "unknown unit suffix %s.", s + 1);
+    else if (!stringEqual(scale_suffix.c_str(), unit_suffix))
+      libWarn(40, attr, "unknown unit suffix %s.", scale_suffix.c_str());
 
     scale_var = scale_mult * mult;
     unit->setScale(scale_var);
@@ -2526,7 +2523,7 @@ LibertyReader::endOutputCurrentRiseFall(LibertyGroup *group)
     cap_axis->findAxisIndex(waveform->cap(), cap_index, cap_exists);
     if (slew_exists && cap_exists) {
       size_t index = slew_index * cap_axis->size() + cap_index;
-      current_waveforms[index] = waveform->currents();
+      current_waveforms[index] = waveform->stealCurrents();
       (*ref_times)[slew_index] = waveform->referenceTime();
     }
     else
@@ -2539,6 +2536,7 @@ LibertyReader::endOutputCurrentRiseFall(LibertyGroup *group)
                                                         current_waveforms,
                                                         ref_time_tbl);
   timing_->setOutputWaveforms(rf_, output_current);
+  output_currents_.deleteContentsClear();
 }
 
 void
@@ -3191,8 +3189,8 @@ libertyReaderFindPort(LibertyCell *cell,
     char brkt_right = library->busBrktRight();
     const char escape = '\\';
     // Pins at top level with bus names have escaped brackets.
-    port_name = escapeChars(port_name, brkt_left, brkt_right, escape);
-    port = cell->findLibertyPort(port_name);
+    string escaped_port_name = escapeChars(port_name, brkt_left, brkt_right, escape);
+    port = cell->findLibertyPort(escaped_port_name.c_str());
   }
   return port;
 }
@@ -4770,11 +4768,12 @@ LibertyReader::parseFunc(const char *func,
 			 const char *attr_name,
 			 int line)
 {
-  const char *error_msg = stringPrintTmp("%s, line %d %s",
-					 filename_,		
-					 line,
-					 attr_name);
-  return parseFuncExpr(func, cell_, error_msg, report_);
+  string error_msg;
+  stringPrint(error_msg, "%s, line %d %s",
+              filename_,		
+              line,
+              attr_name);
+  return parseFuncExpr(func, cell_, error_msg.c_str(), report_);
 }
 
 EarlyLateAll *
@@ -5627,7 +5626,6 @@ PortNameBitIterator::PortNameBitIterator(LibertyCell *cell,
   port_(nullptr),
   bit_iterator_(nullptr),
   range_bus_port_(nullptr),
-  range_bus_name_(nullptr),
   range_name_next_(nullptr),
   size_(0)
 {
@@ -5648,11 +5646,13 @@ PortNameBitIterator::init(const char *port_name)
   else {
     // Check for bus range.
     LibertyLibrary *library = visitor_->library();
+    bool is_bus;
+    string bus_name;
     int from, to;
-    char *bus_name;
-    parseBusRange(port_name, library->busBrktLeft(), library->busBrktRight(),
-		  '\\', bus_name, from, to);
-    if (bus_name) {
+    parseBusRange(port_name, library->busBrktLeft(),
+                  library->busBrktRight(), '\\',
+                  is_bus, bus_name, from, to);
+    if (is_bus) {
       port = visitor_->findPort(port_name);
       if (port) {
 	if (port->isBus()) {
@@ -5662,7 +5662,6 @@ PortNameBitIterator::init(const char *port_name)
 	    range_from_ = from;
 	    range_to_ = to;
 	    range_bit_ = from;
-	    delete [] bus_name;
 	  }
 	  else
 	    visitor_->libWarn(156, line_, "port %s subscript out of range.",
@@ -5671,7 +5670,7 @@ PortNameBitIterator::init(const char *port_name)
 	else
 	  visitor_->libWarn(157, line_, "port range %s of non-bus port %s.",
 			    port_name,
-			    bus_name);
+			    bus_name.c_str());
       }
       else {
 	range_bus_name_ = bus_name;
@@ -5689,7 +5688,6 @@ PortNameBitIterator::init(const char *port_name)
 
 PortNameBitIterator::~PortNameBitIterator()
 {
-  stringDelete(range_bus_name_);
   delete bit_iterator_;
 }
 
@@ -5702,7 +5700,7 @@ PortNameBitIterator::hasNext()
 	&& ((range_from_ > range_to_)
 	    ? range_bit_ >= range_to_
 	    : range_bit_ <= range_from_))
-    || (range_bus_name_
+    || (!range_bus_name_.empty()
 	&& range_name_next_);
 }
 
@@ -5724,7 +5722,7 @@ PortNameBitIterator::next()
       range_bit_++;
     return next;
   }
-  else if (range_bus_name_) {
+  else if (!range_bus_name_.empty()) {
     LibertyPort *next = range_name_next_;
     findRangeBusNameNext();
     return next;
@@ -5740,12 +5738,13 @@ PortNameBitIterator::findRangeBusNameNext()
       ? range_bit_ >= range_to_
       : range_bit_ <= range_to_) {
     LibertyLibrary *library = visitor_->library();
-    const char *bus_bit_name = stringPrintTmp("%s%c%d%c",
-					      range_bus_name_,
-					      library->busBrktLeft(),
-					      range_bit_,
-					      library->busBrktRight());
-    range_name_next_ = visitor_->findPort(bus_bit_name);
+    string bus_bit_name;
+    stringPrint(bus_bit_name, "%s%c%d%c",
+                range_bus_name_.c_str(),
+                library->busBrktLeft(),
+                range_bit_,
+                library->busBrktRight());
+    range_name_next_ = visitor_->findPort(bus_bit_name.c_str());
     if (range_name_next_) {
       if (range_from_ > range_to_)
 	range_bit_--;
@@ -5753,7 +5752,7 @@ PortNameBitIterator::findRangeBusNameNext()
 	range_bit_++;
     }
     else
-      visitor_->libWarn(159, line_, "port %s not found.", bus_bit_name);
+      visitor_->libWarn(159, line_, "port %s not found.", bus_bit_name.c_str());
   }
   else
     range_name_next_ = nullptr;
@@ -5775,6 +5774,14 @@ OutputWaveform::OutputWaveform(float slew,
 OutputWaveform::~OutputWaveform()
 {
   delete currents_;
+}
+
+Table1 *
+OutputWaveform::stealCurrents()
+{
+  Table1 *currents = currents_;
+  currents_ = nullptr;
+  return currents;
 }
 
 } // namespace

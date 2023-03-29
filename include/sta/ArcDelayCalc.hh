@@ -105,28 +105,26 @@ public:
 			  // Return values.
 			  ArcDelay &margin) = 0;
   // Report delay and slew calculation.
-  virtual void reportGateDelay(const LibertyCell *drvr_cell,
-			       const TimingArc *arc,
-			       const Slew &in_slew,
-			       // Pass in load_cap or drvr_parasitic.
-			       float load_cap,
-			       const Parasitic *drvr_parasitic,
-			       float related_out_cap,
-			       const Pvt *pvt,
-			       const DcalcAnalysisPt *dcalc_ap,
-			       int digits,
-			       string *result) = 0;
+  virtual string reportGateDelay(const LibertyCell *drvr_cell,
+                                 const TimingArc *arc,
+                                 const Slew &in_slew,
+                                 // Pass in load_cap or drvr_parasitic.
+                                 float load_cap,
+                                 const Parasitic *drvr_parasitic,
+                                 float related_out_cap,
+                                 const Pvt *pvt,
+                                 const DcalcAnalysisPt *dcalc_ap,
+                                 int digits) = 0;
   // Report timing check delay calculation.
-  virtual void reportCheckDelay(const LibertyCell *cell,
-				const TimingArc *arc,
-				const Slew &from_slew,
-				const char *from_slew_annotation,
-				const Slew &to_slew,
-				float related_out_cap,
-				const Pvt *pvt,
-				const DcalcAnalysisPt *dcalc_ap,
-				int digits,
-				string *result) = 0;
+  virtual string reportCheckDelay(const LibertyCell *cell,
+                                  const TimingArc *arc,
+                                  const Slew &from_slew,
+                                  const char *from_slew_annotation,
+                                  const Slew &to_slew,
+                                  float related_out_cap,
+                                  const Pvt *pvt,
+                                  const DcalcAnalysisPt *dcalc_ap,
+                                  int digits) = 0;
   virtual void finishDrvrPin() = 0;
 
 protected:

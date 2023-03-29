@@ -934,11 +934,11 @@ public:
   PinSet findGroupPathPins(const char *group_path_name);
   // Find all required times after updateTiming().
   void findRequireds();
-  string *reportDelayCalc(Edge *edge,
-			  TimingArc *arc,
-			  const Corner *corner,
-			  const MinMax *min_max,
-			  int digits);
+  string reportDelayCalc(Edge *edge,
+                         TimingArc *arc,
+                         const Corner *corner,
+                         const MinMax *min_max,
+                         int digits);
   void writeSdc(const char *filename,
 		// Map hierarchical pins and instances to leaf pins and instances.
 		bool leaf,

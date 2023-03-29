@@ -321,6 +321,7 @@ PropActivityVisitor::PropActivityVisitor(Power *power,
 					 BfsFwdIterator *bfs) :
   StaState(power),
   visited_regs_(network_),
+  max_change_(0.0),
   power_(power),
   bfs_(bfs)
 {

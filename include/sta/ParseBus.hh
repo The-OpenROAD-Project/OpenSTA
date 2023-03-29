@@ -16,7 +16,11 @@
 
 #pragma once
 
+#include <string>
+
 namespace sta {
+
+using std::string;
 
 // Return true if name is a bus.
 bool
@@ -38,7 +42,8 @@ parseBusName(const char *name,
 	     const char brkt_right,
 	     char escape,
 	     // Return values.
-	     char *&bus_name,
+	     bool &is_bus,
+             string &bus_name,
 	     int &index);
 // Allow multiple different left/right bus brackets.
 void
@@ -47,7 +52,8 @@ parseBusName(const char *name,
 	     const char *brkts_right,
 	     char escape,
 	     // Return values.
-	     char *&bus_name,
+	     bool &is_bus,
+	     string &bus_name,
 	     int &index);
 
 // Parse a bus range, such as BUS[4:0].
@@ -59,7 +65,8 @@ parseBusRange(const char *name,
 	      const char brkt_right,
 	      char escape,
 	      // Return values.
-	      char *&bus_name,
+	      bool &is_bus,
+              string &bus_name,
 	      int &from,
 	      int &to);
 // brkt_lefts and brkt_rights are corresponding strings of legal
@@ -70,12 +77,13 @@ parseBusRange(const char *name,
 	      const char *brkts_right,
 	      const char escape,
 	      // Return values.
-	      char *&bus_name,
+              bool &is_bus,
+	      string &bus_name,
 	      int &from,
 	      int &to);
 
 // Insert escapes before ch1 and ch2 in token.
-const char *
+string
 escapeChars(const char *token,
 	    const char ch1,
 	    const char ch2,

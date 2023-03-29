@@ -56,11 +56,11 @@ public:
   // Reset to virgin state.
   virtual void clear() {}
   // Returned string is owned by the caller.
-  virtual string *reportDelayCalc(Edge *edge,
-				  TimingArc *arc,
-				  const Corner *corner,
-				  const MinMax *min_max,
-				  int digits);
+  virtual string reportDelayCalc(Edge *edge,
+                                 TimingArc *arc,
+                                 const Corner *corner,
+                                 const MinMax *min_max,
+                                 int digits);
   // Percentage (0.0:1.0) change in delay that causes downstream
   // delays to be recomputed during incremental delay calculation.
   virtual float incrementalDelayTolerance();

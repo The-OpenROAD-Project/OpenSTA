@@ -97,7 +97,7 @@ UnitDelayCalc::ceff(const LibertyCell *,
   return 0.0;
 }
 
-void
+string
 UnitDelayCalc::reportGateDelay(const LibertyCell *,
 			       const TimingArc *,
 			       const Slew &,
@@ -106,11 +106,11 @@ UnitDelayCalc::reportGateDelay(const LibertyCell *,
 			       float,
 			       const Pvt *,
 			       const DcalcAnalysisPt *,
-			       int,
-			       string *result)
+			       int)
 {
-  *result += "Delay = 1.0\n";
-  *result += "Slew = 0.0\n";
+  string result("Delay = 1.0\n");
+  result += "Slew = 0.0\n";
+  return result;
 }
 
 void
@@ -127,7 +127,7 @@ UnitDelayCalc::checkDelay(const LibertyCell *,
   margin = units_->timeUnit()->scale();
 }
 
-void
+string
 UnitDelayCalc::reportCheckDelay(const LibertyCell *,
 				const TimingArc *,
 				const Slew &,
@@ -136,10 +136,9 @@ UnitDelayCalc::reportCheckDelay(const LibertyCell *,
 				float,
 				const Pvt *,
 				const DcalcAnalysisPt *,
-				int,
-				string *result)
+				int)
 {
-  *result += "Check = 1.0\n";
+  return "Check = 1.0\n";
 }
 
 void

@@ -25,6 +25,8 @@
 
 namespace sta {
 
+using std::map;
+
 static constexpr char escape_ = '\\';
 
 ConcreteLibrary::ConcreteLibrary(const char *name,
@@ -381,7 +383,7 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
 {
   const char bus_brkts_left[2]{bus_brkt_left, '\0'};
   const char bus_brkts_right[2]{bus_brkt_right, '\0'};
-  BusPortMap port_map;
+  map<string, BusPort*> port_map;
   // Find ungrouped bus ports.
   // Remove bus bit ports from the ports_ vector during the scan by
   // keeping an index to the next insertion index and skipping over
@@ -390,19 +392,21 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
   ports_.clear();
   for (ConcretePort *port : ports) {
     const char *port_name = port->name();
-    char *bus_name;
+    bool is_bus;
+    string bus_name;
     int index;
     parseBusName(port_name, bus_brkts_left, bus_brkts_right, escape_,
-		 bus_name, index);
-    if (bus_name) {
+		 is_bus, bus_name, index);
+    if (is_bus) {
       if (!port->isBusBit()) {
-	BusPort *bus_port = port_map.findKey(bus_name);
-	if (bus_port)
-	  stringDelete(bus_name);
-	else {
-	  bus_port = new BusPort(bus_name, index, port->direction());
+        auto name_bus_port = port_map.find(bus_name);
+        BusPort *bus_port;
+	if (name_bus_port == port_map.end()) {
+	  bus_port = new BusPort(bus_name.c_str(), index, port->direction());
 	  port_map[bus_name] = bus_port;
 	}
+        else
+          bus_port = name_bus_port->second;
 	bus_port->pushMember(port);
       }
       else
@@ -413,47 +417,45 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
   }
 
   // Make the bus ports.
-  BusPortMap::Iterator bus_iter(port_map);
-  while (bus_iter.hasNext()) {
-    BusPort *bus_port = bus_iter.next();
-    const char *bus_name = bus_port->name();
-    bool msb_first = port_msb_first(bus_name);
+  for (auto name_bus : port_map) {
+    const string &bus_name = name_bus.first;
+    BusPort *bus_port = name_bus.second;
+    bool msb_first = port_msb_first(bus_name.c_str());
     ConcretePortSeq *members = bus_port->members();
     sort(members, [&](ConcretePort *port1,
 		      ConcretePort *port2) {
-		    char *bus_name;
-		    int index1, index2;
-		    parseBusName(port1->name(), bus_brkts_left, bus_brkts_right, escape_,
-				 bus_name, index1);
-		    stringDelete(bus_name);
-		    parseBusName(port2->name(), bus_brkts_left, bus_brkts_right, escape_,
-				 bus_name, index2);
-		    stringDelete(bus_name);
-		    return msb_first ? index1 > index2 : index1 < index2;
-		  });
+      bool is_bus;
+      string bus_name;
+      int index1, index2;
+      parseBusName(port1->name(), bus_brkts_left, bus_brkts_right, escape_,
+                   is_bus, bus_name, index1);
+      parseBusName(port2->name(), bus_brkts_left, bus_brkts_right, escape_,
+                   is_bus, bus_name, index2);
+      return msb_first ? index1 > index2 : index1 < index2;
+    });
 
-    char *bus_name1;
+    bool is_bus1;
+    string bus_name1;
     int from_index, to_index;
     parseBusName((*members)[0]->name(),
                  bus_brkts_left, bus_brkts_right, escape_,
-                 bus_name1, from_index);
-    stringDelete(bus_name1);
+                 is_bus1, bus_name1, from_index);
     parseBusName((*members)[members->size() - 1]->name(),
                  bus_brkts_left, bus_brkts_right, escape_,
-                 bus_name1, to_index);
-    stringDelete(bus_name1);
+                 is_bus1, bus_name1, to_index);
 
-    ConcretePort *port = makeBusPort(bus_name, from_index, to_index, members);
+    ConcretePort *port = makeBusPort(bus_name.c_str(), from_index,
+                                     to_index, members);
     port->setDirection(bus_port->direction());
     delete bus_port;
 
     for (ConcretePort *port : *members) {
-      char *bus_name;
+      bool is_bus;
+      string bus_name;
       int index;
       parseBusName(port->name(), bus_brkts_left, bus_brkts_right, escape_,
-		   bus_name, index);
+		   is_bus, bus_name, index);
       port->setBusBitIndex(index);
-      stringDelete(bus_name);
     }
   }
 }

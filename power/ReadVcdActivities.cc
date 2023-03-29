@@ -131,14 +131,15 @@ ReadVcdActivities::setVarActivity(VcdVar *var,
                                   string &var_name,
                                   const VcdValues &var_values)
 {
-  const char *sta_name = netVerilogToSta(var_name.c_str());
+  string sta_name = netVerilogToSta(var_name.c_str());
   if (var->width() == 1)
-    setVarActivity(sta_name, var_values, 0);
+    setVarActivity(sta_name.c_str(), var_values, 0);
   else {
-    char *bus_name;
+    bool is_bus;
+    string bus_name;
     int from, to;
-    parseBusRange(sta_name, '[', ']', '\\',
-                  bus_name, from, to);
+    parseBusRange(sta_name.c_str(), '[', ']', '\\',
+                  is_bus, bus_name, from, to);
     int value_bit = 0;
     if (to < from) {
       for (int bus_bit = to; bus_bit <= from; bus_bit++) {
@@ -160,7 +161,6 @@ ReadVcdActivities::setVarActivity(VcdVar *var,
         value_bit++;
       }
     }
-    stringDelete(bus_name);
   }
 }
 

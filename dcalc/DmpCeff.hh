@@ -58,16 +58,15 @@ public:
 		     float related_out_cap,
 		     const Pvt *pvt,
 		     const DcalcAnalysisPt *dcalc_ap);
-  virtual void reportGateDelay(const LibertyCell *drvr_cell,
-			       const TimingArc *arc,
-			       const Slew &in_slew,
-			       float load_cap,
-			       const Parasitic *drvr_parasitic,
-			       float related_out_cap,
-			       const Pvt *pvt,
-			       const DcalcAnalysisPt *dcalc_ap,
-			       int digits,
-			       string *result);
+  virtual string reportGateDelay(const LibertyCell *drvr_cell,
+                                 const TimingArc *arc,
+                                 const Slew &in_slew,
+                                 float load_cap,
+                                 const Parasitic *drvr_parasitic,
+                                 float related_out_cap,
+                                 const Pvt *pvt,
+                                 const DcalcAnalysisPt *dcalc_ap,
+                                 int digits);
   virtual void copyState(const StaState *sta);
 
 protected:

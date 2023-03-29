@@ -33,21 +33,21 @@ class DmpCeffElmoreDelayCalc : public DmpCeffDelayCalc
 {
 public:
   DmpCeffElmoreDelayCalc(StaState *sta);
-  virtual ArcDelayCalc *copy();
-  virtual void gateDelay(const LibertyCell *drvr_cell,
-			 const TimingArc *arc,
-			 const Slew &in_slew,
-			 float load_cap,
-			 const Parasitic *drvr_parasitic,
-			 float related_out_cap,
-			 const Pvt *pvt,
-			 const DcalcAnalysisPt *dcalc_ap,
-			 // Return values.
-			 ArcDelay &gate_,
-			 Slew &drvr_slew);
-  virtual void loadDelay(const Pin *load_pin,
-			 ArcDelay &wire_delay,
-			 Slew &load_slew);
+  ArcDelayCalc *copy() override;
+  void gateDelay(const LibertyCell *drvr_cell,
+                 const TimingArc *arc,
+                 const Slew &in_slew,
+                 float load_cap,
+                 const Parasitic *drvr_parasitic,
+                 float related_out_cap,
+                 const Pvt *pvt,
+                 const DcalcAnalysisPt *dcalc_ap,
+                 // Return values.
+                 ArcDelay &gate_,
+                 Slew &drvr_slew) override;
+  void loadDelay(const Pin *load_pin,
+                 ArcDelay &wire_delay,
+                 Slew &load_slew) override;
 };
 
 ArcDelayCalc *
