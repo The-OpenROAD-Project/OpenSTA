@@ -301,7 +301,8 @@ ArnoldiDelayCalc::findParasitic(const Pin *drvr_pin,
 	Net *net = network_->net(drvr_pin);
 	parasitics_->deleteParasiticNetwork(net, parasitic_ap);
       }
-      reduced_parasitic_drvrs_.push_back(drvr_pin);
+      // Arnoldi parasitics their own class that are not saved in the parasitic db.
+      unsaved_parasitics_.push_back(parasitic);
       return parasitic;
     }
   }
