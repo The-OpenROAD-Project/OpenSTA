@@ -361,8 +361,7 @@ public:
                  float &value,
                  bool &extrapolated) const;
   float findValue(float axis_value1) const;
-  float findValueClip(float axis_value1,
-                      float clip_value) const;
+  float findValueClip(float axis_value1) const;
   FloatSeq *values() const { return values_; }
   using Table::findValue;
 
@@ -501,9 +500,11 @@ class OutputWaveforms
 public:
   OutputWaveforms(TableAxisPtr slew_axis,
                   TableAxisPtr cap_axis,
+                  const RiseFall *rf,
                   Table1Seq &current_waveforms,
                   Table1 *ref_times);
   ~OutputWaveforms();
+  const RiseFall *rf() const { return rf_; }
   Table1 voltageWaveform(float in_slew,
                          float load_cap);
   Table1 currentWaveform(float slew,
@@ -519,6 +520,7 @@ private:
   TableAxisPtr slew_axis_;
   // Column.
   TableAxisPtr cap_axis_;
+  const RiseFall *rf_;
   Table1Seq current_waveforms_;
   Table1Seq voltage_waveforms_;
   Table1 *ref_times_;

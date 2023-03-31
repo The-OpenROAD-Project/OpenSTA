@@ -408,7 +408,7 @@ WritePathSpice::maxTime()
   else {
     float end_slew = findSlew(path_);
     float arrival = delayAsFloat(path_->arrival(this));
-    float max_time = input_slew / 2.0 + arrival + end_slew;
+    float max_time = input_slew + arrival + end_slew;
     return max_time;
   }
 }
