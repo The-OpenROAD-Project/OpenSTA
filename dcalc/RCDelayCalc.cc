@@ -48,6 +48,7 @@ RCDelayCalc::inputPortDelay(const Pin *,
   drvr_cell_ = nullptr;
   drvr_library_ = network_->defaultLibertyLibrary();
   multi_drvr_slew_factor_ = 1.0F;
+  input_port_ = true;
 }
 
 // For DSPF on an input port the elmore delay is used as the time

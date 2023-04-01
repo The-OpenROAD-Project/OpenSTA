@@ -1550,7 +1550,6 @@ DmpCeffDelayCalc::inputPortDelay(const Pin *port_pin,
 				 const DcalcAnalysisPt *dcalc_ap)
 {
   dmp_alg_ = nullptr;
-  input_port_ = true;
   RCDelayCalc::inputPortDelay(port_pin, in_slew, rf, parasitic, dcalc_ap);
 }
 
