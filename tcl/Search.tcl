@@ -1162,5 +1162,33 @@ proc max_fanout_check_slack_limit {} {
   return [expr [sta::max_fanout_check_slack] / [sta::max_fanout_check_limit]]
 }
 
+################################################################
+
+proc opposite_rf { rf } {
+  if { [rf_is_rise $rf] } {
+    return "fall"
+  } elseif { [rf_is_fall $rf] } {
+    return "rise"
+  } else {
+    error "opposite_rf unknown transition $rf"
+  }
+}
+
+proc rf_is_rise { rf } {
+  if { $rf == "rise" || $rf == "^" || $rf == "r"} {
+    return 1
+  } else {
+    return 0
+  }
+}
+
+proc rf_is_fall { rf } {
+  if { $rf == "fall" || $rf == "v" || $rf == "f"} {
+    return 1
+  } else {
+    return 0
+  }
+}
+
 # sta namespace end.
 }
