@@ -249,7 +249,7 @@ proc report_delays_wrt_clk { vertex what clk clk_rf } {
     set rise_fmt [format_delays $rise]
     set fall_fmt [format_delays $fall]
     if {$clk != "NULL"} {
-      set clk_str " ([get_name $clk] [rise_fall_short_name $clk_rf])"
+      set clk_str " ([get_name $clk] [rf_short_name $clk_rf])"
     } else {
       set clk_str ""
     }
@@ -281,21 +281,11 @@ proc report_wrt_clk { vertex what clk clk_rf } {
     set rise_fmt [format_times $rise $sta_report_default_digits]
     set fall_fmt [format_times $fall $sta_report_default_digits]
     if {$clk != "NULL"} {
-      set clk_str " ([get_name $clk] [rise_fall_short_name $clk_rf])"
+      set clk_str " ([get_name $clk] [rf_short_name $clk_rf])"
     } else {
       set clk_str ""
     }
     report_line "$clk_str r $rise_fmt f $fall_fmt"
-  }
-}
-
-proc rise_fall_short_name { rf } {
-  if { $rf == "rise" } {
-    return [rise_short_name]
-  } elseif { $rf == "fall" } {
-    return [fall_short_name]
-  } else {
-    error "unknown transition name $rf"
   }
 }
 
@@ -1163,6 +1153,16 @@ proc max_fanout_check_slack_limit {} {
 }
 
 ################################################################
+
+proc rf_short_name { rf } {
+  if { [rf_is_rise $rf] } {
+    return [rise_short_name]
+  } elseif { [rf_is_fall $rf] } {
+    return [fall_short_name]
+  } else {
+    error "unknown transition name $rf"
+  }
+}
 
 proc opposite_rf { rf } {
   if { [rf_is_rise $rf] } {
