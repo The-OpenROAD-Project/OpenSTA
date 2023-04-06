@@ -97,7 +97,7 @@ Tag::asString(bool report_index,
   string result;
 
   if (report_index)
-    result += std::to_string(index_);
+    result += std::to_string(index_) + " ";
 
   if (report_rf_min_max) {
     const RiseFall *rf = transition();

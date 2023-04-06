@@ -136,12 +136,6 @@ enum class TableAxisVariable {
 enum class PathType { clk, data, clk_and_data };
 const int path_type_count = 2;
 
-// Rise/fall to rise/fall.
-const int timing_arc_index_bit_count = 2;
-const int timing_arc_index_max = (1<<timing_arc_index_bit_count)-1;
-const int timing_arc_set_index_bit_count = 18;
-const int timing_arc_set_index_max=(1<<timing_arc_set_index_bit_count)-1;
-
 class LibertyPortNameLess
 {
 public:
