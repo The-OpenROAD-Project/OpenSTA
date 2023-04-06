@@ -5619,9 +5619,8 @@ Sta::writeTimingModel(const char *lib_name,
                       const char *filename,
                       const Corner *corner)
 {
-  MakeTimingModel maker(corner, this);
-  LibertyLibrary *library = maker.makeTimingModel(lib_name, cell_name,
-                                                  filename);
+  LibertyLibrary *library = makeTimingModel(lib_name, cell_name, filename,
+                                            corner, this);
   writeLiberty(library, filename, this);
 }
 
