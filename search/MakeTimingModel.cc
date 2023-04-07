@@ -288,6 +288,8 @@ MakeEndTimingArcs::visit(PathEnd *path_end)
 void
 MakeTimingModel::findTimingFromInputs()
 {
+  search_->deleteFilteredArrivals();
+
   Instance *top_inst = network_->topInstance();
   Cell *top_cell = network_->cell(top_inst);
   CellPortBitIterator *port_iter = network_->portBitIterator(top_cell);
@@ -318,7 +320,6 @@ MakeTimingModel::findTimingFromInput(Port *input_port)
       from_pins->insert(input_pin);
       ExceptionFrom *from = sta_->makeExceptionFrom(from_pins, nullptr, nullptr,
                                                     input_rf1);
-      search_->deleteFilteredArrivals();
       search_->findFilteredArrivals(from, nullptr, nullptr, false);
 
       end_visitor.setInputRf(input_rf);
@@ -326,6 +327,7 @@ MakeTimingModel::findTimingFromInput(Port *input_port)
       for (Vertex *end : *search_->endpoints())
         visit_ends.visitPathEnds(end, corner_, MinMaxAll::all(), true, &end_visitor);
       findOutputDelays(input_rf, output_delays);
+      search_->deleteFilteredArrivals();
 
       sta_->removeInputDelay(input_pin, input_rf1,
                              sdc_->defaultArrivalClock(),
@@ -582,6 +584,7 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                                          drvr_self_delay, drvr_self_slew);
 
               const TableModel *drvr_table = drvr_gate_model->delayModel();
+              const TableTemplate *drvr_template = drvr_table->tblTemplate();
               const TableAxisPtr drvr_load_axis = loadCapacitanceAxis(drvr_table);
               if (drvr_load_axis) {
                 const FloatSeq *drvr_axis_values = drvr_load_axis->values();
@@ -605,20 +608,15 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                 TableAxisPtr load_axis =
                   std::make_shared<TableAxis>(TableAxisVariable::total_output_net_capacitance,
                                               axis_values);
-          
+
                 TablePtr delay_table = make_shared<Table1>(load_values, load_axis);
                 TablePtr slew_table = make_shared<Table1>(slew_values, load_axis);
 
-                string template_name = "template_";
-                template_name += std::to_string(tbl_template_index_++);
-
-                TableTemplate *tbl_template = new TableTemplate(template_name.c_str());
-                tbl_template->setAxis1(load_axis);
-                library_->addTableTemplate(tbl_template, TableTemplateType::delay);
-
-                TableModel *delay_model = new TableModel(delay_table, tbl_template,
+                TableTemplate *model_template = ensureTableTemplate(drvr_template,
+                                                                    load_axis);
+                TableModel *delay_model = new TableModel(delay_table, model_template,
                                                          ScaleFactorType::cell, rf);
-                TableModel *slew_model = new TableModel(slew_table, tbl_template,
+                TableModel *slew_model = new TableModel(slew_table, model_template,
                                                         ScaleFactorType::cell, rf);
                 GateTableModel *gate_model = new GateTableModel(delay_model, nullptr,
                                                                 slew_model, nullptr,
@@ -634,6 +632,23 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
   Vertex *output_vertex = graph_->pinLoadVertex(output_pin);
   Slew slew = graph_->slew(output_vertex, rf, dcalc_ap->index());
   return makeGateModelScalar(delay, slew, rf);
+}
+
+TableTemplate *
+MakeTimingModel::ensureTableTemplate(const TableTemplate *drvr_template,
+                                     TableAxisPtr load_axis)
+{
+  TableTemplate *model_template = template_map_.findKey(drvr_template);
+  if (model_template == nullptr) {
+    string template_name = "template_";
+    template_name += std::to_string(tbl_template_index_++);
+
+    model_template = new TableTemplate(template_name.c_str());
+    model_template->setAxis1(load_axis);
+    library_->addTableTemplate(model_template, TableTemplateType::delay);
+    template_map_[drvr_template] = model_template;
+  }
+  return model_template;
 }
 
 TableAxisPtr

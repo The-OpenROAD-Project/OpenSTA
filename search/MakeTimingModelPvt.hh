@@ -77,6 +77,8 @@ private:
   TimingModel *makeGateModelTable(const Pin *output_pin,
                                   Delay delay,
                                   RiseFall *rf);
+  TableTemplate *ensureTableTemplate(const TableTemplate *drvr_template,
+                                     TableAxisPtr load_axis);
   TableAxisPtr loadCapacitanceAxis(const TableModel *table);
   LibertyPort *modelPort(const Pin *pin);
 
@@ -91,6 +93,8 @@ private:
   LibertyCell *cell_;
   MinMax *min_max_;
   LibertyBuilder *lib_builder_;
+  // Output driver table model template to model template.
+  Map<const TableTemplate*, TableTemplate*> template_map_;
   int tbl_template_index_;
   Sdc *sdc_backup_;
   Sta *sta_;
