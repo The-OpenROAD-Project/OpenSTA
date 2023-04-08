@@ -444,7 +444,7 @@ Search::findPathEnds(ExceptionFrom *from,
 		     bool clk_gating_setup,
 		     bool clk_gating_hold)
 {
-  findFilteredArrivals(from, thrus, to, unconstrained);
+  findFilteredArrivals(from, thrus, to, unconstrained, true);
   if (!sdc_->recoveryRemovalChecksEnabled())
     recovery = removal = false;
   if (!sdc_->gatedClkChecksEnabled())
@@ -466,7 +466,8 @@ void
 Search::findFilteredArrivals(ExceptionFrom *from,
                              ExceptionThruSeq *thrus,
                              ExceptionTo *to,
-                             bool unconstrained)
+                             bool unconstrained,
+                             bool thru_latches)
 {
   unconstrained_paths_ = unconstrained;
   // Delete results from last findPathEnds.
@@ -480,13 +481,13 @@ Search::findFilteredArrivals(ExceptionFrom *from,
 	   || from->instances()))
       || thrus) {
     filter_ = sdc_->makeFilterPath(from, thrus, nullptr);
-    findFilteredArrivals();
+    findFilteredArrivals(thru_latches);
   }
   else
     // These cases do not require filtered arrivals.
     //  -from clocks
     //  -to
-    findAllArrivals();
+    findAllArrivals(thru_latches);
 }
 
 // From/thrus/to are used to make a filter exception.  If the last
@@ -567,17 +568,18 @@ Search::deleteFilterClkInfos()
 }
 
 void
-Search::findFilteredArrivals()
+Search::findFilteredArrivals(bool thru_latches)
 {
-  findArrivals1();
+  findArrivalsSeed();
   seedFilterStarts();
   Level max_level = levelize_->maxLevel();
   // Search always_to_endpoint to search from exisiting arrivals at
   // fanin startpoints to reach -thru/-to endpoints.
   arrival_visitor_->init(true);
   // Iterate until data arrivals at all latches stop changing.
-  for (int pass = 1; pass <= 2 || havePendingLatchOutputs() ; pass++) {
-    enqueuePendingLatchOutputs();
+  for (int pass = 1; pass == 1 || (thru_latches && havePendingLatchOutputs()) ; pass++) {
+    if (thru_latches)
+      enqueuePendingLatchOutputs();
     debugPrint(debug_, "search", 1, "find arrivals pass %d", pass);
     int arrival_count = arrival_iter_->visitParallel(max_level,
 						     arrival_visitor_);
@@ -926,18 +928,18 @@ Search::visitEndpoints(VertexVisitor *visitor)
 void
 Search::findAllArrivals()
 {
-  arrival_visitor_->init(false);
-  findAllArrivals(arrival_visitor_);
+  findAllArrivals(true);
 }
 
 void
-Search::findAllArrivals(VertexVisitor *arrival_visitor)
+Search::findAllArrivals(bool thru_latches)
 {
+  arrival_visitor_->init(false);
   // Iterate until data arrivals at all latches stop changing.
-  for (int pass = 1; pass == 1 || havePendingLatchOutputs(); pass++) {
+  for (int pass = 1; pass == 1 || (thru_latches && havePendingLatchOutputs()); pass++) {
     enqueuePendingLatchOutputs();
     debugPrint(debug_, "search", 1, "find arrivals pass %d", pass);
-    findArrivals(levelize_->maxLevel(), arrival_visitor);
+    findArrivals1(levelize_->maxLevel());
   }
 }
 
@@ -971,17 +973,16 @@ void
 Search::findArrivals(Level level)
 {
   arrival_visitor_->init(false);
-  findArrivals(level, arrival_visitor_);
+  findArrivals1(level);
 }
 
 void
-Search::findArrivals(Level level,
-		     VertexVisitor *arrival_visitor)
+Search::findArrivals1(Level level)
 {
   debugPrint(debug_, "search", 1, "find arrivals to level %d", level);
-  findArrivals1();
+  findArrivalsSeed();
   Stats stats(debug_, report_);
-  int arrival_count = arrival_iter_->visitParallel(level, arrival_visitor);
+  int arrival_count = arrival_iter_->visitParallel(level, arrival_visitor_);
   stats.report("Find arrivals");
   if (arrival_iter_->empty()
       && invalid_arrivals_->empty()) {
@@ -993,7 +994,7 @@ Search::findArrivals(Level level,
 }
 
 void
-Search::findArrivals1()
+Search::findArrivalsSeed()
 {
   if (!arrivals_seeded_) {
     genclks_->ensureInsertionDelays();

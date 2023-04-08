@@ -320,7 +320,7 @@ MakeTimingModel::findTimingFromInput(Port *input_port)
       from_pins->insert(input_pin);
       ExceptionFrom *from = sta_->makeExceptionFrom(from_pins, nullptr, nullptr,
                                                     input_rf1);
-      search_->findFilteredArrivals(from, nullptr, nullptr, false);
+      search_->findFilteredArrivals(from, nullptr, nullptr, false, false);
 
       end_visitor.setInputRf(input_rf);
       VisitPathEnds visit_ends(sta_);

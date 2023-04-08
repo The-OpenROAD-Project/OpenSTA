@@ -121,7 +121,6 @@ public:
   void findAllArrivals();
   // Find all arrivals (without latch propagation).
   void findArrivals();
-  virtual void findAllArrivals(VertexVisitor *visitor);
   // Find arrival times up thru level.
   void findArrivals(Level level);
   void findRequireds();
@@ -346,7 +345,8 @@ public:
   void findFilteredArrivals(ExceptionFrom *from,
                             ExceptionThruSeq *thrus,
                             ExceptionTo *to,
-                            bool unconstrained);
+                            bool unconstrained,
+                            bool thru_latches);
 
 protected:
   void init(StaState *sta);
@@ -445,8 +445,8 @@ protected:
 			     Vertex *vertex);
   void findClkArrivals1();
 
-  virtual void findArrivals(Level level,
-			    VertexVisitor *arrival_visitor);
+  void findAllArrivals(bool thru_latches);
+  void findArrivals1(Level level);
   Tag *mutateTag(Tag *from_tag,
 		 const Pin *from_pin,
 		 const RiseFall *from_rf,
@@ -471,8 +471,8 @@ protected:
   bool havePendingLatchOutputs();
   void clearPendingLatchOutputs();
   void enqueuePendingLatchOutputs();
-  void findFilteredArrivals();
-  void findArrivals1();
+  void findFilteredArrivals(bool thru_latches);
+  void findArrivalsSeed();
   void seedFilterStarts();
   bool hasEnabledChecks(Vertex *vertex) const;
   virtual float timingDerate(Vertex *from_vertex,
