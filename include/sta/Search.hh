@@ -347,6 +347,7 @@ public:
                             ExceptionTo *to,
                             bool unconstrained,
                             bool thru_latches);
+  VertexSeq filteredEndpoints();
 
 protected:
   void init(StaState *sta);
@@ -598,6 +599,7 @@ protected:
   // filter_from_ is owned by filter_ if it exists.
   ExceptionFrom *filter_from_;
   ExceptionTo *filter_to_;
+  VertexSet *filtered_arrivals_;
   bool found_downstream_clk_pins_;
   PathGroups *path_groups_;
   VisitPathEnds *visit_path_ends_;

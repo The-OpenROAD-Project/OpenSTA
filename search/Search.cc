@@ -250,6 +250,7 @@ Search::init(StaState *sta)
   filter_ = nullptr;
   filter_from_ = nullptr;
   filter_to_ = nullptr;
+  filtered_arrivals_ = new VertexSet(graph_);
   found_downstream_clk_pins_ = false;
 }
 
@@ -287,6 +288,7 @@ Search::~Search()
   delete worst_slacks_;
   delete check_crpr_;
   delete genclks_;
+  delete filtered_arrivals_;
   deleteFilter();
   deletePathGroups();
 }
@@ -403,6 +405,7 @@ Search::deletePaths()
       Vertex *vertex = vertex_iter.next();
       vertex->deletePaths();
     }
+    filtered_arrivals_->clear();
     graph_->clearArrivals();
     graph_->clearPrevPaths();
     arrivals_exist_ = false;
@@ -504,24 +507,34 @@ Search::deleteFilteredArrivals()
 	 && (from->pins()
 	     || from->instances()))
 	|| thrus) {
-      VertexIterator vertex_iter(graph_);
-      while (vertex_iter.hasNext()) {
-	Vertex *vertex = vertex_iter.next();
-	TagGroup *tag_group = tagGroup(vertex);
-	if (tag_group
-	    && tag_group->hasFilterTag()) {
-	  // Vertex's tag_group will be deleted.
-	  deletePaths(vertex);
-	  arrivalInvalid(vertex);
-	  requiredInvalid(vertex);
-	}
+      for (Vertex *vertex : *filtered_arrivals_) {
+        deletePaths(vertex);
+        arrivalInvalid(vertex);
+        requiredInvalid(vertex);
       }
+      bool check_filter_arrivals = false;
+      if (check_filter_arrivals) {
+        VertexIterator vertex_iter(graph_);
+        while (vertex_iter.hasNext()) {
+          Vertex *vertex = vertex_iter.next();
+          TagGroup *tag_group = tagGroup(vertex);
+          if (tag_group
+              && tag_group->hasFilterTag())
+            filtered_arrivals_->erase(vertex);
+        }
+        if (!filtered_arrivals_->empty()) {
+          report_->reportLine("Filtered verticies mismatch");
+          for (Vertex *vertex : *filtered_arrivals_)
+            report_->reportLine(" %s", vertex->name(network_));
+        }
+      }
+      filtered_arrivals_->clear();
       deleteFilterTagGroups();
       deleteFilterClkInfos();
       deleteFilterTags();
     }
+    deleteFilter();
   }
-  deleteFilter();
 }
 
 void
@@ -570,6 +583,7 @@ Search::deleteFilterClkInfos()
 void
 Search::findFilteredArrivals(bool thru_latches)
 {
+  filtered_arrivals_->clear();
   findArrivalsSeed();
   seedFilterStarts();
   Level max_level = levelize_->maxLevel();
@@ -586,6 +600,17 @@ Search::findFilteredArrivals(bool thru_latches)
     debugPrint(debug_, "search", 1, "found %d arrivals", arrival_count);
   }
   arrivals_exist_ = true;
+}
+
+VertexSeq
+Search::filteredEndpoints()
+{
+  VertexSeq ends;
+  for (Vertex *vertex : *filtered_arrivals_) {
+    if (isEndpoint(vertex))
+      ends.push_back(vertex);
+  }
+  return ends;
 }
 
 class SeedFaninsThruHierPin : public HierPinThruVisitor
@@ -654,6 +679,7 @@ Search::deleteVertexBefore(Vertex *vertex)
     deletePaths(vertex);
     arrival_iter_->deleteVertexBefore(vertex);
     invalid_arrivals_->erase(vertex);
+    filtered_arrivals_->erase(vertex);
   }
   if (requireds_exist_) {
     required_iter_->deleteVertexBefore(vertex);
@@ -2659,6 +2685,8 @@ Search::setVertexArrivals(Vertex *vertex,
       }
       tag_bldr->copyArrivals(tag_group, prev_arrivals, prev_paths);
       vertex->setTagGroupIndex(tag_group->index());
+      if (tag_group->hasFilterTag())
+        filtered_arrivals_->insert(vertex);
 
       if (has_requireds) {
 	requiredInvalid(vertex);
@@ -2683,6 +2711,8 @@ Search::setVertexArrivals(Vertex *vertex,
       tag_bldr->copyArrivals(tag_group, arrivals, prev_paths);
 
       vertex->setTagGroupIndex(tag_group->index());
+      if (tag_group->hasFilterTag())
+        filtered_arrivals_->insert(vertex);
     }
   }
 }

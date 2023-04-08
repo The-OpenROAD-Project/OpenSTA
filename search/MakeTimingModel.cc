@@ -323,8 +323,9 @@ MakeTimingModel::findTimingFromInput(Port *input_port)
       search_->findFilteredArrivals(from, nullptr, nullptr, false, false);
 
       end_visitor.setInputRf(input_rf);
+      VertexSeq endpoints = search_->filteredEndpoints();
       VisitPathEnds visit_ends(sta_);
-      for (Vertex *end : *search_->endpoints())
+      for (Vertex *end : endpoints)
         visit_ends.visitPathEnds(end, corner_, MinMaxAll::all(), true, &end_visitor);
       findOutputDelays(input_rf, output_delays);
       search_->deleteFilteredArrivals();
