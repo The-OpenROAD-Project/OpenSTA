@@ -3019,6 +3019,42 @@ Search::timingDerate(Vertex *from_vertex,
 }
 
 ClockSet
+Search::clockDomains(const Vertex *vertex) const
+{
+  ClockSet clks;
+  clockDomains(vertex, clks);
+  return clks;
+}
+
+void
+Search::clockDomains(const Vertex *vertex,
+                     // Return value.
+                     ClockSet &clks) const
+{
+  VertexPathIterator path_iter(const_cast<Vertex*>(vertex), this);
+  while (path_iter.hasNext()) {
+    Path *path = path_iter.next();
+    const Clock *clk = path->clock(this);
+    if (clk)
+      clks.insert(const_cast<Clock *>(clk));
+  }
+}
+
+ClockSet
+Search::clockDomains(const Pin *pin) const
+{
+  ClockSet clks;
+  Vertex *vertex;
+  Vertex *bidirect_drvr_vertex;
+  graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
+  if (vertex)
+    clockDomains(vertex, clks);
+  if (bidirect_drvr_vertex)
+    clockDomains(bidirect_drvr_vertex, clks);
+  return clks;
+}
+
+ClockSet
 Search::clocks(const Vertex *vertex) const
 {
   ClockSet clks;

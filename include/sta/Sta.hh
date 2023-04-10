@@ -595,8 +595,10 @@ public:
 		      bool thru_disabled,
 		      bool thru_constants);
 
-  // The set of clocks that reach pin.
+  // The set of clocks that arrive at vertex in the clock network.
   ClockSet clocks(const Pin *pin);
+  // Clock domains for a pin.
+  ClockSet clockDomains(const Pin *pin);
 
   void checkSlewLimitPreamble();
   // Return pins with the min/max slew limit slack.

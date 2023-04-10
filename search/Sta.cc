@@ -4681,6 +4681,14 @@ Sta::clocks(const Pin *pin)
   return search_->clocks(pin);
 }
 
+ClockSet
+Sta::clockDomains(const Pin *pin)
+{
+  searchPreamble();
+  search_->findAllArrivals();
+  return search_->clockDomains(pin);
+}
+
 ////////////////////////////////////////////////////////////////
 
 InstanceSet

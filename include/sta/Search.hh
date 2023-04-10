@@ -176,9 +176,12 @@ public:
   bool isClock(const Vertex *vertex) const;
   // Vertices on propagated generated clock source paths.
   bool isGenClkSrc(const Vertex *vertex) const;
-  // The set of clocks that arrive at vertex.
+  // The set of clocks that arrive at vertex in the clock network.
   ClockSet clocks(const Vertex *vertex) const;
   ClockSet clocks(const Pin *pin) const;
+  // Clock domains for a vertex.
+  ClockSet clockDomains(const Vertex *vertex) const;
+  ClockSet clockDomains(const Pin *pin) const;
   void visitStartpoints(VertexVisitor *visitor);
   void visitEndpoints(VertexVisitor *visitor);
   bool havePathGroups() const;
@@ -526,6 +529,9 @@ protected:
   void clocks(const Vertex *vertex,
               // Return value.
               ClockSet &clks) const;
+  void clockDomains(const Vertex *vertex,
+                    // Return value.
+                    ClockSet &clks) const;
 
   ////////////////////////////////////////////////////////////////
 
