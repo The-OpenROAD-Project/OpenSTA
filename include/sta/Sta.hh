@@ -458,36 +458,36 @@ public:
   void setCaseAnalysis(Pin *pin,
 		       LogicValue value);
   void removeCaseAnalysis(Pin *pin);
-  void setInputDelay(Pin *pin,
+  void setInputDelay(const Pin *pin,
 		     const RiseFallBoth *rf,
-		     Clock *clk,
+		     const Clock *clk,
 		     const RiseFall *clk_rf,
-		     Pin *ref_pin,
+		     const Pin *ref_pin,
 		     bool source_latency_included,
 		     bool network_latency_included,
 		     const MinMaxAll *min_max,
 		     bool add,
 		     float delay);
-  void removeInputDelay(Pin *pin,
-			RiseFallBoth *rf, 
-			Clock *clk,
-			RiseFall *clk_rf, 
-			MinMaxAll *min_max);
-  void setOutputDelay(Pin *pin,
+  void removeInputDelay(const Pin *pin,
+			const RiseFallBoth *rf, 
+			const Clock *clk,
+			const RiseFall *clk_rf, 
+			const MinMaxAll *min_max);
+  void setOutputDelay(const Pin *pin,
 		      const RiseFallBoth *rf,
-		      Clock *clk,
+		      const Clock *clk,
 		      const RiseFall *clk_rf,
-		      Pin *ref_pin,
+		      const Pin *ref_pin,
 		      bool source_latency_included,
 		      bool network_latency_included,
 		      const MinMaxAll *min_max,
 		      bool add,
 		      float delay);
-  void removeOutputDelay(Pin *pin,
-			 RiseFallBoth *rf, 
-			 Clock *clk,
-			 RiseFall *clk_rf, 
-			 MinMaxAll *min_max);
+  void removeOutputDelay(const Pin *pin,
+			 const RiseFallBoth *rf, 
+			 const Clock *clk,
+			 const RiseFall *clk_rf, 
+			 const MinMaxAll *min_max);
   void makeFalsePath(ExceptionFrom *from,
 		     ExceptionThruSeq *thrus,
 		     ExceptionTo *to,
@@ -595,8 +595,10 @@ public:
 		      bool thru_disabled,
 		      bool thru_constants);
 
-  // The set of clocks that reach pin.
+  // The set of clocks that arrive at vertex in the clock network.
   ClockSet clocks(const Pin *pin);
+  // Clock domains for a pin.
+  ClockSet clockDomains(const Pin *pin);
 
   void checkSlewLimitPreamble();
   // Return pins with the min/max slew limit slack.

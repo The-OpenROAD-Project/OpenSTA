@@ -1211,8 +1211,6 @@ unsigned
 LibertyCell::addTimingArcSet(TimingArcSet *arc_set)
 {
   int set_index = timing_arc_sets_.size();
-  if (set_index > timing_arc_set_index_max)
-    criticalError(235, "timing arc set max index exceeded");
   timing_arc_sets_.push_back(arc_set);
 
   LibertyPort *from = arc_set->from();

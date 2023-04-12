@@ -1858,11 +1858,11 @@ Sta::removeCaseAnalysis(Pin *pin)
 }
 
 void
-Sta::setInputDelay(Pin *pin,
+Sta::setInputDelay(const Pin *pin,
 		   const RiseFallBoth *rf,
-		   Clock *clk,
+		   const Clock *clk,
 		   const RiseFall *clk_rf,
-		   Pin *ref_pin,
+		   const Pin *ref_pin,
 		   bool source_latency_included,
 		   bool network_latency_included,
 		   const MinMaxAll *min_max,
@@ -1877,22 +1877,22 @@ Sta::setInputDelay(Pin *pin,
 }
 
 void 
-Sta::removeInputDelay(Pin *pin,
-		      RiseFallBoth *rf,
-		      Clock *clk,
-		      RiseFall *clk_rf, 
-		      MinMaxAll *min_max)
+Sta::removeInputDelay(const Pin *pin,
+		      const RiseFallBoth *rf,
+		      const Clock *clk,
+		      const RiseFall *clk_rf,
+		      const MinMaxAll *min_max)
 {
   sdc_->removeInputDelay(pin, rf, clk, clk_rf, min_max);
   search_->arrivalInvalid(pin);
 }
 
 void
-Sta::setOutputDelay(Pin *pin,
+Sta::setOutputDelay(const Pin *pin,
 		    const RiseFallBoth *rf,
-		    Clock *clk,
+		    const Clock *clk,
 		    const RiseFall *clk_rf,
-		    Pin *ref_pin,
+		    const Pin *ref_pin,
 		    bool source_latency_included,
 		    bool network_latency_included,
 		    const MinMaxAll *min_max,
@@ -1907,11 +1907,11 @@ Sta::setOutputDelay(Pin *pin,
 }
 
 void 
-Sta::removeOutputDelay(Pin *pin,
-		       RiseFallBoth *rf, 
-		       Clock *clk,
-		       RiseFall *clk_rf, 
-		       MinMaxAll *min_max)
+Sta::removeOutputDelay(const Pin *pin,
+		       const RiseFallBoth *rf,
+		       const Clock *clk,
+		       const RiseFall *clk_rf,
+		       const MinMaxAll *min_max)
 {
   sdc_->removeOutputDelay(pin, rf, clk, clk_rf, min_max);
   sdcChangedGraph();
@@ -4681,6 +4681,14 @@ Sta::clocks(const Pin *pin)
   return search_->clocks(pin);
 }
 
+ClockSet
+Sta::clockDomains(const Pin *pin)
+{
+  searchPreamble();
+  search_->findAllArrivals();
+  return search_->clockDomains(pin);
+}
+
 ////////////////////////////////////////////////////////////////
 
 InstanceSet
@@ -5619,9 +5627,8 @@ Sta::writeTimingModel(const char *lib_name,
                       const char *filename,
                       const Corner *corner)
 {
-  MakeTimingModel maker(corner, this);
-  LibertyLibrary *library = maker.makeTimingModel(lib_name, cell_name,
-                                                  filename);
+  LibertyLibrary *library = makeTimingModel(lib_name, cell_name, filename,
+                                            corner, this);
   writeLiberty(library, filename, this);
 }
 

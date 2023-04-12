@@ -250,6 +250,7 @@ Search::init(StaState *sta)
   filter_ = nullptr;
   filter_from_ = nullptr;
   filter_to_ = nullptr;
+  filtered_arrivals_ = new VertexSet(graph_);
   found_downstream_clk_pins_ = false;
 }
 
@@ -287,6 +288,7 @@ Search::~Search()
   delete worst_slacks_;
   delete check_crpr_;
   delete genclks_;
+  delete filtered_arrivals_;
   deleteFilter();
   deletePathGroups();
 }
@@ -403,6 +405,7 @@ Search::deletePaths()
       Vertex *vertex = vertex_iter.next();
       vertex->deletePaths();
     }
+    filtered_arrivals_->clear();
     graph_->clearArrivals();
     graph_->clearPrevPaths();
     arrivals_exist_ = false;
@@ -444,7 +447,7 @@ Search::findPathEnds(ExceptionFrom *from,
 		     bool clk_gating_setup,
 		     bool clk_gating_hold)
 {
-  findFilteredArrivals(from, thrus, to, unconstrained);
+  findFilteredArrivals(from, thrus, to, unconstrained, true);
   if (!sdc_->recoveryRemovalChecksEnabled())
     recovery = removal = false;
   if (!sdc_->gatedClkChecksEnabled())
@@ -466,7 +469,8 @@ void
 Search::findFilteredArrivals(ExceptionFrom *from,
                              ExceptionThruSeq *thrus,
                              ExceptionTo *to,
-                             bool unconstrained)
+                             bool unconstrained,
+                             bool thru_latches)
 {
   unconstrained_paths_ = unconstrained;
   // Delete results from last findPathEnds.
@@ -480,13 +484,13 @@ Search::findFilteredArrivals(ExceptionFrom *from,
 	   || from->instances()))
       || thrus) {
     filter_ = sdc_->makeFilterPath(from, thrus, nullptr);
-    findFilteredArrivals();
+    findFilteredArrivals(thru_latches);
   }
   else
     // These cases do not require filtered arrivals.
     //  -from clocks
     //  -to
-    findAllArrivals();
+    findAllArrivals(thru_latches);
 }
 
 // From/thrus/to are used to make a filter exception.  If the last
@@ -503,24 +507,34 @@ Search::deleteFilteredArrivals()
 	 && (from->pins()
 	     || from->instances()))
 	|| thrus) {
-      VertexIterator vertex_iter(graph_);
-      while (vertex_iter.hasNext()) {
-	Vertex *vertex = vertex_iter.next();
-	TagGroup *tag_group = tagGroup(vertex);
-	if (tag_group
-	    && tag_group->hasFilterTag()) {
-	  // Vertex's tag_group will be deleted.
-	  deletePaths(vertex);
-	  arrivalInvalid(vertex);
-	  requiredInvalid(vertex);
-	}
+      for (Vertex *vertex : *filtered_arrivals_) {
+        deletePaths(vertex);
+        arrivalInvalid(vertex);
+        requiredInvalid(vertex);
       }
+      bool check_filter_arrivals = false;
+      if (check_filter_arrivals) {
+        VertexIterator vertex_iter(graph_);
+        while (vertex_iter.hasNext()) {
+          Vertex *vertex = vertex_iter.next();
+          TagGroup *tag_group = tagGroup(vertex);
+          if (tag_group
+              && tag_group->hasFilterTag())
+            filtered_arrivals_->erase(vertex);
+        }
+        if (!filtered_arrivals_->empty()) {
+          report_->reportLine("Filtered verticies mismatch");
+          for (Vertex *vertex : *filtered_arrivals_)
+            report_->reportLine(" %s", vertex->name(network_));
+        }
+      }
+      filtered_arrivals_->clear();
       deleteFilterTagGroups();
       deleteFilterClkInfos();
       deleteFilterTags();
     }
+    deleteFilter();
   }
-  deleteFilter();
 }
 
 void
@@ -567,23 +581,36 @@ Search::deleteFilterClkInfos()
 }
 
 void
-Search::findFilteredArrivals()
+Search::findFilteredArrivals(bool thru_latches)
 {
-  findArrivals1();
+  filtered_arrivals_->clear();
+  findArrivalsSeed();
   seedFilterStarts();
   Level max_level = levelize_->maxLevel();
   // Search always_to_endpoint to search from exisiting arrivals at
   // fanin startpoints to reach -thru/-to endpoints.
   arrival_visitor_->init(true);
   // Iterate until data arrivals at all latches stop changing.
-  for (int pass = 1; pass <= 2 || havePendingLatchOutputs() ; pass++) {
-    enqueuePendingLatchOutputs();
+  for (int pass = 1; pass == 1 || (thru_latches && havePendingLatchOutputs()) ; pass++) {
+    if (thru_latches)
+      enqueuePendingLatchOutputs();
     debugPrint(debug_, "search", 1, "find arrivals pass %d", pass);
     int arrival_count = arrival_iter_->visitParallel(max_level,
 						     arrival_visitor_);
     debugPrint(debug_, "search", 1, "found %d arrivals", arrival_count);
   }
   arrivals_exist_ = true;
+}
+
+VertexSeq
+Search::filteredEndpoints()
+{
+  VertexSeq ends;
+  for (Vertex *vertex : *filtered_arrivals_) {
+    if (isEndpoint(vertex))
+      ends.push_back(vertex);
+  }
+  return ends;
 }
 
 class SeedFaninsThruHierPin : public HierPinThruVisitor
@@ -652,6 +679,7 @@ Search::deleteVertexBefore(Vertex *vertex)
     deletePaths(vertex);
     arrival_iter_->deleteVertexBefore(vertex);
     invalid_arrivals_->erase(vertex);
+    filtered_arrivals_->erase(vertex);
   }
   if (requireds_exist_) {
     required_iter_->deleteVertexBefore(vertex);
@@ -926,18 +954,18 @@ Search::visitEndpoints(VertexVisitor *visitor)
 void
 Search::findAllArrivals()
 {
-  arrival_visitor_->init(false);
-  findAllArrivals(arrival_visitor_);
+  findAllArrivals(true);
 }
 
 void
-Search::findAllArrivals(VertexVisitor *arrival_visitor)
+Search::findAllArrivals(bool thru_latches)
 {
+  arrival_visitor_->init(false);
   // Iterate until data arrivals at all latches stop changing.
-  for (int pass = 1; pass == 1 || havePendingLatchOutputs(); pass++) {
+  for (int pass = 1; pass == 1 || (thru_latches && havePendingLatchOutputs()); pass++) {
     enqueuePendingLatchOutputs();
     debugPrint(debug_, "search", 1, "find arrivals pass %d", pass);
-    findArrivals(levelize_->maxLevel(), arrival_visitor);
+    findArrivals1(levelize_->maxLevel());
   }
 }
 
@@ -971,17 +999,16 @@ void
 Search::findArrivals(Level level)
 {
   arrival_visitor_->init(false);
-  findArrivals(level, arrival_visitor_);
+  findArrivals1(level);
 }
 
 void
-Search::findArrivals(Level level,
-		     VertexVisitor *arrival_visitor)
+Search::findArrivals1(Level level)
 {
   debugPrint(debug_, "search", 1, "find arrivals to level %d", level);
-  findArrivals1();
+  findArrivalsSeed();
   Stats stats(debug_, report_);
-  int arrival_count = arrival_iter_->visitParallel(level, arrival_visitor);
+  int arrival_count = arrival_iter_->visitParallel(level, arrival_visitor_);
   stats.report("Find arrivals");
   if (arrival_iter_->empty()
       && invalid_arrivals_->empty()) {
@@ -993,7 +1020,7 @@ Search::findArrivals(Level level,
 }
 
 void
-Search::findArrivals1()
+Search::findArrivalsSeed()
 {
   if (!arrivals_seeded_) {
     genclks_->ensureInsertionDelays();
@@ -2658,6 +2685,8 @@ Search::setVertexArrivals(Vertex *vertex,
       }
       tag_bldr->copyArrivals(tag_group, prev_arrivals, prev_paths);
       vertex->setTagGroupIndex(tag_group->index());
+      if (tag_group->hasFilterTag())
+        filtered_arrivals_->insert(vertex);
 
       if (has_requireds) {
 	requiredInvalid(vertex);
@@ -2682,6 +2711,8 @@ Search::setVertexArrivals(Vertex *vertex,
       tag_bldr->copyArrivals(tag_group, arrivals, prev_paths);
 
       vertex->setTagGroupIndex(tag_group->index());
+      if (tag_group->hasFilterTag())
+        filtered_arrivals_->insert(vertex);
     }
   }
 }
@@ -2985,6 +3016,42 @@ Search::timingDerate(Vertex *from_vertex,
     return sdc_->timingDerateInstance(pin, derate_type, derate_clk_data, rf,
 				      path_ap->pathMinMax());
   }
+}
+
+ClockSet
+Search::clockDomains(const Vertex *vertex) const
+{
+  ClockSet clks;
+  clockDomains(vertex, clks);
+  return clks;
+}
+
+void
+Search::clockDomains(const Vertex *vertex,
+                     // Return value.
+                     ClockSet &clks) const
+{
+  VertexPathIterator path_iter(const_cast<Vertex*>(vertex), this);
+  while (path_iter.hasNext()) {
+    Path *path = path_iter.next();
+    const Clock *clk = path->clock(this);
+    if (clk)
+      clks.insert(const_cast<Clock *>(clk));
+  }
+}
+
+ClockSet
+Search::clockDomains(const Pin *pin) const
+{
+  ClockSet clks;
+  Vertex *vertex;
+  Vertex *bidirect_drvr_vertex;
+  graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
+  if (vertex)
+    clockDomains(vertex, clks);
+  if (bidirect_drvr_vertex)
+    clockDomains(bidirect_drvr_vertex, clks);
+  return clks;
 }
 
 ClockSet

@@ -88,7 +88,6 @@ protected:
 			double rpi,
 			double c1);
 
-  bool input_port_;
   static bool unsuppored_model_warned_;
 
 private:

@@ -170,6 +170,8 @@ private:
   float slewAxisMinValue(TimingArc *arc);
   float pgPortVoltage(LibertyPgPort *pg_port);
   void writePrintStmt();
+  float railToRailSlew(float slew,
+                       const RiseFall *rf);
 
   // Stage "accessors".
   //
@@ -408,9 +410,19 @@ WritePathSpice::maxTime()
   else {
     float end_slew = findSlew(path_);
     float arrival = delayAsFloat(path_->arrival(this));
-    float max_time = input_slew / 2.0 + arrival + end_slew;
+    float max_time = railToRailSlew(input_slew, rf) + arrival
+      + railToRailSlew(end_slew, rf);
     return max_time;
   }
+}
+
+float
+WritePathSpice::railToRailSlew(float slew,
+                               const RiseFall *rf)
+{
+  float lower = default_library_->slewLowerThreshold(rf);
+  float upper = default_library_->slewUpperThreshold(rf);
+  return slew / (upper - lower);
 }
 
 void
@@ -492,8 +504,11 @@ WritePathSpice::writeInputWaveform()
   const RiseFall *rf = input_path->transition(this);
   TimingArc *next_arc = stageGateArc(input_stage + 1);
   float slew0 = findSlew(input_path, rf, next_arc);
-  // Arbitrary offset.
-  float time0 = slew0;
+
+  float threshold = default_library_->inputThreshold(rf);
+  float dt = railToRailSlew(slew0, rf);
+  float time0 = dt * threshold;
+
   int volt_index = 1;
   const Pin *drvr_pin = stageDrvrPin(input_stage);
   const Pin *load_pin = stageLoadPin(input_stage);
@@ -689,12 +704,11 @@ WritePathSpice::writeWaveformEdge(const RiseFall *rf,
     volt1 = gnd_voltage_;
   }
   float threshold = default_library_->inputThreshold(rf);
-  float lower = default_library_->slewLowerThreshold(rf);
-  float upper = default_library_->slewUpperThreshold(rf);
-  float dt = slew / (upper - lower);
+  float dt = railToRailSlew(slew, rf);
   float time0 = time - dt * threshold;
   float time1 = time0 + dt;
-  streamPrint(spice_stream_, "+%.3e %.3e\n", time0, volt0);
+  if (time0 > 0.0)
+    streamPrint(spice_stream_, "+%.3e %.3e\n", time0, volt0);
   streamPrint(spice_stream_, "+%.3e %.3e\n", time1, volt1);
 }
 

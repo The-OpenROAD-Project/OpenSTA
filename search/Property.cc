@@ -882,6 +882,10 @@ getProperty(const Pin *pin,
     ClockSet clks = sta->clocks(pin);
     return PropertyValue(&clks);
   }
+  else if (stringEqual(property, "clock_domains")) {
+    ClockSet clks = sta->clockDomains(pin);
+    return PropertyValue(&clks);
+  }
   else if (stringEqual(property, "activity")) {
     PwrActivity activity = sta->findClkedActivity(pin);
     return PropertyValue(&activity);

@@ -871,35 +871,8 @@ Table1::findValue(float axis_value1,
 float
 Table1::findValue(float axis_value1) const
 {
-  float value;
-  bool extrapolated;
-  findValue(axis_value1, value, extrapolated);
-  return value;
-}
-
-float
-Table1::findValueClip(float axis_value1,
-                      float clip_value) const
-{
-  float value;
-  bool extrapolated;
-  findValue(axis_value1, value, extrapolated);
-  if (extrapolated)
-    return clip_value;
-  else
-    return value;
-}
-
-void
-Table1::findValue(float axis_value1,
-                  // Return values.
-                  float &value,
-                  bool &extrapolated) const
-{
-  if (axis1_->size() == 1) {
-    value = this->value(axis_value1);
-    extrapolated = false;
-  }
+  if (axis1_->size() == 1)
+    return this->value(axis_value1);
   else {
     size_t axis_index1 = axis1_->findAxisIndex(axis_value1);
     float x1 = axis_value1;
@@ -908,8 +881,30 @@ Table1::findValue(float axis_value1,
     float y1 = this->value(axis_index1);
     float y2 = this->value(axis_index1 + 1);
     float dx1 = (x1 - x1l) / (x1u - x1l);
-    value = (1 - dx1) * y1 + dx1 * y2;
-    extrapolated = (x1 < x1l || x1 >= x1u);
+    return (1 - dx1) * y1 + dx1 * y2;
+  }
+}
+
+float
+Table1::findValueClip(float axis_value1) const
+{
+  if (axis1_->size() == 1)
+    return this->value(axis_value1);
+  else {
+    size_t axis_index1 = axis1_->findAxisIndex(axis_value1);
+    float x1 = axis_value1;
+    float x1l = axis1_->axisValue(axis_index1);
+    float x1u = axis1_->axisValue(axis_index1 + 1);
+    if (x1 < x1l)
+      return this->value(0);
+    else if (x1 > x1u)
+      return this->value(axis1_->size() - 1);
+    else {
+      float y1 = this->value(axis_index1);
+      float y2 = this->value(axis_index1 + 1);
+      float dx1 = (x1 - x1l) / (x1u - x1l);
+      return (1 - dx1) * y1 + dx1 * y2;
+    }
   }
 }
 
@@ -1584,10 +1579,12 @@ tableVariableUnit(TableAxisVariable variable,
 
 OutputWaveforms::OutputWaveforms(TableAxisPtr slew_axis,
                                  TableAxisPtr cap_axis,
+                                 const RiseFall *rf,
                                  Table1Seq &current_waveforms,
                                  Table1 *ref_times) :
   slew_axis_(slew_axis),
   cap_axis_(cap_axis),
+  rf_(rf),
   current_waveforms_(current_waveforms),
   voltage_waveforms_(current_waveforms.size()),
   ref_times_(ref_times)
@@ -1655,7 +1652,6 @@ OutputWaveforms::voltageWaveform(float slew,
                                                   time_values);
 
   // Interpolate waveform samples at time steps.
-  float value = values00->value(values00->values()->size() - 1);
   size_t index1 = slew_index;
   size_t index2 = cap_index;
   float x1 = slew;
@@ -1667,30 +1663,26 @@ OutputWaveforms::voltageWaveform(float slew,
   float x2u = cap_axis_->axisValue(index2 + 1);
   float dx2 = (x2 - x2l) / (x2u - x2l);
   FloatSeq *values = new FloatSeq;
-  bool waveform_started = false;
   float prev_value = 0.0;
-  constexpr float value_tol = .01;
-  float value_end = value * (1.0 - value_tol);
+  constexpr float value_tol = .0001;
   for (size_t i = 0; i <= time_step_count; i++) {
     float time = time_min + time_step * i;
-    float y00 = values00->findValue(time);
-    float y10 = values10->findValue(time);
-    float y11 = values11->findValue(time);
-    float y01 = values01->findValue(time);
-    float voltage
+    if (time > time_max)
+      break;
+    float y00 = values00->findValueClip(time);
+    float y10 = values10->findValueClip(time);
+    float y11 = values11->findValueClip(time);
+    float y01 = values01->findValueClip(time);
+    float value
       = (1 - dx1) * (1 - dx2) * y00
       +      dx1  * (1 - dx2) * y10
       +      dx1  *      dx2  * y11
       + (1 - dx1) *      dx2  * y01;
-    if (voltage > value_tol)
-      waveform_started = true;
-    if (waveform_started) {
+    if (i == 0 || abs(value - prev_value) > value_tol) {
       time_values->push_back(time);
-      values->push_back(voltage);
+      values->push_back(value);
     }
-    if (prev_value > value_end)
-      break;
-    prev_value = voltage;
+    prev_value = value;
   }
   return Table1(values, time_axis);
 }
@@ -1713,7 +1705,8 @@ OutputWaveforms::voltageWaveform(size_t wave_index,
     float prev_current = currents->value(0);
     float voltage = 0.0;
     voltages1->push_back(voltage);
-    bool invert = currents->value(time_axis->size() - 1) < 0.0;
+    bool always_rise = true;
+    bool invert = (always_rise && rf_ == RiseFall::fall());
     for (size_t i = 1; i < time_axis->size(); i++) {
       float time = time_axis->axisValue(i);
       float current = currents->value(i);
@@ -1722,6 +1715,10 @@ OutputWaveforms::voltageWaveform(size_t wave_index,
       voltages1->push_back(voltage);
       prev_time = time;
       prev_current = current;
+    }
+    if (!always_rise && rf_ == RiseFall::fall()) {
+      for (size_t i = 0; i < voltages1->size(); i++)
+        (*voltages1)[i] -= voltage;
     }
   }
   return voltages;
@@ -1773,21 +1770,26 @@ OutputWaveforms::currentWaveform(float slew,
   float x2u = cap_axis_->axisValue(index2 + 1);
   float dx2 = (x2 - x2l) / (x2u - x2l);
   FloatSeq *values = new FloatSeq;
+  float prev_value = 0.0;
+  constexpr float value_tol = 1e-6;
   for (size_t i = 0; i <= time_step_count; i++) {
     float time = time_min + time_step * i;
-    float y00 = values00->findValueClip(time, 0.0);
-    float y10 = values10->findValueClip(time, 0.0);
-    float y11 = values11->findValueClip(time, 0.0);
-    float y01 = values01->findValueClip(time, 0.0);
+    if (time > time_max)
+      break;
+    float y00 = values00->findValueClip(time);
+    float y10 = values10->findValueClip(time);
+    float y11 = values11->findValueClip(time);
+    float y01 = values01->findValueClip(time);
     float value
       = (1 - dx1) * (1 - dx2) * y00
       +      dx1  * (1 - dx2) * y10
       +      dx1  *      dx2  * y11
       + (1 - dx1) *      dx2  * y01;
-    time_values->push_back(time);
-    values->push_back(value);
-    if (time > time_max)
-      break;
+    if (i == 0 || abs(value - prev_value) > value_tol) {
+      time_values->push_back(time);
+      values->push_back(value);
+    }
+    prev_value = value;
   }
   return Table1(values, time_axis);
 }

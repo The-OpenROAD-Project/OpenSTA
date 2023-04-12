@@ -66,6 +66,7 @@ SimpleRCDelayCalc::gateDelay(const LibertyCell *drvr_cell,
 			     ArcDelay &gate_delay,
 			     Slew &drvr_slew)
 {
+  input_port_ = false;
   drvr_parasitic_ = drvr_parasitic;
   drvr_rf_ = arc->toEdge()->asRiseFall();
   drvr_cell_ = drvr_cell;

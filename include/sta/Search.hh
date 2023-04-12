@@ -121,7 +121,6 @@ public:
   void findAllArrivals();
   // Find all arrivals (without latch propagation).
   void findArrivals();
-  virtual void findAllArrivals(VertexVisitor *visitor);
   // Find arrival times up thru level.
   void findArrivals(Level level);
   void findRequireds();
@@ -177,9 +176,12 @@ public:
   bool isClock(const Vertex *vertex) const;
   // Vertices on propagated generated clock source paths.
   bool isGenClkSrc(const Vertex *vertex) const;
-  // The set of clocks that arrive at vertex.
+  // The set of clocks that arrive at vertex in the clock network.
   ClockSet clocks(const Vertex *vertex) const;
   ClockSet clocks(const Pin *pin) const;
+  // Clock domains for a vertex.
+  ClockSet clockDomains(const Vertex *vertex) const;
+  ClockSet clockDomains(const Pin *pin) const;
   void visitStartpoints(VertexVisitor *visitor);
   void visitEndpoints(VertexVisitor *visitor);
   bool havePathGroups() const;
@@ -346,7 +348,9 @@ public:
   void findFilteredArrivals(ExceptionFrom *from,
                             ExceptionThruSeq *thrus,
                             ExceptionTo *to,
-                            bool unconstrained);
+                            bool unconstrained,
+                            bool thru_latches);
+  VertexSeq filteredEndpoints();
 
 protected:
   void init(StaState *sta);
@@ -445,8 +449,8 @@ protected:
 			     Vertex *vertex);
   void findClkArrivals1();
 
-  virtual void findArrivals(Level level,
-			    VertexVisitor *arrival_visitor);
+  void findAllArrivals(bool thru_latches);
+  void findArrivals1(Level level);
   Tag *mutateTag(Tag *from_tag,
 		 const Pin *from_pin,
 		 const RiseFall *from_rf,
@@ -471,8 +475,8 @@ protected:
   bool havePendingLatchOutputs();
   void clearPendingLatchOutputs();
   void enqueuePendingLatchOutputs();
-  void findFilteredArrivals();
-  void findArrivals1();
+  void findFilteredArrivals(bool thru_latches);
+  void findArrivalsSeed();
   void seedFilterStarts();
   bool hasEnabledChecks(Vertex *vertex) const;
   virtual float timingDerate(Vertex *from_vertex,
@@ -525,6 +529,9 @@ protected:
   void clocks(const Vertex *vertex,
               // Return value.
               ClockSet &clks) const;
+  void clockDomains(const Vertex *vertex,
+                    // Return value.
+                    ClockSet &clks) const;
 
   ////////////////////////////////////////////////////////////////
 
@@ -598,6 +605,7 @@ protected:
   // filter_from_ is owned by filter_ if it exists.
   ExceptionFrom *filter_from_;
   ExceptionTo *filter_to_;
+  VertexSet *filtered_arrivals_;
   bool found_downstream_clk_pins_;
   PathGroups *path_groups_;
   VisitPathEnds *visit_path_ends_;

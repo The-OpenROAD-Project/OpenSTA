@@ -41,6 +41,7 @@ protected:
 
   const LibertyCell *drvr_cell_;
   const Parasitic *drvr_parasitic_;
+  bool input_port_;
 };
 
 } // namespace
