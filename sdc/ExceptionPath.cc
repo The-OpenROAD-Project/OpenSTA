@@ -1487,7 +1487,9 @@ ExceptionThru::deletePinEdges(const Pin *pin,
     }
     else {
       // erase prevents range iteration.
-      for (const EdgePins &edge_pins : *edges_) {
+      EdgePinsSet::Iterator edge_iter(edges_);
+      while (edge_iter.hasNext()) {
+        const EdgePins &edge_pins = edge_iter.next();
         if (edge_pins.first == pin
             || edge_pins.second == pin) {
           edges_->erase(edge_pins);
