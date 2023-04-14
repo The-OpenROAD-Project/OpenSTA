@@ -5663,12 +5663,15 @@ Sdc::connectPinAfter(const Pin *pin)
     PinSet *drvrs = network_->drivers(pin);
     for (ExceptionPath *exception : exceptions_) {
       ExceptionPt *first_pt = exception->firstPt();
-      for (ExceptionThru *thru : *exception->thrus()) {
-        if (thru->edges()) {
-          thru->connectPinAfter(drvrs, network_);
-          if (first_pt == thru)
-            recordExceptionEdges(exception, thru->edges(),
-                                 first_thru_edge_exceptions_);
+      ExceptionThruSeq *thrus = exception->thrus();
+      if (thrus) {
+        for (ExceptionThru *thru : *exception->thrus()) {
+          if (thru->edges()) {
+            thru->connectPinAfter(drvrs, network_);
+            if (first_pt == thru)
+              recordExceptionEdges(exception, thru->edges(),
+                                   first_thru_edge_exceptions_);
+          }
         }
       }
     }
@@ -5681,12 +5684,15 @@ Sdc::disconnectPinBefore(const Pin *pin)
   if (have_thru_hpin_exceptions_) {
     for (ExceptionPath *exception : exceptions_) {
       ExceptionPt *first_pt = exception->firstPt();
-      for (ExceptionThru *thru : *exception->thrus()) {
-        if (thru->edges()) {
-          thru->disconnectPinBefore(pin, network_);
-          if (thru == first_pt)
-            recordExceptionEdges(exception, thru->edges(),
-                                 first_thru_edge_exceptions_);
+      ExceptionThruSeq *thrus = exception->thrus();
+      if (thrus) {
+        for (ExceptionThru *thru : *exception->thrus()) {
+          if (thru->edges()) {
+            thru->disconnectPinBefore(pin, network_);
+            if (thru == first_pt)
+              recordExceptionEdges(exception, thru->edges(),
+                                   first_thru_edge_exceptions_);
+          }
         }
       }
     }

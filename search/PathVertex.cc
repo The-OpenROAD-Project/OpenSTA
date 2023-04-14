@@ -433,12 +433,12 @@ PrevPathVisitor::unfilteredTag(const Tag *tag) const
     }
   }
   return search_->findTag(tag->transition(),
-			 corners_->findPathAnalysisPt(tag->pathAPIndex()),
-			 tag->clkInfo(),
-			 tag->isClock(),
-			 tag->inputDelay(),
-			 tag->isSegmentStart(),
-			 unfiltered_states, true);
+                          corners_->findPathAnalysisPt(tag->pathAPIndex()),
+                          tag->clkInfo(),
+                          tag->isClock(),
+                          tag->inputDelay(),
+                          tag->isSegmentStart(),
+                          unfiltered_states, true);
 }
 
 ////////////////////////////////////////////////////////////////
