@@ -45,11 +45,9 @@
 
 namespace sta {
 
-using std::string;
 using std::ofstream;
 using std::ifstream;
 using std::max;
-using std::set;
 
 typedef Map<string, StringVector*> CellSpicePortNames;
 typedef int Stage;
@@ -71,6 +69,7 @@ public:
 		 const char *subckt_filename,
 		 const char *lib_subckt_filename,
 		 const char *model_filename,
+                 StdStringSet *off_path_pin_names,
 		 const char *power_name,
 		 const char *gnd_name,
 		 const StaState *sta);
@@ -100,8 +99,8 @@ private:
 			       DcalcAPIndex dcalc_ap_index);
   void writeStageParasitics(Stage stage);
   void writeSubckts();
-  set<string> findPathCellnames();
-  void findPathCellSubckts(set<string> &path_cell_names);
+  StdStringSet findPathCellnames();
+  void findPathCellSubckts(StdStringSet &path_cell_names);
   void recordSpicePortNames(const char *cell_name,
 			    StringVector &tokens);
   float maxTime();
@@ -209,12 +208,14 @@ private:
   const char *stageLoadPinName(Stage stage);
   LibertyCell *stageLibertyCell(Stage stage);
   Instance *stageInstance(Stage stage);
+  StdStringSet stageOffPathPinNames(Stage stage);
 
   Path *path_;
   const char *spice_filename_;
   const char *subckt_filename_;
   const char *lib_subckt_filename_;
   const char *model_filename_;
+  StdStringSet *off_path_pin_names_;
   const char *power_name_;
   const char *gnd_name_;
 
@@ -270,13 +271,14 @@ writePathSpice(Path *path,
 	       const char *subckt_filename,
 	       const char *lib_subckt_filename,
 	       const char *model_filename,
-	       const char *power_name,
+               StdStringSet *off_path_pin_names,
+               const char *power_name,
 	       const char *gnd_name,
 	       StaState *sta)
 {
   WritePathSpice writer(path, spice_filename, subckt_filename,
 			lib_subckt_filename, model_filename,
-			power_name, gnd_name, sta);
+			off_path_pin_names, power_name, gnd_name, sta);
   writer.writeSpice();
 }
 
@@ -285,6 +287,7 @@ WritePathSpice::WritePathSpice(Path *path,
 			       const char *subckt_filename,
 			       const char *lib_subckt_filename,
 			       const char *model_filename,
+                               StdStringSet *off_path_pin_names,
 			       const char *power_name,
 			       const char *gnd_name,
 			       const StaState *sta) :
@@ -294,6 +297,7 @@ WritePathSpice::WritePathSpice(Path *path,
   subckt_filename_(subckt_filename),
   lib_subckt_filename_(lib_subckt_filename),
   model_filename_(model_filename),
+  off_path_pin_names_(off_path_pin_names),
   power_name_(power_name),
   gnd_name_(gnd_name),
   path_expanded_(sta),
@@ -388,6 +392,9 @@ WritePathSpice::writePrintStmt()
   for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
     streamPrint(spice_stream_, " v(%s)", stageDrvrPinName(stage));
     streamPrint(spice_stream_, " v(%s)", stageLoadPinName(stage));
+    StdStringSet off_path_names = stageOffPathPinNames(stage);
+    for (const string &off_path_name : off_path_names)
+      streamPrint(spice_stream_, " v(%s)", off_path_name.c_str());
   }
   streamPrint(spice_stream_, "\n\n");
 }
@@ -441,13 +448,17 @@ WritePathSpice::writeStageInstances()
 		  stageDrvrPinName(stage),
 		  stageLoadPinName(stage),
 		  stage_cname);
-    else 
-      streamPrint(spice_stream_, "x%s %s %s %s %s\n",
+    else {
+      streamPrint(spice_stream_, "x%s %s %s %s",
 		  stage_cname,
 		  stageGateInputPinName(stage),
 		  stageDrvrPinName(stage),
-		  stageLoadPinName(stage),
-		  stage_cname);
+		  stageLoadPinName(stage));
+      StdStringSet off_path_names = stageOffPathPinNames(stage);
+      for (const string &off_path_name : off_path_names)
+        streamPrint(spice_stream_, " %s", off_path_name.c_str());
+      streamPrint(spice_stream_, " %s\n", stage_cname);
+    }
   }
   streamPrint(spice_stream_, "\n");
 }
@@ -855,11 +866,16 @@ WritePathSpice::writeGateStage(Stage stage)
   const char *drvr_pin_name = stageDrvrPinName(stage);
   const Pin *load_pin = stageLoadPin(stage);
   const char *load_pin_name = stageLoadPinName(stage);
-  streamPrint(spice_stream_, ".subckt stage%d %s %s %s\n",
+  streamPrint(spice_stream_, ".subckt stage%d %s %s %s",
 	      stage,
 	      input_pin_name,
 	      drvr_pin_name,
 	      load_pin_name);
+  StdStringSet off_path_names = stageOffPathPinNames(stage);
+  for (const string &off_path_name : off_path_names)
+    streamPrint(spice_stream_, " %s", off_path_name.c_str());
+  streamPrint(spice_stream_, "\n");
+
   // Driver subckt call.
   Instance *inst = stageInstance(stage);
   LibertyPort *input_port = stageGateInputPort(stage);
@@ -1433,7 +1449,7 @@ WritePathSpice::nodeName(ParasiticNode *node)
 void
 WritePathSpice::writeSubckts()
 {
-  set<string> path_cell_names = findPathCellnames();
+  StdStringSet path_cell_names = findPathCellnames();
   findPathCellSubckts(path_cell_names);
 
   ifstream lib_subckts_stream(lib_subckt_filename_);
@@ -1489,10 +1505,10 @@ WritePathSpice::writeSubckts()
     throw FileNotReadable(lib_subckt_filename_);
 }
 
-set<string>
+StdStringSet
 WritePathSpice::findPathCellnames()
 {
-  set<string> path_cell_names;
+  StdStringSet path_cell_names;
   for (Stage stage = stageFirst(); stage <= stageLast(); stage++) {
     TimingArc *arc = stageGateArc(stage);
     if (arc) {
@@ -1520,7 +1536,7 @@ WritePathSpice::findPathCellnames()
 
 // Subckts can call subckts (asap7).
 void
-WritePathSpice::findPathCellSubckts(set<string> &path_cell_names)
+WritePathSpice::findPathCellSubckts(StdStringSet &path_cell_names)
 {
   ifstream lib_subckts_stream(lib_subckt_filename_);
   if (lib_subckts_stream.is_open()) {
@@ -1729,6 +1745,26 @@ WritePathSpice::stageLoadPinName(Stage stage)
 {
   Pin *pin = stageLoadPin(stage);
   return network_->pathName(pin);
+}
+
+StdStringSet
+WritePathSpice::stageOffPathPinNames(Stage stage)
+{
+  StdStringSet pin_names;
+  if (off_path_pin_names_) {
+    const PathRef *path = stageDrvrPath(stage);
+    Vertex *drvr = path->vertex(this);
+    VertexOutEdgeIterator edge_iter(drvr, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      Vertex *load = edge->to(graph_);
+      const Pin *load_pin = load->pin();
+      string load_pin_name = network_->pathName(load_pin);
+      if (off_path_pin_names_->find(load_pin_name) != off_path_pin_names_->end())
+        pin_names.insert(load_pin_name);
+    }
+  }
+  return pin_names;
 }
 
 Instance *

@@ -254,6 +254,26 @@ tclListSeqConstChar(Tcl_Obj *const source,
     return nullptr;
 }
 
+StdStringSet *
+tclListSetStdString(Tcl_Obj *const source,
+		    Tcl_Interp *interp)
+{
+  int argc;
+  Tcl_Obj **argv;
+
+  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
+    StdStringSet *set = new StdStringSet;
+    for (int i = 0; i < argc; i++) {
+      int length;
+      const char *str = Tcl_GetStringFromObj(argv[i], &length);
+      set->insert(str);
+    }
+    return set;
+  }
+  else
+    return nullptr;
+}
+
 ////////////////////////////////////////////////////////////////
 
 // Sequence out to tcl list.
@@ -423,6 +443,10 @@ using namespace sta;
 
 %typemap(in) StringSeq* {
   $1 = tclListSeqConstChar($input, interp);
+}
+
+%typemap(in) StdStringSet* {
+  $1 = tclListSetStdString($input, interp);
 }
 
 %typemap(out) StringSeq* {
@@ -4865,12 +4889,13 @@ write_path_spice_cmd(PathRef *path,
 		     const char *subckt_filename,
 		     const char *lib_subckt_filename,
 		     const char *model_filename,
+                     StdStringSet *off_path_pins,
 		     const char *power_name,
 		     const char *gnd_name)
 {
   Sta *sta = Sta::sta();
   writePathSpice(path, spice_filename, subckt_filename,
-		 lib_subckt_filename, model_filename,
+		 lib_subckt_filename, model_filename, off_path_pins,
 		 power_name, gnd_name, sta);
 }
 
