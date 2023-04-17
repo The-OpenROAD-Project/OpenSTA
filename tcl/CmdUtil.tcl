@@ -114,7 +114,7 @@ define_cmd_args "report_units" {}
 proc report_units { args } {
   check_argc_eq0 "report_units" $args
   foreach unit {"time" "capacitance" "resistance" "voltage" "current" "power" "distance"} {
-    report_line " $unit 1[unit_scale_abreviation $unit][unit_suffix $unit]"
+    report_line " $unit 1[unit_scaled_suffix $unit]"
   }
 }
 
