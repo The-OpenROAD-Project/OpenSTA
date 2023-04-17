@@ -3987,11 +3987,11 @@ set_cmd_unit_suffix(const char *unit_name,
 }
 
 const char *
-unit_scale_abreviation(const char *unit_name)
+unit_scale_abbreviation (const char *unit_name)
 {
   Unit *unit = Sta::sta()->units()->find(unit_name);
   if (unit)
-    return unit->scaleAbreviation();
+    return unit->scaleAbbreviation();
   else
     return "";
 }
@@ -4002,6 +4002,16 @@ unit_suffix(const char *unit_name)
   Unit *unit = Sta::sta()->units()->find(unit_name);
   if (unit)
     return unit->suffix();
+  else
+    return "";
+}
+
+const char *
+unit_scaled_suffix(const char *unit_name)
+{
+  Unit *unit = Sta::sta()->units()->find(unit_name);
+  if (unit)
+    return unit->scaledSuffix();
   else
     return "";
 }
