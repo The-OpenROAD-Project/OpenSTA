@@ -104,6 +104,7 @@ private:
   void recordSpicePortNames(const char *cell_name,
 			    StringVector &tokens);
   float maxTime();
+  float pathMaxTime();
   const char *nodeName(ParasiticNode *node);
   void initNodeMap(const char *net_name);
   const char *spiceTrans(const RiseFall *rf);
@@ -404,9 +405,6 @@ WritePathSpice::maxTime()
 {
   Stage input_stage = stageFirst();
   PathRef *input_path = stageDrvrPath(input_stage);
-  const RiseFall *rf = input_path->transition(this);
-  TimingArc *next_arc = stageGateArc(input_stage + 1);
-  float input_slew = findSlew(input_path, rf, next_arc);
   if (input_path->isClock(this)) {
     const Clock *clk = input_path->clock(this);
     float period = clk->period();
@@ -414,13 +412,36 @@ WritePathSpice::maxTime()
     float max_time = period * clk_cycle_count_ + first_edge_offset;
     return max_time;
   }
-  else {
-    float end_slew = findSlew(path_);
-    float arrival = delayAsFloat(path_->arrival(this));
-    float max_time = railToRailSlew(input_slew, rf) + arrival
-      + railToRailSlew(end_slew, rf);
-    return max_time;
+  else
+    return pathMaxTime();
+}
+
+// Make sure run time is long enough to see side load transitions along the path.
+float
+WritePathSpice::pathMaxTime()
+{
+  float max_time = 0.0;
+  DcalcAPIndex dcalc_ap_index = path_->dcalcAnalysisPt(this)->index();
+  for (size_t i = 0; i < path_expanded_.size(); i++) {
+    PathRef *path = path_expanded_.path(i);
+    const RiseFall *rf = path->transition(this);
+    Vertex *vertex = path->vertex(this);
+    Slew path_max_slew = railToRailSlew(findSlew(vertex, rf, nullptr, dcalc_ap_index),rf);
+    if (vertex->isDriver(network_)) {
+      VertexOutEdgeIterator edge_iter(vertex, graph_);
+      while (edge_iter.hasNext()) {
+        Edge *edge = edge_iter.next();
+        Vertex *load = edge->to(graph_);
+        Slew load_slew = railToRailSlew(findSlew(load, rf, nullptr, dcalc_ap_index),rf);
+        if (load_slew > path_max_slew)
+          path_max_slew = load_slew;
+      }
+    }
+    float path_max_time = path->arrival(this) + path_max_slew * 2.0;
+    if (path_max_time > max_time)
+      max_time = path_max_time;
   }
+  return max_time;
 }
 
 float
