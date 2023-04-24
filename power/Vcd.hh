@@ -38,7 +38,24 @@ typedef int64_t VcdTime;
 typedef vector<string> VcdScope;
 typedef map<string, VcdVar*> VcdNameMap;
 
-enum class VcdVarType { wire, reg, parameter, real };
+enum class VcdVarType {
+  wire,
+  reg,
+  parameter,
+  integer,
+  real,
+  supply0,
+  supply1,
+  tri,
+  triand,
+  trior,
+  trireg,
+  tri0,
+  tri1,
+  wand,
+  wor,
+  unknown
+};
 
 class Vcd : public StaState
 {
