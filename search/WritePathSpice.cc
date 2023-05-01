@@ -98,6 +98,12 @@ private:
 			       const Clock *clk,
 			       DcalcAPIndex dcalc_ap_index);
   void writeStageParasitics(Stage stage);
+  void writeStageParasiticNetwork(Pin *drvr_pin,
+                                  Parasitic *parasitic,
+                                  ParasiticAnalysisPt *parasitic_ap);
+  void writeStagePiElmore(Pin *drvr_pin,
+                          Parasitic *parasitic);
+  void writeNullParasitics(Pin *drvr_pin);
   void writeSubckts();
   StdStringSet findPathCellnames();
   void findPathCellSubckts(StdStringSet &path_cell_names);
@@ -1337,60 +1343,77 @@ WritePathSpice::writeStageParasitics(Stage stage)
 {
   PathRef *drvr_path = stageDrvrPath(stage);
   Pin *drvr_pin = stageDrvrPin(stage);
+
+  Net *net = network_->net(drvr_pin);
+  const char *net_name = net ? network_->pathName(net) : network_->pathName(drvr_pin);
+  initNodeMap(net_name);
+  streamPrint(spice_stream_, "* Net %s\n", net_name);
+
   DcalcAnalysisPt *dcalc_ap = drvr_path->dcalcAnalysisPt(this);
   ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
   Parasitic *parasitic = parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
+  if (parasitic)
+    writeStageParasiticNetwork(drvr_pin, parasitic, parasitic_ap);
+  else {
+    const RiseFall *drvr_rf = drvr_path->transition(this);
+    parasitic = parasitics_->findPiElmore(drvr_pin, drvr_rf, parasitic_ap);
+    if (parasitic)
+      writeStagePiElmore(drvr_pin, parasitic);
+    else {
+      streamPrint(spice_stream_, "* No parasitics found for this net.\n");
+      writeNullParasitics(drvr_pin);
+    }
+  }
+}
+
+void
+WritePathSpice::writeStageParasiticNetwork(Pin *drvr_pin,
+                                           Parasitic *parasitic,
+                                           ParasiticAnalysisPt *parasitic_ap)
+{
   Set<const Pin*> reachable_pins;
   int res_index = 1;
   int cap_index = 1;
-  if (parasitic) {
-    Net *net = network_->net(drvr_pin);
-    const char *net_name = net ? network_->pathName(net) : network_->pathName(drvr_pin);
-    initNodeMap(net_name);
-    streamPrint(spice_stream_, "* Net %s\n", net_name);
 
-    // Sort devices for consistent regression results.
-    Vector<ParasiticDevice*> devices;
-    ParasiticDeviceIterator *device_iter1 = parasitics_->deviceIterator(parasitic);
-    while (device_iter1->hasNext()) {
-      ParasiticDevice *device = device_iter1->next();
-      devices.push_back(device);
+  // Sort devices for consistent regression results.
+  Vector<ParasiticDevice*> devices;
+  ParasiticDeviceIterator *device_iter1 = parasitics_->deviceIterator(parasitic);
+  while (device_iter1->hasNext()) {
+    ParasiticDevice *device = device_iter1->next();
+    devices.push_back(device);
+  }
+  delete device_iter1;
+
+  sort(devices, ParasiticDeviceLess(parasitics_));
+
+  for (ParasiticDevice *device : devices) {
+    float resistance = parasitics_->value(device, parasitic_ap);
+    if (parasitics_->isResistor(device)) {
+      ParasiticNode *node1 = parasitics_->node1(device);
+      ParasiticNode *node2 = parasitics_->node2(device);
+      streamPrint(spice_stream_, "R%d %s %s %.3e\n",
+                  res_index,
+                  nodeName(node1),
+                  nodeName(node2),
+                  resistance);
+      res_index++;
+
+      const Pin *pin1 = parasitics_->connectionPin(node1);
+      reachable_pins.insert(pin1);
+      const Pin *pin2 = parasitics_->connectionPin(node2);
+      reachable_pins.insert(pin2);
     }
-    delete device_iter1;
-
-    sort(devices, ParasiticDeviceLess(parasitics_));
-
-    for (ParasiticDevice *device : devices) {
-      float resistance = parasitics_->value(device, parasitic_ap);
-      if (parasitics_->isResistor(device)) {
-	ParasiticNode *node1 = parasitics_->node1(device);
-	ParasiticNode *node2 = parasitics_->node2(device);
-	streamPrint(spice_stream_, "R%d %s %s %.3e\n",
-		    res_index,
-		    nodeName(node1),
-		    nodeName(node2),
-		    resistance);
-	res_index++;
-
-	const Pin *pin1 = parasitics_->connectionPin(node1);
-	reachable_pins.insert(pin1);
-	const Pin *pin2 = parasitics_->connectionPin(node2);
-	reachable_pins.insert(pin2);
-      }
-      else if (parasitics_->isCouplingCap(device)) {
-	// Ground coupling caps for now.
-	ParasiticNode *node1 = 	parasitics_->node1(device);
-	float cap = parasitics_->value(device, parasitic_ap);
-	streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
-		    cap_index,
-		    nodeName(node1),
-		    cap);
-	cap_index++;
-      }
+    else if (parasitics_->isCouplingCap(device)) {
+      // Ground coupling caps for now.
+      ParasiticNode *node1 = 	parasitics_->node1(device);
+      float cap = parasitics_->value(device, parasitic_ap);
+      streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
+                  cap_index,
+                  nodeName(node1),
+                  cap);
+      cap_index++;
     }
   }
-  else
-    streamPrint(spice_stream_, "* No parasitics found for this net.\n");
 
   // Add resistors from drvr to load for missing parasitic connections.
   auto pin_iter = network_->connectedPinIterator(drvr_pin);
@@ -1410,30 +1433,107 @@ WritePathSpice::writeStageParasitics(Stage stage)
   }
   delete pin_iter;
 
-  if (parasitic) {
-    // Sort node capacitors for consistent regression results.
-    Vector<ParasiticNode*> nodes;
-    ParasiticNodeIterator *node_iter = parasitics_->nodeIterator(parasitic);
-    while (node_iter->hasNext()) {
-      ParasiticNode *node = node_iter->next();
-      nodes.push_back(node);
-    }
-
-    sort(nodes, ParasiticNodeLess(parasitics_));
-
-    for (ParasiticNode *node : nodes) {
-      float cap = parasitics_->nodeGndCap(node, parasitic_ap);
-      // Spice has a cow over zero value caps.
-      if (cap > 0.0) {
-	streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
-		    cap_index,
-		    nodeName(node),
-		    cap);
-	cap_index++;
-      }
-    }
-    delete node_iter;
+  // Sort node capacitors for consistent regression results.
+  Vector<ParasiticNode*> nodes;
+  ParasiticNodeIterator *node_iter = parasitics_->nodeIterator(parasitic);
+  while (node_iter->hasNext()) {
+    ParasiticNode *node = node_iter->next();
+    nodes.push_back(node);
   }
+
+  sort(nodes, ParasiticNodeLess(parasitics_));
+
+  for (ParasiticNode *node : nodes) {
+    float cap = parasitics_->nodeGndCap(node, parasitic_ap);
+    // Spice has a cow over zero value caps.
+    if (cap > 0.0) {
+      streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
+                  cap_index,
+                  nodeName(node),
+                  cap);
+      cap_index++;
+    }
+  }
+  delete node_iter;
+}
+
+void
+WritePathSpice::writeStagePiElmore(Pin *drvr_pin,
+                                   Parasitic *parasitic)
+{
+  float c2, rpi, c1;
+  parasitics_->piModel(parasitic, c2, rpi, c1);
+  const char *c1_node = "n1";
+  streamPrint(spice_stream_, "Rpi %s %s %.3e\n",
+              network_->pathName(drvr_pin),
+              c1_node,
+              rpi);
+  if (c2 > 0.0)
+    streamPrint(spice_stream_, "C2 %s 0 %.3e\n",
+                network_->pathName(drvr_pin),
+                c2);
+  if (c1 > 0.0)
+    streamPrint(spice_stream_, "C1 %s 0 %.3e\n",
+                c1_node,
+                c1);
+  
+  int load_index = 3;
+  auto pin_iter = network_->connectedPinIterator(drvr_pin);
+  while (pin_iter->hasNext()) {
+    const Pin *load_pin = pin_iter->next();
+    if (load_pin != drvr_pin
+	&& network_->isLoad(load_pin)
+	&& !network_->isHierarchical(load_pin)) {
+      float elmore;
+      bool exists;
+      parasitics_->findElmore(parasitic, load_pin, elmore, exists);
+      if (exists) {
+        streamPrint(spice_stream_, "E%d el%d 0 %s 0 1.0\n",
+                    load_index,
+                    load_index,
+                    network_->pathName(drvr_pin));
+        streamPrint(spice_stream_, "R%d el%d %s 1.0\n",
+                    load_index,
+                    load_index,
+                    network_->pathName(load_pin));
+        streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
+                    load_index,
+                    network_->pathName(load_pin),
+                    elmore);
+      }
+      else
+        // Add resistor from drvr to load for missing elmore.
+        streamPrint(spice_stream_, "R%d %s %s %.3e\n",
+                    load_index,
+                    network_->pathName(drvr_pin),
+                    network_->pathName(load_pin),
+                    short_ckt_resistance_);
+      load_index++;
+    }
+  }
+  delete pin_iter;
+}
+
+void
+WritePathSpice::writeNullParasitics(Pin *drvr_pin)
+{
+  int res_index = 1;
+  // Add resistors from drvr to load for missing parasitic connections.
+  auto pin_iter = network_->connectedPinIterator(drvr_pin);
+  while (pin_iter->hasNext()) {
+    const Pin *load_pin = pin_iter->next();
+    if (load_pin != drvr_pin
+	&& network_->isLoad(load_pin)
+	&& !network_->isHierarchical(load_pin)) {
+      streamPrint(spice_stream_, "R%d %s %s %.3e\n",
+                  res_index,
+                  network_->pathName(drvr_pin),
+                  network_->pathName(load_pin),
+                  short_ckt_resistance_);
+      res_index++;
+    }
+  }
+  delete pin_iter;
 }
 
 void
