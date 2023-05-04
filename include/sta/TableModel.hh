@@ -507,12 +507,19 @@ public:
   const RiseFall *rf() const { return rf_; }
   Table1 voltageWaveform(float in_slew,
                          float load_cap);
-  Table1 currentWaveform(float slew,
-                         float cap);
+  float timeToVoltage(float in_slew,
+                      float load_cap,
+                      float voltage);
+  const Table1 *currentWaveform(float slew,
+                                float cap);
   float referenceTime(float slew);
   static bool checkAxes(TableTemplate *tbl_template);
 
 private:
+  float timeToVoltage(const Table1 *waveform,
+                      float voltage);
+  size_t findValueIndex(const Table1 *table,
+                        float value);
   Table1 *voltageWaveform(size_t wave_index,
                           float cap);
 

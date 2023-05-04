@@ -1464,7 +1464,7 @@ WritePathSpice::writeStagePiElmore(Pin *drvr_pin,
   float c2, rpi, c1;
   parasitics_->piModel(parasitic, c2, rpi, c1);
   const char *c1_node = "n1";
-  streamPrint(spice_stream_, "Rpi %s %s %.3e\n",
+  streamPrint(spice_stream_, "RPI %s %s %.3e\n",
               network_->pathName(drvr_pin),
               c1_node,
               rpi);

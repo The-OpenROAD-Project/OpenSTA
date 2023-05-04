@@ -909,24 +909,26 @@ using namespace sta;
 
 %typemap(out) Table1 {
   Table1 &table = $1;
-  Tcl_Obj *list3 = Tcl_NewListObj(0, nullptr);
-  Tcl_Obj *list1 = Tcl_NewListObj(0, nullptr);
-  for (float f : *table.axis1()->values()) {
-    Tcl_Obj *obj = Tcl_NewDoubleObj(f);
-    Tcl_ListObjAppendElement(interp, list1, obj);
+  if (table.axis1()) {
+    Tcl_Obj *list3 = Tcl_NewListObj(0, nullptr);
+    Tcl_Obj *list1 = Tcl_NewListObj(0, nullptr);
+    for (float f : *table.axis1()->values()) {
+      Tcl_Obj *obj = Tcl_NewDoubleObj(f);
+      Tcl_ListObjAppendElement(interp, list1, obj);
+    }
+    Tcl_Obj *list2 = Tcl_NewListObj(0, nullptr);
+    for (float f : *table.values()) {
+      Tcl_Obj *obj = Tcl_NewDoubleObj(f);
+      Tcl_ListObjAppendElement(interp, list2, obj);
+    }
+    Tcl_ListObjAppendElement(interp, list3, list1);
+    Tcl_ListObjAppendElement(interp, list3, list2);
+    Tcl_SetObjResult(interp, list3);
   }
-  Tcl_Obj *list2 = Tcl_NewListObj(0, nullptr);
-  for (float f : *table.values()) {
-    Tcl_Obj *obj = Tcl_NewDoubleObj(f);
-    Tcl_ListObjAppendElement(interp, list2, obj);
-  }
-  Tcl_ListObjAppendElement(interp, list3, list1);
-  Tcl_ListObjAppendElement(interp, list3, list2);
-  Tcl_SetObjResult(interp, list3);
 }
 
-%typemap(out) Table1* {
-  Table1 *table = $1;
+%typemap(out) const Table1* {
+  const Table1 *table = $1;
   Tcl_Obj *list3 = Tcl_NewListObj(0, nullptr);
   if (table) {
     Tcl_Obj *list1 = Tcl_NewListObj(0, nullptr);
@@ -5708,7 +5710,7 @@ voltage_waveform(float in_slew,
   return Table1();
 }
 
-Table1
+const Table1 *
 current_waveform(float in_slew,
                  float load_cap)
 {
@@ -5716,11 +5718,11 @@ current_waveform(float in_slew,
   if (gate_model) {
     OutputWaveforms *waveforms = gate_model->outputWaveforms();
     if (waveforms) {
-      Table1 waveform = waveforms->currentWaveform(in_slew, load_cap);
+      const Table1 *waveform = waveforms->currentWaveform(in_slew, load_cap);
       return waveform;
     }
   }
-  return Table1();
+  return nullptr;
 }
 
 } // TimingArc methods
