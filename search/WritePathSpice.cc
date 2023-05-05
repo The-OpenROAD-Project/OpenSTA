@@ -386,7 +386,7 @@ WritePathSpice::writeHeader()
   streamPrint(spice_stream_, ".include \"%s\"\n", subckt_filename_stem.c_str());
 
   float max_time = maxTime();
-  float time_step = max_time / 1e+3;
+  float time_step = 1e-13;
   streamPrint(spice_stream_, ".tran %.3g %.3g\n\n",
 	      time_step, max_time);
   streamPrint(spice_stream_, ".options nomod\n");
