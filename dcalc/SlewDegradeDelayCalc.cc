@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include "SimpleRCDelayCalc.hh"
+#include "SlewDegradeDelayCalc.hh"
 
 #include "TimingArc.hh"
 #include "Liberty.hh"
@@ -25,46 +25,83 @@
 
 namespace sta {
 
-ArcDelayCalc *
-makeSimpleRCDelayCalc(StaState *sta)
+// Liberty table model lumped capacitance arc delay calculator.
+// Effective capacitance is the pi model total capacitance (C1+C2).
+// Wire delays are elmore delays.
+// Driver slews are degraded to loads by rise/fall transition_degradation
+// tables.
+class SlewDegradeDelayCalc : public RCDelayCalc
 {
-  return new SimpleRCDelayCalc(sta);
+public:
+  SlewDegradeDelayCalc(StaState *sta);
+  virtual ArcDelayCalc *copy();
+  virtual void inputPortDelay(const Pin *port_pin,
+			      float in_slew,
+			      const RiseFall *rf,
+			      const Parasitic *parasitic,
+			      const DcalcAnalysisPt *dcalc_ap);
+  virtual void gateDelay(const LibertyCell *drvr_cell,
+			 const TimingArc *arc,
+			 const Slew &in_slew,
+			 float load_cap,
+			 const Parasitic *drvr_parasitic,
+			 float related_out_cap,
+			 const Pvt *pvt,
+			 const DcalcAnalysisPt *dcalc_ap,
+			 // Return values.
+			 ArcDelay &gate_delay,
+			 Slew &drvr_slew);
+  virtual void loadDelay(const Pin *load_pin,
+			 ArcDelay &wire_delay,
+			 Slew &load_slew);
+
+  using RCDelayCalc::gateDelay;
+  using RCDelayCalc::reportGateDelay;
+
+private:
+  const Pvt *pvt_;
+};
+
+ArcDelayCalc *
+makeSlewDegradeDelayCalc(StaState *sta)
+{
+  return new SlewDegradeDelayCalc(sta);
 }
 
-SimpleRCDelayCalc::SimpleRCDelayCalc(StaState *sta) :
+SlewDegradeDelayCalc::SlewDegradeDelayCalc(StaState *sta) :
   RCDelayCalc(sta)
 {
 }
 
 ArcDelayCalc *
-SimpleRCDelayCalc::copy()
+SlewDegradeDelayCalc::copy()
 {
-  return new SimpleRCDelayCalc(this);
+  return new SlewDegradeDelayCalc(this);
 }
 
 void
-SimpleRCDelayCalc::inputPortDelay(const Pin *port_pin,
-				  float in_slew,
-				  const RiseFall *rf,
-				  const Parasitic *parasitic,
-				  const DcalcAnalysisPt *dcalc_ap)
+SlewDegradeDelayCalc::inputPortDelay(const Pin *port_pin,
+                                     float in_slew,
+                                     const RiseFall *rf,
+                                     const Parasitic *parasitic,
+                                     const DcalcAnalysisPt *dcalc_ap)
 {
   pvt_ = dcalc_ap->operatingConditions();
   RCDelayCalc::inputPortDelay(port_pin, in_slew, rf, parasitic, dcalc_ap);
 }
 
 void
-SimpleRCDelayCalc::gateDelay(const LibertyCell *drvr_cell,
-			     const TimingArc *arc,
-			     const Slew &in_slew,
-			     float load_cap,
-			     const Parasitic *drvr_parasitic,
-			     float related_out_cap,
-			     const Pvt *pvt,
-			     const DcalcAnalysisPt *dcalc_ap,
-			     // Return values.
-			     ArcDelay &gate_delay,
-			     Slew &drvr_slew)
+SlewDegradeDelayCalc::gateDelay(const LibertyCell *drvr_cell,
+                                const TimingArc *arc,
+                                const Slew &in_slew,
+                                float load_cap,
+                                const Parasitic *drvr_parasitic,
+                                float related_out_cap,
+                                const Pvt *pvt,
+                                const DcalcAnalysisPt *dcalc_ap,
+                                // Return values.
+                                ArcDelay &gate_delay,
+                                Slew &drvr_slew)
 {
   input_port_ = false;
   drvr_parasitic_ = drvr_parasitic;
@@ -79,9 +116,9 @@ SimpleRCDelayCalc::gateDelay(const LibertyCell *drvr_cell,
 }
 
 void
-SimpleRCDelayCalc::loadDelay(const Pin *load_pin,
-			     ArcDelay &wire_delay,
-			     Slew &load_slew)
+SlewDegradeDelayCalc::loadDelay(const Pin *load_pin,
+                                ArcDelay &wire_delay,
+                                Slew &load_slew)
 {
   ArcDelay wire_delay1 = 0.0;
   Slew load_slew1 = drvr_slew_;

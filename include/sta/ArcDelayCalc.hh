@@ -36,7 +36,7 @@ class DcalcAnalysisPt;
 //   UnitDelayCalc
 //   LumpedCapDelayCalc
 //    RCDelayCalc
-//     SimpleRCDelayCalc
+//     SlewDegradeDelayCalc
 //     DmpCeffDelayCalc
 //      DmpCeffElmoreDelayCalc
 //      DmpCeffTwoPoleDelayCalc

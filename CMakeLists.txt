@@ -73,7 +73,7 @@ set(STA_SOURCE
   dcalc/LumpedCapDelayCalc.cc
   dcalc/NetCaps.cc
   dcalc/RCDelayCalc.cc
-  dcalc/SimpleRCDelayCalc.cc
+  dcalc/SlewDegradeDelayCalc.cc
   dcalc/UnitDelayCalc.cc
   
   graph/DelayFloat.cc
