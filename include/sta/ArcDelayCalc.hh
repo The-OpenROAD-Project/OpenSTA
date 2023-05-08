@@ -40,6 +40,7 @@ class DcalcAnalysisPt;
 //     DmpCeffDelayCalc
 //      DmpCeffElmoreDelayCalc
 //      DmpCeffTwoPoleDelayCalc
+//     ArnoldiDelayCalc
 
 // Abstract class to interface to a delay calculator primitive.
 class ArcDelayCalc : public StaState

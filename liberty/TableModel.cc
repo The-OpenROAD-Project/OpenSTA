@@ -1717,13 +1717,11 @@ OutputWaveforms::voltageTimes(size_t wave_index,
     float prev_current = currents->value(0);
     float voltage = 0.0;
     volts.push_back(voltage);
-    bool always_rise = true;
-    bool invert = (always_rise && rf_ == RiseFall::fall());
     for (size_t i = 1; i < time_axis->size(); i++) {
       float time = time_axis->axisValue(i);
       float current = currents->value(i);
       float dv = (current + prev_current) / 2.0 * (time - prev_time) / cap;
-      voltage += invert ? -dv : dv;
+      voltage += dv;
       volts.push_back(voltage);
       prev_time = time;
       prev_current = current;

@@ -47,7 +47,7 @@ public:
                  // Return values.
                  ArcDelay &gate_delay,
                  Slew &drvr_slew) override;
-  void setMultiDrvrSlewFactor(float) override;
+  void setMultiDrvrSlewFactor(float factor) override;
   float ceff(const LibertyCell *drvr_cell,
              const TimingArc *arc,
              const Slew &in_slew,

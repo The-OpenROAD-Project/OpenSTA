@@ -24,6 +24,7 @@
 #include "DcalcAnalysisPt.hh"
 #include "GraphDelayCalc.hh"
 #include "DmpCeff.hh"
+#include "Network.hh"
 
 namespace sta {
 
@@ -302,7 +303,7 @@ DmpCeffTwoPoleDelayCalc::loadDelay(const Pin *load_pin,
 				   ArcDelay &wire_delay,
 				   Slew &load_slew)
 {
-  // NEED to handle PiElmore parasitic.
+  // Should handle PiElmore parasitic.
   ArcDelay wire_delay1 = 0.0;
   Slew load_slew1 = drvr_slew_;
   Parasitic *pole_residue = 0;
