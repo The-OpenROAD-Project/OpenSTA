@@ -1574,9 +1574,6 @@ tableVariableUnit(TableAxisVariable variable,
 
 ////////////////////////////////////////////////////////////////
 
-
-////////////////////////////////////////////////////////////////
-
 OutputWaveforms::OutputWaveforms(TableAxisPtr slew_axis,
                                  TableAxisPtr cap_axis,
                                  const RiseFall *rf,
@@ -1587,7 +1584,8 @@ OutputWaveforms::OutputWaveforms(TableAxisPtr slew_axis,
   rf_(rf),
   current_waveforms_(current_waveforms),
   voltage_times_(current_waveforms.size()),
-  ref_times_(ref_times)
+  ref_times_(ref_times),
+  vdd_(0.0)
 {
 }
 
@@ -1631,6 +1629,12 @@ OutputWaveforms::referenceTime(float slew)
   return ref_times_->findValue(slew);
 }
 
+void
+OutputWaveforms::setVdd(float vdd)
+{
+  vdd_ = vdd;
+}
+
 float
 OutputWaveforms::voltageTime(float slew,
                              float cap,
@@ -1663,7 +1667,7 @@ OutputWaveforms::voltageTime(float slew,
   float y10 = voltageTime1(volt, wave_index10, cap0);
   float y11 = voltageTime1(volt, wave_index11, cap1);
   float time
-    = (1 - dx1) * (1 - dx2) * y00
+    =   (1 - dx1) * (1 - dx2) * y00
       +      dx1  * (1 - dx2) * y10
       +      dx1  *      dx2  * y11
       + (1 - dx1) *      dx2  * y01;
@@ -1674,7 +1678,7 @@ Table1
 OutputWaveforms::voltageWaveform(float slew,
                                  float cap)
 {
-  float volt_step = voltage_max_ / voltage_waveform_step_count_;
+  float volt_step = vdd_ / voltage_waveform_step_count_;
   FloatSeq *times = new FloatSeq;
   FloatSeq *volts = new FloatSeq;
   for (size_t v = 0; v <= voltage_waveform_step_count_; v++) {
@@ -1693,7 +1697,7 @@ OutputWaveforms::voltageTime1(float voltage,
                               float cap)
 {
   FloatSeq *voltage_times = voltageTimes(wave_index, cap);
-  float volt_step = voltage_max_ / voltage_waveform_step_count_;
+  float volt_step = vdd_ / voltage_waveform_step_count_;
   size_t volt_idx = voltage / volt_step;
   float time0 = (*voltage_times)[volt_idx];
   float time1 = (*voltage_times)[volt_idx + 1];
@@ -1701,17 +1705,16 @@ OutputWaveforms::voltageTime1(float voltage,
   return time;
 }
 
-// Integrate current waveform to find voltage waveform.
-// i = C dv/dt 
 FloatSeq *
 OutputWaveforms::voltageTimes(size_t wave_index,
                               float cap)
 {
   FloatSeq *voltage_times = voltage_times_[wave_index];
   if (voltage_times == nullptr) {
+    // Integrate current waveform to find voltage waveform.
+    // i = C dv/dt
     FloatSeq volts;
     Table1 *currents = current_waveforms_[wave_index];
-
     TableAxisPtr time_axis = currents->axis1();
     float prev_time = time_axis->axisValue(0);
     float prev_current = currents->value(0);
@@ -1728,11 +1731,11 @@ OutputWaveforms::voltageTimes(size_t wave_index,
       prev_time = time;
       prev_current = current;
     }
-    voltage_max_ = volts[volts.size() - 1];
 
-    // Sample voltage waveform a uniform intervals to speed up time to voltage lookup.
+    // Sample the voltage waveform at uniform intervals to speed up
+    // voltage time lookup.
     voltage_times = new FloatSeq;
-    float volt_step = voltage_max_ / voltage_waveform_step_count_;
+    float volt_step = vdd_ / voltage_waveform_step_count_;
     size_t i = 0;
     float time0 = time_axis->axisValue(i);
     float volt0 = volts[i];
@@ -1741,7 +1744,7 @@ OutputWaveforms::voltageTimes(size_t wave_index,
     float volt1 = volts[i];
     for (size_t v = 0; v <= voltage_waveform_step_count_; v++) {
       float volt3 = v * volt_step;
-      while (volt3 > volt1 && i < volts.size()) {
+      while (volt3 > volt1 && i < volts.size() - 1) {
         time0 = time1;
         volt0 = volt1;
         i++;
@@ -1749,6 +1752,8 @@ OutputWaveforms::voltageTimes(size_t wave_index,
         volt1 = volts[i];
       }
       float time3 = time0 + (time1 - time0) * (volt3 - volt0) / (volt1 - volt0);
+      if (time3 < 0.0)
+        printf("luse\n");
       //printf("%.2f %.2e\n", volt3, time3);
       voltage_times->push_back(time3);
     }

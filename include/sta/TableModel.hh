@@ -513,6 +513,7 @@ public:
   const Table1 *currentWaveform(float slew,
                                 float cap);
   float referenceTime(float slew);
+  void setVdd(float vdd);
   static bool checkAxes(TableTemplate *tbl_template);
 
 private:
@@ -530,7 +531,7 @@ private:
   Table1Seq current_waveforms_;
   FloatTable voltage_times_;
   Table1 *ref_times_;
-  float voltage_max_;
+  float vdd_;
   static constexpr size_t voltage_waveform_step_count_ = 20;
 };
 
