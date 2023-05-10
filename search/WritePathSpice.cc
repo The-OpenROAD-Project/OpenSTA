@@ -432,18 +432,18 @@ WritePathSpice::pathMaxTime()
     PathRef *path = path_expanded_.path(i);
     const RiseFall *rf = path->transition(this);
     Vertex *vertex = path->vertex(this);
-    Slew path_max_slew = railToRailSlew(findSlew(vertex, rf, nullptr, dcalc_ap_index),rf);
+    float path_max_slew = railToRailSlew(findSlew(vertex,rf,nullptr,dcalc_ap_index),rf);
     if (vertex->isDriver(network_)) {
       VertexOutEdgeIterator edge_iter(vertex, graph_);
       while (edge_iter.hasNext()) {
         Edge *edge = edge_iter.next();
         Vertex *load = edge->to(graph_);
-        Slew load_slew = railToRailSlew(findSlew(load, rf, nullptr, dcalc_ap_index),rf);
+        float load_slew = railToRailSlew(findSlew(load, rf, nullptr, dcalc_ap_index),rf);
         if (load_slew > path_max_slew)
           path_max_slew = load_slew;
       }
     }
-    float path_max_time = path->arrival(this) + path_max_slew * 2.0;
+    float path_max_time = delayAsFloat(path->arrival(this)) + path_max_slew * 2.0;
     if (path_max_time > max_time)
       max_time = path_max_time;
   }
