@@ -624,7 +624,6 @@ protected:
   float power_scale_;
   float energy_scale_;
   float distance_scale_;
-  bool have_resistance_unit_;
   const char *default_operating_condition_;
   ReceiverModelPtr receiver_model_;
   OutputWaveformSeq output_currents_;

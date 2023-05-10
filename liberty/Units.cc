@@ -168,7 +168,6 @@ Units::Units() :
   capacitance_unit_("F"),
   voltage_unit_("v"),
   resistance_unit_("ohm"),
-  pulling_resistance_unit_("ohm"),
   current_unit_("A"),
   power_unit_("W"),
   distance_unit_("m"),

@@ -133,7 +133,6 @@ MakeTimingModel::makeLibrary()
   *library_->units()->capacitanceUnit() = *default_lib->units()->capacitanceUnit();
   *library_->units()->voltageUnit() = *default_lib->units()->voltageUnit();
   *library_->units()->resistanceUnit() = *default_lib->units()->resistanceUnit();
-  *library_->units()->pullingResistanceUnit() = *default_lib->units()->pullingResistanceUnit();
   *library_->units()->powerUnit() = *default_lib->units()->powerUnit();
   *library_->units()->distanceUnit() = *default_lib->units()->distanceUnit();
 
