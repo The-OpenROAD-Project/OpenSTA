@@ -83,9 +83,9 @@ public:
 
 private:
   Unit time_unit_;
+  Unit resistance_unit_;
   Unit capacitance_unit_;
   Unit voltage_unit_;
-  Unit resistance_unit_;
   Unit current_unit_;
   Unit power_unit_;
   Unit distance_unit_;
