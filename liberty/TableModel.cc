@@ -1437,6 +1437,15 @@ TableAxis::~TableAxis()
   delete values_;
 }
 
+bool
+TableAxis::inBounds(float value) const
+{
+  size_t size = values_->size();
+  return size > 1
+    && value >= (*values_)[0]
+    && value <= (*values_)[size - 1];
+}
+
 // Bisection search.
 size_t
 TableAxis::findAxisIndex(float value) const
@@ -1611,6 +1620,14 @@ OutputWaveforms::checkAxes(TableTemplate *tbl_template)
     || (axis1 && axis1->variable() == TableAxisVariable::total_output_net_capacitance
           && axis2 && axis2->variable() == TableAxisVariable::input_net_transition
           && axis3->variable() == TableAxisVariable::time);
+}
+
+bool
+OutputWaveforms::inBounds(float in_slew,
+                          float load_cap) const
+{
+  return slew_axis_->inBounds(in_slew)
+    && cap_axis_->inBounds(load_cap);
 }
 
 const Table1 *

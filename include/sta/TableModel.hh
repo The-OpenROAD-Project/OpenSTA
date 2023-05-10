@@ -462,6 +462,7 @@ public:
   const char *variableString() const;
   const Unit *unit(const Units *units);
   size_t size() const { return values_->size(); }
+  bool inBounds(float value) const;
   float axisValue(size_t index) const { return (*values_)[index]; }
   // Find the index for value such that axis[index] <= value < axis[index+1].
   size_t findAxisIndex(float value) const;
@@ -505,6 +506,8 @@ public:
                   Table1 *ref_times);
   ~OutputWaveforms();
   const RiseFall *rf() const { return rf_; }
+  bool inBounds(float in_slew,
+                float load_cap) const;
   Table1 voltageWaveform(float in_slew,
                          float load_cap);
   float voltageTime(float in_slew,
