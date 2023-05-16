@@ -254,6 +254,26 @@ tclListSeqConstChar(Tcl_Obj *const source,
     return nullptr;
 }
 
+StdStringSet *
+tclListSetStdString(Tcl_Obj *const source,
+		    Tcl_Interp *interp)
+{
+  int argc;
+  Tcl_Obj **argv;
+
+  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
+    StdStringSet *set = new StdStringSet;
+    for (int i = 0; i < argc; i++) {
+      int length;
+      const char *str = Tcl_GetStringFromObj(argv[i], &length);
+      set->insert(str);
+    }
+    return set;
+  }
+  else
+    return nullptr;
+}
+
 ////////////////////////////////////////////////////////////////
 
 // Sequence out to tcl list.
@@ -423,6 +443,10 @@ using namespace sta;
 
 %typemap(in) StringSeq* {
   $1 = tclListSeqConstChar($input, interp);
+}
+
+%typemap(in) StdStringSet* {
+  $1 = tclListSetStdString($input, interp);
 }
 
 %typemap(out) StringSeq* {
@@ -885,24 +909,26 @@ using namespace sta;
 
 %typemap(out) Table1 {
   Table1 &table = $1;
-  Tcl_Obj *list3 = Tcl_NewListObj(0, nullptr);
-  Tcl_Obj *list1 = Tcl_NewListObj(0, nullptr);
-  for (float f : *table.axis1()->values()) {
-    Tcl_Obj *obj = Tcl_NewDoubleObj(f);
-    Tcl_ListObjAppendElement(interp, list1, obj);
+  if (table.axis1()) {
+    Tcl_Obj *list3 = Tcl_NewListObj(0, nullptr);
+    Tcl_Obj *list1 = Tcl_NewListObj(0, nullptr);
+    for (float f : *table.axis1()->values()) {
+      Tcl_Obj *obj = Tcl_NewDoubleObj(f);
+      Tcl_ListObjAppendElement(interp, list1, obj);
+    }
+    Tcl_Obj *list2 = Tcl_NewListObj(0, nullptr);
+    for (float f : *table.values()) {
+      Tcl_Obj *obj = Tcl_NewDoubleObj(f);
+      Tcl_ListObjAppendElement(interp, list2, obj);
+    }
+    Tcl_ListObjAppendElement(interp, list3, list1);
+    Tcl_ListObjAppendElement(interp, list3, list2);
+    Tcl_SetObjResult(interp, list3);
   }
-  Tcl_Obj *list2 = Tcl_NewListObj(0, nullptr);
-  for (float f : *table.values()) {
-    Tcl_Obj *obj = Tcl_NewDoubleObj(f);
-    Tcl_ListObjAppendElement(interp, list2, obj);
-  }
-  Tcl_ListObjAppendElement(interp, list3, list1);
-  Tcl_ListObjAppendElement(interp, list3, list2);
-  Tcl_SetObjResult(interp, list3);
 }
 
-%typemap(out) Table1* {
-  Table1 *table = $1;
+%typemap(out) const Table1* {
+  const Table1 *table = $1;
   Tcl_Obj *list3 = Tcl_NewListObj(0, nullptr);
   if (table) {
     Tcl_Obj *list1 = Tcl_NewListObj(0, nullptr);
@@ -3963,11 +3989,11 @@ set_cmd_unit_suffix(const char *unit_name,
 }
 
 const char *
-unit_scale_abreviation(const char *unit_name)
+unit_scale_abbreviation (const char *unit_name)
 {
   Unit *unit = Sta::sta()->units()->find(unit_name);
   if (unit)
-    return unit->scaleAbreviation();
+    return unit->scaleAbbreviation();
   else
     return "";
 }
@@ -3978,6 +4004,16 @@ unit_suffix(const char *unit_name)
   Unit *unit = Sta::sta()->units()->find(unit_name);
   if (unit)
     return unit->suffix();
+  else
+    return "";
+}
+
+const char *
+unit_scaled_suffix(const char *unit_name)
+{
+  Unit *unit = Sta::sta()->units()->find(unit_name);
+  if (unit)
+    return unit->scaledSuffix();
   else
     return "";
 }
@@ -4865,12 +4901,13 @@ write_path_spice_cmd(PathRef *path,
 		     const char *subckt_filename,
 		     const char *lib_subckt_filename,
 		     const char *model_filename,
+                     StdStringSet *off_path_pins,
 		     const char *power_name,
 		     const char *gnd_name)
 {
   Sta *sta = Sta::sta();
   writePathSpice(path, spice_filename, subckt_filename,
-		 lib_subckt_filename, model_filename,
+		 lib_subckt_filename, model_filename, off_path_pins,
 		 power_name, gnd_name, sta);
 }
 
@@ -5673,7 +5710,7 @@ voltage_waveform(float in_slew,
   return Table1();
 }
 
-Table1
+const Table1 *
 current_waveform(float in_slew,
                  float load_cap)
 {
@@ -5681,11 +5718,11 @@ current_waveform(float in_slew,
   if (gate_model) {
     OutputWaveforms *waveforms = gate_model->outputWaveforms();
     if (waveforms) {
-      Table1 waveform = waveforms->currentWaveform(in_slew, load_cap);
+      const Table1 *waveform = waveforms->currentWaveform(in_slew, load_cap);
       return waveform;
     }
   }
-  return Table1();
+  return nullptr;
 }
 
 } // TimingArc methods

@@ -89,7 +89,7 @@ proc write_path_spice { args } {
       set spice_file [file join $spice_dir "$path_name.sp"]
       set subckt_file [file join $spice_dir "$path_name.subckt"]
       write_path_spice_cmd $path $spice_file $subckt_file \
-	$lib_subckt_file $model_file $power $ground
+	$lib_subckt_file $model_file {} $power $ground
       incr path_index
     }
   }

@@ -16,21 +16,11 @@
 
 #pragma once
 
+#include "RCDelayCalc.hh"
+
 namespace sta {
 
-// Write a spice deck for path.
-// Throws FileNotReadable, FileNotWritable, SubcktEndsMissing
-void
-writeSpice(Path *path,
-	   // Spice file written for path.
-	   const char *spice_filename,
-	   // Subckts used by path included in spice file.
-	   const char *subckts_filename,
-	   // File of all cell spice subckt definitions.
-	   const char *lib_subckts_filename,
-	   // Device model file included in spice file.
-	   const char *models_filename,
-	   StaState *sta);
+ArcDelayCalc *
+makeSlewDegradeDelayCalc(StaState *sta);
 
 } // namespace
-#endif

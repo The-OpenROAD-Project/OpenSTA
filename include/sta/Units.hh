@@ -33,8 +33,10 @@ public:
   void operator=(const Unit &unit);
   float scale() const { return scale_; }
   void setScale(float scale);
-  const char *scaleAbreviation() const;
+  const char *scaleAbbreviation() const;
   const char *suffix() const { return suffix_; }
+  // scale abbreviation + suffix
+  const char *scaledSuffix() const { return scaled_suffix_; }
   void setSuffix(const char *suffix);
   int digits() const { return digits_; }
   void setDigits(int digits);
@@ -46,8 +48,11 @@ public:
 		       int digits) const;
 
 private:
+  void setScaledSuffix();
+
   float scale_;			// multiplier from user units to internal units
   const char *suffix_;		// print suffix
+  const char *scaled_suffix_;
   int digits_;			// print digits (after decimal pt)
 };
 
@@ -67,8 +72,6 @@ public:
   const Unit *voltageUnit() const { return &voltage_unit_; }
   Unit *resistanceUnit() { return &resistance_unit_; }
   const Unit *resistanceUnit() const { return &resistance_unit_; }
-  Unit *pullingResistanceUnit() { return &pulling_resistance_unit_; }
-  const Unit *pullingResistanceUnit() const {return &pulling_resistance_unit_;}
   Unit *currentUnit() { return &current_unit_; }
   const Unit *currentUnit() const { return &current_unit_; }
   Unit *powerUnit() { return &power_unit_; }
@@ -80,10 +83,9 @@ public:
 
 private:
   Unit time_unit_;
+  Unit resistance_unit_;
   Unit capacitance_unit_;
   Unit voltage_unit_;
-  Unit resistance_unit_;
-  Unit pulling_resistance_unit_;
   Unit current_unit_;
   Unit power_unit_;
   Unit distance_unit_;

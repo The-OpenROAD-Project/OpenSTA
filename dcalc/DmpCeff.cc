@@ -601,6 +601,7 @@ DmpAlg::loadDelaySlew(const Pin *,
       slew = slew1;
     }
     catch (DmpError &error) {
+      fail(error.what());
       delay = elmore_;
       slew = drvr_slew_;
     }
@@ -620,7 +621,7 @@ DmpAlg::findVlCrossing(double vth)
 double
 DmpAlg::vlCrossingUpperBound()
 {
-  return voCrossingUpperBound() + elmore_;
+  return voCrossingUpperBound() + elmore_ * 2.0;
 }
 
 static void
@@ -670,8 +671,8 @@ DmpAlg::showVl()
 void
 DmpAlg::fail(const char *reason)
 {
-  // Allow only failures to be reported with a unique debug flag.
-  if (debug_->check("dmp_ceff", 1) || debug_->check("dmp_ceff_fail", 1))
+  // Report failures with a unique debug flag.
+  if (debug_->check("dmp_ceff", 1) || debug_->check("dcalc_error", 1))
     report_->reportLine("delay_calc: DMP failed - %s c2=%s rpi=%s c1=%s rd=%s",
                         reason,
                         units_->capacitanceUnit()->asString(c2_),

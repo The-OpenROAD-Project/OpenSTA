@@ -16,7 +16,15 @@
 
 #pragma once
 
+#include <string>
+#include <set>
+
 namespace sta {
+
+using std::string;
+using std::set;
+
+typedef set<string> StdStringSet;
 
 class Path;
 class StaState;
@@ -33,7 +41,9 @@ writePathSpice(Path *path,
 	       const char *lib_subckt_filename,
 	       // Device model file included in spice file.
 	       const char *model_filename,
-	       const char *power_name,
+	       // Nets off of path to include in the spice run.
+               StdStringSet *off_path_pin_names,
+               const char *power_name,
 	       const char *gnd_name,
 	       StaState *sta);
 

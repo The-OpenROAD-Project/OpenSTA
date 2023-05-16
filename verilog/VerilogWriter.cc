@@ -232,7 +232,7 @@ VerilogWriter::writeWireDcls(Instance *inst)
 {
   Cell *cell = network_->cell(inst);
   char escape = network_->pathEscape();
-  Map<const char*, BusIndexRange, CharPtrLess> bus_ranges;
+  Map<string, BusIndexRange, std::less<string>> bus_ranges;
   NetIterator *net_iter = network_->netIterator(inst);
   while (net_iter->hasNext()) {
     Net *net = net_iter->next();
@@ -243,7 +243,7 @@ VerilogWriter::writeWireDcls(Instance *inst)
         string bus_name;
         int index;
         parseBusName(net_name, '[', ']', escape, is_bus, bus_name, index);
-        BusIndexRange &range = bus_ranges[bus_name.c_str()];
+        BusIndexRange &range = bus_ranges[bus_name];
         range.first = max(range.first, index);
         range.second = min(range.second, index);
       }
@@ -256,7 +256,7 @@ VerilogWriter::writeWireDcls(Instance *inst)
   delete net_iter;
 
   for (auto name_range : bus_ranges) {
-    const char *bus_name = name_range.first;
+    const char *bus_name = name_range.first.c_str();
     const BusIndexRange &range = name_range.second;
     string net_vname = netVerilogName(bus_name, network_->pathEscape());
     fprintf(stream_, " wire [%d:%d] %s;\n",

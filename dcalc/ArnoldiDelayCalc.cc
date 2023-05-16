@@ -439,6 +439,7 @@ ArnoldiDelayCalc::loadDelay(const Pin *load_pin,
 			    ArcDelay &wire_delay,
 			    Slew &load_slew)
 {
+  // This does not appear to handle input port parasitics correctly.
   wire_delay = 0.0;
   load_slew = drvr_slew_ * multi_drvr_slew_factor_;
   if (rcmodel_) {

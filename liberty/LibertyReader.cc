@@ -134,7 +134,6 @@ LibertyReader::readLibertyFile(const char *filename,
   mode_value_ = nullptr;
   ocv_derate_ = nullptr;
   pg_port_ = nullptr;
-  have_resistance_unit_ = false;
   default_operating_condition_ = nullptr;
   receiver_model_ = nullptr;
 
@@ -648,12 +647,6 @@ LibertyReader::endLibrary(LibertyGroup *group)
 void
 LibertyReader::endLibraryAttrs(LibertyGroup *group)
 {
-  // Default resistance_unit to pulling_resistance_unit.
-  if (!have_resistance_unit_) {
-    Units *units = library_->units();
-    *units->resistanceUnit() = *units->pullingResistanceUnit();
-  }
-
   // These attributes reference named groups in the library so
   // wait until the end of the library to resolve them.
   if (default_wireload_) {
@@ -727,16 +720,14 @@ LibertyReader::visitPullingResistanceUnit(LibertyAttr *attr)
 {
   if (library_)
     parseUnits(attr, "ohm", res_scale_,
-	       library_->units()->pullingResistanceUnit());
+	       library_->units()->resistanceUnit());
 }
 
 void
 LibertyReader::visitResistanceUnit(LibertyAttr *attr)
 {
-  if (library_) {
+  if (library_)
     parseUnits(attr, "ohm", res_scale_, library_->units()->resistanceUnit());
-    have_resistance_unit_ = true;
-  }
 }
 
 void
@@ -2522,7 +2513,7 @@ LibertyReader::endOutputCurrentRiseFall(LibertyGroup *group)
     slew_axis->findAxisIndex(waveform->slew(), slew_index, slew_exists);
     cap_axis->findAxisIndex(waveform->cap(), cap_index, cap_exists);
     if (slew_exists && cap_exists) {
-      size_t index = slew_index * cap_axis->size() + cap_index;
+      size_t index = slew_index * slew_axis->size() + cap_index;
       current_waveforms[index] = waveform->stealCurrents();
       (*ref_times)[slew_index] = waveform->referenceTime();
     }

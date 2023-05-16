@@ -23,6 +23,7 @@
 #include "Report.hh"
 #include "Error.hh"
 #include "StringUtil.hh"
+#include "EnumNameMap.hh"
 
 namespace sta {
 
@@ -160,6 +161,24 @@ VcdReader::setTimeUnit(const string &time_unit)
   vcd_->setTimeUnit(time_unit, time_unit_scale);;
 }
 
+static EnumNameMap<VcdVarType> vcd_var_type_map =
+  {{VcdVarType::wire, "wire"},
+   {VcdVarType::reg, "reg"},
+   {VcdVarType::parameter, "parameter"},
+   {VcdVarType::integer, "integer"},
+   {VcdVarType::real, "real"},
+   {VcdVarType::supply0, "supply0"},
+   {VcdVarType::supply1, "supply1"},
+   {VcdVarType::tri, "tri"},
+   {VcdVarType::triand, "triand"},
+   {VcdVarType::trior, "trior"},
+   {VcdVarType::trireg, "trireg"},
+   {VcdVarType::tri0, "tri0"},
+   {VcdVarType::tri1, "tri1"},
+   {VcdVarType::wand, "wand"},
+   {VcdVarType::wor, "wor"}
+  };
+
 void
 VcdReader::parseVar()
 {
@@ -167,34 +186,27 @@ VcdReader::parseVar()
   if (tokens.size() == 4
       || tokens.size() == 5) {
     string type_name = tokens[0];
-    VcdVarType type = VcdVarType::wire;
-    if (type_name == "wire")
-      type = VcdVarType::wire;
-    else if (type_name == "reg")
-      type = VcdVarType::reg;
-    else if (type_name == "parameter")
-      type = VcdVarType::parameter;
-    else if (type_name == "real")
-      type = VcdVarType::real;
-    else
-      report_->fileError(803, filename_, stmt_line_,
-                         "Unknown variable type %s.",
-                         type_name.c_str());
+    VcdVarType type = vcd_var_type_map.find(type_name, VcdVarType::unknown);
+    if (type == VcdVarType::unknown)
+      report_->fileWarn(803, filename_, stmt_line_,
+                        "Unknown variable type %s.",
+                        type_name.c_str());
+    else {
+      int width = stoi(tokens[1]);
+      string id = tokens[2];
+      string name;
 
-    int width = stoi(tokens[1]);
-    string id = tokens[2];
-    string name;
+      for (string &context : scope_) {
+        name += context;
+        name += '/';
+      }
+      name += tokens[3];
+      // iverilog separates bus base name from bit range.
+      if (tokens.size() == 5)
+        name += tokens[4];
 
-    for (string &context : scope_) {
-      name += context;
-      name += '/';
+      vcd_->makeVar(name, type, width, id);
     }
-    name += tokens[3];
-    // iverilog separates bus base name from bit range.
-    if (tokens.size() == 5)
-      name += tokens[4];
-
-    vcd_->makeVar(name, type, width, id);
   }
   else
     report_->fileError(804, filename_, stmt_line_, "Variable syntax error.");

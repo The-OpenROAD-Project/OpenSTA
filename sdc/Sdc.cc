@@ -5697,6 +5697,8 @@ Sdc::disconnectPinBefore(const Pin *pin)
       }
     }
   }
+  for (int corner_index = 0; corner_index < corners_->count(); corner_index++)
+    drvr_pin_wire_cap_maps_[corner_index].erase(pin);
 }
 
 void

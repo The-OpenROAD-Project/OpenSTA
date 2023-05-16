@@ -24,6 +24,7 @@
 #include "DcalcAnalysisPt.hh"
 #include "GraphDelayCalc.hh"
 #include "DmpCeff.hh"
+#include "Network.hh"
 
 namespace sta {
 
@@ -125,30 +126,30 @@ class DmpCeffTwoPoleDelayCalc : public DmpCeffDelayCalc
 {
 public:
   DmpCeffTwoPoleDelayCalc(StaState *sta);
-  virtual ArcDelayCalc *copy();
-  virtual Parasitic *findParasitic(const Pin *drvr_pin,
-				   const RiseFall *rf,
-				   const DcalcAnalysisPt *dcalc_ap);
-  virtual ReducedParasiticType reducedParasiticType() const;
-  virtual void inputPortDelay(const Pin *port_pin,
-			      float in_slew,
-			      const RiseFall *rf,
-			      const Parasitic *parasitic,
-			      const DcalcAnalysisPt *dcalc_ap);
-  virtual void gateDelay(const LibertyCell *drvr_cell,
-			 const TimingArc *arc,
-			 const Slew &in_slew,
-			 float load_cap,
-			 const Parasitic *drvr_parasitic,
-			 float related_out_cap,
-			 const Pvt *pvt,
-			 const DcalcAnalysisPt *dcalc_ap,
-			 // Return values.
-			 ArcDelay &gate_delay,
-			 Slew &drvr_slew);
-  virtual void loadDelay(const Pin *load_pin,
-			 ArcDelay &wire_delay,
-			 Slew &load_slew);
+  ArcDelayCalc *copy() override;
+  Parasitic *findParasitic(const Pin *drvr_pin,
+                           const RiseFall *rf,
+                           const DcalcAnalysisPt *dcalc_ap) override;
+  ReducedParasiticType reducedParasiticType() const override;
+  void inputPortDelay(const Pin *port_pin,
+                      float in_slew,
+                      const RiseFall *rf,
+                      const Parasitic *parasitic,
+                      const DcalcAnalysisPt *dcalc_ap) override;
+  void gateDelay(const LibertyCell *drvr_cell,
+                 const TimingArc *arc,
+                 const Slew &in_slew,
+                 float load_cap,
+                 const Parasitic *drvr_parasitic,
+                 float related_out_cap,
+                 const Pvt *pvt,
+                 const DcalcAnalysisPt *dcalc_ap,
+                 // Return values.
+                 ArcDelay &gate_delay,
+                 Slew &drvr_slew) override;
+  void loadDelay(const Pin *load_pin,
+                 ArcDelay &wire_delay,
+                 Slew &load_slew) override;
 
 private:
   void loadDelay(Parasitic *pole_residue,
@@ -302,7 +303,7 @@ DmpCeffTwoPoleDelayCalc::loadDelay(const Pin *load_pin,
 				   ArcDelay &wire_delay,
 				   Slew &load_slew)
 {
-  // NEED to handle PiElmore parasitic.
+  // Should handle PiElmore parasitic.
   ArcDelay wire_delay1 = 0.0;
   Slew load_slew1 = drvr_slew_;
   Parasitic *pole_residue = 0;

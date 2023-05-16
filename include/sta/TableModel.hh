@@ -462,6 +462,7 @@ public:
   const char *variableString() const;
   const Unit *unit(const Units *units);
   size_t size() const { return values_->size(); }
+  bool inBounds(float value) const;
   float axisValue(size_t index) const { return (*values_)[index]; }
   // Find the index for value such that axis[index] <= value < axis[index+1].
   size_t findAxisIndex(float value) const;
@@ -505,16 +506,25 @@ public:
                   Table1 *ref_times);
   ~OutputWaveforms();
   const RiseFall *rf() const { return rf_; }
+  bool inBounds(float in_slew,
+                float load_cap) const;
   Table1 voltageWaveform(float in_slew,
                          float load_cap);
-  Table1 currentWaveform(float slew,
-                         float cap);
+  float voltageTime(float in_slew,
+                    float load_cap,
+                    float voltage);
+  const Table1 *currentWaveform(float slew,
+                                float cap);
   float referenceTime(float slew);
+  void setVdd(float vdd);
   static bool checkAxes(TableTemplate *tbl_template);
 
 private:
-  Table1 *voltageWaveform(size_t wave_index,
-                          float cap);
+  float voltageTime1(float voltage,
+                     size_t wave_index,
+                     float cap);
+  FloatSeq *voltageTimes(size_t wave_index,
+                         float cap);
 
   // Row.
   TableAxisPtr slew_axis_;
@@ -522,8 +532,10 @@ private:
   TableAxisPtr cap_axis_;
   const RiseFall *rf_;
   Table1Seq current_waveforms_;
-  Table1Seq voltage_waveforms_;
+  FloatTable voltage_times_;
   Table1 *ref_times_;
+  float vdd_;
+  static constexpr size_t voltage_waveform_step_count_ = 20;
 };
 
 class DriverWaveform
