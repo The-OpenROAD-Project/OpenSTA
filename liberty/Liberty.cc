@@ -83,6 +83,7 @@ LibertyLibrary::LibertyLibrary(const char *name,
   ocv_arc_depth_(0.0),
   default_ocv_derate_(nullptr),
   buffers_(nullptr),
+  inverters_(nullptr),
   driver_waveform_default_(nullptr)
 {
   // Scalar templates are builtin.
@@ -125,6 +126,7 @@ LibertyLibrary::~LibertyLibrary()
     stringDelete(supply_name);
   }
   delete buffers_;
+  delete inverters_;
   driver_waveform_map_.deleteContents();
   delete driver_waveform_default_;
 }
@@ -146,6 +148,22 @@ LibertyLibrary::findLibertyCellsMatching(PatternMatch *pattern)
       matches.push_back(cell);
   }
   return matches;
+}
+
+LibertyCellSeq *
+LibertyLibrary::inverters()
+{
+  if (inverters_ == nullptr) {
+    inverters_ = new LibertyCellSeq;
+    LibertyCellIterator cell_iter(this);
+    while (cell_iter.hasNext()) {
+      LibertyCell *cell = cell_iter.next();
+      if (!cell->dontUse()
+          && cell->isInverter())
+        inverters_->push_back(cell);
+    }
+  }
+  return inverters_;
 }
 
 LibertyCellSeq *
