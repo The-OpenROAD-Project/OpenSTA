@@ -137,6 +137,7 @@ public:
   LibertyCellSeq findLibertyCellsMatching(PatternMatch *pattern);
   // Liberty cells that are buffers.
   LibertyCellSeq *buffers();
+  LibertyCellSeq *inverters();
 
   DelayModelType delayModelType() const { return delay_model_type_; }
   void setDelayModelType(DelayModelType type);
@@ -369,6 +370,7 @@ protected:
   OcvDerateMap ocv_derate_map_;
   SupplyVoltageMap supply_voltage_map_;
   LibertyCellSeq *buffers_;
+  LibertyCellSeq *inverters_;
   DriverWaveformMap driver_waveform_map_;
   // Unnamed driver waveform.
   DriverWaveform *driver_waveform_default_;
