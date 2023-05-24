@@ -362,6 +362,7 @@ public:
                  bool &extrapolated) const;
   float findValue(float axis_value1) const;
   float findValueClip(float axis_value1) const;
+  float findValueClipZero(float axis_value1) const;
   FloatSeq *values() const { return values_; }
   using Table::findValue;
 
@@ -506,6 +507,9 @@ public:
                   Table1 *ref_times);
   ~OutputWaveforms();
   const RiseFall *rf() const { return rf_; }
+  TableAxisPtr slewAxis() const { return slew_axis_; }
+  TableAxisPtr capAxis() const { return cap_axis_; }
+  // Column.
   bool inBounds(float in_slew,
                 float load_cap) const;
   Table1 voltageWaveform(float in_slew,
@@ -515,6 +519,12 @@ public:
                     float voltage);
   const Table1 *currentWaveform(float slew,
                                 float cap);
+  float timeCurrent(float slew,
+                    float cap,
+                    float time);
+  float voltageCurrent(float slew,
+                       float cap,
+                       float volt);
   float referenceTime(float slew);
   void setVdd(float vdd);
   static bool checkAxes(TableTemplate *tbl_template);
@@ -525,6 +535,10 @@ private:
                      float cap);
   FloatSeq *voltageTimes(size_t wave_index,
                          float cap);
+  void findVoltages(size_t wave_index,
+                    float cap);
+  const Table1 *voltageCurrents(size_t wave_index,
+                                float cap);
 
   // Row.
   TableAxisPtr slew_axis_;
@@ -532,6 +546,7 @@ private:
   TableAxisPtr cap_axis_;
   const RiseFall *rf_;
   Table1Seq current_waveforms_;
+  Table1Seq voltage_currents_;
   FloatTable voltage_times_;
   Table1 *ref_times_;
   float vdd_;
