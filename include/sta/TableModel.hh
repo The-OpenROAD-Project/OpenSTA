@@ -509,9 +509,6 @@ public:
   const RiseFall *rf() const { return rf_; }
   TableAxisPtr slewAxis() const { return slew_axis_; }
   TableAxisPtr capAxis() const { return cap_axis_; }
-  // Column.
-  bool inBounds(float in_slew,
-                float load_cap) const;
   Table1 voltageWaveform(float in_slew,
                          float load_cap);
   float voltageTime(float in_slew,

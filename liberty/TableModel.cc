@@ -1645,14 +1645,6 @@ OutputWaveforms::checkAxes(TableTemplate *tbl_template)
           && axis3->variable() == TableAxisVariable::time);
 }
 
-bool
-OutputWaveforms::inBounds(float in_slew,
-                          float load_cap) const
-{
-  return slew_axis_->inBounds(in_slew)
-    && cap_axis_->inBounds(load_cap);
-}
-
 const Table1 *
 OutputWaveforms::currentWaveform(float slew,
                                  float cap)
