@@ -89,13 +89,13 @@ private:
   ExceptionStateSet *states_;
   size_t hash_;
   size_t match_hash_;
+  TagIndex index_;
   bool is_clk_:1;
   bool is_filter_:1;
   bool is_loop_:1;
   bool is_segment_start_:1;
   // Indicates that states_ is owned by the tag.
   bool own_states_:1;
-  TagIndex index_:tag_index_bits;
   unsigned int tr_index_:RiseFall::index_bit_count;
   unsigned int path_ap_index_:path_ap_index_bit_count;
 };

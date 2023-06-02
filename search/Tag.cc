@@ -53,12 +53,12 @@ Tag::Tag(TagIndex index,
   clk_info_(clk_info),
   input_delay_(input_delay),
   states_(states),
+  index_(index),
   is_clk_(is_clk),
   is_filter_(false),
   is_loop_(false),
   is_segment_start_(is_segment_start),
   own_states_(own_states),
-  index_(index),
   tr_index_(tr_index),
   path_ap_index_(path_ap_index)
 {

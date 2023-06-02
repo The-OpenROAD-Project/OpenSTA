@@ -64,7 +64,7 @@ protected:
   TimingArc *prev_arc_;
   Arrival arrival_;
   VertexId vertex_id_;
-  unsigned int tag_index_:tag_index_bits;
+  TagIndex tag_index_;
 };
 
 void deletePathEnumed(PathEnumed *path);

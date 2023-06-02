@@ -2412,6 +2412,8 @@ Sta::makeCorners()
 void
 Sta::makeCorners(StringSet *corner_names)
 {
+  if (corner_names->size() > corner_count_max)
+    report_->error(374, "maximum corner count exceeded");
   sdc_->makeCornersBefore();
   parasitics_->deleteParasitics();
   corners_->makeCorners(corner_names);
