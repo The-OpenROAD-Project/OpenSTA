@@ -44,7 +44,7 @@ class Tag
 {
 public:
   Tag(TagIndex index,
-      int tr_index,
+      int rf_index,
       PathAPIndex path_ap_index,
       ClkInfo *clk_info,
       bool is_clk,
@@ -63,7 +63,7 @@ public:
   const ClockEdge *clkEdge() const;
   const Clock *clock() const;
   const Pin *clkSrc() const;
-  int trIndex() const { return tr_index_; }
+  int rfIndex() const { return rf_index_; }
   const RiseFall *transition() const;
   PathAnalysisPt *pathAnalysisPt(const StaState *sta) const;
   PathAPIndex pathAPIndex() const { return path_ap_index_; }
@@ -96,7 +96,7 @@ private:
   bool is_segment_start_:1;
   // Indicates that states_ is owned by the tag.
   bool own_states_:1;
-  unsigned int tr_index_:RiseFall::index_bit_count;
+  unsigned int rf_index_:RiseFall::index_bit_count;
   unsigned int path_ap_index_:path_ap_index_bit_count;
 };
 

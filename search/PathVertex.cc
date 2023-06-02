@@ -193,7 +193,7 @@ PathVertex::transition(const StaState *) const
 int
 PathVertex::rfIndex(const StaState *) const
 {
-  return tag_->trIndex();
+  return tag_->rfIndex();
 }
 
 PathAnalysisPt *
@@ -567,7 +567,7 @@ VertexPathIterator::findNext()
     int arrival_index;
     arrival_iter_.next(tag, arrival_index);
     if ((rf_ == nullptr
-	 || tag->trIndex() == rf_->index())
+	 || tag->rfIndex() == rf_->index())
 	&& (path_ap_ == nullptr
 	    || tag->pathAPIndex() == path_ap_->index())
 	&& (min_max_ == nullptr

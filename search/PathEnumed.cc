@@ -90,7 +90,7 @@ PathEnumed::transition(const StaState *sta) const
 int
 PathEnumed::trIndex(const StaState *sta) const
 {
-  return tag(sta)->trIndex();
+  return tag(sta)->rfIndex();
 }
 
 PathAnalysisPt *
