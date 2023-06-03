@@ -4909,6 +4909,7 @@ write_path_spice_cmd(PathRef *path,
   writePathSpice(path, spice_filename, subckt_filename,
 		 lib_subckt_filename, model_filename, off_path_pins,
 		 power_name, gnd_name, sta);
+  delete off_path_pins;
 }
 
 void
