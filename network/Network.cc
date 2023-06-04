@@ -22,6 +22,7 @@
 #include "Liberty.hh"
 #include "PortDirection.hh"
 #include "Corner.hh"
+#include "ParseBus.hh"
 
 namespace sta {
 
@@ -54,6 +55,63 @@ LibertyLibrary *
 Network::libertyLibrary(const Cell *cell) const
 {
   return libertyCell(cell)->libertyLibrary();
+}
+
+PortSeq
+Network::findPortsMatching(const Cell *cell,
+                           const PatternMatch *pattern) const
+{
+  PortSeq matches;
+  bool is_bus, is_range, subscript_wild;
+  string bus_name;
+  int from, to;
+  parseBusName(pattern->pattern(), '[', ']', '\\',
+               is_bus, is_range, bus_name, from, to, subscript_wild);
+  if (is_bus) {
+    PatternMatch bus_pattern(bus_name.c_str(), pattern);
+    CellPortIterator *port_iter = portIterator(cell);
+    while (port_iter->hasNext()) {
+      Port *port = port_iter->next();
+      if (isBus(port)
+          && bus_pattern.match(name(port))) {
+        if (is_range) {
+          // bus[8:0]
+          if (from > to)
+            std::swap(from, to);
+          for (int bit = from; bit <= to; bit++) {
+            Port *port_bit = findBusBit(port, bit);
+            matches.push_back(port_bit);
+          }
+        }
+        else {
+          if (subscript_wild) {
+            PortMemberIterator *member_iter = memberIterator(port);
+            while (member_iter->hasNext()) {
+              Port *port_bit = member_iter->next();
+              matches.push_back(port_bit);
+            }
+            delete member_iter;
+          }
+          else {
+            // bus[0]
+            Port *port_bit = findBusBit(port, from);
+            matches.push_back(port_bit);
+          }
+        }
+      }
+    }
+    delete port_iter;
+  }
+  else {
+    CellPortIterator *port_iter = portIterator(cell);
+    while (port_iter->hasNext()) {
+      Port *port = port_iter->next();
+      if (pattern->match(name(port)))
+        matches.push_back(port);
+    }
+    delete port_iter;
+  }
+  return matches;
 }
 
 LibertyLibrary *

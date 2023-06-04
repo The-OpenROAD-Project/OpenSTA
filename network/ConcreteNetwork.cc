@@ -605,14 +605,6 @@ ConcreteNetwork::findPort(const Cell *cell,
   return reinterpret_cast<Port*>(ccell->findPort(name));
 }
 
-PortSeq
-ConcreteNetwork::findPortsMatching(const Cell *cell,
-				   const PatternMatch *pattern) const
-{
-  const ConcreteCell *ccell = reinterpret_cast<const ConcreteCell*>(cell);
-  return ccell->findPortsMatching(pattern);
-}
-
 bool
 ConcreteNetwork::isLeaf(const Cell *cell) const
 {

@@ -5637,13 +5637,13 @@ PortNameBitIterator::init(const char *port_name)
   else {
     // Check for bus range.
     LibertyLibrary *library = visitor_->library();
-    bool is_bus;
+    bool is_bus, is_range, subscript_wild;
     string bus_name;
     int from, to;
-    parseBusRange(port_name, library->busBrktLeft(),
-                  library->busBrktRight(), '\\',
-                  is_bus, bus_name, from, to);
-    if (is_bus) {
+    parseBusName(port_name, library->busBrktLeft(),
+                 library->busBrktRight(), '\\',
+                 is_bus, is_range, bus_name, from, to, subscript_wild);
+    if (is_range) {
       port = visitor_->findPort(port_name);
       if (port) {
 	if (port->isBus()) {
