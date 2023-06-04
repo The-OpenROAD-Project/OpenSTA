@@ -63,7 +63,7 @@ open source projects are. The copyright and develpment are exclusive to Parallax
 Software. OpenSTA does not accept external code contributions.
 
 The official git repository is located at
-https://github.com/jjcherry56/OpenSTA.git. Any forks from this code
+https://github.com/parallaxsw/OpenSTA.git. Any forks from this code
 base have not passed extensive regression testing which is not
 publicly available.
 
