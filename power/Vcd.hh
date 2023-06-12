@@ -20,6 +20,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <cstdint>
 
 #include "StaState.hh"
 
