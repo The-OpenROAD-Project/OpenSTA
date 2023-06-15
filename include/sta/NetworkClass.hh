@@ -146,6 +146,9 @@ public:
   static int compare(const InstanceSet *set1,
                      const InstanceSet *set2,
                      const Network *network);
+  static bool intersects(const InstanceSet *set1,
+                         const InstanceSet *set2,
+                         const Network *network);
 };
 
 class PinSet : public Set<const Pin*, PinIdLess>
@@ -156,6 +159,9 @@ public:
   static int compare(const PinSet *set1,
                      const PinSet *set2,
                      const Network *network);
+  static bool intersects(const PinSet *set1,
+                         const PinSet *set2,
+                         const Network *network);
 };
 
 class NetSet : public Set<const Net*, NetIdLess>
@@ -166,6 +172,9 @@ public:
   static int compare(const NetSet *set1,
                      const NetSet *set2,
                      const Network *network);
+  static bool intersects(const NetSet *set1,
+                         const NetSet *set2,
+                         const Network *network);
 };
 
 } // namespace

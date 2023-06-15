@@ -2093,6 +2093,16 @@ InstanceSet::compare(const InstanceSet *set1,
     return (size1 > size2) ? 1 : -1;
 }
 
+bool
+InstanceSet::intersects(const InstanceSet *set1,
+                        const InstanceSet *set2,
+                        const Network *network)
+{
+  return Set<const Instance*, InstanceIdLess>::intersects(set1, set2, InstanceIdLess(network));
+}
+
+////////////////////////////////////////////////////////////////
+
 PinSet::PinSet() :
   Set<const Pin*, PinIdLess>(PinIdLess(nullptr))
 {
@@ -2130,6 +2140,16 @@ PinSet::compare(const PinSet *set1,
     return (size1 > size2) ? 1 : -1;
 }
 
+bool
+PinSet::intersects(const PinSet *set1,
+                   const PinSet *set2,
+                   const Network *network)
+{
+  return Set<const Pin*, PinIdLess>::intersects(set1, set2, PinIdLess(network));
+}
+
+////////////////////////////////////////////////////////////////
+
 NetSet::NetSet() :
   Set<const Net*, NetIdLess>(NetIdLess(nullptr))
 {
@@ -2165,6 +2185,14 @@ NetSet::compare(const NetSet *set1,
   }
   else
     return (size1 > size2) ? 1 : -1;
+}
+
+bool
+NetSet::intersects(const NetSet *set1,
+                   const NetSet *set2,
+                   const Network *network)
+{
+  return Set<const Net*, NetIdLess>::intersects(set1, set2, NetIdLess(network));
 }
 
 } // namespace

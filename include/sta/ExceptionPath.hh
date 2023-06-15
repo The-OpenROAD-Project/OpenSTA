@@ -61,7 +61,8 @@ public:
   ExceptionThruSeq *thrus() const { return thrus_; }
   ExceptionTo *to() const { return to_; }
   ExceptionPt *firstPt();
-  bool intersectsPts(ExceptionPath *exception) const;
+  bool intersectsPts(ExceptionPath *exception,
+                     const Network *network) const;
   const MinMaxAll *minMax() const { return min_max_; }
   virtual bool matches(const MinMax *min_max,
 		       bool exact) const;
@@ -71,7 +72,8 @@ public:
   virtual bool resetMatch(ExceptionFrom *from,
 			  ExceptionThruSeq *thrus,
 			  ExceptionTo *to,
-			  const MinMaxAll *min_max);
+			  const MinMaxAll *min_max,
+                          const Network *network);
   // The priority remains the same even though pin/clock/net/inst objects
   // are added to the exceptions points during exception merging because
   // only exceptions with the same priority are merged.
@@ -262,7 +264,8 @@ public:
   virtual bool resetMatch(ExceptionFrom *from,
 			  ExceptionThruSeq *thrus,
 			  ExceptionTo *to,
-			  const MinMaxAll *min_max);
+			  const MinMaxAll *min_max,
+                          const Network *network);
   virtual int typePriority() const;
   virtual bool tighterThan(ExceptionPath *exception) const;
 };
@@ -424,7 +427,8 @@ public:
                 const Network *network);
   ExceptionFrom *clone(const Network *network);
   virtual bool isFrom() const { return true; }
-  bool intersectsPts(ExceptionFrom *from) const;
+  bool intersectsPts(ExceptionFrom *from,
+                     const Network *network) const;
   virtual int typePriority() const { return 0; }
 
 protected:
@@ -448,7 +452,8 @@ public:
   virtual bool isTo() const { return true; }
   const char *asString(const Network *network) const;
   const RiseFallBoth *endTransition() { return end_rf_; }
-  bool intersectsPts(ExceptionTo *to) const;
+  bool intersectsPts(ExceptionTo *to,
+                     const Network *network) const;
   virtual int typePriority() const { return 1; }
   bool matches(const Pin *pin,
  	       const ClockEdge *clk_edge, 
@@ -511,7 +516,8 @@ public:
 		      const Network *network) const;
   virtual void mergeInto(ExceptionPt *pt,
                          const Network *network);
-  bool intersectsPts(ExceptionThru *thru) const;
+  bool intersectsPts(ExceptionThru *thru,
+                     const Network *network) const;
   virtual int typePriority() const { return 2; }
   virtual size_t objectCount() const;
   virtual void connectPinAfter(PinSet *drvrs,
