@@ -16,7 +16,7 @@
 
 #include "VerilogReader.hh"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "Debug.hh"
 #include "Report.hh"

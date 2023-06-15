@@ -16,8 +16,8 @@
 
 #include "SpefNamespace.hh"
 
-#include <ctype.h>
-#include <string.h>
+#include <cctype>
+#include <cstring>
 
 namespace sta {
 

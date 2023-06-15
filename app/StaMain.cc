@@ -17,7 +17,7 @@
 #include "StaMain.hh"
 
 #include <tcl.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <sys/stat.h>
 
 #include "Machine.hh"

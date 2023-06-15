@@ -17,8 +17,8 @@
 #include "StringUtil.hh"
 
 #include <limits>
-#include <ctype.h>
-#include <stdio.h>
+#include <cctype>
+#include <cstdio>
 
 #include "Machine.hh"
 #include "Mutex.hh"

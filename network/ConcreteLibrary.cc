@@ -16,7 +16,7 @@
 
 #include "ConcreteLibrary.hh"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "PatternMatch.hh"
 #include "PortDirection.hh"

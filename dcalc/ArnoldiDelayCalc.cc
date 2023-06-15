@@ -20,7 +20,7 @@
 
 #include "ArnoldiDelayCalc.hh"
 
-#include <stdio.h>
+#include <cstdio>
 #include <cmath> // abs
 
 #include "Report.hh"

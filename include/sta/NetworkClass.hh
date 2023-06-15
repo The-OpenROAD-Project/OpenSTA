@@ -17,6 +17,7 @@
 #pragma once
 
 #include <cstdint>
+
 #include "Set.hh"
 #include "Vector.hh"
 #include "Iterator.hh"

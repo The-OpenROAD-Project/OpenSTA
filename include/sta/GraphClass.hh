@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <limits>
+
 #include "ObjectId.hh"
 #include "Set.hh"
 #include "Vector.hh"
@@ -44,6 +46,8 @@ typedef int Level;
 typedef int DcalcAPIndex;
 typedef int TagGroupIndex;
 typedef Vector<GraphLoop*> GraphLoopSeq;
+
+static constexpr int level_max = std::numeric_limits<Level>::max();
 
 // 16,777,215 tags
 static const int tag_group_index_bits = 24;

@@ -16,7 +16,7 @@
 
 #include "Hash.hh"
 
-#include <string.h>
+#include <cstring>
 
 namespace sta {
 

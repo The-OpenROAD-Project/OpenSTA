@@ -16,8 +16,8 @@
 
 #include "ReportStd.hh"
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 
 #include "Report.hh"
 

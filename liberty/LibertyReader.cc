@@ -16,8 +16,8 @@
 
 #include "LibertyReader.hh"
 
-#include <ctype.h>
-#include <stdlib.h>
+#include <cctype>
+#include <cstdlib>
 
 #include "Report.hh"
 #include "Debug.hh"

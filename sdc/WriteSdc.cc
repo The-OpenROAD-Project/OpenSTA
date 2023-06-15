@@ -16,9 +16,9 @@
 
 #include "WriteSdc.hh"
 
-#include <stdio.h>
+#include <cstdio>
 #include <algorithm>
-#include <time.h>
+#include <ctime>
 
 #include "Zlib.hh"
 #include "Report.hh"

@@ -16,7 +16,8 @@
 
 #pragma once
 
-#include <stdarg.h>
+#include <cstdarg>
+
 #include "Map.hh"
 #include "StringUtil.hh"
 

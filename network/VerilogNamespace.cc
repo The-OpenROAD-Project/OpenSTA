@@ -16,7 +16,7 @@
 
 #include "VerilogNamespace.hh"
 
-#include <ctype.h>
+#include <cctype>
 
 #include "StringUtil.hh"
 #include "ParseBus.hh"

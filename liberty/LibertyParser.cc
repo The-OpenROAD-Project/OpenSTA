@@ -16,8 +16,8 @@
 
 #include "LibertyParser.hh"
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 #include "Report.hh"
 #include "Error.hh"

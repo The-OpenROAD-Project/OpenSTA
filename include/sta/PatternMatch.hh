@@ -17,6 +17,7 @@
 #pragma once
 
 #include <string>
+
 #include "Error.hh"
 
 // Don't require all of tcl.h.
