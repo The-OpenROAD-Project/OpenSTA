@@ -16,7 +16,7 @@
 
 #include "HpinDrvrLoad.hh"
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "Network.hh"
 

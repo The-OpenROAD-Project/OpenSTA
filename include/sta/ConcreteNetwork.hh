@@ -82,8 +82,6 @@ public:
   const char *filename(const Cell *cell) override;
   Port *findPort(const Cell *cell,
                  const char *name) const override;
-  PortSeq findPortsMatching(const Cell *cell,
-                            const PatternMatch *pattern) const override;
   bool isLeaf(const Cell *cell) const override;
   CellPortIterator *portIterator(const Cell *cell) const override;
   CellPortBitIterator *portBitIterator(const Cell *cell) const override;

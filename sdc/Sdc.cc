@@ -4355,7 +4355,7 @@ Sdc::findMatchingExceptionsFirstThru(ExceptionPath *exception,
 	  ExceptionThru *match_thru = (*match->thrus())[0];
 	  if (match_thru->nets()->hasKey(net)
 	      && match->overrides(exception)
-	      && match->intersectsPts(exception))
+	      && match->intersectsPts(exception, network_))
 	    matches.insert(match);
 	}
       }
@@ -4427,7 +4427,7 @@ Sdc::findMatchingExceptions(ExceptionPath *exception,
   if (potential_matches) {
     for (ExceptionPath *match : *potential_matches) {
       if (match->overrides(exception)
-	  && match->intersectsPts(exception))
+	  && match->intersectsPts(exception, network_))
 	matches.insert(match);
     }
   }
@@ -5072,7 +5072,7 @@ Sdc::resetPath(ExceptionFrom *from,
   ExceptionPathSet::Iterator except_iter(exceptions_);
   while (except_iter.hasNext()) {
     ExceptionPath *match = except_iter.next();
-    if (match->resetMatch(from, thrus, to, min_max)) {
+    if (match->resetMatch(from, thrus, to, min_max, network_)) {
       debugPrint(debug_, "exception_match", 3, "reset match %s",
                  match->asString(network_));
       ExceptionPathSet expansions;
@@ -5081,7 +5081,7 @@ Sdc::resetPath(ExceptionFrom *from,
       ExceptionPathSet::Iterator expand_iter(expansions);
       while (expand_iter.hasNext()) {
 	ExceptionPath *expand = expand_iter.next();
-	if (expand->resetMatch(from, thrus, to, min_max)) {
+	if (expand->resetMatch(from, thrus, to, min_max, network_)) {
 	  unrecordPathDelayInternalStartpoints(expand->from());
 	  unrecordPathDelayInternalEndpoints(expand);
 	  delete expand;

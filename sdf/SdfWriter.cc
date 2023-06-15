@@ -16,8 +16,8 @@
 
 #include "sdf/SdfWriter.hh"
 
-#include <stdio.h>
-#include <time.h>
+#include <cstdio>
+#include <ctime>
 
 #include "Zlib.hh"
 #include "StaConfig.hh"  // STA_VERSION

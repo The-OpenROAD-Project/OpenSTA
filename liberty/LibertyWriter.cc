@@ -16,7 +16,7 @@
 
 #include "LibertyWriter.hh"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <algorithm>
 
 #include "Units.hh"

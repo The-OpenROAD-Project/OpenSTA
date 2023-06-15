@@ -17,9 +17,10 @@
 #pragma once
 
 #include <stdio.h>
-#include <stdarg.h>
+#include <cstdarg>
 #include <string>
 #include <mutex>
+
 #include "Machine.hh" // __attribute__
 
 struct Tcl_Interp;

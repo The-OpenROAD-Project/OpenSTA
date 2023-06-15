@@ -148,7 +148,7 @@ public:
   virtual Port *findPort(const Cell *cell,
 			 const char *name) const = 0;
   virtual PortSeq findPortsMatching(const Cell *cell,
-                                    const PatternMatch *pattern) const = 0;
+                                    const PatternMatch *pattern) const;
   virtual bool isLeaf(const Cell *cell) const = 0;
   virtual CellPortIterator *portIterator(const Cell *cell) const = 0;
   // Iterate over port bits (expanded buses).

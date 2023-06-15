@@ -16,8 +16,8 @@
 
 #include "ParseBus.hh"
 
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 #include <string>
 
 #include "StringUtil.hh"
@@ -95,37 +95,43 @@ parseBusName(const char *name,
 }
 
 void
-parseBusRange(const char *name,
-	      const char brkt_left,
-	      const char brkt_right,
-	      char escape,
-	      // Return values.
-              bool &is_bus,
-	      string &bus_name,
-	      int &from,
-	      int &to)
+parseBusName(const char *name,
+             const char brkt_left,
+             const char brkt_right,
+             char escape,
+             // Return values.
+             bool &is_bus,
+             bool &is_range,
+             string &bus_name,
+             int &from,
+             int &to,
+             bool &subscript_wild)
 {
   const char brkts_left[2] = {brkt_left, '\0'};
   const char brkts_right[2] = {brkt_right, '\0'};
-  parseBusRange(name, brkts_left, brkts_right, escape,
-                is_bus, bus_name, from, to);
+  parseBusName(name, brkts_left, brkts_right, escape,
+               is_bus, is_range, bus_name, from, to, subscript_wild);
 }
 
 void
-parseBusRange(const char *name,
-	      const char *brkts_left,
-	      const char *brkts_right,
-	      char escape,
-	      // Return values.
-              bool &is_bus,
-	      string &bus_name,
-	      int &from,
-	      int &to)
+parseBusName(const char *name,
+             const char *brkts_left,
+             const char *brkts_right,
+             char escape,
+             // Return values.
+             bool &is_bus,
+             bool &is_range,
+             string &bus_name,
+             int &from,
+             int &to,
+             bool &subscript_wild)
 {
   is_bus = false;
+  is_range = false;
+  subscript_wild = false;
   size_t len = strlen(name);
-  // Shortest bus range is a[1:0].
-  if (len >= 6
+  // Shortest bus is a[0].
+  if (len >= 4
       // Escaped bus brackets are not buses.
       && name[len - 2] != escape) {
     char last_ch = name[len - 1];
@@ -135,17 +141,25 @@ parseBusRange(const char *name,
       char brkt_left = brkts_left[brkt_index];
       const char *left = strrchr(name, brkt_left);
       if (left) {
+        is_bus = true;
 	// Check for bus range.
 	const char range_sep = ':';
 	const char *range = strchr(name, range_sep);
 	if (range) {
-          is_bus = true;
+          is_range = true;
           bus_name.append(name, left - name);
 	  // No need to terminate bus subscript because atoi stops
 	  // scanning at first non-digit character.
 	  from = atoi(left + 1);
 	  to = atoi(range + 1);
 	}
+        else {
+          bus_name.append(name, left - name);
+	  if (left[1] == '*')
+            subscript_wild = true;
+          else
+            from = to = atoi(left + 1);
+        }
       }
     }
   }

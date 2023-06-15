@@ -17,8 +17,6 @@
 #pragma once
 
 #include <set>
-#include <math.h>
-#include <algorithm>
 
 namespace sta {
 
@@ -71,11 +69,9 @@ public:
   }
 
   static bool
-  intersects(const std::set<KEY, CMP> &set1,
-	     const std::set<KEY, CMP> &set2);
-  static bool
   intersects(const std::set<KEY, CMP> *set1,
-	     const std::set<KEY, CMP> *set2);
+             const std::set<KEY, CMP> *set2,
+             CMP key_less);
 
   // Java style container itererator
   //  Set::Iterator<Key*> iter(set);
@@ -174,45 +170,22 @@ Set<KEY, CMP>::isSubset(const std::set<KEY, CMP> *set2)
 
 template <class KEY, class CMP>
 bool
-Set<KEY, CMP>::intersects(const std::set<KEY, CMP> &set1,
-			  const std::set<KEY, CMP> &set2)
-{
-  return intersects(&set1, &set2);
-}
-
-template <class KEY, class CMP>
-bool
 Set<KEY, CMP>::intersects(const std::set<KEY, CMP> *set1,
-			  const std::set<KEY, CMP> *set2)
+                          const std::set<KEY, CMP> *set2,
+                          CMP key_less)
 {
-  if (set1 && !set1->empty()
-      && set2 && !set2->empty()) {
-    const std::set<KEY, CMP> *small = set1;
-    const std::set<KEY, CMP> *big = set2;
-    if (small->size() > big->size()) {
-      small = set2;
-      big = set1;
-    }
-    auto iter1 = big->begin();
-    auto last1 = big->end();
-    auto iter2 = small->begin();
-    auto last2 = small->end();
-    if (static_cast<float>(small->size() + big->size()) < (small->size() * log(static_cast<float>(big->size())))) {
-      while (iter1 != last1 && iter2 != last2) {
-        if (*iter1 < *iter2)
-          ++iter1;
-        else if (*iter2 < *iter1)
-          ++iter2;
-        else
-          return true;
-      }
-    }
-    else {
-      for (/* empty */; iter2 != last2; ++iter2) {
-        const KEY key2 = *iter2;
-        if (big->find(key2) != last1)
-          return true;
-      }
+  if (set1 && set2) {
+    auto iter1 = set1->begin();
+    auto end1 = set1->end();
+    auto iter2 = set2->begin();
+    auto end2 = set2->end();
+    while (iter1 != end1 && iter2 != end2) {
+      if (key_less(*iter1, *iter2))
+        iter1++;
+      else if (key_less(*iter2, *iter1))
+        iter2++;
+      else
+        return true;
     }
   }
   return false;

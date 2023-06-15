@@ -2887,7 +2887,7 @@ Search::findTag(const RiseFall *rf,
       tag_capacity_ = new_capacity;
       tag_set_->reserve(new_capacity);
     }
-    if (tag_next_ > tag_index_max)
+    if (tag_next_ == tag_index_max)
       report_->critical(261, "max tag index exceeded");
   }
   if (own_states)

@@ -402,7 +402,7 @@ CheckCrpr::crprPossible(const Clock *clk1,
 	|| clk1->isGenerated()
 	|| clk2->isGenerated()
 	// Different non-generated clocks with the same source pins (using -add).
-	|| PinSet::intersects(clk1->pins(), clk2->pins()));
+	|| PinSet::intersects(&clk1->pins(), &clk2->pins(), network_));
 }
 
 } // namespace

@@ -66,10 +66,8 @@ public:
 
 protected:
   VertexId vertex_id_;
-  unsigned int tag_index_:tag_index_bits;
+  TagIndex tag_index_;
   bool is_enum_:1;
-
-private:
 };
 
 } // namespace

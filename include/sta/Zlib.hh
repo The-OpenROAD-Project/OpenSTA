@@ -27,7 +27,7 @@
 
 #else // ZLIB_FOUND
 
-#include <stdio.h>
+#include <cstdio>
 
 #define gzFile FILE*
 #define gzopen fopen

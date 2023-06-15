@@ -22,6 +22,7 @@
 #include "Liberty.hh"
 #include "PortDirection.hh"
 #include "Corner.hh"
+#include "ParseBus.hh"
 
 namespace sta {
 
@@ -54,6 +55,63 @@ LibertyLibrary *
 Network::libertyLibrary(const Cell *cell) const
 {
   return libertyCell(cell)->libertyLibrary();
+}
+
+PortSeq
+Network::findPortsMatching(const Cell *cell,
+                           const PatternMatch *pattern) const
+{
+  PortSeq matches;
+  bool is_bus, is_range, subscript_wild;
+  string bus_name;
+  int from, to;
+  parseBusName(pattern->pattern(), '[', ']', '\\',
+               is_bus, is_range, bus_name, from, to, subscript_wild);
+  if (is_bus) {
+    PatternMatch bus_pattern(bus_name.c_str(), pattern);
+    CellPortIterator *port_iter = portIterator(cell);
+    while (port_iter->hasNext()) {
+      Port *port = port_iter->next();
+      if (isBus(port)
+          && bus_pattern.match(name(port))) {
+        if (is_range) {
+          // bus[8:0]
+          if (from > to)
+            std::swap(from, to);
+          for (int bit = from; bit <= to; bit++) {
+            Port *port_bit = findBusBit(port, bit);
+            matches.push_back(port_bit);
+          }
+        }
+        else {
+          if (subscript_wild) {
+            PortMemberIterator *member_iter = memberIterator(port);
+            while (member_iter->hasNext()) {
+              Port *port_bit = member_iter->next();
+              matches.push_back(port_bit);
+            }
+            delete member_iter;
+          }
+          else {
+            // bus[0]
+            Port *port_bit = findBusBit(port, from);
+            matches.push_back(port_bit);
+          }
+        }
+      }
+    }
+    delete port_iter;
+  }
+  else {
+    CellPortIterator *port_iter = portIterator(cell);
+    while (port_iter->hasNext()) {
+      Port *port = port_iter->next();
+      if (pattern->match(name(port)))
+        matches.push_back(port);
+    }
+    delete port_iter;
+  }
+  return matches;
 }
 
 LibertyLibrary *
@@ -2035,6 +2093,16 @@ InstanceSet::compare(const InstanceSet *set1,
     return (size1 > size2) ? 1 : -1;
 }
 
+bool
+InstanceSet::intersects(const InstanceSet *set1,
+                        const InstanceSet *set2,
+                        const Network *network)
+{
+  return Set<const Instance*, InstanceIdLess>::intersects(set1, set2, InstanceIdLess(network));
+}
+
+////////////////////////////////////////////////////////////////
+
 PinSet::PinSet() :
   Set<const Pin*, PinIdLess>(PinIdLess(nullptr))
 {
@@ -2072,6 +2140,16 @@ PinSet::compare(const PinSet *set1,
     return (size1 > size2) ? 1 : -1;
 }
 
+bool
+PinSet::intersects(const PinSet *set1,
+                   const PinSet *set2,
+                   const Network *network)
+{
+  return Set<const Pin*, PinIdLess>::intersects(set1, set2, PinIdLess(network));
+}
+
+////////////////////////////////////////////////////////////////
+
 NetSet::NetSet() :
   Set<const Net*, NetIdLess>(NetIdLess(nullptr))
 {
@@ -2107,6 +2185,14 @@ NetSet::compare(const NetSet *set1,
   }
   else
     return (size1 > size2) ? 1 : -1;
+}
+
+bool
+NetSet::intersects(const NetSet *set1,
+                   const NetSet *set2,
+                   const Network *network)
+{
+  return Set<const Net*, NetIdLess>::intersects(set1, set2, NetIdLess(network));
 }
 
 } // namespace

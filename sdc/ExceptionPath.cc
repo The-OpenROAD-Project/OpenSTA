@@ -31,7 +31,8 @@ namespace sta {
 
 static bool
 thrusIntersectPts(ExceptionThruSeq *thrus1,
-		  ExceptionThruSeq *thrus2);
+		  ExceptionThruSeq *thrus2,
+                  const Network *network);
 static void
 insertPinPairsThruHierPin(const Pin *hpin,
 			  const Network *network,
@@ -273,23 +274,24 @@ ExceptionPath::mergeablePts(ExceptionPath *exception2,
 }
 
 bool
-ExceptionPath::intersectsPts(ExceptionPath *exception) const
+ExceptionPath::intersectsPts(ExceptionPath *exception,
+                             const Network *network) const
 {
   ExceptionFrom *from2 = exception->from();
   ExceptionThruSeq *thrus2 = exception->thrus();
   ExceptionTo *to2 = exception->to();
   if (((from_ == nullptr && from2 == nullptr)
-       || (from_ && from2 && from_->intersectsPts(from2)))
+       || (from_ && from2 && from_->intersectsPts(from2, network)))
       && ((thrus_ == nullptr && thrus2 == nullptr)
 	  || (thrus_ && thrus2 && thrus_->size() == thrus2->size()))
       && ((to_ == nullptr && to2 == nullptr)
-	  || (to_ && to2 && to_->intersectsPts(to2)))) {
+	  || (to_ && to2 && to_->intersectsPts(to2, network)))) {
     ExceptionThruSeq::Iterator thrus_iter1(thrus_);
     ExceptionThruSeq::Iterator thrus_iter2(thrus2);
     while (thrus_iter1.hasNext() && thrus_iter2.hasNext()) {
       ExceptionThru *thru1 = thrus_iter1.next();
       ExceptionThru *thru2 = thrus_iter2.next();
-      if (!thru1->intersectsPts(thru2))
+      if (!thru1->intersectsPts(thru2, network))
 	return false;
     }
     return true;
@@ -373,7 +375,8 @@ bool
 ExceptionPath::resetMatch(ExceptionFrom *from,
 			  ExceptionThruSeq *thrus,
 			  ExceptionTo *to,
-			  const MinMaxAll *min_max)
+			  const MinMaxAll *min_max,
+                          const Network *network)
 {
   // Only the reset expception points need to match.
   // For example, if the reset is -from, it matches any
@@ -382,56 +385,57 @@ ExceptionPath::resetMatch(ExceptionFrom *from,
   return ((from && from_
 	   && thrus == nullptr
 	   && to == nullptr
-	   && from_->intersectsPts(from))
+	   && from_->intersectsPts(from, network))
 	  // -thru
 	  || (from == nullptr
 	      && thrus && thrus_
 	      && to == nullptr
-	      && thrusIntersectPts(thrus_, thrus))
+	      && thrusIntersectPts(thrus_, thrus, network))
 	  // -to
 	  || (from == nullptr
 	      && thrus == nullptr
 	      && to && to_
-	      && to_->intersectsPts(to))
+	      && to_->intersectsPts(to, network))
 	  // -from -thru
 	  || (from && from_
 	      && thrus && thrus_
 	      && to == nullptr
-	      && from_->intersectsPts(from)
-	      && thrusIntersectPts(thrus_, thrus))
+	      && from_->intersectsPts(from, network)
+	      && thrusIntersectPts(thrus_, thrus, network))
 	  // -from -to
 	  || (from && from_
 	      && thrus == nullptr
 	      && to && to_
-	      && from_->intersectsPts(from)
-	      && to_->intersectsPts(to))
+	      && from_->intersectsPts(from, network)
+	      && to_->intersectsPts(to, network))
 	  // -thru -to
 	  || (from == nullptr
 	      && thrus && thrus_
 	      && to && to_
-	      && thrusIntersectPts(thrus_, thrus)
-	      && to_->intersectsPts(to))
+	      && thrusIntersectPts(thrus_, thrus, network)
+	      && to_->intersectsPts(to, network))
 	  // -from -thru -to
 	  || (from && from_
 	      && thrus && thrus_
 	      && to && to_
-	      && from_->intersectsPts(from)
-	      && thrusIntersectPts(thrus_, thrus)
-	      && to_->intersectsPts(to)))
+	      && from_->intersectsPts(from, network)
+	      && thrusIntersectPts(thrus_, thrus, network)
+	      && to_->intersectsPts(to, network)))
     && (min_max == MinMaxAll::all()
 	|| min_max_ == min_max);
 }
 
 static bool
 thrusIntersectPts(ExceptionThruSeq *thrus1,
-		  ExceptionThruSeq *thrus2)
+		  ExceptionThruSeq *thrus2,
+                  const Network *network)
 {
   ExceptionThruSeq::Iterator thrus_iter1(thrus1);
   ExceptionThruSeq::Iterator thrus_iter2(thrus2);
   while (thrus_iter1.hasNext() && thrus_iter2.hasNext()) {
     ExceptionThru *thru1 = thrus_iter1.next();
     ExceptionThru *thru2 = thrus_iter2.next();
-    if (!thru1->intersectsPts(thru2))
+    if (!thru1->intersectsPts(thru2, network))
       return false;
   }
   return true;
@@ -774,7 +778,8 @@ bool
 FilterPath::resetMatch(ExceptionFrom *,
 		       ExceptionThruSeq *,
 		       ExceptionTo *,
-		       const MinMaxAll *)
+		       const MinMaxAll *,
+                       const Network *)
 {
   return false;
 }
@@ -1220,12 +1225,13 @@ ExceptionFrom::clone(const Network *network)
 }
 
 bool
-ExceptionFrom::intersectsPts(ExceptionFrom *from) const
+ExceptionFrom::intersectsPts(ExceptionFrom *from,
+                             const Network *network) const
 {
   return from->transition() == rf_
-    && ((pins_ && PinSet::intersects(pins_, from->pins()))
-	|| (clks_ && ClockSet::intersects(clks_, from->clks()))
-	|| (insts_ && InstanceSet::intersects(insts_, from->instances())));
+    && ((pins_ && PinSet::intersects(pins_, from->pins(), network))
+	|| (clks_ && ClockSet::intersects(clks_, from->clks(), ClockIndexLess()))
+	|| (insts_ && InstanceSet::intersects(insts_, from->instances(), network)));
 }
 
 const char *
@@ -1284,13 +1290,14 @@ ExceptionTo::asString(const Network *network) const
 }
 
 bool
-ExceptionTo::intersectsPts(ExceptionTo *to) const
+ExceptionTo::intersectsPts(ExceptionTo *to,
+                           const Network *network) const
 {
   return to->transition() == rf_
     && to->endTransition() == end_rf_
-    && ((pins_ && PinSet::intersects(pins_, to->pins()))
-	|| (clks_ && ClockSet::intersects(clks_, to->clks()))
-	|| (insts_ && InstanceSet::intersects(insts_, to->instances())));
+    && ((pins_ && PinSet::intersects(pins_, to->pins(), network))
+	|| (clks_ && ClockSet::intersects(clks_, to->clks(), ClockIndexLess()))
+	|| (insts_ && InstanceSet::intersects(insts_, to->instances(), network)));
 }
 
 bool
@@ -1926,12 +1933,13 @@ ExceptionThru::deleteObjects(ExceptionThru *pt,
 }
 
 bool
-ExceptionThru::intersectsPts(ExceptionThru *thru) const
+ExceptionThru::intersectsPts(ExceptionThru *thru,
+                             const Network *network) const
 {
   return thru->transition() == rf_
-    && ((pins_ && PinSet::intersects(pins_, thru->pins()))
-	|| (nets_ && NetSet::intersects(nets_, thru->nets()))
-	|| (insts_ && InstanceSet::intersects(insts_, thru->instances())));
+    && ((pins_ && PinSet::intersects(pins_, thru->pins(), network))
+	|| (nets_ && NetSet::intersects(nets_, thru->nets(), network))
+	|| (insts_ && InstanceSet::intersects(insts_, thru->instances(), network)));
 }
 
 size_t
@@ -1973,7 +1981,7 @@ ExceptionThru::connectPinAfter(PinSet *drvrs,
       for (const Pin *thru_pin : *pins_) {
         if (network->isHierarchical(thru_pin)) {
           PinSet *thru_pin_drvrs = network->drivers(thru_pin);
-          if (PinSet::intersects(drvrs, thru_pin_drvrs))
+          if (PinSet::intersects(drvrs, thru_pin_drvrs, network))
             makePinEdges(thru_pin, network);
         }
       }
@@ -1985,7 +1993,7 @@ ExceptionThru::connectPinAfter(PinSet *drvrs,
           while (inst_pin_iter->hasNext()) {
             Pin *inst_pin = inst_pin_iter->next();
             PinSet *inst_pin_drvrs = network->drivers(inst_pin);
-            if (PinSet::intersects(drvrs, inst_pin_drvrs))
+            if (PinSet::intersects(drvrs, inst_pin_drvrs, network))
               makePinEdges(inst_pin, network);
           }
           delete inst_pin_iter;
@@ -1995,7 +2003,7 @@ ExceptionThru::connectPinAfter(PinSet *drvrs,
     if (nets_) {
       for (const Net *net : *nets_) {
         PinSet *net_drvrs = network->drivers(net);
-        if (PinSet::intersects(drvrs, net_drvrs))
+        if (PinSet::intersects(drvrs, net_drvrs, network))
           makeNetEdges(net, network);
       }
     }

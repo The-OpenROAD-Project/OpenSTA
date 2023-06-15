@@ -82,24 +82,6 @@ public:
   virtual ParasiticNodeIterator *nodeIterator();
 };
 
-class ConcreteElmore
-{
-public:
-  void findElmore(const Pin *load_pin,
-		  float &elmore,
-		  bool &exists) const;
-  void deleteLoad(const Pin *load_pin);
-  void setElmore(const Pin *load_pin,
-		 float elmore);
-
-protected:
-  ConcreteElmore();
-  virtual ~ConcreteElmore();
-
-private:
-  ConcreteElmoreLoadMap *loads_;
-};
-
 // Pi model for a driver pin.
 class ConcretePi
 {
@@ -126,13 +108,13 @@ protected:
 
 // Pi model for a driver pin and the elmore delay to each load.
 class ConcretePiElmore : public ConcretePi,
-			 public ConcreteElmore,
 			 public ConcreteParasitic
 {
 public:
   ConcretePiElmore(float c2,
 		   float rpi,
 		   float c1);
+  virtual ~ConcretePiElmore();
   virtual bool isPiElmore() const { return true; }
   virtual bool isPiModel() const { return true; }
   virtual float capacitance() const;
@@ -143,6 +125,10 @@ public:
   virtual void findElmore(const Pin *load_pin, float &elmore,
 			  bool &exists) const;
   virtual void setElmore(const Pin *load_pin, float elmore);
+  void deleteLoad(const Pin *load_pin);
+
+private:
+  ConcreteElmoreLoadMap *loads_;
 };
 
 // PiElmore from wireload model estimate.

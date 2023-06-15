@@ -41,7 +41,7 @@ tagStateEqualCrpr(const Tag *tag1,
 		  const Tag *tag2);
 
 Tag::Tag(TagIndex index,
-	 int tr_index,
+	 int rf_index,
 	 PathAPIndex path_ap_index,
 	 ClkInfo *clk_info,
 	 bool is_clk,
@@ -53,13 +53,13 @@ Tag::Tag(TagIndex index,
   clk_info_(clk_info),
   input_delay_(input_delay),
   states_(states),
+  index_(index),
   is_clk_(is_clk),
   is_filter_(false),
   is_loop_(false),
   is_segment_start_(is_segment_start),
   own_states_(own_states),
-  index_(index),
-  tr_index_(tr_index),
+  rf_index_(rf_index),
   path_ap_index_(path_ap_index)
 {
   findHash();
@@ -177,7 +177,7 @@ Tag::asString(bool report_index,
 const RiseFall *
 Tag::transition() const
 {
-  return RiseFall::find(tr_index_);
+  return RiseFall::find(rf_index_);
 }
 
 PathAnalysisPt *
@@ -247,7 +247,7 @@ Tag::findHash()
 {
   // Common to hash_ and match_hash_.
   hash_ = hash_init_value;
-  hashIncr(hash_, tr_index_);
+  hashIncr(hash_, rf_index_);
   hashIncr(hash_, path_ap_index_);
   hashIncr(hash_, is_clk_);
   hashIncr(hash_, is_segment_start_);
@@ -297,11 +297,11 @@ tagCmp(const Tag *tag1,
     return 0;
 
   if (cmp_rf) {
-    int tr_index1 = tag1->trIndex();
-    int tr_index2 = tag2->trIndex();
-    if (tr_index1 < tr_index2)
+    int rf_index1 = tag1->rfIndex();
+    int rf_index2 = tag2->rfIndex();
+    if (rf_index1 < rf_index2)
       return -1;
-    if (tr_index1 > tr_index2)
+    if (rf_index1 > rf_index2)
       return 1;
   }
 
@@ -350,7 +350,7 @@ tagEqual(const Tag *tag1,
 	 const Tag *tag2)
 {
   return tag1 == tag2
-    || (tag1->trIndex() == tag2->trIndex()
+    || (tag1->rfIndex() == tag2->rfIndex()
 	&& tag1->pathAPIndex() == tag2->pathAPIndex()
 	&& tag1->clkInfo() == tag2->clkInfo()
 	&& tag1->isClock() == tag2->isClock()
@@ -404,7 +404,7 @@ tagMatch(const Tag *tag1,
   const ClkInfo *clk_info2 = tag2->clkInfo();
   return tag1 == tag2
     || (clk_info1->clkEdge() == clk_info2->clkEdge()
-	&& tag1->trIndex() == tag2->trIndex()
+	&& tag1->rfIndex() == tag2->rfIndex()
 	&& tag1->pathAPIndex() == tag2->pathAPIndex()
 	&& tag1->isClock() == tag2->isClock()
 	&& tag1->isSegmentStart() == tag2->isSegmentStart()
@@ -424,11 +424,11 @@ tagMatchCmp(const Tag *tag1,
   if (tag1 == tag2)
     return 0;
 
-  int tr_index1 = tag1->trIndex();
-  int tr_index2 = tag2->trIndex();
-  if (tr_index1 < tr_index2)
+  int rf_index1 = tag1->rfIndex();
+  int rf_index2 = tag2->rfIndex();
+  if (rf_index1 < rf_index2)
     return -1;
-  if (tr_index1 > tr_index2)
+  if (rf_index1 > rf_index2)
     return 1;
 
   PathAPIndex path_ap_index1 = tag1->pathAPIndex();
@@ -491,7 +491,7 @@ tagMatchNoCrpr(const Tag *tag1,
   const ClkInfo *clk_info2 = tag2->clkInfo();
   return tag1 == tag2
     || (clk_info1->clkEdge() == clk_info2->clkEdge()
-	&& tag1->trIndex() == tag2->trIndex()
+	&& tag1->rfIndex() == tag2->rfIndex()
 	&& tag1->pathAPIndex() == tag2->pathAPIndex()
 	&& tag1->isClock() == tag2->isClock()
 	&& clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
@@ -506,7 +506,7 @@ tagMatchNoPathAp(const Tag *tag1,
   const ClkInfo *clk_info2 = tag2->clkInfo();
   return tag1 == tag2
     || (clk_info1->clkEdge() == clk_info2->clkEdge()
-	&& tag1->trIndex() == tag2->trIndex()
+	&& tag1->rfIndex() == tag2->rfIndex()
 	&& tag1->isClock() == tag2->isClock()
 	&& tag1->isSegmentStart() == tag2->isSegmentStart()
 	&& clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
@@ -521,7 +521,7 @@ tagMatchCrpr(const Tag *tag1,
   const ClkInfo *clk_info2 = tag2->clkInfo();
   return tag1 == tag2
     || (clk_info1->clkEdge() == clk_info2->clkEdge()
-	&& tag1->trIndex() == tag2->trIndex()
+	&& tag1->rfIndex() == tag2->rfIndex()
 	&& tag1->isClock() == tag2->isClock()
 	&& tag1->isSegmentStart() == tag2->isSegmentStart()
 	&& clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()

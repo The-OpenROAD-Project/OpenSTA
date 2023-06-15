@@ -4909,6 +4909,7 @@ write_path_spice_cmd(PathRef *path,
   writePathSpice(path, spice_filename, subckt_filename,
 		 lib_subckt_filename, model_filename, off_path_pins,
 		 power_name, gnd_name, sta);
+  delete off_path_pins;
 }
 
 void
@@ -5723,6 +5724,23 @@ current_waveform(float in_slew,
     }
   }
   return nullptr;
+}
+
+float
+voltage_current(float in_slew,
+                float load_cap,
+                float voltage)
+{
+  GateTableModel *gate_model = dynamic_cast<GateTableModel*>(self->model());
+  if (gate_model) {
+    OutputWaveforms *waveforms = gate_model->outputWaveforms();
+    if (waveforms) {
+      waveforms->setVdd(.7);
+      float current = waveforms->voltageCurrent(in_slew, load_cap, voltage);
+      return current;
+    }
+  }
+  return 0.0;
 }
 
 } // TimingArc methods

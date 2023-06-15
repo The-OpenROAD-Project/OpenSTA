@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <string.h> // memcpy
+#include <cstring> // memcpy
 #include <vector>
 
 #include "ObjectId.hh"

@@ -16,8 +16,8 @@
 
 #include "sdf/SdfReader.hh"
 
-#include <stdarg.h>
-#include <ctype.h>
+#include <cstdarg>
+#include <cctype>
 
 #include "Error.hh"
 #include "Debug.hh"

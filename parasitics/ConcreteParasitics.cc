@@ -144,44 +144,6 @@ ConcreteParasitic::nodeIterator()
 
 ////////////////////////////////////////////////////////////////
 
-ConcreteElmore::ConcreteElmore() :
-  loads_(nullptr)
-{
-}
-
-ConcreteElmore::~ConcreteElmore()
-{
-  delete loads_;
-}
-
-void
-ConcreteElmore::findElmore(const Pin *load_pin,
-			   float &elmore,
-			   bool &exists) const
-{
-  if (loads_)
-    loads_->findKey(load_pin, elmore, exists);
-  else
-    exists = false;
-}
-
-void
-ConcreteElmore::deleteLoad(const Pin *load_pin)
-{
-  loads_->erase(load_pin);
-}
-
-void
-ConcreteElmore::setElmore(const Pin *load_pin,
-			  float elmore)
-{
-  if (loads_ == nullptr)
-    loads_ = new ConcreteElmoreLoadMap;
-  (*loads_)[load_pin] = elmore;
-}
-
-////////////////////////////////////////////////////////////////
-
 ConcretePi::ConcretePi(float c2,
 		       float rpi,
 		       float c1) :
@@ -230,8 +192,13 @@ ConcretePiElmore::ConcretePiElmore(float c2,
 				   float rpi,
 				   float c1) :
   ConcretePi(c2, rpi, c1),
-  ConcreteElmore()
+  loads_(nullptr)
 {
+}
+
+ConcretePiElmore::~ConcretePiElmore()
+{
+  delete loads_;
 }
 
 float
@@ -273,14 +240,25 @@ ConcretePiElmore::findElmore(const Pin *load_pin,
 			     float &elmore,
 			     bool &exists) const
 {
-  ConcreteElmore::findElmore(load_pin, elmore, exists);
+  if (loads_)
+    loads_->findKey(load_pin, elmore, exists);
+  else
+    exists = false;
 }
 
 void
 ConcretePiElmore::setElmore(const Pin *load_pin,
 			    float elmore)
 {
-  ConcreteElmore::setElmore(load_pin, elmore);
+  if (loads_ == nullptr)
+    loads_ = new ConcreteElmoreLoadMap;
+  (*loads_)[load_pin] = elmore;
+}
+
+void
+ConcretePiElmore::deleteLoad(const Pin *load_pin)
+{
+  loads_->erase(load_pin);
 }
 
 ////////////////////////////////////////////////////////////////

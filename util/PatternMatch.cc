@@ -15,7 +15,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "PatternMatch.hh"
-#include <string.h>
+#include <cstring>
 #include <tcl.h>
 
 namespace sta {

@@ -135,11 +135,11 @@ ReadVcdActivities::setVarActivity(VcdVar *var,
   if (var->width() == 1)
     setVarActivity(sta_name.c_str(), var_values, 0);
   else {
-    bool is_bus;
+    bool is_bus, is_range, subscript_wild;
     string bus_name;
     int from, to;
-    parseBusRange(sta_name.c_str(), '[', ']', '\\',
-                  is_bus, bus_name, from, to);
+    parseBusName(sta_name.c_str(), '[', ']', '\\',
+                 is_bus, is_range, bus_name, from, to, subscript_wild);
     int value_bit = 0;
     if (to < from) {
       for (int bus_bit = to; bus_bit <= from; bus_bit++) {

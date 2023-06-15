@@ -63,7 +63,7 @@ open source projects are. The copyright and develpment are exclusive to Parallax
 Software. OpenSTA does not accept external code contributions.
 
 The official git repository is located at
-https://github.com/jjcherry56/OpenSTA.git. Any forks from this code
+https://github.com/parallaxsw/OpenSTA.git. Any forks from this code
 base have not passed extensive regression testing which is not
 publicly available.
 
@@ -78,14 +78,14 @@ work, but these are the versions used for development.
 
 ```
          from   Ubuntu   Xcode
-                18.04.1  11.3
-cmake    3.10.2 3.10.2   3.16.2
-clang    9.1.0           11.0.0
-gcc      3.3.2   7.3.0   
+                22.04.2  11.3
+cmake    3.10.2 3.24.2   3.16.2
+clang    9.1.0           14.0.3
+gcc      3.3.2   11.3.0  
 tcl      8.4     8.6     8.6.6
-swig     1.3.28  3.0.12  4.0.1
-bison    1.35    3.0.4   3.5
-flex     2.5.4   2.6.4   2.5.35
+swig     1.3.28  4.1.0   4.0.1
+bison    1.35    3.0.2   3.8.2
+flex     2.5.4   2.6.4   2.6.4
 ```
 
 Note that flex versions before 2.6.4 contain 'register' declarations that

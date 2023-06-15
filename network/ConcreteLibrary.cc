@@ -16,7 +16,7 @@
 
 #include "ConcreteLibrary.hh"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "PatternMatch.hh"
 #include "PortDirection.hh"
@@ -273,32 +273,6 @@ size_t
 ConcreteCell::portCount() const
 {
   return ports_.size();
-}
-
-PortSeq
-ConcreteCell::findPortsMatching(const PatternMatch *pattern) const
-{
-  PortSeq matches;
-  char bus_brkt_right = library_->busBrktRight();
-  const char *pattern1 = pattern->pattern();
-  bool bus_pattern = (pattern1[strlen(pattern1) - 1] == bus_brkt_right);
-  ConcreteCellPortIterator *port_iter = portIterator();
-  while (port_iter->hasNext()) {
-    ConcretePort *port = port_iter->next();
-    if (port->isBus() && bus_pattern) {
-      ConcretePortMemberIterator *member_iter = port->memberIterator();
-      while (member_iter->hasNext()) {
-	ConcretePort *port_bit = member_iter->next();
-	if (pattern->match(port_bit->name()))
-	  matches.push_back(reinterpret_cast<Port*>(port_bit));
-      }
-      delete member_iter;
-    }
-    else if (pattern->match(port->name()))
-      matches.push_back(reinterpret_cast<Port*>(port));
-  }
-  delete port_iter;
-  return matches;
 }
 
 ConcreteCellPortIterator *
