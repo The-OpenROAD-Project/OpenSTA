@@ -16,6 +16,8 @@
 
 #include "LumpedCapDelayCalc.hh"
 
+#include <cmath>  // isnan
+
 #include "Debug.hh"
 #include "Units.hh"
 #include "TimingArc.hh"
@@ -28,6 +30,8 @@
 #include "GraphDelayCalc.hh"
 
 namespace sta {
+
+using std::isnan;
 
 ArcDelayCalc *
 makeLumpedCapDelayCalc(StaState *sta)
