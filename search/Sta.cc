@@ -4133,6 +4133,21 @@ Sta::disconnectPin(Pin *pin)
   network->disconnectPin(pin);
 }
 
+void
+Sta::makePortPin(const char *port_name,
+                 const char *direction)
+{
+  NetworkReader *network = dynamic_cast<NetworkReader*>(network_);
+  Instance *top_inst = network->topInstance();
+  Cell *top_cell = network->cell(top_inst);
+  Port *port = network->makePort(top_cell, port_name);
+  PortDirection *dir = PortDirection::find(direction);
+  if (dir)
+    network->setDirection(port, dir);
+  Pin *pin = network->makePin(top_inst, port, nullptr);
+  makePortPinAfter(pin);
+}
+
 ////////////////////////////////////////////////////////////////
 //
 // Network edit before/after methods.
@@ -4158,6 +4173,15 @@ Sta::makeInstanceAfter(const Instance *inst)
       }
       graph_->makeInstanceEdges(inst);
     }
+  }
+}
+
+void
+Sta::makePortPinAfter(Pin *pin)
+{
+  if (graph_) {
+    Vertex *vertex, *bidir_drvr_vertex;
+    graph_->makePinVertices(pin, vertex, bidir_drvr_vertex);
   }
 }
 

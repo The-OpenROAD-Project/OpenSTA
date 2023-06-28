@@ -138,7 +138,7 @@ public:
 private:
   void findNext();
 
-  ConcretePin **pins_;
+  const ConcretePinSeq &pins_;
   int pin_count_;
   int pin_index_;
   ConcretePin *next_;
@@ -1211,8 +1211,8 @@ ConcreteNetwork::replaceCell(Instance *inst,
   ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell);
   int port_count = ccell->portBitCount();
   ConcreteInstance *cinst = reinterpret_cast<ConcreteInstance*>(inst);
-  ConcretePin **pins = cinst->pins_;
-  ConcretePin **rpins = new ConcretePin*[port_count];
+  ConcretePinSeq &pins = cinst->pins_;
+  ConcretePinSeq rpins(port_count);
   for (int i = 0; i < port_count; i++)
     rpins[i] = nullptr;
   for (int i = 0; i < port_count; i++) {
@@ -1227,7 +1227,6 @@ ConcreteNetwork::replaceCell(Instance *inst,
       }
     }
   }
-  delete [] pins;
   cinst->pins_ = rpins;
   cinst->setCell(ccell);
 }
@@ -1333,7 +1332,8 @@ ConcreteNetwork::connect(Instance *inst,
   if (inst == top_instance_) {
     // makeTerm
     ConcreteTerm *cterm = new ConcreteTerm(cpin, cnet);
-    cnet->addTerm(cterm);
+    if (cnet)
+      cnet->addTerm(cterm);
     cpin->term_ = cterm;
     cpin->net_ = nullptr;
   }
@@ -1541,20 +1541,13 @@ ConcreteInstance::ConcreteInstance(const char *name,
 void
 ConcreteInstance::initPins()
 {
-  int pin_count = reinterpret_cast<ConcreteCell*>(cell_)->portBitCount();
-  if (pin_count) {
-    pins_ = new ConcretePin*[pin_count];
-    for (int i = 0; i < pin_count; i++)
-      pins_[i] = nullptr;
-  }
-  else
-    pins_ = nullptr;
+  ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell_);
+  pins_.resize(ccell->portBitCount());
 }
 
 ConcreteInstance::~ConcreteInstance()
 {
   stringDelete(name_);
-  delete [] pins_;
   delete children_;
   delete nets_;
 }
@@ -1585,7 +1578,11 @@ ConcretePin *
 ConcreteInstance::findPin(const Port *port) const
 {
   const ConcretePort *cport = reinterpret_cast<const ConcretePort*>(port);
-  return pins_[cport->pinIndex()];
+  size_t port_index = cport->pinIndex();
+  if (port_index < pins_.size())
+    return pins_[port_index];
+  else
+    return nullptr;
 }
 
 ConcreteNet *
@@ -1655,7 +1652,10 @@ void
 ConcreteInstance::addPin(ConcretePin *pin)
 {
   ConcretePort *cport = reinterpret_cast<ConcretePort *>(pin->port());
-  pins_[cport->pinIndex()] = pin;
+  size_t pin_index = cport->pinIndex();
+  if (pin_index >= pins_.size())
+    pins_.resize(pin_index + 1);
+  pins_[pin_index] = pin;
 }
 
 void

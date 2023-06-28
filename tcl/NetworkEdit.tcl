@@ -45,7 +45,7 @@ proc make_instance { inst_path lib_cell } {
 
 ################################################################
 
-define_cmd_args "make_net" {}
+define_cmd_args "make_net" {net_path}
 
 proc make_net { net_path } {
   # Copy backslashes that will be removed by foreach.
@@ -61,6 +61,14 @@ proc make_net { net_path } {
     set net_name $net_path
   }
   return [make_net_cmd $net_name $parent]
+}
+
+################################################################
+
+define_cmd_args "make_port" {port_name direction}
+
+proc make_port { port_name direction } {
+  make_port_pin_cmd $port_name $direction
 }
 
 ################################################################

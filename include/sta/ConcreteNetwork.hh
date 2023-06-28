@@ -44,6 +44,7 @@ typedef Map<const char *, ConcreteInstance*,
 	    CharPtrLess> ConcreteInstanceChildMap;
 typedef Map<const char *, ConcreteNet*, CharPtrLess> ConcreteInstanceNetMap;
 typedef Vector<ConcreteNet*> ConcreteNetSeq;
+typedef Vector<ConcretePin*> ConcretePinSeq;
 typedef Map<Cell*, Instance*> CellNetworkViewMap;
 typedef Set<const ConcreteNet*> ConcreteNetSet;
 
@@ -306,7 +307,7 @@ protected:
   ConcreteCell *cell_;
   ConcreteInstance *parent_;
   // Array of pins indexed by pin->port->index().
-  ConcretePin **pins_;
+  ConcretePinSeq pins_;
   ConcreteInstanceChildMap *children_;
   ConcreteInstanceNetMap *nets_;
 

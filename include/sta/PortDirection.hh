@@ -34,6 +34,7 @@ public:
   static PortDirection *ground() { return ground_; }
   static PortDirection *power() { return power_; }
   static PortDirection *unknown() { return unknown_; }
+  static PortDirection *find(const char *dir_name);
   const char *name() const { return name_; }
   int index() const { return index_; }
   bool isInput() const { return this == input_; }
