@@ -1179,6 +1179,8 @@ public:
 			  Net *net);
   // disconnect_net
   virtual void disconnectPin(Pin *pin);
+  virtual void makePortPin(const char *port_name,
+                           const char *direction);
   // Notify STA of network change.
   void networkChanged();
   void deleteLeafInstanceBefore(const Instance *inst);
@@ -1196,6 +1198,7 @@ public:
   virtual void replaceCellBefore(const Instance *inst,
 				 const LibertyCell *to_cell);
   virtual void replaceCellAfter(const Instance *inst);
+  virtual void makePortPinAfter(Pin *pin);
   virtual void connectPinAfter(const Pin *pin);
   virtual void disconnectPinBefore(const Pin *pin);
   virtual void deleteNetBefore(const Net *net);

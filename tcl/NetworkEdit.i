@@ -74,6 +74,13 @@ make_net_cmd(const char *name,
 }
 
 void
+make_port_pin_cmd(const char *port_name,
+                  const char *direction)
+{
+  Sta::sta()->makePortPin(port_name, direction);
+}
+
+void
 delete_net_cmd(Net *net)
 {
   Sta::sta()->deleteNet(net);
