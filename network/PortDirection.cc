@@ -16,6 +16,8 @@
 
 #include "PortDirection.hh"
 
+#include "StringUtil.hh"
+
 namespace sta {
 
 PortDirection *PortDirection::input_;
@@ -66,6 +68,27 @@ PortDirection::PortDirection(const char *name,
   name_(name),
   index_(index)
 {
+}
+
+PortDirection *
+PortDirection::find(const char *dir_name)
+{
+  if (stringEqual(dir_name, "input"))
+    return input_;
+  else if (stringEqual(dir_name, "output"))
+    return output_;
+  else if (stringEqual(dir_name, "tristate"))
+    return tristate_;
+  else if (stringEqual(dir_name, "bidirect"))
+    return bidirect_;
+  else if (stringEqual(dir_name, "internal"))
+    return internal_;
+  else if (stringEqual(dir_name, "ground"))
+    return ground_;
+  else if (stringEqual(dir_name, "power"))
+    return power_;
+  else
+    return nullptr;
 }
 
 bool

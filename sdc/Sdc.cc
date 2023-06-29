@@ -4170,7 +4170,9 @@ Sdc::addException(ExceptionPath *exception)
   ExceptionFrom *from = exception->from();
   if (from
       && (from->hasPins() || from->hasInstances())
-      && from->hasClocks()) {
+      && from->hasClocks()
+      // There is only one filter so there are no competing priorities.
+      && !exception->isFilter()) {
     PinSet *pins1 = from->pins() ? new PinSet(*from->pins()) : nullptr;
     InstanceSet *insts1 =
       from->instances() ? new InstanceSet(*from->instances()) : nullptr;
