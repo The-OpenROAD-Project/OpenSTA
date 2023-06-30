@@ -1,3 +1,4 @@
+
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2023, Parallax Software, Inc.
 // 
@@ -933,24 +934,25 @@ ExceptionFromTo::hasObjects() const
   return hasPins() || hasClocks() || hasInstances();
 }
 
-void
-ExceptionFromTo::allPins(const Network *network,
-			 PinSet *pins)
+PinSet
+ExceptionFromTo::allPins(const Network *network)
 {
+  PinSet pins(network);
   if (pins_) {
     for (const Pin *pin : *pins_)
-      pins->insert(pin);
+      pins.insert(pin);
   }
   if (insts_) {
     for (const Instance *inst : *insts_) {
       InstancePinIterator *pin_iter = network->pinIterator(inst);
       while (pin_iter->hasNext()) {
 	const Pin *pin = pin_iter->next();
-	pins->insert(pin);
+	pins.insert(pin);
       }
       delete pin_iter;
     }
   }
+  return pins;
 }
 
 void
@@ -1777,20 +1779,20 @@ ExceptionThru::deleteEdge(const EdgePins &edge)
     edges_->erase(edge);
 }
 
-void
-ExceptionThru::allPins(const Network *network,
-		       PinSet *pins)
+PinSet
+ExceptionThru::allPins(const Network *network)
 {
+  PinSet pins(network);
   if (pins_) {
     for (const Pin *pin : *pins_)
-      pins->insert(pin);
+      pins.insert(pin);
   }
   if (insts_) {
     for (const Instance *inst : *insts_) {
       InstancePinIterator *pin_iter = network->pinIterator(inst);
       while (pin_iter->hasNext()) {
 	Pin *pin = pin_iter->next();
-	pins->insert(pin);
+	pins.insert(pin);
       }
       delete pin_iter;
     }
@@ -1800,11 +1802,12 @@ ExceptionThru::allPins(const Network *network,
       NetConnectedPinIterator *pin_iter = network->connectedPinIterator(net);
       while (pin_iter->hasNext()) {
 	const Pin *pin = pin_iter->next();
-	pins->insert(pin);
+	pins.insert(pin);
       }
       delete pin_iter;
     }
   }
+  return pins;
 }
 
 bool
