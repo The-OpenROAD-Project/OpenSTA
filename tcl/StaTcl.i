@@ -2495,21 +2495,23 @@ filter_ports(const char *property,
 	     const char *pattern,
 	     PortSeq *ports)
 {
-  Sta *sta = Sta::sta();
   PortSeq filtered_ports;
-  bool exact_match = stringEq(op, "==");
-  bool pattern_match = stringEq(op, "=~");
-  bool not_match = stringEq(op, "!=");
-  for (const Port *port : *ports) {
-    PropertyValue value(getProperty(port, property, sta));
-    const char *prop = value.stringValue();
-    if (prop &&
-	((exact_match && stringEq(prop, pattern))
-         || (not_match && !stringEq(prop, pattern))
-	 || (pattern_match && patternMatch(pattern, prop))))
-      filtered_ports.push_back(port);
+  if (ports) {
+    Sta *sta = Sta::sta();
+    bool exact_match = stringEq(op, "==");
+    bool pattern_match = stringEq(op, "=~");
+    bool not_match = stringEq(op, "!=");
+    for (const Port *port : *ports) {
+      PropertyValue value(getProperty(port, property, sta));
+      const char *prop = value.stringValue();
+      if (prop &&
+          ((exact_match && stringEq(prop, pattern))
+           || (not_match && !stringEq(prop, pattern))
+           || (pattern_match && patternMatch(pattern, prop))))
+        filtered_ports.push_back(port);
+    }
+    delete ports;
   }
-  delete ports;
   return filtered_ports;
 }
 
@@ -2519,22 +2521,24 @@ filter_insts(const char *property,
 	     const char *pattern,
 	     InstanceSeq *insts)
 {
-  Sta *sta = Sta::sta();
-  cmdLinkedNetwork();
-  bool exact_match = stringEq(op, "==");
-  bool pattern_match = stringEq(op, "=~");
-  bool not_match = stringEq(op, "!=");
   InstanceSeq filtered_insts;
-  for (const Instance *inst : *insts) {
-    PropertyValue value(getProperty(inst, property, sta));
-    const char *prop = value.stringValue();
-    if (prop &&
-	((exact_match && stringEq(prop, pattern))
-         || (not_match && !stringEq(prop, pattern))
-	 || (pattern_match && patternMatch(pattern, prop))))
-      filtered_insts.push_back(inst);
+  if (insts) {
+    Sta *sta = Sta::sta();
+    cmdLinkedNetwork();
+    bool exact_match = stringEq(op, "==");
+    bool pattern_match = stringEq(op, "=~");
+    bool not_match = stringEq(op, "!=");
+    for (const Instance *inst : *insts) {
+      PropertyValue value(getProperty(inst, property, sta));
+      const char *prop = value.stringValue();
+      if (prop &&
+          ((exact_match && stringEq(prop, pattern))
+           || (not_match && !stringEq(prop, pattern))
+           || (pattern_match && patternMatch(pattern, prop))))
+        filtered_insts.push_back(inst);
+    }
+    delete insts;
   }
-  delete insts;
   return filtered_insts;
 }
 
@@ -2544,21 +2548,23 @@ filter_pins(const char *property,
 	    const char *pattern,
 	    PinSeq *pins)
 {
-  Sta *sta = Sta::sta();
   PinSeq filtered_pins;
-  bool exact_match = stringEq(op, "==");
-  bool pattern_match = stringEq(op, "=~");
-  bool not_match = stringEq(op, "!=");
-  for (const Pin *pin : *pins) {
-    PropertyValue value(getProperty(pin, property, sta));
-    const char *prop = value.stringValue();
-    if (prop &&
-	((exact_match && stringEq(prop, pattern))
-         || (not_match && !stringEq(prop, pattern))
-	 || (pattern_match && patternMatch(pattern, prop))))
-      filtered_pins.push_back(pin);
+  if (pins) {
+    Sta *sta = Sta::sta();
+    bool exact_match = stringEq(op, "==");
+    bool pattern_match = stringEq(op, "=~");
+    bool not_match = stringEq(op, "!=");
+    for (const Pin *pin : *pins) {
+      PropertyValue value(getProperty(pin, property, sta));
+      const char *prop = value.stringValue();
+      if (prop &&
+          ((exact_match && stringEq(prop, pattern))
+           || (not_match && !stringEq(prop, pattern))
+           || (pattern_match && patternMatch(pattern, prop))))
+        filtered_pins.push_back(pin);
+    }
+    delete pins;
   }
-  delete pins;
   return filtered_pins;
 }
 
