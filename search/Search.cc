@@ -651,8 +651,7 @@ Search::seedFilterStarts()
 {
   ExceptionPt *first_pt = filter_->firstPt();
   if (first_pt) {
-    PinSet first_pins(network_);
-    first_pt->allPins(network_, &first_pins);
+    PinSet first_pins = first_pt->allPins(network_);
     for (const Pin *pin : first_pins) {
       if (network_->isHierarchical(pin)) {
         SeedFaninsThruHierPin visitor(graph_, this);
