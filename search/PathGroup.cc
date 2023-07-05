@@ -800,8 +800,7 @@ PathGroups::makeGroupPathEnds(ExceptionTo *to,
   else {
     // Only visit -to filter pins.
     VertexSet endpoints(graph_);
-    PinSet pins(network);
-    to->allPins(network, &pins);
+    PinSet pins = to->allPins(network);
     PinSet::Iterator pin_iter(pins);
     while (pin_iter.hasNext()) {
       const Pin *pin = pin_iter.next();

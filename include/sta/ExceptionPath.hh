@@ -322,8 +322,7 @@ public:
   virtual void mergeInto(ExceptionPt *pt,
                          const Network *network) = 0;
   // All pins and instance/net pins.
-  virtual void allPins(const Network *network,
-		       PinSet *pins) = 0;
+  virtual PinSet allPins(const Network *network) = 0;
   virtual int typePriority() const = 0;
   virtual const char *asString(const Network *network) const = 0;
   virtual size_t objectCount() const = 0;
@@ -378,8 +377,7 @@ public:
   bool hasObjects() const;
   void deleteObjects(ExceptionFromTo *pt,
                      const Network *network);
-  virtual void allPins(const Network *network,
-		       PinSet *pins);
+  virtual PinSet allPins(const Network *network);
   bool equal(ExceptionFromTo *from_to) const;
   virtual int compare(ExceptionPt *pt,
 		      const Network *network) const;
@@ -505,8 +503,7 @@ public:
   bool hasObjects() const;
   void deleteObjects(ExceptionThru *pt,
                      const Network *network);
-  virtual void allPins(const Network *network,
-		       PinSet *pins);
+  virtual PinSet allPins(const Network *network);
   bool matches(const Pin *from_pin,
 	       const Pin *to_pin,
 	       const RiseFall *to_rf,
