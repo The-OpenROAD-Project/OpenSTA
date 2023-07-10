@@ -95,7 +95,8 @@ Network::findPortsMatching(const Cell *cell,
           else {
             // bus[0]
             Port *port_bit = findBusBit(port, from);
-            matches.push_back(port_bit);
+	    if (port_bit != nullptr)
+	      matches.push_back(port_bit);
           }
         }
       }
