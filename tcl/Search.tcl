@@ -836,7 +836,7 @@ proc parse_rise_fall_arg { arg } {
   if { $arg eq "r" || $arg eq "^" || $arg eq "rise" } {
     return "rise"
   } elseif { $arg eq "f" || $arg eq "v" || $arg eq "fall" } {
-    retur "fall"
+    return "fall"
   } else {
     error "unknown rise/fall transition name."
   }
