@@ -48,8 +48,8 @@ netlist data structures without duplicating them.
 * Query based incremental update of delays, arrival and required times
 * Simulator to propagate constants from constraints and netlist tie high/low
 
-See doc/OpenSTA.pdf for command documentiaton.
-See doc/StaApi.txt for timing engine API documentiaton.
+See doc/OpenSTA.pdf for command documentation.
+See doc/StaApi.txt for timing engine API documentation.
 See doc/ChangeLog.txt for changes to commands.
 
 OpenSTA is dual licensed. It is released under GPL v3 as OpenSTA and
