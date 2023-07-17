@@ -497,25 +497,24 @@ PathEnum::makeDiversions(PathEnd *path_end,
 			 Path *before)
 {
   PathRef path(before);
+  PathRef prev_path;
   TimingArc *prev_arc;
+  path.prevPath(this, prev_path, prev_arc);
   PathEnumFaninVisitor fanin_visitor(path_end, path, unique_pins_, this);
-  do {
+  while (prev_arc
+         // Do not enumerate beyond latch D to Q edges.
+         // This breaks latch loop paths.
+         && prev_arc->role() != TimingRole::latchDtoQ()
+         // Do not enumerate paths in the clk network.
+         && !path.isClock(this)) {
     // Fanin visitor does all the work.
     // While visiting the fanins the fanin_visitor finds the
     // previous path and arc as well as diversions.
-    PathRef prev_path;
+    fanin_visitor.visitFaninPathsThru(path.vertex(this),
+                                      prev_path.vertex(this), prev_arc);
+    path.init(prev_path);
     path.prevPath(this, prev_path, prev_arc);
-    if (prev_arc) {
-      fanin_visitor.visitFaninPathsThru(path.vertex(this),
-					prev_path.vertex(this), prev_arc);
-      path.init(prev_path);
-    }
-  } while (prev_arc
-	   // Do not enumerate beyond latch D to Q edges.
-	   // This breaks latch loop paths.
-	   && prev_arc->role() != TimingRole::latchDtoQ()
-	   // Do not enumerate paths in the clk network.
-	   && !path.isClock(this));
+  }
 }
 
 void
