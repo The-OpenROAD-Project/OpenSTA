@@ -531,9 +531,12 @@ PathEnum::makeDivertedPath(Path *path,
   PathEnumedSeq copies;
   PathRef p(path);
   bool first = true;
-  bool is_latch_data = false;
   PathEnumed *prev_copy = nullptr;
-  while (!p.isNull()) {
+  VertexSet visited(graph_);
+  while (!p.isNull()
+         // Break latch loops.
+         && !visited.hasKey(p.vertex(this))) {
+    visited.insert(p.vertex(this));
     PathRef prev;
     TimingArc *prev_arc;
     p.prevPath(this, prev, prev_arc);
@@ -550,10 +553,6 @@ PathEnum::makeDivertedPath(Path *path,
       div_path = copy;
     if (Path::equal(&p, after_div, this))
       after_div_copy = copy;
-    // Include latch D input in the diverted path but do not enumerate
-    // beyond it.
-    if (is_latch_data)
-      break;
     if (Path::equal(&p, before_div, this)) {
       copy->setPrevArc(div_arc);
       // Update the delays forward from before_div to the end of the path.
@@ -565,9 +564,6 @@ PathEnum::makeDivertedPath(Path *path,
       p.init(prev);
     prev_copy = copy;
     first = false;
-    if (prev_arc
-	&& prev_arc->role() == TimingRole::latchDtoQ())
-      is_latch_data = true;
   }
   if (!found_div)
     criticalError(250, "diversion path not found");
