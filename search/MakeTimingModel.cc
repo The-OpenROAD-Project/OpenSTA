@@ -153,6 +153,7 @@ void
 MakeTimingModel::makeCell()
 {
   cell_ = lib_builder_->makeCell(library_, cell_name_, filename_);
+  cell_->setInterfaceTiming(true);
 }
 
 void
