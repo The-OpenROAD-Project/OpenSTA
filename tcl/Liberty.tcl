@@ -23,13 +23,16 @@ define_cmd_args "read_liberty" \
 
 proc_redirect read_liberty {
   parse_key_args "read_liberty" args keys {-corner} \
-    flags {-min -max -no_latch_infer}
+    flags {-min -max -no_latch_infer -infer_latches}
   check_argc_eq1 "read_liberty" $args
 
   set filename [file nativename [lindex $args 0]]
   set corner [parse_corner keys]
   set min_max [parse_min_max_all_flags flags]
-  set infer_latches [expr ![info exists flags(-no_latch_infer)]]
+  if { [info exists flags(-no_latch_infer)] } {
+    sta_warn 625 "-no_latch_infer is deprecated."
+  }
+  set infer_latches [info exists flags(-infer_latches)]
   read_liberty_cmd $filename $corner $min_max $infer_latches
 }
 
