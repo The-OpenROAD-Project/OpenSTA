@@ -17,6 +17,10 @@ pin activities for power analysis.
 
 The report_cell command has been removed; use report_instance.
 
+The read_liberty command latch inference (see OpenSTA.pdf) is now disabled by default.
+The -no_latch_infer flag is deprecated.
+To enable latch inference, use the -infer_latches flag.
+
 Release 2.3.3 2022/09/24
 -------------------------
 

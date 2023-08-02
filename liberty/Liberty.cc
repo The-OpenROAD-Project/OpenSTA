@@ -1301,8 +1301,7 @@ LibertyCell::finish(bool infer_latches,
   makeTimingArcPortMaps();
   findDefaultCondArcs();
   makeLatchEnables(report, debug);
-  if (infer_latches
-      && !interface_timing_)
+  if (infer_latches)
     inferLatchRoles(debug);
 }
 
