@@ -184,26 +184,6 @@ proc report_lib_cell_ { cell corner } {
   $iter finish
 }
 
-proc report_cell_ { cell } {
-  set lib [$cell library]
-  report_line "Cell [get_name $cell]"
-  report_line "Library [get_name $lib]"
-  set filename [liberty_cell_property $cell "filename"]
-  if { $filename != "" } {
-    report_line "File $filename"
-  }
-  set iter [$cell port_iterator]
-  while {[$iter has_next]} {
-    set port [$iter next]
-    if { [$port is_bus] } {
-      report_line " [$port bus_name] [port_direction $port]"
-    } else {
-      report_line " [get_name $port] [port_direction $port]"
-    }
-  }
-  $iter finish
-}
-
 ################################################################
 
 define_cmd_args "report_net" \
