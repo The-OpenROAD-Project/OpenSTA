@@ -1904,15 +1904,10 @@ LibertyReader::endCell(LibertyGroup *group)
 void
 LibertyReader::finishPortGroups()
 {
-  PortGroupSeq::Iterator group_iter(cell_port_groups_);
-  while (group_iter.hasNext()) {
-    PortGroup *port_group = group_iter.next();
+  for (PortGroup *port_group : cell_port_groups_) {
     int line = port_group->line();
-    LibertyPortSeq::Iterator port_iter(port_group->ports());
-    while (port_iter.hasNext()) {
-      LibertyPort *port = port_iter.next();
+    for (LibertyPort *port : *port_group->ports())
       checkPort(port, line);
-    }
     makeTimingArcs(port_group);
     makeInternalPowers(port_group);
     delete port_group;
@@ -1939,30 +1934,20 @@ LibertyReader::checkPort(LibertyPort *port,
 void
 LibertyReader::makeTimingArcs(PortGroup *port_group)
 {
-  TimingGroupSeq::Iterator timing_iter(port_group->timingGroups());
-  while (timing_iter.hasNext()) {
-    TimingGroup *timing = timing_iter.next();
+  for (TimingGroup *timing : port_group->timingGroups()) {
     timing->makeTimingModels(library_, this);
 
-    LibertyPortSeq::Iterator port_iter(port_group->ports());
-    while (port_iter.hasNext()) {
-      LibertyPort *port = port_iter.next();
+    for (LibertyPort *port : *port_group->ports())
       makeTimingArcs(port, timing);
-    }
   }
 }
 
 void
 LibertyReader::makeInternalPowers(PortGroup *port_group)
 {
-  InternalPowerGroupSeq::Iterator power_iter(port_group->internalPowerGroups());
-  while (power_iter.hasNext()) {
-    InternalPowerGroup *power_group = power_iter.next();
-    LibertyPortSeq::Iterator port_iter(port_group->ports());
-    while (port_iter.hasNext()) {
-      LibertyPort *port = port_iter.next();
+  for (InternalPowerGroup *power_group : port_group->internalPowerGroups()) {
+    for (LibertyPort *port : *port_group->ports())
       makeInternalPowers(port, power_group);
-    }
     cell_->addInternalPowerAttrs(power_group);
   }
 }
@@ -1970,9 +1955,7 @@ LibertyReader::makeInternalPowers(PortGroup *port_group)
 void
 LibertyReader::makeCellSequentials()
 {
-  SequentialGroupSeq::Iterator seq_iter(cell_sequentials_);
-  while (seq_iter.hasNext()) {
-    SequentialGroup *seq = seq_iter.next();
+  for (SequentialGroup *seq : cell_sequentials_) {
     makeCellSequential(seq);
     delete seq;
   }
@@ -2077,9 +2060,7 @@ LibertyReader::checkLatchEnableSense(FuncExpr *enable_func,
 void
 LibertyReader::makeLeakagePowers()
 {
-  LeakagePowerGroupSeq::Iterator power_iter(leakage_powers_);
-  while (power_iter.hasNext()) {
-    LeakagePowerGroup *power_group = power_iter.next();
+  for (LeakagePowerGroup *power_group : leakage_powers_) {
     builder_->makeLeakagePower(cell_, power_group);
     delete power_group;
   }
@@ -2103,9 +2084,7 @@ LibertyReader::makeLibertyFunc(const char *expr,
 void
 LibertyReader::parseCellFuncs()
 {
-  LibertyFuncSeq::Iterator func_iter(cell_funcs_);
-  while (func_iter.hasNext()) {
-    LibertyFunc *func = func_iter.next();
+  for (LibertyFunc *func : cell_funcs_) {
     FuncExpr *expr = parseFunc(func->expr(), func->attrName(), func->line());
     if (func->invert() && expr) {
       if (expr->op() == FuncExpr::op_not) {
@@ -2205,15 +2184,15 @@ LibertyReader::makeTimingArcs(LibertyPort *to_port,
   if (type == TimingType::combinational &&
       to_port_dir->isInput())
     libWarn(94, line, "combinational timing to an input port.");
-  StringSeq::Iterator related_port_iter(timing->relatedPortNames());
-  while (related_port_iter.hasNext()) {
-    const char *from_port_name = related_port_iter.next();
-    PortNameBitIterator from_port_iter(cell_, from_port_name, this, line);
-    if (from_port_iter.hasNext()) {
-      debugPrint(debug_, "liberty", 2, "  timing %s -> %s",
-                 from_port_name, to_port->name());
-      makeTimingArcs(from_port_name, from_port_iter, to_port,
-		     related_out_port, timing);
+  if (timing->relatedPortNames()) {
+    for (const char *from_port_name : *timing->relatedPortNames()) {
+      PortNameBitIterator from_port_iter(cell_, from_port_name, this, line);
+      if (from_port_iter.hasNext()) {
+        debugPrint(debug_, "liberty", 2, "  timing %s -> %s",
+                   from_port_name, to_port->name());
+        makeTimingArcs(from_port_name, from_port_iter, to_port,
+                       related_out_port, timing);
+      }
     }
   }
 }
@@ -2662,9 +2641,7 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
   int line = power_group->line();
   StringSeq *related_port_names = power_group->relatedPortNames();
   if (related_port_names) {
-    StringSeq::Iterator related_port_iter(related_port_names);
-    while (related_port_iter.hasNext()) {
-      const char *related_port_name = related_port_iter.next();
+    for (const char *related_port_name : *related_port_names) {
       PortNameBitIterator related_port_iter(cell_, related_port_name, this, line);
       if (related_port_iter.hasNext()) {
 	debugPrint(debug_, "liberty", 2, "  power %s -> %s",
@@ -2925,9 +2902,7 @@ LibertyReader::beginPin(LibertyGroup *group)
       saved_ports_ = ports_;
       saved_port_group_ = port_group_;
       ports_ = new LibertyPortSeq;
-      LibertyAttrValueIterator param_iter(group->params());
-      while (param_iter.hasNext()) {
-	LibertyAttrValue *param = param_iter.next();
+      for (LibertyAttrValue *param : *group->params()) {
 	if (param->isString()) {
 	  const char *port_name = param->stringValue();
 	  debugPrint(debug_, "liberty", 1, " port %s", port_name);
@@ -2945,9 +2920,7 @@ LibertyReader::beginPin(LibertyGroup *group)
       saved_ports_ = ports_;
       saved_port_group_ = port_group_;
       ports_ = new LibertyPortSeq;
-      LibertyAttrValueIterator param_iter(group->params());
-      while (param_iter.hasNext()) {
-	LibertyAttrValue *param = param_iter.next();
+      for (LibertyAttrValue *param : *group->params()) {
 	if (param->isString()) {
 	  const char *name = param->stringValue();
 	  debugPrint(debug_, "liberty", 1, " port %s", name);
@@ -2963,9 +2936,7 @@ LibertyReader::beginPin(LibertyGroup *group)
     else {
       ports_ = new LibertyPortSeq;
       // Multiple port names can share group def.
-      LibertyAttrValueIterator param_iter(group->params());
-      while (param_iter.hasNext()) {
-	LibertyAttrValue *param = param_iter.next();
+      for (LibertyAttrValue *param : *group->params()) {
 	if (param->isString()) {
 	  const char *name = param->stringValue();
 	  debugPrint(debug_, "liberty", 1, " port %s", name);
@@ -3004,9 +2975,7 @@ LibertyReader::endPorts()
 {
   // Capacitances default based on direction so wait until the end
   // of the pin group to set them.
-  LibertyPortSeq::Iterator port_iter(ports_);
-  while (port_iter.hasNext()) {
-    LibertyPort *port = port_iter.next();
+  for (LibertyPort *port : *ports_) {
     if (in_bus_ || in_bundle_) {
       // Do not clobber member port capacitances by setting the capacitance
       // on a bus or bundle.
@@ -3061,9 +3030,7 @@ void
 LibertyReader::beginBusOrBundle(LibertyGroup *group)
 {
   // Multiple port names can share group def.
-  LibertyAttrValueIterator param_iter(group->params());
-  while (param_iter.hasNext()) {
-    LibertyAttrValue *param = param_iter.next();
+  for (LibertyAttrValue *param : *group->params()) {
     if (param->isString()) {
       const char *name = param->stringValue();
       if (name)
@@ -3097,9 +3064,7 @@ LibertyReader::visitBusType(LibertyAttr *attr)
       if (bus_dcl == nullptr)
 	bus_dcl = library_->findBusDcl(bus_type);
       if (bus_dcl) {
-	StringSeq::Iterator name_iter(bus_names_);
-	while (name_iter.hasNext()) {
-	  const char *name = name_iter.next();
+        for (const char *name : bus_names_) {
 	  debugPrint(debug_, "liberty", 1, " bus %s", name);
 	  LibertyPort *port = builder_->makeBusPort(cell_, name, bus_dcl->from(),
                                                     bus_dcl->to(), bus_dcl);
@@ -3139,14 +3104,10 @@ LibertyReader::visitMembers(LibertyAttr *attr)
 {
   if (cell_) {
     if (attr->isComplex()) {
-      StringSeq::Iterator name_iter(bus_names_);
-      while (name_iter.hasNext()) {
-	const char *name = name_iter.next();
+      for (const char *name : bus_names_) {
 	debugPrint(debug_, "liberty", 1, " bundle %s", name);
 	ConcretePortSeq *members = new ConcretePortSeq;
-	LibertyAttrValueIterator value_iter(attr->values());
-	while (value_iter.hasNext()) {
-	  LibertyAttrValue *value = value_iter.next();
+        for (LibertyAttrValue *value : *attr->values()) {
 	  if (value->isString()) {
 	    const char *port_name = value->stringValue();
 	    LibertyPort *port = findPort(port_name);
@@ -3231,11 +3192,8 @@ LibertyReader::visitFunction(LibertyAttr *attr)
   if (ports_) {
     const char *func = getAttrString(attr);
     if (func) {
-      LibertyPortSeq::Iterator port_iter(ports_);
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
-	makeLibertyFunc(func, port->functionRef(), false, "function", attr);
-      }
+      for (LibertyPort *port : *ports_)
+        makeLibertyFunc(func, port->functionRef(), false, "function", attr);
     }
   }
 }
@@ -3246,12 +3204,9 @@ LibertyReader::visitThreeState(LibertyAttr *attr)
   if (ports_) {
     const char *three_state = getAttrString(attr);
     if (three_state) {
-      LibertyPortSeq::Iterator port_iter(ports_);
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
+      for (LibertyPort *port : *ports_)
 	makeLibertyFunc(three_state, port->tristateEnableRef(), true,
 			"three_state", attr);
-      }
     }
   }
 }
@@ -3259,9 +3214,7 @@ LibertyReader::visitThreeState(LibertyAttr *attr)
 void
 LibertyReader::visitPorts(std::function<void (LibertyPort *port)> func)
 {
-  LibertyPortSeq::Iterator port_iter(ports_);
-  while (port_iter.hasNext()) {
-    LibertyPort *port = port_iter.next();
+  for (LibertyPort *port : *ports_) {
     func(port);
     LibertyPortMemberIterator member_iter(port);
     while (member_iter.hasNext()) {
@@ -3278,11 +3231,8 @@ LibertyReader::visitClock(LibertyAttr *attr)
     bool is_clk, exists;
     getAttrBool(attr, is_clk, exists);
     if (exists) {
-      LibertyPortSeq::Iterator port_iter(ports_);
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
+      for (LibertyPort *port : *ports_)
 	port->setIsClock(is_clk);
-      }
     }
   }
 }
@@ -3296,11 +3246,8 @@ LibertyReader::visitCapacitance(LibertyAttr *attr)
     getAttrFloat(attr, cap, exists);
     if (exists) {
       cap *= cap_scale_;
-      LibertyPortSeq::Iterator port_iter(ports_);
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
+      for (LibertyPort *port : *ports_)
 	port->setCapacitance(cap);
-      }
     }
   }
   if (wireload_) {
@@ -3321,9 +3268,7 @@ LibertyReader::visitRiseCap(LibertyAttr *attr)
     getAttrFloat(attr, cap, exists);
     if (exists) {
       cap *= cap_scale_;
-      LibertyPortSeq::Iterator port_iter(ports_);
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
+      for (LibertyPort *port : *ports_) {
 	port->setCapacitance(RiseFall::rise(), MinMax::min(), cap);
 	port->setCapacitance(RiseFall::rise(), MinMax::max(), cap);
       }
@@ -3340,9 +3285,7 @@ LibertyReader::visitFallCap(LibertyAttr *attr)
     getAttrFloat(attr, cap, exists);
     if (exists) {
       cap *= cap_scale_;
-      LibertyPortSeq::Iterator port_iter(ports_);
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
+      for (LibertyPort *port : *ports_) {
 	port->setCapacitance(RiseFall::fall(), MinMax::min(), cap);
 	port->setCapacitance(RiseFall::fall(), MinMax::max(), cap);
       }
@@ -3360,9 +3303,7 @@ LibertyReader::visitRiseCapRange(LibertyAttr *attr)
     if (exists) {
       min *= cap_scale_;
       max *= cap_scale_;
-      LibertyPortSeq::Iterator port_iter(ports_);
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
+      for (LibertyPort *port : *ports_) {
 	port->setCapacitance(RiseFall::rise(), MinMax::min(), min);
 	port->setCapacitance(RiseFall::rise(), MinMax::max(), max);
       }
@@ -3380,9 +3321,7 @@ LibertyReader::visitFallCapRange(LibertyAttr *attr)
     if (exists) {
       min *= cap_scale_;
       max *= cap_scale_;
-      LibertyPortSeq::Iterator port_iter(ports_);
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
+      for (LibertyPort *port : *ports_) {
 	port->setCapacitance(RiseFall::fall(), MinMax::min(), min);
 	port->setCapacitance(RiseFall::fall(), MinMax::max(), max);
       }
@@ -3516,11 +3455,8 @@ LibertyReader::visitMinPeriod(LibertyAttr *attr)
     bool exists;
     getAttrFloat(attr, value, exists);
     if (exists) {
-      LibertyPortSeq::Iterator port_iter(ports_);
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
+      for (LibertyPort *port : *ports_)
 	port->setMinPeriod(value * time_scale_);
-      }
     }
   }
 }
@@ -3547,11 +3483,8 @@ LibertyReader::visitMinPulseWidth(LibertyAttr *attr,
     getAttrFloat(attr, value, exists);
     if (exists) {
       value *= time_scale_;
-      LibertyPortSeq::Iterator port_iter(ports_);
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
+      for (LibertyPort *port : *ports_)
 	port->setMinPulseWidth(rf, value);
-      }
     }
   }
 }
@@ -3583,11 +3516,8 @@ LibertyReader::visitPulseClock(LibertyAttr *attr)
       else
 	libWarn(110,attr, "pulse_latch unknown pulse type.");
       if (trigger) {
-	LibertyPortSeq::Iterator port_iter(ports_);
-	while (port_iter.hasNext()) {
-	  LibertyPort *port = port_iter.next();
+        for (LibertyPort *port : *ports_)
 	  port->setPulseClk(trigger, sense);
-	}
       }
     }
   }
@@ -3667,11 +3597,8 @@ LibertyReader::visitPortBoolAttr(LibertyAttr *attr,
     bool value, exists;
     getAttrBool(attr, value, exists);
     if (exists) {
-      LibertyPortSeq::Iterator port_iter(ports_);
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
+      for (LibertyPort *port : *ports_)
 	(port->*setter)(value);
-      }
     }
   }
 }
@@ -3772,9 +3699,7 @@ LibertyReader::seqPortNames(LibertyGroup *group,
   out_inv_name = nullptr;
   size = 1;
   has_size = false;
-  LibertyAttrValueIterator param_iter(group->params());
-  while (param_iter.hasNext()) {
-    LibertyAttrValue *value = param_iter.next();
+  for (LibertyAttrValue *value : *group->params()) {
     if (i == 0)
       out_name = value->stringValue();
     else if (i == 1)
@@ -4343,9 +4268,7 @@ LibertyReader::makeFloatTable(LibertyAttr *attr,
 {
   FloatTable *table = new FloatTable;
   table->reserve(rows);
-  LibertyAttrValueIterator value_iter(attr->values());
-  while (value_iter.hasNext()) {
-    LibertyAttrValue *value = value_iter.next();
+  for (LibertyAttrValue *value : *attr->values()) {
     FloatSeq *row = new FloatSeq;
     row->reserve(cols);
     table->push_back(row);
@@ -4406,9 +4329,7 @@ void
 LibertyReader::beginLut(LibertyGroup *group)
 {
   if (cell_) {
-    LibertyAttrValueIterator param_iter(group->params());
-    while (param_iter.hasNext()) {
-      LibertyAttrValue *param = param_iter.next();
+    for (LibertyAttrValue *param : *group->params()) {
       if (param->isString()) {
 	const char *names = param->stringValue();
 	// Parse space separated list of related port names.
@@ -4948,11 +4869,8 @@ LibertyReader::visitRelatedGroundPin(LibertyAttr *attr)
 {
   if (ports_) {
     const char *related_ground_pin = getAttrString(attr);
-    LibertyPortSeq::Iterator port_iter(ports_);
-    while (port_iter.hasNext()) {
-      LibertyPort *port = port_iter.next();
+    for (LibertyPort *port : *ports_)
       port->setRelatedGroundPin(related_ground_pin);
-    }
   }
 }
 
@@ -4961,11 +4879,8 @@ LibertyReader::visitRelatedPowerPin(LibertyAttr *attr)
 {
   if (ports_) {
     const char *related_power_pin = getAttrString(attr);
-    LibertyPortSeq::Iterator port_iter(ports_);
-    while (port_iter.hasNext()) {
-      LibertyPort *port = port_iter.next();
+    for (LibertyPort *port : *ports_)
       port->setRelatedPowerPin(related_power_pin);
-    }
   }
 }
 

@@ -674,9 +674,9 @@ public:
 	    int line);
   ~PortGroup();
   LibertyPortSeq *ports() const { return ports_; }
-  TimingGroupSeq *timingGroups() { return &timings_; }
+  TimingGroupSeq &timingGroups() { return timings_; }
   void addTimingGroup(TimingGroup *timing);
-  InternalPowerGroupSeq *internalPowerGroups() { return &internal_power_groups_; }
+  InternalPowerGroupSeq &internalPowerGroups() { return internal_power_groups_; }
   void addInternalPowerGroup(InternalPowerGroup *internal_power);
   ReceiverModel *receiverModel() const { return receiver_model_; }
   void setReceiverModel(ReceiverModelPtr receiver_model);
