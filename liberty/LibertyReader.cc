@@ -770,7 +770,7 @@ LibertyReader::parseUnits(LibertyAttr *attr,
     // Unit format is <multipler_digits><scale_suffix_char><unit_suffix>.
     // Find the multiplier digits.
     string units = getAttrString(attr);
-    size_t mult_end = units.find_first_not_of("01234567890");
+    size_t mult_end = units.find_first_not_of("0123456789");
     float mult = 1.0F;
     string scale_suffix;
     if (mult_end != units.npos) {
@@ -789,26 +789,30 @@ LibertyReader::parseUnits(LibertyAttr *attr,
       scale_suffix = units;
 
     float scale_mult = 1.0F;
-    if (scale_suffix.size() >= 2 && scale_suffix.substr(1) == unit_suffix) {
-      char scale_char = tolower(scale_suffix[0]);
-      if (scale_char == 'k')
-        scale_mult = 1E+3F;
-      else if (scale_char == 'm')
-        scale_mult = 1E-3F;
-      else if (scale_char == 'u')
-        scale_mult = 1E-6F;
-      else if (scale_char == 'n')
-        scale_mult = 1E-9F;
-      else if (scale_char == 'p')
-        scale_mult = 1E-12F;
-      else if (scale_char == 'f')
-        scale_mult = 1E-15F;
+    if (scale_suffix.size() >= 2) {
+      string suffix = scale_suffix.substr(1);
+      if (stringEqual(suffix.c_str(), unit_suffix)) {
+        char scale_char = tolower(scale_suffix[0]);
+        if (scale_char == 'k')
+          scale_mult = 1E+3F;
+        else if (scale_char == 'm')
+          scale_mult = 1E-3F;
+        else if (scale_char == 'u')
+          scale_mult = 1E-6F;
+        else if (scale_char == 'n')
+          scale_mult = 1E-9F;
+        else if (scale_char == 'p')
+          scale_mult = 1E-12F;
+        else if (scale_char == 'f')
+          scale_mult = 1E-15F;
+        else
+          libWarn(39, attr, "unknown unit scale %c.", scale_char);
+      }
       else
-        libWarn(39, attr, "unknown unit scale %c.", scale_char);
+        libWarn(40, attr, "unknown unit suffix %s.", suffix.c_str());
     }
     else if (!stringEqual(scale_suffix.c_str(), unit_suffix))
-      libWarn(40, attr, "unknown unit suffix %s.", scale_suffix.c_str());
-
+      libWarn(171, attr, "unknown unit suffix %s.", scale_suffix.c_str());
     scale_var = scale_mult * mult;
     unit->setScale(scale_var);
   }
