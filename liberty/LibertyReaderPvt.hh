@@ -63,7 +63,7 @@ typedef Vector<OutputWaveform*> OutputWaveformSeq;
 class LibertyReader : public LibertyGroupVisitor
 {
 public:
-  explicit LibertyReader(LibertyBuilder *builder);
+  explicit LibertyReader();
   virtual ~LibertyReader();
   virtual LibertyLibrary *readLibertyFile(const char *filename,
 					  bool infer_latches,
@@ -557,7 +557,7 @@ protected:
   Report *report_;
   Debug *debug_;
   Network *network_;
-  LibertyBuilder *builder_;
+  LibertyBuilder builder_;
   LibertyVariableMap *var_map_;
   LibertyLibrary *library_;
   LibraryGroupMap group_begin_map_;

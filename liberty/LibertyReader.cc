@@ -55,14 +55,12 @@ readLibertyFile(const char *filename,
 		bool infer_latches,
 		Network *network)
 {
-  LibertyBuilder builder;
-  LibertyReader reader(&builder);
+  LibertyReader reader;
   return reader.readLibertyFile(filename, infer_latches, network);
 }
 
-LibertyReader::LibertyReader(LibertyBuilder *builder) :
-  LibertyGroupVisitor(),
-  builder_(builder)
+LibertyReader::LibertyReader() :
+  LibertyGroupVisitor()
 {
   defineVisitors();
 }
@@ -136,6 +134,8 @@ LibertyReader::readLibertyFile(const char *filename,
   pg_port_ = nullptr;
   default_operating_condition_ = nullptr;
   receiver_model_ = nullptr;
+
+  builder_.init(debug_, report_);
 
   for (auto rf_index : RiseFall::rangeIndex()) {
     have_input_threshold_[rf_index] = false;
@@ -1863,7 +1863,7 @@ LibertyReader::beginCell(LibertyGroup *group)
   const char *name = group->firstName();
   if (name) {
     debugPrint(debug_, "liberty", 1, "cell %s", name);
-    cell_ = builder_->makeCell(library_, name, filename_);
+    cell_ = builder_.makeCell(library_, name, filename_);
     in_bus_ = false;
     in_bundle_ = false;
   }
@@ -2061,7 +2061,7 @@ void
 LibertyReader::makeLeakagePowers()
 {
   for (LeakagePowerGroup *power_group : leakage_powers_) {
-    builder_->makeLeakagePower(cell_, power_group);
+    builder_.makeLeakagePower(cell_, power_group);
     delete power_group;
   }
   leakage_powers_.clear();
@@ -2297,8 +2297,8 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
       LibertyPort *from_port = from_port_iter.next();
       if (from_port->direction()->isOutput())
         libWarn(164, timing->line(), "timing group from output port.");
-      builder_->makeTimingArcs(cell_, from_port, to_port,
-			       related_out_port, timing->attrs());
+      builder_.makeTimingArcs(cell_, from_port, to_port, related_out_port,
+                              timing->attrs(), timing->line());
     }
   }
   else if (from_port_iter.size() > 1 && !to_port->hasMembers()) {
@@ -2307,8 +2307,8 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
       LibertyPort *from_port = from_port_iter.next();
       if (from_port->direction()->isOutput())
         libWarn(165, timing->line(), "timing group from output port.");
-      builder_->makeTimingArcs(cell_, from_port, to_port,
-			       related_out_port, timing->attrs());
+      builder_.makeTimingArcs(cell_, from_port, to_port, related_out_port,
+                              timing->attrs(), timing->line());
     }
   }
   else if (from_port_iter.size() == 1 && to_port->hasMembers()) {
@@ -2320,8 +2320,8 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
       LibertyPortMemberIterator bit_iter(to_port);
       while (bit_iter.hasNext()) {
 	LibertyPort *to_port_bit = bit_iter.next();
-	builder_->makeTimingArcs(cell_, from_port, to_port_bit,
-				 related_out_port, timing->attrs());
+	builder_.makeTimingArcs(cell_, from_port, to_port_bit, related_out_port,
+                                timing->attrs(), timing->line());
       }
     }
   }
@@ -2335,8 +2335,9 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
 	  LibertyPort *to_port_bit = to_iter.next();
           if (from_port_bit->direction()->isOutput())
             libWarn(167, timing->line(), "timing group from output port.");
-	  builder_->makeTimingArcs(cell_, from_port_bit, to_port_bit,
-				   related_out_port, timing->attrs());
+	  builder_.makeTimingArcs(cell_, from_port_bit, to_port_bit,
+                                  related_out_port, timing->attrs(),
+                                  timing->line());
 	}
       }
       else
@@ -2353,8 +2354,9 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
 	LibertyPortMemberIterator to_iter(to_port);
 	while (to_iter.hasNext()) {
 	  LibertyPort *to_port_bit = to_iter.next();
-	  builder_->makeTimingArcs(cell_, from_port_bit, to_port_bit,
-				   related_out_port, timing->attrs());
+	  builder_.makeTimingArcs(cell_, from_port_bit, to_port_bit,
+                                  related_out_port, timing->attrs(),
+                                  timing->line());
 	}
       }
     }
@@ -2655,11 +2657,11 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
       LibertyPortMemberIterator bit_iter(port);
       while (bit_iter.hasNext()) {
 	LibertyPort *port_bit = bit_iter.next();
-	builder_->makeInternalPower(cell_, port_bit, nullptr, power_group);
+	builder_.makeInternalPower(cell_, port_bit, nullptr, power_group);
       }
     }
     else
-      builder_->makeInternalPower(cell_, port, nullptr, power_group);
+      builder_.makeInternalPower(cell_, port, nullptr, power_group);
   }
 }
 
@@ -2673,14 +2675,14 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
     // one -> one
     if (related_port_iter.hasNext()) {
       LibertyPort *related_port = related_port_iter.next();
-      builder_->makeInternalPower(cell_, port, related_port, power_group);
+      builder_.makeInternalPower(cell_, port, related_port, power_group);
     }
   }
   else if (related_port_iter.size() > 1 && !port->hasMembers()) {
     // bus -> one
     while (related_port_iter.hasNext()) {
       LibertyPort *related_port = related_port_iter.next();
-      builder_->makeInternalPower(cell_, port, related_port, power_group);
+      builder_.makeInternalPower(cell_, port, related_port, power_group);
     }
   }
   else if (related_port_iter.size() == 1 && port->hasMembers()) {
@@ -2690,7 +2692,7 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
       LibertyPortMemberIterator bit_iter(port);
       while (bit_iter.hasNext()) {
 	LibertyPort *port_bit = bit_iter.next();
-	builder_->makeInternalPower(cell_, port_bit, related_port, power_group);
+	builder_.makeInternalPower(cell_, port_bit, related_port, power_group);
       }
     }
   }
@@ -2702,7 +2704,7 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
 	while (related_port_iter.hasNext() && to_iter.hasNext()) {
 	  LibertyPort *related_port_bit = related_port_iter.next();
 	  LibertyPort *port_bit = to_iter.next();
-	  builder_->makeInternalPower(cell_, port_bit, related_port_bit, power_group);
+	  builder_.makeInternalPower(cell_, port_bit, related_port_bit, power_group);
 	}
       }
       else
@@ -2717,7 +2719,7 @@ LibertyReader::makeInternalPowers(LibertyPort *port,
 	LibertyPortMemberIterator to_iter(port);
 	while (to_iter.hasNext()) {
 	  LibertyPort *port_bit = to_iter.next();
-	  builder_->makeInternalPower(cell_, port_bit, related_port_bit, power_group);
+	  builder_.makeInternalPower(cell_, port_bit, related_port_bit, power_group);
 	}
       }
     }
@@ -2926,7 +2928,7 @@ LibertyReader::beginPin(LibertyGroup *group)
 	  debugPrint(debug_, "liberty", 1, " port %s", name);
 	  LibertyPort *port = findPort(name);
 	  if (port == nullptr)
-	    port = builder_->makePort(cell_, name);
+	    port = builder_.makePort(cell_, name);
 	  ports_->push_back(port);
 	}
 	else
@@ -2940,7 +2942,7 @@ LibertyReader::beginPin(LibertyGroup *group)
 	if (param->isString()) {
 	  const char *name = param->stringValue();
 	  debugPrint(debug_, "liberty", 1, " port %s", name);
-	  LibertyPort *port = builder_->makePort(cell_, name);
+	  LibertyPort *port = builder_.makePort(cell_, name);
 	  ports_->push_back(port);
 	}
 	else
@@ -3066,7 +3068,7 @@ LibertyReader::visitBusType(LibertyAttr *attr)
       if (bus_dcl) {
         for (const char *name : bus_names_) {
 	  debugPrint(debug_, "liberty", 1, " bus %s", name);
-	  LibertyPort *port = builder_->makeBusPort(cell_, name, bus_dcl->from(),
+	  LibertyPort *port = builder_.makeBusPort(cell_, name, bus_dcl->from(),
                                                     bus_dcl->to(), bus_dcl);
 	  ports_->push_back(port);
 	}
@@ -3112,13 +3114,13 @@ LibertyReader::visitMembers(LibertyAttr *attr)
 	    const char *port_name = value->stringValue();
 	    LibertyPort *port = findPort(port_name);
 	    if (port == nullptr)
-	      port = builder_->makePort(cell_, port_name);
+	      port = builder_.makePort(cell_, port_name);
 	    members->push_back(port);
 	  }
 	  else
 	    libWarn(107, attr, "member is not a string.");
 	}
-	LibertyPort *port = builder_->makeBundlePort(cell_, name, members);
+	LibertyPort *port = builder_.makeBundlePort(cell_, name, members);
 	ports_->push_back(port);
       }
     }
@@ -3668,16 +3670,16 @@ LibertyReader::beginSequential(LibertyGroup *group,
     LibertyPort *out_port_inv = nullptr;
     if (out_name) {
       if (has_size)
-	out_port = builder_->makeBusPort(cell_, out_name, size - 1, 0, nullptr);
+	out_port = builder_.makeBusPort(cell_, out_name, size - 1, 0, nullptr);
       else
-	out_port = builder_->makePort(cell_,out_name);
+	out_port = builder_.makePort(cell_,out_name);
       out_port->setDirection(PortDirection::internal());
     }
     if (out_inv_name) {
       if (has_size)
-	out_port_inv = builder_->makeBusPort(cell_, out_inv_name, size - 1, 0, nullptr);
+	out_port_inv = builder_.makeBusPort(cell_, out_inv_name, size - 1, 0, nullptr);
       else
-	out_port_inv = builder_->makePort(cell_, out_inv_name);
+	out_port_inv = builder_.makePort(cell_, out_inv_name);
       out_port_inv->setDirection(PortDirection::internal());
     }
     sequential_ = new SequentialGroup(is_register, is_bank,
@@ -4337,7 +4339,7 @@ LibertyReader::beginLut(LibertyGroup *group)
 	while (parser.hasNext()) {
 	  char *name = parser.next();
 	  if (name[0] != '\0') {
-	    LibertyPort *port = builder_->makePort(cell_, name);
+	    LibertyPort *port = builder_.makePort(cell_, name);
 	    port->setDirection(PortDirection::internal());
 	  }
 	}

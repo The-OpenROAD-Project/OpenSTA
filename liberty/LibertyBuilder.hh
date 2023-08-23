@@ -26,12 +26,16 @@ namespace sta {
 class TimingArcAttrs;
 class InternalPowerAttrs;
 class LeakagePowerAttrs;
+class Debug;
+class Report;
 
 class LibertyBuilder
 {
 public:
   LibertyBuilder() {}
   virtual ~LibertyBuilder() {}
+  void init(Debug *debug,
+            Report *report);
   virtual LibertyCell *makeCell(LibertyLibrary *library,
 				const char *name,
 				const char *filename);
@@ -52,7 +56,8 @@ public:
 			       LibertyPort *from_port,
 			       LibertyPort *to_port,
 			       LibertyPort *related_out,
-			       TimingArcAttrsPtr attrs);
+			       TimingArcAttrsPtr attrs,
+                               int line);
   InternalPower *makeInternalPower(LibertyCell *cell,
 				   LibertyPort *port,
 				   LibertyPort *related_port,
@@ -112,6 +117,7 @@ protected:
   TimingArcSet *makeLatchDtoQArcs(LibertyCell *cell,
 				  LibertyPort *from_port,
 				  LibertyPort *to_port,
+                                  TimingSense sense,
 				  LibertyPort *related_out,
 				  TimingArcAttrsPtr attrs);
   TimingArcSet *makeRegLatchArcs(LibertyCell *cell,
@@ -140,6 +146,9 @@ protected:
 					bool to_rise,
 					bool to_fall,
 					TimingArcAttrsPtr attrs);
+
+  Debug *debug_;
+  Report *report_;
 };
 
 } // namespace

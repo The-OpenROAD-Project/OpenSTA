@@ -27,6 +27,14 @@
 
 namespace sta {
 
+void
+LibertyBuilder::init(Debug *debug,
+                     Report *report)
+{
+  debug_ = debug;
+  report_ = report;
+}
+
 LibertyCell *
 LibertyBuilder::makeCell(LibertyLibrary *library,
 			 const char *name,
@@ -127,17 +135,55 @@ LibertyBuilder::makeTimingArcs(LibertyCell *cell,
 			       LibertyPort *from_port,
 			       LibertyPort *to_port,
 			       LibertyPort *related_out,
-			       TimingArcAttrsPtr attrs)
+			       TimingArcAttrsPtr attrs,
+                               int /* line */)
 {
-  FuncExpr *to_func;
-  Sequential *seq = nullptr;
-  switch (attrs->timingType()) {
+  FuncExpr *to_func = to_port->function();
+  Sequential *seq = (to_func && to_func->port())
+    ? cell->outputPortSequential(to_func->port())
+    : nullptr;
+  TimingType timing_type = attrs->timingType();
+  // Register/latch timing group missing timing_type.
+  if (attrs->timingType() == TimingType::combinational
+      && seq) {
+    if (seq->clock() && seq->clock()->hasPort(from_port)) {
+      switch (seq->clock()->portTimingSense(from_port)) {
+      case TimingSense::positive_unate:
+        timing_type = TimingType::rising_edge;
+        break;
+      case TimingSense::negative_unate:
+        timing_type = TimingType::rising_edge;
+        break;
+      default:
+        break;
+      }
+    }
+    else if (seq->clear() && seq->clear()->hasPort(from_port)) {
+      timing_type = TimingType::clear;
+      if (attrs->timingSense() == TimingSense::unknown) {
+        // Missing timing_sense also.
+        TimingSense timing_sense = seq->clear()->portTimingSense(from_port);
+        attrs->setTimingSense(timing_sense);
+      }
+    }
+    else if (seq->preset() && seq->preset()->hasPort(from_port)) {
+      timing_type = TimingType::preset;
+      if (attrs->timingSense() == TimingSense::unknown) {
+        // Missing timing_sense also.
+        TimingSense timing_sense = seq->preset()->portTimingSense(from_port);
+        attrs->setTimingSense(timing_sense);
+      }
+    }
+  }
+  switch (timing_type) {
   case TimingType::combinational:
-    to_func = to_port->function();
-    if (to_func && to_func->op() == FuncExpr::op_port)
-      seq = cell->outputPortSequential(to_func->port());
-    if (seq && seq->isLatch())
-      return makeLatchDtoQArcs(cell, from_port, to_port, related_out, attrs);
+    if (seq
+        && seq->isLatch()
+        && seq->data()->hasPort(from_port))
+      // Latch D->Q timing arcs.
+      return makeLatchDtoQArcs(cell, from_port, to_port,
+                               seq->data()->portTimingSense(from_port),
+                               related_out, attrs);
     else
       return makeCombinationalArcs(cell, from_port, to_port, related_out,
 				   true, true, attrs);
@@ -261,20 +307,26 @@ LibertyBuilder::makeCombinationalArcs(LibertyCell *cell,
 				      TimingArcAttrsPtr attrs)
 {
   FuncExpr *func = to_port->function();
+  FuncExpr *enable = to_port->tristateEnable();
   TimingArcSet *arc_set = makeTimingArcSet(cell, from_port, to_port, related_out,
 					   TimingRole::combinational(), attrs);
   TimingSense sense = attrs->timingSense();
-  if (sense == TimingSense::unknown && func) {
+  if (sense == TimingSense::unknown) {
     // Timing sense not specified - find it from function.
-    sense = func->portTimingSense(from_port);
-    if (sense == TimingSense::none
-	&& to_port->direction()->isAnyTristate()) {
-      // from_port is not an input to function, check tristate enable.
-      FuncExpr *enable = to_port->tristateEnable();
-      if (enable && enable->hasPort(from_port))
-	sense = TimingSense::non_unate;
-    }
+    if (func && func->hasPort(from_port))
+      sense = func->portTimingSense(from_port);
+    // Check tristate enable.
+    else if (to_port->direction()->isAnyTristate()
+             && enable
+             && enable->hasPort(from_port))
+      sense = TimingSense::non_unate;
+    // Don't warn for functions that reference ff/latch/lut internal ports.
+    //else if (func->port() && !func->port()->direction()->isInternal())
+    //  report_->fileWarn(172, cell->filename(), line,
+    //                    "timing sense cannot be inferred because pin function does not reference related pin %s.",
+    //                   from_port->name());
   }
+
   TimingModel *model;
   RiseFall *to_rf;
   switch (sense) {
@@ -308,9 +360,6 @@ LibertyBuilder::makeCombinationalArcs(LibertyCell *cell,
     break;
   case TimingSense::non_unate:
   case TimingSense::unknown:
-    // Timing sense none means function does not mention from_port.
-    // This can happen if the function references an internal port,
-    // as in fpga lut cells.
   case TimingSense::none:
     if (to_fall) {
       to_rf = RiseFall::fall();
@@ -337,6 +386,7 @@ TimingArcSet *
 LibertyBuilder::makeLatchDtoQArcs(LibertyCell *cell,
 				  LibertyPort *from_port,
 				  LibertyPort *to_port,
+                                  TimingSense sense,
 				  LibertyPort *related_out,
 				  TimingArcAttrsPtr attrs)
 {
@@ -346,7 +396,6 @@ LibertyBuilder::makeLatchDtoQArcs(LibertyCell *cell,
   TimingModel *model;
   RiseFall *to_rf = RiseFall::rise();
   model = attrs->model(to_rf);
-  TimingSense sense = attrs->timingSense();
   if (model) {
     RiseFall *from_rf = (sense == TimingSense::negative_unate) ?
       to_rf->opposite() : to_rf;
