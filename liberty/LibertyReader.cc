@@ -789,7 +789,7 @@ LibertyReader::parseUnits(LibertyAttr *attr,
       scale_suffix = units;
 
     float scale_mult = 1.0F;
-    if (scale_suffix.size() >= 2) {
+    if (scale_suffix.size() == strlen(unit_suffix) + 1) {
       string suffix = scale_suffix.substr(1);
       if (stringEqual(suffix.c_str(), unit_suffix)) {
         char scale_char = tolower(scale_suffix[0]);
@@ -4529,7 +4529,9 @@ LibertyReader::getAttrFloat(LibertyAttr *attr,
       // Check that the string is a valid double.
       char *end;
       value = strtof(string, &end);
-      if (*end && !isspace(*end))
+      if ((*end && !isspace(*end))
+          // strtof support INF as a valid float.
+          || stringEqual(string, "inf"))
 	libWarn(135, attr, "%s value %s is not a float.",
 		attr->name(),
 		string);
