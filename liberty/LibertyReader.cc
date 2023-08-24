@@ -2977,21 +2977,23 @@ LibertyReader::endPorts()
 {
   // Capacitances default based on direction so wait until the end
   // of the pin group to set them.
-  for (LibertyPort *port : *ports_) {
-    if (in_bus_ || in_bundle_) {
-      // Do not clobber member port capacitances by setting the capacitance
-      // on a bus or bundle.
-      LibertyPortMemberIterator member_iter(port);
-      while (member_iter.hasNext()) {
-	LibertyPort *member = member_iter.next();
-	setPortCapDefault(member);
+  if (ports_) {
+    for (LibertyPort *port : *ports_) {
+      if (in_bus_ || in_bundle_) {
+        // Do not clobber member port capacitances by setting the capacitance
+        // on a bus or bundle.
+        LibertyPortMemberIterator member_iter(port);
+        while (member_iter.hasNext()) {
+          LibertyPort *member = member_iter.next();
+          setPortCapDefault(member);
+        }
       }
+      else
+        setPortCapDefault(port);
     }
-    else
-      setPortCapDefault(port);
+    ports_ = nullptr;
+    port_group_ = nullptr;
   }
-  ports_ = nullptr;
-  port_group_ = nullptr;
 }
 
 void
