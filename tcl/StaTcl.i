@@ -4343,12 +4343,14 @@ void
 set_report_path_fields(bool report_input_pin,
 		       bool report_net,
 		       bool report_cap,
-		       bool report_slew)
+		       bool report_slew,
+                       bool report_fanout)
 {
   Sta::sta()->setReportPathFields(report_input_pin,
 				  report_net,
 				  report_cap,
-				  report_slew);
+				  report_slew,
+                                  report_fanout);
 }
 
 void

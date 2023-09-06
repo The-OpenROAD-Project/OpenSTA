@@ -21,6 +21,9 @@ The read_liberty command latch inference (see OpenSTA.pdf) is now disabled by de
 The -no_latch_infer flag is deprecated.
 To enable latch inference, use the -infer_latches flag.
 
+The report fanout and capacitance fields are now shown on output pin lines rather
+than net lines.
+
 Release 2.3.3 2022/09/24
 -------------------------
 

@@ -898,17 +898,20 @@ proc parse_report_path_options { cmd args_var default_format
     set report_input_pin [expr [lsearch $fields "input*"] != -1]
     set report_cap [expr [lsearch $fields "cap*"] != -1]
     set report_net [expr [lsearch $fields "net*"] != -1]
-    # transition_time - compatibility 06/24/2019
-    set report_slew [expr [lsearch $fields "slew*"] != -1 \
-		       || [lsearch $fields "trans*"] != -1]
+    set report_slew [expr [lsearch $fields "slew*"] != -1]
+    set report_fanout [expr [lsearch $fields "fanout*"] != -1]
+    if { [expr [lsearch $fields "trans*"] != -1] } {
+      sta_warn 1640 "The transition_time field is deprecated. Use slew instead."
+    }
   } else {
     set report_input_pin 0
     set report_cap 0
     set report_net 0
     set report_slew 0
+    set report_fanout 0
   }
   set_report_path_fields $report_input_pin $report_net \
-    $report_cap $report_slew
+    $report_cap $report_slew $report_fanout
 
   set_report_path_no_split [info exists path_options(-no_line_splits)]
 }
