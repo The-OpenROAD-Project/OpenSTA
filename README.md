@@ -56,11 +56,23 @@ OpenSTA is dual licensed. It is released under GPL v3 as OpenSTA and
 is also licensed for commerical applications by Parallax Software without
 the GPL's requirements.
 
-OpenSTA is open source, meaning the sources are published and can be compiled locally.
-Derivative works are supported as long as they adhere to the GPL license requirements.
-However, OpenSTA is not supported by a public community of developers as many other
-open source projects are. The copyright and develpment are exclusive to Parallax
-Software. OpenSTA does not accept external code contributions.
+OpenSTA is open source, meaning the sources are published and can be
+compiled locally.  Derivative works are supported as long as they
+adhere to the GPL license requirements.  However, OpenSTA is not
+supported by a public community of developers as many other open
+source projects are. The copyright and develpment are exclusive to
+Parallax Software. OpenSTA does not solicit or accept external code
+contributions.
+
+Removing copyright and license notices from OpenSTA sources (or any
+other open source project for that matter) is illegal. This should be
+obvious, but the author of OpenSTA has discovered two different cases
+where the copyright and license were removed from source files that
+were copied. The Chinese iEDA project from the Peng Cheng Laboratory
+of the Institute of Computing Technology, Chinese Academy of Sciences
+is one example.  The iEDA project copied multiple OpenSTA files and
+removed both the license and copyright notices, replacing them with
+their own copyright and license.
 
 The official git repository is located at
 https://github.com/parallaxsw/OpenSTA.git. Any forks from this code

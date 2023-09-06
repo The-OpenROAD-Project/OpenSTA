@@ -43,7 +43,8 @@ public:
   void setReportFields(bool report_input_pin,
 		       bool report_net,
 		       bool report_cap,
-		       bool report_slew);
+		       bool report_slew,
+                       bool report_fanout);
   int digits() const { return digits_; }
   void setDigits(int digits);
   void setNoSplit(bool no_split);

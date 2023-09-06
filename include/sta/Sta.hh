@@ -889,7 +889,8 @@ public:
   void setReportPathFields(bool report_input_pin,
 			   bool report_net,
 			   bool report_cap,
-			   bool report_slew);
+			   bool report_slew,
+                           bool report_fanout);
   ReportField *findReportPathField(const char *name);
   void setReportPathDigits(int digits);
   void setReportPathNoSplit(bool no_split);
