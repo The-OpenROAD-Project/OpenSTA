@@ -167,6 +167,7 @@ typedef Set<ClkHpinDisable*, ClkHpinDisableLess> ClkHpinDisables;
 typedef Set<GroupPath*, ExceptionPathLess> GroupPathSet;
 typedef Map<const char*, GroupPathSet*, CharPtrLess> GroupPathMap;
 typedef Set<ClockPair, ClockPairLess> ClockPairSet;
+typedef Map<const Net*, MinMaxFloatValues> NetVoltageMap;
 
 void
 findLeafLoadPins(const Pin *pin,
@@ -831,6 +832,20 @@ public:
   void setPvt(const Instance *inst,
 	      const MinMaxAll *min_max,
 	      const Pvt &pvt);
+  void voltage(const MinMax *min_max,
+               // Return values.
+               float &voltage,
+               bool &exists);
+  void voltage(const Net *net,
+               const MinMax *min_max,
+               // Return values.
+               float &voltage,
+               bool &exists);
+  void setVoltage(const MinMax *min_max,
+                  float voltage);
+  void setVoltage(const Net *net,
+                  const MinMax *min_max,
+                  float voltage);
   InputDrive *findInputDrive(Port *port);
   Clock *findClock(const char *name) const;
   virtual ClockSeq findClocksMatching(PatternMatch *pattern) const;
@@ -1267,6 +1282,8 @@ protected:
   AnalysisType analysis_type_;
   OperatingConditions *operating_conditions_[MinMax::index_count];
   InstancePvtMap instance_pvt_maps_[MinMax::index_count];
+  MinMaxFloatValues voltages_;
+  NetVoltageMap net_voltage_map_;
   DeratingFactorsGlobal *derating_factors_;
   NetDeratingFactorsMap net_derating_factors_;
   InstDeratingFactorsMap inst_derating_factors_;

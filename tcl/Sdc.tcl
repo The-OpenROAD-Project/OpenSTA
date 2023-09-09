@@ -952,7 +952,7 @@ proc get_ports { args } {
     if { $args != {} } {
       sta_warn 336 "patterns argument not supported with -of_objects."
     }
-    set nets [get_nets_warn "objects" $keys(-of_objects)]
+    set nets [get_nets_arg "objects" $keys(-of_objects)]
     foreach net $nets {
       set ports [concat $ports [$net ports]]
     }
@@ -3172,7 +3172,7 @@ proc set_resistance { args } {
   set res [lindex $args 0]
   check_positive_float "resistance" $res
   set res [resistance_ui_sta $res]
-  set nets [get_nets_error "nets" [lindex $args 1]]
+  set nets [get_nets_arg "nets" [lindex $args 1]]
   foreach net $nets {
     set_net_resistance $net $min_max $res
   }
@@ -3593,6 +3593,33 @@ proc set_wire_load_selection_group { args } {
 # Multivoltage and Power Optimization Commands
 #
 ################################################################
+
+define_cmd_args "set_voltage" \
+  {[-min min_case_value] [-object_list list_of_power_nets] max_case_voltage}
+
+proc set_voltage { args } {
+  parse_key_args "set_voltage" args keys {-min -object_list} flags {}
+  check_argc_eq1 "set_voltage" $args
+  set max_case_voltage [lindex $args 0]
+  check_float "max_case_voltage" $max_case_voltage
+
+  set nets {}
+  if { [info exists keys(-object_list)] } {
+    set nets [get_nets_arg "-object_list" $keys(-object_list)]
+  }
+  set_voltage_global "max" $max_case_voltage
+  foreach net $nets {
+    set_voltage_net $net "max" $max_case_voltage
+  }
+  if { [info exists keys(-min)] } {
+    set min_case_voltage $keys(-min)
+    check_float "-min" $min_case_voltage
+    set_voltage_global "min" $min_case_voltage
+    foreach net $nets {
+      set_voltage_net $net "min" $min_case_voltage
+    }
+  }
+}
 
 define_cmd_args "create_voltage_area" \
   {[-name name] [-coordinate coordinates] [-guard_band_x guard_x]\

@@ -747,6 +747,11 @@ public:
   void setPvt(const Instance *inst,
 	      const MinMaxAll *min_max,
 	      const Pvt &pvt);
+  void setVoltage(const MinMax *min_max,
+                  float voltage);
+  void setVoltage(const Net *net,
+                  const MinMax *min_max,
+                  float voltage);
   // Clear all state except network.
   virtual void clear();
   // Remove all constraints.

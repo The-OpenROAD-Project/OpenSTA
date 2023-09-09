@@ -827,6 +827,21 @@ Sta::setPvt(const Instance *inst,
 }
 
 void
+Sta::setVoltage(const MinMax *min_max,
+                float voltage)
+{
+  sdc_->setVoltage(min_max, voltage);
+}
+
+void
+Sta::setVoltage(const Net *net,
+                const MinMax *min_max,
+                float voltage)
+{
+  sdc_->setVoltage(net, min_max, voltage);
+}
+
+void
 Sta::setTimingDerate(TimingDerateType type,
 		     PathClkOrData clk_data,
 		     const RiseFallBoth *rf,

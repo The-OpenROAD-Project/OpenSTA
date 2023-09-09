@@ -1488,6 +1488,7 @@ WriteSdc::writeEnvironment() const
   writeConstants();
   writeCaseAnalysis();
   writeDeratings();
+  writeVoltages();
 }
 
 void
@@ -2008,6 +2009,43 @@ timingDerateTypeKeyword(TimingDerateType type)
 {
   static const char *type_keys[] = {"-cell_delay","-cell_check","-net_delay"};
   return type_keys[static_cast<int>(type)];
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+WriteSdc::writeVoltages() const
+{
+  float voltage_max, voltage_min;
+  bool exists_max, exists_min;
+  sdc_->voltage(MinMax::max(), voltage_max, exists_max);
+  if (exists_max) {
+    sdc_->voltage(MinMax::min(), voltage_min, exists_min);
+    if (exists_min)
+      gzprintf(stream_, "set_voltage -min %.3f %.3f\n",
+               voltage_min,
+               voltage_max);
+    else
+      gzprintf(stream_, "set_voltage %.3f\n", voltage_max);
+  }
+
+  for (auto net_volt : sdc_->net_voltage_map_) {
+    const Net *net = net_volt.first;
+    MinMaxFloatValues &values = net_volt.second;
+    values.value(MinMax::max(), voltage_max, exists_max);
+    if (exists_max) {
+      values.value(MinMax::min(), voltage_min, exists_min);
+      if (exists_min)
+        gzprintf(stream_, "set_voltage -object_list %s -min %.3f %.3f\n",
+                 sdc_network_->pathName(net),
+                 voltage_min,
+                 voltage_max);
+      else
+        gzprintf(stream_, "set_voltage -object_list %s %.3f\n",
+                 sdc_network_->pathName(net),
+                 voltage_max);
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////

@@ -490,6 +490,42 @@ Sdc::setPvt(const Instance *inst,
   }
 }
 
+void
+Sdc::voltage(const MinMax *min_max,
+             // Return values.
+             float &voltage,
+             bool &exists)
+{
+  voltages_.value(min_max, voltage, exists);
+}
+
+void
+Sdc::voltage(const Net *net,
+             const MinMax *min_max,
+             // Return values.
+             float &voltage,
+             bool &exists)
+{
+  exists = false;
+  if (net_voltage_map_.hasKey(net))
+    net_voltage_map_[net].value(min_max, voltage, exists);
+}
+
+void
+Sdc::setVoltage(const MinMax *min_max,
+                float voltage)
+{
+  voltages_.setValue(min_max, voltage);
+}
+
+void
+Sdc::setVoltage(const Net *net,
+                const MinMax *min_max,
+                float voltage)
+{
+  net_voltage_map_[net].setValue(min_max, voltage);
+}
+
 ////////////////////////////////////////////////////////////////
 
 void
