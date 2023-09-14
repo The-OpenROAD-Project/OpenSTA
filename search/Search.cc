@@ -3205,7 +3205,7 @@ Search::isEndpoint(Vertex *vertex,
 	    && gated_clk_->isGatedClkEnable(vertex))
 	|| vertex->isConstrained()
 	|| sdc_->isPathDelayInternalEndpoint(pin)
-	|| !hasFanout(vertex, pred, graph_)
+	//|| !hasFanout(vertex, pred, graph_)
 	// Unconstrained paths at register clk pins.
 	|| (unconstrained_paths_
 	    && vertex->isRegClk()));
