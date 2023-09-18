@@ -169,6 +169,7 @@ static EnumNameMap<VcdVarType> vcd_var_type_map =
    {VcdVarType::real, "real"},
    {VcdVarType::supply0, "supply0"},
    {VcdVarType::supply1, "supply1"},
+   {VcdVarType::time, "time"},
    {VcdVarType::tri, "tri"},
    {VcdVarType::triand, "triand"},
    {VcdVarType::trior, "trior"},

@@ -882,7 +882,7 @@ proc get_clocks_warn { arg_name arglist } {
   return $clks
 }
 
-proc get_net_warn { arg_name arg } {
+proc get_net_arg { arg_name arg } {
   set net "NULL"
   if {[llength $arg] > 1} {
     sta_warn 314 "$arg_name must be a single net."
@@ -902,31 +902,23 @@ proc get_net_warn { arg_name arg } {
   return $net
 }
 
-proc get_nets_error { arg_name arglist } {
-  return [get_nets_arg $arg_name $arglist "error"]
-}
-
-proc get_nets_warn { arg_name arglist } {
-  return [get_nets_arg $arg_name $arglist "warn"]
-}
-
-proc get_nets_arg { arg_name arglist warn_error } {
+proc get_nets_arg { arg_name arglist } {
   set nets {}
   # Copy backslashes that will be removed by foreach.
   set arglist [string map {\\ \\\\} $arglist]
   foreach arg $arglist {
     if {[llength $arg] > 1} {
       # Embedded list.
-      set nets [concat $nets [get_nets_arg $arg_name $arg $warn_error]]
+      set nets [concat $nets [get_nets_arg $arg_name $arg]]
     } elseif { [is_object $arg] } {
       set object_type [object_type $arg]
       if { $object_type == "Net" } {
         lappend nets $arg
       } else {
-        sta_warn_error 317 $warn_error "unsupported object type $object_type."
+        sta_warn 317 "unsupported object type $object_type."
       }
     } elseif { $arg != {} } {
-      set arg_nets [get_nets -quiet $arg]
+      set arg_nets [get_nets $arg]
       if { $arg_nets != {} } {
         set nets [concat $nets $arg_nets]
       }

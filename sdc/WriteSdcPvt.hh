@@ -170,6 +170,7 @@ public:
 		     TimingDerateType type,
 		     const MinMax *early_late,
 		     WriteSdcObject *write_obj) const;
+  void writeVoltages() const;
 
   const char *pathName(const Pin *pin) const;
   const char *pathName(const Net *net) const;

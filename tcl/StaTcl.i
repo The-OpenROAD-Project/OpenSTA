@@ -5450,6 +5450,21 @@ endpoint_violation_count(const MinMax *min_max)
   return  Sta::sta()->endpointViolationCount(min_max);
 }
 
+void
+set_voltage_global(const MinMax *min_max,
+                   float voltage)
+{
+  Sta::sta()->setVoltage(min_max, voltage);
+}
+
+void
+set_voltage_net(const Net *net,
+                const MinMax *min_max,
+                float voltage)
+{
+  Sta::sta()->setVoltage(net, min_max, voltage);
+}
+
 %} // inline
 
 ////////////////////////////////////////////////////////////////
