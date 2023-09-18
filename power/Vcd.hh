@@ -47,6 +47,7 @@ enum class VcdVarType {
   real,
   supply0,
   supply1,
+  time,
   tri,
   triand,
   trior,

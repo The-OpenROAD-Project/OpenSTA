@@ -80,7 +80,7 @@ proc connect_pin { net pin } {
   if { $insts_port == 0 } {
     return 0
   }
-  set net [get_net_warn "net" $net]
+  set net [get_net_arg "net" $net]
   if { $net == "NULL" } {
     return 0
   }
@@ -140,7 +140,7 @@ proc connect_pins { net pins } {
   if { $insts_ports == 0 } {
     return 0
   }
-  set net [get_net_warn "net" $net]
+  set net [get_net_arg "net" $net]
   if { $net == "NULL" } {
     return 0
   }
@@ -170,7 +170,7 @@ proc parse_connect_pins { arg } {
 define_cmd_args "disconnect_pin" {net -all|pin}
 
 proc disconnect_pin { net pin } {
-  set net [get_net_warn "net" $net]
+  set net [get_net_arg "net" $net]
   if { $net == "NULL" } {
     return 0
   }

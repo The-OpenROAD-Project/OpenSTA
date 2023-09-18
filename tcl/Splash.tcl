@@ -25,7 +25,7 @@ namespace eval sta {
 define_cmd_args show_splash {}
 
 proc show_splash {} {
-  report_line "OpenSTA [sta::version] [string range [sta::git_sha1] 0 9] Copyright (c) 2021, Parallax Software, Inc.
+  report_line "OpenSTA [sta::version] [string range [sta::git_sha1] 0 9] Copyright (c) 2023, Parallax Software, Inc.
 License GPLv3: GNU GPL version 3 <http://gnu.org/licenses/gpl.html>
 
 This is free software, and you are free to change and redistribute it

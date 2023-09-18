@@ -431,7 +431,7 @@ proc_redirect report_check_types {
 
   set net "NULL"
   if { [info exists keys(-net)] } {
-    set net [get_net_warn "-net" $keys(-net)]
+    set net [get_net_arg "-net" $keys(-net)]
   }
 
   if { $args == {} } {
