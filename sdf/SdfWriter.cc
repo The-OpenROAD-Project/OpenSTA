@@ -215,24 +215,27 @@ SdfWriter::writeHeader(LibertyLibrary *default_lib,
     gzprintf(stream_, " (VERSION \"%s\")\n", STA_VERSION);
   gzprintf(stream_, " (DIVIDER %c)\n", sdf_divider_);
 
-  OperatingConditions *cond_min = 
-    sdc_->operatingConditions(MinMax::min());
-  if (cond_min == nullptr)
-    cond_min = default_lib->defaultOperatingConditions();
-  OperatingConditions *cond_max = 
-    sdc_->operatingConditions(MinMax::max());
-  if (cond_max == nullptr)
-    cond_max = default_lib->defaultOperatingConditions();
+  LibertyLibrary *lib_min = default_lib;
+  const LibertySeq &libs_min = corner_->libertyLibraries(MinMax::min());
+  if (!libs_min.empty())
+    lib_min = libs_min[0];
+  LibertyLibrary *lib_max = default_lib;
+  const LibertySeq &libs_max = corner_->libertyLibraries(MinMax::max());
+  if (!libs_max.empty())
+    lib_max = libs_max[0];
+
+  OperatingConditions *cond_min = lib_min->defaultOperatingConditions();
+  OperatingConditions *cond_max = lib_max->defaultOperatingConditions();
   if (cond_min && cond_max) {
     gzprintf(stream_, " (VOLTAGE %.3f::%.3f)\n",
-	     cond_min->voltage(),
-	     cond_max->voltage());
+             cond_min->voltage(),
+             cond_max->voltage());
     gzprintf(stream_, " (PROCESS \"%.3f::%.3f\")\n",
-	     cond_min->process(),
-	     cond_max->process());
+             cond_min->process(),
+             cond_max->process());
     gzprintf(stream_, " (TEMPERATURE %.3f::%.3f)\n",
-	     cond_min->temperature(),
-	     cond_max->temperature());
+             cond_min->temperature(),
+             cond_max->temperature());
   }
 
   const char *sdf_timescale = nullptr;

@@ -467,10 +467,10 @@ Corner::addLiberty(LibertyLibrary *lib,
   liberty_[min_max->index()].push_back(lib);
 }
 
-LibertySeq *
-Corner::libertyLibraries(const MinMax *min_max)
+const LibertySeq &
+Corner::libertyLibraries(const MinMax *min_max) const
 {
-  return &liberty_[min_max->index()];
+  return liberty_[min_max->index()];
 }
 
 int
