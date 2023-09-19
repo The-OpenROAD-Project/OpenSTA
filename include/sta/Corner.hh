@@ -108,7 +108,7 @@ public:
   PathAnalysisPt *findPathAnalysisPt(const MinMax *min_max) const;
   void addLiberty(LibertyLibrary *lib,
 		  const MinMax *min_max);
-  LibertySeq *libertyLibraries(const MinMax *min_max);
+  const LibertySeq &libertyLibraries(const MinMax *min_max) const;
   int libertyIndex(const MinMax *min_max) const;
 
 protected:
