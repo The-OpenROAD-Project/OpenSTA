@@ -103,7 +103,7 @@ public:
 		       const ParasiticAnalysisPt *ap);
   virtual ParasiticDeviceIterator *deviceIterator(Parasitic *) { return nullptr; }
   virtual ParasiticNodeIterator *nodeIterator(Parasitic *) { return nullptr; }
-  virtual bool includesPinCaps(Parasitic *parasitic) const;
+  virtual bool includesPinCaps(const Parasitic *parasitic) const;
   virtual void deleteParasiticNetwork(const Net *net,
 				      const ParasiticAnalysisPt *ap);
   virtual void deleteParasiticNetworks(const Net *net);
@@ -132,7 +132,7 @@ public:
 
   virtual const char *name(const ParasiticNode *node);
   virtual const Pin *connectionPin(const ParasiticNode *node) const;
-  virtual ParasiticNode *findNode(Parasitic *parasitic,
+  virtual ParasiticNode *findNode(const Parasitic *parasitic,
 				  const Pin *pin) const;
   virtual float nodeGndCap(const ParasiticNode *node,
 			   const ParasiticAnalysisPt *ap) const;

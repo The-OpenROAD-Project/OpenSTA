@@ -771,7 +771,7 @@ ConcreteParasiticNetwork::ensureParasiticNode(const Net *net,
 }
 
 ConcreteParasiticNode *
-ConcreteParasiticNetwork::findNode(const Pin *pin)
+ConcreteParasiticNetwork::findNode(const Pin *pin) const
 {
   return pin_nodes_.findKey(pin);
 }
@@ -1373,10 +1373,10 @@ ConcreteParasitics::deleteParasiticNetworks(const Net *net)
 }
 
 bool
-ConcreteParasitics::includesPinCaps(Parasitic *parasitic) const
+ConcreteParasitics::includesPinCaps(const Parasitic *parasitic) const
 {
-  ConcreteParasiticNetwork *cparasitic =
-    static_cast<ConcreteParasiticNetwork*>(parasitic);
+  const ConcreteParasiticNetwork *cparasitic =
+    static_cast<const ConcreteParasiticNetwork*>(parasitic);
   return cparasitic->includesPinCaps();
 }
 
@@ -1513,11 +1513,11 @@ ConcreteParasitics::connectionPin(const ParasiticNode *node) const
 }
 
 ParasiticNode *
-ConcreteParasitics::findNode(Parasitic *parasitic,
+ConcreteParasitics::findNode(const Parasitic *parasitic,
 			     const Pin *pin) const
 {
-  ConcreteParasiticNetwork *cparasitic =
-    static_cast<ConcreteParasiticNetwork*>(parasitic);
+  const ConcreteParasiticNetwork *cparasitic =
+    static_cast<const ConcreteParasiticNetwork*>(parasitic);
   return cparasitic->findNode(pin);
 }
 

@@ -240,7 +240,7 @@ NullParasitics::makeParasiticNetwork(const Net *,
 }
 
 bool
-NullParasitics::includesPinCaps(Parasitic *) const
+NullParasitics::includesPinCaps(const Parasitic *) const
 {
   return false;
 }
@@ -327,7 +327,7 @@ NullParasitics::connectionPin(const ParasiticNode *) const
 }
 
 ParasiticNode *
-NullParasitics::findNode(Parasitic *,
+NullParasitics::findNode(const Parasitic *,
 			 const Pin *) const
 {
   return nullptr;

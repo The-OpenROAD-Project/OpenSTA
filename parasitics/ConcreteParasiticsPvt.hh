@@ -407,7 +407,7 @@ public:
   bool includesPinCaps() const { return includes_pin_caps_; }
   ConcreteParasiticNode *ensureParasiticNode(const Net *net,
 					     int id);
-  ConcreteParasiticNode *findNode(const Pin *pin);
+  ConcreteParasiticNode *findNode(const Pin *pin) const;
   ConcreteParasiticNode *ensureParasiticNode(const Pin *pin);
   virtual float capacitance() const;
   ConcreteParasiticPinNodeMap *pinNodes() { return &pin_nodes_; }
