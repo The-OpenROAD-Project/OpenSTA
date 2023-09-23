@@ -71,7 +71,7 @@ public:
 					    bool is_reduced) = 0;
 
   // Capacitance value of parasitic object.
-  virtual float capacitance(Parasitic *parasitic) const = 0;
+  virtual float capacitance(const Parasitic *parasitic) const = 0;
 
   ////////////////////////////////////////////////////////////////
   // Pi model driver load with elmore delays to load pins (RSPF).
@@ -145,7 +145,7 @@ public:
   // Parasitic Network (detailed parasitics).
   // This api assumes that parasitic networks are not rise/fall
   // dependent because they do not include pin capacitances.
-  virtual bool isParasiticNetwork(Parasitic *parasitic) const = 0;
+  virtual bool isParasiticNetwork(const Parasitic *parasitic) const = 0;
   virtual Parasitic *findParasiticNetwork(const Net *net,
 					  const ParasiticAnalysisPt *ap) const = 0;
   virtual Parasitic *findParasiticNetwork(const Pin *pin,

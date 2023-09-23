@@ -72,7 +72,7 @@ NullParasitics::deleteDrvrReducedParasitics(const Pin *)
 }
 
 float
-NullParasitics::capacitance(Parasitic *) const
+NullParasitics::capacitance(const Parasitic *) const
 {
   return 0.0;
 }
@@ -212,7 +212,7 @@ NullParasitics::poleResidue(const Parasitic *,
 }
 
 bool
-NullParasitics::isParasiticNetwork(Parasitic *) const
+NullParasitics::isParasiticNetwork(const Parasitic *) const
 {
   return false;
 }

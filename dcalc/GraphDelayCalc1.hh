@@ -59,14 +59,14 @@ public:
   virtual float loadCap(const Pin *drvr_pin,
 			const DcalcAnalysisPt *dcalc_ap) const;
   virtual void loadCap(const Pin *drvr_pin,
-		       Parasitic *drvr_parasitic,
+		       const Parasitic *drvr_parasitic,
 		       const RiseFall *rf,
 		       const DcalcAnalysisPt *dcalc_ap,
 		       // Return values.
 		       float &pin_cap,
 		       float &wire_cap) const;
   virtual float loadCap(const Pin *drvr_pin,
-			Parasitic *drvr_parasitic,
+			const Parasitic *drvr_parasitic,
 			const RiseFall *rf,
 			const DcalcAnalysisPt *dcalc_ap) const;
   virtual void netCaps(const Pin *drvr_pin,
@@ -195,14 +195,14 @@ protected:
 			const DcalcAnalysisPt *dcalc_ap);
   bool bidirectDrvrSlewFromLoad(const Vertex *vertex) const;
   MultiDrvrNet *multiDrvrNet(const Vertex *drvr_vertex) const;
-  void loadCap(Parasitic *drvr_parasitic,
+  void loadCap(const Parasitic *drvr_parasitic,
 	       bool has_set_load,
 	       // Return values.
 	       float &pin_cap,
 	       float &wire_cap) const;
   float loadCap(const Pin *drvr_pin,
 		MultiDrvrNet *multi_drvr,
-		Parasitic *drvr_parasitic,
+		const Parasitic *drvr_parasitic,
 		const RiseFall *rf,
 		const DcalcAnalysisPt *dcalc_ap) const;
 

@@ -71,7 +71,7 @@ public:
   // pin_cap  = net pin capacitances + port external pin capacitance,
   // wire_cap = annotated net capacitance + port external wire capacitance.
   virtual void loadCap(const Pin *drvr_pin,
-		       Parasitic *drvr_parasitic,
+		       const Parasitic *drvr_parasitic,
 		       const RiseFall *rf,
 		       const DcalcAnalysisPt *dcalc_ap,
 		       // Return values.
@@ -86,7 +86,7 @@ public:
 			const DcalcAnalysisPt *dcalc_ap) const;
   // Load pin_cap + wire_cap.
   virtual float loadCap(const Pin *drvr_pin,
-			Parasitic *drvr_parasitic,
+			const Parasitic *drvr_parasitic,
 			const RiseFall *rf,
 			const DcalcAnalysisPt *dcalc_ap) const;
   virtual void netCaps(const Pin *drvr_pin,

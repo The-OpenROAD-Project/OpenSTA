@@ -928,9 +928,9 @@ ConcreteParasitics::save()
 }
 
 float
-ConcreteParasitics::capacitance(Parasitic *parasitic) const
+ConcreteParasitics::capacitance(const Parasitic *parasitic) const
 {
-  ConcreteParasitic *cparasitic = static_cast<ConcreteParasitic*>(parasitic);
+  const ConcreteParasitic *cparasitic = static_cast<const ConcreteParasitic*>(parasitic);
   return cparasitic->capacitance();
 }
 
@@ -1273,9 +1273,9 @@ ConcreteParasitics::poleResidue(const Parasitic *parasitic,
 ////////////////////////////////////////////////////////////////
 
 bool
-ConcreteParasitics::isParasiticNetwork(Parasitic *parasitic) const
+ConcreteParasitics::isParasiticNetwork(const Parasitic *parasitic) const
 {
-  ConcreteParasitic *cparasitic = static_cast<ConcreteParasitic*>(parasitic);
+  const ConcreteParasitic *cparasitic = static_cast<const ConcreteParasitic*>(parasitic);
   return cparasitic && cparasitic->isParasiticNetwork();
 }
 

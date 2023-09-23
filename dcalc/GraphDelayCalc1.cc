@@ -1062,7 +1062,7 @@ GraphDelayCalc1::loadCap(const Pin *drvr_pin,
 
 float
 GraphDelayCalc1::loadCap(const Pin *drvr_pin,
-			 Parasitic *drvr_parasitic,
+			 const Parasitic *drvr_parasitic,
 			 const RiseFall *rf,
 			 const DcalcAnalysisPt *dcalc_ap) const
 {
@@ -1072,7 +1072,7 @@ GraphDelayCalc1::loadCap(const Pin *drvr_pin,
 float
 GraphDelayCalc1::loadCap(const Pin *drvr_pin,
 			 MultiDrvrNet *multi_drvr,
-			 Parasitic *drvr_parasitic,
+			 const Parasitic *drvr_parasitic,
 			 const RiseFall *rf,
 			 const DcalcAnalysisPt *dcalc_ap) const
 {
@@ -1091,7 +1091,7 @@ GraphDelayCalc1::loadCap(const Pin *drvr_pin,
 
 void
 GraphDelayCalc1::loadCap(const Pin *drvr_pin,
-			 Parasitic *drvr_parasitic,
+			 const Parasitic *drvr_parasitic,
 			 const RiseFall *rf,
 			 const DcalcAnalysisPt *dcalc_ap,
 			 // Return values.
@@ -1107,7 +1107,7 @@ GraphDelayCalc1::loadCap(const Pin *drvr_pin,
 }
 
 void
-GraphDelayCalc1::loadCap(Parasitic *drvr_parasitic,
+GraphDelayCalc1::loadCap(const Parasitic *drvr_parasitic,
 			 bool has_net_load,
 			 // Return values.
 			 float &pin_cap,

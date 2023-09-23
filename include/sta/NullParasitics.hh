@@ -38,7 +38,7 @@ public:
                                        const ParasiticAnalysisPt *ap);
   virtual void deleteDrvrReducedParasitics(const Pin *drvr_pin);
 
-  virtual float capacitance(Parasitic *parasitic) const;
+  virtual float capacitance(const Parasitic *parasitic) const;
 
   virtual Parasitic *
   findPiElmore(const Pin *drvr_pin,
@@ -91,7 +91,7 @@ public:
   virtual void poleResidue(const Parasitic *parasitic, int pole_index,
 			   ComplexFloat &pole, ComplexFloat &residue) const;
 
-  virtual bool isParasiticNetwork(Parasitic *parasitic) const;
+  virtual bool isParasiticNetwork(const Parasitic *parasitic) const;
   virtual Parasitic *findParasiticNetwork(const Net *net,
 					  const ParasiticAnalysisPt *ap) const;
   virtual Parasitic *
