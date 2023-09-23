@@ -391,7 +391,7 @@ NullParasitics::otherNode(const ParasiticDevice *,
 }
 
 void
-NullParasitics::reduceTo(Parasitic *,
+NullParasitics::reduceTo(const Parasitic *,
 			 const Net *,
 			 ReducedParasiticType ,
 			 const OperatingConditions *,
@@ -402,7 +402,7 @@ NullParasitics::reduceTo(Parasitic *,
 }
 
 void
-NullParasitics::reduceToPiElmore(Parasitic *,
+NullParasitics::reduceToPiElmore(const Parasitic *,
 				 const Net *,
 				 const OperatingConditions *,
 				 const Corner *,
@@ -412,7 +412,7 @@ NullParasitics::reduceToPiElmore(Parasitic *,
 }
 
 void
-NullParasitics::reduceToPiElmore(Parasitic *,
+NullParasitics::reduceToPiElmore(const Parasitic *,
 				 const Pin *,
 				 const OperatingConditions *,
 				 const Corner *,
@@ -422,7 +422,7 @@ NullParasitics::reduceToPiElmore(Parasitic *,
 }
 
 void
-NullParasitics::reduceToPiPoleResidue2(Parasitic *, const Net *,
+NullParasitics::reduceToPiPoleResidue2(const Parasitic *, const Net *,
 				       const OperatingConditions *,
 				       const Corner *,
 				       const MinMax *,
@@ -431,7 +431,7 @@ NullParasitics::reduceToPiPoleResidue2(Parasitic *, const Net *,
 }
 
 void
-NullParasitics::reduceToPiPoleResidue2(Parasitic *,
+NullParasitics::reduceToPiPoleResidue2(const Parasitic *,
 				       const Pin *,
 				       const OperatingConditions *,
 				       const Corner *,

@@ -1674,7 +1674,7 @@ ConcreteParasitics::checkAnnotation2(const Pin *drvr_pin,
 ////////////////////////////////////////////////////////////////
 
 void
-ConcreteParasitics::reduceTo(Parasitic *parasitic,
+ConcreteParasitics::reduceTo(const Parasitic *parasitic,
 			     const Net *net,
 			     ReducedParasiticType reduce_to,
 			     const OperatingConditions *op_cond,
@@ -1697,7 +1697,7 @@ ConcreteParasitics::reduceTo(Parasitic *parasitic,
 }
 
 void
-ConcreteParasitics::reduceToPiElmore(Parasitic *parasitic,
+ConcreteParasitics::reduceToPiElmore(const Parasitic *parasitic,
 				     const Net *net,
 				     const OperatingConditions *op_cond,
 				     const Corner *corner,
@@ -1718,7 +1718,7 @@ ConcreteParasitics::reduceToPiElmore(Parasitic *parasitic,
 }
 
 void
-ConcreteParasitics::reduceToPiElmore(Parasitic *parasitic,
+ConcreteParasitics::reduceToPiElmore(const Parasitic *parasitic,
 				     const Pin *drvr_pin,
 				     const OperatingConditions *op_cond,
 				     const Corner *corner,
@@ -1730,7 +1730,7 @@ ConcreteParasitics::reduceToPiElmore(Parasitic *parasitic,
 }
 
 void
-ConcreteParasitics::reduceToPiPoleResidue2(Parasitic *parasitic,
+ConcreteParasitics::reduceToPiPoleResidue2(const Parasitic *parasitic,
 					   const Net *net,
 					   const OperatingConditions *op_cond,
 					   const Corner *corner,
@@ -1750,7 +1750,7 @@ ConcreteParasitics::reduceToPiPoleResidue2(Parasitic *parasitic,
 }
 
 void
-ConcreteParasitics::reduceToPiPoleResidue2(Parasitic *parasitic,
+ConcreteParasitics::reduceToPiPoleResidue2(const Parasitic *parasitic,
 					   const Pin *drvr_pin,
 					   const OperatingConditions *op_cond,
 					   const Corner *corner,

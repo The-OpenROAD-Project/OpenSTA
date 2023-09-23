@@ -235,7 +235,7 @@ public:
                                   const Pin *drvr_pin) = 0;
 
   // Reduce parasitic network to reduce_to model.
-  virtual void reduceTo(Parasitic *parasitic,
+  virtual void reduceTo(const Parasitic *parasitic,
 			const Net *net,
 			ReducedParasiticType reduce_to,
 			const OperatingConditions *op_cond,
@@ -243,21 +243,21 @@ public:
 			const MinMax *cnst_min_max,
 			const ParasiticAnalysisPt *ap) = 0;
   // Reduce parasitic network to pi elmore models.
-  virtual void reduceToPiElmore(Parasitic *parasitic,
+  virtual void reduceToPiElmore(const Parasitic *parasitic,
 				const Net *net,
 				const OperatingConditions *op_cond,
 				const Corner *corner,
 				const MinMax *cnst_min_max,
 				const ParasiticAnalysisPt *ap) = 0;
   // Reduce parasitic network to pi elmore model for drvr_pin.
-  virtual void reduceToPiElmore(Parasitic *parasitic,
+  virtual void reduceToPiElmore(const Parasitic *parasitic,
 				const Pin *drvr_pin,
 				const OperatingConditions *op_cond,
 				const Corner *corner,
 				const MinMax *cnst_min_max,
 				const ParasiticAnalysisPt *ap) = 0;
   // Reduce parasitic network to pi and 2nd order pole/residue models.
-  virtual void reduceToPiPoleResidue2(Parasitic *parasitic,
+  virtual void reduceToPiPoleResidue2(const Parasitic *parasitic,
 				      const Net *net,
 				      const OperatingConditions *op_cond,
 				      const Corner *corner,
@@ -265,7 +265,7 @@ public:
 				      const ParasiticAnalysisPt *ap) = 0;
   // Reduce parasitic network to pi and 2nd order pole/residue models
   // for drvr_pin.
-  virtual void reduceToPiPoleResidue2(Parasitic *parasitic,
+  virtual void reduceToPiPoleResidue2(const Parasitic *parasitic,
 				      const Pin *drvr_pin,
 				      const OperatingConditions *op_cond,
 				      const Corner *corner,

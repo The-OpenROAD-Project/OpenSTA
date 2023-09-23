@@ -184,32 +184,32 @@ public:
   virtual void disconnectPinBefore(const Pin *pin);
   virtual void loadPinCapacitanceChanged(const Pin *pin);
 
-  virtual void reduceTo(Parasitic *parasitic,
+  virtual void reduceTo(const Parasitic *parasitic,
 			const Net *net,
 			ReducedParasiticType reduce_to,
 			const OperatingConditions *op_cond,
 			const Corner *corner,
 			const MinMax *cnst_min_max,
 			const ParasiticAnalysisPt *ap);
-  virtual void reduceToPiElmore(Parasitic *parasitic,
+  virtual void reduceToPiElmore(const Parasitic *parasitic,
 				const Net *net,
 				const OperatingConditions *op_cond,
 				const Corner *corner,
 				const MinMax *cnst_min_max,
 				const ParasiticAnalysisPt *ap);
-  virtual void reduceToPiElmore(Parasitic *parasitic,
+  virtual void reduceToPiElmore(const Parasitic *parasitic,
 				const Pin *drvr_pin,
 				const OperatingConditions *op_cond,
 				const Corner *corner,
 				const MinMax *cnst_min_max,
 				const ParasiticAnalysisPt *ap);
-  virtual void reduceToPiPoleResidue2(Parasitic *parasitic,
+  virtual void reduceToPiPoleResidue2(const Parasitic *parasitic,
 				      const Net *net,
 				      const OperatingConditions *op_cond,
 				      const Corner *corner,
 				      const MinMax *cnst_min_max,
 				      const ParasiticAnalysisPt *ap);
-  virtual void reduceToPiPoleResidue2(Parasitic *parasitic,
+  virtual void reduceToPiPoleResidue2(const Parasitic *parasitic,
 				      const Pin *drvr_pin,
 				      const OperatingConditions *op_cond,
 				      const Corner *corner,
