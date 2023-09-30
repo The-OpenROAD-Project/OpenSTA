@@ -78,8 +78,8 @@ public:
   virtual void setPoleResidue(const Pin *load_pin,
 			      ComplexFloatSeq *poles,
 			      ComplexFloatSeq *residues);
-  virtual ParasiticDeviceIterator *deviceIterator();
-  virtual ParasiticNodeIterator *nodeIterator();
+  virtual ParasiticDeviceIterator *deviceIterator() const;
+  virtual ParasiticNodeIterator *nodeIterator() const;
 };
 
 // Pi model for a driver pin.
@@ -414,10 +414,10 @@ public:
   ConcreteParasiticSubNodeMap *subNodes() { return &sub_nodes_; }
   void disconnectPin(const Pin *pin,
 		     const Net *net);
-  virtual ParasiticDeviceIterator *deviceIterator();
-  virtual ParasiticNodeIterator *nodeIterator();
+  virtual ParasiticDeviceIterator *deviceIterator() const;
+  virtual ParasiticNodeIterator *nodeIterator() const;
   virtual void devices(// Return value.
-		       ConcreteParasiticDeviceSet *devices);
+		       ConcreteParasiticDeviceSet *devices) const;
 
 private:
   void deleteNodes();

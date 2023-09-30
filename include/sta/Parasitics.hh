@@ -153,8 +153,8 @@ public:
   virtual Parasitic *makeParasiticNetwork(const Net *net,
 					  bool includes_pin_caps,
 					  const ParasiticAnalysisPt *ap) = 0;
-  virtual ParasiticDeviceIterator *deviceIterator(Parasitic *parasitic) = 0;
-  virtual ParasiticNodeIterator *nodeIterator(Parasitic *parasitic) = 0;
+  virtual ParasiticDeviceIterator *deviceIterator(const Parasitic *parasitic) = 0;
+  virtual ParasiticNodeIterator *nodeIterator(const Parasitic *parasitic) = 0;
   // Delete parasitic network if it exists.
   virtual void deleteParasiticNetwork(const Net *net,
 				      const ParasiticAnalysisPt *ap) = 0;

@@ -101,8 +101,8 @@ public:
   makeParasiticNetwork(const Net *net,
 		       bool pin_cap_included,
 		       const ParasiticAnalysisPt *ap);
-  virtual ParasiticDeviceIterator *deviceIterator(Parasitic *) { return nullptr; }
-  virtual ParasiticNodeIterator *nodeIterator(Parasitic *) { return nullptr; }
+  virtual ParasiticDeviceIterator *deviceIterator(const Parasitic *) { return nullptr; }
+  virtual ParasiticNodeIterator *nodeIterator(const Parasitic *) { return nullptr; }
   virtual bool includesPinCaps(const Parasitic *parasitic) const;
   virtual void deleteParasiticNetwork(const Net *net,
 				      const ParasiticAnalysisPt *ap);

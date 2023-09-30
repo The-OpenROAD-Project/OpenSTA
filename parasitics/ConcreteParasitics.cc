@@ -131,13 +131,13 @@ ConcreteParasitic::setPoleResidue(const Pin *,
 }
 
 ParasiticDeviceIterator *
-ConcreteParasitic::deviceIterator()
+ConcreteParasitic::deviceIterator() const
 {
   return nullptr;
 }
 
 ParasiticNodeIterator *
-ConcreteParasitic::nodeIterator()
+ConcreteParasitic::nodeIterator() const
 {
   return nullptr;
 }
@@ -688,15 +688,15 @@ ConcreteParasiticNetwork::deleteDevices()
 }
 
 ParasiticNodeIterator *
-ConcreteParasiticNetwork::nodeIterator()
+ConcreteParasiticNetwork::nodeIterator() const
 {
   ConcreteParasiticNodeSeq *nodes = new ConcreteParasiticNodeSeq();
-  ConcreteParasiticPinNodeMap::Iterator node_iter2(pin_nodes_);
+  ConcreteParasiticPinNodeMap::ConstIterator node_iter2(pin_nodes_);
   while (node_iter2.hasNext()) {
     ConcreteParasiticPinNode *node = node_iter2.next();
     nodes->push_back(node);
   }
-  ConcreteParasiticSubNodeMap::Iterator node_iter1(sub_nodes_);
+  ConcreteParasiticSubNodeMap::ConstIterator node_iter1(sub_nodes_);
   while (node_iter1.hasNext()) {
     ConcreteParasiticSubNode *node = node_iter1.next();
     nodes->push_back(node);
@@ -705,7 +705,7 @@ ConcreteParasiticNetwork::nodeIterator()
 }
 
 ParasiticDeviceIterator *
-ConcreteParasiticNetwork::deviceIterator()
+ConcreteParasiticNetwork::deviceIterator() const
 {
   ConcreteParasiticDeviceSet *devices1 = new ConcreteParasiticDeviceSet();
   devices(devices1);
@@ -713,11 +713,11 @@ ConcreteParasiticNetwork::deviceIterator()
 }
 
 void
-ConcreteParasiticNetwork::devices(ConcreteParasiticDeviceSet *devices)
+ConcreteParasiticNetwork::devices(ConcreteParasiticDeviceSet *devices) const
 {
   // Collect devices into a set so they are only deleted once
   // because multiple sub-nodes or pin nodes can refer to them.
-  ConcreteParasiticSubNodeMap::Iterator node_iter1(sub_nodes_);
+  ConcreteParasiticSubNodeMap::ConstIterator node_iter1(sub_nodes_);
   while (node_iter1.hasNext()) {
     ConcreteParasiticSubNode *node = node_iter1.next();
     ConcreteParasiticDeviceSeq::Iterator device_iter(node->devices());
@@ -727,10 +727,10 @@ ConcreteParasiticNetwork::devices(ConcreteParasiticDeviceSet *devices)
     }
   }
 
-  ConcreteParasiticPinNodeMap::Iterator node_iter2(pin_nodes_);
+  ConcreteParasiticPinNodeMap::ConstIterator node_iter2(pin_nodes_);
   while (node_iter2.hasNext()) {
     ConcreteParasiticPinNode *node = node_iter2.next();
-    ConcreteParasiticDeviceSeq::Iterator device_iter(node->devices());
+    ConcreteParasiticDeviceSeq::ConstIterator device_iter(node->devices());
     while (device_iter.hasNext()) {
       ConcreteParasiticDevice *device = device_iter.next();
       devices->insert(device);
@@ -1468,16 +1468,16 @@ ConcreteParasitics::makeResistor(const char *name,
 }
 
 ParasiticDeviceIterator *
-ConcreteParasitics::deviceIterator(Parasitic *parasitic)
+ConcreteParasitics::deviceIterator(const Parasitic *parasitic)
 {
-  ConcreteParasitic *cparasitic = static_cast<ConcreteParasitic*>(parasitic);
+  const ConcreteParasitic *cparasitic = static_cast<const ConcreteParasitic*>(parasitic);
   return cparasitic->deviceIterator();
 }
 
 ParasiticNodeIterator *
-ConcreteParasitics::nodeIterator(Parasitic *parasitic)
+ConcreteParasitics::nodeIterator(const Parasitic *parasitic)
 {
-  ConcreteParasitic *cparasitic = static_cast<ConcreteParasitic*>(parasitic);
+  const ConcreteParasitic *cparasitic = static_cast<const ConcreteParasitic*>(parasitic);
   return cparasitic->nodeIterator();
 }
 
