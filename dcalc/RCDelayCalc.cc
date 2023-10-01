@@ -66,7 +66,7 @@ RCDelayCalc::dspfWireDelaySlew(const Pin *,
   float vl = drvr_library_->slewLowerThreshold(drvr_rf_);
   float vh = drvr_library_->slewUpperThreshold(drvr_rf_);
   float slew_derate = drvr_library_->slewDerateFromLibrary();
-  wire_delay = static_cast<float>(-elmore * log(1.0 - vth));
+  wire_delay = -elmore * log(1.0 - vth);
   load_slew = (drvr_slew_ + elmore * log((1.0 - vl) / (1.0 - vh))
 	       / slew_derate) * multi_drvr_slew_factor_;
 }
