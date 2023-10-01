@@ -93,7 +93,7 @@ LumpedCapDelayCalc::findParasitic(const Pin *drvr_pin,
 						corner,
 						cnst_min_max,
 						parasitic_ap);
-      // Estimated parasitics are not recorded in the "database", so
+      // Estimated parasitics are not recorded in the "database", so save
       // it for deletion after the drvr pin delay calc is finished.
       if (parasitic)
 	unsaved_parasitics_.push_back(parasitic);
