@@ -266,8 +266,9 @@ ArnoldiDelayCalc::findParasitic(const Pin *drvr_pin,
 				const RiseFall *drvr_rf,
 				const DcalcAnalysisPt *dcalc_ap)
 {
+  Parasitic *parasitic = nullptr;
   const Corner *corner = dcalc_ap->corner();
-  // set_load has precidence over parasitics.
+  // set_load net has precidence over parasitics.
   if (!sdc_->drvrPinHasWireCap(drvr_pin, corner)) {
     const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
     Parasitic *parasitic_network =
@@ -291,22 +292,20 @@ ArnoldiDelayCalc::findParasitic(const Pin *drvr_pin,
     }
     
     if (parasitic_network) {
-      Parasitic *parasitic =
-	reduce_->reduceToArnoldi(parasitic_network,
-				 drvr_pin,
-				 parasitic_ap->couplingCapFactor(),
-				 drvr_rf, op_cond, corner,
-				 cnst_min_max, parasitic_ap);
+      parasitic = reduce_->reduceToArnoldi(parasitic_network,
+                                           drvr_pin,
+                                           parasitic_ap->couplingCapFactor(),
+                                           drvr_rf, op_cond, corner,
+                                           cnst_min_max, parasitic_ap);
       if (delete_parasitic_network) {
 	Net *net = network_->net(drvr_pin);
 	parasitics_->deleteParasiticNetwork(net, parasitic_ap);
       }
-      // Arnoldi parasitics their own class that are not saved in the parasitic db.
+      // Arnoldi parasitics are their own class that are not saved in the parasitic db.
       unsaved_parasitics_.push_back(parasitic);
-      return parasitic;
     }
   }
-  return nullptr;
+  return parasitic;
 }
 
 ReducedParasiticType
