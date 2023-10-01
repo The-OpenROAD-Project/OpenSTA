@@ -56,7 +56,7 @@ LumpedCapDelayCalc::findParasitic(const Pin *drvr_pin,
 				  const DcalcAnalysisPt *dcalc_ap)
 {
   const Corner *corner = dcalc_ap->corner();
-  // set_load has precidence over parasitics.
+  // set_load net has precidence over parasitics.
   if (!sdc_->drvrPinHasWireCap(drvr_pin, corner)) {
     Parasitic *parasitic = nullptr;
     const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();

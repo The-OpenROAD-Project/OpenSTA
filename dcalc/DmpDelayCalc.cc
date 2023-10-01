@@ -99,17 +99,8 @@ DmpCeffElmoreDelayCalc::loadDelay(const Pin *load_pin,
   if (drvr_parasitic_)
     parasitics_->findElmore(drvr_parasitic_, load_pin, elmore, elmore_exists);
   if (elmore_exists) {
-    if (input_port_) {
-      // Input port with no external driver.
-      if (parasitics_->isReducedParasiticNetwork(drvr_parasitic_))
-	dspfWireDelaySlew(load_pin, elmore, wire_delay1, load_slew1);
-      else {
-	// The elmore delay on an input port is used for the wire
-	// delay and the load slew is the same as the driver slew.
-	wire_delay1 = elmore;
-	load_slew1 = drvr_slew_;
-      }
-    }
+    if (input_port_)
+      dspfWireDelaySlew(load_pin, elmore, wire_delay1, load_slew1);
     else
       loadDelaySlew(load_pin, elmore, wire_delay1, load_slew1);
   }
@@ -322,14 +313,7 @@ DmpCeffTwoPoleDelayCalc::loadDelay(const Pin *load_pin,
 	if (input_port_) {
 	  float elmore = 1.0F / p1;
 	  // Input port with no external driver.
-	  if (parasitics_->isReducedParasiticNetwork(drvr_parasitic_))
-	    dspfWireDelaySlew(load_pin, elmore, wire_delay1, load_slew1);
-	  else {
-	    // For RSPF on an input port the elmore delay is used for the
-	    // wire delay and the load slew is the same as the driver slew.
-	    wire_delay1 = elmore;
-	    load_slew1 = drvr_slew_;
-	  }
+          dspfWireDelaySlew(load_pin, elmore, wire_delay1, load_slew1);
 	}
 	else {
 	  if (pole_count >= 2)
