@@ -364,7 +364,8 @@ void
 LibertyWriter::writeTimingArcSet(const TimingArcSet *arc_set)
 {
   fprintf(stream_, "      timing() {\n");
-  fprintf(stream_, "        related_pin : \"%s\";\n", arc_set->from()->name());
+  if (arc_set->from())
+    fprintf(stream_, "        related_pin : \"%s\";\n", arc_set->from()->name());
   TimingSense sense = arc_set->sense();
   if (sense != TimingSense::unknown
       && sense != TimingSense::non_unate)
@@ -398,11 +399,14 @@ LibertyWriter::writeTimingModels(const TimingArc *arc,
     fprintf(stream_, "	}\n");
 
     const TableModel *slew_model = gate_model->slewModel();
-    template_name = slew_model->tblTemplate()->name();
-    fprintf(stream_, "	%s_transition(%s) {\n", rf->name(), template_name);
-    writeTableModel(slew_model);
-    fprintf(stream_, "	}\n");
-  } else if (check_model) {
+    if (slew_model) {
+      template_name = slew_model->tblTemplate()->name();
+      fprintf(stream_, "	%s_transition(%s) {\n", rf->name(), template_name);
+      writeTableModel(slew_model);
+      fprintf(stream_, "	}\n");
+    }
+  }
+  else if (check_model) {
     const TableModel *model = check_model->model();
     const char *template_name = model->tblTemplate()->name();
     fprintf(stream_, "	%s_constraint(%s) {\n", rf->name(), template_name);
@@ -569,11 +573,15 @@ LibertyWriter::timingTypeString(const TimingArcSet *arc_set)
     else
       return "non_seq_hold_falling";
   }
+  else if (role == TimingRole::clockTreePathMin())
+    return "min_clock_tree_path";
+  else if (role == TimingRole::clockTreePathMax())
+    return "max_clock_tree_path";
   else {
     report_->error(703, "%s/%s/%s timing arc type %s not supported.",
                    library_->name(),
-                   arc_set->from()->libertyCell()->name(),
-                   arc_set->from()->name(),
+                   arc_set->to()->libertyCell()->name(),
+                   arc_set->to()->name(),
                    role->asString());
     return nullptr;
   }

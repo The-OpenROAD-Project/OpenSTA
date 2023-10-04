@@ -2618,6 +2618,15 @@ Sta::findWorstClkSkew(const SetupHold *setup_hold)
 }
 
 void
+Sta::findClkDelays(const Clock *clk,
+                   // Return values.
+                   ClkDelays &delays)
+{
+  clkSkewPreamble();
+  clk_skews_->findClkDelays(clk, delays);
+}
+
+void
 Sta::clkSkewPreamble()
 {
   ensureClkArrivals();

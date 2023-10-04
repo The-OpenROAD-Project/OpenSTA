@@ -55,9 +55,9 @@ public:
   RiseFall *opposite() const;
 
   // for range support.
-  // for (auto tr : RiseFall::range()) {}
+  // for (auto rf : RiseFall::range()) {}
   static const std::array<RiseFall*, 2> &range() { return range_; }
-  // for (auto tr_index : RiseFall::rangeIndex()) {}
+  // for (auto rf_index : RiseFall::rangeIndex()) {}
   static const std::array<int, 2> &rangeIndex() { return range_index_; }
   static const int index_count = 2;
   static const int index_max = (index_count - 1);

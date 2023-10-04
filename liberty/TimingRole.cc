@@ -45,6 +45,8 @@ TimingRole *TimingRole::data_check_setup_;
 TimingRole *TimingRole::data_check_hold_;
 TimingRole *TimingRole::non_seq_setup_;
 TimingRole *TimingRole::non_seq_hold_;
+TimingRole *TimingRole::clock_tree_path_min_;
+TimingRole *TimingRole::clock_tree_path_max_;
 
 TimingRoleMap TimingRole::timing_roles_;
 
@@ -111,6 +113,10 @@ TimingRole::init()
 				  MinMax::max(), TimingRole::setup(), 25);
   non_seq_hold_ = new TimingRole("non-sequential hold", false, true, true,
 				 MinMax::min(), TimingRole::hold(), 26);
+  clock_tree_path_min_ = new TimingRole("min clock tree path", false, false, false,
+                                        MinMax::min(), nullptr, 27);
+  clock_tree_path_max_ = new TimingRole("max clock tree path", false, false, false,
+                                        MinMax::max(), nullptr, 28);
 }
 
 void

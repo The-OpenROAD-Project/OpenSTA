@@ -2195,6 +2195,8 @@ LibertyReader::makeTimingArcs(LibertyPort *to_port,
       }
     }
   }
+  else
+    makeTimingArcs(to_port, related_out_port, timing);
 }
 
 void
@@ -2361,6 +2363,26 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
       }
     }
   }
+}
+
+void
+LibertyReader::makeTimingArcs(LibertyPort *to_port,
+                              LibertyPort *related_out_port,
+			      TimingGroup *timing)
+{
+  if (to_port->hasMembers()) {
+    LibertyPortMemberIterator bit_iter(to_port);
+    while (bit_iter.hasNext()) {
+      LibertyPort *to_port_bit = bit_iter.next();
+      builder_.makeTimingArcs(cell_, nullptr, to_port_bit,
+                              related_out_port, timing->attrs(),
+                              timing->line());
+    }
+  }
+  else
+    builder_.makeTimingArcs(cell_, nullptr, to_port,
+                            related_out_port, timing->attrs(),
+                            timing->line());
 }
 
 ////////////////////////////////////////////////////////////////

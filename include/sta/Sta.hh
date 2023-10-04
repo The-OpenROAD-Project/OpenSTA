@@ -900,12 +900,6 @@ public:
   void setReportPathDigits(int digits);
   void setReportPathNoSplit(bool no_split);
   void setReportPathSigmas(bool report_sigmas);
-  // Report clk skews for clks.
-  void reportClkSkew(ClockSet *clks,
-		     const Corner *corner,
-		     const SetupHold *setup_hold,
-		     int digits);
-  float findWorstClkSkew(const SetupHold *setup_hold);
   // Header above reportPathEnd results.
   void reportPathEndHeader();
   // Footer below reportPathEnd results.
@@ -919,6 +913,18 @@ public:
   void reportPathEnds(PathEndSeq *ends);
   ReportPath *reportPath() { return report_path_; }
   void reportPath(Path *path);
+
+  // Report clk skews for clks.
+  void reportClkSkew(ClockSet *clks,
+		     const Corner *corner,
+		     const SetupHold *setup_hold,
+		     int digits);
+  float findWorstClkSkew(const SetupHold *setup_hold);
+  // Find min/max/rise/fall delays for clk.
+  void findClkDelays(const Clock *clk,
+                     // Return values.
+                     ClkDelays &delays);
+
   // Update arrival times for all pins.
   // If necessary updateTiming propagates arrivals around latch
   // loops until the arrivals converge.

@@ -59,6 +59,8 @@ public:
   static TimingRole *dataCheckHold() { return data_check_hold_; }
   static TimingRole *nonSeqSetup() { return non_seq_setup_; }
   static TimingRole *nonSeqHold() { return non_seq_hold_; }
+  static TimingRole *clockTreePathMin() { return clock_tree_path_min_; }
+  static TimingRole *clockTreePathMax() { return clock_tree_path_max_; }
   const char *asString() const { return name_; }
   int index() const { return index_; }
   bool isWire() const;
@@ -125,6 +127,8 @@ private:
   static TimingRole *data_check_hold_;
   static TimingRole *non_seq_setup_;
   static TimingRole *non_seq_hold_;
+  static TimingRole *clock_tree_path_min_;
+  static TimingRole *clock_tree_path_max_;
   static TimingRoleMap timing_roles_;
 
   friend class TimingRoleLess;

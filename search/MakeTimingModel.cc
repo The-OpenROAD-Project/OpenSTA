@@ -40,9 +40,11 @@
 #include "Sta.hh"
 #include "VisitPathEnds.hh"
 #include "ArcDelayCalc.hh"
+#include "ClkSkew.hh"
 
 namespace sta {
 
+using std::min;
 using std::max;
 using std::make_shared;
 
@@ -96,6 +98,7 @@ MakeTimingModel::makeTimingModel()
 
   findTimingFromInputs();
   findClkedOutputPaths();
+  findClkInsertionDelays();
 
   cell_->finish(false, report_, debug_);
   restoreSdc();
@@ -505,6 +508,63 @@ MakeTimingModel::findClkedOutputPaths()
   delete output_iter;
 }
 
+////////////////////////////////////////////////////////////////
+
+void
+MakeTimingModel::findClkInsertionDelays()
+{
+  Instance *top_inst = network_->topInstance();
+  Cell *top_cell = network_->cell(top_inst);
+  CellPortIterator *port_iter = network_->portIterator(top_cell);
+  while (port_iter->hasNext()) {
+    Port *port = port_iter->next();
+    if (network_->direction(port)->isInput()) {
+      const char *port_name = network_->name(port);
+      LibertyPort *lib_port = cell_->findLibertyPort(port_name);
+      Pin *pin = network_->findPin(top_inst, port);
+      if (sdc_->isClock(pin)) {
+        lib_port->setIsClock(true);
+        ClockSet *clks = sdc_->findClocks(pin);
+        size_t clk_count = clks->size();
+        if (clk_count == 1) {
+          for (const Clock *clk : *clks) {
+            TimingArcAttrsPtr attrs = nullptr;
+            ClkDelays delays;
+            sta_->findClkDelays(clk, delays);
+            for (const MinMax *min_max : MinMax::range()) {
+              for (const RiseFall *clk_rf : RiseFall::range()) {
+                int clk_rf_index = clk_rf->index();
+                float delay = min_max->initValue();
+                for (const int end_rf_index : RiseFall::rangeIndex()) {
+                  float delay1;
+                  bool exists;
+                  delays[clk_rf_index][end_rf_index].value(min_max, delay1, exists);
+                  if (exists)
+                    delay = min_max->minMax(delay, delay1);
+                }
+                TimingModel *model = makeGateModelScalar(delay, clk_rf);
+                if (attrs == nullptr)
+                  attrs = std::make_shared<TimingArcAttrs>();
+                attrs->setModel(clk_rf, model);
+              }
+              if (attrs)
+                attrs->setTimingSense(TimingSense::positive_unate);
+              TimingRole *role = (min_max == MinMax::min())
+                ? TimingRole::clockTreePathMin()
+                : TimingRole::clockTreePathMax();
+              lib_builder_->makeClockTreePathArcs(cell_, lib_port, nullptr, 
+                                                  role, attrs);
+            }
+          }
+        }
+      }
+    }
+  }
+  delete port_iter;
+}
+
+////////////////////////////////////////////////////////////////
+
 LibertyPort *
 MakeTimingModel::modelPort(const Pin *pin)
 {
@@ -514,7 +574,7 @@ MakeTimingModel::modelPort(const Pin *pin)
 TimingModel *
 MakeTimingModel::makeScalarCheckModel(float value,
                                       ScaleFactorType scale_factor_type,
-                                      RiseFall *rf)
+                                      const RiseFall *rf)
 {
   TablePtr table = make_shared<Table0>(value);
   TableTemplate *tbl_template =
@@ -528,7 +588,7 @@ MakeTimingModel::makeScalarCheckModel(float value,
 TimingModel *
 MakeTimingModel::makeGateModelScalar(Delay delay,
                                      Slew slew,
-                                     RiseFall *rf)
+                                     const RiseFall *rf)
 {
   TablePtr delay_table = make_shared<Table0>(delayAsFloat(delay));
   TablePtr slew_table = make_shared<Table0>(delayAsFloat(slew));
@@ -544,12 +604,27 @@ MakeTimingModel::makeGateModelScalar(Delay delay,
   return gate_model;
 }
 
+TimingModel *
+MakeTimingModel::makeGateModelScalar(Delay delay,
+                                     const RiseFall *rf)
+{
+  TablePtr delay_table = make_shared<Table0>(delayAsFloat(delay));
+  TableTemplate *tbl_template =
+    library_->findTableTemplate("scalar", TableTemplateType::delay);
+  TableModel *delay_model = new TableModel(delay_table, tbl_template,
+                                           ScaleFactorType::cell, rf);
+  GateTableModel *gate_model = new GateTableModel(delay_model, nullptr,
+                                                  nullptr, nullptr,
+                                                  nullptr, nullptr);
+  return gate_model;
+}
+
 // Eval the driver pin model along its load capacitance
 // axis and add the input to output 'delay' to the table values.
 TimingModel *
 MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                                     Delay delay,
-                                    RiseFall *rf)
+                                    const RiseFall *rf)
 {
   const DcalcAnalysisPt *dcalc_ap = corner_->findDcalcAnalysisPt(min_max_);
   const Pvt *pvt = dcalc_ap->operatingConditions();

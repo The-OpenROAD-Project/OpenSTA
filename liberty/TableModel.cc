@@ -611,7 +611,7 @@ CheckTableModel::checkAxis(TableAxisPtr axis)
 TableModel::TableModel(TablePtr table,
                        TableTemplate *tbl_template,
 		       ScaleFactorType scale_factor_type,
-		       RiseFall *rf) :
+		       const RiseFall *rf) :
   table_(table),
   tbl_template_(tbl_template),
   scale_factor_type_(int(scale_factor_type)),

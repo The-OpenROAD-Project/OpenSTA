@@ -232,8 +232,6 @@ protected:
 		     Edge *edge);
   void removeDelays();
   void removeDelayAnnotated(Edge *edge);
-  // User defined predicate to filter graph edges for liberty timing arcs.
-  virtual bool filterEdge(TimingArcSet *) const { return true; }
 
   VertexTable *vertices_;
   EdgeTable *edges_;

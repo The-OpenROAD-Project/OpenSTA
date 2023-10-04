@@ -127,13 +127,13 @@ TimingArcAttrs::setModeValue(const char *value)
 }
 
 TimingModel *
-TimingArcAttrs::model(RiseFall *rf) const
+TimingArcAttrs::model(const RiseFall *rf) const
 {
   return models_[rf->index()];
 }
 
 void
-TimingArcAttrs::setModel(RiseFall *rf,
+TimingArcAttrs::setModel(const RiseFall *rf,
 			 TimingModel *model)
 {
   models_[rf->index()] = model;

@@ -79,6 +79,11 @@ public:
 				      bool to_rise,
 				      bool to_fall,
 				      TimingArcAttrsPtr attrs);
+  TimingArcSet *makeClockTreePathArcs(LibertyCell *cell,
+                                      LibertyPort *to_port,
+                                      LibertyPort *related_out,
+                                      TimingRole *role,
+                                      TimingArcAttrsPtr attrs);
 
 protected:
   ConcretePort *makeBusPort(const char *name,

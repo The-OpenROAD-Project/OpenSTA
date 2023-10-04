@@ -281,6 +281,14 @@ LibertyBuilder::makeTimingArcs(LibertyCell *cell,
 				  RiseFall::fall(),
 				  TimingRole::nonSeqHold(),
 				  attrs);
+  case TimingType::min_clock_tree_path:
+    return makeClockTreePathArcs(cell, to_port, related_out,
+                                 TimingRole::clockTreePathMin(),
+                                 attrs);
+  case TimingType::max_clock_tree_path:
+    return makeClockTreePathArcs(cell, to_port, related_out,
+                                 TimingRole::clockTreePathMax(),
+                                 attrs);
   case TimingType::min_pulse_width:
   case TimingType::minimum_period:
   case TimingType::nochange_high_high:
@@ -289,8 +297,6 @@ LibertyBuilder::makeTimingArcs(LibertyCell *cell,
   case TimingType::nochange_low_low:
   case TimingType::retaining_time:
   case TimingType::unknown:
-  case TimingType::min_clock_tree_path:
-  case TimingType::max_clock_tree_path:
     return nullptr;
   }
   // Prevent warnings from lame compilers.
@@ -643,6 +649,23 @@ LibertyBuilder::makeTristateDisableArcs(LibertyCell *cell,
     break;
   case TimingSense::none:
     break;
+  }
+  return arc_set;
+}
+
+TimingArcSet *
+LibertyBuilder::makeClockTreePathArcs(LibertyCell *cell,
+				       LibertyPort *to_port,
+				       LibertyPort *related_out,
+				       TimingRole *role,
+				       TimingArcAttrsPtr attrs)
+{
+  TimingArcSet *arc_set = makeTimingArcSet(cell, nullptr, to_port,
+					   related_out, role, attrs);
+  for (auto to_rf : RiseFall::range()) {
+    TimingModel *model = attrs->model(to_rf);
+    if (model)
+      makeTimingArc(arc_set, nullptr, to_rf, model);
   }
   return arc_set;
 }
