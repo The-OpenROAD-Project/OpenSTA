@@ -2566,6 +2566,33 @@ LibertyPort::setDriverWaveform(DriverWaveform *driver_waveform,
   driver_waveform_[rf->index()] = driver_waveform;
 }
 
+RiseFallMinMax
+LibertyPort::clockTreePathDelays()
+{
+  RiseFallMinMax delays;
+  const TimingArcSetSeq &arc_sets = liberty_cell_->timingArcSets(nullptr, this);
+  for (TimingArcSet *arc_set : arc_sets) {
+    TimingRole *role = arc_set->role();
+    if (role == TimingRole::clockTreePathMin()
+        || role == TimingRole::clockTreePathMax()) {
+      for (TimingArc *arc : arc_set->arcs()) {
+        TimingModel *model = arc->model();
+        GateTimingModel *gate_model = dynamic_cast<GateTimingModel*>(model);
+        ArcDelay delay;
+        Slew slew;
+        gate_model->gateDelay(liberty_cell_, nullptr, 0.0, 0.0, 0.0, false,
+                              delay, slew);
+        const RiseFall *rf = arc->toEdge()->asRiseFall();
+        const MinMax *min_max = (role == TimingRole::clockTreePathMin())
+          ? MinMax::min()
+          : MinMax::max();
+        delays.setValue(rf, min_max, delay);
+      }
+    }
+  }
+  return delays;
+}
+
 ////////////////////////////////////////////////////////////////
 
 LibertyPortSeq
