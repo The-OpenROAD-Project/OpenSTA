@@ -794,6 +794,7 @@ public:
   DriverWaveform *driverWaveform(const RiseFall *rf) const;
   void setDriverWaveform(DriverWaveform *driver_waveform,
                          const RiseFall *rf);
+  RiseFallMinMax clockTreePathDelays();
 
   static bool equiv(const LibertyPort *port1,
 		    const LibertyPort *port2);

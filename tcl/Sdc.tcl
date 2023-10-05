@@ -454,7 +454,6 @@ proc get_cells { args } {
 
   parse_key_args "get_cells" args keys {-hsc -filter -of_objects} \
     flags {-hierarchical -regexp -nocase -quiet}
-  check_argc_eq0or1 "get_cells" $args
   check_nocase_flag flags
 
   set regexp [info exists flags(-regexp)]
@@ -493,23 +492,20 @@ proc get_cells { args } {
       $pin_iter finish
     }
   } else {
-    if { $args == {} } {
-      set insts [network_leaf_instances]
-    } else {
-      foreach pattern $patterns {
-	if { $divider != $hierarchy_separator } {
-	  regsub $divider $pattern $hierarchy_separator pattern
-	}
-	if { $hierarchical } {
-	  set matches [find_instances_hier_matching $pattern $regexp $nocase]
-	} else {
-	  set matches [find_instances_matching $pattern $regexp $nocase]
-	}
-	if { $matches == {} && !$quiet} {
-	  sta_warn 322 "instance '$pattern' not found."
-	}
-	set insts [concat $insts $matches]
+    check_argc_eq1 "get_cells" $args
+    foreach pattern $patterns {
+      if { $divider != $hierarchy_separator } {
+        regsub $divider $pattern $hierarchy_separator pattern
       }
+      if { $hierarchical } {
+        set matches [find_instances_hier_matching $pattern $regexp $nocase]
+      } else {
+        set matches [find_instances_matching $pattern $regexp $nocase]
+      }
+      if { $matches == {} && !$quiet} {
+        sta_warn 322 "instance '$pattern' not found."
+      }
+      set insts [concat $insts $matches]
     }
   }
   if [info exists keys(-filter)] {
@@ -586,7 +582,6 @@ proc get_lib_cells { args } {
   global hierarchy_separator
   parse_key_args "get_lib_cells" args keys {-hsc -of_objects} \
     flags {-regexp -nocase -quiet}
-  check_argc_eq0or1 "get_lib_cells" $args
   check_nocase_flag flags
 
   set regexp [info exists flags(-regexp)]
@@ -601,6 +596,7 @@ proc get_lib_cells { args } {
       lappend cells [$inst liberty_cell]
     }
   } else {
+    check_argc_eq1 "get_lib_cells" $args
     # Copy backslashes that will be removed by foreach.
     set patterns [string map {\\ \\\\} [lindex $args 0]]
     # Parse library_name/pattern.
@@ -838,7 +834,7 @@ proc get_nets { args } {
 
 define_cmd_args "get_pins" \
   {[-hierarchical] [-hsc separator] [-quiet] [-filter expr]\
-     [-regexp] [-nocase] [-of_objects objects] patterns}
+     [-regexp] [-nocase] [-of_objects objects] [patterns]}
 
 define_cmd_alias "get_pin" "get_pins"
 

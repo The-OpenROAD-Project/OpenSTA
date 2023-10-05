@@ -2352,15 +2352,16 @@ bool
 LibertyPort::less(const LibertyPort *port1,
 		  const LibertyPort *port2)
 {
+  if (port1 == nullptr && port2 != nullptr)
+    return true;
+  if (port1 != nullptr && port2 == nullptr)
+    return false;
   const char *name1 = port1->name();
   const char *name2 = port2->name();
   if (stringEq(name1, name2)) {
     PortDirection *dir1 = port1->direction();
     PortDirection *dir2 = port2->direction();
-    if (dir1 == dir2) {
-    }
-    else
-      return dir1->index() < dir2->index();
+    return dir1->index() < dir2->index();
   }
   return stringLess(name1, name2);
 }
@@ -2565,6 +2566,33 @@ LibertyPort::setDriverWaveform(DriverWaveform *driver_waveform,
   driver_waveform_[rf->index()] = driver_waveform;
 }
 
+RiseFallMinMax
+LibertyPort::clockTreePathDelays()
+{
+  RiseFallMinMax delays;
+  const TimingArcSetSeq &arc_sets = liberty_cell_->timingArcSets(nullptr, this);
+  for (TimingArcSet *arc_set : arc_sets) {
+    TimingRole *role = arc_set->role();
+    if (role == TimingRole::clockTreePathMin()
+        || role == TimingRole::clockTreePathMax()) {
+      for (TimingArc *arc : arc_set->arcs()) {
+        TimingModel *model = arc->model();
+        GateTimingModel *gate_model = dynamic_cast<GateTimingModel*>(model);
+        ArcDelay delay;
+        Slew slew;
+        gate_model->gateDelay(liberty_cell_, nullptr, 0.0, 0.0, 0.0, false,
+                              delay, slew);
+        const RiseFall *rf = arc->toEdge()->asRiseFall();
+        const MinMax *min_max = (role == TimingRole::clockTreePathMin())
+          ? MinMax::min()
+          : MinMax::max();
+        delays.setValue(rf, min_max, delay);
+      }
+    }
+  }
+  return delays;
+}
+
 ////////////////////////////////////////////////////////////////
 
 LibertyPortSeq
@@ -2588,8 +2616,8 @@ bool
 LibertyPortPairLess::operator()(const LibertyPortPair &pair1,
 				const LibertyPortPair &pair2) const
 {
-  ObjectId id1 = pair1.first->id();
-  ObjectId id2 = pair2.first->id();
+  ObjectId id1 = pair1.first ? pair1.first->id() : 0;
+  ObjectId id2 = pair2.first ? pair2.first->id() : 0;
   return id1 < id2
     || (id1 == id2
 	&& pair1.second->id() < pair2.second->id());

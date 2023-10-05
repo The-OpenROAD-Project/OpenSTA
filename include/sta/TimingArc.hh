@@ -105,8 +105,8 @@ public:
   void setModeName(const char *name);
   const char *modeValue() const { return mode_value_; }
   void setModeValue(const char *value);
-  TimingModel *model(RiseFall *rf) const;
-  void setModel(RiseFall *rf,
+  TimingModel *model(const RiseFall *rf) const;
+  void setModel(const RiseFall *rf,
 		TimingModel *model);
   float ocvArcDepth() const { return ocv_arc_depth_; }
   void setOcvArcDepth(float depth);

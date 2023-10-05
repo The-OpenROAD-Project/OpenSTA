@@ -358,4 +358,29 @@ ClkSkews::findFanout(Vertex *from)
   return endpoints;
 }
 
+////////////////////////////////////////////////////////////////
+
+void
+ClkSkews::findClkDelays(const Clock *clk,
+                        // Return values.
+                        ClkDelays &delays)
+{
+  for (Vertex *clk_vertex : *graph_->regClkVertices()) {
+    VertexPathIterator path_iter(clk_vertex, this);
+    while (path_iter.hasNext()) {
+      PathVertex *path = path_iter.next();
+      const ClockEdge *path_clk_edge = path->clkEdge(this);
+      const RiseFall *clk_rf = path_clk_edge->transition();
+      const Clock *path_clk = path_clk_edge->clock();
+      if (path_clk == clk) {
+        Arrival arrival = path->arrival(this);
+        Delay clk_delay = delayAsFloat(arrival) - path_clk_edge->time();
+        const MinMax *min_max = path->minMax(this);
+        const RiseFall *rf = path->transition(this);
+        delays[clk_rf->index()][rf->index()].setValue(min_max, clk_delay);
+      }
+    }
+  }
+}
+
 } // namespace

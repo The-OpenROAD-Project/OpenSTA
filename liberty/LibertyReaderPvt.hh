@@ -178,6 +178,9 @@ public:
 			      LibertyPort *to_port,
 			      LibertyPort *related_out_port,
 			      TimingGroup *timing);
+  virtual void makeTimingArcs(LibertyPort *to_port,
+                              LibertyPort *related_out_port,
+			      TimingGroup *timing);
 
   virtual void visitClockGatingIntegratedCell(LibertyAttr *attr);
   virtual void visitArea(LibertyAttr *attr);

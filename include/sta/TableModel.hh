@@ -201,7 +201,7 @@ public:
   TableModel(TablePtr table,
              TableTemplate *tbl_template,
 	     ScaleFactorType scale_factor_type,
-	     RiseFall *rf);
+	     const RiseFall *rf);
   void setScaleFactorType(ScaleFactorType type);
   int order() const;
   TableTemplate *tblTemplate() const { return tbl_template_; }

@@ -99,17 +99,8 @@ DmpCeffElmoreDelayCalc::loadDelay(const Pin *load_pin,
   if (drvr_parasitic_)
     parasitics_->findElmore(drvr_parasitic_, load_pin, elmore, elmore_exists);
   if (elmore_exists) {
-    if (input_port_) {
-      // Input port with no external driver.
-      if (parasitics_->isReducedParasiticNetwork(drvr_parasitic_))
-	dspfWireDelaySlew(load_pin, elmore, wire_delay1, load_slew1);
-      else {
-	// The elmore delay on an input port is used for the wire
-	// delay and the load slew is the same as the driver slew.
-	wire_delay1 = elmore;
-	load_slew1 = drvr_slew_;
-      }
-    }
+    if (input_port_)
+      dspfWireDelaySlew(load_pin, elmore, wire_delay1, load_slew1);
     else
       loadDelaySlew(load_pin, elmore, wire_delay1, load_slew1);
   }
@@ -202,57 +193,53 @@ DmpCeffTwoPoleDelayCalc::findParasitic(const Pin *drvr_pin,
 				       const RiseFall *rf,
 				       const DcalcAnalysisPt *dcalc_ap)
 {
+  Parasitic *parasitic = nullptr;
   const Corner *corner = dcalc_ap->corner();
-  // set_load has precidence over parasitics.
+  // set_load net has precidence over parasitics.
   if (!sdc_->drvrPinHasWireCap(drvr_pin, corner)) {
-    Parasitic *parasitic = nullptr;
     const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
     if (parasitics_->haveParasitics()) {
       // Prefer PiPoleResidue.
-      parasitic = parasitics_->findPiPoleResidue(drvr_pin, rf,
-						 parasitic_ap);
-      if (parasitic)
-	return parasitic;
-
-      parasitic = parasitics_->findPiElmore(drvr_pin, rf, parasitic_ap);
-      if (parasitic)
-	return parasitic;
-
-      Parasitic *parasitic_network =
-	parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
-      if (parasitic_network) {
-	parasitics_->reduceToPiPoleResidue2(parasitic_network, drvr_pin,
-					    dcalc_ap->operatingConditions(),
-					    corner,
-					    dcalc_ap->constraintMinMax(),
-					    parasitic_ap);
-	parasitic = parasitics_->findPiPoleResidue(drvr_pin, rf, parasitic_ap);
-	reduced_parasitic_drvrs_.push_back(drvr_pin);
-	return parasitic;
+      parasitic = parasitics_->findPiPoleResidue(drvr_pin, rf, parasitic_ap);
+      if (parasitic == nullptr) {
+        parasitic = parasitics_->findPiElmore(drvr_pin, rf, parasitic_ap);
+        if (parasitic == nullptr) {
+          Parasitic *parasitic_network =
+            parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
+          if (parasitic_network) {
+            parasitics_->reduceToPiPoleResidue2(parasitic_network, drvr_pin,
+                                                dcalc_ap->operatingConditions(),
+                                                corner,
+                                                dcalc_ap->constraintMinMax(),
+                                                parasitic_ap);
+            parasitic = parasitics_->findPiPoleResidue(drvr_pin, rf, parasitic_ap);
+            reduced_parasitic_drvrs_.push_back(drvr_pin);
+          }
+        }
       }
     }
-
-    const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();
-    Wireload *wireload = sdc_->wireload(cnst_min_max);
-    if (wireload) {
-      float pin_cap, wire_cap, fanout;
-      bool has_wire_cap;
-      graph_delay_calc_->netCaps(drvr_pin, rf, dcalc_ap,
-				 pin_cap, wire_cap, fanout, has_wire_cap);
-      parasitic = parasitics_->estimatePiElmore(drvr_pin, rf, wireload,
-						fanout, pin_cap,
-						dcalc_ap->operatingConditions(),
-						corner,
-						cnst_min_max,
-						parasitic_ap);
-      // Estimated parasitics are not recorded in the "database", so
-      // it for deletion after the drvr pin delay calc is finished.
-      if (parasitic)
-	unsaved_parasitics_.push_back(parasitic);
-      return parasitic;
+    else {
+      const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();
+      Wireload *wireload = sdc_->wireload(cnst_min_max);
+      if (wireload) {
+        float pin_cap, wire_cap, fanout;
+        bool has_wire_cap;
+        graph_delay_calc_->netCaps(drvr_pin, rf, dcalc_ap,
+                                   pin_cap, wire_cap, fanout, has_wire_cap);
+        parasitic = parasitics_->estimatePiElmore(drvr_pin, rf, wireload,
+                                                  fanout, pin_cap,
+                                                  dcalc_ap->operatingConditions(),
+                                                  corner,
+                                                  cnst_min_max,
+                                                  parasitic_ap);
+        // Estimated parasitics are not recorded in the "database", so
+        // it for deletion after the drvr pin delay calc is finished.
+        if (parasitic)
+          unsaved_parasitics_.push_back(parasitic);
+      }
     }
   }
-  return nullptr;
+  return parasitic;
 }
 
 ReducedParasiticType
@@ -322,14 +309,7 @@ DmpCeffTwoPoleDelayCalc::loadDelay(const Pin *load_pin,
 	if (input_port_) {
 	  float elmore = 1.0F / p1;
 	  // Input port with no external driver.
-	  if (parasitics_->isReducedParasiticNetwork(drvr_parasitic_))
-	    dspfWireDelaySlew(load_pin, elmore, wire_delay1, load_slew1);
-	  else {
-	    // For RSPF on an input port the elmore delay is used for the
-	    // wire delay and the load slew is the same as the driver slew.
-	    wire_delay1 = elmore;
-	    load_slew1 = drvr_slew_;
-	  }
+          dspfWireDelaySlew(load_pin, elmore, wire_delay1, load_slew1);
 	}
 	else {
 	  if (pole_count >= 2)

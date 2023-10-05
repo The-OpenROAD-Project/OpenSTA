@@ -110,8 +110,10 @@ public:
     bool exists = exists_[mm_index];
     if (exists)
       return values_[mm_index];
-    else
+    else {
       criticalError(226, "uninitialized value reference");
+      return 0.0;
+    }
   }
 
   void

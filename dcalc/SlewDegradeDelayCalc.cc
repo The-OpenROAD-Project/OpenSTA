@@ -134,14 +134,7 @@ SlewDegradeDelayCalc::loadDelay(const Pin *load_pin,
 						  delayAsFloat(drvr_slew_),
 						  delayAsFloat(wire_delay1));
     }
-    else if (parasitics_->isReducedParasiticNetwork(drvr_parasitic_))
-      dspfWireDelaySlew(load_pin, elmore, wire_delay1, load_slew1);
-    else {
-      // For RSPF on an input port the elmore delay is used for the
-      // wire delay and the slew is copied from the driver.
-      wire_delay1 = elmore;
-      load_slew1 = drvr_slew_;
-    }
+    dspfWireDelaySlew(load_pin, elmore, wire_delay1, load_slew1);
   }
   thresholdAdjust(load_pin, wire_delay1, load_slew1);
   wire_delay = wire_delay1;

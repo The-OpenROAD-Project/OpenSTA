@@ -54,7 +54,7 @@ GraphDelayCalc::incrementalDelayTolerance()
 
 void
 GraphDelayCalc::loadCap(const Pin *,
-			Parasitic *,
+			const Parasitic *,
 			const RiseFall *,
 			const DcalcAnalysisPt *,
 			// Return values.
@@ -74,7 +74,7 @@ GraphDelayCalc::loadCap(const Pin *,
 
 float
 GraphDelayCalc::loadCap(const Pin *,
-			Parasitic *,
+			const Parasitic *,
 			const RiseFall *,
 			const DcalcAnalysisPt *) const
 {

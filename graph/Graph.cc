@@ -191,7 +191,7 @@ Graph::makePortInstanceEdges(const Instance *inst,
     if ((from_to_port == nullptr
 	 || from_port == from_to_port
 	 || to_port == from_to_port)
-	&& filterEdge(arc_set)) {
+	&& from_port) {
       Pin *from_pin = network_->findPin(inst, from_port);
       Pin *to_pin = network_->findPin(inst, to_port);
       if (from_pin && to_pin) {
