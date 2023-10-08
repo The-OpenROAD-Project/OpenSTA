@@ -6032,15 +6032,15 @@ requireds_clk(const RiseFall *rf,
 	      const RiseFall *clk_rf)
 {
   Sta *sta = Sta::sta();
-  FloatSeq requireds;
+  FloatSeq reqs;
   const ClockEdge *clk_edge = nullptr;
   if (clk)
     clk_edge = clk->edge(clk_rf);
   for (auto path_ap : sta->corners()->pathAnalysisPts()) {
-    requireds.push_back(delayAsFloat(sta->vertexRequired(self, rf, clk_edge,
-                                                         path_ap)));
+    reqs.push_back(delayAsFloat(sta->vertexRequired(self, rf, clk_edge,
+                                                    path_ap)));
   }
-  return requireds;
+  return reqs;
 }
 
 StringSeq
@@ -6050,16 +6050,15 @@ requireds_clk_delays(const RiseFall *rf,
 		     int digits)
 {
   Sta *sta = Sta::sta();
-  StringSeq requireds;
+  StringSeq reqs;
   const ClockEdge *clk_edge = nullptr;
   if (clk)
     clk_edge = clk->edge(clk_rf);
   for (auto path_ap : sta->corners()->pathAnalysisPts()) {
-    requireds.push_back(delayAsString(sta->vertexRequired(self, rf, clk_edge,
-                                                          path_ap),
-                                      sta, digits));
+    reqs.push_back(delayAsString(sta->vertexRequired(self, rf, clk_edge, path_ap),
+                                 sta, digits));
   }
-  return requireds;
+  return reqs;
 }
 
 Slack
