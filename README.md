@@ -68,11 +68,7 @@ Removing copyright and license notices from OpenSTA sources (or any
 other open source project for that matter) is illegal. This should be
 obvious, but the author of OpenSTA has discovered two different cases
 where the copyright and license were removed from source files that
-were copied. The Chinese iEDA project from the Peng Cheng Laboratory
-of the Institute of Computing Technology, Chinese Academy of Sciences
-is one example.  The iEDA project copied multiple OpenSTA files and
-removed both the license and copyright notices, replacing them with
-their own copyright and license.
+were copied.
 
 The official git repository is located at
 https://github.com/parallaxsw/OpenSTA.git. Any forks from this code
