@@ -515,14 +515,14 @@ MakeTimingModel::findClkInsertionDelays()
 {
   Instance *top_inst = network_->topInstance();
   Cell *top_cell = network_->cell(top_inst);
-  CellPortIterator *port_iter = network_->portIterator(top_cell);
+  CellPortIterator *port_iter = network_->portBitIterator(top_cell);
   while (port_iter->hasNext()) {
     Port *port = port_iter->next();
     if (network_->direction(port)->isInput()) {
       const char *port_name = network_->name(port);
       LibertyPort *lib_port = cell_->findLibertyPort(port_name);
       Pin *pin = network_->findPin(top_inst, port);
-      if (sdc_->isClock(pin)) {
+      if (pin && sdc_->isClock(pin)) {
         lib_port->setIsClock(true);
         ClockSet *clks = sdc_->findClocks(pin);
         size_t clk_count = clks->size();
