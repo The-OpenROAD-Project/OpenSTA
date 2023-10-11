@@ -3121,9 +3121,8 @@ Sdc::connectedCap(const Pin *pin,
 	  pin_cap, wire_cap, fanout, has_net_load);
   float net_wire_cap;
   drvrPinWireCap(pin, corner, min_max, net_wire_cap, has_net_load);
-  if (has_net_load) {
+  if (has_net_load)
     wire_cap += net_wire_cap;
-  }
 }
 
 float

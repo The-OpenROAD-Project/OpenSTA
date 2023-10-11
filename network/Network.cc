@@ -1981,7 +1981,7 @@ CellIdLess::CellIdLess(const Network *network) :
 
 bool
 CellIdLess::operator()(const Cell *cell1,
-                      const Cell *cell2) const
+                       const Cell *cell2) const
 {
   return network_->id(cell1) < network_->id(cell2);
 }

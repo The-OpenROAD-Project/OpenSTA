@@ -577,27 +577,27 @@ GraphDelayCalc1::seedDrvrSlew(Vertex *drvr_vertex,
     Port *port = network_->port(drvr_pin);
     drive = sdc_->findInputDrive(port);
   }
-  for (auto tr : RiseFall::range()) {
+  for (auto rf : RiseFall::range()) {
     for (auto dcalc_ap : corners_->dcalcAnalysisPts()) {
       if (drive) {
 	const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();
 	const LibertyCell *drvr_cell;
 	const LibertyPort *from_port, *to_port;
 	float *from_slews;
-	drive->driveCell(tr, cnst_min_max, drvr_cell, from_port,
+	drive->driveCell(rf, cnst_min_max, drvr_cell, from_port,
 			 from_slews, to_port);
 	if (drvr_cell) {
 	  if (from_port == nullptr)
 	    from_port = driveCellDefaultFromPort(drvr_cell, to_port);
-	  findInputDriverDelay(drvr_cell, drvr_pin, drvr_vertex, tr,
+	  findInputDriverDelay(drvr_cell, drvr_pin, drvr_vertex, rf,
 			       from_port, from_slews, to_port, dcalc_ap);
 	}
 	else
-	  seedNoDrvrCellSlew(drvr_vertex, drvr_pin, tr, drive, dcalc_ap,
+	  seedNoDrvrCellSlew(drvr_vertex, drvr_pin, rf, drive, dcalc_ap,
 			     arc_delay_calc);
       }
       else
-	seedNoDrvrSlew(drvr_vertex, drvr_pin, tr, dcalc_ap, arc_delay_calc);
+	seedNoDrvrSlew(drvr_vertex, drvr_pin, rf, dcalc_ap, arc_delay_calc);
     }
   }
 }
@@ -679,23 +679,23 @@ GraphDelayCalc1::seedLoadSlew(Vertex *vertex)
              vertex->name(sdc_network_));
   ClockSet *clks = sdc_->findLeafPinClocks(pin);
   initSlew(vertex);
-  for (auto tr : RiseFall::range()) {
+  for (auto rf : RiseFall::range()) {
     for (auto dcalc_ap : corners_->dcalcAnalysisPts()) {
       const MinMax *slew_min_max = dcalc_ap->slewMinMax();
-      if (!vertex->slewAnnotated(tr, slew_min_max)) {
+      if (!vertex->slewAnnotated(rf, slew_min_max)) {
 	float slew = 0.0;
 	if (clks) {
 	  slew = slew_min_max->initValue();
 	  ClockSet::Iterator clk_iter(clks);
 	  while (clk_iter.hasNext()) {
 	    Clock *clk = clk_iter.next();
-	    float clk_slew = clk->slew(tr, slew_min_max);
+	    float clk_slew = clk->slew(rf, slew_min_max);
 	    if (slew_min_max->compare(clk_slew, slew))
 	      slew = clk_slew;
 	  }
 	}
 	DcalcAPIndex ap_index = dcalc_ap->index();
-	graph_->setSlew(vertex, tr, ap_index, slew);
+	graph_->setSlew(vertex, rf, ap_index, slew);
       }
     }
   }
@@ -963,9 +963,9 @@ GraphDelayCalc1::initRootSlews(Vertex *vertex)
   for (auto dcalc_ap : corners_->dcalcAnalysisPts()) {
     const MinMax *slew_min_max = dcalc_ap->slewMinMax();
     DcalcAPIndex ap_index = dcalc_ap->index();
-    for (auto tr : RiseFall::range()) {
-      if (!vertex->slewAnnotated(tr, slew_min_max))
-	graph_->setSlew(vertex, tr, ap_index, default_slew);
+    for (auto rf : RiseFall::range()) {
+      if (!vertex->slewAnnotated(rf, slew_min_max))
+	graph_->setSlew(vertex, rf, ap_index, default_slew);
     }
   }
 }
@@ -1161,12 +1161,12 @@ GraphDelayCalc1::netCaps(const Pin *drvr_pin,
 void
 GraphDelayCalc1::initSlew(Vertex *vertex)
 {
-  for (auto tr : RiseFall::range()) {
+  for (auto rf : RiseFall::range()) {
     for (auto dcalc_ap : corners_->dcalcAnalysisPts()) {
       const MinMax *slew_min_max = dcalc_ap->slewMinMax();
-      if (!vertex->slewAnnotated(tr, slew_min_max)) {
+      if (!vertex->slewAnnotated(rf, slew_min_max)) {
 	DcalcAPIndex ap_index = dcalc_ap->index();
-	graph_->setSlew(vertex, tr, ap_index, slew_min_max->initValue());
+	graph_->setSlew(vertex, rf, ap_index, slew_min_max->initValue());
       }
     }
   }
@@ -1178,11 +1178,11 @@ GraphDelayCalc1::zeroSlewAndWireDelays(Vertex *drvr_vertex)
   for (auto dcalc_ap : corners_->dcalcAnalysisPts()) {
     DcalcAPIndex ap_index = dcalc_ap->index();
     const MinMax *slew_min_max = dcalc_ap->slewMinMax();
-    for (auto tr : RiseFall::range()) {
+    for (auto rf : RiseFall::range()) {
       // Init drvr slew.
-      if (!drvr_vertex->slewAnnotated(tr, slew_min_max)) {
+      if (!drvr_vertex->slewAnnotated(rf, slew_min_max)) {
 	DcalcAPIndex ap_index = dcalc_ap->index();
-	graph_->setSlew(drvr_vertex, tr, ap_index, slew_min_max->initValue());
+	graph_->setSlew(drvr_vertex, rf, ap_index, slew_min_max->initValue());
       }
 
       // Init wire delays and slews.
@@ -1191,11 +1191,11 @@ GraphDelayCalc1::zeroSlewAndWireDelays(Vertex *drvr_vertex)
         Edge *wire_edge = edge_iter.next();
         if (wire_edge->isWire()) {
           Vertex *load_vertex = wire_edge->to(graph_);
-	  if (!graph_->wireDelayAnnotated(wire_edge, tr, ap_index))
-	    graph_->setWireArcDelay(wire_edge, tr, ap_index, 0.0);
+	  if (!graph_->wireDelayAnnotated(wire_edge, rf, ap_index))
+	    graph_->setWireArcDelay(wire_edge, rf, ap_index, 0.0);
 	  // Init load vertex slew.
-	  if (!load_vertex->slewAnnotated(tr, slew_min_max))
-	    graph_->setSlew(load_vertex, tr, ap_index, 0.0);
+	  if (!load_vertex->slewAnnotated(rf, slew_min_max))
+	    graph_->setSlew(load_vertex, rf, ap_index, 0.0);
 	}
       }
     }
