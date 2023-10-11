@@ -3050,9 +3050,11 @@ Sdc::drvrPinWireCap(const Pin *pin,
 {
   MinMaxFloatValues *values = drvr_pin_wire_cap_maps_[corner->index()].findKey(pin);
   if (values)
-    return values->value(min_max, cap, exists);
-  cap = 0.0;
-  exists = false;
+    values->value(min_max, cap, exists);
+  else {
+    cap = 0.0;
+    exists = false;
+  }
 }
 
 void

@@ -25,11 +25,11 @@ NetCaps::NetCaps()
 NetCaps::NetCaps(float pin_cap,
 		 float wire_cap,
 		 float fanout,
-		 bool has_set_load) :
+		 bool has_net_load) :
   pin_cap_(pin_cap),
   wire_cap_(wire_cap),
   fanout_(fanout),
-  has_set_load_(has_set_load)
+  has_net_load_(has_net_load)
 {
 }
 
@@ -37,12 +37,12 @@ void
 NetCaps::init(float pin_cap,
 	      float wire_cap,
 	      float fanout,
-	      bool has_set_load)
+	      bool has_net_load)
 {
   pin_cap_ = pin_cap;
   wire_cap_ = wire_cap;
   fanout_ = fanout;
-  has_set_load_ = has_set_load;
+  has_net_load_ = has_net_load;
 }
 
 } // namespace

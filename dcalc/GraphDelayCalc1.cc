@@ -170,7 +170,7 @@ MultiDrvrNet::netCaps(const RiseFall *drvr_rf,
   pin_cap = net_caps.pinCap();
   wire_cap = net_caps.wireCap();
   fanout = net_caps.fanout();
-  has_net_load = net_caps.hasSetLoad();
+  has_net_load = net_caps.hasNetLoad();
 }
 
 void
