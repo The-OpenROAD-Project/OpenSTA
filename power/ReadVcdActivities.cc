@@ -131,36 +131,42 @@ ReadVcdActivities::setVarActivity(VcdVar *var,
                                   string &var_name,
                                   const VcdValues &var_values)
 {
-  string sta_name = netVerilogToSta(var_name.c_str());
-  if (var->width() == 1)
+  if (var->width() == 1) {
+    string sta_name = netVerilogToSta(var_name.c_str());
     setVarActivity(sta_name.c_str(), var_values, 0);
+  }
   else {
     bool is_bus, is_range, subscript_wild;
     string bus_name;
     int from, to;
-    parseBusName(sta_name.c_str(), '[', ']', '\\',
+    parseBusName(var_name.c_str(), '[', ']', '\\',
                  is_bus, is_range, bus_name, from, to, subscript_wild);
-    int value_bit = 0;
-    if (to < from) {
-      for (int bus_bit = to; bus_bit <= from; bus_bit++) {
-        string pin_name = bus_name;
-        pin_name += '[';
-        pin_name += to_string(bus_bit);
-        pin_name += ']';
-        setVarActivity(pin_name.c_str(), var_values, value_bit);
-        value_bit++;
+    if (is_bus) {
+      string sta_bus_name = netVerilogToSta(bus_name.c_str());
+      int value_bit = 0;
+      if (to < from) {
+        for (int bus_bit = to; bus_bit <= from; bus_bit++) {
+          string pin_name = sta_bus_name;
+          pin_name += '[';
+          pin_name += to_string(bus_bit);
+          pin_name += ']';
+          setVarActivity(pin_name.c_str(), var_values, value_bit);
+          value_bit++;
+        }
+      }
+      else {
+        for (int bus_bit = to; bus_bit >= from; bus_bit--) {
+          string pin_name = sta_bus_name;
+          pin_name += '[';
+          pin_name += to_string(bus_bit);
+          pin_name += ']';
+          setVarActivity(pin_name.c_str(), var_values, value_bit);
+          value_bit++;
+        }
       }
     }
-    else {
-      for (int bus_bit = to; bus_bit >= from; bus_bit--) {
-        string pin_name = bus_name;
-        pin_name += '[';
-        pin_name += to_string(bus_bit);
-        pin_name += ']';
-        setVarActivity(pin_name.c_str(), var_values, value_bit);
-        value_bit++;
-      }
-    }
+    else
+      report_->warn(807, "problem parsing bus %s.", var_name.c_str());
   }
 }
 
@@ -185,8 +191,6 @@ ReadVcdActivities::setVarActivity(const char *pin_name,
     else {
       power_->setUserActivity(pin, activity, duty,
                               PwrActivityOrigin::user);
-      if (annotated_pins_.hasKey(pin))
-        printf("luse\n");
       annotated_pins_.insert(pin);
     }
   }

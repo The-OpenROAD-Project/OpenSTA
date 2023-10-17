@@ -194,7 +194,7 @@ VcdReader::parseVar()
                         type_name.c_str());
     else {
       int width = stoi(tokens[1]);
-      string id = tokens[2];
+      string &id = tokens[2];
       string name;
 
       for (string &context : scope_) {
@@ -203,8 +203,12 @@ VcdReader::parseVar()
       }
       name += tokens[3];
       // iverilog separates bus base name from bit range.
-      if (tokens.size() == 5)
+      if (tokens.size() == 5) {
+        // Preserve space after esacaped name.
+        if (name[0] == '\\')
+          name += ' ';
         name += tokens[4];
+      }
 
       vcd_->makeVar(name, type, width, id);
     }
