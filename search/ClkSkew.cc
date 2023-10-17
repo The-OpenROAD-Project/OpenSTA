@@ -370,14 +370,16 @@ ClkSkews::findClkDelays(const Clock *clk,
     while (path_iter.hasNext()) {
       PathVertex *path = path_iter.next();
       const ClockEdge *path_clk_edge = path->clkEdge(this);
-      const RiseFall *clk_rf = path_clk_edge->transition();
-      const Clock *path_clk = path_clk_edge->clock();
-      if (path_clk == clk) {
-        Arrival arrival = path->arrival(this);
-        Delay clk_delay = delayAsFloat(arrival) - path_clk_edge->time();
-        const MinMax *min_max = path->minMax(this);
-        const RiseFall *rf = path->transition(this);
-        delays[clk_rf->index()][rf->index()].setValue(min_max, clk_delay);
+      if (path_clk_edge) {
+        const RiseFall *clk_rf = path_clk_edge->transition();
+        const Clock *path_clk = path_clk_edge->clock();
+        if (path_clk == clk) {
+          Arrival arrival = path->arrival(this);
+          Delay clk_delay = delayAsFloat(arrival) - path_clk_edge->time();
+          const MinMax *min_max = path->minMax(this);
+          const RiseFall *rf = path->transition(this);
+          delays[clk_rf->index()][rf->index()].setValue(min_max, clk_delay);
+        }
       }
     }
   }

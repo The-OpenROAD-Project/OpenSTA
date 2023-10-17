@@ -148,7 +148,6 @@ stringDeleteCheck(const char *str);
 inline void
 stringDelete(const char *str)
 {
-  stringDeleteCheck(str);
   delete [] str;
 }
 

@@ -219,7 +219,8 @@ Power::power(const Corner *corner,
     if (cell) {
       PowerResult inst_power = power(inst, cell, corner);
       if (cell->isMacro()
-	  || cell->isMemory())
+	  || cell->isMemory()
+          || cell->interfaceTiming())
 	macro.incr(inst_power);
       else if (cell->isPad())
 	pad.incr(inst_power);
