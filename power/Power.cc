@@ -363,7 +363,7 @@ PropActivityVisitor::visit(Vertex *vertex)
 	Edge *edge = edge_iter.next();
 	if (edge->isWire()) {
 	  Vertex *from_vertex = edge->from(graph_);
-	  const Pin *from_pin = from_vertex->pin();
+          const Pin *from_pin = from_vertex->pin();
 	  PwrActivity &from_activity = power_->activity(from_pin);
 	  PwrActivity to_activity(from_activity.activity(),
 				  from_activity.duty(),
@@ -436,7 +436,8 @@ PropActivityVisitor::setActivityCheck(const Pin *pin,
   float activity_delta = abs(activity.activity() - prev_activity.activity());
   float duty_delta = abs(activity.duty() - prev_activity.duty());
   if (activity_delta > change_tolerance_
-      || duty_delta > change_tolerance_) {
+      || duty_delta > change_tolerance_
+      || activity.origin() != prev_activity.origin()) {
     max_change_ = max(max_change_, activity_delta);
     max_change_ = max(max_change_, duty_delta);
     power_->setActivity(pin, activity);
@@ -1016,7 +1017,7 @@ isPositiveUnate(const LibertyCell *cell,
 ////////////////////////////////////////////////////////////////
 
 void
-Power::findLeakagePower(const Instance *,
+Power::findLeakagePower(const Instance *inst,
 			LibertyCell *cell,
 			const Corner *corner,
 			// Return values.
@@ -1031,21 +1032,16 @@ Power::findLeakagePower(const Instance *,
   for (LeakagePower *leak : *corner_cell->leakagePowers()) {
     FuncExpr *when = leak->when();
     if (when) {
-      FuncExprPortIterator port_iter(when);
-      float duty = 1.0;
-      while (port_iter.hasNext()) {
-	LibertyPort *port = port_iter.next();
-	if (port->direction()->isAnyInput())
-	  duty *= port->isClock() ? 0.25 : 0.5;
-      }
+      PwrActivity cond_activity = evalActivity(when, inst);
+      float cond_duty = cond_activity.duty();
       debugPrint(debug_, "power", 2, "leakage %s %s %.3e * %.2f",
                  cell->name(),
                  when->asString(),
                  leak->power(),
-                 duty);
-      cond_leakage += leak->power() * duty;
+                 cond_duty);
+      cond_leakage += leak->power() * cond_duty;
       if (leak->power() > 0.0)
-        cond_duty_sum += duty;
+        cond_duty_sum += cond_duty;
       found_cond = true;
     }
     else {
@@ -1152,7 +1148,7 @@ Power::findActivity(const Pin *pin)
     if (activity.origin() != PwrActivityOrigin::unknown)
       return activity;
   }
-  return input_activity_;
+  return PwrActivity(0.0, 0.0, PwrActivityOrigin::unknown);
 }
 
 PwrActivity
