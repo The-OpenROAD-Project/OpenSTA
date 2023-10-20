@@ -178,7 +178,7 @@ ReadVcdActivities::setVarActivity(const char *pin_name,
                                   const VcdValues &var_values,
                                   int value_bit)
 {
-  const Pin *pin = network_->findPin(pin_name);
+  const Pin *pin = sdc_network_->findPin(pin_name);
   if (pin) {
     double transition_count, activity, duty;
     findVarActivity(var_values, value_bit,
