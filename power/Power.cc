@@ -202,12 +202,14 @@ Power::power(const Corner *corner,
 	     PowerResult &total,
 	     PowerResult &sequential,
   	     PowerResult &combinational,
+             PowerResult &clock,
 	     PowerResult &macro,
 	     PowerResult &pad)
 {
   total.clear();
   sequential.clear();
   combinational.clear();
+  clock.clear();
   macro.clear();
   pad.clear();
 
@@ -226,12 +228,30 @@ Power::power(const Corner *corner,
 	pad.incr(inst_power);
       else if (cell->hasSequentials())
 	sequential.incr(inst_power);
+      else if (inClockNetwork(inst))
+	clock.incr(inst_power);
       else
 	combinational.incr(inst_power);
       total.incr(inst_power);
     }
   }
   delete inst_iter;
+}
+
+bool
+Power::inClockNetwork(const Instance *inst)
+{
+  InstancePinIterator *pin_iter = network_->pinIterator(inst);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    if (network_->direction(pin)->isAnyOutput()
+        && !clk_network_->isClock(pin)) {
+      delete pin_iter;
+      return false;
+    }
+  }
+  delete pin_iter;
+  return true;
 }
 
 PowerResult

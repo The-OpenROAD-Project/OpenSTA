@@ -67,6 +67,7 @@ public:
 	     PowerResult &total,
 	     PowerResult &sequential,
   	     PowerResult &combinational,
+             PowerResult &clock,
 	     PowerResult &macro,
 	     PowerResult &pad);
   PowerResult power(const Instance *inst,
@@ -87,6 +88,7 @@ public:
   PwrActivity findClkedActivity(const Pin *pin);
 
 protected:
+  bool inClockNetwork(const Instance *inst);
   void powerInside(const Instance *hinst,
                    const Corner *corner,
                    PowerResult &result);

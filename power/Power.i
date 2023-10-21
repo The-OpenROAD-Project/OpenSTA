@@ -43,12 +43,13 @@ FloatSeq
 design_power(const Corner *corner)
 {
   cmdLinkedNetwork();
-  PowerResult total, sequential, combinational, macro, pad;
-  Sta::sta()->power(corner, total, sequential, combinational, macro, pad);
+  PowerResult total, sequential, combinational, clock, macro, pad;
+  Sta::sta()->power(corner, total, sequential, combinational, clock, macro, pad);
   FloatSeq powers;
   pushPowerResultFloats(total, powers);
   pushPowerResultFloats(sequential, powers);
   pushPowerResultFloats(combinational, powers);
+  pushPowerResultFloats(clock, powers);
   pushPowerResultFloats(macro, powers);
   pushPowerResultFloats(pad, powers);
   return powers;
