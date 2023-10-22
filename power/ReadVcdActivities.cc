@@ -191,11 +191,8 @@ ReadVcdActivities::setVarActivity(const char *pin_name,
                duty);
     if (sdc_->isLeafPinClock(pin))
       checkClkPeriod(pin, transition_count);
-    else {
-      power_->setUserActivity(pin, activity, duty,
-                              PwrActivityOrigin::user);
-      annotated_pins_.insert(pin);
-    }
+    power_->setUserActivity(pin, activity, duty, PwrActivityOrigin::user);
+    annotated_pins_.insert(pin);
   }
 }
 
