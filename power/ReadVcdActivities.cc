@@ -180,6 +180,7 @@ ReadVcdActivities::setVarActivity(const char *pin_name,
 {
   const Pin *pin = sdc_network_->findPin(pin_name);
   if (pin) {
+    debugPrint(debug_, "read_vcd_activities", 3, "%s values", pin_name);
     double transition_count, activity, duty;
     findVarActivity(var_values, value_bit,
                     transition_count, activity, duty);
@@ -205,16 +206,13 @@ ReadVcdActivities::findVarActivity(const VcdValues &var_values,
                                    double &duty)
 {
   transition_count = 0.0;
-  char prev_value = var_values[0].value();
+  char prev_value = var_values[0].value(value_bit);
   VcdTime prev_time = var_values[0].time();
   VcdTime high_time = 0;
   for (const VcdValue &var_value : var_values) {
     VcdTime time = var_value.time();
-    char value = var_value.value();
-    if (value == '\0') {
-      uint64_t bus_value = var_value.busValue();
-      value = ((bus_value >> value_bit) & 0x1) ? '1' : '0';
-    }
+    char value = var_value.value(value_bit);
+    debugPrint(debug_, "read_vcd_activities", 3, " %llu %c", time, value);
     if (prev_value == '1')
       high_time += time - prev_time;
     if (value != prev_value)
