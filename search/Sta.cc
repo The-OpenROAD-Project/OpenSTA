@@ -5700,11 +5700,12 @@ Sta::power(const Corner *corner,
 	   PowerResult &total,
 	   PowerResult &sequential,
 	   PowerResult &combinational,
+	   PowerResult &clock,
 	   PowerResult &macro,
 	   PowerResult &pad)
 {
   powerPreamble();
-  power_->power(corner, total, sequential, combinational, macro, pad);
+  power_->power(corner, total, sequential, combinational, clock, macro, pad);
 }
 
 PowerResult

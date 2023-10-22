@@ -56,8 +56,9 @@ proc report_power_design { corner digits } {
   set totals        [lrange $power_result  0  3]
   set sequential    [lrange $power_result  4  7]
   set combinational [lrange $power_result  8 11]
-  set macro         [lrange $power_result 12 15]
-  set pad           [lrange $power_result 16 end]
+  set clock         [lrange $power_result 12 15]
+  set macro         [lrange $power_result 16 19]
+  set pad           [lrange $power_result 20 end]
   lassign $totals design_internal design_switching design_leakage design_total
 
   set field_width [max [expr $digits + 6] 10]
@@ -66,6 +67,7 @@ proc report_power_design { corner digits } {
   report_title_dashes5 $field_width
   report_power_row "Sequential"    $sequential    $design_total $field_width $digits
   report_power_row "Combinational" $combinational $design_total $field_width $digits
+  report_power_row "Clock"         $clock         $design_total $field_width $digits
   report_power_row "Macro"         $macro         $design_total $field_width $digits
   report_power_row "Pad"           $pad           $design_total $field_width $digits
   report_title_dashes5 $field_width

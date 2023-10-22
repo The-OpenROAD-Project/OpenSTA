@@ -145,12 +145,16 @@ Report::printToBufferAppend(const char *fmt,
   // Copy args in case we need to grow the buffer.
   va_list args_copy;
   va_copy(args_copy, args);
-  int length = vsnprint(buffer_ + buffer_length_, buffer_size_, fmt, args);
-  if (buffer_length_ >= buffer_size_) {
+  size_t length = vsnprint(buffer_ + buffer_length_, buffer_size_- buffer_length_,
+                           fmt, args);
+  if (length >= buffer_size_) {
+    buffer_size_ = buffer_length_ + length * 2;
+    char *new_buffer = new char[buffer_size_];
+    strncpy(new_buffer, buffer_, buffer_length_);
     delete [] buffer_;
-    buffer_size_ = buffer_length_ * 2;
-    buffer_ = new char[buffer_size_];
-    length = vsnprint(buffer_ + buffer_length_, buffer_size_, fmt, args_copy);
+    buffer_ = new_buffer;
+    length = vsnprint(buffer_ + buffer_length_, buffer_size_ - buffer_length_,
+                      fmt, args_copy);
   }
   buffer_length_ += length;
   va_end(args_copy);
