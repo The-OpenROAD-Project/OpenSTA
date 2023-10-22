@@ -99,7 +99,10 @@ ReadVcdActivities::readActivities()
   for (Clock *clk : *sta_->sdc()->clocks())
     clk_period_ = min(static_cast<double>(clk->period()), clk_period_);
 
-  setActivities();
+  if (vcd_.timeMax() > 0)
+    setActivities();
+  else
+    report_->warn(808, "VCD max time is zero.");
   report_->reportLine("Annotated %lu pin activities.", annotated_pins_.size());
 }
 
@@ -166,7 +169,7 @@ ReadVcdActivities::setVarActivity(VcdVar *var,
       }
     }
     else
-      report_->warn(807, "problem parsing bus %s.", var_name.c_str());
+      report_->warn(809, "problem parsing bus %s.", var_name.c_str());
   }
 }
 
@@ -175,7 +178,7 @@ ReadVcdActivities::setVarActivity(const char *pin_name,
                                   const VcdValues &var_values,
                                   int value_bit)
 {
-  const Pin *pin = network_->findPin(pin_name);
+  const Pin *pin = sdc_network_->findPin(pin_name);
   if (pin) {
     double transition_count, activity, duty;
     findVarActivity(var_values, value_bit,

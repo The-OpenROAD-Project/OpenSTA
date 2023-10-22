@@ -1282,6 +1282,7 @@ public:
 	     PowerResult &total,
 	     PowerResult &sequential,
   	     PowerResult &combinational,
+  	     PowerResult &clock,
 	     PowerResult &macro,
 	     PowerResult &pad);
   PowerResult power(const Instance *inst,
