@@ -23,6 +23,7 @@ enum class PwrActivityOrigin
  global,
  input,
  user,
+ vcd,
  propagated,
  clock,
  constant,

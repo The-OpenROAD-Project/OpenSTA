@@ -1276,6 +1276,7 @@ static EnumNameMap<PwrActivityOrigin> pwr_activity_origin_map =
   {{PwrActivityOrigin::global, "global"},
    {PwrActivityOrigin::input, "input"},
    {PwrActivityOrigin::user, "user"},
+   {PwrActivityOrigin::vcd, "vcd"},
    {PwrActivityOrigin::propagated, "propagated"},
    {PwrActivityOrigin::clock, "clock"},
    {PwrActivityOrigin::constant, "constant"},
