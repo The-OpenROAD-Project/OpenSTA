@@ -109,6 +109,12 @@ protected:
   PowerResult power(const Instance *inst,
                     LibertyCell *cell,
                     const Corner *corner);
+  void findInternalPower(const Instance *inst,
+                         LibertyCell *cell,
+                         const Corner *corner,
+                         const Clock *inst_clk,
+                         // Return values.
+                         PowerResult &result);
   void findInputInternalPower(const Pin *to_pin,
 			      const LibertyPort *to_port,
 			      const Instance *inst,
@@ -132,6 +138,12 @@ protected:
 			const Corner *corner,
 			// Return values.
 			PowerResult &result);
+  void findSwitchingPower(const Instance *inst,
+                          LibertyCell *cell,
+                          const Corner *corner,
+                          const Clock *inst_clk,
+                          // Return values.
+                          PowerResult &result);
   void findSwitchingPower(LibertyCell *cell,
 			  const LibertyPort *to_port,
 			  PwrActivity &activity,

@@ -696,43 +696,9 @@ Power::power(const Instance *inst,
 	     const Corner *corner)
 {
   PowerResult result;
-  MinMax *mm = MinMax::max();
-  const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
   const Clock *inst_clk = findInstClk(inst);
-  InstancePinIterator *pin_iter1 = network_->pinIterator(inst);
-  while (pin_iter1->hasNext()) {
-    const Pin *to_pin = pin_iter1->next();
-    const LibertyPort *to_port = network_->libertyPort(to_pin);
-    if (to_port) {
-      float load_cap = to_port->direction()->isAnyOutput()
-        ? graph_delay_calc_->loadCap(to_pin, dcalc_ap)
-        : 0.0;
-      PwrActivity activity = findClkedActivity(to_pin, inst_clk);
-      if (to_port->direction()->isAnyOutput())
-        findOutputInternalPower(to_pin, to_port, inst, cell, activity,
-                                load_cap, corner, result);
-      if (to_port->direction()->isAnyInput())
-        findInputInternalPower(to_pin, to_port, inst, cell, activity,
-                               load_cap, corner, result);
-    }
-  }
-  delete pin_iter1;
-
-  InstancePinIterator *pin_iter2 = network_->pinIterator(inst);
-  while (pin_iter2->hasNext()) {
-    const Pin *to_pin = pin_iter2->next();
-    const LibertyPort *to_port = network_->libertyPort(to_pin);
-    if (to_port) {
-      float load_cap = to_port->direction()->isAnyOutput()
-        ? graph_delay_calc_->loadCap(to_pin, dcalc_ap)
-        : 0.0;
-      PwrActivity activity = findClkedActivity(to_pin, inst_clk);
-      if (to_port->direction()->isAnyOutput())
-        findSwitchingPower(cell, to_port, activity, load_cap, corner, result);
-    }
-  }
-  delete pin_iter2;
-
+  findInternalPower(inst, cell, corner, inst_clk, result);
+  findSwitchingPower(inst, cell, corner, inst_clk, result);
   findLeakagePower(inst, cell, corner, result);
   return result;
 }
@@ -750,6 +716,35 @@ Power::findInstClk(const Instance *inst)
   }
   delete pin_iter;
   return inst_clk;
+}
+
+void
+Power::findInternalPower(const Instance *inst,
+                         LibertyCell *cell,
+                         const Corner *corner,
+                         const Clock *inst_clk,
+                         // Return values.
+                         PowerResult &result)
+{
+  const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(MinMax::max());
+  InstancePinIterator *pin_iter = network_->pinIterator(inst);
+  while (pin_iter->hasNext()) {
+    const Pin *to_pin = pin_iter->next();
+    const LibertyPort *to_port = network_->libertyPort(to_pin);
+    if (to_port) {
+      float load_cap = to_port->direction()->isAnyOutput()
+        ? graph_delay_calc_->loadCap(to_pin, dcalc_ap)
+        : 0.0;
+      PwrActivity activity = findClkedActivity(to_pin, inst_clk);
+      if (to_port->direction()->isAnyOutput())
+        findOutputInternalPower(to_pin, to_port, inst, cell, activity,
+                                load_cap, corner, result);
+      if (to_port->direction()->isAnyInput())
+        findInputInternalPower(to_pin, to_port, inst, cell, activity,
+                               load_cap, corner, result);
+    }
+  }
+  delete pin_iter;
 }
 
 void
@@ -1046,6 +1041,57 @@ isPositiveUnate(const LibertyCell *cell,
 ////////////////////////////////////////////////////////////////
 
 void
+Power::findSwitchingPower(const Instance *inst,
+                          LibertyCell *cell,
+                          const Corner *corner,
+                          const Clock *inst_clk,
+                          // Return values.
+                          PowerResult &result)
+{
+  const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(MinMax::max());
+  InstancePinIterator *pin_iter = network_->pinIterator(inst);
+  while (pin_iter->hasNext()) {
+    const Pin *to_pin = pin_iter->next();
+    const LibertyPort *to_port = network_->libertyPort(to_pin);
+    if (to_port) {
+      float load_cap = to_port->direction()->isAnyOutput()
+        ? graph_delay_calc_->loadCap(to_pin, dcalc_ap)
+        : 0.0;
+      PwrActivity activity = findClkedActivity(to_pin, inst_clk);
+      if (to_port->direction()->isAnyOutput())
+        findSwitchingPower(cell, to_port, activity, load_cap, corner, result);
+    }
+  }
+  delete pin_iter;
+}
+
+void
+Power::findSwitchingPower(LibertyCell *cell,
+			  const LibertyPort *to_port,
+			  PwrActivity &activity,
+			  float load_cap,
+			  const Corner *corner,
+			  // Return values.
+			  PowerResult &result)
+{
+  MinMax *mm = MinMax::max();
+  const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
+  LibertyCell *corner_cell = cell->cornerCell(dcalc_ap);
+  float volt = portVoltage(corner_cell, to_port, dcalc_ap);
+  float switching = .5 * load_cap * volt * volt * activity.activity();
+  debugPrint(debug_, "power", 2, "switching %s/%s activity = %.2e volt = %.2f %.3e",
+             cell->name(),
+             to_port->name(),
+             activity.activity(),
+             volt,
+             switching);
+  result.switching() += switching;
+}
+
+////////////////////////////////////////////////////////////////
+
+
+void
 Power::findLeakagePower(const Instance *inst,
 			LibertyCell *cell,
 			const Corner *corner,
@@ -1104,29 +1150,6 @@ Power::findLeakagePower(const Instance *inst,
              cell->name(),
              leakage);
   result.leakage() += leakage;
-}
-
-void
-Power::findSwitchingPower(LibertyCell *cell,
-			  const LibertyPort *to_port,
-			  PwrActivity &activity,
-			  float load_cap,
-			  const Corner *corner,
-			  // Return values.
-			  PowerResult &result)
-{
-  MinMax *mm = MinMax::max();
-  const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
-  LibertyCell *corner_cell = cell->cornerCell(dcalc_ap);
-  float volt = portVoltage(corner_cell, to_port, dcalc_ap);
-  float switching = .5 * load_cap * volt * volt * activity.activity();
-  debugPrint(debug_, "power", 2, "switching %s/%s activity = %.2e volt = %.2f %.3e",
-             cell->name(),
-             to_port->name(),
-             activity.activity(),
-             volt,
-             switching);
-  result.switching() += switching;
 }
 
 PwrActivity
