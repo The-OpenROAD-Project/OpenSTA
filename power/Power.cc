@@ -1049,6 +1049,7 @@ Power::findSwitchingPower(const Instance *inst,
                           PowerResult &result)
 {
   const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(MinMax::max());
+  LibertyCell *corner_cell = cell->cornerCell(dcalc_ap);
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
   while (pin_iter->hasNext()) {
     const Pin *to_pin = pin_iter->next();
@@ -1058,34 +1059,20 @@ Power::findSwitchingPower(const Instance *inst,
         ? graph_delay_calc_->loadCap(to_pin, dcalc_ap)
         : 0.0;
       PwrActivity activity = findClkedActivity(to_pin, inst_clk);
-      if (to_port->direction()->isAnyOutput())
-        findSwitchingPower(cell, to_port, activity, load_cap, corner, result);
+      if (to_port->direction()->isAnyOutput()) {
+        float volt = portVoltage(corner_cell, to_port, dcalc_ap);
+        float switching = .5 * load_cap * volt * volt * activity.activity();
+        debugPrint(debug_, "power", 2, "switching %s/%s activity = %.2e volt = %.2f %.3e",
+                   cell->name(),
+                   to_port->name(),
+                   activity.activity(),
+                   volt,
+                   switching);
+        result.switching() += switching;
+      }
     }
   }
   delete pin_iter;
-}
-
-void
-Power::findSwitchingPower(LibertyCell *cell,
-			  const LibertyPort *to_port,
-			  PwrActivity &activity,
-			  float load_cap,
-			  const Corner *corner,
-			  // Return values.
-			  PowerResult &result)
-{
-  MinMax *mm = MinMax::max();
-  const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
-  LibertyCell *corner_cell = cell->cornerCell(dcalc_ap);
-  float volt = portVoltage(corner_cell, to_port, dcalc_ap);
-  float switching = .5 * load_cap * volt * volt * activity.activity();
-  debugPrint(debug_, "power", 2, "switching %s/%s activity = %.2e volt = %.2f %.3e",
-             cell->name(),
-             to_port->name(),
-             activity.activity(),
-             volt,
-             switching);
-  result.switching() += switching;
 }
 
 ////////////////////////////////////////////////////////////////

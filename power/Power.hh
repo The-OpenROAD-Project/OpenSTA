@@ -144,13 +144,6 @@ protected:
                           const Clock *inst_clk,
                           // Return values.
                           PowerResult &result);
-  void findSwitchingPower(LibertyCell *cell,
-			  const LibertyPort *to_port,
-			  PwrActivity &activity,
-			  float load_cap,
-			  const Corner *corner,
-			  // Return values.
-			  PowerResult &result);
   float getSlew(Vertex *vertex,
                 const RiseFall *rf,
                 const Corner *corner);
