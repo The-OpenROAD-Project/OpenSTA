@@ -111,9 +111,9 @@ Power::setInputPortActivity(const Port *input_port,
 
 void
 Power::setUserActivity(const Pin *pin,
-		      float activity,
-		      float duty,
-		      PwrActivityOrigin origin)
+                       float activity,
+                       float duty,
+                       PwrActivityOrigin origin)
 {
   user_activity_map_[pin] = {activity, duty, origin};
   activities_valid_ = false;
@@ -699,26 +699,40 @@ Power::power(const Instance *inst,
   MinMax *mm = MinMax::max();
   const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
   const Clock *inst_clk = findInstClk(inst);
-  InstancePinIterator *pin_iter = network_->pinIterator(inst);
-  while (pin_iter->hasNext()) {
-    const Pin *to_pin = pin_iter->next();
+  InstancePinIterator *pin_iter1 = network_->pinIterator(inst);
+  while (pin_iter1->hasNext()) {
+    const Pin *to_pin = pin_iter1->next();
     const LibertyPort *to_port = network_->libertyPort(to_pin);
     if (to_port) {
       float load_cap = to_port->direction()->isAnyOutput()
         ? graph_delay_calc_->loadCap(to_pin, dcalc_ap)
         : 0.0;
       PwrActivity activity = findClkedActivity(to_pin, inst_clk);
-      if (to_port->direction()->isAnyOutput()) {
-        findSwitchingPower(cell, to_port, activity, load_cap, corner, result);
+      if (to_port->direction()->isAnyOutput())
         findOutputInternalPower(to_pin, to_port, inst, cell, activity,
                                 load_cap, corner, result);
-      }
       if (to_port->direction()->isAnyInput())
         findInputInternalPower(to_pin, to_port, inst, cell, activity,
                                load_cap, corner, result);
     }
   }
-  delete pin_iter;
+  delete pin_iter1;
+
+  InstancePinIterator *pin_iter2 = network_->pinIterator(inst);
+  while (pin_iter2->hasNext()) {
+    const Pin *to_pin = pin_iter2->next();
+    const LibertyPort *to_port = network_->libertyPort(to_pin);
+    if (to_port) {
+      float load_cap = to_port->direction()->isAnyOutput()
+        ? graph_delay_calc_->loadCap(to_pin, dcalc_ap)
+        : 0.0;
+      PwrActivity activity = findClkedActivity(to_pin, inst_clk);
+      if (to_port->direction()->isAnyOutput())
+        findSwitchingPower(cell, to_port, activity, load_cap, corner, result);
+    }
+  }
+  delete pin_iter2;
+
   findLeakagePower(inst, cell, corner, result);
   return result;
 }
@@ -755,16 +769,14 @@ Power::findInputInternalPower(const Pin *pin,
   if (corner_cell && corner_port) {
     const InternalPowerSeq &internal_pwrs = corner_cell->internalPowers(corner_port);
     if (!internal_pwrs.empty()) {
-      debugPrint(debug_, "power", 2, "internal input %s/%s (%s)",
+      debugPrint(debug_, "power", 2, "internal input %s/%s cap %s",
                  network_->pathName(inst),
                  port->name(),
-                 corner_cell->name());
+                 units_->capacitanceUnit()->asString(load_cap));
+      debugPrint(debug_, "power", 2, "       when  act/ns duty  energy    power");
       const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(MinMax::max());
       const Pvt *pvt = dcalc_ap->operatingConditions();
       Vertex *vertex = graph_->pinLoadVertex(pin);
-      debugPrint(debug_, "power", 2, " cap = %s",
-                 units_->capacitanceUnit()->asString(load_cap));
-      debugPrint(debug_, "power", 2, "       when  act/ns duty  energy    power");
       float internal = 0.0;
       for (InternalPower *pwr : internal_pwrs) {
         const char *related_pg_pin = pwr->relatedPgPin();
@@ -886,16 +898,14 @@ Power::findOutputInternalPower(const Pin *to_pin,
 			       // Return values.
 			       PowerResult &result)
 {
-  debugPrint(debug_, "power", 2, "internal output %s/%s (%s)",
+  debugPrint(debug_, "power", 2, "internal output %s/%s cap %s",
              network_->pathName(inst),
              to_port->name(),
-             cell->name());
+             units_->capacitanceUnit()->asString(load_cap));
   const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(MinMax::max());
   const Pvt *pvt = dcalc_ap->operatingConditions();
   LibertyCell *corner_cell = cell->cornerCell(dcalc_ap);
   const LibertyPort *to_corner_port = to_port->cornerPort(dcalc_ap);
-  debugPrint(debug_, "power", 2, " cap = %s",
-             units_->capacitanceUnit()->asString(load_cap));
   FuncExpr *func = to_port->function();
 
   map<const char*, float, StringLessIf> pg_duty_sum;
@@ -906,6 +916,8 @@ Power::findOutputInternalPower(const Pin *to_pin,
     pg_duty_sum[related_pg_pin] += duty;
   }
 
+  debugPrint(debug_, "power", 2,
+             "             when act/ns duty  wgt   energy    power");
   float internal = 0.0;
   for (InternalPower *pwr : corner_cell->internalPowers(to_corner_port)) {
     FuncExpr *when = pwr->when();
@@ -917,14 +929,11 @@ Power::findOutputInternalPower(const Pin *to_pin,
     if (from_corner_port) {
       positive_unate = isPositiveUnate(corner_cell, from_corner_port, to_corner_port);
       const Pin *from_pin = findLinkPin(inst, from_corner_port);
-      if (from_pin) {
+      if (from_pin)
 	from_vertex = graph_->pinLoadVertex(from_pin);
-      }
     }
     float energy = 0.0;
     int rf_count = 0;
-    debugPrint(debug_, "power", 2,
-                "             when act/ns duty  wgt   energy    power");
     for (RiseFall *to_rf : RiseFall::range()) {
       // Use unateness to find from_rf.
       RiseFall *from_rf = positive_unate ? to_rf : to_rf->opposite();
@@ -947,7 +956,7 @@ Power::findOutputInternalPower(const Pin *to_pin,
 	weight = duty / duty_sum;
     }
     float port_internal = weight * energy * to_activity.activity();
-    debugPrint(debug_, "power", 2,  "%3s -> %-3s %6s  %.2f %.2f %.2f %9.2e %9.2e %s",
+    debugPrint(debug_, "power", 2,  "%3s -> %-3s %6s  %.3f %.2f %.2f %9.2e %9.2e %s",
                from_corner_port ? from_corner_port->name() : "-" ,
                to_port->name(),
                when ? when->asString() : "",
