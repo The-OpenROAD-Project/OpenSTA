@@ -1670,13 +1670,15 @@ LibertyReader::visitScaleFactor(LibertyAttr *attr)
 void
 LibertyReader::beginOpCond(LibertyGroup *group)
 {
-  const char *name = group->firstName();
-  if (name) {
-    op_cond_ = new OperatingConditions(name);
-    library_->addOperatingConditions(op_cond_);
+  if (library_) {
+    const char *name = group->firstName();
+    if (name) {
+      op_cond_ = new OperatingConditions(name);
+      library_->addOperatingConditions(op_cond_);
+    }
+    else
+      libWarn(68, group, "operating_conditions missing name.");
   }
-  else
-    libWarn(68, group, "operating_conditions missing name.");
 }
 
 void
@@ -1863,9 +1865,11 @@ LibertyReader::beginCell(LibertyGroup *group)
   const char *name = group->firstName();
   if (name) {
     debugPrint(debug_, "liberty", 1, "cell %s", name);
-    cell_ = builder_.makeCell(library_, name, filename_);
-    in_bus_ = false;
-    in_bundle_ = false;
+    if (library_) {
+      cell_ = builder_.makeCell(library_, name, filename_);
+      in_bus_ = false;
+      in_bundle_ = false;
+    }
   }
   else
     libWarn(78, group, "cell missing name.");
@@ -4196,7 +4200,7 @@ LibertyReader::beginTable(LibertyGroup *group,
 			  float scale)
 {
   const char *template_name = group->firstName();
-  if (template_name) {
+  if (library_ && template_name) {
     tbl_template_ = library_->findTableTemplate(template_name, type);
     if (tbl_template_) {
       axis_[0] = tbl_template_->axis1();
@@ -4385,7 +4389,7 @@ LibertyReader::endLut(LibertyGroup *)
 void
 LibertyReader::beginTestCell(LibertyGroup *group)
 {
-  if (cell_->testCell())
+  if (cell_ && cell_->testCell())
     libWarn(169, group, "cell %s test_cell redefinition.", cell_->name());
   else {
     test_cell_ = new TestCell;
