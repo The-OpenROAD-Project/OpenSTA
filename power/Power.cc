@@ -711,8 +711,10 @@ Power::findInstClk(const Instance *inst)
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
     const Clock *clk = findClk(pin);
-    if (clk)
+    if (clk) {
       inst_clk = clk;
+      break;
+    }
   }
   delete pin_iter;
   return inst_clk;
@@ -1178,7 +1180,9 @@ Power::findActivity(const Pin *pin)
       if (activity.origin() != PwrActivityOrigin::unknown)
         return activity;
     }
-    return PwrActivity(2.0, 0.5, PwrActivityOrigin::clock);
+    const Clock *clk = findClk(pin);
+    float duty = clockDuty(clk);
+    return PwrActivity(2.0, duty, PwrActivityOrigin::clock);
   }
   else if (global_activity_.isSet())
     return global_activity_;
@@ -1188,6 +1192,25 @@ Power::findActivity(const Pin *pin)
       return activity;
   }
   return PwrActivity(0.0, 0.0, PwrActivityOrigin::unknown);
+}
+
+float
+Power::clockDuty(const Clock *clk)
+{
+  if (clk->isGenerated()) {
+    const Clock *master = clk->masterClk();
+    if (master == nullptr)
+      return 0.5; // punt
+    else
+      return clockDuty(master);
+  }
+  else {
+    const FloatSeq *waveform = clk->waveform();
+    float rise_time = (*waveform)[0];
+    float fall_time = (*waveform)[1];
+    float duty = (fall_time - rise_time) / clk->period();
+    return duty;
+  }
 }
 
 PwrActivity
@@ -1201,7 +1224,7 @@ Power::findSeqActivity(const Instance *inst,
     if (activity.origin() != PwrActivityOrigin::unknown)
       return activity;
   }
-  return input_activity_;
+  return PwrActivity(0.0, 0.0, PwrActivityOrigin::unknown);
 }
 
 float

@@ -149,6 +149,7 @@ protected:
                 const Corner *corner);
   const Clock *findInstClk(const Instance *inst);
   const Clock *findClk(const Pin *to_pin);
+  float clockDuty(const Clock *clk);
   PwrActivity findClkedActivity(const Pin *pin,
 				const Clock *inst_clk);
   PwrActivity findActivity(const Pin *pin);
