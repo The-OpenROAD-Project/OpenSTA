@@ -867,7 +867,7 @@ Power::findExprOutPort(FuncExpr *expr)
   return nullptr;
 }
 
-// Eval activity of differenc(expr) wrt cofactor port.
+// Eval activity of difference(expr) wrt cofactor port.
 PwrActivity
 Power::evalActivityDifference(FuncExpr *expr,
 			      const Instance *inst,
