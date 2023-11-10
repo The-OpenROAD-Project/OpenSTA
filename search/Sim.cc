@@ -60,15 +60,14 @@ Sim::Sim(StaState *sta) :
   invalid_load_pins_(network_),
   instances_with_const_pins_(network_),
   instances_to_annotate_(network_),
-  // cacheSize = 2^15
-  cudd_manager_(Cudd_Init(0, 0, CUDD_UNIQUE_SLOTS, 32768, 0))
+  cudd_mgr_(Cudd_Init(0, 0, CUDD_UNIQUE_SLOTS, CUDD_CACHE_SLOTS, 0))
 {
 }
 
 Sim::~Sim()
 {
   delete observer_;
-  Cudd_Quit(cudd_manager_);
+  Cudd_Quit(cudd_mgr_);
 }
 
 #if CUDD
@@ -88,11 +87,11 @@ Sim::functionSense(const FuncExpr *expr,
     LibertyPort *input_port = network_->libertyPort(input_pin);
     DdNode *input_node = ensureNode(input_port);
     unsigned int input_index = Cudd_NodeReadIndex(input_node);
-    increasing = (Cudd_Increasing(cudd_manager_, bdd, input_index)
-		  == Cudd_ReadOne(cudd_manager_));
-    decreasing = (Cudd_Decreasing(cudd_manager_, bdd, input_index)
-		  == Cudd_ReadOne(cudd_manager_));
-    Cudd_RecursiveDeref(cudd_manager_, bdd);
+    increasing = (Cudd_Increasing(cudd_mgr_, bdd, input_index)
+		  == Cudd_ReadOne(cudd_mgr_));
+    decreasing = (Cudd_Decreasing(cudd_mgr_, bdd, input_index)
+		  == Cudd_ReadOne(cudd_mgr_));
+    Cudd_RecursiveDeref(cudd_mgr_, bdd);
     clearSymtab();
   }
   TimingSense sense;
@@ -113,7 +112,7 @@ Sim::clearSymtab() const
 {
   for (auto name_node : symtab_) {
     DdNode *sym_node = name_node.second;
-    Cudd_RecursiveDeref(cudd_manager_, sym_node);
+    Cudd_RecursiveDeref(cudd_mgr_, sym_node);
   }
   symtab_.clear();
 }
@@ -125,12 +124,12 @@ Sim::evalExpr(const FuncExpr *expr,
   UniqueLock lock(cudd_lock_);
   DdNode *bdd = funcBdd(expr, inst);
   LogicValue value = LogicValue::unknown;
-  if (bdd == Cudd_ReadLogicZero(cudd_manager_))
+  if (bdd == Cudd_ReadLogicZero(cudd_mgr_))
     value = LogicValue::zero;
-  else if (bdd == Cudd_ReadOne(cudd_manager_))
+  else if (bdd == Cudd_ReadOne(cudd_mgr_))
     value = LogicValue::one;
   if (bdd) {
-    Cudd_RecursiveDeref(cudd_manager_, bdd);
+    Cudd_RecursiveDeref(cudd_mgr_, bdd);
     clearSymtab();
   }
   return value;
@@ -153,10 +152,10 @@ Sim::funcBdd(const FuncExpr *expr,
       LogicValue value = logicValue(pin);
       switch (value) {
       case LogicValue::zero:
-	result = Cudd_ReadLogicZero(cudd_manager_);
+	result = Cudd_ReadLogicZero(cudd_mgr_);
 	break;
       case LogicValue::one:
-	result = Cudd_ReadOne(cudd_manager_);
+	result = Cudd_ReadOne(cudd_mgr_);
 	break;
       default:
 	result = ensureNode(port);
@@ -174,7 +173,7 @@ Sim::funcBdd(const FuncExpr *expr,
     left = funcBdd(expr->left(), inst);
     right = funcBdd(expr->right(), inst);
     if (left && right)
-      result = Cudd_bddOr(cudd_manager_, left, right);
+      result = Cudd_bddOr(cudd_mgr_, left, right);
     else if (left)
       result = left;
     else if (right)
@@ -184,7 +183,7 @@ Sim::funcBdd(const FuncExpr *expr,
     left = funcBdd(expr->left(), inst);
     right = funcBdd(expr->right(), inst);
     if (left && right)
-      result = Cudd_bddAnd(cudd_manager_, left, right);
+      result = Cudd_bddAnd(cudd_mgr_, left, right);
     else if (left)
       result = left;
     else if (right)
@@ -194,17 +193,17 @@ Sim::funcBdd(const FuncExpr *expr,
     left = funcBdd(expr->left(), inst);
     right = funcBdd(expr->right(), inst);
     if (left && right)
-      result = Cudd_bddXor(cudd_manager_, left, right);
+      result = Cudd_bddXor(cudd_mgr_, left, right);
     else if (left)
       result = left;
     else if (right)
       result = right;
     break;
   case FuncExpr::op_one:
-    result = Cudd_ReadOne(cudd_manager_);
+    result = Cudd_ReadOne(cudd_mgr_);
     break;
   case FuncExpr::op_zero:
-    result = Cudd_ReadLogicZero(cudd_manager_);
+    result = Cudd_ReadLogicZero(cudd_mgr_);
     break;
   default:
     report_->critical(596, "unknown function operator");
@@ -212,9 +211,9 @@ Sim::funcBdd(const FuncExpr *expr,
   if (result)
     Cudd_Ref(result);
   if (left)
-    Cudd_RecursiveDeref(cudd_manager_, left);
+    Cudd_RecursiveDeref(cudd_mgr_, left);
   if (right)
-    Cudd_RecursiveDeref(cudd_manager_, right);
+    Cudd_RecursiveDeref(cudd_mgr_, right);
   return result;
 }
 
@@ -224,7 +223,7 @@ Sim::ensureNode(LibertyPort *port) const
   const char *port_name = port->name();
   DdNode *node = symtab_.findKey(port_name);
   if (node == nullptr) {
-    node = Cudd_bddNewVar(cudd_manager_);
+    node = Cudd_bddNewVar(cudd_mgr_);
     symtab_[port_name] = node;
     Cudd_Ref(node);
   }

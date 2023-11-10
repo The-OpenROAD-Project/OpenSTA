@@ -17,7 +17,7 @@
 #include "Power.hh"
 
 #include <algorithm> // max
-#include <cmath>     // aps
+#include <cmath>     // abs
 
 #include "Debug.hh"
 #include "EnumNameMap.hh"
@@ -47,6 +47,13 @@
 #include "Bfs.hh"
 #include "ClkNetwork.hh"
 
+#if CUDD
+#include "cudd.h"
+#else
+#define Cudd_Init(ignore1, ignore2, ignore3, ignore4, ignore5) nullptr
+#define Cudd_Quit(ignore1)
+#endif
+
 // Related liberty not supported:
 // library
 //  default_cell_leakage_power : 0;
@@ -71,13 +78,30 @@ isPositiveUnate(const LibertyCell *cell,
 		const LibertyPort *from,
 		const LibertyPort *to);
 
+static EnumNameMap<PwrActivityOrigin> pwr_activity_origin_map =
+  {{PwrActivityOrigin::global, "global"},
+   {PwrActivityOrigin::input, "input"},
+   {PwrActivityOrigin::user, "user"},
+   {PwrActivityOrigin::vcd, "vcd"},
+   {PwrActivityOrigin::propagated, "propagated"},
+   {PwrActivityOrigin::clock, "clock"},
+   {PwrActivityOrigin::constant, "constant"},
+   {PwrActivityOrigin::defaulted, "defaulted"},
+   {PwrActivityOrigin::unknown, "unknown"}};
+
 Power::Power(StaState *sta) :
   StaState(sta),
   global_activity_{0.0, 0.0, PwrActivityOrigin::unknown},
   input_activity_{0.1, 0.5, PwrActivityOrigin::input},
   seq_activity_map_(100, SeqPinHash(network_), SeqPinEqual()),
-  activities_valid_(false)
+  activities_valid_(false),
+  cudd_mgr_(Cudd_Init(0, 0, CUDD_UNIQUE_SLOTS, CUDD_CACHE_SLOTS, 0))
 {
+}
+
+Power::~Power()
+{
+  Cudd_Quit(cudd_mgr_);
 }
 
 void
@@ -135,6 +159,11 @@ void
 Power::setActivity(const Pin *pin,
 		   PwrActivity &activity)
 {
+  debugPrint(debug_, "power_activity", 3, "set %s %.2e %.2f %s",
+             network_->pathName(pin),
+             activity.activity(),
+             activity.duty(),
+             pwr_activity_origin_map.find(activity.origin()));
   activity_map_[pin] = activity;
 }
 
@@ -168,7 +197,7 @@ Power::hasSeqActivity(const Instance *reg,
   return seq_activity_map_.hasKey(SeqPin(reg, output));
 }
 
-PwrActivity
+PwrActivity &
 Power::seqActivity(const Instance *reg,
 		   LibertyPort *output)
 {
@@ -331,7 +360,7 @@ private:
   bool setActivityCheck(const Pin *pin,
                         PwrActivity &activity);
 
-  static constexpr float change_tolerance_ = .01;
+  static constexpr float change_tolerance_ = .001;
   InstanceSet visited_regs_;
   float max_change_;
   Power *power_;
@@ -370,10 +399,6 @@ PropActivityVisitor::visit(Vertex *vertex)
   bool changed = false;
   if (power_->hasUserActivity(pin)) {
     PwrActivity &activity = power_->userActivity(pin);
-    debugPrint(debug_, "power_activity", 3, "set %s %.2e %.2f",
-               vertex->name(network_),
-               activity.activity(),
-               activity.duty());
     changed = setActivityCheck(pin, activity);
   }
   else {
@@ -397,12 +422,8 @@ PropActivityVisitor::visit(Vertex *vertex)
       if (port) {
 	FuncExpr *func = port->function();
 	if (func) {
-	  PwrActivity activity = power_->evalActivity(func, inst);
+          PwrActivity activity = power_->evalActivity(func, inst);
 	  changed = setActivityCheck(pin, activity);
-	  debugPrint(debug_, "power_activity", 3, "set %s %.2e %.2f",
-                     vertex->name(network_),
-                     activity.activity(),
-                     activity.duty());
 	}
         if (port->isClockGateOut()) {
           const Pin *enable, *clk, *gclk;
@@ -491,6 +512,210 @@ Power::clockGatePins(const Instance *inst,
   delete pin_iter;
 }
 
+////////////////////////////////////////////////////////////////
+
+#if CUDD
+
+PwrActivity
+Power::evalActivity(FuncExpr *expr,
+		    const Instance *inst)
+{
+  LibertyPort *func_port = expr->port();
+  if (func_port &&  func_port->direction()->isInternal())
+    return findSeqActivity(inst, func_port);
+  else {
+    DdNode *bdd = funcBdd(expr);
+    float duty = evalBddDuty(bdd, inst);
+    float activity = evalBddActivity(bdd, inst);
+
+    Cudd_RecursiveDeref(cudd_mgr_, bdd);
+    clearVarMap();
+    return PwrActivity(activity, duty, PwrActivityOrigin::propagated);
+  }
+}
+
+// Find duty when from_port is sensitized.
+float
+Power::evalDiffDuty(FuncExpr *expr,
+                    LibertyPort *from_port,
+                    const Instance *inst)
+{
+  DdNode *bdd = funcBdd(expr);
+  DdNode *var_node = bdd_port_var_map_[from_port];
+  unsigned var_index = Cudd_NodeReadIndex(var_node);
+  DdNode *diff = Cudd_bddBooleanDiff(cudd_mgr_, bdd, var_index);
+  Cudd_Ref(diff);
+  float duty = evalBddDuty(diff, inst);
+
+  Cudd_RecursiveDeref(cudd_mgr_, diff);
+  Cudd_RecursiveDeref(cudd_mgr_, bdd);
+  clearVarMap();
+  return duty;
+}
+
+DdNode *
+Power::funcBdd(const FuncExpr *expr)
+{
+  DdNode *left = nullptr;
+  DdNode *right = nullptr;
+  DdNode *result = nullptr;
+  switch (expr->op()) {
+  case FuncExpr::op_port: {
+    LibertyPort *port = expr->port();
+    result = ensureNode(port);
+    break;
+  }
+  case FuncExpr::op_not:
+    left = funcBdd(expr->left());
+    if (left)
+      result = Cudd_Not(left);
+    break;
+  case FuncExpr::op_or:
+    left = funcBdd(expr->left());
+    right = funcBdd(expr->right());
+    if (left && right)
+      result = Cudd_bddOr(cudd_mgr_, left, right);
+    else if (left)
+      result = left;
+    else if (right)
+      result = right;
+    break;
+  case FuncExpr::op_and:
+    left = funcBdd(expr->left());
+    right = funcBdd(expr->right());
+    if (left && right)
+      result = Cudd_bddAnd(cudd_mgr_, left, right);
+    else if (left)
+      result = left;
+    else if (right)
+      result = right;
+    break;
+  case FuncExpr::op_xor:
+    left = funcBdd(expr->left());
+    right = funcBdd(expr->right());
+    if (left && right)
+      result = Cudd_bddXor(cudd_mgr_, left, right);
+    else if (left)
+      result = left;
+    else if (right)
+      result = right;
+    break;
+  case FuncExpr::op_one:
+    result = Cudd_ReadOne(cudd_mgr_);
+    break;
+  case FuncExpr::op_zero:
+    result = Cudd_ReadLogicZero(cudd_mgr_);
+    break;
+  default:
+    report_->critical(596, "unknown function operator");
+  }
+  if (result)
+    Cudd_Ref(result);
+  if (left)
+    Cudd_RecursiveDeref(cudd_mgr_, left);
+  if (right)
+    Cudd_RecursiveDeref(cudd_mgr_, right);
+  return result;
+}
+
+DdNode *
+Power::ensureNode(LibertyPort *port)
+{
+  DdNode *bdd = bdd_port_var_map_.findKey(port);
+  if (bdd == nullptr) {
+    bdd = Cudd_bddNewVar(cudd_mgr_);
+    bdd_port_var_map_[port] = bdd;
+    unsigned var_index = Cudd_NodeReadIndex(bdd);
+    bdd_var_idx_port_map_[var_index] = port;
+    Cudd_Ref(bdd);
+    debugPrint(debug_, "power_activity", 2, "%s var %d", port->name(), var_index);
+  }
+  return bdd;
+}
+
+void
+Power::clearVarMap()
+{
+  for (auto port_node : bdd_port_var_map_) {
+    DdNode *var_node = port_node.second;
+    Cudd_RecursiveDeref(cudd_mgr_, var_node);
+  }
+  bdd_port_var_map_.clear();
+  bdd_var_idx_port_map_.clear();
+}
+
+// As suggested by
+// https://stackoverflow.com/questions/63326728/cudd-printminterm-accessing-the-individual-minterms-in-the-sum-of-products
+float
+Power::evalBddDuty(DdNode *bdd,
+                   const Instance *inst)
+{
+  if (Cudd_IsConstant(bdd)) {
+    if (bdd == Cudd_ReadOne(cudd_mgr_))
+      return 1.0;
+    else if (bdd == Cudd_ReadLogicZero(cudd_mgr_))
+      return 0.0;
+    else
+      criticalError(1100, "unknown cudd constant");
+  }
+  else {
+    float duty0 = evalBddDuty(Cudd_E(bdd), inst);
+    float duty1 = evalBddDuty(Cudd_T(bdd), inst);
+    unsigned int index = Cudd_NodeReadIndex(bdd);
+    int var_index = Cudd_ReadPerm(cudd_mgr_, index);
+    LibertyPort *port = bdd_var_idx_port_map_[var_index];
+    if (port->direction()->isInternal())
+      return findSeqActivity(inst, port).duty();
+    else {
+      const Pin *pin = findLinkPin(inst, port);
+      if (pin) {
+        PwrActivity var_activity = findActivity(pin);
+        float var_duty = var_activity.duty();
+        float duty = duty0 * (1.0 - var_duty) + duty1 * var_duty;
+        if (Cudd_IsComplement(bdd))
+          duty = 1.0 - duty;
+        return duty;
+      }
+    }
+  }
+  return 0.0;
+}
+
+// https://www.brown.edu/Departments/Engineering/Courses/engn2912/Lectures/LP-02-logic-power-est.pdf
+// F(x0, x1, .. ) is sensitized when F(Xi=1) xor F(Xi=0)
+// F(Xi=1), F(Xi=0) are the cofactors of F wrt Xi.
+float
+Power::evalBddActivity(DdNode *bdd,
+                       const Instance *inst)
+{
+  float activity = 0.0;
+  for (auto port_var : bdd_port_var_map_) {
+    LibertyPort *port = port_var.first;
+    const Pin *pin = findLinkPin(inst, port);
+    if (pin) {
+      PwrActivity var_activity = findActivity(pin);
+      DdNode *var_node = port_var.second;
+      unsigned int var_index = Cudd_NodeReadIndex(var_node);
+      DdNode *diff = Cudd_bddBooleanDiff(cudd_mgr_, bdd, var_index);
+      Cudd_Ref(diff);
+      float diff_duty = evalBddDuty(diff, inst);
+      Cudd_RecursiveDeref(cudd_mgr_, diff);
+      float var_act = var_activity.activity() * diff_duty;
+      activity += var_act;
+      const Clock *clk = findClk(pin);
+      float clk_period = clk ? clk->period() : 1.0;
+      debugPrint(debug_, "power_activity", 3, "var %s %.3e * %.3f = %.3e",
+                 port->name(),
+                 var_activity.activity() / clk_period,
+                 diff_duty,
+                 var_act / clk_period);
+    }
+  }
+  return activity;
+}
+
+#else
+
 PwrActivity
 Power::evalActivity(FuncExpr *expr,
 		    const Instance *inst)
@@ -519,8 +744,11 @@ Power::evalActivity(FuncExpr *expr,
       return findSeqActivity(inst, port);
     else {
       Pin *pin = findLinkPin(inst, port);
-      if (pin)
-	return findActivity(pin);
+      if (pin) {
+        PwrActivity activity = findActivity(pin);
+        activity.setOrigin(PwrActivityOrigin::propagated);
+	return activity;
+      }
     }
     return PwrActivity(0.0, 0.0, PwrActivityOrigin::constant);
   }
@@ -539,7 +767,8 @@ Power::evalActivity(FuncExpr *expr,
     float p1 = 1.0 - activity1.duty();
     float p2 = 1.0 - activity2.duty();
     return PwrActivity(activity1.activity() * p2 + activity2.activity() * p1,
-		       1.0 - p1 * p2,
+		       // d1 + d2 - d1 * d2
+                       1.0 - p1 * p2,
 		       PwrActivityOrigin::propagated);
   }
   case FuncExpr::op_and: {
@@ -573,6 +802,23 @@ Power::evalActivity(FuncExpr *expr,
   }
   return PwrActivity();
 }
+
+// Eval activity of difference(expr) wrt cofactor port.
+float
+Power::evalDiffDuty(FuncExpr *expr,
+                    LibertyPort *cofactor_port,
+                    const Instance *inst)
+{
+  // Activity of positive/negative cofactors.
+  PwrActivity pos = evalActivity(expr, inst, cofactor_port, true);
+  PwrActivity neg = evalActivity(expr, inst, cofactor_port, false);
+  // difference = xor(pos, neg).
+  float p1 = pos.duty() * (1.0 - neg.duty());
+  float p2 = neg.duty() * (1.0 - pos.duty());
+  return p1 + p2;
+}
+
+#endif // CUDD
 
 ////////////////////////////////////////////////////////////////
 
@@ -684,6 +930,7 @@ Power::seedRegOutputActivities(const Instance *reg,
       activity.setActivity(1.0);
     if (invert)
       activity.setDuty(1.0 - activity.duty());
+    activity.setOrigin(PwrActivityOrigin::propagated);
     setSeqActivity(reg, output, activity);
   }
 }
@@ -732,14 +979,14 @@ Power::findInternalPower(const Instance *inst,
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
   while (pin_iter->hasNext()) {
     const Pin *to_pin = pin_iter->next();
-    const LibertyPort *to_port = network_->libertyPort(to_pin);
+    LibertyPort *to_port = network_->libertyPort(to_pin);
     if (to_port) {
       float load_cap = to_port->direction()->isAnyOutput()
         ? graph_delay_calc_->loadCap(to_pin, dcalc_ap)
         : 0.0;
       PwrActivity activity = findClkedActivity(to_pin, inst_clk);
       if (to_port->direction()->isAnyOutput())
-        findOutputInternalPower(to_pin, to_port, inst, cell, activity,
+        findOutputInternalPower(to_port, inst, cell, activity,
                                 load_cap, corner, result);
       if (to_port->direction()->isAnyInput())
         findInputInternalPower(to_pin, to_port, inst, cell, activity,
@@ -751,7 +998,7 @@ Power::findInternalPower(const Instance *inst,
 
 void
 Power::findInputInternalPower(const Pin *pin,
-			      const LibertyPort *port,
+			      LibertyPort *port,
 			      const Instance *inst,
 			      LibertyCell *cell,
 			      PwrActivity &activity,
@@ -792,13 +1039,13 @@ Power::findInputInternalPower(const Pin *pin,
         float duty = 1.0; // fallback default
         FuncExpr *when = pwr->when();
         if (when) {
-          LibertyPort *out_corner_port = findExprOutPort(when);
+          const LibertyPort *out_corner_port = findExprOutPort(when);
           if (out_corner_port) {
-            const LibertyPort *out_port = findLinkPort(cell, out_corner_port);
+            LibertyPort *out_port = findLinkPort(cell, out_corner_port);
             if (out_port) {
               FuncExpr *func = out_port->function();
               if (func && func->hasPort(port))
-                duty = evalActivityDifference(func, inst, port).duty();
+                duty = evalDiffDuty(func, port, inst);
               else
                 duty = evalActivity(when, inst).duty();
             }
@@ -867,26 +1114,8 @@ Power::findExprOutPort(FuncExpr *expr)
   return nullptr;
 }
 
-// Eval activity of difference(expr) wrt cofactor port.
-PwrActivity
-Power::evalActivityDifference(FuncExpr *expr,
-			      const Instance *inst,
-			      const LibertyPort *cofactor_port)
-{
-  // Activity of positive/negative cofactors.
-  PwrActivity pos = evalActivity(expr, inst, cofactor_port, true);
-  PwrActivity neg = evalActivity(expr, inst, cofactor_port, false);
-  // difference = xor(pos, neg).
-  float p1 = pos.duty() * (1.0 - neg.duty());
-  float p2 = neg.duty() * (1.0 - pos.duty());
-  return PwrActivity(pos.activity() * p1 + neg.activity() * p2,
-		     p1 + p2,
-		     PwrActivityOrigin::propagated);
-}
-
 void
-Power::findOutputInternalPower(const Pin *to_pin,
-			       const LibertyPort *to_port,
+Power::findOutputInternalPower(const LibertyPort *to_port,
 			       const Instance *inst,
 			       LibertyCell *cell,
 			       PwrActivity &to_activity,
@@ -907,25 +1136,31 @@ Power::findOutputInternalPower(const Pin *to_pin,
 
   map<const char*, float, StringLessIf> pg_duty_sum;
   for (InternalPower *pwr : corner_cell->internalPowers(to_corner_port)) {
-    float duty = findInputDuty(to_pin, inst, func, pwr);
-    const char *related_pg_pin = pwr->relatedPgPin();
-    // Note related_pg_pin may be null.
-    pg_duty_sum[related_pg_pin] += duty;
+    const LibertyPort *from_corner_port = pwr->relatedPort();
+    if (from_corner_port) {
+      const Pin *from_pin = findLinkPin(inst, from_corner_port);
+      float from_activity = findActivity(from_pin).activity();
+      float duty = findInputDuty(inst, func, pwr);
+      const char *related_pg_pin = pwr->relatedPgPin();
+      // Note related_pg_pin may be null.
+      pg_duty_sum[related_pg_pin] += from_activity * duty;
+    }
   }
 
   debugPrint(debug_, "power", 2,
-             "             when act/ns duty  wgt   energy    power");
+             "             when act/ns  duty  wgt   energy    power");
   float internal = 0.0;
   for (InternalPower *pwr : corner_cell->internalPowers(to_corner_port)) {
     FuncExpr *when = pwr->when();
     const char *related_pg_pin = pwr->relatedPgPin();
-    float duty = findInputDuty(to_pin, inst, func, pwr);
+    float duty = findInputDuty(inst, func, pwr);
     Vertex *from_vertex = nullptr;
     bool positive_unate = true;
     const LibertyPort *from_corner_port = pwr->relatedPort();
+    const Pin *from_pin = nullptr;
     if (from_corner_port) {
       positive_unate = isPositiveUnate(corner_cell, from_corner_port, to_corner_port);
-      const Pin *from_pin = findLinkPin(inst, from_corner_port);
+      from_pin = findLinkPin(inst, from_corner_port);
       if (from_pin)
 	from_vertex = graph_->pinLoadVertex(from_pin);
     }
@@ -949,11 +1184,13 @@ Power::findOutputInternalPower(const Pin *to_pin,
     float weight = 0.0;
     if (duty_sum_iter != pg_duty_sum.end()) {
       float duty_sum = duty_sum_iter->second;
-      if (duty_sum != 0.0)
-	weight = duty / duty_sum;
+      if (duty_sum != 0.0 && from_pin) {
+        float from_activity = findActivity(from_pin).activity();
+	weight = from_activity * duty / duty_sum;
+      }
     }
     float port_internal = weight * energy * to_activity.activity();
-    debugPrint(debug_, "power", 2,  "%3s -> %-3s %6s  %.3f %.2f %.2f %9.2e %9.2e %s",
+    debugPrint(debug_, "power", 2,  "%3s -> %-3s %6s  %.3f %.3f %.3f %9.2e %9.2e %s",
                from_corner_port ? from_corner_port->name() : "-" ,
                to_port->name(),
                when ? when->asString() : "",
@@ -969,33 +1206,21 @@ Power::findOutputInternalPower(const Pin *to_pin,
 }
 
 float
-Power::findInputDuty(const Pin *to_pin,
-		     const Instance *inst,
-		     FuncExpr *func,
-		     InternalPower *pwr)
+Power::findInputDuty(const Instance *inst,
+                     FuncExpr *func,
+                     InternalPower *pwr)
 
 {
   const LibertyPort *from_corner_port = pwr->relatedPort();
   if (from_corner_port) {
-    const LibertyPort *from_port = findLinkPort(network_->libertyCell(inst),
-						from_corner_port);
+    LibertyPort *from_port = findLinkPort(network_->libertyCell(inst),
+                                          from_corner_port);
     const Pin *from_pin = network_->findPin(inst, from_port);
     if (from_pin) {
       FuncExpr *when = pwr->when();
       Vertex *from_vertex = graph_->pinLoadVertex(from_pin);
       if (func && func->hasPort(from_port)) {
-	float from_activity = findActivity(from_pin).activity();
-	float to_activity = findActivity(to_pin).activity();
-	float duty1 = evalActivityDifference(func, inst, from_port).duty();
-	float duty = 0.0;
-	if (to_activity != 0.0F) {
-	  duty = from_activity * duty1 / to_activity;
-	  // Activities can get very small from multiplying probabilities
-	  // through deep chains of logic. Dividing by very close to zero values
-	  // can result in NaN/Inf depending on numerator.
-	  if (!isnormal(duty))
-	    duty = 0.0;
-	}
+	float duty = evalDiffDuty(func, from_port, inst);
 	return duty;
       }
       else if (when)
@@ -1220,7 +1445,7 @@ Power::findSeqActivity(const Instance *inst,
   if (global_activity_.isSet())
     return global_activity_;
   else if (hasSeqActivity(inst, port)) {
-    PwrActivity activity = seqActivity(inst, port);
+    PwrActivity &activity = seqActivity(inst, port);
     if (activity.origin() != PwrActivityOrigin::unknown)
       return activity;
   }
@@ -1314,17 +1539,6 @@ PowerResult::incr(PowerResult &result)
 
 ////////////////////////////////////////////////////////////////
 
-static EnumNameMap<PwrActivityOrigin> pwr_activity_origin_map =
-  {{PwrActivityOrigin::global, "global"},
-   {PwrActivityOrigin::input, "input"},
-   {PwrActivityOrigin::user, "user"},
-   {PwrActivityOrigin::vcd, "vcd"},
-   {PwrActivityOrigin::propagated, "propagated"},
-   {PwrActivityOrigin::clock, "clock"},
-   {PwrActivityOrigin::constant, "constant"},
-   {PwrActivityOrigin::defaulted, "defaulted"},
-   {PwrActivityOrigin::unknown, "unknown"}};
-
 PwrActivity::PwrActivity(float activity,
 			 float duty,
 			 PwrActivityOrigin origin) :
@@ -1352,6 +1566,12 @@ void
 PwrActivity::setDuty(float duty)
 {
   duty_ = duty;
+}
+
+void
+PwrActivity::setOrigin(PwrActivityOrigin origin)
+{
+  origin_ = origin;
 }
 
 void
