@@ -31,7 +31,7 @@
 #include "PortDirection.hh"
 #include "Corner.hh"
 #include "DcalcAnalysisPt.hh"
-#include "dcalc/GraphDelayCalc1.hh"
+#include "GraphDelayCalc.hh"
 #include "Sdc.hh"
 #include "StaState.hh"
 #include "Graph.hh"

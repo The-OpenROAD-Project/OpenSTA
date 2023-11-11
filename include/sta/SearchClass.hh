@@ -59,6 +59,8 @@ class MinPulseWidthCheck;
 class MinPeriodCheck;
 class MaxSkewCheck;
 class CharPtrLess;
+class SearchPred;
+class BfsFwdIterator;
 
 // Tag compare using tag matching (tagMatch) critera.
 class TagMatchLess

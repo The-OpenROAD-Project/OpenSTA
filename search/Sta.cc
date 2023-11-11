@@ -44,7 +44,7 @@
 #include "parasitics/ReportParasiticAnnotation.hh"
 #include "DelayCalc.hh"
 #include "ArcDelayCalc.hh"
-#include "dcalc/GraphDelayCalc1.hh"
+#include "GraphDelayCalc.hh"
 #include "sdf/SdfWriter.hh"
 #include "Levelize.hh"
 #include "Sim.hh"
@@ -414,7 +414,7 @@ Sta::makeArcDelayCalc()
 void
 Sta::makeGraphDelayCalc()
 {
-  graph_delay_calc_ = new GraphDelayCalc1(this);
+  graph_delay_calc_ = new GraphDelayCalc(this);
 }
 
 void
