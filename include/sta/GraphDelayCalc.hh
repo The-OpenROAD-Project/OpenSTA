@@ -159,9 +159,9 @@ protected:
   bool findDriverDelays(Vertex *drvr_vertex,
 			ArcDelayCalc *arc_delay_calc);
   bool findDriverDelays1(Vertex *drvr_vertex,
-			 bool init_load_slews,
 			 MultiDrvrNet *multi_drvr,
 			 ArcDelayCalc *arc_delay_calc);
+  void initLoadSlews(Vertex *drvr_vertex);
   bool findDriverEdgeDelays(LibertyCell *drvr_cell,
 			    Instance *drvr_inst,
 			    const Pin *drvr_pin,
@@ -169,8 +169,7 @@ protected:
 			    MultiDrvrNet *multi_drvr,
 			    Edge *edge,
 			    ArcDelayCalc *arc_delay_calc);
-  void initWireDelays(Vertex *drvr_vertex,
-		      bool init_load_slews);
+  void initWireDelays(Vertex *drvr_vertex);
   void initRootSlews(Vertex *vertex);
   void zeroSlewAndWireDelays(Vertex *drvr_vertex);
   void findVertexDelay(Vertex *vertex,
