@@ -528,10 +528,10 @@ MakeTimingModel::findClkInsertionDelays()
         size_t clk_count = clks->size();
         if (clk_count == 1) {
           for (const Clock *clk : *clks) {
-            TimingArcAttrsPtr attrs = nullptr;
             ClkDelays delays;
             sta_->findClkDelays(clk, delays);
             for (const MinMax *min_max : MinMax::range()) {
+              TimingArcAttrsPtr attrs = nullptr;
               for (const RiseFall *clk_rf : RiseFall::range()) {
                 int clk_rf_index = clk_rf->index();
                 float delay = min_max->initValue();
