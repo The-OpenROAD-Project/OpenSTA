@@ -536,11 +536,11 @@ MakeTimingModel::findClkInsertionDelays()
                 int clk_rf_index = clk_rf->index();
                 float delay = min_max->initValue();
                 for (const int end_rf_index : RiseFall::rangeIndex()) {
-                  float delay1;
+                  Delay delay1;
                   bool exists;
                   delays[clk_rf_index][end_rf_index].value(min_max, delay1, exists);
                   if (exists)
-                    delay = min_max->minMax(delay, delay1);
+                    delay = min_max->minMax(delay, delayAsFloat(delay1));
                 }
                 TimingModel *model = makeGateModelScalar(delay, clk_rf);
                 if (attrs == nullptr)

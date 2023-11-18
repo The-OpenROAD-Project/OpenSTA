@@ -2586,7 +2586,7 @@ LibertyPort::clockTreePathDelays()
         const MinMax *min_max = (role == TimingRole::clockTreePathMin())
           ? MinMax::min()
           : MinMax::max();
-        delays.setValue(rf, min_max, delay);
+        delays.setValue(rf, min_max, delayAsFloat(delay));
       }
     }
   }

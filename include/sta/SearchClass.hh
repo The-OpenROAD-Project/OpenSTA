@@ -116,7 +116,7 @@ typedef Vector<PathVertex> PathVertexSeq;
 typedef Vector<Slack> SlackSeq;
 typedef Delay Crpr;
 typedef Vector<PathRef> PathRefSeq;
-typedef MinMaxValues<float> ClkDelays[RiseFall::index_count][RiseFall::index_count];
+typedef MinMaxValues<Delay> ClkDelays[RiseFall::index_count][RiseFall::index_count];
 
 enum class ReportPathFormat { full,
 			      full_clock,
