@@ -581,7 +581,7 @@ MakeTimingModel::makeScalarCheckModel(float value,
     library_->findTableTemplate("scalar", TableTemplateType::delay);
   TableModel *table_model = new TableModel(table, tbl_template,
                                            scale_factor_type, rf);
-  CheckTableModel *check_model = new CheckTableModel(table_model, nullptr);
+  CheckTableModel *check_model = new CheckTableModel(cell_, table_model, nullptr);
   return check_model;
 }
 
@@ -598,7 +598,7 @@ MakeTimingModel::makeGateModelScalar(Delay delay,
                                            ScaleFactorType::cell, rf);
   TableModel *slew_model = new TableModel(slew_table, tbl_template,
                                           ScaleFactorType::cell, rf);
-  GateTableModel *gate_model = new GateTableModel(delay_model, nullptr,
+  GateTableModel *gate_model = new GateTableModel(cell_, delay_model, nullptr,
                                                   slew_model, nullptr,
                                                   nullptr, nullptr);
   return gate_model;
@@ -613,7 +613,7 @@ MakeTimingModel::makeGateModelScalar(Delay delay,
     library_->findTableTemplate("scalar", TableTemplateType::delay);
   TableModel *delay_model = new TableModel(delay_table, tbl_template,
                                            ScaleFactorType::cell, rf);
-  GateTableModel *gate_model = new GateTableModel(delay_model, nullptr,
+  GateTableModel *gate_model = new GateTableModel(cell_, delay_model, nullptr,
                                                   nullptr, nullptr,
                                                   nullptr, nullptr);
   return gate_model;
@@ -655,8 +655,7 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
               float output_load_cap = graph_delay_calc_->loadCap(output_pin, dcalc_ap);
               ArcDelay drvr_self_delay;
               Slew drvr_self_slew;
-              drvr_gate_model->gateDelay(drvr_cell, pvt, in_slew1,
-                                         output_load_cap, 0.0, false,
+              drvr_gate_model->gateDelay(pvt, in_slew1, output_load_cap, 0.0, false,
                                          drvr_self_delay, drvr_self_slew);
 
               const TableModel *drvr_table = drvr_gate_model->delayModel();
@@ -671,8 +670,7 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                   // get slew from driver input pin
                   ArcDelay gate_delay;
                   Slew gate_slew;
-                  drvr_gate_model->gateDelay(drvr_cell, pvt, in_slew1,
-                                             load_cap, 0.0, false,
+                  drvr_gate_model->gateDelay(pvt, in_slew1, load_cap, 0.0, false,
                                              gate_delay, gate_slew);
                   // Remove the self delay driving the output pin net load cap.
                   load_values->push_back(delayAsFloat(delay + gate_delay
@@ -694,7 +692,8 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                                                          ScaleFactorType::cell, rf);
                 TableModel *slew_model = new TableModel(slew_table, model_template,
                                                         ScaleFactorType::cell, rf);
-                GateTableModel *gate_model = new GateTableModel(delay_model, nullptr,
+                GateTableModel *gate_model = new GateTableModel(cell_,
+                                                                delay_model, nullptr,
                                                                 slew_model, nullptr,
                                                                 nullptr, nullptr);
                 return gate_model;

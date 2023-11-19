@@ -1939,7 +1939,7 @@ void
 LibertyReader::makeTimingArcs(PortGroup *port_group)
 {
   for (TimingGroup *timing : port_group->timingGroups()) {
-    timing->makeTimingModels(library_, this);
+    timing->makeTimingModels(cell_, this);
 
     for (LibertyPort *port : *port_group->ports())
       makeTimingArcs(port, timing);
@@ -2204,15 +2204,15 @@ LibertyReader::makeTimingArcs(LibertyPort *to_port,
 }
 
 void
-TimingGroup::makeTimingModels(LibertyLibrary *library,
+TimingGroup::makeTimingModels(LibertyCell *cell,
 			      LibertyReader *visitor)
 {
-  switch (library->delayModelType()) {
+  switch (cell->libertyLibrary()->delayModelType()) {
   case DelayModelType::cmos_linear:
-    makeLinearModels(library);
+    makeLinearModels(cell);
     break;
   case DelayModelType::table:
-    makeTableModels(visitor);
+    makeTableModels(cell, visitor);
     break;
   case DelayModelType::cmos_pwl:
   case DelayModelType::cmos2:
@@ -2223,8 +2223,9 @@ TimingGroup::makeTimingModels(LibertyLibrary *library,
 }
 
 void
-TimingGroup::makeLinearModels(LibertyLibrary *library)
+TimingGroup::makeLinearModels(LibertyCell *cell)
 {
+  LibertyLibrary *library = cell->libertyLibrary();
   for (auto rf : RiseFall::range()) {
     int rf_index = rf->index();
     float intr = intrinsic_[rf_index];
@@ -2234,7 +2235,7 @@ TimingGroup::makeLinearModels(LibertyLibrary *library)
     TimingModel *model = nullptr;
     if (timingTypeIsCheck(attrs_->timingType())) {
       if (intr_exists)
-	model = new CheckLinearModel(intr);
+	model = new CheckLinearModel(cell, intr);
     }
     else {
       float res = resistance_[rf_index];
@@ -2245,22 +2246,23 @@ TimingGroup::makeLinearModels(LibertyLibrary *library)
       if (!res_exists)
 	res = 0.0F;
       if (intr_exists)
-	model = new GateLinearModel(intr, res);
+	model = new GateLinearModel(cell, intr, res);
     }
     attrs_->setModel(rf, model);
   }
 }
 
 void
-TimingGroup::makeTableModels(LibertyReader *reader)
+TimingGroup::makeTableModels(LibertyCell *cell,
+                             LibertyReader *reader)
 {
   for (auto rf : RiseFall::range()) {
     int rf_index = rf->index();
-    TableModel *cell = cell_[rf_index];
+    TableModel *delay = cell_[rf_index];
     TableModel *transition = transition_[rf_index];
     TableModel *constraint = constraint_[rf_index];
-    if (cell || transition) {
-      attrs_->setModel(rf, new GateTableModel(cell, delay_sigma_[rf_index],
+    if (delay || transition) {
+      attrs_->setModel(rf, new GateTableModel(cell, delay, delay_sigma_[rf_index],
                                               transition,
                                               slew_sigma_[rf_index],
                                               receiver_model_,
@@ -2281,11 +2283,11 @@ TimingGroup::makeTableModels(LibertyReader *reader)
 	  || timing_type == TimingType::three_state_enable_rise) {
 	if (transition == nullptr)
 	  reader->libWarn(95, line_, "missing %s_transition.", rf->name());
-	if (cell == nullptr)
+	if (delay == nullptr)
 	  reader->libWarn(96, line_, "missing cell_%s.", rf->name());
       }
     } else if (constraint)
-      attrs_->setModel(rf, new CheckTableModel(constraint,
+      attrs_->setModel(rf, new CheckTableModel(cell, constraint,
                                                constraint_sigma_[rf_index]));
   }
 }

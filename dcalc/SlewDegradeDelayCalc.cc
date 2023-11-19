@@ -22,6 +22,7 @@
 #include "Sdc.hh"
 #include "Parasitics.hh"
 #include "DcalcAnalysisPt.hh"
+#include "LumpedCapDelayCalc.hh"
 
 namespace sta {
 
@@ -30,33 +31,32 @@ namespace sta {
 // Wire delays are elmore delays.
 // Driver slews are degraded to loads by rise/fall transition_degradation
 // tables.
-class SlewDegradeDelayCalc : public RCDelayCalc
+class SlewDegradeDelayCalc : public LumpedCapDelayCalc
 {
 public:
   SlewDegradeDelayCalc(StaState *sta);
-  virtual ArcDelayCalc *copy();
-  virtual void inputPortDelay(const Pin *port_pin,
-			      float in_slew,
-			      const RiseFall *rf,
-			      const Parasitic *parasitic,
-			      const DcalcAnalysisPt *dcalc_ap);
-  virtual void gateDelay(const LibertyCell *drvr_cell,
-			 const TimingArc *arc,
-			 const Slew &in_slew,
-			 float load_cap,
-			 const Parasitic *drvr_parasitic,
-			 float related_out_cap,
-			 const Pvt *pvt,
-			 const DcalcAnalysisPt *dcalc_ap,
-			 // Return values.
-			 ArcDelay &gate_delay,
-			 Slew &drvr_slew);
-  virtual void loadDelay(const Pin *load_pin,
-			 ArcDelay &wire_delay,
-			 Slew &load_slew);
+  ArcDelayCalc *copy() override;
+  void inputPortDelay(const Pin *port_pin,
+                      float in_slew,
+                      const RiseFall *rf,
+                      const Parasitic *parasitic,
+                      const DcalcAnalysisPt *dcalc_ap) override;
+  void gateDelay(const TimingArc *arc,
+                 const Slew &in_slew,
+                 float load_cap,
+                 const Parasitic *drvr_parasitic,
+                 float related_out_cap,
+                 const Pvt *pvt,
+                 const DcalcAnalysisPt *dcalc_ap,
+                 // Return values.
+                 ArcDelay &gate_delay,
+                 Slew &drvr_slew) override;
+  void loadDelay(const Pin *load_pin,
+                 ArcDelay &wire_delay,
+                 Slew &load_slew) override;
 
-  using RCDelayCalc::gateDelay;
-  using RCDelayCalc::reportGateDelay;
+  using LumpedCapDelayCalc::gateDelay;
+  using LumpedCapDelayCalc::reportGateDelay;
 
 private:
   const Pvt *pvt_;
@@ -69,7 +69,7 @@ makeSlewDegradeDelayCalc(StaState *sta)
 }
 
 SlewDegradeDelayCalc::SlewDegradeDelayCalc(StaState *sta) :
-  RCDelayCalc(sta)
+  LumpedCapDelayCalc(sta)
 {
 }
 
@@ -87,12 +87,11 @@ SlewDegradeDelayCalc::inputPortDelay(const Pin *port_pin,
                                      const DcalcAnalysisPt *dcalc_ap)
 {
   pvt_ = dcalc_ap->operatingConditions();
-  RCDelayCalc::inputPortDelay(port_pin, in_slew, rf, parasitic, dcalc_ap);
+  LumpedCapDelayCalc::inputPortDelay(port_pin, in_slew, rf, parasitic, dcalc_ap);
 }
 
 void
-SlewDegradeDelayCalc::gateDelay(const LibertyCell *drvr_cell,
-                                const TimingArc *arc,
+SlewDegradeDelayCalc::gateDelay(const TimingArc *arc,
                                 const Slew &in_slew,
                                 float load_cap,
                                 const Parasitic *drvr_parasitic,
@@ -106,12 +105,11 @@ SlewDegradeDelayCalc::gateDelay(const LibertyCell *drvr_cell,
   input_port_ = false;
   drvr_parasitic_ = drvr_parasitic;
   drvr_rf_ = arc->toEdge()->asRiseFall();
-  drvr_cell_ = drvr_cell;
-  drvr_library_ = drvr_cell->libertyLibrary();
+  drvr_cell_ = arc->from()->libertyCell();
+  drvr_library_ = drvr_cell_->libertyLibrary();
   pvt_ = pvt;
-  LumpedCapDelayCalc::gateDelay(drvr_cell, arc, in_slew,
-				load_cap, drvr_parasitic, related_out_cap,
-				pvt, dcalc_ap,
+  LumpedCapDelayCalc::gateDelay(arc, in_slew, load_cap, drvr_parasitic,
+                                related_out_cap, pvt, dcalc_ap,
 				gate_delay, drvr_slew);
 }
 
@@ -129,8 +127,7 @@ SlewDegradeDelayCalc::loadDelay(const Pin *load_pin,
   if (elmore_exists) {
     if (drvr_library_ && drvr_library_->wireSlewDegradationTable(drvr_rf_)) {
       wire_delay1 = elmore;
-      load_slew1 = drvr_library_->degradeWireSlew(drvr_cell_, drvr_rf_,
-						  pvt_,
+      load_slew1 = drvr_library_->degradeWireSlew(drvr_rf_,
 						  delayAsFloat(drvr_slew_),
 						  delayAsFloat(wire_delay1));
     }

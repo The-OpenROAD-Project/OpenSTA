@@ -149,10 +149,8 @@ float
 TimingArc::driveResistance() const
 {
   GateTimingModel *model = dynamic_cast<GateTimingModel*>(model_);
-  if (model) {
-    LibertyCell *cell = set_->libertyCell();
-    return model->driveResistance(cell, nullptr);
-  }
+  if (model)
+    return model->driveResistance(nullptr);
   else
     return 0.0;
 }
@@ -162,11 +160,9 @@ TimingArc::intrinsicDelay() const
 {
   GateTimingModel *model = dynamic_cast<GateTimingModel*>(model_);
   if (model) {
-    LibertyCell *cell = set_->libertyCell();
     ArcDelay arc_delay;
     Slew slew;
-    model->gateDelay(cell, nullptr, 0.0, 0.0, 0.0, false,
-                     arc_delay, slew);
+    model->gateDelay(nullptr, 0.0, 0.0, 0.0, false, arc_delay, slew);
     return arc_delay;
   }
   else

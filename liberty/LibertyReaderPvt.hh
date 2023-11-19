@@ -784,7 +784,7 @@ public:
   TableModel *transition(RiseFall *rf);
   void setTransition(RiseFall *rf,
 		     TableModel *model);
-  void makeTimingModels(LibertyLibrary *library,
+  void makeTimingModels(LibertyCell *cell,
 			LibertyReader *visitor);
   void setDelaySigma(RiseFall *rf,
 		     EarlyLate *early_late,
@@ -801,8 +801,9 @@ public:
                         OutputWaveforms *output_current);
   
 protected:
-  void makeLinearModels(LibertyLibrary *library);
-  void makeTableModels(LibertyReader *reader);
+  void makeLinearModels(LibertyCell *cell);
+  void makeTableModels(LibertyCell *cell,
+                       LibertyReader *reader);
 
   TimingArcAttrsPtr attrs_;
   const char *related_output_port_name_;

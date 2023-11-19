@@ -17,6 +17,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "MinMax.hh"
 #include "LibertyClass.hh"
@@ -28,22 +29,26 @@
 namespace sta {
 
 using std::string;
+using std::vector;
 
 class Parasitic;
 class DcalcAnalysisPt;
+class MultiDrvrNet;
 
 // Delay calculator class hierarchy.
 //  ArcDelayCalc
 //   UnitDelayCalc
-//   LumpedCapDelayCalc
-//    RCDelayCalc
-//     SlewDegradeDelayCalc
-//     DmpCeffDelayCalc
-//      DmpCeffElmoreDelayCalc
-//      DmpCeffTwoPoleDelayCalc
-//     ArnoldiDelayCalc
+//   DelayCalcBase
+//    ParallelDelayCalc
+//     LumpedCapDelayCalc
+//      SlewDegradeDelayCalc
+//      DmpCeffDelayCalc
+//       DmpCeffElmoreDelayCalc
+//       DmpCeffTwoPoleDelayCalc
+//      ArnoldiDelayCalc
 
-// Abstract class to interface to a delay calculator primitive.
+// Abstract class for the graph delay calculator traversal to interface
+// to a delay calculator primitive.
 class ArcDelayCalc : public StaState
 {
 public:
@@ -66,8 +71,7 @@ public:
 			      const DcalcAnalysisPt *dcalc_ap) = 0;
 
   // Find the delay and slew for arc driving drvr_pin.
-  virtual void gateDelay(const LibertyCell *drvr_cell,
-			 const TimingArc *arc,
+  virtual void gateDelay(const TimingArc *arc,
 			 const Slew &in_slew,
 			 // Pass in load_cap or drvr_parasitic.
 			 float load_cap,
@@ -78,16 +82,29 @@ public:
 			 // Return values.
 			 ArcDelay &gate_delay,
 			 Slew &drvr_slew) = 0;
+  // Find gate delays and slews for parallel gates.
+  virtual void findParallelGateDelays(const MultiDrvrNet *multi_drvr,
+                                      GraphDelayCalc *dcalc) = 0;
+  // Retrieve the delay and slew for one parallel gate.
+  virtual void parallelGateDelay(const Pin *drvr_pin,
+                                 const TimingArc *arc,
+                                 const Slew &from_slew,
+                                 float load_cap,
+                                 const Parasitic *drvr_parasitic,
+                                 float related_out_cap,
+                                 const Pvt *pvt,
+                                 const DcalcAnalysisPt *dcalc_ap,
+                                 // Return values.
+                                 ArcDelay &gate_delay,
+                                 Slew &gate_slew) = 0;
   // Find the wire delay and load slew of a load pin.
   // Called after inputPortDelay or gateDelay.
   virtual void loadDelay(const Pin *load_pin,
 			 // Return values.
 			 ArcDelay &wire_delay,
 			 Slew &load_slew) = 0;
-  virtual void setMultiDrvrSlewFactor(float factor) = 0;
   // Ceff for parasitics with pi models.
-  virtual float ceff(const LibertyCell *drvr_cell,
-		     const TimingArc *arc,
+  virtual float ceff(const TimingArc *arc,
 		     const Slew &in_slew,
 		     float load_cap,
 		     const Parasitic *drvr_parasitic,
@@ -97,8 +114,7 @@ public:
 
   // Find the delay for a timing check arc given the arc's
   // from/clock, to/data slews and related output pin parasitic.
-  virtual void checkDelay(const LibertyCell *drvr_cell,
-			  const TimingArc *arc,
+  virtual void checkDelay(const TimingArc *arc,
 			  const Slew &from_slew,
 			  const Slew &to_slew,
 			  float related_out_cap,
@@ -107,8 +123,7 @@ public:
 			  // Return values.
 			  ArcDelay &margin) = 0;
   // Report delay and slew calculation.
-  virtual string reportGateDelay(const LibertyCell *drvr_cell,
-                                 const TimingArc *arc,
+  virtual string reportGateDelay(const TimingArc *arc,
                                  const Slew &in_slew,
                                  // Pass in load_cap or drvr_parasitic.
                                  float load_cap,
@@ -118,8 +133,7 @@ public:
                                  const DcalcAnalysisPt *dcalc_ap,
                                  int digits) = 0;
   // Report timing check delay calculation.
-  virtual string reportCheckDelay(const LibertyCell *cell,
-                                  const TimingArc *arc,
+  virtual string reportCheckDelay(const TimingArc *arc,
                                   const Slew &from_slew,
                                   const char *from_slew_annotation,
                                   const Slew &to_slew,

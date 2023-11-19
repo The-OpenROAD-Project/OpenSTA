@@ -472,7 +472,7 @@ Sdc::operatingConditions(const MinMax *min_max)
 }
 
 const Pvt *
-Sdc::pvt(Instance *inst,
+Sdc::pvt(const Instance *inst,
 	 const MinMax *min_max) const
 {
   const InstancePvtMap &pvt_map = instance_pvt_maps_[min_max->index()];

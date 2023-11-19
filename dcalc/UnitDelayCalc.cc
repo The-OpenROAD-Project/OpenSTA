@@ -61,8 +61,7 @@ UnitDelayCalc::inputPortDelay(const Pin *,
 }
 
 void
-UnitDelayCalc::gateDelay(const LibertyCell *,
-			 const TimingArc *,
+UnitDelayCalc::gateDelay(const TimingArc *,
 			 const Slew &,
 			 float,
 			 const Parasitic *,
@@ -76,6 +75,29 @@ UnitDelayCalc::gateDelay(const LibertyCell *,
 }
 
 void
+UnitDelayCalc::findParallelGateDelays(const MultiDrvrNet *,
+                                      GraphDelayCalc *)
+{
+}
+
+void
+UnitDelayCalc::parallelGateDelay(const Pin *,
+                                 const TimingArc *,
+                                 const Slew &,
+                                 float,
+                                 const Parasitic *,
+                                 float,
+                                 const Pvt *,
+                                 const DcalcAnalysisPt *,
+                                 // Return values.
+                                 ArcDelay &gate_delay,
+                                 Slew &gate_slew)
+{
+  gate_delay = units_->timeUnit()->scale();
+  gate_slew = 0.0;
+}
+
+void
 UnitDelayCalc::loadDelay(const Pin *,
 			 ArcDelay &wire_delay,
 			 Slew &load_slew)
@@ -85,8 +107,7 @@ UnitDelayCalc::loadDelay(const Pin *,
 }
 
 float
-UnitDelayCalc::ceff(const LibertyCell *,
-		    const TimingArc *,
+UnitDelayCalc::ceff(const TimingArc *,
 		    const Slew &,
 		    float,
 		    const Parasitic *,
@@ -98,8 +119,7 @@ UnitDelayCalc::ceff(const LibertyCell *,
 }
 
 string
-UnitDelayCalc::reportGateDelay(const LibertyCell *,
-			       const TimingArc *,
+UnitDelayCalc::reportGateDelay(const TimingArc *,
 			       const Slew &,
 			       float,
 			       const Parasitic *,
@@ -114,8 +134,7 @@ UnitDelayCalc::reportGateDelay(const LibertyCell *,
 }
 
 void
-UnitDelayCalc::checkDelay(const LibertyCell *,
-			  const TimingArc *,
+UnitDelayCalc::checkDelay(const TimingArc *,
 			  const Slew &,
 			  const Slew &,
 			  float,
@@ -128,8 +147,7 @@ UnitDelayCalc::checkDelay(const LibertyCell *,
 }
 
 string
-UnitDelayCalc::reportCheckDelay(const LibertyCell *,
-				const TimingArc *,
+UnitDelayCalc::reportCheckDelay(const TimingArc *,
 				const Slew &,
 				const char *,
 				const Slew &,

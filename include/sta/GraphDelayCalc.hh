@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include "Map.hh"
 #include "NetworkClass.hh"
 #include "GraphClass.hh"
@@ -26,9 +28,12 @@
 
 namespace sta {
 
+using std::vector;
+
 class DelayCalcObserver;
 class MultiDrvrNet;
 class FindVertexDelays;
+class NetCaps;
 
 typedef Map<const Vertex*, MultiDrvrNet*> MultiDrvrNetMap;
 
@@ -55,8 +60,8 @@ public:
   // Find and annotate drvr_vertex gate and load delays/slews.
   virtual void findDelays(Vertex *drvr_vertex);
   // Returned string is owned by the caller.
-  virtual string reportDelayCalc(Edge *edge,
-                                 TimingArc *arc,
+  virtual string reportDelayCalc(const Edge *edge,
+                                 const TimingArc *arc,
                                  const Corner *corner,
                                  const MinMax *min_max,
                                  int digits);
@@ -85,6 +90,11 @@ public:
 			const Parasitic *drvr_parasitic,
 			const RiseFall *rf,
 			const DcalcAnalysisPt *dcalc_ap) const;
+  float loadCap(const Pin *drvr_pin,
+		const Parasitic *drvr_parasitic,
+		const RiseFall *rf,
+		const DcalcAnalysisPt *dcalc_ap,
+                const MultiDrvrNet *multi_drvr) const;
   virtual void netCaps(const Pin *drvr_pin,
 		       const RiseFall *rf,
 		       const DcalcAnalysisPt *dcalc_ap,
@@ -115,10 +125,13 @@ public:
 		 float &min_period,
 		 bool &exists);
 
+  Slew edgeFromSlew(const Vertex *from_vertex,
+		    const RiseFall *from_rf,
+		    const Edge *edge,
+		    const DcalcAnalysisPt *dcalc_ap);
+
 protected:
   void seedInvalidDelays();
-  void ensureMultiDrvrNetsFound();
-  void makeMultiDrvrNet(PinSet &drvr_pins);
   void initSlew(Vertex *vertex);
   void seedRootSlew(Vertex *vertex,
 		    ArcDelayCalc *arc_delay_calc);
@@ -150,23 +163,23 @@ protected:
 					const LibertyPort *to_port);
   int findPortIndex(const LibertyCell *cell,
 		    const LibertyPort *port);
-  void findInputArcDelay(const LibertyCell *drvr_cell,
-			 const Pin *drvr_pin,
+  void findInputArcDelay(const Pin *drvr_pin,
 			 Vertex *drvr_vertex,
 			 const TimingArc *arc,
 			 float from_slew,
 			 const DcalcAnalysisPt *dcalc_ap);
   bool findDriverDelays(Vertex *drvr_vertex,
 			ArcDelayCalc *arc_delay_calc);
+  MultiDrvrNet *findMultiDrvrNet(Vertex *drvr_pin);
+  MultiDrvrNet *makeMultiDrvrNet(PinSet &drvr_pins);
   bool findDriverDelays1(Vertex *drvr_vertex,
 			 MultiDrvrNet *multi_drvr,
 			 ArcDelayCalc *arc_delay_calc);
   void initLoadSlews(Vertex *drvr_vertex);
-  bool findDriverEdgeDelays(LibertyCell *drvr_cell,
-			    Instance *drvr_inst,
+  bool findDriverEdgeDelays(const Instance *drvr_inst,
 			    const Pin *drvr_pin,
 			    Vertex *drvr_vertex,
-			    MultiDrvrNet *multi_drvr,
+			    const MultiDrvrNet *multi_drvr,
 			    Edge *edge,
 			    ArcDelayCalc *arc_delay_calc);
   void initWireDelays(Vertex *drvr_vertex);
@@ -176,17 +189,16 @@ protected:
 		       ArcDelayCalc *arc_delay_calc,
 		       bool propagate);
   void enqueueTimingChecksEdges(Vertex *vertex);
-  bool findArcDelay(LibertyCell *drvr_cell,
-		    const Pin *drvr_pin,
+  bool findArcDelay(const Pin *drvr_pin,
 		    Vertex *drvr_vertex,
-		    MultiDrvrNet *multi_drvr,
-		    TimingArc *arc,
-		    Parasitic *drvr_parasitic,
+		    const TimingArc *arc,
+		    const Parasitic *drvr_parasitic,
 		    float related_out_cap,
 		    Vertex *from_vertex,
 		    Edge *edge,
 		    const Pvt *pvt,
 		    const DcalcAnalysisPt *dcalc_ap,
+		    const MultiDrvrNet *multi_drvr,
 		    ArcDelayCalc *arc_delay_calc);
   void annotateLoadDelays(Vertex *drvr_vertex,
 			  const RiseFall *drvr_rf,
@@ -197,32 +209,7 @@ protected:
   void findLatchEdgeDelays(Edge *edge);
   void findCheckEdgeDelays(Edge *edge,
 			   ArcDelayCalc *arc_delay_calc);
-  void findMultiDrvrGateDelay(MultiDrvrNet *multi_drvr,
-			      const RiseFall *drvr_rf,
-			      const Pvt *pvt,
-			      const DcalcAnalysisPt *dcalc_ap,
-			      ArcDelayCalc *arc_delay_calc,
-			      // Return values.
-			      ArcDelay &parallel_delay,
-			      Slew &parallel_slew);
-  void parallelGateDelay(MultiDrvrNet *multi_drvr,
-                         LibertyCell *drvr_cell,
-                         const Pin *drvr_pin,
-                         TimingArc *arc,
-                         const Pvt *pvt,
-                         const DcalcAnalysisPt *dcalc_ap,
-                         const Slew from_slew,
-                         Parasitic *drvr_parasitic,
-                         float related_out_cap,
-                         ArcDelayCalc *arc_delay_calc,
-                         // Return values.
-                         ArcDelay &gate_delay,
-                         Slew &gate_slew);
   void deleteMultiDrvrNets();
-  Slew edgeFromSlew(const Vertex *from_vertex,
-		    const RiseFall *from_rf,
-		    const Edge *edge,
-		    const DcalcAnalysisPt *dcalc_ap);
   Slew checkEdgeClkSlew(const Vertex *from_vertex,
 			const RiseFall *from_rf,
 			const DcalcAnalysisPt *dcalc_ap);
@@ -233,11 +220,6 @@ protected:
 	       // Return values.
 	       float &pin_cap,
 	       float &wire_cap) const;
-  float loadCap(const Pin *drvr_pin,
-		MultiDrvrNet *multi_drvr,
-		const Parasitic *drvr_parasitic,
-		const RiseFall *rf,
-		const DcalcAnalysisPt *dcalc_ap) const;
 
   // Observer for edge delay changes.
   DelayCalcObserver *observer_;
@@ -275,6 +257,35 @@ public:
   virtual void delayChangedFrom(Vertex *vertex) = 0;
   virtual void delayChangedTo(Vertex *vertex) = 0;
   virtual void checkDelayChangedTo(Vertex *vertex) = 0;
+};
+
+// Nets with multiple drivers (tristate, bidirect or output).
+// Cache net caps to prevent N^2 net pin walk.
+class MultiDrvrNet
+{
+public:
+  MultiDrvrNet(VertexSet *drvrs);
+  ~MultiDrvrNet();
+  const VertexSet *drvrs() const { return drvrs_; }
+  VertexSet *drvrs() { return drvrs_; }
+  bool parallelGates(const Network *network) const;
+  Vertex *dcalcDrvr() const { return dcalc_drvr_; }
+  void setDcalcDrvr(Vertex *drvr);
+  void netCaps(const RiseFall *rf,
+	       const DcalcAnalysisPt *dcalc_ap,
+	       // Return values.
+	       float &pin_cap,
+	       float &wire_cap,
+	       float &fanout,
+	       bool &has_net_load) const;
+  void findCaps(const Sdc *sdc);
+
+private:
+  // Driver that triggers delay calculation for all the drivers on the net.
+  Vertex *dcalc_drvr_;
+  VertexSet *drvrs_;
+  // [drvr_rf->index][dcalc_ap->index]
+  vector<NetCaps> net_caps_;
 };
 
 } // namespace

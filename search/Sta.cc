@@ -3789,22 +3789,11 @@ Sta::connectedCap(const Pin *drvr_pin,
 		  float &pin_cap,
 		  float &wire_cap) const
 {
-  pin_cap = 0.0;
-  wire_cap = 0.0;
-  bool cap_exists = false;
   const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
   Parasitic *parasitic = arc_delay_calc_->findParasitic(drvr_pin, rf, dcalc_ap);
-  float ap_pin_cap = 0.0;
-  float ap_wire_cap = 0.0;
   graph_delay_calc_->loadCap(drvr_pin, parasitic, rf, dcalc_ap,
-			     ap_pin_cap, ap_wire_cap);
+			     pin_cap, wire_cap);
   arc_delay_calc_->finishDrvrPin();
-  if (!cap_exists
-      || min_max->compare(ap_pin_cap, pin_cap)) {
-    pin_cap = ap_pin_cap;
-    wire_cap = ap_wire_cap;
-    cap_exists = true;
-  }
 }
 
 void

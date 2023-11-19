@@ -167,16 +167,14 @@ public:
 		    const LibertyCell *cell,
 		    const Pvt *pvt) const;
   float scaleFactor(ScaleFactorType type,
-		    int tr_index,
+		    int rf_index,
 		    const LibertyCell *cell,
 		    const Pvt *pvt) const;
 
   void setWireSlewDegradationTable(TableModel *model,
 				   RiseFall *rf);
   TableModel *wireSlewDegradationTable(const RiseFall *rf) const;
-  float degradeWireSlew(const LibertyCell *cell,
-			const RiseFall *rf,
-			const Pvt *pvt,
+  float degradeWireSlew(const RiseFall *rf,
 			float in_slew,
 			float wire_delay) const;
   // Check for supported axis variables.
@@ -323,9 +321,7 @@ public:
   void addDriverWaveform(DriverWaveform *driver_waveform);
 
 protected:
-  float degradeWireSlew(const LibertyCell *cell,
-			const Pvt *pvt,
-			const TableModel *model,
+  float degradeWireSlew(const TableModel *model,
 			float in_slew,
 			float wire_delay) const;
 
@@ -925,7 +921,7 @@ public:
 	      RiseFall *rf);
   float scale(ScaleFactorType type,
 	      ScaleFactorPvt pvt,
-	      int tr_index);
+	      int rf_index);
   float scale(ScaleFactorType type,
 	      ScaleFactorPvt pvt);
   void setScale(ScaleFactorType type,

@@ -783,8 +783,8 @@ Graph::setWireArcDelay(Edge *edge,
 }
 
 bool
-Graph::arcDelayAnnotated(Edge *edge,
-			 TimingArc *arc,
+Graph::arcDelayAnnotated(const Edge *edge,
+			 const TimingArc *arc,
 			 DcalcAPIndex ap_index) const
 {
   if (arc_delay_annotated_.size()) {
@@ -799,7 +799,7 @@ Graph::arcDelayAnnotated(Edge *edge,
 
 void
 Graph::setArcDelayAnnotated(Edge *edge,
-			    TimingArc *arc,
+			    const TimingArc *arc,
 			    DcalcAPIndex ap_index,
 			    bool annotated)
 {

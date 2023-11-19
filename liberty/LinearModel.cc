@@ -21,16 +21,17 @@
 
 namespace sta {
 
-GateLinearModel::GateLinearModel(float intrinsic,
+GateLinearModel::GateLinearModel(LibertyCell *cell,
+                                 float intrinsic,
 				 float resistance) :
+  GateTimingModel(cell),
   intrinsic_(intrinsic),
   resistance_(resistance)
 {
 }
 
 void
-GateLinearModel::gateDelay(const LibertyCell *,
-			   const Pvt *,
+GateLinearModel::gateDelay(const Pvt *,
 			   float,
 			   float load_cap,
 			   float,
@@ -44,15 +45,14 @@ GateLinearModel::gateDelay(const LibertyCell *,
 }
 
 string
-GateLinearModel::reportGateDelay(const LibertyCell *cell,
-				 const Pvt *,
+GateLinearModel::reportGateDelay(const Pvt *,
 				 float,
 				 float load_cap,
 				 float,
 				 bool,
 				 int digits) const
 {
-  const LibertyLibrary *library = cell->libertyLibrary();
+  const LibertyLibrary *library = cell_->libertyLibrary();
   const Units *units = library->units();
   const Unit *time_unit = units->timeUnit();
   const Unit *res_unit = units->resistanceUnit();
@@ -70,8 +70,7 @@ GateLinearModel::reportGateDelay(const LibertyCell *cell,
 }
 
 float
-GateLinearModel::driveResistance(const LibertyCell *,
-				 const Pvt *) const
+GateLinearModel::driveResistance(const Pvt *) const
 {
   return resistance_;
 }
@@ -81,14 +80,15 @@ GateLinearModel::setIsScaled(bool)
 {
 }
 
-CheckLinearModel::CheckLinearModel(float intrinsic) :
+CheckLinearModel::CheckLinearModel(LibertyCell *cell,
+                                   float intrinsic) :
+  CheckTimingModel(cell),
   intrinsic_(intrinsic)
 {
 }
 
 void
-CheckLinearModel::checkDelay(const LibertyCell *,
-			     const Pvt *,
+CheckLinearModel::checkDelay(const Pvt *,
 			     float,
 			     float,
 			     float,
@@ -99,8 +99,7 @@ CheckLinearModel::checkDelay(const LibertyCell *,
 }
 
 string
-CheckLinearModel::reportCheckDelay(const LibertyCell *cell,
-				   const Pvt *,
+CheckLinearModel::reportCheckDelay(const Pvt *,
 				   float,
 				   const char *,
 				   float,
@@ -108,7 +107,7 @@ CheckLinearModel::reportCheckDelay(const LibertyCell *cell,
 				   bool,
 				   int digits) const
 {
-  const LibertyLibrary *library = cell->libertyLibrary();
+  const LibertyLibrary *library = cell_->libertyLibrary();
   const Units *units = library->units();
   const Unit *time_unit = units->timeUnit();
   string result = "Check = ";
