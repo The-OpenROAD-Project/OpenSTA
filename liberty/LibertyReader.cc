@@ -2526,7 +2526,7 @@ LibertyReader::endOutputCurrentRiseFall(LibertyGroup *group)
     slew_axis->findAxisIndex(waveform->slew(), slew_index, slew_exists);
     cap_axis->findAxisIndex(waveform->cap(), cap_index, cap_exists);
     if (slew_exists && cap_exists) {
-      size_t index = slew_index * slew_axis->size() + cap_index;
+      size_t index = slew_index * cap_axis->size() + cap_index;
       current_waveforms[index] = waveform->stealCurrents();
       (*ref_times)[slew_index] = waveform->referenceTime();
     }

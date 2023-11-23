@@ -1639,11 +1639,11 @@ OutputWaveforms::timeCurrent(float slew,
 {
   size_t slew_index = slew_axis_->findAxisIndex(slew);
   size_t cap_index = cap_axis_->findAxisIndex(cap);
-  size_t slew_count = slew_axis_->size();
-  size_t wave_index00 = slew_index * slew_count + cap_index;
-  size_t wave_index01 = slew_index * slew_count + (cap_index + 1);
-  size_t wave_index10 = (slew_index + 1) * slew_count + cap_index;
-  size_t wave_index11 = (slew_index + 1) * slew_count + (cap_index + 1);
+  size_t cap_count = cap_axis_->size();
+  size_t wave_index00 = slew_index * cap_count + cap_index;
+  size_t wave_index01 = slew_index * cap_count + (cap_index + 1);
+  size_t wave_index10 = (slew_index + 1) * cap_count + cap_index;
+  size_t wave_index11 = (slew_index + 1) * cap_count + (cap_index + 1);
 
   const Table1 *waveform00 = current_waveforms_[wave_index00];
   const Table1 *waveform01 = current_waveforms_[wave_index01];
@@ -1710,11 +1710,11 @@ OutputWaveforms::voltageTime(float slew,
 {
   size_t slew_index = slew_axis_->findAxisIndex(slew);
   size_t cap_index = cap_axis_->findAxisIndex(cap);
-  size_t slew_count = slew_axis_->size();
-  size_t wave_index00 = slew_index * slew_count + cap_index;
-  size_t wave_index01 = slew_index * slew_count + (cap_index + 1);
-  size_t wave_index10 = (slew_index + 1) * slew_count + cap_index;
-  size_t wave_index11 = (slew_index + 1) * slew_count + (cap_index + 1);
+  size_t cap_count = cap_axis_->size();
+  size_t wave_index00 = slew_index * cap_count + cap_index;
+  size_t wave_index01 = slew_index * cap_count + (cap_index + 1);
+  size_t wave_index10 = (slew_index + 1) * cap_count + cap_index;
+  size_t wave_index11 = (slew_index + 1) * cap_count + (cap_index + 1);
   float cap0 = cap_axis_->axisValue(cap_index);
   float cap1 = cap_axis_->axisValue(cap_index + 1);
 
@@ -1835,11 +1835,11 @@ OutputWaveforms::voltageCurrent(float slew,
 {
   size_t slew_index = slew_axis_->findAxisIndex(slew);
   size_t cap_index = cap_axis_->findAxisIndex(cap);
-  size_t slew_count = slew_axis_->size();
-  size_t wave_index00 = slew_index * slew_count + cap_index;
-  size_t wave_index01 = slew_index * slew_count + (cap_index + 1);
-  size_t wave_index10 = (slew_index + 1) * slew_count + cap_index;
-  size_t wave_index11 = (slew_index + 1) * slew_count + (cap_index + 1);
+  size_t cap_count = cap_axis_->size();
+  size_t wave_index00 = slew_index * cap_count + cap_index;
+  size_t wave_index01 = slew_index * cap_count + (cap_index + 1);
+  size_t wave_index10 = (slew_index + 1) * cap_count + cap_index;
+  size_t wave_index11 = (slew_index + 1) * cap_count + (cap_index + 1);
   float cap0 = cap_axis_->axisValue(cap_index);
   float cap1 = cap_axis_->axisValue(cap_index + 1);
 
