@@ -35,17 +35,6 @@ class DmpCeffElmoreDelayCalc : public DmpCeffDelayCalc
 public:
   DmpCeffElmoreDelayCalc(StaState *sta);
   ArcDelayCalc *copy() override;
-  void gateDelay(const LibertyCell *drvr_cell,
-                 const TimingArc *arc,
-                 const Slew &in_slew,
-                 float load_cap,
-                 const Parasitic *drvr_parasitic,
-                 float related_out_cap,
-                 const Pvt *pvt,
-                 const DcalcAnalysisPt *dcalc_ap,
-                 // Return values.
-                 ArcDelay &gate_,
-                 Slew &drvr_slew) override;
   void loadDelay(const Pin *load_pin,
                  ArcDelay &wire_delay,
                  Slew &load_slew) override;
@@ -66,25 +55,6 @@ ArcDelayCalc *
 DmpCeffElmoreDelayCalc::copy()
 {
   return new DmpCeffElmoreDelayCalc(this);
-}
-
-void
-DmpCeffElmoreDelayCalc::gateDelay(const LibertyCell *drvr_cell,
-				  const TimingArc *arc,
-				  const Slew &in_slew,
-				  float load_cap,
-				  const Parasitic *drvr_parasitic,
-				  float related_out_cap,
-				  const Pvt *pvt,
-				  const DcalcAnalysisPt *dcalc_ap,
-				  // Return values.
-				  ArcDelay &gate_delay,
-				  Slew &drvr_slew)
-{
-  DmpCeffDelayCalc::gateDelay(drvr_cell, arc, in_slew,
-			      load_cap, drvr_parasitic, related_out_cap,
-			      pvt, dcalc_ap,
-			      gate_delay, drvr_slew);
 }
 
 void
@@ -127,8 +97,7 @@ public:
                       const RiseFall *rf,
                       const Parasitic *parasitic,
                       const DcalcAnalysisPt *dcalc_ap) override;
-  void gateDelay(const LibertyCell *drvr_cell,
-                 const TimingArc *arc,
+  void gateDelay(const TimingArc *arc,
                  const Slew &in_slew,
                  float load_cap,
                  const Parasitic *drvr_parasitic,
@@ -233,7 +202,7 @@ DmpCeffTwoPoleDelayCalc::findParasitic(const Pin *drvr_pin,
                                                   cnst_min_max,
                                                   parasitic_ap);
         // Estimated parasitics are not recorded in the "database", so
-        // it for deletion after the drvr pin delay calc is finished.
+        // save it for deletion after the drvr pin delay calc is finished.
         if (parasitic)
           unsaved_parasitics_.push_back(parasitic);
       }
@@ -260,8 +229,7 @@ DmpCeffTwoPoleDelayCalc::inputPortDelay(const Pin *port_pin,
 }
 
 void
-DmpCeffTwoPoleDelayCalc::gateDelay(const LibertyCell *drvr_cell,
-				   const TimingArc *arc,
+DmpCeffTwoPoleDelayCalc::gateDelay(const TimingArc *arc,
 				   const Slew &in_slew,
 				   float load_cap,
 				   const Parasitic *drvr_parasitic,
@@ -272,15 +240,13 @@ DmpCeffTwoPoleDelayCalc::gateDelay(const LibertyCell *drvr_cell,
 				   ArcDelay &gate_delay,
 				   Slew &drvr_slew)
 {
+  gateDelayInit(arc, in_slew, drvr_parasitic);
   parasitic_is_pole_residue_ = parasitics_->isPiPoleResidue(drvr_parasitic);
-  const LibertyLibrary *drvr_library = drvr_cell->libertyLibrary();
-  const RiseFall *rf = arc->toEdge()->asRiseFall();
-  vth_ = drvr_library->outputThreshold(rf);
-  vl_ = drvr_library->slewLowerThreshold(rf);
-  vh_ = drvr_library->slewUpperThreshold(rf);
-  slew_derate_ = drvr_library->slewDerateFromLibrary();
-  DmpCeffDelayCalc::gateDelay(drvr_cell, arc, in_slew,
-			      load_cap, drvr_parasitic,
+  vth_ = drvr_library_->outputThreshold(drvr_rf_);
+  vl_ = drvr_library_->slewLowerThreshold(drvr_rf_);
+  vh_ = drvr_library_->slewUpperThreshold(drvr_rf_);
+  slew_derate_ = drvr_library_->slewDerateFromLibrary();
+  DmpCeffDelayCalc::gateDelay(arc, in_slew, load_cap, drvr_parasitic,
 			      related_out_cap, pvt, dcalc_ap,
 			      gate_delay, drvr_slew);
 }

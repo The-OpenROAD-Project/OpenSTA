@@ -23,6 +23,7 @@ enum class PwrActivityOrigin
  global,
  input,
  user,
+ vcd,
  propagated,
  clock,
  constant,
@@ -42,6 +43,7 @@ public:
   float duty() const { return duty_; }
   void setDuty(float duty);
   PwrActivityOrigin origin() { return origin_; }
+  void setOrigin(PwrActivityOrigin origin);
   const char *originName() const;
   void set(float activity,
 	   float duty,

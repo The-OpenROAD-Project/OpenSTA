@@ -238,7 +238,7 @@ VcdReader::parseVarValues()
   string token = getToken();
   while (!token.empty()) {
     char char0 = toupper(token[0]);
-    if (char0 == '#') {
+    if (char0 == '#' && token.size() > 1) {
       prev_time_ = time_;
       time_ = stoll(token.substr(1));
       if (time_ > prev_time_)

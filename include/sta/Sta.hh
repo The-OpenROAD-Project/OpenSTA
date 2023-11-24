@@ -429,8 +429,6 @@ public:
   bool isDisabledConstant(Edge *edge);
   // Edge is default cond disabled by timing_disable_cond_default_arcs var.
   bool isDisabledCondDefault(Edge *edge);
-  // Edge is disabled to prpath a clock from propagating.
-  bool isDisabledClock(Edge *edge);
   // Return a set of constant pins that disabled edge.
   // Caller owns the returned set.
   PinSet disabledConstantPins(Edge *edge);

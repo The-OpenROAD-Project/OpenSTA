@@ -146,6 +146,7 @@ public:
   VcdTime time() const { return time_; }
   char value() const { return value_; }
   uint64_t busValue() const { return bus_value_; }
+  char value(int value_bit) const;
 
 private:
   VcdTime time_;

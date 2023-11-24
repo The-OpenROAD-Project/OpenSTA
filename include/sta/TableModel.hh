@@ -51,15 +51,15 @@ tableVariableUnit(TableAxisVariable variable,
 class GateTableModel : public GateTimingModel
 {
 public:
-  GateTableModel(TableModel *delay_model,
+  GateTableModel(LibertyCell *cell,
+                 TableModel *delay_model,
 		 TableModel *delay_sigma_models[EarlyLate::index_count],
 		 TableModel *slew_model,
 		 TableModel *slew_sigma_models[EarlyLate::index_count],
                  ReceiverModelPtr receiver_model,
                  OutputWaveforms *output_waveforms);
   virtual ~GateTableModel();
-  void gateDelay(const LibertyCell *cell,
-                 const Pvt *pvt,
+  void gateDelay(const Pvt *pvt,
                  float in_slew,
                  float load_cap,
                  float related_out_cap,
@@ -67,15 +67,13 @@ public:
                  // Return values.
                  ArcDelay &gate_delay,
                  Slew &drvr_slew) const override;
-  string reportGateDelay(const LibertyCell *cell,
-                         const Pvt *pvt,
+  string reportGateDelay(const Pvt *pvt,
                          float in_slew,
                          float load_cap,
                          float related_out_cap,
                          bool pocv_enabled,
                          int digits) const override;
-  float driveResistance(const LibertyCell *cell,
-                        const Pvt *pvt) const override;
+  float driveResistance(const Pvt *pvt) const override;
 
   const TableModel *delayModel() const { return delay_model_; }
   const TableModel *slewModel() const { return slew_model_;  }
@@ -86,8 +84,7 @@ public:
   static bool checkAxes(const TablePtr table);
 
 protected:
-  void maxCapSlew(const LibertyCell *cell,
-		  float in_slew,
+  void maxCapSlew(float in_slew,
 		  const Pvt *pvt,
 		  float &slew,
 		  float &cap) const;
@@ -96,16 +93,12 @@ protected:
 		  float load_cap,
 		  float in_slew,
 		  float related_out_cap) const;
-  float findValue(const LibertyLibrary *library,
-		  const LibertyCell *cell,
-		  const Pvt *pvt,
+  float findValue(const Pvt *pvt,
 		  const TableModel *model,
 		  float in_slew,
 		  float load_cap,
 		  float related_out_cap) const;
   string reportTableLookup(const char *result_name,
-                           const LibertyLibrary *library,
-                           const LibertyCell *cell,
                            const Pvt *pvt,
                            const TableModel *model,
                            float in_slew,
@@ -133,19 +126,18 @@ protected:
 class CheckTableModel : public CheckTimingModel
 {
 public:
-  explicit CheckTableModel(TableModel *model,
+  explicit CheckTableModel(LibertyCell *cell,
+                           TableModel *model,
 			   TableModel *sigma_models[EarlyLate::index_count]);
   virtual ~CheckTableModel();
-  void checkDelay(const LibertyCell *cell,
-                  const Pvt *pvt,
+  void checkDelay(const Pvt *pvt,
                   float from_slew,
                   float to_slew,
                   float related_out_cap,
                   bool pocv_enabled,
                   // Return values.
                   ArcDelay &margin) const override;
-  string reportCheckDelay(const LibertyCell *cell,
-                          const Pvt *pvt,
+  string reportCheckDelay(const Pvt *pvt,
                           float from_slew,
                           const char *from_slew_annotation,
                           float to_slew,
@@ -160,9 +152,7 @@ public:
 
 protected:
   void setIsScaled(bool is_scaled) override;
-  float findValue(const LibertyLibrary *library,
-		  const LibertyCell *cell,
-		  const Pvt *pvt,
+  float findValue(const Pvt *pvt,
 		  const TableModel *model,
 		  float from_slew,
 		  float to_slew,
@@ -179,8 +169,6 @@ protected:
 		  float in_slew,
 		  float related_out_cap) const;
   string reportTableDelay(const char *result_name,
-                          const LibertyLibrary *library,
-                          const LibertyCell *cell,
                           const Pvt *pvt,
                           const TableModel *model,
                           float from_slew,
@@ -217,14 +205,12 @@ public:
 		  float value2,
 		  float value3) const;
   // Table interpolated lookup with scale factor.
-  float findValue(const LibertyLibrary *library,
-		  const LibertyCell *cell,
+  float findValue(const LibertyCell *cell,
 		  const Pvt *pvt,
 		  float value1,
 		  float value2,
 		  float value3) const;
   string reportValue(const char *result_name,
-                     const LibertyLibrary *library,
                      const LibertyCell *cell,
                      const Pvt *pvt,
                      float value1,
@@ -237,11 +223,9 @@ public:
                 Report *report) const;
 
 protected:
-  float scaleFactor(const LibertyLibrary *library,
-		    const LibertyCell *cell,
+  float scaleFactor(const LibertyCell *cell,
 		    const Pvt *pvt) const;
-  string reportPvtScaleFactor(const LibertyLibrary *library,
-                              const LibertyCell *cell,
+  string reportPvtScaleFactor(const LibertyCell *cell,
                               const Pvt *pvt,
                               int digits) const;
 
@@ -280,7 +264,6 @@ public:
 		  float axis_value2,
 		  float axis_value3) const;
   virtual string reportValue(const char *result_name,
-                             const LibertyLibrary *library,
                              const LibertyCell *cell,
                              const Pvt *pvt,
                              float value1,
@@ -306,7 +289,6 @@ public:
                   float axis_value2,
                   float axis_value3) const override;
   string reportValue(const char *result_name,
-                     const LibertyLibrary *library,
                      const LibertyCell *cell,
                      const Pvt *pvt,
                      float value1,
@@ -342,7 +324,6 @@ public:
                   float value2,
                   float value3) const override;
   string reportValue(const char *result_name,
-                     const LibertyLibrary *library,
                      const LibertyCell *cell,
                      const Pvt *pvt,
                      float value1,
@@ -389,7 +370,6 @@ public:
                   float value2,
                   float value3) const override;
   string reportValue(const char *result_name,
-                     const LibertyLibrary *library,
                      const LibertyCell *cell,
                      const Pvt *pvt,
                      float value1,
@@ -436,7 +416,6 @@ public:
                   float value2,
                   float value3) const override;
   string reportValue(const char *result_name,
-                     const LibertyLibrary *library,
                      const LibertyCell *cell,
                      const Pvt *pvt,
                      float value1,

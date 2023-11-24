@@ -14,14 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+#include "TimingModel.hh"
 
 namespace sta {
 
-class ArcDelayCalc;
-class StaState;
+GateTimingModel::GateTimingModel(LibertyCell *cell) :
+  TimingModel(cell)
+{
+}
 
-ArcDelayCalc *
-makeSlewDegradeDelayCalc(StaState *sta);
+CheckTimingModel::CheckTimingModel(LibertyCell *cell) :
+  TimingModel(cell)
+{
+}
 
 } // namespace

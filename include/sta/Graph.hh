@@ -157,11 +157,11 @@ public:
 			       DcalcAPIndex ap_index,
 			       const ArcDelay &delay);
   // Is timing arc delay annotated.
-  bool arcDelayAnnotated(Edge *edge,
-			 TimingArc *arc,
+  bool arcDelayAnnotated(const Edge *edge,
+			 const TimingArc *arc,
 			 DcalcAPIndex ap_index) const;
   void setArcDelayAnnotated(Edge *edge,
-			    TimingArc *arc,
+			    const TimingArc *arc,
 			    DcalcAPIndex ap_index,
 			    bool annotated);
   bool wireDelayAnnotated(Edge *edge,
@@ -539,7 +539,6 @@ class VertexSet : public Set<Vertex*, VertexIdLess>
 {
 public:
   VertexSet(Graph *&graph);
-  VertexSet(const VertexSet &set);
 };
 
 } // namespace

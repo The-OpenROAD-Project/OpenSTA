@@ -94,12 +94,12 @@ LibertyLibrary::LibertyLibrary(const char *name,
     addTableTemplate(scalar_template, type);
   }
 
-  for (auto tr_index : RiseFall::rangeIndex()) {
-    wire_slew_degradation_tbls_[tr_index] = nullptr;
-    input_threshold_[tr_index] = input_threshold_default_;
-    output_threshold_[tr_index] = output_threshold_default_;
-    slew_lower_threshold_[tr_index] = slew_lower_threshold_default_;
-    slew_upper_threshold_[tr_index] = slew_upper_threshold_default_;
+  for (auto rf_index : RiseFall::rangeIndex()) {
+    wire_slew_degradation_tbls_[rf_index] = nullptr;
+    input_threshold_[rf_index] = input_threshold_default_;
+    output_threshold_[rf_index] = output_threshold_default_;
+    slew_lower_threshold_[rf_index] = slew_lower_threshold_default_;
+    slew_upper_threshold_[rf_index] = slew_upper_threshold_default_;
   }
 }
 
@@ -111,8 +111,8 @@ LibertyLibrary::~LibertyLibrary()
   scale_factors_map_.deleteContents();
   delete scale_factors_;
 
-  for (auto tr_index : RiseFall::rangeIndex()) {
-    TableModel *model = wire_slew_degradation_tbls_[tr_index];
+  for (auto rf_index : RiseFall::rangeIndex()) {
+    TableModel *model = wire_slew_degradation_tbls_[rf_index];
     delete model;
   }
   operating_conditions_.deleteContents();
@@ -289,7 +289,7 @@ LibertyLibrary::scaleFactor(ScaleFactorType type,
 
 float
 LibertyLibrary::scaleFactor(ScaleFactorType type,
-			    int tr_index,
+			    int rf_index,
 			    const LibertyCell *cell,
 			    const Pvt *pvt) const
 {
@@ -299,18 +299,18 @@ LibertyLibrary::scaleFactor(ScaleFactorType type,
   // All scale factors are unity for nominal pvt.
   if (pvt) {
     ScaleFactors *scale_factors = nullptr;
-    // Cell level scale factors have precidence over library scale factors.
+    // Cell level scale factors have precedence over library scale factors.
     if (cell)
       scale_factors = cell->scaleFactors();
     if (scale_factors == nullptr)
       scale_factors = scale_factors_;
     if (scale_factors) {
       float process_scale = 1.0F + (pvt->process() - nominal_process_)
-	* scale_factors->scale(type, ScaleFactorPvt::process, tr_index);
+	* scale_factors->scale(type, ScaleFactorPvt::process, rf_index);
       float temp_scale = 1.0F + (pvt->temperature() - nominal_temperature_)
-	* scale_factors->scale(type, ScaleFactorPvt::temp, tr_index);
+	* scale_factors->scale(type, ScaleFactorPvt::temp, rf_index);
       float volt_scale = 1.0F + (pvt->voltage() - nominal_voltage_)
-	* scale_factors->scale(type, ScaleFactorPvt::volt, tr_index);
+	* scale_factors->scale(type, ScaleFactorPvt::volt, rf_index);
       float scale = process_scale * temp_scale * volt_scale;
       return scale;
     }
@@ -322,10 +322,10 @@ void
 LibertyLibrary::setWireSlewDegradationTable(TableModel *model,
 			 		    RiseFall *rf)
 {
-  int tr_index = rf->index();
-  if (wire_slew_degradation_tbls_[tr_index])
-    delete wire_slew_degradation_tbls_[tr_index];
-  wire_slew_degradation_tbls_[tr_index] = model;
+  int rf_index = rf->index();
+  if (wire_slew_degradation_tbls_[rf_index])
+    delete wire_slew_degradation_tbls_[rf_index];
+  wire_slew_degradation_tbls_[rf_index] = model;
 }
 
 TableModel *
@@ -335,36 +335,32 @@ LibertyLibrary::wireSlewDegradationTable(const RiseFall *rf) const
 }
 
 float
-LibertyLibrary::degradeWireSlew(const LibertyCell *cell,
-				const RiseFall *rf,
-				const Pvt *pvt,
+LibertyLibrary::degradeWireSlew(const RiseFall *rf,
 				float in_slew,
 				float wire_delay) const
 {
   const TableModel *model = wireSlewDegradationTable(rf);
   if (model)
-    return degradeWireSlew(cell, pvt, model, in_slew, wire_delay);
+    return degradeWireSlew(model, in_slew, wire_delay);
   else
     return in_slew;
 }
 
 float
-LibertyLibrary::degradeWireSlew(const LibertyCell *cell,
-				const Pvt *pvt,
-				const TableModel *model,
+LibertyLibrary::degradeWireSlew(const TableModel *model,
 				float in_slew,
 				float wire_delay) const
 {
   switch (model->order()) {
   case 0:
-    return model->findValue(this, cell, pvt, 0.0, 0.0, 0.0);
+    return model->findValue(0.0, 0.0, 0.0);
   case 1: {
     TableAxisPtr axis1 = model->axis1();
     TableAxisVariable var1 = axis1->variable();
     if (var1 == TableAxisVariable::output_pin_transition)
-      return model->findValue(this, cell, pvt, in_slew, 0.0, 0.0);
+      return model->findValue(in_slew, 0.0, 0.0);
     else if (var1 == TableAxisVariable::connect_delay)
-      return model->findValue(this, cell, pvt, wire_delay, 0.0, 0.0);
+      return model->findValue(wire_delay, 0.0, 0.0);
     else {
       criticalError(231, "unsupported slew degradation table axes");
       return 0.0;
@@ -377,10 +373,10 @@ LibertyLibrary::degradeWireSlew(const LibertyCell *cell,
     TableAxisVariable var2 = axis2->variable();
     if (var1 == TableAxisVariable::output_pin_transition
 	&& var2 == TableAxisVariable::connect_delay)
-      return model->findValue(this, cell, pvt, in_slew, wire_delay, 0.0);
+      return model->findValue(in_slew, wire_delay, 0.0);
     else if (var1 == TableAxisVariable::connect_delay
 	     && var2 == TableAxisVariable::output_pin_transition)
-      return model->findValue(this, cell, pvt, wire_delay, in_slew, 0.0);
+      return model->findValue(wire_delay, in_slew, 0.0);
     else {
       criticalError(232, "unsupported slew degradation table axes");
       return 0.0;
@@ -2580,13 +2576,12 @@ LibertyPort::clockTreePathDelays()
         GateTimingModel *gate_model = dynamic_cast<GateTimingModel*>(model);
         ArcDelay delay;
         Slew slew;
-        gate_model->gateDelay(liberty_cell_, nullptr, 0.0, 0.0, 0.0, false,
-                              delay, slew);
+        gate_model->gateDelay(nullptr, 0.0, 0.0, 0.0, false, delay, slew);
         const RiseFall *rf = arc->toEdge()->asRiseFall();
         const MinMax *min_max = (role == TimingRole::clockTreePathMin())
           ? MinMax::min()
           : MinMax::max();
-        delays.setValue(rf, min_max, delay);
+        delays.setValue(rf, min_max, delayAsFloat(delay));
       }
     }
   }
@@ -2911,8 +2906,8 @@ ScaleFactors::ScaleFactors(const char *name) :
 {
   for (int type = 0; type < scale_factor_type_count; type++) {
     for (int pvt = 0; pvt < scale_factor_pvt_count; pvt++) {
-      for (auto tr_index : RiseFall::rangeIndex()) {
-	scales_[type][pvt][tr_index] = 0.0;
+      for (auto rf_index : RiseFall::rangeIndex()) {
+	scales_[type][pvt][rf_index] = 0.0;
       }
     }
   }
@@ -2951,9 +2946,9 @@ ScaleFactors::scale(ScaleFactorType type,
 float
 ScaleFactors::scale(ScaleFactorType type,
 		    ScaleFactorPvt pvt,
-		    int tr_index)
+		    int rf_index)
 {
-  return scales_[int(type)][int(pvt)][tr_index];
+  return scales_[int(type)][int(pvt)][rf_index];
 }
 
 float
@@ -3050,9 +3045,9 @@ OcvDerate::OcvDerate(const char *name) :
   name_(name)
 {
   for (auto el_index : EarlyLate::rangeIndex()) {
-    for (auto tr_index : RiseFall::rangeIndex()) {
-      derate_[tr_index][el_index][int(PathType::clk)] = nullptr;
-      derate_[tr_index][el_index][int(PathType::data)] = nullptr;
+    for (auto rf_index : RiseFall::rangeIndex()) {
+      derate_[rf_index][el_index][int(PathType::clk)] = nullptr;
+      derate_[rf_index][el_index][int(PathType::data)] = nullptr;
     }
   }
 }

@@ -143,17 +143,19 @@ BfsIterator::visit(Level to_level,
 	 && levelLessOrEqual(first_level_, to_level)) {
     VertexSeq &level_vertices = queue_[first_level_];
     incrLevel(first_level_);
-    if (!level_vertices.empty()) {
-      for (auto vertex : level_vertices) {
-	if (vertex) {
-	  vertex->setBfsInQueue(bfs_index_, false);
-	  visitor->visit(vertex);
-	  visit_count++;
-	}
+    // Note that ArrivalVisitor::enqueueRefPinInputDelays may enqueue
+    // vertices at this level so range iteration fails if the vector grows.
+    while (!level_vertices.empty()) {
+      Vertex *vertex = level_vertices.back();
+      level_vertices.pop_back();
+      if (vertex) {
+        vertex->setBfsInQueue(bfs_index_, false);
+        visitor->visit(vertex);
+        visit_count++;
       }
-      level_vertices.clear();
-      visitor->levelFinished();
     }
+    level_vertices.clear();
+    visitor->levelFinished();
   }
   return visit_count;
 }

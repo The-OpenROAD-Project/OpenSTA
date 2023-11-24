@@ -118,8 +118,8 @@ void
 Clock::makeClkEdges()
 {
   clk_edges_ = new ClockEdge*[RiseFall::index_count];
-  for (auto tr : RiseFall::range()) {
-    clk_edges_[tr->index()] = new ClockEdge(this, tr);
+  for (auto rf : RiseFall::range()) {
+    clk_edges_[rf->index()] = new ClockEdge(this, rf);
   }
 }
 

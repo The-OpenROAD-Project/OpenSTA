@@ -176,6 +176,11 @@ TimingRole::destroy()
   non_seq_setup_ = nullptr;
   delete non_seq_hold_;
   non_seq_hold_ = nullptr;
+  delete clock_tree_path_min_;
+  clock_tree_path_min_ = nullptr;
+  delete clock_tree_path_max_;
+  clock_tree_path_max_ = nullptr;
+
   timing_roles_.clear();
 }
 

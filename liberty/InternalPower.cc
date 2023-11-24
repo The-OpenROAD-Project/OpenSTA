@@ -131,9 +131,7 @@ InternalPowerModel::power(const LibertyCell *cell,
     float axis_value1, axis_value2, axis_value3;
     findAxisValues(in_slew, load_cap,
 		   axis_value1, axis_value2, axis_value3);
-    const LibertyLibrary *library = cell->libertyLibrary();
-    return model_->findValue(library, cell, pvt,
-			     axis_value1, axis_value2, axis_value3);
+    return model_->findValue(cell, pvt, axis_value1, axis_value2, axis_value3);
   }
   else
     return 0.0;
@@ -151,8 +149,8 @@ InternalPowerModel::reportPower(const LibertyCell *cell,
     findAxisValues(in_slew, load_cap,
 		   axis_value1, axis_value2, axis_value3);
     const LibertyLibrary *library = cell->libertyLibrary();
-    return model_->reportValue("Power", library, cell, pvt,
-                               axis_value1, nullptr, axis_value2, axis_value3,
+    return model_->reportValue("Power", cell, pvt, axis_value1, nullptr,
+                               axis_value2, axis_value3,
                                library->units()->powerUnit(), digits);
   }
   return "";

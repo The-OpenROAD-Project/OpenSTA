@@ -34,19 +34,26 @@ using std::make_shared;
 static void
 deleteSigmaModels(TableModel *models[EarlyLate::index_count]);
 static string
-reportPvt(const LibertyLibrary *library,
-	  const Pvt *pvt,
+reportPvt(const LibertyCell *cell,
+          const Pvt *pvt,
 	  int digits);
 static void
 appendSpaces(string &result,
 	     int count);
 
-GateTableModel::GateTableModel(TableModel *delay_model,
+TimingModel::TimingModel(LibertyCell *cell) :
+  cell_(cell)
+{
+}
+
+GateTableModel::GateTableModel(LibertyCell *cell,
+                               TableModel *delay_model,
 			       TableModel *delay_sigma_models[EarlyLate::index_count],
 			       TableModel *slew_model,
 			       TableModel *slew_sigma_models[EarlyLate::index_count],
                                ReceiverModelPtr receiver_model,
                                OutputWaveforms *output_waveforms) :
+  GateTimingModel(cell),
   delay_model_(delay_model),
   slew_model_(slew_model),
   receiver_model_(receiver_model),
@@ -94,8 +101,7 @@ GateTableModel::setIsScaled(bool is_scaled)
 }
 
 void
-GateTableModel::gateDelay(const LibertyCell *cell,
-			  const Pvt *pvt,
+GateTableModel::gateDelay(const Pvt *pvt,
 			  float in_slew,
 			  float load_cap,
 			  float related_out_cap,
@@ -104,30 +110,23 @@ GateTableModel::gateDelay(const LibertyCell *cell,
 			  ArcDelay &gate_delay,
 			  Slew &drvr_slew) const
 {
-  const LibertyLibrary *library = cell->libertyLibrary();
-  float delay = findValue(library, cell, pvt, delay_model_, in_slew,
-			  load_cap, related_out_cap);
+  float delay = findValue(pvt, delay_model_, in_slew, load_cap, related_out_cap);
   float sigma_early = 0.0;
   float sigma_late = 0.0;
   if (pocv_enabled && delay_sigma_models_[EarlyLate::earlyIndex()])
-    sigma_early = findValue(library, cell, pvt,
-			    delay_sigma_models_[EarlyLate::earlyIndex()],
+    sigma_early = findValue(pvt, delay_sigma_models_[EarlyLate::earlyIndex()],
 			    in_slew, load_cap, related_out_cap);
   if (pocv_enabled && delay_sigma_models_[EarlyLate::lateIndex()])
-    sigma_late = findValue(library, cell, pvt,
-			   delay_sigma_models_[EarlyLate::lateIndex()],
+    sigma_late = findValue(pvt, delay_sigma_models_[EarlyLate::lateIndex()],
 			   in_slew, load_cap, related_out_cap);
   gate_delay = makeDelay(delay, sigma_early, sigma_late);
 
-  float slew = findValue(library, cell, pvt, slew_model_, in_slew,
-			 load_cap, related_out_cap);
+  float slew = findValue(pvt, slew_model_, in_slew, load_cap, related_out_cap);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::earlyIndex()])
-    sigma_early = findValue(library, cell, pvt,
-			    slew_sigma_models_[EarlyLate::earlyIndex()],
+    sigma_early = findValue(pvt, slew_sigma_models_[EarlyLate::earlyIndex()],
 			    in_slew, load_cap, related_out_cap);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::lateIndex()])
-    sigma_late = findValue(library, cell, pvt,
-			   slew_sigma_models_[EarlyLate::lateIndex()],
+    sigma_late = findValue(pvt, slew_sigma_models_[EarlyLate::lateIndex()],
 			   in_slew, load_cap, related_out_cap);
   // Clip negative slews to zero.
   if (slew < 0.0)
@@ -136,39 +135,36 @@ GateTableModel::gateDelay(const LibertyCell *cell,
 }
 
 string
-GateTableModel::reportGateDelay(const LibertyCell *cell,
-				const Pvt *pvt,
+GateTableModel::reportGateDelay(const Pvt *pvt,
 				float in_slew,
 				float load_cap,
 				float related_out_cap,
 				bool pocv_enabled,
 				int digits) const
 {
-  const LibertyLibrary *library = cell->libertyLibrary();
-  string result = reportPvt(library, pvt, digits);
-  result += reportTableLookup("Delay", library, cell, pvt, delay_model_, in_slew,
+  string result = reportPvt(cell_, pvt, digits);
+  result += reportTableLookup("Delay", pvt, delay_model_, in_slew,
                               load_cap, related_out_cap, digits);
   if (pocv_enabled && delay_sigma_models_[EarlyLate::earlyIndex()])
-    result += reportTableLookup("Delay sigma(early)", library, cell, pvt,
+    result += reportTableLookup("Delay sigma(early)", pvt,
                                 delay_sigma_models_[EarlyLate::earlyIndex()],
                                 in_slew, load_cap, related_out_cap, digits);
   if (pocv_enabled && delay_sigma_models_[EarlyLate::lateIndex()])
-    result += reportTableLookup("Delay sigma(late)", library, cell, pvt,
+    result += reportTableLookup("Delay sigma(late)", pvt,
                                 delay_sigma_models_[EarlyLate::lateIndex()],
                                 in_slew, load_cap, related_out_cap, digits);
   result += '\n';
-  result += reportTableLookup("Slew", library, cell, pvt, slew_model_, in_slew,
+  result += reportTableLookup("Slew", pvt, slew_model_, in_slew,
 		    load_cap, related_out_cap, digits);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::earlyIndex()])
-    result += reportTableLookup("Slew sigma(early)", library, cell, pvt,
+    result += reportTableLookup("Slew sigma(early)", pvt,
 		      slew_sigma_models_[EarlyLate::earlyIndex()],
 		      in_slew, load_cap, related_out_cap, digits);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::lateIndex()])
-    result += reportTableLookup("Slew sigma(late)", library, cell, pvt,
+    result += reportTableLookup("Slew sigma(late)", pvt,
 		      slew_sigma_models_[EarlyLate::lateIndex()],
 		      in_slew, load_cap, related_out_cap, digits);
-  float drvr_slew = findValue(library, cell, pvt, slew_model_, in_slew,
-			      load_cap, related_out_cap);
+  float drvr_slew = findValue(pvt, slew_model_, in_slew, load_cap, related_out_cap);
   if (drvr_slew < 0.0)
     result += "Negative slew clipped to 0.0\n";
   return result;
@@ -176,8 +172,6 @@ GateTableModel::reportGateDelay(const LibertyCell *cell,
 
 string
 GateTableModel::reportTableLookup(const char *result_name,
-				  const LibertyLibrary *library,
-				  const LibertyCell *cell,
 				  const Pvt *pvt,
 				  const TableModel *model,
 				  float in_slew,
@@ -189,17 +183,16 @@ GateTableModel::reportTableLookup(const char *result_name,
     float axis_value1, axis_value2, axis_value3;
     findAxisValues(model, in_slew, load_cap, related_out_cap,
 		   axis_value1, axis_value2, axis_value3);
-    return model->reportValue(result_name, library, cell, pvt,
-                              axis_value1, nullptr, axis_value2, axis_value3,
+    const LibertyLibrary *library = cell_->libertyLibrary();
+    return model->reportValue(result_name, cell_, pvt, axis_value1, nullptr,
+                              axis_value2, axis_value3,
                               library->units()->timeUnit(), digits);
   }
   return "";
 }
 
 float
-GateTableModel::findValue(const LibertyLibrary *library,
-			  const LibertyCell *cell,
-			  const Pvt *pvt,
+GateTableModel::findValue(const Pvt *pvt,
 			  const TableModel *model,
 			  float in_slew,
 			  float load_cap,
@@ -209,8 +202,7 @@ GateTableModel::findValue(const LibertyLibrary *library,
     float axis_value1, axis_value2, axis_value3;
     findAxisValues(model, in_slew, load_cap, related_out_cap,
 		   axis_value1, axis_value2, axis_value3);
-    return model->findValue(library, cell, pvt,
-			    axis_value1, axis_value2, axis_value3);
+    return model->findValue(cell_, pvt, axis_value1, axis_value2, axis_value3);
   }
   else
     return 0.0;
@@ -264,42 +256,36 @@ GateTableModel::findAxisValues(const TableModel *model,
 // Use slew/Cload for the highest Cload, which approximates output
 // admittance as the "drive".
 float
-GateTableModel::driveResistance(const LibertyCell *cell,
-				const Pvt *pvt) const
+GateTableModel::driveResistance(const Pvt *pvt) const
 {
   float slew, cap;
-  maxCapSlew(cell, 0.0, pvt, slew, cap);
+  maxCapSlew(0.0, pvt, slew, cap);
   return slew / cap;
 }
 
 void
-GateTableModel::maxCapSlew(const LibertyCell *cell,
-			   float in_slew,
+GateTableModel::maxCapSlew(float in_slew,
 			   const Pvt *pvt,
 			   float &slew,
 			   float &cap) const
 {
-  const LibertyLibrary *library = cell->libertyLibrary();
   TableAxisPtr axis1 = slew_model_->axis1();
   TableAxisPtr axis2 = slew_model_->axis2();
   TableAxisPtr axis3 = slew_model_->axis3();
   if (axis1
       && axis1->variable() == TableAxisVariable::total_output_net_capacitance) {
     cap = axis1->axisValue(axis1->size() - 1);
-    slew = findValue(library, cell, pvt, slew_model_,
-		     in_slew, cap, 0.0);
+    slew = findValue(pvt, slew_model_, in_slew, cap, 0.0);
   }
   else if (axis2
 	   && axis2->variable()==TableAxisVariable::total_output_net_capacitance) {
     cap = axis2->axisValue(axis2->size() - 1);
-    slew = findValue(library, cell, pvt, slew_model_,
-		     in_slew, cap, 0.0);
+    slew = findValue(pvt, slew_model_, in_slew, cap, 0.0);
   }
   else if (axis3
 	   && axis3->variable()==TableAxisVariable::total_output_net_capacitance) {
     cap = axis3->axisValue(axis3->size() - 1);
-    slew = findValue(library, cell, pvt, slew_model_,
-		     in_slew, cap, 0.0);
+    slew = findValue(pvt, slew_model_, in_slew, cap, 0.0);
   }
   else {
     // Table not dependent on capacitance.
@@ -399,8 +385,10 @@ ReceiverModel::checkAxes(TablePtr table)
 
 ////////////////////////////////////////////////////////////////
 
-CheckTableModel::CheckTableModel(TableModel *model,
+CheckTableModel::CheckTableModel(LibertyCell *cell,
+                                 TableModel *model,
 				 TableModel *sigma_models[EarlyLate::index_count]) :
+  CheckTimingModel(cell),
   model_(model)
 {
   for (auto el_index : EarlyLate::rangeIndex())
@@ -420,8 +408,7 @@ CheckTableModel::setIsScaled(bool is_scaled)
 }
 
 void
-CheckTableModel::checkDelay(const LibertyCell *cell,
-			    const Pvt *pvt,
+CheckTableModel::checkDelay(const Pvt *pvt,
 			    float from_slew,
 			    float to_slew,
 			    float related_out_cap,
@@ -430,18 +417,14 @@ CheckTableModel::checkDelay(const LibertyCell *cell,
 			    ArcDelay &margin) const
 {
   if (model_) {
-    const LibertyLibrary *library = cell->libertyLibrary();
-    float mean = findValue(library, cell, pvt, model_,
-			  from_slew, to_slew, related_out_cap);
+    float mean = findValue(pvt, model_, from_slew, to_slew, related_out_cap);
     float sigma_early = 0.0;
     float sigma_late = 0.0;
     if (pocv_enabled && sigma_models_[EarlyLate::earlyIndex()])
-      sigma_early = findValue(library, cell, pvt,
-			      sigma_models_[EarlyLate::earlyIndex()],
+      sigma_early = findValue(pvt, sigma_models_[EarlyLate::earlyIndex()],
 			      from_slew, to_slew, related_out_cap);
     if (pocv_enabled && sigma_models_[EarlyLate::lateIndex()])
-      sigma_late = findValue(library, cell, pvt,
-			     sigma_models_[EarlyLate::lateIndex()],
+      sigma_late = findValue(pvt, sigma_models_[EarlyLate::lateIndex()],
 			     from_slew, to_slew, related_out_cap);
     margin = makeDelay(mean, sigma_early, sigma_late);  
   }
@@ -450,9 +433,7 @@ CheckTableModel::checkDelay(const LibertyCell *cell,
 }
 
 float
-CheckTableModel::findValue(const LibertyLibrary *library,
-			   const LibertyCell *cell,
-			   const Pvt *pvt,
+CheckTableModel::findValue(const Pvt *pvt,
 			   const TableModel *model,
 			   float from_slew,
 			   float to_slew,
@@ -462,16 +443,14 @@ CheckTableModel::findValue(const LibertyLibrary *library,
     float axis_value1, axis_value2, axis_value3;
     findAxisValues(from_slew, to_slew, related_out_cap,
 		   axis_value1, axis_value2, axis_value3);
-    return model->findValue(library, cell, pvt,
-			    axis_value1, axis_value2, axis_value3);
+    return model->findValue(cell_, pvt, axis_value1, axis_value2, axis_value3);
   }
   else
     return 0.0;
 }
 
 string
-CheckTableModel::reportCheckDelay(const LibertyCell *cell,
-				  const Pvt *pvt,
+CheckTableModel::reportCheckDelay(const Pvt *pvt,
 				  float from_slew,
 				  const char *from_slew_annotation,
 				  float to_slew,
@@ -479,17 +458,16 @@ CheckTableModel::reportCheckDelay(const LibertyCell *cell,
 				  bool pocv_enabled,
 				  int digits) const
 {
-  const LibertyLibrary *library = cell->libertyLibrary();
-  string result = reportTableDelay("Check", library, cell, pvt, model_,
+  string result = reportTableDelay("Check", pvt, model_,
                                    from_slew, from_slew_annotation, to_slew,
                                    related_out_cap, digits);
   if (pocv_enabled && sigma_models_[EarlyLate::earlyIndex()])
-    result += reportTableDelay("Check sigma early", library, cell, pvt,
+    result += reportTableDelay("Check sigma early", pvt,
                                sigma_models_[EarlyLate::earlyIndex()],
                                from_slew, from_slew_annotation, to_slew,
                                related_out_cap, digits);
   if (pocv_enabled && sigma_models_[EarlyLate::lateIndex()])
-    result += reportTableDelay("Check sigma late", library, cell, pvt,
+    result += reportTableDelay("Check sigma late", pvt,
                                sigma_models_[EarlyLate::lateIndex()],
                                from_slew, from_slew_annotation, to_slew,
                                related_out_cap, digits);
@@ -498,8 +476,6 @@ CheckTableModel::reportCheckDelay(const LibertyCell *cell,
 
 string
 CheckTableModel::reportTableDelay(const char *result_name,
-				  const LibertyLibrary *library,
-				  const LibertyCell *cell,
 				  const Pvt *pvt,
 				  const TableModel *model,
 				  float from_slew,
@@ -512,10 +488,11 @@ CheckTableModel::reportTableDelay(const char *result_name,
     float axis_value1, axis_value2, axis_value3;
     findAxisValues(from_slew, to_slew, related_out_cap,
 		   axis_value1, axis_value2, axis_value3);
-    string result = reportPvt(library, pvt, digits);
-    result += model_->reportValue(result_name, library, cell, pvt,
+    string result = reportPvt(cell_, pvt, digits);
+    result += model_->reportValue(result_name, cell_, pvt,
                                   axis_value1, from_slew_annotation, axis_value2,
-                                  axis_value3, library->units()->timeUnit(), digits);
+                                  axis_value3,
+                                  cell_->libertyLibrary()->units()->timeUnit(), digits);
     return result;
   }
   return "";
@@ -665,20 +642,26 @@ TableModel::value(size_t axis_index1,
 }
 
 float
-TableModel::findValue(const LibertyLibrary *library,
-		      const LibertyCell *cell,
+TableModel::findValue(float axis_value1,
+		      float axis_value2,
+		      float axis_value3) const
+{
+  return table_->findValue(axis_value1, axis_value2, axis_value3);
+}
+
+float
+TableModel::findValue(const LibertyCell *cell,
 		      const Pvt *pvt,
 		      float axis_value1,
 		      float axis_value2,
 		      float axis_value3) const
 {
   return table_->findValue(axis_value1, axis_value2, axis_value3)
-    * scaleFactor(library, cell, pvt);
+    * scaleFactor(cell, pvt);
 }
 
 float
-TableModel::scaleFactor(const LibertyLibrary *library,
-			const LibertyCell *cell,
+TableModel::scaleFactor(const LibertyCell *cell,
 			const Pvt *pvt) const
 {
   if (is_scaled_)
@@ -686,13 +669,12 @@ TableModel::scaleFactor(const LibertyLibrary *library,
     // nominal pvt.
     return 1.0F;
   else
-    return library->scaleFactor(static_cast<ScaleFactorType>(scale_factor_type_),
-				rf_index_, cell, pvt);
+    return cell->libertyLibrary()->scaleFactor(static_cast<ScaleFactorType>(scale_factor_type_),
+                                               rf_index_, cell, pvt);
 }
 
 string
 TableModel::reportValue(const char *result_name,
-			const LibertyLibrary *library,
 			const LibertyCell *cell,
 			const Pvt *pvt,
 			float value1,
@@ -702,24 +684,24 @@ TableModel::reportValue(const char *result_name,
                         const Unit *table_unit,
 			int digits) const
 {
-  string result = table_->reportValue("Table value", library, cell, pvt, value1,
+  string result = table_->reportValue("Table value", cell, pvt, value1,
                                       comment1, value2, value3, table_unit, digits);
 
-  result += reportPvtScaleFactor(library, cell, pvt, digits);
+  result += reportPvtScaleFactor(cell, pvt, digits);
 
   result += result_name;
   result += " = ";
-  result += table_unit->asString(findValue(library, cell, pvt,
-					    value1, value2, value3), digits);
+  result += table_unit->asString(findValue(cell, pvt, value1, value2, value3), digits);
   result += '\n';
   return result;
 }
 
 static string
-reportPvt(const LibertyLibrary *library,
+reportPvt(const LibertyCell *cell,
 	  const Pvt *pvt,
 	  int digits)
 {
+  const LibertyLibrary *library = cell->libertyLibrary();
   if (pvt == nullptr)
     pvt = library->defaultOperatingConditions();
   if (pvt) {
@@ -734,18 +716,17 @@ reportPvt(const LibertyLibrary *library,
 }
 
 string
-TableModel::reportPvtScaleFactor(const LibertyLibrary *library,
-				 const LibertyCell *cell,
+TableModel::reportPvtScaleFactor(const LibertyCell *cell,
 				 const Pvt *pvt,
 				 int digits) const
 {
   if (pvt == nullptr)
-    pvt = library->defaultOperatingConditions();
+    pvt = cell->libertyLibrary()->defaultOperatingConditions();
   if (pvt) {
     string result;
     stringPrint(result, "PVT scale factor = %.*f\n",
 		digits,
-		scaleFactor(library, cell, pvt));
+		scaleFactor(cell, pvt));
     return result;
   }
   return "";
@@ -777,7 +758,6 @@ Table0::findValue(float,
 
 string
 Table0::reportValue(const char *result_name,
-		    const LibertyLibrary *,
 		    const LibertyCell *,
 		    const Pvt *,
 		    float value1,
@@ -930,9 +910,8 @@ Table1::findValueClipZero(float axis_value1) const
 }
 
 string
-Table1::reportValue(const char *result_name, const
-		    LibertyLibrary *library,
-		    const LibertyCell *,
+Table1::reportValue(const char *result_name,
+		    const LibertyCell *cell,
 		    const Pvt *,
 		    float value1,
 		    const char *comment1,
@@ -941,7 +920,7 @@ Table1::reportValue(const char *result_name, const
                     const Unit *table_unit,
 		    int digits) const
 {
-  const Units *units = library->units();
+  const Units *units = cell->libertyLibrary()->units();
   const Unit *unit1 = axis1_->unit(units);
   string result = "Table is indexed by\n  ";
   result += axis1_->variableString();
@@ -1098,8 +1077,7 @@ Table2::findValue(float axis_value1,
 
 string
 Table2::reportValue(const char *result_name,
-		    const LibertyLibrary *library,
-		    const LibertyCell *,
+		    const LibertyCell *cell,
 		    const Pvt *,
 		    float value1,
 		    const char *comment1,
@@ -1108,7 +1086,7 @@ Table2::reportValue(const char *result_name,
                     const Unit *table_unit,
 		    int digits) const
 {
-  const Units *units = library->units();
+  const Units *units = cell->libertyLibrary()->units();
   const Unit *unit1 = axis1_->unit(units);
   const Unit *unit2 = axis2_->unit(units);
   string result = "------- ";
@@ -1289,8 +1267,7 @@ Table3::findValue(float axis_value1,
 //       0.40 | 0.20     0.30
 string
 Table3::reportValue(const char *result_name,
-		    const LibertyLibrary *library,
-		    const LibertyCell *,
+		    const LibertyCell *cell,
 		    const Pvt *,
 		    float value1,
 		    const char *comment1,
@@ -1299,7 +1276,7 @@ Table3::reportValue(const char *result_name,
                     const Unit *table_unit,
 		    int digits) const
 {
-  const Units *units = library->units();
+  const Units *units = cell->libertyLibrary()->units();
   const Unit *unit1 = axis1_->unit(units);
   const Unit *unit2 = axis2_->unit(units);
   const Unit *unit3 = axis3_->unit(units);
@@ -1662,11 +1639,11 @@ OutputWaveforms::timeCurrent(float slew,
 {
   size_t slew_index = slew_axis_->findAxisIndex(slew);
   size_t cap_index = cap_axis_->findAxisIndex(cap);
-  size_t slew_count = slew_axis_->size();
-  size_t wave_index00 = slew_index * slew_count + cap_index;
-  size_t wave_index01 = slew_index * slew_count + (cap_index + 1);
-  size_t wave_index10 = (slew_index + 1) * slew_count + cap_index;
-  size_t wave_index11 = (slew_index + 1) * slew_count + (cap_index + 1);
+  size_t cap_count = cap_axis_->size();
+  size_t wave_index00 = slew_index * cap_count + cap_index;
+  size_t wave_index01 = slew_index * cap_count + (cap_index + 1);
+  size_t wave_index10 = (slew_index + 1) * cap_count + cap_index;
+  size_t wave_index11 = (slew_index + 1) * cap_count + (cap_index + 1);
 
   const Table1 *waveform00 = current_waveforms_[wave_index00];
   const Table1 *waveform01 = current_waveforms_[wave_index01];
@@ -1733,11 +1710,11 @@ OutputWaveforms::voltageTime(float slew,
 {
   size_t slew_index = slew_axis_->findAxisIndex(slew);
   size_t cap_index = cap_axis_->findAxisIndex(cap);
-  size_t slew_count = slew_axis_->size();
-  size_t wave_index00 = slew_index * slew_count + cap_index;
-  size_t wave_index01 = slew_index * slew_count + (cap_index + 1);
-  size_t wave_index10 = (slew_index + 1) * slew_count + cap_index;
-  size_t wave_index11 = (slew_index + 1) * slew_count + (cap_index + 1);
+  size_t cap_count = cap_axis_->size();
+  size_t wave_index00 = slew_index * cap_count + cap_index;
+  size_t wave_index01 = slew_index * cap_count + (cap_index + 1);
+  size_t wave_index10 = (slew_index + 1) * cap_count + cap_index;
+  size_t wave_index11 = (slew_index + 1) * cap_count + (cap_index + 1);
   float cap0 = cap_axis_->axisValue(cap_index);
   float cap1 = cap_axis_->axisValue(cap_index + 1);
 
@@ -1858,11 +1835,11 @@ OutputWaveforms::voltageCurrent(float slew,
 {
   size_t slew_index = slew_axis_->findAxisIndex(slew);
   size_t cap_index = cap_axis_->findAxisIndex(cap);
-  size_t slew_count = slew_axis_->size();
-  size_t wave_index00 = slew_index * slew_count + cap_index;
-  size_t wave_index01 = slew_index * slew_count + (cap_index + 1);
-  size_t wave_index10 = (slew_index + 1) * slew_count + cap_index;
-  size_t wave_index11 = (slew_index + 1) * slew_count + (cap_index + 1);
+  size_t cap_count = cap_axis_->size();
+  size_t wave_index00 = slew_index * cap_count + cap_index;
+  size_t wave_index01 = slew_index * cap_count + (cap_index + 1);
+  size_t wave_index10 = (slew_index + 1) * cap_count + cap_index;
+  size_t wave_index11 = (slew_index + 1) * cap_count + (cap_index + 1);
   float cap0 = cap_axis_->axisValue(cap_index);
   float cap1 = cap_axis_->axisValue(cap_index + 1);
 

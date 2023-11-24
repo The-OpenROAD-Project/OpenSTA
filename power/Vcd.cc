@@ -201,4 +201,13 @@ VcdValue::VcdValue(VcdTime time,
 {
 }
 
+char
+VcdValue::value(int value_bit) const
+{
+  if (value_ == '\0')
+    return ((bus_value_ >> value_bit) & 0x1) ? '1' : '0';
+  else
+    return value_;
+}
+
 }

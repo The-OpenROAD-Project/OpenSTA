@@ -827,7 +827,8 @@ public:
   // Returns nullptr if set_operating_conditions has not been called.
   OperatingConditions *operatingConditions(const MinMax *min_max);
   // Instance specific process/voltage/temperature.
-  const Pvt *pvt(Instance *inst, const MinMax *min_max) const;
+  const Pvt *pvt(const Instance *inst,
+                 const MinMax *min_max) const;
   // Pvt may be shared among multiple instances.
   void setPvt(const Instance *inst,
 	      const MinMaxAll *min_max,
