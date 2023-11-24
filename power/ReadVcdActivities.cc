@@ -212,7 +212,7 @@ ReadVcdActivities::findVarActivity(const VcdValues &var_values,
   for (const VcdValue &var_value : var_values) {
     VcdTime time = var_value.time();
     char value = var_value.value(value_bit);
-    debugPrint(debug_, "read_vcd_activities", 3, " %llu %c", time, value);
+    debugPrint(debug_, "read_vcd_activities", 3, " %ld %c", time, value);
     if (prev_value == '1')
       high_time += time - prev_time;
     if (value != prev_value)
