@@ -16,7 +16,6 @@
 
 #include "ConcreteParasitics.hh"
 
-#include <limits>
 #include <algorithm> // max
 
 #include "Report.hh"

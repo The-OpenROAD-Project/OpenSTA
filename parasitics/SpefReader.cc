@@ -16,8 +16,6 @@
 
 #include "SpefReader.hh"
 
-#include <limits>
-
 #include "Zlib.hh"
 #include "Report.hh"
 #include "Debug.hh"
