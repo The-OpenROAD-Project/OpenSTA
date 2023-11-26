@@ -188,6 +188,7 @@ public:
   virtual void visitIsMacro(LibertyAttr *attr);
   virtual void visitIsMemory(LibertyAttr *attr);
   virtual void visitIsPad(LibertyAttr *attr);
+  virtual void visitIsClockCell(LibertyAttr *attr);
   virtual void visitIsLevelShifter(LibertyAttr *attr);
   virtual void visitLevelShifterType(LibertyAttr *attr);
   virtual void visitIsIsolationCell(LibertyAttr *attr);

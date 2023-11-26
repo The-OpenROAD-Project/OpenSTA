@@ -925,6 +925,7 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   is_macro_(false),
   is_memory_(false),
   is_pad_(false),
+  is_clock_cell_(false),
   is_level_shifter_(false),
   level_shifter_type_(LevelShifterType::HL_LH),
   is_isolation_cell_(false),
@@ -1075,6 +1076,12 @@ void
 LibertyCell::LibertyCell::setIsPad(bool is_pad)
 {
   is_pad_ = is_pad;
+}
+
+void
+LibertyCell::LibertyCell::setIsClockCell(bool is_clock_cell)
+{
+  is_clock_cell_ = is_clock_cell;
 }
 
 void
