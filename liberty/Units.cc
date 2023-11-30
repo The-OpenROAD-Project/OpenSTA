@@ -17,7 +17,6 @@
 #include "Units.hh"
 
 #include <cmath> // abs
-#include <limits>
 
 #include "StringUtil.hh"
 #include "MinMax.hh"  // INF

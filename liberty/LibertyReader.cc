@@ -298,6 +298,7 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("is_macro", &LibertyReader::visitIsMacro);
   defineAttrVisitor("is_memory", &LibertyReader::visitIsMemory);
   defineAttrVisitor("is_pad", &LibertyReader::visitIsPad);
+  defineAttrVisitor("is_clock_cell", &LibertyReader::visitIsClockCell);
   defineAttrVisitor("is_level_shifter", &LibertyReader::visitIsLevelShifter);
   defineAttrVisitor("level_shifter_type", &LibertyReader::visitLevelShifterType);
   defineAttrVisitor("is_isolation_cell", &LibertyReader::visitIsIsolationCell);
@@ -2816,6 +2817,17 @@ LibertyReader::visitIsPad(LibertyAttr *attr)
     getAttrBool(attr, is_pad, exists);
     if (exists)
       cell_->setIsPad(is_pad);
+  }
+}
+
+void
+LibertyReader::visitIsClockCell(LibertyAttr *attr)
+{
+  if (cell_) {
+    bool is_clock_cell, exists;
+    getAttrBool(attr, is_clock_cell, exists);
+    if (exists)
+      cell_->setIsClockCell(is_clock_cell);
   }
 }
 

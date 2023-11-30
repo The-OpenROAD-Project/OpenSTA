@@ -17,6 +17,7 @@
 #include "ConcreteLibrary.hh"
 
 #include <cstdlib>
+#include <limits>
 
 #include "PatternMatch.hh"
 #include "PortDirection.hh"
@@ -26,6 +27,10 @@
 namespace sta {
 
 using std::map;
+using std::min;
+using std::max;
+using std::abs;
+using std::swap;
 
 static constexpr char escape_ = '\\';
 
@@ -289,66 +294,46 @@ ConcreteCell::portBitIterator() const
 
 ////////////////////////////////////////////////////////////////
 
+// Helper class for ConcreteCell::groupBusPorts.
 class BusPort
 {
 public:
-  BusPort(const char *name,
-	  int from,
-	  PortDirection *direction);
-  ~BusPort();
-  const char *name() const { return name_; }
-  void pushMember(ConcretePort *port);
-  void setFrom(int from);
-  void setTo(int to);
+  BusPort();
+  void addBusBit(ConcretePort *port,
+                 int index);
   int from() const { return from_; }
   int to() const { return to_; }
-  ConcretePortSeq *members() { return members_; }
+  ConcretePortSeq &members() { return members_; }
+  void setDirection(PortDirection *direction);
   PortDirection *direction() { return direction_; }
 
 private:
-  const char *name_;
   int from_;
   int to_;
   PortDirection *direction_;
-  ConcretePortSeq *members_;
+  ConcretePortSeq members_;
 };
 
-BusPort::BusPort(const char *name,
-		 int from,
-		 PortDirection *direction) :
-  name_(stringCopy(name)),
-  from_(from),
-  to_(from),
-  direction_(direction),
-  members_(new ConcretePortSeq)
+BusPort::BusPort() :
+  from_(std::numeric_limits<int>::max()),
+  to_(std::numeric_limits<int>::min())
 {
-}
-
-BusPort::~BusPort()
-{
-  // members_ ownership is transfered to bus port.
-  stringDelete(name_);
 }
 
 void
-BusPort::pushMember(ConcretePort *port)
+BusPort::setDirection(PortDirection *direction)
 {
-  members_->push_back(port);
+  direction_ = direction;
 }
 
 void
-BusPort::setFrom(int from)
+BusPort::addBusBit(ConcretePort *port,
+                   int index)
 {
-  from_ = from;
+  from_ = min(from_, index);
+  to_ = max(to_, index);
+  members_.push_back(port);
 }
-
-void
-BusPort::setTo(int to)
-{
-  to_ = to;
-}
-
-typedef Map<const char*, BusPort*, CharPtrLess> BusPortMap;
 
 void
 ConcreteCell::groupBusPorts(const char bus_brkt_left,
@@ -357,7 +342,7 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
 {
   const char bus_brkts_left[2]{bus_brkt_left, '\0'};
   const char bus_brkts_right[2]{bus_brkt_right, '\0'};
-  map<string, BusPort*> port_map;
+  map<string, BusPort> bus_map;
   // Find ungrouped bus ports.
   // Remove bus bit ports from the ports_ vector during the scan by
   // keeping an index to the next insertion index and skipping over
@@ -373,64 +358,35 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
 		 is_bus, bus_name, index);
     if (is_bus) {
       if (!port->isBusBit()) {
-        auto name_bus_port = port_map.find(bus_name);
-        BusPort *bus_port;
-	if (name_bus_port == port_map.end()) {
-	  bus_port = new BusPort(bus_name.c_str(), index, port->direction());
-	  port_map[bus_name] = bus_port;
-	}
-        else
-          bus_port = name_bus_port->second;
-	bus_port->pushMember(port);
+        BusPort &bus_port = bus_map[bus_name];
+	bus_port.addBusBit(port, index);
+        port->setBusBitIndex(index);
+        bus_port.setDirection(port->direction());
       }
-      else
-	ports_.push_back(port);
     }
     else
       ports_.push_back(port);
   }
 
   // Make the bus ports.
-  for (auto name_bus : port_map) {
-    const string &bus_name = name_bus.first;
-    BusPort *bus_port = name_bus.second;
+  for (auto name_bus : bus_map) {
+    string bus_name = name_bus.first;
+    BusPort &bus_port = name_bus.second;
+    int from = bus_port.from();
+    int to = bus_port.to();
+    size_t size = to - from + 1;
     bool msb_first = port_msb_first(bus_name.c_str());
-    ConcretePortSeq *members = bus_port->members();
-    sort(members, [&](ConcretePort *port1,
-		      ConcretePort *port2) {
-      bool is_bus;
-      string bus_name;
-      int index1, index2;
-      parseBusName(port1->name(), bus_brkts_left, bus_brkts_right, escape_,
-                   is_bus, bus_name, index1);
-      parseBusName(port2->name(), bus_brkts_left, bus_brkts_right, escape_,
-                   is_bus, bus_name, index2);
-      return msb_first ? index1 > index2 : index1 < index2;
-    });
-
-    bool is_bus1;
-    string bus_name1;
-    int from_index, to_index;
-    parseBusName((*members)[0]->name(),
-                 bus_brkts_left, bus_brkts_right, escape_,
-                 is_bus1, bus_name1, from_index);
-    parseBusName((*members)[members->size() - 1]->name(),
-                 bus_brkts_left, bus_brkts_right, escape_,
-                 is_bus1, bus_name1, to_index);
-
-    ConcretePort *port = makeBusPort(bus_name.c_str(), from_index,
-                                     to_index, members);
-    port->setDirection(bus_port->direction());
-    delete bus_port;
-
-    for (ConcretePort *port : *members) {
-      bool is_bus;
-      string bus_name;
-      int index;
-      parseBusName(port->name(), bus_brkts_left, bus_brkts_right, escape_,
-		   is_bus, bus_name, index);
-      port->setBusBitIndex(index);
+    ConcretePortSeq *members = new ConcretePortSeq(size);
+    // Index the bus bit ports.
+    for (ConcretePort *bus_bit : bus_port.members()) {
+      int bit_index = bus_bit->busBitIndex();
+      int member_index = msb_first ? to - bit_index : bit_index - from;
+      (*members)[member_index] = bus_bit;
     }
+    if (msb_first)
+      swap(from, to);
+    ConcretePort *port = makeBusPort(bus_name.c_str(), from, to, members);
+    port->setDirection(bus_port.direction());
   }
 }
 
@@ -546,7 +502,8 @@ ConcretePort::setDirection(PortDirection *dir)
     ConcretePortMemberIterator *member_iter = memberIterator();
     while (member_iter->hasNext()) {
       ConcretePort *port_bit = member_iter->next();
-      port_bit->setDirection(dir);
+      if (port_bit)
+        port_bit->setDirection(dir);
     }
     delete member_iter;
   }

@@ -853,21 +853,24 @@ ConcreteNetwork::hasMembers(const Port *port) const
 
 ////////////////////////////////////////////////////////////////
 
+// This has to skip over missing bus bits in the members.
 class ConcretePortMemberIterator1 : public PortMemberIterator
 {
 public:
   explicit ConcretePortMemberIterator1(const ConcretePort *port);
   ~ConcretePortMemberIterator1();
-  virtual bool hasNext() { return iter_->hasNext(); }
+  virtual bool hasNext();
   virtual Port *next();
 
 private:
   ConcretePortMemberIterator *iter_;
+  ConcretePort *next_;
 };
 
 ConcretePortMemberIterator1::ConcretePortMemberIterator1(const ConcretePort *
 							 port) :
-  iter_(port->memberIterator())
+  iter_(port->memberIterator()),
+  next_(nullptr)
 {
 }
 
@@ -876,10 +879,21 @@ ConcretePortMemberIterator1::~ConcretePortMemberIterator1()
   delete iter_;
 }
 
+bool
+ConcretePortMemberIterator1::hasNext()
+{
+  while (next_ == nullptr
+         && iter_->hasNext())
+    next_ = iter_->next();
+  return next_ != nullptr;
+}
+
 Port *
 ConcretePortMemberIterator1::next()
 {
-  return reinterpret_cast<Port*>(iter_->next());
+  ConcretePort *next = next_;
+  next_ = nullptr;
+  return reinterpret_cast<Port*>(next);
 }
 
 PortMemberIterator *

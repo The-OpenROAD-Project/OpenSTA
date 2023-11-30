@@ -423,6 +423,8 @@ public:
   void setIsMemory(bool is_memory);
   bool isPad() const { return is_pad_; }
   void setIsPad(bool is_pad);
+  bool isClockCell() const { return is_clock_cell_; }
+  void setIsClockCell(bool is_clock_cell);
   bool isLevelShifter() const { return is_level_shifter_; }
   void setIsLevelShifter(bool is_level_shifter);
   LevelShifterType levelShifterType() const { return level_shifter_type_; }
@@ -564,6 +566,7 @@ protected:
   bool is_macro_;
   bool is_memory_;
   bool is_pad_;
+  bool is_clock_cell_;
   bool is_level_shifter_;
   LevelShifterType level_shifter_type_;
   bool is_isolation_cell_;
