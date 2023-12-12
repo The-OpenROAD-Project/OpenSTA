@@ -89,7 +89,7 @@ protected:
 		  float &slew,
 		  float &cap) const;
   void setIsScaled(bool is_scaled) override;
-  float axisValue(TableAxisPtr axis,
+  float axisValue(const TableAxis *axis,
 		  float load_cap,
 		  float in_slew,
 		  float related_out_cap) const;
@@ -113,7 +113,7 @@ protected:
 		      float &axis_value1,
 		      float &axis_value2,
 		      float &axis_value3) const;
-  static bool checkAxis(TableAxisPtr axis);
+  static bool checkAxis(const TableAxis *axis);
 
   TableModel *delay_model_;
   TableModel *delay_sigma_models_[EarlyLate::index_count];
@@ -164,7 +164,7 @@ protected:
 		      float &axis_value1,
 		      float &axis_value2,
 		      float &axis_value3) const;
-  float axisValue(TableAxisPtr axis,
+  float axisValue(const TableAxis *axis,
 		  float load_cap,
 		  float in_slew,
 		  float related_out_cap) const;
@@ -176,7 +176,7 @@ protected:
                           float to_slew,
                           float related_out_cap,
                           int digits) const;
-  static bool checkAxis(TableAxisPtr axis);
+  static bool checkAxis(const TableAxis *axis);
 
   TableModel *model_;
   TableModel *sigma_models_[EarlyLate::index_count];
@@ -193,9 +193,9 @@ public:
   void setScaleFactorType(ScaleFactorType type);
   int order() const;
   TableTemplate *tblTemplate() const { return tbl_template_; }
-  TableAxisPtr axis1() const;
-  TableAxisPtr axis2() const;
-  TableAxisPtr axis3() const;
+  const TableAxis *axis1() const;
+  const TableAxis *axis2() const;
+  const TableAxis *axis3() const;
   void setIsScaled(bool is_scaled);
   float value(size_t index1,
               size_t index2,
@@ -245,9 +245,9 @@ public:
   virtual ~Table() {}
   void setScaleFactorType(ScaleFactorType type);
   virtual int order() const = 0;
-  virtual TableAxisPtr axis1() const { return nullptr; }
-  virtual TableAxisPtr axis2() const { return nullptr; }
-  virtual TableAxisPtr axis3() const { return nullptr; }
+  virtual const TableAxis *axis1() const { return nullptr; }
+  virtual const TableAxis *axis2() const { return nullptr; }
+  virtual const TableAxis *axis3() const { return nullptr; }
   void setIsScaled(bool is_scaled);
   virtual float value(size_t axis_idx1,
                       size_t axis_idx2,
@@ -316,7 +316,7 @@ public:
   Table1(Table1 &&table);
   Table1 &operator= (Table1 &&table);
   int order() const override { return 1; }
-  TableAxisPtr axis1() const override { return axis1_; }
+  const TableAxis *axis1() const override { return axis1_.get(); }
   float value(size_t axis_index1,
               size_t axis_index2,
               size_t axis_index3) const override;
@@ -361,8 +361,8 @@ public:
 	 TableAxisPtr axis2);
   virtual ~Table2();
   int order() const override { return 2; }
-  TableAxisPtr axis1() const override { return axis1_; }
-  TableAxisPtr axis2() const override { return axis2_; }
+  const TableAxis *axis1() const override { return axis1_.get(); }
+  const TableAxis *axis2() const override { return axis2_.get(); }
   float value(size_t axis_index1,
               size_t axis_index2,
               size_t axis_index3) const override;
@@ -406,9 +406,9 @@ public:
 	 TableAxisPtr axis3);
   virtual ~Table3() {}
   int order() const override { return 3; }
-  TableAxisPtr axis1() const override { return axis1_; }
-  TableAxisPtr axis2() const override { return axis2_; }
-  TableAxisPtr axis3() const override { return axis3_; }
+  const TableAxis *axis1() const override { return axis1_.get(); }
+  const TableAxis *axis2() const override { return axis2_.get(); }
+  const TableAxis *axis3() const override { return axis3_.get(); }
   float value(size_t axis_index1,
               size_t axis_index2,
               size_t axis_index3) const override;

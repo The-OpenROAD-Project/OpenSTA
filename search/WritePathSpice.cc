@@ -584,7 +584,7 @@ WritePathSpice::writeWaveformVoltSource(const Pin *pin,
 	      network_->pathName(pin));
   streamPrint(spice_stream_, "+%.3e %.3e\n", 0.0, volt0);
   Table1 waveform = drvr_waveform->waveform(slew);
-  TableAxisPtr time_axis = waveform.axis1();
+  const TableAxis *time_axis = waveform.axis1();
   for (size_t time_index = 0; time_index <  time_axis->size(); time_index++) {
     float time = time_axis->axisValue(time_index);
     float wave_volt = waveform.value(time_index);
@@ -705,19 +705,19 @@ WritePathSpice::slewAxisMinValue(TimingArc *arc)
   GateTableModel *gate_model = dynamic_cast<GateTableModel*>(arc->model());
   if (gate_model) {
     const TableModel *model = gate_model->delayModel();
-    TableAxisPtr axis1 = model->axis1();
+    const TableAxis *axis1 = model->axis1();
     TableAxisVariable var1 = axis1->variable();
     if (var1 == TableAxisVariable::input_transition_time
 	|| var1 == TableAxisVariable::input_net_transition)
       return axis1->axisValue(0);
 
-    TableAxisPtr axis2 = model->axis2();
+    const TableAxis *axis2 = model->axis2();
     TableAxisVariable var2 = axis2->variable();
     if (var2 == TableAxisVariable::input_transition_time
 	|| var2 == TableAxisVariable::input_net_transition)
       return axis2->axisValue(0);
 
-    TableAxisPtr axis3 = model->axis3();
+    const TableAxis *axis3 = model->axis3();
     TableAxisVariable var3 = axis3->variable();
     if (var3 == TableAxisVariable::input_transition_time
 	|| var3 == TableAxisVariable::input_net_transition)

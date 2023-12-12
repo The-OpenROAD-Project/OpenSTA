@@ -82,7 +82,7 @@ private:
                                   const RiseFall *rf);
   TableTemplate *ensureTableTemplate(const TableTemplate *drvr_template,
                                      TableAxisPtr load_axis);
-  TableAxisPtr loadCapacitanceAxis(const TableModel *table);
+  const TableAxis *loadCapacitanceAxis(const TableModel *table);
   LibertyPort *modelPort(const Pin *pin);
 
   void saveSdc();

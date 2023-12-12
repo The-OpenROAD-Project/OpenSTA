@@ -269,9 +269,9 @@ GateTableModel::maxCapSlew(float in_slew,
 			   float &slew,
 			   float &cap) const
 {
-  TableAxisPtr axis1 = slew_model_->axis1();
-  TableAxisPtr axis2 = slew_model_->axis2();
-  TableAxisPtr axis3 = slew_model_->axis3();
+  const TableAxis *axis1 = slew_model_->axis1();
+  const TableAxis *axis2 = slew_model_->axis2();
+  const TableAxis *axis3 = slew_model_->axis3();
   if (axis1
       && axis1->variable() == TableAxisVariable::total_output_net_capacitance) {
     cap = axis1->axisValue(axis1->size() - 1);
@@ -298,7 +298,7 @@ GateTableModel::maxCapSlew(float in_slew,
 }
 
 float
-GateTableModel::axisValue(TableAxisPtr axis,
+GateTableModel::axisValue(const TableAxis *axis,
 			  float in_slew,
 			  float load_cap,
 			  float related_out_cap) const
@@ -320,9 +320,9 @@ GateTableModel::axisValue(TableAxisPtr axis,
 bool
 GateTableModel::checkAxes(const TablePtr table)
 {
-  TableAxisPtr axis1 = table->axis1();
-  TableAxisPtr axis2 = table->axis2();
-  TableAxisPtr axis3 = table->axis3();
+  const TableAxis *axis1 = table->axis1();
+  const TableAxis *axis2 = table->axis2();
+  const TableAxis *axis3 = table->axis3();
   bool axis_ok = true;
   if (axis1)
     axis_ok &= checkAxis(axis1);
@@ -334,7 +334,7 @@ GateTableModel::checkAxes(const TablePtr table)
 }
 
 bool
-GateTableModel::checkAxis(TableAxisPtr axis)
+GateTableModel::checkAxis(const TableAxis *axis)
 {
   TableAxisVariable var = axis->variable();
   return var == TableAxisVariable::total_output_net_capacitance
@@ -369,9 +369,9 @@ ReceiverModel::setCapacitanceModel(TableModel *table_model,
 bool
 ReceiverModel::checkAxes(TablePtr table)
 {
-  TableAxisPtr axis1 = table->axis1();
-  TableAxisPtr axis2 = table->axis2();
-  TableAxisPtr axis3 = table->axis3();
+  const TableAxis *axis1 = table->axis1();
+  const TableAxis *axis2 = table->axis2();
+  const TableAxis *axis3 = table->axis3();
   return (axis1 && axis1->variable() == TableAxisVariable::input_net_transition
           && axis2 == nullptr
           && axis3 == nullptr)
@@ -540,7 +540,7 @@ CheckTableModel::findAxisValues(float from_slew,
 }
 
 float
-CheckTableModel::axisValue(TableAxisPtr axis,
+CheckTableModel::axisValue(const TableAxis *axis,
 			   float from_slew,
 			   float to_slew,
 			   float related_out_cap) const
@@ -561,9 +561,9 @@ CheckTableModel::axisValue(TableAxisPtr axis,
 bool
 CheckTableModel::checkAxes(const TablePtr table)
 {
-  TableAxisPtr axis1 = table->axis1();
-  TableAxisPtr axis2 = table->axis2();
-  TableAxisPtr axis3 = table->axis3();
+  const TableAxis *axis1 = table->axis1();
+  const TableAxis *axis2 = table->axis2();
+  const TableAxis *axis3 = table->axis3();
   bool axis_ok = true;
   if (axis1)
     axis_ok &= checkAxis(axis1);
@@ -575,7 +575,7 @@ CheckTableModel::checkAxes(const TablePtr table)
 }
 
 bool
-CheckTableModel::checkAxis(TableAxisPtr axis)
+CheckTableModel::checkAxis(const TableAxis *axis)
 {
   TableAxisVariable var = axis->variable();
   return var == TableAxisVariable::constrained_pin_transition
@@ -615,19 +615,19 @@ TableModel::setIsScaled(bool is_scaled)
   is_scaled_ = is_scaled;
 }
 
-TableAxisPtr 
+const TableAxis *
 TableModel::axis1() const
 {
   return table_->axis1();
 }
 
-TableAxisPtr 
+const TableAxis *
 TableModel::axis2() const
 {
   return table_->axis2();
 }
 
-TableAxisPtr 
+const TableAxis *
 TableModel::axis3() const
 {
   return table_->axis3();
@@ -1778,7 +1778,7 @@ OutputWaveforms::findVoltages(size_t wave_index,
   // i = C dv/dt
   FloatSeq volts;
   Table1 *currents = current_waveforms_[wave_index];
-  TableAxisPtr time_axis = currents->axis1();
+  const TableAxis *time_axis = currents->axis1();
   float prev_time = time_axis->axisValue(0);
   float prev_current = currents->value(0);
   float voltage = 0.0;
@@ -1901,7 +1901,7 @@ DriverWaveform::~DriverWaveform()
 Table1
 DriverWaveform::waveform(float slew)
 {
-  TableAxisPtr volt_axis = waveforms_->axis2();
+  const TableAxis *volt_axis = waveforms_->axis2();
   FloatSeq *time_values = new FloatSeq;
   FloatSeq *volt_values = new FloatSeq;
   for (float volt : *volt_axis->values()) {

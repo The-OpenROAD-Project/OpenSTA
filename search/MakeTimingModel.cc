@@ -660,7 +660,7 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
 
               const TableModel *drvr_table = drvr_gate_model->delayModel();
               const TableTemplate *drvr_template = drvr_table->tblTemplate();
-              const TableAxisPtr drvr_load_axis = loadCapacitanceAxis(drvr_table);
+              const TableAxis *drvr_load_axis = loadCapacitanceAxis(drvr_table);
               if (drvr_load_axis) {
                 const FloatSeq *drvr_axis_values = drvr_load_axis->values();
                 FloatSeq *load_values = new FloatSeq;
@@ -726,7 +726,7 @@ MakeTimingModel::ensureTableTemplate(const TableTemplate *drvr_template,
   return model_template;
 }
 
-TableAxisPtr
+const TableAxis *
 MakeTimingModel::loadCapacitanceAxis(const TableModel *table)
 {
   if (table->axis1()

@@ -355,7 +355,7 @@ LibertyLibrary::degradeWireSlew(const TableModel *model,
   case 0:
     return model->findValue(0.0, 0.0, 0.0);
   case 1: {
-    TableAxisPtr axis1 = model->axis1();
+    const TableAxis *axis1 = model->axis1();
     TableAxisVariable var1 = axis1->variable();
     if (var1 == TableAxisVariable::output_pin_transition)
       return model->findValue(in_slew, 0.0, 0.0);
@@ -367,8 +367,8 @@ LibertyLibrary::degradeWireSlew(const TableModel *model,
     }
   }
   case 2: {
-    TableAxisPtr axis1 = model->axis1();
-    TableAxisPtr axis2 = model->axis2();
+    const TableAxis *axis1 = model->axis1();
+    const TableAxis * axis2 = model->axis2();
     TableAxisVariable var1 = axis1->variable();
     TableAxisVariable var2 = axis2->variable();
     if (var1 == TableAxisVariable::output_pin_transition
@@ -397,14 +397,14 @@ LibertyLibrary::checkSlewDegradationAxes(TablePtr table)
   case 0:
     return true;
   case 1: {
-    TableAxisPtr axis1 = table->axis1();
+    const TableAxis *axis1 = table->axis1();
     TableAxisVariable var1 = axis1->variable();
     return var1 == TableAxisVariable::output_pin_transition
       || var1 == TableAxisVariable::connect_delay;
   }
   case 2: {
-    TableAxisPtr axis1 = table->axis1();
-    TableAxisPtr axis2 = table->axis2();
+    const TableAxis *axis1 = table->axis1();
+    const TableAxis *axis2 = table->axis2();
     TableAxisVariable var1 = axis1->variable();
     TableAxisVariable var2 = axis2->variable();
     return (var1 == TableAxisVariable::output_pin_transition
