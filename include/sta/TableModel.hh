@@ -89,7 +89,7 @@ protected:
 		  float &slew,
 		  float &cap) const;
   void setIsScaled(bool is_scaled) override;
-  float axisValue(TableAxisPtr axis,
+  float axisValue(const TableAxisPtr& axis,
 		  float load_cap,
 		  float in_slew,
 		  float related_out_cap) const;
@@ -164,7 +164,7 @@ protected:
 		      float &axis_value1,
 		      float &axis_value2,
 		      float &axis_value3) const;
-  float axisValue(TableAxisPtr axis,
+  float axisValue(const TableAxisPtr& axis,
 		  float load_cap,
 		  float in_slew,
 		  float related_out_cap) const;
@@ -196,6 +196,9 @@ public:
   TableAxisPtr axis1() const;
   TableAxisPtr axis2() const;
   TableAxisPtr axis3() const;
+  const TableAxisPtr& readonly_axis1() const;
+  const TableAxisPtr& readonly_axis2() const;
+  const TableAxisPtr& readonly_axis3() const;
   void setIsScaled(bool is_scaled);
   float value(size_t index1,
               size_t index2,
@@ -248,6 +251,9 @@ public:
   virtual TableAxisPtr axis1() const { return nullptr; }
   virtual TableAxisPtr axis2() const { return nullptr; }
   virtual TableAxisPtr axis3() const { return nullptr; }
+  virtual const TableAxisPtr& readonly_axis1() const { return nullptr; }
+  virtual const TableAxisPtr& readonly_axis2() const { return nullptr; }
+  virtual const TableAxisPtr& readonly_axis3() const { return nullptr; }
   void setIsScaled(bool is_scaled);
   virtual float value(size_t axis_idx1,
                       size_t axis_idx2,
@@ -317,6 +323,7 @@ public:
   Table1 &operator= (Table1 &&table);
   int order() const override { return 1; }
   TableAxisPtr axis1() const override { return axis1_; }
+  const TableAxisPtr& readonly_axis1() const override { return axis1_; }
   float value(size_t axis_index1,
               size_t axis_index2,
               size_t axis_index3) const override;
@@ -363,6 +370,8 @@ public:
   int order() const override { return 2; }
   TableAxisPtr axis1() const override { return axis1_; }
   TableAxisPtr axis2() const override { return axis2_; }
+  const TableAxisPtr& readonly_axis1() const override { return axis1_; }
+  const TableAxisPtr& readonly_axis2() const override { return axis2_; }
   float value(size_t axis_index1,
               size_t axis_index2,
               size_t axis_index3) const override;
@@ -409,6 +418,9 @@ public:
   TableAxisPtr axis1() const override { return axis1_; }
   TableAxisPtr axis2() const override { return axis2_; }
   TableAxisPtr axis3() const override { return axis3_; }
+  const TableAxisPtr& readonly_axis1() const override { return axis1_; }
+  const TableAxisPtr& readonly_axis2() const override { return axis2_; }
+  const TableAxisPtr& readonly_axis3() const override { return axis3_; }
   float value(size_t axis_index1,
               size_t axis_index2,
               size_t axis_index3) const override;
