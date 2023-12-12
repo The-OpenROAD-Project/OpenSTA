@@ -225,24 +225,24 @@ GateTableModel::findAxisValues(const TableModel *model,
     axis_value3 = 0.0;
     break;
   case 1:
-    axis_value1 = axisValue(model->axis1(), in_slew, load_cap,
+    axis_value1 = axisValue(model->readonly_axis1(), in_slew, load_cap,
 			    related_out_cap);
     axis_value2 = 0.0;
     axis_value3 = 0.0;
     break;
   case 2:
-    axis_value1 = axisValue(model->axis1(), in_slew, load_cap,
+    axis_value1 = axisValue(model->readonly_axis1(), in_slew, load_cap,
 			    related_out_cap);
-    axis_value2 = axisValue(model->axis2(), in_slew, load_cap,
+    axis_value2 = axisValue(model->readonly_axis2(), in_slew, load_cap,
 			    related_out_cap);
     axis_value3 = 0.0;
     break;
   case 3:
-    axis_value1 = axisValue(model->axis1(), in_slew, load_cap,
+    axis_value1 = axisValue(model->readonly_axis1(), in_slew, load_cap,
 			    related_out_cap);
-    axis_value2 = axisValue(model->axis2(), in_slew, load_cap,
+    axis_value2 = axisValue(model->readonly_axis2(), in_slew, load_cap,
 			    related_out_cap);
-    axis_value3 = axisValue(model->axis3(), in_slew, load_cap,
+    axis_value3 = axisValue(model->readonly_axis3(), in_slew, load_cap,
 			    related_out_cap);
     break;
   default:
@@ -269,9 +269,9 @@ GateTableModel::maxCapSlew(float in_slew,
 			   float &slew,
 			   float &cap) const
 {
-  TableAxisPtr axis1 = slew_model_->axis1();
-  TableAxisPtr axis2 = slew_model_->axis2();
-  TableAxisPtr axis3 = slew_model_->axis3();
+  const TableAxisPtr& axis1 = slew_model_->readonly_axis1();
+  const TableAxisPtr& axis2 = slew_model_->readonly_axis2();
+  const TableAxisPtr& axis3 = slew_model_->readonly_axis3();
   if (axis1
       && axis1->variable() == TableAxisVariable::total_output_net_capacitance) {
     cap = axis1->axisValue(axis1->size() - 1);
@@ -298,7 +298,7 @@ GateTableModel::maxCapSlew(float in_slew,
 }
 
 float
-GateTableModel::axisValue(TableAxisPtr axis,
+GateTableModel::axisValue(const TableAxisPtr& axis,
 			  float in_slew,
 			  float load_cap,
 			  float related_out_cap) const
@@ -320,9 +320,9 @@ GateTableModel::axisValue(TableAxisPtr axis,
 bool
 GateTableModel::checkAxes(const TablePtr table)
 {
-  TableAxisPtr axis1 = table->axis1();
-  TableAxisPtr axis2 = table->axis2();
-  TableAxisPtr axis3 = table->axis3();
+  const TableAxisPtr& axis1 = table->readonly_axis1();
+  const TableAxisPtr& axis2 = table->readonly_axis2();
+  const TableAxisPtr& axis3 = table->readonly_axis3();
   bool axis_ok = true;
   if (axis1)
     axis_ok &= checkAxis(axis1);
@@ -369,9 +369,9 @@ ReceiverModel::setCapacitanceModel(TableModel *table_model,
 bool
 ReceiverModel::checkAxes(TablePtr table)
 {
-  TableAxisPtr axis1 = table->axis1();
-  TableAxisPtr axis2 = table->axis2();
-  TableAxisPtr axis3 = table->axis3();
+  const TableAxisPtr& axis1 = table->readonly_axis1();
+  const TableAxisPtr& axis2 = table->readonly_axis2();
+  const TableAxisPtr& axis3 = table->readonly_axis3();
   return (axis1 && axis1->variable() == TableAxisVariable::input_net_transition
           && axis2 == nullptr
           && axis3 == nullptr)
@@ -540,7 +540,7 @@ CheckTableModel::findAxisValues(float from_slew,
 }
 
 float
-CheckTableModel::axisValue(TableAxisPtr axis,
+CheckTableModel::axisValue(const TableAxisPtr& axis,
 			   float from_slew,
 			   float to_slew,
 			   float related_out_cap) const
@@ -561,9 +561,9 @@ CheckTableModel::axisValue(TableAxisPtr axis,
 bool
 CheckTableModel::checkAxes(const TablePtr table)
 {
-  TableAxisPtr axis1 = table->axis1();
-  TableAxisPtr axis2 = table->axis2();
-  TableAxisPtr axis3 = table->axis3();
+  const TableAxisPtr& axis1 = table->readonly_axis1();
+  const TableAxisPtr& axis2 = table->readonly_axis2();
+  const TableAxisPtr& axis3 = table->readonly_axis3();
   bool axis_ok = true;
   if (axis1)
     axis_ok &= checkAxis(axis1);
@@ -631,6 +631,24 @@ TableAxisPtr
 TableModel::axis3() const
 {
   return table_->axis3();
+}
+
+const TableAxisPtr& 
+TableModel::readonly_axis1() const
+{
+  return table_->readonly_axis1();
+}
+
+const TableAxisPtr& 
+TableModel::readonly_axis2() const
+{
+  return table_->readonly_axis2();
+}
+
+const TableAxisPtr& 
+TableModel::readonly_axis3() const
+{
+  return table_->readonly_axis3();
 }
 
 float
@@ -1608,9 +1626,9 @@ OutputWaveforms::~OutputWaveforms()
 bool
 OutputWaveforms::checkAxes(TableTemplate *tbl_template)
 {
-  TableAxisPtr axis1 = tbl_template->axis1();
-  TableAxisPtr axis2 = tbl_template->axis2();
-  TableAxisPtr axis3 = tbl_template->axis3();
+  const TableAxisPtr& axis1 = tbl_template->readonly_axis1();
+  const TableAxisPtr& axis2 = tbl_template->readonly_axis2();
+  const TableAxisPtr& axis3 = tbl_template->readonly_axis3();
   return (axis1 && axis1->variable() == TableAxisVariable::input_net_transition
           && axis2->variable() == TableAxisVariable::time
           && axis3 == nullptr)
@@ -1778,7 +1796,7 @@ OutputWaveforms::findVoltages(size_t wave_index,
   // i = C dv/dt
   FloatSeq volts;
   Table1 *currents = current_waveforms_[wave_index];
-  TableAxisPtr time_axis = currents->axis1();
+  const TableAxisPtr& time_axis = currents->readonly_axis1();
   float prev_time = time_axis->axisValue(0);
   float prev_current = currents->value(0);
   float voltage = 0.0;
