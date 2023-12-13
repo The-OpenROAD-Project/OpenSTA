@@ -225,24 +225,24 @@ GateTableModel::findAxisValues(const TableModel *model,
     axis_value3 = 0.0;
     break;
   case 1:
-    axis_value1 = axisValue(model->readonly_axis1(), in_slew, load_cap,
+    axis_value1 = axisValue(model->axis1(), in_slew, load_cap,
 			    related_out_cap);
     axis_value2 = 0.0;
     axis_value3 = 0.0;
     break;
   case 2:
-    axis_value1 = axisValue(model->readonly_axis1(), in_slew, load_cap,
+    axis_value1 = axisValue(model->axis1(), in_slew, load_cap,
 			    related_out_cap);
-    axis_value2 = axisValue(model->readonly_axis2(), in_slew, load_cap,
+    axis_value2 = axisValue(model->axis2(), in_slew, load_cap,
 			    related_out_cap);
     axis_value3 = 0.0;
     break;
   case 3:
-    axis_value1 = axisValue(model->readonly_axis1(), in_slew, load_cap,
+    axis_value1 = axisValue(model->axis1(), in_slew, load_cap,
 			    related_out_cap);
-    axis_value2 = axisValue(model->readonly_axis2(), in_slew, load_cap,
+    axis_value2 = axisValue(model->axis2(), in_slew, load_cap,
 			    related_out_cap);
-    axis_value3 = axisValue(model->readonly_axis3(), in_slew, load_cap,
+    axis_value3 = axisValue(model->axis3(), in_slew, load_cap,
 			    related_out_cap);
     break;
   default:
@@ -631,24 +631,6 @@ const TableAxis *
 TableModel::axis3() const
 {
   return table_->axis3();
-}
-
-const TableAxisPtr& 
-TableModel::readonly_axis1() const
-{
-  return table_->readonly_axis1();
-}
-
-const TableAxisPtr& 
-TableModel::readonly_axis2() const
-{
-  return table_->readonly_axis2();
-}
-
-const TableAxisPtr& 
-TableModel::readonly_axis3() const
-{
-  return table_->readonly_axis3();
 }
 
 float
@@ -1626,9 +1608,9 @@ OutputWaveforms::~OutputWaveforms()
 bool
 OutputWaveforms::checkAxes(TableTemplate *tbl_template)
 {
-  const TableAxisPtr& axis1 = tbl_template->readonly_axis1();
-  const TableAxisPtr& axis2 = tbl_template->readonly_axis2();
-  const TableAxisPtr& axis3 = tbl_template->readonly_axis3();
+  TableAxisPtr axis1 = tbl_template->axis1();
+  TableAxisPtr axis2 = tbl_template->axis2();
+  TableAxisPtr axis3 = tbl_template->axis3();
   return (axis1 && axis1->variable() == TableAxisVariable::input_net_transition
           && axis2->variable() == TableAxisVariable::time
           && axis3 == nullptr)
