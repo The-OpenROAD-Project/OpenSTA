@@ -46,7 +46,7 @@ protected:
   void writeHeader();
   void writeFooter();
   void writeTableTemplates();
-  void writeTableTemplate(TableTemplate *tbl_template);
+  void writeTableTemplate(const TableTemplate *tbl_template);
   void writeBusDcls();
   void writeCells();
   void writeCell(const LibertyCell *cell);
@@ -60,7 +60,7 @@ protected:
   void writeTableModel0(const TableModel *model);
   void writeTableModel1(const TableModel *model);
   void writeTableModel2(const TableModel *model);
-  void writeTableAxis(TableAxisPtr axis,
+  void writeTableAxis(const TableAxis *axis,
                       int index);
 
   const char *asString(bool value);
@@ -197,11 +197,11 @@ LibertyWriter::writeTableTemplates()
 }
 
 void
-LibertyWriter::writeTableTemplate(TableTemplate *tbl_template)
+LibertyWriter::writeTableTemplate(const TableTemplate *tbl_template)
 {
-  TableAxisPtr axis1 = tbl_template->axis1();
-  TableAxisPtr axis2 = tbl_template->axis2();
-  TableAxisPtr axis3 = tbl_template->axis3();
+  const TableAxis *axis1 = tbl_template->axis1();
+  const TableAxis *axis2 = tbl_template->axis2();
+  const TableAxis *axis3 = tbl_template->axis3();
   // skip scalar templates
   if (axis1) {
     fprintf(stream_, "  lu_table_template(%s) {\n", tbl_template->name());
@@ -224,7 +224,7 @@ LibertyWriter::writeTableTemplate(TableTemplate *tbl_template)
 }
 
 void
-LibertyWriter::writeTableAxis(TableAxisPtr axis,
+LibertyWriter::writeTableAxis(const TableAxis *axis,
                               int index)
 {
   fprintf(stream_, "    index_%d (\"", index);

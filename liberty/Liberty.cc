@@ -391,7 +391,7 @@ LibertyLibrary::degradeWireSlew(const TableModel *model,
 // Check for supported axis variables.
 // Return true if axes are supported.
 bool
-LibertyLibrary::checkSlewDegradationAxes(TablePtr table)
+LibertyLibrary::checkSlewDegradationAxes(const TablePtr &table)
 {
   switch (table->order()) {
   case 0:
@@ -3064,12 +3064,12 @@ OcvDerate::~OcvDerate()
   stringDelete(name_);
 }
 
-TablePtr
+const Table *
 OcvDerate::derateTable(const RiseFall *rf,
 		       const EarlyLate *early_late,
 		       PathType path_type)
 {
-  return derate_[rf->index()][early_late->index()][int(path_type)];
+  return derate_[rf->index()][early_late->index()][int(path_type)].get();
 }
 
 void

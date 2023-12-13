@@ -318,7 +318,7 @@ GateTableModel::axisValue(const TableAxis *axis,
 }
 
 bool
-GateTableModel::checkAxes(const TablePtr table)
+GateTableModel::checkAxes(const TablePtr &table)
 {
   const TableAxis *axis1 = table->axis1();
   const TableAxis *axis2 = table->axis2();
@@ -1606,11 +1606,11 @@ OutputWaveforms::~OutputWaveforms()
 }
 
 bool
-OutputWaveforms::checkAxes(TableTemplate *tbl_template)
+OutputWaveforms::checkAxes(const TableTemplate *tbl_template)
 {
-  TableAxisPtr axis1 = tbl_template->axis1();
-  TableAxisPtr axis2 = tbl_template->axis2();
-  TableAxisPtr axis3 = tbl_template->axis3();
+  const TableAxis *axis1 = tbl_template->axis1();
+  const TableAxis *axis2 = tbl_template->axis2();
+  const TableAxis *axis3 = tbl_template->axis3();
   return (axis1 && axis1->variable() == TableAxisVariable::input_net_transition
           && axis2->variable() == TableAxisVariable::time
           && axis3 == nullptr)
