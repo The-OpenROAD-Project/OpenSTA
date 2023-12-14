@@ -4217,13 +4217,15 @@ LibertyReader::beginTable(LibertyGroup *group,
   if (library_ && template_name) {
     tbl_template_ = library_->findTableTemplate(template_name, type);
     if (tbl_template_) {
-      axis_[0] = tbl_template_->axis1();
-      axis_[1] = tbl_template_->axis2();
-      axis_[2] = tbl_template_->axis3();
+      axis_[0] = tbl_template_->axis1ptr();
+      axis_[1] = tbl_template_->axis2ptr();
+      axis_[2] = tbl_template_->axis3ptr();
     }
     else {
       libWarn(122, group, "table template %s not found.", template_name);
-      axis_[0] = axis_[1] = axis_[2] = nullptr;
+      axis_[0] = nullptr;
+      axis_[1] = nullptr;
+      axis_[2] = nullptr;
     }
     clearAxisValues();
     table_ = nullptr;
@@ -4236,6 +4238,9 @@ LibertyReader::endTable()
 {
   table_ = nullptr;
   tbl_template_ = nullptr;
+  axis_[0] = nullptr;
+  axis_[1] = nullptr;
+  axis_[2] = nullptr;
 }
 
 void

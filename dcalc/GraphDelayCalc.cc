@@ -183,8 +183,25 @@ GraphDelayCalc::deleteVertexBefore(Vertex *vertex)
     invalid_delays_->erase(vertex);
   MultiDrvrNet *multi_drvr = multiDrvrNet(vertex);
   if (multi_drvr) {
-    multi_drvr->drvrs()->erase(vertex);
+    VertexSet *drvrs = multi_drvr->drvrs();
+    drvrs->erase(vertex);
     multi_drvr_net_map_.erase(vertex);
+    if (drvrs->empty())
+      delete multi_drvr;
+    else {
+      Level max_drvr_level = 0;
+      Vertex *max_drvr = nullptr;
+      for (Vertex *drvr_vertex : *drvrs) {
+        Level drvr_level = drvr_vertex->level();
+        if (max_drvr == nullptr
+            || drvr_level > max_drvr_level) {
+          max_drvr = drvr_vertex;
+          max_drvr_level = drvr_level;
+        }
+      }
+      multi_drvr->setDcalcDrvr(max_drvr);
+      multi_drvr->findCaps(sdc_);
+    }
   }
 }
 

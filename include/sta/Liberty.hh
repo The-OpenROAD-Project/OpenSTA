@@ -179,7 +179,7 @@ public:
 			float wire_delay) const;
   // Check for supported axis variables.
   // Return true if axes are supported.
-  static bool checkSlewDegradationAxes(TablePtr table);
+  static bool checkSlewDegradationAxes(const TablePtr &table);
 
   float defaultInputPinCap() const { return default_input_pin_cap_; }
   void setDefaultInputPinCap(float cap);
@@ -788,7 +788,7 @@ public:
   void setRelatedGroundPin(const char *related_ground_pin);
   const char *relatedPowerPin() const { return related_power_pin_; }
   void setRelatedPowerPin(const char *related_power_pin);
-  ReceiverModelPtr receiverModel() const { return receiver_model_; }
+  const ReceiverModel *receiverModel() const { return receiver_model_.get(); }
   void setReceiverModel(ReceiverModelPtr receiver_model);
   DriverWaveform *driverWaveform(const RiseFall *rf) const;
   void setDriverWaveform(DriverWaveform *driver_waveform,
@@ -1017,11 +1017,14 @@ public:
   ~TableTemplate();
   const char *name() const { return name_; }
   void setName(const char *name);
-  TableAxisPtr axis1() const { return axis1_; }
+  const TableAxis *axis1() const { return axis1_.get(); }
+  TableAxisPtr axis1ptr() const { return axis1_; }
   void setAxis1(TableAxisPtr axis);
-  TableAxisPtr axis2() const { return axis2_; }
+  const TableAxis *axis2() const { return axis2_.get(); }
+  TableAxisPtr axis2ptr() const { return axis2_; }
   void setAxis2(TableAxisPtr axis);
-  TableAxisPtr axis3() const { return axis3_; }
+  const TableAxis *axis3() const { return axis3_.get(); }
+  TableAxisPtr axis3ptr() const { return axis3_; }
   void setAxis3(TableAxisPtr axis);
 
 protected:
@@ -1065,9 +1068,9 @@ public:
   OcvDerate(const char *name);
   ~OcvDerate();
   const char *name() const { return name_; }
-  TablePtr derateTable(const RiseFall *rf,
-                       const EarlyLate *early_late,
-                       PathType path_type);
+  const Table *derateTable(const RiseFall *rf,
+                           const EarlyLate *early_late,
+                           PathType path_type);
   void setDerateTable(const RiseFall *rf,
 		      const EarlyLate *early_late,
 		      PathType path_type,

@@ -77,11 +77,11 @@ public:
 
   const TableModel *delayModel() const { return delay_model_; }
   const TableModel *slewModel() const { return slew_model_;  }
-  ReceiverModelPtr receiverModel() const { return receiver_model_; }
+  const ReceiverModel *receiverModel() const { return receiver_model_.get(); }
   OutputWaveforms *outputWaveforms() const { return output_waveforms_; }
   // Check the axes before making the model.
   // Return true if the model axes are supported.
-  static bool checkAxes(const TablePtr table);
+  static bool checkAxes(const TablePtr &table);
 
 protected:
   void maxCapSlew(float in_slew,
@@ -317,6 +317,7 @@ public:
   Table1 &operator= (Table1 &&table);
   int order() const override { return 1; }
   const TableAxis *axis1() const override { return axis1_.get(); }
+  const TableAxisPtr axis1ptr() const { return axis1_; }
   float value(size_t axis_index1,
               size_t axis_index2,
               size_t axis_index3) const override;
@@ -486,8 +487,8 @@ public:
                   Table1 *ref_times);
   ~OutputWaveforms();
   const RiseFall *rf() const { return rf_; }
-  TableAxisPtr slewAxis() const { return slew_axis_; }
-  TableAxisPtr capAxis() const { return cap_axis_; }
+  const TableAxis *slewAxis() const { return slew_axis_.get(); }
+  const TableAxis *capAxis() const { return cap_axis_.get(); }
   Table1 voltageWaveform(float in_slew,
                          float load_cap);
   float voltageTime(float in_slew,
@@ -503,7 +504,7 @@ public:
                        float volt);
   float referenceTime(float slew);
   void setVdd(float vdd);
-  static bool checkAxes(TableTemplate *tbl_template);
+  static bool checkAxes(const TableTemplate *tbl_template);
 
 private:
   float voltageTime1(float voltage,
