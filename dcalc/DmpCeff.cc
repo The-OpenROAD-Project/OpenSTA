@@ -1775,11 +1775,13 @@ exp2(double x)
     // exp(-12) = 6.1e-6
     return 0.0;
   else {
-    constexpr double kScale = 1048576 / M_LN2;
-    constexpr int kShift = 1072693248 - 60801;
-    union { double d; int64_t i;} e;
-    e.i = (static_cast<int>(kScale*x) + kShift) << 32;
-    return e.d;
+    constexpr int32_t kExpA = 1048576 / M_LN2;  // 2^20 / ln(2)
+    constexpr int32_t kExpB = 1072693248;  // 1023 * 2^20
+    constexpr int32_t kExpC = 60801;  // heuristic to minimize RMS error
+    int64_t exp_bits = static_cast<int64_t>(kExpA * x + (kExpB - kExpC)) << 32;
+    double exp_double;
+    std::memcpy(&exp_double, &exp_bits, sizeof(double));
+    return exp_double;
   }
 }
 
