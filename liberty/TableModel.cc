@@ -1449,7 +1449,8 @@ size_t
 TableAxis::findAxisIndex(float value) const
 {
   int max = static_cast<int>(values_->size()) - 1;
-  if (value <= (*values_)[0] || max == 0)
+  if (max <= 0 || value <= (*values_)[0])
+    // Return 0 if value is too small or the table is empty.
     return 0;
   else if (value >= (*values_)[max])
     // Return max-1 for value too large so interpolation pts are index,index+1.
@@ -1458,12 +1459,22 @@ TableAxis::findAxisIndex(float value) const
     int lower = -1;
     int upper = max + 1;
     bool ascend = ((*values_)[max] >= (*values_)[0]);
-    while (upper - lower > 1) {
-      int mid = (upper + lower) >> 1;
-      if ((value >= (*values_)[mid]) == ascend)
-	lower = mid;
-      else
-	upper = mid;
+    if (ascend) {
+      while (upper - lower > 1) {
+        int mid = (upper + lower) >> 1;
+        if (value >= (*values_)[mid])
+          lower = mid;
+        else
+          upper = mid;
+      }
+    } else {
+      while (upper - lower > 1) {
+        int mid = (upper + lower) >> 1;
+        if (value < (*values_)[mid])
+          lower = mid;
+        else
+          upper = mid;
+      }
     }
     return lower;
   }
