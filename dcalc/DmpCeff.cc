@@ -1766,8 +1766,8 @@ DmpError::DmpError(const char *what) :
   //printf("DmpError %s\n", what);
 }
 
-// This saves about 2.5% in overall run time on designs with SPEF.
-// https://codingforspeed.com/using-faster-exponential-approximation
+// Fast approximate exponential. See
+// https://www.schraudolph.org/pubs/Schraudolph99.pdf
 static double
 exp2(double x)
 {
@@ -1775,20 +1775,11 @@ exp2(double x)
     // exp(-12) = 6.1e-6
     return 0.0;
   else {
-    double y = 1.0 + x / 4096.0;
-    y *= y;
-    y *= y;
-    y *= y;
-    y *= y;
-    y *= y;
-    y *= y;
-    y *= y;
-    y *= y;
-    y *= y;
-    y *= y;
-    y *= y;
-    y *= y;
-    return y;
+    constexpr double kScale = 1048576 / M_LN2;
+    constexpr int kShift = 1072693248 - 60801;
+    union { double d; int64_t i;} e;
+    e.i = (static_cast<int>(kScale*x) + kShift) << 32;
+    return e.d;
   }
 }
 
