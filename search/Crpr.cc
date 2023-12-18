@@ -46,7 +46,7 @@ CheckCrpr::CheckCrpr(StaState *sta) :
 {
 }
 
-PathVertex *
+void
 CheckCrpr::clkPathPrev(const PathVertex *path,
 		       PathVertex &tmp)
 
@@ -55,11 +55,13 @@ CheckCrpr::clkPathPrev(const PathVertex *path,
   int arrival_index;
   bool exists;
   path->arrivalIndex(arrival_index, exists);
-  tmp = clkPathPrev(vertex, arrival_index);
-  if (tmp.isNull())
-    return nullptr;
-  else
-    return &tmp;
+  PathVertexRep *prevs = graph_->prevPaths(vertex);
+  if (prevs)
+    tmp = PathVertex(prevs[arrival_index], this);
+  else {
+    criticalError(248, "missing prev paths");
+    tmp = PathVertex();
+  }
 }
 
 PathVertex
@@ -246,16 +248,21 @@ CheckCrpr::findCrpr(const PathVertex *src_clk_path,
   // src_clk_path and tgt_clk_path are now in the same (gen)clk src path.
   // Use the vertex levels to back up the deeper path to see if they
   // overlap.
-  while (src_clk_path2 && tgt_clk_path2
-	 && src_clk_path2->pin(this) != tgt_clk_path2->pin(this)) {
+  while (src_clk_path2->pin(this) != tgt_clk_path2->pin(this)) {
     Level src_level = src_clk_path2->vertex(this)->level();
     Level tgt_level = tgt_clk_path2->vertex(this)->level();
-    if (src_level >= tgt_level)
-      src_clk_path2 = clkPathPrev(src_clk_path2, tmp1);
-    if (tgt_level >= src_level)
-      tgt_clk_path2 = clkPathPrev(tgt_clk_path2, tmp2);
+    if (src_level >= tgt_level) {
+      clkPathPrev(src_clk_path2, tmp1);
+      src_clk_path2 = &tmp1;
+      if (tmp1.isNull()) break;
+    }
+    if (tgt_level >= src_level) {
+      clkPathPrev(tgt_clk_path2, tmp2);
+      tgt_clk_path2 = &tmp2;
+      if (tmp2.isNull()) break;
+    }
   }
-  if (src_clk_path2 && tgt_clk_path2
+  if (!src_clk_path2->isNull() && !tgt_clk_path2->isNull()
       && (src_clk_path2->transition(this) == tgt_clk_path2->transition(this)
 	  || same_pin)) {
     debugPrint(debug_, "crpr", 2, "crpr pin %s",
