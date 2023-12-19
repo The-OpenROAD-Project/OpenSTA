@@ -71,8 +71,7 @@ BfsIterator::clear()
   while (levelLessOrEqual(level, last_level_)) {
     VertexSeq &level_vertices = queue_[level];
     for (auto vertex : level_vertices) {
-      if (vertex)
-	vertex->setBfsInQueue(bfs_index_, false);
+      if (vertex) vertex->clrBfsInQueue(bfs_index_);
     }
     level_vertices.clear();
     incrLevel(level);
@@ -102,8 +101,7 @@ BfsIterator::deleteEntries(Level level)
 {
   VertexSeq &level_vertices = queue_[level];
   for (auto vertex : level_vertices) {
-    if (vertex)
-      vertex->setBfsInQueue(bfs_index_, false);
+    if (vertex) vertex->clrBfsInQueue(bfs_index_);
   }
   level_vertices.clear();
 }
@@ -140,7 +138,7 @@ BfsIterator::visit(Level to_level,
 {
   int visit_count = 0;
   while (levelLessOrEqual(first_level_, last_level_)
-	 && levelLessOrEqual(first_level_, to_level)) {
+        && levelLessOrEqual(first_level_, to_level)) {
     VertexSeq &level_vertices = queue_[first_level_];
     incrLevel(first_level_);
     // Note that ArrivalVisitor::enqueueRefPinInputDelays may enqueue
@@ -149,12 +147,11 @@ BfsIterator::visit(Level to_level,
       Vertex *vertex = level_vertices.back();
       level_vertices.pop_back();
       if (vertex) {
-        vertex->setBfsInQueue(bfs_index_, false);
+        vertex->clrBfsInQueue(bfs_index_);
         visitor->visit(vertex);
         visit_count++;
       }
     }
-    level_vertices.clear();
     visitor->levelFinished();
   }
   return visit_count;
@@ -182,7 +179,7 @@ BfsIterator::visitParallel(Level to_level,
           if (vertex_count < thread_count) {
             for (Vertex *vertex : level_vertices) {
               if (vertex) {
-                vertex->setBfsInQueue(bfs_index_, false);
+                vertex->clrBfsInQueue(bfs_index_);
                 visitor->visit(vertex);
               }
             }
@@ -197,7 +194,7 @@ BfsIterator::visitParallel(Level to_level,
                 for (size_t i = from; i < to; i++) {
                   Vertex *vertex = level_vertices[i];
                   if (vertex) {
-                    vertex->setBfsInQueue(bfs_index_, false);
+                    vertex->clrBfsInQueue(bfs_index_);
                     visitors[k]->visit(vertex);
                   }
                 }
@@ -237,7 +234,7 @@ BfsIterator::next()
   VertexSeq &level_vertices = queue_[first_level_];
   Vertex *vertex = level_vertices.back();
   level_vertices.pop_back();
-  vertex->setBfsInQueue(bfs_index_, false);
+  vertex->clrBfsInQueue(bfs_index_);
   return vertex;
 }
 
@@ -258,7 +255,7 @@ BfsIterator::enqueue(Vertex *vertex)
     Level level = vertex->level();
     UniqueLock lock(queue_lock_);
     if (!vertex->bfsInQueue(bfs_index_)) {
-      vertex->setBfsInQueue(bfs_index_, true);
+      vertex->setBfsInQueue(bfs_index_);
       queue_[level].push_back(vertex);
 
       if (levelLess(last_level_, level))
@@ -310,8 +307,8 @@ BfsIterator::remove(Vertex *vertex)
       && static_cast<Level>(queue_.size()) > level) {
     for (auto &v : queue_[level]) {
       if (v == vertex) {
-	v = nullptr;
-	vertex->setBfsInQueue(bfs_index_, false);
+        v = nullptr;
+        vertex->clrBfsInQueue(bfs_index_);
         break;
       }
     }

@@ -322,7 +322,12 @@ public:
   bool isConstrained() const { return is_constrained_; }
   void setIsConstrained(bool constrained);
   bool bfsInQueue(BfsIndex index) const;
-  void setBfsInQueue(BfsIndex index, bool value);
+  void setBfsInQueue(BfsIndex index) {
+      bfs_in_queue_ |=  (1 << int(index));
+  }
+  void clrBfsInQueue(BfsIndex index) {
+      bfs_in_queue_ &= ~(1 << int(index));
+  }
   bool isRegClk() const { return is_reg_clk_; }
   bool crprPathPruningDisabled() const { return crpr_path_pruning_disabled_;}
   void setCrprPathPruningDisabled(bool disabled);

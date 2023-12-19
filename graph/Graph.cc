@@ -1286,16 +1286,6 @@ Vertex::bfsInQueue(BfsIndex index) const
   return (bfs_in_queue_ >> unsigned(index)) & 1;
 }
 
-void
-Vertex::setBfsInQueue(BfsIndex index,
-		      bool value)
-{
-  if (value)
-    bfs_in_queue_ |= 1 << int(index);
-  else
-    bfs_in_queue_ &= ~(1 << int(index));
-}
-
 ////////////////////////////////////////////////////////////////
 //
 // Edge
