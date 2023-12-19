@@ -1775,7 +1775,7 @@ exp2(double x)
   // However, for x > 709.78271, exp(x) can no longer be represented as a double and exp(x) overflows
   // to +Inf anyway, so we move the overflow point down to 707.703272. For the same reason, we return
   // zero for arguments less than -707.703272.
-  constexpr double kHuge =  707.703272;
+  constexpr double kHuge = 707.703272;
   if (x > kHuge) {
     return std::numeric_limits<double>::infinity();
   } else if (x < -kHuge) {
