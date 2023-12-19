@@ -1771,27 +1771,22 @@ DmpError::DmpError(const char *what) :
 static double
 exp2(double x)
 {
-  // For arguments greater than 707.703272 Shraudolphs approximation degrades severely in accuracy.
-  // However, for x > 709.78271, exp(x) can no longer be represented as a double and exp(x) overflows
-  // to +Inf anyway, so we move the overflow point down to 707.703272. For the same reason, we return
-  // zero for arguments less than -707.703272.
-  constexpr double kHuge = 707.703272;
-  if (x > kHuge) {
-    return std::numeric_limits<double>::infinity();
-  } else if (x < -kHuge) {
-    return 0.0;
+  if (std::abs(x) > 707.703272) {
+    // For arguments with magnitude greater than ln(DBL_MAX/8) ~= 707.703272,
+    // Shraudolphs approximation degrades severely in accuracy, so we return
+    // zero or infinity, depending on the sign of x.
+    return x < 0.0 ? 0.0 : std::numeric_limits<double>::infinity();
   }
 
-  // This approximation has a maximum absolute error of 2.98% across the range x in [-kHuge;kHuge].
+  // This approximation has a maximum relative error of 3%.
   constexpr int32_t kExpA = (1 << 20) / M_LN2;  // 2^20 / ln(2)
   constexpr int32_t kExpB = 1023 * (1 << 20);   // 1023 * 2^20
-  constexpr int32_t kExpC = 45799;  // heuristic to minimize maximum absolute error
+  constexpr int32_t kExpC = 45799;  // heuristic to minimize maximum relative error
 
   int64_t exp_bits = static_cast<int64_t>(kExpA * x + (kExpB - kExpC)) << 32;
   double exp_double;
   std::memcpy(&exp_double, &exp_bits, sizeof(double));
   return exp_double;
-}
 }
 
 } // namespace
