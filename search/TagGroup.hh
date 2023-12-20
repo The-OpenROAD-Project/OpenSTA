@@ -53,11 +53,16 @@ public:
   bool hasLoopTag() const { return has_loop_tag_; }
   bool ownArrivalMap() const { return own_arrival_map_; }
   int arrivalCount() const { return arrival_map_->size(); }
-  void arrivalIndex(Tag *tag,
-		    int &arrival_index,
-		    bool &exists) const;
+
+  void arrivalIndex(Tag *tag, int &arrival_index, bool &exists) const {
+    arrival_map_->findKey(tag, arrival_index, exists);
+  }
+
+  bool hasTag(Tag *tag) const {
+    return arrival_map_->hasKey(tag);
+  }
+
   ArrivalMap *arrivalMap() const { return arrival_map_; }
-  bool hasTag(Tag *tag) const;
 
 protected:
   size_t arrivalMapHash(ArrivalMap *arrival_map);

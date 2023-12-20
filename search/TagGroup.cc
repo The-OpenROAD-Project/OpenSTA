@@ -72,20 +72,6 @@ TagGroup::arrivalMapHash(ArrivalMap *arrival_map)
   return hash;
 }
 
-bool
-TagGroup::hasTag(Tag *tag) const
-{
-  return arrival_map_->hasKey(tag);
-}
-
-void
-TagGroup::arrivalIndex(Tag *tag,
-		       int &arrival_index,
-		       bool &exists) const
-{
-  arrival_map_->findKey(tag, arrival_index, exists);
-}
-
 void
 TagGroup::report(const StaState *sta) const
 {
