@@ -1413,7 +1413,7 @@ Table3::report(const Units *units,
       line = unit2->asString(axis2_->axisValue(axis_index2),digits);
       line += " |";
       for (size_t axis_index3 = 0; axis_index3 < axis3_->size(); axis_index3++) {
-        line += table_unit->asString(value(axis_index1, axis_index2, axis_index3), digits);
+        line += table_unit->asString(value(axis_index1, axis_index2, axis_index3),digits);
         line += " ";
       }
       report->reportLineString(line);
@@ -1448,33 +1448,21 @@ TableAxis::inBounds(float value) const
 size_t
 TableAxis::findAxisIndex(float value) const
 {
-  int max = static_cast<int>(values_->size()) - 1;
-  if (max <= 0 || value <= (*values_)[0])
-    // Return 0 if value is too small or the table is empty.
+  size_t size = values_->size();
+  if (size <= 1 || value <= (*values_)[0])
     return 0;
-  else if (value >= (*values_)[max])
-    // Return max-1 for value too large so interpolation pts are index,index+1.
-    return max - 1;
+  else if (value >= (*values_)[size - 1])
+    // Return max_index-1 for value too large so interpolation pts are index,index+1.
+    return size - 2;
   else {
     int lower = -1;
-    int upper = max + 1;
-    bool ascend = ((*values_)[max] >= (*values_)[0]);
-    if (ascend) {
-      while (upper - lower > 1) {
-        int mid = (upper + lower) >> 1;
-        if (value >= (*values_)[mid])
-          lower = mid;
-        else
-          upper = mid;
-      }
-    } else {
-      while (upper - lower > 1) {
-        int mid = (upper + lower) >> 1;
-        if (value < (*values_)[mid])
-          lower = mid;
-        else
-          upper = mid;
-      }
+    int upper = size;
+    while (upper - lower > 1) {
+      int mid = (upper + lower) >> 1;
+      if (value >= (*values_)[mid])
+	lower = mid;
+      else
+	upper = mid;
     }
     return lower;
   }
@@ -1486,13 +1474,12 @@ TableAxis::findAxisIndex(float value,
                          size_t &index,
                          bool &exists) const
 {
-  int max = static_cast<int>(values_->size()) - 1;
-  if (!values_->empty()
+  size_t size = values_->size();
+  if (size != 0
       && value >= (*values_)[0]
-      && value <= (*values_)[max]) {
+      && value <= (*values_)[size - 1]) {
     int lower = -1;
-    int upper = max + 1;
-    bool ascend = ((*values_)[max] >= (*values_)[0]);
+    int upper = size;
     while (upper - lower > 1) {
       int mid = (upper + lower) >> 1;
       if (value == (*values_)[mid]) {
@@ -1500,7 +1487,7 @@ TableAxis::findAxisIndex(float value,
         exists = true;
         return;
       }
-      if ((value > (*values_)[mid]) == ascend)
+      if (value > (*values_)[mid])
 	lower = mid;
       else
 	upper = mid;

@@ -1370,15 +1370,14 @@ LibertyReader::makeAxis(int index,
       float scale = tableVariableUnit(axis_var, units)->scale();
       scaleFloats(axis_values, scale);
     }
-    return std::make_shared<TableAxis>(axis_var, axis_values);
+    return make_shared<TableAxis>(axis_var, axis_values);
   }
   else if (axis_values) {
     libWarn(62, group, "missing variable_%d attribute.", index + 1);
     delete axis_values;
     axis_values_[index] = nullptr;
   }
-  // No warning for missing index_xx attributes because they are
-  // not required by ic_shell.
+  // No warning for missing index_xx attributes because they are not required.
   return nullptr;
 }
 
@@ -1448,8 +1447,20 @@ LibertyReader::visitIndex(int index,
       // Ignore index_xx in ecsm_waveform groups.
       && !stringEq(libertyGroup()->type(), "ecsm_waveform")) {
     FloatSeq *axis_values = readFloatSeq(attr, 1.0F);
-    if (axis_values)
+    if (axis_values) {
+      if (axis_values->empty())
+        libWarn(172, attr, "missing table index values.");
+      else {
+        float prev = (*axis_values)[0];
+        for (size_t i = 1; i < axis_values->size(); i++) {
+          float value = (*axis_values)[i];
+          if (value <= prev)
+            libWarn(173, attr, "non-increasing table index values.");
+          prev = value;
+        }
+      }
       axis_values_[index] = axis_values;
+    }
   }
 }
 
@@ -4366,7 +4377,7 @@ LibertyReader::makeTableAxis(int index)
     const Units *units = library_->units();
     float scale = tableVariableUnit(var, units)->scale();
     scaleFloats(values, scale);
-    axis_[index] = std::make_shared<TableAxis>(var, values);
+    axis_[index] = make_shared<TableAxis>(var, values);
   }
 }
 
@@ -5395,7 +5406,7 @@ RelatedPortGroup::setIsOneToOne(bool one)
 
 TimingGroup::TimingGroup(int line) :
   RelatedPortGroup(line),
-  attrs_(std::make_shared<TimingArcAttrs>()),
+  attrs_(make_shared<TimingArcAttrs>()),
   related_output_port_name_(nullptr),
   receiver_model_(nullptr)
 {

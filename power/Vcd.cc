@@ -153,7 +153,7 @@ Vcd::varAppendValue(string &id,
                     char value)
 {
   VcdValues &values = id_values_map_[id];
-  values.push_back(VcdValue(time, value, 0));
+  values.emplace_back(time, value, 0);
 }
 
 void
@@ -162,7 +162,7 @@ Vcd::varAppendBusValue(string &id,
                        int64_t bus_value)
 {
   VcdValues &values = id_values_map_[id];
-  values.push_back(VcdValue(time, '\0', bus_value));
+  values.emplace_back(time, '\0', bus_value);
 }
 
 VcdValues &
