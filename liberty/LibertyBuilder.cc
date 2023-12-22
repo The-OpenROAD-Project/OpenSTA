@@ -655,17 +655,17 @@ LibertyBuilder::makeTristateDisableArcs(LibertyCell *cell,
 
 TimingArcSet *
 LibertyBuilder::makeClockTreePathArcs(LibertyCell *cell,
-				       LibertyPort *to_port,
-				       LibertyPort *related_out,
-				       TimingRole *role,
-				       TimingArcAttrsPtr attrs)
+                                      LibertyPort *to_port,
+                                      LibertyPort *related_out,
+                                      TimingRole *role,
+                                      TimingArcAttrsPtr attrs)
 {
   TimingArcSet *arc_set = makeTimingArcSet(cell, nullptr, to_port,
 					   related_out, role, attrs);
   for (auto to_rf : RiseFall::range()) {
     TimingModel *model = attrs->model(to_rf);
     if (model)
-      makeTimingArc(arc_set, nullptr, to_rf, model);
+      makeTimingArc(arc_set, nullptr, to_rf->asTransition(), model);
   }
   return arc_set;
 }
