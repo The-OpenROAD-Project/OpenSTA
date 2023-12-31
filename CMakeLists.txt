@@ -325,8 +325,7 @@ set_property(SOURCE ${STA_SWIG_FILE}
   -I${STA_HOME}/verilog
 )
 
-set_property(SOURCE ${STA_SWIG_FILE}
-  PROPERTY DEPENDS
+set(SWIG_FILES
   ${STA_HOME}/dcalc/DelayCalc.i
   ${STA_HOME}/parasitics/Parasitics.i
   ${STA_HOME}/power/Power.i
@@ -335,6 +334,10 @@ set_property(SOURCE ${STA_SWIG_FILE}
   ${STA_HOME}/tcl/StaTcl.i
   ${STA_HOME}/tcl/NetworkEdit.i
   ${STA_HOME}/verilog/Verilog.i
+  )
+
+set_property(SOURCE ${STA_SWIG_FILE}
+  PROPERTY DEPENDS ${SWIG_FILES}
 )
 
 swig_add_library(sta_swig
@@ -343,16 +346,14 @@ swig_add_library(sta_swig
   SOURCES ${STA_SWIG_FILE}
 )
 
-get_target_property(SWIG_FILES sta_swig SOURCES)
+get_target_property(STA_SWIG_CXX_FILE sta_swig SOURCES)
 
-foreach(SWIG_FILE ${SWIG_FILES})
-  set_source_files_properties(${SWIG_FILE}
-    PROPERTIES
-    # No simple way to modify the swig template that emits code full of warnings
-    # so suppress them.
-    COMPILE_OPTIONS "-Wno-cast-qual;-Wno-missing-braces;-Wno-deprecated-declarations"
+set_source_files_properties(${STA_SWIG_CXX_FILE}
+  PROPERTIES
+  # No simple way to modify the swig template that emits code full of warnings
+  # so suppress them.
+  COMPILE_OPTIONS "-Wno-cast-qual;-Wno-missing-braces;-Wno-deprecated-declarations"
   )
-endforeach()
 
 target_link_libraries(sta_swig
   PUBLIC
@@ -578,6 +579,7 @@ add_custom_target(sta_tags etags -o TAGS
   ${STA_SOURCE}
   */*.hh
   include/sta/*.hh
+  ${SWIG_FILES}
   ${STA_TCL_FILES}
   ${SWIG_TCL_FILES}
   WORKING_DIRECTORY ${STA_HOME}
