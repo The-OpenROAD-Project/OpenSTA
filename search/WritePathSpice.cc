@@ -283,6 +283,8 @@ writePathSpice(Path *path,
 	       const char *gnd_name,
 	       StaState *sta)
 {
+  if (sta->network()->defaultLibertyLibrary() == nullptr)
+    sta->report()->error(20, "No liberty libraries found,");
   WritePathSpice writer(path, spice_filename, subckt_filename,
 			lib_subckt_filename, model_filename,
 			off_path_pin_names, power_name, gnd_name, sta);
@@ -313,7 +315,7 @@ WritePathSpice::WritePathSpice(Path *path,
   short_ckt_resistance_(.0001),
   clk_cycle_count_(3)
 {
-  bool exists;
+  bool exists = false;
   default_library_->supplyVoltage(power_name_, power_voltage_, exists);
   if (!exists) {
     DcalcAnalysisPt *dcalc_ap = path_->dcalcAnalysisPt(this);
