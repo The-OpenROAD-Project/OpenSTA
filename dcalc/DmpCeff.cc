@@ -88,7 +88,6 @@ gateModelRd(const LibertyCell *cell,
 	    double in_slew,
 	    double c2,
 	    double c1,
-	    float related_out_cap,
 	    const Pvt *pvt,
 	    bool pocv_enabled);
 static void
@@ -155,7 +154,6 @@ public:
 		    const RiseFall *rf,
 		    double rd,
 		    double in_slew,
-		    float related_out_cap,
 		    double c2,
 		    double rpi,
 		    double c1);
@@ -235,7 +233,6 @@ protected:
   const Pvt *pvt_;
   const GateTableModel *gate_model_;
   double in_slew_;
-  float related_out_cap_;
   double c2_;
   double rpi_;
   double c1_;
@@ -319,7 +316,6 @@ DmpAlg::init(const LibertyLibrary *drvr_library,
 	     const RiseFall *rf,
 	     double rd,
 	     double in_slew,
-	     float related_out_cap,
 	     // Pi model.
 	     double c2,
 	     double rpi,
@@ -331,7 +327,6 @@ DmpAlg::init(const LibertyLibrary *drvr_library,
   gate_model_ = gate_model;
   rd_ = rd;
   in_slew_ = in_slew;
-  related_out_cap_ = related_out_cap;
   c2_ = c2;
   rpi_ = rpi;
   c1_ = c1;
@@ -381,8 +376,8 @@ DmpAlg::gateCapDelaySlew(double ceff,
 {
   ArcDelay model_delay;
   Slew model_slew;
-  gate_model_->gateDelay(pvt_, in_slew_, ceff, related_out_cap_,
-			 pocv_enabled_, model_delay, model_slew);
+  gate_model_->gateDelay(pvt_, in_slew_, ceff, pocv_enabled_,
+                         model_delay, model_slew);
   delay = delayAsFloat(model_delay);
   slew = delayAsFloat(model_slew);
 }
@@ -696,7 +691,6 @@ public:
 		    const RiseFall *rf,
 		    double rd,
 		    double in_slew,
-		    float related_out_cap,
 		    double c2,
 		    double rpi,
 		    double c1);
@@ -729,14 +723,13 @@ DmpCap::init(const LibertyLibrary *drvr_library,
 	     const RiseFall *rf,
 	     double rd,
 	     double in_slew,
-	     float related_out_cap,
 	     double c2,
 	     double rpi,
 	     double c1)
 {
   debugPrint(debug_, "dmp_ceff", 3, "Using DMP cap");
   DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf,
-	       rd, in_slew, related_out_cap, c2, rpi, c1);
+	       rd, in_slew, c2, rpi, c1);
   ceff_ = c1 + c2;
 }
 
@@ -810,7 +803,6 @@ public:
 		    const RiseFall *rf,
 		    double rd,
 		    double in_slew,
-		    float related_out_cap,
 		    double c2,
 		    double rpi,
 		    double c1);
@@ -870,14 +862,13 @@ DmpPi::init(const LibertyLibrary *drvr_library,
 	    const RiseFall *rf,
 	    double rd,
 	    double in_slew,
-	    float related_out_cap,
 	    double c2,
 	    double rpi,
 	    double c1)
 {
   debugPrint(debug_, "dmp_ceff", 3, "Using DMP Pi");
   DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf, rd,
-	       in_slew, related_out_cap, c2, rpi, c1);
+	       in_slew, c2, rpi, c1);
 
   // Find poles/zeros.
   z1_ = 1.0 / (rpi_ * c1_);
@@ -1144,7 +1135,6 @@ public:
 		    const RiseFall *rf,
 		    double rd,
 		    double in_slew,
-		    float related_out_cap,
 		    double c2,
 		    double rpi,
 		    double c1);
@@ -1187,14 +1177,13 @@ DmpZeroC2::init(const LibertyLibrary *drvr_library,
 		const RiseFall *rf,
 		double rd,
 		double in_slew,
-		float related_out_cap,
 		double c2,
 		double rpi,
 		double c1)
 {
   debugPrint(debug_, "dmp_ceff", 3, "Using DMP C2=0");
   DmpAlg::init(drvr_library, drvr_cell, pvt, gate_model, rf, rd,
-	       in_slew, related_out_cap, c2, rpi, c1);
+	       in_slew, c2, rpi, c1);
   ceff_ = c1;
 
   z1_ = 1.0 / (rpi_ * c1_);
@@ -1543,64 +1532,58 @@ DmpCeffDelayCalc::~DmpCeffDelayCalc()
   delete dmp_zero_c2_;
 }
 
-void
-DmpCeffDelayCalc::inputPortDelay(const Pin *port_pin,
-				 float in_slew,
-				 const RiseFall *rf,
-				 const Parasitic *parasitic,
-				 const DcalcAnalysisPt *dcalc_ap)
+ArcDcalcResult
+DmpCeffDelayCalc::gateDelay(const Pin *drvr_pin,
+                            const TimingArc *arc,
+                            const Slew &in_slew,
+                            float load_cap,
+                            const Parasitic *parasitic,
+                            const LoadPinIndexMap &load_pin_index_map,
+                            const DcalcAnalysisPt *dcalc_ap)
 {
-  dmp_alg_ = nullptr;
-  LumpedCapDelayCalc::inputPortDelay(port_pin, in_slew, rf, parasitic, dcalc_ap);
-}
-
-void
-DmpCeffDelayCalc::gateDelay(const TimingArc *arc,
-			    const Slew &in_slew,
-			    float load_cap,
-			    const Parasitic *drvr_parasitic,
-			    float related_out_cap,
-			    const Pvt *pvt,
-			    const DcalcAnalysisPt *dcalc_ap,
-			    // Return values.
-			    ArcDelay &gate_delay,
-			    Slew &drvr_slew)
-{
-  input_port_ = false;
-  drvr_rf_ = arc->toEdge()->asRiseFall();
+  const RiseFall *rf = arc->toEdge()->asRiseFall();
   const LibertyCell *drvr_cell = arc->from()->libertyCell();
-  drvr_library_ = drvr_cell->libertyLibrary();
-  drvr_parasitic_ = drvr_parasitic;
+  const LibertyLibrary *drvr_library = drvr_cell->libertyLibrary();
 
-  GateTimingModel *model = gateModel(arc, dcalc_ap);
-  GateTableModel *table_model = dynamic_cast<GateTableModel*>(model);
-  if (table_model && drvr_parasitic) {
+  GateTableModel *table_model = gateTableModel(arc, dcalc_ap);
+  if (table_model && parasitic) {
     float in_slew1 = delayAsFloat(in_slew);
     float c2, rpi, c1;
-    parasitics_->piModel(drvr_parasitic, c2, rpi, c1);
+    parasitics_->piModel(parasitic, c2, rpi, c1);
     if (isnan(c2) || isnan(c1) || isnan(rpi))
       report_->error(618, "parasitic Pi model has NaNs.");
-    setCeffAlgorithm(drvr_library_, drvr_cell, pvt, table_model,
-		     drvr_rf_, in_slew1, related_out_cap,
-		     c2, rpi, c1);
-    double dmp_gate_delay, dmp_drvr_slew;
-    gateDelaySlew(dmp_gate_delay, dmp_drvr_slew);
-    gate_delay = dmp_gate_delay;
-    drvr_slew = dmp_drvr_slew;
+    setCeffAlgorithm(drvr_library, drvr_cell, pinPvt(drvr_pin, dcalc_ap),
+                     table_model, rf, in_slew1, c2, rpi, c1);
+    double gate_delay, drvr_slew;
+    gateDelaySlew(gate_delay, drvr_slew);
+    ArcDcalcResult dcalc_result(load_pin_index_map.size());
+    dcalc_result.setGateDelay(gate_delay);
+    dcalc_result.setDrvrSlew(drvr_slew);
+
+    for (auto load_pin_index : load_pin_index_map) {
+      const Pin *load_pin = load_pin_index.first;
+      size_t load_idx = load_pin_index.second;
+      ArcDelay wire_delay;
+      Slew load_slew;
+      loadDelaySlew(load_pin, drvr_slew, rf, drvr_library, parasitic,
+                    wire_delay, load_slew);
+      dcalc_result.setWireDelay(load_idx, wire_delay);
+      dcalc_result.setLoadSlew(load_idx, load_slew);
+    }
+    return dcalc_result;
   }
   else {
-    LumpedCapDelayCalc::gateDelay(arc, in_slew, load_cap, drvr_parasitic,
-                                  related_out_cap, pvt, dcalc_ap,
-                                  gate_delay, drvr_slew);
-    if (drvr_parasitic
+    ArcDcalcResult dcalc_result =
+      LumpedCapDelayCalc::gateDelay(drvr_pin, arc, in_slew, load_cap, parasitic,
+                                    load_pin_index_map, dcalc_ap);
+    if (parasitic
 	&& !unsuppored_model_warned_) {
       unsuppored_model_warned_ = true;
       report_->warn(1, "cell %s delay model not supported on SPF parasitics by DMP delay calculator",
 		    drvr_cell->name());
     }
+    return dcalc_result;
   }
-  drvr_slew_ = drvr_slew;
-  multi_drvr_slew_factor_ = 1.0F;
 }
 
 void
@@ -1610,7 +1593,6 @@ DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
 				   const GateTableModel *gate_model,
 				   const RiseFall *rf,
 				   double in_slew,
-				   float related_out_cap,
 				   double c2,
 				   double rpi,
 				   double c1)
@@ -1618,7 +1600,7 @@ DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
   double rd = 0.0;
   if (gate_model) {
     rd = gateModelRd(drvr_cell, gate_model, rf, in_slew, c2, c1,
-		     related_out_cap, pvt, pocv_enabled_);
+		     pvt, pocv_enabled_);
     // Zero Rd means the table is constant and thus independent of load cap.
     if (rd < 1e-2
 	// Rpi is small compared to Rd, which makes the load capacitive.
@@ -1635,7 +1617,7 @@ DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
   else
     dmp_alg_ = dmp_cap_;
   dmp_alg_->init(drvr_library, drvr_cell, pvt, gate_model,
-		 drvr_rf_, rd, in_slew, related_out_cap, c2, rpi, c1);
+		 rf, rd, in_slew, c2, rpi, c1);
   debugPrint(debug_, "dmp_ceff", 3,
              "    DMP in_slew = %s c2 = %s rpi = %s c1 = %s Rd = %s (%s alg)",
              units_->timeUnit()->asString(in_slew),
@@ -1646,51 +1628,29 @@ DmpCeffDelayCalc::setCeffAlgorithm(const LibertyLibrary *drvr_library,
              dmp_alg_->name());
 }
 
-float
-DmpCeffDelayCalc::ceff(const TimingArc *arc,
-		       const Slew &in_slew,
-		       float load_cap,
-		       const Parasitic *drvr_parasitic,
-		       float related_out_cap,
-		       const Pvt *pvt,
-		       const DcalcAnalysisPt *dcalc_ap)
-{
-  ArcDelay gate_delay;
-  Slew drvr_slew;
-  gateDelay(arc, in_slew, load_cap, drvr_parasitic, related_out_cap, pvt, dcalc_ap,
-	    gate_delay, drvr_slew);
-  if (dmp_alg_)
-    return dmp_alg_->ceff();
-  else
-    return load_cap;
-}
-
 string
-DmpCeffDelayCalc::reportGateDelay(const TimingArc *arc,
+DmpCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
+                                  const TimingArc *arc,
 				  const Slew &in_slew,
 				  float load_cap,
-				  const Parasitic *drvr_parasitic,
-				  float related_out_cap,
-				  const Pvt *pvt,
+				  const Parasitic *parasitic,
+                                  const LoadPinIndexMap &load_pin_index_map,
 				  const DcalcAnalysisPt *dcalc_ap,
 				  int digits)
 {
-  ArcDelay gate_delay;
-  Slew drvr_slew;
-  gateDelay(arc, in_slew, load_cap, drvr_parasitic, related_out_cap, pvt, dcalc_ap,
-	    gate_delay, drvr_slew);
+  gateDelay(drvr_pin, arc, in_slew, load_cap, parasitic, load_pin_index_map, dcalc_ap);
   GateTimingModel *model = gateModel(arc, dcalc_ap);
   float c_eff = 0.0;
   string result;
-  if (drvr_parasitic_ && dmp_alg_) {
+  if (parasitic && dmp_alg_) {
     c_eff = dmp_alg_->ceff();
-    const LibertyCell *drvr_cell = arc->from()->libertyCell();
+    const LibertyCell *drvr_cell = arc->to()->libertyCell();
     const LibertyLibrary *drvr_library = drvr_cell->libertyLibrary();
     const Units *units = drvr_library->units();
     const Unit *cap_unit = units->capacitanceUnit();
     const Unit *res_unit = units->resistanceUnit();
     float c2, rpi, c1;
-    parasitics_->piModel(drvr_parasitic_, c2, rpi, c1);
+    parasitics_->piModel(parasitic, c2, rpi, c1);
     result += "Pi model C2=";
     result += cap_unit->asString(c2, digits);
     result += " Rpi=";
@@ -1705,7 +1665,7 @@ DmpCeffDelayCalc::reportGateDelay(const TimingArc *arc,
     c_eff = load_cap;
   if (model) {
     float in_slew1 = delayAsFloat(in_slew);
-    result += model->reportGateDelay(pvt, in_slew1, c_eff, related_out_cap,
+    result += model->reportGateDelay(pinPvt(drvr_pin, dcalc_ap), in_slew1, c_eff,
                                      pocv_enabled_, digits);
   }
   return result;
@@ -1718,7 +1678,6 @@ gateModelRd(const LibertyCell *cell,
 	    double in_slew,
 	    double c2,
 	    double c1,
-	    float related_out_cap,
 	    const Pvt *pvt,
 	    bool pocv_enabled)
 {
@@ -1726,8 +1685,8 @@ gateModelRd(const LibertyCell *cell,
   float cap2 = cap1 + 1e-15;
   ArcDelay d1, d2;
   Slew s1, s2;
-  gate_model->gateDelay(pvt, in_slew, cap1, related_out_cap, pocv_enabled, d1, s1);
-  gate_model->gateDelay(pvt, in_slew, cap2, related_out_cap, pocv_enabled, d2, s2);
+  gate_model->gateDelay(pvt, in_slew, cap1, pocv_enabled, d1, s1);
+  gate_model->gateDelay(pvt, in_slew, cap2, pocv_enabled, d2, s2);
   double vth = cell->libertyLibrary()->outputThreshold(rf);
   float rd = -log(vth) * abs(delayAsFloat(d1) - delayAsFloat(d2)) / (cap2 - cap1);
   return rd;
@@ -1741,10 +1700,10 @@ DmpCeffDelayCalc::gateDelaySlew(double &delay,
 }
 
 void
-DmpCeffDelayCalc::loadDelaySlew(const Pin *load_pin,
-				double elmore,
-				ArcDelay &delay,
-				Slew &slew)
+DmpCeffDelayCalc::loadDelaySlewElmore(const Pin *load_pin,
+                                      double elmore,
+                                      ArcDelay &delay,
+                                      Slew &slew)
 {
   if (dmp_alg_)
     dmp_alg_->loadDelaySlew(load_pin, elmore, delay, slew);

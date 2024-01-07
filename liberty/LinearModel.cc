@@ -34,7 +34,6 @@ void
 GateLinearModel::gateDelay(const Pvt *,
 			   float,
 			   float load_cap,
-			   float,
 			   bool,
 			   // return values
 			   ArcDelay &gate_delay,
@@ -48,7 +47,6 @@ string
 GateLinearModel::reportGateDelay(const Pvt *,
 				 float,
 				 float load_cap,
-				 float,
 				 bool,
 				 int digits) const
 {
@@ -87,15 +85,14 @@ CheckLinearModel::CheckLinearModel(LibertyCell *cell,
 {
 }
 
-void
+ArcDelay
 CheckLinearModel::checkDelay(const Pvt *,
 			     float,
 			     float,
 			     float,
-			     bool,
-			     ArcDelay &margin) const
+			     bool) const
 {
-  margin = intrinsic_;
+  return intrinsic_;
 }
 
 string

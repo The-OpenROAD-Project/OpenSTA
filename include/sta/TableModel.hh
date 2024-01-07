@@ -62,15 +62,21 @@ public:
   void gateDelay(const Pvt *pvt,
                  float in_slew,
                  float load_cap,
-                 float related_out_cap,
                  bool pocv_enabled,
                  // Return values.
                  ArcDelay &gate_delay,
                  Slew &drvr_slew) const override;
+  // related_out_cap arg removed.
+  void gateDelay(const Pvt *pvt,
+                 float in_slew,
+                 float load_cap,
+                 float related_out_cap,
+                 bool pocv_enabled,
+                 ArcDelay &gate_delay,
+                 Slew &drvr_slew) const __attribute__ ((deprecated));
   string reportGateDelay(const Pvt *pvt,
                          float in_slew,
                          float load_cap,
-                         float related_out_cap,
                          bool pocv_enabled,
                          int digits) const override;
   float driveResistance(const Pvt *pvt) const override;
@@ -130,13 +136,11 @@ public:
                            TableModel *model,
 			   TableModel *sigma_models[EarlyLate::index_count]);
   virtual ~CheckTableModel();
-  void checkDelay(const Pvt *pvt,
-                  float from_slew,
-                  float to_slew,
-                  float related_out_cap,
-                  bool pocv_enabled,
-                  // Return values.
-                  ArcDelay &margin) const override;
+  ArcDelay checkDelay(const Pvt *pvt,
+                      float from_slew,
+                      float to_slew,
+                      float related_out_cap,
+                      bool pocv_enabled) const override;
   string reportCheckDelay(const Pvt *pvt,
                           float from_slew,
                           const char *from_slew_annotation,
@@ -504,9 +508,6 @@ public:
   float voltageCurrent(float slew,
                        float cap,
                        float volt);
-  float currentVoltage(float slew,
-                       float cap,
-                       float current);
   float referenceTime(float slew);
   void setVdd(float vdd);
   static bool checkAxes(const TableTemplate *tbl_template);
@@ -536,7 +537,6 @@ private:
   Table1Seq current_waveforms_;
   Table1Seq voltage_waveforms_;
   Table1Seq voltage_currents_;
-  Table1Seq current_voltages_;
   FloatTable voltage_times_;
   Table1 *ref_times_;
   float vdd_;

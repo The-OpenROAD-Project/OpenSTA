@@ -25,10 +25,12 @@
 #include "DcalcAnalysisPt.hh"
 #include "StaState.hh"
 #include "Delay.hh"
+#include "ArcDelayCalc.hh"
 
 namespace sta {
 
 using std::vector;
+using std::map;
 
 class DelayCalcObserver;
 class MultiDrvrNet;
@@ -79,7 +81,7 @@ public:
   // pin_cap  = net pin capacitances + port external pin capacitance,
   // wire_cap = annotated net capacitance + port external wire capacitance.
   virtual void loadCap(const Pin *drvr_pin,
-		       const Parasitic *drvr_parasitic,
+		       const Parasitic *parasitic,
 		       const RiseFall *rf,
 		       const DcalcAnalysisPt *dcalc_ap,
 		       // Return values.
@@ -87,11 +89,11 @@ public:
 		       float &wire_cap) const;
   // Load pin_cap + wire_cap including parasitic.
   virtual float loadCap(const Pin *drvr_pin,
-			const Parasitic *drvr_parasitic,
+			const Parasitic *parasitic,
 			const RiseFall *rf,
 			const DcalcAnalysisPt *dcalc_ap) const;
   float loadCap(const Pin *drvr_pin,
-		const Parasitic *drvr_parasitic,
+		const Parasitic *parasitic,
 		const RiseFall *rf,
 		const DcalcAnalysisPt *dcalc_ap,
                 const MultiDrvrNet *multi_drvr) const;
@@ -103,9 +105,13 @@ public:
 		       float &wire_cap,
 		       float &fanout,
 		       bool &has_set_load) const;
-  float ceff(Edge *edge,
-	     TimingArc *arc,
-	     const DcalcAnalysisPt *dcalc_ap);
+  PinSeq loadPins(Vertex *drvr_vertex);
+  LoadPinIndexMap makeLoadPinIndexMap(Vertex *drvr_vertex);
+  void findDriverArcDelays(Vertex *drvr_vertex,
+                           Edge *edge,
+                           const TimingArc *arc,
+                           const DcalcAnalysisPt *dcalc_ap,
+                           ArcDelayCalc *arc_delay_calc);
   // Precedence:
   //  SDF annotation
   //  Liberty library
@@ -176,12 +182,29 @@ protected:
 			 MultiDrvrNet *multi_drvr,
 			 ArcDelayCalc *arc_delay_calc);
   void initLoadSlews(Vertex *drvr_vertex);
-  bool findDriverEdgeDelays(const Instance *drvr_inst,
-			    const Pin *drvr_pin,
-			    Vertex *drvr_vertex,
+  bool findDriverEdgeDelays(Vertex *drvr_vertex,
 			    const MultiDrvrNet *multi_drvr,
 			    Edge *edge,
 			    ArcDelayCalc *arc_delay_calc);
+  bool findDriverArcDelays(Vertex *drvr_vertex,
+                           const MultiDrvrNet *multi_drvr,
+                           Edge *edge,
+                           const TimingArc *arc,
+                           LoadPinIndexMap &load_pin_index_map,
+                           const DcalcAnalysisPt *dcalc_ap,
+                           ArcDelayCalc *arc_delay_calc);
+  ArcDcalcArgSeq makeArcDcalcArgs(Vertex *drvr_vertex,
+                                  const MultiDrvrNet *multi_drvr,
+                                  Edge *edge,
+                                  const TimingArc *arc,
+                                  const DcalcAnalysisPt *dcalc_ap,
+                                  ArcDelayCalc *arc_delay_calc);
+  void findParallelEdge(Vertex *vertex,
+                        Edge *drvr_edge,
+                        const TimingArc *drvr_arc,
+                        // Return values.
+                        Edge *&edge,
+                        const TimingArc *&arc);
   void initWireDelays(Vertex *drvr_vertex);
   void initRootSlews(Vertex *vertex);
   void zeroSlewAndWireDelays(Vertex *drvr_vertex);
@@ -189,23 +212,24 @@ protected:
 		       ArcDelayCalc *arc_delay_calc,
 		       bool propagate);
   void enqueueTimingChecksEdges(Vertex *vertex);
-  bool findArcDelay(const Pin *drvr_pin,
-		    Vertex *drvr_vertex,
-		    const TimingArc *arc,
-		    const Parasitic *drvr_parasitic,
-		    float related_out_cap,
-		    Vertex *from_vertex,
-		    Edge *edge,
-		    const Pvt *pvt,
-		    const DcalcAnalysisPt *dcalc_ap,
-		    const MultiDrvrNet *multi_drvr,
-		    ArcDelayCalc *arc_delay_calc);
+  bool annotateDelaysSlews(Edge *edge,
+                           const TimingArc *arc,
+                           ArcDcalcResult &dcalc_result,
+                           LoadPinIndexMap &load_pin_index_map,
+                           const DcalcAnalysisPt *dcalc_ap);
+
+  bool annotateDelaySlew(Edge *edge,
+                         const TimingArc *arc,
+                         ArcDelay &gate_delay,
+                         Slew &gate_slew,
+                         const DcalcAnalysisPt *dcalc_ap);
   void annotateLoadDelays(Vertex *drvr_vertex,
-			  const RiseFall *drvr_rf,
-			  const ArcDelay &extra_delay,
-			  bool merge,
-			  const DcalcAnalysisPt *dcalc_ap,
-			  ArcDelayCalc *arc_delay_calc);
+                          const RiseFall *drvr_rf,
+                          ArcDcalcResult &dcalc_result,
+                          LoadPinIndexMap &load_pin_index_map,
+                          const ArcDelay &extra_delay,
+                          bool merge,
+                          const DcalcAnalysisPt *dcalc_ap);
   void findLatchEdgeDelays(Edge *edge);
   void findCheckEdgeDelays(Edge *edge,
 			   ArcDelayCalc *arc_delay_calc);
@@ -215,7 +239,7 @@ protected:
 			const DcalcAnalysisPt *dcalc_ap);
   bool bidirectDrvrSlewFromLoad(const Vertex *vertex) const;
   MultiDrvrNet *multiDrvrNet(const Vertex *drvr_vertex) const;
-  void loadCap(const Parasitic *drvr_parasitic,
+  void loadCap(const Parasitic *parasitic,
 	       bool has_set_load,
 	       // Return values.
 	       float &pin_cap,

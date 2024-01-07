@@ -62,6 +62,7 @@ set(STA_SOURCE
   app/StaMain.cc
   
   dcalc/ArcDelayCalc.cc
+  dcalc/ArcDcalcWaveforms.cc
   dcalc/ArnoldiDelayCalc.cc
   dcalc/ArnoldiReduce.cc
   dcalc/DcalcAnalysisPt.cc
@@ -73,7 +74,6 @@ set(STA_SOURCE
   dcalc/LumpedCapDelayCalc.cc
   dcalc/NetCaps.cc
   dcalc/ParallelDelayCalc.cc
-  dcalc/SlewDegradeDelayCalc.cc
   dcalc/UnitDelayCalc.cc
   
   graph/DelayFloat.cc

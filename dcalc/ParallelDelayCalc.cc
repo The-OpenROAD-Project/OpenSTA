@@ -31,141 +31,65 @@ ParallelDelayCalc::ParallelDelayCalc(StaState *sta):
 {
 }
 
-void
-ParallelDelayCalc::inputPortDelay(const Pin *drvr_pin,
-                                  float in_slew,
-                                  const RiseFall *rf,
-                                  const Parasitic *parasitic,
-                                  const DcalcAnalysisPt *dcalc_ap)
+ArcDcalcResultSeq
+ParallelDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
+                              float load_cap,
+                              const LoadPinIndexMap &load_pin_index_map,
+                              const DcalcAnalysisPt *dcalc_ap)
 {
-  DelayCalcBase::inputPortDelay(drvr_pin, in_slew, rf, parasitic, dcalc_ap);
-  multi_drvr_slew_factor_ = 1.0;
-}
-
-void
-ParallelDelayCalc::gateDelayInit(const TimingArc *arc,
-                                const Slew &in_slew,
-                                const Parasitic *drvr_parasitic)
-{
-  DelayCalcBase::gateDelayInit(arc, in_slew, drvr_parasitic);
-  multi_drvr_slew_factor_ = 1.0F;
-}
-
-void
-ParallelDelayCalc::findParallelGateDelays(const MultiDrvrNet *multi_drvr,
-                                          GraphDelayCalc *dcalc)
-{
-  int count = RiseFall::index_count * corners_->dcalcAnalysisPtCount();
-  parallel_delays_.resize(count);
-  parallel_slews_.resize(count);
-  for (auto dcalc_ap : corners_->dcalcAnalysisPts()) {
-    for (auto drvr_rf : RiseFall::range()) {
-      DcalcAPIndex ap_index = dcalc_ap->index();
-      int drvr_rf_index = drvr_rf->index();
-      int index = ap_index * RiseFall::index_count + drvr_rf_index;
-      findMultiDrvrGateDelay(multi_drvr, drvr_rf, dcalc_ap, dcalc,
-                             parallel_delays_[index],
-                             parallel_slews_[index]);
-    }
-  }
-}
-
-void
-ParallelDelayCalc::findMultiDrvrGateDelay(const MultiDrvrNet *multi_drvr,
-                                          const RiseFall *drvr_rf,
-                                          const DcalcAnalysisPt *dcalc_ap,
-                                          GraphDelayCalc *dcalc,
-                                          // Return values.
-                                          ArcDelay &parallel_delay,
-                                          Slew &parallel_slew)
-{
-  ArcDelay delay_sum = 0.0;
+  size_t drvr_count = dcalc_args.size();
+  ArcDcalcResultSeq dcalc_results(drvr_count);
   Slew slew_sum = 0.0;
-  for (Vertex *drvr_vertex : *multi_drvr->drvrs()) {
-    Pin *drvr_pin = drvr_vertex->pin();
-    Instance *drvr_inst = network_->instance(drvr_pin);
-    const Pvt *pvt = sdc_->pvt(drvr_inst, dcalc_ap->constraintMinMax());
-    if (pvt == nullptr)
-      pvt = dcalc_ap->operatingConditions();
-    VertexInEdgeIterator edge_iter(drvr_vertex, graph_);
-    while (edge_iter.hasNext()) {
-      Edge *edge = edge_iter.next();
-      TimingArcSet *arc_set = edge->timingArcSet();
-      const LibertyPort *related_out_port = arc_set->relatedOut();
-      for (TimingArc *arc : arc_set->arcs()) {
-        RiseFall *arc_rf = arc->toEdge()->asRiseFall();
-        if (arc_rf == drvr_rf) {
-          Vertex *from_vertex = edge->from(graph_);
-          RiseFall *from_rf = arc->fromEdge()->asRiseFall();
-          Slew from_slew = dcalc->edgeFromSlew(from_vertex, from_rf,
-                                               edge, dcalc_ap);
-          ArcDelay intrinsic_delay;
-          Slew intrinsic_slew;
-          gateDelay(arc, from_slew, 0.0, 0, 0.0, pvt, dcalc_ap,
-                    intrinsic_delay, intrinsic_slew);
-          Parasitic *parasitic = findParasitic(drvr_pin, drvr_rf, dcalc_ap);
-          const Pin *related_out_pin = 0;
-          float related_out_cap = 0.0;
-          if (related_out_port) {
-            Instance *inst = network_->instance(drvr_pin);
-            related_out_pin = network_->findPin(inst, related_out_port);
-            if (related_out_pin) {
-              Parasitic *related_out_parasitic = findParasitic(related_out_pin,
-                                                               drvr_rf,
-                                                               dcalc_ap);
-              related_out_cap = dcalc->loadCap(related_out_pin,
-                                               related_out_parasitic,
-                                               drvr_rf, dcalc_ap);
-            }
-          }
-          float load_cap = dcalc->loadCap(drvr_pin, parasitic,
-                                          drvr_rf, dcalc_ap);
-          ArcDelay gate_delay;
-          Slew gate_slew;
-          gateDelay(arc, from_slew, load_cap, parasitic,
-                    related_out_cap, pvt, dcalc_ap,
-                    gate_delay, gate_slew);
-          delay_sum += 1.0F / (gate_delay - intrinsic_delay);
-          slew_sum += 1.0F / gate_slew;
-        }
-      }
+  ArcDelay load_delay_sum = 0.0;
+  vector<ArcDelay> intrinsic_delays(dcalc_args.size());
+  vector<ArcDelay> load_delays(dcalc_args.size());
+  for (size_t drvr_idx = 0; drvr_idx < drvr_count; drvr_idx++) {
+    ArcDcalcArg &dcalc_arg = dcalc_args[drvr_idx];
+    ArcDcalcResult &dcalc_result = dcalc_results[drvr_idx];
+    const Pin *drvr_pin = dcalc_arg.drvrPin();
+    const TimingArc *arc = dcalc_arg.arc();
+    Slew in_slew = dcalc_arg.inSlew();
+
+    ArcDcalcResult intrinsic_result =
+      arc_delay_calc_->gateDelay(drvr_pin, arc, in_slew, 0.0, nullptr,
+                                 load_pin_index_map, dcalc_ap);
+    ArcDelay intrinsic_delay = intrinsic_result.gateDelay();
+    intrinsic_delays[drvr_idx] = intrinsic_result.gateDelay();
+
+    ArcDcalcResult gate_result = arc_delay_calc_->gateDelay(drvr_pin, arc,
+                                                            in_slew, load_cap,
+                                                            dcalc_arg.parasitic(), 
+                                                            load_pin_index_map,
+                                                            dcalc_ap);
+    ArcDelay gate_delay = gate_result.gateDelay();
+    Slew drvr_slew = gate_result.drvrSlew();
+    ArcDelay load_delay = gate_delay - intrinsic_delay;
+    load_delays[drvr_idx] = load_delay;
+
+    if (!delayZero(load_delay))
+      load_delay_sum += 1.0 / load_delay;
+    if (!delayZero(drvr_slew))
+      slew_sum += 1.0 / drvr_slew;
+
+    dcalc_result.setLoadCount(load_pin_index_map.size());
+    for (auto load_pin_index : load_pin_index_map) {
+      size_t load_idx = load_pin_index.second;
+      dcalc_result.setWireDelay(load_idx, gate_result.wireDelay(load_idx));
+      dcalc_result.setLoadSlew(load_idx, gate_result.loadSlew(load_idx));
     }
   }
-  parallel_delay = 1.0F / delay_sum;
-  parallel_slew = 1.0F / slew_sum;
-}
 
-void
-ParallelDelayCalc::parallelGateDelay(const Pin *,
-                                     const TimingArc *arc,
-                                     const Slew &from_slew,
-                                     float load_cap,
-                                     const Parasitic *drvr_parasitic,
-                                     float related_out_cap,
-                                     const Pvt *pvt,
-                                     const DcalcAnalysisPt *dcalc_ap,
-                                     // Return values.
-                                     ArcDelay &gate_delay,
-                                     Slew &gate_slew)
-{
-  ArcDelay intrinsic_delay;
-  Slew intrinsic_slew;
-  gateDelay(arc, from_slew, 0.0, 0, 0.0, pvt, dcalc_ap,
-            intrinsic_delay, intrinsic_slew);
-  const RiseFall *drvr_rf = arc->toEdge()->asRiseFall();
-  int index = dcalc_ap->index() * RiseFall::index_count + drvr_rf->index();
-  ArcDelay parallel_delay = parallel_delays_[index];
-  Slew parallel_slew = parallel_slews_[index];
-  gate_delay = parallel_delay + intrinsic_delay;
-  gate_slew = parallel_slew;
+  ArcDelay gate_load_delay = delayZero(load_delay_sum)
+    ? delay_zero
+    : 1.0 / load_delay_sum;
+  ArcDelay drvr_slew = delayZero(slew_sum) ? delay_zero : 1.0 / slew_sum;
 
-  Delay gate_delay1;
-  Slew gate_slew1;
-  gateDelay(arc, from_slew, load_cap, drvr_parasitic,
-            related_out_cap, pvt, dcalc_ap,
-            gate_delay1, gate_slew1);
-  float factor = delayRatio(gate_slew, gate_slew1);
-  multi_drvr_slew_factor_ = factor;
+  for (size_t drvr_idx = 0; drvr_idx < drvr_count; drvr_idx++) {
+    ArcDcalcResult &dcalc_result = dcalc_results[drvr_idx];
+    dcalc_result.setGateDelay(intrinsic_delays[drvr_idx] + gate_load_delay);
+    dcalc_result.setDrvrSlew(drvr_slew);
+  }
+  return dcalc_results;
 }
 
 } // namespace

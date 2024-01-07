@@ -46,7 +46,6 @@ public:
   virtual void gateDelay(const Pvt *pvt,
 			 float in_slew,
 			 float load_cap,
-			 float related_out_cap,
 			 bool pocv_enabled,
 			 // Return values.
 			 ArcDelay &gate_delay,
@@ -54,7 +53,6 @@ public:
   virtual string reportGateDelay(const Pvt *pvt,
                                  float in_slew,
                                  float load_cap,
-                                 float related_out_cap,
                                  bool pocv_enabled,
                                  int digits) const = 0;
   virtual float driveResistance(const Pvt *pvt) const = 0;
@@ -66,13 +64,11 @@ class CheckTimingModel : public TimingModel
 public:
   CheckTimingModel(LibertyCell *cell);
   // Timing check margin delay calculation.
-  virtual void checkDelay(const Pvt *pvt,
-			  float from_slew,
-			  float to_slew,
-			  float related_out_cap,
-			  bool pocv_enabled,
-			  // Return values.
-			  ArcDelay &margin) const = 0;
+  virtual ArcDelay checkDelay(const Pvt *pvt,
+                              float from_slew,
+                              float to_slew,
+                              float related_out_cap,
+                              bool pocv_enabled) const = 0;
   virtual string reportCheckDelay(const Pvt *pvt,
                                   float from_slew,
                                   const char *from_slew_annotation,

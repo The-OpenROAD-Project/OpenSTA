@@ -2583,7 +2583,7 @@ LibertyPort::clockTreePathDelays()
         GateTimingModel *gate_model = dynamic_cast<GateTimingModel*>(model);
         ArcDelay delay;
         Slew slew;
-        gate_model->gateDelay(nullptr, 0.0, 0.0, 0.0, false, delay, slew);
+        gate_model->gateDelay(nullptr, 0.0, 0.0, false, delay, slew);
         const RiseFall *rf = arc->toEdge()->asRiseFall();
         const MinMax *min_max = (role == TimingRole::clockTreePathMin())
           ? MinMax::min()

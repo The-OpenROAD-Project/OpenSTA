@@ -14,14 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+#include "ArcDcalcWaveforms.hh"
+
 
 namespace sta {
 
-class ArcDelayCalc;
-class StaState;
+Table1
+ArcDcalcWaveforms::inputWaveform(const Pin *,
+                                 const RiseFall *,
+                                 const Corner *,
+                                 const MinMax *)
+{
+  return Table1();
+}
 
-ArcDelayCalc *
-makeSlewDegradeDelayCalc(StaState *sta);
+Table1
+ArcDcalcWaveforms::drvrRampWaveform(const Pin *,
+                                    const RiseFall *,
+                                    const Pin *,
+                                    const RiseFall *,
+                                    const Pin *,
+                                    const Corner *,
+                                    const MinMax *)
+{
+  return Table1();
+}
 
 } // namespace

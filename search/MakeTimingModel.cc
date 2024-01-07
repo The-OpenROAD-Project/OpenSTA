@@ -446,8 +446,7 @@ MakeTimingModel::makeInputOutputTimingArcs(const Pin *input_pin,
       LibertyPort *output_port = modelPort(output_pin);
       LibertyPort *input_port = modelPort(input_pin);
       attrs->setTimingSense(output_delays.timingSense());
-      lib_builder_->makeCombinationalArcs(cell_, input_port,
-                                          output_port, nullptr,
+      lib_builder_->makeCombinationalArcs(cell_, input_port, output_port,
                                           true, true, attrs);
     }
   }
@@ -552,8 +551,7 @@ MakeTimingModel::findClkInsertionDelays()
               TimingRole *role = (min_max == MinMax::min())
                 ? TimingRole::clockTreePathMin()
                 : TimingRole::clockTreePathMax();
-              lib_builder_->makeClockTreePathArcs(cell_, lib_port, nullptr, 
-                                                  role, attrs);
+              lib_builder_->makeClockTreePathArcs(cell_, lib_port, role, attrs);
             }
           }
         }
@@ -655,7 +653,7 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
               float output_load_cap = graph_delay_calc_->loadCap(output_pin, dcalc_ap);
               ArcDelay drvr_self_delay;
               Slew drvr_self_slew;
-              drvr_gate_model->gateDelay(pvt, in_slew1, output_load_cap, 0.0, false,
+              drvr_gate_model->gateDelay(pvt, in_slew1, output_load_cap, false,
                                          drvr_self_delay, drvr_self_slew);
 
               const TableModel *drvr_table = drvr_gate_model->delayModel();
@@ -670,7 +668,7 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                   // get slew from driver input pin
                   ArcDelay gate_delay;
                   Slew gate_slew;
-                  drvr_gate_model->gateDelay(pvt, in_slew1, load_cap, 0.0, false,
+                  drvr_gate_model->gateDelay(pvt, in_slew1, load_cap, false,
                                              gate_delay, gate_slew);
                   // Remove the self delay driving the output pin net load cap.
                   load_values->push_back(delayAsFloat(delay + gate_delay

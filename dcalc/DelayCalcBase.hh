@@ -20,39 +20,58 @@
 
 namespace sta {
 
+class GateTableModel;
+
 class DelayCalcBase : public ArcDelayCalc
 {
 public:
   explicit DelayCalcBase(StaState *sta);
-  void inputPortDelay(const Pin *port_pin,
-                      float in_slew,
-                      const RiseFall *rf,
-                      const Parasitic *parasitic,
+  void finishDrvrPin() override;
+
+  ArcDelay checkDelay(const Pin *check_pin,
+                      const TimingArc *arc,
+                      const Slew &from_slew,
+                      const Slew &to_slew,
+                      float related_out_cap,
                       const DcalcAnalysisPt *dcalc_ap) override;
- void finishDrvrPin() override;
+
+  string reportCheckDelay(const Pin *check_pin,
+                          const TimingArc *arc,
+                          const Slew &from_slew,
+                          const char *from_slew_annotation,
+                          const Slew &to_slew,
+                          float related_out_cap,
+                          const DcalcAnalysisPt *dcalc_ap,
+                          int digits) override;
 
 protected:
-  void gateDelayInit(const TimingArc *arc,
-                     const Slew &in_slew,
-                     const Parasitic *drvr_parasitic);
+  GateTimingModel *gateModel(const TimingArc *arc,
+			     const DcalcAnalysisPt *dcalc_ap) const;
+  GateTableModel *gateTableModel(const TimingArc *arc,
+                                 const DcalcAnalysisPt *dcalc_ap) const;
+  CheckTimingModel *checkModel(const TimingArc *arc,
+			       const DcalcAnalysisPt *dcalc_ap) const;
+  TimingModel *model(const TimingArc *arc,
+		     const DcalcAnalysisPt *dcalc_ap) const;
   // Find the liberty library to use for logic/slew thresholds.
   LibertyLibrary *thresholdLibrary(const Pin *load_pin);
   // Adjust load_delay and load_slew from driver thresholds to load thresholds.
   void thresholdAdjust(const Pin *load_pin,
+                       const LibertyLibrary *drvr_library,
+                       const RiseFall *rf,
 		       ArcDelay &load_delay,
 		       Slew &load_slew);
   // Helper function for input ports driving dspf parasitic.
   void dspfWireDelaySlew(const Pin *load_pin,
-			 float elmore,
+			 const RiseFall *rf,
+                         Slew drvr_slew,
+                         float elmore,
+                         // Return values.
 			 ArcDelay &wire_delay,
 			 Slew &load_slew);
+  const Pvt *pinPvt(const Pin *pin,
+                    const DcalcAnalysisPt *dcalc_ap);
 
-  Slew drvr_slew_;
-  const LibertyCell *drvr_cell_;
-  const LibertyLibrary *drvr_library_;
-  const Parasitic *drvr_parasitic_;
-  bool input_port_;
-  const RiseFall *drvr_rf_;
   // Parasitics returned by findParasitic that are reduced or estimated
   // that can be deleted after delay calculation for the driver pin
   // is finished.

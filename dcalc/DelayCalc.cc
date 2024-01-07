@@ -20,7 +20,6 @@
 #include "StringUtil.hh"
 #include "UnitDelayCalc.hh"
 #include "LumpedCapDelayCalc.hh"
-#include "SlewDegradeDelayCalc.hh"
 #include "DmpDelayCalc.hh"
 #include "ArnoldiDelayCalc.hh"
 
@@ -35,7 +34,6 @@ registerDelayCalcs()
 {
   registerDelayCalc("unit", makeUnitDelayCalc);
   registerDelayCalc("lumped_cap", makeLumpedCapDelayCalc);
-  registerDelayCalc("slew_degrade", makeSlewDegradeDelayCalc);
   registerDelayCalc("dmp_ceff_elmore", makeDmpCeffElmoreDelayCalc);
   registerDelayCalc("dmp_ceff_two_pole", makeDmpCeffTwoPoleDelayCalc);
   registerDelayCalc("arnoldi", makeArnoldiDelayCalc);

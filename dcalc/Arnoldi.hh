@@ -74,7 +74,6 @@ struct timing_table
   const LibertyCell *cell;
   const Pvt *pvt;
   float in_slew;
-  float relcap;
 };
 
 } // namespace

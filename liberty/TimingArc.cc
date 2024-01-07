@@ -162,7 +162,7 @@ TimingArc::intrinsicDelay() const
   if (model) {
     ArcDelay arc_delay;
     Slew slew;
-    model->gateDelay(nullptr, 0.0, 0.0, 0.0, false, arc_delay, slew);
+    model->gateDelay(nullptr, 0.0, 0.0, false, arc_delay, slew);
     return arc_delay;
   }
   else

@@ -104,67 +104,77 @@ void
 GateTableModel::gateDelay(const Pvt *pvt,
 			  float in_slew,
 			  float load_cap,
-			  float related_out_cap,
 			  bool pocv_enabled,
 			  // return values
 			  ArcDelay &gate_delay,
 			  Slew &drvr_slew) const
 {
-  float delay = findValue(pvt, delay_model_, in_slew, load_cap, related_out_cap);
+  float delay = findValue(pvt, delay_model_, in_slew, load_cap, 0.0);
   float sigma_early = 0.0;
   float sigma_late = 0.0;
   if (pocv_enabled && delay_sigma_models_[EarlyLate::earlyIndex()])
     sigma_early = findValue(pvt, delay_sigma_models_[EarlyLate::earlyIndex()],
-			    in_slew, load_cap, related_out_cap);
+			    in_slew, load_cap, 0.0);
   if (pocv_enabled && delay_sigma_models_[EarlyLate::lateIndex()])
     sigma_late = findValue(pvt, delay_sigma_models_[EarlyLate::lateIndex()],
-			   in_slew, load_cap, related_out_cap);
+			   in_slew, load_cap, 0.0);
   gate_delay = makeDelay(delay, sigma_early, sigma_late);
 
-  float slew = findValue(pvt, slew_model_, in_slew, load_cap, related_out_cap);
+  float slew = findValue(pvt, slew_model_, in_slew, load_cap, 0.0);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::earlyIndex()])
     sigma_early = findValue(pvt, slew_sigma_models_[EarlyLate::earlyIndex()],
-			    in_slew, load_cap, related_out_cap);
+			    in_slew, load_cap, 0.0);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::lateIndex()])
     sigma_late = findValue(pvt, slew_sigma_models_[EarlyLate::lateIndex()],
-			   in_slew, load_cap, related_out_cap);
+			   in_slew, load_cap, 0.0);
   // Clip negative slews to zero.
   if (slew < 0.0)
     slew = 0.0;
   drvr_slew = makeDelay(slew, sigma_early, sigma_late);
 }
 
+void
+GateTableModel::gateDelay(const Pvt *pvt,
+                          float in_slew,
+                          float load_cap,
+                          float,
+                          bool pocv_enabled,
+                          ArcDelay &gate_delay,
+                          Slew &drvr_slew) const
+{
+  gateDelay(pvt, in_slew, load_cap, pocv_enabled, gate_delay, drvr_slew);
+}
+
 string
 GateTableModel::reportGateDelay(const Pvt *pvt,
 				float in_slew,
 				float load_cap,
-				float related_out_cap,
 				bool pocv_enabled,
 				int digits) const
 {
   string result = reportPvt(cell_, pvt, digits);
   result += reportTableLookup("Delay", pvt, delay_model_, in_slew,
-                              load_cap, related_out_cap, digits);
+                              load_cap, 0.0, digits);
   if (pocv_enabled && delay_sigma_models_[EarlyLate::earlyIndex()])
     result += reportTableLookup("Delay sigma(early)", pvt,
                                 delay_sigma_models_[EarlyLate::earlyIndex()],
-                                in_slew, load_cap, related_out_cap, digits);
+                                in_slew, load_cap, 0.0, digits);
   if (pocv_enabled && delay_sigma_models_[EarlyLate::lateIndex()])
     result += reportTableLookup("Delay sigma(late)", pvt,
                                 delay_sigma_models_[EarlyLate::lateIndex()],
-                                in_slew, load_cap, related_out_cap, digits);
+                                in_slew, load_cap, 0.0, digits);
   result += '\n';
   result += reportTableLookup("Slew", pvt, slew_model_, in_slew,
-		    load_cap, related_out_cap, digits);
+                              load_cap, 9.0, digits);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::earlyIndex()])
     result += reportTableLookup("Slew sigma(early)", pvt,
 		      slew_sigma_models_[EarlyLate::earlyIndex()],
-		      in_slew, load_cap, related_out_cap, digits);
+		      in_slew, load_cap, 0.0, digits);
   if (pocv_enabled && slew_sigma_models_[EarlyLate::lateIndex()])
     result += reportTableLookup("Slew sigma(late)", pvt,
 		      slew_sigma_models_[EarlyLate::lateIndex()],
-		      in_slew, load_cap, related_out_cap, digits);
-  float drvr_slew = findValue(pvt, slew_model_, in_slew, load_cap, related_out_cap);
+                                in_slew, load_cap, 0.0, digits);
+  float drvr_slew = findValue(pvt, slew_model_, in_slew, load_cap, 0.0);
   if (drvr_slew < 0.0)
     result += "Negative slew clipped to 0.0\n";
   return result;
@@ -407,14 +417,12 @@ CheckTableModel::setIsScaled(bool is_scaled)
   model_->setIsScaled(is_scaled);
 }
 
-void
+ArcDelay
 CheckTableModel::checkDelay(const Pvt *pvt,
 			    float from_slew,
 			    float to_slew,
 			    float related_out_cap,
-			    bool pocv_enabled,
-			    // Return values.
-			    ArcDelay &margin) const
+			    bool pocv_enabled) const
 {
   if (model_) {
     float mean = findValue(pvt, model_, from_slew, to_slew, related_out_cap);
@@ -426,10 +434,10 @@ CheckTableModel::checkDelay(const Pvt *pvt,
     if (pocv_enabled && sigma_models_[EarlyLate::lateIndex()])
       sigma_late = findValue(pvt, sigma_models_[EarlyLate::lateIndex()],
 			     from_slew, to_slew, related_out_cap);
-    margin = makeDelay(mean, sigma_early, sigma_late);  
+    return makeDelay(mean, sigma_early, sigma_late);  
   }
   else
-    margin = 0.0;
+    return 0.0;
 }
 
 float
@@ -1577,7 +1585,6 @@ OutputWaveforms::~OutputWaveforms()
   current_waveforms_.deleteContents();
   voltage_waveforms_.deleteContents();
   voltage_currents_.deleteContents();
-  current_voltages_.deleteContents();
   voltage_times_.deleteContents();
   delete ref_times_;
 }
@@ -1633,15 +1640,6 @@ OutputWaveforms::voltageCurrent(float slew,
 {
   ensureVoltages();
   return waveformValue(slew, cap, volt, voltage_currents_);
-}
-
-float
-OutputWaveforms::currentVoltage(float slew,
-                                float cap,
-                                float current)
-{
-  ensureVoltages();
-  return waveformValue(slew, cap, current, current_voltages_);
 }
 
 float
@@ -1809,7 +1807,6 @@ OutputWaveforms::ensureVoltages()
     size_t size = current_waveforms_.size();
     voltage_waveforms_.resize(size);
     voltage_currents_.resize(size);
-    current_voltages_.resize(size);
     voltage_times_.resize(size);
     size_t cap_count = cap_axis_->size();
     for (size_t slew_index = 0; slew_index < slew_axis_->size(); slew_index++) {
@@ -1857,14 +1854,6 @@ OutputWaveforms::findVoltages(size_t wave_index,
   FloatSeq *currents1 = new FloatSeq(*currents->values());
   Table1 *volt_currents = new Table1(currents1, volt_axis);
   voltage_currents_[wave_index] = volt_currents;
-
-  // Make current -> voltage table.
-  FloatSeq *axis_currents = new FloatSeq(*currents->values());
-  TableAxisPtr current_axis =
-    make_shared<TableAxis>(TableAxisVariable::input_voltage, axis_currents);
-  FloatSeq *volts1 = new FloatSeq(*volts);
-  Table1 *current_volts = new Table1(volts1, current_axis);
-  current_voltages_[wave_index] = current_volts;
 
   // Sample the voltage waveform at uniform intervals to speed up
   // voltage time lookup.

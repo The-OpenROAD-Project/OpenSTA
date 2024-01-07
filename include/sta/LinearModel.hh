@@ -29,7 +29,6 @@ public:
   void gateDelay(const Pvt *pvt,
                  float in_slew,
                  float load_cap,
-                 float related_out_cap,
                  bool pocv_enabled,
                  // Return values.
                  ArcDelay &gate_delay,
@@ -37,7 +36,6 @@ public:
   string reportGateDelay(const Pvt *pvt,
                          float in_slew,
                          float load_cap,
-                         float related_out_cap,
                          bool pocv_enabled,
                          int digits) const override;
   float driveResistance(const Pvt *pvt) const override;
@@ -54,13 +52,11 @@ class CheckLinearModel : public CheckTimingModel
 public:
   explicit CheckLinearModel(LibertyCell *cell,
                             float intrinsic);
-  void checkDelay(const Pvt *pvt,
-                  float from_slew,
-                  float to_slew,
-                  float related_out_cap,
-                  bool pocv_enabled,
-                  // Return values.
-                  ArcDelay &margin) const override;
+  ArcDelay checkDelay(const Pvt *pvt,
+                      float from_slew,
+                      float to_slew,
+                      float related_out_cap,
+                      bool pocv_enabled) const override;
   string reportCheckDelay(const Pvt *pvt,
                           float from_slew,
                           const char *from_slew_annotation,
