@@ -935,12 +935,12 @@ GraphDelayCalc::findParallelEdge(Vertex *vertex,
                                  Edge *&edge,
                                  const TimingArc *&arc)
 {
-  LibertyCell *drvr_cell = network_->libertyCell(network_->instance(drvr_edge->to(graph_)->pin()));
+  LibertyCell *drvr_cell = drvr_arc->from()->libertyCell();
   LibertyCell *vertex_cell = network_->libertyCell(network_->instance(vertex->pin()));
   if (vertex_cell == drvr_cell) {
     // Homogeneous drivers.
     arc = drvr_arc;
-    LibertyPort *from_port = network_->libertyPort(edge->from(graph_)->pin());
+    LibertyPort *from_port = network_->libertyPort(drvr_edge->from(graph_)->pin());
     VertexInEdgeIterator edge_iter(vertex, graph_);
     while (edge_iter.hasNext()) {
       edge = edge_iter.next();
