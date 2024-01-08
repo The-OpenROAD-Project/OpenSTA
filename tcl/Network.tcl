@@ -32,7 +32,7 @@ proc_redirect report_instance {
   if { $instance != "NULL" } {
     report_instance1 $instance $connections $verbose
   } else {
-    sta_error 590 "instance $instance_path not found."
+    sta_error 230 "instance $instance_path not found."
   }
 }
 
@@ -218,10 +218,10 @@ proc_redirect report_net {
       if { $net != "NULL" } {
 	report_net1 $net $connections $verbose $hier_pins $corner $digits
       } else {
-	sta_error 591 "net $net_path not found."
+	sta_error 231 "net $net_path not found."
       }
     } else {
-      sta_error 592 "net $net_path not found."
+      sta_error 232 "net $net_path not found."
     }
   }
 }

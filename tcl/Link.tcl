@@ -31,7 +31,7 @@ proc_redirect link_design {
   }
   if { $top_cell_name == "" } {
     if { $current_design_name == "" } {
-      sta_error 593 "missing top_cell_name argument and no current_design."
+      sta_error 220 "missing top_cell_name argument and no current_design."
       return 0
     } else {
       set top_cell_name $current_design_name

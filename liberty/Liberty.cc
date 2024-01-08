@@ -763,7 +763,7 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
 	port1->setCornerPort(port2, ap_index);
     }
     else
-      report->warn(2, "cell %s/%s port %s not found in cell %s/%s.",
+      report->warn(1110, "cell %s/%s port %s not found in cell %s/%s.",
 		   cell1->library()->name(),
 		   cell1->name(),
 		   port_name,
@@ -789,7 +789,7 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
       }
     }
     else
-      report->warn(3, "cell %s/%s %s -> %s timing group %s not found in cell %s/%s.",
+      report->warn(1111, "cell %s/%s %s -> %s timing group %s not found in cell %s/%s.",
 		   cell1->library()->name(),
 		   cell1->name(),
 		   arc_set1->from()->name(),
@@ -808,7 +808,7 @@ LibertyLibrary::checkCorners(LibertyCell *cell,
   for (const Corner *corner : *corners) {
     for (auto min_max : MinMax::range()) {
       if (!cell->checkCornerCell(corner, min_max))
-        report->error(705, "Liberty cell %s/%s for corner %s/%s not found.",
+        report->error(1112, "Liberty cell %s/%s for corner %s/%s not found.",
                       cell->libertyLibrary()->name(),
                       cell->name(),
                       corner->name(),
@@ -1745,7 +1745,7 @@ LibertyCell::makeLatchEnables(Report *report,
 		  RiseFall *en_rf = latch_enable->enableEdge();
 		  RiseFall *check_rf = check_arc->fromEdge()->asRiseFall();
 		  if (check_rf == en_rf)
-		    report->warn(4, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with %s -> %s setup_%s check.",
+		    report->warn(1113, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with %s -> %s setup_%s check.",
 				 library_->name(),
 				 name_,
 				 en->name(),
@@ -1759,7 +1759,7 @@ LibertyCell::makeLatchEnables(Report *report,
 		    TimingSense en_sense = en_func->portTimingSense(en);
 		    if (en_sense == TimingSense::positive_unate
 			&& en_rf != RiseFall::rise())
-		      report->warn(5, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.",
+		      report->warn(1114, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.",
 				   library_->name(),
 				   name_,
 				   en->name(),
@@ -1767,7 +1767,7 @@ LibertyCell::makeLatchEnables(Report *report,
 				   en_rf == RiseFall::rise()?"rising":"falling");
 		    else if (en_sense == TimingSense::negative_unate
 			     && en_rf != RiseFall::fall())
-		      report->warn(6, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.",
+		      report->warn(1115, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.",
 				   library_->name(),
 				   name_,
 				   en->name(),

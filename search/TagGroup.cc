@@ -294,7 +294,7 @@ TagGroupBldr::copyArrivals(TagGroup *tag_group,
       }
     }
     else
-      sta_->report()->critical(265, "tag group missing tag");
+      sta_->report()->critical(1351, "tag group missing tag");
   }
 }
 

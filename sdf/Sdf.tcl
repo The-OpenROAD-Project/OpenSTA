@@ -38,16 +38,16 @@ proc_redirect read_sdf {
   if [info exists keys(-cond_use)] {
     set cond_use $keys(-cond_use)
     if { $cond_use != "min" && $cond_use != "max" && $cond_use != "min_max" } {
-      sta_warn 612 "-cond_use must be min, max or min_max."
+      sta_warn 620 "-cond_use must be min, max or min_max."
       set cond_use "NULL"
     }
     if { $cond_use == "min_max" \
 	   && { [operating_condition_analysis_type] == "single" }} {
-      sta_error 430 "-cond_use min_max cannot be used with analysis type single."
+      sta_error 621 "-cond_use min_max cannot be used with analysis type single."
     }
   }
   if [info exists keys(-analysis_type)] {
-    sta_warn 617 "-analysis_type is deprecated. Use set_operating_conditions -analysis_type."
+    sta_warn 622 "-analysis_type is deprecated. Use set_operating_conditions -analysis_type."
   }
 
   set unescaped_dividers [info exists flags(-unescaped_dividers)]
@@ -154,7 +154,7 @@ proc_redirect write_sdf {
   if [info exists keys(-divider)] {
     set divider $keys(-divider)
     if { !($divider == "/" || $divider == ".") } {
-      sta_error 432 "SDF -divider must be / or ."
+      sta_error 623 "SDF -divider must be / or ."
     }
   }
   set digits 3

@@ -286,7 +286,7 @@ ReportPath::reportPathEndHeader()
     reportSlackOnlyHeader();
     break;
   default:
-    report_->critical(255, "unsupported path type");
+    report_->critical(1470, "unsupported path type");
     break;
   }
 }
@@ -307,7 +307,7 @@ ReportPath::reportPathEndFooter()
     reportBlankLine();
     break;
   default:
-    report_->critical(256, "unsupported path type");
+    report_->critical(1471, "unsupported path type");
     break;
   }
 }
@@ -346,7 +346,7 @@ ReportPath::reportPathEnd(PathEnd *end,
     reportSlackOnly(end);
     break;
   default:
-    report_->critical(257, "unsupported path type");
+    report_->critical(1473, "unsupported path type");
     break;
   }
 }
@@ -2375,7 +2375,7 @@ ReportPath::reportPath(const Path *path)
   case ReportPathFormat::summary:
   case ReportPathFormat::slack_only:
   default:
-    report_->critical(259, "unsupported path type");
+    report_->critical(1474, "unsupported path type");
     break;
   }
 }

@@ -2651,7 +2651,7 @@ Search::findTagGroup(TagGroupBldr *tag_bldr)
       tag_group_set_->reserve(new_capacity);
     }
     if (tag_group_next_ > tag_group_index_max)
-      report_->critical(260, "max tag group index exceeded");
+      report_->critical(1510, "max tag group index exceeded");
   }
   return tag_group;
 }
@@ -2887,7 +2887,7 @@ Search::findTag(const RiseFall *rf,
       tag_set_->reserve(new_capacity);
     }
     if (tag_next_ == tag_index_max)
-      report_->critical(261, "max tag index exceeded");
+      report_->critical(1511, "max tag index exceeded");
   }
   if (own_states)
     delete states;
@@ -3614,7 +3614,7 @@ Search::matchesFilter(Path *path,
     // -to
     return matchesFilterTo(path, to_clk_edge);
   else {
-    report_->critical(262, "unexpected filter path");
+    report_->critical(1512, "unexpected filter path");
     return false;
   }
 }
@@ -3782,7 +3782,7 @@ Search::tnsIncr(Vertex *vertex,
                vertex->name(sdc_network_));
     tns_[path_ap_index] += slack;
     if (tns_slacks_[path_ap_index].hasKey(vertex))
-      report_->critical(263, "tns incr existing vertex");
+      report_->critical(1513, "tns incr existing vertex");
     tns_slacks_[path_ap_index][vertex] = slack;
   }
 }

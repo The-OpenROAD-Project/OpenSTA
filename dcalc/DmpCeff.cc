@@ -1551,7 +1551,7 @@ DmpCeffDelayCalc::gateDelay(const Pin *drvr_pin,
     float c2, rpi, c1;
     parasitics_->piModel(parasitic, c2, rpi, c1);
     if (isnan(c2) || isnan(c1) || isnan(rpi))
-      report_->error(618, "parasitic Pi model has NaNs.");
+      report_->error(1040, "parasitic Pi model has NaNs.");
     setCeffAlgorithm(drvr_library, drvr_cell, pinPvt(drvr_pin, dcalc_ap),
                      table_model, rf, in_slew1, c2, rpi, c1);
     double gate_delay, drvr_slew;
@@ -1579,7 +1579,7 @@ DmpCeffDelayCalc::gateDelay(const Pin *drvr_pin,
     if (parasitic
 	&& !unsuppored_model_warned_) {
       unsuppored_model_warned_ = true;
-      report_->warn(1, "cell %s delay model not supported on SPF parasitics by DMP delay calculator",
+      report_->warn(1041, "cell %s delay model not supported on SPF parasitics by DMP delay calculator",
 		    drvr_cell->name());
     }
     return dcalc_result;

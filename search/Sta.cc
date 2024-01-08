@@ -2029,7 +2029,7 @@ Sta::checkExceptionFromPins(ExceptionFrom *from,
 	  report_->fileWarn(267, file, line, "'%s' is not a valid start point.",
 			    cmd_network_->pathName(pin));
 	else
-	  report_->warn(18, "'%s' is not a valid start point.",
+	  report_->warn(1550, "'%s' is not a valid start point.",
 			cmd_network_->pathName(pin));
       }
     }
@@ -2105,7 +2105,7 @@ Sta::checkExceptionToPins(ExceptionTo *to,
 	  report_->fileWarn(266, file, line, "'%s' is not a valid endpoint.",
 			    cmd_network_->pathName(pin));
 	else
-	  report_->warn(17, "'%s' is not a valid endpoint.",
+	  report_->warn(1551, "'%s' is not a valid endpoint.",
 			cmd_network_->pathName(pin));
       }
     }
@@ -2428,7 +2428,7 @@ void
 Sta::makeCorners(StringSet *corner_names)
 {
   if (corner_names->size() > corner_count_max)
-    report_->error(374, "maximum corner count exceeded");
+    report_->error(1552, "maximum corner count exceeded");
   sdc_->makeCornersBefore();
   parasitics_->deleteParasitics();
   corners_->makeCorners(corner_names);
@@ -4225,7 +4225,7 @@ Sta::replaceEquivCellBefore(const Instance *inst,
               if (to_set)
                 edge->setTimingArcSet(to_set);
               else
-                report_->critical(264, "corresponding timing arc set not found in equiv cells");
+                report_->critical(1553, "corresponding timing arc set not found in equiv cells");
             }
           }
         }

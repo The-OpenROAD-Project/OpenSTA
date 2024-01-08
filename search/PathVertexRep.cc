@@ -142,15 +142,15 @@ PathVertexRep::arrival(const StaState *sta) const
     bool arrival_exists;
     tag_group->arrivalIndex(tag, arrival_index, arrival_exists);
     if (!arrival_exists)
-      sta->report()->critical(254, "tag group missing tag");
+      sta->report()->critical(1420, "tag group missing tag");
     Arrival *arrivals = graph->arrivals(vertex);
     if (arrivals)
       return arrivals[arrival_index];
     else
-      sta->report()->critical(624, "missing arrivals");
+      sta->report()->critical(1421, "missing arrivals");
   }
   else
-    sta->report()->error(623, "missing arrivals.");
+    sta->report()->error(1422, "missing arrivals.");
   return 0.0;
 }
 

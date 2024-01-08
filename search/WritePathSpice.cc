@@ -284,7 +284,7 @@ writePathSpice(Path *path,
 	       StaState *sta)
 {
   if (sta->network()->defaultLibertyLibrary() == nullptr)
-    sta->report()->error(20, "No liberty libraries found,");
+    sta->report()->error(1600, "No liberty libraries found,");
   WritePathSpice writer(path, spice_filename, subckt_filename,
 			lib_subckt_filename, model_filename,
 			off_path_pin_names, power_name, gnd_name, sta);
@@ -507,14 +507,14 @@ WritePathSpice::pgPortVoltage(LibertyPgPort *pg_port)
       else if (stringEqual(voltage_name, gnd_name_))
 	voltage = gnd_voltage_;
       else
-	report_->error(24, "pg_pin %s/%s voltage %s not found,",
+	report_->error(1601 , "pg_pin %s/%s voltage %s not found,",
 		       pg_port->cell()->name(),
 		       pg_port->name(),
 		       voltage_name);
     }
   }
   else
-    report_->error(25, "Liberty pg_port %s/%s missing voltage_name attribute,",
+    report_->error(1602, "Liberty pg_port %s/%s missing voltage_name attribute,",
 		   pg_port->cell()->name(),
 		   pg_port->name());
   return voltage;
@@ -1093,7 +1093,7 @@ WritePathSpice::writeVoltageSource(LibertyCell *cell,
     if (pg_port)
       voltage = pgPortVoltage(pg_port);
     else
-      report_->error(26, "%s pg_port %s not found,",
+      report_->error(1603, "%s pg_port %s not found,",
 		     cell->name(),
 		     pg_port_name);
 
@@ -1148,7 +1148,7 @@ WritePathSpice::regPortValues(Stage stage,
 	dcalc_ap_index = drvr_path->dcalcAnalysisPt(this)->index();
       }
       else
-	report_->error(27, "no register/latch found for path from %s to %s,",
+	report_->error(1604, "no register/latch found for path from %s to %s,",
 		       stageGateInputPort(stage)->name(),
 		       stageDrvrPort(stage)->name());
     }
@@ -1614,7 +1614,7 @@ WritePathSpice::writeSubckts()
 	  missing_cells += "\n";
 	  missing_cells += cell_name;
         }
-	report_->error(28, "The subkct file %s is missing definitions for %s",
+	report_->error(1605, "The subkct file %s is missing definitions for %s",
 		       lib_subckt_filename_,
                        missing_cells.c_str());
       }
@@ -1712,7 +1712,7 @@ WritePathSpice::recordSpicePortNames(const char *cell_name,
 	  && pg_port == nullptr
 	  && !stringEqual(port_name, power_name_)
 	  && !stringEqual(port_name, gnd_name_))
-	report_->error(29, "subckt %s port %s has no corresponding liberty port, pg_port and is not power or ground.",
+	report_->error(1606, "subckt %s port %s has no corresponding liberty port, pg_port and is not power or ground.",
 		       cell_name, port_name);
       spice_port_names->push_back(port_name);
     }

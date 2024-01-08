@@ -32,55 +32,55 @@ proc write_path_spice { args } {
   if { [info exists keys(-spice_directory)] } {
     set spice_dir [file nativename $keys(-spice_directory)]
     if { ![file exists $spice_dir] } {
-      sta_error 496 "Directory $spice_dir not found."
+      sta_error 600 "Directory $spice_dir not found."
     }
     if { ![file isdirectory $spice_dir] } {
-      sta_error 497 "$spice_dir is not a directory."
+      sta_error 601 "$spice_dir is not a directory."
     }
     if { ![file writable $spice_dir] } {
-      sta_error 498 "Cannot write in $spice_dir."
+      sta_error 602 "Cannot write in $spice_dir."
     }
   } else {
-    sta_error 499 "No -spice_directory specified."
+    sta_error 603 "No -spice_directory specified."
   }
 
   if { [info exists keys(-lib_subckt_file)] } {
     set lib_subckt_file [file nativename $keys(-lib_subckt_file)]
     if { ![file readable $lib_subckt_file] } {
-      sta_error 500 "-lib_subckt_file $lib_subckt_file is not readable."
+      sta_error 604 "-lib_subckt_file $lib_subckt_file is not readable."
     }
   } else {
-    sta_error 501 "No -lib_subckt_file specified."
+    sta_error 605 "No -lib_subckt_file specified."
   }
 
   if { [info exists keys(-model_file)] } {
     set model_file [file nativename $keys(-model_file)]
     if { ![file readable $model_file] } {
-      sta_error 502 "-model_file $model_file is not readable."
+      sta_error 606 "-model_file $model_file is not readable."
     }
   } else {
-    sta_error 503 "No -model_file specified."
+    sta_error 607 "No -model_file specified."
   }
 
   if { [info exists keys(-power)] } {
     set power $keys(-power)
   } else {
-    sta_error 504 "No -power specified."
+    sta_error 608 "No -power specified."
   }
 
   if { [info exists keys(-ground)] } {
     set ground $keys(-ground)
   } else {
-    sta_error 505 "No -ground specified."
+    sta_error 609 "No -ground specified."
   }
 
   if { ![info exists keys(-path_args)] } {
-    sta_error 506 "No -path_args specified."
+    sta_error 610 "No -path_args specified."
   }
   set path_args $keys(-path_args)
   set path_ends [eval [concat find_timing_paths $path_args]]
   if { $path_ends == {} } {
-    sta_error 507 "No paths found for -path_args $path_args."
+    sta_error 611 "No paths found for -path_args $path_args."
   } else {
     set path_index 1
     foreach path_end $path_ends {

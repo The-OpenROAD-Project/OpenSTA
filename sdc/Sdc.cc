@@ -4055,7 +4055,7 @@ Sdc::makeGroupPath(const char *name,
 {
   checkFromThrusTo(from, thrus, to);
   if (name && is_default)
-    report_->critical(213, "group path name and is_default are mutually exclusive.");
+    report_->critical(1490, "group path name and is_default are mutually exclusive.");
   else if (name) {
     GroupPath *group_path = new GroupPath(name, is_default, from, thrus, to,
 					  true, comment);

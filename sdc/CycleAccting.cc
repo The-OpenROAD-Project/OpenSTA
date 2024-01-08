@@ -84,7 +84,7 @@ CycleAcctings::reportClkToClkMaxCycleWarnings(Report *report)
             ClockPair clk_pair2(tgt_clk, src_clk);
             if (!clk_warnings.hasKey(clk_pair1)
                 && !clk_warnings.hasKey(clk_pair2)) {
-              report->warn(9, "No common period was found between clocks %s and %s.",
+              report->warn(1010, "No common period was found between clocks %s and %s.",
                            src_clk->name(),
                            tgt_clk->name());
               clk_warnings.insert(clk_pair1);

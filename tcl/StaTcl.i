@@ -115,7 +115,7 @@ cmdLinkedNetwork()
     return network;
   else {
     Report *report = Sta::sta()->report();
-    report->error(201, "no network has been linked.");
+    report->error(1570, "no network has been linked.");
     return nullptr;
   }
 }
@@ -129,7 +129,7 @@ cmdEditNetwork()
     return dynamic_cast<NetworkEdit*>(network);
   else {
     Report *report = Sta::sta()->report();
-    report->error(202, "network does not support edits.");
+    report->error(1571, "network does not support edits.");
     return nullptr;
   }
 }
@@ -4112,7 +4112,7 @@ set_crpr_mode(const char *mode)
   else if (stringEq(mode, "same_transition"))
     Sta::sta()->setCrprMode(CrprMode::same_transition);
   else
-    sta->report()->critical(272, "unknown common clk pessimism mode.");
+    sta->report()->critical(1573, "unknown common clk pessimism mode.");
 }
 
 bool
@@ -4126,7 +4126,7 @@ set_pocv_enabled(bool enabled)
 {
 #if !SSTA
   if (enabled)
-    Sta::sta()->report()->error(204, "POCV support requires compilation with SSTA=1.");
+    Sta::sta()->report()->error(1574, "POCV support requires compilation with SSTA=1.");
 #endif
   return Sta::sta()->setPocvEnabled(enabled);
 }
@@ -4364,7 +4364,7 @@ set_report_path_field_properties(const char *field_name,
   if (field)
     field->setProperties(title, width, left_justify);
   else
-    sta->report()->error(607, "unknown report path field %s", field_name);
+    sta->report()->error(1575, "unknown report path field %s", field_name);
 }
 
 void
@@ -4376,7 +4376,7 @@ set_report_path_field_width(const char *field_name,
   if (field)
     field->setWidth(width);
   else
-    sta->report()->error(608, "unknown report path field %s", field_name);
+    sta->report()->error(1576, "unknown report path field %s", field_name);
 }
 
 void
@@ -5061,7 +5061,7 @@ set_clock_sense_cmd(PinSet *pins,
   else if (stop_propagation)
     sta->setClockSense(pins, clks, ClockSense::stop);
   else
-    sta->report()->critical(273, "unknown clock sense");
+    sta->report()->critical(1577, "unknown clock sense");
 }
 
 bool

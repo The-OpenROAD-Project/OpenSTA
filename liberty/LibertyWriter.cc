@@ -283,7 +283,7 @@ LibertyWriter::writeCell(const LibertyCell *cell)
       if (port->isBus())
         writeBusPort(port);
       else if (port->isBundle())
-        report_->error(704, "%s/%s bundled ports not supported.",
+        report_->error(1330, "%s/%s bundled ports not supported.",
                        library_->name(),
                        cell->name());
       else
@@ -414,7 +414,7 @@ LibertyWriter::writeTimingModels(const TimingArc *arc,
     fprintf(stream_, "	}\n");
   }
   else
-    report_->error(701, "%s/%s/%s timing model not supported.",
+    report_->error(1331, "%s/%s/%s timing model not supported.",
                    library_->name(),
                    arc->from()->libertyCell()->name(),
                    arc->from()->name());
@@ -434,7 +434,7 @@ LibertyWriter::writeTableModel(const TableModel *model)
     writeTableModel2(model);
     break;
   case 3:
-    report_->error(702, "3 axis table models not supported.");  
+    report_->error(1332, "3 axis table models not supported.");  
     break;
   }
 }
@@ -578,7 +578,7 @@ LibertyWriter::timingTypeString(const TimingArcSet *arc_set)
   else if (role == TimingRole::clockTreePathMax())
     return "max_clock_tree_path";
   else {
-    report_->error(703, "%s/%s/%s timing arc type %s not supported.",
+    report_->error(1333, "%s/%s/%s timing arc type %s not supported.",
                    library_->name(),
                    arc_set->to()->libertyCell()->name(),
                    arc_set->to()->name(),

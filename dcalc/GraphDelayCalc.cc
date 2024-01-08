@@ -477,7 +477,7 @@ GraphDelayCalc::findPortIndex(const LibertyCell *cell,
       return index;
     index++;
   }
-  report_->critical(207, "port not found in cell");
+  report_->critical(1100, "port not found in cell");
   return 0;
 }
 

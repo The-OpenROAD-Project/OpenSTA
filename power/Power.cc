@@ -607,7 +607,7 @@ Power::funcBdd(const FuncExpr *expr)
     result = Cudd_ReadLogicZero(cudd_mgr_);
     break;
   default:
-    report_->critical(598, "unknown function operator");
+    report_->critical(1440, "unknown function operator");
   }
   if (result)
     Cudd_Ref(result);

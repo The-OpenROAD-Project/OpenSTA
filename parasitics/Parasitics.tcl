@@ -42,7 +42,7 @@ proc_redirect read_spef {
     set path $keys(-path)
     set instance [find_instance $path]
     if { $instance == "NULL" } {
-      sta_error 433 "path instance '$path' not found."
+      sta_error 270 "path instance '$path' not found."
     }
   }
   set corner [parse_corner_or_all keys]
@@ -59,7 +59,7 @@ proc_redirect read_spef {
   if [info exists keys(-reduce_to)] {
     set reduce_to $keys(-reduce_to)
     if { !($reduce_to == "pi_elmore" || $reduce_to == "pi_pole_residue2") } {
-      sta_error 434 "-reduce_to must be pi_elmore or pi_pole_residue2."
+      sta_error 271 "-reduce_to must be pi_elmore or pi_pole_residue2."
     }
   }
   set delete_after_reduce [info exists flags(-delete_after_reduce)]
@@ -67,7 +67,7 @@ proc_redirect read_spef {
   set save [info exists flags(-save)]
   set filename [file nativename [lindex $args 0]]
   if { [info exists flags(-increment)] } {
-    sta_warn 706 "read_spef -increment is deprecated."
+    sta_warn 272 "read_spef -increment is deprecated."
   }
   return [read_spef_cmd $filename $instance $corner $min_max \
 	    $pin_cap_included $keep_coupling_caps $coupling_reduction_factor \

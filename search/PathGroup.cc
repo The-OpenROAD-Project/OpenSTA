@@ -396,7 +396,7 @@ PathGroups::pathGroup(const PathEnd *path_end) const
   else if (path_end->isUnconstrained())
     return unconstrained_[mm_index];
   else {
-    report_->critical(253, "unknown path end type");
+    report_->critical(1390, "unknown path end type");
     return nullptr;
   }
 }

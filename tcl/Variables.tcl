@@ -42,7 +42,7 @@ proc trace_report_default_digits { name1 name2 op } {
   if { $op == "w" } {
     if { !([string is integer $sta_report_default_digits] \
 	   && $sta_report_default_digits >= 0) } {
-      sta_error 436 "sta_report_default_digits must be a positive integer."
+      sta_error 590 "sta_report_default_digits must be a positive integer."
     }
   }
 }
@@ -67,7 +67,7 @@ proc trace_crpr_mode { name1 name2 op } {
     if { $sta_crpr_mode == "same_pin" || $sta_crpr_mode == "same_transition" } {
       set_crpr_mode $sta_crpr_mode
     } else {
-      sta_error 437 "sta_crpr_mode must be pin or transition."
+      sta_error 591 "sta_crpr_mode must be pin or transition."
     }
   }
 }
@@ -184,7 +184,7 @@ proc trace_boolean_var { op var_name get_proc set_proc } {
     } elseif { $var == 1 } {
       $set_proc 1
     } else {
-      sta_error 438 "$var_name value must be 0 or 1."
+      sta_error 592 "$var_name value must be 0 or 1."
     }
   }
 }

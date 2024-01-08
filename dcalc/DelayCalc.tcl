@@ -116,7 +116,7 @@ proc set_delay_calculator { alg } {
   if { [is_delay_calc_name $alg] } {
     set_delay_calculator_cmd $alg
   } else {
-    sta_error 435 "delay calculator $alg not found."
+    sta_error 180 "delay calculator $alg not found."
   }
 }
 
@@ -145,38 +145,38 @@ proc set_assigned_delay_cmd { cmd cmd_args } {
   if [info exists keys(-from)] {
     set from_pins [get_port_pins_error "from_pins" $keys(-from)]
   } else {
-    sta_error 442 "$cmd missing -from argument."
+    sta_error 181 "$cmd missing -from argument."
   }
   if [info exists keys(-to)] {
     set to_pins [get_port_pins_error "to_pins" $keys(-to)]
   } else {
-    sta_error 443 "$cmd missing -to argument."
+    sta_error 182 "$cmd missing -to argument."
   }
 
   set delay [lindex $cmd_args 0]
   if {![string is double $delay]} {
-    sta_error 444 "$cmd delay is not a float."
+    sta_error 183 "$cmd delay is not a float."
   }
   set delay [time_ui_sta $delay]
 
   if {[info exists flags(-cell)] && [info exists flags(-net)]} {
-    sta_error 445 "set_annotated_delay -cell and -net options are mutually excluive."
+    sta_error 184 "set_annotated_delay -cell and -net options are mutually excluive."
   } elseif {[info exists flags(-cell)]} {
     if { $from_pins != {} } {
       set inst [[lindex $from_pins 0] instance]
       foreach pin $from_pins {
 	if {[$pin instance] != $inst} {
-	  sta_error 446 "$cmd pin [get_full_name $pin] is not attached to instance [get_full_name $inst]."
+	  sta_error 185 "$cmd pin [get_full_name $pin] is not attached to instance [get_full_name $inst]."
 	}
       }
       foreach pin $to_pins {
 	if {[$pin instance] != $inst} {
-	  sta_error 447 "$cmd pin [get_full_name $pin] is not attached to instance [get_full_name $inst]"
+	  sta_error 186 "$cmd pin [get_full_name $pin] is not attached to instance [get_full_name $inst]"
 	}
       }
     }
   } elseif {![info exists flags(-net)]} {
-    sta_error 448 "$cmd -cell or -net required."
+    sta_error 187 "$cmd -cell or -net required."
   }
   foreach from_pin $from_pins {
     set from_vertices [$from_pin vertices]
@@ -240,7 +240,7 @@ proc set_assigned_check_cmd { cmd cmd_args } {
   if { [info exists keys(-from)] } {
     set from_pins [get_port_pins_error "from_pins" $keys(-from)]
   } else {
-    sta_error 449 "$cmd missing -from argument."
+    sta_error 188 "$cmd missing -from argument."
   }
   set from_rf "rise_fall"
   if { [info exists keys(-clock)] } {
@@ -249,14 +249,14 @@ proc set_assigned_check_cmd { cmd cmd_args } {
 	   || $clk_arg eq "fall" } {
       set from_rf $clk_arg
     } else {
-      sta_error 450 "$cmd -clock must be rise or fall."
+      sta_error 189 "$cmd -clock must be rise or fall."
     }
   }
 
   if { [info exists keys(-to)] } {
     set to_pins [get_port_pins_error "to_pins" $keys(-to)]
   } else {
-    sta_error 451 "$cmd missing -to argument."
+    sta_error 190 "$cmd missing -to argument."
   }
   set to_rf [parse_rise_fall_flags flags]
   set corner [parse_corner keys]
@@ -271,7 +271,7 @@ proc set_assigned_check_cmd { cmd cmd_args } {
   } elseif { [info exists flags(-removal)] } {
     set role "removal"
   } else {
-    sta_error 452 "$cmd missing -setup|-hold|-recovery|-removal check type.."
+    sta_error 191 "$cmd missing -setup|-hold|-recovery|-removal check type.."
   }
   set cond ""
   if { [info exists key(-cond)] } {
@@ -279,7 +279,7 @@ proc set_assigned_check_cmd { cmd cmd_args } {
   }
   set check_value [lindex $cmd_args 0]
   if { ![string is double $check_value] } {
-    sta_error 453 "$cmd check_value is not a float."
+    sta_error 192 "$cmd check_value is not a float."
   }
   set check_value [time_ui_sta $check_value]
 
@@ -347,7 +347,7 @@ proc set_assigned_transition { args } {
 
   set slew [lindex $args 0]
   if {![string is double $slew]} {
-    sta_error 428 "set_assigned_transition transition is not a float."
+    sta_error 210 "set_assigned_transition transition is not a float."
   }
   set slew [time_ui_sta $slew]
   set pins [get_port_pins_error "pins" [lindex $args 1]]

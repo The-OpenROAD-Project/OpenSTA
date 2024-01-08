@@ -104,7 +104,7 @@ ReadVcdActivities::readActivities()
   if (vcd_.timeMax() > 0)
     setActivities();
   else
-    report_->warn(808, "VCD max time is zero.");
+    report_->warn(1450, "VCD max time is zero.");
   report_->reportLine("Annotated %lu pin activities.", annotated_pins_.size());
 }
 
@@ -171,7 +171,7 @@ ReadVcdActivities::setVarActivity(VcdVar *var,
       }
     }
     else
-      report_->warn(809, "problem parsing bus %s.", var_name.c_str());
+      report_->warn(1451, "problem parsing bus %s.", var_name.c_str());
   }
 }
 
@@ -248,7 +248,7 @@ ReadVcdActivities::checkClkPeriod(const Pin *pin,
       double clk_period = clk->period();
       if (abs((clk_period - sim_period) / clk_period) > .1)
         // Warn if sim clock period differs from SDC by 10%.
-        report_->warn(806, "clock %s vcd period %s differs from SDC clock period %s",
+        report_->warn(1452, "clock %s vcd period %s differs from SDC clock period %s",
                       clk->name(),
                       delayAsString(sim_period, this),
                       delayAsString(clk_period, this));

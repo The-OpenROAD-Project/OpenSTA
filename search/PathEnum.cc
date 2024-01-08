@@ -471,7 +471,7 @@ PathEnum::divSlack(Path *before_div,
     return div_arrival - arc_arrival;
   }
   else {
-    report()->error(619, "path diversion missing edge.");
+    report()->error(1370, "path diversion missing edge.");
     return 0.0;
   }
 }

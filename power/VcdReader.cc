@@ -189,7 +189,7 @@ VcdReader::parseVar()
     string type_name = tokens[0];
     VcdVarType type = vcd_var_type_map.find(type_name, VcdVarType::unknown);
     if (type == VcdVarType::unknown)
-      report_->fileWarn(803, filename_, stmt_line_,
+      report_->fileWarn(1370, filename_, stmt_line_,
                         "Unknown variable type %s.",
                         type_name.c_str());
     else {

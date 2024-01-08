@@ -1251,7 +1251,7 @@ WriteSdc::writeExceptionCmd(ExceptionPath *exception) const
       gzprintf(stream_, "group_path -name %s", exception->name());
   }
   else
-    report_->critical(214, "unknown exception type");
+    report_->critical(1620, "unknown exception type");
 }
 
 void
@@ -1793,7 +1793,7 @@ WriteSdc::setConstantCmd(const Pin *pin) const
   case LogicValue::rise:
   case LogicValue::fall:
   default:
-    report_->critical(215, "illegal set_logic value");
+    report_->critical(1621, "illegal set_logic value");
     return nullptr;
   }
 }
@@ -1834,7 +1834,7 @@ WriteSdc::caseAnalysisValueStr(const Pin *pin) const
     return "falling";
   case LogicValue::unknown:
   default:
-    report_->critical(216, "invalid set_case_analysis value");
+    report_->critical(1622, "invalid set_case_analysis value");
     return nullptr;
   }
 }

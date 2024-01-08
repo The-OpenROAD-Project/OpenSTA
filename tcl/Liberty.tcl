@@ -30,7 +30,7 @@ proc_redirect read_liberty {
   set corner [parse_corner keys]
   set min_max [parse_min_max_all_flags flags]
   if { [info exists flags(-no_latch_infer)] } {
-    sta_warn 625 "-no_latch_infer is deprecated."
+    sta_warn  "-no_latch_infer is deprecated."
   }
   set infer_latches [info exists flags(-infer_latches)]
   read_liberty_cmd $filename $corner $min_max $infer_latches
