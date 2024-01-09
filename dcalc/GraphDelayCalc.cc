@@ -1205,7 +1205,7 @@ GraphDelayCalc::loadCap(const Parasitic *parasitic,
                         float &pin_cap,
                         float &wire_cap) const
 {
-  // set_load net has precidence over parasitics.
+  // set_load net has precedence over parasitics.
   if (!has_net_load && parasitic) {
     if (parasitics_->isParasiticNetwork(parasitic))
       wire_cap += parasitics_->capacitance(parasitic);

@@ -267,7 +267,7 @@ public:
 			   float limit);
   void setLatchBorrowLimit(const Clock *clk,
 			   float limit);
-  // Return the latch borrow limit respecting precidence if multiple
+  // Return the latch borrow limit respecting precedence if multiple
   // limits apply.
   void latchBorrowLimit(const Pin *data_pin,
 			const Pin *enable_pin,
@@ -286,7 +286,7 @@ public:
   void setMinPulseWidth(const Clock *clk,
 			const RiseFallBoth *rf,
 			float min_width);
-  // Return min pulse with respecting precidence.
+  // Return min pulse with respecting precedence.
   void minPulseWidth(const Pin *pin,
 		     const Clock *clk,
 		     const RiseFall *hi_low,

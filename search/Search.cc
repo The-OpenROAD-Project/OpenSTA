@@ -2468,7 +2468,7 @@ Search::thruClkInfo(PathVertex *from_path,
   sdc_->clockLatency(from_clk, to_pin, clk_rf, min_max,
 		     latency, exists);
   if (exists) {
-    // Latency on pin has precidence over fanin or hierarchical
+    // Latency on pin has precedence over fanin or hierarchical
     // pin latency.
     to_latency = latency;
     to_clk_prop = false;

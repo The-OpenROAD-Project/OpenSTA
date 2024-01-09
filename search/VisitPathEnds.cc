@@ -97,7 +97,7 @@ VisitPathEnds::visitClkedPathEnds(const Pin *pin,
 	// Ignore segment startpoint paths.
 	&& (!is_segment_start
 	    || !tag->isSegmentStart())) {
-      // set_output_delay to timing check has precidence.
+      // set_output_delay to timing check has precedence.
       if (sdc_->hasOutputDelay(pin))
 	visitOutputDelayEnd(pin, path, end_rf, path_ap, filtered, visitor,
 			    is_constrained);

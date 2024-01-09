@@ -208,7 +208,7 @@ DmpCeffTwoPoleDelayCalc::findParasitic(const Pin *drvr_pin,
 {
   Parasitic *parasitic = nullptr;
   const Corner *corner = dcalc_ap->corner();
-  // set_load net has precidence over parasitics.
+  // set_load net has precedence over parasitics.
   if (!sdc_->drvrPinHasWireCap(drvr_pin, corner)) {
     const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
     if (parasitics_->haveParasitics()) {
