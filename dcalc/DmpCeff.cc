@@ -170,13 +170,11 @@ public:
   // Given x_ as a vector of input parameters, fill fvec_ with the
   // equations evaluated at x_ and fjac_ with the jabobian evaluated at x_.
   virtual void evalDmpEqns() = 0;
-  // Output response to vs(t) ramp driving pi model load.
-  double vo(double t);
-  double dVoDt(double t);
-  // Load responce to driver waveform.
-  double vl(double t);
-  double dVlDt(double t);
-  double vCross() { return v_cross_; }
+  // Output response to vs(t) ramp driving pi model load and its derivative.
+  void vo(double t, double& y, double& dy);
+  // Load responce to driver waveform and its derivative.
+  void vl(double t, double& y, double& dy);
+  double vCross() const { return v_cross_; }
 
 protected:
   // Find driver parameters t0, delta_t, Ceff.
@@ -188,7 +186,6 @@ protected:
 		  double &t_vth,
 		  double &t_vl,
 		  double &slew);
-  virtual double dv0dt(double t) = 0;
   // Partial derivatives of y(t) (jacobian).
   void dy(double t,
 	  double t0,
@@ -220,12 +217,12 @@ protected:
   // Output response to unit ramp driving capacitive load.
   double y0(double t,
 	    double cl);
-  // Output response to unit ramp driving pi model load.
-  virtual double v0(double t) = 0;
+  // Output response to unit ramp driving pi model load and its derivative.
+  virtual void v0(double t, double& y, double& dy) = 0;
   // Upper bound on time that vo crosses vh.
   virtual double voCrossingUpperBound() = 0;
-  // Load responce to driver unit ramp.
-  virtual double vl0(double t) = 0;
+  // Load responce to driver unit ramp and its derivative.
+  virtual void vl0(double t, double& y, double& dy) = 0;
   // Upper bound on time that vl crosses vh.
   double vlCrossingUpperBound();
 
@@ -275,7 +272,6 @@ protected:
   double p3_;
 
 private:
-  virtual double dvl0dt(double t) = 0;
 
   // Implicit argument passed to evalVoEqns, evalVlEqns.
   double v_cross_;
@@ -519,32 +515,32 @@ evalVoEqns(void *state,
 	   double &dy)
 {
   DmpAlg *pi_ceff = reinterpret_cast<DmpAlg *>(state);
-  y = pi_ceff->vo(x) - pi_ceff->vCross();
-  dy = pi_ceff->dVoDt(x);
+  pi_ceff->vo(x, y, dy);
+  y -= pi_ceff->vCross();
 }
 
-double
-DmpAlg::vo(double t)
+void DmpAlg::vo(double t, double& y, double& dy)
 {
   double t1 = t - t0_;
-  if (t1 <= 0.0)
-    return 0.0;
-  else if (t1 <= dt_)
-    return v0(t1) / dt_;
-  else
-    return (v0(t1) - v0(t1 - dt_)) / dt_;
-}
+  if (t1 <= 0.0) {
+    y  = 0.0;
+    dy = 0.0;
+  }
+  else if (t1 <= dt_) {
+    v0(t1, y, dy);
+    y  /= dt_;
+    dy /= dt_;
+  }
+  else {
+    double y0, dy0;
+    double y1, dy1;
 
-double
-DmpAlg::dVoDt(double t)
-{
-  double t1 = t - t0_;
-  if (t1 <= 0)
-    return 0.0;
-  else if (t1 <= dt_)
-    return dv0dt(t1) / dt_;
-  else
-    return (dv0dt(t1) - dv0dt(t1 - dt_)) / dt_;
+    v0(t1,       y0, dy0);
+    v0(t1 - dt_, y1, dy1);
+
+    y  = (y0  - y1)  / dt_;
+    dy = (dy0 - dy1) / dt_;
+  }
 }
 
 void
@@ -552,8 +548,11 @@ DmpAlg::showVo()
 {
   report_->reportLine("  t    vo(t)");
   double ub = voCrossingUpperBound();
-  for (double t = t0_; t < t0_ + ub; t += dt_ / 10.0)
-    report_->reportLine(" %g %g", t, vo(t));
+  for (double t = t0_; t < t0_ + ub; t += dt_ / 10.0) {
+    double y, dy;
+    vo(t, y, dy);
+    report_->reportLine(" %g %g %g", t, y, dy);
+  }
 }
 
 void
@@ -631,32 +630,31 @@ evalVlEqns(void *state,
 	   double &dy)
 {
   DmpAlg *pi_ceff = reinterpret_cast<DmpAlg *>(state);
-  y = pi_ceff->vl(x) - pi_ceff->vCross();
-  dy = pi_ceff->dVlDt(x);
+  pi_ceff->vl(x, y, dy);
+  y -= pi_ceff->vCross();
 }
 
-double
-DmpAlg::vl(double t)
+void DmpAlg::vl(double t, double& y, double& dy)
 {
   double t1 = t - t0_;
-  if (t1 <= 0)
-    return 0.0;
-  else if (t1 <= dt_)
-    return vl0(t1) / dt_;
-  else
-    return (vl0(t1) - vl0(t1 - dt_)) / dt_;
-}
+  if (t1 <= 0) {
+    y  = 0.0;
+    dy = 0.0;
+  }
+  else if (t1 <= dt_) {
+    vl0(t1, y, dy);
+    y  /= dt_;
+    dy /= dt_;
+  } else {
+    double y0, dy0;
+    double y1, dy1;
 
-double
-DmpAlg::dVlDt(double t)
-{
-  double t1 = t - t0_;
-  if (t1 <= 0)
-    return 0.0;
-  else if (t1 <= dt_)
-    return dvl0dt(t1) / dt_;
-  else
-    return (dvl0dt(t1) - dvl0dt(t1 - dt_)) / dt_;
+    vl0(t1,       y0, dy0);
+    vl0(t1 - dt_, y1, dy1);
+
+    y  = (y0  - y1)  / dt_;
+    dy = (dy0 - dy1) / dt_;
+  }
 }
 
 void
@@ -664,8 +662,11 @@ DmpAlg::showVl()
 {
   report_->reportLine("  t    vl(t)");
   double ub = vlCrossingUpperBound();
-  for (double t = t0_; t < t0_ + ub * 2.0; t += ub / 10.0)
-    report_->reportLine(" %g %g", t, vl(t));
+  for (double t = t0_; t < t0_ + ub * 2.0; t += ub / 10.0) {
+    double y, dy;
+    vl(t, y, dy);
+    report_->reportLine(" %g %g %g", t, y, dy);
+  }
 }
 
 void
@@ -710,10 +711,8 @@ public:
   virtual double voCrossingUpperBound();
 
 private:
-  virtual double v0(double t);
-  virtual double dv0dt(double t);
-  virtual double vl0(double t);
-  virtual double dvl0dt(double t);
+  void v0 (double t, double &y, double &dy) override;
+  void vl0(double t, double &y, double &dy) override;
 };
 
 DmpCap::DmpCap(StaState *sta):
@@ -765,16 +764,10 @@ DmpCap::evalDmpEqns()
 {
 }
 
-double
-DmpCap::v0(double)
-{
-  return 0.0;
-}
-
-double
-DmpCap::dv0dt(double)
-{
-  return 0.0;
+void DmpCap::v0(double t, double& y, double& dy) {
+    (void)t;
+    y  = 0.0;
+    dy = 0.0;
 }
 
 double
@@ -783,16 +776,10 @@ DmpCap::voCrossingUpperBound()
   return 0.0;
 }
 
-double
-DmpCap::vl0(double)
-{
-  return 0.0;
-}
-
-double
-DmpCap::dvl0dt(double)
-{
-  return 0.0;
+void DmpCap::vl0(double t, double& y, double& dy) {
+    (void)t;
+    y  = 0.0;
+    dy = 0.0;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -821,14 +808,12 @@ public:
 
 private:
   void findDriverParamsPi();
-  virtual double v0(double t);
-  virtual double dv0dt(double t);
+  virtual void v0(double t, double& y, double& dy) override;
   double ipiIceff(double t0,
 		  double dt,
 		  double ceff_time,
 		  double ceff);
-  virtual double vl0(double t);
-  virtual double dvl0dt(double t);
+  virtual void vl0(double t, double& y, double& dy) override;
 
   // Poles/zero.
   double p1_;
@@ -991,7 +976,7 @@ DmpPi::evalDmpEqns()
 		     - 2 * rd_ * ceff * (1.0 - exp_dt_rd_ceff)))
     / (rd_ * dt * dt * dt);
   fjac_[DmpFunc::ipi][DmpParam::ceff] =
-    (2 * rd_ * ceff - dt - (2 * rd_ * ceff + dt) * exp2(-dt / (rd_ * ceff)))
+    (2 * rd_ * ceff - dt - (2 * rd_ * ceff + dt) * exp_dt_rd_ceff)
     / (dt * dt);
 
   dy(t_vl, t0, dt, ceff,
@@ -1030,44 +1015,35 @@ DmpPi::ipiIceff(double, double dt,
   return ipi - iceff;
 }
 
-double
-DmpPi::v0(double t)
+void DmpPi::v0(double t, double& y, double& dy)
 {
-  return k0_ * (k1_ + k2_ * t + k3_ * exp2(-p1_ * t) + k4_ * exp2(-p2_ * t));
+  double e1 = exp2(-p1_ * t);
+  double e2 = exp2(-p2_ * t);
+
+  y  = k0_ * (k1_ + k2_ * t + k3_ * e1 + k4_ * e2);
+  dy = k0_ * (k2_ - k3_ * p1_ * e1 - k4_ * p2_ * e2);
 }
 
-double
-DmpPi::dv0dt(double t)
-{
-  return k0_ * (k2_ - k3_ * p1_ * exp2(-p1_ * t) - k4_ * p2_ * exp2(-p2_ * t));
-}
-
-double
-DmpPi::vl0(double t)
+void DmpPi::vl0(double t, double& y, double& dy)
 {
   double D1 = k0_ * (k1_ - k2_ / p3_);
   double D3 = -p3_ * k0_ * k3_ / (p1_ - p3_);
   double D4 = -p3_ * k0_ * k4_ / (p2_ - p3_);
   double D5 = k0_ * (k2_ / p3_ - k1_ + p3_ * k3_ / (p1_ - p3_)
 		    + p3_ * k4_ / (p2_ - p3_));
-  return D1 + t + D3 * exp2(-p1_ * t) + D4 * exp2(-p2_ * t) + D5 * exp2(-p3_ * t);
+
+  double e1 = exp2(-p1_ * t);
+  double e2 = exp2(-p2_ * t);
+  double e3 = exp2(-p3_ * t);
+
+  y  = D1 + t + D3 * e1 + D4 * e2 + D5 * e3;
+  dy = 1.0 - D3 * p1_ * e1 - D4 * p2_ * e2 - D5 * p3_ * e3;
 }
 
 double
 DmpPi::voCrossingUpperBound()
 {
   return t0_ + dt_ + (c1_ + c2_) * (rd_ + rpi_) * 2.0;
-}
-
-double
-DmpPi::dvl0dt(double t)
-{
-  double D3 = -p3_ * k0_ * k3_ / (p1_ - p3_);
-  double D4 = -p3_ * k0_ * k4_ / (p2_ - p3_);
-  double D5 = k0_ * (k2_ / p3_ - k1_ + p3_ * k3_ / (p1_ - p3_)
-		    + p3_ * k4_ / (p2_ - p3_));
-  return 1.0 - D3 * p1_ * exp2(-p1_ * t) - D4 * p2_ * exp2(-p2_ * t)
-    - D5 * p3_ * exp2(-p3_ * t);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1152,10 +1128,8 @@ public:
 			     double &slew);
 
 private:
-  virtual double v0(double t);
-  virtual double dv0dt(double t);
-  virtual double vl0(double t);
-  virtual double dvl0dt(double t);
+  virtual void v0 (double t, double& y, double& dy) override;
+  virtual void vl0(double t, double& y, double& dy) override;
   virtual double voCrossingUpperBound();
 
   // Pole/zero.
@@ -1227,33 +1201,24 @@ DmpZeroC2::gateDelaySlew(double &delay,
   drvr_slew_ = slew;
 }
 
-double
-DmpZeroC2::v0(double t)
+void DmpZeroC2::v0(double t, double& y, double& dy)
 {
-  return k0_ * (k1_ + k2_ * t + k3_ * exp2(-p1_ * t));
+  double e1 = exp2(-p1_ * t);
+  y  = k0_ * (k1_ + k2_ * t + k3_ * e1);
+  dy = k0_ * (k2_ - k3_ * p1_ * e1);
 }
 
-double
-DmpZeroC2::dv0dt(double t)
-{
-  return k0_ * (k2_ - k3_ * p1_ * exp2(-p1_ * t));
-}
-
-double
-DmpZeroC2::vl0(double t)
+void DmpZeroC2::vl0(double t, double& y, double& dy)
 {
   double D1 = k0_ * (k1_ - k2_ / p3_);
   double D3 = -p3_ * k0_ * k3_ / (p1_ - p3_);
   double D5 = k0_ * (k2_ / p3_ - k1_ + p3_ * k3_ / (p1_ - p3_));
-  return D1 + t + D3 * exp2(-p1_ * t) + D5 * exp2(-p3_ * t);
-}
 
-double
-DmpZeroC2::dvl0dt(double t)
-{
-  double D3 = -p3_ * k0_ * k3_ / (p1_ - p3_);
-  double D5 = k0_ * (k2_ / p3_ - k1_ + p3_ * k3_ / (p1_ - p3_));
-  return 1.0 - D3 * p1_ * exp2(-p1_ * t) - D5 * p3_ * exp2(-p3_ * t);
+  double e1 = exp2(-p1_ * t);
+  double e3 = exp2(-p3_ * t);
+
+  y  = D1 + t + D3 * e1 + D5 * e3;
+  dy = 1.0 - D3 * p1_ * e1 - D5 * p3_ * e3;
 }
 
 double
