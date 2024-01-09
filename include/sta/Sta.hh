@@ -937,9 +937,8 @@ public:
   void delaysInvalid();
   // Invalidate all arrival and required times.
   void arrivalsInvalid();
-  void visitStartpoints(VertexVisitor *visitor);
-  void visitEndpoints(VertexVisitor *visitor);
-  VertexSet *endpoints();
+  PinSet startpoints();
+  PinSet endpoints();
   int endpointViolationCount(const MinMax *min_max);
   // Find the fanin vertices for a group path.
   // Vertices in the clock network are NOT included.

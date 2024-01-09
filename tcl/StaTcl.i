@@ -339,28 +339,6 @@ setPtrTclList(SET_TYPE *set,
 
 ////////////////////////////////////////////////////////////////
 
-PinSet
-findStartpoints()
-{
-  Network *network = cmdNetwork();
-  PinSet pins(network);
-  VertexPinCollector visitor(pins);
-  Sta::sta()->visitStartpoints(&visitor);
-  return pins;
-}
-
-PinSet
-findEndpoints()
-{
-  Network *network = cmdNetwork();
-  PinSet pins(network);
-  VertexPinCollector visitor(pins);
-  Sta::sta()->visitEndpoints(&visitor);
-  return pins;
-}
-
-////////////////////////////////////////////////////////////////
-
 void
 tclArgError(Tcl_Interp *interp,
             const char *msg,
@@ -4436,13 +4414,13 @@ worst_clk_skew_cmd(const SetupHold *setup_hold)
 PinSet
 startpoints()
 {
-  return findStartpoints();
+  return Sta::sta()->startpoints();
 }
 
 PinSet
 endpoints()
 {
-  return findEndpoints();
+  return Sta::sta()->endpoints();
 }
 
 PinSet
@@ -5441,7 +5419,7 @@ port_location(const Port *port)
 int
 endpoint_count()
 {
-  return Sta::sta()->endpoints()->size();
+  return Sta::sta()->endpoints().size();
 }
 
 int

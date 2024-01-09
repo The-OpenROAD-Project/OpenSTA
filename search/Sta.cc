@@ -2658,25 +2658,24 @@ Sta::ensureClkArrivals()
 
 ////////////////////////////////////////////////////////////////
 
-void
-Sta::visitStartpoints(VertexVisitor *visitor)
+PinSet
+Sta::startpoints()
 {
   ensureGraph();
-  search_->visitStartpoints(visitor);
+  PinSet pins(network_);
+  VertexPinCollector visitor(pins);
+  search_->visitStartpoints(&visitor);
+  return pins;
 }
 
-void
-Sta::visitEndpoints(VertexVisitor *visitor)
-{
-  ensureGraph();
-  search_->visitEndpoints(visitor);
-}
-
-VertexSet *
+PinSet
 Sta::endpoints()
 {
   ensureGraph();
-  return search_->endpoints();
+  PinSet pins(network_);
+  for (Vertex *vertex : *search_->endpoints())
+    pins.insert(vertex->pin());
+  return pins;
 }
 
 int
