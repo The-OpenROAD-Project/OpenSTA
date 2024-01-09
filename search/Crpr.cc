@@ -55,23 +55,26 @@ CheckCrpr::clkPathPrev(const PathVertex *path,
   int arrival_index;
   bool exists;
   path->arrivalIndex(arrival_index, exists);
-  tmp = clkPathPrev(vertex, arrival_index);
-  if (tmp.isNull())
-    return nullptr;
-  else
-    return &tmp;
+  clkPathPrev(vertex, arrival_index, tmp);
+  return tmp.isNull() ? nullptr : &tmp;
 }
 
-PathVertex
+void
 CheckCrpr::clkPathPrev(Vertex *vertex,
-		       int arrival_index)
+		       int arrival_index, PathVertex &tmp)
 {
   PathVertexRep *prevs = graph_->prevPaths(vertex);
-  if (prevs)
-    return PathVertex(prevs[arrival_index], this);
+  if (prevs) {
+    const PathVertexRep &vertex_path_rep = prevs[arrival_index];
+    tmp.init(
+      vertex_path_rep.vertex(this),
+      vertex_path_rep.tag(this),
+      this
+    );
+  }
   else {
     criticalError(248, "missing prev paths");
-    return PathVertex();
+    tmp.init();
   }
 }
 
