@@ -871,8 +871,7 @@ GraphDelayCalc::findDriverArcDelays(Vertex *drvr_vertex,
       ArcDcalcResultSeq dcalc_results =
         arc_delay_calc->gateDelays(dcalc_args, load_cap, load_pin_index_map,
                                    dcalc_ap);
-      size_t drvr_count = multi_drvr->drvrs()->size();
-      for (size_t drvr_idx = 0; drvr_idx < drvr_count; drvr_idx++) {
+      for (size_t drvr_idx = 0; drvr_idx < dcalc_args.size(); drvr_idx++) {
         ArcDcalcArg &dcalc_arg = dcalc_args[drvr_idx];
         ArcDcalcResult &dcalc_result = dcalc_results[drvr_idx];
         delay_changed |= annotateDelaysSlews(dcalc_arg.edge(), dcalc_arg.arc(),
@@ -904,23 +903,26 @@ GraphDelayCalc::makeArcDcalcArgs(Vertex *drvr_vertex,
 {
   ArcDcalcArgSeq dcalc_args;
   for (auto drvr_vertex1 : *multi_drvr->drvrs()) {
-    Edge *edge1;
-    const TimingArc *arc1;
+    Edge *edge1 = nullptr;
+    const TimingArc *arc1 = nullptr;
     if (drvr_vertex1 == drvr_vertex) {
       edge1 = edge;
       arc1 = arc;
     }
     else
       findParallelEdge(drvr_vertex1, edge, arc, edge1, arc1);
-    Vertex *from_vertex = edge1->from(graph_);
-    const RiseFall *from_rf = arc1->fromEdge()->asRiseFall();
-    const RiseFall *drvr_rf = arc1->toEdge()->asRiseFall();
-    const Slew in_slew = edgeFromSlew(from_vertex, from_rf, edge1, dcalc_ap);
-    const Pin *drvr_pin1 = drvr_vertex1->pin();
-    Parasitic *parasitic = arc_delay_calc->findParasitic(drvr_pin1, drvr_rf,
-                                                         dcalc_ap);
-    dcalc_args.push_back(ArcDcalcArg(drvr_pin1, edge1, arc1, in_slew,
-                                     parasitic));
+    // Shockingly one fpga vendor connects outputs with no timing arcs together.
+    if (edge1) {
+      Vertex *from_vertex = edge1->from(graph_);
+      const RiseFall *from_rf = arc1->fromEdge()->asRiseFall();
+      const RiseFall *drvr_rf = arc1->toEdge()->asRiseFall();
+      const Slew in_slew = edgeFromSlew(from_vertex, from_rf, edge1, dcalc_ap);
+      const Pin *drvr_pin1 = drvr_vertex1->pin();
+      Parasitic *parasitic = arc_delay_calc->findParasitic(drvr_pin1, drvr_rf,
+                                                           dcalc_ap);
+      dcalc_args.push_back(ArcDcalcArg(drvr_pin1, edge1, arc1, in_slew,
+                                       parasitic));
+    }
   }
   return dcalc_args;
 }
