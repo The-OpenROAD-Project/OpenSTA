@@ -249,14 +249,19 @@ CheckCrpr::findCrpr(const PathVertex *src_clk_path,
   // src_clk_path and tgt_clk_path are now in the same (gen)clk src path.
   // Use the vertex levels to back up the deeper path to see if they
   // overlap.
+  Level src_level = src_clk_path2->vertex(this)->level();
+  Level tgt_level = tgt_clk_path2->vertex(this)->level();
   while (src_clk_path2 && tgt_clk_path2
 	 && src_clk_path2->pin(this) != tgt_clk_path2->pin(this)) {
-    Level src_level = src_clk_path2->vertex(this)->level();
-    Level tgt_level = tgt_clk_path2->vertex(this)->level();
-    if (src_level >= tgt_level)
+    int diff = src_level - tgt_level;
+    if (diff >= 0) {
       src_clk_path2 = clkPathPrev(src_clk_path2, tmp1);
-    if (tgt_level >= src_level)
+      src_level = src_clk_path2->vertex(this)->level();
+    }
+    if (diff <= 0) {
       tgt_clk_path2 = clkPathPrev(tgt_clk_path2, tmp2);
+      tgt_level = tgt_clk_path2->vertex(this)->level();
+    }
   }
   if (src_clk_path2 && tgt_clk_path2
       && (src_clk_path2->transition(this) == tgt_clk_path2->transition(this)
