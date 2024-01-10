@@ -332,6 +332,7 @@ set(SWIG_FILES
   ${STA_HOME}/sdf/Sdf.i
   ${STA_HOME}/tcl/Exception.i
   ${STA_HOME}/tcl/StaTcl.i
+  ${STA_HOME}/tcl/StaTclTypes.i
   ${STA_HOME}/tcl/NetworkEdit.i
   ${STA_HOME}/verilog/Verilog.i
   )

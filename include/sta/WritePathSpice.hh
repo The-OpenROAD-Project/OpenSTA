@@ -19,12 +19,12 @@
 #include <string>
 #include <set>
 
+#include "StringSet.hh"
+
 namespace sta {
 
 using std::string;
 using std::set;
-
-typedef set<string> StdStringSet;
 
 class Path;
 class StaState;

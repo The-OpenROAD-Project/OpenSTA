@@ -17,6 +17,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 %include "Exception.i"
+%include "StaTclTypes.i"
 %include "StaTcl.i"
 %include "Verilog.i"
 %include "NetworkEdit.i"

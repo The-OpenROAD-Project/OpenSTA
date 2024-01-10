@@ -13,8 +13,9 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-
 #pragma once
+
+#include <set>
 
 #include "StringUtil.hh"
 #include "Set.hh"
@@ -22,6 +23,7 @@
 namespace sta {
 
 typedef Set<const char*, CharPtrLess> StringSet;
+typedef std::set<string> StdStringSet;
 
 void
 deleteContents(StringSet *strings);
