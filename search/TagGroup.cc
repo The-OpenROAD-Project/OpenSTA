@@ -125,7 +125,6 @@ TagGroupBldr::TagGroupBldr(bool match_crpr_clk_pin,
 			 * RiseFall::index_count
 			 * MinMax::index_count),
   arrival_map_(default_arrival_count_,
-	       TagMatchHash(match_crpr_clk_pin, sta),
 	       TagMatchEqual(match_crpr_clk_pin, sta)),
   arrivals_(default_arrival_count_),
   prev_paths_(default_arrival_count_),
@@ -260,7 +259,6 @@ ArrivalMap *
 TagGroupBldr::makeArrivalMap(const StaState *sta)
 {
   ArrivalMap *arrival_map = new ArrivalMap(arrival_map_.size(),
-					   TagMatchHash(true, sta),
 					   TagMatchEqual(true, sta));
   int arrival_index = 0;
   ArrivalMap::Iterator arrival_iter(arrival_map_);
