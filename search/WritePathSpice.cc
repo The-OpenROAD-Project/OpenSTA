@@ -72,6 +72,7 @@ public:
                  StdStringSet *off_path_pin_names,
 		 const char *power_name,
 		 const char *gnd_name,
+                 bool measure_stmts,
 		 const StaState *sta);
   ~WritePathSpice();
   void writeSpice();
@@ -225,6 +226,7 @@ private:
   StdStringSet *off_path_pin_names_;
   const char *power_name_;
   const char *gnd_name_;
+  bool measure_stmts_;
 
   ofstream spice_stream_;
   PathExpanded path_expanded_;
@@ -281,13 +283,15 @@ writePathSpice(Path *path,
                StdStringSet *off_path_pin_names,
                const char *power_name,
 	       const char *gnd_name,
+               bool measure_stmts,
 	       StaState *sta)
 {
   if (sta->network()->defaultLibertyLibrary() == nullptr)
     sta->report()->error(1600, "No liberty libraries found,");
   WritePathSpice writer(path, spice_filename, subckt_filename,
 			lib_subckt_filename, model_filename,
-			off_path_pin_names, power_name, gnd_name, sta);
+			off_path_pin_names, power_name, gnd_name,
+                        measure_stmts, sta);
   writer.writeSpice();
 }
 
@@ -299,6 +303,7 @@ WritePathSpice::WritePathSpice(Path *path,
                                StdStringSet *off_path_pin_names,
 			       const char *power_name,
 			       const char *gnd_name,
+                               bool measure_stmts,
 			       const StaState *sta) :
   StaState(sta),
   path_(path),
@@ -309,6 +314,7 @@ WritePathSpice::WritePathSpice(Path *path,
   off_path_pin_names_(off_path_pin_names),
   power_name_(power_name),
   gnd_name_(gnd_name),
+  measure_stmts_(measure_stmts),
   path_expanded_(sta),
   net_name_(nullptr),
   default_library_(network_->defaultLibertyLibrary()),
@@ -346,7 +352,8 @@ WritePathSpice::writeSpice()
     writeHeader();
     writePrintStmt();
     writeStageInstances();
-    writeMeasureStmts();
+    if (measure_stmts_)
+      writeMeasureStmts();
     writeInputSource();
     writeStageSubckts();
     streamPrint(spice_stream_, ".end\n");
@@ -381,8 +388,6 @@ WritePathSpice::writeHeader()
 	      start_path->transition(this)->asString(),
 	      network_->pathName(path_->pin(this)),
 	      path_->transition(this)->asString());
-  float temp = pvt->temperature();
-  streamPrint(spice_stream_, ".temp %.1f\n", temp);
   streamPrint(spice_stream_, ".include \"%s\"\n", model_filename_);
   string subckt_filename_stem = filenameStem(subckt_filename_);
   streamPrint(spice_stream_, ".include \"%s\"\n", subckt_filename_stem.c_str());
@@ -391,6 +396,7 @@ WritePathSpice::writeHeader()
   float time_step = 1e-13;
   streamPrint(spice_stream_, ".tran %.3g %.3g\n\n",
 	      time_step, max_time);
+  // Suppress printing model parameters.
   streamPrint(spice_stream_, ".options nomod\n");
 }
 

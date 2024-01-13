@@ -21,13 +21,14 @@ define_cmd_args "write_path_spice" { -path_args path_args\
 				       -lib_subckt_file lib_subckts_file\
 				       -model_file model_file\
 				       -power power\
-				       -ground ground}
+				       -ground ground\
+                                       [-measure_stmts]}
 
 proc write_path_spice { args } {
   parse_key_args "write_path_spice" args \
     keys {-spice_directory -lib_subckt_file -model_file \
 	    -power -ground -path_args} \
-    flags {}
+    flags {-measure_stmts}
 
   if { [info exists keys(-spice_directory)] } {
     set spice_dir [file nativename $keys(-spice_directory)]
@@ -74,6 +75,8 @@ proc write_path_spice { args } {
     sta_error 609 "No -ground specified."
   }
 
+  set measure_stmts [info exists keys(-measure_stmts)]
+
   if { ![info exists keys(-path_args)] } {
     sta_error 610 "No -path_args specified."
   }
@@ -89,7 +92,7 @@ proc write_path_spice { args } {
       set spice_file [file join $spice_dir "$path_name.sp"]
       set subckt_file [file join $spice_dir "$path_name.subckt"]
       write_path_spice_cmd $path $spice_file $subckt_file \
-	$lib_subckt_file $model_file {} $power $ground
+	$lib_subckt_file $model_file {} $power $ground $measure_stmts
       incr path_index
     }
   }

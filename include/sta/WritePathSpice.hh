@@ -45,6 +45,7 @@ writePathSpice(Path *path,
                StdStringSet *off_path_pin_names,
                const char *power_name,
 	       const char *gnd_name,
+               bool measure_stmts,
 	       StaState *sta);
 
 } // namespace

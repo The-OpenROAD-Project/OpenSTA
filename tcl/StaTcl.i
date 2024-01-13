@@ -3545,12 +3545,13 @@ write_path_spice_cmd(PathRef *path,
 		     const char *model_filename,
                      StdStringSet *off_path_pins,
 		     const char *power_name,
-		     const char *gnd_name)
+		     const char *gnd_name,
+                     bool measure_stmts)
 {
   Sta *sta = Sta::sta();
   writePathSpice(path, spice_filename, subckt_filename,
 		 lib_subckt_filename, model_filename, off_path_pins,
-		 power_name, gnd_name, sta);
+		 power_name, gnd_name, measure_stmts, sta);
   delete off_path_pins;
 }
 
