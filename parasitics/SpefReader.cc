@@ -512,63 +512,61 @@ SpefReader::findParasiticNode(char *name,
   ext_net = nullptr;
   ext_node_id = 0;
   ext_pin = nullptr;
-  if (name) {
-    if (parasitic_) {
-      char *delim = strrchr(name, delimiter_);
-      if (delim) {
-	*delim = '\0';
-	char *name2 = delim + 1;
-	name = nameMapLookup(name);
-	Instance *inst = findInstanceRelative(name);
-	if (inst) {
-	  // <instance>:<port>
-	  Pin *pin = network_->findPin(inst, name2);
-	  if (pin) {
-	    if (network_->isConnected(net_, pin))
-	      node = parasitics_->ensureParasiticNode(parasitic_, pin);
-	    else
-	      ext_pin = pin;
-	  }
-	  else {
-	    // Replace delimiter for error message.
-	    *delim = delimiter_;
-	    warn(176, "pin %s not found.", name);
-	  }
-	}
-	else {
-	  Net *net = findNet(name);
-	  // Replace delimiter for error messages.
-	  *delim = delimiter_;
-	  if (net) {
-	    // <net>:<subnode_id>
-	    const char *id_str = delim + 1;
-	    if (isDigits(id_str)) {
-	      int id = atoi(id_str);
-	      if (network_->isConnected(net, net_))
-		node = parasitics_->ensureParasiticNode(parasitic_, net, id);
-	      else {
-		ext_net = net;
-		ext_node_id = id;
-	      }
-	    }
-	    else
-	      warn(177, "node %s not a pin or net:number", name);
-	  }
-	}
+  if (name && parasitic_) {
+    char *delim = strrchr(name, delimiter_);
+    if (delim) {
+      *delim = '\0';
+      char *name2 = delim + 1;
+      name = nameMapLookup(name);
+      Instance *inst = findInstanceRelative(name);
+      if (inst) {
+        // <instance>:<port>
+        Pin *pin = network_->findPin(inst, name2);
+        if (pin) {
+          if (network_->isConnected(net_, pin))
+            node = parasitics_->ensureParasiticNode(parasitic_, pin);
+          else
+            ext_pin = pin;
+        }
+        else {
+          // Replace delimiter for error message.
+          *delim = delimiter_;
+          warn(176, "pin %s not found.", name);
+        }
       }
       else {
-	// <top_level_port>
-	name = nameMapLookup(name);
-	Pin *pin = findPortPinRelative(name);
-	if (pin) {
-	  if (network_->isConnected(net_, pin))
-	    node = parasitics_->ensureParasiticNode(parasitic_, pin);
-	  else
-	    ext_pin = pin;
-	}
-	else
-	  warn(178, "pin %s not found.", name);
+        Net *net = findNet(name);
+        // Replace delimiter for error messages.
+        *delim = delimiter_;
+        if (net) {
+          // <net>:<subnode_id>
+          const char *id_str = delim + 1;
+          if (isDigits(id_str)) {
+            int id = atoi(id_str);
+            if (network_->isConnected(net, net_))
+              node = parasitics_->ensureParasiticNode(parasitic_, net, id);
+            else {
+              ext_net = net;
+              ext_node_id = id;
+            }
+          }
+          else
+            warn(177, "node %s not a pin or net:number", name);
+        }
       }
+    }
+    else {
+      // <top_level_port>
+      name = nameMapLookup(name);
+      Pin *pin = findPortPinRelative(name);
+      if (pin) {
+        if (network_->isConnected(net_, pin))
+          node = parasitics_->ensureParasiticNode(parasitic_, pin);
+        else
+          ext_pin = pin;
+      }
+      else
+        warn(178, "pin %s not found.", name);
     }
   }
 }
