@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <cassert>
 #include <map>
 #include <algorithm>
 
@@ -133,17 +134,19 @@ public:
   {
   public:
     Iterator() : container_(nullptr) {}
-    explicit Iterator(std::map<KEY, VALUE, CMP> *container) :
-      container_(container)
-    { if (container_ != nullptr) iter_ = container_->begin(); }
-    explicit Iterator(std::map<KEY, VALUE, CMP> &container) :
-      container_(&container)
-    { if (container_ != nullptr) iter_ = container_->begin(); }
+    explicit Iterator(std::map<KEY, VALUE, CMP> *container)
+    { init(container); }
+    explicit Iterator(std::map<KEY, VALUE, CMP> &container)
+    { init(container); }
     void init(std::map<KEY, VALUE, CMP> *container)
-    { container_ = container; if (container_ != nullptr) iter_=container_->begin();}
+    {
+      assert(container != nullptr);
+      container_ = container;
+      iter_ = container_->begin();
+    }
     void init(std::map<KEY, VALUE, CMP> &container)
-    { container_ = &container; if (container_ != nullptr) iter_=container_->begin();}
-    bool hasNext() { return container_ != nullptr && iter_ != container_->end(); }
+    { container_ = &container; iter_ = container_->begin();}
+    bool hasNext() { return iter_ != container_->end(); }
     VALUE next() { return iter_++->second; }
     void next(KEY &key,
 	      VALUE &value)
@@ -159,17 +162,19 @@ public:
   {
   public:
     ConstIterator() : container_(nullptr) {}
-    explicit ConstIterator(const std::map<KEY, VALUE, CMP> *container) :
-      container_(container)
-    { if (container_ != nullptr) iter_ = container_->begin(); }
-    explicit ConstIterator(const std::map<KEY, VALUE, CMP> &container) :
-      container_(&container)
-    { if (container_ != nullptr) iter_ = container_->begin(); }
+    explicit ConstIterator(const std::map<KEY, VALUE, CMP> *container)
+    { init(container); }
+    explicit ConstIterator(const std::map<KEY, VALUE, CMP> &container)
+    { init(container); }
     void init(const std::map<KEY, VALUE, CMP> *container)
-    { container_ = container; if (container_ != nullptr) iter_=container_->begin();}
+    {
+      assert(container != nullptr);
+      container_ = container;
+      iter_ = container_->begin();
+    }
     void init(const std::map<KEY, VALUE, CMP> &container)
-    { container_ = &container; if (container_ != nullptr) iter_=container_->begin();}
-    bool hasNext() { return container_ != nullptr && iter_ != container_->end(); }
+    { container_ = &container; iter_ = container_->begin(); }
+    bool hasNext() { return iter_ != container_->end(); }
     VALUE next() { return iter_++->second; }
     void next(KEY &key,
 	      VALUE &value)
