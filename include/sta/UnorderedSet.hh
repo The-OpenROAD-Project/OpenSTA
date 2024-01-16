@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <cassert>
 #include <unordered_set>
 #include <algorithm>
 
@@ -85,17 +86,19 @@ public:
   {
   public:
     Iterator() : container_(nullptr) {}
-    explicit Iterator(std::unordered_set<KEY,HASH,EQUAL> *container) :
-      container_(container)
-    { if (container_ != nullptr) iter_ = container_->begin(); }
-    explicit Iterator(std::unordered_set<KEY,HASH,EQUAL> &container) :
-      container_(&container)
-    { if (container_ != nullptr) iter_ = container_->begin(); }
+    explicit Iterator(std::unordered_set<KEY,HASH,EQUAL> *container)
+    { init(container); }
+    explicit Iterator(std::unordered_set<KEY,HASH,EQUAL> &container)
+    { init(container); }
     void init(std::unordered_set<KEY,HASH,EQUAL> *container)
-    { container_ = container; if (container_ != nullptr) iter_=container_->begin();}
+    {
+      assert(container != nullptr);
+      container_ = container;
+      iter_ = container_->begin();
+    }
     void init(std::unordered_set<KEY,HASH,EQUAL> &container)
-    { container_ = &container; if (container_ != nullptr) iter_=container_->begin();}
-    bool hasNext() { return container_ != nullptr && iter_ != container_->end(); }
+    { container_ = &container; iter_ = container_->begin();}
+    bool hasNext() { return iter_ != container_->end(); }
     KEY next() { return *iter_++; }
     std::unordered_set<KEY,HASH,EQUAL> *container() { return container_; }
 
@@ -108,17 +111,19 @@ public:
   {
   public:
     ConstIterator() : container_(nullptr) {}
-    explicit ConstIterator(const std::unordered_set<KEY,HASH,EQUAL> *container) :
-      container_(container)
-    { if (container_ != nullptr) iter_ = container_->begin(); }
-    explicit ConstIterator(const std::unordered_set<KEY,HASH,EQUAL> &container) :
-      container_(&container)
-    { if (container_ != nullptr) iter_ = container_->begin(); }
+    explicit ConstIterator(const std::unordered_set<KEY,HASH,EQUAL> *container)
+    { init(container); }
+    explicit ConstIterator(const std::unordered_set<KEY,HASH,EQUAL> &container)
+    { init(container); }
     void init(const std::unordered_set<KEY,HASH,EQUAL> *container)
-    { container_ = container; if (container_ != nullptr) iter_=container_->begin();}
+    {
+      assert(container != nullptr);
+      container_ = container;
+      iter_ = container_->begin();
+    }
     void init(const std::unordered_set<KEY,HASH,EQUAL> &container)
-    { container_ = &container; if (container_ != nullptr) iter_=container_->begin();}
-    bool hasNext() { return container_ != nullptr && iter_ != container_->end(); }
+    { container_ = &container; iter_ = container_->begin();}
+    bool hasNext() { return iter_ != container_->end(); }
     KEY next() { return iter_++->second; }
     const std::unordered_set<KEY,HASH,EQUAL> *container() { return container_; }
 
