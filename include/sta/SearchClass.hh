@@ -76,18 +76,6 @@ protected:
   const StaState *sta_;
 };
 
-class TagMatchHash
-{
-public:
-  TagMatchHash(bool match_crpr_clk_pin,
-	       const StaState *sta);
-  size_t operator()(const Tag *tag) const;
-
-protected:
-  bool match_crpr_clk_pin_;
-  const StaState *sta_;
-};
-
 class TagMatchEqual
 {
 public:
