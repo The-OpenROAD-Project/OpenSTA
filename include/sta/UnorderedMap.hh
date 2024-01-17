@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <cassert>
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
@@ -318,19 +319,20 @@ public:
   {
   public:
     Iterator() : container_(nullptr) {}
-    explicit Iterator(MapVector<KEY, VALUE, EQUAL> *map) :
-      container_(&map->vec)
-    { if (container_ != nullptr) iter_ = container_->begin(); }
-    explicit Iterator(MapVector<KEY, VALUE, EQUAL> &map) :
-      container_(&map.vec)
-    { if (container_ != nullptr) iter_ = container_->begin(); }
+    explicit Iterator(MapVector<KEY, VALUE, EQUAL> *map)
+    { init(map); }
+    explicit Iterator(MapVector<KEY, VALUE, EQUAL> &map)
+    { init(map); }
     void init(MapVector<KEY, VALUE, EQUAL> *map)
-    { container_ = &map->vec; if (container_ != nullptr) iter_=container_->begin();}
+    {
+      assert(map != nullptr);
+      container_ = &map->vec;
+      iter_ = container_->begin();
+    }
     void init(MapVector<KEY, VALUE, EQUAL> &map)
-    { container_ = &map.vec; if (container_ != nullptr) iter_=container_->begin();}
+    { container_ = &map.vec; iter_ = container_->begin(); }
     bool hasNext()
     {
-      if (!container_) return false;
       while (iter_ != container_->end() && !iter_->valid) iter_++;
       return iter_ != container_->end();
     }
@@ -349,19 +351,20 @@ public:
   {
   public:
     ConstIterator() : container_(nullptr) {}
-    explicit ConstIterator(const MapVector<KEY, VALUE, EQUAL> *map) :
-      container_(&map->vec)
-    { if (container_ != nullptr) iter_ = container_->begin(); }
-    explicit ConstIterator(const MapVector<KEY, VALUE, EQUAL> &map) :
-      container_(&map.vec)
-    { if (container_ != nullptr) iter_ = container_->begin(); }
+    explicit ConstIterator(const MapVector<KEY, VALUE, EQUAL> *map)
+    { init(map); }
+    explicit ConstIterator(const MapVector<KEY, VALUE, EQUAL> &map)
+    { init(map); }
     void init(const MapVector<KEY, VALUE, EQUAL> *map)
-    { container_ = &map->vec; if (container_ != nullptr) iter_=container_->begin();}
+    {
+      assert(map != nullptr);
+      container_ = &map->vec;
+      iter_ = container_->begin();
+    }
     void init(const MapVector<KEY, VALUE, EQUAL> &map)
-    { container_ = &map.vec; if (container_ != nullptr) iter_=container_->begin();}
+    { container_ = &map.vec; iter_ = container_->begin(); }
     bool hasNext()
     {
-      if (!container_) return false;
       while (iter_ != container_->end() && !iter_->valid) iter_++;
       return iter_ != container_->end();
     }
