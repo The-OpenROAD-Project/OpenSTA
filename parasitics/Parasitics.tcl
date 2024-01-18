@@ -66,9 +66,6 @@ proc_redirect read_spef {
   set quiet [info exists flags(-quiet)]
   set save [info exists flags(-save)]
   set filename [file nativename [lindex $args 0]]
-  if { [info exists flags(-increment)] } {
-    sta_warn 272 "read_spef -increment is deprecated."
-  }
   return [read_spef_cmd $filename $instance $corner $min_max \
 	    $pin_cap_included $keep_coupling_caps $coupling_reduction_factor \
 	    $reduce_to $delete_after_reduce $quiet]

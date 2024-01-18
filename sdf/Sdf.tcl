@@ -46,9 +46,6 @@ proc_redirect read_sdf {
       sta_error 621 "-cond_use min_max cannot be used with analysis type single."
     }
   }
-  if [info exists keys(-analysis_type)] {
-    sta_warn 622 "-analysis_type is deprecated. Use set_operating_conditions -analysis_type."
-  }
 
   set unescaped_dividers [info exists flags(-unescaped_dividers)]
   set incremental_only [info exists flags(-incremental_only)]

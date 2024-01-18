@@ -404,13 +404,7 @@ proc_redirect report_check_types {
   variable path_options
 
   parse_key_args "report_check_types" args keys {-net -corner}\
-    flags {-violators -all_violators -verbose -no_line_splits} 0
-
-  set violators [info exists flags(-violators)]
-  if { [info exists flags(-all_violators)] } {
-    sta_warn 517 "-all_violators is deprecated. Use -violators"
-    set violators 1
-  }
+    flags {-violators -verbose -no_line_splits} 0
 
   set verbose [info exists flags(-verbose)]
   set nosplit [info exists flags(-no_line_splits)]
@@ -477,8 +471,7 @@ proc_redirect report_check_types {
 	       -max_fanout -min_fanout \
 	       -max_capacitance -min_capacitance \
 	       -min_pulse_width \
-	       -min_period -max_skew \
-	       -max_transition -min_transition } 1
+	       -min_period -max_skew} 1
 
     set setup [info exists flags(-max_delay)]
     set hold [info exists flags(-min_delay)]
@@ -487,15 +480,6 @@ proc_redirect report_check_types {
     set clk_gating_setup [info exists flags(-clock_gating_setup)]
     set clk_gating_hold [info exists flags(-clock_gating_hold)]
     set max_slew [info exists flags(-max_slew)]
-    if { [info exists flags(-max_transition)] } {
-      sta_warn 518 "-max_transition deprecated. Use -max_slew."
-      set max_slew 1
-    }
-    set min_slew [info exists flags(-min_slew)]
-    if { [info exists flags(-min_transition)] } {
-      sta_warn 519 "-min_transition deprecated. Use -min_slew."
-      set min_slew 1
-    }
     set max_fanout [info exists flags(-max_fanout)]
     set min_fanout [info exists flags(-min_fanout)]
     set max_capacitance [info exists flags(-max_capacitance)]
@@ -528,15 +512,9 @@ proc_redirect report_check_types {
     } elseif { $hold || $removal || $clk_gating_hold } {
       set path_min_max "min"
     }
-    if { $violators } {
-      set group_count $sta::group_count_max
-      set slack_min [expr -$sta::float_inf]
-      set slack_max 0.0
-    } else {
-      set group_count 1
-      set slack_min [expr -$sta::float_inf]
-      set slack_max $sta::float_inf
-    }
+    set group_count 1
+    set slack_min [expr -$sta::float_inf]
+    set slack_max $sta::float_inf
     set path_ends [find_path_ends "NULL" {} "NULL" 0 \
 		     $corner $path_min_max $group_count 1 0 \
 		     $slack_min $slack_max \
@@ -900,9 +878,6 @@ proc parse_report_path_options { cmd args_var default_format
     set report_net [expr [lsearch $fields "net*"] != -1]
     set report_slew [expr [lsearch $fields "slew*"] != -1]
     set report_fanout [expr [lsearch $fields "fanout*"] != -1]
-    if { [expr [lsearch $fields "trans*"] != -1] } {
-      sta_warn 525 "The transition_time field is deprecated. Use slew instead."
-    }
   } else {
     set report_input_pin 0
     set report_cap 0

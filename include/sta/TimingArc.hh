@@ -229,9 +229,7 @@ public:
   LibertyPort *from() const { return set_->from(); }
   LibertyPort *to() const { return set_->to(); }
   Transition *fromEdge() const { return from_rf_; }
-  Transition *fromTrans() const __attribute__ ((deprecated)) { return from_rf_; }
   Transition *toEdge() const { return to_rf_; }
-  Transition *toTrans() const __attribute__ ((deprecated)) { return to_rf_; }
   TimingRole *role() const { return set_->role(); }
   TimingArcSet *set() const { return set_; }
   TimingSense sense() const;
