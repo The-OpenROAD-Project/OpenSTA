@@ -406,6 +406,7 @@ proc_redirect report_check_types {
   parse_key_args "report_check_types" args keys {-net -corner}\
     flags {-violators -verbose -no_line_splits} 0
 
+  set violators [info exists flags(-violators)]
   set verbose [info exists flags(-verbose)]
   set nosplit [info exists flags(-no_line_splits)]
 
@@ -480,6 +481,7 @@ proc_redirect report_check_types {
     set clk_gating_setup [info exists flags(-clock_gating_setup)]
     set clk_gating_hold [info exists flags(-clock_gating_hold)]
     set max_slew [info exists flags(-max_slew)]
+    set min_slew [info exists flags(-min_slew)]
     set max_fanout [info exists flags(-max_fanout)]
     set min_fanout [info exists flags(-min_fanout)]
     set max_capacitance [info exists flags(-max_capacitance)]
@@ -512,9 +514,15 @@ proc_redirect report_check_types {
     } elseif { $hold || $removal || $clk_gating_hold } {
       set path_min_max "min"
     }
-    set group_count 1
-    set slack_min [expr -$sta::float_inf]
-    set slack_max $sta::float_inf
+    if { $violators } {
+      set group_count $sta::group_count_max
+      set slack_min [expr -$sta::float_inf]
+      set slack_max 0.0
+    } else {
+      set group_count 1
+      set slack_min [expr -$sta::float_inf]
+      set slack_max $sta::float_inf
+    }
     set path_ends [find_path_ends "NULL" {} "NULL" 0 \
 		     $corner $path_min_max $group_count 1 0 \
 		     $slack_min $slack_max \
