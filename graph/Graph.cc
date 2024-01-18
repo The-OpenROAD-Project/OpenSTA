@@ -106,7 +106,7 @@ public:
 			int &bidirect_count,
 			int &load_count,
 			const Network *network);
-  virtual void operator()(Pin *pin);
+  virtual void operator()(const Pin *pin);
 
 protected:
   Pin *drvr_pin_;
@@ -133,7 +133,7 @@ FindNetDrvrLoadCounts::FindNetDrvrLoadCounts(Pin *drvr_pin,
 }
 
 void
-FindNetDrvrLoadCounts::operator()(Pin *pin)
+FindNetDrvrLoadCounts::operator()(const Pin *pin)
 {
   if (network_->isDriver(pin)) {
     if (pin != drvr_pin_)
