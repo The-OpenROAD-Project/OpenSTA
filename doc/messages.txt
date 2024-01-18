@@ -48,9 +48,14 @@
 0192 DelayCalc.tcl:282         $cmd check_value is not a float.
 0210 DelayCalc.tcl:350         set_assigned_transition transition is not a float.
 0220 Link.tcl:34               missing top_cell_name argument and no current_design.
-0230 Network.tcl:35            instance $instance_path not found.
-0231 Network.tcl:221           net $net_path not found.
-0232 Network.tcl:224           net $net_path not found.
+0230 Network.tcl:39            instance $instance_path not found.
+0231 Network.tcl:212           net $net_path not found.
+0232 Network.tcl:215           net $net_path not found.
+0233 Network.tcl:29            report_instance -connections is deprecated.
+0234 Network.tcl:32            report_instance -verbose is deprecated.
+0235 Network.tcl:186           report_net -connections is deprecated.
+0236 Network.tcl:189           report_net -verbose is deprecated.
+0237 Network.tcl:192           report_net -hier_pins is deprecated.
 0250 NetworkEdit.tcl:107       unsupported object type $object_type.
 0251 NetworkEdit.tcl:137       connect_pins is deprecated.  Use connect_pin.
 0252 NetworkEdit.tcl:206       unsupported object type $object_type.
@@ -59,7 +64,6 @@
 0267 Sta.cc:2029               '%s' is not a valid start point.
 0270 Parasitics.tcl:45         path instance '$path' not found.
 0271 Parasitics.tcl:62         -reduce_to must be pi_elmore or pi_pole_residue2.
-0272 Parasitics.tcl:70         read_spef -increment is deprecated.
 0301 Power.tcl:220             activity should be 0.0 to 1.0 or 2.0
 0302 Power.tcl:228             duty should be 0.0 to 1.0
 0303 Power.tcl:243             activity cannot be set on clock ports.
@@ -219,17 +223,13 @@
 0514 Search.tcl:205            '$arg' is not a known keyword or flag.
 0515 Search.tcl:207            positional arguments not supported.
 0516 Search.tcl:326            report_clock_skew -setup and -hold are mutually exclusive options.
-0517 Search.tcl:411            -all_violators is deprecated. Use -violators
-0518 Search.tcl:491            -max_transition deprecated. Use -max_slew.
-0519 Search.tcl:496            -min_transition deprecated. Use -min_slew.
-0520 Search.tcl:510            analysis type single is not consistent with doing both setup/max and hold/min checks.
-0521 Search.tcl:515            positional arguments not supported.
-0522 Search.tcl:778            -min and -max cannot both be specified.
-0523 Search.tcl:798            pin '$pin_arg' is hierarchical.
-0524 Search.tcl:864            -format $format not recognized.
-0525 Search.tcl:904            The transition_time field is deprecated. Use slew instead.
-0526 Search.tcl:1011           specify one of -setup and -hold.
-0527 Search.tcl:1060           unknown path group '$name'.
+0520 Search.tcl:496            analysis type single is not consistent with doing both setup/max and hold/min checks.
+0521 Search.tcl:501            positional arguments not supported.
+0522 Search.tcl:764            -min and -max cannot both be specified.
+0523 Search.tcl:784            pin '$pin_arg' is hierarchical.
+0524 Search.tcl:850            -format $format not recognized.
+0526 Search.tcl:994            specify one of -setup and -hold.
+0527 Search.tcl:1043           unknown path group '$name'.
 0540 Sta.tcl:158               -from/-to arguments not supported with -of_objects.
 0541 Sta.tcl:286               unsupported -filter expression.
 0560 Util.tcl:44               $cmd $key missing value.
@@ -266,8 +266,7 @@
 0611 WritePathSpice.tcl:86     No paths found for -path_args $path_args.
 0620 Sdf.tcl:41                -cond_use must be min, max or min_max.
 0621 Sdf.tcl:46                -cond_use min_max cannot be used with analysis type single.
-0622 Sdf.tcl:50                -analysis_type is deprecated. Use set_operating_conditions -analysis_type.
-0623 Sdf.tcl:157               SDF -divider must be / or .
+0623 Sdf.tcl:154               SDF -divider must be / or .
 0800 VcdReader.cc:110          unhandled vcd command.
 0801 VcdReader.cc:146          timescale syntax error.
 0802 VcdReader.cc:160          Unknown timescale unit.
@@ -381,7 +380,7 @@
 1224 LibertyReader.cc:2610     vector reference_time not found.
 1225 LibertyReader.cc:2643     normalized_driver_waveform variable_2 must be normalized_voltage
 1226 LibertyReader.cc:2646     normalized_driver_waveform variable_1 must be input_net_transition
-1227 SpefReader.cc:732         %s.
+1227 SpefReader.cc:730         %s.
 1228 LibertyReader.cc:2868     level_shifter_type must be HL, LH, or HL_LH
 1229 LibertyReader.cc:2904     switch_cell_type must be coarse_grain or fine_grain
 1230 LibertyReader.cc:2928     scaling_factors %s not found.
