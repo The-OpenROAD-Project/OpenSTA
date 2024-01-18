@@ -3,6 +3,13 @@ OpenSTA Timing Analyzer Release Notes
 
 This file summarizes user visible changes for each release.
 
+Release 2.5.0 2024/01/17
+-------------------------
+
+The report_net -connections, -verbose and -hier_pins flags are deprecated.
+The report_instance -connections and -verbose flags are deprecated.
+The options are now enabled in all cases.
+
 Release 2.4.0 2023/01/19
 -------------------------
 
