@@ -47,6 +47,7 @@ using std::max;
 using std::sqrt;
 using std::log;
 using std::isnan;
+using std::function;
 
 // Tolerance (as a scale of value) for driver parameters (Ceff, delta t, t0).
 static const double driver_param_tol = .01;
@@ -91,8 +92,6 @@ gateModelRd(const LibertyCell *cell,
 	    const Pvt *pvt,
 	    bool pocv_enabled);
 static void
-evalDmpEqnsState(void *state);
-static void
 evalVoEqns(void *state,
 	   double x,
 	   double &y,
@@ -116,9 +115,7 @@ newtonRaphson(const int max_iter,
 	      const int n,
 	      const double x_tol,
 	      // eval(state) is called to fill fvec and fjac.
-	      // Returns false if fails.
-	      void (*eval)(void *state),
-	      void *state,
+	      function<void ()> eval,
 	      // Temporaries supplied by caller.
 	      double *fvec,
 	      double **fjac,
@@ -350,8 +347,9 @@ DmpAlg::findDriverParams(double ceff)
   double t0 = t_vth + log(1.0 - vth_) * rd_ * ceff - vth_ * dt;
   x_[DmpParam::dt] = dt;
   x_[DmpParam::t0] = t0;
-  newtonRaphson(100, x_, nr_order_, driver_param_tol, evalDmpEqnsState,
-		this, fvec_, fjac_, index_, p_, scale_);
+  newtonRaphson(100, x_, nr_order_, driver_param_tol,
+                [=] () { evalDmpEqns(); },
+		fvec_, fjac_, index_, p_, scale_);
   t0_ = x_[DmpParam::t0];
   dt_ = x_[DmpParam::dt];
   debugPrint(debug_, "dmp_ceff", 3, "    t0 = %s dt = %s ceff = %s",
@@ -360,13 +358,6 @@ DmpAlg::findDriverParams(double ceff)
              units_->capacitanceUnit()->asString(x_[DmpParam::ceff]));
   if (debug_->check("dmp_ceff", 4))
     showVo();
-}
-
-static void
-evalDmpEqnsState(void *state)
-{
-  DmpAlg *alg = reinterpret_cast<DmpAlg *>(state);
-  alg->evalDmpEqns();
 }
 
 void
@@ -1326,8 +1317,7 @@ newtonRaphson(const int max_iter,
 	      double x[],
 	      const int size,
 	      const double x_tol,
-	      void (*eval)(void *state),
-	      void *state,
+	      function<void ()> eval,
 	      // Temporaries supplied by caller.
 	      double *fvec,
 	      double **fjac,
@@ -1336,7 +1326,7 @@ newtonRaphson(const int max_iter,
 	      double *scale)
 {
   for (int k = 0; k < max_iter; k++) {
-    eval(state);
+    eval();
     for (int i = 0; i < size; i++)
       // Right-hand side of linear equations.
       p[i] = -fvec[i];
