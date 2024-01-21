@@ -506,7 +506,7 @@ DmpAlg::findVoCrossing(double vth,
   double t_vth = findRoot(vo_func, t_lower, t_upper, vth_time_tol,
                           find_root_max_iter, fail);
   if (fail)
-    throw DmpError("findRoot failed");
+    throw DmpError("find Vo crossing failed");
   return t_vth;
 }
 
@@ -624,7 +624,7 @@ DmpAlg::findVlCrossing(double vth,
   double t_vth = findRoot(vl_func, t_lower, t_upper, vth_time_tol,
                           find_root_max_iter, fail);
   if (fail)
-    throw DmpError("findRoot failed");
+    throw DmpError("find Vl crossing failed");
   return t_vth;
 }
 
