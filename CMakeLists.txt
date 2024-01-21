@@ -70,6 +70,7 @@ set(STA_SOURCE
   dcalc/DelayCalcBase.cc
   dcalc/DmpCeff.cc
   dcalc/DmpDelayCalc.cc
+  dcalc/FindRoot.cc
   dcalc/GraphDelayCalc.cc
   dcalc/LumpedCapDelayCalc.cc
   dcalc/NetCaps.cc
