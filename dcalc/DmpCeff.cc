@@ -695,37 +695,37 @@ class DmpCap : public DmpAlg
 {
 public:
   DmpCap(StaState *sta);
-  virtual const char *name() { return "cap"; }
-  virtual void init(const LibertyLibrary *library,
-		    const LibertyCell *drvr_cell,
-		    const Pvt *pvt,
-		    const GateTableModel *gate_model,
-		    const RiseFall *rf,
-		    double rd,
-		    double in_slew,
-		    double c2,
-		    double rpi,
-		    double c1);
-  virtual void gateDelaySlew(// Return values.
-                             double &delay,
-			     double &slew);
-  virtual void loadDelaySlew(const Pin *,
-			     double elmore,
-			     // Return values.
-                             ArcDelay &delay,
-			     Slew &slew);
-  virtual void evalDmpEqns();
-  virtual double voCrossingUpperBound();
+  const char *name() override { return "cap"; }
+  void init(const LibertyLibrary *library,
+            const LibertyCell *drvr_cell,
+            const Pvt *pvt,
+            const GateTableModel *gate_model,
+            const RiseFall *rf,
+            double rd,
+            double in_slew,
+            double c2,
+            double rpi,
+            double c1) override;
+  void gateDelaySlew(// Return values.
+                     double &delay,
+                     double &slew) override;
+  void loadDelaySlew(const Pin *,
+                     double elmore,
+                     // Return values.
+                     ArcDelay &delay,
+                     Slew &slew) override;
+  void evalDmpEqns() override;
+  double voCrossingUpperBound() override;
 
 private:
-  virtual void V0(double t,
-                  // Return values.
-                  double &vo,
-                  double &dvo_dt);
-  virtual void Vl0(double t,
-                   // Return values.
-                   double &vl,
-                   double &dvl_dt);
+  void V0(double t,
+          // Return values.
+          double &vo,
+          double &dvo_dt) override;
+  void Vl0(double t,
+           // Return values.
+           double &vl,
+           double &dvl_dt) override;
 };
 
 DmpCap::DmpCap(StaState *sta):
@@ -810,22 +810,22 @@ class DmpPi : public DmpAlg
 {
 public:
   DmpPi(StaState *sta);
-  virtual const char *name() { return "Pi"; }
-  virtual void init(const LibertyLibrary *library,
-		    const LibertyCell *drvr_cell,
-		    const Pvt *pvt,
-		    const GateTableModel *gate_model,
-		    const RiseFall *rf,
-		    double rd,
-		    double in_slew,
-		    double c2,
-		    double rpi,
-		    double c1);
-  virtual void gateDelaySlew(// Return values.
-                             double &delay,
-			     double &slew);
-  virtual void evalDmpEqns();
-  virtual double voCrossingUpperBound();
+  const char *name() override { return "Pi"; }
+  void init(const LibertyLibrary *library,
+            const LibertyCell *drvr_cell,
+            const Pvt *pvt,
+            const GateTableModel *gate_model,
+            const RiseFall *rf,
+            double rd,
+            double in_slew,
+            double c2,
+            double rpi,
+            double c1) override;
+  void gateDelaySlew(// Return values.
+                     double &delay,
+                     double &slew) override;
+  void evalDmpEqns() override;
+  double voCrossingUpperBound() override;
 
 private:
   void findDriverParamsPi();
@@ -833,14 +833,14 @@ private:
 		  double dt,
 		  double ceff_time,
 		  double ceff);
-  virtual void V0(double t,
-                  // Return values.
-                  double &vo,
-                  double &dvo_dt);
-  virtual void Vl0(double t,
-                   // Return values.
-                   double &vl,
-                   double &dvl_dt);
+  void V0(double t,
+          // Return values.
+          double &vo,
+          double &dvo_dt) override;
+  void Vl0(double t,
+           // Return values.
+           double &vl,
+           double &dvl_dt) override;
 
   // Poles/zero.
   double p1_;
@@ -1087,8 +1087,8 @@ class DmpOnePole : public DmpAlg
 {
 public:
   DmpOnePole(StaState *sta);
-  virtual void evalDmpEqns();
-  virtual double voCrossingUpperBound();
+  void evalDmpEqns() override;
+  double voCrossingUpperBound() override;
 };
 
 DmpOnePole::DmpOnePole(StaState *sta) :
@@ -1145,31 +1145,31 @@ class DmpZeroC2 : public DmpOnePole
 {
 public:
   DmpZeroC2(StaState *sta);
-  virtual const char *name() { return "c2=0"; }
-  virtual void init(const LibertyLibrary *drvr_library,
-		    const LibertyCell *drvr_cell,
-		    const Pvt *pvt,
-		    const GateTableModel *gate_model,
-		    const RiseFall *rf,
-		    double rd,
-		    double in_slew,
-		    double c2,
-		    double rpi,
-		    double c1);
-  virtual void gateDelaySlew(// Return values.
-                             double &delay,
-			     double &slew);
+  const char *name() override { return "c2=0"; }
+  void init(const LibertyLibrary *drvr_library,
+            const LibertyCell *drvr_cell,
+            const Pvt *pvt,
+            const GateTableModel *gate_model,
+            const RiseFall *rf,
+            double rd,
+            double in_slew,
+            double c2,
+            double rpi,
+            double c1) override;
+  void gateDelaySlew(// Return values.
+                     double &delay,
+                     double &slew) override;
 
 private:
-  virtual void V0(double t,
-                  // Return values.
-                  double &vo,
-                  double &dvo_dt);
-  virtual void Vl0(double t,
-                   // Return values.
-                   double &vl,
-                   double &dvl_dt);
-  virtual double voCrossingUpperBound();
+  void V0(double t,
+          // Return values.
+          double &vo,
+          double &dvo_dt) override;
+   void Vl0(double t,
+            // Return values.
+            double &vl,
+            double &dvl_dt) override;
+  double voCrossingUpperBound() override;
 
   // Pole/zero.
   double p1_;
@@ -1353,7 +1353,7 @@ luDecomp(double **a,
       a[i][j] = sum;
     }
     // Run down jth subdiag to form the residuals after the elimination
-    // of the first j-1 subdiags.  These residuals divided by the
+    // of the first j-1 subdiags.  These residuals diviyded by the
     // appropriate diagonal term will become the multipliers in the
     // elimination of the jth. subdiag. Find index of largest scaled
     // term in imax.
