@@ -238,6 +238,7 @@ public:
   // the other primitives.
   LeafInstanceIterator *leafInstanceIterator() const;
   LeafInstanceIterator *leafInstanceIterator(const Instance *hier_inst) const;
+  InstanceSeq leafInstances();
   // Iterate over the children of an instance.
   virtual InstanceChildIterator *
   childIterator(const Instance *instance) const = 0;

@@ -1189,6 +1189,19 @@ Network::leafPinCount()
   return count;
 }
 
+InstanceSeq
+Network::leafInstances()
+{
+  InstanceSeq insts;
+  LeafInstanceIterator *iter = leafInstanceIterator();
+  while (iter->hasNext()) {
+    const Instance *inst = iter->next();
+    insts.push_back(inst);
+  }
+  delete iter;
+  return insts;
+}
+
 void
 Network::setPathDivider(char divider)
 {

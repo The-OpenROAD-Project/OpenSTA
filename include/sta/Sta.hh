@@ -1106,9 +1106,8 @@ public:
   // with normal constant propagate for timing.
   void clearLogicConstants();
 
-  // Iterator for instances sorted by max driver pin slew.
-  // Caller owns iterator and iterator->container().
-  SlowDrvrIterator *slowDrvrIterator();
+  // Instances sorted by max driver pin slew.
+  InstanceSeq slowDrivers(int count);
 
   // Make parasitic analysis points.
   // per_corner per_min_max     ap_count

@@ -441,13 +441,6 @@ private:
   ~VertexPathIterator();
 };
 
-class SlowDrvrIterator
-{
-private:
-  SlowDrvrIterator();
-  ~SlowDrvrIterator();
-};
-
 class ExceptionFrom
 {
 private:
@@ -990,14 +983,7 @@ find_instance(char *path_name)
 InstanceSeq
 network_leaf_instances()
 {
-  InstanceSeq insts;
-  LeafInstanceIterator *iter = cmdLinkedNetwork()->leafInstanceIterator();
-  while (iter->hasNext()) {
-    const Instance *inst = iter->next();
-    insts.push_back(inst);
-  }
-  delete iter;
-  return insts;
+  return cmdLinkedNetwork()->leafInstances();
 }
 
 InstanceSeq
@@ -3618,10 +3604,10 @@ pin_logic_value(const Pin *pin)
   return logicValueString(value);
 }
 
-SlowDrvrIterator *
-slow_driver_iterator()
+InstanceSeq
+slow_drivers(int count)
 {
-  return Sta::sta()->slowDrvrIterator();
+  return Sta::sta()->slowDrivers(count);
 }
 
 bool
@@ -5019,18 +5005,6 @@ next()
 }
 
 void finish() { delete self; }
-}
-
-%extend SlowDrvrIterator {
-bool has_next() { return self->hasNext(); }
-const Instance *next() { return self->next(); }
-void
-finish()
-{
-  delete self->container();
-  delete self;
-}
-
 }
 
 %extend Corner {

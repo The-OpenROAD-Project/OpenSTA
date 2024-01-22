@@ -5152,67 +5152,37 @@ Sta::crossesHierarchy(Edge *edge) const
 
 ////////////////////////////////////////////////////////////////
 
-class InstanceMaxSlewGreater
+static Slew
+instMaxSlew(const Instance *inst,
+            Sta *sta)
 {
-public:
-  explicit InstanceMaxSlewGreater(const StaState *sta);
-  bool operator()(const Instance *inst1,
-		  const Instance *inst2) const;
-
-protected:
-  Slew instMaxSlew(const Instance *inst) const;
-  const StaState *sta_;
-};
-
-InstanceMaxSlewGreater::InstanceMaxSlewGreater(const StaState *sta) :
-  sta_(sta)
-{
-}
-
-bool
-InstanceMaxSlewGreater::operator()(const Instance *inst1,
-				   const Instance *inst2) const
-{
-  return delayGreater(instMaxSlew(inst1), instMaxSlew(inst2), sta_);
-}
-
-Slew
-InstanceMaxSlewGreater::instMaxSlew(const Instance *inst) const
-{
-  Network *network = sta_->network();
-  Graph *graph = sta_->graph();
+  Network *network = sta->network();
+  Graph *graph = sta->graph();
   Slew max_slew = 0.0;
   InstancePinIterator *pin_iter = network->pinIterator(inst);
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
     if (network->isDriver(pin)) {
       Vertex *vertex = graph->pinDrvrVertex(pin);
-      for (RiseFall *rf : RiseFall::range()) {
-	for (DcalcAnalysisPt *dcalc_ap : sta_->corners()->dcalcAnalysisPts()) {
-	  Slew slew = graph->slew(vertex, rf, dcalc_ap->index());
-	  if (delayGreater(slew, max_slew, sta_))
-	    max_slew = slew;
-	}
-      }
+      max_slew = max(max_slew, sta->vertexSlew(vertex, MinMax::max()));
     }
   }
   delete pin_iter;
   return max_slew;
 }
 
-SlowDrvrIterator *
-Sta::slowDrvrIterator()
+InstanceSeq
+Sta::slowDrivers(int count)
 {
-  InstanceSeq *insts = new InstanceSeq;
-  LeafInstanceIterator *leaf_iter = network_->leafInstanceIterator();
-  while (leaf_iter->hasNext()) {
-    Instance *leaf = leaf_iter->next();
-    insts->push_back(leaf);
-  }
-  delete leaf_iter;
-
-  sort(insts, InstanceMaxSlewGreater(this));
-  return new SlowDrvrIterator(insts);
+  InstanceSeq insts = network_->leafInstances();
+  sort(insts, [=] (const Instance *inst1,
+                   const Instance *inst2) {
+    return delayGreater(instMaxSlew(inst1, this),
+                        instMaxSlew(inst2, this),
+                        this);
+  });
+  insts.resize(count);
+  return insts;
 }
 
 ////////////////////////////////////////////////////////////////
