@@ -59,7 +59,6 @@
 #include "ExceptionPath.hh"
 #include "Sdc.hh"
 #include "Graph.hh"
-#include "Parasitics.hh"
 #include "DelayCalc.hh"
 #include "DcalcAnalysisPt.hh"
 #include "Corner.hh"
