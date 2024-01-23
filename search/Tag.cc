@@ -403,15 +403,15 @@ tagMatch(const Tag *tag1,
   const ClkInfo *clk_info1 = tag1->clkInfo();
   const ClkInfo *clk_info2 = tag2->clkInfo();
   return tag1 == tag2
-    || (clk_info1->clkEdge() == clk_info2->clkEdge()
+    || (tag1->pathAPIndex() == tag2->pathAPIndex()
 	&& tag1->rfIndex() == tag2->rfIndex()
-	&& tag1->pathAPIndex() == tag2->pathAPIndex()
-	&& tag1->isClock() == tag2->isClock()
-	&& tag1->isSegmentStart() == tag2->isSegmentStart()
-	&& clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
 	&& (!match_crpr_clk_pin
 	    || !sta->sdc()->crprActive()
 	    || clk_info1->crprClkVertexId() == clk_info2->crprClkVertexId())
+	&& clk_info1->clkEdge() == clk_info2->clkEdge()
+	&& tag1->isClock() == tag2->isClock()
+	&& tag1->isSegmentStart() == tag2->isSegmentStart()
+	&& clk_info1->isGenClkSrcPath() == clk_info2->isGenClkSrcPath()
 	&& tagStateEqual(tag1, tag2));
 }
 
