@@ -22,6 +22,7 @@
 #include "Set.hh"
 #include "Map.hh"
 #include "UnorderedMap.hh"
+#include "VectorMap.hh"
 #include "StringSet.hh"
 #include "MinMaxValues.hh"
 #include "Delay.hh"
@@ -99,7 +100,7 @@ typedef StringSet PathGroupNameSet;
 typedef Vector<PathEnd*> PathEndSeq;
 typedef Vector<Arrival> ArrivalSeq;
 typedef Map<Vertex*, int> VertexPathCountMap;
-typedef MapVector<Tag*, int, TagMatchEqual> ArrivalMap;
+typedef VectorMap<Tag*, int, TagMatchEqual> ArrivalMap;
 typedef Vector<PathVertex> PathVertexSeq;
 typedef Vector<Slack> SlackSeq;
 typedef Delay Crpr;
