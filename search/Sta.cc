@@ -5174,6 +5174,7 @@ instMaxSlew(const Instance *inst,
 InstanceSeq
 Sta::slowDrivers(int count)
 {
+  findDelays();
   InstanceSeq insts = network_->leafInstances();
   sort(insts, [=] (const Instance *inst1,
                    const Instance *inst2) {
