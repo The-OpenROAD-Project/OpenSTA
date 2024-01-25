@@ -37,6 +37,25 @@ ParallelDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
                               const LoadPinIndexMap &load_pin_index_map,
                               const DcalcAnalysisPt *dcalc_ap)
 {
+  if (dcalc_args.size() == 1) {
+    ArcDcalcArg &dcalc_arg = dcalc_args[0];
+    ArcDcalcResult dcalc_result =  gateDelay(dcalc_arg.drvrPin(), dcalc_arg.arc(),
+                                             dcalc_arg.inSlew(),
+                                             load_cap, dcalc_arg.parasitic(),
+                                             load_pin_index_map, dcalc_ap);
+    ArcDcalcResultSeq dcalc_results;
+    dcalc_results.push_back(dcalc_result);
+    return dcalc_results;
+  }
+  return gateDelaysParallel(dcalc_args, load_cap, load_pin_index_map, dcalc_ap);
+}
+
+ArcDcalcResultSeq
+ParallelDelayCalc::gateDelaysParallel(ArcDcalcArgSeq &dcalc_args,
+                                      float load_cap,
+                                      const LoadPinIndexMap &load_pin_index_map,
+                                      const DcalcAnalysisPt *dcalc_ap)
+{
   size_t drvr_count = dcalc_args.size();
   ArcDcalcResultSeq dcalc_results(drvr_count);
   Slew slew_sum = 0.0;

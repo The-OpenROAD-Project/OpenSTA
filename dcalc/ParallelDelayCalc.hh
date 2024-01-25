@@ -32,6 +32,11 @@ public:
                                float load_cap,
                                const LoadPinIndexMap &load_pin_index_map,
                                const DcalcAnalysisPt *dcalc_ap) override;
+protected:
+  ArcDcalcResultSeq gateDelaysParallel(ArcDcalcArgSeq &dcalc_args,
+                                       float load_cap,
+                                       const LoadPinIndexMap &load_pin_index_map,
+                                       const DcalcAnalysisPt *dcalc_ap);
 };
 
 } // namespace
