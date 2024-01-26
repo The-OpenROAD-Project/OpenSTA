@@ -33,16 +33,10 @@ Network::Network() :
 {
 }
 
-Network::~Network()
-{
-  net_drvr_pin_map_.deleteContents();
-}
-
 void
 Network::clear()
 {
   default_liberty_ = nullptr;
-  clearNetDrvrPinMap();
 }
 
 bool
@@ -1591,22 +1585,12 @@ Network::drivers(const Pin *pin)
     return nullptr;
 }
 
-void
-Network::clearNetDrvrPinMap()
-{
-  net_drvr_pin_map_.deleteContentsClear();
-}
-
 PinSet *
 Network::drivers(const Net *net)
 {
-  PinSet *drvrs = net_drvr_pin_map_.findKey(net);
-  if (drvrs == nullptr) {
-    drvrs = new PinSet(this);
-    FindDrvrPins visitor(drvrs, this);
-    visitConnectedPins(net, visitor);
-    net_drvr_pin_map_[net] = drvrs;
-  }
+  PinSet *drvrs = new PinSet(this);
+  FindDrvrPins visitor(drvrs, this);
+  visitConnectedPins(net, visitor);
   return drvrs;
 }
 

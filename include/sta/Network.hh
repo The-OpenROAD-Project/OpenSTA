@@ -38,7 +38,6 @@ typedef Instance *(LinkNetworkFunc)(const char *top_cell_name,
 				    bool make_black_boxes,
 				    Report *report,
 				    NetworkReader *network);
-typedef Map<const Net*, PinSet*> NetDrvrPinsMap;
 
 // The Network class defines the network API used by sta.
 // The interface to a network implementation is constructed by
@@ -86,7 +85,7 @@ class Network : public StaState
 {
 public:
   Network();
-  virtual ~Network();
+  virtual ~Network() {}
   virtual void clear();
 
   // Linking the hierarchy creates the instance/pin/net network hierarchy.
@@ -474,15 +473,10 @@ protected:
   // findNetsMatching using linear search.
   NetSeq findNetsMatchingLinear(const Instance *instance,
                                 const PatternMatch *pattern) const;
-  // Connect/disconnect net/pins should clear the net->drvrs map.
-  // Incrementally maintaining the map is expensive because 
-  // nets may be connected across hierarchy levels.
-  void clearNetDrvrPinMap();
 
   LibertyLibrary *default_liberty_;
   char divider_;
   char escape_;
-  NetDrvrPinsMap net_drvr_pin_map_;
 };
 
 // Network API to support network edits.
