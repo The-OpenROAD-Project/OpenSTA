@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <algorithm> // abs, min
+#include <functional>
 
 namespace sta {
 

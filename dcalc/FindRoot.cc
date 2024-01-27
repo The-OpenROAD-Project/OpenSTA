@@ -16,7 +16,11 @@
 
 #include "FindRoot.hh"
 
+#include <algorithm> // abs
+
 namespace sta {
+
+using std::abs;
 
 double
 findRoot(FindRootFunc func,
