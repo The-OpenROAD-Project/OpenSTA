@@ -45,6 +45,12 @@ UnitDelayCalc::findParasitic(const Pin *,
   return nullptr;
 }
 
+ReducedParasiticType
+UnitDelayCalc::reducedParasiticType() const
+{
+  return ReducedParasiticType::none;
+}
+
 ArcDcalcResult
 UnitDelayCalc::inputPortDelay(const Pin *,
 			      float,

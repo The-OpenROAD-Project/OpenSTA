@@ -132,6 +132,7 @@ public:
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
                            const DcalcAnalysisPt *dcalc_ap) override;
+  ReducedParasiticType reducedParasiticType() const override;
   ArcDcalcResult inputPortDelay(const Pin *port_pin,
                                 float in_slew,
                                 const RiseFall *rf,
@@ -253,6 +254,12 @@ DmpCeffTwoPoleDelayCalc::findParasitic(const Pin *drvr_pin,
     }
   }
   return parasitic;
+}
+
+ReducedParasiticType
+DmpCeffTwoPoleDelayCalc::reducedParasiticType() const
+{
+  return ReducedParasiticType::pi_pole_residue2;
 }
 
 ArcDcalcResult

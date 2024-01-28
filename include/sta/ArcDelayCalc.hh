@@ -124,6 +124,7 @@ public:
   virtual Parasitic *findParasitic(const Pin *drvr_pin,
 				   const RiseFall *rf,
 				   const DcalcAnalysisPt *dcalc_ap) = 0;
+  virtual ReducedParasiticType reducedParasiticType() const = 0;
   // Find the wire delays and slews for an input port without a driving cell.
   // This call primarily initializes the load delay/slew iterator.
   virtual ArcDcalcResult inputPortDelay(const Pin *port_pin,

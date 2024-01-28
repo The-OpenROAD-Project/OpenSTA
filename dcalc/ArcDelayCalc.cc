@@ -25,15 +25,15 @@ ArcDelayCalc::ArcDelayCalc(StaState *sta):
 
 void
 ArcDelayCalc::gateDelay(const TimingArc *arc,
-			 const Slew &in_slew,
-			 float load_cap,
-			 const Parasitic *parasitic,
-			 float,
-			 const Pvt *,
-			 const DcalcAnalysisPt *dcalc_ap,
-			 // Return values.
-			 ArcDelay &gate_delay,
-			 Slew &drvr_slew)
+                        const Slew &in_slew,
+                        float load_cap,
+                        const Parasitic *parasitic,
+                        float,
+                        const Pvt *,
+                        const DcalcAnalysisPt *dcalc_ap,
+                        // Return values.
+                        ArcDelay &gate_delay,
+                        Slew &drvr_slew)
 {
   LoadPinIndexMap load_pin_index_map(network_);
   ArcDcalcResult dcalc_result = gateDelay(nullptr, arc, in_slew, load_cap, parasitic,

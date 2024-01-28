@@ -101,6 +101,12 @@ LumpedCapDelayCalc::findParasitic(const Pin *drvr_pin,
   return parasitic;
 }
 
+ReducedParasiticType
+LumpedCapDelayCalc::reducedParasiticType() const
+{
+  return ReducedParasiticType::pi_elmore;
+}
+
 ArcDcalcResult
 LumpedCapDelayCalc::inputPortDelay(const Pin *,
                                    float in_slew,

@@ -30,6 +30,7 @@ public:
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
                            const DcalcAnalysisPt *dcalc_ap) override;
+  ReducedParasiticType reducedParasiticType() const override;
   ArcDcalcResult inputPortDelay(const Pin *port_pin,
                                 float in_slew,
                                 const RiseFall *rf,
