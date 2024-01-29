@@ -3055,13 +3055,13 @@ worst_clk_skew_cmd(const SetupHold *setup_hold)
 PinSet
 startpoints()
 {
-  return Sta::sta()->startpoints();
+  return Sta::sta()->startpointPins();
 }
 
 PinSet
 endpoints()
 {
-  return Sta::sta()->endpoints();
+  return Sta::sta()->endpointPins();
 }
 
 PinSet
@@ -4056,12 +4056,6 @@ port_location(const Port *port)
   Network *network = cmdNetwork();
   const Pin *pin = network->findPin(network->topInstance(), port);
   return pin_location(pin);
-}
-
-int
-endpoint_count()
-{
-  return Sta::sta()->endpoints().size();
 }
 
 int

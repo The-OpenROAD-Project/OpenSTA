@@ -2659,7 +2659,7 @@ Sta::ensureClkArrivals()
 ////////////////////////////////////////////////////////////////
 
 PinSet
-Sta::startpoints()
+Sta::startpointPins()
 {
   ensureGraph();
   PinSet pins(network_);
@@ -2668,8 +2668,15 @@ Sta::startpoints()
   return pins;
 }
 
-PinSet
+VertexSet *
 Sta::endpoints()
+{
+  ensureGraph();
+  return search_->endpoints();
+}
+
+PinSet
+Sta::endpointPins()
 {
   ensureGraph();
   PinSet pins(network_);
