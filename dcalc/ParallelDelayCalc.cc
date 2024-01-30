@@ -69,17 +69,14 @@ ParallelDelayCalc::gateDelaysParallel(ArcDcalcArgSeq &dcalc_args,
     const TimingArc *arc = dcalc_arg.arc();
     Slew in_slew = dcalc_arg.inSlew();
 
-    ArcDcalcResult intrinsic_result =
-      arc_delay_calc_->gateDelay(drvr_pin, arc, in_slew, 0.0, nullptr,
-                                 load_pin_index_map, dcalc_ap);
+    ArcDcalcResult intrinsic_result = gateDelay(drvr_pin, arc, in_slew, 0.0, nullptr,
+                                                load_pin_index_map, dcalc_ap);
     ArcDelay intrinsic_delay = intrinsic_result.gateDelay();
     intrinsic_delays[drvr_idx] = intrinsic_result.gateDelay();
 
-    ArcDcalcResult gate_result = arc_delay_calc_->gateDelay(drvr_pin, arc,
-                                                            in_slew, load_cap,
-                                                            dcalc_arg.parasitic(), 
-                                                            load_pin_index_map,
-                                                            dcalc_ap);
+    ArcDcalcResult gate_result = gateDelay(drvr_pin, arc, in_slew, load_cap,
+                                           dcalc_arg.parasitic(),
+                                           load_pin_index_map, dcalc_ap);
     ArcDelay gate_delay = gate_result.gateDelay();
     Slew drvr_slew = gate_result.drvrSlew();
     ArcDelay load_delay = gate_delay - intrinsic_delay;

@@ -1794,10 +1794,14 @@ OutputWaveforms::voltageTime1(float voltage,
   FloatSeq *voltage_times = voltage_times_[wave_index];
   float volt_step = vdd_ / voltage_waveform_step_count_;
   size_t volt_idx = voltage / volt_step;
-  float time0 = (*voltage_times)[volt_idx];
-  float time1 = (*voltage_times)[volt_idx + 1];
-  float time = time0 + (time1 - time0) * (voltage - volt_step * volt_idx);
-  return time;
+  if (volt_idx >= voltage_times->size() - 1)
+    return (*voltage_times)[voltage_times->size() - 1];
+  else {
+    float time0 = (*voltage_times)[volt_idx];
+    float time1 = (*voltage_times)[volt_idx + 1];
+    float time = time0 + (time1 - time0) * (voltage - volt_step * volt_idx);
+    return time;
+  }
 }
 
 void
