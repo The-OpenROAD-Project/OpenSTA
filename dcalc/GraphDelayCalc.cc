@@ -59,7 +59,6 @@ GraphDelayCalc::GraphDelayCalc(StaState *sta) :
   search_non_latch_pred_(new SearchPredNonLatch2(sta)),
   clk_pred_(new ClkTreeSearchPred(sta)),
   iter_(new BfsFwdIterator(BfsIndex::dcalc, search_non_latch_pred_, sta)),
-  multi_drvr_nets_found_(false),
   incremental_delay_tolerance_(0.0)
 {
 }
@@ -103,7 +102,6 @@ GraphDelayCalc::clear()
 {
   delaysInvalid();
   deleteMultiDrvrNets();
-  multi_drvr_nets_found_ = false;
 }
 
 float
@@ -184,7 +182,7 @@ GraphDelayCalc::deleteVertexBefore(Vertex *vertex)
   MultiDrvrNet *multi_drvr = multiDrvrNet(vertex);
   if (multi_drvr) {
     // Don't bother incrementally updating MultiDrvrNet.
-    for (Vertex *drvr_vertex : *multi_drvr->drvrs())
+    for (Vertex *drvr_vertex : multi_drvr->drvrs())
       multi_drvr_net_map_.erase(drvr_vertex);
     delete multi_drvr;
   }
@@ -477,7 +475,7 @@ GraphDelayCalc::findPortIndex(const LibertyCell *cell,
       return index;
     index++;
   }
-  report_->critical(1100, "port not found in cell");
+  report_->critical(1100, "port not found in cell.");
   return 0;
 }
 
@@ -655,26 +653,50 @@ GraphDelayCalc::findDriverDelays(Vertex *drvr_vertex,
 MultiDrvrNet *
 GraphDelayCalc::findMultiDrvrNet(Vertex *drvr_vertex)
 {
-  MultiDrvrNet *multi_drvr = multiDrvrNet(drvr_vertex);
-  if (multi_drvr)
+  // Avoid locking for single driver nets.
+  if (hasMultiDrvrs(drvr_vertex)) {
+    UniqueLock lock(multi_drvr_lock_);
+    MultiDrvrNet *multi_drvr = multiDrvrNet(drvr_vertex);
+    if (multi_drvr)
+      return multi_drvr;
+    multi_drvr = makeMultiDrvrNet(drvr_vertex);
     return multi_drvr;
-  else {
-    const PinSet *drvrs = network_->drivers(drvr_vertex->pin());
-    if (drvrs && drvrs->size() > 1) {
-      PinSet drvrs1(network_);
-      // Filter input ports and non-leaf drivers.
-      for (const Pin *pin : *drvrs) {
-        if (isLeafDriver(pin, network_))
-          drvrs1.insert(pin);
-      }
-      MultiDrvrNet *multi_drvr = nullptr;
-      if (drvrs1.size() > 1)
-        multi_drvr = makeMultiDrvrNet(drvrs1);
-    return multi_drvr;
-    }
-    else
-      return nullptr;
   }
+  return nullptr;
+}
+
+bool
+GraphDelayCalc::hasMultiDrvrs(Vertex *drvr_vertex)
+{
+  Vertex *load_vertex = firstLoad(drvr_vertex);
+  if (load_vertex) {
+    int drvr_count = 0;
+    VertexInEdgeIterator edge_iter(load_vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      if (edge->isWire()) {
+        Vertex *drvr = edge->from(graph_);
+        if (isLeafDriver(drvr->pin(), network_))
+          drvr_count++;
+      }
+      if (drvr_count > 1)
+        return true;
+    }
+    return false;
+  }
+  return false;
+}
+
+Vertex *
+GraphDelayCalc::firstLoad(Vertex *drvr_vertex)
+{
+  VertexOutEdgeIterator edge_iter(drvr_vertex, graph_);
+  while (edge_iter.hasNext()) {
+    Edge *wire_edge = edge_iter.next();
+    if (wire_edge->isWire())
+      return wire_edge->to(graph_);
+  }
+  return nullptr;
 }
 
 static bool
@@ -693,31 +715,41 @@ GraphDelayCalc::multiDrvrNet(const Vertex *drvr_vertex) const
 }
 
 MultiDrvrNet *
-GraphDelayCalc::makeMultiDrvrNet(PinSet &drvr_pins)
+GraphDelayCalc::makeMultiDrvrNet(Vertex *drvr_vertex)
 {
-  debugPrint(debug_, "delay_calc", 3, "multi-driver net");
-  VertexSet *drvr_vertices = new VertexSet(graph_);
-  MultiDrvrNet *multi_drvr = new MultiDrvrNet(drvr_vertices);
-  Level max_drvr_level = 0;
-  Vertex *max_drvr = nullptr;
-  PinSet::Iterator pin_iter(drvr_pins);
-  while (pin_iter.hasNext()) {
-    const Pin *pin = pin_iter.next();
-    Vertex *drvr_vertex = graph_->pinDrvrVertex(pin);
-    debugPrint(debug_, "delay_calc", 3, " %s",
-               network_->pathName(pin));
-    multi_drvr_net_map_[drvr_vertex] = multi_drvr;
-    drvr_vertices->insert(drvr_vertex);
-    Level drvr_level = drvr_vertex->level();
-    if (max_drvr == nullptr
-	|| drvr_level > max_drvr_level) {
-      max_drvr = drvr_vertex;
-      max_drvr_level = drvr_level;
+  Vertex *load_vertex = firstLoad(drvr_vertex);
+  if (load_vertex) {
+    debugPrint(debug_, "delay_calc", 3, "multi-driver net");
+    MultiDrvrNet *multi_drvr = new MultiDrvrNet;
+    VertexSeq &drvr_vertices = multi_drvr->drvrs();
+    Level max_drvr_level = 0;
+    Vertex *max_drvr = nullptr;
+    VertexInEdgeIterator edge_iter(load_vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      if (edge->isWire()) {
+        Vertex *drvr = edge->from(graph_);
+        const Pin *drvr_pin = drvr->pin();
+        if (isLeafDriver(drvr_pin, network_)) {
+          debugPrint(debug_, "delay_calc", 3, " %s",
+                     network_->pathName(drvr_pin));
+          multi_drvr_net_map_[drvr] = multi_drvr;
+          drvr_vertices.push_back(drvr);
+          Level drvr_level = drvr->level();
+          if (max_drvr == nullptr
+              || drvr_level > max_drvr_level) {
+            max_drvr = drvr;
+            max_drvr_level = drvr_level;
+          }
+        }
+      }
     }
+    multi_drvr->setDcalcDrvr(max_drvr);
+    multi_drvr->findCaps(sdc_);
+    return multi_drvr;
   }
-  multi_drvr->setDcalcDrvr(max_drvr);
-  multi_drvr->findCaps(sdc_);
-  return multi_drvr;
+  report_->critical(1101, "mult_drvr missing load.");
+  return nullptr;
 }
 
 void
@@ -751,7 +783,7 @@ GraphDelayCalc::findDriverDelays1(Vertex *drvr_vertex,
       && multi_drvr->parallelGates(network_)) {
     // Only init on the trigger driver.
     if (drvr_vertex == multi_drvr->dcalcDrvr()) {
-      for (auto vertex : *multi_drvr->drvrs())
+      for (auto vertex : multi_drvr->drvrs())
         initWireDelays(vertex);
     }
   }
@@ -902,7 +934,7 @@ GraphDelayCalc::makeArcDcalcArgs(Vertex *drvr_vertex,
                                  ArcDelayCalc *arc_delay_calc)
 {
   ArcDcalcArgSeq dcalc_args;
-  for (auto drvr_vertex1 : *multi_drvr->drvrs()) {
+  for (auto drvr_vertex1 : multi_drvr->drvrs()) {
     Edge *edge1 = nullptr;
     const TimingArc *arc1 = nullptr;
     if (drvr_vertex1 == drvr_vertex) {
@@ -1526,15 +1558,9 @@ GraphDelayCalc::minPeriod(const Pin *pin,
 
 ////////////////////////////////////////////////////////////////
 
-MultiDrvrNet::MultiDrvrNet(VertexSet *drvrs) :
-  dcalc_drvr_(nullptr),
-  drvrs_(drvrs)
+MultiDrvrNet::MultiDrvrNet() :
+  dcalc_drvr_(nullptr)
 {
-}
-
-MultiDrvrNet::~MultiDrvrNet()
-{
-  delete drvrs_;
 }
 
 void

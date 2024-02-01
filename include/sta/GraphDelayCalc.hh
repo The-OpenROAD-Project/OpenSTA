@@ -17,6 +17,7 @@
 #pragma once
 
 #include <vector>
+#include <mutex>
 
 #include "Map.hh"
 #include "NetworkClass.hh"
@@ -176,8 +177,11 @@ protected:
 			 const DcalcAnalysisPt *dcalc_ap);
   bool findDriverDelays(Vertex *drvr_vertex,
 			ArcDelayCalc *arc_delay_calc);
+  MultiDrvrNet *multiDrvrNet(const Vertex *drvr_vertex) const;
   MultiDrvrNet *findMultiDrvrNet(Vertex *drvr_pin);
-  MultiDrvrNet *makeMultiDrvrNet(PinSet &drvr_pins);
+  MultiDrvrNet *makeMultiDrvrNet(Vertex *drvr_vertex);
+  bool hasMultiDrvrs(Vertex *drvr_vertex);
+  Vertex *firstLoad(Vertex *drvr_vertex);
   bool findDriverDelays1(Vertex *drvr_vertex,
 			 MultiDrvrNet *multi_drvr,
 			 ArcDelayCalc *arc_delay_calc);
@@ -238,7 +242,6 @@ protected:
 			const RiseFall *from_rf,
 			const DcalcAnalysisPt *dcalc_ap);
   bool bidirectDrvrSlewFromLoad(const Vertex *vertex) const;
-  MultiDrvrNet *multiDrvrNet(const Vertex *drvr_vertex) const;
   void loadCap(const Parasitic *parasitic,
 	       bool has_set_load,
 	       // Return values.
@@ -263,7 +266,7 @@ protected:
   SearchPred *clk_pred_;
   BfsFwdIterator *iter_;
   MultiDrvrNetMap multi_drvr_net_map_;
-  bool multi_drvr_nets_found_;
+  std::mutex multi_drvr_lock_;
   // Percentage (0.0:1.0) change in delay that causes downstream
   // delays to be recomputed during incremental delay calculation.
   float incremental_delay_tolerance_;
@@ -288,10 +291,9 @@ public:
 class MultiDrvrNet
 {
 public:
-  MultiDrvrNet(VertexSet *drvrs);
-  ~MultiDrvrNet();
-  const VertexSet *drvrs() const { return drvrs_; }
-  VertexSet *drvrs() { return drvrs_; }
+  MultiDrvrNet();
+  VertexSeq &drvrs() { return drvrs_; }
+  const VertexSeq &drvrs() const { return drvrs_; }
   bool parallelGates(const Network *network) const;
   Vertex *dcalcDrvr() const { return dcalc_drvr_; }
   void setDcalcDrvr(Vertex *drvr);
@@ -307,7 +309,7 @@ public:
 private:
   // Driver that triggers delay calculation for all the drivers on the net.
   Vertex *dcalc_drvr_;
-  VertexSet *drvrs_;
+  VertexSeq drvrs_;
   // [drvr_rf->index][dcalc_ap->index]
   vector<NetCaps> net_caps_;
 };
