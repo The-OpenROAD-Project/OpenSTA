@@ -1613,12 +1613,11 @@ Network::clearNetDrvrPinMap()
 PinSet *
 Network::drivers(const Net *net)
 {
-  PinSet *drvrs = net_drvr_pin_map_.findKey(net);
+  PinSet *&drvrs = net_drvr_pin_map_[net];
   if (drvrs == nullptr) {
     drvrs = new PinSet(this);
     FindDrvrPins visitor(drvrs, this);
     visitConnectedPins(net, visitor);
-    net_drvr_pin_map_[net] = drvrs;
   }
   return drvrs;
 }
