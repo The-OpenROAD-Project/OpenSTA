@@ -983,14 +983,13 @@ Graph::setWidthCheckAnnotation(const Pin *pin,
 {
   if (width_check_annotations_ == nullptr)
     width_check_annotations_ = new WidthCheckAnnotations;
-  float *widths = width_check_annotations_->findKey(pin);
+  float *&widths = (*width_check_annotations_)[pin];
   if (widths == nullptr) {
     int width_count = RiseFall::index_count * ap_count_;
     widths = new float[width_count];
     // Use negative (illegal) width values to indicate unannotated checks.
     for (int i = 0; i < width_count; i++)
       widths[i] = -1;
-    (*width_check_annotations_)[pin] = widths;
   }
   int index = ap_index * RiseFall::index_count + rf->index();
   widths[index] = width;
@@ -1037,13 +1036,12 @@ Graph::setPeriodCheckAnnotation(const Pin *pin,
 {
   if (period_check_annotations_ == nullptr)
     period_check_annotations_ = new PeriodCheckAnnotations;
-  float *periods = period_check_annotations_->findKey(pin);
+  float *&periods = (*period_check_annotations_)[pin];
   if (periods == nullptr) {
     periods = new float[ap_count_];
     // Use negative (illegal) period values to indicate unannotated checks.
     for (int i = 0; i < ap_count_; i++)
       periods[i] = -1;
-    (*period_check_annotations_)[pin] = periods;
   }
   periods[ap_index] = period;
 }
