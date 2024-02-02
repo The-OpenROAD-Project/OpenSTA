@@ -547,10 +547,9 @@ Sdc::setTimingDerate(const Net *net,
 		     const EarlyLate *early_late,
 		     float derate)
 {
-  DeratingFactorsNet *factors = net_derating_factors_.findKey(net);
+  DeratingFactorsNet *&factors = net_derating_factors_[net];
   if (factors == nullptr) { 
     factors = new DeratingFactorsNet;
-    net_derating_factors_[net] = factors;
   }
   factors->setFactor(clk_data, rf, early_late, derate);
 }
@@ -563,10 +562,9 @@ Sdc::setTimingDerate(const Instance *inst,
 		     const EarlyLate *early_late,
 		     float derate)
 {
-  DeratingFactorsCell *factors = inst_derating_factors_.findKey(inst);
+  DeratingFactorsCell *&factors = inst_derating_factors_[inst];
   if (factors == nullptr) {
     factors = new DeratingFactorsCell;
-    inst_derating_factors_[inst] = factors;
   }
   factors->setFactor(type, clk_data, rf, early_late, derate);
 }
@@ -579,10 +577,9 @@ Sdc::setTimingDerate(const LibertyCell *cell,
 		     const EarlyLate *early_late,
 		     float derate)
 {
-  DeratingFactorsCell *factors = cell_derating_factors_.findKey(cell);
+  DeratingFactorsCell *&factors = cell_derating_factors_[cell];
   if (factors == nullptr) {
     factors = new DeratingFactorsCell;
-    cell_derating_factors_[cell] = factors;
   }
   factors->setFactor(type, clk_data, rf, early_late, derate);
 }
@@ -729,10 +726,9 @@ Sdc::setDriveResistance(const Port *port,
 InputDrive *
 Sdc::ensureInputDrive(const Port *port)
 {
-  InputDrive *drive = input_drive_map_.findKey(port);
+  InputDrive *&drive = input_drive_map_[port];
   if (drive == nullptr) {
     drive = new InputDrive;
-    input_drive_map_[port] = drive;
   }
   return drive;
 }
@@ -1080,19 +1076,17 @@ void
 Sdc::makeClkPinMappings(Clock *clk)
 {
   for (const Pin *pin : clk->pins()) {
-    ClockSet *pin_clks = clock_pin_map_.findKey(pin);
+    ClockSet *&pin_clks = clock_pin_map_[pin];
     if (pin_clks == nullptr) {
       pin_clks = new ClockSet;
-      clock_pin_map_.insert(pin, pin_clks);
     }
     pin_clks->insert(clk);
   }
 
   for (const Pin *pin : clk->leafPins()) {
-    ClockSet *pin_clks = clock_leaf_pin_map_.findKey(pin);
+    ClockSet *&pin_clks = clock_leaf_pin_map_[pin];
     if (pin_clks == nullptr) {
       pin_clks = new ClockSet;
-      clock_leaf_pin_map_.insert(pin, pin_clks);
     }
     pin_clks->insert(clk);
   }
@@ -1570,10 +1564,9 @@ Sdc::setClockUncertainty(Pin *pin,
 			 const SetupHoldAll *setup_hold,
 			 float uncertainty)
 {
-  ClockUncertainties *uncertainties = pin_clk_uncertainty_map_.findKey(pin);
+  ClockUncertainties *&uncertainties = pin_clk_uncertainty_map_[pin];
   if (uncertainties == nullptr) {
     uncertainties = new ClockUncertainties;
-    pin_clk_uncertainty_map_[pin] = uncertainties;
   }
   uncertainties->setValue(setup_hold, uncertainty);
 }
@@ -2207,10 +2200,9 @@ Sdc::setClockGatingCheck(Clock *clk,
 			 const SetupHold *setup_hold,
 			 float margin)
 {
-  ClockGatingCheck *check = clk_gating_check_map_.findKey(clk);
+  ClockGatingCheck *&check = clk_gating_check_map_[clk];
   if (check == nullptr) {
     check = new ClockGatingCheck();
-    clk_gating_check_map_[clk] = check;
   }
   check->margins()->setValue(rf, setup_hold, margin);
 }
@@ -2222,10 +2214,9 @@ Sdc::setClockGatingCheck(Instance *inst,
 			 float margin,
 			 LogicValue active_value)
 {
-  ClockGatingCheck *check = inst_clk_gating_check_map_.findKey(inst);
+  ClockGatingCheck *&check = inst_clk_gating_check_map_[inst];
   if (check == nullptr) {
     check = new ClockGatingCheck();
-    inst_clk_gating_check_map_[inst] = check;
   }
   check->margins()->setValue(rf, setup_hold, margin);
   check->setActiveValue(active_value);
@@ -2238,10 +2229,9 @@ Sdc::setClockGatingCheck(const Pin *pin,
 			 float margin,
 			 LogicValue active_value)
 {
-  ClockGatingCheck *check = pin_clk_gating_check_map_.findKey(pin);
+  ClockGatingCheck *&check = pin_clk_gating_check_map_[pin];
   if (check == nullptr) {
     check = new ClockGatingCheck();
-    pin_clk_gating_check_map_[pin] = check;
   }
   check->margins()->setValue(rf, setup_hold, margin);
   check->setActiveValue(active_value);
@@ -2367,10 +2357,9 @@ Sdc::setDataCheck(Pin *from,
 		  float margin)
 {
   DataCheck *check = nullptr;
-  DataCheckSet *checks = data_checks_from_map_.findKey(from);
+  DataCheckSet *&checks = data_checks_from_map_[from];
   if (checks == nullptr) {
     checks = new DataCheckSet(DataCheckLess(network_));
-    data_checks_from_map_[from] = checks;
   }
   else {
     DataCheck probe(from, to, clk);
@@ -2381,12 +2370,11 @@ Sdc::setDataCheck(Pin *from,
   check->setMargin(from_rf, to_rf, setup_hold, margin);
   checks->insert(check);
 
-  checks = data_checks_to_map_.findKey(to);
-  if (checks == nullptr) {
-    checks = new DataCheckSet(DataCheckLess(network_));
-    data_checks_to_map_[to] = checks;
+  DataCheckSet *&to_checks = data_checks_to_map_[to];
+  if (to_checks == nullptr) {
+    to_checks = new DataCheckSet(DataCheckLess(network_));
   }
-  checks->insert(check);
+  to_checks->insert(check);
 }
 
 void
@@ -2490,10 +2478,9 @@ Sdc::setMinPulseWidth(const Pin *pin,
 		      const RiseFallBoth *rf,
 		      float min_width)
 {
-  RiseFallValues *widths = pin_min_pulse_width_map_.findKey(pin);
+  RiseFallValues *&widths = pin_min_pulse_width_map_[pin];
   if (widths == nullptr) {
     widths = new RiseFallValues;
-    pin_min_pulse_width_map_[pin] = widths;
   }
   for (auto rf1 : rf->range())
     widths->setValue(rf1, min_width);
@@ -2504,10 +2491,9 @@ Sdc::setMinPulseWidth(const Instance *inst,
 		      const RiseFallBoth *rf,
 		      float min_width)
 {
-  RiseFallValues *widths = inst_min_pulse_width_map_.findKey(inst);
+  RiseFallValues *&widths = inst_min_pulse_width_map_[inst];
   if (widths == nullptr) {
     widths = new RiseFallValues;
-    inst_min_pulse_width_map_[inst] = widths;
   }
   for (auto rf1 : rf->range())
     widths->setValue(rf1, min_width);
@@ -2518,10 +2504,9 @@ Sdc::setMinPulseWidth(const Clock *clk,
 		      const RiseFallBoth *rf,
 		      float min_width)
 {
-  RiseFallValues *widths = clk_min_pulse_width_map_.findKey(clk);
+  RiseFallValues *&widths = clk_min_pulse_width_map_[clk];
   if (widths == nullptr) {
     widths = new RiseFallValues;
-    clk_min_pulse_width_map_[clk] = widths;
   }
   for (auto rf1 : rf->range())
     widths->setValue(rf1, min_width);
@@ -2596,10 +2581,9 @@ Sdc::setInputDelay(const Pin *pin,
   }
 
   if (ref_pin) {
-    InputDelaySet *ref_inputs = input_delay_ref_pin_map_.findKey(ref_pin);
+    InputDelaySet *&ref_inputs = input_delay_ref_pin_map_[ref_pin];
     if (ref_inputs == nullptr) {
       ref_inputs = new InputDelaySet;
-      input_delay_ref_pin_map_[ref_pin] = ref_inputs;
     }
     ref_inputs->insert(input_delay);
   }
@@ -2616,26 +2600,23 @@ Sdc::makeInputDelay(const Pin *pin,
   InputDelay *input_delay = new InputDelay(pin, clk_edge, input_delay_index_++,
 					   network_);
   input_delays_.insert(input_delay);
-  InputDelaySet *inputs = input_delay_pin_map_.findKey(pin);
+  InputDelaySet *&inputs = input_delay_pin_map_[pin];
   if (inputs == nullptr) {
     inputs = new InputDelaySet;
-    input_delay_pin_map_[pin] = inputs;
   }
   inputs->insert(input_delay);
 
   for (const Pin *lpin : input_delay->leafPins()) {
-    InputDelaySet *leaf_inputs = input_delay_leaf_pin_map_[lpin];
+    InputDelaySet *&leaf_inputs = input_delay_leaf_pin_map_[lpin];
     if (leaf_inputs == nullptr) {
       leaf_inputs = new InputDelaySet;
-      input_delay_leaf_pin_map_[lpin] = leaf_inputs;
     }
     leaf_inputs->insert(input_delay);
 
     if (!network_->isTopLevelPort(lpin)) {
-      InputDelaySet *internal_inputs = input_delay_internal_pin_map_[lpin];
+      InputDelaySet *&internal_inputs = input_delay_internal_pin_map_[lpin];
       if (internal_inputs == nullptr) {
 	internal_inputs = new InputDelaySet;
-	input_delay_internal_pin_map_[pin] = internal_inputs;
       }
       internal_inputs->insert(input_delay);
     }
@@ -2815,10 +2796,9 @@ Sdc::setOutputDelay(const Pin *pin,
   }
 
   if (ref_pin) {
-    OutputDelaySet *ref_outputs = output_delay_ref_pin_map_.findKey(ref_pin);
+    OutputDelaySet *ref_outputs = output_delay_ref_pin_map_[ref_pin];
     if (ref_outputs == nullptr) {
       ref_outputs = new OutputDelaySet;
-      output_delay_ref_pin_map_[ref_pin] = ref_outputs;
     }
     ref_outputs->insert(output_delay);
   }
@@ -2848,18 +2828,16 @@ Sdc::makeOutputDelay(const Pin *pin,
 {
   OutputDelay *output_delay = new OutputDelay(pin, clk_edge, network_);
   output_delays_.insert(output_delay);
-  OutputDelaySet *outputs = output_delay_pin_map_.findKey(pin);
+  OutputDelaySet *&outputs = output_delay_pin_map_[pin];
   if (outputs == nullptr) {
     outputs = new OutputDelaySet;
-    output_delay_pin_map_[pin] = outputs;
   }
   outputs->insert(output_delay);
 
   for (const Pin *lpin : output_delay->leafPins()) {
-    OutputDelaySet *leaf_outputs = output_delay_leaf_pin_map_[lpin];
+    OutputDelaySet *&leaf_outputs = output_delay_leaf_pin_map_[lpin];
     if (leaf_outputs == nullptr) {
       leaf_outputs = new OutputDelaySet;
-      output_delay_leaf_pin_map_[lpin] = leaf_outputs;
     }
     leaf_outputs->insert(output_delay);
   }
@@ -3345,10 +3323,9 @@ PortExtCap *
 Sdc::ensurePortExtPinCap(const Port *port,
                          const Corner *corner)
 {
-  PortExtCap *port_cap = port_ext_cap_maps_[corner->index()].findKey(port);
+  PortExtCap *&port_cap = port_ext_cap_maps_[corner->index()][port];
   if (port_cap == nullptr) {
     port_cap = new PortExtCap(port);
-    port_ext_cap_maps_[corner->index()][port] = port_cap;
   }
   return port_cap;
 }
@@ -3373,10 +3350,9 @@ Sdc::disable(LibertyCell *cell,
 	     LibertyPort *from,
 	     LibertyPort *to)
 {
-  DisabledCellPorts *disabled_cell = disabled_cell_ports_.findKey(cell);
+  DisabledCellPorts *&disabled_cell = disabled_cell_ports_[cell];
   if (disabled_cell == nullptr) {
     disabled_cell = new DisabledCellPorts(cell);
-    disabled_cell_ports_[cell] = disabled_cell;
   }
   if (from && to) {
     disabled_cell->setDisabledFromTo(from, to);
@@ -3428,10 +3404,9 @@ void
 Sdc::disable(TimingArcSet *arc_set)
 {
   LibertyCell *cell = arc_set->libertyCell();
-  DisabledCellPorts *disabled_cell = disabled_cell_ports_.findKey(cell);
+  DisabledCellPorts *&disabled_cell = disabled_cell_ports_[cell];
   if (disabled_cell == nullptr) {
     disabled_cell = new DisabledCellPorts(cell);
-    disabled_cell_ports_[cell] = disabled_cell;
   }
   disabled_cell->setDisabled(arc_set);
   arc_set->setIsDisabledConstraint(true);
@@ -3479,10 +3454,9 @@ Sdc::disable(Instance *inst,
 	     LibertyPort *from,
 	     LibertyPort *to)
 {
-  DisabledInstancePorts *disabled_inst = disabled_inst_ports_.findKey(inst);
+  DisabledInstancePorts *&disabled_inst = disabled_inst_ports_[inst];
   if (disabled_inst == nullptr) {
     disabled_inst = new DisabledInstancePorts(inst);
-    disabled_inst_ports_[inst] = disabled_inst;
   }
   if (from && to)
     disabled_inst->setDisabledFromTo(from, to);
@@ -4590,10 +4564,9 @@ Sdc::recordMergeHash(ExceptionPath *exception,
              hash,
              exception->asString(network_),
              missing_pt->asString(network_));
-  ExceptionPathSet *set = exception_merge_hash_.findKey(hash);
+  ExceptionPathSet *&set = exception_merge_hash_[hash];
   if (set == nullptr) {
     set = new ExceptionPathSet;
-    exception_merge_hash_[hash] = set;
   }
   set->insert(exception);
 }
@@ -4651,10 +4624,9 @@ Sdc::recordExceptionClks(ExceptionPath *exception,
 {
   if (clks) {
     for (Clock *clk : *clks) {
-      ExceptionPathSet *set = exception_map.findKey(clk);
+      ExceptionPathSet *&set = exception_map[clk];
       if (set == nullptr) {
         set = new ExceptionPathSet;
-        exception_map[clk] = set;
       }
       set->insert(exception);
     }
@@ -4668,10 +4640,9 @@ Sdc::recordExceptionEdges(ExceptionPath *exception,
 {
   if (edges) {
     for (const EdgePins &edge : *edges) {
-      ExceptionPathSet *set = exception_map.findKey(edge);
+      ExceptionPathSet *&set = exception_map[edge];
       if (set == nullptr) {
         set = new ExceptionPathSet;
-        exception_map.insert(edge, set);
       }
       set->insert(exception);
     }
@@ -4685,10 +4656,9 @@ Sdc::recordExceptionPins(ExceptionPath *exception,
 {
   if (pins) {
     for (const Pin *pin : *pins) {
-      ExceptionPathSet *set = exception_map.findKey(pin);
+      ExceptionPathSet *&set = exception_map[pin];
       if (set == nullptr) {
         set = new ExceptionPathSet;
-        exception_map.insert(pin, set);
       }
       set->insert(exception);
     }
@@ -4700,10 +4670,9 @@ Sdc::recordExceptionHpin(ExceptionPath *exception,
 			 Pin *pin,
 			 PinExceptionsMap &exception_map)
 {
-  ExceptionPathSet *set = exception_map.findKey(pin);
+  ExceptionPathSet *&set = exception_map[pin];
   if (set == nullptr) {
     set = new ExceptionPathSet;
-    exception_map.insert(pin, set);
   }
   set->insert(exception);
 }
@@ -4715,10 +4684,9 @@ Sdc::recordExceptionInsts(ExceptionPath *exception,
 {
   if (insts) {
     for (const Instance *inst : *insts) {
-      ExceptionPathSet *set = exception_map.findKey(inst);
+      ExceptionPathSet *&set = exception_map[inst];
       if (set == nullptr) {
         set = new ExceptionPathSet;
-        exception_map[inst] = set;
       }
       set->insert(exception);
     }
@@ -4732,10 +4700,9 @@ Sdc::recordExceptionNets(ExceptionPath *exception,
 {
   if (nets) {
     for (const Net *net : *nets) {
-      ExceptionPathSet *set = exception_map.findKey(net);
+      ExceptionPathSet *&set = exception_map[net];
       if (set == nullptr) {
         set = new ExceptionPathSet;
-        exception_map[net] = set;
       }
       set->insert(exception);
     }
