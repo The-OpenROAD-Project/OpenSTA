@@ -113,18 +113,17 @@ EquivCells::findEquivCells(const LibertyLibrary *library,
     LibertyCell *cell = cell_iter.next();
     if (!cell->dontUse()) {
       unsigned hash = hashCell(cell);
-      LibertyCellSeq *matches = hash_matches.findKey(hash);
+      LibertyCellSeq *&matches = hash_matches[hash];
       if (matches) {
 	LibertyCellSeq::Iterator match_iter(matches);
 	while (match_iter.hasNext()) {
 	  LibertyCell *match = match_iter.next();
 	  if (equivCells(match, cell)) {
-	    LibertyCellSeq *equivs = equiv_cells_.findKey(match);
+	    LibertyCellSeq *&equivs = equiv_cells_[match];
 	    if (equivs == nullptr) {
 	      equivs = new LibertyCellSeq;
 	      equivs->push_back(match);
 	      unique_equiv_cells_.push_back(match);
-	      equiv_cells_[match] = equivs;
 	    }
 	    equivs->push_back(cell);
 	    equiv_cells_[cell] = equivs;
@@ -135,7 +134,6 @@ EquivCells::findEquivCells(const LibertyLibrary *library,
       }
       else {
 	matches = new LibertyCellSeq;
-	hash_matches[hash] = matches;
 	matches->push_back(cell);
       }
     }

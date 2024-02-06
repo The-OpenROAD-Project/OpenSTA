@@ -1395,27 +1395,24 @@ LibertyCell::makeTimingArcPortMaps()
     LibertyPort *from = arc_set->from();
     LibertyPort *to = arc_set->to();
     LibertyPortPair port_pair(from, to);
-    TimingArcSetSeq *sets = port_timing_arc_set_map_.findKey(port_pair);
-    if (sets == nullptr) {
+    TimingArcSetSeq *&from_to_sets = port_timing_arc_set_map_[port_pair];
+    if (from_to_sets == nullptr) {
       // First arc set for from/to ports.
-      sets = new TimingArcSetSeq;
-      port_timing_arc_set_map_[port_pair] = sets;
+      from_to_sets = new TimingArcSetSeq;
     }
-    sets->push_back(arc_set);
+    from_to_sets->push_back(arc_set);
 
-    sets = timing_arc_set_from_map_.findKey(from);
-    if (sets == nullptr) {
-      sets = new TimingArcSetSeq;
-      timing_arc_set_from_map_[from] = sets;
+    TimingArcSetSeq *&from_sets = timing_arc_set_from_map_[from];
+    if (from_sets== nullptr) {
+      from_sets = new TimingArcSetSeq;
     }
-    sets->push_back(arc_set);
+    from_sets->push_back(arc_set);
 
-    sets = timing_arc_set_to_map_.findKey(to);
-    if (sets == nullptr) {
-      sets = new TimingArcSetSeq;
-      timing_arc_set_to_map_[to] = sets;
+    TimingArcSetSeq *&to_sets = timing_arc_set_to_map_[to];
+    if (to_sets == nullptr) {
+      to_sets = new TimingArcSetSeq;
     }
-    sets->push_back(arc_set);
+    to_sets->push_back(arc_set);
   }
 }
 
