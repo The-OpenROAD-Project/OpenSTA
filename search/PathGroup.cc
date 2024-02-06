@@ -651,10 +651,9 @@ void
 MakePathEndsAll::visitPathEnd(PathEnd *path_end,
 			      PathGroup *group)
 {
-  PathEndSeq *ends = ends_.findKey(group);
+  PathEndSeq *&ends = ends_[group];
   if (ends == nullptr) {
     ends = new PathEndSeq;
-    ends_[group] = ends;
   }
   ends->push_back(path_end->copy());
 }

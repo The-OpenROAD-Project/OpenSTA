@@ -191,11 +191,10 @@ vertexPathSetMapInsertPath(VertexPathSetMap *matching_path_map,
 			   int arrival_index,
 			   const StaState *sta)
 {
-  PathVertexSet *matching_paths = matching_path_map->findKey(vertex);
+  PathVertexSet *&matching_paths = (*matching_path_map)[vertex];
   if (matching_paths == nullptr) {
     PathLess path_less(sta);
     matching_paths = new PathVertexSet(path_less);
-    (*matching_path_map)[vertex] = matching_paths;
   }
   PathVertex *vpath = new PathVertex(vertex, tag, arrival_index);
   matching_paths->insert(vpath);

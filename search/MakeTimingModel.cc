@@ -729,7 +729,7 @@ TableTemplate *
 MakeTimingModel::ensureTableTemplate(const TableTemplate *drvr_template,
                                      TableAxisPtr load_axis)
 {
-  TableTemplate *model_template = template_map_.findKey(drvr_template);
+  TableTemplate *&model_template = template_map_[drvr_template];
   if (model_template == nullptr) {
     string template_name = "template_";
     template_name += std::to_string(tbl_template_index_++);
@@ -737,7 +737,6 @@ MakeTimingModel::ensureTableTemplate(const TableTemplate *drvr_template,
     model_template = new TableTemplate(template_name.c_str());
     model_template->setAxis1(load_axis);
     library_->addTableTemplate(model_template, TableTemplateType::delay);
-    template_map_[drvr_template] = model_template;
   }
   return model_template;
 }
