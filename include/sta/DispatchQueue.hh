@@ -25,10 +25,10 @@ public:
   ~DispatchQueue();
   void setThreadCount(size_t thread_count);
   // Dispatch and copy.
-  void dispatch(const fp_t& op);
+  void dispatch(const fp_t& op) { q_.push_back(op); }
   // Dispatch and move.
-  void dispatch(fp_t&& op);
-  void finishTasks();
+  void dispatch(fp_t&& op) { q_.push_back(std::move(op)); }
+  void runTasks();
 
   // Deleted operations
   DispatchQueue(const DispatchQueue& rhs) = delete;
@@ -42,9 +42,10 @@ private:
 
   std::mutex lock_;
   std::vector<std::thread> threads_;
-  std::queue<fp_t> q_;
+  std::vector<bool> pending_;
+  std::vector<fp_t> q_;
   std::condition_variable cv_;
-  std::atomic<size_t> pending_task_count_;
+  size_t pending_count_ = 0;
   bool quit_ = false;
 };
 

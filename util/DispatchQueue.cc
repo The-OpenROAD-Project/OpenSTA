@@ -3,15 +3,17 @@
 // https://github.com/embeddedartistry/embedded-resources/blob/master/examples/cpp/dispatch.cpp
 // https://embeddedartistry.com/blog/2017/2/1/dispatch-queues?rq=dispatch
 
+#include <stdio.h>
 #include "DispatchQueue.hh"
 
 namespace sta {
 
 DispatchQueue::DispatchQueue(size_t thread_count) :
-  threads_(thread_count),
-  pending_task_count_(0)
+  threads_(thread_count)
 {
-  for(size_t i = 0; i < thread_count; i++)
+  std::unique_lock<std::mutex> lock(lock_);
+  pending_.resize(thread_count);
+  for (size_t i = 0; i < thread_count; i++)
     threads_[i] = std::thread(&DispatchQueue::dispatch_thread_handler, this, i);
 }
 
@@ -24,9 +26,10 @@ void
 DispatchQueue::terminateThreads()
 {
   // Signal to dispatch threads that it's time to wrap up
-  std::unique_lock<std::mutex> lock(lock_);
-  quit_ = true;
-  lock.unlock();
+  {
+    std::unique_lock<std::mutex> lock(lock_);
+    quit_ = true;
+  }
   cv_.notify_all();
 
   // Wait for threads to finish before we exit
@@ -43,64 +46,54 @@ DispatchQueue::setThreadCount(size_t thread_count)
   terminateThreads();
 
   threads_.resize(thread_count);
+  pending_.resize(thread_count);
   for(size_t i = 0; i < thread_count; i++) {
     threads_[i] = std::thread(&DispatchQueue::dispatch_thread_handler, this, i);
   }
 }
 
 void
-DispatchQueue::finishTasks()
+DispatchQueue::runTasks()
 {
-  while (pending_task_count_.load(std::memory_order_acquire) != 0)
-    std::this_thread::yield();
-}
-
-void
-DispatchQueue::dispatch(const fp_t& op)
-{
-  std::unique_lock<std::mutex> lock(lock_);
-  q_.push(op);
-  pending_task_count_++;
-
-  // Manual unlocking is done before notifying, to avoid waking up
-  // the waiting thread only to block again (see notify_one for details)
-  lock.unlock();
+  pending_count_ = threads_.size();
+  {
+    std::unique_lock<std::mutex> lock(lock_);
+    pending_.clear();
+    pending_.resize(threads_.size(), true);
+  }
   cv_.notify_all();
+  {
+      std::unique_lock<std::mutex> lock(lock_);
+      cv_.wait(lock, [this] { return pending_count_ == 0; } );
+  }
+  q_.clear();
 }
 
 void
-DispatchQueue::dispatch(fp_t&& op)
+DispatchQueue::dispatch_thread_handler(size_t thread_id)
 {
-  std::unique_lock<std::mutex> lock(lock_);
-  q_.push(std::move(op));
-  pending_task_count_++;
-
-  // Manual unlocking is done before notifying, to avoid waking up
-  // the waiting thread only to block again (see notify_one for details)
-  lock.unlock();
-  cv_.notify_all();
-}
-
-void
-DispatchQueue::dispatch_thread_handler(size_t i)
-{
-  std::unique_lock<std::mutex> lock(lock_);
-
   do {
-    // Wait until we have data or a quit signal
-    cv_.wait(lock, [this] { return (q_.size() || quit_); } );
+    {
+      std::unique_lock<std::mutex> lock(lock_);
+      // Wait until we have data or a quit signal
+      cv_.wait(lock, [this, thread_id] { return pending_[thread_id] || quit_; });
+    }
 
-    //after wait, we own the lock
-    if(!quit_ && q_.size()) {
-      auto op = std::move(q_.front());
-      q_.pop();
+    if(!quit_) {
+      size_t thread_chunk = q_.size() / threads_.size();
+      size_t begin = thread_chunk * thread_id;
+      size_t end = std::min(begin + thread_chunk, q_.size());
 
-      lock.unlock();
+      for (size_t i = begin; i < end; i++) {
+        q_[i](thread_id);
+      }
 
-      op(i);
-
-      pending_task_count_--;
-      lock.lock();
+      {
+        std::unique_lock<std::mutex> lock(lock_);
+        pending_[thread_id] = false;
+        pending_count_--;
+      }
+      cv_.notify_all();
     }
   } while (!quit_);
 }
