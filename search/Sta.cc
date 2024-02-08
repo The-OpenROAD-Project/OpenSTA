@@ -271,9 +271,8 @@ Sta::Sta() :
   update_genclks_(false),
   equiv_cells_(nullptr),
   graph_sdc_annotated_(false),
-  // Default to same parasitics for each corner min/max.
-  parasitics_per_corner_(false),
-  parasitics_per_min_max_(false)
+  // Default to same parasitics for all corners.
+  parasitics_per_corner_(false)
 {
 }
 
@@ -3796,10 +3795,7 @@ Sta::connectedCap(const Pin *drvr_pin,
 		  float &wire_cap) const
 {
   const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
-  Parasitic *parasitic = arc_delay_calc_->findParasitic(drvr_pin, rf, dcalc_ap);
-  graph_delay_calc_->loadCap(drvr_pin, parasitic, rf, dcalc_ap,
-			     pin_cap, wire_cap);
-  arc_delay_calc_->finishDrvrPin();
+  graph_delay_calc_->loadCap(drvr_pin, rf, dcalc_ap, pin_cap, wire_cap);
 }
 
 void
@@ -3892,40 +3888,29 @@ Sta::readSpef(const char *filename,
 	      bool pin_cap_included,
 	      bool keep_coupling_caps,
 	      float coupling_cap_factor,
-	      ReducedParasiticType reduce_to,
-	      bool delete_after_reduce,
-	      bool quiet)
+	      bool reduce)
 {
-  setParasiticAnalysisPts(corner != nullptr,
-                          min_max != MinMaxAll::all());
-  if (corner == nullptr)
-    corner = cmd_corner_;
-  const MinMax *cnst_min_max = (min_max == MinMaxAll::all())
+  setParasiticAnalysisPts(corner != nullptr);
+  const MinMax *ap_min_max = (min_max == MinMaxAll::all())
     ? MinMax::max()
     : min_max->asMinMax();
-  ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(cnst_min_max);
-  const OperatingConditions *op_cond =
-    sdc_->operatingConditions(cnst_min_max);
+  const Corner *ap_corner = corner ? corner : corners_->corners()[0];
+  ParasiticAnalysisPt *ap = ap_corner->findParasiticAnalysisPt(ap_min_max);
   bool success = readSpefFile(filename, instance, ap,
 			      pin_cap_included, keep_coupling_caps,
-                              coupling_cap_factor,
-			      reduce_to, delete_after_reduce,
-			      op_cond, corner, cnst_min_max, quiet,
-			      report_, network_, parasitics_);
+                              coupling_cap_factor, reduce,
+			      corner, min_max, this);
   graph_delay_calc_->delaysInvalid();
   search_->arrivalsInvalid();
   return success;
 }
 
 void
-Sta::setParasiticAnalysisPts(bool per_corner,
-                             bool per_min_max)
+Sta::setParasiticAnalysisPts(bool per_corner)
 {
-  if (per_corner != parasitics_per_corner_
-      || per_min_max != parasitics_per_min_max_) {
+  if (per_corner != parasitics_per_corner_) {
     deleteParasitics();
     parasitics_per_corner_ = per_corner;
-    parasitics_per_min_max_ = per_min_max;
     makeParasiticAnalysisPts();
   }
 }
@@ -3933,8 +3918,7 @@ Sta::setParasiticAnalysisPts(bool per_corner,
 void
 Sta::makeParasiticAnalysisPts()
 {
-  corners_->makeParasiticAnalysisPts(parasitics_per_corner_,
-                                     parasitics_per_min_max_);
+  corners_->makeParasiticAnalysisPts(parasitics_per_corner_);
 }
 
 void
@@ -4434,7 +4418,7 @@ Sta::connectLoadPinAfter(Vertex *vertex)
 void
 Sta::disconnectPinBefore(const Pin *pin)
 {
-  parasitics_->disconnectPinBefore(pin);
+  parasitics_->disconnectPinBefore(pin, network_);
   sdc_->disconnectPinBefore(pin);
   sim_->disconnectPinBefore(pin);
   if (graph_) {

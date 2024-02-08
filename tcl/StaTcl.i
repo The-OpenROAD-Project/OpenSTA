@@ -3064,6 +3064,12 @@ endpoints()
   return Sta::sta()->endpointPins();
 }
 
+size_t
+endpoint_count()
+{
+  return Sta::sta()->endpointPins().size();
+}
+
 PinSet
 group_path_pins(const char *group_path_name)
 {

@@ -23,6 +23,7 @@
 #include "Network.hh"
 #include "Parasitics.hh"
 #include "Sdc.hh"
+#include "Corner.hh"
 #include "DcalcAnalysisPt.hh"
 
 namespace sta {
@@ -32,6 +33,35 @@ using std::log;
 DelayCalcBase::DelayCalcBase(StaState *sta) :
   ArcDelayCalc(sta)
 {
+}
+
+void
+DelayCalcBase::reduceParasitic(const Parasitic *parasitic_network,
+                               const Net *net,
+                               const Corner *corner,
+                               const MinMaxAll *min_max)
+{
+  NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(net);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    if (network_->isDriver(pin)) {
+      for (RiseFall *rf : RiseFall::range()) {
+        for (const MinMax *min_max : min_max->range()) {
+          if (corner == nullptr) {
+            for (const Corner *corner1 : *corners_) {
+              DcalcAnalysisPt *dcalc_ap = corner1->findDcalcAnalysisPt(min_max);
+              reduceParasitic(parasitic_network, pin, rf, dcalc_ap);
+            }
+          }
+          else {
+            DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
+            reduceParasitic(parasitic_network, pin, rf, dcalc_ap);
+          }
+        }
+      }
+    }
+  }
+  delete pin_iter;
 }
 
 TimingModel *
@@ -67,12 +97,6 @@ DelayCalcBase::checkModel(const TimingArc *arc,
 void
 DelayCalcBase::finishDrvrPin()
 {
-  for (auto parasitic : unsaved_parasitics_)
-    parasitics_->deleteUnsavedParasitic(parasitic);
-  unsaved_parasitics_.clear();
-  for (auto drvr_pin : reduced_parasitic_drvrs_)
-    parasitics_->deleteDrvrReducedParasitics(drvr_pin);
-  reduced_parasitic_drvrs_.clear();
 }
 
 // For DSPF on an input port the elmore delay is used as the time

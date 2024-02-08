@@ -124,7 +124,18 @@ public:
   virtual Parasitic *findParasitic(const Pin *drvr_pin,
 				   const RiseFall *rf,
 				   const DcalcAnalysisPt *dcalc_ap) = 0;
-  virtual ReducedParasiticType reducedParasiticType() const = 0;
+  // Reduce parasitic_network to a representation acceptable to the delay calculator.
+  virtual Parasitic *reduceParasitic(const Parasitic *parasitic_network,
+                                     const Pin *drvr_pin,
+                                     const RiseFall *rf,
+                                     const DcalcAnalysisPt *dcalc_ap) = 0;
+  // Reduce parasitic_network to a representation acceptable to the delay calculator
+  // for one or more corners and min/max rise/fall.
+  // Null corner means reduce all corners.
+  virtual void reduceParasitic(const Parasitic *parasitic_network,
+                               const Net *net,
+                               const Corner *corner,
+                               const MinMaxAll *min_max) = 0;
   // Find the wire delays and slews for an input port without a driving cell.
   // This call primarily initializes the load delay/slew iterator.
   virtual ArcDcalcResult inputPortDelay(const Pin *port_pin,

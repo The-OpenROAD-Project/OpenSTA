@@ -28,13 +28,18 @@ public:
   explicit DelayCalcBase(StaState *sta);
   void finishDrvrPin() override;
 
+  void reduceParasitic(const Parasitic *parasitic_network,
+                       const Net *net,
+                       const Corner *corner,
+                       const MinMaxAll *min_max) override;
+
   ArcDelay checkDelay(const Pin *check_pin,
                       const TimingArc *arc,
                       const Slew &from_slew,
                       const Slew &to_slew,
                       float related_out_cap,
                       const DcalcAnalysisPt *dcalc_ap) override;
-
+  
   string reportCheckDelay(const Pin *check_pin,
                           const TimingArc *arc,
                           const Slew &from_slew,
@@ -72,11 +77,7 @@ protected:
   const Pvt *pinPvt(const Pin *pin,
                     const DcalcAnalysisPt *dcalc_ap);
 
-  // Parasitics returned by findParasitic that are reduced or estimated
-  // that can be deleted after delay calculation for the driver pin
-  // is finished.
-  Vector<Parasitic*> unsaved_parasitics_;
-  Vector<const Pin *> reduced_parasitic_drvrs_;
+  using ArcDelayCalc::reduceParasitic;
 };
 
 } // namespace

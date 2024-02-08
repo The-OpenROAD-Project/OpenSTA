@@ -384,9 +384,6 @@ protected:
   bool hasExtInputDriver(const Pin *pin,
 			 const RiseFall *rf,
 			 const MinMax *min_max);
-  float loadCap(Pin *drvr_pin,
-		const RiseFall *rf,
-		DcalcAnalysisPt *dcalc_ap);
   float drvrFanout(Vertex *drvr,
                    const Corner *corner,
 		   const MinMax *min_max);

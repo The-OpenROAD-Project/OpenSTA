@@ -115,7 +115,6 @@ set(STA_SOURCE
   
   parasitics/ConcreteParasitics.cc
   parasitics/EstimateParasitics.cc
-  parasitics/NullParasitics.cc
   parasitics/Parasitics.cc
   parasitics/ReduceParasitics.cc
   parasitics/ReportParasiticAnnotation.cc

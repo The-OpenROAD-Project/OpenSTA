@@ -157,7 +157,9 @@ RiseFallMinMax::setValues(RiseFallMinMax *values)
 void
 RiseFallMinMax::value(const RiseFall *rf,
 		      const MinMax *min_max,
-		      float &value, bool &exists) const
+		      // Return values.
+                      float &value,
+                      bool &exists) const
 {
   exists = exists_[rf->index()][min_max->index()];
   if (exists)

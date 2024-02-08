@@ -100,8 +100,7 @@ private:
 			       DcalcAPIndex dcalc_ap_index);
   void writeStageParasitics(Stage stage);
   void writeStageParasiticNetwork(Pin *drvr_pin,
-                                  Parasitic *parasitic,
-                                  ParasiticAnalysisPt *parasitic_ap);
+                                  Parasitic *parasitic);
   void writeStagePiElmore(Pin *drvr_pin,
                           Parasitic *parasitic);
   void writeNullParasitics(Pin *drvr_pin);
@@ -1298,54 +1297,6 @@ WritePathSpice::onePort(FuncExpr *expr)
   }
 }
 
-// Sort predicate for ParasiticDevices.
-class ParasiticDeviceLess
-{
-public:
-  ParasiticDeviceLess(Parasitics *parasitics) :
-    parasitics_(parasitics)
-  {
-  }
-  bool operator()(const ParasiticDevice *device1,
-		  const ParasiticDevice *device2) const
-  {
-    ParasiticNode *node1 = parasitics_->node1(device1);
-    ParasiticNode *node2 = parasitics_->node1(device2);
-    const char *name1 = parasitics_->name(node1);
-    const char *name2 = parasitics_->name(node2);
-    if (stringEq(name1, name2)) {
-      ParasiticNode *node12 = parasitics_->node2(device1);
-      ParasiticNode *node22 = parasitics_->node2(device2);
-      const char *name12 = parasitics_->name(node12);
-      const char *name22 = parasitics_->name(node22);
-      return stringLess(name12, name22);
-    }
-    else 
-      return stringLess(name1, name2);
-  }
-private:
-  Parasitics *parasitics_;
-};
-
-// Sort predicate for ParasiticDevices.
-class ParasiticNodeLess
-{
-public:
-  ParasiticNodeLess(Parasitics *parasitics) :
-    parasitics_(parasitics)
-  {
-  }
-  bool operator()(const ParasiticNode *node1,
-		  const ParasiticNode *node2) const
-  {
-    const char *name1 = parasitics_->name(node1);
-    const char *name2 = parasitics_->name(node2);
-    return stringLess(name1, name2);
-  }
-private:
-  Parasitics *parasitics_;
-};
-
 void
 WritePathSpice::writeStageParasitics(Stage stage)
 {
@@ -1361,7 +1312,7 @@ WritePathSpice::writeStageParasitics(Stage stage)
   ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
   Parasitic *parasitic = parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
   if (parasitic)
-    writeStageParasiticNetwork(drvr_pin, parasitic, parasitic_ap);
+    writeStageParasiticNetwork(drvr_pin, parasitic);
   else {
     const RiseFall *drvr_rf = drvr_path->transition(this);
     parasitic = parasitics_->findPiElmore(drvr_pin, drvr_rf, parasitic_ap);
@@ -1376,51 +1327,51 @@ WritePathSpice::writeStageParasitics(Stage stage)
 
 void
 WritePathSpice::writeStageParasiticNetwork(Pin *drvr_pin,
-                                           Parasitic *parasitic,
-                                           ParasiticAnalysisPt *parasitic_ap)
+                                           Parasitic *parasitic)
 {
   Set<const Pin*> reachable_pins;
   int res_index = 1;
   int cap_index = 1;
 
-  // Sort devices for consistent regression results.
-  Vector<ParasiticDevice*> devices;
-  ParasiticDeviceIterator *device_iter1 = parasitics_->deviceIterator(parasitic);
-  while (device_iter1->hasNext()) {
-    ParasiticDevice *device = device_iter1->next();
-    devices.push_back(device);
+  // Sort resistors for consistent regression results.
+  ParasiticResistorSeq resistors = parasitics_->resistors(parasitic);
+  sort(resistors.begin(), resistors.end(),
+       [=] (const ParasiticResistor *r1,
+            const ParasiticResistor *r2) {
+         return parasitics_->id(r1) < parasitics_->id(r2);
+       });
+  for (ParasiticResistor *resistor : resistors) {
+    float resistance = parasitics_->value(resistor);
+    ParasiticNode *node1 = parasitics_->node1(resistor);
+    ParasiticNode *node2 = parasitics_->node2(resistor);
+    streamPrint(spice_stream_, "R%d %s %s %.3e\n",
+                res_index,
+                nodeName(node1),
+                nodeName(node2),
+                resistance);
+    res_index++;
+
+    const Pin *pin1 = parasitics_->pin(node1);
+    reachable_pins.insert(pin1);
+    const Pin *pin2 = parasitics_->pin(node2);
+    reachable_pins.insert(pin2);
   }
-  delete device_iter1;
 
-  sort(devices, ParasiticDeviceLess(parasitics_));
-
-  for (ParasiticDevice *device : devices) {
-    float resistance = parasitics_->value(device, parasitic_ap);
-    if (parasitics_->isResistor(device)) {
-      ParasiticNode *node1 = parasitics_->node1(device);
-      ParasiticNode *node2 = parasitics_->node2(device);
-      streamPrint(spice_stream_, "R%d %s %s %.3e\n",
-                  res_index,
-                  nodeName(node1),
-                  nodeName(node2),
-                  resistance);
-      res_index++;
-
-      const Pin *pin1 = parasitics_->connectionPin(node1);
-      reachable_pins.insert(pin1);
-      const Pin *pin2 = parasitics_->connectionPin(node2);
-      reachable_pins.insert(pin2);
-    }
-    else if (parasitics_->isCouplingCap(device)) {
-      // Ground coupling caps for now.
-      ParasiticNode *node1 = 	parasitics_->node1(device);
-      float cap = parasitics_->value(device, parasitic_ap);
-      streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
-                  cap_index,
-                  nodeName(node1),
-                  cap);
-      cap_index++;
-    }
+  ParasiticCapacitorSeq capacitors = parasitics_->capacitors(parasitic);
+  sort(capacitors.begin(), capacitors.end(),
+       [=] (const ParasiticCapacitor *c1,
+            const ParasiticCapacitor *c2) {
+         return parasitics_->id(c1) < parasitics_->id(c2);
+       });
+  for (ParasiticCapacitor *capacitor : capacitors) {
+    // Ground coupling caps for now.
+    ParasiticNode *node1 = parasitics_->node1(capacitor);
+    float cap = parasitics_->value(capacitor);
+    streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
+                cap_index,
+                nodeName(node1),
+                cap);
+    cap_index++;
   }
 
   // Add resistors from drvr to load for missing parasitic connections.
@@ -1442,17 +1393,17 @@ WritePathSpice::writeStageParasiticNetwork(Pin *drvr_pin,
   delete pin_iter;
 
   // Sort node capacitors for consistent regression results.
-  Vector<ParasiticNode*> nodes;
-  ParasiticNodeIterator *node_iter = parasitics_->nodeIterator(parasitic);
-  while (node_iter->hasNext()) {
-    ParasiticNode *node = node_iter->next();
-    nodes.push_back(node);
-  }
-
-  sort(nodes, ParasiticNodeLess(parasitics_));
+  ParasiticNodeSeq nodes = parasitics_->nodes(parasitic);
+  sort(nodes.begin(), nodes.end(),
+       [=] (const ParasiticNode *node1,
+            const ParasiticNode *node2) {
+         const char *name1 = parasitics_->name(node1);
+         const char *name2 = parasitics_->name(node2);
+         return stringLess(name1, name2);
+       });
 
   for (ParasiticNode *node : nodes) {
-    float cap = parasitics_->nodeGndCap(node, parasitic_ap);
+    float cap = parasitics_->nodeGndCap(node);
     // Spice has a cow over zero value caps.
     if (cap > 0.0) {
       streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
@@ -1462,7 +1413,6 @@ WritePathSpice::writeStageParasiticNetwork(Pin *drvr_pin,
       cap_index++;
     }
   }
-  delete node_iter;
 }
 
 void
@@ -1556,7 +1506,7 @@ WritePathSpice::initNodeMap(const char *net_name)
 const char *
 WritePathSpice::nodeName(ParasiticNode *node)
 {
-  const Pin *pin = parasitics_->connectionPin(node);
+  const Pin *pin = parasitics_->pin(node);
   if (pin)
     return parasitics_->name(node);
   else {

@@ -17,6 +17,8 @@
 #pragma once
 
 #include <complex>
+#include <map>
+#include <vector>
 
 #include "StaState.hh"
 #include "LibertyClass.hh"
@@ -31,16 +33,17 @@ class Corner;
 
 typedef std::complex<float> ComplexFloat;
 typedef Vector<ComplexFloat> ComplexFloatSeq;
-typedef Iterator<ParasiticDevice*> ParasiticDeviceIterator;
-typedef Iterator<ParasiticNode*> ParasiticNodeIterator;
+typedef std::vector<ParasiticNode*> ParasiticNodeSeq;
+typedef std::vector<ParasiticResistor*> ParasiticResistorSeq;
+typedef std::vector<ParasiticCapacitor*> ParasiticCapacitorSeq;
+typedef std::map<ParasiticNode *, ParasiticResistorSeq> ParasiticNodeResistorMap;
+typedef std::map<ParasiticNode *, ParasiticCapacitorSeq> ParasiticNodeCapacitorMap;
 
 // Parasitics API.
 // All parasitic parameters can have multiple values, each corresponding
 // to an analysis point.
 // Parasitic annotation for a pin or net may exist for one analysis point
 // and not another.
-// If there is only one parasitic for both rise and fall transitions
-// the parasitic readers will save it under the rise transition.
 class Parasitics : public StaState
 {
 public:
@@ -50,8 +53,6 @@ public:
   // Clear all state.
   virtual void clear() = 0;
 
-  // Save parasitics to database file.
-  virtual void save() = 0;
   // Delete all parasitics.
   virtual void deleteParasitics() = 0;
   // Delete all parasitics on net at analysis point.
@@ -60,7 +61,6 @@ public:
   // Delete all parasitics on pin at analysis point.
   virtual void deleteParasitics(const Pin *pin,
 				const ParasiticAnalysisPt *ap) = 0;
-  virtual void deleteUnsavedParasitic(Parasitic *parasitic) = 0;
   virtual void deleteReducedParasitics(const Net *net,
                                        const ParasiticAnalysisPt *ap) = 0;
   virtual void deleteDrvrReducedParasitics(const Pin *drvr_pin) = 0;
@@ -153,8 +153,9 @@ public:
   virtual Parasitic *makeParasiticNetwork(const Net *net,
 					  bool includes_pin_caps,
 					  const ParasiticAnalysisPt *ap) = 0;
-  virtual ParasiticDeviceIterator *deviceIterator(const Parasitic *parasitic) = 0;
-  virtual ParasiticNodeIterator *nodeIterator(const Parasitic *parasitic) = 0;
+  virtual ParasiticNodeSeq nodes(const Parasitic *parasitic) const = 0;
+  virtual ParasiticResistorSeq resistors(const Parasitic *parasitic) const = 0;
+  virtual ParasiticCapacitorSeq capacitors(const Parasitic *parasitic) const = 0;
   // Delete parasitic network if it exists.
   virtual void deleteParasiticNetwork(const Net *net,
 				      const ParasiticAnalysisPt *ap) = 0;
@@ -165,130 +166,98 @@ public:
   // Make a subnode of the parasitic network net.
   virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
 					     const Net *net,
-					     int id) = 0;
+					     int id,
+                                             const Network *network) = 0;
   // Make a subnode of the parasitic network net connected to pin.
   virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
-					     const Pin *pin) = 0;
+					     const Pin *pin,
+                                             const Network *network) = 0;
   // Increment the grounded capacitance on node.
   virtual void incrCap(ParasiticNode *node,
-		       float cap,
-		       const ParasiticAnalysisPt *ap) = 0;
-  // Coupling capacitor between parasitic nodes on a net.
-  // name is optional.  The device takes ownership of the name string.
-  virtual void makeCouplingCap(const char *name,
-			       ParasiticNode *node,
-			       ParasiticNode *other_node,
-			       float cap,
-			       const ParasiticAnalysisPt *ap) = 0;
-  // Coupling capacitor to parasitic node on a different net.
-  // name is optional.  The device takes ownership of the name string.
-  virtual void makeCouplingCap(const char *name,
-			       ParasiticNode *node,
-			       Net *other_node_net,
-			       int other_node_id,
-			       float cap,
-			       const ParasiticAnalysisPt *ap) = 0;
-  // Coupling capacitor to pin on a different net.
-  // name is optional.  The device takes ownership of the name string.
-  virtual void makeCouplingCap(const char *name,
-			       ParasiticNode *node,
-			       Pin *other_node_pin,
-			       float cap,
-			       const ParasiticAnalysisPt *ap) = 0;
-  // name is optional.  The device takes ownership of the name string.
-  virtual void makeResistor(const char *name,
-			    ParasiticNode *node1,
-			    ParasiticNode *node2,
-			    float res,
-			    const ParasiticAnalysisPt *ap) = 0;
-  // Check integrity of parasitic network.
-  void check(Parasitic *parasitic) const;
-
+		       float cap) = 0;
   virtual const char *name(const ParasiticNode *node) = 0;
-  virtual const Pin *connectionPin(const ParasiticNode *node) const = 0;
+  virtual const Pin *pin(const ParasiticNode *node) const = 0;
+  virtual const Net *net(const ParasiticNode *node,
+                         const Network *network) const = 0;
+  virtual bool isExternal(const ParasiticNode *node) const = 0;
   // Find the parasitic node connected to pin.
   virtual ParasiticNode *findNode(const Parasitic *parasitic,
 				  const Pin *pin) const = 0;
   // Node capacitance to ground.
-  virtual float nodeGndCap(const ParasiticNode *node,
-			   const ParasiticAnalysisPt *ap) const = 0;
-  virtual ParasiticDeviceIterator *
-  deviceIterator(ParasiticNode *node) const = 0;
-  virtual bool isResistor(const ParasiticDevice *device) const = 0;
-  virtual bool isCouplingCap(const ParasiticDevice *device) const = 0;
-  virtual const char *name(const ParasiticDevice *device) const = 0;
-  // Device "value" (resistance, capacitance).
-  virtual float value(const ParasiticDevice *device,
-		      const ParasiticAnalysisPt *ap) const = 0;
-  virtual ParasiticNode *node1(const ParasiticDevice *device) const = 0;
-  virtual ParasiticNode *node2(const ParasiticDevice *device) const = 0;
-  virtual ParasiticNode *otherNode(const ParasiticDevice *device,
-				   ParasiticNode *node) const = 0;
+  virtual float nodeGndCap(const ParasiticNode *node) const = 0;
 
-  // Return true if all loads are annoatated.
-  virtual bool checkAnnotation(Parasitic *parasitic_network,
-                               const Pin *drvr_pin) = 0;
-  virtual bool checkAnnotation(const Pin *drvr_pin,
-                               ParasiticNode *drvr_node) = 0;
-  // Return loads missing path from driver.
-  virtual PinSet unannotatedLoads(Parasitic *parasitic_network,
-                                  const Pin *drvr_pin) = 0;
+  // Coupling capacitor between parasitic nodes on a net.
+  virtual void makeCapacitor(Parasitic *parasitic,
+                             size_t id,
+                             float cap,
+                             ParasiticNode *node1,
+                             ParasiticNode *node2) = 0;
+  virtual size_t id(const ParasiticCapacitor *capacitor) const = 0;
+  virtual float value(const ParasiticCapacitor *capacitor) const = 0;
+  virtual ParasiticNode *node1(const ParasiticCapacitor *capacitor) const = 0;
+  virtual ParasiticNode *node2(const ParasiticCapacitor *capacitor) const = 0;
+  virtual ParasiticNode *otherNode(const ParasiticCapacitor *capacitor,
+                                   ParasiticNode *node) const;
 
-  // Reduce parasitic network to reduce_to model.
-  virtual void reduceTo(const Parasitic *parasitic,
-			const Net *net,
-			ReducedParasiticType reduce_to,
-			const OperatingConditions *op_cond,
-			const Corner *corner,
-			const MinMax *cnst_min_max,
-			const ParasiticAnalysisPt *ap) = 0;
-  // Reduce parasitic network to pi elmore models.
-  virtual void reduceToPiElmore(const Parasitic *parasitic,
-				const Net *net,
-				const OperatingConditions *op_cond,
-				const Corner *corner,
-				const MinMax *cnst_min_max,
-				const ParasiticAnalysisPt *ap) = 0;
+  virtual void makeResistor(Parasitic *parasitic,
+			    size_t id,
+			    float res,
+                            ParasiticNode *node1,
+			    ParasiticNode *node2) = 0;
+  virtual size_t id(const ParasiticResistor *resistor) const = 0;
+  virtual float value(const ParasiticResistor *resistor) const = 0;
+  virtual ParasiticNode *node1(const ParasiticResistor *resistor) const = 0;
+  virtual ParasiticNode *node2(const ParasiticResistor *resistor) const = 0;
+  virtual ParasiticNode *otherNode(const ParasiticResistor *capacitor,
+                                   ParasiticNode *node) const;
+
+  // Iteration over resistors connected to a nodes.
+  // ParasiticNodeResistorMap resistor_map =
+  //   parasitics_->parasiticNodeResistorMap(parasitic_network);
+  // ParasiticResistorSeq &resistors = resistor_map_[node];
+  // for (ParasiticResistor *resistor : resistors) {
+  // }
+  ParasiticNodeResistorMap parasiticNodeResistorMap(const Parasitic *parasitic) const;
+  ParasiticNodeCapacitorMap parasiticNodeCapacitorMap(const Parasitic *parasitic) const;
+
+  // Filters loads that are missing path from driver.
+  virtual PinSet unannotatedLoads(const Parasitic *parasitic,
+                                  const Pin *drvr_pin) const = 0;
+  // unannotatedLoads helper.
+  PinSet loads(const Pin *drvr_pin) const;
+
   // Reduce parasitic network to pi elmore model for drvr_pin.
-  virtual void reduceToPiElmore(const Parasitic *parasitic,
-				const Pin *drvr_pin,
-				const OperatingConditions *op_cond,
-				const Corner *corner,
-				const MinMax *cnst_min_max,
-				const ParasiticAnalysisPt *ap) = 0;
-  // Reduce parasitic network to pi and 2nd order pole/residue models.
-  virtual void reduceToPiPoleResidue2(const Parasitic *parasitic,
-				      const Net *net,
-				      const OperatingConditions *op_cond,
-				      const Corner *corner,
-				      const MinMax *cnst_min_max,
-				      const ParasiticAnalysisPt *ap) = 0;
+  Parasitic *reduceToPiElmore(const Parasitic *parasitic,
+                              const Pin *drvr_pin,
+                              const RiseFall *rf,
+                              const Corner *corner,
+                              const MinMax *cnst_min_max,
+                              const ParasiticAnalysisPt *ap);
   // Reduce parasitic network to pi and 2nd order pole/residue models
   // for drvr_pin.
-  virtual void reduceToPiPoleResidue2(const Parasitic *parasitic,
-				      const Pin *drvr_pin,
-				      const OperatingConditions *op_cond,
-				      const Corner *corner,
-				      const MinMax *cnst_min_max,
-				      const ParasiticAnalysisPt *ap) = 0;
+  Parasitic *reduceToPiPoleResidue2(const Parasitic *parasitic,
+                                    const Pin *drvr_pin,
+                                    const RiseFall *rf,
+                                    const Corner *corner,
+                                    const MinMax *cnst_min_max,
+                                    const ParasiticAnalysisPt *ap);
 
   // Estimate parasitic as pi elmore using wireload model.
-  virtual Parasitic *estimatePiElmore(const Pin *drvr_pin,
-				      const RiseFall *rf,
-				      const Wireload *wireload,
-				      float fanout,
-				      float net_pin_cap,
-				      const OperatingConditions *op_cond,
-				      const Corner *corner,
-				      const MinMax *min_max,
-				      const ParasiticAnalysisPt *ap) = 0;
+  Parasitic *estimatePiElmore(const Pin *drvr_pin,
+                              const RiseFall *rf,
+                              const Wireload *wireload,
+                              float fanout,
+                              float net_pin_cap,
+                              const Corner *corner,
+                              const MinMax *min_max);
   Parasitic *makeWireloadNetwork(const Pin *drvr_pin,
 				 const Wireload *wireload,
 				 float fanout,
-				 const OperatingConditions *op_cond,
+                                 const MinMax *min_max,
 				 const ParasiticAnalysisPt *ap);
   // Network edit before/after methods.
-  virtual void disconnectPinBefore(const Pin *pin) = 0;
+  virtual void disconnectPinBefore(const Pin *pin,
+                                   const Network *network) = 0;
   virtual void loadPinCapacitanceChanged(const Pin *pin) = 0;
 
 protected:
@@ -296,20 +265,17 @@ protected:
 				const Pin *drvr_pin,
 				float wireload_cap,
 				float wireload_res,
-				float fanout,
-				const ParasiticAnalysisPt *ap);
+				float fanout);
   void makeWireloadNetworkBest(Parasitic *parasitic,
 			       const Pin *drvr_pin,
 			       float wireload_cap,
 			       float wireload_res,
-			       float fanout,
-			       const ParasiticAnalysisPt *ap);
+			       float fanout);
   void makeWireloadNetworkBalanced(Parasitic *parasitic,
 				   const Pin *drvr_pin,
 				   float wireload_cap,
 				   float wireload_res,
-				   float fanout,
-				   const ParasiticAnalysisPt *ap);
+				   float fanout);
 
   const Net *findParasiticNet(const Pin *pin) const;
 };
@@ -320,19 +286,18 @@ class ParasiticAnalysisPt
 public:
   ParasiticAnalysisPt(const char *name,
 		      int index,
-		      const MinMax *min_max);
-  ~ParasiticAnalysisPt();
-  const char *name() const { return name_; }
+                      int index_max);
+  const char *name() const { return name_.c_str(); }
   int index() const { return index_; }
-  const MinMax *minMax() const { return min_max_; }
+  int indexMax() const { return index_max_; }
   // Coupling capacitor factor used by all reduction functions.
   float couplingCapFactor() const { return coupling_cap_factor_; }
   void setCouplingCapFactor(float factor);
 
 private:
-  const char *name_;
+  string name_;
   int index_;
-  const MinMax *min_max_;
+  int index_max_;
   float coupling_cap_factor_;
 };
 

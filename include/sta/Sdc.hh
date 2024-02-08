@@ -606,7 +606,6 @@ public:
   // Pin capacitance derated by operating conditions and instance pvt.
   float pinCapacitance(const Pin *pin,
 		       const RiseFall *rf,
-		       const OperatingConditions *op_cond,
 		       const Corner *corner,
 		       const MinMax *min_max);
   void setResistance(const Net *net,
@@ -825,7 +824,7 @@ public:
   LogicValueMap &logicValues() { return logic_value_map_; }
   LogicValueMap &caseLogicValues() { return case_value_map_; }
   // Returns nullptr if set_operating_conditions has not been called.
-  OperatingConditions *operatingConditions(const MinMax *min_max);
+  OperatingConditions *operatingConditions(const MinMax *min_max) const;
   // Instance specific process/voltage/temperature.
   const Pvt *pvt(const Instance *inst,
                  const MinMax *min_max) const;
@@ -946,7 +945,6 @@ public:
   //  wire_cap = port external wire capacitance + net wire capacitance
   void connectedCap(const Pin *pin,
 		    const RiseFall *rf,
-		    const OperatingConditions *op_cond,
 		    const Corner *corner,
 		    const MinMax *min_max,
 		    float &pin_cap,
@@ -1233,7 +1231,6 @@ protected:
 			      ClockLatency *latency);
   void pinCaps(const Pin *pin,
 	       const RiseFall *rf,
-	       const OperatingConditions *op_cond,
 	       const Corner *corner,
 	       const MinMax *min_max,
 	       float &pin_cap,
@@ -1241,7 +1238,6 @@ protected:
 	       float &fanout) const;
   void netCaps(const Pin *drvr_pin,
 	       const RiseFall *rf,
-	       const OperatingConditions *op_cond,
 	       const Corner *corner,
 	       const MinMax *min_max,
 	       // Return values.
@@ -1252,12 +1248,10 @@ protected:
   // connectedCap pin_cap.
   float connectedPinCap(const Pin *pin,
 			const RiseFall *rf,
-			const OperatingConditions *op_cond,
 			const Corner *corner,
 			const MinMax *min_max);
   float portCapacitance(Instance *inst, LibertyPort *port,
 			const RiseFall *rf,
-			const OperatingConditions *op_cond,
 			const Corner *corner,
 			const MinMax *min_max) const;
   void removeClockGroups(ClockGroups *groups);

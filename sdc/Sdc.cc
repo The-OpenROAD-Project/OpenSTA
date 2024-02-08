@@ -465,7 +465,7 @@ Sdc::setOperatingConditions(OperatingConditions *op_cond,
 }
 
 OperatingConditions *
-Sdc::operatingConditions(const MinMax *min_max)
+Sdc::operatingConditions(const MinMax *min_max) const
 {
   int mm_index = min_max->index();
   return operating_conditions_[mm_index];
@@ -2958,8 +2958,7 @@ Sdc::setPortExtWireCap(const Port *port,
   PortExtCap *port_cap = ensurePortExtPinCap(port, corner);
   if (subtract_pin_cap) {
     Pin *pin = network_->findPin(network_->name(port));
-    const OperatingConditions *op_cond = operatingConditions(min_max);
-    cap -= connectedPinCap(pin, rf, op_cond, corner, min_max);
+    cap -= connectedPinCap(pin, rf, corner, min_max);
     if (cap < 0.0)
       cap = 0.0;
   }
@@ -3066,14 +3065,11 @@ Sdc::setNetWireCap(const Net *net,
 {
   float wire_cap = cap;
   if (subtract_pin_cap) {
-    OperatingConditions *op_cond = operatingConditions(min_max);
     NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(net);
     if (pin_iter->hasNext()) {
       const Pin *pin = pin_iter->next();
-      float pin_cap_rise = connectedPinCap(pin, RiseFall::rise(),
-					   op_cond, corner, min_max);
-      float pin_cap_fall = connectedPinCap(pin, RiseFall::fall(),
-					   op_cond, corner, min_max);
+      float pin_cap_rise = connectedPinCap(pin, RiseFall::rise(), corner, min_max);
+      float pin_cap_fall = connectedPinCap(pin, RiseFall::fall(), corner, min_max);
       float pin_cap = (pin_cap_rise + pin_cap_fall) / 2.0F;
       wire_cap -= pin_cap;
       if ((wire_cap + pin_cap) < 0.0)
@@ -3108,7 +3104,6 @@ Sdc::hasNetWireCap(const Net *net) const
 void
 Sdc::connectedCap(const Pin *pin,
 		  const RiseFall *rf,
-		  const OperatingConditions *op_cond,
 		  const Corner *corner,
 		  const MinMax *min_max,
 		  // Return values.
@@ -3117,8 +3112,7 @@ Sdc::connectedCap(const Pin *pin,
 		  float &fanout,
                   bool &has_net_load) const
 {
-  netCaps(pin, rf, op_cond, corner, min_max,
-	  pin_cap, wire_cap, fanout, has_net_load);
+  netCaps(pin, rf, corner, min_max, pin_cap, wire_cap, fanout, has_net_load);
   float net_wire_cap;
   drvrPinWireCap(pin, corner, min_max, net_wire_cap, has_net_load);
   if (has_net_load)
@@ -3128,13 +3122,12 @@ Sdc::connectedCap(const Pin *pin,
 float
 Sdc::connectedPinCap(const Pin *pin,
 		     const RiseFall *rf,
-		     const OperatingConditions *op_cond,
 		     const Corner *corner,
 		     const MinMax *min_max)
 {
   float pin_cap, wire_cap, fanout;
   bool has_net_load;
-  connectedCap(pin, rf, op_cond, corner, min_max,
+  connectedCap(pin, rf, corner, min_max,
 	       pin_cap, wire_cap, fanout, has_net_load);
   return pin_cap;
 }
@@ -3143,7 +3136,6 @@ class FindNetCaps : public PinVisitor
 {
 public:
   FindNetCaps(const RiseFall *rf,
-	      const OperatingConditions *op_cond,
 	      const Corner *corner,
 	      const MinMax *min_max,
 	      float &pin_cap,
@@ -3155,7 +3147,6 @@ public:
 
 protected:
   const RiseFall *rf_;
-  const OperatingConditions *op_cond_;
   const Corner *corner_;
   const MinMax *min_max_;
   float &pin_cap_;
@@ -3166,7 +3157,6 @@ protected:
 };
 
 FindNetCaps::FindNetCaps(const RiseFall *rf,
-			 const OperatingConditions *op_cond,
 			 const Corner *corner,
 			 const MinMax *min_max,
 			 float &pin_cap,
@@ -3176,7 +3166,6 @@ FindNetCaps::FindNetCaps(const RiseFall *rf,
 			 const Sdc *sdc) :
   PinVisitor(),
   rf_(rf),
-  op_cond_(op_cond),
   corner_(corner),
   min_max_(min_max),
   pin_cap_(pin_cap),
@@ -3190,7 +3179,7 @@ FindNetCaps::FindNetCaps(const RiseFall *rf,
 void
 FindNetCaps::operator()(const Pin *pin)
 {
-  sdc_->pinCaps(pin, rf_, op_cond_, corner_, min_max_,
+  sdc_->pinCaps(pin, rf_, corner_, min_max_,
 		pin_cap_, wire_cap_, fanout_);
 }
 
@@ -3198,7 +3187,6 @@ FindNetCaps::operator()(const Pin *pin)
 void
 Sdc::netCaps(const Pin *drvr_pin,
 	     const RiseFall *rf,
-	     const OperatingConditions *op_cond,
 	     const Corner *corner,
 	     const MinMax *min_max,
 	     // Return values.
@@ -3211,7 +3199,7 @@ Sdc::netCaps(const Pin *drvr_pin,
   wire_cap = 0.0;
   fanout = 0.0;
   has_net_load = false;
-  FindNetCaps visitor(rf, op_cond, corner, min_max, pin_cap,
+  FindNetCaps visitor(rf, corner, min_max, pin_cap,
 		      wire_cap, fanout, has_net_load, this);
   network_->visitConnectedPins(drvr_pin, visitor);
 }
@@ -3219,7 +3207,6 @@ Sdc::netCaps(const Pin *drvr_pin,
 void
 Sdc::pinCaps(const Pin *pin,
 	     const RiseFall *rf,
-	     const OperatingConditions *op_cond,
 	     const Corner *corner,
 	     const MinMax *min_max,
 	     // Return values.
@@ -3252,7 +3239,7 @@ Sdc::pinCaps(const Pin *pin,
     LibertyPort *port = network_->libertyPort(pin);
     if (port) {
       Instance *inst = network_->instance(pin);
-      pin_cap += portCapacitance(inst, port, rf, op_cond, corner, min_max);
+      pin_cap += portCapacitance(inst, port, rf, corner, min_max);
       if (port->direction()->isAnyInput())
 	fanout++;
     }
@@ -3263,7 +3250,6 @@ float
 Sdc::portCapacitance(Instance *inst,
 		     LibertyPort *port,
 		     const RiseFall *rf,
-		     const OperatingConditions *op_cond,
 		     const Corner *corner,
 		     const MinMax *min_max) const
 {
@@ -3271,20 +3257,20 @@ Sdc::portCapacitance(Instance *inst,
   if (inst)
     inst_pvt = pvt(inst, min_max);
   LibertyPort *corner_port = port->cornerPort(corner, min_max);
+  OperatingConditions *op_cond = operatingConditions(min_max);
   return corner_port->capacitance(rf, min_max, op_cond, inst_pvt);
 }
 
 float
 Sdc::pinCapacitance(const Pin *pin,
 		    const RiseFall *rf,
-		    const OperatingConditions *op_cond,
 		    const Corner *corner,
 		    const MinMax *min_max)
 {
   LibertyPort *port = network_->libertyPort(pin);
   if (port) {
     Instance *inst = network_->instance(pin);
-    return portCapacitance(inst, port, rf, op_cond, corner, min_max);
+    return portCapacitance(inst, port, rf, corner, min_max);
   }
   else
     return 0.0;

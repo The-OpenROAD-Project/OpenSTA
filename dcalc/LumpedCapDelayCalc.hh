@@ -30,7 +30,10 @@ public:
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
                            const DcalcAnalysisPt *dcalc_ap) override;
-  ReducedParasiticType reducedParasiticType() const override;
+  Parasitic *reduceParasitic(const Parasitic *parasitic_network,
+                             const Pin *drvr_pin,
+                             const RiseFall *rf,
+                             const DcalcAnalysisPt *dcalc_ap) override;
   ArcDcalcResult inputPortDelay(const Pin *port_pin,
                                 float in_slew,
                                 const RiseFall *rf,
@@ -59,6 +62,8 @@ protected:
                             ArcDelay gate_delay,
                             Slew drvr_slew,
                             const LoadPinIndexMap &load_pin_index_map);
+
+  using ArcDelayCalc::reduceParasitic;
 };
 
 ArcDelayCalc *

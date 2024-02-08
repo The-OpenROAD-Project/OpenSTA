@@ -64,6 +64,8 @@ public:
   rcmodel();
   virtual ~rcmodel();
   virtual float capacitance() const;
+  virtual PinSet unannotatedLoads(const Pin *drvr_pin,
+                                  const Parasitics *parasitics) const;
 
   const Pin **pinV; // [n]
 };

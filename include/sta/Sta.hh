@@ -1111,13 +1111,10 @@ public:
   InstanceSeq slowDrivers(int count);
 
   // Make parasitic analysis points.
-  // per_corner per_min_max     ap_count
-  //      false       false            1
-  //      false        true            2
-  //       true       false      corners
-  //       true        true    corners*2
-  void setParasiticAnalysisPts(bool per_corner,
-                               bool per_min_max);
+  // per_corner    ap_count
+  //      false           2
+  //       true   corners*2
+  void setParasiticAnalysisPts(bool per_corner);
   // Annotate hierarchical "instance" with parasitics.
   // The parasitic analysis point is ap_name.
   // The parasitic memory footprint is much smaller if parasitic
@@ -1131,9 +1128,7 @@ public:
 		bool pin_cap_included,
 		bool keep_coupling_caps,
 		float coupling_cap_factor,
-		ReducedParasiticType reduce_to,
-		bool delete_after_reduce,
-		bool quiet);
+		bool reduce);
   void reportParasiticAnnotation(bool report_unannotated,
                                  const Corner *corner);
   // Parasitics.

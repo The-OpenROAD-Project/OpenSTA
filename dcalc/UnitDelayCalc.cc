@@ -45,10 +45,21 @@ UnitDelayCalc::findParasitic(const Pin *,
   return nullptr;
 }
 
-ReducedParasiticType
-UnitDelayCalc::reducedParasiticType() const
+Parasitic *
+UnitDelayCalc::reduceParasitic(const Parasitic *,
+                               const Pin *,
+                               const RiseFall *,
+                               const DcalcAnalysisPt *)
 {
-  return ReducedParasiticType::none;
+  return nullptr;
+}
+
+void
+UnitDelayCalc::reduceParasitic(const Parasitic *,
+                               const Net *,
+                               const Corner *,
+                               const MinMaxAll *)
+{
 }
 
 ArcDcalcResult

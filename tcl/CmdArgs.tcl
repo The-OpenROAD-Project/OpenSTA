@@ -392,6 +392,7 @@ proc get_ports_or_pins { pattern } {
 
 ################################################################
 
+# -corner keyword is optional.
 # If -corner keyword is missing:
 #  one corner: return default
 #  multiple corners: error
@@ -414,7 +415,6 @@ proc parse_corner { keys_var } {
 }
 
 # -corner keyword is required.
-# Assumes caller checks for existence of -corner keyword arg.
 proc parse_corner_required { keys_var } {
   upvar 1 $keys_var keys
 

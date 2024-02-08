@@ -2261,7 +2261,7 @@ ReportPath::reportPathLine(const Path *path,
   float cap = field_blank_;
   // Don't show capacitance field for input pins.
   if (is_driver && field_capacitance_->enabled())
-    cap = loadCap(pin, rf, dcalc_ap);
+    cap = graph_delay_calc_->loadCap(pin, rf, dcalc_ap);
   reportLine(what.c_str(), cap, slew, field_blank_,
 	     incr, time, false, early_late, rf, line_case);
 }
@@ -2653,7 +2653,7 @@ ReportPath::reportPath5(const Path *path,
         float fanout = field_blank_;
 	// Don't show capacitance field for input pins.
 	if (is_driver && field_capacitance_->enabled())
-	  cap = loadCap(pin, rf, dcalc_ap);
+          cap = graph_delay_calc_->loadCap(pin, rf, dcalc_ap);
 	// Don't show fanout field for input pins.
 	if (is_driver && field_fanout_->enabled())
 	  fanout = drvrFanout(vertex, dcalc_ap->corner(), min_max);
@@ -2835,18 +2835,6 @@ ReportPath::pathInputDelayRefPath(const Path *path,
       }
     }
   }
-}
-
-float
-ReportPath::loadCap(Pin *drvr_pin,
-		    const RiseFall *rf,
-		    DcalcAnalysisPt *dcalc_ap)
-{
-  Parasitic *parasitic = nullptr;
-  parasitic = arc_delay_calc_->findParasitic(drvr_pin, rf, dcalc_ap);
-  float load_cap = graph_delay_calc_->loadCap(drvr_pin, parasitic, rf, dcalc_ap);
-  arc_delay_calc_->finishDrvrPin();
-  return load_cap;
 }
 
 ////////////////////////////////////////////////////////////////

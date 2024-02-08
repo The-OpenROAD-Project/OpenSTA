@@ -10,6 +10,12 @@ The report_net -connections, -verbose and -hier_pins flags are deprecated.
 The report_instance -connections and -verbose flags are deprecated.
 The options are now enabled in all cases.
 
+The read_spef parasitic reduction arguments have changed. The
+-reduce_to and -delete_after_reduce arguments are deprecated and
+replaced with the -reduce flag. With the -reduce flag, the current
+delay calculator reduces the parastic network to the appropriate type
+and deletes the parasitic network.
+
 Release 2.4.0 2023/01/19
 -------------------------
 

@@ -30,6 +30,7 @@
 #include "TimingModel.hh"
 #include "TimingArc.hh"
 #include "TableModel.hh"
+#include "PortDirection.hh"
 #include "Network.hh"
 #include "Graph.hh"
 #include "Parasitics.hh"
@@ -117,7 +118,10 @@ public:
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
                            const DcalcAnalysisPt *dcalc_ap) override;
-  ReducedParasiticType reducedParasiticType() const override;
+  Parasitic *reduceParasitic(const Parasitic *parasitic_network,
+                             const Pin *drvr_pin,
+                             const RiseFall *rf,
+                             const DcalcAnalysisPt *dcalc_ap) override;
   ArcDcalcResult inputPortDelay(const Pin *port_pin,
                                 float in_slew,
                                 const RiseFall *rf,
@@ -140,6 +144,7 @@ public:
                          const LoadPinIndexMap &load_pin_index_map,
                          const DcalcAnalysisPt *dcalc_ap,
                          int digits) override;
+  void finishDrvrPin() override;
   void delay_work_set_thresholds(delay_work *D,
 				 double lo,
 				 double hi,
@@ -219,6 +224,7 @@ private:
   int pin_n_;
   ArnoldiReduce *reduce_;
   delay_work *delay_work_;
+  vector<rcmodel*> unsaved_parasitics_;
 };
 
 ArcDelayCalc *
@@ -259,49 +265,53 @@ ArnoldiDelayCalc::findParasitic(const Pin *drvr_pin,
   Parasitic *parasitic = nullptr;
   const Corner *corner = dcalc_ap->corner();
   // set_load net has precedence over parasitics.
-  if (!sdc_->drvrPinHasWireCap(drvr_pin, corner)) {
-    const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
-    Parasitic *parasitic_network =
-      parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
-    bool delete_parasitic_network = false;
-
-    const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();
-    const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
-    if (parasitic_network == nullptr) {
-      Wireload *wireload = sdc_->wireload(cnst_min_max);
-      if (wireload) {
-	float pin_cap, wire_cap, fanout;
-	bool has_wire_cap;
-	graph_delay_calc_->netCaps(drvr_pin, drvr_rf, dcalc_ap,
-				   pin_cap, wire_cap, fanout, has_wire_cap);
-	parasitic_network = parasitics_->makeWireloadNetwork(drvr_pin, wireload,
-							     fanout, op_cond,
-							     parasitic_ap);
-	delete_parasitic_network = true;
-      }
+  if (sdc_->drvrPinHasWireCap(drvr_pin, corner)
+      || network_->direction(drvr_pin)->isInternal())
+    return nullptr;
+  const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
+  Parasitic *parasitic_network =
+    parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
+  const MinMax *min_max = dcalc_ap->constraintMinMax();
+  if (parasitic_network == nullptr) {
+    Wireload *wireload = sdc_->wireload(min_max);
+    if (wireload) {
+      float pin_cap, wire_cap, fanout;
+      bool has_wire_cap;
+      graph_delay_calc_->netCaps(drvr_pin, drvr_rf, dcalc_ap,
+                                 pin_cap, wire_cap, fanout, has_wire_cap);
+      parasitic_network = parasitics_->makeWireloadNetwork(drvr_pin, wireload,
+                                                           fanout, min_max,
+                                                           parasitic_ap);
     }
+  }
     
-    if (parasitic_network) {
-      parasitic = reduce_->reduceToArnoldi(parasitic_network,
-                                           drvr_pin,
-                                           parasitic_ap->couplingCapFactor(),
-                                           drvr_rf, op_cond, corner,
-                                           cnst_min_max, parasitic_ap);
-      if (delete_parasitic_network) {
-	Net *net = network_->net(drvr_pin);
-	parasitics_->deleteParasiticNetwork(net, parasitic_ap);
-      }
-      // Arnoldi parasitics are their own class that are not saved in the parasitic db.
-      unsaved_parasitics_.push_back(parasitic);
-    }
+  if (parasitic_network) {
+    rcmodel *rcmodel = reduce_->reduceToArnoldi(parasitic_network, drvr_pin,
+                                                parasitic_ap->couplingCapFactor(),
+                                                drvr_rf, corner, min_max, parasitic_ap);
+    // Arnoldi parasitics are their own class that are not saved in the parasitic db.
+    unsaved_parasitics_.push_back(rcmodel);
+    parasitic = rcmodel;
   }
   return parasitic;
 }
 
-ReducedParasiticType
-ArnoldiDelayCalc::reducedParasiticType() const
+Parasitic *
+ArnoldiDelayCalc::reduceParasitic(const Parasitic *,
+                                  const Pin *,
+                                  const RiseFall *,
+                                  const DcalcAnalysisPt *)
 {
-  return ReducedParasiticType::arnoldi;
+  // Decline because reduced arnoldi parasitics are not stored in the parasitics db.
+  return nullptr;
+}
+
+void
+ArnoldiDelayCalc::finishDrvrPin()
+{
+  for (auto parasitic : unsaved_parasitics_)
+    delete parasitic;
+  unsaved_parasitics_.clear();
 }
 
 ArcDcalcResult
@@ -1304,7 +1314,6 @@ ArnoldiDelayCalc::ra_get_r(delay_work *D,
   r = tlohi/(c_log*c1);
   if (rdelay>0.0 && r > rdelay)
     r = rdelay;
-  // else printf("from rdelay %g to r %g\n",rdelay,r);
   return r;
 }
 

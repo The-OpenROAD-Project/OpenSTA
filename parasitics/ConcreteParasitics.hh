@@ -21,203 +21,148 @@
 #include "Map.hh"
 #include "Set.hh"
 #include "MinMax.hh"
-#include "EstimateParasitics.hh"
 #include "Parasitics.hh"
 
 namespace sta {
 
 class ConcreteParasitic;
-class ConcretePiElmore;
-class ConcretePiPoleResidue;
 class ConcreteParasiticNetwork;
-class ConcreteParasiticNode;
-class ConcreteParasiticDevice;
 
 typedef Map<const Pin*, ConcreteParasitic**> ConcreteParasiticMap;
 typedef Map<const Net*, ConcreteParasiticNetwork**> ConcreteParasiticNetworkMap;
-typedef Set<ParasiticNode*> ParasiticNodeSet;
-typedef Set<ParasiticDevice*> ParasiticDeviceSet;
 
-// This class acts as a BUILDER for all parasitics.
-class ConcreteParasitics : public Parasitics, public EstimateParasitics
+// This class acts as a BUILDER for parasitics.
+class ConcreteParasitics : public Parasitics
 {
 public:
   ConcreteParasitics(StaState *sta);
   virtual ~ConcreteParasitics();
-  virtual bool haveParasitics();
-  virtual void clear();
+  bool haveParasitics() override;
+  void clear() override;
 
-  virtual void save();
-  virtual void deleteParasitics();
-  virtual void deleteParasitics(const Net *net,
-				const ParasiticAnalysisPt *ap);
-  virtual void deleteParasitics(const Pin *drvr_pin,
-				const ParasiticAnalysisPt *ap);
-  virtual void deleteUnsavedParasitic(Parasitic *parasitic);
+  void deleteParasitics() override;
+  void deleteParasitics(const Net *net,
+                        const ParasiticAnalysisPt *ap) override;
+  void deleteParasitics(const Pin *drvr_pin,
+                        const ParasiticAnalysisPt *ap) override;
 
-  virtual bool isReducedParasiticNetwork(const Parasitic *parasitic) const;
-  virtual void setIsReducedParasiticNetwork(Parasitic *parasitic,
-					    bool is_reduced);
+  bool isReducedParasiticNetwork(const Parasitic *parasitic) const override;
+  void setIsReducedParasiticNetwork(Parasitic *parasitic,
+                                    bool is_reduced) override;
 
-  virtual float capacitance(const Parasitic *parasitic) const;
+  float capacitance(const Parasitic *parasitic) const override;
 
-  virtual bool isPiElmore(const Parasitic *parasitic) const;
-  virtual Parasitic *findPiElmore(const Pin *drvr_pin,
-				  const RiseFall *rf,
-				  const ParasiticAnalysisPt *ap) const;
-  virtual Parasitic *makePiElmore(const Pin *drvr_pin,
-				  const RiseFall *rf,
-				  const ParasiticAnalysisPt *ap,
-				  float c2,
-                                  float rpi,
-                                  float c1);
-
-  virtual bool isPiModel(const Parasitic *parasitic) const;
-  virtual void piModel(const Parasitic *parasitic,
-                       float &c2,
-                       float &rpi,
-		       float &c1) const;
-  virtual void setPiModel(Parasitic *parasitic,
+  bool isPiElmore(const Parasitic *parasitic) const override;
+  Parasitic *findPiElmore(const Pin *drvr_pin,
+                          const RiseFall *rf,
+                          const ParasiticAnalysisPt *ap) const override;
+  Parasitic *makePiElmore(const Pin *drvr_pin,
+                          const RiseFall *rf,
+                          const ParasiticAnalysisPt *ap,
                           float c2,
                           float rpi,
-                          float c1);
+                          float c1) override;
 
-  virtual void findElmore(const Parasitic *parasitic,
-                          const Pin *load_pin,
-			  float &elmore,
-                          bool &exists) const;
-  virtual void setElmore(Parasitic *parasitic,
-                         const Pin *load_pin,
-			 float elmore);
+  bool isPiModel(const Parasitic *parasitic) const override;
+  void piModel(const Parasitic *parasitic,
+               float &c2,
+               float &rpi,
+               float &c1) const override;
+  void setPiModel(Parasitic *parasitic,
+                  float c2,
+                  float rpi,
+                  float c1) override;
 
-  virtual bool isPiPoleResidue(const Parasitic* parasitic) const;
-  virtual Parasitic *findPiPoleResidue(const Pin *drvr_pin,
-				       const RiseFall *rf,
-				       const ParasiticAnalysisPt *ap) const;
-  virtual Parasitic *findPoleResidue(const Parasitic *parasitic,
-				     const Pin *load_pin) const;
-  virtual Parasitic *makePiPoleResidue(const Pin *drvr_pin,
-				       const RiseFall *rf,
-				       const ParasiticAnalysisPt *ap,
-				       float c2, float rpi, float c1);
-  virtual void setPoleResidue(Parasitic *parasitic, const Pin *load_pin,
-			      ComplexFloatSeq *poles,
-			      ComplexFloatSeq *residues);
-  virtual bool isPoleResidue(const Parasitic* parasitic) const;
-  virtual size_t poleResidueCount(const Parasitic *parasitic) const;
-  virtual void poleResidue(const Parasitic *parasitic, int pole_index,
-			   ComplexFloat &pole, ComplexFloat &residue) const;
+  void findElmore(const Parasitic *parasitic,
+                  const Pin *load_pin,
+                  float &elmore,
+                  bool &exists) const override;
+  void setElmore(Parasitic *parasitic,
+                 const Pin *load_pin,
+                 float elmore) override;
 
-  virtual bool isParasiticNetwork(const Parasitic *parasitic) const;
-  virtual Parasitic *findParasiticNetwork(const Net *net,
-					  const ParasiticAnalysisPt *ap) const;
-  virtual Parasitic *findParasiticNetwork(const Pin *pin,
-					  const ParasiticAnalysisPt *ap) const;
-  virtual Parasitic *makeParasiticNetwork(const Net *net,
-					  bool includes_pin_caps,
-					  const ParasiticAnalysisPt *ap);
-  virtual void deleteParasiticNetwork(const Net *net,
-				      const ParasiticAnalysisPt *ap);
-  virtual void deleteParasiticNetworks(const Net *net);
-  virtual bool includesPinCaps(const Parasitic *parasitic) const;
-  virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
-					     const Net *net,
-					     int id);
-  virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
-					     const Pin *pin);
-  virtual void incrCap(ParasiticNode *node, float cap,
-		       const ParasiticAnalysisPt *ap);
-  virtual void makeCouplingCap(const char *name,
-			       ParasiticNode *node,
-			       ParasiticNode *other_node,
-			       float cap, const ParasiticAnalysisPt *ap);
-  virtual void makeCouplingCap(const char *name,
-			       ParasiticNode *node,
-			       Net *other_node_net, int other_node_id,
-			       float cap, const ParasiticAnalysisPt *ap);
-  virtual void makeCouplingCap(const char *name,
-			       ParasiticNode *node,
-			       Pin *other_node_pin,
-			       float cap, const ParasiticAnalysisPt *ap);
-  virtual void makeResistor(const char *name, ParasiticNode *node1,
-			    ParasiticNode *node2,
-			    float res, const ParasiticAnalysisPt *ap);
-  virtual ParasiticDeviceIterator *deviceIterator(const Parasitic *parasitic);
-  virtual ParasiticNodeIterator *nodeIterator(const Parasitic *parasitic);
+  bool isPiPoleResidue(const Parasitic* parasitic) const override;
+  Parasitic *findPiPoleResidue(const Pin *drvr_pin,
+                               const RiseFall *rf,
+                               const ParasiticAnalysisPt *ap) const override;
+  Parasitic *findPoleResidue(const Parasitic *parasitic,
+                             const Pin *load_pin) const override;
+  Parasitic *makePiPoleResidue(const Pin *drvr_pin,
+                               const RiseFall *rf,
+                               const ParasiticAnalysisPt *ap,
+                               float c2, float rpi, float c1) override;
+  void setPoleResidue(Parasitic *parasitic, const Pin *load_pin,
+                      ComplexFloatSeq *poles,
+                      ComplexFloatSeq *residues) override;
+  bool isPoleResidue(const Parasitic* parasitic) const override;
+  size_t poleResidueCount(const Parasitic *parasitic) const override;
+  void poleResidue(const Parasitic *parasitic,
+                   int pole_index,
+                   ComplexFloat &pole,
+                   ComplexFloat &residue) const override;
 
-  virtual const char *name(const ParasiticNode *node);
-  virtual const Pin *connectionPin(const ParasiticNode *node) const;
-  virtual ParasiticNode *findNode(const Parasitic *parasitic,
-                                  const Pin *pin) const;
-  virtual float nodeGndCap(const ParasiticNode *node,
-			   const ParasiticAnalysisPt *ap) const;
-  virtual ParasiticDeviceIterator *
-  deviceIterator(ParasiticNode *node) const;
-  virtual bool isResistor(const ParasiticDevice *device) const;
-  virtual bool isCouplingCap(const ParasiticDevice *device) const;
-  virtual const char *name(const ParasiticDevice *device) const;
-  virtual float value(const ParasiticDevice *device,
-		      const ParasiticAnalysisPt *ap) const;
-  virtual ParasiticNode *node1(const ParasiticDevice *device) const;
-  virtual ParasiticNode *node2(const ParasiticDevice *device) const;
-  virtual ParasiticNode *otherNode(const ParasiticDevice *device,
-				   ParasiticNode *node) const;
+  bool isParasiticNetwork(const Parasitic *parasitic) const override;
+  Parasitic *findParasiticNetwork(const Net *net,
+                                  const ParasiticAnalysisPt *ap) const override;
+  Parasitic *findParasiticNetwork(const Pin *pin,
+                                  const ParasiticAnalysisPt *ap) const override;
+  Parasitic *makeParasiticNetwork(const Net *net,
+                                  bool includes_pin_caps,
+                                  const ParasiticAnalysisPt *ap) override;
+  void deleteParasiticNetwork(const Net *net,
+                              const ParasiticAnalysisPt *ap) override;
+  void deleteParasiticNetworks(const Net *net) override;
+  bool includesPinCaps(const Parasitic *parasitic) const override;
+  ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
+                                     const Net *net,
+                                     int id,
+                                     const Network *network) override;
+  ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
+                                     const Pin *pin,
+                                     const Network *network) override;
+  ParasiticNodeSeq nodes(const Parasitic *parasitic) const override;
+  void incrCap(ParasiticNode *node,
+               float cap) override;
+  const char *name(const ParasiticNode *node) override;
+  ParasiticNode *findNode(const Parasitic *parasitic,
+                          const Pin *pin) const override;
+  const Pin *pin(const ParasiticNode *node) const override;
+  const Net *net(const ParasiticNode *node,
+                 const Network *network) const override;
+  bool isExternal(const ParasiticNode *node) const override;
+  float nodeGndCap(const ParasiticNode *node) const override;
 
-  // Return true if all loads are annoatated.
-  virtual bool checkAnnotation(Parasitic *parasitic_network,
-                               const Pin *drvr_pin);
-  virtual bool checkAnnotation(const Pin *drvr_pin,
-                               ParasiticNode *drvr_node);
-  // Return loads missing path from driver.
-  virtual PinSet unannotatedLoads(Parasitic *parasitic_network,
-                                  const Pin *drvr_pin);
+  ParasiticResistorSeq resistors(const Parasitic *parasitic) const override;
+  void makeResistor(Parasitic *parasitic,
+                    size_t id,
+                    float res,
+                    ParasiticNode *node1,
+                    ParasiticNode *node2) override;
+  size_t id(const ParasiticResistor *resistor) const override;
+  float value(const ParasiticResistor *resistor) const override;
+  ParasiticNode *node1(const ParasiticResistor *resistor) const override;
+  ParasiticNode *node2(const ParasiticResistor *resistor) const override;
+  ParasiticCapacitorSeq capacitors(const Parasitic *parasitic) const override;
+  void makeCapacitor(Parasitic *parasitic,
+                     size_t id,
+                     float cap,
+                     ParasiticNode *node1,
+                     ParasiticNode *node2) override;
+  size_t id(const ParasiticCapacitor *capacitor) const override;
+  float value(const ParasiticCapacitor *capacitor) const override;
+  ParasiticNode *node1(const ParasiticCapacitor *capacitor) const override;
+  ParasiticNode *node2(const ParasiticCapacitor *capacitor) const override;
 
-  virtual Parasitic *estimatePiElmore(const Pin *drvr_pin,
-				      const RiseFall *rf,
-				      const Wireload *wireload,
-				      float fanout,
-				      float net_pin_cap,
-				      const OperatingConditions *op_cond,
-				      const Corner *corner,
-				      const MinMax *min_max,
-				      const ParasiticAnalysisPt *ap);
-  virtual void disconnectPinBefore(const Pin *pin);
-  virtual void loadPinCapacitanceChanged(const Pin *pin);
+  PinSet unannotatedLoads(const Parasitic *parasitic,
+                          const Pin *drvr_pin) const override;
 
-  virtual void reduceTo(const Parasitic *parasitic,
-			const Net *net,
-			ReducedParasiticType reduce_to,
-			const OperatingConditions *op_cond,
-			const Corner *corner,
-			const MinMax *cnst_min_max,
-			const ParasiticAnalysisPt *ap);
-  virtual void reduceToPiElmore(const Parasitic *parasitic,
-				const Net *net,
-				const OperatingConditions *op_cond,
-				const Corner *corner,
-				const MinMax *cnst_min_max,
-				const ParasiticAnalysisPt *ap);
-  virtual void reduceToPiElmore(const Parasitic *parasitic,
-				const Pin *drvr_pin,
-				const OperatingConditions *op_cond,
-				const Corner *corner,
-				const MinMax *cnst_min_max,
-				const ParasiticAnalysisPt *ap);
-  virtual void reduceToPiPoleResidue2(const Parasitic *parasitic,
-				      const Net *net,
-				      const OperatingConditions *op_cond,
-				      const Corner *corner,
-				      const MinMax *cnst_min_max,
-				      const ParasiticAnalysisPt *ap);
-  virtual void reduceToPiPoleResidue2(const Parasitic *parasitic,
-				      const Pin *drvr_pin,
-				      const OperatingConditions *op_cond,
-				      const Corner *corner,
-				      const MinMax *cnst_min_max,
-				      const ParasiticAnalysisPt *ap);
+  void disconnectPinBefore(const Pin *pin,
+                           const Network *network) override;
+  void loadPinCapacitanceChanged(const Pin *pin) override;
+
   void deleteReducedParasitics(const Net *net,
-                               const ParasiticAnalysisPt *ap);
-  virtual void deleteDrvrReducedParasitics(const Pin *drvr_pin);
+                               const ParasiticAnalysisPt *ap) override;
+  void deleteDrvrReducedParasitics(const Pin *drvr_pin) override;
 
 protected:
   int parasiticAnalysisPtIndex(const ParasiticAnalysisPt *ap,
@@ -227,14 +172,6 @@ protected:
   void deleteReducedParasitics(const Pin *pin);
   void deleteDrvrReducedParasitics(const Pin *drvr_pin,
                                    const ParasiticAnalysisPt *ap);
-  PinSet checkAnnotation1(const Pin *drvr_pin,
-                          ParasiticNode *drvr_node);
-  void checkAnnotation2(const Pin *drvr_pin,
-                        ParasiticNode *node,
-                        ParasiticDevice *from_res,
-                        PinSet &loads,
-                        ParasiticNodeSet &visited_nodes,
-                        ParasiticDeviceSet &loop_resistors);
 
   // Driver pin to array of parasitics indexed by analysis pt index
   // and transition.
@@ -242,10 +179,8 @@ protected:
   ConcreteParasiticNetworkMap parasitic_network_map_;
   mutable std::mutex lock_;
 
-  using EstimateParasitics::estimatePiElmore;
   friend class ConcretePiElmore;
   friend class ConcreteParasiticNode;
-  friend class ConcreteParasiticResistor;
   friend class ConcreteParasiticNetwork;
 };
 

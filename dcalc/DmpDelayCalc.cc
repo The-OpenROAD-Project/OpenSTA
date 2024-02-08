@@ -19,12 +19,13 @@
 #include "TableModel.hh"
 #include "TimingArc.hh"
 #include "Liberty.hh"
+#include "PortDirection.hh"
+#include "Network.hh"
 #include "Sdc.hh"
 #include "Parasitics.hh"
 #include "DcalcAnalysisPt.hh"
 #include "GraphDelayCalc.hh"
 #include "DmpCeff.hh"
-#include "Network.hh"
 
 namespace sta {
 
@@ -132,7 +133,6 @@ public:
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
                            const DcalcAnalysisPt *dcalc_ap) override;
-  ReducedParasiticType reducedParasiticType() const override;
   ArcDcalcResult inputPortDelay(const Pin *port_pin,
                                 float in_slew,
                                 const RiseFall *rf,
@@ -210,56 +210,39 @@ DmpCeffTwoPoleDelayCalc::findParasitic(const Pin *drvr_pin,
   Parasitic *parasitic = nullptr;
   const Corner *corner = dcalc_ap->corner();
   // set_load net has precedence over parasitics.
-  if (!sdc_->drvrPinHasWireCap(drvr_pin, corner)) {
-    const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
-    if (parasitics_->haveParasitics()) {
-      // Prefer PiPoleResidue.
-      parasitic = parasitics_->findPiPoleResidue(drvr_pin, rf, parasitic_ap);
-      if (parasitic == nullptr) {
-        parasitic = parasitics_->findPiElmore(drvr_pin, rf, parasitic_ap);
-        if (parasitic == nullptr) {
-          Parasitic *parasitic_network =
-            parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
-          if (parasitic_network) {
-            parasitics_->reduceToPiPoleResidue2(parasitic_network, drvr_pin,
-                                                dcalc_ap->operatingConditions(),
-                                                corner,
-                                                dcalc_ap->constraintMinMax(),
-                                                parasitic_ap);
-            parasitic = parasitics_->findPiPoleResidue(drvr_pin, rf, parasitic_ap);
-            reduced_parasitic_drvrs_.push_back(drvr_pin);
-          }
-        }
-      }
-    }
-    else {
-      const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();
-      Wireload *wireload = sdc_->wireload(cnst_min_max);
-      if (wireload) {
-        float pin_cap, wire_cap, fanout;
-        bool has_wire_cap;
-        graph_delay_calc_->netCaps(drvr_pin, rf, dcalc_ap,
-                                   pin_cap, wire_cap, fanout, has_wire_cap);
-        parasitic = parasitics_->estimatePiElmore(drvr_pin, rf, wireload,
-                                                  fanout, pin_cap,
-                                                  dcalc_ap->operatingConditions(),
-                                                  corner,
-                                                  cnst_min_max,
-                                                  parasitic_ap);
-        // Estimated parasitics are not recorded in the "database", so
-        // save it for deletion after the drvr pin delay calc is finished.
-        if (parasitic)
-          unsaved_parasitics_.push_back(parasitic);
-      }
-    }
+  if (sdc_->drvrPinHasWireCap(drvr_pin, corner)
+      || network_->direction(drvr_pin)->isInternal())
+    return nullptr;
+  const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
+  // Prefer PiPoleResidue.
+  parasitic = parasitics_->findPiPoleResidue(drvr_pin, rf, parasitic_ap);
+  if (parasitic)
+    return parasitic;
+  parasitic = parasitics_->findPiElmore(drvr_pin, rf, parasitic_ap);
+  if (parasitic)
+    return parasitic;
+  Parasitic *parasitic_network =
+    parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
+  if (parasitic_network) {
+    parasitic = parasitics_->reduceToPiPoleResidue2(parasitic_network, drvr_pin, rf,
+                                                    corner,
+                                                    dcalc_ap->constraintMinMax(),
+                                                    parasitic_ap);
+    if (parasitic)
+      return parasitic;
+  }
+  const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();
+  Wireload *wireload = sdc_->wireload(cnst_min_max);
+  if (wireload) {
+    float pin_cap, wire_cap, fanout;
+    bool has_wire_cap;
+    graph_delay_calc_->netCaps(drvr_pin, rf, dcalc_ap, pin_cap, wire_cap,
+                               fanout, has_wire_cap);
+    parasitic = parasitics_->estimatePiElmore(drvr_pin, rf, wireload,
+                                              fanout, pin_cap, corner,
+                                              cnst_min_max);
   }
   return parasitic;
-}
-
-ReducedParasiticType
-DmpCeffTwoPoleDelayCalc::reducedParasiticType() const
-{
-  return ReducedParasiticType::pi_pole_residue2;
 }
 
 ArcDcalcResult

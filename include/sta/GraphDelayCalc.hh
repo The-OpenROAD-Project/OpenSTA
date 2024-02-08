@@ -72,41 +72,26 @@ public:
   // delays to be recomputed during incremental delay calculation.
   virtual float incrementalDelayTolerance();
   virtual void setIncrementalDelayTolerance(float tol);
-  // Load pin_cap + wire_cap.
-  virtual float loadCap(const Pin *drvr_pin,
-			const RiseFall *drvr_rf,
-			const DcalcAnalysisPt *dcalc_ap) const;
-  // Load pin_cap + wire_cap including parasitic min/max for rise/fall.
-  virtual float loadCap(const Pin *drvr_pin,
-			const DcalcAnalysisPt *dcalc_ap) const;
-  // pin_cap  = net pin capacitances + port external pin capacitance,
-  // wire_cap = annotated net capacitance + port external wire capacitance.
-  virtual void loadCap(const Pin *drvr_pin,
-		       const Parasitic *parasitic,
-		       const RiseFall *rf,
-		       const DcalcAnalysisPt *dcalc_ap,
-		       // Return values.
-		       float &pin_cap,
-		       float &wire_cap) const;
-  // Load pin_cap + wire_cap including parasitic.
-  virtual float loadCap(const Pin *drvr_pin,
-			const Parasitic *parasitic,
-			const RiseFall *rf,
-			const DcalcAnalysisPt *dcalc_ap) const;
+
   float loadCap(const Pin *drvr_pin,
-		const Parasitic *parasitic,
-		const RiseFall *rf,
-		const DcalcAnalysisPt *dcalc_ap,
-                const MultiDrvrNet *multi_drvr) const;
-  virtual void netCaps(const Pin *drvr_pin,
-		       const RiseFall *rf,
-		       const DcalcAnalysisPt *dcalc_ap,
-		       // Return values.
-		       float &pin_cap,
-		       float &wire_cap,
-		       float &fanout,
-		       bool &has_set_load) const;
-  PinSeq loadPins(Vertex *drvr_vertex);
+                const DcalcAnalysisPt *dcalc_ap) const;
+  float loadCap(const Pin *drvr_pin,
+                const RiseFall *rf,
+                const DcalcAnalysisPt *dcalc_ap) const;
+  void loadCap(const Pin *drvr_pin,
+               const RiseFall *rf,
+               const DcalcAnalysisPt *dcalc_ap,
+               // Return values.
+               float &pin_cap,
+               float &wire_cap) const;
+  void netCaps(const Pin *drvr_pin,
+               const RiseFall *rf,
+               const DcalcAnalysisPt *dcalc_ap,
+               // Return values.
+               float &pin_cap,
+               float &wire_cap,
+               float &fanout,
+               bool &has_set_load) const;
   LoadPinIndexMap makeLoadPinIndexMap(Vertex *drvr_vertex);
   void findDriverArcDelays(Vertex *drvr_vertex,
                            Edge *edge,
@@ -242,11 +227,36 @@ protected:
 			const RiseFall *from_rf,
 			const DcalcAnalysisPt *dcalc_ap);
   bool bidirectDrvrSlewFromLoad(const Vertex *vertex) const;
-  void loadCap(const Parasitic *parasitic,
-	       bool has_set_load,
-	       // Return values.
-	       float &pin_cap,
-	       float &wire_cap) const;
+  float loadCap(const Pin *drvr_pin,
+                const RiseFall *rf,
+                const DcalcAnalysisPt *dcalc_ap,
+                ArcDelayCalc *arc_delay_calc) const;
+  void parasiticLoad(const Pin *drvr_pin,
+                     const RiseFall *rf,
+                     const DcalcAnalysisPt *dcalc_ap,
+                     const MultiDrvrNet *multi_drvr,
+                     ArcDelayCalc *arc_delay_calc,
+                     // Return values.
+                     float &cap,
+                     const Parasitic *&parasitic) const;
+  void parasiticLoad(const Pin *drvr_pin,
+                     const RiseFall *rf,
+                     const DcalcAnalysisPt *dcalc_ap,
+                     const MultiDrvrNet *multi_drvr,
+                     ArcDelayCalc *arc_delay_calc,
+                     // Return values.
+                     float &pin_cap,
+                     float &wire_cap,
+                     const Parasitic *&parasitic) const;
+  void netCaps(const Pin *drvr_pin,
+               const RiseFall *rf,
+               const DcalcAnalysisPt *dcalc_ap,
+               const MultiDrvrNet *multi_drvr,
+               // Return values.
+               float &pin_cap,
+               float &wire_cap,
+               float &fanout,
+               bool &has_net_load) const;
 
   // Observer for edge delay changes.
   DelayCalcObserver *observer_;

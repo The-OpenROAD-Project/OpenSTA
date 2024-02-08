@@ -23,6 +23,7 @@
 #include "TimingArc.hh"
 #include "TimingModel.hh"
 #include "Liberty.hh"
+#include "PortDirection.hh"
 #include "Network.hh"
 #include "Sdc.hh"
 #include "Parasitics.hh"
@@ -58,53 +59,46 @@ LumpedCapDelayCalc::findParasitic(const Pin *drvr_pin,
   Parasitic *parasitic = nullptr;
   const Corner *corner = dcalc_ap->corner();
   // set_load net has precedence over parasitics.
-  if (!sdc_->drvrPinHasWireCap(drvr_pin, corner)) {
-    const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
-    if (parasitics_->haveParasitics()) {
-      // Prefer PiElmore.
-      parasitic = parasitics_->findPiElmore(drvr_pin, rf, parasitic_ap);
-      if (parasitic == nullptr) {
-        Parasitic *parasitic_network =
-          parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
-        if (parasitic_network) {
-          parasitics_->reduceToPiElmore(parasitic_network, drvr_pin,
-                                        dcalc_ap->operatingConditions(),
-                                        corner,
-                                        dcalc_ap->constraintMinMax(),
-                                        parasitic_ap);
-          parasitic = parasitics_->findPiElmore(drvr_pin, rf, parasitic_ap);
-          reduced_parasitic_drvrs_.push_back(drvr_pin);
-        }
-      }
-    }
-    else {
-      const MinMax *cnst_min_max = dcalc_ap->constraintMinMax();
-      Wireload *wireload = sdc_->wireload(cnst_min_max);
-      if (wireload) {
-        float pin_cap, wire_cap, fanout;
-        bool has_net_load;
-        graph_delay_calc_->netCaps(drvr_pin, rf, dcalc_ap,
-                                   pin_cap, wire_cap, fanout, has_net_load);
-        parasitic = parasitics_->estimatePiElmore(drvr_pin, rf, wireload,
-                                                  fanout, pin_cap,
-                                                  dcalc_ap->operatingConditions(),
-                                                  corner,
-                                                  cnst_min_max,
-                                                  parasitic_ap);
-        // Estimated parasitics are not recorded in the "database", so save
-        // it for deletion after the drvr pin delay calc is finished.
-        if (parasitic)
-          unsaved_parasitics_.push_back(parasitic);
-      }
-    }
+  if (sdc_->drvrPinHasWireCap(drvr_pin, corner)
+      || network_->direction(drvr_pin)->isInternal())
+   return nullptr;
+  const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
+  // Prefer PiElmore.
+  parasitic = parasitics_->findPiElmore(drvr_pin, rf, parasitic_ap);
+  if (parasitic)
+    return parasitic;
+  Parasitic *parasitic_network = parasitics_->findParasiticNetwork(drvr_pin,
+                                                                   parasitic_ap);
+  if (parasitic_network) {
+    parasitic = reduceParasitic(parasitic_network, drvr_pin, rf, dcalc_ap);
+    if (parasitic)
+      return parasitic;
+  }
+  const MinMax *min_max = dcalc_ap->constraintMinMax();
+  Wireload *wireload = sdc_->wireload(min_max);
+  if (wireload) {
+    float pin_cap, wire_cap, fanout;
+    bool has_net_load;
+    graph_delay_calc_->netCaps(drvr_pin, rf, dcalc_ap,
+                               pin_cap, wire_cap, fanout, has_net_load);
+    parasitic = parasitics_->estimatePiElmore(drvr_pin, rf, wireload, fanout,
+                                              pin_cap, corner, min_max);
   }
   return parasitic;
 }
 
-ReducedParasiticType
-LumpedCapDelayCalc::reducedParasiticType() const
+Parasitic *
+LumpedCapDelayCalc::reduceParasitic(const Parasitic *parasitic_network,
+                                    const Pin *drvr_pin,
+                                    const RiseFall *rf,
+                                    const DcalcAnalysisPt *dcalc_ap)
+
 {
-  return ReducedParasiticType::pi_elmore;
+  const Corner *corner = dcalc_ap->corner();
+  const ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
+  return parasitics_->reduceToPiElmore(parasitic_network, drvr_pin, rf,
+                                       corner, dcalc_ap->constraintMinMax(),
+                                       parasitic_ap);
 }
 
 ArcDcalcResult

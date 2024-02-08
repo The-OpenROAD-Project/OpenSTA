@@ -37,21 +37,20 @@ class rcmodel;
 struct ts_edge;
 struct ts_point;
 
-typedef Map<ConcreteParasiticNode*, int> ArnolidPtMap;
+typedef Map<ParasiticNode*, int> ArnolidPtMap;
 
 class ArnoldiReduce : public StaState
 {
 public:
   ArnoldiReduce(StaState *sta);
   ~ArnoldiReduce();
-  Parasitic *reduceToArnoldi(Parasitic *parasitic,
-			     const Pin *drvr_pin,
-			     float coupling_cap_factor,
-			     const RiseFall *rf,
-			     const OperatingConditions *op_cond,
-			     const Corner *corner,
-			     const MinMax *cnst_min_max,
-			     const ParasiticAnalysisPt *ap);
+  rcmodel *reduceToArnoldi(Parasitic *parasitic,
+                           const Pin *drvr_pin,
+                           float coupling_cap_factor,
+                           const RiseFall *rf,
+                           const Corner *corner,
+                           const MinMax *cnst_min_max,
+                           const ParasiticAnalysisPt *ap);
 
 protected:
   void loadWork();
@@ -70,9 +69,8 @@ protected:
   const Pin *drvr_pin_;
   float coupling_cap_factor_;
   const RiseFall *rf_;
-  const OperatingConditions *op_cond_;
   const Corner *corner_;
-  const MinMax *cnst_min_max_;
+  const MinMax *min_max_;
   const ParasiticAnalysisPt *ap_;
   // ParasiticNode -> ts_point index.
   ArnolidPtMap pt_map_;

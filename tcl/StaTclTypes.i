@@ -1168,21 +1168,6 @@ using namespace sta;
   Tcl_SetObjResult(interp, obj);
 }
 
-%typemap(in) ReducedParasiticType {
-  int length;
-  char *arg = Tcl_GetStringFromObj($input, &length);
-  if (stringEq(arg, "pi_elmore"))
-    $1 = ReducedParasiticType::pi_elmore;
-  else if (stringEq(arg, "pi_pole_residue2"))
-    $1 = ReducedParasiticType::pi_pole_residue2;
-  else if (stringEq(arg, "none"))
-    $1 = ReducedParasiticType::none;
-  else {
-    tclArgError(interp, "%s pi_elmore, pi_pole_residue2, or none.", arg);
-    return TCL_ERROR;
-  }
-}
-
 %typemap(out) Arrival {
   Tcl_SetObjResult(interp,Tcl_NewDoubleObj(delayAsFloat($1)));
 }
