@@ -4378,7 +4378,6 @@ voltage_current(float in_slew,
   if (gate_model) {
     OutputWaveforms *waveforms = gate_model->outputWaveforms();
     if (waveforms) {
-      waveforms->setVdd(.7);
       float current = waveforms->voltageCurrent(in_slew, load_cap, voltage);
       return current;
     }

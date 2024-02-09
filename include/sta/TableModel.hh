@@ -487,7 +487,8 @@ public:
                   TableAxisPtr cap_axis,
                   const RiseFall *rf,
                   Table1Seq &current_waveforms,
-                  Table1 *ref_times);
+                  Table1 *ref_times,
+                  LibertyLibrary *library);
   ~OutputWaveforms();
   const RiseFall *rf() const { return rf_; }
   const TableAxis *slewAxis() const { return slew_axis_.get(); }
@@ -509,19 +510,18 @@ public:
                        float cap,
                        float volt);
   float referenceTime(float slew);
-  void setVdd(float vdd);
   static bool checkAxes(const TableTemplate *tbl_template);
 
 private:
+  void makeWaveforms();
+  void findVoltages(size_t wave_index,
+                    float cap);
   float waveformValue(float slew,
                       float cap,
                       float axis_value,
                       Table1Seq &waveforms);
   float voltageTime1(float voltage,
                      size_t wave_index);
-  void ensureVoltages();
-  void findVoltages(size_t wave_index,
-                    float cap);
   void waveformMinMaxTime(float slew,
                           float cap,
                           Table1Seq &waveforms,

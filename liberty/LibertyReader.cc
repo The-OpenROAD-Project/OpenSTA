@@ -2550,7 +2550,8 @@ LibertyReader::endOutputCurrentRiseFall(LibertyGroup *group)
   Table1 *ref_time_tbl = new Table1(ref_times, slew_axis);
   OutputWaveforms *output_current = new OutputWaveforms(slew_axis, cap_axis, rf_,
                                                         current_waveforms,
-                                                        ref_time_tbl);
+                                                        ref_time_tbl,
+                                                        library_);
   timing_->setOutputWaveforms(rf_, output_current);
   output_currents_.deleteContentsClear();
 }
