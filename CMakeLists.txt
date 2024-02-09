@@ -31,7 +31,7 @@ project(STA VERSION 2.5.0
 option(USE_CUDD "Use CUDD BDD package")
 option(CUDD_DIR "CUDD BDD package directory")
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_VERBOSE_MAKEFILE OFF)
 
 set(STA_HOME ${PROJECT_SOURCE_DIR})
 message(STATUS "STA version: ${PROJECT_VERSION}")
