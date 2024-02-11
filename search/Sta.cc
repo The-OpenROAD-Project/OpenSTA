@@ -2025,7 +2025,7 @@ Sta::checkExceptionFromPins(ExceptionFrom *from,
       const Pin *pin = pin_iter.next();
       if (exceptionFromInvalid(pin)) {
 	if (line)
-	  report_->fileWarn(267, file, line, "'%s' is not a valid start point.",
+	  report_->fileWarn(1554, file, line, "'%s' is not a valid start point.",
 			    cmd_network_->pathName(pin));
 	else
 	  report_->warn(1550, "'%s' is not a valid start point.",
@@ -2101,10 +2101,10 @@ Sta::checkExceptionToPins(ExceptionTo *to,
       const Pin *pin = pin_iter.next();
       if (sdc_->exceptionToInvalid(pin)) {
 	if (line)
-	  report_->fileWarn(266, file, line, "'%s' is not a valid endpoint.",
+	  report_->fileWarn(1551, file, line, "'%s' is not a valid endpoint.",
 			    cmd_network_->pathName(pin));
 	else
-	  report_->warn(1551, "'%s' is not a valid endpoint.",
+	  report_->warn(1552, "'%s' is not a valid endpoint.",
 			cmd_network_->pathName(pin));
       }
     }
@@ -2427,7 +2427,7 @@ void
 Sta::makeCorners(StringSet *corner_names)
 {
   if (corner_names->size() > corner_count_max)
-    report_->error(1552, "maximum corner count exceeded");
+    report_->error(1553, "maximum corner count exceeded");
   sdc_->makeCornersBefore();
   parasitics_->deleteParasitics();
   corners_->makeCorners(corner_names);

@@ -1570,17 +1570,14 @@ OutputWaveforms::OutputWaveforms(TableAxisPtr slew_axis,
                                  TableAxisPtr cap_axis,
                                  const RiseFall *rf,
                                  Table1Seq &current_waveforms,
-                                 Table1 *ref_times,
-                                 LibertyLibrary *library) :
+                                 Table1 *ref_times) :
   slew_axis_(slew_axis),
   cap_axis_(cap_axis),
   rf_(rf),
   current_waveforms_(current_waveforms),
-  ref_times_(ref_times)
+  ref_times_(ref_times),
+  vdd_(0.0)
 {
-  bool vdd_exists;
-  library->supplyVoltage("VDD", vdd_, vdd_exists);
-  makeWaveforms();
 }
 
 OutputWaveforms::~OutputWaveforms()
@@ -1610,8 +1607,9 @@ OutputWaveforms::checkAxes(const TableTemplate *tbl_template)
 }
 
 void
-OutputWaveforms::makeWaveforms()
+OutputWaveforms::makeVoltageWaveforms(float vdd)
 {
+  vdd_ = vdd;
   size_t size = current_waveforms_.size();
   voltage_waveforms_.resize(size);
   voltage_currents_.resize(size);
@@ -1629,8 +1627,6 @@ void
 OutputWaveforms::findVoltages(size_t wave_index,
                               float cap)
 {
-  if (vdd_ == 0.0)
-    criticalError(239, "output waveform vdd = 0.0");
   // Integrate current waveform to find voltage waveform.
   // i = C dv/dt
   FloatSeq *volts = new FloatSeq;

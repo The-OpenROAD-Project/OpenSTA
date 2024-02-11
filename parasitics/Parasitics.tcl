@@ -55,7 +55,7 @@ proc_redirect read_spef {
     set path $keys(-path)
     set instance [find_instance $path]
     if { $instance == "NULL" } {
-      sta_error 270 "path instance '$path' not found."
+      sta_error 276 "path instance '$path' not found."
     }
   }
   set corner [parse_corner_or_all keys]

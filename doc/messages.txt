@@ -1,7 +1,7 @@
 0100 CmdArgs.tcl:108           unsupported object type $object_type.
 0101 CmdArgs.tcl:166           object '$obj' not found.
-0102 CmdArgs.tcl:405           $corner_name is not the name of process corner.
-0103 CmdArgs.tcl:410           -corner keyword required with multi-corner analysis.
+0102 CmdArgs.tcl:406           $corner_name is not the name of process corner.
+0103 CmdArgs.tcl:411           -corner keyword required with multi-corner analysis.
 0104 CmdArgs.tcl:425           $corner_name is not the name of process corner.
 0105 CmdArgs.tcl:430           missing -corner arg.
 0106 CmdArgs.tcl:441           $corner_name is not the name of process corner.
@@ -46,8 +46,11 @@
 0190 DelayCalc.tcl:259         $cmd missing -to argument.
 0191 DelayCalc.tcl:274         $cmd missing -setup|-hold|-recovery|-removal check type..
 0192 DelayCalc.tcl:282         $cmd check_value is not a float.
+0204 ArnoldiDelayCalc.cc:606   arnoldi delay calc failed.
 0210 DelayCalc.tcl:350         set_assigned_transition transition is not a float.
 0220 Link.tcl:34               missing top_cell_name argument and no current_design.
+0225 InternalPower.cc:192      unsupported table order
+0226 InternalPower.cc:207      unsupported table axes
 0230 Network.tcl:39            instance $instance_path not found.
 0231 Network.tcl:212           net $net_path not found.
 0232 Network.tcl:215           net $net_path not found.
@@ -56,14 +59,34 @@
 0235 Network.tcl:186           report_net -connections is deprecated.
 0236 Network.tcl:189           report_net -verbose is deprecated.
 0237 Network.tcl:192           report_net -hier_pins is deprecated.
+0239 TableModel.cc:262         unsupported table order
+0240 TableModel.cc:325         unsupported table axes
+0241 TableModel.cc:546         unsupported table order
+0242 TableModel.cc:564         unsupported table axes
+0243 TimingArc.cc:240          timing arc max index exceeded
+
+0244 Clock.cc:474              generated clock edges size is not three.
+0245 CheckTiming.cc:425        unknown print flag
+0246 Corner.cc:377             unknown parasitic analysis point count
+0247 Corner.cc:421             unknown analysis point count
+0248 Crpr.cc:73                missing prev paths
+0249 GatedClk.cc:247           illegal gated clock active value
 0250 NetworkEdit.tcl:107       unsupported object type $object_type.
 0251 NetworkEdit.tcl:137       connect_pins is deprecated.  Use connect_pin.
 0252 NetworkEdit.tcl:206       unsupported object type $object_type.
 0253 NetworkEdit.tcl:224       unsupported object type $object_type.
-0266 Sta.cc:2105               '%s' is not a valid endpoint.
-0267 Sta.cc:2029               '%s' is not a valid start point.
-0270 Parasitics.tcl:45         path instance '$path' not found.
-0271 Parasitics.tcl:62         -reduce_to must be pi_elmore or pi_pole_residue2.
+0266 VertexVisitor.cc:32       VertexPinCollector::copy not supported.
+0267 WritePathSpice.cc:1876    out of memory
+0268 VerilogWriter.cc:223      unknown port direction
+0269 StaTcl.i:834              unknown namespace
+0270 StaTcl.i:1356             unknown analysis type
+0271 StaTcl.i:1507             unknown wire load mode
+0272 Parasitics.tcl:40         read_spef -quiet is deprecated.
+0273 Parasitics.tcl:43         read_spef -reduce_to is deprecated. Use -reduce instead.
+0274 Parasitics.tcl:47         read_spef -delete_after_reduce is deprecated.
+0275 Parasitics.tcl:50         read_spef -save is deprecated.
+0276 Parasitics.tcl:58         path instance '$path' not found.
+0280 PathEnum.cc:569           diversion path not found
 0301 Power.tcl:220             activity should be 0.0 to 1.0 or 2.0
 0302 Power.tcl:228             duty should be 0.0 to 1.0
 0303 Power.tcl:243             activity cannot be set on clock ports.
@@ -264,6 +287,7 @@
 0609 WritePathSpice.tcl:75     No -ground specified.
 0610 WritePathSpice.tcl:81     No -path_args specified.
 0611 WritePathSpice.tcl:86     No paths found for -path_args $path_args.
+0616 Levelize.cc:220           maximum logic level exceeded
 0620 Sdf.tcl:41                -cond_use must be min, max or min_max.
 0621 Sdf.tcl:46                -cond_use min_max cannot be used with analysis type single.
 0623 Sdf.tcl:154               SDF -divider must be / or .
@@ -273,24 +297,26 @@
 0804 VcdReader.cc:217          Variable syntax error.
 1000 ConcreteNetwork.cc:1923   cell type %s can not be linked.
 1010 CycleAccting.cc:87        No common period was found between clocks %s and %s.
-1020 DelayNormal1.cc:203       unknown early/late value.
-1030 DelayNormal2.cc:378       unknown early/late value.
-1040 DmpCeff.cc:1554           parasitic Pi model has NaNs.
-1041 DmpCeff.cc:1582           cell %s delay model not supported on SPF parasitics by DMP delay calculator
-1050 EstimateParasitics.cc:188 load pin not leaf or top level
+1040 DmpCeff.cc:1510           parasitic Pi model has NaNs.
+1041 DmpCeff.cc:1538           cell %s delay model not supported on SPF parasitics by DMP delay calculator
 1060 Genclks.cc:274            no master clock found for generated clock %s.
 1062 Genclks.cc:938            generated clock %s source pin %s missing paths from master clock %s.
-1080 Graph.cc:793              arc_delay_annotated array bounds exceeded
-1081 Graph.cc:808              arc_delay_annotated array bounds exceeded
-1082 Graph.cc:820              arc_delay_annotated array bounds exceeded
-1083 Graph.cc:833              arc_delay_annotated array bounds exceeded
-1100 GraphDelayCalc.cc:480     port not found in cell
-1110 Liberty.cc:766            cell %s/%s port %s not found in cell %s/%s.
-1111 Liberty.cc:792            cell %s/%s %s -> %s timing group %s not found in cell %s/%s.
-1112 Liberty.cc:811            Liberty cell %s/%s for corner %s/%s not found.
-1113 Liberty.cc:1748           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with %s -> %s setup_%s check.
-1114 Liberty.cc:1762           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.
-1115 Liberty.cc:1770           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.
+1100 Power.cc:659              unknown cudd constant
+1110 Liberty.cc:767            cell %s/%s port %s not found in cell %s/%s.
+1111 Liberty.cc:793            cell %s/%s %s -> %s timing group %s not found in cell %s/%s.
+1112 Liberty.cc:812            Liberty cell %s/%s for corner %s/%s not found.
+1113 Liberty.cc:1776           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with %s -> %s setup_%s check.
+1114 Liberty.cc:1790           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.
+1115 Liberty.cc:1798           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.
+1116 Liberty.cc:366            unsupported slew degradation table axes
+1117 Liberty.cc:382            unsupported slew degradation table axes
+1118 Liberty.cc:387            unsupported slew degradation table order
+1119 Liberty.cc:417            unsupported slew degradation table axes
+1120 Liberty.cc:906            library missing vdd
+1121 Liberty.cc:1415           timing arc count mismatch
+1125 LibertyParser.cc:310      valueIterator called for LibertySimpleAttribute
+1126 LibertyParser.cc:390      LibertyStringAttrValue called for float value
+1127 LibertyParser.cc:420      LibertyStringAttrValue called for float value
 1130 LibertyExpr.cc:82         %s references unknown port %s.
 1131 LibertyExpr.cc:175        %s %s.
 1140 LibertyReader.cc:598      library %s already exists.
@@ -380,7 +406,6 @@
 1224 LibertyReader.cc:2610     vector reference_time not found.
 1225 LibertyReader.cc:2643     normalized_driver_waveform variable_2 must be normalized_voltage
 1226 LibertyReader.cc:2646     normalized_driver_waveform variable_1 must be input_net_transition
-1227 SpefReader.cc:730         %s.
 1228 LibertyReader.cc:2868     level_shifter_type must be HL, LH, or HL_LH
 1229 LibertyReader.cc:2904     switch_cell_type must be coarse_grain or fine_grain
 1230 LibertyReader.cc:2928     scaling_factors %s not found.
@@ -455,58 +480,52 @@
 1332 LibertyWriter.cc:437      3 axis table models not supported.
 1333 LibertyWriter.cc:581      %s/%s/%s timing arc type %s not supported.
 1350 LumpedCapDelayCalc.cc:138 gate delay input variable is NaN
-1351 TagGroup.cc:297           tag group missing tag
 1355 MakeTimingModel.cc:206    clock %s pin %s is inside model block.
 1360 Vcd.cc:172                Unknown variable %s ID %s
 1370 PathEnum.cc:474           path diversion missing edge.
-1380 PathEnumed.cc:126         enumerated path required time
-1381 PathEnumed.cc:135         enumerated path required time
-1390 PathGroup.cc:399          unknown path end type
 1398 VerilogReader.cc:1782     %s is not a verilog module.
 1399 VerilogReader.cc:1787     %s is not a verilog module.
 1400 PathVertex.cc:236         missing arrivals.
 1401 PathVertex.cc:250         missing arrivals.
 1402 PathVertex.cc:279         missing requireds.
-1420 PathVertexRep.cc:145      tag group missing tag
-1421 PathVertexRep.cc:150      missing arrivals
 1422 PathVertexRep.cc:153      missing arrivals.
-1440 Power.cc:610              unknown function operator
 1450 ReadVcdActivities.cc:107  VCD max time is zero.
 1451 ReadVcdActivities.cc:174  problem parsing bus %s.
 1452 ReadVcdActivities.cc:251  clock %s vcd period %s differs from SDC clock period %s
-1470 ReportPath.cc:289         unsupported path type
-1471 ReportPath.cc:310         unsupported path type
-1473 ReportPath.cc:349         unsupported path type
-1474 ReportPath.cc:2378        unsupported path type
-1490 Sdc.cc:4058               group path name and is_default are mutually exclusive.
-1500 SdcNetwork.cc:1095        inst path string lenth estimate busted
-1501 SdcNetwork.cc:1167        inst path string lenth estimate exceeded
-1510 Search.cc:2654            max tag group index exceeded
-1511 Search.cc:2890            max tag index exceeded
-1512 Search.cc:3617            unexpected filter path
-1513 Search.cc:3785            tns incr existing vertex
-1520 Sim.cc:209                unknown function operator
 1521 Sim.cc:864                propagated logic value %c differs from constraint value of %c on pin %s.
 1525 SpefParse.yy:805          %d is not positive.
 1526 SpefParse.yy:814          %.4f is not positive.
 1527 SpefParse.yy:820          %.4f is not positive.
-1550 Sta.cc:2032               '%s' is not a valid start point.
-1551 Sta.cc:2108               '%s' is not a valid endpoint.
-1552 Sta.cc:2431               maximum corner count exceeded
-1553 Sta.cc:4227               corresponding timing arc set not found in equiv cells
-1570 StaTcl.i:110              no network has been linked.
-1571 StaTcl.i:124              network does not support edits.
-1573 StaTcl.i:2749             unknown common clk pessimism mode.
-1574 StaTcl.i:2763             POCV support requires compilation with SSTA=1.
-1575 StaTcl.i:3001             unknown report path field %s
-1576 StaTcl.i:3013             unknown report path field %s
-1577 StaTcl.i:3699             unknown clock sense
-1600 WritePathSpice.cc:290     No liberty libraries found,
-1602 WritePathSpice.cc:523     Liberty pg_port %s/%s missing voltage_name attribute,
-1603 WritePathSpice.cc:1102    %s pg_port %s not found,
-1604 WritePathSpice.cc:1157    no register/latch found for path from %s to %s,
-1605 WritePathSpice.cc:1623    The subkct file %s is missing definitions for %s
-1606 WritePathSpice.cc:1721    subckt %s port %s has no corresponding liberty port, pg_port and is not power or ground.
-1620 WriteSdc.cc:1254          unknown exception type
-1621 WriteSdc.cc:1796          illegal set_logic value
-1622 WriteSdc.cc:1837          invalid set_case_analysis value
+1550 Sta.cc:2031               '%s' is not a valid start point.
+1551 Sta.cc:2104               '%s' is not a valid endpoint.
+1552 Sta.cc:2107               '%s' is not a valid endpoint.
+1553 Sta.cc:2430               maximum corner count exceeded
+1554 Sta.cc:2028               '%s' is not a valid start point.
+1570 StaTcl.i:109              no network has been linked.
+1571 StaTcl.i:123              network does not support edits.
+1574 StaTcl.i:2748             POCV support requires compilation with SSTA=1.
+1575 StaTcl.i:2986             unknown report path field %s
+1576 StaTcl.i:2998             unknown report path field %s
+1600 WritePathSpice.cc:289     No liberty libraries found,
+1602 WritePathSpice.cc:522     Liberty pg_port %s/%s missing voltage_name attribute,
+1603 WritePathSpice.cc:1101    %s pg_port %s not found,
+1604 WritePathSpice.cc:1156    no register/latch found for path from %s to %s,
+1605 WritePathSpice.cc:1573    The subkct file %s is missing definitions for %s
+1606 WritePathSpice.cc:1671    subckt %s port %s has no corresponding liberty port, pg_port and is not power or ground.
+1640 SpefReader.cc:150         illegal bus delimiters.
+1641 SpefReader.cc:234         unknown units %s.
+1642 SpefReader.cc:247         unknown units %s.
+1643 SpefReader.cc:260         unknown units %s.
+1644 SpefReader.cc:275         unknown units %s.
+1645 SpefReader.cc:296         no name map entry for %d.
+1646 SpefReader.cc:315         unknown port direction %s.
+1647 SpefReader.cc:342         pin %s not found.
+1648 SpefReader.cc:345         instance %s not found.
+1650 SpefReader.cc:365         net %s not found.
+1651 SpefReader.cc:478         %s not connected to net %s.
+1652 SpefReader.cc:484         pin %s not found.
+1653 SpefReader.cc:498         %s not connected to net %s.
+1654 SpefReader.cc:502         node %s not a pin or net:number
+1655 SpefReader.cc:513         %s not connected to net %s.
+1656 SpefReader.cc:517         pin %s not found.
+1657 SpefReader.cc:634         %s.

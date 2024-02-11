@@ -307,7 +307,7 @@ LibertySimpleAttr::~LibertySimpleAttr()
 LibertyAttrValueSeq *
 LibertySimpleAttr::values() const
 {
-  criticalError(236, "valueIterator called for LibertySimpleAttribute");
+  criticalError(1125, "valueIterator called for LibertySimpleAttribute");
   return nullptr;
 }
 
@@ -387,7 +387,7 @@ LibertyStringAttrValue::~LibertyStringAttrValue()
 float
 LibertyStringAttrValue::floatValue()
 {
-  criticalError(237, "LibertyStringAttrValue called for float value");
+  criticalError(1126, "LibertyStringAttrValue called for float value");
   return 0.0;
 }
 
@@ -417,7 +417,7 @@ LibertyFloatAttrValue::floatValue()
 const char *
 LibertyFloatAttrValue::stringValue()
 {
-  criticalError(238, "LibertyStringAttrValue called for float value");
+  criticalError(1127, "LibertyStringAttrValue called for float value");
   return nullptr;
 }
 

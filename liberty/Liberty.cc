@@ -84,7 +84,8 @@ LibertyLibrary::LibertyLibrary(const char *name,
   default_ocv_derate_(nullptr),
   buffers_(nullptr),
   inverters_(nullptr),
-  driver_waveform_default_(nullptr)
+  driver_waveform_default_(nullptr),
+  have_voltage_waveforms_(false)
 {
   // Scalar templates are builtin.
   for (int i = 0; i != table_template_type_count; i++) {
@@ -362,7 +363,7 @@ LibertyLibrary::degradeWireSlew(const TableModel *model,
     else if (var1 == TableAxisVariable::connect_delay)
       return model->findValue(wire_delay, 0.0, 0.0);
     else {
-      criticalError(231, "unsupported slew degradation table axes");
+      criticalError(1116, "unsupported slew degradation table axes");
       return 0.0;
     }
   }
@@ -378,12 +379,12 @@ LibertyLibrary::degradeWireSlew(const TableModel *model,
 	     && var2 == TableAxisVariable::output_pin_transition)
       return model->findValue(wire_delay, in_slew, 0.0);
     else {
-      criticalError(232, "unsupported slew degradation table axes");
+      criticalError(1117, "unsupported slew degradation table axes");
       return 0.0;
     }
   }
   default:
-    criticalError(233, "unsupported slew degradation table order");
+    criticalError(1118, "unsupported slew degradation table order");
     return 0.0;
   }
 }
@@ -413,7 +414,7 @@ LibertyLibrary::checkSlewDegradationAxes(const TablePtr &table)
 	  && var2 == TableAxisVariable::output_pin_transition);
   }
   default:
-    criticalError(234, "unsupported slew degradation table axes");
+    criticalError(1119, "unsupported slew degradation table axes");
     return 0.0;
   }
 }
@@ -891,6 +892,33 @@ LibertyLibrary::addDriverWaveform(DriverWaveform *driver_waveform)
   else {
     delete driver_waveform_default_;
     driver_waveform_default_ = driver_waveform;
+  }
+}
+
+void
+LibertyLibrary::ensureVoltageWaveforms()
+{
+  if (!have_voltage_waveforms_) {
+    float vdd;
+    bool vdd_exists;
+    supplyVoltage("VDD", vdd, vdd_exists);
+    if (!vdd_exists || vdd == 0.0)
+      criticalError(1120, "library missing vdd");
+    LibertyCellIterator cell_iter(this);
+    while (cell_iter.hasNext()) {
+      LibertyCell *cell = cell_iter.next();
+      for (TimingArcSet *arc_set : cell->timingArcSets(nullptr, nullptr)) {
+        for (TimingArc *arc : arc_set->arcs()) {
+          GateTableModel*model = dynamic_cast<GateTableModel*>(arc->model());
+          if (model) {
+            OutputWaveforms *output_waveforms = model->outputWaveforms();
+            if (output_waveforms)
+              output_waveforms->makeVoltageWaveforms(vdd);
+          }
+        }
+      }
+    }
+    have_voltage_waveforms_ = true;
   }
 }
 
@@ -1384,7 +1412,7 @@ LibertyCell::makeTimingArcMap(Report *)
   timing_arc_sets_.resize(j);
 
   if (timing_arc_set_map_.size() != timing_arc_sets_.size())
-    criticalError(205, "timing arc count mismatch");
+    criticalError(1121, "timing arc count mismatch");
 }
 
 void
