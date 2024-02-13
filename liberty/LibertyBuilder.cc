@@ -687,7 +687,7 @@ LibertyBuilder::makeTimingArc(TimingArcSet *set,
 			      RiseFall *to_rf,
 			      TimingModel *model)
 {
-  return new TimingArc(set, from_rf ? from_rf->asTransition() : nullptr,
+  return new TimingArc(set, from_rf->asTransition(),
 		       to_rf->asTransition(), model);
 }
 
