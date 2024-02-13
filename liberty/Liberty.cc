@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -84,7 +84,8 @@ LibertyLibrary::LibertyLibrary(const char *name,
   default_ocv_derate_(nullptr),
   buffers_(nullptr),
   inverters_(nullptr),
-  driver_waveform_default_(nullptr)
+  driver_waveform_default_(nullptr),
+  have_voltage_waveforms_(false)
 {
   // Scalar templates are builtin.
   for (int i = 0; i != table_template_type_count; i++) {
@@ -362,7 +363,7 @@ LibertyLibrary::degradeWireSlew(const TableModel *model,
     else if (var1 == TableAxisVariable::connect_delay)
       return model->findValue(wire_delay, 0.0, 0.0);
     else {
-      criticalError(231, "unsupported slew degradation table axes");
+      criticalError(1116, "unsupported slew degradation table axes");
       return 0.0;
     }
   }
@@ -378,12 +379,12 @@ LibertyLibrary::degradeWireSlew(const TableModel *model,
 	     && var2 == TableAxisVariable::output_pin_transition)
       return model->findValue(wire_delay, in_slew, 0.0);
     else {
-      criticalError(232, "unsupported slew degradation table axes");
+      criticalError(1117, "unsupported slew degradation table axes");
       return 0.0;
     }
   }
   default:
-    criticalError(233, "unsupported slew degradation table order");
+    criticalError(1118, "unsupported slew degradation table order");
     return 0.0;
   }
 }
@@ -413,7 +414,7 @@ LibertyLibrary::checkSlewDegradationAxes(const TablePtr &table)
 	  && var2 == TableAxisVariable::output_pin_transition);
   }
   default:
-    criticalError(234, "unsupported slew degradation table axes");
+    criticalError(1119, "unsupported slew degradation table axes");
     return 0.0;
   }
 }
@@ -763,7 +764,7 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
 	port1->setCornerPort(port2, ap_index);
     }
     else
-      report->warn(2, "cell %s/%s port %s not found in cell %s/%s.",
+      report->warn(1110, "cell %s/%s port %s not found in cell %s/%s.",
 		   cell1->library()->name(),
 		   cell1->name(),
 		   port_name,
@@ -789,7 +790,7 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
       }
     }
     else
-      report->warn(3, "cell %s/%s %s -> %s timing group %s not found in cell %s/%s.",
+      report->warn(1111, "cell %s/%s %s -> %s timing group %s not found in cell %s/%s.",
 		   cell1->library()->name(),
 		   cell1->name(),
 		   arc_set1->from()->name(),
@@ -808,7 +809,7 @@ LibertyLibrary::checkCorners(LibertyCell *cell,
   for (const Corner *corner : *corners) {
     for (auto min_max : MinMax::range()) {
       if (!cell->checkCornerCell(corner, min_max))
-        report->error(705, "Liberty cell %s/%s for corner %s/%s not found.",
+        report->error(1112, "Liberty cell %s/%s for corner %s/%s not found.",
                       cell->libertyLibrary()->name(),
                       cell->name(),
                       corner->name(),
@@ -891,6 +892,33 @@ LibertyLibrary::addDriverWaveform(DriverWaveform *driver_waveform)
   else {
     delete driver_waveform_default_;
     driver_waveform_default_ = driver_waveform;
+  }
+}
+
+void
+LibertyLibrary::ensureVoltageWaveforms()
+{
+  if (!have_voltage_waveforms_) {
+    float vdd;
+    bool vdd_exists;
+    supplyVoltage("VDD", vdd, vdd_exists);
+    if (!vdd_exists || vdd == 0.0)
+      criticalError(1120, "library missing vdd");
+    LibertyCellIterator cell_iter(this);
+    while (cell_iter.hasNext()) {
+      LibertyCell *cell = cell_iter.next();
+      for (TimingArcSet *arc_set : cell->timingArcSets(nullptr, nullptr)) {
+        for (TimingArc *arc : arc_set->arcs()) {
+          GateTableModel*model = dynamic_cast<GateTableModel*>(arc->model());
+          if (model) {
+            OutputWaveforms *output_waveforms = model->outputWaveforms();
+            if (output_waveforms)
+              output_waveforms->makeVoltageWaveforms(vdd);
+          }
+        }
+      }
+    }
+    have_voltage_waveforms_ = true;
   }
 }
 
@@ -1384,7 +1412,7 @@ LibertyCell::makeTimingArcMap(Report *)
   timing_arc_sets_.resize(j);
 
   if (timing_arc_set_map_.size() != timing_arc_sets_.size())
-    criticalError(205, "timing arc count mismatch");
+    criticalError(1121, "timing arc count mismatch");
 }
 
 void
@@ -1745,7 +1773,7 @@ LibertyCell::makeLatchEnables(Report *report,
 		  RiseFall *en_rf = latch_enable->enableEdge();
 		  RiseFall *check_rf = check_arc->fromEdge()->asRiseFall();
 		  if (check_rf == en_rf)
-		    report->warn(4, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with %s -> %s setup_%s check.",
+		    report->warn(1113, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with %s -> %s setup_%s check.",
 				 library_->name(),
 				 name_,
 				 en->name(),
@@ -1759,7 +1787,7 @@ LibertyCell::makeLatchEnables(Report *report,
 		    TimingSense en_sense = en_func->portTimingSense(en);
 		    if (en_sense == TimingSense::positive_unate
 			&& en_rf != RiseFall::rise())
-		      report->warn(5, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.",
+		      report->warn(1114, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.",
 				   library_->name(),
 				   name_,
 				   en->name(),
@@ -1767,7 +1795,7 @@ LibertyCell::makeLatchEnables(Report *report,
 				   en_rf == RiseFall::rise()?"rising":"falling");
 		    else if (en_sense == TimingSense::negative_unate
 			     && en_rf != RiseFall::fall())
-		      report->warn(6, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.",
+		      report->warn(1115, "cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.",
 				   library_->name(),
 				   name_,
 				   en->name(),
@@ -2583,7 +2611,7 @@ LibertyPort::clockTreePathDelays()
         GateTimingModel *gate_model = dynamic_cast<GateTimingModel*>(model);
         ArcDelay delay;
         Slew slew;
-        gate_model->gateDelay(nullptr, 0.0, 0.0, 0.0, false, delay, slew);
+        gate_model->gateDelay(nullptr, 0.0, 0.0, false, delay, slew);
         const RiseFall *rf = arc->toEdge()->asRiseFall();
         const MinMax *min_max = (role == TimingRole::clockTreePathMin())
           ? MinMax::min()

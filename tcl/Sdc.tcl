@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2023, Parallax Software, Inc.
+# Copyright (c) 2024, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ proc source_ { filename echo verbose } {
   variable sdc_file
   variable sdc_line
   if [catch {open $filename r} stream] {
-    sta_error 511 "cannot open '$filename'."
+    sta_error 340 "cannot open '$filename'."
   } else {
     if { [file extension $filename] == ".gz" } {
       zlib push gunzip $stream
@@ -125,7 +125,7 @@ proc source_ { filename echo verbose } {
     }
     close $stream
     if { $cmd != {} } {
-      sta_error 512 "incomplete command at end of file."
+      sta_error 341 "incomplete command at end of file."
     }
     set error_sdc_file $sdc_file
     set error_sdc_line $sdc_line
@@ -209,7 +209,7 @@ proc check_path_divider { divider } {
   set sdc_dividers "/@^#.|"
   if { !([string length $divider] == 1
 	 && [string first $divider $sdc_dividers] != -1)} {
-    sta_error 513 "hierarchy separator must be one of '$sdc_dividers'."
+    sta_error 342 "hierarchy separator must be one of '$sdc_dividers'."
   }
 }
 
@@ -256,7 +256,7 @@ proc check_unit { unit key unit_name key_var } {
 	set scale [unit_prefix_scale $unit $prefix]
 	check_unit_scale $unit $scale
       } else {
-	sta_error 514 "unknown unit $unit '$suffix'."
+	sta_error 343 "unknown unit $unit '$suffix'."
       }
     }
   }
@@ -278,14 +278,14 @@ proc unit_prefix_scale { unit prefix } {
   } elseif { [string equal $prefix "f"] } {
     return 1E-15
   } else {
-    sta_error 604 "unknown $unit prefix '$prefix'."
+    sta_error 344 "unknown $unit prefix '$prefix'."
   }
 }
 
 proc check_unit_scale { unit scale } {
   set unit_scale [unit_scale $unit]
   if { ![fuzzy_equal $scale $unit_scale] } {
-    sta_warn 319 "$unit scale [format %.0e $scale] does not match library scale [format %.0e $unit_scale]."
+    sta_warn 345 "$unit scale [format %.0e $scale] does not match library scale [format %.0e $unit_scale]."
   }
 }
 
@@ -391,7 +391,7 @@ proc all_registers { args } {
           + [info exists flags(-clock_pins)] \
           +  [info exists flags(-async_pins)] \
           + [info exists flags(-output_pins)]] > 1 } {
-    sta_error 807 "only one of -cells, -data_pins, -clock_pins, -async_pins, -output_pins are suppported."
+    sta_error 346 "only one of -cells, -data_pins, -clock_pins, -async_pins, -output_pins are suppported."
   }
   if [info exists flags(-cells)] {
     return [find_register_instances $clks $clk_rf \
@@ -434,7 +434,7 @@ proc current_design { {design ""} } {
     set current_design_name $design
     return $design
   } else {
-    sta_warn 320 "current_design for other than top cell not supported."
+    sta_warn 347 "current_design for other than top cell not supported."
     set current_design_name $design
     return $design
   }
@@ -470,7 +470,7 @@ proc get_cells { args } {
   set insts {}
   if [info exists keys(-of_objects)] {
     if { $args != {} } {
-      sta_warn 321 "patterns argument not supported with -of_objects."
+      sta_warn 348 "patterns argument not supported with -of_objects."
     }
     parse_port_pin_net_arg $keys(-of_objects) pins nets
     foreach pin $pins {
@@ -503,7 +503,7 @@ proc get_cells { args } {
         set matches [find_instances_matching $pattern $regexp $nocase]
       }
       if { $matches == {} && !$quiet} {
-        sta_warn 322 "instance '$pattern' not found."
+        sta_warn 349 "instance '$pattern' not found."
       }
       set insts [concat $insts $matches]
     }
@@ -536,7 +536,7 @@ proc filter_insts1 { filter objects } {
   } elseif { [regexp $filter_regexp1 $filter ignore attr_name op arg] } {
     set filtered_objects [filter_insts $attr_name $op $arg $objects]
   } else {
-    sta_error 516 "unsupported instance -filter expression."
+    sta_error 350 "unsupported instance -filter expression."
   }
   return $filtered_objects
 }
@@ -563,7 +563,7 @@ proc get_clocks { args } {
       set clocks [concat $clocks $matches]
     } else {
       if {![info exists flags(-quiet)]} {
-	sta_warn 323 "clock '$pattern' not found."
+	sta_warn 351 "clock '$pattern' not found."
       }
     }
   }
@@ -589,7 +589,7 @@ proc get_lib_cells { args } {
   set cells {}
   if [info exists keys(-of_objects)] {
     if { $args != {} } {
-      sta_warn 324 "positional arguments not supported with -of_objects."
+      sta_warn 352 "positional arguments not supported with -of_objects."
     }
     set insts [get_instances_error "objects" $keys(-of_objects)]
     foreach inst $insts {
@@ -616,7 +616,7 @@ proc get_lib_cells { args } {
       set libs [get_libs -quiet $lib_name]
       if { $libs == {} } {
 	if {!$quiet} {
-	  sta_warn 325 "library '$lib_name' not found."
+	  sta_warn 353 "library '$lib_name' not found."
 	}
       } else {
 	foreach lib $libs {
@@ -628,7 +628,7 @@ proc get_lib_cells { args } {
 	}
 	if { $cells == {} } {
 	  if {!$quiet} {
-	    sta_warn 326 "cell '$cell_pattern' not found."
+	    sta_warn 354 "cell '$cell_pattern' not found."
 	  }
 	}
       }
@@ -675,7 +675,7 @@ proc get_lib_pins { args } {
       set libs [get_libs *]
     } else {
       if { !$quiet } {
-	sta_warn 327 "library/cell/port '$pattern' not found."
+	sta_warn 355 "library/cell/port '$pattern' not found."
       }
       return {}
     }
@@ -695,12 +695,12 @@ proc get_lib_pins { args } {
       }
       if { !$found_match } {
 	if { !$quiet } {
-	  sta_warn 328 "port '$port_pattern' not found."
+	  sta_warn 356 "port '$port_pattern' not found."
 	}
       }
     } else {
       if { !$quiet } {
-	sta_warn 329 "library '$lib_name' not found."
+	sta_warn 357 "library '$lib_name' not found."
       }
     }
   }
@@ -710,7 +710,7 @@ proc get_lib_pins { args } {
 proc check_nocase_flag { flags_var } {
   upvar 1 $flags_var flags
   if { [info exists flags(-nocase)] && ![info exists flags(-regexp)] } {
-    sta_warn 330 "-nocase ignored without -regexp."
+    sta_warn 358 "-nocase ignored without -regexp."
   }
 }
 
@@ -736,7 +736,7 @@ proc get_libs { args } {
       set libs [concat $libs $matches]
     } else {
       if {![info exists flags(-quiet)]} {
-	sta_warn 331 "library '$pattern' not found."
+	sta_warn 359 "library '$pattern' not found."
       }
     }
   }
@@ -799,7 +799,7 @@ proc get_nets { args } {
   set nets {}
   if [info exists keys(-of_objects)] {
     if { $args != {} } {
-      sta_warn 332 "patterns argument not supported with -of_objects."
+      sta_warn 360 "patterns argument not supported with -of_objects."
     }
     parse_inst_pin_arg $keys(-of_objects) insts pins
     foreach inst $insts {
@@ -823,7 +823,7 @@ proc get_nets { args } {
       }
       set nets [concat $nets $matches]
       if { $matches == {} && !$quiet } {
-	sta_warn 333 "net '$pattern' not found."
+	sta_warn 361 "net '$pattern' not found."
       }
     }
   }
@@ -852,7 +852,7 @@ proc get_pins { args } {
   set pins {}
   if [info exists keys(-of_objects)] {
     if { $args != {} } {
-      sta_warn 334 "patterns argument not supported with -of_objects."
+      sta_warn 362 "patterns argument not supported with -of_objects."
     }
     parse_inst_net_arg $keys(-of_objects) insts nets
     foreach inst $insts {
@@ -889,7 +889,7 @@ proc get_pins { args } {
       }
       set pins [concat $pins $matches]
       if { $matches == {} && !$quiet } {
-	sta_warn 335 "pin '$pattern' not found."
+	sta_warn 363 "pin '$pattern' not found."
       }
     }
   }
@@ -921,7 +921,7 @@ proc filter_pins1 { filter objects } {
   } elseif { [regexp $filter_regexp1 $filter ignore attr_name op arg] } {
     set filtered_objects [filter_pins $attr_name $op $arg $objects]
   } else {
-    sta_error 517 "unsupported pin -filter expression."
+    sta_error 364 "unsupported pin -filter expression."
   }
   return $filtered_objects
 }
@@ -946,7 +946,7 @@ proc get_ports { args } {
   set ports {}
   if [info exists keys(-of_objects)] {
     if { $args != {} } {
-      sta_warn 336 "patterns argument not supported with -of_objects."
+      sta_warn 365 "patterns argument not supported with -of_objects."
     }
     set nets [get_nets_arg "objects" $keys(-of_objects)]
     foreach net $nets {
@@ -960,7 +960,7 @@ proc get_ports { args } {
 	set ports [concat $ports $matches]
       } else {
 	if {![info exists flags(-quiet)]} {
-	  sta_warn 337 "port '$pattern' not found."
+	  sta_warn 366 "port '$pattern' not found."
 	}
       }
     }
@@ -997,7 +997,7 @@ proc filter_ports1 { filter objects } {
   } elseif { [regexp $filter_regexp1 $filter ignore attr_name op arg] } {
     set filtered_objects [filter_ports $attr_name $op $arg $objects]
   } else {
-    sta_error 518 "unsupported port -filter expression."
+    sta_error 367 "unsupported port -filter expression."
   }
   return $filtered_objects
 }
@@ -1030,12 +1030,12 @@ proc create_clock { args } {
     set name $keys(-name)
   } elseif { $pins != {} } {
     if { $add } {
-      sta_error 519 "-add requires -name."
+      sta_error 368 "-add requires -name."
     }
     # Default clock name is the first pin name.
     set name [get_full_name [lindex $pins 0]]
   } else {
-    sta_error 520 "-name or port_pin_list must be specified."
+    sta_error 369 "-name or port_pin_list must be specified."
   }
   
   if [info exists keys(-period)] {
@@ -1043,13 +1043,13 @@ proc create_clock { args } {
     check_positive_float "period" $period
     set period [time_ui_sta $period]
   } else {
-    sta_error 521 "missing -period argument."
+    sta_error 370 "missing -period argument."
   }
   
   if [info exists keys(-waveform)] {
     set wave_arg $keys(-waveform)
     if { [expr [llength $wave_arg] % 2] != 0 } {
-      sta_error 522 "-waveform edge_list must have an even number of edge times."
+      sta_error 371 "-waveform edge_list must have an even number of edge times."
     }
     set first_edge 1
     set prev_edge 0
@@ -1058,10 +1058,10 @@ proc create_clock { args } {
       check_float "-waveform edge" $edge
       set edge [time_ui_sta $edge]
       if { !$first_edge && $edge < $prev_edge } {
-	sta_error 338 "non-increasing clock -waveform edge times."
+	sta_error 372 "non-increasing clock -waveform edge times."
       }
       if { $edge > [expr $period * 2] } {
-	sta_error 339 "-waveform time greater than two periods."
+	sta_error 373 "-waveform time greater than two periods."
       }
       lappend waveform $edge
       set prev_edge $edge
@@ -1119,7 +1119,7 @@ proc create_generated_clock { args } {
     }
   }
   if { $pins == {} } {
-    sta_error 523 "empty ports/pins/nets argument."
+    sta_error 374 "empty ports/pins/nets argument."
   }
   set add [info exists flags(-add)]
   
@@ -1127,19 +1127,19 @@ proc create_generated_clock { args } {
     set name $keys(-name)
   } elseif { $pins != {} } {
     if { $add } {
-      sta_error 524 "-add requires -name."
+      sta_error 375 "-add requires -name."
     }
     # Default clock name is the first pin name.
     set name [get_full_name [lindex $pins 0]]
   } else {
-    sta_error 525 "name or port_pin_list must be specified."
+    sta_error 376 "name or port_pin_list must be specified."
   }
   
   if [info exists keys(-source)] {
     set source $keys(-source)
     set source_pin [get_port_pin_error "master_pin" $source]
   } else {
-    sta_error 526 "missing -source argument."
+    sta_error 377 "missing -source argument."
   }
   
   set master_clk "NULL"
@@ -1154,44 +1154,44 @@ proc create_generated_clock { args } {
   if {[info exists keys(-master_clock)]} {
     set master_clk [get_clock_error "-master_clk" $keys(-master_clock)]
     if { $master_clk == "NULL" } {
-      sta_error 527 "-master_clock argument empty."
+      sta_error 378 "-master_clock argument empty."
     }
   } elseif { $add } {
-    sta_error 528 "-add requireds -master_clock."
+    sta_error 379 "-add requireds -master_clock."
   }
   
   if {[info exists keys(-divide_by)] && [info exists keys(-multiply_by)]} {
-    sta_error 529 "-multiply_by and -divide_by options are exclusive."
+    sta_error 380 "-multiply_by and -divide_by options are exclusive."
   } elseif {[info exists keys(-divide_by)]} {
     set divide_by $keys(-divide_by)
     if {![string is integer $divide_by] || $divide_by < 1} {
-      sta_error 530 "-divide_by is not an integer greater than one."
+      sta_error 381 "-divide_by is not an integer greater than one."
     }
     if {$combinational && $divide_by != 1} {
-      sta_error 531 "-combinational implies -divide_by 1."
+      sta_error 382 "-combinational implies -divide_by 1."
     }
   } elseif {[info exists keys(-multiply_by)]} {
     set multiply_by $keys(-multiply_by)
     if {![string is integer $multiply_by] || $multiply_by < 1} {
-      sta_error 532 "-multiply_by is not an integer greater than one."
+      sta_error 383 "-multiply_by is not an integer greater than one."
     }
     if {[info exists keys(-duty_cycle)]} {
       set duty_cycle $keys(-duty_cycle)
       if {![string is double $duty_cycle] \
 	    || $duty_cycle < 0.0 || $duty_cycle > 100.0} {
-	sta_error 533 "-duty_cycle is not a float between 0 and 100."
+	sta_error 384 "-duty_cycle is not a float between 0 and 100."
       }
     }
   } elseif {[info exists keys(-edges)]} {
     set edges $keys(-edges)
     if { [llength $edges] != 3 } {
-      sta_error 534 "-edges only supported for three edges."
+      sta_error 385 "-edges only supported for three edges."
     }
     set prev_edge [expr [lindex $edges 0] - 1]
     foreach edge $edges {
       check_cardinal "-edges" $edge
       if { $edge <= $prev_edge } {
-	sta_error 535 "edges times are not monotonically increasing."
+	sta_error 386 "edges times are not monotonically increasing."
       }
     }
     if [info exists keys(-edge_shift)] {
@@ -1200,13 +1200,13 @@ proc create_generated_clock { args } {
 	lappend edge_shifts [time_ui_sta $shift]
       }
       if { [llength $edge_shifts] != [llength $edges] } {
-	sta_error 536 "-edge_shift length does not match -edges length."
+	sta_error 387 "-edge_shift length does not match -edges length."
       }
     }
   } elseif { $combinational } {
     set divide_by 1
   } else {
-    sta_error 537 "missing -multiply_by, -divide_by, -combinational or -edges argument."
+    sta_error 388 "missing -multiply_by, -divide_by, -combinational or -edges argument."
   }
   
   set invert 0
@@ -1214,13 +1214,13 @@ proc create_generated_clock { args } {
     if {!([info exists keys(-divide_by)] \
 	    || [info exists keys(-multiply_by)] \
 	    || [info exists flags(-combinational)])} {
-      sta_error 538 "cannot specify -invert without -multiply_by, -divide_by or -combinational."
+      sta_error 389 "cannot specify -invert without -multiply_by, -divide_by or -combinational."
     }
     set invert 1
   }
   
   if {[info exists keys(-duty_cycle)] && ![info exists keys(-multiply_by)]} {
-    sta_error 539 "-duty_cycle requires -multiply_by value."
+    sta_error 390 "-duty_cycle requires -multiply_by value."
   }
   
   set comment [parse_comment_key keys]
@@ -1280,26 +1280,26 @@ proc group_path { args } {
   check_exception_pins $from $to
   if { $arg_error } {
     delete_from_thrus_to $from $thrus $to
-    sta_error 545 "group_path command failed."
+    sta_error 391 "group_path command failed."
     return 0
   }
   
   check_for_key_args $cmd args
   if { $args != {} } {
     delete_from_thrus_to $from $thrus $to
-    sta_error 546 "positional arguments not supported."
+    sta_error 392 "positional arguments not supported."
   }
   if { ($from == "NULL" && $thrus == "" && $to == "NULL") } {
     delete_from_thrus_to $from $thrus $to
-    sta_error 547 "-from, -through or -to required."
+    sta_error 393 "-from, -through or -to required."
   }
   
   set default [info exists flags(-default)]
   set name_exists [info exists keys(-name)]
   if { $default && $name_exists } {
-    sta_error 548 "-name and -default are mutually exclusive."
+    sta_error 394 "-name and -default are mutually exclusive."
   } elseif { !$name_exists && !$default } {
-    sta_error 549 "-name or -default option is required."
+    sta_error 395 "-name or -default option is required."
   } elseif { $default } {
     set name ""
   } else {
@@ -1340,7 +1340,7 @@ proc set_clock_gating_check { args } {
   
   set active_value ""
   if {[info exists flags(-high)] && [info exists flags(-low)]} {
-    sta_error 550 "cannot specify both -high and -low."
+    sta_error 396 "cannot specify both -high and -low."
   } elseif [info exists flags(-low)] {
     set active_value "0"
   } elseif [info exists flags(-high)] {
@@ -1348,7 +1348,7 @@ proc set_clock_gating_check { args } {
   }
   
   if { !([info exists keys(-hold)] || [info exists keys(-setup)]) } {
-    sta_error 551 "missing -setup or -hold argument."
+    sta_error 397 "missing -setup or -hold argument."
   }
   if [info exists keys(-hold)] {
     set_clock_gating_check1 $args $tr "min" $keys(-hold) $active_value
@@ -1362,14 +1362,14 @@ proc set_clock_gating_check1 { args tr setup_hold margin active_value } {
   set margin [time_ui_sta $margin]
   if { [llength $args] == 0 } {
     if { $active_value != "" } {
-      sta_error 552 "-high and -low only permitted for pins and instances."
+      sta_error 398 "-high and -low only permitted for pins and instances."
     }
     set_clock_gating_check_cmd $tr $setup_hold $margin
   } elseif { [llength $args] == 1 } {
     parse_clk_inst_port_pin_arg [lindex $args 0] clks insts pins
     
     if { $clks != {} && $active_value != "" } {
-      sta_error 553 "-high and -low only permitted for pins and instances."
+      sta_error 399 "-high and -low only permitted for pins and instances."
     }
     foreach clk $clks {
       set_clock_gating_check_clk_cmd $clk $tr $setup_hold $margin
@@ -1412,10 +1412,10 @@ proc set_clock_groups { args } {
   set allow_paths [info exists flags(-allow_paths)]
   
   if { ($logically_exclusive+$physically_exclusive+$asynchronous) == 0 } {
-    sta_error 554 "one of -logically_exclusive, -physically_exclusive or -asynchronous is required."
+    sta_error 400 "one of -logically_exclusive, -physically_exclusive or -asynchronous is required."
   }
   if { ($logically_exclusive+$physically_exclusive+$asynchronous) > 1 } {
-    sta_error 555 "the keywords -logically_exclusive, -physically_exclusive and -asynchronous are mutually exclusive."
+    sta_error 401 "the keywords -logically_exclusive, -physically_exclusive and -asynchronous are mutually exclusive."
   }
   
   set comment [parse_comment_key keys]
@@ -1434,9 +1434,9 @@ proc set_clock_groups { args } {
       set args [lrange $args 2 end]
     } else {
       if {[is_keyword_arg $arg]} {
-	sta_warn 349 "unknown keyword argument $arg."
+	sta_warn 402 "unknown keyword argument $arg."
       } else {
-	sta_warn 341 "extra positional argument $arg."
+	sta_warn 403 "extra positional argument $arg."
       }
       set args [lrange $args 1 end]
     }
@@ -1465,10 +1465,10 @@ proc unset_clk_groups_cmd { cmd cmd_args } {
   }
 
   if { $all && $names != {} } {
-    sta_error 454 "the -all and -name options are mutually exclusive."
+    sta_error 404 "the -all and -name options are mutually exclusive."
   }
   if { !$all && $names == {} } {
-    sta_error 455 "either -all or -name options must be specified."
+    sta_error 405 "either -all or -name options must be specified."
   }
 
   set logically_exclusive [info exists flags(-logically_exclusive)]
@@ -1476,10 +1476,10 @@ proc unset_clk_groups_cmd { cmd cmd_args } {
   set asynchronous [info exists flags(-asynchronous)]
 
   if { ($logically_exclusive+$physically_exclusive+$asynchronous) == 0 } {
-    sta_error 456 "one of -logically_exclusive, -physically_exclusive or -asynchronous is required."
+    sta_error 406 "one of -logically_exclusive, -physically_exclusive or -asynchronous is required."
   }
   if { ($logically_exclusive+$physically_exclusive+$asynchronous) > 1 } {
-    sta_error 457 "the keywords -logically_exclusive, -physically_exclusive and -asynchronous are mutually exclusive."
+    sta_error 407 "the keywords -logically_exclusive, -physically_exclusive and -asynchronous are mutually exclusive."
   }
 
   if { $all } {
@@ -1529,7 +1529,7 @@ proc set_clock_latency { args } {
   if { [info exists keys(-clock)] } {
     set pin_clk [get_clock_warn "clock" $keys(-clock)]
     if { $clks != {} } {
-      sta_warn 342 "-clock ignored for clock objects."
+      sta_warn 408 "-clock ignored for clock objects."
     }
   }
   
@@ -1543,14 +1543,14 @@ proc set_clock_latency { args } {
     foreach pin $pins {
       # Source only allowed on clocks and clock pins.
       if { ![is_clock_src $pin] } {
-	sta_error 556 "-source '[get_full_name $pin]' is not a clock pin."
+	sta_error 409 "-source '[get_full_name $pin]' is not a clock pin."
       }
       set_clock_insertion_cmd $pin_clk $pin $tr $min_max $early_late $delay
     }
   } else {
     # Latency.
     if {[info exists flags(-early)] || [info exists flags(-late)]} {
-      sta_error 557 "-early/-late is only allowed with -source."
+      sta_error 410 "-early/-late is only allowed with -source."
     }
     
     foreach clk $clks {
@@ -1579,7 +1579,7 @@ proc unset_clk_latency_cmd { cmd cmd_args } {
   if { [info exists keys(-clock)] } {
     set pin_clk [get_clock_warn "clock" $keys(-clock)]
     if { $clks != {} } {
-      sta_warn 303 "-clock ignored for clock objects."
+      sta_warn 411 "-clock ignored for clock objects."
     }
   }
 
@@ -1591,7 +1591,7 @@ proc unset_clk_latency_cmd { cmd cmd_args } {
     foreach pin $pins {
       # Source only allowed on clocks and clock pins.
       if { ![is_clock_pin $pin] } {
-	sta_error 458 "-source '[$pin path_name]' is not a clock pin."
+	sta_error 412 "-source '[$pin path_name]' is not a clock pin."
       }
       unset_clock_insertion_cmd $pin_clk $pin
     }
@@ -1619,11 +1619,11 @@ proc set_sense { args } {
   if { [info exists keys(-type)] } {
     set type $keys(-type)
     if { $type == "data" } {
-      sta_warn 343 "set_sense -type data not supported."
+      sta_warn 413 "set_sense -type data not supported."
     } elseif { $type == "clock" } {
       set_clock_sense_cmd1 "set_sense" $args
     } else {
-      sta_error 558 "set_sense -type clock|data"
+      sta_error 414 "set_sense -type clock|data"
     }
   }
 }
@@ -1634,7 +1634,7 @@ define_cmd_args "set_clock_sense" \
      [-clock clocks] pins}
 
 proc set_clock_sense { args } {
-  sta_warn 344 "set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock."
+  sta_warn 415 "set_clock_sense is deprecated as of SDC 2.1. Use set_sense -type clock."
   set_clock_sense_cmd1 "set_clock_sense" $args
 }
 
@@ -1646,7 +1646,7 @@ proc set_clock_sense_cmd1 { cmd cmd_args } {
   
   set pulse [info exists keys(-pulse)]
   if { $pulse } {
-    sta_warn 345 "-pulse argument not supported."
+    sta_warn 416 "-pulse argument not supported."
   }
   set positive [info exists flags(-positive)]
   set negative [info exists flags(-negative)]
@@ -1655,7 +1655,7 @@ proc set_clock_sense_cmd1 { cmd cmd_args } {
 	 || ($negative && ($positive || $stop_propagation || $pulse)) \
 	 || ($stop_propagation && ($positive || $negative || $pulse))
        || ($pulse && ($positive || $negative || $stop_propagation)) } {
-    sta_warn 346 "-positive, -negative, -stop_propagation and -pulse are mutually exclusive."
+    sta_warn 417 "-positive, -negative, -stop_propagation and -pulse are mutually exclusive."
   }
   
   set pins [get_port_pins_error "pins" [lindex $cmd_args 0]]
@@ -1668,7 +1668,7 @@ proc set_clock_sense_cmd1 { cmd cmd_args } {
   }
   foreach pin $pins {
     if {[$pin is_hierarchical]} {
-      sta_warn 347 "hierarchical pin '[get_full_name $pin]' not supported."
+      sta_warn 418 "hierarchical pin '[get_full_name $pin]' not supported."
     }
   }
   set_clock_sense_cmd $pins $clks $positive $negative $stop_propagation
@@ -1692,7 +1692,7 @@ proc set_clock_transition { args } {
   
   foreach clk $clks {
     if { [$clk is_virtual] } {
-      sta_warn 559 "transition time can not be specified for virtual clocks."
+      sta_warn 419 "transition time can not be specified for virtual clocks."
     } else {
       set_clock_slew_cmd $clk $tr $min_max [time_ui_sta $slew]
     }
@@ -1725,7 +1725,7 @@ proc set_clock_uncertainty { args } {
     flags {-rise -fall -setup -hold}
   
   if { [llength $args] == 0 } {
-    sta_error 560 "missing uncertainty value."
+    sta_error 420 "missing uncertainty value."
   }
   set uncertainty [lindex $args 0]
   check_float "uncertainty" $uncertainty
@@ -1773,7 +1773,7 @@ proc set_clock_uncertainty { args } {
   
   if { $from_key != "none" && $to_key == "none" \
 	 || $from_key == "none" && $to_key != "none" } {
-    sta_error 561 "-from/-to must be used together."
+    sta_error 421 "-from/-to must be used together."
   } elseif { $from_key != "none" && $to_key != "none" } {
     # Inter-clock uncertainty.
     check_argc_eq1 "-from/-to" $args
@@ -1793,7 +1793,7 @@ proc set_clock_uncertainty { args } {
     check_argc_eq2 "set_clock_uncertainty" $args
     if { [info exists flags(-rise)] \
 	   || [info exists flags(-fall)] } {
-      sta_error 562 "-rise, -fall options not allowed for single clock uncertainty."
+      sta_error 422 "-rise, -fall options not allowed for single clock uncertainty."
     }
     set objects [lindex $args 1]
     parse_clk_port_pin_arg $objects clks pins
@@ -1859,7 +1859,7 @@ proc unset_clk_uncertainty_cmd { cmd cmd_args } {
 
   if { $from_key != "none" && $to_key == "none" \
 	 || $from_key == "none" && $to_key != "none" } {
-    sta_error 459 "-from/-to must be used together."
+    sta_error 423 "-from/-to must be used together."
   } elseif { $from_key != "none" && $to_key != "none" } {
     # Inter-clock uncertainty.
     check_argc_eq0 "unset_clock_uncertainty" $cmd_args
@@ -1879,7 +1879,7 @@ proc unset_clk_uncertainty_cmd { cmd cmd_args } {
     check_argc_eq1 $cmd $cmd_args
     if { [info exists keys(-rise)] \
 	   || [info exists keys(-fall)] } {
-      sta_error 460 "-rise, -fall options not allowed for single clock uncertainty."
+      sta_error 424 "-rise, -fall options not allowed for single clock uncertainty."
     }
     set objects [lindex $cmd_args 0]
     parse_clk_port_pin_arg $objects clks pins
@@ -1920,7 +1920,7 @@ proc set_data_check { args } {
     set from [get_port_pin_error "from_pin" $keys(-fall_from)]
     set from_rf "fall"
   } else {
-    sta_error 563 "missing -from, -rise_from or -fall_from argument."
+    sta_error 425 "missing -from, -rise_from or -fall_from argument."
   }
   
   if [info exists keys(-to)] {
@@ -1932,7 +1932,7 @@ proc set_data_check { args } {
     set to [get_port_pin_error "to_pin" $keys(-fall_to)]
     set to_rf "fall"
   } else {
-    sta_error 564 "missing -to, -rise_to or -fall_to argument."
+    sta_error 426 "missing -to, -rise_to or -fall_to argument."
   }
   
   if [info exists keys(-clock)] {
@@ -1980,7 +1980,7 @@ proc unset_data_checks_cmd { cmd cmd_args } {
     set from [get_port_pin_error "from_pin" $keys(-fall_from)]
     set from_rf "fall"
   } else {
-    sta_error 461 "missing -from, -rise_from or -fall_from argument."
+    sta_error 427 "missing -from, -rise_from or -fall_from argument."
   }
 
   if [info exists keys(-to)] {
@@ -1992,7 +1992,7 @@ proc unset_data_checks_cmd { cmd cmd_args } {
     set to [get_port_pin_error "to_pin" $keys(-fall_to)]
     set to_rf "fall"
   } else {
-    sta_error 462 "missing -to, -rise_to or -fall_to argument."
+    sta_error 428 "missing -to, -rise_to or -fall_to argument."
   }
 
   if [info exists keys(-clock)] {
@@ -2034,7 +2034,7 @@ proc set_disable_timing { args } {
   
   if { ([info exists keys(-from)] || [info exists keys(-to)]) \
 	 && ($libports != {} || $pins != {} || $ports != {}) } {
-    sta_warn 348 "-from/-to keywords ignored for lib_pin, port and pin arguments."
+    sta_warn 429 "-from/-to keywords ignored for lib_pin, port and pin arguments."
   }
   
   foreach libcell $libcells {
@@ -2064,7 +2064,7 @@ proc set_disable_timing_instance { inst from to } {
   set from_ports [parse_disable_inst_ports $inst $from]
   set to_ports [parse_disable_inst_ports $inst $to]
   if { ![$inst is_leaf] } {
-    sta_error 565 "-from/-to hierarchical instance not supported."
+    sta_error 430 "-from/-to hierarchical instance not supported."
   }
   if { $from_ports == "NULL" && $to_ports == "NULL" } {
     disable_instance $inst "NULL" "NULL"
@@ -2096,7 +2096,7 @@ proc parse_disable_inst_ports { inst port_name } {
     set cell [instance_property $inst cell]
     set port [$cell find_port $port_name]
     if { $port == "NULL" } {
-      sta_error 566 "pin '[get_full_name $inst]${hierarchy_separator}${port_name}' not found."
+      sta_error 431 "pin '[get_full_name $inst]${hierarchy_separator}${port_name}' not found."
     } else {
       set lib_port [get_property $port liberty_port]
       set ports [port_members $lib_port]
@@ -2137,7 +2137,7 @@ proc parse_disable_cell_ports { cell port_name } {
   } else {
     set port [$cell find_liberty_port $port_name]
     if { $port == "NULL" } {
-      sta_error 567 "pin '[get_name $cell]${hierarchy_separator}${port_name}' not found."
+      sta_error 432 "pin '[get_name $cell]${hierarchy_separator}${port_name}' not found."
     } else {
       set ports [port_members $port]
     }
@@ -2171,7 +2171,7 @@ proc unset_disable_cmd { cmd cmd_args } {
 
   if { ([info exists keys(-from)] || [info exists keys(-to)]) \
 	 && ($libports != {} || $pins != {} || $ports != {}) } {
-    sta_warn 304 "-from/-to keywords ignored for lib_pin, port and pin arguments."
+    sta_warn 434 "-from/-to keywords ignored for lib_pin, port and pin arguments."
   }
 
   foreach libcell $libcells {
@@ -2223,7 +2223,7 @@ proc unset_disable_timing_instance { inst from to } {
   set from_ports [parse_disable_inst_ports $inst $from]
   set to_ports [parse_disable_inst_ports $inst $to]
   if { ![$inst is_leaf] } {
-    sta_error 463 "-from/-to hierarchical instance not supported."
+    sta_error 435 "-from/-to hierarchical instance not supported."
   }
   if { $from_ports == "NULL" && $to_ports == "NULL" } {
     unset_disable_instance $inst "NULL" "NULL"
@@ -2277,11 +2277,11 @@ proc set_false_path { args } {
   } else {
     check_for_key_args $cmd args
     if { $args != {} } {
-      sta_warn 600 "'$args' ignored."
+      sta_warn 436 "'$args' ignored."
     }
     if { ($from == "NULL" && $thrus == "" && $to == "NULL") } {
       delete_from_thrus_to $from $thrus $to
-      sta_warn 350 "-from, -through or -to required."
+      sta_warn 437 "-from, -through or -to required."
     } else {
       if [info exists flags(-reset_path)] {
 	reset_path_cmd $from $thrus $to $min_max
@@ -2360,10 +2360,10 @@ proc set_port_delay { cmd sta_cmd cmd_args port_dirs } {
   if [info exists keys(-reference_pin)] {
     set ref_pin [get_port_pin_error "ref_pin" $keys(-reference_pin)]
     if { [info exists flags(-source_latency_included)] } {
-      sta_warn 351 "-source_latency_included ignored with -reference_pin."
+      sta_warn 438 "-source_latency_included ignored with -reference_pin."
     }
     if { [info exists flags(-network_latency_included)] } {
-      sta_warn 352 "-network_latency_included ignored with -reference_pin."
+      sta_warn 439 "-network_latency_included ignored with -reference_pin."
     }
   }
   
@@ -2382,9 +2382,9 @@ proc set_port_delay { cmd sta_cmd cmd_args port_dirs } {
   foreach pin $pins {
     if { [$pin is_top_level_port] \
 	   && [lsearch $port_dirs [pin_direction $pin]] == -1 } {
-      sta_warn 353 "$cmd not allowed on [pin_direction $pin] port '[get_full_name $pin]'."
+      sta_warn 440 "$cmd not allowed on [pin_direction $pin] port '[get_full_name $pin]'."
     } elseif { $clk != "NULL" && [lsearch [$clk sources] $pin] != -1 } {
-      sta_warn 354 "$cmd relative to a clock defined on the same port/pin not allowed."
+      sta_warn 441 "$cmd relative to a clock defined on the same port/pin not allowed."
     } else {
       $sta_cmd $pin $tr $clk $clk_rf $ref_pin\
 	$source_latency_included $network_latency_included \
@@ -2432,13 +2432,13 @@ proc set_path_delay { cmd args min_max } {
     check_for_key_args $cmd args
     if { [llength $args] == 0 } {
       delete_from_thrus_to $from $thrus $to
-      sta_error 568 "missing delay argument."
+      sta_error 442 "missing delay argument."
     } elseif { [llength $args] == 1 } {
       set delay $args
       check_float "$cmd delay" $delay
       set delay [time_ui_sta $delay]
     } else {
-      sta_warn 355 "'$args' ignored."
+      sta_warn 443 "'$args' ignored."
     }
     
     set ignore_clk_latency [info exists flags(-ignore_clock_latency)]
@@ -2563,19 +2563,19 @@ proc set_multicycle_path { args } {
     check_for_key_args $cmd args
     if { [llength $args] == 0 } {
       delete_from_thrus_to $from $thrus $to
-      sta_error 569 "missing path multiplier argument."
+      sta_error 444 "missing path multiplier argument."
     } elseif { [llength $args] == 1 } {
       set path_multiplier $args
       check_integer "path multiplier" $path_multiplier
     } else {
-      sta_warn 356 "'$args' ignored."
+      sta_warn 445 "'$args' ignored."
     }
     
     set start [info exists flags(-start)]
     set end [info exists flags(-end)]
     if { $start && $end } {
       delete_from_thrus_to $from $thrus $to
-      sta_error 570 "cannot use -start with -end."
+      sta_error 446 "cannot use -start with -end."
     } elseif { $start } {
       set use_end_clk 0
     } elseif { $end } {
@@ -2625,18 +2625,18 @@ proc unset_path_exceptions_cmd { cmd cmd_args } {
   set to [parse_to_arg keys flags arg_error]
   if { $arg_error } {
     delete_from_thrus_to $from $thrus $to
-    sta_error 464 "$cmd command failed."
+    sta_error 447 "$cmd command failed."
     return 0
   }
 
   check_for_key_args $cmd cmd_args
   if { $cmd_args != {} } {
     delete_from_thrus_to $from $thrus $to
-    sta_error 465 "positional arguments not supported."
+    sta_error 448 "positional arguments not supported."
   }
   if { ($from == "NULL" && $thrus == "" && $to == "NULL") } {
     delete_from_thrus_to $from $thrus $to
-    sta_error 466 "-from, -through or -to required."
+    sta_error 449 "-from, -through or -to required."
   }
 
   reset_path_cmd $from $thrus $to $min_max
@@ -2703,7 +2703,7 @@ proc set_propagated_clock { objects } {
   parse_clk_port_pin_arg $objects clks pins
   foreach clk $clks {
     if { [$clk is_virtual] } {
-      sta_warn 357 "virtual clock [get_name $clk] can not be propagated."
+      sta_warn 450 "virtual clock [get_name $clk] can not be propagated."
     } else {
       set_propagated_clock_cmd $clk
     }
@@ -2745,7 +2745,7 @@ proc set_case_analysis { value pins } {
 	   || $value == "rising" \
 	   || $value == "fall" \
 	   || $value == "falling") } {
-    sta_error 571 "value must be 0, zero, 1, one, rise, rising, fall, or falling."
+    sta_error 451 "value must be 0, zero, 1, one, rise, rising, fall, or falling."
   }
   set pins1 [get_port_pins_error "pins" $pins]
   foreach pin $pins1 {
@@ -2814,17 +2814,17 @@ proc set_driving_cell { args } {
       set library [get_liberty_error "library" $keys(-library)]
       set cell [$library find_liberty_cell $cell_name]
       if { $cell == "NULL" } {
-	sta_error 572 "cell '$lib_name:$cell_name' not found."
+	sta_error 452 "cell '$lib_name:$cell_name' not found."
       }
     } else {
       set library "NULL"
       set cell [find_liberty_cell $cell_name]
       if { $cell == "NULL" } {
-	sta_error 573 "'$cell_name' not found."
+	sta_error 453 "'$cell_name' not found."
       }
     }
   } else {
-    sta_error 574 "missing -lib_cell argument."
+    sta_error 454 "missing -lib_cell argument."
   }
   
   set to_port "NULL"
@@ -2832,7 +2832,7 @@ proc set_driving_cell { args } {
     set to_port_name $keys(-pin)
     set to_port [$cell find_liberty_port $to_port_name]
     if { $to_port == "NULL" } {
-      sta_error 575 "port '$to_port_name' not found."
+      sta_error 455 "port '$to_port_name' not found."
     }
   } else {
     set port_iter [$cell liberty_port_iterator]
@@ -2844,7 +2844,7 @@ proc set_driving_cell { args } {
 	incr output_count
 	if { $output_count > 1 } {
 	  $port_iter finish
-	  sta_error 576 "-pin argument required for cells with multiple outputs."
+	  sta_error 456 "-pin argument required for cells with multiple outputs."
 	}
 	set to_port $port
 	# No break.  Keep looking for output ports to make sure there
@@ -2859,7 +2859,7 @@ proc set_driving_cell { args } {
     set from_port_name $keys(-from_pin)
     set from_port [$cell find_liberty_port $from_port_name]
     if { $from_port == "NULL" } {
-      sta_error 577 "port '$from_port_name' not found."
+      sta_error 457 "port '$from_port_name' not found."
     }
   }
   
@@ -2877,13 +2877,13 @@ proc set_driving_cell { args } {
   }
   
   if [info exists keys(-multiply_by)] {
-    sta_warn 358 "-multiply_by ignored."
+    sta_warn 458 "-multiply_by ignored."
   }
   if [info exists flags(-dont_scale)] {
-    sta_warn 359 "-dont_scale ignored."
+    sta_warn 459 "-dont_scale ignored."
   }
   if [info exists flags(-no_design_rule)] {
-    sta_warn 360 "-no_design_rule ignored."
+    sta_warn 460 "-no_design_rule ignored."
   }
   
   check_argc_eq1 "set_driving_cell" $args
@@ -2906,7 +2906,7 @@ proc port_direction_any_output { dir } {
 define_cmd_args "set_fanout_load" {fanout ports}
 
 proc set_fanout_load { fanout port_list } {
-  sta_warn 601 "set_fanout_load not supported."
+  sta_warn 461 "set_fanout_load not supported."
 }
 
 ################################################################
@@ -2930,10 +2930,10 @@ proc set_input_transition { args } {
   set ports [get_ports_error "ports" [lindex $args 1]]
   
   if [info exists keys(-clock)] {
-    sta_warn 361 "-clock not supported."
+    sta_warn 462 "-clock not supported."
   }
   if [info exists flags(-clock_fall)] {
-    sta_warn 362 "-clock_fall not supported."
+    sta_warn 463 "-clock_fall not supported."
   }
   
   foreach port $ports {
@@ -2979,13 +2979,13 @@ proc set_load { args } {
   }
   if { $nets != {} } {
     if { $pin_load } {
-      sta_warn 363 "-pin_load not allowed for net objects."
+      sta_warn 464 "-pin_load not allowed for net objects."
     }
     if { $wire_load } {
-      sta_warn 364 "-wire_load not allowed for net objects."
+      sta_warn 465 "-wire_load not allowed for net objects."
     }
     if { $tr != "rise_fall" } {
-      sta_warn 365 "-rise/-fall not allowed for net objects."
+      sta_warn 466 "-rise/-fall not allowed for net objects."
     }
     foreach net $nets {
       set_net_wire_cap $net $subtract_pin_load $corner $min_max $cap
@@ -3072,7 +3072,7 @@ proc set_fanout_limit { fanout min_max objects } {
   foreach port $ports {
     set dir [port_direction $port]
     if { !($dir == "input" || $dir == "bidirect") } {
-      sta_error 578 "port '[get_name $port]' is not an input."
+      sta_error 467 "port '[get_name $port]' is not an input."
     }
     set_port_fanout_limit $port $min_max $fanout
   }
@@ -3118,7 +3118,7 @@ proc set_max_transition { args } {
 	       || [info exists flags(-data_path)]
 	     || [info exists flags(-rise)]
 	     || [info exists flags(-fall)]) } {
-    sta_warn 366 "-data_path, -clock_path, -rise, -fall ignored for ports and designs."
+    sta_warn 468 "-data_path, -clock_path, -rise, -fall ignored for ports and designs."
   }
   
   # -clock_path/-data_path and transition only apply to clock objects.
@@ -3189,7 +3189,7 @@ proc set_timing_derate { args } {
   set derate [lindex $args 0]
   check_float "derate" $derate
   if { $derate > 2.0 } {
-    sta_warn 367 "derating factor greater than 2.0."
+    sta_warn 469 "derating factor greater than 2.0."
   }
   
   set tr [parse_rise_fall_flags flags]
@@ -3226,7 +3226,7 @@ proc set_timing_derate { args } {
     if { $nets != {} } {
       if { [info exists flags(-cell_delay)] \
 	     || [info exists flags(-cell_check)] } {
-	sta_warn 368 "-cell_delay and -cell_check flags ignored for net objects."
+	sta_warn 470 "-cell_delay and -cell_check flags ignored for net objects."
       }
       foreach net $nets {
 	foreach path_type $path_types {
@@ -3296,7 +3296,7 @@ proc parse_from_arg { keys_var arg_error_var } {
   if {$from_pins == {} && $from_insts == {} && $from_clks == {}} {
     upvar 1 $arg_error_var arg_error
     set arg_error 1
-    sta_warn 369 "no valid objects specified for $key."
+    sta_warn 471 "no valid objects specified for $key."
     return "NULL"
   }
   return [make_exception_from $from_pins $from_clks $from_insts $tr]
@@ -3329,7 +3329,7 @@ proc parse_thrus_arg { args_var arg_error_var } {
 	if {$pins == {} && $insts == {} && $nets == {}} {
 	  upvar 1 $arg_error_var arg_error
 	  set arg_error 1
-	  sta_warn 370 "no valid objects specified for $key"
+	  sta_warn 472 "no valid objects specified for $key"
 	} else {
 	  lappend thrus [make_exception_thru $pins $nets $insts $tr]
 	}
@@ -3378,7 +3378,7 @@ proc parse_to_arg1 { keys_var end_rf arg_error_var } {
   if {$to_pins == {} && $to_insts == {} && $to_clks == {}} {
     upvar 1 $arg_error_var arg_error
     set arg_error 1
-    sta_warn 602 "no valid objects specified for $key."
+    sta_warn 473 "no valid objects specified for $key."
     return "NULL"
   }
   return [make_exception_to $to_pins $to_clks $to_insts $to_rf $end_rf]
@@ -3446,7 +3446,7 @@ proc parse_op_cond { op_cond_name lib_key min_max key_var } {
     set liberty [get_liberty_error $lib_key $keys($lib_key)]
     set op_cond [$liberty find_operating_conditions $op_cond_name]
     if { $op_cond == "NULL" } {
-      sta_error 579 "operating condition '$op_cond_name' not found."
+      sta_error 474 "operating condition '$op_cond_name' not found."
     } else {
       set_operating_conditions_cmd $op_cond $min_max
     }
@@ -3464,7 +3464,7 @@ proc parse_op_cond { op_cond_name lib_key min_max key_var } {
     }
     $lib_iter finish
     if { !$found } {
-      sta_error 580 "operating condition '$op_cond_name' not found."
+      sta_error 475 "operating condition '$op_cond_name' not found."
     }
   }
 }
@@ -3478,7 +3478,7 @@ proc parse_op_cond_analysis_type { key_var } {
 	   || $analysis_type == "on_chip_variation" } {
       set_analysis_type_cmd $analysis_type
     } else {
-      sta_error 581 "-analysis_type must be single, bc_wc or on_chip_variation."
+      sta_error 476 "-analysis_type must be single, bc_wc or on_chip_variation."
     }
   } elseif { [info exists keys(-min)] && [info exists keys(-max)] } {
     set_analysis_type_cmd "bc_wc"
@@ -3490,7 +3490,7 @@ proc parse_op_cond_analysis_type { key_var } {
 define_cmd_args "set_wire_load_min_block_size" {block_size}
 
 proc set_wire_load_min_block_size { block_size } {
-  sta_warn 371 "set_wire_load_min_block_size not supported."
+  sta_warn 477 "set_wire_load_min_block_size not supported."
 }
 
 ################################################################
@@ -3503,7 +3503,7 @@ proc set_wire_load_mode { mode } {
 	 || $mode == "segmented" } {
     set_wire_load_mode_cmd $mode
   } else {
-    sta_error 582 "mode must be top, enclosed or segmented."
+    sta_error 478 "mode must be top, enclosed or segmented."
   }
 }
 
@@ -3518,7 +3518,7 @@ proc set_wire_load_model { args } {
   
   check_argc_eq0or1 "set_wire_load_model" $args
   if { ![info exists keys(-name)] } {
-    sta_error 583 "no wire load model specified."
+    sta_error 479 "no wire load model specified."
   }
   
   set model_name $keys(-name)
@@ -3540,7 +3540,7 @@ proc set_wire_load_model { args } {
     $lib_iter finish
   }
   if {$wireload == "NULL"} {
-    sta_error 605 "wire load model '$model_name' not found."
+    sta_error 480 "wire load model '$model_name' not found."
   }
   set objects $args
   set_wire_load_cmd $wireload $min_max
@@ -3579,7 +3579,7 @@ proc set_wire_load_selection_group { args } {
     $lib_iter finish
   }
   if {$selection == "NULL"} {
-    sta_error 584 "wire load selection group '$selection_name' not found."
+    sta_error 481 "wire load selection group '$selection_name' not found."
   }
   set_wire_load_selection_group_cmd $selection $min_max
 }
@@ -3667,7 +3667,7 @@ define_cmd_args "define_corners" { corner1 [corner2]... }
 
 proc define_corners { args } {
   if { [get_libs -quiet *] != {} } {
-    sta_error 373 "define_corners must be called before read_liberty."
+    sta_error 482 "define_corners must be called before read_liberty."
   }
   define_corners_cmd $args
 }
@@ -3737,7 +3737,7 @@ proc default_operating_conditions {} {
   }
   $lib_iter finish
   if { !$found } {
-    sta_error 585 "no default operating conditions found."
+    sta_error 500 "no default operating conditions found."
   }
   return $op_cond
 }

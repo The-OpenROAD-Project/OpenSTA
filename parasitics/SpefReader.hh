@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,13 +22,11 @@
 
 namespace sta {
 
-class Report;
-class Network;
-class Parasitics;
 class ParasiticAnalysisPt;
 class Instance;
 class Corner;
 class OperatingConditions;
+class StaState;
 
 // Read a file single value parasitics into analysis point ap.
 // In a Spef file with triplet values the first value is used.
@@ -42,14 +40,9 @@ readSpefFile(const char *filename,
 	     bool pin_cap_included,
 	     bool keep_coupling_caps,
 	     float coupling_cap_factor,
-	     ReducedParasiticType reduce_to,
-	     bool delete_after_reduce,
-	     const OperatingConditions *op_cond,
+	     bool reduce,
 	     const Corner *corner,
-	     const MinMax *cnst_min_max,
-	     bool quiet,
-	     Report *report,
-	     Network *network,
-	     Parasitics *parasitics);
+	     const MinMaxAll *min_max,
+	     StaState *sta);
 
 } // namespace

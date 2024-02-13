@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -189,7 +189,7 @@ InternalPowerModel::findAxisValues(float in_slew,
     axis_value1 = 0.0;
     axis_value2 = 0.0;
     axis_value3 = 0.0;
-    criticalError(229, "unsupported table order");
+    criticalError(225, "unsupported table order");
   }
 }
 
@@ -204,7 +204,7 @@ InternalPowerModel::axisValue(const TableAxis *axis,
   else if (var == TableAxisVariable::total_output_net_capacitance)
     return load_cap;
   else {
-    criticalError(230, "unsupported table axes");
+    criticalError(226, "unsupported table axes");
     return 0.0;
   }
 }

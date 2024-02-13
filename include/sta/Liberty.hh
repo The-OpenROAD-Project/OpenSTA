@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -319,6 +319,7 @@ public:
   DriverWaveform *findDriverWaveform(const char *name);
   DriverWaveform *driverWaveformDefault() { return driver_waveform_default_; }
   void addDriverWaveform(DriverWaveform *driver_waveform);
+  void ensureVoltageWaveforms();
 
 protected:
   float degradeWireSlew(const TableModel *model,
@@ -370,6 +371,7 @@ protected:
   DriverWaveformMap driver_waveform_map_;
   // Unnamed driver waveform.
   DriverWaveform *driver_waveform_default_;
+  bool have_voltage_waveforms_;
 
   static constexpr float input_threshold_default_ = .5;
   static constexpr float output_threshold_default_ = .5;

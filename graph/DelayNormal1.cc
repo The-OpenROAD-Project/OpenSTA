@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -200,7 +200,7 @@ delayAsFloat(const Delay &delay,
     else if (early_late == EarlyLate::late())
       return delay.mean() + delay.sigma() * sta->sigmaFactor();
     else
-      sta->report()->critical(594, "unknown early/late value.");
+      sta->report()->critical(1020, "unknown early/late value.");
   }
   return delay.mean();
 }

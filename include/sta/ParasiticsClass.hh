@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,10 +20,9 @@ namespace sta {
 
 class Parasitics;
 class Parasitic;
-class ParasiticDevice;
 class ParasiticNode;
 class ParasiticAnalysisPt;
-
-enum class ReducedParasiticType { pi_elmore, pi_pole_residue2, arnoldi, none };
+class ParasiticResistor;
+class ParasiticCapacitor;
 
 } // namespace

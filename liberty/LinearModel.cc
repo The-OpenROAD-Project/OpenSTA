@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -34,7 +34,6 @@ void
 GateLinearModel::gateDelay(const Pvt *,
 			   float,
 			   float load_cap,
-			   float,
 			   bool,
 			   // return values
 			   ArcDelay &gate_delay,
@@ -48,7 +47,6 @@ string
 GateLinearModel::reportGateDelay(const Pvt *,
 				 float,
 				 float load_cap,
-				 float,
 				 bool,
 				 int digits) const
 {
@@ -87,15 +85,14 @@ CheckLinearModel::CheckLinearModel(LibertyCell *cell,
 {
 }
 
-void
+ArcDelay
 CheckLinearModel::checkDelay(const Pvt *,
 			     float,
 			     float,
 			     float,
-			     bool,
-			     ArcDelay &margin) const
+			     bool) const
 {
-  margin = intrinsic_;
+  return intrinsic_;
 }
 
 string

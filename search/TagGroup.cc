@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -294,7 +294,7 @@ TagGroupBldr::copyArrivals(TagGroup *tag_group,
       }
     }
     else
-      sta_->report()->critical(265, "tag group missing tag");
+      sta_->report()->critical(1351, "tag group missing tag");
   }
 }
 

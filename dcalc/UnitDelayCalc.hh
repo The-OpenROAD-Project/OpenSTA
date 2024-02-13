@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -29,72 +29,58 @@ public:
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
                            const DcalcAnalysisPt *dcalc_ap) override;
-  ReducedParasiticType reducedParasiticType() const override;
-  void inputPortDelay(const Pin *port_pin,
-                      float in_slew,
-                      const RiseFall *rf,
-                      const Parasitic *parasitic,
+  Parasitic *reduceParasitic(const Parasitic *parasitic_network,
+                             const Pin *drvr_pin,
+                             const RiseFall *rf,
+                             const DcalcAnalysisPt *dcalc_ap) override;
+  void reduceParasitic(const Parasitic *parasitic_network,
+                       const Net *net,
+                       const Corner *corner,
+                       const MinMaxAll *min_max) override;
+  ArcDcalcResult inputPortDelay(const Pin *port_pin,
+                                float in_slew,
+                                const RiseFall *rf,
+                                const Parasitic *parasitic,
+                                const LoadPinIndexMap &load_pin_index_map,
+                                const DcalcAnalysisPt *dcalc_ap) override;
+  ArcDcalcResult gateDelay(const Pin *drvr_pin,
+                           const TimingArc *arc,
+                           const Slew &in_slew,
+                           // Pass in load_cap or parasitic.
+                           float load_cap,
+                           const Parasitic *parasitic,
+                           const LoadPinIndexMap &load_pin_index_map,
+                           const DcalcAnalysisPt *dcalc_ap) override;
+  ArcDcalcResultSeq gateDelays(ArcDcalcArgSeq &args,
+                               float load_cap,
+                               const LoadPinIndexMap &load_pin_index_map,
+                               const DcalcAnalysisPt *dcalc_ap) override;
+  ArcDelay checkDelay(const Pin *check_pin,
+                      const TimingArc *arc,
+                      const Slew &from_slew,
+                      const Slew &to_slew,
+                      float related_out_cap,
                       const DcalcAnalysisPt *dcalc_ap) override;
-  void gateDelay(const TimingArc *arc,
-                 const Slew &in_slew,
-                 float load_cap,
-                 const Parasitic *drvr_parasitic,
-                 float related_out_cap,
-                 const Pvt *pvt,
-                 const DcalcAnalysisPt *dcalc_ap,
-                 // Return values.
-                 ArcDelay &gate_delay,
-                 Slew &drvr_slew) override;
-  void findParallelGateDelays(const MultiDrvrNet *multi_drvr,
-                              GraphDelayCalc *dcalc) override;
-  // Retrieve the delay and slew for one parallel gate.
-  void parallelGateDelay(const Pin *drvr_pin,
+  string reportGateDelay(const Pin *drvr_pin,
                          const TimingArc *arc,
-                         const Slew &from_slew,
-                         float load_cap,
-                         const Parasitic *drvr_parasitic,
-                         float related_out_cap,
-                         const Pvt *pvt,
-                         const DcalcAnalysisPt *dcalc_ap,
-                         // Return values.
-                         ArcDelay &gate_delay,
-                         Slew &gate_slew) override;
-  void loadDelay(const Pin *load_pin,
-                 // Return values.
-                 ArcDelay &wire_delay,
-                 Slew &load_slew) override;
-  float ceff(const TimingArc *arc,
-             const Slew &in_slew,
-             float load_cap,
-             const Parasitic *drvr_parasitic,
-             float related_out_cap,
-             const Pvt *pvt,
-             const DcalcAnalysisPt *dcalc_ap) override;
-  void checkDelay(const TimingArc *arc,
-                  const Slew &from_slew,
-                  const Slew &to_slew,
-                  float related_out_cap,
-                  const Pvt *pvt,
-                  const DcalcAnalysisPt *dcalc_ap,
-                  // Return values.
-                  ArcDelay &margin) override;
-  string reportGateDelay(const TimingArc *arc,
                          const Slew &in_slew,
                          float load_cap,
-                         const Parasitic *drvr_parasitic,
-                         float related_out_cap,
-                         const Pvt *pvt,
+                         const Parasitic *parasitic,
+                         const LoadPinIndexMap &load_pin_index_map,
                          const DcalcAnalysisPt *dcalc_ap,
                          int digits) override;
-  string reportCheckDelay(const TimingArc *arc,
+  string reportCheckDelay(const Pin *check_pin,
+                          const TimingArc *arc,
                           const Slew &from_slew,
                           const char *from_slew_annotation,
                           const Slew &to_slew,
                           float related_out_cap,
-                          const Pvt *pvt,
                           const DcalcAnalysisPt *dcalc_ap,
                           int digits) override;
- void finishDrvrPin() override;
+  void finishDrvrPin() override;
+
+protected:
+  ArcDcalcResult unitDelayResult(const LoadPinIndexMap &load_pin_index_map);
 };
 
 ArcDelayCalc *

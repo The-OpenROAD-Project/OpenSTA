@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "StaState.hh"
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
 #include "SdcClass.hh"
@@ -26,21 +27,18 @@ namespace sta {
 class Corner;
 class StaState;
 
-class EstimateParasitics
+class EstimateParasitics : public StaState
 {
 public:
-
-protected:
+  EstimateParasitics(StaState *sta);
   // Helper function for wireload estimation.
   void estimatePiElmore(const Pin *drvr_pin,
 			const RiseFall *rf,
 			const Wireload *wireload,
 			float fanout,
 			float net_pin_cap,
-			const OperatingConditions *op_cond,
 			const Corner *corner,
 			const MinMax *min_max,
-			const StaState *sta,
 			// Return values.
 			float &c2,
 			float &rpi,
@@ -48,11 +46,12 @@ protected:
 			float &elmore_res,
 			float &elmore_cap,
 			bool &elmore_use_load_cap);
+
+protected:
   void estimatePiElmoreBest(const Pin *drvr_pin,
 			    float net_pin_cap,
 			    float wireload_cap,
 			    const RiseFall *rf,
-			    const OperatingConditions *op_cond,
 			    const Corner *corner,
 			    const MinMax *min_max,
 			    // Return values.
@@ -68,10 +67,8 @@ protected:
 			     float fanout,
 			     float net_pin_cap,
 			     const RiseFall *rf,
-			     const OperatingConditions *op_cond,
 			     const Corner *corner,
 			     const MinMax *min_max,
-			     const StaState *sta,
 			     // Return values.
 			     float &c2, float &rpi, float &c1,
 			     float &elmore_res, float &elmore_cap,
@@ -82,10 +79,8 @@ protected:
 				float fanout,
 				float net_pin_cap,
 				const RiseFall *rf,
-				const OperatingConditions *op_cond,
 				const Corner *corner,
 				const MinMax *min_max,
-				const StaState *sta,
 				// Return values.
 				float &c2, float &rpi, float &c1,
 				float &elmore_res, float &elmore_cap,

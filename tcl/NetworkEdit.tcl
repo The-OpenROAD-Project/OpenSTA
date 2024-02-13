@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2023, Parallax Software, Inc.
+# Copyright (c) 2024, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -104,7 +104,7 @@ proc parse_connect_pin { arg } {
       set inst [$pin instance]
       set port [$pin port]
     } else {
-      sta_error 586 "unsupported object type $object_type."
+      sta_error 250 "unsupported object type $object_type."
     }
   } else {
     if {[regexp $path_regexp $arg ignore path_name port_name]} {
@@ -134,7 +134,7 @@ proc parse_connect_pin { arg } {
 }
 
 proc connect_pins { net pins } {
-  sta_warn 372 "connect_pins is deprecated.  Use connect_pin."
+  sta_warn 251 "connect_pins is deprecated.  Use connect_pin."
   # Visit the pins to make sure command will succeed.
   set insts_ports [parse_connect_pins $pins]
   if { $insts_ports == 0 } {
@@ -203,7 +203,7 @@ proc delete_instance { instance } {
     if { $object_type == "Instance" } {
       set inst $instance
     } else {
-      sta_error 587 "unsupported object type $object_type."
+      sta_error 252 "unsupported object type $object_type."
     }
   } else {
     set inst [find_instance $instance]
@@ -221,7 +221,7 @@ proc delete_net { net } {
   if { [is_object $net] } {
     set object_type [object_type $net]
     if { $object_type != "Net" } {
-      sta_error 588 "unsupported object type $object_type."
+      sta_error 253 "unsupported object type $object_type."
     }
   } else {
     set net [find_net $net]

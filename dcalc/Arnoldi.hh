@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -64,6 +64,8 @@ public:
   rcmodel();
   virtual ~rcmodel();
   virtual float capacitance() const;
+  virtual PinSet unannotatedLoads(const Pin *drvr_pin,
+                                  const Parasitics *parasitics) const;
 
   const Pin **pinV; // [n]
 };
@@ -74,7 +76,6 @@ struct timing_table
   const LibertyCell *cell;
   const Pvt *pvt;
   float in_slew;
-  float relcap;
 };
 
 } // namespace

@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -157,7 +157,9 @@ RiseFallMinMax::setValues(RiseFallMinMax *values)
 void
 RiseFallMinMax::value(const RiseFall *rf,
 		      const MinMax *min_max,
-		      float &value, bool &exists) const
+		      // Return values.
+                      float &value,
+                      bool &exists) const
 {
   exists = exists_[rf->index()][min_max->index()];
   if (exists)

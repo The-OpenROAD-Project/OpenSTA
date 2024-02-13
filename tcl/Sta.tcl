@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2023, Parallax Software, Inc.
+# Copyright (c) 2024, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -155,7 +155,7 @@ proc get_timing_edges_cmd { cmd cmd_args } {
   if { [info exists keys(-of_objects)] } {
     if { [info exists keys(-from)] \
 	   || [info exists keys(-from)] } {
-      sta_error 440 "-from/-to arguments not supported with -of_objects."
+      sta_error 540 "-from/-to arguments not supported with -of_objects."
     }
     set arcs [get_timing_arcs_objects $keys(-of_objects)]
   } elseif { [info exists keys(-from)] \
@@ -283,7 +283,7 @@ proc filter_timing_arcs1 { filter objects } {
   } elseif { [regexp $filter_regexp1 $filter ignore attr_name op arg] } {
     set filtered_objects [filter_timing_arcs $attr_name $op $arg $objects]
   } else {
-    sta_error 441 "unsupported -filter expression."
+    sta_error 541 "unsupported -filter expression."
   }
   return $filtered_objects
 }

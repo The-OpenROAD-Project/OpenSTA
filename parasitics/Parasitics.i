@@ -3,7 +3,7 @@
 %{
 
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ using sta::Sta;
 using sta::cmdLinkedNetwork;
 using sta::Instance;
 using sta::MinMaxAll;
-using sta::ReducedParasiticType;
 using sta::RiseFall;
 using sta::Pin;
 
@@ -40,15 +39,12 @@ read_spef_cmd(const char *filename,
 	      bool pin_cap_included,
 	      bool keep_coupling_caps,
 	      float coupling_cap_factor,
-	      ReducedParasiticType reduce_to,
-	      bool delete_after_reduce,
-	      bool quiet)
+	      bool reduce)
 {
   cmdLinkedNetwork();
   return Sta::sta()->readSpef(filename, instance, corner, min_max,
 			      pin_cap_included, keep_coupling_caps,
-                              coupling_cap_factor, reduce_to,
-                              delete_after_reduce, quiet);
+                              coupling_cap_factor, reduce);
 }
 
 void

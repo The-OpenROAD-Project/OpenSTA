@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2023, Parallax Software, Inc.
+# Copyright (c) 2024, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ proc_redirect help {
       show_cmd_args $cmd
     }
   } else {
-    sta_warn 300 "no commands match '$pattern'."
+    sta_warn 160 "no commands match '$pattern'."
   }
 }
 
@@ -86,9 +86,9 @@ proc cmd_usage_error { cmd } {
   variable cmd_args
 
   if [info exists cmd_args($cmd)] {
-    sta_error 404 "Usage: $cmd $cmd_args($cmd)"
+    sta_error 161 "Usage: $cmd $cmd_args($cmd)"
   } else {
-    sta_error 405 "Usage: $cmd argument error"
+    sta_error 162 "Usage: $cmd argument error"
   }
 }
 
@@ -158,7 +158,7 @@ proc set_unit_values { unit key unit_name key_var } {
 	set scale [unit_prefix_scale $unit $prefix]
 	set_cmd_unit_scale $unit $scale
       } else {
-	sta_error 515 "unknown $unit unit '$suffix'."
+	sta_error 163 "unknown $unit unit '$suffix'."
       }
     }
     if [info exists keys(-digits)] {
@@ -206,7 +206,7 @@ proc delete_objects_from_list_cmd { list objects } {
       } elseif {$list_type == "LibertyPort"} {
 	set obj [get_lib_pins $obj]
       } else {
-	sta_error 439 "unsupported object type $list_type."
+	sta_error 164 "unsupported object type $list_type."
       }
     }
     set index [lsearch $list $obj]
@@ -223,7 +223,7 @@ proc set_cmd_namespace { namespc } {
   if { $namespc == "sdc" || $namespc == "sta" } {
     set_cmd_namespace_cmd $namespc
   } else {
-    sta_error 589 "unknown namespace $namespc."
+    sta_error 165 "unknown namespace $namespc."
   }
 }
 

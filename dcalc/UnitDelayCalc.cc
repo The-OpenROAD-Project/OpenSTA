@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -45,86 +45,82 @@ UnitDelayCalc::findParasitic(const Pin *,
   return nullptr;
 }
 
-ReducedParasiticType
-UnitDelayCalc::reducedParasiticType() const
+Parasitic *
+UnitDelayCalc::reduceParasitic(const Parasitic *,
+                               const Pin *,
+                               const RiseFall *,
+                               const DcalcAnalysisPt *)
 {
-  return ReducedParasiticType::none;
+  return nullptr;
 }
 
 void
+UnitDelayCalc::reduceParasitic(const Parasitic *,
+                               const Net *,
+                               const Corner *,
+                               const MinMaxAll *)
+{
+}
+
+ArcDcalcResult
 UnitDelayCalc::inputPortDelay(const Pin *,
 			      float,
 			      const RiseFall *,
 			      const Parasitic *,
-			      const DcalcAnalysisPt *)
+                              const LoadPinIndexMap &load_pin_index_map,
+                              const DcalcAnalysisPt *)
 {
+  return unitDelayResult(load_pin_index_map);
 }
 
-void
-UnitDelayCalc::gateDelay(const TimingArc *,
+ArcDcalcResult
+UnitDelayCalc::gateDelay(const Pin *,
+                         const TimingArc *,
 			 const Slew &,
 			 float,
 			 const Parasitic *,
-			 float,
-			 const Pvt *, const DcalcAnalysisPt *,
-			 // Return values.
-			 ArcDelay &gate_delay, Slew &drvr_slew)
+                         const LoadPinIndexMap &load_pin_index_map,
+                         const DcalcAnalysisPt *)
 {
-  gate_delay = units_->timeUnit()->scale();
-  drvr_slew = 0.0;
+  return unitDelayResult(load_pin_index_map);
 }
 
-void
-UnitDelayCalc::findParallelGateDelays(const MultiDrvrNet *,
-                                      GraphDelayCalc *)
+ArcDcalcResultSeq
+UnitDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
+                          float,
+                          const LoadPinIndexMap &load_pin_index_map,
+                          const DcalcAnalysisPt *)
 {
+  size_t drvr_count = dcalc_args.size();
+  ArcDcalcResultSeq dcalc_results(drvr_count);
+  for (size_t drvr_idx = 0; drvr_idx < drvr_count; drvr_idx++) {
+    ArcDcalcResult &dcalc_result = dcalc_results[drvr_idx];
+    dcalc_result = unitDelayResult(load_pin_index_map);
+  }
+  return dcalc_results;
 }
 
-void
-UnitDelayCalc::parallelGateDelay(const Pin *,
-                                 const TimingArc *,
-                                 const Slew &,
-                                 float,
-                                 const Parasitic *,
-                                 float,
-                                 const Pvt *,
-                                 const DcalcAnalysisPt *,
-                                 // Return values.
-                                 ArcDelay &gate_delay,
-                                 Slew &gate_slew)
+ArcDcalcResult
+UnitDelayCalc::unitDelayResult(const LoadPinIndexMap &load_pin_index_map)
 {
-  gate_delay = units_->timeUnit()->scale();
-  gate_slew = 0.0;
-}
-
-void
-UnitDelayCalc::loadDelay(const Pin *,
-			 ArcDelay &wire_delay,
-			 Slew &load_slew)
-{
-  wire_delay = 0.0;
-  load_slew = 0.0;
-}
-
-float
-UnitDelayCalc::ceff(const TimingArc *,
-		    const Slew &,
-		    float,
-		    const Parasitic *,
-		    float,
-		    const Pvt *,
-		    const DcalcAnalysisPt *)
-{
-  return 0.0;
+  size_t load_count = load_pin_index_map.size();
+  ArcDcalcResult dcalc_result(load_count);
+  dcalc_result.setGateDelay(units_->timeUnit()->scale());
+  dcalc_result.setDrvrSlew(0.0);
+  for (size_t load_idx = 0; load_idx < load_count; load_idx++) {
+    dcalc_result.setWireDelay(load_idx, 0.0);
+    dcalc_result.setLoadSlew(load_idx, 0.0);
+  }
+  return dcalc_result;
 }
 
 string
-UnitDelayCalc::reportGateDelay(const TimingArc *,
+UnitDelayCalc::reportGateDelay(const Pin *,
+                               const TimingArc *,
 			       const Slew &,
 			       float,
 			       const Parasitic *,
-			       float,
-			       const Pvt *,
+                               const LoadPinIndexMap &,
 			       const DcalcAnalysisPt *,
 			       int)
 {
@@ -133,26 +129,24 @@ UnitDelayCalc::reportGateDelay(const TimingArc *,
   return result;
 }
 
-void
-UnitDelayCalc::checkDelay(const TimingArc *,
+ArcDelay 
+UnitDelayCalc::checkDelay(const Pin *,
+                          const TimingArc *,
 			  const Slew &,
 			  const Slew &,
 			  float,
-			  const Pvt *,
-			  const DcalcAnalysisPt *,
-			  // Return values.
-			  ArcDelay &margin)
+			  const DcalcAnalysisPt *)
 {
-  margin = units_->timeUnit()->scale();
+  return units_->timeUnit()->scale();
 }
 
 string
-UnitDelayCalc::reportCheckDelay(const TimingArc *,
+UnitDelayCalc::reportCheckDelay(const Pin *,
+                                const TimingArc *,
 				const Slew &,
 				const char *,
 				const Slew &,
 				float,
-				const Pvt *,
 				const DcalcAnalysisPt *,
 				int)
 {

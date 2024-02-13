@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -937,8 +937,8 @@ public:
   void delaysInvalid();
   // Invalidate all arrival and required times.
   void arrivalsInvalid();
-  void visitStartpoints(VertexVisitor *visitor);
-  void visitEndpoints(VertexVisitor *visitor);
+  PinSet startpointPins();
+  PinSet endpointPins();
   VertexSet *endpoints();
   int endpointViolationCount(const MinMax *min_max);
   // Find the fanin vertices for a group path.
@@ -1107,18 +1107,14 @@ public:
   // with normal constant propagate for timing.
   void clearLogicConstants();
 
-  // Iterator for instances sorted by max driver pin slew.
-  // Caller owns iterator and iterator->container().
-  SlowDrvrIterator *slowDrvrIterator();
+  // Instances sorted by max driver pin slew.
+  InstanceSeq slowDrivers(int count);
 
   // Make parasitic analysis points.
-  // per_corner per_min_max     ap_count
-  //      false       false            1
-  //      false        true            2
-  //       true       false      corners
-  //       true        true    corners*2
-  void setParasiticAnalysisPts(bool per_corner,
-                               bool per_min_max);
+  // per_corner    ap_count
+  //      false           2
+  //       true   corners*2
+  void setParasiticAnalysisPts(bool per_corner);
   // Annotate hierarchical "instance" with parasitics.
   // The parasitic analysis point is ap_name.
   // The parasitic memory footprint is much smaller if parasitic
@@ -1132,9 +1128,7 @@ public:
 		bool pin_cap_included,
 		bool keep_coupling_caps,
 		float coupling_cap_factor,
-		ReducedParasiticType reduce_to,
-		bool delete_after_reduce,
-		bool quiet);
+		bool reduce);
   void reportParasiticAnnotation(bool report_unannotated,
                                  const Corner *corner);
   // Parasitics.

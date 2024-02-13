@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -607,7 +607,7 @@ Power::funcBdd(const FuncExpr *expr)
     result = Cudd_ReadLogicZero(cudd_mgr_);
     break;
   default:
-    report_->critical(596, "unknown function operator");
+    report_->critical(1440, "unknown function operator");
   }
   if (result)
     Cudd_Ref(result);

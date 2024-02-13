@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -1920,7 +1920,7 @@ ConcreteNetwork::linkNetwork(const char *top_cell_name,
     return top_instance_ != nullptr;
   }
   else {
-    report->error(8, "cell type %s can not be linked.", top_cell_name);
+    report->error(1000, "cell type %s can not be linked.", top_cell_name);
     return false;
   }
 }

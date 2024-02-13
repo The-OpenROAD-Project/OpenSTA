@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -72,6 +72,7 @@ public:
                  StdStringSet *off_path_pin_names,
 		 const char *power_name,
 		 const char *gnd_name,
+                 bool measure_stmts,
 		 const StaState *sta);
   ~WritePathSpice();
   void writeSpice();
@@ -99,8 +100,7 @@ private:
 			       DcalcAPIndex dcalc_ap_index);
   void writeStageParasitics(Stage stage);
   void writeStageParasiticNetwork(Pin *drvr_pin,
-                                  Parasitic *parasitic,
-                                  ParasiticAnalysisPt *parasitic_ap);
+                                  Parasitic *parasitic);
   void writeStagePiElmore(Pin *drvr_pin,
                           Parasitic *parasitic);
   void writeNullParasitics(Pin *drvr_pin);
@@ -225,6 +225,7 @@ private:
   StdStringSet *off_path_pin_names_;
   const char *power_name_;
   const char *gnd_name_;
+  bool measure_stmts_;
 
   ofstream spice_stream_;
   PathExpanded path_expanded_;
@@ -281,11 +282,15 @@ writePathSpice(Path *path,
                StdStringSet *off_path_pin_names,
                const char *power_name,
 	       const char *gnd_name,
+               bool measure_stmts,
 	       StaState *sta)
 {
+  if (sta->network()->defaultLibertyLibrary() == nullptr)
+    sta->report()->error(1600, "No liberty libraries found,");
   WritePathSpice writer(path, spice_filename, subckt_filename,
 			lib_subckt_filename, model_filename,
-			off_path_pin_names, power_name, gnd_name, sta);
+			off_path_pin_names, power_name, gnd_name,
+                        measure_stmts, sta);
   writer.writeSpice();
 }
 
@@ -297,6 +302,7 @@ WritePathSpice::WritePathSpice(Path *path,
                                StdStringSet *off_path_pin_names,
 			       const char *power_name,
 			       const char *gnd_name,
+                               bool measure_stmts,
 			       const StaState *sta) :
   StaState(sta),
   path_(path),
@@ -307,13 +313,14 @@ WritePathSpice::WritePathSpice(Path *path,
   off_path_pin_names_(off_path_pin_names),
   power_name_(power_name),
   gnd_name_(gnd_name),
+  measure_stmts_(measure_stmts),
   path_expanded_(sta),
   net_name_(nullptr),
   default_library_(network_->defaultLibertyLibrary()),
   short_ckt_resistance_(.0001),
   clk_cycle_count_(3)
 {
-  bool exists;
+  bool exists = false;
   default_library_->supplyVoltage(power_name_, power_voltage_, exists);
   if (!exists) {
     DcalcAnalysisPt *dcalc_ap = path_->dcalcAnalysisPt(this);
@@ -344,7 +351,8 @@ WritePathSpice::writeSpice()
     writeHeader();
     writePrintStmt();
     writeStageInstances();
-    writeMeasureStmts();
+    if (measure_stmts_)
+      writeMeasureStmts();
     writeInputSource();
     writeStageSubckts();
     streamPrint(spice_stream_, ".end\n");
@@ -379,8 +387,6 @@ WritePathSpice::writeHeader()
 	      start_path->transition(this)->asString(),
 	      network_->pathName(path_->pin(this)),
 	      path_->transition(this)->asString());
-  float temp = pvt->temperature();
-  streamPrint(spice_stream_, ".temp %.1f\n", temp);
   streamPrint(spice_stream_, ".include \"%s\"\n", model_filename_);
   string subckt_filename_stem = filenameStem(subckt_filename_);
   streamPrint(spice_stream_, ".include \"%s\"\n", subckt_filename_stem.c_str());
@@ -389,6 +395,7 @@ WritePathSpice::writeHeader()
   float time_step = 1e-13;
   streamPrint(spice_stream_, ".tran %.3g %.3g\n\n",
 	      time_step, max_time);
+  // Suppress printing model parameters.
   streamPrint(spice_stream_, ".options nomod\n");
 }
 
@@ -505,14 +512,14 @@ WritePathSpice::pgPortVoltage(LibertyPgPort *pg_port)
       else if (stringEqual(voltage_name, gnd_name_))
 	voltage = gnd_voltage_;
       else
-	report_->error(24, "pg_pin %s/%s voltage %s not found,",
+	report_->error(1601 , "pg_pin %s/%s voltage %s not found,",
 		       pg_port->cell()->name(),
 		       pg_port->name(),
 		       voltage_name);
     }
   }
   else
-    report_->error(25, "Liberty pg_port %s/%s missing voltage_name attribute,",
+    report_->error(1602, "Liberty pg_port %s/%s missing voltage_name attribute,",
 		   pg_port->cell()->name(),
 		   pg_port->name());
   return voltage;
@@ -1091,7 +1098,7 @@ WritePathSpice::writeVoltageSource(LibertyCell *cell,
     if (pg_port)
       voltage = pgPortVoltage(pg_port);
     else
-      report_->error(26, "%s pg_port %s not found,",
+      report_->error(1603, "%s pg_port %s not found,",
 		     cell->name(),
 		     pg_port_name);
 
@@ -1146,7 +1153,7 @@ WritePathSpice::regPortValues(Stage stage,
 	dcalc_ap_index = drvr_path->dcalcAnalysisPt(this)->index();
       }
       else
-	report_->error(27, "no register/latch found for path from %s to %s,",
+	report_->error(1604, "no register/latch found for path from %s to %s,",
 		       stageGateInputPort(stage)->name(),
 		       stageDrvrPort(stage)->name());
     }
@@ -1290,54 +1297,6 @@ WritePathSpice::onePort(FuncExpr *expr)
   }
 }
 
-// Sort predicate for ParasiticDevices.
-class ParasiticDeviceLess
-{
-public:
-  ParasiticDeviceLess(Parasitics *parasitics) :
-    parasitics_(parasitics)
-  {
-  }
-  bool operator()(const ParasiticDevice *device1,
-		  const ParasiticDevice *device2) const
-  {
-    ParasiticNode *node1 = parasitics_->node1(device1);
-    ParasiticNode *node2 = parasitics_->node1(device2);
-    const char *name1 = parasitics_->name(node1);
-    const char *name2 = parasitics_->name(node2);
-    if (stringEq(name1, name2)) {
-      ParasiticNode *node12 = parasitics_->node2(device1);
-      ParasiticNode *node22 = parasitics_->node2(device2);
-      const char *name12 = parasitics_->name(node12);
-      const char *name22 = parasitics_->name(node22);
-      return stringLess(name12, name22);
-    }
-    else 
-      return stringLess(name1, name2);
-  }
-private:
-  Parasitics *parasitics_;
-};
-
-// Sort predicate for ParasiticDevices.
-class ParasiticNodeLess
-{
-public:
-  ParasiticNodeLess(Parasitics *parasitics) :
-    parasitics_(parasitics)
-  {
-  }
-  bool operator()(const ParasiticNode *node1,
-		  const ParasiticNode *node2) const
-  {
-    const char *name1 = parasitics_->name(node1);
-    const char *name2 = parasitics_->name(node2);
-    return stringLess(name1, name2);
-  }
-private:
-  Parasitics *parasitics_;
-};
-
 void
 WritePathSpice::writeStageParasitics(Stage stage)
 {
@@ -1353,7 +1312,7 @@ WritePathSpice::writeStageParasitics(Stage stage)
   ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
   Parasitic *parasitic = parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
   if (parasitic)
-    writeStageParasiticNetwork(drvr_pin, parasitic, parasitic_ap);
+    writeStageParasiticNetwork(drvr_pin, parasitic);
   else {
     const RiseFall *drvr_rf = drvr_path->transition(this);
     parasitic = parasitics_->findPiElmore(drvr_pin, drvr_rf, parasitic_ap);
@@ -1368,51 +1327,51 @@ WritePathSpice::writeStageParasitics(Stage stage)
 
 void
 WritePathSpice::writeStageParasiticNetwork(Pin *drvr_pin,
-                                           Parasitic *parasitic,
-                                           ParasiticAnalysisPt *parasitic_ap)
+                                           Parasitic *parasitic)
 {
   Set<const Pin*> reachable_pins;
   int res_index = 1;
   int cap_index = 1;
 
-  // Sort devices for consistent regression results.
-  Vector<ParasiticDevice*> devices;
-  ParasiticDeviceIterator *device_iter1 = parasitics_->deviceIterator(parasitic);
-  while (device_iter1->hasNext()) {
-    ParasiticDevice *device = device_iter1->next();
-    devices.push_back(device);
+  // Sort resistors for consistent regression results.
+  ParasiticResistorSeq resistors = parasitics_->resistors(parasitic);
+  sort(resistors.begin(), resistors.end(),
+       [=] (const ParasiticResistor *r1,
+            const ParasiticResistor *r2) {
+         return parasitics_->id(r1) < parasitics_->id(r2);
+       });
+  for (ParasiticResistor *resistor : resistors) {
+    float resistance = parasitics_->value(resistor);
+    ParasiticNode *node1 = parasitics_->node1(resistor);
+    ParasiticNode *node2 = parasitics_->node2(resistor);
+    streamPrint(spice_stream_, "R%d %s %s %.3e\n",
+                res_index,
+                nodeName(node1),
+                nodeName(node2),
+                resistance);
+    res_index++;
+
+    const Pin *pin1 = parasitics_->pin(node1);
+    reachable_pins.insert(pin1);
+    const Pin *pin2 = parasitics_->pin(node2);
+    reachable_pins.insert(pin2);
   }
-  delete device_iter1;
 
-  sort(devices, ParasiticDeviceLess(parasitics_));
-
-  for (ParasiticDevice *device : devices) {
-    float resistance = parasitics_->value(device, parasitic_ap);
-    if (parasitics_->isResistor(device)) {
-      ParasiticNode *node1 = parasitics_->node1(device);
-      ParasiticNode *node2 = parasitics_->node2(device);
-      streamPrint(spice_stream_, "R%d %s %s %.3e\n",
-                  res_index,
-                  nodeName(node1),
-                  nodeName(node2),
-                  resistance);
-      res_index++;
-
-      const Pin *pin1 = parasitics_->connectionPin(node1);
-      reachable_pins.insert(pin1);
-      const Pin *pin2 = parasitics_->connectionPin(node2);
-      reachable_pins.insert(pin2);
-    }
-    else if (parasitics_->isCouplingCap(device)) {
-      // Ground coupling caps for now.
-      ParasiticNode *node1 = 	parasitics_->node1(device);
-      float cap = parasitics_->value(device, parasitic_ap);
-      streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
-                  cap_index,
-                  nodeName(node1),
-                  cap);
-      cap_index++;
-    }
+  ParasiticCapacitorSeq capacitors = parasitics_->capacitors(parasitic);
+  sort(capacitors.begin(), capacitors.end(),
+       [=] (const ParasiticCapacitor *c1,
+            const ParasiticCapacitor *c2) {
+         return parasitics_->id(c1) < parasitics_->id(c2);
+       });
+  for (ParasiticCapacitor *capacitor : capacitors) {
+    // Ground coupling caps for now.
+    ParasiticNode *node1 = parasitics_->node1(capacitor);
+    float cap = parasitics_->value(capacitor);
+    streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
+                cap_index,
+                nodeName(node1),
+                cap);
+    cap_index++;
   }
 
   // Add resistors from drvr to load for missing parasitic connections.
@@ -1434,17 +1393,17 @@ WritePathSpice::writeStageParasiticNetwork(Pin *drvr_pin,
   delete pin_iter;
 
   // Sort node capacitors for consistent regression results.
-  Vector<ParasiticNode*> nodes;
-  ParasiticNodeIterator *node_iter = parasitics_->nodeIterator(parasitic);
-  while (node_iter->hasNext()) {
-    ParasiticNode *node = node_iter->next();
-    nodes.push_back(node);
-  }
-
-  sort(nodes, ParasiticNodeLess(parasitics_));
+  ParasiticNodeSeq nodes = parasitics_->nodes(parasitic);
+  sort(nodes.begin(), nodes.end(),
+       [=] (const ParasiticNode *node1,
+            const ParasiticNode *node2) {
+         const char *name1 = parasitics_->name(node1);
+         const char *name2 = parasitics_->name(node2);
+         return stringLess(name1, name2);
+       });
 
   for (ParasiticNode *node : nodes) {
-    float cap = parasitics_->nodeGndCap(node, parasitic_ap);
+    float cap = parasitics_->nodeGndCap(node);
     // Spice has a cow over zero value caps.
     if (cap > 0.0) {
       streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
@@ -1454,7 +1413,6 @@ WritePathSpice::writeStageParasiticNetwork(Pin *drvr_pin,
       cap_index++;
     }
   }
-  delete node_iter;
 }
 
 void
@@ -1548,7 +1506,7 @@ WritePathSpice::initNodeMap(const char *net_name)
 const char *
 WritePathSpice::nodeName(ParasiticNode *node)
 {
-  const Pin *pin = parasitics_->connectionPin(node);
+  const Pin *pin = parasitics_->pin(node);
   if (pin)
     return parasitics_->name(node);
   else {
@@ -1612,7 +1570,7 @@ WritePathSpice::writeSubckts()
 	  missing_cells += "\n";
 	  missing_cells += cell_name;
         }
-	report_->error(28, "The subkct file %s is missing definitions for %s",
+	report_->error(1605, "The subkct file %s is missing definitions for %s",
 		       lib_subckt_filename_,
                        missing_cells.c_str());
       }
@@ -1710,7 +1668,7 @@ WritePathSpice::recordSpicePortNames(const char *cell_name,
 	  && pg_port == nullptr
 	  && !stringEqual(port_name, power_name_)
 	  && !stringEqual(port_name, gnd_name_))
-	report_->error(29, "subckt %s port %s has no corresponding liberty port, pg_port and is not power or ground.",
+	report_->error(1606, "subckt %s port %s has no corresponding liberty port, pg_port and is not power or ground.",
 		       cell_name, port_name);
       spice_port_names->push_back(port_name);
     }

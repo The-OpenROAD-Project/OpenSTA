@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -233,7 +233,7 @@ PathVertex::arrival(const StaState *sta) const
   if (arrivals)
     return arrivals[arrival_index_];
   else {
-    sta->report()->error(620, "missing arrivals.");
+    sta->report()->error(1400, "missing arrivals.");
     return 0.0;
   }
 }
@@ -247,7 +247,7 @@ PathVertex::setArrival(Arrival arrival,
     if (arrivals)
       arrivals[arrival_index_] = arrival;
     else
-      sta->report()->error(621, "missing arrivals.");
+      sta->report()->error(1401, "missing arrivals.");
   }
 }
 
@@ -276,7 +276,7 @@ PathVertex::setRequired(const Required &required,
       requireds = graph->makeRequireds(vertex_, arrival_count);
     }
     else
-      sta->report()->error(622, "missing requireds.");
+      sta->report()->error(1402, "missing requireds.");
   }
   requireds[arrival_index_] = required;
 }

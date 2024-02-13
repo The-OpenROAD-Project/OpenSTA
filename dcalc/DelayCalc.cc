@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@
 #include "StringUtil.hh"
 #include "UnitDelayCalc.hh"
 #include "LumpedCapDelayCalc.hh"
-#include "SlewDegradeDelayCalc.hh"
 #include "DmpDelayCalc.hh"
 #include "ArnoldiDelayCalc.hh"
 
@@ -35,7 +34,6 @@ registerDelayCalcs()
 {
   registerDelayCalc("unit", makeUnitDelayCalc);
   registerDelayCalc("lumped_cap", makeLumpedCapDelayCalc);
-  registerDelayCalc("slew_degrade", makeSlewDegradeDelayCalc);
   registerDelayCalc("dmp_ceff_elmore", makeDmpCeffElmoreDelayCalc);
   registerDelayCalc("dmp_ceff_two_pole", makeDmpCeffTwoPoleDelayCalc);
   registerDelayCalc("arnoldi", makeArnoldiDelayCalc);

@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -229,9 +229,7 @@ public:
   LibertyPort *from() const { return set_->from(); }
   LibertyPort *to() const { return set_->to(); }
   Transition *fromEdge() const { return from_rf_; }
-  Transition *fromTrans() const __attribute__ ((deprecated)) { return from_rf_; }
   Transition *toEdge() const { return to_rf_; }
-  Transition *toTrans() const __attribute__ ((deprecated)) { return to_rf_; }
   TimingRole *role() const { return set_->role(); }
   TimingArcSet *set() const { return set_; }
   TimingSense sense() const;

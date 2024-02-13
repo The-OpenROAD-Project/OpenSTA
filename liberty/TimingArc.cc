@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -162,7 +162,7 @@ TimingArc::intrinsicDelay() const
   if (model) {
     ArcDelay arc_delay;
     Slew slew;
-    model->gateDelay(nullptr, 0.0, 0.0, 0.0, false, arc_delay, slew);
+    model->gateDelay(nullptr, 0.0, 0.0, false, arc_delay, slew);
     return arc_delay;
   }
   else
@@ -240,11 +240,13 @@ TimingArcSet::addTimingArc(TimingArc *arc)
     criticalError(243, "timing arc max index exceeded\n");
   arcs_.push_back(arc);
 
-  int from_rf_index = arc->fromEdge()->asRiseFall()->index();
-  if (from_arc1_[from_rf_index] == nullptr)
-    from_arc1_[from_rf_index] = arc;
-  else if (from_arc2_[from_rf_index] == nullptr)
-    from_arc2_[from_rf_index] = arc;
+  if (arc->fromEdge()) {
+    int from_rf_index = arc->fromEdge()->asRiseFall()->index();
+    if (from_arc1_[from_rf_index] == nullptr)
+      from_arc1_[from_rf_index] = arc;
+    else if (from_arc2_[from_rf_index] == nullptr)
+      from_arc2_[from_rf_index] = arc;
+  }
 
   int to_rf_index = arc->toEdge()->asRiseFall()->index();
   to_arc_[to_rf_index] = arc;
@@ -476,8 +478,8 @@ timingArcsLess(const TimingArcSet *arc_set1,
        arc_itr1++, arc_itr2++) {
     const TimingArc *arc1 = *arc_itr1;
     const TimingArc *arc2 = *arc_itr2;
-    int from_index1 = arc1->fromEdge()->index();
-    int from_index2 = arc2->fromEdge()->index();
+    int from_index1 = arc1->fromEdge() ? arc1->fromEdge()->index() : -1;
+    int from_index2 = arc2->fromEdge() ? arc2->fromEdge()->index() : -1;
     if (from_index1 < from_index2)
       return true;
     if (from_index1 > from_index2)

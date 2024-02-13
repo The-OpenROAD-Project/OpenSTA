@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,54 +30,40 @@ public:
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
                            const DcalcAnalysisPt *dcalc_ap) override;
-  ReducedParasiticType reducedParasiticType() const override;
-  void gateDelay(const TimingArc *arc,
-                 const Slew &in_slew,
-                 float load_cap,
-                 const Parasitic *drvr_parasitic,
-                 float related_out_cap,
-                 const Pvt *pvt,
-                 const DcalcAnalysisPt *dcalc_ap,
-                 // Return values.
-                 ArcDelay &gate_delay,
-                 Slew &drvr_slew) override;
-  float ceff(const TimingArc *arc,
-             const Slew &in_slew,
-             float load_cap,
-             const Parasitic *drvr_parasitic,
-             float related_out_cap,
-             const Pvt *pvt,
-             const DcalcAnalysisPt *dcalc_ap) override;
-  void loadDelay(const Pin *load_pin,
-                 // Return values.
-                 ArcDelay &wire_delay,
-                 Slew &load_slew) override;
-  void checkDelay(const TimingArc *arc,
-                  const Slew &from_slew,
-                  const Slew &to_slew,
-                  float related_out_cap,
-                  const Pvt *pvt,
-                  const DcalcAnalysisPt *dcalc_ap,
-                  // Return values.
-                  ArcDelay &margin) override;
-  string reportGateDelay(const TimingArc *arc,
+  Parasitic *reduceParasitic(const Parasitic *parasitic_network,
+                             const Pin *drvr_pin,
+                             const RiseFall *rf,
+                             const DcalcAnalysisPt *dcalc_ap) override;
+  ArcDcalcResult inputPortDelay(const Pin *port_pin,
+                                float in_slew,
+                                const RiseFall *rf,
+                                const Parasitic *parasitic,
+                                const LoadPinIndexMap &load_pin_index_map,
+                                const DcalcAnalysisPt *dcalc_ap) override;
+  ArcDcalcResult gateDelay(const Pin *drvr_pin,
+                           const TimingArc *arc,
+                           const Slew &in_slew,
+                           float load_cap,
+                           const Parasitic *parasitic,
+                           const LoadPinIndexMap &load_pin_index_map,
+                           const DcalcAnalysisPt *dcalc_ap) override;
+  string reportGateDelay(const Pin *drvr_pin,
+                         const TimingArc *arc,
                          const Slew &in_slew,
                          float load_cap,
-                         const Parasitic *drvr_parasitic,
-                         float related_out_cap,
-                         const Pvt *pvt,
+                         const Parasitic *parasitic,
+                         const LoadPinIndexMap &load_pin_index_map,
                          const DcalcAnalysisPt *dcalc_ap,
                          int digits) override;
-  string reportCheckDelay(const TimingArc *arc,
-                          const Slew &from_slew,
-                          const char *from_slew_annotation,
-                          const Slew &to_slew,
-                          float related_out_cap,
-                          const Pvt *pvt,
-                          const DcalcAnalysisPt *dcalc_ap,
-                          int digits) override;
 
 protected:
+  ArcDcalcResult makeResult(const LibertyLibrary *drvr_library,
+                            const RiseFall *rf,
+                            ArcDelay gate_delay,
+                            Slew drvr_slew,
+                            const LoadPinIndexMap &load_pin_index_map);
+
+  using ArcDelayCalc::reduceParasitic;
 };
 
 ArcDelayCalc *

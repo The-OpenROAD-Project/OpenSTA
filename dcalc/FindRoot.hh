@@ -16,12 +16,33 @@
 
 #pragma once
 
+#include <functional>
+
 namespace sta {
 
-class ArcDelayCalc;
-class StaState;
+typedef const std::function<void (double x,
+                                  // Return values.
+                                  double &y,
+                                  double &dy)> FindRootFunc;
 
-ArcDelayCalc *
-makeSlewDegradeDelayCalc(StaState *sta);
+double
+findRoot(FindRootFunc func,
+	 double x1,
+	 double x2,
+	 double x_tol,
+	 int max_iter,
+         // Return value.
+         bool &fail);
+
+double
+findRoot(FindRootFunc func,
+	 double x1,
+	 double y1,
+         double x2,
+	 double y2,
+	 double x_tol,
+	 int max_iter,
+         // Return value.
+         bool &fail);
 
 } // namespace

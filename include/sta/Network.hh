@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -238,6 +238,7 @@ public:
   // the other primitives.
   LeafInstanceIterator *leafInstanceIterator() const;
   LeafInstanceIterator *leafInstanceIterator(const Instance *hier_inst) const;
+  InstanceSeq leafInstances();
   // Iterate over the children of an instance.
   virtual InstanceChildIterator *
   childIterator(const Instance *instance) const = 0;

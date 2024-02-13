@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -169,7 +169,7 @@ VcdValues &
 Vcd::values(VcdVar *var)
 {
   if (id_values_map_.find(var->id()) ==  id_values_map_.end()) {
-    report_->error(805, "Unknown variable %s ID %s",
+    report_->error(1360, "Unknown variable %s ID %s",
                    var->name().c_str(),
                    var->id().c_str());
     static VcdValues empty;

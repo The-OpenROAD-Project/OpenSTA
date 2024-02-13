@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2023, Parallax Software, Inc.
+# Copyright (c) 2024, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,23 +26,36 @@ define_cmd_args "read_spef" \
      [-coupling_reduction_factor factor]\
      [-reduce_to pi_elmore|pi_pole_residue2]\
      [-delete_after_reduce]\
-     [-quiet]\
-     [-save]\
      filename}
 
 proc_redirect read_spef {
   parse_key_args "read_spef" args \
     keys {-path -coupling_reduction_factor -reduce_to -corner} \
     flags {-min -max -increment -pin_cap_included -keep_capacitive_coupling \
-	     -delete_after_reduce -quiet -save}
-  check_argc_eq1 "report_spef" $args
+	     -reduce -delete_after_reduce -quiet -save}
+  check_argc_eq1 "read_spef" $args
+
+  set reduce [info exists flags(-reduce)]
+  if { [info exists flags(-quiet)] } {
+    sta_warn 272 "read_spef -quiet is deprecated."
+  }
+  if { [info exists keys(-reduce_to)] } {
+    sta_warn 273 "read_spef -reduce_to is deprecated. Use -reduce instead."
+    set reduce 1
+  }
+  if { [info exists flags(-delete_after_reduce)] } {
+    sta_warn 274 "read_spef -delete_after_reduce is deprecated."
+  }
+  if { [info exists flags(-save)] } {
+    sta_warn 275 "read_spef -save is deprecated."
+  }
 
   set instance [top_instance]
   if [info exists keys(-path)] {
     set path $keys(-path)
     set instance [find_instance $path]
     if { $instance == "NULL" } {
-      sta_error 433 "path instance '$path' not found."
+      sta_error 276 "path instance '$path' not found."
     }
   }
   set corner [parse_corner_or_all keys]
@@ -55,23 +68,10 @@ proc_redirect read_spef {
   set keep_coupling_caps [info exists flags(-keep_capacitive_coupling)]
   set pin_cap_included [info exists flags(-pin_cap_included)]
 
-  set reduce_to "none"
-  if [info exists keys(-reduce_to)] {
-    set reduce_to $keys(-reduce_to)
-    if { !($reduce_to == "pi_elmore" || $reduce_to == "pi_pole_residue2") } {
-      sta_error 434 "-reduce_to must be pi_elmore or pi_pole_residue2."
-    }
-  }
-  set delete_after_reduce [info exists flags(-delete_after_reduce)]
-  set quiet [info exists flags(-quiet)]
-  set save [info exists flags(-save)]
   set filename [file nativename [lindex $args 0]]
-  if { [info exists flags(-increment)] } {
-    sta_warn 706 "read_spef -increment is deprecated."
-  }
   return [read_spef_cmd $filename $instance $corner $min_max \
-	    $pin_cap_included $keep_coupling_caps $coupling_reduction_factor \
-	    $reduce_to $delete_after_reduce $quiet]
+	    $pin_cap_included $keep_coupling_caps \
+            $coupling_reduction_factor $reduce]
 }
 
 define_cmd_args "report_parasitic_annotation" {-report_unannotated}

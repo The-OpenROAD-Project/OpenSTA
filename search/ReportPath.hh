@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -384,9 +384,6 @@ protected:
   bool hasExtInputDriver(const Pin *pin,
 			 const RiseFall *rf,
 			 const MinMax *min_max);
-  float loadCap(Pin *drvr_pin,
-		const RiseFall *rf,
-		DcalcAnalysisPt *dcalc_ap);
   float drvrFanout(Vertex *drvr,
                    const Corner *corner,
 		   const MinMax *min_max);
