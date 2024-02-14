@@ -163,7 +163,7 @@ public:
 			 const DcalcAnalysisPt *dcalc_ap,
 			 // Return values.
 			 ArcDelay &gate_delay,
-			 Slew &drvr_slew)  __attribute__ ((deprecated));
+			 Slew &drvr_slew);  // __attribute__ ((deprecated));
 
   // Find gate delays and slews for parallel gates.
   virtual ArcDcalcResultSeq gateDelays(ArcDcalcArgSeq &args,

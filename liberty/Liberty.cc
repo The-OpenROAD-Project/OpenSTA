@@ -899,7 +899,7 @@ void
 LibertyLibrary::ensureVoltageWaveforms()
 {
   if (!have_voltage_waveforms_) {
-    float vdd;
+    float vdd = 0.0f;
     bool vdd_exists;
     supplyVoltage("VDD", vdd, vdd_exists);
     if (!vdd_exists || vdd == 0.0)
