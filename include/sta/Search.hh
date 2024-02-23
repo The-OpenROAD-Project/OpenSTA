@@ -584,7 +584,7 @@ protected:
   TagIndex tag_next_;
   // Holes in tags_ left by deleting filter tags.
   std::vector<TagIndex> tag_free_indices_;
-  std::mutex tag_lock_;
+  mutable std::mutex tag_lock_;
   TagGroupSet *tag_group_set_;
   TagGroup **tag_groups_;
   TagGroupIndex tag_group_next_;
@@ -592,7 +592,7 @@ protected:
   std::vector<TagIndex> tag_group_free_indices_;
   // Capacity of tag_groups_.
   TagGroupIndex tag_group_capacity_;
-  std::mutex tag_group_lock_;
+  mutable std::mutex tag_group_lock_;
   // Latches data outputs to queue on the next search pass.
   VertexSet *pending_latch_outputs_;
   std::mutex pending_latch_outputs_lock_;

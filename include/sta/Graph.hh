@@ -17,6 +17,7 @@
 #pragma once
 
 #include <mutex>
+#include <atomic>
 
 #include "Iterator.hh"
 #include "Map.hh"
@@ -246,7 +247,7 @@ protected:
   RequiredsTable requireds_;
   std::mutex requireds_lock_;
   PrevPathsTable prev_paths_;
-  std::mutex prev_paths_lock_;
+  mutable std::mutex prev_paths_lock_;
   Vector<bool> arc_delay_annotated_;
   int slew_rf_count_;
   bool have_arc_delays_;
@@ -322,7 +323,7 @@ public:
   bool isConstrained() const { return is_constrained_; }
   void setIsConstrained(bool constrained);
   bool bfsInQueue(BfsIndex index) const;
-  void setBfsInQueue(BfsIndex index, bool value);
+  bool setBfsInQueue(BfsIndex index, bool value);
   bool isRegClk() const { return is_reg_clk_; }
   bool crprPathPruningDisabled() const { return crpr_path_pruning_disabled_;}
   void setCrprPathPruningDisabled(bool disabled);
@@ -352,9 +353,9 @@ protected:
   EdgeId out_edges_;		// Edges from this vertex.
 
   // 4 bytes
-  unsigned int tag_group_index_:tag_group_index_bits; // 24
+  unsigned int tag_group_index_;  // >= tag_group_index_bits (24)
   // Each bit corresponds to a different BFS queue.
-  unsigned int bfs_in_queue_:int(BfsIndex::bits); // 4
+  std::atomic<unsigned char> bfs_in_queue_; // >= BfsIndex::bits (4)
   unsigned int slew_annotated_:slew_annotated_bits;
 
   // 4 bytes (32 bits)

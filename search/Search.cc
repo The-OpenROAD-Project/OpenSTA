@@ -2760,12 +2760,14 @@ Search::reportArrivals(Vertex *vertex) const
 TagGroup *
 Search::tagGroup(TagGroupIndex index) const
 {
+  UniqueLock lock(tag_group_lock_);
   return tag_groups_[index];
 }
 
 TagGroup *
 Search::tagGroup(const Vertex *vertex) const
 {
+  UniqueLock lock(tag_group_lock_);
   TagGroupIndex index = vertex->tagGroupIndex();
   if (index == tag_group_index_max)
     return nullptr;
@@ -2776,6 +2778,7 @@ Search::tagGroup(const Vertex *vertex) const
 TagGroupIndex
 Search::tagGroupCount() const
 {
+  UniqueLock lock(tag_group_lock_);
   return tag_group_set_->size();
 }
 
@@ -2830,12 +2833,14 @@ Search::reportArrivalCountHistogram() const
 Tag *
 Search::tag(TagIndex index) const
 {
+  UniqueLock lock(tag_lock_);
   return tags_[index];
 }
 
 TagIndex
 Search::tagCount() const
 {
+  UniqueLock lock(tag_lock_);
   return tag_set_->size();
 }
 
