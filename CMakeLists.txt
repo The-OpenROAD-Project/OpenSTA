@@ -31,6 +31,7 @@ project(STA VERSION 2.5.0
 option(USE_CUDD "Use CUDD BDD package")
 option(CUDD_DIR "CUDD BDD package directory")
 
+# Turn on to debug compiler args.
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 
 set(STA_HOME ${PROJECT_SOURCE_DIR})
@@ -65,6 +66,7 @@ set(STA_SOURCE
   dcalc/ArcDcalcWaveforms.cc
   dcalc/ArnoldiDelayCalc.cc
   dcalc/ArnoldiReduce.cc
+  dcalc/CcsCeffDelayCalc.cc
   dcalc/DcalcAnalysisPt.cc
   dcalc/DelayCalc.cc
   dcalc/DelayCalcBase.cc
@@ -145,6 +147,7 @@ set(STA_SOURCE
   sdf/SdfReader.cc
   sdf/SdfWriter.cc
   
+  search/Bdd.cc
   search/Bfs.cc
   search/CheckMaxSkews.cc
   search/CheckMinPeriods.cc
@@ -154,6 +157,7 @@ set(STA_SOURCE
   search/CheckSlewLimits.cc
   search/CheckTiming.cc
   search/ClkInfo.cc
+  search/ClkLatency.cc
   search/ClkNetwork.cc
   search/ClkSkew.cc
   search/Corner.cc
@@ -188,6 +192,7 @@ set(STA_SOURCE
   search/VisitPathGroupVertices.cc
   search/WorstSlack.cc
   search/WritePathSpice.cc
+  search/WriteSpice.cc
 
   power/Power.cc
   power/ReadVcdActivities.cc
@@ -302,77 +307,6 @@ add_flex_bison_dependency(SdfLex SdfParser)
 
 ################################################################
 
-find_package(SWIG 3.0 REQUIRED)
-include(UseSWIG)
-
-set(STA_SWIG_FILE app/StaApp.i)
-
-set_property(SOURCE ${STA_SWIG_FILE}
-  PROPERTY CPLUSPLUS ON
-)
-# Ubuntu 18.04 cmake version 3.10.2 does not support the
-# COMPILE_OPTIONS and INCLUDE_DIRECTORIES properties, so cram
-# them into SWIG_FLAGS for the time being.
-set_property(SOURCE ${STA_SWIG_FILE}
-  PROPERTY SWIG_FLAGS
-  -module sta
-  -namespace -prefix sta
-  -I${STA_HOME}/tcl
-  -I${STA_HOME}/sdf
-  -I${STA_HOME}/dcalc
-  -I${STA_HOME}/parasitics
-  -I${STA_HOME}/power
-  -I${STA_HOME}/verilog
-)
-
-set(SWIG_FILES
-  ${STA_HOME}/dcalc/DelayCalc.i
-  ${STA_HOME}/parasitics/Parasitics.i
-  ${STA_HOME}/power/Power.i
-  ${STA_HOME}/sdf/Sdf.i
-  ${STA_HOME}/tcl/Exception.i
-  ${STA_HOME}/tcl/StaTcl.i
-  ${STA_HOME}/tcl/StaTclTypes.i
-  ${STA_HOME}/tcl/NetworkEdit.i
-  ${STA_HOME}/verilog/Verilog.i
-  )
-
-set_property(SOURCE ${STA_SWIG_FILE}
-  PROPERTY DEPENDS ${SWIG_FILES}
-)
-
-swig_add_library(sta_swig
-  LANGUAGE tcl
-  TYPE STATIC
-  SOURCES ${STA_SWIG_FILE}
-)
-
-get_target_property(STA_SWIG_CXX_FILE sta_swig SOURCES)
-
-set_source_files_properties(${STA_SWIG_CXX_FILE}
-  PROPERTIES
-  # No simple way to modify the swig template that emits code full of warnings
-  # so suppress them.
-  COMPILE_OPTIONS "-Wno-cast-qual;-Wno-missing-braces;-Wno-deprecated-declarations"
-  )
-
-target_link_libraries(sta_swig
-  PUBLIC
-  OpenSTA
-)
-
-# result build/CMakeFiles/sta_swig.dir/StaAppTCL_wrap.cxx
-target_include_directories(sta_swig
-  PUBLIC
-  include/sta
-
-  PRIVATE
-  ${STA_HOME}
-  ${TCL_INCLUDE_PATH}
-)
-
-################################################################
-
 set(STA_TCL_INIT ${CMAKE_CURRENT_BINARY_DIR}/StaTclInitVar.cc)
 
 # TCL files included as part of the executable are shoved into StaTclInitVar.cc.
@@ -468,6 +402,80 @@ message(STATUS "SSTA: ${SSTA}")
 configure_file(${STA_HOME}/util/StaConfig.hh.cmake
   ${STA_HOME}/include/sta/StaConfig.hh
   )
+
+###########################################################
+# Swig
+###########################################################
+
+find_package(SWIG 3.0 REQUIRED)
+include(UseSWIG)
+
+set(STA_SWIG_FILE app/StaApp.i)
+
+set_property(SOURCE ${STA_SWIG_FILE}
+  PROPERTY CPLUSPLUS ON
+)
+# Ubuntu 18.04 cmake version 3.10.2 does not support the
+# COMPILE_OPTIONS and INCLUDE_DIRECTORIES properties, so cram
+# them into SWIG_FLAGS for the time being.
+set_property(SOURCE ${STA_SWIG_FILE}
+  PROPERTY SWIG_FLAGS
+  -module sta
+  -namespace -prefix sta
+  -I${STA_HOME}/tcl
+  -I${STA_HOME}/sdf
+  -I${STA_HOME}/dcalc
+  -I${STA_HOME}/parasitics
+  -I${STA_HOME}/power
+  -I${STA_HOME}/verilog
+)
+
+set(SWIG_FILES
+  ${STA_HOME}/dcalc/DelayCalc.i
+  ${STA_HOME}/parasitics/Parasitics.i
+  ${STA_HOME}/power/Power.i
+  ${STA_HOME}/sdf/Sdf.i
+  ${STA_HOME}/tcl/Exception.i
+  ${STA_HOME}/tcl/StaTcl.i
+  ${STA_HOME}/tcl/StaTclTypes.i
+  ${STA_HOME}/tcl/NetworkEdit.i
+  ${STA_HOME}/verilog/Verilog.i
+  )
+
+set_property(SOURCE ${STA_SWIG_FILE}
+  PROPERTY DEPENDS ${SWIG_FILES}
+)
+
+swig_add_library(sta_swig
+  LANGUAGE tcl
+  TYPE STATIC
+  SOURCES ${STA_SWIG_FILE}
+)
+
+get_target_property(STA_SWIG_CXX_FILE sta_swig SOURCES)
+
+set_source_files_properties(${STA_SWIG_CXX_FILE}
+  PROPERTIES
+  # No simple way to modify the swig template that emits code full of warnings
+  # so suppress them.
+  COMPILE_OPTIONS "-Wno-cast-qual;-Wno-missing-braces;-Wno-deprecated-declarations"
+  INCLUDE_DIRECTORIES "${CUDD_INCLUDE}"
+  )
+
+target_link_libraries(sta_swig
+  PUBLIC
+  OpenSTA
+)
+
+# result build/CMakeFiles/sta_swig.dir/StaAppTCL_wrap.cxx
+target_include_directories(sta_swig
+  PUBLIC
+  include/sta
+
+  PRIVATE
+  ${STA_HOME}
+  ${TCL_INCLUDE_PATH}
+)
 
 ###########################################################
 # Library

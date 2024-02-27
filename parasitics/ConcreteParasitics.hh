@@ -113,19 +113,23 @@ public:
                               const ParasiticAnalysisPt *ap) override;
   void deleteParasiticNetworks(const Net *net) override;
   bool includesPinCaps(const Parasitic *parasitic) const override;
+  ParasiticNode *findParasiticNode(Parasitic *parasitic,
+                                   const Net *net,
+                                   int id,
+                                   const Network *network) const override;
   ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
                                      const Net *net,
                                      int id,
                                      const Network *network) override;
+  ParasiticNode *findParasiticNode(const Parasitic *parasitic,
+                                   const Pin *pin) const override;
   ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
                                      const Pin *pin,
                                      const Network *network) override;
   ParasiticNodeSeq nodes(const Parasitic *parasitic) const override;
   void incrCap(ParasiticNode *node,
                float cap) override;
-  const char *name(const ParasiticNode *node) override;
-  ParasiticNode *findNode(const Parasitic *parasitic,
-                          const Pin *pin) const override;
+  const char *name(const ParasiticNode *node) const override;
   const Pin *pin(const ParasiticNode *node) const override;
   const Net *net(const ParasiticNode *node,
                  const Network *network) const override;

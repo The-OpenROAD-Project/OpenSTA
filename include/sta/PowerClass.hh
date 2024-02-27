@@ -18,6 +18,8 @@
 
 namespace sta {
 
+class Power;
+
 enum class PwrActivityOrigin
 {
  global,

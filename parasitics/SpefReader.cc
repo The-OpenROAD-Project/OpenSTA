@@ -468,38 +468,40 @@ SpefReader::findParasiticNode(char *name,
       *delim = '\0';
       char *name2 = delim + 1;
       name = nameMapLookup(name);
-      Instance *inst = findInstanceRelative(name);
-      if (inst) {
-        // <instance>:<port>
-        Pin *pin = network_->findPin(inst, name2);
-        if (pin) {
-          if (local_only
-              && !network_->isConnected(net_, pin))
-            warn(1651, "%s not connected to net %s.", name, network_->pathName(net_));
-          return parasitics_->ensureParasiticNode(parasitic_, pin, network_);
+      if (name) {
+        Instance *inst = findInstanceRelative(name);
+        if (inst) {
+          // <instance>:<port>
+          Pin *pin = network_->findPin(inst, name2);
+          if (pin) {
+            if (local_only
+                && !network_->isConnected(net_, pin))
+              warn(1651, "%s not connected to net %s.", name, network_->pathName(net_));
+            return parasitics_->ensureParasiticNode(parasitic_, pin, network_);
+          }
+          else {
+            // Replace delimiter for error message.
+            *delim = delimiter_;
+            warn(1652, "pin %s not found.", name);
+          }
         }
         else {
-          // Replace delimiter for error message.
+          Net *net = findNet(name);
+          // Replace delimiter for error messages.
           *delim = delimiter_;
-          warn(1652, "pin %s not found.", name);
-        }
-      }
-      else {
-        Net *net = findNet(name);
-        // Replace delimiter for error messages.
-        *delim = delimiter_;
-        if (net) {
-          // <net>:<subnode_id>
-          const char *id_str = delim + 1;
-          if (isDigits(id_str)) {
-            int id = atoi(id_str);
-            if (local_only
-                && !network_->isConnected(net, net_))
-              warn(1653, "%s not connected to net %s.", name, network_->pathName(net_));
-            return parasitics_->ensureParasiticNode(parasitic_, net, id, network_);
+          if (net) {
+            // <net>:<subnode_id>
+            const char *id_str = delim + 1;
+            if (isDigits(id_str)) {
+              int id = atoi(id_str);
+              if (local_only
+                  && !network_->isConnected(net, net_))
+                warn(1653, "%s not connected to net %s.", name, network_->pathName(net_));
+              return parasitics_->ensureParasiticNode(parasitic_, net, id, network_);
+            }
+            else
+              warn(1654, "node %s not a pin or net:number", name);
           }
-          else
-            warn(1654, "node %s not a pin or net:number", name);
         }
       }
     }

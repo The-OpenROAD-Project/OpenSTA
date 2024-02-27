@@ -27,17 +27,23 @@ class ConcretePoleResidue;
 class ConcreteParasiticDevice;
 class ConcreteParasiticNode;
 
-typedef std::map<const Pin*, float> ConcreteElmoreLoadMap;
-typedef std::map<const Pin*, ConcretePoleResidue> ConcretePoleResidueMap;
 typedef std::pair<const Net*, int> NetIdPair;
-struct NetIdPairLess
+class NetIdPairLess
 {
+public:
+  NetIdPairLess(const Network *network);
   bool operator()(const NetIdPair &net_id1,
 		  const NetIdPair &net_id2) const;
+
+private:
+  const NetIdLess net_less_;
 };
+
+typedef std::map<const Pin*, float> ConcreteElmoreLoadMap;
+typedef std::map<const Pin*, ConcretePoleResidue> ConcretePoleResidueMap;
 typedef std::map<NetIdPair,ConcreteParasiticNode*,
                  NetIdPairLess> ConcreteParasiticSubNodeMap;
-typedef std::map<const Pin*, ConcreteParasiticNode*> ConcreteParasiticPinNodeMap;
+typedef std::map<const Pin*, ConcreteParasiticNode*, PinIdLess> ConcreteParasiticPinNodeMap;
 typedef std::set<ParasiticNode*> ParasiticNodeSet;
 typedef std::set<ParasiticResistor*> ParasiticResistorSet;
 typedef std::vector<ParasiticResistor*> ParasiticResistorSeq;
@@ -197,17 +203,21 @@ class ConcreteParasiticNetwork : public ParasiticNetwork,
 {
 public:
   ConcreteParasiticNetwork(const Net *net,
-                           bool includes_pin_caps);
+                           bool includes_pin_caps,
+                           const Network *network);
   virtual ~ConcreteParasiticNetwork();
   virtual bool isParasiticNetwork() const { return true; }
   const Net *net() { return net_; }
   bool includesPinCaps() const { return includes_pin_caps_; }
+  ConcreteParasiticNode *findParasiticNode(const Net *net,
+                                           int id,
+                                           const Network *network) const;
   ConcreteParasiticNode *ensureParasiticNode(const Net *net,
 					     int id,
                                              const Network *network);
+  ConcreteParasiticNode *findParasiticNode(const Pin *pin) const;
   ConcreteParasiticNode *ensureParasiticNode(const Pin *pin,
                                              const Network *network);
-  ConcreteParasiticNode *findNode(const Pin *pin) const;
   virtual float capacitance() const;
   ParasiticNodeSeq nodes() const;
   void disconnectPin(const Pin *pin,

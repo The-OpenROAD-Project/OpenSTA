@@ -20,6 +20,8 @@
 #include "TimingRole.hh"
 #include "FuncExpr.hh"
 #include "TimingArc.hh"
+#include "TimingModel.hh"
+#include "TableModel.hh"
 #include "InternalPower.hh"
 #include "LeakagePower.hh"
 #include "Sequential.hh"
@@ -269,10 +271,10 @@ LibertyBuilder::makeTimingArcs(LibertyCell *cell,
 				  attrs);
   case TimingType::min_clock_tree_path:
     return makeClockTreePathArcs(cell, to_port, TimingRole::clockTreePathMin(),
-                                 attrs);
+                                 MinMax::min(), attrs);
   case TimingType::max_clock_tree_path:
     return makeClockTreePathArcs(cell, to_port, TimingRole::clockTreePathMax(),
-                                 attrs);
+                                 MinMax::max(), attrs);
   case TimingType::min_pulse_width:
   case TimingType::minimum_period:
   case TimingType::nochange_high_high:
@@ -633,13 +635,17 @@ TimingArcSet *
 LibertyBuilder::makeClockTreePathArcs(LibertyCell *cell,
                                       LibertyPort *to_port,
                                       TimingRole *role,
+                                      const MinMax *min_max,
                                       TimingArcAttrsPtr attrs)
 {
   TimingArcSet *arc_set = makeTimingArcSet(cell, nullptr, to_port, role, attrs);
   for (auto to_rf : RiseFall::range()) {
     TimingModel *model = attrs->model(to_rf);
-    if (model)
+    if (model) {
       makeTimingArc(arc_set, nullptr, to_rf->asTransition(), model);
+      const GateTableModel *gate_model = dynamic_cast<GateTableModel *>(model);
+      to_port->setClkTreeDelay(gate_model->delayModel(), to_rf, min_max);
+    }
   }
   return arc_set;
 }

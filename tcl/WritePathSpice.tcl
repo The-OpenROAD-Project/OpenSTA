@@ -22,13 +22,13 @@ define_cmd_args "write_path_spice" { -path_args path_args\
 				       -model_file model_file\
 				       -power power\
 				       -ground ground\
-                                       [-measure_stmts]}
+                                       [-simulator hspice|ngspice|xyce]}
 
 proc write_path_spice { args } {
   parse_key_args "write_path_spice" args \
     keys {-spice_directory -lib_subckt_file -model_file \
-	    -power -ground -path_args} \
-    flags {-measure_stmts}
+	    -power -ground -path_args -simulator} \
+    flags {}
 
   if { [info exists keys(-spice_directory)] } {
     set spice_dir [file nativename $keys(-spice_directory)]
@@ -75,7 +75,7 @@ proc write_path_spice { args } {
     sta_error 609 "No -ground specified."
   }
 
-  set measure_stmts [info exists keys(-measure_stmts)]
+  set ckt_sim [parse_ckt_sim_key keys]
 
   if { ![info exists keys(-path_args)] } {
     sta_error 610 "No -path_args specified."
@@ -92,10 +92,26 @@ proc write_path_spice { args } {
       set spice_file [file join $spice_dir "$path_name.sp"]
       set subckt_file [file join $spice_dir "$path_name.subckt"]
       write_path_spice_cmd $path $spice_file $subckt_file \
-	$lib_subckt_file $model_file {} $power $ground $measure_stmts
+	$lib_subckt_file $model_file $power $ground $ckt_sim
       incr path_index
     }
   }
+}
+
+set ::ckt_sims {hspice ngspice xyce}
+
+proc parse_ckt_sim_key { keys_var } {
+  upvar 1 $keys_var keys
+  global ckt_sims
+
+  set ckt_sim "ngspice"
+  if { [info exists keys(-simulator)] } {
+    set ckt_sim [file nativename $keys(-simulator)]
+    if { [lsearch $ckt_sims $ckt_sim] == -1 } {
+      sta_error 1710 "Unknown circuit simulator"
+    }
+  }
+  return $ckt_sim
 }
 
 # sta namespace end.

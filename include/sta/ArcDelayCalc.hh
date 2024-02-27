@@ -50,24 +50,41 @@ class ArcDcalcArg
 {
 public:
   ArcDcalcArg();
-  ArcDcalcArg(const Pin *drvr_pin,
-               Edge *edge,
-               const TimingArc *arc,
-               const Slew in_slew,
-               const Parasitic *parasitic);
+  ArcDcalcArg(const ArcDcalcArg &arg);
+  ArcDcalcArg(const Pin *in_pin,
+              const Pin *drvr_pin,
+              Edge *edge,
+              const TimingArc *arc,
+              const Slew in_slew,
+              const Parasitic *parasitic);
+  ArcDcalcArg(const Pin *in_pin,
+              const Pin *drvr_pin,
+              Edge *edge,
+              const TimingArc *arc,
+              float in_delay);
+  const Pin *inPin() const { return in_pin_; }
+  const RiseFall *inEdge() const;
   const Pin *drvrPin() const { return drvr_pin_; }
+  LibertyCell *drvrCell() const;
+  const LibertyLibrary *drvrLibrary() const;
+  const RiseFall *drvrEdge() const;
+  const Net *drvrNet(const Network *network) const;
   Edge *edge() const { return edge_; }
   const TimingArc *arc() const { return arc_; }
   Slew inSlew() const { return in_slew_; }
+  void setInSlew(Slew in_slew);
   const Parasitic *parasitic() { return parasitic_; }
   void setParasitic(const Parasitic *parasitic);
+  float inputDelay() const { return input_delay_; }
 
 protected:
+  const Pin *in_pin_;
   const Pin *drvr_pin_;
   Edge *edge_;
   const TimingArc *arc_;
   Slew in_slew_;
   const Parasitic *parasitic_;
+  float input_delay_;
 };
 
 // Arc delay calc result.
@@ -163,7 +180,7 @@ public:
 			 const DcalcAnalysisPt *dcalc_ap,
 			 // Return values.
 			 ArcDelay &gate_delay,
-			 Slew &drvr_slew)  __attribute__ ((deprecated));
+			 Slew &drvr_slew) __attribute__ ((deprecated));
 
   // Find gate delays and slews for parallel gates.
   virtual ArcDcalcResultSeq gateDelays(ArcDcalcArgSeq &args,

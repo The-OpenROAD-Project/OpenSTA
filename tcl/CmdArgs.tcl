@@ -477,6 +477,16 @@ proc parse_rise_fall_flags { flags_var } {
   }
 }
 
+proc parse_rise_fall_arg { arg } {
+  if { $arg eq "r" || $arg eq "^" || $arg eq "rise" } {
+    return "rise"
+  } elseif { $arg eq "f" || $arg eq "v" || $arg eq "fall" } {
+    return "fall"
+  } else {
+    error "unknown rise/fall transition name."
+  }
+}
+
 proc parse_min_max_flags { flags_var } {
   upvar 1 $flags_var flags
   if { [info exists flags(-min)] && [info exists flags(-max)] } {

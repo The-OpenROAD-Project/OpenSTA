@@ -92,6 +92,14 @@ public:
                float &wire_cap,
                float &fanout,
                bool &has_set_load) const;
+  void parasiticLoad(const Pin *drvr_pin,
+                     const RiseFall *rf,
+                     const DcalcAnalysisPt *dcalc_ap,
+                     const MultiDrvrNet *multi_drvr,
+                     ArcDelayCalc *arc_delay_calc,
+                     // Return values.
+                     float &cap,
+                     const Parasitic *&parasitic) const;
   LoadPinIndexMap makeLoadPinIndexMap(Vertex *drvr_vertex);
   void findDriverArcDelays(Vertex *drvr_vertex,
                            Edge *edge,
@@ -231,14 +239,6 @@ protected:
                 const RiseFall *rf,
                 const DcalcAnalysisPt *dcalc_ap,
                 ArcDelayCalc *arc_delay_calc) const;
-  void parasiticLoad(const Pin *drvr_pin,
-                     const RiseFall *rf,
-                     const DcalcAnalysisPt *dcalc_ap,
-                     const MultiDrvrNet *multi_drvr,
-                     ArcDelayCalc *arc_delay_calc,
-                     // Return values.
-                     float &cap,
-                     const Parasitic *&parasitic) const;
   void parasiticLoad(const Pin *drvr_pin,
                      const RiseFall *rf,
                      const DcalcAnalysisPt *dcalc_ap,

@@ -63,6 +63,7 @@
 #include "CheckMinPeriods.hh"
 #include "CheckMaxSkews.hh"
 #include "ClkSkew.hh"
+#include "ClkLatency.hh"
 #include "FindRegister.hh"
 #include "ReportPath.hh"
 #include "VisitPathGroupVertices.hh"
@@ -2600,7 +2601,7 @@ Sta::updateTiming(bool full)
 ////////////////////////////////////////////////////////////////
 
 void
-Sta::reportClkSkew(ClockSet *clks,
+Sta::reportClkSkew(ConstClockSeq clks,
 		   const Corner *corner,
 		   const SetupHold *setup_hold,
 		   int digits)
@@ -2617,20 +2618,31 @@ Sta::findWorstClkSkew(const SetupHold *setup_hold)
 }
 
 void
-Sta::findClkDelays(const Clock *clk,
-                   // Return values.
-                   ClkDelays &delays)
-{
-  clkSkewPreamble();
-  clk_skews_->findClkDelays(clk, delays);
-}
-
-void
 Sta::clkSkewPreamble()
 {
   ensureClkArrivals();
   if (clk_skews_ == nullptr)
     clk_skews_ = new ClkSkews(this);
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+Sta::reportClkLatency(ConstClockSeq clks,
+                      const Corner *corner,
+                      int digits)
+{
+  ensureClkArrivals();
+  ClkLatency clk_latency(this);
+  clk_latency.reportClkLatency(clks, corner, digits);
+}
+
+ClkDelays
+Sta::findClkDelays(const Clock *clk)
+{
+  ensureClkArrivals();
+  ClkLatency clk_latency(this);
+  return clk_latency.findClkDelays(clk, nullptr);
 }
 
 ////////////////////////////////////////////////////////////////

@@ -47,13 +47,6 @@
 #include "Bfs.hh"
 #include "ClkNetwork.hh"
 
-#if CUDD
-#include "cudd.h"
-#else
-#define Cudd_Init(ignore1, ignore2, ignore3, ignore4, ignore5) nullptr
-#define Cudd_Quit(ignore1)
-#endif
-
 // Related liberty not supported:
 // library
 //  default_cell_leakage_power : 0;
@@ -95,13 +88,8 @@ Power::Power(StaState *sta) :
   input_activity_{0.1, 0.5, PwrActivityOrigin::input},
   seq_activity_map_(100, SeqPinHash(network_), SeqPinEqual()),
   activities_valid_(false),
-  cudd_mgr_(Cudd_Init(0, 0, CUDD_UNIQUE_SLOTS, CUDD_CACHE_SLOTS, 0))
+  bdd_(sta)
 {
-}
-
-Power::~Power()
-{
-  Cudd_Quit(cudd_mgr_);
 }
 
 void
@@ -524,12 +512,12 @@ Power::evalActivity(FuncExpr *expr,
   if (func_port &&  func_port->direction()->isInternal())
     return findSeqActivity(inst, func_port);
   else {
-    DdNode *bdd = funcBdd(expr);
+    DdNode *bdd = bdd_.funcBdd(expr);
     float duty = evalBddDuty(bdd, inst);
     float activity = evalBddActivity(bdd, inst);
 
-    Cudd_RecursiveDeref(cudd_mgr_, bdd);
-    clearVarMap();
+    Cudd_RecursiveDeref(bdd_.cuddMgr(), bdd);
+    bdd_.clearVarMap();
     return PwrActivity(activity, duty, PwrActivityOrigin::propagated);
   }
 }
@@ -540,108 +528,17 @@ Power::evalDiffDuty(FuncExpr *expr,
                     LibertyPort *from_port,
                     const Instance *inst)
 {
-  DdNode *bdd = funcBdd(expr);
-  DdNode *var_node = bdd_port_var_map_[from_port];
+  DdNode *bdd = bdd_.funcBdd(expr);
+  DdNode *var_node = bdd_.findNode(from_port);
   unsigned var_index = Cudd_NodeReadIndex(var_node);
-  DdNode *diff = Cudd_bddBooleanDiff(cudd_mgr_, bdd, var_index);
+  DdNode *diff = Cudd_bddBooleanDiff(bdd_.cuddMgr(), bdd, var_index);
   Cudd_Ref(diff);
   float duty = evalBddDuty(diff, inst);
 
-  Cudd_RecursiveDeref(cudd_mgr_, diff);
-  Cudd_RecursiveDeref(cudd_mgr_, bdd);
-  clearVarMap();
+  Cudd_RecursiveDeref(bdd_.cuddMgr(), diff);
+  Cudd_RecursiveDeref(bdd_.cuddMgr(), bdd);
+  bdd_.clearVarMap();
   return duty;
-}
-
-DdNode *
-Power::funcBdd(const FuncExpr *expr)
-{
-  DdNode *left = nullptr;
-  DdNode *right = nullptr;
-  DdNode *result = nullptr;
-  switch (expr->op()) {
-  case FuncExpr::op_port: {
-    LibertyPort *port = expr->port();
-    result = ensureNode(port);
-    break;
-  }
-  case FuncExpr::op_not:
-    left = funcBdd(expr->left());
-    if (left)
-      result = Cudd_Not(left);
-    break;
-  case FuncExpr::op_or:
-    left = funcBdd(expr->left());
-    right = funcBdd(expr->right());
-    if (left && right)
-      result = Cudd_bddOr(cudd_mgr_, left, right);
-    else if (left)
-      result = left;
-    else if (right)
-      result = right;
-    break;
-  case FuncExpr::op_and:
-    left = funcBdd(expr->left());
-    right = funcBdd(expr->right());
-    if (left && right)
-      result = Cudd_bddAnd(cudd_mgr_, left, right);
-    else if (left)
-      result = left;
-    else if (right)
-      result = right;
-    break;
-  case FuncExpr::op_xor:
-    left = funcBdd(expr->left());
-    right = funcBdd(expr->right());
-    if (left && right)
-      result = Cudd_bddXor(cudd_mgr_, left, right);
-    else if (left)
-      result = left;
-    else if (right)
-      result = right;
-    break;
-  case FuncExpr::op_one:
-    result = Cudd_ReadOne(cudd_mgr_);
-    break;
-  case FuncExpr::op_zero:
-    result = Cudd_ReadLogicZero(cudd_mgr_);
-    break;
-  default:
-    report_->critical(1440, "unknown function operator");
-  }
-  if (result)
-    Cudd_Ref(result);
-  if (left)
-    Cudd_RecursiveDeref(cudd_mgr_, left);
-  if (right)
-    Cudd_RecursiveDeref(cudd_mgr_, right);
-  return result;
-}
-
-DdNode *
-Power::ensureNode(LibertyPort *port)
-{
-  DdNode *bdd = bdd_port_var_map_.findKey(port);
-  if (bdd == nullptr) {
-    bdd = Cudd_bddNewVar(cudd_mgr_);
-    bdd_port_var_map_[port] = bdd;
-    unsigned var_index = Cudd_NodeReadIndex(bdd);
-    bdd_var_idx_port_map_[var_index] = port;
-    Cudd_Ref(bdd);
-    debugPrint(debug_, "power_activity", 2, "%s var %d", port->name(), var_index);
-  }
-  return bdd;
-}
-
-void
-Power::clearVarMap()
-{
-  for (auto port_node : bdd_port_var_map_) {
-    DdNode *var_node = port_node.second;
-    Cudd_RecursiveDeref(cudd_mgr_, var_node);
-  }
-  bdd_port_var_map_.clear();
-  bdd_var_idx_port_map_.clear();
 }
 
 // As suggested by
@@ -651,9 +548,9 @@ Power::evalBddDuty(DdNode *bdd,
                    const Instance *inst)
 {
   if (Cudd_IsConstant(bdd)) {
-    if (bdd == Cudd_ReadOne(cudd_mgr_))
+    if (bdd == Cudd_ReadOne(bdd_.cuddMgr()))
       return 1.0;
-    else if (bdd == Cudd_ReadLogicZero(cudd_mgr_))
+    else if (bdd == Cudd_ReadLogicZero(bdd_.cuddMgr()))
       return 0.0;
     else
       criticalError(1100, "unknown cudd constant");
@@ -662,10 +559,10 @@ Power::evalBddDuty(DdNode *bdd,
     float duty0 = evalBddDuty(Cudd_E(bdd), inst);
     float duty1 = evalBddDuty(Cudd_T(bdd), inst);
     unsigned int index = Cudd_NodeReadIndex(bdd);
-    int var_index = Cudd_ReadPerm(cudd_mgr_, index);
-    LibertyPort *port = bdd_var_idx_port_map_[var_index];
+    int var_index = Cudd_ReadPerm(bdd_.cuddMgr(), index);
+    const LibertyPort *port = bdd_.varIndexPort(var_index);
     if (port->direction()->isInternal())
-      return findSeqActivity(inst, port).duty();
+      return findSeqActivity(inst, const_cast<LibertyPort*>(port)).duty();
     else {
       const Pin *pin = findLinkPin(inst, port);
       if (pin) {
@@ -689,17 +586,17 @@ Power::evalBddActivity(DdNode *bdd,
                        const Instance *inst)
 {
   float activity = 0.0;
-  for (auto port_var : bdd_port_var_map_) {
-    LibertyPort *port = port_var.first;
+  for (auto port_var : bdd_.portVarMap()) {
+    const LibertyPort *port = port_var.first;
     const Pin *pin = findLinkPin(inst, port);
     if (pin) {
       PwrActivity var_activity = findActivity(pin);
       DdNode *var_node = port_var.second;
       unsigned int var_index = Cudd_NodeReadIndex(var_node);
-      DdNode *diff = Cudd_bddBooleanDiff(cudd_mgr_, bdd, var_index);
+      DdNode *diff = Cudd_bddBooleanDiff(bdd_.cuddMgr(), bdd, var_index);
       Cudd_Ref(diff);
       float diff_duty = evalBddDuty(diff, inst);
-      Cudd_RecursiveDeref(cudd_mgr_, diff);
+      Cudd_RecursiveDeref(bdd_.cuddMgr(), diff);
       float var_act = var_activity.activity() * diff_duty;
       activity += var_act;
       const Clock *clk = findClk(pin);

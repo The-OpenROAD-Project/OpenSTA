@@ -318,6 +318,7 @@ public:
 	 TableAxisPtr axis1);
   virtual ~Table1();
   Table1(Table1 &&table);
+  Table1(const Table1 &table);
   Table1 &operator= (Table1 &&table);
   int order() const override { return 1; }
   const TableAxis *axis1() const override { return axis1_.get(); }

@@ -306,7 +306,8 @@ reduceToPiElmore(const Parasitic *parasitic_network,
 		 StaState *sta)
 {
   Parasitics *parasitics = sta->parasitics();
-  ParasiticNode *drvr_node = parasitics->findNode(parasitic_network, drvr_pin);
+  ParasiticNode *drvr_node =
+    parasitics->findParasiticNode(parasitic_network, drvr_pin);
   if (drvr_node) {
     debugPrint(sta->debug(), "parasitic_reduce", 1, "Reduce driver %s %s %s",
                sta->network()->pathName(drvr_pin),
@@ -456,7 +457,8 @@ reduceToPiPoleResidue2(const Parasitic *parasitic_network,
 		       StaState *sta)
 {
   Parasitics *parasitics = sta->parasitics();
-  ParasiticNode *drvr_node = parasitics->findNode(parasitic_network, drvr_pin);
+  ParasiticNode *drvr_node =
+    parasitics->findParasiticNode(parasitic_network, drvr_pin);
   if (drvr_node) {
     debugPrint(sta->debug(), "parasitic_reduce", 1, "Reduce driver %s",
                sta->network()->pathName(drvr_pin));
@@ -508,7 +510,8 @@ ReduceToPiPoleResidue2::findPolesResidues(const Parasitic *parasitic_network,
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
     if (network_->isLoad(pin)) {
-      ParasiticNode *load_node = parasitics_->findNode(parasitic_network, pin);
+      ParasiticNode *load_node =
+        parasitics_->findParasiticNode(parasitic_network, pin);
       if (load_node) {
 	findPolesResidues(pi_pole_residue, drvr_pin, pin, load_node);
       }

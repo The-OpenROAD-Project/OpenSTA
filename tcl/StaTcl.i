@@ -3035,14 +3035,22 @@ report_path_cmd(PathRef *path)
 }
 
 void
-report_clk_skew(ClockSet *clks,
+report_clk_skew(ConstClockSeq clks,
 		const Corner *corner,
 		const SetupHold *setup_hold,
 		int digits)
 {
   cmdLinkedNetwork();
   Sta::sta()->reportClkSkew(clks, corner, setup_hold, digits);
-  delete clks;
+}
+
+void
+report_clk_latency(ConstClockSeq clks,
+                   const Corner *corner,
+                   int digits)
+{
+  cmdLinkedNetwork();
+  Sta::sta()->reportClkLatency(clks, corner, digits);
 }
 
 float
@@ -3534,16 +3542,14 @@ write_path_spice_cmd(PathRef *path,
 		     const char *subckt_filename,
 		     const char *lib_subckt_filename,
 		     const char *model_filename,
-                     StdStringSet *off_path_pins,
 		     const char *power_name,
 		     const char *gnd_name,
-                     bool measure_stmts)
+                     CircuitSim ckt_sim)
 {
   Sta *sta = Sta::sta();
   writePathSpice(path, spice_filename, subckt_filename,
-		 lib_subckt_filename, model_filename, off_path_pins,
-		 power_name, gnd_name, measure_stmts, sta);
-  delete off_path_pins;
+		 lib_subckt_filename, model_filename,
+		 power_name, gnd_name, ckt_sim, sta);
 }
 
 void
