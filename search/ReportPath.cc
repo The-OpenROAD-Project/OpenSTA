@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -286,7 +286,7 @@ ReportPath::reportPathEndHeader()
     reportSlackOnlyHeader();
     break;
   default:
-    report_->critical(255, "unsupported path type");
+    report_->critical(1470, "unsupported path type");
     break;
   }
 }
@@ -307,7 +307,7 @@ ReportPath::reportPathEndFooter()
     reportBlankLine();
     break;
   default:
-    report_->critical(256, "unsupported path type");
+    report_->critical(1471, "unsupported path type");
     break;
   }
 }
@@ -346,7 +346,7 @@ ReportPath::reportPathEnd(PathEnd *end,
     reportSlackOnly(end);
     break;
   default:
-    report_->critical(257, "unsupported path type");
+    report_->critical(1473, "unsupported path type");
     break;
   }
 }
@@ -2261,7 +2261,7 @@ ReportPath::reportPathLine(const Path *path,
   float cap = field_blank_;
   // Don't show capacitance field for input pins.
   if (is_driver && field_capacitance_->enabled())
-    cap = loadCap(pin, rf, dcalc_ap);
+    cap = graph_delay_calc_->loadCap(pin, rf, dcalc_ap);
   reportLine(what.c_str(), cap, slew, field_blank_,
 	     incr, time, false, early_late, rf, line_case);
 }
@@ -2375,7 +2375,7 @@ ReportPath::reportPath(const Path *path)
   case ReportPathFormat::summary:
   case ReportPathFormat::slack_only:
   default:
-    report_->critical(259, "unsupported path type");
+    report_->critical(1474, "unsupported path type");
     break;
   }
 }
@@ -2653,7 +2653,7 @@ ReportPath::reportPath5(const Path *path,
         float fanout = field_blank_;
 	// Don't show capacitance field for input pins.
 	if (is_driver && field_capacitance_->enabled())
-	  cap = loadCap(pin, rf, dcalc_ap);
+          cap = graph_delay_calc_->loadCap(pin, rf, dcalc_ap);
 	// Don't show fanout field for input pins.
 	if (is_driver && field_fanout_->enabled())
 	  fanout = drvrFanout(vertex, dcalc_ap->corner(), min_max);
@@ -2835,18 +2835,6 @@ ReportPath::pathInputDelayRefPath(const Path *path,
       }
     }
   }
-}
-
-float
-ReportPath::loadCap(Pin *drvr_pin,
-		    const RiseFall *rf,
-		    DcalcAnalysisPt *dcalc_ap)
-{
-  Parasitic *parasitic = nullptr;
-  parasitic = arc_delay_calc_->findParasitic(drvr_pin, rf, dcalc_ap);
-  float load_cap = graph_delay_calc_->loadCap(drvr_pin, parasitic, rf, dcalc_ap);
-  arc_delay_calc_->finishDrvrPin();
-  return load_cap;
 }
 
 ////////////////////////////////////////////////////////////////

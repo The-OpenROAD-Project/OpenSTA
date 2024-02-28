@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2023, Parallax Software, Inc.
+# Copyright (c) 2024, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -133,7 +133,7 @@ proc find_timing_paths_cmd { cmd args_var } {
     } elseif { $mm_key == "min" || $mm_key == "max" || $mm_key == "min_max" } {
       set min_max $mm_key
     } else {
-      sta_error 420 "$cmd -path_delay must be min, min_rise, min_fall, max, max_rise, max_fall or min_max."
+      sta_error 510 "$cmd -path_delay must be min, min_rise, min_fall, max, max_rise, max_fall or min_max."
     }
   }
 
@@ -143,7 +143,7 @@ proc find_timing_paths_cmd { cmd args_var } {
   set to [parse_to_arg1 keys $end_rf arg_error]
   if { $arg_error } {
     delete_from_thrus_to $from $thrus $to
-    sta_error 421 "$cmd command failed."
+    sta_error 511 "$cmd command failed."
   }
 
   check_for_key_args $cmd args
@@ -162,7 +162,7 @@ proc find_timing_paths_cmd { cmd args_var } {
   if [info exists keys(-endpoint_count)] {
     set endpoint_count $keys(-endpoint_count)
     if { $endpoint_count < 1 } {
-      sta_error 422 "-endpoint_count must be a positive integer."
+      sta_error 512 "-endpoint_count must be a positive integer."
     }
   }
 
@@ -171,7 +171,7 @@ proc find_timing_paths_cmd { cmd args_var } {
     set group_count $keys(-group_count)
     check_positive_integer "-group_count" $group_count
     if { $group_count < 1 } {
-      sta_error 423 "-group_count must be >= 1."
+      sta_error 513 "-group_count must be >= 1."
     }
   }
 
@@ -202,9 +202,9 @@ proc find_timing_paths_cmd { cmd args_var } {
     delete_from_thrus_to $from $thrus $to
     set arg [lindex $args 0]
     if { [is_keyword_arg $arg] } {
-      sta_error 424 "'$arg' is not a known keyword or flag."
+      sta_error 514 "'$arg' is not a known keyword or flag."
     } else {
-      sta_error 425 "positional arguments not supported."
+      sta_error 515 "positional arguments not supported."
     }
   }
 
@@ -323,7 +323,7 @@ proc_redirect report_clock_skew {
   check_argc_eq0 "report_clock_skew" $args
 
   if { [info exists flags(-setup)] && [info exists flags(-hold)] } {
-    sta_error 419 "report_clock_skew -setup and -hold are mutually exclusive options."
+    sta_error 516 "report_clock_skew -setup and -hold are mutually exclusive options."
   } elseif { [info exists flags(-setup)] } {
     set setup_hold "setup"
   } elseif { [info exists flags(-hold)] } {
@@ -404,14 +404,9 @@ proc_redirect report_check_types {
   variable path_options
 
   parse_key_args "report_check_types" args keys {-net -corner}\
-    flags {-violators -all_violators -verbose -no_line_splits} 0
+    flags {-violators -verbose -no_line_splits} 0
 
   set violators [info exists flags(-violators)]
-  if { [info exists flags(-all_violators)] } {
-    sta_warn 609 "-all_violators is deprecated. Use -violators"
-    set violators 1
-  }
-
   set verbose [info exists flags(-verbose)]
   set nosplit [info exists flags(-no_line_splits)]
 
@@ -477,8 +472,7 @@ proc_redirect report_check_types {
 	       -max_fanout -min_fanout \
 	       -max_capacitance -min_capacitance \
 	       -min_pulse_width \
-	       -min_period -max_skew \
-	       -max_transition -min_transition } 1
+	       -min_period -max_skew} 1
 
     set setup [info exists flags(-max_delay)]
     set hold [info exists flags(-min_delay)]
@@ -487,15 +481,7 @@ proc_redirect report_check_types {
     set clk_gating_setup [info exists flags(-clock_gating_setup)]
     set clk_gating_hold [info exists flags(-clock_gating_hold)]
     set max_slew [info exists flags(-max_slew)]
-    if { [info exists flags(-max_transition)] } {
-      sta_warn 610 "-max_transition deprecated. Use -max_slew."
-      set max_slew 1
-    }
     set min_slew [info exists flags(-min_slew)]
-    if { [info exists flags(-min_transition)] } {
-      sta_warn 611 "-min_transition deprecated. Use -min_slew."
-      set min_slew 1
-    }
     set max_fanout [info exists flags(-max_fanout)]
     set min_fanout [info exists flags(-min_fanout)]
     set max_capacitance [info exists flags(-max_capacitance)]
@@ -507,12 +493,12 @@ proc_redirect report_check_types {
 	   && (($setup && $hold) \
 		 || ($recovery && $removal) \
 		 || ($clk_gating_setup && $clk_gating_hold)) } {
-      sta_error 426 "analysis type single is not consistent with doing both setup/max and hold/min checks."
+      sta_error 520 "analysis type single is not consistent with doing both setup/max and hold/min checks."
     }
   }
 
   if { $args != {} } {
-    sta_error 427 "positional arguments not supported."
+    sta_error 521 "positional arguments not supported."
   }
 
   set corner [parse_corner_or_all keys]
@@ -775,7 +761,7 @@ proc_redirect report_path {
     flags {-max -min -all -tags} 0
 
   if { [info exists flags(-min)] && [info exists flags(-max)] } {
-    sta_error 508 "-min and -max cannot both be specified."
+    sta_error 522 "-min and -max cannot both be specified."
   } elseif [info exists flags(-min)] {
     set min_max "min"
   } elseif [info exists flags(-max)] {
@@ -795,7 +781,7 @@ proc_redirect report_path {
 
   set pin [get_port_pin_error "pin" $pin_arg]
   if { [$pin is_hierarchical] } {
-    sta_error 509 "pin '$pin_arg' is hierarchical."
+    sta_error 523 "pin '$pin_arg' is hierarchical."
   } else {
     foreach vertex [$pin vertices] {
       if { $vertex != "NULL" } {
@@ -861,7 +847,7 @@ proc parse_report_path_options { cmd args_var default_format
     set formats {full full_clock full_clock_expanded short \
 		   end slack_only summary json}
     if { [lsearch $formats $format] == -1 } {
-      sta_error 510 "-format $format not recognized."
+      sta_error 524 "-format $format not recognized."
     }
   } else {
     set path_options(-format) $default_format
@@ -900,9 +886,6 @@ proc parse_report_path_options { cmd args_var default_format
     set report_net [expr [lsearch $fields "net*"] != -1]
     set report_slew [expr [lsearch $fields "slew*"] != -1]
     set report_fanout [expr [lsearch $fields "fanout*"] != -1]
-    if { [expr [lsearch $fields "trans*"] != -1] } {
-      sta_warn 1640 "The transition_time field is deprecated. Use slew instead."
-    }
   } else {
     set report_input_pin 0
     set report_cap 0
@@ -1008,7 +991,7 @@ proc worst_clock_skew { args } {
   check_argc_eq0 "worst_clock_skew" $args
   if { ([info exists flags(-setup)] && [info exists flags(-hold)]) \
          || (![info exists flags(-setup)] && ![info exists flags(-hold)]) } {
-    sta_error 616 "specify one of -setup and -hold."
+    sta_error 526 "specify one of -setup and -hold."
   } elseif { [info exists flags(-setup)] } {
     set setup_hold "setup"
   } elseif { [info exists flags(-hold)] } {
@@ -1057,7 +1040,7 @@ proc parse_path_group_arg { group_names } {
     if { [is_path_group_name $name] } {
       lappend names $name
     } else {
-      sta_warn 318 "unknown path group '$name'."
+      sta_warn 527 "unknown path group '$name'."
     }
   }
   return $names

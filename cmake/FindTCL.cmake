@@ -63,7 +63,7 @@ get_filename_component(TCL_LIB_PARENT2 "${TCL_LIB_PARENT1}" PATH)
 if (NOT TCL_HEADER)
   find_file(TCL_HEADER tcl.h
     PATHS ${TCL_LIB_PARENT1} ${TCL_LIB_PARENT2}
-    PATH_SUFFIXES include include/tcl
+    PATH_SUFFIXES include include/tcl include/tcl-tk
     NO_DEFAULT_PATH
     )
 endif()

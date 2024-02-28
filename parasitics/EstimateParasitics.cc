@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,6 +24,11 @@
 
 namespace sta {
 
+EstimateParasitics::EstimateParasitics(StaState *sta) :
+  StaState(sta)
+{
+}
+
 // For multiple driver nets, output pin capacitances are treated as
 // loads when driven by a different pin.
 void
@@ -32,10 +37,8 @@ EstimateParasitics::estimatePiElmore(const Pin *drvr_pin,
 				     const Wireload *wireload,
 				     float fanout,
 				     float net_pin_cap,
-				     const OperatingConditions *op_cond,
 				     const Corner *corner,
 				     const MinMax *min_max,
-				     const StaState *sta,
 				     float &c2,
 				     float &rpi,
 				     float &c1,
@@ -43,6 +46,7 @@ EstimateParasitics::estimatePiElmore(const Pin *drvr_pin,
 				     float &elmore_cap,
 				     bool &elmore_use_load_cap)
 {
+  const OperatingConditions *op_cond = sdc_->operatingConditions(min_max);
   float wireload_cap, wireload_res;
   wireload->findWireload(fanout, op_cond, wireload_cap, wireload_res);
 
@@ -52,22 +56,20 @@ EstimateParasitics::estimatePiElmore(const Pin *drvr_pin,
   switch (tree) {
   case WireloadTree::worst_case:
     estimatePiElmoreWorst(drvr_pin, wireload_cap, wireload_res,
-			  fanout, net_pin_cap, rf, op_cond, corner,
-			  min_max, sta,
+			  fanout, net_pin_cap, rf, corner, min_max,
 			  c2, rpi, c1, elmore_res,
 			  elmore_cap, elmore_use_load_cap);
     break;
   case WireloadTree::balanced:
   case WireloadTree::unknown:
     estimatePiElmoreBalanced(drvr_pin, wireload_cap, wireload_res,
-			     fanout, net_pin_cap, rf, op_cond,
-			     corner, min_max,sta,
+			     fanout, net_pin_cap, rf, corner, min_max,
 			     c2, rpi, c1, elmore_res,
 			     elmore_cap, elmore_use_load_cap);
     break;
   case WireloadTree::best_case:
-    estimatePiElmoreBest(drvr_pin, wireload_cap, net_pin_cap, rf,
-			 op_cond, corner, min_max,
+    estimatePiElmoreBest(drvr_pin, wireload_cap, net_pin_cap,
+                         rf, corner, min_max,
 			 c2, rpi, c1, elmore_res, elmore_cap,
 			 elmore_use_load_cap);
     break;
@@ -80,7 +82,6 @@ EstimateParasitics::estimatePiElmoreBest(const Pin *,
 					 float wireload_cap,
 					 float net_pin_cap,
 					 const RiseFall *,
-					 const OperatingConditions *,
 					 const Corner *,
 					 const MinMax *,
 					 float &c2,
@@ -107,10 +108,8 @@ EstimateParasitics::estimatePiElmoreWorst(const Pin *drvr_pin,
 					  float,
 					  float net_pin_cap,
 					  const RiseFall *rf,
-					  const OperatingConditions *op_cond,
 					  const Corner *corner,
 					  const MinMax *min_max,
-					  const StaState *sta,
 					  float &c2,
 					  float &rpi,
 					  float &c1,
@@ -118,9 +117,8 @@ EstimateParasitics::estimatePiElmoreWorst(const Pin *drvr_pin,
 					  float &elmore_cap,
 					  bool &elmore_use_load_cap)
 {
-  Sdc *sdc = sta->sdc();
   float drvr_pin_cap = 0.0;
-  drvr_pin_cap = sdc->pinCapacitance(drvr_pin, rf, op_cond, corner, min_max);
+  drvr_pin_cap = sdc_->pinCapacitance(drvr_pin, rf, corner, min_max);
   c2 = drvr_pin_cap;
   rpi = wireload_res;
   c1 = net_pin_cap - drvr_pin_cap + wireload_cap;
@@ -139,10 +137,8 @@ EstimateParasitics::estimatePiElmoreBalanced(const Pin *drvr_pin,
 					     float fanout,
 					     float net_pin_cap,
 					     const RiseFall *rf,
-					     const OperatingConditions *op_cond,
 					     const Corner *corner,
 					     const MinMax *min_max,
-					     const StaState *sta,
 					     float &c2,
 					     float &rpi,
 					     float &c1,
@@ -161,31 +157,27 @@ EstimateParasitics::estimatePiElmoreBalanced(const Pin *drvr_pin,
     elmore_use_load_cap = false;
   }
   else {
-    Sdc *sdc = sta->sdc();
-    Network *network = sta->network();
-    Report *report = sta->report();
     double res_fanout = wireload_res / fanout;
     double cap_fanout = wireload_cap / fanout;
     // Find admittance moments.
     double y1 = 0.0;
     double y2 = 0.0;
     double y3 = 0.0;
-    y1 = sdc->pinCapacitance(drvr_pin, rf, op_cond, corner, min_max);
+    y1 = sdc_->pinCapacitance(drvr_pin, rf, corner, min_max);
     PinConnectedPinIterator *load_iter =
-      network->connectedPinIterator(drvr_pin);
+      network_->connectedPinIterator(drvr_pin);
     while (load_iter->hasNext()) {
       const Pin *load_pin = load_iter->next();
       // Bidirects don't count themselves as loads.
-      if (load_pin != drvr_pin && network->isLoad(load_pin)) {
-	Port *port = network->port(load_pin);
+      if (load_pin != drvr_pin && network_->isLoad(load_pin)) {
+	Port *port = network_->port(load_pin);
 	double load_cap = 0.0;
-	if (network->isLeaf(load_pin))
-	  load_cap = sdc->pinCapacitance(load_pin, rf, op_cond,
-						 corner, min_max);
-	else if (network->isTopLevelPort(load_pin))
-	  load_cap = sdc->portExtCap(port, rf, corner, min_max);
+	if (network_->isLeaf(load_pin))
+	  load_cap = sdc_->pinCapacitance(load_pin, rf, corner, min_max);
+	else if (network_->isTopLevelPort(load_pin))
+	  load_cap = sdc_->portExtCap(port, rf, corner, min_max);
 	else
-	  report->critical(597, "load pin not leaf or top level");
+	  report_->critical(1050, "load pin not leaf or top level");
 	double cap = load_cap + cap_fanout;
 	double y2_ = res_fanout * cap * cap;
 	y1 += cap;

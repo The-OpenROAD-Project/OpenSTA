@@ -1,7 +1,7 @@
 %module sta
 
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 %include "Exception.i"
+%include "StaTclTypes.i"
 %include "StaTcl.i"
 %include "Verilog.i"
 %include "NetworkEdit.i"

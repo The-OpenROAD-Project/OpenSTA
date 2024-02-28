@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2023, Parallax Software, Inc.
+# Copyright (c) 2024, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -240,7 +240,7 @@ proc set_power_activity { args } {
     foreach port $ports {
       if { [get_property $port "direction"] == "input" } {
 	if { [sta::is_clock_src [sta::get_port_pin $port]] } {
-          sta_warn 299 "activity cannot be set on clock ports."
+          sta_warn 303 "activity cannot be set on clock ports."
         } else {
           set_power_input_port_activity $port $activity $duty
         }

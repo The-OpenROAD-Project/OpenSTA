@@ -1,7 +1,7 @@
 %{
 
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -802,7 +802,7 @@ pos_integer:
 	INTEGER
 	{ int value = $1;
 	  if (value < 0)
-	    sta::spef_reader->warn(21, "%d is not positive.", value);
+	    sta::spef_reader->warn(1525, "%d is not positive.", value);
 	  $$ = value;
 	}
 ;
@@ -811,13 +811,13 @@ pos_number:
 	INTEGER
 	{ float value = static_cast<float>($1);
 	  if (value < 0)
-	    sta::spef_reader->warn(22, "%.4f is not positive.", value);
+	    sta::spef_reader->warn(1526, "%.4f is not positive.", value);
 	  $$ = value;
 	}
 |	FLOAT
 	{ float value = static_cast<float>($1);
 	  if (value < 0)
-	    sta::spef_reader->warn(23, "%.4f is not positive.", value);
+	    sta::spef_reader->warn(1527, "%.4f is not positive.", value);
 	  $$ = value;
 	}
 ;

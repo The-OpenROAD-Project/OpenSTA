@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,6 +27,8 @@
 #include "PortDirection.hh"
 #include "Sdc.hh"
 #include "Parasitics.hh"
+#include "Corner.hh"
+#include "ArcDelayCalc.hh"
 #include "SpefReaderPvt.hh"
 #include "SpefNamespace.hh"
 
@@ -37,6 +39,7 @@ spefResetScanner();
 
 namespace sta {
 
+// Referenced by parser.
 SpefReader *spef_reader;
 
 bool
@@ -46,15 +49,10 @@ readSpefFile(const char *filename,
 	     bool pin_cap_included,
 	     bool keep_coupling_caps,
 	     float coupling_cap_factor,
-	     ReducedParasiticType reduce_to,
-	     bool delete_after_reduce,
-	     const OperatingConditions *op_cond,
+	     bool reduce,
 	     const Corner *corner,
-	     const MinMax *cnst_min_max,
-	     bool quiet,
-	     Report *report,
-	     Network *network,
-	     Parasitics *parasitics)
+	     const MinMaxAll *min_max,
+             StaState *sta)
 {
   bool success = false;
   // Use zlib to uncompress gzip'd files automagically.
@@ -62,8 +60,7 @@ readSpefFile(const char *filename,
   if (stream) {
     SpefReader reader(filename, stream, instance, ap,
 		      pin_cap_included, keep_coupling_caps, coupling_cap_factor,
-		      reduce_to, delete_after_reduce, op_cond, corner, 
-		      cnst_min_max, quiet, report, network, parasitics);
+		      reduce, corner, min_max, sta);
     spef_reader = &reader;
     ::spefResetScanner();
     // yyparse returns 0 on success.
@@ -83,27 +80,19 @@ SpefReader::SpefReader(const char *filename,
 		       bool pin_cap_included,
 		       bool keep_coupling_caps,
 		       float coupling_cap_factor,
-		       ReducedParasiticType reduce_to,
-		       bool delete_after_reduce,
-		       const OperatingConditions *op_cond,
+		       bool reduce,
 		       const Corner *corner,
-		       const MinMax *cnst_min_max,
-		       bool quiet,
-		       Report *report,
-		       Network *network,
-		       Parasitics *parasitics) :
+		       const MinMaxAll *min_max,
+		       StaState *sta) :
+  StaState(sta),
   filename_(filename),
   instance_(instance),
   ap_(ap),
   pin_cap_included_(pin_cap_included),
   keep_coupling_caps_(keep_coupling_caps),
-  reduce_to_(reduce_to),
-  delete_after_reduce_(delete_after_reduce),
-  op_cond_(op_cond),
+  reduce_(reduce),
   corner_(corner),
-  cnst_min_max_(cnst_min_max),
-  keep_device_names_(false),
-  quiet_(quiet),
+  min_max_(min_max),
   stream_(stream),
   line_(1),
   // defaults
@@ -112,9 +101,6 @@ SpefReader::SpefReader(const char *filename,
   bus_brkt_left_('\0'),
   bus_brkt_right_('\0'),
   net_(nullptr),
-  report_(report),
-  network_(network),
-  parasitics_(parasitics),
   triple_index_(0),
   time_scale_(1.0),
   cap_scale_(1.0),
@@ -134,11 +120,8 @@ SpefReader::~SpefReader()
     design_flow_ = nullptr;
   }
 
-  SpefNameMap::Iterator map_iter(name_map_);
-  while (map_iter.hasNext()) {
-    int index;
-    char *name;
-    map_iter.next(index, name);
+  for (auto index_name : name_map_) {
+    char *name = index_name.second;
     stringDelete(name);
   }
 }
@@ -164,7 +147,7 @@ SpefReader::setBusBrackets(char left, char right)
 	|| (left == '<' && right == '>')
 	|| (left == ':' && right == '\0')
 	|| (left == '.' && right == '\0')))
-    warn(167, "illegal bus delimiters.");
+    warn(1640, "illegal bus delimiters.");
   bus_brkt_left_ = left;
   bus_brkt_right_ = right;
 }
@@ -248,7 +231,7 @@ SpefReader::setTimeScale(float scale,
   else if (stringEq(units, "PS"))
     time_scale_ = scale * 1E-12F;
   else
-    warn(168, "unknown units %s.", units);
+    warn(1641, "unknown units %s.", units);
   stringDelete(units);
 }
 
@@ -261,7 +244,7 @@ SpefReader::setCapScale(float scale,
   else if (stringEq(units, "FF"))
     cap_scale_ = scale * 1E-15F;
   else
-    warn(168, "unknown units %s.", units);
+    warn(1642, "unknown units %s.", units);
   stringDelete(units);
 }
 
@@ -274,7 +257,7 @@ SpefReader::setResScale(float scale,
   else if (stringEq(units, "KOHM"))
     res_scale_ = scale * 1E+3F;
   else
-    warn(170, "unknown units %s.", units);
+    warn(1643, "unknown units %s.", units);
   stringDelete(units);
 }
 
@@ -289,7 +272,7 @@ SpefReader::setInductScale(float scale,
   else if (stringEq(units, "UH"))
     induct_scale_ = scale * 1E-6F;
   else
-    warn(168, "unknown units %s.", units);
+    warn(1644, "unknown units %s.", units);
   stringDelete(units);
 }
 
@@ -305,14 +288,12 @@ char *
 SpefReader::nameMapLookup(char *name)
 {
   if (name && name[0] == '*') {
-    char *mapped_name;
-    bool exists;
     int index = atoi(name + 1);
-    name_map_.findKey(index, mapped_name, exists);
-    if (exists)
-      return mapped_name;
+    auto itr = name_map_.find(index);
+    if (itr != name_map_.end())
+      return itr->second;
     else {
-      warn(169, "no name map entry for %d.", index);
+      warn(1645, "no name map entry for %d.", index);
       return nullptr;
     }
   }
@@ -331,7 +312,7 @@ SpefReader::portDirection(char *spef_dir)
   else if (stringEq(spef_dir, "B"))
     direction = PortDirection::bidirect();
   else
-    warn(170, "unknown port direction %s.", spef_dir);
+    warn(1646, "unknown port direction %s.", spef_dir);
   return direction;
 }
 
@@ -358,16 +339,16 @@ SpefReader::findPin(char *name)
         if (inst) {
           pin = network_->findPin(inst, port_name);
           if (pin == nullptr)
-            warn(171, "pin %s not found.", name);
+            warn(1647, "pin %s not found.", name);
         }
         else
-          warn(172, "instance %s not found.", name);
+          warn(1648, "instance %s not found.", name);
       }
     }
     else {
       pin = findPortPinRelative(name);
       if (pin == nullptr)
-	warn(173, "pin %s not found.", name);
+	warn(1649, "pin %s not found.", name);
     }
   }
   return pin;
@@ -381,7 +362,7 @@ SpefReader::findNet(char *name)
   if (name) {
     net = findNetRelative(name);
     if (net == nullptr)
-      warn(174, "net %s not found.", name);
+      warn(1650, "net %s not found.", name);
   }
   return net;
 }
@@ -409,12 +390,9 @@ SpefReader::rspfDrvrBegin(Pin *drvr_pin,
     float c2 = pi->c2()->value(triple_index_) * cap_scale_;
     float rpi = pi->r1()->value(triple_index_) * res_scale_;
     float c1 = pi->c1()->value(triple_index_) * cap_scale_;
-    // Delete pi model and elmore delays.
-    parasitics_->deleteParasitics(drvr_pin, ap_);
     // Only one parasitic, save it under rise transition.
-    parasitic_ = parasitics_->makePiElmore(drvr_pin,
-                                           RiseFall::rise(),
-                                           ap_, c2, rpi, c1);
+    parasitic_ = parasitics_->makePiElmore(drvr_pin, RiseFall::rise(), ap_,
+                                           c2, rpi, c1);
   }
   delete pi;
 }
@@ -472,115 +450,84 @@ SpefReader::dspfBegin(Net *net,
 void
 SpefReader::dspfFinish()
 {
-  if (parasitic_) {
-    if (!quiet_)
-      parasitics_->check(parasitic_);
-    if (reduce_to_ != ReducedParasiticType::none) {
-      parasitics_->reduceTo(parasitic_, net_, reduce_to_, op_cond_,
-			    corner_, cnst_min_max_, ap_);
-      if (delete_after_reduce_)
-	parasitics_->deleteParasiticNetwork(net_, ap_);
-    }
+  if (parasitic_ && reduce_) {
+    arc_delay_calc_->reduceParasitic(parasitic_, net_, corner_, min_max_);
+    parasitics_->deleteParasiticNetwork(net_, ap_);
   }
   parasitic_ = nullptr;
   net_ = nullptr;
 }
 
-// Caller is only interested in nodes on net_.
 ParasiticNode *
-SpefReader::findParasiticNode(char *name)
-{
-  ParasiticNode *node;
-  Net *ext_net;
-  int ext_node_id;
-  Pin *ext_pin;
-  findParasiticNode(name, node, ext_net, ext_node_id, ext_pin);
-  if (node == nullptr
-      && (ext_net || ext_pin))
-    warn(175, "%s not connected to net %s.", name, network_->pathName(net_));
-  return node;
-}
-
-void
 SpefReader::findParasiticNode(char *name,
-			      ParasiticNode *&node,
-			      Net *&ext_net,
-			      int &ext_node_id,
-			      Pin *&ext_pin)
+			      bool local_only)
 {
-  node = nullptr;
-  ext_net = nullptr;
-  ext_node_id = 0;
-  ext_pin = nullptr;
-  if (name) {
-    if (parasitic_) {
-      char *delim = strrchr(name, delimiter_);
-      if (delim) {
-	*delim = '\0';
-	char *name2 = delim + 1;
-	name = nameMapLookup(name);
-	Instance *inst = findInstanceRelative(name);
-	if (inst) {
-	  // <instance>:<port>
-	  Pin *pin = network_->findPin(inst, name2);
-	  if (pin) {
-	    if (network_->isConnected(net_, pin))
-	      node = parasitics_->ensureParasiticNode(parasitic_, pin);
-	    else
-	      ext_pin = pin;
-	  }
-	  else {
-	    // Replace delimiter for error message.
-	    *delim = delimiter_;
-	    warn(176, "pin %s not found.", name);
-	  }
-	}
-	else {
-	  Net *net = findNet(name);
-	  // Replace delimiter for error messages.
-	  *delim = delimiter_;
-	  if (net) {
-	    // <net>:<subnode_id>
-	    const char *id_str = delim + 1;
-	    if (isDigits(id_str)) {
-	      int id = atoi(id_str);
-	      if (network_->isConnected(net, net_))
-		node = parasitics_->ensureParasiticNode(parasitic_, net, id);
-	      else {
-		ext_net = net;
-		ext_node_id = id;
-	      }
-	    }
-	    else
-	      warn(177, "node %s not a pin or net:number", name);
-	  }
-	}
+  if (name && parasitic_) {
+    char *delim = strrchr(name, delimiter_);
+    if (delim) {
+      *delim = '\0';
+      char *name2 = delim + 1;
+      name = nameMapLookup(name);
+      Instance *inst = findInstanceRelative(name);
+      if (inst) {
+        // <instance>:<port>
+        Pin *pin = network_->findPin(inst, name2);
+        if (pin) {
+          if (local_only
+              && !network_->isConnected(net_, pin))
+            warn(1651, "%s not connected to net %s.", name, network_->pathName(net_));
+          return parasitics_->ensureParasiticNode(parasitic_, pin, network_);
+        }
+        else {
+          // Replace delimiter for error message.
+          *delim = delimiter_;
+          warn(1652, "pin %s not found.", name);
+        }
       }
       else {
-	// <top_level_port>
-	name = nameMapLookup(name);
-	Pin *pin = findPortPinRelative(name);
-	if (pin) {
-	  if (network_->isConnected(net_, pin))
-	    node = parasitics_->ensureParasiticNode(parasitic_, pin);
-	  else
-	    ext_pin = pin;
-	}
-	else
-	  warn(178, "pin %s not found.", name);
+        Net *net = findNet(name);
+        // Replace delimiter for error messages.
+        *delim = delimiter_;
+        if (net) {
+          // <net>:<subnode_id>
+          const char *id_str = delim + 1;
+          if (isDigits(id_str)) {
+            int id = atoi(id_str);
+            if (local_only
+                && !network_->isConnected(net, net_))
+              warn(1653, "%s not connected to net %s.", name, network_->pathName(net_));
+            return parasitics_->ensureParasiticNode(parasitic_, net, id, network_);
+          }
+          else
+            warn(1654, "node %s not a pin or net:number", name);
+        }
       }
     }
+    else {
+      // <top_level_port>
+      name = nameMapLookup(name);
+      Pin *pin = findPortPinRelative(name);
+      if (pin) {
+        if (local_only
+            && !network_->isConnected(net_, pin))
+          warn(1655, "%s not connected to net %s.", name, network_->pathName(net_));
+        return parasitics_->ensureParasiticNode(parasitic_, pin, network_);
+      }
+      else
+        warn(1656, "pin %s not found.", name);
+    }
   }
+  return nullptr;
 }
 
 void
 SpefReader::makeCapacitor(int, char *node_name,
 			  SpefTriple *cap)
 {
-  ParasiticNode *node = findParasiticNode(node_name);
+  ParasiticNode *node = findParasiticNode(node_name, true);
   if (node) {
     float cap1 = cap->value(triple_index_) * cap_scale_;
-    parasitics_->incrCap(node, cap1, ap_);
+    parasitics_->incrCap(node, cap1);
   }
   delete cap;
   stringDelete(node_name);
@@ -592,62 +539,23 @@ SpefReader::makeCapacitor(int id,
 			  char *node_name2,
 			  SpefTriple *cap)
 {
+  ParasiticNode *node1 = findParasiticNode(node_name1, false);
+  ParasiticNode *node2 = findParasiticNode(node_name2, false);
   float cap1 = cap->value(triple_index_) * cap_scale_;
-  if (keep_coupling_caps_)
-    makeCouplingCap(id, node_name1, node_name2, cap1);
-  else {
-    ParasiticNode *node1, *node2;
-    Net *ext_net1, *ext_net2;
-    int ext_node_id1, ext_node_id2;
-    Pin *ext_pin1, *ext_pin2;
-    findParasiticNode(node_name1, node1, ext_net1, ext_node_id1, ext_pin1);
-    findParasiticNode(node_name2, node2, ext_net2, ext_node_id2, ext_pin2);
-    float scaled_cap = cap1 * ap_->couplingCapFactor();
-    if (node1)
-      parasitics_->incrCap(node1, scaled_cap, ap_);
-    if (node2)
-      parasitics_->incrCap(node2, scaled_cap, ap_);
+  if (cap1 > 0.0) {
+    if (keep_coupling_caps_)
+      parasitics_->makeCapacitor(parasitic_, id, cap1, node1, node2);
+    else {
+      float scaled_cap = cap1 * ap_->couplingCapFactor();
+      if (node1 && parasitics_->net(node1, network_) == net_)
+        parasitics_->incrCap(node1, scaled_cap);
+      if (node2 && parasitics_->net(node2, network_) == net_)
+        parasitics_->incrCap(node2, scaled_cap);
+    }
   }
   delete cap;
   stringDelete(node_name1);
   stringDelete(node_name2);
-}
-
-void
-SpefReader::makeCouplingCap(int id,
-			    char *node_name1,
-			    char *node_name2,
-			    float cap)
-{
-  const char *name = nullptr;
-  const char *name_tmp = nullptr;
-  if (keep_device_names_)
-    // Prepend device type because OA uses one namespace for all devices.
-    name = name_tmp = stringPrint("C%d", id);
-
-  ParasiticNode *node1, *node2;
-  Net *ext_net1, *ext_net2;
-  int ext_node_id1, ext_node_id2;
-  Pin *ext_pin1, *ext_pin2;
-  findParasiticNode(node_name1, node1, ext_net1, ext_node_id1, ext_pin1);
-  findParasiticNode(node_name2, node2, ext_net2, ext_node_id2, ext_pin2);
-  if (node1 && node2)
-    parasitics_->makeCouplingCap(name, node1, node2, cap, ap_);
-  if (node1 && node2 == nullptr) {
-    if (ext_net2)
-      parasitics_->makeCouplingCap(name, node1, ext_net2, ext_node_id2,
-				   cap, ap_);
-    else if (ext_pin2)
-      parasitics_->makeCouplingCap(name, node1, ext_pin2, cap, ap_);
-  }
-  else if (node1 == nullptr && node2) {
-    if (ext_net1)
-      parasitics_->makeCouplingCap(name, node2, ext_net1, ext_node_id1,
-				   cap, ap_);
-    else if (ext_pin1)
-      parasitics_->makeCouplingCap(name, node2, ext_pin1, cap, ap_);
-  }
-  stringDelete(name_tmp);
 }
 
 void
@@ -656,17 +564,11 @@ SpefReader::makeResistor(int id,
 			 char *node_name2,
 			 SpefTriple *res)
 {
-  ParasiticNode *node1 = findParasiticNode(node_name1);
-  ParasiticNode *node2 = findParasiticNode(node_name2);
+  ParasiticNode *node1 = findParasiticNode(node_name1, true);
+  ParasiticNode *node2 = findParasiticNode(node_name2, true);
   if (node1 && node2) {
     float res1 = res->value(triple_index_) * res_scale_;
-    const char *name = nullptr;
-    const char *name_tmp = nullptr;
-    if (keep_device_names_)
-      // Prepend device type because OA uses one namespace for all devices.
-      name = name_tmp = stringPrint("R%d", id);
-    parasitics_->makeResistor(name, node1, node2, res1, ap_);
-    stringDelete(name_tmp);
+    parasitics_->makeResistor(parasitic_, id, res1, node1, node2);
   }
   delete res;
   stringDelete(node_name1);
@@ -729,6 +631,6 @@ int
 SpefParse_error(const char *msg)
 {
   spefFlushBuffer();
-  sta::spef_reader->warn(707, "%s.", msg);
+  sta::spef_reader->warn(1657, "%s.", msg);
   return 0;
 }

@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -62,15 +62,21 @@ public:
   void gateDelay(const Pvt *pvt,
                  float in_slew,
                  float load_cap,
-                 float related_out_cap,
                  bool pocv_enabled,
                  // Return values.
                  ArcDelay &gate_delay,
                  Slew &drvr_slew) const override;
+  // related_out_cap arg removed.
+  void gateDelay(const Pvt *pvt,
+                 float in_slew,
+                 float load_cap,
+                 float related_out_cap,
+                 bool pocv_enabled,
+                 ArcDelay &gate_delay,
+                 Slew &drvr_slew) const __attribute__ ((deprecated));
   string reportGateDelay(const Pvt *pvt,
                          float in_slew,
                          float load_cap,
-                         float related_out_cap,
                          bool pocv_enabled,
                          int digits) const override;
   float driveResistance(const Pvt *pvt) const override;
@@ -130,13 +136,11 @@ public:
                            TableModel *model,
 			   TableModel *sigma_models[EarlyLate::index_count]);
   virtual ~CheckTableModel();
-  void checkDelay(const Pvt *pvt,
-                  float from_slew,
-                  float to_slew,
-                  float related_out_cap,
-                  bool pocv_enabled,
-                  // Return values.
-                  ArcDelay &margin) const override;
+  ArcDelay checkDelay(const Pvt *pvt,
+                      float from_slew,
+                      float to_slew,
+                      float related_out_cap,
+                      bool pocv_enabled) const override;
   string reportCheckDelay(const Pvt *pvt,
                           float from_slew,
                           const char *from_slew_annotation,
@@ -344,7 +348,6 @@ public:
                  bool &extrapolated) const;
   float findValue(float axis_value1) const;
   float findValueClip(float axis_value1) const;
-  float findValueClipZero(float axis_value1) const;
   FloatSeq *values() const { return values_; }
   using Table::findValue;
 
@@ -499,23 +502,31 @@ public:
   float timeCurrent(float slew,
                     float cap,
                     float time);
+  float timeVoltage(float slew,
+                    float cap,
+                    float time);
   float voltageCurrent(float slew,
                        float cap,
                        float volt);
   float referenceTime(float slew);
-  void setVdd(float vdd);
+  void makeVoltageWaveforms(float vdd);
   static bool checkAxes(const TableTemplate *tbl_template);
 
 private:
-  float voltageTime1(float voltage,
-                     size_t wave_index,
-                     float cap);
-  FloatSeq *voltageTimes(size_t wave_index,
-                         float cap);
   void findVoltages(size_t wave_index,
                     float cap);
-  const Table1 *voltageCurrents(size_t wave_index,
-                                float cap);
+  float waveformValue(float slew,
+                      float cap,
+                      float axis_value,
+                      Table1Seq &waveforms);
+  float voltageTime1(float voltage,
+                     size_t wave_index);
+  void waveformMinMaxTime(float slew,
+                          float cap,
+                          Table1Seq &waveforms,
+                          // Return values.
+                          float &min_time,
+                          float &max_time);
 
   // Row.
   TableAxisPtr slew_axis_;
@@ -523,6 +534,7 @@ private:
   TableAxisPtr cap_axis_;
   const RiseFall *rf_;
   Table1Seq current_waveforms_;
+  Table1Seq voltage_waveforms_;
   Table1Seq voltage_currents_;
   FloatTable voltage_times_;
   Table1 *ref_times_;

@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -46,6 +46,14 @@ rcmodel::capacitance() const
   return ctot;
 }
 
+PinSet
+rcmodel::unannotatedLoads(const Pin *,
+                          const Parasitics *) const
+{
+  // This should never be called because the rcmodel is not saved in the Parasitics.
+  return PinSet();
+}
+
 struct ts_point
 {
   ParasiticNode *node_;
@@ -62,7 +70,7 @@ struct ts_point
 
 struct ts_edge
 {
-  ConcreteParasiticResistor *resistor_;
+  ParasiticResistor *resistor_;
   ts_point *from;
   ts_point *to;
 };
@@ -131,23 +139,21 @@ ArnoldiReduce::~ArnoldiReduce()
   free(ts_pointV);
 }
 
-Parasitic *
+rcmodel *
 ArnoldiReduce::reduceToArnoldi(Parasitic *parasitic,
 			       const Pin *drvr_pin,
 			       float coupling_cap_factor,
 			       const RiseFall *rf,
-			       const OperatingConditions *op_cond,
 			       const Corner *corner,
-			       const MinMax *cnst_min_max,
+			       const MinMax *min_max,
 			       const ParasiticAnalysisPt *ap)
 {
   parasitic_network_ = reinterpret_cast<ConcreteParasiticNetwork*>(parasitic);
   drvr_pin_ = drvr_pin;
   coupling_cap_factor_ = coupling_cap_factor;
   rf_ = rf;
-  op_cond_ = op_cond;
   corner_ = corner;
-  cnst_min_max_ = cnst_min_max;
+  min_max_ = min_max;
   ap_ = ap;
   loadWork();
   return makeRcmodelDrv();
@@ -158,18 +164,21 @@ ArnoldiReduce::loadWork()
 {
   pt_map_.clear();
 
-  int resistor_count = 0;
-  ConcreteParasiticDeviceSet devices;
-  parasitic_network_->devices(&devices);
-  ConcreteParasiticDeviceSet::Iterator device_iter(devices);
-  while (device_iter.hasNext()) {
-    ParasiticDevice *device = device_iter.next();
-    if (parasitics_->isResistor(device))
-      resistor_count++;
-  }
+  const ParasiticResistorSeq &resistors = parasitics_->resistors(parasitic_network_);
+  int resistor_count = resistors.size();
 
-  termN = parasitic_network_->pinNodes()->size();
-  int subnode_count = parasitic_network_->subNodes()->size();
+  termN = 0;
+  int subnode_count = 0;
+  ParasiticNodeSeq nodes = parasitics_->nodes(parasitic_network_);
+  for (ParasiticNode *node : nodes) {
+    if (!parasitics_->isExternal(node)) {
+      const Pin *pin = parasitics_->pin(node);
+      if (pin)
+        termN++;
+      else
+        subnode_count++;
+    }
+  }
   ts_pointN = subnode_count + 1 + termN;
   ts_edgeN = resistor_count;
   allocPoints();
@@ -191,50 +200,42 @@ ArnoldiReduce::loadWork()
   pend = pterm0;
   e = e0;
   int index = 0;
-  ConcreteParasiticSubNodeMap::Iterator 
-    sub_node_iter(parasitic_network_->subNodes());
-  while (sub_node_iter.hasNext()) {
-    ConcreteParasiticSubNode *node = sub_node_iter.next();
-    pt_map_[node] = index;
-    p = p0 + index;
-    p->node_ = node;
-    p->eN = 0;
-    p->is_term = false;
-    index++;
+
+  for (ParasiticNode *node : nodes) {
+    if (!parasitics_->isExternal(node)) {
+      const Pin *pin = parasitics_->pin(node);
+      if (pin) {
+        p = pend++;
+        pt_map_[node] = p - p0;
+        p->node_ = node;
+        p->eN = 0;
+        p->is_term = true;
+        tindex = p - pterm0;
+        p->tindex = tindex;
+        pinV[tindex] = pin;
+      }
+      else {
+        pt_map_[node] = index;
+        p = p0 + index;
+        p->node_ = node;
+        p->eN = 0;
+        p->is_term = false;
+        index++;
+      }
+    }
   }
 
-  ConcreteParasiticPinNodeMap::Iterator 
-    pin_node_iter(parasitic_network_->pinNodes());
-  while (pin_node_iter.hasNext()) {
-    ConcreteParasiticPinNode *node = pin_node_iter.next();
-    p = pend++;
-    pt_map_[node] = p - p0;
-    p->node_ = node;
-    p->eN = 0;
-    p->is_term = true;
-    tindex = p - pterm0;
-    p->tindex = tindex;
-    const Pin *pin = parasitics_->connectionPin(node);
-    pinV[tindex] = pin;
-  }
-  
   ts_edge **eV = ts_eV;
-  ConcreteParasiticDeviceSet::Iterator device_iter2(devices);
-  while (device_iter2.hasNext()) {
-    ParasiticDevice *device = device_iter2.next();
-    if (parasitics_->isResistor(device)) {
-      ConcreteParasiticResistor *resistor = 
-	reinterpret_cast<ConcreteParasiticResistor*>(device);
-      ts_point *pt1 = findPt(resistor->node1());
-      ts_point *pt2 = findPt(resistor->node2());
-      e->from = pt1;
-      e->to = pt2;
-      e->resistor_ = resistor;
-      pt1->eN++;
-      if (e->from != e->to)
-	pt2->eN++;
-      e++;
-    }
+  for (ParasiticResistor *resistor : resistors) {
+    ts_point *pt1 = findPt(parasitics_->node1(resistor));
+    ts_point *pt2 = findPt(parasitics_->node2(resistor));
+    e->from = pt1;
+    e->to = pt2;
+    e->resistor_ = resistor;
+    pt1->eN++;
+    if (e->from != e->to)
+      pt2->eN++;
+    e++;
   }
 
   for (p=p0;p!=pend;p++) {
@@ -313,8 +314,7 @@ ArnoldiReduce::findPt(ParasiticNode *node)
 rcmodel *
 ArnoldiReduce::makeRcmodelDrv()
 {
-  ParasiticNode *drv_node = parasitics_->findNode(parasitic_network_,
-						  drvr_pin_);
+  ParasiticNode *drv_node = parasitics_->findNode(parasitic_network_, drvr_pin_);
   ts_point *pdrv = findPt(drv_node);
   makeRcmodelDfs(pdrv);
   getRC();
@@ -322,8 +322,7 @@ ArnoldiReduce::makeRcmodelDrv()
     return nullptr;
   setTerms(pdrv);
   makeRcmodelFromTs();
-  rcmodel *mod = makeRcmodelFromW();
-  return mod;
+  return makeRcmodelFromW();
 }
 
 #define ts_orient( pp, ee) \
@@ -415,7 +414,7 @@ ArnoldiReduce::getRC()
     p->r = 0.0;
     if (p->node_) {
       ParasiticNode *node = p->node_;
-      double cap = parasitics_->nodeGndCap(node, ap_)
+      double cap = parasitics_->nodeGndCap(node)
 	+ pinCapacitance(node);
       if (cap > 0.0) {
 	p->c = cap;
@@ -424,7 +423,7 @@ ArnoldiReduce::getRC()
       else
 	p->c = 0.0;
       if (p->in_edge && p->in_edge->resistor_)
-        p->r = parasitics_->value(p->in_edge->resistor_, ap_);
+        p->r = parasitics_->value(p->in_edge->resistor_);
       if (!(p->r>=0.0 && p->r<100e+3)) { // 0 < r < 100kohm
 	debugPrint(debug_, "arnoldi", 1,
                    "R value %g out of range, drvr pin %s",
@@ -433,20 +432,33 @@ ArnoldiReduce::getRC()
       }
     }
   }
+  for (ParasiticCapacitor *capacitor : parasitics_->capacitors(parasitic_network_)) {
+    float cap = parasitics_->value(capacitor) * ap_->couplingCapFactor();
+    ParasiticNode *node1 = parasitics_->node1(capacitor);
+    if (!parasitics_->isExternal(node1)) {
+      ts_point *pt = findPt(node1);
+      pt->c += cap;
+    }
+    ParasiticNode *node2 = parasitics_->node2(capacitor);
+    if (!parasitics_->isExternal(node2)) {
+      ts_point *pt = findPt(node2);
+      pt->c += cap;
+    }
+  }
 }
 
 float
 ArnoldiReduce::pinCapacitance(ParasiticNode *node)
 {
-  const Pin *pin = parasitics_->connectionPin(node);
+  const Pin *pin = parasitics_->pin(node);
   float pin_cap = 0.0;
   if (pin) {
     Port *port = network_->port(pin);
     LibertyPort *lib_port = network_->libertyPort(port);
     if (lib_port)
-      pin_cap = sdc_->pinCapacitance(pin,rf_, op_cond_, corner_, cnst_min_max_);
+      pin_cap = sdc_->pinCapacitance(pin,rf_, corner_, min_max_);
     else if (network_->isTopLevelPort(pin))
-      pin_cap = sdc_->portExtCap(port, rf_, corner_, cnst_min_max_);
+      pin_cap = sdc_->portExtCap(port, rf_, corner_, min_max_);
   }
   return pin_cap;
 }

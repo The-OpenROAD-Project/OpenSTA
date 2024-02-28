@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2023, Parallax Software, Inc.
+# Copyright (c) 2024, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,14 +24,14 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14)
 cmake_policy(SET CMP0086 NEW)
 endif()
 
-project(STA VERSION 2.4.0
+project(STA VERSION 2.5.0
   LANGUAGES CXX
 )
 
 option(USE_CUDD "Use CUDD BDD package")
 option(CUDD_DIR "CUDD BDD package directory")
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_VERBOSE_MAKEFILE OFF)
 
 set(STA_HOME ${PROJECT_SOURCE_DIR})
 message(STATUS "STA version: ${PROJECT_VERSION}")
@@ -62,6 +62,7 @@ set(STA_SOURCE
   app/StaMain.cc
   
   dcalc/ArcDelayCalc.cc
+  dcalc/ArcDcalcWaveforms.cc
   dcalc/ArnoldiDelayCalc.cc
   dcalc/ArnoldiReduce.cc
   dcalc/DcalcAnalysisPt.cc
@@ -69,11 +70,11 @@ set(STA_SOURCE
   dcalc/DelayCalcBase.cc
   dcalc/DmpCeff.cc
   dcalc/DmpDelayCalc.cc
+  dcalc/FindRoot.cc
   dcalc/GraphDelayCalc.cc
   dcalc/LumpedCapDelayCalc.cc
   dcalc/NetCaps.cc
   dcalc/ParallelDelayCalc.cc
-  dcalc/SlewDegradeDelayCalc.cc
   dcalc/UnitDelayCalc.cc
   
   graph/DelayFloat.cc
@@ -114,7 +115,6 @@ set(STA_SOURCE
   
   parasitics/ConcreteParasitics.cc
   parasitics/EstimateParasitics.cc
-  parasitics/NullParasitics.cc
   parasitics/Parasitics.cc
   parasitics/ReduceParasitics.cc
   parasitics/ReportParasiticAnnotation.cc
@@ -325,16 +325,20 @@ set_property(SOURCE ${STA_SWIG_FILE}
   -I${STA_HOME}/verilog
 )
 
-set_property(SOURCE ${STA_SWIG_FILE}
-  PROPERTY DEPENDS
+set(SWIG_FILES
   ${STA_HOME}/dcalc/DelayCalc.i
   ${STA_HOME}/parasitics/Parasitics.i
   ${STA_HOME}/power/Power.i
   ${STA_HOME}/sdf/Sdf.i
   ${STA_HOME}/tcl/Exception.i
   ${STA_HOME}/tcl/StaTcl.i
+  ${STA_HOME}/tcl/StaTclTypes.i
   ${STA_HOME}/tcl/NetworkEdit.i
   ${STA_HOME}/verilog/Verilog.i
+  )
+
+set_property(SOURCE ${STA_SWIG_FILE}
+  PROPERTY DEPENDS ${SWIG_FILES}
 )
 
 swig_add_library(sta_swig
@@ -343,16 +347,14 @@ swig_add_library(sta_swig
   SOURCES ${STA_SWIG_FILE}
 )
 
-get_target_property(SWIG_FILES sta_swig SOURCES)
+get_target_property(STA_SWIG_CXX_FILE sta_swig SOURCES)
 
-foreach(SWIG_FILE ${SWIG_FILES})
-  set_source_files_properties(${SWIG_FILE}
-    PROPERTIES
-    # No simple way to modify the swig template that emits code full of warnings
-    # so suppress them.
-    COMPILE_OPTIONS "-Wno-cast-qual;-Wno-missing-braces;-Wno-deprecated-declarations"
+set_source_files_properties(${STA_SWIG_CXX_FILE}
+  PROPERTIES
+  # No simple way to modify the swig template that emits code full of warnings
+  # so suppress them.
+  COMPILE_OPTIONS "-Wno-cast-qual;-Wno-missing-braces;-Wno-deprecated-declarations"
   )
-endforeach()
 
 target_link_libraries(sta_swig
   PUBLIC
@@ -578,6 +580,7 @@ add_custom_target(sta_tags etags -o TAGS
   ${STA_SOURCE}
   */*.hh
   include/sta/*.hh
+  ${SWIG_FILES}
   ${STA_TCL_FILES}
   ${SWIG_TCL_FILES}
   WORKING_DIRECTORY ${STA_HOME}

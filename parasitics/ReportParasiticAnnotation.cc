@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -95,9 +95,11 @@ ReportParasiticAnnotation::reportAnnotationCounts()
       report_->reportLine(" %s", network_->pathName(drvr_pin));
 
       Parasitic *parasitic = parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap_);
-      PinSet unannotated_loads = parasitics_->unannotatedLoads(parasitic, drvr_pin);
-      for (const Pin *load_pin : unannotated_loads)
-        report_->reportLine("  %s", network_->pathName(load_pin));
+      if (parasitic) {
+        PinSet unannotated_loads = parasitics_->unannotatedLoads(parasitic, drvr_pin);
+        for (const Pin *load_pin : unannotated_loads)
+          report_->reportLine("  %s", network_->pathName(load_pin));
+      }
     }
   }
 }
@@ -105,6 +107,7 @@ ReportParasiticAnnotation::reportAnnotationCounts()
 void
 ReportParasiticAnnotation::findCounts()
 {
+  DcalcAnalysisPt *dcalc_ap = corner_->findDcalcAnalysisPt(min_max_);
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
@@ -113,8 +116,11 @@ ReportParasiticAnnotation::findCounts()
     if (vertex->isDriver(network_)
         && !dir->isInternal()) {
       Parasitic *parasitic = parasitics_->findParasiticNetwork(pin, parasitic_ap_);
+      if (parasitic == nullptr)
+        parasitic = arc_delay_calc_->findParasitic(pin, RiseFall::rise(), dcalc_ap);
       if (parasitic) {
-        if (!parasitics_->checkAnnotation(parasitic, pin))
+        PinSet unannotated_loads = parasitics_->unannotatedLoads(parasitic, pin);
+        if (unannotated_loads.size() > 0)
           partially_annotated_.push_back(pin);
       }
       else 

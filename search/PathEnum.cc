@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -471,7 +471,7 @@ PathEnum::divSlack(Path *before_div,
     return div_arrival - arc_arrival;
   }
   else {
-    report()->error(619, "path diversion missing edge.");
+    report()->error(1370, "path diversion missing edge.");
     return 0.0;
   }
 }
@@ -566,7 +566,7 @@ PathEnum::makeDivertedPath(Path *path,
     first = false;
   }
   if (!found_div)
-    criticalError(250, "diversion path not found");
+    criticalError(280, "diversion path not found");
 }
 
 void

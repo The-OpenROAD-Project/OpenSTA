@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -97,7 +97,7 @@ VisitPathEnds::visitClkedPathEnds(const Pin *pin,
 	// Ignore segment startpoint paths.
 	&& (!is_segment_start
 	    || !tag->isSegmentStart())) {
-      // set_output_delay to timing check has precidence.
+      // set_output_delay to timing check has precedence.
       if (sdc_->hasOutputDelay(pin))
 	visitOutputDelayEnd(pin, path, end_rf, path_ap, filtered, visitor,
 			    is_constrained);

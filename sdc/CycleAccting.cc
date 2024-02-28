@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -84,7 +84,7 @@ CycleAcctings::reportClkToClkMaxCycleWarnings(Report *report)
             ClockPair clk_pair2(tgt_clk, src_clk);
             if (!clk_warnings.hasKey(clk_pair1)
                 && !clk_warnings.hasKey(clk_pair2)) {
-              report->warn(9, "No common period was found between clocks %s and %s.",
+              report->warn(1010, "No common period was found between clocks %s and %s.",
                            src_clk->name(),
                            tgt_clk->name());
               clk_warnings.insert(clk_pair1);

@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,52 +17,26 @@
 #pragma once
 
 #include <vector>
+#include <map>
 
 #include "DelayCalcBase.hh"
 
 namespace sta {
 
-// Delay calculation for parallel gates based on using parallel drive resistance.
+// Delay calculation for parallel gates using parallel drive resistance.
 class ParallelDelayCalc : public DelayCalcBase
 {
 public:
-  explicit ParallelDelayCalc(StaState *sta);
-  void inputPortDelay(const Pin *port_pin,
-                      float in_slew,
-                      const RiseFall *rf,
-                      const Parasitic *parasitic,
-                      const DcalcAnalysisPt *dcalc_ap) override;
-  void gateDelayInit(const TimingArc *arc,
-                     const Slew &in_slew,
-                     const Parasitic *drvr_parasitic);
-  void findParallelGateDelays(const MultiDrvrNet *multi_drvr,
-                              GraphDelayCalc *dcalc) override;
-  void parallelGateDelay(const Pin *drvr_pin,
-                         const TimingArc *arc,
-                         const Slew &from_slew,
-                         float load_cap,
-                         const Parasitic *drvr_parasitic,
-                         float related_out_cap,
-                         const Pvt *pvt,
-                         const DcalcAnalysisPt *dcalc_ap,
-                         // Return values.
-                         ArcDelay &gate_delay,
-                         Slew &gate_slew) override;
-
+  ParallelDelayCalc(StaState *sta);
+  ArcDcalcResultSeq gateDelays(ArcDcalcArgSeq &dcalc_args,
+                               float load_cap,
+                               const LoadPinIndexMap &load_pin_index_map,
+                               const DcalcAnalysisPt *dcalc_ap) override;
 protected:
-  void findMultiDrvrGateDelay(const MultiDrvrNet *multi_drvr,
-                              const RiseFall *drvr_rf,
-                              const DcalcAnalysisPt *dcalc_ap,
-                              GraphDelayCalc *dcalc,
-                              // Return values.
-                              ArcDelay &parallel_delay,
-                              Slew &parallel_slew);
-
-  // [drvr_rf->index][dcalc_ap->index]
-  vector<ArcDelay> parallel_delays_;
-  // [drvr_rf->index][dcalc_ap->index]
-  vector<Slew> parallel_slews_;
-  float multi_drvr_slew_factor_;
+  ArcDcalcResultSeq gateDelaysParallel(ArcDcalcArgSeq &dcalc_args,
+                                       float load_cap,
+                                       const LoadPinIndexMap &load_pin_index_map,
+                                       const DcalcAnalysisPt *dcalc_ap);
 };
 
 } // namespace

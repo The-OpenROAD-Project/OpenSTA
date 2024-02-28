@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -883,7 +883,7 @@ VerilogModule::parseDcl(VerilogDcl *dcl,
           dcl_map_[net_name] = dcl;
         else if (!dcl->direction()->isInternal()) {
           string net_vname = reader->netVerilogName(net_name);
-          reader->warn(18, filename_, dcl->line(),
+          reader->warn(1395, filename_, dcl->line(),
                        "signal %s previously declared on line %d.",
                        net_vname.c_str(),
                        existing_dcl->line());
@@ -912,7 +912,7 @@ VerilogModule::checkInstanceName(VerilogInst *inst,
       replacement_name = stringPrint("%s_%d", inst_name, i);
     } while (inst_names.findKey(replacement_name));
     string inst_vname = reader->instanceVerilogName(inst_name);
-    reader->warn(19, filename_, inst->line(),
+    reader->warn(1396, filename_, inst->line(),
 		 "instance name %s duplicated - renamed to %s.",
 		 inst_vname.c_str(),
 		 replacement_name);
@@ -1538,7 +1538,7 @@ VerilogNetConstant::parseConstant10(const char *constant_str,
   if (length > max_length
       || (length == max_length
 	  && strcmp(tmp, reader->constant10Max()) > 0))
-    reader->warn(20, reader->filename(), reader->line(),
+    reader->warn(1397, reader->filename(), reader->line(),
 		 "base 10 constant greater than %s not supported.",
 		 reader->constant10Max());
   else {
@@ -1779,12 +1779,12 @@ VerilogReader::linkNetwork(const char *top_cell_name,
 	return top_instance;
     }
     else {
-      report->error(274, "%s is not a verilog module.", top_cell_name);
+      report->error(1398, "%s is not a verilog module.", top_cell_name);
       return nullptr;
     }
   }
   else {
-    report->error(275, "%s is not a verilog module.", top_cell_name);
+    report->error(1399, "%s is not a verilog module.", top_cell_name);
     return nullptr;
   }
 }

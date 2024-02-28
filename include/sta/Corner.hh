@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -55,8 +55,7 @@ public:
   void operatingConditionsChanged();
 
   // Make one parasitic analysis points.
-  void makeParasiticAnalysisPts(bool per_corner,
-                                bool per_min_max);
+  void makeParasiticAnalysisPts(bool per_corner);
   int parasiticAnalysisPtCount() const;
   ParasiticAnalysisPtSeq &parasiticAnalysisPts();
 
@@ -114,7 +113,7 @@ public:
 protected:
   void setParasiticAnalysisPtcount(int ap_count);
   void setParasiticAP(ParasiticAnalysisPt *path_ap,
-                      int ap_index);
+                      int mm_index);
   void setDcalcAnalysisPtcount(DcalcAPIndex ap_count);
   void addDcalcAP(DcalcAnalysisPt *dcalc_ap);
   void addPathAP(PathAnalysisPt *path_ap);

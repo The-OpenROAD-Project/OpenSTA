@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -206,7 +206,7 @@ Sim::funcBdd(const FuncExpr *expr,
     result = Cudd_ReadLogicZero(cudd_mgr_);
     break;
   default:
-    report_->critical(596, "unknown function operator");
+    report_->critical(1520, "unknown function operator");
   }
   if (result)
     Cudd_Ref(result);
@@ -861,7 +861,7 @@ Sim::setPinValue(const Pin *pin,
   if (exists
       && value != constraint_value) {
     if (value != LogicValue::unknown)
-      report_->warn(15, "propagated logic value %c differs from constraint value of %c on pin %s.",
+      report_->warn(1521, "propagated logic value %c differs from constraint value of %c on pin %s.",
 		    logicValueString(value),
 		    logicValueString(constraint_value),
 		    sdc_network_->pathName(pin));

@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2023, Parallax Software, Inc.
+# Copyright (c) 2024, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,12 +29,12 @@ proc get_property_cmd { cmd type_key cmd_args } {
   check_argc_eq2 $cmd $cmd_args
   set object [lindex $cmd_args 0]
   if { $object == "" } {
-    sta_error 491 "$cmd object is null."
+    sta_error 320 "$cmd object is null."
   } elseif { ![is_object $object] } {
     if [info exists keys($type_key)] {
       set object_type $keys($type_key)
     } else {
-      sta_error 492 "$cmd $type_key must be specified with object name argument."
+      sta_error 321 "$cmd $type_key must be specified with object name argument."
     }
     set object [get_property_object_type $object_type $object $quiet]
   }
@@ -74,10 +74,10 @@ proc get_object_property { object prop } {
     } elseif { $object_type == "TimingArcSet" } {
       return [timing_arc_set_property $object $prop]
     } else {
-      sta_error 606 "get_property unsupported object type $object_type."
+      sta_error 322 "get_property unsupported object type $object_type."
     }
   } else {
-    sta_error 493 "get_property $object is not an object."
+    sta_error 323 "get_property $object is not an object."
   }
 }
 
@@ -104,10 +104,10 @@ proc get_property_object_type { object_type object_name quiet } {
              || $object_type == "lib"} {
     set object [get_libs -quiet $object_name]
   } else {
-    sta_error 494 "$object_type not supported."
+    sta_error 324 "$object_type not supported."
   }
   if { $object == "NULL" && !$quiet } {
-    sta_error 495 "$object_type '$object_name' not found."
+    sta_error 325 "$object_type '$object_name' not found."
   }
   return [lindex $object 0]
 }

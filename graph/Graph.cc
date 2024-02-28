@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ public:
 			int &bidirect_count,
 			int &load_count,
 			const Network *network);
-  virtual void operator()(Pin *pin);
+  virtual void operator()(const Pin *pin);
 
 protected:
   Pin *drvr_pin_;
@@ -133,7 +133,7 @@ FindNetDrvrLoadCounts::FindNetDrvrLoadCounts(Pin *drvr_pin,
 }
 
 void
-FindNetDrvrLoadCounts::operator()(Pin *pin)
+FindNetDrvrLoadCounts::operator()(const Pin *pin)
 {
   if (network_->isDriver(pin)) {
     if (pin != drvr_pin_)
@@ -790,7 +790,7 @@ Graph::arcDelayAnnotated(const Edge *edge,
   if (arc_delay_annotated_.size()) {
     size_t index = (edge->arcDelays() + arc->index()) * ap_count_ + ap_index;
     if (index >= arc_delay_annotated_.size())
-      report_->critical(208, "arc_delay_annotated array bounds exceeded");
+      report_->critical(1080, "arc_delay_annotated array bounds exceeded");
     return arc_delay_annotated_[index];
   }
   else
@@ -805,7 +805,7 @@ Graph::setArcDelayAnnotated(Edge *edge,
 {
   size_t index = (edge->arcDelays() + arc->index()) * ap_count_ + ap_index;
   if (index >= arc_delay_annotated_.size())
-    report_->critical(209, "arc_delay_annotated array bounds exceeded");
+    report_->critical(1081, "arc_delay_annotated array bounds exceeded");
   arc_delay_annotated_[index] = annotated;
 }
 
@@ -817,7 +817,7 @@ Graph::wireDelayAnnotated(Edge *edge,
   size_t index = (edge->arcDelays() + TimingArcSet::wireArcIndex(rf)) * ap_count_
     + ap_index;
   if (index >= arc_delay_annotated_.size())
-    report_->critical(210, "arc_delay_annotated array bounds exceeded");
+    report_->critical(1082, "arc_delay_annotated array bounds exceeded");
   return arc_delay_annotated_[index];
 }
 
@@ -830,7 +830,7 @@ Graph::setWireDelayAnnotated(Edge *edge,
   size_t index = (edge->arcDelays() + TimingArcSet::wireArcIndex(rf)) * ap_count_
     + ap_index;
   if (index >= arc_delay_annotated_.size())
-    report_->critical(228, "arc_delay_annotated array bounds exceeded");
+    report_->critical(1083, "arc_delay_annotated array bounds exceeded");
   arc_delay_annotated_[index] = annotated;
 }
 

@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -267,7 +267,7 @@ public:
 			   float limit);
   void setLatchBorrowLimit(const Clock *clk,
 			   float limit);
-  // Return the latch borrow limit respecting precidence if multiple
+  // Return the latch borrow limit respecting precedence if multiple
   // limits apply.
   void latchBorrowLimit(const Pin *data_pin,
 			const Pin *enable_pin,
@@ -286,7 +286,7 @@ public:
   void setMinPulseWidth(const Clock *clk,
 			const RiseFallBoth *rf,
 			float min_width);
-  // Return min pulse with respecting precidence.
+  // Return min pulse with respecting precedence.
   void minPulseWidth(const Pin *pin,
 		     const Clock *clk,
 		     const RiseFall *hi_low,
@@ -606,7 +606,6 @@ public:
   // Pin capacitance derated by operating conditions and instance pvt.
   float pinCapacitance(const Pin *pin,
 		       const RiseFall *rf,
-		       const OperatingConditions *op_cond,
 		       const Corner *corner,
 		       const MinMax *min_max);
   void setResistance(const Net *net,
@@ -825,7 +824,7 @@ public:
   LogicValueMap &logicValues() { return logic_value_map_; }
   LogicValueMap &caseLogicValues() { return case_value_map_; }
   // Returns nullptr if set_operating_conditions has not been called.
-  OperatingConditions *operatingConditions(const MinMax *min_max);
+  OperatingConditions *operatingConditions(const MinMax *min_max) const;
   // Instance specific process/voltage/temperature.
   const Pvt *pvt(const Instance *inst,
                  const MinMax *min_max) const;
@@ -946,7 +945,6 @@ public:
   //  wire_cap = port external wire capacitance + net wire capacitance
   void connectedCap(const Pin *pin,
 		    const RiseFall *rf,
-		    const OperatingConditions *op_cond,
 		    const Corner *corner,
 		    const MinMax *min_max,
 		    float &pin_cap,
@@ -1233,7 +1231,6 @@ protected:
 			      ClockLatency *latency);
   void pinCaps(const Pin *pin,
 	       const RiseFall *rf,
-	       const OperatingConditions *op_cond,
 	       const Corner *corner,
 	       const MinMax *min_max,
 	       float &pin_cap,
@@ -1241,7 +1238,6 @@ protected:
 	       float &fanout) const;
   void netCaps(const Pin *drvr_pin,
 	       const RiseFall *rf,
-	       const OperatingConditions *op_cond,
 	       const Corner *corner,
 	       const MinMax *min_max,
 	       // Return values.
@@ -1252,12 +1248,10 @@ protected:
   // connectedCap pin_cap.
   float connectedPinCap(const Pin *pin,
 			const RiseFall *rf,
-			const OperatingConditions *op_cond,
 			const Corner *corner,
 			const MinMax *min_max);
   float portCapacitance(Instance *inst, LibertyPort *port,
 			const RiseFall *rf,
-			const OperatingConditions *op_cond,
 			const Corner *corner,
 			const MinMax *min_max) const;
   void removeClockGroups(ClockGroups *groups);

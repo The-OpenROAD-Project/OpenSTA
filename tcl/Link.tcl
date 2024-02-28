@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2023, Parallax Software, Inc.
+# Copyright (c) 2024, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ proc_redirect link_design {
   }
   if { $top_cell_name == "" } {
     if { $current_design_name == "" } {
-      sta_error 593 "missing top_cell_name argument and no current_design."
+      sta_error 220 "missing top_cell_name argument and no current_design."
       return 0
     } else {
       set top_cell_name $current_design_name

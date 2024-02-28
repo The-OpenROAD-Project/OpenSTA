@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,11 +16,13 @@
 
 #pragma once
 
+#include <map>
+
 #include "Zlib.hh"
-#include "Map.hh"
 #include "StringSeq.hh"
 #include "NetworkClass.hh"
 #include "ParasiticsClass.hh"
+#include "StaState.hh"
 
 // Global namespace.
 #define YY_INPUT(buf,result,max_size) \
@@ -34,15 +36,14 @@ SpefParse_error(const char *msg);
 namespace sta {
 
 class Report;
-class OperatingConditions;
-class MinMax;
+class MinMaxAll;
 class SpefRspfPi;
 class SpefTriple;
 class Corner;
 
-typedef Map<int,char*,std::less<int> > SpefNameMap;
+typedef std::map<int, char*, std::less<int>> SpefNameMap;
 
-class SpefReader
+class SpefReader : public StaState
 {
 public:
   SpefReader(const char *filename,
@@ -52,15 +53,10 @@ public:
 	     bool pin_cap_included,
 	     bool keep_coupling_caps,
 	     float coupling_cap_factor,
-	     ReducedParasiticType reduce_to,
-	     bool delete_after_reduce,
-	     const OperatingConditions *op_cond,
+	     bool reduce,
 	     const Corner *corner,
-	     const MinMax *cnst_min_max,
-	     bool quiet,
-	     Report *report,
-	     Network *network,
-	     Parasitics *parasitics);
+	     const MinMaxAll *min_max,
+             StaState *sta);
   virtual ~SpefReader();
   char divider() const { return divider_; }
   void setDivider(char divider);
@@ -128,30 +124,18 @@ private:
   Pin *findPortPinRelative(const char *name);
   Net *findNetRelative(const char *name);
   Instance *findInstanceRelative(const char *name);
-  void makeCouplingCap(int id,
-		       char *node_name1,
-		       char *node_name2,
-		       float cap);
-  ParasiticNode *findParasiticNode(char *name);
-  void findParasiticNode(char *name,
-			 ParasiticNode *&node,
-			 Net *&ext_net,
-			 int &ext_node_id,
-			 Pin *&ext_pin);
+  ParasiticNode *findParasiticNode(char *name,
+                                   bool local_only);
 
   const char *filename_;
   Instance *instance_;
   const ParasiticAnalysisPt *ap_;
   bool pin_cap_included_;
   bool keep_coupling_caps_;
-  ReducedParasiticType reduce_to_;
-  bool delete_after_reduce_;
-  const OperatingConditions *op_cond_;
+  bool reduce_;
   const Corner *corner_;
-  const MinMax *cnst_min_max_;
+  const MinMaxAll *min_max_;
   // Normally no need to keep device names.
-  bool keep_device_names_;
-  bool quiet_;
   gzFile stream_;
   int line_;
   char divider_;
@@ -159,9 +143,6 @@ private:
   char bus_brkt_left_;
   char bus_brkt_right_;
   Net *net_;
-  Report *report_;
-  Network *network_;
-  Parasitics *parasitics_;
 
   int triple_index_;
   float time_scale_;

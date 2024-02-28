@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2023, Parallax Software, Inc.
+# Copyright (c) 2024, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ proc parse_key_args { cmd arg_var key_var keys {flag_var ""} {flags {}} \
       if { $key_index >= 0 } {
 	set key $arg
 	if { [llength $args] == 1 } {
-	  sta_error 400 "$cmd $key missing value."
+	  sta_error 560 "$cmd $key missing value."
 	}
 	set key_value($key) [lindex $args 1]
 	set args [lrange $args 1 end]
@@ -58,7 +58,7 @@ proc parse_key_args { cmd arg_var key_var keys {flag_var ""} {flags {}} \
 	  if { $key_index >= 0 } {
 	    set key [lindex $keys $key_index]
 	    if { [llength $args] == 1 } {
-	      sta_error 401 "$cmd $key missing value."
+	      sta_error 561 "$cmd $key missing value."
 	    }
 	    set key_value($key) [lindex $args 1]
 	    set args [lrange $args 1 end]
@@ -68,7 +68,7 @@ proc parse_key_args { cmd arg_var key_var keys {flag_var ""} {flags {}} \
 	      set flag [lindex $flags $flag_index]
 	      set flag_present($flag) 1
 	    } elseif { $unknown_key_is_error } {
-	      sta_error 402 "$cmd $arg is not a known keyword or flag."
+	      sta_error 562 "$cmd $arg is not a known keyword or flag."
 	    } else {
 	      lappend args_rtn $arg
 	    }
@@ -90,7 +90,7 @@ proc check_for_key_args { cmd arg_var } {
   while { $args != "" } {
     set arg [lindex $args 0]
     if { [is_keyword_arg $arg] } {
-      sta_error 403 "$cmd $arg is not a known keyword or flag."
+      sta_error 563 "$cmd $arg is not a known keyword or flag."
     } else {
       lappend args_rtn $arg
     }
@@ -238,45 +238,45 @@ define_cmd_args "log_end" {}
 
 proc check_argc_eq0 { cmd arglist } {
   if { $arglist != {} } {
-    sta_error 406 "$cmd positional arguments not supported."
+    sta_error 564 "$cmd positional arguments not supported."
   }
 }
 
 proc check_argc_eq1 { cmd arglist } {
   if { [llength $arglist] != 1 } {
-    sta_error 407 "$cmd requires one positional argument."
+    sta_error 565 "$cmd requires one positional argument."
   }
 }
 
 proc check_argc_eq0or1 { cmd arglist } {
   set argc [llength $arglist]
   if { $argc != 0 && $argc != 1 } {
-    sta_error 408 "$cmd requires zero or one positional arguments."
+    sta_error 566 "$cmd requires zero or one positional arguments."
   }
 }
 
 proc check_argc_eq2 { cmd arglist } {
   if { [llength $arglist] != 2 } {
-    sta_error 409 "$cmd requires two positional arguments."
+    sta_error 567 "$cmd requires two positional arguments."
   }
 }
 
 proc check_argc_eq1or2 { cmd arglist } {
   set argc [llength $arglist]
   if { $argc != 1 && $argc != 2 } {
-    sta_error 410 "$cmd requires one or two positional arguments."
+    sta_error 568 "$cmd requires one or two positional arguments."
   }
 }
 
 proc check_argc_eq3 { cmd arglist } {
   if { [llength $arglist] != 3 } {
-    sta_error 411 "$cmd requires three positional arguments."
+    sta_error 569 "$cmd requires three positional arguments."
   }
 }
 
 proc check_argc_eq4 { cmd arglist } {
   if { [llength $arglist] != 4 } {
-    sta_error 412 "$cmd requires four positional arguments."
+    sta_error 570 "$cmd requires four positional arguments."
   }
 }
 
@@ -284,37 +284,37 @@ proc check_argc_eq4 { cmd arglist } {
 
 proc check_float { cmd_arg arg } {
   if {![string is double $arg]} {
-    sta_error 413 "$cmd_arg '$arg' is not a float."
+    sta_error 571 "$cmd_arg '$arg' is not a float."
   }
 }
 
 proc check_positive_float { cmd_arg arg } {
   if {!([string is double $arg] && $arg >= 0.0)} {
-    sta_error 414 "$cmd_arg '$arg' is not a positive float."
+    sta_error 572 "$cmd_arg '$arg' is not a positive float."
   }
 }
 
 proc check_integer { cmd_arg arg } {
   if {!([string is integer $arg])} {
-    sta_error 415 "$cmd_arg '$arg' is not an integer."
+    sta_error 573 "$cmd_arg '$arg' is not an integer."
   }
 }
 
 proc check_positive_integer { cmd_arg arg } {
   if {!([string is integer $arg] && $arg >= 0)} {
-    sta_error 416 "$cmd_arg '$arg' is not a positive integer."
+    sta_error 574 "$cmd_arg '$arg' is not a positive integer."
   }
 }
 
 proc check_cardinal { cmd_arg arg } {
   if {!([string is integer $arg] && $arg >= 1)} {
-    sta_error 417 "$cmd_arg '$arg' is not an integer greater than or equal to one."
+    sta_error 575 "$cmd_arg '$arg' is not an integer greater than or equal to one."
   }
 }
 
 proc check_percent { cmd_arg arg } {
   if {!([string is double $arg] && $arg >= 0.0 && $arg <= 100.0)} {
-    sta_error 418 "$cmd_arg '$arg' is not between 0 and 100."
+    sta_error 576 "$cmd_arg '$arg' is not between 0 and 100."
   }
 }
 

@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -271,7 +271,7 @@ Genclks::checkMaster(Clock *gclk)
 {
   ensureMaster(gclk);
   if (gclk->masterClk() == nullptr)
-    report_->warn(10, "no master clock found for generated clock %s.",
+    report_->warn(1060, "no master clock found for generated clock %s.",
 		  gclk->name());
 }
 
@@ -329,7 +329,7 @@ Genclks::ensureMaster(Clock *gclk)
       }
     }
     if (master_clk_count > 1)
-      report_->warn(12,
+      report_->warn(1061,
                     "generated clock %s pin %s is in the fanout of multiple clocks.",
                     gclk->name(),
                     network_->pathName(src_pin));
@@ -935,7 +935,7 @@ Genclks::recordSrcPaths(Clock *gclk)
 	// Don't warn if the master clock is ideal.
 	&& gclk->masterClk()
 	&& gclk->masterClk()->isPropagated())
-      report_->warn(13, "generated clock %s source pin %s missing paths from master clock %s.",
+      report_->warn(1062, "generated clock %s source pin %s missing paths from master clock %s.",
 		    gclk->name(),
 		    network_->pathName(gclk_pin),
 		    gclk->masterClk()->name());

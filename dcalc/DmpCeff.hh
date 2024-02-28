@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2023, Parallax Software, Inc.
+// Copyright (c) 2024, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -34,45 +34,39 @@ class DmpCeffDelayCalc : public LumpedCapDelayCalc
 public:
   DmpCeffDelayCalc(StaState *sta);
   virtual ~DmpCeffDelayCalc();
-  virtual void inputPortDelay(const Pin *port_pin,
-			      float in_slew,
-			      const RiseFall *rf,
-			      const Parasitic *parasitic,
-			      const DcalcAnalysisPt *dcalc_ap);
-  virtual void gateDelay(const TimingArc *arc,
-			 const Slew &in_slew,
-			 float load_cap,
-			 const Parasitic *drvr_parasitic,
-			 float related_out_cap,
-			 const Pvt *pvt,
-			 const DcalcAnalysisPt *dcalc_ap,
-			 // return values
-			 ArcDelay &gate_delay,
-			 Slew &drvr_slew);
-  virtual float ceff(const TimingArc *arc,
-		     const Slew &in_slew,
-		     float load_cap,
-		     const Parasitic *drvr_parasitic,
-		     float related_out_cap,
-		     const Pvt *pvt,
-		     const DcalcAnalysisPt *dcalc_ap);
-  virtual string reportGateDelay(const TimingArc *arc,
-                                 const Slew &in_slew,
-                                 float load_cap,
-                                 const Parasitic *drvr_parasitic,
-                                 float related_out_cap,
-                                 const Pvt *pvt,
-                                 const DcalcAnalysisPt *dcalc_ap,
-                                 int digits);
-  virtual void copyState(const StaState *sta);
+  ArcDcalcResult gateDelay(const Pin *drvr_pin,
+                           const TimingArc *arc,
+                           const Slew &in_slew,
+                           float load_cap,
+                           const Parasitic *parasitic,
+                           const LoadPinIndexMap &load_pin_index_map,
+                           const DcalcAnalysisPt *dcalc_ap) override;
+  string reportGateDelay(const Pin *drvr_pin,
+                         const TimingArc *arc,
+                         const Slew &in_slew,
+                         float load_cap,
+                         const Parasitic *parasitic,
+                         const LoadPinIndexMap &load_pin_index_map,
+                         const DcalcAnalysisPt *dcalc_ap,
+                         int digits) override;
+  void copyState(const StaState *sta) override;
 
 protected:
-  void gateDelaySlew(double &delay,
+  virtual void loadDelaySlew(const Pin *load_pin,
+                             double drvr_slew,
+                             const RiseFall *rf,
+                             const LibertyLibrary *drvr_library,
+                             const Parasitic *parasitic,
+                             // Return values.
+                             ArcDelay &wire_delay,
+                             Slew &load_slew) = 0;
+  void gateDelaySlew(// Return values.
+                     double &delay,
 		     double &slew);
-  void loadDelaySlew(const Pin *load_pin,
-		     double elmore,
-		     ArcDelay &delay,
-		     Slew &slew);
+  void loadDelaySlewElmore(const Pin *load_pin,
+                           double elmore,
+                           ArcDelay &delay,
+                           Slew &slew);
   // Select the appropriate special case Dartu/Menezes/Pileggi algorithm.
   void setCeffAlgorithm(const LibertyLibrary *library,
 			const LibertyCell *cell,
@@ -80,7 +74,6 @@ protected:
 			const GateTableModel *gate_model,
 			const RiseFall *rf,
 			double in_slew,
-			float related_out_cap,
 			double c2,
 			double rpi,
 			double c1);
