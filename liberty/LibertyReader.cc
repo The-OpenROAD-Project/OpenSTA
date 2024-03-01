@@ -295,7 +295,7 @@ LibertyReader::defineVisitors()
 		    &LibertyReader::visitClockGatingIntegratedCell);
   defineAttrVisitor("area", &LibertyReader::visitArea);
   defineAttrVisitor("dont_use", &LibertyReader::visitDontUse);
-  defineAttrVisitor("is_macro", &LibertyReader::visitIsMacro);
+  defineAttrVisitor("is_macro_cell", &LibertyReader::visitIsMacro);
   defineAttrVisitor("is_memory", &LibertyReader::visitIsMemory);
   defineAttrVisitor("is_pad", &LibertyReader::visitIsPad);
   defineAttrVisitor("is_clock_cell", &LibertyReader::visitIsClockCell);

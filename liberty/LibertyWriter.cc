@@ -272,7 +272,7 @@ LibertyWriter::writeCell(const LibertyCell *cell)
   if (area > 0.0)
     fprintf(stream_, "    area : %.3f \n", area);
   if (cell->isMacro())
-    fprintf(stream_, "    is_macro : true;\n");
+    fprintf(stream_, "    is_macro_cell : true;\n");
   if (cell->interfaceTiming())
     fprintf(stream_, "    interface_timing : true;\n");
 
