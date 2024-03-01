@@ -157,6 +157,21 @@ MakeTimingModel::makeCell()
 {
   cell_ = lib_builder_->makeCell(library_, cell_name_, filename_);
   cell_->setIsMacro(true);
+  cell_->setArea(findArea());
+}
+
+float
+MakeTimingModel::findArea()
+{
+  float area = 0.0;
+  LeafInstanceIterator *leaf_iter = network_->leafInstanceIterator();
+  while (leaf_iter->hasNext()) {
+    const Instance *inst = leaf_iter->next();
+    const LibertyCell *cell = network_->libertyCell(inst);
+    area += cell->area();
+  }
+  delete leaf_iter;
+  return area;
 }
 
 void
