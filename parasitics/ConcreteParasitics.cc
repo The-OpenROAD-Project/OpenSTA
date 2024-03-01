@@ -511,7 +511,7 @@ ConcreteParasiticNetwork::deleteNodes()
     delete node;
   }
   for (auto pin_node : pin_nodes_) {
-    ParasiticNode *node = pin_node.second;
+    ConcreteParasiticNode *node = pin_node.second;
     delete node;
   }
 }
