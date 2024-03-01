@@ -259,6 +259,7 @@ ConcreteNetwork::ConcreteNetwork() :
 ConcreteNetwork::~ConcreteNetwork()
 {
   clear();
+  net_drvr_pin_map_.deleteContents();
 }
 
 void
@@ -268,6 +269,7 @@ ConcreteNetwork::clear()
   deleteCellNetworkViews();
   library_seq_.deleteContentsClear();
   library_map_.clear();
+  clearNetDrvrPinMap();
   Network::clear();
 }
 
@@ -278,6 +280,15 @@ ConcreteNetwork::deleteTopInstance()
     deleteInstance(top_instance_);
     top_instance_ = nullptr;
   }
+}
+
+void
+ConcreteNetwork::clearNetDrvrPinMap()
+{
+  // No synchronization here, as you would have to lock the mutex for any usage of a Net* to protect from this delete.
+  // This method must not be called in a multi-threaded context.
+  std::unique_lock lock(net_drvr_pin_map_mtx_);
+  net_drvr_pin_map_.deleteContentsClear();
 }
 
 void
@@ -1194,6 +1205,24 @@ ConcreteNetwork::makeInstance(LibertyCell *cell,
   return makeConcreteInstance(cell, name, parent);
 }
 
+PinSet *
+ConcreteNetwork::drivers(const Net *net)
+{
+  PinSet *drvrs = nullptr;
+  {
+    std::shared_lock lock(net_drvr_pin_map_mtx_);
+    drvrs = net_drvr_pin_map_.findKey(net);
+  }
+  if (!drvrs) {
+    drvrs = Network::drivers(net);
+    std::unique_lock lock(net_drvr_pin_map_mtx_);
+    auto*& entry = net_drvr_pin_map_[net];
+    // Do another check as could have been inserted by another thread.
+    if (!entry) entry = drvrs;
+  }
+  return drvrs;
+}
+
 Instance *
 ConcreteNetwork::makeConcreteInstance(ConcreteCell *cell,
 				      const char *name,
@@ -1370,7 +1399,11 @@ ConcreteNetwork::connectNetPin(ConcreteNet *cnet,
   if (isDriver(pin)) {
     if (cnet->terms_ == nullptr) {
       Net *net = reinterpret_cast<Net*>(cnet);
-      PinSet *drvrs = net_drvr_pin_map_.findKey(net);
+      PinSet *drvrs = nullptr;
+      {
+        std::shared_lock lock(net_drvr_pin_map_mtx_);
+        drvrs = net_drvr_pin_map_.findKey(net);
+      }
       if (drvrs)
 	drvrs->insert(pin);
     }
@@ -1416,7 +1449,11 @@ ConcreteNetwork::disconnectNetPin(ConcreteNet *cnet,
     // and it is safe to incrementally update the drivers.
     if (cnet->terms_ == nullptr) {
       Net *net = reinterpret_cast<Net*>(cnet);
-      PinSet *drvrs = net_drvr_pin_map_.findKey(net);
+      PinSet *drvrs = nullptr;
+      {
+        std::shared_lock lock(net_drvr_pin_map_mtx_);
+        drvrs = net_drvr_pin_map_.findKey(net);
+      }
       if (drvrs)
 	drvrs->erase(pin);
     }
@@ -1463,6 +1500,8 @@ ConcreteNetwork::deleteNet(Net *net)
 
   constant_nets_[int(LogicValue::zero)].erase(net);
   constant_nets_[int(LogicValue::one)].erase(net);
+  // No synchronization here, as you would have to lock the mutex for any usage of a Net* to protect from this delete.
+  // This method must not be called in a multi-threaded context.
   PinSet *drvrs = net_drvr_pin_map_.findKey(net);
   if (drvrs) {
     delete drvrs;

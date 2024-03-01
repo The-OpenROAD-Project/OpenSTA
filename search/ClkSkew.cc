@@ -20,6 +20,7 @@
 
 #include "Report.hh"
 #include "Debug.hh"
+#include "DispatchQueue.hh"
 #include "Fuzzy.hh"
 #include "Units.hh"
 #include "TimingArc.hh"
@@ -187,25 +188,53 @@ ClkSkews::findWorstClkSkew(const Corner *corner,
 
 void
 ClkSkews::findClkSkew(ClockSet *clks,
-		      const Corner *corner,
-		      const SetupHold *setup_hold,
-		      ClkSkewMap &skews)
-{	      
-  for (Vertex *src_vertex : *graph_->regClkVertices()) {
+                      const Corner *corner,
+                      const SetupHold *setup_hold,
+                      ClkSkewMap &skews)
+{
+  const auto findClkSkew = [this, clks, corner, setup_hold](ClkSkewMap& skews, Vertex* src_vertex) {
     if (hasClkPaths(src_vertex, clks)) {
       VertexOutEdgeIterator edge_iter(src_vertex, graph_);
       while (edge_iter.hasNext()) {
-	Edge *edge = edge_iter.next();
-	if (edge->role()->genericRole() == TimingRole::regClkToQ()) {
-	  Vertex *q_vertex = edge->to(graph_);
-	  RiseFall *rf = edge->timingArcSet()->isRisingFallingEdge();
-	  RiseFallBoth *src_rf = rf
-	    ? rf->asRiseFallBoth()
-	    : RiseFallBoth::riseFall();
-	  findClkSkewFrom(src_vertex, q_vertex, src_rf, clks,
-			  corner, setup_hold, skews);
-	}
+        Edge *edge = edge_iter.next();
+        if (edge->role()->genericRole() == TimingRole::regClkToQ()) {
+          Vertex *q_vertex = edge->to(graph_);
+          RiseFall *rf = edge->timingArcSet()->isRisingFallingEdge();
+          RiseFallBoth *src_rf = rf
+              ? rf->asRiseFallBoth()
+              : RiseFallBoth::riseFall();
+          findClkSkewFrom(src_vertex, q_vertex, src_rf, clks, corner, setup_hold, skews);
+        }
       }
+    }
+  };
+  if (dispatch_queue_) {
+    std::vector<ClkSkewMap> partial_skews(thread_count_, skews);
+    for (Vertex *src_vertex : *graph_->regClkVertices()) {
+      dispatch_queue_->dispatch([=, &partial_skews](int i) {
+        findClkSkew(partial_skews[i], src_vertex);
+      });
+    }
+    dispatch_queue_->finishTasks();
+    for (size_t i = 0; i < partial_skews.size(); i++) {
+      for (auto [clk, partial_skew] : partial_skews[i]) {
+        ClkSkew *&final_skew = skews[clk];
+        if (!final_skew) {
+          final_skew = partial_skew;
+        }
+        else if (abs(partial_skew->skew()) > abs(final_skew->skew())) {
+          delete final_skew;
+          final_skew = partial_skew;
+        }
+        else {
+          delete partial_skew;
+        }
+      }
+    }
+  }
+  else {
+    for (Vertex *src_vertex : *graph_->regClkVertices()) {
+      findClkSkew(skews, src_vertex);
     }
   }
 }
