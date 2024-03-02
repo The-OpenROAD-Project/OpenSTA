@@ -168,7 +168,9 @@ MakeTimingModel::findArea()
   while (leaf_iter->hasNext()) {
     const Instance *inst = leaf_iter->next();
     const LibertyCell *cell = network_->libertyCell(inst);
-    area += cell->area();
+    if (cell) {
+      area += cell->area();
+    }
   }
   delete leaf_iter;
   return area;
