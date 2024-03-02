@@ -16,6 +16,13 @@
 
 namespace eval sta {
 
+define_cmd_args "report_dcalc" \
+  {[-from from_pin] [-to to_pin] [-corner corner] [-min] [-max] [-digits digits]}
+
+proc_redirect report_dcalc {
+  report_dcalc_cmd "report_dcalc" $args "-digits"
+}
+
 # Allow any combination of -from/-to pins.
 proc report_dcalc_cmd { cmd cmd_args digits_key } {
   global sta_report_default_digits

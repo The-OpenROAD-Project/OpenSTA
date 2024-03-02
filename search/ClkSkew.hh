@@ -16,17 +16,19 @@
 
 #pragma once
 
-#include "Map.hh"
+#include <map>
+
 #include "SdcClass.hh"
 #include "StaState.hh"
 #include "Transition.hh"
 #include "SearchClass.hh"
+#include "PathVertex.hh"
 
 namespace sta {
 
 class ClkSkew;
 
-typedef Map<const Clock*, ClkSkew*> ClkSkewMap;
+typedef std::map<const Clock*, ClkSkew> ClkSkewMap;
 
 // Find and report clock skews between source/target registers.
 class ClkSkews : public StaState
@@ -34,40 +36,38 @@ class ClkSkews : public StaState
 public:
   ClkSkews(StaState *sta);
   // Report clk skews for clks.
-  void reportClkSkew(ClockSet *clks,
+  void reportClkSkew(ConstClockSeq clks,
 		     const Corner *corner,
 		     const SetupHold *setup_hold,
 		     int digits);
   // Find worst clock skew between src/target registers.
   float findWorstClkSkew(const Corner *corner,
                          const SetupHold *setup_hold);
-  void findClkDelays(const Clock *clk,
-                     // Return values.
-                     ClkDelays &delays);
   
 protected:
-  void findClkSkew(ClockSet *clks,
-		   const Corner *corner,
-		   const SetupHold *setup_hold,
-		   ClkSkewMap &skews);
+  ClkSkewMap findClkSkew(ConstClockSeq &clks,
+                         const Corner *corner,
+                         const SetupHold *setup_hold);
   bool hasClkPaths(Vertex *vertex,
-		   ClockSet *clks);
+		   ConstClockSet &clks);
   void findClkSkewFrom(Vertex *src_vertex,
 		       Vertex *q_vertex,
-		       RiseFallBoth *src_rf,
-		       ClockSet *clks,
+		       const RiseFallBoth *src_rf,
+		       ConstClockSet &clk_set,
 		       const Corner *corner,
 		       const SetupHold *setup_hold,
 		       ClkSkewMap &skews);
   void findClkSkew(Vertex *src_vertex,
-		   RiseFallBoth *src_rf,
+		   const RiseFallBoth *src_rf,
 		   Vertex *tgt_vertex,
-		   RiseFallBoth *tgt_rf,
-		   ClockSet *clks,
+		   const RiseFallBoth *tgt_rf,
+                   ConstClockSet &clk_set,
 		   const Corner *corner,
 		   const SetupHold *setup_hold,
 		   ClkSkewMap &skews);
   VertexSet findFanout(Vertex *from);
+  void reportClkSkew(ClkSkew &clk_skew,
+                     int digits);
 };
     
 } // namespace

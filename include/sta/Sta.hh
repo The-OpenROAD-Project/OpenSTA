@@ -57,8 +57,6 @@ class SearchPred;
 class Corner;
 class ClkSkews;
 class ReportField;
-class Power;
-class PowerResult;
 class EquivCells;
 
 typedef InstanceSeq::Iterator SlowDrvrIterator;
@@ -913,15 +911,17 @@ public:
   void reportPath(Path *path);
 
   // Report clk skews for clks.
-  void reportClkSkew(ClockSet *clks,
+  void reportClkSkew(ConstClockSeq clks,
 		     const Corner *corner,
 		     const SetupHold *setup_hold,
 		     int digits);
   float findWorstClkSkew(const SetupHold *setup_hold);
+
+  void reportClkLatency(ConstClockSeq clks,
+                        const Corner *corner,
+                        int digits);
   // Find min/max/rise/fall delays for clk.
-  void findClkDelays(const Clock *clk,
-                     // Return values.
-                     ClkDelays &delays);
+  ClkDelays findClkDelays(const Clock *clk);
 
   // Update arrival times for all pins.
   // If necessary updateTiming propagates arrivals around latch

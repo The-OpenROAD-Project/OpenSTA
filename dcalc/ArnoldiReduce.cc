@@ -314,7 +314,8 @@ ArnoldiReduce::findPt(ParasiticNode *node)
 rcmodel *
 ArnoldiReduce::makeRcmodelDrv()
 {
-  ParasiticNode *drv_node = parasitics_->findNode(parasitic_network_, drvr_pin_);
+  ParasiticNode *drv_node =
+    parasitics_->findParasiticNode(parasitic_network_, drvr_pin_);
   ts_point *pdrv = findPt(drv_node);
   makeRcmodelDfs(pdrv);
   getRC();

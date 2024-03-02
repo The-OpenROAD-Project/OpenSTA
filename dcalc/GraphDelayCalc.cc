@@ -954,14 +954,14 @@ GraphDelayCalc::makeArcDcalcArgs(Vertex *drvr_vertex,
     // Shockingly one fpga vendor connects outputs with no timing arcs together.
     if (edge1) {
       Vertex *from_vertex = edge1->from(graph_);
+      const Pin *from_pin = from_vertex->pin();
       const RiseFall *from_rf = arc1->fromEdge()->asRiseFall();
       const RiseFall *drvr_rf = arc1->toEdge()->asRiseFall();
       const Slew in_slew = edgeFromSlew(from_vertex, from_rf, edge1, dcalc_ap);
       const Pin *drvr_pin1 = drvr_vertex1->pin();
       Parasitic *parasitic = arc_delay_calc->findParasitic(drvr_pin1, drvr_rf,
                                                            dcalc_ap);
-      dcalc_args.push_back(ArcDcalcArg(drvr_pin1, edge1, arc1, in_slew,
-                                       parasitic));
+      dcalc_args.emplace_back(from_pin, drvr_pin1, edge1, arc1, in_slew, parasitic);
     }
   }
   return dcalc_args;

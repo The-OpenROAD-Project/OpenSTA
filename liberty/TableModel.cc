@@ -819,6 +819,13 @@ Table1::Table1(Table1 &&table) :
   table.axis1_ = nullptr;
 }
 
+Table1::Table1(const Table1 &table) :
+  Table(),
+  values_(new FloatSeq(*table.values_)),
+  axis1_(table.axis1_)
+{
+}
+
 Table1::~Table1()
 {
   delete values_;

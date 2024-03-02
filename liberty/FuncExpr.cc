@@ -345,14 +345,14 @@ funcExprNot(FuncExpr *expr)
 
 ////////////////////////////////////////////////////////////////
 
-FuncExprPortIterator::FuncExprPortIterator(FuncExpr *expr)
+FuncExprPortIterator::FuncExprPortIterator(const FuncExpr *expr)
 {
   findPorts(expr);
   iter_.init(ports_);
 }
 
 void
-FuncExprPortIterator::findPorts(FuncExpr *expr)
+FuncExprPortIterator::findPorts(const FuncExpr *expr)
 {
   if (expr) {
     if (expr->op() == FuncExpr::op_port)

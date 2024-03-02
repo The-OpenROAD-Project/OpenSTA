@@ -40,7 +40,7 @@
 #include "Sta.hh"
 #include "VisitPathEnds.hh"
 #include "ArcDelayCalc.hh"
-#include "ClkSkew.hh"
+#include "ClkLatency.hh"
 
 namespace sta {
 
@@ -156,7 +156,22 @@ void
 MakeTimingModel::makeCell()
 {
   cell_ = lib_builder_->makeCell(library_, cell_name_, filename_);
-  cell_->setInterfaceTiming(true);
+  cell_->setIsMacro(true);
+  cell_->setArea(findArea());
+}
+
+float
+MakeTimingModel::findArea()
+{
+  float area = 0.0;
+  LeafInstanceIterator *leaf_iter = network_->leafInstanceIterator();
+  while (leaf_iter->hasNext()) {
+    const Instance *inst = leaf_iter->next();
+    const LibertyCell *cell = network_->libertyCell(inst);
+    area += cell->area();
+  }
+  delete leaf_iter;
+  return area;
 }
 
 void
@@ -527,17 +542,17 @@ MakeTimingModel::findClkInsertionDelays()
         size_t clk_count = clks->size();
         if (clk_count == 1) {
           for (const Clock *clk : *clks) {
-            ClkDelays delays;
-            sta_->findClkDelays(clk, delays);
+            ClkDelays delays = sta_->findClkDelays(clk);
             for (const MinMax *min_max : MinMax::range()) {
               TimingArcAttrsPtr attrs = nullptr;
               for (const RiseFall *clk_rf : RiseFall::range()) {
-                int clk_rf_index = clk_rf->index();
                 float delay = min_max->initValue();
-                for (const int end_rf_index : RiseFall::rangeIndex()) {
-                  Delay delay1;
+                for (const RiseFall *end_rf : RiseFall::range()) {
+                  PathVertex clk_path;
+                  float insertion, delay1, lib_clk_delay, latency;
                   bool exists;
-                  delays[clk_rf_index][end_rf_index].value(min_max, delay1, exists);
+                  delays.delay(clk_rf, end_rf, min_max, insertion, delay1,
+                               lib_clk_delay, latency, clk_path, exists);
                   if (exists)
                     delay = min_max->minMax(delay, delayAsFloat(delay1));
                 }
@@ -551,7 +566,8 @@ MakeTimingModel::findClkInsertionDelays()
               TimingRole *role = (min_max == MinMax::min())
                 ? TimingRole::clockTreePathMin()
                 : TimingRole::clockTreePathMax();
-              lib_builder_->makeClockTreePathArcs(cell_, lib_port, role, attrs);
+              lib_builder_->makeClockTreePathArcs(cell_, lib_port, role,
+                                                  min_max, attrs);
             }
           }
         }

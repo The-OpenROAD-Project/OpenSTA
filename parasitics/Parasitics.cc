@@ -53,6 +53,13 @@ Parasitics::findParasiticNet(const Pin *pin) const
     return nullptr;
 }
 
+ParasiticNode *
+Parasitics::findNode(const Parasitic *parasitic,
+                     const Pin *pin) const
+{
+  return findParasiticNode(parasitic, pin);
+}
+
 PinSet
 Parasitics::loads(const Pin *drvr_pin) const
 {

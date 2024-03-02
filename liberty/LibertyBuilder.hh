@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "MinMax.hh"
 #include "Vector.hh"
 #include "Transition.hh"
 #include "LibertyClass.hh"
@@ -81,6 +82,7 @@ public:
   TimingArcSet *makeClockTreePathArcs(LibertyCell *cell,
                                       LibertyPort *to_port,
                                       TimingRole *role,
+                                      const MinMax *min_max,
                                       TimingArcAttrsPtr attrs);
 
 protected:

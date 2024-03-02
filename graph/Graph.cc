@@ -498,6 +498,37 @@ Graph::deleteOutEdge(Vertex *vertex,
     Graph::edge(next)->vertex_out_prev_ = prev;
 }
 
+void
+Graph::gateEdgeArc(const Pin *in_pin,
+                   const RiseFall *in_rf,
+                   const Pin *drvr_pin,
+                   const RiseFall *drvr_rf,
+                   // Return values.
+                   Edge *&edge,
+                   const TimingArc *&arc) const
+{
+  Vertex *in_vertex = pinLoadVertex(in_pin);
+  Vertex *drvr_vertex = pinDrvrVertex(drvr_pin);
+  // Iterate over load drivers to avoid driver fanout^2.
+  VertexInEdgeIterator edge_iter(drvr_vertex, this);
+  while (edge_iter.hasNext()) {
+    Edge *edge1 = edge_iter.next();
+    if (edge1->from(this) == in_vertex) {
+      TimingArcSet *arc_set = edge1->timingArcSet();
+      for (TimingArc *arc1 : arc_set->arcs()) {
+        if (arc1->fromEdge()->asRiseFall() == in_rf
+            && arc1->toEdge()->asRiseFall() == drvr_rf) {
+          edge = edge1;
+          arc = arc1;
+          return;
+        }
+      }
+    }
+  }
+  edge = nullptr;
+  arc = nullptr;
+}
+
 ////////////////////////////////////////////////////////////////
 
 Arrival *

@@ -487,8 +487,11 @@ ConcreteParasiticCapacitor::ConcreteParasiticCapacitor(size_t id,
 ////////////////////////////////////////////////////////////////
 
 ConcreteParasiticNetwork::ConcreteParasiticNetwork(const Net *net,
-                                                   bool includes_pin_caps) :
+                                                   bool includes_pin_caps,
+                                                   const Network *network) :
   net_(net),
+  sub_nodes_(network),
+  pin_nodes_(network),
   max_node_id_(0),
   includes_pin_caps_(includes_pin_caps)
 {
@@ -581,6 +584,29 @@ ConcreteParasiticNetwork::capacitance() const
 }
 
 ConcreteParasiticNode *
+ConcreteParasiticNetwork::findParasiticNode(const Net *net,
+                                            int id,
+                                            const Network *) const
+{
+  NetIdPair net_id(net, id);
+  auto id_node = sub_nodes_.find(net_id);
+  if (id_node == sub_nodes_.end()) 
+    return nullptr;
+  else
+    return id_node->second;
+}
+
+ConcreteParasiticNode *
+ConcreteParasiticNetwork::findParasiticNode(const Pin *pin) const
+{
+  auto pin_node = pin_nodes_.find(pin);
+  if (pin_node == pin_nodes_.end())
+    return nullptr;
+  else
+    return pin_node->second;
+}
+
+ConcreteParasiticNode *
 ConcreteParasiticNetwork::ensureParasiticNode(const Net *net,
 					      int id,
                                               const Network *)
@@ -623,22 +649,12 @@ ConcreteParasiticNetwork::ensureParasiticNode(const Pin *pin,
   return node;
 }
 
-ConcreteParasiticNode *
-ConcreteParasiticNetwork::findNode(const Pin *pin) const
-{
-  auto pin_node = pin_nodes_.find(pin);
-  if (pin_node == pin_nodes_.end())
-    return nullptr;
-  else
-    return pin_node->second;
-}
-
 PinSet
 ConcreteParasiticNetwork::unannotatedLoads(const Pin *drvr_pin,
                                            const Parasitics *parasitics) const
 {
   PinSet loads = parasitics->loads(drvr_pin);
-  ParasiticNode *drvr_node = findNode(drvr_pin);
+  ParasiticNode *drvr_node = findParasiticNode(drvr_pin);
   if (drvr_node) {
     ParasiticNodeResistorMap resistor_map =
       parasitics->parasiticNodeResistorMap(this);
@@ -713,6 +729,11 @@ ConcreteParasiticNetwork::disconnectPin(const Pin *pin,
   }
 }
 
+NetIdPairLess::NetIdPairLess(const Network *network) :
+  net_less_(network)
+{
+}
+
 bool
 NetIdPairLess::operator()(const NetIdPair &net_id1,
                           const NetIdPair &net_id2) const
@@ -721,7 +742,7 @@ NetIdPairLess::operator()(const NetIdPair &net_id1,
   const Net *net2 = net_id2.first;
   int id1 = net_id1.second;
   int id2 = net_id2.second;
-  return net1 < net2
+  return net_less_(net1, net2)
     || (net1 == net2
 	&& id1 < id2);
 }
@@ -1229,7 +1250,7 @@ ConcreteParasitics::makeParasiticNetwork(const Net *net,
     for (const Pin *drvr_pin : *network_->drivers(net))
       deleteParasitics(drvr_pin, ap);
   }
-  parasitic = new ConcreteParasiticNetwork(net, includes_pin_caps);
+  parasitic = new ConcreteParasiticNetwork(net, includes_pin_caps, network_);
   parasitics[ap_index] = parasitic;
   return parasitic;
 }
@@ -1287,6 +1308,17 @@ ConcreteParasitics::includesPinCaps(const Parasitic *parasitic) const
 }
 
 ParasiticNode *
+ConcreteParasitics::findParasiticNode(Parasitic *parasitic,
+                                      const Net *net,
+                                      int id,
+                                      const Network *network) const
+{
+  const ConcreteParasiticNetwork *cparasitic =
+    static_cast<const ConcreteParasiticNetwork*>(parasitic);
+  return cparasitic->findParasiticNode(net, id, network);
+}
+
+ParasiticNode *
 ConcreteParasitics::ensureParasiticNode(Parasitic *parasitic,
 					const Net *net,
 					int id,
@@ -1295,6 +1327,15 @@ ConcreteParasitics::ensureParasiticNode(Parasitic *parasitic,
   ConcreteParasiticNetwork *cparasitic =
     static_cast<ConcreteParasiticNetwork*>(parasitic);
   return cparasitic->ensureParasiticNode(net, id, network);
+}
+
+ParasiticNode *
+ConcreteParasitics::findParasiticNode(const Parasitic *parasitic,
+                                      const Pin *pin) const
+{
+  const ConcreteParasiticNetwork *cparasitic =
+    static_cast<const ConcreteParasiticNetwork*>(parasitic);
+  return cparasitic->findParasiticNode(pin);
 }
 
 ParasiticNode *
@@ -1373,7 +1414,7 @@ ConcreteParasitics::capacitors(const Parasitic *parasitic) const
 
 
 const char *
-ConcreteParasitics::name(const ParasiticNode *node)
+ConcreteParasitics::name(const ParasiticNode *node) const
 {
   const ConcreteParasiticNode *cnode =
     static_cast<const ConcreteParasiticNode*>(node);
@@ -1411,15 +1452,6 @@ ConcreteParasitics::isExternal(const ParasiticNode *node) const
   const ConcreteParasiticNode *cnode =
     static_cast<const ConcreteParasiticNode*>(node);
   return cnode->isExternal();
-}
-
-ParasiticNode *
-ConcreteParasitics::findNode(const Parasitic *parasitic,
-			     const Pin *pin) const
-{
-  const ConcreteParasiticNetwork *cparasitic =
-    static_cast<const ConcreteParasiticNetwork*>(parasitic);
-  return cparasitic->findNode(pin);
 }
 
 ////////////////////////////////////////////////////////////////

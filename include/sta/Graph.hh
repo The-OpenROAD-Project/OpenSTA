@@ -115,7 +115,6 @@ public:
 			       uint32_t count);
   PathVertexRep *prevPaths(Vertex *vertex) const;
   void clearPrevPaths();
-  // Slews are reported slews in seconds.
   // Reported slew are the same as those in the liberty tables.
   //  reported_slews = measured_slews / slew_derate_from_library
   // Measured slews are between slew_lower_threshold and slew_upper_threshold.
@@ -141,6 +140,15 @@ public:
   void makeWireEdgesThruPin(const Pin *hpin);
   virtual void makeWireEdgesFromPin(const Pin *drvr_pin);
   virtual void deleteEdge(Edge *edge);
+  // Find the edge and timing arc on a gate between in_pin and drvr_pin.
+  void gateEdgeArc(const Pin *in_pin,
+                   const RiseFall *in_rf,
+                   const Pin *drvr_pin,
+                   const RiseFall *drvr_rf,
+                   // Return values.
+                   Edge *&edge,
+                   const TimingArc *&arc) const;
+
   virtual ArcDelay arcDelay(const Edge *edge,
 			    const TimingArc *arc,
 			    DcalcAPIndex ap_index) const;

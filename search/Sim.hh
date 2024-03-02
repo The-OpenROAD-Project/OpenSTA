@@ -25,9 +25,7 @@
 #include "GraphClass.hh"
 #include "SdcClass.hh"
 #include "StaState.hh"
-
-struct DdNode;
-struct DdManager;
+#include "Bdd.hh"
 
 namespace sta {
 
@@ -35,7 +33,6 @@ class SimObserver;
 
 typedef Map<const Pin*, LogicValue> PinValueMap;
 typedef std::queue<const Instance*> EvalQueue;
-typedef Map<const char*, DdNode*, CharPtrLess> BddSymbolTable;
 
 // Propagate constants from constraints and netlist tie high/low
 // connections thru gates.
@@ -50,7 +47,7 @@ public:
   void ensureConstantsPropagated();
   void constantsInvalid();
   LogicValue evalExpr(const FuncExpr *expr,
-		      const Instance *inst) const;
+		      const Instance *inst);
   LogicValue logicValue(const Pin *pin) const;
   bool logicZeroOne(const Pin *pin) const;
   bool logicZeroOne(const Vertex *vertex) const;
@@ -110,6 +107,8 @@ protected:
 			   const Pin *load_pin);
   void setSimValue(Vertex *vertex,
 		   LogicValue value);
+  DdNode *funcBddSim(const FuncExpr *expr,
+                     const Instance *inst);
 
   SimObserver *observer_;
   bool valid_;
@@ -128,15 +127,8 @@ protected:
   // Instances with constant pin values for annotateVertexEdges.
   InstanceSet instances_with_const_pins_;
   InstanceSet instances_to_annotate_;
-
-  DdNode *funcBdd(const FuncExpr *expr,
-		  const Instance *inst) const;
-  DdNode *ensureNode(LibertyPort *port) const;
-  void clearSymtab() const;
-
-  DdManager *cudd_mgr_;
-  mutable BddSymbolTable symtab_;
-  mutable std::mutex cudd_lock_;
+  Bdd bdd_;
+  mutable std::mutex bdd_lock_;
 };
 
 // Abstract base class for Sim value change observer.
@@ -160,7 +152,7 @@ isCondDisabled(Edge *edge,
 	       const Pin *from_pin,
 	       const Pin *to_pin,
 	       const Network *network,
-	       const Sim *sim);
+	       Sim *sim);
 
 // isCondDisabled but also return the cond expression that causes
 // the disable.  This can differ from the edge cond expression
@@ -172,7 +164,7 @@ isCondDisabled(Edge *edge,
 	       const Pin *from_pin,
 	       const Pin *to_pin,
 	       const Network *network,
-	       const Sim *sim,
+	       Sim *sim,
 	       bool &is_disabled,
 	       FuncExpr *&disable_cond);
 
@@ -182,12 +174,12 @@ bool
 isModeDisabled(Edge *edge,
 	       const Instance *inst,
 	       const Network *network,
-	       const Sim *sim);
+	       Sim *sim);
 void
 isModeDisabled(Edge *edge,
 	       const Instance *inst,
 	       const Network *network,
-	       const Sim *sim,
+	       Sim *sim,
 	       bool &is_disabled,
 	       FuncExpr *&disable_cond);
 

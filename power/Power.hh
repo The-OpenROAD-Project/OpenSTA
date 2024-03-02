@@ -24,6 +24,7 @@
 #include "SdcClass.hh"
 #include "PowerClass.hh"
 #include "StaState.hh"
+#include "Bdd.hh"
 
 struct DdNode;
 struct DdManager;
@@ -38,8 +39,6 @@ class BfsFwdIterator;
 class Vertex;
 
 typedef std::pair<const Instance*, LibertyPort*> SeqPin;
-typedef Map<LibertyPort*, DdNode*> BddPortVarMap;
-typedef Map<unsigned, LibertyPort*> BddVarIdxPortMap;
 
 class SeqPinHash
 {
@@ -68,7 +67,6 @@ class Power : public StaState
 {
 public:
   Power(StaState *sta);
-  ~Power();
   void power(const Corner *corner,
 	     // Return values.
 	     PowerResult &total,
@@ -196,10 +194,6 @@ protected:
                      const Pin *&enable,
                      const Pin *&clk,
                      const Pin *&gclk) const;
-
-  DdNode *funcBdd(const FuncExpr *expr);
-  DdNode *ensureNode(LibertyPort *port);
-  void clearVarMap();
   float evalBddActivity(DdNode *bdd,
                         const Instance *inst);
   float evalBddDuty(DdNode *bdd,
@@ -217,10 +211,7 @@ private:
   PwrActivityMap activity_map_;
   PwrSeqActivityMap seq_activity_map_;
   bool activities_valid_;
-
-  DdManager *cudd_mgr_;
-  BddPortVarMap bdd_port_var_map_;
-  BddVarIdxPortMap bdd_var_idx_port_map_;
+  Bdd bdd_;
 
   static constexpr int max_activity_passes_ = 100;
 
