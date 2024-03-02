@@ -84,8 +84,7 @@ LibertyLibrary::LibertyLibrary(const char *name,
   default_ocv_derate_(nullptr),
   buffers_(nullptr),
   inverters_(nullptr),
-  driver_waveform_default_(nullptr),
-  have_voltage_waveforms_(false)
+  driver_waveform_default_(nullptr)
 {
   // Scalar templates are builtin.
   for (int i = 0; i != table_template_type_count; i++) {
@@ -895,33 +894,6 @@ LibertyLibrary::addDriverWaveform(DriverWaveform *driver_waveform)
   }
 }
 
-void
-LibertyLibrary::ensureVoltageWaveforms()
-{
-  if (!have_voltage_waveforms_) {
-    float vdd = 0.0f;
-    bool vdd_exists;
-    supplyVoltage("VDD", vdd, vdd_exists);
-    if (!vdd_exists || vdd == 0.0)
-      criticalError(1120, "library missing vdd");
-    LibertyCellIterator cell_iter(this);
-    while (cell_iter.hasNext()) {
-      LibertyCell *cell = cell_iter.next();
-      for (TimingArcSet *arc_set : cell->timingArcSets(nullptr, nullptr)) {
-        for (TimingArc *arc : arc_set->arcs()) {
-          GateTableModel*model = dynamic_cast<GateTableModel*>(arc->model());
-          if (model) {
-            OutputWaveforms *output_waveforms = model->outputWaveforms();
-            if (output_waveforms)
-              output_waveforms->makeVoltageWaveforms(vdd);
-          }
-        }
-      }
-    }
-    have_voltage_waveforms_ = true;
-  }
-}
-
 ////////////////////////////////////////////////////////////////
 
 LibertyCellIterator::LibertyCellIterator(const LibertyLibrary *library) :
@@ -969,7 +941,8 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   is_disabled_constraint_(false),
   leakage_power_(0.0),
   leakage_power_exists_(false),
-  has_internal_ports_(false)
+  has_internal_ports_(false),
+  have_voltage_waveforms_(false)
 {
   liberty_cell_ = this;
 }
@@ -1101,13 +1074,13 @@ LibertyCell::setIsMemory(bool is_memory)
 }
 
 void
-LibertyCell::LibertyCell::setIsPad(bool is_pad)
+LibertyCell::setIsPad(bool is_pad)
 {
   is_pad_ = is_pad;
 }
 
 void
-LibertyCell::LibertyCell::setIsClockCell(bool is_clock_cell)
+LibertyCell::setIsClockCell(bool is_clock_cell)
 {
   is_clock_cell_ = is_clock_cell;
 }
@@ -1919,6 +1892,29 @@ LibertyCell::latchCheckEnableEdge(TimingArcSet *check_set)
     return nullptr;
 }
 
+void
+LibertyCell::ensureVoltageWaveforms()
+{
+  if (!have_voltage_waveforms_) {
+    float vdd = 0.0;
+    bool vdd_exists;
+    liberty_library_->supplyVoltage("VDD", vdd, vdd_exists);
+    if (!vdd_exists || vdd == 0.0)
+      criticalError(1120, "library missing vdd");
+    for (TimingArcSet *arc_set : timingArcSets()) {
+      for (TimingArc *arc : arc_set->arcs()) {
+        GateTableModel*model = dynamic_cast<GateTableModel*>(arc->model());
+        if (model) {
+          OutputWaveforms *output_waveforms = model->outputWaveforms();
+          if (output_waveforms)
+            output_waveforms->makeVoltageWaveforms(vdd);
+        }
+      }
+    }
+    have_voltage_waveforms_ = true;
+  }
+}
+
 ////////////////////////////////////////////////////////////////
 
 LibertyCellPortIterator::LibertyCellPortIterator(const LibertyCell *cell) :
@@ -2005,6 +2001,10 @@ LibertyPort::LibertyPort(LibertyCell *cell,
   liberty_port_ = this;
   min_pulse_width_[RiseFall::riseIndex()] = 0.0;
   min_pulse_width_[RiseFall::fallIndex()] = 0.0;
+  for (auto rf_index : RiseFall::rangeIndex()) {
+    for (auto mm_index : MinMax::rangeIndex())
+      clk_tree_delay_[rf_index][mm_index] = nullptr;
+  }
 }
 
 LibertyPort::~LibertyPort()
@@ -2598,29 +2598,45 @@ LibertyPort::setDriverWaveform(DriverWaveform *driver_waveform,
 }
 
 RiseFallMinMax
-LibertyPort::clockTreePathDelays()
+LibertyPort::clockTreePathDelays() const
+{
+  return clkTreeDelays();
+}
+
+RiseFallMinMax
+LibertyPort::clkTreeDelays() const
 {
   RiseFallMinMax delays;
-  const TimingArcSetSeq &arc_sets = liberty_cell_->timingArcSets(nullptr, this);
-  for (TimingArcSet *arc_set : arc_sets) {
-    TimingRole *role = arc_set->role();
-    if (role == TimingRole::clockTreePathMin()
-        || role == TimingRole::clockTreePathMax()) {
-      for (TimingArc *arc : arc_set->arcs()) {
-        TimingModel *model = arc->model();
-        GateTimingModel *gate_model = dynamic_cast<GateTimingModel*>(model);
-        ArcDelay delay;
-        Slew slew;
-        gate_model->gateDelay(nullptr, 0.0, 0.0, false, delay, slew);
-        const RiseFall *rf = arc->toEdge()->asRiseFall();
-        const MinMax *min_max = (role == TimingRole::clockTreePathMin())
-          ? MinMax::min()
-          : MinMax::max();
-        delays.setValue(rf, min_max, delayAsFloat(delay));
+  for (const RiseFall *rf : RiseFall::range()) {
+    for (const MinMax *min_max : MinMax::range()) {
+      const TableModel *model = clk_tree_delay_[rf->index()][min_max->index()];
+      if (model) {
+        float delay = model->findValue(0.0, 0.0, 0.0);
+        delays.setValue(rf, min_max, delay);
       }
     }
   }
   return delays;
+}
+
+float
+LibertyPort::clkTreeDelay(float in_slew,
+                          const RiseFall *rf,
+                          const MinMax *min_max) const
+{
+  const TableModel *model = clk_tree_delay_[rf->index()][min_max->index()];
+  if (model)
+    return model->findValue(in_slew, 0.0, 0.0);
+  else
+    return 0.0;
+}
+
+void
+LibertyPort::setClkTreeDelay(const TableModel *model,
+                             const RiseFall *rf,
+                             const MinMax *min_max)
+{
+  clk_tree_delay_[rf->index()][min_max->index()] = model;
 }
 
 ////////////////////////////////////////////////////////////////

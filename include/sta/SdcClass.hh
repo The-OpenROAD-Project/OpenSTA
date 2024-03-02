@@ -75,7 +75,9 @@ public:
 typedef Vector<float> FloatSeq;
 typedef Vector<int> IntSeq;
 typedef Vector<Clock*> ClockSeq;
+typedef std::vector<const Clock*> ConstClockSeq;
 typedef Set<Clock*, ClockIndexLess> ClockSet;
+typedef std::set<const Clock*, ClockIndexLess> ConstClockSet;
 typedef ClockSet ClockGroup;
 typedef Vector<PinSet*> PinSetSeq;
 typedef MinMax SetupHold;

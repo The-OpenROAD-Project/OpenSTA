@@ -2943,6 +2943,10 @@ proc set_input_transition { args } {
 
 ################################################################
 
+# set_load -wire_load port  external wire load
+# set_load -pin_load port   external pin load
+# set_load port             same as -pin_load
+# set_load net              overrides parasitics
 define_cmd_args "set_load" \
   {[-corner corner] [-rise] [-fall] [-max] [-min] [-subtract_pin_load]\
      [-pin_load] [-wire_load] capacitance objects}
@@ -2958,7 +2962,7 @@ proc set_load { args } {
   set subtract_pin_load [info exists flags(-subtract_pin_load)]
   set corner [parse_corner_or_all keys]
   set min_max [parse_min_max_all_check_flags flags]
-  set tr [parse_rise_fall_flags flags]
+  set rf [parse_rise_fall_flags flags]
   
   set cap [lindex $args 0]
   check_positive_float "capacitance" $cap
@@ -2969,11 +2973,11 @@ proc set_load { args } {
     # -pin_load is the default.
     if { $pin_load || (!$pin_load && !$wire_load) } {
       foreach port $ports {
-	set_port_ext_pin_cap $port $tr $corner $min_max $cap
+	set_port_ext_pin_cap $port $rf $corner $min_max $cap
       }
     } elseif { $wire_load } {
       foreach port $ports {
-	set_port_ext_wire_cap $port $subtract_pin_load $tr $corner $min_max $cap
+	set_port_ext_wire_cap $port $subtract_pin_load $rf $corner $min_max $cap
       }
     }
   }
@@ -2984,7 +2988,7 @@ proc set_load { args } {
     if { $wire_load } {
       sta_warn 465 "-wire_load not allowed for net objects."
     }
-    if { $tr != "rise_fall" } {
+    if { $rf != "rise_fall" } {
       sta_warn 466 "-rise/-fall not allowed for net objects."
     }
     foreach net $nets {

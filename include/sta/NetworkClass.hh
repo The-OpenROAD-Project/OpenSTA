@@ -50,6 +50,7 @@ typedef Iterator<Port*> PortMemberIterator;
 typedef Vector<const Pin*> PinSeq;
 typedef Vector<const Instance*> InstanceSeq;
 typedef Vector<const Net*> NetSeq;
+typedef std::vector<const Net*> ConstNetSeq;
 typedef Iterator<Instance*> InstanceChildIterator;
 typedef Iterator<Pin*> InstancePinIterator;
 typedef Iterator<Net*> InstanceNetIterator;

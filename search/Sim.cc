@@ -60,14 +60,13 @@ Sim::Sim(StaState *sta) :
   invalid_load_pins_(network_),
   instances_with_const_pins_(network_),
   instances_to_annotate_(network_),
-  cudd_mgr_(Cudd_Init(0, 0, CUDD_UNIQUE_SLOTS, CUDD_CACHE_SLOTS, 0))
+  bdd_(sta)
 {
 }
 
 Sim::~Sim()
 {
   delete observer_;
-  Cudd_Quit(cudd_mgr_);
 }
 
 #if CUDD
@@ -82,17 +81,18 @@ Sim::functionSense(const FuncExpr *expr,
              expr->asString());
   bool increasing, decreasing;
   {
-    UniqueLock lock(cudd_lock_);
-    DdNode *bdd = funcBdd(expr, inst);
+    UniqueLock lock(bdd_lock_);
+    DdNode *bdd = funcBddSim(expr, inst);
+    DdManager *cudd_mgr = bdd_.cuddMgr();
     LibertyPort *input_port = network_->libertyPort(input_pin);
-    DdNode *input_node = ensureNode(input_port);
+    DdNode *input_node = bdd_.ensureNode(input_port);
     unsigned int input_index = Cudd_NodeReadIndex(input_node);
-    increasing = (Cudd_Increasing(cudd_mgr_, bdd, input_index)
-		  == Cudd_ReadOne(cudd_mgr_));
-    decreasing = (Cudd_Decreasing(cudd_mgr_, bdd, input_index)
-		  == Cudd_ReadOne(cudd_mgr_));
-    Cudd_RecursiveDeref(cudd_mgr_, bdd);
-    clearSymtab();
+    increasing = (Cudd_Increasing(cudd_mgr, bdd, input_index)
+		  == Cudd_ReadOne(cudd_mgr));
+    decreasing = (Cudd_Decreasing(cudd_mgr, bdd, input_index)
+		  == Cudd_ReadOne(cudd_mgr));
+    Cudd_RecursiveDeref(cudd_mgr, bdd);
+    bdd_.clearVarMap();
   }
   TimingSense sense;
   if (increasing && decreasing)
@@ -107,127 +107,57 @@ Sim::functionSense(const FuncExpr *expr,
   return sense;
 }
 
-void
-Sim::clearSymtab() const
-{
-  for (auto name_node : symtab_) {
-    DdNode *sym_node = name_node.second;
-    Cudd_RecursiveDeref(cudd_mgr_, sym_node);
-  }
-  symtab_.clear();
-}
-
 LogicValue
 Sim::evalExpr(const FuncExpr *expr,
-	      const Instance *inst) const
+	      const Instance *inst)
 {
-  UniqueLock lock(cudd_lock_);
-  DdNode *bdd = funcBdd(expr, inst);
+  UniqueLock lock(bdd_lock_);
+  DdNode *bdd = funcBddSim(expr, inst);
   LogicValue value = LogicValue::unknown;
-  if (bdd == Cudd_ReadLogicZero(cudd_mgr_))
+  DdManager *cudd_mgr = bdd_.cuddMgr();
+  if (bdd == Cudd_ReadLogicZero(cudd_mgr))
     value = LogicValue::zero;
-  else if (bdd == Cudd_ReadOne(cudd_mgr_))
+  else if (bdd == Cudd_ReadOne(cudd_mgr))
     value = LogicValue::one;
+
   if (bdd) {
-    Cudd_RecursiveDeref(cudd_mgr_, bdd);
-    clearSymtab();
+    Cudd_RecursiveDeref(bdd_.cuddMgr(), bdd);
+    bdd_.clearVarMap();
   }
   return value;
 }
 
-// Returns nullptr if the expression simply references an internal port.
+// BDD with instance pin values substituted.
 DdNode *
-Sim::funcBdd(const FuncExpr *expr,
-	     const Instance *inst) const
+Sim::funcBddSim(const FuncExpr *expr,
+                const Instance *inst)
 {
-  DdNode *left = nullptr;
-  DdNode *right = nullptr;
-  DdNode *result = nullptr;
-  switch (expr->op()) {
-  case FuncExpr::op_port: {
-    LibertyPort *port = expr->port();
-    Pin *pin = network_->findPin(inst, port);
-    // Internal ports don't have instance pins.
-    if (pin) {
+  DdNode *bdd = bdd_.funcBdd(expr);
+  DdManager *cudd_mgr = bdd_.cuddMgr();
+  InstancePinIterator *pin_iter = network_->pinIterator(inst);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    const LibertyPort *port = network_->libertyPort(pin);
+    DdNode *port_node = bdd_.findNode(port);
+    if (port_node) {
       LogicValue value = logicValue(pin);
+      int var_index = Cudd_NodeReadIndex(port_node);
+      //printf("%s %d %c\n", port->name(), var_index, logicValueString(value));
       switch (value) {
       case LogicValue::zero:
-	result = Cudd_ReadLogicZero(cudd_mgr_);
-	break;
+        bdd = Cudd_bddCompose(cudd_mgr, bdd, Cudd_ReadLogicZero(cudd_mgr), var_index);
+        Cudd_Ref(bdd);
+        break;
       case LogicValue::one:
-	result = Cudd_ReadOne(cudd_mgr_);
-	break;
+        bdd = Cudd_bddCompose(cudd_mgr, bdd, Cudd_ReadOne(cudd_mgr), var_index);
+        Cudd_Ref(bdd);
+        break;
       default:
-	result = ensureNode(port);
-	break;
+        break;
       }
     }
-    break;
   }
-  case FuncExpr::op_not:
-    left = funcBdd(expr->left(), inst);
-    if (left)
-      result = Cudd_Not(left);
-    break;
-  case FuncExpr::op_or:
-    left = funcBdd(expr->left(), inst);
-    right = funcBdd(expr->right(), inst);
-    if (left && right)
-      result = Cudd_bddOr(cudd_mgr_, left, right);
-    else if (left)
-      result = left;
-    else if (right)
-      result = right;
-    break;
-  case FuncExpr::op_and:
-    left = funcBdd(expr->left(), inst);
-    right = funcBdd(expr->right(), inst);
-    if (left && right)
-      result = Cudd_bddAnd(cudd_mgr_, left, right);
-    else if (left)
-      result = left;
-    else if (right)
-      result = right;
-    break;
-  case FuncExpr::op_xor:
-    left = funcBdd(expr->left(), inst);
-    right = funcBdd(expr->right(), inst);
-    if (left && right)
-      result = Cudd_bddXor(cudd_mgr_, left, right);
-    else if (left)
-      result = left;
-    else if (right)
-      result = right;
-    break;
-  case FuncExpr::op_one:
-    result = Cudd_ReadOne(cudd_mgr_);
-    break;
-  case FuncExpr::op_zero:
-    result = Cudd_ReadLogicZero(cudd_mgr_);
-    break;
-  default:
-    report_->critical(1520, "unknown function operator");
-  }
-  if (result)
-    Cudd_Ref(result);
-  if (left)
-    Cudd_RecursiveDeref(cudd_mgr_, left);
-  if (right)
-    Cudd_RecursiveDeref(cudd_mgr_, right);
-  return result;
-}
-
-DdNode *
-Sim::ensureNode(LibertyPort *port) const
-{
-  const char *port_name = port->name();
-  DdNode *node = symtab_.findKey(port_name);
-  if (node == nullptr) {
-    node = Cudd_bddNewVar(cudd_mgr_);
-    symtab_[port_name] = node;
-    Cudd_Ref(node);
-  }
-  return node;
+  return bdd;
 }
 
 #else 
@@ -468,7 +398,7 @@ Sim::functionSense(const FuncExpr *expr,
 
 LogicValue
 Sim::evalExpr(const FuncExpr *expr,
-	      const Instance *inst) const
+	      const Instance *inst)
 {
   switch (expr->op()) {
   case FuncExpr::op_port: {
@@ -1199,7 +1129,7 @@ isCondDisabled(Edge *edge,
 	       const Pin *from_pin,
 	       const Pin *to_pin,
 	       const Network *network,
-	       const Sim *sim)
+	       Sim *sim)
 {
   bool is_disabled;
   FuncExpr *disable_cond;
@@ -1214,7 +1144,7 @@ isCondDisabled(Edge *edge,
 	       const Pin *from_pin,
 	       const Pin *to_pin,
 	       const Network *network,
-	       const Sim *sim,
+	       Sim *sim,
 	       bool &is_disabled,
 	       FuncExpr *&disable_cond)
 {
@@ -1248,7 +1178,7 @@ bool
 isModeDisabled(Edge *edge,
 	       const Instance *inst,
 	       const Network *network,
-	       const Sim *sim)
+	       Sim *sim)
 {
   bool is_disabled;
   FuncExpr *disable_cond;
@@ -1261,7 +1191,7 @@ void
 isModeDisabled(Edge *edge,
 	       const Instance *inst,
 	       const Network *network,
-	       const Sim *sim,
+	       Sim *sim,
 	       bool &is_disabled,
 	       FuncExpr *&disable_cond)
 {

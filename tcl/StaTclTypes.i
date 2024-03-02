@@ -1,4 +1,4 @@
-
+// Swig TCL input/output type parsers.
 %{
 
 #include "Machine.hh"
@@ -22,6 +22,8 @@
 #include "search/Tag.hh"
 #include "PathEnd.hh"
 #include "SearchClass.hh"
+#include "CircuitSim.hh"
+#include "ArcDelayCalc.hh"
 #include "Sta.hh"
 
 namespace sta {
@@ -38,9 +40,9 @@ cmdGraph();
 
 template <class TYPE>
 Vector<TYPE> *
-tclListSeq(Tcl_Obj *const source,
-	   swig_type_info *swig_type,
-	   Tcl_Interp *interp)
+tclListSeqPtr(Tcl_Obj *const source,
+              swig_type_info *swig_type,
+              Tcl_Interp *interp)
 {
   int argc;
   Tcl_Obj **argv;
@@ -60,11 +62,33 @@ tclListSeq(Tcl_Obj *const source,
     return nullptr;
 }
 
+template <class TYPE>
+std::vector<TYPE>
+tclListSeq(Tcl_Obj *const source,
+           swig_type_info *swig_type,
+           Tcl_Interp *interp)
+{
+  int argc;
+  Tcl_Obj **argv;
+
+  std::vector<TYPE> seq;
+  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
+      && argc > 0) {
+    for (int i = 0; i < argc; i++) {
+      void *obj;
+      // Ignore returned TCL_ERROR because can't get swig_type_info.
+      SWIG_ConvertPtr(argv[i], &obj, swig_type, false);
+      seq.push_back(reinterpret_cast<TYPE>(obj));
+    }
+  }
+  return seq;
+}
+
 template <class SET_TYPE, class OBJECT_TYPE>
 SET_TYPE *
-tclListSet(Tcl_Obj *const source,
-	   swig_type_info *swig_type,
-	   Tcl_Interp *interp)
+tclListSetPtr(Tcl_Obj *const source,
+              swig_type_info *swig_type,
+              Tcl_Interp *interp)
 {
   int argc;
   Tcl_Obj **argv;
@@ -81,6 +105,29 @@ tclListSet(Tcl_Obj *const source,
   }
   else
     return nullptr;
+}
+
+template <class SET_TYPE, class OBJECT_TYPE>
+SET_TYPE
+tclListSet(Tcl_Obj *const source,
+           swig_type_info *swig_type,
+           Tcl_Interp *interp)
+{
+  int argc;
+  Tcl_Obj **argv;
+  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
+      && argc > 0) {
+    SET_TYPE set;
+    for (int i = 0; i < argc; i++) {
+      void *obj;
+      // Ignore returned TCL_ERROR because can't get swig_type_info.
+      SWIG_ConvertPtr(argv[i], &obj, swig_type, false);
+      set.insert(reinterpret_cast<OBJECT_TYPE>(obj));
+    }
+    return set;
+  }
+  else
+    return SET_TYPE();
 }
 
 template <class SET_TYPE, class OBJECT_TYPE>
@@ -361,7 +408,7 @@ using namespace sta;
 }
 
 %typemap(in) CellSeq* {
-  $1 = tclListSeq<Cell*>($input, SWIGTYPE_p_Cell, interp);
+  $1 = tclListSeqPtr<Cell*>($input, SWIGTYPE_p_Cell, interp);
 }
 
 %typemap(out) CellSeq {
@@ -396,7 +443,7 @@ using namespace sta;
 }
 
 %typemap(in) PortSeq* {
-  $1 = tclListSeq<const Port*>($input, SWIGTYPE_p_Port, interp);
+  $1 = tclListSeqPtr<const Port*>($input, SWIGTYPE_p_Port, interp);
 }
 
 %typemap(out) PortSeq {
@@ -567,7 +614,7 @@ using namespace sta;
 }
 
 %typemap(in) InstanceSeq* {
-  $1 = tclListSeq<const Instance*>($input, SWIGTYPE_p_Instance, interp);
+  $1 = tclListSeqPtr<const Instance*>($input, SWIGTYPE_p_Instance, interp);
 }
 
 %typemap(out) InstanceSeq {
@@ -617,6 +664,10 @@ using namespace sta;
   seqPtrTclList<NetSeq, Net>($1, SWIGTYPE_p_Net, interp);
 }
 
+%typemap(in) ConstNetSeq {
+  $1 = tclListSeq<const Net*>($input, SWIGTYPE_p_Net, interp);
+}
+
 %typemap(out) NetSeq {
   seqTclList<NetSeq, Net>($1, SWIGTYPE_p_Net, interp);
 }
@@ -646,6 +697,10 @@ using namespace sta;
   Tcl_SetObjResult(interp, obj);
 }
 
+%typemap(in) ConstClockSeq {
+  $1 = tclListSeq<const Clock*>($input, SWIGTYPE_p_Clock, interp);
+}
+
 %typemap(out) ClockSeq* {
   seqPtrTclList<ClockSeq, Clock>($1, SWIGTYPE_p_Clock, interp);
 }
@@ -660,7 +715,7 @@ using namespace sta;
 }
 
 %typemap(in) PinSeq* {
-  $1 = tclListSeq<const Pin*>($input, SWIGTYPE_p_Pin, interp);
+  $1 = tclListSeqPtr<const Pin*>($input, SWIGTYPE_p_Pin, interp);
 }
 
 %typemap(in) PinSet* {
@@ -687,8 +742,12 @@ using namespace sta;
   Tcl_SetObjResult(interp, list);
 }
 
+%typemap(in) ConstClockSet {
+  $1 = tclListSet<ConstClockSet, Clock>($input, SWIGTYPE_p_Clock, interp);
+}
+
 %typemap(in) ClockSet* {
-  $1 = tclListSet<ClockSet, Clock>($input, SWIGTYPE_p_Clock, interp);
+  $1 = tclListSetPtr<ClockSet, Clock>($input, SWIGTYPE_p_Clock, interp);
 }
 
 %typemap(out) ClockSet* {
@@ -1011,7 +1070,7 @@ using namespace sta;
 }
 
 %typemap(in) ExceptionThruSeq* {
-  $1 = tclListSeq<ExceptionThru*>($input, SWIGTYPE_p_ExceptionThru, interp);
+  $1 = tclListSeqPtr<ExceptionThru*>($input, SWIGTYPE_p_ExceptionThru, interp);
 }
 
 %typemap(out) Vertex* {
@@ -1037,7 +1096,7 @@ using namespace sta;
 }
 
 %typemap(in) EdgeSeq* {
-  $1 = tclListSeq<Edge*>($input, SWIGTYPE_p_Edge, interp);
+  $1 = tclListSeqPtr<Edge*>($input, SWIGTYPE_p_Edge, interp);
 }
 
 %typemap(out) EdgeSeq {
@@ -1347,4 +1406,23 @@ using namespace sta;
   }
     break;
   }
+}
+
+%typemap(in) CircuitSim {
+  int length;
+  char *arg = Tcl_GetStringFromObj($input, &length);
+  if (stringEq(arg, "hspice"))
+    $1 = CircuitSim::hspice;
+  else if (stringEq(arg, "ngspice"))
+    $1 = CircuitSim::ngspice;
+  else if (stringEq(arg, "xyce"))
+    $1 = CircuitSim::xyce;
+  else {
+    tclArgError(interp, "unknown circuit simulator %s.", arg);
+    return TCL_ERROR;
+  }
+}
+
+%typemap(in) ArcDcalcArgPtrSeq {
+  $1 = tclListSeq<ArcDcalcArg*>($input, SWIGTYPE_p_ArcDcalcArg, interp);
 }

@@ -163,11 +163,20 @@ public:
   // True if the parasitic network caps include pin capacitances.
   virtual bool includesPinCaps(const Parasitic *parasitic) const = 0;
   // Parasitic network component builders.
+  virtual ParasiticNode *findParasiticNode(Parasitic *parasitic,
+                                           const Net *net,
+                                           int id,
+                                           const Network *network) const = 0;
   // Make a subnode of the parasitic network net.
   virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
 					     const Net *net,
 					     int id,
                                              const Network *network) = 0;
+  // Find the parasitic node connected to pin.
+  virtual ParasiticNode *findParasiticNode(const Parasitic *parasitic,
+                                           const Pin *pin) const = 0;
+  virtual ParasiticNode *findNode(const Parasitic *parasitic,
+				  const Pin *pin) const __attribute__ ((deprecated));
   // Make a subnode of the parasitic network net connected to pin.
   virtual ParasiticNode *ensureParasiticNode(Parasitic *parasitic,
 					     const Pin *pin,
@@ -175,14 +184,11 @@ public:
   // Increment the grounded capacitance on node.
   virtual void incrCap(ParasiticNode *node,
 		       float cap) = 0;
-  virtual const char *name(const ParasiticNode *node) = 0;
+  virtual const char *name(const ParasiticNode *node) const = 0;
   virtual const Pin *pin(const ParasiticNode *node) const = 0;
   virtual const Net *net(const ParasiticNode *node,
                          const Network *network) const = 0;
   virtual bool isExternal(const ParasiticNode *node) const = 0;
-  // Find the parasitic node connected to pin.
-  virtual ParasiticNode *findNode(const Parasitic *parasitic,
-				  const Pin *pin) const = 0;
   // Node capacitance to ground.
   virtual float nodeGndCap(const ParasiticNode *node) const = 0;
 

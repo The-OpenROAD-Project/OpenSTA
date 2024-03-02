@@ -312,7 +312,7 @@ proc delays_are_inf { delays } {
 
 define_cmd_args "report_clock_skew" {[-setup|-hold]\
 					   [-clock clocks]\
-					   [-corner corner]]\
+					   [-corner corner]\
 					   [-digits digits]}
 
 proc_redirect report_clock_skew {
@@ -346,6 +346,36 @@ proc_redirect report_clock_skew {
   }
   if { $clks != {} } {
     report_clk_skew $clks $corner $setup_hold $digits
+  }
+}
+
+################################################################
+
+define_cmd_args "report_clock_latency" {[-clock clocks]\
+                                          [-corner corner]\
+                                          [-digits digits]}
+
+proc_redirect report_clock_latency {
+  global sta_report_default_digits
+
+  parse_key_args "report_clock_" args \
+    keys {-clock -corner -digits} flags {}
+  check_argc_eq0 "report_clock_latency" $args
+
+  if [info exists keys(-clock)] {
+    set clks [get_clocks_warn "-clocks" $keys(-clock)]
+  } else {
+    set clks [all_clocks]
+  }
+  set corner [parse_corner_or_all keys]
+  if [info exists keys(-digits)] {
+    set digits $keys(-digits)
+    check_positive_integer "-digits" $digits
+  } else {
+    set digits $sta_report_default_digits
+  }
+  if { $clks != {} } {
+    report_clk_latency $clks $corner $digits
   }
 }
 
@@ -648,15 +678,6 @@ proc report_capacitance_limits { net corner min_max violators verbose nosplit } 
 
 ################################################################
 
-define_cmd_args "report_dcalc" \
-  {[-from from_pin] [-to to_pin] [-corner corner] [-min] [-max] [-digits digits]}
-
-proc_redirect report_dcalc {
-  report_dcalc_cmd "report_dcalc" $args "-digits"
-}
-
-################################################################
-
 define_cmd_args "report_disabled_edges" {}
 
 ################################################################
@@ -777,7 +798,7 @@ proc_redirect report_path {
   check_argc_eq2 "report_path" $args
 
   set pin_arg [lindex $args 0]
-  set tr [parse_rise_fall_arg [lindex $args 1]]
+  set rf [parse_rise_fall_arg [lindex $args 1]]
 
   set pin [get_port_pin_error "pin" $pin_arg]
   if { [$pin is_hierarchical] } {
@@ -787,7 +808,7 @@ proc_redirect report_path {
       if { $vertex != "NULL" } {
 	if { $report_all } {
 	  set first 1
-	  set path_iter [$vertex path_iterator $tr $min_max]
+	  set path_iter [$vertex path_iterator $rf $min_max]
 	  while {[$path_iter has_next]} {
 	    set path [$path_iter next]
 	    if { $first }  {
@@ -804,7 +825,7 @@ proc_redirect report_path {
 	  }
 	  $path_iter finish
 	} else {
-	  set worst_path [vertex_worst_arrival_path_rf $vertex $tr $min_max]
+	  set worst_path [vertex_worst_arrival_path_rf $vertex $rf $min_max]
 	  if { $worst_path != "NULL" } {
 	    if { $report_tags } {
 	      report_line "Tag: [$worst_path tag]"
@@ -815,16 +836,6 @@ proc_redirect report_path {
 	}
       }
     }
-  }
-}
-
-proc parse_rise_fall_arg { arg } {
-  if { $arg eq "r" || $arg eq "^" || $arg eq "rise" } {
-    return "rise"
-  } elseif { $arg eq "f" || $arg eq "v" || $arg eq "fall" } {
-    return "fall"
-  } else {
-    error "unknown rise/fall transition name."
   }
 }
 

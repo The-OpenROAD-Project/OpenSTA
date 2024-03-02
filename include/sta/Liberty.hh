@@ -319,7 +319,6 @@ public:
   DriverWaveform *findDriverWaveform(const char *name);
   DriverWaveform *driverWaveformDefault() { return driver_waveform_default_; }
   void addDriverWaveform(DriverWaveform *driver_waveform);
-  void ensureVoltageWaveforms();
 
 protected:
   float degradeWireSlew(const TableModel *model,
@@ -371,7 +370,6 @@ protected:
   DriverWaveformMap driver_waveform_map_;
   // Unnamed driver waveform.
   DriverWaveform *driver_waveform_default_;
-  bool have_voltage_waveforms_;
 
   static constexpr float input_threshold_default_ = .5;
   static constexpr float output_threshold_default_ = .5;
@@ -533,6 +531,7 @@ public:
   // Check all liberty cells to make sure they exist
   // for all the defined corners.
   static void checkLibertyCorners();
+  void ensureVoltageWaveforms();
 
 protected:
   void addPort(ConcretePort *port);
@@ -608,6 +607,7 @@ protected:
   bool leakage_power_exists_;
   LibertyPgPortMap pg_port_map_;
   bool has_internal_ports_;
+  bool have_voltage_waveforms_;
 
 private:
   friend class LibertyLibrary;
@@ -795,7 +795,15 @@ public:
   DriverWaveform *driverWaveform(const RiseFall *rf) const;
   void setDriverWaveform(DriverWaveform *driver_waveform,
                          const RiseFall *rf);
-  RiseFallMinMax clockTreePathDelays();
+  void setClkTreeDelay(const TableModel *model,
+                       const RiseFall *rf,
+                       const MinMax *min_max);
+  float clkTreeDelay(float in_slew,
+                     const RiseFall *rf,
+                     const MinMax *min_max) const;
+  // Assumes input slew of 0.0.
+  RiseFallMinMax clkTreeDelays() const;
+  RiseFallMinMax clockTreePathDelays() const; // __attribute__ ((deprecated))
 
   static bool equiv(const LibertyPort *port1,
 		    const LibertyPort *port2);
@@ -837,6 +845,8 @@ protected:
   Vector<LibertyPort*> corner_ports_;
   ReceiverModelPtr receiver_model_;
   DriverWaveform *driver_waveform_[RiseFall::index_count];
+  // Redundant with clock_tree_path_delay timing arcs but faster to access.
+  const TableModel *clk_tree_delay_[RiseFall::index_count][MinMax::index_count];
 
   unsigned int min_pulse_width_exists_:RiseFall::index_count;
   bool min_period_exists_:1;

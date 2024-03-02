@@ -57,6 +57,7 @@ public:
 private:
   void makeLibrary();
   void makeCell();
+  float findArea();
   void makePorts();
   void checkClock(Clock *clk);
   void findTimingFromInputs();

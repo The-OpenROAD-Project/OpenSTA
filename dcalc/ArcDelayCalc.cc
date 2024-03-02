@@ -16,6 +16,10 @@
 
 #include "ArcDelayCalc.hh"
 
+#include "Liberty.hh"
+#include "TimingArc.hh"
+#include "Network.hh"
+
 namespace sta {
 
 ArcDelayCalc::ArcDelayCalc(StaState *sta):
@@ -53,17 +57,83 @@ ArcDcalcArg::ArcDcalcArg() :
 {
 }
 
-ArcDcalcArg::ArcDcalcArg(const Pin *drvr_pin,
+ArcDcalcArg::ArcDcalcArg(const Pin *in_pin,
+                         const Pin *drvr_pin,
                          Edge *edge,
                          const TimingArc *arc,
                          const Slew in_slew,
                          const Parasitic *parasitic) :
+  in_pin_(in_pin),
   drvr_pin_(drvr_pin),
   edge_(edge),
   arc_(arc),
   in_slew_(in_slew),
-  parasitic_(parasitic)
+  parasitic_(parasitic),
+  input_delay_(0.0)
 {
+}
+
+ArcDcalcArg::ArcDcalcArg(const Pin *in_pin,
+                         const Pin *drvr_pin,
+                         Edge *edge,
+                         const TimingArc *arc,
+                         float input_delay) :
+  in_pin_(in_pin),
+  drvr_pin_(drvr_pin),
+  edge_(edge),
+  arc_(arc),
+  in_slew_(0.0),
+  parasitic_(nullptr),
+  input_delay_(input_delay)
+{
+}
+
+ArcDcalcArg::ArcDcalcArg(const ArcDcalcArg &arg) :
+  in_pin_(arg.in_pin_),
+  drvr_pin_(arg.drvr_pin_),
+  edge_(arg.edge_),
+  arc_(arg.arc_),
+  in_slew_(arg.in_slew_),
+  parasitic_(arg.parasitic_),
+  input_delay_(arg.input_delay_)
+{
+}
+
+const RiseFall *
+ArcDcalcArg::inEdge() const
+{
+  return arc_->fromEdge()->asRiseFall();
+}
+
+LibertyCell *
+ArcDcalcArg::drvrCell() const
+{
+
+  return arc_->to()->libertyCell();
+}
+
+const LibertyLibrary *
+ArcDcalcArg::drvrLibrary() const
+{
+  return arc_->to()->libertyLibrary();
+}
+
+const RiseFall *
+ArcDcalcArg::drvrEdge() const
+{
+  return arc_->toEdge()->asRiseFall();
+}
+
+const Net *
+ArcDcalcArg::drvrNet(const Network *network) const
+{
+  return network->net(drvr_pin_);
+}
+
+void
+ArcDcalcArg::setInSlew(Slew in_slew)
+{
+  in_slew_ = in_slew;
 }
 
 void
