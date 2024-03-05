@@ -7,8 +7,8 @@ Path Type: max
 ---------------------------------------------------------
    0.00    0.00   clock clk (rise edge)
    0.00    0.00   clock network delay (ideal)
-   0.00    0.00 ^ _1521_/CLK (sky130_fd_sc_hd__dfrtp_1) src: synthesis/tests/counter.v:22.3-28.6
-   0.37    0.37 ^ _1521_/Q (sky130_fd_sc_hd__dfrtp_1) src: synthesis/tests/counter.v:22.3-28.6
+   0.00    0.00 ^ _1521_/CLK (sky130_fd_sc_hd__dfrtp_1)
+   0.37    0.37 ^ _1521_/Q (sky130_fd_sc_hd__dfrtp_1)
    0.28    0.65 ^ _1016_/X (sky130_fd_sc_hd__and4_1)
    0.27    0.92 ^ _1018_/X (sky130_fd_sc_hd__and4_1)
    0.16    1.08 v _1021_/Y (sky130_fd_sc_hd__nand4_1)
@@ -52,13 +52,13 @@ Path Type: max
    0.30   12.96 ^ _1224_/X (sky130_fd_sc_hd__and4_1)
    0.13   13.08 v _1226_/Y (sky130_fd_sc_hd__nand4_1)
    0.13   13.22 v _1236_/Y (sky130_fd_sc_hd__xnor2_1)
-   0.00   13.22 v _1520_/D (sky130_fd_sc_hd__dfrtp_1) src: synthesis/tests/counter.v:22.3-28.6
+   0.00   13.22 v _1520_/D (sky130_fd_sc_hd__dfrtp_1)
           13.22   data arrival time
 
   50.00   50.00   clock clk (rise edge)
    0.00   50.00   clock network delay (ideal)
    0.00   50.00   clock reconvergence pessimism
-          50.00 ^ _1520_/CLK (sky130_fd_sc_hd__dfrtp_1) src: synthesis/tests/counter.v:22.3-28.6
+          50.00 ^ _1520_/CLK (sky130_fd_sc_hd__dfrtp_1)
   -0.12   49.88   library setup time
           49.88   data required time
 ---------------------------------------------------------
