@@ -737,7 +737,6 @@ public:
 private:
   const char *key_;
   const char *value_;
-
 };
 
 } // namespace
