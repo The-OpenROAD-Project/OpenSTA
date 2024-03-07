@@ -1896,7 +1896,7 @@ void
 LibertyCell::ensureVoltageWaveforms()
 {
   if (!have_voltage_waveforms_) {
-    float vdd;
+    float vdd = 0;
     bool vdd_exists;
     liberty_library_->supplyVoltage("VDD", vdd, vdd_exists);
     if (!vdd_exists || vdd == 0.0)
