@@ -64,6 +64,10 @@ private:
   void findTimingFromInput(Port *input_port);
   void findClkedOutputPaths();
   void findClkInsertionDelays();
+  void makeClkTreePaths(LibertyPort *lib_port,
+                        const MinMax *min_max,
+                        TimingSense sense,
+                        const ClkDelays &delays);
   void findOutputDelays(const RiseFall *input_rf,
                         OutputPinDelays &output_pin_delays);
   void makeSetupHoldTimingArcs(const Pin *input_pin,

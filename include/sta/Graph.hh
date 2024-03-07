@@ -221,6 +221,8 @@ protected:
   void makePinVertices(const Instance *inst);
   void makeWireEdgesFromPin(const Pin *drvr_pin,
 			    PinSet &visited_drvrs);
+  bool isIsolatedNet(PinSeq &drvrs,
+                     PinSeq &loads) const;
   void makeWireEdges();
   virtual void makeInstDrvrWireEdges(const Instance *inst,
 				     PinSet &visited_drvrs);
@@ -289,6 +291,8 @@ public:
   Level level() const { return level_; }
   void setLevel(Level level);
   bool isRoot() const{ return level_ == 0; }
+  bool hasFanin() const;
+  bool hasFanout() const;
   LevelColor color() const { return static_cast<LevelColor>(color_); }
   void setColor(LevelColor color);
   ArrivalId arrivals() { return arrivals_; }

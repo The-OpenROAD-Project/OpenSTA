@@ -276,9 +276,18 @@ Graph::makeWireEdgesFromPin(const Pin *drvr_pin,
 {
   // Find all drivers and loads on the net to avoid N*M run time
   // for large fanin/fanout nets.
-  PinSeq loads, drvrs;
+  PinSeq drvrs, loads;
   FindNetDrvrLoads visitor(drvr_pin, visited_drvrs, loads, drvrs, network_);
   network_->visitConnectedPins(drvr_pin, visitor);
+
+  if (isIsolatedNet(drvrs, loads)) {
+    for (auto drvr_pin : drvrs) {
+      visited_drvrs.insert(drvr_pin);
+      debugPrint(debug_, "graph", 1, "ignoring isolated driver %s",
+                 network_->pathName(drvr_pin));
+    }
+    return;
+  }
 
   for (auto drvr_pin : drvrs) {
     for (auto load_pin : loads) {
@@ -286,6 +295,35 @@ Graph::makeWireEdgesFromPin(const Pin *drvr_pin,
 	makeWireEdge(drvr_pin, load_pin);
     }
   }
+}
+
+// Check for nets with bidirect drivers that have no fanin or
+// fanout. One example of these nets are bidirect pad ring pins
+// are connected together but have no function but are marked
+// as signal nets.
+// These nets tickle N^2 behaviors that have no function.
+bool
+Graph::isIsolatedNet(PinSeq &drvrs,
+                     PinSeq &loads) const
+{
+  if (drvrs.size() < 10)
+    return false;
+  // Check that all drivers have no fanin.
+  for (auto drvr_pin : drvrs) {
+    Vertex *drvr_vertex = pinDrvrVertex(drvr_pin);
+    if (network_->isTopLevelPort(drvr_pin)
+        || drvr_vertex->hasFanin())
+      return false;
+  }
+  // Check for fanout on the load pins.
+  for (auto load_pin : loads) {
+    Vertex *load_vertex = pinLoadVertex(load_pin);
+    if (load_vertex->hasFanout()
+        || load_vertex->hasChecks()) {
+      return false;
+    }
+  }
+  return true;
 }
 
 void
@@ -536,7 +574,7 @@ Graph::makeArrivals(Vertex *vertex,
 		    uint32_t count)
 {
   if (vertex->arrivals() != arrival_null)
-    debugPrint(debug_, "leaks", 617, "arrival leak");
+    debugPrint(debug_, "graph", 1, "arrival leak");
   Arrival *arrivals;
   ArrivalId id;
   {
@@ -569,7 +607,7 @@ Graph::makeRequireds(Vertex *vertex,
                      uint32_t count)
 {
   if (vertex->requireds() != arrival_null)
-    debugPrint(debug_, "leaks", 617, "required leak");
+    debugPrint(debug_, "graph", 1, "required leak");
   Required *requireds;
   ArrivalId id;
   {
@@ -1279,6 +1317,18 @@ void
 Vertex::setIsDisabledConstraint(bool disabled)
 {
   is_disabled_constraint_ = disabled;
+}
+
+bool
+Vertex::hasFanin() const
+{
+  return in_edges_ != edge_id_null;
+}
+
+bool
+Vertex::hasFanout() const
+{
+  return out_edges_ != edge_id_null;
 }
 
 void

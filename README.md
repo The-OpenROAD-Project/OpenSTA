@@ -61,8 +61,8 @@ compiled locally.  Derivative works are supported as long as they
 adhere to the GPL license requirements.  However, OpenSTA is not
 supported by a public community of developers as many other open
 source projects are. The copyright and develpment are exclusive to
-Parallax Software. OpenSTA does not solicit or accept external code
-contributions.
+Parallax Software. Contributors must signing the Contributor License
+Agreement (doc/CLA.txt) when submitting pull requests.
 
 Removing copyright and license notices from OpenSTA sources (or any
 other open source project for that matter) is illegal. This should be

@@ -168,9 +168,8 @@ MakeTimingModel::findArea()
   while (leaf_iter->hasNext()) {
     const Instance *inst = leaf_iter->next();
     const LibertyCell *cell = network_->libertyCell(inst);
-    if (cell) {
+    if (cell)
       area += cell->area();
-    }
   }
   delete leaf_iter;
   return area;
@@ -546,30 +545,8 @@ MakeTimingModel::findClkInsertionDelays()
           for (const Clock *clk : *clks) {
             ClkDelays delays = sta_->findClkDelays(clk);
             for (const MinMax *min_max : MinMax::range()) {
-              TimingArcAttrsPtr attrs = nullptr;
-              for (const RiseFall *clk_rf : RiseFall::range()) {
-                float delay = min_max->initValue();
-                for (const RiseFall *end_rf : RiseFall::range()) {
-                  PathVertex clk_path;
-                  float insertion, delay1, lib_clk_delay, latency;
-                  bool exists;
-                  delays.delay(clk_rf, end_rf, min_max, insertion, delay1,
-                               lib_clk_delay, latency, clk_path, exists);
-                  if (exists)
-                    delay = min_max->minMax(delay, delayAsFloat(delay1));
-                }
-                TimingModel *model = makeGateModelScalar(delay, clk_rf);
-                if (attrs == nullptr)
-                  attrs = std::make_shared<TimingArcAttrs>();
-                attrs->setModel(clk_rf, model);
-              }
-              if (attrs)
-                attrs->setTimingSense(TimingSense::positive_unate);
-              TimingRole *role = (min_max == MinMax::min())
-                ? TimingRole::clockTreePathMin()
-                : TimingRole::clockTreePathMax();
-              lib_builder_->makeClockTreePathArcs(cell_, lib_port, role,
-                                                  min_max, attrs);
+              makeClkTreePaths(lib_port, min_max, TimingSense::positive_unate, delays);
+              makeClkTreePaths(lib_port, min_max, TimingSense::negative_unate, delays);
             }
           }
         }
@@ -577,6 +554,38 @@ MakeTimingModel::findClkInsertionDelays()
     }
   }
   delete port_iter;
+}
+
+void
+MakeTimingModel::makeClkTreePaths(LibertyPort *lib_port,
+                                  const MinMax *min_max,
+                                  TimingSense sense,
+                                  const ClkDelays &delays)
+{
+  TimingArcAttrsPtr attrs = nullptr;
+  for (const RiseFall *clk_rf : RiseFall::range()) {
+    const RiseFall *end_rf = (sense == TimingSense::positive_unate)
+      ? clk_rf
+      : clk_rf->opposite();
+    PathVertex clk_path;
+    float insertion, delay, lib_clk_delay, latency;
+    bool exists;
+    delays.delay(clk_rf, end_rf, min_max, insertion, delay,
+                 lib_clk_delay, latency, clk_path, exists);
+    if (exists) {
+      TimingModel *model = makeGateModelScalar(delay, end_rf);
+      if (attrs == nullptr)
+        attrs = std::make_shared<TimingArcAttrs>();
+      attrs->setModel(end_rf, model);
+    }
+  }
+  if (attrs) {
+    attrs->setTimingSense(sense);
+    TimingRole *role = (min_max == MinMax::min())
+      ? TimingRole::clockTreePathMin()
+      : TimingRole::clockTreePathMax();
+    lib_builder_->makeClockTreePathArcs(cell_, lib_port, role, min_max, attrs);
+  }
 }
 
 ////////////////////////////////////////////////////////////////

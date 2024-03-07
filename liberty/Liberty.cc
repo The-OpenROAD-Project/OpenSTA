@@ -1896,7 +1896,7 @@ void
 LibertyCell::ensureVoltageWaveforms()
 {
   if (!have_voltage_waveforms_) {
-    float vdd = 0.0;
+    float vdd = 0;
     bool vdd_exists;
     liberty_library_->supplyVoltage("VDD", vdd, vdd_exists);
     if (!vdd_exists || vdd == 0.0)
@@ -2001,9 +2001,11 @@ LibertyPort::LibertyPort(LibertyCell *cell,
   liberty_port_ = this;
   min_pulse_width_[RiseFall::riseIndex()] = 0.0;
   min_pulse_width_[RiseFall::fallIndex()] = 0.0;
-  for (auto rf_index : RiseFall::rangeIndex()) {
-    for (auto mm_index : MinMax::rangeIndex())
-      clk_tree_delay_[rf_index][mm_index] = nullptr;
+  for (auto from_rf_index : RiseFall::rangeIndex()) {
+    for (auto to_rf_index : RiseFall::rangeIndex()) {
+      for (auto mm_index : MinMax::rangeIndex())
+        clk_tree_delay_[from_rf_index][to_rf_index][mm_index] = nullptr;
+    }
   }
 }
 
@@ -2607,12 +2609,15 @@ RiseFallMinMax
 LibertyPort::clkTreeDelays() const
 {
   RiseFallMinMax delays;
-  for (const RiseFall *rf : RiseFall::range()) {
-    for (const MinMax *min_max : MinMax::range()) {
-      const TableModel *model = clk_tree_delay_[rf->index()][min_max->index()];
-      if (model) {
-        float delay = model->findValue(0.0, 0.0, 0.0);
-        delays.setValue(rf, min_max, delay);
+  for (const RiseFall *from_rf : RiseFall::range()) {
+    for (const RiseFall *to_rf : RiseFall::range()) {
+      for (const MinMax *min_max : MinMax::range()) {
+        const TableModel *model =
+          clk_tree_delay_[from_rf->index()][to_rf->index()][min_max->index()];
+        if (model) {
+          float delay = model->findValue(0.0, 0.0, 0.0);
+          delays.setValue(from_rf, min_max, delay);
+        }
       }
     }
   }
@@ -2624,7 +2629,21 @@ LibertyPort::clkTreeDelay(float in_slew,
                           const RiseFall *rf,
                           const MinMax *min_max) const
 {
-  const TableModel *model = clk_tree_delay_[rf->index()][min_max->index()];
+  const TableModel *model = clk_tree_delay_[rf->index()][rf->index()][min_max->index()];
+  if (model)
+    return model->findValue(in_slew, 0.0, 0.0);
+  else
+    return 0.0;
+}
+
+float
+LibertyPort::clkTreeDelay(float in_slew,
+                          const RiseFall *from_rf,
+                          const RiseFall *to_rf,
+                          const MinMax *min_max) const
+{
+  const TableModel *model =
+    clk_tree_delay_[from_rf->index()][to_rf->index()][min_max->index()];
   if (model)
     return model->findValue(in_slew, 0.0, 0.0);
   else
@@ -2633,10 +2652,11 @@ LibertyPort::clkTreeDelay(float in_slew,
 
 void
 LibertyPort::setClkTreeDelay(const TableModel *model,
-                             const RiseFall *rf,
+                             const RiseFall *from_rf,
+                             const RiseFall *to_rf,
                              const MinMax *min_max)
 {
-  clk_tree_delay_[rf->index()][min_max->index()] = model;
+  clk_tree_delay_[from_rf->index()][to_rf->index()][min_max->index()] = model;
 }
 
 ////////////////////////////////////////////////////////////////

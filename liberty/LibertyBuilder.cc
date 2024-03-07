@@ -642,9 +642,27 @@ LibertyBuilder::makeClockTreePathArcs(LibertyCell *cell,
   for (auto to_rf : RiseFall::range()) {
     TimingModel *model = attrs->model(to_rf);
     if (model) {
-      makeTimingArc(arc_set, nullptr, to_rf->asTransition(), model);
       const GateTableModel *gate_model = dynamic_cast<GateTableModel *>(model);
-      to_port->setClkTreeDelay(gate_model->delayModel(), to_rf, min_max);
+      RiseFall *opp_rf = to_rf->opposite();
+      switch (attrs->timingSense()) {
+      case TimingSense::positive_unate:
+        makeTimingArc(arc_set, to_rf, to_rf, model);
+        to_port->setClkTreeDelay(gate_model->delayModel(), to_rf, to_rf, min_max);
+        break;
+      case TimingSense::negative_unate:
+        makeTimingArc(arc_set, opp_rf, to_rf, model);
+        to_port->setClkTreeDelay(gate_model->delayModel(), opp_rf, to_rf, min_max);
+        break;
+      case TimingSense::non_unate:
+      case TimingSense::unknown:
+        makeTimingArc(arc_set, to_rf, to_rf, model);
+        makeTimingArc(arc_set, opp_rf, to_rf, model);
+        to_port->setClkTreeDelay(gate_model->delayModel(), to_rf, to_rf, min_max);
+        to_port->setClkTreeDelay(gate_model->delayModel(), opp_rf, to_rf, min_max);
+        break;
+      case TimingSense::none:
+        break;
+      }
     }
   }
   return arc_set;
