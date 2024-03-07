@@ -1908,8 +1908,10 @@ Sdc::makeClockGroup(ClockGroups *clk_groups,
 void
 Sdc::ensureClkGroupExclusions()
 {
-  for (auto name_clk_groups : clk_groups_name_map_)
-    makeClkGroupExclusions(name_clk_groups.second);
+  if (clk_group_exclusions_.empty()) {
+    for (auto name_clk_groups : clk_groups_name_map_)
+      makeClkGroupExclusions(name_clk_groups.second);
+  }
 }
    
 void
