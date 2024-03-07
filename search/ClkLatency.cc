@@ -194,7 +194,7 @@ ClkDelays::delay(const RiseFall *src_rf,
                  float &lib_clk_delay,
                  float &latency,
                  PathVertex &path,
-                 bool &exists)
+                 bool &exists) const
 {
   int src_rf_index = src_rf->index();
   int end_rf_index = end_rf->index();
@@ -213,7 +213,7 @@ ClkDelays::latency(const RiseFall *src_rf,
                    const MinMax *min_max,
                    // Return values.
                    float &latency,
-                   bool &exists)
+                   bool &exists) const
 {
   int src_rf_index = src_rf->index();
   int end_rf_index = end_rf->index();

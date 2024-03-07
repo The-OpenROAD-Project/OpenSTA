@@ -796,10 +796,16 @@ public:
   void setDriverWaveform(DriverWaveform *driver_waveform,
                          const RiseFall *rf);
   void setClkTreeDelay(const TableModel *model,
-                       const RiseFall *rf,
+                       const RiseFall *from_rf,
+                       const RiseFall *to_rf,
                        const MinMax *min_max);
+  // Should be deprecated.
   float clkTreeDelay(float in_slew,
-                     const RiseFall *rf,
+                     const RiseFall *from_rf,
+                     const MinMax *min_max) const;
+  float clkTreeDelay(float in_slew,
+                     const RiseFall *from_rf,
+                     const RiseFall *to_rf,
                      const MinMax *min_max) const;
   // Assumes input slew of 0.0.
   RiseFallMinMax clkTreeDelays() const;
@@ -846,7 +852,7 @@ protected:
   ReceiverModelPtr receiver_model_;
   DriverWaveform *driver_waveform_[RiseFall::index_count];
   // Redundant with clock_tree_path_delay timing arcs but faster to access.
-  const TableModel *clk_tree_delay_[RiseFall::index_count][MinMax::index_count];
+  const TableModel *clk_tree_delay_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
 
   unsigned int min_pulse_width_exists_:RiseFall::index_count;
   bool min_period_exists_:1;

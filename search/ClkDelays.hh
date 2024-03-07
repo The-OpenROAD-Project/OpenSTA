@@ -36,13 +36,13 @@ public:
              float &lib_clk_delay,
              float &latency,
              PathVertex &path,
-             bool &exists);
+             bool &exists) const;
   void latency(const RiseFall *src_rf,
                const RiseFall *end_rf,
                const MinMax *min_max,
                // Return values.
                float &delay,
-               bool &exists);
+               bool &exists) const;
   static float latency(PathVertex *clk_path,
                        StaState *sta);
   void setLatency(const RiseFall *src_rf,
