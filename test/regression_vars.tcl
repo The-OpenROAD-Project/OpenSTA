@@ -55,7 +55,18 @@ proc record_test { test cmd_dir } {
   return $test
 }
 
-# Record a test in the $STA/examples directory.
+# Record tests in the $STA/test directory.
+proc record_sta_tests { tests } {
+  global test_dir
+  foreach test $tests {
+    # Prune commented tests from the list.
+    if { [string index $test 0] != "#" } {
+      record_test $test $test_dir
+    }
+  }
+}
+
+# Record tests in the $STA/examples directory.
 proc record_example_tests { tests } {
   global test_dir test_groups
   set example_dir [file join $test_dir ".." "examples"]
@@ -108,6 +119,9 @@ record_example_tests {
   multi_corner
   power
   power_vcd
+}
+
+record_sta_tests {
 }
 
 define_test_group fast [group_tests all]
