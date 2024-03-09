@@ -45,7 +45,8 @@ public:
                             const PatternMatch *pattern) const override;
 
   const char *name(const Cell *cell) const override;
-  const char *getAttribute(const Cell *cell, const char* key) const override;
+  const char *getAttribute(const Cell *cell,
+                           const char* key) const override;
   ObjectId id(const Cell *cell) const override;
   Library *library(const Cell *cell) const override;
   LibertyCell *libertyCell(Cell *cell) const override;
@@ -81,7 +82,8 @@ public:
   bool hasMembers(const Port *port) const override;
 
   ObjectId id(const Instance *instance) const override;
-  const char *getAttribute(const Instance *inst, const char* key) const override;
+  const char *getAttribute(const Instance *inst,
+                           const char* key) const override;
   Instance *topInstance() const override;
   Cell *cell(const Instance *instance) const override;
   Instance *parent(const Instance *instance) const override;

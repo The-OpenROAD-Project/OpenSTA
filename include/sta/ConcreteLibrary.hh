@@ -106,7 +106,8 @@ public:
   ConcreteCellPortBitIterator *portBitIterator() const;
   bool isLeaf() const { return is_leaf_; }
   void setIsLeaf(bool is_leaf);
-  void setAttribute(const char *key, const char *value);
+  void setAttribute(const char *key,
+                    const char *value);
   const char *getAttribute(const char *key) const;
 
   // Cell acts as port factory.

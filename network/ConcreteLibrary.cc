@@ -270,7 +270,8 @@ ConcreteCell::setIsLeaf(bool is_leaf)
 }
 
 void
-ConcreteCell::setAttribute(const char* key, const char* value)
+ConcreteCell::setAttribute(const char* key,
+                           const char* value)
 {
   attribute_map_.insert(key, stringCopy(value));
 }

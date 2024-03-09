@@ -123,7 +123,8 @@ NetworkNameAdapter::id(const Cell *cell) const
 }
 
 const char *
-NetworkNameAdapter::getAttribute(const Cell *cell, const char *key) const
+NetworkNameAdapter::getAttribute(const Cell *cell,
+                                 const char *key) const
 {
   return network_->getAttribute(cell, key);
 }

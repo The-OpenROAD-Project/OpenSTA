@@ -75,7 +75,8 @@ public:
                             const PatternMatch *pattern) const override;
 
   const char *name(const Cell *cell) const override;
-  const char *getAttribute(const Cell *cell, const char *key) const override;
+  const char *getAttribute(const Cell *cell,
+                           const char *key) const override;
   ObjectId id(const Cell *cell) const override;
   Library *library(const Cell *cell) const override;
   LibertyCell *libertyCell(Cell *cell) const override;
@@ -110,7 +111,8 @@ public:
   PortMemberIterator *memberIterator(const Port *port) const override;
 
   const char *name(const Instance *instance) const override;
-  const char *getAttribute(const Instance *inst, const char *key) const override;
+  const char *getAttribute(const Instance *inst,
+                           const char *key) const override;
   ObjectId id(const Instance *instance) const override;
   Cell *cell(const Instance *instance) const override;
   Instance *parent(const Instance *instance) const override;
@@ -179,8 +181,8 @@ public:
   void setIsLeaf(Cell *cell,
                  bool is_leaf) override;
   void setAttribute(Cell *cell,
-			 const char *key,
-       const char *value) override;
+                    const char *key,
+                    const char *value) override;
   Port *makePort(Cell *cell,
                  const char *name) override;
   Port *makeBusPort(Cell *cell,
@@ -213,8 +215,8 @@ public:
                LibertyPort *port,
                Net *net) override;
   void setAttribute(Instance *inst,
-		       const char *key,
-		       const char *value) override;
+                    const char *key,
+                    const char *value) override;
   void disconnectPin(Pin *pin) override;
   void deletePin(Pin *pin) override;
   Net *makeNet(const char *name,
@@ -294,7 +296,8 @@ public:
   InstanceNetIterator *netIterator() const;
   Instance *findChild(const char *name) const;
   InstanceChildIterator *childIterator() const;
-  void setAttribute(const char *key, const char *value);
+  void setAttribute(const char *key,
+                    const char *value);
   const char *getAttribute(const char *key) const;
   void addChild(ConcreteInstance *child);
   void deleteChild(ConcreteInstance *child);

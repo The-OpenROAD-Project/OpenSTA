@@ -91,42 +91,42 @@ public:
 		int &result,
 		size_t max_size);
   void makeModule(const char *module_name,
-		  VerilogNetSeq *ports,
-		  VerilogStmtSeq *stmts,
-      VerilogAttributeStmtSeq *attribute_stmts,
-		  int line);
+                  VerilogNetSeq *ports,
+                  VerilogStmtSeq *stmts,
+                  VerilogAttributeStmtSeq *attribute_stmts,
+                  int line);
   void makeModule(const char *module_name,
-		  VerilogStmtSeq *port_dcls,
-		  VerilogStmtSeq *stmts,
-      VerilogAttributeStmtSeq *attribute_stmts,
-		  int line);
+                  VerilogStmtSeq *port_dcls,
+                  VerilogStmtSeq *stmts,
+                  VerilogAttributeStmtSeq *attribute_stmts,
+                  int line);
   VerilogDcl *makeDcl(PortDirection *dir,
-		      VerilogDclArgSeq *args,
-          VerilogAttributeStmtSeq* attribute_stmts,
-		      int line);
+                      VerilogDclArgSeq *args,
+                      VerilogAttributeStmtSeq* attribute_stmts,
+                      int line);
   VerilogDcl *makeDcl(PortDirection *dir,
-		      VerilogDclArg *arg,
-          VerilogAttributeStmtSeq* attribute_stmts,
-		      int line);
+                      VerilogDclArg *arg,
+                      VerilogAttributeStmtSeq* attribute_stmts,
+                      int line);
   VerilogDclArg *makeDclArg(const char *net_name);
   VerilogDclArg*makeDclArg(VerilogAssign *assign);
   VerilogDclBus *makeDclBus(PortDirection *dir,
-			    int from_index,
-			    int to_index,
-			    VerilogDclArg *arg,
-          VerilogAttributeStmtSeq* attribute_stmts,
-			    int line);
+                            int from_index,
+                            int to_index,
+                            VerilogDclArg *arg,
+                            VerilogAttributeStmtSeq* attribute_stmts,
+                            int line);
   VerilogDclBus *makeDclBus(PortDirection *dir,
-			    int from_index,
-			    int to_index,
-			    VerilogDclArgSeq *args,
-          VerilogAttributeStmtSeq* attribute_stmts,
-			    int line);
+                            int from_index,
+                            int to_index,
+                            VerilogDclArgSeq *args,
+                            VerilogAttributeStmtSeq* attribute_stmts,
+                            int line);
   VerilogInst *makeModuleInst(const char *module_name,
-			      const char *inst_name,
-			      VerilogNetSeq *pins,
-            VerilogAttributeStmtSeq* attribute_stmts,
-			      const int line);
+                              const char *inst_name,
+                              VerilogNetSeq *pins,
+                              VerilogAttributeStmtSeq* attribute_stmts,
+                              const int line);
   VerilogAssign *makeAssign(VerilogNet *lhs,
 			    VerilogNet *rhs,
 			    int line);
@@ -337,12 +337,12 @@ class VerilogModule : public VerilogStmt
 {
 public:
   VerilogModule(const char *name,
-		VerilogNetSeq *ports,
-		VerilogStmtSeq *stmts,
-    VerilogAttributeStmtSeq *attribute_stmts,
-		const char *filename,
-		int line,
-		VerilogReader *reader);
+                VerilogNetSeq *ports,
+                VerilogStmtSeq *stmts,
+                VerilogAttributeStmtSeq *attribute_stmts,
+                const char *filename,
+                int line,
+                VerilogReader *reader);
   virtual ~VerilogModule();
   const char *name() { return name_; }
   const char *filename() { return filename_; }
@@ -372,13 +372,13 @@ class VerilogDcl : public VerilogStmt
 {
 public:
   VerilogDcl(PortDirection *dir,
-	     VerilogDclArgSeq *args,
-       VerilogAttributeStmtSeq *attribute_stmts,
-	     int line);
+             VerilogDclArgSeq *args,
+             VerilogAttributeStmtSeq *attribute_stmts,
+             int line);
   VerilogDcl(PortDirection *dir,
-	     VerilogDclArg *arg,
-       VerilogAttributeStmtSeq *attribute_stmts,
-	     int line);
+             VerilogDclArg *arg,
+             VerilogAttributeStmtSeq *attribute_stmts,
+             int line);
   virtual ~VerilogDcl();
   const char *portName();
   virtual bool isBus() const { return false; }
@@ -399,17 +399,17 @@ class VerilogDclBus : public VerilogDcl
 {
 public:
   VerilogDclBus(PortDirection *dir,
-		int from_index,
-		int to_index,
-		VerilogDclArgSeq *args,
-    VerilogAttributeStmtSeq* attribute_stmts,
-		int line);
+                int from_index,
+                int to_index,
+                VerilogDclArgSeq *args,
+                VerilogAttributeStmtSeq* attribute_stmts,
+                int line);
   VerilogDclBus(PortDirection *dir,
-		int from_index,
-		int to_index,
-		VerilogDclArg *arg,
-    VerilogAttributeStmtSeq* attribute_stmts,
-		int line);
+                int from_index,
+                int to_index,
+                VerilogDclArg *arg,
+                VerilogAttributeStmtSeq* attribute_stmts,
+                int line);
   virtual bool isBus() const { return true; }
   int fromIndex() const { return from_index_; }
   int toIndex() const { return to_index_; }
@@ -456,8 +456,8 @@ class VerilogInst : public VerilogStmt
 {
 public:
   VerilogInst(const char *inst_name,
-      VerilogAttributeStmtSeq* attribute_stmts,
-		  const int line);
+              VerilogAttributeStmtSeq* attribute_stmts,
+              const int line);
   virtual ~VerilogInst();
   virtual bool isInstance() const { return true; }
   const char *instanceName() const { return inst_name_; }
@@ -473,10 +473,10 @@ class VerilogModuleInst : public VerilogInst
 {
 public:
   VerilogModuleInst(const char *module_name,
-		    const char *inst_name,
-		    VerilogNetSeq *pins,
-        VerilogAttributeStmtSeq* attribute_stmts,
-		    const int line);
+                    const char *inst_name,
+                    VerilogNetSeq *pins,
+                    VerilogAttributeStmtSeq* attribute_stmts,
+                    const int line);
   virtual ~VerilogModuleInst();
   virtual bool isModuleInst() const { return true; }
   const char *moduleName() const { return module_name_; }
@@ -496,10 +496,10 @@ class VerilogLibertyInst : public VerilogInst
 {
 public:
   VerilogLibertyInst(LibertyCell *cell,
-		     const char *inst_name,
-		     const char **net_names,
-         VerilogAttributeStmtSeq* attribute_stmts,
-		     const int line);
+                     const char *inst_name,
+                     const char **net_names,
+                     VerilogAttributeStmtSeq* attribute_stmts,
+                     const int line);
   virtual ~VerilogLibertyInst();
   virtual bool isLibertyInst() const { return true; }
   LibertyCell *cell() const { return cell_; }
@@ -729,7 +729,8 @@ private:
 class VerilogAttributeEntry
 {
 public:
-  VerilogAttributeEntry(const char *key, const char *value);
+  VerilogAttributeEntry(const char *key,
+                        const char *value);
   virtual const char *key();
   virtual const char *value();
   virtual ~VerilogAttributeEntry();

@@ -545,10 +545,10 @@ VerilogReader::makeAssign(VerilogNet *lhs,
 
 VerilogInst *
 VerilogReader::makeModuleInst(const char *module_vname,
-			      const char *inst_vname,
-			      VerilogNetSeq *pins,
-            VerilogAttributeStmtSeq* attribute_stmts,
-			      const int line)
+                              const char *inst_vname,
+                              VerilogNetSeq *pins,
+                              VerilogAttributeStmtSeq* attribute_stmts,
+                              const int line)
 {
   string module_name = moduleVerilogToSta(module_vname);
   string inst_name = instanceVerilogToSta(inst_vname);
@@ -836,12 +836,12 @@ VerilogReader::netVerilogName(const char *net_name)
 ////////////////////////////////////////////////////////////////
 
 VerilogModule::VerilogModule(const char *name,
-			     VerilogNetSeq *ports,
-			     VerilogStmtSeq *stmts,
-           VerilogAttributeStmtSeq *attribute_stmts,
-			     const char *filename,
-			     int line,
-			     VerilogReader *reader) :
+                             VerilogNetSeq *ports,
+                             VerilogStmtSeq *stmts,
+                             VerilogAttributeStmtSeq *attribute_stmts,
+                             const char *filename,
+                             int line,
+                             VerilogReader *reader) :
   VerilogStmt(line),
   name_(stringCopy(name)),
   filename_(filename),
@@ -959,7 +959,7 @@ VerilogStmt::VerilogStmt(int line) :
 }
 
 VerilogInst::VerilogInst(const char *inst_name,
-         VerilogAttributeStmtSeq* attribute_stmts,
+                         VerilogAttributeStmtSeq* attribute_stmts,
                          const int line) :
   VerilogStmt(line),
   inst_name_(stringCopy(inst_name)),
@@ -982,10 +982,10 @@ VerilogInst::setInstanceName(const char *inst_name)
 }
 
 VerilogModuleInst::VerilogModuleInst(const char *module_name,
-				     const char *inst_name,
-				     VerilogNetSeq *pins,
-             VerilogAttributeStmtSeq* attribute_stmts,
-				     int line) :
+                                     const char *inst_name,
+                                     VerilogNetSeq *pins,
+                                     VerilogAttributeStmtSeq* attribute_stmts,
+                                     int line) :
   VerilogInst(inst_name, attribute_stmts, line),
   module_name_(stringCopy(module_name)),
   pins_(pins)
@@ -1018,10 +1018,10 @@ VerilogModuleInst::namedPins()
 }
 
 VerilogLibertyInst::VerilogLibertyInst(LibertyCell *cell,
-				       const char *inst_name,
-				       const char **net_names,
-               VerilogAttributeStmtSeq* attribute_stmts,
-				       const int line) :
+                                       const char *inst_name,
+                                       const char **net_names,
+                                       VerilogAttributeStmtSeq* attribute_stmts,
+                                       const int line) :
   VerilogInst(inst_name, attribute_stmts, line),
   cell_(cell),
   net_names_(net_names)
@@ -1041,9 +1041,9 @@ VerilogLibertyInst::~VerilogLibertyInst()
 }
 
 VerilogDcl::VerilogDcl(PortDirection *dir,
-		       VerilogDclArgSeq *args,
-           VerilogAttributeStmtSeq* attribute_stmts,
-		       int line) :
+                       VerilogDclArgSeq *args,
+                       VerilogAttributeStmtSeq* attribute_stmts,
+                       int line) :
   VerilogStmt(line),
   dir_(dir),
   args_(args),
@@ -1052,9 +1052,9 @@ VerilogDcl::VerilogDcl(PortDirection *dir,
 }
 
 VerilogDcl::VerilogDcl(PortDirection *dir,
-		       VerilogDclArg *arg,
-           VerilogAttributeStmtSeq* attribute_stmts,
-		       int line) :
+                       VerilogDclArg *arg,
+                       VerilogAttributeStmtSeq* attribute_stmts,
+                       int line) :
   VerilogStmt(line),
   dir_(dir)
 {
@@ -1084,11 +1084,11 @@ VerilogDcl::portName()
 }
 
 VerilogDclBus::VerilogDclBus(PortDirection *dir,
-			     int from_index,
-			     int to_index,
-			     VerilogDclArgSeq *args,
-           VerilogAttributeStmtSeq* attribute_stmts,
-			     int line) :
+                             int from_index,
+                             int to_index,
+                             VerilogDclArgSeq *args,
+                             VerilogAttributeStmtSeq* attribute_stmts,
+                             int line) :
   VerilogDcl(dir, args, attribute_stmts, line),
   from_index_(from_index),
   to_index_(to_index)
@@ -1096,11 +1096,11 @@ VerilogDclBus::VerilogDclBus(PortDirection *dir,
 }
 
 VerilogDclBus::VerilogDclBus(PortDirection *dir,
-			     int from_index,
-			     int to_index,
-			     VerilogDclArg *arg,
-           VerilogAttributeStmtSeq* attribute_stmts,
-			     int line) :
+                             int from_index,
+                             int to_index,
+                             VerilogDclArg *arg,
+                             VerilogAttributeStmtSeq* attribute_stmts,
+                             int line) :
   VerilogDcl(dir, arg, attribute_stmts, line),
   from_index_(from_index),
   to_index_(to_index)
@@ -1740,7 +1740,7 @@ VerilogNetPortRefPart::name() const
 }
 
 VerilogAttributeEntry::VerilogAttributeEntry(const char *key,
-               const char * value) :
+                                             const char * value) :
   key_(key),
   value_(value)
 {

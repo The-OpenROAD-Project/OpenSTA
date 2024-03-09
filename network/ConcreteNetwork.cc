@@ -559,8 +559,8 @@ ConcreteNetwork::setIsLeaf(Cell *cell,
 
 void
 ConcreteNetwork::setAttribute(Cell *cell,
-			   const char *key,
-         const char *value)
+                              const char *key,
+                              const char *value)
 {
   ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell);
   ccell->setAttribute(key, value);
@@ -607,7 +607,8 @@ ConcreteNetwork::filename(const Cell *cell)
 }
 
 const char *
-ConcreteNetwork::getAttribute(const Cell *cell, const char *key) const
+ConcreteNetwork::getAttribute(const Cell *cell,
+                              const char *key) const
 {
   const ConcreteCell *ccell = reinterpret_cast<const ConcreteCell*>(cell);
   return ccell->getAttribute(key);
@@ -938,7 +939,8 @@ ConcreteNetwork::id(const Instance *instance) const
 }
 
 const char *
-ConcreteNetwork::getAttribute(const Instance *inst, const char *key) const
+ConcreteNetwork::getAttribute(const Instance *inst,
+                              const char *key) const
 {
   const ConcreteInstance *cinst = reinterpret_cast<const ConcreteInstance*>(inst);
   return cinst->getAttribute(key);
@@ -1350,8 +1352,8 @@ ConcreteNetwork::connect(Instance *inst,
 
 void
 ConcreteNetwork::setAttribute(Instance *inst,
-			   const char *key,
-         const char *value)
+                              const char *key,
+                              const char *value)
 {
   ConcreteInstance *cinst = reinterpret_cast<ConcreteInstance*>(inst);
   cinst->setAttribute(key, value);
@@ -1682,7 +1684,8 @@ ConcreteInstance::childIterator() const
 }
 
 void
-ConcreteInstance::setAttribute(const char *key, const char *value)
+ConcreteInstance::setAttribute(const char *key,
+                               const char *value)
 {
   attribute_map_.insert(key, stringCopy(value));
 }
