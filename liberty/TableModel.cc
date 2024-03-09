@@ -870,12 +870,12 @@ Table1::findValue(float axis_value1) const
     return this->value(axis_value1);
   else {
     size_t axis_index1 = axis1_->findAxisIndex(axis_value1);
-    float x1 = axis_value1;
-    float x1l = axis1_->axisValue(axis_index1);
-    float x1u = axis1_->axisValue(axis_index1 + 1);
-    float y1 = this->value(axis_index1);
-    float y2 = this->value(axis_index1 + 1);
-    float dx1 = (x1 - x1l) / (x1u - x1l);
+    double x1 = axis_value1;
+    double x1l = axis1_->axisValue(axis_index1);
+    double x1u = axis1_->axisValue(axis_index1 + 1);
+    double y1 = this->value(axis_index1);
+    double y2 = this->value(axis_index1 + 1);
+    double dx1 = (x1 - x1l) / (x1u - x1l);
     return (1 - dx1) * y1 + dx1 * y2;
   }
 }
@@ -887,17 +887,17 @@ Table1::findValueClip(float axis_value1) const
     return this->value(axis_value1);
   else {
     size_t axis_index1 = axis1_->findAxisIndex(axis_value1);
-    float x1 = axis_value1;
-    float x1l = axis1_->axisValue(axis_index1);
-    float x1u = axis1_->axisValue(axis_index1 + 1);
+    double x1 = axis_value1;
+    double x1l = axis1_->axisValue(axis_index1);
+    double x1u = axis1_->axisValue(axis_index1 + 1);
     if (x1 < x1l)
       return 0.0;
     else if (x1 > x1u)
       return this->value(axis1_->size() - 1);
     else {
-      float y1 = this->value(axis_index1);
-      float y2 = this->value(axis_index1 + 1);
-      float dx1 = (x1 - x1l) / (x1u - x1l);
+      double y1 = this->value(axis_index1);
+      double y2 = this->value(axis_index1 + 1);
+      double dx1 = (x1 - x1l) / (x1u - x1l);
       return (1 - dx1) * y1 + dx1 * y2;
     }
   }
@@ -1020,13 +1020,13 @@ Table2::findValue(float axis_value1,
       return value(0, 0);
     else {
       size_t axis_index2 = axis2_->findAxisIndex(axis_value2);
-      float x2 = axis_value2;
-      float y00 = value(0, axis_index2);
-      float x2l = axis2_->axisValue(axis_index2);
-      float x2u = axis2_->axisValue(axis_index2 + 1);
-      float dx2 = (x2 - x2l) / (x2u - x2l);
-      float y01 = value(0, axis_index2 + 1);
-      float tbl_value
+      double x2 = axis_value2;
+      double y00 = value(0, axis_index2);
+      double x2l = axis2_->axisValue(axis_index2);
+      double x2u = axis2_->axisValue(axis_index2 + 1);
+      double dx2 = (x2 - x2l) / (x2u - x2l);
+      double y01 = value(0, axis_index2 + 1);
+      double tbl_value
 	= (1 - dx2) * y00
 	+      dx2  * y01;
       return tbl_value;
@@ -1034,13 +1034,13 @@ Table2::findValue(float axis_value1,
   }
   else if (size2 == 1) {
     size_t axis_index1 = axis1_->findAxisIndex(axis_value1);
-    float x1 = axis_value1;
-    float y00 = value(axis_index1, 0);
-    float x1l = axis1_->axisValue(axis_index1);
-    float x1u = axis1_->axisValue(axis_index1 + 1);
-    float dx1 = (x1 - x1l) / (x1u - x1l);
-    float y10 = value(axis_index1 + 1, 0);
-    float tbl_value
+    double x1 = axis_value1;
+    double y00 = value(axis_index1, 0);
+    double x1l = axis1_->axisValue(axis_index1);
+    double x1u = axis1_->axisValue(axis_index1 + 1);
+    double dx1 = (x1 - x1l) / (x1u - x1l);
+    double y10 = value(axis_index1 + 1, 0);
+    double tbl_value
       = (1 - dx1) * y00
       +      dx1  * y10;
     return tbl_value;
@@ -1048,19 +1048,19 @@ Table2::findValue(float axis_value1,
   else {
     size_t axis_index1 = axis1_->findAxisIndex(axis_value1);
     size_t axis_index2 = axis2_->findAxisIndex(axis_value2);
-    float x1 = axis_value1;
-    float x2 = axis_value2;
-    float y00 = value(axis_index1, axis_index2);
-    float x1l = axis1_->axisValue(axis_index1);
-    float x1u = axis1_->axisValue(axis_index1 + 1);
-    float dx1 = (x1 - x1l) / (x1u - x1l);
-    float y10 = value(axis_index1 + 1, axis_index2);
-    float y11 = value(axis_index1 + 1, axis_index2 + 1);
-    float x2l = axis2_->axisValue(axis_index2);
-    float x2u = axis2_->axisValue(axis_index2 + 1);
-    float dx2 = (x2 - x2l) / (x2u - x2l);
-    float y01 = value(axis_index1, axis_index2 + 1);
-    float tbl_value
+    double x1 = axis_value1;
+    double x2 = axis_value2;
+    double y00 = value(axis_index1, axis_index2);
+    double x1l = axis1_->axisValue(axis_index1);
+    double x1u = axis1_->axisValue(axis_index1 + 1);
+    double dx1 = (x1 - x1l) / (x1u - x1l);
+    double y10 = value(axis_index1 + 1, axis_index2);
+    double y11 = value(axis_index1 + 1, axis_index2 + 1);
+    double x2l = axis2_->axisValue(axis_index2);
+    double x2u = axis2_->axisValue(axis_index2 + 1);
+    double dx2 = (x2 - x2l) / (x2u - x2l);
+    double y01 = value(axis_index1, axis_index2 + 1);
+    double tbl_value
       = (1 - dx1) * (1 - dx2) * y00
       +      dx1  * (1 - dx2) * y10
       +      dx1  *      dx2  * y11
@@ -1193,24 +1193,24 @@ Table3::findValue(float axis_value1,
   size_t axis_index1 = axis1_->findAxisIndex(axis_value1);
   size_t axis_index2 = axis2_->findAxisIndex(axis_value2);
   size_t axis_index3 = axis3_->findAxisIndex(axis_value3);
-  float x1 = axis_value1;
-  float x2 = axis_value2;
-  float x3 = axis_value3;
-  float dx1 = 0.0;
-  float dx2 = 0.0;
-  float dx3 = 0.0;
-  float y000 = value(axis_index1, axis_index2, axis_index3);
-  float y001 = 0.0;
-  float y010 = 0.0;
-  float y011 = 0.0;
-  float y100 = 0.0;
-  float y101 = 0.0;
-  float y110 = 0.0;
-  float y111 = 0.0;
+  double x1 = axis_value1;
+  double x2 = axis_value2;
+  double x3 = axis_value3;
+  double dx1 = 0.0;
+  double dx2 = 0.0;
+  double dx3 = 0.0;
+  double y000 = value(axis_index1, axis_index2, axis_index3);
+  double y001 = 0.0;
+  double y010 = 0.0;
+  double y011 = 0.0;
+  double y100 = 0.0;
+  double y101 = 0.0;
+  double y110 = 0.0;
+  double y111 = 0.0;
 
   if (axis1_->size() != 1) {
-    float x1l = axis1_->axisValue(axis_index1);
-    float x1u = axis1_->axisValue(axis_index1 + 1);
+    double x1l = axis1_->axisValue(axis_index1);
+    double x1u = axis1_->axisValue(axis_index1 + 1);
     dx1 = (x1 - x1l) / (x1u - x1l);
     y100 = value(axis_index1 + 1, axis_index2, axis_index3);
     if (axis3_->size() != 1)
@@ -1222,21 +1222,21 @@ Table3::findValue(float axis_value1,
     }
   }
   if (axis2_->size() != 1) {
-    float x2l = axis2_->axisValue(axis_index2);
-    float x2u = axis2_->axisValue(axis_index2 + 1);
+    double x2l = axis2_->axisValue(axis_index2);
+    double x2u = axis2_->axisValue(axis_index2 + 1);
     dx2 = (x2 - x2l) / (x2u - x2l);
     y010 = value(axis_index1, axis_index2 + 1, axis_index3);
     if (axis3_->size() != 1)
       y011 = value(axis_index1, axis_index2 + 1, axis_index3 + 1);
   }
   if (axis3_->size() != 1) {
-    float x3l = axis3_->axisValue(axis_index3);
-    float x3u = axis3_->axisValue(axis_index3 + 1);
+    double x3l = axis3_->axisValue(axis_index3);
+    double x3u = axis3_->axisValue(axis_index3 + 1);
     dx3 = (x3 - x3l) / (x3u - x3l);
     y001 = value(axis_index1, axis_index2, axis_index3 + 1);
   }
 
-  float tbl_value
+  double tbl_value
     = (1 - dx1) * (1 - dx2) * (1 - dx3) * y000
     + (1 - dx1) * (1 - dx2) *      dx3  * y001
     + (1 - dx1) *      dx2  * (1 - dx3) * y010
@@ -1746,20 +1746,20 @@ OutputWaveforms::waveformValue(float slew,
   // Interpolate waveform samples at voltage steps.
   size_t index1 = slew_index;
   size_t index2 = cap_index;
-  float x1 = slew;
-  float x2 = cap;
-  float x1l = slew_axis_->axisValue(index1);
-  float x1u = slew_axis_->axisValue(index1 + 1);
-  float dx1 = (x1 - x1l) / (x1u - x1l);
-  float x2l = cap_axis_->axisValue(index2);
-  float x2u = cap_axis_->axisValue(index2 + 1);
-  float dx2 = (x2 - x2l) / (x2u - x2l);
+  double x1 = slew;
+  double x2 = cap;
+  double x1l = slew_axis_->axisValue(index1);
+  double x1u = slew_axis_->axisValue(index1 + 1);
+  double dx1 = (x1 - x1l) / (x1u - x1l);
+  double x2l = cap_axis_->axisValue(index2);
+  double x2u = cap_axis_->axisValue(index2 + 1);
+  double dx2 = (x2 - x2l) / (x2u - x2l);
 
-  float y00 = waveform00->findValueClip(axis_value);
-  float y01 = waveform01->findValueClip(axis_value);
-  float y10 = waveform10->findValueClip(axis_value);
-  float y11 = waveform11->findValueClip(axis_value);
-  float wave_value
+  double y00 = waveform00->findValueClip(axis_value);
+  double y01 = waveform01->findValueClip(axis_value);
+  double y10 = waveform10->findValueClip(axis_value);
+  double y11 = waveform11->findValueClip(axis_value);
+  double wave_value
     =   (1 - dx1) * (1 - dx2) * y00
       +      dx1  * (1 - dx2) * y10
       +      dx1  *      dx2  * y11
@@ -1840,20 +1840,20 @@ OutputWaveforms::voltageTime(float slew,
   // Interpolate waveform samples at voltage steps.
   size_t index1 = slew_index;
   size_t index2 = cap_index;
-  float x1 = slew;
-  float x2 = cap;
-  float x1l = slew_axis_->axisValue(index1);
-  float x1u = slew_axis_->axisValue(index1 + 1);
-  float dx1 = (x1 - x1l) / (x1u - x1l);
-  float x2l = cap_axis_->axisValue(index2);
-  float x2u = cap_axis_->axisValue(index2 + 1);
-  float dx2 = (x2 - x2l) / (x2u - x2l);
+  double x1 = slew;
+  double x2 = cap;
+  double x1l = slew_axis_->axisValue(index1);
+  double x1u = slew_axis_->axisValue(index1 + 1);
+  double dx1 = (x1 - x1l) / (x1u - x1l);
+  double x2l = cap_axis_->axisValue(index2);
+  double x2u = cap_axis_->axisValue(index2 + 1);
+  double dx2 = (x2 - x2l) / (x2u - x2l);
 
-  float y00 = voltageTime1(volt, wave_index00);
-  float y01 = voltageTime1(volt, wave_index01);
-  float y10 = voltageTime1(volt, wave_index10);
-  float y11 = voltageTime1(volt, wave_index11);
-  float time
+  double y00 = voltageTime1(volt, wave_index00);
+  double y01 = voltageTime1(volt, wave_index01);
+  double y10 = voltageTime1(volt, wave_index10);
+  double y11 = voltageTime1(volt, wave_index11);
+  double time
     =   (1 - dx1) * (1 - dx2) * y00
       +      dx1  * (1 - dx2) * y10
       +      dx1  *      dx2  * y11
@@ -1871,9 +1871,9 @@ OutputWaveforms::voltageTime1(float voltage,
   if (volt_idx >= voltage_times->size() - 1)
     return (*voltage_times)[voltage_times->size() - 1];
   else {
-    float time0 = (*voltage_times)[volt_idx];
-    float time1 = (*voltage_times)[volt_idx + 1];
-    float time = time0 + (time1 - time0) * (voltage - volt_step * volt_idx);
+    double time0 = (*voltage_times)[volt_idx];
+    double time1 = (*voltage_times)[volt_idx + 1];
+    double time = time0 + (time1 - time0) * (voltage - volt_step * volt_idx);
     return time;
   }
 }
