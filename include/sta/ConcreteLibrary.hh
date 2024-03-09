@@ -38,7 +38,7 @@ class LibertyCell;
 class LibertyPort;
 
 typedef Map<const char*, ConcreteCell*, CharPtrLess> ConcreteCellMap;
-typedef Map<std::string, const char*> AttributeMap;
+typedef Map<std::string, std::string> AttributeMap;
 typedef Vector<ConcretePort*> ConcretePortSeq;
 typedef Map<const char*, ConcretePort*, CharPtrLess> ConcretePortMap;
 typedef ConcreteCellMap::ConstIterator ConcreteLibraryCellIterator;
@@ -106,9 +106,9 @@ public:
   ConcreteCellPortBitIterator *portBitIterator() const;
   bool isLeaf() const { return is_leaf_; }
   void setIsLeaf(bool is_leaf);
-  void setAttribute(const char *key,
-                    const char *value);
-  const char *getAttribute(const char *key) const;
+  void setAttribute(const std::string &key,
+                    const std::string &value);
+  std::string getAttribute(const std::string &key) const;
 
   // Cell acts as port factory.
   ConcretePort *makePort(const char *name);

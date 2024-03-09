@@ -140,7 +140,6 @@ ConcreteCell::~ConcreteCell()
   if (filename_)
     stringDelete(filename_);
   ports_.deleteContents();
-  attribute_map_.deleteArrayContents();
 }
 
 void
@@ -270,14 +269,14 @@ ConcreteCell::setIsLeaf(bool is_leaf)
 }
 
 void
-ConcreteCell::setAttribute(const char* key,
-                           const char* value)
+ConcreteCell::setAttribute(const std::string &key,
+                           const std::string &value)
 {
-  attribute_map_.insert(key, stringCopy(value));
+  attribute_map_.insert(key, value);
 }
 
-const char *
-ConcreteCell::getAttribute(const char* key) const 
+std::string
+ConcreteCell::getAttribute(const std::string &key) const 
 {
   return attribute_map_.findKey(key);
 }

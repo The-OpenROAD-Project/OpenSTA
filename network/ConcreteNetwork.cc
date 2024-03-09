@@ -559,8 +559,8 @@ ConcreteNetwork::setIsLeaf(Cell *cell,
 
 void
 ConcreteNetwork::setAttribute(Cell *cell,
-                              const char *key,
-                              const char *value)
+                              const std::string &key,
+                              const std::string &value)
 {
   ConcreteCell *ccell = reinterpret_cast<ConcreteCell*>(cell);
   ccell->setAttribute(key, value);
@@ -606,9 +606,9 @@ ConcreteNetwork::filename(const Cell *cell)
   return ccell->filename();
 }
 
-const char *
+std::string
 ConcreteNetwork::getAttribute(const Cell *cell,
-                              const char *key) const
+                              const std::string &key) const
 {
   const ConcreteCell *ccell = reinterpret_cast<const ConcreteCell*>(cell);
   return ccell->getAttribute(key);
@@ -938,9 +938,9 @@ ConcreteNetwork::id(const Instance *instance) const
   return inst->id();
 }
 
-const char *
+std::string
 ConcreteNetwork::getAttribute(const Instance *inst,
-                              const char *key) const
+                              const std::string &key) const
 {
   const ConcreteInstance *cinst = reinterpret_cast<const ConcreteInstance*>(inst);
   return cinst->getAttribute(key);
@@ -1352,8 +1352,8 @@ ConcreteNetwork::connect(Instance *inst,
 
 void
 ConcreteNetwork::setAttribute(Instance *inst,
-                              const char *key,
-                              const char *value)
+                              const std::string &key,
+                              const std::string &value)
 {
   ConcreteInstance *cinst = reinterpret_cast<ConcreteInstance*>(inst);
   cinst->setAttribute(key, value);
@@ -1598,7 +1598,6 @@ ConcreteInstance::~ConcreteInstance()
   stringDelete(name_);
   delete children_;
   delete nets_;
-  attribute_map_.deleteArrayContents();
 }
 
 Instance *
@@ -1684,14 +1683,14 @@ ConcreteInstance::childIterator() const
 }
 
 void
-ConcreteInstance::setAttribute(const char *key,
-                               const char *value)
+ConcreteInstance::setAttribute(const std::string &key,
+                               const std::string &value)
 {
-  attribute_map_.insert(key, stringCopy(value));
+  attribute_map_.insert(key, value);
 }
 
-const char *
-ConcreteInstance::getAttribute(const char *key) const
+std::string
+ConcreteInstance::getAttribute(const std::string &key) const
 {
   return attribute_map_.findKey(key);
 }

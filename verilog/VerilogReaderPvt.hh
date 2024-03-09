@@ -729,15 +729,15 @@ private:
 class VerilogAttributeEntry
 {
 public:
-  VerilogAttributeEntry(const char *key,
-                        const char *value);
-  virtual const char *key();
-  virtual const char *value();
-  virtual ~VerilogAttributeEntry();
+  VerilogAttributeEntry(std::string key,
+                        std::string value);
+  virtual std::string key();
+  virtual std::string value();
+  virtual ~VerilogAttributeEntry() = default;
 
 private:
-  const char *key_;
-  const char *value_;
+  std::string key_;
+  std::string value_;
 };
 
 } // namespace

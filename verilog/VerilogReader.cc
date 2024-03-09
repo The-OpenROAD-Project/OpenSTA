@@ -1739,27 +1739,21 @@ VerilogNetPortRefPart::name() const
   return name_;
 }
 
-VerilogAttributeEntry::VerilogAttributeEntry(const char *key,
-                                             const char * value) :
+VerilogAttributeEntry::VerilogAttributeEntry(std::string key,
+                                             std::string value) :
   key_(key),
   value_(value)
 {
 }
 
-VerilogAttributeEntry::~VerilogAttributeEntry()
-{
-  stringDelete(key_);
-  stringDelete(value_);
-}
 
-
-const char *
+std::string
 VerilogAttributeEntry::key()
 {
   return key_;
 }
 
-const char *
+std::string
 VerilogAttributeEntry::value()
 {
   return value_;
