@@ -4186,7 +4186,14 @@ LibertyCell *liberty_cell() { return cmdNetwork()->libertyCell(self); }
 bool is_leaf() { return cmdNetwork()->isLeaf(self); }
 CellPortIterator *
 port_iterator() { return cmdNetwork()->portIterator(self); }
-string get_attribute(const char *key) { return cmdNetwork()->getAttribute(self, key); }
+string get_attribute(const char *key)
+{ 
+  std::optional<std::string> result = cmdNetwork()->getAttribute(self, key);
+  if (result) {
+    return result.value();
+  }
+  return "";
+}
 
 Port *
 find_port(const char *name)
@@ -4410,6 +4417,14 @@ Pin *
 find_pin(const char *name)
 {
   return cmdLinkedNetwork()->findPin(self, name);
+}
+string get_attribute(const char *key)
+{ 
+  std::optional<std::string> result = cmdNetwork()->getAttribute(self, key);
+  if (result) {
+    return result.value();
+  }
+  return "";
 }
 } // Instance methods
 

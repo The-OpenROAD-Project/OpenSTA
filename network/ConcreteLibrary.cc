@@ -275,10 +275,13 @@ ConcreteCell::setAttribute(const std::string &key,
   attribute_map_.insert(key, value);
 }
 
-std::string
+std::optional<std::string>
 ConcreteCell::getAttribute(const std::string &key) const 
 {
-  return attribute_map_.findKey(key);
+  if (attribute_map_.hasKey(key)) {
+    return attribute_map_.findKey(key);
+  }
+  return {};
 }
 
 ConcretePort *

@@ -606,7 +606,7 @@ ConcreteNetwork::filename(const Cell *cell)
   return ccell->filename();
 }
 
-std::string
+std::optional<std::string>
 ConcreteNetwork::getAttribute(const Cell *cell,
                               const std::string &key) const
 {
@@ -938,7 +938,7 @@ ConcreteNetwork::id(const Instance *instance) const
   return inst->id();
 }
 
-std::string
+std::optional<std::string>
 ConcreteNetwork::getAttribute(const Instance *inst,
                               const std::string &key) const
 {
@@ -1689,10 +1689,13 @@ ConcreteInstance::setAttribute(const std::string &key,
   attribute_map_.insert(key, value);
 }
 
-std::string
+std::optional<std::string>
 ConcreteInstance::getAttribute(const std::string &key) const
 {
-  return attribute_map_.findKey(key);
+  if (attribute_map_.hasKey(key)) {
+    return attribute_map_.findKey(key);
+  }
+  return {};
 }
 
 void

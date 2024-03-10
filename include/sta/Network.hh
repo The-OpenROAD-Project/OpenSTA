@@ -17,6 +17,7 @@
 #pragma once
 
 #include <functional>
+#include <optional>
 
 #include "Map.hh"
 #include "StringUtil.hh"
@@ -145,8 +146,8 @@ public:
   // Filename may return null.
   virtual const char *filename(const Cell *cell) = 0;
   // Attributes can be null
-  virtual std::string getAttribute(const Cell *cell,
-                                   const std::string &key) const = 0;
+  virtual std::optional<std::string> getAttribute(const Cell *cell,
+                                                  const std::string &key) const = 0;
   // Name can be a simple, bundle, bus, or bus bit name.
   virtual Port *findPort(const Cell *cell,
 			 const char *name) const = 0;
@@ -209,8 +210,8 @@ public:
                                             const PatternMatch *pattern) const;
   virtual InstanceSeq findInstancesHierMatching(const Instance *instance,
                                                 const PatternMatch *pattern) const;
-  virtual std::string getAttribute(const Instance *inst,
-                                   const std::string &key) const = 0;
+  virtual std::optional<std::string> getAttribute(const Instance *inst,
+                                                  const std::string &key) const = 0;
   // Hierarchical path name.
   virtual const char *pathName(const Instance *instance) const;
   bool pathNameLess(const Instance *inst1,
