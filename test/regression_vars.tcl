@@ -119,10 +119,10 @@ record_example_tests {
   multi_corner
   power
   power_vcd
-  attribute_parsing_test
 }
 
 record_sta_tests {
+  attribute_parsing
 }
 
 define_test_group fast [group_tests all]
