@@ -491,16 +491,13 @@ attribute_instance_seq:
 
 attribute_instance:
 	ATTRIBUTE_OPEN attr_specs ATTRIBUTE_CLOSED
-	{
-		$$ = new sta::VerilogAttributeStmt($2);
-	}
+	{ $$ = new sta::VerilogAttributeStmt($2); }
 	;
 
 attr_specs:
 	attr_spec
-	{
-		$$ = new sta::VerilogAttributeEntrySeq;
-		$$->push_back($1);
+	{ $$ = new sta::VerilogAttributeEntrySeq;
+	  $$->push_back($1);
 	}
 | attr_spec ',' attr_spec
 	{ $$->push_back($3); }
@@ -508,20 +505,18 @@ attr_specs:
 
 attr_spec:
 	ID
-	{ $$ = new sta::VerilogAttributeEntry($1, "1");}
-| ID '=' attr_spec_value
-	{
-		$$ = new sta::VerilogAttributeEntry($1, $3);
-	}
+	{ $$ = new sta::VerilogAttributeEntry($1, "1"); }
+| 	ID '=' attr_spec_value
+	{ $$ = new sta::VerilogAttributeEntry($1, $3); }
 	;
 
 attr_spec_value:
 	CONSTANT
-	{$$ = $1;}
-| STRING
-	{$$ = $1;}
-| INT
-  {$$ = sta::stringCopy(std::to_string($1).c_str());}
+	{ $$ = $1; }
+| 	STRING
+	{ $$ = $1; }
+| 	INT
+  	{ $$ = sta::stringCopy(std::to_string($1).c_str()); }
 	;
 
 %%
