@@ -276,7 +276,7 @@ ConcreteCell::setAttribute(const std::string &key,
 }
 
 std::optional<std::string>
-ConcreteCell::getAttribute(const std::string &key) const 
+ConcreteCell::getAttribute(const std::string &key) const
 {
   if (attribute_map_.hasKey(key)) {
     return attribute_map_.findKey(key);
