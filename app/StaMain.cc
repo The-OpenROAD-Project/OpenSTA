@@ -55,6 +55,7 @@ findCmdLineFlag(int &argc,
       for (int j = i + 1; j < argc; j++, i++)
 	argv[i] = argv[j];
       argc--;
+      argv[argc] = 0;
       return true;
     }
   }
@@ -74,6 +75,7 @@ findCmdLineKey(int &argc,
       for (int j = i + 2; j < argc; j++, i++)
 	argv[i] = argv[j];
       argc -= 2;
+      argv[argc] = 0;
       return value;
     }
   }
