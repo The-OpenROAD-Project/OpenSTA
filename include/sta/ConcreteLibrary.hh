@@ -17,7 +17,6 @@
 #pragma once
 
 #include <functional>
-#include <optional>
 
 #include "Vector.hh"
 #include "Map.hh"
@@ -109,7 +108,7 @@ public:
   void setIsLeaf(bool is_leaf);
   void setAttribute(const std::string &key,
                     const std::string &value);
-  std::optional<std::string> getAttribute(const std::string &key) const;
+  std::string getAttribute(const std::string &key) const;
 
   // Cell acts as port factory.
   ConcretePort *makePort(const char *name);

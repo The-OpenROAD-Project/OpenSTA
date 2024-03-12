@@ -17,7 +17,6 @@
 #pragma once
 
 #include <functional>
-#include <optional>
 
 #include "Map.hh"
 #include "Set.hh"
@@ -76,8 +75,8 @@ public:
                             const PatternMatch *pattern) const override;
 
   const char *name(const Cell *cell) const override;
-  std::optional<std::string> getAttribute(const Cell *cell,
-                                          const std::string &key) const override;
+  std::string getAttribute(const Cell *cell,
+                           const std::string &key) const override;
   ObjectId id(const Cell *cell) const override;
   Library *library(const Cell *cell) const override;
   LibertyCell *libertyCell(Cell *cell) const override;
@@ -112,8 +111,8 @@ public:
   PortMemberIterator *memberIterator(const Port *port) const override;
 
   const char *name(const Instance *instance) const override;
-  std::optional<std::string> getAttribute(const Instance *inst,
-                                          const std::string &key) const override;
+  std::string getAttribute(const Instance *inst,
+                           const std::string &key) const override;
   ObjectId id(const Instance *instance) const override;
   Cell *cell(const Instance *instance) const override;
   Instance *parent(const Instance *instance) const override;
@@ -299,7 +298,7 @@ public:
   InstanceChildIterator *childIterator() const;
   void setAttribute(const std::string &key,
                     const std::string &value);
-  std::optional<std::string> getAttribute(const std::string &key) const;
+  std::string getAttribute(const std::string &key) const;
   void addChild(ConcreteInstance *child);
   void deleteChild(ConcreteInstance *child);
   void addPin(ConcretePin *pin);
