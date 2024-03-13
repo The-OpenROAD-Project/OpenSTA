@@ -628,9 +628,8 @@ ConcreteParasiticNode *
 ConcreteParasiticNetwork::ensureParasiticNode(const Pin *pin,
                                               const Network *network)
 {
-  ConcreteParasiticNode *node;
-  auto pin_node = pin_nodes_.find(pin);
-  if (pin_node == pin_nodes_.end()) {
+  auto &pin_node = pin_nodes_[pin];
+  if (!pin_node) {
     Net *net = network->net(pin);
     // Pins on the top level instance may not have nets.
     // Use the net connected to the pin's terminal.
@@ -641,12 +640,9 @@ ConcreteParasiticNetwork::ensureParasiticNode(const Pin *pin,
     }
     else
       net = network->highestNetAbove(net);
-    node = new ConcreteParasiticNode(pin, net != net_);
-    pin_nodes_[pin] = node;
+    pin_node = new ConcreteParasiticNode(pin, net != net_);
   }
-  else
-    node = pin_node->second;
-  return node;
+  return pin_node;
 }
 
 PinSet
@@ -981,14 +977,13 @@ ConcreteParasitics::makePiElmore(const Pin *drvr_pin,
 				 float c1)
 {
   UniqueLock lock(lock_);
-  ConcreteParasitic **parasitics = drvr_parasitic_map_.findKey(drvr_pin);
+  ConcreteParasitic **&parasitics = drvr_parasitic_map_[drvr_pin];
   if (parasitics == nullptr) {
     int ap_count = corners_->parasiticAnalysisPtCount();
     int ap_rf_count = ap_count * RiseFall::index_count;
     parasitics = new ConcreteParasitic*[ap_rf_count];
     for (int i = 0; i < ap_rf_count; i++)
       parasitics[i] = nullptr;
-    drvr_parasitic_map_[drvr_pin] = parasitics;
   }
   int ap_rf_index = parasiticAnalysisPtIndex(ap, rf);
   ConcreteParasitic *parasitic = parasitics[ap_rf_index];
@@ -1101,14 +1096,13 @@ ConcreteParasitics::makePiPoleResidue(const Pin *drvr_pin,
 				      float c1)
 {
   UniqueLock lock(lock_);
-  ConcreteParasitic **parasitics = drvr_parasitic_map_.findKey(drvr_pin);
+  ConcreteParasitic **&parasitics = drvr_parasitic_map_[drvr_pin];
   if (parasitics == nullptr) {
     int ap_count = corners_->parasiticAnalysisPtCount();
     int ap_rf_count = ap_count * RiseFall::index_count;
     parasitics = new ConcreteParasitic*[ap_rf_count];
     for (int i = 0; i < ap_rf_count; i++)
       parasitics[i] = nullptr;
-    drvr_parasitic_map_[drvr_pin] = parasitics;
   }
   int ap_rf_index = parasiticAnalysisPtIndex(ap, rf);
   ConcreteParasitic *parasitic = parasitics[ap_rf_index];
@@ -1235,13 +1229,12 @@ ConcreteParasitics::makeParasiticNetwork(const Net *net,
 					 const ParasiticAnalysisPt *ap)
 {
   UniqueLock lock(lock_);
-  ConcreteParasiticNetwork **parasitics = parasitic_network_map_.findKey(net);
+  ConcreteParasiticNetwork **&parasitics = parasitic_network_map_[net];
   if (parasitics == nullptr) {
     int ap_count = corners_->parasiticAnalysisPtCount();
     parasitics = new ConcreteParasiticNetwork*[ap_count];
     for (int i = 0; i < ap_count; i++)
       parasitics[i] = nullptr;
-    parasitic_network_map_[net] = parasitics;
   }
   int ap_index = ap->index();
   ConcreteParasiticNetwork *parasitic = parasitics[ap_index];
