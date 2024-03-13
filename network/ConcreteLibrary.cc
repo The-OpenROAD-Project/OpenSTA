@@ -269,14 +269,14 @@ ConcreteCell::setIsLeaf(bool is_leaf)
 }
 
 void
-ConcreteCell::setAttribute(const std::string &key,
-                           const std::string &value)
+ConcreteCell::setAttribute(const string &key,
+                           const string &value)
 {
   attribute_map_.insert(key, value);
 }
 
-std::string
-ConcreteCell::getAttribute(const std::string &key) const 
+string
+ConcreteCell::getAttribute(const string &key) const 
 {
   if (attribute_map_.hasKey(key)) {
     return attribute_map_.findKey(key);

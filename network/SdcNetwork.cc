@@ -122,9 +122,9 @@ NetworkNameAdapter::id(const Cell *cell) const
   return network_->id(cell);
 }
 
-std::string
+string
 NetworkNameAdapter::getAttribute(const Cell *cell,
-                                 const std::string &key) const
+                                 const string &key) const
 {
   return network_->getAttribute(cell, key);
 }
@@ -334,9 +334,9 @@ NetworkNameAdapter::cell(const Instance *instance) const
   return network_->cell(instance);
 }
 
-std::string
+string
 NetworkNameAdapter::getAttribute(const Instance *inst,
-                                 const std::string &key) const
+                                 const string &key) const
 {
   return network_->getAttribute(inst, key);
 }
