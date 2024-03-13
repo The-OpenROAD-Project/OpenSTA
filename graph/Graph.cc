@@ -588,6 +588,7 @@ Graph::makeArrivals(Vertex *vertex,
 Arrival *
 Graph::arrivals(Vertex *vertex)
 {
+  UniqueLock lock(arrivals_lock_);
   return arrivals_.pointer(vertex->arrivals());
 }
 
@@ -621,6 +622,7 @@ Graph::makeRequireds(Vertex *vertex,
 Required *
 Graph::requireds(Vertex *vertex)
 {
+  UniqueLock lock(requireds_lock_);
   return requireds_.pointer(vertex->requireds());
 }
 
@@ -659,6 +661,7 @@ Graph::makePrevPaths(Vertex *vertex,
 PathVertexRep *
 Graph::prevPaths(Vertex *vertex) const
 {
+  UniqueLock lock(prev_paths_lock_);
   return prev_paths_.pointer(vertex->prevPaths());
 }
 
@@ -1361,20 +1364,31 @@ Vertex::setHasDownstreamClkPin(bool has_clk_pin)
   has_downstream_clk_pin_ = has_clk_pin;
 }
 
+#define IN_QUEUE(mask, index) (mask & (1 << unsigned(index)))
+#define SET_IN_QUEUE(mask, index) ((mask) |= (1 << unsigned(index)))
+#define CLEAR_IN_QUEUE(mask, index) ((mask) &= ~(1 << unsigned(index)))
+
 bool
 Vertex::bfsInQueue(BfsIndex index) const
 {
-  return (bfs_in_queue_ >> unsigned(index)) & 1;
+  return IN_QUEUE(bfs_in_queue_, index);
 }
 
-void
+bool
 Vertex::setBfsInQueue(BfsIndex index,
-		      bool value)
+                      bool value)
 {
-  if (value)
-    bfs_in_queue_ |= 1 << int(index);
-  else
-    bfs_in_queue_ &= ~(1 << int(index));
+  unsigned char expected = bfs_in_queue_;
+  unsigned char desired;
+  do {
+    if ((value && IN_QUEUE(expected, index)) || (!value && !IN_QUEUE(expected, index))) {
+      return false;
+    }
+    desired = expected;
+    SET_IN_QUEUE(value ? desired : expected, index);
+    CLEAR_IN_QUEUE(value ? expected : desired, index);
+  } while (!bfs_in_queue_.compare_exchange_weak(expected, desired));
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////

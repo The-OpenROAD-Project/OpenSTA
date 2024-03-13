@@ -254,18 +254,15 @@ void
 BfsIterator::enqueue(Vertex *vertex)
 {
   debugPrint(debug_, "bfs", 2, "enqueue %s", vertex->name(sdc_network_));
-  if (!vertex->bfsInQueue(bfs_index_)) {
+    if (vertex->setBfsInQueue(bfs_index_, true)) {
     Level level = vertex->level();
-    UniqueLock lock(queue_lock_);
-    if (!vertex->bfsInQueue(bfs_index_)) {
-      vertex->setBfsInQueue(bfs_index_, true);
+      UniqueLock lock(queue_lock_);
       queue_[level].push_back(vertex);
 
       if (levelLess(last_level_, level))
 	last_level_ = level;
       if (levelLess(level, first_level_))
 	first_level_ = level;
-    }
   }
 }
 
