@@ -2726,6 +2726,7 @@ Search::reportArrivals(Vertex *vertex) const
   if (tag_group) {
     report_->reportLine("Group %u", tag_group->index());
     ArrivalMap::Iterator arrival_iter(tag_group->arrivalMap());
+    PathVertex prev;
     while (arrival_iter.hasNext()) {
       Tag *tag;
       int arrival_index;
@@ -2739,7 +2740,7 @@ Search::reportArrivals(Vertex *vertex) const
       const char *clk_prev = "";
       if (report_clk_prev
 	  && tag_group->hasClkTag()) {
-	PathVertex prev = check_crpr_->clkPathPrev(vertex, arrival_index);
+	check_crpr_->clkPathPrev(vertex, arrival_index, prev);
         if (!prev.isNull())
           clk_prev = prev.name(this);
       }

@@ -52,8 +52,8 @@ public:
   // Previous clk path when crpr is enabled.
   PathVertex clkPathPrev(const PathVertex *path);
   // For Search::reportArrivals.
-  PathVertex clkPathPrev(Vertex *vertex,
-			 int arrival_index);
+  void clkPathPrev(Vertex *vertex,
+			 int arrival_index, PathVertex &tmp);
 
 private:
   PathVertex *clkPathPrev(const PathVertex *path,
