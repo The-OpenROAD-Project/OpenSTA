@@ -658,19 +658,6 @@ TagEqual::operator()(const Tag *tag1,
   return tagEqual(tag1, tag2);
 }
 
-TagMatchHash::TagMatchHash(bool match_crpr_clk_pin,
-			   const StaState *sta) :
-  match_crpr_clk_pin_(match_crpr_clk_pin),
-  sta_(sta)
-{
-}
-
-size_t
-TagMatchHash::operator()(const Tag *tag) const
-{
-  return tag->matchHash(match_crpr_clk_pin_);
-}
-
 TagMatchEqual::TagMatchEqual(bool match_crpr_clk_pin,
 			     const StaState *sta) :
   match_crpr_clk_pin_(match_crpr_clk_pin),

@@ -22,6 +22,7 @@
 #include "Set.hh"
 #include "Map.hh"
 #include "UnorderedMap.hh"
+#include "VectorMap.hh"
 #include "StringSet.hh"
 #include "MinMaxValues.hh"
 #include "Delay.hh"
@@ -77,18 +78,6 @@ protected:
   const StaState *sta_;
 };
 
-class TagMatchHash
-{
-public:
-  TagMatchHash(bool match_crpr_clk_pin,
-	       const StaState *sta);
-  size_t operator()(const Tag *tag) const;
-
-protected:
-  bool match_crpr_clk_pin_;
-  const StaState *sta_;
-};
-
 class TagMatchEqual
 {
 public:
@@ -112,7 +101,7 @@ typedef StringSet PathGroupNameSet;
 typedef Vector<PathEnd*> PathEndSeq;
 typedef Vector<Arrival> ArrivalSeq;
 typedef Map<Vertex*, int> VertexPathCountMap;
-typedef UnorderedMap<Tag*, int, TagMatchHash, TagMatchEqual> ArrivalMap;
+typedef VectorMap<Tag*, int, TagMatchEqual> ArrivalMap;
 typedef Vector<PathVertex> PathVertexSeq;
 typedef Vector<Slack> SlackSeq;
 typedef Delay Crpr;
