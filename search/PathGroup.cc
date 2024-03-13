@@ -908,7 +908,7 @@ PathGroups::makeGroupPathEnds(VertexSet *endpoints,
       dispatch_queue_->dispatch( [endpoint, &visitors](int i)
       { visitors[i].visit(endpoint); } );
     }
-    dispatch_queue_->finishTasks();
+    dispatch_queue_->runTasks();
   }
 }
 

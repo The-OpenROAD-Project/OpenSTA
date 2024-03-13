@@ -204,7 +204,7 @@ BfsIterator::visitParallel(Level to_level,
               });
               from = to;
             }
-            dispatch_queue_->finishTasks();
+            dispatch_queue_->runTasks();
           }
 	  visitor->levelFinished();
 	  level_vertices.clear();
