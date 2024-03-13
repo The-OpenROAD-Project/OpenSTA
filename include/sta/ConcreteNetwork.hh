@@ -17,6 +17,7 @@
 #pragma once
 
 #include <functional>
+#include <shared_mutex>
 
 #include "Map.hh"
 #include "Set.hh"
@@ -47,6 +48,7 @@ typedef Vector<ConcreteNet*> ConcreteNetSeq;
 typedef Vector<ConcretePin*> ConcretePinSeq;
 typedef Map<Cell*, Instance*> CellNetworkViewMap;
 typedef Set<const ConcreteNet*> ConcreteNetSet;
+typedef Map<const Net*, PinSet*> NetDrvrPinsMap;
 
 // This adapter implements the network api for the concrete network.
 // A superset of the Network api methods are implemented in the interface.
@@ -188,6 +190,9 @@ public:
                        PortSeq *members) override;
   void setDirection(Port *port,
                     PortDirection *dir) override;
+
+  PinSet *drivers(const Net *net) override;
+
   // For NetworkEdit.
   Instance *makeInstance(LibertyCell *cell,
                          const char *name,
@@ -210,6 +215,7 @@ public:
   void deletePin(Pin *pin) override;
   Net *makeNet(const char *name,
                Instance *parent) override;
+  // This method should not be called in a multi-threaded context.
   void deleteNet(Net *net) override;
 
   // For NetworkReader API.
@@ -232,6 +238,12 @@ public:
   // Used by external tools.
   void setTopInstance(Instance *top_inst);
   void deleteTopInstance();
+
+  // Connect/disconnect net/pins should clear the net->drvrs map.
+  // Incrementally maintaining the map is expensive because
+  // nets may be connected across hierarchy levels.
+  // This method must not be called in a multi-threaded context.
+  void clearNetDrvrPinMap();
 
   using Network::netIterator;
   using Network::findPin;
@@ -265,6 +277,8 @@ protected:
   LinkNetworkFunc *link_func_;
   CellNetworkViewMap cell_network_view_map_;
   static ObjectId object_id_;
+  NetDrvrPinsMap net_drvr_pin_map_;
+  std::shared_mutex net_drvr_pin_map_mtx_;
 
 private:
   friend class ConcreteLibertyLibraryIterator;
