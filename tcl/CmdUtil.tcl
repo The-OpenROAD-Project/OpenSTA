@@ -144,18 +144,22 @@ proc set_unit_values { unit key suffix key_var } {
   upvar 1 $key_var keys
   if { [info exists keys($key)] } {
     set value $keys($key)
-    if { [regexp "(10*)?(\[Mkmunpf\])?" $value match mult prefix] } {
-      set arg_suffix [string range $value [string length $match] end]
-      if { ![string match -nocase $arg_suffix $suffix] } {
-        sta_error 501 "unknown unit $unit suffix $arg_suffix."
+    set suffix_length [string length $suffix]
+    set arg_suffix [string range $value end-[expr $suffix_length - 1] end]
+    if { [string match -nocase $arg_suffix $suffix] } {
+      set arg_prefix [string range $value 0 end-$suffix_length]
+      if { [regexp "^(10*)?(\[Mkmunpf\])?$" $arg_prefix ignore mult prefix] } {
+        #puts "$arg_prefix '$mult' '$prefix'"
+        if { $mult == "" } {
+          set mult 1
+        }
+        set scale [unit_prefix_scale $unit $prefix ]
+        set_cmd_unit_scale $unit $scale
+      } else {
+        sta_error 343 "unknown unit $unit prefix '${arg_prefix}'."
       }
-      if { $mult == "" } {
-        set mult 1
-      }
-      set scale [unit_prefix_scale $unit $prefix ]
-      set_cmd_unit_scale $unit $scale
     } else {
-      sta_error 163 "unknown unit $unit format."
+      sta_error 501 "incorrect unit suffix '$arg_suffix'."
     }
     if [info exists keys(-digits)] {
       set_cmd_unit_digits $unit $keys(-digits)
