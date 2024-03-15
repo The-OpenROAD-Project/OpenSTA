@@ -140,26 +140,22 @@ proc set_cmd_units { args } {
   set_unit_values "distance" -distance "m" keys
 }
 
-proc set_unit_values { unit key unit_name key_var } {
+proc set_unit_values { unit key suffix key_var } {
   upvar 1 $key_var keys
   if { [info exists keys($key)] } {
     set value $keys($key)
-    if { [string equal -nocase $value $unit_name] } {
-      set_cmd_unit_scale $unit 1.0
+    if { [regexp "(10*)?(\[Mkmunpf\])?" $value match mult prefix] } {
+      set arg_suffix [string range $value [string length $match] end]
+      if { ![string match -nocase $arg_suffix $suffix] } {
+        sta_error 501 "unknown unit $unit suffix $arg_suffix."
+      }
+      if { $mult == "" } {
+        set mult 1
+      }
+      set scale [unit_prefix_scale $unit $prefix ]
+      set_cmd_unit_scale $unit $scale
     } else {
-      set prefix [string index $value 0]
-      set suffix [string range $value 1 end]
-      # unit includes "1" prefix
-      if { [string is digit $prefix] } {
-	set prefix [string index $value 1]
-	set suffix [string range $value 2 end]
-      }
-      if { [string equal -nocase $suffix $unit_name] } {
-	set scale [unit_prefix_scale $unit $prefix]
-	set_cmd_unit_scale $unit $scale
-      } else {
-	sta_error 163 "unknown $unit unit '$suffix'."
-      }
+      sta_error 163 "unknown unit $unit format."
     }
     if [info exists keys(-digits)] {
       set_cmd_unit_digits $unit $keys(-digits)
