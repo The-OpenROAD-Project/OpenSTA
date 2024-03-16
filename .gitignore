@@ -6,9 +6,12 @@ TAGS
 .#*
 .~lock.*\.*#
 .DS_Store
+.vscode
+.idea
 Makefile
 gmon.out
 
+cmake-build-debug
 build
 pvt
 

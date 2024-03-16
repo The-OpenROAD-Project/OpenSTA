@@ -41,7 +41,6 @@ verilogFlushBuffer()
 %option never-interactive
 
 %x COMMENT
-%x ATTRIBUTE
 %x QSTRING
 
 SIGN	"+"|"-"
@@ -77,21 +76,6 @@ ID_TOKEN {ID_ESCAPED_TOKEN}|{ID_ALPHA_TOKEN}
 	}
 }
 
-"(*"	{ BEGIN ATTRIBUTE; }
-<ATTRIBUTE>{
-.
-
-{EOL}	{ sta::verilog_reader->incrLine(); }
-
-"*)"	{ BEGIN INITIAL; }
-
-<<EOF>> {
-	VerilogParse_error("unterminated attribute");
-	BEGIN(INITIAL);
-	yyterminate();
-	}
-}
-
 {SIGN}?{UNSIGNED_NUMBER}?"'"[bB][01_xz]+ {
   VerilogParse_lval.constant = sta::stringCopy(VerilogLex_text);
   return CONSTANT;
@@ -121,6 +105,8 @@ ID_TOKEN {ID_ESCAPED_TOKEN}|{ID_ALPHA_TOKEN}
   return ((int) VerilogLex_text[0]);
 }
 
+"(*" { return ATTRIBUTE_OPEN; }
+"*)" { return ATTRIBUTE_CLOSED; }
 assign { return ASSIGN; }
 endmodule { return ENDMODULE; }
 inout { return INOUT; }

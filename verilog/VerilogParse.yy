@@ -17,6 +17,8 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include <cstdlib>
+#include <string>
+#include <iostream>
 
 #include "PortDirection.hh"
 #include "verilog/VerilogReaderPvt.hh"
@@ -33,6 +35,7 @@ int VerilogLex_lex();
   int ival;
   const char *string;
   const char *constant;
+	const char *attribute_spec_value;
   sta::VerilogModule *module;
   sta::VerilogStmt *stmt;
   sta::VerilogStmtSeq *stmt_seq;
@@ -44,10 +47,15 @@ int VerilogLex_lex();
   sta::VerilogNet *net;
   sta::VerilogNetBitSelect *net_bit;
   sta::VerilogNetSeq *nets;
+  sta::VerilogAttributeEntry *attribute_entry;
+  sta::VerilogAttributeEntrySeq *attribute_seq;
+  sta::VerilogAttributeStmt *attribute_stmt;
+  sta::VerilogAttributeStmtSeq *attribute_stmt_seq;
 }
 
 %token INT CONSTANT ID STRING MODULE ENDMODULE ASSIGN PARAMETER DEFPARAM
 %token WIRE WAND WOR TRI INPUT OUTPUT INOUT SUPPLY1 SUPPLY0 REG
+%token ATTRIBUTE_OPEN ATTRIBUTE_CLOSED
 
 %left '-' '+'
 %left '*' '/'
@@ -55,8 +63,10 @@ int VerilogLex_lex();
 
 %type <string> ID STRING
 %type <ival> WIRE WAND WOR TRI INPUT OUTPUT INOUT SUPPLY1 SUPPLY0
+%type <ival> ATTRIBUTE_OPEN ATTRIBUTE_CLOSED
 %type <ival> INT parameter_exprs parameter_expr module_begin
 %type <constant> CONSTANT
+%type <attribute_spec_value> attr_spec_value
 %type <port_type> dcl_type port_dcl_type
 %type <stmt> stmt declaration instance parameter parameter_dcls parameter_dcl
 %type <stmt> defparam param_values param_value port_dcl
@@ -69,6 +79,10 @@ int VerilogLex_lex();
 %type <net> inst_named_pin net_named net_expr_concat
 %type <nets> port_list port_refs inst_ordered_pins
 %type <nets> inst_named_pins net_exprs inst_pins
+%type <attribute_entry> attr_spec
+%type <attribute_seq> attr_specs
+%type <attribute_stmt> attribute_instance
+%type <attribute_stmt_seq> attribute_instance_seq
 
 %start file
 
@@ -92,14 +106,14 @@ module_begin:
 	;
 
 module:
-	module_begin ID ';' stmts ENDMODULE
-	{ sta::verilog_reader->makeModule($2, new sta::VerilogNetSeq,$4,$1);}
-|	module_begin ID '(' ')' ';' stmts ENDMODULE
-	{ sta::verilog_reader->makeModule($2, new sta::VerilogNetSeq,$6,$1);}
-|	module_begin ID '(' port_list ')' ';' stmts ENDMODULE
-	{ sta::verilog_reader->makeModule($2, $4, $7, $1); }
-|	module_begin ID '(' port_dcls ')' ';' stmts ENDMODULE
-	{ sta::verilog_reader->makeModule($2, $4, $7, $1); }
+	attribute_instance_seq module_begin ID ';' stmts ENDMODULE
+	{ sta::verilog_reader->makeModule($3, new sta::VerilogNetSeq, $5, $1, $2);}
+|	attribute_instance_seq module_begin ID '(' ')' ';' stmts ENDMODULE
+	{ sta::verilog_reader->makeModule($3, new sta::VerilogNetSeq, $7, $1, $2);}
+|	attribute_instance_seq module_begin ID '(' port_list ')' ';' stmts ENDMODULE
+	{ sta::verilog_reader->makeModule($3, $5, $8, $1, $2); }
+|	attribute_instance_seq module_begin ID '(' port_dcls ')' ';' stmts ENDMODULE
+	{ sta::verilog_reader->makeModule($3, $5, $8, $1, $2); }
 	;
 
 port_list:
@@ -157,11 +171,12 @@ port_dcls:
 	;
 
 port_dcl:
-	port_dcl_type { $<ival>$ = sta::verilog_reader->line(); } dcl_arg
-	{ $$ = sta::verilog_reader->makeDcl($1, $3, $<ival>2); }
-|	port_dcl_type { $<ival>$ = sta::verilog_reader->line(); }
-	'[' INT ':' INT ']' dcl_arg
-	{ $$ = sta::verilog_reader->makeDclBus($1, $4, $6, $8, $<ival>2); }
+	attribute_instance_seq port_dcl_type
+	{ $<ival>$ = sta::verilog_reader->line(); } dcl_arg
+	{ $$ = sta::verilog_reader->makeDcl($2, $4, $1, $<ival>3); }
+|	attribute_instance_seq port_dcl_type
+  { $<ival>$ = sta::verilog_reader->line(); } '[' INT ':' INT ']' dcl_arg
+	{ $$ = sta::verilog_reader->makeDclBus($2, $5, $7, $9, $1, $<ival>3); }
 	;
 
 port_dcl_type:
@@ -282,11 +297,11 @@ param_value:
 	;
 
 declaration:
-	dcl_type { $<ival>$ = sta::verilog_reader->line(); } dcl_args ';'
-	{ $$ = sta::verilog_reader->makeDcl($1, $3, $<ival>2); }
-|	dcl_type { $<ival>$ = sta::verilog_reader->line(); }
+	attribute_instance_seq dcl_type { $<ival>$ = sta::verilog_reader->line(); } dcl_args ';'
+	{ $$ = sta::verilog_reader->makeDcl($2, $4, $1, $<ival>3); }
+|	attribute_instance_seq dcl_type { $<ival>$ = sta::verilog_reader->line(); }
 	'[' INT ':' INT ']' dcl_args ';'
-	{ $$ = sta::verilog_reader->makeDclBus($1, $4, $6, $8, $<ival>2); }
+	{ $$ = sta::verilog_reader->makeDclBus($2, $5, $7, $9, $1,$<ival>3); }
 	;
 
 dcl_type:
@@ -344,11 +359,11 @@ net_assign_lhs:
         ;
 
 instance:
-	ID { $<ival>$ = sta::verilog_reader->line(); } ID '(' inst_pins ')' ';'
-	{ $$ = sta::verilog_reader->makeModuleInst($1, $3, $5, $<ival>2); }
-|	ID { $<ival>$ = sta::verilog_reader->line(); } parameter_values
+	attribute_instance_seq ID { $<ival>$ = sta::verilog_reader->line(); } ID '(' inst_pins ')' ';'
+	{ $$ = sta::verilog_reader->makeModuleInst($2, $4, $6, $1, $<ival>3); }
+|	attribute_instance_seq ID { $<ival>$ = sta::verilog_reader->line(); } parameter_values
 	   ID '(' inst_pins ')' ';'
-	{ $$ = sta::verilog_reader->makeModuleInst($1, $4, $6, $<ival>2); }
+	{ $$ = sta::verilog_reader->makeModuleInst($2, $5, $7, $1, $<ival>3); }
 	;
 
 parameter_values:
@@ -465,6 +480,43 @@ net_expr:
 |	net_part_select
 |	net_constant
 |	net_expr_concat
+	;
+
+attribute_instance_seq:
+	// empty
+	{ $$ = new sta::VerilogAttributeStmtSeq; }
+|	attribute_instance_seq attribute_instance
+	{ if ($2) $1->push_back($2); }
+	;
+
+attribute_instance:
+	ATTRIBUTE_OPEN attr_specs ATTRIBUTE_CLOSED
+	{ $$ = new sta::VerilogAttributeStmt($2); }
+	;
+
+attr_specs:
+	attr_spec
+	{ $$ = new sta::VerilogAttributeEntrySeq;
+	  $$->push_back($1);
+	}
+| attr_spec ',' attr_spec
+	{ $$->push_back($3); }
+	;
+
+attr_spec:
+	ID
+	{ $$ = new sta::VerilogAttributeEntry($1, "1"); }
+| 	ID '=' attr_spec_value
+	{ $$ = new sta::VerilogAttributeEntry($1, $3); }
+	;
+
+attr_spec_value:
+	CONSTANT
+	{ $$ = $1; }
+| 	STRING
+	{ $$ = $1; }
+| 	INT
+  	{ $$ = sta::stringCopy(std::to_string($1).c_str()); }
 	;
 
 %%

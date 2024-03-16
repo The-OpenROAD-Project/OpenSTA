@@ -268,6 +268,22 @@ ConcreteCell::setIsLeaf(bool is_leaf)
   is_leaf_ = is_leaf;
 }
 
+void
+ConcreteCell::setAttribute(const string &key,
+                           const string &value)
+{
+  attribute_map_.insert(key, value);
+}
+
+string
+ConcreteCell::getAttribute(const string &key) const 
+{
+  if (attribute_map_.hasKey(key)) {
+    return attribute_map_.findKey(key);
+  }
+  return "";
+}
+
 ConcretePort *
 ConcreteCell::findPort(const char *name) const
 {
