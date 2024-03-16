@@ -122,7 +122,7 @@ record_example_tests {
 }
 
 record_sta_tests {
-  attribute_parsing
+  verilog_attribute
 }
 
 define_test_group fast [group_tests all]

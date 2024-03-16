@@ -254,7 +254,7 @@ void
 VerilogReader::makeModule(const char *module_vname,
 			  VerilogNetSeq *ports,
 			  VerilogStmtSeq *stmts,
-        VerilogAttributeStmtSeq *attribute_stmts,
+                          VerilogAttributeStmtSeq *attribute_stmts,
 			  int line)
 {
   string module_name = moduleVerilogToSta(module_vname);
@@ -286,7 +286,7 @@ void
 VerilogReader::makeModule(const char *module_name,
 			  VerilogStmtSeq *port_dcls,
 			  VerilogStmtSeq *stmts,
-        VerilogAttributeStmtSeq *attribute_stmts,
+                          VerilogAttributeStmtSeq *attribute_stmts,
 			  int line)
 {
   VerilogNetSeq *ports = new VerilogNetSeq;
@@ -402,7 +402,7 @@ VerilogReader::checkModuleDcls(VerilogModule *module,
 VerilogDcl *
 VerilogReader::makeDcl(PortDirection *dir,
 		       VerilogDclArgSeq *args,
-           VerilogAttributeStmtSeq* attribute_stmts,
+                       VerilogAttributeStmtSeq* attribute_stmts,
 		       int line)
 {
   if (dir->isInternal()) {
@@ -436,7 +436,7 @@ VerilogReader::makeDcl(PortDirection *dir,
 VerilogDcl *
 VerilogReader::makeDcl(PortDirection *dir,
 		       VerilogDclArg *arg,
-           VerilogAttributeStmtSeq* attribute_stmts,
+                       VerilogAttributeStmtSeq* attribute_stmts,
 		       int line)
 {
   dcl_count_++;
@@ -448,7 +448,7 @@ VerilogReader::makeDclBus(PortDirection *dir,
 			  int from_index,
 			  int to_index,
 			  VerilogDclArg *arg,
-        VerilogAttributeStmtSeq* attribute_stmts,
+                          VerilogAttributeStmtSeq* attribute_stmts,
 			  int line)
 {
   dcl_bus_count_++;
@@ -461,7 +461,7 @@ VerilogReader::makeDclBus(PortDirection *dir,
 			  int from_index,
 			  int to_index,
 			  VerilogDclArgSeq *args,
-        VerilogAttributeStmtSeq* attribute_stmts,
+                          VerilogAttributeStmtSeq* attribute_stmts,
 			  int line)
 {
   dcl_bus_count_++;

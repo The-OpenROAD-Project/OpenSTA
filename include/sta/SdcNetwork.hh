@@ -83,7 +83,7 @@ public:
 
   ObjectId id(const Instance *instance) const override;
   string getAttribute(const Instance *inst,
-                           const string &key) const override;
+                      const string &key) const override;
   Instance *topInstance() const override;
   Cell *cell(const Instance *instance) const override;
   Instance *parent(const Instance *instance) const override;

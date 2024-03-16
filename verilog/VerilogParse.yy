@@ -35,7 +35,7 @@ int VerilogLex_lex();
   int ival;
   const char *string;
   const char *constant;
-	const char *attribute_spec_value;
+  const char *attribute_spec_value;
   sta::VerilogModule *module;
   sta::VerilogStmt *stmt;
   sta::VerilogStmtSeq *stmt_seq;

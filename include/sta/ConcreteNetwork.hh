@@ -76,7 +76,7 @@ public:
 
   const char *name(const Cell *cell) const override;
   string getAttribute(const Cell *cell,
-                           const string &key) const override;
+                      const string &key) const override;
   ObjectId id(const Cell *cell) const override;
   Library *library(const Cell *cell) const override;
   LibertyCell *libertyCell(Cell *cell) const override;
@@ -112,7 +112,7 @@ public:
 
   const char *name(const Instance *instance) const override;
   string getAttribute(const Instance *inst,
-                           const string &key) const override;
+                      const string &key) const override;
   ObjectId id(const Instance *instance) const override;
   Cell *cell(const Instance *instance) const override;
   Instance *parent(const Instance *instance) const override;

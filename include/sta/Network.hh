@@ -146,7 +146,7 @@ public:
   virtual const char *filename(const Cell *cell) = 0;
   // Attributes can be null
   virtual string getAttribute(const Cell *cell,
-                                   const string &key) const = 0;
+                              const string &key) const = 0;
   // Name can be a simple, bundle, bus, or bus bit name.
   virtual Port *findPort(const Cell *cell,
 			 const char *name) const = 0;
@@ -210,7 +210,7 @@ public:
   virtual InstanceSeq findInstancesHierMatching(const Instance *instance,
                                                 const PatternMatch *pattern) const;
   virtual string getAttribute(const Instance *inst,
-                                   const string &key) const = 0;
+                              const string &key) const = 0;
   // Hierarchical path name.
   virtual const char *pathName(const Instance *instance) const;
   bool pathNameLess(const Instance *inst1,

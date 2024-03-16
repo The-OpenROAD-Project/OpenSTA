@@ -1,5 +1,5 @@
 read_liberty ../examples/sky130hd_tt.lib
-read_verilog attribute_parsing.v
+read_verilog verilog_attribute.v
 link_design counter
 create_clock -name clk [get_ports clk] -period 50
 
