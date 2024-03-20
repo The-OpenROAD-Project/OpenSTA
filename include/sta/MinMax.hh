@@ -49,6 +49,7 @@ public:
   const char *asString() const { return name_; }
   int index() const { return index_; }
   float initValue() const { return init_value_; }
+  int initValueInt() const { return init_value_int_; }
   // Max value1 > value2, Min value1 < value2.
   bool compare(float value1,
 	       float value2) const;
@@ -74,12 +75,14 @@ private:
   MinMax(const char *name,
 	 int index,
 	 float init_value,
+         int init_value_int,
 	 bool (*compare)(float value1,
 			 float value2));
 
   const char *name_;
   int index_;
   float init_value_;
+  int init_value_int_;
   bool (*compare_)(float value1,
 		   float value2);
 

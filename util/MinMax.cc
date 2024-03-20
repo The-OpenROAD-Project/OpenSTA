@@ -17,6 +17,7 @@
 #include "MinMax.hh"
 
 #include <algorithm>
+#include <limits>
 
 #include "StringUtil.hh"
 
@@ -40,18 +41,20 @@ compareMax(float value1,
 
 ////////////////////////////////////////////////////////////////
 
-MinMax MinMax::min_("min", 0,  INF, compareMin);
-MinMax MinMax::max_("max", 1, -INF, compareMax);
+MinMax MinMax::min_("min", 0,  INF, std::numeric_limits<int>::max(), compareMin);
+MinMax MinMax::max_("max", 1, -INF, std::numeric_limits<int>::min(), compareMax);
 const std::array<MinMax*, 2> MinMax::range_{&min_, &max_};
 const std::array<int, 2> MinMax::range_index_{min_.index(), max_.index()};
 
 MinMax::MinMax(const char *name,
 	       int index,
 	       float init_value,
+               int init_value_int,
 	       bool (*compare)(float value1, float value2)) :
   name_(name),
   index_(index),
   init_value_(init_value),
+  init_value_int_(init_value_int),
   compare_(compare)
 {
 }
