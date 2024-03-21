@@ -541,7 +541,7 @@ set(CXX_FLAGS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-sec
 
 if(USE_SANITIZE)
   message(STATUS "Sanitize: ${USE_SANITIZE}")
-  set(CXX_FLAGS "${CXX_FLAGS};-fsanitize=address")
+  set(CXX_FLAGS "${CXX_FLAGS};-fsanitize=address;-fno-omit-frame-pointer;-fno-common")
   set(CMAKE_EXE_LINKER_FLAGS "-fsanitize=address")
 endif()
 
