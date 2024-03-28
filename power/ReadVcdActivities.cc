@@ -231,8 +231,7 @@ ReadVcdActivities::findVarActivity(const VcdValues &var_values,
   if (prev_value == '1')
     high_time += time_max - prev_time;
   duty = static_cast<double>(high_time) / time_max;
-  activity = transition_count
-    / (time_max * vcd_.timeUnitScale() / clk_period_);
+  activity = transition_count / (time_max * vcd_.timeScale() / clk_period_);
 }
 
 void
@@ -240,7 +239,7 @@ ReadVcdActivities::checkClkPeriod(const Pin *pin,
                                   double transition_count)
 {
   VcdTime time_max = vcd_.timeMax();
-  double sim_period = time_max * vcd_.timeUnitScale() / (transition_count / 2.0);
+  double sim_period = time_max * vcd_.timeScale() / (transition_count / 2.0);
 
   ClockSet *clks = sdc_->findLeafPinClocks(pin);
   if (clks) {
