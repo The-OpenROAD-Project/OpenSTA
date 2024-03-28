@@ -499,7 +499,7 @@ attr_specs:
 	{ $$ = new sta::VerilogAttributeEntrySeq;
 	  $$->push_back($1);
 	}
-| attr_spec ',' attr_spec
+| attr_specs ',' attr_spec
 	{ $$->push_back($3); }
 	;
 
