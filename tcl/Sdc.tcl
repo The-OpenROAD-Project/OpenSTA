@@ -235,51 +235,44 @@ proc set_units { args } {
   check_unit "current" -current "A" keys
   check_unit "power" -power "W" keys
   check_unit "distance" -distance "m" keys
-  check_unit "power" -power "w" keys
 }
 
-proc check_unit { unit key unit_name key_var } {
+proc check_unit { unit key suffix key_var } {
   upvar 1 $key_var keys
   if { [info exists keys($key)] } {
     set value $keys($key)
-    if { [string equal -nocase $value $unit_name] } {
-      check_unit_scale $unit 1.0
-    } else {
-      set prefix [string index $value 0]
-      set suffix [string range $value 1 end]
-      # unit includes "1" prefix
-      if { [string is digit $prefix] } {
-	set prefix [string index $value 1]
-	set suffix [string range $value 2 end]
-      }
-      if { [string equal -nocase $suffix $unit_name] } {
-	set scale [unit_prefix_scale $unit $prefix]
-	check_unit_scale $unit $scale
+    set suffix_length [string length $suffix]
+    set arg_suffix [string range $value end-[expr $suffix_length - 1] end]
+    if { [string match -nocase $arg_suffix $suffix] } {
+      set arg_prefix [string range $value 0 end-$suffix_length]
+      if { [regexp "^(10*)?(\[Mkmunpf\])?$" $arg_prefix ignore mult prefix] } {
+        #puts "$arg_prefix '$mult' '$prefix'"
+        if { $mult == "" } {
+          set mult 1
+        }
+        set scale [unit_prefix_scale $unit $prefix ]
+        check_unit_scale $unit [expr $scale * $mult]
       } else {
-	sta_error 343 "unknown unit $unit '$suffix'."
+        sta_error 343 "unknown unit $unit prefix '${arg_prefix}'."
       }
+    } else {
+      sta_error 501 "incorrect unit suffix '$arg_suffix'."
     }
   }
 }
 
 proc unit_prefix_scale { unit prefix } {
-  if { [string equal $prefix "M"] } {
-    return 1E+6
-  } elseif { [string equal $prefix "k"] } {
-    return 1E+3
-  } elseif { [string equal $prefix "m"] } {
-    return 1E-3
-  } elseif { [string equal $prefix "u"] } {
-    return 1E-6
-  } elseif { [string equal $prefix "n"] } {
-    return 1E-9
-  } elseif { [string equal $prefix "p"] } {
-    return 1E-12
-  } elseif { [string equal $prefix "f"] } {
-    return 1E-15
-  } else {
-    sta_error 344 "unknown $unit prefix '$prefix'."
+  switch -exact -- $prefix {
+    "M" { return 1E+6  }
+    "k" { return 1E+3  }
+    ""  { return 1E+0  }
+    "m" { return 1E-3  }
+    "u" { return 1E-6  }
+    "n" { return 1E-9  }
+    "p" { return 1E-12 }
+    "f" { return 1E-15 }
   }
+  sta_error 344 "unknown $unit prefix '$prefix'."
 }
 
 proc check_unit_scale { unit scale } {

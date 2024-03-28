@@ -3705,7 +3705,7 @@ Sta::portExtCaps(const Port *port,
   bool fanout_exists = false;
   pin_cap = min_max->initValue();
   wire_cap = min_max->initValue();
-  fanout = min_max->initValue();
+  fanout = min_max->initValueInt();
   for (RiseFall *rf : RiseFall::range()) {
     float pin_cap1, wire_cap1;
     int fanout1;

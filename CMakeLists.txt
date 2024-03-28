@@ -30,6 +30,8 @@ project(STA VERSION 2.5.0
 
 option(USE_CUDD "Use CUDD BDD package")
 option(CUDD_DIR "CUDD BDD package directory")
+option(USE_TCL_READLINE "Use TCL readliine package")
+option(USE_SANITIZE "Compile with santize address enabled")
 
 # Turn on to debug compiler args.
 set(CMAKE_VERBOSE_MAKEFILE OFF)
@@ -333,8 +335,6 @@ add_custom_command(OUTPUT ${STA_TCL_INIT}
 # Do not use REQUIRED because it also requires TK, which is not used by OpenSTA.
 find_package(TCL)
 
-option(USE_TCL_READLINE "Use TCL readliine package")
-
 set(TCL_READLINE 0)
 # check for tclReadline
 if (USE_TCL_READLINE)
@@ -538,6 +538,12 @@ target_include_directories(OpenSTA
 
 # common to gcc/clang
 set(CXX_FLAGS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security)
+
+if(USE_SANITIZE)
+  message(STATUS "Sanitize: ${USE_SANITIZE}")
+  set(CXX_FLAGS "${CXX_FLAGS};-fsanitize=address;-fno-omit-frame-pointer;-fno-common")
+  set(CMAKE_EXE_LINKER_FLAGS "-fsanitize=address")
+endif()
 
 target_compile_options(OpenSTA
   PRIVATE

@@ -152,7 +152,7 @@ Use the following commands to checkout the git repository and build the
 OpenSTA library and excutable.
 
 ```
-git clone https://github.com/The-OpenROAD-Project/OpenSTA.git
+git clone https://github.com/parallaxsw/OpenSTA.git
 cd OpenSTA
 mkdir build
 cd build

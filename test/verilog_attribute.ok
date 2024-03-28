@@ -1,0 +1,4 @@
+top_instance:"counter" attribute "src" = synthesis/tests/counter.v:16.1-32.10
+instance: _1415_ attribute "src" = synthesis/tests/counter.v:22.3-28.6
+instance: _1415_ attribute "attr1" = test_attr1
+instance: _1415_ attribute "attr2" = test_attr2

@@ -140,26 +140,26 @@ proc set_cmd_units { args } {
   set_unit_values "distance" -distance "m" keys
 }
 
-proc set_unit_values { unit key unit_name key_var } {
+proc set_unit_values { unit key suffix key_var } {
   upvar 1 $key_var keys
   if { [info exists keys($key)] } {
     set value $keys($key)
-    if { [string equal -nocase $value $unit_name] } {
-      set_cmd_unit_scale $unit 1.0
-    } else {
-      set prefix [string index $value 0]
-      set suffix [string range $value 1 end]
-      # unit includes "1" prefix
-      if { [string is digit $prefix] } {
-	set prefix [string index $value 1]
-	set suffix [string range $value 2 end]
-      }
-      if { [string equal -nocase $suffix $unit_name] } {
-	set scale [unit_prefix_scale $unit $prefix]
-	set_cmd_unit_scale $unit $scale
+    set suffix_length [string length $suffix]
+    set arg_suffix [string range $value end-[expr $suffix_length - 1] end]
+    if { [string match -nocase $arg_suffix $suffix] } {
+      set arg_prefix [string range $value 0 end-$suffix_length]
+      if { [regexp "^(10*)?(\[Mkmunpf\])?$" $arg_prefix ignore mult prefix] } {
+        #puts "$arg_prefix '$mult' '$prefix'"
+        if { $mult == "" } {
+          set mult 1
+        }
+        set scale [unit_prefix_scale $unit $prefix ]
+        set_cmd_unit_scale $unit $scale
       } else {
-	sta_error 163 "unknown $unit unit '$suffix'."
+        sta_error 343 "unknown unit $unit prefix '${arg_prefix}'."
       }
+    } else {
+      sta_error 501 "incorrect unit suffix '$arg_suffix'."
     }
     if [info exists keys(-digits)] {
       set_cmd_unit_digits $unit $keys(-digits)

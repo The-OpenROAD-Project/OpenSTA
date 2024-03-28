@@ -1158,11 +1158,10 @@ GraphDelayCalc::loadCap(const Pin *drvr_pin,
                         const DcalcAnalysisPt *dcalc_ap) const
 {
   const MinMax *min_max = dcalc_ap->constraintMinMax();
-  float load_cap = 0.0;
+  float load_cap = min_max->initValue();
   for (auto drvr_rf : RiseFall::range()) {
     float cap = loadCap(drvr_pin, drvr_rf, dcalc_ap);
-    if (min_max->compare(cap, load_cap))
-      load_cap = cap;
+    load_cap = min_max->minMax(cap, load_cap);
   }
   arc_delay_calc_->finishDrvrPin();
   return load_cap;
