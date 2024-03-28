@@ -11,4 +11,8 @@ puts "top_instance:\"$cell_name\" attribute \"src\" = $src_location"
 
 set instance_name "_1415_"
 set instance_src_location [[sta::find_instance $instance_name] get_attribute "src"]
+set instance_attr1 [[sta::find_instance $instance_name] get_attribute "attr1"]
+set instance_attr2 [[sta::find_instance $instance_name] get_attribute "attr2"]
 puts "instance: $instance_name attribute \"src\" = $instance_src_location"
+puts "instance: $instance_name attribute \"attr1\" = $instance_attr1"
+puts "instance: $instance_name attribute \"attr2\" = $instance_attr2"
