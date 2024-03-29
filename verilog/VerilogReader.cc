@@ -927,12 +927,12 @@ VerilogModule::checkInstanceName(VerilogInst *inst,
 {
   const char *inst_name = inst->instanceName();
   if (inst_names.findKey(inst_name)) {
-    int i = 1;
+    int i = 0;
     const char *replacement_name = nullptr;
     do {
       if (replacement_name)
 	stringDelete(replacement_name);
-      replacement_name = stringPrint("%s_%d", inst_name, i);
+      replacement_name = stringPrint("%s_%d", inst_name, i++);
     } while (inst_names.findKey(replacement_name));
     string inst_vname = reader->instanceVerilogName(inst_name);
     reader->warn(1396, filename_, inst->line(),
