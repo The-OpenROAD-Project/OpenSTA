@@ -927,7 +927,7 @@ VerilogModule::checkInstanceName(VerilogInst *inst,
 {
   const char *inst_name = inst->instanceName();
   if (inst_names.findKey(inst_name)) {
-    int i = 0;
+    int i = 1;
     const char *replacement_name = nullptr;
     do {
       if (replacement_name)
