@@ -18,9 +18,11 @@
 
 #include <cmath> // abs
 #include <algorithm>
+#include <stack>
 
 #include "Report.hh"
 #include "Debug.hh"
+#include "DispatchQueue.hh"
 #include "Units.hh"
 #include "TimingArc.hh"
 #include "Liberty.hh"
@@ -278,23 +280,44 @@ ClkSkews::findClkSkew(ConstClockSeq &clks,
   ConstClockSet clk_set;
   for (const Clock *clk : clks)
     clk_set.insert(clk);
+  const auto findClkSkew = [this, corner, setup_hold, include_internal_latency, &clk_set](Vertex *src_vertex, ClkSkewMap &skews) {
+    VertexOutEdgeIterator edge_iter(src_vertex, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      if (edge->role()->genericRole() != TimingRole::regClkToQ()) continue;
+      Vertex *q_vertex = edge->to(graph_);
+      RiseFall *rf = edge->timingArcSet()->isRisingFallingEdge();
+      RiseFallBoth *src_rf = rf
+          ? rf->asRiseFallBoth()
+          : RiseFallBoth::riseFall();
+      findClkSkewFrom(src_vertex, q_vertex, src_rf, clk_set, corner, setup_hold, include_internal_latency, skews);
+    }
+  };
 
-  for (Vertex *src_vertex : *graph_->regClkVertices()) {
-    if (hasClkPaths(src_vertex, clk_set)) {
-      VertexOutEdgeIterator edge_iter(src_vertex, graph_);
-      while (edge_iter.hasNext()) {
-	Edge *edge = edge_iter.next();
-	if (edge->role()->genericRole() == TimingRole::regClkToQ()) {
-	  Vertex *q_vertex = edge->to(graph_);
-	  const RiseFall *rf = edge->timingArcSet()->isRisingFallingEdge();
-	  const RiseFallBoth *src_rf = rf
-	    ? rf->asRiseFallBoth()
-	    : RiseFallBoth::riseFall();
-	  findClkSkewFrom(src_vertex, q_vertex, src_rf, clk_set,
-			  corner, setup_hold, include_internal_latency,
-                          skews);
-	}
+  if (threadCount() > 1) {
+    std::vector<ClkSkewMap> partial_skews(thread_count_, skews);
+    for (Vertex *src_vertex : *graph_->regClkVertices()) {
+      if (!hasClkPaths(src_vertex, clk_set)) continue;
+      dispatch_queue_->dispatch([findClkSkew, src_vertex, &partial_skews](int i) {
+        findClkSkew(src_vertex, partial_skews[i]);
+      });
+    }
+    dispatch_queue_->finishTasks();
+    for (size_t i = 0; i < partial_skews.size(); i++) {
+      for (auto [clk, partial_skew] : partial_skews[i]) {
+        auto ins = skews.insert(std::make_pair(clk, partial_skew));
+        if (ins.second) continue;
+        ClkSkew &final_skew = ins.first->second;
+        if (abs(partial_skew.skew()) > abs(final_skew.skew())) {
+          final_skew = partial_skew;
+        }
       }
+    }
+  }
+  else {
+    for (Vertex *src_vertex : *graph_->regClkVertices()) {
+      if (!hasClkPaths(src_vertex, clk_set)) continue;
+      findClkSkew(src_vertex, skews);
     }
   }
   return skews;
@@ -432,16 +455,45 @@ ClkSkews::findFanout(Vertex *from)
              from->name(sdc_network_));
   VertexSet endpoints(graph_);
   FanOutSrchPred pred(this);
-  BfsFwdIterator fanout_iter(BfsIndex::other, &pred, this);
-  fanout_iter.enqueue(from);
-  while (fanout_iter.hasNext()) {
-    Vertex *fanout = fanout_iter.next();
-    if (fanout->hasChecks()) {
-      debugPrint(debug_, "fanout", 1, " endpoint %s",
-                 fanout->name(sdc_network_));
-      endpoints.insert(fanout);
+  if (threadCount() > 1) {
+    // This is called from multiple threads, so BfsVisitor cannot be used, as it modifies vertex state.
+    // Uses depth-first search; breadth-first would work too, but a stack is slightly faster than a queue.
+    thread_local static std::unordered_set<Vertex *> visited;
+    thread_local static std::stack<Vertex *, std::vector<Vertex *>> stack;
+    visited.clear();
+    stack.push(from);
+    visited.insert(from);
+    while (!stack.empty()) {
+      Vertex *fanout = stack.top();
+      stack.pop();
+      if (fanout->hasChecks()) {
+        debugPrint(debug_, "fanout", 1, " endpoint %s",
+                   fanout->name(sdc_network_));
+        endpoints.insert(fanout);
+      }
+      if (!pred.searchFrom(fanout)) continue;
+      VertexOutEdgeIterator edge_iter(fanout, graph_);
+      while (edge_iter.hasNext()) {
+        Edge *edge = edge_iter.next();
+        Vertex *to = edge->to(graph_);
+        if (pred.searchThru(edge) && pred.searchTo(to) && visited.insert(to).second) {
+          stack.push(to);
+        }
+      }
     }
-    fanout_iter.enqueueAdjacentVertices(fanout);
+  }
+  else {
+    BfsFwdIterator fanout_iter(BfsIndex::other, &pred, this);
+    fanout_iter.enqueue(from);
+    while (fanout_iter.hasNext()) {
+      Vertex *fanout = fanout_iter.next();
+      if (fanout->hasChecks()) {
+        debugPrint(debug_, "fanout", 1, " endpoint %s",
+                   fanout->name(sdc_network_));
+        endpoints.insert(fanout);
+      }
+      fanout_iter.enqueueAdjacentVertices(fanout);
+    }
   }
   return endpoints;
 }
