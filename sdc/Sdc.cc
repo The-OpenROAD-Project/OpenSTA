@@ -3079,16 +3079,11 @@ Sdc::setNetWireCap(const Net *net,
       delete pin_iter;
     }
   }
-  bool make_drvr_entry = !net_wire_cap_maps_[corner->index()].hasKey(net);
   MinMaxFloatValues &values = net_wire_cap_maps_[corner->index()][net];
   values.setValue(min_max, wire_cap);
 
-  // Only need to do this when there is new net_wire_cap_maps_ entry.
-  if (make_drvr_entry) {
-    for (const Pin *pin : *network_->drivers(net)) {
-      drvr_pin_wire_cap_maps_[corner->index()][pin] = &values;
-    }
-  }
+  for (const Pin *pin : *network_->drivers(net))
+    drvr_pin_wire_cap_maps_[corner->index()][pin] = &values;
 }
 
 bool
