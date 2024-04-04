@@ -508,6 +508,8 @@ Search::deleteFilteredArrivals()
 	     || from->instances()))
 	|| thrus) {
       for (Vertex *vertex : *filtered_arrivals_) {
+        if (isClock(vertex))
+          clk_arrivals_valid_ = false;
         deletePaths(vertex);
         arrivalInvalid(vertex);
         requiredInvalid(vertex);
