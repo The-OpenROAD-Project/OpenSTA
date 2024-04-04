@@ -110,6 +110,7 @@ public:
   virtual float sourceClkOffset(const StaState *sta) const = 0;
   virtual Delay sourceClkLatency(const StaState *sta) const;
   virtual Delay sourceClkInsertionDelay(const StaState *sta) const;
+  virtual Delay sourceClkDelay(const StaState *sta) const;
   virtual PathVertex *targetClkPath();
   virtual const PathVertex *targetClkPath() const;
   virtual const Clock *targetClk(const StaState *sta) const;
@@ -134,12 +135,15 @@ public:
   const TimingRole *checkGenericRole(const StaState *sta) const;
   virtual bool pathDelayMarginIsExternal() const;
   virtual PathDelay *pathDelay() const;
+  // This returns the crpr signed with respect to the check type.
+  // Positive for setup, negative for hold.
   virtual Crpr commonClkPessimism(const StaState *sta) const;
   virtual MultiCyclePath *multiCyclePath() const;
   virtual TimingArc *checkArc() const { return nullptr; }
   // PathEndDataCheck data clock path.
   virtual const PathVertex *dataClkPath() const { return nullptr; }
   virtual int setupDefaultCycles() const { return 1; }
+  virtual float clkSkew(const StaState *sta);
 
   static bool less(const PathEnd *path_end1,
 		   const PathEnd *path_end2,
@@ -160,17 +164,17 @@ public:
   // Helper common to multiple PathEnd classes and used
   // externally.
   // Target clock insertion delay + latency.
-  static Arrival checkTgtClkDelay(const PathVertex *tgt_clk_path,
-				  const ClockEdge *tgt_clk_edge,
-				  const TimingRole *check_role,
-				  const StaState *sta);
+  static Delay checkTgtClkDelay(const PathVertex *tgt_clk_path,
+                                const ClockEdge *tgt_clk_edge,
+                                const TimingRole *check_role,
+                                const StaState *sta);
   static void checkTgtClkDelay(const PathVertex *tgt_clk_path,
 			       const ClockEdge *tgt_clk_edge,
 			       const TimingRole *check_role,
 			       const StaState *sta,
 			       // Return values.
-			       Arrival &insertion,
-			       Arrival &latency);
+			       Delay &insertion,
+			       Delay &latency);
   static float checkClkUncertainty(const ClockEdge *src_clk_edge,
 				   const ClockEdge *tgt_clk_edge,
 				   const PathVertex *tgt_clk_path,
@@ -323,6 +327,8 @@ public:
   virtual TimingArc *checkArc() const { return check_arc_; }
   virtual int exceptPathCmp(const PathEnd *path_end,
 			    const StaState *sta) const;
+  virtual Delay sourceClkDelay(const StaState *sta) const;
+  virtual float clkSkew(const StaState *sta);
 
 protected:
   PathEndCheck(Path *path,

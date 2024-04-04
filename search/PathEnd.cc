@@ -156,6 +156,12 @@ PathEnd::sourceClkInsertionDelay(const StaState *) const
   return delay_zero;
 }
 
+Delay
+PathEnd::sourceClkDelay(const StaState *) const
+{
+  return delay_zero;
+}
+
 const Clock *
 PathEnd::targetClk(const StaState *) const
 {
@@ -325,16 +331,16 @@ PathEnd::clkPath(PathVertex *path,
 
 ////////////////////////////////////////////////////////////////
 
-Arrival
+Delay
 PathEnd::checkTgtClkDelay(const PathVertex *tgt_clk_path,
 			  const ClockEdge *tgt_clk_edge,
 			  const TimingRole *check_role,
 			  const StaState *sta)
 {
-  Arrival insertion, latency;
+  Delay insertion, latency;
   checkTgtClkDelay(tgt_clk_path, tgt_clk_edge, check_role, sta,
 		   insertion, latency);
-  return Arrival(insertion + latency);
+  return Delay(insertion + latency);
 }
 
 void
@@ -343,8 +349,8 @@ PathEnd::checkTgtClkDelay(const PathVertex *tgt_clk_path,
 			  const TimingRole *check_role,
 			  const StaState *sta,
 			  // Return values.
-			  Arrival &insertion,
-			  Arrival &latency)
+			  Delay &insertion,
+			  Delay &latency)
 {
   if (tgt_clk_path) {
     Search *search = sta->search();
@@ -364,7 +370,7 @@ PathEnd::checkTgtClkDelay(const PathVertex *tgt_clk_path,
       // Propagated clock.  Propagated arrival is seeded with
       // early_late==path_min_max insertion delay.
       Arrival clk_arrival = tgt_clk_path->arrival(sta);
-      Arrival path_insertion = search->clockInsertion(tgt_clk, tgt_src_pin,
+      Delay path_insertion = search->clockInsertion(tgt_clk, tgt_src_pin,
 						      tgt_clk_rf, min_max,
 						      min_max, tgt_path_ap);
       latency = delayRemove(clk_arrival - tgt_clk_edge->time(), path_insertion);
@@ -673,14 +679,14 @@ PathEndClkConstrained::targetClkArrivalNoCrpr(const StaState *sta) const
     + targetClkMcpAdjustment(sta);
 }
 
-Arrival
+Delay
 PathEndClkConstrained::targetClkDelay(const StaState *sta) const
 {
   return checkTgtClkDelay(targetClkPath(), targetClkEdge(sta),
 			  checkRole(sta), sta);
 }
 
-Arrival
+Delay
 PathEndClkConstrained::targetClkInsertionDelay(const StaState *sta) const
 {
   Arrival insertion, latency;
@@ -736,11 +742,12 @@ PathEndClkConstrained::commonClkPessimism(const StaState *sta) const
   if (!crpr_valid_) {
     CheckCrpr *check_crpr = sta->search()->checkCrpr();
     crpr_ = check_crpr->checkCrpr(path_.path(), targetClkPath());
-    if (checkRole(sta)->genericRole() == TimingRole::hold())
-      crpr_ = -crpr_;
     crpr_valid_ = true;
   }
-  return crpr_;
+  if (checkRole(sta)->genericRole() == TimingRole::hold())
+    return -crpr_;
+  else
+    return crpr_;
 }
 
 Required
@@ -1050,6 +1057,34 @@ PathEndCheck::exceptPathCmp(const PathEnd *path_end,
   }
   else
     return cmp;
+}
+
+Delay
+PathEndCheck::sourceClkDelay(const StaState *sta) const
+{
+  ClkInfo *src_clk_info = path_.tag(sta)->clkInfo();
+  const PathVertex src_clk_path(src_clk_info->crprClkPath(), sta);
+  if (!src_clk_path.isNull()) {
+    if (src_clk_info->isPropagated()) {
+      // Propagated clock.  Propagated arrival is seeded with insertion delay.
+      Arrival clk_arrival = src_clk_path.arrival(sta);
+      const ClockEdge *src_clk_edge = src_clk_info->clkEdge();
+      float insertion = sourceClkInsertionDelay(sta);
+      return delayRemove(clk_arrival - src_clk_edge->time(), insertion);
+    }
+    else
+      // Ideal clock.
+      return sourceClkLatency(sta);
+  }
+  else
+    return 0.0;
+}
+
+float
+PathEndCheck::clkSkew(const StaState *sta)
+{
+  commonClkPessimism(sta);
+  return sourceClkDelay(sta) - targetClkDelay(sta) - crpr_;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1393,7 +1428,7 @@ PathEndOutputDelay::commonClkPessimism(const StaState *sta) const
   return crpr_;
 }
 
-Arrival
+Delay
 PathEndOutputDelay::targetClkDelay(const StaState *sta) const
 {
   if (!clk_path_.isNull())
@@ -1444,7 +1479,7 @@ PathEndOutputDelay::tgtClkDelay(const ClockEdge *tgt_clk_edge,
     latency = 0.0;
 }
 
-Arrival
+Delay
 PathEndOutputDelay::targetClkInsertionDelay(const StaState *sta) const
 {
   if (!clk_path_.isNull())
@@ -1821,6 +1856,12 @@ float
 PathEndPathDelay::sourceClkOffset(const StaState *sta) const
 {
   return pathDelaySrcClkOffset(path_, path_delay_, src_clk_arrival_, sta);
+}
+
+float
+PathEnd::clkSkew(const StaState *)
+{
+  return 0.0;
 }
 
 // Helper shared by PathEndLatchCheck.

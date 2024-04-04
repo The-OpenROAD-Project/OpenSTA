@@ -639,7 +639,7 @@ ConcreteParasiticNetwork::ensureParasiticNode(const Pin *pin,
       if (term)
         net = network->net(term);
     }
-    else
+    else if (net)
       net = network->highestNetAbove(net);
     node = new ConcreteParasiticNode(pin, net != net_);
     pin_nodes_[pin] = node;
