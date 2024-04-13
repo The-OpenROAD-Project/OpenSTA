@@ -114,6 +114,7 @@ MakeTimingModel::saveSdc()
   Sdc::movePortDelays(sdc_, sdc_backup_);
   Sdc::movePortExtCaps(sdc_, sdc_backup_);
   Sdc::moveDeratingFactors(sdc_, sdc_backup_);
+  Sdc::moveClockInsertions(sdc_, sdc_backup_);
   sta_->delaysInvalid();
 }
 
@@ -123,6 +124,7 @@ MakeTimingModel::restoreSdc()
   Sdc::movePortDelays(sdc_backup_, sdc_);
   Sdc::movePortExtCaps(sdc_backup_, sdc_);
   Sdc::moveDeratingFactors(sdc_backup_, sdc_);
+  Sdc::moveClockInsertions(sdc_backup_, sdc_);
   delete sdc_backup_;
   sta_->delaysInvalid();
 }

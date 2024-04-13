@@ -445,6 +445,8 @@ public:
 			 float delay);
   void removeClockInsertion(const Clock *clk,
 			    const Pin *pin);
+  static void moveClockInsertions(Sdc *from,
+                                  Sdc *to);
   bool hasClockInsertion(const Pin *pin) const;
   float clockInsertion(const Clock *clk,
 		       const RiseFall *rf,
