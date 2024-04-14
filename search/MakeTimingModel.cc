@@ -570,7 +570,8 @@ MakeTimingModel::makeClkTreePaths(LibertyPort *lib_port,
       ? clk_rf
       : clk_rf->opposite();
     PathVertex clk_path;
-    float insertion, delay, lib_clk_delay, latency;
+    Delay insertion, delay, latency;
+    float lib_clk_delay;
     bool exists;
     delays.delay(clk_rf, end_rf, min_max, insertion, delay,
                  lib_clk_delay, latency, clk_path, exists);
