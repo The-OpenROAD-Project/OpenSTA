@@ -143,7 +143,7 @@ public:
   // PathEndDataCheck data clock path.
   virtual const PathVertex *dataClkPath() const { return nullptr; }
   virtual int setupDefaultCycles() const { return 1; }
-  virtual float clkSkew(const StaState *sta);
+  virtual Delay clkSkew(const StaState *sta);
 
   static bool less(const PathEnd *path_end1,
 		   const PathEnd *path_end2,
@@ -328,7 +328,7 @@ public:
   virtual int exceptPathCmp(const PathEnd *path_end,
 			    const StaState *sta) const;
   virtual Delay sourceClkDelay(const StaState *sta) const;
-  virtual float clkSkew(const StaState *sta);
+  virtual Delay clkSkew(const StaState *sta);
 
 protected:
   PathEndCheck(Path *path,

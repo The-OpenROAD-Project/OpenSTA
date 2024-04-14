@@ -280,7 +280,8 @@ ClkDelays::insertionDelay(PathVertex *clk_path,
   const Pin *src_pin = clk_info->clkSrc();
   const PathAnalysisPt *path_ap = clk_path->pathAnalysisPt(sta);
   const MinMax *min_max = clk_path->minMax(sta);
-  return sta->search()->clockInsertion(clk, src_pin, clk_rf, min_max, min_max, path_ap);
+  return delayAsFloat(sta->search()->clockInsertion(clk, src_pin, clk_rf, min_max,
+                                                    min_max, path_ap));
 }
 
 float
@@ -292,7 +293,7 @@ ClkDelays::clkTreeDelay(PathVertex *clk_path,
   const LibertyPort *port = sta->network()->libertyPort(pin);
   const MinMax *min_max = clk_path->minMax(sta);
   const RiseFall *rf = clk_path->transition(sta);
-  Slew slew = clk_path->slew(sta);
+  float slew = delayAsFloat(clk_path->slew(sta));
   return port->clkTreeDelay(slew, rf, min_max);
 }
 

@@ -87,7 +87,7 @@ CcsCeffDelayCalc::gateDelay(const Pin *drvr_pin,
   vth_ = drvr_library->outputThreshold(rf) * vdd_;
   vl_ = drvr_library->slewLowerThreshold(rf) * vdd_;
   vh_ = drvr_library->slewUpperThreshold(rf) * vdd_;
-  in_slew_ = in_slew;
+  in_slew_ = delayAsFloat(in_slew);
   load_cap_ = load_cap;
   parasitic_ = parasitic;
   drvr_cell->ensureVoltageWaveforms();
