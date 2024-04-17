@@ -1068,7 +1068,7 @@ protected:
   virtual void recordPathDelayInternalEndpoints(ExceptionPath *exception);
   virtual void unrecordPathDelayInternalEndpoints(ExceptionPath *exception);
   bool pathDelayTo(const Pin *pin);
-  bool hasLibertyChecks(const Pin *pin);
+  bool hasLibertyCheckTo(const Pin *pin);
   void deleteMatchingExceptions(ExceptionPath *exception);
   void findMatchingExceptions(ExceptionPath *exception,
 			      ExceptionPathSet &matches);

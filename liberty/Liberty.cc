@@ -2332,28 +2332,6 @@ LibertyPort::setMinPeriod(float min_period)
 
 void
 LibertyPort::minPulseWidth(const RiseFall *hi_low,
-			   const OperatingConditions *op_cond,
-			   const Pvt *pvt,
-			   float &min_width,
-			   bool &exists) const
-{
-  if (scaled_ports_) {
-    LibertyPort *scaled_port = (*scaled_ports_)[op_cond];
-    if (scaled_port) {
-      scaled_port->minPulseWidth(hi_low, min_width, exists);
-      return;
-    }
-  }
-  int hi_low_index = hi_low->index();
-  LibertyLibrary *lib = liberty_cell_->libertyLibrary();
-  min_width = min_pulse_width_[hi_low_index]
-    * lib->scaleFactor(ScaleFactorType::min_pulse_width, hi_low_index,
-		       liberty_cell_, pvt);
-  exists = min_pulse_width_exists_ & (1 << hi_low_index);
-}
-
-void
-LibertyPort::minPulseWidth(const RiseFall *hi_low,
 			   float &min_width,
 			   bool &exists) const
 {
@@ -2363,7 +2341,7 @@ LibertyPort::minPulseWidth(const RiseFall *hi_low,
 }
 
 void
-LibertyPort::setMinPulseWidth(RiseFall *hi_low,
+LibertyPort::setMinPulseWidth(const RiseFall *hi_low,
 			      float min_width)
 {
   int hi_low_index = hi_low->index();

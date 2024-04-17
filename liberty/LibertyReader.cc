@@ -1922,8 +1922,10 @@ LibertyReader::finishPortGroups()
 {
   for (PortGroup *port_group : cell_port_groups_) {
     int line = port_group->line();
-    for (LibertyPort *port : *port_group->ports())
+    for (LibertyPort *port : *port_group->ports()) {
       checkPort(port, line);
+      makeMinPulseWidthArcs(port, line);
+    }
     makeTimingArcs(port_group);
     makeInternalPowers(port_group);
     delete port_group;
@@ -1945,6 +1947,47 @@ LibertyReader::checkPort(LibertyPort *port,
   if (port->tristateEnable()
       && port->direction() == PortDirection::output())
     port->setDirection(PortDirection::tristate());
+}
+
+// Make timing arcs for the port min_pulse_width_low/high attributes.
+// This is redundant but makes sdf annotation consistent.
+void
+LibertyReader::makeMinPulseWidthArcs(LibertyPort *port,
+                                     int line)
+{
+  TimingArcAttrsPtr attrs = nullptr;
+  for (auto hi_low : RiseFall::range()) {
+    float min_width;
+    bool exists;
+    port->minPulseWidth(hi_low, min_width, exists);
+    if (exists) {
+      if (attrs == nullptr) {
+        attrs = make_shared<TimingArcAttrs>();
+        attrs->setTimingType(TimingType::min_pulse_width);
+      }
+      // rise/fall_constraint model is on the trailing edge of the pulse.
+      const RiseFall *model_rf = hi_low->opposite();
+      TimingModel *check_model =
+        makeScalarCheckModel(min_width, ScaleFactorType::min_pulse_width, model_rf);
+      attrs->setModel(model_rf, check_model);
+    }
+  }
+  if (attrs)
+    builder_.makeTimingArcs(cell_, port, port, nullptr, attrs, line);
+}
+
+TimingModel *
+LibertyReader::makeScalarCheckModel(float value,
+                                    ScaleFactorType scale_factor_type,
+                                    const RiseFall *rf)
+{
+  TablePtr table = make_shared<Table0>(value);
+  TableTemplate *tbl_template =
+    library_->findTableTemplate("scalar", TableTemplateType::delay);
+  TableModel *table_model = new TableModel(table, tbl_template,
+                                           scale_factor_type, rf);
+  CheckTableModel *check_model = new CheckTableModel(cell_, table_model, nullptr);
+  return check_model;
 }
 
 void
@@ -3530,7 +3573,7 @@ LibertyReader::visitMinPulseWidthHigh(LibertyAttr *attr)
 
 void
 LibertyReader::visitMinPulseWidth(LibertyAttr *attr,
-				  RiseFall *rf)
+				  const RiseFall *rf)
 {
   if (cell_) {
     float value;

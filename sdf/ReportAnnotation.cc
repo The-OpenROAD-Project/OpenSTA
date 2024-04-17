@@ -68,7 +68,7 @@ protected:
 
   void init();
   void findCounts();
-  void findWidthPeriodCount(Pin *pin);
+  void findPeriodCount(Pin *pin);
   void reportDelayCounts();
   void reportCheckCounts();
   void reportArcs();
@@ -78,9 +78,9 @@ protected:
   void reportArcs(Vertex *vertex,
 		  bool report_annotated,
 		  int &i);
-  void reportWidthPeriodArcs(const Pin *pin,
-			     bool report_annotated,
-			     int &i);
+  void reportPeriodArcs(const Pin *pin,
+                        bool report_annotated,
+                        int &i);
   void reportCount(const char *title,
 		   int index,
 		   int &total,
@@ -282,9 +282,8 @@ ReportAnnotated::reportCheckCount(TimingRole *role,
 {
   int index = role->index();
   if (edge_count_[index] > 0) {
-    const char *role_name = role->asString();
     string title;
-    stringPrint(title, "cell %s arcs", role_name);
+    stringPrint(title, "cell %s arcs", role->asString());
     reportCount(title.c_str(), index, total, annotated_total);
   }
 }
@@ -345,7 +344,7 @@ ReportAnnotated::findCounts()
 	}
       }
     }
-    findWidthPeriodCount(from_pin);
+    findPeriodCount(from_pin);
   }
 }
 
@@ -376,7 +375,7 @@ ReportAnnotated::roleIndex(const TimingRole *role,
 // Width and period checks are not edges in the graph so
 // they require special handling.
 void
-ReportAnnotated::findWidthPeriodCount(Pin *pin)
+ReportAnnotated::findPeriodCount(Pin *pin)
 {
   LibertyPort *port = network_->libertyPort(pin);
   if (port) {
@@ -397,27 +396,6 @@ ReportAnnotated::findWidthPeriodCount(Pin *pin)
 	else {
 	  if (list_unannotated_)
 	    unannotated_pins_.insert(pin);
-	}
-      }
-    }
-
-    int width_index = TimingRole::width()->index();
-    if (report_role_[width_index]) {
-      for (auto hi_low : RiseFall::range()) {
-	port->minPulseWidth(hi_low, value, exists);
-	if (exists) {
-	  edge_count_[width_index]++;
-	  graph_->widthCheckAnnotation(pin, hi_low, ap_index,
-				       value, annotated);
-	  if (annotated) {
-	    edge_annotated_count_[width_index]++;
-	    if (list_annotated_)
-	      annotated_pins_.insert(pin);
-	  }
-	  else {
-	    if (list_unannotated_)
-	      unannotated_pins_.insert(pin);
-	  }
 	}
       }
     }
@@ -476,7 +454,7 @@ ReportAnnotated::reportArcs(const char *header,
     reportArcs(vertex, report_annotated, i);
     if (bidirect_drvr_vertex)
       reportArcs(bidirect_drvr_vertex, report_annotated, i);
-    reportWidthPeriodArcs(pin, report_annotated, i);
+    reportPeriodArcs(pin, report_annotated, i);
     if (max_lines_ != 0 && i > max_lines_)
       break;
   }
@@ -521,15 +499,13 @@ ReportAnnotated::reportArcs(Vertex *vertex,
 }
 
 void
-ReportAnnotated::reportWidthPeriodArcs(const Pin *pin,
-				       bool report_annotated,
-				       int &i)
+ReportAnnotated::reportPeriodArcs(const Pin *pin,
+                                  bool report_annotated,
+                                  int &i)
 {
   LibertyPort *port = network_->libertyPort(pin);
   if (port) {
     DcalcAPIndex ap_index = 0;
-    float value;
-    bool exists, annotated;
     int period_index = TimingRole::period()->index();
     if (report_role_[period_index]
 	&& (max_lines_ == 0 || i < max_lines_)) {
@@ -545,27 +521,6 @@ ReportAnnotated::reportWidthPeriodArcs(const Pin *pin,
                               network_->pathName(pin));
 	  i++;
 	}
-      }
-    }
-
-    int width_index = TimingRole::width()->index();
-    if (report_role_[width_index]
-	&& (max_lines_ == 0 || i < max_lines_)) {
-      bool report = false;
-      for (auto hi_low : RiseFall::range()) {
-	port->minPulseWidth(hi_low, value, exists);
-	if (exists) {
-	  edge_count_[width_index]++;
-	  graph_->widthCheckAnnotation(pin, hi_low, ap_index,
-				       value, annotated);
-	  report |= (annotated == report_annotated);
-	}
-      }
-      if (report) {
-	report_->reportLine(" %-18s %s",
-                            "min width",
-                            network_->pathName(pin));
-	i++;
       }
     }
   }

@@ -3924,7 +3924,7 @@ Sdc::recordPathDelayInternalEndpoints(ExceptionPath *exception)
   if (to
       && to->hasPins()) {
     for (const Pin *pin : *to->pins()) {
-      if (!(hasLibertyChecks(pin)
+      if (!(hasLibertyCheckTo(pin)
 	    || network_->isTopLevelPort(pin))) {
 	path_delay_internal_endpoints_.insert(pin);
       }
@@ -3940,7 +3940,7 @@ Sdc::unrecordPathDelayInternalEndpoints(ExceptionPath *exception)
       && to->hasPins()
       && !path_delay_internal_endpoints_.empty()) {
     for (const Pin *pin : *to->pins()) {
-      if (!(hasLibertyChecks(pin)
+      if (!(hasLibertyCheckTo(pin)
 	    || network_->isTopLevelPort(pin))
 	  && !pathDelayTo(pin))
 	path_delay_internal_endpoints_.erase(pin);
@@ -3949,7 +3949,7 @@ Sdc::unrecordPathDelayInternalEndpoints(ExceptionPath *exception)
 }
 
 bool
-Sdc::hasLibertyChecks(const Pin *pin)
+Sdc::hasLibertyCheckTo(const Pin *pin)
 {
   const Instance *inst = network_->instance(pin);
   LibertyCell *cell = network_->libertyCell(inst);
@@ -3957,7 +3957,7 @@ Sdc::hasLibertyChecks(const Pin *pin)
     LibertyPort *port = network_->libertyPort(pin);
     if (port) {
       for (TimingArcSet *arc_set : cell->timingArcSets(nullptr, port)) {
-	if (arc_set->role()->isTimingCheck())
+	if (arc_set->role()->isTimingCheckBetween())
 	  return true;
       }
     }

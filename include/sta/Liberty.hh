@@ -728,17 +728,12 @@ public:
   void minPeriod(float &min_period,
 		 bool &exists) const;
   void setMinPeriod(float min_period);
+  // This corresponds to the min_pulse_width_high/low port attribute.
   // high = rise, low = fall
   void minPulseWidth(const RiseFall *hi_low,
-		     const OperatingConditions *op_cond,
-		     const Pvt *pvt,
 		     float &min_width,
 		     bool &exists) const;
-  // Unscaled value.
-  void minPulseWidth(const RiseFall *hi_low,
-		     float &min_width,
-		     bool &exists) const;
-  void setMinPulseWidth(RiseFall *hi_low,
+  void setMinPulseWidth(const RiseFall *hi_low,
 			float min_width);
   bool isClock() const;
   void setIsClock(bool is_clk);

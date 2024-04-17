@@ -522,14 +522,12 @@ SdfWriter::writeTimingChecks(const Instance *inst,
     }
     for (auto hi_low : RiseFall::range()) {
       float min_width, max_width;
-      bool exists;
-      graph_delay_calc_->minPulseWidth(pin, hi_low, arc_delay_min_index_,
-				       MinMax::min(),
-				       min_width, exists);
-      graph_delay_calc_->minPulseWidth(pin, hi_low, arc_delay_max_index_,
-				       MinMax::max(),
-		    max_width, exists);
-      if (exists) {
+      Edge *edge;
+      TimingArc *arc;
+      graph_->minPulseWidthArc(vertex, hi_low, edge, arc);
+      if (edge) {
+        min_width = delayAsFloat(graph_->arcDelay(edge, arc, arc_delay_min_index_));
+        max_width = delayAsFloat(graph_->arcDelay(edge, arc, arc_delay_max_index_));
 	ensureTimingCheckheaders(check_header, inst, inst_header);
 	writeWidthCheck(pin, hi_low, min_width, max_width);
       }

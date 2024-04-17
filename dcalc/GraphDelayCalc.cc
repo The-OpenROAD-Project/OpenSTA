@@ -1413,12 +1413,14 @@ GraphDelayCalc::findCheckEdgeDelays(Edge *edge,
 	  int slew_index = dcalc_ap->checkDataSlewIndex();
 	  const Slew &to_slew = graph_->slew(to_vertex, to_rf, slew_index);
 	  debugPrint(debug_, "delay_calc", 3,
-                     "  %s %s -> %s %s (%s)",
+                     "  %s %s -> %s %s (%s) corner:%s/%s",
                      arc_set->from()->name(),
                      arc->fromEdge()->asString(),
                      arc_set->to()->name(),
                      arc->toEdge()->asString(),
-                     arc_set->role()->asString());
+                     arc_set->role()->asString(),
+                     dcalc_ap->corner()->name(),
+                     dcalc_ap->delayMinMax()->asString());
 	  debugPrint(debug_, "delay_calc", 3,
                      "    from_slew = %s to_slew = %s",
                      delayAsString(from_slew, this),
@@ -1426,7 +1428,7 @@ GraphDelayCalc::findCheckEdgeDelays(Edge *edge,
 	  float related_out_cap = 0.0;
 	  if (related_out_pin)
 	    related_out_cap = loadCap(related_out_pin, to_rf,dcalc_ap,arc_delay_calc);
-	  ArcDelay check_delay = arc_delay_calc->checkDelay(to_pin, arc, from_slew,
+          ArcDelay check_delay = arc_delay_calc->checkDelay(to_pin, arc, from_slew,
                                                             to_slew, related_out_cap,
                                                             dcalc_ap);
 	  debugPrint(debug_, "delay_calc", 3,
@@ -1511,30 +1513,6 @@ GraphDelayCalc::reportDelayCalc(const Edge *edge,
 }
 
 ////////////////////////////////////////////////////////////////
-
-void
-GraphDelayCalc::minPulseWidth(const Pin *pin,
-			      const RiseFall *hi_low,
-			      DcalcAPIndex ap_index,
-			      const MinMax *min_max,
-			      // Return values.
-			      float &min_width,
-			      bool &exists)
-{
-  // Sdf annotation.
-  graph_->widthCheckAnnotation(pin, hi_low, ap_index,
-			       min_width, exists);
-  if (!exists) {
-    // Liberty library.
-    LibertyPort *port = network_->libertyPort(pin);
-    if (port) {
-      Instance *inst = network_->instance(pin);
-      const Pvt *pvt = inst ? sdc_->pvt(inst, min_max) : nullptr;
-      OperatingConditions *op_cond=sdc_->operatingConditions(min_max);
-      port->minPulseWidth(hi_low, op_cond, pvt, min_width, exists);
-    }
-  }
-}
 
 void
 GraphDelayCalc::minPeriod(const Pin *pin,

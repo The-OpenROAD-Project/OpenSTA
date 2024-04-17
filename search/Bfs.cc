@@ -87,10 +87,10 @@ BfsIterator::reportEntries(const Network *network)
   while (levelLessOrEqual(level, last_level_)) {
     VertexSeq &level_vertices = queue_[level];
     if (!level_vertices.empty()) {
-      printf("Level %d\n", level);
+      report_->reportLine("Level %d", level);
       for (auto vertex : level_vertices) {
 	if (vertex)
-	  printf(" %s\n", vertex->name(network));
+	  report_->reportLine(" %s", vertex->name(network));
       }
     }
     incrLevel(level);

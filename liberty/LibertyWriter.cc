@@ -55,17 +55,21 @@ protected:
   void writePortAttrs(const LibertyPort *port);
   void writeTimingArcSet(const TimingArcSet *arc_set);
   void writeTimingModels(const TimingArc *arc,
-                         RiseFall *rf);
+                         const RiseFall *rf);
   void writeTableModel(const TableModel *model);
   void writeTableModel0(const TableModel *model);
   void writeTableModel1(const TableModel *model);
   void writeTableModel2(const TableModel *model);
-  void writeTableAxis(const TableAxis *axis,
-                      int index);
+  void writeTableAxis4(const TableAxis *axis,
+                       int index);
+  void writeTableAxis10(const TableAxis *axis,
+                        int index);
 
   const char *asString(bool value);
   const char *asString(const PortDirection *dir);
   const char *timingTypeString(const TimingArcSet *arc_set);
+  bool isAutoWidthArc(const LibertyPort *port,
+                      const TimingArcSet *arc_set);
 
   const LibertyLibrary *library_;
   const char *filename_;
@@ -214,20 +218,21 @@ LibertyWriter::writeTableTemplate(const TableTemplate *tbl_template)
       fprintf(stream_, "    variable_3 : %s;\n",
               tableVariableString(axis3->variable()));
     if (axis1)
-      writeTableAxis(axis1, 1);
+      writeTableAxis4(axis1, 1);
     if (axis2)
-      writeTableAxis(axis2, 2);
+      writeTableAxis4(axis2, 2);
     if (axis3)
-      writeTableAxis(axis3, 3);
+      writeTableAxis4(axis3, 3);
     fprintf(stream_, "  }\n");
   }
 }
 
+// indent 4
 void
-LibertyWriter::writeTableAxis(const TableAxis *axis,
-                              int index)
+LibertyWriter::writeTableAxis4(const TableAxis *axis,
+                               int index)
 {
-  fprintf(stream_, "    index_%d (\"", index);
+  fprintf(stream_, "    index_%d(\"", index);
   const Unit *unit = tableVariableUnit(axis->variable(), library_->units());
   bool first = true;
   for (size_t i = 0; i < axis->size(); i++) {
@@ -237,6 +242,15 @@ LibertyWriter::writeTableAxis(const TableAxis *axis,
     first = false;
   }
   fprintf(stream_, "\");\n");
+}
+
+// indent 10
+void
+LibertyWriter::writeTableAxis10(const TableAxis *axis,
+                                int index)
+{
+  fprintf(stream_, "      ");
+  writeTableAxis4(axis, index);
 }
 
 void
@@ -356,8 +370,25 @@ LibertyWriter::writePortAttrs(const LibertyPort *port)
     fprintf(stream_, "      max_capacitance : %s;\n",
             cap_unit_->asString(limit, 3));
 
-  for (TimingArcSet *arc_set : port->libertyCell()->timingArcSets(nullptr,port))
-    writeTimingArcSet(arc_set);
+  for (TimingArcSet *arc_set : port->libertyCell()->timingArcSets(nullptr,port)) {
+    if (!isAutoWidthArc(port, arc_set))
+      writeTimingArcSet(arc_set);
+  }
+}
+
+// Check if arc is added for port min_pulse_width_high/low attribute.
+bool
+LibertyWriter::isAutoWidthArc(const LibertyPort *port,
+                              const TimingArcSet *arc_set)
+{
+  if (arc_set->role() == TimingRole::width()) {
+    float min_width;
+    bool exists1, exists2;
+    port->minPulseWidth(RiseFall::rise(), min_width, exists1);
+    port->minPulseWidth(RiseFall::fall(), min_width, exists2);
+    return exists1 || exists2;
+  }
+  return false;
 }
 
 void
@@ -386,7 +417,7 @@ LibertyWriter::writeTimingArcSet(const TimingArcSet *arc_set)
 
 void
 LibertyWriter::writeTimingModels(const TimingArc *arc,
-                                 RiseFall *rf)
+                                 const RiseFall *rf)
 {
   TimingModel *model = arc->model();
   const GateTableModel *gate_model = dynamic_cast<GateTableModel*>(model);
@@ -450,6 +481,7 @@ LibertyWriter::writeTableModel0(const TableModel *model)
 void
 LibertyWriter::writeTableModel1(const TableModel *model)
 {
+  writeTableAxis10(model->axis1(), 1);
   fprintf(stream_, "          values(\"");
   bool first_col = true;
   for (size_t index1 = 0; index1 < model->axis1()->size(); index1++) {
@@ -465,6 +497,8 @@ LibertyWriter::writeTableModel1(const TableModel *model)
 void
 LibertyWriter::writeTableModel2(const TableModel *model)
 {
+  writeTableAxis10(model->axis1(), 1);
+  writeTableAxis10(model->axis2(), 2);
   fprintf(stream_, "          values(\"");
   bool first_row = true;
   for (size_t index1 = 0; index1 < model->axis1()->size(); index1++) {
@@ -577,6 +611,8 @@ LibertyWriter::timingTypeString(const TimingArcSet *arc_set)
     return "min_clock_tree_path";
   else if (role == TimingRole::clockTreePathMax())
     return "max_clock_tree_path";
+  else if (role == TimingRole::width())
+    return "min_pulse_width";
   else {
     report_->error(1333, "%s/%s/%s timing arc type %s not supported.",
                    library_->name(),
