@@ -85,26 +85,27 @@ The build dependency versions are show below.  Other versions may
 work, but these are the versions used for development.
 
 ```
-         from   Ubuntu   Xcode
-                22.04.2  11.3
-cmake    3.10.2 3.24.2   3.16.2
-clang    9.1.0           14.0.3
-gcc      3.3.2   11.3.0  
+         from   Ubuntu   Macos
+                22.04.2  14.4.1
+cmake    3.10.2 3.24.2   3.29.2
+clang    9.1.0           15.0.0
+gcc      3.3.2   11.4.0  
 tcl      8.4     8.6     8.6.6
-swig     1.3.28  4.1.0   4.0.1
-bison    1.35    3.0.2   3.8.2
+swig     1.3.28  4.1.0   4.2.1
+bison    1.35    3.8.2   3.8.2
 flex     2.5.4   2.6.4   2.6.4
 ```
 
 Note that flex versions before 2.6.4 contain 'register' declarations that
 are illegal in c++17.
 
-These packages are **optional**:
-
+External library dependencies:
 ```
-tclreadline                   2.3.8
-libz        1.1.4   1.2.5     1.2.8
-cudd                2.4.1     3.0.0
+         from   Ubuntu   Macos
+eigen           3.4 .0   3.4.0 required
+tclreadline              2.3.8 optional
+libz     1.1.4   1.2.5   1.2.8 optional
+cudd             2.4.1   3.0.0 optional
 ```
 
 The [TCL readline library](https://tclreadline.sourceforge.net/tclreadline.html)

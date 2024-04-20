@@ -69,6 +69,7 @@ set(STA_SOURCE
   dcalc/ArnoldiDelayCalc.cc
   dcalc/ArnoldiReduce.cc
   dcalc/CcsCeffDelayCalc.cc
+  dcalc/CcsSimDelayCalc.cc
   dcalc/DcalcAnalysisPt.cc
   dcalc/DelayCalc.cc
   dcalc/DelayCalcBase.cc
@@ -363,6 +364,8 @@ include(FindZLIB)
 
 find_package(Threads)
 
+find_package(Eigen3 REQUIRED)
+
 ################################################################
 #
 # Locate CUDD bdd package.
@@ -508,6 +511,7 @@ target_sources(OpenSTA
 )
 
 target_link_libraries(OpenSTA
+  Eigen3::Eigen
   ${TCL_LIBRARY}
   ${CMAKE_THREAD_LIBS_INIT}
   )
