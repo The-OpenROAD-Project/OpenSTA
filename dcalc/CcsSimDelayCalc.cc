@@ -188,7 +188,7 @@ CcsSimDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
     GateTableModel *table_model = gateTableModel(dcalc_arg.arc(), dcalc_ap);
     if (table_model && dcalc_arg.parasitic()) {
       OutputWaveforms *output_waveforms = table_model->outputWaveforms();
-      Slew in_slew = dcalc_arg.inSlew();
+      float in_slew = delayAsFloat(dcalc_arg.inSlew());
       if (output_waveforms
           // Bounds check because extrapolating waveforms does not work for shit.
           && output_waveforms->slewAxis()->inBounds(in_slew)
@@ -293,7 +293,7 @@ CcsSimDelayCalc::simulate(ArcDcalcArgSeq &dcalc_args)
     ceff_[drvr_idx] = load_cap_;
     // voltageTime is always for a rising waveform so 0.0v is initial voltage.
     drvr_current_[drvr_idx] =
-      output_waveforms_[drvr_idx]->voltageCurrent(dcalc_arg.inSlew(),
+      output_waveforms_[drvr_idx]->voltageCurrent(delayAsFloat(dcalc_arg.inSlew()),
                                                   ceff_[drvr_idx], 0.0);
   }
   // Initial time depends on ceff which impact delay, so use a sim step
@@ -304,7 +304,7 @@ CcsSimDelayCalc::simulate(ArcDcalcArgSeq &dcalc_args)
   initNodeVoltages();
 
   // voltageTime is always for a rising waveform so 0.0v is initial voltage.
-  double time_begin = output_waveforms_[0]->voltageTime(dcalc_args[0].inSlew(),
+  double time_begin = output_waveforms_[0]->voltageTime(dcalc_args[0].inSlewFlt(),
                                                         ceff_[0], 0.0);
   // Limit in case load voltage waveforms don't get to final value.
   double time_end = time_begin + maxTime();
@@ -361,7 +361,7 @@ CcsSimDelayCalc::timeStep()
 double
 CcsSimDelayCalc::maxTime()
 {
-  return (*dcalc_args_)[0].inSlew()
+  return (*dcalc_args_)[0].inSlewFlt()
     + (drive_resistance_ + resistance_sum_) * load_cap_ * 2;
 }
 
@@ -632,7 +632,7 @@ CcsSimDelayCalc::updateCeffIdrvr()
         drvr_current_[i] = 0.0;
       else
         drvr_current_[i] =
-          output_waveforms_[i]->voltageCurrent((*dcalc_args_)[i].inSlew(),
+          output_waveforms_[i]->voltageCurrent((*dcalc_args_)[i].inSlewFlt(),
                                                ceff_[i], v);
     }
     else {
@@ -648,7 +648,7 @@ CcsSimDelayCalc::updateCeffIdrvr()
         drvr_current_[i] = 0.0;
       else
         drvr_current_[i] =
-          output_waveforms_[i]->voltageCurrent((*dcalc_args_)[i].inSlew(),
+          output_waveforms_[i]->voltageCurrent((*dcalc_args_)[i].inSlewFlt(),
                                                ceff_[i], v);
     }
   }
@@ -763,7 +763,7 @@ CcsSimDelayCalc::inputWaveform(const Pin *in_pin,
     DriverWaveform *driver_waveform = port->driverWaveform(in_rf);
     const Vertex *in_vertex = graph_->pinLoadVertex(in_pin);
     DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
-    Slew in_slew = graph_->slew(in_vertex, in_rf, dcalc_ap->index());
+    float in_slew = delayAsFloat(graph_->slew(in_vertex, in_rf, dcalc_ap->index()));
     LibertyLibrary *library = port->libertyLibrary();
     float vdd;
     bool vdd_exists;
