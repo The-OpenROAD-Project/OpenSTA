@@ -505,9 +505,14 @@ attr_specs:
 
 attr_spec:
 	ID
-	{ $$ = new sta::VerilogAttributeEntry($1, "1"); }
+	{ $$ = new sta::VerilogAttributeEntry($1, "1");
+	  delete[] $1;
+	}
 | 	ID '=' attr_spec_value
-	{ $$ = new sta::VerilogAttributeEntry($1, $3); }
+	{ $$ = new sta::VerilogAttributeEntry($1, $3); 
+	  delete[] $1;
+	  delete[] $3;
+	}
 	;
 
 attr_spec_value:
