@@ -424,9 +424,11 @@ MinPulseWidthCheck::minWidth(const StaState *sta) const
 }
 
 // Precedence:
-//  set_min_pulse_width constraint
+//  set_min_pulse_width SDC command
 //  SDF annotation
 //  Liberty library
+//    port min_pulse_width_low/high
+//    min_pulse_width timing group
 static void
 minPulseWidth(const Path *path,
 	      const StaState *sta,
@@ -441,12 +443,17 @@ minPulseWidth(const Path *path,
   // set_min_pulse_width command.
   sdc->minPulseWidth(pin, clk, rf, min_width, exists);
   if (!exists) {
-    GraphDelayCalc *graph_dcalc = sta->graphDelayCalc();
-    const MinMax *min_max = path->minMax(sta);
     const PathAnalysisPt *path_ap = path->pathAnalysisPt(sta);
     const DcalcAnalysisPt *dcalc_ap = path_ap->dcalcAnalysisPt();
-    graph_dcalc->minPulseWidth(pin, rf, dcalc_ap->index(), min_max,
-			       min_width, exists);
+    Vertex *vertex = path->vertex(sta);
+    Graph *graph = sta->graph();
+    Edge *edge;
+    TimingArc *arc;
+    graph->minPulseWidthArc(vertex, rf, edge, arc);
+    if (edge) {
+      min_width = delayAsFloat(graph->arcDelay(edge, arc, dcalc_ap->index()));
+      exists = true;
+    }
   }
 }
 

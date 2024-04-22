@@ -65,6 +65,8 @@ public:
   int index() const { return index_; }
   bool isWire() const;
   bool isTimingCheck() const { return is_timing_check_; }
+  // TIming check but not width or period.
+  bool isTimingCheckBetween() const;
   bool isAsyncTimingCheck() const;
   bool isNonSeqTimingCheck() const { return is_non_seq_check_; }
   bool isDataCheck() const;

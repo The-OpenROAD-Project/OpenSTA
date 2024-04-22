@@ -78,19 +78,19 @@ ClkLatency::reportClkLatency(const Clock *clk,
   for (const RiseFall *src_rf : RiseFall::range()) {
     for (const RiseFall *end_rf : RiseFall::range()) {
       PathVertex path_min;
-      float insertion_min;
-      float delay_min;
+      Delay insertion_min;
+      Delay delay_min;
       float lib_clk_delay_min;
-      float latency_min;
+      Delay latency_min;
       bool exists_min;
       clk_delays.delay(src_rf, end_rf, MinMax::min(), insertion_min,
                        delay_min, lib_clk_delay_min, latency_min,
                        path_min, exists_min);
       PathVertex path_max;
-      float insertion_max;
-      float delay_max;
+      Delay insertion_max;
+      Delay delay_max;
       float lib_clk_delay_max;
-      float latency_max;
+      Delay latency_max;
       bool exists_max;
       clk_delays.delay(src_rf, end_rf, MinMax::max(), insertion_max,
                        delay_max, lib_clk_delay_max, latency_max,
@@ -102,15 +102,15 @@ ClkLatency::reportClkLatency(const Clock *clk,
         report_->reportLine("    min     max");
 
         report_->reportLine("%7s %7s source latency",
-                            time_unit->asString(insertion_min, digits),
-                            time_unit->asString(insertion_max, digits));
+                            delayAsString(insertion_min, this, digits),
+                            delayAsString(insertion_max, this, digits));
         report_->reportLine("%7s %7s network latency %s",
-                            time_unit->asString(delay_min, digits),
+                            delayAsString(delay_min, this, digits),
                             "",
                             sdc_network_->pathName(path_min.pin(this)));
         report_->reportLine("%7s %7s network latency %s",
                             "",
-                            time_unit->asString(delay_max, digits),
+                            delayAsString(delay_max, this, digits),
                             sdc_network_->pathName(path_max.pin(this)));
         if (lib_clk_delay_min != 0.0
             || lib_clk_delay_max != 0.0)
@@ -119,11 +119,11 @@ ClkLatency::reportClkLatency(const Clock *clk,
                               time_unit->asString(lib_clk_delay_max, digits));
         report_->reportLine("---------------");
         report_->reportLine("%7s %7s latency",
-                            time_unit->asString(latency_min, digits),
-                            time_unit->asString(latency_max, digits));
-        float skew = latency_max - latency_min;
+                            delayAsString(latency_min, this, digits),
+                            delayAsString(latency_max, this, digits));
+        Delay skew = latency_max - latency_min;
         report_->reportLine("        %7s skew",
-                            time_unit->asString(skew, digits));
+                            delayAsString(skew, this, digits));
         report_->reportBlankLine();
       }
     }
@@ -154,11 +154,11 @@ ClkLatency::findClkDelays(ConstClockSeq clks,
           const RiseFall *clk_rf = path_clk_edge->transition();
           const MinMax *min_max = path->minMax(this);
           const RiseFall *end_rf = path->transition(this);
-          float latency = ClkDelays::latency(path, this);
-          float clk_latency;
+          Delay latency = ClkDelays::latency(path, this);
+          Delay clk_latency;
           bool exists;
           clk_delays.latency(clk_rf, end_rf, min_max, clk_latency, exists);
-          if (!exists || min_max->compare(latency, clk_latency))
+          if (!exists || delayGreater(latency, clk_latency, min_max, this))
             clk_delays.setLatency(clk_rf, end_rf, min_max, path, this);
         }
       }
@@ -189,10 +189,10 @@ ClkDelays::delay(const RiseFall *src_rf,
                  const RiseFall *end_rf,
                  const MinMax *min_max,
                  // Return values.
-                 float &insertion,
-                 float &delay,
+                 Delay &insertion,
+                 Delay &delay,
                  float &lib_clk_delay,
-                 float &latency,
+                 Delay &latency,
                  PathVertex &path,
                  bool &exists) const
 {
@@ -212,7 +212,7 @@ ClkDelays::latency(const RiseFall *src_rf,
                    const RiseFall *end_rf,
                    const MinMax *min_max,
                    // Return values.
-                   float &latency,
+                   Delay &latency,
                    bool &exists) const
 {
   int src_rf_index = src_rf->index();
@@ -249,7 +249,7 @@ ClkDelays::setLatency(const RiseFall *src_rf,
   exists_[src_rf_index][end_rf_index][mm_index] = true;
 }
 
-float
+Delay
 ClkDelays::latency(PathVertex *clk_path,
                    StaState *sta)
 {
@@ -280,7 +280,8 @@ ClkDelays::insertionDelay(PathVertex *clk_path,
   const Pin *src_pin = clk_info->clkSrc();
   const PathAnalysisPt *path_ap = clk_path->pathAnalysisPt(sta);
   const MinMax *min_max = clk_path->minMax(sta);
-  return sta->search()->clockInsertion(clk, src_pin, clk_rf, min_max, min_max, path_ap);
+  return delayAsFloat(sta->search()->clockInsertion(clk, src_pin, clk_rf, min_max,
+                                                    min_max, path_ap));
 }
 
 float
@@ -292,7 +293,7 @@ ClkDelays::clkTreeDelay(PathVertex *clk_path,
   const LibertyPort *port = sta->network()->libertyPort(pin);
   const MinMax *min_max = clk_path->minMax(sta);
   const RiseFall *rf = clk_path->transition(sta);
-  Slew slew = clk_path->slew(sta);
+  float slew = delayAsFloat(clk_path->slew(sta));
   return port->clkTreeDelay(slew, rf, min_max);
 }
 

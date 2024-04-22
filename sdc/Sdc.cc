@@ -668,17 +668,9 @@ Sdc::moveDeratingFactors(Sdc *from,
     from->derating_factors_ = nullptr;
   }
 
-  to->net_derating_factors_.deleteContents();
-  to->net_derating_factors_ = from->net_derating_factors_;
-  from->net_derating_factors_.clear();
-
-  to->inst_derating_factors_.deleteContents();
-  to->inst_derating_factors_ = from->inst_derating_factors_;
-  from->inst_derating_factors_.clear();
-
-  to->cell_derating_factors_.deleteContents();
-  to->cell_derating_factors_ = from->cell_derating_factors_;
-  from->cell_derating_factors_.clear();
+  to->net_derating_factors_ = std::move(from->net_derating_factors_);
+  to->inst_derating_factors_ = std::move(from->inst_derating_factors_);
+  to->cell_derating_factors_ = std::move(from->cell_derating_factors_);
 }
 
 void
@@ -1741,6 +1733,13 @@ Sdc::removeClockInsertion(const Clock *clk,
 }
 
 void
+Sdc::moveClockInsertions(Sdc *from,
+                         Sdc *to)
+{
+  to->clk_insertions_ = std::move(from->clk_insertions_);
+}
+
+void
 Sdc::deleteClockInsertion(ClockInsertion *insertion)
 {
   clk_insertions_.erase(insertion);
@@ -2746,46 +2745,18 @@ void
 Sdc::movePortDelays(Sdc *from,
                     Sdc *to)
 {
-  to->input_delays_.deleteContents();
-  to->input_delays_ = from->input_delays_;
-  from->input_delays_.clear();
-
-  to->input_delay_pin_map_.deleteContents();
-  to->input_delay_pin_map_ = from->input_delay_pin_map_;
-  from->input_delay_pin_map_.clear();
-
-  to->input_delay_ref_pin_map_.deleteContents();
-  to->input_delay_ref_pin_map_ = from->input_delay_ref_pin_map_;
-  from->input_delay_ref_pin_map_.clear();
-
-  to->input_delay_leaf_pin_map_.deleteContents();
-  to->input_delay_leaf_pin_map_ = from->input_delay_leaf_pin_map_;
-  from->input_delay_leaf_pin_map_.clear();
-
-  to->input_delay_internal_pin_map_.deleteContents();
-  to->input_delay_internal_pin_map_ = from->input_delay_internal_pin_map_;
-  from->input_delay_internal_pin_map_.clear();
-
+  to->input_delays_ = std::move(from->input_delays_);
+  to->input_delay_pin_map_ = std::move(from->input_delay_pin_map_);
+  to->input_delay_ref_pin_map_ = std::move(from->input_delay_ref_pin_map_);
+  to->input_delay_leaf_pin_map_ = std::move(from->input_delay_leaf_pin_map_);
+  to->input_delay_internal_pin_map_ = std::move(from->input_delay_internal_pin_map_);
   to->input_delay_index_ = from->input_delay_index_;
   from->input_delay_index_ = 0;
 
-  ////////////////
-
-  to->output_delays_.deleteContents();
-  to->output_delays_ = from->output_delays_;
-  from->output_delays_.clear();
-
-  to->output_delay_pin_map_.deleteContents();
-  to->output_delay_pin_map_ = from->output_delay_pin_map_;
-  from->output_delay_pin_map_.clear();
-
-  to->output_delay_ref_pin_map_.deleteContents();
-  to->output_delay_ref_pin_map_ = from->output_delay_ref_pin_map_;
-  from->output_delay_ref_pin_map_.clear();
-
-  to->output_delay_leaf_pin_map_.deleteContents();
-  to->output_delay_leaf_pin_map_ = from->output_delay_leaf_pin_map_;
-  from->output_delay_leaf_pin_map_.clear();
+  to->output_delays_ = std::move(from->output_delays_);
+  to->output_delay_pin_map_ = std::move(from->output_delay_pin_map_);
+  to->output_delay_ref_pin_map_ = std::move(from->output_delay_ref_pin_map_);
+  to->output_delay_leaf_pin_map_ = std::move(from->output_delay_leaf_pin_map_);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3355,11 +3326,11 @@ Sdc::movePortExtCaps(Sdc *from,
                      Sdc *to)
 {
   for (int corner_index = 0; corner_index < from->corners()->count(); corner_index++) {
-    to->port_ext_cap_maps_[corner_index] = from->port_ext_cap_maps_[corner_index];
-    from->port_ext_cap_maps_[corner_index].clear();
+    to->port_ext_cap_maps_[corner_index] =
+      std::move(from->port_ext_cap_maps_[corner_index]);
 
-    to->net_wire_cap_maps_[corner_index] = from->net_wire_cap_maps_[corner_index];
-    from->net_wire_cap_maps_[corner_index].clear();
+    to->net_wire_cap_maps_[corner_index] =
+      std::move(from->net_wire_cap_maps_[corner_index]);
   }
 }
 
@@ -3953,7 +3924,7 @@ Sdc::recordPathDelayInternalEndpoints(ExceptionPath *exception)
   if (to
       && to->hasPins()) {
     for (const Pin *pin : *to->pins()) {
-      if (!(hasLibertyChecks(pin)
+      if (!(hasLibertyCheckTo(pin)
 	    || network_->isTopLevelPort(pin))) {
 	path_delay_internal_endpoints_.insert(pin);
       }
@@ -3969,7 +3940,7 @@ Sdc::unrecordPathDelayInternalEndpoints(ExceptionPath *exception)
       && to->hasPins()
       && !path_delay_internal_endpoints_.empty()) {
     for (const Pin *pin : *to->pins()) {
-      if (!(hasLibertyChecks(pin)
+      if (!(hasLibertyCheckTo(pin)
 	    || network_->isTopLevelPort(pin))
 	  && !pathDelayTo(pin))
 	path_delay_internal_endpoints_.erase(pin);
@@ -3978,7 +3949,7 @@ Sdc::unrecordPathDelayInternalEndpoints(ExceptionPath *exception)
 }
 
 bool
-Sdc::hasLibertyChecks(const Pin *pin)
+Sdc::hasLibertyCheckTo(const Pin *pin)
 {
   const Instance *inst = network_->instance(pin);
   LibertyCell *cell = network_->libertyCell(inst);
@@ -3986,7 +3957,7 @@ Sdc::hasLibertyChecks(const Pin *pin)
     LibertyPort *port = network_->libertyPort(pin);
     if (port) {
       for (TimingArcSet *arc_set : cell->timingArcSets(nullptr, port)) {
-	if (arc_set->role()->isTimingCheck())
+	if (arc_set->role()->isTimingCheckBetween())
 	  return true;
       }
     }

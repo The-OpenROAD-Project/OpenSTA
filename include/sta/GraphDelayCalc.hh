@@ -109,17 +109,6 @@ public:
   // Precedence:
   //  SDF annotation
   //  Liberty library
-  // (ignores set_min_pulse_width constraint)
-  void minPulseWidth(const Pin *pin,
-		     const RiseFall *hi_low,
-		     DcalcAPIndex ap_index,
-		     const MinMax *min_max,
-		     // Return values.
-		     float &min_width,
-		     bool &exists);
-  // Precedence:
-  //  SDF annotation
-  //  Liberty library
   void minPeriod(const Pin *pin,
 		 // Return values.
 		 float &min_period,

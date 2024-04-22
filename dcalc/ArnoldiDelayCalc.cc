@@ -1334,7 +1334,6 @@ ArnoldiDelayCalc::ra_get_s(delay_work *D,
   tlohi = slew_derate*delayAsFloat(s1);
   smin = r*c*c_smin; // c_smin = ra_hinv((1-vhi)/vhi-log(vhi)) + log(vhi);
   if (c_log*r*c >= tlohi) {
-    // printf("hit smin\n");
     s = smin;
   } else {
     s = smin+0.3*tlohi;
@@ -1410,7 +1409,6 @@ ArnoldiDelayCalc::ar1_ceff_delay(delay_work *D,
   if (debug_->check("arnoldi", 1)) {
     double p = 1.0/(r*ctot);
     double thix,tlox;
-    if (bad) printf("bad\n");
     debugPrint(debug_, "arnoldi", 1, "at r=%s s=%s",
                units_->resistanceUnit()->asString(r),
                units_->timeUnit()->asString(s));

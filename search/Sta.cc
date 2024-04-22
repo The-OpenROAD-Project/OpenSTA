@@ -5167,7 +5167,9 @@ instMaxSlew(const Instance *inst,
     Pin *pin = pin_iter->next();
     if (network->isDriver(pin)) {
       Vertex *vertex = graph->pinDrvrVertex(pin);
-      max_slew = max(max_slew, sta->vertexSlew(vertex, MinMax::max()));
+      Slew slew = sta->vertexSlew(vertex, MinMax::max());
+      if (delayGreater(slew, max_slew, sta))
+        max_slew = slew;
     }
   }
   delete pin_iter;

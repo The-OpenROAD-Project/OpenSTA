@@ -4940,7 +4940,7 @@ bool path_delay_margin_is_external()
 Crpr common_clk_pessimism() { return self->commonClkPessimism(Sta::sta()); }
 RiseFall *target_clk_end_trans()
 { return const_cast<RiseFall*>(self->targetClkEndTrans(Sta::sta())); }
-float clk_skew() { return self->clkSkew(Sta::sta()); }
+Delay clk_skew() { return self->clkSkew(Sta::sta()); }
 
 }
 

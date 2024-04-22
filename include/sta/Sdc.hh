@@ -445,6 +445,8 @@ public:
 			 float delay);
   void removeClockInsertion(const Clock *clk,
 			    const Pin *pin);
+  static void moveClockInsertions(Sdc *from,
+                                  Sdc *to);
   bool hasClockInsertion(const Pin *pin) const;
   float clockInsertion(const Clock *clk,
 		       const RiseFall *rf,
@@ -1066,7 +1068,7 @@ protected:
   virtual void recordPathDelayInternalEndpoints(ExceptionPath *exception);
   virtual void unrecordPathDelayInternalEndpoints(ExceptionPath *exception);
   bool pathDelayTo(const Pin *pin);
-  bool hasLibertyChecks(const Pin *pin);
+  bool hasLibertyCheckTo(const Pin *pin);
   void deleteMatchingExceptions(ExceptionPath *exception);
   void findMatchingExceptions(ExceptionPath *exception,
 			      ExceptionPathSet &matches);

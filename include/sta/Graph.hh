@@ -46,7 +46,6 @@ typedef ArrayTable<Required> RequiredsTable;
 typedef ArrayTable<PathVertexRep> PrevPathsTable;
 typedef Map<const Pin*, Vertex*> PinVertexMap;
 typedef Iterator<Edge*> VertexEdgeIterator;
-typedef Map<const Pin*, float*> WidthCheckAnnotations;
 typedef Map<const Pin*, float*> PeriodCheckAnnotations;
 typedef Vector<DelayTable*> DelayTableSeq;
 typedef ObjectId EdgeId;
@@ -184,18 +183,11 @@ public:
   int edgeCount() { return edges_->size(); }
   virtual int arcCount() { return arc_count_; }
 
-  // Sdf width check annotation.
-  void widthCheckAnnotation(const Pin *pin,
-			    const RiseFall *rf,
-			    DcalcAPIndex ap_index,
-			    // Return values.
-			    float &width,
-			    bool &exists);
-  void setWidthCheckAnnotation(const Pin *pin,
-			       const RiseFall *rf,
-			       DcalcAPIndex ap_index,
-			       float width);
-
+  void minPulseWidthArc(Vertex *vertex,
+                        const RiseFall *hi_low,
+                        // Return values.
+                        Edge *&edge,
+                        TimingArc *&arc);
   // Sdf period check annotation.
   void periodCheckAnnotation(const Pin *pin,
 			     DcalcAPIndex ap_index,
@@ -229,7 +221,6 @@ protected:
   virtual void makePortInstanceEdges(const Instance *inst,
 				     LibertyCell *cell,
                                      LibertyPort *from_to_port);
-  void removeWidthCheckAnnotations();
   void removePeriodCheckAnnotations();
   void makeSlewTables(DcalcAPIndex count);
   void deleteSlewTables();
@@ -264,8 +255,6 @@ protected:
   DelayTableSeq slew_tables_;	      // [ap_index][tr_index][vertex_id]
   VertexId slew_count_;
   DelayTableSeq arc_delays_;	      // [ap_index][edge_arc_index]
-  // Sdf width check annotations.
-  WidthCheckAnnotations *width_check_annotations_;
   // Sdf period check annotations.
   PeriodCheckAnnotations *period_check_annotations_;
   // Register/latch clock vertices to search from.

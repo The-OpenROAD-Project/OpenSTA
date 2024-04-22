@@ -31,19 +31,19 @@ public:
              const RiseFall *end_rf,
              const MinMax *min_max,
              // Return values.
-             float &insertion,
-             float &delay,
+             Delay &insertion,
+             Delay &delay,
              float &lib_clk_delay,
-             float &latency,
+             Delay &latency,
              PathVertex &path,
              bool &exists) const;
   void latency(const RiseFall *src_rf,
                const RiseFall *end_rf,
                const MinMax *min_max,
                // Return values.
-               float &delay,
+               Delay &delay,
                bool &exists) const;
-  static float latency(PathVertex *clk_path,
+  static Delay latency(PathVertex *clk_path,
                        StaState *sta);
   void setLatency(const RiseFall *src_rf,
                   const RiseFall *end_rf,
@@ -59,10 +59,10 @@ private:
   static float clkTreeDelay(PathVertex *clk_path,
                             StaState *sta);
 
-  float insertion_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
-  float delay_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
+  Delay insertion_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
+  Delay delay_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
   float lib_clk_delay_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
-  float latency_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
+  Delay latency_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
   PathVertex path_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
   bool exists_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
 };

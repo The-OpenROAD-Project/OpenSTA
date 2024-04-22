@@ -72,6 +72,7 @@ public:
   Edge *edge() const { return edge_; }
   const TimingArc *arc() const { return arc_; }
   Slew inSlew() const { return in_slew_; }
+  float inSlewFlt() const;
   void setInSlew(Slew in_slew);
   const Parasitic *parasitic() { return parasitic_; }
   void setParasitic(const Parasitic *parasitic);

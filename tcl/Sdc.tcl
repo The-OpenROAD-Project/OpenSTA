@@ -965,8 +965,8 @@ proc get_ports { args } {
 }
 
 variable filter_regexp1 {@?([a-zA-Z_]+) *(==|!=|=~) *([0-9a-zA-Z_\*]+)}
-variable filter_or_regexp "($filter_regexp1) +\\|\\| +($filter_regexp1)"
-variable filter_and_regexp "($filter_regexp1) +&& +($filter_regexp1)"
+variable filter_or_regexp "($filter_regexp1) *\\|\\| *($filter_regexp1)"
+variable filter_and_regexp "($filter_regexp1) *&& *($filter_regexp1)"
 
 proc filter_ports1 { filter objects } {
   variable filter_regexp1

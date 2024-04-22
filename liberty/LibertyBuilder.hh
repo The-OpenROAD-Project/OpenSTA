@@ -84,6 +84,12 @@ public:
                                       TimingRole *role,
                                       const MinMax *min_max,
                                       TimingArcAttrsPtr attrs);
+  TimingArcSet *makeMinPulseWidthArcs(LibertyCell *cell,
+                                      LibertyPort *from_port,
+                                      LibertyPort *to_port,
+                                      LibertyPort *related_out,
+                                      TimingRole *role,
+                                      TimingArcAttrsPtr attrs);
 
 protected:
   ConcretePort *makeBusPort(const char *name,

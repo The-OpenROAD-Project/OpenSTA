@@ -142,7 +142,6 @@ Sim::funcBddSim(const FuncExpr *expr,
     if (port_node) {
       LogicValue value = logicValue(pin);
       int var_index = Cudd_NodeReadIndex(port_node);
-      //printf("%s %d %c\n", port->name(), var_index, logicValueString(value));
       switch (value) {
       case LogicValue::zero:
         bdd = Cudd_bddCompose(cudd_mgr, bdd, Cudd_ReadLogicZero(cudd_mgr), var_index);

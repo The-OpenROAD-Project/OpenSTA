@@ -114,6 +114,7 @@ MakeTimingModel::saveSdc()
   Sdc::movePortDelays(sdc_, sdc_backup_);
   Sdc::movePortExtCaps(sdc_, sdc_backup_);
   Sdc::moveDeratingFactors(sdc_, sdc_backup_);
+  Sdc::moveClockInsertions(sdc_, sdc_backup_);
   sta_->delaysInvalid();
 }
 
@@ -123,6 +124,7 @@ MakeTimingModel::restoreSdc()
   Sdc::movePortDelays(sdc_backup_, sdc_);
   Sdc::movePortExtCaps(sdc_backup_, sdc_);
   Sdc::moveDeratingFactors(sdc_backup_, sdc_);
+  Sdc::moveClockInsertions(sdc_backup_, sdc_);
   delete sdc_backup_;
   sta_->delaysInvalid();
 }
@@ -568,7 +570,8 @@ MakeTimingModel::makeClkTreePaths(LibertyPort *lib_port,
       ? clk_rf
       : clk_rf->opposite();
     PathVertex clk_path;
-    float insertion, delay, lib_clk_delay, latency;
+    Delay insertion, delay, latency;
+    float lib_clk_delay;
     bool exists;
     delays.delay(clk_rf, end_rf, min_max, insertion, delay,
                  lib_clk_delay, latency, clk_path, exists);

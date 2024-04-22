@@ -133,7 +133,7 @@ ClkSkew::clkTreeDelay(PathVertex &clk_path,
   const LibertyPort *port = sta->network()->libertyPort(pin);
   const MinMax *min_max = clk_path.minMax(sta);
   const RiseFall *rf = clk_path.transition(sta);
-  Slew slew = clk_path.slew(sta);
+  float slew = delayAsFloat(clk_path.slew(sta));
   return port->clkTreeDelay(slew, rf, min_max);
 }
 

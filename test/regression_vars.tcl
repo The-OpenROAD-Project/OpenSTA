@@ -122,6 +122,7 @@ record_example_tests {
 }
 
 record_sta_tests {
+  ccs_sim1
   verilog_attribute
 }
 

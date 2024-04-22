@@ -47,7 +47,6 @@ Graph::Graph(StaState *sta,
   slew_rf_count_(slew_rf_count),
   have_arc_delays_(have_arc_delays),
   ap_count_(ap_count),
-  width_check_annotations_(nullptr),
   period_check_annotations_(nullptr),
   reg_clk_vertices_(new VertexSet(graph_))
 {
@@ -62,7 +61,6 @@ Graph::~Graph()
   delete reg_clk_vertices_;
   deleteSlewTables();
   deleteArcDelayTables();
-  removeWidthCheckAnnotations();
   removePeriodCheckAnnotations();
 }
 
@@ -205,9 +203,9 @@ Graph::makePortInstanceEdges(const Instance *inst,
 	// Vertices can be missing from the graph if the pins
 	// are power or ground.
 	if (from_vertex) {
-  	  bool is_check = arc_set->role()->isTimingCheck();
-	  if (to_bidirect_drvr_vertex &&
-	      !is_check)
+          TimingRole *role = arc_set->role();
+  	  bool is_check = role->isTimingCheckBetween();
+	  if (to_bidirect_drvr_vertex && !is_check)
 	    makeEdge(from_vertex, to_bidirect_drvr_vertex, arc_set);
 	  else if (to_vertex) {
 	    makeEdge(from_vertex, to_vertex, arc_set);
@@ -856,7 +854,7 @@ Graph::arcDelayAnnotated(const Edge *edge,
 			 const TimingArc *arc,
 			 DcalcAPIndex ap_index) const
 {
-  if (arc_delay_annotated_.size()) {
+  if (!arc_delay_annotated_.empty()) {
     size_t index = (edge->arcDelays() + arc->index()) * ap_count_ + ap_index;
     if (index >= arc_delay_annotated_.size())
       report_->critical(1080, "arc_delay_annotated array bounds exceeded");
@@ -912,7 +910,6 @@ Graph::setDelayCount(DcalcAPIndex ap_count)
     // Discard any existing delays.
     deleteSlewTables();
     deleteArcDelayTables();
-    removeWidthCheckAnnotations();
     removePeriodCheckAnnotations();
     makeSlewTables(ap_count);
     makeArcDelayTables(ap_count);
@@ -955,11 +952,11 @@ Graph::delayAnnotated(Edge *edge)
   TimingArcSet *arc_set = edge->timingArcSet();
   for (TimingArc *arc : arc_set->arcs()) {
     for (DcalcAPIndex ap_index = 0; ap_index < ap_count_; ap_index++) {
-      if (arcDelayAnnotated(edge, arc, ap_index))
-	return true;
+      if (!arcDelayAnnotated(edge, arc, ap_index))
+	return false;
     }
   }
-  return false;
+  return true;
 }
 
 void
@@ -994,58 +991,28 @@ Graph::makeVertexSlews(Vertex *vertex)
 ////////////////////////////////////////////////////////////////
 
 void
-Graph::widthCheckAnnotation(const Pin *pin,
-			    const RiseFall *rf,
-			    DcalcAPIndex ap_index,
-			    // Return values.
-			    float &width,
-			    bool &exists)
+Graph::minPulseWidthArc(Vertex *vertex,
+                        // high = rise, low = fall
+                        const RiseFall *hi_low,
+                        // Return values.
+                        Edge *&edge,
+                        TimingArc *&arc)
 {
-  exists = false;
-  if (width_check_annotations_) {
-    float *widths = width_check_annotations_->findKey(pin);
-    if (widths) {
-      int index = ap_index * RiseFall::index_count + rf->index();
-      width = widths[index];
-      if (width >= 0.0)
-	exists = true;
+  VertexOutEdgeIterator edge_iter(vertex, this);
+  while (edge_iter.hasNext()) {
+    edge = edge_iter.next();
+    TimingArcSet *arc_set = edge->timingArcSet();
+    if (arc_set->role() == TimingRole::width()) {
+      for (TimingArc *arc1 : arc_set->arcs()) {
+        if (arc1->fromEdge()->asRiseFall() == hi_low) {
+          arc = arc1;
+          return;
+        }
+      }
     }
   }
-}
-
-void
-Graph::setWidthCheckAnnotation(const Pin *pin,
-			       const RiseFall *rf,
-			       DcalcAPIndex ap_index,
-			       float width)
-{
-  if (width_check_annotations_ == nullptr)
-    width_check_annotations_ = new WidthCheckAnnotations;
-  float *widths = width_check_annotations_->findKey(pin);
-  if (widths == nullptr) {
-    int width_count = RiseFall::index_count * ap_count_;
-    widths = new float[width_count];
-    // Use negative (illegal) width values to indicate unannotated checks.
-    for (int i = 0; i < width_count; i++)
-      widths[i] = -1;
-    (*width_check_annotations_)[pin] = widths;
-  }
-  int index = ap_index * RiseFall::index_count + rf->index();
-  widths[index] = width;
-}
-
-void
-Graph::removeWidthCheckAnnotations()
-{
-  if (width_check_annotations_) {
-    WidthCheckAnnotations::Iterator check_iter(width_check_annotations_);
-    while (check_iter.hasNext()) {
-      float *widths = check_iter.next();
-      delete [] widths;
-    }
-    delete width_check_annotations_;
-    width_check_annotations_ = nullptr;
-  }
+  edge = nullptr;
+  arc = nullptr;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1112,7 +1079,6 @@ Graph::removeDelaySlewAnnotations()
     }
     vertex->removeSlewAnnotated();
   }
-  removeWidthCheckAnnotations();
   removePeriodCheckAnnotations();
 }
 

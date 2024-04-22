@@ -550,22 +550,12 @@ SdfReader::timingCheckWidth(SdfPortSpec *edge,
     if (port) {
       Pin *pin = network_->findPin(instance_, port_name);
       if (pin) {
-	const RiseFall *rf = edge->transition()->asRiseFall();
-	float **values = triple->values();
-	float *value_ptr = values[triple_min_index_];
-	if (value_ptr) {
-	  float value = *value_ptr;
-	  graph_->setWidthCheckAnnotation(pin, rf, arc_delay_min_index_,
-					  value);
-	}
-	if (triple_max_index_ != null_index_) {
-	  value_ptr = values[triple_max_index_];
-	  if (value_ptr) {
-	    float value = *value_ptr;
-	    graph_->setWidthCheckAnnotation(pin, rf, arc_delay_max_index_,
-					    value);
-	  }
-	}
+        const RiseFall *rf = edge->transition()->asRiseFall();
+        Edge *edge;
+        TimingArc *arc;
+        graph_->minPulseWidthArc(graph_->pinLoadVertex(pin), rf, edge, arc);
+        if (edge)
+          setEdgeArcDelays(edge, arc, triple);
       }
     }
   }

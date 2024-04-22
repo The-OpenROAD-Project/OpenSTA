@@ -1069,7 +1069,7 @@ PathEndCheck::sourceClkDelay(const StaState *sta) const
       // Propagated clock.  Propagated arrival is seeded with insertion delay.
       Arrival clk_arrival = src_clk_path.arrival(sta);
       const ClockEdge *src_clk_edge = src_clk_info->clkEdge();
-      float insertion = sourceClkInsertionDelay(sta);
+      Delay insertion = sourceClkInsertionDelay(sta);
       return delayRemove(clk_arrival - src_clk_edge->time(), insertion);
     }
     else
@@ -1080,7 +1080,7 @@ PathEndCheck::sourceClkDelay(const StaState *sta) const
     return 0.0;
 }
 
-float
+Delay
 PathEndCheck::clkSkew(const StaState *sta)
 {
   commonClkPessimism(sta);
@@ -1858,7 +1858,7 @@ PathEndPathDelay::sourceClkOffset(const StaState *sta) const
   return pathDelaySrcClkOffset(path_, path_delay_, src_clk_arrival_, sta);
 }
 
-float
+Delay
 PathEnd::clkSkew(const StaState *)
 {
   return 0.0;

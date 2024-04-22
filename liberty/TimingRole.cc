@@ -259,6 +259,14 @@ TimingRole::isLatchDtoQ() const
 }
 
 bool
+TimingRole::isTimingCheckBetween() const
+{
+  return is_timing_check_
+    && this != width_
+    && this != period_;
+}
+
+bool
 TimingRole::less(const TimingRole *role1,
 		 const TimingRole *role2)
 {

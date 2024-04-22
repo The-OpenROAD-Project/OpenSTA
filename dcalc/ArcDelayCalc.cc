@@ -130,6 +130,12 @@ ArcDcalcArg::drvrNet(const Network *network) const
   return network->net(drvr_pin_);
 }
 
+float
+ArcDcalcArg::inSlewFlt() const
+{
+  return delayAsFloat(in_slew_);
+}
+
 void
 ArcDcalcArg::setInSlew(Slew in_slew)
 {
