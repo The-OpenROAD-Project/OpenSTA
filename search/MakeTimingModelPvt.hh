@@ -92,6 +92,7 @@ private:
 
   void saveSdc();
   void restoreSdc();
+  void swapSdcWithBackup();
 
   const char *lib_name_;
   const char *cell_name_;
