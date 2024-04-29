@@ -424,8 +424,11 @@ VerilogReader::makeDcl(PortDirection *dir,
       dcl_count_++;
       return new VerilogDcl(dir, assign_args, attribute_stmts, line);
     }
-    else
+    else {
+      attribute_stmts->deleteContents();
+      delete attribute_stmts;
       return nullptr;
+    }
   }
   else {
     dcl_count_++;

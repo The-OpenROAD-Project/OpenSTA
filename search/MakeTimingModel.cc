@@ -111,22 +111,25 @@ void
 MakeTimingModel::saveSdc()
 {
   sdc_backup_ = new Sdc(this);
-  Sdc::movePortDelays(sdc_, sdc_backup_);
-  Sdc::movePortExtCaps(sdc_, sdc_backup_);
-  Sdc::moveDeratingFactors(sdc_, sdc_backup_);
-  Sdc::moveClockInsertions(sdc_, sdc_backup_);
+  swapSdcWithBackup();
   sta_->delaysInvalid();
 }
 
 void
 MakeTimingModel::restoreSdc()
 {
-  Sdc::movePortDelays(sdc_backup_, sdc_);
-  Sdc::movePortExtCaps(sdc_backup_, sdc_);
-  Sdc::moveDeratingFactors(sdc_backup_, sdc_);
-  Sdc::moveClockInsertions(sdc_backup_, sdc_);
+  swapSdcWithBackup();
   delete sdc_backup_;
   sta_->delaysInvalid();
+}
+
+void
+MakeTimingModel::swapSdcWithBackup()
+{
+  Sdc::swapPortDelays(sdc_, sdc_backup_);
+  Sdc::swapPortExtCaps(sdc_, sdc_backup_);
+  Sdc::swapDeratingFactors(sdc_, sdc_backup_);
+  Sdc::swapClockInsertions(sdc_, sdc_backup_);
 }
 
 void
