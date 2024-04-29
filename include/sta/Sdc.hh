@@ -239,8 +239,8 @@ public:
 			const RiseFall *rf,
 			const EarlyLate *early_late) const;
   void unsetTimingDerate();
-  static void moveDeratingFactors(Sdc *from,
-                                  Sdc *to);
+  static void swapDeratingFactors(Sdc *sdc1,
+                                  Sdc *sdc2);
 
   void setInputSlew(const Port *port,
                     const RiseFallBoth *rf,
@@ -445,8 +445,8 @@ public:
 			 float delay);
   void removeClockInsertion(const Clock *clk,
 			    const Pin *pin);
-  static void moveClockInsertions(Sdc *from,
-                                  Sdc *to);
+  static void swapClockInsertions(Sdc *sdc1,
+                                  Sdc *sdc2);
   bool hasClockInsertion(const Pin *pin) const;
   float clockInsertion(const Clock *clk,
 		       const RiseFall *rf,
@@ -569,8 +569,8 @@ public:
 			 const Clock *clk,
 			 const RiseFall *clk_rf,
 			 const MinMaxAll *min_max);
-  static void movePortDelays(Sdc *from,
-                             Sdc *to);
+  static void swapPortDelays(Sdc *sdc1,
+                             Sdc *sdc2);
 
   // Set port external pin load (set_load -pin_load port).
   void setPortExtPinCap(const Port *port,
@@ -585,8 +585,8 @@ public:
 			 const Corner *corner,
 			 const MinMax *min_max,
 			 float cap);
-  static void movePortExtCaps(Sdc *from,
-                              Sdc *to);
+  static void swapPortExtCaps(Sdc *sdc1,
+                              Sdc *sdc2);
   // Remove all "set_load net" annotations.
   void removeNetLoadCaps();
   void setNetWireCap(const Net *net,

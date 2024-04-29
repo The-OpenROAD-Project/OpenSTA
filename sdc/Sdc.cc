@@ -51,6 +51,8 @@
 
 namespace sta {
 
+using std::swap;
+
 bool
 ClockPairLess::operator()(const ClockPair &pair1,
 			  const ClockPair &pair2) const
@@ -660,17 +662,13 @@ Sdc::unsetTimingDerate()
 }
 
 void
-Sdc::moveDeratingFactors(Sdc *from,
-                         Sdc *to)
+Sdc::swapDeratingFactors(Sdc *sdc1,
+                         Sdc *sdc2)
 {
-  if (from->derating_factors_) {
-    to->derating_factors_ = from->derating_factors_;
-    from->derating_factors_ = nullptr;
-  }
-
-  to->net_derating_factors_ = std::move(from->net_derating_factors_);
-  to->inst_derating_factors_ = std::move(from->inst_derating_factors_);
-  to->cell_derating_factors_ = std::move(from->cell_derating_factors_);
+  swap(sdc1->derating_factors_, sdc2->derating_factors_);
+  swap(sdc1->net_derating_factors_, sdc2->net_derating_factors_);
+  swap(sdc1->inst_derating_factors_, sdc2->inst_derating_factors_);
+  swap(sdc1->cell_derating_factors_, sdc2->cell_derating_factors_);
 }
 
 void
@@ -1733,10 +1731,10 @@ Sdc::removeClockInsertion(const Clock *clk,
 }
 
 void
-Sdc::moveClockInsertions(Sdc *from,
-                         Sdc *to)
+Sdc::swapClockInsertions(Sdc *sdc1,
+                         Sdc *sdc2)
 {
-  to->clk_insertions_ = std::move(from->clk_insertions_);
+  swap(sdc1->clk_insertions_, sdc2->clk_insertions_);
 }
 
 void
@@ -2742,21 +2740,20 @@ Sdc::deleteInputDelay(InputDelay *input_delay)
 }
 
 void
-Sdc::movePortDelays(Sdc *from,
-                    Sdc *to)
+Sdc::swapPortDelays(Sdc *sdc1,
+                    Sdc *sdc2)
 {
-  to->input_delays_ = std::move(from->input_delays_);
-  to->input_delay_pin_map_ = std::move(from->input_delay_pin_map_);
-  to->input_delay_ref_pin_map_ = std::move(from->input_delay_ref_pin_map_);
-  to->input_delay_leaf_pin_map_ = std::move(from->input_delay_leaf_pin_map_);
-  to->input_delay_internal_pin_map_ = std::move(from->input_delay_internal_pin_map_);
-  to->input_delay_index_ = from->input_delay_index_;
-  from->input_delay_index_ = 0;
+  swap(sdc1->input_delays_, sdc2->input_delays_);
+  swap(sdc1->input_delay_pin_map_, sdc2->input_delay_pin_map_);
+  swap(sdc1->input_delay_ref_pin_map_, sdc2->input_delay_ref_pin_map_);
+  swap(sdc1->input_delay_leaf_pin_map_, sdc2->input_delay_leaf_pin_map_);
+  swap(sdc1->input_delay_internal_pin_map_, sdc2->input_delay_internal_pin_map_);
+  swap(sdc1->input_delay_index_, sdc2->input_delay_index_);
 
-  to->output_delays_ = std::move(from->output_delays_);
-  to->output_delay_pin_map_ = std::move(from->output_delay_pin_map_);
-  to->output_delay_ref_pin_map_ = std::move(from->output_delay_ref_pin_map_);
-  to->output_delay_leaf_pin_map_ = std::move(from->output_delay_leaf_pin_map_);
+  swap(sdc1->output_delays_, sdc2->output_delays_);
+  swap(sdc1->output_delay_pin_map_, sdc2->output_delay_pin_map_);
+  swap(sdc1->output_delay_ref_pin_map_, sdc2->output_delay_ref_pin_map_);
+  swap(sdc1->output_delay_leaf_pin_map_, sdc2->output_delay_leaf_pin_map_);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -3322,15 +3319,12 @@ Sdc::ensurePortExtPinCap(const Port *port,
 }
 
 void
-Sdc::movePortExtCaps(Sdc *from,
-                     Sdc *to)
+Sdc::swapPortExtCaps(Sdc *sdc1,
+                     Sdc *sdc2)
 {
-  for (int corner_index = 0; corner_index < from->corners()->count(); corner_index++) {
-    to->port_ext_cap_maps_[corner_index] =
-      std::move(from->port_ext_cap_maps_[corner_index]);
-
-    to->net_wire_cap_maps_[corner_index] =
-      std::move(from->net_wire_cap_maps_[corner_index]);
+  for (int corner_index = 0; corner_index < sdc1->corners()->count(); corner_index++) {
+    swap(sdc1->port_ext_cap_maps_[corner_index], sdc2->port_ext_cap_maps_[corner_index]);
+    swap(sdc1->net_wire_cap_maps_[corner_index], sdc2->net_wire_cap_maps_[corner_index]);
   }
 }
 
