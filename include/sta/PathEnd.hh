@@ -110,7 +110,6 @@ public:
   virtual float sourceClkOffset(const StaState *sta) const = 0;
   virtual Delay sourceClkLatency(const StaState *sta) const;
   virtual Delay sourceClkInsertionDelay(const StaState *sta) const;
-  virtual Delay sourceClkDelay(const StaState *sta) const;
   virtual PathVertex *targetClkPath();
   virtual const PathVertex *targetClkPath() const;
   virtual const Clock *targetClk(const StaState *sta) const;
@@ -188,10 +187,6 @@ public:
 
 protected:
   PathEnd(Path *path);
-  void clkPath(PathVertex *path,
-	       const StaState *sta,
-	       // Return value.
-	       PathVertex &clk_path);
   static float checkNonInterClkUncertainty(const PathVertex *tgt_clk_path,
 					   const ClockEdge *tgt_clk_edge,
 					   const TimingRole *check_role,
@@ -327,7 +322,6 @@ public:
   virtual TimingArc *checkArc() const { return check_arc_; }
   virtual int exceptPathCmp(const PathEnd *path_end,
 			    const StaState *sta) const;
-  virtual Delay sourceClkDelay(const StaState *sta) const;
   virtual Delay clkSkew(const StaState *sta);
 
 protected:
@@ -338,6 +332,7 @@ protected:
 	       MultiCyclePath *mcp,
 	       Crpr crpr,
 	       bool crpr_valid);
+  Delay sourceClkDelay(const StaState *sta) const;
 
   TimingArc *check_arc_;
   Edge *check_edge_;
@@ -517,6 +512,10 @@ protected:
 		   MultiCyclePath *mcp,
 		   Crpr crpr,
 		   bool crpr_valid);
+  void clkPath(PathVertex *path,
+	       const StaState *sta,
+	       // Return value.
+	       PathVertex &clk_path);
   Arrival requiredTimeNoCrpr(const StaState *sta) const;
   // setup uses zero cycle default
   virtual int setupDefaultCycles() const { return 0; }

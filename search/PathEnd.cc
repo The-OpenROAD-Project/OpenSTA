@@ -156,12 +156,6 @@ PathEnd::sourceClkInsertionDelay(const StaState *) const
   return delay_zero;
 }
 
-Delay
-PathEnd::sourceClkDelay(const StaState *) const
-{
-  return delay_zero;
-}
-
 const Clock *
 PathEnd::targetClk(const StaState *) const
 {
@@ -288,45 +282,6 @@ PathEnd::exceptPathCmp(const PathEnd *path_end,
     return -1;
   else
     return 1;
-}
-
-// PathExpanded::expand() and PathExpanded::clkPath().
-// Similar to srcClkPath but for PathVertex's.
-void
-PathEnd::clkPath(PathVertex *path,
-		 const StaState *sta,
-		 // Return value.
-		 PathVertex &clk_path)
-{
-  PathVertex p(path);
-  while (!p.isNull()) {
-    PathVertex prev_path;
-    TimingArc *prev_arc;
-    p.prevPath(sta, prev_path, prev_arc);
-
-    if (p.isClock(sta)) {
-      clk_path = p;
-      return;
-    }
-    if (prev_arc) {
-      TimingRole *prev_role = prev_arc->role();
-      if (prev_role == TimingRole::regClkToQ()
-	  || prev_role == TimingRole::latchEnToQ()) {
-	p.prevPath(sta, prev_path, prev_arc);
-	clk_path = prev_path;
-	return;
-      }
-      else if (prev_role == TimingRole::latchDtoQ()) {
-	const Latches *latches = sta->latches();
-	Edge *prev_edge = p.prevEdge(prev_arc, sta);
-	PathVertex enable_path;
-	latches->latchEnablePath(&p, prev_edge, enable_path);
-	clk_path = enable_path;
-	return;
-      }
-    }
-    p = prev_path;
-  }
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1060,11 +1015,20 @@ PathEndCheck::exceptPathCmp(const PathEnd *path_end,
 }
 
 Delay
+PathEndCheck::clkSkew(const StaState *sta)
+{
+  commonClkPessimism(sta);
+  return sourceClkDelay(sta) - targetClkDelay(sta) - crpr_;
+}
+
+Delay
 PathEndCheck::sourceClkDelay(const StaState *sta) const
 {
-  ClkInfo *src_clk_info = path_.tag(sta)->clkInfo();
-  const PathVertex src_clk_path(src_clk_info->crprClkPath(), sta);
+  PathExpanded expanded(&path_, sta);
+  PathRef src_clk_path;
+  expanded.clkPath(src_clk_path);
   if (!src_clk_path.isNull()) {
+    ClkInfo *src_clk_info = path_.tag(sta)->clkInfo();
     if (src_clk_info->isPropagated()) {
       // Propagated clock.  Propagated arrival is seeded with insertion delay.
       Arrival clk_arrival = src_clk_path.arrival(sta);
@@ -1078,13 +1042,6 @@ PathEndCheck::sourceClkDelay(const StaState *sta) const
   }
   else
     return 0.0;
-}
-
-Delay
-PathEndCheck::clkSkew(const StaState *sta)
-{
-  commonClkPessimism(sta);
-  return sourceClkDelay(sta) - targetClkDelay(sta) - crpr_;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1608,6 +1565,45 @@ PathEndDataCheck::PathEndDataCheck(DataCheck *check,
   check_(check)
 {
   clkPath(data_clk_path, sta, clk_path_);
+}
+
+
+// PathExpanded::expand() and PathExpanded::clkPath().
+void
+PathEndDataCheck::clkPath(PathVertex *path,
+                          const StaState *sta,
+                          // Return value.
+                          PathVertex &clk_path)
+{
+  PathVertex p(path);
+  while (!p.isNull()) {
+    PathVertex prev_path;
+    TimingArc *prev_arc;
+    p.prevPath(sta, prev_path, prev_arc);
+
+    if (p.isClock(sta)) {
+      clk_path = p;
+      return;
+    }
+    if (prev_arc) {
+      TimingRole *prev_role = prev_arc->role();
+      if (prev_role == TimingRole::regClkToQ()
+	  || prev_role == TimingRole::latchEnToQ()) {
+	p.prevPath(sta, prev_path, prev_arc);
+	clk_path = prev_path;
+	return;
+      }
+      else if (prev_role == TimingRole::latchDtoQ()) {
+	const Latches *latches = sta->latches();
+	Edge *prev_edge = p.prevEdge(prev_arc, sta);
+	PathVertex enable_path;
+	latches->latchEnablePath(&p, prev_edge, enable_path);
+	clk_path = enable_path;
+	return;
+      }
+    }
+    p = prev_path;
+  }
 }
 
 PathEndDataCheck::PathEndDataCheck(DataCheck *check,

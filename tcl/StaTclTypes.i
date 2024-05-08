@@ -1227,6 +1227,10 @@ using namespace sta;
   Tcl_SetObjResult(interp, obj);
 }
 
+%typemap(out) Delay {
+  Tcl_SetObjResult(interp,Tcl_NewDoubleObj(delayAsFloat($1)));
+}
+
 %typemap(out) Arrival {
   Tcl_SetObjResult(interp,Tcl_NewDoubleObj(delayAsFloat($1)));
 }
@@ -1244,6 +1248,10 @@ using namespace sta;
 }
 
 %typemap(out) Slew {
+  Tcl_SetObjResult(interp,Tcl_NewDoubleObj(delayAsFloat($1)));
+}
+
+%typemap(out) Crpr {
   Tcl_SetObjResult(interp,Tcl_NewDoubleObj(delayAsFloat($1)));
 }
 
