@@ -69,7 +69,7 @@ proc show_cmd_args { cmd } {
       }
       set arglist $rest
     } else {
-      report_line $line
+      report_line "$line $arglist"
       break
     }
   }
