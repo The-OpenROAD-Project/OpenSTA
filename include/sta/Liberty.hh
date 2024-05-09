@@ -804,7 +804,7 @@ public:
                      const MinMax *min_max) const;
   // Assumes input slew of 0.0.
   RiseFallMinMax clkTreeDelays() const;
-  RiseFallMinMax clockTreePathDelays() const; // __attribute__ ((deprecated));
+  RiseFallMinMax clockTreePathDelays() const __attribute__ ((deprecated));
 
   static bool equiv(const LibertyPort *port1,
 		    const LibertyPort *port2);
