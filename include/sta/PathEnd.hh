@@ -179,6 +179,11 @@ public:
 				   const PathVertex *tgt_clk_path,
 				   const TimingRole *check_role,
 				   const StaState *sta);
+  // Non inter-clock uncertainty.
+  static float checkTgtClkUncertainty(const PathVertex *tgt_clk_path,
+                                      const ClockEdge *tgt_clk_edge,
+                                      const TimingRole *check_role,
+                                      const StaState *sta);
   static float checkSetupMcpAdjustment(const ClockEdge *src_clk_edge,
 				       const ClockEdge *tgt_clk_edge,
 				       const MultiCyclePath *mcp,
@@ -187,10 +192,6 @@ public:
 
 protected:
   PathEnd(Path *path);
-  static float checkNonInterClkUncertainty(const PathVertex *tgt_clk_path,
-					   const ClockEdge *tgt_clk_edge,
-					   const TimingRole *check_role,
-					   const StaState *sta);
   static void checkInterClkUncertainty(const ClockEdge *src_clk_edge,
 				       const ClockEdge *tgt_clk_edge,
 				       const TimingRole *check_role,

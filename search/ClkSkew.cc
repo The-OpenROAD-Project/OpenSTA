@@ -34,6 +34,7 @@
 #include "SearchPred.hh"
 #include "Search.hh"
 #include "Crpr.hh"
+#include "PathEnd.hh"
 
 namespace sta {
 
@@ -56,6 +57,7 @@ public:
   float srcClkTreeDelay(StaState *sta);
   float tgtClkTreeDelay(StaState *sta);
   Crpr crpr(StaState *sta);
+  float uncertainty(StaState *sta);
   float skew() const { return skew_; }
 
 private:
@@ -78,7 +80,10 @@ ClkSkew::ClkSkew(PathVertex *src_path,
 {
   src_path_ = src_path;
   tgt_path_ = tgt_path;
-  skew_ = srcLatency(sta) - tgtLatency(sta) - delayAsFloat(crpr(sta));
+  skew_ = srcLatency(sta)
+    - tgtLatency(sta)
+    - delayAsFloat(crpr(sta))
+    + uncertainty(sta);
 }
 
 ClkSkew::ClkSkew(const ClkSkew &clk_skew)
@@ -144,6 +149,17 @@ ClkSkew::crpr(StaState *sta)
   return check_crpr->checkCrpr(&src_path_, &tgt_path_);
 }
 
+float
+ClkSkew::uncertainty(StaState *sta)
+{
+  TimingRole *check_role = (src_path_.minMax(sta) == SetupHold::max())
+    ? TimingRole::setup()
+    : TimingRole::hold();
+  // Uncertainty decreases slack, but increases skew.
+  return -PathEnd::checkTgtClkUncertainty(&tgt_path_, tgt_path_.clkEdge(sta),
+                                          check_role, sta);
+}
+
 ////////////////////////////////////////////////////////////////
 
 ClkSkews::ClkSkews(StaState *sta) :
@@ -187,6 +203,7 @@ ClkSkews::reportClkSkew(ClkSkew &clk_skew,
   float tgt_latency = clk_skew.tgtLatency(this);
   float src_clk_tree_delay = clk_skew.srcClkTreeDelay(this);
   float tgt_clk_tree_delay = clk_skew.tgtClkTreeDelay(this);
+  float uncertainty = clk_skew.uncertainty(this);
 
   if (src_clk_tree_delay != 0.0)
     src_latency -= src_clk_tree_delay;
@@ -195,7 +212,7 @@ ClkSkews::reportClkSkew(ClkSkew &clk_skew,
                       sdc_network_->pathName(src_path->pin(this)),
                       src_path->transition(this)->asString());
   if (src_clk_tree_delay != 0.0)
-    report_->reportLine("%7s source clock tree delay",
+    report_->reportLine("%7s source internal clock delay",
                         time_unit->asString(src_clk_tree_delay, digits));
 
   if (tgt_clk_tree_delay != 0.0)
@@ -205,9 +222,11 @@ ClkSkews::reportClkSkew(ClkSkew &clk_skew,
                       sdc_network_->pathName(tgt_path->pin(this)),
                       tgt_path->transition(this)->asString());
   if (tgt_clk_tree_delay != 0.0)
-    report_->reportLine("%7s target clock tree delay",
+    report_->reportLine("%7s target internal clock delay",
                         time_unit->asString(-tgt_clk_tree_delay, digits));
-
+  if (uncertainty != 0.0)
+    report_->reportLine("%7s clock uncertainty",
+                        time_unit->asString(uncertainty, digits));
   report_->reportLine("%7s CRPR",
                       time_unit->asString(delayAsFloat(-clk_skew.crpr(this)),
                                           digits));
