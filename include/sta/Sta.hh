@@ -914,8 +914,10 @@ public:
   void reportClkSkew(ConstClockSeq clks,
 		     const Corner *corner,
 		     const SetupHold *setup_hold,
+                     bool include_internal_latency,
 		     int digits);
-  float findWorstClkSkew(const SetupHold *setup_hold);
+  float findWorstClkSkew(const SetupHold *setup_hold,
+                         bool include_internal_latency);
 
   void reportClkLatency(ConstClockSeq clks,
                         const Corner *corner,

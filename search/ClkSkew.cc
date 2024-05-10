@@ -47,6 +47,7 @@ public:
   ClkSkew();
   ClkSkew(PathVertex *src_path,
 	  PathVertex *tgt_path,
+          bool include_internal_latency,
 	  StaState *sta);
   ClkSkew(const ClkSkew &clk_skew);
   void operator=(const ClkSkew &clk_skew);
@@ -54,8 +55,8 @@ public:
   PathVertex *tgtPath() { return &tgt_path_; }
   float srcLatency(StaState *sta);
   float tgtLatency(StaState *sta);
-  float srcClkTreeDelay(StaState *sta);
-  float tgtClkTreeDelay(StaState *sta);
+  float srcInternalClkLatency(StaState *sta);
+  float tgtInternalClkLatency(StaState *sta);
   Crpr crpr(StaState *sta);
   float uncertainty(StaState *sta);
   float skew() const { return skew_; }
@@ -66,6 +67,7 @@ private:
 
   PathVertex src_path_;
   PathVertex tgt_path_;
+  bool include_internal_latency_;
   float skew_;
 };
 
@@ -76,10 +78,12 @@ ClkSkew::ClkSkew() :
 
 ClkSkew::ClkSkew(PathVertex *src_path,
 		 PathVertex *tgt_path,
-		 StaState *sta)
+                 bool include_internal_latency,
+		 StaState *sta) :
+  src_path_(src_path),
+  tgt_path_(tgt_path),
+  include_internal_latency_(include_internal_latency)
 {
-  src_path_ = src_path;
-  tgt_path_ = tgt_path;
   skew_ = srcLatency(sta)
     - tgtLatency(sta)
     - delayAsFloat(crpr(sta))
@@ -90,6 +94,7 @@ ClkSkew::ClkSkew(const ClkSkew &clk_skew)
 {
   src_path_ = clk_skew.src_path_;
   tgt_path_ = clk_skew.tgt_path_;
+  include_internal_latency_ = clk_skew.include_internal_latency_;
   skew_ = clk_skew.skew_;
 }
 
@@ -98,6 +103,7 @@ ClkSkew::operator=(const ClkSkew &clk_skew)
 {
   src_path_ = clk_skew.src_path_;
   tgt_path_ = clk_skew.tgt_path_;
+  include_internal_latency_ = clk_skew.include_internal_latency_;
   skew_ = clk_skew.skew_;
 }
 
@@ -110,7 +116,7 @@ ClkSkew::srcLatency(StaState *sta)
 }
 
 float
-ClkSkew::srcClkTreeDelay(StaState *sta)
+ClkSkew::srcInternalClkLatency(StaState *sta)
 {
   return clkTreeDelay(src_path_, sta);
 }
@@ -124,7 +130,7 @@ ClkSkew::tgtLatency(StaState *sta)
 }
 
 float
-ClkSkew::tgtClkTreeDelay(StaState *sta)
+ClkSkew::tgtInternalClkLatency(StaState *sta)
 {
   return clkTreeDelay(tgt_path_, sta);
 }
@@ -133,13 +139,17 @@ float
 ClkSkew::clkTreeDelay(PathVertex &clk_path,
                       StaState *sta)
 {
-  const Vertex *vertex = clk_path.vertex(sta);
-  const Pin *pin = vertex->pin();
-  const LibertyPort *port = sta->network()->libertyPort(pin);
-  const MinMax *min_max = clk_path.minMax(sta);
-  const RiseFall *rf = clk_path.transition(sta);
-  float slew = delayAsFloat(clk_path.slew(sta));
-  return port->clkTreeDelay(slew, rf, min_max);
+  if (include_internal_latency_) {
+    const Vertex *vertex = clk_path.vertex(sta);
+    const Pin *pin = vertex->pin();
+    const LibertyPort *port = sta->network()->libertyPort(pin);
+    const MinMax *min_max = clk_path.minMax(sta);
+    const RiseFall *rf = clk_path.transition(sta);
+    float slew = delayAsFloat(clk_path.slew(sta));
+    return port->clkTreeDelay(slew, rf, min_max);
+  }
+  else
+    return 0.0;
 }
 
 Crpr
@@ -171,9 +181,11 @@ void
 ClkSkews::reportClkSkew(ConstClockSeq clks,
 			const Corner *corner,
 			const SetupHold *setup_hold,
+                        bool include_internal_latency,
 			int digits)
 {
-  ClkSkewMap skews = findClkSkew(clks, corner, setup_hold);
+  ClkSkewMap skews = findClkSkew(clks, corner, setup_hold,
+                                 include_internal_latency);
 
   // Sort the clocks to report in a stable order.
   ConstClockSeq sorted_clks;
@@ -201,29 +213,29 @@ ClkSkews::reportClkSkew(ClkSkew &clk_skew,
   PathVertex *tgt_path = clk_skew.tgtPath();
   float src_latency = clk_skew.srcLatency(this);
   float tgt_latency = clk_skew.tgtLatency(this);
-  float src_clk_tree_delay = clk_skew.srcClkTreeDelay(this);
-  float tgt_clk_tree_delay = clk_skew.tgtClkTreeDelay(this);
+  float src_internal_clk_latency = clk_skew.srcInternalClkLatency(this);
+  float tgt_internal_clk_latency = clk_skew.tgtInternalClkLatency(this);
   float uncertainty = clk_skew.uncertainty(this);
 
-  if (src_clk_tree_delay != 0.0)
-    src_latency -= src_clk_tree_delay;
+  if (src_internal_clk_latency != 0.0)
+    src_latency -= src_internal_clk_latency;
   report_->reportLine("%7s source latency %s %s",
                       time_unit->asString(src_latency, digits),
                       sdc_network_->pathName(src_path->pin(this)),
                       src_path->transition(this)->asString());
-  if (src_clk_tree_delay != 0.0)
+  if (src_internal_clk_latency != 0.0)
     report_->reportLine("%7s source internal clock delay",
-                        time_unit->asString(src_clk_tree_delay, digits));
+                        time_unit->asString(src_internal_clk_latency, digits));
 
-  if (tgt_clk_tree_delay != 0.0)
-    tgt_latency -= tgt_clk_tree_delay;
+  if (tgt_internal_clk_latency != 0.0)
+    tgt_latency -= tgt_internal_clk_latency;
   report_->reportLine("%7s target latency %s %s",
                       time_unit->asString(-tgt_latency, digits),
                       sdc_network_->pathName(tgt_path->pin(this)),
                       tgt_path->transition(this)->asString());
-  if (tgt_clk_tree_delay != 0.0)
+  if (tgt_internal_clk_latency != 0.0)
     report_->reportLine("%7s target internal clock delay",
-                        time_unit->asString(-tgt_clk_tree_delay, digits));
+                        time_unit->asString(-tgt_internal_clk_latency, digits));
   if (uncertainty != 0.0)
     report_->reportLine("%7s clock uncertainty",
                         time_unit->asString(uncertainty, digits));
@@ -238,12 +250,13 @@ ClkSkews::reportClkSkew(ClkSkew &clk_skew,
 
 float
 ClkSkews::findWorstClkSkew(const Corner *corner,
-                           const SetupHold *setup_hold)
+                           const SetupHold *setup_hold,
+                           bool include_internal_latency)
 {
   ConstClockSeq clks;
   for (const Clock *clk : *sdc_->clocks())
     clks.push_back(clk);
-  ClkSkewMap skews = findClkSkew(clks, corner, setup_hold);
+  ClkSkewMap skews = findClkSkew(clks, corner, setup_hold, include_internal_latency);
   float worst_skew = 0.0;
   for (auto clk_skew_itr : skews) {
     ClkSkew &clk_skew = clk_skew_itr.second;
@@ -257,7 +270,8 @@ ClkSkews::findWorstClkSkew(const Corner *corner,
 ClkSkewMap
 ClkSkews::findClkSkew(ConstClockSeq &clks,
 		      const Corner *corner,
-		      const SetupHold *setup_hold)
+		      const SetupHold *setup_hold,
+                      bool include_internal_latency)
 {	      
   ClkSkewMap skews;
 
@@ -277,7 +291,8 @@ ClkSkews::findClkSkew(ConstClockSeq &clks,
 	    ? rf->asRiseFallBoth()
 	    : RiseFallBoth::riseFall();
 	  findClkSkewFrom(src_vertex, q_vertex, src_rf, clk_set,
-			  corner, setup_hold, skews);
+			  corner, setup_hold, include_internal_latency,
+                          skews);
 	}
       }
     }
@@ -306,6 +321,7 @@ ClkSkews::findClkSkewFrom(Vertex *src_vertex,
                           ConstClockSet &clk_set,
 			  const Corner *corner,
 			  const SetupHold *setup_hold,
+                          bool include_internal_latency,
 			  ClkSkewMap &skews)
 {
   VertexSet endpoints = findFanout(q_vertex);
@@ -325,7 +341,8 @@ ClkSkews::findClkSkewFrom(Vertex *src_vertex,
 	  ? tgt_rf1->asRiseFallBoth()
 	  : RiseFallBoth::riseFall();
 	findClkSkew(src_vertex, src_rf, tgt_vertex, tgt_rf,
-		    clk_set, corner, setup_hold, skews);
+		    clk_set, corner, setup_hold,
+                    include_internal_latency, skews);
       }
     }
   }
@@ -339,6 +356,7 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
                       ConstClockSet &clk_set,
 		      const Corner *corner,
 		      const SetupHold *setup_hold,
+                      bool include_internal_latency,
                       ClkSkewMap &skews)
 {
   Unit *time_unit = units_->timeUnit();
@@ -362,7 +380,7 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
 	      && tgt_rf->matches(tgt_path->transition(this))
 	      && tgt_path->minMax(this) == tgt_min_max
 	      && tgt_path->pathAnalysisPt(this)->corner() == src_corner) {
-	    ClkSkew probe(src_path, tgt_path, this);
+	    ClkSkew probe(src_path, tgt_path, include_internal_latency, this);
 	    ClkSkew &clk_skew = skews[src_clk];
 	    debugPrint(debug_, "clk_skew", 2,
                        "%s %s %s -> %s %s %s crpr = %s skew = %s",

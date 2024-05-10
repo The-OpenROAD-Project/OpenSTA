@@ -2604,17 +2604,21 @@ void
 Sta::reportClkSkew(ConstClockSeq clks,
 		   const Corner *corner,
 		   const SetupHold *setup_hold,
+                   bool include_internal_latency,
 		   int digits)
 {
   clkSkewPreamble();
-  clk_skews_->reportClkSkew(clks, corner, setup_hold, digits);
+  clk_skews_->reportClkSkew(clks, corner, setup_hold,
+                            include_internal_latency, digits);
 }
 
 float
-Sta::findWorstClkSkew(const SetupHold *setup_hold)
+Sta::findWorstClkSkew(const SetupHold *setup_hold,
+                      bool include_internal_latency)
 {
   clkSkewPreamble();
-  return clk_skews_->findWorstClkSkew(cmd_corner_, setup_hold);
+  return clk_skews_->findWorstClkSkew(cmd_corner_, setup_hold,
+                                      include_internal_latency);
 }
 
 void

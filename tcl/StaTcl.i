@@ -3034,14 +3034,18 @@ report_path_cmd(PathRef *path)
   Sta::sta()->reportPath(path);
 }
 
+////////////////////////////////////////////////////////////////
+
 void
 report_clk_skew(ConstClockSeq clks,
 		const Corner *corner,
 		const SetupHold *setup_hold,
+                bool include_internal_latency,
 		int digits)
 {
   cmdLinkedNetwork();
-  Sta::sta()->reportClkSkew(clks, corner, setup_hold, digits);
+  Sta::sta()->reportClkSkew(clks, corner, setup_hold,
+                            include_internal_latency, digits);
 }
 
 void
@@ -3054,11 +3058,14 @@ report_clk_latency(ConstClockSeq clks,
 }
 
 float
-worst_clk_skew_cmd(const SetupHold *setup_hold)
+worst_clk_skew_cmd(const SetupHold *setup_hold,
+                   bool include_internal_latency)
 {
   cmdLinkedNetwork();
-  return Sta::sta()->findWorstClkSkew(setup_hold);
+  return Sta::sta()->findWorstClkSkew(setup_hold, include_internal_latency);
 }
+
+////////////////////////////////////////////////////////////////
 
 PinSet
 startpoints()
