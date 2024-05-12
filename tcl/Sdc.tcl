@@ -3666,6 +3666,9 @@ proc define_corners { args } {
   if { [get_libs -quiet *] != {} } {
     sta_error 482 "define_corners must be called before read_liberty."
   }
+  if { [llength $args] == 0 } { 
+    sta_error 577 "define_corners must define at least one corner."
+  }
   define_corners_cmd $args
 }
 
