@@ -356,13 +356,15 @@ proc_redirect report_clock_skew {
 
 define_cmd_args "report_clock_latency" {[-clock clocks]\
                                           [-corner corner]\
+                                          [-include_internal_latency]
                                           [-digits digits]}
 
 proc_redirect report_clock_latency {
   global sta_report_default_digits
 
   parse_key_args "report_clock_" args \
-    keys {-clock -corner -digits} flags {}
+    keys {-clock -corner -digits} \
+    flags {-include_internal_latency}
   check_argc_eq0 "report_clock_latency" $args
 
   if [info exists keys(-clock)] {
@@ -371,6 +373,7 @@ proc_redirect report_clock_latency {
     set clks [all_clocks]
   }
   set corner [parse_corner_or_all keys]
+  set include_internal_latency [info exists flags(-include_internal_latency)]
   if [info exists keys(-digits)] {
     set digits $keys(-digits)
     check_positive_integer "-digits" $digits
@@ -378,7 +381,7 @@ proc_redirect report_clock_latency {
     set digits $sta_report_default_digits
   }
   if { $clks != {} } {
-    report_clk_latency $clks $corner $digits
+    report_clk_latency $clks $corner $include_internal_latency $digits
   }
 }
 

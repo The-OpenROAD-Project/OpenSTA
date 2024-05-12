@@ -3051,10 +3051,11 @@ report_clk_skew(ConstClockSeq clks,
 void
 report_clk_latency(ConstClockSeq clks,
                    const Corner *corner,
+                   bool include_internal_latency,
                    int digits)
 {
   cmdLinkedNetwork();
-  Sta::sta()->reportClkLatency(clks, corner, digits);
+  Sta::sta()->reportClkLatency(clks, corner, include_internal_latency, digits);
 }
 
 float

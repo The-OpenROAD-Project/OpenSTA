@@ -548,7 +548,7 @@ MakeTimingModel::findClkInsertionDelays()
         size_t clk_count = clks->size();
         if (clk_count == 1) {
           for (const Clock *clk : *clks) {
-            ClkDelays delays = sta_->findClkDelays(clk);
+            ClkDelays delays = sta_->findClkDelays(clk, true);
             for (const MinMax *min_max : MinMax::range()) {
               makeClkTreePaths(lib_port, min_max, TimingSense::positive_unate, delays);
               makeClkTreePaths(lib_port, min_max, TimingSense::negative_unate, delays);

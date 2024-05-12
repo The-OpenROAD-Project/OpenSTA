@@ -2634,19 +2634,21 @@ Sta::clkSkewPreamble()
 void
 Sta::reportClkLatency(ConstClockSeq clks,
                       const Corner *corner,
+                      bool include_internal_latency,
                       int digits)
 {
   ensureClkArrivals();
   ClkLatency clk_latency(this);
-  clk_latency.reportClkLatency(clks, corner, digits);
+  clk_latency.reportClkLatency(clks, corner, include_internal_latency, digits);
 }
 
 ClkDelays
-Sta::findClkDelays(const Clock *clk)
+Sta::findClkDelays(const Clock *clk,
+                   bool include_internal_latency)
 {
   ensureClkArrivals();
   ClkLatency clk_latency(this);
-  return clk_latency.findClkDelays(clk, nullptr);
+  return clk_latency.findClkDelays(clk, nullptr, include_internal_latency);
 }
 
 ////////////////////////////////////////////////////////////////
