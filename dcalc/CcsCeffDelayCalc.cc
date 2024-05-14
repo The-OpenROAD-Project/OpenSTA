@@ -77,20 +77,9 @@ CcsCeffDelayCalc::gateDelay(const Pin *drvr_pin,
                             const LoadPinIndexMap &load_pin_index_map,
                             const DcalcAnalysisPt *dcalc_ap)
 {
-  bool vdd_exists;
-  LibertyCell *drvr_cell = arc->to()->libertyCell();
-  const LibertyLibrary *drvr_library = drvr_cell->libertyLibrary();
-  const RiseFall *rf = arc->toEdge()->asRiseFall();
-  drvr_library->supplyVoltage("VDD", vdd_, vdd_exists);
-  if (!vdd_exists)
-    report_->error(1700, "VDD not defined in library %s", drvr_library->name());
-  vth_ = drvr_library->outputThreshold(rf) * vdd_;
-  vl_ = drvr_library->slewLowerThreshold(rf) * vdd_;
-  vh_ = drvr_library->slewUpperThreshold(rf) * vdd_;
   in_slew_ = delayAsFloat(in_slew);
   load_cap_ = load_cap;
   parasitic_ = parasitic;
-  drvr_cell->ensureVoltageWaveforms();
   output_waveforms_ = nullptr;
 
   GateTableModel *table_model = gateTableModel(arc, dcalc_ap);
@@ -103,6 +92,18 @@ CcsCeffDelayCalc::gateDelay(const Pin *drvr_pin,
         && output_waveforms->slewAxis()->inBounds(in_slew_)
         && output_waveforms->capAxis()->inBounds(c2_)
         && output_waveforms->capAxis()->inBounds(load_cap_)) {
+      bool vdd_exists;
+      LibertyCell *drvr_cell = arc->to()->libertyCell();
+      const LibertyLibrary *drvr_library = drvr_cell->libertyLibrary();
+      const RiseFall *rf = arc->toEdge()->asRiseFall();
+      drvr_library->supplyVoltage("VDD", vdd_, vdd_exists);
+      if (!vdd_exists)
+        report_->error(1700, "VDD not defined in library %s", drvr_library->name());
+      vth_ = drvr_library->outputThreshold(rf) * vdd_;
+      vl_ = drvr_library->slewLowerThreshold(rf) * vdd_;
+      vh_ = drvr_library->slewUpperThreshold(rf) * vdd_;
+
+      drvr_cell->ensureVoltageWaveforms();
       in_slew_ = delayAsFloat(in_slew);
       output_waveforms_ = output_waveforms;
       ref_time_ = output_waveforms_->referenceTime(in_slew_);
