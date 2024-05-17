@@ -37,13 +37,16 @@ public:
   // Report clk latency for clks.
   void reportClkLatency(ConstClockSeq clks,
                         const Corner *corner,
+                        bool include_internal_latency,
                         int digits);
   ClkDelays findClkDelays(const Clock *clk,
-                          const Corner *corner);
+                          const Corner *corner,
+                          bool include_internal_latency);
   
 protected:
   ClkDelayMap findClkDelays(ConstClockSeq clks,
-                            const Corner *corner);
+                            const Corner *corner,
+                            bool include_internal_latency);
   void reportClkLatency(const Clock *clk,
                         ClkDelays &clk_delays,
                         int digits);

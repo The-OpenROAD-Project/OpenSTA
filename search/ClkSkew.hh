@@ -39,15 +39,18 @@ public:
   void reportClkSkew(ConstClockSeq clks,
 		     const Corner *corner,
 		     const SetupHold *setup_hold,
+                     bool include_internal_latency,
 		     int digits);
   // Find worst clock skew between src/target registers.
   float findWorstClkSkew(const Corner *corner,
-                         const SetupHold *setup_hold);
+                         const SetupHold *setup_hold,
+                         bool include_internal_latency);
   
 protected:
   ClkSkewMap findClkSkew(ConstClockSeq &clks,
                          const Corner *corner,
-                         const SetupHold *setup_hold);
+                         const SetupHold *setup_hold,
+                         bool include_internal_latency);
   bool hasClkPaths(Vertex *vertex,
 		   ConstClockSet &clks);
   void findClkSkewFrom(Vertex *src_vertex,
@@ -56,6 +59,7 @@ protected:
 		       ConstClockSet &clk_set,
 		       const Corner *corner,
 		       const SetupHold *setup_hold,
+                       bool include_internal_latency,
 		       ClkSkewMap &skews);
   void findClkSkew(Vertex *src_vertex,
 		   const RiseFallBoth *src_rf,
@@ -64,6 +68,7 @@ protected:
                    ConstClockSet &clk_set,
 		   const Corner *corner,
 		   const SetupHold *setup_hold,
+                   bool include_internal_latency,
 		   ClkSkewMap &skews);
   VertexSet findFanout(Vertex *from);
   void reportClkSkew(ClkSkew &clk_skew,

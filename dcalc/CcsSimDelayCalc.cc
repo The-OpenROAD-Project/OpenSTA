@@ -142,8 +142,6 @@ CcsSimDelayCalc::gateDelay(const Pin *drvr_pin,
                            const LoadPinIndexMap &load_pin_index_map,
                            const DcalcAnalysisPt *dcalc_ap)
 {
-  Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
-  load_pin_index_map_ = graph_delay_calc_->makeLoadPinIndexMap(drvr_vertex);
   ArcDcalcArgSeq dcalc_args;
   dcalc_args.emplace_back(nullptr, drvr_pin, nullptr, arc, in_slew, parasitic);
   ArcDcalcResultSeq dcalc_results = gateDelays(dcalc_args, load_cap,
@@ -167,18 +165,6 @@ CcsSimDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
   parasitic_network_ = dcalc_args[0].parasitic();
   ArcDcalcResultSeq dcalc_results(drvr_count_);
 
-  // Assume drivers are in the same library.
-  LibertyCell *drvr_cell = dcalc_args[0].arc()->to()->libertyCell();
-  const LibertyLibrary *drvr_library = drvr_cell->libertyLibrary();
-  bool vdd_exists;
-  drvr_library->supplyVoltage("VDD", vdd_, vdd_exists);
-  if (!vdd_exists)
-    report_->error(1720, "VDD not defined in library %s", drvr_library->name());
-  vth_ = drvr_library->outputThreshold(drvr_rf_) * vdd_;
-  vl_ = drvr_library->slewLowerThreshold(drvr_rf_) * vdd_;
-  vh_ = drvr_library->slewUpperThreshold(drvr_rf_) * vdd_;
-  drvr_cell->ensureVoltageWaveforms();
-
   size_t drvr_count = dcalc_args.size();
   output_waveforms_.resize(drvr_count);
   ref_time_.resize(drvr_count);
@@ -198,6 +184,19 @@ CcsSimDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
         debugPrint(debug_, "ccs_dcalc", 1, "%s %s",
                    network_->libertyPort(dcalc_arg.drvrPin())->libertyCell()->name(),
                    drvr_rf_->asString());
+
+        LibertyCell *drvr_cell = dcalc_arg.arc()->to()->libertyCell();
+        const LibertyLibrary *drvr_library = drvr_cell->libertyLibrary();
+        bool vdd_exists;
+        drvr_library->supplyVoltage("VDD", vdd_, vdd_exists);
+        if (!vdd_exists)
+          report_->error(1720, "VDD not defined in library %s", drvr_library->name());
+        drvr_cell->ensureVoltageWaveforms();
+        if (drvr_idx == 0) {
+          vth_ = drvr_library->outputThreshold(drvr_rf_) * vdd_;
+          vl_ = drvr_library->slewLowerThreshold(drvr_rf_) * vdd_;
+          vh_ = drvr_library->slewUpperThreshold(drvr_rf_) * vdd_;
+        }
       }
       else
         dcalc_failed_ = true;
@@ -259,6 +258,8 @@ CcsSimDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
                    delayAsString(wire_delay, this),
                    delayAsString(load_slew, this));
 
+        LibertyLibrary *drvr_library =
+          network_->libertyPort(load_pin)->libertyCell()->libertyLibrary();
         thresholdAdjust(load_pin, drvr_library, drvr_rf_, wire_delay, load_slew);
         dcalc_result.setWireDelay(load_idx, wire_delay);
         dcalc_result.setLoadSlew(load_idx, load_slew);

@@ -914,14 +914,18 @@ public:
   void reportClkSkew(ConstClockSeq clks,
 		     const Corner *corner,
 		     const SetupHold *setup_hold,
+                     bool include_internal_latency,
 		     int digits);
-  float findWorstClkSkew(const SetupHold *setup_hold);
+  float findWorstClkSkew(const SetupHold *setup_hold,
+                         bool include_internal_latency);
 
   void reportClkLatency(ConstClockSeq clks,
                         const Corner *corner,
+                        bool include_internal_latency,
                         int digits);
   // Find min/max/rise/fall delays for clk.
-  ClkDelays findClkDelays(const Clock *clk);
+  ClkDelays findClkDelays(const Clock *clk,
+                          bool include_internal_latency);
 
   // Update arrival times for all pins.
   // If necessary updateTiming propagates arrivals around latch

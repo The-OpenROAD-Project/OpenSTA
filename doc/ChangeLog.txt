@@ -16,6 +16,14 @@ replaced with the -reduce flag. With the -reduce flag, the current
 delay calculator reduces the parastic network to the appropriate type
 and deletes the parasitic network.
 
+The report_clock_skew and report_clock_latency commands now supports
+the -include_internal_latency flag to control inclusion of macro
+internal clock delays from the cell liberty min/max_clock_tree_path
+timing groups.
+
+  report_clock_skew -include_internal_latency
+  report_clock_latency -include_internal_latency
+
 Release 2.4.0 2023/01/19
 -------------------------
 

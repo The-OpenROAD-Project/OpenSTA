@@ -33,7 +33,7 @@ public:
              // Return values.
              Delay &insertion,
              Delay &delay,
-             float &lib_clk_delay,
+             float &internal_latency,
              Delay &latency,
              PathVertex &path,
              bool &exists) const;
@@ -49,6 +49,7 @@ public:
                   const RiseFall *end_rf,
                   const MinMax *min_max,
                   PathVertex *path,
+                  bool include_internal_latency,
                   StaState *sta);
 
 private:
@@ -61,7 +62,7 @@ private:
 
   Delay insertion_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
   Delay delay_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
-  float lib_clk_delay_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
+  float internal_latency_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
   Delay latency_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
   PathVertex path_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];
   bool exists_[RiseFall::index_count][RiseFall::index_count][MinMax::index_count];

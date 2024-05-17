@@ -355,15 +355,14 @@ PathEnd::checkClkUncertainty(const ClockEdge *src_clk_edge,
   if (inter_exists)
     return inter_clk;
   else
-    return checkNonInterClkUncertainty(tgt_clk_path, tgt_clk_edge,
-				       check_role, sta);
+    return checkTgtClkUncertainty(tgt_clk_path, tgt_clk_edge, check_role, sta);
 }
 
 float
-PathEnd::checkNonInterClkUncertainty(const PathVertex *tgt_clk_path,
-				     const ClockEdge *tgt_clk_edge,
-				     const TimingRole *check_role,
-				     const StaState *sta)
+PathEnd::checkTgtClkUncertainty(const PathVertex *tgt_clk_path,
+                                const ClockEdge *tgt_clk_edge,
+                                const TimingRole *check_role,
+                                const StaState *sta)
 {
   MinMax *min_max = check_role->pathMinMax();
   ClockUncertainties *uncertainties = nullptr;
@@ -637,8 +636,7 @@ PathEndClkConstrained::targetClkArrivalNoCrpr(const StaState *sta) const
 Delay
 PathEndClkConstrained::targetClkDelay(const StaState *sta) const
 {
-  return checkTgtClkDelay(targetClkPath(), targetClkEdge(sta),
-			  checkRole(sta), sta);
+  return checkTgtClkDelay(targetClkPath(), targetClkEdge(sta), checkRole(sta), sta);
 }
 
 Delay
@@ -666,8 +664,7 @@ PathEndClkConstrained::targetNonInterClkUncertainty(const StaState *sta) const
     // This returns non inter-clock uncertainty.
     return 0.0;
   else
-    return checkNonInterClkUncertainty(targetClkPath(), tgt_clk_edge,
-				       check_role, sta);
+    return checkTgtClkUncertainty(targetClkPath(), tgt_clk_edge, check_role, sta);
 }
 
 float
@@ -1018,7 +1015,9 @@ Delay
 PathEndCheck::clkSkew(const StaState *sta)
 {
   commonClkPessimism(sta);
-  return sourceClkDelay(sta) - targetClkDelay(sta) - crpr_;
+  return sourceClkDelay(sta) - targetClkDelay(sta) - crpr_
+    // Uncertainty decreases slack, but increases skew.
+    - checkTgtClkUncertainty(&clk_path_, clk_path_.clkEdge(sta), checkRole(sta), sta);
 }
 
 Delay

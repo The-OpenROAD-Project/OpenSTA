@@ -2604,17 +2604,21 @@ void
 Sta::reportClkSkew(ConstClockSeq clks,
 		   const Corner *corner,
 		   const SetupHold *setup_hold,
+                   bool include_internal_latency,
 		   int digits)
 {
   clkSkewPreamble();
-  clk_skews_->reportClkSkew(clks, corner, setup_hold, digits);
+  clk_skews_->reportClkSkew(clks, corner, setup_hold,
+                            include_internal_latency, digits);
 }
 
 float
-Sta::findWorstClkSkew(const SetupHold *setup_hold)
+Sta::findWorstClkSkew(const SetupHold *setup_hold,
+                      bool include_internal_latency)
 {
   clkSkewPreamble();
-  return clk_skews_->findWorstClkSkew(cmd_corner_, setup_hold);
+  return clk_skews_->findWorstClkSkew(cmd_corner_, setup_hold,
+                                      include_internal_latency);
 }
 
 void
@@ -2630,19 +2634,21 @@ Sta::clkSkewPreamble()
 void
 Sta::reportClkLatency(ConstClockSeq clks,
                       const Corner *corner,
+                      bool include_internal_latency,
                       int digits)
 {
   ensureClkArrivals();
   ClkLatency clk_latency(this);
-  clk_latency.reportClkLatency(clks, corner, digits);
+  clk_latency.reportClkLatency(clks, corner, include_internal_latency, digits);
 }
 
 ClkDelays
-Sta::findClkDelays(const Clock *clk)
+Sta::findClkDelays(const Clock *clk,
+                   bool include_internal_latency)
 {
   ensureClkArrivals();
   ClkLatency clk_latency(this);
-  return clk_latency.findClkDelays(clk, nullptr);
+  return clk_latency.findClkDelays(clk, nullptr, include_internal_latency);
 }
 
 ////////////////////////////////////////////////////////////////
