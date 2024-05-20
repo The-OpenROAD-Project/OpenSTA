@@ -3037,7 +3037,7 @@ report_path_cmd(PathRef *path)
 ////////////////////////////////////////////////////////////////
 
 void
-report_clk_skew(ConstClockSeq clks,
+report_clk_skew(ConstClockSeq &clks,
 		const Corner *corner,
 		const SetupHold *setup_hold,
                 bool include_internal_latency,
@@ -3049,7 +3049,7 @@ report_clk_skew(ConstClockSeq clks,
 }
 
 void
-report_clk_latency(ConstClockSeq clks,
+report_clk_latency(ConstClockSeq &clks,
                    const Corner *corner,
                    bool include_internal_latency,
                    int digits)

@@ -51,7 +51,7 @@ ClkLatency::findClkDelays(const Clock *clk,
 }
 
 void
-ClkLatency::reportClkLatency(ConstClockSeq clks,
+ClkLatency::reportClkLatency(ConstClockSeq &clks,
                              const Corner *corner,
                              bool include_internal_latency,
                              int digits)
@@ -134,7 +134,7 @@ ClkLatency::reportClkLatency(const Clock *clk,
 }
 
 ClkDelayMap
-ClkLatency::findClkDelays(ConstClockSeq clks,
+ClkLatency::findClkDelays(ConstClockSeq &clks,
                           const Corner *corner,
                           bool include_internal_latency)
 {

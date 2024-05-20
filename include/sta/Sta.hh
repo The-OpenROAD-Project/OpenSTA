@@ -911,7 +911,7 @@ public:
   void reportPath(Path *path);
 
   // Report clk skews for clks.
-  void reportClkSkew(ConstClockSeq clks,
+  void reportClkSkew(ConstClockSeq &clks,
 		     const Corner *corner,
 		     const SetupHold *setup_hold,
                      bool include_internal_latency,
@@ -919,7 +919,7 @@ public:
   float findWorstClkSkew(const SetupHold *setup_hold,
                          bool include_internal_latency);
 
-  void reportClkLatency(ConstClockSeq clks,
+  void reportClkLatency(ConstClockSeq &clks,
                         const Corner *corner,
                         bool include_internal_latency,
                         int digits);

@@ -2601,7 +2601,7 @@ Sta::updateTiming(bool full)
 ////////////////////////////////////////////////////////////////
 
 void
-Sta::reportClkSkew(ConstClockSeq clks,
+Sta::reportClkSkew(ConstClockSeq &clks,
 		   const Corner *corner,
 		   const SetupHold *setup_hold,
                    bool include_internal_latency,
@@ -2632,7 +2632,7 @@ Sta::clkSkewPreamble()
 ////////////////////////////////////////////////////////////////
 
 void
-Sta::reportClkLatency(ConstClockSeq clks,
+Sta::reportClkLatency(ConstClockSeq &clks,
                       const Corner *corner,
                       bool include_internal_latency,
                       int digits)
