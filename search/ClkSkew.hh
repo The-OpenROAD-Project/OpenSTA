@@ -36,7 +36,7 @@ class ClkSkews : public StaState
 public:
   ClkSkews(StaState *sta);
   // Report clk skews for clks.
-  void reportClkSkew(ConstClockSeq clks,
+  void reportClkSkew(ConstClockSeq &clks,
 		     const Corner *corner,
 		     const SetupHold *setup_hold,
                      bool include_internal_latency,

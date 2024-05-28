@@ -37,7 +37,7 @@ class VerilogWriter
 public:
   VerilogWriter(const char *filename,
 		bool sort,
-		bool include_pwr_gnd_pins,
+		bool include_pwr_gnd,
 		CellSeq *remove_cells,
 		FILE *stream,
 		Network *network);
@@ -82,14 +82,14 @@ protected:
 void
 writeVerilog(const char *filename,
 	     bool sort,
-	     bool include_pwr_gnd_pins,
+	     bool include_pwr_gnd,
 	     CellSeq *remove_cells,
 	     Network *network)
 {
   if (network->topInstance()) {
     FILE *stream = fopen(filename, "w");
     if (stream) {
-      VerilogWriter writer(filename, sort, include_pwr_gnd_pins,
+      VerilogWriter writer(filename, sort, include_pwr_gnd,
 			   remove_cells, stream, network);
       writer.writeModule(network->topInstance());
       fclose(stream);
@@ -101,13 +101,13 @@ writeVerilog(const char *filename,
 
 VerilogWriter::VerilogWriter(const char *filename,
 			     bool sort,
-			     bool include_pwr_gnd_pins,
+			     bool include_pwr_gnd,
 			     CellSeq *remove_cells,
 			     FILE *stream,
 			     Network *network) :
   filename_(filename),
   sort_(sort),
-  include_pwr_gnd_(include_pwr_gnd_pins),
+  include_pwr_gnd_(include_pwr_gnd),
   remove_cells_(network),
   stream_(stream),
   network_(network),
@@ -236,20 +236,23 @@ VerilogWriter::writeWireDcls(Instance *inst)
   NetIterator *net_iter = network_->netIterator(inst);
   while (net_iter->hasNext()) {
     Net *net = net_iter->next();
-    const char *net_name = network_->name(net);
-    if (network_->findPort(cell, net_name) == nullptr) {
-      if (isBusName(net_name, '[', ']', escape)) {
-        bool is_bus;
-        string bus_name;
-        int index;
-        parseBusName(net_name, '[', ']', escape, is_bus, bus_name, index);
-        BusIndexRange &range = bus_ranges[bus_name];
-        range.first = max(range.first, index);
-        range.second = min(range.second, index);
-      }
-      else {
-        string net_vname = netVerilogName(net_name, network_->pathEscape());
-        fprintf(stream_, " wire %s;\n", net_vname.c_str());;
+    if (include_pwr_gnd_
+        || !(network_->isPower(net) || network_->isGround(net))) {
+      const char *net_name = network_->name(net);
+      if (network_->findPort(cell, net_name) == nullptr) {
+        if (isBusName(net_name, '[', ']', escape)) {
+          bool is_bus;
+          string bus_name;
+          int index;
+          parseBusName(net_name, '[', ']', escape, is_bus, bus_name, index);
+          BusIndexRange &range = bus_ranges[bus_name];
+          range.first = max(range.first, index);
+          range.second = min(range.second, index);
+        }
+        else {
+          string net_vname = netVerilogName(net_name, network_->pathEscape());
+          fprintf(stream_, " wire %s;\n", net_vname.c_str());;
+        }
       }
     }
   }
@@ -412,6 +415,8 @@ VerilogWriter::writeAssigns(Instance *inst)
     Net *net = network_->net(term);
     Port *port = network_->port(pin);
     if (port
+        && (include_pwr_gnd_
+            || !(network_->isPower(net) || network_->isGround(net)))
         && (network_->direction(port)->isAnyOutput()
             || network_->direction(port)->isPowerGround())
         && !stringEqual(network_->name(port), network_->name(net))) {

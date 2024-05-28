@@ -4303,6 +4303,12 @@ capacitance(Corner *corner,
   return sta->capacitance(self, corner, min_max);
 }
 
+void
+set_direction(const char *dir)
+{
+  self->setDirection(PortDirection::find(dir));
+}
+
 } // LibertyPort methods
 
 %extend OperatingConditions {

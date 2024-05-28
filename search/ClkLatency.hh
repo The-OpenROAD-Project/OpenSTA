@@ -35,7 +35,7 @@ class ClkLatency : public StaState
 public:
   ClkLatency(StaState *sta);
   // Report clk latency for clks.
-  void reportClkLatency(ConstClockSeq clks,
+  void reportClkLatency(ConstClockSeq &clks,
                         const Corner *corner,
                         bool include_internal_latency,
                         int digits);
@@ -44,7 +44,7 @@ public:
                           bool include_internal_latency);
   
 protected:
-  ClkDelayMap findClkDelays(ConstClockSeq clks,
+  ClkDelayMap findClkDelays(ConstClockSeq &clks,
                             const Corner *corner,
                             bool include_internal_latency);
   void reportClkLatency(const Clock *clk,

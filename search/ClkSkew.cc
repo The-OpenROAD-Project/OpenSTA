@@ -72,6 +72,7 @@ private:
 };
 
 ClkSkew::ClkSkew() :
+  include_internal_latency_(false),
   skew_(0.0)
 {
 }
@@ -178,7 +179,7 @@ ClkSkews::ClkSkews(StaState *sta) :
 }
 
 void
-ClkSkews::reportClkSkew(ConstClockSeq clks,
+ClkSkews::reportClkSkew(ConstClockSeq &clks,
 			const Corner *corner,
 			const SetupHold *setup_hold,
                         bool include_internal_latency,

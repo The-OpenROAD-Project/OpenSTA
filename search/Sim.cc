@@ -802,31 +802,38 @@ Sim::setPinValue(const Pin *pin,
     Vertex *vertex, *bidirect_drvr_vertex;
     graph_->pinVertices(pin, vertex, bidirect_drvr_vertex);
     // Set vertex constant flags.
-    if (vertex)
+    bool value_changed = false;
+    if (vertex) {
+      value_changed |= value != vertex->simValue();
       setSimValue(vertex, value);
-    if (bidirect_drvr_vertex)
-      setSimValue(bidirect_drvr_vertex, value);
-    Instance *inst = network_->instance(pin);
-    if (logicValueZeroOne(value))
-      instances_with_const_pins_.insert(inst);
-    instances_to_annotate_.insert(inst);
-
-    if (network_->isLeaf(inst)
-        && network_->direction(pin)->isAnyInput()) {
-      if (eval_queue_.empty() 
-          || (eval_queue_.back() != inst))
-        eval_queue_.push(inst);
     }
-    else if (network_->isDriver(pin)) {
-      // Enqueue instances with input pins connected to net.
-      PinConnectedPinIterator *pin_iter=network_->connectedPinIterator(pin);
-      while (pin_iter->hasNext()) {
-        const Pin *pin1 = pin_iter->next();
-        if (pin1 != pin
-            && network_->isLoad(pin1))
-          setPinValue(pin1, value);
+    if (bidirect_drvr_vertex) {
+      value_changed |= value != bidirect_drvr_vertex->simValue();
+      setSimValue(bidirect_drvr_vertex, value);
+    }
+    if (value_changed) {
+      Instance *inst = network_->instance(pin);
+      if (logicValueZeroOne(value))
+        instances_with_const_pins_.insert(inst);
+      instances_to_annotate_.insert(inst);
+
+      if (network_->isLeaf(inst)
+          && network_->direction(pin)->isAnyInput()) {
+        if (eval_queue_.empty() 
+            || (eval_queue_.back() != inst))
+          eval_queue_.push(inst);
       }
-      delete pin_iter;
+      else if (network_->isDriver(pin)) {
+        // Enqueue instances with input pins connected to net.
+        PinConnectedPinIterator *pin_iter=network_->connectedPinIterator(pin);
+        while (pin_iter->hasNext()) {
+          const Pin *pin1 = pin_iter->next();
+          if (pin1 != pin
+              && network_->isLoad(pin1))
+            setPinValue(pin1, value);
+        }
+        delete pin_iter;
+      }
     }
   }
 }
