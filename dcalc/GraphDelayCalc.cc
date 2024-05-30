@@ -1019,8 +1019,10 @@ GraphDelayCalc::annotateDelaysSlews(Edge *edge,
                                          dcalc_result.drvrSlew(), dcalc_ap);
   if (!edge->role()->isLatchDtoQ()) {
     Vertex *drvr_vertex = edge->to(graph_);
-    annotateLoadDelays(drvr_vertex, arc->toEdge()->asRiseFall(), dcalc_result,
-                       load_pin_index_map, delay_zero, true, dcalc_ap);
+    delay_changed |= annotateLoadDelays(drvr_vertex, arc->toEdge()->asRiseFall(),
+                                        dcalc_result,
+                                        load_pin_index_map, delay_zero, true,
+                                        dcalc_ap);
   }
   return delay_changed;
 }
@@ -1075,7 +1077,7 @@ GraphDelayCalc::annotateDelaySlew(Edge *edge,
 // Annotate wire arc delays and load pin slews.
 // extra_delay is additional wire delay to add to delay returned
 // by the delay calculator.
-void
+bool
 GraphDelayCalc::annotateLoadDelays(Vertex *drvr_vertex,
                                    const RiseFall *drvr_rf,
                                    ArcDcalcResult &dcalc_result,
@@ -1084,6 +1086,7 @@ GraphDelayCalc::annotateLoadDelays(Vertex *drvr_vertex,
                                    bool merge,
                                    const DcalcAnalysisPt *dcalc_ap)
 {
+  bool changed = false;
   DcalcAPIndex ap_index = dcalc_ap->index();
   const MinMax *slew_min_max = dcalc_ap->slewMinMax();
   VertexOutEdgeIterator edge_iter(drvr_vertex, graph_);
@@ -1100,17 +1103,21 @@ GraphDelayCalc::annotateLoadDelays(Vertex *drvr_vertex,
                  load_vertex->name(sdc_network_),
                  delayAsString(wire_delay, this),
                  delayAsString(load_slew, this));
+      bool load_changed = false;
       if (!load_vertex->slewAnnotated(drvr_rf, slew_min_max)) {
 	if (drvr_vertex->slewAnnotated(drvr_rf, slew_min_max)) {
 	  // Copy the driver slew to the load if it is annotated.
 	  const Slew &drvr_slew = graph_->slew(drvr_vertex,drvr_rf,ap_index);
 	  graph_->setSlew(load_vertex, drvr_rf, ap_index, drvr_slew);
+          load_changed = true;
 	}
 	else {
 	  const Slew &slew = graph_->slew(load_vertex, drvr_rf, ap_index);
 	  if (!merge
-	      || delayGreater(load_slew, slew, slew_min_max, this))
+	      || delayGreater(load_slew, slew, slew_min_max, this)) {
 	    graph_->setSlew(load_vertex, drvr_rf, ap_index, load_slew);
+            load_changed = true;
+          }
 	}
       }
       if (!graph_->wireDelayAnnotated(wire_edge, drvr_rf, ap_index)) {
@@ -1123,15 +1130,18 @@ GraphDelayCalc::annotateLoadDelays(Vertex *drvr_vertex,
 	if (!merge
 	    || delayGreater(wire_delay_extra, delay, delay_min_max, this)) {
 	  graph_->setWireArcDelay(wire_edge, drvr_rf, ap_index, wire_delay_extra);
-	  if (observer_)
-	    observer_->delayChangedTo(load_vertex);
+          load_changed = true;
 	}
       }
+      if (load_changed && observer_)
+        observer_->delayChangedTo(load_vertex);
       // Enqueue bidirect driver from load vertex.
       if (sdc_->bidirectDrvrSlewFromLoad(load_pin))
 	iter_->enqueue(graph_->pinDrvrVertex(load_pin));
+      changed |= load_changed;
     }
   }
+  return changed;
 }
 
 LoadPinIndexMap
