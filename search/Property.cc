@@ -636,7 +636,7 @@ getProperty(const LibertyCell *cell,
   else if (stringEqual(property, "dont_use"))
     return PropertyValue(cell->dontUse());
   else if (stringEqual(property, "area"))
-    return PropertyValue(cell->area());
+    return PropertyValue(cell->area(), sta->units()->scalarUnit());
   else
     throw PropertyUnknown("liberty cell", property);
 }
