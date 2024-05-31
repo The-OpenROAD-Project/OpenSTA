@@ -605,6 +605,27 @@ WriteSpice::writeParasiticNetwork(const Pin *drvr_pin,
   }
   delete pin_iter;
 
+  // Sort nodes for consistent regression results.
+  ParasiticNodeSeq nodes = parasitics_->nodes(parasitic);
+  sort(nodes.begin(), nodes.end(),
+       [=] (const ParasiticNode *node1,
+            const ParasiticNode *node2) {
+         const char *name1 = parasitics_->name(node1);
+         const char *name2 = parasitics_->name(node2);
+         return stringLess(name1, name2);
+       });
+
+  for (ParasiticNode *node : nodes) {
+    float cap = parasitics_->nodeGndCap(node);
+    // Spice has a cow over zero value caps.
+    if (cap > 0.0) {
+      streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
+                  cap_index_++,
+                  nodeName(node),
+                  cap);
+    }
+  }
+
   // Sort coupling capacitors consistent regression results.
   ParasiticCapacitorSeq capacitors = parasitics_->capacitors(parasitic);
   sort(capacitors.begin(), capacitors.end(),
@@ -635,27 +656,6 @@ WriteSpice::writeParasiticNetwork(const Pin *drvr_pin,
                   nodeName(net_node),
                   coupling_name,
                   cap);
-  }
-
-  // Sort nodes for consistent regression results.
-  ParasiticNodeSeq nodes = parasitics_->nodes(parasitic);
-  sort(nodes.begin(), nodes.end(),
-       [=] (const ParasiticNode *node1,
-            const ParasiticNode *node2) {
-         const char *name1 = parasitics_->name(node1);
-         const char *name2 = parasitics_->name(node2);
-         return stringLess(name1, name2);
-       });
-
-  for (ParasiticNode *node : nodes) {
-    float cap = parasitics_->nodeGndCap(node);
-    // Spice has a cow over zero value caps.
-    if (cap > 0.0) {
-      streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
-                  cap_index_++,
-                  nodeName(node),
-                  cap);
-    }
   }
 }
 
