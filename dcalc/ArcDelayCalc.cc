@@ -49,11 +49,13 @@ ArcDelayCalc::gateDelay(const TimingArc *arc,
 ////////////////////////////////////////////////////////////////
 
 ArcDcalcArg::ArcDcalcArg() :
+  in_pin_(nullptr),
   drvr_pin_(nullptr),
   edge_(nullptr),
   arc_(nullptr),
   in_slew_(0.0),
-  parasitic_(nullptr)
+  parasitic_(nullptr),
+  input_delay_(0.0)
 {
 }
 
