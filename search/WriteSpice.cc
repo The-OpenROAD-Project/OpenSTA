@@ -550,7 +550,7 @@ WriteSpice::writeDrvrParasitics(const Pin *drvr_pin,
     if (parasitic)
       writePiElmore(drvr_pin, parasitic);
     else {
-      streamPrint(spice_stream_, "* No parasitics found for this net.\n");
+      streamPrint(spice_stream_, "* Net has no parasitics.\n");
       writeNullParasitic(drvr_pin);
     }
   }
@@ -691,7 +691,7 @@ WriteSpice::nodeName(const ParasiticNode *node)
       node_index = index_itr->second;
     const Net *net = parasitics_->net(node, network_);
     const char *net_name = network_->pathName(net);
-    return stringPrintTmp("%s/%d", net_name, node_index);
+    return stringPrintTmp("%s:%d", net_name, node_index);
   }
 }
 
