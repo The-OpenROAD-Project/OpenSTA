@@ -1175,7 +1175,7 @@ filter_pins(const char *property,
     bool not_match = stringEq(op, "!=");
     for (const Pin *pin : *pins) {
       PropertyValue value(getProperty(pin, property, sta));
-      const char *prop = value.stringValue();
+      const char *prop = value.asString(sta->sdcNetwork());
       if (prop &&
           ((exact_match && stringEq(prop, pattern))
            || (not_match && !stringEq(prop, pattern))

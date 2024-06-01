@@ -576,6 +576,49 @@ PropertyValue::operator=(PropertyValue &&value)
   return *this;
 }
 
+const char *
+PropertyValue::asString(const Network *network) const
+{
+  switch (type_) {
+  case Type::type_string:
+    return string_;
+  case Type::type_float:
+    return unit_->asString(float_, 6);
+  case Type::type_bool:
+    // true/false would be better but these are TCL true/false values.
+    if (bool_)
+      return "1";
+    else
+      return "0";
+  case Type::type_liberty_library:
+    return liberty_library_->name();
+  case Type::type_liberty_cell:
+    return liberty_cell_->name();
+  case Type::type_liberty_port:
+    return liberty_port_->name();
+  case Type::type_library:
+    return network->name(library_);
+  case Type::type_cell:
+    return network->name(cell_);
+  case Type::type_port:
+    return network->name(port_);
+  case Type::type_instance:
+    return network->pathName(inst_);
+  case Type::type_pin:
+    return network->pathName(pin_);
+  case Type::type_net:
+    return network->pathName(net_);
+  case Type::type_clk:
+    return clk_->name();
+  case Type::type_none:
+  case Type::type_pins:
+  case Type::type_clks:
+  case Type::type_path_refs:
+  case Type::type_pwr_activity:
+    return nullptr;
+  }
+}
+
 ////////////////////////////////////////////////////////////////
 
 PropertyValue
