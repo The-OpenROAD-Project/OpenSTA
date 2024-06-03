@@ -1042,13 +1042,13 @@ Network::findInstPinsHierMatching(const Instance *instance,
 				  // Return value.
 				  PinSeq &matches) const
 {
-  const char *inst_name = name(instance);
+  string inst_name = name(instance);
   InstancePinIterator *pin_iter = pinIterator(instance);
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
     const char *port_name = name(port(pin));
     string pin_name;
-    stringPrint(pin_name, "%s%c%s", inst_name,divider_, port_name);
+    stringPrint(pin_name, "%s%c%s", inst_name.c_str(), divider_, port_name);
     if (pattern->match(pin_name.c_str()))
       matches.push_back(pin);
   }
