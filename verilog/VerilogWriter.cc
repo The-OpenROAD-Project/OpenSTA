@@ -418,7 +418,7 @@ VerilogWriter::writeAssigns(Instance *inst)
         && (include_pwr_gnd_
             || !(network_->isPower(net) || network_->isGround(net)))
         && (network_->direction(port)->isAnyOutput()
-            || network_->direction(port)->isPowerGround())
+            || (include_pwr_gnd_ && network_->direction(port)->isPowerGround()))
         && !stringEqual(network_->name(port), network_->name(net))) {
       // Port name is different from net name.
       string port_vname = netVerilogName(network_->name(port),
