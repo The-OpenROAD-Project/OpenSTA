@@ -191,7 +191,7 @@ getTmpString(// Return values.
 	     char *&str,
 	     size_t &length)
 {
-  UniqueLock lock(string_lock_);
+  LockGuard lock(string_lock_);
   if (tmp_string_next_ == tmp_string_count_)
     tmp_string_next_ = 0;
   str = tmp_strings_[tmp_string_next_];
@@ -202,7 +202,7 @@ getTmpString(// Return values.
 char *
 makeTmpString(size_t length)
 {
-  UniqueLock lock(string_lock_);
+  LockGuard lock(string_lock_);
   if (tmp_string_next_ == tmp_string_count_)
     tmp_string_next_ = 0;
   char *tmp_str = tmp_strings_[tmp_string_next_];

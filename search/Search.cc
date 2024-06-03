@@ -748,7 +748,7 @@ Search::arrivalInvalid(Vertex *vertex)
                vertex->name(sdc_network_));
     if (!arrival_iter_->inQueue(vertex)) {
       // Lock for StaDelayCalcObserver called by delay calc threads.
-      UniqueLock lock(invalid_arrivals_lock_);
+      LockGuard lock(invalid_arrivals_lock_);
       invalid_arrivals_->insert(vertex);
     }
     tnsInvalid(vertex);
@@ -818,7 +818,7 @@ Search::requiredInvalid(Vertex *vertex)
                vertex->name(sdc_network_));
     if (!required_iter_->inQueue(vertex)) {
       // Lock for StaDelayCalcObserver called by delay calc threads.
-      UniqueLock lock(invalid_arrivals_lock_);
+      LockGuard lock(invalid_arrivals_lock_);
       invalid_requireds_->insert(vertex);
     }
     tnsInvalid(vertex);
@@ -1379,7 +1379,7 @@ Search::enqueueLatchDataOutputs(Vertex *vertex)
     Edge *out_edge = out_edge_iter.next();
     if (latches_->isLatchDtoQ(out_edge)) {
       Vertex *out_vertex = out_edge->to(graph_);
-      UniqueLock lock(pending_latch_outputs_lock_);
+      LockGuard lock(pending_latch_outputs_lock_);
       pending_latch_outputs_->insert(out_vertex);
     }
   }
@@ -2623,7 +2623,7 @@ TagGroup *
 Search::findTagGroup(TagGroupBldr *tag_bldr)
 {
   TagGroup probe(tag_bldr);
-  UniqueLock lock(tag_group_lock_);
+  LockGuard lock(tag_group_lock_);
   TagGroup *tag_group = tag_group_set_->findKey(&probe);
   if (tag_group == nullptr) {
     TagGroupIndex tag_group_index;
@@ -2853,7 +2853,7 @@ Search::findTag(const RiseFall *rf,
 {
   Tag probe(0, rf->index(), path_ap->index(), clk_info, is_clk, input_delay,
 	    is_segment_start, states, false, this);
-  UniqueLock lock(tag_lock_);
+  LockGuard lock(tag_lock_);
   Tag *tag = tag_set_->findKey(&probe);
   if (tag == nullptr) {
     ExceptionStateSet *new_states = !own_states && states
@@ -2944,7 +2944,7 @@ Search::findClkInfo(const ClockEdge *clk_edge,
   ClkInfo probe(clk_edge, clk_src, is_propagated, gen_clk_src, gen_clk_src_path,
 		pulse_clk_sense, insertion, latency, uncertainties,
 		path_ap->index(), crpr_clk_path_rep, this);
-  UniqueLock lock(clk_info_lock_);
+  LockGuard lock(clk_info_lock_);
   ClkInfo *clk_info = clk_info_set_->findKey(&probe);
   if (clk_info == nullptr) {
     clk_info = new ClkInfo(clk_edge, clk_src,
@@ -3718,7 +3718,7 @@ Search::tnsInvalid(Vertex *vertex)
       && isEndpoint(vertex)) {
     debugPrint(debug_, "tns", 2, "tns invalid %s",
                vertex->name(sdc_network_));
-    UniqueLock lock(tns_lock_);
+    LockGuard lock(tns_lock_);
     invalid_tns_->insert(vertex);
   }
 }

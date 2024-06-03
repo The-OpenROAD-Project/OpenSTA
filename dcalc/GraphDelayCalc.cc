@@ -610,7 +610,7 @@ GraphDelayCalc::enqueueTimingChecksEdges(Vertex *vertex)
 {
   if (vertex->hasChecks()) {
     VertexInEdgeIterator edge_iter(vertex, graph_);
-    UniqueLock lock(invalid_edge_lock_);
+    LockGuard lock(invalid_edge_lock_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
       if (edge->role()->isTimingCheck())
@@ -619,7 +619,7 @@ GraphDelayCalc::enqueueTimingChecksEdges(Vertex *vertex)
   }
   if (vertex->isCheckClk()) {
     VertexOutEdgeIterator edge_iter(vertex, graph_);
-    UniqueLock lock(invalid_edge_lock_);
+    LockGuard lock(invalid_edge_lock_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
       if (edge->role()->isTimingCheck())
@@ -630,7 +630,7 @@ GraphDelayCalc::enqueueTimingChecksEdges(Vertex *vertex)
     // Latch D->Q arcs have to be re-evaled if level(D) > level(E)
     // because levelization does not traverse D->Q arcs to break loops.
     VertexOutEdgeIterator edge_iter(vertex, graph_);
-    UniqueLock lock(invalid_edge_lock_);
+    LockGuard lock(invalid_edge_lock_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
       if (edge->role() == TimingRole::latchDtoQ())
@@ -661,7 +661,7 @@ GraphDelayCalc::findMultiDrvrNet(Vertex *drvr_vertex)
 {
   // Avoid locking for single driver nets.
   if (hasMultiDrvrs(drvr_vertex)) {
-    UniqueLock lock(multi_drvr_lock_);
+    LockGuard lock(multi_drvr_lock_);
     MultiDrvrNet *multi_drvr = multiDrvrNet(drvr_vertex);
     if (multi_drvr)
       return multi_drvr;

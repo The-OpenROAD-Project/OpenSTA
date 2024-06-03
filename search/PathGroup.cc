@@ -121,7 +121,7 @@ PathGroup::savable(PathEnd *path_end)
 void
 PathGroup::insert(PathEnd *path_end)
 {
-  UniqueLock lock(lock_);
+  LockGuard lock(lock_);
   path_ends_.push_back(path_end);
   if (group_count_ != group_count_max
       && static_cast<int>(path_ends_.size()) > group_count_ * 2)
@@ -190,7 +190,7 @@ PathGroup::sort()
 void
 PathGroup::clear()
 {
-  UniqueLock lock(lock_);
+  LockGuard lock(lock_);
   threshold_ = min_max_->initValue();
   path_ends_.clear();
 }
