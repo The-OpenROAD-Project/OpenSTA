@@ -617,6 +617,7 @@ PropertyValue::asString(const Network *network) const
   case Type::type_pwr_activity:
     return nullptr;
   }
+  return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////
