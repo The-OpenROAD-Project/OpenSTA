@@ -95,6 +95,7 @@ PathGroup::~PathGroup()
 bool
 PathGroup::savable(PathEnd *path_end)
 {
+  UniqueLock lock(lock_);
   bool savable = false;
   if (compare_slack_) {
     // Crpr increases the slack, so check the slack
