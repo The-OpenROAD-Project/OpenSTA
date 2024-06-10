@@ -2686,8 +2686,10 @@ Search::setVertexArrivals(Vertex *vertex,
       }
       tag_bldr->copyArrivals(tag_group, prev_arrivals, prev_paths);
       vertex->setTagGroupIndex(tag_group->index());
-      if (tag_group->hasFilterTag())
+      if (tag_group->hasFilterTag()) {
+        LockGuard lock(this->filtered_arrivals_lock_);
         filtered_arrivals_->insert(vertex);
+      }
 
       if (has_requireds) {
 	requiredInvalid(vertex);
@@ -2712,8 +2714,10 @@ Search::setVertexArrivals(Vertex *vertex,
       tag_bldr->copyArrivals(tag_group, arrivals, prev_paths);
 
       vertex->setTagGroupIndex(tag_group->index());
-      if (tag_group->hasFilterTag())
+      if (tag_group->hasFilterTag()) {
+        LockGuard lock(this->filtered_arrivals_lock_);
         filtered_arrivals_->insert(vertex);
+      }
     }
   }
 }

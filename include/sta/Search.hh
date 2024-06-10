@@ -606,6 +606,7 @@ protected:
   ExceptionFrom *filter_from_;
   ExceptionTo *filter_to_;
   VertexSet *filtered_arrivals_;
+  std::mutex filtered_arrivals_lock_;
   bool found_downstream_clk_pins_;
   PathGroups *path_groups_;
   VisitPathEnds *visit_path_ends_;
