@@ -20,6 +20,7 @@
 
 namespace sta {
 
-typedef std::unique_lock<std::mutex> UniqueLock;
+// Hide a bit of the std verbosity.
+typedef std::lock_guard<std::mutex> LockGuard;
 
 } // namespace

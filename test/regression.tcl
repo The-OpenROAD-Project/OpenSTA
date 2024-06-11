@@ -187,7 +187,7 @@ proc run_test { test } {
 	  puts " pass$error_msg"
 	}
       } else {
-	puts " *NO OK FILE*$error_msg"
+        puts " *NO OK FILE*"
 	append_failure $test
 	incr errors(no_ok)
       }

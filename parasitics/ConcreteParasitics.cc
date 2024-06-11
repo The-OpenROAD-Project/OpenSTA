@@ -920,7 +920,7 @@ ConcreteParasitics::deleteReducedParasitics(const Pin *pin)
 void
 ConcreteParasitics::deleteDrvrReducedParasitics(const Pin *drvr_pin)
 {
-  UniqueLock lock(lock_);
+  LockGuard lock(lock_);
   ConcreteParasitic **parasitics = drvr_parasitic_map_[drvr_pin];
   if (parasitics) {
     int ap_count = corners_->parasiticAnalysisPtCount();
@@ -936,7 +936,7 @@ void
 ConcreteParasitics::deleteDrvrReducedParasitics(const Pin *drvr_pin,
                                                 const ParasiticAnalysisPt *ap)
 {
-  UniqueLock lock(lock_);
+  LockGuard lock(lock_);
   ConcreteParasitic **parasitics = drvr_parasitic_map_[drvr_pin];
   if (parasitics) {
     int ap_index = ap->index();
@@ -961,7 +961,7 @@ ConcreteParasitics::findPiElmore(const Pin *drvr_pin,
 {
   if (!drvr_parasitic_map_.empty()) {
     int ap_rf_index = parasiticAnalysisPtIndex(ap, rf);
-    UniqueLock lock(lock_);
+    LockGuard lock(lock_);
     ConcreteParasitic **parasitics = drvr_parasitic_map_.findKey(drvr_pin);
     if (parasitics) {
       ConcreteParasitic *parasitic = parasitics[ap_rf_index];
@@ -980,7 +980,7 @@ ConcreteParasitics::makePiElmore(const Pin *drvr_pin,
 				 float rpi,
 				 float c1)
 {
-  UniqueLock lock(lock_);
+  LockGuard lock(lock_);
   ConcreteParasitic **parasitics = drvr_parasitic_map_.findKey(drvr_pin);
   if (parasitics == nullptr) {
     int ap_count = corners_->parasiticAnalysisPtCount();
@@ -1077,7 +1077,7 @@ ConcreteParasitics::findPiPoleResidue(const Pin *drvr_pin,
 {
   if (!drvr_parasitic_map_.empty()) {
     int ap_rf_index = parasiticAnalysisPtIndex(ap, rf);
-    UniqueLock lock(lock_);
+    LockGuard lock(lock_);
     ConcreteParasitic **parasitics = drvr_parasitic_map_.findKey(drvr_pin);
     if (parasitics) {
       ConcreteParasitic *parasitic = parasitics[ap_rf_index];
@@ -1100,7 +1100,7 @@ ConcreteParasitics::makePiPoleResidue(const Pin *drvr_pin,
 				      float rpi,
 				      float c1)
 {
-  UniqueLock lock(lock_);
+  LockGuard lock(lock_);
   ConcreteParasitic **parasitics = drvr_parasitic_map_.findKey(drvr_pin);
   if (parasitics == nullptr) {
     int ap_count = corners_->parasiticAnalysisPtCount();
@@ -1194,7 +1194,7 @@ ConcreteParasitics::findParasiticNetwork(const Net *net,
 					 const ParasiticAnalysisPt *ap) const
 {
   if (!parasitic_network_map_.empty()) {
-    UniqueLock lock(lock_);
+    LockGuard lock(lock_);
     if (!parasitic_network_map_.empty()) {
       ConcreteParasiticNetwork **parasitics=parasitic_network_map_.findKey(net);
       if (parasitics) {
@@ -1213,7 +1213,7 @@ ConcreteParasitics::findParasiticNetwork(const Pin *pin,
 					 const ParasiticAnalysisPt *ap) const
 {
   if (!parasitic_network_map_.empty()) {
-    UniqueLock lock(lock_);
+    LockGuard lock(lock_);
     if (!parasitic_network_map_.empty()) {
       // Only call findParasiticNet if parasitics exist.
       const Net *net = findParasiticNet(pin);
@@ -1234,7 +1234,7 @@ ConcreteParasitics::makeParasiticNetwork(const Net *net,
 					 bool includes_pin_caps,
 					 const ParasiticAnalysisPt *ap)
 {
-  UniqueLock lock(lock_);
+  LockGuard lock(lock_);
   ConcreteParasiticNetwork **parasitics = parasitic_network_map_.findKey(net);
   if (parasitics == nullptr) {
     int ap_count = corners_->parasiticAnalysisPtCount();
@@ -1260,7 +1260,7 @@ ConcreteParasitics::deleteParasiticNetwork(const Net *net,
 					   const ParasiticAnalysisPt *ap)
 {
   if (!parasitic_network_map_.empty()) {
-    UniqueLock lock(lock_);
+    LockGuard lock(lock_);
     ConcreteParasiticNetwork **parasitics = parasitic_network_map_.findKey(net);
     if (parasitics) {
       int ap_index = ap->index();
@@ -1287,7 +1287,7 @@ void
 ConcreteParasitics::deleteParasiticNetworks(const Net *net)
 {
   if (!parasitic_network_map_.empty()) {
-    UniqueLock lock(lock_);
+    LockGuard lock(lock_);
     ConcreteParasiticNetwork **parasitics = parasitic_network_map_.findKey(net);
     if (parasitics) {
       int ap_count = corners_->parasiticAnalysisPtCount();

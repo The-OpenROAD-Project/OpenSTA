@@ -120,7 +120,7 @@ WorstSlack::WorstSlack(const WorstSlack &worst_slack) :
 void
 WorstSlack::deleteVertexBefore(Vertex *vertex)
 {
-  UniqueLock lock(lock_);
+  LockGuard lock(lock_);
   if (vertex == worst_vertex_) {
     worst_vertex_ = nullptr;
     worst_slack_ = slack_init_;
@@ -269,7 +269,7 @@ WorstSlack::updateWorstSlack(Vertex *vertex,
 
   // Locking is required because ArrivalVisitor is called by multiple
   // threads.
-  UniqueLock lock(lock_);
+  LockGuard lock(lock_);
   if (worst_vertex_
       && delayLess(slack, worst_slack_, this))
     setWorstSlack(vertex, slack);

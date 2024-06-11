@@ -81,7 +81,7 @@ Sim::functionSense(const FuncExpr *expr,
              expr->asString());
   bool increasing, decreasing;
   {
-    UniqueLock lock(bdd_lock_);
+    LockGuard lock(bdd_lock_);
     DdNode *bdd = funcBddSim(expr, inst);
     DdManager *cudd_mgr = bdd_.cuddMgr();
     LibertyPort *input_port = network_->libertyPort(input_pin);
@@ -111,7 +111,7 @@ LogicValue
 Sim::evalExpr(const FuncExpr *expr,
 	      const Instance *inst)
 {
-  UniqueLock lock(bdd_lock_);
+  LockGuard lock(bdd_lock_);
   DdNode *bdd = funcBddSim(expr, inst);
   LogicValue value = LogicValue::unknown;
   DdManager *cudd_mgr = bdd_.cuddMgr();

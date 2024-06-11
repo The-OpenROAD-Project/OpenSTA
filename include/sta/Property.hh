@@ -79,6 +79,7 @@ public:
   Type type() const { return type_; }
   const Unit *unit() const { return unit_; }
 
+  const char *asString(const Network *network) const;
   const char *stringValue() const { return string_; }
   float floatValue() const { return float_; }
   bool boolValue() const { return bool_; }

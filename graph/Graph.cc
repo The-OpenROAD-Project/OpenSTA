@@ -576,7 +576,7 @@ Graph::makeArrivals(Vertex *vertex,
   Arrival *arrivals;
   ArrivalId id;
   {
-    UniqueLock lock(arrivals_lock_);
+    LockGuard lock(arrivals_lock_);
     arrivals_.make(count, arrivals, id);
   }
   vertex->setArrivals(id);
@@ -594,7 +594,7 @@ Graph::deleteArrivals(Vertex *vertex,
                       uint32_t count)
 {
   {
-    UniqueLock lock(arrivals_lock_);
+    LockGuard lock(arrivals_lock_);
     arrivals_.destroy(vertex->arrivals(), count);
   }
   vertex->setArrivals(arrival_null);
@@ -609,7 +609,7 @@ Graph::makeRequireds(Vertex *vertex,
   Required *requireds;
   ArrivalId id;
   {
-    UniqueLock lock(requireds_lock_);
+    LockGuard lock(requireds_lock_);
     requireds_.make(count, requireds, id);
   }
   vertex->setRequireds(id);
@@ -627,7 +627,7 @@ Graph::deleteRequireds(Vertex *vertex,
                        uint32_t count)
 {
   {
-    UniqueLock lock(requireds_lock_);
+    LockGuard lock(requireds_lock_);
     requireds_.destroy(vertex->requireds(), count);
   }
   vertex->setRequireds(arrival_null);
@@ -647,7 +647,7 @@ Graph::makePrevPaths(Vertex *vertex,
   PathVertexRep *prev_paths;
   PrevPathId id;
   {
-    UniqueLock lock(prev_paths_lock_);
+    LockGuard lock(prev_paths_lock_);
     prev_paths_.make(count, prev_paths, id);
   }
   vertex->setPrevPaths(id);

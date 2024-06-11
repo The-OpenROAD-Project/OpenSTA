@@ -226,6 +226,8 @@ CcsSimDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
   else {
     simulate(dcalc_args);
 
+    ArcDcalcArg &drvr_arg = dcalc_args[0];
+    const LibertyLibrary *drvr_library = drvr_arg.drvrLibrary();
     for (size_t drvr_idx = 0; drvr_idx < dcalc_args.size(); drvr_idx++) {
       ArcDcalcArg &dcalc_arg = dcalc_args[drvr_idx];
       ArcDcalcResult &dcalc_result = dcalc_results[drvr_idx];
@@ -258,8 +260,6 @@ CcsSimDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
                    delayAsString(wire_delay, this),
                    delayAsString(load_slew, this));
 
-        LibertyLibrary *drvr_library =
-          network_->libertyPort(load_pin)->libertyCell()->libertyLibrary();
         thresholdAdjust(load_pin, drvr_library, drvr_rf_, wire_delay, load_slew);
         dcalc_result.setWireDelay(load_idx, wire_delay);
         dcalc_result.setLoadSlew(load_idx, load_slew);

@@ -2338,7 +2338,7 @@ CycleAccting *
 Sdc::cycleAccting(const ClockEdge *src,
 		  const ClockEdge *tgt)
 {
-  UniqueLock lock(cycle_acctings_lock_);
+  LockGuard lock(cycle_acctings_lock_);
   return cycle_acctings_.cycleAccting(src, tgt);
 }
 
