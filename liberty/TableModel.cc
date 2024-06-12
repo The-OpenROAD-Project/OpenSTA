@@ -355,25 +355,21 @@ GateTableModel::checkAxis(const TableAxis *axis)
 
 ////////////////////////////////////////////////////////////////
 
-ReceiverModel::ReceiverModel() :
-  capacitance_models_{{nullptr, nullptr}, {nullptr, nullptr}}
-{
-}
-
 ReceiverModel::~ReceiverModel()
 {
-  for (int index = 0; index < 2; index++) {
-    for (auto rf_index : RiseFall::rangeIndex())
-      delete capacitance_models_[index][rf_index];
-  }
+  for (TableModel *model : capacitance_models_)
+    delete model;
 }
 
 void
 ReceiverModel::setCapacitanceModel(TableModel *table_model,
-                                   int index,
+                                   size_t segment,
                                    RiseFall *rf)
 {
-  capacitance_models_[index][rf->index()] = table_model;
+  if ((segment + 1) * RiseFall::index_count > capacitance_models_.size())
+    capacitance_models_.resize((segment + 1) * RiseFall::index_count);
+  size_t idx = segment * RiseFall::index_count + rf->index();
+  capacitance_models_[idx] = table_model;
 }
 
 bool

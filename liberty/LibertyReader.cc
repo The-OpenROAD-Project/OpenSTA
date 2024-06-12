@@ -478,10 +478,19 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("pg_type", &LibertyReader::visitPgType);
   defineAttrVisitor("voltage_name", &LibertyReader::visitVoltageName);
 
-  // ccs receiver
+  // ccs receiver capacitance
   defineGroupVisitor("receiver_capacitance",
                     &LibertyReader::beginReceiverCapacitance,
                     &LibertyReader::endReceiverCapacitance);
+
+  defineGroupVisitor("receiver_capacitance_rise",
+                    &LibertyReader::beginReceiverCapacitance1Rise,
+                    &LibertyReader::endReceiverCapacitanceRiseFall);
+  defineGroupVisitor("receiver_capacitance_fall",
+                    &LibertyReader::beginReceiverCapacitance1Fall,
+                    &LibertyReader::endReceiverCapacitanceRiseFall);
+  defineAttrVisitor("segment", &LibertyReader::visitSegement);
+
   defineGroupVisitor("receiver_capacitance1_rise",
                     &LibertyReader::beginReceiverCapacitance1Rise,
                     &LibertyReader::endReceiverCapacitanceRiseFall);
@@ -2448,10 +2457,10 @@ LibertyReader::makeTimingArcs(LibertyPort *to_port,
 
 ////////////////////////////////////////////////////////////////
 
+// Group that encloses receiver_capacitance1/2 etc groups.
 void
 LibertyReader::beginReceiverCapacitance(LibertyGroup *)
 {
-  
   receiver_model_ = make_shared<ReceiverModel>();
 }
 
@@ -2463,6 +2472,20 @@ LibertyReader::endReceiverCapacitance(LibertyGroup *)
       port->setReceiverModel(receiver_model_);
   }
   receiver_model_ = nullptr;
+}
+
+// For receiver_capacitance groups with mulitiple segments this
+// overrides the index passed in beginReceiverCapacitance1Rise/Fall.
+void
+LibertyReader::visitSegement(LibertyAttr *attr)
+{
+  if (receiver_model_) {
+    int segment;
+    bool exists;
+    getAttrInt(attr, segment, exists);
+    if (exists)
+      index_ = segment;
+  }
 }
 
 void

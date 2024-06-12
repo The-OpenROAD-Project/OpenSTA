@@ -2687,7 +2687,7 @@ Search::setVertexArrivals(Vertex *vertex,
       tag_bldr->copyArrivals(tag_group, prev_arrivals, prev_paths);
       vertex->setTagGroupIndex(tag_group->index());
       if (tag_group->hasFilterTag()) {
-        LockGuard lock(this->filtered_arrivals_lock_);
+        LockGuard lock(filtered_arrivals_lock_);
         filtered_arrivals_->insert(vertex);
       }
 
@@ -2715,7 +2715,7 @@ Search::setVertexArrivals(Vertex *vertex,
 
       vertex->setTagGroupIndex(tag_group->index());
       if (tag_group->hasFilterTag()) {
-        LockGuard lock(this->filtered_arrivals_lock_);
+        LockGuard lock(filtered_arrivals_lock_);
         filtered_arrivals_->insert(vertex);
       }
     }

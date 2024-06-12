@@ -24,7 +24,7 @@ define_cmd_args "read_spef" \
      [-pin_cap_included]\
      [-keep_capacitive_coupling]\
      [-coupling_reduction_factor factor]\
-     [-reduce_to pi_elmore|pi_pole_residue2]\
+     [-reduce]\
      [-delete_after_reduce]\
      filename}
 

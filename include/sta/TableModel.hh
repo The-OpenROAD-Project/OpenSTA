@@ -469,15 +469,14 @@ private:
 class ReceiverModel
 {
 public:
-  ReceiverModel();
   ~ReceiverModel();
   void setCapacitanceModel(TableModel *table_model,
-                           int index,
+                           size_t segment,
                            RiseFall *rf);
   static bool checkAxes(TablePtr table);
 
 private:
-  TableModel *capacitance_models_[2][RiseFall::index_count];
+  std::vector<TableModel*> capacitance_models_;
 };
 
 // Two dimensional (slew/cap) table of one dimensional time/current tables.
