@@ -424,9 +424,12 @@ public:
   virtual void visitPgType(LibertyAttr *attr);
   virtual void visitVoltageName(LibertyAttr *attr);
 
-  // ccs receiver
+  // ccs receiver capacitance
   virtual void beginReceiverCapacitance(LibertyGroup *group);
   virtual void endReceiverCapacitance(LibertyGroup *group);
+
+  virtual void visitSegement(LibertyAttr *attr);
+
   virtual void beginReceiverCapacitance1Rise(LibertyGroup *group);
   virtual void endReceiverCapacitanceRiseFall(LibertyGroup *group);
   virtual void beginReceiverCapacitance1Fall(LibertyGroup *group);
