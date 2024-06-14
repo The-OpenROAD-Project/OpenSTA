@@ -1682,30 +1682,27 @@ DmpError::DmpError(const char *what) :
   //printf("DmpError %s\n", what);
 }
 
-// This saves about 2.5% in overall run time on designs with SPEF.
-// https://codingforspeed.com/using-faster-exponential-approximation
+// Fast approximate exponential. See
+// https://www.schraudolph.org/pubs/Schraudolph99.pdf
 static double
 exp2(double x)
 {
-  if (x < -12.0)
-    // exp(-12) = 6.1e-6
-    return 0.0;
-  else {
-    double y = 1.0 + x / 4096.0;
-    y *= y;
-    y *= y;
-    y *= y;
-    y *= y;
-    y *= y;
-    y *= y;
-    y *= y;
-    y *= y;
-    y *= y;
-    y *= y;
-    y *= y;
-    y *= y;
-    return y;
+  if (std::abs(x) > 707.703272) {
+    // For arguments with magnitude greater than ln(DBL_MAX/8) ~= 707.703272,
+    // Shraudolphs approximation degrades severely in accuracy, so we return
+    // zero or infinity, depending on the sign of x.
+    return x < 0.0 ? 0.0 : std::numeric_limits<double>::infinity();
   }
+
+  // This approximation has a maximum relative error of 3%.
+  constexpr int32_t kExpA = (1 << 20) / M_LN2;  // 2^20 / ln(2)
+  constexpr int32_t kExpB = 1023 * (1 << 20);   // 1023 * 2^20
+  constexpr int32_t kExpC = 45799;  // heuristic to minimize maximum relative error
+
+  int64_t exp_bits = static_cast<int64_t>(kExpA * x + (kExpB - kExpC)) << 32;
+  double exp_double;
+  std::memcpy(&exp_double, &exp_bits, sizeof(double));
+  return exp_double;
 }
 
 } // namespace
