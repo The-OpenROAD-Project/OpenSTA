@@ -35,6 +35,7 @@ DispatchQueue::terminateThreads()
       threads_[i].join();
     }
   }
+  quit_ = false;
 }
 
 void

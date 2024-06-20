@@ -359,6 +359,8 @@ Sta::updateComponentsState()
   if (check_timing_)
     check_timing_->copyState(this);
   clk_network_->copyState(this);
+  if (clk_skews_)
+    clk_skews_->copyState(this);
   if (power_)
     power_->copyState(this);
 }
