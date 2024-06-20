@@ -364,8 +364,8 @@ ClkSkews::findClkSkewFrom(Vertex *src_vertex,
     Edge *edge = edge_iter.next();
     if (edge->role()->genericRole() == TimingRole::regClkToQ()) {
       Vertex *q_vertex = edge->to(graph_);
-      RiseFall *rf = edge->timingArcSet()->isRisingFallingEdge();
-      RiseFallBoth *src_rf = rf
+      const RiseFall *rf = edge->timingArcSet()->isRisingFallingEdge();
+      const RiseFallBoth *src_rf = rf
         ? rf->asRiseFallBoth()
         : RiseFallBoth::riseFall();
       findClkSkewFrom(src_vertex, q_vertex, src_rf, skews);
