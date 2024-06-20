@@ -18,17 +18,27 @@
 
 #include <map>
 
+#include "UnorderedSet.hh"
 #include "SdcClass.hh"
 #include "StaState.hh"
 #include "Transition.hh"
 #include "SearchClass.hh"
+#include "SearchPred.hh"
 #include "PathVertex.hh"
 
 namespace sta {
 
 class ClkSkew;
+class SearchPred;
 
 typedef std::map<const Clock*, ClkSkew> ClkSkewMap;
+
+class FanOutSrchPred : public SearchPred1
+{
+public:
+  FanOutSrchPred(const StaState *sta);
+  virtual bool searchThru(Edge *edge);
+};
 
 // Find and report clock skews between source/target registers.
 class ClkSkews : public StaState
@@ -51,28 +61,30 @@ protected:
                          const Corner *corner,
                          const SetupHold *setup_hold,
                          bool include_internal_latency);
-  bool hasClkPaths(Vertex *vertex,
-		   ConstClockSet &clks);
+  bool hasClkPaths(Vertex *vertex);
+  void findClkSkewFrom(Vertex *src_vertex,
+		       ClkSkewMap &skews);
   void findClkSkewFrom(Vertex *src_vertex,
 		       Vertex *q_vertex,
 		       const RiseFallBoth *src_rf,
-		       ConstClockSet &clk_set,
-		       const Corner *corner,
-		       const SetupHold *setup_hold,
-                       bool include_internal_latency,
 		       ClkSkewMap &skews);
   void findClkSkew(Vertex *src_vertex,
 		   const RiseFallBoth *src_rf,
 		   Vertex *tgt_vertex,
 		   const RiseFallBoth *tgt_rf,
-                   ConstClockSet &clk_set,
-		   const Corner *corner,
-		   const SetupHold *setup_hold,
-                   bool include_internal_latency,
 		   ClkSkewMap &skews);
   VertexSet findFanout(Vertex *from);
+  void findFanout1(Vertex *from,
+                   UnorderedSet<Vertex*> &visited,
+                   VertexSet &endpoints);
   void reportClkSkew(ClkSkew &clk_skew,
                      int digits);
+
+  ConstClockSet clk_set_;
+  const Corner *corner_;
+  const SetupHold *setup_hold_;
+  bool include_internal_latency_;
+  FanOutSrchPred fanout_pred_;
 };
-    
+
 } // namespace
