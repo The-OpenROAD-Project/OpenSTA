@@ -209,8 +209,11 @@ children of the top level instance.
 
 An adapter to a network database is built by defining a class derived
 from the base class Network, or NetworkEdit if it supports incremental
-editing operations. network/ConcreteNetwork.cc and oa/OaNetwork.cc
-are sample network adapters.
+editing operations. network/ConcreteNetwork.cc is a example of
+a network adapter the supports hierarchy. An example of a network adapter
+for a flat DEF based netlist, see
+https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/dbSta/include/db_sta/dbNetwork.hh,
+https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/dbSta/src/dbNetwork.cc.
 
 A network adaptor to interface to an external network database must
 define the virtual functions of the Network class (about 45
