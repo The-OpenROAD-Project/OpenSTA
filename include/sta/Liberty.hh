@@ -764,6 +764,8 @@ public:
   // Is the clock for timing checks.
   bool isCheckClk() const { return is_check_clk_; }
   void setIsCheckClk(bool is_clk);
+  bool isPad() const { return is_pad_; }
+  void setIsPad(bool is_pad);
   RiseFall *pulseClkTrigger() const { return pulse_clk_trigger_; }
   // Rise for high, fall for low.
   RiseFall *pulseClkSense() const { return pulse_clk_sense_; }
@@ -863,6 +865,7 @@ protected:
   bool level_shifter_data_:1;
   bool is_switch_:1;
   bool is_disabled_constraint_:1;
+  bool is_pad_:1;
 
 private:
   friend class LibertyLibrary;
