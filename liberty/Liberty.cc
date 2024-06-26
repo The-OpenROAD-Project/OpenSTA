@@ -2473,6 +2473,12 @@ LibertyPort::setIsDisabledConstraint(bool is_disabled)
   is_disabled_constraint_ = is_disabled;
 }
 
+void
+LibertyPort::setIsPad(bool is_pad)
+{
+  is_pad_ = is_pad;
+}
+
 LibertyPort *
 LibertyPort::cornerPort(const Corner *corner,
                         const MinMax *min_max)
