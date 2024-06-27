@@ -757,10 +757,8 @@ Graph::makeArcDelayTables(DcalcAPIndex ap_count)
 {
   if (have_arc_delays_) {
     arc_delays_.resize(ap_count);
-    for (DcalcAPIndex i = 0; i < ap_count; i++) {
-      DelayTable *table = new DelayTable();
-      arc_delays_[i] = table;
-    }
+    for (DcalcAPIndex i = 0; i < ap_count; i++)
+      arc_delays_[i] = new DelayTable();
   }
 }
 
@@ -1041,7 +1039,7 @@ Graph::setPeriodCheckAnnotation(const Pin *pin,
 				float period)
 {
   if (period_check_annotations_ == nullptr)
-    period_check_annotations_ = new PeriodCheckAnnotations;
+    period_check_annotations_ = new PeriodCheckAnnotations(network_);
   float *periods = period_check_annotations_->findKey(pin);
   if (periods == nullptr) {
     periods = new float[ap_count_];
@@ -1057,10 +1055,8 @@ void
 Graph::removePeriodCheckAnnotations()
 {
   if (period_check_annotations_) {
-    for (auto pin_floats : *period_check_annotations_) {
-      float *periods = pin_floats.second;
+    for (const auto [pin, periods] : *period_check_annotations_)
       delete [] periods;
-    }
     delete period_check_annotations_;
     period_check_annotations_ = nullptr;
   }

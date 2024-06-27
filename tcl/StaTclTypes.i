@@ -154,6 +154,28 @@ tclListNetworkSet(Tcl_Obj *const source,
     return nullptr;
 }
 
+template <class SET_TYPE, class OBJECT_TYPE>
+SET_TYPE
+tclListNetworkSet1(Tcl_Obj *const source,
+                   swig_type_info *swig_type,
+                   Tcl_Interp *interp,
+                   const Network *network)
+{
+  int argc;
+  Tcl_Obj **argv;
+  SET_TYPE set(network);
+  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
+      && argc > 0) {
+    for (int i = 0; i < argc; i++) {
+      void *obj;
+      // Ignore returned TCL_ERROR because can't get swig_type_info.
+      SWIG_ConvertPtr(argv[i], &obj, swig_type, false);
+      set.insert(reinterpret_cast<OBJECT_TYPE*>(obj));
+    }
+  }
+  return set;
+}
+
 StringSet *
 tclListSetConstChar(Tcl_Obj *const source,
 		    Tcl_Interp *interp)
@@ -326,6 +348,72 @@ objectListNext(const char *list,
 	next = nullptr;
     }
   }
+}
+
+Tcl_Obj *
+tclArcDcalcArg(ArcDcalcArg &gate,
+               Tcl_Interp *interp)
+{
+  Sta *sta = Sta::sta();
+  const Network *network = sta->network();
+  const Instance *drvr = network->instance(gate.drvrPin());
+  const TimingArc *arc = gate.arc();
+
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
+  Tcl_Obj *obj;
+
+  const char *inst_name = network->pathName(drvr);
+  obj = Tcl_NewStringObj(inst_name, strlen(inst_name));
+  Tcl_ListObjAppendElement(interp, list, obj);
+
+  const char *from_name = arc->from()->name();
+  obj = Tcl_NewStringObj(from_name, strlen(from_name));
+  Tcl_ListObjAppendElement(interp, list, obj);
+
+  const char *from_edge = arc->fromEdge()->asString();
+  obj = Tcl_NewStringObj(from_edge, strlen(from_edge));
+  Tcl_ListObjAppendElement(interp, list, obj);
+
+  const char *to_name = arc->to()->name();
+  obj = Tcl_NewStringObj(to_name, strlen(to_name));
+  Tcl_ListObjAppendElement(interp, list, obj);
+
+  const char *to_edge = arc->toEdge()->asString();
+  obj = Tcl_NewStringObj(to_edge, strlen(to_edge));
+  Tcl_ListObjAppendElement(interp, list, obj);
+
+  const char *input_delay = delayAsString(gate.inputDelay(), sta, 3);
+  obj = Tcl_NewStringObj(input_delay, strlen(input_delay));
+  Tcl_ListObjAppendElement(interp, list, obj);
+
+  return list;
+}
+
+ArcDcalcArg
+arcDcalcArgTcl(Tcl_Obj *obj,
+               Tcl_Interp *interp)
+{
+  Sta *sta = Sta::sta();
+  sta->ensureGraph();
+  int list_argc;
+  Tcl_Obj **list_argv;
+  if (Tcl_ListObjGetElements(interp, obj, &list_argc, &list_argv) == TCL_OK) {
+    const char *input_delay = "0.0";
+    int length;
+    if (list_argc == 6)
+      input_delay = Tcl_GetStringFromObj(list_argv[5], &length);
+    if (list_argc == 5 || list_argc == 6) {
+      return makeArcDcalcArg(Tcl_GetStringFromObj(list_argv[0], &length),
+                             Tcl_GetStringFromObj(list_argv[1], &length),
+                             Tcl_GetStringFromObj(list_argv[2], &length),
+                             Tcl_GetStringFromObj(list_argv[3], &length),
+                             Tcl_GetStringFromObj(list_argv[4], &length),
+                             input_delay, sta);
+    }
+    else
+      sta->report()->warn(2140, "Delay calc arg requires 5 or 6 args.");
+  }
+  return ArcDcalcArg();
 }
 
 } // namespace
@@ -716,6 +804,11 @@ using namespace sta;
 
 %typemap(in) PinSeq* {
   $1 = tclListSeqPtr<const Pin*>($input, SWIGTYPE_p_Pin, interp);
+}
+
+%typemap(in) PinSet {
+  Network *network = cmdNetwork();
+  $1 = tclListNetworkSet1<PinSet, Pin>($input, SWIGTYPE_p_Pin, interp, network);
 }
 
 %typemap(in) PinSet* {
@@ -1431,6 +1524,39 @@ using namespace sta;
   }
 }
 
-%typemap(in) ArcDcalcArgPtrSeq {
-  $1 = tclListSeq<ArcDcalcArg*>($input, SWIGTYPE_p_ArcDcalcArg, interp);
+%typemap(in) ArcDcalcArg {
+  Tcl_Obj *const source = $input;
+  $1 = arcDcalcArgTcl(source, interp);
+}
+
+%typemap(out) ArcDcalcArg {
+  Tcl_Obj *tcl_obj = tclArcDcalcArg($1, interp);
+  Tcl_SetObjResult(interp, tcl_obj);
+}
+
+%typemap(in) ArcDcalcArgSeq {
+  Tcl_Obj *const source = $input;
+  int argc;
+  Tcl_Obj **argv;
+
+  Sta *sta = Sta::sta();
+  ArcDcalcArgSeq seq;
+  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
+      && argc > 0) {
+    for (int i = 0; i < argc; i++) {
+      ArcDcalcArg gate = arcDcalcArgTcl(argv[i], interp);
+      if (gate.drvrPin())
+        seq.push_back(gate);
+    }
+  }
+  $1 = seq;
+}
+
+%typemap(out) ArcDcalcArgSeq {
+  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
+  for (ArcDcalcArg &gate : $1) {
+    Tcl_Obj *tcl_obj = tclArcDcalcArg(gate, interp);
+    Tcl_ListObjAppendElement(interp, list, tcl_obj);
+  }
+  Tcl_SetObjResult(interp, list);
 }

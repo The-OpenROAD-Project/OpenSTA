@@ -3,6 +3,13 @@ OpenSTA Timing Analyzer Release Notes
 
 This file summarizes user visible changes for each release.
 
+Release 2.6.0 2024/07/??
+-------------------------
+
+The version of c++ used by OpenSTA is now 17.
+
+The USE_CUDD and USE_TCL_READLINE options default to ON.
+
 Release 2.5.0 2024/01/17
 -------------------------
 

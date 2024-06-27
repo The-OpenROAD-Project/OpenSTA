@@ -45,7 +45,7 @@ public:
   SdfWriter(StaState *sta);
   ~SdfWriter();
   void write(const char *filename,
-	     Corner *corner,
+	     const Corner *corner,
 	     char sdf_divider,
 	     bool include_typ,
              int digits,
@@ -122,7 +122,7 @@ private:
 
 void
 writeSdf(const char *filename,
-	 Corner *corner,
+	 const Corner *corner,
 	 char sdf_divider,
          bool include_typ,
 	 int digits,
@@ -151,7 +151,7 @@ SdfWriter::~SdfWriter()
 
 void
 SdfWriter::write(const char *filename,
-		 Corner *corner,
+		 const Corner *corner,
 		 char sdf_divider,
                  bool include_typ,
 		 int digits,

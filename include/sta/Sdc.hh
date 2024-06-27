@@ -955,6 +955,13 @@ public:
 		    float &wire_cap,
 		    float &fanout,
 		    bool &has_net_load) const;
+  void pinCaps(const Pin *pin,
+	       const RiseFall *rf,
+	       const Corner *corner,
+	       const MinMax *min_max,
+	       float &pin_cap,
+	       float &wire_cap,
+	       float &fanout) const;
   void portExtFanout(const Port *port,
                      const Corner *corner,
 		     const MinMax *min_max,
@@ -1235,13 +1242,6 @@ protected:
   void annotateHierClkLatency();
   void annotateHierClkLatency(const Pin *hpin,
 			      ClockLatency *latency);
-  void pinCaps(const Pin *pin,
-	       const RiseFall *rf,
-	       const Corner *corner,
-	       const MinMax *min_max,
-	       float &pin_cap,
-	       float &wire_cap,
-	       float &fanout) const;
   void netCaps(const Pin *drvr_pin,
 	       const RiseFall *rf,
 	       const Corner *corner,
@@ -1256,7 +1256,8 @@ protected:
 			const RiseFall *rf,
 			const Corner *corner,
 			const MinMax *min_max);
-  float portCapacitance(Instance *inst, LibertyPort *port,
+  float portCapacitance(Instance *inst,
+                        LibertyPort *port,
 			const RiseFall *rf,
 			const Corner *corner,
 			const MinMax *min_max) const;

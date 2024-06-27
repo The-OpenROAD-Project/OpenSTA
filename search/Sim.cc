@@ -682,9 +682,7 @@ Sim::propagateConstants(bool thru_sequentials)
 void
 Sim::setConstraintConstPins(LogicValueMap &value_map)
 {
-  for (auto pin_value : value_map) {
-    const Pin *pin = pin_value.first;
-    LogicValue value = pin_value.second;
+  for (const auto [pin, value] : value_map) {
     debugPrint(debug_, "sim", 2, "case pin %s = %c",
                network_->pathName(pin),
                logicValueString(value));
@@ -1219,10 +1217,9 @@ isModeDisabled(Edge *edge,
 	  if (cond_value == LogicValue::zero) {
 	    // For a mode value to be disabled by having a value of
 	    // logic zero one mode value must logic one.
-	    for (auto name_mode : *mode_def->values()) {
-	      ModeValueDef *value_def1 = name_mode.second;
-	      if (value_def1) {
-		FuncExpr *cond1 = value_def1->cond();
+	    for (const auto [name, value_def] : *mode_def->values()) {
+	      if (value_def) {
+		FuncExpr *cond1 = value_def->cond();
 		if (cond1) {
 		  LogicValue cond_value1 = sim->evalExpr(cond1, inst);
 		  if (cond_value1 == LogicValue::one) {

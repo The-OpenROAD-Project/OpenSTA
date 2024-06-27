@@ -513,6 +513,7 @@ public:
 		       LibertyPort *port,
 		       Net *net) = 0;
   // makePin/connectPin replaced by connect.
+  // deprecated 2018-09-28
   virtual void connectPin(Pin *pin,
 			  Net *net) __attribute__ ((deprecated));
   // Disconnect pin from net.

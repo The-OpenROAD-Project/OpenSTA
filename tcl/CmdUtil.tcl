@@ -167,10 +167,10 @@ proc set_unit_values { unit key suffix key_var } {
         set scale [unit_prefix_scale $unit $prefix ]
         set_cmd_unit_scale $unit $scale
       } else {
-        sta_error 343 "unknown unit $unit prefix '${arg_prefix}'."
+        sta_error 166 "unknown unit $unit prefix '${arg_prefix}'."
       }
     } else {
-      sta_error 501 "incorrect unit suffix '$arg_suffix'."
+      sta_error 167 "incorrect unit suffix '$arg_suffix'."
     }
     if [info exists keys(-digits)] {
       set_cmd_unit_digits $unit $keys(-digits)

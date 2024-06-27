@@ -349,8 +349,7 @@ Sta::updateComponentsState()
   corners_->copyState(this);
   levelize_->copyState(this);
   parasitics_->copyState(this);
-  if (arc_delay_calc_)
-    arc_delay_calc_->copyState(this);
+  arc_delay_calc_->copyState(this);
   sim_->copyState(this);
   search_->copyState(this);
   latches_->copyState(this);
@@ -531,8 +530,7 @@ Sta::~Sta()
   delete search_;
   delete latches_;
   delete parasitics_;
-  if (arc_delay_calc_)
-    delete arc_delay_calc_;
+  delete arc_delay_calc_;
   delete graph_delay_calc_;
   delete sim_;
   delete levelize_;
@@ -776,8 +774,7 @@ Sta::setAnalysisType(AnalysisType analysis_type)
 {
   if (analysis_type != sdc_->analysisType()) {
     sdc_->setAnalysisType(analysis_type);
-    graph_delay_calc_->delaysInvalid();
-    search_->arrivalsInvalid();
+    delaysInvalid();
     search_->deletePathGroups();
     corners_->analysisTypeChanged();
     if (graph_)
@@ -797,8 +794,7 @@ Sta::setOperatingConditions(OperatingConditions *op_cond,
 {
   sdc_->setOperatingConditions(op_cond, min_max);
   corners_->operatingConditionsChanged();
-  graph_delay_calc_->delaysInvalid();
-  search_->arrivalsInvalid();
+  delaysInvalid();
 }
 
 const Pvt *
@@ -1000,8 +996,7 @@ void
 Sta::setWireloadMode(WireloadMode mode)
 {
   sdc_->setWireloadMode(mode);
-  graph_delay_calc_->delaysInvalid();
-  search_->arrivalsInvalid();
+  delaysInvalid();
 }
 
 void
@@ -1009,8 +1004,7 @@ Sta::setWireload(Wireload *wireload,
 		 const MinMaxAll *min_max)
 {
   sdc_->setWireload(wireload, min_max);
-  graph_delay_calc_->delaysInvalid();
-  search_->arrivalsInvalid();
+  delaysInvalid();
 }
 
 void
@@ -1018,8 +1012,7 @@ Sta::setWireloadSelection(WireloadSelection *selection,
 			  const MinMaxAll *min_max)
 {
   sdc_->setWireloadSelection(selection, min_max);
-  graph_delay_calc_->delaysInvalid();
-  search_->arrivalsInvalid();
+  delaysInvalid();
 }
 
 void
@@ -1148,8 +1141,7 @@ void
 Sta::setPropagatedClock(Clock *clk)
 {
   sdc_->setPropagatedClock(clk);
-  graph_delay_calc_->delaysInvalid();
-  search_->arrivalsInvalid();
+  delaysInvalid();
   clkPinsInvalid();
 }
 
@@ -1157,8 +1149,7 @@ void
 Sta::removePropagatedClock(Clock *clk)
 {
   sdc_->removePropagatedClock(clk);
-  graph_delay_calc_->delaysInvalid();
-  search_->arrivalsInvalid();
+  delaysInvalid();
   clkPinsInvalid();
 }
 
@@ -1166,8 +1157,7 @@ void
 Sta::setPropagatedClock(Pin *pin)
 {
   sdc_->setPropagatedClock(pin);
-  graph_delay_calc_->delaysInvalid();
-  search_->arrivalsInvalid();
+  delaysInvalid();
   clkPinsInvalid();
 }
 
@@ -1175,8 +1165,7 @@ void
 Sta::removePropagatedClock(Pin *pin)
 {
   sdc_->removePropagatedClock(pin);
-  graph_delay_calc_->delaysInvalid();
-  search_->arrivalsInvalid();
+  delaysInvalid();
   clkPinsInvalid();
 }
 
@@ -1609,8 +1598,7 @@ Sta::disableAfter()
 {
   // Levelization respects disabled edges.
   levelize_->invalid();
-  graph_delay_calc_->delaysInvalid();
-  search_->arrivalsInvalid();
+  delaysInvalid();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1837,8 +1825,7 @@ Sta::setLogicValue(Pin *pin,
   // fails.  This could be more incremental if the graph delay
   // calculator searched thru disabled edges but ignored their
   // results.
-  graph_delay_calc_->delaysInvalid();
-  search_->arrivalsInvalid();
+  delaysInvalid();
 }
 
 void
@@ -1854,8 +1841,7 @@ Sta::setCaseAnalysis(Pin *pin,
   // simply invaldating the delays downstream from the constant pin
   // fails.  This could be handled incrementally by invalidating delays
   // on the output of gates one level downstream.
-  graph_delay_calc_->delaysInvalid();
-  search_->arrivalsInvalid();
+  delaysInvalid();
 }
 
 void
@@ -1870,8 +1856,7 @@ Sta::removeCaseAnalysis(Pin *pin)
   // simply invaldating the delays downstream from the constant pin
   // fails.  This could be handled incrementally by invalidating delays
   // on the output of gates one level downstream.
-  graph_delay_calc_->delaysInvalid();
-  search_->arrivalsInvalid();
+  delaysInvalid();
 }
 
 void
@@ -2131,8 +2116,7 @@ void
 Sta::constraintsChanged()
 {
   levelize_->invalid();
-  graph_delay_calc_->delaysInvalid();
-  search_->arrivalsInvalid();
+  delaysInvalid();
   sim_->constantsInvalid();
 }
 
@@ -2215,10 +2199,8 @@ Sta::pocvEnabled() const
 void
 Sta::setPocvEnabled(bool enabled)
 {
-  if (enabled != pocv_enabled_) {
-    graph_delay_calc_->delaysInvalid();
-    search_->arrivalsInvalid();
-  }
+  if (enabled != pocv_enabled_)
+    delaysInvalid();
   pocv_enabled_ = enabled;
   updateComponentsState();
 }
@@ -2258,8 +2240,7 @@ Sta::setPresetClrArcsEnabled(bool enable)
 {
   if (sdc_->presetClrArcsEnabled() != enable) {
     levelize_->invalid();
-    graph_delay_calc_->delaysInvalid();
-    search_->arrivalsInvalid();
+    delaysInvalid();
   }
   sdc_->setPresetClrArcsEnabled(enable);
 }
@@ -2274,8 +2255,7 @@ void
 Sta::setCondDefaultArcsEnabled(bool enabled)
 {
   if (sdc_->condDefaultArcsEnabled() != enabled) {
-    graph_delay_calc_->delaysInvalid();
-    search_->arrivalsInvalid();
+    delaysInvalid();
     sdc_->setCondDefaultArcsEnabled(enabled);
   }
 }
@@ -2291,8 +2271,7 @@ Sta::setBidirectInstPathsEnabled(bool enabled)
 {
   if (sdc_->bidirectInstPathsEnabled() != enabled) {
     levelize_->invalid();
-    graph_delay_calc_->delaysInvalid();
-    search_->arrivalsInvalid();
+    delaysInvalid();
     sdc_->setBidirectInstPathsEnabled(enabled);
   }
 }
@@ -2307,8 +2286,7 @@ void
 Sta::setBidirectNetPathsEnabled(bool enabled)
 {
   if (sdc_->bidirectNetPathsEnabled() != enabled) {
-    graph_delay_calc_->delaysInvalid();
-    search_->arrivalsInvalid();
+    delaysInvalid();
     sdc_->setBidirectNetPathsEnabled(enabled);
   }
 }
@@ -2656,7 +2634,7 @@ Sta::findClkDelays(const Clock *clk,
 ////////////////////////////////////////////////////////////////
 
 void
-Sta::delaysInvalid()
+Sta::delaysInvalid() const
 {
   graph_delay_calc_->delaysInvalid();
   search_->arrivalsInvalid();
@@ -3106,8 +3084,8 @@ Sta::vertexSlacks(Vertex *vertex,
 		  Slack (&slacks)[RiseFall::index_count][MinMax::index_count])
 {
   findRequired(vertex);
-  for(int rf_index : RiseFall::rangeIndex()) {
-    for(MinMax *min_max : MinMax::range()) {
+  for (int rf_index : RiseFall::rangeIndex()) {
+    for (const MinMax *min_max : MinMax::range()) {
       slacks[rf_index][min_max->index()] = MinMax::min()->initValue();
     }
   }
@@ -3327,8 +3305,7 @@ Sta::setArcDelayCalc(const char *delay_calc_name)
   arc_delay_calc_ = makeDelayCalc(delay_calc_name, sta_);
   // Update pointers to arc_delay_calc.
   updateComponentsState();
-  graph_delay_calc_->delaysInvalid();
-  search_->arrivalsInvalid();
+  delaysInvalid();
 }
 
 void
@@ -3639,7 +3616,7 @@ Sta::setAnnotatedSlew(Vertex *vertex,
 
 void
 Sta::writeSdf(const char *filename,
-	      Corner *corner,
+	      const Corner *corner,
 	      char divider,
 	      bool include_typ,
               int digits,
@@ -3656,7 +3633,7 @@ void
 Sta::removeDelaySlewAnnotations()
 {
   graph_->removeDelaySlewAnnotations();
-  graph_delay_calc_->delaysInvalid();
+  delaysInvalid();
 }
 
 LogicValue
@@ -3768,7 +3745,7 @@ void
 Sta::removeNetLoadCaps() const
 {
   sdc_->removeNetLoadCaps();
-  graph_delay_calc_->delaysInvalid();
+  delaysInvalid();
 }
 
 void
@@ -3920,8 +3897,7 @@ Sta::readSpef(const char *filename,
 			      pin_cap_included, keep_coupling_caps,
                               coupling_cap_factor, reduce,
 			      corner, min_max, this);
-  graph_delay_calc_->delaysInvalid();
-  search_->arrivalsInvalid();
+  delaysInvalid();
   return success;
 }
 
@@ -4023,8 +3999,7 @@ void
 Sta::deleteParasitics()
 {
   parasitics_->deleteParasitics();
-  graph_delay_calc_->delaysInvalid();
-  search_->arrivalsInvalid();
+  delaysInvalid();
 }
 
 Parasitic *

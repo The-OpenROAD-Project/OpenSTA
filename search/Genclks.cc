@@ -676,10 +676,10 @@ Genclks::seedSrcPins(Clock *gclk,
       for (auto path_ap : corners_->pathAnalysisPts()) {
         const MinMax *min_max = path_ap->pathMinMax();
         const EarlyLate *early_late = min_max;
-        for (auto tr : RiseFall::range()) {
-          Tag *tag = makeTag(gclk, master_clk, master_pin, tr, src_filter,
+        for (auto rf : RiseFall::range()) {
+          Tag *tag = makeTag(gclk, master_clk, master_pin, rf, src_filter,
                              path_ap);
-          Arrival insert = search_->clockInsertion(master_clk, master_pin, tr,
+          Arrival insert = search_->clockInsertion(master_clk, master_pin, rf,
                                                    min_max, early_late, path_ap);
           tag_bldr.setArrival(tag, insert, nullptr);
         }

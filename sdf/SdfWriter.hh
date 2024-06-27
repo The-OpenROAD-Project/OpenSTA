@@ -23,7 +23,7 @@ class Corner;
 
 void
 writeSdf(const char *filename,
-	 Corner *corner,
+	 const Corner *corner,
 	 char divider,
          bool include_typ,
 	 int digits,

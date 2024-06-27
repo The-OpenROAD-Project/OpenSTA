@@ -1192,7 +1192,7 @@ ReportPath::reportVerbose(MinPulseWidthCheck *check)
   reportLine(pin_name, delay_zero, close_arrival, close_el);
 
   if (sdc_->crprEnabled()) {
-    Crpr pessimism = check->commonClkPessimism(this);
+    Crpr pessimism = check->checkCrpr(this);
     close_arrival += pessimism;
     reportLine("clock reconvergence pessimism", pessimism, close_arrival, close_el);
   }
@@ -1803,7 +1803,7 @@ ReportPath::clkRegLatchDesc(const PathEnd *end)
     TimingRole *role = arc_set->role();
     if (role == TimingRole::regClkToQ()
 	|| role == TimingRole::latchEnToQ()) {
-      RiseFall *arc_rf = arc_set->isRisingFallingEdge();
+      const RiseFall *arc_rf = arc_set->isRisingFallingEdge();
       clk_set = arc_set;
       if (arc_rf == check_clk_rf)
 	clk_rf_set = arc_set;
@@ -2320,7 +2320,7 @@ ReportPath::reportCommonClkPessimism(const PathEnd *end,
 				     Arrival &clk_arrival)
 {
   if (sdc_->crprEnabled()) {
-    Crpr pessimism = end->commonClkPessimism(this);
+    Crpr pessimism = end->checkCrpr(this);
     clk_arrival += pessimism;
     reportLine("clock reconvergence pessimism", pessimism, clk_arrival,
 	       end->clkEarlyLate(this));
@@ -3250,8 +3250,8 @@ ReportPath::edgeRegLatchDesc(Edge *first_edge,
     Instance *inst = network_->instance(first_edge->to(graph_)->pin());
     LibertyCell *cell = network_->libertyCell(inst);
     if (cell) {
-      LibertyPort *enable_port;
-      FuncExpr *enable_func;
+      const LibertyPort *enable_port;
+      const FuncExpr *enable_func;
       const RiseFall *enable_rf;
       cell->latchEnable(first_edge->timingArcSet(),
 			enable_port, enable_func, enable_rf);

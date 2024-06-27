@@ -203,29 +203,32 @@ Parasitics::makeWireloadNetwork(const Pin *drvr_pin,
                                 const MinMax *min_max,
 				const ParasiticAnalysisPt *ap)
 {
+  Parasitic *parasitic = nullptr;
   const Net *net = findParasiticNet(drvr_pin);
-  Parasitic *parasitic = makeParasiticNetwork(net, false, ap);
-  const OperatingConditions *op_cond = sdc_->operatingConditions(min_max);
-  float wireload_cap, wireload_res;
-  wireload->findWireload(fanout, op_cond, wireload_cap, wireload_res);
+  if (net) {
+    parasitic = makeParasiticNetwork(net, false, ap);
+    const OperatingConditions *op_cond = sdc_->operatingConditions(min_max);
+    float wireload_cap, wireload_res;
+    wireload->findWireload(fanout, op_cond, wireload_cap, wireload_res);
 
-  WireloadTree tree = WireloadTree::balanced;
-  if (op_cond)
-    tree = op_cond->wireloadTree();
-  switch (tree) {
-  case WireloadTree::worst_case:
-    makeWireloadNetworkWorst(parasitic, drvr_pin, net, wireload_cap, 
-			     wireload_res, fanout);
-    break;
-  case WireloadTree::balanced:
-    makeWireloadNetworkBalanced(parasitic, drvr_pin, wireload_cap,
-				wireload_res, fanout);
-    break;
-  case WireloadTree::best_case:
-  case WireloadTree::unknown:
-    makeWireloadNetworkBest(parasitic, drvr_pin, wireload_cap, 
-			    wireload_res, fanout);
-    break;
+    WireloadTree tree = WireloadTree::balanced;
+    if (op_cond)
+      tree = op_cond->wireloadTree();
+    switch (tree) {
+    case WireloadTree::worst_case:
+      makeWireloadNetworkWorst(parasitic, drvr_pin, net, wireload_cap, 
+                               wireload_res, fanout);
+      break;
+    case WireloadTree::balanced:
+      makeWireloadNetworkBalanced(parasitic, drvr_pin, wireload_cap,
+                                  wireload_res, fanout);
+      break;
+    case WireloadTree::best_case:
+    case WireloadTree::unknown:
+      makeWireloadNetworkBest(parasitic, drvr_pin, wireload_cap, 
+                              wireload_res, fanout);
+      break;
+    }
   }
   return parasitic;
 }
@@ -322,6 +325,40 @@ void
 ParasiticAnalysisPt::setCouplingCapFactor(float factor)
 {
   coupling_cap_factor_ = factor;
+}
+
+////////////////////////////////////////////////////////////////
+
+ParasiticNodeLess::ParasiticNodeLess(const Parasitics *parasitics,
+                                     const Network *network) :
+  parasitics_(parasitics),
+  network_(network)
+{
+}
+
+ParasiticNodeLess::ParasiticNodeLess(const ParasiticNodeLess &less) :
+  parasitics_(less.parasitics_),
+  network_(less.network_)
+{
+}
+
+bool
+ParasiticNodeLess::operator()(const ParasiticNode *node1,
+                              const ParasiticNode *node2) const
+{
+  const Pin *pin1 = parasitics_->pin(node1);
+  const Pin *pin2 = parasitics_->pin(node2);
+  const Net *net1 = parasitics_->net(node1, network_);
+  const Net *net2 = parasitics_->net(node2, network_);
+  unsigned id1 = parasitics_->netId(node1);
+  unsigned id2 = parasitics_->netId(node2);
+  return (pin1 == nullptr && pin2)
+    || (pin1 && pin2
+        && network_->id(pin1) < network_->id(pin2))
+    || (pin1 == nullptr && pin2 == nullptr
+        && (network_->id(net1) < network_->id(net2)
+            || (net1 == net2
+                && id1 < id2)));
 }
 
 } // namespace

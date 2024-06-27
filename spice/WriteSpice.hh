@@ -50,10 +50,11 @@ public:
              const char *power_name,
              const char *gnd_name,
              CircuitSim ckt_sim,
+             const DcalcAnalysisPt *dcalc_ap,
              const StaState *sta);
 
 protected:
-  void initPowerGnd(const DcalcAnalysisPt *dcalc_ap);
+  void initPowerGnd();
   void writeHeader(string &title,
                    float max_time,
                    float time_step);
@@ -63,11 +64,10 @@ protected:
   void findCellSubckts(StdStringSet &cell_names);
   void recordSpicePortNames(const char *cell_name,
 			    StringVector &tokens);
-  void writeSubcktInst(const Pin *input_pin);
-  void writeSubcktInstVoltSrcs(const Pin *input_pin,
+  void writeSubcktInst(const Instance *inst);
+  void writeSubcktInstVoltSrcs(const Instance *inst,
 			       LibertyPortLogicValues &port_values,
-			       const Clock *clk,
-			       DcalcAPIndex dcalc_ap_index);
+                               const PinSet &excluded_input_pins);
   float pgPortVoltage(LibertyPgPort *pg_port);
   void writeVoltageSource(const char *inst_name,
 			  const char *port_name,
@@ -79,20 +79,21 @@ protected:
 			  float voltage);
   void writeClkedStepSource(const Pin *pin,
 			    const RiseFall *rf,
-			    const Clock *clk,
-			    DcalcAPIndex dcalc_ap_index);
+			    const Clock *clk);
   void writeDrvrParasitics(const Pin *drvr_pin,
                            const RiseFall *drvr_rf,
                            // Nets with parasitics to include coupling caps to.
                            const NetSet &coupling_nets,
                            const ParasiticAnalysisPt *parasitic_ap);
+  void writeDrvrParasitics(const Pin *drvr_pin,
+                           const Parasitic *parasitic,
+                           const NetSet &coupling_nets);
   void writeParasiticNetwork(const Pin *drvr_pin,
                              const Parasitic *parasitic,
                              const NetSet &aggressor_nets);
   void writePiElmore(const Pin *drvr_pin,
                      const Parasitic *parasitic);
   void writeNullParasitic(const Pin *drvr_pin);
-  const char *nodeName(const ParasiticNode *node);
 
   void writeVoltageSource(const char *node_name,
                           float voltage);
@@ -126,8 +127,7 @@ protected:
   const char *spiceTrans(const RiseFall *rf);
   float findSlew(Vertex *vertex,
 		 const RiseFall *rf,
-		 TimingArc *next_arc,
-		 DcalcAPIndex dcalc_ap_index);
+		 TimingArc *next_arc);
   float slewAxisMinValue(TimingArc *arc);
   float clkWaveformTimeOffset(const Clock *clk);
 
@@ -151,7 +151,9 @@ protected:
 		      // Return values.
 		      LibertyPortLogicValues &port_values);
   void writeSubcktInstLoads(const Pin *drvr_pin,
-                            const Pin *exclude);
+                            const Pin *path_load,
+                            const PinSet &excluded_input_pins,
+                            InstanceSet &written_insts);
   PinSeq drvrLoads(const Pin *drvr_pin);
   void writeSubcktInstVoltSrcs();
   string replaceFileExt(string filename,
@@ -164,6 +166,7 @@ protected:
   const char *power_name_;
   const char *gnd_name_;
   CircuitSim ckt_sim_;
+  const DcalcAnalysisPt *dcalc_ap_;
 
   ofstream spice_stream_;
   LibertyLibrary *default_library_;
@@ -177,8 +180,6 @@ protected:
   int cap_index_;
   int res_index_;
   int volt_index_;
-  ParasiticNodeMap node_map_;
-  int next_node_index_;
   CellSpicePortNames cell_spice_port_names_;
   Bdd bdd_;
 };

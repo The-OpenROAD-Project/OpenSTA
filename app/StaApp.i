@@ -23,5 +23,6 @@
 %include "NetworkEdit.i"
 %include "Sdf.i"
 %include "DelayCalc.i"
+%include "WriteSpice.i"
 %include "Parasitics.i"
 %include "Power.i"

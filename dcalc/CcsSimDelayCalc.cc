@@ -23,7 +23,6 @@
 #include "TimingArc.hh"
 #include "Liberty.hh"
 #include "Sdc.hh"
-#include "Parasitics.hh"
 #include "DcalcAnalysisPt.hh"
 #include "Network.hh"
 #include "Corner.hh"
@@ -31,13 +30,13 @@
 #include "GraphDelayCalc.hh"
 #include "DmpDelayCalc.hh"
 
+// Lawrence Pillage - “Electronic Circuit & System Simulation Methods” 1998
+// McGraw-Hill, Inc. New York, NY.
+
 namespace sta {
 
 using std::abs;
 using std::make_shared;
-
-// Lawrence Pillage - “Electronic Circuit & System Simulation Methods” 1998
-// McGraw-Hill, Inc. New York, NY.
 
 ArcDelayCalc *
 makeCcsSimDelayCalc(StaState *sta)
@@ -51,9 +50,8 @@ CcsSimDelayCalc::CcsSimDelayCalc(StaState *sta) :
   load_pin_index_map_(network_),
   dcalc_failed_(false),
   pin_node_map_(network_),
-  make_waveforms_(false),
-  waveform_drvr_pin_(nullptr),
-  waveform_load_pin_(nullptr),
+  node_index_map_(ParasiticNodeLess(parasitics_, network_)),
+  watch_pin_values_(network_),
   table_dcalc_(makeDmpCeffElmoreDelayCalc(sta))
 {
 }
@@ -114,9 +112,7 @@ CcsSimDelayCalc::inputPortDelay(const Pin *drvr_pin,
     pi_elmore = parasitics_->findPiElmore(drvr_pin, rf, ap);
   }
 
-  for (auto load_pin_index : load_pin_index_map) {
-    const Pin *load_pin = load_pin_index.first;
-    size_t load_idx = load_pin_index.second;
+  for (const auto [load_pin, load_idx] : load_pin_index_map) {
     ArcDelay wire_delay = 0.0;
     Slew load_slew = in_slew;
     bool elmore_exists = false;
@@ -143,22 +139,19 @@ CcsSimDelayCalc::gateDelay(const Pin *drvr_pin,
                            const DcalcAnalysisPt *dcalc_ap)
 {
   ArcDcalcArgSeq dcalc_args;
-  dcalc_args.emplace_back(nullptr, drvr_pin, nullptr, arc, in_slew, parasitic);
-  ArcDcalcResultSeq dcalc_results = gateDelays(dcalc_args, load_cap,
-                                               load_pin_index_map, dcalc_ap);
+  dcalc_args.emplace_back(nullptr, drvr_pin, nullptr, arc, in_slew, load_cap, parasitic);
+  ArcDcalcResultSeq dcalc_results = gateDelays(dcalc_args, load_pin_index_map, dcalc_ap);
   return dcalc_results[0];
 }
 
 ArcDcalcResultSeq
 CcsSimDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
-                            float load_cap,
                             const LoadPinIndexMap &load_pin_index_map,
                             const DcalcAnalysisPt *dcalc_ap)
 {
   dcalc_args_ = &dcalc_args;
   load_pin_index_map_ = load_pin_index_map;
   drvr_count_ = dcalc_args.size();
-  load_cap_ = load_cap;
   dcalc_ap_ = dcalc_ap;
   drvr_rf_ = dcalc_args[0].arc()->toEdge()->asRiseFall();
   dcalc_failed_ = false;
@@ -171,14 +164,14 @@ CcsSimDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
 
   for (size_t drvr_idx = 0; drvr_idx < dcalc_args.size(); drvr_idx++) {
     ArcDcalcArg &dcalc_arg = dcalc_args[drvr_idx];
-    GateTableModel *table_model = gateTableModel(dcalc_arg.arc(), dcalc_ap);
+    GateTableModel *table_model = dcalc_arg.arc()->gateTableModel(dcalc_ap);
     if (table_model && dcalc_arg.parasitic()) {
       OutputWaveforms *output_waveforms = table_model->outputWaveforms();
-      float in_slew = delayAsFloat(dcalc_arg.inSlew());
+      float in_slew = dcalc_arg.inSlewFlt();
       if (output_waveforms
           // Bounds check because extrapolating waveforms does not work for shit.
           && output_waveforms->slewAxis()->inBounds(in_slew)
-          && output_waveforms->capAxis()->inBounds(load_cap)) {
+          && output_waveforms->capAxis()->inBounds(dcalc_arg.loadCap())) {
         output_waveforms_[drvr_idx] = output_waveforms;
         ref_time_[drvr_idx] = output_waveforms->referenceTime(in_slew);
         debugPrint(debug_, "ccs_dcalc", 1, "%s %s",
@@ -191,7 +184,7 @@ CcsSimDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
         drvr_library->supplyVoltage("VDD", vdd_, vdd_exists);
         if (!vdd_exists)
           report_->error(1720, "VDD not defined in library %s", drvr_library->name());
-        drvr_cell->ensureVoltageWaveforms();
+        drvr_cell->ensureVoltageWaveforms(dcalc_ap);
         if (drvr_idx == 0) {
           vth_ = drvr_library->outputThreshold(drvr_rf_) * vdd_;
           vl_ = drvr_library->slewLowerThreshold(drvr_rf_) * vdd_;
@@ -220,8 +213,7 @@ CcsSimDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
         dcalc_arg.setParasitic(pi_elmore);
       }
     }
-    dcalc_results = table_dcalc_->gateDelays(dcalc_args, load_cap,
-                                             load_pin_index_map, dcalc_ap);
+    dcalc_results = table_dcalc_->gateDelays(dcalc_args, load_pin_index_map, dcalc_ap);
   }
   else {
     simulate(dcalc_args);
@@ -245,9 +237,7 @@ CcsSimDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
                  delayAsString(drvr_slew, this));
 
       dcalc_result.setLoadCount(load_pin_index_map.size());
-      for (auto load_pin_index : load_pin_index_map) {
-        const Pin *load_pin = load_pin_index.first;
-        size_t load_idx = load_pin_index.second;
+      for (const auto [load_pin, load_idx] : load_pin_index_map) {
         size_t load_node = pin_node_map_[load_pin];
         ThresholdTimes &wire_times = threshold_times_[load_node];
         ThresholdTimes &drvr_times = threshold_times_[drvr_node];
@@ -291,10 +281,10 @@ CcsSimDelayCalc::simulate(ArcDcalcArgSeq &dcalc_args)
   for (size_t drvr_idx = 0; drvr_idx < dcalc_args.size(); drvr_idx++) {
     ArcDcalcArg &dcalc_arg = dcalc_args[drvr_idx];
     // Find initial ceff.
-    ceff_[drvr_idx] = load_cap_;
+    ceff_[drvr_idx] = dcalc_arg.loadCap();
     // voltageTime is always for a rising waveform so 0.0v is initial voltage.
     drvr_current_[drvr_idx] =
-      output_waveforms_[drvr_idx]->voltageCurrent(delayAsFloat(dcalc_arg.inSlew()),
+      output_waveforms_[drvr_idx]->voltageCurrent(dcalc_arg.inSlewFlt(),
                                                   ceff_[drvr_idx], 0.0);
   }
   // Initial time depends on ceff which impact delay, so use a sim step
@@ -310,8 +300,7 @@ CcsSimDelayCalc::simulate(ArcDcalcArgSeq &dcalc_args)
   // Limit in case load voltage waveforms don't get to final value.
   double time_end = time_begin + maxTime();
 
-  if (make_waveforms_)
-    recordWaveformStep(time_begin);
+  recordWaveformStep(time_begin);
 
   for (double time = time_begin; time <= time_end; time += time_step_) {
     stampConductances();
@@ -328,12 +317,10 @@ CcsSimDelayCalc::simulate(ArcDcalcArgSeq &dcalc_args)
 
     updateCeffIdrvr();
     measureThresholds(time);
-    if (make_waveforms_)
-      recordWaveformStep(time);
+    recordWaveformStep(time);
 
     bool loads_finished = true;
-    for (auto load_node1 : pin_node_map_) {
-      size_t load_node = load_node1.second;
+    for (const auto [load, load_node] : pin_node_map_) {
       if ((drvr_rf_ == RiseFall::rise()
            && voltages_[load_node] < vh_ + (vdd_ - vh_) * .5)
           || (drvr_rf_ == RiseFall::fall()
@@ -356,14 +343,14 @@ double
 CcsSimDelayCalc::timeStep()
 {
   // Needs to use LTE for time step dynamic control.
-  return drive_resistance_ * load_cap_ * .02;
+  return drive_resistance_ * (*dcalc_args_)[0].loadCap() * .02;
 }
 
 double
 CcsSimDelayCalc::maxTime()
 {
   return (*dcalc_args_)[0].inSlewFlt()
-    + (drive_resistance_ + resistance_sum_) * load_cap_ * 2;
+    + (drive_resistance_ + resistance_sum_) * (*dcalc_args_)[0].loadCap() * 2;
 }
 
 void
@@ -383,9 +370,6 @@ CcsSimDelayCalc::initSim()
 
   // Reset waveform recording.
   times_.clear();
-  drvr_voltages_.clear();
-  load_voltages_.clear();
-
   measure_thresholds_ = {vl_, vth_, vh_};
 }
 
@@ -406,7 +390,7 @@ CcsSimDelayCalc::findNodeCount()
       const Pin *pin = parasitics_->pin(node);
       if (pin) {
         pin_node_map_[pin] = node_idx;
-        debugPrint(debug_, "ccs_dcalc", 1, "pin %s node %lu",
+        debugPrint(debug_, "ccs_dcalc", 1, "pin %s node %zu",
                    network_->pathName(pin),
                    node_idx);
       }
@@ -660,10 +644,8 @@ CcsSimDelayCalc::updateCeffIdrvr()
 void
 CcsSimDelayCalc::measureThresholds(double time)
 {
-  for (auto pin_node1 : pin_node_map_) {
-    size_t pin_node = pin_node1.second;
-    measureThresholds(time, pin_node);
-  }
+  for (const auto [pin, node] : pin_node_map_)
+    measureThresholds(time, node);
 }
 
 void
@@ -677,7 +659,7 @@ CcsSimDelayCalc::measureThresholds(double time,
     if ((v_prev < th && th <= v)
         || (v_prev > th && th >= v)) {
       double t_cross = time - time_step_ + (th - v_prev) * time_step_ / (v - v_prev);
-      debugPrint(debug_, "ccs_measure", 1, "node %lu cross %.2f %s",
+      debugPrint(debug_, "ccs_measure", 1, "node %zu cross %.2f %s",
                  n,
                  th,
                  delayAsString(t_cross, this));
@@ -689,12 +671,13 @@ CcsSimDelayCalc::measureThresholds(double time,
 void
 CcsSimDelayCalc::recordWaveformStep(double time)
 {
-  times_.push_back(time);
-  size_t drvr_node = pin_node_map_[waveform_drvr_pin_];
-  drvr_voltages_.push_back(voltages_[drvr_node]);
-  if (waveform_load_pin_) {
-    size_t load_node = pin_node_map_[waveform_load_pin_];
-    load_voltages_.push_back(voltages_[load_node]);
+  if (!watch_pin_values_.empty()) {
+    times_.push_back(time);
+    for (auto& [pin, waveform] : watch_pin_values_) {
+      size_t node = pin_node_map_[pin];
+      double pin_v = voltages_[node];
+      waveform.push_back(pin_v);
+    }
   }
 }
 
@@ -710,7 +693,7 @@ CcsSimDelayCalc::reportGateDelay(const Pin *drvr_pin,
                                  const DcalcAnalysisPt *dcalc_ap,
                                  int digits)
 {
-  GateTimingModel *model = gateModel(arc, dcalc_ap);
+  GateTableModel *model = arc->gateTableModel(dcalc_ap);
   if (model) {
     float in_slew1 = delayAsFloat(in_slew);
     return model->reportGateDelay(pinPvt(drvr_pin, dcalc_ap), in_slew1, load_cap,
@@ -721,92 +704,39 @@ CcsSimDelayCalc::reportGateDelay(const Pin *drvr_pin,
 
 ////////////////////////////////////////////////////////////////
 
-// Waveform accessors for swig/tcl.
-Table1
-CcsSimDelayCalc::drvrWaveform(const Pin *in_pin,
-                              const RiseFall *in_rf,
-                              const Pin *drvr_pin,
-                              const RiseFall *drvr_rf,
-                              const Corner *corner,
-                              const MinMax *min_max)
+void
+CcsSimDelayCalc::watchPin(const Pin *pin)
 {
-  makeWaveforms(in_pin, in_rf, drvr_pin, drvr_rf, nullptr, corner, min_max);
-  TableAxisPtr time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                  new FloatSeq(times_));
-  Table1 waveform(new FloatSeq(drvr_voltages_), time_axis);
-  return waveform;
-}
-
-Table1
-CcsSimDelayCalc::loadWaveform(const Pin *in_pin,
-                              const RiseFall *in_rf,
-                              const Pin *drvr_pin,
-                              const RiseFall *drvr_rf,
-                              const Pin *load_pin,
-                              const Corner *corner,
-                              const MinMax *min_max)
-{
-  makeWaveforms(in_pin, in_rf, drvr_pin, drvr_rf, load_pin, corner, min_max);
-  TableAxisPtr time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                  new FloatSeq(times_));
-  Table1 waveform(new FloatSeq(load_voltages_), time_axis);
-  return waveform;
-}
-
-Table1
-CcsSimDelayCalc::inputWaveform(const Pin *in_pin,
-                               const RiseFall *in_rf,
-                               const Corner *corner,
-                               const MinMax *min_max)
-{
-  LibertyPort *port = network_->libertyPort(in_pin);
-  if (port) {
-    DriverWaveform *driver_waveform = port->driverWaveform(in_rf);
-    const Vertex *in_vertex = graph_->pinLoadVertex(in_pin);
-    DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
-    float in_slew = delayAsFloat(graph_->slew(in_vertex, in_rf, dcalc_ap->index()));
-    LibertyLibrary *library = port->libertyLibrary();
-    float vdd;
-    bool vdd_exists;
-    library->supplyVoltage("VDD", vdd, vdd_exists);
-    if (!vdd_exists)
-      report_->error(1721, "VDD not defined in library %s", library->name());
-    Table1 in_waveform = driver_waveform->waveform(in_slew);
-    // Scale the waveform from 0:vdd.
-    FloatSeq *scaled_values = new FloatSeq;
-    for (float value : *in_waveform.values())
-      scaled_values->push_back(value * vdd);
-    return Table1(scaled_values, in_waveform.axis1ptr());
-  }
-  return Table1();
+  watch_pin_values_[pin] = FloatSeq();
 }
 
 void
-CcsSimDelayCalc::makeWaveforms(const Pin *in_pin,
-                               const RiseFall *in_rf,
-                               const Pin *drvr_pin,
-                               const RiseFall *drvr_rf,
-                               const Pin *load_pin,
-                               const Corner *corner,
-                               const MinMax *min_max)
+CcsSimDelayCalc::clearWatchPins()
 {
-  Edge *edge;
-  const TimingArc *arc;
-  graph_->gateEdgeArc(in_pin, in_rf, drvr_pin, drvr_rf, edge, arc);
-  if (arc) {
-    DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
-    const Parasitic *parasitic = findParasitic(drvr_pin, drvr_rf, dcalc_ap);
-    if (parasitic) {
-      make_waveforms_ = true;
-      waveform_drvr_pin_ = drvr_pin;
-      waveform_load_pin_ = load_pin;
-      Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
-      graph_delay_calc_->findDriverArcDelays(drvr_vertex, edge, arc, dcalc_ap, this);
-      make_waveforms_ = false;
-      waveform_drvr_pin_ = nullptr;
-      waveform_load_pin_ = nullptr;
-    }
+  watch_pin_values_.clear();
+}
+
+PinSeq
+CcsSimDelayCalc::watchPins() const
+{
+  PinSeq pins;
+  for (const auto& [pin, values] : watch_pin_values_)
+    pins.push_back(pin);
+  return pins;
+}
+
+Waveform
+CcsSimDelayCalc::watchWaveform(const Pin *pin)
+{
+  for (ArcDcalcArg &dcalc_arg : *dcalc_args_) {
+    if (dcalc_arg.inPin() == pin)
+      return inputWaveform(dcalc_arg, dcalc_ap_, this);
   }
+  FloatSeq &voltages = watch_pin_values_[pin];
+  TableAxisPtr time_axis = make_shared<TableAxis>(TableAxisVariable::time,
+                                                  new FloatSeq(times_));
+  Table1 waveform(new FloatSeq(voltages), time_axis);
+  return waveform;
 }
 
 ////////////////////////////////////////////////////////////////

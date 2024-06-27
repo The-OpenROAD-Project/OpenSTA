@@ -20,17 +20,17 @@ namespace sta {
 
 InputDrive::InputDrive()
 {
-  for (auto tr_index : RiseFall::rangeIndex()) {
+  for (auto rf_index : RiseFall::rangeIndex()) {
     for (auto mm_index : MinMax::rangeIndex())
-      drive_cells_[tr_index][mm_index] = nullptr;
+      drive_cells_[rf_index][mm_index] = nullptr;
   }
 }
 
 InputDrive::~InputDrive()
 {
-  for (auto tr_index : RiseFall::rangeIndex()) {
+  for (auto rf_index : RiseFall::rangeIndex()) {
     for (auto mm_index : MinMax::rangeIndex()) {
-      InputDriveCell *drive_cell = drive_cells_[tr_index][mm_index];
+      InputDriveCell *drive_cell = drive_cells_[rf_index][mm_index];
       delete drive_cell;
     }
   }
@@ -210,8 +210,8 @@ InputDriveCell::setToPort(const LibertyPort *to_port)
 void
 InputDriveCell::setFromSlews(float *from_slews)
 {
-  for (auto tr_index : RiseFall::rangeIndex())
-    from_slews_[tr_index] = from_slews[tr_index];
+  for (auto rf_index : RiseFall::rangeIndex())
+    from_slews_[rf_index] = from_slews[rf_index];
 }
 
 bool

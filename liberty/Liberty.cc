@@ -121,10 +121,8 @@ LibertyLibrary::~LibertyLibrary()
   delete units_;
   ocv_derate_map_.deleteContents();
 
-  for (auto name_volt : supply_voltage_map_) {
-    const char *supply_name = name_volt.first;
+  for (auto [supply_name, volt] : supply_voltage_map_)
     stringDelete(supply_name);
-  }
   delete buffers_;
   delete inverters_;
   driver_waveform_map_.deleteContents();
@@ -204,8 +202,8 @@ BusDclSeq
 LibertyLibrary::busDcls() const
 {
   BusDclSeq dcls;
-  for (auto name_dcl : bus_dcls_)
-    dcls.push_back(name_dcl.second);
+  for (auto [name, dcl] : bus_dcls_)
+    dcls.push_back(dcl);
   return dcls;
 }
 
@@ -228,10 +226,8 @@ LibertyLibrary::tableTemplates() const
 {
   TableTemplateSeq tbl_templates;
   for (int type = 0; type < table_template_type_count; type++) {
-    for (auto name_template : template_maps_[type]) {
-      TableTemplate *tbl_template = name_template.second;
+    for (auto [name, tbl_template] : template_maps_[type])
       tbl_templates.push_back(tbl_template);
-    }
   }
   return tbl_templates;
 }
@@ -1312,8 +1308,7 @@ LibertyCell::finish(bool infer_latches,
 void
 LibertyCell::findDefaultCondArcs()
 {
-  for (auto port_pair_set : port_timing_arc_set_map_) {
-    TimingArcSetSeq *sets = port_pair_set.second;
+  for (auto [port_pair, sets] : port_timing_arc_set_map_) {
     bool has_cond_arcs = false;
     for (auto set : *sets) {
       if (set->cond()) {
@@ -1908,10 +1903,10 @@ LibertyCell::isLatchData(LibertyPort *port)
 }
 
 void
-LibertyCell::latchEnable(TimingArcSet *d_to_q_set,
+LibertyCell::latchEnable(const TimingArcSet *d_to_q_set,
 			 // Return values.
-			 LibertyPort *&enable_port,
-			 FuncExpr *&enable_func,
+			 const LibertyPort *&enable_port,
+			 const FuncExpr *&enable_func,
 			 const RiseFall *&enable_edge) const
 {
   LatchEnable *latch_enable = latch_d_to_q_map_.findKey(d_to_q_set);
@@ -1938,7 +1933,7 @@ LibertyCell::latchCheckEnableEdge(TimingArcSet *check_set)
 }
 
 void
-LibertyCell::ensureVoltageWaveforms()
+LibertyCell::ensureVoltageWaveforms(const DcalcAnalysisPt *dcalc_ap)
 {
   if (!have_voltage_waveforms_) {
     float vdd = 0.0;  // shutup gcc
@@ -1948,7 +1943,7 @@ LibertyCell::ensureVoltageWaveforms()
       criticalError(1120, "library missing vdd");
     for (TimingArcSet *arc_set : timingArcSets()) {
       for (TimingArc *arc : arc_set->arcs()) {
-        GateTableModel*model = dynamic_cast<GateTableModel*>(arc->model());
+        GateTableModel *model = arc->gateTableModel(dcalc_ap);
         if (model) {
           OutputWaveforms *output_waveforms = model->outputWaveforms();
           if (output_waveforms)

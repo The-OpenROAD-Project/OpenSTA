@@ -69,7 +69,6 @@
 #include "PathGroup.hh"
 #include "PathAnalysisPt.hh"
 #include "Property.hh"
-#include "WritePathSpice.hh"
 #include "Search.hh"
 #include "Sta.hh"
 #include "search/Tag.hh"
@@ -826,12 +825,13 @@ equiv_cell_timing_arcs(LibertyCell *cell1,
 void
 set_cmd_namespace_cmd(const char *namespc)
 {
+  Sta *sta = Sta::sta();
   if (stringEq(namespc, "sdc"))
-    Sta::sta()->setCmdNamespace(CmdNamespace::sdc);
+    sta->setCmdNamespace(CmdNamespace::sdc);
   else if (stringEq(namespc, "sta"))
-    Sta::sta()->setCmdNamespace(CmdNamespace::sta);
+    sta->setCmdNamespace(CmdNamespace::sta);
   else
-    criticalError(269, "unknown namespace");
+    sta->report()->warn(2120, "unknown namespace");
 }
 
 bool
@@ -1369,7 +1369,7 @@ set_analysis_type_cmd(const char *analysis_type)
   else if (stringEq(analysis_type, "on_chip_variation"))
     type = AnalysisType::ocv;
   else {
-    criticalError(270, "unknown analysis type");
+    Sta::sta()->report()->warn(2121, "unknown analysis type");
     type = AnalysisType::single;
   }
   Sta::sta()->setAnalysisType(type);
@@ -1520,7 +1520,7 @@ set_wire_load_mode_cmd(const char *mode_name)
 {
   WireloadMode mode = stringWireloadMode(mode_name);
   if (mode == WireloadMode::unknown)
-    criticalError(271, "unknown wire load mode");
+    Sta::sta()->report()->warn(2122, "unknown wire load mode");
   else
     Sta::sta()->setWireloadMode(mode);
 }
@@ -3561,22 +3561,6 @@ write_sdc_cmd(const char *filename,
 }
 
 void
-write_path_spice_cmd(PathRef *path,
-		     const char *spice_filename,
-		     const char *subckt_filename,
-		     const char *lib_subckt_filename,
-		     const char *model_filename,
-		     const char *power_name,
-		     const char *gnd_name,
-                     CircuitSim ckt_sim)
-{
-  Sta *sta = Sta::sta();
-  writePathSpice(path, spice_filename, subckt_filename,
-		 lib_subckt_filename, model_filename,
-		 power_name, gnd_name, ckt_sim, sta);
-}
-
-void
 write_timing_model_cmd(const char *lib_name,
                        const char *cell_name,
                        const char *filename,
@@ -4260,6 +4244,14 @@ timing_arc_sets()
   return self->timingArcSets();
 }
 
+void
+ensure_voltage_waveforms()
+{
+  Corner *corner = Sta::sta()->cmdCorner();
+  DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(MinMax::max());
+  self->ensureVoltageWaveforms(dcalc_ap);
+}
+
 } // LibertyCell methods
 
 %extend CellPortIterator {
@@ -4377,11 +4369,67 @@ Transition *to_edge() { return self->toEdge(); }
 const char *to_edge_name() { return self->toEdge()->asRiseFall()->name(); }
 TimingRole *role() { return self->role(); }
 
+float
+time_voltage(float in_slew,
+             float load_cap,
+             float time)
+{
+  GateTableModel *gate_model = self->gateTableModel();
+  if (gate_model) {
+    OutputWaveforms *waveforms = gate_model->outputWaveforms();
+    if (waveforms)
+      return waveforms->timeVoltage(in_slew, load_cap, time);
+  }
+  return 0.0;
+}
+
+float
+time_current(float in_slew,
+             float load_cap,
+             float time)
+{
+  GateTableModel *gate_model = self->gateTableModel();
+  if (gate_model) {
+    OutputWaveforms *waveforms = gate_model->outputWaveforms();
+    if (waveforms)
+      return waveforms->timeCurrent(in_slew, load_cap, time);
+  }
+  return 0.0;
+}
+
+float
+voltage_current(float in_slew,
+                float load_cap,
+                float voltage)
+{
+  GateTableModel *gate_model = self->gateTableModel();
+  if (gate_model) {
+    OutputWaveforms *waveforms = gate_model->outputWaveforms();
+    if (waveforms)
+      return waveforms->voltageCurrent(in_slew, load_cap, voltage);
+  }
+  return 0.0;
+}
+
+float
+voltage_time(float in_slew,
+             float load_cap,
+             float voltage)
+{
+  GateTableModel *gate_model = self->gateTableModel();
+  if (gate_model) {
+    OutputWaveforms *waveforms = gate_model->outputWaveforms();
+    if (waveforms)
+      return waveforms->voltageTime(in_slew, load_cap, voltage);
+  }
+  return 0.0;
+}
+
 Table1
 voltage_waveform(float in_slew,
                  float load_cap)
 {
-  GateTableModel *gate_model = dynamic_cast<GateTableModel*>(self->model());
+  GateTableModel *gate_model = self->gateTableModel();
   if (gate_model) {
     OutputWaveforms *waveforms = gate_model->outputWaveforms();
     if (waveforms) {
@@ -4393,31 +4441,73 @@ voltage_waveform(float in_slew,
 }
 
 const Table1 *
-current_waveform(float in_slew,
-                 float load_cap)
+voltage_waveform_raw(float in_slew,
+                     float load_cap)
 {
-  GateTableModel *gate_model = dynamic_cast<GateTableModel*>(self->model());
+  GateTableModel *gate_model = self->gateTableModel();
   if (gate_model) {
     OutputWaveforms *waveforms = gate_model->outputWaveforms();
     if (waveforms) {
-      const Table1 *waveform = waveforms->currentWaveform(in_slew, load_cap);
+      const Table1 *waveform = waveforms->voltageWaveformRaw(in_slew, load_cap);
       return waveform;
     }
   }
   return nullptr;
 }
 
-float
-voltage_current(float in_slew,
-                float load_cap,
-                float voltage)
+Table1
+current_waveform(float in_slew,
+                 float load_cap)
 {
-  GateTableModel *gate_model = dynamic_cast<GateTableModel*>(self->model());
+  GateTableModel *gate_model = self->gateTableModel();
   if (gate_model) {
     OutputWaveforms *waveforms = gate_model->outputWaveforms();
     if (waveforms) {
-      float current = waveforms->voltageCurrent(in_slew, load_cap, voltage);
-      return current;
+      Table1 waveform = waveforms->currentWaveform(in_slew, load_cap);
+      return waveform;
+    }
+  }
+  return Table1();
+}
+
+const Table1 *
+current_waveform_raw(float in_slew,
+                     float load_cap)
+{
+  GateTableModel *gate_model = self->gateTableModel();
+  if (gate_model) {
+    OutputWaveforms *waveforms = gate_model->outputWaveforms();
+    if (waveforms) {
+      const Table1 *waveform = waveforms->currentWaveformRaw(in_slew, load_cap);
+      return waveform;
+    }
+  }
+  return nullptr;
+}
+
+Table1
+voltage_current_waveform(float in_slew,
+                         float load_cap)
+{
+  GateTableModel *gate_model = self->gateTableModel();
+  if (gate_model) {
+    OutputWaveforms *waveforms = gate_model->outputWaveforms();
+    if (waveforms) {
+      Table1 waveform = waveforms->voltageCurrentWaveform(in_slew, load_cap);
+      return waveform;
+    }
+  }
+  return Table1();
+}
+
+float
+final_resistance()
+{
+  GateTableModel *gate_model = self->gateTableModel();
+  if (gate_model) {
+    OutputWaveforms *waveforms = gate_model->outputWaveforms();
+    if (waveforms) {
+      return waveforms->finalResistance();
     }
   }
   return 0.0;
@@ -4897,8 +4987,8 @@ latch_d_to_q_en()
     Instance *inst = network->instance(from_pin);
     LibertyCell *lib_cell = network->libertyCell(inst);
     TimingArcSet *d_q_set = self->timingArcSet();
-    LibertyPort *enable_port;
-    FuncExpr *enable_func;
+    const LibertyPort *enable_port;
+    const FuncExpr *enable_func;
     const RiseFall *enable_rf;
     lib_cell->latchEnable(d_q_set, enable_port, enable_func, enable_rf);
     if (enable_port)
@@ -4966,7 +5056,7 @@ float inter_clk_uncertainty()
 Arrival target_clk_arrival() { return self->targetClkArrival(Sta::sta()); }
 bool path_delay_margin_is_external()
 { return self->pathDelayMarginIsExternal();}
-Crpr common_clk_pessimism() { return self->commonClkPessimism(Sta::sta()); }
+Crpr check_crpr() { return self->checkCrpr(Sta::sta()); }
 RiseFall *target_clk_end_trans()
 { return const_cast<RiseFall*>(self->targetClkEndTrans(Sta::sta())); }
 Delay clk_skew() { return self->clkSkew(Sta::sta()); }

@@ -49,8 +49,8 @@ template <class ENUM>
 EnumNameMap<ENUM>::EnumNameMap(initializer_list<pair<const ENUM, string>> enum_names) :
   enum_map_(enum_names)
 {
-  for (auto iter = enum_map_.begin(); iter != enum_map_.end(); iter++)
-    name_map_[iter->second] = iter->first;
+  for (const auto& [key, name] : enum_map_)
+    name_map_[name] = key;
 }
 
 template <class ENUM>

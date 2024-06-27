@@ -22,6 +22,7 @@ namespace sta {
 
 class GateTableModel;
 
+// ArcDelayCalc helper functions.
 class DelayCalcBase : public ArcDelayCalc
 {
 public:
@@ -32,7 +33,10 @@ public:
                        const Net *net,
                        const Corner *corner,
                        const MinMaxAll *min_max) override;
-
+  void setDcalcArgParasiticSlew(ArcDcalcArg &gate,
+                                const DcalcAnalysisPt *dcalc_ap) override;
+  void setDcalcArgParasiticSlew(ArcDcalcArgSeq &gates,
+                                const DcalcAnalysisPt *dcalc_ap) override;
   ArcDelay checkDelay(const Pin *check_pin,
                       const TimingArc *arc,
                       const Slew &from_slew,
@@ -50,14 +54,6 @@ public:
                           int digits) override;
 
 protected:
-  GateTimingModel *gateModel(const TimingArc *arc,
-			     const DcalcAnalysisPt *dcalc_ap) const;
-  GateTableModel *gateTableModel(const TimingArc *arc,
-                                 const DcalcAnalysisPt *dcalc_ap) const;
-  CheckTimingModel *checkModel(const TimingArc *arc,
-			       const DcalcAnalysisPt *dcalc_ap) const;
-  TimingModel *model(const TimingArc *arc,
-		     const DcalcAnalysisPt *dcalc_ap) const;
   // Find the liberty library to use for logic/slew thresholds.
   LibertyLibrary *thresholdLibrary(const Pin *load_pin);
   // Adjust load_delay and load_slew from driver thresholds to load thresholds.

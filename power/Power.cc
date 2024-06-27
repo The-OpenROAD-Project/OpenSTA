@@ -586,12 +586,10 @@ Power::evalBddActivity(DdNode *bdd,
                        const Instance *inst)
 {
   float activity = 0.0;
-  for (auto port_var : bdd_.portVarMap()) {
-    const LibertyPort *port = port_var.first;
+  for (const auto [port, var_node] : bdd_.portVarMap()) {
     const Pin *pin = findLinkPin(inst, port);
     if (pin) {
       PwrActivity var_activity = findActivity(pin);
-      DdNode *var_node = port_var.second;
       unsigned int var_index = Cudd_NodeReadIndex(var_node);
       DdNode *diff = Cudd_bddBooleanDiff(bdd_.cuddMgr(), bdd, var_index);
       Cudd_Ref(diff);

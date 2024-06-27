@@ -27,6 +27,8 @@ namespace sta {
 
 class TimingArcAttrs;
 class WireTimingArc;
+class GateTableModel;
+class DcalcAnalysisPt;
 
 typedef int TimingArcIndex;
 typedef Vector<TimingArc*> TimingArcSeq;
@@ -147,7 +149,7 @@ public:
   TimingRole *role() const { return role_; };
   TimingSense sense() const;
   // Rise/fall if the arc set is rising_edge or falling_edge.
-  RiseFall *isRisingFallingEdge() const;
+  const RiseFall *isRisingFallingEdge() const;
   size_t arcCount() const { return arcs_.size(); }
   TimingArcSeq &arcs() { return arcs_; }
   // Return 1 or 2 arcs matching from transition.
@@ -235,8 +237,11 @@ public:
   TimingSense sense() const;
   // Index in TimingArcSet.
   unsigned index() const { return index_; }
-  TimingModel *model(const OperatingConditions *op_cond) const;
   TimingModel *model() const { return model_; }
+  GateTimingModel *gateModel(const DcalcAnalysisPt *dcalc_ap) const;
+  CheckTimingModel *checkModel(const DcalcAnalysisPt *dcalc_ap) const;
+  GateTableModel *gateTableModel() const;
+  GateTableModel *gateTableModel(const DcalcAnalysisPt *dcalc_ap) const;
   const TimingArc *cornerArc(int ap_index) const;
   void setCornerArc(TimingArc *corner_arc,
 		    int ap_index);
@@ -247,6 +252,7 @@ public:
 		    const TimingArc *arc2);
 
 protected:
+  TimingModel *model(const DcalcAnalysisPt *dcalc_ap) const;
   void setIndex(unsigned index);
   void addScaledModel(const OperatingConditions *op_cond,
 		      TimingModel *scaled_model);

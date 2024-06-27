@@ -37,16 +37,20 @@ proc_redirect read_spef {
 
   set reduce [info exists flags(-reduce)]
   if { [info exists flags(-quiet)] } {
+    # deprecated 2024-02-08
     sta_warn 272 "read_spef -quiet is deprecated."
   }
   if { [info exists keys(-reduce_to)] } {
+    # deprecated 2024-02-08
     sta_warn 273 "read_spef -reduce_to is deprecated. Use -reduce instead."
     set reduce 1
   }
   if { [info exists flags(-delete_after_reduce)] } {
+    # deprecated 2024-02-08
     sta_warn 274 "read_spef -delete_after_reduce is deprecated."
   }
   if { [info exists flags(-save)] } {
+    # deprecated 2024-02-08
     sta_warn 275 "read_spef -save is deprecated."
   }
 

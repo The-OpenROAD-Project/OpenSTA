@@ -57,6 +57,7 @@ PrimaDelayCalc::PrimaDelayCalc(StaState *sta) :
   dcalc_args_(nullptr),
   load_pin_index_map_(nullptr),
   pin_node_map_(network_),
+  node_index_map_(ParasiticNodeLess(parasitics_, network_)),
   prima_order_(3),
   make_waveforms_(false),
   waveform_drvr_pin_(nullptr),
@@ -71,6 +72,7 @@ PrimaDelayCalc::PrimaDelayCalc(const PrimaDelayCalc &dcalc) :
   dcalc_args_(nullptr),
   load_pin_index_map_(nullptr),
   pin_node_map_(network_),
+  node_index_map_(ParasiticNodeLess(parasitics_, network_)),
   prima_order_(dcalc.prima_order_),
   make_waveforms_(false),
   waveform_drvr_pin_(nullptr),
@@ -184,22 +186,19 @@ PrimaDelayCalc::gateDelay(const Pin *drvr_pin,
                           const DcalcAnalysisPt *dcalc_ap)
 {
   ArcDcalcArgSeq dcalc_args;
-  dcalc_args.emplace_back(nullptr, drvr_pin, nullptr, arc, in_slew, parasitic);
-  ArcDcalcResultSeq dcalc_results = gateDelays(dcalc_args, load_cap,
-                                               load_pin_index_map, dcalc_ap);
+  dcalc_args.emplace_back(nullptr, drvr_pin, nullptr, arc, in_slew, load_cap, parasitic);
+  ArcDcalcResultSeq dcalc_results = gateDelays(dcalc_args, load_pin_index_map, dcalc_ap);
   return dcalc_results[0];
 }
 
 ArcDcalcResultSeq
 PrimaDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
-                           float load_cap,
                            const LoadPinIndexMap &load_pin_index_map,
                            const DcalcAnalysisPt *dcalc_ap)
 {
   dcalc_args_ = &dcalc_args;
   load_pin_index_map_ = &load_pin_index_map;
   drvr_count_ = dcalc_args.size();
-  load_cap_ = load_cap;
   dcalc_ap_ = dcalc_ap;
   drvr_rf_ = dcalc_args[0].arc()->toEdge()->asRiseFall();
   parasitic_network_ = dcalc_args[0].parasitic();
@@ -208,14 +207,14 @@ PrimaDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
   output_waveforms_.resize(drvr_count_);
   for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
     ArcDcalcArg &dcalc_arg = dcalc_args[drvr_idx];
-    GateTableModel *table_model = gateTableModel(dcalc_arg.arc(), dcalc_ap);
+    GateTableModel *table_model = dcalc_arg.arc()->gateTableModel(dcalc_ap);
     if (table_model && dcalc_arg.parasitic()) {
       OutputWaveforms *output_waveforms = table_model->outputWaveforms();
       Slew in_slew = dcalc_arg.inSlew();
       if (output_waveforms
           // Bounds check because extrapolating waveforms does not work for shit.
           && output_waveforms->slewAxis()->inBounds(in_slew)
-          && output_waveforms->capAxis()->inBounds(load_cap)) {
+          && output_waveforms->capAxis()->inBounds(dcalc_arg.loadCap())) {
         output_waveforms_[drvr_idx] = output_waveforms;
         debugPrint(debug_, "ccs_dcalc", 1, "%s %s",
                    dcalc_arg.drvrCell()->name(),
@@ -226,7 +225,7 @@ PrimaDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
         drvr_library->supplyVoltage("VDD", vdd_, vdd_exists);
         if (!vdd_exists)
           report_->error(1720, "VDD not defined in library %s", drvr_library->name());
-        drvr_cell->ensureVoltageWaveforms();
+        drvr_cell->ensureVoltageWaveforms(dcalc_ap);
         if (drvr_idx == 0) {
           vth_ = drvr_library->outputThreshold(drvr_rf_) * vdd_;
           vl_ = drvr_library->slewLowerThreshold(drvr_rf_) * vdd_;
@@ -241,7 +240,7 @@ PrimaDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
   }
 
   if (failed)
-    return tableDcalcResults(load_cap);
+    return tableDcalcResults();
   else {
     simulate();
     return dcalcResults();
@@ -249,7 +248,7 @@ PrimaDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
 }
 
 ArcDcalcResultSeq
-PrimaDelayCalc::tableDcalcResults(float load_cap)
+PrimaDelayCalc::tableDcalcResults()
 {
   for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
     ArcDcalcArg &dcalc_arg = (*dcalc_args_)[drvr_idx];
@@ -260,8 +259,7 @@ PrimaDelayCalc::tableDcalcResults(float load_cap)
       dcalc_arg.setParasitic(parasitic);
     }
   }
-  return table_dcalc_->gateDelays(*dcalc_args_, load_cap, *load_pin_index_map_,
-                                  dcalc_ap_);
+  return table_dcalc_->gateDelays(*dcalc_args_, *load_pin_index_map_, dcalc_ap_);
 }
 
 void
@@ -904,7 +902,7 @@ PrimaDelayCalc::reportGateDelay(const Pin *drvr_pin,
                                 const DcalcAnalysisPt *dcalc_ap,
                                 int digits)
 {
-  GateTimingModel *model = gateModel(arc, dcalc_ap);
+  GateTimingModel *model = arc->gateModel(dcalc_ap);
   if (model) {
     float in_slew1 = delayAsFloat(in_slew);
     return model->reportGateDelay(pinPvt(drvr_pin, dcalc_ap), in_slew1, load_cap,
@@ -948,96 +946,6 @@ PrimaDelayCalc::watchWaveform(const Pin *pin)
                                                   new FloatSeq(times_));
   Table1 waveform(new FloatSeq(voltages), time_axis);
   return waveform;
-}
-
-////////////////////////////////////////////////////////////////
-
-// Waveform accessors for swig/tcl.
-Table1
-PrimaDelayCalc::drvrWaveform(const Pin *in_pin,
-                             const RiseFall *in_rf,
-                             const Pin *drvr_pin,
-                             const RiseFall *drvr_rf,
-                             const Corner *corner,
-                             const MinMax *min_max)
-{
-  makeWaveforms(in_pin, in_rf, drvr_pin, drvr_rf, nullptr, corner, min_max);
-  TableAxisPtr time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                  new FloatSeq(times_));
-  Table1 waveform(new FloatSeq(drvr_voltages_), time_axis);
-  return waveform;
-}
-
-Table1
-PrimaDelayCalc::loadWaveform(const Pin *in_pin,
-                             const RiseFall *in_rf,
-                             const Pin *drvr_pin,
-                             const RiseFall *drvr_rf,
-                             const Pin *load_pin,
-                             const Corner *corner,
-                             const MinMax *min_max)
-{
-  makeWaveforms(in_pin, in_rf, drvr_pin, drvr_rf, load_pin, corner, min_max);
-  TableAxisPtr time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                  new FloatSeq(times_));
-  Table1 waveform(new FloatSeq(load_voltages_), time_axis);
-  return waveform;
-}
-
-Table1
-PrimaDelayCalc::inputWaveform(const Pin *in_pin,
-                              const RiseFall *in_rf,
-                              const Corner *corner,
-                              const MinMax *min_max)
-{
-  LibertyPort *port = network_->libertyPort(in_pin);
-  if (port) {
-    DriverWaveform *driver_waveform = port->driverWaveform(in_rf);
-    const Vertex *in_vertex = graph_->pinLoadVertex(in_pin);
-    DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
-    Slew in_slew = graph_->slew(in_vertex, in_rf, dcalc_ap->index());
-    LibertyLibrary *library = port->libertyLibrary();
-    float vdd;
-    bool vdd_exists;
-    library->supplyVoltage("VDD", vdd, vdd_exists);
-    if (!vdd_exists)
-      report_->error(1751, "VDD not defined in library %s", library->name());
-    Table1 in_waveform = driver_waveform->waveform(in_slew);
-    // Scale the waveform from 0:vdd.
-    FloatSeq *scaled_values = new FloatSeq;
-    for (float value : *in_waveform.values())
-      scaled_values->push_back(value * vdd);
-    return Table1(scaled_values, in_waveform.axis1ptr());
-  }
-  return Table1();
-}
-
-void
-PrimaDelayCalc::makeWaveforms(const Pin *in_pin,
-                              const RiseFall *in_rf,
-                              const Pin *drvr_pin,
-                              const RiseFall *drvr_rf,
-                              const Pin *load_pin,
-                              const Corner *corner,
-                              const MinMax *min_max)
-{
-  Edge *edge;
-  const TimingArc *arc;
-  graph_->gateEdgeArc(in_pin, in_rf, drvr_pin, drvr_rf, edge, arc);
-  if (arc) {
-    DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
-    const Parasitic *parasitic = findParasitic(drvr_pin, drvr_rf, dcalc_ap);
-    if (parasitic) {
-      make_waveforms_ = true;
-      waveform_drvr_pin_ = drvr_pin;
-      waveform_load_pin_ = load_pin;
-      Vertex *drvr_vertex = graph_->pinDrvrVertex(drvr_pin);
-      graph_delay_calc_->findDriverArcDelays(drvr_vertex, edge, arc, dcalc_ap, this);
-      make_waveforms_ = false;
-      waveform_drvr_pin_ = nullptr;
-      waveform_load_pin_ = nullptr;
-    }
-  }
 }
 
 ////////////////////////////////////////////////////////////////

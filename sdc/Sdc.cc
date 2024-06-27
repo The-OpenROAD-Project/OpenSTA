@@ -271,15 +271,12 @@ Sdc::deleteConstraints()
   inst_min_pulse_width_map_.deleteContentsClear();
   clk_min_pulse_width_map_.deleteContentsClear();
 
-  for (auto pin_data_check : data_checks_from_map_) {
-    DataCheckSet *checks = pin_data_check.second;
+  for (auto [pin, checks] : data_checks_from_map_) {
     checks->deleteContents();
     delete checks;
   }
-  for (auto pin_data_check : data_checks_to_map_) {
-    DataCheckSet *checks = pin_data_check.second;
+  for (auto [pin, checks] : data_checks_to_map_)
     delete checks;
-  }
 
   input_delays_.deleteContents();
   input_delay_pin_map_.deleteContents();
@@ -323,9 +320,7 @@ Sdc::removeNetLoadCaps()
 void
 Sdc::removeLibertyAnnotations()
 {
-  for (auto cell_port : disabled_cell_ports_) {
-    DisabledCellPorts *disable = cell_port.second;
-    LibertyCell *cell = disable->cell();
+  for (auto [cell, disable] : disabled_cell_ports_) {
     if (disable->all())
       cell->setIsDisabledConstraint(false);
 
@@ -1957,8 +1952,8 @@ void
 Sdc::ensureClkGroupExclusions()
 {
   if (clk_group_exclusions_.empty()) {
-    for (auto name_clk_groups : clk_groups_name_map_)
-      makeClkGroupExclusions(name_clk_groups.second);
+    for (const auto [name, clk_groups] : clk_groups_name_map_)
+      makeClkGroupExclusions(clk_groups);
   }
 }
    
@@ -2071,8 +2066,7 @@ Sdc::removeClockGroupsLogicallyExclusive(const char *name)
       removeClockGroups(groups);
   }
   else {
-    for (auto name_group : clk_groups_name_map_) {
-      ClockGroups *groups = name_group.second;
+    for (const auto [name, groups] : clk_groups_name_map_) {
       if (groups->logicallyExclusive())
 	removeClockGroups(groups);
     }
@@ -2088,8 +2082,7 @@ Sdc::removeClockGroupsPhysicallyExclusive(const char *name)
       removeClockGroups(groups);
   }
   else {
-    for (auto name_group : clk_groups_name_map_) {
-      ClockGroups *groups = name_group.second;
+    for (const auto [name, groups] : clk_groups_name_map_) {
       if (groups->physicallyExclusive())
 	removeClockGroups(groups);
     }
@@ -2105,8 +2098,7 @@ Sdc::removeClockGroupsAsynchronous(const char *name)
       removeClockGroups(groups);
   }
   else {
-    for (auto name_group : clk_groups_name_map_) {
-      ClockGroups *groups = name_group.second;
+    for (const auto [name, groups] : clk_groups_name_map_) {
       if (groups->asynchronous())
 	removeClockGroups(groups);
     }
@@ -2126,10 +2118,8 @@ Sdc::removeClockGroups(ClockGroups *groups)
 void
 Sdc::clockGroupsDeleteClkRefs(Clock *clk)
 {
-  for (auto name_group : clk_groups_name_map_) {
-    ClockGroups *groups = name_group.second;
+  for (const auto [name, groups] : clk_groups_name_map_)
     groups->removeClock(clk);
-  }
   clearClkGroupExclusions();
 }
 
@@ -4034,9 +4024,7 @@ Sdc::clearGroupPathMap()
 {
   // GroupPath exceptions are deleted with other exceptions.
   // Delete group_path name strings.
-  for (auto name_groups : group_path_map_) {
-    const char *name = name_groups.first;
-    GroupPathSet *groups = name_groups.second;
+  for (auto [name, groups] : group_path_map_) {
     stringDelete(name);
     groups->deleteContents();
     delete groups;

@@ -37,13 +37,13 @@ class EdgeLess
 {
 public:
   EdgeLess(const Network *network,
-	   Graph *graph);
+	   Graph *&graph);
   bool operator()(const Edge *edge1,
 		  const Edge *edge2) const;
 
 private:
   const PinPathNameLess pin_less_;
-  Graph *graph_;
+  Graph *&graph_;
 };
 
 void

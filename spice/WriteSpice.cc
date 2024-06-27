@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include "WriteSpice.hh"
+#include "spice/WriteSpice.hh"
+
+#include <algorithm> // swap
 
 #include "Debug.hh"
 #include "Units.hh"
@@ -27,7 +29,7 @@
 #include "Liberty.hh"
 #include "Network.hh"
 #include "Graph.hh"
-#include "Sim.hh"
+#include "search/Sim.hh"
 #include "Clock.hh"
 #include "PathVertex.hh"
 #include "DcalcAnalysisPt.hh"
@@ -36,6 +38,8 @@
 namespace sta {
 
 using std::ifstream;
+using std::swap;
+using std::set;
 
 Net *
 pinNet(const Pin *pin,
@@ -77,6 +81,7 @@ WriteSpice::WriteSpice(const char *spice_filename,
                        const char *power_name,
                        const char *gnd_name,
                        CircuitSim ckt_sim,
+                       const DcalcAnalysisPt *dcalc_ap,
                        const StaState *sta) :
   StaState(sta),
   spice_filename_(spice_filename),
@@ -86,23 +91,23 @@ WriteSpice::WriteSpice(const char *spice_filename,
   power_name_(power_name),
   gnd_name_(gnd_name),
   ckt_sim_(ckt_sim),
+  dcalc_ap_(dcalc_ap),
   default_library_(network_->defaultLibertyLibrary()),
   short_ckt_resistance_(.0001),
   cap_index_(1),
   res_index_(1),
   volt_index_(1),
-  next_node_index_(1),
   bdd_(sta)
 {
 }
 
 void
-WriteSpice::initPowerGnd(const DcalcAnalysisPt *dcalc_ap)
+WriteSpice::initPowerGnd()
 {
   bool exists = false;
   default_library_->supplyVoltage(power_name_, power_voltage_, exists);
   if (!exists) {
-    const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
+    const OperatingConditions *op_cond = dcalc_ap_->operatingConditions();
     if (op_cond == nullptr)
       op_cond = network_->defaultLibertyLibrary()->defaultOperatingConditions();
     power_voltage_ = op_cond->voltage();
@@ -182,7 +187,7 @@ WriteSpice::writeGnuplotFile(StdStringSeq &node_nanes)
                 csv_filename.c_str());
     for (size_t i = 3; i <= node_nanes.size() + 1; i++) {
       streamPrint(gnuplot_stream, ",\\\n");
-      streamPrint(gnuplot_stream, "'' using 1:%lu with lines", i);
+      streamPrint(gnuplot_stream, "'' using 1:%zu with lines", i);
     }
     streamPrint(gnuplot_stream, "\n");
     streamPrint(gnuplot_stream, "pause mouse close\n");
@@ -312,9 +317,8 @@ WriteSpice::findCellSubckts(StdStringSet &cell_names)
 ////////////////////////////////////////////////////////////////
 
 void
-WriteSpice::writeSubcktInst(const Pin *input_pin)
+WriteSpice::writeSubcktInst(const Instance *inst)
 {
-  const Instance *inst = network_->instance(input_pin);
   const char *inst_name = network_->pathName(inst);
   LibertyCell *cell = network_->libertyCell(inst);
   const char *cell_name = cell->name();
@@ -340,23 +344,20 @@ WriteSpice::writeSubcktInst(const Pin *input_pin)
 
 // Power/ground and input voltage sources.
 void
-WriteSpice::writeSubcktInstVoltSrcs(const Pin *input_pin,
+WriteSpice::writeSubcktInstVoltSrcs(const Instance *inst,
                                     LibertyPortLogicValues &port_values,
-                                    const Clock *clk,
-                                    DcalcAPIndex dcalc_ap_index)
+                                    const PinSet &excluded_input_pins)
 {
-  const Instance *inst = network_->instance(input_pin);
   LibertyCell *cell = network_->libertyCell(inst);
   const char *cell_name = cell->name();
   StringVector &spice_port_names = cell_spice_port_names_[cell_name];
-
-  const LibertyPort *input_port = network_->libertyPort(input_pin);
   const char *inst_name = network_->pathName(inst);
 
   debugPrint(debug_, "write_spice", 2, "subckt %s", cell->name());
   for (string subckt_port_sname : spice_port_names) {
     const char *subckt_port_name = subckt_port_sname.c_str();
     LibertyPort *port = cell->findLibertyPort(subckt_port_name);
+    const Pin *pin = port ? network_->findPin(inst, port) : nullptr;
     LibertyPgPort *pg_port = cell->findPgPort(subckt_port_name);
     debugPrint(debug_, "write_spice", 2, " port %s%s",
                subckt_port_name,
@@ -369,10 +370,9 @@ WriteSpice::writeSubcktInstVoltSrcs(const Pin *input_pin,
     else if (stringEq(subckt_port_name, gnd_name_))
       writeVoltageSource(inst_name, subckt_port_name, gnd_voltage_);
     else if (port
-             && port != input_port
+             && excluded_input_pins.find(pin) == excluded_input_pins.end()
              && port->direction()->isAnyInput()) {
       // Input voltage to sensitize path from gate input to output.
-      const Pin *pin = network_->findPin(inst, port);
       // Look for tie high/low or propagated constant values.
       LogicValue port_value = sim_->logicValue(pin);
       if (port_value == LogicValue::unknown) {
@@ -395,11 +395,7 @@ WriteSpice::writeSubcktInstVoltSrcs(const Pin *input_pin,
                            power_voltage_);
         break;
       case LogicValue::rise:
-        writeClkedStepSource(pin, RiseFall::rise(), clk, dcalc_ap_index);
-
-        break;
       case LogicValue::fall:
-        writeClkedStepSource(pin, RiseFall::fall(), clk, dcalc_ap_index);
         break;
       }
     }
@@ -465,34 +461,14 @@ WriteSpice::pgPortVoltage(LibertyPgPort *pg_port)
   return voltage;
 }
 
-// PWL voltage source that rises half way into the first clock cycle.
-void
-WriteSpice::writeClkedStepSource(const Pin *pin,
-                                 const RiseFall *rf,
-                                 const Clock *clk,
-                                 DcalcAPIndex dcalc_ap_index)
-{
-  Vertex *vertex = graph_->pinLoadVertex(pin);
-  float slew = findSlew(vertex, rf, nullptr, dcalc_ap_index);
-  float time = clkWaveformTimeOffset(clk) + clk->period() / 2.0;
-  writeRampVoltSource(pin, rf, time, slew);
-}
-
-float
-WriteSpice::clkWaveformTimeOffset(const Clock *clk)
-{
-  return clk->period() / 10;
-}
-
 ////////////////////////////////////////////////////////////////
 
 float
 WriteSpice::findSlew(Vertex *vertex,
                      const RiseFall *rf,
-                     TimingArc *next_arc,
-                     DcalcAPIndex dcalc_ap_index)
+                     TimingArc *next_arc)
 {
-  float slew = delayAsFloat(graph_->slew(vertex, rf, dcalc_ap_index));
+  float slew = delayAsFloat(graph_->slew(vertex, rf, dcalc_ap_->index()));
   if (slew == 0.0 && next_arc)
     slew = slewAxisMinValue(next_arc);
   if (slew == 0.0)
@@ -504,7 +480,7 @@ WriteSpice::findSlew(Vertex *vertex,
 float
 WriteSpice::slewAxisMinValue(TimingArc *arc)
 {
-  GateTableModel *gate_model = dynamic_cast<GateTableModel*>(arc->model());
+  GateTableModel *gate_model = arc->gateTableModel(dcalc_ap_);
   if (gate_model) {
     const TableModel *model = gate_model->delayModel();
     const TableAxis *axis1 = model->axis1();
@@ -532,27 +508,20 @@ WriteSpice::slewAxisMinValue(TimingArc *arc)
 
 void
 WriteSpice::writeDrvrParasitics(const Pin *drvr_pin,
-                                const RiseFall *drvr_rf,
-                                const NetSet &aggressor_nets,
-                                const ParasiticAnalysisPt *parasitic_ap)
+                                const Parasitic *parasitic,
+                                const NetSet &coupling_nets)
 {
   Net *net = network_->net(drvr_pin);
   const char *net_name = net ? network_->pathName(net) : network_->pathName(drvr_pin);
   streamPrint(spice_stream_, "* Net %s\n", net_name);
 
-  Parasitic *parasitic = parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
-  node_map_.clear();
-  next_node_index_ = 1;
-  if (parasitic)
-    writeParasiticNetwork(drvr_pin, parasitic, aggressor_nets);
+  if (parasitics_->isParasiticNetwork(parasitic))
+    writeParasiticNetwork(drvr_pin, parasitic, coupling_nets);
+  else if (parasitics_->isPiElmore(parasitic))
+    writePiElmore(drvr_pin, parasitic);
   else {
-    parasitic = parasitics_->findPiElmore(drvr_pin, drvr_rf, parasitic_ap);
-    if (parasitic)
-      writePiElmore(drvr_pin, parasitic);
-    else {
-      streamPrint(spice_stream_, "* Net has no parasitics.\n");
-      writeNullParasitic(drvr_pin);
-    }
+    streamPrint(spice_stream_, "* Net has no parasitics.\n");
+    writeNullParasitic(drvr_pin);
   }
 }
 
@@ -561,7 +530,7 @@ WriteSpice::writeParasiticNetwork(const Pin *drvr_pin,
                                   const Parasitic *parasitic,
                                   const NetSet &coupling_nets)
 {
-  Set<const Pin*> reachable_pins;
+  set<const Pin*> reachable_pins;
   // Sort resistors for consistent regression results.
   ParasiticResistorSeq resistors = parasitics_->resistors(parasitic);
   sort(resistors.begin(), resistors.end(),
@@ -575,8 +544,8 @@ WriteSpice::writeParasiticNetwork(const Pin *drvr_pin,
     ParasiticNode *node2 = parasitics_->node2(resistor);
     streamPrint(spice_stream_, "R%d %s %s %.3e\n",
                 res_index_++,
-                nodeName(node1),
-                nodeName(node2),
+                parasitics_->name(node1),
+                parasitics_->name(node2),
                 resistance);
 
     // Necessary but not sufficient. Need a DFS.
@@ -595,7 +564,7 @@ WriteSpice::writeParasiticNetwork(const Pin *drvr_pin,
     if (pin != drvr_pin
 	&& network_->isLoad(pin)
 	&& !network_->isHierarchical(pin)
-	&& !reachable_pins.hasKey(pin)) {
+	&& reachable_pins.find(pin) == reachable_pins.end()) {
       streamPrint(spice_stream_, "R%d %s %s %.3e\n",
 		  res_index_++,
 		  network_->pathName(drvr_pin),
@@ -605,6 +574,7 @@ WriteSpice::writeParasiticNetwork(const Pin *drvr_pin,
   }
   delete pin_iter;
 
+  // Grounded node capacitors.
   // Sort nodes for consistent regression results.
   ParasiticNodeSeq nodes = parasitics_->nodes(parasitic);
   sort(nodes.begin(), nodes.end(),
@@ -621,12 +591,12 @@ WriteSpice::writeParasiticNetwork(const Pin *drvr_pin,
     if (cap > 0.0) {
       streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
                   cap_index_++,
-                  nodeName(node),
+                  parasitics_->name(node),
                   cap);
     }
   }
 
-  // Sort coupling capacitors consistent regression results.
+  // Sort coupling capacitors for consistent regression results.
   ParasiticCapacitorSeq capacitors = parasitics_->capacitors(parasitic);
   sort(capacitors.begin(), capacitors.end(),
        [=] (const ParasiticCapacitor *c1,
@@ -640,21 +610,21 @@ WriteSpice::writeParasiticNetwork(const Pin *drvr_pin,
     float cap = parasitics_->value(capacitor);
     const Net *net1 = node1 ? parasitics_->net(node1, network_) : nullptr;
     const Net *net2 = node2 ? parasitics_->net(node2, network_) : nullptr;
-    const ParasiticNode *net_node = nullptr;
-    const char *coupling_name;
-    if (net1 == net) {
-      net_node = node1;
-      coupling_name = net2 && coupling_nets.hasKey(net2) ? nodeName(node2) : "0";
+    if (net2 == net) {
+      swap(net1, net2);
+      swap(node1, node2);
     }
-    else if (net2 == net) {
-      net_node = node2;
-      coupling_name = net1 && coupling_nets.hasKey(net1) ? nodeName(node1) : "0";
-    }
-    if (net_node)
+    if (net2 && coupling_nets.hasKey(net2))
+      // Write half the capacitance because the coupled net will do the same.
       streamPrint(spice_stream_, "C%d %s %s %.3e\n",
                   cap_index_++,
-                  nodeName(net_node),
-                  coupling_name,
+                  parasitics_->name(node1),
+                  parasitics_->name(node2),
+                  cap * .5);
+    else
+      streamPrint(spice_stream_, "C%d %s 0 %.3e\n",
+                  cap_index_++,
+                  parasitics_->name(node1),
                   cap);
   }
 }
@@ -672,27 +642,6 @@ pinNet(const Pin *pin,
       return network->net(term);
   }
   return net;
-}
-
-const char *
-WriteSpice::nodeName(const ParasiticNode *node)
-{
-  const Pin *pin = parasitics_->pin(node);
-  if (pin)
-    return parasitics_->name(node);
-  else {
-    int node_index;
-    auto index_itr = node_map_.find(node);
-    if (index_itr == node_map_.end()) {
-      node_index = next_node_index_++;
-      node_map_[node] = node_index;
-    }
-    else
-      node_index = index_itr->second;
-    const Net *net = parasitics_->net(node, network_);
-    const char *net_name = network_->pathName(net);
-    return stringPrintTmp("%s:%d", net_name, node_index);
-  }
 }
 
 void
@@ -1081,21 +1030,23 @@ WriteSpice::seqPortValues(Sequential *seq,
                           LibertyPortLogicValues &port_values)
 {
   FuncExpr *data = seq->data();
+  // SHOULD choose values for all ports of data to make output rise/fall
+  // matching rf.
   LibertyPort *port = onePort(data);
   if (port) {
     TimingSense sense = data->portTimingSense(port);
     switch (sense) {
     case TimingSense::positive_unate:
       if (rf == RiseFall::rise())
-	port_values[port] = LogicValue::rise;
+        port_values[port] = LogicValue::one;
       else
-	port_values[port] = LogicValue::fall;
+	port_values[port] = LogicValue::zero;
       break;
     case TimingSense::negative_unate:
       if (rf == RiseFall::rise())
-	port_values[port] = LogicValue::fall;
+	port_values[port] = LogicValue::zero;
       else
-	port_values[port] = LogicValue::rise;
+        port_values[port] = LogicValue::one;
       break;
     case TimingSense::non_unate:
     case TimingSense::none:
@@ -1153,20 +1104,25 @@ WriteSpice::drvrLoads(const Pin *drvr_pin)
 
 void
 WriteSpice::writeSubcktInstLoads(const Pin *drvr_pin,
-                                 const Pin *exclude)
+                                 const Pin *path_load,
+                                 const PinSet &excluded_input_pins,
+                                 InstanceSet &written_insts)
 {
   streamPrint(spice_stream_, "* Load pins\n");
   PinSeq drvr_loads = drvrLoads(drvr_pin);
   // Do not sensitize side load gates.
   LibertyPortLogicValues port_values;
   for (const Pin *load_pin : drvr_loads) {
-    if (load_pin != exclude
+    const Instance *load_inst = network_->instance(load_pin);
+    if (load_pin != path_load
 	&& network_->direction(load_pin)->isAnyInput()
 	&& !network_->isHierarchical(load_pin)
-	&& !network_->isTopLevelPort(load_pin)) {
-      writeSubcktInst(load_pin);
-      writeSubcktInstVoltSrcs(load_pin, port_values, nullptr, 0);
+	&& !network_->isTopLevelPort(load_pin)
+        && !written_insts.hasKey(load_inst)) {
+      writeSubcktInst(load_inst);
+      writeSubcktInstVoltSrcs(load_inst, port_values, excluded_input_pins);
       streamPrint(spice_stream_, "\n");
+      written_insts.insert(load_inst);
     }
   }
 }
@@ -1264,4 +1220,25 @@ streamPrint(ofstream &stream,
   va_end(args);
 }
 
+////////////////////////////////////////////////////////////////
+
+// Unused
+// PWL voltage source that rises half way into the first clock cycle.
+void
+WriteSpice::writeClkedStepSource(const Pin *pin,
+                                 const RiseFall *rf,
+                                 const Clock *clk)
+{
+  Vertex *vertex = graph_->pinLoadVertex(pin);
+  float slew = findSlew(vertex, rf, nullptr);
+  float time = clkWaveformTimeOffset(clk) + clk->period() / 2.0;
+  writeRampVoltSource(pin, rf, time, slew);
 }
+
+float
+WriteSpice::clkWaveformTimeOffset(const Clock *clk)
+{
+  return clk->period() / 10;
+}
+
+} // namespace

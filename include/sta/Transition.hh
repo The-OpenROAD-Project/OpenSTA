@@ -97,9 +97,9 @@ public:
   RiseFall *asRiseFall() const { return as_rise_fall_; }
   // Find transition corresponding to string.
   static RiseFallBoth *find(const char *tr_str);
-  // for (auto tr : min_max->range()) {}
+  // for (const auto rf : rf->range()) {}
   const std::vector<RiseFall*> &range() const { return range_; }
-  // for (auto tr_index : min_max->rangeIndex()) {}
+  // for (const auto rf_index : rf->rangeIndex()) {}
   const std::vector<int> &rangeIndex() const { return range_index_; }
 
   static const int index_count = 3;

@@ -20,6 +20,7 @@
 #include <Eigen/SparseCore>
 #include <Eigen/SparseLU>
 
+#include "Parasitics.hh"
 #include "LumpedCapDelayCalc.hh"
 #include "ArcDcalcWaveforms.hh"
 
@@ -39,19 +40,22 @@ using Eigen::Index;
 using Eigen::SparseLU;
 
 typedef Map<const Pin*, size_t, PinIdLess> PinNodeMap;
-typedef Map<const ParasiticNode*, size_t> NodeIndexMap;
+typedef map<const ParasiticNode*, size_t, ParasiticNodeLess> NodeIndexMap;
 typedef Map<const Pin*, size_t> PortIndexMap;
 typedef SparseMatrix<double> MatrixSd;
+typedef map<const Pin*, FloatSeq, PinIdLess> WatchPinValuesMap;
 
 ArcDelayCalc *
 makeCcsSimDelayCalc(StaState *sta);
 
-class CcsSimDelayCalc : public DelayCalcBase, public ArcDcalcWaveforms
+class CcsSimDelayCalc : public DelayCalcBase,
+                        public ArcDcalcWaveforms
 {
 public:
   CcsSimDelayCalc(StaState *sta);
   ~CcsSimDelayCalc();
   ArcDelayCalc *copy() override;
+  const char *name() const override { return "ccs_sim"; }
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
                            const DcalcAnalysisPt *dcalc_ap) override;
@@ -73,7 +77,6 @@ public:
                            const LoadPinIndexMap &load_pin_index_map,
                            const DcalcAnalysisPt *dcalc_ap) override;
   ArcDcalcResultSeq gateDelays(ArcDcalcArgSeq &dcalc_args,
-                               float load_cap,
                                const LoadPinIndexMap &load_pin_index_map,
                                const DcalcAnalysisPt *dcalc_ap) override;
   string reportGateDelay(const Pin *drvr_pin,
@@ -85,23 +88,11 @@ public:
                          const DcalcAnalysisPt *dcalc_ap,
                          int digits) override;
 
-  Table1 inputWaveform(const Pin *in_pin,
-                       const RiseFall *in_rf,
-                       const Corner *corner,
-                       const MinMax *min_max) override;
-  Table1 drvrWaveform(const Pin *in_pin,
-                      const RiseFall *in_rf,
-                      const Pin *drvr_pin,
-                      const RiseFall *drvr_rf,
-                      const Corner *corner,
-                      const MinMax *min_max) override;
- Table1 loadWaveform(const Pin *in_pin,
-                     const RiseFall *in_rf,
-                     const Pin *drvr_pin,
-                     const RiseFall *drvr_rf,
-                     const Pin *load_pin,
-                     const Corner *corner,
-                     const MinMax *min_max) override;
+  // Record waveform for drvr/load pin.
+  void watchPin(const Pin *pin) override;
+  void clearWatchPins() override;
+  PinSeq watchPins() const override;
+  Waveform watchWaveform(const Pin *pin) override;
 
 protected:
   void simulate(ArcDcalcArgSeq &dcalc_args);
@@ -145,13 +136,7 @@ protected:
                      ArcDelay &delay,
                      Slew &slew);
   void recordWaveformStep(double time);
-  void makeWaveforms(const Pin *in_pin,
-                     const RiseFall *in_rf,
-                     const Pin *drvr_pin,
-                     const RiseFall *drvr_rf,
-                     const Pin *load_pin,
-                     const Corner *corner,
-                     const MinMax *min_max);
+
   void reportMatrix(const char *name,
                     MatrixSd &matrix);
   void reportMatrix(const char *name,
@@ -167,7 +152,6 @@ protected:
 
   ArcDcalcArgSeq *dcalc_args_;
   size_t drvr_count_;
-  float load_cap_;
   const DcalcAnalysisPt *dcalc_ap_;
   const Parasitic *parasitic_network_;
   const RiseFall *drvr_rf_;
@@ -205,11 +189,7 @@ protected:
   SparseLU<MatrixSd> solver_;
 
   // Waveform recording.
-  bool make_waveforms_;
-  const Pin *waveform_drvr_pin_;
-  const Pin *waveform_load_pin_;
-  FloatSeq drvr_voltages_;
-  FloatSeq load_voltages_;
+  WatchPinValuesMap watch_pin_values_;
   FloatSeq times_;
 
   size_t drvr_idx_;

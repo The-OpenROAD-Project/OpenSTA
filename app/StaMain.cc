@@ -51,10 +51,11 @@ findCmdLineFlag(int &argc,
   for (int i = 1; i < argc; i++) {
     char *arg = argv[i];
     if (stringEq(arg, flag)) {
-      // remove flag from argv.
+      // Remove flag from argv.
       for (int j = i + 1; j < argc; j++, i++)
 	argv[i] = argv[j];
       argc--;
+      argv[argc] = nullptr;
       return true;
     }
   }
@@ -70,10 +71,11 @@ findCmdLineKey(int &argc,
     char *arg = argv[i];
     if (stringEq(arg, key) && i + 1 < argc) {
       char *value = argv[i + 1];
-      // remove key and value from argv.
+      // Remove key and value from argv.
       for (int j = i + 2; j < argc; j++, i++)
 	argv[i] = argv[j];
       argc -= 2;
+      argv[argc] = nullptr;
       return value;
     }
   }
@@ -136,14 +138,6 @@ unencode(const char *inits[])
   }
   *u = '\0';
   return unencoded;
-}
-
-// Hack until c++17 filesystem is better supported.
-bool
-is_regular_file(const char *filename)
-{
-  struct stat sb;
-  return stat(filename, &sb) == 0 && S_ISREG(sb.st_mode);
 }
 
 } // namespace

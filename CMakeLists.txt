@@ -24,13 +24,13 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14)
 cmake_policy(SET CMP0086 NEW)
 endif()
 
-project(STA VERSION 2.5.0
+project(STA VERSION 2.6.0
   LANGUAGES CXX
 )
 
-option(USE_CUDD "Use CUDD BDD package")
+option(USE_CUDD "Use CUDD BDD package" ON)
 option(CUDD_DIR "CUDD BDD package directory")
-option(USE_TCL_READLINE "Use TCL readliine package")
+option(USE_TCL_READLINE "Use TCL readliine package" ON)
 option(USE_SANITIZE "Compile with santize address enabled")
 
 # Turn on to debug compiler args.
@@ -195,8 +195,10 @@ set(STA_SOURCE
   search/VisitPathEnds.cc
   search/VisitPathGroupVertices.cc
   search/WorstSlack.cc
-  search/WritePathSpice.cc
-  search/WriteSpice.cc
+
+  spice/WritePathSpice.cc
+  spice/WriteSpice.cc
+  spice/Xyce.cc
 
   power/Power.cc
   power/ReadVcdActivities.cc
@@ -244,11 +246,11 @@ set(STA_TCL_FILES
   tcl/Sta.tcl
   tcl/Splash.tcl
   tcl/Variables.tcl
-  tcl/WritePathSpice.tcl
   dcalc/DelayCalc.tcl
   parasitics/Parasitics.tcl
   power/Power.tcl
   sdf/Sdf.tcl
+  spice/WriteSpice.tcl
   verilog/Verilog.tcl
   )
 
@@ -258,8 +260,7 @@ set(STA_TCL_FILES
 #
 ################################################################
 
-# Earlier versions of flex use 'register' declarations that are deprecated
-# in c++11 and illegal in c++17.
+# Earlier versions of flex use 'register' declarations that are illegal in c++17.
 #find_package(FLEX 2.6.4)
 find_package(FLEX)
 find_package(BISON)
@@ -431,6 +432,7 @@ set_property(SOURCE ${STA_SWIG_FILE}
   -I${STA_HOME}/dcalc
   -I${STA_HOME}/parasitics
   -I${STA_HOME}/power
+  -I${STA_HOME}/spice
   -I${STA_HOME}/verilog
 )
 
@@ -439,6 +441,7 @@ set(SWIG_FILES
   ${STA_HOME}/parasitics/Parasitics.i
   ${STA_HOME}/power/Power.i
   ${STA_HOME}/sdf/Sdf.i
+  ${STA_HOME}/spice/WriteSpice.i
   ${STA_HOME}/tcl/Exception.i
   ${STA_HOME}/tcl/StaTcl.i
   ${STA_HOME}/tcl/StaTclTypes.i
@@ -559,7 +562,7 @@ target_compile_options(OpenSTA
 
 # Disable compiler specific extensions like gnu++11.
 set_target_properties(OpenSTA PROPERTIES CXX_EXTENSIONS OFF)
-target_compile_features(OpenSTA PUBLIC cxx_std_11)
+target_compile_features(OpenSTA PUBLIC cxx_std_17)
 
 ###########################################################
 # Executable

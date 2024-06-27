@@ -82,10 +82,8 @@ StringSeq
 delayCalcNames()
 {
   StringSeq names;
-  for (auto name_dcalc : *delay_calcs) {
-    const char *name = name_dcalc.first;
+  for (const auto [name, make_dcalc] : *delay_calcs)
     names.push_back(name);
-  }
   return names;
 }
 

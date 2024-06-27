@@ -120,10 +120,8 @@ SpefReader::~SpefReader()
     design_flow_ = nullptr;
   }
 
-  for (auto index_name : name_map_) {
-    char *name = index_name.second;
+  for (const auto [index, name] : name_map_)
     stringDelete(name);
-  }
 }
 
 void
@@ -496,7 +494,9 @@ SpefReader::findParasiticNode(char *name,
               int id = atoi(id_str);
               if (local_only
                   && !network_->isConnected(net, net_))
-                warn(1653, "%s not connected to net %s.", name, network_->pathName(net_));
+                warn(1653, "%s not connected to net %s.",
+                     name,
+                     network_->pathName(net_));
               return parasitics_->ensureParasiticNode(parasitic_, net, id, network_);
             }
             else

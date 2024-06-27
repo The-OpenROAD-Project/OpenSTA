@@ -108,9 +108,9 @@ public:
   bool matches(const MinMax *min_max) const;
   bool matches(const MinMaxAll *min_max) const;
   static MinMaxAll *find(const char *min_max);
-  // for (auto min_max : min_max->range()) {}
+  // for (const auto min_max : min_max->range()) {}
   const std::vector<MinMax*> &range() const { return range_; }
-  // for (auto mm_index : min_max->rangeIndex()) {}
+  // for (const auto mm_index : min_max->rangeIndex()) {}
   const std::vector<int> &rangeIndex() const { return range_index_; }
 
 private:

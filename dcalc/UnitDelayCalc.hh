@@ -26,6 +26,7 @@ class UnitDelayCalc : public ArcDelayCalc
 public:
   UnitDelayCalc(StaState *sta);
   ArcDelayCalc *copy() override;
+  const char *name() const override { return "unit"; }
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
                            const DcalcAnalysisPt *dcalc_ap) override;
@@ -37,6 +38,10 @@ public:
                        const Net *net,
                        const Corner *corner,
                        const MinMaxAll *min_max) override;
+  void setDcalcArgParasiticSlew(ArcDcalcArg &gate,
+                                const DcalcAnalysisPt *dcalc_ap) override;
+  void setDcalcArgParasiticSlew(ArcDcalcArgSeq &gates,
+                                const DcalcAnalysisPt *dcalc_ap) override;
   ArcDcalcResult inputPortDelay(const Pin *port_pin,
                                 float in_slew,
                                 const RiseFall *rf,
@@ -52,7 +57,6 @@ public:
                            const LoadPinIndexMap &load_pin_index_map,
                            const DcalcAnalysisPt *dcalc_ap) override;
   ArcDcalcResultSeq gateDelays(ArcDcalcArgSeq &args,
-                               float load_cap,
                                const LoadPinIndexMap &load_pin_index_map,
                                const DcalcAnalysisPt *dcalc_ap) override;
   ArcDelay checkDelay(const Pin *check_pin,

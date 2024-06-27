@@ -1300,7 +1300,7 @@ proc set_clock_gating_check { args } {
     flags {-rise -fall -high -low}
   
   check_argc_eq0or1 "set_clock_gating_check" $args
-  set tr [parse_rise_fall_flags flags]
+  set rf [parse_rise_fall_flags flags]
   
   set active_value ""
   if {[info exists flags(-high)] && [info exists flags(-low)]} {
@@ -1315,20 +1315,20 @@ proc set_clock_gating_check { args } {
     sta_error 397 "missing -setup or -hold argument."
   }
   if [info exists keys(-hold)] {
-    set_clock_gating_check1 $args $tr "min" $keys(-hold) $active_value
+    set_clock_gating_check1 $args $rf "min" $keys(-hold) $active_value
   }
   if [info exists keys(-setup)] {
-    set_clock_gating_check1 $args $tr "max" $keys(-setup) $active_value
+    set_clock_gating_check1 $args $rf "max" $keys(-setup) $active_value
   }
 }
 
-proc set_clock_gating_check1 { args tr setup_hold margin active_value } {
+proc set_clock_gating_check1 { args rf setup_hold margin active_value } {
   set margin [time_ui_sta $margin]
   if { [llength $args] == 0 } {
     if { $active_value != "" } {
       sta_error 398 "-high and -low only permitted for pins and instances."
     }
-    set_clock_gating_check_cmd $tr $setup_hold $margin
+    set_clock_gating_check_cmd $rf $setup_hold $margin
   } elseif { [llength $args] == 1 } {
     parse_clk_inst_port_pin_arg [lindex $args 0] clks insts pins
     
@@ -1336,18 +1336,18 @@ proc set_clock_gating_check1 { args tr setup_hold margin active_value } {
       sta_error 399 "-high and -low only permitted for pins and instances."
     }
     foreach clk $clks {
-      set_clock_gating_check_clk_cmd $clk $tr $setup_hold $margin
+      set_clock_gating_check_clk_cmd $clk $rf $setup_hold $margin
     }
     
     if { $active_value == "" } {
       set active_value "X"
     }
     foreach pin $pins {
-      set_clock_gating_check_pin_cmd $pin $tr $setup_hold \
+      set_clock_gating_check_pin_cmd $pin $rf $setup_hold \
 	$margin $active_value
     }
     foreach inst $insts {
-      set_clock_gating_check_instance_cmd $inst $tr $setup_hold \
+      set_clock_gating_check_instance_cmd $inst $rf $setup_hold \
 	$margin $active_value
     }
   }
@@ -1486,7 +1486,7 @@ proc set_clock_latency { args } {
   
   parse_clk_port_pin_arg $objects clks pins
   
-  set tr [parse_rise_fall_flags flags]
+  set rf [parse_rise_fall_flags flags]
   set min_max [parse_min_max_all_flags flags]
   
   set pin_clk "NULL"
@@ -1502,14 +1502,14 @@ proc set_clock_latency { args } {
     set early_late [parse_early_late_all_flags flags]
     
     foreach clk $clks {
-      set_clock_insertion_cmd $clk "NULL" $tr $min_max $early_late $delay
+      set_clock_insertion_cmd $clk "NULL" $rf $min_max $early_late $delay
     }
     foreach pin $pins {
       # Source only allowed on clocks and clock pins.
       if { ![is_clock_src $pin] } {
 	sta_error 409 "-source '[get_full_name $pin]' is not a clock pin."
       }
-      set_clock_insertion_cmd $pin_clk $pin $tr $min_max $early_late $delay
+      set_clock_insertion_cmd $pin_clk $pin $rf $min_max $early_late $delay
     }
   } else {
     # Latency.
@@ -1518,10 +1518,10 @@ proc set_clock_latency { args } {
     }
     
     foreach clk $clks {
-      set_clock_latency_cmd $clk "NULL" $tr $min_max $delay
+      set_clock_latency_cmd $clk "NULL" $rf $min_max $delay
     }
     foreach pin $pins {
-      set_clock_latency_cmd $pin_clk $pin $tr $min_max $delay
+      set_clock_latency_cmd $pin_clk $pin $rf $min_max $delay
     }
   }
 }
@@ -1647,7 +1647,7 @@ proc set_clock_transition { args } {
   parse_key_args "set_clock_transition" args keys {} \
     flags {-rise -fall -max -min}
   
-  set tr [parse_rise_fall_flags flags]
+  set rf [parse_rise_fall_flags flags]
   set min_max [parse_min_max_all_flags flags]
   check_argc_eq2 "set_clock_transition" $args
   
@@ -1658,7 +1658,7 @@ proc set_clock_transition { args } {
     if { [$clk is_virtual] } {
       sta_warn 419 "transition time can not be specified for virtual clocks."
     } else {
-      set_clock_slew_cmd $clk $tr $min_max [time_ui_sta $slew]
+      set_clock_slew_cmd $clk $rf $min_max [time_ui_sta $slew]
     }
   }
 }
@@ -2353,7 +2353,7 @@ proc set_port_delay { cmd sta_cmd cmd_args port_dirs } {
     set clk_rf "rise"
   }
   
-  set tr [parse_rise_fall_flags flags]
+  set rf [parse_rise_fall_flags flags]
   set min_max [parse_min_max_all_flags flags]
   set add [info exists flags(-add_delay)]
   set source_latency_included [info exists flags(-source_latency_included)]
@@ -2366,7 +2366,7 @@ proc set_port_delay { cmd sta_cmd cmd_args port_dirs } {
     } elseif { $clk != "NULL" && [lsearch [$clk sources] $pin] != -1 } {
       sta_warn 441 "$cmd relative to a clock defined on the same port/pin not allowed."
     } else {
-      $sta_cmd $pin $tr $clk $clk_rf $ref_pin\
+      $sta_cmd $pin $rf $clk $clk_rf $ref_pin\
         $source_latency_included $network_latency_included \
         $min_max $add $delay
     }
@@ -2667,11 +2667,11 @@ proc unset_port_delay { cmd swig_cmd cmd_args } {
     set clk_rf "rise"
   }
   
-  set tr [parse_rise_fall_flags flags]
+  set rf [parse_rise_fall_flags flags]
   set min_max [parse_min_max_all_flags flags]
   
   foreach pin $pins {
-    $swig_cmd $pin $tr $clk $clk_rf $min_max
+    $swig_cmd $pin $rf $clk $clk_rf $min_max
   }
 }
 
@@ -2751,7 +2751,7 @@ define_cmd_args "set_drive" {[-rise] [-fall] [-min] [-max] \
 
 proc set_drive { args } {
   parse_key_args "set_drive" args keys {} flags {-rise -fall -min -max}
-  set tr [parse_rise_fall_flags flags]
+  set rf [parse_rise_fall_flags flags]
   set min_max [parse_min_max_all_check_flags flags]
   
   check_argc_eq2 "set_drive" $args
@@ -2761,7 +2761,7 @@ proc set_drive { args } {
   set res [resistance_ui_sta $res]
   set ports [get_ports_error "ports" [lindex $args 1]]
   foreach port $ports {
-    set_drive_resistance_cmd $port $tr $min_max $res
+    set_drive_resistance_cmd $port $rf $min_max $res
   }
 }
 
@@ -2780,7 +2780,7 @@ proc set_driving_cell { args } {
             -input_transition_rise -input_transition_fall} \
     flags {-rise -fall -min -max -dont_scale -no_design_rule}
   
-  set tr [parse_rise_fall_flags flags]
+  set rf [parse_rise_fall_flags flags]
   set min_max [parse_min_max_all_flags flags]
   
   # -cell is an undocumented non-sdc alias for -lib_cell.
@@ -2871,7 +2871,7 @@ proc set_driving_cell { args } {
   set ports [get_ports_error "ports" [lindex $args 0]]
   foreach port $ports {
     set_drive_cell_cmd $library $cell $port $from_port \
-      $from_slew_rise $from_slew_fall $to_port $tr $min_max
+      $from_slew_rise $from_slew_fall $to_port $rf $min_max
   }
 }
 
@@ -2898,7 +2898,7 @@ proc set_input_transition { args } {
   parse_key_args "set_input_transition" args keys {-clock} \
     flags {-rise -fall -max -min -clock_fall}
   
-  set tr [parse_rise_fall_flags flags]
+  set rf [parse_rise_fall_flags flags]
   set min_max [parse_min_max_all_flags flags]
   
   
@@ -2917,7 +2917,7 @@ proc set_input_transition { args } {
   }
   
   foreach port $ports {
-    set_input_slew_cmd $port $tr $min_max $slew
+    set_input_slew_cmd $port $rf $min_max $slew
   }
 }
 
@@ -3082,7 +3082,7 @@ proc set_max_transition { args } {
   set objects [lindex $args 1]
   parse_clk_cell_port_args $objects clks cells ports
   
-  set tr [parse_rise_fall_flags flags]
+  set rf [parse_rise_fall_flags flags]
   
   set path_types {}
   if { ![info exists flags(-clock_path)] \
@@ -3108,7 +3108,7 @@ proc set_max_transition { args } {
   # -clock_path/-data_path and transition only apply to clock objects.
   foreach path_type $path_types {
     foreach clk $clks {
-      set_slew_limit_clk $clk $tr $path_type "max" $slew
+      set_slew_limit_clk $clk $rf $path_type "max" $slew
     }
   }
   foreach cell $cells {
@@ -3176,7 +3176,7 @@ proc set_timing_derate { args } {
     sta_warn 469 "derating factor greater than 2.0."
   }
   
-  set tr [parse_rise_fall_flags flags]
+  set rf [parse_rise_fall_flags flags]
   set early_late [parse_early_late_flags flags]
   
   set path_types {}
@@ -3214,7 +3214,7 @@ proc set_timing_derate { args } {
       }
       foreach net $nets {
         foreach path_type $path_types {
-          set_timing_derate_net_cmd $net $path_type $tr $early_late $derate
+          set_timing_derate_net_cmd $net $path_type $rf $early_late $derate
         }
       }
     }
@@ -3227,11 +3227,11 @@ proc set_timing_derate { args } {
       foreach path_type $path_types {
         foreach inst $insts {
           set_timing_derate_inst_cmd $inst $derate_type $path_type \
-            $tr $early_late $derate
+            $rf $early_late $derate
         }
         foreach libcell $libcells {
           set_timing_derate_cell_cmd $libcell $derate_type $path_type \
-            $tr $early_late $derate
+            $rf $early_late $derate
         }
       }
     }
@@ -3244,7 +3244,7 @@ proc set_timing_derate { args } {
     }
     foreach derate_type $derate_types {
       foreach path_type $path_types {
-        set_timing_derate_cmd $derate_type $path_type $tr $early_late $derate
+        set_timing_derate_cmd $derate_type $path_type $rf $early_late $derate
       }
     }
   }
@@ -3266,13 +3266,13 @@ proc parse_from_arg { keys_var arg_error_var } {
   
   if [info exists keys(-from)] {
     set key "-from"
-    set tr "rise_fall"
+    set rf "rise_fall"
   } elseif [info exists keys(-rise_from)] {
     set key "-rise_from"
-    set tr "rise"
+    set rf "rise"
   } elseif [info exists keys(-fall_from)] {
     set key "-fall_from"
-    set tr "fall"
+    set rf "fall"
   } else {
     return "NULL"
   }
@@ -3283,7 +3283,7 @@ proc parse_from_arg { keys_var arg_error_var } {
     sta_warn 471 "no valid objects specified for $key."
     return "NULL"
   }
-  return [make_exception_from $from_pins $from_clks $from_insts $tr]
+  return [make_exception_from $from_pins $from_clks $from_insts $rf]
 }
 
 # "arg_error" is set to notify the caller to cleanup and post error.
@@ -3294,18 +3294,18 @@ proc parse_thrus_arg { args_var arg_error_var } {
   set args_rtn {}
   while { $args != {} } {
     set arg [lindex $args 0]
-    set tr ""
+    set rf ""
     if { $arg == "-through" } {
-      set tr "rise_fall"
+      set rf "rise_fall"
       set key "-through"
     } elseif { $arg == "-rise_through" } {
-      set tr "rise"
+      set rf "rise"
       set key "-rise_through"
     } elseif { $arg == "-fall_through" } {
-      set tr "fall"
+      set rf "fall"
       set key "-fall_through"
     }
-    if { $tr != "" } {
+    if { $rf != "" } {
       if { [llength $args] > 1 } {
         set args [lrange $args 1 end]
         set arg [lindex $args 0]
@@ -3315,7 +3315,7 @@ proc parse_thrus_arg { args_var arg_error_var } {
           set arg_error 1
           sta_warn 472 "no valid objects specified for $key"
         } else {
-          lappend thrus [make_exception_thru $pins $nets $insts $tr]
+          lappend thrus [make_exception_thru $pins $nets $insts $rf]
         }
       }
     } else {
@@ -3673,7 +3673,7 @@ proc set_pvt { args } {
   check_argc_eq1 "set_pvt" $args
   set insts [get_instances_error "instances" [lindex $args 0]]
   
-  if { $min_max == "all" } {
+  if { $min_max == "min_max" } {
     set_pvt_min_max $insts "min" keys
     set_pvt_min_max $insts "max" keys
   } else {

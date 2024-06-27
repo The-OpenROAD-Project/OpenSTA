@@ -473,9 +473,9 @@ Latches::latchDtoQEnable(Edge *d_q_edge,
   state = LatchEnableState::open;
   LibertyCell *cell = network_->libertyCell(inst);
   if (cell) {
-    TimingArcSet *d_q_set = d_q_edge->timingArcSet();
-    LibertyPort *enable_port;
-    FuncExpr *enable_func;
+    const TimingArcSet *d_q_set = d_q_edge->timingArcSet();
+    const LibertyPort *enable_port;
+    const FuncExpr *enable_func;
     cell->latchEnable(d_q_set, enable_port, enable_func, enable_rf);
     if (enable_port) {
       Pin *enable_pin = network_->findPin(inst, enable_port);

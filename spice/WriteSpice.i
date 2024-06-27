@@ -14,27 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+%module write_gate_spice
 
-#include <vector>
-#include <map>
+%{
 
-#include "DelayCalcBase.hh"
+#include "spice/WritePathSpice.hh"
 
-namespace sta {
+%}
 
-// Delay calculation for parallel gates using parallel drive resistance.
-class ParallelDelayCalc : public DelayCalcBase
+%inline %{
+
+void
+write_path_spice_cmd(PathRef *path,
+		     const char *spice_filename,
+		     const char *subckt_filename,
+		     const char *lib_subckt_filename,
+		     const char *model_filename,
+		     const char *power_name,
+		     const char *gnd_name,
+                     CircuitSim ckt_sim)
 {
-public:
-  ParallelDelayCalc(StaState *sta);
-  ArcDcalcResultSeq gateDelays(ArcDcalcArgSeq &dcalc_args,
-                               const LoadPinIndexMap &load_pin_index_map,
-                               const DcalcAnalysisPt *dcalc_ap) override;
-protected:
-  ArcDcalcResultSeq gateDelaysParallel(ArcDcalcArgSeq &dcalc_args,
-                                       const LoadPinIndexMap &load_pin_index_map,
-                                       const DcalcAnalysisPt *dcalc_ap);
-};
+  Sta *sta = Sta::sta();
+  writePathSpice(path, spice_filename, subckt_filename,
+		 lib_subckt_filename, model_filename,
+		 power_name, gnd_name, ckt_sim, sta);
+}
 
-} // namespace
+%} // inline

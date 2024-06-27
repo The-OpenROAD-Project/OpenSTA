@@ -27,6 +27,7 @@ class LumpedCapDelayCalc : public ParallelDelayCalc
 public:
   LumpedCapDelayCalc(StaState *sta);
   ArcDelayCalc *copy() override;
+  const char *name() const override { return "lumped_cap"; }
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
                            const DcalcAnalysisPt *dcalc_ap) override;

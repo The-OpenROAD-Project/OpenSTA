@@ -366,12 +366,12 @@ GraphDelayCalc::seedNoDrvrCellSlew(Vertex *drvr_vertex,
   float drive_res;
   drive->driveResistance(rf, cnst_min_max, drive_res, exists);
   const Parasitic *parasitic;
-  float cap;
+  float load_cap;
   parasiticLoad(drvr_pin, rf, dcalc_ap, nullptr, arc_delay_calc,
-                cap, parasitic);
+                load_cap, parasitic);
   if (exists) {
-    drive_delay = cap * drive_res;
-    slew = cap * drive_res;
+    drive_delay = load_cap * drive_res;
+    slew = load_cap * drive_res;
   }
   const MinMax *slew_min_max = dcalc_ap->slewMinMax();
   if (!drvr_vertex->slewAnnotated(rf, slew_min_max))
@@ -912,8 +912,7 @@ GraphDelayCalc::findDriverArcDelays(Vertex *drvr_vertex,
                                                    edge, arc, dcalc_ap,
                                                    arc_delay_calc);
       ArcDcalcResultSeq dcalc_results =
-        arc_delay_calc->gateDelays(dcalc_args, load_cap, load_pin_index_map,
-                                   dcalc_ap);
+        arc_delay_calc->gateDelays(dcalc_args, load_pin_index_map, dcalc_ap);
       for (size_t drvr_idx = 0; drvr_idx < dcalc_args.size(); drvr_idx++) {
         ArcDcalcArg &dcalc_arg = dcalc_args[drvr_idx];
         ArcDcalcResult &dcalc_result = dcalc_results[drvr_idx];
@@ -963,9 +962,12 @@ GraphDelayCalc::makeArcDcalcArgs(Vertex *drvr_vertex,
       const RiseFall *drvr_rf = arc1->toEdge()->asRiseFall();
       const Slew in_slew = edgeFromSlew(from_vertex, from_rf, edge1, dcalc_ap);
       const Pin *drvr_pin1 = drvr_vertex1->pin();
-      Parasitic *parasitic = arc_delay_calc->findParasitic(drvr_pin1, drvr_rf,
-                                                           dcalc_ap);
-      dcalc_args.emplace_back(from_pin, drvr_pin1, edge1, arc1, in_slew, parasitic);
+      float load_cap;
+      const Parasitic *parasitic;
+      parasiticLoad(drvr_pin1, drvr_rf, dcalc_ap, multi_drvr, arc_delay_calc,
+                    load_cap, parasitic);
+      dcalc_args.emplace_back(from_pin, drvr_pin1, edge1, arc1, in_slew,
+                              load_cap, parasitic);
     }
   }
   return dcalc_args;
@@ -1061,7 +1063,7 @@ GraphDelayCalc::annotateDelaySlew(Edge *edge,
   // Merge slews.
   const Slew &drvr_slew = graph_->slew(drvr_vertex, drvr_rf, ap_index);
   const MinMax *slew_min_max = dcalc_ap->slewMinMax();
-  if (delayGreater(gate_slew, drvr_slew, dcalc_ap->slewMinMax(), this)
+  if (delayGreater(gate_slew, drvr_slew, slew_min_max, this)
       && !drvr_vertex->slewAnnotated(drvr_rf, slew_min_max)
       && !edge->role()->isLatchDtoQ())
     graph_->setSlew(drvr_vertex, drvr_rf, ap_index, gate_slew);
@@ -1380,14 +1382,23 @@ GraphDelayCalc::initWireDelays(Vertex *drvr_vertex)
   }
 }
 
-// Use clock slew for register/latch clk->q edges.
 Slew
 GraphDelayCalc::edgeFromSlew(const Vertex *from_vertex,
                              const RiseFall *from_rf,
                              const Edge *edge,
                              const DcalcAnalysisPt *dcalc_ap)
 {
-  const TimingRole *role = edge->role();
+  return edgeFromSlew(from_vertex, from_rf, edge->role(), dcalc_ap);
+}
+
+// Use clock slew for register/latch clk->q edges.
+Slew
+GraphDelayCalc::edgeFromSlew(const Vertex *from_vertex,
+                             const RiseFall *from_rf,
+                             const TimingRole *role,
+                             const DcalcAnalysisPt *dcalc_ap)
+{
+
   if (role->genericRole() == TimingRole::regClkToQ()
       && clk_network_->isIdealClock(from_vertex->pin()))
     return clk_network_->idealClkSlew(from_vertex->pin(), from_rf,

@@ -411,7 +411,7 @@ MinPulseWidthCheck::width(const StaState *sta) const
 {
   return closeArrival(sta) + closeOffset(sta)
     - open_path_.arrival(sta)
-    + commonClkPessimism(sta);
+    + checkCrpr(sta);
 }
 
 float
@@ -458,7 +458,7 @@ minPulseWidth(const Path *path,
 }
 
 Crpr
-MinPulseWidthCheck::commonClkPessimism(const StaState *sta) const
+MinPulseWidthCheck::checkCrpr(const StaState *sta) const
 {
   CheckCrpr *check_crpr = sta->search()->checkCrpr();
   PathVertex close;

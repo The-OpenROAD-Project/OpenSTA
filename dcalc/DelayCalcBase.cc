@@ -22,9 +22,11 @@
 #include "TableModel.hh"
 #include "Network.hh"
 #include "Parasitics.hh"
+#include "Graph.hh"
 #include "Sdc.hh"
 #include "Corner.hh"
 #include "DcalcAnalysisPt.hh"
+#include "GraphDelayCalc.hh"
 
 namespace sta {
 
@@ -62,36 +64,6 @@ DelayCalcBase::reduceParasitic(const Parasitic *parasitic_network,
     }
   }
   delete pin_iter;
-}
-
-TimingModel *
-DelayCalcBase::model(const TimingArc *arc,
-                     const DcalcAnalysisPt *dcalc_ap) const
-{
-  const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
-  const TimingArc *corner_arc = arc->cornerArc(dcalc_ap->libertyIndex());
-  return corner_arc->model(op_cond);
-}
-
-GateTimingModel *
-DelayCalcBase::gateModel(const TimingArc *arc,
-                         const DcalcAnalysisPt *dcalc_ap) const
-{
-  return dynamic_cast<GateTimingModel*>(model(arc, dcalc_ap));
-}
-
-GateTableModel *
-DelayCalcBase::gateTableModel(const TimingArc *arc,
-                              const DcalcAnalysisPt *dcalc_ap) const
-{
-  return dynamic_cast<GateTableModel*>(model(arc, dcalc_ap));
-}
-
-CheckTimingModel *
-DelayCalcBase::checkModel(const TimingArc *arc,
-                          const DcalcAnalysisPt *dcalc_ap) const
-{
-  return dynamic_cast<CheckTimingModel*>(model(arc, dcalc_ap));
 }
 
 void
@@ -182,7 +154,7 @@ DelayCalcBase::checkDelay(const Pin *check_pin,
                           float related_out_cap,
                           const DcalcAnalysisPt *dcalc_ap)
 {
-  CheckTimingModel *model = checkModel(arc, dcalc_ap);
+  CheckTimingModel *model = arc->checkModel(dcalc_ap);
   if (model) {
     float from_slew1 = delayAsFloat(from_slew);
     float to_slew1 = delayAsFloat(to_slew);
@@ -203,7 +175,7 @@ DelayCalcBase::reportCheckDelay(const Pin *check_pin,
                                 const DcalcAnalysisPt *dcalc_ap,
                                 int digits)
 {
-  CheckTimingModel *model = checkModel(arc, dcalc_ap);
+  CheckTimingModel *model = arc->checkModel(dcalc_ap);
   if (model) {
     float from_slew1 = delayAsFloat(from_slew);
     float to_slew1 = delayAsFloat(to_slew);
@@ -223,6 +195,35 @@ DelayCalcBase::pinPvt(const Pin *pin,
   if (pvt == nullptr)
     pvt = dcalc_ap->operatingConditions();
   return pvt;
+}
+
+void
+DelayCalcBase::setDcalcArgParasiticSlew(ArcDcalcArg &gate,
+                                        const DcalcAnalysisPt *dcalc_ap)
+{
+  const Pin *drvr_pin = gate.drvrPin();
+  if (drvr_pin) {
+    const Parasitic *parasitic;
+    float load_cap;
+    graph_delay_calc_->parasiticLoad(drvr_pin, gate.drvrEdge(), dcalc_ap,
+                                     nullptr, this, load_cap,
+                                     parasitic);
+    gate.setLoadCap(load_cap);
+    gate.setParasitic(parasitic);
+    const Pin *in_pin = gate.inPin();
+    const Vertex *in_vertex = graph_->pinLoadVertex(in_pin);
+    const Slew &in_slew = graph_delay_calc_->edgeFromSlew(in_vertex, gate.inEdge(),
+                                                          gate.edge(), dcalc_ap);
+    gate.setInSlew(in_slew);
+  }
+}
+
+void
+DelayCalcBase::setDcalcArgParasiticSlew(ArcDcalcArgSeq &gates,
+                                        const DcalcAnalysisPt *dcalc_ap)
+{
+  for (ArcDcalcArg &gate : gates)
+    setDcalcArgParasiticSlew(gate, dcalc_ap);
 }
 
 } // namespace

@@ -168,10 +168,8 @@ Bdd::varIndexPort(int var_index)
 void
 Bdd::clearVarMap()
 {
-  for (auto port_node : bdd_port_var_map_) {
-    DdNode *var_node = port_node.second;
+  for (const auto [port, var_node] : bdd_port_var_map_)
     Cudd_RecursiveDeref(cudd_mgr_, var_node);
-  }
   bdd_port_var_map_.clear();
   bdd_var_idx_port_map_.clear();
 }

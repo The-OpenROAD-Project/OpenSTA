@@ -120,6 +120,10 @@ public:
 		    const RiseFall *from_rf,
 		    const Edge *edge,
 		    const DcalcAnalysisPt *dcalc_ap);
+  Slew edgeFromSlew(const Vertex *from_vertex,
+		    const RiseFall *from_rf,
+                    const TimingRole *role,
+		    const DcalcAnalysisPt *dcalc_ap);
 
 protected:
   void seedInvalidDelays();

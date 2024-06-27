@@ -136,7 +136,8 @@ public:
   virtual PathDelay *pathDelay() const;
   // This returns the crpr signed with respect to the check type.
   // Positive for setup, negative for hold.
-  virtual Crpr commonClkPessimism(const StaState *sta) const;
+  virtual Crpr checkCrpr(const StaState *sta) const;
+  virtual Crpr crpr(const StaState *sta) const;
   virtual MultiCyclePath *multiCyclePath() const;
   virtual TimingArc *checkArc() const { return nullptr; }
   // PathEndDataCheck data clock path.
@@ -244,7 +245,7 @@ public:
   virtual float targetNonInterClkUncertainty(const StaState *sta) const;
   virtual float interClkUncertainty(const StaState *sta) const;
   virtual float targetClkUncertainty(const StaState *sta) const;
-  virtual Crpr commonClkPessimism(const StaState *sta) const;
+  virtual Crpr crpr(const StaState *sta) const;
   virtual Required requiredTime(const StaState *sta) const;
   virtual Slack slack(const StaState *sta) const;
   virtual Slack slackNoCrpr(const StaState *sta) const;
@@ -426,7 +427,7 @@ public:
   virtual Arrival targetClkArrivalNoCrpr(const StaState *sta) const;
   virtual Delay targetClkDelay(const StaState *sta) const;
   virtual Delay targetClkInsertionDelay(const StaState *sta) const;
-  virtual Crpr commonClkPessimism(const StaState *sta) const;
+  virtual Crpr crpr(const StaState *sta) const;
   virtual int exceptPathCmp(const PathEnd *path_end,
 			    const StaState *sta) const;
 

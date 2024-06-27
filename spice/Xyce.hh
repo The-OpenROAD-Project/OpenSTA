@@ -16,25 +16,20 @@
 
 #pragma once
 
+#include <string>
 #include <vector>
-#include <map>
 
-#include "DelayCalcBase.hh"
+#include "TableModel.hh"
 
 namespace sta {
 
-// Delay calculation for parallel gates using parallel drive resistance.
-class ParallelDelayCalc : public DelayCalcBase
-{
-public:
-  ParallelDelayCalc(StaState *sta);
-  ArcDcalcResultSeq gateDelays(ArcDcalcArgSeq &dcalc_args,
-                               const LoadPinIndexMap &load_pin_index_map,
-                               const DcalcAnalysisPt *dcalc_ap) override;
-protected:
-  ArcDcalcResultSeq gateDelaysParallel(ArcDcalcArgSeq &dcalc_args,
-                                       const LoadPinIndexMap &load_pin_index_map,
-                                       const DcalcAnalysisPt *dcalc_ap);
-};
+typedef std::vector<std::string> StdStringSeq;
+typedef std::vector<Table1> WaveformSeq;
+
+void
+readXyceCsv(const char *csv_filename,
+            // Return values.
+            StdStringSeq &titles,
+            WaveformSeq &waveforms);
 
 } // namespace

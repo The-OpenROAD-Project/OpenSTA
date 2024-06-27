@@ -80,14 +80,14 @@ ReportParasiticAnnotation::report()
 void
 ReportParasiticAnnotation::reportAnnotationCounts()
 {
-  report_->reportLine("Found %lu unannotated drivers.", unannotated_.size());
+  report_->reportLine("Found %zu unannotated drivers.", unannotated_.size());
   if (report_unannotated_) {
     sort(unannotated_, PinPathNameLess(network_));
     for (const Pin *drvr_pin : unannotated_)
       report_->reportLine(" %s", network_->pathName(drvr_pin));
   }
 
-  report_->reportLine("Found %lu partially unannotated drivers.",
+  report_->reportLine("Found %zu partially unannotated drivers.",
                       partially_annotated_.size());
   if (report_unannotated_) {
     sort(partially_annotated_, PinPathNameLess(network_));

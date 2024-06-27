@@ -400,12 +400,21 @@ proc parse_corner { keys_var } {
   upvar 1 $keys_var keys
 
   if { [info exists keys(-corner)] } {
-    set corner_name $keys(-corner)
-    set corner [find_corner $corner_name]
-    if { $corner == "NULL" } {
-      sta_error 102 "$corner_name is not the name of process corner."
+    set corner_arg $keys(-corner)
+    if { [is_object $corner_arg] } {
+      set object_type [object_type $corner_arg]
+      if { $object_type == "Corner" } {
+        return $corner_arg
+      } else {
+        sta_error 144 "corner object type '$object_type' is not a corner."
+      }
     } else {
-      return $corner
+      set corner [find_corner $corner_arg]
+      if { $corner == "NULL" } {
+        sta_error 102 "$corner_arg is not the name of process corner."
+      } else {
+        return $corner
+      }
     }
   } elseif { [multi_corner] } {
     sta_error 103 "-corner keyword required with multi-corner analysis."
@@ -510,7 +519,7 @@ proc parse_min_max_all_flags { flags_var } {
   } elseif { [info exists flags(-max)] && ![info exists flags(-min)] } {
     return "max"
   } else {
-    return "all"
+    return "min_max"
   }
 }
 
@@ -518,13 +527,13 @@ proc parse_min_max_all_flags { flags_var } {
 proc parse_min_max_all_check_flags { flags_var } {
   upvar 1 $flags_var flags
   if { [info exists flags(-min)] && [info exists flags(-max)] } {
-    return "all"
+    return "min_max"
   } elseif { [info exists flags(-min)] && ![info exists flags(-max)] } {
     return "min"
   } elseif { [info exists flags(-max)] && ![info exists flags(-min)] } {
     return "max"
   } else {
-    return "all"
+    return "min_max"
   }
 }
 
@@ -550,7 +559,7 @@ proc parse_early_late_all_flags { flags_var } {
   } elseif { [info exists flags(-late)] && ![info exists flags(-early)] } {
     return "max"
   } else {
-    return "all"
+    return "min_max"
   }
 }
 

@@ -26,15 +26,15 @@ RiseFallValues::RiseFallValues()
 void
 RiseFallValues::clear()
 {
-  for (auto tr_index : RiseFall::rangeIndex())
-    exists_[tr_index] = false;
+  for (auto rf_index : RiseFall::rangeIndex())
+    exists_[rf_index] = false;
 }
 
 RiseFallValues::RiseFallValues(float init_value)
 {
-  for (auto tr_index : RiseFall::rangeIndex()) {
-    values_[tr_index] = init_value;
-    exists_[tr_index] = true;
+  for (auto rf_index : RiseFall::rangeIndex()) {
+    values_[rf_index] = init_value;
+    exists_[rf_index] = true;
   }
 }
 
