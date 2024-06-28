@@ -55,6 +55,12 @@ readSpefFile(const char *filename,
              StaState *sta)
 {
   bool success = false;
+  const ArcDelayCalc *arc_delay_calc = sta->arcDelayCalc();
+  if (reduce && !arc_delay_calc->reduceSupported()) {
+    sta->report()->warn(1658, "Delay calculator %s does not support reduction.",
+                        arc_delay_calc->name());
+    reduce = false;
+  }
   // Use zlib to uncompress gzip'd files automagically.
   gzFile stream = gzopen(filename, "rb");
   if (stream) {

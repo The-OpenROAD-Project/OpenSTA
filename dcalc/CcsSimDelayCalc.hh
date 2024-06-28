@@ -59,6 +59,7 @@ public:
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
                            const DcalcAnalysisPt *dcalc_ap) override;
+  bool reduceSupported() const override { return false; }
   Parasitic *reduceParasitic(const Parasitic *parasitic_network,
                              const Pin *drvr_pin,
                              const RiseFall *rf,

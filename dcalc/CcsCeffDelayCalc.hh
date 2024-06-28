@@ -36,7 +36,7 @@ public:
   virtual ~CcsCeffDelayCalc();
   ArcDelayCalc *copy() override;
   const char *name() const override { return "ccs_ceff"; }
-
+  bool reduceSupported() const override { return true; }
   ArcDcalcResult gateDelay(const Pin *drvr_pin,
                            const TimingArc *arc,
                            const Slew &in_slew,

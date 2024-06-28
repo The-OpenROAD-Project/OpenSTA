@@ -34,6 +34,7 @@ class DmpCeffDelayCalc : public LumpedCapDelayCalc
 public:
   DmpCeffDelayCalc(StaState *sta);
   virtual ~DmpCeffDelayCalc();
+  bool reduceSupported() const override { return true; }
   ArcDcalcResult gateDelay(const Pin *drvr_pin,
                            const TimingArc *arc,
                            const Slew &in_slew,

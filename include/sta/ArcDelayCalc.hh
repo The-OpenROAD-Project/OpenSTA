@@ -166,6 +166,7 @@ public:
   virtual Parasitic *findParasitic(const Pin *drvr_pin,
 				   const RiseFall *rf,
 				   const DcalcAnalysisPt *dcalc_ap) = 0;
+  virtual bool reduceSupported() const = 0;
   // Reduce parasitic_network to a representation acceptable to the delay calculator.
   virtual Parasitic *reduceParasitic(const Parasitic *parasitic_network,
                                      const Pin *drvr_pin,
