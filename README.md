@@ -101,11 +101,11 @@ are illegal in c++17.
 
 External library dependencies:
 ```
-           Ubuntu   Macos
-eigen       3.4.0   3.4.0 required
-tclreadline 2.3.8   2.3.8 optional
-libz        1.2.5   1.2.8 optional
-cudd        3.0.0   3.0.0 optional
+           Ubuntu   Macos license
+eigen       3.4.0   3.4.0   MPL2  required
+tclreadline 2.3.8   2.3.8   BSD   optional
+zLib        1.2.5   1.2.8   zlib  optional
+cudd        3.0.0   3.0.0   BSD   optional
 ```
 
 The [TCL readline library](https://tclreadline.sourceforge.net/tclreadline.html)
