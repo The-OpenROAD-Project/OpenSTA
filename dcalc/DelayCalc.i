@@ -62,4 +62,16 @@ report_delay_calc_cmd(Edge *edge,
   return Sta::sta()->reportDelayCalc(edge, arc, corner, min_max, digits);
 }
 
+void
+set_prima_reduce_order(size_t order)
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  PrimaDelayCalc *dcalc = dynamic_cast<PrimaDelayCalc*>(sta->arcDelayCalc());
+  if (dcalc) {
+    dcalc->setPrimaReduceOrder(order);
+    sta->delaysInvalid();
+  }
+}
+
 %} // inline
