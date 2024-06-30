@@ -1,0 +1,51 @@
+Warning: asap7_simple.lib.gz line 71510, when attribute inside table model.
+Warning: asap7_simple.lib.gz line 71986, when attribute inside table model.
+Warning: asap7_simple.lib.gz line 72462, when attribute inside table model.
+Warning: asap7_simple.lib.gz line 72938, when attribute inside table model.
+Warning: asap7_simple.lib.gz line 73414, when attribute inside table model.
+Warning: asap7_simple.lib.gz line 74830, when attribute inside table model.
+Warning: asap7_simple.lib.gz line 71029, timing group from output port.
+Warning: asap7_simple.lib.gz line 71505, timing group from output port.
+Warning: asap7_simple.lib.gz line 71981, timing group from output port.
+Warning: asap7_simple.lib.gz line 72457, timing group from output port.
+Warning: asap7_simple.lib.gz line 72933, timing group from output port.
+Warning: asap7_simple.lib.gz line 73409, timing group from output port.
+Warning: asap7_simple.lib.gz line 73885, timing group from output port.
+Warning: asap7_simple.lib.gz line 82276, when attribute inside table model.
+Warning: asap7_simple.lib.gz line 83692, when attribute inside table model.
+Warning: asap7_simple.lib.gz line 81795, timing group from output port.
+Warning: asap7_simple.lib.gz line 82271, timing group from output port.
+Warning: asap7_simple.lib.gz line 82747, timing group from output port.
+Startpoint: r2 (rising edge-triggered flip-flop clocked by clk)
+Endpoint: r3 (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+   Slew   Delay    Time   Description
+----------------------------------------------------------------
+   0.00    0.00    0.00   clock clk (rise edge)
+           0.00    0.00   clock source latency
+  10.00    0.00    0.00 ^ clk2 (in)
+  48.15   12.04   12.04 ^ r2/CLK (DFFHQx4_ASAP7_75t_R)
+  38.97   90.82  102.86 ^ r2/Q (DFFHQx4_ASAP7_75t_R)
+  59.28   16.50  119.36 ^ u1/A (BUFx2_ASAP7_75t_R)
+  70.25   51.69  171.05 ^ u1/Y (BUFx2_ASAP7_75t_R)
+  83.74   18.32  189.37 ^ u2/B (AND2x2_ASAP7_75t_R)
+  72.19   60.76  250.13 ^ u2/Y (AND2x2_ASAP7_75t_R)
+  85.61   18.34  268.46 ^ r3/D (DFFHQx4_ASAP7_75t_R)
+                 268.46   data arrival time
+
+   0.00  500.00  500.00   clock clk (rise edge)
+           0.00  500.00   clock source latency
+  10.00    0.00  500.00 ^ clk3 (in)
+  47.52   11.84  511.84 ^ r3/CLK (DFFHQx4_ASAP7_75t_R)
+           0.00  511.84   clock reconvergence pessimism
+         -14.89  496.95   library setup time
+                 496.95   data required time
+----------------------------------------------------------------
+                 496.95   data required time
+                -268.46   data arrival time
+----------------------------------------------------------------
+                 228.48   slack (MET)
+
+
