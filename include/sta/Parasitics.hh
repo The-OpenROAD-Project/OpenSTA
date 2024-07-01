@@ -269,6 +269,7 @@ public:
 protected:
   void makeWireloadNetworkWorst(Parasitic *parasitic,
 				const Pin *drvr_pin,
+                                const Net *net,
 				float wireload_cap,
 				float wireload_res,
 				float fanout);

@@ -246,7 +246,8 @@ GenClkMasterSearchPred::searchThru(Edge *edge)
   const Sdc *sdc = sta_->sdc();
   TimingRole *role = edge->role();
   // Propagate clocks through constants.
-  return !(edge->isDisabledLoop()
+  return !(edge->role()->isTimingCheck()
+           || edge->isDisabledLoop()
 	   || edge->isDisabledConstraint()
 	   // Constants disable edge cond expression.
 	   || edge->isDisabledCond()

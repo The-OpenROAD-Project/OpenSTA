@@ -203,7 +203,7 @@ Parasitics::makeWireloadNetwork(const Pin *drvr_pin,
                                 const MinMax *min_max,
 				const ParasiticAnalysisPt *ap)
 {
-  Net *net = network_->net(drvr_pin);
+  const Net *net = findParasiticNet(drvr_pin);
   Parasitic *parasitic = makeParasiticNetwork(net, false, ap);
   const OperatingConditions *op_cond = sdc_->operatingConditions(min_max);
   float wireload_cap, wireload_res;
@@ -214,7 +214,7 @@ Parasitics::makeWireloadNetwork(const Pin *drvr_pin,
     tree = op_cond->wireloadTree();
   switch (tree) {
   case WireloadTree::worst_case:
-    makeWireloadNetworkWorst(parasitic, drvr_pin, wireload_cap, 
+    makeWireloadNetworkWorst(parasitic, drvr_pin, net, wireload_cap, 
 			     wireload_res, fanout);
     break;
   case WireloadTree::balanced:
@@ -235,12 +235,12 @@ Parasitics::makeWireloadNetwork(const Pin *drvr_pin,
 void
 Parasitics::makeWireloadNetworkWorst(Parasitic *parasitic,
 				     const Pin *drvr_pin,
+                                     const Net *net,
 				     float wireload_cap,
 				     float wireload_res,
 				     float /* fanout */)
 {
   ParasiticNode *drvr_node = ensureParasiticNode(parasitic, drvr_pin, network_);
-  Net *net = network_->net(drvr_pin);
   size_t resistor_index = 1;
   ParasiticNode *load_node = ensureParasiticNode(parasitic, net, 0, network_);
   makeResistor(parasitic, resistor_index++, wireload_res, drvr_node, load_node);

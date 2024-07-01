@@ -1996,7 +1996,8 @@ LibertyPort::LibertyPort(LibertyCell *cell,
   isolation_cell_enable_(false),
   level_shifter_data_(false),
   is_switch_(false),
-  is_disabled_constraint_(false)
+  is_disabled_constraint_(false),
+  is_pad_(false)
 {
   liberty_port_ = this;
   min_pulse_width_[RiseFall::riseIndex()] = 0.0;
@@ -2470,6 +2471,12 @@ void
 LibertyPort::setIsDisabledConstraint(bool is_disabled)
 {
   is_disabled_constraint_ = is_disabled;
+}
+
+void
+LibertyPort::setIsPad(bool is_pad)
+{
+  is_pad_ = is_pad;
 }
 
 LibertyPort *

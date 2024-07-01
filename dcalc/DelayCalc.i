@@ -21,6 +21,7 @@
 #include "Sta.hh"
 #include "ArcDelayCalc.hh"
 #include "dcalc/ArcDcalcWaveforms.hh"
+#include "dcalc/PrimaDelayCalc.hh"
 
 %}
 
@@ -131,6 +132,18 @@ ccs_load_waveform(const Pin *in_pin,
                                    load_pin, corner, min_max);
   else
     return Table1();
+}
+
+void
+set_prima_reduce_order(size_t order)
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  PrimaDelayCalc *dcalc = dynamic_cast<PrimaDelayCalc*>(sta->arcDelayCalc());
+  if (dcalc) {
+    dcalc->setPrimaReduceOrder(order);
+    sta->delaysInvalid();
+  }
 }
 
 %} // inline

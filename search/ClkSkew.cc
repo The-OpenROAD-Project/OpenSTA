@@ -19,8 +19,10 @@
 #include <cmath> // abs
 #include <algorithm>
 
+#include "Fuzzy.hh"
 #include "Report.hh"
 #include "Debug.hh"
+#include "DispatchQueue.hh"
 #include "Units.hh"
 #include "TimingArc.hh"
 #include "Liberty.hh"
@@ -53,17 +55,20 @@ public:
   void operator=(const ClkSkew &clk_skew);
   PathVertex *srcPath() { return &src_path_; }
   PathVertex *tgtPath() { return &tgt_path_; }
-  float srcLatency(StaState *sta);
-  float tgtLatency(StaState *sta);
-  float srcInternalClkLatency(StaState *sta);
-  float tgtInternalClkLatency(StaState *sta);
-  Crpr crpr(StaState *sta);
-  float uncertainty(StaState *sta);
+  float srcLatency(const StaState *sta);
+  float tgtLatency(const StaState *sta);
+  float srcInternalClkLatency(const StaState *sta);
+  float tgtInternalClkLatency(const StaState *sta);
+  Crpr crpr(const StaState *sta);
+  float uncertainty(const StaState *sta);
   float skew() const { return skew_; }
+  static bool srcTgtPathNameLess(ClkSkew &clk_skew1,
+                                 ClkSkew &clk_skew2,
+                                 const StaState *sta);
 
 private:
   float clkTreeDelay(PathVertex &clk_path,
-                     StaState *sta);
+                     const StaState *sta);
 
   PathVertex src_path_;
   PathVertex tgt_path_;
@@ -109,7 +114,7 @@ ClkSkew::operator=(const ClkSkew &clk_skew)
 }
 
 float
-ClkSkew::srcLatency(StaState *sta)
+ClkSkew::srcLatency(const StaState *sta)
 {
   Arrival src_arrival = src_path_.arrival(sta);
   return delayAsFloat(src_arrival) - src_path_.clkEdge(sta)->time()
@@ -117,13 +122,13 @@ ClkSkew::srcLatency(StaState *sta)
 }
 
 float
-ClkSkew::srcInternalClkLatency(StaState *sta)
+ClkSkew::srcInternalClkLatency(const StaState *sta)
 {
   return clkTreeDelay(src_path_, sta);
 }
 
 float
-ClkSkew::tgtLatency(StaState *sta)
+ClkSkew::tgtLatency(const StaState *sta)
 {
   Arrival tgt_arrival = tgt_path_.arrival(sta);
   return delayAsFloat(tgt_arrival) - tgt_path_.clkEdge(sta)->time()
@@ -131,14 +136,14 @@ ClkSkew::tgtLatency(StaState *sta)
 }
 
 float
-ClkSkew::tgtInternalClkLatency(StaState *sta)
+ClkSkew::tgtInternalClkLatency(const StaState *sta)
 {
   return clkTreeDelay(tgt_path_, sta);
 }
 
 float
 ClkSkew::clkTreeDelay(PathVertex &clk_path,
-                      StaState *sta)
+                      const StaState *sta)
 {
   if (include_internal_latency_) {
     const Vertex *vertex = clk_path.vertex(sta);
@@ -154,14 +159,14 @@ ClkSkew::clkTreeDelay(PathVertex &clk_path,
 }
 
 Crpr
-ClkSkew::crpr(StaState *sta)
+ClkSkew::crpr(const StaState *sta)
 {
   CheckCrpr *check_crpr = sta->search()->checkCrpr();
   return check_crpr->checkCrpr(&src_path_, &tgt_path_);
 }
 
 float
-ClkSkew::uncertainty(StaState *sta)
+ClkSkew::uncertainty(const StaState *sta)
 {
   TimingRole *check_role = (src_path_.minMax(sta) == SetupHold::max())
     ? TimingRole::setup()
@@ -171,10 +176,27 @@ ClkSkew::uncertainty(StaState *sta)
                                           check_role, sta);
 }
 
+bool
+ClkSkew::srcTgtPathNameLess(ClkSkew &clk_skew1,
+                            ClkSkew &clk_skew2,
+                            const StaState *sta)
+{
+  Network *network = sta->sdcNetwork();
+  const char *src_path1 = network->pathName(clk_skew1.srcPath()->pin(sta));
+  const char *src_path2 = network->pathName(clk_skew2.srcPath()->pin(sta));
+  const char *tgt_path1 = network->pathName(clk_skew1.tgtPath()->pin(sta));
+  const char *tgt_path2 = network->pathName(clk_skew2.tgtPath()->pin(sta));
+  return stringLess(src_path1, src_path2)
+    || (stringEqual(src_path1, src_path2)
+        && stringEqual(tgt_path1, tgt_path2));
+}
+
+
 ////////////////////////////////////////////////////////////////
 
 ClkSkews::ClkSkews(StaState *sta) :
-  StaState(sta)
+  StaState(sta),
+  fanout_pred_(sta)
 {
 }
 
@@ -275,41 +297,59 @@ ClkSkews::findClkSkew(ConstClockSeq &clks,
                       bool include_internal_latency)
 {	      
   ClkSkewMap skews;
+  corner_ = corner;
+  setup_hold_ = setup_hold;
+  include_internal_latency_ = include_internal_latency;
 
-  ConstClockSet clk_set;
+  clk_set_.clear();
   for (const Clock *clk : clks)
-    clk_set.insert(clk);
+    clk_set_.insert(clk);
 
-  for (Vertex *src_vertex : *graph_->regClkVertices()) {
-    if (hasClkPaths(src_vertex, clk_set)) {
-      VertexOutEdgeIterator edge_iter(src_vertex, graph_);
-      while (edge_iter.hasNext()) {
-	Edge *edge = edge_iter.next();
-	if (edge->role()->genericRole() == TimingRole::regClkToQ()) {
-	  Vertex *q_vertex = edge->to(graph_);
-	  const RiseFall *rf = edge->timingArcSet()->isRisingFallingEdge();
-	  const RiseFallBoth *src_rf = rf
-	    ? rf->asRiseFallBoth()
-	    : RiseFallBoth::riseFall();
-	  findClkSkewFrom(src_vertex, q_vertex, src_rf, clk_set,
-			  corner, setup_hold, include_internal_latency,
-                          skews);
-	}
+  if (thread_count_ > 1) {
+    std::vector<ClkSkewMap> partial_skews(thread_count_, skews);
+    for (Vertex *src_vertex : *graph_->regClkVertices()) {
+      if (hasClkPaths(src_vertex)) {
+        dispatch_queue_->dispatch([this, src_vertex, &partial_skews](int i) {
+          findClkSkewFrom(src_vertex, partial_skews[i]);
+        });
       }
+    }
+    dispatch_queue_->finishTasks();
+
+    // Reduce skews from each register source.
+    for (size_t i = 0; i < partial_skews.size(); i++) {
+      for (auto clk_skew_itr : partial_skews[i]) {
+        const Clock *clk = clk_skew_itr.first;
+        auto partial_skew = clk_skew_itr.second;
+        auto ins = skews.insert(std::make_pair(clk, partial_skew));
+        if (!ins.second) {
+          ClkSkew &final_skew = ins.first->second;
+          if (abs(partial_skew.skew()) > abs(final_skew.skew())
+              || (fuzzyEqual(abs(partial_skew.skew()), abs(final_skew.skew()))
+                  // Break ties based on source/target path names.
+                  && ClkSkew::srcTgtPathNameLess(partial_skew, final_skew, this)))
+            final_skew = partial_skew;
+        }
+      }
+    }
+  }
+  else {
+    for (Vertex *src_vertex : *graph_->regClkVertices()) {
+      if (hasClkPaths(src_vertex))
+        findClkSkewFrom(src_vertex, skews);
     }
   }
   return skews;
 }
 
 bool
-ClkSkews::hasClkPaths(Vertex *vertex,
-		      ConstClockSet &clks)
+ClkSkews::hasClkPaths(Vertex *vertex)
 {
   VertexPathIterator path_iter(vertex, this);
   while (path_iter.hasNext()) {
     PathVertex *path = path_iter.next();
     const Clock *path_clk = path->clock(this);
-    if (clks.find(path_clk) != clks.end())
+    if (clk_set_.find(path_clk) != clk_set_.end())
       return true;
   }
   return false;
@@ -317,12 +357,26 @@ ClkSkews::hasClkPaths(Vertex *vertex,
 
 void
 ClkSkews::findClkSkewFrom(Vertex *src_vertex,
+                          ClkSkewMap &skews)
+{
+  VertexOutEdgeIterator edge_iter(src_vertex, graph_);
+  while (edge_iter.hasNext()) {
+    Edge *edge = edge_iter.next();
+    if (edge->role()->genericRole() == TimingRole::regClkToQ()) {
+      Vertex *q_vertex = edge->to(graph_);
+      const RiseFall *rf = edge->timingArcSet()->isRisingFallingEdge();
+      const RiseFallBoth *src_rf = rf
+        ? rf->asRiseFallBoth()
+        : RiseFallBoth::riseFall();
+      findClkSkewFrom(src_vertex, q_vertex, src_rf, skews);
+    }
+  }
+}
+
+void
+ClkSkews::findClkSkewFrom(Vertex *src_vertex,
 			  Vertex *q_vertex,
 			  const RiseFallBoth *src_rf,
-                          ConstClockSet &clk_set,
-			  const Corner *corner,
-			  const SetupHold *setup_hold,
-                          bool include_internal_latency,
 			  ClkSkewMap &skews)
 {
   VertexSet endpoints = findFanout(q_vertex);
@@ -332,18 +386,16 @@ ClkSkews::findClkSkewFrom(Vertex *src_vertex,
       Edge *edge = edge_iter.next();
       TimingRole *role = edge->role();
       if (role->isTimingCheck()
-	  && ((setup_hold == SetupHold::max()
+	  && ((setup_hold_ == SetupHold::max()
 	       && role->genericRole() == TimingRole::setup())
-	      || ((setup_hold == SetupHold::min()
+	      || ((setup_hold_ == SetupHold::min()
 		   && role->genericRole() == TimingRole::hold())))) {
 	Vertex *tgt_vertex = edge->from(graph_);
 	const RiseFall *tgt_rf1 = edge->timingArcSet()->isRisingFallingEdge();
 	const RiseFallBoth *tgt_rf = tgt_rf1
 	  ? tgt_rf1->asRiseFallBoth()
 	  : RiseFallBoth::riseFall();
-	findClkSkew(src_vertex, src_rf, tgt_vertex, tgt_rf,
-		    clk_set, corner, setup_hold,
-                    include_internal_latency, skews);
+	findClkSkew(src_vertex, src_rf, tgt_vertex, tgt_rf, skews);
       }
     }
   }
@@ -354,24 +406,20 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
 		      const RiseFallBoth *src_rf,
 		      Vertex *tgt_vertex,
 		      const RiseFallBoth *tgt_rf,
-                      ConstClockSet &clk_set,
-		      const Corner *corner,
-		      const SetupHold *setup_hold,
-                      bool include_internal_latency,
                       ClkSkewMap &skews)
 {
   Unit *time_unit = units_->timeUnit();
-  const SetupHold *tgt_min_max = setup_hold->opposite();
+  const SetupHold *tgt_min_max = setup_hold_->opposite();
   VertexPathIterator src_iter(src_vertex, this);
   while (src_iter.hasNext()) {
     PathVertex *src_path = src_iter.next();
     const Clock *src_clk = src_path->clock(this);
     if (src_rf->matches(src_path->transition(this))
-	&& src_path->minMax(this) == setup_hold
-	&& clk_set.find(src_clk) != clk_set.end()) {
+	&& src_path->minMax(this) == setup_hold_
+	&& clk_set_.find(src_clk) != clk_set_.end()) {
       Corner *src_corner = src_path->pathAnalysisPt(this)->corner();
-      if (corner == nullptr
-	  || src_corner == corner) {
+      if (corner_ == nullptr
+	  || src_corner == corner_) {
 	VertexPathIterator tgt_iter(tgt_vertex, this);
 	while (tgt_iter.hasNext()) {
 	  PathVertex *tgt_path = tgt_iter.next();
@@ -381,7 +429,7 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
 	      && tgt_rf->matches(tgt_path->transition(this))
 	      && tgt_path->minMax(this) == tgt_min_max
 	      && tgt_path->pathAnalysisPt(this)->corner() == src_corner) {
-	    ClkSkew probe(src_path, tgt_path, include_internal_latency, this);
+	    ClkSkew probe(src_path, tgt_path, include_internal_latency_, this);
 	    ClkSkew &clk_skew = skews[src_clk];
 	    debugPrint(debug_, "clk_skew", 2,
                        "%s %s %s -> %s %s %s crpr = %s skew = %s",
@@ -403,12 +451,38 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
   }
 }
 
-class FanOutSrchPred : public SearchPred1
+VertexSet
+ClkSkews::findFanout(Vertex *from)
 {
-public:
-  FanOutSrchPred(const StaState *sta);
-  virtual bool searchThru(Edge *edge);
-};
+  VertexSet endpoints(graph_);
+  UnorderedSet<Vertex*> visited;
+  findFanout1(from, visited, endpoints);
+  return endpoints;
+}
+
+void
+ClkSkews::findFanout1(Vertex *from,
+                      UnorderedSet<Vertex*> &visited,
+                      VertexSet &endpoints)
+{
+  visited.insert(from);
+  if (from->hasChecks())
+    endpoints.insert(from);
+  if (fanout_pred_.searchFrom(from)) {
+    VertexOutEdgeIterator edge_iter(from, graph_);
+    while (edge_iter.hasNext()) {
+      Edge *edge = edge_iter.next();
+      Vertex *to = edge->to(graph_);
+      if (fanout_pred_.searchThru(edge)
+          && fanout_pred_.searchTo(to)
+          // Do not revisit downstream fanout cones.
+          && visited.insert(to).second)
+        findFanout1(to, visited, endpoints);
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////
 
 FanOutSrchPred::FanOutSrchPred(const StaState *sta) :
   SearchPred1(sta)
@@ -424,27 +498,6 @@ FanOutSrchPred::searchThru(Edge *edge)
         || role == TimingRole::combinational()
         || role == TimingRole::tristateEnable()
         || role == TimingRole::tristateDisable());
-}
-
-VertexSet
-ClkSkews::findFanout(Vertex *from)
-{
-  debugPrint(debug_, "fanout", 1, "%s",
-             from->name(sdc_network_));
-  VertexSet endpoints(graph_);
-  FanOutSrchPred pred(this);
-  BfsFwdIterator fanout_iter(BfsIndex::other, &pred, this);
-  fanout_iter.enqueue(from);
-  while (fanout_iter.hasNext()) {
-    Vertex *fanout = fanout_iter.next();
-    if (fanout->hasChecks()) {
-      debugPrint(debug_, "fanout", 1, " endpoint %s",
-                 fanout->name(sdc_network_));
-      endpoints.insert(fanout);
-    }
-    fanout_iter.enqueueAdjacentVertices(fanout);
-  }
-  return endpoints;
 }
 
 } // namespace

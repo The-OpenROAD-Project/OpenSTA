@@ -297,6 +297,7 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("dont_use", &LibertyReader::visitDontUse);
   defineAttrVisitor("is_macro_cell", &LibertyReader::visitIsMacro);
   defineAttrVisitor("is_memory", &LibertyReader::visitIsMemory);
+  defineAttrVisitor("pad_cell", &LibertyReader::visitIsPadCell);
   defineAttrVisitor("is_pad", &LibertyReader::visitIsPad);
   defineAttrVisitor("is_clock_cell", &LibertyReader::visitIsClockCell);
   defineAttrVisitor("is_level_shifter", &LibertyReader::visitIsLevelShifter);
@@ -2887,13 +2888,13 @@ LibertyReader::visitIsMemory(LibertyAttr *attr)
 }
 
 void
-LibertyReader::visitIsPad(LibertyAttr *attr)
+LibertyReader::visitIsPadCell(LibertyAttr *attr)
 {
   if (cell_) {
-    bool is_pad, exists;
-    getAttrBool(attr, is_pad, exists);
+    bool pad_cell, exists;
+    getAttrBool(attr, pad_cell, exists);
     if (exists)
-      cell_->setIsPad(is_pad);
+      cell_->setIsPad(pad_cell);
   }
 }
 
@@ -3354,6 +3355,19 @@ LibertyReader::visitClock(LibertyAttr *attr)
     if (exists) {
       for (LibertyPort *port : *ports_)
 	port->setIsClock(is_clk);
+    }
+  }
+}
+
+void
+LibertyReader::visitIsPad(LibertyAttr *attr)
+{
+  if (ports_) {
+    bool is_pad, exists;
+    getAttrBool(attr, is_pad, exists);
+    if (exists) {
+      for (LibertyPort *port : *ports_)
+        port->setIsPad(is_pad);
     }
   }
 }
