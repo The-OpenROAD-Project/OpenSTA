@@ -23,7 +23,6 @@
 #include "DmpDelayCalc.hh"
 #include "ArnoldiDelayCalc.hh"
 #include "CcsCeffDelayCalc.hh"
-#include "CcsSimDelayCalc.hh"
 #include "PrimaDelayCalc.hh"
 
 namespace sta {
@@ -41,7 +40,6 @@ registerDelayCalcs()
   registerDelayCalc("dmp_ceff_two_pole", makeDmpCeffTwoPoleDelayCalc);
   registerDelayCalc("arnoldi", makeArnoldiDelayCalc);
   registerDelayCalc("ccs_ceff", makeCcsCeffDelayCalc);
-  registerDelayCalc("ccs_sim", makeCcsSimDelayCalc);
   registerDelayCalc("prima", makePrimaDelayCalc);
 }
 

@@ -122,7 +122,6 @@ record_example_tests {
 }
 
 record_sta_tests {
-  ccs_sim1
   prima3
   verilog_attribute
 }
