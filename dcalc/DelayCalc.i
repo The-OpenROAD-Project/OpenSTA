@@ -65,7 +65,6 @@ report_delay_calc_cmd(Edge *edge,
 void
 set_prima_reduce_order(size_t order)
 {
-  cmdLinkedNetwork();
   Sta *sta = Sta::sta();
   PrimaDelayCalc *dcalc = dynamic_cast<PrimaDelayCalc*>(sta->arcDelayCalc());
   if (dcalc) {
