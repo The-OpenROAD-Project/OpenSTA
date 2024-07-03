@@ -254,9 +254,11 @@ PrimaDelayCalc::tableDcalcResults(float load_cap)
   for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
     ArcDcalcArg &dcalc_arg = (*dcalc_args_)[drvr_idx];
     const Pin *drvr_pin = dcalc_arg.drvrPin();
-    const RiseFall *rf = dcalc_arg.drvrEdge();
-    const Parasitic *parasitic = table_dcalc_->findParasitic(drvr_pin, rf, dcalc_ap_);
-    dcalc_arg.setParasitic(parasitic);
+    if (drvr_pin) {
+      const RiseFall *rf = dcalc_arg.drvrEdge();
+      const Parasitic *parasitic = table_dcalc_->findParasitic(drvr_pin, rf, dcalc_ap_);
+      dcalc_arg.setParasitic(parasitic);
+    }
   }
   return table_dcalc_->gateDelays(*dcalc_args_, load_cap, *load_pin_index_map_,
                                   dcalc_ap_);
