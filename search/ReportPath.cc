@@ -580,14 +580,9 @@ ReportPath::reportEndpoint(const PathEndLatchCheck *end)
 const char *
 ReportPath::latchDesc(const PathEndLatchCheck *end)
 {
-  // Liberty latch descriptions can have timing checks to the
-  // wrong edge of the enable, so look up the EN->Q arcs and use
-  // them to characterize the latch as positive/negative.
   TimingArc *check_arc = end->checkArc();
-  TimingArcSet *check_set = check_arc->set();
-  LibertyCell *cell = check_set->from()->libertyCell();
-  RiseFall *enable_rf = cell->latchCheckEnableEdge(check_set);
-  return latchDesc(enable_rf);
+  const RiseFall *en_rf = check_arc->fromEdge()->asRiseFall()->opposite();
+  return latchDesc(en_rf);
 }
 
 void
@@ -3257,7 +3252,7 @@ ReportPath::edgeRegLatchDesc(Edge *first_edge,
     if (cell) {
       LibertyPort *enable_port;
       FuncExpr *enable_func;
-      RiseFall *enable_rf;
+      const RiseFall *enable_rf;
       cell->latchEnable(first_edge->timingArcSet(),
 			enable_port, enable_func, enable_rf);
       return latchDesc(enable_rf);

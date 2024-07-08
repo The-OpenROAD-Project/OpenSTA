@@ -74,6 +74,7 @@ typedef Map<const OperatingConditions*, LibertyPort*> ScaledPortMap;
 typedef Map<const char *, ModeDef*, CharPtrLess> ModeDefMap;
 typedef Map<const char *, ModeValueDef*, CharPtrLess> ModeValueMap;
 typedef Map<TimingArcSet*, LatchEnable*> LatchEnableMap;
+typedef Vector<LatchEnable*> LatchEnableSeq;
 typedef Map<const char *, OcvDerate*, CharPtrLess> OcvDerateMap;
 typedef Vector<InternalPowerAttrs*> InternalPowerAttrsSeq;
 typedef Map<const char *, float, CharPtrLess> SupplyVoltageMap;
@@ -476,8 +477,8 @@ public:
 		   // Return values.
 		   LibertyPort *&enable_port,
 		   FuncExpr *&enable_func,
-		   RiseFall *&enable_rf) const;
-  RiseFall *latchCheckEnableEdge(TimingArcSet *check_set);
+		   const RiseFall *&enable_rf) const;
+  const RiseFall *latchCheckEnableEdge(TimingArcSet *check_set);
   bool isDisabledConstraint() const { return is_disabled_constraint_; }
   LibertyCell *cornerCell(const Corner *corner,
                           const MinMax *min_max);
@@ -539,18 +540,26 @@ protected:
   void setLibertyLibrary(LibertyLibrary *library);
   void makeLatchEnables(Report *report,
 			Debug *debug);
-  FuncExpr *findLatchEnableFunc(LibertyPort *data,
-				LibertyPort *enable) const;
+  FuncExpr *findLatchEnableFunc(const LibertyPort *d,
+                                const LibertyPort *en,
+                                const RiseFall *en_rf) const;
   LatchEnable *makeLatchEnable(LibertyPort *d,
 			       LibertyPort *en,
+                               const RiseFall *en_rf,
 			       LibertyPort *q,
 			       TimingArcSet *d_to_q,
 			       TimingArcSet *en_to_q,
 			       TimingArcSet *setup_check,
 			       Debug *debug);
+  TimingArcSet *findLatchSetup(const LibertyPort *d,
+                               const LibertyPort *en,
+                               const RiseFall *en_rf,
+                               const LibertyPort *q,
+                               Report *report);
   void findDefaultCondArcs();
   void translatePresetClrCheckRoles();
-  void inferLatchRoles(Debug *debug);
+  void inferLatchRoles(Report *report,
+                       Debug *debug);
   void deleteInternalPowerAttrs();
   void makeTimingArcMap(Report *report);
   void makeTimingArcPortMaps();
@@ -596,6 +605,7 @@ protected:
   LatchEnableMap latch_d_to_q_map_;
   // Latch EN->D setup to LatchEnable.
   LatchEnableMap latch_check_map_;
+  LatchEnableSeq latch_enables_;
   // Ports that have latch D->Q timing arc sets from them.
   LibertyPortSet latch_data_ports_;
   float ocv_arc_depth_;

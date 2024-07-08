@@ -269,7 +269,7 @@ Latches::latchEnablePath(Path *q_path,
   const PathAnalysisPt *tgt_clk_path_ap = path_ap->tgtClkAnalysisPt();
   const Instance *latch = network_->instance(q_path->pin(this));
   Vertex *en_vertex;
-  RiseFall *en_rf;
+  const RiseFall *en_rf;
   LatchEnableState state;
   latchDtoQEnable(d_q_edge, latch, en_vertex, en_rf, state);
   if (state == LatchEnableState::enabled) {
@@ -303,7 +303,7 @@ Latches::latchOutArrival(Path *data_path,
   Vertex *data_vertex = d_q_edge->from(graph_);
   const Instance *inst = network_->instance(data_vertex->pin());
   Vertex *enable_vertex;
-  RiseFall *enable_rf;
+  const RiseFall *enable_rf;
   LatchEnableState state;
   latchDtoQEnable(d_q_edge, inst, enable_vertex, enable_rf, state);
   // Latch enable may be missing if library is malformed.
@@ -466,7 +466,7 @@ Latches::latchDtoQEnable(Edge *d_q_edge,
 			 const Instance *inst,
 			 // Return values.
 			 Vertex *&enable_vertex,
-			 RiseFall *&enable_rf,
+			 const RiseFall *&enable_rf,
 			 LatchEnableState &state) const
 {
   enable_vertex = nullptr;
@@ -515,7 +515,7 @@ Latches::latchDtoQState(Edge *edge) const
   const Pin *from_pin = from_vertex->pin();
   const Instance *inst = network_->instance(from_pin);
   Vertex *enable_vertex;
-  RiseFall *enable_rf;
+  const RiseFall *enable_rf;
   LatchEnableState state;
   latchDtoQEnable(edge, inst, enable_vertex, enable_rf, state);
   return state;

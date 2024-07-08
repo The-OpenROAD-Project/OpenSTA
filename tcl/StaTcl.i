@@ -4883,7 +4883,7 @@ latch_d_to_q_en()
     TimingArcSet *d_q_set = self->timingArcSet();
     LibertyPort *enable_port;
     FuncExpr *enable_func;
-    RiseFall *enable_rf;
+    const RiseFall *enable_rf;
     lib_cell->latchEnable(d_q_set, enable_port, enable_func, enable_rf);
     const char *en_name = enable_port->name();
     return stringPrintTmp("%s %s", en_name, enable_rf->asString());
