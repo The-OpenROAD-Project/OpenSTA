@@ -900,7 +900,7 @@ getProperty(const Instance *inst,
     return PropertyValue(network->libertyCell(inst));
   else if (stringEqual(property, "cell"))
     return PropertyValue(network->cell(inst));
-    else if (stringEqual(property, "is_hierarchical"))
+  else if (stringEqual(property, "is_hierarchical"))
     return PropertyValue(network->isHierarchical(inst));
   else if (stringEqual(property, "is_buffer"))
     return PropertyValue(libertyCell && libertyCell->isBuffer());
