@@ -425,13 +425,15 @@ void
 SdfReader::timingCheck(TimingRole *role, SdfPortSpec *data_edge,
 		       SdfPortSpec *clk_edge, SdfTriple *triple)
 {
-  const char *data_port_name = data_edge->port();
-  const char *clk_port_name = clk_edge->port();
-  Cell *cell = network_->cell(instance_);
-  Port *data_port = findPort(cell, data_port_name);
-  Port *clk_port = findPort(cell, clk_port_name);
-  if (data_port && clk_port)
-    timingCheck1(role, data_port, data_edge, clk_port, clk_edge, triple);
+  if (instance_) {
+    const char *data_port_name = data_edge->port();
+    const char *clk_port_name = clk_edge->port();
+    Cell *cell = network_->cell(instance_);
+    Port *data_port = findPort(cell, data_port_name);
+    Port *clk_port = findPort(cell, clk_port_name);
+    if (data_port && clk_port)
+      timingCheck1(role, data_port, data_edge, clk_port, clk_edge, triple);
+  }
   deletePortSpec(data_edge);
   deletePortSpec(clk_edge);
   deleteTriple(triple);

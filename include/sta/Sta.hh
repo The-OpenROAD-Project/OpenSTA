@@ -1236,7 +1236,7 @@ public:
   void setCmdCorner(Corner *corner);
   Corner *findCorner(const char *corner_name);
   bool multiCorner();
-  void makeCorners(StringSet *corner_names);
+  virtual void makeCorners(StringSet *corner_names);
   // Find all arc delays and vertex slews with delay calculator.
   virtual void findDelays();
   // Find arc delays and vertex slews thru to level of to_vertex.
