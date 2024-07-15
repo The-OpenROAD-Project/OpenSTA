@@ -422,8 +422,10 @@ SdfReader::findPort(const Cell *cell,
 }
 
 void
-SdfReader::timingCheck(TimingRole *role, SdfPortSpec *data_edge,
-		       SdfPortSpec *clk_edge, SdfTriple *triple)
+SdfReader::timingCheck(TimingRole *role,
+                       SdfPortSpec *data_edge,
+		       SdfPortSpec *clk_edge,
+                       SdfTriple *triple)
 {
   if (instance_) {
     const char *data_port_name = data_edge->port();
