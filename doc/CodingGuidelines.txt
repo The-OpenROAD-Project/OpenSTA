@@ -8,6 +8,7 @@ member variable - snake case with trailing underscore (member_variable_)
                   Trailing underscore prevents conflict with accessor 
                   member function name.
 function - lower camel case (functionName)
+variable - snake case
 comments - use capitalized sentences that end with periods
 
 C++ code files should use a .cc file extension
@@ -55,7 +56,7 @@ this:
 instead, write this:
 
      foo = (char *) malloc (sizeof *foo);
-     if (foo == 0)
+     if (foo == nullptr)
        fatal ("virtual memory exhausted");
 
 

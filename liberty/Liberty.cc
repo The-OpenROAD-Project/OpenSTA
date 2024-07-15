@@ -1852,10 +1852,15 @@ LibertyCell::makeLatchEnable(LibertyPort *d,
   latch_d_to_q_map_[d_to_q] = latch_enable;
   latch_check_map_[setup_check] = latch_enable;
   latch_data_ports_.insert(d);
-  debugPrint(debug, "liberty", 2, "latch d=%s en=%s %s q=%s",
+  debugPrint(debug, "liberty_latch", 1,
+             "latch %s -> %s | %s %s -> %s | %s %s -> %s setup",
              d->name(),
+             q->name(),
              en->name(),
-             en_rf->name(),
+             en_rf->shortName(),
+             q->name(),
+             en->name(),
+             setup_check->arcs()[0]->fromEdge()->asRiseFall()->shortName(),
              q->name());
   return latch_enable;
 }
