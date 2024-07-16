@@ -1178,7 +1178,7 @@ getProperty(Clock *clk,
     return PropertyValue(clk->name());
   else if (stringEqual(property, "period"))
     return PropertyValue(clk->period(), sta->units()->timeUnit());
-  else if (stringEqual(property, "source_pins"))
+  else if (stringEqual(property, "sources"))
     return PropertyValue(clk->pins());
   else if (stringEqual(property, "is_generated"))
     return PropertyValue(clk->isGenerated());
