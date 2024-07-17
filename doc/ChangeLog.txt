@@ -1,5 +1,5 @@
 OpenSTA Timing Analyzer Release Notes
----------------------------------------------
+-------------------------------------
 
 This file summarizes user visible changes for each release.
 
