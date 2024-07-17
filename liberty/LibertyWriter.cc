@@ -217,11 +217,11 @@ LibertyWriter::writeTableTemplate(const TableTemplate *tbl_template)
     if (axis3)
       fprintf(stream_, "    variable_3 : %s;\n",
               tableVariableString(axis3->variable()));
-    if (axis1)
+    if (axis1 && axis1->values())
       writeTableAxis4(axis1, 1);
-    if (axis2)
+    if (axis2 && axis2->values())
       writeTableAxis4(axis2, 2);
-    if (axis3)
+    if (axis3 && axis3->values())
       writeTableAxis4(axis3, 3);
     fprintf(stream_, "  }\n");
   }
