@@ -28,7 +28,6 @@ project(STA VERSION 2.6.0
   LANGUAGES CXX
 )
 
-option(USE_CUDD "Use CUDD BDD package" ON)
 option(CUDD_DIR "CUDD BDD package directory")
 option(USE_TCL_READLINE "Use TCL readliine package" ON)
 option(USE_SANITIZE "Compile with santize address enabled")
@@ -371,30 +370,25 @@ find_package(Eigen3 REQUIRED)
 #
 # Locate CUDD bdd package.
 #
-set(CUDD 0)
-if (USE_CUDD)
-  find_library(CUDD_LIB
-    NAME cudd
-    PATHS ${CUDD_DIR}
-    PATH_SUFFIXES lib lib/cudd cudd/.libs
-    )
-  if (CUDD_LIB)
-    message(STATUS "CUDD library: ${CUDD_LIB}")
-    get_filename_component(CUDD_LIB_DIR "${CUDD_LIB}" PATH)
-    get_filename_component(CUDD_LIB_PARENT1 "${CUDD_LIB_DIR}" PATH)
-    find_file(CUDD_HEADER cudd.h
-      PATHS ${CUDD_LIB_PARENT1} ${CUDD_LIB_PARENT1}/include ${CUDD_LIB_PARENT1}/include/cudd)
-    if (CUDD_HEADER)
-      get_filename_component(CUDD_INCLUDE "${CUDD_HEADER}" PATH)
-      message(STATUS "CUDD header: ${CUDD_HEADER}")
-      # Referenced by StaConfig.hh.cmake
-      set(CUDD 1)
-    else()
-      message(STATUS "CUDD header: not found")
-    endif()
+find_library(CUDD_LIB
+  NAME cudd
+  PATHS ${CUDD_DIR}
+  PATH_SUFFIXES lib lib/cudd cudd/.libs
+  )
+if (CUDD_LIB)
+  message(STATUS "CUDD library: ${CUDD_LIB}")
+  get_filename_component(CUDD_LIB_DIR "${CUDD_LIB}" PATH)
+  get_filename_component(CUDD_LIB_PARENT1 "${CUDD_LIB_DIR}" PATH)
+  find_file(CUDD_HEADER cudd.h
+    PATHS ${CUDD_LIB_PARENT1} ${CUDD_LIB_PARENT1}/include ${CUDD_LIB_PARENT1}/include/cudd)
+  if (CUDD_HEADER)
+    get_filename_component(CUDD_INCLUDE "${CUDD_HEADER}" PATH)
+    message(STATUS "CUDD header: ${CUDD_HEADER}")
   else()
-    message(STATUS "CUDD library: not found")
+    message(STATUS "CUDD header: not found")
   endif()
+else()
+  message(STATUS "CUDD library: not found")
 endif()
 
 if("${SSTA}" STREQUAL "")
@@ -517,6 +511,7 @@ target_link_libraries(OpenSTA
   Eigen3::Eigen
   ${TCL_LIBRARY}
   ${CMAKE_THREAD_LIBS_INIT}
+  ${CUDD_LIB}
   )
 
 if (TCL_READLINE_LIBRARY)
@@ -527,9 +522,7 @@ if (ZLIB_LIBRARIES)
   target_link_libraries(OpenSTA ${ZLIB_LIBRARIES})
 endif()
 
-if (CUDD_LIB)
-  target_link_libraries(OpenSTA ${CUDD_LIB})
-endif()
+target_link_libraries(OpenSTA )
 
 target_include_directories(OpenSTA
   PUBLIC

@@ -7,8 +7,9 @@ Release 2.6.0 2024/07/??
 -------------------------
 
 The version of c++ used by OpenSTA is now 17.
+The Cudd BBD packager is now required.
 
-The USE_CUDD and USE_TCL_READLINE options default to ON.
+The USE_TCL_READLINE option defaults to ON.
 
 Release 2.5.0 2024/01/17
 -------------------------

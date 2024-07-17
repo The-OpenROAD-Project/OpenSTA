@@ -103,9 +103,9 @@ External library dependencies:
 ```
            Ubuntu   Macos license
 eigen       3.4.0   3.4.0   MPL2  required
+cudd        3.0.0   3.0.0   BSD   required
 tclreadline 2.3.8   2.3.8   BSD   optional
 zLib        1.2.5   1.2.8   zlib  optional
-cudd        3.0.0   3.0.0   BSD   optional
 ```
 
 The [TCL readline library](https://tclreadline.sourceforge.net/tclreadline.html)
