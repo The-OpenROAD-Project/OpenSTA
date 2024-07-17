@@ -24,6 +24,11 @@ timing groups.
   report_clock_skew -include_internal_latency
   report_clock_latency -include_internal_latency
 
+The all_inputs command now supports the -no_clocks argument to exclude
+clocks from the list.
+
+  all_inputs [-no_clocks]
+
 Release 2.4.0 2023/01/19
 -------------------------
 

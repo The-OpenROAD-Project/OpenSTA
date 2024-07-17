@@ -444,6 +444,57 @@ Sdc::isConstrained(const Net *net) const
 
 ////////////////////////////////////////////////////////////////
 
+PortSeq
+Sdc::allInputs(bool no_clks)
+{
+  PortSeq ports;
+  Instance *top_inst = network_->topInstance();
+  InstancePinIterator *pin_iter = network_->pinIterator(top_inst);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    const Port *port = network_->port(pin);
+    PortDirection *dir = network_->direction(port);
+    if (dir->isAnyInput()
+        && !(no_clks && isClock(pin)))
+      portMembers(port, ports);
+  }
+  delete pin_iter;
+  return ports;
+}
+
+PortSeq
+Sdc::allOutputs()
+{
+  PortSeq ports;
+  Instance *top_inst = network_->topInstance();
+  InstancePinIterator *pin_iter = network_->pinIterator(top_inst);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    const Port *port = network_->port(pin);
+    PortDirection *dir = network_->direction(port);
+    if (dir->isAnyOutput())
+      portMembers(port, ports);
+  }
+  delete pin_iter;
+  return ports;
+}
+
+void
+Sdc::portMembers(const Port *port,
+                 PortSeq &ports)
+{
+  if (network_->isBus(port)) {
+    PortMemberIterator *member_iter = network_->memberIterator(port);
+    while (member_iter->hasNext()) {
+      Port *member = member_iter->next();
+      ports.push_back(member);
+    }
+    delete member_iter;
+  }
+  else
+    ports.push_back(port);
+}
+
 void
 Sdc::setAnalysisType(AnalysisType analysis_type)
 {

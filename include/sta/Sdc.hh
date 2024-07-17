@@ -200,6 +200,8 @@ public:
   void deleteNetBefore(const Net *net);
 
   // SWIG sdc interface.
+  PortSeq allInputs(bool no_clks);
+  PortSeq allOutputs();
   AnalysisType analysisType() { return analysis_type_; }
   void setAnalysisType(AnalysisType analysis_type);
   void setOperatingConditions(OperatingConditions *op_cond,
@@ -1046,6 +1048,8 @@ public:
   bool bidirectDrvrSlewFromLoad(const Pin *pin) const;
 
 protected:
+  void portMembers(const Port *port,
+                   PortSeq &ports);
   void initVariables();
   void clearCycleAcctings();
   void removeLibertyAnnotations();

@@ -1109,6 +1109,22 @@ find_nets_hier_matching(const char *pattern,
 }
 
 PortSeq
+all_inputs_cmd(bool no_clocks)
+{
+  Sta *sta = Sta::sta();
+  cmdLinkedNetwork();
+  return sta->sdc()->allInputs(no_clocks);
+}
+
+PortSeq
+all_outputs_cmd()
+{
+  Sta *sta = Sta::sta();
+  cmdLinkedNetwork();
+  return sta->sdc()->allOutputs();
+}
+
+PortSeq
 filter_ports(const char *property,
 	     const char *op,
 	     const char *pattern,
