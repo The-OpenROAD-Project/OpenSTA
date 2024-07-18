@@ -114,10 +114,16 @@ DelayCalcBase::dspfWireDelaySlew(const Pin *load_pin,
 {
   
   LibertyLibrary *load_library = thresholdLibrary(load_pin);
-  float vth = load_library->inputThreshold(rf);
-  float vl = load_library->slewLowerThreshold(rf);
-  float vh = load_library->slewUpperThreshold(rf);
-  float slew_derate = load_library->slewDerateFromLibrary();
+  float vth = 0.5;
+  float vl = 0.2;
+  float vh = 0.8;
+  float slew_derate = 1.0;
+  if (load_library) {
+    vth = load_library->inputThreshold(rf);
+    vl = load_library->slewLowerThreshold(rf);
+    vh = load_library->slewUpperThreshold(rf);
+    slew_derate = load_library->slewDerateFromLibrary();
+  }
   wire_delay = -elmore * log(1.0 - vth);
   load_slew = drvr_slew + elmore * log((1.0 - vl) / (1.0 - vh)) / slew_derate;
   load_slew = drvr_slew + elmore * log((1.0 - vl) / (1.0 - vh)) / slew_derate;

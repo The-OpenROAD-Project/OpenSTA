@@ -35,6 +35,10 @@ proc_redirect report_power {
     keys {-instances -corner -digits} flags {}
 
   check_argc_eq0 "report_power" $args
+
+  if { ![liberty_libraries_exist] } {
+    sta_error 304 "No liberty libraries have been read."
+  }
   if { [info exists keys(-digits)] } {
     set digits $keys(-digits)
     check_positive_integer "-digits" $digits
@@ -49,6 +53,16 @@ proc_redirect report_power {
   } else {
     report_power_design $corner $digits
   }
+}
+
+proc liberty_libraries_exist {} {
+  set lib_iter [liberty_library_iterator]
+  set have_liberty 0
+  if { [$lib_iter has_next] } {
+    set have_liberty 1
+  }
+  $lib_iter finish
+  return $have_liberty
 }
 
 proc report_power_design { corner digits } {
