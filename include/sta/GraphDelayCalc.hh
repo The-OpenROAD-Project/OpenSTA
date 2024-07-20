@@ -18,6 +18,7 @@
 
 #include <vector>
 #include <mutex>
+#include <array>
 
 #include "Map.hh"
 #include "NetworkClass.hh"
@@ -32,6 +33,7 @@ namespace sta {
 
 using std::vector;
 using std::map;
+using std::array;
 
 class DelayCalcObserver;
 class MultiDrvrNet;
@@ -171,7 +173,8 @@ protected:
   bool findDriverEdgeDelays(Vertex *drvr_vertex,
 			    const MultiDrvrNet *multi_drvr,
 			    Edge *edge,
-			    ArcDelayCalc *arc_delay_calc);
+			    ArcDelayCalc *arc_delay_calc,
+                            array<bool, RiseFall::index_count> &delay_exists);
   bool findDriverArcDelays(Vertex *drvr_vertex,
                            const MultiDrvrNet *multi_drvr,
                            Edge *edge,
@@ -193,7 +196,8 @@ protected:
                         const TimingArc *&arc);
   void initWireDelays(Vertex *drvr_vertex);
   void initRootSlews(Vertex *vertex);
-  void zeroSlewAndWireDelays(Vertex *drvr_vertex);
+  void zeroSlewAndWireDelays(Vertex *drvr_vertex,
+                             const RiseFall *rf);
   void findVertexDelay(Vertex *vertex,
 		       ArcDelayCalc *arc_delay_calc,
 		       bool propagate);
