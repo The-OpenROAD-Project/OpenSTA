@@ -399,7 +399,7 @@ PathEnumFaninVisitor::reportDiversion(TimingArc *div_arc,
     report_->reportLine("path_enum:  from %s -> %s",
                         div_prev.name(this),
                         before_div_.name(this));
-    report_->reportLine("path_enum:    to %s ->e",
+    report_->reportLine("path_enum:    to %s",
                         after_div->name(this));
   }
 }
@@ -502,9 +502,6 @@ PathEnum::makeDiversions(PathEnd *path_end,
   path.prevPath(this, prev_path, prev_arc);
   PathEnumFaninVisitor fanin_visitor(path_end, path, unique_pins_, this);
   while (prev_arc
-         // Do not enumerate beyond latch D to Q edges.
-         // This breaks latch loop paths.
-         && prev_arc->role() != TimingRole::latchDtoQ()
          // Do not enumerate paths in the clk network.
          && !path.isClock(this)) {
     // Fanin visitor does all the work.
@@ -512,6 +509,10 @@ PathEnum::makeDiversions(PathEnd *path_end,
     // previous path and arc as well as diversions.
     fanin_visitor.visitFaninPathsThru(path.vertex(this),
                                       prev_path.vertex(this), prev_arc);
+    // Do not enumerate beyond latch D to Q edges.
+    // This breaks latch loop paths.
+    if (prev_arc->role() == TimingRole::latchDtoQ())
+      break;
     path.init(prev_path);
     path.prevPath(this, prev_path, prev_arc);
   }
@@ -574,7 +575,7 @@ PathEnum::updatePathHeadDelays(PathEnumedSeq &paths,
 			       Path *after_div)
 {
   Tag *prev_tag = after_div->tag(this);
-  ClkInfo *clk_info = prev_tag->clkInfo();
+  ClkInfo *prev_clk_info = prev_tag->clkInfo();
   Arrival prev_arrival = search_->clkPathArrival(after_div);
   for (int i = paths.size() - 1; i >= 0; i--) {
     PathEnumed *path = paths[i];
@@ -585,19 +586,22 @@ PathEnum::updatePathHeadDelays(PathEnumedSeq &paths,
       ArcDelay arc_delay = search_->deratedDelay(edge->from(graph_),
                                                  arc, edge, false, path_ap);
       Arrival arrival = prev_arrival + arc_delay;
-      debugPrint(debug_, "path_enum", 3, "update arrival %s %s -> %s",
-                 path->name(this),
+      debugPrint(debug_, "path_enum", 3, "update arrival %s %s %s -> %s",
+                 path->vertex(this)->name(network_),
+                 path->tag(this)->asString(this),
                  delayAsString(path->arrival(this), this),
                  delayAsString(arrival, this));
       path->setArrival(arrival, this);
       prev_arrival = arrival;
-      if (sdc_->crprActive()) {
+      if (sdc_->crprActive()
+          // D->Q paths use the EN->Q clk info so no need to update.
+          && arc->role() != TimingRole::latchDtoQ()) {
         // When crpr is enabled the diverion may be from another crpr clk pin,
         // so update the tags to use the corresponding ClkInfo.
         Tag *tag = path->tag(this);
         Tag *updated_tag = search_->findTag(path->transition(this),
                                             path_ap,
-                                            clk_info,
+                                            prev_clk_info,
                                             tag->isClock(),
                                             tag->inputDelay(),
                                             tag->isSegmentStart(),

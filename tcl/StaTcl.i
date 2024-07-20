@@ -4901,9 +4901,8 @@ latch_d_to_q_en()
     FuncExpr *enable_func;
     const RiseFall *enable_rf;
     lib_cell->latchEnable(d_q_set, enable_port, enable_func, enable_rf);
-    const char *en_name = enable_port->name();
-    return stringPrintTmp("%s %s", en_name, enable_rf->asString());
-
+    if (enable_port)
+      return stringPrintTmp("%s %s", enable_port->name(), enable_rf->asString());
   }
   return "";
 }

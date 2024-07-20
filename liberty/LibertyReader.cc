@@ -3927,8 +3927,8 @@ LibertyReader::endTiming(LibertyGroup *group)
 {
   if (timing_) {
     // Set scale factor type in constraint tables.
-    for (auto tr : RiseFall::range()) {
-      TableModel *model = timing_->constraint(tr);
+    for (auto rf : RiseFall::range()) {
+      TableModel *model = timing_->constraint(rf);
       if (model) {
 	ScaleFactorType type=timingTypeScaleFactorType(timing_->attrs()->timingType());
 	model->setScaleFactorType(type);

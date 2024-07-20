@@ -1914,12 +1914,16 @@ LibertyCell::latchEnable(TimingArcSet *d_to_q_set,
 			 FuncExpr *&enable_func,
 			 const RiseFall *&enable_edge) const
 {
-  enable_port = nullptr;
   LatchEnable *latch_enable = latch_d_to_q_map_.findKey(d_to_q_set);
   if (latch_enable) {
     enable_port = latch_enable->enable();
     enable_func = latch_enable->enableFunc();
     enable_edge = latch_enable->enableEdge();
+  }
+  else {
+    enable_port = nullptr;
+    enable_func = nullptr;
+    enable_edge = nullptr;
   }
 }
 
