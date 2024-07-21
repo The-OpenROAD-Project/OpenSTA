@@ -238,7 +238,6 @@ set(STA_TCL_FILES
   tcl/Network.tcl
   tcl/NetworkEdit.tcl
   tcl/Property.tcl
-  tcl/Sdc.tcl
   tcl/Search.tcl
   tcl/Sta.tcl
   tcl/Splash.tcl
@@ -247,6 +246,7 @@ set(STA_TCL_FILES
   liberty/Liberty.tcl
   parasitics/Parasitics.tcl
   power/Power.tcl
+  sdc/Sdc.tcl
   sdf/Sdf.tcl
   spice/WriteSpice.tcl
   verilog/Verilog.tcl
@@ -421,6 +421,7 @@ set_property(SOURCE ${STA_SWIG_FILE}
   -module sta
   -namespace -prefix sta
   -I${STA_HOME}/tcl
+  -I${STA_HOME}/sdc
   -I${STA_HOME}/sdf
   -I${STA_HOME}/dcalc
   -I${STA_HOME}/liberty
@@ -435,6 +436,7 @@ set(SWIG_FILES
   ${STA_HOME}/liberty/Liberty.i
   ${STA_HOME}/parasitics/Parasitics.i
   ${STA_HOME}/power/Power.i
+  ${STA_HOME}/sdc/Sdc.i
   ${STA_HOME}/sdf/Sdf.i
   ${STA_HOME}/spice/WriteSpice.i
   ${STA_HOME}/tcl/Exception.i

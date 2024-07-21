@@ -23,6 +23,7 @@
 %include "Verilog.i"
 %include "NetworkEdit.i"
 %include "Sdf.i"
+%include "Sdc.i"
 %include "DelayCalc.i"
 %include "WriteSpice.i"
 %include "Parasitics.i"
