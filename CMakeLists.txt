@@ -234,7 +234,6 @@ set(STA_TCL_FILES
   tcl/CmdArgs.tcl
   tcl/CmdUtil.tcl
   tcl/Graph.tcl
-  tcl/Liberty.tcl
   tcl/Link.tcl
   tcl/Network.tcl
   tcl/NetworkEdit.tcl
@@ -245,6 +244,7 @@ set(STA_TCL_FILES
   tcl/Splash.tcl
   tcl/Variables.tcl
   dcalc/DelayCalc.tcl
+  liberty/Liberty.tcl
   parasitics/Parasitics.tcl
   power/Power.tcl
   sdf/Sdf.tcl
@@ -423,6 +423,7 @@ set_property(SOURCE ${STA_SWIG_FILE}
   -I${STA_HOME}/tcl
   -I${STA_HOME}/sdf
   -I${STA_HOME}/dcalc
+  -I${STA_HOME}/liberty
   -I${STA_HOME}/parasitics
   -I${STA_HOME}/power
   -I${STA_HOME}/spice
@@ -431,6 +432,7 @@ set_property(SOURCE ${STA_SWIG_FILE}
 
 set(SWIG_FILES
   ${STA_HOME}/dcalc/DelayCalc.i
+  ${STA_HOME}/liberty/Liberty.i
   ${STA_HOME}/parasitics/Parasitics.i
   ${STA_HOME}/power/Power.i
   ${STA_HOME}/sdf/Sdf.i

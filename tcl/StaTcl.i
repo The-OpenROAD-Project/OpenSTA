@@ -49,7 +49,6 @@
 #include "TimingArc.hh"
 #include "TableModel.hh"
 #include "Liberty.hh"
-#include "LibertyWriter.hh"
 #include "EquivCells.hh"
 #include "Wireload.hh"
 #include "PortDirection.hh"
@@ -705,31 +704,6 @@ void
 set_current_instance(Instance *inst)
 {
   Sta::sta()->setCurrentInstance(inst);
-}
-
-bool
-read_liberty_cmd(char *filename,
-		 Corner *corner,
-		 const MinMaxAll *min_max,
-		 bool infer_latches)
-{
-  LibertyLibrary *lib = Sta::sta()->readLiberty(filename, corner, min_max,
-						infer_latches);
-  return (lib != nullptr);
-}
-
-bool
-set_min_library_cmd(char *min_filename,
-		    char *max_filename)
-{
-  return Sta::sta()->setMinLibrary(min_filename, max_filename);
-}
-
-void
-write_liberty_cmd(LibertyLibrary *library,
-                  char *filename)
-{
-  writeLiberty(library, filename, Sta::sta());
 }
 
 Library *

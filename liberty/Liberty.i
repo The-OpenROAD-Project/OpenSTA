@@ -1,4 +1,6 @@
-%module sta
+%module liberty
+
+%{
 
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2024, Parallax Software, Inc.
@@ -16,14 +18,31 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-%include "Exception.i"
-%include "StaTclTypes.i"
-%include "StaTcl.i"
-%include "Liberty.i"
-%include "Verilog.i"
-%include "NetworkEdit.i"
-%include "Sdf.i"
-%include "DelayCalc.i"
-%include "WriteSpice.i"
-%include "Parasitics.i"
-%include "Power.i"
+#include "Sta.hh"
+#include "LibertyWriter.hh"
+
+using namespace sta;
+
+%}
+
+%inline %{
+
+bool
+read_liberty_cmd(char *filename,
+		 Corner *corner,
+		 const MinMaxAll *min_max,
+		 bool infer_latches)
+{
+  Sta *sta = Sta::sta();
+  LibertyLibrary *lib = sta->readLiberty(filename, corner, min_max, infer_latches);
+  return (lib != nullptr);
+}
+
+void
+write_liberty_cmd(LibertyLibrary *library,
+                  char *filename)
+{
+  writeLiberty(library, filename, Sta::sta());
+}
+
+%} // inline
