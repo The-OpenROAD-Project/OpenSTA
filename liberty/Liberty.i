@@ -197,6 +197,12 @@ find_liberty_cell(const char *name)
   return cmdNetwork()->findLibertyCell(name);
 }
 
+bool
+timing_role_is_check(TimingRole *role)
+{
+  return role->isTimingCheck();
+}
+
 %} // inline
 
 ////////////////////////////////////////////////////////////////

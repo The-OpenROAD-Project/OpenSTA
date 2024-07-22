@@ -306,6 +306,18 @@ report_loops()
   }
 }
 
+char
+pin_sim_logic_value(const Pin *pin)
+{
+  return logicValueString(Sta::sta()->simLogicValue(pin));
+}
+
+InstanceSeq
+slow_drivers(int count)
+{
+  return Sta::sta()->slowDrivers(count);
+}
+
 ////////////////////////////////////////////////////////////////
 
 PathEndSeq
@@ -457,6 +469,366 @@ report_path_cmd(PathRef *path)
 ////////////////////////////////////////////////////////////////
 
 void
+report_clk_skew(ConstClockSeq clks,
+		const Corner *corner,
+		const SetupHold *setup_hold,
+                bool include_internal_latency,
+		int digits)
+{
+  cmdLinkedNetwork();
+  Sta::sta()->reportClkSkew(clks, corner, setup_hold,
+                            include_internal_latency, digits);
+}
+
+void
+report_clk_latency(ConstClockSeq clks,
+                   const Corner *corner,
+                   bool include_internal_latency,
+                   int digits)
+{
+  cmdLinkedNetwork();
+  Sta::sta()->reportClkLatency(clks, corner, include_internal_latency, digits);
+}
+
+float
+worst_clk_skew_cmd(const SetupHold *setup_hold,
+                   bool include_internal_latency)
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->findWorstClkSkew(setup_hold, include_internal_latency);
+}
+
+////////////////////////////////////////////////////////////////
+
+MinPulseWidthCheckSeq &
+min_pulse_width_violations(const Corner *corner)
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->minPulseWidthViolations(corner);
+}
+
+MinPulseWidthCheckSeq &
+min_pulse_width_check_pins(PinSeq *pins,
+			   const Corner *corner)
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  MinPulseWidthCheckSeq &checks = sta->minPulseWidthChecks(pins, corner);
+  delete pins;
+  return checks;
+}
+
+MinPulseWidthCheckSeq &
+min_pulse_width_checks(const Corner *corner)
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->minPulseWidthChecks(corner);
+}
+
+MinPulseWidthCheck *
+min_pulse_width_check_slack(const Corner *corner)
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->minPulseWidthSlack(corner);
+}
+
+void
+report_mpw_checks(MinPulseWidthCheckSeq *checks,
+		  bool verbose)
+{
+  Sta::sta()->reportMpwChecks(checks, verbose);
+}
+
+void
+report_mpw_check(MinPulseWidthCheck *check,
+		 bool verbose)
+{
+  Sta::sta()->reportMpwCheck(check, verbose);
+}
+
+////////////////////////////////////////////////////////////////
+
+MinPeriodCheckSeq &
+min_period_violations()
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->minPeriodViolations();
+}
+
+MinPeriodCheck *
+min_period_check_slack()
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->minPeriodSlack();
+}
+
+void
+report_min_period_checks(MinPeriodCheckSeq *checks,
+			 bool verbose)
+{
+  Sta::sta()->reportChecks(checks, verbose);
+}
+
+void
+report_min_period_check(MinPeriodCheck *check,
+			bool verbose)
+{
+  Sta::sta()->reportCheck(check, verbose);
+}
+
+////////////////////////////////////////////////////////////////
+
+MaxSkewCheckSeq &
+max_skew_violations()
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->maxSkewViolations();
+}
+
+MaxSkewCheck *
+max_skew_check_slack()
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->maxSkewSlack();
+}
+
+void
+report_max_skew_checks(MaxSkewCheckSeq *checks,
+		       bool verbose)
+{
+  Sta::sta()->reportChecks(checks, verbose);
+}
+
+void
+report_max_skew_check(MaxSkewCheck *check,
+		      bool verbose)
+{
+  Sta::sta()->reportCheck(check, verbose);
+}
+
+////////////////////////////////////////////////////////////////
+
+Slack
+find_clk_min_period(const Clock *clk,
+                    bool ignore_port_paths)
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  return sta->findClkMinPeriod(clk, ignore_port_paths);
+}
+
+////////////////////////////////////////////////////////////////
+
+PinSeq
+check_slew_limits(Net *net,
+                  bool violators,
+                  const Corner *corner,
+                  const MinMax *min_max)
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->checkSlewLimits(net, violators, corner, min_max);
+}
+
+size_t
+max_slew_violation_count()
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->checkSlewLimits(nullptr, true, nullptr, MinMax::max()).size();
+}
+
+float
+max_slew_check_slack()
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  const Pin *pin;
+  Slew slew;
+  float slack;
+  float limit;
+  sta->maxSlewCheck(pin, slew, slack, limit);
+  return sta->units()->timeUnit()->staToUser(slack);
+}
+
+float
+max_slew_check_limit()
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  const Pin *pin;
+  Slew slew;
+  float slack;
+  float limit;
+  sta->maxSlewCheck(pin, slew, slack, limit);
+  return sta->units()->timeUnit()->staToUser(limit);
+}
+
+void
+report_slew_limit_short_header()
+{
+  Sta::sta()->reportSlewLimitShortHeader();
+}
+
+void
+report_slew_limit_short(Pin *pin,
+			const Corner *corner,
+			const MinMax *min_max)
+{
+  Sta::sta()->reportSlewLimitShort(pin, corner, min_max);
+}
+
+void
+report_slew_limit_verbose(Pin *pin,
+			  const Corner *corner,
+			  const MinMax *min_max)
+{
+  Sta::sta()->reportSlewLimitVerbose(pin, corner, min_max);
+}
+
+////////////////////////////////////////////////////////////////
+
+PinSeq
+check_fanout_limits(Net *net,
+                    bool violators,
+                    const MinMax *min_max)
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->checkFanoutLimits(net, violators, min_max);
+}
+
+size_t
+max_fanout_violation_count()
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->checkFanoutLimits(nullptr, true, MinMax::max()).size();
+}
+
+float
+max_fanout_check_slack()
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  const Pin *pin;
+  float fanout;
+  float slack;
+  float limit;
+  sta->maxFanoutCheck(pin, fanout, slack, limit);
+  return slack;;
+}
+
+float
+max_fanout_check_limit()
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  const Pin *pin;
+  float fanout;
+  float slack;
+  float limit;
+  sta->maxFanoutCheck(pin, fanout, slack, limit);
+  return limit;;
+}
+
+void
+report_fanout_limit_short_header()
+{
+  Sta::sta()->reportFanoutLimitShortHeader();
+}
+
+void
+report_fanout_limit_short(Pin *pin,
+			  const MinMax *min_max)
+{
+  Sta::sta()->reportFanoutLimitShort(pin, min_max);
+}
+
+void
+report_fanout_limit_verbose(Pin *pin,
+			    const MinMax *min_max)
+{
+  Sta::sta()->reportFanoutLimitVerbose(pin, min_max);
+}
+
+////////////////////////////////////////////////////////////////
+
+PinSeq
+check_capacitance_limits(Net *net,
+                         bool violators,
+                         const Corner *corner,
+                         const MinMax *min_max)
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->checkCapacitanceLimits(net, violators, corner, min_max);
+}
+
+size_t
+max_capacitance_violation_count()
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->checkCapacitanceLimits(nullptr, true,nullptr,MinMax::max()).size();
+}
+
+float
+max_capacitance_check_slack()
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  const Pin *pin;
+  float capacitance;
+  float slack;
+  float limit;
+  sta->maxCapacitanceCheck(pin, capacitance, slack, limit);
+  return sta->units()->capacitanceUnit()->staToUser(slack);
+}
+
+float
+max_capacitance_check_limit()
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  const Pin *pin;
+  float capacitance;
+  float slack;
+  float limit;
+  sta->maxCapacitanceCheck(pin, capacitance, slack, limit);
+  return sta->units()->capacitanceUnit()->staToUser(limit);
+}
+
+void
+report_capacitance_limit_short_header()
+{
+  Sta::sta()->reportCapacitanceLimitShortHeader();
+}
+
+void
+report_capacitance_limit_short(Pin *pin,
+			       const Corner *corner,
+			       const MinMax *min_max)
+{
+  Sta::sta()->reportCapacitanceLimitShort(pin, corner, min_max);
+}
+
+void
+report_capacitance_limit_verbose(Pin *pin,
+				 const Corner *corner,
+				 const MinMax *min_max)
+{
+  Sta::sta()->reportCapacitanceLimitVerbose(pin, corner, min_max);
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+write_timing_model_cmd(const char *lib_name,
+                       const char *cell_name,
+                       const char *filename,
+                       const Corner *corner)
+{
+  Sta::sta()->writeTimingModel(lib_name, cell_name, filename, corner);
+}
+
+////////////////////////////////////////////////////////////////
+
+void
 define_corners_cmd(StringSet *corner_names)
 {
   Sta *sta = Sta::sta();
@@ -510,6 +882,80 @@ check_timing_cmd(bool no_input_delay,
 				 reg_multiple_clks, reg_no_clks,
 				 unconstrained_endpoints,
 				 loops, generated_clks);
+}
+
+////////////////////////////////////////////////////////////////
+
+PinSet
+find_fanin_pins(PinSeq *to,
+		bool flat,
+		bool startpoints_only,
+		int inst_levels,
+		int pin_levels,
+		bool thru_disabled,
+		bool thru_constants)
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  PinSet fanin = sta->findFaninPins(to, flat, startpoints_only,
+                                    inst_levels, pin_levels,
+                                    thru_disabled, thru_constants);
+  delete to;
+  return fanin;
+}
+
+InstanceSet
+find_fanin_insts(PinSeq *to,
+		 bool flat,
+		 bool startpoints_only,
+		 int inst_levels,
+		 int pin_levels,
+		 bool thru_disabled,
+		 bool thru_constants)
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  InstanceSet fanin = sta->findFaninInstances(to, flat, startpoints_only,
+                                              inst_levels, pin_levels,
+                                              thru_disabled, thru_constants);
+  delete to;
+  return fanin;
+}
+
+PinSet
+find_fanout_pins(PinSeq *from,
+		 bool flat,
+		 bool endpoints_only,
+		 int inst_levels,
+		 int pin_levels,
+		 bool thru_disabled,
+		 bool thru_constants)
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  PinSet fanout = sta->findFanoutPins(from, flat, endpoints_only,
+                                      inst_levels, pin_levels,
+                                      thru_disabled, thru_constants);
+  delete from;
+  return fanout;
+}
+
+InstanceSet
+find_fanout_insts(PinSeq *from,
+		  bool flat,
+		  bool endpoints_only,
+		  int inst_levels,
+		  int pin_levels,
+		  bool thru_disabled,
+		  bool thru_constants)
+{
+  cmdLinkedNetwork();
+  Sta *sta = Sta::sta();
+  InstanceSet fanout = sta->findFanoutInstances(from, flat, endpoints_only,
+                                                inst_levels, pin_levels,
+                                                thru_disabled, thru_constants);
+  delete from;
+  return fanout;
 }
 
 %} // inline
