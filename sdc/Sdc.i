@@ -18,6 +18,7 @@
 
 %{
 #include "Sdc.hh"
+#include "Wireload.hh"
 #include "Clock.hh"
 #include "PortDelay.hh"
 #include "Sta.hh"

@@ -17,6 +17,7 @@
 %module liberty
 
 %{
+#include "PortDirection.hh"
 #include "Liberty.hh"
 #include "EquivCells.hh"
 #include "LibertyWriter.hh"

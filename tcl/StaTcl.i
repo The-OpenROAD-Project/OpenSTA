@@ -40,16 +40,9 @@
 #include "FuncExpr.hh"
 #include "Units.hh"
 #include "Transition.hh"
-#include "TimingRole.hh"
-#include "TimingArc.hh"
-#include "TableModel.hh"
 #include "Liberty.hh"
-#include "Wireload.hh"
-#include "PortDirection.hh"
 #include "Network.hh"
-#include "ExceptionPath.hh"
 #include "Sdc.hh"
-#include "Graph.hh"
 #include "DelayCalc.hh"
 #include "DcalcAnalysisPt.hh"
 #include "Corner.hh"
@@ -369,167 +362,6 @@ is_object_list(const char *list,
   return true;
 }
 
-const char *
-rise_short_name()
-{
-  return RiseFall::rise()->shortName();
-}
-
-const char *
-fall_short_name()
-{
-  return RiseFall::fall()->shortName();
-}
-
-////////////////////////////////////////////////////////////////
-
-PropertyValue
-pin_property(const Pin *pin,
-	     const char *property)
-{
-  cmdLinkedNetwork();
-  return getProperty(pin, property, Sta::sta());
-}
-
-PropertyValue
-instance_property(const Instance *inst,
-		  const char *property)
-{
-  cmdLinkedNetwork();
-  return getProperty(inst, property, Sta::sta());
-}
-
-PropertyValue
-net_property(const Net *net,
-	     const char *property)
-{
-  cmdLinkedNetwork();
-  return getProperty(net, property, Sta::sta());
-}
-
-PropertyValue
-port_property(const Port *port,
-	      const char *property)
-{
-  return getProperty(port, property, Sta::sta());
-}
-
-
-PropertyValue
-liberty_cell_property(const LibertyCell *cell,
-		      const char *property)
-{
-  return getProperty(cell, property, Sta::sta());
-}
-
-PropertyValue
-cell_property(const Cell *cell,
-	      const char *property)
-{
-  return getProperty(cell, property, Sta::sta());
-}
-
-PropertyValue
-liberty_port_property(const LibertyPort *port,
-		      const char *property)
-{
-  return getProperty(port, property, Sta::sta());
-}
-
-PropertyValue
-library_property(const Library *lib,
-		 const char *property)
-{
-  return getProperty(lib, property, Sta::sta());
-}
-
-PropertyValue
-liberty_library_property(const LibertyLibrary *lib,
-			 const char *property)
-{
-  return getProperty(lib, property, Sta::sta());
-}
-
-PropertyValue
-edge_property(Edge *edge,
-	      const char *property)
-{
-  cmdGraph();
-  return getProperty(edge, property, Sta::sta());
-}
-
-PropertyValue
-clock_property(Clock *clk,
-	       const char *property)
-{
-  cmdLinkedNetwork();
-  return getProperty(clk, property, Sta::sta());
-}
-
-PropertyValue
-path_end_property(PathEnd *end,
-		  const char *property)
-{
-  cmdLinkedNetwork();
-  return getProperty(end, property, Sta::sta());
-}
-
-PropertyValue
-path_ref_property(PathRef *path,
-		  const char *property)
-{
-  cmdLinkedNetwork();
-  return getProperty(path, property, Sta::sta());
-}
-
-PropertyValue
-timing_arc_set_property(TimingArcSet *arc_set,
-			const char *property)
-{
-  cmdLinkedNetwork();
-  return getProperty(arc_set, property, Sta::sta());
-}
-
-////////////////////////////////////////////////////////////////
-
-void
-define_corners_cmd(StringSet *corner_names)
-{
-  Sta *sta = Sta::sta();
-  sta->makeCorners(corner_names);
-  delete corner_names;
-}
-
-Corner *
-cmd_corner()
-{
-  return Sta::sta()->cmdCorner();
-}
-
-void
-set_cmd_corner(Corner *corner)
-{
-  Sta::sta()->setCmdCorner(corner);
-}
-
-Corner *
-find_corner(const char *corner_name)
-{
-  return Sta::sta()->findCorner(corner_name);
-}
-
-Corners *
-corners()
-{
-  return Sta::sta()->corners();
-}
-
-bool
-multi_corner()
-{
-  return Sta::sta()->multiCorner();
-}
-
 ////////////////////////////////////////////////////////////////
 
 // format_unit functions print with fixed digits and suffix.
@@ -761,6 +593,169 @@ unit_scaled_suffix(const char *unit_name)
     return unit->scaledSuffix();
   else
     return "";
+}
+
+////////////////////////////////////////////////////////////////
+
+const char *
+rise_short_name()
+{
+  return RiseFall::rise()->shortName();
+}
+
+const char *
+fall_short_name()
+{
+  return RiseFall::fall()->shortName();
+}
+
+////////////////////////////////////////////////////////////////
+
+PropertyValue
+pin_property(const Pin *pin,
+	     const char *property)
+{
+  cmdLinkedNetwork();
+  return getProperty(pin, property, Sta::sta());
+}
+
+PropertyValue
+instance_property(const Instance *inst,
+		  const char *property)
+{
+  cmdLinkedNetwork();
+  return getProperty(inst, property, Sta::sta());
+}
+
+PropertyValue
+net_property(const Net *net,
+	     const char *property)
+{
+  cmdLinkedNetwork();
+  return getProperty(net, property, Sta::sta());
+}
+
+PropertyValue
+port_property(const Port *port,
+	      const char *property)
+{
+  return getProperty(port, property, Sta::sta());
+}
+
+
+PropertyValue
+liberty_cell_property(const LibertyCell *cell,
+		      const char *property)
+{
+  return getProperty(cell, property, Sta::sta());
+}
+
+PropertyValue
+cell_property(const Cell *cell,
+	      const char *property)
+{
+  return getProperty(cell, property, Sta::sta());
+}
+
+PropertyValue
+liberty_port_property(const LibertyPort *port,
+		      const char *property)
+{
+  return getProperty(port, property, Sta::sta());
+}
+
+PropertyValue
+library_property(const Library *lib,
+		 const char *property)
+{
+  return getProperty(lib, property, Sta::sta());
+}
+
+PropertyValue
+liberty_library_property(const LibertyLibrary *lib,
+			 const char *property)
+{
+  return getProperty(lib, property, Sta::sta());
+}
+
+PropertyValue
+edge_property(Edge *edge,
+	      const char *property)
+{
+  cmdGraph();
+  return getProperty(edge, property, Sta::sta());
+}
+
+PropertyValue
+clock_property(Clock *clk,
+	       const char *property)
+{
+  cmdLinkedNetwork();
+  return getProperty(clk, property, Sta::sta());
+}
+
+PropertyValue
+path_end_property(PathEnd *end,
+		  const char *property)
+{
+  cmdLinkedNetwork();
+  return getProperty(end, property, Sta::sta());
+}
+
+PropertyValue
+path_ref_property(PathRef *path,
+		  const char *property)
+{
+  cmdLinkedNetwork();
+  return getProperty(path, property, Sta::sta());
+}
+
+PropertyValue
+timing_arc_set_property(TimingArcSet *arc_set,
+			const char *property)
+{
+  cmdLinkedNetwork();
+  return getProperty(arc_set, property, Sta::sta());
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+define_corners_cmd(StringSet *corner_names)
+{
+  Sta *sta = Sta::sta();
+  sta->makeCorners(corner_names);
+  delete corner_names;
+}
+
+Corner *
+cmd_corner()
+{
+  return Sta::sta()->cmdCorner();
+}
+
+void
+set_cmd_corner(Corner *corner)
+{
+  Sta::sta()->setCmdCorner(corner);
+}
+
+Corner *
+find_corner(const char *corner_name)
+{
+  return Sta::sta()->findCorner(corner_name);
+}
+
+Corners *
+corners()
+{
+  return Sta::sta()->corners();
+}
+
+bool
+multi_corner()
+{
+  return Sta::sta()->multiCorner();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1745,36 +1740,6 @@ find_fanout_insts(PinSeq *from,
   return fanout;
 }
 
-PinSet
-net_load_pins(Net *net)
-{
-  Network *network = cmdLinkedNetwork();
-  PinSet pins(network);
-  NetConnectedPinIterator *pin_iter = network->connectedPinIterator(net);
-  while (pin_iter->hasNext()) {
-    const Pin *pin = pin_iter->next();
-    if (network->isLoad(pin))
-      pins.insert(pin);
-  }
-  delete pin_iter;
-  return pins;
-}
-
-PinSet
-net_driver_pins(Net *net)
-{
-  Network *network = cmdLinkedNetwork();
-  PinSet pins(network);
-  NetConnectedPinIterator *pin_iter = network->connectedPinIterator(net);
-  while (pin_iter->hasNext()) {
-    const Pin *pin = pin_iter->next();
-    if (network->isDriver(pin))
-      pins.insert(pin);
-  }
-  delete pin_iter;
-  return pins;
-}
-
 ////////////////////////////////////////////////////////////////
 
 void
@@ -1788,60 +1753,6 @@ report_loops()
     loop->report(report, network, graph);
     report->reportLineString("");
   }
-}
-
-// Includes top instance.
-int
-network_instance_count()
-{
-  Network *network = cmdNetwork();
-  return network->instanceCount();
-}
-
-int
-network_pin_count()
-{
-  Network *network = cmdNetwork();
-  return network->pinCount();
-}
-
-int
-network_net_count()
-{
-  Network *network = cmdNetwork();
-  return network->netCount();
-}
-
-int
-network_leaf_instance_count()
-{
-  Network *network = cmdNetwork();
-  return network->leafInstanceCount();
-}
-
-int
-network_leaf_pin_count()
-{
-  Network *network = cmdNetwork();
-  return network->leafPinCount();
-}
-
-int
-graph_vertex_count()
-{
-  return cmdGraph()->vertexCount();
-}
-
-int
-graph_edge_count()
-{
-  return cmdGraph()->edgeCount();
-}
-
-int
-graph_arc_count()
-{
-  return cmdGraph()->arcCount();
 }
 
 int

@@ -173,6 +173,42 @@ set_current_instance(Instance *inst)
   Sta::sta()->setCurrentInstance(inst);
 }
 
+// Includes top instance.
+int
+network_instance_count()
+{
+  Network *network = cmdNetwork();
+  return network->instanceCount();
+}
+
+int
+network_pin_count()
+{
+  Network *network = cmdNetwork();
+  return network->pinCount();
+}
+
+int
+network_net_count()
+{
+  Network *network = cmdNetwork();
+  return network->netCount();
+}
+
+int
+network_leaf_instance_count()
+{
+  Network *network = cmdNetwork();
+  return network->leafInstanceCount();
+}
+
+int
+network_leaf_pin_count()
+{
+  Network *network = cmdNetwork();
+  return network->leafPinCount();
+}
+
 Library *
 find_library(const char *name)
 {
@@ -488,6 +524,36 @@ find_nets_hier_matching(const char *pattern,
   PatternMatch matcher(pattern, regexp, nocase, Sta::sta()->tclInterp());
   NetSeq matches = network->findNetsHierMatching(current_instance, &matcher);
   return matches;
+}
+
+PinSet
+net_driver_pins(Net *net)
+{
+  Network *network = cmdLinkedNetwork();
+  PinSet pins(network);
+  NetConnectedPinIterator *pin_iter = network->connectedPinIterator(net);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    if (network->isDriver(pin))
+      pins.insert(pin);
+  }
+  delete pin_iter;
+  return pins;
+}
+
+PinSet
+net_load_pins(Net *net)
+{
+  Network *network = cmdLinkedNetwork();
+  PinSet pins(network);
+  NetConnectedPinIterator *pin_iter = network->connectedPinIterator(net);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    if (network->isLoad(pin))
+      pins.insert(pin);
+  }
+  delete pin_iter;
+  return pins;
 }
 
 %} // inline

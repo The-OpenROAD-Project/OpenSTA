@@ -82,6 +82,24 @@ private:
 
 %inline %{
 
+int
+graph_vertex_count()
+{
+  return cmdGraph()->vertexCount();
+}
+
+int
+graph_edge_count()
+{
+  return cmdGraph()->edgeCount();
+}
+
+int
+graph_arc_count()
+{
+  return cmdGraph()->arcCount();
+}
+
 VertexIterator *
 vertex_iterator()
 {
