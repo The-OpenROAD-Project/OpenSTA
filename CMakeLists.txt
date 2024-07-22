@@ -438,6 +438,7 @@ set(SWIG_FILES
   ${STA_HOME}/graph/Graph.i
   ${STA_HOME}/liberty/Liberty.i
   ${STA_HOME}/network/Network.i
+  ${STA_HOME}/network/NetworkEdit.i
   ${STA_HOME}/parasitics/Parasitics.i
   ${STA_HOME}/power/Power.i
   ${STA_HOME}/sdc/Sdc.i
@@ -446,7 +447,6 @@ set(SWIG_FILES
   ${STA_HOME}/tcl/Exception.i
   ${STA_HOME}/tcl/StaTcl.i
   ${STA_HOME}/tcl/StaTclTypes.i
-  ${STA_HOME}/tcl/NetworkEdit.i
   ${STA_HOME}/verilog/Verilog.i
   )
 
