@@ -1252,7 +1252,147 @@ remove_constraints()
   Sta::sta()->removeConstraints();
 }
 
+PortSeq
+all_inputs_cmd(bool no_clocks)
+{
+  Sta *sta = Sta::sta();
+  cmdLinkedNetwork();
+  return sta->sdc()->allInputs(no_clocks);
+}
+
+PortSeq
+all_outputs_cmd()
+{
+  Sta *sta = Sta::sta();
+  cmdLinkedNetwork();
+  return sta->sdc()->allOutputs();
+}
+
+PortSeq
+filter_ports(const char *property,
+	     const char *op,
+	     const char *pattern,
+	     PortSeq *ports)
+{
+  PortSeq filtered_ports;
+  if (ports) {
+    Sta *sta = Sta::sta();
+    bool exact_match = stringEq(op, "==");
+    bool pattern_match = stringEq(op, "=~");
+    bool not_match = stringEq(op, "!=");
+    for (const Port *port : *ports) {
+      PropertyValue value(getProperty(port, property, sta));
+      const char *prop = value.stringValue();
+      if (prop &&
+          ((exact_match && stringEq(prop, pattern))
+           || (not_match && !stringEq(prop, pattern))
+           || (pattern_match && patternMatch(pattern, prop))))
+        filtered_ports.push_back(port);
+    }
+    delete ports;
+  }
+  return filtered_ports;
+}
+
+InstanceSeq
+filter_insts(const char *property,
+	     const char *op,
+	     const char *pattern,
+	     InstanceSeq *insts)
+{
+  InstanceSeq filtered_insts;
+  if (insts) {
+    Sta *sta = Sta::sta();
+    cmdLinkedNetwork();
+    bool exact_match = stringEq(op, "==");
+    bool pattern_match = stringEq(op, "=~");
+    bool not_match = stringEq(op, "!=");
+    for (const Instance *inst : *insts) {
+      PropertyValue value(getProperty(inst, property, sta));
+      const char *prop = value.stringValue();
+      if (prop &&
+          ((exact_match && stringEq(prop, pattern))
+           || (not_match && !stringEq(prop, pattern))
+           || (pattern_match && patternMatch(pattern, prop))))
+        filtered_insts.push_back(inst);
+    }
+    delete insts;
+  }
+  return filtered_insts;
+}
+
+PinSeq
+filter_pins(const char *property,
+	    const char *op,
+	    const char *pattern,
+	    PinSeq *pins)
+{
+  PinSeq filtered_pins;
+  if (pins) {
+    Sta *sta = Sta::sta();
+    bool exact_match = stringEq(op, "==");
+    bool pattern_match = stringEq(op, "=~");
+    bool not_match = stringEq(op, "!=");
+    for (const Pin *pin : *pins) {
+      PropertyValue value(getProperty(pin, property, sta));
+      const char *prop = value.asString(sta->sdcNetwork());
+      if (prop &&
+          ((exact_match && stringEq(prop, pattern))
+           || (not_match && !stringEq(prop, pattern))
+           || (pattern_match && patternMatch(pattern, prop))))
+        filtered_pins.push_back(pin);
+    }
+    delete pins;
+  }
+  return filtered_pins;
+}
+
+EdgeSeq
+filter_timing_arcs(const char *property,
+		   const char *op,
+		   const char *pattern,
+		   EdgeSeq *edges)
+{
+  Sta *sta = Sta::sta();
+  EdgeSeq filtered_edges;
+  bool exact_match = stringEq(op, "==");
+  bool pattern_match = stringEq(op, "=~");
+  bool not_match = stringEq(op, "!=");
+  for (Edge *edge : *edges) {
+    PropertyValue value(getProperty(edge, property, sta));
+    const char *prop = value.stringValue();
+    if (prop &&
+	((exact_match && stringEq(prop, pattern))
+         || (not_match && !stringEq(prop, pattern))
+	 || (pattern_match && patternMatch(pattern, prop))))
+      filtered_edges.push_back(edge);
+  }
+  delete edges;
+  return filtered_edges;
+}
+
+void
+set_voltage_global(const MinMax *min_max,
+                   float voltage)
+{
+  Sta::sta()->setVoltage(min_max, voltage);
+}
+
+void
+set_voltage_net(const Net *net,
+                const MinMax *min_max,
+                float voltage)
+{
+  Sta::sta()->setVoltage(net, min_max, voltage);
+}
+
 %} // inline
+
+////////////////////////////////////////////////////////////////
+//
+// Object Methods
+//
+////////////////////////////////////////////////////////////////
 
 %extend Clock {
 float period() { return self->period(); }

@@ -120,6 +120,12 @@ remove_delay_slew_annotations()
 
 %} // inline
 
+////////////////////////////////////////////////////////////////
+//
+// Object Methods
+//
+////////////////////////////////////////////////////////////////
+
 %extend Vertex {
 Pin *pin() { return self->pin(); }
 bool is_bidirect_driver() { return self->isBidirectDriver(); }
