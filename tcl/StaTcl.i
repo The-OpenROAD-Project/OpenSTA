@@ -37,7 +37,6 @@
 #include "PatternMatch.hh"
 #include "MinMax.hh"
 #include "Fuzzy.hh"
-#include "FuncExpr.hh"
 #include "Units.hh"
 #include "Transition.hh"
 #include "Liberty.hh"
@@ -45,21 +44,11 @@
 #include "Sdc.hh"
 #include "DelayCalc.hh"
 #include "DcalcAnalysisPt.hh"
-#include "Corner.hh"
-#include "PathVertex.hh"
-#include "PathRef.hh"
-#include "PathExpanded.hh"
-#include "PathEnd.hh"
 #include "PathGroup.hh"
-#include "PathAnalysisPt.hh"
 #include "Property.hh"
 #include "Search.hh"
 #include "Sta.hh"
-#include "search/Tag.hh"
-#include "search/CheckTiming.hh"
-#include "search/CheckMinPulseWidths.hh"
 #include "search/Levelize.hh"
-#include "search/ReportPath.hh"
 
 namespace sta {
 
@@ -135,13 +124,6 @@ class Transition
 private:
   Transition();
   ~Transition();
-};
-
-class Corner
-{
-private:
-  Corner();
-  ~Corner();
 };
 
 ////////////////////////////////////////////////////////////////
@@ -776,62 +758,10 @@ timing_arc_set_property(TimingArcSet *arc_set,
 }
 
 ////////////////////////////////////////////////////////////////
-
-void
-define_corners_cmd(StringSet *corner_names)
-{
-  Sta *sta = Sta::sta();
-  sta->makeCorners(corner_names);
-  delete corner_names;
-}
-
-Corner *
-cmd_corner()
-{
-  return Sta::sta()->cmdCorner();
-}
-
-void
-set_cmd_corner(Corner *corner)
-{
-  Sta::sta()->setCmdCorner(corner);
-}
-
-Corner *
-find_corner(const char *corner_name)
-{
-  return Sta::sta()->findCorner(corner_name);
-}
-
-Corners *
-corners()
-{
-  return Sta::sta()->corners();
-}
-
-bool
-multi_corner()
-{
-  return Sta::sta()->multiCorner();
-}
-
+//
+// Variables
+//
 ////////////////////////////////////////////////////////////////
-
-CheckErrorSeq &
-check_timing_cmd(bool no_input_delay,
-		 bool no_output_delay,
-		 bool reg_multiple_clks,
-		 bool reg_no_clks,
-		 bool unconstrained_endpoints,
-		 bool loops,
-		 bool generated_clks)
-{
-  cmdLinkedNetwork();
-  return Sta::sta()->checkTiming(no_input_delay, no_output_delay,
-				 reg_multiple_clks, reg_no_clks,
-				 unconstrained_endpoints,
-				 loops, generated_clks);
-}
 
 bool
 crpr_enabled()
@@ -1020,152 +950,6 @@ set_propagate_all_clocks(bool prop)
 
 ////////////////////////////////////////////////////////////////
 
-PathEndSeq
-find_path_ends(ExceptionFrom *from,
-	       ExceptionThruSeq *thrus,
-	       ExceptionTo *to,
-	       bool unconstrained,
-	       Corner *corner,
-	       const MinMaxAll *delay_min_max,
-	       int group_count,
-	       int endpoint_count,
-	       bool unique_pins,
-	       float slack_min,
-	       float slack_max,
-	       bool sort_by_slack,
-	       PathGroupNameSet *groups,
-	       bool setup,
-	       bool hold,
-	       bool recovery,
-	       bool removal,
-	       bool clk_gating_setup,
-	       bool clk_gating_hold)
-{
-  cmdLinkedNetwork();
-  Sta *sta = Sta::sta();
-  PathEndSeq ends = sta->findPathEnds(from, thrus, to, unconstrained,
-                                      corner, delay_min_max,
-                                      group_count, endpoint_count, unique_pins,
-                                      slack_min, slack_max,
-                                      sort_by_slack,
-                                      groups->size() ? groups : nullptr,
-                                      setup, hold,
-                                      recovery, removal,
-                                      clk_gating_setup, clk_gating_hold);
-  delete groups;
-  return ends;
-}
-
-void
-report_path_end_header()
-{
-  Sta::sta()->reportPathEndHeader();
-}
-
-void
-report_path_end_footer()
-{
-  Sta::sta()->reportPathEndFooter();
-}
-
-void
-report_path_end(PathEnd *end)
-{
-  Sta::sta()->reportPathEnd(end);
-}
-
-void
-report_path_end2(PathEnd *end,
-		 PathEnd *prev_end)
-{
-  Sta::sta()->reportPathEnd(end, prev_end);
-}
-
-void
-set_report_path_format(ReportPathFormat format)
-{
-  Sta::sta()->setReportPathFormat(format);
-}
-    
-void
-set_report_path_field_order(StringSeq *field_names)
-{
-  Sta::sta()->setReportPathFieldOrder(field_names);
-  delete field_names;
-}
-
-void
-set_report_path_fields(bool report_input_pin,
-		       bool report_net,
-		       bool report_cap,
-		       bool report_slew,
-                       bool report_fanout)
-{
-  Sta::sta()->setReportPathFields(report_input_pin,
-				  report_net,
-				  report_cap,
-				  report_slew,
-                                  report_fanout);
-}
-
-void
-set_report_path_field_properties(const char *field_name,
-				 const char *title,
-				 int width,
-				 bool left_justify)
-{
-  Sta *sta = Sta::sta();
-  ReportField *field = sta->findReportPathField(field_name);
-  if (field)
-    field->setProperties(title, width, left_justify);
-  else
-    sta->report()->error(1575, "unknown report path field %s", field_name);
-}
-
-void
-set_report_path_field_width(const char *field_name,
-			    int width)
-{
-  Sta *sta = Sta::sta();
-  ReportField *field = sta->findReportPathField(field_name);
-  if (field)
-    field->setWidth(width);
-  else
-    sta->report()->error(1576, "unknown report path field %s", field_name);
-}
-
-void
-set_report_path_digits(int digits)
-{
-  Sta::sta()->setReportPathDigits(digits);
-}
-
-void
-set_report_path_no_split(bool no_split)
-{
-  Sta::sta()->setReportPathNoSplit(no_split);
-}
-
-void
-set_report_path_sigmas(bool report_sigmas)
-{
-  Sta::sta()->setReportPathSigmas(report_sigmas);
-}
-
-void
-delete_path_ref(PathRef *path)
-{
-  delete path;
-}
-
-void
-report_path_cmd(PathRef *path)
-{
-  Sta::sta()->reportPath(path);
-}
-
-////////////////////////////////////////////////////////////////
-
 void
 report_clk_skew(ConstClockSeq clks,
 		const Corner *corner,
@@ -1194,19 +978,6 @@ worst_clk_skew_cmd(const SetupHold *setup_hold,
 {
   cmdLinkedNetwork();
   return Sta::sta()->findWorstClkSkew(setup_hold, include_internal_latency);
-}
-
-////////////////////////////////////////////////////////////////
-
-PinSet
-group_path_pins(const char *group_path_name)
-{
-  Sta *sta = Sta::sta();
-  Sdc *sdc = sta->sdc();
-  if (sdc->isGroupPathName(group_path_name))
-    return sta->findGroupPathPins(group_path_name);
-  else
-    return PinSet(sta->network());
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1682,10 +1453,6 @@ report_loops()
 // Object Methods
 //
 ////////////////////////////////////////////////////////////////
-
-%extend Corner {
-const char *name() { return self->name(); }
-}
 
 // Local Variables:
 // mode:c++

@@ -1372,6 +1372,8 @@ filter_timing_arcs(const char *property,
   return filtered_edges;
 }
 
+////////////////////////////////////////////////////////////////
+
 void
 set_voltage_global(const MinMax *min_max,
                    float voltage)
@@ -1385,6 +1387,19 @@ set_voltage_net(const Net *net,
                 float voltage)
 {
   Sta::sta()->setVoltage(net, min_max, voltage);
+}
+
+////////////////////////////////////////////////////////////////
+
+PinSet
+group_path_pins(const char *group_path_name)
+{
+  Sta *sta = Sta::sta();
+  Sdc *sdc = sta->sdc();
+  if (sdc->isGroupPathName(group_path_name))
+    return sta->findGroupPathPins(group_path_name);
+  else
+    return PinSet(sta->network());
 }
 
 %} // inline
