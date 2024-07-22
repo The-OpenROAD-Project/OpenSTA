@@ -233,21 +233,21 @@ set(STA_TCL_FILES
   tcl/Util.tcl
   tcl/CmdArgs.tcl
   tcl/CmdUtil.tcl
-  tcl/Graph.tcl
   tcl/Link.tcl
-  tcl/Network.tcl
-  tcl/NetworkEdit.tcl
   tcl/Property.tcl
-  tcl/Search.tcl
   tcl/Sta.tcl
   tcl/Splash.tcl
   tcl/Variables.tcl
   dcalc/DelayCalc.tcl
+  graph/Graph.tcl
   liberty/Liberty.tcl
+  network/Network.tcl
+  network/NetworkEdit.tcl
   parasitics/Parasitics.tcl
   power/Power.tcl
   sdc/Sdc.tcl
   sdf/Sdf.tcl
+  search/Search.tcl
   spice/WriteSpice.tcl
   verilog/Verilog.tcl
   )
@@ -428,6 +428,7 @@ set_property(SOURCE ${STA_SWIG_FILE}
   -I${STA_HOME}/sdf
   -I${STA_HOME}/parasitics
   -I${STA_HOME}/power
+  -I${STA_HOME}/search
   -I${STA_HOME}/spice
   -I${STA_HOME}/tcl
   -I${STA_HOME}/verilog
@@ -443,6 +444,7 @@ set(SWIG_FILES
   ${STA_HOME}/power/Power.i
   ${STA_HOME}/sdc/Sdc.i
   ${STA_HOME}/sdf/Sdf.i
+  ${STA_HOME}/search/Search.i
   ${STA_HOME}/spice/WriteSpice.i
   ${STA_HOME}/tcl/Exception.i
   ${STA_HOME}/tcl/StaTcl.i

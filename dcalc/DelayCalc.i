@@ -72,4 +72,18 @@ set_prima_reduce_order(size_t order)
   }
 }
 
+void
+find_delays()
+{
+  cmdLinkedNetwork();
+  Sta::sta()->findDelays();
+}
+
+void
+delays_invalid()
+{
+  Sta *sta = Sta::sta();
+  sta->delaysInvalid();
+}
+
 %} // inline

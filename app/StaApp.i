@@ -29,4 +29,5 @@
 %include "DelayCalc.i"
 %include "WriteSpice.i"
 %include "Parasitics.i"
+%include "Search.i"
 %include "Power.i"
