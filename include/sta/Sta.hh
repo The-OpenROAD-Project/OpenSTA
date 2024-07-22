@@ -116,9 +116,8 @@ public:
   // linked network.
   void readNetlistBefore();
   // Return true if successful.
-  bool linkDesign(const char *top_cell_name);
-  bool linkMakeBlackBoxes() const;
-  void setLinkMakeBlackBoxes(bool make);
+  bool linkDesign(const char *top_cell_name,
+                  bool make_black_boxes);
 
   // SDC Swig API.
   Instance *currentInstance() const;
@@ -1452,7 +1451,6 @@ protected:
   ReportPath *report_path_;
   Power *power_;
   Tcl_Interp *tcl_interp_;
-  bool link_make_black_boxes_;
   bool update_genclks_;
   EquivCells *equiv_cells_;
   bool graph_sdc_annotated_;

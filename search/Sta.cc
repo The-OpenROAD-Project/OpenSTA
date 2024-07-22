@@ -268,7 +268,6 @@ Sta::Sta() :
   clk_skews_(nullptr),
   report_path_(nullptr),
   power_(nullptr),
-  link_make_black_boxes_(true),
   update_genclks_(false),
   equiv_cells_(nullptr),
   graph_sdc_annotated_(false),
@@ -735,27 +734,16 @@ Sta::readNetlistBefore()
 }
 
 bool
-Sta::linkDesign(const char *top_cell_name)
+Sta::linkDesign(const char *top_cell_name,
+                bool make_black_boxes)
 {
   clear();
   Stats stats(debug_, report_);
   bool status = network_->linkNetwork(top_cell_name,
-				      link_make_black_boxes_,
+				      make_black_boxes,
 				      report_);
   stats.report("Link");
   return status;
-}
-
-bool
-Sta::linkMakeBlackBoxes() const
-{
-  return link_make_black_boxes_;
-}
-
-void
-Sta::setLinkMakeBlackBoxes(bool make)
-{
-  link_make_black_boxes_ = make;
 }
 
 ////////////////////////////////////////////////////////////////

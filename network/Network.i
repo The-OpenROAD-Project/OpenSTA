@@ -253,21 +253,10 @@ set_cmd_namespace_cmd(const char *namespc)
 }
 
 bool
-link_design_cmd(const char *top_cell_name)
+link_design_cmd(const char *top_cell_name,
+                bool make_black_boxes)
 {
-  return Sta::sta()->linkDesign(top_cell_name);
-}
-
-bool
-link_make_black_boxes()
-{
-  return Sta::sta()->linkMakeBlackBoxes();
-}
-
-void
-set_link_make_black_boxes(bool make)
-{
-  Sta::sta()->setLinkMakeBlackBoxes(make);
+  return Sta::sta()->linkDesign(top_cell_name, make_black_boxes);
 }
 
 Instance *

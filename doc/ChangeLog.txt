@@ -11,6 +11,9 @@ The Cudd BBD packager is now required.
 
 The USE_TCL_READLINE option defaults to ON.
 
+The variable link_make_black_boxes has been removed.
+Use the -no_black_boxes option to the link_design command.
+
 Release 2.5.0 2024/01/17
 -------------------------
 
