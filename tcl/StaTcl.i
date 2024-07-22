@@ -209,6 +209,52 @@ git_sha1()
   return STA_GIT_SHA1;
 }
 
+// Elapsed run time (in seconds).
+double
+elapsed_run_time()
+{
+  return elapsedRunTime();
+}
+
+// User run time (in seconds).
+double
+user_run_time()
+{
+  return userRunTime();
+}
+
+// User run time (in seconds).
+unsigned long
+cputime()
+{
+  return static_cast<unsigned long>(userRunTime() + .5);
+}
+
+// Peak memory usage in bytes.
+unsigned long
+memory_usage()
+{
+  return memoryUsage();
+}
+
+int
+processor_count()
+{
+  return processorCount();
+}
+
+int
+thread_count()
+{
+  return Sta::sta()->threadCount();
+}
+
+void
+set_thread_count(int count)
+{
+  Sta::sta()->setThreadCount(count);
+}
+
 ////////////////////////////////////////////////////////////////
 
 void
@@ -307,14 +353,14 @@ log_end()
   Sta::sta()->report()->logEnd();
 }
 
-////////////////////////////////////////////////////////////////
-
 void
 set_debug(const char *what,
 	  int level)
 {
   Sta::sta()->setDebugLevel(what, level);
 }
+
+////////////////////////////////////////////////////////////////
 
 bool
 is_object(const char *obj)
@@ -360,6 +406,49 @@ is_object_list(const char *list,
       return false;
   }
   return true;
+}
+
+////////////////////////////////////////////////////////////////
+
+// Initialize sta after delete_all_memory.
+void
+init_sta()
+{
+  initSta();
+}
+
+void
+clear_sta()
+{
+  Sta::sta()->clear();
+}
+
+void
+make_sta(Tcl_Interp *interp)
+{
+  Sta *sta = new Sta;
+  Sta::setSta(sta);
+  sta->makeComponents();
+  sta->setTclInterp(interp);
+}
+
+Tcl_Interp *
+tcl_interp()
+{
+  return Sta::sta()->tclInterp();
+}
+
+void
+clear_network()
+{
+  Sta *sta = Sta::sta();
+  sta->network()->clear();
+}
+
+void
+delete_all_memory()
+{
+  deleteAllMemory();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1828,93 +1917,6 @@ graph_required_count()
 }
 
 void
-delete_all_memory()
-{
-  deleteAllMemory();
-}
-
-Tcl_Interp *
-tcl_interp()
-{
-  return Sta::sta()->tclInterp();
-}
-
-// Initialize sta after delete_all_memory.
-void
-init_sta()
-{
-  initSta();
-}
-
-void
-clear_sta()
-{
-  Sta::sta()->clear();
-}
-
-void
-make_sta(Tcl_Interp *interp)
-{
-  Sta *sta = new Sta;
-  Sta::setSta(sta);
-  sta->makeComponents();
-  sta->setTclInterp(interp);
-}
-
-void
-clear_network()
-{
-  Sta *sta = Sta::sta();
-  sta->network()->clear();
-}
-
-// Elapsed run time (in seconds).
-double
-elapsed_run_time()
-{
-  return elapsedRunTime();
-}
-
-// User run time (in seconds).
-double
-user_run_time()
-{
-  return userRunTime();
-}
-
-// User run time (in seconds).
-unsigned long
-cputime()
-{
-  return static_cast<unsigned long>(userRunTime() + .5);
-}
-
-// Peak memory usage in bytes.
-unsigned long
-memory_usage()
-{
-  return memoryUsage();
-}
-
-int
-processor_count()
-{
-  return processorCount();
-}
-
-int
-thread_count()
-{
-  return Sta::sta()->threadCount();
-}
-
-void
-set_thread_count(int count)
-{
-  Sta::sta()->setThreadCount(count);
-}
-
-void
 arrivals_invalid()
 {
   Sta *sta = Sta::sta();
@@ -1926,28 +1928,6 @@ delays_invalid()
 {
   Sta *sta = Sta::sta();
   sta->delaysInvalid();
-}
-
-const char *
-pin_location(const Pin *pin)
-{
-  Network *network = cmdNetwork();
-  double x, y;
-  bool exists;
-  network->location(pin, x, y, exists);
-  // return x/y as tcl list
-  if (exists)
-    return sta::stringPrintTmp("%f %f", x, y);
-  else
-    return "";
-}
-
-const char *
-port_location(const Port *port)
-{
-  Network *network = cmdNetwork();
-  const Pin *pin = network->findPin(network->topInstance(), port);
-  return pin_location(pin);
 }
 
 int

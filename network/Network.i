@@ -556,6 +556,28 @@ net_load_pins(Net *net)
   return pins;
 }
 
+const char *
+pin_location(const Pin *pin)
+{
+  Network *network = cmdNetwork();
+  double x, y;
+  bool exists;
+  network->location(pin, x, y, exists);
+  // return x/y as tcl list
+  if (exists)
+    return sta::stringPrintTmp("%f %f", x, y);
+  else
+    return "";
+}
+
+const char *
+port_location(const Port *port)
+{
+  Network *network = cmdNetwork();
+  const Pin *pin = network->findPin(network->topInstance(), port);
+  return pin_location(pin);
+}
+
 %} // inline
 
 ////////////////////////////////////////////////////////////////
