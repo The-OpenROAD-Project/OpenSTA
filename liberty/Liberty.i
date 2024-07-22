@@ -178,6 +178,24 @@ liberty_supply_exists(const char *supply_name)
   return lib && lib->supplyExists(supply_name);
 }
 
+LibertyLibraryIterator *
+liberty_library_iterator()
+{
+  return cmdNetwork()->libertyLibraryIterator();
+}
+
+LibertyLibrary *
+find_liberty(const char *name)
+{
+  return cmdNetwork()->findLiberty(name);
+}
+
+LibertyCell *
+find_liberty_cell(const char *name)
+{
+  return cmdNetwork()->findLibertyCell(name);
+}
+
 %} // inline
 
 %extend LibertyLibrary {

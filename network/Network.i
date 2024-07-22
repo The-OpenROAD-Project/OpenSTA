@@ -1,5 +1,3 @@
-%module sta
-
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2024, Parallax Software, Inc.
 // 
@@ -16,17 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-%include "Exception.i"
-%include "StaTclTypes.i"
-%include "Graph.i"
-%include "StaTcl.i"
-%include "Liberty.i"
-%include "Verilog.i"
-%include "Network.i"
-%include "NetworkEdit.i"
-%include "Sdf.i"
-%include "Sdc.i"
-%include "DelayCalc.i"
-%include "WriteSpice.i"
-%include "Parasitics.i"
-%include "Power.i"
+%module network
+
+%{
+#include "Network.hh"
+%}
+
+////////////////////////////////////////////////////////////////
+//
+// Empty class definitions to make swig happy.
+// Private constructor/destructor so swig doesn't emit them.
+//
+////////////////////////////////////////////////////////////////
+
+%inline %{
+
+%} // inline

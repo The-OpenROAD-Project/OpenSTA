@@ -420,20 +420,24 @@ set_property(SOURCE ${STA_SWIG_FILE}
   PROPERTY SWIG_FLAGS
   -module sta
   -namespace -prefix sta
-  -I${STA_HOME}/tcl
+  -I${STA_HOME}/dcalc
+  -I${STA_HOME}/graph
+  -I${STA_HOME}/liberty
+  -I${STA_HOME}/network
   -I${STA_HOME}/sdc
   -I${STA_HOME}/sdf
-  -I${STA_HOME}/dcalc
-  -I${STA_HOME}/liberty
   -I${STA_HOME}/parasitics
   -I${STA_HOME}/power
   -I${STA_HOME}/spice
+  -I${STA_HOME}/tcl
   -I${STA_HOME}/verilog
 )
 
 set(SWIG_FILES
   ${STA_HOME}/dcalc/DelayCalc.i
+  ${STA_HOME}/graph/Graph.i
   ${STA_HOME}/liberty/Liberty.i
+  ${STA_HOME}/network/Network.i
   ${STA_HOME}/parasitics/Parasitics.i
   ${STA_HOME}/power/Power.i
   ${STA_HOME}/sdc/Sdc.i
