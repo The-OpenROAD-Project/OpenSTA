@@ -52,8 +52,6 @@
 #include "Wireload.hh"
 #include "PortDirection.hh"
 #include "Network.hh"
-#include "Clock.hh"
-#include "PortDelay.hh"
 #include "ExceptionPath.hh"
 #include "Sdc.hh"
 #include "Graph.hh"
@@ -172,13 +170,6 @@ private:
   ~CellPortIterator();
 };
 
-class LibertyCellPortIterator
-{
-private:
-  LibertyCellPortIterator();
-  ~LibertyCellPortIterator();
-};
-
 class Port
 {
 private:
@@ -191,69 +182,6 @@ class PortMemberIterator
 private:
   PortMemberIterator();
   ~PortMemberIterator();
-};
-
-class LibertyLibrary
-{
-private:
-  LibertyLibrary();
-  ~LibertyLibrary();
-};
-
-class LibertyLibraryIterator
-{
-private:
-  LibertyLibraryIterator();
-  ~LibertyLibraryIterator();
-};
-
-class LibertyCell
-{
-private:
-  LibertyCell();
-  ~LibertyCell();
-};
-
-class LibertyPort
-{
-private:
-  LibertyPort();
-  ~LibertyPort();
-};
-
-class LibertyPortMemberIterator
-{
-private:
-  LibertyPortMemberIterator();
-  ~LibertyPortMemberIterator();
-};
-
-class TimingArcSet
-{
-private:
-  TimingArcSet();
-  ~TimingArcSet();
-};
-
-class TimingArc
-{
-private:
-  TimingArc();
-  ~TimingArc();
-};
-
-class Wireload
-{
-private:
-  Wireload();
-  ~Wireload();
-};
-
-class WireloadSelection
-{
-private:
-  WireloadSelection();
-  ~WireloadSelection();
 };
 
 class Transition
@@ -347,20 +275,6 @@ private:
   ~PinConnectedPinIterator();
 };
 
-class Clock
-{
-private:
-  Clock();
-  ~Clock();
-};
-
-class ClockEdge
-{
-private:
-  ClockEdge();
-  ~ClockEdge();
-};
-
 class Vertex
 {
 private:
@@ -436,34 +350,6 @@ class VertexPathIterator
 private:
   VertexPathIterator();
   ~VertexPathIterator();
-};
-
-class ExceptionFrom
-{
-private:
-  ExceptionFrom();
-  ~ExceptionFrom();
-};
-
-class ExceptionThru
-{
-private:
-  ExceptionThru();
-  ~ExceptionThru();
-};
-
-class ExceptionTo
-{
-private:
-  ExceptionTo();
-  ~ExceptionTo();
-};
-
-class OperatingConditions
-{
-private:
-  OperatingConditions();
-  ~OperatingConditions();
 };
 
 class Corner
@@ -655,36 +541,6 @@ const char *
 fall_short_name()
 {
   return RiseFall::fall()->shortName();
-}
-
-bool
-pin_is_constrained(Pin *pin)
-{
-  return Sta::sta()->sdc()->isConstrained(pin);
-}
-
-bool
-instance_is_constrained(Instance *inst)
-{
-  return Sta::sta()->sdc()->isConstrained(inst);
-}
-
-bool
-net_is_constrained(Net *net)
-{
-  return Sta::sta()->sdc()->isConstrained(net);
-}
-
-bool
-clk_thru_tristate_enabled()
-{
-  return Sta::sta()->clkThruTristateEnabled();
-}
-
-void
-set_clk_thru_tristate_enabled(bool enabled)
-{
-  Sta::sta()->setClkThruTristateEnabled(enabled);
 }
 
 bool
@@ -1919,12 +1775,6 @@ delete_path_ref(PathRef *path)
 }
 
 void
-remove_constraints()
-{
-  Sta::sta()->removeConstraints();
-}
-
-void
 report_path_cmd(PathRef *path)
 {
   Sta::sta()->reportPath(path);
@@ -2421,25 +2271,6 @@ report_capacitance_limit_verbose(Pin *pin,
 
 ////////////////////////////////////////////////////////////////
 
-EdgeSeq
-disabled_edges_sorted()
-{
-  cmdLinkedNetwork();
-  return Sta::sta()->disabledEdgesSorted();
-}
-
-void
-write_sdc_cmd(const char *filename,
-	      bool leaf,
-	      bool compatible,
-	      int digits,
-              bool gzip,
-	      bool no_timestamp)
-{
-  cmdLinkedNetwork();
-  Sta::sta()->writeSdc(filename, leaf, compatible, digits, gzip, no_timestamp);
-}
-
 void
 write_timing_model_cmd(const char *lib_name,
                        const char *cell_name,
@@ -2500,80 +2331,6 @@ InstanceSeq
 slow_drivers(int count)
 {
   return Sta::sta()->slowDrivers(count);
-}
-
-bool
-timing_arc_disabled(Edge *edge,
-		    TimingArc *arc)
-{
-  Graph *graph = Sta::sta()->graph();
-  return !searchThru(edge, arc, graph);
-}
-
-ClockGroups *
-make_clock_groups(const char *name,
-		  bool logically_exclusive,
-		  bool physically_exclusive,
-		  bool asynchronous,
-		  bool allow_paths,
-		  const char *comment)
-{
-  return Sta::sta()->makeClockGroups(name, logically_exclusive,
-				     physically_exclusive, asynchronous,
-				     allow_paths, comment);
-}
-
-void
-clock_groups_make_group(ClockGroups *clk_groups,
-			ClockSet *clks)
-{
-  Sta::sta()->makeClockGroup(clk_groups, clks);
-}
-
-void
-unset_clock_groups_logically_exclusive(const char *name)
-{
-  Sta::sta()->removeClockGroupsLogicallyExclusive(name);
-}
-
-void
-unset_clock_groups_physically_exclusive(const char *name)
-{
-  Sta::sta()->removeClockGroupsPhysicallyExclusive(name);
-}
-
-void
-unset_clock_groups_asynchronous(const char *name)
-{
-  Sta::sta()->removeClockGroupsAsynchronous(name);
-}
-
-// Debugging function.
-bool
-same_clk_group(Clock *clk1,
-	       Clock *clk2)
-{
-  Sta *sta = Sta::sta();
-  Sdc *sdc = sta->sdc();
-  return sdc->sameClockGroupExplicit(clk1, clk2);
-}
-
-void
-set_clock_sense_cmd(PinSet *pins,
-		    ClockSet *clks,
-		    bool positive,
-		    bool negative,
-		    bool stop_propagation)
-{
-  Sta *sta = Sta::sta();
-  if (positive)
-    sta->setClockSense(pins, clks, ClockSense::positive);
-  else if (negative)
-    sta->setClockSense(pins, clks, ClockSense::negative);
-  else if (stop_propagation)
-    sta->setClockSense(pins, clks, ClockSense::stop);
-  else
-    sta->report()->critical(1577, "unknown clock sense");
 }
 
 bool
@@ -3003,61 +2760,11 @@ find_cells_matching(const char *pattern,
 
 } // Library methods
 
-%extend LibertyLibrary {
-const char *name() { return self->name(); }
-
-LibertyCell *
-find_liberty_cell(const char *name)
-{
-  return self->findLibertyCell(name);
-}
-
-LibertyCellSeq
-find_liberty_cells_matching(const char *pattern,
-			    bool regexp,
-			    bool nocase)
-{
-  PatternMatch matcher(pattern, regexp, nocase, Sta::sta()->tclInterp());
-  return self->findLibertyCellsMatching(&matcher);
-}
-
-Wireload *
-find_wireload(const char *model_name)
-{
-  return self->findWireload(model_name);
-}
-
-WireloadSelection *
-find_wireload_selection(const char *selection_name)
-{
-  return self->findWireloadSelection(selection_name);
-}
-
-OperatingConditions *
-find_operating_conditions(const char *op_cond_name)
-{
-  return self->findOperatingConditions(op_cond_name);
-}
-
-OperatingConditions *
-default_operating_conditions()
-{
-  return self->defaultOperatingConditions();
-}
-
-} // LibertyLibrary methods
-
 %extend LibraryIterator {
 bool has_next() { return self->hasNext(); }
 Library *next() { return self->next(); }
 void finish() { delete self; }
 } // LibraryIterator methods
-
-%extend LibertyLibraryIterator {
-bool has_next() { return self->hasNext(); }
-LibertyLibrary *next() { return self->next(); }
-void finish() { delete self; }
-} // LibertyLibraryIterator methods
 
 %extend Cell {
 const char *name() { return cmdNetwork()->name(self); }
@@ -3085,58 +2792,11 @@ find_ports_matching(const char *pattern,
 
 } // Cell methods
 
-%extend LibertyCell {
-const char *name() { return self->name(); }
-bool is_leaf() { return self->isLeaf(); }
-bool is_buffer() { return self->isBuffer(); }
-bool is_inverter() { return self->isInverter(); }
-LibertyLibrary *liberty_library() { return self->libertyLibrary(); }
-Cell *cell() { return reinterpret_cast<Cell*>(self); }
-LibertyPort *
-find_liberty_port(const char *name)
-{
-  return self->findLibertyPort(name);
-}
-
-LibertyPortSeq
-find_liberty_ports_matching(const char *pattern,
-			    bool regexp,
-			    bool nocase)
-{
-  PatternMatch matcher(pattern, regexp, nocase, Sta::sta()->tclInterp());
-  return self->findLibertyPortsMatching(&matcher);
-}
-
-LibertyCellPortIterator *
-liberty_port_iterator() { return new LibertyCellPortIterator(self); }
-
-const TimingArcSetSeq &
-timing_arc_sets()
-{
-  return self->timingArcSets();
-}
-
-void
-ensure_voltage_waveforms()
-{
-  Corner *corner = Sta::sta()->cmdCorner();
-  DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(MinMax::max());
-  self->ensureVoltageWaveforms(dcalc_ap);
-}
-
-} // LibertyCell methods
-
 %extend CellPortIterator {
 bool has_next() { return self->hasNext(); }
 Port *next() { return self->next(); }
 void finish() { delete self; }
 } // CellPortIterator methods
-
-%extend LibertyCellPortIterator {
-bool has_next() { return self->hasNext(); }
-LibertyPort *next() { return self->next(); }
-void finish() { delete self; }
-} // LibertyCellPortIterator methods
 
 %extend Port {
 const char *bus_name() { return cmdNetwork()->busName(self); }
@@ -3148,244 +2808,11 @@ member_iterator() { return cmdNetwork()->memberIterator(self); }
 
 } // Port methods
 
-%extend LibertyPort {
-const char *bus_name() { return self->busName(); }
-Cell *cell() { return self->cell(); }
-bool is_bus() { return self->isBus(); }
-LibertyPortMemberIterator *
-member_iterator() { return new LibertyPortMemberIterator(self); }
-
-const char *
-function()
-{
-  FuncExpr *func = self->function();
-  if (func)
-    return func->asString();
-  else
-    return nullptr;
-}
-
-const char *
-tristate_enable()
-{
-  FuncExpr *enable = self->tristateEnable();
-  if (enable)
-    return enable->asString();
-  else
-    return nullptr;
-}
-
-float
-capacitance(Corner *corner,
-	    const MinMax *min_max)
-{
-  Sta *sta = Sta::sta();
-  return sta->capacitance(self, corner, min_max);
-}
-
-void
-set_direction(const char *dir)
-{
-  self->setDirection(PortDirection::find(dir));
-}
-
-} // LibertyPort methods
-
-%extend OperatingConditions {
-float process() { return self->process(); }
-float voltage() { return self->voltage(); }
-float temperature() { return self->temperature(); }
-}
-
 %extend PortMemberIterator {
 bool has_next() { return self->hasNext(); }
 Port *next() { return self->next(); }
 void finish() { delete self; }
 } // PortMemberIterator methods
-
-%extend LibertyPortMemberIterator {
-bool has_next() { return self->hasNext(); }
-LibertyPort *next() { return self->next(); }
-void finish() { delete self; }
-} // LibertyPortMemberIterator methods
-
-%extend TimingArcSet {
-LibertyPort *from() { return self->from(); }
-LibertyPort *to() { return self->to(); }
-TimingRole *role() { return self->role(); }
-const char *sdf_cond() { return self->sdfCond(); }
-
-const char *
-full_name()
-{
-  const char *from = self->from()->name();
-  const char *to = self->to()->name();
-  const char *cell_name = self->libertyCell()->name();
-  return stringPrintTmp("%s %s -> %s",
-			cell_name,
-			from,
-			to);
-}
-
-TimingArcSeq &
-timing_arcs() { return self->arcs(); }
-
-} // TimingArcSet methods
-
-%extend TimingArc {
-LibertyPort *from() { return self->from(); }
-LibertyPort *to() { return self->to(); }
-Transition *from_edge() { return self->fromEdge(); }
-const char *from_edge_name() { return self->fromEdge()->asRiseFall()->name(); }
-Transition *to_edge() { return self->toEdge(); }
-const char *to_edge_name() { return self->toEdge()->asRiseFall()->name(); }
-TimingRole *role() { return self->role(); }
-
-float
-time_voltage(float in_slew,
-             float load_cap,
-             float time)
-{
-  GateTableModel *gate_model = self->gateTableModel();
-  if (gate_model) {
-    OutputWaveforms *waveforms = gate_model->outputWaveforms();
-    if (waveforms)
-      return waveforms->timeVoltage(in_slew, load_cap, time);
-  }
-  return 0.0;
-}
-
-float
-time_current(float in_slew,
-             float load_cap,
-             float time)
-{
-  GateTableModel *gate_model = self->gateTableModel();
-  if (gate_model) {
-    OutputWaveforms *waveforms = gate_model->outputWaveforms();
-    if (waveforms)
-      return waveforms->timeCurrent(in_slew, load_cap, time);
-  }
-  return 0.0;
-}
-
-float
-voltage_current(float in_slew,
-                float load_cap,
-                float voltage)
-{
-  GateTableModel *gate_model = self->gateTableModel();
-  if (gate_model) {
-    OutputWaveforms *waveforms = gate_model->outputWaveforms();
-    if (waveforms)
-      return waveforms->voltageCurrent(in_slew, load_cap, voltage);
-  }
-  return 0.0;
-}
-
-float
-voltage_time(float in_slew,
-             float load_cap,
-             float voltage)
-{
-  GateTableModel *gate_model = self->gateTableModel();
-  if (gate_model) {
-    OutputWaveforms *waveforms = gate_model->outputWaveforms();
-    if (waveforms)
-      return waveforms->voltageTime(in_slew, load_cap, voltage);
-  }
-  return 0.0;
-}
-
-Table1
-voltage_waveform(float in_slew,
-                 float load_cap)
-{
-  GateTableModel *gate_model = self->gateTableModel();
-  if (gate_model) {
-    OutputWaveforms *waveforms = gate_model->outputWaveforms();
-    if (waveforms) {
-      Table1 waveform = waveforms->voltageWaveform(in_slew, load_cap);
-      return waveform;
-    }
-  }
-  return Table1();
-}
-
-const Table1 *
-voltage_waveform_raw(float in_slew,
-                     float load_cap)
-{
-  GateTableModel *gate_model = self->gateTableModel();
-  if (gate_model) {
-    OutputWaveforms *waveforms = gate_model->outputWaveforms();
-    if (waveforms) {
-      const Table1 *waveform = waveforms->voltageWaveformRaw(in_slew, load_cap);
-      return waveform;
-    }
-  }
-  return nullptr;
-}
-
-Table1
-current_waveform(float in_slew,
-                 float load_cap)
-{
-  GateTableModel *gate_model = self->gateTableModel();
-  if (gate_model) {
-    OutputWaveforms *waveforms = gate_model->outputWaveforms();
-    if (waveforms) {
-      Table1 waveform = waveforms->currentWaveform(in_slew, load_cap);
-      return waveform;
-    }
-  }
-  return Table1();
-}
-
-const Table1 *
-current_waveform_raw(float in_slew,
-                     float load_cap)
-{
-  GateTableModel *gate_model = self->gateTableModel();
-  if (gate_model) {
-    OutputWaveforms *waveforms = gate_model->outputWaveforms();
-    if (waveforms) {
-      const Table1 *waveform = waveforms->currentWaveformRaw(in_slew, load_cap);
-      return waveform;
-    }
-  }
-  return nullptr;
-}
-
-Table1
-voltage_current_waveform(float in_slew,
-                         float load_cap)
-{
-  GateTableModel *gate_model = self->gateTableModel();
-  if (gate_model) {
-    OutputWaveforms *waveforms = gate_model->outputWaveforms();
-    if (waveforms) {
-      Table1 waveform = waveforms->voltageCurrentWaveform(in_slew, load_cap);
-      return waveform;
-    }
-  }
-  return Table1();
-}
-
-float
-final_resistance()
-{
-  GateTableModel *gate_model = self->gateTableModel();
-  if (gate_model) {
-    OutputWaveforms *waveforms = gate_model->outputWaveforms();
-    if (waveforms) {
-      return waveforms->finalResistance();
-    }
-  }
-  return 0.0;
-}
-
-} // TimingArc methods
 
 %extend Instance {
 Instance *parent() { return cmdLinkedNetwork()->parent(self); }
@@ -3549,31 +2976,6 @@ bool has_next() { return self->hasNext(); }
 const Pin *next() { return self->next(); }
 void finish() { delete self; }
 } // NetConnectedPinIterator methods
-
-%extend Clock {
-float period() { return self->period(); }
-FloatSeq *waveform() { return self->waveform(); }
-float time(RiseFall *rf) { return self->edge(rf)->time(); }
-bool is_generated() { return self->isGenerated(); }
-bool waveform_valid() { return self->waveformValid(); }
-bool is_virtual() { return self->isVirtual(); }
-bool is_propagated() { return self->isPropagated(); }
-const PinSet &sources() { return self->pins(); }
-
-float
-slew(const RiseFall *rf,
-     const MinMax *min_max)
-{
-  return self->slew(rf, min_max);
-}
-
-}
-
-%extend ClockEdge {
-Clock *clock() { return self->clock(); }
-RiseFall *transition() { return self->transition(); }
-float time() { return self->time(); }
-}
 
 %extend Vertex {
 Pin *pin() { return self->pin(); }

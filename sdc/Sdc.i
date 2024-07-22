@@ -19,13 +19,76 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "Sdc.hh"
+#include "Clock.hh"
+#include "PortDelay.hh"
 #include "Sta.hh"
 
 using namespace sta;
 
 %}
 
+////////////////////////////////////////////////////////////////
+//
+// Empty class definitions to make swig happy.
+// Private constructor/destructor so swig doesn't emit them.
+//
+////////////////////////////////////////////////////////////////
+
+class Clock
+{
+private:
+  Clock();
+  ~Clock();
+};
+
+class ClockEdge
+{
+private:
+  ClockEdge();
+  ~ClockEdge();
+};
+
+class ExceptionFrom
+{
+private:
+  ExceptionFrom();
+  ~ExceptionFrom();
+};
+
+class ExceptionThru
+{
+private:
+  ExceptionThru();
+  ~ExceptionThru();
+};
+
+class ExceptionTo
+{
+private:
+  ExceptionTo();
+  ~ExceptionTo();
+};
+
+class OperatingConditions
+{
+private:
+  OperatingConditions();
+  ~OperatingConditions();
+};
+
 %inline %{
+
+void
+write_sdc_cmd(const char *filename,
+	      bool leaf,
+	      bool compatible,
+	      int digits,
+              bool gzip,
+	      bool no_timestamp)
+{
+  cmdLinkedNetwork();
+  Sta::sta()->writeSdc(filename, leaf, compatible, digits, gzip, no_timestamp);
+}
 
 void
 set_analysis_type_cmd(const char *analysis_type)
@@ -627,6 +690,21 @@ unset_disable_clock_gating_check_pin(Pin *pin)
   Sta::sta()->removeDisableClockGatingCheck(pin);
 }
 
+EdgeSeq
+disabled_edges_sorted()
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->disabledEdgesSorted();
+}
+
+bool
+timing_arc_disabled(Edge *edge,
+		    TimingArc *arc)
+{
+  Graph *graph = Sta::sta()->graph();
+  return !searchThru(edge, arc, graph);
+}
+
 void
 make_false_path(ExceptionFrom *from,
 		ExceptionThruSeq *thrus,
@@ -765,6 +843,72 @@ check_exception_to_pins(ExceptionTo *to,
 			int line)
 {
   Sta::sta()->checkExceptionToPins(to, file, line);
+}
+
+ClockGroups *
+make_clock_groups(const char *name,
+		  bool logically_exclusive,
+		  bool physically_exclusive,
+		  bool asynchronous,
+		  bool allow_paths,
+		  const char *comment)
+{
+  return Sta::sta()->makeClockGroups(name, logically_exclusive,
+				     physically_exclusive, asynchronous,
+				     allow_paths, comment);
+}
+
+void
+clock_groups_make_group(ClockGroups *clk_groups,
+			ClockSet *clks)
+{
+  Sta::sta()->makeClockGroup(clk_groups, clks);
+}
+
+void
+unset_clock_groups_logically_exclusive(const char *name)
+{
+  Sta::sta()->removeClockGroupsLogicallyExclusive(name);
+}
+
+void
+unset_clock_groups_physically_exclusive(const char *name)
+{
+  Sta::sta()->removeClockGroupsPhysicallyExclusive(name);
+}
+
+void
+unset_clock_groups_asynchronous(const char *name)
+{
+  Sta::sta()->removeClockGroupsAsynchronous(name);
+}
+
+// Debugging function.
+bool
+same_clk_group(Clock *clk1,
+	       Clock *clk2)
+{
+  Sta *sta = Sta::sta();
+  Sdc *sdc = sta->sdc();
+  return sdc->sameClockGroupExplicit(clk1, clk2);
+}
+
+void
+set_clock_sense_cmd(PinSet *pins,
+		    ClockSet *clks,
+		    bool positive,
+		    bool negative,
+		    bool stop_propagation)
+{
+  Sta *sta = Sta::sta();
+  if (positive)
+    sta->setClockSense(pins, clks, ClockSense::positive);
+  else if (negative)
+    sta->setClockSense(pins, clks, ClockSense::negative);
+  else if (stop_propagation)
+    sta->setClockSense(pins, clks, ClockSense::stop);
+  else
+    sta->report()->critical(1577, "unknown clock sense");
 }
 
 void
@@ -1073,4 +1217,66 @@ is_genclk_src(const Pin *pin)
   return search->isGenClkSrc(vertex);
 }
 
+bool
+pin_is_constrained(Pin *pin)
+{
+  return Sta::sta()->sdc()->isConstrained(pin);
+}
+
+bool
+instance_is_constrained(Instance *inst)
+{
+  return Sta::sta()->sdc()->isConstrained(inst);
+}
+
+bool
+net_is_constrained(Net *net)
+{
+  return Sta::sta()->sdc()->isConstrained(net);
+}
+
+bool
+clk_thru_tristate_enabled()
+{
+  return Sta::sta()->clkThruTristateEnabled();
+}
+
+void
+set_clk_thru_tristate_enabled(bool enabled)
+{
+  Sta::sta()->setClkThruTristateEnabled(enabled);
+}
+
+void
+remove_constraints()
+{
+  Sta::sta()->removeConstraints();
+}
+
 %} // inline
+
+%extend Clock {
+float period() { return self->period(); }
+FloatSeq *waveform() { return self->waveform(); }
+float time(RiseFall *rf) { return self->edge(rf)->time(); }
+bool is_generated() { return self->isGenerated(); }
+bool waveform_valid() { return self->waveformValid(); }
+bool is_virtual() { return self->isVirtual(); }
+bool is_propagated() { return self->isPropagated(); }
+const PinSet &sources() { return self->pins(); }
+
+float
+slew(const RiseFall *rf,
+     const MinMax *min_max)
+{
+  return self->slew(rf, min_max);
+}
+
+}
+
+%extend ClockEdge {
+Clock *clock() { return self->clock(); }
+RiseFall *transition() { return self->transition(); }
+float time() { return self->time(); }
+}
+
