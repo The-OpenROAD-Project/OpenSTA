@@ -1,7 +1,3 @@
-%module sta
-
-%{
-
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2024, Parallax Software, Inc.
 // 
@@ -33,6 +29,9 @@
 //
 ////////////////////////////////////////////////////////////////
 
+%module sta
+
+%{
 #include "Machine.hh"
 #include "StaConfig.hh"  // STA_VERSION
 #include "Stats.hh"

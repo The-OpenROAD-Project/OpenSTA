@@ -1,7 +1,3 @@
-%module dcalc
-
-%{
-
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2024, Parallax Software, Inc.
 // 
@@ -18,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+%module dcalc
+
+%{
 #include "Sta.hh"
 #include "ArcDelayCalc.hh"
 #include "dcalc/ArcDcalcWaveforms.hh"
