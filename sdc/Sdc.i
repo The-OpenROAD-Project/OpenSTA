@@ -1402,6 +1402,30 @@ group_path_pins(const char *group_path_name)
     return PinSet(sta->network());
 }
 
+////////////////////////////////////////////////////////////////
+
+char
+pin_case_logic_value(const Pin *pin)
+{
+  Sta *sta = Sta::sta();
+  Sdc *sdc = sta->sdc();
+  LogicValue value = LogicValue::unknown;
+  bool exists;
+  sdc->caseLogicValue(pin, value, exists);
+  return logicValueString(value);
+}
+
+char
+pin_logic_value(const Pin *pin)
+{
+  Sta *sta = Sta::sta();
+  Sdc *sdc = sta->sdc();
+  LogicValue value = LogicValue::unknown;
+  bool exists;
+  sdc->logicValue(pin, value, exists);
+  return logicValueString(value);
+}
+
 %} // inline
 
 ////////////////////////////////////////////////////////////////

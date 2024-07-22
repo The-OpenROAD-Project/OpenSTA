@@ -33,22 +33,11 @@
 #include "Stats.hh"
 #include "Report.hh"
 #include "Error.hh"
-#include "StringUtil.hh"
-#include "PatternMatch.hh"
-#include "MinMax.hh"
 #include "Fuzzy.hh"
 #include "Units.hh"
 #include "Transition.hh"
-#include "Liberty.hh"
-#include "Network.hh"
-#include "Sdc.hh"
-#include "DelayCalc.hh"
-#include "DcalcAnalysisPt.hh"
-#include "PathGroup.hh"
 #include "Property.hh"
-#include "Search.hh"
 #include "Sta.hh"
-#include "search/Levelize.hh"
 
 namespace sta {
 
@@ -135,7 +124,6 @@ private:
 %inline %{
 
 float float_inf = INF;
-int group_count_max = PathGroup::group_count_max;
 
 const char *
 version()
@@ -1323,28 +1311,6 @@ pin_sim_logic_value(const Pin *pin)
   return logicValueString(Sta::sta()->simLogicValue(pin));
 }
 
-char
-pin_case_logic_value(const Pin *pin)
-{
-  Sta *sta = Sta::sta();
-  Sdc *sdc = sta->sdc();
-  LogicValue value = LogicValue::unknown;
-  bool exists;
-  sdc->caseLogicValue(pin, value, exists);
-  return logicValueString(value);
-}
-
-char
-pin_logic_value(const Pin *pin)
-{
-  Sta *sta = Sta::sta();
-  Sdc *sdc = sta->sdc();
-  LogicValue value = LogicValue::unknown;
-  bool exists;
-  sdc->logicValue(pin, value, exists);
-  return logicValueString(value);
-}
-
 InstanceSeq
 slow_drivers(int count)
 {
@@ -1429,21 +1395,6 @@ find_fanout_insts(PinSeq *from,
                                                 thru_disabled, thru_constants);
   delete from;
   return fanout;
-}
-
-////////////////////////////////////////////////////////////////
-
-void
-report_loops()
-{
-  Sta *sta = Sta::sta();
-  Network *network = cmdLinkedNetwork();
-  Graph *graph = cmdGraph();
-  Report *report = sta->report();
-  for (GraphLoop *loop : *sta->graphLoops()) {
-    loop->report(report, network, graph);
-    report->reportLineString("");
-  }
 }
 
 %} // inline

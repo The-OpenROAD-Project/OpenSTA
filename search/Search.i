@@ -17,8 +17,11 @@
 %module search
 
 %{
+
 #include "Sta.hh"
+#include "PathGroup.hh"
 #include "Search.hh"
+#include "search/Levelize.hh"
 #include "search/ReportPath.hh"
 
 using namespace sta;
@@ -82,6 +85,8 @@ private:
 };
 
 %inline %{
+
+int group_count_max = PathGroup::group_count_max;
 
 void
 find_timing_cmd(bool full)
@@ -287,6 +292,21 @@ endpoint_violation_count(const MinMax *min_max)
 {
   return  Sta::sta()->endpointViolationCount(min_max);
 }
+
+void
+report_loops()
+{
+  Sta *sta = Sta::sta();
+  Network *network = cmdLinkedNetwork();
+  Graph *graph = cmdGraph();
+  Report *report = sta->report();
+  for (GraphLoop *loop : *sta->graphLoops()) {
+    loop->report(report, network, graph);
+    report->reportLineString("");
+  }
+}
+
+////////////////////////////////////////////////////////////////
 
 PathEndSeq
 find_path_ends(ExceptionFrom *from,
