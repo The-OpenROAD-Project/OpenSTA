@@ -19,6 +19,7 @@
 #include <algorithm> // max
 #include <cmath>     // abs
 
+#include "cudd.h"
 #include "Debug.hh"
 #include "EnumNameMap.hh"
 #include "Hash.hh"

@@ -18,9 +18,11 @@
 
 #include <map>
 
-#include "cudd.h"
 #include "StaState.hh"
 #include "LibertyClass.hh"
+
+struct DdNode;
+struct DdManager;
 
 namespace sta {
 

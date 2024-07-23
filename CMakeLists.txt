@@ -420,18 +420,7 @@ set_property(SOURCE ${STA_SWIG_FILE}
   PROPERTY SWIG_FLAGS
   -module sta
   -namespace -prefix sta
-  -I${STA_HOME}/dcalc
-  -I${STA_HOME}/graph
-  -I${STA_HOME}/liberty
-  -I${STA_HOME}/network
-  -I${STA_HOME}/sdc
-  -I${STA_HOME}/sdf
-  -I${STA_HOME}/parasitics
-  -I${STA_HOME}/power
-  -I${STA_HOME}/search
-  -I${STA_HOME}/spice
-  -I${STA_HOME}/tcl
-  -I${STA_HOME}/verilog
+  -I${STA_HOME}
 )
 
 set(SWIG_FILES
@@ -469,7 +458,6 @@ set_source_files_properties(${STA_SWIG_CXX_FILE}
   # No simple way to modify the swig template that emits code full of warnings
   # so suppress them.
   COMPILE_OPTIONS "-Wno-cast-qual;-Wno-missing-braces;-Wno-deprecated-declarations"
-  INCLUDE_DIRECTORIES "${CUDD_INCLUDE}"
   )
 
 target_link_libraries(sta_swig
