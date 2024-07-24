@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-%include "Exception.i"
+%include "tcl/Exception.i"
 %include "tcl/StaTclTypes.i"
 %include "tcl/StaTcl.i"
 %include "dcalc/DelayCalc.i"
