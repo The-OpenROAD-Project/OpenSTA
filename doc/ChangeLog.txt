@@ -14,6 +14,13 @@ The USE_TCL_READLINE option defaults to ON.
 The variable link_make_black_boxes has been removed.
 Use the -no_black_boxes option to the link_design command.
 
+  link_design [-no_black_blocks] [top_cell_name]
+
+The all_inputs command now supports -no_clocks to remove clocks
+inputs from the returned list.
+
+  all_inputs [-no_clocks]
+
 Release 2.5.0 2024/01/17
 -------------------------
 
