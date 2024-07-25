@@ -1369,6 +1369,7 @@ protected:
   InstanceSet disabled_clk_gating_checks_inst_;
   PinSet disabled_clk_gating_checks_pin_;
   ExceptionPathSet exceptions_;
+  size_t exception_id_; // Unique ID for exceptions.
 
   bool have_thru_hpin_exceptions_;
   // First pin/clock/instance/net/edge exception point to exception set map.

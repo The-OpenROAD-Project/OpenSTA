@@ -2563,7 +2563,7 @@ Search::mutateTag(Tag *from_tag,
       // Second pass to apply state changes and add updated existing
       // states to new states.
       if (new_states == nullptr)
-	new_states = new ExceptionStateSet(network_);
+	new_states = new ExceptionStateSet();
       for (auto state : *from_states) {
 	ExceptionPath *exception = state->exception();
 	// One edge may traverse multiple hierarchical thru pins.

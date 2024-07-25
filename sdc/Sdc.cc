@@ -110,6 +110,7 @@ Sdc::Sdc(StaState *sta) :
   disabled_wire_edges_(network_),
   disabled_clk_gating_checks_inst_(network_),
   disabled_clk_gating_checks_pin_(network_),
+  exception_id_(0),
   have_thru_hpin_exceptions_(false),
   first_thru_edge_exceptions_(0, PinPairHash(network_), PinPairEqual()),
   path_delay_internal_startpoints_(network_),
@@ -4552,6 +4553,7 @@ void
 Sdc::recordException(ExceptionPath *exception)
 {
   exceptions_.insert(exception);
+  exception->setId(++exception_id_);
   recordMergeHashes(exception);
   recordExceptionFirstPts(exception);
   checkForThruHpins(exception);
@@ -4813,6 +4815,7 @@ void
 Sdc::deleteExceptions()
 {
   exceptions_.deleteContentsClear();
+  exception_id_ = 0;
 
   first_from_pin_exceptions_.deleteContentsClear();
   first_from_clk_exceptions_.deleteContentsClear();
@@ -5203,7 +5206,7 @@ Sdc::exceptionFromStates(const ExceptionPathSet *exceptions,
 	  // but flush all other exception states because they are lower
 	  // priority.
 	  if (states == nullptr)
-	    states = new ExceptionStateSet(network_);
+	    states = new ExceptionStateSet();
 	  states->clear();
 	  states->insert(state);
 	  // No need to examine other exceptions from this
@@ -5211,7 +5214,7 @@ Sdc::exceptionFromStates(const ExceptionPathSet *exceptions,
 	  return false;
 	}
 	if (states == nullptr)
-	  states = new ExceptionStateSet(network_);
+	  states = new ExceptionStateSet();
 	states->insert(state);
       }
     }
@@ -5258,7 +5261,7 @@ Sdc::filterRegQStates(const Pin *to_pin,
 	    && exception->matchesFirstPt(to_rf, min_max)) {
 	  ExceptionState *state = exception->firstState();
 	  if (states == nullptr)
-	    states = new ExceptionStateSet(network_);
+	    states = new ExceptionStateSet();
 	  states->insert(state);
 	}
       }
@@ -5302,7 +5305,7 @@ Sdc::exceptionThruStates(const ExceptionPathSet *exceptions,
       if (exception->matchesFirstPt(to_rf, min_max)) {
 	ExceptionState *state = exception->firstState();
 	if (states == nullptr)
-	  states = new ExceptionStateSet(network_);
+	  states = new ExceptionStateSet();
 	states->insert(state);
       }
     }

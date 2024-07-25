@@ -428,7 +428,7 @@ PrevPathVisitor::unfilteredTag(const Tag *tag) const
     ExceptionPath *except = state->exception();
     if (!except->isFilter()) {
       if (unfiltered_states == nullptr)
-	unfiltered_states = new ExceptionStateSet(network_);
+	unfiltered_states = new ExceptionStateSet();
       unfiltered_states->insert(state);
     }
   }

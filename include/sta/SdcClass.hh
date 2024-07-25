@@ -107,12 +107,8 @@ class ExceptionState;
 class ExceptionStateLess
 {
 public:
-  ExceptionStateLess(const Network *network);
   bool operator()(const ExceptionState *state1,
                   const ExceptionState *state2) const;
-
-private:
-  const Network *network_;
 };
 
 class ExceptionPath;
