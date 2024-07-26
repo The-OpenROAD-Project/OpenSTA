@@ -233,7 +233,6 @@ set(STA_TCL_FILES
   tcl/Util.tcl
   tcl/CmdArgs.tcl
   tcl/CmdUtil.tcl
-  tcl/Link.tcl
   tcl/Property.tcl
   tcl/Sta.tcl
   tcl/Splash.tcl
@@ -241,6 +240,7 @@ set(STA_TCL_FILES
   dcalc/DelayCalc.tcl
   graph/Graph.tcl
   liberty/Liberty.tcl
+  network/Link.tcl
   network/Network.tcl
   network/NetworkEdit.tcl
   parasitics/Parasitics.tcl
@@ -436,8 +436,8 @@ set(SWIG_FILES
   ${STA_HOME}/search/Search.i
   ${STA_HOME}/spice/WriteSpice.i
   ${STA_HOME}/tcl/Exception.i
-  ${STA_HOME}/tcl/StaTcl.i
   ${STA_HOME}/tcl/StaTclTypes.i
+  ${STA_HOME}/util/Util.i
   ${STA_HOME}/verilog/Verilog.i
   )
 

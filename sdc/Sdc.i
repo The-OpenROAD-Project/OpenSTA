@@ -21,6 +21,7 @@
 #include "Wireload.hh"
 #include "Clock.hh"
 #include "PortDelay.hh"
+#include "Property.hh"
 #include "Sta.hh"
 
 using namespace sta;
@@ -1424,6 +1425,24 @@ pin_logic_value(const Pin *pin)
   bool exists;
   sdc->logicValue(pin, value, exists);
   return logicValueString(value);
+}
+
+////////////////////////////////////////////////////////////////
+//
+// Variables
+//
+////////////////////////////////////////////////////////////////
+
+bool
+propagate_all_clocks()
+{
+  return Sta::sta()->propagateAllClocks();
+}
+
+void
+set_propagate_all_clocks(bool prop)
+{
+  Sta::sta()->setPropagateAllClocks(prop);
 }
 
 %} // inline

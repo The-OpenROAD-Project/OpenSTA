@@ -18,11 +18,68 @@
 
 %{
 
-#include "Sta.hh"
+#include "Units.hh"
 #include "PathGroup.hh"
 #include "Search.hh"
 #include "search/Levelize.hh"
 #include "search/ReportPath.hh"
+#include "Sta.hh"
+
+namespace sta {
+
+////////////////////////////////////////////////////////////////
+//
+// C++ helper functions used by the interface functions.
+// These are not visible in the TCL API.
+//
+////////////////////////////////////////////////////////////////
+
+// Get the network for commands.
+Network *
+cmdNetwork()
+{
+  return Sta::sta()->cmdNetwork();
+}
+
+// Make sure the network has been read and linked.
+// Throwing an error means the caller doesn't have to check the result.
+Network *
+cmdLinkedNetwork()
+{
+  Network *network = cmdNetwork();
+  if (network->isLinked())
+    return network;
+  else {
+    Report *report = Sta::sta()->report();
+    report->error(1570, "no network has been linked.");
+    return nullptr;
+  }
+}
+
+// Make sure an editable network has been read and linked.
+NetworkEdit *
+cmdEditNetwork()
+{
+  Network *network = cmdLinkedNetwork();
+  if (network->isEditable())
+    return dynamic_cast<NetworkEdit*>(network);
+  else {
+    Report *report = Sta::sta()->report();
+    report->error(1571, "network does not support edits.");
+    return nullptr;
+  }
+}
+
+// Get the graph for commands.
+// Throw to cmd level on failure.
+Graph *
+cmdGraph()
+{
+  cmdLinkedNetwork();
+  return Sta::sta()->ensureGraph();
+}
+
+} // namespace
 
 using namespace sta;
 
@@ -87,6 +144,51 @@ private:
 %inline %{
 
 int group_count_max = PathGroup::group_count_max;
+
+////////////////////////////////////////////////////////////////
+
+// Initialize sta after delete_all_memory.
+void
+init_sta()
+{
+  initSta();
+}
+
+void
+clear_sta()
+{
+  Sta::sta()->clear();
+}
+
+void
+make_sta(Tcl_Interp *interp)
+{
+  Sta *sta = new Sta;
+  Sta::setSta(sta);
+  sta->makeComponents();
+  sta->setTclInterp(interp);
+}
+
+Tcl_Interp *
+tcl_interp()
+{
+  return Sta::sta()->tclInterp();
+}
+
+void
+clear_network()
+{
+  Sta *sta = Sta::sta();
+  sta->network()->clear();
+}
+
+void
+delete_all_memory()
+{
+  deleteAllMemory();
+}
+
+////////////////////////////////////////////////////////////////
 
 void
 find_timing_cmd(bool full)
@@ -956,6 +1058,298 @@ find_fanout_insts(PinSeq *from,
                                                 thru_disabled, thru_constants);
   delete from;
   return fanout;
+}
+
+////////////////////////////////////////////////////////////////
+//
+// Variables
+//
+////////////////////////////////////////////////////////////////
+
+bool
+crpr_enabled()
+{
+  return Sta::sta()->crprEnabled();
+}
+
+void
+set_crpr_enabled(bool enabled)
+{
+  return Sta::sta()->setCrprEnabled(enabled);
+}
+
+const char *
+crpr_mode()
+{
+  switch (Sta::sta()->crprMode()) {
+  case CrprMode::same_transition:
+    return "same_transition";
+  case CrprMode::same_pin:
+    return "same_pin";
+  default:
+    return "";
+  }
+}
+
+void
+set_crpr_mode(const char *mode)
+{
+  Sta *sta = Sta::sta();
+  if (stringEq(mode, "same_pin"))
+    Sta::sta()->setCrprMode(CrprMode::same_pin);
+  else if (stringEq(mode, "same_transition"))
+    Sta::sta()->setCrprMode(CrprMode::same_transition);
+  else
+    sta->report()->critical(1573, "unknown common clk pessimism mode.");
+}
+
+bool
+pocv_enabled()
+{
+  return Sta::sta()->pocvEnabled();
+}
+
+void
+set_pocv_enabled(bool enabled)
+{
+#if !SSTA
+  if (enabled)
+    Sta::sta()->report()->error(1574, "POCV support requires compilation with SSTA=1.");
+#endif
+  return Sta::sta()->setPocvEnabled(enabled);
+}
+
+float
+pocv_sigma_factor()
+{
+  return Sta::sta()->sigmaFactor();
+}
+
+void
+set_pocv_sigma_factor(float factor)
+{
+  Sta::sta()->setSigmaFactor(factor);
+}
+
+bool
+propagate_gated_clock_enable()
+{
+  return Sta::sta()->propagateGatedClockEnable();
+}
+
+void
+set_propagate_gated_clock_enable(bool enable)
+{
+  Sta::sta()->setPropagateGatedClockEnable(enable);
+}
+
+bool
+preset_clr_arcs_enabled()
+{
+  return Sta::sta()->presetClrArcsEnabled();
+}
+
+void
+set_preset_clr_arcs_enabled(bool enable)
+{
+  Sta::sta()->setPresetClrArcsEnabled(enable);
+}
+
+bool
+cond_default_arcs_enabled()
+{
+  return Sta::sta()->condDefaultArcsEnabled();
+}
+
+void
+set_cond_default_arcs_enabled(bool enabled)
+{
+  Sta::sta()->setCondDefaultArcsEnabled(enabled);
+}
+
+bool
+bidirect_inst_paths_enabled()
+{
+  return Sta::sta()->bidirectInstPathsEnabled();
+}
+
+void
+set_bidirect_inst_paths_enabled(bool enabled)
+{
+  Sta::sta()->setBidirectInstPathsEnabled(enabled);
+}
+
+bool
+bidirect_net_paths_enabled()
+{
+  return Sta::sta()->bidirectNetPathsEnabled();
+}
+
+void
+set_bidirect_net_paths_enabled(bool enabled)
+{
+  Sta::sta()->setBidirectNetPathsEnabled(enabled);
+}
+
+bool
+recovery_removal_checks_enabled()
+{
+  return Sta::sta()->recoveryRemovalChecksEnabled();
+}
+
+void
+set_recovery_removal_checks_enabled(bool enabled)
+{
+  Sta::sta()->setRecoveryRemovalChecksEnabled(enabled);
+}
+
+bool
+gated_clk_checks_enabled()
+{
+  return Sta::sta()->gatedClkChecksEnabled();
+}
+
+void
+set_gated_clk_checks_enabled(bool enabled)
+{
+  Sta::sta()->setGatedClkChecksEnabled(enabled);
+}
+
+bool
+dynamic_loop_breaking()
+{
+  return Sta::sta()->dynamicLoopBreaking();
+}
+
+void
+set_dynamic_loop_breaking(bool enable)
+{
+  Sta::sta()->setDynamicLoopBreaking(enable);
+}
+
+bool
+use_default_arrival_clock()
+{
+  return Sta::sta()->useDefaultArrivalClock();
+}
+
+void
+set_use_default_arrival_clock(bool enable)
+{
+  return Sta::sta()->setUseDefaultArrivalClock(enable);
+}
+
+////////////////////////////////////////////////////////////////
+//
+// Properties
+//
+////////////////////////////////////////////////////////////////
+
+PropertyValue
+pin_property(const Pin *pin,
+	     const char *property)
+{
+  cmdLinkedNetwork();
+  return getProperty(pin, property, Sta::sta());
+}
+
+PropertyValue
+instance_property(const Instance *inst,
+		  const char *property)
+{
+  cmdLinkedNetwork();
+  return getProperty(inst, property, Sta::sta());
+}
+
+PropertyValue
+net_property(const Net *net,
+	     const char *property)
+{
+  cmdLinkedNetwork();
+  return getProperty(net, property, Sta::sta());
+}
+
+PropertyValue
+port_property(const Port *port,
+	      const char *property)
+{
+  return getProperty(port, property, Sta::sta());
+}
+
+
+PropertyValue
+liberty_cell_property(const LibertyCell *cell,
+		      const char *property)
+{
+  return getProperty(cell, property, Sta::sta());
+}
+
+PropertyValue
+cell_property(const Cell *cell,
+	      const char *property)
+{
+  return getProperty(cell, property, Sta::sta());
+}
+
+PropertyValue
+liberty_port_property(const LibertyPort *port,
+		      const char *property)
+{
+  return getProperty(port, property, Sta::sta());
+}
+
+PropertyValue
+library_property(const Library *lib,
+		 const char *property)
+{
+  return getProperty(lib, property, Sta::sta());
+}
+
+PropertyValue
+liberty_library_property(const LibertyLibrary *lib,
+			 const char *property)
+{
+  return getProperty(lib, property, Sta::sta());
+}
+
+PropertyValue
+edge_property(Edge *edge,
+	      const char *property)
+{
+  cmdGraph();
+  return getProperty(edge, property, Sta::sta());
+}
+
+PropertyValue
+clock_property(Clock *clk,
+	       const char *property)
+{
+  cmdLinkedNetwork();
+  return getProperty(clk, property, Sta::sta());
+}
+
+PropertyValue
+path_end_property(PathEnd *end,
+		  const char *property)
+{
+  cmdLinkedNetwork();
+  return getProperty(end, property, Sta::sta());
+}
+
+PropertyValue
+path_ref_property(PathRef *path,
+		  const char *property)
+{
+  cmdLinkedNetwork();
+  return getProperty(path, property, Sta::sta());
+}
+
+PropertyValue
+timing_arc_set_property(TimingArcSet *arc_set,
+			const char *property)
+{
+  cmdLinkedNetwork();
+  return getProperty(arc_set, property, Sta::sta());
 }
 
 %} // inline

@@ -23,16 +23,13 @@ using sta::Net;
 using sta::Port;
 using sta::Pin;
 using sta::NetworkEdit;
-using sta::cmdEditNetwork;
+
+namespace sta {
+NetworkEdit *
+cmdEditNetwork();
+}
 
 %}
-
-////////////////////////////////////////////////////////////////
-//
-// SWIG type definitions.
-//
-////////////////////////////////////////////////////////////////
-
 
 ////////////////////////////////////////////////////////////////
 //
@@ -67,7 +64,7 @@ Net *
 make_net_cmd(const char *name,
 	     Instance *parent)
 {
-  Net *net = cmdEditNetwork()->makeNet(name, parent);
+  Net *net = sta::cmdEditNetwork()->makeNet(name, parent);
   // Sta notification unnecessary.
   return net;
 }

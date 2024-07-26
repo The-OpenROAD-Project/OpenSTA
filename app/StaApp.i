@@ -18,7 +18,6 @@
 
 %include "tcl/Exception.i"
 %include "tcl/StaTclTypes.i"
-%include "tcl/StaTcl.i"
 %include "dcalc/DelayCalc.i"
 %include "graph/Graph.i"
 %include "liberty/Liberty.i"
@@ -29,5 +28,6 @@
 %include "sdc/Sdc.i"
 %include "sdf/Sdf.i"
 %include "search/Search.i"
+%include "util/Util.i"
 %include "spice/WriteSpice.i"
 %include "verilog/Verilog.i"
