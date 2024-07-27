@@ -36,6 +36,7 @@ class DmpCeffElmoreDelayCalc : public DmpCeffDelayCalc
 public:
   DmpCeffElmoreDelayCalc(StaState *sta);
   ArcDelayCalc *copy() override;
+  const char *name() const override { return "dmp_ceff_elmore"; }
   ArcDcalcResult inputPortDelay(const Pin *port_pin,
                                 float in_slew,
                                 const RiseFall *rf,
@@ -81,9 +82,7 @@ DmpCeffElmoreDelayCalc::inputPortDelay(const Pin *,
 {
   ArcDcalcResult dcalc_result(load_pin_index_map.size());
   LibertyLibrary *drvr_library = network_->defaultLibertyLibrary();
-  for (auto load_pin_index : load_pin_index_map) {
-    const Pin *load_pin = load_pin_index.first;
-    size_t load_idx = load_pin_index.second;
+  for (auto [load_pin, load_idx] : load_pin_index_map) {
     ArcDelay wire_delay = 0.0;
     Slew load_slew = in_slew;
     bool elmore_exists = false;
@@ -130,6 +129,7 @@ class DmpCeffTwoPoleDelayCalc : public DmpCeffDelayCalc
 public:
   DmpCeffTwoPoleDelayCalc(StaState *sta);
   ArcDelayCalc *copy() override;
+  const char *name() const override { return "dmp_ceff_two_pole"; }
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
                            const DcalcAnalysisPt *dcalc_ap) override;
@@ -257,9 +257,7 @@ DmpCeffTwoPoleDelayCalc::inputPortDelay(const Pin *,
   ArcDelay wire_delay = 0.0;
   Slew load_slew = in_slew;
   LibertyLibrary *drvr_library = network_->defaultLibertyLibrary();
-  for (auto load_pin_index : load_pin_index_map) {
-    const Pin *load_pin = load_pin_index.first;
-    size_t load_idx = load_pin_index.second;
+  for (const auto [load_pin, load_idx] : load_pin_index_map) {
     if (parasitics_->isPiPoleResidue(parasitic)) {
       const Parasitic *pole_residue = parasitics_->findPoleResidue(parasitic, load_pin);
       if (pole_residue) {

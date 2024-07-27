@@ -55,6 +55,12 @@ readSpefFile(const char *filename,
              StaState *sta)
 {
   bool success = false;
+  const ArcDelayCalc *arc_delay_calc = sta->arcDelayCalc();
+  if (reduce && !arc_delay_calc->reduceSupported()) {
+    sta->report()->warn(1658, "Delay calculator %s does not support reduction.",
+                        arc_delay_calc->name());
+    reduce = false;
+  }
   // Use zlib to uncompress gzip'd files automagically.
   gzFile stream = gzopen(filename, "rb");
   if (stream) {
@@ -120,10 +126,8 @@ SpefReader::~SpefReader()
     design_flow_ = nullptr;
   }
 
-  for (auto index_name : name_map_) {
-    char *name = index_name.second;
+  for (const auto [index, name] : name_map_)
     stringDelete(name);
-  }
 }
 
 void
@@ -496,7 +500,9 @@ SpefReader::findParasiticNode(char *name,
               int id = atoi(id_str);
               if (local_only
                   && !network_->isConnected(net, net_))
-                warn(1653, "%s not connected to net %s.", name, network_->pathName(net_));
+                warn(1653, "%s not connected to net %s.",
+                     name,
+                     network_->pathName(net_));
               return parasitics_->ensureParasiticNode(parasitic_, net, id, network_);
             }
             else

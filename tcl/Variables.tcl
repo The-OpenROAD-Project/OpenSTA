@@ -22,14 +22,6 @@ namespace eval sta {
 #
 ################################################################
 
-trace variable ::link_make_black_boxes "rw" \
-  sta::trace_link_make_black_boxes
-
-proc trace_link_make_black_boxes { name1 name2 op } {
-  trace_boolean_var $op ::link_make_black_boxes \
-    link_make_black_boxes set_link_make_black_boxes
-}
-
 # Default digits to print after decimal point for reporting commands.
 set ::sta_report_default_digits 2
 

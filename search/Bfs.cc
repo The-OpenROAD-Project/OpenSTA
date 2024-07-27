@@ -70,7 +70,7 @@ BfsIterator::clear()
   Level level = first_level_;
   while (levelLessOrEqual(level, last_level_)) {
     VertexSeq &level_vertices = queue_[level];
-    for (auto vertex : level_vertices) {
+    for (Vertex *vertex : level_vertices) {
       if (vertex)
 	vertex->setBfsInQueue(bfs_index_, false);
     }
@@ -88,7 +88,7 @@ BfsIterator::reportEntries(const Network *network)
     VertexSeq &level_vertices = queue_[level];
     if (!level_vertices.empty()) {
       report_->reportLine("Level %d", level);
-      for (auto vertex : level_vertices) {
+      for (Vertex *vertex : level_vertices) {
 	if (vertex)
 	  report_->reportLine(" %s", vertex->name(network));
       }
@@ -101,7 +101,7 @@ void
 BfsIterator::deleteEntries(Level level)
 {
   VertexSeq &level_vertices = queue_[level];
-  for (auto vertex : level_vertices) {
+  for (Vertex *vertex : level_vertices) {
     if (vertex)
       vertex->setBfsInQueue(bfs_index_, false);
   }
@@ -281,7 +281,7 @@ BfsIterator::checkInQueue(Vertex *vertex)
 {
   Level level = vertex->level();
   if (static_cast<Level>(queue_.size()) > level) {
-    for (auto v : queue_[level]) {
+    for (Vertex *v : queue_[level]) {
       if (v == vertex) {
 	if (vertex->bfsInQueue(bfs_index_))
 	  return;
@@ -308,7 +308,7 @@ BfsIterator::remove(Vertex *vertex)
   Level level = vertex->level();
   if (vertex->bfsInQueue(bfs_index_)
       && static_cast<Level>(queue_.size()) > level) {
-    for (auto &v : queue_[level]) {
+    for (Vertex *v : queue_[level]) {
       if (v == vertex) {
 	v = nullptr;
 	vertex->setBfsInQueue(bfs_index_, false);

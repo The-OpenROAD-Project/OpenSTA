@@ -19,6 +19,7 @@
 #include <algorithm> // max
 #include <cmath>     // abs
 
+#include "cudd.h"
 #include "Debug.hh"
 #include "EnumNameMap.hh"
 #include "Hash.hh"
@@ -502,8 +503,6 @@ Power::clockGatePins(const Instance *inst,
 
 ////////////////////////////////////////////////////////////////
 
-#if CUDD
-
 PwrActivity
 Power::evalActivity(FuncExpr *expr,
 		    const Instance *inst)
@@ -586,12 +585,10 @@ Power::evalBddActivity(DdNode *bdd,
                        const Instance *inst)
 {
   float activity = 0.0;
-  for (auto port_var : bdd_.portVarMap()) {
-    const LibertyPort *port = port_var.first;
+  for (const auto [port, var_node] : bdd_.portVarMap()) {
     const Pin *pin = findLinkPin(inst, port);
     if (pin) {
       PwrActivity var_activity = findActivity(pin);
-      DdNode *var_node = port_var.second;
       unsigned int var_index = Cudd_NodeReadIndex(var_node);
       DdNode *diff = Cudd_bddBooleanDiff(bdd_.cuddMgr(), bdd, var_index);
       Cudd_Ref(diff);
@@ -610,112 +607,6 @@ Power::evalBddActivity(DdNode *bdd,
   }
   return activity;
 }
-
-#else
-
-PwrActivity
-Power::evalActivity(FuncExpr *expr,
-		    const Instance *inst)
-{
-  return evalActivity(expr, inst, nullptr, true);
-}
-
-// Eval activity thru expr.
-// With cofactor_port eval the positive/negative cofactor of expr wrt cofactor_port.
-PwrActivity
-Power::evalActivity(FuncExpr *expr,
-		    const Instance *inst,
-		    const LibertyPort *cofactor_port,
-		    bool cofactor_positive)
-{
-  switch (expr->op()) {
-  case FuncExpr::op_port: {
-    LibertyPort *port = expr->port();
-    if (port == cofactor_port) {
-      if (cofactor_positive)
-	return PwrActivity(0.0, 1.0, PwrActivityOrigin::constant);
-      else
-	return PwrActivity(0.0, 0.0, PwrActivityOrigin::constant);
-    }
-    if (port->direction()->isInternal())
-      return findSeqActivity(inst, port);
-    else {
-      Pin *pin = findLinkPin(inst, port);
-      if (pin) {
-        PwrActivity activity = findActivity(pin);
-        activity.setOrigin(PwrActivityOrigin::propagated);
-	return activity;
-      }
-    }
-    return PwrActivity(0.0, 0.0, PwrActivityOrigin::constant);
-  }
-  case FuncExpr::op_not: {
-    PwrActivity activity1 = evalActivity(expr->left(), inst,
-					 cofactor_port, cofactor_positive);
-    return PwrActivity(activity1.activity(),
-		       1.0 - activity1.duty(),
-		       PwrActivityOrigin::propagated);
-  }
-  case FuncExpr::op_or: {
-    PwrActivity activity1 = evalActivity(expr->left(), inst,
-					 cofactor_port, cofactor_positive);
-    PwrActivity activity2 = evalActivity(expr->right(), inst,
-					 cofactor_port, cofactor_positive);
-    float p1 = 1.0 - activity1.duty();
-    float p2 = 1.0 - activity2.duty();
-    return PwrActivity(activity1.activity() * p2 + activity2.activity() * p1,
-		       // d1 + d2 - d1 * d2
-                       1.0 - p1 * p2,
-		       PwrActivityOrigin::propagated);
-  }
-  case FuncExpr::op_and: {
-    PwrActivity activity1 = evalActivity(expr->left(), inst,
-					 cofactor_port, cofactor_positive);
-    PwrActivity activity2 = evalActivity(expr->right(), inst,
-					 cofactor_port, cofactor_positive);
-    float p1 = activity1.duty();
-    float p2 = activity2.duty();
-    return PwrActivity(activity1.activity() * p2 + activity2.activity() * p1,
-		       p1 * p2,
-		       PwrActivityOrigin::propagated);
-  }
-  case FuncExpr::op_xor: {
-    PwrActivity activity1 = evalActivity(expr->left(), inst,
-					 cofactor_port, cofactor_positive);
-    PwrActivity activity2 = evalActivity(expr->right(), inst,
-					 cofactor_port, cofactor_positive);
-    float d1 = activity1.duty();
-    float d2 = activity2.duty();
-    float p1 = d1 * (1.0 - d2);
-    float p2 = (1.0 - d1) * d2;
-    return PwrActivity(activity1.activity() + activity2.activity(),
-		       p1 + p2,
-		       PwrActivityOrigin::propagated);
-  }
-  case FuncExpr::op_one:
-    return PwrActivity(0.0, 1.0, PwrActivityOrigin::constant);
-  case FuncExpr::op_zero:
-    return PwrActivity(0.0, 0.0, PwrActivityOrigin::constant);
-  }
-  return PwrActivity();
-}
-
-// Eval activity of difference(expr) wrt cofactor port.
-float
-Power::evalDiffDuty(FuncExpr *expr,
-                    LibertyPort *cofactor_port,
-                    const Instance *inst)
-{
-  // Activity of positive/negative cofactors.
-  PwrActivity pos = evalActivity(expr, inst, cofactor_port, true);
-  PwrActivity neg = evalActivity(expr, inst, cofactor_port, false);
-  // difference = xor(pos, neg).
-  float p1 = pos.duty() * (1.0 - neg.duty());
-  float p2 = neg.duty() * (1.0 - pos.duty());
-  return p1 + p2;
-}
-
-#endif // CUDD
 
 ////////////////////////////////////////////////////////////////
 

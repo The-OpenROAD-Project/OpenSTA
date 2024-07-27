@@ -22,37 +22,25 @@
 
 namespace sta {
 
+class StaState;
 class Corner;
 class DcalcAnalysisPt;
+class ArcDcalcArg;
 
-// Abstract class for the graph delay calculator traversal to interface
+// Abstract class for delay calculation waveforms for ploting.
 class ArcDcalcWaveforms
 {
 public:
-  virtual Table1 inputWaveform(const Pin *in_pin,
-                               const RiseFall *in_rf,
-                               const Corner *corner,
-                               const MinMax *min_max);
-  virtual Table1 drvrWaveform(const Pin *in_pin,
-                              const RiseFall *in_rf,
-                              const Pin *drvr_pin,
-                              const RiseFall *drvr_rf,
-                              const Corner *corner,
-                              const MinMax *min_max) = 0;
-  virtual Table1 loadWaveform(const Pin *in_pin,
-                              const RiseFall *in_rf,
-                              const Pin *drvr_pin,
-                              const RiseFall *drvr_rf,
-                              const Pin *load_pin,
-                              const Corner *corner,
-                              const MinMax *min_max) = 0;
-  virtual Table1 drvrRampWaveform(const Pin *in_pin,
-                                  const RiseFall *in_rf,
-                                  const Pin *drvr_pin,
-                                  const RiseFall *drvr_rf,
-                                  const Pin *load_pin,
-                                  const Corner *corner,
-                                  const MinMax *min_max);
+  // Record waveform for drvr/load pin.
+  virtual void watchPin(const Pin *pin) = 0;
+  virtual void clearWatchPins() = 0;
+  virtual PinSeq watchPins() const = 0;
+  virtual Waveform watchWaveform(const Pin *pin) = 0;
+
+protected:
+  Waveform inputWaveform(ArcDcalcArg &dcalc_arg,
+                         const DcalcAnalysisPt *dcalc_ap,
+                         const StaState *sta);
 };
 
 } // namespace

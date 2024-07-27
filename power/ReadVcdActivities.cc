@@ -105,7 +105,7 @@ ReadVcdActivities::readActivities()
     setActivities();
   else
     report_->warn(1450, "VCD max time is zero.");
-  report_->reportLine("Annotated %lu pin activities.", annotated_pins_.size());
+  report_->reportLine("Annotated %zu pin activities.", annotated_pins_.size());
 }
 
 void

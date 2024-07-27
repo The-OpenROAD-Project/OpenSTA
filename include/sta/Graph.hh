@@ -46,7 +46,7 @@ typedef ArrayTable<Required> RequiredsTable;
 typedef ArrayTable<PathVertexRep> PrevPathsTable;
 typedef Map<const Pin*, Vertex*> PinVertexMap;
 typedef Iterator<Edge*> VertexEdgeIterator;
-typedef Map<const Pin*, float*> PeriodCheckAnnotations;
+typedef Map<const Pin*, float*, PinIdLess> PeriodCheckAnnotations;
 typedef Vector<DelayTable*> DelayTableSeq;
 typedef ObjectId EdgeId;
 typedef ObjectId ArrivalId;
@@ -352,13 +352,13 @@ protected:
   EdgeId in_edges_;		// Edges to this vertex.
   EdgeId out_edges_;		// Edges from this vertex.
 
-  // 4 bytes
+  // 32 bits
   unsigned int tag_group_index_:tag_group_index_bits; // 24
   // Each bit corresponds to a different BFS queue.
   unsigned int bfs_in_queue_:int(BfsIndex::bits); // 4
   unsigned int slew_annotated_:slew_annotated_bits;
 
-  // 4 bytes (32 bits)
+  // 32 bits
   unsigned int level_:Graph::vertex_level_bits;
   // Levelization search state.
   // LevelColor gcc barfs if this is dcl'd.
@@ -369,6 +369,8 @@ protected:
   // This flag distinguishes the driver and load vertices.
   bool is_bidirect_drvr_:1;
   bool is_reg_clk_:1;
+
+  // 15 bits
   bool is_disabled_constraint_:1;
   bool is_gated_clk_enable_:1;
   // Constrained by timing check edge.
@@ -379,7 +381,6 @@ protected:
   bool has_downstream_clk_pin_:1;
   bool crpr_path_pruning_disabled_:1;
   bool requireds_pruned_:1;
-
   unsigned object_idx_:VertexTable::idx_bits;
 
 private:
@@ -441,6 +442,7 @@ protected:
   EdgeId vertex_out_next_;		// Vertex out edges doubly linked list.
   EdgeId vertex_out_prev_;
   ArcId arc_delays_;
+  // 16 bits
   bool delay_annotation_is_incremental_:1;
   bool is_bidirect_inst_path_:1;
   bool is_bidirect_net_path_:1;

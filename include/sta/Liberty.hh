@@ -73,7 +73,8 @@ typedef Map<const OperatingConditions*, LibertyCell*> ScaledCellMap;
 typedef Map<const OperatingConditions*, LibertyPort*> ScaledPortMap;
 typedef Map<const char *, ModeDef*, CharPtrLess> ModeDefMap;
 typedef Map<const char *, ModeValueDef*, CharPtrLess> ModeValueMap;
-typedef Map<TimingArcSet*, LatchEnable*> LatchEnableMap;
+typedef Map<const TimingArcSet*, LatchEnable*> LatchEnableMap;
+typedef Vector<LatchEnable*> LatchEnableSeq;
 typedef Map<const char *, OcvDerate*, CharPtrLess> OcvDerateMap;
 typedef Vector<InternalPowerAttrs*> InternalPowerAttrsSeq;
 typedef Map<const char *, float, CharPtrLess> SupplyVoltageMap;
@@ -472,12 +473,12 @@ public:
   bool hasInferedRegTimingArcs() const { return has_infered_reg_timing_arcs_; }
   TestCell *testCell() const { return test_cell_; }
   bool isLatchData(LibertyPort *port);
-  void latchEnable(TimingArcSet *arc_set,
+  void latchEnable(const TimingArcSet *arc_set,
 		   // Return values.
-		   LibertyPort *&enable_port,
-		   FuncExpr *&enable_func,
-		   RiseFall *&enable_rf) const;
-  RiseFall *latchCheckEnableEdge(TimingArcSet *check_set);
+		   const LibertyPort *&enable_port,
+		   const FuncExpr *&enable_func,
+		   const RiseFall *&enable_rf) const;
+  const RiseFall *latchCheckEnableEdge(TimingArcSet *check_set);
   bool isDisabledConstraint() const { return is_disabled_constraint_; }
   LibertyCell *cornerCell(const Corner *corner,
                           const MinMax *min_max);
@@ -531,7 +532,7 @@ public:
   // Check all liberty cells to make sure they exist
   // for all the defined corners.
   static void checkLibertyCorners();
-  void ensureVoltageWaveforms();
+  void ensureVoltageWaveforms(const DcalcAnalysisPt *dcalc_ap);
 
 protected:
   void addPort(ConcretePort *port);
@@ -539,18 +540,26 @@ protected:
   void setLibertyLibrary(LibertyLibrary *library);
   void makeLatchEnables(Report *report,
 			Debug *debug);
-  FuncExpr *findLatchEnableFunc(LibertyPort *data,
-				LibertyPort *enable) const;
+  FuncExpr *findLatchEnableFunc(const LibertyPort *d,
+                                const LibertyPort *en,
+                                const RiseFall *en_rf) const;
   LatchEnable *makeLatchEnable(LibertyPort *d,
 			       LibertyPort *en,
+                               const RiseFall *en_rf,
 			       LibertyPort *q,
 			       TimingArcSet *d_to_q,
 			       TimingArcSet *en_to_q,
 			       TimingArcSet *setup_check,
 			       Debug *debug);
+  TimingArcSet *findLatchSetup(const LibertyPort *d,
+                               const LibertyPort *en,
+                               const RiseFall *en_rf,
+                               const LibertyPort *q,
+                               Report *report);
   void findDefaultCondArcs();
   void translatePresetClrCheckRoles();
-  void inferLatchRoles(Debug *debug);
+  void inferLatchRoles(Report *report,
+                       Debug *debug);
   void deleteInternalPowerAttrs();
   void makeTimingArcMap(Report *report);
   void makeTimingArcPortMaps();
@@ -596,6 +605,7 @@ protected:
   LatchEnableMap latch_d_to_q_map_;
   // Latch EN->D setup to LatchEnable.
   LatchEnableMap latch_check_map_;
+  LatchEnableSeq latch_enables_;
   // Ports that have latch D->Q timing arc sets from them.
   LibertyPortSet latch_data_ports_;
   float ocv_arc_depth_;
@@ -792,20 +802,20 @@ public:
   DriverWaveform *driverWaveform(const RiseFall *rf) const;
   void setDriverWaveform(DriverWaveform *driver_waveform,
                          const RiseFall *rf);
-  void setClkTreeDelay(const TableModel *model,
-                       const RiseFall *from_rf,
-                       const RiseFall *to_rf,
-                       const MinMax *min_max);
-  // Should be deprecated.
-  float clkTreeDelay(float in_slew,
-                     const RiseFall *from_rf,
-                     const MinMax *min_max) const;
   float clkTreeDelay(float in_slew,
                      const RiseFall *from_rf,
                      const RiseFall *to_rf,
                      const MinMax *min_max) const;
-  // Assumes input slew of 0.0.
-  RiseFallMinMax clkTreeDelays() const;
+  float clkTreeDelay(float in_slew,
+                     const RiseFall *from_rf,
+                     const MinMax *min_max) const;
+  void setClkTreeDelay(const TableModel *model,
+                       const RiseFall *from_rf,
+                       const RiseFall *to_rf,
+                       const MinMax *min_max);
+  // deprecated 2024-06-22
+  RiseFallMinMax clkTreeDelays() const __attribute__ ((deprecated));
+  // deprecated 2024-02-27
   RiseFallMinMax clockTreePathDelays() const __attribute__ ((deprecated));
 
   static bool equiv(const LibertyPort *port1,

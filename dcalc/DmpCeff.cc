@@ -1501,7 +1501,7 @@ DmpCeffDelayCalc::gateDelay(const Pin *drvr_pin,
   const LibertyCell *drvr_cell = arc->from()->libertyCell();
   const LibertyLibrary *drvr_library = drvr_cell->libertyLibrary();
 
-  GateTableModel *table_model = gateTableModel(arc, dcalc_ap);
+  GateTableModel *table_model = arc->gateTableModel(dcalc_ap);
   if (table_model && parasitic) {
     float in_slew1 = delayAsFloat(in_slew);
     float c2, rpi, c1;
@@ -1516,9 +1516,7 @@ DmpCeffDelayCalc::gateDelay(const Pin *drvr_pin,
     dcalc_result.setGateDelay(gate_delay);
     dcalc_result.setDrvrSlew(drvr_slew);
 
-    for (auto load_pin_index : load_pin_index_map) {
-      const Pin *load_pin = load_pin_index.first;
-      size_t load_idx = load_pin_index.second;
+    for (const auto [load_pin, load_idx] : load_pin_index_map) {
       ArcDelay wire_delay;
       Slew load_slew;
       loadDelaySlew(load_pin, drvr_slew, rf, drvr_library, parasitic,
@@ -1595,7 +1593,7 @@ DmpCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
 				  int digits)
 {
   gateDelay(drvr_pin, arc, in_slew, load_cap, parasitic, load_pin_index_map, dcalc_ap);
-  GateTimingModel *model = gateModel(arc, dcalc_ap);
+  GateTableModel *model = arc->gateTableModel(dcalc_ap);
   float c_eff = 0.0;
   string result;
   if (parasitic && dmp_alg_) {

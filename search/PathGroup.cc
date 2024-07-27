@@ -255,8 +255,7 @@ PathGroups::makeGroups(int group_count,
 {
   int mm_index = min_max->index();
   if (setup_hold) {
-    for (auto name_group : sdc_->groupPaths()) {
-      const char *name = name_group.first;
+    for (const auto [name, group] : sdc_->groupPaths()) {
       if (reportGroup(name, group_names)) {
 	PathGroup *group = PathGroup::makePathGroupSlack(name, group_count,
 							 endpoint_count, unique_pins,
@@ -840,7 +839,7 @@ public:
   virtual void visit(Vertex *vertex);
 
 private:
-  VisitPathEnds *visit_path_ends_;
+  VisitPathEnds visit_path_ends_;
   PathEndVisitor *path_end_visitor_;
   const Corner *corner_;
   const MinMaxAll *min_max_;
@@ -851,7 +850,7 @@ MakeEndpointPathEnds::MakeEndpointPathEnds(PathEndVisitor *path_end_visitor,
 					   const Corner *corner,
 					   const MinMaxAll *min_max,
 					   const StaState *sta) :
-  visit_path_ends_(new VisitPathEnds(sta)),
+  visit_path_ends_(sta),
   path_end_visitor_(path_end_visitor->copy()),
   corner_(corner),
   min_max_(min_max),
@@ -860,7 +859,7 @@ MakeEndpointPathEnds::MakeEndpointPathEnds(PathEndVisitor *path_end_visitor,
 }
 
 MakeEndpointPathEnds::MakeEndpointPathEnds(const MakeEndpointPathEnds &make_path_ends) :
-  visit_path_ends_(new VisitPathEnds(make_path_ends.sta_)),
+  visit_path_ends_(make_path_ends.sta_),
   path_end_visitor_(make_path_ends.path_end_visitor_->copy()),
   corner_(make_path_ends.corner_),
   min_max_(make_path_ends.min_max_),
@@ -870,7 +869,6 @@ MakeEndpointPathEnds::MakeEndpointPathEnds(const MakeEndpointPathEnds &make_path
 
 MakeEndpointPathEnds::~MakeEndpointPathEnds()
 {
-  delete visit_path_ends_;
   delete path_end_visitor_;
 }
 
@@ -883,8 +881,7 @@ MakeEndpointPathEnds::copy() const
 void
 MakeEndpointPathEnds::visit(Vertex *vertex)
 {
-  visit_path_ends_->visitPathEnds(vertex, corner_, min_max_, true,
-				  path_end_visitor_);
+  visit_path_ends_.visitPathEnds(vertex, corner_, min_max_, true, path_end_visitor_);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -904,7 +901,7 @@ PathGroups::makeGroupPathEnds(VertexSet *endpoints,
     Vector<MakeEndpointPathEnds> visitors(thread_count_,
                                           MakeEndpointPathEnds(visitor, corner,
                                                                min_max, this));
-    for (auto endpoint : *endpoints) {
+    for (const auto endpoint : *endpoints) {
       dispatch_queue_->dispatch( [endpoint, &visitors](int i)
       { visitors[i].visit(endpoint); } );
     }

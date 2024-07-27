@@ -37,7 +37,7 @@ VertexNameLess::operator()(const Vertex *vertex1,
 ////////////////////////////////////////////////////////////////
 
 EdgeLess::EdgeLess(const Network *network,
-		   Graph *graph) :
+		   Graph *&graph) :
   pin_less_(network),
   graph_(graph)
 {

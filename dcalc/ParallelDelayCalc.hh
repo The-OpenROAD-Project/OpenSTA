@@ -29,12 +29,10 @@ class ParallelDelayCalc : public DelayCalcBase
 public:
   ParallelDelayCalc(StaState *sta);
   ArcDcalcResultSeq gateDelays(ArcDcalcArgSeq &dcalc_args,
-                               float load_cap,
                                const LoadPinIndexMap &load_pin_index_map,
                                const DcalcAnalysisPt *dcalc_ap) override;
 protected:
   ArcDcalcResultSeq gateDelaysParallel(ArcDcalcArgSeq &dcalc_args,
-                                       float load_cap,
                                        const LoadPinIndexMap &load_pin_index_map,
                                        const DcalcAnalysisPt *dcalc_ap);
 };

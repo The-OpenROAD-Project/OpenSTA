@@ -19,6 +19,7 @@
 
 #include <stdio.h>
 #include <cstdlib>              // exit
+#include <filesystem>
 #include <tcl.h>
 #if TCL_READLINE
   #include <tclreadline.h>
@@ -39,7 +40,6 @@ using sta::evalTclInit;
 using sta::sourceTclFile;
 using sta::parseThreadsArg;
 using sta::tcl_inits;
-using sta::is_regular_file;
 
 // Swig uses C linkage for init functions.
 extern "C" {
@@ -133,15 +133,15 @@ staTclAppInit(int argc,
       string init_path = home;
       init_path += "/";
       init_path += init_filename;
-      if (is_regular_file(init_path.c_str()))
+      if (std::filesystem::is_regular_file(init_path.c_str()))
         sourceTclFile(init_path.c_str(), true, true, interp);
     }
   }
 
   bool exit_after_cmd_file = findCmdLineFlag(argc, argv, "-exit");
 
-  if (argc > 2 ||
-      (argc > 1 && argv[1][0] == '-')) {
+  if (argc > 2
+      || (argc > 1 && argv[1][0] == '-')) {
     showUsage(argv[0], init_filename);
     exit(1);
   }

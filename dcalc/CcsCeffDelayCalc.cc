@@ -52,6 +52,7 @@ CcsCeffDelayCalc::CcsCeffDelayCalc(StaState *sta) :
   // Includes the Vh:Vdd region.
   region_count_(0),
   vl_fail_(false),
+  watch_pin_values_(network_),
   capacitance_unit_(units_->capacitanceUnit()),
   table_dcalc_(makeDmpCeffElmoreDelayCalc(sta))
 {
@@ -82,7 +83,7 @@ CcsCeffDelayCalc::gateDelay(const Pin *drvr_pin,
   parasitic_ = parasitic;
   output_waveforms_ = nullptr;
 
-  GateTableModel *table_model = gateTableModel(arc, dcalc_ap);
+  GateTableModel *table_model = arc->gateTableModel(dcalc_ap);
   if (table_model && parasitic) {
     OutputWaveforms *output_waveforms = table_model->outputWaveforms();
     parasitics_->piModel(parasitic, c2_, rpi_, c1_);
@@ -95,25 +96,25 @@ CcsCeffDelayCalc::gateDelay(const Pin *drvr_pin,
       bool vdd_exists;
       LibertyCell *drvr_cell = arc->to()->libertyCell();
       const LibertyLibrary *drvr_library = drvr_cell->libertyLibrary();
-      const RiseFall *rf = arc->toEdge()->asRiseFall();
+      drvr_rf_ = arc->toEdge()->asRiseFall();
       drvr_library->supplyVoltage("VDD", vdd_, vdd_exists);
       if (!vdd_exists)
         report_->error(1700, "VDD not defined in library %s", drvr_library->name());
-      vth_ = drvr_library->outputThreshold(rf) * vdd_;
-      vl_ = drvr_library->slewLowerThreshold(rf) * vdd_;
-      vh_ = drvr_library->slewUpperThreshold(rf) * vdd_;
+      vth_ = drvr_library->outputThreshold(drvr_rf_) * vdd_;
+      vl_ = drvr_library->slewLowerThreshold(drvr_rf_) * vdd_;
+      vh_ = drvr_library->slewUpperThreshold(drvr_rf_) * vdd_;
 
-      drvr_cell->ensureVoltageWaveforms();
+      drvr_cell->ensureVoltageWaveforms(dcalc_ap);
       in_slew_ = delayAsFloat(in_slew);
       output_waveforms_ = output_waveforms;
       ref_time_ = output_waveforms_->referenceTime(in_slew_);
       debugPrint(debug_, "ccs_dcalc", 1, "%s %s",
                  drvr_cell->name(),
-                 rf->asString());
+                 drvr_rf_->asString());
       ArcDelay gate_delay;
       Slew drvr_slew;
-      gateDelaySlew(drvr_library, rf, gate_delay, drvr_slew);
-      return makeResult(drvr_library, rf, gate_delay, drvr_slew, load_pin_index_map);
+      gateDelaySlew(drvr_library, drvr_rf_, gate_delay, drvr_slew);
+      return makeResult(drvr_library,drvr_rf_,gate_delay,drvr_slew,load_pin_index_map);
     }
   }
   return table_dcalc_->gateDelay(drvr_pin, arc, in_slew, load_cap, parasitic,
@@ -312,9 +313,7 @@ CcsCeffDelayCalc::makeResult(const LibertyLibrary *drvr_library,
   dcalc_result.setGateDelay(gate_delay);
   dcalc_result.setDrvrSlew(drvr_slew);
 
-  for (auto load_pin_index : load_pin_index_map) {
-    const Pin *load_pin = load_pin_index.first;
-    size_t load_idx = load_pin_index.second;
+  for (const auto [load_pin, load_idx] : load_pin_index_map) {
     ArcDelay wire_delay;
     Slew load_slew;
     loadDelaySlew(load_pin, drvr_library, rf, drvr_slew, wire_delay, load_slew);
@@ -466,69 +465,75 @@ CcsCeffDelayCalc::findVlTime(double v,
 
 // Waveform accessors for swig/tcl.
 
-Table1
-CcsCeffDelayCalc::drvrWaveform(const Pin *in_pin,
-                               const RiseFall *in_rf,
-                               const Pin *drvr_pin,
-                               const RiseFall *drvr_rf,
-                               const Corner *corner,
-                               const MinMax *min_max)
+void
+CcsCeffDelayCalc::watchPin(const Pin *pin)
 {
-  bool dcalc_success = makeWaveformPreamble(in_pin, in_rf, drvr_pin,
-                                            drvr_rf, corner, min_max);
-  if (dcalc_success)
-    return drvrWaveform(in_slew_, drvr_rf);
+  watch_pin_values_[pin] = FloatSeq();
+}
+
+void
+CcsCeffDelayCalc::clearWatchPins()
+{
+  watch_pin_values_.clear();
+}
+
+PinSeq
+CcsCeffDelayCalc::watchPins() const
+{
+  PinSeq pins;
+  for (const auto& [pin, values] : watch_pin_values_)
+    pins.push_back(pin);
+  return pins;
+}
+
+Waveform
+CcsCeffDelayCalc::watchWaveform(const Pin *pin)
+{
+  if (pin == drvr_pin_)
+    return drvrWaveform();
+  else
+    return loadWaveform(pin);
+}
+
+Waveform
+CcsCeffDelayCalc::drvrWaveform()
+{
+  if (output_waveforms_) {
+    // Stitch together the ccs waveforms for each region.
+    FloatSeq *drvr_times = new FloatSeq;
+    FloatSeq *drvr_volts = new FloatSeq;
+    for (size_t i = 0; i < region_count_; i++) {
+      double t1 = region_begin_times_[i];
+      double t2 = region_end_times_[i];
+      size_t time_steps = 10;
+      double time_step = (t2 - t1) / time_steps;
+      double time_offset = region_time_offsets_[i];
+      for (size_t s = 0; s <= time_steps; s++) {
+        double t = t1 + s * time_step;
+        drvr_times->push_back(t - time_offset);
+        double v = output_waveforms_->timeVoltage(in_slew_, region_ceff_[i], t);
+        if (drvr_rf_ == RiseFall::fall())
+          v = vdd_ - v;
+        drvr_volts->push_back(v);
+      }
+    }
+    TableAxisPtr drvr_time_axis = make_shared<TableAxis>(TableAxisVariable::time,
+                                                         drvr_times);
+    Table1 drvr_table(drvr_volts, drvr_time_axis);
+    return drvr_table;
+  }
   else
     return Table1();
 }
 
-Table1
-CcsCeffDelayCalc::drvrWaveform(const Slew &in_slew,
-                               const RiseFall *drvr_rf)
+Waveform
+CcsCeffDelayCalc::loadWaveform(const Pin *load_pin)
 {
-  // Stitch together the ccs waveforms for each region.
-  FloatSeq *drvr_times = new FloatSeq;
-  FloatSeq *drvr_volts = new FloatSeq;
-  for (size_t i = 0; i < region_count_; i++) {
-    double t1 = region_begin_times_[i];
-    double t2 = region_end_times_[i];
-    size_t time_steps = 10;
-    double time_step = (t2 - t1) / time_steps;
-    double time_offset = region_time_offsets_[i];
-    for (size_t s = 0; s <= time_steps; s++) {
-      double t = t1 + s * time_step;
-      drvr_times->push_back(t - time_offset);
-      double v = output_waveforms_->timeVoltage(delayAsFloat(in_slew),
-                                               region_ceff_[i], t);
-      if (drvr_rf == RiseFall::fall())
-        v = vdd_ - v;
-      drvr_volts->push_back(v);
-    }
-  }
-  TableAxisPtr drvr_time_axis = make_shared<TableAxis>(TableAxisVariable::time,
-                                                       drvr_times);
-  Table1 drvr_table(drvr_volts, drvr_time_axis);
-  return drvr_table;
-}
-
-// For debugging
-Table1
-CcsCeffDelayCalc::loadWaveform(const Pin *in_pin,
-                               const RiseFall *in_rf,
-                               const Pin *drvr_pin,
-                               const RiseFall *drvr_rf,
-                               const Pin *load_pin,
-                               const Corner *corner,
-                               const MinMax *min_max)
-{
-  bool elmore_exists = false;
-  float elmore = 0.0;
-  if (parasitic_) {
+  if (output_waveforms_) {
+    bool elmore_exists = false;
+    float elmore = 0.0;
     parasitics_->findElmore(parasitic_, load_pin, elmore, elmore_exists);
-    bool dcalc_success = makeWaveformPreamble(in_pin, in_rf, drvr_pin,
-                                              drvr_rf, corner, min_max);
-    if (dcalc_success
-        && elmore_exists) {
+    if (elmore_exists) {
       FloatSeq *load_times = new FloatSeq;
       FloatSeq *load_volts = new FloatSeq;
       double t_vh = findVlTime(vh_, elmore);
@@ -540,7 +545,7 @@ CcsCeffDelayCalc::loadWaveform(const Pin *in_pin,
 
         double ignore;
         vl(t, elmore, v, ignore);
-        double v1 = (drvr_rf == RiseFall::rise()) ? v : vdd_ - v;
+        double v1 = (drvr_rf_ == RiseFall::rise()) ? v : vdd_ - v;
         load_volts->push_back(v1);
       }
       TableAxisPtr load_time_axis = make_shared<TableAxis>(TableAxisVariable::time,
@@ -552,7 +557,7 @@ CcsCeffDelayCalc::loadWaveform(const Pin *in_pin,
   return Table1();
 }
 
-Table1
+Waveform
 CcsCeffDelayCalc::drvrRampWaveform(const Pin *in_pin,
                                    const RiseFall *in_rf,
                                    const Pin *drvr_pin,

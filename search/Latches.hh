@@ -77,7 +77,7 @@ public:
 		       const Instance *inst,
 		       // Return values.
 		       Vertex *&enable_vertex,
-		       RiseFall *&enable_rf,
+		       const RiseFall *&enable_rf,
 		       LatchEnableState &state) const;
   LatchEnableState latchDtoQState(Edge *d_q_edge) const;
   void latchEnableOtherPath(Path *path,

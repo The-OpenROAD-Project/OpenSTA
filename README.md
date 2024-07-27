@@ -85,15 +85,15 @@ The build dependency versions are show below.  Other versions may
 work, but these are the versions used for development.
 
 ```
-         from   Ubuntu   Macos
-                22.04.2  14.4.1
-cmake    3.10.2 3.24.2   3.29.2
-clang    9.1.0           15.0.0
-gcc      3.3.2   11.4.0  
-tcl      8.4     8.6     8.6.6
-swig     1.3.28  4.1.0   4.2.1
-bison    1.35    3.8.2   3.8.2
-flex     2.5.4   2.6.4   2.6.4
+         Ubuntu   Macos
+        22.04.2   14.5
+cmake    3.24.2    3.29.2
+clang             15.0.0
+gcc      11.4.0
+tcl       8.6      8.6.6
+swig      4.1.0    4.1.1
+bison     3.8.2    3.8.2
+flex      2.6.4    2.6.4
 ```
 
 Note that flex versions before 2.6.4 contain 'register' declarations that
@@ -101,38 +101,47 @@ are illegal in c++17.
 
 External library dependencies:
 ```
-         from   Ubuntu   Macos
-eigen           3.4 .0   3.4.0 required
-tclreadline              2.3.8 optional
-libz     1.1.4   1.2.5   1.2.8 optional
-cudd             2.4.1   3.0.0 optional
+           Ubuntu   Macos license
+eigen       3.4.0   3.4.0   MPL2  required
+cudd        3.0.0   3.0.0   BSD   required
+tclreadline 2.3.8   2.3.8   BSD   optional
+zLib        1.2.5   1.2.8   zlib  optional
 ```
 
 The [TCL readline library](https://tclreadline.sourceforge.net/tclreadline.html)
 links the GNU readline library to the TCL interpreter for command line editing 
 On OSX, Homebrew does not support tclreadline, but the macports system does
 (see https://www.macports.org). To enable TCL readline support use the following
-Cmake option:
+Cmake option: See (https://tclreadline.sourceforge.net/) for TCL readline
+documentation. To change the overly verbose default prompt, add something this
+to your ~/.sta init file:
 
 ```
-cmake .. -DUSE_TCL_READLINE=ON
+if { ![catch {package require tclreadline}] } {
+  proc tclreadline::prompt1 {} {
+    return "> "
+  }
+}
 ```
 
 The Zlib library is an optional.  If CMake finds libz, OpenSTA can
-read Verilog, SDF, SPF, and SPEF files compressed with gzip.
+read Liberty, Verilog, SDF, SPF, and SPEF files compressed with gzip.
 
 CUDD is a binary decision diageram (BDD) package that is used to
 improve conditional timing arc handling. OpenSTA does not require it
-to be installed. It is available
+to be installed, but it improves constant propagation, power activity propagation
+and spice netlist generation if it is installed.
+
+CUDD is available
 [here](https://www.davidkebo.com/source/cudd_versions/cudd-3.0.0.tar.gz)
 or [here](https://sourceforge.net/projects/cudd-mirror/).
 
-Note that the file hierarchy of the CUDD installation changed with version 3.0.
-Some changes to CMakeLists.txt are required to support older versions.
+Use the CUDD_DIR option to set the install directory of the CUDD
+library if it is not in one of the normal system install directories.
 
-Use the USE_CUDD option to look for the cudd library.
-Use the CUDD_DIR option to set the install directory if it is not in
-one of the normal install directories.
+```
+cmake -DCUDD_DIR=$HOME/stax/cudd-3.0.0 .."
+```
 
 When building CUDD you may use the `--prefix ` option to `configure` to
 install in a location other than the default (`/usr/local/lib`).

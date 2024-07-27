@@ -281,8 +281,7 @@ ClkSkews::findWorstClkSkew(const Corner *corner,
     clks.push_back(clk);
   ClkSkewMap skews = findClkSkew(clks, corner, setup_hold, include_internal_latency);
   float worst_skew = 0.0;
-  for (auto clk_skew_itr : skews) {
-    ClkSkew &clk_skew = clk_skew_itr.second;
+  for (const auto& [clk, clk_skew] : skews) {
     float skew = clk_skew.skew();
     if (abs(skew) > abs(worst_skew))
       worst_skew = skew;
@@ -318,9 +317,7 @@ ClkSkews::findClkSkew(ConstClockSeq &clks,
 
     // Reduce skews from each register source.
     for (size_t i = 0; i < partial_skews.size(); i++) {
-      for (auto clk_skew_itr : partial_skews[i]) {
-        const Clock *clk = clk_skew_itr.first;
-        auto partial_skew = clk_skew_itr.second;
+      for (auto& [clk, partial_skew] : partial_skews[i]) {
         auto ins = skews.insert(std::make_pair(clk, partial_skew));
         if (!ins.second) {
           ClkSkew &final_skew = ins.first->second;

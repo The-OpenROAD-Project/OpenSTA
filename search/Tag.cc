@@ -97,11 +97,12 @@ Tag::asString(bool report_index,
   string result;
 
   if (report_index)
-    result += std::to_string(index_) + " ";
+    result += std::to_string(index_);
 
   if (report_rf_min_max) {
     const RiseFall *rf = transition();
     PathAnalysisPt *path_ap = corners->findPathAnalysisPt(path_ap_index_);
+    result += " ";
     result += rf->asString();
     result += " ";
     result += path_ap->pathMinMax()->asString();
@@ -109,6 +110,7 @@ Tag::asString(bool report_index,
     result += std::to_string(path_ap_index_);
   }
 
+  result += " ";
   const ClockEdge *clk_edge = clkEdge();
   if (clk_edge)
     result += clk_edge->name();

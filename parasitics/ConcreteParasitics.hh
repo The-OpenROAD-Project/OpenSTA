@@ -133,6 +133,7 @@ public:
   const Pin *pin(const ParasiticNode *node) const override;
   const Net *net(const ParasiticNode *node,
                  const Network *network) const override;
+  unsigned netId(const ParasiticNode *node) const override;
   bool isExternal(const ParasiticNode *node) const override;
   float nodeGndCap(const ParasiticNode *node) const override;
 

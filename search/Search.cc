@@ -905,8 +905,7 @@ Search::visitStartpoints(VertexVisitor *visitor)
   }
   delete pin_iter;
 
-  for (auto iter : sdc_->inputDelayPinMap()) {
-    const Pin *pin = iter.first;
+  for (const auto [pin, input_delays] : sdc_->inputDelayPinMap()) {
     // Already hit these.
     if (!network_->isTopLevelPort(pin)) {
       Vertex *vertex = graph_->pinDrvrVertex(pin);
@@ -1674,8 +1673,7 @@ Search::seedInputArrivals(ClockSet *clks)
 {
   // Input arrivals can be on internal pins, so iterate over the pins
   // that have input arrivals rather than the top level input pins.
-  for (auto iter : sdc_->inputDelayPinMap()) {
-    const Pin *pin = iter.first;
+  for (const auto [pin, input_delays] : sdc_->inputDelayPinMap()) {
     if (!sdc_->isLeafPinClock(pin)) {
       Vertex *vertex = graph_->pinDrvrVertex(pin);
       seedInputArrival(pin, vertex, clks);
@@ -2565,7 +2563,7 @@ Search::mutateTag(Tag *from_tag,
       // Second pass to apply state changes and add updated existing
       // states to new states.
       if (new_states == nullptr)
-	new_states = new ExceptionStateSet(network_);
+	new_states = new ExceptionStateSet();
       for (auto state : *from_states) {
 	ExceptionPath *exception = state->exception();
 	// One edge may traverse multiple hierarchical thru pins.
@@ -2928,7 +2926,7 @@ Search::reportClkInfos() const
   sort(clk_infos, ClkInfoLess(this));
   for (ClkInfo *clk_info : clk_infos)
     report_->reportLine("ClkInfo %s", clk_info->asString(this));
-  report_->reportLine("%lu clk infos", clk_info_set_->size());
+  report_->reportLine("%zu clk infos", clk_info_set_->size());
 }
 
 ClkInfo *

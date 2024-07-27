@@ -18,11 +18,13 @@
 
 namespace eval sta {
 
-define_cmd_args "link_design" {[top_cell_name]}
+define_cmd_args "link_design" {[-no_black_boxes]\
+                                 [top_cell_name]}
 
 proc_redirect link_design {
   variable current_design_name
 
+  parse_key_args "link_design" args keys {} flags {-no_black_boxes}
   check_argc_eq0or1 "link_design" $args
   if { $args == "" } {
     set top_cell_name ""
@@ -37,7 +39,11 @@ proc_redirect link_design {
       set top_cell_name $current_design_name
     }
   }
-  link_design_cmd $top_cell_name
+  set make_black_boxes 1
+  if { [info exists flags(-no_black_boxes)] } {
+    set make_black_boxes 0
+  }
+  link_design_cmd $top_cell_name $make_black_boxes
 }
 
 # sta namespace end

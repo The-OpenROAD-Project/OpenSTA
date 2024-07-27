@@ -115,6 +115,7 @@ public:
   ArnoldiDelayCalc(StaState *sta);
   virtual ~ArnoldiDelayCalc();
   ArcDelayCalc *copy() override;
+  const char *name() const override { return "arnoldi"; }
   Parasitic *findParasitic(const Pin *drvr_pin,
                            const RiseFall *rf,
                            const DcalcAnalysisPt *dcalc_ap) override;
@@ -382,7 +383,7 @@ ArnoldiDelayCalc::gateDelay(const Pin *drvr_pin,
   ConcreteParasitic *cparasitic =
     reinterpret_cast<ConcreteParasitic*>(const_cast<Parasitic*>(parasitic));
   rcmodel_ = dynamic_cast<rcmodel*>(cparasitic);
-  GateTableModel *table_model = gateTableModel(arc, dcalc_ap);
+  GateTableModel *table_model = arc->gateTableModel(dcalc_ap);
   if (table_model && rcmodel_) {
     const Pvt *pvt = pinPvt(drvr_pin, dcalc_ap);
     return gateDelaySlew(drvr_cell, arc, table_model, in_slew, load_pin_index_map, pvt);

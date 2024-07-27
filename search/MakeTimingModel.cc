@@ -395,9 +395,7 @@ void
 MakeTimingModel::makeSetupHoldTimingArcs(const Pin *input_pin,
                                          const ClockEdgeDelays &clk_margins)
 {
-  for (auto clk_edge_margins : clk_margins) {
-    const ClockEdge *clk_edge = clk_edge_margins.first;
-    RiseFallMinMax &margins = clk_edge_margins.second;
+  for (const auto& [clk_edge, margins] : clk_margins) {
     for (MinMax *min_max : MinMax::range()) {
       bool setup = (min_max == MinMax::max());
       TimingArcAttrsPtr attrs = nullptr;
@@ -442,9 +440,7 @@ void
 MakeTimingModel::makeInputOutputTimingArcs(const Pin *input_pin,
                                            OutputPinDelays &output_pin_delays)
 {
-  for (auto out_pin_delay : output_pin_delays) {
-    const Pin *output_pin = out_pin_delay.first;
-    OutputDelays &output_delays = out_pin_delay.second;
+  for (const auto& [output_pin, output_delays] : output_pin_delays) {
     TimingArcAttrsPtr attrs = nullptr;
     for (RiseFall *output_rf : RiseFall::range()) {
       MinMax *min_max = MinMax::max();
@@ -499,9 +495,7 @@ MakeTimingModel::findClkedOutputPaths()
                             delayAsFloat(delay, min_max, sta_));
         }
       }
-      for (auto clk_edge_delay : clk_delays) {
-        const ClockEdge *clk_edge = clk_edge_delay.first;
-        RiseFallMinMax &delays = clk_edge_delay.second;
+      for (const auto& [clk_edge, delays] : clk_delays) {
         for (const Pin *clk_pin : clk_edge->clock()->pins()) {
           LibertyPort *clk_port = modelPort(clk_pin);
           if (clk_port) {
@@ -659,9 +653,6 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
 {
   const DcalcAnalysisPt *dcalc_ap = corner_->findDcalcAnalysisPt(min_max_);
   const Pvt *pvt = dcalc_ap->operatingConditions();
-  const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
-  int lib_index = dcalc_ap->libertyIndex();
-
   PinSet *drvrs = network_->drivers(network_->net(network_->term(output_pin)));
   const Pin *drvr_pin = *drvrs->begin();
   const LibertyPort *drvr_port = network_->libertyPort(drvr_pin);
@@ -680,8 +671,7 @@ MakeTimingModel::makeGateModelTable(const Pin *output_pin,
                                         drvr_arc->fromEdge()->asRiseFall(),
                                         dcalc_ap->index());
             float in_slew1 = delayAsFloat(in_slew);
-            TimingModel *drvr_model = drvr_arc->cornerArc(lib_index)->model(op_cond);
-            GateTableModel *drvr_gate_model = dynamic_cast<GateTableModel*>(drvr_model);
+            GateTableModel *drvr_gate_model = drvr_arc->gateTableModel(dcalc_ap);
             if (drvr_gate_model) {
               float output_load_cap = graph_delay_calc_->loadCap(output_pin, dcalc_ap);
               ArcDelay drvr_self_delay;

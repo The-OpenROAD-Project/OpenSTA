@@ -21,12 +21,8 @@
 #include "StaState.hh"
 #include "LibertyClass.hh"
 
-#if CUDD
-#include "cudd.h"
-#else
 struct DdNode;
 struct DdManager;
-#endif
 
 namespace sta {
 

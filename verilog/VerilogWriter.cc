@@ -258,9 +258,8 @@ VerilogWriter::writeWireDcls(Instance *inst)
   }
   delete net_iter;
 
-  for (auto name_range : bus_ranges) {
-    const char *bus_name = name_range.first.c_str();
-    const BusIndexRange &range = name_range.second;
+  for (const auto& [bus_name1, range] : bus_ranges) {
+    const char *bus_name = bus_name1.c_str();
     string net_vname = netVerilogName(bus_name, network_->pathEscape());
     fprintf(stream_, " wire [%d:%d] %s;\n",
             range.first,

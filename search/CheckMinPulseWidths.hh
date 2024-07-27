@@ -80,7 +80,7 @@ public:
   float closeOffset(const StaState *sta) const;
   const ClockEdge *openClkEdge(const StaState *sta) const;
   const ClockEdge *closeClkEdge(const StaState *sta) const;
-  Crpr commonClkPessimism(const StaState *sta) const;
+  Crpr checkCrpr(const StaState *sta) const;
 
 protected:
   // Open path of the pulse.

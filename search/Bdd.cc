@@ -16,29 +16,10 @@
 
 #include "Bdd.hh"
 
+#include "cudd.h"
 #include "StaConfig.hh"
 #include "Report.hh"
 #include "FuncExpr.hh"
-
-#if CUDD
-#include "cudd.h"
-#else
-#include <cstdint>
-#define CUDD_UNIQUE_SLOTS 0
-#define CUDD_CACHE_SLOTS 0
-DdManager *Cudd_Init(int, int, int, int, int) { return nullptr; }
-void Cudd_Quit(void *) {}
-DdNode *Cudd_Not(void *) { return nullptr; }
-DdNode *Cudd_bddOr(void *, void *, void *) { return nullptr; }
-DdNode *Cudd_bddAnd(void *, void *, void *) { return nullptr; }
-DdNode *Cudd_bddXor(void *, void *, void *) { return nullptr; }
-DdNode *Cudd_ReadOne(void *) { return nullptr; }
-DdNode *Cudd_ReadLogicZero(void *) { return nullptr; }
-DdNode *Cudd_bddNewVar(void *) { return nullptr; }
-int Cudd_NodeReadIndex(void *) { return 0;}
-void Cudd_Ref(void *) {}   
-void Cudd_RecursiveDeref(void *, void *) {}
-#endif
 
 namespace sta {
 
@@ -168,10 +149,8 @@ Bdd::varIndexPort(int var_index)
 void
 Bdd::clearVarMap()
 {
-  for (auto port_node : bdd_port_var_map_) {
-    DdNode *var_node = port_node.second;
+  for (const auto [port, var_node] : bdd_port_var_map_)
     Cudd_RecursiveDeref(cudd_mgr_, var_node);
-  }
   bdd_port_var_map_.clear();
   bdd_var_idx_port_map_.clear();
 }

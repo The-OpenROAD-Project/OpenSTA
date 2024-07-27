@@ -101,9 +101,7 @@ public:
   void
   deleteKeysContents()
   {
-    for (auto key_value : this) {
-      KEY key = key_value.first;
-      VALUE value = key_value.second;
+    for (const auto [key, value] : this) {
       delete key;
       delete value;
     }

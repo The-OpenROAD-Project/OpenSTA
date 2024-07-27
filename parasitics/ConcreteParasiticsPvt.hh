@@ -43,7 +43,7 @@ typedef std::map<const Pin*, float> ConcreteElmoreLoadMap;
 typedef std::map<const Pin*, ConcretePoleResidue> ConcretePoleResidueMap;
 typedef std::map<NetIdPair,ConcreteParasiticNode*,
                  NetIdPairLess> ConcreteParasiticSubNodeMap;
-typedef std::map<const Pin*, ConcreteParasiticNode*, PinIdLess> ConcreteParasiticPinNodeMap;
+typedef std::map<const Pin*,ConcreteParasiticNode*,PinIdLess> ConcreteParasiticPinNodeMap;
 typedef std::set<ParasiticNode*> ParasiticNodeSet;
 typedef std::set<ParasiticResistor*> ParasiticResistorSet;
 typedef std::vector<ParasiticResistor*> ParasiticResistorSeq;
@@ -262,6 +262,7 @@ public:
   float capacitance() const { return cap_; }
   const char *name(const Network *network) const;
   const Net *net(const Network *network) const;
+  unsigned id() const { return id_; }
   bool isExternal() const { return is_external_; }
   const Pin *pin() const;
   void incrCapacitance(float cap);

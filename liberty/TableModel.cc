@@ -31,6 +31,9 @@ using std::max;
 using std::abs;
 using std::make_shared;
 
+size_t
+findValueIndex(float value,
+               const FloatSeq *values);
 static void
 deleteSigmaModels(TableModel *models[EarlyLate::index_count]);
 static string
@@ -1425,6 +1428,25 @@ TableAxis::~TableAxis()
   delete values_;
 }
 
+float
+TableAxis::min() const
+{
+  if (!values_->empty())
+    return (*values_)[0];
+  else
+    return 0.0;
+}
+
+float
+TableAxis::max() const
+{
+  size_t size = values_->size();
+  if (size > 0)
+    return (*values_)[values_->size() - 1];
+  else
+    return 0.0;
+}
+
 bool
 TableAxis::inBounds(float value) const
 {
@@ -1434,14 +1456,22 @@ TableAxis::inBounds(float value) const
     && value <= (*values_)[size - 1];
 }
 
-// Bisection search.
 size_t
 TableAxis::findAxisIndex(float value) const
 {
-  size_t size = values_->size();
-  if (size <= 1 || value <= (*values_)[0])
+  return findValueIndex(value, values_);
+}
+
+// Bisection search.
+// Assumes values are monotonically increasing.
+size_t
+findValueIndex(float value,
+               const FloatSeq *values)
+{
+  size_t size = values->size();
+  if (size <= 1 || value <= (*values)[0])
     return 0;
-  else if (value >= (*values_)[size - 1])
+  else if (value >= (*values)[size - 1])
     // Return max_index-1 for value too large so interpolation pts are index,index+1.
     return size - 2;
   else {
@@ -1449,7 +1479,7 @@ TableAxis::findAxisIndex(float value) const
     int upper = size;
     while (upper - lower > 1) {
       int mid = (upper + lower) >> 1;
-      if (value >= (*values_)[mid])
+      if (value >= (*values)[mid])
 	lower = mid;
       else
 	upper = mid;
@@ -1484,6 +1514,31 @@ TableAxis::findAxisIndex(float value,
     }
   }
   exists = false;
+}
+
+size_t
+TableAxis::findAxisClosestIndex(float value) const
+{
+  size_t size = values_->size();
+  if (size <= 1 || value <= (*values_)[0])
+    return 0;
+  else if (value >= (*values_)[size - 1])
+    return size - 1;
+  else {
+    int lower = -1;
+    int upper = size;
+    while (upper - lower > 1) {
+      int mid = (upper + lower) >> 1;
+      if (value >= (*values_)[mid])
+	lower = mid;
+      else
+	upper = mid;
+    }
+    if ((value - (*values_)[lower]) < ((*values_)[upper] - value))
+      return lower;
+    else
+      return upper;
+  }
 }
 
 const char *
@@ -1588,7 +1643,6 @@ OutputWaveforms::~OutputWaveforms()
   current_waveforms_.deleteContents();
   voltage_waveforms_.deleteContents();
   voltage_currents_.deleteContents();
-  voltage_times_.deleteContents();
   delete ref_times_;
 }
 
@@ -1616,10 +1670,9 @@ OutputWaveforms::makeVoltageWaveforms(float vdd)
   size_t size = current_waveforms_.size();
   voltage_waveforms_.resize(size);
   voltage_currents_.resize(size);
-  voltage_times_.resize(size);
   size_t cap_count = cap_axis_->size();
   for (size_t slew_index = 0; slew_index < slew_axis_->size(); slew_index++) {
-    for (size_t cap_index = 0; cap_index < cap_axis_->size(); cap_index++) {
+    for (size_t cap_index = 0; cap_index < cap_count; cap_index++) {
       size_t wave_index = slew_index * cap_count + cap_index;
       findVoltages(wave_index, cap_axis_->axisValue(cap_index));
     }
@@ -1650,6 +1703,7 @@ OutputWaveforms::findVoltages(size_t wave_index,
     prev_time = time;
     prev_current = current;
   }
+  (*volts)[volts->size() - 1] = vdd_;
   Table1 *volt_table = new Table1(volts, currents->axis1ptr());
   voltage_waveforms_[wave_index] = volt_table;
 
@@ -1660,39 +1714,33 @@ OutputWaveforms::findVoltages(size_t wave_index,
   FloatSeq *currents1 = new FloatSeq(*currents->values());
   Table1 *volt_currents = new Table1(currents1, volt_axis);
   voltage_currents_[wave_index] = volt_currents;
-
-  // Sample the voltage waveform at uniform intervals to speed up
-  // voltage time lookup.
-  FloatSeq *voltage_times = new FloatSeq;
-  float volt_step = vdd_ / voltage_waveform_step_count_;
-  size_t i = 0;
-  float time0 = time_axis->axisValue(i);
-  float volt0 = (*volts)[i];
-  i = 1;
-  float time1 = time_axis->axisValue(i);
-  float volt1 = (*volts)[i];
-  for (size_t v = 0; v <= voltage_waveform_step_count_; v++) {
-    float volt3 = v * volt_step;
-    while (volt3 > volt1 && i < volts->size() - 1) {
-      time0 = time1;
-      volt0 = volt1;
-      i++;
-      time1 = time_axis->axisValue(i);
-      volt1 = (*volts)[i];
-    }
-    float time3 = time0 + (time1 - time0) * (volt3 - volt0) / (volt1 - volt0);
-    voltage_times->push_back(time3);
-  }
-  voltage_times_[wave_index] = voltage_times;
 }
 
-const Table1 *
+Table1
 OutputWaveforms::currentWaveform(float slew,
                                  float cap)
 {
-  size_t slew_index = slew_axis_->findAxisIndex(slew);
-  size_t cap_index = cap_axis_->findAxisIndex(cap);
-  size_t wave_index = slew_index * cap_axis_->size() + cap_index;
+  FloatSeq *times = new FloatSeq;
+  FloatSeq *currents = new FloatSeq;
+  for (size_t i = 0; i <= voltage_waveform_step_count_; i++) {
+    float volt = i * vdd_ / voltage_waveform_step_count_;
+    float time = voltageTime(slew, cap, volt);
+    float current = voltageCurrent(slew, cap, volt);
+    times->push_back(time);
+    currents->push_back(current);
+  }
+  TableAxisPtr time_axis = make_shared<TableAxis>(TableAxisVariable::time, times);
+  return Table1(currents, time_axis);
+}
+
+const Table1 *
+OutputWaveforms::currentWaveformRaw(float slew,
+                                    float cap)
+{
+  size_t slew_index = slew_axis_->findAxisClosestIndex(slew);
+  size_t cap_index = cap_axis_->findAxisClosestIndex(cap);
+  size_t cap_count = cap_axis_->size();
+  size_t wave_index = slew_index * cap_count + cap_index;
   return current_waveforms_[wave_index];
 }
 
@@ -1701,7 +1749,9 @@ OutputWaveforms::timeCurrent(float slew,
                              float cap,
                              float time)
 {
-  return waveformValue(slew, cap, time, current_waveforms_);
+  // Current waveform is not monotonic, so use volt/current correspondence.
+  float volt = timeVoltage(slew, cap, time);
+  return voltageCurrent(slew, cap, volt);
 }
 
 float
@@ -1709,7 +1759,81 @@ OutputWaveforms::timeVoltage(float slew,
                              float cap,
                              float time)
 {
-  return waveformValue(slew, cap, time, voltage_waveforms_);
+  size_t slew_index = slew_axis_->findAxisIndex(slew);
+  size_t cap_index = cap_axis_->findAxisIndex(cap);
+  size_t cap_count = cap_axis_->size();
+  size_t wave_index00 = slew_index * cap_count + cap_index;
+  size_t wave_index01 = slew_index * cap_count + (cap_index + 1);
+  size_t wave_index10 = (slew_index + 1) * cap_count + cap_index;
+  size_t wave_index11 = (slew_index + 1) * cap_count + (cap_index + 1);
+
+  size_t index1 = slew_index;
+  size_t index2 = cap_index;
+  double x1 = slew;
+  double x2 = cap;
+  double x1l = slew_axis_->axisValue(index1);
+  double x1u = slew_axis_->axisValue(index1 + 1);
+  double dx1 = (x1 - x1l) / (x1u - x1l);
+  double x2l = cap_axis_->axisValue(index2);
+  double x2u = cap_axis_->axisValue(index2 + 1);
+  double dx2 = (x2 - x2l) / (x2u - x2l);
+
+  double v_lo = 0.0;
+  double v_hi = vdd_;
+  double v_mid = (v_hi + v_lo) * 0.5;
+  double time_mid;
+  while (v_hi - v_lo > .001) {
+    time_mid = voltageTime1(v_mid, dx1, dx2, wave_index00, wave_index01,
+                            wave_index10, wave_index11);
+    if (time > time_mid) {
+      v_lo = v_mid;
+      v_mid = (v_hi + v_lo) * 0.5;
+    }
+    else {
+      v_hi = v_mid;
+      v_mid = (v_hi + v_lo) * 0.5;
+    }
+  }
+  return v_mid;
+}
+
+double
+OutputWaveforms::voltageTime1(double volt,
+                              double dx1,
+                              double dx2,
+                              size_t wave_index00,
+                              size_t wave_index01,
+                              size_t wave_index10,
+                              size_t wave_index11)
+{
+  double y00 = voltageTime2(volt, wave_index00);
+  double y01 = voltageTime2(volt, wave_index01);
+  double y10 = voltageTime2(volt, wave_index10);
+  double y11 = voltageTime2(volt, wave_index11);
+  double time
+    =   (1 - dx1) * (1 - dx2) * y00
+      +      dx1  * (1 - dx2) * y10
+      +      dx1  *      dx2  * y11
+      + (1 - dx1) *      dx2  * y01;
+  return time;
+}
+
+float
+OutputWaveforms::voltageTime2(float volt,
+                              size_t wave_index)
+{
+  const Table1 *voltage_waveform = voltage_waveforms_[wave_index];
+  const FloatSeq *voltages = voltage_waveform->values();
+  size_t index1 = findValueIndex(volt, voltages);
+  float volt_lo = (*voltages)[index1];
+  float volt_hi = (*voltages)[index1 + 1];
+  float dv = volt_hi - volt_lo;
+
+  const TableAxis *time_axis = voltage_waveform->axis1();
+  float time_lo = time_axis->axisValue(index1);
+  float time_hi = time_axis->axisValue(index1 + 1);
+  float dt = time_hi - time_lo;
+  return time_lo + dt * (volt - volt_lo) / dv;
 }
 
 float
@@ -1773,14 +1897,11 @@ Table1
 OutputWaveforms::voltageWaveform(float slew,
                                  float cap)
 {
-  float min_time, max_time;
-  waveformMinMaxTime(slew, cap, voltage_waveforms_, min_time, max_time);
-  float time_step = (max_time - min_time) / voltage_waveform_step_count_;
   FloatSeq *times = new FloatSeq;
   FloatSeq *volts = new FloatSeq;
-  for (size_t i = 0; i < voltage_waveform_step_count_; i++) {
-    float time = min_time + i * time_step;
-    float volt = timeVoltage(slew, cap, time);
+  for (size_t i = 0; i <= voltage_waveform_step_count_; i++) {
+    float volt = i * vdd_ / voltage_waveform_step_count_;
+    float time = voltageTime(slew, cap, volt);
     times->push_back(time);
     volts->push_back(volt);
   }
@@ -1788,42 +1909,21 @@ OutputWaveforms::voltageWaveform(float slew,
   return Table1(volts, time_axis);
 }
 
-void
-OutputWaveforms::waveformMinMaxTime(float slew,
-                                    float cap,
-                                    Table1Seq &waveforms,
-                                    // Return values.
-                                    float &min_time,
-                                    float &max_time)
+const Table1 *
+OutputWaveforms::voltageWaveformRaw(float slew,
+                                    float cap)
 {
-  size_t slew_index = slew_axis_->findAxisIndex(slew);
-  size_t cap_index = cap_axis_->findAxisIndex(cap);
+  size_t slew_index = slew_axis_->findAxisClosestIndex(slew);
+  size_t cap_index = cap_axis_->findAxisClosestIndex(cap);
   size_t cap_count = cap_axis_->size();
-  size_t wave_index00 = slew_index * cap_count + cap_index;
-  size_t wave_index01 = slew_index * cap_count + (cap_index + 1);
-  size_t wave_index10 = (slew_index + 1) * cap_count + cap_index;
-  size_t wave_index11 = (slew_index + 1) * cap_count + (cap_index + 1);
-
-  const Table1 *waveform00 = waveforms[wave_index00];
-  const Table1 *waveform01 = waveforms[wave_index01];
-  const Table1 *waveform10 = waveforms[wave_index10];
-  const Table1 *waveform11 = waveforms[wave_index11];
-
-  min_time = waveform00->axis1()->min();
-  min_time = min(min_time, waveform01->axis1()->min());
-  min_time = min(min_time, waveform10->axis1()->min());
-  min_time = min(min_time, waveform11->axis1()->min());
-
-  max_time = waveform00->axis1()->max();
-  max_time = max(max_time, waveform01->axis1()->max());
-  max_time = max(max_time, waveform10->axis1()->max());
-  max_time = max(max_time, waveform11->axis1()->max());
+  size_t wave_index = slew_index * cap_count + cap_index;
+  return voltage_waveforms_[wave_index];
 }
 
 float
 OutputWaveforms::voltageTime(float slew,
-                             float cap,
-                             float volt)
+                              float cap,
+                              float volt)
 {
   size_t slew_index = slew_axis_->findAxisIndex(slew);
   size_t cap_index = cap_axis_->findAxisIndex(cap);
@@ -1845,33 +1945,109 @@ OutputWaveforms::voltageTime(float slew,
   double x2u = cap_axis_->axisValue(index2 + 1);
   double dx2 = (x2 - x2l) / (x2u - x2l);
 
-  double y00 = voltageTime1(volt, wave_index00);
-  double y01 = voltageTime1(volt, wave_index01);
-  double y10 = voltageTime1(volt, wave_index10);
-  double y11 = voltageTime1(volt, wave_index11);
-  double time
-    =   (1 - dx1) * (1 - dx2) * y00
-      +      dx1  * (1 - dx2) * y10
-      +      dx1  *      dx2  * y11
-      + (1 - dx1) *      dx2  * y01;
+  double time = voltageTime1(volt, dx1, dx2, wave_index00, wave_index01,
+                             wave_index10, wave_index11);
   return time;
 }
 
 float
-OutputWaveforms::voltageTime1(float voltage,
-                              size_t wave_index)
+OutputWaveforms::beginTime(float slew,
+                           float cap)
 {
-  FloatSeq *voltage_times = voltage_times_[wave_index];
-  float volt_step = vdd_ / voltage_waveform_step_count_;
-  size_t volt_idx = voltage / volt_step;
-  if (volt_idx >= voltage_times->size() - 1)
-    return (*voltage_times)[voltage_times->size() - 1];
-  else {
-    double time0 = (*voltage_times)[volt_idx];
-    double time1 = (*voltage_times)[volt_idx + 1];
-    double time = time0 + (time1 - time0) * (voltage - volt_step * volt_idx);
-    return time;
+  return beginEndTime(slew, cap, true);
+}
+
+float
+OutputWaveforms::endTime(float slew,
+                         float cap)
+{
+  return beginEndTime(slew, cap, false);
+}
+
+float
+OutputWaveforms::beginEndTime(float slew,
+                              float cap,
+                              bool begin)
+{
+  size_t slew_index = slew_axis_->findAxisIndex(slew);
+  size_t cap_index = cap_axis_->findAxisIndex(cap);
+  size_t cap_count = cap_axis_->size();
+  size_t wave_index00 = slew_index * cap_count + cap_index;
+  size_t wave_index01 = slew_index * cap_count + (cap_index + 1);
+  size_t wave_index10 = (slew_index + 1) * cap_count + cap_index;
+  size_t wave_index11 = (slew_index + 1) * cap_count + (cap_index + 1);
+
+  const Table1 *waveform00 = current_waveforms_[wave_index00];
+  const Table1 *waveform01 = current_waveforms_[wave_index01];
+  const Table1 *waveform10 = current_waveforms_[wave_index10];
+  const Table1 *waveform11 = current_waveforms_[wave_index11];
+
+  // Interpolate waveform samples at voltage steps.
+  size_t index1 = slew_index;
+  size_t index2 = cap_index;
+  float x1 = slew;
+  float x2 = cap;
+  float x1l = slew_axis_->axisValue(index1);
+  float x1u = slew_axis_->axisValue(index1 + 1);
+  float dx1 = (x1 - x1l) / (x1u - x1l);
+  float x2l = cap_axis_->axisValue(index2);
+  float x2u = cap_axis_->axisValue(index2 + 1);
+  float dx2 = (x2 - x2l) / (x2u - x2l);
+
+  float y00, y01, y10, y11;
+  if (begin) {
+    y00 = waveform00->axis1()->min();
+    y01 = waveform01->axis1()->min();
+    y10 = waveform10->axis1()->min();
+    y11 = waveform11->axis1()->min();
   }
+  else {
+    y00 = waveform00->axis1()->max();
+    y01 = waveform01->axis1()->max();
+    y10 = waveform10->axis1()->max();
+    y11 = waveform11->axis1()->max();
+  }
+
+  float wave_value
+    =   (1 - dx1) * (1 - dx2) * y00
+      +      dx1  * (1 - dx2) * y10
+      +      dx1  *      dx2  * y11
+      + (1 - dx1) *      dx2  * y01;
+  return wave_value;
+}
+
+Table1
+OutputWaveforms::voltageCurrentWaveform(float slew,
+                                        float cap)
+{
+  FloatSeq *volts = new FloatSeq;
+  FloatSeq *currents = new FloatSeq;
+  for (size_t i = 0; i < voltage_waveform_step_count_; i++) {
+    float volt = i * vdd_ / voltage_waveform_step_count_;
+    float current = voltageCurrent(slew, cap, volt);
+    volts->push_back(volt);
+    currents->push_back(current);
+  }
+  TableAxisPtr volt_axis =
+    make_shared<TableAxis>(TableAxisVariable::input_voltage, volts);
+  return Table1(currents, volt_axis);
+}
+
+// Incremental resistance at final value of waveform.
+// This corresponds to the pulldown/pullup that holds the output to the rail
+// after the waveform has transitioned to the final value.
+float
+OutputWaveforms::finalResistance()
+{
+  size_t slew_index = 0;
+  size_t cap_count = cap_axis_->size();
+  size_t cap_index = cap_count - 1;
+  size_t wave_index = slew_index * cap_count + cap_index;
+  const Table1 *voltage_currents = voltage_currents_[wave_index];
+  FloatSeq *voltages = voltage_currents->axis1()->values();
+  FloatSeq *currents = voltage_currents->values();
+  size_t idx_last1 = voltages->size() - 2;
+  return (vdd_ - (*voltages)[idx_last1]) / abs((*currents)[idx_last1]);
 }
 
 ////////////////////////////////////////////////////////////////

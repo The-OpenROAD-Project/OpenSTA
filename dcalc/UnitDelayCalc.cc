@@ -62,6 +62,18 @@ UnitDelayCalc::reduceParasitic(const Parasitic *,
 {
 }
 
+void
+UnitDelayCalc::setDcalcArgParasiticSlew(ArcDcalcArg &,
+                                        const DcalcAnalysisPt *)
+{
+}
+
+void
+UnitDelayCalc::setDcalcArgParasiticSlew(ArcDcalcArgSeq &,
+                                        const DcalcAnalysisPt *)
+{
+}
+
 ArcDcalcResult
 UnitDelayCalc::inputPortDelay(const Pin *,
 			      float,
@@ -87,7 +99,6 @@ UnitDelayCalc::gateDelay(const Pin *,
 
 ArcDcalcResultSeq
 UnitDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
-                          float,
                           const LoadPinIndexMap &load_pin_index_map,
                           const DcalcAnalysisPt *)
 {

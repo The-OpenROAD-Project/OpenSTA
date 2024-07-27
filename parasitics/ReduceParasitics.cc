@@ -183,7 +183,7 @@ ReduceToPi::reducePiDfs(const Pin *drvr_pin,
             && resistor != from_res) {
           if (isVisited(onode)) {
             // Resistor loop.
-            debugPrint(debug_, "parasitic_reduce", 2, " loop detected thru resistor %lu",
+            debugPrint(debug_, "parasitic_reduce", 2, " loop detected thru resistor %zu",
                        parasitics_->id(resistor));
             markLoopResistor(resistor);
           }

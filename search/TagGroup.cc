@@ -90,7 +90,7 @@ void
 TagGroup::report(const StaState *sta) const
 {
   Report *report = sta->report();
-  report->reportLine("Group %u hash = %lu", index_, hash_);
+  report->reportLine("Group %u hash = %zu", index_, hash_);
   arrivalMapReport(arrival_map_, sta);
 }
 

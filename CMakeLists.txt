@@ -24,13 +24,12 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14)
 cmake_policy(SET CMP0086 NEW)
 endif()
 
-project(STA VERSION 2.5.0
+project(STA VERSION 2.6.0
   LANGUAGES CXX
 )
 
-option(USE_CUDD "Use CUDD BDD package")
 option(CUDD_DIR "CUDD BDD package directory")
-option(USE_TCL_READLINE "Use TCL readliine package")
+option(USE_TCL_READLINE "Use TCL readliine package" ON)
 option(USE_SANITIZE "Compile with santize address enabled")
 
 # Turn on to debug compiler args.
@@ -69,7 +68,6 @@ set(STA_SOURCE
   dcalc/ArnoldiDelayCalc.cc
   dcalc/ArnoldiReduce.cc
   dcalc/CcsCeffDelayCalc.cc
-  dcalc/CcsSimDelayCalc.cc
   dcalc/DcalcAnalysisPt.cc
   dcalc/DelayCalc.cc
   dcalc/DelayCalcBase.cc
@@ -195,8 +193,10 @@ set(STA_SOURCE
   search/VisitPathEnds.cc
   search/VisitPathGroupVertices.cc
   search/WorstSlack.cc
-  search/WritePathSpice.cc
-  search/WriteSpice.cc
+
+  spice/WritePathSpice.cc
+  spice/WriteSpice.cc
+  spice/Xyce.cc
 
   power/Power.cc
   power/ReadVcdActivities.cc
@@ -233,22 +233,22 @@ set(STA_TCL_FILES
   tcl/Util.tcl
   tcl/CmdArgs.tcl
   tcl/CmdUtil.tcl
-  tcl/Graph.tcl
-  tcl/Liberty.tcl
-  tcl/Link.tcl
-  tcl/Network.tcl
-  tcl/NetworkEdit.tcl
   tcl/Property.tcl
-  tcl/Sdc.tcl
-  tcl/Search.tcl
   tcl/Sta.tcl
   tcl/Splash.tcl
   tcl/Variables.tcl
-  tcl/WritePathSpice.tcl
   dcalc/DelayCalc.tcl
+  graph/Graph.tcl
+  liberty/Liberty.tcl
+  network/Link.tcl
+  network/Network.tcl
+  network/NetworkEdit.tcl
   parasitics/Parasitics.tcl
   power/Power.tcl
+  sdc/Sdc.tcl
   sdf/Sdf.tcl
+  search/Search.tcl
+  spice/WriteSpice.tcl
   verilog/Verilog.tcl
   )
 
@@ -258,8 +258,7 @@ set(STA_TCL_FILES
 #
 ################################################################
 
-# Earlier versions of flex use 'register' declarations that are deprecated
-# in c++11 and illegal in c++17.
+# Earlier versions of flex use 'register' declarations that are illegal in c++17.
 #find_package(FLEX 2.6.4)
 find_package(FLEX)
 find_package(BISON)
@@ -371,30 +370,25 @@ find_package(Eigen3 REQUIRED)
 #
 # Locate CUDD bdd package.
 #
-set(CUDD 0)
-if (USE_CUDD)
-  find_library(CUDD_LIB
-    NAME cudd
-    PATHS ${CUDD_DIR}
-    PATH_SUFFIXES lib lib/cudd cudd/.libs
-    )
-  if (CUDD_LIB)
-    message(STATUS "CUDD library: ${CUDD_LIB}")
-    get_filename_component(CUDD_LIB_DIR "${CUDD_LIB}" PATH)
-    get_filename_component(CUDD_LIB_PARENT1 "${CUDD_LIB_DIR}" PATH)
-    find_file(CUDD_HEADER cudd.h
-      PATHS ${CUDD_LIB_PARENT1} ${CUDD_LIB_PARENT1}/include ${CUDD_LIB_PARENT1}/include/cudd)
-    if (CUDD_HEADER)
-      get_filename_component(CUDD_INCLUDE "${CUDD_HEADER}" PATH)
-      message(STATUS "CUDD header: ${CUDD_HEADER}")
-      # Referenced by StaConfig.hh.cmake
-      set(CUDD 1)
-    else()
-      message(STATUS "CUDD header: not found")
-    endif()
+find_library(CUDD_LIB
+  NAME cudd
+  PATHS ${CUDD_DIR}
+  PATH_SUFFIXES lib lib/cudd cudd/.libs
+  )
+if (CUDD_LIB)
+  message(STATUS "CUDD library: ${CUDD_LIB}")
+  get_filename_component(CUDD_LIB_DIR "${CUDD_LIB}" PATH)
+  get_filename_component(CUDD_LIB_PARENT1 "${CUDD_LIB_DIR}" PATH)
+  find_file(CUDD_HEADER cudd.h
+    PATHS ${CUDD_LIB_PARENT1} ${CUDD_LIB_PARENT1}/include ${CUDD_LIB_PARENT1}/include/cudd)
+  if (CUDD_HEADER)
+    get_filename_component(CUDD_INCLUDE "${CUDD_HEADER}" PATH)
+    message(STATUS "CUDD header: ${CUDD_HEADER}")
   else()
-    message(STATUS "CUDD library: not found")
+    message(STATUS "CUDD header: not found")
   endif()
+else()
+  message(STATUS "CUDD library: not found")
 endif()
 
 if("${SSTA}" STREQUAL "")
@@ -426,23 +420,24 @@ set_property(SOURCE ${STA_SWIG_FILE}
   PROPERTY SWIG_FLAGS
   -module sta
   -namespace -prefix sta
-  -I${STA_HOME}/tcl
-  -I${STA_HOME}/sdf
-  -I${STA_HOME}/dcalc
-  -I${STA_HOME}/parasitics
-  -I${STA_HOME}/power
-  -I${STA_HOME}/verilog
+  -I${STA_HOME}
 )
 
 set(SWIG_FILES
   ${STA_HOME}/dcalc/DelayCalc.i
+  ${STA_HOME}/graph/Graph.i
+  ${STA_HOME}/liberty/Liberty.i
+  ${STA_HOME}/network/Network.i
+  ${STA_HOME}/network/NetworkEdit.i
   ${STA_HOME}/parasitics/Parasitics.i
   ${STA_HOME}/power/Power.i
+  ${STA_HOME}/sdc/Sdc.i
   ${STA_HOME}/sdf/Sdf.i
+  ${STA_HOME}/search/Search.i
+  ${STA_HOME}/spice/WriteSpice.i
   ${STA_HOME}/tcl/Exception.i
-  ${STA_HOME}/tcl/StaTcl.i
   ${STA_HOME}/tcl/StaTclTypes.i
-  ${STA_HOME}/tcl/NetworkEdit.i
+  ${STA_HOME}/util/Util.i
   ${STA_HOME}/verilog/Verilog.i
   )
 
@@ -463,7 +458,6 @@ set_source_files_properties(${STA_SWIG_CXX_FILE}
   # No simple way to modify the swig template that emits code full of warnings
   # so suppress them.
   COMPILE_OPTIONS "-Wno-cast-qual;-Wno-missing-braces;-Wno-deprecated-declarations"
-  INCLUDE_DIRECTORIES "${CUDD_INCLUDE}"
   )
 
 target_link_libraries(sta_swig
@@ -515,6 +509,7 @@ target_link_libraries(OpenSTA
   Eigen3::Eigen
   ${TCL_LIBRARY}
   ${CMAKE_THREAD_LIBS_INIT}
+  ${CUDD_LIB}
   )
 
 if (TCL_READLINE_LIBRARY)
@@ -525,9 +520,7 @@ if (ZLIB_LIBRARIES)
   target_link_libraries(OpenSTA ${ZLIB_LIBRARIES})
 endif()
 
-if (CUDD_LIB)
-  target_link_libraries(OpenSTA ${CUDD_LIB})
-endif()
+target_link_libraries(OpenSTA )
 
 target_include_directories(OpenSTA
   PUBLIC
@@ -559,7 +552,7 @@ target_compile_options(OpenSTA
 
 # Disable compiler specific extensions like gnu++11.
 set_target_properties(OpenSTA PROPERTIES CXX_EXTENSIONS OFF)
-target_compile_features(OpenSTA PUBLIC cxx_std_11)
+target_compile_features(OpenSTA PUBLIC cxx_std_17)
 
 ###########################################################
 # Executable

@@ -16,7 +16,9 @@
 
 #include "Sim.hh"
 
-#include "StaConfig.hh"  // CUDD
+// https://davidkebo.com/cudd
+#include "cudd.h"
+
 #include "Error.hh"
 #include "Mutex.hh"
 #include "Debug.hh"
@@ -31,14 +33,6 @@
 #include "Network.hh"
 #include "Sdc.hh"
 #include "Graph.hh"
-
-#if CUDD
-// https://davidkebo.com/cudd
-#include "cudd.h"
-#else
-#define Cudd_Init(ignore1, ignore2, ignore3, ignore4, ignore5) nullptr
-#define Cudd_Quit(ignore1)
-#endif
 
 namespace sta {
 
@@ -68,8 +62,6 @@ Sim::~Sim()
 {
   delete observer_;
 }
-
-#if CUDD
 
 TimingSense
 Sim::functionSense(const FuncExpr *expr,
@@ -158,279 +150,6 @@ Sim::funcBddSim(const FuncExpr *expr,
   }
   return bdd;
 }
-
-#else 
-// No CUDD.
-
-static LogicValue
-logicOr(LogicValue value1,
-	LogicValue value2)
-{
-  static LogicValue logic_or[5][5] =
-    {{LogicValue::zero,   LogicValue::one, LogicValue::unknown, LogicValue::unknown, LogicValue::unknown},
-     {LogicValue::one,    LogicValue::one, LogicValue::one,     LogicValue::one,     LogicValue::one},
-     {LogicValue::unknown,LogicValue::one, LogicValue::unknown, LogicValue::unknown, LogicValue::unknown},
-     {LogicValue::unknown,LogicValue::one, LogicValue::unknown, LogicValue::unknown, LogicValue::unknown},
-     {LogicValue::unknown,LogicValue::one, LogicValue::unknown, LogicValue::unknown, LogicValue::unknown}};
-  return logic_or[int(value1)][int(value2)];
-}
-
-static LogicValue
-logicAnd(LogicValue value1,
-	LogicValue value2)
-{
-  static LogicValue logic_and[5][5] =
-    {{LogicValue::zero,LogicValue::zero,   LogicValue::zero,   LogicValue::zero,    LogicValue::zero},
-     {LogicValue::zero,LogicValue::one,    LogicValue::unknown,LogicValue::unknown, LogicValue::unknown},
-     {LogicValue::zero,LogicValue::unknown,LogicValue::unknown,LogicValue::unknown, LogicValue::unknown},
-     {LogicValue::zero,LogicValue::unknown,LogicValue::unknown,LogicValue::unknown, LogicValue::unknown},
-     {LogicValue::zero,LogicValue::unknown,LogicValue::unknown,LogicValue::unknown, LogicValue::unknown}};
-  return logic_and[int(value1)][int(value2)];
-}
-
-static LogicValue
-logicXor(LogicValue value1,
-	 LogicValue value2)
-{
-  static LogicValue logic_xor[5][5]=
-    {{LogicValue::zero, LogicValue::one,      LogicValue::unknown,LogicValue::unknown, LogicValue::unknown},
-     {LogicValue::one,  LogicValue::zero,     LogicValue::unknown,LogicValue::unknown, LogicValue::unknown},
-     {LogicValue::unknown,LogicValue::unknown,LogicValue::unknown,LogicValue::unknown, LogicValue::unknown},
-     {LogicValue::unknown,LogicValue::unknown,LogicValue::unknown,LogicValue::unknown, LogicValue::unknown},
-     {LogicValue::unknown,LogicValue::unknown,LogicValue::unknown,LogicValue::unknown, LogicValue::unknown}};
-  return logic_xor[int(value1)][int(value2)];
-}
-
-static TimingSense
-senseNot(TimingSense sense)
-{
-  static TimingSense sense_not[5] = {TimingSense::negative_unate,
-				     TimingSense::positive_unate,
-				     TimingSense::non_unate,
-				     TimingSense::none,
-				     TimingSense::unknown};
-  return sense_not[int(sense)];
-}
-
-static TimingSense
-senseAndOr(TimingSense sense1,
-	   TimingSense sense2)
-{
-  static TimingSense sense_and_or[5][5] =
-    {{TimingSense::positive_unate, TimingSense::non_unate,
-      TimingSense::non_unate, TimingSense::positive_unate, TimingSense::unknown},
-     {TimingSense::non_unate, TimingSense::negative_unate,
-      TimingSense::non_unate, TimingSense::negative_unate, TimingSense::unknown},
-     {TimingSense::non_unate, TimingSense::non_unate, TimingSense::non_unate,
-      TimingSense::non_unate, TimingSense::unknown},
-     {TimingSense::positive_unate, TimingSense::negative_unate,
-      TimingSense::non_unate, TimingSense::none, TimingSense::unknown},
-     {TimingSense::unknown, TimingSense::unknown,
-      TimingSense::unknown, TimingSense::non_unate, TimingSense::unknown}};
-  return sense_and_or[int(sense1)][int(sense2)];
-}
-
-static TimingSense
-senseXor(TimingSense sense1,
-	 TimingSense sense2)
-{
-  static TimingSense xor_sense[5][5] =
-    {{TimingSense::non_unate, TimingSense::non_unate,
-      TimingSense::non_unate, TimingSense::non_unate, TimingSense::unknown},
-     {TimingSense::non_unate, TimingSense::non_unate,
-      TimingSense::non_unate, TimingSense::non_unate, TimingSense::unknown},
-     {TimingSense::non_unate, TimingSense::non_unate,
-      TimingSense::non_unate, TimingSense::non_unate, TimingSense::unknown},
-     {TimingSense::non_unate, TimingSense::non_unate,
-      TimingSense::non_unate, TimingSense::none, TimingSense::unknown},
-     {TimingSense::unknown, TimingSense::unknown,
-      TimingSense::unknown, TimingSense::unknown, TimingSense::unknown}};
-  return xor_sense[int(sense1)][int(sense2)];
-}
-
-TimingSense
-Sim::functionSense(const FuncExpr *expr,
-		   const Pin *input_pin,
-		   const Instance *inst)
-{
-  TimingSense sense = TimingSense::none;
-  LogicValue value = LogicValue::unknown;
-  functionSense(expr, input_pin, inst, sense, value);
-  return sense;
-}
-
-void
-Sim::functionSense(const FuncExpr *expr,
-		   const Pin *input_pin,
-		   const Instance *inst,
-		   // return values
-		   TimingSense &sense,
-		   LogicValue &value) const
-{
-  switch (expr->op()) {
-  case FuncExpr::op_port: {
-    Pin *pin = network_->findPin(inst, expr->port());
-    if (pin) {
-      if (pin == input_pin)
-	sense = TimingSense::positive_unate;
-      else
-	sense = TimingSense::none;
-      value = logicValue(pin);
-    }
-    else {
-      sense = TimingSense::none;
-      value = LogicValue::unknown;
-    }
-    break;
-  }
-  case FuncExpr::op_not: {
-    TimingSense sense1;
-    LogicValue value1;
-    functionSense(expr->left(), input_pin, inst, sense1, value1);
-    if (value1 == LogicValue::zero) {
-      sense = TimingSense::none;
-      value = LogicValue::one;
-    }
-    else if (value1 == LogicValue::one) {
-      sense = TimingSense::none;
-      value = LogicValue::zero;
-    }
-    else {
-      sense = senseNot(sense1);
-      value = LogicValue::unknown;
-    }
-    break;
-  }
-  case FuncExpr::op_or: {
-    TimingSense sense1, sense2;
-    LogicValue value1, value2;
-    functionSense(expr->left(), input_pin, inst, sense1, value1);
-    functionSense(expr->right(), input_pin, inst, sense2, value2);
-    if (value1 == LogicValue::one || value2 == LogicValue::one) {
-      sense = TimingSense::none;
-      value = LogicValue::one;
-    }
-    else if (value1 == LogicValue::zero) {
-      sense = sense2;
-      value = value2;
-    }
-    else if (value2 == LogicValue::zero) {
-      sense = sense1;
-      value = value1;
-    }
-    else {
-      sense = senseAndOr(sense1, sense2);
-      value = LogicValue::unknown;
-    }
-    break;
-  }
-  case FuncExpr::op_and: {
-    TimingSense sense1, sense2;
-    LogicValue value1, value2;
-    functionSense(expr->left(), input_pin, inst, sense1, value1);
-    functionSense(expr->right(), input_pin, inst, sense2, value2);
-    if (value1 == LogicValue::zero || value2 == LogicValue::zero) {
-      sense = TimingSense::none;
-      value = LogicValue::zero;
-    }
-    else if (value1 == LogicValue::one) {
-      sense = sense2;
-      value = value2;
-    }
-    else if (value2 == LogicValue::one) {
-      sense = sense1;
-      value = value1;
-    }
-    else {
-      sense = senseAndOr(sense1, sense2);
-      value = LogicValue::unknown;
-    }
-    break;
-  }
-  case FuncExpr::op_xor: {
-    TimingSense sense1, sense2;
-    LogicValue value1, value2;
-    functionSense(expr->left(), input_pin, inst, sense1, value1);
-    functionSense(expr->right(), input_pin, inst, sense2, value2);
-    if ((value1 == LogicValue::zero && value2 == LogicValue::zero)
-	|| (value1 == LogicValue::one && value2 == LogicValue::one)) {
-      sense = TimingSense::none;
-      value = LogicValue::zero;
-    }
-    else if ((value1 == LogicValue::zero && value2 == LogicValue::one)
-	     || (value1 == LogicValue::one && value2 == LogicValue::zero)) {
-      sense = TimingSense::none;
-      value = LogicValue::one;
-    }
-    else if (value1 == LogicValue::zero) {
-      sense = sense2;
-      value = value2;
-    }
-    else if (value1 == LogicValue::one) {
-      sense = senseNot(sense2);
-      value = logicNot(value2);
-    }
-    else if (value2 == LogicValue::zero) {
-      sense = sense1;
-      value = value1;
-    }
-    else if (value2 == LogicValue::one) {
-      sense = senseNot(sense1);
-      value = logicNot(value1);
-    }
-    else {
-      sense = senseXor(sense1, sense2);
-      value = logicXor(value1, value2);
-    }
-    break;
-  }
-  case FuncExpr::op_one:
-    sense = TimingSense::none;
-    value = LogicValue::one;
-    break;
-  case FuncExpr::op_zero:
-    sense = TimingSense::none;
-    value = LogicValue::zero;
-    break;
-  }
-}
-
-LogicValue
-Sim::evalExpr(const FuncExpr *expr,
-	      const Instance *inst)
-{
-  switch (expr->op()) {
-  case FuncExpr::op_port: {
-    LibertyPort *port = expr->port();
-    if (port) {
-      Pin *pin = network_->findPin(inst, port->name());
-      if (pin)
-        return logicValue(pin);
-    }
-    // Internal ports don't have instance pins.
-    return LogicValue::unknown;
-  }
-  case FuncExpr::op_not:
-    return logicNot(evalExpr(expr->left(), inst));
-  case FuncExpr::op_or:
-    return logicOr(evalExpr(expr->left(),inst),
-		   evalExpr(expr->right(),inst));
-  case FuncExpr::op_and:
-    return logicAnd(evalExpr(expr->left(),inst),
-		    evalExpr(expr->right(),inst));
-  case FuncExpr::op_xor:
-    return  logicXor(evalExpr(expr->left(),inst),
-		     evalExpr(expr->right(),inst));
-  case FuncExpr::op_one:
-    return LogicValue::one;
-  case FuncExpr::op_zero:
-    return LogicValue::zero;
-  }
-  // Prevent warnings from lame compilers.
-  return LogicValue::zero;
-}
-
-#endif // CUDD
 
 static LogicValue
 logicNot(LogicValue value)
@@ -682,9 +401,7 @@ Sim::propagateConstants(bool thru_sequentials)
 void
 Sim::setConstraintConstPins(LogicValueMap &value_map)
 {
-  for (auto pin_value : value_map) {
-    const Pin *pin = pin_value.first;
-    LogicValue value = pin_value.second;
+  for (const auto [pin, value] : value_map) {
     debugPrint(debug_, "sim", 2, "case pin %s = %c",
                network_->pathName(pin),
                logicValueString(value));
@@ -1219,10 +936,9 @@ isModeDisabled(Edge *edge,
 	  if (cond_value == LogicValue::zero) {
 	    // For a mode value to be disabled by having a value of
 	    // logic zero one mode value must logic one.
-	    for (auto name_mode : *mode_def->values()) {
-	      ModeValueDef *value_def1 = name_mode.second;
-	      if (value_def1) {
-		FuncExpr *cond1 = value_def1->cond();
+	    for (const auto [name, value_def] : *mode_def->values()) {
+	      if (value_def) {
+		FuncExpr *cond1 = value_def->cond();
 		if (cond1) {
 		  LogicValue cond_value1 = sim->evalExpr(cond1, inst);
 		  if (cond_value1 == LogicValue::one) {

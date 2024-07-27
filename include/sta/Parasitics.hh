@@ -175,6 +175,7 @@ public:
   // Find the parasitic node connected to pin.
   virtual ParasiticNode *findParasiticNode(const Parasitic *parasitic,
                                            const Pin *pin) const = 0;
+  // deprecated 2024-02-27
   virtual ParasiticNode *findNode(const Parasitic *parasitic,
 				  const Pin *pin) const __attribute__ ((deprecated));
   // Make a subnode of the parasitic network net connected to pin.
@@ -188,6 +189,7 @@ public:
   virtual const Pin *pin(const ParasiticNode *node) const = 0;
   virtual const Net *net(const ParasiticNode *node,
                          const Network *network) const = 0;
+  virtual unsigned netId(const ParasiticNode *node) const = 0;
   virtual bool isExternal(const ParasiticNode *node) const = 0;
   // Node capacitance to ground.
   virtual float nodeGndCap(const ParasiticNode *node) const = 0;
@@ -306,6 +308,19 @@ private:
   int index_;
   int index_max_;
   float coupling_cap_factor_;
+};
+
+class ParasiticNodeLess
+{
+public:
+  ParasiticNodeLess(const Parasitics *parasitics,
+                    const Network *network);
+  ParasiticNodeLess(const ParasiticNodeLess &less);
+  bool operator()(const ParasiticNode *node1,
+                  const ParasiticNode *node2) const;
+private:
+  const Parasitics *parasitics_;
+  const Network *network_;
 };
 
 } // namespace

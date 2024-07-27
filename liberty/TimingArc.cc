@@ -21,6 +21,8 @@
 #include "TimingRole.hh"
 #include "Liberty.hh"
 #include "TimingArc.hh"
+#include "DcalcAnalysisPt.hh"
+#include "TableModel.hh"
 
 namespace sta {
 
@@ -316,13 +318,13 @@ TimingArcSet::sense() const
   return attrs_->timingSense();
 }
 
-RiseFall *
+const RiseFall *
 TimingArcSet::isRisingFallingEdge() const
 {
   int arc_count = arcs_.size();
   if (arc_count == 2) {
-    RiseFall *from_rf1 = arcs_[0]->fromEdge()->asRiseFall();
-    RiseFall *from_rf2 = arcs_[1]->fromEdge()->asRiseFall();
+    const RiseFall *from_rf1 = arcs_[0]->fromEdge()->asRiseFall();
+    const RiseFall *from_rf2 = arcs_[1]->fromEdge()->asRiseFall();
     if (from_rf1 == from_rf2)
       return from_rf1;
   }
@@ -545,18 +547,42 @@ TimingArc::~TimingArc()
   delete scaled_models_;
 }
 
-TimingModel *
-TimingArc::model(const OperatingConditions *op_cond) const
+GateTimingModel *
+TimingArc::gateModel(const DcalcAnalysisPt *dcalc_ap) const
 {
-  if (scaled_models_) {
-    TimingModel *model = scaled_models_->findKey(op_cond);
-    if (model)
-      return model;
-    else
-      return model_;
+  return dynamic_cast<GateTimingModel*>(model(dcalc_ap));
+}
+
+GateTableModel *
+TimingArc::gateTableModel() const
+{
+  return dynamic_cast<GateTableModel*>(model_);
+}
+
+GateTableModel *
+TimingArc::gateTableModel(const DcalcAnalysisPt *dcalc_ap) const
+{
+  return dynamic_cast<GateTableModel*>(model(dcalc_ap));
+}
+
+CheckTimingModel *
+TimingArc::checkModel(const DcalcAnalysisPt *dcalc_ap) const
+{
+  return dynamic_cast<CheckTimingModel*>(model(dcalc_ap));
+}
+
+TimingModel *
+TimingArc::model(const DcalcAnalysisPt *dcalc_ap) const
+{
+  const TimingArc *corner_arc = cornerArc(dcalc_ap->libertyIndex());
+  ScaledTimingModelMap *scaled_models = corner_arc->scaled_models_;
+  if (scaled_models) {
+    const OperatingConditions *op_cond = dcalc_ap->operatingConditions();
+    TimingModel *scaled_model = scaled_models->findKey(op_cond);
+    if (scaled_model)
+      return scaled_model;
   }
-  else
-    return model_;
+  return corner_arc->model();
 }
 
 void

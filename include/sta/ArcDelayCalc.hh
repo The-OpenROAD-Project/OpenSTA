@@ -40,6 +40,10 @@ class Corner;
 class Parasitic;
 class DcalcAnalysisPt;
 class MultiDrvrNet;
+class ArcDcalcArg;
+
+typedef std::vector<ArcDcalcArg*> ArcDcalcArgPtrSeq;
+typedef std::vector<ArcDcalcArg> ArcDcalcArgSeq;
 
 // Driver load pin -> index in driver loads.
 typedef map<const Pin *, size_t, PinIdLess> LoadPinIndexMap;
@@ -56,6 +60,7 @@ public:
               Edge *edge,
               const TimingArc *arc,
               const Slew in_slew,
+              float load_cap,
               const Parasitic *parasitic);
   ArcDcalcArg(const Pin *in_pin,
               const Pin *drvr_pin,
@@ -65,6 +70,7 @@ public:
   const Pin *inPin() const { return in_pin_; }
   const RiseFall *inEdge() const;
   const Pin *drvrPin() const { return drvr_pin_; }
+  Vertex *drvrVertex(const Graph *graph) const;
   LibertyCell *drvrCell() const;
   const LibertyLibrary *drvrLibrary() const;
   const RiseFall *drvrEdge() const;
@@ -74,9 +80,12 @@ public:
   Slew inSlew() const { return in_slew_; }
   float inSlewFlt() const;
   void setInSlew(Slew in_slew);
-  const Parasitic *parasitic() { return parasitic_; }
+  const Parasitic *parasitic() const { return parasitic_; }
   void setParasitic(const Parasitic *parasitic);
+  float loadCap() const { return load_cap_; }
+  void setLoadCap(float load_cap);
   float inputDelay() const { return input_delay_; }
+  void setInputDelay(float input_delay);
 
 protected:
   const Pin *in_pin_;
@@ -84,9 +93,20 @@ protected:
   Edge *edge_;
   const TimingArc *arc_;
   Slew in_slew_;
+  float load_cap_;
   const Parasitic *parasitic_;
   float input_delay_;
 };
+
+
+ArcDcalcArg
+makeArcDcalcArg(const char *inst_name,
+                const char *in_port_name,
+                const char *in_rf_name,
+                const char *drvr_port_name,
+                const char *drvr_rf_name,
+                const char *input_delay_str,
+                const StaState *sta);
 
 // Arc delay calc result.
 class ArcDcalcResult
@@ -127,6 +147,9 @@ typedef vector<ArcDcalcResult> ArcDcalcResultSeq;
 //       DmpCeffElmoreDelayCalc
 //       DmpCeffTwoPoleDelayCalc
 //      ArnoldiDelayCalc
+//    CcsCeffDelayCalc
+//    CcsSimfDelayCalc
+//    PrimafDelayCalc
 
 // Abstract class for the graph delay calculator traversal to interface
 // to a delay calculator primitive.
@@ -136,12 +159,14 @@ public:
   explicit ArcDelayCalc(StaState *sta);
   virtual ~ArcDelayCalc() {}
   virtual ArcDelayCalc *copy() = 0;
+  virtual const char *name() const = 0;
 
   // Find the parasitic for drvr_pin that is acceptable to the delay
   // calculator by probing parasitics_.
   virtual Parasitic *findParasitic(const Pin *drvr_pin,
 				   const RiseFall *rf,
 				   const DcalcAnalysisPt *dcalc_ap) = 0;
+  virtual bool reduceSupported() const = 0;
   // Reduce parasitic_network to a representation acceptable to the delay calculator.
   virtual Parasitic *reduceParasitic(const Parasitic *parasitic_network,
                                      const Pin *drvr_pin,
@@ -154,6 +179,11 @@ public:
                                const Net *net,
                                const Corner *corner,
                                const MinMaxAll *min_max) = 0;
+  // Set the in_slew, load_cap, parasitic for gates.
+  virtual void setDcalcArgParasiticSlew(ArcDcalcArg &gate,
+                                        const DcalcAnalysisPt *dcalc_ap) = 0;
+  virtual void setDcalcArgParasiticSlew(ArcDcalcArgSeq &gates,
+                                        const DcalcAnalysisPt *dcalc_ap) = 0;
   // Find the wire delays and slews for an input port without a driving cell.
   // This call primarily initializes the load delay/slew iterator.
   virtual ArcDcalcResult inputPortDelay(const Pin *port_pin,
@@ -172,6 +202,7 @@ public:
                                    const Parasitic *parasitic,
                                    const LoadPinIndexMap &load_pin_index_map,
                                    const DcalcAnalysisPt *dcalc_ap) = 0;
+  // deprecated 2024-02-27
   virtual void gateDelay(const TimingArc *arc,
 			 const Slew &in_slew,
 			 float load_cap,
@@ -185,7 +216,6 @@ public:
 
   // Find gate delays and slews for parallel gates.
   virtual ArcDcalcResultSeq gateDelays(ArcDcalcArgSeq &args,
-                                       float load_cap,
                                        const LoadPinIndexMap &load_pin_index_map,
                                        const DcalcAnalysisPt *dcalc_ap) = 0;
 

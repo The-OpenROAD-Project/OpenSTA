@@ -40,7 +40,7 @@
 #include "PathRef.hh"
 #include "PathExpanded.hh"
 #include "StaState.hh"
-#include "Sim.hh"
+#include "search/Sim.hh"
 #include "WriteSpice.hh"
 
 namespace sta {
@@ -137,6 +137,8 @@ private:
   // Input clock waveform cycles.
   int clk_cycle_count_;
 
+  InstanceSet written_insts_;
+
   using WriteSpice::writeHeader;
   using WriteSpice::writePrintStmt;
   using WriteSpice::writeSubckts;
@@ -177,12 +179,14 @@ WritePathSpice::WritePathSpice(Path *path,
                                CircuitSim ckt_sim,
 			       const StaState *sta) :
   WriteSpice(spice_filename, subckt_filename, lib_subckt_filename,
-             model_filename, power_name, gnd_name, ckt_sim, sta),
+             model_filename, power_name, gnd_name, ckt_sim,
+             path->dcalcAnalysisPt(sta), sta),
   path_(path),
   path_expanded_(sta),
-  clk_cycle_count_(3)
+  clk_cycle_count_(3),
+  written_insts_(network_)
 {
-  initPowerGnd( path_->dcalcAnalysisPt(this));
+  initPowerGnd();
 }
 
 void
@@ -253,18 +257,17 @@ float
 WritePathSpice::pathMaxTime()
 {
   float max_time = 0.0;
-  DcalcAPIndex dcalc_ap_index = path_->dcalcAnalysisPt(this)->index();
   for (size_t i = 0; i < path_expanded_.size(); i++) {
     PathRef *path = path_expanded_.path(i);
     const RiseFall *rf = path->transition(this);
     Vertex *vertex = path->vertex(this);
-    float path_max_slew = railToRailSlew(findSlew(vertex,rf,nullptr,dcalc_ap_index),rf);
+    float path_max_slew = railToRailSlew(findSlew(vertex,rf,nullptr), rf);
     if (vertex->isDriver(network_)) {
       VertexOutEdgeIterator edge_iter(vertex, graph_);
       while (edge_iter.hasNext()) {
         Edge *edge = edge_iter.next();
         Vertex *load = edge->to(graph_);
-        float load_slew = railToRailSlew(findSlew(load, rf, nullptr, dcalc_ap_index),rf);
+        float load_slew = railToRailSlew(findSlew(load, rf, nullptr), rf);
         if (load_slew > path_max_slew)
           path_max_slew = load_slew;
       }
@@ -387,9 +390,8 @@ float
 WritePathSpice::findSlew(Path *path)
 {
   Vertex *vertex = path->vertex(this);
-  DcalcAPIndex dcalc_ap_index = path->dcalcAnalysisPt(this)->index();
   const RiseFall *rf = path->transition(this);
-  return findSlew(vertex, rf, nullptr, dcalc_ap_index);
+  return findSlew(vertex, rf, nullptr);
 }
 
 float
@@ -398,8 +400,7 @@ WritePathSpice::findSlew(Path *path,
                      TimingArc *next_arc)
 {
   Vertex *vertex = path->vertex(this);
-  DcalcAPIndex dcalc_ap_index = path->dcalcAnalysisPt(this)->index();
-  return findSlew(vertex, rf, next_arc, dcalc_ap_index);
+  return findSlew(vertex, rf, next_arc);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -496,7 +497,7 @@ WritePathSpice::writeGateStage(Stage stage)
   const char *load_pin_name = stageLoadPinName(stage);
   string subckt_name = "stage" + std::to_string(stage);
 
-  Instance *inst = stageInstance(stage);
+  const Instance *inst = stageInstance(stage);
   LibertyPort *input_port = stageGateInputPort(stage);
   LibertyPort *drvr_port = stageDrvrPort(stage);
 
@@ -511,10 +512,9 @@ WritePathSpice::writeGateStage(Stage stage)
 	      network_->pathName(inst),
 	      input_port->name(),
 	      drvr_port->name());
-  writeSubcktInst(input_pin);
+  writeSubcktInst(inst);
 
   PathRef *drvr_path = stageDrvrPath(stage);
-  DcalcAPIndex dcalc_ap_index = drvr_path->dcalcAnalysisPt(this)->index();
   const RiseFall *drvr_rf = drvr_path->transition(this);
   Edge *gate_edge = stageGateEdge(stage);
 
@@ -523,11 +523,20 @@ WritePathSpice::writeGateStage(Stage stage)
   gatePortValues(input_pin, drvr_pin, drvr_rf, gate_edge,
                  port_values, is_clked);
 
-  const Clock *clk = (is_clked) ? stageDrvrPath(stage)->clock(this) : nullptr;
-  writeSubcktInstVoltSrcs(input_pin, port_values, clk, dcalc_ap_index);
+  PinSet inputs(network_);
+  inputs.insert(input_pin);
+  writeSubcktInstVoltSrcs(inst, port_values, inputs);
   streamPrint(spice_stream_, "\n");
 
-  writeSubcktInstLoads(drvr_pin, load_pin);
+  PinSet drvr_loads(network_);
+  PinConnectedPinIterator *pin_iter = network_->connectedPinIterator(drvr_pin);
+  while (pin_iter->hasNext()) {
+    const Pin *load_pin = pin_iter->next();
+    drvr_loads.insert(load_pin);
+  }
+  delete pin_iter;
+
+  writeSubcktInstLoads(drvr_pin, load_pin, drvr_loads, written_insts_);
   writeStageParasitics(stage);
   streamPrint(spice_stream_, ".ends\n\n");
 }
@@ -538,9 +547,14 @@ WritePathSpice::writeStageParasitics(Stage stage)
   PathRef *drvr_path = stageDrvrPath(stage);
   DcalcAnalysisPt *dcalc_ap = drvr_path->dcalcAnalysisPt(this);
   ParasiticAnalysisPt *parasitic_ap = dcalc_ap->parasiticAnalysisPt();
+  const Pin *drvr_pin = stageDrvrPin(stage);
+  const Parasitic *parasitic = parasitics_->findParasiticNetwork(drvr_pin, parasitic_ap);
+  if (parasitic == nullptr) {
+    const RiseFall *drvr_rf = drvr_path->transition(this);
+    parasitic = parasitics_->findPiElmore(drvr_pin, drvr_rf, parasitic_ap);
+  }
   NetSet coupling_nets;
-  writeDrvrParasitics(stageDrvrPin(stage), drvr_path->transition(this),
-                      coupling_nets, parasitic_ap);
+  writeDrvrParasitics(drvr_pin, parasitic, coupling_nets);
 }
 
 ////////////////////////////////////////////////////////////////

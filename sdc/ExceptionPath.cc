@@ -90,7 +90,8 @@ ExceptionPath::ExceptionPath(ExceptionFrom *from,
   to_(to),
   min_max_(min_max),
   own_pts_(own_pts),
-  priority_(priority)
+  priority_(priority),
+  id_(0)
 {
   makeStates();
 }
@@ -123,6 +124,12 @@ ExceptionPath::asString(const Network *network) const
   stringAppend(r, type);
   stringAppend(r, from_thru_to);
   return result;
+}
+
+void
+ExceptionPath::setId(size_t id)
+{
+  id_ = id;
 }
 
 ExceptionPt *
@@ -2247,19 +2254,14 @@ ExceptionState::hash() const
   return hashSum(exception_->hash(), index_);
 }
 
-ExceptionStateLess::ExceptionStateLess(const Network *network) :
-  network_(network)
-{
-}
-
 bool
 ExceptionStateLess::operator()(const ExceptionState *state1,
                                const ExceptionState *state2) const
 {
   const ExceptionPath *except1 = state1->exception();
   const ExceptionPath *except2 = state2->exception();
-  ExceptionPathLess except_less(network_);
-  return except_less(except1, except2)
+    return except1->id() < except2->id()
+  //return except1 < except2
     || (except1 == except2
         && state1->index() < state2->index());
 }

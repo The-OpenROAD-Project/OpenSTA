@@ -133,38 +133,6 @@ proc parse_connect_pin { arg } {
   return [list $inst $port]
 }
 
-proc connect_pins { net pins } {
-  sta_warn 251 "connect_pins is deprecated.  Use connect_pin."
-  # Visit the pins to make sure command will succeed.
-  set insts_ports [parse_connect_pins $pins]
-  if { $insts_ports == 0 } {
-    return 0
-  }
-  set net [get_net_arg "net" $net]
-  if { $net == "NULL" } {
-    return 0
-  }
-  foreach {inst port} $insts_ports {
-    connect_pin_cmd $inst $port $net
-  }
-  return 1
-}
-
-proc parse_connect_pins { arg } {
-  set path_regexp [path_regexp]
-  set inst_ports {}
-  # Copy backslashes that will be removed by foreach.
-  set arg [string map {\\ \\\\} $arg]
-  foreach obj $arg {
-    set inst_port [parse_connect_pin $obj]
-    if { $inst_port == 0 } {
-      return 0
-    }
-    set inst_ports [concat $inst_ports $inst_port]
-  }
-  return $inst_ports
-}
-
 ################################################################
 
 define_cmd_args "disconnect_pin" {net -all|pin}

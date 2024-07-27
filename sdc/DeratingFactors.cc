@@ -41,8 +41,8 @@ DeratingFactors::setFactor(PathClkOrData clk_data,
 			   const EarlyLate *early_late,
 			   float factor)
 {
-  for (auto tr1 : rf->range())
-    factors_[int(clk_data)].setValue(tr1, early_late, factor);
+  for (auto rf1 : rf->range())
+    factors_[int(clk_data)].setValue(rf1, early_late, factor);
 }
 
 void

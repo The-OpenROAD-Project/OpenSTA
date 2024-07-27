@@ -157,8 +157,7 @@ void
 VerilogReader::deleteModules()
 {
   StringSet filenames;
-  for (auto module_iter : module_map_) {
-    VerilogModule *module = module_iter.second;
+  for (const auto [name, module] : module_map_) {
     filenames.insert(module->filename());
     delete module;
   }

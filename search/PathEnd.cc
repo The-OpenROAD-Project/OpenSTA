@@ -259,7 +259,16 @@ PathEnd::borrow(const StaState *) const
 }
 
 Crpr
-PathEnd::commonClkPessimism(const StaState *) const
+PathEnd::checkCrpr(const StaState *sta) const
+{
+  if (checkRole(sta)->genericRole() == TimingRole::hold())
+    return -crpr(sta);
+  else
+    return crpr(sta);;
+}
+
+Crpr
+PathEnd::crpr(const StaState *) const
 {
   return 0.0;
 }
@@ -618,7 +627,7 @@ Arrival
 PathEndClkConstrained::targetClkArrival(const StaState *sta) const
 {
   return targetClkArrivalNoCrpr(sta)
-    + commonClkPessimism(sta);
+    + checkCrpr(sta);
 }
  
 Arrival
@@ -689,24 +698,21 @@ PathEndClkConstrained::targetClkUncertainty(const StaState *sta) const
 }
 
 Crpr
-PathEndClkConstrained::commonClkPessimism(const StaState *sta) const
+PathEndClkConstrained::crpr(const StaState *sta) const
 {
   if (!crpr_valid_) {
     CheckCrpr *check_crpr = sta->search()->checkCrpr();
     crpr_ = check_crpr->checkCrpr(path_.path(), targetClkPath());
     crpr_valid_ = true;
   }
-  if (checkRole(sta)->genericRole() == TimingRole::hold())
-    return -crpr_;
-  else
-    return crpr_;
+  return crpr_;
 }
 
 Required
 PathEndClkConstrained::requiredTime(const StaState *sta) const
 {
   return requiredTimeNoCrpr(sta)
-    + commonClkPessimism(sta);
+    + checkCrpr(sta);
 }
 
 Required
@@ -1014,8 +1020,7 @@ PathEndCheck::exceptPathCmp(const PathEnd *path_end,
 Delay
 PathEndCheck::clkSkew(const StaState *sta)
 {
-  commonClkPessimism(sta);
-  return sourceClkDelay(sta) - targetClkDelay(sta) - crpr_
+  return sourceClkDelay(sta) - targetClkDelay(sta) - crpr(sta)
     // Uncertainty decreases slack, but increases skew.
     - checkTgtClkUncertainty(&clk_path_, clk_path_.clkEdge(sta), checkRole(sta), sta);
 }
@@ -1373,13 +1378,12 @@ PathEndOutputDelay::targetClkArrivalNoCrpr(const StaState *sta) const
 }
 
 Crpr
-PathEndOutputDelay::commonClkPessimism(const StaState *sta) const
+PathEndOutputDelay::crpr(const StaState *sta) const
 {
   if (!crpr_valid_) {
     CheckCrpr *check_crpr = sta->search()->checkCrpr();
     crpr_ = check_crpr->outputDelayCrpr(path_.path(), targetClkEdge(sta));
-    if (checkRole(sta)->genericRole() == TimingRole::hold())
-      crpr_ = -crpr_;
+    crpr_valid_ = true;
   }
   return crpr_;
 }

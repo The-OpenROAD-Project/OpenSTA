@@ -695,22 +695,22 @@ LibertyReader::endLibraryAttrs(LibertyGroup *group)
   }
 
   bool missing_threshold = false;
-  for (auto tr : RiseFall::range()) {
-    int tr_index = tr->index();
-    if (!have_input_threshold_[tr_index]) {
-      libWarn(1145, group, "input_threshold_pct_%s not found.", tr->name());
+  for (auto rf : RiseFall::range()) {
+    int rf_index = rf->index();
+    if (!have_input_threshold_[rf_index]) {
+      libWarn(1145, group, "input_threshold_pct_%s not found.", rf->name());
       missing_threshold = true;
     }
-    if (!have_output_threshold_[tr_index]) {
-      libWarn(1146, group, "output_threshold_pct_%s not found.", tr->name());
+    if (!have_output_threshold_[rf_index]) {
+      libWarn(1146, group, "output_threshold_pct_%s not found.", rf->name());
       missing_threshold = true;
     }
-    if (!have_slew_lower_threshold_[tr_index]) {
-      libWarn(1147, group, "slew_lower_threshold_pct_%s not found.", tr->name());
+    if (!have_slew_lower_threshold_[rf_index]) {
+      libWarn(1147, group, "slew_lower_threshold_pct_%s not found.", rf->name());
       missing_threshold = true;
     }
-    if (!have_slew_upper_threshold_[tr_index]) {
-      libWarn(1148, group, "slew_upper_threshold_pct_%s not found.", tr->name());
+    if (!have_slew_upper_threshold_[rf_index]) {
+      libWarn(1148, group, "slew_upper_threshold_pct_%s not found.", rf->name());
       missing_threshold = true;
     }
   }
@@ -3927,8 +3927,8 @@ LibertyReader::endTiming(LibertyGroup *group)
 {
   if (timing_) {
     // Set scale factor type in constraint tables.
-    for (auto tr : RiseFall::range()) {
-      TableModel *model = timing_->constraint(tr);
+    for (auto rf : RiseFall::range()) {
+      TableModel *model = timing_->constraint(rf);
       if (model) {
 	ScaleFactorType type=timingTypeScaleFactorType(timing_->attrs()->timingType());
 	model->setScaleFactorType(type);
@@ -5110,13 +5110,13 @@ LibertyReader::endOcvDerateFactors(LibertyGroup *)
 {
   if (ocv_derate_) {
     for (auto early_late : derate_type_->range()) {
-      for (auto tr : rf_type_->range()) {
+      for (auto rf : rf_type_->range()) {
 	if (path_type_ == PathType::clk_and_data) {
-	  ocv_derate_->setDerateTable(tr, early_late, PathType::clk, table_);
-	  ocv_derate_->setDerateTable(tr, early_late, PathType::data, table_);
+	  ocv_derate_->setDerateTable(rf, early_late, PathType::clk, table_);
+	  ocv_derate_->setDerateTable(rf, early_late, PathType::data, table_);
 	}
 	else
-	  ocv_derate_->setDerateTable(tr, early_late, path_type_, table_);
+	  ocv_derate_->setDerateTable(rf, early_late, path_type_, table_);
       }
     }
   }

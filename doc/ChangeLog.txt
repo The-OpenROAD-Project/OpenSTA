@@ -1,7 +1,25 @@
 OpenSTA Timing Analyzer Release Notes
----------------------------------------------
+-------------------------------------
 
 This file summarizes user visible changes for each release.
+
+Release 2.6.0 2024/07/??
+-------------------------
+
+The version of c++ used by OpenSTA is now 17.
+The Cudd BBD packager is now required.
+
+The USE_TCL_READLINE option defaults to ON.
+
+The variable link_make_black_boxes has been removed.
+Use the -no_black_boxes option to the link_design command.
+
+  link_design [-no_black_blocks] [top_cell_name]
+
+The all_inputs command now supports -no_clocks to remove clocks
+inputs from the returned list.
+
+  all_inputs [-no_clocks]
 
 Release 2.5.0 2024/01/17
 -------------------------
@@ -23,6 +41,11 @@ timing groups.
 
   report_clock_skew -include_internal_latency
   report_clock_latency -include_internal_latency
+
+The all_inputs command now supports the -no_clocks argument to exclude
+clocks from the list.
+
+  all_inputs [-no_clocks]
 
 Release 2.4.0 2023/01/19
 -------------------------

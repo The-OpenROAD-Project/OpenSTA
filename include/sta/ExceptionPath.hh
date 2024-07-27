@@ -49,6 +49,8 @@ public:
 		int priority,
 		const char *comment);
   virtual ~ExceptionPath();
+  size_t id() const { return id_; }
+  void setId(size_t id);
   virtual bool isFalse() const { return false; }
   virtual bool isLoop() const { return false; }
   virtual bool isMultiCycle() const { return false; }
@@ -128,6 +130,7 @@ protected:
   const MinMaxAll *min_max_;
   bool own_pts_;
   int priority_;
+  size_t id_;                   // Unique ID assigned by Sdc.
   ExceptionState *states_;
 };
 

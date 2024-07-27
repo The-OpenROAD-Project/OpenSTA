@@ -320,8 +320,9 @@ public:
   int from() const { return from_; }
   int to() const { return to_; }
   ConcretePortSeq &members() { return members_; }
+  const ConcretePortSeq &members() const { return members_; }
   void setDirection(PortDirection *direction);
-  PortDirection *direction() { return direction_; }
+  PortDirection *direction() const { return direction_; }
 
 private:
   int from_;
@@ -385,9 +386,7 @@ ConcreteCell::groupBusPorts(const char bus_brkt_left,
   }
 
   // Make the bus ports.
-  for (auto name_bus : bus_map) {
-    string bus_name = name_bus.first;
-    BusPort &bus_port = name_bus.second;
+  for (const auto& [bus_name, bus_port] : bus_map) {
     int from = bus_port.from();
     int to = bus_port.to();
     size_t size = to - from + 1;

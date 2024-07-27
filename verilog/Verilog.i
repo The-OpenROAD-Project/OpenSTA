@@ -1,7 +1,3 @@
-%module verilog
-
-%{
-
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2024, Parallax Software, Inc.
 // 
@@ -18,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+%module verilog
+
+%{
 #include "VerilogReader.hh"
 #include "VerilogWriter.hh"
 #include "Sta.hh"

@@ -1,7 +1,3 @@
-%module NetworkEdit
-
-%{
-
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2024, Parallax Software, Inc.
 // 
@@ -18,22 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+%module NetworkEdit
+
+%{
 using sta::Cell;
 using sta::Instance;
 using sta::Net;
 using sta::Port;
 using sta::Pin;
 using sta::NetworkEdit;
-using sta::cmdEditNetwork;
+
+namespace sta {
+NetworkEdit *
+cmdEditNetwork();
+}
 
 %}
-
-////////////////////////////////////////////////////////////////
-//
-// SWIG type definitions.
-//
-////////////////////////////////////////////////////////////////
-
 
 ////////////////////////////////////////////////////////////////
 //
@@ -68,7 +64,7 @@ Net *
 make_net_cmd(const char *name,
 	     Instance *parent)
 {
-  Net *net = cmdEditNetwork()->makeNet(name, parent);
+  Net *net = sta::cmdEditNetwork()->makeNet(name, parent);
   // Sta notification unnecessary.
   return net;
 }

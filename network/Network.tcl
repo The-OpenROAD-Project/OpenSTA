@@ -26,9 +26,11 @@ proc_redirect report_instance {
   check_argc_eq1 "report_instance" $args
 
   if { [info exists flags(-connections)] } {
+    # deprecated 2024-01-17
     sta_warn 233 "report_instance -connections is deprecated."
   }
   if { [info exists flags(-verbose)] } {
+    # deprecated 2024-01-17
     sta_warn 234 "report_instance -verbose is deprecated."
   }
   set instance_path [lindex $args 0]
@@ -183,12 +185,15 @@ proc_redirect report_net {
   check_argc_eq1 "report_net" $args
 
   if { [info exists flags(-connections)] } {
+    # deprecated 2024-01-17
     sta_warn 235 "report_net -connections is deprecated."
   }
   if { [info exists flags(-verbose)] } {
+    # deprecated 2024-01-17
     sta_warn 236 "report_net -verbose is deprecated."
   }
   if { [info exists flags(-hier_pins)] } {
+    # deprecated 2024-01-17
     sta_warn 237 "report_net -hier_pins is deprecated."
   }
 

@@ -85,7 +85,7 @@ typedef MinMaxAll SetupHoldAll;
 typedef Vector<ExceptionThru*> ExceptionThruSeq;
 typedef Set<LibertyPortPair, LibertyPortPairLess> LibertyPortPairSet;
 typedef Map<const Instance*, DisabledInstancePorts*> DisabledInstancePortsMap;
-typedef Map<const LibertyCell*, DisabledCellPorts*> DisabledCellPortsMap;
+typedef Map<LibertyCell*, DisabledCellPorts*> DisabledCellPortsMap;
 typedef MinMaxValues<float> ClockUncertainties;
 typedef Set<ExceptionPath*> ExceptionPathSet;
 typedef PinPair EdgePins;
@@ -107,12 +107,8 @@ class ExceptionState;
 class ExceptionStateLess
 {
 public:
-  ExceptionStateLess(const Network *network);
   bool operator()(const ExceptionState *state1,
                   const ExceptionState *state2) const;
-
-private:
-  const Network *network_;
 };
 
 class ExceptionPath;

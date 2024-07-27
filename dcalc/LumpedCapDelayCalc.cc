@@ -122,7 +122,7 @@ LumpedCapDelayCalc::gateDelay(const Pin *drvr_pin,
                               const LoadPinIndexMap &load_pin_index_map,
 			      const DcalcAnalysisPt *dcalc_ap)
 {
-  GateTimingModel *model = gateModel(arc, dcalc_ap);
+  GateTimingModel *model = arc->gateModel(dcalc_ap);
   debugPrint(debug_, "delay_calc", 3,
              "    in_slew = %s load_cap = %s lumped",
              delayAsString(in_slew, this),
@@ -155,9 +155,7 @@ LumpedCapDelayCalc::makeResult(const LibertyLibrary *drvr_library,
   dcalc_result.setGateDelay(gate_delay);
   dcalc_result.setDrvrSlew(drvr_slew);
 
-  for (auto load_pin_index : load_pin_index_map) {
-    const Pin *load_pin = load_pin_index.first;
-    size_t load_idx = load_pin_index.second;
+  for (const auto [load_pin, load_idx] : load_pin_index_map) {
     ArcDelay wire_delay = 0.0;
     thresholdAdjust(load_pin, drvr_library, rf, wire_delay, drvr_slew);
     dcalc_result.setWireDelay(load_idx, wire_delay);
@@ -176,7 +174,7 @@ LumpedCapDelayCalc::reportGateDelay(const Pin *check_pin,
                                     const DcalcAnalysisPt *dcalc_ap,
                                     int digits)
 {
-  GateTimingModel *model = gateModel(arc, dcalc_ap);
+  GateTimingModel *model = arc->gateModel(dcalc_ap);
   if (model) {
     float in_slew1 = delayAsFloat(in_slew);
     return model->reportGateDelay(pinPvt(check_pin, dcalc_ap), in_slew1, load_cap,
