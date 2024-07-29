@@ -2531,13 +2531,14 @@ LibertyReader::beginReceiverCapacitance(LibertyGroup *group,
 void
 LibertyReader::endReceiverCapacitanceRiseFall(LibertyGroup *group)
 {
-  if (timing_ && table_) {
+  if (table_) {
     if (ReceiverModel::checkAxes(table_)) {
       TableModel *table_model = new TableModel(table_, tbl_template_,
                                                scale_factor_type_, rf_);
       if (receiver_model_ == nullptr) {
         receiver_model_ = make_shared<ReceiverModel>();
-        timing_->setReceiverModel(receiver_model_);
+        if (timing_)
+          timing_->setReceiverModel(receiver_model_);
       }
       receiver_model_->setCapacitanceModel(table_model, index_, rf_);
     }
