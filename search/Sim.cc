@@ -148,6 +148,7 @@ Sim::funcBddSim(const FuncExpr *expr,
       }
     }
   }
+  delete pin_iter;
   return bdd;
 }
 
