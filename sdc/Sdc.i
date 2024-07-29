@@ -1270,30 +1270,41 @@ all_outputs_cmd()
   return sta->sdc()->allOutputs();
 }
 
+template <typename T> Vector<T*>
+filter_objects(const char *property,
+         const char *op,
+         const char *pattern,
+         Vector<T*> *objects)
+{
+  Vector<T*> filtered_objects;
+  if (objects) {
+    Sta *sta = Sta::sta();
+    bool exact_match = stringEq(op, "==");
+    bool pattern_match = stringEq(op, "=~");
+    bool not_match = stringEq(op, "!=");
+    bool not_pattern_match = stringEq(op, "!~");
+    for (T *object : *objects) {
+      PropertyValue value(getProperty(object, property, sta));
+      const char *prop = value.stringValue();
+      if (prop &&
+          ((exact_match && stringEq(prop, pattern))
+           || (not_match && !stringEq(prop, pattern))
+           || (pattern_match && patternMatch(pattern, prop))
+           || (not_pattern_match && !patternMatch(pattern, prop))))
+        filtered_objects.push_back(object);
+    }
+    delete objects;
+  }
+  return filtered_objects;
+}
+
 PortSeq
 filter_ports(const char *property,
 	     const char *op,
 	     const char *pattern,
 	     PortSeq *ports)
 {
-  PortSeq filtered_ports;
-  if (ports) {
-    Sta *sta = Sta::sta();
-    bool exact_match = stringEq(op, "==");
-    bool pattern_match = stringEq(op, "=~");
-    bool not_match = stringEq(op, "!=");
-    for (const Port *port : *ports) {
-      PropertyValue value(getProperty(port, property, sta));
-      const char *prop = value.stringValue();
-      if (prop &&
-          ((exact_match && stringEq(prop, pattern))
-           || (not_match && !stringEq(prop, pattern))
-           || (pattern_match && patternMatch(pattern, prop))))
-        filtered_ports.push_back(port);
-    }
-    delete ports;
-  }
-  return filtered_ports;
+  return filter_objects<const Port>(property, op, pattern, ports);
 }
 
 InstanceSeq
@@ -1302,25 +1313,7 @@ filter_insts(const char *property,
 	     const char *pattern,
 	     InstanceSeq *insts)
 {
-  InstanceSeq filtered_insts;
-  if (insts) {
-    Sta *sta = Sta::sta();
-    cmdLinkedNetwork();
-    bool exact_match = stringEq(op, "==");
-    bool pattern_match = stringEq(op, "=~");
-    bool not_match = stringEq(op, "!=");
-    for (const Instance *inst : *insts) {
-      PropertyValue value(getProperty(inst, property, sta));
-      const char *prop = value.stringValue();
-      if (prop &&
-          ((exact_match && stringEq(prop, pattern))
-           || (not_match && !stringEq(prop, pattern))
-           || (pattern_match && patternMatch(pattern, prop))))
-        filtered_insts.push_back(inst);
-    }
-    delete insts;
-  }
-  return filtered_insts;
+  return filter_objects<const Instance>(property, op, pattern, insts);
 }
 
 PinSeq
@@ -1329,24 +1322,7 @@ filter_pins(const char *property,
 	    const char *pattern,
 	    PinSeq *pins)
 {
-  PinSeq filtered_pins;
-  if (pins) {
-    Sta *sta = Sta::sta();
-    bool exact_match = stringEq(op, "==");
-    bool pattern_match = stringEq(op, "=~");
-    bool not_match = stringEq(op, "!=");
-    for (const Pin *pin : *pins) {
-      PropertyValue value(getProperty(pin, property, sta));
-      const char *prop = value.asString(sta->sdcNetwork());
-      if (prop &&
-          ((exact_match && stringEq(prop, pattern))
-           || (not_match && !stringEq(prop, pattern))
-           || (pattern_match && patternMatch(pattern, prop))))
-        filtered_pins.push_back(pin);
-    }
-    delete pins;
-  }
-  return filtered_pins;
+  return filter_objects<const Pin>(property, op, pattern, pins);
 }
 
 EdgeSeq
@@ -1355,22 +1331,7 @@ filter_timing_arcs(const char *property,
 		   const char *pattern,
 		   EdgeSeq *edges)
 {
-  Sta *sta = Sta::sta();
-  EdgeSeq filtered_edges;
-  bool exact_match = stringEq(op, "==");
-  bool pattern_match = stringEq(op, "=~");
-  bool not_match = stringEq(op, "!=");
-  for (Edge *edge : *edges) {
-    PropertyValue value(getProperty(edge, property, sta));
-    const char *prop = value.stringValue();
-    if (prop &&
-	((exact_match && stringEq(prop, pattern))
-         || (not_match && !stringEq(prop, pattern))
-	 || (pattern_match && patternMatch(pattern, prop))))
-      filtered_edges.push_back(edge);
-  }
-  delete edges;
-  return filtered_edges;
+  return filter_objects<sta::Edge>(property, op, pattern, edges);
 }
 
 ////////////////////////////////////////////////////////////////
