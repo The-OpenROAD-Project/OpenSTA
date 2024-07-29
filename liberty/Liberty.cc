@@ -2627,11 +2627,17 @@ LibertyPort::setDriverWaveform(DriverWaveform *driver_waveform,
 RiseFallMinMax
 LibertyPort::clockTreePathDelays() const
 {
-  return clkTreeDelays();
+  return clkTreeDelays1();
 }
 
 RiseFallMinMax
 LibertyPort::clkTreeDelays() const
+{
+  return clkTreeDelays1();
+}
+
+RiseFallMinMax
+LibertyPort::clkTreeDelays1() const
 {
   RiseFallMinMax delays;
   for (const RiseFall *from_rf : RiseFall::range()) {

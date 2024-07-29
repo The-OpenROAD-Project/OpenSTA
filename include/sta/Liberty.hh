@@ -837,6 +837,7 @@ protected:
   void setMinPort(LibertyPort *min);
   void addScaledPort(OperatingConditions *op_cond,
 		     LibertyPort *scaled_port);
+  RiseFallMinMax clkTreeDelays1() const;
 
   LibertyCell *liberty_cell_;
   BusDcl *bus_dcl_;
