@@ -29,6 +29,7 @@
 
 namespace sta {
 
+using std::abs;
 using std::min;
 using std::to_string;
 
