@@ -80,6 +80,7 @@ typedef Vector<InternalPowerAttrs*> InternalPowerAttrsSeq;
 typedef Map<const char *, float, CharPtrLess> SupplyVoltageMap;
 typedef Map<const char *, LibertyPgPort*, CharPtrLess> LibertyPgPortMap;
 typedef Map<const char *, DriverWaveform*, CharPtrLess> DriverWaveformMap;
+typedef Vector<DcalcAnalysisPt*> DcalcAnalysisPtSeq;
 
 enum class ClockGateType { none, latch_posedge, latch_negedge, other };
 
@@ -532,7 +533,7 @@ public:
   // Check all liberty cells to make sure they exist
   // for all the defined corners.
   static void checkLibertyCorners();
-  void ensureVoltageWaveforms(const DcalcAnalysisPt *dcalc_ap);
+  void ensureVoltageWaveforms(const DcalcAnalysisPtSeq &dcalc_aps);
 
 protected:
   void addPort(ConcretePort *port);

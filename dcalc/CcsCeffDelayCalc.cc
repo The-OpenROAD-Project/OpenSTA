@@ -104,7 +104,8 @@ CcsCeffDelayCalc::gateDelay(const Pin *drvr_pin,
       vl_ = drvr_library->slewLowerThreshold(drvr_rf_) * vdd_;
       vh_ = drvr_library->slewUpperThreshold(drvr_rf_) * vdd_;
 
-      drvr_cell->ensureVoltageWaveforms(dcalc_ap);
+      const DcalcAnalysisPtSeq &dcalc_aps = corners_->dcalcAnalysisPts();
+      drvr_cell->ensureVoltageWaveforms(dcalc_aps);
       in_slew_ = delayAsFloat(in_slew);
       output_waveforms_ = output_waveforms;
       ref_time_ = output_waveforms_->referenceTime(in_slew_);

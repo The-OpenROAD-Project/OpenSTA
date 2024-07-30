@@ -289,9 +289,9 @@ timing_arc_sets()
 void
 ensure_voltage_waveforms()
 {
-  Corner *corner = Sta::sta()->cmdCorner();
-  DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(MinMax::max());
-  self->ensureVoltageWaveforms(dcalc_ap);
+  Corners *corners = Sta::sta()->corners();
+  const DcalcAnalysisPtSeq &dcalc_aps = corners->dcalcAnalysisPts();
+  self->ensureVoltageWaveforms(dcalc_aps);
 }
 
 } // LibertyCell methods

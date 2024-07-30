@@ -206,6 +206,7 @@ PrimaDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
 
   bool failed = false;
   output_waveforms_.resize(drvr_count_);
+  const DcalcAnalysisPtSeq &dcalc_aps = corners_->dcalcAnalysisPts();
   for (size_t drvr_idx = 0; drvr_idx < drvr_count_; drvr_idx++) {
     ArcDcalcArg &dcalc_arg = dcalc_args[drvr_idx];
     GateTableModel *table_model = dcalc_arg.arc()->gateTableModel(dcalc_ap);
@@ -226,7 +227,7 @@ PrimaDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
         drvr_library->supplyVoltage("VDD", vdd_, vdd_exists);
         if (!vdd_exists)
           report_->error(1720, "VDD not defined in library %s", drvr_library->name());
-        drvr_cell->ensureVoltageWaveforms(dcalc_ap);
+        drvr_cell->ensureVoltageWaveforms(dcalc_aps);
         if (drvr_idx == 0) {
           vth_ = drvr_library->outputThreshold(drvr_rf_) * vdd_;
           vl_ = drvr_library->slewLowerThreshold(drvr_rf_) * vdd_;

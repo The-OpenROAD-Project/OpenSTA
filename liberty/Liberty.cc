@@ -1933,7 +1933,7 @@ LibertyCell::latchCheckEnableEdge(TimingArcSet *check_set)
 }
 
 void
-LibertyCell::ensureVoltageWaveforms(const DcalcAnalysisPt *dcalc_ap)
+LibertyCell::ensureVoltageWaveforms(const DcalcAnalysisPtSeq &dcalc_aps)
 {
   if (!have_voltage_waveforms_) {
     float vdd = 0.0;  // shutup gcc
@@ -1943,11 +1943,13 @@ LibertyCell::ensureVoltageWaveforms(const DcalcAnalysisPt *dcalc_ap)
       criticalError(1120, "library missing vdd");
     for (TimingArcSet *arc_set : timingArcSets()) {
       for (TimingArc *arc : arc_set->arcs()) {
-        GateTableModel *model = arc->gateTableModel(dcalc_ap);
-        if (model) {
-          OutputWaveforms *output_waveforms = model->outputWaveforms();
-          if (output_waveforms)
-            output_waveforms->makeVoltageWaveforms(vdd);
+        for (const DcalcAnalysisPt *dcalc_ap : dcalc_aps) {
+          GateTableModel *model = arc->gateTableModel(dcalc_ap);
+          if (model) {
+            OutputWaveforms *output_waveforms = model->outputWaveforms();
+            if (output_waveforms)
+              output_waveforms->makeVoltageWaveforms(vdd);
+          }
         }
       }
     }
