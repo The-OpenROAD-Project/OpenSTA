@@ -202,6 +202,7 @@ PrimaDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
   dcalc_ap_ = dcalc_ap;
   drvr_rf_ = dcalc_args[0].arc()->toEdge()->asRiseFall();
   parasitic_network_ = dcalc_args[0].parasitic();
+  load_cap_ = dcalc_args[0].loadCap();
 
   bool failed = false;
   output_waveforms_.resize(drvr_count_);
