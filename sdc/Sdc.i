@@ -1272,9 +1272,9 @@ all_outputs_cmd()
 
 template <typename T> Vector<T*>
 filter_objects(const char *property,
-         const char *op,
-         const char *pattern,
-         Vector<T*> *objects)
+	       const char *op,
+	       const char *pattern,
+	       Vector<T*> *objects)
 {
   Vector<T*> filtered_objects;
   if (objects) {
@@ -1285,7 +1285,7 @@ filter_objects(const char *property,
     bool not_pattern_match = stringEq(op, "!~");
     for (T *object : *objects) {
       PropertyValue value(getProperty(object, property, sta));
-      const char *prop = value.stringValue();
+      const char *prop = value.asString(sta->network());
       if (prop &&
           ((exact_match && stringEq(prop, pattern))
            || (not_match && !stringEq(prop, pattern))
