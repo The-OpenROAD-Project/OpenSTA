@@ -192,7 +192,7 @@ tclListNetworkSet1(Tcl_Obj *const source,
   return set;
 }
 
-StringSet *
+static StringSet *
 tclListSetConstChar(Tcl_Obj *const source,
 		    Tcl_Interp *interp)
 {
@@ -212,7 +212,7 @@ tclListSetConstChar(Tcl_Obj *const source,
     return nullptr;
 }
 
-StringSeq *
+static StringSeq *
 tclListSeqConstChar(Tcl_Obj *const source,
 		    Tcl_Interp *interp)
 {
@@ -232,7 +232,7 @@ tclListSeqConstChar(Tcl_Obj *const source,
     return nullptr;
 }
 
-StdStringSet *
+static StdStringSet *
 tclListSetStdString(Tcl_Obj *const source,
 		    Tcl_Interp *interp)
 {
@@ -317,7 +317,7 @@ setPtrTclList(SET_TYPE *set,
 
 ////////////////////////////////////////////////////////////////
 
-void
+static void
 tclArgError(Tcl_Interp *interp,
             const char *msg,
             const char *arg)
@@ -330,7 +330,7 @@ tclArgError(Tcl_Interp *interp,
   stringDelete(error);
 }
 
-void
+static void
 objectListNext(const char *list,
 	       const char *type,
 	       // Return values.
@@ -366,7 +366,7 @@ objectListNext(const char *list,
   }
 }
 
-Tcl_Obj *
+static Tcl_Obj *
 tclArcDcalcArg(ArcDcalcArg &gate,
                Tcl_Interp *interp)
 {
@@ -405,7 +405,7 @@ tclArcDcalcArg(ArcDcalcArg &gate,
   return list;
 }
 
-ArcDcalcArg
+static ArcDcalcArg
 arcDcalcArgTcl(Tcl_Obj *obj,
                Tcl_Interp *interp)
 {
