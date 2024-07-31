@@ -212,7 +212,7 @@ PrimaDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
     GateTableModel *table_model = dcalc_arg.arc()->gateTableModel(dcalc_ap);
     if (table_model && dcalc_arg.parasitic()) {
       OutputWaveforms *output_waveforms = table_model->outputWaveforms();
-      Slew in_slew = dcalc_arg.inSlew();
+      float in_slew = dcalc_arg.inSlewFlt();
       if (output_waveforms
           // Bounds check because extrapolating waveforms does not work for shit.
           && output_waveforms->slewAxis()->inBounds(in_slew)
@@ -323,7 +323,7 @@ PrimaDelayCalc::simulate1(const MatrixSd &G,
   v_ = v_prev_ = x_to_v * x_init;
 
   // voltageTime is always for a rising waveform so 0.0v is initial voltage.
-  double time_begin = output_waveforms_[0]->voltageTime((*dcalc_args_)[0].inSlew(),
+  double time_begin = output_waveforms_[0]->voltageTime((*dcalc_args_)[0].inSlewFlt(),
                                                         ceff_[0], 0.0);
   // Limit in case load voltage waveforms don't get to final value.
   double time_end = time_begin + maxTime();
@@ -370,7 +370,7 @@ PrimaDelayCalc::timeStep()
 double
 PrimaDelayCalc::maxTime()
 {
-  return (*dcalc_args_)[0].inSlew()
+  return (*dcalc_args_)[0].inSlewFlt()
     + (driverResistance() + resistance_sum_) * load_cap_ * 4;
 }
 
@@ -486,7 +486,7 @@ PrimaDelayCalc::initCeffIdrvr()
     ceff_[drvr_idx] = load_cap_;
     // voltageTime is always for a rising waveform so 0.0v is initial voltage.
     drvr_current_[drvr_idx] =
-      output_waveforms_[drvr_idx]->voltageCurrent(dcalc_arg.inSlew(),
+      output_waveforms_[drvr_idx]->voltageCurrent(dcalc_arg.inSlewFlt(),
                                                   ceff_[drvr_idx], 0.0);
   }
 }
@@ -617,7 +617,7 @@ PrimaDelayCalc::updateCeffIdrvr()
         drvr_current_[drvr_idx] = 0.0;
       else
         drvr_current_[drvr_idx] =
-          output_waveforms_[drvr_idx]->voltageCurrent(dcalc_arg.inSlew(),
+          output_waveforms_[drvr_idx]->voltageCurrent(dcalc_arg.inSlewFlt(),
                                                       ceff_[drvr_idx], v1);
     }
     else {
@@ -633,7 +633,7 @@ PrimaDelayCalc::updateCeffIdrvr()
       }
       else
         drvr_current_[drvr_idx] =
-          output_waveforms_[drvr_idx]->voltageCurrent(dcalc_arg.inSlew(),
+          output_waveforms_[drvr_idx]->voltageCurrent(dcalc_arg.inSlewFlt(),
                                                       ceff_[drvr_idx],
                                                       vdd_ - v1);
     }
@@ -710,7 +710,7 @@ PrimaDelayCalc::dcalcResults()
     const LibertyLibrary *drvr_library = dcalc_arg.drvrLibrary();
     size_t drvr_node = pin_node_map_[drvr_pin];
     ThresholdTimes &drvr_times = threshold_times_[drvr_node];
-    float ref_time = output_waveforms_[drvr_idx]->referenceTime(dcalc_arg.inSlew());
+    float ref_time = output_waveforms_[drvr_idx]->referenceTime(dcalc_arg.inSlewFlt());
     ArcDelay gate_delay = drvr_times[threshold_vth] - ref_time;
     Slew drvr_slew = abs(drvr_times[threshold_vh] - drvr_times[threshold_vl]);
     dcalc_result.setGateDelay(gate_delay);
