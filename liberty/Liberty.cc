@@ -1948,7 +1948,7 @@ LibertyCell::ensureVoltageWaveforms(const DcalcAnalysisPtSeq &dcalc_aps)
           if (model) {
             OutputWaveforms *output_waveforms = model->outputWaveforms();
             if (output_waveforms)
-              output_waveforms->makeVoltageWaveforms(vdd);
+              output_waveforms->ensureVoltageWaveforms(vdd);
           }
         }
       }
