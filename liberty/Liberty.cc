@@ -1729,11 +1729,13 @@ LibertyCell::makeLatchEnables(Report *report,
 	LibertyPort *en = en_to_q->from();
 	LibertyPort *q = en_to_q->to();
         for (TimingArcSet *d_to_q : timingArcSets(nullptr, q)) {
-	  if (d_to_q->role() == TimingRole::latchDtoQ()) {
+	  if (d_to_q->role() == TimingRole::latchDtoQ()
+              && condMatch(en_to_q, d_to_q)) {
 	    LibertyPort *d = d_to_q->from();
             const RiseFall *en_rf = en_to_q->isRisingFallingEdge();
 	    if (en_rf) {
-              TimingArcSet *setup_check = findLatchSetup(d, en, en_rf, q, report);
+              TimingArcSet *setup_check = findLatchSetup(d, en, en_rf, q, d_to_q,
+                                                         report);
               LatchEnable *latch_enable = makeLatchEnable(d, en, en_rf, q, d_to_q,
                                                           en_to_q,
                                                           setup_check,
@@ -1766,11 +1768,22 @@ LibertyCell::makeLatchEnables(Report *report,
   }
 }
 
+bool
+LibertyCell::condMatch(const TimingArcSet *arc_set1,
+                       const TimingArcSet *arc_set2)
+{
+  FuncExpr *cond1 = arc_set1->cond();
+  FuncExpr *cond2 = arc_set2->cond();
+  return (cond1 == nullptr && cond2 == nullptr)
+    || FuncExpr::equiv(cond1, cond2);
+}
+
 TimingArcSet *
 LibertyCell::findLatchSetup(const LibertyPort *d,
                             const LibertyPort *en,
                             const RiseFall *en_rf,
                             const LibertyPort *q,
+                            const TimingArcSet *en_to_q,
                             Report *report)
 {
   TimingArcSetSeq en_d_arcs = timingArcSets(en, d);
@@ -1779,7 +1792,8 @@ LibertyCell::findLatchSetup(const LibertyPort *d,
     if (arc_set->role() == TimingRole::setup()) {
       for (TimingArc *arc : arc_set->arcs()) {
         const RiseFall *from_rf = arc->fromEdge()->asRiseFall();
-        if (from_rf == en_rf->opposite())
+        if (from_rf == en_rf->opposite()
+            && condMatch(arc_set, en_to_q))
           return arc_set;
       }
     }
@@ -1875,16 +1889,18 @@ LibertyCell::inferLatchRoles(Report *report,
         for (TimingArcSet *d_to_q : timingArcSets(nullptr, q)) {
 	  // Look for combinational d->q arcs.
 	  TimingRole *d_to_q_role = d_to_q->role();
-	  if ((d_to_q_role == TimingRole::combinational()
-	       && d_to_q->arcCount() == 2
-               && (d_to_q->sense() == TimingSense::positive_unate
-                   || d_to_q->sense() == TimingSense::negative_unate))
-	      // Previously identified as D->Q arc.
-	      || d_to_q_role == TimingRole::latchDtoQ()) {
+	  if (((d_to_q_role == TimingRole::combinational()
+                && d_to_q->arcCount() == 2
+                && (d_to_q->sense() == TimingSense::positive_unate
+                    || d_to_q->sense() == TimingSense::negative_unate))
+               // Previously identified as D->Q arc.
+               || d_to_q_role == TimingRole::latchDtoQ())
+              && condMatch(en_to_q, d_to_q)) {
 	    LibertyPort *d = d_to_q->from();
             const RiseFall *en_rf = en_to_q->isRisingFallingEdge();
 	    if (en_rf) {
-              TimingArcSet *setup_check = findLatchSetup(d, en, en_rf, q, report);
+              TimingArcSet *setup_check = findLatchSetup(d, en, en_rf, q, en_to_q,
+                                                         report);
               makeLatchEnable(d, en, en_rf, q, d_to_q, en_to_q, setup_check, debug);
               d_to_q->setRole(TimingRole::latchDtoQ());
               en_to_q->setRole(TimingRole::latchEnToQ());
