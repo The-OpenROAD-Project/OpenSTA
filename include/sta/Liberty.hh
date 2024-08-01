@@ -556,7 +556,10 @@ protected:
                                const LibertyPort *en,
                                const RiseFall *en_rf,
                                const LibertyPort *q,
+                               const TimingArcSet *en_to_q,
                                Report *report);
+  bool condMatch(const TimingArcSet *arc_set1,
+                 const TimingArcSet *arc_set2);
   void findDefaultCondArcs();
   void translatePresetClrCheckRoles();
   void inferLatchRoles(Report *report,
