@@ -20,35 +20,30 @@ library (one_to_one_mismatched_width_test) {
   nom_process : 1.0;
   nom_temperature : 85.0;
   nom_voltage : 0.75;
-  type (bus20) {
+  type (bus8) {
     base_type : "array";
     data_type : "bit";
-    bit_width : 20;
-    bit_from : 19;
+    bit_width : 8;
+    bit_from : 7;
     bit_to : 0;
   }
-  type (bus32) {
+  type (bus4) {
     base_type : "array";
     data_type : "bit";
-    bit_width : 32;
-    bit_from : 31;
+    bit_width : 4;
+    bit_from : 3;
     bit_to : 0;
   }
 
-  cell (or_32_to_20) {
+  cell (inv_8_to_4) {
     bus (A) {
       capacitance : 1;
-      bus_type : "bus32";
-      direction : "input";
-    }
-    bus (B) {
-      capacitance : 1;
-      bus_type : "bus32";
+      bus_type : "bus8";
       direction : "input";
     }
     bus (Y) {
-      function : "A | B";
-      bus_type : "bus20";
+      function : "!A";
+      bus_type : "bus4";
       direction : "output";
       timing () {
         related_pin : "A";
@@ -65,56 +60,21 @@ library (one_to_one_mismatched_width_test) {
           values ("1");
         }
       }
-      timing () {
-        related_pin : "B";
-        cell_rise (scalar) {
-          values ("1");
-        }
-        cell_fall (scalar) {
-          values ("1");
-        }
-        rise_transition (scalar) {
-          values ("1");
-        }
-        fall_transition (scalar) {
-          values ("1");
-        }
-      }
     }
   }
 
-  cell (or_20_to_32) {
+  cell (inv_4_to_8) {
     bus (A) {
       capacitance : 1;
-      bus_type : "bus20";
-      direction : "input";
-    }
-    bus (B) {
-      capacitance : 1;
-      bus_type : "bus20";
+      bus_type : "bus4";
       direction : "input";
     }
     bus (Y) {
-      function : "A | B";
-      bus_type : "bus32";
+      function : "!A";
+      bus_type : "bus8";
       direction : "output";
       timing () {
         related_pin : "A";
-        cell_rise (scalar) {
-          values ("1");
-        }
-        cell_fall (scalar) {
-          values ("1");
-        }
-        rise_transition (scalar) {
-          values ("1");
-        }
-        fall_transition (scalar) {
-          values ("1");
-        }
-      }
-      timing () {
-        related_pin : "B";
         cell_rise (scalar) {
           values ("1");
         }
