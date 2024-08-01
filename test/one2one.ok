@@ -1,0 +1,168 @@
+Warning: one2one.lib line 53, timing port A and related port Y are different sizes.
+Warning: one2one.lib line 68, timing port B and related port Y are different sizes.
+Warning: one2one.lib line 101, timing port A and related port Y are different sizes.
+Warning: one2one.lib line 116, timing port B and related port Y are different sizes.
+TEST 1:
+Startpoint: a[0] (input port clocked by clk)
+Endpoint: y[0] (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v a[0] (in)
+   1.00    1.00 ^ partial_wide_or_cell/Y[0] (or_32_to_20)
+   0.00    1.00 ^ y[0] (out)
+           1.00   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+   0.00    0.00   output external delay
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -1.00   data arrival time
+---------------------------------------------------------
+          -1.00   slack (VIOLATED)
+
+
+Startpoint: a[10] (input port clocked by clk)
+Endpoint: y[10] (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v a[10] (in)
+   1.00    1.00 ^ partial_wide_or_cell/Y[10] (or_32_to_20)
+   0.00    1.00 ^ y[10] (out)
+           1.00   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+   0.00    0.00   output external delay
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -1.00   data arrival time
+---------------------------------------------------------
+          -1.00   slack (VIOLATED)
+
+
+Startpoint: a[11] (input port clocked by clk)
+Endpoint: y[11] (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v a[11] (in)
+   1.00    1.00 ^ partial_wide_or_cell/Y[11] (or_32_to_20)
+   0.00    1.00 ^ y[11] (out)
+           1.00   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+   0.00    0.00   output external delay
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -1.00   data arrival time
+---------------------------------------------------------
+          -1.00   slack (VIOLATED)
+
+
+TEST 2:
+Startpoint: a[0] (input port clocked by clk)
+Endpoint: y[0] (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v a[0] (in)
+   1.00    1.00 ^ wide_or_cell/Y[0] (or_20_to_32)
+   0.00    1.00 ^ y[0] (out)
+           1.00   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+   0.00    0.00   output external delay
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -1.00   data arrival time
+---------------------------------------------------------
+          -1.00   slack (VIOLATED)
+
+
+Startpoint: a[10] (input port clocked by clk)
+Endpoint: y[10] (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v a[10] (in)
+   1.00    1.00 ^ wide_or_cell/Y[10] (or_20_to_32)
+   0.00    1.00 ^ y[10] (out)
+           1.00   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+   0.00    0.00   output external delay
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -1.00   data arrival time
+---------------------------------------------------------
+          -1.00   slack (VIOLATED)
+
+
+Startpoint: a[11] (input port clocked by clk)
+Endpoint: y[11] (output port clocked by clk)
+Path Group: clk
+Path Type: max
+
+  Delay    Time   Description
+---------------------------------------------------------
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00 v input external delay
+   0.00    0.00 v a[11] (in)
+   1.00    1.00 ^ wide_or_cell/Y[11] (or_20_to_32)
+   0.00    1.00 ^ y[11] (out)
+           1.00   data arrival time
+
+   0.00    0.00   clock clk (rise edge)
+   0.00    0.00   clock network delay (ideal)
+   0.00    0.00   clock reconvergence pessimism
+   0.00    0.00   output external delay
+           0.00   data required time
+---------------------------------------------------------
+           0.00   data required time
+          -1.00   data arrival time
+---------------------------------------------------------
+          -1.00   slack (VIOLATED)
+
+
