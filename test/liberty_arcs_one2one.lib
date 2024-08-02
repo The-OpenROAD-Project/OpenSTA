@@ -1,4 +1,4 @@
-library (one_to_one_mismatched_width_test) {
+library (one_to_one_mismatched_width) {
   delay_model : "table_lookup";
   simulation : false;
   capacitive_load_unit (1,pF);

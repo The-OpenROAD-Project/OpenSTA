@@ -1,5 +1,5 @@
-Warning: one2one.lib line 48, timing port A and related port Y are different sizes.
-Warning: one2one.lib line 76, timing port A and related port Y are different sizes.
+Warning: liberty_arcs_one2one.lib line 48, timing port A and related port Y are different sizes.
+Warning: liberty_arcs_one2one.lib line 76, timing port A and related port Y are different sizes.
 TEST 1:
 Startpoint: a[0] (input port clocked by clk)
 Endpoint: y[0] (output port clocked by clk)

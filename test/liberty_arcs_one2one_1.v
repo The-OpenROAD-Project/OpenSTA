@@ -1,11 +1,11 @@
 // Liberty file test: one-to-one mapping with mismatched bit widths
 // Should generate warning but still create timing arcs between bits with same index
-module one2one_test2 (
-  input wire [3:0] a,
-  output wire [7:0] y
+module liberty_arcs_one2one_1 (
+  input wire [7:0] a,
+  output wire [3:0] y
 );
 
-  inv_4_to_8 partial_wide_inv_cell (
+  inv_8_to_4 partial_wide_inv_cell (
     .A(a),
     .Y(y)
   );

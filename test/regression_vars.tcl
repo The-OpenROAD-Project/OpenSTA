@@ -124,7 +124,7 @@ record_example_tests {
 record_sta_tests {
   prima3
   verilog_attribute
-  one2one
+  liberty_arcs_one2one
 }
 
 define_test_group fast [group_tests all]
