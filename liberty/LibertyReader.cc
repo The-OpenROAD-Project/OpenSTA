@@ -2402,23 +2402,34 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
   else {
     // bus -> bus
     if (timing->isOneToOne()) {
-      if (static_cast<int>(from_port_iter.size()) == to_port->size()) {
-	LibertyPortMemberIterator to_iter(to_port);
-	while (from_port_iter.hasNext() && to_iter.hasNext()) {
-	  LibertyPort *from_port_bit = from_port_iter.next();
-	  LibertyPort *to_port_bit = to_iter.next();
-          if (from_port_bit->direction()->isOutput())
-            libWarn(1215, timing->line(), "timing group from output port.");
-	  builder_.makeTimingArcs(cell_, from_port_bit, to_port_bit,
-                                  related_out_port, timing->attrs(),
-                                  timing->line());
-	}
-      }
-      else
+      int from_size = from_port_iter.size();
+      int to_size = to_port->size();
+      LibertyPortMemberIterator to_port_iter(to_port);
+      // warn about different sizes
+      if (from_size != to_size)
 	libWarn(1216, timing->line(),
 		"timing port %s and related port %s are different sizes.",
 		from_port_name,
 		to_port->name());
+      // align to/from iterators for one-to-one mapping
+      while (from_size > to_size) {
+	from_size--;
+	from_port_iter.next();
+      }
+      while (to_size > from_size) {
+	to_size--;
+	to_port_iter.next();
+      }
+      // make timing arcs
+      while (from_port_iter.hasNext() && to_port_iter.hasNext()) {
+	LibertyPort *from_port_bit = from_port_iter.next();
+	LibertyPort *to_port_bit = to_port_iter.next();
+	if (from_port_bit->direction()->isOutput())
+	  libWarn(1215, timing->line(), "timing group from output port.");
+	builder_.makeTimingArcs(cell_, from_port_bit, to_port_bit,
+				related_out_port, timing->attrs(),
+				timing->line());
+      }
     }
     else {
       while (from_port_iter.hasNext()) {
