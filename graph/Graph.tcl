@@ -230,7 +230,7 @@ proc report_pin_constant { pin } {
 
 ################################################################
 
-proc report_disabled_edges {} {
+proc_redirect report_disabled_edges {
   foreach edge [disabled_edges_sorted] {
     if { [$edge role] == "wire" } {
       set from_pin_name [get_full_name [[$edge from] pin]]

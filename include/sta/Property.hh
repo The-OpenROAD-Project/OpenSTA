@@ -80,9 +80,9 @@ public:
   const Unit *unit() const { return unit_; }
 
   const char *asString(const Network *network) const;
-  const char *stringValue() const { return string_; }
-  float floatValue() const { return float_; }
-  bool boolValue() const { return bool_; }
+  const char *stringValue() const; // valid for type string
+  float floatValue() const;        // valid for type float
+  bool boolValue() const;          // valid for type bool
   const LibertyLibrary *libertyLibrary() const { return liberty_library_; }
   const LibertyCell *libertyCell() const { return liberty_cell_; }
   const LibertyPort *libertyPort() const { return liberty_port_; }

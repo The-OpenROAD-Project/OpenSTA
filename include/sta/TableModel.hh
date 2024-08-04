@@ -497,7 +497,7 @@ public:
   const TableAxis *capAxis() const { return cap_axis_.get(); }
   // Make voltage wavefroms from liberty time/current values.
   // Required before voltageTime, timeVoltage, voltageCurrent.
-  void makeVoltageWaveforms(float vdd);
+  void ensureVoltageWaveforms(float vdd);
   float timeCurrent(float slew,
                     float cap,
                     float time);

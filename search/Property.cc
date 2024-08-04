@@ -126,6 +126,35 @@ PropertyUnknown::what() const noexcept
 
 ////////////////////////////////////////////////////////////////
 
+class PropertyTypeWrong : public Exception
+{
+public:
+  PropertyTypeWrong(const char *accessor,
+                    const char *type);
+  virtual ~PropertyTypeWrong() {}
+  virtual const char *what() const noexcept;
+
+private:
+  const char *accessor_;
+  const char *type_;
+};
+
+PropertyTypeWrong::PropertyTypeWrong(const char *accessor,
+                                     const char *type) :
+  Exception(),
+  accessor_(accessor),
+  type_(type)
+{
+}
+
+const char *
+PropertyTypeWrong::what() const noexcept
+{
+  return stringPrint("property accessor %s is only valid for %s properties.",
+		     accessor_, type_);
+}
+////////////////////////////////////////////////////////////////
+
 PropertyValue::PropertyValue() :
   type_(type_none),
   unit_(nullptr)
@@ -618,6 +647,30 @@ PropertyValue::asString(const Network *network) const
     return nullptr;
   }
   return nullptr;
+}
+
+const char *
+PropertyValue::stringValue() const
+{
+  if (type_ != Type::type_string)
+    throw PropertyTypeWrong("stringValue", "string");
+  return string_;
+}
+
+float
+PropertyValue::floatValue() const
+{
+  if (type_ != Type::type_float)
+    throw PropertyTypeWrong("floatValue", "float");
+  return float_;
+}
+
+bool
+PropertyValue::boolValue() const
+{
+  if (type_ != Type::type_bool)
+    throw PropertyTypeWrong("boolValue", "boolt");
+  return bool_;
 }
 
 ////////////////////////////////////////////////////////////////

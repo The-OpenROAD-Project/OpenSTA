@@ -1664,17 +1664,19 @@ OutputWaveforms::checkAxes(const TableTemplate *tbl_template)
 }
 
 void
-OutputWaveforms::makeVoltageWaveforms(float vdd)
+OutputWaveforms::ensureVoltageWaveforms(float vdd)
 {
-  vdd_ = vdd;
-  size_t size = current_waveforms_.size();
-  voltage_waveforms_.resize(size);
-  voltage_currents_.resize(size);
-  size_t cap_count = cap_axis_->size();
-  for (size_t slew_index = 0; slew_index < slew_axis_->size(); slew_index++) {
-    for (size_t cap_index = 0; cap_index < cap_count; cap_index++) {
-      size_t wave_index = slew_index * cap_count + cap_index;
-      findVoltages(wave_index, cap_axis_->axisValue(cap_index));
+  if (voltage_waveforms_.empty()) {
+    vdd_ = vdd;
+    size_t size = current_waveforms_.size();
+    voltage_waveforms_.resize(size);
+    voltage_currents_.resize(size);
+    size_t cap_count = cap_axis_->size();
+    for (size_t slew_index = 0; slew_index < slew_axis_->size(); slew_index++) {
+      for (size_t cap_index = 0; cap_index < cap_count; cap_index++) {
+        size_t wave_index = slew_index * cap_count + cap_index;
+        findVoltages(wave_index, cap_axis_->axisValue(cap_index));
+      }
     }
   }
 }

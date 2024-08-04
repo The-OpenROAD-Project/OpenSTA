@@ -339,23 +339,26 @@ find_package(TCL)
 set(TCL_READLINE 0)
 # check for tclReadline
 if (USE_TCL_READLINE)
-  find_library(TCL_READLINE_LIBRARY tclreadline)
+  set(TCL_READLINE_POSSIBLE_NAMES
+    tclreadline-2.1.0
+    tclreadline-2.3.2
+    tclreadline-2.3.6
+    tclreadline-2.3.7
+    tclreadline-2.3.8
+    )
+  find_library(TCL_READLINE_LIBRARY
+    NAMES tclreadline ${TCL_READLINE_POSSIBLE_NAMES}
+    PATHS ${TCL_LIB_PATHS}
+    )
   if (TCL_READLINE_LIBRARY)
-    message(STATUS "TCL readline: ${TCL_READLINE_LIBRARY}")
+    message(STATUS "TCL readline library: ${TCL_READLINE_LIBRARY}")
     # Referenced by StaConfig.hh.cmake
     set(TCL_READLINE 1)
+  endif()
 
-    get_filename_component(TCL_READLINE_LIB_DIR "${TCL_READLINE_LIBRARY}" PATH)
-    get_filename_component(TCL_READLINE_LIB_PARENT "${TCL_READLINE_LIB_DIR}" PATH)
-    find_file(TCL_READLINE_HEADER tclreadline.h
-      PATHS ${TCL_READLINE_LIB_PARENT}
-      PATH_SUFFIXES include
-      NO_DEFAULT_PATH
-      )
-    message(STATUS "TCL readline header: ${TCL_READLINE_HEADER}")
-    get_filename_component(TCL_READLINE_INCLUDE "${TCL_READLINE_HEADER}" PATH)
-  else()
-    message(STATUS "TCL readline: not found")
+  find_path(TCL_READLINE_INCLUDE tclreadline.h)
+  if (TCL_READLINE_INCLUDE)
+    message(STATUS "TCL readline header: ${TCL_READLINE_INCLUDE}/tclreadline.h")
   endif()
 endif()
 

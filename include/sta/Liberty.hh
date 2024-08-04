@@ -80,6 +80,7 @@ typedef Vector<InternalPowerAttrs*> InternalPowerAttrsSeq;
 typedef Map<const char *, float, CharPtrLess> SupplyVoltageMap;
 typedef Map<const char *, LibertyPgPort*, CharPtrLess> LibertyPgPortMap;
 typedef Map<const char *, DriverWaveform*, CharPtrLess> DriverWaveformMap;
+typedef Vector<DcalcAnalysisPt*> DcalcAnalysisPtSeq;
 
 enum class ClockGateType { none, latch_posedge, latch_negedge, other };
 
@@ -532,7 +533,7 @@ public:
   // Check all liberty cells to make sure they exist
   // for all the defined corners.
   static void checkLibertyCorners();
-  void ensureVoltageWaveforms(const DcalcAnalysisPt *dcalc_ap);
+  void ensureVoltageWaveforms(const DcalcAnalysisPtSeq &dcalc_aps);
 
 protected:
   void addPort(ConcretePort *port);
@@ -555,7 +556,10 @@ protected:
                                const LibertyPort *en,
                                const RiseFall *en_rf,
                                const LibertyPort *q,
+                               const TimingArcSet *en_to_q,
                                Report *report);
+  bool condMatch(const TimingArcSet *arc_set1,
+                 const TimingArcSet *arc_set2);
   void findDefaultCondArcs();
   void translatePresetClrCheckRoles();
   void inferLatchRoles(Report *report,
@@ -837,6 +841,7 @@ protected:
   void setMinPort(LibertyPort *min);
   void addScaledPort(OperatingConditions *op_cond,
 		     LibertyPort *scaled_port);
+  RiseFallMinMax clkTreeDelays1() const;
 
   LibertyCell *liberty_cell_;
   BusDcl *bus_dcl_;

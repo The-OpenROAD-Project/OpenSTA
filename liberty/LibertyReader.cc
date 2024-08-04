@@ -2351,7 +2351,8 @@ TimingGroup::makeTableModels(LibertyCell *cell,
 	if (delay == nullptr)
 	  reader->libWarn(1211, line_, "missing cell_%s.", rf->name());
       }
-    } else if (constraint)
+    }
+    else if (constraint)
       attrs_->setModel(rf, new CheckTableModel(cell, constraint,
                                                constraint_sigma_[rf_index]));
   }
@@ -2401,23 +2402,34 @@ LibertyReader::makeTimingArcs(const char *from_port_name,
   else {
     // bus -> bus
     if (timing->isOneToOne()) {
-      if (static_cast<int>(from_port_iter.size()) == to_port->size()) {
-	LibertyPortMemberIterator to_iter(to_port);
-	while (from_port_iter.hasNext() && to_iter.hasNext()) {
-	  LibertyPort *from_port_bit = from_port_iter.next();
-	  LibertyPort *to_port_bit = to_iter.next();
-          if (from_port_bit->direction()->isOutput())
-            libWarn(1215, timing->line(), "timing group from output port.");
-	  builder_.makeTimingArcs(cell_, from_port_bit, to_port_bit,
-                                  related_out_port, timing->attrs(),
-                                  timing->line());
-	}
-      }
-      else
+      int from_size = from_port_iter.size();
+      int to_size = to_port->size();
+      LibertyPortMemberIterator to_port_iter(to_port);
+      // warn about different sizes
+      if (from_size != to_size)
 	libWarn(1216, timing->line(),
 		"timing port %s and related port %s are different sizes.",
 		from_port_name,
 		to_port->name());
+      // align to/from iterators for one-to-one mapping
+      while (from_size > to_size) {
+	from_size--;
+	from_port_iter.next();
+      }
+      while (to_size > from_size) {
+	to_size--;
+	to_port_iter.next();
+      }
+      // make timing arcs
+      while (from_port_iter.hasNext() && to_port_iter.hasNext()) {
+	LibertyPort *from_port_bit = from_port_iter.next();
+	LibertyPort *to_port_bit = to_port_iter.next();
+	if (from_port_bit->direction()->isOutput())
+	  libWarn(1215, timing->line(), "timing group from output port.");
+	builder_.makeTimingArcs(cell_, from_port_bit, to_port_bit,
+				related_out_port, timing->attrs(),
+				timing->line());
+      }
     }
     else {
       while (from_port_iter.hasNext()) {
@@ -2534,16 +2546,17 @@ LibertyReader::endReceiverCapacitanceRiseFall(LibertyGroup *group)
     if (ReceiverModel::checkAxes(table_)) {
       TableModel *table_model = new TableModel(table_, tbl_template_,
                                                scale_factor_type_, rf_);
-      if (timing_ && receiver_model_ == nullptr) {
+      if (receiver_model_ == nullptr) {
         receiver_model_ = make_shared<ReceiverModel>();
-        timing_->setReceiverModel(receiver_model_);
+        if (timing_)
+          timing_->setReceiverModel(receiver_model_);
       }
       receiver_model_->setCapacitanceModel(table_model, index_, rf_);
     }
     else
       libWarn(1219, group, "unsupported model axis.");
+    endTableModel();
   }
-  endTableModel();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -2576,50 +2589,52 @@ LibertyReader::beginOutputCurrent(RiseFall *rf,
 void
 LibertyReader::endOutputCurrentRiseFall(LibertyGroup *group)
 {
-  Set<float> slew_set, cap_set;
-  FloatSeq *slew_values = new FloatSeq;
-  FloatSeq *cap_values = new FloatSeq;
-  for (OutputWaveform *waveform : output_currents_) {
-    float slew = waveform->slew();
-    if (!slew_set.hasKey(slew)) {
-      slew_set.insert(slew);
-      slew_values->push_back(slew);
+  if (timing_) {
+    Set<float> slew_set, cap_set;
+    FloatSeq *slew_values = new FloatSeq;
+    FloatSeq *cap_values = new FloatSeq;
+    for (OutputWaveform *waveform : output_currents_) {
+      float slew = waveform->slew();
+      if (!slew_set.hasKey(slew)) {
+        slew_set.insert(slew);
+        slew_values->push_back(slew);
+      }
+      float cap = waveform->cap();
+      if (!cap_set.hasKey(cap)) {
+        cap_set.insert(cap);
+        cap_values->push_back(cap);
+      }
     }
-    float cap = waveform->cap();
-    if (!cap_set.hasKey(cap)) {
-      cap_set.insert(cap);
-      cap_values->push_back(cap);
+    sort(slew_values, std::less<float>());
+    sort(cap_values, std::less<float>());
+    TableAxisPtr slew_axis = make_shared<TableAxis>(TableAxisVariable::input_net_transition,
+                                                    slew_values);
+    TableAxisPtr cap_axis = make_shared<TableAxis>(TableAxisVariable::total_output_net_capacitance,
+                                                   cap_values);
+    FloatSeq *ref_times = new FloatSeq(slew_values->size());
+    Table1Seq current_waveforms(slew_axis->size() * cap_axis->size());
+    for (OutputWaveform *waveform : output_currents_) {
+      size_t slew_index, cap_index;
+      bool slew_exists, cap_exists;
+      slew_axis->findAxisIndex(waveform->slew(), slew_index, slew_exists);
+      cap_axis->findAxisIndex(waveform->cap(), cap_index, cap_exists);
+      if (slew_exists && cap_exists) {
+        size_t index = slew_index * cap_axis->size() + cap_index;
+        current_waveforms[index] = waveform->stealCurrents();
+        (*ref_times)[slew_index] = waveform->referenceTime();
+      }
+      else
+        libWarn(1221, group, "output current waveform %.2e %.2e not found.",
+                waveform->slew(),
+                waveform->cap());
     }
+    Table1 *ref_time_tbl = new Table1(ref_times, slew_axis);
+    OutputWaveforms *output_current = new OutputWaveforms(slew_axis, cap_axis, rf_,
+                                                          current_waveforms,
+                                                          ref_time_tbl);
+    timing_->setOutputWaveforms(rf_, output_current);
+    output_currents_.deleteContentsClear();
   }
-  sort(slew_values, std::less<float>());
-  sort(cap_values, std::less<float>());
-  TableAxisPtr slew_axis = make_shared<TableAxis>(TableAxisVariable::input_net_transition,
-                                                  slew_values);
-  TableAxisPtr cap_axis = make_shared<TableAxis>(TableAxisVariable::total_output_net_capacitance,
-                                                 cap_values);
-  FloatSeq *ref_times = new FloatSeq(slew_values->size());
-  Table1Seq current_waveforms(slew_axis->size() * cap_axis->size());
-  for (OutputWaveform *waveform : output_currents_) {
-    size_t slew_index, cap_index;
-    bool slew_exists, cap_exists;
-    slew_axis->findAxisIndex(waveform->slew(), slew_index, slew_exists);
-    cap_axis->findAxisIndex(waveform->cap(), cap_index, cap_exists);
-    if (slew_exists && cap_exists) {
-      size_t index = slew_index * cap_axis->size() + cap_index;
-      current_waveforms[index] = waveform->stealCurrents();
-      (*ref_times)[slew_index] = waveform->referenceTime();
-    }
-    else
-      libWarn(1221, group, "output current waveform %.2e %.2e not found.",
-              waveform->slew(),
-              waveform->cap());
-  }
-  Table1 *ref_time_tbl = new Table1(ref_times, slew_axis);
-  OutputWaveforms *output_current = new OutputWaveforms(slew_axis, cap_axis, rf_,
-                                                        current_waveforms,
-                                                        ref_time_tbl);
-  timing_->setOutputWaveforms(rf_, output_current);
-  output_currents_.deleteContentsClear();
 }
 
 void
