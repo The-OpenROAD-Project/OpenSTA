@@ -17,6 +17,7 @@
 #pragma once
 
 #include <functional>
+#include <vector>
 
 #include "Vector.hh"
 #include "Map.hh"
@@ -27,6 +28,7 @@
 #include "InternalPower.hh"
 #include "LeakagePower.hh"
 #include "Liberty.hh"
+#include "Sequential.hh"
 #include "LibertyParser.hh"
 #include "LibertyReader.hh"
 #include "NetworkClass.hh"
@@ -38,6 +40,7 @@ class LibertyReader;
 class LibertyFunc;
 class PortGroup;
 class SequentialGroup;
+class StatetableGroup;
 class RelatedPortGroup;
 class TimingGroup;
 class InternalPowerGroup;
@@ -46,6 +49,8 @@ class PortNameBitIterator;
 class TimingArcBuilder;
 class LibertyAttr;
 class OutputWaveform;
+
+using std::vector;
 
 typedef void (LibertyReader::*LibraryAttrVisitor)(LibertyAttr *attr);
 typedef void (LibertyReader::*LibraryGroupVisitor)(LibertyGroup *group);
@@ -59,6 +64,7 @@ typedef Vector<InternalPowerGroup*> InternalPowerGroupSeq;
 typedef Vector<LeakagePowerGroup*> LeakagePowerGroupSeq;
 typedef void (LibertyPort::*LibertyPortBoolSetter)(bool value);
 typedef Vector<OutputWaveform*> OutputWaveformSeq;
+typedef vector<string> StdStringSeq;
 
 class LibertyReader : public LibertyGroupVisitor
 {
@@ -164,6 +170,7 @@ public:
   virtual void makeInternalPowers(PortGroup *port_group);
   virtual void makeCellSequentials();
   virtual void makeCellSequential(SequentialGroup *seq);
+  virtual void makeStatetable();
   virtual void makeLeakagePowers();
   virtual void parseCellFuncs();
   virtual void makeLibertyFunc(const char *expr,
@@ -301,6 +308,10 @@ public:
   virtual void visitPreset(LibertyAttr *attr);
   virtual void visitClrPresetVar1(LibertyAttr *attr);
   virtual void visitClrPresetVar2(LibertyAttr *attr);
+
+  virtual void beginStatetable(LibertyGroup *group);
+  virtual void endStatetable(LibertyGroup *group);
+  virtual void visitTable(LibertyAttr *attr);
 
   virtual void beginTiming(LibertyGroup *group);
   virtual void endTiming(LibertyGroup *group);
@@ -502,12 +513,19 @@ protected:
   void makeTableAxis(int index);
 
   StringSeq *parseNameList(const char *name_list);
+  StdStringSeq parseTokenList(const char *token_str,
+                              const char separator);
   LibertyPort *findPort(const char *port_name);
   LibertyPort *findPort(LibertyCell *cell,
 			const char *port_name);
   float defaultCap(LibertyPort *port);
   virtual void visitVariable(LibertyVariable *var);
   void visitPorts(std::function<void (LibertyPort *port)> func);
+  StateInputValues parseStateInputValues(StdStringSeq &inputs,
+                                         LibertyAttr *attr);
+  StateInternalValues parseStateInternalValues(StdStringSeq &states,
+                                               LibertyAttr *attr);
+
   const char *getAttrString(LibertyAttr *attr);
   void getAttrInt(LibertyAttr *attr,
 		  // Return values.
@@ -610,6 +628,7 @@ protected:
   bool type_bit_to_exists_;
   SequentialGroup *sequential_;
   SequentialGroupSeq cell_sequentials_;
+  StatetableGroup *statetable_;
   TimingGroup *timing_;
   InternalPowerGroup *internal_power_;
   LeakagePowerGroup *leakage_power_;
@@ -703,6 +722,24 @@ private:
   int line_;
 };
 
+// Liberty group with related_pins group attribute.
+class RelatedPortGroup
+{
+public:
+  explicit RelatedPortGroup(int line);
+  virtual ~RelatedPortGroup();
+  int line() const { return line_; }
+  StringSeq *relatedPortNames() const { return related_port_names_; }
+  void setRelatedPortNames(StringSeq *names);
+  bool isOneToOne() const { return is_one_to_one_; }
+  void setIsOneToOne(bool one);
+
+protected:
+  StringSeq *related_port_names_;
+  bool is_one_to_one_;
+  int line_;
+};
+
 class SequentialGroup
 {
 public:
@@ -747,21 +784,24 @@ protected:
   int line_;
 };
 
-// Liberty group with related_pins group attribute.
-class RelatedPortGroup
+class StatetableGroup
 {
 public:
-  explicit RelatedPortGroup(int line);
-  virtual ~RelatedPortGroup();
+  StatetableGroup(StdStringSeq &input_ports,
+                  StdStringSeq &internal_ports,
+                  int line);
+  const StdStringSeq &inputPorts() const { return input_ports_; }
+  const StdStringSeq &internalPorts() const { return internal_ports_; }
+  void addRow(StateInputValues &input_values,
+              StateInternalValues &current_values,
+              StateInternalValues &next_values);
+  StatetableRows &table() { return table_; }
   int line() const { return line_; }
-  StringSeq *relatedPortNames() const { return related_port_names_; }
-  void setRelatedPortNames(StringSeq *names);
-  bool isOneToOne() const { return is_one_to_one_; }
-  void setIsOneToOne(bool one);
 
-protected:
-  StringSeq *related_port_names_;
-  bool is_one_to_one_;
+private:
+  StdStringSeq input_ports_;
+  StdStringSeq internal_ports_;
+  StatetableRows table_;
   int line_;
 };
 

@@ -930,6 +930,7 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   interface_timing_(false),
   clock_gate_type_(ClockGateType::none),
   has_infered_reg_timing_arcs_(false),
+  statetable_(nullptr),
   scale_factors_(nullptr),
   test_cell_(nullptr),
   ocv_arc_depth_(0.0),
@@ -958,6 +959,7 @@ LibertyCell::~LibertyCell()
   leakage_powers_.deleteContents();
 
   sequentials_.deleteContents();
+  delete statetable_;
   bus_dcls_.deleteContents();
   scaled_cells_.deleteContents();
 
@@ -1511,7 +1513,16 @@ LibertyCell::outputPortSequential(LibertyPort *port)
 bool
 LibertyCell::hasSequentials() const
 {
-  return !sequentials_.empty();
+  return !sequentials_.empty()
+    || statetable_ != nullptr;
+}
+
+void
+LibertyCell::makeStatetable(LibertyPortSeq &input_ports,
+                            LibertyPortSeq &internal_ports,
+                            StatetableRows &table)
+{
+  statetable_ = new Statetable(input_ports, internal_ports, table);
 }
 
 void

@@ -244,10 +244,10 @@ Power::power(const Corner *corner,
 	macro.incr(inst_power);
       else if (cell->isPad())
 	pad.incr(inst_power);
-      else if (cell->hasSequentials())
-	sequential.incr(inst_power);
       else if (inClockNetwork(inst))
 	clock.incr(inst_power);
+      else if (cell->hasSequentials())
+	sequential.incr(inst_power);
       else
 	combinational.incr(inst_power);
       total.incr(inst_power);
