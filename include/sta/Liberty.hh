@@ -462,10 +462,12 @@ public:
 		    bool &exists) const;
   bool leakagePowerExists() const { return leakage_power_exists_; }
 
-  const SequentialSeq &sequentials() const { return sequentials_; }
+  // Register, Latch or Statetable.
   bool hasSequentials() const;
+  const SequentialSeq &sequentials() const { return sequentials_; }
   // Find the sequential with the output connected to an (internal) port.
   Sequential *outputPortSequential(LibertyPort *port);
+  const Statetable *statetable() const { return statetable_; }
 
   // Find bus declaration local to this cell.
   BusDcl *findBusDcl(const char *name) const;
@@ -502,6 +504,9 @@ public:
 		      LogicValue clr_preset_out_inv,
 		      LibertyPort *output,
 		      LibertyPort *output_inv);
+  void makeStatetable(LibertyPortSeq &input_ports,
+                      LibertyPortSeq &internal_ports,
+                      StatetableRows &table);
   void addBusDcl(BusDcl *bus_dcl);
   // Add scaled cell after it is complete.
   void addScaledCell(OperatingConditions *op_cond,
@@ -600,6 +605,7 @@ protected:
   LeakagePowerSeq leakage_powers_;
   SequentialSeq sequentials_;
   PortToSequentialMap port_to_seq_map_;
+  Statetable *statetable_;
   BusDclMap bus_dcls_;
   ModeDefMap mode_defs_;
   ScaleFactors *scale_factors_;

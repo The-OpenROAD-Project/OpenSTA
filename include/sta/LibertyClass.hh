@@ -24,6 +24,8 @@
 
 namespace sta {
 
+using std::vector;
+
 class Units;
 class Unit;
 class LibertyLibrary;
@@ -58,6 +60,8 @@ class Transition;
 class RiseFall;
 class RiseFallBoth;
 class ReceiverModel;
+class Statetable;
+class StatetableRow;
 
 typedef Vector<LibertyLibrary*> LibertyLibrarySeq;
 typedef Vector<LibertyCell*> LibertyCellSeq;
@@ -71,6 +75,7 @@ typedef std::shared_ptr<Table> TablePtr;
 typedef std::shared_ptr<TimingArcAttrs> TimingArcAttrsPtr;
 typedef std::shared_ptr<TableAxis> TableAxisPtr;
 typedef std::shared_ptr<ReceiverModel> ReceiverModelPtr;
+typedef vector<StatetableRow> StatetableRows;
 
 enum class ScaleFactorType : unsigned {
   pin_cap,

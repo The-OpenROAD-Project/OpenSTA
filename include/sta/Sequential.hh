@@ -16,10 +16,41 @@
 
 #pragma once
 
+#include <vector>
+
 #include "LibertyClass.hh"
 #include "NetworkClass.hh"
 
 namespace sta {
+
+enum class StateInputValue {
+  low,
+  high,
+  dont_care,
+  low_high,
+  high_low,
+  rise,
+  fall,
+  not_rise,
+  not_fall
+};
+
+enum class StateInternalValue {
+  low,
+  high,
+  unspecified,
+  low_high,
+  high_low,
+  unknown,
+  hold
+};
+
+class StatetableRow;
+
+using std::vector;
+
+typedef vector<StateInputValue> StateInputValues;
+typedef vector<StateInternalValue> StateInternalValues;
 
 // Register/Latch
 class Sequential
@@ -63,8 +94,41 @@ protected:
   LibertyPort *output_;
   LibertyPort *output_inv_;
 
-private:
   friend class LibertyCell;
+};
+
+class Statetable
+{
+public:
+  const LibertyPortSeq &inputPorts() const { return input_ports_; }
+  const LibertyPortSeq &internalPorts() const { return internal_ports_; }
+  const StatetableRows &table() const { return table_; }
+
+protected:
+  Statetable(LibertyPortSeq &input_ports,
+             LibertyPortSeq &internal_ports,
+             StatetableRows &table);
+  LibertyPortSeq input_ports_;
+  LibertyPortSeq internal_ports_;
+  StatetableRows table_;
+
+  friend class LibertyCell;
+};
+
+class StatetableRow
+{
+public:
+  StatetableRow(StateInputValues &input_values,
+                StateInternalValues &current_values,
+                StateInternalValues &next_values);
+  const StateInputValues &inputValues() const { return input_values_; }
+  const StateInternalValues &currentValues() const { return current_values_; }
+  const StateInternalValues &nextValues() const { return next_values_; }
+
+private:
+  StateInputValues input_values_;
+  StateInternalValues current_values_;
+  StateInternalValues next_values_;
 };
 
 } // namespace
