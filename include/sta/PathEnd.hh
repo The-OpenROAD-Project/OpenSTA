@@ -144,6 +144,7 @@ public:
   virtual const PathVertex *dataClkPath() const { return nullptr; }
   virtual int setupDefaultCycles() const { return 1; }
   virtual Delay clkSkew(const StaState *sta);
+  virtual bool ignoreClkLatency(const StaState * /* sta */) const { return false; }
 
   static bool less(const PathEnd *path_end1,
 		   const PathEnd *path_end2,
@@ -206,6 +207,9 @@ protected:
 				     PathDelay *path_delay,
 				     Arrival src_clk_arrival,
 				     const StaState *sta);
+  static bool ignoreClkLatency(const PathRef &path,
+                               PathDelay *path_delay,
+                               const StaState *sta);
   PathRef path_;
 };
 
@@ -569,6 +573,7 @@ public:
   virtual int exceptPathCmp(const PathEnd *path_end,
 			    const StaState *sta) const;
   bool hasOutputDelay() const { return output_delay_ != nullptr; }
+  virtual bool ignoreClkLatency(const StaState *sta) const;
 
 protected:
   PathEndPathDelay(PathDelay *path_delay,

@@ -1070,7 +1070,7 @@ PathEndLatchCheck::PathEndLatchCheck(Path *path,
   clk_path_ = enable_path;
   Search *search = sta->search();
   // Same as PathEndPathDelay::findRequired.
-  if (path_delay_ && path_delay_->ignoreClkLatency())
+  if (path_delay_ && ignoreClkLatency(sta))
     src_clk_arrival_ = search->pathClkPathArrival(&path_);
 }
 
@@ -1081,7 +1081,7 @@ PathEndLatchCheck::PathEndLatchCheck(Path *path,
 				     PathVertex *disable_path,
 				     MultiCyclePath *mcp,
 				     PathDelay *path_delay,
-				     Delay src_clk_arrival,
+ 				     Delay src_clk_arrival,
 				     Crpr crpr,
 				     bool crpr_valid) :
   PathEndCheck(path, check_arc, check_edge, clk_path, mcp, crpr, crpr_valid),
@@ -1221,7 +1221,7 @@ PathEndLatchCheck::latchBorrowInfo(const StaState *sta,
   Latches *latches = sta->latches();
   latches->latchBorrowInfo(path_.path(), targetClkPath(), latchDisable(),
 			   margin(sta),
-			   path_delay_ && path_delay_->ignoreClkLatency(),
+			   path_delay_ && ignoreClkLatency(sta),
 			   nom_pulse_width, open_latency,
 			   latency_diff, open_uncertainty,
 			   open_crpr, crpr_diff, max_borrow,
@@ -1802,7 +1802,7 @@ PathEndPathDelay::typeName() const
 void
 PathEndPathDelay::findSrcClkArrival(const StaState *sta)
 {
-  if (path_delay_->ignoreClkLatency()) {
+  if (ignoreClkLatency(sta)) {
     Search *search = sta->search();
     src_clk_arrival_ = search->pathClkPathArrival(&path_);
   }
@@ -1873,7 +1873,7 @@ PathEnd::pathDelaySrcClkOffset(const PathRef &path,
   float offset = 0.0;
   const ClockEdge *clk_edge = path.clkEdge(sta);
   if (clk_edge) {
-    if (path_delay->ignoreClkLatency())
+    if (ignoreClkLatency(path, path_delay, sta))
       offset = -delayAsFloat(src_clk_arrival);
     else
       // Arrival includes src clock edge time that is not counted in the
@@ -1881,6 +1881,14 @@ PathEnd::pathDelaySrcClkOffset(const PathRef &path,
       offset = -clk_edge->time();
   }
   return offset;
+}
+
+bool
+PathEnd::ignoreClkLatency(const PathRef &path,
+                          PathDelay *path_delay,
+                          const StaState *sta)
+{
+  return path_delay->ignoreClkLatency() && !path.isClock(sta);
 }
 
 const ClockEdge *
@@ -1927,7 +1935,7 @@ Required
 PathEndPathDelay::requiredTime(const StaState *sta) const
 {
   float delay = path_delay_->delay();
-  if (path_delay_->ignoreClkLatency()) {
+  if (ignoreClkLatency(sta)) {
     if (minMax(sta) == MinMax::max())
       return src_clk_arrival_ + delay - margin(sta);
     else
@@ -1941,6 +1949,12 @@ PathEndPathDelay::requiredTime(const StaState *sta) const
     return delay - src_clk_offset + tgt_clk_arrival
       + ((minMax(sta) == MinMax::max()) ? -margin(sta) : margin(sta));
   }
+}
+
+bool
+PathEndPathDelay::ignoreClkLatency(const StaState *sta) const
+{
+  return PathEnd::ignoreClkLatency(path_, path_delay_, sta);
 }
 
 int

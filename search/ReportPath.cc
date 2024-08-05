@@ -686,7 +686,7 @@ ReportPath::reportFull(const PathEndPathDelay *end)
   // Based on reportSrcPathArrival.
   reportBlankLine();
   PathDelay *path_delay = end->pathDelay();
-  if (path_delay->ignoreClkLatency()) {
+  if (end->ignoreClkLatency(this)) {
     // Based on reportSrcPath.
     reportPathHeader();
     reportPath3(end->path(), expanded, false, false, 0.0,
