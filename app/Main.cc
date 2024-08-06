@@ -40,6 +40,7 @@ using sta::evalTclInit;
 using sta::sourceTclFile;
 using sta::parseThreadsArg;
 using sta::tcl_inits;
+using sta::is_regular_file;
 
 // Swig uses C linkage for init functions.
 extern "C" {
@@ -133,7 +134,7 @@ staTclAppInit(int argc,
       string init_path = home;
       init_path += "/";
       init_path += init_filename;
-      if (std::filesystem::is_regular_file(init_path.c_str()))
+      if (is_regular_file(init_path.c_str()))
         sourceTclFile(init_path.c_str(), true, true, interp);
     }
   }
