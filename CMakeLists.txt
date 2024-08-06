@@ -509,7 +509,6 @@ target_sources(OpenSTA
 )
 
 target_link_libraries(OpenSTA
-  stdc++fs
   Eigen3::Eigen
   ${TCL_LIBRARY}
   ${CMAKE_THREAD_LIBS_INIT}
