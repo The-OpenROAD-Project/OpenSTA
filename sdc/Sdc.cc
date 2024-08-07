@@ -4371,7 +4371,8 @@ Sdc::findMatchingExceptionsFirstThru(ExceptionPath *exception,
   findMatchingExceptionsInsts(exception, thru->instances(),
 			      first_thru_inst_exceptions_,
 			      matches);
-  if (!first_thru_net_exceptions_.empty()) {
+  if (!first_thru_net_exceptions_.empty()
+      && thru->nets()) {
     for (const Net *net : *thru->nets()) {
       // Potential matches includes exceptions that match net that are not
       // the first exception point.
