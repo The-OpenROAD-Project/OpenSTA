@@ -27,13 +27,6 @@
 #include "Search.hh"
 #include "Sta.hh"
 
-namespace sta {
-
-Graph *
-cmdGraph();
-
-} // namespace
-
 using namespace sta;
 
 %}

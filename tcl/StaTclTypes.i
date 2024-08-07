@@ -233,6 +233,7 @@ tclListSeqConstChar(Tcl_Obj *const source,
     return nullptr;
 }
 
+#ifdef UNUSED
 static StdStringSet *
 tclListSetStdString(Tcl_Obj *const source,
 		    Tcl_Interp *interp)
@@ -252,6 +253,7 @@ tclListSetStdString(Tcl_Obj *const source,
   else
     return nullptr;
 }
+#endif
 
 ////////////////////////////////////////////////////////////////
 
@@ -367,6 +369,7 @@ objectListNext(const char *list,
   }
 }
 
+#ifdef UNUSED
 static Tcl_Obj *
 tclArcDcalcArg(ArcDcalcArg &gate,
                Tcl_Interp *interp)
@@ -432,6 +435,7 @@ arcDcalcArgTcl(Tcl_Obj *obj,
   }
   return ArcDcalcArg();
 }
+#endif
 
 } // namespace
 
