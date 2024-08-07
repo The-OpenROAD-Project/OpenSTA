@@ -1269,6 +1269,12 @@ PathEndLatchCheck::exceptPathCmp(const PathEnd *path_end,
     return cmp;
 }
 
+bool
+PathEndLatchCheck::ignoreClkLatency(const StaState *sta) const
+{
+  return PathEnd::ignoreClkLatency(path_, path_delay_, sta);
+}
+
 ///////////////////////////////////////////////////////////////
 
 PathEndOutputDelay::PathEndOutputDelay(OutputDelay *output_delay,
