@@ -155,18 +155,6 @@ public:
   Arrival pathClkPathArrival(const Path *path) const;
 
   PathGroup *pathGroup(const PathEnd *path_end) const;
-  void updatePathGroups(int group_count,
-                        int endpoint_count,
-                        bool unique_pins,
-                        float min_slack,
-                        float max_slack,
-                        PathGroupNameSet *group_names,
-                        bool setup,
-                        bool hold,
-                        bool recovery,
-                        bool removal,
-                        bool clk_gating_setup,
-                        bool clk_gating_hold);
   void deletePathGroups();
   virtual ExceptionPath *exceptionTo(ExceptionPathType type,
 				     const Path *path,
@@ -523,18 +511,18 @@ protected:
   void tnsDecr(Vertex *vertex,
 	       PathAPIndex path_ap_index);
   void tnsNotifyBefore(Vertex *vertex);
-  PathGroups *makePathGroups(int group_count,
-			     int endpoint_count,
-			     bool unique_pins,
-			     float min_slack,
-			     float max_slack,
-			     PathGroupNameSet *group_names,
-			     bool setup,
-			     bool hold,
-			     bool recovery,
-			     bool removal,
-			     bool clk_gating_setup,
-			     bool clk_gating_hold);
+  void makePathGroups(int group_count,
+                      int endpoint_count,
+                      bool unique_pins,
+                      float min_slack,
+                      float max_slack,
+                      PathGroupNameSet *group_names,
+                      bool setup,
+                      bool hold,
+                      bool recovery,
+                      bool removal,
+                      bool clk_gating_setup,
+                      bool clk_gating_hold);
   bool matchesFilterTo(Path *path,
 		       const ClockEdge *to_clk_edge) const;
   PathRef pathClkPathArrival1(const Path *path) const;

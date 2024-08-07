@@ -53,4 +53,24 @@ Sequential::~Sequential()
     preset_->deleteSubexprs();
 }
 
+////////////////////////////////////////////////////////////////
+
+Statetable::Statetable(LibertyPortSeq &input_ports,
+                       LibertyPortSeq &internal_ports,
+                       StatetableRows &table) :
+  input_ports_(input_ports),
+  internal_ports_(internal_ports),
+  table_(table)
+{
+}
+
+StatetableRow::StatetableRow(StateInputValues &input_values,
+                             StateInternalValues &current_values,
+                             StateInternalValues &next_values) :
+  input_values_(input_values),
+  current_values_(current_values),
+  next_values_(next_values)
+{
+}
+
 } // namespace

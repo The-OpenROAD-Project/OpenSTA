@@ -19,6 +19,7 @@
 #include <cctype>
 #include <cstdlib>
 
+#include "EnumNameMap.hh"
 #include "Report.hh"
 #include "Debug.hh"
 #include "TokenParser.hh"
@@ -45,6 +46,7 @@ extern int LibertyParse_debug;
 namespace sta {
 
 using std::make_shared;
+using std::string;
 
 static void
 scaleFloats(FloatSeq *floats,
@@ -121,6 +123,7 @@ LibertyReader::readLibertyFile(const char *filename,
   in_bus_ = false;
   in_bundle_ = false;
   sequential_ = nullptr;
+  statetable_ = nullptr;
   timing_ = nullptr;
   internal_power_ = nullptr;
   leakage_power_ = nullptr;
@@ -374,6 +377,11 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("preset", &LibertyReader::visitPreset);
   defineAttrVisitor("clear_preset_var1", &LibertyReader::visitClrPresetVar1);
   defineAttrVisitor("clear_preset_var2", &LibertyReader::visitClrPresetVar2);
+
+  // Statetable
+  defineGroupVisitor("statetable", &LibertyReader::beginStatetable,
+                     &LibertyReader::endStatetable);
+  defineAttrVisitor("table", &LibertyReader::visitTable);
 
   defineGroupVisitor("timing", &LibertyReader::beginTiming,
 		     &LibertyReader::endTiming);
@@ -1904,6 +1912,7 @@ LibertyReader::endCell(LibertyGroup *group)
     // Sequentials and leakage powers reference expressions outside of port definitions
     // so they do not require LibertyFunc's.
     makeCellSequentials();
+    makeStatetable();
     // Parse functions defined inside of port groups that reference other ports
     // and replace the references with the parsed expressions.
     parseCellFuncs();
@@ -2125,6 +2134,37 @@ LibertyReader::checkLatchEnableSense(FuncExpr *enable_func,
     }
   }
 }
+
+////////////////////////////////////////////////////////////////
+
+void
+LibertyReader::makeStatetable()
+{
+  if (statetable_) {
+    LibertyPortSeq input_ports;
+    for (const string &input : statetable_->inputPorts()) {
+      LibertyPort *port = cell_->findLibertyPort(input.c_str());
+      if (port)
+        input_ports.push_back(port);
+      else
+	libWarn(0000, statetable_->line(), "statetable input port %s not found.",
+                input.c_str());
+    }
+    LibertyPortSeq internal_ports;
+    for (const string &internal : statetable_->internalPorts()) {
+      LibertyPort *port = cell_->findLibertyPort(internal.c_str());
+      if (port)
+        internal_ports.push_back(port);
+      else
+	libWarn(0000, statetable_->line(), "statetable internal port %s not found.",
+                internal.c_str());
+    }
+    cell_->makeStatetable(input_ports, internal_ports, statetable_->table());
+    statetable_ = nullptr;
+  }
+}
+
+////////////////////////////////////////////////////////////////
 
 void
 LibertyReader::makeLeakagePowers()
@@ -3929,6 +3969,134 @@ LibertyReader::visitClrPresetVar2(LibertyAttr *attr)
 ////////////////////////////////////////////////////////////////
 
 void
+LibertyReader::beginStatetable(LibertyGroup *group)
+{
+  if (cell_) {
+    const char *input_ports_arg = group->firstName();
+    StdStringSeq input_ports;
+    if (input_ports_arg)
+      input_ports = parseTokenList(input_ports_arg, ' ');
+
+    const char *internal_ports_arg = group->secondName();
+    StdStringSeq internal_ports;
+    if (internal_ports_arg)
+      internal_ports = parseTokenList(internal_ports_arg, ' ');
+    statetable_ = new StatetableGroup(input_ports, internal_ports, group->line());
+  }
+}
+
+void
+LibertyReader::visitTable(LibertyAttr *attr)
+{
+  if (statetable_) {
+    const char *table_str = getAttrString(attr);
+    StdStringSeq table_rows = parseTokenList(table_str, ',');
+    size_t input_count = statetable_->inputPorts().size();
+    size_t internal_count = statetable_->internalPorts().size();
+    for (string row : table_rows) {
+      StdStringSeq row_groups = parseTokenList(row.c_str(), ':');
+      if (row_groups.size() != 3) {
+        libWarn(0000, attr, "table row must have 3 groups separated by ':'.");
+        break;
+      }
+      StdStringSeq inputs = parseTokenList(row_groups[0].c_str(), ' ');
+      if (inputs.size() != input_count) {
+        libWarn(0000, attr, "table row has %zu input values but %zu are required.",
+                inputs.size(),
+                input_count);
+        break;
+      }
+      StdStringSeq currents = parseTokenList(row_groups[1].c_str(), ' ');
+      if (currents.size() != internal_count) {
+        libWarn(0000, attr, "table row has %zu current values but %zu are required.",
+                currents.size(),
+                internal_count);
+        break;
+      }
+      StdStringSeq nexts = parseTokenList(row_groups[2].c_str(), ' ');
+      if (nexts.size() != internal_count) {
+        libWarn(0000, attr, "table row has %zu next values but %zu are required.",
+                nexts.size(),
+                internal_count);
+        break;
+      }
+
+      StateInputValues input_values = parseStateInputValues(inputs, attr);
+      StateInternalValues current_values=parseStateInternalValues(currents,attr);
+      StateInternalValues next_values = parseStateInternalValues(nexts, attr);
+      statetable_->addRow(input_values, current_values, next_values);
+    }
+  }
+}
+
+static EnumNameMap<StateInputValue> state_input_value_name_map =
+  {{StateInputValue::low, "L"},
+   {StateInputValue::high, "H"},
+   {StateInputValue::dont_care, "-"},
+   {StateInputValue::low_high, "L/H"},
+   {StateInputValue::high_low, "H/L"},
+   {StateInputValue::rise, "R"},
+   {StateInputValue::fall, "F"},
+   {StateInputValue::not_rise, "~R"},
+   {StateInputValue::not_fall, "~F"}
+  };
+
+static EnumNameMap<StateInternalValue> state_internal_value_name_map =
+  {{StateInternalValue::low, "L"},
+   {StateInternalValue::high, "H"},
+   {StateInternalValue::unspecified, "-"},
+   {StateInternalValue::low_high, "L/H"},
+   {StateInternalValue::high_low, "H/L"},
+   {StateInternalValue::unknown, "X"},
+   {StateInternalValue::hold, "N"}
+  };
+
+StateInputValues
+LibertyReader::parseStateInputValues(StdStringSeq &inputs,
+                                     LibertyAttr *attr)
+{
+  StateInputValues input_values;
+  for (string input : inputs) {
+    bool exists;
+    StateInputValue value;
+    state_input_value_name_map.find(input.c_str(), value, exists);
+    if (!exists) {
+      libWarn(0000, attr, "table input value '%s' not recognized.",
+              input.c_str());
+      value = StateInputValue::dont_care;
+    }
+    input_values.push_back(value);
+  }
+  return input_values;
+}
+
+StateInternalValues
+LibertyReader::parseStateInternalValues(StdStringSeq &states,
+                                        LibertyAttr *attr)
+{
+  StateInternalValues state_values;
+  for (string state : states) {
+    bool exists;
+    StateInternalValue value;
+    state_internal_value_name_map.find(state.c_str(), value, exists);
+    if (!exists) {
+      libWarn(0000, attr, "table internal value '%s' not recognized.",
+              state.c_str());
+      value = StateInternalValue::unknown;
+    }
+    state_values.push_back(value);
+  }
+  return state_values;
+}
+
+void
+LibertyReader::endStatetable(LibertyGroup *)
+{
+}
+
+////////////////////////////////////////////////////////////////
+
+void
 LibertyReader::beginTiming(LibertyGroup *group)
 {
   if (port_group_) {
@@ -3994,6 +4162,24 @@ LibertyReader::parseNameList(const char *name_list)
     }
   }
   return names;
+}
+
+StdStringSeq
+LibertyReader::parseTokenList(const char *token_str,
+                              const char separator)
+{
+  StdStringSeq tokens;
+  // Parse space separated list of names.
+  char separators[2] = {separator, '\0'};
+  TokenParser parser(token_str, separators);
+  while (parser.hasNext()) {
+    char *token = parser.next();
+    // Skip extra spaces.
+    if (token[0] != '\0') {
+      tokens.push_back(token);
+    }
+  }
+  return tokens;
 }
 
 void
@@ -5467,6 +5653,25 @@ void
 SequentialGroup::setClrPresetVar2(LogicValue var)
 {
   clr_preset_var2_ = var;
+}
+
+////////////////////////////////////////////////////////////////
+
+StatetableGroup::StatetableGroup(StdStringSeq &input_ports,
+                                 StdStringSeq &internal_ports,
+                                 int line) :
+  input_ports_(input_ports),
+  internal_ports_(internal_ports),
+  line_(line)
+{
+}
+
+void
+StatetableGroup::addRow(StateInputValues &input_values,
+                        StateInternalValues &current_values,
+                        StateInternalValues &next_values)
+{
+  table_.emplace_back(input_values, current_values, next_values);
 }
 
 ////////////////////////////////////////////////////////////////

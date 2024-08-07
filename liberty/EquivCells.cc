@@ -38,6 +38,24 @@ hashCellPorts(const LibertyCell *cell);
 static unsigned
 hashCellSequentials(const LibertyCell *cell);
 static unsigned
+hashSequential(const Sequential *seq);
+bool
+equivCellStatetables(const LibertyCell *cell1,
+		     const LibertyCell *cell2);
+static bool
+equivCellPortSeq(const LibertyPortSeq &ports1,
+                 const LibertyPortSeq &ports2);
+static bool
+equivStatetableRows(const StatetableRows &table1,
+                    const StatetableRows &table2);
+static bool
+equivStatetableRow(const StatetableRow &row1,
+                   const StatetableRow &row2);
+static unsigned
+hashStatetable(const Statetable *statetable);
+static unsigned
+hashStatetableRow(const StatetableRow &row);
+static unsigned
 hashFuncExpr(const FuncExpr *expr);
 static unsigned
 hashPort(const LibertyPort *port);
@@ -221,16 +239,61 @@ static unsigned
 hashCellSequentials(const LibertyCell *cell)
 {
   unsigned hash = 0;
-  for (Sequential *seq : cell->sequentials()) {
-    hash += hashFuncExpr(seq->clock()) * 3;
-    hash += hashFuncExpr(seq->data()) * 5;
-    hash += hashPort(seq->output()) * 7;
-    hash += hashPort(seq->outputInv()) * 9;
-    hash += hashFuncExpr(seq->clear()) * 11;
-    hash += hashFuncExpr(seq->preset()) * 13;
-    hash += int(seq->clearPresetOutput()) * 17;
-    hash += int(seq->clearPresetOutputInv()) * 19;
-  }
+  for (const Sequential *seq : cell->sequentials())
+    hash += hashSequential(seq);
+  const Statetable *statetable = cell->statetable();
+  if (statetable)
+    hash += hashStatetable(statetable);
+  return hash;
+}
+
+static unsigned
+hashSequential(const Sequential *seq)
+{
+  unsigned hash = 0;
+  hash += seq->isRegister() * 3;
+  hash += hashFuncExpr(seq->clock()) * 5;
+  hash += hashFuncExpr(seq->data()) * 7;
+  hash += hashPort(seq->output()) * 9;
+  hash += hashPort(seq->outputInv()) * 11;
+  hash += hashFuncExpr(seq->clear()) * 13;
+  hash += hashFuncExpr(seq->preset()) * 17;
+  hash += int(seq->clearPresetOutput()) * 19;
+  hash += int(seq->clearPresetOutputInv()) * 23;
+  return hash;
+}
+
+static unsigned
+hashStatetable(const Statetable *statetable)
+{
+  unsigned hash = 0;
+  unsigned hash_ports = 0;
+  for (LibertyPort *input_port : statetable->inputPorts())
+    hash_ports += hashPort(input_port);
+  hash += hash_ports * 3;
+
+  hash_ports = 0;
+  for (LibertyPort *internal_port : statetable->internalPorts())
+    hash_ports += hashPort(internal_port);
+  hash += hash_ports * 5;
+
+  unsigned hash_rows = 0;
+  for (const StatetableRow &row : statetable->table())
+    hash_rows += hashStatetableRow(row);
+  hash += hash_rows * 7;
+  return hash;
+}
+
+static unsigned
+hashStatetableRow(const StatetableRow &row)
+{
+  unsigned hash  = 0;
+  for (StateInputValue input_value : row.inputValues())
+    hash += static_cast<int>(input_value) * 9;
+  for (StateInternalValue current_value : row.currentValues())
+    hash += static_cast<int>(current_value) * 11;
+  for (StateInternalValue next_value : row.nextValues())
+    hash += static_cast<int>(next_value) * 13;
   return hash;
 }
 
@@ -261,6 +324,7 @@ equivCells(const LibertyCell *cell1,
   return equivCellPortsAndFuncs(cell1, cell2)
     && equivCellPgPorts(cell1, cell2)
     && equivCellSequentials(cell1, cell2)
+    && equivCellStatetables(cell1, cell2)
     && equivCellTimingArcSets(cell1, cell2);
 }
 
@@ -347,6 +411,102 @@ equivCellSequentials(const LibertyCell *cell1,
       return false;
   }
   return seq_itr1 == seqs1.end() && seq_itr2 == seqs2.end();
+}
+
+bool
+equivCellStatetables(const LibertyCell *cell1,
+		     const LibertyCell *cell2)
+
+{
+  const Statetable *statetable1 = cell1->statetable();
+  const Statetable *statetable2 = cell2->statetable();
+  return (statetable1 == nullptr && statetable2 == nullptr)
+    || (statetable1 && statetable2
+        && equivCellPortSeq(statetable1->inputPorts(), statetable2->inputPorts())
+        && equivCellPortSeq(statetable1->internalPorts(), statetable2->internalPorts())
+        && equivStatetableRows(statetable1->table(), statetable2->table()));
+}
+
+static bool
+equivCellPortSeq(const LibertyPortSeq &ports1,
+                 const LibertyPortSeq &ports2)
+{
+  if (ports1.size() != ports2.size())
+    return false;
+  
+  auto port_itr1 = ports1.begin();
+  auto port_itr2 = ports2.begin();
+  for (;
+       port_itr1 != ports1.end() && port_itr2 != ports2.end();
+       port_itr1++, port_itr2++) {
+    const LibertyPort *port1 = *port_itr1;
+    const LibertyPort *port2 = *port_itr2;
+    if (!LibertyPort::equiv(port1, port2))
+        return false;
+  }
+  return true;
+}
+
+static bool
+equivStatetableRows(const StatetableRows &table1,
+                    const StatetableRows &table2)
+{
+  if (table1.size() != table2.size())
+    return false;
+
+  auto row_itr1 = table1.begin();
+  auto row_itr2 = table2.begin();
+  for (;
+       row_itr1 != table1.end() && row_itr2 != table2.end();
+       row_itr1++, row_itr2++) {
+    const StatetableRow &row1 = *row_itr1;
+    const StatetableRow &row2 = *row_itr2;
+    if (!equivStatetableRow(row1, row2))
+        return false;
+  }
+  return true;
+}
+
+static bool
+equivStatetableRow(const StatetableRow &row1,
+                   const StatetableRow &row2)
+{
+  const StateInputValues &input_values1 = row1.inputValues();
+  const StateInputValues &input_values2 = row2.inputValues();
+  if (input_values1.size() != input_values2.size())
+    return false;
+  for (auto input_itr1 = input_values1.begin(),
+         input_itr2 = input_values2.begin();
+       input_itr1 != input_values1.end() && input_itr2 != input_values2.end();
+       input_itr1++, input_itr2++) {
+    if (*input_itr1 != *input_itr2)
+      return false;
+  }
+
+  const StateInternalValues &current_values1 = row1.currentValues();
+  const StateInternalValues &current_values2 = row2.currentValues();
+  if (current_values1.size() != current_values2.size())
+    return false;
+  for (auto current_itr1 = current_values1.begin(),
+         current_itr2 = current_values2.begin();
+       current_itr1 != current_values1.end() && current_itr2 != current_values2.end();
+       current_itr1++, current_itr2++) {
+    if (*current_itr1 != *current_itr2)
+      return false;
+  }
+
+  const StateInternalValues &next_values1 = row1.nextValues();
+  const StateInternalValues &next_values2 = row2.nextValues();
+  if (next_values1.size() != next_values2.size())
+    return false;
+  for (auto next_itr1 = next_values1.begin(),
+         next_itr2 = next_values2.begin();
+       next_itr1 != next_values1.end() && next_itr2 != next_values2.end();
+       next_itr1++, next_itr2++) {
+    if (*next_itr1 != *next_itr2)
+      return false;
+  }
+  return true;
 }
 
 bool

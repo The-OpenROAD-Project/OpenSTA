@@ -40,6 +40,7 @@
 #include "SearchClass.hh"
 #include "CircuitSim.hh"
 #include "ArcDelayCalc.hh"
+#include "Property.hh"
 #include "Sta.hh"
 
 namespace sta {
