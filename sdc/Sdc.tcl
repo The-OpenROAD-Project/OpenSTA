@@ -34,7 +34,11 @@ proc_redirect read_sdc {
   check_argc_eq1 "read_sdc" $args
   set echo [info exists flags(-echo)]
   set filename [file nativename [lindex $args 0]]
-  source_ $filename $echo 0
+  set args [list $filename]
+  if { $echo } {
+    linsert args 0 -echo
+  }
+  source {*}$args
 }
 
 ################################################################
@@ -43,6 +47,7 @@ proc_redirect read_sdc {
 # This rename provides a mechanism to refer to the original TCL
 # command.
 # Protected so this file can be reloaded without blowing up.
+global builtin_source
 if { ![info exists renamed_source] } {
   rename source builtin_source
   set renamed_source 1
@@ -62,7 +67,13 @@ proc_redirect source {
   set echo [info exists flags(-echo)]
   set verbose [info exists flags(-verbose)]
   set filename [file nativename [lindex $args 0]]
-  source_ $filename $echo $verbose
+  if { [expr (!$echo && !$verbose && ![string match "*.gz" $filename]) || \
+    ([info exists redirect] && $redirect)] } {
+    # Not using any of the special features, invoke original
+    builtin_source $filename
+  } else {
+    source_ $filename $echo $verbose
+  }
 }
 
 proc source_ { filename echo verbose } {
