@@ -363,18 +363,6 @@ public:
                             bool unconstrained,
                             bool thru_latches);
   VertexSeq filteredEndpoints();
-  void makePathGroups(int group_count,
-                      int endpoint_count,
-                      bool unique_pins,
-                      float min_slack,
-                      float max_slack,
-                      PathGroupNameSet *group_names,
-                      bool setup,
-                      bool hold,
-                      bool recovery,
-                      bool removal,
-                      bool clk_gating_setup,
-                      bool clk_gating_hold);
 
 protected:
   void init(StaState *sta);
