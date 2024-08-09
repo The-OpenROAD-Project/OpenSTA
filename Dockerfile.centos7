@@ -1,0 +1,40 @@
+FROM centos:centos7 AS base-dependencies
+LABEL author="James Cherry"
+LABEL maintainer="James Cherry <cherry@parallaxsw.com>"
+
+# Install dev and runtime dependencies
+RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo \
+    && sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo \
+    && sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo \
+    && yum update -y \
+    && yum install -y centos-release-scl epel-release
+RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo \
+    && sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo \
+    && sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo \ 
+    && yum install -y devtoolset-8 wget cmake3 make eigen3-devel tcl-devel tcl-tclreadline-devel swig3 bison flex zlib-devel \
+    && yum clean -y all
+
+# Download CUDD
+RUN wget https://raw.githubusercontent.com/davidkebo/cudd/main/cudd_versions/cudd-3.0.0.tar.gz && \
+    tar -xvf cudd-3.0.0.tar.gz && \
+    rm cudd-3.0.0.tar.gz
+
+# Install CUDD
+RUN source /opt/rh/devtoolset-8/enable && \
+    cd cudd-3.0.0 && \
+    mkdir ../cudd && \
+    ./configure && \
+    make -j`nproc` && \
+    make install
+
+FROM base-dependencies AS builder
+
+COPY . /OpenSTA
+WORKDIR /OpenSTA
+
+# Build
+RUN rm -rf build && mkdir build
+RUN source /opt/rh/devtoolset-8/enable && cd build && cmake3 .. && make -j`nproc`
+
+# Run sta on entry
+ENTRYPOINT ["OpenSTA/app/sta"]
