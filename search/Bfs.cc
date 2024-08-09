@@ -308,7 +308,7 @@ BfsIterator::remove(Vertex *vertex)
   Level level = vertex->level();
   if (vertex->bfsInQueue(bfs_index_)
       && static_cast<Level>(queue_.size()) > level) {
-    for (Vertex *v : queue_[level]) {
+    for (Vertex *&v : queue_[level]) {
       if (v == vertex) {
 	v = nullptr;
 	vertex->setBfsInQueue(bfs_index_, false);

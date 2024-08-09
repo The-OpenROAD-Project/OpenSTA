@@ -452,11 +452,11 @@ Search::findPathEnds(ExceptionFrom *from,
     recovery = removal = false;
   if (!sdc_->gatedClkChecksEnabled())
     clk_gating_setup = clk_gating_hold = false;
-  path_groups_ = makePathGroups(group_count, endpoint_count, unique_pins,
-				slack_min, slack_max,
-				group_names, setup, hold,
-				recovery, removal,
-				clk_gating_setup, clk_gating_hold);
+  makePathGroups(group_count, endpoint_count, unique_pins,
+                 slack_min, slack_max,
+                 group_names, setup, hold,
+                 recovery, removal,
+                 clk_gating_setup, clk_gating_hold);
   ensureDownstreamClkPins();
   PathEndSeq path_ends = path_groups_->makePathEnds(to, unconstrained_paths_,
                                                     corner, min_max,
@@ -3973,7 +3973,7 @@ Search::wnsSlack(Vertex *vertex,
 
 ////////////////////////////////////////////////////////////////
 
-PathGroups *
+void
 Search::makePathGroups(int group_count,
 		       int endpoint_count,
 		       bool unique_pins,
@@ -3987,14 +3987,14 @@ Search::makePathGroups(int group_count,
 		       bool clk_gating_setup,
 		       bool clk_gating_hold)
 {
-  return new PathGroups(group_count, endpoint_count, unique_pins,
-			slack_min, slack_max,
-			group_names,
-			setup, hold,
-			recovery, removal,
-			clk_gating_setup, clk_gating_hold,
-			unconstrained_paths_,
-			this);
+  path_groups_ = new PathGroups(group_count, endpoint_count, unique_pins,
+                                slack_min, slack_max,
+                                group_names,
+                                setup, hold,
+                                recovery, removal,
+                                clk_gating_setup, clk_gating_hold,
+                                unconstrained_paths_,
+                                this);
 }
 
 void

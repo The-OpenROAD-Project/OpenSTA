@@ -388,6 +388,7 @@ public:
 		       Crpr &crpr_diff,
 		       Delay &max_borrow,
 		       bool &borrow_limit_exists) const;  
+  virtual bool ignoreClkLatency(const StaState *sta) const;
 
 protected:
   PathEndLatchCheck(Path *path,
