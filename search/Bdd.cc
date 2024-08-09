@@ -115,9 +115,9 @@ Bdd::ensureNode(const LibertyPort *port)
   auto port_var = bdd_port_var_map_.find(port);
   DdNode *node = nullptr;
   if (port_var == bdd_port_var_map_.end()) {
-    node = Cudd_bddNewVar(cudd_mgr_);
+    unsigned var_index = bdd_port_var_map_.size();
+    node = Cudd_bddIthVar(cudd_mgr_, var_index);
     bdd_port_var_map_[port] = node;
-    unsigned var_index = Cudd_NodeReadIndex(node);
     bdd_var_idx_port_map_[var_index] = port;
     Cudd_Ref(node);
   }
@@ -149,8 +149,6 @@ Bdd::varIndexPort(int var_index)
 void
 Bdd::clearVarMap()
 {
-  for (const auto [port, var_node] : bdd_port_var_map_)
-    Cudd_RecursiveDeref(cudd_mgr_, var_node);
   bdd_port_var_map_.clear();
   bdd_var_idx_port_map_.clear();
 }
