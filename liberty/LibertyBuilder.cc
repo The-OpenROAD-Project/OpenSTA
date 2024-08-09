@@ -678,6 +678,8 @@ LibertyBuilder::makeMinPulseWidthArcs(LibertyCell *cell,
                                       TimingRole *role,
                                       TimingArcAttrsPtr attrs)
 {
+  if (from_port == nullptr)
+    from_port = to_port;
   TimingArcSet *arc_set = makeTimingArcSet(cell, from_port, to_port, related_out,
                                            role, attrs);
   for (auto to_rf : RiseFall::range()) {
