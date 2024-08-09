@@ -67,8 +67,8 @@ proc_redirect source {
   set echo [info exists flags(-echo)]
   set verbose [info exists flags(-verbose)]
   set filename [file nativename [lindex $args 0]]
-  if { [expr (!$echo && !$verbose && ![string match "*.gz" $filename]) || \
-    ([info exists redirect] && $redirect)] } {
+  if { [expr (!$echo && !$verbose && ![string match "*.gz" $filename]) && \
+    (![info exists redirect] || !$redirect)] } {
     # Not using any of the special features, invoke original
     builtin_source $filename
   } else {
