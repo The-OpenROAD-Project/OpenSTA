@@ -59,7 +59,7 @@ LibertyLibrary::LibertyLibrary(const char *name,
 			       const char *filename) :
   ConcreteLibrary(name, filename, true),
   units_(new Units()),
-  delay_model_type_(DelayModelType::cmos_linear), // default
+  delay_model_type_(DelayModelType::table), // default
   nominal_process_(0.0),
   nominal_voltage_(0.0),
   nominal_temperature_(0.0),
