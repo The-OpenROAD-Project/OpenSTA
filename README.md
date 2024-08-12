@@ -1,3 +1,5 @@
+# This is effecively a fork of [parallaxsw/OpenSTA](https://github.com/parallaxsw/OpenSTA).  All issues and PRs should be filed there.
+
 # Parallax Static Timing Analyzer
 
 OpenSTA is a gate level static timing verifier. As a stand-alone
