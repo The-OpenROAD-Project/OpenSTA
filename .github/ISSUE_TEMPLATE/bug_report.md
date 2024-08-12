@@ -7,4 +7,4 @@ assignees: ''
 
 ---
 
-Issues or PRs should be filed with https://github.com/parallaxsw/OpenSTA if still relevant.  This is effectively a fork (though not strictly for historical reasons).
+Issues or PRs should be filed with the upstream [parallaxsw/OpenSTA](https://github.com/parallaxsw/OpenSTA).  This is effectively a fork (though not strictly for historical reasons).
