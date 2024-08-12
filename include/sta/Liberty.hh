@@ -539,6 +539,8 @@ public:
   // for all the defined corners.
   static void checkLibertyCorners();
   void ensureVoltageWaveforms(const DcalcAnalysisPtSeq &dcalc_aps);
+  void setCellFootprint(const char *footprint);
+  const char *getCellFootprint() const;
 
 protected:
   void addPort(ConcretePort *port);
@@ -628,6 +630,7 @@ protected:
   LibertyPgPortMap pg_port_map_;
   bool has_internal_ports_;
   bool have_voltage_waveforms_;
+  const char *footprint_;
 
 private:
   friend class LibertyLibrary;
