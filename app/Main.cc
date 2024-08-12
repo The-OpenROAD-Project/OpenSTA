@@ -19,7 +19,6 @@
 
 #include <stdio.h>
 #include <cstdlib>              // exit
-#include <filesystem>
 #include <tcl.h>
 #if TCL_READLINE
   #include <tclreadline.h>
