@@ -921,7 +921,7 @@ proc get_ports { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set ports [filter_objs $keys(-filter) $portss filter_ports "port" 2366]
+    set ports [filter_objs $keys(-filter) $ports filter_ports "port" 2366]
   }
   return $ports
 }

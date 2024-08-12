@@ -520,12 +520,20 @@ using namespace sta;
   seqTclList<CellSeq, Cell>($1, SWIGTYPE_p_Cell, interp);
 }
 
+%typemap(in) LibertyCellSeq* {
+  $1 = tclListSeqPtr<LibertyCell*>($input, SWIGTYPE_p_LibertyCell, interp);
+}
+
 %typemap(out) LibertyCellSeq * {
   seqPtrTclList<LibertyCellSeq, LibertyCell>($1, SWIGTYPE_p_LibertyCell, interp);
 }
 
 %typemap(out) LibertyCellSeq {
   seqTclList<LibertyCellSeq, LibertyCell>($1, SWIGTYPE_p_LibertyCell, interp);
+}
+
+%typemap(in) LibertyPortSeq* {
+  $1 = tclListSeqPtr<LibertyPort*>($input, SWIGTYPE_p_LibertyPort, interp);
 }
 
 %typemap(out) LibertyPortSeq * {
@@ -750,8 +758,8 @@ using namespace sta;
   Tcl_SetObjResult(interp, obj);
 }
 
-%typemap(out) LibertyLibrarySeq* {
-  seqPtrTclList<LibertyLibrarySeq, LibertyLibrary>($1, SWIGTYPE_p_LibertyLibrary, interp);
+%typemap(in) LibertyLibrarySeq* {
+  $1 = tclListSeqPtr<LibertyLibrary*>($input, SWIGTYPE_p_LibertyLibrary, interp);
 }
 
 %typemap(out) LibertyLibrarySeq {
@@ -774,6 +782,10 @@ using namespace sta;
 %typemap(out) Net* {
   Tcl_Obj *obj = SWIG_NewInstanceObj($1, $1_descriptor, false);
   Tcl_SetObjResult(interp, obj);
+}
+
+%typemap(in) NetSeq* {
+  $1 = tclListSeqPtr<const Net*>($input, SWIGTYPE_p_Net, interp);
 }
 
 %typemap(out) NetSeq* {
@@ -815,6 +827,10 @@ using namespace sta;
 
 %typemap(in) ConstClockSeq {
   $1 = tclListSeq<const Clock*>($input, SWIGTYPE_p_Clock, interp);
+}
+
+%typemap(in) ClockSeq* {
+  $1 = tclListSeqPtr<Clock*>($input, SWIGTYPE_p_Clock, interp);
 }
 
 %typemap(out) ClockSeq* {
