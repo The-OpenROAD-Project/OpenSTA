@@ -1353,7 +1353,7 @@ filter_lib_pins(const char *property,
 }
 
 LibertyLibrarySeq
-filter_libs(const char *property,
+filter_liberty_libraries(const char *property,
 	    const char *op,
 	    const char *pattern,
 	    LibertyLibrarySeq *libs)
@@ -1376,7 +1376,7 @@ filter_timing_arcs(const char *property,
 		   const char *pattern,
 		   EdgeSeq *edges)
 {
-  return filter_objects<sta::Edge>(property, op, pattern, edges);
+  return filter_objects<Edge>(property, op, pattern, edges);
 }
 
 ////////////////////////////////////////////////////////////////
