@@ -536,10 +536,6 @@ using namespace sta;
   $1 = tclListSeqPtr<LibertyPort*>($input, SWIGTYPE_p_LibertyPort, interp);
 }
 
-%typemap(out) LibertyPortSeq * {
-  seqPtrTclList<LibertyPortSeq, LibertyPort>($1, SWIGTYPE_p_LibertyPort, interp);
-}
-
 %typemap(out) LibertyPortSeq {
   seqTclList<LibertyPortSeq, LibertyPort>($1, SWIGTYPE_p_LibertyPort, interp);
 }
