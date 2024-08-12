@@ -336,6 +336,7 @@ add_custom_command(OUTPUT ${STA_TCL_INIT}
 # Do not use REQUIRED because it also requires TK, which is not used by OpenSTA.
 find_package(TCL)
 
+# Referenced by util/StaConfig.hh.cmake
 set(TCL_READLINE 0)
 # check for tclReadline
 if (USE_TCL_READLINE)
@@ -352,13 +353,19 @@ if (USE_TCL_READLINE)
     )
   if (TCL_READLINE_LIBRARY)
     message(STATUS "TCL readline library: ${TCL_READLINE_LIBRARY}")
-    # Referenced by StaConfig.hh.cmake
-    set(TCL_READLINE 1)
+  else()
+    message(STATUS "TCL readline library: NOT FOUND")
   endif()
 
   find_path(TCL_READLINE_INCLUDE tclreadline.h)
   if (TCL_READLINE_INCLUDE)
     message(STATUS "TCL readline header: ${TCL_READLINE_INCLUDE}/tclreadline.h")
+  else()
+    message(STATUS "TCL readline header: NOT FOUND")
+  endif()
+
+  if (TCL_READLINE_LIBRARY AND TCL_READLINE_INCLUDE)
+    set(TCL_READLINE 1)
   endif()
 endif()
 
@@ -515,27 +522,27 @@ target_link_libraries(OpenSTA
   ${CUDD_LIB}
   )
 
-if (TCL_READLINE_LIBRARY)
-  target_link_libraries(OpenSTA ${TCL_READLINE_LIBRARY})
-endif()
-
 if (ZLIB_LIBRARIES)
   target_link_libraries(OpenSTA ${ZLIB_LIBRARIES})
 endif()
-
-target_link_libraries(OpenSTA )
 
 target_include_directories(OpenSTA
   PUBLIC
   include
   ${TCL_INCLUDE_PATH}
-  ${TCL_READLINE_INCLUDE}
 
   PRIVATE
   include/sta
   ${STA_HOME}
   ${CUDD_INCLUDE}
   )
+
+if (TCL_READLINE)
+  target_link_libraries(OpenSTA ${TCL_READLINE_LIBRARY})
+  target_include_directories(OpenSTA
+    PUBLIC
+    ${TCL_READLINE_INCLUDE})
+endif()
 
 # common to gcc/clang
 set(CXX_FLAGS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security)
