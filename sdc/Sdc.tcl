@@ -407,7 +407,7 @@ proc current_design { {design ""} } {
 ################################################################
 
 # Generic get_* filter.
-proc filter_objs { filter objects filter_function object_type error_code } {
+proc filter_objs { filter objects filter_function object_type } {
   set filter_regexp1 {@?([a-zA-Z_]+) *(==|!=|=~|!~) *([0-9a-zA-Z_\*]+)}
   set filter_or_regexp "($filter_regexp1) *\\|\\| *($filter_regexp1)"
   set filter_and_regexp "($filter_regexp1) *&& *($filter_regexp1)"
@@ -429,7 +429,7 @@ proc filter_objs { filter objects filter_function object_type error_code } {
   } elseif { [regexp $filter_regexp1 $filter ignore attr_name op arg] } {
     set filtered_objects [$filter_function $attr_name $op $arg $objects]
   } else {
-    sta_error $error_code "unsupported $object_type -filter expression."
+    sta_error 350 "unsupported $object_type -filter expression."
   }
   return $filtered_objects
 }
@@ -503,7 +503,7 @@ proc get_cells { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set insts [filter_objs $keys(-filter) $insts filter_insts "instance" 350]
+    set insts [filter_objs $keys(-filter) $insts filter_insts "instance"]
   }
   return $insts
 }
@@ -535,7 +535,7 @@ proc get_clocks { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set clocks [filter_objs $keys(-filter) $clocks filter_clocks "clock" 2351]
+    set clocks [filter_objs $keys(-filter) $clocks filter_clocks "clock"]
   }
   return $clocks
 }
@@ -605,7 +605,7 @@ proc get_lib_cells { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set cells [filter_objs $keys(-filter) $cells filter_lib_cells "liberty cell" 2354]
+    set cells [filter_objs $keys(-filter) $cells filter_lib_cells "liberty cell"]
   }
   return $cells
 }
@@ -678,7 +678,7 @@ proc get_lib_pins { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set ports [filter_objs $keys(-filter) $ports filter_lib_pins "liberty port" 2357]
+    set ports [filter_objs $keys(-filter) $ports filter_lib_pins "liberty port"]
   }
   return $ports
 }
@@ -717,7 +717,7 @@ proc get_libs { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set libs [filter_objs $keys(-filter) $libs filter_liberty_libraries "liberty library" 2359]
+    set libs [filter_objs $keys(-filter) $libs filter_liberty_libraries "liberty library"]
   }
   return $libs
 }
@@ -807,7 +807,7 @@ proc get_nets { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set nets [filter_objs $keys(-filter) $nets filter_nets "net" 2361]
+    set nets [filter_objs $keys(-filter) $nets filter_nets "net"]
   }
   return $nets
 }
@@ -876,7 +876,7 @@ proc get_pins { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set pins [filter_objs $keys(-filter) $pins filter_pins "pin" 364]
+    set pins [filter_objs $keys(-filter) $pins filter_pins "pin"]
   }
   return $pins
 }
@@ -921,7 +921,7 @@ proc get_ports { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set ports [filter_objs $keys(-filter) $ports filter_ports "port" 367]
+    set ports [filter_objs $keys(-filter) $ports filter_ports "port"]
   }
   return $ports
 }

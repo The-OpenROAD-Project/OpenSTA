@@ -13,7 +13,7 @@ exec tclsh $0 ${1+"$@"}
 # Find warning/error message IDs and detect collisions.
 # Usage: FindMessages.tcl > doc/messages.txt
 
-proc scan_file { file warn_regexp is_filter_objs } {
+proc scan_file { file warn_regexp } {
   global msgs
 
   if { [file exists $file] } {
@@ -22,11 +22,7 @@ proc scan_file { file warn_regexp is_filter_objs } {
     set file_line 1
 
     while { ![eof $in_stream] } {
-      if { !$is_filter_objs && [regexp -- $warn_regexp $line ignore1 ignore2 msg_id msg] } {
-        lappend msgs "$msg_id $file $file_line $msg"
-      }
-      if { $is_filter_objs && [regexp -- $warn_regexp $line ignore1 ignore2 object_type msg_id] } {
-	set msg "\"unsupported $object_type -filter expression.\""
+      if { [regexp -- $warn_regexp $line ignore1 ignore2 msg_id msg] } {
         lappend msgs "$msg_id $file $file_line $msg"
       }
       gets $in_stream line
@@ -52,11 +48,10 @@ foreach subdir $subdirs {
   set files_tcl [concat $files_tcl [glob -nocomplain [file join $subdir "*.tcl"]]]
 }
 set warn_regexp_tcl {(sta_warn|sta_error|sta_warn_error) ([0-9]+) (".+")}
-set warn_regexp_tcl_filter_objs {(filter_objs) \S+ \S+ \S+ "([^"]+)" ([0-9]+)}
 
-proc scan_files {files warn_regexp is_filter_objs } {
+proc scan_files {files warn_regexp } {
   foreach file $files {
-    scan_file $file $warn_regexp $is_filter_objs
+    scan_file $file $warn_regexp
   }
 }
 
@@ -84,8 +79,7 @@ proc report_msgs { } {
 }
 
 set msgs {}
-scan_files $files_c $warn_regexp_c 0
-scan_files $files_tcl $warn_regexp_tcl 0
-scan_files $files_tcl $warn_regexp_tcl_filter_objs 1
+scan_files $files_c $warn_regexp_c
+scan_files $files_tcl $warn_regexp_tcl
 check_msgs
 report_msgs

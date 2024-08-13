@@ -120,7 +120,7 @@ Warning: 0000 duplicated
 0347 Sdc.tcl:401               current_design for other than top cell not supported.
 0348 Sdc.tcl:467               patterns argument not supported with -of_objects.
 0349 Sdc.tcl:500               instance '$pattern' not found.
-0350 Sdc.tcl:506               unsupported instance -filter expression.
+0350 Sdc.tcl:432               unsupported $object_type -filter expression.
 0351 Sdc.tcl:533               clock '$pattern' not found.
 0352 Sdc.tcl:562               positional arguments not supported with -of_objects.
 0353 Sdc.tcl:589               library '$lib_name' not found.
@@ -134,10 +134,8 @@ Warning: 0000 duplicated
 0361 Sdc.tcl:805               net '$pattern' not found.
 0362 Sdc.tcl:837               patterns argument not supported with -of_objects.
 0363 Sdc.tcl:874               pin '$pattern' not found.
-0364 Sdc.tcl:879               unsupported pin -filter expression.
 0365 Sdc.tcl:904               patterns argument not supported with -of_objects.
 0366 Sdc.tcl:918               port '$pattern' not found.
-0367 Sdc.tcl:924               unsupported port -filter expression.
 0368 Sdc.tcl:957               -add requires -name.
 0369 Sdc.tcl:962               -name or port_pin_list must be specified.
 0370 Sdc.tcl:970               missing -period argument.
@@ -269,7 +267,6 @@ Warning: 0000 duplicated
 0526 Search.tcl:1013           specify one of -setup and -hold.
 0527 Search.tcl:1063           unknown path group '$name'.
 0540 Sta.tcl:158               -from/-to arguments not supported with -of_objects.
-0541 Sta.tcl:174               unsupported timing arc -filter expression.
 0560 Util.tcl:44               $cmd $key missing value.
 0561 Util.tcl:61               $cmd $key missing value.
 0562 Util.tcl:71               $cmd $arg is not a known keyword or flag.
@@ -574,8 +571,3 @@ Warning: 0000 duplicated
 2121 Sdc.i:105                 unknown analysis type
 2122 Sdc.i:232                 unknown wire load mode
 2140 StaTclTypes.i:431         Delay calc arg requires 5 or 6 args.
-2351 Sdc.tcl:538               unsupported clock -filter expression.
-2354 Sdc.tcl:608               unsupported liberty cell -filter expression.
-2357 Sdc.tcl:681               unsupported liberty port -filter expression.
-2359 Sdc.tcl:720               unsupported liberty library -filter expression.
-2361 Sdc.tcl:810               unsupported net -filter expression.
