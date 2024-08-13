@@ -18,12 +18,10 @@ Warning: asap7_simple.lib.gz line 82271, timing group from output port.
 Warning: asap7_simple.lib.gz line 82747, timing group from output port.
 get_cells
 u1
-
 get_clocks
 clk
-
+get_clocks 2
 vclk
-
 get_lib_cells
 asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/BUFx10_ASAP7_75t_R
 asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/BUFx12_ASAP7_75t_R
@@ -41,7 +39,7 @@ asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/HB1xp67_ASAP7_75t_R
 asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/HB2xp67_ASAP7_75t_R
 asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/HB3xp67_ASAP7_75t_R
 asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/HB4xp67_ASAP7_75t_R
-
+get_lib_cells 2
 asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/CKINVDCx10_ASAP7_75t_R
 asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/CKINVDCx11_ASAP7_75t_R
 asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/CKINVDCx12_ASAP7_75t_R
@@ -63,19 +61,15 @@ asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/INVx6_ASAP7_75t_R
 asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/INVx8_ASAP7_75t_R
 asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/INVxp33_ASAP7_75t_R
 asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/INVxp67_ASAP7_75t_R
-
 get_lib_pins
 A
-
+get_lib_pins 2
 Y
-
 get_libs
 asap7sc7p5t_INVBUF_RVT_TT_ccs_211120
-
 get_nets
 r1q
 r2q
-
 get_pins
 r1/CLK
 r1/D
@@ -86,19 +80,17 @@ r3/D
 u1/A
 u2/A
 u2/B
-
+get_pins 2
 r1/Q
 r2/Q
 r3/Q
 u1/Y
 u2/Y
-
 get_ports
 clk1
 clk2
 clk3
 in1
 in2
-
+get_ports 2
 out
-

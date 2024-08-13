@@ -407,7 +407,7 @@ proc current_design { {design ""} } {
 ################################################################
 
 # Generic get_* filter.
-proc filter_objs { filter objects filter_function filter_type error_code } {
+proc filter_objs { filter objects filter_function object_type error_code } {
   set filter_regexp1 {@?([a-zA-Z_]+) *(==|!=|=~|!~) *([0-9a-zA-Z_\*]+)}
   set filter_or_regexp "($filter_regexp1) *\\|\\| *($filter_regexp1)"
   set filter_and_regexp "($filter_regexp1) *&& *($filter_regexp1)"
@@ -429,7 +429,7 @@ proc filter_objs { filter objects filter_function filter_type error_code } {
   } elseif { [regexp $filter_regexp1 $filter ignore attr_name op arg] } {
     set filtered_objects [$filter_function $attr_name $op $arg $objects]
   } else {
-    sta_error $error_code "unsupported $filter_type -filter expression."
+    sta_error $error_code "unsupported $object_type -filter expression."
   }
   return $filtered_objects
 }
