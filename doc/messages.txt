@@ -529,3 +529,8 @@
 1655 SpefReader.cc:513         %s not connected to net %s.
 1656 SpefReader.cc:517         pin %s not found.
 1657 SpefReader.cc:634         %s.
+2351 Sdc.tcl:538               unsupported clock -filter expression.
+2354 Sdc.tcl:608               unsupported liberty cell -filter expression.
+2357 Sdc.tcl:681               unsupported liberty port -filter expression.
+2351 Sdc.tcl:720               unsupported liberty library -filter expression.
+2361 Sdc.tcl:810               unsupported net -filter expression.

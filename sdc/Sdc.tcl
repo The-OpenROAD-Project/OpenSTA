@@ -406,7 +406,7 @@ proc current_design { {design ""} } {
 
 ################################################################
 
-# Generic filter_objs command.
+# Generic get_* filter.
 proc filter_objs { filter objects filter_function filter_type error_code } {
   set filter_regexp1 {@?([a-zA-Z_]+) *(==|!=|=~|!~) *([0-9a-zA-Z_\*]+)}
   set filter_or_regexp "($filter_regexp1) *\\|\\| *($filter_regexp1)"
@@ -605,7 +605,7 @@ proc get_lib_cells { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set cells [filter_objs $keys(-filter) $cells filter_lib_cells "liberty cells" 2354]
+    set cells [filter_objs $keys(-filter) $cells filter_lib_cells "liberty cell" 2354]
   }
   return $cells
 }
@@ -876,7 +876,7 @@ proc get_pins { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set pins [filter_objs $keys(-filter) $pins filter_pins "pin" 2363]
+    set pins [filter_objs $keys(-filter) $pins filter_pins "pin" 364]
   }
   return $pins
 }
@@ -921,7 +921,7 @@ proc get_ports { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set ports [filter_objs $keys(-filter) $ports filter_ports "port" 2366]
+    set ports [filter_objs $keys(-filter) $ports filter_ports "port" 367]
   }
   return $ports
 }

@@ -1354,9 +1354,9 @@ filter_lib_pins(const char *property,
 
 LibertyLibrarySeq
 filter_liberty_libraries(const char *property,
-	    const char *op,
-	    const char *pattern,
-	    LibertyLibrarySeq *libs)
+			 const char *op,
+			 const char *pattern,
+			 LibertyLibrarySeq *libs)
 {
   return filter_objects<LibertyLibrary>(property, op, pattern, libs);
 }
