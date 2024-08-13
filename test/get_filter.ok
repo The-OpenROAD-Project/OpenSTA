@@ -1,21 +1,3 @@
-Warning: asap7_simple.lib.gz line 71510, when attribute inside table model.
-Warning: asap7_simple.lib.gz line 71986, when attribute inside table model.
-Warning: asap7_simple.lib.gz line 72462, when attribute inside table model.
-Warning: asap7_simple.lib.gz line 72938, when attribute inside table model.
-Warning: asap7_simple.lib.gz line 73414, when attribute inside table model.
-Warning: asap7_simple.lib.gz line 74830, when attribute inside table model.
-Warning: asap7_simple.lib.gz line 71029, timing group from output port.
-Warning: asap7_simple.lib.gz line 71505, timing group from output port.
-Warning: asap7_simple.lib.gz line 71981, timing group from output port.
-Warning: asap7_simple.lib.gz line 72457, timing group from output port.
-Warning: asap7_simple.lib.gz line 72933, timing group from output port.
-Warning: asap7_simple.lib.gz line 73409, timing group from output port.
-Warning: asap7_simple.lib.gz line 73885, timing group from output port.
-Warning: asap7_simple.lib.gz line 82276, when attribute inside table model.
-Warning: asap7_simple.lib.gz line 83692, when attribute inside table model.
-Warning: asap7_simple.lib.gz line 81795, timing group from output port.
-Warning: asap7_simple.lib.gz line 82271, timing group from output port.
-Warning: asap7_simple.lib.gz line 82747, timing group from output port.
 get_cells
 u1
 get_clocks
@@ -23,50 +5,17 @@ clk
 get_clocks 2
 vclk
 get_lib_cells
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/BUFx10_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/BUFx12_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/BUFx12f_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/BUFx16f_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/BUFx24_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/BUFx2_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/BUFx3_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/BUFx4_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/BUFx4f_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/BUFx5_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/BUFx6f_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/BUFx8_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/HB1xp67_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/HB2xp67_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/HB3xp67_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/HB4xp67_ASAP7_75t_R
+asap7_small/BUFx2_ASAP7_75t_R
 get_lib_cells 2
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/CKINVDCx10_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/CKINVDCx11_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/CKINVDCx12_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/CKINVDCx14_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/CKINVDCx16_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/CKINVDCx20_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/CKINVDCx5p33_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/CKINVDCx6p67_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/CKINVDCx8_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/CKINVDCx9p33_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/INVx11_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/INVx13_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/INVx1_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/INVx2_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/INVx3_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/INVx4_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/INVx5_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/INVx6_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/INVx8_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/INVxp33_ASAP7_75t_R
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120/INVxp67_ASAP7_75t_R
+asap7_small/AND2x2_ASAP7_75t_R
+asap7_small/BUFx2_ASAP7_75t_R
+asap7_small/DFFHQx4_ASAP7_75t_R
 get_lib_pins
 A
 get_lib_pins 2
 Y
 get_libs
-asap7sc7p5t_INVBUF_RVT_TT_ccs_211120
+asap7_small
 get_nets
 r1q
 r2q
