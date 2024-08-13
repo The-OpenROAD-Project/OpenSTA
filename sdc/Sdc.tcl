@@ -717,7 +717,7 @@ proc get_libs { args } {
     }
   }
   if [info exists keys(-filter)] {
-    set libs [filter_objs $keys(-filter) $libs filter_liberty_libraries "liberty library" 2351]
+    set libs [filter_objs $keys(-filter) $libs filter_liberty_libraries "liberty library" 2359]
   }
   return $libs
 }
