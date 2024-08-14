@@ -2153,11 +2153,9 @@ LibertyReader::makeStatetable()
     LibertyPortSeq internal_ports;
     for (const string &internal : statetable_->internalPorts()) {
       LibertyPort *port = cell_->findLibertyPort(internal.c_str());
-      if (port)
-        internal_ports.push_back(port);
-      else
-	libWarn(0000, statetable_->line(), "statetable internal port %s not found.",
-                internal.c_str());
+      if (port == nullptr)
+	port = builder_.makePort(cell_, internal.c_str());
+      internal_ports.push_back(port);
     }
     cell_->makeStatetable(input_ports, internal_ports, statetable_->table());
     statetable_ = nullptr;
@@ -3860,7 +3858,7 @@ LibertyReader::beginSequential(LibertyGroup *group,
       if (has_size)
 	out_port = builder_.makeBusPort(cell_, out_name, size - 1, 0, nullptr);
       else
-	out_port = builder_.makePort(cell_,out_name);
+	out_port = builder_.makePort(cell_, out_name);
       out_port->setDirection(PortDirection::internal());
     }
     if (out_inv_name) {

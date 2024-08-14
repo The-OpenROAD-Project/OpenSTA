@@ -1,0 +1,45 @@
+get_cells
+u1
+get_clocks
+clk
+get_clocks 2
+vclk
+get_lib_cells
+asap7_small/BUFx2_ASAP7_75t_R
+get_lib_cells 2
+asap7_small/AND2x2_ASAP7_75t_R
+asap7_small/BUFx2_ASAP7_75t_R
+asap7_small/DFFHQx4_ASAP7_75t_R
+get_lib_pins
+A
+get_lib_pins 2
+Y
+get_libs
+asap7_small
+get_nets
+r1q
+r2q
+get_pins
+r1/CLK
+r1/D
+r2/CLK
+r2/D
+r3/CLK
+r3/D
+u1/A
+u2/A
+u2/B
+get_pins 2
+r1/Q
+r2/Q
+r3/Q
+u1/Y
+u2/Y
+get_ports
+clk1
+clk2
+clk3
+in1
+in2
+get_ports 2
+out
