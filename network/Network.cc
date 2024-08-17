@@ -258,7 +258,7 @@ Network::pathName(const Instance *instance) const
     const Instance *inst = path_iter1.next();
     name_length += strlen(name(inst)) + 1;
   }
-  char *path_name = makeTmpString(name_length);
+  char *path_name = makeTmpString(name_length + 1);
   char *path_ptr = path_name;
   // Top instance has null string name, so terminate the string here.
   *path_name = '\0';
