@@ -1034,8 +1034,9 @@ Pin *
 SdfReader::findPin(const char *name)
 {
   if (path_) {
-    string path_name;
-    stringPrint(path_name, "%s%c%s", path_, divider_, name);
+    string path_name = path_;
+    path_name += divider_;
+    path_name += name;
     Pin *pin = network_->findPin(path_name.c_str());
     return pin;
   }
@@ -1046,9 +1047,14 @@ SdfReader::findPin(const char *name)
 Instance *
 SdfReader::findInstance(const char *name)
 {
-  string inst_name = name;
-  if (path_)
-    stringPrint(inst_name, "%s%c%s", path_, divider_, name);
+  string inst_name;
+  if (path_) {
+    inst_name = path_;
+    inst_name += divider_;
+    inst_name += name;
+  }
+  else
+    inst_name = name;
   Instance *inst = network_->findInstance(inst_name.c_str());
   if (inst == nullptr)
     sdfWarn(195, "instance %s not found.", inst_name.c_str());
