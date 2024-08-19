@@ -177,10 +177,6 @@ stringPrintTmp(const char *fmt,
 
 char *
 makeTmpString(size_t length);
-void
-initTmpStrings();
-void
-deleteTmpStrings();
 bool
 isTmpString(const char *str);
 

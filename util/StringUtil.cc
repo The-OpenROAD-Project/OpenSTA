@@ -19,6 +19,7 @@
 #include <limits>
 #include <cctype>
 #include <cstdio>
+#include <array>
 
 #include "Machine.hh"
 #include "Mutex.hh"
@@ -152,69 +153,43 @@ stringPrintTmp(const char *fmt,
 
 ////////////////////////////////////////////////////////////////
 
-static int tmp_string_count_ = 100;
-static char **tmp_strings_ = nullptr;
-static size_t *tmp_string_lengths_ = nullptr;
-static int tmp_string_next_;
-static std::mutex string_lock_;
-
-void
-initTmpStrings()
-{
-  size_t initial_length = 100;
-
-  tmp_strings_ = new char*[tmp_string_count_];
-  tmp_string_lengths_ = new size_t[tmp_string_count_];
-  for (int i = 0; i < tmp_string_count_; i++) {
-    tmp_strings_[i] = new char[initial_length];
-    tmp_string_lengths_[i] = initial_length;
-  }
-  tmp_string_next_ = 0;
-}
-
-void
-deleteTmpStrings()
-{
-  if (tmp_strings_) {
-    for (int i = 0; i < tmp_string_count_; i++)
-      delete [] tmp_strings_[i];
-    delete [] tmp_strings_;
-    tmp_strings_ = nullptr;
-
-    delete [] tmp_string_lengths_;
-    tmp_string_lengths_ = nullptr;
-  }
-}
+static constexpr size_t tmp_string_count = 256;
+static constexpr size_t tmp_string_initial_length = 256;
+thread_local static std::array<char*, tmp_string_count> tmp_strings;
+thread_local static std::array<size_t, tmp_string_count> tmp_string_lengths;
+thread_local static int tmp_string_next = 0;
 
 static void
 getTmpString(// Return values.
 	     char *&str,
 	     size_t &length)
 {
-  LockGuard lock(string_lock_);
-  if (tmp_string_next_ == tmp_string_count_)
-    tmp_string_next_ = 0;
-  str = tmp_strings_[tmp_string_next_];
-  length = tmp_string_lengths_[tmp_string_next_];
-  tmp_string_next_++;
+  if (tmp_string_next == tmp_string_count)
+    tmp_string_next = 0;
+  str = tmp_strings[tmp_string_next];
+  length = tmp_string_lengths[tmp_string_next];
+  if (str == nullptr) {
+    str = tmp_strings[tmp_string_next] = new char[tmp_string_initial_length];
+    length = tmp_string_lengths[tmp_string_next] = tmp_string_initial_length;
+  }
+  tmp_string_next++;
 }
 
 char *
 makeTmpString(size_t length)
 {
-  LockGuard lock(string_lock_);
-  if (tmp_string_next_ == tmp_string_count_)
-    tmp_string_next_ = 0;
-  char *tmp_str = tmp_strings_[tmp_string_next_];
-  size_t tmp_length = tmp_string_lengths_[tmp_string_next_];
+  if (tmp_string_next == tmp_string_count)
+    tmp_string_next = 0;
+  char *tmp_str = tmp_strings[tmp_string_next];
+  size_t tmp_length = tmp_string_lengths[tmp_string_next];
   if (tmp_length < length) {
     // String isn't long enough.  Make a new one.
     delete [] tmp_str;
     tmp_str = new char[length];
-    tmp_strings_[tmp_string_next_] = tmp_str;
-    tmp_string_lengths_[tmp_string_next_] = length;
+    tmp_strings[tmp_string_next] = tmp_str;
+    tmp_string_lengths[tmp_string_next] = length;
   }
-  tmp_string_next_++;
+  tmp_string_next++;
   return tmp_str;
 }
 
@@ -230,9 +205,9 @@ stringDeleteCheck(const char *str)
 bool
 isTmpString(const char *str)
 {
-  if (tmp_strings_) {
-    for (int i = 0; i < tmp_string_count_; i++) {
-      if (str == tmp_strings_[i])
+  if (!tmp_strings.empty()) {
+    for (size_t i = 0; i < tmp_string_count; i++) {
+      if (str == tmp_strings[i])
         return true;
     }
   }

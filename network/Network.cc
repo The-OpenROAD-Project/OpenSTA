@@ -258,7 +258,7 @@ Network::pathName(const Instance *instance) const
     const Instance *inst = path_iter1.next();
     name_length += strlen(name(inst)) + 1;
   }
-  char *path_name = makeTmpString(name_length);
+  char *path_name = makeTmpString(name_length + 1);
   char *path_ptr = path_name;
   // Top instance has null string name, so terminate the string here.
   *path_name = '\0';
@@ -1047,8 +1047,7 @@ Network::findInstPinsHierMatching(const Instance *instance,
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
     const char *port_name = name(port(pin));
-    string pin_name;
-    stringPrint(pin_name, "%s%c%s", inst_name.c_str(), divider_, port_name);
+    string pin_name = inst_name + divider_ + port_name;
     if (pattern->match(pin_name.c_str()))
       matches.push_back(pin);
   }
