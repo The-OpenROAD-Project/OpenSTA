@@ -4,6 +4,15 @@ get_clocks
 clk
 get_clocks 2
 vclk
+get_clocks 3
+vclk
+get_clocks 4
+get_clocks 5
+vclk
+get_clocks 6
+vclk
+get_clocks 7
+clk
 get_lib_cells
 asap7_small/BUFx2_ASAP7_75t_R
 get_lib_cells 2

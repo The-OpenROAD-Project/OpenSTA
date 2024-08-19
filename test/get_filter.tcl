@@ -12,6 +12,16 @@ puts "get_clocks"
 report_object_full_names [get_clocks -filter is_virtual==0 *]
 puts "get_clocks 2"
 report_object_full_names [get_clocks -filter is_virtual==1 *]
+puts "get_clocks 3"
+report_object_full_names [get_clocks -filter is_virtual *]
+puts "get_clocks 4"
+report_object_full_names [get_clocks -filter is_virtual&&is_generated *]
+puts "get_clocks 5"
+report_object_full_names [get_clocks -filter is_virtual&&is_generated==0 *]
+puts "get_clocks 6"
+report_object_full_names [get_clocks -filter is_virtual||is_generated *]
+puts "get_clocks 7"
+report_object_full_names [get_clocks -filter is_virtual==0||is_generated *]
 puts "get_lib_cells"
 report_object_full_names [get_lib_cells -filter is_buffer==1 *]
 puts "get_lib_cells 2"
