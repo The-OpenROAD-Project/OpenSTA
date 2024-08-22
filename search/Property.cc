@@ -713,13 +713,9 @@ getProperty(const LibertyCell *cell,
   else if (stringEqual(property, "full_name")) {
     auto network = sta->cmdNetwork();
     auto lib = cell->libertyLibrary();
-    const char *lib_name = lib->name();
-    const char *cell_name = cell->name();
-    string full_name;
-    stringPrint(full_name, "%s%c%s",
-		lib_name,
-		network->pathDivider(),
-		cell_name);
+    string lib_name = lib->name();
+    string cell_name = cell->name();
+    string full_name = lib_name + network->pathDivider() + cell_name;
     return PropertyValue(full_name);
   }
   else if (stringEqual(property, "filename"))
@@ -748,14 +744,10 @@ getProperty(const Cell *cell,
       || stringEqual(property, "base_name"))
     return PropertyValue(network->name(cell));
   else if (stringEqual(property, "full_name")) {
-    auto lib = network->library(cell);
-    const char *lib_name = network->name(lib);
-    const char *cell_name = network->name(cell);
-    string full_name;
-    stringPrint(full_name, "%s%c%s",
-		lib_name,
-		network->pathDivider(),
-		cell_name);
+    Library *lib = network->library(cell);
+    string lib_name = network->name(lib);
+    string cell_name = network->name(cell);
+    string full_name = lib_name + network->pathDivider() + cell_name;
     return PropertyValue(full_name);
   }
   else if (stringEqual(property, "library"))

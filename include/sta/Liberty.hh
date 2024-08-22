@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <mutex>
+
 #include "MinMax.hh"
 #include "RiseFallMinMax.hh"
 #include "ConcreteLibrary.hh"
@@ -631,6 +633,7 @@ protected:
   bool has_internal_ports_;
   bool have_voltage_waveforms_;
   const char *footprint_;
+  std::mutex waveform_lock_;
 
 private:
   friend class LibertyLibrary;

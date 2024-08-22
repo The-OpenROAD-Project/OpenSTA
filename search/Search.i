@@ -1236,7 +1236,7 @@ use_default_arrival_clock()
 void
 set_use_default_arrival_clock(bool enable)
 {
-  return Sta::sta()->setUseDefaultArrivalClock(enable);
+  Sta::sta()->setUseDefaultArrivalClock(enable);
 }
 
 ////////////////////////////////////////////////////////////////

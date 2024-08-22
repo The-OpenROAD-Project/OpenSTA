@@ -16,6 +16,7 @@
 
 #include "Liberty.hh"
 
+#include "Mutex.hh"
 #include "EnumNameMap.hh"
 #include "Report.hh"
 #include "Debug.hh"
@@ -59,7 +60,7 @@ LibertyLibrary::LibertyLibrary(const char *name,
 			       const char *filename) :
   ConcreteLibrary(name, filename, true),
   units_(new Units()),
-  delay_model_type_(DelayModelType::cmos_linear), // default
+  delay_model_type_(DelayModelType::table), // default
   nominal_process_(0.0),
   nominal_voltage_(0.0),
   nominal_temperature_(0.0),
@@ -1965,24 +1966,28 @@ void
 LibertyCell::ensureVoltageWaveforms(const DcalcAnalysisPtSeq &dcalc_aps)
 {
   if (!have_voltage_waveforms_) {
-    float vdd = 0.0;  // shutup gcc
-    bool vdd_exists;
-    liberty_library_->supplyVoltage("VDD", vdd, vdd_exists);
-    if (!vdd_exists || vdd == 0.0)
-      criticalError(1120, "library missing vdd");
-    for (TimingArcSet *arc_set : timingArcSets()) {
-      for (TimingArc *arc : arc_set->arcs()) {
-        for (const DcalcAnalysisPt *dcalc_ap : dcalc_aps) {
-          GateTableModel *model = arc->gateTableModel(dcalc_ap);
-          if (model) {
-            OutputWaveforms *output_waveforms = model->outputWaveforms();
-            if (output_waveforms)
-              output_waveforms->ensureVoltageWaveforms(vdd);
+    LockGuard lock(waveform_lock_);
+    // Recheck with lock.
+    if (!have_voltage_waveforms_) {
+      float vdd = 0.0;  // shutup gcc
+      bool vdd_exists;
+      liberty_library_->supplyVoltage("VDD", vdd, vdd_exists);
+      if (!vdd_exists || vdd == 0.0)
+        criticalError(1120, "library missing vdd");
+      for (TimingArcSet *arc_set : timingArcSets()) {
+        for (TimingArc *arc : arc_set->arcs()) {
+          for (const DcalcAnalysisPt *dcalc_ap : dcalc_aps) {
+            GateTableModel *model = arc->gateTableModel(dcalc_ap);
+            if (model) {
+              OutputWaveforms *output_waveforms = model->outputWaveforms();
+              if (output_waveforms)
+                output_waveforms->ensureVoltageWaveforms(vdd);
+            }
           }
         }
       }
+      have_voltage_waveforms_ = true;
     }
-    have_voltage_waveforms_ = true;
   }
 }
 

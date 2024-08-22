@@ -225,7 +225,6 @@ initSta()
   initElapsedTime();
   TimingRole::init();
   PortDirection::init();
-  initTmpStrings();
   initLiberty();
   initDelayConstants();
   registerDelayCalcs();
@@ -244,7 +243,6 @@ deleteAllMemory()
     Sta::setSta(nullptr);
   }
   deleteDelayCalcs();
-  deleteTmpStrings();
   TimingRole::destroy();
   PortDirection::destroy();
   deleteLiberty();
