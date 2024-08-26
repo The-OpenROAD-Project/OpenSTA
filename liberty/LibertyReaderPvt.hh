@@ -66,7 +66,7 @@ typedef void (LibertyPort::*LibertyPortBoolSetter)(bool value);
 typedef Vector<OutputWaveform*> OutputWaveformSeq;
 typedef vector<string> StdStringSeq;
 typedef Map<const char*, LibertyCellFootprintIndex,
-      CharPtrLess> LibertyCellFootprintIndexMap;
+            CharPtrLess> LibertyCellFootprintIndexMap;
 
 class LibertyReader : public LibertyGroupVisitor
 {
