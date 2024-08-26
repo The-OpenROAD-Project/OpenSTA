@@ -5240,6 +5240,8 @@ Sdc::exceptionFromClkStates(const Pin *pin,
       exceptionFromStates(first_from_inst_exceptions_.findKey(inst),
 			  pin, rf, min_max, true, states);
     }
+    exceptionThruStates(first_thru_pin_exceptions_.findKey(pin),
+                        rf, min_max, states);
   }
   if (!first_from_clk_exceptions_.empty())
     exceptionFromStates(first_from_clk_exceptions_.findKey(clk),
