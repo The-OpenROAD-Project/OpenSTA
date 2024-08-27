@@ -142,7 +142,6 @@ public:
   LibertyCell *findLibertyCell(const char *name) const;
   LibertyCellSeq findLibertyCellsMatching(PatternMatch *pattern);
   void addFootprint(const char *footprint);
-  LibertyCellFootprintSeq footprints() const { return footprints_; }
   // Liberty cells that are buffers.
   LibertyCellSeq *buffers();
   LibertyCellSeq *inverters();
