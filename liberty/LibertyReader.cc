@@ -3075,8 +3075,9 @@ LibertyReader::visitCellFootprint(LibertyAttr *attr)
   if (cell_) {
     const char *footprint = getAttrString(attr);
     LibertyCellFootprintIndex footprint_index;
-    if (footprint_index_map_.find(footprint) != footprint_index_map_.end()) {
-      footprint_index = footprint_index_map_.at(footprint);
+    auto itr = footprint_index_map_.find(footprint);
+    if (itr != footprint_index_map_.end()) {
+      footprint_index = itr->second;
     } else {
       footprint_index = static_cast<int>(footprint_index_map_.size());
       footprint_index_map_[stringCopy(footprint)] = footprint_index;
