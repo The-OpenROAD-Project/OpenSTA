@@ -530,7 +530,7 @@ bool
 equivCellFootprints(const LibertyCell *cell1,
                     const LibertyCell *cell2)
 {
-  return cell1->footprint() == cell2->footprint();
+  return strcmp(cell1->footprint(), cell2->footprint()) == 0;
 }
 
 } // namespace
