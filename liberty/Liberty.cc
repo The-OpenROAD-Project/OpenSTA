@@ -950,7 +950,7 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   leakage_power_exists_(false),
   has_internal_ports_(false),
   have_voltage_waveforms_(false),
-  footprint_index_(0)
+  footprint_index_(-1)
 {
   liberty_cell_ = this;
 }
@@ -2008,7 +2008,10 @@ LibertyCell::setFootprintIndex(LibertyCellFootprintIndex footprint_index)
 const char*
 LibertyCell::footprint() const
 {
-  return libertyLibrary()->footprints_[footprint_index_];
+  if (footprint_index_ != -1) {
+    return libertyLibrary()->footprints_[footprint_index_];
+  }
+  return "";
 }
 
 ////////////////////////////////////////////////////////////////
