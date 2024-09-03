@@ -83,6 +83,8 @@ typedef Map<const char *, float, CharPtrLess> SupplyVoltageMap;
 typedef Map<const char *, LibertyPgPort*, CharPtrLess> LibertyPgPortMap;
 typedef Map<const char *, DriverWaveform*, CharPtrLess> DriverWaveformMap;
 typedef Vector<DcalcAnalysisPt*> DcalcAnalysisPtSeq;
+typedef int LibertyCellFootprintIndex;
+typedef Vector<const char *> LibertyCellFootprintSeq;
 
 enum class ClockGateType { none, latch_posedge, latch_negedge, other };
 
@@ -142,6 +144,7 @@ public:
   // Liberty cells that are buffers.
   LibertyCellSeq *buffers();
   LibertyCellSeq *inverters();
+  void addFootprint(const char *footprint);
 
   DelayModelType delayModelType() const { return delay_model_type_; }
   void setDelayModelType(DelayModelType type);
@@ -371,6 +374,7 @@ protected:
   SupplyVoltageMap supply_voltage_map_;
   LibertyCellSeq *buffers_;
   LibertyCellSeq *inverters_;
+  LibertyCellFootprintSeq footprints_;
   DriverWaveformMap driver_waveform_map_;
   // Unnamed driver waveform.
   DriverWaveform *driver_waveform_default_;
@@ -541,6 +545,8 @@ public:
   // for all the defined corners.
   static void checkLibertyCorners();
   void ensureVoltageWaveforms(const DcalcAnalysisPtSeq &dcalc_aps);
+  void setFootprintIndex(LibertyCellFootprintIndex footprint_index);
+  const char *footprint() const;
 
 protected:
   void addPort(ConcretePort *port);
@@ -631,6 +637,7 @@ protected:
   bool has_internal_ports_;
   bool have_voltage_waveforms_;
   std::mutex waveform_lock_;
+  LibertyCellFootprintIndex footprint_index_;
 
 private:
   friend class LibertyLibrary;

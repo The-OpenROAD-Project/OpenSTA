@@ -310,6 +310,7 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("switch_cell_type", &LibertyReader::visitSwitchCellType);
   defineAttrVisitor("interface_timing", &LibertyReader::visitInterfaceTiming);
   defineAttrVisitor("scaling_factors", &LibertyReader::visitScalingFactors);
+  defineAttrVisitor("cell_footprint", &LibertyReader::visitCellFootprint);
 
   // Pins
   defineGroupVisitor("pin", &LibertyReader::beginPin,&LibertyReader::endPin);
@@ -725,6 +726,9 @@ LibertyReader::endLibraryAttrs(LibertyGroup *group)
   if (missing_threshold)
     libError(1149, group, "Library %s is missing one or more thresholds.",
 	     library_->name());
+
+  for (auto [footprint, footprint_index] : footprint_index_map_)
+    stringDelete(footprint);
 }
 
 void
@@ -3062,6 +3066,27 @@ LibertyReader::visitClockGatingIntegratedCell(LibertyAttr *attr)
       else
 	cell_->setClockGateType(ClockGateType::other);
     }
+  }
+}
+
+void
+LibertyReader::visitCellFootprint(LibertyAttr *attr)
+{
+  if (cell_) {
+    const char *footprint = getAttrString(attr);
+    if (!footprint) {
+      return;
+    }
+    LibertyCellFootprintIndex footprint_index;
+    auto itr = footprint_index_map_.find(footprint);
+    if (itr != footprint_index_map_.end()) {
+      footprint_index = itr->second;
+    } else {
+      footprint_index = static_cast<int>(footprint_index_map_.size());
+      footprint_index_map_[stringCopy(footprint)] = footprint_index;
+      library()->addFootprint(stringCopy(footprint));
+    }
+    cell_->setFootprintIndex(footprint_index);
   }
 }
 
