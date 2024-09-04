@@ -128,9 +128,6 @@ LibertyLibrary::~LibertyLibrary()
   delete inverters_;
   driver_waveform_map_.deleteContents();
   delete driver_waveform_default_;
-
-  for (auto footprint : footprints_)
-    stringDelete(footprint);
 }
 
 LibertyCell *
@@ -182,12 +179,6 @@ LibertyLibrary::buffers()
     }
   }
   return buffers_;
-}
-
-void
-LibertyLibrary::addFootprint(const char *footprint)
-{
-  footprints_.push_back(stringCopy(footprint));
 }
 
 void
@@ -950,7 +941,7 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   leakage_power_exists_(false),
   has_internal_ports_(false),
   have_voltage_waveforms_(false),
-  footprint_index_(-1)
+  footprint_(nullptr)
 {
   liberty_cell_ = this;
 }
@@ -978,6 +969,8 @@ LibertyCell::~LibertyCell()
   ocv_derate_map_.deleteContents();
 
   pg_port_map_.deleteContents();
+
+  stringDelete(footprint_);
 }
 
 LibertyPort *
@@ -2000,18 +1993,18 @@ LibertyCell::ensureVoltageWaveforms(const DcalcAnalysisPtSeq &dcalc_aps)
 }
 
 void
-LibertyCell::setFootprintIndex(LibertyCellFootprintIndex footprint_index)
+LibertyCell::setFootprint(const char *footprint)
 {
-  footprint_index_ = footprint_index;
+  footprint_ = stringCopy(footprint);
 }
 
 const char*
 LibertyCell::footprint() const
 {
-  if (footprint_index_ != -1) {
-    return libertyLibrary()->footprints_[footprint_index_];
-  }
-  return "";
+  if (footprint_)
+    return footprint_;
+  else
+    return "";
 }
 
 ////////////////////////////////////////////////////////////////

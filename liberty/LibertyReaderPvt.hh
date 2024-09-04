@@ -65,8 +65,6 @@ typedef Vector<LeakagePowerGroup*> LeakagePowerGroupSeq;
 typedef void (LibertyPort::*LibertyPortBoolSetter)(bool value);
 typedef Vector<OutputWaveform*> OutputWaveformSeq;
 typedef vector<string> StdStringSeq;
-typedef Map<const char*, LibertyCellFootprintIndex,
-            CharPtrLess> LibertyCellFootprintIndexMap;
 
 class LibertyReader : public LibertyGroupVisitor
 {
@@ -666,7 +664,6 @@ protected:
   float reference_time_;
   bool reference_time_exists_;
   const char *driver_waveform_name_;
-  LibertyCellFootprintIndexMap footprint_index_map_;
 
   static constexpr char escape_ = '\\';
 
