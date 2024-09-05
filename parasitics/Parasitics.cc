@@ -18,6 +18,7 @@
 
 #include "Error.hh"
 #include "Debug.hh"
+#include "Units.hh"
 #include "Liberty.hh"
 #include "Wireload.hh"
 #include "Network.hh"
@@ -32,6 +33,47 @@ namespace sta {
 Parasitics::Parasitics(StaState *sta) :
   StaState(sta)
 {
+}
+
+void
+Parasitics::report(const Parasitic *parasitic) const
+{
+  if (isParasiticNetwork(parasitic)) {
+    const Unit *cap_unit = units_->capacitanceUnit();
+    report_->reportLine("Net %s %s",
+                        network_->pathName(net(parasitic)),
+                        cap_unit->asString(capacitance(parasitic)));
+    report_->reportLine("Nodes:");
+    for (ParasiticNode *node : nodes(parasitic))
+      report_->reportLine("%s%s %s",
+                          name(node),
+                          isExternal(node) ? " (ext)" : "",
+                          cap_unit->asString(nodeGndCap(node)));
+    report_->reportLine("Resistors:");
+    for (ParasiticResistor *res : resistors(parasitic)) {
+      ParasiticNode *node1 = this->node1(res);
+      ParasiticNode *node2 = this->node2(res);
+      report_->reportLine("%zu %s%s %s%s %s",
+                          id(res),
+                          name(node1),
+                          isExternal(node1) ? " (ext)" : "",
+                          name(node2),
+                          isExternal(node2) ? " (ext)" : "",
+                          units_->resistanceUnit()->asString(value(res)));
+    }
+    report_->reportLine("Coupling Capacitors:");
+    for (ParasiticCapacitor *cap : capacitors(parasitic)) {
+      ParasiticNode *node1 = this->node1(cap);
+      ParasiticNode *node2 = this->node2(cap);
+      report_->reportLine("%zu %s%s %s%s %s",
+                          id(cap),
+                          name(node1),
+                          isExternal(node1) ? " (ext)" : "",
+                          name(node2),
+                          isExternal(node2) ? " (ext)" : "",
+                          cap_unit->asString(value(cap)));
+    }
+  }
 }
 
 const Net *

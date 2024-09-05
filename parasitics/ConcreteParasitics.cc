@@ -596,13 +596,14 @@ ConcreteParasiticNetwork::findParasiticNode(const Pin *pin) const
 ConcreteParasiticNode *
 ConcreteParasiticNetwork::ensureParasiticNode(const Net *net,
 					      int id,
-                                              const Network *)
+                                              const Network *network)
 {
   ConcreteParasiticNode *node;
   NetIdPair net_id(net, id);
   auto id_node = sub_nodes_.find(net_id);
   if (id_node == sub_nodes_.end()) {
-    node = new ConcreteParasiticNode(net, id, net != net_);
+    Net *net1 = network->highestNetAbove(const_cast<Net*>(net));
+    node = new ConcreteParasiticNode(net, id, network->highestNetAbove(net1) != net_);
     sub_nodes_[net_id] = node;
     if (net == net_)
       max_node_id_ = max((int) max_node_id_, id);
@@ -1285,6 +1286,17 @@ ConcreteParasitics::deleteParasiticNetworks(const Net *net)
       parasitic_network_map_.erase(net);
     }
   }
+}
+
+const Net *
+ConcreteParasitics::net(const Parasitic *parasitic) const
+{
+  const ConcreteParasiticNetwork *cparasitic =
+    static_cast<const ConcreteParasiticNetwork*>(parasitic);
+  if (cparasitic->isParasiticNetwork())
+    return cparasitic->net();
+  else
+    return nullptr;
 }
 
 bool
