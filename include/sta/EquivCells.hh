@@ -73,4 +73,8 @@ bool
 equivCellSequentials(const LibertyCell *cell1,
 		     const LibertyCell *cell2);
 
+bool
+equivCellFootprints(const LibertyCell *cell1,
+                    const LibertyCell *cell2);
+
 } // namespace

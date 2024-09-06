@@ -325,7 +325,8 @@ equivCells(const LibertyCell *cell1,
     && equivCellPgPorts(cell1, cell2)
     && equivCellSequentials(cell1, cell2)
     && equivCellStatetables(cell1, cell2)
-    && equivCellTimingArcSets(cell1, cell2);
+    && equivCellTimingArcSets(cell1, cell2)
+    && equivCellFootprints(cell1, cell2);
 }
 
 bool
@@ -523,6 +524,13 @@ equivCellTimingArcSets(const LibertyCell *cell1,
     }
     return true;
   }
+}
+
+bool
+equivCellFootprints(const LibertyCell *cell1,
+                    const LibertyCell *cell2)
+{
+  return stringEqIf(cell1->footprint(), cell2->footprint());
 }
 
 } // namespace
