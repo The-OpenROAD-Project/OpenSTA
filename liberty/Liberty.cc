@@ -2001,10 +2001,7 @@ LibertyCell::setFootprint(const char *footprint)
 const char*
 LibertyCell::footprint() const
 {
-  if (footprint_)
-    return footprint_;
-  else
-    return "";
+  return footprint_;
 }
 
 ////////////////////////////////////////////////////////////////
