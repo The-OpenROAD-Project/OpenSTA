@@ -940,7 +940,8 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   leakage_power_(0.0),
   leakage_power_exists_(false),
   has_internal_ports_(false),
-  have_voltage_waveforms_(false)
+  have_voltage_waveforms_(false),
+  footprint_(nullptr)
 {
   liberty_cell_ = this;
 }
@@ -968,6 +969,8 @@ LibertyCell::~LibertyCell()
   ocv_derate_map_.deleteContents();
 
   pg_port_map_.deleteContents();
+
+  stringDelete(footprint_);
 }
 
 LibertyPort *
@@ -1987,6 +1990,18 @@ LibertyCell::ensureVoltageWaveforms(const DcalcAnalysisPtSeq &dcalc_aps)
       have_voltage_waveforms_ = true;
     }
   }
+}
+
+void
+LibertyCell::setFootprint(const char *footprint)
+{
+  footprint_ = stringCopy(footprint);
+}
+
+const char*
+LibertyCell::footprint() const
+{
+  return footprint_;
 }
 
 ////////////////////////////////////////////////////////////////

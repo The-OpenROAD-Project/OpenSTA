@@ -112,6 +112,7 @@ public:
   void deleteParasiticNetwork(const Net *net,
                               const ParasiticAnalysisPt *ap) override;
   void deleteParasiticNetworks(const Net *net) override;
+  const Net *net(const Parasitic *parasitic) const override;
   bool includesPinCaps(const Parasitic *parasitic) const override;
   ParasiticNode *findParasiticNode(Parasitic *parasitic,
                                    const Net *net,

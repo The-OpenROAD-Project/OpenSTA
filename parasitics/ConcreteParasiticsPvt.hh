@@ -207,7 +207,7 @@ public:
                            const Network *network);
   virtual ~ConcreteParasiticNetwork();
   virtual bool isParasiticNetwork() const { return true; }
-  const Net *net() { return net_; }
+  const Net *net() const { return net_; }
   bool includesPinCaps() const { return includes_pin_caps_; }
   ConcreteParasiticNode *findParasiticNode(const Net *net,
                                            int id,
