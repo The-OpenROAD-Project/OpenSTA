@@ -421,6 +421,7 @@ proc filter_objs { filter objects filter_function object_type } {
     set filtered_objects [filter_objs $expr1 $objects $filter_function $object_type]
     set filtered_objects [filter_objs $expr2 $filtered_objects $filter_function $object_type]
   } elseif { [regexp $filter_regexp1 $filter ignore attr_name ignore op arg] } {
+    # If no op/arg, use <attr_name>==1 by default.
     set op [expr {($op == "") ? "==" : $op}]
     set arg [expr {($arg == "") ? "1" : $arg}]
     set filtered_objects [$filter_function $attr_name $op $arg $objects]
