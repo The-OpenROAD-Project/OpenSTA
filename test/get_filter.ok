@@ -1,34 +1,34 @@
-get_cells
+[get_cells -filter liberty_cell==BUFx2_ASAP7_75t_R *]
 u1
-get_clocks
+[get_clocks -filter is_virtual==0 *]
 clk
-get_clocks 2
+[get_clocks -filter is_virtual==1 *]
 vclk
-get_clocks 3
+[get_clocks -filter is_virtual *]
 vclk
-get_clocks 4
-get_clocks 5
+[get_clocks -filter is_virtual&&is_generated *]
+[get_clocks -filter is_virtual&&is_generated==0 *]
 vclk
-get_clocks 6
+[get_clocks -filter is_virtual||is_generated *]
 vclk
-get_clocks 7
+[get_clocks -filter is_virtual==0||is_generated *]
 clk
-get_lib_cells
+[get_lib_cells -filter is_buffer==1 *]
 asap7_small/BUFx2_ASAP7_75t_R
-get_lib_cells 2
+[get_lib_cells -filter is_inverter==0 *]
 asap7_small/AND2x2_ASAP7_75t_R
 asap7_small/BUFx2_ASAP7_75t_R
 asap7_small/DFFHQx4_ASAP7_75t_R
-get_lib_pins
+[get_lib_pins -filter direction==input BUFx2_ASAP7_75t_R/*]
 A
-get_lib_pins 2
+[get_lib_pins -filter direction==output BUFx2_ASAP7_75t_R/*]
 Y
-get_libs
+[get_libs -filter name==asap7_small *]
 asap7_small
-get_nets
+[get_nets -filter name=~*q *]
 r1q
 r2q
-get_pins
+[get_pins -filter direction==input *]
 r1/CLK
 r1/D
 r2/CLK
@@ -38,17 +38,17 @@ r3/D
 u1/A
 u2/A
 u2/B
-get_pins 2
+[get_pins -filter direction==output *]
 r1/Q
 r2/Q
 r3/Q
 u1/Y
 u2/Y
-get_ports
+[get_ports -filter direction==input *]
 clk1
 clk2
 clk3
 in1
 in2
-get_ports 2
+[get_ports -filter direction==output *]
 out
