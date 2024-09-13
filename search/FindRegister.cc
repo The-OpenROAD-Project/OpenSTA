@@ -238,25 +238,25 @@ FindRegVisitor::findSequential(const Pin *clk_pin,
   for (Sequential *seq : cell->sequentials()) {
     has_seqs = true;
     if ((seq->isRegister() && edge_triggered)
-	|| (seq->isLatch() && latches)) {
+     || (seq->isLatch() && latches)) {
       if (clk_rf == RiseFallBoth::riseFall()) {
-	visitSequential(inst, seq);
-	matches = true;
-	break;
+        visitSequential(inst, seq);
+        matches = true;
+        break;
       }
       else {
-	FuncExpr *clk_func = seq->clock();
-	LibertyPort *port = network_->libertyPort(clk_pin);
-	TimingSense port_sense = clk_func->portTimingSense(port);
-	TimingSense path_sense = pathSenseThru(clk_sense, port_sense);
-	if ((path_sense == TimingSense::positive_unate
-	     && clk_rf == RiseFallBoth::rise())
-	    || (path_sense == TimingSense::negative_unate
-		&& clk_rf == RiseFallBoth::fall())) {
-	  visitSequential(inst, seq);
-	  matches = true;
-	  break;
-	}
+        FuncExpr *clk_func = seq->clock();
+        LibertyPort *port = network_->libertyPort(clk_pin);
+        TimingSense port_sense = clk_func->portTimingSense(port);
+        TimingSense path_sense = pathSenseThru(clk_sense, port_sense);
+        if ((path_sense == TimingSense::positive_unate
+           && clk_rf == RiseFallBoth::rise())
+          || (path_sense == TimingSense::negative_unate
+           && clk_rf == RiseFallBoth::fall())) {
+          visitSequential(inst, seq);
+          matches = true;
+          break;
+        }
       }
     }
   }
