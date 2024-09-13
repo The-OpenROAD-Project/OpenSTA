@@ -541,6 +541,8 @@ public:
   // for all the defined corners.
   static void checkLibertyCorners();
   void ensureVoltageWaveforms(const DcalcAnalysisPtSeq &dcalc_aps);
+  const char *footprint() const;
+  void setFootprint(const char *footprint);
 
 protected:
   void addPort(ConcretePort *port);
@@ -631,6 +633,7 @@ protected:
   bool has_internal_ports_;
   bool have_voltage_waveforms_;
   std::mutex waveform_lock_;
+  const char *footprint_;
 
 private:
   friend class LibertyLibrary;

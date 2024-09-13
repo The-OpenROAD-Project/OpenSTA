@@ -205,6 +205,7 @@ public:
   virtual void visitInterfaceTiming(LibertyAttr *attr);
   virtual void visitScalingFactors(LibertyAttr *attr);
   virtual void visitCellLeakagePower(LibertyAttr *attr);
+  virtual void visitCellFootprint(LibertyAttr *attr);
 
   virtual void beginPin(LibertyGroup *group);
   virtual void endPin(LibertyGroup *group);

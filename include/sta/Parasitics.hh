@@ -154,6 +154,8 @@ public:
 					  bool includes_pin_caps,
 					  const ParasiticAnalysisPt *ap) = 0;
   virtual ParasiticNodeSeq nodes(const Parasitic *parasitic) const = 0;
+  virtual void report(const Parasitic *parasitic) const;
+  virtual const Net *net(const Parasitic *parasitic) const = 0;
   virtual ParasiticResistorSeq resistors(const Parasitic *parasitic) const = 0;
   virtual ParasiticCapacitorSeq capacitors(const Parasitic *parasitic) const = 0;
   // Delete parasitic network if it exists.
