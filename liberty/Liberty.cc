@@ -768,8 +768,8 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
 		   cell2->name());
   }
 
-  for (auto arc_set1 : cell1->timing_arc_sets_) {
-    auto arc_set2 = cell2->findTimingArcSet(arc_set1);
+  for (TimingArcSet *arc_set1 : cell1->timing_arc_sets_) {
+    TimingArcSet *arc_set2 = cell2->findTimingArcSet(arc_set1);
     if (arc_set2) {
       if (link) {
         const TimingArcSeq &arcs1 = arc_set1->arcs();
@@ -789,7 +789,7 @@ LibertyLibrary::makeCornerMap(LibertyCell *cell1,
       report->warn(1111, "cell %s/%s %s -> %s timing group %s not found in cell %s/%s.",
 		   cell1->library()->name(),
 		   cell1->name(),
-		   arc_set1->from()->name(),
+		   arc_set1->from() ? arc_set1->from()->name() : "",
 		   arc_set1->to()->name(),
 		   arc_set1->role()->asString(),
 		   cell2->library()->name(),
