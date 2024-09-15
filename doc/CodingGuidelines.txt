@@ -1,4 +1,5 @@
 Naming conventions
+------------------
 
 directory - lowercase (directory)
 filename - corresponding class name without prefix (Filename)
@@ -105,32 +106,26 @@ pair if the lookup fails.  Use map::find or sta::Map::findKey instead.
 
 Avoid nested classes/enums because SWIG has trouble with them.
 
-................................................................
-Warning
-get_<object> not found
-sdf timing arc not found
-disabling timing arcs to break loops
-virtual clock with no sources (no pins)
-invalid endpoint for constrained paths
-sdf DESIGN does not match top level cell name
-set_input_delay on clk port (deprecation warning)
-link cannot resolve reference (module/cell not found)
+Regression Tests
+................
 
-Errors
-cannot open file
-file syntax error
-cmd illegal command option combinations
-cmd extra positional args
-cmd unknown keyword option
-cmd unknown
-sdf pin not found
+Tests are run with the tcl script test/regression:
 
-................................................................
-Swig notes
+Usage: regression [-help] [-threads threads] [-valgrind] [-report_stats] tests...
+  -threads max|integer - number of threads to use
+  -valgrind - run valgrind (linux memory checker)
+  -report_stats - report run time and memory
+  Wildcarding for test names is supported (enclose in "'s)
 
-C null pointers (zero) turn into "NULL" values in TCL.
+Tests log files and results are in test/results. The result/test.log
+is compared to test.ok to determine if a test passes.
 
-TCL "NULL" strings turn into NULL (zero) pointers in C.
+Test scripts are written in tcl and live in the /test directory.
+Compress large liberty, verilog, and spef, files and use existing
+libraries to prevent repository bloat.
 
-# TCL lexpr-funcall
-eval exec $prog $args
+The test script should use a one line comment at the beginning of the
+file so head -1 can show what it is for. Use file names to roughly
+group regressions and use numeric suffixes to distinguish them.
+
+The script test/save_ok saves a test/results/<test>.log to test/<test>.okfile.
