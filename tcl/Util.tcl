@@ -341,21 +341,20 @@ proc sta_unknown { args } {
   }
   if { $ret != 0 } {
     return -code $ret -errorcode $errorCode \
-      "error in unknown while checking if \"$name\" is a unique command abbreviation: $msg"
+      "Error in unknown while checking if \"$name\" is a unique command abbreviation: $msg."
     }
   if { [llength $cmds] == 1 } {
     return [uplevel 1 [lreplace $args 0 0 $cmds]]
   }
   if { [llength $cmds] > 1 } {
     if {[string equal $name ""]} {
-      return -code error "empty command name \"\""
+      return -code error "Empty command name \"\""
     } else {
       return -code error \
-        "ambiguous command name \"$name\": [lsort $cmds]"
+        "Ambiguous command name \"$name\": [lsort $cmds]."
     }
   }
-
-  ::unknown {*}$args
+  return [uplevel 1 [::unknown {*}$args]]
 }
 
 proc is_bus_subscript { subscript } {

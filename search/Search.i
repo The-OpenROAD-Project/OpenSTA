@@ -480,9 +480,10 @@ report_path_end(PathEnd *end)
 
 void
 report_path_end2(PathEnd *end,
-		 PathEnd *prev_end)
+		 PathEnd *prev_end,
+                 bool last)
 {
-  Sta::sta()->reportPathEnd(end, prev_end);
+  Sta::sta()->reportPathEnd(end, prev_end, last);
 }
 
 void

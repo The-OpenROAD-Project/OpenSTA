@@ -146,8 +146,8 @@ PathExpanded::startIndex() const
   return pathsIndex(start_index_);
 }
 
-PathRef *
-PathExpanded::path(size_t index)
+const PathRef *
+PathExpanded::path(size_t index) const
 {
   if (index < paths_.size())
     return &paths_[pathsIndex(index)];

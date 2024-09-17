@@ -61,7 +61,8 @@ public:
   //   Previous path end is used to detect path group changes
   //   so headers are reported by group.
   void reportPathEnd(PathEnd *end,
-		     PathEnd *prev_end);
+		     PathEnd *prev_end,
+                     bool last);
   void reportPathEnds(PathEndSeq *ends);
   void reportPath(const Path *path);
 
@@ -80,6 +81,22 @@ public:
   void reportFull(const PathEndOutputDelay *end);
   void reportFull(const PathEndGatedClock *end);
   void reportFull(const PathEndDataCheck *end);
+
+  void reportJsonHeader();
+  void reportJsonFooter();
+  void reportJson(const PathEnd *end,
+                  bool last);
+  void reportJson(const Path *path);
+  void reportJson(const Path *path,
+                  const char *path_name,
+                  int indent,
+                  bool trailing_comma,
+                  string &result);
+  void reportJson(const PathExpanded &expanded,
+                  const char *path_name,
+                  int indent,
+                  bool trailing_comma,
+                  string &result);
 
   void reportEndHeader();
   void reportEndLine(PathEnd *end);
@@ -264,7 +281,6 @@ protected:
   void reportPath(const PathEnd *end,
 		  PathExpanded &expanded);
   void reportPathFull(const Path *path);
-  void reportPathJson(const Path *path);
   void reportPathHeader();
   void reportPath1(const Path *path,
 		   PathExpanded &expanded,

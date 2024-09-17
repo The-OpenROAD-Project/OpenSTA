@@ -40,7 +40,7 @@ public:
   size_t size() const { return paths_.size(); }
   // path(0) is the startpoint.
   // path(size()-1) is the endpoint.
-  PathRef *path(size_t index);
+  const PathRef *path(size_t index) const;
   TimingArc *prevArc(size_t index);
   // Returns the path start point.
   //  Register/Latch Q pin
