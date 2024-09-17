@@ -128,13 +128,11 @@ The Zlib library is an optional.  If CMake finds libz, OpenSTA can
 read Liberty, Verilog, SDF, SPF, and SPEF files compressed with gzip.
 
 CUDD is a binary decision diageram (BDD) package that is used to
-improve conditional timing arc handling. OpenSTA does not require it
-to be installed, but it improves constant propagation, power activity propagation
-and spice netlist generation if it is installed.
+improve conditional timing arc handling, constant propagation, and
+power activity propagation and spice netlist generation.
 
 CUDD is available
-[here](https://www.davidkebo.com/source/cudd_versions/cudd-3.0.0.tar.gz)
-or [here](https://sourceforge.net/projects/cudd-mirror/).
+[here](https://github.com/davidkebo/cudd/blob/main/cudd_versions/cudd-3.0.0.tar.gz).
 
 Use the CUDD_DIR option to set the install directory of the CUDD
 library if it is not in one of the normal system install directories.
