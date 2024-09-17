@@ -128,23 +128,23 @@ The Zlib library is an optional.  If CMake finds libz, OpenSTA can
 read Liberty, Verilog, SDF, SPF, and SPEF files compressed with gzip.
 
 CUDD is a binary decision diageram (BDD) package that is used to
-improve conditional timing arc handling, constant propagation, and
-power activity propagation and spice netlist generation.
+improve conditional timing arc handling, constant propagation, power
+activity propagation and spice netlist generation.
 
 CUDD is available
 [here](https://github.com/davidkebo/cudd/blob/main/cudd_versions/cudd-3.0.0.tar.gz).
 
-When building CUDD you may use the `--prefix ` option to `configure` to
-install in a location other than the default (`/usr/local/lib`).
-```
-cd $HOME/cudd-3.0.0
-./configure --prefix $HOME/cudd-3.0.0
-make
-make install
+Unpack and build CUDD.
 
-cd <opensta>/build
-cmake -DCUDD_DIR=$HOME/cudd-3.0.0 ,.
 ```
+tar xvfz cudd-3.0.0.tar.gz
+cd cudd-3.0.0
+./configure
+make
+```
+
+You can use the "configure --prefix" option and "make install" to install CUDD
+in a different directory.
 
 ### Installing with CMake
 
@@ -156,7 +156,7 @@ git clone https://github.com/parallaxsw/OpenSTA.git
 cd OpenSTA
 mkdir build
 cd build
-cmake ..
+cmake -DCUDD_DIR=<CUDD_INSTALL_DIR> ,.
 make
 ```
 The default build type is release to compile optimized code.
@@ -170,7 +170,7 @@ CMAKE_BUILD_TYPE DEBUG|RELEASE
 CMAKE_CXX_FLAGS - additional compiler flags
 TCL_LIBRARY - path to tcl library
 TCL_HEADER - path to tcl.h
-CUDD - path to cudd installation
+CUDD_DIR - path to cudd installation
 ZLIB_ROOT - path to zlib
 CMAKE_INSTALL_PREFIX
 ```
@@ -179,11 +179,7 @@ If `TCL_LIBRARY` is specified the CMake script will attempt to locate
 the header from the library path.
 
 The default install directory is `/usr/local`.
-To install in a different directory with CMake use:
-
-```
-cmake .. -DCMAKE_INSTALL_PREFIX=<prefix_path>
-```
+To install in a different directory with CMake use the CMAKE_INSTALL_PREFIX option.
 
 If you make changes to `CMakeLists.txt` you may need to clean out
 existing CMake cached variable values by deleting all of the
