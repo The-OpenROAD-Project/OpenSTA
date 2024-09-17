@@ -134,24 +134,16 @@ power activity propagation and spice netlist generation.
 CUDD is available
 [here](https://github.com/davidkebo/cudd/blob/main/cudd_versions/cudd-3.0.0.tar.gz).
 
-Use the CUDD_DIR option to set the install directory of the CUDD
-library if it is not in one of the normal system install directories.
-
-```
-cmake -DCUDD_DIR=$HOME/stax/cudd-3.0.0 .."
-```
-
 When building CUDD you may use the `--prefix ` option to `configure` to
 install in a location other than the default (`/usr/local/lib`).
 ```
 cd $HOME/cudd-3.0.0
-mkdir $HOME/cudd
-./configure --prefix $HOME/cudd
+./configure --prefix $HOME/cudd-3.0.0
 make
 make install
 
 cd <opensta>/build
-cmake .. -DUSE_CUDD=ON -DCUDD_DIR=$HOME/cudd
+cmake -DCUDD_DIR=$HOME/cudd-3.0.0 ,.
 ```
 
 ### Installing with CMake
