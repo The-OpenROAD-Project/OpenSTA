@@ -1,0 +1,66 @@
+library (liberty_arcs_one2one_2) {
+  delay_model : "table_lookup";
+  simulation : false;
+  capacitive_load_unit (1,pF);
+  leakage_power_unit : "1pW";
+  current_unit : "1A";
+  pulling_resistance_unit : "1kohm";
+  time_unit : "1ns";
+  voltage_unit : "1v";
+  library_features : "report_delay_calculation";
+  input_threshold_pct_rise : 50;
+  input_threshold_pct_fall : 50;
+  output_threshold_pct_rise : 50;
+  output_threshold_pct_fall : 50;
+  slew_lower_threshold_pct_rise : 30;
+  slew_lower_threshold_pct_fall : 30;
+  slew_upper_threshold_pct_rise : 70;
+  slew_upper_threshold_pct_fall : 70;
+  slew_derate_from_library : 1.0;
+  nom_process : 1.0;
+  nom_temperature : 85.0;
+  nom_voltage : 0.75;
+  type (bus8) {
+    base_type : "array";
+    data_type : "bit";
+    bit_width : 8;
+    bit_from : 7;
+    bit_to : 0;
+  }
+  type (bus4) {
+    base_type : "array";
+    data_type : "bit";
+    bit_width : 4;
+    bit_from : 3;
+    bit_to : 0;
+  }
+
+  cell (inv_4_to_8) {
+    bus (A) {
+      capacitance : 1;
+      bus_type : "bus4";
+      direction : "input";
+    }
+    bus (Y) {
+      function : "!A";
+      bus_type : "bus8";
+      direction : "output";
+      timing () {
+        related_pin : "A";
+	timing_sense : "negative_unate";
+        cell_rise (scalar) {
+          values ("1");
+        }
+        cell_fall (scalar) {
+          values ("1");
+        }
+        rise_transition (scalar) {
+          values ("1");
+        }
+        fall_transition (scalar) {
+          values ("1");
+        }
+      }
+    }
+  }
+}

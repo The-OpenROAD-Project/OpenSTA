@@ -1,0 +1,21 @@
+Warning: liberty_arcs_one2one_2.lib line 48, timing port A and related port Y are different sizes.
+report_edges -to partial_wide_inv_cell/Y[0]
+A[0] -> Y[0] combinational
+  ^ -> v 1.00:1.00
+  v -> ^ 1.00:1.00
+report_edges -to partial_wide_inv_cell/Y[1]
+A[1] -> Y[1] combinational
+  ^ -> v 1.00:1.00
+  v -> ^ 1.00:1.00
+report_edges -to partial_wide_inv_cell/Y[2]
+A[2] -> Y[2] combinational
+  ^ -> v 1.00:1.00
+  v -> ^ 1.00:1.00
+report_edges -to partial_wide_inv_cell/Y[3]
+A[3] -> Y[3] combinational
+  ^ -> v 1.00:1.00
+  v -> ^ 1.00:1.00
+report_edges -to partial_wide_inv_cell/Y[4]
+report_edges -to partial_wide_inv_cell/Y[5]
+report_edges -to partial_wide_inv_cell/Y[6]
+report_edges -to partial_wide_inv_cell/Y[7]
