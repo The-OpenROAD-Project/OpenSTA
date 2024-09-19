@@ -3072,7 +3072,7 @@ LibertyReader::visitCellFootprint(LibertyAttr *attr)
   if (cell_) {
     const char *footprint = getAttrString(attr);
     if (footprint)
-      cell_->setFootprint(stringCopy(footprint));
+      cell_->setFootprint(footprint);
   }
 }
 
