@@ -664,6 +664,11 @@ SdcNetwork::findPort(const Cell *cell,
 	port = network_->findPort(cell, escaped2.c_str());
       }
     }
+    else {
+      // Try escaping brackets foo\[0\].bar
+      string escaped = escapeBrackets(name, this);
+      port = network_->findPort(cell, escaped.c_str());
+    }
   }
   return port;
 }
@@ -693,6 +698,12 @@ SdcNetwork::findPortsMatching(const Cell *cell,
 	PatternMatch escaped_pattern2(escaped_name.c_str(), pattern);
 	matches = network_->findPortsMatching(cell, &escaped_pattern2);
       }
+    }
+    else {
+      // Try escaping brackets foo\[0\].bar
+      string escaped = escapeBrackets(pattern->pattern(), this);
+      PatternMatch escaped_pattern(escaped.c_str(), pattern);
+      matches = network_->findPortsMatching(cell, &escaped_pattern);
     }
   }
   return matches;
@@ -896,6 +907,11 @@ SdcNetwork::findPin(const Instance *instance,
         stringPrint(escaped2, "%s[%d]", escaped_bus_name.c_str(), index);
 	pin = network_->findPin(instance, escaped2.c_str());
       }
+    }
+    else {
+      // Try escaping port brackets foo\[0\].bar
+      string escaped = escapeBrackets(port_name, this);
+      pin = network_->findPin(instance, escaped.c_str());
     }
   }
   return pin;
