@@ -2819,7 +2819,7 @@ proc set_driving_cell { args } {
       }
     } else {
       set library "NULL"
-      if { [string match *_p_LibertyCell $cell_name] } {
+      if { [is_object $cell_name] } {
         set cell $cell_name
       } else {
         set cell [find_liberty_cell $cell_name]
