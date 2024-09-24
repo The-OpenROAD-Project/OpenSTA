@@ -26,6 +26,7 @@ enum class PwrActivityOrigin
  input,
  user,
  vcd,
+ saif,
  propagated,
  clock,
  constant,

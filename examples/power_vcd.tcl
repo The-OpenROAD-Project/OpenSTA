@@ -8,5 +8,5 @@ read_spef gcd_sky130hd.spef
 # Generate vcd file
 #  iverilog -o gcd_tb gcd_tb.v
 #  vvp gcd_tb
-read_power_activities -scope gcd_tb/gcd1 -vcd gcd_sky130hd.vcd
+read_vcd -scope gcd_tb/gcd1 gcd_sky130hd.vcd
 report_power

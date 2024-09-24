@@ -16,14 +16,9 @@
 
 #pragma once
 
-#include "SdcClass.hh"
-
 namespace sta {
 
-class Report;
-class MinMax;
-class Network;
-class Graph;
+class MinMaxAll;
 class Corner;
 class StaState;
 
