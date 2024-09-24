@@ -200,6 +200,7 @@ set(STA_SOURCE
 
   power/Power.cc
   power/ReadVcdActivities.cc
+  power/SaifReader.cc
   power/Vcd.cc
   power/VcdReader.cc
 
@@ -307,6 +308,15 @@ bison_target(SdfParser ${STA_HOME}/sdf/SdfParse.yy ${CMAKE_CURRENT_BINARY_DIR}/S
   )
 add_flex_bison_dependency(SdfLex SdfParser)
 
+
+# Saif scan/parse.
+flex_target(SaifLex ${STA_HOME}/power/SaifLex.ll ${CMAKE_CURRENT_BINARY_DIR}/SaifLex.cc
+  COMPILE_FLAGS --prefix=SaifLex_
+  )
+bison_target(SaifParser ${STA_HOME}/power/SaifParse.yy ${CMAKE_CURRENT_BINARY_DIR}/SaifParse.cc
+  COMPILE_FLAGS --name-prefix=SaifParse_
+  )
+add_flex_bison_dependency(SaifLex SaifParser)
 
 ################################################################
 
@@ -513,6 +523,9 @@ target_sources(OpenSTA
 
   ${FLEX_VerilogLex_OUTPUTS}
   ${BISON_VerilogParser_OUTPUTS}
+
+  ${FLEX_SaifLex_OUTPUTS}
+  ${BISON_SaifParser_OUTPUTS}
 )
 
 target_link_libraries(OpenSTA

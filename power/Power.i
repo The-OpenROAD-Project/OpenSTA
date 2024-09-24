@@ -21,6 +21,7 @@
 #include "power/Power.hh"
 #include "power/VcdReader.hh"
 #include "power/ReadVcdActivities.hh"
+#include "power/SaifReader.hh"
 
 using namespace sta;
 
@@ -103,9 +104,11 @@ set_power_pin_activity(const Pin *pin,
   return power->setUserActivity(pin, activity, duty, PwrActivityOrigin::user);
 }
 
+////////////////////////////////////////////////////////////////
+
 void
-read_vcd_activities(const char *filename,
-                    const char *scope)
+read_vcd_file(const char *filename,
+              const char *scope)
 {
   Sta *sta = Sta::sta();
   cmdLinkedNetwork();
@@ -126,6 +129,17 @@ report_vcd_var_values(const char *filename,
 {
   Sta *sta = Sta::sta();
   reportVcdVarValues(filename, var_name, sta);
+}
+
+////////////////////////////////////////////////////////////////
+
+bool
+read_saif_file(const char *filename,
+               const char *scope)
+{
+  Sta *sta = Sta::sta();
+  cmdLinkedNetwork();
+  return readSaif(filename, scope, sta);
 }
 
 %} // inline

@@ -26,7 +26,7 @@
 #include "SdcClass.hh"
 #include "StaState.hh"
 
-// Header for ReadSdf.cc to communicate with SdfLex.cc, SdfParse.cc
+// Header for SdfReader.cc to communicate with SdfLex.cc, SdfParse.cc
 
 // global namespace
 

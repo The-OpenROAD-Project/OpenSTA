@@ -283,7 +283,41 @@ proc read_power_activities { args } {
   if { [info exists keys(-scope)] } {
     set scope $keys(-scope)
   }
-  read_vcd_activities $filename $scope
+  sta_warn 304 "read_power_activities is deprecated. Use read_vcd."
+  read_vcd_file $filename $scope
+}
+
+################################################################
+
+define_cmd_args "read_vcd" { [-scope scope] filename }
+
+proc read_vcd { args } {
+  parse_key_args "read_vcd" args \
+    keys {-scope} flags {}
+
+  check_argc_eq1 "read_vcd" $args
+  set filename [file nativename [lindex $args 0]]
+  set scope ""
+  if { [info exists keys(-scope)] } {
+    set scope $keys(-scope)
+  }
+  read_vcd_file $filename $scope
+}
+
+################################################################
+
+define_cmd_args "read_saif" { [-scope scope] filename }
+
+proc read_saif { args } {
+  parse_key_args "read_saif" args keys {-scope} flags {}
+
+  check_argc_eq1 "read_saif" $args
+  set filename [file nativename [lindex $args 0]]
+  set scope ""
+  if { [info exists keys(-scope)] } {
+    set scope $keys(-scope)
+  }
+  read_saif_file $filename $scope
 }
 
 ################################################################
