@@ -1,10 +1,8 @@
-[get_cells [get_cells]]
+[get_cells [all_registers -cells]]
 r1
 r2
 r3
-u1
-u2
-[get_clocks [get_clocks]]
+[get_clocks [all_clocks]]
 clk
 vclk
 [get_lib_cells [get_lib_cells]]
@@ -35,31 +33,13 @@ r1q
 r2q
 u1z
 u2z
-[get_pins [get_pins]]
-r1/CLK
+[get_pins [all_registers -data_pins]]
 r1/D
-r1/IQ
-r1/IQN
-r1/Q
-r2/CLK
 r2/D
-r2/IQ
-r2/IQN
-r2/Q
-r3/CLK
 r3/D
-r3/IQ
-r3/IQN
-r3/Q
-u1/A
-u1/Y
-u2/A
-u2/B
-u2/Y
-[get_ports [get_ports]]
+[get_ports [all_inputs]]
 clk1
 clk2
 clk3
 in1
 in2
-out

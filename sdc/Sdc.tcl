@@ -490,21 +490,24 @@ proc get_cells { args } {
     check_argc_eq0or1 "get_cells" $args
     foreach pattern $patterns {
       if { [is_object $pattern] } {
+	if { [object_type $pattern] != "Instance" } {
+	  sta_error 326 "object '$pattern' is not an instance."
+	}
 	set insts [concat $insts $pattern]
-	continue
-      }
-      if { $divider != $hierarchy_separator } {
-        regsub $divider $pattern $hierarchy_separator pattern
-      }
-      if { $hierarchical } {
-        set matches [find_instances_hier_matching $pattern $regexp $nocase]
       } else {
-        set matches [find_instances_matching $pattern $regexp $nocase]
+	if { $divider != $hierarchy_separator } {
+	  regsub $divider $pattern $hierarchy_separator pattern
+	}
+	if { $hierarchical } {
+	  set matches [find_instances_hier_matching $pattern $regexp $nocase]
+	} else {
+	  set matches [find_instances_matching $pattern $regexp $nocase]
+	}
+	if { $matches == {} && !$quiet} {
+	  sta_warn 349 "instance '$pattern' not found."
+	}
+	set insts [concat $insts $matches]
       }
-      if { $matches == {} && !$quiet} {
-        sta_warn 349 "instance '$pattern' not found."
-      }
-      set insts [concat $insts $matches]
     }
   }
   if [info exists keys(-filter)] {
@@ -535,15 +538,18 @@ proc get_clocks { args } {
   set clocks {}
   foreach pattern $patterns {
     if { [is_object $pattern] } {
+      if { [object_type $pattern] != "Clock" } {
+	sta_error 327 "object '$pattern' is not an clock."
+      }
       set clocks [concat $clocks $pattern]
-      continue
-    } 
-    set matches [find_clocks_matching $pattern $regexp $nocase]
-    if { $matches != {} } {
-      set clocks [concat $clocks $matches]
     } else {
-      if {![info exists flags(-quiet)]} {
-	sta_warn 351 "clock '$pattern' not found."
+      set matches [find_clocks_matching $pattern $regexp $nocase]
+      if { $matches != {} } {
+	set clocks [concat $clocks $matches]
+      } else {
+	if {![info exists flags(-quiet)]} {
+	  sta_warn 351 "clock '$pattern' not found."
+	}
       }
     }
   }
@@ -596,30 +602,33 @@ proc get_lib_cells { args } {
     set quiet [info exists flags(-quiet)]
     foreach pattern $patterns {
       if { [is_object $pattern] } {
+	if { [object_type $pattern] != "LibertyCell" } {
+	  sta_error 328 "object '$pattern' is not a liberty cell."
+	}
 	set cells [concat $cells $pattern]
-	continue
-      } 
-      if { ![regexp $cell_regexp $pattern ignore lib_name cell_pattern]} {
-	set lib_name "*"
-	set cell_pattern $pattern
-      }
-      # Allow wildcards in the library name (incompatible).
-      set libs [get_libs -quiet $lib_name]
-      if { $libs == {} } {
-	if {!$quiet} {
-	  sta_warn 353 "library '$lib_name' not found."
-	}
       } else {
-	foreach lib $libs {
-	  set matches [$lib find_liberty_cells_matching $cell_pattern \
-			 $regexp $nocase]
-	  if {$matches != {}} {
-	    set cells [concat $cells $matches]
-	  }
+	if { ![regexp $cell_regexp $pattern ignore lib_name cell_pattern]} {
+	  set lib_name "*"
+	  set cell_pattern $pattern
 	}
-	if { $cells == {} } {
+	# Allow wildcards in the library name (incompatible).
+	set libs [get_libs -quiet $lib_name]
+	if { $libs == {} } {
 	  if {!$quiet} {
-	    sta_warn 354 "cell '$cell_pattern' not found."
+	    sta_warn 353 "library '$lib_name' not found."
+	  }
+	} else {
+	  foreach lib $libs {
+	    set matches [$lib find_liberty_cells_matching $cell_pattern \
+	  		 $regexp $nocase]
+	    if {$matches != {}} {
+	      set cells [concat $cells $matches]
+	    }
+	  }
+	  if { $cells == {} } {
+	    if {!$quiet} {
+	      sta_warn 354 "cell '$cell_pattern' not found."
+	    }
 	  }
 	}
       }
@@ -665,44 +674,47 @@ proc get_lib_pins { args } {
   set ports {}
   foreach pattern $patterns {
     if { [is_object $pattern] } {
-      set ports [concat $ports $pattern]
-      continue
-    }
-    # match library/cell/port
-    set libs {}
-    if { [regexp $port_regexp1 $pattern ignore lib_name cell_name port_pattern] } {
-      set libs [get_libs -quiet $lib_name]
-      # match cell/port
-    } elseif { [regexp $port_regexp2 $pattern ignore cell_name port_pattern] } {
-      set libs [get_libs *]
-    } else {
-      if { !$quiet } {
-	sta_warn 355 "library/cell/port '$pattern' not found."
+      if { [object_type $pattern] != "LibertyPort" } {
+	sta_error 329 "object '$pattern' is not a liberty pin."
       }
-      return {}
-    }
-    if { $libs != {} } {
-      set found_match 0
-      set cells {}
-      foreach lib $libs {
-	set cells [$lib find_liberty_cells_matching $cell_name $regexp $nocase]
-	foreach cell $cells {
-	  set matches [$cell find_liberty_ports_matching $port_pattern \
-			 $regexp $nocase]
-	  foreach match $matches {
-	    lappend ports $match
-	    set found_match 1
+      set ports [concat $ports $pattern]
+    } else {
+      # match library/cell/port
+      set libs {}
+      if { [regexp $port_regexp1 $pattern ignore lib_name cell_name port_pattern] } {
+	set libs [get_libs -quiet $lib_name]
+	# match cell/port
+      } elseif { [regexp $port_regexp2 $pattern ignore cell_name port_pattern] } {
+	set libs [get_libs *]
+      } else {
+	if { !$quiet } {
+	  sta_warn 355 "library/cell/port '$pattern' not found."
+	}
+	return {}
+      }
+      if { $libs != {} } {
+	set found_match 0
+	set cells {}
+	foreach lib $libs {
+	  set cells [$lib find_liberty_cells_matching $cell_name $regexp $nocase]
+	  foreach cell $cells {
+	    set matches [$cell find_liberty_ports_matching $port_pattern \
+	  		 $regexp $nocase]
+	    foreach match $matches {
+	      lappend ports $match
+	      set found_match 1
+	    }
 	  }
 	}
-      }
-      if { !$found_match } {
-	if { !$quiet } {
-	  sta_warn 356 "port '$port_pattern' not found."
+	if { !$found_match } {
+	  if { !$quiet } {
+	    sta_warn 356 "port '$port_pattern' not found."
+	  }
 	}
-      }
-    } else {
-      if { !$quiet } {
-	sta_warn 357 "library '$lib_name' not found."
+      } else {
+	if { !$quiet } {
+	  sta_warn 357 "library '$lib_name' not found."
+	}
       }
     }
   }
@@ -741,15 +753,18 @@ proc get_libs { args } {
   set libs {}
   foreach pattern $patterns {
     if { [is_object $pattern] } {
+      if { [object_type $pattern] != "LibertyLibrary" } {
+	sta_error 330 "object '$pattern' is not a liberty library."
+      }
       set libs [concat $libs $pattern]
-      continue
-    }
-    set matches [find_liberty_libraries_matching $pattern $regexp $nocase]
-    if {$matches != {}} {
-      set libs [concat $libs $matches]
     } else {
-      if {![info exists flags(-quiet)]} {
-	sta_warn 359 "library '$pattern' not found."
+      set matches [find_liberty_libraries_matching $pattern $regexp $nocase]
+      if {$matches != {}} {
+	set libs [concat $libs $matches]
+      } else {
+	if {![info exists flags(-quiet)]} {
+	  sta_warn 359 "library '$pattern' not found."
+	}
       }
     }
   }
@@ -837,17 +852,20 @@ proc get_nets { args } {
     check_argc_eq0or1 "get_nets" $args
     foreach pattern $patterns {
       if { [is_object $pattern] } {
+	if { [object_type $pattern] != "Net" } {
+	  sta_error 331 "object '$pattern' is not a net."
+	}
 	set nets [concat $nets $pattern]
-	continue
-      }
-      if { $hierarchical } {
-	set matches [find_nets_hier_matching $pattern $regexp $nocase]
       } else {
-	set matches [find_nets_matching $pattern $regexp $nocase]
-      }
-      set nets [concat $nets $matches]
-      if { $matches == {} && !$quiet } {
-	sta_warn 361 "net '$pattern' not found."
+	if { $hierarchical } {
+	  set matches [find_nets_hier_matching $pattern $regexp $nocase]
+	} else {
+	  set matches [find_nets_matching $pattern $regexp $nocase]
+	}
+	set nets [concat $nets $matches]
+	if { $matches == {} && !$quiet } {
+	  sta_warn 361 "net '$pattern' not found."
+	}
       }
     }
   }
@@ -914,17 +932,20 @@ proc get_pins { args } {
     set patterns [string map {\\ \\\\} $patterns]
     foreach pattern $patterns {
       if { [is_object $pattern] } {
+	if { [object_type $pattern] != "Pin" } {
+	  sta_error 332 "object '$pattern' is not a pin."
+	}
 	set pins [concat $pins $pattern]
-	continue
-      }
-      if { $hierarchical } {
-	set matches [find_pins_hier_matching $pattern $regexp $nocase]
       } else {
-	set matches [find_pins_matching $pattern $regexp $nocase]
-      }
-      set pins [concat $pins $matches]
-      if { $matches == {} && !$quiet } {
-	sta_warn 363 "pin '$pattern' not found."
+	if { $hierarchical } {
+	  set matches [find_pins_hier_matching $pattern $regexp $nocase]
+	} else {
+	  set matches [find_pins_matching $pattern $regexp $nocase]
+	}
+	set pins [concat $pins $matches]
+	if { $matches == {} && !$quiet } {
+	  sta_warn 363 "pin '$pattern' not found."
+	}
       }
     }
   }
@@ -968,16 +989,19 @@ proc get_ports { args } {
     check_argc_eq0or1 "get_ports" $args
     foreach pattern $patterns {
       if { [is_object $pattern] } {
-	set ports [concat $ports $pattern]
-	continue
-      }
-      set matches [find_ports_matching $pattern $regexp $nocase]
-      if { $matches != {} } {
-	set ports [concat $ports $matches]
-      } else {
-	if {![info exists flags(-quiet)]} {
-	  sta_warn 366 "port '$pattern' not found."
+	if { [object_type $pattern] != "Port" } {
+	  sta_error 333 "object '$pattern' is not a port."
 	}
+	set ports [concat $ports $pattern]
+      } else {
+        set matches [find_ports_matching $pattern $regexp $nocase]
+        if { $matches != {} } {
+	  set ports [concat $ports $matches]
+        } else {
+	  if {![info exists flags(-quiet)]} {
+	    sta_warn 366 "port '$pattern' not found."
+	  }
+        }
       }
     }
   }
@@ -2820,7 +2844,10 @@ proc set_driving_cell { args } {
     } else {
       set library "NULL"
       if { [is_object $cell_name] } {
-        set cell $cell_name
+	if { [object_type $cell_name] != "LibertyCell" } {
+	  sta_error 334 "object '$cell_name' is not a liberty cell."
+	}
+	set cell $cell_name
       } else {
         set cell [find_liberty_cell $cell_name]
       }
