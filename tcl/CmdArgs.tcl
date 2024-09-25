@@ -78,8 +78,8 @@ proc get_object_args { objects clks_var libcells_var libports_var \
   foreach obj $objects {
     if { [llength $obj] > 1 } {
       # List arg. Recursive call without initing objects.
-      get_object_args $obj clks libcells libports cells insts \
-	ports pins nets edges timing_arc_sets
+      get_object_args $obj $clks_var $libcells_var $libports_var $cells_var $insts_var \
+	$ports_var $pins_var $nets_var $edges_var $timing_arc_sets_var
     } elseif { [is_object $obj] } {
       # Explicit object arg.
       set object_type [object_type $obj]
@@ -117,7 +117,6 @@ proc get_object_args { objects clks_var libcells_var libports_var \
       if { $matches != {} } {
 	set clks [concat $clks $matches]
       } else {
-	
 	if { $libcells_var != {} } {
 	  set matches [get_lib_cells -quiet $obj]
 	}
