@@ -1,4 +1,3 @@
-
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2024, Parallax Software, Inc.
 // 
