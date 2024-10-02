@@ -17,6 +17,7 @@
 #include "ReadVcdActivities.hh"
 
 #include <inttypes.h>
+#include <set>
 
 #include "VcdReader.hh"
 #include "Debug.hh"
@@ -32,8 +33,6 @@ namespace sta {
 using std::abs;
 using std::min;
 using std::to_string;
-
-typedef Set<const Pin*> ConstPinSet;
 
 class ReadVcdActivities : public StaState
 {
@@ -66,7 +65,7 @@ private:
   double clk_period_;
   Sta *sta_;
   Power *power_;
-  ConstPinSet annotated_pins_;
+  std::set<const Pin*> annotated_pins_;
 
   static constexpr double sim_clk_period_tolerance_ = .1;
 };

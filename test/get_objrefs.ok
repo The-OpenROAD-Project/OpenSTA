@@ -1,0 +1,45 @@
+[get_cells [all_registers -cells]]
+r1
+r2
+r3
+[get_clocks [all_clocks]]
+clk
+vclk
+[get_lib_cells [get_lib_cells]]
+asap7_small/AND2x2_ASAP7_75t_R
+asap7_small/BUFx2_ASAP7_75t_R
+asap7_small/DFFHQx4_ASAP7_75t_R
+[get_lib_pins [get_lib_pins]]
+A
+A
+B
+CLK
+D
+IQ
+IQN
+Q
+Y
+Y
+[get_libs [get_libs]]
+asap7_small
+[get_nets [get_nets]]
+clk1
+clk2
+clk3
+in1
+in2
+out
+r1q
+r2q
+u1z
+u2z
+[get_pins [all_registers -data_pins]]
+r1/D
+r2/D
+r3/D
+[get_ports [all_inputs]]
+clk1
+clk2
+clk3
+in1
+in2

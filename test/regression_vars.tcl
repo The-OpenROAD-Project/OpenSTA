@@ -124,8 +124,11 @@ record_example_tests {
 record_sta_tests {
   prima3
   verilog_attribute
-  liberty_arcs_one2one
+  liberty_arcs_one2one_1
+  liberty_arcs_one2one_2
   get_filter
+  get_noargs
+  get_objrefs
 }
 
 define_test_group fast [group_tests all]

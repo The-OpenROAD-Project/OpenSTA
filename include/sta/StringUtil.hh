@@ -169,6 +169,11 @@ void
 stringPrint(string &str,
 	    const char *fmt,
 	    ...) __attribute__((format (printf, 2, 3)));
+// Formated append to std::string.
+void
+stringAppend(string &str,
+             const char *fmt,
+             ...) __attribute__((format (printf, 2, 3)));
 
 // Print to a temporary string.
 char *

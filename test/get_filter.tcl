@@ -1,3 +1,5 @@
+# Test get_* -filter
+
 # Read in design and libraries
 read_liberty asap7_small.lib.gz
 read_verilog reg1_asap7.v

@@ -3,7 +3,7 @@ OpenSTA Timing Analyzer Release Notes
 
 This file summarizes user visible changes for each release.
 
-Release 2.6.0 2024/07/??
+Release 2.6.0 2024/07/22
 -------------------------
 
 The version of c++ used by OpenSTA is now 17.
@@ -20,6 +20,15 @@ The all_inputs command now supports -no_clocks to remove clocks
 inputs from the returned list.
 
   all_inputs [-no_clocks]
+
+The read_power_activities command has been deprecated. Use read_vcd instead.
+
+  read_vcd [-scope scope] filename
+
+The Switching Activity Interchange Format (SAIF) for reading power activities
+is now supported by the the read_saif command.
+
+  read_saif [-scope scope] filename   
 
 Release 2.5.0 2024/01/17
 -------------------------

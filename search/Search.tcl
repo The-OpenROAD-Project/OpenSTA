@@ -1069,9 +1069,12 @@ proc parse_path_group_arg { group_names } {
 proc report_path_ends { path_ends } {
   report_path_end_header
   set prev_end "NULL"
+  set end_count [llength $path_ends]
+  set i 0
   foreach path_end $path_ends {
-    report_path_end2 $path_end $prev_end
+    report_path_end2 $path_end $prev_end [expr $i == ($end_count - 1)]
     set prev_end $path_end
+    incr i
   }
   report_path_end_footer
 }

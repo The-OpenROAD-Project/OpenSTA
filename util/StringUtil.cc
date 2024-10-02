@@ -76,6 +76,20 @@ stringPrint(string &str,
   str = tmp;
 }
 
+void
+stringAppend(string &str,
+             const char *fmt,
+             ...)
+{
+  va_list args;
+  va_start(args, fmt);
+  char *tmp;
+  size_t tmp_length;
+  stringPrintTmp(fmt, args, tmp, tmp_length);
+  va_end(args);
+  str += tmp;
+}
+
 string
 stdstrPrint(const char *fmt,
 	    ...)

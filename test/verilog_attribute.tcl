@@ -1,3 +1,4 @@
+# Tests whether Verilog attributes can be parsed and retrieved correctly
 read_liberty ../examples/sky130hd_tt.lib
 read_verilog verilog_attribute.v
 link_design counter

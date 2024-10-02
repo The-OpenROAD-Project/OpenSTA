@@ -1260,7 +1260,7 @@ getProperty(PathEnd *end,
     PathExpanded expanded(end->path(), sta);
     PathRefSeq paths;
     for (auto i = expanded.startIndex(); i < expanded.size(); i++) {
-      PathRef *path = expanded.path(i);
+      const PathRef *path = expanded.path(i);
       paths.push_back(*path);
     }
     return PropertyValue(&paths);

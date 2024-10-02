@@ -1,4 +1,4 @@
-library (one_to_one_mismatched_width) {
+library (liberty_arcs_one2one_1) {
   delay_model : "table_lookup";
   simulation : false;
   capacitive_load_unit (1,pF);
@@ -47,34 +47,7 @@ library (one_to_one_mismatched_width) {
       direction : "output";
       timing () {
         related_pin : "A";
-        cell_rise (scalar) {
-          values ("1");
-        }
-        cell_fall (scalar) {
-          values ("1");
-        }
-        rise_transition (scalar) {
-          values ("1");
-        }
-        fall_transition (scalar) {
-          values ("1");
-        }
-      }
-    }
-  }
-
-  cell (inv_4_to_8) {
-    bus (A) {
-      capacitance : 1;
-      bus_type : "bus4";
-      direction : "input";
-    }
-    bus (Y) {
-      function : "!A";
-      bus_type : "bus8";
-      direction : "output";
-      timing () {
-        related_pin : "A";
+	timing_sense : "negative_unate";
         cell_rise (scalar) {
           values ("1");
         }
