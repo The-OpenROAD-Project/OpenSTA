@@ -213,6 +213,10 @@ protected:
   void reportTgtClk(const PathEnd *end,
 		    float prev_time,
 		    bool is_prop);
+  void reportTgtClk(const PathEnd *end,
+                    float prev_time,
+                    float src_offset,
+                    bool is_prop);
   bool pathFromGenPropClk(const Path *clk_path,
 			  const EarlyLate *early_late);
   bool isGenPropClk(const Clock *clk,

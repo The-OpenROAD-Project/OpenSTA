@@ -713,7 +713,7 @@ ReportPath::reportFull(const PathEndPathDelay *end)
       const Path *tgt_clk_path = end->targetClkPath();
       if (reportClkPath()
 	  && isPropagated(tgt_clk_path, tgt_clk))
-	reportTgtClk(end, delay);
+	reportTgtClk(end, delay, 0.0, true);
       else {
 	Arrival tgt_clk_delay = end->targetClkDelay(this);
 	Arrival tgt_clk_arrival = delay + tgt_clk_delay;
@@ -2130,6 +2130,15 @@ ReportPath::reportTgtClk(const PathEnd *end,
 			 bool is_prop)
 {
   float src_offset = end->sourceClkOffset(this);
+  reportTgtClk(end, prev_time, src_offset, is_prop);
+}
+
+void
+ReportPath::reportTgtClk(const PathEnd *end,
+			 float prev_time,
+			 float src_offset,
+			 bool is_prop)
+{
   const ClockEdge *clk_edge = end->targetClkEdge(this);
   Clock *clk = clk_edge->clock();
   const RiseFall *clk_rf = clk_edge->transition();
