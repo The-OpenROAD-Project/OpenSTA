@@ -113,7 +113,13 @@ public:
   PathVertexRep *makePrevPaths(Vertex *vertex,
 			       uint32_t count);
   PathVertexRep *prevPaths(Vertex *vertex) const;
+  void deletePrevPaths(Vertex *vertex,
+                       uint32_t count);
   void clearPrevPaths();
+  // Private to Search::deletePaths1(Vertex).
+  void deletePaths(Vertex *vertex,
+                   uint32_t count);
+
   // Reported slew are the same as those in the liberty tables.
   //  reported_slews = measured_slews / slew_derate_from_library
   // Measured slews are between slew_lower_threshold and slew_upper_threshold.
@@ -333,8 +339,6 @@ public:
   // ObjectTable interface.
   ObjectIdx objectIdx() const { return object_idx_; }
   void setObjectIdx(ObjectIdx idx);
-  // private to Search.cc
-  void deletePaths();
 
   static int transitionCount() { return 2; }  // rise/fall
 
