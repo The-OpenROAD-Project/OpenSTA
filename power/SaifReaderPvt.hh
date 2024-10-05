@@ -20,6 +20,7 @@
 #include <vector>
 #include <string>
 #include <set>
+#include <array>
 
 #include "Zlib.hh"
 #include "NetworkClass.hh"

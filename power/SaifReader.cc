@@ -17,6 +17,7 @@
 #include "power/SaifReader.hh"
 
 #include <algorithm>
+#include <cinttypes>
 
 #include "Error.hh"
 #include "Debug.hh"
@@ -182,7 +183,7 @@ SaifReader::setNetDurations(const char *net_name,
         double tc = durations[static_cast<int>(SaifState::TC)];
         float activity = tc / (duration_ * timescale_ / clk_period_);
         debugPrint(debug_, "read_saif", 2,
-                   "%s duty %.0f / %llu = %.2f tc %.0f activity %.2f",
+                   "%s duty %.0f / %" PRIu64 " = %.2f tc %.0f activity %.2f",
                    sdc_network_->pathName(pin),
                    t1,
                    duration_,
