@@ -1,5 +1,5 @@
 # read_vcd_activities gcd
-read_liberty sky130hd_tt.lib
+read_liberty sky130hd_tt.lib.gz
 read_verilog gcd_sky130hd.v
 link_design gcd
 
