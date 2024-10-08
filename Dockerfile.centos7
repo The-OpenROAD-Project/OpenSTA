@@ -19,13 +19,12 @@ RUN wget https://raw.githubusercontent.com/davidkebo/cudd/main/cudd_versions/cud
     tar -xvf cudd-3.0.0.tar.gz && \
     rm cudd-3.0.0.tar.gz
 
-# Install CUDD
+# Build CUDD
 RUN source /opt/rh/devtoolset-8/enable && \
     cd cudd-3.0.0 && \
     mkdir ../cudd && \
     ./configure && \
-    make -j`nproc` && \
-    make install
+    make -j`nproc`
 
 FROM base-dependencies AS builder
 
@@ -34,7 +33,10 @@ WORKDIR /OpenSTA
 
 # Build
 RUN rm -rf build && mkdir build
-RUN source /opt/rh/devtoolset-8/enable && cd build && cmake3 .. && make -j`nproc`
+RUN source /opt/rh/devtoolset-8/enable && \
+    cd build && \
+    cmake3 -DCUDD_DIR=../cudd-3.0.0 .. && \
+    make -j`nproc`
 
 # Run sta on entry
 ENTRYPOINT ["OpenSTA/app/sta"]

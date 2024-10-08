@@ -9,6 +9,8 @@ standard file formats.
 * SDC timing constraints
 * SDF delay annotation
 * SPEF parasitics
+* VCD power acitivies
+* SAIF power acitivies
 
 OpenSTA uses a TCL command interpreter to read the design, specify
 timing constraints and print timing reports.
@@ -49,8 +51,8 @@ netlist data structures without duplicating them.
 * Simulator to propagate constants from constraints and netlist tie high/low
 
 See doc/OpenSTA.pdf for command documentation.
-See doc/StaApi.txt for timing engine API documentation.
 See doc/ChangeLog.txt for changes to commands.
+See doc/StaApi.txt for timing engine API documentation.
 
 OpenSTA is dual licensed. It is released under GPL v3 as OpenSTA and
 is also licensed for commerical applications by Parallax Software without
