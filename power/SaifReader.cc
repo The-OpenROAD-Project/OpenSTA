@@ -175,8 +175,8 @@ SaifReader::setNetDurations(const char *net_name,
   if (in_scope_level_ > 0) {
     Instance *parent = path_.empty() ? network_->topInstance() : path_.back();
     if (parent) {
-      const char *net_name1 = unescaped(net_name);
-      const Pin *pin = sdc_network_->findPin(parent, net_name1);
+      string unescaped_name = unescaped(net_name);
+      const Pin *pin = sdc_network_->findPin(parent, unescaped_name.c_str());
       if (pin) {
         double t1 = durations[static_cast<int>(SaifState::T1)];
         float duty = t1 / duration_;
@@ -195,28 +195,22 @@ SaifReader::setNetDurations(const char *net_name,
       }
     }
   }
+  stringDelete(net_name);
 }
 
-const char *
+string
 SaifReader::unescaped(const char *token)
 {
-  char *unescaped = new char[strlen(token) + 1];
-  char *u = unescaped;
-  size_t token_length = strlen(token);
-
-  for (size_t i = 0; i < token_length; i++) {
-    char ch = token[i];
-    if (ch == escape_) {
-      char next_ch = token[i + 1];
-      *u++ = next_ch;
-      i++;
-    }
+  string unescaped;
+  for (const char *t = token; *t; t++) {
+    char ch = *t;
+    if (ch == escape_)
+      unescaped += *(t+1);
     else
       // Just the normal noises.
-      *u++ = ch;
+      unescaped += ch;
   }
-  *u = '\0';
-  debugPrint(debug_, "saif_name", 1, "token %s -> %s", token, unescaped);
+  debugPrint(debug_, "saif_name", 1, "token %s -> %s", token, unescaped.c_str());
   return unescaped;
 }
 
