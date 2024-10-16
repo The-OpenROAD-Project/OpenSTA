@@ -543,6 +543,8 @@ public:
   void ensureVoltageWaveforms(const DcalcAnalysisPtSeq &dcalc_aps);
   const char *footprint() const;
   void setFootprint(const char *footprint);
+  const char *userFunctionClass() const;
+  void setUserFunctionClass(const char *user_function_class);
 
 protected:
   void addPort(ConcretePort *port);
@@ -634,6 +636,7 @@ protected:
   bool have_voltage_waveforms_;
   std::mutex waveform_lock_;
   const char *footprint_;
+  const char *user_function_class_;
 
 private:
   friend class LibertyLibrary;

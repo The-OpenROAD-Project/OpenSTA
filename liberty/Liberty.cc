@@ -941,7 +941,8 @@ LibertyCell::LibertyCell(LibertyLibrary *library,
   leakage_power_exists_(false),
   has_internal_ports_(false),
   have_voltage_waveforms_(false),
-  footprint_(nullptr)
+  footprint_(nullptr),
+  user_function_class_(nullptr)
 {
   liberty_cell_ = this;
 }
@@ -971,6 +972,7 @@ LibertyCell::~LibertyCell()
   pg_port_map_.deleteContents();
 
   stringDelete(footprint_);
+  stringDelete(user_function_class_);
 }
 
 LibertyPort *
@@ -2002,6 +2004,18 @@ const char*
 LibertyCell::footprint() const
 {
   return footprint_;
+}
+
+void
+LibertyCell::setUserFunctionClass(const char *user_function_class)
+{
+  user_function_class_ = stringCopy(user_function_class);
+}
+
+const char*
+LibertyCell::userFunctionClass() const
+{
+  return user_function_class_;
 }
 
 ////////////////////////////////////////////////////////////////
