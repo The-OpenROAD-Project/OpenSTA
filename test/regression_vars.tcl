@@ -129,6 +129,7 @@ record_sta_tests {
   get_filter
   get_noargs
   get_objrefs
+  report_checks_src_attr
 }
 
 define_test_group fast [group_tests all]
