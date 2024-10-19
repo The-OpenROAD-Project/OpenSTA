@@ -3085,7 +3085,7 @@ LibertyReader::visitCellUserFunctionClass(LibertyAttr *attr)
   if (cell_) {
     const char *user_function_class = getAttrString(attr);
     if (user_function_class)
-      cell_->setUserFunctionClass(stringCopy(user_function_class));
+      cell_->setUserFunctionClass(user_function_class);
   }
 }
 
