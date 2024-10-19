@@ -411,22 +411,24 @@ VerilogWriter::writeAssigns(Instance *inst)
   while (pin_iter->hasNext()) {
     Pin *pin = pin_iter->next();
     Term *term = network_->term(pin);
-    Net *net = network_->net(term);
-    Port *port = network_->port(pin);
-    if (port
-        && (include_pwr_gnd_
-            || !(network_->isPower(net) || network_->isGround(net)))
-        && (network_->direction(port)->isAnyOutput()
-            || (include_pwr_gnd_ && network_->direction(port)->isPowerGround()))
-        && !stringEqual(network_->name(port), network_->name(net))) {
-      // Port name is different from net name.
-      string port_vname = netVerilogName(network_->name(port),
-                                         network_->pathEscape());
-      string net_vname = netVerilogName(network_->name(net),
-                                        network_->pathEscape());
-      fprintf(stream_, " assign %s = %s;\n",
-              port_vname.c_str(),
-              net_vname.c_str());
+    if (term) {
+      Net *net = network_->net(term);
+      Port *port = network_->port(pin);
+      if (port
+          && (include_pwr_gnd_
+              || !(network_->isPower(net) || network_->isGround(net)))
+          && (network_->direction(port)->isAnyOutput()
+              || (include_pwr_gnd_ && network_->direction(port)->isPowerGround()))
+          && !stringEqual(network_->name(port), network_->name(net))) {
+        // Port name is different from net name.
+        string port_vname = netVerilogName(network_->name(port),
+                                           network_->pathEscape());
+        string net_vname = netVerilogName(network_->name(net),
+                                          network_->pathEscape());
+        fprintf(stream_, " assign %s = %s;\n",
+                port_vname.c_str(),
+                net_vname.c_str());
+      }
     }
   }
   delete pin_iter;
@@ -434,7 +436,7 @@ VerilogWriter::writeAssigns(Instance *inst)
 
 ////////////////////////////////////////////////////////////////
 
-// Walk the hierarch counting unconnected nets used to connect to
+// Walk the hierarchy counting unconnected nets used to connect to
 // bus ports with concatenation.
 int
 VerilogWriter::findUnconnectedNetCount()
