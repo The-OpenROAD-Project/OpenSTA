@@ -285,6 +285,7 @@ proc run_test_plain { test cmd_file log_file } {
       cleanse_logfile $test $log_file
       return "ERROR $error"
     }
+    file delete $run_file
     cleanse_logfile $test $log_file
     return ""
   }
