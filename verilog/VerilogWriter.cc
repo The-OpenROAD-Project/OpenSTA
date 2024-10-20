@@ -18,6 +18,7 @@
 
 #include <cstdlib>
 #include <algorithm>
+#include <deque>
 
 #include "Error.hh"
 #include "Liberty.hh"
@@ -26,6 +27,7 @@
 #include "NetworkCmp.hh"
 #include "VerilogNamespace.hh"
 #include "ParseBus.hh"
+
 
 namespace sta {
 
@@ -75,7 +77,10 @@ protected:
   Network *network_;
 
   CellSet written_cells_;
-  Vector<Instance*> pending_children_;
+  //  Vector<Instance*> pending_children_;
+  //Use deque for safe insertion during recursion while iterating
+  //over pending_children_
+  std::deque<Instance*> pending_children_;
   int unconnected_net_index_;
 };
 
@@ -136,11 +141,16 @@ VerilogWriter::writeModule(Instance *inst)
   fprintf(stream_, "endmodule\n");
   written_cells_.insert(cell);
 
+
   if (sort_)
-    sort(pending_children_, [this](const Instance *inst1,
-                                   const Instance *inst2) {
-      return stringLess(network_->cellName(inst1), network_->cellName(inst2));
+    sort(pending_children_,
+              [this](const Instance *inst1,
+                     const Instance *inst2) {
+      return stringLess(network_->cellName(inst1),
+                        network_->cellName(inst2));
     });
+
+  
   for (auto child : pending_children_) {
     Cell *child_cell = network_->cell(child);
     if (!written_cells_.hasKey(child_cell))

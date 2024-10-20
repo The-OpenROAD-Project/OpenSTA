@@ -17,6 +17,7 @@
 #pragma once
 
 #include <vector>
+#include <deque>
 #include <algorithm>
 
 namespace sta {
@@ -126,7 +127,7 @@ sort(Vector<OBJ> &seq, SortCmp cmp)
   std::stable_sort(seq.begin(), seq.end(), cmp);
 }
 
-template <class OBJ, class SortCmp>
+  template <class OBJ, class SortCmp>
 void
 sort(Vector<OBJ> *seq, SortCmp cmp)
 {
@@ -135,4 +136,23 @@ sort(Vector<OBJ> *seq, SortCmp cmp)
   std::stable_sort(seq->begin(), seq->end(), cmp);
 }
 
+
+template <class OBJ, class SortCmp>
+void
+sort(std::deque<OBJ> *seq, SortCmp cmp)
+{
+  // For some strange reason std::sort goes off into never never land
+  // when optimization is turned on in gcc.
+  std::stable_sort(seq->begin(), seq->end(), cmp);
+}
+
+template <class OBJ, class SortCmp>
+void
+sort(std::deque<OBJ> &seq, SortCmp cmp)
+{
+  // For some strange reason std::sort goes off into never never land
+  // when optimization is turned on in gcc.
+  std::stable_sort(seq.begin(), seq.end(), cmp);
+}
+  
 } // namespace sta
