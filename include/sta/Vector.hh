@@ -1,24 +1,24 @@
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2024, Parallax Software, Inc.
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include <algorithm>
-#include <deque>
 #include <vector>
+#include <deque>
+#include <algorithm>
 
 namespace sta {
 
@@ -27,12 +27,9 @@ template <class OBJ>
 class Vector : public std::vector<OBJ>
 {
 public:
-  Vector() :
-    std::vector<OBJ>() {}
-  Vector(size_t n) :
-    std::vector<OBJ>(n) {}
-  Vector(size_t n, const OBJ &obj) :
-    std::vector<OBJ>(n, obj) {}
+  Vector() : std::vector<OBJ>() {}
+  Vector(size_t n) : std::vector<OBJ>(n) {}
+  Vector(size_t n, const OBJ &obj) : std::vector<OBJ>(n, obj) {}
 
   // Erase an object from the vector (slow).
   void
@@ -63,7 +60,7 @@ public:
   {
     Iterator iter(this);
     while (iter.hasNext())
-      delete[] iter.next();
+      delete [] iter.next();
     this->clear();
   }
 
@@ -75,34 +72,20 @@ public:
   class Iterator
   {
   public:
-    Iterator() :
-      container_(nullptr) {}
+    Iterator() : container_(nullptr) {}
     Iterator(std::vector<OBJ> *container) :
       container_(container)
-    {
-      if (container)
-        iter_ = container->begin();
-    }
+    { if (container) iter_ = container->begin(); }
     Iterator(std::vector<OBJ> &container) :
       container_(&container)
-    {
-      if (container_)
-        iter_ = container_->begin();
-    }
+    { if (container_) iter_ = container_->begin(); }
     void init() { iter_ = container_->begin(); }
     void init(std::vector<OBJ> *container)
-    {
-      container_ = container;
-      if (container_)
-        iter_ = container_->begin();
-    }
+    { container_ = container; if (container_) iter_=container_->begin(); }
     void init(std::vector<OBJ> &container)
-    {
-      container_ = &container;
-      iter_ = container_->begin();
-    }
+    { container_ = &container; iter_ = container_->begin(); }
     bool hasNext() { return container_ && iter_ != container_->end(); }
-    OBJ &next() { return *iter_++; }
+    OBJ& next() { return *iter_++; }
     std::vector<OBJ> *container() { return container_; }
 
   private:
@@ -113,34 +96,20 @@ public:
   class ConstIterator
   {
   public:
-    ConstIterator() :
-      container_(nullptr) {}
+    ConstIterator() : container_(nullptr) {}
     ConstIterator(const std::vector<OBJ> *container) :
       container_(container)
-    {
-      if (container_)
-        iter_ = container_->begin();
-    }
+    { if (container_) iter_ = container_->begin(); }
     ConstIterator(const std::vector<OBJ> &container) :
       container_(&container)
-    {
-      iter_ = container_->begin();
-    }
+    { iter_ = container_->begin(); }
     void init() { iter_ = container_->begin(); }
     void init(const std::vector<OBJ> *container)
-    {
-      container_ = container;
-      if (container_)
-        iter_ = container_->begin();
-    }
+    { container_ = container; if (container_) iter_=container_->begin();}
     void init(const std::vector<OBJ> &container)
-    {
-      container_ = &container;
-      if (container_)
-        iter_ = container_->begin();
-    }
+    { container_ = &container; if (container_) iter_=container_->begin();}
     bool hasNext() { return container_ && iter_ != container_->end(); }
-    const OBJ &next() { return *iter_++; }
+    const OBJ& next() { return *iter_++; }
     const std::vector<OBJ> *container() { return container_; }
 
   private:
@@ -158,7 +127,7 @@ sort(Vector<OBJ> &seq, SortCmp cmp)
   std::stable_sort(seq.begin(), seq.end(), cmp);
 }
 
-template <class OBJ, class SortCmp>
+  template <class OBJ, class SortCmp>
 void
 sort(Vector<OBJ> *seq, SortCmp cmp)
 {
@@ -166,6 +135,7 @@ sort(Vector<OBJ> *seq, SortCmp cmp)
   // when optimization is turned on in gcc.
   std::stable_sort(seq->begin(), seq->end(), cmp);
 }
+
 
 template <class OBJ, class SortCmp>
 void
@@ -184,5 +154,5 @@ sort(std::deque<OBJ> &seq, SortCmp cmp)
   // when optimization is turned on in gcc.
   std::stable_sort(seq.begin(), seq.end(), cmp);
 }
-
-}  // namespace sta
+  
+} // namespace sta
