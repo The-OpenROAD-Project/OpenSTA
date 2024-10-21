@@ -41,31 +41,36 @@ public:
 		CellSeq *remove_cells,
 		FILE *stream,
 		Network *network);
-  void writeModule(Instance *inst);
+  void writeModules();
 
 protected:
-  void writePorts(Cell *cell);
-  void writePortDcls(Cell *cell);
-  void writeWireDcls(Instance *inst);
+  void writeModule(const Instance *inst);
+  InstanceSeq findHierChildren();
+  void findHierChildren(const Instance *inst,
+                        InstanceSeq &children,
+                        CellSet &cells);
+  void writePorts(const Cell *cell);
+  void writePortDcls(const Cell *cell);
+  void writeWireDcls(const Instance *inst);
   const char *verilogPortDir(PortDirection *dir);
-  void writeChildren(Instance *inst);
-  void writeChild(Instance *child);
-  void writeInstPin(Instance *inst,
-		    Port *port,
+  void writeChildren(const Instance *inst);
+  void writeChild(const Instance *child);
+  void writeInstPin(const Instance *inst,
+		    const Port *port,
 		    bool &first_port);
-  void writeInstBusPin(Instance *inst,
-		       Port *port,
+  void writeInstBusPin(const Instance *inst,
+		       const Port *port,
 		       bool &first_port);
-  void writeInstBusPinBit(Instance *inst,
-			  Port *port,
+  void writeInstBusPinBit(const Instance *inst,
+			  const Port *port,
 			  bool &first_member);
-  void writeAssigns(Instance *inst);
+  void writeAssigns(const Instance *inst);
 
   int findUnconnectedNetCount();
-  int findNCcount(Instance *inst);
-  int findChildNCcount(Instance *child);
-  int findPortNCcount(Instance *inst,
-                      Port *port);
+  int findNCcount(const Instance *inst);
+  int findChildNCcount(const Instance *child);
+  int findPortNCcount(const Instance *inst,
+                      const Port *port);
 
   const char *filename_;
   bool sort_;
@@ -73,9 +78,6 @@ protected:
   CellSet remove_cells_;
   FILE *stream_;
   Network *network_;
-
-  CellSet written_cells_;
-  Vector<Instance*> pending_children_;
   int unconnected_net_index_;
 };
 
@@ -91,7 +93,7 @@ writeVerilog(const char *filename,
     if (stream) {
       VerilogWriter writer(filename, sort, include_pwr_gnd,
 			   remove_cells, stream, network);
-      writer.writeModule(network->topInstance());
+      writer.writeModules();
       fclose(stream);
     }
     else
@@ -111,7 +113,6 @@ VerilogWriter::VerilogWriter(const char *filename,
   remove_cells_(network),
   stream_(stream),
   network_(network),
-  written_cells_(network),
   unconnected_net_index_(1)
 {
   if (remove_cells) {
@@ -121,7 +122,54 @@ VerilogWriter::VerilogWriter(const char *filename,
 }
 
 void
-VerilogWriter::writeModule(Instance *inst)
+VerilogWriter::writeModules()
+{
+  // Write the top level modeule first.
+  writeModule(network_->topInstance());
+  InstanceSeq hier_childrenn = findHierChildren();
+  for (const Instance *child : hier_childrenn)
+    writeModule(child);
+}
+
+InstanceSeq
+VerilogWriter::findHierChildren()
+{
+  InstanceSeq children;
+  CellSet cells(network_);
+  findHierChildren(network_->topInstance(), children, cells);
+
+  if (sort_)
+    sort(children, [this](const Instance *inst1,
+                          const Instance *inst2) {
+      const char *cell_name1 = network_->cellName(inst1);
+      const char *cell_name2 = network_->cellName(inst2);
+      return stringLess(cell_name1, cell_name2);
+    });
+
+  return children;
+}
+
+void
+VerilogWriter::findHierChildren(const Instance *inst,
+                                InstanceSeq &children,
+                                CellSet &cells)
+{
+  InstanceChildIterator *child_iter = network_->childIterator(inst);
+  while (child_iter->hasNext()) {
+    const Instance *child = child_iter->next();
+    const Cell *cell = network_->cell(child);
+    if (network_->isHierarchical(child)
+        && !cells.hasKey(cell)) {
+      children.push_back(child);
+      cells.insert(cell);
+      findHierChildren(child, children, cells);
+    }
+  }
+  delete child_iter;
+}
+
+void
+VerilogWriter::writeModule(const Instance *inst)
 {
   Cell *cell = network_->cell(inst);
   fprintf(stream_, "module %s (",
@@ -134,22 +182,10 @@ VerilogWriter::writeModule(Instance *inst)
   writeChildren(inst);
   writeAssigns(inst);
   fprintf(stream_, "endmodule\n");
-  written_cells_.insert(cell);
-
-  if (sort_)
-    sort(pending_children_, [this](const Instance *inst1,
-                                   const Instance *inst2) {
-      return stringLess(network_->cellName(inst1), network_->cellName(inst2));
-    });
-  for (auto child : pending_children_) {
-    Cell *child_cell = network_->cell(child);
-    if (!written_cells_.hasKey(child_cell))
-      writeModule(child);
-  }
 }
 
 void
-VerilogWriter::writePorts(Cell *cell)
+VerilogWriter::writePorts(const Cell *cell)
 {
   bool first = true;
   CellPortIterator *port_iter = network_->portIterator(cell);
@@ -170,7 +206,7 @@ VerilogWriter::writePorts(Cell *cell)
 }
 
 void
-VerilogWriter::writePortDcls(Cell *cell)
+VerilogWriter::writePortDcls(const Cell *cell)
 {
   CellPortIterator *port_iter = network_->portIterator(cell);
   while (port_iter->hasNext()) {
@@ -228,7 +264,7 @@ VerilogWriter::verilogPortDir(PortDirection *dir)
 typedef std::pair<int, int> BusIndexRange;
 
 void
-VerilogWriter::writeWireDcls(Instance *inst)
+VerilogWriter::writeWireDcls(const Instance *inst)
 {
   Cell *cell = network_->cell(inst);
   char escape = network_->pathEscape();
@@ -274,16 +310,13 @@ VerilogWriter::writeWireDcls(Instance *inst)
 }
 
 void
-VerilogWriter::writeChildren(Instance *inst)			     
+VerilogWriter::writeChildren(const Instance *inst)
 {
   Vector<Instance*> children;
   InstanceChildIterator *child_iter = network_->childIterator(inst);
   while (child_iter->hasNext()) {
     Instance *child = child_iter->next();
     children.push_back(child);
-    if (network_->isHierarchical(child)) {
-      pending_children_.push_back(child);
-    }
   }
   delete child_iter;
 
@@ -298,7 +331,7 @@ VerilogWriter::writeChildren(Instance *inst)
 }
 
 void
-VerilogWriter::writeChild(Instance *child)
+VerilogWriter::writeChild(const Instance *child)
 {
   Cell *child_cell = network_->cell(child);
   if (!remove_cells_.hasKey(child_cell)) {
@@ -325,8 +358,8 @@ VerilogWriter::writeChild(Instance *child)
 }
 
 void
-VerilogWriter::writeInstPin(Instance *inst,
-			    Port *port,
+VerilogWriter::writeInstPin(const Instance *inst,
+			    const Port *port,
 			    bool &first_port)
 {
   Pin *pin = network_->findPin(inst, port);
@@ -348,8 +381,8 @@ VerilogWriter::writeInstPin(Instance *inst,
 }
 
 void
-VerilogWriter::writeInstBusPin(Instance *inst,
-			       Port *port,
+VerilogWriter::writeInstBusPin(const Instance *inst,
+			       const Port *port,
 			       bool &first_port)
 {
   if (!first_port)
@@ -382,8 +415,8 @@ VerilogWriter::writeInstBusPin(Instance *inst,
 }
 
 void
-VerilogWriter::writeInstBusPinBit(Instance *inst,
-				  Port *port,
+VerilogWriter::writeInstBusPinBit(const Instance *inst,
+				  const Port *port,
 				  bool &first_member)
 {
   Pin *pin = network_->findPin(inst, port);
@@ -405,7 +438,7 @@ VerilogWriter::writeInstBusPinBit(Instance *inst,
 // Use an assign statement to alias the net when it is connected to
 // multiple output ports.
 void
-VerilogWriter::writeAssigns(Instance *inst)
+VerilogWriter::writeAssigns(const Instance *inst)
 {
   InstancePinIterator *pin_iter = network_->pinIterator(inst);
   while (pin_iter->hasNext()) {
@@ -445,7 +478,7 @@ VerilogWriter::findUnconnectedNetCount()
 }
 
 int
-VerilogWriter::findNCcount(Instance *inst)
+VerilogWriter::findNCcount(const Instance *inst)
 {
   int nc_count = 0;
   InstanceChildIterator *child_iter = network_->childIterator(inst);
@@ -458,7 +491,7 @@ VerilogWriter::findNCcount(Instance *inst)
 }
 
 int
-VerilogWriter::findChildNCcount(Instance *child)
+VerilogWriter::findChildNCcount(const Instance *child)
 {
   int nc_count = 0;
   Cell *child_cell = network_->cell(child);
@@ -475,8 +508,8 @@ VerilogWriter::findChildNCcount(Instance *child)
 }
 
 int
-VerilogWriter::findPortNCcount(Instance *inst,
-                               Port *port)
+VerilogWriter::findPortNCcount(const Instance *inst,
+                               const Port *port)
 {
   int nc_count = 0;
   LibertyPort *lib_port = network_->libertyPort(port);
