@@ -66,8 +66,7 @@ protected:
 			  bool &first_member);
   void writeAssigns(const Instance *inst);
 
-  int findUnconnectedNetCount();
-  int findNCcount(const Instance *inst);
+  int findUnconnectedNetCount(const Instance *inst);
   int findChildNCcount(const Instance *child);
   int findPortNCcount(const Instance *inst,
                       const Port *port);
@@ -304,7 +303,7 @@ VerilogWriter::writeWireDcls(const Instance *inst)
   }
 
   // Wire net dcls for writeInstBusPinBit.
-  int nc_count = findUnconnectedNetCount();
+  int nc_count = findUnconnectedNetCount(inst);
   for (int i = 1; i < nc_count + 1; i++)
     fprintf(stream_, " wire _NC%d;\n", i);
 }
@@ -469,16 +468,8 @@ VerilogWriter::writeAssigns(const Instance *inst)
 
 ////////////////////////////////////////////////////////////////
 
-// Walk the hierarchy counting unconnected nets used to connect to
-// bus ports with concatenation.
 int
-VerilogWriter::findUnconnectedNetCount()
-{
-  return findNCcount(network_->topInstance());
-}
-
-int
-VerilogWriter::findNCcount(const Instance *inst)
+VerilogWriter::findUnconnectedNetCount(const Instance *inst)
 {
   int nc_count = 0;
   InstanceChildIterator *child_iter = network_->childIterator(inst);
