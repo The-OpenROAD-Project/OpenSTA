@@ -661,9 +661,45 @@ Graph::prevPaths(Vertex *vertex) const
 }
 
 void
+Graph::deletePrevPaths(Vertex *vertex,
+                       uint32_t count)
+{
+  if (vertex->prevPaths() != object_id_null) {
+    {
+      LockGuard lock(prev_paths_lock_);
+      prev_paths_.destroy(vertex->prevPaths(), count);
+    }
+    vertex->setPrevPaths(object_id_null);
+  }
+}
+
+void
 Graph::clearPrevPaths()
 {
   prev_paths_.clear();
+}
+
+// No locks.
+void
+Graph::deletePaths(Vertex *vertex,
+                   uint32_t count)
+{
+  if (vertex->arrivals() != arrival_null) {
+    arrivals_.destroy(vertex->arrivals(), count);
+    vertex->setArrivals(arrival_null);
+  }
+  if (vertex->requireds() != arrival_null) {
+    requireds_.destroy(vertex->requireds(), count);
+    vertex->setRequireds(arrival_null);
+  }
+
+  if (vertex->prevPaths() != object_id_null) {
+    prev_paths_.destroy(vertex->prevPaths(), count);
+    vertex->setPrevPaths(object_id_null);
+  }
+
+  vertex->tag_group_index_ = tag_group_index_max;
+  vertex->crpr_path_pruning_disabled_ = false;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1243,16 +1279,6 @@ void
 Vertex::setPrevPaths(PrevPathId prev_paths)
 {
   prev_paths_ = prev_paths;
-}
-
-void
-Vertex::deletePaths()
-{
-  arrivals_ = arrival_null;
-  requireds_ = arrival_null;
-  prev_paths_ = prev_path_null;
-  tag_group_index_ = tag_group_index_max;
-  crpr_path_pruning_disabled_ = false;
 }
 
 LogicValue

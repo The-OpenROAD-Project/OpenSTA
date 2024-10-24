@@ -44,7 +44,8 @@ public:
 		       bool report_net,
 		       bool report_cap,
 		       bool report_slew,
-                       bool report_fanout);
+		       bool report_fanout,
+		       bool report_src_attr);
   int digits() const { return digits_; }
   void setDigits(int digits);
   void setNoSplit(bool no_split);
@@ -148,6 +149,7 @@ public:
   ReportField *fieldSlew() const { return field_slew_; }
   ReportField *fieldFanout() const { return field_fanout_; }
   ReportField *fieldCapacitance() const { return field_capacitance_; }
+  ReportField *fieldSrcAttr() const { return field_src_attr_; }
 
 protected:
   void makeFields();
@@ -213,6 +215,10 @@ protected:
   void reportTgtClk(const PathEnd *end,
 		    float prev_time,
 		    bool is_prop);
+  void reportTgtClk(const PathEnd *end,
+                    float prev_time,
+                    float src_offset,
+                    bool is_prop);
   bool pathFromGenPropClk(const Path *clk_path,
 			  const EarlyLate *early_late);
   bool isGenPropClk(const Clock *clk,
@@ -345,6 +351,7 @@ protected:
 		  bool total_with_minus,
 		  const EarlyLate *early_late,
 		  const RiseFall *rf,
+		  string src_attr,
 		  const char *line_case);
   void reportLineTotal(const char *what,
 		       Delay incr,
@@ -461,6 +468,7 @@ protected:
   ReportField *field_capacitance_;
   ReportField *field_slew_;
   ReportField *field_fanout_;
+  ReportField *field_src_attr_;
   ReportField *field_edge_;
   ReportField *field_case_;
 

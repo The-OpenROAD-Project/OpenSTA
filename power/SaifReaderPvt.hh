@@ -21,6 +21,7 @@
 #include <vector>
 #include <string>
 #include <set>
+#include <array>
 
 #include "Zlib.hh"
 #include "NetworkClass.hh"
@@ -84,7 +85,7 @@ public:
   void notSupported(const char *feature);
 
 private:
-  const char *unescaped(const char *token);
+  string unescaped(const char *token);
 
   const char *filename_;
   const char *scope_;           // Divider delimited scope to begin annotation.

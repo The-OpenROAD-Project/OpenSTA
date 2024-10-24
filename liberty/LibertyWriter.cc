@@ -289,6 +289,13 @@ LibertyWriter::writeCell(const LibertyCell *cell)
     fprintf(stream_, "    is_macro_cell : true;\n");
   if (cell->interfaceTiming())
     fprintf(stream_, "    interface_timing : true;\n");
+  const char *footprint = cell->footprint();
+  if (footprint)
+    fprintf(stream_, "    cell_footprint : \"%s\";\n", footprint);
+  const char *user_function_class = cell->userFunctionClass();
+  if (user_function_class)
+    fprintf(stream_, "    user_function_class : \"%s\";\n",
+            user_function_class);
 
   LibertyCellPortIterator port_iter(cell);
   while (port_iter.hasNext()) {

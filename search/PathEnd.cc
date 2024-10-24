@@ -1812,6 +1812,9 @@ PathEndPathDelay::findSrcClkArrival(const StaState *sta)
     Search *search = sta->search();
     src_clk_arrival_ = search->pathClkPathArrival(&path_);
   }
+  else
+    src_clk_arrival_ = 0.0;
+
 }
 
 void
@@ -1941,11 +1944,10 @@ Required
 PathEndPathDelay::requiredTime(const StaState *sta) const
 {
   float delay = path_delay_->delay();
-  if (ignoreClkLatency(sta)) {
-    if (minMax(sta) == MinMax::max())
-      return src_clk_arrival_ + delay - margin(sta);
-    else
-      return src_clk_arrival_ + delay + margin(sta);
+  if (path_delay_->ignoreClkLatency()) {
+    float src_offset = path_.isClock(sta) ? path_.clkEdge(sta)->time() : src_clk_arrival_;
+    return src_offset + delay
+      + ((minMax(sta) == MinMax::max()) ? -margin(sta) : margin(sta));
   }
   else {
     Arrival tgt_clk_arrival = targetClkArrival(sta);

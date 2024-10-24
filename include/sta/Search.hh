@@ -498,6 +498,8 @@ protected:
 			     const PathAnalysisPt *path_ap);
   void deletePaths();
   void deletePaths(Vertex *vertex);
+  // Delete with incremental tns/wns update.
+  void deletePathsIncr(Vertex *vertex);
   TagGroup *findTagGroup(TagGroupBldr *group_bldr);
   void deleteFilterTags();
   void deleteFilterTagGroups();
@@ -686,6 +688,7 @@ protected:
 			       const RiseFall *from_rf,
 			       Tag *from_tag,
 			       PathVertex *from_path,
+                               const Arrival &from_arrival,
 			       Edge *edge,
 			       TimingArc *arc,
 			       ArcDelay arc_delay,
@@ -718,7 +721,8 @@ public:
 			       const RiseFall *from_rf,
 			       Tag *from_tag,
 			       PathVertex *from_path,
-			       Edge *edge,
+                               const Arrival &from_arrival,
+                               Edge *edge,
 			       TimingArc *arc,
 			       ArcDelay arc_delay,
 			       Vertex *to_vertex,
@@ -787,6 +791,7 @@ protected:
 			       const RiseFall *from_rf,
 			       Tag *from_tag,
 			       PathVertex *from_path,
+                               const Arrival &from_arrival,
 			       Edge *edge,
 			       TimingArc *arc,
 			       ArcDelay arc_delay,

@@ -1,5 +1,5 @@
 # delay calc with spef parasitics
-read_liberty nangate45_slow.lib
+read_liberty nangate45_slow.lib.gz
 read_verilog example1.v
 link_design top
 read_spef example1.dspef

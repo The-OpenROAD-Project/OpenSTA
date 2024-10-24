@@ -1,8 +1,8 @@
 # 3 corners with +/- 10% derating example
 define_corners ss tt ff
-read_liberty -corner ss nangate45_slow.lib
-read_liberty -corner tt nangate45_typ.lib
-read_liberty -corner ff nangate45_fast.lib
+read_liberty -corner ss nangate45_slow.lib.gz
+read_liberty -corner tt nangate45_typ.lib.gz
+read_liberty -corner ff nangate45_fast.lib.gz
 read_verilog example1.v
 link_design top
 set_timing_derate -early 0.9

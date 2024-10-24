@@ -1,5 +1,5 @@
 # sdf example
-read_liberty nangate45_slow.lib
+read_liberty nangate45_slow.lib.gz
 read_verilog example1.v
 link_design top
 read_sdf example1.sdf
