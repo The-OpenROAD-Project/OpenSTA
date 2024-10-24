@@ -2075,6 +2075,7 @@ LibertyPort::LibertyPort(LibertyCell *cell,
   liberty_cell_(cell),
   bus_dcl_(bus_dcl),
   function_(nullptr),
+  scan_signal_type_(ScanSignalType::none),
   tristate_enable_(nullptr),
   scaled_ports_(nullptr),
   fanout_load_(0.0),
@@ -2130,6 +2131,12 @@ LibertyPort::setDirection(PortDirection *dir)
   ConcretePort::setDirection(dir);
   if (dir->isInternal())
     liberty_cell_->setHasInternalPorts(true);
+}
+
+void
+LibertyPort::setScanSignalType(ScanSignalType type)
+{
+  scan_signal_type_ = type;
 }
 
 LibertyPort *
@@ -3152,56 +3159,9 @@ ScaleFactors::print()
   }
 }
 
-TestCell::TestCell(LibertyPort *data_in,
-		   LibertyPort *scan_in,
-		   LibertyPort *scan_enable,
-		   LibertyPort *scan_out,
-		   LibertyPort *scan_out_inv) :
-  data_in_(data_in),
-  scan_in_(scan_in),
-  scan_enable_(scan_enable),
-  scan_out_(scan_out),
-  scan_out_inv_(scan_out_inv)
+TestCell::TestCell(LibertyCell *cell) :
+  LibertyCell(cell->libertyLibrary(), cell->name(), cell->filename())
 {
-}
-
-TestCell::TestCell() :
-  data_in_(nullptr),
-  scan_in_(nullptr),
-  scan_enable_(nullptr),
-  scan_out_(nullptr),
-  scan_out_inv_(nullptr)
-{
-}
-
-void
-TestCell::setDataIn(LibertyPort *port)
-{
-  data_in_ = port;
-}
-
-void
-TestCell::setScanIn(LibertyPort *port)
-{
-  scan_in_ = port;
-}
-
-void
-TestCell::setScanEnable(LibertyPort *port)
-{
-  scan_enable_ = port;
-}
-
-void
-TestCell::setScanOut(LibertyPort *port)
-{
-  scan_out_ = port;
-}
-
-void
-TestCell::setScanOutInv(LibertyPort *port)
-{
-  scan_out_inv_ = port;
 }
 
 ////////////////////////////////////////////////////////////////

@@ -69,11 +69,14 @@ typedef vector<string> StdStringSeq;
 class LibertyReader : public LibertyGroupVisitor
 {
 public:
-  explicit LibertyReader();
+  LibertyReader(const char *filename,
+                bool infer_latches,
+                Network *network);
   virtual ~LibertyReader();
-  virtual LibertyLibrary *readLibertyFile(const char *filename,
-					  bool infer_latches,
-					  Network *network);
+  virtual LibertyLibrary *readLibertyFile(const char *filename);
+  virtual void init(const char *filename,
+                    bool infer_latches,
+                    Network *network);
   LibertyLibrary *library() const { return library_; }
   virtual bool save(LibertyGroup *) { return false; }
   virtual bool save(LibertyAttr *) { return false; }
@@ -608,9 +611,7 @@ protected:
   bool have_slew_upper_threshold_[RiseFall::index_count];
   TableTemplate *tbl_template_;
   LibertyCell *cell_;
-  LibertyCell *save_cell_;
   LibertyCell *scaled_cell_owner_;
-  TestCell *test_cell_;
   const char *ocv_derate_name_;
   PortGroupSeq cell_port_groups_;
   OperatingConditions *op_cond_;
@@ -665,6 +666,14 @@ protected:
   float reference_time_;
   bool reference_time_exists_;
   const char *driver_waveform_name_;
+
+  TestCell *test_cell_;
+  // Saved state while parsing test_cell.
+  LibertyCell *save_cell_;
+  PortGroupSeq save_cell_port_groups_;
+  StatetableGroup *save_statetable_;
+  SequentialGroupSeq save_cell_sequentials_;
+  LibertyFuncSeq save_cell_funcs_;
 
   static constexpr char escape_ = '\\';
 

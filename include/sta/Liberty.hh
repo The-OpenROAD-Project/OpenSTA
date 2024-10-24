@@ -88,6 +88,9 @@ enum class ClockGateType { none, latch_posedge, latch_negedge, other };
 
 enum class DelayModelType { cmos_linear, cmos_pwl, cmos2, table, polynomial, dcm };
 
+enum class ScanSignalType { enable, enable_inverted, clock, clock_a, clock_b,
+                            input, input_inverted, output, output_inverted, none };
+
 enum class ScaleFactorPvt { process, volt, temp, unknown };
 constexpr int scale_factor_pvt_count = int(ScaleFactorPvt::unknown) + 1;
 
@@ -691,6 +694,8 @@ public:
   LibertyPort *findLibertyBusBit(int index) const;
   BusDcl *busDcl() const { return bus_dcl_; }
   void setDirection(PortDirection *dir);
+  ScanSignalType scanSignalType() const { return scan_signal_type_; }
+  void setScanSignalType(ScanSignalType type);
   void fanoutLoad(// Return values.
 		  float &fanout_load,
 		  bool &exists) const;
@@ -861,6 +866,7 @@ protected:
   LibertyCell *liberty_cell_;
   BusDcl *bus_dcl_;
   FuncExpr *function_;
+  ScanSignalType scan_signal_type_;
   FuncExpr *tristate_enable_;
   ScaledPortMap *scaled_ports_;
   RiseFallMinMax capacitance_;
@@ -1080,32 +1086,12 @@ protected:
   TableAxisPtr axis3_;
 };
 
-class TestCell
+class TestCell : public LibertyCell
 {
 public:
-  TestCell();
-  TestCell(LibertyPort *data_in,
-	   LibertyPort *scan_in,
-	   LibertyPort *scan_enable,
-	   LibertyPort *scan_out,
-	   LibertyPort *scan_out_inv);
-  LibertyPort *dataIn() const { return data_in_; }
-  void setDataIn(LibertyPort *port);
-  LibertyPort *scanIn() const { return scan_in_; }
-  void setScanIn(LibertyPort *port);
-  LibertyPort *scanEnable() const { return scan_enable_; }
-  void setScanEnable(LibertyPort *port);
-  LibertyPort *scanOut() const { return scan_out_; }
-  void setScanOut(LibertyPort *port);
-  LibertyPort *scanOutInv() const { return scan_out_inv_; }
-  void setScanOutInv(LibertyPort *port);
+  TestCell(LibertyCell *cell);
 
 protected:
-  LibertyPort *data_in_;
-  LibertyPort *scan_in_;
-  LibertyPort *scan_enable_;
-  LibertyPort *scan_out_;
-  LibertyPort *scan_out_inv_;
 };
 
 class OcvDerate

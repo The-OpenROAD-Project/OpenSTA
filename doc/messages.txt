@@ -1,47 +1,33 @@
-Warning: 0000 duplicated
-Warning: 0000 duplicated
-Warning: 0000 duplicated
-Warning: 0000 duplicated
-Warning: 0000 duplicated
-Warning: 0000 duplicated
-Warning: 304 duplicated
-0000 LibertyReader.cc:2151     statetable input port %s not found.
-0000 LibertyReader.cc:4008     table row must have 3 groups separated by ':'.
-0000 LibertyReader.cc:4013     table row has %zu input values but %zu are required.
-0000 LibertyReader.cc:4020     table row has %zu current values but %zu are required.
-0000 LibertyReader.cc:4027     table row has %zu next values but %zu are required.
-0000 LibertyReader.cc:4073     table input value '%s' not recognized.
-0000 LibertyReader.cc:4092     table internal value '%s' not recognized.
 0100 CmdArgs.tcl:108           unsupported object type $object_type.
-0101 CmdArgs.tcl:166           object '$obj' not found.
-0102 CmdArgs.tcl:414           $corner_arg is not the name of process corner.
-0103 CmdArgs.tcl:420           -corner keyword required with multi-corner analysis.
-0104 CmdArgs.tcl:434           $corner_name is not the name of process corner.
-0105 CmdArgs.tcl:439           missing -corner arg.
-0106 CmdArgs.tcl:450           $corner_name is not the name of process corner.
-0107 CmdArgs.tcl:467           $corner_name is not the name of process corner.
-0108 CmdArgs.tcl:502           both -min and -max specified.
-0109 CmdArgs.tcl:516           both -min and -max specified.
-0110 CmdArgs.tcl:543           only one of -early and -late can be specified.
-0111 CmdArgs.tcl:549           -early or -late must be specified.
-0112 CmdArgs.tcl:556           both -early and -late specified.
-0113 CmdArgs.tcl:571           $arg_name must be a single library.
-0114 CmdArgs.tcl:577           $arg_name type '$object_type' is not a library.
-0115 CmdArgs.tcl:582           library '$arg' not found.
-0116 CmdArgs.tcl:599           $arg_name must be a single lib cell.
-0123 CmdArgs.tcl:686           $arg_name must be a single instance.
-0124 CmdArgs.tcl:692           $arg_name type '$object_type' is not an instance.
-0125 CmdArgs.tcl:697           instance '$arg' not found.
-0126 CmdArgs.tcl:716           $arg_name type '$object_type' is not an instance.
-0127 CmdArgs.tcl:723           instance '$arg' not found.
-0131 CmdArgs.tcl:784           $arg_name type '$object_type' is not a pin or port.
-0132 CmdArgs.tcl:791           pin '$arg' not found.
-0133 CmdArgs.tcl:811           $arg_name type '$object_type' is not a port.
-0139 CmdArgs.tcl:892           unsupported object type $object_type.
-0141 CmdArgs.tcl:913           $arg_name '$object_type' is not a net.
-0142 CmdArgs.tcl:937           unsupported object type $object_type.
-0143 CmdArgs.tcl:918           $arg_name '$arg' not found.
-0144 CmdArgs.tcl:409           corner object type '$object_type' is not a corner.
+0101 CmdArgs.tcl:165           object '$obj' not found.
+0102 CmdArgs.tcl:413           $corner_arg is not the name of process corner.
+0103 CmdArgs.tcl:419           -corner keyword required with multi-corner analysis.
+0104 CmdArgs.tcl:433           $corner_name is not the name of process corner.
+0105 CmdArgs.tcl:438           missing -corner arg.
+0106 CmdArgs.tcl:449           $corner_name is not the name of process corner.
+0107 CmdArgs.tcl:466           $corner_name is not the name of process corner.
+0108 CmdArgs.tcl:501           both -min and -max specified.
+0109 CmdArgs.tcl:515           both -min and -max specified.
+0110 CmdArgs.tcl:542           only one of -early and -late can be specified.
+0111 CmdArgs.tcl:548           -early or -late must be specified.
+0112 CmdArgs.tcl:555           both -early and -late specified.
+0113 CmdArgs.tcl:570           $arg_name must be a single library.
+0114 CmdArgs.tcl:576           $arg_name type '$object_type' is not a library.
+0115 CmdArgs.tcl:581           library '$arg' not found.
+0116 CmdArgs.tcl:598           $arg_name must be a single lib cell.
+0123 CmdArgs.tcl:685           $arg_name must be a single instance.
+0124 CmdArgs.tcl:691           $arg_name type '$object_type' is not an instance.
+0125 CmdArgs.tcl:696           instance '$arg' not found.
+0126 CmdArgs.tcl:715           $arg_name type '$object_type' is not an instance.
+0127 CmdArgs.tcl:722           instance '$arg' not found.
+0131 CmdArgs.tcl:783           $arg_name type '$object_type' is not a pin or port.
+0132 CmdArgs.tcl:790           pin '$arg' not found.
+0133 CmdArgs.tcl:810           $arg_name type '$object_type' is not a port.
+0139 CmdArgs.tcl:891           unsupported object type $object_type.
+0141 CmdArgs.tcl:912           $arg_name '$object_type' is not a net.
+0142 CmdArgs.tcl:936           unsupported object type $object_type.
+0143 CmdArgs.tcl:917           $arg_name '$arg' not found.
+0144 CmdArgs.tcl:408           corner object type '$object_type' is not a corner.
 0160 CmdUtil.tcl:44            no commands match '$pattern'.
 0161 CmdUtil.tcl:89            Usage: $cmd $cmd_args($cmd)
 0162 CmdUtil.tcl:91            Usage: $cmd argument error
@@ -94,18 +80,18 @@ Warning: 304 duplicated
 0253 NetworkEdit.tcl:192       unsupported object type $object_type.
 0266 VertexVisitor.cc:32       VertexPinCollector::copy not supported.
 0267 WriteSpice.cc:1217        out of memory
-0268 VerilogWriter.cc:223      unknown port direction
+0268 VerilogWriter.cc:258      unknown port direction
 0272 Parasitics.tcl:41         read_spef -quiet is deprecated.
 0273 Parasitics.tcl:45         read_spef -reduce_to is deprecated. Use -reduce instead.
 0274 Parasitics.tcl:50         read_spef -delete_after_reduce is deprecated.
 0275 Parasitics.tcl:54         read_spef -save is deprecated.
 0276 Parasitics.tcl:62         path instance '$path' not found.
-0280 PathEnum.cc:570           diversion path not found
+0280 PathEnum.cc:572           diversion path not found
 0301 Power.tcl:234             activity should be 0.0 to 1.0 or 2.0
 0302 Power.tcl:242             duty should be 0.0 to 1.0
 0303 Power.tcl:257             activity cannot be set on clock ports.
 0304 Power.tcl:40              No liberty libraries have been read.
-0304 Power.tcl:286             read_power_activities is deprecated. Use read_vcd.
+0305 Power.tcl:286             read_power_activities is deprecated. Use read_vcd.
 0320 Property.tcl:32           $cmd object is null.
 0321 Property.tcl:37           $cmd $type_key must be specified with object name argument.
 0322 Property.tcl:77           get_property unsupported object type $object_type.
@@ -120,7 +106,7 @@ Warning: 304 duplicated
 0331 Sdc.tcl:856               object '$pattern' is not a net.
 0332 Sdc.tcl:936               object '$pattern' is not a pin.
 0333 Sdc.tcl:993               object '$pattern' is not a port.
-0334 Sdc.tcl:2848              object '$pattern' is not a liberty cell.
+0334 Sdc.tcl:2848              object '$cell_name' is not a liberty cell.
 0340 Sdc.tcl:73                cannot open '$filename'.
 0341 Sdc.tcl:128               incomplete command at end of file.
 0342 Sdc.tcl:212               hierarchy separator must be one of '$sdc_dividers'.
@@ -275,8 +261,8 @@ Warning: 304 duplicated
 0522 Search.tcl:791            -min and -max cannot both be specified.
 0523 Search.tcl:811            pin '$pin_arg' is hierarchical.
 0524 Search.tcl:867            -format $format not recognized.
-0526 Search.tcl:1013           specify one of -setup and -hold.
-0527 Search.tcl:1063           unknown path group '$name'.
+0526 Search.tcl:1015           specify one of -setup and -hold.
+0527 Search.tcl:1065           unknown path group '$name'.
 0540 Sta.tcl:158               -from/-to arguments not supported with -of_objects.
 0560 Util.tcl:44               $cmd $key missing value.
 0561 Util.tcl:61               $cmd $key missing value.
@@ -317,184 +303,190 @@ Warning: 304 duplicated
 1110 Liberty.cc:763            cell %s/%s port %s not found in cell %s/%s.
 1111 Liberty.cc:789            cell %s/%s %s -> %s timing group %s not found in cell %s/%s.
 1112 Liberty.cc:808            Liberty cell %s/%s for corner %s/%s not found.
-1113 Liberty.cc:1822           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with %s -> %s setup_%s check.
-1114 Liberty.cc:1763           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.
-1115 Liberty.cc:1771           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.
+1113 Liberty.cc:1824           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with %s -> %s setup_%s check.
+1114 Liberty.cc:1765           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function positive sense.
+1115 Liberty.cc:1773           cell %s/%s %s -> %s latch enable %s_edge is inconsistent with latch group enable function negative sense.
 1116 Liberty.cc:362            unsupported slew degradation table axes
 1117 Liberty.cc:378            unsupported slew degradation table axes
 1118 Liberty.cc:383            unsupported slew degradation table order
 1119 Liberty.cc:413            unsupported slew degradation table axes
-1120 Liberty.cc:1977           library missing vdd
-1121 Liberty.cc:1389           timing arc count mismatch
+1120 Liberty.cc:1979           library missing vdd
+1121 Liberty.cc:1391           timing arc count mismatch
 1125 LibertyParser.cc:310      valueIterator called for LibertySimpleAttribute
 1126 LibertyParser.cc:390      LibertyStringAttrValue called for float value
 1127 LibertyParser.cc:420      LibertyStringAttrValue called for float value
 1130 LibertyExpr.cc:82         %s references unknown port %s.
 1131 LibertyExpr.cc:175        %s %s.
-1140 LibertyReader.cc:617      library %s already exists.
-1141 LibertyReader.cc:651      library missing name.
-1142 LibertyReader.cc:677      default_wire_load %s not found.
-1143 LibertyReader.cc:688      default_wire_selection %s not found.
-1144 LibertyReader.cc:700      default_operating_condition %s not found.
-1145 LibertyReader.cc:710      input_threshold_pct_%s not found.
-1146 LibertyReader.cc:714      output_threshold_pct_%s not found.
-1147 LibertyReader.cc:718      slew_lower_threshold_pct_%s not found.
-1148 LibertyReader.cc:722      slew_upper_threshold_pct_%s not found.
-1149 LibertyReader.cc:727      Library %s is missing one or more thresholds.
-1150 LibertyReader.cc:806      unknown unit multiplier %s.
-1151 LibertyReader.cc:829      unknown unit scale %c.
-1152 LibertyReader.cc:832      unknown unit suffix %s.
-1153 LibertyReader.cc:835      unknown unit suffix %s.
-1154 LibertyReader.cc:860      capacitive_load_units are not ff or pf.
-1155 LibertyReader.cc:863      capacitive_load_units are not a string.
-1156 LibertyReader.cc:866      capacitive_load_units missing suffix.
-1157 LibertyReader.cc:869      capacitive_load_units scale is not a float.
-1158 LibertyReader.cc:872      capacitive_load_units missing scale and suffix.
-1159 LibertyReader.cc:875      capacitive_load_unit missing values suffix.
-1160 LibertyReader.cc:893      delay_model %s not supported.
-1161 LibertyReader.cc:897      delay_model %s not supported.
-1162 LibertyReader.cc:901      delay_model %s not supported.
-1163 LibertyReader.cc:906      delay_model %s not supported.
-.
-1164 LibertyReader.cc:909      unknown delay_model %s
-.
-1165 LibertyReader.cc:928      unknown bus_naming_style format.
-1166 LibertyReader.cc:949      voltage_map voltage is not a float.
-1167 LibertyReader.cc:952      voltage_map missing voltage.
-1168 LibertyReader.cc:955      voltage_map supply name is not a string.
-1169 LibertyReader.cc:958      voltage_map missing supply name and voltage.
-1170 LibertyReader.cc:961      voltage_map missing values suffix.
-1171 LibertyReader.cc:1046     default_max_transition is 0.0.
-1172 LibertyReader.cc:1061     default_max_fanout is 0.0.
-1173 LibertyReader.cc:1151     default_fanout_load is 0.0.
-1174 LibertyReader.cc:1179     default_wire_load_mode %s not found.
-1175 LibertyReader.cc:1350     table template missing name.
-1176 LibertyReader.cc:1395     missing variable_%d attribute.
-1177 LibertyReader.cc:1471     missing table index values.
-1178 LibertyReader.cc:1477     non-increasing table index values.
-1179 LibertyReader.cc:1509     bus type %s missing bit_from.
-1180 LibertyReader.cc:1511     bus type %s missing bit_to.
-1181 LibertyReader.cc:1515     type missing name.
-1182 LibertyReader.cc:1542     scaling_factors do not have a name.
-1183 LibertyReader.cc:1711     operating_conditions missing name.
-1184 LibertyReader.cc:1782     wire_load missing name.
-1185 LibertyReader.cc:1825     fanout_length is missing length and fanout.
-1186 LibertyReader.cc:1840     wire_load_selection missing name.
-1187 LibertyReader.cc:1871     wireload %s not found.
-1189 LibertyReader.cc:1878     wire_load_from_area min not a float.
-1190 LibertyReader.cc:1881     wire_load_from_area max not a float.
-1191 LibertyReader.cc:1884     wire_load_from_area missing parameters.
-1192 LibertyReader.cc:1887     wire_load_from_area missing parameters.
-1193 LibertyReader.cc:1906     cell missing name.
-1194 LibertyReader.cc:1930     cell %s ocv_derate_group %s not found.
-1195 LibertyReader.cc:1963     port %s function size does not match port size.
-1196 LibertyReader.cc:2060     %s %s bus width mismatch.
-1197 LibertyReader.cc:2071     %s %s bus width mismatch.
-1198 LibertyReader.cc:2081     clear
-1199 LibertyReader.cc:2091     preset
-1200 LibertyReader.cc:2127     latch enable function is non-unate for port %s.
-1201 LibertyReader.cc:2132     latch enable function is unknown for port %s.
-1202 LibertyReader.cc:2233     operating conditions %s not found.
-1203 LibertyReader.cc:2236     scaled_cell missing operating condition.
-1204 LibertyReader.cc:2239     scaled_cell cell %s has not been defined.
-1205 LibertyReader.cc:2242     scaled_cell missing name.
-1206 LibertyReader.cc:2268     scaled_cell %s, %s port functions do not match cell port functions.
-1207 LibertyReader.cc:2273     scaled_cell ports do not match cell ports.
-1208 LibertyReader.cc:2275     scaled_cell %s, %s timing does not match cell timing.
-1209 LibertyReader.cc:2294     combinational timing to an input port.
-1210 LibertyReader.cc:2389     missing %s_transition.
-1211 LibertyReader.cc:2391     missing cell_%s.
-1212 LibertyReader.cc:2412     timing group from output port.
-1213 LibertyReader.cc:2422     timing group from output port.
-1214 LibertyReader.cc:2432     timing group from output port.
-1215 LibertyReader.cc:2467     timing group from output port.
-1217 LibertyReader.cc:2477     timing group from output port.
-1218 LibertyReader.cc:2578     receiver_capacitance group not in timing or pin group.
-1219 LibertyReader.cc:2596     unsupported model axis.
-1220 LibertyReader.cc:2624     output_current_%s group not in timing group.
-1221 LibertyReader.cc:2666     output current waveform %.2e %.2e not found.
-1222 LibertyReader.cc:2687     unsupported model axis.
-1223 LibertyReader.cc:2729     vector index_1 and index_2 must have exactly one value.
-1224 LibertyReader.cc:2731     vector reference_time not found.
-1225 LibertyReader.cc:2764     normalized_driver_waveform variable_2 must be normalized_voltage
-1226 LibertyReader.cc:2767     normalized_driver_waveform variable_1 must be input_net_transition
-1228 LibertyReader.cc:2989     level_shifter_type must be HL, LH, or HL_LH
-1229 LibertyReader.cc:3025     switch_cell_type must be coarse_grain or fine_grain
-1230 LibertyReader.cc:3049     scaling_factors %s not found.
-1231 LibertyReader.cc:3100     pin name is not a string.
-1232 LibertyReader.cc:3117     pin name is not a string.
-1233 LibertyReader.cc:3131     pin name is not a string.
-1234 LibertyReader.cc:3209     bus %s bus_type not found.
-1235 LibertyReader.cc:3261     bus_type %s not found.
-1236 LibertyReader.cc:3264     bus_type is not a string.
-1237 LibertyReader.cc:3282     bundle %s member not found.
-1238 LibertyReader.cc:3305     member is not a string.
-1239 LibertyReader.cc:3312     members attribute is missing values.
-1240 LibertyReader.cc:3363     unknown port direction.
-1241 LibertyReader.cc:3610     max_transition is 0.0.
-1242 LibertyReader.cc:3716     pulse_latch unknown pulse type.
-1243 LibertyReader.cc:4134     timing group missing related_pin/related_bus_pin.
-1244 LibertyReader.cc:4233     unknown timing_type %s.
-1245 LibertyReader.cc:4253     unknown timing_sense %s.
-1246 LibertyReader.cc:4293     mode value is not a string.
-1247 LibertyReader.cc:4296     missing mode value.
-1248 LibertyReader.cc:4299     mode name is not a string.
-1249 LibertyReader.cc:4302     mode missing values.
-1250 LibertyReader.cc:4305     mode missing mode name and value.
-1251 LibertyReader.cc:4381     unsupported model axis.
-1252 LibertyReader.cc:4408     unsupported model axis.
-1253 LibertyReader.cc:4437     unsupported model axis.
-1254 LibertyReader.cc:4472     unsupported model axis.
-1255 LibertyReader.cc:4488     %s group not in timing group.
-1256 LibertyReader.cc:4527     table template %s not found.
-1257 LibertyReader.cc:4611     %s is missing values.
-1258 LibertyReader.cc:4634     %s is not a list of floats.
-1259 LibertyReader.cc:4636     table row has %u columns but axis has %d.
-1260 LibertyReader.cc:4646     table has %u rows but axis has %d.
-1261 LibertyReader.cc:4697     lut output is not a string.
-1262 LibertyReader.cc:4714     cell %s test_cell redefinition.
-1263 LibertyReader.cc:4739     mode definition missing name.
-1264 LibertyReader.cc:4756     mode value missing name.
-1265 LibertyReader.cc:4770     when attribute inside table model.
-1266 LibertyReader.cc:4819     %s attribute is not a string.
-1267 LibertyReader.cc:4822     %s is not a simple attribute.
-1268 LibertyReader.cc:4842     %s attribute is not an integer.
-1269 LibertyReader.cc:4845     %s is not a simple attribute.
-1270 LibertyReader.cc:4858     %s is not a simple attribute.
-1271 LibertyReader.cc:4884     %s value %s is not a float.
-1272 LibertyReader.cc:4913     %s missing values.
-1273 LibertyReader.cc:4917     %s missing values.
-1274 LibertyReader.cc:4920     %s is not a complex attribute.
-1275 LibertyReader.cc:4946     %s is not a float.
-1276 LibertyReader.cc:4969     %s is missing values.
-1277 LibertyReader.cc:4972     %s has more than one string.
-1278 LibertyReader.cc:4981     %s is missing values.
-1279 LibertyReader.cc:5006     %s attribute is not boolean.
-1280 LibertyReader.cc:5009     %s attribute is not boolean.
-1281 LibertyReader.cc:5012     %s is not a simple attribute.
-1282 LibertyReader.cc:5028     attribute %s value %s not recognized.
-1283 LibertyReader.cc:5059     unknown early/late value.
-1284 LibertyReader.cc:5279     OCV derate group named %s not found.
-1285 LibertyReader.cc:5295     ocv_derate missing name.
-1286 LibertyReader.cc:5348     unknown rise/fall.
-1287 LibertyReader.cc:5368     unknown derate type.
-1288 LibertyReader.cc:5400     unsupported model axis.
-1289 LibertyReader.cc:5432     unsupported model axis.
-1290 LibertyReader.cc:5464     unsupported model axis.
-1291 LibertyReader.cc:5535     unknown pg_type.
-1292 LibertyReader.cc:5949     port %s subscript out of range.
-1293 LibertyReader.cc:5953     port range %s of non-bus port %s.
-1294 LibertyReader.cc:5967     port %s not found.
-1295 LibertyReader.cc:6037     port %s not found.
-1297 LibertyReader.cc:1437     axis type %s not supported.
-1330 LibertyWriter.cc:300      %s/%s bundled ports not supported.
-1331 LibertyWriter.cc:448      %s/%s/%s timing model not supported.
-1332 LibertyWriter.cc:468      3 axis table models not supported.
-1333 LibertyWriter.cc:617      %s/%s/%s timing arc type %s not supported.
+1140 LibertyReader.cc:626      library %s already exists.
+1141 LibertyReader.cc:660      library missing name.
+1142 LibertyReader.cc:686      default_wire_load %s not found.
+1143 LibertyReader.cc:697      default_wire_selection %s not found.
+1144 LibertyReader.cc:709      default_operating_condition %s not found.
+1145 LibertyReader.cc:719      input_threshold_pct_%s not found.
+1146 LibertyReader.cc:723      output_threshold_pct_%s not found.
+1147 LibertyReader.cc:727      slew_lower_threshold_pct_%s not found.
+1148 LibertyReader.cc:731      slew_upper_threshold_pct_%s not found.
+1149 LibertyReader.cc:736      Library %s is missing one or more thresholds.
+1150 LibertyReader.cc:815      unknown unit multiplier %s.
+1151 LibertyReader.cc:838      unknown unit scale %c.
+1152 LibertyReader.cc:841      unknown unit suffix %s.
+1153 LibertyReader.cc:844      unknown unit suffix %s.
+1154 LibertyReader.cc:869      capacitive_load_units are not ff or pf.
+1155 LibertyReader.cc:872      capacitive_load_units are not a string.
+1156 LibertyReader.cc:875      capacitive_load_units missing suffix.
+1157 LibertyReader.cc:878      capacitive_load_units scale is not a float.
+1158 LibertyReader.cc:881      capacitive_load_units missing scale and suffix.
+1159 LibertyReader.cc:884      capacitive_load_unit missing values suffix.
+1160 LibertyReader.cc:902      delay_model %s not supported.
+1161 LibertyReader.cc:906      delay_model %s not supported.
+1162 LibertyReader.cc:910      delay_model %s not supported.
+1163 LibertyReader.cc:915      delay_model %s not supported..
+1164 LibertyReader.cc:918      unknown delay_model %s.
+1165 LibertyReader.cc:937      unknown bus_naming_style format.
+1166 LibertyReader.cc:958      voltage_map voltage is not a float.
+1167 LibertyReader.cc:961      voltage_map missing voltage.
+1168 LibertyReader.cc:964      voltage_map supply name is not a string.
+1169 LibertyReader.cc:967      voltage_map missing supply name and voltage.
+1170 LibertyReader.cc:970      voltage_map missing values suffix.
+1171 LibertyReader.cc:1055     default_max_transition is 0.0.
+1172 LibertyReader.cc:1070     default_max_fanout is 0.0.
+1173 LibertyReader.cc:1160     default_fanout_load is 0.0.
+1174 LibertyReader.cc:1188     default_wire_load_mode %s not found.
+1175 LibertyReader.cc:1359     table template missing name.
+1176 LibertyReader.cc:1404     missing variable_%d attribute.
+1177 LibertyReader.cc:1480     missing table index values.
+1178 LibertyReader.cc:1486     non-increasing table index values.
+1179 LibertyReader.cc:1518     bus type %s missing bit_from.
+1180 LibertyReader.cc:1520     bus type %s missing bit_to.
+1181 LibertyReader.cc:1524     type missing name.
+1182 LibertyReader.cc:1551     scaling_factors do not have a name.
+1183 LibertyReader.cc:1720     operating_conditions missing name.
+1184 LibertyReader.cc:1791     wire_load missing name.
+1185 LibertyReader.cc:1834     fanout_length is missing length and fanout.
+1186 LibertyReader.cc:1849     wire_load_selection missing name.
+1187 LibertyReader.cc:1880     wireload %s not found.
+1189 LibertyReader.cc:1887     wire_load_from_area min not a float.
+1190 LibertyReader.cc:1890     wire_load_from_area max not a float.
+1191 LibertyReader.cc:1893     wire_load_from_area missing parameters.
+1192 LibertyReader.cc:1896     wire_load_from_area missing parameters.
+1193 LibertyReader.cc:1915     cell missing name.
+1194 LibertyReader.cc:1939     cell %s ocv_derate_group %s not found.
+1195 LibertyReader.cc:1972     port %s function size does not match port size.
+1196 LibertyReader.cc:2069     %s %s bus width mismatch.
+1197 LibertyReader.cc:2080     %s %s bus width mismatch.
+1198 LibertyReader.cc:2090     clear
+1199 LibertyReader.cc:2100     preset
+1200 LibertyReader.cc:2136     latch enable function is non-unate for port %s.
+1201 LibertyReader.cc:2141     latch enable function is unknown for port %s.
+1202 LibertyReader.cc:2243     operating conditions %s not found.
+1203 LibertyReader.cc:2246     scaled_cell missing operating condition.
+1204 LibertyReader.cc:2249     scaled_cell cell %s has not been defined.
+1205 LibertyReader.cc:2252     scaled_cell missing name.
+1206 LibertyReader.cc:2278     scaled_cell %s, %s port functions do not match cell port functions.
+1207 LibertyReader.cc:2283     scaled_cell ports do not match cell ports.
+1208 LibertyReader.cc:2285     scaled_cell %s, %s timing does not match cell timing.
+1209 LibertyReader.cc:2304     combinational timing to an input port.
+1210 LibertyReader.cc:2399     missing %s_transition.
+1211 LibertyReader.cc:2401     missing cell_%s.
+1212 LibertyReader.cc:2422     timing group from output port.
+1213 LibertyReader.cc:2432     timing group from output port.
+1214 LibertyReader.cc:2442     timing group from output port.
+1215 LibertyReader.cc:2477     timing group from output port.
+1217 LibertyReader.cc:2487     timing group from output port.
+1218 LibertyReader.cc:2588     receiver_capacitance group not in timing or pin group.
+1219 LibertyReader.cc:2606     unsupported model axis.
+1220 LibertyReader.cc:2634     output_current_%s group not in timing group.
+1221 LibertyReader.cc:2676     output current waveform %.2e %.2e not found.
+1222 LibertyReader.cc:2697     unsupported model axis.
+1223 LibertyReader.cc:2739     vector index_1 and index_2 must have exactly one value.
+1224 LibertyReader.cc:2741     vector reference_time not found.
+1225 LibertyReader.cc:2774     normalized_driver_waveform variable_2 must be normalized_voltage
+1226 LibertyReader.cc:2777     normalized_driver_waveform variable_1 must be input_net_transition
+1228 LibertyReader.cc:2999     level_shifter_type must be HL, LH, or HL_LH
+1229 LibertyReader.cc:3035     switch_cell_type must be coarse_grain or fine_grain
+1230 LibertyReader.cc:3059     scaling_factors %s not found.
+1231 LibertyReader.cc:3120     pin name is not a string.
+1232 LibertyReader.cc:3137     pin name is not a string.
+1233 LibertyReader.cc:3151     pin name is not a string.
+1234 LibertyReader.cc:3229     bus %s bus_type not found.
+1235 LibertyReader.cc:3281     bus_type %s not found.
+1236 LibertyReader.cc:3284     bus_type is not a string.
+1237 LibertyReader.cc:3302     bundle %s member not found.
+1238 LibertyReader.cc:3325     member is not a string.
+1239 LibertyReader.cc:3332     members attribute is missing values.
+1240 LibertyReader.cc:3383     unknown port direction.
+1241 LibertyReader.cc:3630     max_transition is 0.0.
+1242 LibertyReader.cc:3736     pulse_latch unknown pulse type.
+1243 LibertyReader.cc:4155     timing group missing related_pin/related_bus_pin.
+1244 LibertyReader.cc:4254     unknown timing_type %s.
+1245 LibertyReader.cc:4274     unknown timing_sense %s.
+1246 LibertyReader.cc:4314     mode value is not a string.
+1247 LibertyReader.cc:4317     missing mode value.
+1248 LibertyReader.cc:4320     mode name is not a string.
+1249 LibertyReader.cc:4323     mode missing values.
+1250 LibertyReader.cc:4326     mode missing mode name and value.
+1251 LibertyReader.cc:4402     unsupported model axis.
+1252 LibertyReader.cc:4429     unsupported model axis.
+1253 LibertyReader.cc:4458     unsupported model axis.
+1254 LibertyReader.cc:4493     unsupported model axis.
+1255 LibertyReader.cc:4509     %s group not in timing group.
+1256 LibertyReader.cc:4548     table template %s not found.
+1257 LibertyReader.cc:4632     %s is missing values.
+1258 LibertyReader.cc:4655     %s is not a list of floats.
+1259 LibertyReader.cc:4657     table row has %u columns but axis has %d.
+1260 LibertyReader.cc:4667     table has %u rows but axis has %d.
+1261 LibertyReader.cc:4718     lut output is not a string.
+1262 LibertyReader.cc:4734     cell %s test_cell redefinition.
+1263 LibertyReader.cc:4773     mode definition missing name.
+1264 LibertyReader.cc:4790     mode value missing name.
+1265 LibertyReader.cc:4804     when attribute inside table model.
+1266 LibertyReader.cc:4853     %s attribute is not a string.
+1267 LibertyReader.cc:4856     %s is not a simple attribute.
+1268 LibertyReader.cc:4876     %s attribute is not an integer.
+1269 LibertyReader.cc:4879     %s is not a simple attribute.
+1270 LibertyReader.cc:4892     %s is not a simple attribute.
+1271 LibertyReader.cc:4918     %s value %s is not a float.
+1272 LibertyReader.cc:4947     %s missing values.
+1273 LibertyReader.cc:4951     %s missing values.
+1274 LibertyReader.cc:4954     %s is not a complex attribute.
+1275 LibertyReader.cc:4980     %s is not a float.
+1276 LibertyReader.cc:5003     %s is missing values.
+1277 LibertyReader.cc:5006     %s has more than one string.
+1278 LibertyReader.cc:5015     %s is missing values.
+1279 LibertyReader.cc:5040     %s attribute is not boolean.
+1280 LibertyReader.cc:5043     %s attribute is not boolean.
+1281 LibertyReader.cc:5046     %s is not a simple attribute.
+1282 LibertyReader.cc:5062     attribute %s value %s not recognized.
+1283 LibertyReader.cc:5093     unknown early/late value.
+1284 LibertyReader.cc:5313     OCV derate group named %s not found.
+1285 LibertyReader.cc:5329     ocv_derate missing name.
+1286 LibertyReader.cc:5382     unknown rise/fall.
+1287 LibertyReader.cc:5402     unknown derate type.
+1288 LibertyReader.cc:5434     unsupported model axis.
+1289 LibertyReader.cc:5466     unsupported model axis.
+1290 LibertyReader.cc:5498     unsupported model axis.
+1291 LibertyReader.cc:5569     unknown pg_type.
+1292 LibertyReader.cc:5983     port %s subscript out of range.
+1293 LibertyReader.cc:5987     port range %s of non-bus port %s.
+1294 LibertyReader.cc:6001     port %s not found.
+1295 LibertyReader.cc:6071     port %s not found.
+1297 LibertyReader.cc:1446     axis type %s not supported.
+1298 LibertyReader.cc:2160     statetable input port %s not found.
+1299 LibertyReader.cc:3785     unknown signal_type %s.
+1300 LibertyReader.cc:4029     table row must have 3 groups separated by ':'.
+1301 LibertyReader.cc:4034     table row has %zu input values but %zu are required.
+1302 LibertyReader.cc:4041     table row has %zu current values but %zu are required.
+1303 LibertyReader.cc:4048     table row has %zu next values but %zu are required.
+1304 LibertyReader.cc:4094     table input value '%s' not recognized.
+1305 LibertyReader.cc:4113     table internal value '%s' not recognized.
+1340 LibertyWriter.cc:307      %s/%s bundled ports not supported.
+1341 LibertyWriter.cc:455      %s/%s/%s timing model not supported.
+1342 LibertyWriter.cc:475      3 axis table models not supported.
+1343 LibertyWriter.cc:624      %s/%s/%s timing arc type %s not supported.
 1350 LumpedCapDelayCalc.cc:138 gate delay input variable is NaN
 1355 MakeTimingModel.cc:227    clock %s pin %s is inside model block.
 1360 Vcd.cc:172                Unknown variable %s ID %s
-1370 PathEnum.cc:474           path diversion missing edge.
+1370 PathEnum.cc:476           path diversion missing edge.
 1398 VerilogReader.cc:1860     %s is not a verilog module.
 1399 VerilogReader.cc:1865     %s is not a verilog module.
 1400 PathVertex.cc:236         missing arrivals.
@@ -508,16 +500,16 @@ Warning: 304 duplicated
 1525 SpefParse.yy:805          %d is not positive.
 1526 SpefParse.yy:814          %.4f is not positive.
 1527 SpefParse.yy:820          %.4f is not positive.
-1550 Sta.cc:2005               '%s' is not a valid start point.
-1551 Sta.cc:2078               '%s' is not a valid endpoint.
-1552 Sta.cc:2081               '%s' is not a valid endpoint.
-1553 Sta.cc:2397               maximum corner count exceeded
-1554 Sta.cc:2002               '%s' is not a valid start point.
+1550 Sta.cc:1999               '%s' is not a valid start point.
+1551 Sta.cc:2072               '%s' is not a valid endpoint.
+1552 Sta.cc:2075               '%s' is not a valid endpoint.
+1553 Sta.cc:2391               maximum corner count exceeded
+1554 Sta.cc:1996               '%s' is not a valid start point.
 1570 Search.i:54               no network has been linked.
 1571 Search.i:68               network does not support edits.
-1574 Search.i:1118             POCV support requires compilation with SSTA=1.
-1575 Search.i:527              unknown report path field %s
-1576 Search.i:539              unknown report path field %s
+1574 Search.i:1120             POCV support requires compilation with SSTA=1.
+1575 Search.i:529              unknown report path field %s
+1576 Search.i:541              unknown report path field %s
 1600 WritePathSpice.cc:165     No liberty libraries found,
 1602 WriteSpice.cc:458         Liberty pg_port %s/%s missing voltage_name attribute,
 1603 WriteSpice.cc:428         %s pg_port %s not found,

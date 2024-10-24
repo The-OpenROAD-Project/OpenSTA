@@ -283,7 +283,7 @@ proc read_power_activities { args } {
   if { [info exists keys(-scope)] } {
     set scope $keys(-scope)
   }
-  sta_warn 304 "read_power_activities is deprecated. Use read_vcd."
+  sta_warn 305 "read_power_activities is deprecated. Use read_vcd."
   read_vcd_file $filename $scope
 }
 

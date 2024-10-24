@@ -183,23 +183,4 @@ isModeDisabled(Edge *edge,
 	       bool &is_disabled,
 	       FuncExpr *&disable_cond);
 
-// Edge is disabled because by test scan enable.
-//   from scan_data_in and scan_enable=1
-//   from scan_in and scan_enable=0
-bool
-isTestDisabled(const Instance *inst,
-	       const Pin *from_pin,
-	       const Pin *to_pin,
-	       const Network *network,
-	       const Sim *sim);
-
-void
-isTestDisabled(const Instance *inst,
-	       const Pin *from_pin,
-	       const Pin *to_pin,
-	       const Network *network,
-	       const Sim *sim,
-	       bool &is_disabled,
-	       Pin *&scan_enable);
-
 } // namespace

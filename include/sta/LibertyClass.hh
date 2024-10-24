@@ -36,7 +36,6 @@ class OperatingConditions;
 class BusDcl;
 class ModeDef;
 class ModeValueDef;
-class TestCell;
 class TableTemplate;
 class Table;
 class TableModel;

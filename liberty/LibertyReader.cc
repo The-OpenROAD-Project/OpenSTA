@@ -57,43 +57,23 @@ readLibertyFile(const char *filename,
 		bool infer_latches,
 		Network *network)
 {
-  LibertyReader reader;
-  return reader.readLibertyFile(filename, infer_latches, network);
+  LibertyReader reader(filename, infer_latches, network);
+  return reader.readLibertyFile(filename);
 }
 
-LibertyReader::LibertyReader() :
+LibertyReader::LibertyReader(const char *filename,
+                             bool infer_latches,
+                             Network *network) :
   LibertyGroupVisitor()
 {
+  init(filename, infer_latches, network);
   defineVisitors();
 }
 
-LibertyReader::~LibertyReader()
-{
-  if (var_map_) {
-    LibertyVariableMap::Iterator iter(var_map_);
-    while (iter.hasNext()) {
-      const char *var;
-      float value;
-      iter.next(var, value);
-      stringDelete(var);
-    }
-    delete var_map_;
-  }
-
-  // Scaling factor attribute names are allocated, so delete them.
-  LibraryAttrMap::Iterator attr_iter(attr_visitor_map_);
-  while (attr_iter.hasNext()) {
-    const char *attr_name;
-    LibraryAttrVisitor visitor;
-    attr_iter.next(attr_name, visitor);
-    stringDelete(attr_name);
-  }
-}
-
-LibertyLibrary *
-LibertyReader::readLibertyFile(const char *filename,
-			       bool infer_latches,
-			       Network *network)
+void
+LibertyReader::init(const char *filename,
+                    bool infer_latches,
+                    Network *network)
 {
   filename_ = filename;
   infer_latches_ = infer_latches;
@@ -146,7 +126,34 @@ LibertyReader::readLibertyFile(const char *filename,
     have_slew_lower_threshold_[rf_index] = false;
     have_slew_upper_threshold_[rf_index] = false;
   }
+}
 
+LibertyReader::~LibertyReader()
+{
+  if (var_map_) {
+    LibertyVariableMap::Iterator iter(var_map_);
+    while (iter.hasNext()) {
+      const char *var;
+      float value;
+      iter.next(var, value);
+      stringDelete(var);
+    }
+    delete var_map_;
+  }
+
+  // Scaling factor attribute names are allocated, so delete them.
+  LibraryAttrMap::Iterator attr_iter(attr_visitor_map_);
+  while (attr_iter.hasNext()) {
+    const char *attr_name;
+    LibraryAttrVisitor visitor;
+    attr_iter.next(attr_name, visitor);
+    stringDelete(attr_name);
+  }
+}
+
+LibertyLibrary *
+LibertyReader::readLibertyFile(const char *filename)
+{
   //::LibertyParse_debug = 1;
   parseLibertyFile(filename, this, report_);
   return library_;
@@ -905,10 +912,10 @@ LibertyReader::visitDelayModel(LibertyAttr *attr)
       // Evil IBM garbage.
       else if (stringEq(type_name, "dcm")) {
 	library_->setDelayModelType(DelayModelType::dcm);
-	libWarn(1163, attr, "delay_model %s not supported.\n.", type_name);
+	libWarn(1163, attr, "delay_model %s not supported..", type_name);
       }
       else
-	libWarn(1164, attr, "unknown delay_model %s\n.", type_name);
+	libWarn(1164, attr, "unknown delay_model %s.", type_name);
     }
   }
 }
@@ -2150,7 +2157,7 @@ LibertyReader::makeStatetable()
       if (port)
         input_ports.push_back(port);
       else
-	libWarn(0000, statetable_->line(), "statetable input port %s not found.",
+	libWarn(1298, statetable_->line(), "statetable input port %s not found.",
                 input.c_str());
     }
     LibertyPortSeq internal_ports;
@@ -3762,17 +3769,34 @@ LibertyReader::visitIsPllFeedbackPin(LibertyAttr *attr)
 void
 LibertyReader::visitSignalType(LibertyAttr *attr)
 {
-  if (test_cell_) {
+  if (test_cell_ && port_) {
     const char *type = getAttrString(attr);
     if (type) {
+      ScanSignalType signal_type = ScanSignalType::none;
       if (stringEq(type, "test_scan_enable"))
-	test_cell_->setScanEnable(port_);
-      if (stringEq(type, "test_scan_in"))
-	test_cell_->setScanIn(port_);
-      if (stringEq(type, "test_scan_out"))
-	test_cell_->setScanOut(port_);
-      if (stringEq(type, "test_scan_out_inverted"))
-	test_cell_->setScanOutInv(port_);
+        signal_type = ScanSignalType::enable;
+      else if (stringEq(type, "test_scan_enable_inverted"))
+        signal_type = ScanSignalType::enable_inverted;
+      else if (stringEq(type, "test_scan_clock"))
+        signal_type = ScanSignalType::clock;
+      else if (stringEq(type, "test_scan_clock_a"))
+        signal_type = ScanSignalType::clock_a;
+      else if (stringEq(type, "test_scan_clock_b"))
+        signal_type = ScanSignalType::clock_b;
+      else if (stringEq(type, "test_scan_in"))
+        signal_type = ScanSignalType::input;
+      else if (stringEq(type, "test_scan_in_inverted"))
+        signal_type = ScanSignalType::input_inverted;
+      else if (stringEq(type, "test_scan_out"))
+        signal_type = ScanSignalType::output;
+      else if (stringEq(type, "test_scan_out_inverted"))
+        signal_type = ScanSignalType::output_inverted;
+      else {
+        libWarn(1299, attr, "unknown signal_type %s.", type);
+        return;
+      }
+      if (port_)
+        port_->setScanSignalType(signal_type);
     }
   }
 }
@@ -3942,12 +3966,6 @@ LibertyReader::visitDataIn(LibertyAttr *attr)
     if (func)
       sequential_->setData(stringCopy(func));
   }
-  if (test_cell_) {
-    const char *next_state = getAttrString(attr);
-    LibertyPort *port = findPort(save_cell_, next_state);
-    if (port)
-      test_cell_->setDataIn(port);
-  }
 }
 
 void
@@ -4018,26 +4036,26 @@ LibertyReader::visitTable(LibertyAttr *attr)
     for (string row : table_rows) {
       StdStringSeq row_groups = parseTokenList(row.c_str(), ':');
       if (row_groups.size() != 3) {
-        libWarn(0000, attr, "table row must have 3 groups separated by ':'.");
+        libWarn(1300, attr, "table row must have 3 groups separated by ':'.");
         break;
       }
       StdStringSeq inputs = parseTokenList(row_groups[0].c_str(), ' ');
       if (inputs.size() != input_count) {
-        libWarn(0000, attr, "table row has %zu input values but %zu are required.",
+        libWarn(1301, attr, "table row has %zu input values but %zu are required.",
                 inputs.size(),
                 input_count);
         break;
       }
       StdStringSeq currents = parseTokenList(row_groups[1].c_str(), ' ');
       if (currents.size() != internal_count) {
-        libWarn(0000, attr, "table row has %zu current values but %zu are required.",
+        libWarn(1302, attr, "table row has %zu current values but %zu are required.",
                 currents.size(),
                 internal_count);
         break;
       }
       StdStringSeq nexts = parseTokenList(row_groups[2].c_str(), ' ');
       if (nexts.size() != internal_count) {
-        libWarn(0000, attr, "table row has %zu next values but %zu are required.",
+        libWarn(1303, attr, "table row has %zu next values but %zu are required.",
                 nexts.size(),
                 internal_count);
         break;
@@ -4083,7 +4101,7 @@ LibertyReader::parseStateInputValues(StdStringSeq &inputs,
     StateInputValue value;
     state_input_value_name_map.find(input.c_str(), value, exists);
     if (!exists) {
-      libWarn(0000, attr, "table input value '%s' not recognized.",
+      libWarn(1304, attr, "table input value '%s' not recognized.",
               input.c_str());
       value = StateInputValue::dont_care;
     }
@@ -4102,7 +4120,7 @@ LibertyReader::parseStateInternalValues(StdStringSeq &states,
     StateInternalValue value;
     state_internal_value_name_map.find(state.c_str(), value, exists);
     if (!exists) {
-      libWarn(0000, attr, "table internal value '%s' not recognized.",
+      libWarn(1305, attr, "table internal value '%s' not recognized.",
               state.c_str());
       value = StateInternalValue::unknown;
     }
@@ -4719,25 +4737,44 @@ LibertyReader::endLut(LibertyGroup *)
 
 ////////////////////////////////////////////////////////////////
 
-// Find scan ports in test_cell group.
 void
 LibertyReader::beginTestCell(LibertyGroup *group)
 {
   if (cell_ && cell_->testCell())
     libWarn(1262, group, "cell %s test_cell redefinition.", cell_->name());
   else {
-    test_cell_ = new TestCell;
+    test_cell_ = new TestCell(cell_);
     cell_->setTestCell(test_cell_);
+
+    // Do a recursive parse of cell into the test_cell because it has
+    // pins, buses, bundles, and sequentials just like a cell.
     save_cell_ = cell_;
-    cell_ = nullptr;
+    save_cell_port_groups_ = std::move(cell_port_groups_);
+    save_statetable_ = statetable_;
+    statetable_ = nullptr;
+    save_cell_sequentials_ = std::move(cell_sequentials_);
+    save_cell_funcs_ = std::move(cell_funcs_);
+    cell_ = test_cell_;
   }
 }
 
 void
 LibertyReader::endTestCell(LibertyGroup *)
 {
+  makeCellSequentials();
+  makeStatetable();
+  parseCellFuncs();
+  finishPortGroups();
+
+  // Restore reader state to enclosing cell.
+  cell_port_groups_ = std::move(save_cell_port_groups_);
+  statetable_ = save_statetable_;
+  cell_sequentials_ = std::move(save_cell_sequentials_);
+  cell_funcs_= std::move(save_cell_funcs_);
   cell_ = save_cell_;
+
   test_cell_ = nullptr;
+  save_statetable_ = nullptr;
 }
 
 ////////////////////////////////////////////////////////////////

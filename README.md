@@ -77,7 +77,7 @@ https://github.com/parallaxsw/OpenSTA.git. Any forks from this code
 base have not passed extensive regression testing which is not
 publicly available.
 
-## Build
+## Build from source
 
 OpenSTA is built with CMake.
 
@@ -186,6 +186,25 @@ To install in a different directory with CMake use the CMAKE_INSTALL_PREFIX opti
 If you make changes to `CMakeLists.txt` you may need to clean out
 existing CMake cached variable values by deleting all of the
 files in the build directory.
+
+## Build with Docker
+
+An alternative way to build and run OpenSTA is with
+[Docker](https://www.docker.com).  After installing Docker, the
+following command builds a Docker image.
+
+```
+cd OpenSTA
+docker build --file Dockerfile.ubuntu_22.04 --tag OpenSTA .
+```
+
+To run a docker container using the OpenSTA image, use the -v option
+to docker to mount direcories with data to use and -i to run
+interactively.
+
+```
+docker run -i -v $HOME:/data OpenSTA
+```
 
 ## Bug Reports
 
