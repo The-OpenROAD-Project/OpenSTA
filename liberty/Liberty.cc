@@ -3159,8 +3159,10 @@ ScaleFactors::print()
   }
 }
 
-TestCell::TestCell(LibertyCell *cell) :
-  LibertyCell(cell->libertyLibrary(), cell->name(), cell->filename())
+TestCell::TestCell(LibertyLibrary *library,
+                   const char *name,
+                   const char *filename) :
+  LibertyCell(library, name, filename)
 {
 }
 

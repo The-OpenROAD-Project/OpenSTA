@@ -4743,7 +4743,10 @@ LibertyReader::beginTestCell(LibertyGroup *group)
   if (cell_ && cell_->testCell())
     libWarn(1262, group, "cell %s test_cell redefinition.", cell_->name());
   else {
-    test_cell_ = new TestCell(cell_);
+    string name = cell_->name();
+    name += "/test_cell";
+    test_cell_ = new TestCell(cell_->libertyLibrary(), name.c_str(),
+                              cell_->filename());
     cell_->setTestCell(test_cell_);
 
     // Do a recursive parse of cell into the test_cell because it has

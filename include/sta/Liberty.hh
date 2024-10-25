@@ -1089,7 +1089,9 @@ protected:
 class TestCell : public LibertyCell
 {
 public:
-  TestCell(LibertyCell *cell);
+  TestCell(LibertyLibrary *library,
+           const char *name,
+           const char *filename);
 
 protected:
 };
