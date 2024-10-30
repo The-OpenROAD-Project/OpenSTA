@@ -498,8 +498,6 @@ protected:
 			     const PathAnalysisPt *path_ap);
   void deletePaths();
   void deletePaths(Vertex *vertex);
-  // Delete with incremental tns/wns update.
-  void deletePathsIncr(Vertex *vertex);
   TagGroup *findTagGroup(TagGroupBldr *group_bldr);
   void deleteFilterTags();
   void deleteFilterTagGroups();

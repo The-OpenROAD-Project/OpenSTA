@@ -403,7 +403,7 @@ Search::deletePaths()
     VertexIterator vertex_iter(graph_);
     while (vertex_iter.hasNext()) {
       Vertex *vertex = vertex_iter.next();
-      deletePaths(vertex);
+      vertex->deletePaths();
     }
     filtered_arrivals_->clear();
     graph_->clearArrivals();
@@ -412,24 +412,13 @@ Search::deletePaths()
   }
 }
 
-// Delete with incremental tns/wns update.
 void
-Search::deletePathsIncr(Vertex *vertex)
+Search::deletePaths(Vertex *vertex)
 {
   tnsNotifyBefore(vertex);
   if (worst_slacks_)
     worst_slacks_->worstSlackNotifyBefore(vertex);
-  deletePaths(vertex);
-}
-
-void
-Search::deletePaths(Vertex *vertex)
-{
-  TagGroup *tag_group = tagGroup(vertex);
-  if (tag_group) {
-    int arrival_count = tag_group->arrivalCount();
-    graph_->deletePaths(vertex, arrival_count);
-  }
+  vertex->deletePaths();
 }
 
 ////////////////////////////////////////////////////////////////
@@ -521,7 +510,7 @@ Search::deleteFilteredArrivals()
       for (Vertex *vertex : *filtered_arrivals_) {
         if (isClock(vertex))
           clk_arrivals_valid_ = false;
-        deletePathsIncr(vertex);
+        deletePaths(vertex);
         arrivalInvalid(vertex);
         requiredInvalid(vertex);
       }
@@ -688,7 +677,7 @@ void
 Search::deleteVertexBefore(Vertex *vertex)
 {
   if (arrivals_exist_) {
-    deletePathsIncr(vertex);
+    deletePaths(vertex);
     arrival_iter_->deleteVertexBefore(vertex);
     invalid_arrivals_->erase(vertex);
     filtered_arrivals_->erase(vertex);
@@ -770,7 +759,7 @@ void
 Search::arrivalInvalidDelete(Vertex *vertex)
 {
   arrivalInvalid(vertex);
-  deletePaths(vertex);
+  vertex->deletePaths();
 }
 
 void
@@ -1468,7 +1457,7 @@ Search::seedArrival(Vertex *vertex)
       setVertexArrivals(vertex, &tag_bldr);
     }
     else {
-      deletePathsIncr(vertex);
+      deletePaths(vertex);
       if (search_adj_->searchFrom(vertex))
 	arrival_iter_->enqueueAdjacentVertices(vertex,  search_adj_);
     }
@@ -2674,7 +2663,7 @@ Search::setVertexArrivals(Vertex *vertex,
 			  TagGroupBldr *tag_bldr)
 {
   if (tag_bldr->empty())
-    deletePathsIncr(vertex);
+    deletePaths(vertex);
   else {
     TagGroup *prev_tag_group = tagGroup(vertex);
     Arrival *prev_arrivals = graph_->arrivals(vertex);
@@ -2693,7 +2682,7 @@ Search::setVertexArrivals(Vertex *vertex,
       else {
 	// Prev paths not required.
 	prev_paths = nullptr;
-        graph_->deletePrevPaths(vertex, arrival_count);
+	vertex->setPrevPaths(prev_path_null);
       }
       tag_bldr->copyArrivals(tag_group, prev_arrivals, prev_paths);
       vertex->setTagGroupIndex(tag_group->index());
