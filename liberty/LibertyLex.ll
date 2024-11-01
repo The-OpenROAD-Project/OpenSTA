@@ -70,7 +70,7 @@ HNAME ({PIN_NAME}|{BUS_NAME}|{MIXED_NAME})([\/.]({PIN_NAME}|{BUS_NAME}|{MIXED_NA
 /* default_operating_conditions : slow_100_3.00 ; */
 /* revision : 1.0.17; */
 /* default_wire_load : xc2v250-5_avg; */
-TOKEN ({ALPHA}|{DIGIT}|_)({ALPHA}|{DIGIT}|[._\-])*
+TOKEN ({ALPHA}|{DIGIT}|_)({ALPHA}|{DIGIT}|[._\-:])*
 /* bus_naming_style : %s[%d] ; */
 BUS_STYLE "%s"{BUS_LEFT}"%d"{BUS_RIGHT}
 PUNCTUATION [,\:;|(){}+*&!'=]
