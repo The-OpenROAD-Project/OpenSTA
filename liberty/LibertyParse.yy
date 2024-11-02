@@ -86,6 +86,18 @@ group:
 	{ sta::libertyGroupBegin($1, $3, $5); }
 	statements '}' semi_opt
 	{ $$ = sta::libertyGroupEnd(); }
+        /* group(name1:name2) { stmts } */
+|	KEYWORD '(' KEYWORD ':' KEYWORD ')' line '{'
+	{ sta::LibertyAttrValueSeq *args = sta::makeLibertyGroupColonArgs($3, $5);
+          sta::libertyGroupBegin($1, args, $7); }
+	statements '}' semi_opt
+	{ $$ = sta::libertyGroupEnd(); }
+        /* group(name1:name2); */
+|	KEYWORD '(' KEYWORD ':' KEYWORD ')' line 
+	{ sta::LibertyAttrValueSeq *args = sta::makeLibertyGroupColonArgs($3, $5);
+          sta::libertyGroupBegin($1, args, $7); }
+	semi_opt
+	{ $$ = sta::libertyGroupEnd(); }
 	;
 
 line: /* empty */

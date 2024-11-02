@@ -127,6 +127,21 @@ libertyGroupEnd()
   }
 }
 
+// Helper for brain damaged group args with embedded colon.
+// group(name1:name2) { stmts }
+LibertyAttrValueSeq *
+makeLibertyGroupColonArgs(const char *name1,
+                          const char *name2)
+{
+  LibertyAttrValueSeq *attr_values = new sta::LibertyAttrValueSeq;
+  char *str_arg = stringPrint("%s:%s", name1, name2);
+  stringDelete(name1);
+  stringDelete(name2);
+  LibertyAttrValue *arg = makeLibertyStringAttrValue(str_arg);
+  attr_values->push_back(arg);
+  return attr_values;
+}
+
 ////////////////////////////////////////////////////////////////
 
 LibertyStmt::LibertyStmt(int line) :

@@ -303,6 +303,9 @@ void
 libertyGroupBegin(const char *type,
 		  LibertyAttrValueSeq *params,
 		  int line);
+LibertyAttrValueSeq *
+makeLibertyGroupColonArgs(const char *name1,
+                          const char *name2);
 LibertyGroup *
 libertyGroupEnd();
 LibertyGroup *
