@@ -3298,7 +3298,7 @@ void
 LibertyReader::endBundle(LibertyGroup *group)
 {
   if (cell_) {
-    if (ports_->empty())
+    if (ports_ && ports_->empty())
       libWarn(1237, group, "bundle %s member not found.", group->firstName());
     endBusOrBundle();
     in_bundle_ = false;
