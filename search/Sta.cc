@@ -1649,7 +1649,6 @@ Sta::isDisabledConstant(Edge *edge)
     || (!role->isWire()
 	&& (isCondDisabled(edge, inst, from_pin, to_pin, network_, sim_)
 	    || isModeDisabled(edge, inst, network_, sim_)
-	    || isTestDisabled(inst, from_pin, to_pin, network_, sim_)
 	    || hasDisabledArcs(edge, graph_)));
 }
 
@@ -1704,11 +1703,6 @@ Sta::disabledConstantPins(Edge *edge)
 		   is_disabled, disable_cond);
     if (is_disabled)
       exprConstantPins(disable_cond, inst, pins);
-    Pin *scan_enable;
-    isTestDisabled(inst, from_pin, to_pin, network_, sim_,
-		   is_disabled, scan_enable);
-    if (is_disabled)
-      pins.insert(scan_enable);
     if (hasDisabledArcs(edge, graph_)) {
       LibertyPort *to_port = network_->libertyPort(to_pin);
       if (to_port) {

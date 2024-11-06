@@ -294,6 +294,8 @@ ensure_voltage_waveforms()
   self->ensureVoltageWaveforms(dcalc_aps);
 }
 
+LibertyCell *test_cell() { return self->testCell(); }
+
 } // LibertyCell methods
 
 %extend LibertyPort {

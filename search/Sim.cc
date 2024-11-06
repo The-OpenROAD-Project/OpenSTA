@@ -824,9 +824,7 @@ Sim::annotateVertexEdges(const Instance *inst,
 					    pin, network_,sim_)
 	    // Disable mode conditional timing
 	    // edges based on constant pins.
-	    || isModeDisabled(edge,inst,network_,sim_)
-	    || isTestDisabled(inst, from_pin, pin,
-			      network_, sim_);
+	    || isModeDisabled(edge,inst,network_,sim_);
       }
       bool disables_changed = false;
       if (sense != edge->simTimingSense()) {
@@ -950,60 +948,6 @@ isModeDisabled(Edge *edge,
 		}
 	      }
 	    }
-	  }
-	}
-      }
-    }
-  }
-}
-
-bool
-isTestDisabled(const Instance *inst,
-	       const Pin *from_pin,
-	       const Pin *to_pin,
-	       const Network *network,
-	       const Sim *sim)
-{
-  bool is_disabled;
-  Pin *scan_enable;
-  isTestDisabled(inst, from_pin, to_pin, network, sim,
-		 is_disabled, scan_enable);
-  return is_disabled;
-}
-
-void
-isTestDisabled(const Instance *inst,
-	       const Pin *from_pin,
-	       const Pin *to_pin,
-	       const Network *network,
-	       const Sim *sim,
-	       bool &is_disabled,
-	       Pin *&scan_enable)
-{
-  is_disabled = false;
-  LibertyCell *cell = network->libertyCell(inst);
-  if (cell) {
-    TestCell *test = cell->testCell();
-    if (test) {
-      LibertyPort *from_port = network->libertyPort(from_pin);
-      LibertyPort *to_port = network->libertyPort(to_pin);
-      LibertyPort *data_in_port = test->dataIn();
-      LibertyPort *scan_in_port = test->scanIn();
-      if (from_port == data_in_port
-	  || to_port == data_in_port
-	  || from_port == scan_in_port
-	  || to_port == scan_in_port) {
-	LibertyPort *scan_enable_port = test->scanEnable();
-	if (scan_enable_port) {
-	  scan_enable = network->findPin(inst, scan_enable_port);
-	  if (scan_enable) {
-	    LogicValue scan_enable_value = sim->logicValue(scan_enable);
-	    is_disabled = ((scan_enable_value == LogicValue::zero
-			    && (from_port == scan_in_port
-				|| to_port == scan_in_port))
-			   || (scan_enable_value == LogicValue::one
-			       && (from_port == data_in_port
-				   || to_port == data_in_port)));
 	  }
 	}
       }
