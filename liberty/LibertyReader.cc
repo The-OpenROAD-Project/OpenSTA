@@ -651,8 +651,6 @@ LibertyReader::beginLibrary(LibertyGroup *group)
     library_->units()->currentUnit()->setScale(current_scale_);
     library_->units()->distanceUnit()->setScale(distance_scale_);
 
-
-    library_->setDelayModelType(DelayModelType::cmos_linear);
     scale_factors_ = new ScaleFactors("");
     library_->setScaleFactors(scale_factors_);
   }
