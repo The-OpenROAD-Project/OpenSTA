@@ -400,14 +400,8 @@ Search::deletePaths()
 {
   debugPrint(debug_, "search", 1, "delete paths");
   if (arrivals_exist_) {
-    VertexIterator vertex_iter(graph_);
-    while (vertex_iter.hasNext()) {
-      Vertex *vertex = vertex_iter.next();
-      deletePaths(vertex);
-    }
+    graph_->deletePaths();
     filtered_arrivals_->clear();
-    graph_->clearArrivals();
-    graph_->clearPrevPaths();
     arrivals_exist_ = false;
   }
 }

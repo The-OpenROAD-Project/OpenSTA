@@ -633,13 +633,6 @@ Graph::deleteRequireds(Vertex *vertex,
   vertex->setRequireds(arrival_null);
 }
 
-void
-Graph::clearArrivals()
-{
-  arrivals_.clear();
-  requireds_.clear();
-}
-
 PathVertexRep *
 Graph::makePrevPaths(Vertex *vertex,
 		     uint32_t count)
@@ -674,19 +667,32 @@ Graph::deletePrevPaths(Vertex *vertex,
 }
 
 void
-Graph::clearPrevPaths()
+Graph::deletePaths()
 {
+  arrivals_.clear();
+  requireds_.clear();
   prev_paths_.clear();
+  VertexIterator vertex_iter(graph_);
+  while (vertex_iter.hasNext()) {
+    Vertex *vertex = vertex_iter.next();
+    vertex->setArrivals(arrival_null);
+    vertex->setRequireds(arrival_null);
+    vertex->setPrevPaths(object_id_null);
+    vertex->tag_group_index_ = tag_group_index_max;
+    vertex->crpr_path_pruning_disabled_ = false;
+  }
 }
 
-// No locks.
 void
 Graph::deletePaths(Vertex *vertex,
                    uint32_t count)
 {
   if (vertex->arrivals() != arrival_null) {
+    LockGuard lock(arrivals_lock_);
     arrivals_.destroy(vertex->arrivals(), count);
     vertex->setArrivals(arrival_null);
+    vertex->tag_group_index_ = tag_group_index_max;
+    vertex->crpr_path_pruning_disabled_ = false;
   }
   if (vertex->requireds() != arrival_null) {
     requireds_.destroy(vertex->requireds(), count);
@@ -697,9 +703,6 @@ Graph::deletePaths(Vertex *vertex,
     prev_paths_.destroy(vertex->prevPaths(), count);
     vertex->setPrevPaths(object_id_null);
   }
-
-  vertex->tag_group_index_ = tag_group_index_max;
-  vertex->crpr_path_pruning_disabled_ = false;
 }
 
 ////////////////////////////////////////////////////////////////
