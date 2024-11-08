@@ -107,7 +107,6 @@ public:
   Required *requireds(Vertex *vertex);
   void deleteRequireds(Vertex *vertex,
                        uint32_t count);
-  void clearArrivals();
   size_t arrivalCount() const { return arrivals_.size(); }
   size_t requiredCount() const { return requireds_.size(); }
   PathVertexRep *makePrevPaths(Vertex *vertex,
@@ -115,8 +114,9 @@ public:
   PathVertexRep *prevPaths(Vertex *vertex) const;
   void deletePrevPaths(Vertex *vertex,
                        uint32_t count);
-  void clearPrevPaths();
-  // Private to Search::deletePaths1(Vertex).
+  // Private to Search::deletePaths().
+  void deletePaths();
+  // Private to Search::deletePaths(Vertex).
   void deletePaths(Vertex *vertex,
                    uint32_t count);
 

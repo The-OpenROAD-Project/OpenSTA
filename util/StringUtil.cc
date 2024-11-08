@@ -158,6 +158,7 @@ stringPrintTmp(const char *fmt,
 
   if (tmp_length >= tmp_length1) {
     tmp_length1 = tmp_length + 1;
+    stringDelete(tmp);
     tmp = makeTmpString(tmp_length1);
     va_copy(args_copy, args);
     tmp_length = vsnprint(tmp, tmp_length1, fmt, args_copy);
