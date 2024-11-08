@@ -237,8 +237,10 @@ Search::init(StaState *sta)
   clk_info_set_ = new ClkInfoSet(ClkInfoLess(sta));
   tag_next_ = 0;
   tags_ = new Tag*[tag_capacity_];
+  tags_prev_ = nullptr;
   tag_group_capacity_ = 127;
   tag_groups_ = new TagGroup*[tag_group_capacity_];
+  tag_groups_prev_ = nullptr;
   tag_group_next_ = 0;
   tag_group_set_ = new TagGroupSet(tag_group_capacity_);
   pending_latch_outputs_ = new VertexSet(graph_);
@@ -270,7 +272,9 @@ Search::~Search()
   delete tag_set_;
   delete clk_info_set_;
   delete [] tags_;
+  delete [] tags_prev_;
   delete [] tag_groups_;
+  delete [] tag_groups_prev_;
   delete tag_group_set_;
   delete search_adj_;
   delete eval_pred_;
@@ -2647,15 +2651,15 @@ Search::findTagGroup(TagGroupBldr *tag_bldr)
     // std::vector doesn't seem to follow this protocol so multi-thread
     // search fails occasionally if a vector is used for tag_groups_.
     if (tag_group_next_ == tag_group_capacity_) {
-      TagGroupIndex new_capacity = nextMersenne(tag_group_capacity_);
-      TagGroup **new_tag_groups = new TagGroup*[new_capacity];
-      memcpy(new_tag_groups, tag_groups_,
+      TagGroupIndex tag_capacity = tag_group_capacity_ * 2;
+      TagGroup **tag_groups = new TagGroup*[tag_capacity];
+      memcpy(tag_groups, tag_groups_,
              tag_group_capacity_ * sizeof(TagGroup*));
-      TagGroup **old_tag_groups = tag_groups_;
-      tag_groups_ = new_tag_groups;
-      tag_group_capacity_ = new_capacity;
-      delete [] old_tag_groups;
-      tag_group_set_->reserve(new_capacity);
+      delete [] tag_groups_prev_;
+      tag_groups_prev_ = tag_groups_;
+      tag_groups_ = tag_groups;
+      tag_group_capacity_ = tag_capacity;
+      tag_group_set_->reserve(tag_capacity);
     }
     if (tag_group_next_ > tag_group_index_max)
       report_->critical(1510, "max tag group index exceeded");
@@ -2888,14 +2892,14 @@ Search::findTag(const RiseFall *rf,
     // std::vector doesn't seem to follow this protocol so multi-thread
     // search fails occasionally if a vector is used for tags_.
     if (tag_next_ == tag_capacity_) {
-      TagIndex new_capacity = nextMersenne(tag_capacity_);
-      Tag **new_tags = new Tag*[new_capacity];
-      memcpy(new_tags, tags_, tag_capacity_ * sizeof(Tag*));
-      Tag **old_tags = tags_;
-      tags_ = new_tags;
-      delete [] old_tags;
-      tag_capacity_ = new_capacity;
-      tag_set_->reserve(new_capacity);
+      TagIndex tag_capacity = tag_capacity_ * 2;
+      Tag **tags = new Tag*[tag_capacity];
+      memcpy(tags, tags_, tag_capacity_ * sizeof(Tag*));
+      delete [] tags_prev_;
+      tags_prev_ = tags_;
+      tags_ = tags;
+      tag_capacity_ = tag_capacity;
+      tag_set_->reserve(tag_capacity);
     }
     if (tag_next_ == tag_index_max)
       report_->critical(1511, "max tag index exceeded");
