@@ -309,7 +309,7 @@ proc run_test_valgrind { test cmd_file log_file } {
   }
   file delete $vg_cmd_file
   cleanse_logfile $test $log_file
-  lappend error_msg [cleanse_valgrind_logfile $test $log_file]
+  set error_msg [concat $error_msg [cleanse_valgrind_logfile $test $log_file]]
   return $error_msg
 }
 
