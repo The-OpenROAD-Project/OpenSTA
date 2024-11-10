@@ -144,6 +144,8 @@ public:
 					  RiseFall *rf);
   virtual void visitSlewDerateFromLibrary(LibertyAttr *attr);
 
+  virtual void beginTechnology(LibertyGroup *group);
+  virtual void endTechnology(LibertyGroup *group);
   virtual void beginTableTemplateDelay(LibertyGroup *group);
   virtual void beginTableTemplateOutputCurrent(LibertyGroup *group);
   virtual void beginTableTemplate(LibertyGroup *group,

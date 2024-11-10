@@ -261,6 +261,9 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("index_2", &LibertyReader::visitIndex2);
   defineAttrVisitor("index_3", &LibertyReader::visitIndex3);
 
+  defineGroupVisitor("technology",
+                     &LibertyReader::beginTechnology,
+                     &LibertyReader::endTechnology);
   defineGroupVisitor("rise_transition_degradation",
 		     &LibertyReader::beginRiseTransitionDegredation,
 		     &LibertyReader::endRiseFallTransitionDegredation);
@@ -651,6 +654,7 @@ LibertyReader::beginLibrary(LibertyGroup *group)
     library_->units()->currentUnit()->setScale(current_scale_);
     library_->units()->distanceUnit()->setScale(distance_scale_);
 
+    library_->setDelayModelType(DelayModelType::cmos_linear);
     scale_factors_ = new ScaleFactors("");
     library_->setScaleFactors(scale_factors_);
   }
@@ -1330,6 +1334,21 @@ LibertyReader::visitSlewDerateFromLibrary(LibertyAttr *attr)
 }
 
 ////////////////////////////////////////////////////////////////
+
+void
+LibertyReader::beginTechnology(LibertyGroup *group)
+{
+  if (library_) {
+    const char *tech = group->firstName();
+     if (stringEq(tech, "fpga"))
+       library_->setDelayModelType(DelayModelType::cmos_linear);
+  }
+}
+
+void
+LibertyReader::endTechnology(LibertyGroup *)
+{
+}
 
 void
 LibertyReader::beginTableTemplateDelay(LibertyGroup *group)
