@@ -16,7 +16,7 @@
 
 #include "FindRoot.hh"
 
-#include <algorithm> // abs
+#include <cmath> // abs
 
 namespace sta {
 

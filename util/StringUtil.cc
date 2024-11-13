@@ -19,6 +19,7 @@
 #include <limits>
 #include <cctype>
 #include <cstdio>
+#include <cstdlib> // exit
 #include <array>
 #include <algorithm>
 
