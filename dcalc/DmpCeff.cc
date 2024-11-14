@@ -1516,7 +1516,7 @@ DmpCeffDelayCalc::gateDelay(const Pin *drvr_pin,
     dcalc_result.setGateDelay(gate_delay);
     dcalc_result.setDrvrSlew(drvr_slew);
 
-    for (const auto [load_pin, load_idx] : load_pin_index_map) {
+    for (const auto &[load_pin, load_idx] : load_pin_index_map) {
       ArcDelay wire_delay;
       Slew load_slew;
       loadDelaySlew(load_pin, drvr_slew, rf, drvr_library, parasitic,

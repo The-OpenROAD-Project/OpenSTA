@@ -190,14 +190,15 @@ BfsIterator::visitParallel(Level to_level,
           else {
             size_t from = 0;
             size_t chunk_size = vertex_count / thread_count;
+            BfsIndex bfs_index = bfs_index_;
             for (size_t k = 0; k < thread_count; k++) {
               // Last thread gets the left overs.
               size_t to = (k == thread_count - 1) ? vertex_count : from + chunk_size;
-              dispatch_queue_->dispatch( [&](int) {
+              dispatch_queue_->dispatch( [=](int) {
                 for (size_t i = from; i < to; i++) {
                   Vertex *vertex = level_vertices[i];
                   if (vertex) {
-                    vertex->setBfsInQueue(bfs_index_, false);
+                    vertex->setBfsInQueue(bfs_index, false);
                     visitors[k]->visit(vertex);
                   }
                 }
