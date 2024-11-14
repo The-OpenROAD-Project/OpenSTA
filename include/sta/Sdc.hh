@@ -112,6 +112,18 @@ private:
   const Network *network_;
 };
 
+class NetWireCaps : public MinMaxFloatValues
+{
+public:
+  NetWireCaps();
+  bool subtractPinCap(const MinMax *min_max);
+  void setSubtractPinCap(bool subtrace_pin_cap,
+                         const MinMax *min_max);
+
+private:
+  bool subtract_pin_cap_[MinMax::index_count];
+};
+
 typedef Map<const char*,Clock*, CharPtrLess> ClockNameMap;
 typedef UnorderedMap<const Pin*, ClockSet*, PinIdHash> ClockPinMap;
 typedef Set<InputDelay*> InputDelaySet;
@@ -149,8 +161,8 @@ typedef Map<const Pin*, MinMaxFloatValues> PinCapLimitMap;
 typedef Map<const Port*, MinMaxFloatValues> PortFanoutLimitMap;
 typedef Map<const Cell*, MinMaxFloatValues> CellFanoutLimitMap;
 typedef Map<const Port*, PortExtCap*, PortIdLess> PortExtCapMap;
-typedef Map<const Net*, MinMaxFloatValues, NetIdLess> NetWireCapMap;
-typedef Map<const Pin*, MinMaxFloatValues*, PinIdLess> PinWireCapMap;
+typedef Map<const Net*, NetWireCaps, NetIdLess> NetWireCapMap;
+typedef Map<const Pin*, NetWireCaps*, PinIdLess> PinWireCapMap;
 typedef Map<const Instance*, Pvt*> InstancePvtMap;
 typedef Map<const Edge*, ClockLatency*> EdgeClockLatencyMap;
 typedef Map<const Pin*, RiseFallValues*> PinMinPulseWidthMap;
@@ -595,7 +607,7 @@ public:
 		     bool subtract_pin_cap,
 		     const Corner *corner,
 		     const MinMax *min_max,
-		     float cap);
+		     float wire_cap);
   bool hasNetWireCap(const Net *net) const;
   // True if driver pin net has wire capacitance.
   bool drvrPinHasWireCap(const Pin *pin,
@@ -606,7 +618,8 @@ public:
 		      const MinMax *min_max,
 		      // Return values.
 		      float &cap,
-		      bool &exists) const;
+		      bool &exists,
+                      bool &subtract_pin_cap) const;
   // Pin capacitance derated by operating conditions and instance pvt.
   float pinCapacitance(const Pin *pin,
 		       const RiseFall *rf,
