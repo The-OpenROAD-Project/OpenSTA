@@ -769,7 +769,8 @@ getProperty(const Port *port,
   if (stringEqual(property, "name")
 	   || stringEqual(property, "full_name"))
     return PropertyValue(network->name(port));
-  else if (stringEqual(property, "direction"))
+  else if (stringEqual(property, "direction")
+	   || stringEqual(property, "port_direction"))
     return PropertyValue(network->direction(port)->name());
   else if (stringEqual(property, "liberty_port"))
     return PropertyValue(network->libertyPort(port));
@@ -868,7 +869,8 @@ getProperty(const LibertyPort *port,
     return PropertyValue(port->name());
   else if (stringEqual(property, "lib_cell"))
     return PropertyValue(port->libertyCell());
-  else if (stringEqual(property, "direction"))
+  else if (stringEqual(property, "direction")
+	   || stringEqual(property, "port_direction"))
     return PropertyValue(port->direction()->name());
   else if (stringEqual(property, "capacitance")) {
     float cap = port->capacitance(RiseFall::rise(), MinMax::max());
@@ -974,7 +976,8 @@ getProperty(const Pin *pin,
     return PropertyValue(network->portName(pin));
   else if (stringEqual(property, "full_name"))
     return PropertyValue(network->pathName(pin));
-  else if (stringEqual(property, "direction"))
+  else if (stringEqual(property, "direction")
+  	   || stringEqual(property, "pin_direction"))
     return PropertyValue(network->direction(pin)->name());
   else if (stringEqual(property, "is_hierarchical"))
     return PropertyValue(network->isHierarchical(pin));
