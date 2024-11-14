@@ -193,7 +193,7 @@ BfsIterator::visitParallel(Level to_level,
             for (size_t k = 0; k < thread_count; k++) {
               // Last thread gets the left overs.
               size_t to = (k == thread_count - 1) ? vertex_count : from + chunk_size;
-              dispatch_queue_->dispatch( [=](int) {
+              dispatch_queue_->dispatch( [&](int) {
                 for (size_t i = from; i < to; i++) {
                   Vertex *vertex = level_vertices[i];
                   if (vertex) {

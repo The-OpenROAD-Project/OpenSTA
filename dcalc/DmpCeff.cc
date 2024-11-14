@@ -343,7 +343,7 @@ DmpAlg::findDriverParams(double ceff)
   x_[DmpParam::dt] = dt;
   x_[DmpParam::t0] = t0;
   newtonRaphson(100, x_, nr_order_, driver_param_tol,
-                [=] () { evalDmpEqns(); },
+                [this] () { evalDmpEqns(); },
 		fvec_, fjac_, index_, p_, scale_);
   t0_ = x_[DmpParam::t0];
   dt_ = x_[DmpParam::dt];
@@ -494,7 +494,7 @@ DmpAlg::findVoCrossing(double vth,
                        double t_lower,
                        double t_upper)
 {
-  FindRootFunc vo_func = [=] (double t,
+  FindRootFunc vo_func = [&] (double t,
                               double &y,
                               double &dy) {
     double vo, vo_dt;
@@ -612,7 +612,7 @@ DmpAlg::findVlCrossing(double vth,
                        double t_lower,
                        double t_upper)
 {
-  FindRootFunc vl_func = [=] (double t,
+  FindRootFunc vl_func = [&] (double t,
                               double &y,
                               double &dy) {
     double vl, vl_dt;

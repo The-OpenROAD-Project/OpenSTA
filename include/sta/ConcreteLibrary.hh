@@ -38,7 +38,7 @@ class LibertyCell;
 class LibertyPort;
 
 typedef Map<const char*, ConcreteCell*, CharPtrLess> ConcreteCellMap;
-typedef Map<string, string> AttributeMap;
+typedef std::map<string, string> AttributeMap;
 typedef Vector<ConcretePort*> ConcretePortSeq;
 typedef Map<const char*, ConcretePort*, CharPtrLess> ConcretePortMap;
 typedef ConcreteCellMap::ConstIterator ConcreteLibraryCellIterator;
