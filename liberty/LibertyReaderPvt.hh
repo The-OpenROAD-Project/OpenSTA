@@ -618,7 +618,6 @@ protected:
   PortGroupSeq cell_port_groups_;
   OperatingConditions *op_cond_;
   LibertyPortSeq *ports_;
-  LibertyPort *port_;		// Used by test_cell.
   PortGroup *port_group_;
   LibertyPortSeq *saved_ports_;
   PortGroup *saved_port_group_;

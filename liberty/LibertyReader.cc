@@ -96,7 +96,6 @@ LibertyReader::init(const char *filename,
   ocv_derate_name_ = nullptr;
   op_cond_ = nullptr;
   ports_ = nullptr;
-  port_ = nullptr;
   port_group_ = nullptr;
   saved_ports_ = nullptr;
   saved_port_group_ = nullptr;
@@ -3171,11 +3170,6 @@ LibertyReader::beginPin(LibertyGroup *group)
     port_group_ = new PortGroup(ports_, group->line());
     cell_port_groups_.push_back(port_group_);
   }
-  if (test_cell_) {
-    const char *pin_name = group->firstName();
-    if (pin_name)
-      port_ = findPort(save_cell_, pin_name);
-  }
 }
 
 void
@@ -3188,7 +3182,6 @@ LibertyReader::endPin(LibertyGroup *)
       port_group_ = saved_port_group_;
     }
   }
-  port_ = nullptr;
 }
 
 void
@@ -3786,7 +3779,7 @@ LibertyReader::visitIsPllFeedbackPin(LibertyAttr *attr)
 void
 LibertyReader::visitSignalType(LibertyAttr *attr)
 {
-  if (test_cell_ && port_) {
+  if (test_cell_ && ports_) {
     const char *type = getAttrString(attr);
     if (type) {
       ScanSignalType signal_type = ScanSignalType::none;
@@ -3812,8 +3805,8 @@ LibertyReader::visitSignalType(LibertyAttr *attr)
         libWarn(1299, attr, "unknown signal_type %s.", type);
         return;
       }
-      if (port_)
-        port_->setScanSignalType(signal_type);
+      for (LibertyPort *port : *ports_)
+        port->setScanSignalType(signal_type);
     }
   }
 }

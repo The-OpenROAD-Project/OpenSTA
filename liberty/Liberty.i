@@ -339,6 +339,12 @@ set_direction(const char *dir)
   self->setDirection(PortDirection::find(dir));
 }
 
+const char *
+scan_signal_type()
+{
+  return scanSignalTypeName(self->scanSignalType());
+}
+
 } // LibertyPort methods
 
 %extend TimingArcSet {
