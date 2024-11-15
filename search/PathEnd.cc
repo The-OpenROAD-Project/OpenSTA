@@ -1945,7 +1945,9 @@ PathEndPathDelay::requiredTime(const StaState *sta) const
 {
   float delay = path_delay_->delay();
   if (path_delay_->ignoreClkLatency()) {
-    float src_offset = path_.isClock(sta) ? path_.clkEdge(sta)->time() : src_clk_arrival_;
+    Required src_offset = path_.isClock(sta)
+      ? path_.clkEdge(sta)->time()
+      : src_clk_arrival_;
     return src_offset + delay
       + ((minMax(sta) == MinMax::max()) ? -margin(sta) : margin(sta));
   }
