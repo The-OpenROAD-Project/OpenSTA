@@ -726,6 +726,33 @@ proc get_instances_error { arg_name arglist } {
   return $insts
 }
 
+proc get_libcells_error { arg_name arglist } {
+  set libcells {}
+  # Copy backslashes that will be removed by foreach.
+  set arglist [string map {\\ \\\\} $arglist]
+  foreach arg $arglist {
+    if {[llength $arg] > 1} {
+      # Embedded list.
+      set libcells [concat $libcells [get_libcells_error $arg_name $arg]]
+    } elseif { [is_object $arg] } {
+      set object_type [object_type $arg]
+      if { $object_type == "LibertyCell" } {
+        lappend libcells $arg
+      } else {
+        sta_error 128 "$arg_name type '$object_type' is not a liberty cell."
+      }
+    } elseif { $arg != {} } {
+      set arg_libcells [get_lib_cells -quiet $arg]
+      if { $arg_libcells != {} } {
+        set libcells [concat $libcells $arg_libcells]
+      } else {
+        sta_error 129 "liberty cell '$arg' not found."
+      }
+    }
+  }
+  return $libcells
+}
+
 proc get_port_pin_warn { arg_name arg } {
   return [get_port_pin_arg $arg_name $arg "warn"]
 }
