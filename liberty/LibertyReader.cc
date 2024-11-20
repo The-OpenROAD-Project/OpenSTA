@@ -373,6 +373,10 @@ LibertyReader::defineVisitors()
                     &LibertyReader::visitLevelShifterDataPin);
   defineAttrVisitor("switch_pin", &LibertyReader::visitSwitchPin);
 
+  // Memory
+  defineGroupVisitor("memory", &LibertyReader::beginMemory,
+		     &LibertyReader::endMemory);
+
   // Register/latch
   defineGroupVisitor("ff", &LibertyReader::beginFF, &LibertyReader::endFF);
   defineGroupVisitor("ff_bank", &LibertyReader::beginFFBank,
@@ -3847,6 +3851,21 @@ LibertyReader::visitPortBoolAttr(LibertyAttr *attr,
 	(port->*setter)(value);
     }
   }
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+LibertyReader::beginMemory(LibertyGroup *)
+{
+  if (cell_) {
+    cell_->setIsMemory(true);
+  }
+}
+
+void
+LibertyReader::endMemory(LibertyGroup *)
+{
 }
 
 ////////////////////////////////////////////////////////////////

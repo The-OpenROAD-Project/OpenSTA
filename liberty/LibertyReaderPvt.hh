@@ -291,6 +291,9 @@ public:
   virtual void endWireloadSelection(LibertyGroup *group);
   virtual void visitWireloadFromArea(LibertyAttr *attr);
 
+  virtual void beginMemory(LibertyGroup *group);
+  virtual void endMemory(LibertyGroup *group);
+
   virtual void beginFF(LibertyGroup *group);
   virtual void endFF(LibertyGroup *group);
   virtual void beginFFBank(LibertyGroup *group);

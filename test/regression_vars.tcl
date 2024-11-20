@@ -126,6 +126,7 @@ record_sta_tests {
   verilog_attribute
   liberty_arcs_one2one_1
   liberty_arcs_one2one_2
+  get_is_memory
   get_filter
   get_noargs
   get_objrefs
