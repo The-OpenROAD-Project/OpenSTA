@@ -2422,8 +2422,8 @@ Sta::findPathEnds(ExceptionFrom *from,
 		  bool unconstrained,
 		  const Corner *corner,
 		  const MinMaxAll *min_max,
-		  int group_count,
-		  int endpoint_count,
+		  int group_path_count,
+		  int endpoint_path_count,
 		  bool unique_pins,
 		  float slack_min,
 		  float slack_max,
@@ -2438,7 +2438,7 @@ Sta::findPathEnds(ExceptionFrom *from,
 {
   searchPreamble();
   return search_->findPathEnds(from, thrus, to, unconstrained,
-			       corner, min_max, group_count, endpoint_count,
+			       corner, min_max, group_path_count, endpoint_path_count,
 			       unique_pins, slack_min, slack_max,
 			       sort_by_slack, group_names,
 			       setup, hold,
@@ -2678,7 +2678,7 @@ Sta::findGroupPathPins(const char *group_path_name)
                                         nullptr, nullptr, nullptr, false,
                                         // corner, min_max, 
                                         nullptr, MinMaxAll::max(),
-                                        // group_count, endpoint_count, unique_pins
+                                        // group_path_count, endpoint_path_count, unique_pins
                                         1, 1, false,
                                         -INF, INF, // slack_min, slack_max,
                                         false, // sort_by_slack

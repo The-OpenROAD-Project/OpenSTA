@@ -89,8 +89,8 @@ public:
                           bool unconstrained,
                           const Corner *corner,
                           const MinMaxAll *min_max,
-                          int group_count,
-                          int endpoint_count,
+                          int group_path_count,
+                          int endpoint_path_count,
                           bool unique_pins,
                           float slack_min,
                           float slack_max,
@@ -156,8 +156,8 @@ public:
 
   PathGroup *pathGroup(const PathEnd *path_end) const;
   void deletePathGroups();
-  void makePathGroups(int group_count,
-                      int endpoint_count,
+  void makePathGroups(int group_path_count,
+                      int endpoint_path_count,
                       bool unique_pins,
                       float min_slack,
                       float max_slack,

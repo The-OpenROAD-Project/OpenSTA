@@ -91,8 +91,8 @@ define_cmd_args "find_timing_paths" \
      [-path_delay min|min_rise|min_fall|max|max_rise|max_fall|min_max]\
      [-unconstrained]
      [-corner corner]\
-     [-group_count path_count] \
-     [-endpoint_count path_count]\
+     [-group_path_count path_count] \
+     [-endpoint_path_count path_count]\
      [-unique_paths_to_endpoint]\
      [-slack_max slack_max]\
      [-slack_min slack_min]\
@@ -111,6 +111,7 @@ proc find_timing_paths_cmd { cmd args_var } {
   parse_key_args $cmd args \
     keys {-from -rise_from -fall_from -to -rise_to -fall_to \
 	    -path_delay -corner -group_count -endpoint_count \
+	    -group_path_count -endpoint_path_count \
 	    -slack_max -slack_min -path_group} \
     flags {-unconstrained -sort_by_slack -unique_paths_to_endpoint} 0
 
@@ -158,21 +159,31 @@ proc find_timing_paths_cmd { cmd args_var } {
 
   set corner [parse_corner_or_all keys]
 
-  set endpoint_count 1
-  if [info exists keys(-endpoint_count)] {
-    set endpoint_count $keys(-endpoint_count)
-    if { $endpoint_count < 1 } {
-      sta_error 512 "-endpoint_count must be a positive integer."
-    }
+  set endpoint_path_count 1
+  if { [info exists keys(-endpoint_count)] } {
+    # deprecated 2024-11-22
+    sta_warn 502 "$cmd -endpoint_count is deprecated. Use -endpoint_path_count instead."
+    set endpoint_path_count $keys(-endpoint_count)
+  }
+  if [info exists keys(-endpoint_path_count)] {
+    set endpoint_path_count $keys(-endpoint_path_count)
+  }
+  if { $endpoint_path_count < 1 } {
+    sta_error 512 "-endpoint_path_count must be a positive integer."
   }
 
-  set group_count $endpoint_count
-  if [info exists keys(-group_count)] {
-    set group_count $keys(-group_count)
-    check_positive_integer "-group_count" $group_count
-    if { $group_count < 1 } {
-      sta_error 513 "-group_count must be >= 1."
-    }
+  set group_path_count $endpoint_path_count
+  if { [info exists keys(-group_count)] } {
+    # deprecated 2024-11-22
+    sta_warn 503 "$cmd -group_count is deprecated. Use -group_path_count instead."
+    set group_path_count $keys(-group_count)
+  }
+  if [info exists keys(-group_path_count)] {
+    set group_path_count $keys(-group_path_count)
+  }
+  check_positive_integer "-group_path_count" $group_path_count
+  if { $group_path_count < 1 } {
+    sta_error 513 "-group_path_count must be >= 1."
   }
 
   set unique_pins [info exists flags(-unique_paths_to_endpoint)]
@@ -210,7 +221,7 @@ proc find_timing_paths_cmd { cmd args_var } {
 
   set path_ends [find_path_ends $from $thrus $to $unconstrained \
 		   $corner $min_max \
-		   $group_count $endpoint_count $unique_pins \
+		   $group_path_count $endpoint_path_count $unique_pins \
 		   $slack_min $slack_max \
 		   $sort_by_slack $groups \
 		   1 1 1 1 1 1]
@@ -394,8 +405,8 @@ define_cmd_args "report_checks" \
      [-unconstrained]\
      [-path_delay min|min_rise|min_fall|max|max_rise|max_fall|min_max]\
      [-corner corner]\
-     [-group_count path_count] \
-     [-endpoint_count path_count]\
+     [-group_path_count path_count] \
+     [-endpoint_path_count path_count]\
      [-unique_paths_to_endpoint]\
      [-slack_max slack_max]\
      [-slack_min slack_min]\
@@ -551,16 +562,16 @@ proc_redirect report_check_types {
       set path_min_max "min"
     }
     if { $violators } {
-      set group_count $sta::group_count_max
+      set group_path_count $sta::group_path_count_max
       set slack_min [expr -$sta::float_inf]
       set slack_max 0.0
     } else {
-      set group_count 1
+      set group_path_count 1
       set slack_min [expr -$sta::float_inf]
       set slack_max $sta::float_inf
     }
     set path_ends [find_path_ends "NULL" {} "NULL" 0 \
-		     $corner $path_min_max $group_count 1 0 \
+		     $corner $path_min_max $group_path_count 1 0 \
 		     $slack_min $slack_max \
 		     0 {} \
 		     $setup $hold \

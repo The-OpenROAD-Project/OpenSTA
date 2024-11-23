@@ -862,11 +862,11 @@ public:
                                   const MinMaxAll *min_max,
                                   // Number of path ends to report in
                                   // each group.
-                                  int group_count,
+                                  int group_path_count,
                                   // Number of paths to report for
                                   // each endpoint.
-                                  int endpoint_count,
-                                  // endpoint_count paths report unique pins
+                                  int endpoint_path_count,
+                                  // endpoint_path_count paths report unique pins
                                   // without rise/fall variations.
                                   bool unique_pins,
                                   // Min/max bounds for slack of

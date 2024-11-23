@@ -40,15 +40,15 @@ public:
   virtual ~PathGroup();
   // Path group that compares compare slacks.
   static PathGroup *makePathGroupArrival(const char *name,
-					 int group_count,
-					 int endpoint_count,
+					 int group_path_count,
+					 int endpoint_path_count,
 					 bool unique_pins,
 					 const MinMax *min_max,
 					 const StaState *sta);
   // Path group that compares arrival time, sorted by min_max.
   static PathGroup *makePathGroupSlack(const char *name,
-				       int group_count,
-				       int endpoint_count,
+				       int group_path_count,
+				       int endpoint_path_count,
 				       bool unique_pins,
 				       float min_slack,
 				       float max_slack,
@@ -57,20 +57,20 @@ public:
   const MinMax *minMax() const { return min_max_;}
   const PathEndSeq &pathEnds() const { return path_ends_; }
   void insert(PathEnd *path_end);
-  // Push group_count into path_ends.
+  // Push group_path_count into path_ends.
   void pushEnds(PathEndSeq &path_ends);
   // Predicates to determine if a PathEnd is worth saving.
   virtual bool savable(PathEnd *path_end);
-  int maxPaths() const { return group_count_; }
+  int maxPaths() const { return group_path_count_; }
   PathGroupIterator *iterator();
   // This does NOT delete the path ends.
   void clear();
-  static int group_count_max;
+  static int group_path_count_max;
   
 protected:
   PathGroup(const char *name,
-	    int group_count,
-	    int endpoint_count,
+	    int group_path_count,
+	    int endpoint_path_count,
 	    bool unique_pins,
 	    float min_slack,
 	    float max_slack,
@@ -82,8 +82,8 @@ protected:
   void sort();
 
   const char *name_;
-  int group_count_;
-  int endpoint_count_;
+  int group_path_count_;
+  int endpoint_path_count_;
   bool unique_pins_;
   float slack_min_;
   float slack_max_;
@@ -98,8 +98,8 @@ protected:
 class PathGroups : public StaState
 {
 public:
-  PathGroups(int group_count,
-	     int endpoint_count,
+  PathGroups(int group_path_count,
+	     int endpoint_path_count,
 	     bool unique_pins,
 	     float slack_min,
 	     float slack_max,
@@ -130,8 +130,8 @@ public:
 
 protected:
   void makeGroupPathEnds(ExceptionTo *to,
-			 int group_count,
-			 int endpoint_count,
+			 int group_path_count,
+			 int endpoint_path_count,
 			 bool unique_pins,
 			 const Corner *corner,
 			 const MinMaxAll *min_max);
@@ -144,8 +144,8 @@ protected:
 			 const MinMaxAll *min_max,
 			 PathEndVisitor *visitor);
   void enumPathEnds(PathGroup *group,
-		    int group_count,
-		    int endpoint_count,
+		    int group_path_count,
+		    int endpoint_path_count,
 		    bool unique_pins,
 		    bool cmp_slack);
 
@@ -153,8 +153,8 @@ protected:
   void pushUnconstrainedPathEnds(PathEndSeq &path_ends,
 				 const MinMaxAll *min_max);
 
-  void makeGroups(int group_count,
-		  int endpoint_count,
+  void makeGroups(int group_path_count,
+		  int endpoint_path_count,
 		  bool unique_pins,
 		  float slack_min,
 		  float slack_max,
@@ -168,8 +168,8 @@ protected:
 		   PathGroupNameSet *group_names) const;
   GroupPath *groupPathTo(const PathEnd *path_end) const;
 
-  int group_count_;
-  int endpoint_count_;
+  int group_path_count_;
+  int endpoint_path_count_;
   bool unique_pins_;
   float slack_min_;
   float slack_max_;
