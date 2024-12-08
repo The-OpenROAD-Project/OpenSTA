@@ -2429,10 +2429,16 @@ ReportPath::reportRequired(const PathEnd *end,
 {
   Required req_time = end->requiredTimeOffset(this);
   const EarlyLate *early_late = end->clkEarlyLate(this);
+  float macro_clk_tree_delay = end->macroClkTreeDelay(this);
   ArcDelay margin = end->margin(this);
-  if (end->minMax(this) == MinMax::max())
+  if (end->minMax(this) == MinMax::min()) {
     margin = -margin;
-  reportLine(margin_msg.c_str(), margin, req_time, early_late);
+    macro_clk_tree_delay = -macro_clk_tree_delay;
+  }
+  if (macro_clk_tree_delay != 0.0)
+    reportLine("macro clock tree delay", -macro_clk_tree_delay,
+               req_time + margin, early_late);
+  reportLine(margin_msg.c_str(), -margin, req_time, early_late);
   reportLine("data required time", req_time, early_late);
   reportDashLine();
 }

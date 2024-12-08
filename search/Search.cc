@@ -2139,6 +2139,18 @@ PathVisitor::visitFromPath(const Pin *from_pin,
     if (clk == nullptr
 	|| !sdc_->clkStopPropagation(from_pin, clk)) {
       arc_delay = search_->deratedDelay(from_vertex, arc, edge, false, path_ap);
+
+      // Remove clock network delay for macros created with propagated
+      // clocks when used in a context with ideal clocks.
+      if (clk && clk->isIdeal()) {
+        const LibertyPort *clk_port = network_->libertyPort(from_pin);
+        const LibertyCell *inst_cell = clk_port->libertyCell();
+        if (inst_cell->isMacro()) {
+          float slew = delayAsFloat(from_path->slew(this));
+          arc_delay -= clk_port->clkTreeDelay(slew, from_rf, min_max);
+        }
+      }
+
       // Propagate from unclocked reg/latch clk pins, which have no
       // clk but are distinguished with a segment_start flag.
       if ((clk_edge == nullptr

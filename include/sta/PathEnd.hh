@@ -101,6 +101,7 @@ public:
   // Required time with source clock offset.
   virtual Required requiredTimeOffset(const StaState *sta) const;
   virtual ArcDelay margin(const StaState *sta) const = 0;
+  virtual float macroClkTreeDelay(const StaState *) const { return 0.0; }
   virtual Slack slack(const StaState *sta) const = 0;
   virtual Slack slackNoCrpr(const StaState *sta) const = 0;
   virtual Arrival borrow(const StaState *sta) const;
@@ -324,6 +325,7 @@ public:
   virtual void reportFull(ReportPath *report) const;
   virtual bool isCheck() const { return true; }
   virtual ArcDelay margin(const StaState *sta) const;
+  virtual float macroClkTreeDelay(const StaState *sta) const;
   virtual TimingRole *checkRole(const StaState *sta) const;
   virtual TimingArc *checkArc() const { return check_arc_; }
   virtual int exceptPathCmp(const PathEnd *path_end,
@@ -339,6 +341,7 @@ protected:
 	       Crpr crpr,
 	       bool crpr_valid);
   Delay sourceClkDelay(const StaState *sta) const;
+  virtual Required requiredTimeNoCrpr(const StaState *sta) const;
 
   TimingArc *check_arc_;
   Edge *check_edge_;

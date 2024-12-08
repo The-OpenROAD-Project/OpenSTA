@@ -185,6 +185,7 @@ LibertyWriter::writeHeader()
   if (exists)
     fprintf(stream_, "  default_fanout_load            : %.2f;\n", fanout_load);
   fprintf(stream_, "\n");
+
   fprintf(stream_, "  nom_process                    : %.1f;\n",
           library_->nominalProcess());
   fprintf(stream_, "  nom_temperature                : %.1f;\n",

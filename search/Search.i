@@ -154,6 +154,7 @@ init_sta()
   initSta();
 }
 
+// Clear all state except network.
 void
 clear_sta()
 {

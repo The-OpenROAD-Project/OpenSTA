@@ -52,6 +52,7 @@ public:
   int index() const { return index_; }
   bool isPropagated() const { return is_propagated_; }
   void setIsPropagated(bool propagated);
+  bool isIdeal() const { return !is_propagated_; }
   // Ideal clock slew.
   void slew(const RiseFall *rf,
 	    const MinMax *min_max,

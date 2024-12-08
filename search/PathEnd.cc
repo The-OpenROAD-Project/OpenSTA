@@ -1048,6 +1048,40 @@ PathEndCheck::sourceClkDelay(const StaState *sta) const
     return 0.0;
 }
 
+Required
+PathEndCheck::requiredTimeNoCrpr(const StaState *sta) const
+{
+  Arrival tgt_clk_arrival = targetClkArrivalNoCrpr(sta);
+  ArcDelay check_margin = margin(sta);
+  float macro_clk_tree_delay = macroClkTreeDelay(sta);
+  if (checkGenericRole(sta) == TimingRole::setup())
+    return tgt_clk_arrival - (check_margin + macro_clk_tree_delay);
+  else
+    return tgt_clk_arrival + (check_margin - macro_clk_tree_delay);
+}
+
+float
+PathEndCheck::macroClkTreeDelay(const StaState *sta) const
+{
+  const ClockEdge *tgt_clk_edge = targetClkEdge(sta);
+  const Clock *tgt_clk = tgt_clk_edge->clock();
+  const Network *network = sta->network();
+  const Pin *clk_pin = clk_path_.pin(sta);
+  const Instance *inst = network->instance(clk_pin);
+  const LibertyCell *inst_cell = network->libertyCell(inst);
+  if (tgt_clk->isIdeal()
+      && inst_cell && inst_cell->isMacro()) {
+    LibertyPort *clk_port = network->libertyPort(clk_pin);
+    if (clk_port) {
+      const MinMax *min_max = clk_path_.minMax(sta);
+      const RiseFall *rf = clk_path_.transition(sta);
+      float slew = delayAsFloat(clk_path_.slew(sta));
+      return clk_port->clkTreeDelay(slew, rf, min_max);
+    }
+  }
+  return 0.0;
+}
+
 ////////////////////////////////////////////////////////////////
 
 PathEndLatchCheck::PathEndLatchCheck(Path *path,
