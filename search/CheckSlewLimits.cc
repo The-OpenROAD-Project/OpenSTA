@@ -88,92 +88,155 @@ CheckSlewLimits::CheckSlewLimits(const StaState *sta) :
 }
 
 void
+CheckSlewLimits::checkSlewLimits(const Pin *pin,
+                                 bool violators,
+                                 const Corner *corner,
+                                 const MinMax *min_max,
+                                 PinSeq &slew_pins,
+                                 float &min_slack)
+{
+  const Corner *corner1;
+  const RiseFall *rf;
+  Slew slew;
+  float limit, slack;
+  checkSlew(pin, corner, min_max, true, corner1, rf, slew, limit, slack);
+  if (!fuzzyInf(slack)) {
+    if (violators) {
+      if (slack < 0.0)
+        slew_pins.push_back(pin);
+    }
+    else {
+      if (slew_pins.empty()
+          || slack < min_slack) {
+        slew_pins.push_back(pin);
+        min_slack = slack;
+      }
+    }
+  }
+}
+
+void
 CheckSlewLimits::checkSlew(const Pin *pin,
 			   const Corner *corner,
 			   const MinMax *min_max,
 			   bool check_clks,
 			   // Return values.
 			   const Corner *&corner1,
-			   const RiseFall *&rf,
-			   Slew &slew,
-			   float &limit,
-			   float &slack) const
+			   const RiseFall *&rf1,
+			   Slew &slew1,
+			   float &limit1,
+			   float &slack1) const
 {
   corner1 = nullptr;
-  rf = nullptr;
-  slew = 0.0;
-  limit = 0.0;
-  slack = MinMax::min()->initValue();
-  if (corner)
-    checkSlews1(pin, corner, min_max, check_clks,
-		corner1, rf, slew, limit, slack);
-  else {
-    for (auto corner : *sta_->corners()) {
-      checkSlews1(pin, corner, min_max, check_clks,
-		  corner1, rf, slew, limit, slack);
+  rf1 = nullptr;
+  slew1 = 0.0;
+  limit1 = 0.0;
+  slack1 = MinMax::min()->initValue();
+
+  Vertex *vertex, *bidirect_drvr_vertex;
+  sta_->graph()->pinVertices(pin, vertex, bidirect_drvr_vertex);
+  if (vertex)
+    checkSlew1(pin, vertex, corner, min_max, check_clks,
+               corner1, rf1, slew1, limit1, slack1);
+  if (bidirect_drvr_vertex)
+    checkSlew1(pin, bidirect_drvr_vertex, corner, min_max, check_clks,
+               corner1, rf1, slew1, limit1, slack1);
+}
+
+void
+CheckSlewLimits::checkSlew1(const Pin *pin,
+                            const Vertex *vertex,
+                            const Corner *corner,
+                            const MinMax *min_max,
+                            bool check_clks,
+                            // Return values.
+                            const Corner *&corner1,
+                            const RiseFall *&rf1,
+                            Slew &slew1,
+                            float &limit1,
+                            float &slack1) const
+{
+  if (!vertex->isDisabledConstraint()
+      && !vertex->isConstant()
+      && !sta_->clkNetwork()->isIdealClock(pin)) {
+    ClockSet clks;
+    if (check_clks)
+      clks = clockDomains(vertex);
+    if (corner)
+      checkSlew2(pin, vertex, corner, min_max, clks,
+                 corner1, rf1, slew1, limit1, slack1);
+    else {
+      for (auto corner : *sta_->corners()) {
+        checkSlew2(pin, vertex, corner, min_max, clks,
+                   corner1, rf1, slew1, limit1, slack1);
+      }
     }
   }
 }
 
 void
-CheckSlewLimits::checkSlews1(const Pin *pin,
-			     const Corner *corner,
-			     const MinMax *min_max,
-			     bool check_clks,
-			     // Return values.
-			     const Corner *&corner1,
-			     const RiseFall *&rf1,
-			     Slew &slew1,
-			     float &limit1,
-			     float &slack1) const
+CheckSlewLimits::checkSlew2(const Pin *pin,
+                            const Vertex *vertex,
+                            const Corner *corner,
+                            const MinMax *min_max,
+                            const ClockSet &clks,
+                            // Return values.
+                            const Corner *&corner1,
+                            const RiseFall *&rf1,
+                            Slew &slew1,
+                            float &limit1,
+                            float &slack1) const
 {
-  Vertex *vertex, *bidirect_drvr_vertex;
-  sta_->graph()->pinVertices(pin, vertex, bidirect_drvr_vertex);
-  if (vertex)
-    checkSlews1(vertex, corner, min_max, check_clks,
-		corner1, rf1, slew1, limit1, slack1);
-  if (bidirect_drvr_vertex)
-    checkSlews1(bidirect_drvr_vertex, corner, min_max, check_clks,
-		corner1, rf1, slew1, limit1, slack1);
-}
-  
-void
-CheckSlewLimits::checkSlews1(Vertex *vertex,
-			     const Corner *corner,
-			     const MinMax *min_max,
-			     bool check_clks,
-			     // Return values.
-			     const Corner *&corner1,
-			     const RiseFall *&rf1,
-			     Slew &slew1,
-			     float &limit1,
-			     float &slack1) const
-{
-  const Pin *pin = vertex->pin();
-  if (!vertex->isDisabledConstraint()
-      && !vertex->isConstant()
-      && !sta_->clkNetwork()->isIdealClock(pin)) {
-    for (auto rf : RiseFall::range()) {
-      float limit;
-      bool exists;
-      findLimit(pin, vertex, corner, rf, min_max, check_clks,
-		limit, exists);
-      if (exists) {
-	checkSlew(vertex, corner, rf, min_max, limit,
-		  corner1, rf1, slew1, slack1, limit1);
-      }
+  for (const RiseFall *rf : RiseFall::range()) {
+    float limit;
+    bool exists;
+    findLimit(pin, corner, rf, min_max, clks,
+              limit, exists);
+    if (exists) {
+      checkSlew3(vertex, corner, rf, min_max, limit,
+                 corner1, rf1, slew1, slack1, limit1);
     }
+  }
+}
+
+void
+CheckSlewLimits::checkSlew3(const Vertex *vertex,
+                            const Corner *corner,
+                            const RiseFall *rf,
+                            const MinMax *min_max,
+                            float limit,
+                            // Return values.
+                            const Corner *&corner1,
+                            const RiseFall *&rf1,
+                            Slew &slew1,
+                            float &slack1,
+                            float &limit1) const
+{
+  const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
+  Slew slew = sta_->graph()->slew(vertex, rf, dcalc_ap->index());
+  float slew2 = delayAsFloat(slew);
+  float slack = (min_max == MinMax::max())
+    ? limit - slew2 : slew2 - limit;
+  if (corner1 == nullptr
+      || (slack < slack1
+	  // Break ties for the sake of regression stability.
+	  || (fuzzyEqual(slack, slack1)
+	      && rf->index() < rf1->index()))) {
+    corner1 = corner;
+    rf1 = rf;
+    slew1 = slew;
+    slack1 = slack;
+    limit1 = limit;
   }
 }
 
 // Return the tightest limit.
 void
 CheckSlewLimits::findLimit(const Pin *pin,
-			   const Vertex *vertex,
                            const Corner *corner,
 			   const RiseFall *rf,
 			   const MinMax *min_max,
-			   bool check_clks,
+			   const ClockSet &clks,
 			   // Return values.
 			   float &limit,
 			   bool &exists) const
@@ -186,14 +249,10 @@ CheckSlewLimits::findLimit(const Pin *pin,
 
   float limit1;
   bool exists1;
-  if (check_clks) {
+  if (!clks.empty()) {
     // Look for clock slew limits.
     bool is_clk = sta_->clkNetwork()->isIdealClock(pin);
-    ClockSet clks;
-    clockDomains(vertex, clks);
-    ClockSet::Iterator clk_iter(clks);
-    while (clk_iter.hasNext()) {
-      Clock *clk = clk_iter.next();
+    for (Clock *clk : clks) {
       PathClkOrData clk_data = is_clk ? PathClkOrData::clk : PathClkOrData::data;
       sdc->slewLimit(clk, rf, clk_data, min_max,
 		     limit1, exists1);
@@ -284,11 +343,10 @@ CheckSlewLimits::findLimit(const LibertyPort *port,
   }
 }
 
-void
-CheckSlewLimits::clockDomains(const Vertex *vertex,
-			      // Return value.
-			      ClockSet &clks) const
+ClockSet
+CheckSlewLimits::clockDomains(const Vertex *vertex) const
 {
+  ClockSet clks;
   VertexPathIterator path_iter(const_cast<Vertex*>(vertex), sta_);
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
@@ -296,37 +354,7 @@ CheckSlewLimits::clockDomains(const Vertex *vertex,
     if (clk)
       clks.insert(const_cast<Clock*>(clk));
   }
-}
-
-void
-CheckSlewLimits::checkSlew(Vertex *vertex,
-			   const Corner *corner,
-			   const RiseFall *rf,
-			   const MinMax *min_max,
-			   float limit,
-			   // Return values.
-			   const Corner *&corner1,
-			   const RiseFall *&rf1,
-			   Slew &slew1,
-			   float &slack1,
-			   float &limit1) const
-{
-  const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
-  Slew slew = sta_->graph()->slew(vertex, rf, dcalc_ap->index());
-  float slew2 = delayAsFloat(slew);
-  float slack = (min_max == MinMax::max())
-    ? limit - slew2 : slew2 - limit;
-  if (corner1 == nullptr
-      || (slack < slack1
-	  // Break ties for the sake of regression stability.
-	  || (fuzzyEqual(slack, slack1)
-	      && rf->index() < rf1->index()))) {
-    corner1 = corner;
-    rf1 = rf;
-    slew1 = slew;
-    slack1 = slack;
-    limit1 = limit;
-  }
+  return clks;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -381,34 +409,6 @@ CheckSlewLimits::checkSlewLimits(const Instance *inst,
     checkSlewLimits(pin, violators, corner, min_max, slew_pins, min_slack);
   }
   delete pin_iter;
-}
-
-void
-CheckSlewLimits::checkSlewLimits(const Pin *pin,
-                                 bool violators,
-                                 const Corner *corner,
-                                 const MinMax *min_max,
-                                 PinSeq &slew_pins,
-                                 float &min_slack)
-{
-  const Corner *corner1;
-  const RiseFall *rf;
-  Slew slew;
-  float limit, slack;
-  checkSlew(pin, corner, min_max, true, corner1, rf, slew, limit, slack);
-  if (!fuzzyInf(slack)) {
-    if (violators) {
-      if (slack < 0.0)
-        slew_pins.push_back(pin);
-    }
-    else {
-      if (slew_pins.empty()
-          || slack < min_slack) {
-        slew_pins.push_back(pin);
-        min_slack = slack;
-      }
-    }
-  }
 }
 
 } // namespace
