@@ -89,8 +89,8 @@ public:
                           bool unconstrained,
                           const Corner *corner,
                           const MinMaxAll *min_max,
-                          int group_count,
-                          int endpoint_count,
+                          int group_path_count,
+                          int endpoint_path_count,
                           bool unique_pins,
                           float slack_min,
                           float slack_max,
@@ -156,8 +156,8 @@ public:
 
   PathGroup *pathGroup(const PathEnd *path_end) const;
   void deletePathGroups();
-  void makePathGroups(int group_count,
-                      int endpoint_count,
+  void makePathGroups(int group_path_count,
+                      int endpoint_path_count,
                       bool unique_pins,
                       float min_slack,
                       float max_slack,
@@ -583,12 +583,14 @@ protected:
   // Entries in tags_ may be missing where previous filter tags were deleted.
   TagIndex tag_capacity_;
   Tag **tags_;
+  Tag **tags_prev_;
   TagIndex tag_next_;
   // Holes in tags_ left by deleting filter tags.
   std::vector<TagIndex> tag_free_indices_;
   std::mutex tag_lock_;
   TagGroupSet *tag_group_set_;
   TagGroup **tag_groups_;
+  TagGroup **tag_groups_prev_;
   TagGroupIndex tag_group_next_;
   // Holes in tag_groups_ left by deleting filter tag groups.
   std::vector<TagIndex> tag_group_free_indices_;

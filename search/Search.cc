@@ -237,8 +237,10 @@ Search::init(StaState *sta)
   clk_info_set_ = new ClkInfoSet(ClkInfoLess(sta));
   tag_next_ = 0;
   tags_ = new Tag*[tag_capacity_];
+  tags_prev_ = nullptr;
   tag_group_capacity_ = 127;
   tag_groups_ = new TagGroup*[tag_group_capacity_];
+  tag_groups_prev_ = nullptr;
   tag_group_next_ = 0;
   tag_group_set_ = new TagGroupSet(tag_group_capacity_);
   pending_latch_outputs_ = new VertexSet(graph_);
@@ -270,7 +272,9 @@ Search::~Search()
   delete tag_set_;
   delete clk_info_set_;
   delete [] tags_;
+  delete [] tags_prev_;
   delete [] tag_groups_;
+  delete [] tag_groups_prev_;
   delete tag_group_set_;
   delete search_adj_;
   delete eval_pred_;
@@ -438,8 +442,8 @@ Search::findPathEnds(ExceptionFrom *from,
 		     bool unconstrained,
 		     const Corner *corner,
 		     const MinMaxAll *min_max,
-		     int group_count,
-		     int endpoint_count,
+		     int group_path_count,
+		     int endpoint_path_count,
 		     bool unique_pins,
 		     float slack_min,
 		     float slack_max,
@@ -457,7 +461,7 @@ Search::findPathEnds(ExceptionFrom *from,
     recovery = removal = false;
   if (!sdc_->gatedClkChecksEnabled())
     clk_gating_setup = clk_gating_hold = false;
-  makePathGroups(group_count, endpoint_count, unique_pins,
+  makePathGroups(group_path_count, endpoint_path_count, unique_pins,
                  slack_min, slack_max,
                  group_names, setup, hold,
                  recovery, removal,
@@ -2135,6 +2139,18 @@ PathVisitor::visitFromPath(const Pin *from_pin,
     if (clk == nullptr
 	|| !sdc_->clkStopPropagation(from_pin, clk)) {
       arc_delay = search_->deratedDelay(from_vertex, arc, edge, false, path_ap);
+
+      // Remove clock network delay for macros created with propagated
+      // clocks when used in a context with ideal clocks.
+      if (clk && clk->isIdeal()) {
+        const LibertyPort *clk_port = network_->libertyPort(from_pin);
+        const LibertyCell *inst_cell = clk_port->libertyCell();
+        if (inst_cell->isMacro()) {
+          float slew = delayAsFloat(from_path->slew(this));
+          arc_delay -= clk_port->clkTreeDelay(slew, from_rf, min_max);
+        }
+      }
+
       // Propagate from unclocked reg/latch clk pins, which have no
       // clk but are distinguished with a segment_start flag.
       if ((clk_edge == nullptr
@@ -2146,10 +2162,8 @@ PathVisitor::visitFromPath(const Pin *from_pin,
 	      // passed thru reg/latch D->Q edges.
 	      && from_tag->isClock())) {
 	const RiseFall *clk_rf = clk_edge ? clk_edge->transition() : nullptr;
-	ClkInfo *to_clk_info = from_clk_info;
-	if (network_->direction(to_pin)->isInternal())
-	  to_clk_info = search_->clkInfoWithCrprClkPath(from_clk_info,
-                                                        from_path, path_ap);
+	ClkInfo *to_clk_info = search_->clkInfoWithCrprClkPath(from_clk_info,
+                                                               from_path, path_ap);
 	to_tag = search_->fromRegClkTag(from_pin, from_rf, clk, clk_rf,
                                         to_clk_info, to_pin, to_rf, min_max,
                                         path_ap);
@@ -2647,15 +2661,15 @@ Search::findTagGroup(TagGroupBldr *tag_bldr)
     // std::vector doesn't seem to follow this protocol so multi-thread
     // search fails occasionally if a vector is used for tag_groups_.
     if (tag_group_next_ == tag_group_capacity_) {
-      TagGroupIndex new_capacity = nextMersenne(tag_group_capacity_);
-      TagGroup **new_tag_groups = new TagGroup*[new_capacity];
-      memcpy(new_tag_groups, tag_groups_,
+      TagGroupIndex tag_capacity = tag_group_capacity_ * 2;
+      TagGroup **tag_groups = new TagGroup*[tag_capacity];
+      memcpy(tag_groups, tag_groups_,
              tag_group_capacity_ * sizeof(TagGroup*));
-      TagGroup **old_tag_groups = tag_groups_;
-      tag_groups_ = new_tag_groups;
-      tag_group_capacity_ = new_capacity;
-      delete [] old_tag_groups;
-      tag_group_set_->reserve(new_capacity);
+      delete [] tag_groups_prev_;
+      tag_groups_prev_ = tag_groups_;
+      tag_groups_ = tag_groups;
+      tag_group_capacity_ = tag_capacity;
+      tag_group_set_->reserve(tag_capacity);
     }
     if (tag_group_next_ > tag_group_index_max)
       report_->critical(1510, "max tag group index exceeded");
@@ -2888,14 +2902,14 @@ Search::findTag(const RiseFall *rf,
     // std::vector doesn't seem to follow this protocol so multi-thread
     // search fails occasionally if a vector is used for tags_.
     if (tag_next_ == tag_capacity_) {
-      TagIndex new_capacity = nextMersenne(tag_capacity_);
-      Tag **new_tags = new Tag*[new_capacity];
-      memcpy(new_tags, tags_, tag_capacity_ * sizeof(Tag*));
-      Tag **old_tags = tags_;
-      tags_ = new_tags;
-      delete [] old_tags;
-      tag_capacity_ = new_capacity;
-      tag_set_->reserve(new_capacity);
+      TagIndex tag_capacity = tag_capacity_ * 2;
+      Tag **tags = new Tag*[tag_capacity];
+      memcpy(tags, tags_, tag_capacity_ * sizeof(Tag*));
+      delete [] tags_prev_;
+      tags_prev_ = tags_;
+      tags_ = tags;
+      tag_capacity_ = tag_capacity;
+      tag_set_->reserve(tag_capacity);
     }
     if (tag_next_ == tag_index_max)
       report_->critical(1511, "max tag index exceeded");
@@ -3982,8 +3996,8 @@ Search::wnsSlack(Vertex *vertex,
 ////////////////////////////////////////////////////////////////
 
 void
-Search::makePathGroups(int group_count,
-		       int endpoint_count,
+Search::makePathGroups(int group_path_count,
+		       int endpoint_path_count,
 		       bool unique_pins,
 		       float slack_min,
 		       float slack_max,
@@ -3995,7 +4009,8 @@ Search::makePathGroups(int group_count,
 		       bool clk_gating_setup,
 		       bool clk_gating_hold)
 {
-  path_groups_ = new PathGroups(group_count, endpoint_count, unique_pins,
+  path_groups_ = new PathGroups(group_path_count, endpoint_path_count,
+			        unique_pins,
                                 slack_min, slack_max,
                                 group_names,
                                 setup, hold,

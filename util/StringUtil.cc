@@ -19,12 +19,16 @@
 #include <limits>
 #include <cctype>
 #include <cstdio>
+#include <cstdlib> // exit
 #include <array>
+#include <algorithm>
 
 #include "Machine.hh"
 #include "Mutex.hh"
 
 namespace sta {
+
+using std::max;
 
 static void
 stringPrintTmp(const char *fmt,
@@ -158,7 +162,6 @@ stringPrintTmp(const char *fmt,
 
   if (tmp_length >= tmp_length1) {
     tmp_length1 = tmp_length + 1;
-    stringDelete(tmp);
     tmp = makeTmpString(tmp_length1);
     va_copy(args_copy, args);
     tmp_length = vsnprint(tmp, tmp_length1, fmt, args_copy);
@@ -200,9 +203,10 @@ makeTmpString(size_t length)
   if (tmp_length < length) {
     // String isn't long enough.  Make a new one.
     delete [] tmp_str;
-    tmp_str = new char[length];
+    tmp_length = max(tmp_string_initial_length, length);
+    tmp_str = new char[tmp_length];
     tmp_strings[tmp_string_next] = tmp_str;
-    tmp_string_lengths[tmp_string_next] = length;
+    tmp_string_lengths[tmp_string_next] = tmp_length;
   }
   tmp_string_next++;
   return tmp_str;

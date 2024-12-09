@@ -946,9 +946,9 @@ ConcreteParasitics::findPiElmore(const Pin *drvr_pin,
 				 const RiseFall *rf,
 				 const ParasiticAnalysisPt *ap) const
 {
+  LockGuard lock(lock_);
   if (!drvr_parasitic_map_.empty()) {
     int ap_rf_index = parasiticAnalysisPtIndex(ap, rf);
-    LockGuard lock(lock_);
     ConcreteParasitic **parasitics = drvr_parasitic_map_.findKey(drvr_pin);
     if (parasitics) {
       ConcreteParasitic *parasitic = parasitics[ap_rf_index];

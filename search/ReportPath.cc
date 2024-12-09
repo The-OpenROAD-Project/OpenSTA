@@ -1103,7 +1103,7 @@ ReportPath::reportJson(const PathEnd *end,
 
   if (end->checkRole(this)) {
     stringAppend(result, "  \"data_arrival_time\": %.3e,\n",
-                 end->dataArrivalTimeOffset(this));
+                 delayAsFloat(end->dataArrivalTimeOffset(this)));
 
     const MultiCyclePath *mcp = end->multiCyclePath();
     if (mcp)
@@ -1115,11 +1115,14 @@ ReportPath::reportJson(const PathEnd *end,
       stringAppend(result, "  \"path_delay\": %.3e,\n",
                    path_delay->delay());
 
-    stringAppend(result, "  \"crpr\": %.3e,\n", end->checkCrpr(this));
-    stringAppend(result, "  \"margin\": %.3e,\n", end->margin(this));
+    stringAppend(result, "  \"crpr\": %.3e,\n",
+                 delayAsFloat(end->checkCrpr(this)));
+    stringAppend(result, "  \"margin\": %.3e,\n",
+                 delayAsFloat(end->margin(this)));
     stringAppend(result, "  \"required_time\": %.3e,\n",
-                 end->requiredTimeOffset(this));
-    stringAppend(result, "  \"slack\": %.3e\n", end->slack(this));
+                 delayAsFloat(end->requiredTimeOffset(this)));
+    stringAppend(result, "  \"slack\": %.3e\n",
+                 delayAsFloat(end->slack(this)));
   }
   result += "}";
   if (!last)
@@ -2426,10 +2429,16 @@ ReportPath::reportRequired(const PathEnd *end,
 {
   Required req_time = end->requiredTimeOffset(this);
   const EarlyLate *early_late = end->clkEarlyLate(this);
+  float macro_clk_tree_delay = end->macroClkTreeDelay(this);
   ArcDelay margin = end->margin(this);
-  if (end->minMax(this) == MinMax::max())
+  if (end->minMax(this) == MinMax::min()) {
     margin = -margin;
-  reportLine(margin_msg.c_str(), margin, req_time, early_late);
+    macro_clk_tree_delay = -macro_clk_tree_delay;
+  }
+  if (macro_clk_tree_delay != 0.0)
+    reportLine("macro clock tree delay", -macro_clk_tree_delay,
+               req_time + margin, early_late);
+  reportLine(margin_msg.c_str(), -margin, req_time, early_late);
   reportLine("data required time", req_time, early_late);
   reportDashLine();
 }

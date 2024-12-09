@@ -38,7 +38,7 @@ class ConcreteBindingTbl;
 class ConcreteLibertyLibraryIterator;
 
 typedef Vector<ConcreteLibrary*> ConcreteLibrarySeq;
-typedef Map<string, string> AttributeMap;
+typedef std::map<string, string> AttributeMap;
 typedef Map<const char*, ConcreteLibrary*, CharPtrLess> ConcreteLibraryMap;
 typedef ConcreteLibrarySeq::ConstIterator ConcreteLibraryIterator;
 typedef Map<const char *, ConcreteInstance*,

@@ -86,7 +86,7 @@ ParallelDelayCalc::gateDelaysParallel(ArcDcalcArgSeq &dcalc_args,
       slew_sum += 1.0 / drvr_slew;
 
     dcalc_result.setLoadCount(load_pin_index_map.size());
-    for (const auto [load_pin, load_idx] : load_pin_index_map) {
+    for (const auto &[load_pin, load_idx] : load_pin_index_map) {
       dcalc_result.setWireDelay(load_idx, gate_result.wireDelay(load_idx));
       dcalc_result.setLoadSlew(load_idx, gate_result.loadSlew(load_idx));
     }

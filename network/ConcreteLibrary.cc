@@ -272,15 +272,15 @@ void
 ConcreteCell::setAttribute(const string &key,
                            const string &value)
 {
-  attribute_map_.insert(key, value);
+  attribute_map_[key] = value;
 }
 
 string
 ConcreteCell::getAttribute(const string &key) const 
 {
-  if (attribute_map_.hasKey(key)) {
-    return attribute_map_.findKey(key);
-  }
+  const auto &itr = attribute_map_.find(key);
+  if (itr != attribute_map_.end())
+    return itr->second;
   return "";
 }
 

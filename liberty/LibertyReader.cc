@@ -262,6 +262,9 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("index_2", &LibertyReader::visitIndex2);
   defineAttrVisitor("index_3", &LibertyReader::visitIndex3);
 
+  defineGroupVisitor("technology",
+                     &LibertyReader::beginTechnology,
+                     &LibertyReader::endTechnology);
   defineGroupVisitor("rise_transition_degradation",
 		     &LibertyReader::beginRiseTransitionDegredation,
 		     &LibertyReader::endRiseFallTransitionDegredation);
@@ -371,6 +374,10 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("level_shifter_data_pin",
                     &LibertyReader::visitLevelShifterDataPin);
   defineAttrVisitor("switch_pin", &LibertyReader::visitSwitchPin);
+
+  // Memory
+  defineGroupVisitor("memory", &LibertyReader::beginMemory,
+		     &LibertyReader::endMemory);
 
   // Register/latch
   defineGroupVisitor("ff", &LibertyReader::beginFF, &LibertyReader::endFF);
@@ -652,6 +659,7 @@ LibertyReader::beginLibrary(LibertyGroup *group)
     library_->units()->currentUnit()->setScale(current_scale_);
     library_->units()->distanceUnit()->setScale(distance_scale_);
 
+    library_->setDelayModelType(DelayModelType::cmos_linear);
     scale_factors_ = new ScaleFactors("");
     library_->setScaleFactors(scale_factors_);
   }
@@ -1331,6 +1339,21 @@ LibertyReader::visitSlewDerateFromLibrary(LibertyAttr *attr)
 }
 
 ////////////////////////////////////////////////////////////////
+
+void
+LibertyReader::beginTechnology(LibertyGroup *group)
+{
+  if (library_) {
+    const char *tech = group->firstName();
+     if (stringEq(tech, "fpga"))
+       library_->setDelayModelType(DelayModelType::cmos_linear);
+  }
+}
+
+void
+LibertyReader::endTechnology(LibertyGroup *)
+{
+}
 
 void
 LibertyReader::beginTableTemplateDelay(LibertyGroup *group)
@@ -3771,7 +3794,7 @@ LibertyReader::visitIsPllFeedbackPin(LibertyAttr *attr)
 void
 LibertyReader::visitSignalType(LibertyAttr *attr)
 {
-  if (test_cell_ && port_) {
+  if (test_cell_ && ports_) {
     const char *type = getAttrString(attr);
     if (type) {
       ScanSignalType signal_type = ScanSignalType::none;
@@ -3801,6 +3824,9 @@ LibertyReader::visitSignalType(LibertyAttr *attr)
         port_->setScanSignalType(signal_type);
       if (test_port_)
         test_port_->setScanSignalType(signal_type);
+
+      for (LibertyPort *port : *ports_)
+        port->setScanSignalType(signal_type);
     }
   }
 }
@@ -3841,6 +3867,21 @@ LibertyReader::visitPortBoolAttr(LibertyAttr *attr,
 	(port->*setter)(value);
     }
   }
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+LibertyReader::beginMemory(LibertyGroup *)
+{
+  if (cell_) {
+    cell_->setIsMemory(true);
+  }
+}
+
+void
+LibertyReader::endMemory(LibertyGroup *)
+{
 }
 
 ////////////////////////////////////////////////////////////////

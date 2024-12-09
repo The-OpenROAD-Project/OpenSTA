@@ -20,6 +20,7 @@
 #include "VcdReader.hh"
 
 #include "Zlib.hh"
+#include "Stats.hh"
 #include "Report.hh"
 #include "Error.hh"
 #include "StringUtil.hh"
@@ -79,6 +80,7 @@ VcdReader::read(const char *filename)
   vcd_ = &vcd;
   stream_ = gzopen(filename, "r");
   if (stream_) {
+    Stats stats(debug_, report_);
     filename_ = filename;
     file_line_ = 1;
     stmt_line_ = 1;
@@ -113,6 +115,7 @@ VcdReader::read(const char *filename)
       token = getToken();
     }
     gzclose(stream_);
+    stats.report("Read VCD");
   }
   else
     throw FileNotReadable(filename);

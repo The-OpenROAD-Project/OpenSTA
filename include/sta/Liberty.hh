@@ -1147,5 +1147,7 @@ private:
 
 string
 portLibertyToSta(const char *port_name);
+const char *
+scanSignalTypeName(ScanSignalType scan_type);
 
 } // namespace

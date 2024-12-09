@@ -16,13 +16,16 @@
 
 #pragma once
 
+#include <string>
+
 namespace sta {
+
+using std::string;
 
 class Unit
 {
 public:
   Unit(const char *suffix);
-  ~Unit();
   Unit(float scale,
        const char *suffix,
        int digits);
@@ -34,9 +37,9 @@ public:
   float scale() const { return scale_; }
   void setScale(float scale);
   const char *scaleAbbreviation() const;
-  const char *suffix() const { return suffix_; }
+  const char *suffix() const { return suffix_.c_str(); }
   // scale abbreviation + suffix
-  const char *scaledSuffix() const { return scaled_suffix_; }
+  const char *scaledSuffix() const { return scaled_suffix_.c_str(); }
   void setSuffix(const char *suffix);
   int digits() const { return digits_; }
   void setDigits(int digits);
@@ -51,8 +54,8 @@ private:
   void setScaledSuffix();
 
   float scale_;			// multiplier from user units to internal units
-  const char *suffix_;		// print suffix
-  const char *scaled_suffix_;
+  string suffix_;		// print suffix
+  string scaled_suffix_;
   int digits_;			// print digits (after decimal pt)
 };
 

@@ -3057,14 +3057,18 @@ Sdc::drvrPinWireCap(const Pin *pin,
 		    const MinMax *min_max,
 		    // Return values.
 		    float &cap,
-		    bool &exists) const
+		    bool &exists,
+                    bool &subtract_pin_cap) const
 {
-  MinMaxFloatValues *values = drvr_pin_wire_cap_maps_[corner->index()].findKey(pin);
-  if (values)
-    values->value(min_max, cap, exists);
+  NetWireCaps *net_caps = drvr_pin_wire_cap_maps_[corner->index()].findKey(pin);
+  if (net_caps) {
+    net_caps->value(min_max, cap, exists);
+    subtract_pin_cap = net_caps->subtractPinCap(min_max);
+  }
   else {
     cap = 0.0;
     exists = false;
+    subtract_pin_cap = false;
   }
 }
 
@@ -3073,27 +3077,15 @@ Sdc::setNetWireCap(const Net *net,
 		   bool subtract_pin_cap,
 		   const Corner *corner,
 		   const MinMax *min_max,
-		   float cap)
+		   float wire_cap)
 {
-  float wire_cap = cap;
-  if (subtract_pin_cap) {
-    NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(net);
-    if (pin_iter->hasNext()) {
-      const Pin *pin = pin_iter->next();
-      float pin_cap_rise = connectedPinCap(pin, RiseFall::rise(), corner, min_max);
-      float pin_cap_fall = connectedPinCap(pin, RiseFall::fall(), corner, min_max);
-      float pin_cap = (pin_cap_rise + pin_cap_fall) / 2.0F;
-      wire_cap -= pin_cap;
-      if ((wire_cap + pin_cap) < 0.0)
-	wire_cap = -pin_cap;
-      delete pin_iter;
-    }
-  }
-  MinMaxFloatValues &values = net_wire_cap_maps_[corner->index()][net];
-  values.setValue(min_max, wire_cap);
+  NetWireCaps &net_caps = net_wire_cap_maps_[corner->index()][net];
+  net_caps.setValue(min_max, wire_cap);
+  net_caps.setSubtractPinCap(subtract_pin_cap, min_max);
+
 
   for (const Pin *pin : *network_->drivers(net))
-    drvr_pin_wire_cap_maps_[corner->index()][pin] = &values;
+    drvr_pin_wire_cap_maps_[corner->index()][pin] = &net_caps;
 }
 
 bool
@@ -3121,7 +3113,10 @@ Sdc::connectedCap(const Pin *pin,
 {
   netCaps(pin, rf, corner, min_max, pin_cap, wire_cap, fanout, has_net_load);
   float net_wire_cap;
-  drvrPinWireCap(pin, corner, min_max, net_wire_cap, has_net_load);
+  bool subtract_pin_cap;
+  drvrPinWireCap(pin, corner, min_max, net_wire_cap, has_net_load, subtract_pin_cap);
+  if (subtract_pin_cap)
+    pin_cap = 0.0;
   if (has_net_load)
     wire_cap += net_wire_cap;
 }
@@ -5798,6 +5793,26 @@ findLeafDriverPins(const Pin *pin,
   }
   else
     leaf_pins->insert(pin);
+}
+
+////////////////////////////////////////////////////////////////
+
+NetWireCaps::NetWireCaps() :
+  subtract_pin_cap_{false, false}
+{
+}
+
+bool
+NetWireCaps::subtractPinCap(const MinMax *min_max)
+{
+  return subtract_pin_cap_[min_max->index()];
+}
+
+void
+NetWireCaps::setSubtractPinCap(bool subtrace_pin_cap,
+                               const MinMax *min_max)
+{
+  subtract_pin_cap_[min_max->index()] = subtrace_pin_cap;
 }
 
 } // namespace

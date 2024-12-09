@@ -1,0 +1,4 @@
+[get_cells -filter is_memory]
+sram_inst
+[get_lib_cells -filter is_memory]
+gf180mcu_fd_ip_sram__sram128x8m8wm1__ff_125C_1v98/gf180mcu_fd_ip_sram__sram128x8m8wm1

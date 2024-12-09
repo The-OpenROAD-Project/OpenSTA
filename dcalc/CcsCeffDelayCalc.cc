@@ -314,7 +314,7 @@ CcsCeffDelayCalc::makeResult(const LibertyLibrary *drvr_library,
   dcalc_result.setGateDelay(gate_delay);
   dcalc_result.setDrvrSlew(drvr_slew);
 
-  for (const auto [load_pin, load_idx] : load_pin_index_map) {
+  for (const auto &[load_pin, load_idx] : load_pin_index_map) {
     ArcDelay wire_delay;
     Slew load_slew;
     loadDelaySlew(load_pin, drvr_library, rf, drvr_slew, wire_delay, load_slew);
@@ -452,9 +452,9 @@ CcsCeffDelayCalc::findVlTime(double v,
   double t_init = region_ramp_times_[0];
   double t_final = region_ramp_times_[region_count_];
   bool root_fail = false;
-  double time = findRoot([=] (double t,
-                             double &y,
-                             double &dy) {
+  double time = findRoot([&] (double t,
+                              double &y,
+                              double &dy) {
     vl(t, elmore, y, dy);
     y -= v;
   }, t_init, t_final + elmore * 3.0, .001, 20, root_fail);

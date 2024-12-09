@@ -2139,6 +2139,25 @@ LibertyPort::setScanSignalType(ScanSignalType type)
   scan_signal_type_ = type;
 }
 
+static EnumNameMap<ScanSignalType> scan_signal_type_map =
+  {{ScanSignalType::enable, "enable"},
+   {ScanSignalType::enable_inverted, "enable_inverted"},
+   {ScanSignalType::clock, "clock"},
+   {ScanSignalType::clock_a, "clock_a"},
+   {ScanSignalType::clock_b, "clock_b"},
+   {ScanSignalType::input, "input"},
+   {ScanSignalType::input_inverted, "input_inverted"},
+   {ScanSignalType::output, "output"},
+   {ScanSignalType::output_inverted, "output_inverted"},
+   {ScanSignalType::none, "none"}};
+
+
+const char *
+scanSignalTypeName(ScanSignalType scan_type)
+{
+  return scan_signal_type_map.find(scan_type);
+}
+
 LibertyPort *
 LibertyPort::findLibertyMember(int index) const
 {
