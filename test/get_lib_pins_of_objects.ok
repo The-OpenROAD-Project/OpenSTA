@@ -1,0 +1,15 @@
+[get_lib_pins -of_objects [get_lib_cells asap7_small/AND2x2_ASAP7_75t_R]]
+A
+B
+Y
+[get_lib_pins -of_objects [get_lib_cells *]]
+A
+A
+B
+CLK
+D
+IQ
+IQN
+Q
+Y
+Y

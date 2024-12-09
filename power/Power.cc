@@ -20,6 +20,7 @@
 #include <cmath>     // abs
 
 #include "cudd.h"
+#include "Stats.hh"
 #include "Debug.hh"
 #include "EnumNameMap.hh"
 #include "Hash.hh"
@@ -233,6 +234,7 @@ Power::power(const Corner *corner,
   pad.clear();
 
   ensureActivities();
+  Stats stats(debug_, report_);
   LeafInstanceIterator *inst_iter = network_->leafInstanceIterator();
   while (inst_iter->hasNext()) {
     Instance *inst = inst_iter->next();
@@ -255,6 +257,7 @@ Power::power(const Corner *corner,
     }
   }
   delete inst_iter;
+  stats.report("Find power");
 }
 
 bool
@@ -617,6 +620,7 @@ Power::ensureActivities()
   // No need to propagate activites if global activity is set.
   if (!global_activity_.isSet()) {
     if (!activities_valid_) {
+      Stats stats(debug_, report_);
       // Clear existing activities.
       activity_map_.clear();
       seq_activity_map_.clear();
@@ -646,6 +650,7 @@ Power::ensureActivities()
                    pass, visitor.maxChange());
         pass++;
       }
+      stats.report("Find power activities");
       activities_valid_ = true;
     }
   }

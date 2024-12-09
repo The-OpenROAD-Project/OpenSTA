@@ -29,8 +29,7 @@ using std::abs;
 
 Unit::Unit(const char *suffix) :
   scale_(1.0),
-  suffix_(stringCopy(suffix)),
-  scaled_suffix_(nullptr),
+  suffix_(suffix),
   digits_(3)
 {
   setScaledSuffix();
@@ -40,8 +39,7 @@ Unit::Unit(float scale,
 	   const char *suffix,
 	   int digits) :
   scale_(scale),
-  suffix_(stringCopy(suffix)),
-  scaled_suffix_(nullptr),
+  suffix_(suffix),
   digits_(digits)
 {
   setScaledSuffix();
@@ -50,24 +48,15 @@ Unit::Unit(float scale,
 void
 Unit::setScaledSuffix()
 {
-  stringDelete(scaled_suffix_);
-  scaled_suffix_ = stringPrint("%s%s", scaleAbbreviation(), suffix_);
-}
-
-Unit::~Unit()
-{
-  stringDelete(suffix_);
-  stringDelete(scaled_suffix_);
+  scaled_suffix_ = scaleAbbreviation() + suffix_;
 }
 
 void
 Unit::operator=(const Unit &unit)
 {
   scale_ = unit.scale_;
-  stringDelete(suffix_);
-  suffix_ = stringCopy(unit.suffix_);
-  stringDelete(scaled_suffix_);
-  scaled_suffix_ = stringCopy(unit.scaled_suffix_);
+  suffix_ = unit.suffix_;
+  scaled_suffix_ = unit.scaled_suffix_;
   digits_ = unit.digits_;
 }
 
@@ -116,8 +105,7 @@ Unit::scaleAbbreviation() const
 void
 Unit::setSuffix(const char *suffix)
 {
-  stringDelete(suffix_);
-  suffix_ = stringCopy(suffix);
+  suffix_ = suffix;
   setScaledSuffix();
 }
 

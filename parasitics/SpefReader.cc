@@ -17,6 +17,7 @@
 #include "SpefReader.hh"
 
 #include "Zlib.hh"
+#include "Stats.hh"
 #include "Report.hh"
 #include "Debug.hh"
 #include "StringUtil.hh"
@@ -64,6 +65,7 @@ readSpefFile(const char *filename,
   // Use zlib to uncompress gzip'd files automagically.
   gzFile stream = gzopen(filename, "rb");
   if (stream) {
+    Stats stats(sta->debug(), sta->report());
     SpefReader reader(filename, stream, instance, ap,
 		      pin_cap_included, keep_coupling_caps, coupling_cap_factor,
 		      reduce, corner, min_max, sta);
@@ -73,6 +75,7 @@ readSpefFile(const char *filename,
     success = (::SpefParse_parse() == 0);
     gzclose(stream);
     spef_reader = nullptr;
+    stats.report("Read spef");
   }
   else
     throw FileNotReadable(filename);

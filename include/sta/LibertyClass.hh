@@ -43,7 +43,6 @@ class TableAxis;
 class GateTimingModel;
 class CheckTimingModel;
 class ScaleFactors;
-class Group;
 class Wireload;
 class WireloadSelection;
 class TimingArcSet;

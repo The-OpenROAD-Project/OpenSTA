@@ -143,7 +143,7 @@ private:
 
 %inline %{
 
-int group_count_max = PathGroup::group_count_max;
+int group_path_count_max = PathGroup::group_path_count_max;
 
 ////////////////////////////////////////////////////////////////
 
@@ -154,6 +154,7 @@ init_sta()
   initSta();
 }
 
+// Clear all state except network.
 void
 clear_sta()
 {
@@ -217,7 +218,7 @@ endpoints()
 }
 
 size_t
-endpoint_count()
+endpoint_path_count()
 {
   return Sta::sta()->endpointPins().size();
 }
@@ -318,7 +319,7 @@ vertex_worst_slack_path(Vertex *vertex,
 }
 
 int
-tag_group_count()
+tag_group_path_count()
 {
   return Sta::sta()->tagGroupCount();
 }
@@ -429,8 +430,8 @@ find_path_ends(ExceptionFrom *from,
 	       bool unconstrained,
 	       Corner *corner,
 	       const MinMaxAll *delay_min_max,
-	       int group_count,
-	       int endpoint_count,
+	       int group_path_count,
+	       int endpoint_path_count,
 	       bool unique_pins,
 	       float slack_min,
 	       float slack_max,
@@ -447,7 +448,8 @@ find_path_ends(ExceptionFrom *from,
   Sta *sta = Sta::sta();
   PathEndSeq ends = sta->findPathEnds(from, thrus, to, unconstrained,
                                       corner, delay_min_max,
-                                      group_count, endpoint_count, unique_pins,
+                                      group_path_count, endpoint_path_count,
+				      unique_pins,
                                       slack_min, slack_max,
                                       sort_by_slack,
                                       groups->size() ? groups : nullptr,

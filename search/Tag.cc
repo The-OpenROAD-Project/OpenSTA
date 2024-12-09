@@ -607,7 +607,7 @@ tagStateEqual(ExceptionStateSet *states1,
     return false;
 }
 
-// Match false, loop exception states only for crpr min/max paths.
+// Match loop exception states only for crpr min/max paths.
 static bool
 tagStateEqualCrpr(const Tag *tag1,
 		  const Tag *tag2)
@@ -622,8 +622,7 @@ tagStateEqualCrpr(const Tag *tag1,
     while (state_iter1.hasNext()) {
       state1 = state_iter1.next();
       ExceptionPath *exception1 = state1->exception();
-      if (exception1->isFalse()
-	  || exception1->isLoop())
+      if (exception1->isLoop())
 	break;
       else
 	state1 = nullptr;
@@ -632,8 +631,7 @@ tagStateEqualCrpr(const Tag *tag1,
     while (state_iter2.hasNext()) {
       state2 = state_iter2.next();
       ExceptionPath *exception2 = state2->exception();
-      if (exception2->isFalse()
-	  || exception2->isLoop())
+      if (exception2->isLoop())
 	break;
       else
 	state2 = nullptr;

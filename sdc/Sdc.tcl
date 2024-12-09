@@ -643,14 +643,16 @@ proc get_lib_cells { args } {
 ################################################################
 
 define_cmd_args "get_lib_pins" \
-  {[-hsc separator] [-regexp] [-nocase] [-quiet] [-filter expr] [patterns]}
+  {[-hsc separator] [-regexp] [-nocase] [-quiet] [-filter expr]\
+     [-of_objects objects] [patterns]}
 
 define_cmd_alias "get_lib_pin" "get_lib_pins"
 
 # "get_lib_ports" in sta terminology.
 proc get_lib_pins { args } {
   global hierarchy_separator
-  parse_key_args "get_lib_pins" args keys {-hsc -filter} flags {-regexp -nocase -quiet}
+  parse_key_args "get_lib_pins" args keys {-hsc -of_objects -filter} \
+    flags {-regexp -nocase -quiet}
   check_argc_eq0or1 "get_lib_pins" $args
   check_nocase_flag flags
   
@@ -672,48 +674,58 @@ proc get_lib_pins { args } {
   set port_regexp1 [port_regexp_hsc $divider]
   set port_regexp2 [cell_regexp_hsc $divider]
   set ports {}
-  foreach pattern $patterns {
-    if { [is_object $pattern] } {
-      if { [object_type $pattern] != "LibertyPort" } {
-	sta_error 329 "object '$pattern' is not a liberty pin."
-      }
-      set ports [concat $ports $pattern]
-    } else {
-      # match library/cell/port
-      set libs {}
-      if { [regexp $port_regexp1 $pattern ignore lib_name cell_name port_pattern] } {
-	set libs [get_libs -quiet $lib_name]
-	# match cell/port
-      } elseif { [regexp $port_regexp2 $pattern ignore cell_name port_pattern] } {
-	set libs [get_libs *]
-      } else {
-	if { !$quiet } {
-	  sta_warn 355 "library/cell/port '$pattern' not found."
+  if [info exists keys(-of_objects)] {
+    if { $args != {} } {
+      sta_warn 335 "positional arguments not supported with -of_objects."
+    }
+    set libcells [get_libcells_error "objects" $keys(-of_objects)]
+    foreach libcell $libcells {
+      lappend ports {*}[$libcell find_liberty_ports_matching * 0 1]
+    }
+  } else {
+    foreach pattern $patterns {
+      if { [is_object $pattern] } {
+	if { [object_type $pattern] != "LibertyPort" } {
+	  sta_error 329 "object '$pattern' is not a liberty pin."
 	}
-	return {}
-      }
-      if { $libs != {} } {
-	set found_match 0
-	set cells {}
-	foreach lib $libs {
-	  set cells [$lib find_liberty_cells_matching $cell_name $regexp $nocase]
-	  foreach cell $cells {
-	    set matches [$cell find_liberty_ports_matching $port_pattern \
-	  		 $regexp $nocase]
-	    foreach match $matches {
-	      lappend ports $match
-	      set found_match 1
+	set ports [concat $ports $pattern]
+      } else {
+	# match library/cell/port
+	set libs {}
+	if { [regexp $port_regexp1 $pattern ignore lib_name cell_name port_pattern] } {
+	  set libs [get_libs -quiet $lib_name]
+	  # match cell/port
+	} elseif { [regexp $port_regexp2 $pattern ignore cell_name port_pattern] } {
+	  set libs [get_libs *]
+	} else {
+	  if { !$quiet } {
+	    sta_warn 355 "library/cell/port '$pattern' not found."
+	  }
+	  return {}
+	}
+	if { $libs != {} } {
+	  set found_match 0
+	  set cells {}
+	  foreach lib $libs {
+	    set cells [$lib find_liberty_cells_matching $cell_name $regexp $nocase]
+	    foreach cell $cells {
+	      set matches [$cell find_liberty_ports_matching $port_pattern \
+	  		   $regexp $nocase]
+	      foreach match $matches {
+		lappend ports $match
+		set found_match 1
+	      }
 	    }
 	  }
-	}
-	if { !$found_match } {
-	  if { !$quiet } {
-	    sta_warn 356 "port '$port_pattern' not found."
+	  if { !$found_match } {
+	    if { !$quiet } {
+	      sta_warn 356 "port '$port_pattern' not found."
+	    }
 	  }
-	}
-      } else {
-	if { !$quiet } {
-	  sta_warn 357 "library '$lib_name' not found."
+	} else {
+	  if { !$quiet } {
+	    sta_warn 357 "library '$lib_name' not found."
+	  }
 	}
       }
     }

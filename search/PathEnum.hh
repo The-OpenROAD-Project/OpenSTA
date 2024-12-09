@@ -52,8 +52,8 @@ private:
 class PathEnum : public Iterator<PathEnd*>, StaState
 {
 public:
-  PathEnum(int group_count,
-	   int endpoint_count,
+  PathEnum(int group_path_count,
+	   int endpoint_path_count,
 	   bool unique_pins,
 	   bool cmp_slack,
 	   const StaState *sta);
@@ -88,12 +88,12 @@ private:
   void findNext();
 
   bool cmp_slack_;
-  int group_count_;
-  int endpoint_count_;
+  int group_path_count_;
+  int endpoint_path_count_;
   bool unique_pins_;
   DiversionQueue div_queue_;
   int div_count_;
-  // Number of paths returned for each endpoint (limited to endpoint_count).
+  // Number of paths returned for each endpoint (limit to endpoint_path_count).
   VertexPathCountMap path_counts_;
   bool inserts_pruned_;
   PathEnd *next_;
