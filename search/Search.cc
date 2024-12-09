@@ -2162,10 +2162,8 @@ PathVisitor::visitFromPath(const Pin *from_pin,
 	      // passed thru reg/latch D->Q edges.
 	      && from_tag->isClock())) {
 	const RiseFall *clk_rf = clk_edge ? clk_edge->transition() : nullptr;
-	ClkInfo *to_clk_info = from_clk_info;
-	if (network_->direction(to_pin)->isInternal())
-	  to_clk_info = search_->clkInfoWithCrprClkPath(from_clk_info,
-                                                        from_path, path_ap);
+	ClkInfo *to_clk_info = search_->clkInfoWithCrprClkPath(from_clk_info,
+                                                               from_path, path_ap);
 	to_tag = search_->fromRegClkTag(from_pin, from_rf, clk, clk_rf,
                                         to_clk_info, to_pin, to_rf, min_max,
                                         path_ap);
