@@ -152,13 +152,22 @@ CheckCrpr::checkCrpr1(const Path *src_path,
 {
   crpr = 0.0;
   crpr_pin = nullptr;
-  ClkInfo *src_clk_info = src_path->tag(this)->clkInfo();
+  const Tag *src_tag = src_path->tag(this);
+  ClkInfo *src_clk_info = src_tag->clkInfo();
   ClkInfo *tgt_clk_info = tgt_clk_path->tag(this)->clkInfo();
   const Clock *src_clk = src_clk_info->clock();
   const Clock *tgt_clk = tgt_clk_info->clock();
-  const PathVertex src_clk_path1(src_clk_info->crprClkPath(), this);
-  const PathVertex *src_clk_path =
-    src_clk_path1.isNull() ? nullptr : &src_clk_path1;
+  PathVertex src_clk_path1;
+  PathVertexRep &src_crpr_clk_path = src_clk_info->crprClkPath();
+  const PathVertex *src_clk_path = nullptr;
+  if (src_tag->isClock()) {
+    src_clk_path1.init(src_path->vertex(this), src_path->tag(this), this);
+    src_clk_path = &src_clk_path1;
+  }
+  else if (!src_crpr_clk_path.isNull()) {
+    src_clk_path1.init(src_crpr_clk_path, this);
+    src_clk_path = &src_clk_path1;
+  }
   const MinMax *src_clk_min_max =
     src_clk_path ? src_clk_path->minMax(this) : src_path->minMax(this);
   if (src_clk && tgt_clk
