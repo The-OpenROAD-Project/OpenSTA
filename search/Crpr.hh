@@ -56,8 +56,8 @@ public:
 			 int arrival_index);
 
 private:
-  PathVertex *clkPathPrev(const PathVertex *path,
-			  PathVertex &tmp);
+  void clkPathPrev(const PathVertex *path,
+                   PathVertex &prev);
   Arrival otherMinMaxArrival(const PathVertex *path);
   void checkCrpr1(const Path *src_path,
 		  const PathVertex *tgt_clk_path,
