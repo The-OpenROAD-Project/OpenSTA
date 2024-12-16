@@ -629,7 +629,11 @@ GraphDelayCalc::loadSlewsChanged(DrvrLoadSlews &prev_load_slews,
     const SlewSeq load_slews = graph_->slews(load_vertex);
     const SlewSeq  &prev_slews = prev_load_slews[index];
     for (size_t i = 0; i < load_slews.size(); i++) {
-      if (!delayEqual(load_slews[i], prev_slews[i]))
+      const Slew &slew = delayAsFloat(load_slews[i]);
+      const Slew &prev_slew = delayAsFloat(prev_slews[i]);
+      if ((prev_slew == 0.0 && slew != 0.0)
+          || (prev_slew != 0.0
+              && abs((slew - prev_slew) / prev_slew) > incremental_delay_tolerance_))
         return true;
     }
   }
@@ -874,9 +878,11 @@ GraphDelayCalc::findLatchEdgeDelays(Edge *edge)
              sdc_network_->pathName(drvr_inst));
   array<bool, RiseFall::index_count> delay_exists = {false, false};
   LoadPinIndexMap load_pin_index_map = makeLoadPinIndexMap(drvr_vertex);
-  findDriverEdgeDelays(drvr_vertex, nullptr, edge,
-                       arc_delay_calc_, load_pin_index_map,
-                       delay_exists);
+  bool delay_changed = findDriverEdgeDelays(drvr_vertex, nullptr, edge,
+                                            arc_delay_calc_, load_pin_index_map,
+                                            delay_exists);
+  if (delay_changed && observer_)
+    observer_->delayChangedTo(drvr_vertex);
 }
 
 bool
