@@ -5600,6 +5600,9 @@ Sta::writeTimingModel(const char *lib_name,
                       const char *filename,
                       const Corner *corner)
 {
+  if (network()->defaultLibertyLibrary() == nullptr) {
+    report_->error(2141, "No liberty libraries found.");
+  }
   LibertyLibrary *library = makeTimingModel(lib_name, cell_name, filename,
                                             corner, this);
   writeLiberty(library, filename, this);

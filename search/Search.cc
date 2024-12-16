@@ -2417,8 +2417,9 @@ Search::thruClkTag(PathVertex *from_path,
 		    && to_propagates_clk
 		    && (role->isWire()
 			|| role == TimingRole::combinational()));
-  ClkInfo *to_clk_info = thruClkInfo(from_path, from_clk_info,
-				     edge, to_vertex, to_pin, min_max, path_ap);
+  ClkInfo *to_clk_info = thruClkInfo(from_path, from_clk_info, from_is_clk,
+				     edge, to_pin, to_is_clk,
+                                     min_max, path_ap);
   Tag *to_tag = mutateTag(from_tag,from_pin,from_rf,from_is_clk,from_clk_info,
 			  to_pin, to_rf, to_is_clk, to_is_reg_clk, false,
 			  to_clk_info, nullptr, min_max, path_ap);
@@ -2429,9 +2430,10 @@ Search::thruClkTag(PathVertex *from_path,
 ClkInfo *
 Search::thruClkInfo(PathVertex *from_path,
 		    ClkInfo *from_clk_info,
+                    bool from_is_clk,
 		    Edge *edge,
-		    Vertex *to_vertex,
 		    const Pin *to_pin,
+                    bool to_is_clk,
 		    const MinMax *min_max,
 		    const PathAnalysisPt *path_ap)
 {
@@ -2462,7 +2464,7 @@ Search::thruClkInfo(PathVertex *from_path,
 
   PathVertex *to_crpr_clk_path = nullptr;
   if (sdc_->crprActive()
-      && to_vertex->isRegClk()) {
+      && from_is_clk && !to_is_clk) {
     to_crpr_clk_path = from_path;
     changed = true;
   }

@@ -23,8 +23,11 @@
 #include "Vector.hh"
 #include "MinMax.hh"
 #include "Transition.hh"
+#include "Delay.hh"
 
 namespace sta {
+
+using std::vector;
 
 // Class declarations for pointer references.
 class Graph;
@@ -46,6 +49,7 @@ typedef int Level;
 typedef int DcalcAPIndex;
 typedef int TagGroupIndex;
 typedef Vector<GraphLoop*> GraphLoopSeq;
+typedef vector<Slew> SlewSeq;
 
 static constexpr int level_max = std::numeric_limits<Level>::max();
 

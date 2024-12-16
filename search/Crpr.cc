@@ -46,20 +46,20 @@ CheckCrpr::CheckCrpr(StaState *sta) :
 {
 }
 
-PathVertex *
+void
 CheckCrpr::clkPathPrev(const PathVertex *path,
-		       PathVertex &tmp)
+		       PathVertex &prev)
 
 {
   Vertex *vertex = path->vertex(this);
   int arrival_index;
   bool exists;
   path->arrivalIndex(arrival_index, exists);
-  tmp = clkPathPrev(vertex, arrival_index);
-  if (tmp.isNull())
-    return nullptr;
+  PathVertexRep *prevs = graph_->prevPaths(vertex);
+  if (prevs)
+    prev.init(prevs[arrival_index], this);
   else
-    return &tmp;
+    criticalError(2200, "missing prev paths");
 }
 
 PathVertex
@@ -70,7 +70,7 @@ CheckCrpr::clkPathPrev(Vertex *vertex,
   if (prevs)
     return PathVertex(prevs[arrival_index], this);
   else {
-    criticalError(248, "missing prev paths");
+    criticalError(2201, "missing prev paths");
     return PathVertex();
   }
 }
@@ -152,13 +152,22 @@ CheckCrpr::checkCrpr1(const Path *src_path,
 {
   crpr = 0.0;
   crpr_pin = nullptr;
-  ClkInfo *src_clk_info = src_path->tag(this)->clkInfo();
+  const Tag *src_tag = src_path->tag(this);
+  ClkInfo *src_clk_info = src_tag->clkInfo();
   ClkInfo *tgt_clk_info = tgt_clk_path->tag(this)->clkInfo();
   const Clock *src_clk = src_clk_info->clock();
   const Clock *tgt_clk = tgt_clk_info->clock();
-  const PathVertex src_clk_path1(src_clk_info->crprClkPath(), this);
-  const PathVertex *src_clk_path =
-    src_clk_path1.isNull() ? nullptr : &src_clk_path1;
+  PathVertex src_clk_path1;
+  PathVertexRep &src_crpr_clk_path = src_clk_info->crprClkPath();
+  const PathVertex *src_clk_path = nullptr;
+  if (src_tag->isClock()) {
+    src_clk_path1.init(src_path->vertex(this), src_path->tag(this), this);
+    src_clk_path = &src_clk_path1;
+  }
+  else if (!src_crpr_clk_path.isNull()) {
+    src_clk_path1.init(src_crpr_clk_path, this);
+    src_clk_path = &src_clk_path1;
+  }
   const MinMax *src_clk_min_max =
     src_clk_path ? src_clk_path->minMax(this) : src_path->minMax(this);
   if (src_clk && tgt_clk
@@ -242,20 +251,30 @@ CheckCrpr::findCrpr(const PathVertex *src_clk_path,
   }
   const PathVertex *src_clk_path2 = src_clk_path1;
   const PathVertex *tgt_clk_path2 = tgt_clk_path1;
-  PathVertex tmp1, tmp2;
+  PathVertex src_prev, tgt_prev;
   // src_clk_path and tgt_clk_path are now in the same (gen)clk src path.
   // Use the vertex levels to back up the deeper path to see if they
   // overlap.
-  while (src_clk_path2 && tgt_clk_path2
-	 && src_clk_path2->pin(this) != tgt_clk_path2->pin(this)) {
-    Level src_level = src_clk_path2->vertex(this)->level();
-    Level tgt_level = tgt_clk_path2->vertex(this)->level();
-    if (src_level >= tgt_level)
-      src_clk_path2 = clkPathPrev(src_clk_path2, tmp1);
-    if (tgt_level >= src_level)
-      tgt_clk_path2 = clkPathPrev(tgt_clk_path2, tmp2);
+  int src_level = src_clk_path2->vertex(this)->level();
+  int tgt_level = tgt_clk_path2->vertex(this)->level();
+  while (src_clk_path2->pin(this) != tgt_clk_path2->pin(this)) {
+    int level_diff = src_level - tgt_level;
+    if (level_diff >= 0) {
+      clkPathPrev(src_clk_path2, src_prev);
+      if (src_prev.isNull())
+        break;
+      src_clk_path2 = &src_prev;
+      src_level = src_clk_path2->vertex(this)->level();
+    }
+    if (level_diff <= 0) {
+      clkPathPrev(tgt_clk_path2, tgt_prev);
+      if (tgt_prev.isNull())
+        break;
+      tgt_clk_path2 = &tgt_prev;
+      tgt_level = tgt_clk_path2->vertex(this)->level();
+    }
   }
-  if (src_clk_path2 && tgt_clk_path2
+  if (!src_clk_path2->isNull() && !tgt_clk_path2->isNull()
       && (src_clk_path2->transition(this) == tgt_clk_path2->transition(this)
 	  || same_pin)) {
     debugPrint(debug_, "crpr", 2, "crpr pin %s",
