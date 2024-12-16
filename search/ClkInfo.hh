@@ -54,8 +54,8 @@ public:
   const Arrival &insertion() const { return insertion_; }
   ClockUncertainties *uncertainties() const { return uncertainties_; }
   PathAPIndex pathAPIndex() const { return path_ap_index_; }
-  // Clock path for the last driver in the clock network used for
-  // crpr resolution.
+  // Clock path used for crpr resolution.
+  // Null for clocks because the path cannot point to itself.
   PathVertexRep &crprClkPath() { return crpr_clk_path_; }
   const PathVertexRep &crprClkPath() const { return crpr_clk_path_; }
   VertexId crprClkVertexId() const;

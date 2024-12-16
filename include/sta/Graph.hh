@@ -130,6 +130,7 @@ public:
 		       const RiseFall *rf,
 		       DcalcAPIndex ap_index,
 		       const Slew &slew);
+  SlewSeq slews(Vertex *vertex);
 
   // Edge functions.
   virtual Edge *edge(EdgeId edge_index) const;

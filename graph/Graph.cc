@@ -741,6 +741,20 @@ Graph::setSlew(Vertex *vertex,
   }
 }
 
+SlewSeq
+Graph::slews(Vertex *vertex)
+{
+  SlewSeq slews;
+  VertexId vertex_id = id(vertex);
+  DcalcAPIndex rf_ap_count = slew_rf_count_ * ap_count_;
+  for (DcalcAPIndex i = 0; i < rf_ap_count; i++) {
+    DelayTable *table = slew_tables_[i];
+    Slew &slew = table->ref(vertex_id);
+    slews.push_back(slew);
+  }
+  return slews;
+}
+
 ////////////////////////////////////////////////////////////////
 
 Edge *
