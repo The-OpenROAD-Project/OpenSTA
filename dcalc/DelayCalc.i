@@ -49,7 +49,7 @@ set_delay_calculator_cmd(const char *alg)
 void
 set_delay_calc_incremental_tolerance(float tol)
 {
-  sta::Sta::sta()->setIncrementalDelayTolerance(tol);
+  Sta::sta()->setIncrementalDelayTolerance(tol);
 }
 
 string
