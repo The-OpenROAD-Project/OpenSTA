@@ -123,7 +123,7 @@ public:
   virtual void readLibertyAfter(LibertyLibrary *library);
   // First liberty library read is used to look up defaults.
   // This corresponds to a link_path of '*'.
-  LibertyLibrary *defaultLibertyLibrary() const;
+  virtual LibertyLibrary *defaultLibertyLibrary() const;
   void setDefaultLibertyLibrary(LibertyLibrary *library);
   // Check liberty cells used by the network to make sure they exist
   // for all the defined corners.

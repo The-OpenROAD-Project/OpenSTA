@@ -27,13 +27,6 @@
 #include "Search.hh"
 #include "Sta.hh"
 
-namespace sta {
-
-Graph *
-cmdGraph();
-
-} // namespace
-
 using namespace sta;
 
 %}
@@ -85,25 +78,26 @@ private:
 int
 graph_vertex_count()
 {
-  return cmdGraph()->vertexCount();
+  return Sta::sta()->ensureGraph()->vertexCount();
 }
 
 int
 graph_edge_count()
 {
-  return cmdGraph()->edgeCount();
+  return Sta::sta()->ensureGraph()->edgeCount();
 }
 
 int
 graph_arc_count()
 {
-  return cmdGraph()->arcCount();
+  return Sta::sta()->ensureGraph()->arcCount();
 }
 
 VertexIterator *
 vertex_iterator()
 {
-  return new VertexIterator(cmdGraph());
+  Graph *graph = Sta::sta()->ensureGraph();
+  return new VertexIterator(graph);
 }
 
 void
@@ -113,7 +107,6 @@ set_arc_delay(Edge *edge,
 	      const MinMaxAll *min_max,
 	      float delay)
 {
-  cmdGraph();
   Sta::sta()->setArcDelay(edge, arc, corner, min_max, delay);
 }
 
@@ -124,7 +117,6 @@ set_annotated_slew(Vertex *vertex,
 		   const RiseFallBoth *rf,
 		   float slew)
 {
-  cmdGraph();
   Sta::sta()->setAnnotatedSlew(vertex, corner, min_max, rf, slew);
 }
 
@@ -132,7 +124,6 @@ set_annotated_slew(Vertex *vertex,
 void
 remove_delay_slew_annotations()
 {
-  cmdGraph();
   Sta::sta()->removeDelaySlewAnnotations();
 }
 
@@ -422,7 +413,7 @@ latch_d_to_q_en()
 {
   if (self->role() == TimingRole::latchDtoQ()) {
     Sta *sta = Sta::sta();
-    const Network *network = sta->cmdNetwork();
+    const Network *network = sta->ensureLinked();
     const Graph *graph = sta->graph();
     Pin *from_pin = self->from(graph)->pin();
     Instance *inst = network->instance(from_pin);

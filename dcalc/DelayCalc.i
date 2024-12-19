@@ -59,8 +59,8 @@ report_delay_calc_cmd(Edge *edge,
 		      const MinMax *min_max,
 		      int digits)
 {
-  cmdLinkedNetwork();
-  return Sta::sta()->reportDelayCalc(edge, arc, corner, min_max, digits);
+  Sta *sta = Sta::sta();
+  return sta->reportDelayCalc(edge, arc, corner, min_max, digits);
 }
 
 void
@@ -77,7 +77,6 @@ set_prima_reduce_order(size_t order)
 void
 find_delays()
 {
-  cmdLinkedNetwork();
   Sta::sta()->findDelays();
 }
 

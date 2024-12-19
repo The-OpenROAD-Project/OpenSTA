@@ -35,9 +35,9 @@ write_path_spice_cmd(PathRef *path,
                      CircuitSim ckt_sim)
 {
   Sta *sta = Sta::sta();
-  writePathSpice(path, spice_filename, subckt_filename,
-		 lib_subckt_filename, model_filename,
-		 power_name, gnd_name, ckt_sim, sta);
+  sta->writePathSpice(path, spice_filename, subckt_filename,
+                      lib_subckt_filename, model_filename,
+                      power_name, gnd_name, ckt_sim);
 }
 
 %} // inline

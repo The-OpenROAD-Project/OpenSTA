@@ -48,13 +48,6 @@ namespace sta {
 typedef MinPulseWidthCheckSeq::Iterator MinPulseWidthCheckSeqIterator;
 typedef MinMaxAll MinMaxAllNull;
 
-Network *
-cmdNetwork();
-Network *
-cmdLinkedNetwork();
-Graph *
-cmdGraph();
-
 template <class TYPE>
 Vector<TYPE> *
 tclListSeqPtr(Tcl_Obj *const source,
@@ -667,6 +660,19 @@ using namespace sta;
   Tcl_SetResult(interp, const_cast<char*>(str), TCL_STATIC);
 }
 
+%typemap(in) PortDirection* {
+  int length;
+  const char *arg = Tcl_GetStringFromObj($input, &length);
+  PortDirection *dir = PortDirection::find(arg);
+  if (dir == nullptr) {
+    Tcl_SetResult(interp,const_cast<char*>("Error: port direction not found."),
+		  TCL_STATIC);
+    return TCL_ERROR;
+  }
+  else
+    $1 = dir;
+ }
+
 %typemap(in) TimingRole* {
   int length;
   const char *arg = Tcl_GetStringFromObj($input, &length);
@@ -847,12 +853,12 @@ using namespace sta;
 }
 
 %typemap(in) PinSet {
-  Network *network = cmdNetwork();
+  Network *network = Sta::sta()->ensureLinked();
   $1 = tclListNetworkSet1<PinSet, Pin>($input, SWIGTYPE_p_Pin, interp, network);
 }
 
 %typemap(in) PinSet* {
-  Network *network = cmdNetwork();
+  Network *network = Sta::sta()->ensureLinked();
   $1 = tclListNetworkSet<PinSet, Pin>($input, SWIGTYPE_p_Pin, interp, network);
 }
 
@@ -888,7 +894,7 @@ using namespace sta;
 }
 
 %typemap(in) InstanceSet* {
-  Network *network = cmdNetwork();
+  Network *network = Sta::sta()->ensureLinked();
   $1 = tclListNetworkSet<InstanceSet, Instance>($input, SWIGTYPE_p_Instance,
                                                 interp, network);
 }
@@ -898,7 +904,7 @@ using namespace sta;
 }
 
 %typemap(in) NetSet* {
-  Network *network = cmdNetwork();
+  Network *network = Sta::sta()->ensureLinked();
   $1 = tclListNetworkSet<NetSet, Net>($input, SWIGTYPE_p_Net, interp, network);
 }
 
