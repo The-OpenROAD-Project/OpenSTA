@@ -156,7 +156,8 @@ public:
   VerilogModule *module(Cell *cell);
   Instance *linkNetwork(const char *top_cell_name,
 			bool make_black_boxes,
-			Report *report);
+			Report *report,
+                        bool use_top_cell_name = false);
   int line() const { return line_; }
   const char *filename() const { return filename_; }
   void incrLine();

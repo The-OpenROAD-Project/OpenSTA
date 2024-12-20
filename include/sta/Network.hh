@@ -37,6 +37,7 @@ typedef Map<const char*, LibertyLibrary*, CharPtrLess> LibertyLibraryMap;
 typedef Instance *(LinkNetworkFunc)(const char *top_cell_name,
 				    bool make_black_boxes,
 				    Report *report,
+                                    bool use_top_cell_name,
 				    NetworkReader *network);
 typedef Map<const Net*, PinSet*> NetDrvrPinsMap;
 
@@ -96,7 +97,8 @@ public:
   // Return true if successful.
   virtual bool linkNetwork(const char *top_cell_name,
 			   bool make_black_boxes,
-			   Report *report) = 0;
+			   Report *report,
+                           bool use_top_cell_name = false) = 0;
   virtual bool isLinked() const;
   virtual bool isEditable() const { return false; }
 

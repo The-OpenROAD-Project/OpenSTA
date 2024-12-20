@@ -48,6 +48,7 @@ Instance *
 linkVerilogNetwork(const char *top_cell_name,
 		   bool make_black_boxes,
 		   Report *report,
+                   bool use_top_cell_name,
 		   NetworkReader *network);
 
 bool
@@ -1790,9 +1791,11 @@ Instance *
 linkVerilogNetwork(const char *top_cell_name,
 		   bool make_black_boxes,
 		   Report *report,
+                   bool use_top_cell_name,
 		   NetworkReader *)
 {
-  return verilog_reader->linkNetwork(top_cell_name, make_black_boxes, report);
+  return verilog_reader->linkNetwork(top_cell_name, make_black_boxes, report,
+                                     use_top_cell_name);
 }
 
 // Verilog net name to network net map.
@@ -1820,14 +1823,16 @@ private:
 Instance *
 VerilogReader::linkNetwork(const char *top_cell_name,
 			   bool make_black_boxes,
-			   Report *report)
+			   Report *report,
+                           bool use_top_cell_name)
 {
   if (library_) {
     Cell *top_cell = network_->findCell(library_, top_cell_name);
     VerilogModule *module = this->module(top_cell);
     if (module) {
       // Seed the recursion for expansion with the top level instance.
-      Instance *top_instance = network_->makeInstance(top_cell, "", nullptr);
+      Instance *top_instance = network_->makeInstance(top_cell,
+        (use_top_cell_name ? top_cell_name : ""), nullptr);
       VerilogBindingTbl bindings(zero_net_name_, one_net_name_);
       VerilogNetSeq::Iterator port_iter(module->ports());
       while (port_iter.hasNext()) {
@@ -1848,7 +1853,7 @@ VerilogReader::linkNetwork(const char *top_cell_name,
       }
       makeModuleInstBody(module, top_instance, &bindings, make_black_boxes);
       bool errors = reportLinkErrors(report);
-      deleteModules();
+      // deleteModules();
       if (errors) {
 	network_->deleteInstance(top_instance);
 	return nullptr;
