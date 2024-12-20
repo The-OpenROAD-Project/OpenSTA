@@ -768,7 +768,7 @@ capacitance(Corner *corner,
 	    const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  Network *network = sta->ensureLinked();
+  sta->ensureLinked();
   float pin_cap, wire_cap;
   sta->connectedCap(self, corner, min_max, pin_cap, wire_cap);
   return pin_cap + wire_cap;
