@@ -477,7 +477,7 @@ set_source_files_properties(${STA_SWIG_CXX_FILE}
   PROPERTIES
   # No simple way to modify the swig template that emits code full of warnings
   # so suppress them.
-  COMPILE_OPTIONS "-Wno-cast-qual;-Wno-missing-braces;-Wno-deprecated-declarations"
+  COMPILE_OPTIONS "-Wunused-variable;-Wno-cast-qual;-Wno-missing-braces;-Wno-deprecated-declarations"
   )
 
 target_link_libraries(sta_swig
