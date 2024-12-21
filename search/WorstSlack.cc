@@ -265,32 +265,34 @@ WorstSlack::updateWorstSlack(Vertex *vertex,
 			     SlackSeq &slacks,
 			     PathAPIndex path_ap_index)
 {
-  Slack slack = slacks[path_ap_index];
+  // Do not touch the state unless queue has been initialized
+  if (!queue_->empty()) {
+    Slack slack = slacks[path_ap_index];
+    // Locking is required because ArrivalVisitor is called by multiple
+    // threads.
+    LockGuard lock(lock_);
+    if (worst_vertex_
+        && delayLess(slack, worst_slack_, this))
+      setWorstSlack(vertex, slack);
+    else if (vertex == worst_vertex_)
+      // Mark worst slack as unknown (updated by findWorstSlack().
+      worst_vertex_ = nullptr;
 
-  // Locking is required because ArrivalVisitor is called by multiple
-  // threads.
-  LockGuard lock(lock_);
-  if (worst_vertex_
-      && delayLess(slack, worst_slack_, this))
-    setWorstSlack(vertex, slack);
-  else if (vertex == worst_vertex_)
-    // Mark worst slack as unknown (updated by findWorstSlack().
-    worst_vertex_ = nullptr;
-
-  if (!delayEqual(slack, slack_init_)
-      && delayLessEqual(slack, slack_threshold_, this)) {
-    debugPrint(debug_, "wns", 3, "insert %s %s",
-               vertex->name(network_),
-               delayAsString(slack, this));
-    queue_->insert(vertex);
+    if (!delayEqual(slack, slack_init_)
+        && delayLessEqual(slack, slack_threshold_, this)) {
+      debugPrint(debug_, "wns", 3, "insert %s %s",
+                 vertex->name(network_),
+                 delayAsString(slack, this));
+      queue_->insert(vertex);
+    }
+    else {
+      debugPrint(debug_, "wns", 3, "delete %s %s",
+                 vertex->name(network_),
+                 delayAsString(slack, this));
+      queue_->erase(vertex);
+    }
+    //checkQueue(path_ap_index);
   }
-  else {
-    debugPrint(debug_, "wns", 3, "delete %s %s",
-               vertex->name(network_),
-               delayAsString(slack, this));
-    queue_->erase(vertex);
-  }
-  //  checkQueue();
 }
 
 void
