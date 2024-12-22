@@ -5626,6 +5626,7 @@ Sta::writeTimingModel(const char *lib_name,
                       const Corner *corner)
 {
   ensureLinked();
+  ensureGraph();
   LibertyLibrary *library = makeTimingModel(lib_name, cell_name, filename,
                                             corner, this);
   writeLiberty(library, filename, this);

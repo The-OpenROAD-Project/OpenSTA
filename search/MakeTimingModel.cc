@@ -94,7 +94,6 @@ MakeTimingModel::makeTimingModel()
   makePorts();
 
   sta_->searchPreamble();
-  graph_ = sta_->graph();
 
   findTimingFromInputs();
   findClkedOutputPaths();
