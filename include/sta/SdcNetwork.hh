@@ -34,6 +34,7 @@ public:
 
   const char *name(const Library *library) const override;
   ObjectId id(const Library *library) const override;
+  LibertyLibrary *defaultLibertyLibrary() const override;
   LibraryIterator *libraryIterator() const override;
   LibertyLibraryIterator *libertyLibraryIterator() const override;
   Library *findLibrary(const char *name) override;

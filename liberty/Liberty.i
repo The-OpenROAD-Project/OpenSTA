@@ -182,19 +182,19 @@ liberty_supply_exists(const char *supply_name)
 LibertyLibraryIterator *
 liberty_library_iterator()
 {
-  return cmdNetwork()->libertyLibraryIterator();
+  return Sta::sta()->network()->libertyLibraryIterator();
 }
 
 LibertyLibrary *
 find_liberty(const char *name)
 {
-  return cmdNetwork()->findLiberty(name);
+  return Sta::sta()->network()->findLiberty(name);
 }
 
 LibertyCell *
 find_liberty_cell(const char *name)
 {
-  return cmdNetwork()->findLibertyCell(name);
+  return Sta::sta()->network()->findLibertyCell(name);
 }
 
 bool

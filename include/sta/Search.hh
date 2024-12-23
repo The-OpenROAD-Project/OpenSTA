@@ -60,6 +60,7 @@ typedef UnorderedSet<TagGroup*, TagGroupHash, TagGroupEqual> TagGroupSet;
 typedef Map<Vertex*, Slack> VertexSlackMap;
 typedef Vector<VertexSlackMap> VertexSlackMapSeq;
 typedef Vector<WorstSlacks> WorstSlacksSeq;
+typedef vector<DelayDbl> DelayDblSeq;
 
 class Search : public StaState
 {
@@ -570,7 +571,7 @@ protected:
   // Endpoint vertices with slacks that have changed since tns was found.
   VertexSet *invalid_tns_;
   // Indexed by path_ap->index().
-  SlackSeq tns_;
+  DelayDblSeq tns_;
   // Indexed by path_ap->index().
   VertexSlackMapSeq tns_slacks_;
   std::mutex tns_lock_;

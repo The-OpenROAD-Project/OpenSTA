@@ -52,6 +52,12 @@ NetworkNameAdapter::topInstance() const
   return network_->topInstance();
 }
 
+LibertyLibrary *
+NetworkNameAdapter::defaultLibertyLibrary() const
+{
+  return network_->defaultLibertyLibrary();
+}
+
 LibraryIterator *
 NetworkNameAdapter::libraryIterator() const
 {

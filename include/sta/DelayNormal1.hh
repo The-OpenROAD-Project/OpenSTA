@@ -21,6 +21,7 @@
 namespace sta {
 
 class Delay;
+class DelayDbl;
 class StaState;
 
 // Normal distribution with std deviation.
@@ -29,6 +30,7 @@ class Delay
 public:
   Delay();
   Delay(const Delay &delay);
+  Delay(const DelayDbl &delay);
   Delay(float mean);
   Delay(float mean,
 	float sigma2);
@@ -53,6 +55,29 @@ private:
   float mean_;
   // Sigma^2
   float sigma2_;
+
+  friend class DelayDbl;
+};
+
+// Dwlay with doubles for accumulating delays.
+class DelayDbl
+{
+public:
+  DelayDbl();
+  float mean() const { return mean_; }
+  float sigma() const;
+  // sigma^2
+  float sigma2() const;
+  void operator=(float delay);
+  void operator+=(const Delay &delay);
+  void operator-=(const Delay &delay);
+
+private:
+  double mean_;
+  // Sigma^2
+  double sigma2_;
+
+  friend class Delay;
 };
 
 const Delay delay_zero(0.0);

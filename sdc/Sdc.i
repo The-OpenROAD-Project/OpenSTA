@@ -87,7 +87,6 @@ write_sdc_cmd(const char *filename,
               bool gzip,
 	      bool no_timestamp)
 {
-  cmdLinkedNetwork();
   Sta::sta()->writeSdc(filename, leaf, compatible, digits, gzip, no_timestamp);
 }
 
@@ -143,7 +142,6 @@ set_instance_pvt(Instance *inst,
 		 float voltage,
 		 float temperature)
 {
-  cmdLinkedNetwork();
   Pvt pvt(process, voltage, temperature);
   Sta::sta()->setPvt(inst, min_max, pvt);
 }
@@ -153,7 +151,6 @@ port_ext_pin_cap(const Port *port,
                  const Corner *corner,
 		 const MinMax *min_max)
 {
-  cmdLinkedNetwork();
   float pin_cap, wire_cap;
   int fanout;
   Sta::sta()->portExtCaps(port, corner, min_max, pin_cap, wire_cap, fanout);
@@ -175,7 +172,6 @@ port_ext_wire_cap(const Port *port,
                   const Corner *corner,
                   const MinMax *min_max)
 {
-  cmdLinkedNetwork();
   float pin_cap, wire_cap;
   int fanout;
   Sta::sta()->portExtCaps(port, corner, min_max, pin_cap, wire_cap, fanout);
@@ -207,7 +203,6 @@ port_ext_fanout(const Port *port,
                 const Corner *corner,
                 const MinMax *min_max)
 {
-  cmdLinkedNetwork();
   float pin_cap, wire_cap;
   int fanout;
   Sta::sta()->portExtCaps(port, corner, min_max, pin_cap, wire_cap, fanout);
@@ -264,7 +259,6 @@ make_clock(const char *name,
 	   FloatSeq *waveform,
 	   char *comment)
 {
-  cmdLinkedNetwork();
   Sta::sta()->makeClock(name, pins, add_to_pins, period, waveform, comment);
 }
 
@@ -283,7 +277,6 @@ make_generated_clock(const char *name,
 		     FloatSeq *edge_shifts,
 		     char *comment)
 {
-  cmdLinkedNetwork();
   Sta::sta()->makeGeneratedClock(name, pins, add_to_pins,
 				 src_pin, master_clk,
 				 divide_by, multiply_by, duty_cycle, invert,
@@ -294,35 +287,30 @@ make_generated_clock(const char *name,
 void
 remove_clock_cmd(Clock *clk)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removeClock(clk);
 }
 
 void
 set_propagated_clock_cmd(Clock *clk)
 {
-  cmdLinkedNetwork();
   Sta::sta()->setPropagatedClock(clk);
 }
 
 void
 set_propagated_clock_pin_cmd(Pin *pin)
 {
-  cmdLinkedNetwork();
   Sta::sta()->setPropagatedClock(pin);
 }
 
 void
 unset_propagated_clock_cmd(Clock *clk)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removePropagatedClock(clk);
 }
 
 void
 unset_propagated_clock_pin_cmd(Pin *pin)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removePropagatedClock(pin);
 }
 
@@ -332,14 +320,12 @@ set_clock_slew_cmd(Clock *clk,
 		   const MinMaxAll *min_max,
 		   float slew)
 {
-  cmdLinkedNetwork();
   Sta::sta()->setClockSlew(clk, rf, min_max, slew);
 }
 
 void
 unset_clock_slew_cmd(Clock *clk)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removeClockSlew(clk);
 }
 
@@ -349,7 +335,6 @@ set_clock_latency_cmd(Clock *clk,
 		      const RiseFallBoth *rf,
 		      MinMaxAll *min_max, float delay)
 {
-  cmdLinkedNetwork();
   Sta::sta()->setClockLatency(clk, pin, rf, min_max, delay);
 }
 
@@ -361,7 +346,6 @@ set_clock_insertion_cmd(Clock *clk,
 			const EarlyLateAll *early_late,
 			float delay)
 {
-  cmdLinkedNetwork();
   Sta::sta()->setClockInsertion(clk, pin, rf, min_max, early_late, delay);
 }
 
@@ -369,7 +353,6 @@ void
 unset_clock_latency_cmd(Clock *clk,
 			Pin *pin)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removeClockLatency(clk, pin);
 }
 
@@ -377,7 +360,6 @@ void
 unset_clock_insertion_cmd(Clock *clk,
 			  Pin *pin)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removeClockInsertion(clk, pin);
 }
 
@@ -386,7 +368,6 @@ set_clock_uncertainty_clk(Clock *clk,
 			  const SetupHoldAll *setup_hold,
 			  float uncertainty)
 {
-  cmdLinkedNetwork();
   Sta::sta()->setClockUncertainty(clk, setup_hold, uncertainty);
 }
 
@@ -394,7 +375,6 @@ void
 unset_clock_uncertainty_clk(Clock *clk,
 			    const SetupHoldAll *setup_hold)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removeClockUncertainty(clk, setup_hold);
 }
 
@@ -403,7 +383,6 @@ set_clock_uncertainty_pin(Pin *pin,
 			  const MinMaxAll *min_max,
 			  float uncertainty)
 {
-  cmdLinkedNetwork();
   Sta::sta()->setClockUncertainty(pin, min_max, uncertainty);
 }
 
@@ -411,7 +390,6 @@ void
 unset_clock_uncertainty_pin(Pin *pin,
 			    const MinMaxAll *min_max)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removeClockUncertainty(pin, min_max);
 }
 
@@ -423,7 +401,6 @@ set_inter_clock_uncertainty(Clock *from_clk,
 			    const MinMaxAll *min_max,
 			    float uncertainty)
 {
-  cmdLinkedNetwork();
   Sta::sta()->setClockUncertainty(from_clk, from_tr, to_clk, to_tr, min_max,
 				  uncertainty);
 }
@@ -435,7 +412,6 @@ unset_inter_clock_uncertainty(Clock *from_clk,
 			      const RiseFallBoth *to_tr,
 			      const MinMaxAll *min_max)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removeClockUncertainty(from_clk, from_tr, to_clk, to_tr, min_max);
 }
 
@@ -511,7 +487,6 @@ set_input_delay_cmd(Pin *pin,
 		    bool add,
 		    float delay)
 {
-  cmdLinkedNetwork();
   Sta::sta()->setInputDelay(pin, rf, clk, clk_rf, ref_pin,
 			    source_latency_included, network_latency_included,
 			    min_max, add, delay);
@@ -524,7 +499,6 @@ unset_input_delay_cmd(Pin *pin,
 		      RiseFall *clk_rf, 
 		      MinMaxAll *min_max)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removeInputDelay(pin, rf, clk, clk_rf, min_max);
 }
 
@@ -540,7 +514,6 @@ set_output_delay_cmd(Pin *pin,
 		     bool add,
 		     float delay)
 {
-  cmdLinkedNetwork();
   Sta::sta()->setOutputDelay(pin, rf, clk, clk_rf, ref_pin,
 			     source_latency_included, network_latency_included,
 			     min_max, add, delay);
@@ -553,7 +526,6 @@ unset_output_delay_cmd(Pin *pin,
 		       RiseFall *clk_rf, 
 		       MinMaxAll *min_max)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removeOutputDelay(pin, rf, clk, clk_rf, min_max);
 }
 
@@ -562,7 +534,6 @@ disable_cell(LibertyCell *cell,
 	     LibertyPort *from,
 	     LibertyPort *to)
 {
-  cmdLinkedNetwork();
   Sta::sta()->disable(cell, from, to);
 }
 
@@ -571,35 +542,30 @@ unset_disable_cell(LibertyCell *cell,
 		   LibertyPort *from,
 		   LibertyPort *to)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removeDisable(cell, from, to);
 }
 
 void
 disable_lib_port(LibertyPort *port)
 {
-  cmdLinkedNetwork();
   Sta::sta()->disable(port);
 }
 
 void
 unset_disable_lib_port(LibertyPort *port)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removeDisable(port);
 }
 
 void
 disable_port(Port *port)
 {
-  cmdLinkedNetwork();
   Sta::sta()->disable(port);
 }
 
 void
 unset_disable_port(Port *port)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removeDisable(port);
 }
 
@@ -608,7 +574,6 @@ disable_instance(Instance *instance,
 		 LibertyPort *from,
 		 LibertyPort *to)
 {
-  cmdLinkedNetwork();
   Sta::sta()->disable(instance, from, to);
 }
 
@@ -617,84 +582,72 @@ unset_disable_instance(Instance *instance,
 		       LibertyPort *from,
 		       LibertyPort *to)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removeDisable(instance, from, to);
 }
 
 void
 disable_pin(Pin *pin)
 {
-  cmdLinkedNetwork();
   Sta::sta()->disable(pin);
 }
 
 void
 unset_disable_pin(Pin *pin)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removeDisable(pin);
 }
 
 void
 disable_edge(Edge *edge)
 {
-  cmdLinkedNetwork();
   Sta::sta()->disable(edge);
 }
 
 void
 unset_disable_edge(Edge *edge)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removeDisable(edge);
 }
 
 void
 disable_timing_arc_set(TimingArcSet *arc_set)
 {
-  cmdLinkedNetwork();
   Sta::sta()->disable(arc_set);
 }
 
 void
 unset_disable_timing_arc_set(TimingArcSet *arc_set)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removeDisable(arc_set);
 }
 
 void
 disable_clock_gating_check_inst(Instance *inst)
 {
-  cmdLinkedNetwork();
   Sta::sta()->disableClockGatingCheck(inst);
 }
 
 void
 disable_clock_gating_check_pin(Pin *pin)
 {
-  cmdLinkedNetwork();
   Sta::sta()->disableClockGatingCheck(pin);
 }
 
 void
 unset_disable_clock_gating_check_inst(Instance *inst)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removeDisableClockGatingCheck(inst);
 }
 
 void
 unset_disable_clock_gating_check_pin(Pin *pin)
 {
-  cmdLinkedNetwork();
   Sta::sta()->removeDisableClockGatingCheck(pin);
 }
 
 EdgeSeq
 disabled_edges_sorted()
 {
-  cmdLinkedNetwork();
   return Sta::sta()->disabledEdgesSorted();
 }
 
@@ -713,7 +666,6 @@ make_false_path(ExceptionFrom *from,
 		const MinMaxAll *min_max,
 		const char *comment)
 {
-  cmdLinkedNetwork();
   Sta::sta()->makeFalsePath(from, thrus, to, min_max, comment);
 }
 
@@ -726,7 +678,6 @@ make_multicycle_path(ExceptionFrom *from,
 		     int path_multiplier,
 		     const char *comment)
 {
-  cmdLinkedNetwork();
   Sta::sta()->makeMulticyclePath(from, thrus, to, min_max, use_end_clk,
 				 path_multiplier, comment);
 }
@@ -740,7 +691,6 @@ make_path_delay(ExceptionFrom *from,
 		float delay,
 		const char *comment)
 {
-  cmdLinkedNetwork();
   Sta::sta()->makePathDelay(from, thrus, to, min_max, 
 			    ignore_clk_latency, delay, comment);
 }
@@ -751,7 +701,6 @@ reset_path_cmd(ExceptionFrom *
 	       ExceptionTo *to,
 	       const MinMaxAll *min_max)
 {
-  cmdLinkedNetwork();
   Sta::sta()->resetPath(from, thrus, to, min_max);
   // from/to and thru are owned and deleted by the caller.
   // ExceptionThruSeq thrus arg is made by TclListSeqExceptionThru
@@ -767,7 +716,6 @@ make_group_path(const char *name,
 		ExceptionTo *to,
 		const char *comment)
 {
-  cmdLinkedNetwork();
   if (name[0] == '\0')
     name = nullptr;
   Sta::sta()->makeGroupPath(name, is_default, from, thrus, to, comment);
@@ -776,7 +724,6 @@ make_group_path(const char *name,
 bool
 is_path_group_name(const char *name)
 {
-  cmdLinkedNetwork();
   return Sta::sta()->isGroupPathName(name);
 }
 
@@ -786,7 +733,6 @@ make_exception_from(PinSet *from_pins,
 		    InstanceSet *from_insts,
 		    const RiseFallBoth *from_tr)
 {
-  cmdLinkedNetwork();
   return Sta::sta()->makeExceptionFrom(from_pins, from_clks, from_insts,
 				       from_tr);
 }
@@ -811,7 +757,6 @@ make_exception_thru(PinSet *pins,
 		    InstanceSet *insts,
 		    const RiseFallBoth *rf)
 {
-  cmdLinkedNetwork();
   return Sta::sta()->makeExceptionThru(pins, nets, insts, rf);
 }
 
@@ -828,7 +773,6 @@ make_exception_to(PinSet *to_pins,
 		  const RiseFallBoth *rf,
  		  RiseFallBoth *end_rf)
 {
-  cmdLinkedNetwork();
   return Sta::sta()->makeExceptionTo(to_pins, to_clks, to_insts, rf, end_rf);
 }
 
@@ -918,7 +862,6 @@ set_input_slew_cmd(Port *port,
 		   const MinMaxAll *min_max,
 		   float slew)
 {
-  cmdLinkedNetwork();
   Sta::sta()->setInputSlew(port, rf, min_max, slew);
 }
 
@@ -946,7 +889,6 @@ set_drive_resistance_cmd(Port *port,
 			 const MinMaxAll *min_max,
 			 float res)
 {
-  cmdLinkedNetwork();
   Sta::sta()->setDriveResistance(port, rf, min_max, res);
 }
 
@@ -957,7 +899,6 @@ set_slew_limit_clk(Clock *clk,
 		   const MinMax *min_max,
 		   float slew)
 {
-  cmdLinkedNetwork();
   Sta::sta()->setSlewLimit(clk, rf, clk_data, min_max, slew);
 }
 
@@ -966,7 +907,6 @@ set_slew_limit_port(Port *port,
 		    const MinMax *min_max,
 		    float slew)
 {
-  cmdLinkedNetwork();
   Sta::sta()->setSlewLimit(port, min_max, slew);
 }
 
@@ -975,7 +915,6 @@ set_slew_limit_cell(Cell *cell,
 		    const MinMax *min_max,
 		    float slew)
 {
-  cmdLinkedNetwork();
   Sta::sta()->setSlewLimit(cell, min_max, slew);
 }
 
@@ -1147,7 +1086,6 @@ unset_timing_derate_cmd()
 Clock *
 find_clock(const char *name)
 {
-  cmdLinkedNetwork();
   return Sta::sta()->sdc()->findClock(name);
 }
 
@@ -1168,7 +1106,6 @@ find_clocks_matching(const char *pattern,
 		     bool regexp,
 		     bool nocase)
 {
-  cmdLinkedNetwork();
   Sta *sta = Sta::sta();
   Sdc *sdc = sta->sdc();
   PatternMatch matcher(pattern, regexp, nocase, sta->tclInterp());
@@ -1178,22 +1115,19 @@ find_clocks_matching(const char *pattern,
 void
 update_generated_clks()
 {
-  cmdLinkedNetwork();
   Sta::sta()->updateGeneratedClks();
 }
 
 bool
 is_clock(Pin *pin)
 {
-  Sta *sta = Sta::sta();
-  return sta->isClock(pin);
+  return Sta::sta()->isClock(pin);
 }
 
 bool
 is_ideal_clock(Pin *pin)
 {
-  Sta *sta = Sta::sta();
-  return sta->isIdealClock(pin);
+  return Sta::sta()->isIdealClock(pin);
 }
 
 bool
@@ -1258,7 +1192,7 @@ PortSeq
 all_inputs_cmd(bool no_clocks)
 {
   Sta *sta = Sta::sta();
-  cmdLinkedNetwork();
+  sta->ensureLinked();
   return sta->sdc()->allInputs(no_clocks);
 }
 
@@ -1266,7 +1200,7 @@ PortSeq
 all_outputs_cmd()
 {
   Sta *sta = Sta::sta();
-  cmdLinkedNetwork();
+  sta->ensureLinked();
   return sta->sdc()->allOutputs();
 }
 

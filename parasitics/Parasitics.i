@@ -20,7 +20,6 @@
 #include "Sta.hh"
 
 using sta::Sta;
-using sta::cmdLinkedNetwork;
 using sta::Instance;
 using sta::MinMaxAll;
 using sta::RiseFall;
@@ -40,7 +39,6 @@ read_spef_cmd(const char *filename,
 	      float coupling_cap_factor,
 	      bool reduce)
 {
-  cmdLinkedNetwork();
   return Sta::sta()->readSpef(filename, instance, corner, min_max,
 			      pin_cap_included, keep_coupling_caps,
                               coupling_cap_factor, reduce);
@@ -50,7 +48,6 @@ void
 report_parasitic_annotation_cmd(bool report_unannotated,
                                 const Corner *corner)
 {
-  cmdLinkedNetwork();
   Sta::sta()->reportParasiticAnnotation(report_unannotated, corner);
 }
 
