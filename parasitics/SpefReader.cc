@@ -168,7 +168,12 @@ SpefReader::findInstanceRelative(const char *name)
 Net *
 SpefReader::findNetRelative(const char *name)
 {
-  return network_->findNetRelative(instance_, name);
+  Net *net = network_->findNetRelative(instance_, name);
+  // Relax spef escaping requirement because some commercial tools
+  // don't follow the rules.
+  if (net == nullptr)
+    net = sdc_network_->findNetRelative(instance_, name);
+  return net;
 }
 
 Pin *
