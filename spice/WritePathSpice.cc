@@ -161,8 +161,6 @@ writePathSpice(Path *path,
                CircuitSim ckt_sim,
 	       StaState *sta)
 {
-  if (sta->network()->defaultLibertyLibrary() == nullptr)
-    sta->report()->error(1600, "No liberty libraries found,");
   WritePathSpice writer(path, spice_filename, subckt_filename,
                         lib_subckt_filename, model_filename,
                         power_name, gnd_name, ckt_sim, sta);

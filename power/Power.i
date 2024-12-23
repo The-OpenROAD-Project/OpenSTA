@@ -42,7 +42,6 @@ pushPowerResultFloats(PowerResult &power,
 FloatSeq
 design_power(const Corner *corner)
 {
-  cmdLinkedNetwork();
   PowerResult total, sequential, combinational, clock, macro, pad;
   Sta::sta()->power(corner, total, sequential, combinational, clock, macro, pad);
   FloatSeq powers;
@@ -59,7 +58,6 @@ FloatSeq
 instance_power(Instance *inst,
 	       const Corner *corner)
 {
-  cmdLinkedNetwork();
   Sta *sta = Sta::sta();
   PowerResult power = sta->power(inst, corner);
   FloatSeq powers;
@@ -111,7 +109,7 @@ read_vcd_file(const char *filename,
               const char *scope)
 {
   Sta *sta = Sta::sta();
-  cmdLinkedNetwork();
+  sta->ensureLinked();
   readVcdActivities(filename, scope, sta);
 }
 
@@ -138,7 +136,7 @@ read_saif_file(const char *filename,
                const char *scope)
 {
   Sta *sta = Sta::sta();
-  cmdLinkedNetwork();
+  sta->ensureLinked();
   return readSaif(filename, scope, sta);
 }
 

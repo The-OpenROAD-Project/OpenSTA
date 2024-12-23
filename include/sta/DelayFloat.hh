@@ -25,6 +25,8 @@ namespace sta {
 class StaState;
 
 typedef float Delay;
+// Delay double for accumulating Delays.
+typedef double DelayDbl;
 
 const Delay delay_zero = 0.0;
 

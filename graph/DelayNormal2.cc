@@ -64,6 +64,13 @@ Delay::Delay(const Delay &delay) :
   sigma2_[EarlyLate::lateIndex()] = delay.sigma2_[EarlyLate::lateIndex()];
 }
 
+Delay::Delay(const DelayDbl &delay) :
+  mean_(delay.mean_)
+{
+  sigma2_[EarlyLate::earlyIndex()] = delay.sigma2_[EarlyLate::earlyIndex()];
+  sigma2_[EarlyLate::lateIndex()] = delay.sigma2_[EarlyLate::lateIndex()];
+}
+
 Delay::Delay(float mean) :
   mean_(mean),
   sigma2_{0.0, 0.0}
@@ -192,6 +199,38 @@ Delay::operator==(const Delay &delay) const
   return mean_ == delay.mean_
     && sigma2_[early_index] == delay.sigma2_[late_index]
     && sigma2_[late_index]  == delay.sigma2_[early_index];
+}
+
+////////////////////////////////////////////////////////////////
+
+DelayDbl::DelayDbl() :
+  mean_(0.0),
+  sigma2_{0.0, 0.0}
+{
+}
+
+void
+DelayDbl::operator=(float delay)
+{
+  mean_ = delay;
+  sigma2_[early_index] = 0.0;
+  sigma2_[late_index] = 0.0;
+}
+
+void
+DelayDbl::operator+=(const Delay &delay)
+{
+  mean_ += delay.mean_;
+  sigma2_[early_index] += delay.sigma2_[early_index];
+  sigma2_[late_index] += delay.sigma2_[late_index];
+}
+
+void
+DelayDbl::operator-=(const Delay &delay)
+{
+  mean_ -= delay.mean_;
+  sigma2_[early_index] += delay.sigma2_[early_index];
+  sigma2_[late_index] += delay.sigma2_[late_index];
 }
 
 ////////////////////////////////////////////////////////////////
