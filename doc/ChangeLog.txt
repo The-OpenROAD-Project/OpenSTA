@@ -33,6 +33,9 @@ is now supported by the the read_saif command.
 The report_checks -group_count option has been renamed to -group_path_count.
 The report_checks -endpoing_count option has been renamed to -endpoint_path_count.
 
+The report_checks -field hierarchical_pins field reports hierarical pins between
+a driver and a load in the path report.
+
 Release 2.5.0 2024/01/17
 -------------------------
 

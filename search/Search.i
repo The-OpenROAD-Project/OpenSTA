@@ -437,6 +437,7 @@ set_report_path_field_order(StringSeq *field_names)
 
 void
 set_report_path_fields(bool report_input_pin,
+                       bool report_hier_pins,
 		       bool report_net,
 		       bool report_cap,
 		       bool report_slew,
@@ -444,6 +445,7 @@ set_report_path_fields(bool report_input_pin,
 		       bool report_src_attr)
 {
   Sta::sta()->setReportPathFields(report_input_pin,
+                                  report_hier_pins,
 				  report_net,
 				  report_cap,
 				  report_slew,

@@ -889,6 +889,7 @@ public:
   void setReportPathFormat(ReportPathFormat format);
   void setReportPathFieldOrder(StringSeq *field_names);
   void setReportPathFields(bool report_input_pin,
+                           bool report_hier_pins,
 			   bool report_net,
 			   bool report_cap,
 			   bool report_slew,
