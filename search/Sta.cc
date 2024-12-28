@@ -723,6 +723,18 @@ Sta::setMinLibrary(const char *min_filename,
     return false;
 }
 
+bool
+Sta::readVerilog(const char *filename)
+{
+  NetworkReader *network = networkReader();
+  if (network) {
+    readNetlistBefore();
+    return readVerilogFile(filename, network);
+  }
+  else
+    return false;
+}
+
 void
 Sta::readNetlistBefore()
 {
