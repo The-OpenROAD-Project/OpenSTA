@@ -464,7 +464,7 @@ set_report_path_field_properties(const char *field_name,
   if (field)
     field->setProperties(title, width, left_justify);
   else
-    sta->report()->error(1575, "unknown report path field %s", field_name);
+    sta->report()->warn(1575, "unknown report path field %s", field_name);
 }
 
 void
@@ -476,7 +476,7 @@ set_report_path_field_width(const char *field_name,
   if (field)
     field->setWidth(width);
   else
-    sta->report()->error(1576, "unknown report path field %s", field_name);
+    sta->report()->warn(1576, "unknown report path field %s", field_name);
 }
 
 void
