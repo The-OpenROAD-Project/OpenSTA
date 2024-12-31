@@ -218,7 +218,7 @@ vertex_worst_arrival_path(Vertex *vertex,
 			  const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  sta->ensureLinked();
+  sta->ensureLibLinked();
   PathRef path = sta->vertexWorstArrivalPath(vertex, min_max);
   if (!path.isNull())
     return new PathRef(path);
@@ -232,7 +232,7 @@ vertex_worst_arrival_path_rf(Vertex *vertex,
 			     MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  sta->ensureLinked();
+  sta->ensureLibLinked();
   PathRef path = sta->vertexWorstArrivalPath(vertex, rf, min_max);
   if (!path.isNull())
     return new PathRef(path);
@@ -245,7 +245,7 @@ vertex_worst_slack_path(Vertex *vertex,
 			const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  sta->ensureLinked();
+  sta->ensureLibLinked();
   PathRef path = sta->vertexWorstSlackPath(vertex, min_max);
   if (!path.isNull())
     return new PathRef(path);
@@ -335,7 +335,7 @@ void
 report_loops()
 {
   Sta *sta = Sta::sta();
-  Network *network = sta->ensureLinked();
+  Network *network = sta->network();
   Graph *graph = sta->ensureGraph();
   Report *report = sta->report();
   for (GraphLoop *loop : *sta->graphLoops()) {

@@ -1232,8 +1232,10 @@ public:
 
   void setTclInterp(Tcl_Interp *interp);
   Tcl_Interp *tclInterp();
-  // Ensure a network has been read, linked and liberty libraries exist.
+  // Ensure a network has been read, and linked.
   Network *ensureLinked();
+  // Ensure a network has been read, linked and liberty libraries exist.
+  Network *ensureLibLinked();
   void ensureLevelized();
   // Ensure that the timing graph has been built.
   Graph *ensureGraph();

@@ -413,8 +413,8 @@ latch_d_to_q_en()
 {
   if (self->role() == TimingRole::latchDtoQ()) {
     Sta *sta = Sta::sta();
-    const Network *network = sta->ensureLinked();
-    const Graph *graph = sta->graph();
+    const Network *network = sta->network();
+    const Graph *graph = sta->ensureGraph();
     Pin *from_pin = self->from(graph)->pin();
     Instance *inst = network->instance(from_pin);
     LibertyCell *lib_cell = network->libertyCell(inst);

@@ -51,7 +51,7 @@ read_sdf_file(const char *filename,
               MinMaxAllNull *cond_use)
 {
   Sta *sta = Sta::sta();
-  sta->ensureLinked();
+  sta->ensureLibLinked();
   sta->ensureGraph();
   if (stringEq(path, ""))
     path = NULL;
@@ -72,7 +72,7 @@ report_annotated_delay_cmd(bool report_cells,
 			   bool report_constant_arcs)
 {
   Sta *sta = Sta::sta();
-  sta->ensureLinked();
+  sta->ensureLibLinked();
   sta->ensureGraph();
   reportAnnotatedDelay(report_cells, report_nets,
 		       report_in_ports, report_out_ports,
@@ -95,7 +95,7 @@ report_annotated_check_cmd(bool report_setup,
 			   bool report_constant_arcs)
 {
   Sta *sta = Sta::sta();
-  sta->ensureLinked();
+  sta->ensureLibLinked();
   sta->ensureGraph();
   reportAnnotatedCheck(report_setup, report_hold,
 		       report_recovery, report_removal,
@@ -116,7 +116,7 @@ write_sdf_cmd(char *filename,
 	      bool no_version)
 {
   Sta *sta = Sta::sta();
-  sta->ensureLinked();
+  sta->ensureLibLinked();
   sta->writeSdf(filename, corner, divider, include_typ, digits, gzip,
 		no_timestamp, no_version);
 }
