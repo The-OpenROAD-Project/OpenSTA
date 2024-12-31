@@ -600,13 +600,16 @@ Power::evalBddActivity(DdNode *bdd,
       Cudd_RecursiveDeref(bdd_.cuddMgr(), diff);
       float var_act = var_activity.activity() * diff_duty;
       activity += var_act;
-      const Clock *clk = findClk(pin);
-      float clk_period = clk ? clk->period() : 1.0;
-      debugPrint(debug_, "power_activity", 3, "var %s %.3e * %.3f = %.3e",
-                 port->name(),
-                 var_activity.activity() / clk_period,
-                 diff_duty,
-                 var_act / clk_period);
+      if (debug_->check("power_activity", 3)) {
+        const Clock *clk = findClk(pin);
+        float clk_period = clk ? clk->period() : 1.0;
+        debugPrint(debug_, "power_activity", 3, "var %s%s %.3e * %.3f = %.3e",
+                   port->name(),
+                   clk ? "" : " (unclocked)",
+                   var_activity.activity() / clk_period,
+                   diff_duty,
+                   var_act / clk_period);
+      }
     }
   }
   return activity;
