@@ -618,13 +618,16 @@ void finish() { delete self; }
 } // LibraryIterator methods
 
 %extend Cell {
-const char *name() { return Sta::sta()->ensureLinked()->name(self); }
-Library *library() { return Sta::sta()->ensureLinked()->library(self); }
-LibertyCell *liberty_cell() { return Sta::sta()->ensureLinked()->libertyCell(self); }
-bool is_leaf() { return Sta::sta()->ensureLinked()->isLeaf(self); }
+const char *name() { return Sta::sta()->cmdNetwork()->name(self); }
+Library *library() { return Sta::sta()->cmdNetwork()->library(self); }
+LibertyCell *liberty_cell() { return Sta::sta()->cmdNetwork()->libertyCell(self); }
+bool is_leaf() { return Sta::sta()->cmdNetwork()->isLeaf(self); }
 CellPortIterator *
-port_iterator() { return Sta::sta()->ensureLinked()->portIterator(self); }
-string get_attribute(const char *key) { return Sta::sta()->ensureLinked()->getAttribute(self, key); }
+port_iterator() { return Sta::sta()->cmdNetwork()->portIterator(self); }
+string get_attribute(const char *key)
+{
+  return Sta::sta()->cmdNetwork()->getAttribute(self, key);
+}
 
 Port *
 find_port(const char *name)
@@ -654,7 +657,7 @@ void finish() { delete self; }
 %extend Port {
 const char *bus_name() { return Sta::sta()->ensureLinked()->busName(self); }
 Cell *cell() { return Sta::sta()->ensureLinked()->cell(self); }
-LibertyPort *liberty_port() { return Sta::sta()->ensureLinked()->libertyPort(self); }
+LibertyPort *liberty_port() { return Sta::sta()->ensureLibLinked()->libertyPort(self); }
 bool is_bus() { return Sta::sta()->ensureLinked()->isBus(self); }
 PortMemberIterator *
 member_iterator() { return Sta::sta()->ensureLinked()->memberIterator(self); }
@@ -670,7 +673,7 @@ void finish() { delete self; }
 %extend Instance {
 Instance *parent() { return Sta::sta()->ensureLinked()->parent(self); }
 Cell *cell() { return Sta::sta()->ensureLinked()->cell(self); }
-LibertyCell *liberty_cell() { return Sta::sta()->ensureLinked()->libertyCell(self); }
+LibertyCell *liberty_cell() { return Sta::sta()->ensureLibLinked()->libertyCell(self); }
 bool is_leaf() { return Sta::sta()->ensureLinked()->isLeaf(self); }
 InstanceChildIterator *
 child_iterator() { return Sta::sta()->ensureLinked()->childIterator(self); }
@@ -683,7 +686,10 @@ find_pin(const char *name)
 {
   return Sta::sta()->ensureLinked()->findPin(self, name);
 }
-string get_attribute(const char *key) { return Sta::sta()->ensureLinked()->getAttribute(self, key); }
+string get_attribute(const char *key) {
+  return Sta::sta()->ensureLinked()->getAttribute(self, key);
+}
+
 } // Instance methods
 
 %extend InstanceChildIterator {
@@ -716,7 +722,7 @@ Instance *instance() { return Sta::sta()->ensureLinked()->instance(self); }
 Net *net() { return Sta::sta()->ensureLinked()->net(self); }
 Port *port() { return Sta::sta()->ensureLinked()->port(self); }
 Term *term() { return Sta::sta()->ensureLinked()->term(self); }
-LibertyPort *liberty_port() { return Sta::sta()->ensureLinked()->libertyPort(self); }
+LibertyPort *liberty_port() { return Sta::sta()->ensureLibLinked()->libertyPort(self); }
 bool is_driver() { return Sta::sta()->ensureLinked()->isDriver(self); }
 bool is_load() { return Sta::sta()->ensureLinked()->isLoad(self); }
 bool is_leaf() { return Sta::sta()->ensureLinked()->isLeaf(self); }
@@ -768,7 +774,7 @@ capacitance(Corner *corner,
 	    const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  sta->ensureLinked();
+  sta->ensureLibLinked();
   float pin_cap, wire_cap;
   sta->connectedCap(self, corner, min_max, pin_cap, wire_cap);
   return pin_cap + wire_cap;
@@ -779,7 +785,7 @@ pin_capacitance(Corner *corner,
 		const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  sta->ensureLinked();
+  sta->ensureLibLinked();
   float pin_cap, wire_cap;
   sta->connectedCap(self, corner, min_max, pin_cap, wire_cap);
   return pin_cap;
@@ -790,7 +796,7 @@ wire_capacitance(Corner *corner,
 		 const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  sta->ensureLinked();
+  sta->ensureLibLinked();
   float pin_cap, wire_cap;
   sta->connectedCap(self, corner, min_max, pin_cap, wire_cap);
   return wire_cap;

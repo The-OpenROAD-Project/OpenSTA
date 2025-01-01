@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+#include <algorithm>            // reverse
+
 #include "ReportPath.hh"
 
 #include "Report.hh"
@@ -52,6 +54,11 @@
 #include "Genclks.hh"
 
 namespace sta {
+
+static PinSeq
+hierPinsThruEdge(const Edge *edge,
+                 const Network *network,
+                 const Graph *graph);
 
 ReportField::ReportField(const char *name,
 			 const char *title,
@@ -122,7 +129,7 @@ ReportPath::ReportPath(StaState *sta) :
 {
   setDigits(2);
   makeFields();
-  setReportFields(false, false, false, false, false, false);
+  setReportFields(false, false, false, false, false, false, false);
 }
 
 ReportPath::~ReportPath()
@@ -225,6 +232,7 @@ ReportPath::setReportFieldOrder(StringSeq *field_names)
 
 void
 ReportPath::setReportFields(bool report_input_pin,
+                            bool report_hier_pins,
 			    bool report_net,
 			    bool report_cap,
 			    bool report_slew,
@@ -232,6 +240,7 @@ ReportPath::setReportFields(bool report_input_pin,
 			    bool report_src_attr)
 {
   report_input_pin_ = report_input_pin;
+  report_hier_pins_ = report_hier_pins;
   report_net_ = report_net;
 
   field_capacitance_->setEnabled(report_cap);
@@ -2402,7 +2411,7 @@ ReportPath::reportPathLine(const Path *path,
 {
   Vertex *vertex = path->vertex(this);
   Pin *pin = vertex->pin();
-  auto what = descriptionField(vertex);
+  const string what = descriptionField(vertex);
   const RiseFall *rf = path->transition(this);
   bool is_driver = network_->isDriver(pin);
   PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
@@ -2761,56 +2770,60 @@ ReportPath::reportPath5(const Path *path,
 	incr = delayIncr(time, prev_time, min_max);
 	line_case = "normal";
       }
-      if (report_input_pin_
-	  || (i == path_last_index)
-	  || is_clk_start
-	  || (prev_arc == nullptr)
-	  // Filter wire edges from report unless reporting
-	  // input pins.
-	  || (prev_arc
-	      && !prev_arc->role()->isWire())) {
-	bool is_driver = network_->isDriver(pin);
-	float cap = field_blank_;
+
+      if (vertex->isDriver(network_)) {
+        float cap = field_blank_;
         float fanout = field_blank_;
-	// Don't show capacitance field for input pins.
-	if (is_driver && field_capacitance_->enabled())
+        if (field_capacitance_->enabled())
           cap = graph_delay_calc_->loadCap(pin, rf, dcalc_ap);
-	// Don't show fanout field for input pins.
-	if (is_driver && field_fanout_->enabled())
-	  fanout = drvrFanout(vertex, dcalc_ap->corner(), min_max);
-	auto what = descriptionField(vertex);
-	if (report_net_ && is_driver) {
-	  reportLine(what.c_str(), cap, slew, fanout,
-		     incr, time, false, min_max, rf,
-		     src_attr, line_case);
-	  string what2;
-	  if (network_->isTopLevelPort(pin)) {
-	    const char *pin_name = cmd_network_->pathName(pin);
-	    what2 = stdstrPrint("%s (net)", pin_name);
-	  }
-	  else {
-	    Net *net = network_->net(pin);
-	    if (net) {
-	      Net *highest_net = network_->highestNetAbove(net);
-	      const char *net_name = cmd_network_->pathName(highest_net);
-	      what2 = stdstrPrint("%s (net)", net_name);
-	    }
-	    else
-	      what2 = "(unconnected)";
-	  }
-	  reportLine(what2.c_str(), field_blank_, field_blank_, field_blank_,
-		     field_blank_, field_blank_, false, min_max,
-                     nullptr, src_attr, line_case);
-	}
-	else
-	  reportLine(what.c_str(), cap, slew, fanout,
-		     incr, time, false, min_max, rf, src_attr,
-		     line_case);
-	prev_time = time;
+        if (field_fanout_->enabled())
+          fanout = drvrFanout(vertex, dcalc_ap->corner(), min_max);
+        const string what = descriptionField(vertex);
+        reportLine(what.c_str(), cap, slew, fanout,
+                   incr, time, false, min_max, rf, src_attr,
+                   line_case);
+
+        if (report_net_) {
+          const string what2 = descriptionNet(pin);
+          reportLine(what2.c_str(), field_blank_, field_blank_, field_blank_,
+                     field_blank_, field_blank_, false, min_max,
+                     nullptr, src_attr, "");
+        }
+        prev_time = time;
+      }
+      else {
+        reportHierPinsThru(path1, prev_arc);
+        if (report_input_pin_
+            || (i == 0)
+            || (i == path_last_index)
+            || is_clk_start) {
+          const string what = descriptionField(vertex);
+          reportLine(what.c_str(), field_blank_, slew, field_blank_,
+                     incr, time, false, min_max, rf, src_attr,
+                     line_case);
+          prev_time = time;
+        }
       }
     }
     else
       prev_time = time;
+  }
+}
+
+void
+ReportPath::reportHierPinsThru(const Path *path,
+                               const TimingArc *prev_arc)
+{
+  if (report_hier_pins_) {
+    const Edge *prev_edge = path->prevEdge(prev_arc, this);
+    if (prev_edge && prev_edge->isWire()) {
+      for (const Pin *hpin : hierPinsThruEdge(prev_edge, network_, graph_)) {
+        const string what = descriptionField(hpin);
+        reportLine(what.c_str(), field_blank_, field_blank_, field_blank_,
+                   field_blank_, field_blank_, false, path->minMax(this),
+                   nullptr, "", "");
+      }
+    }
   }
 }
 
@@ -2839,7 +2852,12 @@ ReportPath::nextArcAnnotated(const PathRef *next_path,
 string
 ReportPath::descriptionField(Vertex *vertex)
 {
-  Pin *pin = vertex->pin();
+  return descriptionField(vertex->pin());
+}
+
+string
+ReportPath::descriptionField(const Pin *pin)
+{
   const char *pin_name = cmd_network_->pathName(pin);
   const char *name2;
   if (network_->isTopLevelPort(pin)) {
@@ -2861,6 +2879,25 @@ ReportPath::descriptionField(Vertex *vertex)
     name2 = network_->cellName(inst);
   }
   return stdstrPrint("%s (%s)", pin_name, name2);
+}
+
+string
+ReportPath::descriptionNet(const Pin *pin)
+{
+  if (network_->isTopLevelPort(pin)) {
+    const char *pin_name = cmd_network_->pathName(pin);
+    return stdstrPrint("%s (net)", pin_name);
+  }
+  else {
+    Net *net = network_->net(pin);
+    if (net) {
+      Net *highest_net = network_->highestNetAbove(net);
+      const char *net_name = cmd_network_->pathName(highest_net);
+      return stdstrPrint("%s (net)", net_name);
+    }
+    else
+      return "(unconnected)";
+  }
 }
 
 float
@@ -3440,6 +3477,87 @@ ReportPath::latchDesc(const RiseFall *clk_rf) const
   return (clk_rf == RiseFall::rise()) 
     ? "positive level-sensitive latch"
     : "negative level-sensitive latch";
+}
+
+////////////////////////////////////////////////////////////////
+
+static void
+hierPinsAbove(const Net *net,
+              const Network *network,
+              PinSeq &pins_above);
+static void
+hierPinsAbove(const Pin *pin,
+              const Network *network,
+              PinSeq &pins_above);
+
+static PinSeq
+hierPinsThruEdge(const Edge *edge,
+                 const Network *network,
+                 const Graph *graph)
+{
+  const Pin *drvr_pin = edge->from(graph)->pin();
+  const Pin *load_pin = edge->to(graph)->pin();
+  PinSeq drvr_hpins;
+  PinSeq load_hpins;
+  hierPinsAbove(drvr_pin, network, drvr_hpins);
+  hierPinsAbove(load_pin, network, load_hpins);
+  if (drvr_hpins.empty()) {
+    std::reverse(load_hpins.begin(), load_hpins.end());
+    return load_hpins;
+  }
+  if (load_hpins.empty())
+    return drvr_hpins;
+  for (size_t l1 = 0; l1 < load_hpins.size(); l1++) {
+    const Pin *load_hpin = load_hpins[l1];
+    const Net *load_net = network->net(load_hpin);
+    for (size_t d1 = 0; d1 < drvr_hpins.size(); d1++) {
+      const Pin *drvr_hpin = drvr_hpins[d1];
+      const Net *drvr_net = network->net(drvr_hpin);
+      if (load_net == drvr_net) {
+        PinSeq hpins_thru;
+        for (size_t d2 = 0; d2 < d1; d2++) {
+          const Pin *drvr_hpin2 = drvr_hpins[d2];
+          hpins_thru.push_back(drvr_hpin2);
+        }
+        hpins_thru.push_back(drvr_hpin);
+        hpins_thru.push_back(load_hpin);
+        for (size_t l2 = 0; l2 < l1; l2++) {
+          const Pin *load_hpin2 = load_hpins[l2];
+          hpins_thru.push_back(load_hpin2);
+        }
+        return hpins_thru;
+      }
+    }
+  }
+  return PinSeq();
+}
+
+static void
+hierPinsAbove(const Pin *pin,
+              const Network *network,
+              PinSeq &pins_above)
+{
+  const Net *net = network->net(pin);
+  hierPinsAbove(net, network, pins_above);
+}
+
+static void
+hierPinsAbove(const Net *net,
+              const Network *network,
+              PinSeq &pins_above)
+{
+  if (net) {
+    NetTermIterator *term_iter = network->termIterator(net);
+    while (term_iter->hasNext()) {
+      const Term *term = term_iter->next();
+      const Pin *net_pin = network->pin(term);
+      if (network->isHierarchical(net_pin))
+        pins_above.push_back(net_pin);
+      const Net *hpin_net = network->net(net_pin);
+      if (hpin_net)
+        hierPinsAbove(hpin_net, network, pins_above);
+    }
+  }
 }
 
 } // namespace

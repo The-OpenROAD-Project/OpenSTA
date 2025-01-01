@@ -907,23 +907,35 @@ proc parse_report_path_options { cmd args_var default_format
     set_report_path_field_width $field $field_width
   }
 
+  set report_input_pin 0
+  set report_hier_pins 0
+  set report_cap 0
+  set report_net 0
+  set report_slew 0
+  set report_fanout 0
+  set report_src_attr 0
   if { [info exists path_options(-fields)] } {
-    set fields $path_options(-fields)
-    set report_input_pin [expr [lsearch $fields "input*"] != -1]
-    set report_cap [expr [lsearch $fields "cap*"] != -1]
-    set report_net [expr [lsearch $fields "net*"] != -1]
-    set report_slew [expr [lsearch $fields "slew*"] != -1]
-    set report_fanout [expr [lsearch $fields "fanout*"] != -1]
-    set report_src_attr [expr [lsearch $fields "src_attr*"] != -1]
-  } else {
-    set report_input_pin 0
-    set report_cap 0
-    set report_net 0
-    set report_slew 0
-    set report_fanout 0
-    set report_src_attr 0
+    foreach field $path_options(-fields) {
+      if { [string match "input*" $field] } {
+        set report_input_pin 1
+      } elseif { [string match "hier*" $field] } {
+        set report_hier_pins 1
+      } elseif { [string match "cap*" $field] } {
+        set report_cap 1
+      } elseif { [string match "net" $field] } {
+        set report_net 1
+      } elseif { [string match "slew" $field] } {
+        set report_slew 1
+      } elseif { [string match "fanout" $field] } {
+        set report_fanout 1
+      } elseif { [string match "src*" $field] } {
+        set report_src_attr 1
+      } else {
+        sta_warn 166 "unknown field $field."
+      }
+    }
   }
-  set_report_path_fields $report_input_pin $report_net \
+  set_report_path_fields $report_input_pin $report_hier_pins $report_net \
     $report_cap $report_slew $report_fanout $report_src_attr
 
   set_report_path_no_split [info exists path_options(-no_line_splits)]

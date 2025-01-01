@@ -109,7 +109,7 @@ read_vcd_file(const char *filename,
               const char *scope)
 {
   Sta *sta = Sta::sta();
-  sta->ensureLinked();
+  sta->ensureLibLinked();
   readVcdActivities(filename, scope, sta);
 }
 
@@ -136,7 +136,7 @@ read_saif_file(const char *filename,
                const char *scope)
 {
   Sta *sta = Sta::sta();
-  sta->ensureLinked();
+  sta->ensureLibLinked();
   return readSaif(filename, scope, sta);
 }
 

@@ -218,7 +218,7 @@ vertex_worst_arrival_path(Vertex *vertex,
 			  const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  sta->ensureLinked();
+  sta->ensureLibLinked();
   PathRef path = sta->vertexWorstArrivalPath(vertex, min_max);
   if (!path.isNull())
     return new PathRef(path);
@@ -232,7 +232,7 @@ vertex_worst_arrival_path_rf(Vertex *vertex,
 			     MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  sta->ensureLinked();
+  sta->ensureLibLinked();
   PathRef path = sta->vertexWorstArrivalPath(vertex, rf, min_max);
   if (!path.isNull())
     return new PathRef(path);
@@ -245,7 +245,7 @@ vertex_worst_slack_path(Vertex *vertex,
 			const MinMax *min_max)
 {
   Sta *sta = Sta::sta();
-  sta->ensureLinked();
+  sta->ensureLibLinked();
   PathRef path = sta->vertexWorstSlackPath(vertex, min_max);
   if (!path.isNull())
     return new PathRef(path);
@@ -335,7 +335,7 @@ void
 report_loops()
 {
   Sta *sta = Sta::sta();
-  Network *network = sta->ensureLinked();
+  Network *network = sta->network();
   Graph *graph = sta->ensureGraph();
   Report *report = sta->report();
   for (GraphLoop *loop : *sta->graphLoops()) {
@@ -437,6 +437,7 @@ set_report_path_field_order(StringSeq *field_names)
 
 void
 set_report_path_fields(bool report_input_pin,
+                       bool report_hier_pins,
 		       bool report_net,
 		       bool report_cap,
 		       bool report_slew,
@@ -444,6 +445,7 @@ set_report_path_fields(bool report_input_pin,
 		       bool report_src_attr)
 {
   Sta::sta()->setReportPathFields(report_input_pin,
+                                  report_hier_pins,
 				  report_net,
 				  report_cap,
 				  report_slew,
@@ -462,7 +464,7 @@ set_report_path_field_properties(const char *field_name,
   if (field)
     field->setProperties(title, width, left_justify);
   else
-    sta->report()->error(1575, "unknown report path field %s", field_name);
+    sta->report()->warn(1575, "unknown report path field %s", field_name);
 }
 
 void
@@ -474,7 +476,7 @@ set_report_path_field_width(const char *field_name,
   if (field)
     field->setWidth(width);
   else
-    sta->report()->error(1576, "unknown report path field %s", field_name);
+    sta->report()->warn(1576, "unknown report path field %s", field_name);
 }
 
 void
