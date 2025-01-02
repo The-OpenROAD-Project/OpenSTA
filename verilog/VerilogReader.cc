@@ -35,7 +35,7 @@ VerilogParse_parse();
 namespace sta {
 
 VerilogReader *verilog_reader;
-static const char *unconnected_net_name = reinterpret_cast<const char*>(1);
+const char *VerilogReader::unconnected_net_name_ = reinterpret_cast<const char*>(1);
 
 static string
 verilogBusBitName(const char *bus_name,
@@ -156,12 +156,8 @@ VerilogReader::~VerilogReader()
 void
 VerilogReader::deleteModules()
 {
-  StringSet filenames;
-  for (const auto [name, module] : module_map_) {
-    filenames.insert(module->filename());
+  for (const auto [name, module] : module_map_)
     delete module;
-  }
-  deleteContents(&filenames);
   module_map_.clear();
 }
 
@@ -187,7 +183,8 @@ void
 VerilogReader::init(const char *filename)
 {
   // Statements point to verilog_filename, so copy it.
-  filename_ = stringCopy(filename);
+  filename_ = filename;
+  filenames_.push_back(filename);
   line_ = 1;
 
   library_ = network_->findLibrary("verilog");
@@ -267,12 +264,11 @@ VerilogReader::makeModule(const char *module_vname,
 
   VerilogModule *module = new VerilogModule(module_name.c_str(), ports, stmts,
 					    attribute_stmts, filename_, line, this);
-  cell = network_->makeCell(library_, module_name.c_str(), false, filename_);
+  cell = network_->makeCell(library_, module_name.c_str(), false, filename_.c_str());
 
   for (VerilogAttributeStmt *stmt : *attribute_stmts) {
-    for (VerilogAttributeEntry *entry : *stmt->attribute_sequence()) {
+    for (VerilogAttributeEntry *entry : *stmt->attribute_sequence())
       network_->setAttribute(cell, entry->key(), entry->value());
-    }
   }
 
   module_map_[cell] = module;
@@ -582,10 +578,10 @@ VerilogReader::makeModuleInst(const char *module_vname,
       int pin_index = lport->pinIndex();
       const char *prev_net_name = net_names[pin_index];
       if (prev_net_name
-	  && prev_net_name !=unconnected_net_name)
+	  && prev_net_name != unconnected_net_name_)
 	// Repeated port reference.
 	stringDelete(prev_net_name);
-      net_names[pin_index]=(net_name == nullptr) ? unconnected_net_name : net_name;
+      net_names[pin_index]=(net_name == nullptr) ? unconnected_net_name_ : net_name;
       delete vpin;
       net_port_ref_scalar_net_count_--;
     }
@@ -841,7 +837,7 @@ VerilogModule::VerilogModule(const char *name,
                              VerilogNetSeq *ports,
                              VerilogStmtSeq *stmts,
                              VerilogAttributeStmtSeq *attribute_stmts,
-                             const char *filename,
+                             string &filename,
                              int line,
                              VerilogReader *reader) :
   VerilogStmt(line),
@@ -908,7 +904,7 @@ VerilogModule::parseDcl(VerilogDcl *dcl,
           dcl_map_[net_name] = dcl;
         else if (!dcl->direction()->isInternal()) {
           string net_vname = reader->netVerilogName(net_name);
-          reader->warn(1395, filename_, dcl->line(),
+          reader->warn(1395, filename_.c_str(), dcl->line(),
                        "signal %s previously declared on line %d.",
                        net_vname.c_str(),
                        existing_dcl->line());
@@ -937,7 +933,7 @@ VerilogModule::checkInstanceName(VerilogInst *inst,
       replacement_name = stringPrint("%s_%d", inst_name, i++);
     } while (inst_names.findKey(replacement_name));
     string inst_vname = reader->instanceVerilogName(inst_name);
-    reader->warn(1396, filename_, inst->line(),
+    reader->warn(1396, filename_.c_str(), inst->line(),
 		 "instance name %s duplicated - renamed to %s.",
 		 inst_vname.c_str(),
 		 replacement_name);
@@ -1035,8 +1031,7 @@ VerilogLibertyInst::~VerilogLibertyInst()
   int port_count = cell_->portBitCount();
   for (int i = 0; i < port_count; i++) {
     const char *net_name = net_names_[i];
-    if (net_name
-	&& net_name != unconnected_net_name)
+    if (net_name != VerilogReader::unconnected_net_name_)
       stringDelete(net_name);
   }
   delete [] net_names_;
@@ -1937,7 +1932,7 @@ VerilogReader::makeModuleInstNetwork(VerilogModuleInst *mod_inst,
       cell = network_->cell(lib_cell);
     Instance *inst = network_->makeInstance(cell, mod_inst->instanceName(),
 					    parent);
-    VerilogAttributeStmtSeq *attribute_stmts = mod_inst->attribute_stmts();
+    VerilogAttributeStmtSeq *attribute_stmts = mod_inst->attributeStmts();
     for (VerilogAttributeStmt *stmt : *attribute_stmts) {
       for (VerilogAttributeEntry *entry : *stmt->attribute_sequence()) {
         network_->setAttribute(inst, entry->key(), entry->value());
@@ -2129,7 +2124,7 @@ VerilogReader::makeLibertyInst(VerilogLibertyInst *lib_inst,
   Cell *cell = reinterpret_cast<Cell*>(lib_cell);
   Instance *inst = network_->makeInstance(cell, lib_inst->instanceName(),
 					  parent);
-  VerilogAttributeStmtSeq *attribute_stmts = lib_inst->attribute_stmts();
+  VerilogAttributeStmtSeq *attribute_stmts = lib_inst->attributeStmts();
   for (VerilogAttributeStmt *stmt : *attribute_stmts) {
     for (VerilogAttributeEntry *entry : *stmt->attribute_sequence()) {
       network_->setAttribute(inst, entry->key(), entry->value());
@@ -2144,7 +2139,7 @@ VerilogReader::makeLibertyInst(VerilogLibertyInst *lib_inst,
     if (net_name) {
       Net *net = nullptr;
       // If the pin is unconnected (ie, .A()) make the pin but not the net.
-      if (net_name != unconnected_net_name) {
+      if (net_name != unconnected_net_name_) {
 	VerilogDcl *dcl = parent_module->declaration(net_name);
 	// Check for single bit bus reference .A(BUS) -> .A(BUS[LSB]).
 	if (dcl && dcl->isBus()) {
