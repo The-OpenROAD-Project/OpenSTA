@@ -92,7 +92,7 @@ work, but these are the versions used for development.
 cmake    3.24.2    3.29.2
 clang             15.0.0
 gcc      11.4.0
-tcl       8.6      8.6.6
+tcl       8.6      8.6.16
 swig      4.1.0    4.1.1
 bison     3.8.2    3.8.2
 flex      2.6.4    2.6.4
@@ -103,12 +103,21 @@ are illegal in c++17.
 
 External library dependencies:
 ```
-           Ubuntu   Macos license
+           Ubuntu   Darwin  License
 eigen       3.4.0   3.4.0   MPL2  required
 cudd        3.0.0   3.0.0   BSD   required
 tclreadline 2.3.8   2.3.8   BSD   optional
 zLib        1.2.5   1.2.8   zlib  optional
 ```
+
+On Darwin/MacOS the Xcode supplied versions of Tcl, Flex and Bison are
+problematic. Use homebrew to install them instead.
+
+  brew install cmake bison flex swig tcl-tk@8 eigen zlib
+
+Note that the most recent versions of homebrew install Tcl9, which is
+not supported because swig does not support it yet. Install tcl8 as
+shown above.
 
 The [TCL readline library](https://tclreadline.sourceforge.net/tclreadline.html)
 links the GNU readline library to the TCL interpreter for command line editing 

@@ -31,13 +31,15 @@ using ::Tcl_GetChannelType;
 
 extern "C" {
 
+#if TCL_MAJOR_VERSION >= 9
+#define CONST84 const
+#endif
+
 static int
 encapOutputProc(ClientData instanceData,
                 CONST84 char *buf,
                 int toWrite,
                 int *errorCodePtr);
-static int
-encapCloseProc(ClientData instanceData, Tcl_Interp *interp);
 static int
 encapSetOptionProc(ClientData instanceData,
                    Tcl_Interp *interp,
@@ -53,11 +55,6 @@ encapInputProc(ClientData instanceData,
                char *buf,
                int bufSize,
                int *errorCodePtr);
-static int
-encapSeekProc(ClientData instanceData,
-              long offset,
-              int seekMode,
-              int *errorCodePtr);
 static void
 encapWatchProc(ClientData instanceData, int mask);
 static int
@@ -66,15 +63,34 @@ encapGetHandleProc(ClientData instanceData,
                    ClientData *handlePtr);
 static int
 encapBlockModeProc(ClientData instanceData, int mode);
+
+#if TCL_MAJOR_VERSION < 9
+static int
+encapCloseProc(ClientData instanceData, Tcl_Interp *interp);
+static int
+encapSeekProc(ClientData instanceData,
+              long offset,
+              int seekMode,
+              int *errorCodePtr);
+#endif
+
 }  // extern "C"
 
 Tcl_ChannelType tcl_encap_type_stdout = {
-    const_cast<char *>("file"),
-    TCL_CHANNEL_VERSION_4,
+    "file",
+    TCL_CHANNEL_VERSION_5,
+#if TCL_MAJOR_VERSION < 9
     encapCloseProc,
+#else
+    nullptr,  // closeProc unused
+#endif
     encapInputProc,
     encapOutputProc,
+#if TCL_MAJOR_VERSION < 9
     encapSeekProc,
+#else
+    nullptr,  // close2Proc
+#endif
     encapSetOptionProc,
     encapGetOptionProc,
     encapWatchProc,
@@ -229,17 +245,6 @@ encapInputProc(ClientData,
 }
 
 static int
-encapCloseProc(ClientData instanceData,
-               Tcl_Interp *)
-{
-  ReportTcl *report = reinterpret_cast<ReportTcl *>(instanceData);
-  report->logEnd();
-  report->redirectFileEnd();
-  report->redirectStringEnd();
-  return 0;
-}
-
-static int
 encapSetOptionProc(ClientData,
                    Tcl_Interp *,
                    CONST84 char *,
@@ -255,15 +260,6 @@ encapGetOptionProc(ClientData,
                    Tcl_DString *)
 {
   return 0;
-}
-
-static int
-encapSeekProc(ClientData,
-              long,
-              int,
-              int *)
-{
-  return -1;
 }
 
 static void
@@ -285,5 +281,29 @@ encapBlockModeProc(ClientData,
 {
   return 0;
 }
+
+#if TCL_MAJOR_VERSION < 9
+
+static int
+encapCloseProc(ClientData instanceData,
+               Tcl_Interp *)
+{
+  ReportTcl *report = reinterpret_cast<ReportTcl *>(instanceData);
+  report->logEnd();
+  report->redirectFileEnd();
+  report->redirectStringEnd();
+  return 0;
+}
+
+static int
+encapSeekProc(ClientData,
+              long,
+              int,
+              int *)
+{
+  return -1;
+}
+
+#endif
 
 }  // namespace sta

@@ -22,7 +22,8 @@
 # because there doesn't appear to be a way to override
 # searching OSX system directories before unix directories.
 
-set(TCL_POSSIBLE_NAMES tcl87 tcl8.7
+set(TCL_POSSIBLE_NAMES
+  tcl87 tcl8.7
   tcl86 tcl8.6
   tcl85 tcl8.5
   )
@@ -30,7 +31,7 @@ set(TCL_POSSIBLE_NAMES tcl87 tcl8.7
 # tcl lib path guesses.
 if (NOT TCL_LIB_PATHS)
   if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(TCL_LIB_PATHS /usr/local/lib /opt/homebrew/opt/tcl-tk/lib)
+    set(TCL_LIB_PATHS /opt/homebrew/Cellar/tcl-tk@8/8.6.16/lib /opt/homebrew/opt/tcl-tk/lib /usr/local/lib)
     set(TCL_NO_DEFAULT_PATH TRUE)
   elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(TCL_LIB_PATHS /usr/lib /usr/lib64 /usr/local/lib)

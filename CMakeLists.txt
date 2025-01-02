@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-cmake_minimum_required (VERSION 3.9)
+cmake_minimum_required (VERSION 3.10)
 if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
 # Use standard target names
 cmake_policy(SET CMP0078 NEW)

@@ -48,13 +48,17 @@ namespace sta {
 typedef MinPulseWidthCheckSeq::Iterator MinPulseWidthCheckSeqIterator;
 typedef MinMaxAll MinMaxAllNull;
 
+#if TCL_MAJOR_VERSION < 9
+    typedef int Tcl_Size;
+#endif
+
 template <class TYPE>
 Vector<TYPE> *
 tclListSeqPtr(Tcl_Obj *const source,
               swig_type_info *swig_type,
               Tcl_Interp *interp)
 {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
 
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
@@ -78,7 +82,7 @@ tclListSeq(Tcl_Obj *const source,
            swig_type_info *swig_type,
            Tcl_Interp *interp)
 {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
 
   std::vector<TYPE> seq;
@@ -100,7 +104,7 @@ tclListSetPtr(Tcl_Obj *const source,
               swig_type_info *swig_type,
               Tcl_Interp *interp)
 {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
       && argc > 0) {
@@ -123,7 +127,7 @@ tclListSet(Tcl_Obj *const source,
            swig_type_info *swig_type,
            Tcl_Interp *interp)
 {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
       && argc > 0) {
@@ -147,7 +151,7 @@ tclListNetworkSet(Tcl_Obj *const source,
                   Tcl_Interp *interp,
                   const Network *network)
 {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
       && argc > 0) {
@@ -171,7 +175,7 @@ tclListNetworkSet1(Tcl_Obj *const source,
                    Tcl_Interp *interp,
                    const Network *network)
 {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
   SET_TYPE set(network);
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
@@ -190,7 +194,7 @@ static StringSet *
 tclListSetConstChar(Tcl_Obj *const source,
 		    Tcl_Interp *interp)
 {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
 
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
@@ -210,7 +214,7 @@ static StringSeq *
 tclListSeqConstChar(Tcl_Obj *const source,
 		    Tcl_Interp *interp)
 {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
 
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
@@ -230,7 +234,7 @@ static StdStringSet *
 tclListSetStdString(Tcl_Obj *const source,
 		    Tcl_Interp *interp)
 {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
 
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
@@ -909,7 +913,7 @@ using namespace sta;
 }
 
 %typemap(in) FloatSeq* {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
   FloatSeq *floats = nullptr;
 
@@ -954,7 +958,7 @@ using namespace sta;
 }
 
 %typemap(in) IntSeq* {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
   IntSeq *ints = nullptr;
 
@@ -1582,7 +1586,7 @@ using namespace sta;
 
 %typemap(in) ArcDcalcArgSeq {
   Tcl_Obj *const source = $input;
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
 
   Sta *sta = Sta::sta();
