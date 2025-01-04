@@ -151,6 +151,7 @@ protected:
   float getSlew(Vertex *vertex,
                 const RiseFall *rf,
                 const Corner *corner);
+  float getMinRfSlew(const Pin *pin);
   const Clock *findInstClk(const Instance *inst);
   const Clock *findClk(const Pin *to_pin);
   float clockDuty(const Clock *clk);

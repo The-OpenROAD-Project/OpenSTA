@@ -466,6 +466,10 @@ bool
 PropActivityVisitor::setActivityCheck(const Pin *pin,
                                       PwrActivity &activity)
 {
+  float min_rf_slew = power_->getMinRfSlew(pin);
+  float max_activity = (min_rf_slew > 0.0) ? 1.0 / min_rf_slew : INF;
+  if (activity.activity() > max_activity)
+    activity.setActivity(max_activity);
   PwrActivity &prev_activity = power_->activity(pin);
   float activity_delta = abs(activity.activity() - prev_activity.activity());
   float duty_delta = abs(activity.duty() - prev_activity.duty());
@@ -877,6 +881,27 @@ Power::getSlew(Vertex *vertex,
     return clk_network_->idealClkSlew(pin, rf, MinMax::max());
   else
     return delayAsFloat(graph_->slew(vertex, rf, dcalc_ap->index()));
+}
+
+float
+Power::getMinRfSlew(const Pin *pin)
+{
+  Vertex *vertex, *bidir_vertex;
+  graph_->pinVertices(pin, vertex, bidir_vertex);
+  if (vertex) {
+    const MinMax *min_max = MinMax::min();
+    Slew mm_slew = min_max->initValue();
+    for (const DcalcAnalysisPt *dcalc_ap : corners_->dcalcAnalysisPts()) {
+      DcalcAPIndex ap_index = dcalc_ap->index();
+      const Slew &slew1 = graph_->slew(vertex, RiseFall::rise(), ap_index);
+      const Slew &slew2 = graph_->slew(vertex, RiseFall::fall(), ap_index);
+      Slew slew = delayAsFloat(slew1 + slew2) / 2.0;
+      if (delayGreater(slew, mm_slew, min_max, this))
+        mm_slew = slew;
+    }
+    return mm_slew;
+  }
+  return 0.0;
 }
 
 LibertyPort *
