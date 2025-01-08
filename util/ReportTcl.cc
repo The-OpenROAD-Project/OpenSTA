@@ -77,41 +77,41 @@ encapSeekProc(ClientData instanceData,
 }  // extern "C"
 
 Tcl_ChannelType tcl_encap_type_stdout = {
-    "file",
-    TCL_CHANNEL_VERSION_5,
+  const_cast<char*>("file"),
+  TCL_CHANNEL_VERSION_5,
 #if TCL_MAJOR_VERSION < 9
-    encapCloseProc,
+  encapCloseProc,
 #else
-    nullptr,  // closeProc unused
+  nullptr,  // closeProc unused
 #endif
-    encapInputProc,
-    encapOutputProc,
+  encapInputProc,
+  encapOutputProc,
 #if TCL_MAJOR_VERSION < 9
-    encapSeekProc,
+  encapSeekProc,
 #else
-    nullptr,  // close2Proc
+  nullptr,  // close2Proc
 #endif
-    encapSetOptionProc,
-    encapGetOptionProc,
-    encapWatchProc,
-    encapGetHandleProc,
-    nullptr,  // close2Proc
-    encapBlockModeProc,
-    nullptr,  // flushProc
-    nullptr,  // handlerProc
-    nullptr,  // wideSeekProc
-    nullptr,  // threadActionProc
-    nullptr   // truncateProc
+  encapSetOptionProc,
+  encapGetOptionProc,
+  encapWatchProc,
+  encapGetHandleProc,
+  nullptr,  // close2Proc
+  encapBlockModeProc,
+  nullptr,  // flushProc
+  nullptr,  // handlerProc
+  nullptr,  // wideSeekProc
+  nullptr,  // threadActionProc
+  nullptr   // truncateProc
 };
 
 ////////////////////////////////////////////////////////////////
 
 ReportTcl::ReportTcl() :
-    Report(), interp_(nullptr),
-    tcl_stdout_(nullptr),
-    tcl_stderr_(nullptr),
-    tcl_encap_stdout_(nullptr),
-    tcl_encap_stderr_(nullptr)
+  Report(), interp_(nullptr),
+  tcl_stdout_(nullptr),
+  tcl_stderr_(nullptr),
+  tcl_encap_stdout_(nullptr),
+  tcl_encap_stderr_(nullptr)
 {
 }
 
