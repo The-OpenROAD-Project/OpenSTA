@@ -73,6 +73,7 @@
 #include "VisitPathEnds.hh"
 #include "PathExpanded.hh"
 #include "MakeTimingModel.hh"
+#include "spice/WritePathSpice.hh"
 
 namespace sta {
 
@@ -717,6 +718,18 @@ Sta::setMinLibrary(const char *min_filename,
     LibertyLibrary *min_lib = readLibertyFile(min_filename, cmd_corner_,
 					      MinMaxAll::min(), false);
     return min_lib != nullptr;
+  }
+  else
+    return false;
+}
+
+bool
+Sta::readVerilog(const char *filename)
+{
+  NetworkReader *network = networkReader();
+  if (network) {
+    readNetlistBefore();
+    return readVerilogFile(filename, network);
   }
   else
     return false;
@@ -2108,6 +2121,7 @@ Sta::writeSdc(const char *filename,
               bool gzip,
 	      bool no_timestamp)
 {
+  ensureLibLinked();
   sta::writeSdc(network_->topInstance(), filename, "write_sdc",
 		leaf, native, digits, gzip, no_timestamp, sdc_);
 }
@@ -2479,14 +2493,16 @@ Sta::setReportPathFieldOrder(StringSeq *field_names)
 
 void
 Sta::setReportPathFields(bool report_input_pin,
+                         bool report_hier_pins,
 			 bool report_net,
 			 bool report_cap,
 			 bool report_slew,
 			 bool report_fanout,
 			 bool report_src_attr)
 {
-  report_path_->setReportFields(report_input_pin, report_net, report_cap,
-				report_slew, report_fanout, report_src_attr);
+  report_path_->setReportFields(report_input_pin, report_hier_pins, report_net,
+                                report_cap, report_slew, report_fanout,
+                                report_src_attr);
 }
 
 ReportField *
@@ -3308,6 +3324,7 @@ Sta::findDelays(Level level)
 void
 Sta::delayCalcPreamble()
 {
+  ensureLibLinked();
   ensureClkNetwork();
 }
 
@@ -3401,9 +3418,34 @@ Sta::vertexSlew(Vertex *vertex,
 
 ////////////////////////////////////////////////////////////////
 
+// Make sure the network has been read and linked.
+// Throwing an error means the caller doesn't have to check the result.
+Network *
+Sta::ensureLinked()
+{
+  if (network_ == nullptr || !network_->isLinked())
+    report_->error(1570, "No network has been linked.");
+  // Return cmd/sdc network.
+  return cmd_network_;
+}
+
+Network *
+Sta::ensureLibLinked()
+{
+  if (network_ == nullptr || !network_->isLinked())
+    report_->error(1570, "No network has been linked.");
+  // OpenROAD db is inherently linked but may not have associated
+  // liberty files so check for them here.
+  if (network_->defaultLibertyLibrary() == nullptr)
+    report_->error(2141, "No liberty libraries found.");
+  // Return cmd/sdc network.
+  return cmd_network_;
+}
+
 Graph *
 Sta::ensureGraph()
 {
+  ensureLibLinked();
   if (graph_ == nullptr && network_) {
     makeGraph();
     // Update pointers to graph.
@@ -3556,6 +3598,7 @@ Sta::setArcDelay(Edge *edge,
 		 const MinMaxAll *min_max,
 		 ArcDelay delay)
 {
+  ensureGraph();
   for (MinMax *mm : min_max->range()) {
     const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
     DcalcAPIndex ap_index = dcalc_ap->index();
@@ -3578,6 +3621,7 @@ Sta::setAnnotatedSlew(Vertex *vertex,
 		      const RiseFallBoth *rf,
 		      float slew)
 {
+  ensureGraph();
   for (MinMax *mm : min_max->range()) {
     const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
     DcalcAPIndex ap_index = dcalc_ap->index();
@@ -3608,8 +3652,10 @@ Sta::writeSdf(const char *filename,
 void
 Sta::removeDelaySlewAnnotations()
 {
-  graph_->removeDelaySlewAnnotations();
-  delaysInvalid();
+  if (graph_) {
+    graph_->removeDelaySlewAnnotations();
+    delaysInvalid();
+  }
 }
 
 LogicValue
@@ -3863,6 +3909,7 @@ Sta::readSpef(const char *filename,
 	      float coupling_cap_factor,
 	      bool reduce)
 {
+  ensureLibLinked();
   setParasiticAnalysisPts(corner != nullptr);
   const MinMax *ap_min_max = (min_max == MinMaxAll::all())
     ? MinMax::max()
@@ -3897,6 +3944,7 @@ void
 Sta::reportParasiticAnnotation(bool report_unannotated,
                                const Corner *corner)
 {
+  ensureLibLinked();
   ensureGraph();
   sta::reportParasiticAnnotation(report_unannotated, corner, this);
 }
@@ -4109,19 +4157,18 @@ Sta::disconnectPin(Pin *pin)
 
 void
 Sta::makePortPin(const char *port_name,
-                 const char *direction)
+                 PortDirection *dir)
 {
+  ensureLinked();
   NetworkReader *network = dynamic_cast<NetworkReader*>(network_);
   Instance *top_inst = network->topInstance();
   Cell *top_cell = network->cell(top_inst);
   Port *port = network->makePort(top_cell, port_name);
-  PortDirection *dir = PortDirection::find(direction);
-  if (dir)
-    network->setDirection(port, dir);
+  network->setDirection(port, dir);
   Pin *pin = network->makePin(top_inst, port, nullptr);
   makePortPinAfter(pin);
 }
-
+ 
 ////////////////////////////////////////////////////////////////
 //
 // Network edit before/after methods.
@@ -4744,6 +4791,7 @@ Sta::findRegisterOutputPins(ClockSet *clks,
 void
 Sta::findRegisterPreamble()
 {
+  ensureLibLinked();
   ensureGraph();
   ensureGraphSdcAnnotated();
   sim_->ensureConstantsPropagated();
@@ -5600,9 +5648,8 @@ Sta::writeTimingModel(const char *lib_name,
                       const char *filename,
                       const Corner *corner)
 {
-  if (network()->defaultLibertyLibrary() == nullptr) {
-    report_->error(2141, "No liberty libraries found.");
-  }
+  ensureLibLinked();
+  ensureGraph();
   LibertyLibrary *library = makeTimingModel(lib_name, cell_name, filename,
                                             corner, this);
   writeLiberty(library, filename, this);
@@ -5613,6 +5660,7 @@ Sta::writeTimingModel(const char *lib_name,
 void
 Sta::powerPreamble()
 {
+  ensureLibLinked();
   // Use arrivals to find clocking info.
   searchPreamble();
   search_->findAllArrivals();
@@ -5646,6 +5694,24 @@ Sta::findClkedActivity(const Pin *pin)
 {
   powerPreamble();
   return power_->findClkedActivity(pin);
+}
+
+////////////////////////////////////////////////////////////////
+
+void
+Sta::writePathSpice(PathRef *path,
+                    const char *spice_filename,
+                    const char *subckt_filename,
+                    const char *lib_subckt_filename,
+                    const char *model_filename,
+                    const char *power_name,
+                    const char *gnd_name,
+                    CircuitSim ckt_sim)
+{
+  ensureLibLinked();
+  sta::writePathSpice(path, spice_filename, subckt_filename,
+                      lib_subckt_filename, model_filename,
+                      power_name, gnd_name, ckt_sim, this);
 }
 
 ////////////////////////////////////////////////////////////////

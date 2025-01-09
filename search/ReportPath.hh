@@ -41,6 +41,7 @@ public:
   void setPathFormat(ReportPathFormat format);
   void setReportFieldOrder(StringSeq *field_names);
   void setReportFields(bool report_input_pin,
+                       bool report_hier_pins,
 		       bool report_net,
 		       bool report_cap,
 		       bool report_slew,
@@ -316,6 +317,8 @@ protected:
 		   bool report_clk_path,
 		   Arrival prev_time,
 		   float time_offset);
+  void reportHierPinsThru(const Path *path,
+                          const TimingArc *prev_arc);
   void reportInputExternalDelay(const Path *path,
 				float time_offset);
   void reportLine(const char *what,
@@ -401,6 +404,8 @@ protected:
   void reportDashLine(int line_width);
   void reportBlankLine();
   string descriptionField(Vertex *vertex);
+  string descriptionField(const Pin *pin);
+  string descriptionNet(const Pin *pin);
   bool reportClkPath() const;
   string clkName(const Clock *clk,
 		 bool inverted);
@@ -455,6 +460,7 @@ protected:
   ReportPathFormat format_;
   ReportFieldSeq fields_;
   bool report_input_pin_;
+  bool report_hier_pins_;
   bool report_net_;
   bool no_split_;
   int digits_;

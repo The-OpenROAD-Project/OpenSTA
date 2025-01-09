@@ -63,6 +63,12 @@ Delay::Delay(const Delay &delay) :
 {
 }
 
+Delay::Delay(const DelayDbl &delay) :
+  mean_(delay.mean_),
+  sigma2_(delay.sigma2_)
+{
+}
+
 Delay::Delay(float mean) :
   mean_(mean),
   sigma2_(0.0)
@@ -169,6 +175,35 @@ bool
 Delay::operator==(const Delay &delay) const
 {
   return delayEqual(*this, delay);
+}
+
+////////////////////////////////////////////////////////////////
+
+DelayDbl::DelayDbl() :
+  mean_(0.0),
+  sigma2_(0.0)
+{
+}
+
+void
+DelayDbl::operator=(float delay)
+{
+  mean_ = delay;
+  sigma2_ = 0.0;
+}
+
+void
+DelayDbl::operator+=(const Delay &delay)
+{
+  mean_ += delay.mean_;
+  sigma2_ += delay.sigma2_;
+}
+
+void
+DelayDbl::operator-=(const Delay &delay)
+{
+  mean_ -= delay.mean_;
+  sigma2_ += delay.sigma2_;
 }
 
 ////////////////////////////////////////////////////////////////

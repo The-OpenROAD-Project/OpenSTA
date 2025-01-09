@@ -32,14 +32,7 @@ using sta::readVerilogFile;
 bool
 read_verilog_cmd(const char *filename)
 {
-  Sta *sta = Sta::sta();
-  NetworkReader *network = sta->networkReader();
-  if (network) {
-    sta->readNetlistBefore();
-    return readVerilogFile(filename, network);
-  }
-  else
-    return false;
+  return Sta::sta()->readVerilog(filename);
 }
 
 void
@@ -54,9 +47,9 @@ write_verilog_cmd(const char *filename,
 		  bool include_pwr_gnd,
 		  CellSeq *remove_cells)
 {
+  Sta *sta = Sta::sta();
   // This does NOT want the SDC (cmd) network because it wants
   // to see the sta internal names.
-  Sta *sta = Sta::sta();
   Network *network = sta->network();
   writeVerilog(filename, sort, include_pwr_gnd, remove_cells, network);
   delete remove_cells;

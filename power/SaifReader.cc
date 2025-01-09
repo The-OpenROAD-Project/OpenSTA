@@ -89,6 +89,7 @@ SaifReader::read()
     // yyparse returns 0 on success.
     bool success = (::SaifParse_parse() == 0);
     gzclose(stream_);
+    report_->reportLine("Annotated %zu pin activities.", annotated_pins_.size());
     return success;
   }
   else

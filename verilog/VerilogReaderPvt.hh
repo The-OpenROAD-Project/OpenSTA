@@ -33,6 +33,7 @@ VerilogParse_error(const char *msg);
 namespace sta {
 
 using std::string;
+using std::vector;
 using std::set;
 
 class Debug;
@@ -159,7 +160,7 @@ public:
 			Report *report,
                         bool use_top_cell_name = false);
   int line() const { return line_; }
-  const char *filename() const { return filename_; }
+  const char *filename() const { return filename_.c_str(); }
   void incrLine();
   Report *report() const { return report_; }
   void error(int id,
@@ -182,6 +183,7 @@ public:
   instanceVerilogName(const char *inst_name);
   string
   netVerilogName(const char *net_name);
+  static const char *unconnected_net_name_;
 
 protected:
   void init(const char *filename);
@@ -280,7 +282,8 @@ protected:
   Debug *debug_;
   NetworkReader *network_;
 
-  const char *filename_;
+  string filename_;
+  vector<string> filenames_;
   int line_;
   gzFile stream_;
 
@@ -341,13 +344,13 @@ public:
                 VerilogNetSeq *ports,
                 VerilogStmtSeq *stmts,
                 VerilogAttributeStmtSeq *attribute_stmts,
-                const char *filename,
+                string &filename,
                 int line,
                 VerilogReader *reader);
   virtual ~VerilogModule();
   const char *name() { return name_; }
-  const char *filename() { return filename_; }
-  VerilogAttributeStmtSeq *attribute_stmts() { return attribute_stmts_; }
+  const char *filename() { return filename_.c_str(); }
+  VerilogAttributeStmtSeq *attributeStmts() { return attribute_stmts_; }
   VerilogNetSeq *ports() { return ports_; }
   VerilogDcl *declaration(const char *net_name);
   VerilogStmtSeq *stmts() { return stmts_; }
@@ -362,7 +365,7 @@ private:
 			 VerilogReader *reader);
 
   const char *name_;
-  const char *filename_;
+  string &filename_;
   VerilogNetSeq *ports_;
   VerilogStmtSeq *stmts_;
   VerilogDclMap dcl_map_;
@@ -462,7 +465,7 @@ public:
   virtual ~VerilogInst();
   virtual bool isInstance() const { return true; }
   const char *instanceName() const { return inst_name_; }
-  VerilogAttributeStmtSeq *attribute_stmts() const { return attribute_stmts_; }
+  VerilogAttributeStmtSeq *attributeStmts() const { return attribute_stmts_; }
   void setInstanceName(const char *inst_name);
 
 private:

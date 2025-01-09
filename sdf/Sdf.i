@@ -24,7 +24,6 @@
 #include "Sta.hh"
 
 using sta::Sta;
-using sta::cmdLinkedNetwork;
 using sta::AnalysisType;
 using sta::MinMax;
 using sta::MinMaxAllNull;
@@ -51,8 +50,8 @@ read_sdf_file(const char *filename,
               bool incremental_only,
               MinMaxAllNull *cond_use)
 {
-  cmdLinkedNetwork();
   Sta *sta = Sta::sta();
+  sta->ensureLibLinked();
   sta->ensureGraph();
   if (stringEq(path, ""))
     path = NULL;
@@ -72,8 +71,8 @@ report_annotated_delay_cmd(bool report_cells,
 			   bool list_not_annotated,
 			   bool report_constant_arcs)
 {
-  cmdLinkedNetwork();
   Sta *sta = Sta::sta();
+  sta->ensureLibLinked();
   sta->ensureGraph();
   reportAnnotatedDelay(report_cells, report_nets,
 		       report_in_ports, report_out_ports,
@@ -95,8 +94,8 @@ report_annotated_check_cmd(bool report_setup,
 			   bool list_not_annotated,
 			   bool report_constant_arcs)
 {
-  cmdLinkedNetwork();
   Sta *sta = Sta::sta();
+  sta->ensureLibLinked();
   sta->ensureGraph();
   reportAnnotatedCheck(report_setup, report_hold,
 		       report_recovery, report_removal,
@@ -116,8 +115,8 @@ write_sdf_cmd(char *filename,
 	      bool no_timestamp,
 	      bool no_version)
 {
-  cmdLinkedNetwork();
   Sta *sta = Sta::sta();
+  sta->ensureLibLinked();
   sta->writeSdf(filename, corner, divider, include_typ, digits, gzip,
 		no_timestamp, no_version);
 }

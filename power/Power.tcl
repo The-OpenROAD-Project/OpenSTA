@@ -271,6 +271,7 @@ proc set_power_activity { args } {
 
 ################################################################
 
+# Deprecated 9/2024
 define_cmd_args "read_power_activities" { [-scope scope] -vcd filename }
 
 proc read_power_activities { args } {

@@ -680,7 +680,7 @@ getProperty(const Library *lib,
 	    const char *property,
 	    Sta *sta)
 {
-  auto network = sta->cmdNetwork();
+  Network *network = sta->cmdNetwork();
   if (stringEqual(property, "name")
       || stringEqual(property, "full_name"))
     return PropertyValue(network->name(lib));
@@ -711,8 +711,8 @@ getProperty(const LibertyCell *cell,
       || stringEqual(property, "base_name"))
     return PropertyValue(cell->name());
   else if (stringEqual(property, "full_name")) {
-    auto network = sta->cmdNetwork();
-    auto lib = cell->libertyLibrary();
+    Network *network = sta->cmdNetwork();
+    LibertyLibrary *lib = cell->libertyLibrary();
     string lib_name = lib->name();
     string cell_name = cell->name();
     string full_name = lib_name + network->pathDivider() + cell_name;
@@ -741,7 +741,7 @@ getProperty(const Cell *cell,
 	    const char *property,
 	    Sta *sta)
 {
-  auto network = sta->cmdNetwork();
+  Network *network = sta->cmdNetwork();
   if (stringEqual(property, "name")
       || stringEqual(property, "base_name"))
     return PropertyValue(network->name(cell));
@@ -767,7 +767,7 @@ getProperty(const Port *port,
 	    const char *property,
 	    Sta *sta)
 {
-  auto network = sta->cmdNetwork();
+  Network *network = sta->cmdNetwork();
   if (stringEqual(property, "name")
 	   || stringEqual(property, "full_name"))
     return PropertyValue(network->name(port));
@@ -819,7 +819,7 @@ portSlewProperty(const Port *port,
 		 const MinMax *min_max,
 		 Sta *sta)
 {
-  auto network = sta->cmdNetwork();
+  Network *network = sta->ensureLibLinked();
   Instance *top_inst = network->topInstance();
   Pin *pin = network->findPin(top_inst, port);
   return pinSlewProperty(pin, min_max, sta);
@@ -831,7 +831,7 @@ portSlewProperty(const Port *port,
 		 const MinMax *min_max,
 		 Sta *sta)
 {
-  auto network = sta->cmdNetwork();
+  Network *network = sta->ensureLibLinked();
   Instance *top_inst = network->topInstance();
   Pin *pin = network->findPin(top_inst, port);
   return pinSlewProperty(pin, rf, min_max, sta);
@@ -842,7 +842,7 @@ portSlackProperty(const Port *port,
 		  const MinMax *min_max,
 		  Sta *sta)
 {
-  auto network = sta->cmdNetwork();
+  Network *network = sta->ensureLibLinked();
   Instance *top_inst = network->topInstance();
   Pin *pin = network->findPin(top_inst, port);
   return pinSlackProperty(pin, min_max, sta);
@@ -854,7 +854,7 @@ portSlackProperty(const Port *port,
 		  const MinMax *min_max,
 		  Sta *sta)
 {
-  auto network = sta->cmdNetwork();
+  Network *network = sta->ensureLibLinked();
   Instance *top_inst = network->topInstance();
   Pin *pin = network->findPin(top_inst, port);
   return pinSlackProperty(pin, rf, min_max, sta);
@@ -937,7 +937,7 @@ getProperty(const Instance *inst,
 	    const char *property,
 	    Sta *sta)
 {
-  auto network = sta->cmdNetwork();
+  Network *network = sta->ensureLinked();
   LibertyCell *liberty_cell = network->libertyCell(inst);
   if (stringEqual(property, "name"))
     return PropertyValue(network->name(inst));
@@ -972,7 +972,7 @@ getProperty(const Pin *pin,
 	    const char *property,
 	    Sta *sta)
 {
-  auto network = sta->cmdNetwork();
+  Network *network = sta->ensureLinked();
   if (stringEqual(property, "name")
       || stringEqual(property, "lib_pin_name"))
     return PropertyValue(network->portName(pin));
@@ -1075,7 +1075,7 @@ pinSlewProperty(const Pin *pin,
 		const MinMax *min_max,
 		Sta *sta)
 {
-  auto graph = sta->ensureGraph();
+  Graph *graph = sta->ensureGraph();
   Vertex *vertex, *bidirect_drvr_vertex;
   graph->pinVertices(pin, vertex, bidirect_drvr_vertex);
   Slew slew = min_max->initValue();
@@ -1098,7 +1098,7 @@ pinSlewProperty(const Pin *pin,
 		const MinMax *min_max,
 		Sta *sta)
 {
-  auto graph = sta->ensureGraph();
+  Graph *graph = sta->ensureGraph();
   Vertex *vertex, *bidirect_drvr_vertex;
   graph->pinVertices(pin, vertex, bidirect_drvr_vertex);
   Slew slew = min_max->initValue();
@@ -1122,7 +1122,7 @@ getProperty(const Net *net,
 	    const char *property,
 	    Sta *sta)
 {
-  auto network = sta->cmdNetwork();
+  Network *network = sta->ensureLinked();
   if (stringEqual(property, "name"))
     return PropertyValue(network->name(net));
   else if (stringEqual(property, "full_name"))
@@ -1139,8 +1139,8 @@ getProperty(Edge *edge,
 	    Sta *sta)
 {
   if (stringEqual(property, "full_name")) {
-    auto network = sta->cmdNetwork();
-    auto graph = sta->graph();
+    Network *network = sta->cmdNetwork();
+    Graph *graph = sta->ensureGraph();
     const char *from = edge->from(graph)->name(network);
     const char *to = edge->to(graph)->name(network);
     string full_name;
@@ -1177,7 +1177,7 @@ edgeDelayProperty(Edge *edge,
   for (TimingArc *arc : arc_set->arcs()) {
     RiseFall *to_rf = arc->toEdge()->asRiseFall();
     if (to_rf == rf) {
-      for (auto corner : *sta->corners()) {
+      for (const Corner *corner : *sta->corners()) {
 	DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);
 	ArcDelay arc_delay = sta->arcDelay(edge, arc, dcalc_ap);
 	if (!delay_exists
@@ -1204,9 +1204,9 @@ getProperty(TimingArcSet *arc_set,
     if (arc_set->isWire())
       return PropertyValue("wire");
     else {
-      auto from = arc_set->from()->name();
-      auto to = arc_set->to()->name();
-      auto cell_name = arc_set->libertyCell()->name();
+      const char *from = arc_set->from()->name();
+      const char *to = arc_set->to()->name();
+      const char *cell_name = arc_set->libertyCell()->name();
       string name;
       stringPrint(name, "%s %s -> %s", cell_name, from, to);
       return PropertyValue(name);
@@ -1264,7 +1264,7 @@ getProperty(PathEnd *end,
   else if (stringEqual(property, "points")) {
     PathExpanded expanded(end->path(), sta);
     PathRefSeq paths;
-    for (auto i = expanded.startIndex(); i < expanded.size(); i++) {
+    for (size_t i = expanded.startIndex(); i < expanded.size(); i++) {
       const PathRef *path = expanded.path(i);
       paths.push_back(*path);
     }

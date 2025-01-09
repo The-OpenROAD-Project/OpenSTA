@@ -395,9 +395,7 @@ PrevPathVisitor::visitFromToPath(const Pin *,
   PathAPIndex path_ap_index = path_ap->index();
   if (to_rf->index() == path_rf_index_
       && path_ap_index == path_ap_index_
-      && (dcalc_tol_ > 0.0 
-	  ? std::abs(delayAsFloat(to_arrival - path_arrival_)) < dcalc_tol_
-	  : delayEqual(to_arrival, path_arrival_))
+      && delayEqual(to_arrival, path_arrival_)
       && (tagMatch(to_tag, path_tag_, this)
 	  // If the filter exception became active searching from
 	  // from_path to to_path the tag includes the filter, but

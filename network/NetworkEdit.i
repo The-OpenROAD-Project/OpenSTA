@@ -24,11 +24,6 @@ using sta::Port;
 using sta::Pin;
 using sta::NetworkEdit;
 
-namespace sta {
-NetworkEdit *
-cmdEditNetwork();
-}
-
 %}
 
 ////////////////////////////////////////////////////////////////
@@ -64,16 +59,14 @@ Net *
 make_net_cmd(const char *name,
 	     Instance *parent)
 {
-  Net *net = sta::cmdEditNetwork()->makeNet(name, parent);
-  // Sta notification unnecessary.
-  return net;
+  return Sta::sta()->makeNet(name, parent);
 }
 
 void
 make_port_pin_cmd(const char *port_name,
-                  const char *direction)
+                  PortDirection *dir)
 {
-  Sta::sta()->makePortPin(port_name, direction);
+  Sta::sta()->makePortPin(port_name, dir);
 }
 
 void

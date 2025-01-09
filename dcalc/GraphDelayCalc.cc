@@ -580,16 +580,17 @@ GraphDelayCalc::findVertexDelay(Vertex *vertex,
     if (network_->isLeaf(pin)) {
       if (vertex->isDriver(network_)) {
         LoadPinIndexMap load_pin_index_map = makeLoadPinIndexMap(vertex);
-        DrvrLoadSlews prev_load_slews = loadSlews(load_pin_index_map);
+        DrvrLoadSlews load_slews_prev;
+        if (incremental_)
+          load_slews_prev = loadSlews(load_pin_index_map);
         findDriverDelays(vertex, arc_delay_calc, load_pin_index_map);
 	if (propagate) {
 	  if (network_->direction(pin)->isInternal())
 	    enqueueTimingChecksEdges(vertex);
-	  bool load_slews_changed = loadSlewsChanged(prev_load_slews,
-                                                     load_pin_index_map);
           // Enqueue adjacent vertices even if the load slews did not
 	  // change when non-incremental to stride past annotations.
-	  if (load_slews_changed || !incremental_)
+	  if (!incremental_
+              || loadSlewsChanged(load_slews_prev, load_pin_index_map))
 	    iter_->enqueueAdjacentVertices(vertex);
 	}
       }
@@ -621,19 +622,15 @@ GraphDelayCalc::loadSlews(LoadPinIndexMap &load_pin_index_map)
 }
 
 bool
-GraphDelayCalc::loadSlewsChanged(DrvrLoadSlews &prev_load_slews,
+GraphDelayCalc::loadSlewsChanged(DrvrLoadSlews &load_slews_prev,
                                  LoadPinIndexMap &load_pin_index_map)
 {
   for (auto const [pin, index] : load_pin_index_map) {
     Vertex *load_vertex = graph_->pinLoadVertex(pin);
-    const SlewSeq load_slews = graph_->slews(load_vertex);
-    const SlewSeq  &prev_slews = prev_load_slews[index];
-    for (size_t i = 0; i < load_slews.size(); i++) {
-      const Slew &slew = delayAsFloat(load_slews[i]);
-      const Slew &prev_slew = delayAsFloat(prev_slews[i]);
-      if ((prev_slew == 0.0 && slew != 0.0)
-          || (prev_slew != 0.0
-              && abs((slew - prev_slew) / prev_slew) > incremental_delay_tolerance_))
+    const SlewSeq slews = graph_->slews(load_vertex);
+    const SlewSeq  &slews_prev = load_slews_prev[index];
+    for (size_t i = 0; i < slews.size(); i++) {
+      if (!delayEqual(slews[i], slews_prev[i]))
         return true;
     }
   }
@@ -1112,9 +1109,10 @@ GraphDelayCalc::annotateDelaySlew(Edge *edge,
     float prev_gate_delay1 = delayAsFloat(prev_gate_delay);
     if (prev_gate_delay1 == 0.0
         || (abs(gate_delay1 - prev_gate_delay1) / prev_gate_delay1
-            > incremental_delay_tolerance_))
+            > incremental_delay_tolerance_)) {
       delay_changed = true;
-    graph_->setArcDelay(edge, arc, ap_index, gate_delay);
+      graph_->setArcDelay(edge, arc, ap_index, gate_delay);
+    }
   }
   return delay_changed;
 }
