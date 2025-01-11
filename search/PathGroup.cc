@@ -797,7 +797,8 @@ PathGroups::enumPathEnds(PathGroup *group,
   // Parallel path enumeratation to find the endpoint_path_count/max path ends.
   for (int n = 0; path_enum.hasNext() && n < group_path_count; n++) {
     PathEnd *end = path_enum.next();
-    group->insert(end);
+    if (group->savable(end))
+      group->insert(end);
   }
 }
 
