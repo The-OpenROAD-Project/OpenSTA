@@ -28,6 +28,8 @@
 #include "VerilogNamespace.hh"
 #include "StringUtil.hh"
 #include "verilog/VerilogReaderPvt.hh"
+#include "ConcreteNetwork.hh"
+#include "NetworkClass.hh"
 
 extern int
 VerilogParse_parse();
@@ -1848,6 +1850,7 @@ VerilogReader::linkNetwork(const char *top_cell_name,
       }
       makeModuleInstBody(module, top_instance, &bindings, make_black_boxes);
       bool errors = reportLinkErrors(report);
+      // modules get deleted when VerilogReader is deleted
       // deleteModules();
       if (errors) {
 	network_->deleteInstance(top_instance);
@@ -1920,6 +1923,8 @@ VerilogReader::makeModuleInstNetwork(VerilogModuleInst *mod_inst,
     string inst_vname = verilogName(mod_inst);
     if (make_black_boxes) {
       cell = makeBlackBox(mod_inst, parent_module);
+      ConcreteCell* ccell = reinterpret_cast<ConcreteCell*>(cell);
+      ccell->setAttribute("black_box", "true");
       linkWarn(198, parent_module->filename(), mod_inst->line(),
 	       "module %s not found. Creating black box for %s.",
 	       mod_inst->moduleName(),
