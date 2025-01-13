@@ -37,7 +37,7 @@ typedef Map<const char*, PathGroup*, CharPtrLess> PathGroupNamedMap;
 class PathGroup
 {
 public:
-  virtual ~PathGroup();
+  ~PathGroup();
   // Path group that compares compare slacks.
   static PathGroup *makePathGroupArrival(const char *name,
 					 int group_path_count,
@@ -59,8 +59,8 @@ public:
   void insert(PathEnd *path_end);
   // Push group_path_count into path_ends.
   void pushEnds(PathEndSeq &path_ends);
-  // Predicates to determine if a PathEnd is worth saving.
-  virtual bool savable(PathEnd *path_end);
+  // Predicate to determine if a PathEnd is worth saving.
+  bool saveable(PathEnd *path_end);
   int maxPaths() const { return group_path_count_; }
   PathGroupIterator *iterator();
   // This does NOT delete the path ends.

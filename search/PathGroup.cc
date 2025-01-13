@@ -93,14 +93,13 @@ PathGroup::~PathGroup()
 }
 
 bool
-PathGroup::savable(PathEnd *path_end)
+PathGroup::saveable(PathEnd *path_end)
 {
   float threshold;
   {
     LockGuard lock(lock_);
     threshold = threshold_;
   }
-  bool savable = false;
   if (compare_slack_) {
     // Crpr increases the slack, so check the slack
     // without crpr first because it is expensive to find.
@@ -110,17 +109,17 @@ PathGroup::savable(PathEnd *path_end)
  	&& delayLessEqual(slack, slack_max_, sta_)) {
       // Now check with crpr.
       slack = path_end->slack(sta_);
-      savable = delayLessEqual(slack, threshold, sta_)
+      return delayLessEqual(slack, threshold, sta_)
  	&& delayLessEqual(slack, slack_max_, sta_)
  	&& delayGreaterEqual(slack, slack_min_, sta_);
     }
   }
   else {
     const Arrival &arrival = path_end->dataArrivalTime(sta_);
-    savable = !delayIsInitValue(arrival, min_max_)
+    return !delayIsInitValue(arrival, min_max_)
       && delayGreaterEqual(arrival, threshold, min_max_, sta_);
   }
-  return savable;
+  return false;
 }
 
 void
@@ -565,7 +564,7 @@ void
 MakePathEnds1::visitPathEnd(PathEnd *path_end,
 			    PathGroup *group)
 {
-  if (group->savable(path_end)) {
+  if (group->saveable(path_end)) {
     // Only keep the path end with the smallest slack/latest arrival.
     PathEnd *worst_end = ends_.findKey(group);
     if (worst_end) {
@@ -588,7 +587,7 @@ MakePathEnds1::vertexEnd(Vertex *)
     PathGroup *group;
     PathEnd *end;
     group_iter.next(group, end);
-    // visitPathEnd already confirmed slack is savable.
+    // visitPathEnd already confirmed slack is saveable.
     if (end) {
       group->insert(end);
       // Clear ends_ for next vertex.
@@ -701,7 +700,7 @@ MakePathEndsAll::vertexEnd(Vertex *)
                      path_end->path()->tag(sta_)->index());
 	  // Give the group a copy of the path end because
 	  // it may delete it during pruning.
-	  if (group->savable(path_end)) {
+	  if (group->saveable(path_end)) {
 	    group->insert(path_end->copy());
 	    unique_ends.insert(path_end);
 	    n++;
@@ -788,7 +787,7 @@ PathGroups::enumPathEnds(PathGroup *group,
   PathGroupIterator *end_iter = group->iterator();
   while (end_iter->hasNext()) {
     PathEnd *end = end_iter->next();
-    if (group->savable(end))
+    if (group->saveable(end))
       path_enum.insert(end);
   }
   delete end_iter;
@@ -797,7 +796,7 @@ PathGroups::enumPathEnds(PathGroup *group,
   // Parallel path enumeratation to find the endpoint_path_count/max path ends.
   for (int n = 0; path_enum.hasNext() && n < group_path_count; n++) {
     PathEnd *end = path_enum.next();
-    if (group->savable(end))
+    if (group->saveable(end))
       group->insert(end);
   }
 }
