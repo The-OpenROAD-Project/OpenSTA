@@ -102,6 +102,13 @@ set_power_pin_activity(const Pin *pin,
   return power->setUserActivity(pin, activity, duty, PwrActivityOrigin::user);
 }
 
+bool
+has_power_pin_activity(const Pin *pin)
+{
+  Power *power = Sta::sta()->power();
+  return power->hasUserActivity(pin);
+}
+
 ////////////////////////////////////////////////////////////////
 
 void

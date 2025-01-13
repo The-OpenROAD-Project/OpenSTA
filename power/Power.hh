@@ -91,6 +91,7 @@ public:
 		       PwrActivityOrigin origin);
   // Activity is toggles per second.
   PwrActivity findClkedActivity(const Pin *pin);
+  bool hasUserActivity(const Pin *pin);
 
 protected:
   bool inClockNetwork(const Instance *inst);
@@ -98,7 +99,6 @@ protected:
                    const Corner *corner,
                    PowerResult &result);
   void ensureActivities();
-  bool hasUserActivity(const Pin *pin);
   PwrActivity &userActivity(const Pin *pin);
   void setSeqActivity(const Instance *reg,
 		      LibertyPort *output,
