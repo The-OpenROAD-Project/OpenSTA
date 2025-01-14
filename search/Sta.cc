@@ -2556,6 +2556,12 @@ Sta::reportPathEnd(PathEnd *end,
 }
 
 void
+Sta::reportPathEnds(PathEndSeq *ends)
+{
+  report_path_->reportPathEnds(ends);
+}
+
+void
 Sta::reportPath(Path *path)
 {
   report_path_->reportPath(path);

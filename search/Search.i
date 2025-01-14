@@ -509,6 +509,18 @@ report_path_cmd(PathRef *path)
   Sta::sta()->reportPath(path);
 }
 
+void
+report_path_ends(PathEndSeq *ends)
+{
+  Sta *sta = Sta::sta();
+  Report *report = sta->report();
+  ReportPathFormat path_format = sta->reportPath()->pathFormat();
+  if (path_format == ReportPathFormat::json || (ends && ends->size() > 0))
+    sta->reportPathEnds(ends);
+  else
+    report->reportLine("No paths found.");
+}
+
 ////////////////////////////////////////////////////////////////
 
 void

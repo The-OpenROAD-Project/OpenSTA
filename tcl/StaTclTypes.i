@@ -1286,6 +1286,10 @@ using namespace sta;
   Tcl_SetObjResult(interp, obj);
 }
 
+%typemap(in) PathEndSeq* {
+  $1 = tclListSeqPtr<PathEnd*>($input, SWIGTYPE_p_PathEnd, interp);
+}
+
 %typemap(out) PathEndSeq* {
   Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   const PathEndSeq *path_ends = $1;

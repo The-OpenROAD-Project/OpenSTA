@@ -11,11 +11,19 @@ module counter(clk, reset, in, out);
   (* src = "synthesis/tests/counter.v:18.14-18.19" *)
   input reset;
   input in;
+  wire mid;
   (* bottom_bound = 1'sh0 *)
   (* src = "synthesis/tests/counter.v:22.3-28.6", attr1 = "test_attr1", attr2 = "test_attr2" *)
   sky130_fd_sc_hd__dfrtp_1 _1415_ (
     .CLK(clk),
     .D(in),
+    .Q(mid),
+    .RESET_B(reset)
+  );
+  (* src = "synthesis/tests/counter.v:22.3-28.6" *)
+  sky130_fd_sc_hd__dfrtp_1 \_1416_[0] (
+    .CLK(clk),
+    .D(mid),
     .Q(out),
     .RESET_B(reset)
   );

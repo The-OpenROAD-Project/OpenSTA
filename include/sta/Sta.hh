@@ -911,6 +911,7 @@ public:
 		     PathEnd *prev_end,
                      bool last);
   void reportPathEnd(PathEnd *end);
+  void reportPathEnds(PathEndSeq *ends);
   ReportPath *reportPath() { return report_path_; }
   void reportPath(Path *path);
 
