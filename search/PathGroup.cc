@@ -798,6 +798,8 @@ PathGroups::enumPathEnds(PathGroup *group,
     PathEnd *end = path_enum.next();
     if (group->saveable(end))
       group->insert(end);
+    else
+      delete end;
   }
 }
 
