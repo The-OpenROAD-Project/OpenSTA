@@ -3557,6 +3557,7 @@ hierPinsAbove(const Net *net,
       if (hpin_net)
         hierPinsAbove(hpin_net, network, pins_above);
     }
+    delete term_iter;
   }
 }
 
