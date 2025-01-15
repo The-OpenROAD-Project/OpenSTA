@@ -135,6 +135,7 @@ record_sta_tests {
   report_json1
   report_json2
   liberty_latch3
+  liberty_ccsn
 }
 
 define_test_group fast [group_tests all]

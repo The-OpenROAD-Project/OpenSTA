@@ -101,6 +101,7 @@ LibertyReader::init(const char *filename,
   saved_port_group_ = nullptr;
   in_bus_ = false;
   in_bundle_ = false;
+  in_ccsn_ = false;
   sequential_ = nullptr;
   statetable_ = nullptr;
   timing_ = nullptr;
@@ -543,6 +544,24 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("driver_waveform_name", &LibertyReader::visitDriverWaveformName);
   defineAttrVisitor("driver_waveform_rise", &LibertyReader::visitDriverWaveformRise);
   defineAttrVisitor("driver_waveform_fall", &LibertyReader::visitDriverWaveformFall);
+
+  // ccsn (not implemented, this is needed to properly ignore ccsn groups)
+  defineGroupVisitor("ccsn_first_stage", &LibertyReader::beginCcsn,
+		     &LibertyReader::endCcsn);
+  defineGroupVisitor("ccsn_last_stage", &LibertyReader::beginCcsn,
+		     &LibertyReader::endCcsn);
+  defineGroupVisitor("output_voltage_rise", &LibertyReader::beginCcsn,
+		     &LibertyReader::endCcsn);
+  defineGroupVisitor("output_voltage_fall", &LibertyReader::beginCcsn,
+		     &LibertyReader::endCcsn);
+  defineGroupVisitor("propagated_noise_low", &LibertyReader::beginCcsn,
+		     &LibertyReader::endCcsn);
+  defineGroupVisitor("propagated_noise_high", &LibertyReader::beginCcsn,
+		     &LibertyReader::endCcsn);
+  defineGroupVisitor("input_ccb", &LibertyReader::beginCcsn,
+		     &LibertyReader::endCcsn);
+  defineGroupVisitor("output_ccb", &LibertyReader::beginCcsn,
+		     &LibertyReader::endCcsn);
 }
 
 void
@@ -2709,7 +2728,7 @@ LibertyReader::endOutputCurrentRiseFall(LibertyGroup *group)
 void
 LibertyReader::beginVector(LibertyGroup *group)
 {
-  if (timing_) {
+  if (timing_ && !in_ccsn_) {
     beginTable(group, TableTemplateType::output_current, current_scale_);
     scale_factor_type_ = ScaleFactorType::unknown;
     reference_time_exists_ = false;
