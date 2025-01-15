@@ -61,6 +61,7 @@ public:
   void pushEnds(PathEndSeq &path_ends);
   // Predicate to determine if a PathEnd is worth saving.
   bool saveable(PathEnd *path_end);
+  bool enumMinSlackUnderMin(PathEnd *path_end);
   int maxPaths() const { return group_path_count_; }
   PathGroupIterator *iterator();
   // This does NOT delete the path ends.

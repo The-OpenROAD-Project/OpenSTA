@@ -122,6 +122,38 @@ PathGroup::saveable(PathEnd *path_end)
   return false;
 }
 
+// endpoint_path_count > 1 with slack_min requires
+// saving endpoints with slack > slack_min so that
+// path enumeration can find them. Use the patg end
+// with the min(max) delay to prune ends that cannot
+// onion peel down to slack_min.
+bool
+PathGroup::enumMinSlackUnderMin(PathEnd *path_end)
+{
+  if (compare_slack_
+      && endpoint_path_count_ > 1
+      && slack_min_ > -INF) {
+    const Path *path = path_end->path();
+    PathAnalysisPt *other_ap = path->pathAnalysisPt(sta_)->tgtClkAnalysisPt();
+    const Tag *tag = path->tag(sta_);
+    VertexPathIterator other_iter(path->vertex(sta_),
+                                  path->transition(sta_),
+                                  other_ap, sta_);
+    while (other_iter.hasNext()) {
+      PathVertex *other = other_iter.next();
+      if (tagMatchCrpr(other->tag(sta_), tag)) {
+        PathEnd *end_min = path_end->copy();
+        end_min->setPath(other);
+        bool slack_under = fuzzyGreater(end_min->slackNoCrpr(sta_), slack_min_);
+        delete end_min;
+        if (slack_under)
+          return true;
+      }
+    }
+  }
+  return false;
+}
+
 void
 PathGroup::insert(PathEnd *path_end)
 {
@@ -700,7 +732,8 @@ MakePathEndsAll::vertexEnd(Vertex *)
                      path_end->path()->tag(sta_)->index());
 	  // Give the group a copy of the path end because
 	  // it may delete it during pruning.
-	  if (group->saveable(path_end)) {
+	  if (group->saveable(path_end)
+              || group->enumMinSlackUnderMin(path_end)) {
 	    group->insert(path_end->copy());
 	    unique_ends.insert(path_end);
 	    n++;
@@ -787,7 +820,8 @@ PathGroups::enumPathEnds(PathGroup *group,
   PathGroupIterator *end_iter = group->iterator();
   while (end_iter->hasNext()) {
     PathEnd *end = end_iter->next();
-    if (group->saveable(end))
+    if (group->saveable(end)
+        || group->enumMinSlackUnderMin(end))
       path_enum.insert(end);
   }
   delete end_iter;
