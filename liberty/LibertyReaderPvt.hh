@@ -524,7 +524,8 @@ protected:
 			 LibraryAttrVisitor visitor);
   void parseNames(const char *name_str);
   void clearAxisValues();
-  void makeTableAxis(int index);
+  void makeTableAxis(int index,
+                     LibertyAttr *attr);
 
   StringSeq *parseNameList(const char *name_list);
   StdStringSeq parseTokenList(const char *token_str,
