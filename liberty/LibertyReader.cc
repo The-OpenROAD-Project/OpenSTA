@@ -4720,20 +4720,18 @@ LibertyReader::makeFloatTable(LibertyAttr *attr,
     else
       libWarn(1258, attr, "%s is not a list of floats.", attr->name());
     if (row->size() != cols) {
-      libWarn(1259, attr, "table row has %u columns but axis has %d.",
-	      // size_t is long on 64 bit ports.
-	      static_cast<unsigned>(row->size()),
-	      static_cast<unsigned>(cols));
+      libWarn(1259, attr, "table row has %zu columns but axis has %zu.",
+	      row->size(),
+	      cols);
       // Fill out row columns with zeros.
       for (size_t c = row->size(); c < cols; c++)
 	row->push_back(0.0);
     }
   }
   if (table->size() != rows) {
-    libWarn(1260, attr, "table has %u rows but axis has %d.",
-	    // size_t is long on 64 bit ports.
-	    static_cast<unsigned>(table->size()),
-	    static_cast<unsigned>(rows));
+    libWarn(1260, attr, "table has %zu rows but axis has %zu.",
+	    table->size(),
+	    rows);
     // Fill with zero'd rows.
     for (size_t r = table->size(); r < rows; r++) {
       FloatSeq *row = new FloatSeq;
