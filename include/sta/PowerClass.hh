@@ -45,7 +45,7 @@ public:
   void setActivity(float activity);
   float duty() const { return duty_; }
   void setDuty(float duty);
-  PwrActivityOrigin origin() { return origin_; }
+  PwrActivityOrigin origin() const { return origin_; }
   void setOrigin(PwrActivityOrigin origin);
   const char *originName() const;
   void set(float activity,
@@ -69,12 +69,15 @@ class PowerResult
 public:
   PowerResult();
   void clear();
-  float &internal() { return internal_; }
-  float &switching() { return switching_; }
-  float &leakage() { return leakage_; }
+  float internal() const { return internal_; }
+  float switching() const { return switching_; }
+  float leakage() const { return leakage_; }
   float total() const;
   void incr(PowerResult &result);
-  
+  void incrInternal(float pwr);
+  void incrSwitching(float pwr);
+  void incrLeakage(float pwr);
+
 private:
   float internal_;
   float switching_;

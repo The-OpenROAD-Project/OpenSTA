@@ -23,6 +23,7 @@
 #include "Debug.hh"
 #include "Report.hh"
 #include "Network.hh"
+#include "PortDirection.hh"
 #include "Sdc.hh"
 #include "Power.hh"
 #include "power/SaifReaderPvt.hh"
@@ -178,7 +179,9 @@ SaifReader::setNetDurations(const char *net_name,
     if (parent) {
       string unescaped_name = unescaped(net_name);
       const Pin *pin = sdc_network_->findPin(parent, unescaped_name.c_str());
-      if (pin) {
+      if (pin
+          && !sdc_network_->isHierarchical(pin)
+          && !sdc_network_->direction(pin)->isInternal()) {
         double t1 = durations[static_cast<int>(SaifState::T1)];
         float duty = t1 / duration_;
         double tc = durations[static_cast<int>(SaifState::TC)];

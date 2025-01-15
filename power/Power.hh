@@ -91,6 +91,8 @@ public:
 		       PwrActivityOrigin origin);
   // Activity is toggles per second.
   PwrActivity findClkedActivity(const Pin *pin);
+  void reportActivityAnnotation(bool report_unannotated,
+                                bool report_annotated);
 
 protected:
   bool inClockNetwork(const Instance *inst);
@@ -199,6 +201,9 @@ protected:
                         const Instance *inst);
   float evalBddDuty(DdNode *bdd,
                     const Instance *inst);
+  void findUnannotatedPins(const Instance *inst,
+                           PinSeq &unannotated_pins);
+  size_t pinCount();
 
 private:
   // Port/pin activities set by set_pin_activity.

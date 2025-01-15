@@ -199,10 +199,9 @@ set(STA_SOURCE
   spice/Xyce.cc
 
   power/Power.cc
-  power/ReadVcdActivities.cc
-  power/SaifReader.cc
-  power/Vcd.cc
   power/VcdReader.cc
+  power/SaifReader.cc
+  power/VcdParse.cc
 
   util/Debug.cc
   util/DispatchQueue.cc

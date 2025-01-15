@@ -865,7 +865,7 @@ Power::findInputInternalPower(const Pin *pin,
                    related_pg_pin ? related_pg_pin : "no pg_pin");
         internal += port_internal;
       }
-      result.internal() += internal;
+      result.incrInternal(internal);
     }
   }
 }
@@ -1024,7 +1024,7 @@ Power::findOutputInternalPower(const LibertyPort *to_port,
                related_pg_pin ? related_pg_pin : "no pg_pin");
     internal += port_internal;
   }
-  result.internal() += internal;
+  result.incrInternal(internal);
 }
 
 float
@@ -1117,7 +1117,7 @@ Power::findSwitchingPower(const Instance *inst,
                    activity.activity(),
                    volt,
                    switching);
-        result.switching() += switching;
+        result.incrSwitching(switching);
       }
     }
   }
@@ -1185,7 +1185,7 @@ Power::findLeakagePower(const Instance *inst,
   debugPrint(debug_, "power", 2, "leakage %s %.3e",
              cell->name(),
              leakage);
-  result.leakage() += leakage;
+  result.incrLeakage(leakage);
 }
 
 PwrActivity
@@ -1268,10 +1268,9 @@ Power::findSeqActivity(const Instance *inst,
     return global_activity_;
   else if (hasSeqActivity(inst, port)) {
     PwrActivity &activity = seqActivity(inst, port);
-    if (activity.origin() != PwrActivityOrigin::unknown)
-      return activity;
+    return activity;
   }
-  return PwrActivity(0.0, 0.0, PwrActivityOrigin::unknown);
+  return PwrActivity();
 }
 
 float
@@ -1330,6 +1329,117 @@ Power::findClk(const Pin *to_pin)
 
 ////////////////////////////////////////////////////////////////
 
+void
+Power::reportActivityAnnotation(bool report_unannotated,
+                                bool report_annotated)
+{
+  size_t vcd_count = 0;
+  size_t saif_count = 0;
+  size_t input_count = 0;
+  for (auto const& [pin, activity] : user_activity_map_) {
+    PwrActivityOrigin origin = activity.origin();
+    switch (origin) {
+    case PwrActivityOrigin::vcd:
+      vcd_count++;
+      break;
+    case PwrActivityOrigin::saif:
+      saif_count++;
+      break;
+    case PwrActivityOrigin::user:
+      input_count++;
+      break;
+    default:
+      break;
+    }
+  }
+  if (vcd_count > 0)
+    report_->reportLine("vcd         %5zu", vcd_count);
+  if (saif_count > 0)
+    report_->reportLine("saif        %5zu", saif_count);
+  if (input_count > 0)
+    report_->reportLine("input       %5zu", input_count);
+  size_t pin_count = pinCount();
+  size_t unannotated_count = pin_count - vcd_count - saif_count - input_count;
+  report_->reportLine("unannotated %5zu", unannotated_count);
+
+  if (report_annotated) {
+    PinSeq annotated_pins;
+    for (auto const& [pin, activity] : user_activity_map_)
+      annotated_pins.push_back(pin);
+    sort(annotated_pins.begin(), annotated_pins.end(), PinPathNameLess(sdc_network_));
+    report_->reportLine("Annotated pins:");
+    for (const Pin *pin : annotated_pins) {
+      const PwrActivity &activity = user_activity_map_[pin];
+      PwrActivityOrigin origin = activity.origin();
+      const char *origin_name = pwr_activity_origin_map.find(origin);
+      report_->reportLine("%5s %s",
+                          origin_name,
+                          sdc_network_->pathName(pin));
+    }
+  }
+  if (report_unannotated) {
+    PinSeq unannotated_pins;
+    findUnannotatedPins(network_->topInstance(), unannotated_pins);
+    LeafInstanceIterator *inst_iter = network_->leafInstanceIterator();
+    while (inst_iter->hasNext()) {
+      const Instance *inst = inst_iter->next();
+      findUnannotatedPins(inst, unannotated_pins);
+    }
+    delete inst_iter;
+
+    sort(unannotated_pins.begin(), unannotated_pins.end(),
+         PinPathNameLess(sdc_network_));
+    report_->reportLine("Unannotated pins:");
+    for (const Pin *pin : unannotated_pins) {
+      report_->reportLine(" %s", sdc_network_->pathName(pin));
+    }
+  }
+}
+
+void
+Power::findUnannotatedPins(const Instance *inst,
+                           PinSeq &unannotated_pins)
+{
+  InstancePinIterator *pin_iter = network_->pinIterator(inst);
+  while (pin_iter->hasNext()) {
+    const Pin *pin = pin_iter->next();
+    if (!network_->direction(pin)->isInternal()
+        && user_activity_map_.find(pin) == user_activity_map_.end())
+      unannotated_pins.push_back(pin);
+  }
+  delete pin_iter;
+}
+
+// leaf pins - internal pins + top instance pins
+size_t
+Power::pinCount()
+{
+  size_t count = 0;
+  LeafInstanceIterator *leaf_iter = network_->leafInstanceIterator();
+  while (leaf_iter->hasNext()) {
+    Instance *leaf = leaf_iter->next();
+    InstancePinIterator *pin_iter = network_->pinIterator(leaf);
+    while (pin_iter->hasNext()) {
+      const Pin *pin = pin_iter->next();
+      if (!network_->direction(pin)->isInternal())
+        count++;
+    }
+    delete pin_iter;
+  }
+  delete leaf_iter;
+
+  InstancePinIterator *pin_iter = network_->pinIterator(network_->topInstance());
+  while (pin_iter->hasNext()) {
+    pin_iter->next();
+    count++;
+  }
+  delete pin_iter;
+
+  return count;
+}
+
+////////////////////////////////////////////////////////////////
+
 PowerResult::PowerResult() :
   internal_(0.0),
   switching_(0.0),
@@ -1349,6 +1459,24 @@ float
 PowerResult::total() const
 {
   return internal_ + switching_ + leakage_;
+}
+
+void
+PowerResult::incrInternal(float pwr)
+{
+  internal_ += pwr;
+}
+
+void
+PowerResult::incrSwitching(float pwr)
+{
+  switching_ += pwr;
+}
+
+void
+PowerResult::incrLeakage(float pwr)
+{
+  leakage_ += pwr;
 }
 
 void

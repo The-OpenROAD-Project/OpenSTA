@@ -323,6 +323,20 @@ proc read_saif { args } {
 
 ################################################################
 
+define_cmd_args "report_activity_annotation" { [-report_unannotated] \
+                                                 [-report_annotated] }
+
+proc_redirect report_activity_annotation {
+  parse_key_args "report_activity_annotation" args \
+    keys {} flags {-report_unannotated -report_annotated}
+  check_argc_eq0 "report_activity_annotation" $args
+  set report_unannotated [info exists flags(-report_unannotated)]
+  set report_annotated [info exists flags(-report_annotated)];
+  report_activity_annotation_cmd $report_unannotated $report_annotated
+}
+
+################################################################
+
 proc power_find_nan { } {
   set corner [cmd_corner]
   foreach inst [network_leaf_instances] {

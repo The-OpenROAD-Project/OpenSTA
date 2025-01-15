@@ -14,437 +14,433 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include <cctype>
-#include <cinttypes>
-
 #include "VcdReader.hh"
 
-#include "Zlib.hh"
-#include "Stats.hh"
-#include "Report.hh"
-#include "Error.hh"
-#include "StringUtil.hh"
-#include "EnumNameMap.hh"
+#include <inttypes.h>
+#include <set>
+
+#include "VcdParse.hh"
+#include "Debug.hh"
+#include "Network.hh"
+#include "PortDirection.hh"
+#include "VerilogNamespace.hh"
+#include "ParseBus.hh"
+#include "Sdc.hh"
+#include "Power.hh"
+#include "Sta.hh"
 
 namespace sta {
 
-using std::isspace;
+using std::abs;
+using std::min;
+using std::to_string;
+using std::vector;
+using std::map;
 
-// Very imprecise syntax definition
-// https://en.wikipedia.org/wiki/Value_change_dump#Structure.2FSyntax
-// Much better syntax definition
-// https://web.archive.org/web/20120323132708/http://www.beyondttl.com/vcd.php
-
-class VcdReader : public StaState
+// Transition count and high time for duty cycle for a group of pins
+// for one bit of vcd ID.
+class VcdCount
 {
 public:
-  VcdReader(StaState *sta);
-  Vcd read(const char *filename);
+  VcdCount();
+  double transitionCount() const { return transition_count_; }
+  VcdTime highTime(VcdTime time_max) const;
+  void incrCounts(VcdTime time,
+                  char value);
+  void incrCounts(VcdTime time,
+                  int64_t value);
+  void addPin(const Pin *pin);
+  const PinSeq &pins() const { return pins_; }
 
 private:
-  void parseTimescale();
-  void setTimeUnit(const string &time_unit);
-  void parseVar();
-  void parseScope();
-  void parseUpscope();
-  void parseVarValues();
-  string getToken();
-  string readStmtString();
-  vector<string> readStmtTokens();
-
-  gzFile stream_;
-  string token_;
-  const char *filename_;
-  int file_line_;
-  int stmt_line_;
-
-  Vcd *vcd_;
-  VcdTime time_;
+  PinSeq pins_;
   VcdTime prev_time_;
-  VcdScope scope_;
+  char prev_value_;
+  VcdTime high_time_;
+  double transition_count_;
 };
 
-Vcd
-readVcdFile(const char *filename,
-            StaState *sta)
-
+VcdCount::VcdCount() :
+  prev_time_(-1),
+  prev_value_('\0'),
+  high_time_(0),
+  transition_count_(0)
 {
-  VcdReader reader(sta);
-  return reader.read(filename);
 }
 
-Vcd
-VcdReader::read(const char *filename)
+void
+VcdCount::addPin(const Pin *pin)
 {
-  Vcd vcd(this);
-  vcd_ = &vcd;
-  stream_ = gzopen(filename, "r");
-  if (stream_) {
-    Stats stats(debug_, report_);
-    filename_ = filename;
-    file_line_ = 1;
-    stmt_line_ = 1;
-    string token = getToken();
-    while (!token.empty()) {
-      if (token == "$date")
-        vcd_->setDate(readStmtString());
-      else if (token == "$comment")
-        vcd_->setComment(readStmtString());
-      else if (token == "$version")
-        vcd_->setVersion(readStmtString());
-      else if (token == "$timescale")
-        parseTimescale();
-      else if (token == "$var")
-        parseVar();
-      else if (token == "$scope")
-        parseScope();
-      else if (token == "$upscope")
-        parseUpscope();
-      else if (token == "$enddefinitions")
-        // empty body
-        readStmtString();
-      else if (token == "$dumpall")
-        parseVarValues();
-      else if (token == "$dumpvars")
-        // Initial values.
-        parseVarValues();
-      else if (token[0] == '$')
-        report_->fileError(800, filename_, stmt_line_, "unhandled vcd command.");
-      else
-        parseVarValues();
-      token = getToken();
-    }
-    gzclose(stream_);
-    stats.report("Read VCD");
+  pins_.push_back(pin);
+}
+
+void
+VcdCount::incrCounts(VcdTime time,
+                     char value)
+{
+  // Initial value does not coontribute to transitions or high time.
+  if (prev_time_ != -1) {
+    if (prev_value_ == '1')
+      high_time_ += time - prev_time_;
+    if (value != prev_value_)
+      transition_count_ += (value == 'X'
+                            || value == 'Z'
+                            || prev_value_ == 'X'
+                            || prev_value_ == 'Z')
+        ? .5
+        : 1.0;
   }
+  prev_time_ = time;
+  prev_value_ = value;
+}
+
+VcdTime
+VcdCount::highTime(VcdTime time_max) const
+{
+  if (prev_value_ == '1')
+    return high_time_ + time_max - prev_time_;
   else
-    throw FileNotReadable(filename);
-  return vcd;
-}
-
-VcdReader::VcdReader(StaState *sta) :
-  StaState(sta),
-  file_line_(0),
-  stmt_line_(0),
-  vcd_(nullptr),
-  time_(0),
-  prev_time_(0)
-{
-}
-
-void
-VcdReader::parseTimescale()
-{
-  vector<string> tokens = readStmtTokens();
-  if (tokens.size() == 1) {
-    size_t last;
-    double time_scale = std::stod(tokens[0], &last);
-    setTimeUnit(tokens[0].substr(last));
-    vcd_->setTimeScale(time_scale * vcd_->timeUnitScale());
-  }
-  else if (tokens.size() == 2) {
-    setTimeUnit(tokens[1]);
-    double time_scale = std::stod(tokens[0]);
-    vcd_->setTimeScale(time_scale * vcd_->timeUnitScale());
-  }
-  else
-    report_->fileError(801, filename_, stmt_line_, "timescale syntax error.");
-}
-
-void
-VcdReader::setTimeUnit(const string &time_unit)
-{
-  double time_unit_scale = 1.0;
-  if (time_unit == "fs")
-    time_unit_scale = 1e-15;
-  else if (time_unit == "ps")
-    time_unit_scale = 1e-12;
-  else if (time_unit == "ns")
-    time_unit_scale = 1e-9;
-  else
-    report_->fileError(802, filename_, stmt_line_, "Unknown timescale unit.");
-  vcd_->setTimeUnit(time_unit, time_unit_scale);;
-}
-
-static EnumNameMap<VcdVarType> vcd_var_type_map =
-  {{VcdVarType::wire, "wire"},
-   {VcdVarType::reg, "reg"},
-   {VcdVarType::parameter, "parameter"},
-   {VcdVarType::integer, "integer"},
-   {VcdVarType::real, "real"},
-   {VcdVarType::supply0, "supply0"},
-   {VcdVarType::supply1, "supply1"},
-   {VcdVarType::time, "time"},
-   {VcdVarType::tri, "tri"},
-   {VcdVarType::triand, "triand"},
-   {VcdVarType::trior, "trior"},
-   {VcdVarType::trireg, "trireg"},
-   {VcdVarType::tri0, "tri0"},
-   {VcdVarType::tri1, "tri1"},
-   {VcdVarType::wand, "wand"},
-   {VcdVarType::wor, "wor"}
-  };
-
-void
-VcdReader::parseVar()
-{
-  vector<string> tokens = readStmtTokens();
-  if (tokens.size() == 4
-      || tokens.size() == 5) {
-    string type_name = tokens[0];
-    VcdVarType type = vcd_var_type_map.find(type_name, VcdVarType::unknown);
-    if (type == VcdVarType::unknown)
-      report_->fileWarn(1370, filename_, stmt_line_,
-                        "Unknown variable type %s.",
-                        type_name.c_str());
-    else {
-      int width = stoi(tokens[1]);
-      string &id = tokens[2];
-      string name;
-
-      for (string &context : scope_) {
-        name += context;
-        name += '/';
-      }
-      name += tokens[3];
-      // iverilog separates bus base name from bit range.
-      if (tokens.size() == 5) {
-        // Preserve space after esacaped name.
-        if (name[0] == '\\')
-          name += ' ';
-        name += tokens[4];
-      }
-
-      vcd_->makeVar(name, type, width, id);
-    }
-  }
-  else
-    report_->fileError(804, filename_, stmt_line_, "Variable syntax error.");
-}
-
-void
-VcdReader::parseScope()
-{
-  vector<string> tokens = readStmtTokens();
-  string &scope = tokens[1];
-  scope_.push_back(scope);
-}
-
-void
-VcdReader::parseUpscope()
-{
-  readStmtTokens();
-  scope_.pop_back();
-}
-
-void
-VcdReader::parseVarValues()
-{
-  string token = getToken();
-  while (!token.empty()) {
-    char char0 = toupper(token[0]);
-    if (char0 == '#' && token.size() > 1) {
-      prev_time_ = time_;
-      time_ = stoll(token.substr(1));
-      if (time_ > prev_time_)
-        vcd_->setMinDeltaTime(min(time_ - prev_time_, vcd_->minDeltaTime()));
-    }
-    else if (char0 == '0'
-             || char0 == '1'
-             || char0 == 'X'
-             || char0 == 'U'
-             || char0 == 'Z') {
-      string id = token.substr(1);
-      if (!vcd_->varIdValid(id))
-        report_->fileError(805, filename_, stmt_line_,
-                           "unknown variable %s", id.c_str());
-      vcd_->varAppendValue(id, time_, char0);
-    }
-    else if (char0 == 'B') {
-      char char1 = toupper(token[1]);
-      if (char1 == 'X'
-          || char1 == 'U'
-          || char1 == 'Z') {
-        string id = getToken();
-        if (!vcd_->varIdValid(id))
-          report_->fileError(806, filename_, stmt_line_,
-                             "unknown variable %s", id.c_str());
-        // Bus mixed 0/1/X/U not supported.
-        vcd_->varAppendValue(id, time_, char1);
-      }
-      else {
-        string bin = token.substr(1);
-        char *end;
-        int64_t bus_value = strtol(bin.c_str(), &end, 2);
-        string id = getToken();
-        if (!vcd_->varIdValid(id))
-          report_->fileError(807, filename_, stmt_line_,
-                             "unknown variable %s", id.c_str());
-        else
-          vcd_->varAppendBusValue(id, time_, bus_value);
-      }
-    }
-    token = getToken();
-  }
-  vcd_->setTimeMax(time_);
-}
-
-string
-VcdReader::readStmtString()
-{
-  stmt_line_ = file_line_;
-  string line;
-  string token = getToken();
-  while (!token.empty() && token != "$end") {
-    if (!line.empty())
-      line += " ";
-    line += token;
-    token = getToken();
-  }
-  return line;
-}
-
-vector<string>
-VcdReader::readStmtTokens()
-{
-  stmt_line_ = file_line_;
-  vector<string> tokens;
-  string token = getToken();
-  while (!token.empty() && token != "$end") {
-    tokens.push_back(token);
-    token = getToken();
-  }
-  return tokens;
-}
-
-string
-VcdReader::getToken()
-{
-  string token;
-  int ch = gzgetc(stream_);
-  if (ch == '\n')
-    file_line_++;
-  // skip whitespace
-  while (ch != EOF && isspace(ch)) {
-    ch = gzgetc(stream_);
-    if (ch == '\n')
-      file_line_++;
-  }
-  while (ch != EOF && !isspace(ch)) {
-    token.push_back(ch);
-    ch = gzgetc(stream_);
-    if (ch == '\n')
-      file_line_++;
-  }
-  if (ch == EOF)
-    return "";
-  else
-    return token;
+    return high_time_;
 }
 
 ////////////////////////////////////////////////////////////////
 
-static void
-reportWaveforms(Vcd &vcd,
-                Report *report);
+// VcdCount[bit]
+typedef vector<VcdCount> VcdCounts;
+// ID -> VcdCount[bit]
+typedef map<string, VcdCounts> VcdIdCountsMap;
 
-void
-reportVcdWaveforms(const char *filename,
-                   StaState *sta)
-
+class VcdCountReader : public VcdReader
 {
-  Vcd vcd = readVcdFile(filename, sta);
-  reportWaveforms(vcd, sta->report());
+public:
+  VcdCountReader(const char *scope,
+                 Network *sdc_network,
+                 Report *report,
+                 Debug *debug);
+  VcdTime timeMax() const { return time_max_; }
+  const VcdIdCountsMap &countMap() const { return vcd_count_map_; }
+  double timeScale() const { return time_scale_; }
+
+  // VcdParse callbacks.
+  void setDate(const string &) override {}
+  void setComment(const string &) override {}
+  void setVersion(const string &) override {}
+  void setTimeUnit(const string &time_unit,
+                   double time_unit_scale,
+                   double time_scale) override;
+  void setTimeMax(VcdTime time_max) override;
+  void varMinDeltaTime(VcdTime) override {}
+  bool varIdValid(const string &id) override;
+  void makeVar(const VcdScope &scope,
+               const string &name,
+               VcdVarType type,
+               size_t width,
+               const string &id) override;
+  void varAppendValue(const string &id,
+                      VcdTime time,
+                      char value) override;
+  void varAppendBusValue(const string &id,
+                         VcdTime time,
+                         int64_t bus_value) override;
+
+private:
+  void addVarPin(const string &pin_name,
+                 const string &id,
+                 size_t width,
+                 size_t bit_idx);
+
+  const char *scope_;
+  Network *sdc_network_;
+  Report *report_;
+  Debug *debug_;
+
+  double time_scale_;
+  VcdTime time_max_;
+  VcdIdCountsMap vcd_count_map_;
+};
+
+VcdCountReader::VcdCountReader(const char *scope,
+                               Network *sdc_network,
+                               Report *report,
+                               Debug *debug) :
+  scope_(scope),
+  sdc_network_(sdc_network),
+  report_(report),
+  debug_(debug),
+  time_scale_(1.0),
+  time_max_(0.0)
+{
 }
 
-static void
-reportWaveforms(Vcd &vcd,
-                Report *report)
+void
+VcdCountReader::setTimeUnit(const string &,
+                            double time_unit_scale,
+                            double time_scale)
 {
-  report->reportLine("Date: %s", vcd.date().c_str());
-  report->reportLine("Timescale: %.2f%s", vcd.timeScale(), vcd.timeUnit().c_str());
-  // Characters per time sample.
-  int zoom = (vcd.maxVarWidth() + 7) / 4;
-  int time_delta = vcd.minDeltaTime();
+  time_scale_ = time_scale * time_unit_scale;
+}
 
-  int max_var_name_length = vcd.maxVarNameLength();
-  for (VcdVar *var : vcd.vars()) {
-    string line;
-    stringPrint(line, " %-*s",
-                static_cast<int>(max_var_name_length),
-                var->name().c_str());
-    const VcdValues &var_values = vcd.values(var);
-    if (!var_values.empty()) {
-      size_t value_index = 0;
-      VcdValue var_value = var_values[value_index];
-      VcdValue prev_var_value = var_values[value_index];
-      VcdTime next_value_time = var_values[value_index + 1].time();
-      for (double time = 0.0; time < vcd.timeMax(); time += time_delta) {
-        if (time >= next_value_time) {
-          if (value_index < var_values.size() - 1)
-            value_index++;
-          var_value = var_values[value_index];
-          if (value_index < var_values.size())
-            next_value_time = var_values[value_index + 1].time();
-        }
-        if (var_value.value()) {
-          // 01UZX
-          char value = var_value.value();
-          char prev_value = prev_var_value.value();
-          if (var->width() == 1) {
-            if (value == '0' || value == '1') {
-              for (int z = 0; z < zoom; z++) {
-                if (z == 0
-                    && value != prev_value
-                    && (prev_value == '0'
-                        || prev_value == '1'))
-                  line += (prev_value == '1') ? "╲" : "╱";
-                else
-                  line += (value == '1') ? "▔" : "▁";
-              }
-            }
-            else {
-              string field;
-              stringPrint(field, "%-*c", zoom, value);
-              line += field;
+void
+VcdCountReader::setTimeMax(VcdTime time_max)
+{
+  time_max_ = time_max;
+}
+
+bool
+VcdCountReader::varIdValid(const string &)
+{
+  return true;
+}
+
+void
+VcdCountReader::makeVar(const VcdScope &scope,
+                        const string &name,
+                        VcdVarType type,
+                        size_t width,
+                        const string &id)
+{
+  if (type == VcdVarType::wire
+      || type == VcdVarType::reg) {
+    string path_name;
+    bool first = true;
+    for (const string &context : scope) {
+      if (!first)
+        path_name += '/';
+      path_name += context;
+      first = false;
+    }
+    size_t scope_length = strlen(scope_);
+    // string::starts_with in c++20
+    if (scope_length == 0
+        || path_name.substr(0, scope_length) == scope_) {
+      path_name += '/';
+      path_name += name;
+      // Strip the scope from the name.
+      string var_scoped = path_name.substr(scope_length + 1);
+      if (width == 1) {
+        string pin_name = netVerilogToSta(var_scoped.c_str());
+        addVarPin(pin_name, id, width, 0);
+      }
+      else {
+        bool is_bus, is_range, subscript_wild;
+        string bus_name;
+        int from, to;
+        parseBusName(var_scoped.c_str(), '[', ']', '\\',
+                     is_bus, is_range, bus_name, from, to, subscript_wild);
+        if (is_bus) {
+          string sta_bus_name = netVerilogToSta(bus_name.c_str());
+          int bit_idx = 0;
+          if (to < from) {
+            for (int bus_bit = to; bus_bit <= from; bus_bit++) {
+              string pin_name = sta_bus_name;
+              pin_name += '[';
+              pin_name += to_string(bus_bit);
+              pin_name += ']';
+              addVarPin(pin_name, id, width, bit_idx);
+              bit_idx++;
             }
           }
           else {
-            string field;
-            stringPrint(field, "%-*c", zoom, value);
-            line += field;
+            for (int bus_bit = to; bus_bit >= from; bus_bit--) {
+              string pin_name = sta_bus_name;
+              pin_name += '[';
+              pin_name += to_string(bus_bit);
+              pin_name += ']';
+              addVarPin(pin_name, id, width, bit_idx);
+              bit_idx++;
+            }
           }
         }
-        else {
-          // bus
-          string field;
-          stringPrint(field, "%-*" PRIX64, zoom, var_value.busValue());
-          line += field;
-        }
-        prev_var_value = var_value;
+        else
+          report_->warn(1451, "problem parsing bus %s.", var_scoped.c_str());
       }
     }
-    report->reportLineString(line);
   }
 }
 
 void
-reportVcdVarValues(const char *filename,
-                   const char *var_name,
-                   StaState *sta)
+VcdCountReader::addVarPin(const string &pin_name,
+                          const string &id,
+                          size_t width,
+                          size_t bit_idx)
 {
-  Vcd vcd = readVcdFile(filename, sta);
-  VcdVar *var = vcd.var(var_name);
-  if (var) {
-    Report *report = sta->report();
-    for (const VcdValue &var_value : vcd.values(var)) {
-      double time = var_value.time() * vcd.timeUnitScale();
-      char value = var_value.value();
-      if (value == '\0')
-        report->reportLine("%.2e %" PRIu64,
-                           time, var_value.busValue());
-      else
-        report->reportLine("%.2e %c", time, value);
+  const Pin *pin = sdc_network_->findPin(pin_name.c_str());
+  if (pin
+      && !sdc_network_->isHierarchical(pin)
+      && !sdc_network_->direction(pin)->isInternal()) {
+    VcdCounts &vcd_counts = vcd_count_map_[id];
+    vcd_counts.resize(width);
+    vcd_counts[bit_idx].addPin(pin);
+    debugPrint(debug_, "read_vcd_activities", 2, "id %s pin %s",
+               id.c_str(),
+               pin_name.c_str());
+  }
+}
+
+void
+VcdCountReader::varAppendValue(const string &id,
+                               VcdTime time,
+                               char value)
+{
+  auto itr = vcd_count_map_.find(id);
+  if (itr != vcd_count_map_.end()) {
+    VcdCounts &vcd_counts = itr->second;
+    if (debug_->check("read_vcd_activities", 3)) {
+      for (size_t bit_idx = 0; bit_idx < vcd_counts.size(); bit_idx++) {
+        VcdCount &vcd_count = vcd_counts[bit_idx];
+        for (const Pin *pin : vcd_count.pins()) {
+          debugPrint(debug_, "read_vcd_activities", 3, "%s time %" PRIu64 " value %c",
+                     sdc_network_->pathName(pin),
+                     time,
+                     value);
+        }
+      }
+    }
+    for (size_t bit_idx = 0; bit_idx < vcd_counts.size(); bit_idx++) {
+      VcdCount &vcd_count = vcd_counts[bit_idx];
+      vcd_count.incrCounts(time, value);
+    }
+  }
+}
+
+void
+VcdCountReader::varAppendBusValue(const string &id,
+                                  VcdTime time,
+                                  int64_t bus_value)
+{
+  auto itr = vcd_count_map_.find(id);
+  if (itr != vcd_count_map_.end()) {
+    VcdCounts &vcd_counts = itr->second;
+    for (size_t bit_idx = 0; bit_idx < vcd_counts.size(); bit_idx++) {
+      char bit_value = ((bus_value >> bit_idx) & 0x1) ? '1' : '0';
+      VcdCount &vcd_count = vcd_counts[bit_idx];
+      if (debug_->check("read_vcd_activities", 3)) {
+        for (const Pin *pin : vcd_count.pins()) {
+          debugPrint(debug_, "read_vcd_activities", 3, "%s time %" PRIu64 " value %c",
+                     sdc_network_->pathName(pin),
+                     time,
+                     bit_value);
+        }
+      }
+      vcd_count.incrCounts(time, bit_value);
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////
+
+class ReadVcdActivities : public StaState
+{
+public:
+  ReadVcdActivities(const char *filename,
+                    const char *scope,
+                    Sta *sta);
+  void readActivities();
+
+private:
+  void setActivities();
+  void checkClkPeriod(const Pin *pin,
+                      double transition_count);
+
+  const char *filename_;
+  VcdCountReader vcd_reader_;
+  VcdParse vcd_parse_;
+  double clk_period_;
+
+  Power *power_;
+  std::set<const Pin*> annotated_pins_;
+
+  static constexpr double sim_clk_period_tolerance_ = .1;
+};
+
+void
+readVcdActivities(const char *filename,
+                  const char *scope,
+                  Sta *sta)
+{
+  ReadVcdActivities reader(filename, scope, sta);
+  reader.readActivities();
+}
+
+ReadVcdActivities::ReadVcdActivities(const char *filename,
+                                     const char *scope,
+                                     Sta *sta) :
+  StaState(sta),
+  filename_(filename),
+  vcd_reader_(scope, sdc_network_, report_, debug_),
+  vcd_parse_(report_, debug_),
+  clk_period_(0.0),
+  power_(sta->power())
+{
+}
+
+void
+ReadVcdActivities::readActivities()
+{
+  ClockSeq *clks = sdc_->clocks();
+  if (clks->empty())
+    report_->error(805, "No clocks have been defined.");
+  clk_period_ = INF;
+  for (Clock *clk : *clks)
+    clk_period_ = min(static_cast<double>(clk->period()), clk_period_);
+
+  vcd_parse_.read(filename_, &vcd_reader_);
+
+  if (vcd_reader_.timeMax() > 0)
+    setActivities();
+  else
+    report_->warn(1450, "VCD max time is zero.");
+  report_->reportLine("Annotated %zu pin activities.", annotated_pins_.size());
+}
+
+void
+ReadVcdActivities::setActivities()
+{
+  VcdTime time_max = vcd_reader_.timeMax();
+  double time_scale = vcd_reader_.timeScale();
+  for (auto& [id, vcd_counts] : vcd_reader_.countMap()) {
+    for (const VcdCount &vcd_count : vcd_counts) {
+      double transition_count = vcd_count.transitionCount();
+      VcdTime high_time = vcd_count.highTime(time_max);
+      float duty = static_cast<double>(high_time) / time_max;
+      float activity = transition_count / (time_max * time_scale / clk_period_);
+      if (debug_->check("read_vcd_activities", 1)) {
+        for (const Pin *pin : vcd_count.pins()) {
+          debugPrint(debug_, "read_vcd_activities", 1,
+                     "%s transitions %.1f activity %.2f duty %.2f",
+                     sdc_network_->pathName(pin),
+                     transition_count,
+                     activity,
+                     duty);
+        }
+      }
+      for (const Pin *pin : vcd_count.pins()) {
+        power_->setUserActivity(pin, activity, duty, PwrActivityOrigin::vcd);
+        if (sdc_->isLeafPinClock(pin))
+          checkClkPeriod(pin, transition_count);
+        annotated_pins_.insert(pin);
+      }
+    }
+  }
+}
+
+void
+ReadVcdActivities::checkClkPeriod(const Pin *pin,
+                                  double transition_count)
+{
+  VcdTime time_max = vcd_reader_.timeMax();
+  double time_scale = vcd_reader_.timeScale();
+  double sim_period = time_max * time_scale / (transition_count / 2.0);
+  ClockSet *clks = sdc_->findLeafPinClocks(pin);
+  if (clks) {
+    for (Clock *clk : *clks) {
+      double clk_period = clk->period();
+      if (abs((clk_period - sim_period) / clk_period) > sim_clk_period_tolerance_)
+        // Warn if sim clock period differs from SDC by more than 10%.
+        report_->warn(1452, "clock %s vcd period %s differs from SDC clock period %s",
+                      clk->name(),
+                      delayAsString(sim_period, this),
+                      delayAsString(clk_period, this));
     }
   }
 }

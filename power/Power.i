@@ -20,7 +20,6 @@
 #include "Sta.hh"
 #include "power/Power.hh"
 #include "power/VcdReader.hh"
-#include "power/ReadVcdActivities.hh"
 #include "power/SaifReader.hh"
 
 using namespace sta;
@@ -113,22 +112,6 @@ read_vcd_file(const char *filename,
   readVcdActivities(filename, scope, sta);
 }
 
-void
-report_vcd_waveforms(const char *filename)
-{
-  Sta *sta = Sta::sta();
-  reportVcdWaveforms(filename, sta);
-}
-
-// debugging
-void
-report_vcd_var_values(const char *filename,
-                      const char *var_name)
-{
-  Sta *sta = Sta::sta();
-  reportVcdVarValues(filename, var_name, sta);
-}
-
 ////////////////////////////////////////////////////////////////
 
 bool
@@ -138,6 +121,15 @@ read_saif_file(const char *filename,
   Sta *sta = Sta::sta();
   sta->ensureLibLinked();
   return readSaif(filename, scope, sta);
+}
+
+void
+report_activity_annotation_cmd(bool report_unannotated,
+                               bool report_annotated)
+{
+  Power *power = Sta::sta()->power();
+  power->reportActivityAnnotation(report_unannotated,
+                                  report_annotated);
 }
 
 %} // inline

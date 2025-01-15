@@ -62,6 +62,11 @@ clocks from the list.
 
   all_inputs [-no_clocks]
 
+The report_activity_annotation command reports power activity annotaton
+from vcd, saif or the set_input_activity command.
+
+  report_activity_annotation [-report_unannotated] [-report_annotated]
+
 Release 2.4.0 2023/01/19
 -------------------------
 
