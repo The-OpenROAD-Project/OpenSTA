@@ -335,7 +335,7 @@ void
 ReportPath::reportPathEnds(PathEndSeq *ends)
 {
   reportPathEndHeader();
-  if (ends) {
+  if (ends && !ends->empty()) {
     PathEndSeq::Iterator end_iter(ends);
     PathEnd *prev_end = nullptr;
     while (end_iter.hasNext()) {
@@ -343,6 +343,10 @@ ReportPath::reportPathEnds(PathEndSeq *ends)
       reportPathEnd(end, prev_end, !end_iter.hasNext());
       prev_end = end;
     }
+  }
+  else {
+    if (format_ != ReportPathFormat::json)
+      report_->reportLine("No paths found.");
   }
   reportPathEndFooter();
 }
