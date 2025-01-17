@@ -125,6 +125,11 @@ set(STA_SOURCE
   parasitics/SpefNamespace.cc
   parasitics/SpefReader.cc
   parasitics/SpefReaderPvt.hh
+
+  power/Power.cc
+  power/VcdReader.cc
+  power/SaifReader.cc
+  power/VcdParse.cc
   
   sdc/Clock.cc
   sdc/ClockGatingCheck.cc
@@ -198,10 +203,7 @@ set(STA_SOURCE
   spice/WriteSpice.cc
   spice/Xyce.cc
 
-  power/Power.cc
-  power/VcdReader.cc
-  power/SaifReader.cc
-  power/VcdParse.cc
+  tcl/TclTypeHelpers.cc
 
   util/Debug.cc
   util/DispatchQueue.cc
