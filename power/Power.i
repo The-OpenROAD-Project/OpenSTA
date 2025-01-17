@@ -18,6 +18,7 @@
 
 %{
 #include "Sta.hh"
+#include "Sdc.hh"
 #include "power/Power.hh"
 #include "power/VcdReader.hh"
 #include "power/SaifReader.hh"
@@ -99,6 +100,13 @@ set_power_pin_activity(const Pin *pin,
 {
   Power *power = Sta::sta()->power();
   return power->setUserActivity(pin, activity, duty, PwrActivityOrigin::user);
+}
+
+float
+clock_min_period()
+{
+  Power *power = Sta::sta()->power();
+  return power->clockMinPeriod();
 }
 
 ////////////////////////////////////////////////////////////////

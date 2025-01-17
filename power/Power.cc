@@ -59,13 +59,12 @@
 //  input_voltage : default_VDD_VSS_input;
 // pin
 //  output_voltage : default_VDD_VSS_output;
-//
-// transition_density = activity / clock_period
 
 namespace sta {
 
 using std::abs;
 using std::max;
+using std::min;
 using std::isnormal;
 
 static bool
@@ -87,8 +86,8 @@ static EnumNameMap<PwrActivityOrigin> pwr_activity_origin_map =
 
 Power::Power(StaState *sta) :
   StaState(sta),
-  global_activity_{0.0, 0.0, PwrActivityOrigin::unknown},
-  input_activity_{0.1, 0.5, PwrActivityOrigin::input},
+  global_activity_(),
+  input_activity_(),            // default set in ensureActivities()
   seq_activity_map_(100, SeqPinHash(network_), SeqPinEqual()),
   activities_valid_(false),
   bdd_(sta)
@@ -96,41 +95,41 @@ Power::Power(StaState *sta) :
 }
 
 void
-Power::setGlobalActivity(float activity,
+Power::setGlobalActivity(float density,
 			 float duty)
 {
-  global_activity_.set(activity, duty, PwrActivityOrigin::global);
+  global_activity_.set(density, duty, PwrActivityOrigin::global);
   activities_valid_ = false;
 }
   
 void
-Power::setInputActivity(float activity,
+Power::setInputActivity(float density,
 			float duty)
 {
-  input_activity_.set(activity, duty, PwrActivityOrigin::input);
+  input_activity_.set(density, duty, PwrActivityOrigin::input);
   activities_valid_ = false;
 }
 
 void
 Power::setInputPortActivity(const Port *input_port,
-			    float activity,
+			    float density,
 		 	    float duty)
 {
   Instance *top_inst = network_->topInstance();
   const Pin *pin = network_->findPin(top_inst, input_port);
   if (pin) {
-    user_activity_map_[pin] = {activity, duty, PwrActivityOrigin::user};
+    user_activity_map_[pin] = {density, duty, PwrActivityOrigin::user};
     activities_valid_ = false;
   }
 }
 
 void
 Power::setUserActivity(const Pin *pin,
-                       float activity,
+                       float density,
                        float duty,
                        PwrActivityOrigin origin)
 {
-  user_activity_map_[pin] = {activity, duty, origin};
+  user_activity_map_[pin] = {density, duty, origin};
   activities_valid_ = false;
 }
 
@@ -152,7 +151,7 @@ Power::setActivity(const Pin *pin,
 {
   debugPrint(debug_, "power_activity", 3, "set %s %.2e %.2f %s",
              network_->pathName(pin),
-             activity.activity(),
+             activity.density(),
              activity.duty(),
              pwr_activity_origin_map.find(activity.origin()));
   activity_map_[pin] = activity;
@@ -403,7 +402,7 @@ PropActivityVisitor::visit(Vertex *vertex)
 	  Vertex *from_vertex = edge->from(graph_);
           const Pin *from_pin = from_vertex->pin();
 	  PwrActivity &from_activity = power_->activity(from_pin);
-	  PwrActivity to_activity(from_activity.activity(),
+	  PwrActivity to_activity(from_activity.density(),
 				  from_activity.duty(),
 				  PwrActivityOrigin::propagated);
 	  changed = setActivityCheck(pin, to_activity);
@@ -426,13 +425,13 @@ PropActivityVisitor::visit(Vertex *vertex)
             PwrActivity activity2 = power_->findActivity(enable);
             float p1 = activity1.duty();
             float p2 = activity2.duty();
-            PwrActivity activity(activity1.activity() * p2 + activity2.activity() * p1,
+            PwrActivity activity(activity1.density() * p2 + activity2.density() * p1,
                                  p1 * p2,
                                  PwrActivityOrigin::propagated);
             changed = setActivityCheck(gclk, activity);
             debugPrint(debug_, "power_activity", 3, "gated_clk %s %.2e %.2f",
                        network_->pathName(gclk),
-                       activity.activity(),
+                       activity.density(),
                        activity.duty());
           }
         }
@@ -467,16 +466,16 @@ PropActivityVisitor::setActivityCheck(const Pin *pin,
                                       PwrActivity &activity)
 {
   float min_rf_slew = power_->getMinRfSlew(pin);
-  float max_activity = (min_rf_slew > 0.0) ? 1.0 / min_rf_slew : INF;
-  if (activity.activity() > max_activity)
-    activity.setActivity(max_activity);
+  float max_density = (min_rf_slew > 0.0) ? 1.0 / min_rf_slew : INF;
+  if (activity.density() > max_density)
+    activity.setDensity(max_density);
   PwrActivity &prev_activity = power_->activity(pin);
-  float activity_delta = abs(activity.activity() - prev_activity.activity());
+  float density_delta = abs(activity.density() - prev_activity.density());
   float duty_delta = abs(activity.duty() - prev_activity.duty());
-  if (activity_delta > change_tolerance_
+  if (density_delta > change_tolerance_
       || duty_delta > change_tolerance_
       || activity.origin() != prev_activity.origin()) {
-    max_change_ = max(max_change_, activity_delta);
+    max_change_ = max(max_change_, density_delta);
     max_change_ = max(max_change_, duty_delta);
     power_->setActivity(pin, activity);
     return true;
@@ -521,11 +520,11 @@ Power::evalActivity(FuncExpr *expr,
   else {
     DdNode *bdd = bdd_.funcBdd(expr);
     float duty = evalBddDuty(bdd, inst);
-    float activity = evalBddActivity(bdd, inst);
+    float density = evalBddActivity(bdd, inst);
 
     Cudd_RecursiveDeref(bdd_.cuddMgr(), bdd);
     bdd_.clearVarMap();
-    return PwrActivity(activity, duty, PwrActivityOrigin::propagated);
+    return PwrActivity(density, duty, PwrActivityOrigin::propagated);
   }
 }
 
@@ -592,7 +591,7 @@ float
 Power::evalBddActivity(DdNode *bdd,
                        const Instance *inst)
 {
-  float activity = 0.0;
+  float density = 0.0;
   for (const auto [port, var_node] : bdd_.portVarMap()) {
     const Pin *pin = findLinkPin(inst, port);
     if (pin) {
@@ -602,21 +601,16 @@ Power::evalBddActivity(DdNode *bdd,
       Cudd_Ref(diff);
       float diff_duty = evalBddDuty(diff, inst);
       Cudd_RecursiveDeref(bdd_.cuddMgr(), diff);
-      float var_act = var_activity.activity() * diff_duty;
-      activity += var_act;
-      if (debug_->check("power_activity", 3)) {
-        const Clock *clk = findClk(pin);
-        float clk_period = clk ? clk->period() : 1.0;
-        debugPrint(debug_, "power_activity", 3, "var %s%s %.3e * %.3f = %.3e",
-                   port->name(),
-                   clk ? "" : " (unclocked)",
-                   var_activity.activity() / clk_period,
-                   diff_duty,
-                   var_act / clk_period);
-      }
+      float var_density = var_activity.density() * diff_duty;
+      density += var_density;
+      debugPrint(debug_, "power_activity", 3, "var %s %.3e * %.3f = %.3e",
+                 port->name(),
+                 var_activity.density(),
+                 diff_duty,
+                 var_density);
     }
   }
-  return activity;
+  return density;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -632,6 +626,13 @@ Power::ensureActivities()
       activity_map_.clear();
       seq_activity_map_.clear();
 
+      // Initialize default input activity (after sdc is defined)
+      // unless it has been set by command.
+      if (input_activity_.density() == 0.0) {
+        float min_period = clockMinPeriod();
+        float density = 0.1 / (min_period != 0.0 ? min_period : 0.0);
+        input_activity_.set(density, 0.5, PwrActivityOrigin::input);
+      }
       ActivitySrchPred activity_srch_pred(this);
       BfsFwdIterator bfs(BfsIndex::other, &activity_srch_pred, this);
       seedActivities(bfs);
@@ -726,9 +727,17 @@ Power::seedRegOutputActivities(const Instance *reg,
     PwrActivity activity = evalActivity(seq->data(), reg);
     // Register output activity cannnot exceed one transition per clock cycle,
     // but latch output can.
-    if (seq->isRegister()
-        && activity.activity() > 1.0)
-      activity.setActivity(1.0);
+    if (seq->isRegister()) {
+      FuncExpr *clk_func = seq->clock();
+      if (clk_func->port()) {
+        const Pin *pin = network_->findPin(reg, clk_func->port());
+        const Clock *clk = findClk(pin);
+        if (clk) {
+          if (activity.density() > 1.0 / clk->period())
+            activity.setDensity(1.0 / clk->period());
+        }
+      }
+    }
     if (invert)
       activity.setDuty(1.0 - activity.duty());
     activity.setOrigin(PwrActivityOrigin::propagated);
@@ -744,9 +753,8 @@ Power::power(const Instance *inst,
 	     const Corner *corner)
 {
   PowerResult result;
-  const Clock *inst_clk = findInstClk(inst);
-  findInternalPower(inst, cell, corner, inst_clk, result);
-  findSwitchingPower(inst, cell, corner, inst_clk, result);
+  findInternalPower(inst, cell, corner, result);
+  findSwitchingPower(inst, cell, corner, result);
   findLeakagePower(inst, cell, corner, result);
   return result;
 }
@@ -772,7 +780,6 @@ void
 Power::findInternalPower(const Instance *inst,
                          LibertyCell *cell,
                          const Corner *corner,
-                         const Clock *inst_clk,
                          // Return values.
                          PowerResult &result)
 {
@@ -785,7 +792,7 @@ Power::findInternalPower(const Instance *inst,
       float load_cap = to_port->direction()->isAnyOutput()
         ? graph_delay_calc_->loadCap(to_pin, dcalc_ap)
         : 0.0;
-      PwrActivity activity = findClkedActivity(to_pin, inst_clk);
+      PwrActivity activity = findActivity(to_pin);
       if (to_port->direction()->isAnyOutput())
         findOutputInternalPower(to_port, inst, cell, activity,
                                 load_cap, corner, result);
@@ -854,11 +861,11 @@ Power::findInputInternalPower(const Pin *pin,
           else
             duty = evalActivity(when, inst).duty();
         }
-        float port_internal = energy * duty * activity.activity();
+        float port_internal = energy * duty * activity.density();
         debugPrint(debug_, "power", 2,  " %3s %6s  %.2f  %.2f %9.2e %9.2e %s",
                    port->name(),
                    when ? when->asString() : "",
-                   activity.activity() * 1e-9,
+                   activity.density() * 1e-9,
                    duty,
                    energy,
                    port_internal,
@@ -961,11 +968,11 @@ Power::findOutputInternalPower(const LibertyPort *to_port,
     const LibertyPort *from_corner_port = pwr->relatedPort();
     if (from_corner_port) {
       const Pin *from_pin = findLinkPin(inst, from_corner_port);
-      float from_activity = findActivity(from_pin).activity();
+      float from_density = findActivity(from_pin).density();
       float duty = findInputDuty(inst, func, pwr);
       const char *related_pg_pin = pwr->relatedPgPin();
       // Note related_pg_pin may be null.
-      pg_duty_sum[related_pg_pin] += from_activity * duty;
+      pg_duty_sum[related_pg_pin] += from_density * duty;
     }
   }
 
@@ -1007,16 +1014,16 @@ Power::findOutputInternalPower(const LibertyPort *to_port,
     if (duty_sum_iter != pg_duty_sum.end()) {
       float duty_sum = duty_sum_iter->second;
       if (duty_sum != 0.0 && from_pin) {
-        float from_activity = findActivity(from_pin).activity();
-	weight = from_activity * duty / duty_sum;
+        float from_density = findActivity(from_pin).density();
+	weight = from_density * duty / duty_sum;
       }
     }
-    float port_internal = weight * energy * to_activity.activity();
+    float port_internal = weight * energy * to_activity.density();
     debugPrint(debug_, "power", 2,  "%3s -> %-3s %6s  %.3f %.3f %.3f %9.2e %9.2e %s",
                from_corner_port ? from_corner_port->name() : "-" ,
                to_port->name(),
                when ? when->asString() : "",
-               to_activity.activity() * 1e-9,
+               to_activity.density() * 1e-9,
                duty,
                weight,
                energy,
@@ -1048,7 +1055,7 @@ Power::findInputDuty(const Instance *inst,
       else if (when)
 	return evalActivity(when, inst).duty();
       else if (search_->isClock(from_vertex))
-	return 1.0;
+	return 0.5;
       return 0.5;
     }
   }
@@ -1093,7 +1100,6 @@ void
 Power::findSwitchingPower(const Instance *inst,
                           LibertyCell *cell,
                           const Corner *corner,
-                          const Clock *inst_clk,
                           // Return values.
                           PowerResult &result)
 {
@@ -1107,14 +1113,14 @@ Power::findSwitchingPower(const Instance *inst,
       float load_cap = to_port->direction()->isAnyOutput()
         ? graph_delay_calc_->loadCap(to_pin, dcalc_ap)
         : 0.0;
-      PwrActivity activity = findClkedActivity(to_pin, inst_clk);
+      PwrActivity activity = findActivity(to_pin);
       if (to_port->direction()->isAnyOutput()) {
         float volt = portVoltage(corner_cell, to_port, dcalc_ap);
-        float switching = .5 * load_cap * volt * volt * activity.activity();
+        float switching = .5 * load_cap * volt * volt * activity.density();
         debugPrint(debug_, "power", 2, "switching %s/%s activity = %.2e volt = %.2f %.3e",
                    cell->name(),
                    to_port->name(),
-                   activity.activity(),
+                   activity.density(),
                    volt,
                    switching);
         result.incrSwitching(switching);
@@ -1188,31 +1194,12 @@ Power::findLeakagePower(const Instance *inst,
   result.incrLeakage(leakage);
 }
 
+// External.
 PwrActivity
-Power::findClkedActivity(const Pin *pin)
+Power::pinActivity(const Pin *pin)
 {
-  const Instance *inst = network_->instance(pin);
-  const Clock *inst_clk = findInstClk(inst);
   ensureActivities();
-  return findClkedActivity(pin, inst_clk);
-}
-
-PwrActivity
-Power::findClkedActivity(const Pin *pin,
-			 const Clock *inst_clk)
-{
-  PwrActivity activity = findActivity(pin);
-  const Clock *clk = findClk(pin);
-  if (clk == nullptr)
-    clk = inst_clk;
-  if (clk) {
-    float period = clk->period();
-    if (period > 0.0)
-      return PwrActivity(activity.activity() / period,
-			 activity.duty(),
-			 activity.origin());
-  }
-  return activity;
+  return findActivity(pin);
 }
 
 PwrActivity
@@ -1229,7 +1216,7 @@ Power::findActivity(const Pin *pin)
     }
     const Clock *clk = findClk(pin);
     float duty = clockDuty(clk);
-    return PwrActivity(2.0, duty, PwrActivityOrigin::clock);
+    return PwrActivity(2.0 / clk->period(), duty, PwrActivityOrigin::clock);
   }
   else if (global_activity_.isSet())
     return global_activity_;
@@ -1438,6 +1425,20 @@ Power::pinCount()
   return count;
 }
 
+float
+Power::clockMinPeriod()
+{
+  ClockSeq *clks = sdc_->clocks();
+  if (clks && !clks->empty()) {
+    float min_period = INF;
+    for (const Clock *clk : *clks)
+      min_period = min(min_period, clk->period());
+    return min_period;
+  }
+  else
+    return 0.0;
+}
+
 ////////////////////////////////////////////////////////////////
 
 PowerResult::PowerResult() :
@@ -1489,17 +1490,17 @@ PowerResult::incr(PowerResult &result)
 
 ////////////////////////////////////////////////////////////////
 
-PwrActivity::PwrActivity(float activity,
+PwrActivity::PwrActivity(float density,
 			 float duty,
 			 PwrActivityOrigin origin) :
-  activity_(activity),
+  density_(density),
   duty_(duty),
   origin_(origin)
 {
 }
 
 PwrActivity::PwrActivity() :
-  activity_(0.0),
+  density_(0.0),
   duty_(0.0),
   origin_(PwrActivityOrigin::unknown)
 {
@@ -1507,9 +1508,9 @@ PwrActivity::PwrActivity() :
 }
 
 void
-PwrActivity::setActivity(float activity)
+PwrActivity::setDensity(float density)
 {
-  activity_ = activity;
+  density_ = density;
 }
 
 void
@@ -1525,11 +1526,11 @@ PwrActivity::setOrigin(PwrActivityOrigin origin)
 }
 
 void
-PwrActivity::set(float activity,
+PwrActivity::set(float density,
 		 float duty,
 		 PwrActivityOrigin origin)
 {
-  activity_ = activity;
+  density_ = density;
   duty_ = duty;
   origin_ = origin;
   check();
@@ -1538,11 +1539,11 @@ PwrActivity::set(float activity,
 void
 PwrActivity::check()
 {
-  // Activities can get very small from multiplying probabilities
+  // Densities can get very small from multiplying probabilities
   // through deep chains of logic. Clip them to prevent floating
   // point anomalies.
-  if (abs(activity_) < min_activity)
-    activity_ = 0.0;
+  if (abs(density_) < min_density)
+    density_ = 0.0;
 }
 
 bool

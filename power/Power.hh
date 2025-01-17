@@ -84,17 +84,17 @@ public:
   void setInputPortActivity(const Port *input_port,
 			    float activity,
 			    float duty);
-  PwrActivity &activity(const Pin *pin);
+  PwrActivity pinActivity(const Pin *pin);
   void setUserActivity(const Pin *pin,
 		       float activity,
 		       float duty,
 		       PwrActivityOrigin origin);
-  // Activity is toggles per second.
-  PwrActivity findClkedActivity(const Pin *pin);
   void reportActivityAnnotation(bool report_unannotated,
                                 bool report_annotated);
+  float clockMinPeriod();
 
 protected:
+  PwrActivity &activity(const Pin *pin);
   bool inClockNetwork(const Instance *inst);
   void powerInside(const Instance *hinst,
                    const Corner *corner,
@@ -112,6 +112,7 @@ protected:
   bool hasActivity(const Pin *pin);
   void setActivity(const Pin *pin,
 		   PwrActivity &activity);
+  PwrActivity findActivity(const Pin *pin);
 
   PowerResult power(const Instance *inst,
                     LibertyCell *cell,
@@ -119,7 +120,6 @@ protected:
   void findInternalPower(const Instance *inst,
                          LibertyCell *cell,
                          const Corner *corner,
-                         const Clock *inst_clk,
                          // Return values.
                          PowerResult &result);
   void findInputInternalPower(const Pin *to_pin,
@@ -147,7 +147,6 @@ protected:
   void findSwitchingPower(const Instance *inst,
                           LibertyCell *cell,
                           const Corner *corner,
-                          const Clock *inst_clk,
                           // Return values.
                           PowerResult &result);
   float getSlew(Vertex *vertex,
@@ -157,9 +156,6 @@ protected:
   const Clock *findInstClk(const Instance *inst);
   const Clock *findClk(const Pin *to_pin);
   float clockDuty(const Clock *clk);
-  PwrActivity findClkedActivity(const Pin *pin,
-				const Clock *inst_clk);
-  PwrActivity findActivity(const Pin *pin);
   PwrActivity findSeqActivity(const Instance *inst,
 			      LibertyPort *port);
   float portVoltage(LibertyCell *cell,

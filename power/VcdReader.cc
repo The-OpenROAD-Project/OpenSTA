@@ -345,7 +345,6 @@ private:
   const char *filename_;
   VcdCountReader vcd_reader_;
   VcdParse vcd_parse_;
-  double clk_period_;
 
   Power *power_;
   std::set<const Pin*> annotated_pins_;
@@ -369,7 +368,6 @@ ReadVcdActivities::ReadVcdActivities(const char *filename,
   filename_(filename),
   vcd_reader_(scope, sdc_network_, report_, debug_),
   vcd_parse_(report_, debug_),
-  clk_period_(0.0),
   power_(sta->power())
 {
 }
@@ -380,9 +378,6 @@ ReadVcdActivities::readActivities()
   ClockSeq *clks = sdc_->clocks();
   if (clks->empty())
     report_->error(805, "No clocks have been defined.");
-  clk_period_ = INF;
-  for (Clock *clk : *clks)
-    clk_period_ = min(static_cast<double>(clk->period()), clk_period_);
 
   vcd_parse_.read(filename_, &vcd_reader_);
 
@@ -403,19 +398,19 @@ ReadVcdActivities::setActivities()
       double transition_count = vcd_count.transitionCount();
       VcdTime high_time = vcd_count.highTime(time_max);
       float duty = static_cast<double>(high_time) / time_max;
-      float activity = transition_count / (time_max * time_scale / clk_period_);
+      float density = transition_count / (time_max * time_scale);
       if (debug_->check("read_vcd_activities", 1)) {
         for (const Pin *pin : vcd_count.pins()) {
           debugPrint(debug_, "read_vcd_activities", 1,
                      "%s transitions %.1f activity %.2f duty %.2f",
                      sdc_network_->pathName(pin),
                      transition_count,
-                     activity,
+                     density,
                      duty);
         }
       }
       for (const Pin *pin : vcd_count.pins()) {
-        power_->setUserActivity(pin, activity, duty, PwrActivityOrigin::vcd);
+        power_->setUserActivity(pin, density, duty, PwrActivityOrigin::vcd);
         if (sdc_->isLeafPinClock(pin))
           checkClkPeriod(pin, transition_count);
         annotated_pins_.insert(pin);

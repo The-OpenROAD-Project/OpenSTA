@@ -95,7 +95,6 @@ private:
   char escape_;
   double timescale_;
   int64_t duration_;
-  double clk_period_;
 
   vector<string> saif_scope_;   // Scope during parsing.
   size_t in_scope_level_;

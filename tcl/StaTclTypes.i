@@ -1370,7 +1370,7 @@ using namespace sta;
     Tcl_Obj *obj;
     const char *str;
 
-    str = stringPrintTmp("%.5e", activity.activity());
+    str = stringPrintTmp("%.5e", activity.density());
     obj = Tcl_NewStringObj(str, strlen(str));
     Tcl_ListObjAppendElement(interp, list, obj);
 

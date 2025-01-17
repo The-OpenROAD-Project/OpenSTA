@@ -1292,7 +1292,7 @@ public:
 	     PowerResult &pad);
   PowerResult power(const Instance *inst,
                     const Corner *corner);
-  PwrActivity findClkedActivity(const Pin *pin);
+  PwrActivity activity(const Pin *pin);
 
   void writeTimingModel(const char *lib_name,
                         const char *cell_name,

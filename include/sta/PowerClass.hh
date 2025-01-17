@@ -38,17 +38,17 @@ class PwrActivity
 {
 public:
   PwrActivity();
-  PwrActivity(float activity,
+  PwrActivity(float density,
 	      float duty,
 	      PwrActivityOrigin origin);
-  float activity() const { return activity_; }
-  void setActivity(float activity);
+  float density() const { return density_; }
+  void setDensity(float density);
   float duty() const { return duty_; }
   void setDuty(float duty);
   PwrActivityOrigin origin() const { return origin_; }
   void setOrigin(PwrActivityOrigin origin);
   const char *originName() const;
-  void set(float activity,
+  void set(float density,
 	   float duty,
 	   PwrActivityOrigin origin);
   bool isSet() const;
@@ -56,12 +56,11 @@ public:
 private:
   void check();
 
-  // In general activity is per clock cycle, NOT per second.
-  float activity_;
-  float duty_;
+  float density_;               // transitions / second
+  float duty_;                  // probability signal is high
   PwrActivityOrigin origin_;
 
-  static constexpr float min_activity = 1E-10;
+  static constexpr float min_density = 1E-10;
 };
 
 class PowerResult

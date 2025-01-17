@@ -63,7 +63,6 @@ SaifReader::SaifReader(const char *filename,
   escape_('\\'),
   timescale_(1.0E-9F),		// default units of ns
   duration_(0.0),
-  clk_period_(0.0),
   in_scope_level_(0),
   power_(sta->power())
 {
@@ -79,10 +78,6 @@ SaifReader::read()
   // Use zlib to uncompress gzip'd files automagically.
   stream_ = gzopen(filename_, "rb");
   if (stream_) {
-    clk_period_ = INF;
-    for (Clock *clk : *sdc_->clocks())
-      clk_period_ = min(static_cast<double>(clk->period()), clk_period_);
-
     saif_scope_.clear();
     in_scope_level_ = 0;
     annotated_pins_.clear();
@@ -185,16 +180,16 @@ SaifReader::setNetDurations(const char *net_name,
         double t1 = durations[static_cast<int>(SaifState::T1)];
         float duty = t1 / duration_;
         double tc = durations[static_cast<int>(SaifState::TC)];
-        float activity = tc / (duration_ * timescale_ / clk_period_);
+        float density = tc / (duration_ * timescale_);
         debugPrint(debug_, "read_saif", 2,
-                   "%s duty %.0f / %" PRIu64 " = %.2f tc %.0f activity %.2f",
+                   "%s duty %.0f / %" PRIu64 " = %.2f tc %.0f density %.2f",
                    sdc_network_->pathName(pin),
                    t1,
                    duration_,
                    duty,
                    tc,
-                   activity);
-        power_->setUserActivity(pin, activity, duty, PwrActivityOrigin::saif);
+                   density);
+        power_->setUserActivity(pin, density, duty, PwrActivityOrigin::saif);
         annotated_pins_.insert(pin);
       }
     }
