@@ -192,10 +192,13 @@ proc sta_warn { msg_id msg } {
 proc sta_error { msg_id msg } {
   variable sdc_file
   variable sdc_line
-  if { [info exists sdc_file] } {
-    error "Error: [file tail $sdc_file] line $sdc_line, $msg"
-  } else {
-    error "Error: $msg"
+
+  if { ! [is_suppressed $msg_id] } {
+    if { [info exists sdc_file] } {
+      error "Error: [file tail $sdc_file] line $sdc_line, $msg"
+    } else {
+      error "Error: $msg"
+    }
   }
 }
 
@@ -204,6 +207,24 @@ proc sta_warn_error { msg_id warn_error msg } {
     sta_warn $msg_id $msg
   } else {
     sta_error $msg_id $msg
+  }
+}
+
+define_cmd_args "suppress_msg" msg_ids
+
+proc suppress_msg { args } {
+  foreach msg_id $args {
+    check_integer "msg_id" $msg_id
+    suppress_msg_id $msg_id
+  }
+}
+
+define_cmd_args "unsuppress_msg" msg_ids
+
+proc unsuppress_msg { args } {
+  foreach msg_id $args {
+    check_integer "msg_id" $msg_id
+    unsuppress_msg_id $msg_id
   }
 }
 

@@ -31,10 +31,13 @@ is now supported by the the read_saif command.
   read_saif [-scope scope] filename   
 
 The report_checks -group_count option has been renamed to -group_path_count.
-The report_checks -endpoing_count option has been renamed to -endpoint_path_count.
+The report_checks -endpoint_count option has been renamed to -endpoint_path_count.
 
-The report_checks -field hierarchical_pins field reports hierarical pins between
+The report_checks -field hierarchical_pins field reports hierarchical pins between
 a driver and a load in the path report.
+
+The suppress_msg and unsuppress_msg commands allow suppression/unsuppression of
+warnings/errors by ID. Message IDs can be found in doc/messages.txt.
 
 Release 2.5.0 2024/01/17
 -------------------------

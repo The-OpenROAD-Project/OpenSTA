@@ -1,0 +1,12 @@
+Warning: suppress_msg.tcl line 18, cmd warn 1
+caught Error: suppress_msg.tcl line 18, cmd error 1
+Warning: cmd warn 2
+caught Error: cmd error 2
+after error
+caught 
+caught 
+after error
+Warning: suppress_msg.tcl line 51, cmd warn 7
+caught Error: suppress_msg.tcl line 51, cmd error 7
+Warning: cmd warn 8
+caught Error: cmd error 8
