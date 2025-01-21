@@ -23,6 +23,8 @@ namespace sta {
 using std::string;
 
 string
+cellVerilogName(const char *sta_name);
+string
 instanceVerilogName(const char *sta_name,
 		    const char escape);
 string

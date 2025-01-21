@@ -33,6 +33,12 @@ static string
 verilogToSta(const char *verilog_name);
 
 string
+cellVerilogName(const char *sta_name)
+{
+  return staToVerilog(sta_name, '\\');
+}
+
+string
 instanceVerilogName(const char *sta_name,
 		    const char escape)
 {
