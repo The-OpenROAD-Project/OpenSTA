@@ -1109,10 +1109,9 @@ GraphDelayCalc::annotateDelaySlew(Edge *edge,
     float prev_gate_delay1 = delayAsFloat(prev_gate_delay);
     if (prev_gate_delay1 == 0.0
         || (abs(gate_delay1 - prev_gate_delay1) / prev_gate_delay1
-            > incremental_delay_tolerance_)) {
+            > incremental_delay_tolerance_))
       delay_changed = true;
-      graph_->setArcDelay(edge, arc, ap_index, gate_delay);
-    }
+    graph_->setArcDelay(edge, arc, ap_index, gate_delay);
   }
   return delay_changed;
 }
