@@ -103,6 +103,7 @@ LibertyReader::init(const char *filename,
   saved_port_group_ = nullptr;
   in_bus_ = false;
   in_bundle_ = false;
+  in_ccsn_ = false;
   sequential_ = nullptr;
   statetable_ = nullptr;
   timing_ = nullptr;
@@ -545,6 +546,24 @@ LibertyReader::defineVisitors()
   defineAttrVisitor("driver_waveform_name", &LibertyReader::visitDriverWaveformName);
   defineAttrVisitor("driver_waveform_rise", &LibertyReader::visitDriverWaveformRise);
   defineAttrVisitor("driver_waveform_fall", &LibertyReader::visitDriverWaveformFall);
+
+  // ccsn (not implemented, this is needed to properly ignore ccsn groups)
+  defineGroupVisitor("ccsn_first_stage", &LibertyReader::beginCcsn,
+		     &LibertyReader::endCcsn);
+  defineGroupVisitor("ccsn_last_stage", &LibertyReader::beginCcsn,
+		     &LibertyReader::endCcsn);
+  defineGroupVisitor("output_voltage_rise", &LibertyReader::beginCcsn,
+		     &LibertyReader::endCcsn);
+  defineGroupVisitor("output_voltage_fall", &LibertyReader::beginCcsn,
+		     &LibertyReader::endCcsn);
+  defineGroupVisitor("propagated_noise_low", &LibertyReader::beginCcsn,
+		     &LibertyReader::endCcsn);
+  defineGroupVisitor("propagated_noise_high", &LibertyReader::beginCcsn,
+		     &LibertyReader::endCcsn);
+  defineGroupVisitor("input_ccb", &LibertyReader::beginCcsn,
+		     &LibertyReader::endCcsn);
+  defineGroupVisitor("output_ccb", &LibertyReader::beginCcsn,
+		     &LibertyReader::endCcsn);
 }
 
 void
@@ -2711,7 +2730,7 @@ LibertyReader::endOutputCurrentRiseFall(LibertyGroup *group)
 void
 LibertyReader::beginVector(LibertyGroup *group)
 {
-  if (timing_) {
+  if (timing_ && !in_ccsn_) {
     beginTable(group, TableTemplateType::output_current, current_scale_);
     scale_factor_type_ = ScaleFactorType::unknown;
     reference_time_exists_ = false;
@@ -4655,9 +4674,9 @@ LibertyReader::makeTable(LibertyAttr *attr,
                          float scale)
 {
   if (attr->isComplex()) {
-    makeTableAxis(0);
-    makeTableAxis(1);
-    makeTableAxis(2);
+    makeTableAxis(0, attr);
+    makeTableAxis(1, attr);
+    makeTableAxis(2, attr);
     if (axis_[0] && axis_[1] && axis_[2]) {
       // 3D table
       // Column index1*size(index2) + index2
@@ -4682,7 +4701,7 @@ LibertyReader::makeTable(LibertyAttr *attr,
       delete table;
       table_ = make_shared<Table1>(values, axis_[0]);
     }
-    else {
+    else if (axis_[0] == nullptr && axis_[1] == nullptr && axis_[2] == nullptr) {
       // scalar
       FloatTable *table = makeFloatTable(attr, 1, 1, scale);
       float value = (*(*table)[0])[0];
@@ -4717,20 +4736,18 @@ LibertyReader::makeFloatTable(LibertyAttr *attr,
     else
       libWarn(1258, attr, "%s is not a list of floats.", attr->name());
     if (row->size() != cols) {
-      libWarn(1259, attr, "table row has %u columns but axis has %d.",
-	      // size_t is long on 64 bit ports.
-	      static_cast<unsigned>(row->size()),
-	      static_cast<unsigned>(cols));
+      libWarn(1259, attr, "table row has %zu columns but axis has %zu.",
+	      row->size(),
+	      cols);
       // Fill out row columns with zeros.
       for (size_t c = row->size(); c < cols; c++)
 	row->push_back(0.0);
     }
   }
   if (table->size() != rows) {
-    libWarn(1260, attr, "table has %u rows but axis has %d.",
-	    // size_t is long on 64 bit ports.
-	    static_cast<unsigned>(table->size()),
-	    static_cast<unsigned>(rows));
+    libWarn(1260, attr, "table has %zu rows but axis has %zu.",
+	    table->size(),
+	    rows);
     // Fill with zero'd rows.
     for (size_t r = table->size(); r < rows; r++) {
       FloatSeq *row = new FloatSeq;
@@ -4744,7 +4761,8 @@ LibertyReader::makeFloatTable(LibertyAttr *attr,
 }
 
 void
-LibertyReader::makeTableAxis(int index)
+LibertyReader::makeTableAxis(int index,
+                             LibertyAttr *attr)
 {
   if (axis_values_[index]) {
     TableAxisVariable var = axis_[index]->variable();
@@ -4753,6 +4771,11 @@ LibertyReader::makeTableAxis(int index)
     float scale = tableVariableUnit(var, units)->scale();
     scaleFloats(values, scale);
     axis_[index] = make_shared<TableAxis>(var, values);
+  }
+  else if (axis_[index] && axis_[index]->values() == nullptr) {
+    libWarn(1344, attr, "Table axis and template missing values.");
+    axis_[index] = nullptr;
+    axis_values_[index] = nullptr;
   }
 }
 

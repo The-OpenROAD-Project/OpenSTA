@@ -112,27 +112,31 @@ proc list_delete { list delete } {
 
 # Record tests in sta/examples
 record_example_tests {
-  sdf_delays
   delay_calc
   min_max_delays
-  spef_parasitics
   multi_corner
   power
   power_vcd
+  sdf_delays
+  spef_parasitics
 }
 
 record_sta_tests {
-  prima3
-  verilog_attribute
-  liberty_arcs_one2one_1
-  liberty_arcs_one2one_2
-  get_is_memory
   get_filter
+  get_is_memory
+  get_lib_pins_of_objects
   get_noargs
   get_objrefs
-  get_lib_pins_of_objects
-  report_checks_src_attr
+  liberty_arcs_one2one_1
+  liberty_arcs_one2one_2
+  liberty_ccsn
   liberty_latch3
+  prima3
+  report_checks_src_attr
+  report_json1
+  report_json2
+  suppress_msg
+  verilog_attribute
 }
 
 define_test_group fast [group_tests all]

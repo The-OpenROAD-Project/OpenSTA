@@ -20,6 +20,7 @@
 #include <cstdarg>
 #include <string>
 #include <mutex>
+#include <set>
 
 #include "Machine.hh" // __attribute__
 
@@ -119,6 +120,11 @@ public:
                              size_t length);
   static Report *defaultReport() { return default_; }
 
+  // Suppress message by id.
+  void suppressMsgId(int id);
+  void unsuppressMsgId(int id);
+  bool isSuppressed(int id);
+
 protected:
   // All sta print functions have an implicit return printed by this function.
   virtual void printLine(const char *line,
@@ -152,6 +158,7 @@ protected:
   size_t buffer_length_;
   std::mutex buffer_lock_;
   static Report *default_;
+  std::set<int> suppressed_msg_ids_;
 
   friend class Debug;
 };

@@ -39,14 +39,18 @@
 #include "PathEnd.hh"
 #include "SearchClass.hh"
 #include "CircuitSim.hh"
-#include "ArcDelayCalc.hh"
 #include "Property.hh"
 #include "Sta.hh"
+#include "TclTypeHelpers.hh"
 
 namespace sta {
 
 typedef MinPulseWidthCheckSeq::Iterator MinPulseWidthCheckSeqIterator;
 typedef MinMaxAll MinMaxAllNull;
+
+#if TCL_MAJOR_VERSION < 9
+    typedef int Tcl_Size;
+#endif
 
 template <class TYPE>
 Vector<TYPE> *
@@ -54,7 +58,7 @@ tclListSeqPtr(Tcl_Obj *const source,
               swig_type_info *swig_type,
               Tcl_Interp *interp)
 {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
 
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
@@ -78,7 +82,7 @@ tclListSeq(Tcl_Obj *const source,
            swig_type_info *swig_type,
            Tcl_Interp *interp)
 {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
 
   std::vector<TYPE> seq;
@@ -100,7 +104,7 @@ tclListSetPtr(Tcl_Obj *const source,
               swig_type_info *swig_type,
               Tcl_Interp *interp)
 {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
       && argc > 0) {
@@ -123,7 +127,7 @@ tclListSet(Tcl_Obj *const source,
            swig_type_info *swig_type,
            Tcl_Interp *interp)
 {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
       && argc > 0) {
@@ -147,7 +151,7 @@ tclListNetworkSet(Tcl_Obj *const source,
                   Tcl_Interp *interp,
                   const Network *network)
 {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
       && argc > 0) {
@@ -171,7 +175,7 @@ tclListNetworkSet1(Tcl_Obj *const source,
                    Tcl_Interp *interp,
                    const Network *network)
 {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
   SET_TYPE set(network);
   if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK
@@ -185,68 +189,6 @@ tclListNetworkSet1(Tcl_Obj *const source,
   }
   return set;
 }
-
-static StringSet *
-tclListSetConstChar(Tcl_Obj *const source,
-		    Tcl_Interp *interp)
-{
-  int argc;
-  Tcl_Obj **argv;
-
-  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
-    StringSet *set = new StringSet;
-    for (int i = 0; i < argc; i++) {
-      int length;
-      const char *str = Tcl_GetStringFromObj(argv[i], &length);
-      set->insert(str);
-    }
-    return set;
-  }
-  else
-    return nullptr;
-}
-
-static StringSeq *
-tclListSeqConstChar(Tcl_Obj *const source,
-		    Tcl_Interp *interp)
-{
-  int argc;
-  Tcl_Obj **argv;
-
-  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
-    StringSeq *seq = new StringSeq;
-    for (int i = 0; i < argc; i++) {
-      int length;
-      const char *str = Tcl_GetStringFromObj(argv[i], &length);
-      seq->push_back(str);
-    }
-    return seq;
-  }
-  else
-    return nullptr;
-}
-
-#ifdef UNUSED
-static StdStringSet *
-tclListSetStdString(Tcl_Obj *const source,
-		    Tcl_Interp *interp)
-{
-  int argc;
-  Tcl_Obj **argv;
-
-  if (Tcl_ListObjGetElements(interp, source, &argc, &argv) == TCL_OK) {
-    StdStringSet *set = new StdStringSet;
-    for (int i = 0; i < argc; i++) {
-      int length;
-      const char *str = Tcl_GetStringFromObj(argv[i], &length);
-      set->insert(str);
-    }
-    return set;
-  }
-  else
-    return nullptr;
-}
-#endif
 
 ////////////////////////////////////////////////////////////////
 
@@ -312,123 +254,6 @@ setPtrTclList(SET_TYPE *set,
 }
 
 ////////////////////////////////////////////////////////////////
-
-static void
-tclArgError(Tcl_Interp *interp,
-            const char *msg,
-            const char *arg)
-{
-  // Swig does not add try/catch around arg parsing so this cannot use Report::error.
-  string error_msg = "Error: ";
-  error_msg += msg;
-  char *error = stringPrint(error_msg.c_str(), arg);
-  Tcl_SetResult(interp, error, TCL_VOLATILE);
-  stringDelete(error);
-}
-
-static void
-objectListNext(const char *list,
-	       const char *type,
-	       // Return values.
-	       bool &type_match,
-	       const char *&next)
-{
-  // Default return values (failure).
-  type_match = false;
-  next = nullptr;
-  // _hexaddress_p_type
-  const char *s = list;
-  char ch = *s++;
-  if (ch == '_') {
-    while (*s && isxdigit(*s))
-      s++;
-    if ((s - list - 1) == sizeof(void*) * 2
-	&& *s && *s++ == '_'
-	&& *s && *s++ == 'p'
-	&& *s && *s++ == '_') {
-      const char *t = type;
-      while (*s && *s != ' ') {
-	if (*s != *t)
-	  return;
-	s++;
-	t++;
-      }
-      type_match = true;
-      if (*s)
-	next = s + 1;
-      else
-	next = nullptr;
-    }
-  }
-}
-
-#ifdef UNUSED
-static Tcl_Obj *
-tclArcDcalcArg(ArcDcalcArg &gate,
-               Tcl_Interp *interp)
-{
-  Sta *sta = Sta::sta();
-  const Network *network = sta->network();
-  const Instance *drvr = network->instance(gate.drvrPin());
-  const TimingArc *arc = gate.arc();
-
-  Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
-  Tcl_Obj *obj;
-
-  const char *inst_name = network->pathName(drvr);
-  obj = Tcl_NewStringObj(inst_name, strlen(inst_name));
-  Tcl_ListObjAppendElement(interp, list, obj);
-
-  const char *from_name = arc->from()->name();
-  obj = Tcl_NewStringObj(from_name, strlen(from_name));
-  Tcl_ListObjAppendElement(interp, list, obj);
-
-  const char *from_edge = arc->fromEdge()->asString();
-  obj = Tcl_NewStringObj(from_edge, strlen(from_edge));
-  Tcl_ListObjAppendElement(interp, list, obj);
-
-  const char *to_name = arc->to()->name();
-  obj = Tcl_NewStringObj(to_name, strlen(to_name));
-  Tcl_ListObjAppendElement(interp, list, obj);
-
-  const char *to_edge = arc->toEdge()->asString();
-  obj = Tcl_NewStringObj(to_edge, strlen(to_edge));
-  Tcl_ListObjAppendElement(interp, list, obj);
-
-  const char *input_delay = delayAsString(gate.inputDelay(), sta, 3);
-  obj = Tcl_NewStringObj(input_delay, strlen(input_delay));
-  Tcl_ListObjAppendElement(interp, list, obj);
-
-  return list;
-}
-
-static ArcDcalcArg
-arcDcalcArgTcl(Tcl_Obj *obj,
-               Tcl_Interp *interp)
-{
-  Sta *sta = Sta::sta();
-  sta->ensureGraph();
-  int list_argc;
-  Tcl_Obj **list_argv;
-  if (Tcl_ListObjGetElements(interp, obj, &list_argc, &list_argv) == TCL_OK) {
-    const char *input_delay = "0.0";
-    int length;
-    if (list_argc == 6)
-      input_delay = Tcl_GetStringFromObj(list_argv[5], &length);
-    if (list_argc == 5 || list_argc == 6) {
-      return makeArcDcalcArg(Tcl_GetStringFromObj(list_argv[0], &length),
-                             Tcl_GetStringFromObj(list_argv[1], &length),
-                             Tcl_GetStringFromObj(list_argv[2], &length),
-                             Tcl_GetStringFromObj(list_argv[3], &length),
-                             Tcl_GetStringFromObj(list_argv[4], &length),
-                             input_delay, sta);
-    }
-    else
-      sta->report()->warn(2140, "Delay calc arg requires 5 or 6 args.");
-  }
-  return ArcDcalcArg();
-}
-#endif
 
 } // namespace
 
@@ -913,7 +738,7 @@ using namespace sta;
 }
 
 %typemap(in) FloatSeq* {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
   FloatSeq *floats = nullptr;
 
@@ -958,7 +783,7 @@ using namespace sta;
 }
 
 %typemap(in) IntSeq* {
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
   IntSeq *ints = nullptr;
 
@@ -1286,6 +1111,10 @@ using namespace sta;
   Tcl_SetObjResult(interp, obj);
 }
 
+%typemap(in) PathEndSeq* {
+  $1 = tclListSeqPtr<PathEnd*>($input, SWIGTYPE_p_PathEnd, interp);
+}
+
 %typemap(out) PathEndSeq* {
   Tcl_Obj *list = Tcl_NewListObj(0, nullptr);
   const PathEndSeq *path_ends = $1;
@@ -1541,7 +1370,7 @@ using namespace sta;
     Tcl_Obj *obj;
     const char *str;
 
-    str = stringPrintTmp("%.5e", activity.activity());
+    str = stringPrintTmp("%.5e", activity.density());
     obj = Tcl_NewStringObj(str, strlen(str));
     Tcl_ListObjAppendElement(interp, list, obj);
 
@@ -1586,7 +1415,7 @@ using namespace sta;
 
 %typemap(in) ArcDcalcArgSeq {
   Tcl_Obj *const source = $input;
-  int argc;
+  Tcl_Size argc;
   Tcl_Obj **argv;
 
   Sta *sta = Sta::sta();

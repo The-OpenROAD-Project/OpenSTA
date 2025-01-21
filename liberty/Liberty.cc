@@ -219,7 +219,7 @@ TableTemplate *
 LibertyLibrary::findTableTemplate(const char *name,
 				  TableTemplateType type)
 {
-  return template_maps_[int(type)][name];
+  return template_maps_[int(type)].findKey(name);
 }
 
 TableTemplateSeq

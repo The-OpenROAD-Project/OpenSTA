@@ -420,14 +420,9 @@ define_cmd_args "report_checks" \
 
 proc_redirect report_checks {
   global sta_report_unconstrained_paths
-
   parse_report_path_options "report_checks" args "full" 0
   set path_ends [find_timing_paths_cmd "report_checks" args]
-  if { $path_ends == {} } {
-    report_line "No paths found."
-  } else {
-    report_path_ends $path_ends
-  }
+  report_path_ends $path_ends
 }
 
 ################################################################
@@ -1089,19 +1084,6 @@ proc parse_path_group_arg { group_names } {
     }
   }
   return $names
-}
-
-proc report_path_ends { path_ends } {
-  report_path_end_header
-  set prev_end "NULL"
-  set end_count [llength $path_ends]
-  set i 0
-  foreach path_end $path_ends {
-    report_path_end2 $path_end $prev_end [expr $i == ($end_count - 1)]
-    set prev_end $path_end
-    incr i
-  }
-  report_path_end_footer
 }
 
 ################################################################

@@ -16,24 +16,13 @@
 
 #pragma once
 
-#include "Vcd.hh"
-
 namespace sta {
 
-class StaState;
-
-Vcd
-readVcdFile(const char *filename,
-            StaState *sta);
+class Sta;
 
 void
-reportVcdWaveforms(const char *filename,
-                   StaState *sta);
-
-void
-reportVcdVarValues(const char *filename,
-                   const char *var_name,
-                   StaState *sta);
+readVcdActivities(const char *filename,
+                  const char *scope,
+                  Sta *sta);
 
 } // namespace
-

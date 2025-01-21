@@ -97,14 +97,14 @@ private order.
  friend class Frobulator;
  }
 
-Don't declare class variables as const.  It means any downstream code
-that accesses the member cannot modify it, which is overly
-restrictive.
-
 Avoid using [] to lookup a map value because it creates a key/null value
 pair if the lookup fails.  Use map::find or sta::Map::findKey instead.
 
 Avoid nested classes/enums because SWIG has trouble with them.
+
+Avoid all use of global variables as "caches", even if they are thread local.
+OpenSTA goes to great lengths to minimize global state variable that prevent
+multiple instances of the Sta class from coexisting.
 
 Regression Tests
 ................

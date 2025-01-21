@@ -78,7 +78,7 @@ proc_redirect read_spef {
             $coupling_reduction_factor $reduce]
 }
 
-define_cmd_args "report_parasitic_annotation" {-report_unannotated}
+define_cmd_args "report_parasitic_annotation" {[-report_unannotated]}
 
 proc_redirect report_parasitic_annotation {
   parse_key_args "report_parasitic_annotation" args \

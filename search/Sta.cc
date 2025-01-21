@@ -2556,6 +2556,12 @@ Sta::reportPathEnd(PathEnd *end,
 }
 
 void
+Sta::reportPathEnds(PathEndSeq *ends)
+{
+  report_path_->reportPathEnds(ends);
+}
+
+void
 Sta::reportPath(Path *path)
 {
   report_path_->reportPath(path);
@@ -5690,10 +5696,10 @@ Sta::power(const Instance *inst,
 }
 
 PwrActivity
-Sta::findClkedActivity(const Pin *pin)
+Sta::activity(const Pin *pin)
 {
   powerPreamble();
-  return power_->findClkedActivity(pin);
+  return power_->pinActivity(pin);
 }
 
 ////////////////////////////////////////////////////////////////

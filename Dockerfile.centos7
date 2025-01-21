@@ -11,7 +11,7 @@ RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo \
 RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo \
     && sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo \
     && sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo \ 
-    && yum install -y devtoolset-8 wget cmake3 make eigen3-devel tcl-devel tcl-tclreadline-devel swig3 bison flex zlib-devel \
+    && yum install -y devtoolset-8 wget cmake3 make eigen3-devel tcl-devel tcl-tclreadline-devel swig3 bison flex zlib-devel valgrind \
     && yum clean -y all
 
 # Download CUDD
