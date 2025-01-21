@@ -171,8 +171,8 @@ void
 VerilogWriter::writeModule(const Instance *inst)
 {
   Cell *cell = network_->cell(inst);
-  fprintf(stream_, "module %s (",
-	  network_->name(cell));
+  string cell_vname = cellVerilogName(network_->name(cell));
+  fprintf(stream_, "module %s (", cell_vname.c_str());
   writePorts(cell);
   writePortDcls(cell);
   fprintf(stream_, "\n");
@@ -336,8 +336,9 @@ VerilogWriter::writeChild(const Instance *child)
   if (!remove_cells_.hasKey(child_cell)) {
     const char *child_name = network_->name(child);
     string child_vname = instanceVerilogName(child_name, network_->pathEscape());
+    string child_cell_vname = cellVerilogName(network_->name(child_cell));
     fprintf(stream_, " %s %s (",
-	    network_->name(child_cell),
+	    child_cell_vname.c_str(),
 	    child_vname.c_str());
     bool first_port = true;
     CellPortIterator *port_iter = network_->portIterator(child_cell);
