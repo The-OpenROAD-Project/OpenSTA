@@ -377,7 +377,7 @@ PathEnumFaninVisitor::makeDivertedPathEnd(Path *after_div,
   path_enum_->makeDivertedPath(path_end_->path(), &before_div_, after_div,
 			       div_arc, div_path, after_div_copy);
   div_end = path_end_->copy();
-  div_end->setPath(div_path, this);
+  div_end->setPath(div_path);
 }
 
 void

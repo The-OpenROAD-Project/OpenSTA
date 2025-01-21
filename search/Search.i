@@ -509,6 +509,13 @@ report_path_cmd(PathRef *path)
   Sta::sta()->reportPath(path);
 }
 
+void
+report_path_ends(PathEndSeq *ends)
+{
+  Sta::sta()->reportPathEnds(ends);
+  delete ends;
+}
+
 ////////////////////////////////////////////////////////////////
 
 void

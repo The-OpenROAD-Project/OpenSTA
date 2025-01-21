@@ -780,7 +780,7 @@ getProperty(const Port *port,
   else if (stringEqual(property, "activity")) {
     const Instance *top_inst = network->topInstance();
     const Pin *pin = network->findPin(top_inst, port);
-    PwrActivity activity = sta->findClkedActivity(pin);
+    PwrActivity activity = sta->activity(pin);
     return PropertyValue(&activity);
   }
 
@@ -998,7 +998,7 @@ getProperty(const Pin *pin,
     return PropertyValue(&clks);
   }
   else if (stringEqual(property, "activity")) {
-    PwrActivity activity = sta->findClkedActivity(pin);
+    PwrActivity activity = sta->activity(pin);
     return PropertyValue(&activity);
   }
 

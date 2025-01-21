@@ -73,6 +73,9 @@ proc source_ { filename echo verbose } {
     sta_error 340 "cannot open '$filename'."
   } else {
     if { [file extension $filename] == ".gz" } {
+      if { [info commands zlib] == "" } {
+        sta_error 339 "tcl version > 8.6 required for zlib support."
+      }
       zlib push gunzip $stream
     }
     # Save file and line in recursive call to source.

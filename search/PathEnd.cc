@@ -51,8 +51,7 @@ PathEnd::~PathEnd()
 }
 
 void
-PathEnd::setPath(PathEnumed *path,
-		 const StaState *)
+PathEnd::setPath(const Path *path)
 {
   path_.init(path);
 }
@@ -523,8 +522,7 @@ PathEndClkConstrained::PathEndClkConstrained(Path *path,
 }
 
 void
-PathEndClkConstrained::setPath(PathEnumed *path,
-			       const StaState *)
+PathEndClkConstrained::setPath(const Path *path)
 {
   path_.init(path);
   crpr_valid_ = false;

@@ -68,8 +68,7 @@ public:
   Path *path() { return &path_; }
   const Path *path() const { return &path_; }
   PathRef &pathRef() { return path_; }
-  virtual void setPath(PathEnumed *path,
-		       const StaState *sta);
+  virtual void setPath(const Path *path);
   Vertex *vertex(const StaState *sta) const;
   const MinMax *minMax(const StaState *sta) const;
   // Synonym for minMax().
@@ -256,8 +255,7 @@ public:
   virtual Slack slackNoCrpr(const StaState *sta) const;
   virtual int exceptPathCmp(const PathEnd *path_end,
 			    const StaState *sta) const;
-  virtual void setPath(PathEnumed *path,
-		       const StaState *sta);
+  virtual void setPath(const Path *path);
 
 protected:
   PathEndClkConstrained(Path *path,

@@ -75,6 +75,9 @@ proc parse_args {} {
       lappend app_options $threads
       set argv [lrange $argv 2 end]
     } elseif { $arg == "-valgrind" } {
+      if { ![find_valgrind] } {
+        error "valgrind not found."
+      }
       set use_valgrind 1
       set argv [lrange $argv 1 end]
     } elseif { $arg == "-report_stats" } {
@@ -90,6 +93,18 @@ proc parse_args {} {
   } else {
     set tests [expand_tests $argv]
   }
+}
+
+# Find valgrind in $PATH.
+proc find_valgrind {} {
+  global env
+
+  foreach dir [regsub -all ":" $env(PATH) " "] {
+    if { [file executable [file join $dir "valgrind"]] } {
+      return 1
+    }
+  }
+  return 0
 }
 
 proc expand_tests { argv } {

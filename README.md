@@ -94,7 +94,7 @@ work, but these are the versions used for development.
 cmake    3.24.2    3.29.2
 clang             15.0.0
 gcc      11.4.0
-tcl       8.6      8.6.6
+tcl       8.6      8.6.16
 swig      4.1.0    4.1.1
 bison     3.8.2    3.8.2
 flex      2.6.4    2.6.4
@@ -105,7 +105,7 @@ are illegal in c++17.
 
 External library dependencies:
 ```
-           Ubuntu   Macos license
+           Ubuntu   Darwin  License
 eigen       3.4.0   3.4.0   MPL2  required
 cudd        3.0.0   3.0.0   BSD   required
 tclreadline 2.3.8   2.3.8   BSD   optional
@@ -197,7 +197,7 @@ following command builds a Docker image.
 
 ```
 cd OpenSTA
-docker build --file Dockerfile.ubuntu_22.04 --tag OpenSTA .
+docker build --file Dockerfile.ubuntu22.04 --tag OpenSTA .
 ```
 
 To run a docker container using the OpenSTA image, use the -v option
@@ -237,7 +237,22 @@ case directory.
 
 * James Cherry
 
-* William Scott authored the arnoldi delay calculator at Blaze, Inc which was subsequently licensed to Nefelus, Inc that has graciously contributed it to OpenSTA.
+* William Scott authored the arnoldi delay calculator at Blaze, Inc
+  which was subsequently licensed to Nefelus, Inc that has graciously
+  contributed it to OpenSTA.
+
+
+## Contributions
+
+Contributors must sign the Contributor License Agreement (doc/CLA.txt)
+when submitting pull requests.
+
+All contributors should read doc/CodingGuidelines.txt for nodes on
+making code that adheres to the existing naming and formatting style.
+
+Contributions that claim 4% performance improvements in OpenROAD flow
+scripts will largely be ignored. Small performance improvements
+simply do not justify the time requied to audit and verify the changes.
 
 ## License
 

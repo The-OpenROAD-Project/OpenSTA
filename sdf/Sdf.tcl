@@ -56,7 +56,7 @@ proc_redirect read_sdf {
 ################################################################
 
 define_cmd_args "report_annotated_delay" \
-  {[-cell] [-net] [-from_in_ports] [-to_out_ports] [-max_lines liness]\
+  {[-cell] [-net] [-from_in_ports] [-to_out_ports] [-max_lines lines]\
      [-list_annotated] [-list_not_annotated] [-constant_arcs]}
 
 proc_redirect report_annotated_delay {
@@ -92,7 +92,7 @@ proc_redirect report_annotated_delay {
 
 define_cmd_args "report_annotated_check" \
   {[-setup] [-hold] [-recovery] [-removal] [-nochange] [-width] [-period]\
-     [-max_skew] [-max_lines liness] [-list_annotated] [-list_not_annotated]\
+     [-max_skew] [-max_lines lines] [-list_annotated] [-list_not_annotated]\
      [-constant_arcs]}
 
 proc_redirect report_annotated_check {

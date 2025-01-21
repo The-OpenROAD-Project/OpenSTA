@@ -911,6 +911,7 @@ public:
 		     PathEnd *prev_end,
                      bool last);
   void reportPathEnd(PathEnd *end);
+  void reportPathEnds(PathEndSeq *ends);
   ReportPath *reportPath() { return report_path_; }
   void reportPath(Path *path);
 
@@ -1291,7 +1292,7 @@ public:
 	     PowerResult &pad);
   PowerResult power(const Instance *inst,
                     const Corner *corner);
-  PwrActivity findClkedActivity(const Pin *pin);
+  PwrActivity activity(const Pin *pin);
 
   void writeTimingModel(const char *lib_name,
                         const char *cell_name,

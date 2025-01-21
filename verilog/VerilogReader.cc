@@ -1822,7 +1822,7 @@ VerilogReader::linkNetwork(const char *top_cell_name,
     VerilogModule *module = this->module(top_cell);
     if (module) {
       // Seed the recursion for expansion with the top level instance.
-      Instance *top_instance = network_->makeInstance(top_cell, "", nullptr);
+      Instance *top_instance = network_->makeInstance(top_cell, top_cell_name, nullptr);
       VerilogBindingTbl bindings(zero_net_name_, one_net_name_);
       VerilogNetSeq::Iterator port_iter(module->ports());
       while (port_iter.hasNext()) {

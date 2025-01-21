@@ -38,6 +38,7 @@ class ReportPath : public StaState
 public:
   explicit ReportPath(StaState *sta);
   virtual ~ReportPath();
+  ReportPathFormat pathFormat() const { return format_; }
   void setPathFormat(ReportPathFormat format);
   void setReportFieldOrder(StringSeq *field_names);
   void setReportFields(bool report_input_pin,

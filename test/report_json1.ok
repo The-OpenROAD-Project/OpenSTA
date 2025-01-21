@@ -1,0 +1,78 @@
+{"checks": [
+{
+  "type": "check",
+  "path_group": "clk",
+  "path_type": "max",
+  "startpoint": "_1415_/Q",
+  "endpoint": "_1416_[0]/D",
+  "source_clock": "clk",
+  "source_clock_edge": "rise",
+  "source_path": [
+    {
+      "instance": "",
+      "cell": "counter",
+      "verilog_src": "",
+      "pin": "clk",
+      "arrival": 0.000e+00,
+      "capacitance": 3.742e-15,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "_1415_",
+      "cell": "sky130_fd_sc_hd__dfrtp_1",
+      "verilog_src": "synthesis/tests/counter.v:22.3-28.6",
+      "pin": "_1415_/CLK",
+      "net": "clk",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "_1415_",
+      "cell": "sky130_fd_sc_hd__dfrtp_1",
+      "verilog_src": "synthesis/tests/counter.v:22.3-28.6",
+      "pin": "_1415_/Q",
+      "net": "mid",
+      "arrival": 3.296e-10,
+      "capacitance": 1.949e-15,
+      "slew": 3.612e-11
+    },
+    {
+      "instance": "_1416_[0]",
+      "cell": "sky130_fd_sc_hd__dfrtp_1",
+      "verilog_src": "synthesis/tests/counter.v:22.3-28.6",
+      "pin": "_1416_[0]/D",
+      "net": "mid",
+      "arrival": 3.296e-10,
+      "slew": 3.612e-11
+    }
+  ],
+  "target_clock": "clk",
+  "target_clock_edge": "rise",
+  "target_clock_path": [
+    {
+      "instance": "",
+      "cell": "counter",
+      "verilog_src": "",
+      "pin": "clk",
+      "arrival": 0.000e+00,
+      "capacitance": 3.742e-15,
+      "slew": 0.000e+00
+    },
+    {
+      "instance": "_1416_[0]",
+      "cell": "sky130_fd_sc_hd__dfrtp_1",
+      "verilog_src": "synthesis/tests/counter.v:22.3-28.6",
+      "pin": "_1416_[0]/CLK",
+      "net": "clk",
+      "arrival": 0.000e+00,
+      "slew": 0.000e+00
+    }
+  ],
+  "data_arrival_time": 3.296e-10,
+  "crpr": 0.000e+00,
+  "margin": 1.207e-10,
+  "required_time": 9.879e-09,
+  "slack": 9.550e-09
+}
+]
+}

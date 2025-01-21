@@ -34,11 +34,14 @@ public:
 class ExceptionMsg : public Exception
 {
 public:
-  ExceptionMsg(const char *msg);
+  ExceptionMsg(const char *msg,
+               const bool suppressed);
   virtual const char *what() const noexcept;
+  virtual bool suppressed() const { return suppressed_; }
 
 private:
   string msg_;
+  bool suppressed_;
 };
 
 class ExceptionLine : public Exception

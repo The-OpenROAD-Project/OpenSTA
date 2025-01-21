@@ -482,6 +482,10 @@ public:
   void visitDriverWaveformRiseFall(LibertyAttr *attr,
                                    const RiseFall *rf);
 
+  // ccsn (not implemented, this is needed to properly ignore ccsn groups)
+  void beginCcsn(LibertyGroup *) { in_ccsn_ = true; }
+  void endCcsn(LibertyGroup *) { in_ccsn_ = false; }
+
   // Visitors for derived classes to overload.
   virtual void beginGroup1(LibertyGroup *) {}
   virtual void beginGroup2(LibertyGroup *) {}
@@ -520,7 +524,8 @@ protected:
 			 LibraryAttrVisitor visitor);
   void parseNames(const char *name_str);
   void clearAxisValues();
-  void makeTableAxis(int index);
+  void makeTableAxis(int index,
+                     LibertyAttr *attr);
 
   StringSeq *parseNameList(const char *name_list);
   StdStringSeq parseTokenList(const char *token_str,
@@ -629,6 +634,7 @@ protected:
   StringSeq bus_names_;
   bool in_bus_;
   bool in_bundle_;
+  bool in_ccsn_;
   TableAxisVariable axis_var_[3];
   FloatSeq *axis_values_[3];
   int type_bit_from_;
