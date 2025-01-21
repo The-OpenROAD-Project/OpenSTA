@@ -628,7 +628,7 @@ GraphDelayCalc::loadSlewsChanged(DrvrLoadSlews &load_slews_prev,
   for (auto const [pin, index] : load_pin_index_map) {
     Vertex *load_vertex = graph_->pinLoadVertex(pin);
     const SlewSeq slews = graph_->slews(load_vertex);
-    const SlewSeq  &slews_prev = load_slews_prev[index];
+    const SlewSeq &slews_prev = load_slews_prev[index];
     for (size_t i = 0; i < slews.size(); i++) {
       if (!delayEqual(slews[i], slews_prev[i]))
         return true;

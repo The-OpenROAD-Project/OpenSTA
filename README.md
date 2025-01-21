@@ -110,15 +110,6 @@ tclreadline 2.3.8   2.3.8   BSD   optional
 zLib        1.2.5   1.2.8   zlib  optional
 ```
 
-On Darwin/MacOS the Xcode supplied versions of Tcl, Flex and Bison are
-problematic. Use homebrew to install them instead.
-
-  brew install cmake bison flex swig tcl-tk@8 eigen zlib
-
-Note that the most recent versions of homebrew install Tcl9, which is
-not supported because swig does not support it yet. Install tcl8 as
-shown above.
-
 The [TCL readline library](https://tclreadline.sourceforge.net/tclreadline.html)
 links the GNU readline library to the TCL interpreter for command line editing 
 On OSX, Homebrew does not support tclreadline, but the macports system does
@@ -244,7 +235,22 @@ case directory.
 
 * James Cherry
 
-* William Scott authored the arnoldi delay calculator at Blaze, Inc which was subsequently licensed to Nefelus, Inc that has graciously contributed it to OpenSTA.
+* William Scott authored the arnoldi delay calculator at Blaze, Inc
+  which was subsequently licensed to Nefelus, Inc that has graciously
+  contributed it to OpenSTA.
+
+
+## Contributions
+
+Contributors must sign the Contributor License Agreement (doc/CLA.txt)
+when submitting pull requests.
+
+All contributors should read doc/CodingGuidelines.txt for nodes on
+making code that adheres to the existing naming and formatting style.
+
+Contributions that claim 4% performance improvements in OpenROAD flow
+scripts will largely be ignored. Small performance improvements
+simply do not justify the time requied to audit and verify the changes.
 
 ## License
 
