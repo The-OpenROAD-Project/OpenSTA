@@ -43,6 +43,7 @@ class MinMax;
 class MinMaxAll;
 class RiseFallBoth;
 class RiseFall;
+class VerilogReader;
 class ReportPath;
 class CheckTiming;
 class DcalcAnalysisPt;
@@ -1439,6 +1440,7 @@ protected:
   CmdNamespace cmd_namespace_;
   Instance *current_instance_;
   Corner *cmd_corner_;
+  VerilogReader *verilog_reader_;
   CheckTiming *check_timing_;
   CheckSlewLimits *check_slew_limits_;
   CheckFanoutLimits *check_fanout_limits_;

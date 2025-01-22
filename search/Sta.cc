@@ -32,7 +32,7 @@
 #include "SdcNetwork.hh"
 #include "MakeConcreteNetwork.hh"
 #include "PortDirection.hh"
-#include "VerilogReader.hh"
+#include "verilog/VerilogReader.hh"
 #include "Graph.hh"
 #include "GraphCmp.hh"
 #include "Sdc.hh"
@@ -235,9 +235,6 @@ initSta()
 void
 deleteAllMemory()
 {
-  // Verilog modules refer to the network in the sta so it has
-  // to deleted before the sta.
-  deleteVerilogReader();
   Sta *sta = Sta::sta();
   if (sta) {
     delete sta;
@@ -257,6 +254,8 @@ Sta *Sta::sta_;
 Sta::Sta() :
   StaState(),
   current_instance_(nullptr),
+  cmd_corner_(nullptr),
+  verilog_reader_(nullptr),
   check_timing_(nullptr),
   check_slew_limits_(nullptr),
   check_fanout_limits_(nullptr),
@@ -514,6 +513,9 @@ Sta::sta()
 
 Sta::~Sta()
 {
+  // Verilog modules refer to the network in the sta so it has
+  // to deleted before the network.
+  delete verilog_reader_;
   // Delete "top down" to minimize chance of referencing deleted memory.
   delete check_slew_limits_;
   delete check_fanout_limits_;
@@ -728,8 +730,10 @@ Sta::readVerilog(const char *filename)
 {
   NetworkReader *network = networkReader();
   if (network) {
+    if (verilog_reader_ == nullptr)
+      verilog_reader_ = new VerilogReader(network);
     readNetlistBefore();
-    return readVerilogFile(filename, network);
+    return verilog_reader_->read(filename);
   }
   else
     return false;

@@ -25,22 +25,19 @@ using std::string;
 string
 cellVerilogName(const char *sta_name);
 string
-instanceVerilogName(const char *sta_name,
-		    const char escape);
+instanceVerilogName(const char *sta_name);
 string
-netVerilogName(const char *sta_name,
-	       const char escape);
+netVerilogName(const char *sta_name);
 string
-portVerilogName(const char *sta_name,
-		const char escape);
+portVerilogName(const char *sta_name);
 
 string
-moduleVerilogToSta(const char *sta_name);
+moduleVerilogToSta(const string *sta_name);
 string
-instanceVerilogToSta(const char *sta_name);
+instanceVerilogToSta(const string *sta_name);
 string
-netVerilogToSta(const char *sta_name);
+netVerilogToSta(const string *sta_name);
 string
-portVerilogToSta(const char *sta_name);
+portVerilogToSta(const string *sta_name);
 
 } // namespace

@@ -17,14 +17,8 @@
 %module verilog
 
 %{
-#include "VerilogReader.hh"
 #include "VerilogWriter.hh"
 #include "Sta.hh"
-
-using sta::Sta;
-using sta::NetworkReader;
-using sta::readVerilogFile;
-
 %}
 
 %inline %{
@@ -36,21 +30,14 @@ read_verilog_cmd(const char *filename)
 }
 
 void
-delete_verilog_reader()
-{
-  deleteVerilogReader();
-}
-
-void
 write_verilog_cmd(const char *filename,
 		  bool sort,
 		  bool include_pwr_gnd,
 		  CellSeq *remove_cells)
 {
-  Sta *sta = Sta::sta();
   // This does NOT want the SDC (cmd) network because it wants
   // to see the sta internal names.
-  Network *network = sta->network();
+  Network *network = Sta::sta()->network();
   writeVerilog(filename, sort, include_pwr_gnd, remove_cells, network);
   delete remove_cells;
 }

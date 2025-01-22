@@ -218,7 +218,7 @@ VcdCountReader::makeVar(const VcdScope &scope,
       // Strip the scope from the name.
       string var_scoped = path_name.substr(scope_length + 1);
       if (width == 1) {
-        string pin_name = netVerilogToSta(var_scoped.c_str());
+        string pin_name = netVerilogToSta(&var_scoped);
         addVarPin(pin_name, id, width, 0);
       }
       else {
@@ -228,7 +228,7 @@ VcdCountReader::makeVar(const VcdScope &scope,
         parseBusName(var_scoped.c_str(), '[', ']', '\\',
                      is_bus, is_range, bus_name, from, to, subscript_wild);
         if (is_bus) {
-          string sta_bus_name = netVerilogToSta(bus_name.c_str());
+          string sta_bus_name = netVerilogToSta(&bus_name);
           int bit_idx = 0;
           if (to < from) {
             for (int bus_bit = to; bus_bit <= from; bus_bit++) {

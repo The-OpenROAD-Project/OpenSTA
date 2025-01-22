@@ -16,17 +16,38 @@
 
 #pragma once
 
+#ifndef __FLEX_LEXER_H
+#include <FlexLexer.h>
+#endif
+
+#include "location.hh"
+#include "VerilogParse.hh"
+
 namespace sta {
 
-class NetworkReader;
+class Report;
 
-// Return true if successful.
-bool
-readVerilogFile(const char *filename,
-		NetworkReader *network);
+class VerilogScanner : public yyFlexLexer
+{
+public:
+  VerilogScanner(std::istream *stream,
+                 const char *filename,
+                 Report *report);
+  virtual ~VerilogScanner() {}
 
-void
-deleteVerilogReader();
+  virtual int yylex(VerilogParse::semantic_type *const yylval,
+                    VerilogParse::location_type *yylloc);
+  // YY_DECL defined in VerilogLex.ll
+  // Method body created by flex in VerilogLex.yy.cc
 
-} // namespace sta
+  void error(const char *msg);
 
+  // Get rid of override virtual function warning.
+  using FlexLexer::yylex;
+
+private:
+  const char *filename_;
+  Report *report_;
+};
+
+} // namespace

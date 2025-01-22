@@ -1,4 +1,4 @@
-# Tests whether Verilog attributes can be parsed and retrieved correctly
+# verilog attribute parse/raccess
 read_liberty ../examples/sky130hd_tt.lib.gz
 read_verilog verilog_attribute.v
 link_design counter

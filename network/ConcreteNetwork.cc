@@ -1951,7 +1951,7 @@ ConcreteNetwork::setTopInstance(Instance *top_inst)
 }
 
 void
-ConcreteNetwork::setLinkFunc(LinkNetworkFunc *link)
+ConcreteNetwork::setLinkFunc(LinkNetworkFunc link)
 {
   link_func_ = link;
 }
@@ -1964,7 +1964,7 @@ ConcreteNetwork::linkNetwork(const char *top_cell_name,
   if (link_func_) {
     clearConstantNets();
     deleteTopInstance();
-    top_instance_ = link_func_(top_cell_name, make_black_boxes, report, this);
+    top_instance_ = link_func_(top_cell_name, make_black_boxes);
     if (top_instance_)
       checkNetworkLibertyCorners();
     return top_instance_ != nullptr;

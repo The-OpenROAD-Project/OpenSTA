@@ -27,6 +27,8 @@
 
 namespace sta {
 
+using std::function;
+
 class Report;
 class PatternMatch;
 class PinVisitor;
@@ -34,10 +36,8 @@ class PinVisitor;
 typedef Map<const char*, LibertyLibrary*, CharPtrLess> LibertyLibraryMap;
 // Link network function returns top level instance.
 // Return nullptr if link fails.
-typedef Instance *(LinkNetworkFunc)(const char *top_cell_name,
-				    bool make_black_boxes,
-				    Report *report,
-				    NetworkReader *network);
+typedef function<Instance* (const char *top_cell_name,
+                            bool make_black_boxes)> LinkNetworkFunc;
 typedef Map<const Net*, PinSet*> NetDrvrPinsMap;
 
 // The Network class defines the network API used by sta.
@@ -535,7 +535,7 @@ public:
   NetworkReader() {}
   // Called before reading a netlist to delete any previously linked network.
   virtual void readNetlistBefore() = 0;
-  virtual void setLinkFunc(LinkNetworkFunc *link) = 0;
+  virtual void setLinkFunc(LinkNetworkFunc link) = 0;
   virtual Library *makeLibrary(const char *name,
 			       const char *filename) = 0;
   virtual void deleteLibrary(Library *library) = 0;
