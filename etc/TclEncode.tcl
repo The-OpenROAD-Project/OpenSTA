@@ -30,7 +30,7 @@ exec tclsh $0 ${1+"$@"}
 # Encode the contents of tcl_filenames into a C character array
 # named var_name in the file encoded_filename.
 # Each TCL file is encoded as a separate string of three digit decimal numbers
-# that is unencoded and evaled on startup of the application.  
+# that is unencoded and evaled on startup of the application.
 # The init variable character array is terminated with a NULL pointer.
 
 set encoded_filename [lindex $argv 0]
