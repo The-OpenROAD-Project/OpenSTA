@@ -25,6 +25,8 @@
 #pragma once
 
 #ifndef __FLEX_LEXER_H
+#undef yyFlexLexer
+#define yyFlexLexer VerilogFlexLexer
 #include <FlexLexer.h>
 #endif
 
@@ -35,7 +37,7 @@ namespace sta {
 
 class Report;
 
-class VerilogScanner : public yyFlexLexer
+class VerilogScanner : public VerilogFlexLexer
 {
 public:
   VerilogScanner(std::istream *stream,
@@ -43,15 +45,15 @@ public:
                  Report *report);
   virtual ~VerilogScanner() {}
 
-  virtual int yylex(VerilogParse::semantic_type *const yylval,
-                    VerilogParse::location_type *yylloc);
+  virtual int lex(VerilogParse::semantic_type *const yylval,
+                  VerilogParse::location_type *yylloc);
   // YY_DECL defined in VerilogLex.ll
-  // Method body created by flex in VerilogLex.yy.cc
+  // Method body created by flex in VerilogLex.cc
 
   void error(const char *msg);
 
   // Get rid of override virtual function warning.
-  using FlexLexer::yylex;
+  using yyFlexLexer::yylex;
 
 private:
   const char *filename_;

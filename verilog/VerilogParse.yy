@@ -22,45 +22,18 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-%require  "3.0"
-%skeleton "lalr1.cc"
-%debug
-%defines
-%define api.namespace {sta}
-
-// bison 3.0.4 for centos7
-%define parser_class_name {VerilogParse}
-// bison 3.3.2
-//%define api.parser.class {VerilogParse}
-
-%code requires {
-  namespace sta {
-    class VerilogReadcer;
-    class VerilogScanner;
- }
-}
-
-%locations
-
-%parse-param { VerilogScanner *scanner }
-%parse-param { VerilogReader *reader }
-
 %{
 #include <cstdlib>
 #include <string>
-#include <iostream>
 
 #include "Report.hh"
 #include "PortDirection.hh"
 #include "verilog/VerilogReader.hh"
 #include "verilog/VerilogReaderPvt.hh"
 #include "verilog/VerilogScanner.hh"
-%}
-
-%code {
 
 #undef yylex
-#define yylex scanner->yylex
+#define yylex scanner->lex
 
 // warning: variable 'yynerrs_' set but not used
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
@@ -73,10 +46,21 @@ sta::VerilogParse::error(const location_type &loc,
 {
   reader->report()->fileError(164,reader->filename(),loc.begin.line,"%s",msg.c_str());
 }
+%}
 
-}
-
+%require  "3.0"
+%skeleton "lalr1.cc"
+%debug
+%define api.namespace {sta}
+%locations
 %define parse.assert
+%parse-param { VerilogScanner *scanner }
+%parse-param { VerilogReader *reader }
+
+// bison 3.0.4 for centos7
+%define parser_class_name {VerilogParse}
+// bison 3.3.2
+//%define api.parser.class {VerilogParse}
 
 %union {
   int ival;

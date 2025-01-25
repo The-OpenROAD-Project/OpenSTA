@@ -32,10 +32,12 @@
 #ifdef ZLIB_FOUND
 
 #include <zlib.h>
+#include "util/gzstream.hh"
 
 #else // ZLIB_FOUND
 
 #include <cstdio>
+#include <fstream>
 
 #define gzFile FILE*
 #define gzopen fopen
@@ -43,5 +45,9 @@
 #define gzgets(stream,s,size) fgets(s,size,stream)
 #define gzprintf fprintf
 #define Z_NULL nullptr
+
+namespace gzstream {
+typedef std::ifstream igzstream;
+}
 
 #endif // ZLIB_FOUND

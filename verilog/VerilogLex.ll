@@ -23,31 +23,33 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
+#include "util/FlexDisableRegister.hh"
 #include "VerilogNamespace.hh"
 #include "verilog/VerilogReader.hh"
 #include "verilog/VerilogReaderPvt.hh"
 #include "VerilogParse.hh"
 #include "verilog/VerilogScanner.hh"
-#include "util/FlexDisableRegister.hh"
 
 #undef YY_DECL
 #define YY_DECL \
 int \
-sta::VerilogScanner::yylex(sta::VerilogParse::semantic_type *const yylval, \
-                           sta::VerilogParse::location_type *loc)
+sta::VerilogScanner::lex(sta::VerilogParse::semantic_type *const yylval, \
+                         sta::VerilogParse::location_type *loc)
 
 // update location on matching
 #define YY_USER_ACTION loc->step(); loc->columns(yyleng);
 
 typedef sta::VerilogParse::token token;
-
 %}
 
 %option c++
 %option yyclass="sta::VerilogScanner"
+%option prefix="Verilog"
 %option noyywrap
 %option never-interactive
 %option stack
+%option yylineno
+/* %option debug */
 
 %x COMMENT
 %x QSTRING
