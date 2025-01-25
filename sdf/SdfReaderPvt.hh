@@ -24,7 +24,6 @@
 
 #pragma once
 
-#include "Zlib.hh"
 #include "Vector.hh"
 #include "TimingRole.hh"
 #include "Transition.hh"
@@ -34,20 +33,12 @@
 #include "SdcClass.hh"
 #include "StaState.hh"
 
-// Header for SdfReader.cc to communicate with SdfLex.cc, SdfParse.cc
-
-// global namespace
-
-#define YY_INPUT(buf,result,max_size) \
-  sta::sdf_reader->getChars(buf, result, max_size)
-int
-SdfParse_error(const char *msg);
-
 namespace sta {
 
 class Report;
 class SdfTriple;
 class SdfPortSpec;
+class SdfScanner;
 
 typedef Vector<SdfTriple*> SdfTripleSeq;
 
@@ -67,7 +58,8 @@ public:
   bool read();
 
   void setDivider(char divider);
-  void setTimescale(float multiplier, const char *units);
+  void setTimescale(float multiplier,
+                    const string *units);
   void setPortDeviceDelay(Edge *edge,
 			  SdfTripleSeq *triples,
 			  bool from_trans);
@@ -88,17 +80,17 @@ public:
 			       int triple_index,
 			       int arc_delay_index,
 			       const MinMax *min_max);
-  void setInstance(const char *instance_name);
+  void setInstance(const string *instance_name);
   void setInstanceWildcard();
   void cellFinish();
-  void setCell(const char *cell_name);
-  void interconnect(const char *from_pin_name,
-		    const char *to_pin_name,
+  void setCell(const string *cell_name);
+  void interconnect(const string *from_pin_name,
+		    const string *to_pin_name,
 		    SdfTripleSeq *triples);
   void iopath(SdfPortSpec *from_edge,
-	      const char *to_port_name,
+	      const string *to_port_name,
 	      SdfTripleSeq *triples,
-	      const char *cond,
+	      const string *cond,
 	      bool condelse);
   void timingCheck(TimingRole *role,
 		   SdfPortSpec *data_edge,
@@ -126,10 +118,10 @@ public:
 			   SdfPortSpec *clk_edge,
 			   SdfTriple *before_triple,
 			   SdfTriple *after_triple);
-  void port(const char *to_pin_name,
+  void port(const string *to_pin_name,
 	    SdfTripleSeq *triples);
   void device(SdfTripleSeq *triples);
-  void device(const char *to_pin_name,
+  void device(const string *to_pin_name,
 	      SdfTripleSeq *triples);
 
   SdfTriple *makeTriple();
@@ -141,29 +133,20 @@ public:
   SdfTripleSeq *makeTripleSeq();
   void deleteTripleSeq(SdfTripleSeq *triples);
   SdfPortSpec *makePortSpec(Transition *tr,
-			    const char *port,
-			    const char *cond);
-  SdfPortSpec *makeCondPortSpec(const char *cond_port);
-  const char *unescaped(const char *token);
-  char *makePath(const char *head,
-                 const char *tail);
+			    const string *port,
+			    const string *cond);
+  SdfPortSpec *makeCondPortSpec(const string *cond_port);
+  string *unescaped(const string *token);
+  string *makePath(const string *head,
+                   const string *tail);
   // Parser state used to control lexer for COND handling.
   bool inTimingCheck() { return in_timing_check_; }
   void setInTimingCheck(bool in);
   bool inIncremental() const { return in_incremental_; }
   void setInIncremental(bool incr);
-
-  // flex YY_INPUT yy_n_chars arg changed definition from int to size_t,
-  // so provide both forms.
-  void getChars(char *buf,
-		size_t &result,
-		size_t max_size);
-  void getChars(char *buf,
-		int &result,
-		size_t max_size);
-  void incrLine();
+  string *makeBusName(string *bus_name,
+                      int index);
   const char *filename() { return filename_; }
-  int line() { return line_; }
   void sdfWarn(int id,
                const char *fmt, ...);
   void sdfError(int id,
@@ -178,11 +161,11 @@ private:
   Edge *findCheckEdge(Pin *from_pin,
 		      Pin *to_pin,
 		      TimingRole *sdf_role,
-		      const char *cond_start,
-		      const char *cond_end);
+		      const string *cond_start,
+		      const string *cond_end);
   Edge *findWireEdge(Pin *from_pin,
 		     Pin *to_pin);
-  bool condMatch(const char *sdf_cond,
+  bool condMatch(const string *sdf_cond,
 		 const char *lib_cond);
   void timingCheck1(TimingRole *role,
                     Port *data_port,
@@ -197,18 +180,18 @@ private:
 			  TimingRole *sdf_role,
 			  SdfTriple *triple,
 			  bool match_generic);
-  void deletePortSpec(SdfPortSpec *edge);
-  Pin *findPin(const char *name);
-  Instance *findInstance(const char *name);
+  Pin *findPin(const string *name);
+  Instance *findInstance(const string *name);
   void setEdgeDelays(Edge *edge,
 		     SdfTripleSeq *triples,
 		     const char *sdf_cmd);
   void setDevicePinDelays(Pin *to_pin,
 			  SdfTripleSeq *triples);
   Port *findPort(const Cell *cell,
-                 const char *port_name);
+                 const string *port_name);
 
   const char *filename_;
+  SdfScanner *scanner_;
   const char *path_;
   // Which values to pull out of the sdf triples.
   int triple_min_index_;
@@ -221,19 +204,15 @@ private:
   bool is_incremental_only_;
   MinMaxAll *cond_use_;
 
-  int line_;
-  gzFile stream_;
   char divider_;
   char escape_;
   Instance *instance_;
-  const char *cell_name_;
+  const string *cell_name_;
   bool in_timing_check_;
   bool in_incremental_;
   float timescale_;
 
   static const int null_index_ = -1;
 };
-
-extern SdfReader *sdf_reader;
 
 } // namespace

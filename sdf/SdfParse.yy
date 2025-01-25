@@ -1,5 +1,3 @@
-%{
-
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2025, Parallax Software, Inc.
 // 
@@ -24,25 +22,41 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
+%{
 #include <cctype>
 
 #include "sdf/SdfReaderPvt.hh"
+#include "sdf/SdfScanner.hh"
 
-int SdfLex_lex();
-#define SdfParse_lex SdfLex_lex
-// use yacc generated parser errors
-#define YYERROR_VERBOSE
+#undef yylex
+#define yylex scanner->lex
 
-#define YYDEBUG 1
+// warning: variable 'yynerrs_' set but not used
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
+#define loc_line(loc) loc.begin.line
 %}
+
+%require  "3.0"
+%skeleton "lalr1.cc"
+%debug
+%define api.namespace {sta}
+%locations
+%define parse.assert
+%parse-param { SdfScanner *scanner }
+%parse-param { SdfReader *reader }
+
+// bison 3.0.4 for centos7
+%define parser_class_name {SdfParse}
+// bison 3.3.2
+//%define api.parser.class {SdfParse}
 
 // expected shift/reduce conflicts
 %expect 4
 
 %union {
   char character;
-  const char *string;
+  std::string *string;
   float number;
   float *number_ptr;
   int integer;
@@ -72,10 +86,10 @@ int SdfLex_lex();
 %type <transition> port_transition
 %type <character> hchar
 
-%start file
+// Used by error recovery.
+%destructor { delete $$; } QSTRING
 
-%{
-%}
+%start file
 
 %%
 
@@ -90,23 +104,22 @@ header:
 
 // technically the ordering of these statements is fixed by the spec
 header_stmt:
-	'(' SDFVERSION QSTRING ')' { sta::stringDelete($3); }
-|	'(' DESIGN QSTRING ')' { sta::stringDelete($3); }
-|	'(' DATE QSTRING ')' { sta::stringDelete($3); }
-|	'(' VENDOR QSTRING ')' { sta::stringDelete($3); }
-|	'(' PROGRAM QSTRING ')' { sta::stringDelete($3); }
-|	'(' PVERSION QSTRING ')' { sta::stringDelete($3); }
-|	'(' DIVIDER hchar ')' { sta::sdf_reader->setDivider($3); }
-|	'(' VOLTAGE triple ')' { sta::sdf_reader->deleteTriple($3); }
+	'(' SDFVERSION QSTRING ')' { delete $3; }
+|	'(' DESIGN QSTRING ')' { delete $3; }
+|	'(' DATE QSTRING ')' { delete $3; }
+|	'(' VENDOR QSTRING ')' { delete $3; }
+|	'(' PROGRAM QSTRING ')' { delete $3; }
+|	'(' PVERSION QSTRING ')' { delete $3; }
+|	'(' DIVIDER hchar ')' { reader->setDivider($3); }
+|	'(' VOLTAGE triple ')' { reader->deleteTriple($3); }
 |	'(' VOLTAGE NUMBER ')'
 |	'(' VOLTAGE ')'  // Illegal SDF (from OC).
-|	'(' PROCESS QSTRING ')' { sta::stringDelete($3); }
+|	'(' PROCESS QSTRING ')' { delete $3; }
 |	'(' PROCESS ')'  // Illegal SDF (from OC).
 |	'(' TEMPERATURE NUMBER ')'
-|	'(' TEMPERATURE triple ')' { sta::sdf_reader->deleteTriple($3); }
+|	'(' TEMPERATURE triple ')' { reader->deleteTriple($3); }
 |	'(' TEMPERATURE ')' // Illegal SDF (from OC).
-|	'(' TIMESCALE NUMBER ID ')'
-	{ sta::sdf_reader->setTimescale($3, $4); }
+|	'(' TIMESCALE NUMBER ID ')' { reader->setTimescale($3, $4); }
 ;
 
 hchar:
@@ -116,7 +129,7 @@ hchar:
 	{ $$ = '.'; }
 ;
 
-number_opt: { $$ = NULL; }
+number_opt: { $$ = nullptr; }
 |	NUMBER	{ $$ = new float($1); }
 ;
 
@@ -127,21 +140,21 @@ cells:
 
 cell:
 	'(' CELL celltype cell_instance timing_specs ')'
-	{ sta::sdf_reader->cellFinish(); }
+	{ reader->cellFinish(); }
 ;
 
 celltype:
 	'(' CELLTYPE QSTRING ')'
-	{ sta::sdf_reader->setCell($3); }
+	{ reader->setCell($3); }
 ;
 
 cell_instance:
 	'(' INSTANCE ')'
-        { sta::sdf_reader->setInstance(NULL); }
+        { reader->setInstance(nullptr); }
 |	'(' INSTANCE '*' ')'
-        { sta::sdf_reader->setInstanceWildcard(); }
+        { reader->setInstanceWildcard(); }
 |	'(' INSTANCE path ')'
-	{ sta::sdf_reader->setInstance($3); }
+	{ reader->setInstance($3); }
 ;
 
 timing_specs:
@@ -160,10 +173,10 @@ deltypes:
 
 deltype:
 	'(' ABSOLUTE
-	{ sta::sdf_reader->setInIncremental(false); }
+	{ reader->setInIncremental(false); }
 	del_defs ')'
 |	'(' INCREMENTAL
-	{ sta::sdf_reader->setInIncremental(true); }
+	{ reader->setInIncremental(true); }
 	del_defs ')'
 ;
 
@@ -173,28 +186,28 @@ del_defs:
 
 path:
 	ID
-        { $$ = sta::sdf_reader->unescaped($1); }
+        { $$ = reader->unescaped($1); }
 |	path hchar ID
-        { $$ = sta::sdf_reader->makePath($1, sta::sdf_reader->unescaped($3)); }
+        { $$ = reader->makePath($1, reader->unescaped($3)); }
 ;
 
 del_def:
 	'(' IOPATH port_spec port_instance retains delval_list ')'
-	{ sta::sdf_reader->iopath($3, $4, $6, NULL, false); }
+	{ reader->iopath($3, $4, $6, nullptr, false); }
 |	'(' CONDELSE '(' IOPATH port_spec port_instance
             retains delval_list ')' ')'
-	{ sta::sdf_reader->iopath($5, $6, $8, NULL, true); }
+	{ reader->iopath($5, $6, $8, nullptr, true); }
 |	'(' COND EXPR_OPEN_IOPATH port_spec port_instance
             retains delval_list ')' ')'
-	{ sta::sdf_reader->iopath($4, $5, $7, $3, false); }
+	{ reader->iopath($4, $5, $7, $3, false); }
 |	'(' INTERCONNECT port_instance port_instance delval_list ')'
-	{ sta::sdf_reader->interconnect($3, $4, $5); }
+	{ reader->interconnect($3, $4, $5); }
 |	'(' PORT port_instance delval_list ')'
-	{ sta::sdf_reader->port($3, $4); }
+	{ reader->port($3, $4); }
 |	'(' DEVICE delval_list ')'
-	{ sta::sdf_reader->device($3); }
+	{ reader->device($3); }
 |	'(' DEVICE port_instance delval_list ')'
-	{ sta::sdf_reader->device($3, $4); }
+	{ reader->device($3, $4); }
 ;
 
 retains:
@@ -204,12 +217,12 @@ retains:
 
 retain:
 	'(' RETAIN delval_list ')'
-	{ sta::sdf_reader->deleteTripleSeq($3); }
+	{ reader->deleteTripleSeq($3); }
 ;
 
 delval_list:
 	value
-	{ $$ = sta::sdf_reader->makeTripleSeq(); $$->push_back($1); }
+	{ $$ = reader->makeTripleSeq(); $$->push_back($1); }
 |  	delval_list value
 	{ $1->push_back($2); $$ = $1; }
 ;
@@ -219,80 +232,77 @@ tchk_defs:
 ;
 
 tchk_def:
-	'(' SETUP { sta::sdf_reader->setInTimingCheck(true); }
+	'(' SETUP { reader->setInTimingCheck(true); }
 	port_tchk port_tchk value ')'
-	{ sta::sdf_reader->timingCheck(sta::TimingRole::setup(), $4, $5, $6);
-	  sta::sdf_reader->setInTimingCheck(false);
+	{ reader->timingCheck(sta::TimingRole::setup(), $4, $5, $6);
+	  reader->setInTimingCheck(false);
 	}
-|	'(' HOLD { sta::sdf_reader->setInTimingCheck(true); }
+|	'(' HOLD { reader->setInTimingCheck(true); }
 	port_tchk port_tchk value ')'
-	{ sta::sdf_reader->timingCheck(sta::TimingRole::hold(), $4, $5, $6);
-	  sta::sdf_reader->setInTimingCheck(false);
+	{ reader->timingCheck(sta::TimingRole::hold(), $4, $5, $6);
+	  reader->setInTimingCheck(false);
 	}
-|	'(' SETUPHOLD { sta::sdf_reader->setInTimingCheck(true); }
+|	'(' SETUPHOLD { reader->setInTimingCheck(true); }
 	port_tchk port_tchk value value ')'
-	{ sta::sdf_reader->timingCheckSetupHold($4, $5, $6, $7);
-	  sta::sdf_reader->setInTimingCheck(false);
+	{ reader->timingCheckSetupHold($4, $5, $6, $7);
+	  reader->setInTimingCheck(false);
 	}
-|	'(' RECOVERY { sta::sdf_reader->setInTimingCheck(true); }
+|	'(' RECOVERY { reader->setInTimingCheck(true); }
 	port_tchk port_tchk value ')'
-	{ sta::sdf_reader->timingCheck(sta::TimingRole::recovery(),$4,$5,$6);
-	  sta::sdf_reader->setInTimingCheck(false);
+	{ reader->timingCheck(sta::TimingRole::recovery(),$4,$5,$6);
+	  reader->setInTimingCheck(false);
 	}
-|	'(' REMOVAL { sta::sdf_reader->setInTimingCheck(true); }
+|	'(' REMOVAL { reader->setInTimingCheck(true); }
 	port_tchk port_tchk value ')'
-	{ sta::sdf_reader->timingCheck(sta::TimingRole::removal(),$4,$5,$6);
-	  sta::sdf_reader->setInTimingCheck(false);
+	{ reader->timingCheck(sta::TimingRole::removal(),$4,$5,$6);
+	  reader->setInTimingCheck(false);
 	}
-|	'(' RECREM { sta::sdf_reader->setInTimingCheck(true); }
+|	'(' RECREM { reader->setInTimingCheck(true); }
 	port_tchk port_tchk value value ')'
-	{ sta::sdf_reader->timingCheckRecRem($4, $5, $6, $7);
-	  sta::sdf_reader->setInTimingCheck(false);
+	{ reader->timingCheckRecRem($4, $5, $6, $7);
+	  reader->setInTimingCheck(false);
 	}
-|	'(' SKEW { sta::sdf_reader->setInTimingCheck(true); }
+|	'(' SKEW { reader->setInTimingCheck(true); }
 	port_tchk port_tchk value ')'
 	// Sdf skew clk/ref are reversed from liberty.
-	{ sta::sdf_reader->timingCheck(sta::TimingRole::skew(),$5,$4,$6);
-	  sta::sdf_reader->setInTimingCheck(false);
+	{ reader->timingCheck(sta::TimingRole::skew(),$5,$4,$6);
+	  reader->setInTimingCheck(false);
 	}
-|	'(' WIDTH { sta::sdf_reader->setInTimingCheck(true); }
+|	'(' WIDTH { reader->setInTimingCheck(true); }
 	port_tchk value ')'
-	{ sta::sdf_reader->timingCheckWidth($4, $5);
-	  sta::sdf_reader->setInTimingCheck(false);
+	{ reader->timingCheckWidth($4, $5);
+	  reader->setInTimingCheck(false);
 	}
-|	'(' PERIOD { sta::sdf_reader->setInTimingCheck(true); }
+|	'(' PERIOD { reader->setInTimingCheck(true); }
 	port_tchk value ')'	
-	{ sta::sdf_reader->timingCheckPeriod($4, $5);
-	  sta::sdf_reader->setInTimingCheck(false);
+	{ reader->timingCheckPeriod($4, $5);
+	  reader->setInTimingCheck(false);
 	}
-|	'(' NOCHANGE { sta::sdf_reader->setInTimingCheck(true); }
+|	'(' NOCHANGE { reader->setInTimingCheck(true); }
 	port_tchk port_tchk value value ')'
-	{ sta::sdf_reader->timingCheckNochange($4, $5, $6, $7);
-	  sta::sdf_reader->setInTimingCheck(false);
+	{ reader->timingCheckNochange($4, $5, $6, $7);
+	  reader->setInTimingCheck(false);
 	}
 ;
 
 port:
 	ID
-        { $$ = sta::sdf_reader->unescaped($1); }
+        { $$ = reader->unescaped($1); }
         | ID '[' DNUMBER ']'
-        { const char *bus_name = sta::sdf_reader->unescaped($1);
-          $$ = sta::stringPrint("%s[%d]", bus_name, $3);
-          sta::stringDelete(bus_name);
-        }
+        { $$ = reader->makeBusName($1, $3); }
 ;
 
 port_instance:
 	port
 |	path hchar port
-        { $$ = sta::sdf_reader->makePath($1, $3); }
+        { $$ = reader->makePath($1, $3); }
 ;
 
 port_spec:
 	port_instance
-	{ $$=sta::sdf_reader->makePortSpec(sta::Transition::riseFall(),$1,NULL); }
+	{ $$=reader->makePortSpec(sta::Transition::riseFall(),$1,nullptr); }
 |	'(' port_transition port_instance ')'
-	{ $$ = sta::sdf_reader->makePortSpec($2, $3, NULL); }
+	{ $$ = reader->makePortSpec($2, $3, nullptr); }
 ;
 
 port_transition:
@@ -303,19 +313,19 @@ port_transition:
 port_tchk:
 	port_spec
 |	'(' COND EXPR_ID_CLOSE
-	{ $$ = sta::sdf_reader->makeCondPortSpec($3); }
+	{ $$ = reader->makeCondPortSpec($3); }
 |	'(' COND EXPR_OPEN port_transition port_instance ')' ')'
-        { $$ = sta::sdf_reader->makePortSpec($4, $5, $3); }
+        { $$ = reader->makePortSpec($4, $5, $3); }
 ;
 
 value:
 	'(' ')'
 	{
-	  $$ = sta::sdf_reader->makeTriple();
+	  $$ = reader->makeTriple();
 	}
 |	'(' NUMBER ')'
 	{
-	  $$ = sta::sdf_reader->makeTriple($2);
+	  $$ = reader->makeTriple($2);
 	}
 |	'(' triple ')' { $$ = $2; }
 ;
@@ -324,17 +334,17 @@ triple:
 	NUMBER ':' number_opt ':' number_opt
 	{
 	  float *fp = new float($1);
-	  $$ = sta::sdf_reader->makeTriple(fp, $3, $5);
+	  $$ = reader->makeTriple(fp, $3, $5);
 	}
 |	number_opt ':' NUMBER ':' number_opt
 	{
 	  float *fp = new float($3);
-	  $$ = sta::sdf_reader->makeTriple($1, fp, $5);
+	  $$ = reader->makeTriple($1, fp, $5);
 	}
 |	number_opt ':' number_opt ':' NUMBER
 	{
 	  float *fp = new float($5);
-	  $$ = sta::sdf_reader->makeTriple($1, $3, fp);
+	  $$ = reader->makeTriple($1, $3, fp);
 	}
 ;
 
