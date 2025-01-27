@@ -193,7 +193,8 @@ public:
     igzstream() : std::istream( &buf) {} 
     igzstream( const char* name, int open_mode = std::ios::in)
         : gzstreambase( name, open_mode), std::istream( &buf) {}  
-    gzstreambuf* rdbuf() { return gzstreambase::rdbuf(); }
+   int is_open() { return buf.is_open(); }
+   gzstreambuf* rdbuf() { return gzstreambase::rdbuf(); }
     void open( const char* name, int open_mode = std::ios::in) {
         gzstreambase::open( name, open_mode);
     }

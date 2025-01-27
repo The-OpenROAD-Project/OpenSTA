@@ -168,7 +168,7 @@ bool
 VerilogReader::read(const char *filename)
 {
   gzstream::igzstream stream(filename);
-  if (stream.good()) {
+  if (stream.is_open()) {
     Stats stats(debug_, report_);
     VerilogScanner scanner(&stream, filename, report_);
     VerilogParse parser(&scanner, this);

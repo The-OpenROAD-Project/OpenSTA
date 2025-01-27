@@ -43,6 +43,7 @@ class LibertyAttrValue;
 class LibertyVariable;
 class LibertySubgroupIterator;
 class LibertyAttrIterator;
+class LibertyScanner;
 
 typedef Vector<LibertyStmt*> LibertyStmtSeq;
 typedef Vector<LibertyGroup*> LibertyGroupSeq;
@@ -53,25 +54,50 @@ typedef Vector<LibertyAttrValue*> LibertyAttrValueSeq;
 typedef Map<const char *, float, CharPtrLess> LibertyVariableMap;
 typedef Map<const char*,LibertyGroupVisitor*,CharPtrLess>LibertyGroupVisitorMap;
 typedef LibertyAttrValueSeq::Iterator LibertyAttrValueIterator;
+typedef Vector<LibertyGroup*> LibertyGroupSeq;
 
 enum class LibertyAttrType { attr_string, attr_int, attr_double,
 			     attr_boolean, attr_unknown };
 
 enum class LibertyGroupType { library, cell, pin, timing, unknown };
 
-// flex YY_INPUT yy_n_chars arg changed definition from int to size_t,
-// so provide both forms.
-void
-libertyGetChars(char *buf,
-                size_t &result,
-                size_t max_size);
-void
-libertyGetChars(char *buf,
-                int &result,
-                size_t max_size);
+class LibertyParser
+{
+public:
+  LibertyParser(const char *filename,
+                LibertyGroupVisitor *library_visitor,
+                Report *report);
+  const string &filename() const { return filename_; }
+  void setFilename(const string &filename);
+  Report *report() const { return report_; }
+  LibertyStmt *makeDefine(LibertyAttrValueSeq *values,
+                          int line);
+  LibertyAttrType attrValueType(const char *value_type_name);
+  LibertyGroupType groupType(const char *group_type_name);
+  void groupBegin(const char *type,
+                  LibertyAttrValueSeq *params,
+                  int line);
+  LibertyGroup *groupEnd();
+  LibertyGroup *group();
+  void deleteGroups();
+  LibertyStmt *makeSimpleAttr(const char *name,
+                              LibertyAttrValue *value,
+                              int line);
+  LibertyStmt *makeComplexAttr(const char *name,
+                               LibertyAttrValueSeq *values,
+                               int line);
+  LibertyAttrValue *makeStringAttrValue(char *value);
+  LibertyAttrValue *makeFloatAttrValue(float value);
+  LibertyStmt *makeVariable(char *var,
+                            float value,
+                            int line);
 
-#define YY_INPUT(buf,result,max_size) \
-  sta::libertyGetChars(buf, result, max_size)
+private:
+  string filename_;
+  LibertyGroupVisitor *group_visitor_;
+  Report *report_;
+  LibertyGroupSeq group_stack_;
+};
 
 // Abstract base class for liberty statements.
 class LibertyStmt
@@ -290,51 +316,7 @@ public:
 };
 
 void
-libertyIncludeBegin(const char *filename);
-void
-libertyIncludeEnd();
-bool
-libertyInInclude();
-void
-libertyIncrLine();
-void
-libertyParseError(const char *fmt,
-		  ...);
-int
-libertyLine();
-
-void
 parseLibertyFile(const char *filename,
 		 LibertyGroupVisitor *library_visitor,
 		 Report *report);
-void
-libertyGroupBegin(const char *type,
-		  LibertyAttrValueSeq *params,
-		  int line);
-LibertyGroup *
-libertyGroupEnd();
-LibertyGroup *
-libertyGroup();
-LibertyStmt *
-makeLibertyComplexAttr(const char *name,
-		       LibertyAttrValueSeq *values,
-		       int line);
-LibertyStmt *
-makeLibertySimpleAttr(const char *name,
-		      LibertyAttrValue *value,
-		      int line);
-LibertyAttrValue *
-makeLibertyFloatAttrValue(float value);
-LibertyAttrValue *
-makeLibertyStringAttrValue(char *value);
-LibertyStmt *
-makeLibertyVariable(char *var,
-		    float value,
-		    int line);
-
 } // namespace
-
-// Global namespace.
-int
-LibertyParse_error(const char *msg);
-

@@ -110,6 +110,7 @@ LibertyReader::init(const char *filename,
   in_bus_ = false;
   in_bundle_ = false;
   in_ccsn_ = false;
+  in_ecsm_waveform_ = false;
   sequential_ = nullptr;
   statetable_ = nullptr;
   timing_ = nullptr;
@@ -570,6 +571,9 @@ LibertyReader::defineVisitors()
 		     &LibertyReader::endCcsn);
   defineGroupVisitor("output_ccb", &LibertyReader::beginCcsn,
 		     &LibertyReader::endCcsn);
+
+  defineGroupVisitor("ecsm_waveform", &LibertyReader::beginEcsmWaveform,
+		     &LibertyReader::endEcsmWaveform);
 }
 
 void
@@ -1520,7 +1524,7 @@ LibertyReader::visitIndex(int index,
 {
   if (tbl_template_
       // Ignore index_xx in ecsm_waveform groups.
-      && !stringEq(libertyGroup()->type(), "ecsm_waveform")) {
+      && !in_ecsm_waveform_) {
     FloatSeq *axis_values = readFloatSeq(attr, 1.0F);
     if (axis_values) {
       if (axis_values->empty())
@@ -4657,7 +4661,7 @@ LibertyReader::visitValues(LibertyAttr *attr)
 {
   if (tbl_template_
       // Ignore values in ecsm_waveform groups.
-      && !stringEq(libertyGroup()->type(), "ecsm_waveform"))
+      && !in_ecsm_waveform_)
     makeTable(attr, table_model_scale_);
 }
 
@@ -5665,6 +5669,32 @@ LibertyReader::visitVoltageName(LibertyAttr *attr)
     const char *voltage_name = getAttrString(attr);
     pg_port_->setVoltageName(voltage_name);
   }
+}
+
+// Contents Ignored.
+void
+LibertyReader::beginCcsn(LibertyGroup *)
+{
+  in_ccsn_ = true;
+}
+
+void
+LibertyReader::endCcsn(LibertyGroup *)
+{
+  in_ccsn_ = false;
+}
+
+// Contents Ignored.
+void
+LibertyReader::beginEcsmWaveform(LibertyGroup *)
+{
+  in_ecsm_waveform_ = true;
+}
+
+void
+LibertyReader::endEcsmWaveform(LibertyGroup *)
+{
+  in_ecsm_waveform_ = false;
 }
 
 ////////////////////////////////////////////////////////////////

@@ -139,8 +139,8 @@ SdfReader::~SdfReader()
 bool
 SdfReader::read()
 {
-  gzstream::igzstream stream(filename_);
-  if (stream.good()) {
+  gzstream::igzstream stream(filename_.c_str());
+  if (stream.is_open()) {
     Stats stats(debug_, report_);
     SdfScanner scanner(&stream, filename_, this, report_);
     scanner_ = &scanner;
@@ -150,7 +150,7 @@ SdfReader::read()
     return success;
   }
   else
-    throw FileNotReadable(filename_);
+    throw FileNotReadable(filename_.c_str());
 }
 
 void
@@ -994,7 +994,7 @@ SdfReader::sdfWarn(int id,
 {
   va_list args;
   va_start(args, fmt);
-  report_->vfileWarn(id, filename_, scanner_->lineno(), fmt, args);
+  report_->vfileWarn(id, filename_.c_str(), scanner_->lineno(), fmt, args);
   va_end(args);
 }
 
@@ -1004,7 +1004,7 @@ SdfReader::sdfError(int id,
 {
   va_list args;
   va_start(args, fmt);
-  report_->vfileError(id, filename_, scanner_->lineno(), fmt, args);
+  report_->vfileError(id, filename_.c_str(), scanner_->lineno(), fmt, args);
   va_end(args);
 }
 
@@ -1087,7 +1087,7 @@ SdfTriple::hasValue() const
 ////////////////////////////////////////////////////////////////
 
 SdfScanner::SdfScanner(std::istream *stream,
-                       const char *filename,
+                       const string &filename,
                        SdfReader *reader,
                        Report *report) :
   yyFlexLexer(stream),
@@ -1100,7 +1100,7 @@ SdfScanner::SdfScanner(std::istream *stream,
 void
 SdfScanner::error(const char *msg)
 {
-  report_->fileError(1866, filename_, lineno(), "%s", msg);
+  report_->fileError(1866, filename_.c_str(), lineno(), "%s", msg);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1109,7 +1109,8 @@ void
 SdfParse::error(const location_type &loc,
                 const string &msg)
 {
-  reader->report()->fileError(164,reader->filename(),loc.begin.line,"%s",msg.c_str());
+  reader->report()->fileError(164,reader->filename().c_str(),
+                              loc.begin.line,"%s",msg.c_str());
 }
 
 } // namespace

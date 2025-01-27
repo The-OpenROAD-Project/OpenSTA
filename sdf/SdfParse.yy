@@ -33,8 +33,6 @@
 
 // warning: variable 'yynerrs_' set but not used
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-
-#define loc_line(loc) loc.begin.line
 %}
 
 %require  "3.0"

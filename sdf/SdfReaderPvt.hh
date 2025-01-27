@@ -146,7 +146,7 @@ public:
   void setInIncremental(bool incr);
   string *makeBusName(string *bus_name,
                       int index);
-  const char *filename() { return filename_; }
+  const string &filename() const { return filename_; }
   void sdfWarn(int id,
                const char *fmt, ...);
   void sdfError(int id,
@@ -190,7 +190,7 @@ private:
   Port *findPort(const Cell *cell,
                  const string *port_name);
 
-  const char *filename_;
+  string filename_;
   SdfScanner *scanner_;
   const char *path_;
   // Which values to pull out of the sdf triples.

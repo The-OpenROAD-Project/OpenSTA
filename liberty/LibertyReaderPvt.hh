@@ -490,30 +490,10 @@ public:
   void visitDriverWaveformRiseFall(LibertyAttr *attr,
                                    const RiseFall *rf);
 
-  // ccsn (not implemented, this is needed to properly ignore ccsn groups)
-  void beginCcsn(LibertyGroup *) { in_ccsn_ = true; }
-  void endCcsn(LibertyGroup *) { in_ccsn_ = false; }
-
-  // Visitors for derived classes to overload.
-  virtual void beginGroup1(LibertyGroup *) {}
-  virtual void beginGroup2(LibertyGroup *) {}
-  virtual void beginGroup3(LibertyGroup *) {}
-  virtual void beginGroup4(LibertyGroup *) {}
-  virtual void beginGroup5(LibertyGroup *) {}
-  virtual void endGroup1(LibertyGroup *) {}
-  virtual void endGroup2(LibertyGroup *) {}
-  virtual void endGroup3(LibertyGroup *) {}
-  virtual void endGroup4(LibertyGroup *) {}
-  virtual void endGroup5(LibertyGroup *) {}
-  virtual void visitAttr1(LibertyAttr *) {}
-  virtual void visitAttr2(LibertyAttr *) {}
-  virtual void visitAttr3(LibertyAttr *) {}
-  virtual void visitAttr4(LibertyAttr *) {}
-  virtual void visitAttr5(LibertyAttr *) {}
-  virtual void visitAttr6(LibertyAttr *) {}
-  virtual void visitAttr7(LibertyAttr *) {}
-  virtual void visitAttr8(LibertyAttr *) {}
-  virtual void visitAttr9(LibertyAttr *) {}
+  void beginCcsn(LibertyGroup *group);
+  void endCcsn(LibertyGroup *group);
+  void beginEcsmWaveform(LibertyGroup *group);
+  void endEcsmWaveform(LibertyGroup *group);
 
 protected:
   TimingModel *makeScalarCheckModel(float value,
@@ -641,6 +621,7 @@ protected:
   bool in_bus_;
   bool in_bundle_;
   bool in_ccsn_;
+  bool in_ecsm_waveform_;
   TableAxisVariable axis_var_[3];
   FloatSeq *axis_values_[3];
   int type_bit_from_;
