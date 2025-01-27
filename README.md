@@ -245,15 +245,6 @@ Command files should not have absolute filenames like
 These obviously are not portable. Use filenames relative to the test
 case directory.
 
-## Authors
-
-* James Cherry
-
-* William Scott authored the arnoldi delay calculator at Blaze, Inc
-  which was subsequently licensed to Nefelus, Inc that has graciously
-  contributed it to OpenSTA.
-
-
 ## Contributions
 
 Contributors must sign the Contributor License Agreement (doc/CLA.txt)
@@ -265,6 +256,17 @@ making code that adheres to the existing naming and formatting style.
 Contributions that claim 4% performance improvements in OpenROAD flow
 scripts will largely be ignored. Small performance improvements
 simply do not justify the time requied to audit and verify the changes.
+
+Contributions that add dependencies on external libraries like boost
+will not be accepted.
+
+## Authors
+
+* James Cherry
+
+* William Scott authored the arnoldi delay calculator at Blaze, Inc
+  which was subsequently licensed to Nefelus, Inc that has graciously
+  contributed it to OpenSTA.
 
 ## License
 
