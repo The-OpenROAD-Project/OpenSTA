@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2024, Parallax Software, Inc.
+// Copyright (c) 2025, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,6 +13,14 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
+// 
+// The origin of this software must not be misrepresented; you must not
+// claim that you wrote the original software.
+// 
+// Altered source versions must be plainly marked as such, and must not be
+// misrepresented as being the original software.
+// 
+// This notice may not be removed or altered from any source distribution.
 
 #include "ConcreteNetwork.hh"
 
@@ -1951,7 +1959,7 @@ ConcreteNetwork::setTopInstance(Instance *top_inst)
 }
 
 void
-ConcreteNetwork::setLinkFunc(LinkNetworkFunc *link)
+ConcreteNetwork::setLinkFunc(LinkNetworkFunc link)
 {
   link_func_ = link;
 }
@@ -1964,7 +1972,7 @@ ConcreteNetwork::linkNetwork(const char *top_cell_name,
   if (link_func_) {
     clearConstantNets();
     deleteTopInstance();
-    top_instance_ = link_func_(top_cell_name, make_black_boxes, report, this);
+    top_instance_ = link_func_(top_cell_name, make_black_boxes);
     if (top_instance_)
       checkNetworkLibertyCorners();
     return top_instance_ != nullptr;

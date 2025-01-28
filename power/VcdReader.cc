@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2024, Parallax Software, Inc.
+// Copyright (c) 2025, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,11 +13,19 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
+// 
+// The origin of this software must not be misrepresented; you must not
+// claim that you wrote the original software.
+// 
+// Altered source versions must be plainly marked as such, and must not be
+// misrepresented as being the original software.
+// 
+// This notice may not be removed or altered from any source distribution.
 
 #include "VcdReader.hh"
 
 #include <inttypes.h>
-#include <set>
+#include <unordered_map>
 
 #include "VcdParse.hh"
 #include "Debug.hh"
@@ -35,7 +43,7 @@ using std::abs;
 using std::min;
 using std::to_string;
 using std::vector;
-using std::map;
+using std::unordered_map;
 
 // Transition count and high time for duty cycle for a group of pins
 // for one bit of vcd ID.
@@ -108,7 +116,7 @@ VcdCount::highTime(VcdTime time_max) const
 // VcdCount[bit]
 typedef vector<VcdCount> VcdCounts;
 // ID -> VcdCount[bit]
-typedef map<string, VcdCounts> VcdIdCountsMap;
+typedef unordered_map<string, VcdCounts> VcdIdCountsMap;
 
 class VcdCountReader : public VcdReader
 {
@@ -218,7 +226,7 @@ VcdCountReader::makeVar(const VcdScope &scope,
       // Strip the scope from the name.
       string var_scoped = path_name.substr(scope_length + 1);
       if (width == 1) {
-        string pin_name = netVerilogToSta(var_scoped.c_str());
+        string pin_name = netVerilogToSta(&var_scoped);
         addVarPin(pin_name, id, width, 0);
       }
       else {
@@ -228,7 +236,7 @@ VcdCountReader::makeVar(const VcdScope &scope,
         parseBusName(var_scoped.c_str(), '[', ']', '\\',
                      is_bus, is_range, bus_name, from, to, subscript_wild);
         if (is_bus) {
-          string sta_bus_name = netVerilogToSta(bus_name.c_str());
+          string sta_bus_name = netVerilogToSta(&bus_name);
           int bit_idx = 0;
           if (to < from) {
             for (int bus_bit = to; bus_bit <= from; bus_bit++) {
@@ -282,7 +290,7 @@ VcdCountReader::varAppendValue(const string &id,
                                VcdTime time,
                                char value)
 {
-  auto itr = vcd_count_map_.find(id);
+  const auto &itr = vcd_count_map_.find(id);
   if (itr != vcd_count_map_.end()) {
     VcdCounts &vcd_counts = itr->second;
     if (debug_->check("read_vcd_activities", 3)) {
@@ -308,7 +316,7 @@ VcdCountReader::varAppendBusValue(const string &id,
                                   VcdTime time,
                                   int64_t bus_value)
 {
-  auto itr = vcd_count_map_.find(id);
+  const auto &itr = vcd_count_map_.find(id);
   if (itr != vcd_count_map_.end()) {
     VcdCounts &vcd_counts = itr->second;
     for (size_t bit_idx = 0; bit_idx < vcd_counts.size(); bit_idx++) {

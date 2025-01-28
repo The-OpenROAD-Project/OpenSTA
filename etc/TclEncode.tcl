@@ -3,7 +3,7 @@
 exec tclsh $0 ${1+"$@"}
 
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2024, Parallax Software, Inc.
+# Copyright (c) 2025, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,12 +17,20 @@ exec tclsh $0 ${1+"$@"}
 # 
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+# 
+# The origin of this software must not be misrepresented; you must not
+# claim that you wrote the original software.
+# 
+# Altered source versions must be plainly marked as such, and must not be
+# misrepresented as being the original software.
+# 
+# This notice may not be removed or altered from any source distribution.
 
 # Usage: TclEncode encoded_filename var_name tcl_init_dir tcl_filename...
 # Encode the contents of tcl_filenames into a C character array
 # named var_name in the file encoded_filename.
 # Each TCL file is encoded as a separate string of three digit decimal numbers
-# that is unencoded and evaled on startup of the application.  
+# that is unencoded and evaled on startup of the application.
 # The init variable character array is terminated with a NULL pointer.
 
 set encoded_filename [lindex $argv 0]

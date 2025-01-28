@@ -1,7 +1,5 @@
-%{
-
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2024, Parallax Software, Inc.
+// Copyright (c) 2025, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,27 +13,60 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
+// 
+// The origin of this software must not be misrepresented; you must not
+// claim that you wrote the original software.
+// 
+// Altered source versions must be plainly marked as such, and must not be
+// misrepresented as being the original software.
+// 
+// This notice may not be removed or altered from any source distribution.
 
+%{
 #include <cstdlib>
 #include <string>
-#include <iostream>
 
+#include "Report.hh"
 #include "PortDirection.hh"
-#include "verilog/VerilogReaderPvt.hh"
 #include "VerilogReader.hh"
+#include "verilog/VerilogReaderPvt.hh"
+#include "verilog/VerilogScanner.hh"
 
-int VerilogLex_lex();
-#define VerilogParse_lex VerilogLex_lex
-// Use yacc generated parser errors.
-#define YYERROR_VERBOSE
+#undef yylex
+#define yylex scanner->lex
 
+// warning: variable 'yynerrs_' set but not used
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+
+#define loc_line(loc) loc.begin.line
+
+void
+sta::VerilogParse::error(const location_type &loc,
+                         const string &msg)
+{
+  reader->report()->fileError(164,reader->filename(),loc.begin.line,"%s",msg.c_str());
+}
 %}
 
-%union{
+%require  "3.0"
+%skeleton "lalr1.cc"
+%debug
+%define api.namespace {sta}
+%locations
+%define parse.assert
+%parse-param { VerilogScanner *scanner }
+%parse-param { VerilogReader *reader }
+
+// bison 3.0.4 for centos7
+%define parser_class_name {VerilogParse}
+// bison 3.3.2
+//%define api.parser.class {VerilogParse}
+
+%union {
   int ival;
-  const char *string;
-  const char *constant;
-  const char *attribute_spec_value;
+  std::string *string;
+  std::string *constant;
+  std::string *attr_spec_value;
   sta::VerilogModule *module;
   sta::VerilogStmt *stmt;
   sta::VerilogStmtSeq *stmt_seq;
@@ -47,26 +78,25 @@ int VerilogLex_lex();
   sta::VerilogNet *net;
   sta::VerilogNetBitSelect *net_bit;
   sta::VerilogNetSeq *nets;
-  sta::VerilogAttributeEntry *attribute_entry;
-  sta::VerilogAttributeEntrySeq *attribute_seq;
-  sta::VerilogAttributeStmt *attribute_stmt;
-  sta::VerilogAttributeStmtSeq *attribute_stmt_seq;
+  sta::VerilogAttrEntry *attr_entry;
+  sta::VerilogAttrEntrySeq *attr_seq;
+  sta::VerilogAttrStmt *attr_stmt;
+  sta::VerilogAttrStmtSeq *attr_stmt_seq;
 }
 
 %token INT CONSTANT ID STRING MODULE ENDMODULE ASSIGN PARAMETER DEFPARAM
 %token WIRE WAND WOR TRI INPUT OUTPUT INOUT SUPPLY1 SUPPLY0 REG
-%token ATTRIBUTE_OPEN ATTRIBUTE_CLOSED
+%token ATTR_OPEN ATTR_CLOSED
 
 %left '-' '+'
 %left '*' '/'
 %left NEG     /* negation--unary minus */
 
-%type <string> ID STRING
+%type <string> ID STRING CONSTANT
 %type <ival> WIRE WAND WOR TRI INPUT OUTPUT INOUT SUPPLY1 SUPPLY0
-%type <ival> ATTRIBUTE_OPEN ATTRIBUTE_CLOSED
-%type <ival> INT parameter_exprs parameter_expr module_begin
-%type <constant> CONSTANT
-%type <attribute_spec_value> attr_spec_value
+%type <ival> ATTR_OPEN ATTR_CLOSED
+%type <ival> INT parameter_exprs parameter_expr
+%type <string> attr_spec_value
 %type <port_type> dcl_type port_dcl_type
 %type <stmt> stmt declaration instance parameter parameter_dcls parameter_dcl
 %type <stmt> defparam param_values param_value port_dcl
@@ -79,15 +109,17 @@ int VerilogLex_lex();
 %type <net> inst_named_pin net_named net_expr_concat
 %type <nets> port_list port_refs inst_ordered_pins
 %type <nets> inst_named_pins net_exprs inst_pins
-%type <attribute_entry> attr_spec
-%type <attribute_seq> attr_specs
-%type <attribute_stmt> attribute_instance
-%type <attribute_stmt_seq> attribute_instance_seq
+%type <attr_entry> attr_spec
+%type <attr_seq> attr_specs
+%type <attr_stmt> attr_instance
+%type <attr_stmt_seq> attr_instance_seq
+
+// Used by error recovery.
+%destructor { delete $$; } STRING
+%destructor { delete $$; } CONSTANT
+%destructor { delete $$; } attr_spec_value
 
 %start file
-
-%{
-%}
 
 %%
 
@@ -100,20 +132,15 @@ modules:
 |	modules module
 	;
 
-module_begin:
-	MODULE { $<ival>$ = sta::verilog_reader->line(); }
-	{ $$ = $<ival>2; }
-	;
-
 module:
-	attribute_instance_seq module_begin ID ';' stmts ENDMODULE
-	{ sta::verilog_reader->makeModule($3, new sta::VerilogNetSeq, $5, $1, $2);}
-|	attribute_instance_seq module_begin ID '(' ')' ';' stmts ENDMODULE
-	{ sta::verilog_reader->makeModule($3, new sta::VerilogNetSeq, $7, $1, $2);}
-|	attribute_instance_seq module_begin ID '(' port_list ')' ';' stmts ENDMODULE
-	{ sta::verilog_reader->makeModule($3, $5, $8, $1, $2); }
-|	attribute_instance_seq module_begin ID '(' port_dcls ')' ';' stmts ENDMODULE
-	{ sta::verilog_reader->makeModule($3, $5, $8, $1, $2); }
+	attr_instance_seq MODULE ID ';' stmts ENDMODULE
+	{ reader->makeModule($3, new sta::VerilogNetSeq,$5, $1, loc_line(@2));}
+|	attr_instance_seq MODULE ID '(' ')' ';' stmts ENDMODULE
+	{ reader->makeModule($3, new sta::VerilogNetSeq,$7, $1, loc_line(@2));}
+|	attr_instance_seq MODULE ID '(' port_list ')' ';' stmts ENDMODULE
+	{ reader->makeModule($3, $5, $8, $1, loc_line(@2)); }
+|	attr_instance_seq MODULE ID '(' port_dcls ')' ';' stmts ENDMODULE
+	{ reader->makeModule($3, $5, $8, $1, loc_line(@2)); }
 	;
 
 port_list:
@@ -128,15 +155,15 @@ port_list:
 port:
 	port_expr
 |	'.' ID '(' ')'
-	{ $$=sta::verilog_reader->makeNetNamedPortRefScalar($2, NULL);}
+	{ $$ = reader->makeNetNamedPortRefScalar($2, nullptr);}
 |	'.' ID '(' port_expr ')'
-	{ $$=sta::verilog_reader->makeNetNamedPortRefScalar($2, $4);}
+	{ $$ = reader->makeNetNamedPortRefScalar($2, $4);}
 	;
 
 port_expr:
 	port_ref
 |	'{' port_refs '}'
-	{ $$ = sta::verilog_reader->makeNetConcat($2); }	;
+	{ $$ = reader->makeNetConcat($2); }	;
 
 port_refs:
 	port_ref
@@ -171,12 +198,10 @@ port_dcls:
 	;
 
 port_dcl:
-	attribute_instance_seq port_dcl_type
-	{ $<ival>$ = sta::verilog_reader->line(); } dcl_arg
-	{ $$ = sta::verilog_reader->makeDcl($2, $4, $1, $<ival>3); }
-|	attribute_instance_seq port_dcl_type
-  { $<ival>$ = sta::verilog_reader->line(); } '[' INT ':' INT ']' dcl_arg
-	{ $$ = sta::verilog_reader->makeDclBus($2, $5, $7, $9, $1, $<ival>3); }
+	attr_instance_seq port_dcl_type dcl_arg
+	{ $$ = reader->makeDcl($2, $3, $1, loc_line(@2)); }
+|	attr_instance_seq port_dcl_type '[' INT ':' INT ']' dcl_arg
+	{ $$ = reader->makeDclBus($2, $4, $6, $8, $1, loc_line(@2)); }
 	;
 
 port_dcl_type:
@@ -210,7 +235,7 @@ stmt:
 |	declaration
 |	instance
 |	error ';'
-	{ yyerrok; $$ = NULL; }
+	{ yyerrok; $$ = nullptr; }
 	;
 
 stmt_seq:
@@ -220,43 +245,32 @@ stmt_seq:
 /* Parameters are parsed and ignored. */
 parameter:
 	PARAMETER parameter_dcls ';'
-	{ $$ = NULL; }
+	{ $$ = nullptr; }
 |	PARAMETER '[' INT ':' INT ']' parameter_dcls ';'
-	{ $$ = NULL; }
+	{ $$ = nullptr; }
 	;
 
 parameter_dcls:
 	parameter_dcl
-	{ $$ = NULL; }
+	{ $$ = nullptr; }
 |	parameter_dcls ',' parameter_dcl
-	{ $$ = NULL; }
+	{ $$ = nullptr; }
 	;
 
 parameter_dcl:
 	ID '=' parameter_expr
-	{ sta::stringDelete($1);
-	  $$ = NULL;
-	}
+	{ delete $1; $$ = nullptr; }
 |	ID '=' STRING
-	{ sta::stringDelete($1);
-	  sta::stringDelete($3);
-	  $$ = NULL;
-	}
+	{ delete $1; delete $3; $$ = nullptr; }
 ;
 
 parameter_expr:
 	ID
-	{ sta::stringDelete($1);
-	  $$ = 0;
-	}
+	{ delete $1; $$ = 0; }
 |	'`' ID
-	{ sta::stringDelete($2);
-	  $$ = 0;
-	}
+	{ delete $2; $$ = 0; }
 |	CONSTANT
-	{ sta::stringDelete($1);
-	  $$ = 0;
-	}
+	{ delete $1; $$ = 0; }
 |	INT
 |	'-' parameter_expr %prec NEG
 	{ $$ = - $2; }
@@ -274,34 +288,28 @@ parameter_expr:
 
 defparam:
 	DEFPARAM param_values ';'
-	{ $$ = NULL; }
+	{ $$ = nullptr; }
 	;
 
 param_values:
 	param_value
-	{ $$ = NULL; }
+	{ $$ = nullptr; }
 |	param_values ',' param_value
-	{ $$ = NULL; }
+	{ $$ = nullptr; }
 	;
 
 param_value:
 	ID '=' parameter_expr
-	{ sta::stringDelete($1);
-	  $$ = NULL;
-	}
+	{ delete $1; $$ = nullptr; }
 |	ID '=' STRING
-	{ sta::stringDelete($1);
-	  sta::stringDelete($3);
-	  $$ = NULL;
-	}
+	{ delete $1; delete $3; $$ = nullptr; }
 	;
 
 declaration:
-	attribute_instance_seq dcl_type { $<ival>$ = sta::verilog_reader->line(); } dcl_args ';'
-	{ $$ = sta::verilog_reader->makeDcl($2, $4, $1, $<ival>3); }
-|	attribute_instance_seq dcl_type { $<ival>$ = sta::verilog_reader->line(); }
-	'[' INT ':' INT ']' dcl_args ';'
-	{ $$ = sta::verilog_reader->makeDclBus($2, $5, $7, $9, $1,$<ival>3); }
+	attr_instance_seq dcl_type dcl_args ';'
+	{ $$ = reader->makeDcl($2, $3, $1, loc_line(@2)); }
+|	attr_instance_seq dcl_type '[' INT ':' INT ']' dcl_args ';'
+	{ $$ = reader->makeDclBus($2, $4, $6, $8, $1,loc_line(@2)); }
 	;
 
 dcl_type:
@@ -329,9 +337,9 @@ dcl_args:
 
 dcl_arg:
 	ID
-	{ $$ = sta::verilog_reader->makeDclArg($1); }
+	{ $$ = reader->makeDclArg($1); }
 |	net_assignment
-	{ $$ = sta::verilog_reader->makeDclArg($1); }
+	{ $$ = reader->makeDclArg($1); }
 	;
 
 continuous_assign:
@@ -349,8 +357,8 @@ net_assignments:
 	;
 
 net_assignment:
-	net_assign_lhs { $<ival>$ = sta::verilog_reader->line(); } '=' net_expr
-	{ $$ = sta::verilog_reader->makeAssign($1, $4, $<ival>2); }
+	net_assign_lhs '=' net_expr
+	{ $$ = reader->makeAssign($1, $3, loc_line(@1)); }
 	;
 
 net_assign_lhs:
@@ -359,11 +367,10 @@ net_assign_lhs:
         ;
 
 instance:
-	attribute_instance_seq ID { $<ival>$ = sta::verilog_reader->line(); } ID '(' inst_pins ')' ';'
-	{ $$ = sta::verilog_reader->makeModuleInst($2, $4, $6, $1, $<ival>3); }
-|	attribute_instance_seq ID { $<ival>$ = sta::verilog_reader->line(); } parameter_values
-	   ID '(' inst_pins ')' ';'
-	{ $$ = sta::verilog_reader->makeModuleInst($2, $5, $7, $1, $<ival>3); }
+	attr_instance_seq ID ID '(' inst_pins ')' ';'
+	{ $$ = reader->makeModuleInst($2, $3, $5, $1, loc_line(@2)); }
+|	attr_instance_seq ID parameter_values ID '(' inst_pins ')' ';'
+	{ $$ = reader->makeModuleInst($2, $4, $6, $1, loc_line(@2)); }
 	;
 
 parameter_values:
@@ -379,7 +386,7 @@ parameter_exprs:
 
 inst_pins:
 	// empty
-	{ $$ = NULL; }
+	{ $$ = nullptr; }
 |	inst_ordered_pins
 |	inst_named_pins
 	;
@@ -409,23 +416,23 @@ inst_named_pins:
 inst_named_pin:
 //      Scalar port.
 	'.' ID '(' ')'
-	{ $$ = sta::verilog_reader->makeNetNamedPortRefScalarNet($2); }
+	{ $$ = reader->makeNetNamedPortRefScalarNet($2); }
 |	'.' ID '(' ID ')'
-	{ $$ = sta::verilog_reader->makeNetNamedPortRefScalarNet($2, $4); }
+	{ $$ = reader->makeNetNamedPortRefScalarNet($2, $4); }
 |	'.' ID '(' ID '[' INT ']' ')'
-	{ $$ = sta::verilog_reader->makeNetNamedPortRefBitSelect($2, $4, $6); }
+	{ $$ = reader->makeNetNamedPortRefBitSelect($2, $4, $6); }
 |	'.' ID '(' named_pin_net_expr ')'
-	{ $$ = sta::verilog_reader->makeNetNamedPortRefScalar($2, $4); }
+	{ $$ = reader->makeNetNamedPortRefScalar($2, $4); }
 //      Bus port bit select.
 |	'.' ID '[' INT ']' '(' ')'
-	{ $$ = sta::verilog_reader->makeNetNamedPortRefBit($2, $4, NULL); }
+	{ $$ = reader->makeNetNamedPortRefBit($2, $4, nullptr); }
 |	'.' ID '[' INT ']' '(' net_expr ')'
-	{ $$ = sta::verilog_reader->makeNetNamedPortRefBit($2, $4, $7); }
+	{ $$ = reader->makeNetNamedPortRefBit($2, $4, $7); }
 //      Bus port part select.
 |	'.'  ID '[' INT ':' INT ']' '(' ')'
-	{ $$ = sta::verilog_reader->makeNetNamedPortRefPart($2, $4, $6, NULL); }
+	{ $$ = reader->makeNetNamedPortRefPart($2, $4, $6, nullptr); }
 |	'.'  ID '[' INT ':' INT ']' '(' net_expr ')'
-	{ $$ = sta::verilog_reader->makeNetNamedPortRefPart($2, $4, $6, $9); }
+	{ $$ = reader->makeNetNamedPortRefPart($2, $4, $6, $9); }
 	;
 
 named_pin_net_expr:
@@ -442,27 +449,27 @@ net_named:
 
 net_scalar:
 	ID
-	{ $$ = sta::verilog_reader->makeNetScalar($1); }
+	{ $$ = reader->makeNetScalar($1); }
 	;
 
 net_bit_select:
 	ID '[' INT ']'
-	{ $$ = sta::verilog_reader->makeNetBitSelect($1, $3); }
+	{ $$ = reader->makeNetBitSelect($1, $3); }
 	;
 
 net_part_select:
 	ID '[' INT ':' INT ']'
-	{ $$ = sta::verilog_reader->makeNetPartSelect($1, $3, $5); }
+	{ $$ = reader->makeNetPartSelect($1, $3, $5); }
 	;
 
 net_constant:
 	CONSTANT
-	{ $$ = sta::verilog_reader->makeNetConstant($1); }
+	{ $$ = reader->makeNetConstant($1, loc_line(@1)); }
 	;
 
 net_expr_concat:
 	'{' net_exprs '}'
-	{ $$ = sta::verilog_reader->makeNetConcat($2); }
+	{ $$ = reader->makeNetConcat($2); }
 	;
 
 net_exprs:
@@ -482,37 +489,32 @@ net_expr:
 |	net_expr_concat
 	;
 
-attribute_instance_seq:
+attr_instance_seq:
 	// empty
-	{ $$ = new sta::VerilogAttributeStmtSeq; }
-|	attribute_instance_seq attribute_instance
+	{ $$ = new sta::VerilogAttrStmtSeq; }
+|	attr_instance_seq attr_instance
 	{ if ($2) $1->push_back($2); }
 	;
 
-attribute_instance:
-	ATTRIBUTE_OPEN attr_specs ATTRIBUTE_CLOSED
-	{ $$ = new sta::VerilogAttributeStmt($2); }
+attr_instance:
+	ATTR_OPEN attr_specs ATTR_CLOSED
+	{ $$ = new sta::VerilogAttrStmt($2); }
 	;
 
 attr_specs:
 	attr_spec
-	{ $$ = new sta::VerilogAttributeEntrySeq;
+	{ $$ = new sta::VerilogAttrEntrySeq;
 	  $$->push_back($1);
 	}
-| attr_specs ',' attr_spec
+|       attr_specs ',' attr_spec
 	{ $$->push_back($3); }
 	;
 
 attr_spec:
 	ID
-	{ $$ = new sta::VerilogAttributeEntry($1, "1");
-	  delete[] $1;
-	}
+	{ $$ = new sta::VerilogAttrEntry(*$1, "1"); delete $1; }
 | 	ID '=' attr_spec_value
-	{ $$ = new sta::VerilogAttributeEntry($1, $3); 
-	  delete[] $1;
-	  delete[] $3;
-	}
+	{ $$ = new sta::VerilogAttrEntry(*$1, *$3); delete $1; delete $3; }
 	;
 
 attr_spec_value:
@@ -521,7 +523,7 @@ attr_spec_value:
 | 	STRING
 	{ $$ = $1; }
 | 	INT
-  	{ $$ = sta::stringCopy(std::to_string($1).c_str()); }
+  	{ $$ = new string(std::to_string($1)); }
 	;
 
 %%

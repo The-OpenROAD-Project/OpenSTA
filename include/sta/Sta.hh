@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2024, Parallax Software, Inc.
+// Copyright (c) 2025, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,6 +13,14 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
+// 
+// The origin of this software must not be misrepresented; you must not
+// claim that you wrote the original software.
+// 
+// Altered source versions must be plainly marked as such, and must not be
+// misrepresented as being the original software.
+// 
+// This notice may not be removed or altered from any source distribution.
 
 #pragma once
 
@@ -43,6 +51,7 @@ class MinMax;
 class MinMaxAll;
 class RiseFallBoth;
 class RiseFall;
+class VerilogReader;
 class ReportPath;
 class CheckTiming;
 class DcalcAnalysisPt;
@@ -1439,6 +1448,7 @@ protected:
   CmdNamespace cmd_namespace_;
   Instance *current_instance_;
   Corner *cmd_corner_;
+  VerilogReader *verilog_reader_;
   CheckTiming *check_timing_;
   CheckSlewLimits *check_slew_limits_;
   CheckFanoutLimits *check_fanout_limits_;

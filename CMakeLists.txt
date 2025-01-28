@@ -1,5 +1,5 @@
 # OpenSTA, Static Timing Analyzer
-# Copyright (c) 2024, Parallax Software, Inc.
+# Copyright (c) 2025, Parallax Software, Inc.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,6 +13,14 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+# 
+# The origin of this software must not be misrepresented; you must not
+# claim that you wrote the original software.
+# 
+# Altered source versions must be plainly marked as such, and must not be
+# misrepresented as being the original software.
+# 
+# This notice may not be removed or altered from any source distribution.
 
 cmake_minimum_required (VERSION 3.10)
 if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
@@ -265,59 +273,60 @@ set(STA_TCL_FILES
 find_package(FLEX)
 find_package(BISON)
 
+# Liberty scan/parse.
+flex_target(LibertyLex ${STA_HOME}/liberty/LibertyLex.ll
+  ${CMAKE_CURRENT_BINARY_DIR}/LibertyLex.cc)
+bison_target(LibertyParse ${STA_HOME}/liberty/LibertyParse.yy
+  ${CMAKE_CURRENT_BINARY_DIR}/LibertyParse.cc
+  # centos7 bison 3.0.4 < 3.3.0 uses parser_class_name instead of api.parsr.class
+  COMPILE_FLAGS "-Wno-deprecated")
+add_flex_bison_dependency(LibertyLex LibertyParse)
+
 # LibertyExpr scan/parse.
-flex_target(LibertyExprLex ${STA_HOME}/liberty/LibertyExprLex.ll ${CMAKE_CURRENT_BINARY_DIR}/LibertyExprLex.cc
+flex_target(LibertyExprLex ${STA_HOME}/liberty/LibertyExprLex.ll
+  ${CMAKE_CURRENT_BINARY_DIR}/LibertyExprLex.cc
   COMPILE_FLAGS --prefix=LibertyExprLex_)
-bison_target(LibertyExprParser ${STA_HOME}/liberty/LibertyExprParse.yy ${CMAKE_CURRENT_BINARY_DIR}/LibertyExprParse.cc
+bison_target(LibertyExprParse ${STA_HOME}/liberty/LibertyExprParse.yy
+  ${CMAKE_CURRENT_BINARY_DIR}/LibertyExprParse.cc
   COMPILE_FLAGS --name-prefix=LibertyExprParse_
   )
-add_flex_bison_dependency(LibertyExprLex LibertyExprParser)
-
-# Liberty scan/parse.
-flex_target(LibertyLex ${STA_HOME}/liberty/LibertyLex.ll ${CMAKE_CURRENT_BINARY_DIR}/LibertyLex.cc
-  COMPILE_FLAGS --prefix=LibertyLex_
-  )
-bison_target(LibertyParser ${STA_HOME}/liberty/LibertyParse.yy ${CMAKE_CURRENT_BINARY_DIR}/LibertyParse.cc
-  COMPILE_FLAGS "--name-prefix=LibertyParse_ -v"
-  )
-add_flex_bison_dependency(LibertyLex LibertyParser)
+add_flex_bison_dependency(LibertyExprLex LibertyExprParse)
 
 # Spef scan/parse.
 flex_target(SpefLex ${STA_HOME}/parasitics/SpefLex.ll ${CMAKE_CURRENT_BINARY_DIR}/SpefLex.cc
   COMPILE_FLAGS --prefix=SpefLex_
   )
-bison_target(SpefParser ${STA_HOME}/parasitics/SpefParse.yy ${CMAKE_CURRENT_BINARY_DIR}/SpefParse.cc
+bison_target(SpefParse ${STA_HOME}/parasitics/SpefParse.yy ${CMAKE_CURRENT_BINARY_DIR}/SpefParse.cc
   COMPILE_FLAGS --name-prefix=SpefParse_
   )
-add_flex_bison_dependency(SpefLex SpefParser)
+add_flex_bison_dependency(SpefLex SpefParse)
 
 # Verilog scan/parse.
-flex_target(VerilogLex ${STA_HOME}/verilog/VerilogLex.ll ${CMAKE_CURRENT_BINARY_DIR}/VerilogLex.cc
-  COMPILE_FLAGS --prefix=VerilogLex_
-  )
-bison_target(VerilogParser ${STA_HOME}/verilog/VerilogParse.yy ${CMAKE_CURRENT_BINARY_DIR}/VerilogParse.cc
-  COMPILE_FLAGS --name-prefix=VerilogParse_
-  )
-add_flex_bison_dependency(VerilogLex VerilogParser)
+flex_target(VerilogLex ${STA_HOME}/verilog/VerilogLex.ll
+  ${CMAKE_CURRENT_BINARY_DIR}/VerilogLex.cc)
+bison_target(VerilogParse ${STA_HOME}/verilog/VerilogParse.yy
+  ${CMAKE_CURRENT_BINARY_DIR}/VerilogParse.cc
+  # centos7 bison 3.0.4 < 3.3.0 uses parser_class_name instead of api.parsr.class
+  COMPILE_FLAGS "-Wno-deprecated")
+add_flex_bison_dependency(VerilogLex VerilogParse)
 
 # Sdf scan/parse.
-flex_target(SdfLex ${STA_HOME}/sdf/SdfLex.ll ${CMAKE_CURRENT_BINARY_DIR}/SdfLex.cc
-  COMPILE_FLAGS --prefix=SdfLex_
-  )
-bison_target(SdfParser ${STA_HOME}/sdf/SdfParse.yy ${CMAKE_CURRENT_BINARY_DIR}/SdfParse.cc
-  COMPILE_FLAGS --name-prefix=SdfParse_
-  )
-add_flex_bison_dependency(SdfLex SdfParser)
-
+flex_target(SdfLex ${STA_HOME}/sdf/SdfLex.ll
+  ${CMAKE_CURRENT_BINARY_DIR}/SdfLex.cc)
+bison_target(SdfParse ${STA_HOME}/sdf/SdfParse.yy
+  ${CMAKE_CURRENT_BINARY_DIR}/SdfParse.cc
+  # centos7 bison 3.0.4 < 3.3.0 uses parser_class_name instead of api.parsr.class
+  COMPILE_FLAGS "-Wno-deprecated")
+add_flex_bison_dependency(SdfLex SdfParse)
 
 # Saif scan/parse.
 flex_target(SaifLex ${STA_HOME}/power/SaifLex.ll ${CMAKE_CURRENT_BINARY_DIR}/SaifLex.cc
   COMPILE_FLAGS --prefix=SaifLex_
   )
-bison_target(SaifParser ${STA_HOME}/power/SaifParse.yy ${CMAKE_CURRENT_BINARY_DIR}/SaifParse.cc
+bison_target(SaifParse ${STA_HOME}/power/SaifParse.yy ${CMAKE_CURRENT_BINARY_DIR}/SaifParse.cc
   COMPILE_FLAGS --name-prefix=SaifParse_
   )
-add_flex_bison_dependency(SaifLex SaifParser)
+add_flex_bison_dependency(SaifLex SaifParse)
 
 ################################################################
 
@@ -489,21 +498,21 @@ target_sources(OpenSTA
   ${STA_TCL_INIT}
 
   ${FLEX_LibertyExprLex_OUTPUTS}
-  ${BISON_LibertyExprParser_OUTPUTS}
+  ${BISON_LibertyExprParse_OUTPUTS}
   ${FLEX_LibertyLex_OUTPUTS}
-  ${BISON_LibertyParser_OUTPUTS}
+  ${BISON_LibertyParse_OUTPUTS}
 
   ${FLEX_SpefLex_OUTPUTS}
-  ${BISON_SpefParser_OUTPUTS}
+  ${BISON_SpefParse_OUTPUTS}
 
   ${FLEX_SdfLex_OUTPUTS}
-  ${BISON_SdfParser_OUTPUTS}
+  ${BISON_SdfParse_OUTPUTS}
 
   ${FLEX_VerilogLex_OUTPUTS}
-  ${BISON_VerilogParser_OUTPUTS}
+  ${BISON_VerilogParse_OUTPUTS}
 
   ${FLEX_SaifLex_OUTPUTS}
-  ${BISON_SaifParser_OUTPUTS}
+  ${BISON_SaifParse_OUTPUTS}
 )
 
 target_link_libraries(OpenSTA
@@ -521,11 +530,14 @@ target_include_directories(OpenSTA
   PUBLIC
   include
   ${TCL_INCLUDE_PATH}
+  ${FLEX_INCLUDE_DIRS}
 
   PRIVATE
   include/sta
   ${STA_HOME}
   ${CUDD_INCLUDE}
+  # For flex to find location.hh
+  ${CMAKE_CURRENT_BINARY_DIR}
   )
 
 if (TCL_READLINE)

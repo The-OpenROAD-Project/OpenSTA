@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2024, Parallax Software, Inc.
+// Copyright (c) 2025, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,317 +13,33 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
+// 
+// The origin of this software must not be misrepresented; you must not
+// claim that you wrote the original software.
+// 
+// Altered source versions must be plainly marked as such, and must not be
+// misrepresented as being the original software.
+// 
+// This notice may not be removed or altered from any source distribution.
 
 #pragma once
 
-#include "Zlib.hh"
-#include "Vector.hh"
+#include <string>
+
 #include "Map.hh"
+#include "Vector.hh"
 #include "StringSeq.hh"
-#include "StringSet.hh"
-#include "NetworkClass.hh"
-
-// Global namespace.
-#define YY_INPUT(buf,result,max_size) \
-  sta::verilog_reader->getChars(buf, result, max_size)
-
-int
-VerilogParse_error(const char *msg);
 
 namespace sta {
 
-using std::string;
-using std::vector;
-using std::set;
-
-class Debug;
-class Report;
-class VerilogAttributeEntry;
-class VerilogAttributeStmt;
-class VerilogReader;
-class VerilogStmt;
-class VerilogNet;
-class VerilogNetScalar;
-class VerilogModule;
-class VerilogInst;
-class VerilogModuleInst;
-class VerilogLibertyInst;
-class VerilogDcl;
-class VerilogDclBus;
-class VerilogDclArg;
-class VerilogAssign;
-class VerilogNetConcat;
-class VerilogNetConstant;
-class VerilogNetBitSelect;
-class VerilogNetPartSelect;
-class StringRegistry;
-class VerilogBindingTbl;
-class VerilogNetNameIterator;
-class VerilogNetPortRef;
-class VerilogError;
-class LibertyCell;
-
-typedef Vector<VerilogAttributeStmt*> VerilogAttributeStmtSeq;
-typedef Vector<VerilogAttributeEntry*> VerilogAttributeEntrySeq;
-typedef Vector<VerilogNet*> VerilogNetSeq;
-typedef Vector<VerilogStmt*> VerilogStmtSeq;
-typedef Map<const char*, VerilogDcl*, CharPtrLess> VerilogDclMap;
-typedef Vector<VerilogDclArg*> VerilogDclArgSeq;
-typedef Map<Cell*, VerilogModule*> VerilogModuleMap;
-typedef Vector<VerilogError*> VerilogErrorSeq;
+typedef Map<string, VerilogDcl*> VerilogDclMap;
 typedef Vector<bool> VerilogConstantValue;
-// Max base 10 constant net value (for strtoll).
-typedef unsigned long long VerilogConstant10;
-
-extern VerilogReader *verilog_reader;
-
-class VerilogReader
-{
-public:
-  explicit VerilogReader(NetworkReader *network);
-  ~VerilogReader();
-  bool read(const char *filename);
-  // flex YY_INPUT yy_n_chars arg changed definition from int to size_t,
-  // so provide both forms.
-  void getChars(char *buf,
-		size_t &result,
-		size_t max_size);
-  void getChars(char *buf,
-		int &result,
-		size_t max_size);
-  void makeModule(const char *module_name,
-                  VerilogNetSeq *ports,
-                  VerilogStmtSeq *stmts,
-                  VerilogAttributeStmtSeq *attribute_stmts,
-                  int line);
-  void makeModule(const char *module_name,
-                  VerilogStmtSeq *port_dcls,
-                  VerilogStmtSeq *stmts,
-                  VerilogAttributeStmtSeq *attribute_stmts,
-                  int line);
-  VerilogDcl *makeDcl(PortDirection *dir,
-                      VerilogDclArgSeq *args,
-                      VerilogAttributeStmtSeq* attribute_stmts,
-                      int line);
-  VerilogDcl *makeDcl(PortDirection *dir,
-                      VerilogDclArg *arg,
-                      VerilogAttributeStmtSeq* attribute_stmts,
-                      int line);
-  VerilogDclArg *makeDclArg(const char *net_name);
-  VerilogDclArg*makeDclArg(VerilogAssign *assign);
-  VerilogDclBus *makeDclBus(PortDirection *dir,
-                            int from_index,
-                            int to_index,
-                            VerilogDclArg *arg,
-                            VerilogAttributeStmtSeq* attribute_stmts,
-                            int line);
-  VerilogDclBus *makeDclBus(PortDirection *dir,
-                            int from_index,
-                            int to_index,
-                            VerilogDclArgSeq *args,
-                            VerilogAttributeStmtSeq* attribute_stmts,
-                            int line);
-  VerilogInst *makeModuleInst(const char *module_name,
-                              const char *inst_name,
-                              VerilogNetSeq *pins,
-                              VerilogAttributeStmtSeq* attribute_stmts,
-                              const int line);
-  VerilogAssign *makeAssign(VerilogNet *lhs,
-			    VerilogNet *rhs,
-			    int line);
-  VerilogNetScalar *makeNetScalar(const char *name);
-  VerilogNetPortRef *makeNetNamedPortRefScalarNet(const char *port_vname);
-  VerilogNetPortRef *makeNetNamedPortRefScalarNet(const char *port_name,
-						  const char *net_name);
-  VerilogNetPortRef *makeNetNamedPortRefBitSelect(const char *port_name,
-						  const char *bus_name,
-						  int index);
-  VerilogNetPortRef *makeNetNamedPortRefScalar(const char *port_name,
-					       VerilogNet *net);
-  VerilogNetPortRef *makeNetNamedPortRefBit(const char *port_name,
-					    int index,
-					    VerilogNet *net);
-  VerilogNetPortRef *makeNetNamedPortRefPart(const char *port_name,
-					     int from_index,
-					     int to_index,
-					     VerilogNet *net);
-  VerilogNetConcat *makeNetConcat(VerilogNetSeq *nets);
-  VerilogNetConstant *makeNetConstant(const char *constant);
-  VerilogNetBitSelect *makeNetBitSelect(const char *name,
-					int index);
-  VerilogNetPartSelect *makeNetPartSelect(const char *name,
-					  int from_index,
-					  int to_index);
-  VerilogModule *module(Cell *cell);
-  Instance *linkNetwork(const char *top_cell_name,
-			bool make_black_boxes,
-			Report *report);
-  int line() const { return line_; }
-  const char *filename() const { return filename_.c_str(); }
-  void incrLine();
-  Report *report() const { return report_; }
-  void error(int id,
-             const char *filename,
-	     int line,
-	     const char *fmt, ...);
-  void warn(int id,
-            const char *filename,
-	    int line,
-	    const char *fmt, ...);
-  const char *zeroNetName() const { return zero_net_name_; }
-  const char *oneNetName() const { return one_net_name_; }
-  void deleteModules();
-  void reportStmtCounts();
-  const char *constant10Max() const { return constant10_max_; }
-  size_t constant10MaxLength() const { return constant10_max_length_; }
-  string
-  verilogName(VerilogModuleInst *inst);
-  string
-  instanceVerilogName(const char *inst_name);
-  string
-  netVerilogName(const char *net_name);
-  static const char *unconnected_net_name_;
-
-protected:
-  void init(const char *filename);
-  void makeCellPorts(Cell *cell,
-		     VerilogModule *module,
-		     VerilogNetSeq *ports);
-  Port *makeCellPort(Cell *cell,
-		     VerilogModule *module,
-		     const char *port_name);
-  void makeNamedPortRefCellPorts(Cell *cell,
-				 VerilogModule *module,
-				 VerilogNet *mod_port,
-				 set<string> &port_names);
-  void checkModuleDcls(VerilogModule *module,
-		       set<string> &port_names);
-  void makeModuleInstBody(VerilogModule *module,
-			  Instance *inst,
-			  VerilogBindingTbl *bindings,
-			  bool make_black_boxes);
-  void makeModuleInstNetwork(VerilogModuleInst *mod_inst,
-			     Instance *parent,
-			     VerilogModule *parent_module,
-			     VerilogBindingTbl *parent_bindings,
-			     bool make_black_boxes);
-  void makeLibertyInst(VerilogLibertyInst *lib_inst,
-		       Instance *parent,
-		       VerilogModule *parent_module,
-		       VerilogBindingTbl *parent_bindings);
-  void bindGlobalNets(VerilogBindingTbl *bindings);
-  void makeNamedInstPins1(Cell *cell,
-			  Instance *inst,
-			  VerilogModuleInst *mod_inst,
-			  VerilogBindingTbl *bindings,
-			  Instance *parent,
-			  VerilogBindingTbl *parent_bindings,
-			  bool is_leaf);
-  void makeNamedInstPins(Cell *cell,
-			 Instance *inst,
-			 VerilogModuleInst *mod_inst,
-			 VerilogBindingTbl *bindings,
-			 Instance *parent,
-			 VerilogModule *parent_module,
-			 VerilogBindingTbl *parent_bindings,
-			 bool is_leaf);
-  void makeOrderedInstPins(Cell *cell,
-			   Instance *inst,
-			   VerilogModuleInst *mod_inst,
-			   VerilogBindingTbl *bindings,
-			   Instance *parent,
-			   VerilogModule *parent_module,
-			   VerilogBindingTbl *parent_bindings,
-			   bool is_leaf);
-  void mergeAssignNet(VerilogAssign *assign,
-		      VerilogModule *module,
-		      Instance *inst,
-		      VerilogBindingTbl *bindings);
-  void makeInstPin(Instance *inst,
-		   Port *port,
-		   VerilogNetNameIterator *net_name_iter,
-		   VerilogBindingTbl *bindings,
-		   Instance *parent,
-		   VerilogBindingTbl *parent_bindings,
-		   bool is_leaf);
-  void makeInstPin(Instance *inst,
-		   Port *port,
-		   const char *net_name,
-		   VerilogBindingTbl *bindings,
-		   Instance *parent,
-		   VerilogBindingTbl *parent_bindings,
-		   bool is_leaf);
-  void linkWarn(int id,
-                const char *filename,
-		int line,
-		const char *msg, ...)
-    __attribute__((format (printf, 5, 6)));
-  void linkError(int id,
-                 const char *filename,
-		 int line,
-		 const char *msg, ...)
-    __attribute__((format (printf, 5, 6)));
-  bool reportLinkErrors(Report *report);
-  bool haveLinkErrors();
-  Cell *makeBlackBox(VerilogModuleInst *mod_inst,
-		     VerilogModule *parent_module);
-  void makeBlackBoxNamedPorts(Cell *cell,
-			      VerilogModuleInst *mod_inst,
-			      VerilogModule *parent_module);
-  void makeBlackBoxOrderedPorts(Cell *cell,
-				VerilogModuleInst *mod_inst,
-				VerilogModule *parent_module);
-  bool isBlackBox(Cell *cell);
-  bool hasScalarNamedPortRefs(LibertyCell *liberty_cell,
-			      VerilogNetSeq *pins);
-
-  Report *report_;
-  Debug *debug_;
-  NetworkReader *network_;
-
-  string filename_;
-  vector<string> filenames_;
-  int line_;
-  gzFile stream_;
-
-  Library *library_;
-  int black_box_index_;
-  VerilogModuleMap module_map_;
-  VerilogErrorSeq link_errors_;
-  const char *zero_net_name_;
-  const char *one_net_name_;
-  const char *constant10_max_;
-  size_t constant10_max_length_;
-  ViewType *view_type_;
-  bool report_stmt_stats_;
-  int module_count_;
-  int inst_mod_count_;
-  int inst_lib_count_;
-  int inst_lib_net_arrays_;
-  int port_names_;
-  int inst_module_names_;
-  int inst_names_;
-  int dcl_count_;
-  int dcl_bus_count_;
-  int dcl_arg_count_;
-  int net_scalar_count_;
-  int net_scalar_names_;
-  int net_bus_names_;
-  int net_part_select_count_;
-  int net_bit_select_count_;
-  int net_port_ref_scalar_count_;
-  int net_port_ref_scalar_net_count_;
-  int net_port_ref_bit_count_;
-  int net_port_ref_part_count_;
-  int net_constant_count_;
-  int assign_count_;
-  int concat_count_;
-};
+typedef vector<string> StdStringSeq;
 
 class VerilogStmt
 {
 public:
-  explicit VerilogStmt(int line);
+  VerilogStmt(int line);
   virtual ~VerilogStmt() {}
   virtual bool isInstance() const { return false; }
   virtual bool isModuleInst() const { return false; }
@@ -339,19 +55,19 @@ private:
 class VerilogModule : public VerilogStmt
 {
 public:
-  VerilogModule(const char *name,
+  VerilogModule(const string &name,
                 VerilogNetSeq *ports,
                 VerilogStmtSeq *stmts,
-                VerilogAttributeStmtSeq *attribute_stmts,
-                string &filename,
+                VerilogAttrStmtSeq *attr_stmts,
+                const string &filename,
                 int line,
                 VerilogReader *reader);
   virtual ~VerilogModule();
-  const char *name() { return name_; }
+  const string &name() { return name_; }
   const char *filename() { return filename_.c_str(); }
-  VerilogAttributeStmtSeq *attributeStmts() { return attribute_stmts_; }
+  VerilogAttrStmtSeq *attrStmts() { return attr_stmts_; }
   VerilogNetSeq *ports() { return ports_; }
-  VerilogDcl *declaration(const char *net_name);
+  VerilogDcl *declaration(const string &net_name);
   VerilogStmtSeq *stmts() { return stmts_; }
   VerilogDclMap *declarationMap() { return &dcl_map_; }
   void parseDcl(VerilogDcl *dcl,
@@ -360,15 +76,15 @@ public:
 private:
   void parseStmts(VerilogReader *reader);
   void checkInstanceName(VerilogInst *inst,
-			 StringSet &inst_names,
+			 StdStringSet &inst_names,
 			 VerilogReader *reader);
 
-  const char *name_;
-  string &filename_;
+  string name_;
+  string filename_;
   VerilogNetSeq *ports_;
   VerilogStmtSeq *stmts_;
   VerilogDclMap dcl_map_;
-  VerilogAttributeStmtSeq *attribute_stmts_;
+  VerilogAttrStmtSeq *attr_stmts_;
 };
 
 class VerilogDcl : public VerilogStmt
@@ -376,14 +92,14 @@ class VerilogDcl : public VerilogStmt
 public:
   VerilogDcl(PortDirection *dir,
              VerilogDclArgSeq *args,
-             VerilogAttributeStmtSeq *attribute_stmts,
+             VerilogAttrStmtSeq *attr_stmts,
              int line);
   VerilogDcl(PortDirection *dir,
              VerilogDclArg *arg,
-             VerilogAttributeStmtSeq *attribute_stmts,
+             VerilogAttrStmtSeq *attr_stmts,
              int line);
   virtual ~VerilogDcl();
-  const char *portName();
+  const string &portName();
   virtual bool isBus() const { return false; }
   virtual bool isDeclaration() const { return true; }
   VerilogDclArgSeq *args() const { return args_; }
@@ -395,7 +111,7 @@ public:
 private:
   PortDirection *dir_;
   VerilogDclArgSeq *args_;
-  VerilogAttributeStmtSeq *attribute_stmts_;
+  VerilogAttrStmtSeq *attr_stmts_;
 };
 
 class VerilogDclBus : public VerilogDcl
@@ -405,13 +121,13 @@ public:
                 int from_index,
                 int to_index,
                 VerilogDclArgSeq *args,
-                VerilogAttributeStmtSeq* attribute_stmts,
+                VerilogAttrStmtSeq *attr_stmts,
                 int line);
   VerilogDclBus(PortDirection *dir,
                 int from_index,
                 int to_index,
                 VerilogDclArg *arg,
-                VerilogAttributeStmtSeq* attribute_stmts,
+                VerilogAttrStmtSeq *attr_stmts,
                 int line);
   virtual bool isBus() const { return true; }
   int fromIndex() const { return from_index_; }
@@ -427,14 +143,15 @@ private:
 class VerilogDclArg
 {
 public:
-  explicit VerilogDclArg(const char *net_name);
-  explicit VerilogDclArg(VerilogAssign *assign);
+  VerilogDclArg(const string &net_name);
+  VerilogDclArg(VerilogAssign *assign);
   ~VerilogDclArg();
-  const char *netName();
+  const string &netName();
+  bool isNamed() const { return assign_ == nullptr; }
   VerilogAssign *assign() { return assign_; }
 
 private:
-  const char *net_name_;
+  string net_name_;
   VerilogAssign *assign_;
 };
 
@@ -458,37 +175,37 @@ private:
 class VerilogInst : public VerilogStmt
 {
 public:
-  VerilogInst(const char *inst_name,
-              VerilogAttributeStmtSeq* attribute_stmts,
+  VerilogInst(const string &inst_name,
+              VerilogAttrStmtSeq *attr_stmts,
               const int line);
   virtual ~VerilogInst();
   virtual bool isInstance() const { return true; }
-  const char *instanceName() const { return inst_name_; }
-  VerilogAttributeStmtSeq *attributeStmts() const { return attribute_stmts_; }
-  void setInstanceName(const char *inst_name);
+  const string &instanceName() const { return inst_name_; }
+  VerilogAttrStmtSeq *attrStmts() const { return attr_stmts_; }
+  void setInstanceName(const string &inst_name);
 
 private:
-  const char *inst_name_;
-  VerilogAttributeStmtSeq* attribute_stmts_;
+  string inst_name_;
+  VerilogAttrStmtSeq *attr_stmts_;
 };
 
 class VerilogModuleInst : public VerilogInst
 {
 public:
-  VerilogModuleInst(const char *module_name,
-                    const char *inst_name,
+  VerilogModuleInst(const string &module_name,
+                    const string &inst_name,
                     VerilogNetSeq *pins,
-                    VerilogAttributeStmtSeq* attribute_stmts,
+                    VerilogAttrStmtSeq *attr_stmts,
                     const int line);
   virtual ~VerilogModuleInst();
   virtual bool isModuleInst() const { return true; }
-  const char *moduleName() const { return module_name_; }
+  const string &moduleName() const { return module_name_; }
   VerilogNetSeq *pins() const { return pins_; }
   bool namedPins();
   bool hasPins();
 
 private:
-  const char *module_name_;
+  string module_name_;
   VerilogNetSeq *pins_;
 };
 
@@ -499,18 +216,17 @@ class VerilogLibertyInst : public VerilogInst
 {
 public:
   VerilogLibertyInst(LibertyCell *cell,
-                     const char *inst_name,
-                     const char **net_names,
-                     VerilogAttributeStmtSeq* attribute_stmts,
+                     const string &inst_name,
+                     const StdStringSeq &net_names,
+                     VerilogAttrStmtSeq *attr_stmts,
                      const int line);
-  virtual ~VerilogLibertyInst();
   virtual bool isLibertyInst() const { return true; }
   LibertyCell *cell() const { return cell_; }
-  const char **netNames() const { return net_names_; }
+  const StdStringSeq &netNames() const { return net_names_; }
 
 private:
   LibertyCell *cell_;
-  const char **net_names_;
+  StdStringSeq net_names_;
 };
 
 // Abstract base class for nets.
@@ -526,8 +242,6 @@ public:
   virtual int size(VerilogModule *module) = 0;
   virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
 					       VerilogReader *reader) = 0;
-
-private:
 };
 
 class VerilogNetUnnamed : public VerilogNet
@@ -544,14 +258,11 @@ private:
 class VerilogNetNamed : public VerilogNet
 {
 public:
-  explicit VerilogNetNamed(const char *name);
-  explicit VerilogNetNamed(const string &name);
+  VerilogNetNamed(const string &name);
   virtual ~VerilogNetNamed();
   bool isNamed() const override { return true; }
   virtual bool isScalar() const = 0;
   const string &name() const override { return name_; }
-  const string baseName() const { return name_; }
-  void setName(const char *name);
 
 protected:
   string name_;
@@ -561,7 +272,7 @@ protected:
 class VerilogNetScalar : public VerilogNetNamed
 {
 public:
-  explicit VerilogNetScalar(const char *name);
+  VerilogNetScalar(const string &name);
   virtual bool isScalar() const { return true; }
   virtual int size(VerilogModule *module);
   virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
@@ -571,7 +282,7 @@ public:
 class VerilogNetBitSelect : public VerilogNetNamed
 {
 public:
-  VerilogNetBitSelect(const char *name,
+  VerilogNetBitSelect(const string &name,
 		      int index);
   int index() { return index_; }
   virtual bool isScalar() const { return false; }
@@ -585,7 +296,7 @@ private:
 class VerilogNetPartSelect : public VerilogNetNamed
 {
 public:
-  VerilogNetPartSelect(const char *name,
+  VerilogNetPartSelect(const string &name,
 		       int from_index,
 		       int to_index);
   virtual bool isScalar() const { return false; }
@@ -603,24 +314,26 @@ private:
 class VerilogNetConstant : public VerilogNetUnnamed
 {
 public:
-  VerilogNetConstant(const char *constant,
-		     VerilogReader *reader);
+  VerilogNetConstant(const string *constant,
+		     VerilogReader *reader,
+                     int line);
   virtual ~VerilogNetConstant();
   virtual int size(VerilogModule *module);
   virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
 					       VerilogReader *reader);
 
 private:
-  void parseConstant(const char *constant,
-		     VerilogReader *reader);
-  void parseConstant(const char *constant,
-		     size_t constant_length,
-		     const char *base_ptr,
+  void parseConstant(const string *constant,
+		     VerilogReader *reader,
+                     int line);
+  void parseConstant(const string *constant,
+		     size_t base_idx,
 		     int base,
 		     int digit_bit_count);
-  void parseConstant10(const char *constant_str,
-		       char *tmp,
-		       VerilogReader *reader);
+  void parseConstant10(const string *constant,
+                       size_t base_idx,
+		       VerilogReader *reader,
+                       int line);
 
   VerilogConstantValue *value_;
 };
@@ -628,7 +341,7 @@ private:
 class VerilogNetConcat : public VerilogNetUnnamed
 {
 public:
-  explicit VerilogNetConcat(VerilogNetSeq *nets);
+  VerilogNetConcat(VerilogNetSeq *nets);
   virtual ~VerilogNetConcat();
   virtual int size(VerilogModule *module);
   virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
@@ -642,7 +355,7 @@ private:
 class VerilogNetPortRef : public VerilogNetScalar
 {
 public:
-  explicit VerilogNetPortRef(const char *name);
+  VerilogNetPortRef(const string &name);
   virtual bool isNamedPortRef() { return true; }
   virtual bool hasNet() = 0;
 };
@@ -654,27 +367,26 @@ public:
 class VerilogNetPortRefScalarNet : public VerilogNetPortRef
 {
 public:
-  VerilogNetPortRefScalarNet(const char *name);
-  VerilogNetPortRefScalarNet(const char *name,
-			     const char *net_name);
-  virtual ~VerilogNetPortRefScalarNet();
+  VerilogNetPortRefScalarNet(const string &name);
+  VerilogNetPortRefScalarNet(const string &name,
+			     const string &net_name);
   virtual bool isScalar() const { return true; }
   virtual bool isNamedPortRefScalarNet() const { return true; }
   virtual int size(VerilogModule *module);
   virtual VerilogNetNameIterator *nameIterator(VerilogModule *module,
 					       VerilogReader *reader);
-  virtual bool hasNet() { return net_name_ != nullptr; }
-  const char *netName() const { return net_name_; }
-  void setNetName(const char *net_name) { net_name_ = net_name; }
+  virtual bool hasNet() { return !net_name_.empty(); }
+  const string &netName() const { return net_name_; }
+  void setNetName(const string &net_name) { net_name_ = net_name; }
 
 private:
-  const char *net_name_;
+  string net_name_;
 };
 
 class VerilogNetPortRefScalar : public VerilogNetPortRef
 {
 public:
-  VerilogNetPortRefScalar(const char *name,
+  VerilogNetPortRefScalar(const string &name,
 			  VerilogNet *net);
   virtual ~VerilogNetPortRefScalar();
   virtual bool isScalar() const { return true; }
@@ -690,7 +402,7 @@ private:
 class VerilogNetPortRefBit : public VerilogNetPortRefScalar
 {
 public:
-  VerilogNetPortRefBit(const char *name,
+  VerilogNetPortRefBit(const string &name,
 		       int index,
 		       VerilogNet *net);
   const string &name() const override { return bit_name_; }
@@ -702,7 +414,7 @@ private:
 class VerilogNetPortRefPart : public VerilogNetPortRefBit
 {
 public:
-  VerilogNetPortRefPart(const char *name,
+  VerilogNetPortRefPart(const string &name,
 			int from_index,
 			int to_index,
 			VerilogNet *net);
@@ -714,33 +426,33 @@ private:
 };
 
 // Abstract class for iterating over the component nets of a net.
-class VerilogNetNameIterator : public Iterator<const char*>
+class VerilogNetNameIterator : public Iterator<const string&>
 {
 };
 
-class VerilogAttributeStmt
+class VerilogAttrStmt
 {
 public:
-  VerilogAttributeStmt(VerilogAttributeEntrySeq *attribute_sequence);
-  VerilogAttributeEntrySeq *attribute_sequence();
-  virtual ~VerilogAttributeStmt();
+  VerilogAttrStmt(VerilogAttrEntrySeq *attrs);
+  VerilogAttrEntrySeq *attrs();
+  virtual ~VerilogAttrStmt();
 
 private:
-  VerilogAttributeEntrySeq *attribute_sequence_;
+  VerilogAttrEntrySeq *attrs_;
 };
 
-class VerilogAttributeEntry
+class VerilogAttrEntry
 {
 public:
-  VerilogAttributeEntry(std::string key,
-                        std::string value);
-  virtual std::string key();
-  virtual std::string value();
-  virtual ~VerilogAttributeEntry() = default;
+  VerilogAttrEntry(const string &key,
+                   const string &value);
+  virtual string key();
+  virtual string value();
+  virtual ~VerilogAttrEntry() = default;
 
 private:
-  std::string key_;
-  std::string value_;
+  string key_;
+  string value_;
 };
 
 } // namespace

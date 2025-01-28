@@ -1,6 +1,6 @@
 %{
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2024, Parallax Software, Inc.
+// Copyright (c) 2025, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,6 +14,14 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
+// 
+// The origin of this software must not be misrepresented; you must not
+// claim that you wrote the original software.
+// 
+// Altered source versions must be plainly marked as such, and must not be
+// misrepresented as being the original software.
+// 
+// This notice may not be removed or altered from any source distribution.
 
 #include <ctype.h>
 #include <string.h>
@@ -21,33 +29,29 @@
 #include "util/FlexDisableRegister.hh"
 #include "liberty/LibertyParser.hh"
 #include "LibertyParse.hh"
+#include "liberty/LibertyScanner.hh"
 
-#define YY_NO_INPUT
+#undef YY_DECL
+#define YY_DECL \
+int \
+sta::LibertyScanner::lex(sta::LibertyParse::semantic_type *const yylval, \
+                         sta::LibertyParse::location_type *loc)
 
-#if defined(YY_FLEX_MAJOR_VERSION) \
-    && defined(YY_FLEX_MINOR_VERSION) \
-    && YY_FLEX_MAJOR_VERSION >=2 \
-    && (YY_FLEX_MINOR_VERSION > 5 \
-	|| (YY_FLEX_MINOR_VERSION == 5 \
-	    && defined(YY_FLEX_SUBMINOR_VERSION) \
-	    && YY_FLEX_SUBMINOR_VERSION >= 31))
- #define INCLUDE_SUPPORTED
-#endif
+// update location on matching
+#define YY_USER_ACTION loc->step(); loc->columns(yyleng);
 
-static std::string string_buf;
-
-void
-libertyParseFlushBuffer()
-{
-  YY_FLUSH_BUFFER;
-}
+typedef sta::LibertyParse::token token;
 
 %}
 
-/* %option debug */
+%option c++
+%option yyclass="sta::LibertyScanner"
+%option prefix="Liberty"
 %option noyywrap
-%option nounput
 %option never-interactive
+%option stack
+%option yylineno
+/* %option debug */
 
 %x comment
 %x qstring
@@ -78,21 +82,20 @@ TOKEN_END {PUNCTUATION}|[ \t\r\n]
 EOL \r?\n
 %%
 
-{PUNCTUATION} { return ((int) LibertyLex_text[0]); }
+{PUNCTUATION} { return ((int) yytext[0]); }
 
 {FLOAT}{TOKEN_END} {
 	/* Push back the TOKEN_END character. */
-	yyless(LibertyLex_leng - 1);
-	LibertyParse_lval.number = static_cast<float>(strtod(LibertyLex_text,
-	                                                     NULL));
-	return FLOAT;
+	yyless(yyleng - 1);
+	yylval->number = strtod(yytext, nullptr);
+	return token::FLOAT;
 	}
 
 {ALPHA}({ALPHA}|_|{DIGIT})*{TOKEN_END} {
 	/* Push back the TOKEN_END character. */
-	yyless(LibertyLex_leng - 1);
-	LibertyParse_lval.string = sta::stringCopy(LibertyLex_text);
-	return KEYWORD;
+	yyless(yyleng - 1);
+	yylval->string = sta::stringCopy(yytext);
+	return token::KEYWORD;
 	}
 
 {PIN_NAME}{TOKEN_END} |
@@ -103,106 +106,75 @@ EOL \r?\n
 {BUS_STYLE}{TOKEN_END} |
 {TOKEN}{TOKEN_END} {
 	/* Push back the TOKEN_END character. */
-	yyless(LibertyLex_leng - 1);
-	LibertyParse_lval.string = sta::stringCopy(LibertyLex_text);
-	return STRING;
+	yyless(yyleng - 1);
+	yylval->string = sta::stringCopy(yytext);
+	return token::STRING;
 	}
 
-\\?{EOL} { sta::libertyIncrLine(); }
+\\?{EOL} { loc->lines(); loc->step(); }
 
 "include_file"[ \t]*"(".+")"[ \t]*";"? {
-#ifdef INCLUDE_SUPPORTED
-	if (sta::libertyInInclude())
-	  sta::libertyParseError("nested include_file's are not supported");
-	else {
-	  char *filename = &yytext[strlen("include_file")];
-	  /* Skip blanks between include_file and '('. */
-	  while (isspace(*filename) && *filename != '\0')
-	    filename++;
-          /* Skip '('. */
-	  filename++;
-	  /* Skip blanks between '(' and filename. */
-	  while (isspace(*filename) && *filename != '\0')
-	    filename++;
-	  char *filename_end = strpbrk(filename, ")");
-	  if (filename_end == NULL)
-	    sta::libertyParseError("include_file missing ')'");
-	  else {
-	    /* Trim trailing blanks. */
-	    while (isspace(filename_end[-1]) && filename_end > filename)
-	      filename_end--;
-	    *filename_end = '\0';
-	    sta::libertyIncludeBegin(filename);
-            yypush_buffer_state(yy_create_buffer(nullptr, YY_BUF_SIZE));
-	    BEGIN(INITIAL);
-	  }
-	}
-#else
-	sta::libertyParseError("include_file is not supported.");
-#endif
-}
+        if (includeBegin()) {
+          BEGIN(INITIAL);
+        }
+        }
 
 "/*"	BEGIN(comment);
 
 	/* Straight out of the flex man page. */
 <comment>[^*\r\n]*		/* eat anything that's not a '*' */
 <comment>"*"+[^*/\r\n]*		/* eat up '*'s not followed by '/'s */
-<comment>{EOL}	sta::libertyIncrLine();
+<comment>{EOL}	{ loc->lines(); loc->step(); }
 <comment>"*"+"/" BEGIN(INITIAL);
 
 \"	{
-	string_buf.erase();
+	token_.clear();
 	BEGIN(qstring);
 	}
 
 <qstring>\" {
 	BEGIN(INITIAL);
-	LibertyParse_lval.string = sta::stringCopy(string_buf.c_str());
-	return STRING;
+	yylval->string = stringCopy(token_.c_str());
+	return token::STRING;
 	}
 
 <qstring>{EOL} {
-	LibertyParse_error("unterminated string constant");
+	error("unterminated string constant");
 	BEGIN(INITIAL);
-	LibertyParse_lval.string = sta::stringCopy(string_buf.c_str());
-	return STRING;
+	yylval->string = stringCopy(token_.c_str());
+	return token::STRING;
 	}
 
 <qstring>\\{EOL} {
 	/* Line continuation. */
-	sta::libertyIncrLine();
+	loc->lines(); loc->step();
 	}
 
 <qstring>\\. {
 	/* Escaped character. */
-	string_buf += '\\';
-	string_buf += LibertyLex_text[1];
+	token_ += '\\';
+	token_ += yytext[1];
 	}
 
 <qstring>[^\\\r\n\"]+ {
 	/* Anything but escape, return or double quote */
-	string_buf += LibertyLex_text;
+	token_ += yytext;
 	}
 
 <qstring><<EOF>> {
-	LibertyParse_error("unterminated string constant");
+	error("unterminated string constant");
 	BEGIN(INITIAL);
 	yyterminate();
 	}
 
 {BLANK}* {}
 	/* Send out of bound characters to parser. */
-.	{ return (int) LibertyLex_text[0]; }
+.	{ return (int) yytext[0]; }
 
-<<EOF>> {
-#ifdef INCLUDE_SUPPORTED
-	if (sta::libertyInInclude()) {
-	  sta::libertyIncludeEnd();
-	  yypop_buffer_state();
-	}
-	else
-#endif
-	  yyterminate();
-}
+<<EOF>> { if (stream_prev_)
+            fileEnd();
+          else
+            yyterminate();
+        }
 
 %%

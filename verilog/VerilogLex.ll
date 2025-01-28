@@ -1,7 +1,6 @@
 %{
-
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2024, Parallax Software, Inc.
+// Copyright (c) 2025, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,30 +14,42 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
+// 
+// The origin of this software must not be misrepresented; you must not
+// claim that you wrote the original software.
+// 
+// Altered source versions must be plainly marked as such, and must not be
+// misrepresented as being the original software.
+// 
+// This notice may not be removed or altered from any source distribution.
 
 #include "util/FlexDisableRegister.hh"
-#include "Debug.hh"
 #include "VerilogNamespace.hh"
+#include "VerilogReader.hh"
 #include "verilog/VerilogReaderPvt.hh"
 #include "VerilogParse.hh"
+#include "verilog/VerilogScanner.hh"
 
-#define YY_NO_INPUT
+#undef YY_DECL
+#define YY_DECL \
+int \
+sta::VerilogScanner::lex(sta::VerilogParse::semantic_type *const yylval, \
+                         sta::VerilogParse::location_type *loc)
 
-int verilog_line = 1;
-static std::string string_buf;
+// update location on matching
+#define YY_USER_ACTION loc->step(); loc->columns(yyleng);
 
-void
-verilogFlushBuffer()
-{
-  YY_FLUSH_BUFFER;
-}
-
+typedef sta::VerilogParse::token token;
 %}
 
-/* %option debug */
+%option c++
+%option yyclass="sta::VerilogScanner"
+%option prefix="Verilog"
 %option noyywrap
-%option nounput
 %option never-interactive
+%option stack
+%option yylineno
+/* %option debug */
 
 %x COMMENT
 %x QSTRING
@@ -54,119 +65,126 @@ ID_TOKEN {ID_ESCAPED_TOKEN}|{ID_ALPHA_TOKEN}
 %%
 
 ^[ \t]*`.*{EOL} { /* Macro definition. */
-	sta::verilog_reader->incrLine();
+	loc->lines();
+        loc->step();
 	}
 
 "//"[^\n]*{EOL} { /* Single line comment. */
-	sta::verilog_reader->incrLine();
+	loc->lines();
+        loc->step();
 	}
 
 "/*"	{ BEGIN COMMENT; }
 <COMMENT>{
 .
 
-{EOL}	{ sta::verilog_reader->incrLine(); }
+{EOL}	{
+        loc->lines();
+        loc->step();
+        }
 
 "*/"	{ BEGIN INITIAL; }
 
 <<EOF>> {
-	VerilogParse_error("unterminated comment");
+	error("unterminated comment");
 	BEGIN(INITIAL);
 	yyterminate();
 	}
 }
 
 {SIGN}?{UNSIGNED_NUMBER}?"'"[sS]?[bB][01_xz]+ {
-  VerilogParse_lval.constant = sta::stringCopy(VerilogLex_text);
-  return CONSTANT;
+  yylval->constant = new string(yytext);
+  return token::CONSTANT;
 }
 
 {SIGN}?{UNSIGNED_NUMBER}?"'"[sS]?[oO][0-7_xz]+ {
-  VerilogParse_lval.constant = sta::stringCopy(VerilogLex_text);
-  return CONSTANT;
+  yylval->constant = new string(yytext);
+  return token::CONSTANT;
 }
 
 {SIGN}?{UNSIGNED_NUMBER}?"'"[sS]?[dD][0-9_]+ {
-  VerilogParse_lval.constant = sta::stringCopy(VerilogLex_text);
-  return CONSTANT;
+  yylval->constant = new string(yytext);
+  return token::CONSTANT;
 }
 
 {SIGN}?{UNSIGNED_NUMBER}?"'"[sS]?[hH][0-9a-fA-F_xz]+ {
-  VerilogParse_lval.constant = sta::stringCopy(VerilogLex_text);
-  return CONSTANT;
+  yylval->constant = new string(yytext);
+  return token::CONSTANT;
 }
 
 {SIGN}?[0-9]+ {
-  VerilogParse_lval.ival = atol(VerilogLex_text);
-  return INT;
+  yylval->ival = atol(yytext);
+  return token::INT;
 }
 
 ":"|"."|"{"|"}"|"["|"]"|","|"*"|";"|"="|"-"|"+"|"|"|"("|")" {
-  return ((int) VerilogLex_text[0]);
+  return ((int) yytext[0]);
 }
 
-"(*" { return ATTRIBUTE_OPEN; }
-"*)" { return ATTRIBUTE_CLOSED; }
-assign { return ASSIGN; }
-endmodule { return ENDMODULE; }
-inout { return INOUT; }
-input { return INPUT; }
-module { return MODULE; }
-output { return OUTPUT; }
-parameter { return PARAMETER; }
-defparam { return DEFPARAM; }
-reg { return REG; }
-supply0 { return SUPPLY0; }
-supply1 { return SUPPLY1; }
-tri { return TRI; }
-wand { return WAND; }
-wire { return WIRE; }
-wor { return WOR; }
+"(*" { return token::ATTR_OPEN; }
+"*)" { return token::ATTR_CLOSED; }
+assign { return token::ASSIGN; }
+endmodule { return token::ENDMODULE; }
+inout { return token::INOUT; }
+input { return token::INPUT; }
+module { return token::MODULE; }
+output { return token::OUTPUT; }
+parameter { return token::PARAMETER; }
+defparam { return token::DEFPARAM; }
+reg { return token::REG; }
+supply0 { return token::SUPPLY0; }
+supply1 { return token::SUPPLY1; }
+tri { return token::TRI; }
+wand { return token::WAND; }
+wire { return token::WIRE; }
+wor { return token::WOR; }
 
 {ID_TOKEN}("."{ID_TOKEN})* {
-	VerilogParse_lval.string = sta::stringCopy(VerilogLex_text);
-	return ID;
+	yylval->string = new string(yytext, yyleng);
+	return token::ID;
 }
 
-{EOL}	{ sta::verilog_reader->incrLine(); }
+{EOL}	{
+        loc->lines();
+        loc->step();
+        }
 
 {BLANK}	{ /* ignore blanks */ }
 
 \"	{
-	string_buf.erase();
+	yylval->string = new string;
 	BEGIN(QSTRING);
 	}
 
 <QSTRING>\" {
 	BEGIN(INITIAL);
-	VerilogParse_lval.string = sta::stringCopy(string_buf.c_str());
-	return STRING;
+	return token::STRING;
 	}
 
 <QSTRING>{EOL} {
-	VerilogParse_error("unterminated string constant");
+	error("unterminated quoted string");
 	BEGIN(INITIAL);
-	VerilogParse_lval.string = sta::stringCopy(string_buf.c_str());
-	return STRING;
+	return token::STRING;
 	}
 
 <QSTRING>\\{EOL} {
 	/* Line continuation. */
-	sta::verilog_reader->incrLine();
+        loc->lines();
+        loc->step();
 	}
 
 <QSTRING>[^\r\n\"]+ {
-	/* Anything return or double quote */
-	string_buf += VerilogLex_text;
+	/* Anything return token::or double quote */
+	*yylval->string += yytext;
 	}
 
 <QSTRING><<EOF>> {
-	VerilogParse_error("unterminated string constant");
+	error("unterminated string constant");
 	BEGIN(INITIAL);
 	yyterminate();
 	}
 
 	/* Send out of bound characters to parser. */
-.	{ return (int) VerilogLex_text[0]; }
+.	{ return (int) yytext[0]; }
 
 %%

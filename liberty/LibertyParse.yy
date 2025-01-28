@@ -1,6 +1,5 @@
-%{
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2024, Parallax Software, Inc.
+// Copyright (c) 2025, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,26 +13,50 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
+// 
+// The origin of this software must not be misrepresented; you must not
+// claim that you wrote the original software.
+// 
+// Altered source versions must be plainly marked as such, and must not be
+// misrepresented as being the original software.
+// 
+// This notice may not be removed or altered from any source distribution.
 
+%{
 #include <cstdlib>
-#include <cstring>
 
 #include "StringUtil.hh"
 #include "liberty/LibertyParser.hh"
+#include "liberty/LibertyScanner.hh"
 
-int LibertyLex_lex();
-#define LibertyParse_lex LibertyLex_lex
-// Use yacc generated parser errors.
-#define YYERROR_VERBOSE
+#undef yylex
+#define yylex scanner->lex
 
-#define YYDEBUG 1
+// warning: variable 'yynerrs_' set but not used
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
+#define loc_line(loc) loc.begin.line
 %}
+
+%require  "3.0"
+%skeleton "lalr1.cc"
+%debug
+%define api.namespace {sta}
+%locations
+%define parse.assert
+%parse-param { LibertyScanner *scanner }
+%parse-param { LibertyParser *reader }
+
+// bison 3.0.4 for centos7
+%define parser_class_name {LibertyParse}
+// bison 3.3.2
+//%define api.parser.class {LibertyParse}
+
+%expect 2
 
 %union {
   char *string;
   float number;
-  int line;
   char ch;
   sta::LibertyAttrValue *attr_value;
   sta::LibertyAttrValueSeq *attr_values;
@@ -53,15 +76,9 @@ int LibertyLex_lex();
 %type <attr_values> attr_values
 %type <attr_value> attr_value
 %type <string> string expr expr_term expr_term1 volt_expr
-%type <line> line
 %type <ch> expr_op volt_op
 
-%expect 2
-
 %start file
-
-%{
-%}
 
 %%
 
@@ -70,26 +87,22 @@ file:
 	;
 
 group:
-	KEYWORD '(' ')' line '{'
-	{ sta::libertyGroupBegin($1, nullptr, $4); }
+	KEYWORD '(' ')' '{'
+	{ reader->groupBegin($1, nullptr, loc_line(@1)); }
 	'}' semi_opt
-	{ $$ = sta::libertyGroupEnd(); }
-|	KEYWORD '(' ')' line '{'
-	{ sta::libertyGroupBegin($1, nullptr, $4); }
+	{ $$ = reader->groupEnd(); }
+|	KEYWORD '(' ')' '{'
+	{ reader->groupBegin($1, nullptr, loc_line(@1)); }
 	statements '}' semi_opt
-	{ $$ = sta::libertyGroupEnd(); }
-|	KEYWORD '(' attr_values ')' line '{'
-	{ sta::libertyGroupBegin($1, $3, $5); }
+	{ $$ = reader->groupEnd(); }
+|	KEYWORD '(' attr_values ')' '{'
+	{ reader->groupBegin($1, $3, loc_line(@1)); }
 	'}' semi_opt
-	{ $$ = sta::libertyGroupEnd(); }
-|	KEYWORD '(' attr_values ')' line '{'
-	{ sta::libertyGroupBegin($1, $3, $5); }
+	{ $$ = reader->groupEnd(); }
+|	KEYWORD '(' attr_values ')' '{'
+	{ reader->groupBegin($1, $3, loc_line(@1)); }
 	statements '}' semi_opt
-	{ $$ = sta::libertyGroupEnd(); }
-	;
-
-line: /* empty */
-	{ $$ = sta::libertyLine(); }
+	{ $$ = reader->groupEnd(); }
 	;
 
 statements:
@@ -105,15 +118,15 @@ statement:
 	;
 
 simple_attr:
-	KEYWORD ':' attr_value line semi_opt
-	{ $$ = sta::makeLibertySimpleAttr($1, $3, $4); }
+	KEYWORD ':' attr_value semi_opt
+	{ $$ = reader->makeSimpleAttr($1, $3, loc_line(@1)); }
 	;
 
 complex_attr:
-	KEYWORD '(' ')' line semi_opt
-	{ $$ = sta::makeLibertyComplexAttr($1, nullptr, $4); }
-|	KEYWORD '(' attr_values ')' line semi_opt
-	{ $$ = sta::makeLibertyComplexAttr($1, $3, $5); }
+	KEYWORD '(' ')' semi_opt
+	{ $$ = reader->makeComplexAttr($1, nullptr, loc_line(@1)); }
+|	KEYWORD '(' attr_values ')' semi_opt
+	{ $$ = reader->makeComplexAttr($1, $3, loc_line(@1)); }
 	;
 
 attr_values:
@@ -132,8 +145,8 @@ attr_values:
 	;
 
 variable:
-	string '=' FLOAT line semi_opt
-	{ $$ = sta::makeLibertyVariable($1, $3, $4); }
+	string '=' FLOAT semi_opt
+	{ $$ = reader->makeVariable($1, $3, loc_line(@1)); }
 	;
 
 string:
@@ -145,11 +158,11 @@ string:
 
 attr_value:
 	FLOAT
-	{ $$ = sta::makeLibertyFloatAttrValue($1); }
+	{ $$ = reader->makeFloatAttrValue($1); }
 |       expr
-	{ $$ = sta::makeLibertyStringAttrValue($1); }
+	{ $$ = reader->makeStringAttrValue($1); }
 |	volt_expr
-	{ $$ = sta::makeLibertyStringAttrValue($1); }
+	{ $$ = reader->makeStringAttrValue($1); }
 	;
 
 /* Voltage expressions are ignored. */

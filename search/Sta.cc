@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2024, Parallax Software, Inc.
+// Copyright (c) 2025, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,6 +13,14 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
+// 
+// The origin of this software must not be misrepresented; you must not
+// claim that you wrote the original software.
+// 
+// Altered source versions must be plainly marked as such, and must not be
+// misrepresented as being the original software.
+// 
+// This notice may not be removed or altered from any source distribution.
 
 #include "Sta.hh"
 
@@ -235,9 +243,6 @@ initSta()
 void
 deleteAllMemory()
 {
-  // Verilog modules refer to the network in the sta so it has
-  // to deleted before the sta.
-  deleteVerilogReader();
   Sta *sta = Sta::sta();
   if (sta) {
     delete sta;
@@ -257,6 +262,8 @@ Sta *Sta::sta_;
 Sta::Sta() :
   StaState(),
   current_instance_(nullptr),
+  cmd_corner_(nullptr),
+  verilog_reader_(nullptr),
   check_timing_(nullptr),
   check_slew_limits_(nullptr),
   check_fanout_limits_(nullptr),
@@ -514,6 +521,9 @@ Sta::sta()
 
 Sta::~Sta()
 {
+  // Verilog modules refer to the network in the sta so it has
+  // to deleted before the network.
+  delete verilog_reader_;
   // Delete "top down" to minimize chance of referencing deleted memory.
   delete check_slew_limits_;
   delete check_fanout_limits_;
@@ -728,8 +738,10 @@ Sta::readVerilog(const char *filename)
 {
   NetworkReader *network = networkReader();
   if (network) {
+    if (verilog_reader_ == nullptr)
+      verilog_reader_ = new VerilogReader(network);
     readNetlistBefore();
-    return readVerilogFile(filename, network);
+    return verilog_reader_->read(filename);
   }
   else
     return false;
