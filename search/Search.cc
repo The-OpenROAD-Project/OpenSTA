@@ -589,13 +589,14 @@ Search::deleteFilterTags()
 void
 Search::deleteFilterClkInfos()
 {
-  ClkInfoSet::Iterator clk_info_iter(clk_info_set_);
-  while (clk_info_iter.hasNext()) {
-    ClkInfo *clk_info = clk_info_iter.next();
+  for (auto itr = clk_info_set_->cbegin(); itr != clk_info_set_->cend(); ) {
+    ClkInfo *clk_info = *itr;
     if (clk_info->refsFilter(this)) {
-      clk_info_set_->erase(clk_info);
+      itr = clk_info_set_->erase(itr);
       delete clk_info;
     }
+    else
+    itr++;
   }
 }
 
