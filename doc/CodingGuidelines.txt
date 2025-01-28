@@ -61,12 +61,20 @@ instead, write this:
        fatal ("virtual memory exhausted");
 
 
-Use braces around if/for bodies that are more than one line.
-IE, 
+Do not use braces around if/for that are one line.
+
   if (pred)
-    for (int i = 0; i < len; i++) {  // this body should be in {}'s
+    bar = 1;
+  else
+    bar = 3;
+
+Use braces around if/for bodies that are more than one line.
+
+  if (pred) {
+    for (int i = 0; i < len; i++) {
        ...
     }
+  }
 
 Add a default clause to all switches calling switchCaseNotHandled:
 
