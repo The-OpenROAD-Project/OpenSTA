@@ -261,10 +261,9 @@ public:
                   const PathAnalysisPt *path_ap);
   ClkInfo *thruClkInfo(PathVertex *from_path,
                        ClkInfo *from_clk_info,
-                       bool from_is_clk,
                        Edge *edge,
+                       Vertex *to_vertex,
                        const Pin *to_pin,
-                       bool to_is_clk,
                        const MinMax *min_max,
                        const PathAnalysisPt *path_ap);
   ClkInfo *clkInfoWithCrprClkPath(ClkInfo *from_clk_info,
