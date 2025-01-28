@@ -40,7 +40,7 @@
 #include "SdcNetwork.hh"
 #include "MakeConcreteNetwork.hh"
 #include "PortDirection.hh"
-#include "verilog/VerilogReader.hh"
+#include "VerilogReader.hh"
 #include "Graph.hh"
 #include "GraphCmp.hh"
 #include "Sdc.hh"

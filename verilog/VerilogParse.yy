@@ -28,7 +28,7 @@
 
 #include "Report.hh"
 #include "PortDirection.hh"
-#include "verilog/VerilogReader.hh"
+#include "VerilogReader.hh"
 #include "verilog/VerilogReaderPvt.hh"
 #include "verilog/VerilogScanner.hh"
 

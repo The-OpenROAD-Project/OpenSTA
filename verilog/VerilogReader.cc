@@ -22,7 +22,7 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-#include "verilog/VerilogReader.hh"
+#include "VerilogReader.hh"
 
 #include <cstdlib>
 

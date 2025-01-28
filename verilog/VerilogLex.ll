@@ -25,7 +25,7 @@
 
 #include "util/FlexDisableRegister.hh"
 #include "VerilogNamespace.hh"
-#include "verilog/VerilogReader.hh"
+#include "VerilogReader.hh"
 #include "verilog/VerilogReaderPvt.hh"
 #include "VerilogParse.hh"
 #include "verilog/VerilogScanner.hh"
