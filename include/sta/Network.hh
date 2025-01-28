@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2024, Parallax Software, Inc.
+// Copyright (c) 2025, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,6 +13,14 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
+// 
+// The origin of this software must not be misrepresented; you must not
+// claim that you wrote the original software.
+// 
+// Altered source versions must be plainly marked as such, and must not be
+// misrepresented as being the original software.
+// 
+// This notice may not be removed or altered from any source distribution.
 
 #pragma once
 
@@ -27,6 +35,8 @@
 
 namespace sta {
 
+using std::function;
+
 class Report;
 class PatternMatch;
 class PinVisitor;
@@ -34,10 +44,8 @@ class PinVisitor;
 typedef Map<const char*, LibertyLibrary*, CharPtrLess> LibertyLibraryMap;
 // Link network function returns top level instance.
 // Return nullptr if link fails.
-typedef Instance *(LinkNetworkFunc)(const char *top_cell_name,
-				    bool make_black_boxes,
-				    Report *report,
-				    NetworkReader *network);
+typedef function<Instance* (const char *top_cell_name,
+                            bool make_black_boxes)> LinkNetworkFunc;
 typedef Map<const Net*, PinSet*> NetDrvrPinsMap;
 
 // The Network class defines the network API used by sta.
@@ -535,7 +543,7 @@ public:
   NetworkReader() {}
   // Called before reading a netlist to delete any previously linked network.
   virtual void readNetlistBefore() = 0;
-  virtual void setLinkFunc(LinkNetworkFunc *link) = 0;
+  virtual void setLinkFunc(LinkNetworkFunc link) = 0;
   virtual Library *makeLibrary(const char *name,
 			       const char *filename) = 0;
   virtual void deleteLibrary(Library *library) = 0;

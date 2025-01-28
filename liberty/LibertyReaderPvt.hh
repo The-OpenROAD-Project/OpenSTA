@@ -1,5 +1,5 @@
 // OpenSTA, Static Timing Analyzer
-// Copyright (c) 2024, Parallax Software, Inc.
+// Copyright (c) 2025, Parallax Software, Inc.
 // 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -13,6 +13,14 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
+// 
+// The origin of this software must not be misrepresented; you must not
+// claim that you wrote the original software.
+// 
+// Altered source versions must be plainly marked as such, and must not be
+// misrepresented as being the original software.
+// 
+// This notice may not be removed or altered from any source distribution.
 
 #pragma once
 
@@ -482,30 +490,10 @@ public:
   void visitDriverWaveformRiseFall(LibertyAttr *attr,
                                    const RiseFall *rf);
 
-  // ccsn (not implemented, this is needed to properly ignore ccsn groups)
-  void beginCcsn(LibertyGroup *) { in_ccsn_ = true; }
-  void endCcsn(LibertyGroup *) { in_ccsn_ = false; }
-
-  // Visitors for derived classes to overload.
-  virtual void beginGroup1(LibertyGroup *) {}
-  virtual void beginGroup2(LibertyGroup *) {}
-  virtual void beginGroup3(LibertyGroup *) {}
-  virtual void beginGroup4(LibertyGroup *) {}
-  virtual void beginGroup5(LibertyGroup *) {}
-  virtual void endGroup1(LibertyGroup *) {}
-  virtual void endGroup2(LibertyGroup *) {}
-  virtual void endGroup3(LibertyGroup *) {}
-  virtual void endGroup4(LibertyGroup *) {}
-  virtual void endGroup5(LibertyGroup *) {}
-  virtual void visitAttr1(LibertyAttr *) {}
-  virtual void visitAttr2(LibertyAttr *) {}
-  virtual void visitAttr3(LibertyAttr *) {}
-  virtual void visitAttr4(LibertyAttr *) {}
-  virtual void visitAttr5(LibertyAttr *) {}
-  virtual void visitAttr6(LibertyAttr *) {}
-  virtual void visitAttr7(LibertyAttr *) {}
-  virtual void visitAttr8(LibertyAttr *) {}
-  virtual void visitAttr9(LibertyAttr *) {}
+  void beginCcsn(LibertyGroup *group);
+  void endCcsn(LibertyGroup *group);
+  void beginEcsmWaveform(LibertyGroup *group);
+  void endEcsmWaveform(LibertyGroup *group);
 
 protected:
   TimingModel *makeScalarCheckModel(float value,
@@ -635,6 +623,7 @@ protected:
   bool in_bus_;
   bool in_bundle_;
   bool in_ccsn_;
+  bool in_ecsm_waveform_;
   TableAxisVariable axis_var_[3];
   FloatSeq *axis_values_[3];
   int type_bit_from_;
