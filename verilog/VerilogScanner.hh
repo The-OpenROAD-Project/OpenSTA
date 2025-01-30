@@ -30,7 +30,7 @@
 #include <FlexLexer.h>
 #endif
 
-#include "location.hh"
+#include "VerilogLocation.hh"
 #include "VerilogParse.hh"
 
 namespace sta {

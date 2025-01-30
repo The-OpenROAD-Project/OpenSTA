@@ -35,11 +35,12 @@
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 %}
 
-%require  "3.0"
+%require  "3.2"
 %skeleton "lalr1.cc"
 %debug
 %define api.namespace {sta}
 %locations
+%define api.location.file "SdfLocation.hh"
 %define parse.assert
 %parse-param { SdfScanner *scanner }
 %parse-param { SdfReader *reader }
