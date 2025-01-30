@@ -25,6 +25,7 @@
 #pragma once
 
 #include <mutex>
+#include <atomic>
 
 #include "Iterator.hh"
 #include "Map.hh"
@@ -365,14 +366,12 @@ protected:
   EdgeId in_edges_;		// Edges to this vertex.
   EdgeId out_edges_;		// Edges from this vertex.
 
-  // 32 bits
+  // 28 bits
   unsigned int tag_group_index_:tag_group_index_bits; // 24
-  // Each bit corresponds to a different BFS queue.
-  unsigned int bfs_in_queue_:int(BfsIndex::bits); // 4
-  unsigned int slew_annotated_:slew_annotated_bits;
+  unsigned int slew_annotated_:slew_annotated_bits;  // 4
 
   // 32 bits
-  unsigned int level_:Graph::vertex_level_bits;
+  unsigned int level_:Graph::vertex_level_bits; // 24
   // Levelization search state.
   // LevelColor gcc barfs if this is dcl'd.
   unsigned color_:2;
@@ -382,6 +381,9 @@ protected:
   // This flag distinguishes the driver and load vertices.
   bool is_bidirect_drvr_:1;
   bool is_reg_clk_:1;
+
+  // Each bit corresponds to a different BFS queue.
+  std::atomic<uint8_t> bfs_in_queue_; // 4
 
   // 15 bits
   bool is_disabled_constraint_:1;
@@ -394,7 +396,7 @@ protected:
   bool has_downstream_clk_pin_:1;
   bool crpr_path_pruning_disabled_:1;
   bool requireds_pruned_:1;
-  unsigned object_idx_:VertexTable::idx_bits;
+  unsigned object_idx_:VertexTable::idx_bits; // 7
 
 private:
   friend class Graph;

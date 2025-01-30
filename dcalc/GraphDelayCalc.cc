@@ -685,12 +685,14 @@ GraphDelayCalc::findDriverDelays(Vertex *drvr_vertex,
                                  LoadPinIndexMap &load_pin_index_map)
 {
   MultiDrvrNet *multi_drvr = findMultiDrvrNet(drvr_vertex);
-  if (multi_drvr == nullptr
-      || (multi_drvr
-          && (!multi_drvr->parallelGates(network_)
-              || drvr_vertex == multi_drvr->dcalcDrvr()))) {
+  if (multi_drvr == nullptr) {
     initLoadSlews(drvr_vertex);
     findDriverDelays1(drvr_vertex, multi_drvr, arc_delay_calc, load_pin_index_map);
+  }
+  else if (drvr_vertex == multi_drvr->dcalcDrvr()) {
+    initLoadSlews(drvr_vertex);
+    for (Vertex *drvr : multi_drvr->drvrs())
+      findDriverDelays1(drvr, multi_drvr, arc_delay_calc, load_pin_index_map);
   }
   arc_delay_calc_->finishDrvrPin();
 }
@@ -825,16 +827,7 @@ GraphDelayCalc::findDriverDelays1(Vertex *drvr_vertex,
                                   LoadPinIndexMap &load_pin_index_map)
 {
   initSlew(drvr_vertex);
-  if (multi_drvr
-      && multi_drvr->parallelGates(network_)) {
-    // Only init on the trigger driver.
-    if (drvr_vertex == multi_drvr->dcalcDrvr()) {
-      for (auto vertex : multi_drvr->drvrs())
-        initWireDelays(vertex);
-    }
-  }
-  else
-    initWireDelays(drvr_vertex);
+  initWireDelays(drvr_vertex);
   bool delay_changed = false;
   array<bool, RiseFall::index_count> delay_exists = {false, false};
   VertexInEdgeIterator edge_iter(drvr_vertex, graph_);

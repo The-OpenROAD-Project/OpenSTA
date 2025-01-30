@@ -38,7 +38,7 @@ project(STA VERSION 2.6.0
 
 option(CUDD_DIR "CUDD BDD package directory")
 option(USE_TCL_READLINE "Use TCL readline package" ON)
-option(USE_SANITIZE "Compile with santize address enabled")
+option(ENABLE_TSAN "Compile with thread santizer enabled" OFF)
 
 # Turn on to debug compiler args.
 set(CMAKE_VERBOSE_MAKEFILE OFF)
@@ -550,8 +550,8 @@ endif()
 # common to gcc/clang
 set(CXX_FLAGS -Wall -Wextra -pedantic -Wcast-qual -Wredundant-decls -Wformat-security)
 
-if(USE_SANITIZE)
-  message(STATUS "Sanitize: ${USE_SANITIZE}")
+if(ENABLE_TSAN)
+  message(STATUS "Thread sanitizer: ${ENABLE_TSAN}")
   set(CXX_FLAGS "${CXX_FLAGS};-fsanitize=thread")
   set(CMAKE_EXE_LINKER_FLAGS "-fsanitize=thread")
 endif()
