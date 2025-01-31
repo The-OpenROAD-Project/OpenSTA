@@ -25,6 +25,7 @@
 #pragma once
 
 #include <mutex>
+#include <atomic>
 
 #include "MinMax.hh"
 #include "UnorderedSet.hh"
@@ -591,15 +592,13 @@ protected:
   TagSet *tag_set_;
   // Entries in tags_ may be missing where previous filter tags were deleted.
   TagIndex tag_capacity_;
-  Tag **tags_;
-  Tag **tags_prev_;
+  std::atomic<Tag **> tags_;
   TagIndex tag_next_;
   // Holes in tags_ left by deleting filter tags.
   std::vector<TagIndex> tag_free_indices_;
   std::mutex tag_lock_;
   TagGroupSet *tag_group_set_;
-  TagGroup **tag_groups_;
-  TagGroup **tag_groups_prev_;
+  std::atomic<TagGroup **> tag_groups_;
   TagGroupIndex tag_group_next_;
   // Holes in tag_groups_ left by deleting filter tag groups.
   std::vector<TagIndex> tag_group_free_indices_;
