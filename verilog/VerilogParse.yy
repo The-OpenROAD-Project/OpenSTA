@@ -48,11 +48,12 @@ sta::VerilogParse::error(const location_type &loc,
 }
 %}
 
-%require  "3.0"
+%require  "3.2"
 %skeleton "lalr1.cc"
 %debug
 %define api.namespace {sta}
 %locations
+%define api.location.file "VerilogLocation.hh"
 %define parse.assert
 %parse-param { VerilogScanner *scanner }
 %parse-param { VerilogReader *reader }

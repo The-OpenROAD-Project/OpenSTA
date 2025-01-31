@@ -30,7 +30,7 @@
 #include <FlexLexer.h>
 #endif
 
-#include "location.hh"
+#include "SdfLocation.hh"
 #include "SdfParse.hh"
 
 namespace sta {

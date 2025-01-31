@@ -38,11 +38,12 @@
 #define loc_line(loc) loc.begin.line
 %}
 
-%require  "3.0"
+%require  "3.2"
 %skeleton "lalr1.cc"
 %debug
 %define api.namespace {sta}
 %locations
+%define api.location.file "LibertyLocation.hh"
 %define parse.assert
 %parse-param { LibertyScanner *scanner }
 %parse-param { LibertyParser *reader }

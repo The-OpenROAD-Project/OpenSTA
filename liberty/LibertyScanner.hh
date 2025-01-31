@@ -30,7 +30,7 @@
 #include <FlexLexer.h>
 #endif
 
-#include "location.hh"
+#include "LibertyLocation.hh"
 #include "LibertyParse.hh"
 
 namespace sta {
