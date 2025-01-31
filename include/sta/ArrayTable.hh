@@ -26,6 +26,7 @@
 
 #include <cstring> // memcpy
 #include <vector>
+#include <atomic>
 
 #include "ObjectId.hh"
 #include "Error.hh"
@@ -77,8 +78,7 @@ private:
   // Don't use std::vector so growing blocks_ can be thread safe.
   size_t blocks_size_;
   size_t blocks_capacity_;
-  ArrayBlock<TYPE>* *blocks_;
-  ArrayBlock<TYPE>* *prev_blocks_;
+  std::atomic<ArrayBlock<TYPE>**> blocks_;
   // Linked list of free arrays indexed by array size.
   std::vector<ObjectId> free_list_;
   static constexpr ObjectId idx_mask_ = block_size - 1;
@@ -91,8 +91,7 @@ ArrayTable<TYPE>::ArrayTable() :
   free_idx_(object_idx_null),
   blocks_size_(0),
   blocks_capacity_(1024),
-  blocks_(new ArrayBlock<TYPE>*[blocks_capacity_]),
-  prev_blocks_(nullptr)
+  blocks_(new ArrayBlock<TYPE>*[blocks_capacity_])
 {
 }
 
@@ -101,7 +100,6 @@ ArrayTable<TYPE>::~ArrayTable()
 {
   deleteBlocks();
   delete [] blocks_;
-  delete [] prev_blocks_;
 }
 
 template <class TYPE>
@@ -173,10 +171,6 @@ ArrayTable<TYPE>::pushBlock(ArrayBlock<TYPE> *block)
     size_t new_capacity = blocks_capacity_ * 1.5;
     ArrayBlock<TYPE>** new_blocks = new ArrayBlock<TYPE>*[new_capacity];
     memcpy(new_blocks, blocks_, blocks_capacity_ * sizeof(ArrayBlock<TYPE>*));
-    if (prev_blocks_)
-      delete [] prev_blocks_;
-    // Preserve block array for other threads to reference.
-    prev_blocks_ = blocks_;
     blocks_ = new_blocks;
     blocks_capacity_ = new_capacity;
   }

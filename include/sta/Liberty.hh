@@ -25,6 +25,7 @@
 #pragma once
 
 #include <mutex>
+#include <atomic>
 
 #include "MinMax.hh"
 #include "RiseFallMinMax.hh"
@@ -644,7 +645,7 @@ protected:
   bool leakage_power_exists_;
   LibertyPgPortMap pg_port_map_;
   bool has_internal_ports_;
-  bool have_voltage_waveforms_;
+  std::atomic<bool> have_voltage_waveforms_;
   std::mutex waveform_lock_;
   const char *footprint_;
   const char *user_function_class_;
