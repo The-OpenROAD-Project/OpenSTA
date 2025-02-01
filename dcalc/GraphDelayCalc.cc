@@ -827,6 +827,7 @@ GraphDelayCalc::findDriverDelays1(Vertex *drvr_vertex,
                                   LoadPinIndexMap &load_pin_index_map)
 {
   initSlew(drvr_vertex);
+  initWireDelays(drvr_vertex);
   bool delay_changed = false;
   array<bool, RiseFall::index_count> delay_exists = {false, false};
   VertexInEdgeIterator edge_iter(drvr_vertex, graph_);
