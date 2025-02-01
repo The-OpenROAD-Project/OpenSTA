@@ -922,7 +922,7 @@ public:
   void reportPathEnd(PathEnd *end);
   void reportPathEnds(PathEndSeq *ends);
   ReportPath *reportPath() { return report_path_; }
-  void reportPath(Path *path);
+  void reportPath(const Path *path);
 
   // Report clk skews for clks.
   void reportClkSkew(ConstClockSeq &clks,

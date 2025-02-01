@@ -2997,9 +2997,9 @@ Search::clkInfoCount() const
 }
 
 ArcDelay
-Search::deratedDelay(Vertex *from_vertex,
-		     TimingArc *arc,
-		     Edge *edge,
+Search::deratedDelay(const Vertex *from_vertex,
+		     const TimingArc *arc,
+		     const Edge *edge,
 		     bool is_clk,
 		     const PathAnalysisPt *path_ap)
 {
@@ -3011,9 +3011,9 @@ Search::deratedDelay(Vertex *from_vertex,
 }
 
 float
-Search::timingDerate(Vertex *from_vertex,
-		     TimingArc *arc,
-		     Edge *edge,
+Search::timingDerate(const Vertex *from_vertex,
+		     const TimingArc *arc,
+		     const Edge *edge,
 		     bool is_clk,
 		     const PathAnalysisPt *path_ap)
 {

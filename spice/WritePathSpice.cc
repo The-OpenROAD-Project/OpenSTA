@@ -220,7 +220,7 @@ WritePathSpice::writeSpice()
 void
 WritePathSpice::writeHeader()
 {
-  Path *start_path = path_expanded_.startPath();
+  const Path *start_path = path_expanded_.startPath();
   string title = stdstrPrint("Path from %s %s to %s %s",
                              network_->pathName(start_path->pin(this)),
                              start_path->transition(this)->asString(),

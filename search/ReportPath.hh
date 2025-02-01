@@ -44,7 +44,7 @@ typedef Vector<ReportField*> ReportFieldSeq;
 class ReportPath : public StaState
 {
 public:
-  explicit ReportPath(StaState *sta);
+  ReportPath(StaState *sta);
   virtual ~ReportPath();
   ReportPathFormat pathFormat() const { return format_; }
   void setPathFormat(ReportPathFormat format);
@@ -61,93 +61,93 @@ public:
   void setNoSplit(bool no_split);
   bool reportSigmas() const { return report_sigmas_; }
   void setReportSigmas(bool report);
-  ReportField *findField(const char *name);
+  ReportField *findField(const char *name) const;
 
   // Header above reportPathEnd results.
-  void reportPathEndHeader();
+  void reportPathEndHeader() const;
   // Footer below reportPathEnd results.
-  void reportPathEndFooter();
-  void reportPathEnd(PathEnd *end);
+  void reportPathEndFooter() const;
+  void reportPathEnd(const PathEnd *end) const;
   // Format report_path_endpoint only:
   //   Previous path end is used to detect path group changes
   //   so headers are reported by group.
-  void reportPathEnd(PathEnd *end,
-		     PathEnd *prev_end,
-                     bool last);
-  void reportPathEnds(PathEndSeq *ends);
-  void reportPath(const Path *path);
+  void reportPathEnd(const PathEnd *end,
+		     const PathEnd *prev_end,
+                     bool last) const;
+  void reportPathEnds(const PathEndSeq *ends) const;
+  void reportPath(const Path *path) const;
 
-  void reportShort(const PathEndUnconstrained *end);
-  void reportShort(const PathEndCheck *end);
-  void reportShort(const PathEndLatchCheck *end);
-  void reportShort(const PathEndPathDelay *end);
-  void reportShort(const PathEndOutputDelay *end);
-  void reportShort(const PathEndGatedClock *end);
-  void reportShort(const PathEndDataCheck *end);
+  void reportShort(const PathEndUnconstrained *end) const;
+  void reportShort(const PathEndCheck *end) const;
+  void reportShort(const PathEndLatchCheck *end) const;
+  void reportShort(const PathEndPathDelay *end) const;
+  void reportShort(const PathEndOutputDelay *end) const;
+  void reportShort(const PathEndGatedClock *end) const;
+  void reportShort(const PathEndDataCheck *end) const;
 
-  void reportFull(const PathEndUnconstrained *end);
-  void reportFull(const PathEndCheck *end);
-  void reportFull(const PathEndLatchCheck *end);
-  void reportFull(const PathEndPathDelay *end);
-  void reportFull(const PathEndOutputDelay *end);
-  void reportFull(const PathEndGatedClock *end);
-  void reportFull(const PathEndDataCheck *end);
+  void reportFull(const PathEndUnconstrained *end) const;
+  void reportFull(const PathEndCheck *end) const;
+  void reportFull(const PathEndLatchCheck *end) const;
+  void reportFull(const PathEndPathDelay *end) const;
+  void reportFull(const PathEndOutputDelay *end) const;
+  void reportFull(const PathEndGatedClock *end) const;
+  void reportFull(const PathEndDataCheck *end) const;
 
-  void reportJsonHeader();
-  void reportJsonFooter();
+  void reportJsonHeader() const;
+  void reportJsonFooter() const;
   void reportJson(const PathEnd *end,
-                  bool last);
-  void reportJson(const Path *path);
+                  bool last) const;
+  void reportJson(const Path *path) const;
   void reportJson(const Path *path,
                   const char *path_name,
                   int indent,
                   bool trailing_comma,
-                  string &result);
+                  string &result) const;
   void reportJson(const PathExpanded &expanded,
                   const char *path_name,
                   int indent,
                   bool trailing_comma,
-                  string &result);
+                  string &result) const;
 
-  void reportEndHeader();
-  void reportEndLine(PathEnd *end);
+  void reportEndHeader() const;
+  void reportEndLine(const PathEnd *end) const;
 
-  void reportSummaryHeader();
-  void reportSummaryLine(PathEnd *end);
+  void reportSummaryHeader() const;
+  void reportSummaryLine(const PathEnd *end) const;
 
-  void reportSlackOnlyHeader();
-  void reportSlackOnly(PathEnd *end);
+  void reportSlackOnlyHeader() const;
+  void reportSlackOnly(const PathEnd *end) const;
 
-  void reportMpwCheck(MinPulseWidthCheck *check,
-		      bool verbose);
-  void reportMpwChecks(MinPulseWidthCheckSeq *checks,
-		       bool verbose);
-  void reportMpwHeaderShort();
-  void reportShort(MinPulseWidthCheck *check);
-  void reportVerbose(MinPulseWidthCheck *check);
+  void reportMpwCheck(const MinPulseWidthCheck *check,
+		      bool verbose) const;
+  void reportMpwChecks(const MinPulseWidthCheckSeq *checks,
+		       bool verbose) const;
+  void reportMpwHeaderShort() const;
+  void reportShort(const MinPulseWidthCheck *check) const;
+  void reportVerbose(const MinPulseWidthCheck *check) const;
 
-  void reportCheck(MinPeriodCheck *check,
-		   bool verbose);
-  void reportChecks(MinPeriodCheckSeq *checks,
-		    bool verbose);
-  void reportPeriodHeaderShort();
-  void reportShort(MinPeriodCheck *check);
-  void reportVerbose(MinPeriodCheck *check);
+  void reportCheck(const MinPeriodCheck *check,
+		   bool verbose) const;
+  void reportChecks(const MinPeriodCheckSeq *checks,
+		    bool verbose) const;
+  void reportPeriodHeaderShort() const;
+  void reportShort(const MinPeriodCheck *check) const;
+  void reportVerbose(const MinPeriodCheck *check) const;
 
-  void reportCheck(MaxSkewCheck *check,
-		   bool verbose);
-  void reportChecks(MaxSkewCheckSeq *checks,
-		    bool verbose);
-  void reportMaxSkewHeaderShort();
-  void reportShort(MaxSkewCheck *check);
-  void reportVerbose(MaxSkewCheck *check);
+  void reportCheck(const MaxSkewCheck *check,
+		   bool verbose) const;
+  void reportChecks(const MaxSkewCheckSeq *checks,
+		    bool verbose) const;
+  void reportMaxSkewHeaderShort() const;
+  void reportShort(const MaxSkewCheck *check) const;
+  void reportVerbose(const MaxSkewCheck *check) const;
 
-  void reportLimitShortHeader(const ReportField *field);
+  void reportLimitShortHeader(const ReportField *field) const;
   void reportLimitShort(const ReportField *field,
 			Pin *pin,
 			float value,
 			float limit,
-			float slack);
+			float slack) const;
   void reportLimitVerbose(const ReportField *field,
 			  Pin *pin,
 			  const RiseFall *rf,
@@ -155,7 +155,7 @@ public:
 			  float limit,
 			  float slack,
                           const Corner *corner,
-			  const MinMax *min_max);
+			  const MinMax *min_max) const;
   ReportField *fieldSlew() const { return field_slew_; }
   ReportField *fieldFanout() const { return field_fanout_; }
   ReportField *fieldCapacitance() const { return field_capacitance_; }
@@ -169,83 +169,83 @@ protected:
 			 bool left_justify,
 			 Unit *unit,
 			 bool enabled);
-  void reportEndpointHeader(PathEnd *end,
-			    PathEnd *prev_end);
+  void reportEndpointHeader(const PathEnd *end,
+			    const PathEnd *prev_end) const;
   void reportShort(const PathEndUnconstrained *end,
-		   PathExpanded &expanded);
+		   const PathExpanded &expanded) const;
   void reportShort(const PathEndCheck *end,
-		   PathExpanded &expanded);
+		   const PathExpanded &expanded) const;
   void reportShort(const PathEndLatchCheck *end,
-		   PathExpanded &expanded);
+		   const PathExpanded &expanded) const;
   void reportShort(const PathEndPathDelay *end,
-		   PathExpanded &expanded);
+		   const PathExpanded &expanded) const;
   void reportShort(const PathEndOutputDelay *end,
-		   PathExpanded &expanded);
+		   const PathExpanded &expanded) const;
   void reportShort(const PathEndGatedClock *end,
-		   PathExpanded &expanded);
+		   const PathExpanded &expanded) const;
   void reportShort(const PathEndDataCheck *end,
-		   PathExpanded &expanded);
-  void reportEndpoint(const PathEndOutputDelay *end);
-  void reportEndpointOutputDelay(const PathEndClkConstrained *end);
-  void reportEndpoint(const PathEndPathDelay *end);
-  void reportEndpoint(const PathEndGatedClock *end);
-  string pathEndpoint(PathEnd *end);
-  string pathStartpoint(PathEnd *end,
-			PathExpanded &expanded);
+		   const PathExpanded &expanded) const;
+  void reportEndpoint(const PathEndOutputDelay *end) const;
+  void reportEndpointOutputDelay(const PathEndClkConstrained *end) const;
+  void reportEndpoint(const PathEndPathDelay *end) const;
+  void reportEndpoint(const PathEndGatedClock *end) const;
+  string pathEndpoint(const PathEnd *end) const;
+  string pathStartpoint(const PathEnd *end,
+			const PathExpanded &expanded) const;
   void reportBorrowing(const PathEndLatchCheck *end,
 		       Arrival &borrow,
-		       Arrival &time_given_to_startpoint);
-  void reportEndpoint(const PathEndDataCheck *end);
-  const char *clkNetworkDelayIdealProp(bool is_ideal);
+		       Arrival &time_given_to_startpoint) const;
+  void reportEndpoint(const PathEndDataCheck *end) const;
+  const char *clkNetworkDelayIdealProp(bool is_ideal) const;
 
-  string checkRoleReason(const PathEnd *end);
-  string checkRoleString(const PathEnd *end);
-  virtual void reportGroup(const PathEnd *end);
+  string checkRoleReason(const PathEnd *end) const;
+  string checkRoleString(const PathEnd *end) const;
+  virtual void reportGroup(const PathEnd *end) const;
   void reportStartpoint(const PathEnd *end,
-			PathExpanded &expanded);
+			const PathExpanded &expanded) const;
   void reportUnclockedEndpoint(const PathEnd *end,
-			       const char *default_reason);
-  void reportEndpoint(const PathEndCheck *end);
-  void reportEndpoint(const PathEndLatchCheck *end);
-  const char *latchDesc(const PathEndLatchCheck *end);
+			       const char *default_reason) const;
+  void reportEndpoint(const PathEndCheck *end) const;
+  void reportEndpoint(const PathEndLatchCheck *end) const;
+  const char *latchDesc(const PathEndLatchCheck *end) const;
   void reportStartpoint(const char *start,
-			string reason);
+			const string reason) const;
   void reportEndpoint(const char *end,
-		      string reason);
+		      const string reason) const;
   void reportStartEndPoint(const char *pt,
-			   string reason,
-			   const char *key);
-  string tgtClkName(const PathEnd *end);
-  const char *clkRegLatchDesc(const PathEnd *end);
+			   const string reason,
+			   const char *key) const;
+  string tgtClkName(const PathEnd *end) const;
+  const char *clkRegLatchDesc(const PathEnd *end) const;
   void reportSrcPath(const PathEnd *end,
-		     PathExpanded &expanded);
-  void reportTgtClk(const PathEnd *end);
+		     const PathExpanded &expanded) const;
+  void reportTgtClk(const PathEnd *end) const;
   void reportTgtClk(const PathEnd *end,
-		    float prev_time);
+		    float prev_time) const;
   void reportTgtClk(const PathEnd *end,
 		    float prev_time,
-		    bool is_prop);
+		    bool is_prop) const;
   void reportTgtClk(const PathEnd *end,
                     float prev_time,
                     float src_offset,
-                    bool is_prop);
+                    bool is_prop) const;
   bool pathFromGenPropClk(const Path *clk_path,
-			  const EarlyLate *early_late);
+			  const EarlyLate *early_late) const;
   bool isGenPropClk(const Clock *clk,
 		    const RiseFall *clk_rf,
 		    const MinMax *min_max,
-		    const EarlyLate *early_late);
+		    const EarlyLate *early_late) const;
   void reportSrcClkAndPath(const Path *path,
-			   PathExpanded &expanded,
+			   const PathExpanded &expanded,
 			   float time_offset,
 			   Arrival clk_insertion,
 			   Arrival clk_latency,
-			   bool is_path_delay);
+			   bool is_path_delay) const;
   bool reportGenClkSrcPath(const Path *clk_path,
                            const Clock *clk,
 			   const RiseFall *clk_rf,
 			   const MinMax *min_max,
-			   const EarlyLate *early_late);
+			   const EarlyLate *early_late) const;
   void reportGenClkSrcAndPath(const Path *path,
 			      const Clock *clk,
 			      const RiseFall *clk_rf,
@@ -253,7 +253,7 @@ protected:
 			      const PathAnalysisPt *path_ap,
 			      float time_offset,
 			      float path_time_offset,
-			      bool clk_used_as_data);
+			      bool clk_used_as_data) const;
   bool reportGenClkSrcPath1(const Clock *clk,
 			    const Pin *clk_pin,
 			    const RiseFall *clk_rf,
@@ -261,99 +261,99 @@ protected:
 			    const PathAnalysisPt *path_ap,
 			    float gclk_time,
 			    float time_offset,
-			    bool clk_used_as_data);
+			    bool clk_used_as_data) const;
   void reportClkSrcLatency(Arrival insertion,
 			   float clk_time,
-			   const EarlyLate *early_late);
+			   const EarlyLate *early_late) const;
   void reportPathLine(const Path *path,
 		      Delay incr,
 		      Arrival time,
-		      const char *line_case);
+		      const char *line_case) const;
   void reportCommonClkPessimism(const PathEnd *end,
-				Arrival &clk_arrival);
+				Arrival &clk_arrival) const ;
   void reportClkUncertainty(const PathEnd *end,
-			    Arrival &clk_arrival);
+			    Arrival &clk_arrival) const ;
   void reportClkLine(const Clock *clk,
 		     const char *clk_name,
 		     const RiseFall *clk_rf,
 		     Arrival clk_time,
-		     const MinMax *min_max);
+		     const MinMax *min_max) const ;
   void reportClkLine(const Clock *clk,
 		     const char *clk_name,
 		     const RiseFall *clk_rf,
 		     Arrival prev_time,
 		     Arrival clk_time,
-		     const MinMax *min_max);
+		     const MinMax *min_max) const ;
   void reportRequired(const PathEnd *end,
-		      string margin_msg);
-  void reportSlack(const PathEnd *end);
-  void reportSlack(Slack slack);
-  void reportSpaceSlack(PathEnd *end,
-                        string &line);
+		      string margin_msg) const ;
+  void reportSlack(const PathEnd *end) const ;
+  void reportSlack(Slack slack) const ;
+  void reportSpaceSlack(const PathEnd *end,
+                        string &line) const ;
   void reportSpaceSlack(Slack slack,
-                        string &line);
+                        string &line) const ;
   void reportSrcPathArrival(const PathEnd *end,
-			    PathExpanded &expanded);
+			    const PathExpanded &expanded) const ;
   void reportPath(const PathEnd *end,
-		  PathExpanded &expanded);
-  void reportPathFull(const Path *path);
-  void reportPathHeader();
+		  const PathExpanded &expanded) const;
+  void reportPathFull(const Path *path) const;
+  void reportPathHeader() const;
   void reportPath1(const Path *path,
-		   PathExpanded &expanded,
+		   const PathExpanded &expanded,
 		   bool clk_used_as_data,
-		   float time_offset);
+		   float time_offset) const;
   void reportPath2(const Path *path,
-		   PathExpanded &expanded,
+		   const PathExpanded &expanded,
 		   bool clk_used_as_data,
-		   float time_offset);
+		   float time_offset) const;
   void  reportPath3(const Path *path,
-		    PathExpanded &expanded,
+		    const PathExpanded &expanded,
 		    bool clk_used_as_data,
 		    bool report_clk_path,
 		    Arrival prev_time,
-		    float time_offset);
+		    float time_offset) const;
   void reportPath4(const Path *path,
-		   PathExpanded &expanded,
+		   const PathExpanded &expanded,
 		   bool clk_used_as_data,
 		   bool skip_first_path,
 		   bool skip_last_path,
-		   float time_offset);
+		   float time_offset) const;
   void reportPath5(const Path *path,
-		   PathExpanded &expanded,
+		   const PathExpanded &expanded,
 		   size_t path_first_index,
 		   size_t path_last_index,
 		   bool propagated_clk,
 		   bool report_clk_path,
 		   Arrival prev_time,
-		   float time_offset);
+		   float time_offset) const;
   void reportHierPinsThru(const Path *path,
-                          const TimingArc *prev_arc);
+                          const TimingArc *prev_arc) const;
   void reportInputExternalDelay(const Path *path,
-				float time_offset);
+				float time_offset) const;
   void reportLine(const char *what,
 		  Delay total,
-		  const EarlyLate *early_late);
+		  const EarlyLate *early_late) const;
   void reportLineNegative(const char *what,
 			  Delay total,
-			  const EarlyLate *early_late);
+			  const EarlyLate *early_late) const;
   void reportLine(const char *what,
 		  Delay total,
 		  const EarlyLate *early_late,
-		  const RiseFall *rf);
+		  const RiseFall *rf) const;
   void reportLine(const char *what,
 		  Delay incr,
 		  Delay total,
-		  const EarlyLate *early_late);
+		  const EarlyLate *early_late) const;
   void reportLine(const char *what,
 		  Delay incr,
 		  Delay total,
 		  const EarlyLate *early_late,
-		  const RiseFall *rf);
+		  const RiseFall *rf) const;
   void reportLine(const char *what,
 		  Slew slew,
 		  Delay incr,
 		  Delay total,
-		  const EarlyLate *early_late);
+		  const EarlyLate *early_late) const;
   void reportLine(const char *what,
 		  float cap,
 		  Slew slew,
@@ -364,106 +364,106 @@ protected:
 		  const EarlyLate *early_late,
 		  const RiseFall *rf,
 		  string src_attr,
-		  const char *line_case);
+		  const char *line_case) const;
   void reportLineTotal(const char *what,
 		       Delay incr,
-		       const EarlyLate *early_late);
+		       const EarlyLate *early_late) const;
   void reportLineTotalMinus(const char *what,
 			    Delay decr,
-			    const EarlyLate *early_late);
+			    const EarlyLate *early_late) const;
   void reportLineTotal1(const char *what,
 			Delay incr,
 			bool incr_with_minus,
-			const EarlyLate *early_late);
-  void reportDashLineTotal();
+			const EarlyLate *early_late) const;
+  void reportDashLineTotal() const;
   void reportDescription(const char *what,
-                         string &result);
+                         string &result) const;
   void reportDescription(const char *what,
 			 bool first_field,
 			 bool last_field,
-                         string &result);
+                         string &result) const;
   void reportFieldTime(float value,
 		       ReportField *field,
-		       string &result);
+		       string &result) const;
   void reportSpaceFieldTime(float value,
-			    string &result);
+			    string &result) const;
   void reportSpaceFieldDelay(Delay value,
 			     const EarlyLate *early_late,
-			     string &result);
+			     string &result) const;
   void reportFieldDelayMinus(Delay value,
 			     const EarlyLate *early_late,
-			     ReportField *field,
-			     string &result);
+			     const ReportField *field,
+			     string &result) const;
   void reportTotalDelay(Delay value,
 			const EarlyLate *early_late,
-			string &result);
+			string &result) const;
   void reportFieldDelay(Delay value,
 			const EarlyLate *early_late,
-			ReportField *field,
-			string &result);
+			const ReportField *field,
+			string &result) const;
   void reportField(float value,
 		   const ReportField *field,
-		   string &result);
+		   string &result) const;
   void reportField(const char *value,
 		   const ReportField *field,
-		   string &result);
+		   string &result) const;
   void reportFieldBlank(const ReportField *field,
-			string &result);
-  void reportDashLine();
-  void reportDashLine(int line_width);
-  void reportBlankLine();
-  string descriptionField(Vertex *vertex);
-  string descriptionField(const Pin *pin);
-  string descriptionNet(const Pin *pin);
+			string &result) const;
+  void reportDashLine() const;
+  void reportDashLine(int line_width) const;
+  void reportBlankLine() const;
+  string descriptionField(const Vertex *vertex) const;
+  string descriptionField(const Pin *pin) const;
+  string descriptionNet(const Pin *pin) const;
   bool reportClkPath() const;
   string clkName(const Clock *clk,
-		 bool inverted);
+		 bool inverted) const;
   bool hasExtInputDriver(const Pin *pin,
 			 const RiseFall *rf,
-			 const MinMax *min_max);
+			 const MinMax *min_max) const;
   float drvrFanout(Vertex *drvr,
                    const Corner *corner,
-		   const MinMax *min_max);
-  const char *mpwCheckHiLow(MinPulseWidthCheck *check);
+		   const MinMax *min_max) const;
+  const char *mpwCheckHiLow(const MinPulseWidthCheck *check) const;
   void reportSkewClkPath(const char *arrival_msg,
-			 const PathVertex *clk_path);
-  const char *edgeRegLatchDesc(Edge *edge,
-			       TimingArc *arc);
+			 const PathVertex *clk_path) const;
+  const char *edgeRegLatchDesc(const Edge *edge,
+			       const TimingArc *arc) const;
   const char *checkRegLatchDesc(const TimingRole *role,
 				const RiseFall *clk_rf) const;
   const char *regDesc(const RiseFall *clk_rf) const;
   const char *latchDesc(const RiseFall *clk_rf) const;
   void pathClkPath(const Path *path,
-		   PathRef &clk_path) const;
-  bool isPropagated(const Path *clk_path);
+		   const PathRef &clk_path) const;
+  bool isPropagated(const Path *clk_path) const;
   bool isPropagated(const Path *clk_path,
-		    const Clock *clk);
-  bool pathFromClkPin(PathExpanded &expanded);
+		    const Clock *clk) const;
+  bool pathFromClkPin(const PathExpanded &expanded) const;
   bool pathFromClkPin(const Path *path,
-		      const Pin *start_pin);
+		      const Pin *start_pin) const;
   void latchPaths(const Path *path,
-		   // Return values.
-		   PathRef &d_path,
+                  // Return values.
+                  PathRef &d_path,
 		  PathRef &q_path,
 		  Edge *&d_q_edge) const;
   bool nextArcAnnotated(const PathRef *next_path,
 			size_t next_index,
-			PathExpanded &expanded,
-			DcalcAPIndex ap_index);
+			const PathExpanded &expanded,
+			DcalcAPIndex ap_index) const;
   float tgtClkInsertionOffet(const Path *clk_path,
 			     const EarlyLate *early_late,
-			     PathAnalysisPt *path_ap);
+			     const PathAnalysisPt *path_ap) const;
   // InputDelay used to seed path root.
   InputDelay *pathInputDelay(const Path *path) const;
   void pathInputDelayRefPath(const Path *path,
-			     InputDelay *input_delay,
+			     const InputDelay *input_delay,
 			     // Return value.
-			     PathRef &ref_path);
-  const char *asRisingFalling(const RiseFall *rf);
-  const char *asRiseFall(const RiseFall *rf);
+			     PathRef &ref_path) const;
+  const char *asRisingFalling(const RiseFall *rf) const;
+  const char *asRiseFall(const RiseFall *rf) const;
   Delay delayIncr(Delay time,
 		  Delay prev,
-		  const MinMax *min_max);
+		  const MinMax *min_max) const;
 
   // Path options.
   ReportPathFormat format_;

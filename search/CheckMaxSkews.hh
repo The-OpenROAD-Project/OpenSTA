@@ -61,9 +61,9 @@ public:
 	       PathVertex *ref_path,
 	       TimingArc *check_arc,
 	       Edge *check_edge);
-  PathVertex *clkPath() { return &clk_path_; }
+  const PathVertex *clkPath() const { return &clk_path_; }
   Pin *clkPin(const StaState *sta) const;
-  PathVertex *refPath() { return &ref_path_; }
+  const PathVertex *refPath() const { return &ref_path_; }
   Pin *refPin(const StaState *sta) const;
   Delay skew(const StaState *sta) const;
   ArcDelay maxSkew(const StaState *sta) const;

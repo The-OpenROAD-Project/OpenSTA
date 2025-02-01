@@ -51,15 +51,15 @@ void
 Latches::latchRequired(const Path *data_path,
 		       const PathVertex *enable_path,
 		       const PathVertex *disable_path,
-		       MultiCyclePath *mcp,
-		       PathDelay *path_delay,
+		       const MultiCyclePath *mcp,
+		       const PathDelay *path_delay,
 		       Arrival src_clk_latency,
 		       const ArcDelay &margin,
 		       // Return values.
 		       Required &required,
 		       Arrival &borrow,
 		       Arrival &adjusted_data_arrival,
-		       Delay &time_given_to_startpoint)
+		       Delay &time_given_to_startpoint) const
 {
   const Arrival data_arrival = data_path->arrival(this);
   float max_delay = 0.0;
@@ -161,7 +161,7 @@ Latches::latchBorrowInfo(const Path *data_path,
 			 Crpr &open_crpr,
 			 Crpr &crpr_diff,
 			 Delay &max_borrow,
-			 bool &borrow_limit_exists)
+			 bool &borrow_limit_exists) const
 {
   if (data_path && enable_path && disable_path) {
     const ClockEdge *data_clk_edge = data_path->clkEdge(this);
@@ -220,7 +220,7 @@ Latches::latchRequired(const Path *data_path,
 		       Required &required,
 		       Arrival &borrow,
 		       Arrival &adjusted_data_arrival,
-		       Delay &time_given_to_startpoint)
+		       Delay &time_given_to_startpoint) const
 {
   Vertex *data_vertex = data_path->vertex(this);
   const RiseFall *data_rf = data_path->transition(this);
@@ -244,10 +244,10 @@ Latches::latchRequired(const Path *data_path,
 
 // Find the latch enable open/close path from the close/open path.
 void
-Latches::latchEnableOtherPath(Path *path,
-				   const PathAnalysisPt *tgt_clk_path_ap,
-				   // Return value.
-				   PathVertex &other_path)
+Latches::latchEnableOtherPath(const Path *path,
+                              const PathAnalysisPt *tgt_clk_path_ap,
+                              // Return value.
+                              PathVertex &other_path) const
 {
   Vertex *vertex = path->vertex(this);
   const ClockEdge *clk_edge = path->clkEdge(this);
@@ -266,8 +266,8 @@ Latches::latchEnableOtherPath(Path *path,
 }
 
 void
-Latches::latchEnablePath(Path *q_path,
-			 Edge *d_q_edge,
+Latches::latchEnablePath(const Path *q_path,
+			 const Edge *d_q_edge,
 			 // Return value.
 			 PathVertex &enable_path) const
 
@@ -299,9 +299,9 @@ Latches::latchEnablePath(Path *q_path,
 // times of the enable.  The to_tag for Q is adjusted to the that of
 // the enable open edge.
 void
-Latches::latchOutArrival(Path *data_path,
-			 TimingArc *d_q_arc,
-			 Edge *d_q_edge,
+Latches::latchOutArrival(const Path *data_path,
+			 const TimingArc *d_q_arc,
+			 const Edge *d_q_edge,
 			 const PathAnalysisPt *path_ap,
 			 // Return values.
 			 Tag *&q_tag,
@@ -398,7 +398,7 @@ Latches::latchOutArrival(Path *data_path,
 }
 
 ExceptionPath *
-Latches::exceptionTo(Path *data_path,
+Latches::exceptionTo(const Path *data_path,
  		     const ClockEdge *en_clk_edge)
 {
   // Look for exceptions -to data or -to enable clk.
@@ -415,7 +415,7 @@ ArcDelay
 Latches::latchSetupMargin(Vertex *data_vertex,
 			  const RiseFall *data_rf,
 			  const Path *disable_path,
-			  const PathAnalysisPt *path_ap)
+			  const PathAnalysisPt *path_ap) const
 {
   if (disable_path) {
     Vertex *enable_vertex = disable_path->vertex(this);
@@ -443,12 +443,12 @@ Latches::latchSetupMargin(Vertex *data_vertex,
 }
 
 void
-Latches::latchTimeGivenToStartpoint(Path *d_path,
-				    Path *q_path,
-				    Edge *d_q_edge,
+Latches::latchTimeGivenToStartpoint(const Path *d_path,
+				    const Path *q_path,
+				    const Edge *d_q_edge,
 				    // Return values.
 				    Arrival &time_given,
-				    PathVertex &enable_path)
+				    PathVertex &enable_path) const
 {
   latchEnablePath(q_path, d_q_edge, enable_path);
   if (!enable_path.isNull()
@@ -470,7 +470,7 @@ Latches::latchTimeGivenToStartpoint(Path *d_path,
 }
 
 void
-Latches::latchDtoQEnable(Edge *d_q_edge,
+Latches::latchDtoQEnable(const Edge *d_q_edge,
 			 const Instance *inst,
 			 // Return values.
 			 Vertex *&enable_vertex,

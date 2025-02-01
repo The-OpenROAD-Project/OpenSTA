@@ -2574,7 +2574,7 @@ Sta::reportPathEnds(PathEndSeq *ends)
 }
 
 void
-Sta::reportPath(Path *path)
+Sta::reportPath(const Path *path)
 {
   report_path_->reportPath(path);
 }
@@ -3177,7 +3177,7 @@ bool
 MinPeriodEndVisitor::pathIsFromInputPort(PathEnd *path_end)
 {
   PathExpanded expanded(path_end->path(), sta_);
-  PathRef *start = expanded.startPath();
+  const PathRef *start = expanded.startPath();
   Graph *graph = sta_->graph();
   const Pin *first_pin = start->pin(graph);
   Network *network = sta_->network();

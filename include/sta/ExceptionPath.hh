@@ -125,7 +125,7 @@ public:
   virtual float delay() const { return 0.0; }
   virtual const char *name() const { return nullptr; }
   virtual bool isDefault() const { return false; }
-  virtual bool ignoreClkLatency() { return false; }
+  virtual bool ignoreClkLatency() const { return false; }
 
 protected:
   virtual const char *typeString() const = 0;
@@ -210,7 +210,7 @@ public:
   virtual float delay() const { return delay_; }
   virtual int typePriority() const;
   virtual bool tighterThan(ExceptionPath *exception) const;
-  virtual bool ignoreClkLatency() { return ignore_clk_latency_; }
+  virtual bool ignoreClkLatency() const { return ignore_clk_latency_; }
 
 protected:
   bool ignore_clk_latency_;
