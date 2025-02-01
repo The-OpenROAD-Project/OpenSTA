@@ -1103,14 +1103,4 @@ SdfScanner::error(const char *msg)
   report_->fileError(1866, filename_.c_str(), lineno(), "%s", msg);
 }
 
-////////////////////////////////////////////////////////////////
-
-void
-SdfParse::error(const location_type &loc,
-                const string &msg)
-{
-  reader->report()->fileError(164,reader->filename().c_str(),
-                              loc.begin.line,"%s",msg.c_str());
-}
-
 } // namespace

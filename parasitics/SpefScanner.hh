@@ -24,57 +24,44 @@
 
 #pragma once
 
+#include "SpefLocation.hh"
+#include "SpefParse.hh"
+
+#ifndef __FLEX_LEXER_H
+#undef yyFlexLexer
+#define yyFlexLexer SpefFlexLexer
+#include <FlexLexer.h>
+#endif
+
 namespace sta {
 
 class Report;
-class LibertyCell;
-class FuncExpr;
 
-class LibExprParser
+class SpefScanner : public SpefFlexLexer
 {
 public:
-  LibExprParser(const char *func,
-		LibertyCell *cell,
-		const char *error_msg,
-		Report *report);
-  ~LibExprParser();
-  FuncExpr *makeFuncExprPort(const char *port_name);
-  FuncExpr *makeFuncExprOr(FuncExpr *arg1,
-			   FuncExpr *arg2);
-  FuncExpr *makeFuncExprAnd(FuncExpr *arg1,
-			    FuncExpr *arg2);
-  FuncExpr *makeFuncExprXor(FuncExpr *arg1,
-			    FuncExpr *arg2);
-  FuncExpr *makeFuncExprNot(FuncExpr *arg);
-  void setResult(FuncExpr *result);
-  FuncExpr *result() { return result_; }
-  void parseError(const char *msg);
-  size_t copyInput(char *buf,
-		   size_t max_size);
-  void tokenStart();
-  const char *token();
-  char *tokenCopy();
-  void tokenErase();
-  void tokenAppend(char ch);
+  SpefScanner(std::istream *stream,
+              const string &filename,
+              SpefReader *reader,
+              Report *report);
+  virtual ~SpefScanner() {}
+
+  virtual int lex(SpefParse::semantic_type *const yylval,
+                  SpefParse::location_type *yylloc);
+  // YY_DECL defined in SpefLex.ll
+  // Method body created by flex in SpefLex.cc
+
+  void error(const char *msg);
+  int line() const {  return yylineno; }
+
+  // Get rid of override virtual function warning.
+  using FlexLexer::yylex;
 
 private:
-  const char *func_;
-  LibertyCell *cell_;
-  const char *error_msg_;
+  string filename_;
+  SpefReader *reader_;
   Report *report_;
-  FuncExpr *result_;
-  size_t token_length_;
-  char *token_;
-  char *token_next_;
+  string token_;
 };
 
-extern LibExprParser *libexpr_parser;
-
 } // namespace
-
-// Global namespace
-
-void
-libertyExprFlushBuffer();
-int
-LibertyExprParse_error(const char *msg);

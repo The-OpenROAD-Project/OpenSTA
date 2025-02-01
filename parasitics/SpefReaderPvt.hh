@@ -32,15 +32,6 @@
 #include "ParasiticsClass.hh"
 #include "StaState.hh"
 
-// Global namespace.
-#define YY_INPUT(buf,result,max_size) \
-  sta::spef_reader->getChars(buf, result, max_size)
-
-int
-SpefParse_error(const char *msg);
-
-////////////////////////////////////////////////////////////////
-
 namespace sta {
 
 class Report;
@@ -48,6 +39,7 @@ class MinMaxAll;
 class SpefRspfPi;
 class SpefTriple;
 class Corner;
+class SpefScanner;
 
 typedef std::map<int, char*, std::less<int>> SpefNameMap;
 
@@ -55,7 +47,6 @@ class SpefReader : public StaState
 {
 public:
   SpefReader(const char *filename,
-	     gzFile stream,
 	     Instance *instance,
 	     ParasiticAnalysisPt *ap,
 	     bool pin_cap_included,
@@ -66,21 +57,12 @@ public:
 	     const MinMaxAll *min_max,
              StaState *sta);
   virtual ~SpefReader();
+  bool read();
   char divider() const { return divider_; }
   void setDivider(char divider);
   char delimiter() const { return delimiter_; }
   void setDelimiter(char delimiter);
-  void incrLine();
-  int line() const { return line_; }
   const char *filename() const { return filename_; }
-  // flex YY_INPUT yy_n_chars arg changed definition from int to size_t,
-  // so provide both forms.
-  void getChars(char *buf,
-		int &result,
-		size_t max_size);
-  void getChars(char *buf,
-		size_t &result,
-		size_t max_size);
   // Translate from spf/spef namespace to sta namespace.
   char *translated(const char *token);
   void warn(int id,
@@ -136,6 +118,7 @@ private:
                                    bool local_only);
 
   const char *filename_;
+  SpefScanner *scanner_;
   Instance *instance_;
   const ParasiticAnalysisPt *ap_;
   bool pin_cap_included_;
@@ -144,8 +127,6 @@ private:
   const Corner *corner_;
   const MinMaxAll *min_max_;
   // Normally no need to keep device names.
-  gzFile stream_;
-  int line_;
   char divider_;
   char delimiter_;
   char bus_brkt_left_;

@@ -41,18 +41,15 @@ parseLibertyFile(const char *filename,
 		 LibertyGroupVisitor *library_visitor,
 		 Report *report)
 {
-  std::istream *stream = new gzstream::igzstream(filename);
-  if (stream->good()) {
+  gzstream::igzstream stream(filename);
+  if (stream.is_open()) {
     LibertyParser reader(filename, library_visitor, report);
-    LibertyScanner scanner(stream, filename, &reader, report);
+    LibertyScanner scanner(&stream, filename, &reader, report);
     LibertyParse parser(&scanner, &reader);
     parser.parse();
-    delete stream;
   }
-  else {
-    delete stream;
+  else
     throw FileNotReadable(filename);
-  }
 }
 
 LibertyParser::LibertyParser(const char *filename,
@@ -565,14 +562,6 @@ void
 LibertyScanner::error(const char *msg)
 {
   report_->fileError(1866, filename_.c_str(), lineno(), "%s", msg);
-}
-
-void
-LibertyParse::error(const location_type &loc,
-                    const string &msg)
-{
-  reader->report()->fileError(164, reader->filename().c_str(),
-                              loc.begin.line, "%s", msg.c_str());
 }
 
 } // namespace

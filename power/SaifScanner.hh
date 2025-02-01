@@ -24,51 +24,43 @@
 
 #pragma once
 
-#include "LibertyLocation.hh"
-#include "LibertyParse.hh"
+#include "SaifLocation.hh"
+#include "SaifParse.hh"
 
 #ifndef __FLEX_LEXER_H
 #undef yyFlexLexer
-#define yyFlexLexer LibertyFlexLexer
+#define yyFlexLexer SaifFlexLexer
 #include <FlexLexer.h>
 #endif
 
 namespace sta {
 
 class Report;
-class LibertyParser;
 
-class LibertyScanner : public LibertyFlexLexer
+class SaifScanner : public SaifFlexLexer
 {
 public:
-  LibertyScanner(std::istream *stream,
-                 const char *filename,
-                 LibertyParser *reader,
-                 Report *report);
-  virtual ~LibertyScanner() {}
+  SaifScanner(std::istream *stream,
+             const string &filename,
+             SaifReader *reader,
+             Report *report);
+  virtual ~SaifScanner() {}
 
-  virtual int lex(LibertyParse::semantic_type *const yylval,
-                  LibertyParse::location_type *yylloc);
-  // YY_DECL defined in LibertyLex.ll
-  // Method body created by flex in LibertyLex.cc
+  virtual int lex(SaifParse::semantic_type *const yylval,
+                  SaifParse::location_type *yylloc);
+  // YY_DECL defined in SaifLex.ll
+  // Method body created by flex in SaifLex.cc
+
+  void error(const char *msg);
 
   // Get rid of override virtual function warning.
   using FlexLexer::yylex;
 
 private:
-  bool includeBegin();
-  void fileEnd();
-  void error(const char *msg);
-
-  std::istream *stream_;
   string filename_;
-  LibertyParser *reader_;
+  SaifReader *reader_;
   Report *report_;
   string token_;
-
-  // Previous lex state for include files.
-  string filename_prev_;
-  std::istream *stream_prev_;
 };
 
 } // namespace

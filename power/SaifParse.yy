@@ -1,5 +1,3 @@
-%{
-
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2025, Parallax Software, Inc.
 // 
@@ -24,19 +22,40 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
+%{
 #include <cctype>
 
+#include "Report.hh"
 #include "StringUtil.hh"
 #include "power/SaifReaderPvt.hh"
+#include "power/SaifScanner.hh"
 
-int SaifLex_lex();
-#define SaifParse_lex SaifLex_lex
-// use yacc generated parser errors
-#define YYERROR_VERBOSE
+#undef yylex
+#define yylex scanner->lex
 
-#define YYDEBUG 1
+// warning: variable 'yynerrs_' set but not used
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
+#define loc_line(loc) loc.begin.line
+
+void
+sta::SaifParse::error(const location_type &loc,
+                      const string &msg)
+{
+  reader->report()->fileError(164,reader->filename(),loc.begin.line,"%s",msg.c_str());
+}
 %}
+
+%require  "3.2"
+%skeleton "lalr1.cc"
+%debug
+%define api.namespace {sta}
+%locations
+%define api.location.file "SaifLocation.hh"
+%define parse.assert
+%parse-param { SaifScanner *scanner }
+%parse-param { SaifReader *reader }
+%define api.parser.class {SaifParse}
 
 // expected shift/reduce conflicts
 %expect 2
@@ -86,9 +105,9 @@ header_stmt:
 |	'(' VENDOR QSTRING ')' { sta::stringDelete($3); }
 |	'(' PROGRAM_NAME QSTRING ')' { sta::stringDelete($3); }
 |	'(' VERSION QSTRING ')' { sta::stringDelete($3); }
-|	'(' DIVIDER hchar ')' { sta::saif_reader->setDivider($3); }
-|	'(' TIMESCALE UINT ID ')' { sta::saif_reader->setTimescale($3, $4); }
-|	'(' DURATION UINT ')' { sta::saif_reader->setDuration($3); }
+|	'(' DIVIDER hchar ')' { reader->setDivider($3); }
+|	'(' TIMESCALE UINT ID ')' { reader->setTimescale($3, $4); }
+|	'(' DURATION UINT ')' { reader->setDuration($3); }
 ;
 
 hchar:
@@ -100,13 +119,13 @@ hchar:
 
 instance:
 	'(' INSTANCE ID
-	{ sta::saif_reader->instancePush($3); }
+	{ reader->instancePush($3); }
         instance_contents ')'
-	{ sta::saif_reader->instancePop(); }
+	{ reader->instancePop(); }
 |	'(' INSTANCE QSTRING ID
-	{ sta::saif_reader->instancePush($3); }
+	{ reader->instancePush($3); }
         instance_contents ')'
-	{ sta::saif_reader->instancePop(); }
+	{ reader->instancePop(); }
 ;
 
 instance_contents:
@@ -128,7 +147,7 @@ nets:
 
 net:
         '(' ID state_durations ')'
-        { sta::saif_reader->setNetDurations($2, $3); }
+        { reader->setNetDurations($2, $3); }
 ;
 
 ports:

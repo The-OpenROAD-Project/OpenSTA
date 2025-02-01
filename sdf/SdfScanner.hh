@@ -24,14 +24,14 @@
 
 #pragma once
 
+#include "SdfLocation.hh"
+#include "SdfParse.hh"
+
 #ifndef __FLEX_LEXER_H
 #undef yyFlexLexer
 #define yyFlexLexer SdfFlexLexer
 #include <FlexLexer.h>
 #endif
-
-#include "SdfLocation.hh"
-#include "SdfParse.hh"
 
 namespace sta {
 

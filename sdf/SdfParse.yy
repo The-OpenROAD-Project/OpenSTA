@@ -33,6 +33,14 @@
 
 // warning: variable 'yynerrs_' set but not used
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+
+void
+sta::SdfParse::error(const location_type &loc,
+                     const string &msg)
+{
+  reader->report()->fileError(164,reader->filename().c_str(),
+                              loc.begin.line,"%s",msg.c_str());
+}
 %}
 
 %require  "3.2"
@@ -44,11 +52,7 @@
 %define parse.assert
 %parse-param { SdfScanner *scanner }
 %parse-param { SdfReader *reader }
-
-// bison 3.0.4 for centos7
-%define parser_class_name {SdfParse}
-// bison 3.3.2
-//%define api.parser.class {SdfParse}
+%define api.parser.class {SdfParse}
 
 // expected shift/reduce conflicts
 %expect 4

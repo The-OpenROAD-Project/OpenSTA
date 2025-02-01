@@ -38,15 +38,11 @@
 
 // global namespace
 
-#define YY_INPUT(buf,result,max_size) \
-  sta::saif_reader->getChars(buf, result, max_size)
-int
-SaifParse_error(const char *msg);
-
 namespace sta {
 
 class Sta;
 class Power;
+class SaifScanner;
 
 using std::vector;
 using std::string;
@@ -61,7 +57,6 @@ public:
   SaifReader(const char *filename,
              const char *scope,
              Sta *sta);
-  ~SaifReader();
   bool read();
 
   void setDivider(char divider);
@@ -72,24 +67,7 @@ public:
   void instancePop();
   void setNetDurations(const char *net_name,
                        SaifStateDurations &durations);
-
-  // flex YY_INPUT yy_n_chars arg changed definition from int to size_t,
-  // so provide both forms.
-  void getChars(char *buf,
-		size_t &result,
-		size_t max_size);
-  void getChars(char *buf,
-		int &result,
-		size_t max_size);
-  void incrLine();
   const char *filename() { return filename_; }
-  int line() { return line_; }
-  void saifWarn(int id,
-                const char *fmt, ...);
-  void saifError(int id,
-                 const char *fmt,
-                 ...);
-  void notSupported(const char *feature);
 
 private:
   string unescaped(const char *token);
@@ -97,8 +75,6 @@ private:
   const char *filename_;
   const char *scope_;           // Divider delimited scope to begin annotation.
 
-  gzFile stream_;
-  int line_;
   char divider_;
   char escape_;
   double timescale_;
@@ -110,7 +86,5 @@ private:
   std::set<const Pin*> annotated_pins_;
   Power *power_;
 };
-
-extern SaifReader *saif_reader;
 
 } // namespace

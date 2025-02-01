@@ -1,5 +1,3 @@
-%{
-
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2025, Parallax Software, Inc.
 // 
@@ -24,18 +22,40 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
+%{
 #include <cstring>
 
+#include "Report.hh"
 #include "StringUtil.hh"
 #include "StringSeq.hh"
 #include "parasitics/SpefReaderPvt.hh"
+#include "parasitics/SpefScanner.hh"
 
-int SpefLex_lex();
-#define SpefParse_lex SpefLex_lex
-// use yacc generated parser errors
-#define YYERROR_VERBOSE
+#undef yylex
+#define yylex scanner->lex
 
+// warning: variable 'yynerrs_' set but not used
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+
+void
+sta::SpefParse::error(const location_type &loc,
+                     const string &msg)
+{
+  reader->report()->fileError(164,reader->filename(),
+                              loc.begin.line,"%s",msg.c_str());
+}
 %}
+
+%require  "3.2"
+%skeleton "lalr1.cc"
+%debug
+%define api.namespace {sta}
+%locations
+%define api.location.file "SpefLocation.hh"
+%define parse.assert
+%parse-param { SpefScanner *scanner }
+%parse-param { SpefReader *reader }
+%define api.parser.class {SpefParse}
 
 %union {
   char ch;
@@ -195,7 +215,7 @@ vendor:
 
 design_flow:
 	DESIGN_FLOW qstrings
-	{ sta::spef_reader->setDesignFlow($2); }
+	{ reader->setDesignFlow($2); }
 ;
 
 qstrings:
@@ -209,19 +229,19 @@ qstrings:
 
 hierarchy_div_def:
 	DIVIDER hchar
-	{ sta::spef_reader->setDivider($2); }
+	{ reader->setDivider($2); }
 ;
 
 pin_delim_def:
 	DELIMITER hchar
-	{ sta::spef_reader->setDelimiter($2); }
+	{ reader->setDelimiter($2); }
 ;
 
 bus_delim_def:
 	BUS_DELIMITER prefix_bus_delim
-	{ sta::spef_reader->setBusBrackets($2, '\0'); }
+	{ reader->setBusBrackets($2, '\0'); }
 |	BUS_DELIMITER prefix_bus_delim suffix_bus_delim
-	{ sta::spef_reader->setBusBrackets($2, $3); }
+	{ reader->setBusBrackets($2, $3); }
 ;
 
 /****************************************************************/
@@ -235,22 +255,22 @@ unit_def:
 
 time_scale:
 	T_UNIT pos_number IDENT
-	{ sta::spef_reader->setTimeScale($2, $3); }
+	{ reader->setTimeScale($2, $3); }
 ;
 
 cap_scale:
 	C_UNIT pos_number IDENT
-	{ sta::spef_reader->setCapScale($2, $3); }
+	{ reader->setCapScale($2, $3); }
 ;
 
 res_scale:
 	R_UNIT pos_number IDENT
-	{ sta::spef_reader->setResScale($2, $3); }
+	{ reader->setResScale($2, $3); }
 ;
 
 induc_scale:
 	L_UNIT pos_number IDENT
-	{ sta::spef_reader->setInductScale($2, $3); }
+	{ reader->setInductScale($2, $3); }
 ;
 
 /****************************************************************/
@@ -267,7 +287,7 @@ name_map_entries:
 
 name_map_entry:
 	INDEX mapped_item
-	{ sta::spef_reader->makeNameMapEntry($1, $2);
+	{ reader->makeNameMapEntry($1, $2);
 	  sta::stringDelete($1);
 	}
 ;
@@ -330,7 +350,7 @@ port_entry:
 
 direction:
 	IDENT
-	{ $$ = sta::spef_reader->portDirection($1);
+	{ $$ = reader->portDirection($1);
           sta::stringDelete($1);
 	}
 ;
@@ -474,14 +494,14 @@ nets:
 
 d_net:
 	D_NET net total_cap
-	{ sta::spef_reader->dspfBegin($2, $3); }
+	{ reader->dspfBegin($2, $3); }
 	routing_conf conn_sec cap_sec res_sec induc_sec END
-	{ sta::spef_reader->dspfFinish(); }
+	{ reader->dspfFinish(); }
 ;
 
 net:
 	name_or_index
-	{ $$ = sta::spef_reader->findNet($1);
+	{ $$ = reader->findNet($1);
 	  sta::stringDelete($1);
 	}
 ;
@@ -531,7 +551,7 @@ internal_connection:
 
 pin_name:
 	name_or_index
-	{ $$ = sta::spef_reader->findPin($1);
+	{ $$ = reader->findPin($1);
 	  sta::stringDelete($1);
 	}
 ;
@@ -565,9 +585,9 @@ cap_elems:
 
 cap_elem:
 	cap_id parasitic_node par_value
-	{ sta::spef_reader->makeCapacitor($1, $2, $3); }
+	{ reader->makeCapacitor($1, $2, $3); }
 |	cap_id parasitic_node parasitic_node par_value
-	{ sta::spef_reader->makeCapacitor($1, $2, $3, $4); }
+	{ reader->makeCapacitor($1, $2, $3, $4); }
 ;
 
 cap_id:
@@ -593,7 +613,7 @@ res_elems:
 
 res_elem:
 	res_id parasitic_node parasitic_node par_value
-	{ sta::spef_reader->makeResistor($1, $2, $3, $4); }
+	{ reader->makeResistor($1, $2, $3, $4); }
 ;
 
 res_id:
@@ -626,9 +646,9 @@ induc_id:
 
 r_net:
 	R_NET net total_cap
-	{ sta::spef_reader->rspfBegin($2, $3); }
+	{ reader->rspfBegin($2, $3); }
 	routing_conf driver_reducs END
-	{ sta::spef_reader->rspfFinish(); }
+	{ reader->rspfFinish(); }
 ;
 
 driver_reducs:
@@ -638,11 +658,11 @@ driver_reducs:
 
 driver_reduc:
 	driver_pair driver_cell pi_model
-	{ sta::spef_reader->rspfDrvrBegin($1, $3);
+	{ reader->rspfDrvrBegin($1, $3);
 	  sta::stringDelete($2);
 	}
 	load_desc
-	{ sta::spef_reader->rspfDrvrFinish(); }
+	{ reader->rspfDrvrFinish(); }
 ;
 
 driver_pair:
@@ -673,9 +693,9 @@ rc_descs:
 
 rc_desc:
 	RC pin_name par_value
-	{ sta::spef_reader->rspfLoad($2, $3); }
+	{ reader->rspfLoad($2, $3); }
 |	RC pin_name par_value pole_residue_desc
-	{ sta::spef_reader->rspfLoad($2, $3); }
+	{ reader->rspfLoad($2, $3); }
 ;
 
 pole_residue_desc:
@@ -810,7 +830,7 @@ pos_integer:
 	INTEGER
 	{ int value = $1;
 	  if (value < 0)
-	    sta::spef_reader->warn(1525, "%d is not positive.", value);
+	    reader->warn(1525, "%d is not positive.", value);
 	  $$ = value;
 	}
 ;
@@ -819,13 +839,13 @@ pos_number:
 	INTEGER
 	{ float value = static_cast<float>($1);
 	  if (value < 0)
-	    sta::spef_reader->warn(1526, "%.4f is not positive.", value);
+	    reader->warn(1526, "%.4f is not positive.", value);
 	  $$ = value;
 	}
 |	FLOAT
 	{ float value = static_cast<float>($1);
 	  if (value < 0)
-	    sta::spef_reader->warn(1527, "%.4f is not positive.", value);
+	    reader->warn(1527, "%.4f is not positive.", value);
 	  $$ = value;
 	}
 ;
