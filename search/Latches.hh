@@ -38,24 +38,24 @@ class Latches : public StaState
 {
 public:
   Latches(StaState *sta);
-  void latchTimeGivenToStartpoint(Path *d_path,
-				  Path *q_path,
-				  Edge *d_q_edge,
+  void latchTimeGivenToStartpoint(const Path *d_path,
+				  const Path *q_path,
+				  const Edge *d_q_edge,
 				  // Return values.
 				  Arrival &time_given,
-				  PathVertex &enable_path);
+				  PathVertex &enable_path) const;
   void latchRequired(const Path *data_path,
 		     const PathVertex *enable_path,
 		     const PathVertex *disable_path,
-		     MultiCyclePath *mcp,
-		     PathDelay *path_delay,
+		     const MultiCyclePath *mcp,
+		     const PathDelay *path_delay,
 		     Arrival src_clk_latency,
 		     const ArcDelay &margin,
 		     // Return values.
 		     Required &required,
 		     Delay &borrow,
 		     Arrival &adjusted_data_arrival,
-		     Delay &time_given_to_startpoint);
+		     Delay &time_given_to_startpoint) const;
   void latchRequired(const Path *data_path,
 		     const PathVertex *enable_path,
 		     const PathVertex *disable_path,
@@ -64,7 +64,7 @@ public:
 		     Required &required,
 		     Delay &borrow,
 		     Arrival &adjusted_data_arrival,
-		     Delay &time_given_to_startpoint);
+		     Delay &time_given_to_startpoint) const;
   void latchBorrowInfo(const Path *data_path,
 		       const PathVertex *enable_path,
 		       const PathVertex *disable_path,
@@ -78,26 +78,27 @@ public:
 		       Crpr &open_crpr,
 		       Crpr &crpr_diff,
 		       Delay &max_borrow,
-		       bool &borrow_limit_exists);
+		       bool &borrow_limit_exists) const;
   bool isLatchDtoQ(Edge *edge) const;
   // Find the latch EN->Q edge for a D->Q edge.
-  void latchDtoQEnable(Edge *d_q_edge,
+  void latchDtoQEnable(const Edge *d_q_edge,
 		       const Instance *inst,
 		       // Return values.
 		       Vertex *&enable_vertex,
 		       const RiseFall *&enable_rf,
 		       LatchEnableState &state) const;
   LatchEnableState latchDtoQState(Edge *d_q_edge) const;
-  void latchEnableOtherPath(Path *path,
+  void latchEnableOtherPath(const Path *path,
 			    const PathAnalysisPt *tgt_clk_path_ap,
 			    // Return value.
-			    PathVertex &other_path);
-  void latchEnablePath(Path *q_path, Edge *d_q_edge,
+			    PathVertex &other_path) const;
+  void latchEnablePath(const Path *q_path,
+                       const Edge *d_q_edge,
 		       // Return value.
 		       PathVertex &enable_path) const;
-  void latchOutArrival(Path *data_path,
-		       TimingArc *d_q_arc,
-		       Edge *d_q_edge,
+  void latchOutArrival(const Path *data_path,
+		       const TimingArc *d_q_arc,
+		       const Edge *d_q_edge,
 		       const PathAnalysisPt *path_ap,
 		       Tag *&q_tag,
 		       ArcDelay &arc_delay,
@@ -107,8 +108,8 @@ protected:
   ArcDelay latchSetupMargin(Vertex *data_vertex,
 			    const RiseFall *data_rf,
 			    const Path *disable_path,
-			    const PathAnalysisPt *path_ap);
-  ExceptionPath *exceptionTo(Path *data_path,
+			    const PathAnalysisPt *path_ap) const;
+  ExceptionPath *exceptionTo(const Path *data_path,
 			     const ClockEdge *en_clk_edge);
 };
 

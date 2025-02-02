@@ -64,19 +64,20 @@ void
 InputDrive::driveResistance(const RiseFall *rf,
 			    const MinMax *min_max,
 			    float &res,
-			    bool &exists)
+			    bool &exists) const
 {
   drive_resistances_.value(rf, min_max, res, exists);
 }
 
 bool
-InputDrive::hasDriveResistance(const RiseFall *rf, const MinMax *min_max)
+InputDrive::hasDriveResistance(const RiseFall *rf,
+                               const MinMax *min_max) const
 {
   return drive_resistances_.hasValue(rf, min_max);
 }
 
 bool
-InputDrive::driveResistanceMinMaxEqual(const RiseFall *rf)
+InputDrive::driveResistanceMinMaxEqual(const RiseFall *rf) const
 {
   float min_res, max_res;
   bool min_exists, max_exists;
@@ -120,7 +121,7 @@ InputDrive::driveCell(const RiseFall *rf,
 		      const LibertyCell *&cell,
 		      const LibertyPort *&from_port,
 		      float *&from_slews,
-		      const LibertyPort *&to_port)
+		      const LibertyPort *&to_port) const
 {
   InputDriveCell *drive = drive_cells_[rf->index()][min_max->index()];
   if (drive) {
@@ -139,20 +140,20 @@ InputDrive::driveCell(const RiseFall *rf,
 
 InputDriveCell *
 InputDrive::driveCell(const RiseFall *rf,
-		      const MinMax *min_max)
+		      const MinMax *min_max) const
 {
   return drive_cells_[rf->index()][min_max->index()];
 }
 
 bool
 InputDrive::hasDriveCell(const RiseFall *rf,
-			 const MinMax *min_max)
+			 const MinMax *min_max) const
 {
   return drive_cells_[rf->index()][min_max->index()] != nullptr;
 }
 
 bool
-InputDrive::driveCellsEqual()
+InputDrive::driveCellsEqual() const
 {
   int rise_index = RiseFall::riseIndex();
   int fall_index = RiseFall::fallIndex();
@@ -171,7 +172,7 @@ void
 InputDrive::slew(const RiseFall *rf,
 		 const MinMax *min_max,
 		 float &slew,
-		 bool &exists)
+		 bool &exists) const
 {
   slews_.value(rf, min_max, slew, exists);
 }

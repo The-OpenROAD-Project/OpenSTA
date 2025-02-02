@@ -41,7 +41,7 @@
 #include "LinearModel.hh"
 #include "Wireload.hh"
 #include "EquivCells.hh"
-#include "LibertyExpr.hh"
+#include "LibExprReader.hh"
 #include "Liberty.hh"
 #include "LibertyBuilder.hh"
 #include "LibertyReaderPvt.hh"

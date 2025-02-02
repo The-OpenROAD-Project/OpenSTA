@@ -62,9 +62,9 @@ typedef vector<Slew> SlewSeq;
 static constexpr int level_max = std::numeric_limits<Level>::max();
 
 // 16,777,215 tags
-static const int tag_group_index_bits = 24;
-static const TagGroupIndex tag_group_index_max = (1<<tag_group_index_bits)-1;
-static const int slew_annotated_bits = MinMax::index_count * RiseFall::index_count;
+static constexpr int tag_group_index_bits = 24;
+static constexpr TagGroupIndex tag_group_index_max = (1<<tag_group_index_bits)-1;
+static constexpr int slew_annotated_bits = MinMax::index_count * RiseFall::index_count;
 
 // Bit shifts used to mark vertices in a Bfs queue.
 enum class BfsIndex { dcalc, arrival, required, other, bits };

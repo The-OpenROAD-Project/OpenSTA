@@ -31,15 +31,17 @@
 #include "Map.hh"
 #include "StringSeq.hh"
 #include "MinMax.hh"
+#include "NetworkClass.hh"
 #include "Transition.hh"
 #include "TimingArc.hh"
 #include "InternalPower.hh"
 #include "LeakagePower.hh"
 #include "Liberty.hh"
 #include "Sequential.hh"
+#include "TableModel.hh"
 #include "LibertyParser.hh"
 #include "LibertyReader.hh"
-#include "NetworkClass.hh"
+#include "LibertyBuilder.hh"
 
 namespace sta {
 
@@ -494,6 +496,8 @@ public:
   void endCcsn(LibertyGroup *group);
   void beginEcsmWaveform(LibertyGroup *group);
   void endEcsmWaveform(LibertyGroup *group);
+  LibertyPort *findPort(LibertyCell *cell,
+			const char *port_name);
 
 protected:
   TimingModel *makeScalarCheckModel(float value,
@@ -519,8 +523,6 @@ protected:
   StdStringSeq parseTokenList(const char *token_str,
                               const char separator);
   LibertyPort *findPort(const char *port_name);
-  LibertyPort *findPort(LibertyCell *cell,
-			const char *port_name);
   float defaultCap(LibertyPort *port);
   virtual void visitVariable(LibertyVariable *var);
   void visitPorts(std::function<void (LibertyPort *port)> func);

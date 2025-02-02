@@ -1716,7 +1716,7 @@ WriteSdc::writeInputTransitions() const
     Port *port = port_iter->next();
     InputDrive *drive = sdc_->findInputDrive(port);
     if (drive) {
-      RiseFallMinMax *slews = drive->slews();
+      const RiseFallMinMax *slews = drive->slews();
       WriteGetPort write_port(port, this);
       writeRiseFallMinMaxTimeCmd("set_input_transition", slews, write_port);
     }

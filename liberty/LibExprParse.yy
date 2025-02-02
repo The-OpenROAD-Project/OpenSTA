@@ -1,5 +1,3 @@
-%{
-
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2025, Parallax Software, Inc.
 // 
@@ -26,14 +24,34 @@
 
 // Liberty function expression parser.
 
+%{
 #include "FuncExpr.hh"
-#include "liberty/LibertyExpr.hh"
-#include "liberty/LibertyExprPvt.hh"
+#include "liberty/LibExprReader.hh"
+#include "liberty/LibExprReaderPvt.hh"
+#include "liberty/LibExprScanner.hh"
 
-int LibertyExprLex_lex();
-#define LibertyExprParse_lex LibertyExprLex_lex
+#undef yylex
+#define yylex scanner->lex
+
+// warning: variable 'yynerrs_' set but not used
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+
+void
+sta::LibExprParse::error(const string &msg)
+{
+  reader->parseError(msg.c_str());
+}
 
 %}
+
+%require  "3.2"
+%skeleton "lalr1.cc"
+%debug
+%define api.namespace {sta}
+%define parse.assert
+%parse-param{LibExprScanner *scanner}
+%parse-param{LibExprReader *reader}
+%define api.parser.class {LibExprParse}
 
 %union {
   int int_val;
@@ -50,18 +68,15 @@ int LibertyExprLex_lex();
 %type <string> PORT
 %type <expr> expr terminal terminal_expr implicit_and
 
-%{
-%}
-
 %%
 
 result_expr:
-	expr	{ sta::libexpr_parser->setResult($1); }
-|	expr ';'{ sta::libexpr_parser->setResult($1); }
+	expr	{ reader->setResult($1); }
+|	expr ';'{ reader->setResult($1); }
 ;
 
 terminal:
-	PORT		{ $$ = sta::libexpr_parser->makeFuncExprPort($1); }
+	PORT		{ $$ = reader->makeFuncExprPort($1); }
 |	'0'		{ $$ = sta::FuncExpr::makeZero(); }
 |	'1'		{ $$ = sta::FuncExpr::makeOne(); }
 |	'(' expr ')'	{ $$ = $2; }
@@ -69,25 +84,25 @@ terminal:
 
 terminal_expr:
 	terminal
-|	'!' terminal	{ $$ = sta::libexpr_parser->makeFuncExprNot($2); }
-|	terminal '\''	{ $$ = sta::libexpr_parser->makeFuncExprNot($1); }
+|	'!' terminal	{ $$ = reader->makeFuncExprNot($2); }
+|	terminal '\''	{ $$ = reader->makeFuncExprNot($1); }
 ;
 
 implicit_and:
 	terminal_expr terminal_expr
-	{ $$ = sta::libexpr_parser->makeFuncExprAnd($1, $2); }
+	{ $$ = reader->makeFuncExprAnd($1, $2); }
 |	implicit_and terminal_expr
-	{ $$ = sta::libexpr_parser->makeFuncExprAnd($1, $2); }
+	{ $$ = reader->makeFuncExprAnd($1, $2); }
 ;
 
 expr:
 	terminal_expr
 |	implicit_and
-|	expr '+' expr	{ $$ = sta::libexpr_parser->makeFuncExprOr($1, $3); }
-|	expr '|' expr	{ $$ = sta::libexpr_parser->makeFuncExprOr($1, $3); }
-|	expr '*' expr   { $$ = sta::libexpr_parser->makeFuncExprAnd($1, $3); }
-|	expr '&' expr   { $$ = sta::libexpr_parser->makeFuncExprAnd($1, $3); }
-|	expr '^' expr	{ $$ = sta::libexpr_parser->makeFuncExprXor($1, $3); }
+|	expr '+' expr	{ $$ = reader->makeFuncExprOr($1, $3); }
+|	expr '|' expr	{ $$ = reader->makeFuncExprOr($1, $3); }
+|	expr '*' expr   { $$ = reader->makeFuncExprAnd($1, $3); }
+|	expr '&' expr   { $$ = reader->makeFuncExprAnd($1, $3); }
+|	expr '^' expr	{ $$ = reader->makeFuncExprXor($1, $3); }
 ;
 
 %%

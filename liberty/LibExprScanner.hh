@@ -24,31 +24,30 @@
 
 #pragma once
 
-#include "LibertyLocation.hh"
-#include "LibertyParse.hh"
+#include <string>
+
+#include "LibExprParse.hh"
 
 #ifndef __FLEX_LEXER_H
 #undef yyFlexLexer
-#define yyFlexLexer LibertyFlexLexer
+#define yyFlexLexer LibExprFlexLexer
 #include <FlexLexer.h>
 #endif
 
 namespace sta {
 
-class Report;
-class LibertyParser;
+using std::string;
 
-class LibertyScanner : public LibertyFlexLexer
+class Report;
+class LibExprParse;
+
+class LibExprScanner : public LibExprFlexLexer
 {
 public:
-  LibertyScanner(std::istream *stream,
-                 const char *filename,
-                 LibertyParser *reader,
-                 Report *report);
-  virtual ~LibertyScanner() {}
+  LibExprScanner(std::istringstream &stream);
+  virtual ~LibExprScanner() {}
 
-  virtual int lex(LibertyParse::semantic_type *const yylval,
-                  LibertyParse::location_type *yylloc);
+  virtual int lex(LibExprParse::semantic_type *const yylval);
   // YY_DECL defined in LibertyLex.ll
   // Method body created by flex in LibertyLex.cc
 
@@ -56,19 +55,8 @@ public:
   using FlexLexer::yylex;
 
 private:
-  bool includeBegin();
-  void fileEnd();
-  void error(const char *msg);
-
-  std::istream *stream_;
-  string filename_;
-  LibertyParser *reader_;
   Report *report_;
   string token_;
-
-  // Previous lex state for include files.
-  string filename_prev_;
-  std::istream *stream_prev_;
 };
 
 } // namespace

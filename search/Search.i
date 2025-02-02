@@ -322,18 +322,6 @@ required_count()
 }
 
 int
-graph_arrival_count()
-{
-  return Sta::sta()->graph()->arrivalCount();
-}
-
-int
-graph_required_count()
-{
-  return Sta::sta()->graph()->requiredCount();
-}
-
-int
 endpoint_violation_count(const MinMax *min_max)
 {
   return  Sta::sta()->endpointViolationCount(min_max);

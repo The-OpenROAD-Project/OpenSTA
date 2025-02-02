@@ -1,5 +1,4 @@
 %{
-
 // OpenSTA, Static Timing Analyzer
 // Copyright (c) 2025, Parallax Software, Inc.
 // 
@@ -31,30 +30,28 @@
 #include "StringUtil.hh"
 #include "parasitics/SpefReaderPvt.hh"
 #include "SpefParse.hh"
+#include "parasitics/SpefScanner.hh"
 
-#define YY_NO_INPUT
+#undef YY_DECL
+#define YY_DECL \
+int \
+sta::SpefScanner::lex(sta::SpefParse::semantic_type *const yylval, \
+                      sta::SpefParse::location_type *loc)
 
-static std::string spef_token;
+// update location on matching
+#define YY_USER_ACTION loc->step(); loc->columns(yyleng);
 
-void
-spefFlushBuffer()
-{
-  YY_FLUSH_BUFFER;
-}
-
-// Reset the start condition to INITIAL.
-void
-spefResetScanner()
-{
-  BEGIN(0);
-}
-
+typedef sta::SpefParse::token token;
 %}
 
-/* %option debug */
+%option c++
+%option yyclass="sta::SpefScanner"
+%option prefix="Spef"
 %option noyywrap
-%option nounput
 %option never-interactive
+%option stack
+%option yylineno
+/* %option debug */
 
 %x COMMENT
 %x QUOTE
@@ -93,123 +90,117 @@ INDEX   "*"{POS_INTEGER}
 
 %%
 
-"*BUS_DELIMITER" { return BUS_DELIMITER; }
-"*C2_R1_C1" { return C2_R1_C1; }
-"*C" { return KW_C; }
-"*CAP" { return CAP; }
-"*CELL" { return CELL; }
-"*CONN" { return CONN; }
-"*C_UNIT" { return C_UNIT; }
-"*SPEF" { return SPEF; }
-"*DATE" { return DATE; }
-"*DEFINE" { return DEFINE; }
-"*DELIMITER" { return DELIMITER; }
-"*DESIGN" { return DESIGN; }
-"*DESIGN_FLOW" { return DESIGN_FLOW; }
-"*DIVIDER" { return DIVIDER; }
-"*DRIVER" { return DRIVER; }
-"*D_NET" { return D_NET; }
-"*D_PNET" { return D_PNET; }
-"*D" { return KW_D; }
-"*END" { return END; }
-"*GROUND_NETS" { return GROUND_NETS; }
-"*INDUC" { return INDUC; }
-"*I" { return KW_I; }
-"*K" { return KW_K; }
-"*L" { return KW_L; }
-"*LOADS" { return LOADS; }
-"*L_UNIT" { return L_UNIT; }
-"*NAME_MAP" { return NAME_MAP; }
-"*N" { return KW_N; }
-"*PDEFINE" { return PDEFINE; }
-"*PHYSICAL_PORTS" { return PHYSICAL_PORTS; }
-"*PORTS" { return PORTS; }
-"*POWER_NETS" { return POWER_NETS; }
-"*PROGRAM" { return PROGRAM; }
-"*P" { return KW_P; }
-"*Q" { return KW_Q; }
-"*RC" { return RC; }
-"*RES" { return RES; }
-"*R_NET" { return R_NET; }
-"*R_PNET" { return R_PNET; }
-"*R_UNIT" { return R_UNIT; }
-"*S" { return KW_S; }
-"*T_UNIT" { return T_UNIT; }
-"*VENDOR" { return VENDOR; }
-"*VERSION" { return PVERSION; }
-"*V" { return KW_V; }
+"*BUS_DELIMITER" { return token::BUS_DELIMITER; }
+"*C2_R1_C1" { return token::C2_R1_C1; }
+"*C" { return token::KW_C; }
+"*CAP" { return token::CAP; }
+"*CELL" { return token::CELL; }
+"*CONN" { return token::CONN; }
+"*C_UNIT" { return token::C_UNIT; }
+"*SPEF" { return token::SPEF; }
+"*DATE" { return token::DATE; }
+"*DEFINE" { return token::DEFINE; }
+"*DELIMITER" { return token::DELIMITER; }
+"*DESIGN" { return token::DESIGN; }
+"*DESIGN_FLOW" { return token::DESIGN_FLOW; }
+"*DIVIDER" { return token::DIVIDER; }
+"*DRIVER" { return token::DRIVER; }
+"*D_NET" { return token::D_NET; }
+"*D_PNET" { return token::D_PNET; }
+"*D" { return token::KW_D; }
+"*END" { return token::END; }
+"*GROUND_NETS" { return token::GROUND_NETS; }
+"*INDUC" { return token::INDUC; }
+"*I" { return token::KW_I; }
+"*K" { return token::KW_K; }
+"*L" { return token::KW_L; }
+"*LOADS" { return token::LOADS; }
+"*L_UNIT" { return token::L_UNIT; }
+"*NAME_MAP" { return token::NAME_MAP; }
+"*N" { return token::KW_N; }
+"*PDEFINE" { return token::PDEFINE; }
+"*PHYSICAL_PORTS" { return token::PHYSICAL_PORTS; }
+"*PORTS" { return token::PORTS; }
+"*POWER_NETS" { return token::POWER_NETS; }
+"*PROGRAM" { return token::PROGRAM; }
+"*P" { return token::KW_P; }
+"*Q" { return token::KW_Q; }
+"*RC" { return token::RC; }
+"*RES" { return token::RES; }
+"*R_NET" { return token::R_NET; }
+"*R_PNET" { return token::R_PNET; }
+"*R_UNIT" { return token::R_UNIT; }
+"*S" { return token::KW_S; }
+"*T_UNIT" { return token::T_UNIT; }
+"*VENDOR" { return token::VENDOR; }
+"*VERSION" { return token::PVERSION; }
+"*V" { return token::KW_V; }
 
-"//".*\n { /* Single line comment */
-	sta::spef_reader->incrLine();
-	}
+"//".*\n { loc->lines(); loc->step(); } /* Single line comment */
 
 "/*"	{ BEGIN COMMENT; }
 <COMMENT>{
 
 .
 
-\n	{ sta::spef_reader->incrLine(); }
+\n	{ loc->lines(); loc->step(); }
 
 "*/"	{ BEGIN INITIAL; }
 
 <<EOF>> {
-	SpefParse_error("unterminated comment");
+	error("unterminated comment");
 	BEGIN(INITIAL);
 	yyterminate();
 	}
 }
 
-"\""	{ BEGIN QUOTE; spef_token.erase(); }
+"\""	{ BEGIN QUOTE; token_.erase(); }
 <QUOTE>{
 
-\r?\n	{
-	sta::spef_reader->incrLine();
-	}
+\r?\n	{ loc->lines(); loc->step(); }
 
-"\\".	{ spef_token += yytext[1]; }
+"\\".	{ token_ += yytext[1]; }
 
 "\"" 	{
 	BEGIN INITIAL;
-	SpefParse_lval.string = sta::stringCopy(spef_token.c_str());
-	return QSTRING;
+	yylval->string = sta::stringCopy(token_.c_str());
+	return token::QSTRING;
 	}
 
-.	{ spef_token += yytext[0]; }
+.	{ token_ += yytext[0]; }
 
 <<EOF>> {
-	SpefParse_error("unterminated quoted string");
+	error("unterminated quoted string");
 	BEGIN(INITIAL);
 	yyterminate();
 	}
 }
 
-{BLANK}*\n {
-	sta::spef_reader->incrLine();
-	}
+{BLANK}*\n { loc->lines(); loc->step(); }
 
 {INTEGER} {
-	SpefParse_lval.integer = atoi(yytext);
-	return INTEGER;
+	yylval->integer = atoi(yytext);
+	return token::INTEGER;
 	}
 
 {FLOAT} {
-	SpefParse_lval.number = static_cast<float>(atof(yytext));
-	return FLOAT;
+	yylval->number = static_cast<float>(atof(yytext));
+	return token::FLOAT;
 	}
 
 {IDENT} {
-	SpefParse_lval.string = sta::spef_reader->translated(yytext);
-	return IDENT;
+	yylval->string = reader_->translated(yytext);
+	return token::IDENT;
 	}
 
 {PATH}|{NAME_PAIR} {
-	SpefParse_lval.string = sta::spef_reader->translated(yytext);
-	return NAME;
+	yylval->string = reader_->translated(yytext);
+	return token::NAME;
 	}
 
 {INDEX} {
-	SpefParse_lval.string = sta::stringCopy(yytext);
-	return INDEX;
+	yylval->string = sta::stringCopy(yytext);
+	return token::INDEX;
 	}
 
 {HCHAR} {

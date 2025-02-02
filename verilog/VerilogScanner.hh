@@ -24,14 +24,14 @@
 
 #pragma once
 
+#include "VerilogLocation.hh"
+#include "VerilogParse.hh"
+
 #ifndef __FLEX_LEXER_H
 #undef yyFlexLexer
 #define yyFlexLexer VerilogFlexLexer
 #include <FlexLexer.h>
 #endif
-
-#include "VerilogLocation.hh"
-#include "VerilogParse.hh"
 
 namespace sta {
 

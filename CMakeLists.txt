@@ -101,8 +101,7 @@ set(STA_SOURCE
   liberty/LeakagePower.cc
   liberty/Liberty.cc
   liberty/LibertyBuilder.cc
-  liberty/LibertyExpr.cc
-  liberty/LibertyExprPvt.hh
+  liberty/LibExprReader.cc
   liberty/LibertyParser.cc
   liberty/LibertyReader.cc
   liberty/LibertyWriter.cc
@@ -271,61 +270,48 @@ set(STA_TCL_FILES
 # Earlier versions of flex use 'register' declarations that are illegal in c++17.
 #find_package(FLEX 2.6.4)
 find_package(FLEX)
-find_package(BISON)
-
-# Liberty scan/parse.
-flex_target(LibertyLex ${STA_HOME}/liberty/LibertyLex.ll
-  ${CMAKE_CURRENT_BINARY_DIR}/LibertyLex.cc)
-bison_target(LibertyParse ${STA_HOME}/liberty/LibertyParse.yy
-  ${CMAKE_CURRENT_BINARY_DIR}/LibertyParse.cc
-  # centos7 bison 3.0.4 < 3.3.0 uses parser_class_name instead of api.parsr.class
-  COMPILE_FLAGS "-Wno-deprecated")
-add_flex_bison_dependency(LibertyLex LibertyParse)
-
-# LibertyExpr scan/parse.
-flex_target(LibertyExprLex ${STA_HOME}/liberty/LibertyExprLex.ll
-  ${CMAKE_CURRENT_BINARY_DIR}/LibertyExprLex.cc
-  COMPILE_FLAGS --prefix=LibertyExprLex_)
-bison_target(LibertyExprParse ${STA_HOME}/liberty/LibertyExprParse.yy
-  ${CMAKE_CURRENT_BINARY_DIR}/LibertyExprParse.cc
-  COMPILE_FLAGS --name-prefix=LibertyExprParse_
-  )
-add_flex_bison_dependency(LibertyExprLex LibertyExprParse)
-
-# Spef scan/parse.
-flex_target(SpefLex ${STA_HOME}/parasitics/SpefLex.ll ${CMAKE_CURRENT_BINARY_DIR}/SpefLex.cc
-  COMPILE_FLAGS --prefix=SpefLex_
-  )
-bison_target(SpefParse ${STA_HOME}/parasitics/SpefParse.yy ${CMAKE_CURRENT_BINARY_DIR}/SpefParse.cc
-  COMPILE_FLAGS --name-prefix=SpefParse_
-  )
-add_flex_bison_dependency(SpefLex SpefParse)
+find_package(BISON REQUIRED 3.2)
 
 # Verilog scan/parse.
 flex_target(VerilogLex ${STA_HOME}/verilog/VerilogLex.ll
   ${CMAKE_CURRENT_BINARY_DIR}/VerilogLex.cc)
 bison_target(VerilogParse ${STA_HOME}/verilog/VerilogParse.yy
-  ${CMAKE_CURRENT_BINARY_DIR}/VerilogParse.cc
-  # centos7 bison 3.0.4 < 3.3.0 uses parser_class_name instead of api.parsr.class
-  COMPILE_FLAGS "-Wno-deprecated")
+  ${CMAKE_CURRENT_BINARY_DIR}/VerilogParse.cc)
 add_flex_bison_dependency(VerilogLex VerilogParse)
+
+# Liberty scan/parse.
+flex_target(LibertyLex ${STA_HOME}/liberty/LibertyLex.ll
+  ${CMAKE_CURRENT_BINARY_DIR}/LibertyLex.cc)
+bison_target(LibertyParse ${STA_HOME}/liberty/LibertyParse.yy
+  ${CMAKE_CURRENT_BINARY_DIR}/LibertyParse.cc)
+add_flex_bison_dependency(LibertyLex LibertyParse)
+
+# Liberty Expr scan/parse.
+flex_target(LibExprLex ${STA_HOME}/liberty/LibExprLex.ll
+  ${CMAKE_CURRENT_BINARY_DIR}/LibExprLex.cc)
+bison_target(LibExprParse ${STA_HOME}/liberty/LibExprParse.yy
+  ${CMAKE_CURRENT_BINARY_DIR}/LibExprParse.cc)
+add_flex_bison_dependency(LibExprLex LibExprParse)
 
 # Sdf scan/parse.
 flex_target(SdfLex ${STA_HOME}/sdf/SdfLex.ll
   ${CMAKE_CURRENT_BINARY_DIR}/SdfLex.cc)
 bison_target(SdfParse ${STA_HOME}/sdf/SdfParse.yy
-  ${CMAKE_CURRENT_BINARY_DIR}/SdfParse.cc
-  # centos7 bison 3.0.4 < 3.3.0 uses parser_class_name instead of api.parsr.class
-  COMPILE_FLAGS "-Wno-deprecated")
+  ${CMAKE_CURRENT_BINARY_DIR}/SdfParse.cc)
 add_flex_bison_dependency(SdfLex SdfParse)
 
+# Spef scan/parse.
+flex_target(SpefLex ${STA_HOME}/parasitics/SpefLex.ll
+  ${CMAKE_CURRENT_BINARY_DIR}/SpefLex.cc)
+bison_target(SpefParse ${STA_HOME}/parasitics/SpefParse.yy
+  ${CMAKE_CURRENT_BINARY_DIR}/SpefParse.cc)
+add_flex_bison_dependency(SpefLex SpefParse)
+
 # Saif scan/parse.
-flex_target(SaifLex ${STA_HOME}/power/SaifLex.ll ${CMAKE_CURRENT_BINARY_DIR}/SaifLex.cc
-  COMPILE_FLAGS --prefix=SaifLex_
-  )
-bison_target(SaifParse ${STA_HOME}/power/SaifParse.yy ${CMAKE_CURRENT_BINARY_DIR}/SaifParse.cc
-  COMPILE_FLAGS --name-prefix=SaifParse_
-  )
+flex_target(SaifLex ${STA_HOME}/power/SaifLex.ll
+  ${CMAKE_CURRENT_BINARY_DIR}/SaifLex.cc)
+bison_target(SaifParse ${STA_HOME}/power/SaifParse.yy
+  ${CMAKE_CURRENT_BINARY_DIR}/SaifParse.cc)
 add_flex_bison_dependency(SaifLex SaifParse)
 
 ################################################################
@@ -497,8 +483,8 @@ target_sources(OpenSTA
 
   ${STA_TCL_INIT}
 
-  ${FLEX_LibertyExprLex_OUTPUTS}
-  ${BISON_LibertyExprParse_OUTPUTS}
+  ${FLEX_LibExprLex_OUTPUTS}
+  ${BISON_LibExprParse_OUTPUTS}
   ${FLEX_LibertyLex_OUTPUTS}
   ${BISON_LibertyParse_OUTPUTS}
 

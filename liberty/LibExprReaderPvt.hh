@@ -24,51 +24,41 @@
 
 #pragma once
 
-#include "LibertyLocation.hh"
-#include "LibertyParse.hh"
-
-#ifndef __FLEX_LEXER_H
-#undef yyFlexLexer
-#define yyFlexLexer LibertyFlexLexer
-#include <FlexLexer.h>
-#endif
-
 namespace sta {
 
 class Report;
-class LibertyParser;
+class LibertyCell;
+class FuncExpr;
+class LibExprScanner;
 
-class LibertyScanner : public LibertyFlexLexer
+class LibExprReader
 {
 public:
-  LibertyScanner(std::istream *stream,
-                 const char *filename,
-                 LibertyParser *reader,
-                 Report *report);
-  virtual ~LibertyScanner() {}
-
-  virtual int lex(LibertyParse::semantic_type *const yylval,
-                  LibertyParse::location_type *yylloc);
-  // YY_DECL defined in LibertyLex.ll
-  // Method body created by flex in LibertyLex.cc
-
-  // Get rid of override virtual function warning.
-  using FlexLexer::yylex;
+  LibExprReader(const char *func,
+		LibertyCell *cell,
+		const char *error_msg,
+		Report *report);
+  FuncExpr *makeFuncExprPort(const char *port_name);
+  FuncExpr *makeFuncExprOr(FuncExpr *arg1,
+			   FuncExpr *arg2);
+  FuncExpr *makeFuncExprAnd(FuncExpr *arg1,
+			    FuncExpr *arg2);
+  FuncExpr *makeFuncExprXor(FuncExpr *arg1,
+			    FuncExpr *arg2);
+  FuncExpr *makeFuncExprNot(FuncExpr *arg);
+  void setResult(FuncExpr *result);
+  FuncExpr *result() { return result_; }
+  void parseError(const char *msg);
+  size_t copyInput(char *buf,
+		   size_t max_size);
+  Report *report() const { return report_; }
 
 private:
-  bool includeBegin();
-  void fileEnd();
-  void error(const char *msg);
-
-  std::istream *stream_;
-  string filename_;
-  LibertyParser *reader_;
+  const char *func_;
+  LibertyCell *cell_;
+  const char *error_msg_;
   Report *report_;
-  string token_;
-
-  // Previous lex state for include files.
-  string filename_prev_;
-  std::istream *stream_prev_;
+  FuncExpr *result_;
 };
 
 } // namespace

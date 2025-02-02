@@ -44,7 +44,8 @@ void
 sta::VerilogParse::error(const location_type &loc,
                          const string &msg)
 {
-  reader->report()->fileError(164,reader->filename(),loc.begin.line,"%s",msg.c_str());
+  reader->report()->fileError(164,reader->filename(),loc.begin.line,
+                              "%s",msg.c_str());
 }
 %}
 
@@ -57,11 +58,7 @@ sta::VerilogParse::error(const location_type &loc,
 %define parse.assert
 %parse-param { VerilogScanner *scanner }
 %parse-param { VerilogReader *reader }
-
-// bison 3.0.4 for centos7
-%define parser_class_name {VerilogParse}
-// bison 3.3.2
-//%define api.parser.class {VerilogParse}
+%define api.parser.class {VerilogParse}
 
 %union {
   int ival;

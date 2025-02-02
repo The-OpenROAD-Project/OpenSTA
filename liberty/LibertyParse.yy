@@ -25,7 +25,7 @@
 %{
 #include <cstdlib>
 
-#include "StringUtil.hh"
+#include "Report.hh"
 #include "liberty/LibertyParser.hh"
 #include "liberty/LibertyScanner.hh"
 
@@ -36,6 +36,15 @@
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
 #define loc_line(loc) loc.begin.line
+
+void
+sta::LibertyParse::error(const location_type &loc,
+                         const string &msg)
+{
+  reader->report()->fileError(164, reader->filename().c_str(),
+                              loc.begin.line, "%s", msg.c_str());
+}
+
 %}
 
 %require  "3.2"
@@ -47,11 +56,7 @@
 %define parse.assert
 %parse-param { LibertyScanner *scanner }
 %parse-param { LibertyParser *reader }
-
-// bison 3.0.4 for centos7
-%define parser_class_name {LibertyParse}
-// bison 3.3.2
-//%define api.parser.class {LibertyParse}
+%define api.parser.class {LibertyParse}
 
 %expect 2
 

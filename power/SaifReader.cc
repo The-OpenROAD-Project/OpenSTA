@@ -29,23 +29,19 @@
 
 #include "Error.hh"
 #include "Debug.hh"
+#include "Stats.hh"
 #include "Report.hh"
 #include "Network.hh"
 #include "PortDirection.hh"
 #include "Sdc.hh"
 #include "Power.hh"
 #include "power/SaifReaderPvt.hh"
+#include "power/SaifScanner.hh"
 #include "Sta.hh"
-
-extern int
-SaifParse_parse();
-extern int SaifParse_debug;
 
 namespace sta {
 
 using std::min;
-
-SaifReader *saif_reader = nullptr;
 
 bool
 readSaif(const char *filename,
@@ -53,9 +49,7 @@ readSaif(const char *filename,
          Sta *sta)
 {
   SaifReader reader(filename, scope, sta);
-  saif_reader = &reader;
   bool success = reader.read();
-  saif_reader = nullptr;
   return success;
 }
 
@@ -65,8 +59,6 @@ SaifReader::SaifReader(const char *filename,
   StaState(sta),
   filename_(filename),
   scope_(scope),
-  stream_(nullptr),
-  line_(1),
   divider_('/'),
   escape_('\\'),
   timescale_(1.0E-9F),		// default units of ns
@@ -76,23 +68,16 @@ SaifReader::SaifReader(const char *filename,
 {
 }
 
-SaifReader::~SaifReader()
-{
-}
-
 bool
 SaifReader::read()
 {
-  // Use zlib to uncompress gzip'd files automagically.
-  stream_ = gzopen(filename_, "rb");
-  if (stream_) {
-    saif_scope_.clear();
-    in_scope_level_ = 0;
-    annotated_pins_.clear();
-    //::SaifParse_debug = 1;
+  gzstream::igzstream stream(filename_);
+  if (stream.is_open()) {
+    Stats stats(debug_, report_);
+    SaifScanner scanner(&stream, filename_, this, report_);
+    SaifParse parser(&scanner, this);
     // yyparse returns 0 on success.
-    bool success = (::SaifParse_parse() == 0);
-    gzclose(stream_);
+    bool success = (parser.parse() == 0);
     report_->reportLine("Annotated %zu pin activities.", annotated_pins_.size());
     return success;
   }
@@ -122,10 +107,10 @@ SaifReader::setTimescale(uint64_t multiplier,
     else if (stringEq(units, "fs"))
       timescale_ = multiplier * 1E-15;
     else
-      saifError(180, "TIMESCALE units not us, ns, or ps.");
+      report_->error(180, "SAIF TIMESCALE units not us, ns, or ps.");
   }
   else
-    saifError(181, "TIMESCALE multiplier not 1, 10, or 100.");
+    report_->error(181, "SAIF TIMESCALE multiplier not 1, 10, or 100.");
   stringDelete(units);
 }
 
@@ -221,72 +206,23 @@ SaifReader::unescaped(const char *token)
   return unescaped;
 }
 
-void
-SaifReader::incrLine()
+////////////////////////////////////////////////////////////////
+
+SaifScanner::SaifScanner(std::istream *stream,
+                         const string &filename,
+                         SaifReader *reader,
+                         Report *report) :
+  yyFlexLexer(stream),
+  filename_(filename),
+  reader_(reader),
+  report_(report)
 {
-  line_++;
 }
 
 void
-SaifReader::getChars(char *buf,
-		    size_t &result,
-		    size_t max_size)
+SaifScanner::error(const char *msg)
 {
-  char *status = gzgets(stream_, buf, max_size);
-  if (status == Z_NULL)
-    result = 0;  // YY_nullptr
-  else
-    result = strlen(buf);
-}
-
-void
-SaifReader::getChars(char *buf,
-		    int &result,
-		    size_t max_size)
-{
-  char *status = gzgets(stream_, buf, max_size);
-  if (status == Z_NULL)
-    result = 0;  // YY_nullptr
-  else
-    result = strlen(buf);
-}
-
-void
-SaifReader::notSupported(const char *feature)
-{
-  saifError(193, "%s not supported.", feature);
-}
-
-void
-SaifReader::saifWarn(int id,
-                   const char *fmt, ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  report_->vfileWarn(id, filename_, line_, fmt, args);
-  va_end(args);
-}
-
-void
-SaifReader::saifError(int id,
-                    const char *fmt, ...)
-{
-  va_list args;
-  va_start(args, fmt);
-  report_->vfileError(id, filename_, line_, fmt, args);
-  va_end(args);
+  report_->fileError(1866, filename_.c_str(), lineno(), "%s", msg);
 }
 
 } // namespace
-
-// Global namespace
-
-void saifFlushBuffer();
-
-int
-SaifParse_error(const char *msg)
-{
-  saifFlushBuffer();
-  sta::saif_reader->saifError(196, "%s.\n", msg);
-  return 0;
-}

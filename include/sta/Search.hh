@@ -341,9 +341,9 @@ public:
 		       Arrival insertion,
 		       const PathAnalysisPt *path_ap);
   // Timing derated arc delay for a path analysis point.
-  ArcDelay deratedDelay(Vertex *from_vertex,
-			TimingArc *arc,
-			Edge *edge,
+  ArcDelay deratedDelay(const Vertex *from_vertex,
+			const TimingArc *arc,
+			const Edge *edge,
 			bool is_clk,
 			const PathAnalysisPt *path_ap);
 
@@ -501,9 +501,9 @@ protected:
   void findArrivalsSeed();
   void seedFilterStarts();
   bool hasEnabledChecks(Vertex *vertex) const;
-  virtual float timingDerate(Vertex *from_vertex,
-			     TimingArc *arc,
-			     Edge *edge,
+  virtual float timingDerate(const Vertex *from_vertex,
+			     const TimingArc *arc,
+			     const Edge *edge,
 			     bool is_clk,
 			     const PathAnalysisPt *path_ap);
   void deletePaths();

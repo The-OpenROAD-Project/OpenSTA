@@ -144,13 +144,13 @@ protected:
   void seedNoDrvrSlew(Vertex *drvr_vertex,
 		      const Pin *drvr_pin,
 		      const RiseFall *rf,
-		      DcalcAnalysisPt *dcalc_ap,
+		      const DcalcAnalysisPt *dcalc_ap,
 		      ArcDelayCalc *arc_delay_calc);
   void seedNoDrvrCellSlew(Vertex *drvr_vertex,
 			  const Pin *drvr_pin,
 			  const RiseFall *rf,
-			  InputDrive *drive,
-			  DcalcAnalysisPt *dcalc_ap,
+			  const InputDrive *drive,
+			  const DcalcAnalysisPt *dcalc_ap,
 			  ArcDelayCalc *arc_delay_calc);
   void seedLoadSlew(Vertex *vertex);
   void setInputPortWireDelays(Vertex *vertex);

@@ -49,20 +49,20 @@ public:
   // path(0) is the startpoint.
   // path(size()-1) is the endpoint.
   const PathRef *path(size_t index) const;
-  TimingArc *prevArc(size_t index);
+  TimingArc *prevArc(size_t index) const;
   // Returns the path start point.
   //  Register/Latch Q pin
   //  Input pin
-  PathRef *startPath();
-  PathRef *startPrevPath();
-  PathRef *endPath();
-  TimingArc *startPrevArc();
+  const PathRef *startPath() const;
+  const PathRef *startPrevPath() const;
+  const PathRef *endPath() const;
+  TimingArc *startPrevArc() const;
   size_t startIndex() const;
-  void clkPath(PathRef &clk_path);
+  void clkPath(PathRef &clk_path) const;
   void latchPaths(// Return values.
-		  PathRef *&d_path,
-		  PathRef *&q_path,
-		  Edge *&d_q_edge);
+		  const PathRef *&d_path,
+		  const PathRef *&q_path,
+		  Edge *&d_q_edge) const;
 
 protected:
   void expandGenclk(PathRef *clk_path);

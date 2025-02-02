@@ -164,31 +164,31 @@ PathExpanded::path(size_t index) const
 }
 
 TimingArc *
-PathExpanded::prevArc(size_t index)
+PathExpanded::prevArc(size_t index) const
 {
   return prev_arcs_[pathsIndex(index)];
 }
 
-PathRef *
-PathExpanded::startPath()
+const PathRef *
+PathExpanded::startPath() const
 {
   return &paths_[start_index_];
 }
 
-PathRef *
-PathExpanded::endPath()
+const PathRef *
+PathExpanded::endPath() const
 {
   return &paths_[0];
 }
 
 TimingArc *
-PathExpanded::startPrevArc()
+PathExpanded::startPrevArc() const
 {
   return prev_arcs_[start_index_];
 }
 
-PathRef *
-PathExpanded::startPrevPath()
+const PathRef *
+PathExpanded::startPrevPath() const
 {
   size_t start1 = start_index_ + 1;
   if (start1 < paths_.size())
@@ -198,11 +198,11 @@ PathExpanded::startPrevPath()
 }
 
 void
-PathExpanded::clkPath(PathRef &clk_path)
+PathExpanded::clkPath(PathRef &clk_path) const
 {
   const Latches *latches = sta_->latches();
-  PathRef *start = startPath();
-  TimingArc *prev_arc = startPrevArc();
+  const PathRef *start = startPath();
+  const TimingArc *prev_arc = startPrevArc();
   if (start && prev_arc) {
     TimingRole *role = prev_arc->role();
     if (role == TimingRole::latchDtoQ()) {
@@ -215,7 +215,7 @@ PathExpanded::clkPath(PathRef &clk_path)
     }
     else if (role == TimingRole::regClkToQ()
 	     || role == TimingRole::latchEnToQ()) {
-      PathRef *start_prev = startPrevPath();
+      const PathRef *start_prev = startPrevPath();
       if (start_prev)
         clk_path.init(start_prev);
     }
@@ -226,15 +226,15 @@ PathExpanded::clkPath(PathRef &clk_path)
 
 void
 PathExpanded::latchPaths(// Return values.
-			 PathRef *&d_path,
-			 PathRef *&q_path,
-			 Edge *&d_q_edge)
+			 const PathRef *&d_path,
+			 const PathRef *&q_path,
+			 Edge *&d_q_edge) const
 {
   d_path = nullptr;
   q_path = nullptr;
   d_q_edge = nullptr;
-  PathRef *start = startPath();
-  TimingArc *prev_arc = startPrevArc();
+  const PathRef *start = startPath();
+  const TimingArc *prev_arc = startPrevArc();
   if (start
       && prev_arc
       && prev_arc->role() == TimingRole::latchDtoQ()) {

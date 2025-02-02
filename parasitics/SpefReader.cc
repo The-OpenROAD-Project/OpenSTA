@@ -40,16 +40,9 @@
 #include "ArcDelayCalc.hh"
 #include "SpefReaderPvt.hh"
 #include "SpefNamespace.hh"
-
-int
-SpefParse_parse();
-void
-spefResetScanner();
+#include "parasitics/SpefScanner.hh"
 
 namespace sta {
-
-// Referenced by parser.
-SpefReader *spef_reader;
 
 bool
 readSpefFile(const char *filename,
@@ -63,35 +56,14 @@ readSpefFile(const char *filename,
 	     const MinMaxAll *min_max,
              StaState *sta)
 {
-  bool success = false;
-  const ArcDelayCalc *arc_delay_calc = sta->arcDelayCalc();
-  if (reduce && !arc_delay_calc->reduceSupported()) {
-    sta->report()->warn(1658, "Delay calculator %s does not support reduction.",
-                        arc_delay_calc->name());
-    reduce = false;
-  }
-  // Use zlib to uncompress gzip'd files automagically.
-  gzFile stream = gzopen(filename, "rb");
-  if (stream) {
-    Stats stats(sta->debug(), sta->report());
-    SpefReader reader(filename, stream, instance, ap,
-		      pin_cap_included, keep_coupling_caps, coupling_cap_factor,
-		      reduce, corner, min_max, sta);
-    spef_reader = &reader;
-    ::spefResetScanner();
-    // yyparse returns 0 on success.
-    success = (::SpefParse_parse() == 0);
-    gzclose(stream);
-    spef_reader = nullptr;
-    stats.report("Read spef");
-  }
-  else
-    throw FileNotReadable(filename);
+  SpefReader reader(filename, instance, ap,
+                    pin_cap_included, keep_coupling_caps, coupling_cap_factor,
+                    reduce, corner, min_max, sta);
+  bool success = reader.read();
   return success;
 }
 
 SpefReader::SpefReader(const char *filename,
-		       gzFile stream,
 		       Instance *instance,
 		       ParasiticAnalysisPt *ap,
 		       bool pin_cap_included,
@@ -110,8 +82,6 @@ SpefReader::SpefReader(const char *filename,
   reduce_(reduce),
   corner_(corner),
   min_max_(min_max),
-  stream_(stream),
-  line_(1),
   // defaults
   divider_('\0'),
   delimiter_('\0'),
@@ -141,6 +111,25 @@ SpefReader::~SpefReader()
     stringDelete(name);
 }
 
+bool
+SpefReader::read()
+{
+  bool success;
+  gzstream::igzstream stream(filename_);
+  if (stream.is_open()) {
+    Stats stats(debug_, report_);
+    SpefScanner scanner(&stream, filename_, this, report_);
+    scanner_ = &scanner;
+    SpefParse parser(&scanner, this);
+    // yyparse returns 0 on success.
+    success = (parser.parse() == 0);
+    stats.report("Read spef");
+  }
+  else
+    throw FileNotReadable(filename_);
+  return success;
+}
+
 void
 SpefReader::setDivider(char divider)
 {
@@ -154,7 +143,8 @@ SpefReader::setDelimiter(char delimiter)
 }
 
 void
-SpefReader::setBusBrackets(char left, char right)
+SpefReader::setBusBrackets(char left,
+                           char right)
 {
   if (!((left == '[' && right == ']')
 	|| (left == '{' && right == '}')
@@ -196,30 +186,6 @@ SpefReader::findPortPinRelative(const char *name)
   return network_->findPin(instance_, name);
 }
 
-void
-SpefReader::getChars(char *buf,
-		     int &result,
-		     size_t max_size)
-{
-  char *status = gzgets(stream_, buf, max_size);
-  if (status == Z_NULL)
-    result = 0;  // YY_nullptr
-  else
-    result = static_cast<int>(strlen(buf));
-}
-
-void
-SpefReader::getChars(char *buf,
-		     size_t &result,
-		     size_t max_size)
-{
-  char *status = gzgets(stream_, buf, max_size);
-  if (status == Z_NULL)
-    result = 0;  // YY_nullptr
-  else
-    result = strlen(buf);
-}
-
 char *
 SpefReader::translated(const char *token)
 {
@@ -228,17 +194,11 @@ SpefReader::translated(const char *token)
 }
 
 void
-SpefReader::incrLine()
-{
-  line_++;
-}
-
-void
 SpefReader::warn(int id, const char *fmt, ...)
 {
   va_list args;
   va_start(args, fmt);
-  report_->vfileWarn(id, filename_, line_, fmt, args);
+  report_->vfileWarn(id, filename_, scanner_->line(), fmt, args);
   va_end(args);
 }
 
@@ -644,17 +604,23 @@ SpefTriple::value(int index) const
     return values_[0];
 }
 
-} // namespace
-
 ////////////////////////////////////////////////////////////////
-// Global namespace
 
-void spefFlushBuffer();
-
-int
-SpefParse_error(const char *msg)
+SpefScanner::SpefScanner(std::istream *stream,
+                         const string &filename,
+                         SpefReader *reader,
+                         Report *report) :
+  yyFlexLexer(stream),
+  filename_(filename),
+  reader_(reader),
+  report_(report)
 {
-  spefFlushBuffer();
-  sta::spef_reader->warn(1657, "%s.", msg);
-  return 0;
 }
+
+void
+SpefScanner::error(const char *msg)
+{
+  report_->fileError(1866, filename_.c_str(), lineno(), "%s", msg);
+}
+
+} // namespace
