@@ -45,7 +45,7 @@ proc_redirect read_sdc {
   set prev_filename [info script]
   try {
     info script $filename
-    source_ $filename $echo $verbose
+    source_ $filename $echo 0
   } finally {
     info script $prev_filename
   }
