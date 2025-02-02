@@ -116,8 +116,6 @@ public:
   Required *requireds(Vertex *vertex);
   void deleteRequireds(Vertex *vertex,
                        uint32_t count);
-  size_t arrivalCount() const { return arrivals_.size(); }
-  size_t requiredCount() const { return requireds_.size(); }
   PathVertexRep *makePrevPaths(Vertex *vertex,
 			       uint32_t count);
   PathVertexRep *prevPaths(Vertex *vertex) const;
@@ -217,8 +215,8 @@ public:
   void removeDelaySlewAnnotations();
   VertexSet *regClkVertices() { return reg_clk_vertices_; }
 
-  static const int vertex_level_bits = 24;
-  static const int vertex_level_max = (1<<vertex_level_bits)-1;
+  static constexpr int vertex_level_bits = 24;
+  static constexpr int vertex_level_max = (1<<vertex_level_bits)-1;
 
 protected:
   void makeVerticesAndEdges();

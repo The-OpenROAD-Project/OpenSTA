@@ -84,18 +84,6 @@ private:
 %inline %{
 
 int
-graph_vertex_count()
-{
-  return Sta::sta()->ensureGraph()->vertexCount();
-}
-
-int
-graph_edge_count()
-{
-  return Sta::sta()->ensureGraph()->edgeCount();
-}
-
-int
 graph_arc_count()
 {
   return Sta::sta()->ensureGraph()->arcCount();
