@@ -117,6 +117,14 @@ clock_min_period()
   return power->clockMinPeriod();
 }
 
+InstanceSeq
+highest_power_instances(size_t count,
+                        const Corner *corner)
+{
+  Power *power = Sta::sta()->power();
+  return power->highestPowerInstances(count, corner);
+}
+
 ////////////////////////////////////////////////////////////////
 
 void

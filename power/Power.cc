@@ -321,6 +321,32 @@ Power::powerInside(const Instance *hinst,
   delete child_iter;
 }
 
+typedef std::pair<Instance*, float> InstPower;
+
+InstanceSeq
+Power::highestPowerInstances(size_t count,
+                             const Corner *corner)
+{
+  vector<InstPower> inst_pwrs;
+  LeafInstanceIterator *inst_iter = network_->leafInstanceIterator();
+  while (inst_iter->hasNext()) {
+    Instance *inst = inst_iter->next();
+    PowerResult pwr = power(inst, corner);
+    inst_pwrs.push_back({inst, pwr.total()});
+  }
+  delete inst_iter;
+
+  sort(inst_pwrs.begin(), inst_pwrs.end(), [](InstPower &inst_pwr1,
+                                              InstPower &inst_pwr2) {
+    return inst_pwr1.second > inst_pwr2.second;
+  });
+
+  InstanceSeq insts;
+  for (size_t i = 0; i < count; i++)
+    insts.push_back(inst_pwrs[i].first);
+  return insts;
+}
+
 ////////////////////////////////////////////////////////////////
 
 class ActivitySrchPred : public SearchPredNonLatch2

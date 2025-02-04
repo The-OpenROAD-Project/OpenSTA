@@ -100,6 +100,8 @@ public:
   void reportActivityAnnotation(bool report_unannotated,
                                 bool report_annotated);
   float clockMinPeriod();
+  InstanceSeq highestPowerInstances(size_t count,
+                                    const Corner *corner);
 
 protected:
   PwrActivity &activity(const Pin *pin);
