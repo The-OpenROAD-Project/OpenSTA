@@ -32,6 +32,7 @@ namespace eval sta {
 
 define_cmd_args "report_power" \
   { [-instances instances]\
+      [-highest_power_instances count]\
       [-corner corner]\
       [-digits digits]\
       [> filename] [>> filename] }
@@ -40,7 +41,7 @@ proc_redirect report_power {
   global sta_report_default_digits
 
   parse_key_args "report_power" args \
-    keys {-instances -corner -digits} flags {}
+    keys {-instances -highest_power_instances -corner -digits} flags {}
 
   check_argc_eq0 "report_power" $args
 
@@ -57,6 +58,11 @@ proc_redirect report_power {
 
   if { [info exists keys(-instances)] } {
     set insts [get_instances_error "-instances" $keys(-instances)]
+    report_power_insts $insts $corner $digits
+  } elseif { [info exists keys(-highest_power_instances)] } {
+    set count $keys(-highest_power_instances)
+    check_positive_integer "-highest_power_instances" $count
+    set insts [highest_power_instances $count $corner]
     report_power_insts $insts $corner $digits
   } else {
     report_power_design $corner $digits

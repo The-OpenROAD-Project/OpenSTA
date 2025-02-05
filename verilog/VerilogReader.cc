@@ -146,7 +146,7 @@ VerilogReader::VerilogReader(NetworkReader *network) :
 {
   network->setLinkFunc([=] (const char *top_cell_name,
                             bool make_black_boxes) -> Instance* {
-    return linkNetwork(top_cell_name, make_black_boxes);
+    return linkNetwork(top_cell_name, make_black_boxes, true);
   });
   constant10_max_ = stdstrPrint("%llu", std::numeric_limits<VerilogConstant10>::max());
 }
@@ -1701,7 +1701,8 @@ private:
 
 Instance *
 VerilogReader::linkNetwork(const char *top_cell_name,
-			   bool make_black_boxes)
+                           bool make_black_boxes,
+                           bool delete_modules)
 {
   if (library_) {
     Cell *top_cell = network_->findCell(library_, top_cell_name);
@@ -1729,7 +1730,8 @@ VerilogReader::linkNetwork(const char *top_cell_name,
       }
       makeModuleInstBody(module, top_instance, &bindings, make_black_boxes);
       bool errors = reportLinkErrors();
-      deleteModules();
+      if (delete_modules)
+        deleteModules();
       if (errors) {
 	network_->deleteInstance(top_instance);
 	return nullptr;
