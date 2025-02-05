@@ -147,7 +147,8 @@ public:
 					  int to_index);
   VerilogModule *module(Cell *cell);
   Instance *linkNetwork(const char *top_cell_name,
-			bool make_black_boxes);
+			bool make_black_boxes,
+                        bool delete_modules);
   const char *filename() const { return filename_.c_str(); }
   void incrLine();
   Report *report() const { return report_; }
