@@ -11,7 +11,7 @@ RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo \
 RUN sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo \
     && sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo \
     && sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo \ 
-    && yum install -y devtoolset-11 wget cmake3 make eigen3-devel tcl-devel swig3 flex zlib-devel valgrind \
+    && yum install -y devtoolset-11 wget cmake3 make eigen3-devel tcl swig3 flex zlib-devel valgrind \
     && yum clean -y all
 
 # Download Bison
@@ -39,6 +39,18 @@ RUN source /opt/rh/devtoolset-11/enable && \
     make -j`nproc` && \
     make install
 
+# Download TCL
+RUN wget http://prdownloads.sourceforge.net/tcl/tcl8.6.16-src.tar.gz && \
+    tar -xvf tcl8.6.16-src.tar.gz && \
+    rm tcl8.6.16-src.tar.gz
+
+# Build TCL
+RUN source /opt/rh/devtoolset-11/enable && \
+    cd tcl8.6.16 && \
+    ./unix/configure && \
+    make -j`nproc` && \
+    make install
+
 FROM base-dependencies AS builder
 
 COPY . /OpenSTA
@@ -52,4 +64,4 @@ RUN source /opt/rh/devtoolset-11/enable && \
     make -j`nproc`
 
 # Run sta on entry
-ENTRYPOINT ["OpenSTA/app/sta"]
+ENTRYPOINT ["/OpenSTA/app/sta"]
