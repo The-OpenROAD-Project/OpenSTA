@@ -789,6 +789,22 @@ SdcNetwork::findInstance(const char *path_name) const
   return child;
 }
 
+Instance *
+SdcNetwork::findInstanceRelative(const Instance *inst,
+                                 const char *path_name) const
+{
+  Instance *inst1 = network_->findInstanceRelative(inst, path_name);
+  if (inst1 == nullptr) {
+    string path_name1 = escapeBrackets(path_name, this);
+    inst1 = network_->findInstanceRelative(inst, path_name1.c_str());
+    if (inst1 == nullptr) {
+      string path_name2 = escapeDividers(path_name1.c_str(), network_);
+      inst1 = network_->findInstanceRelative(inst, path_name2.c_str());
+    }
+  }
+  return inst1;
+}
+
 InstanceSeq
 SdcNetwork::findInstancesMatching(const Instance *context,
 				  const PatternMatch *pattern) const
@@ -835,17 +851,34 @@ SdcNetwork::findNet(const char *path_name) const
   parsePath(path_name, inst, net_name);
   if (inst == nullptr)
     inst = network_->topInstance();
-  return findNet(inst, net_name);
+  return findNetRelative(inst, net_name);
 }
 
 Net *
 SdcNetwork::findNet(const Instance *instance,
-		    const char *net_name) const
+                    const char *net_name) const
 {
   Net *net = network_->findNet(instance, net_name);
   if (net == nullptr) {
     string net_name1 = escapeBrackets(net_name, this);
-    net = network_->findNet(instance, net_name1.c_str());
+    string net_name2 = escapeDividers(net_name1.c_str(), network_);
+    net = network_->findNet(instance, net_name2.c_str());
+  }
+  return net;
+}
+
+Net *
+SdcNetwork::findNetRelative(const Instance *inst,
+                            const char *path_name) const
+{
+  Net *net = network_->findNetRelative(inst, path_name);
+  if (net == nullptr) {
+    string path_name1 = escapeBrackets(path_name, this);
+    net = network_->findNetRelative(inst, path_name1.c_str());
+    if (net == nullptr) {
+      string path_name2 = escapeDividers(path_name1.c_str(), network_);
+      net = network_->findNetRelative(inst, path_name2.c_str());
+    }
   }
   return net;
 }

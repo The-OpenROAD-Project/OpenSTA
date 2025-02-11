@@ -106,9 +106,6 @@ SpefReader::~SpefReader()
     delete design_flow_;
     design_flow_ = nullptr;
   }
-
-  for (const auto [index, name] : name_map_)
-    stringDelete(name);
 }
 
 bool
@@ -121,6 +118,7 @@ SpefReader::read()
     SpefScanner scanner(&stream, filename_, this, report_);
     scanner_ = &scanner;
     SpefParse parser(&scanner, this);
+    //parser.set_debug_level(1);
     // yyparse returns 0 on success.
     success = (parser.parse() == 0);
     stats.report("Read spef");
@@ -160,7 +158,7 @@ SpefReader::setBusBrackets(char left,
 Instance *
 SpefReader::findInstanceRelative(const char *name)
 {
-  return network_->findInstanceRelative(instance_, name);
+  return sdc_network_->findInstanceRelative(instance_, name);
 }
 
 Net *
@@ -257,21 +255,21 @@ SpefReader::setInductScale(float scale,
 }
 
 void
-SpefReader::makeNameMapEntry(char *index,
-			     char *name)
+SpefReader::makeNameMapEntry(const char *index,
+			     const char *name)
 {
   int i = atoi(index + 1);
   name_map_[i] = name;
 }
 
-char *
-SpefReader::nameMapLookup(char *name)
+const char *
+SpefReader::nameMapLookup(const char *name)
 {
   if (name && name[0] == '*') {
     int index = atoi(name + 1);
-    auto itr = name_map_.find(index);
+    const auto &itr = name_map_.find(index);
     if (itr != name_map_.end())
-      return itr->second;
+      return itr->second.c_str();
     else {
       warn(1645, "no name map entry for %d.", index);
       return nullptr;
@@ -310,19 +308,19 @@ SpefReader::findPin(char *name)
     char *delim = strrchr(name, delimiter_);
     if (delim) {
       *delim = '\0';
-      name = nameMapLookup(name);
-      if (name) {
-        Instance *inst = findInstanceRelative(name);
+      const char *name1 = nameMapLookup(name);
+      if (name1) {
+        Instance *inst = findInstanceRelative(name1);
         // Replace delimiter for error messages.
         *delim = delimiter_;
         const char *port_name = delim + 1;
         if (inst) {
           pin = network_->findPin(inst, port_name);
           if (pin == nullptr)
-            warn(1647, "pin %s not found.", name);
+            warn(1647, "pin %s not found.", name1);
         }
         else
-          warn(1648, "instance %s not found.", name);
+          warn(1648, "instance %s not found.", name1);
       }
     }
     else {
@@ -335,14 +333,14 @@ SpefReader::findPin(char *name)
 }
 
 Net *
-SpefReader::findNet(char *name)
+SpefReader::findNet(const char *name)
 {
   Net *net = nullptr;
-  name = nameMapLookup(name);
-  if (name) {
-    net = findNetRelative(name);
+  const char *name1 = nameMapLookup(name);
+  if (name1) {
+    net = findNetRelative(name1);
     if (net == nullptr)
-      warn(1650, "net %s not found.", name);
+      warn(1650, "net %s not found.", name1);
   }
   return net;
 }
@@ -447,26 +445,26 @@ SpefReader::findParasiticNode(char *name,
     if (delim) {
       *delim = '\0';
       char *name2 = delim + 1;
-      name = nameMapLookup(name);
-      if (name) {
-        Instance *inst = findInstanceRelative(name);
+      const char *name1 = nameMapLookup(name);
+      if (name1) {
+        Instance *inst = findInstanceRelative(name1);
         if (inst) {
           // <instance>:<port>
           Pin *pin = network_->findPin(inst, name2);
           if (pin) {
             if (local_only
                 && !network_->isConnected(net_, pin))
-              warn(1651, "%s not connected to net %s.", name, network_->pathName(net_));
+              warn(1651, "%s not connected to net %s.", name1, network_->pathName(net_));
             return parasitics_->ensureParasiticNode(parasitic_, pin, network_);
           }
           else {
             // Replace delimiter for error message.
             *delim = delimiter_;
-            warn(1652, "pin %s not found.", name);
+            warn(1652, "pin %s not found.", name1);
           }
         }
         else {
-          Net *net = findNet(name);
+          Net *net = findNet(name1);
           // Replace delimiter for error messages.
           *delim = delimiter_;
           if (net) {
@@ -477,25 +475,29 @@ SpefReader::findParasiticNode(char *name,
               if (local_only
                   && !network_->isConnected(net, net_))
                 warn(1653, "%s not connected to net %s.",
-                     name,
+                     name1,
                      network_->pathName(net_));
               return parasitics_->ensureParasiticNode(parasitic_, net, id, network_);
             }
             else
-              warn(1654, "node %s not a pin or net:number", name);
+              warn(1654, "node %s not a pin or net:number", name1);
           }
         }
       }
     }
     else {
       // <top_level_port>
-      name = nameMapLookup(name);
-      Pin *pin = findPortPinRelative(name);
-      if (pin) {
-        if (local_only
-            && !network_->isConnected(net_, pin))
-          warn(1655, "%s not connected to net %s.", name, network_->pathName(net_));
-        return parasitics_->ensureParasiticNode(parasitic_, pin, network_);
+      const char *name1 = nameMapLookup(name);
+      if (name1) {
+        Pin *pin = findPortPinRelative(name1);
+        if (pin) {
+          if (local_only
+              && !network_->isConnected(net_, pin))
+            warn(1655, "%s not connected to net %s.", name1, network_->pathName(net_));
+          return parasitics_->ensureParasiticNode(parasitic_, pin, network_);
+        }
+        else
+          warn(1656, "pin %s not found.", name1);
       }
       else
         warn(1656, "pin %s not found.", name);

@@ -210,8 +210,8 @@ public:
   virtual bool isTopInstance(const Instance *inst) const;
   virtual Instance *findInstance(const char *path_name) const;
   // Find instance relative to hierarchical instance.
-  Instance *findInstanceRelative(const Instance *inst,
-				 const char *path_name) const;
+  virtual Instance *findInstanceRelative(const Instance *inst,
+                                         const char *path_name) const;
   // Default implementation uses linear search.
   virtual InstanceSeq findInstancesMatching(const Instance *context,
                                             const PatternMatch *pattern) const;
@@ -363,8 +363,8 @@ public:
   virtual ObjectId id(const Net *net) const = 0;
   virtual Net *findNet(const char *path_name) const;
   // Find net relative to hierarchical instance.
-  Net *findNetRelative(const Instance *inst,
-		       const char *path_name) const;
+  virtual Net *findNetRelative(const Instance *inst,
+                               const char *path_name) const;
   // Default implementation uses linear search.
   virtual NetSeq findNetsMatching(const Instance *context,
                                   const PatternMatch *pattern) const;

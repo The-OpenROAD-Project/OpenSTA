@@ -208,9 +208,13 @@ public:
   const char *pathName(const Net *net) const override;
 
   Instance *findInstance(const char *path_name) const override;
+  Instance *findInstanceRelative(const Instance *inst,
+                                 const char *path_name) const override;
   InstanceSeq findInstancesMatching(const Instance *context,
                                     const PatternMatch *pattern) const override;
   Net *findNet(const char *path_name) const override;
+  Net *findNetRelative(const Instance *instance,
+                       const char *net_name) const override;
   Net *findNet(const Instance *instance,
                const char *net_name) const override;
   NetSeq findNetsMatching(const Instance *parent,

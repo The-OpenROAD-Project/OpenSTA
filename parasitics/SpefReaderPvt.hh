@@ -41,7 +41,9 @@ class SpefTriple;
 class Corner;
 class SpefScanner;
 
-typedef std::map<int, char*, std::less<int>> SpefNameMap;
+using std::string;
+
+typedef std::map<int, string> SpefNameMap;
 
 class SpefReader : public StaState
 {
@@ -79,12 +81,12 @@ public:
 		   const char *units);
   void setInductScale(float scale,
 		      const char *units);
-  void makeNameMapEntry(char *index,
-			char *name);
-  char *nameMapLookup(char *index);
+  void makeNameMapEntry(const char *index,
+			const char *name);
+  const char *nameMapLookup(const char *index);
   void setDesignFlow(StringSeq *flow_keys);
   Pin *findPin(char *name);
-  Net *findNet(char *name);
+  Net *findNet(const char *name);
   void rspfBegin(Net *net,
 		 SpefTriple *total_cap);
   void rspfFinish();
