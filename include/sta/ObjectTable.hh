@@ -173,7 +173,6 @@ void
 ObjectTable<TYPE>::destroy(TYPE *object)
 {
   ObjectId object_id = objectId(object);
-  object->~TYPE();
   size_--;
   freePush(object, object_id);
 }

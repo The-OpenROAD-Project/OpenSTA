@@ -63,8 +63,7 @@ compiled locally.  Derivative works are supported as long as they
 adhere to the GPL license requirements.  However, OpenSTA is not
 supported by a public community of developers as many other open
 source projects are. The copyright and develpment are exclusive to
-Parallax Software. Contributors must signing the Contributor License
-Agreement (doc/CLA.txt) when submitting pull requests.
+Parallax Software.
 
 Removing copyright and license notices from OpenSTA sources (or any
 other open source project for that matter) is illegal. This should be
@@ -257,8 +256,12 @@ Contributions that claim 4% performance improvements in OpenROAD flow
 scripts will largely be ignored. Small performance improvements
 simply do not justify the time requied to audit and verify the changes.
 
-Contributions that add dependencies on external libraries like boost
-will not be accepted.
+Contributions that add dependencies on external libraries like boost,
+abseil and Intel TBB will not be accepted.
+
+As the author of OpenSTA I vastly prefer writing code to reviewing
+code.  I don't have the patience to go round after round to correct
+code formatting that is not consistent with the rest of the code.
 
 ## Authors
 

@@ -408,7 +408,11 @@ Search::deletePaths()
 {
   debugPrint(debug_, "search", 1, "delete paths");
   if (arrivals_exist_) {
-    graph_->deletePaths();
+    VertexIterator vertex_iter(graph_);
+    while (vertex_iter.hasNext()) {
+      Vertex *vertex = vertex_iter.next();
+      deletePaths(vertex);
+    }
     filtered_arrivals_->clear();
     arrivals_exist_ = false;
   }
@@ -428,10 +432,8 @@ void
 Search::deletePaths(Vertex *vertex)
 {
   TagGroup *tag_group = tagGroup(vertex);
-  if (tag_group) {
-    int arrival_count = tag_group->arrivalCount();
-    graph_->deletePaths(vertex, arrival_count);
-  }
+  if (tag_group)
+    graph_->deletePaths(vertex);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -613,9 +615,23 @@ Search::findFilteredArrivals(bool thru_latches)
     debugPrint(debug_, "search", 1, "find arrivals pass %d", pass);
     int arrival_count = arrival_iter_->visitParallel(max_level,
 						     arrival_visitor_);
+    deleteTagsPrev();
     debugPrint(debug_, "search", 1, "found %d arrivals", arrival_count);
   }
   arrivals_exist_ = true;
+}
+
+// Delete stale tag arrarys.
+void
+Search::deleteTagsPrev()
+{
+  for (Tag** tags: tags_prev_)
+    delete [] tags;
+  tags_prev_.clear();
+
+  for (TagGroup** tag_groups: tag_groups_prev_)
+    delete [] tag_groups;
+  tag_groups_prev_.clear();
 }
 
 VertexSeq
@@ -853,6 +869,7 @@ Search::findClkArrivals()
     ClkArrivalSearchPred search_clk(this);
     arrival_visitor_->init(false, &search_clk);
     arrival_iter_->visitParallel(levelize_->maxLevel(), arrival_visitor_);
+    deleteTagsPrev();
     arrivals_exist_ = true;
     stats.report("Find clk arrivals");
   }
@@ -1023,6 +1040,7 @@ Search::findArrivals1(Level level)
   findArrivalsSeed();
   Stats stats(debug_, report_);
   int arrival_count = arrival_iter_->visitParallel(level, arrival_visitor_);
+  deleteTagsPrev();
   stats.report("Find arrivals");
   if (arrival_iter_->empty()
       && invalid_arrivals_->empty()) {
@@ -2671,6 +2689,7 @@ Search::findTagGroup(TagGroupBldr *tag_bldr)
       TagGroup **tag_groups = new TagGroup*[tag_capacity];
       memcpy(tag_groups, tag_groups_,
              tag_group_capacity_ * sizeof(TagGroup*));
+      tag_groups_prev_.push_back(tag_groups_);
       tag_groups_ = tag_groups;
       tag_group_capacity_ = tag_capacity;
       tag_group_set_->reserve(tag_capacity);
@@ -2705,7 +2724,7 @@ Search::setVertexArrivals(Vertex *vertex,
       else {
 	// Prev paths not required.
 	prev_paths = nullptr;
-        graph_->deletePrevPaths(vertex, arrival_count);
+        graph_->deletePrevPaths(vertex);
       }
       tag_bldr->copyArrivals(tag_group, prev_arrivals, prev_paths);
       vertex->setTagGroupIndex(tag_group->index());
@@ -2718,16 +2737,15 @@ Search::setVertexArrivals(Vertex *vertex,
 	requiredInvalid(vertex);
         if (tag_group != prev_tag_group)
           // Requireds can only be reused if the tag group is unchanged.
-          graph_->deleteRequireds(vertex, prev_tag_group->arrivalCount());
+          graph_->deleteRequireds(vertex);
       }
     }
     else {
       if (prev_tag_group) {
-        uint32_t prev_arrival_count = prev_tag_group->arrivalCount();
-        graph_->deleteArrivals(vertex, prev_arrival_count);
+        graph_->deleteArrivals(vertex);
         if (has_requireds) {
           requiredInvalid(vertex);
-          graph_->deleteRequireds(vertex, prev_arrival_count);
+          graph_->deleteRequireds(vertex);
         }
       }
       Arrival *arrivals = graph_->makeArrivals(vertex, arrival_count);
@@ -2907,6 +2925,7 @@ Search::findTag(const RiseFall *rf,
       TagIndex tag_capacity = tag_capacity_ * 2;
       Tag **tags = new Tag*[tag_capacity];
       memcpy(tags, tags_, tag_capacity_ * sizeof(Tag*));
+      tags_prev_.push_back(tags_);
       tags_ = tags;
       tag_capacity_ = tag_capacity;
       tag_set_->reserve(tag_capacity);
@@ -3151,6 +3170,7 @@ Search::findRequireds(Level level)
     seedRequireds();
   seedInvalidRequireds();
   int required_count = required_iter_->visitParallel(level, &req_visitor);
+  deleteTagsPrev();
   requireds_exist_ = true;
   debugPrint(debug_, "search", 1, "found %d requireds", required_count);
   stats.report("Find requireds");
@@ -3436,8 +3456,7 @@ RequiredCmp::requiredsSave(Vertex *vertex,
     if (tag_group == nullptr)
       requireds_changed = true;
     else {
-      int arrival_count = tag_group->arrivalCount();
-      graph->deleteRequireds(vertex, arrival_count);
+      graph->deleteRequireds(vertex);
       requireds_changed = true;
     }
   }
