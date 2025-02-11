@@ -260,6 +260,8 @@ SpefReader::makeNameMapEntry(const char *index,
 {
   int i = atoi(index + 1);
   name_map_[i] = name;
+  stringDelete(index);
+  stringDelete(name);
 }
 
 const char *

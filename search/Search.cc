@@ -368,6 +368,7 @@ Search::deleteTags()
   tag_free_indices_.clear();
 
   clk_info_set_->deleteContentsClear();
+  deleteTagsPrev();
 }
 
 void
