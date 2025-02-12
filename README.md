@@ -210,11 +210,13 @@ Use Homebrew to install them.
 
 Set these variables before using cmake to cirumvent the Xcode versions.
 
+```
   # flex/bison override apple version
   export PATH="$(brew --prefix bison)/bin:${PATH}"
   export PATH="$(brew --prefix flex)/bin:${PATH}"
   export CMAKE_INCLUDE_PATH="$(brew --prefix flex)/include"
   export CMAKE_LIBRARY_PATH="$(brew --prefix flex)/lib;$(brew --prefix bison)/lib"
+```
 
 Homebrew does not support tclreadline, but the macports system does
 (see https://www.macports.org). 
