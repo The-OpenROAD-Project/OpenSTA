@@ -3451,7 +3451,7 @@ Network *
 Sta::ensureLibLinked()
 {
   if (network_ == nullptr || !network_->isLinked())
-    report_->error(1570, "No network has been linked.");
+    report_->error(1571, "No network has been linked.");
   // OpenROAD db is inherently linked but may not have associated
   // liberty files so check for them here.
   if (network_->defaultLibertyLibrary() == nullptr)

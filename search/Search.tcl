@@ -934,7 +934,7 @@ proc parse_report_path_options { cmd args_var default_format
       } elseif { [string match "src*" $field] } {
         set report_src_attr 1
       } else {
-        sta_warn 166 "unknown field $field."
+        sta_warn 168 "unknown field $field."
       }
     }
   }

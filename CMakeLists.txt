@@ -596,3 +596,10 @@ add_custom_target(sta_tags etags -o TAGS
   ${SWIG_TCL_FILES}
   WORKING_DIRECTORY ${STA_HOME}
   )
+
+add_custom_command(
+  TARGET OpenSTA
+  POST_BUILD
+  COMMAND ${CMAKE_SOURCE_DIR}/etc/FindMessages.tcl > ${CMAKE_SOURCE_DIR}/doc/messages.txt || true
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)

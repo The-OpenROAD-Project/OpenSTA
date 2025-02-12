@@ -42,7 +42,7 @@ void
 sta::SaifParse::error(const location_type &loc,
                       const string &msg)
 {
-  reader->report()->fileError(164,reader->filename(),loc.begin.line,"%s",msg.c_str());
+  reader->report()->fileError(169,reader->filename(),loc.begin.line,"%s",msg.c_str());
 }
 %}
 

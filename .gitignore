@@ -30,3 +30,5 @@ doc/._Sta.docx
 test/results
 # ngspice turd
 test/b3v3_1check.log
+
+doc/messages.txt

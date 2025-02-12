@@ -1100,7 +1100,7 @@ SdfScanner::SdfScanner(std::istream *stream,
 void
 SdfScanner::error(const char *msg)
 {
-  report_->fileError(1866, filename_.c_str(), lineno(), "%s", msg);
+  report_->fileError(1869, filename_.c_str(), lineno(), "%s", msg);
 }
 
 } // namespace
