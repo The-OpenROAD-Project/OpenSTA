@@ -400,8 +400,6 @@ public:
   // Invalidate all generated clock waveforms.
   void invalidateGeneratedClks() const;
   virtual void removeClock(Clock *clk);
-  virtual void clockDeletePin(Clock *clk,
-			      Pin *pin);
   // Clock used for inputs without defined arrivals.
   ClockEdge *defaultArrivalClockEdge() const;
   Clock *defaultArrivalClock() const { return default_arrival_clk_; }
