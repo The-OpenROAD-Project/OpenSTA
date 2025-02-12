@@ -502,7 +502,7 @@ SpefReader::findParasiticNode(char *name,
           warn(1656, "pin %s not found.", name1);
       }
       else
-        warn(1656, "pin %s not found.", name);
+        warn(1657, "pin %s not found.", name);
     }
   }
   return nullptr;
