@@ -49,7 +49,6 @@ class VertexSet;
 
 typedef ObjectId VertexId;
 typedef ObjectId EdgeId;
-typedef ObjectId ArcId;
 typedef Vector<Vertex*> VertexSeq;
 typedef Vector<Edge*> EdgeSeq;
 typedef Set<Edge*> EdgeSet;

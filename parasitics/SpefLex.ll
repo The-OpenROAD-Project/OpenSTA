@@ -51,7 +51,7 @@ typedef sta::SpefParse::token token;
 %option never-interactive
 %option stack
 %option yylineno
-/* %option debug */
+%option debug
 
 %x COMMENT
 %x QUOTE

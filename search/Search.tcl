@@ -792,7 +792,7 @@ proc_redirect report_pulse_width_checks {
 define_cmd_args "report_path" \
   {[-min|-max]\
      [-format full|full_clock|full_clock_expanded|short|end|summary]\
-     [-fields [capacitance|slew|input_pin|net]\
+     [-fields capacitance|slew|input_pin|net|src_attr]\
      [-digits digits] [-no_line_splits]\
      [> filename] [>> filename]\
      pin ^|r|rise|v|f|fall}

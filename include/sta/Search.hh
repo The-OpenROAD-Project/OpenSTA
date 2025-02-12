@@ -383,7 +383,8 @@ protected:
 		       bool report_max,
 		       DcalcAnalysisPt *dcalc_ap_min,
 		       DcalcAnalysisPt *dcalc_ap_max);
-  virtual void deleteTags();
+  void deleteTags();
+  void deleteTagsPrev();
   void seedInvalidArrivals();
   void seedArrivals();
   void findClockVertices(VertexSet &vertices);
@@ -593,12 +594,14 @@ protected:
   // Entries in tags_ may be missing where previous filter tags were deleted.
   TagIndex tag_capacity_;
   std::atomic<Tag **> tags_;
+  vector<Tag **> tags_prev_;
   TagIndex tag_next_;
   // Holes in tags_ left by deleting filter tags.
   std::vector<TagIndex> tag_free_indices_;
   std::mutex tag_lock_;
   TagGroupSet *tag_group_set_;
   std::atomic<TagGroup **> tag_groups_;
+  vector<TagGroup **> tag_groups_prev_;
   TagGroupIndex tag_group_next_;
   // Holes in tag_groups_ left by deleting filter tag groups.
   std::vector<TagIndex> tag_group_free_indices_;

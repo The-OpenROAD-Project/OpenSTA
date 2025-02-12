@@ -287,9 +287,7 @@ name_map_entries:
 
 name_map_entry:
 	INDEX mapped_item
-	{ reader->makeNameMapEntry($1, $2);
-	  sta::stringDelete($1);
-	}
+	{ reader->makeNameMapEntry($1, $2); }
 ;
 
 mapped_item:

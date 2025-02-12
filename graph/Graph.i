@@ -83,12 +83,6 @@ private:
 
 %inline %{
 
-int
-graph_arc_count()
-{
-  return Sta::sta()->ensureGraph()->arcCount();
-}
-
 VertexIterator *
 vertex_iterator()
 {

@@ -621,10 +621,15 @@ GraphDelayCalc::findVertexDelay(Vertex *vertex,
 DrvrLoadSlews
 GraphDelayCalc::loadSlews(LoadPinIndexMap &load_pin_index_map)
 {
+  size_t slew_count = graph_->slewCount();
   DrvrLoadSlews load_slews(load_pin_index_map.size());
   for (auto const [pin, index] : load_pin_index_map) {
     Vertex *load_vertex = graph_->pinLoadVertex(pin);
-    load_slews[index] = graph_->slews(load_vertex);
+    SlewSeq &slews = load_slews[index];;
+    slews.resize(slew_count);
+    Slew *vertex_slews = load_vertex->slews();
+    for (size_t i = 0; i < slew_count; i++)
+      slews[i] = vertex_slews[i];
   }
   return load_slews;
 }
@@ -633,11 +638,12 @@ bool
 GraphDelayCalc::loadSlewsChanged(DrvrLoadSlews &load_slews_prev,
                                  LoadPinIndexMap &load_pin_index_map)
 {
+  size_t slew_count = graph_->slewCount();
   for (auto const [pin, index] : load_pin_index_map) {
     Vertex *load_vertex = graph_->pinLoadVertex(pin);
-    const SlewSeq slews = graph_->slews(load_vertex);
-    const SlewSeq &slews_prev = load_slews_prev[index];
-    for (size_t i = 0; i < slews.size(); i++) {
+    SlewSeq &slews_prev = load_slews_prev[index];;
+    const Slew *slews = load_vertex->slews();
+    for (size_t i = 0; i < slew_count; i++) {
       if (!delayEqual(slews[i], slews_prev[i]))
         return true;
     }

@@ -269,7 +269,6 @@ proc check_unit { unit key suffix key_var } {
     if { [string match -nocase $arg_suffix $suffix] } {
       set arg_prefix [string range $value 0 end-$suffix_length]
       if { [regexp "^(10*)?(\[Mkmunpf\])?$" $arg_prefix ignore mult prefix] } {
-        #puts "$arg_prefix '$mult' '$prefix'"
         if { $mult == "" } {
           set mult 1
         }
