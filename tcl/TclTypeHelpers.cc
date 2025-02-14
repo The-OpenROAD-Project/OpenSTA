@@ -93,15 +93,16 @@ tclListSetStdString(Tcl_Obj *const source,
 
 void
 tclArgError(Tcl_Interp *interp,
+            int id,
             const char *msg,
             const char *arg)
 {
   // Swig does not add try/catch around arg parsing so this cannot use Report::error.
-  string error_msg = "Error: ";
-  error_msg += msg;
-  char *error = stringPrint(error_msg.c_str(), arg);
-  Tcl_SetResult(interp, error, TCL_VOLATILE);
-  stringDelete(error);
+  try {
+    Sta::sta()->report()->error(id, msg, arg);
+  } catch (const std::exception &e) {
+    Tcl_SetResult(interp, const_cast<char*>(e.what()), TCL_STATIC);
+  }
 }
 
 void

@@ -48,6 +48,7 @@ tclListSetStdString(Tcl_Obj *const source,
 
 void
 tclArgError(Tcl_Interp *interp,
+            int id,
             const char *msg,
             const char *arg);
 

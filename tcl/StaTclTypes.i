@@ -441,8 +441,7 @@ using namespace sta;
   const char *arg = Tcl_GetStringFromObj($input, &length);
   Transition *tr = Transition::find(arg);
   if (tr == nullptr) {
-    Tcl_SetResult(interp,const_cast<char*>("Error: transition not found."),
-		  TCL_STATIC);
+    tclArgError(interp, 2150, "Unknown transition '%s'.", arg);
     return TCL_ERROR;
   }
   else
@@ -462,8 +461,7 @@ using namespace sta;
   const char *arg = Tcl_GetStringFromObj($input, &length);
   RiseFall *rf = RiseFall::find(arg);
   if (rf == nullptr) {
-    Tcl_SetResult(interp,const_cast<char*>("Error: unknown rise/fall edge."),
-		  TCL_STATIC);
+    tclArgError(interp, 2151, "Unknown rise/fall edge '%s'.", arg);
     return TCL_ERROR;
   }
   $1 = rf;
@@ -482,8 +480,7 @@ using namespace sta;
   const char *arg = Tcl_GetStringFromObj($input, &length);
   RiseFallBoth *tr = RiseFallBoth::find(arg);
   if (tr == nullptr) {
-    Tcl_SetResult(interp,const_cast<char*>("Error: unknown transition name."),
-		  TCL_STATIC);
+    tclArgError(interp, 2152, "Unknown transition name '%s'.", arg);
     return TCL_ERROR;
   }
   $1 = tr;
@@ -502,8 +499,7 @@ using namespace sta;
   const char *arg = Tcl_GetStringFromObj($input, &length);
   PortDirection *dir = PortDirection::find(arg);
   if (dir == nullptr) {
-    Tcl_SetResult(interp,const_cast<char*>("Error: port direction not found."),
-		  TCL_STATIC);
+    tclArgError(interp, 2153, "Unknown port direction '%s'.", arg);
     return TCL_ERROR;
   }
   else
@@ -517,8 +513,7 @@ using namespace sta;
   if (role)
     $1 = TimingRole::find(arg);
   else {
-    Tcl_SetResult(interp,const_cast<char*>("Error: unknown timing role."),
-		  TCL_STATIC);
+    tclArgError(interp, 2154, "Unknown timing role '%s'.", arg);
     return TCL_ERROR;
   }
 }
@@ -541,8 +536,7 @@ using namespace sta;
   else if (stringEq(arg, "fall") || stringEq(arg, "falling"))
     $1 = LogicValue::fall;
   else {
-    Tcl_SetResult(interp,const_cast<char*>("Error: unknown logic value."),
-		  TCL_STATIC);
+    tclArgError(interp, 2155, "Unknown logic value '%s'.", arg);
     return TCL_ERROR;
   }
 }
@@ -557,9 +551,7 @@ using namespace sta;
   else if (stringEq(arg, "on_chip_variation"))
     $1 = AnalysisType::ocv;
   else {
-    Tcl_SetResult(interp,const_cast<char*>("Error: unknown analysis type."),
-		  TCL_STATIC);
-
+    tclArgError(interp, 2156, "Unknown analysis type '%s'.", arg);
     return TCL_ERROR;
   }
 }
@@ -757,11 +749,11 @@ using namespace sta;
       char *arg = Tcl_GetString(argv[i]);
       double value;
       if (Tcl_GetDouble(interp, arg, &value) == TCL_OK)
-	floats->push_back(static_cast<float>(value));
+        floats->push_back(static_cast<float>(value));
       else {
-	delete floats;
-	tclArgError(interp, "%s is not a floating point number.", arg);
-	return TCL_ERROR;
+        delete floats;
+        tclArgError(interp, 2157, "%s is not a floating point number.", arg);
+        return TCL_ERROR;
       }
     }
   }
@@ -802,11 +794,11 @@ using namespace sta;
       char *arg = Tcl_GetString(argv[i]);
       int value;
       if (Tcl_GetInt(interp, arg, &value) == TCL_OK)
-	ints->push_back(value);
+        ints->push_back(value);
       else {
-	delete ints;
-	tclArgError(interp, "%s is not an integer.", arg);
-	return TCL_ERROR;
+        delete ints;
+        tclArgError(interp, 2158, "%s is not an integer.", arg);
+        return TCL_ERROR;
       }
     }
   }
@@ -860,7 +852,7 @@ using namespace sta;
   if (min_max)
     $1 = min_max;
   else {
-    tclArgError(interp, "%s not min or max.", arg);
+    tclArgError(interp, 2159, "%s not min or max.", arg);
     return TCL_ERROR;
   }
 }
@@ -880,7 +872,7 @@ using namespace sta;
   if (min_max)
     $1 = min_max;
   else {
-    tclArgError(interp, "%s not min, max or min_max.", arg);
+    tclArgError(interp, 2160, "%s not min, max or min_max.", arg);
     return TCL_ERROR;
   }
 }
@@ -895,7 +887,7 @@ using namespace sta;
     if (min_max)
       $1 = min_max;
     else {
-      tclArgError(interp, "%s not min, max or min_max.", arg);
+      tclArgError(interp, 2161, "%s not min, max or min_max.", arg);
       return TCL_ERROR;
     }
   }
@@ -916,7 +908,7 @@ using namespace sta;
 	   || stringEqual(arg, "max"))
     $1 = MinMax::max();
   else {
-    tclArgError(interp, "%s not setup, hold, min or max.", arg);
+    tclArgError(interp, 2162, "%s not setup, hold, min or max.", arg);
     return TCL_ERROR;
   }
 }
@@ -935,7 +927,7 @@ using namespace sta;
 	   || stringEqual(arg, "min_max"))
     $1 = SetupHoldAll::all();
   else {
-    tclArgError(interp, "%s not setup, hold, setup_hold, min, max or min_max.", arg);
+    tclArgError(interp, 2163, "%s not setup, hold, setup_hold, min, max or min_max.", arg);
     return TCL_ERROR;
   }
 }
@@ -948,7 +940,7 @@ using namespace sta;
   if (early_late)
     $1 = early_late;
   else {
-    tclArgError(interp, "%s not early/min, late/max or early_late/min_max.", arg);
+    tclArgError(interp, 2164, "%s not early/min, late/max or early_late/min_max.", arg);
     return TCL_ERROR;
   }
 }
@@ -961,7 +953,7 @@ using namespace sta;
   if (early_late)
     $1 = early_late;
   else {
-    tclArgError(interp, "%s not early/min, late/max or early_late/min_max.", arg);
+    tclArgError(interp, 2165, "%s not early/min, late/max or early_late/min_max.", arg);
     return TCL_ERROR;
   }
 }
@@ -976,7 +968,7 @@ using namespace sta;
   else if (stringEq(arg, "cell_check"))
     $1 = TimingDerateType::cell_check;
   else {
-    tclArgError(interp, "%s not net_delay, cell_delay or cell_check.", arg);
+    tclArgError(interp, 2166, "%s not net_delay, cell_delay or cell_check.", arg);
     return TCL_ERROR;
   }
 }
@@ -989,7 +981,7 @@ using namespace sta;
   else if (stringEq(arg, "cell_check"))
     $1 = TimingDerateCellType::cell_check;
   else {
-    tclArgError(interp, "%s not cell_delay or cell_check.", arg);
+    tclArgError(interp, 2167, "%s not cell_delay or cell_check.", arg);
     return TCL_ERROR;
   }
 }
@@ -1002,7 +994,7 @@ using namespace sta;
   else if (stringEq(arg, "data"))
     $1 = PathClkOrData::data;
   else {
-    tclArgError(interp, "%s not clk or data.", arg);
+    tclArgError(interp, 2168, "%s not clk or data.", arg);
     return TCL_ERROR;
   }
 }
@@ -1015,7 +1007,7 @@ using namespace sta;
   else if (stringEq(arg, "slack"))
     $1 = sort_by_slack;
   else {
-    tclArgError(interp, "%s not group or slack.", arg);
+    tclArgError(interp, 2169, "%s not group or slack.", arg);
     return TCL_ERROR;
   }
 }
@@ -1040,7 +1032,7 @@ using namespace sta;
   else if (stringEq(arg, "json"))
     $1 = ReportPathFormat::json;
   else {
-    tclArgError(interp, "unknown path type %s.", arg);
+    tclArgError(interp, 2170, "unknown path type %s.", arg);
     return TCL_ERROR;
   }
 }
@@ -1406,7 +1398,7 @@ using namespace sta;
   else if (stringEq(arg, "xyce"))
     $1 = CircuitSim::xyce;
   else {
-    tclArgError(interp, "unknown circuit simulator %s.", arg);
+    tclArgError(interp, 2171, "unknown circuit simulator %s.", arg);
     return TCL_ERROR;
   }
 }

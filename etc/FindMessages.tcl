@@ -41,7 +41,7 @@ proc scan_file { file warn_regexp } {
     set file_line 1
 
     while { ![eof $in_stream] } {
-      if { [regexp -- $warn_regexp $line ignore1 ignore2 msg_id msg] } {
+      if { [regexp -- $warn_regexp $line ignore msg_id msg] } {
         lappend msgs "$msg_id $file $file_line $msg"
       }
       gets $in_stream line
@@ -61,13 +61,13 @@ foreach subdir $subdirs {
     set files [glob -nocomplain [file join $subdir "*.{cc,hh,yy,ll,i}"]]
     set files_c [concat $files_c $files]
 }
-set warn_regexp_c {(criticalError|->warn|->fileWarn|->error|->fileError|libWarn|libError| warn)\(([0-9]+),.*(".+")}
+set warn_regexp_c {(?:(?:criticalError|->warn|->fileWarn|->error|->fileError|libWarn|libError| warn)\(|tclArgError\(interp,\s*)([0-9]+),.*(".+")}
 
 set files_tcl {}
 foreach subdir $subdirs {
   set files_tcl [concat $files_tcl [glob -nocomplain [file join $subdir "*.tcl"]]]
 }
-set warn_regexp_tcl {(sta_warn|sta_error|sta_warn_error) ([0-9]+) (".+")}
+set warn_regexp_tcl {(?:sta_warn|sta_error|sta_warn_error) ([0-9]+) (".+")}
 
 proc scan_files {files warn_regexp } {
   foreach file $files {
