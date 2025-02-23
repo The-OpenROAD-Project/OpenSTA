@@ -3210,7 +3210,7 @@ Sta::findRequired(Vertex *vertex)
   if (sdc_->crprEnabled()
       && search_->crprPathPruningEnabled()
       && !search_->crprApproxMissingRequireds()
-      // Clocks invariably have requireds that are pruned but isn't
+      // Clocks invariably have requireds that are pruned but it isn't
       // worth finding arrivals and requireds all over again for
       // the entire fanout of the clock.
       && !search_->isClock(vertex)) {
