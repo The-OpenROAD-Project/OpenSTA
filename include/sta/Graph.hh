@@ -343,7 +343,7 @@ protected:
   // cannot share the same word as the following bit fields.
   uint32_t tag_group_index_;
   // Each bit corresponds to a different BFS queue.
-  std::atomic<uint8_t> bfs_in_queue_; // 4
+  std::atomic<uint8_t> bfs_in_queue_; // 8
 
   unsigned int level_:Graph::vertex_level_bits; // 24
   unsigned int slew_annotated_:slew_annotated_bits;  // 4
