@@ -128,6 +128,7 @@ ClkInfo::asString(const StaState *sta) const
   result += "/";
   result += std::to_string(path_ap_index_);
 
+  result += " ";
   if (clk_edge_)
     result += clk_edge_->name();
   else
