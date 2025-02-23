@@ -1023,7 +1023,6 @@ Vertex::init(Pin *pin,
   level_ = 0;
   bfs_in_queue_ = 0;
   crpr_path_pruning_disabled_ = false;
-  requireds_pruned_ = false;
 }
 
 Vertex::~Vertex()
@@ -1139,12 +1138,6 @@ void
 Vertex::setCrprPathPruningDisabled(bool disabled)
 {
   crpr_path_pruning_disabled_ = disabled;
-}
-
-void
-Vertex::setRequiredsPruned(bool pruned)
-{
-  requireds_pruned_ = pruned;
 }
 
 TagGroupIndex

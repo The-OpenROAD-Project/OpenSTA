@@ -312,8 +312,6 @@ public:
   bool crprPathPruningDisabled() const { return crpr_path_pruning_disabled_;}
   void setCrprPathPruningDisabled(bool disabled);
   bool hasRequireds() const { return requireds_ != nullptr; }
-  bool requiredsPruned() const { return requireds_pruned_; }
-  void setRequiredsPruned(bool pruned);
   
   // ObjectTable interface.
   ObjectIdx objectIdx() const { return object_idx_; }
@@ -367,7 +365,6 @@ protected:
   bool is_constrained_:1;
   bool has_downstream_clk_pin_:1;
   bool crpr_path_pruning_disabled_:1;
-  bool requireds_pruned_:1;
   unsigned object_idx_:VertexTable::idx_bits; // 7
 
 private:

@@ -3213,8 +3213,7 @@ Sta::findRequired(Vertex *vertex)
       // Clocks invariably have requireds that are pruned but isn't
       // worth finding arrivals and requireds all over again for
       // the entire fanout of the clock.
-      && !search_->isClock(vertex)
-      && vertex->requiredsPruned()) {
+      && !search_->isClock(vertex)) {
     // Invalidate arrivals and requireds and disable
     // path pruning on fanout vertices with DFS.
     int fanout = 0;

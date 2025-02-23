@@ -3497,7 +3497,6 @@ RequiredVisitor::visit(Vertex *vertex)
   debugPrint(debug_, "search", 2, "find required %s",
              vertex->name(network_));
   required_cmp_->requiredsInit(vertex, this);
-  vertex->setRequiredsPruned(false);
   // Back propagate requireds from fanout.
   visitFanoutPaths(vertex);
   // Check for constraints at endpoints that set required times.
@@ -3514,7 +3513,7 @@ RequiredVisitor::visit(Vertex *vertex)
 
 bool
 RequiredVisitor::visitFromToPath(const Pin *,
-				 Vertex *from_vertex,
+				 Vertex *,
 				 const RiseFall *from_rf,
 				 Tag *from_tag,
 				 PathVertex *from_path,
@@ -3586,11 +3585,7 @@ RequiredVisitor::visitFromToPath(const Pin *,
 	  }
 	}
       }
-      from_vertex->setRequiredsPruned(true);
     }
-    // Propagate requireds pruned flag backwards.
-    if (to_vertex->requiredsPruned())
-      from_vertex->setRequiredsPruned(true);
   }
   return true;
 }
