@@ -132,7 +132,7 @@ PathGroup::saveable(PathEnd *path_end)
 
 // endpoint_path_count > 1 with slack_min requires
 // saving endpoints with slack > slack_min so that
-// path enumeration can find them. Use the patg end
+// path enumeration can find them. Use the path end
 // with the min(max) delay to prune ends that cannot
 // onion peel down to slack_min.
 bool
