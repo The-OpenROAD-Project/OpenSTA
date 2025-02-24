@@ -973,47 +973,40 @@ Genclks::matchesSrcFilter(Path *path,
   return false;
 }
 
-void
-Genclks::srcPath(Path *clk_path,
-		 // Return value.
-		 PathVertex &src_path) const
+PathVertex
+Genclks::srcPath(Path *clk_path) const
 {
   const Pin *src_pin = clk_path->pin(this);
   const ClockEdge *clk_edge = clk_path->clkEdge(this);
   const PathAnalysisPt *path_ap = clk_path->pathAnalysisPt(this);
   const EarlyLate *early_late = clk_path->minMax(this);
   PathAnalysisPt *insert_ap = path_ap->insertionAnalysisPt(early_late);
-  srcPath(clk_edge->clock(), src_pin, clk_edge->transition(),
-	  insert_ap, src_path);
+  return srcPath(clk_edge->clock(), src_pin, clk_edge->transition(),
+                 insert_ap);
 }
 
-void
+PathVertex
 Genclks::srcPath(const ClockEdge *clk_edge,
 		 const Pin *src_pin,
-		 const PathAnalysisPt *path_ap,
-		 // Return value.
-		 PathVertex &src_path) const
+		 const PathAnalysisPt *path_ap) const
 {
-  srcPath(clk_edge->clock(), src_pin, clk_edge->transition(),
-	  path_ap, src_path);
+  return srcPath(clk_edge->clock(), src_pin, clk_edge->transition(), path_ap);
 }
 
-void
+PathVertex
 Genclks::srcPath(const Clock *gclk,
 		 const Pin *src_pin,
 		 const RiseFall *rf,
-		 const PathAnalysisPt *path_ap,
-		 // Return value.
-		 PathVertex &src_path) const
+		 const PathAnalysisPt *path_ap) const
 {
   PathVertexRep *src_paths =
     genclk_src_paths_.findKey(ClockPinPair(gclk, src_pin));
   if (src_paths) {
     int path_index = srcPathIndex(rf, path_ap);
-    src_path.init(src_paths[path_index], this);
+    return PathVertex(src_paths[path_index], this);
   }
   else
-    src_path.init();
+    return PathVertex();
 }
 
 Arrival
@@ -1023,9 +1016,8 @@ Genclks::insertionDelay(const Clock *clk,
 			const EarlyLate *early_late,
 			const PathAnalysisPt *path_ap) const
 {
-  PathVertex src_path;
   PathAnalysisPt *insert_ap = path_ap->insertionAnalysisPt(early_late);
-  srcPath(clk, pin, rf, insert_ap, src_path);
+  PathVertex src_path = srcPath(clk, pin, rf, insert_ap);
   if (!src_path.isNull())
     return src_path.arrival(this);
   else

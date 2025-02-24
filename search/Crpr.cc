@@ -302,8 +302,8 @@ CheckCrpr::genClkSrcPaths(const PathVertex *path,
   PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
   gclk_paths.push_back(path);
   while (clk_edge->clock()->isGenerated()) {
-    PathVertex genclk_path;
-    search_->genclks()->srcPath(clk_edge, clk_src, path_ap, genclk_path);
+    PathVertex genclk_path =
+      search_->genclks()->srcPath(clk_edge, clk_src, path_ap);
     if (genclk_path.isNull())
       break;
     clk_info = genclk_path.clkInfo(this);
