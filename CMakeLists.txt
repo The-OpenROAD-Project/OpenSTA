@@ -189,9 +189,10 @@ set(STA_SOURCE
   search/PathEnumed.cc
   search/PathExpanded.cc
   search/PathGroup.cc
+  search/PathPrev.cc
   search/PathRef.cc
   search/PathVertex.cc
-  search/PathVertexRep.cc
+  search/PathVertexPtr.cc
   search/Property.cc
   search/ReportPath.cc
   search/Search.cc

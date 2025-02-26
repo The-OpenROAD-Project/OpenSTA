@@ -4609,8 +4609,7 @@ Sta::deletePinBefore(const Pin *pin)
           if (edge->role()->isWire()) {
             // Only notify to vertex (from will be deleted).
             Vertex *to = edge->to(graph_);
-            // to->prev_paths point to vertex, so delete them.
-            search_->arrivalInvalidDelete(to);
+            search_->arrivalInvalid(to);
             graph_delay_calc_->delayInvalid(to);
             levelize_->relevelizeFrom(to);
           }

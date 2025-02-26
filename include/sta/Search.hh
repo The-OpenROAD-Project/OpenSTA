@@ -117,7 +117,6 @@ public:
   void arrivalsInvalid();
   // Invalidate vertex arrival time.
   void arrivalInvalid(Vertex *vertex);
-  void arrivalInvalidDelete(Vertex *vertex);
   void arrivalInvalid(const Pin *pin);
   // Invalidate all required times.
   void requiredsInvalid();
@@ -373,6 +372,7 @@ public:
                             bool unconstrained,
                             bool thru_latches);
   VertexSeq filteredEndpoints();
+  bool alwaysSavePrevPaths() const { return always_save_prev_paths_; }
 
 protected:
   void init(StaState *sta);
@@ -613,6 +613,7 @@ protected:
   std::mutex pending_latch_outputs_lock_;
   VertexSet *endpoints_;
   VertexSet *invalid_endpoints_;
+  bool always_save_prev_paths_;
   // Filter exception to tag arrivals for
   // report_timing -from pin|inst -through.
   // -to is always nullptr.
@@ -760,6 +761,7 @@ protected:
   void constrainedRequiredsInvalid(Vertex *vertex,
 				   bool is_clk);
   bool always_to_endpoints_;
+  bool always_save_prev_paths_;
   TagGroupBldr *tag_bldr_;
   TagGroupBldr *tag_bldr_no_crpr_;
   SearchPred *adj_pred_;

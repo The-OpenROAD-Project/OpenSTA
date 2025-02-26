@@ -29,7 +29,8 @@
 
 namespace sta {
 
-class PathVertexRep;
+class PathPrev;
+class PathVertexPtr;
 
 // Implements Path API for a vertex.
 class PathVertex : public Path
@@ -38,9 +39,11 @@ public:
   PathVertex();
   PathVertex(const PathVertex &path);
   PathVertex(const PathVertex *path);
-  PathVertex(const PathVertexRep *path,
+  PathVertex(const PathPrev *path,
 	     const StaState *sta);
-  PathVertex(const PathVertexRep &path,
+  PathVertex(const PathPrev &path,
+	     const StaState *sta);
+  PathVertex(const PathVertexPtr &path,
 	     const StaState *sta);
   // If tag is not in the vertex tag group isNull() is true.
   PathVertex(Vertex *vertex,
@@ -50,9 +53,11 @@ public:
 	     Tag *tag,
 	     int arrival_index);
   void init();
-  void init(const PathVertexRep *path,
+  void init(const PathPrev *path,
 	    const StaState *sta);
-  void init(const PathVertexRep &path,
+  void init(const PathPrev &path,
+	    const StaState *sta);
+  void init(const PathVertexPtr &path,
 	    const StaState *sta);
   void init(Vertex *vertex,
 	    Tag *tag,

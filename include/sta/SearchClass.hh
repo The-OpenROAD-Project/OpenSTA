@@ -43,7 +43,8 @@ class Corner;
 class Path;
 class PathRep;
 class PathVertex;
-class PathVertexRep;
+class PathPrev;
+class PathVertexPtr;
 class PathRef;
 class PathEnumed;
 class PathEnd;
@@ -136,7 +137,8 @@ enum class ReportPathFormat { full,
 			      json
 };
 
-static const TagIndex tag_index_max = std::numeric_limits<uint32_t>::max();
+static const TagIndex tag_index_bit_count = 28;
+static const TagIndex tag_index_max = (1 << tag_index_bit_count) - 1;
 static const TagIndex tag_index_null = tag_index_max;
 static const int path_ap_index_bit_count = 8;
 // One path analysis point per corner min/max.

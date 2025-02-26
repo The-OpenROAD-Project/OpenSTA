@@ -36,7 +36,8 @@
 #include "TagGroup.hh"
 #include "PathAnalysisPt.hh"
 #include "PathRef.hh"
-#include "PathVertexRep.hh"
+#include "PathPrev.hh"
+#include "PathVertexPtr.hh"
 #include "Search.hh"
 
 namespace sta {
@@ -83,7 +84,7 @@ PathVertex::PathVertex(Vertex *vertex,
 {
 }
 
-PathVertex::PathVertex(const PathVertexRep *path,
+PathVertex::PathVertex(const PathPrev *path,
 		       const StaState *sta)
 {
   if (path)
@@ -92,7 +93,16 @@ PathVertex::PathVertex(const PathVertexRep *path,
     init();
 }
 
-PathVertex::PathVertex(const PathVertexRep &path,
+PathVertex::PathVertex(const PathPrev &path,
+		       const StaState *sta)
+{
+  if (path.isNull())
+    init();
+  else
+    init(path.vertex(sta), path.tag(sta), sta);
+}
+
+PathVertex::PathVertex(const PathVertexPtr &path,
 		       const StaState *sta)
 {
   if (path.isNull())
@@ -140,7 +150,7 @@ PathVertex::init(Vertex *vertex,
 }
 
 void
-PathVertex::init(const PathVertexRep *path,
+PathVertex::init(const PathPrev *path,
 		 const StaState *sta)
 {
   if (path)
@@ -150,7 +160,17 @@ PathVertex::init(const PathVertexRep *path,
 }
 
 void
-PathVertex::init(const PathVertexRep &path,
+PathVertex::init(const PathPrev &path,
+		 const StaState *sta)
+{
+  if (!path.isNull())
+    init(path.vertex(sta), path.tag(sta), sta);
+  else
+    init();
+}
+
+void
+PathVertex::init(const PathVertexPtr &path,
 		 const StaState *sta)
 {
   if (!path.isNull())
@@ -481,9 +501,19 @@ PathVertex::prevPath(const StaState *sta,
 		     PathRef &prev_path,
 		     TimingArc *&prev_arc) const
 {
-  PathVertex prev;
-  prevPath(sta, prev, prev_arc);
-  prev.setRef(prev_path);
+  const Graph *graph = sta->graph();
+  Vertex *vertex = this->vertex(graph);
+  PathPrev *prev_paths = vertex->prevPaths();
+  if (prev_paths) {
+    PathPrev &prev = prev_paths[arrival_index_];
+    prev_path.init(prev, sta);
+    prev_arc = prev.isNull() ? nullptr : prev.prevArc(sta);
+  }
+  else {
+    PathVertex prev;
+    prevPath(sta, prev, prev_arc);
+    prev.setRef(prev_path);
+  }
 }
 
 ////////////////////////////////////////////////////////////////

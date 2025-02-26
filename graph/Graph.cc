@@ -613,17 +613,17 @@ Graph::deleteRequireds(Vertex *vertex)
   vertex->setRequireds(nullptr);
 }
 
-PathVertexRep *
+PathPrev *
 Graph::prevPaths(const Vertex *vertex) const
 {
   return vertex->prevPaths();
 }
 
-PathVertexRep *
+PathPrev *
 Graph::makePrevPaths(Vertex *vertex,
                      uint32_t count)
 {
-  PathVertexRep *prev_paths = new PathVertexRep[count];
+  PathPrev *prev_paths = new PathPrev[count];
   vertex->setPrevPaths(prev_paths);
   return prev_paths;
 }
@@ -1167,7 +1167,7 @@ Vertex::setRequireds(Required *requireds)
 }
 
 void
-Vertex::setPrevPaths(PathVertexRep *prev_paths)
+Vertex::setPrevPaths(PathPrev *prev_paths)
 {
   delete [] prev_paths_;
   prev_paths_ = prev_paths;

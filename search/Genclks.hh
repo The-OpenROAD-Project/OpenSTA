@@ -50,7 +50,7 @@ public:
 };
 
 typedef Map<Clock*, GenclkInfo*> GenclkInfoMap;
-typedef Map<ClockPinPair, PathVertexRep*, ClockPinPairLess> GenclkSrcPathMap;
+typedef Map<ClockPinPair, PathVertexPtr*, ClockPinPairLess> GenclkSrcPathMap;
 
 class Genclks : public StaState
 {

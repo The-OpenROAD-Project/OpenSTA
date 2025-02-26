@@ -55,7 +55,7 @@
 #include "Corner.hh"
 #include "Sim.hh"
 #include "PathVertex.hh"
-#include "PathVertexRep.hh"
+#include "PathPrev.hh"
 #include "PathRef.hh"
 #include "ClkInfo.hh"
 #include "Tag.hh"
@@ -255,6 +255,7 @@ Search::init(StaState *sta)
   path_groups_ = nullptr;
   endpoints_ = nullptr;
   invalid_endpoints_ = nullptr;
+  always_save_prev_paths_ = true;
   filter_ = nullptr;
   filter_from_ = nullptr;
   filter_to_ = nullptr;
@@ -787,13 +788,6 @@ Search::arrivalInvalid(Vertex *vertex)
 }
 
 void
-Search::arrivalInvalidDelete(Vertex *vertex)
-{
-  arrivalInvalid(vertex);
-  deletePaths(vertex);
-}
-
-void
 Search::levelChangedBefore(Vertex *vertex)
 {
   if (arrivals_exist_) {
@@ -1072,7 +1066,8 @@ Search::findArrivalsSeed()
 ////////////////////////////////////////////////////////////////
 
 ArrivalVisitor::ArrivalVisitor(const StaState *sta) :
-  PathVisitor(nullptr, sta)
+  PathVisitor(nullptr, sta),
+  always_save_prev_paths_(true)
 {
   init0();
   init(true);
@@ -1109,6 +1104,8 @@ ArrivalVisitor::init(bool always_to_endpoints,
   always_to_endpoints_ = always_to_endpoints;
   pred_ = pred;
   crpr_active_ = sdc_->crprActive();
+  if (search_)
+    always_save_prev_paths_ = search_->alwaysSavePrevPaths();
 }
 
 
@@ -1241,6 +1238,7 @@ Search::arrivalsChanged(Vertex *vertex,
 			TagGroupBldr *tag_bldr)
 {
   Arrival *arrivals1 = graph_->arrivals(vertex);
+  PathPrev *prev_paths1 = graph_->prevPaths(vertex);
   if (arrivals1) {
     TagGroup *tag_group = tagGroup(vertex);
     if (tag_group == nullptr
@@ -1257,7 +1255,10 @@ Search::arrivalsChanged(Vertex *vertex,
       int arrival_index2;
       tag_bldr->tagMatchArrival(tag1, tag2, arrival2, arrival_index2);
       if (tag2 != tag1
-	  || !delayEqual(arrival1, arrival2))
+	  || !delayEqual(arrival1, arrival2)
+          || (prev_paths1
+              && !PathPrev::equal(prev_paths1[arrival_index1],
+                                       tag_bldr->prevPath(arrival_index2))))
 	return true;
     }
     return false;
@@ -1273,10 +1274,10 @@ ArrivalVisitor::visitFromToPath(const Pin *,
 				Tag *from_tag,
 				PathVertex *from_path,
                                 const Arrival &from_arrival,
-				Edge *,
-				TimingArc *,
+				Edge *edge,
+				TimingArc *arc,
 				ArcDelay arc_delay,
-				Vertex *,
+				Vertex * /* to_vertex */,
 				const RiseFall *to_rf,
 				Tag *to_tag,
 				Arrival &to_arrival,
@@ -1307,9 +1308,13 @@ ArrivalVisitor::visitFromToPath(const Pin *,
                delayAsString(to_arrival, this),
                min_max == MinMax::max() ? ">" : "<",
                tag_match ? delayAsString(arrival, this) : "MIA");
-    PathVertexRep prev_path;
-    if (to_tag->isClock() || to_tag->isGenClkSrcPath())
-      prev_path.init(from_path, this);
+    PathPrev prev_path;
+    bool always_save_prev_paths = true;
+    bool save_prev = always_save_prev_paths
+      || to_tag->isClock()
+      || to_tag->isGenClkSrcPath();
+    if (save_prev)
+      prev_path.init(from_path, edge, arc, this);
     tag_bldr_->setMatchArrival(to_tag, tag_match,
 			       to_arrival, arrival_index,
 			       &prev_path);
@@ -1333,13 +1338,13 @@ ArrivalVisitor::visitFromToPath(const Pin *,
 void
 ArrivalVisitor::pruneCrprArrivals()
 {
-  ArrivalMap::Iterator arrival_iter(tag_bldr_->arrivalMap());
   CheckCrpr *crpr = search_->checkCrpr();
-  while (arrival_iter.hasNext()) {
-    Tag *tag;
-    int arrival_index;
-    arrival_iter.next(tag, arrival_index);
+  ArrivalMap *arrival_map = tag_bldr_->arrivalMap();
+  for (auto arrival_itr = arrival_map->cbegin(); arrival_itr != arrival_map->cend(); ) {
+    Tag *tag = arrival_itr->first;
+    int arrival_index = arrival_itr->second;
     ClkInfo *clk_info = tag->clkInfo();
+    bool deleted_tag = false;
     if (!tag->isClock()
 	&& clk_info->hasCrprClkPin()) {
       PathAnalysisPt *path_ap = tag->pathAnalysisPt(this);
@@ -1364,10 +1369,13 @@ ArrivalVisitor::pruneCrprArrivals()
 	if (delayGreater(max_arrival_max_crpr, arrival, min_max, this)) {
 	  debugPrint(debug_, "search", 3, "  pruned %s",
                      tag->asString(this));
-	  tag_bldr_->deleteArrival(tag);
+          arrival_itr = arrival_map->erase(arrival_itr);
+          deleted_tag = true;
 	}
       }
     }
+    if (!deleted_tag)
+      arrival_itr++;
   }
 }
 
@@ -2710,7 +2718,10 @@ Search::setVertexArrivals(Vertex *vertex,
   else {
     TagGroup *prev_tag_group = tagGroup(vertex);
     Arrival *prev_arrivals = graph_->arrivals(vertex);
-    PathVertexRep *prev_paths = graph_->prevPaths(vertex);
+    PathPrev *prev_paths = graph_->prevPaths(vertex);
+    bool save_prev = always_save_prev_paths_
+      || tag_bldr->hasClkTag()
+      || tag_bldr->hasGenClkSrcTag();
 
     TagGroup *tag_group = findTagGroup(tag_bldr);
     int arrival_count = tag_group->arrivalCount();
@@ -2718,7 +2729,7 @@ Search::setVertexArrivals(Vertex *vertex,
     // Reuse arrival array if it is the same size.
     if (prev_tag_group
 	&& arrival_count == prev_tag_group->arrivalCount()) {
-      if  (tag_bldr->hasClkTag() || tag_bldr->hasGenClkSrcTag()) {
+      if  (save_prev) {
 	if (prev_paths == nullptr)
 	  prev_paths = graph_->makePrevPaths(vertex, arrival_count);
       }
@@ -2751,7 +2762,7 @@ Search::setVertexArrivals(Vertex *vertex,
       }
       Arrival *arrivals = graph_->makeArrivals(vertex, arrival_count);
       prev_paths = nullptr;
-      if  (tag_bldr->hasClkTag() || tag_bldr->hasGenClkSrcTag())
+      if  (save_prev)
 	prev_paths = graph_->makePrevPaths(vertex, arrival_count);
       tag_bldr->copyArrivals(tag_group, arrivals, prev_paths);
 
@@ -2771,6 +2782,7 @@ Search::reportArrivals(Vertex *vertex) const
   TagGroup *tag_group = tagGroup(vertex);
   Arrival *arrivals = graph_->arrivals(vertex);
   Required *requireds = graph_->requireds(vertex);
+  PathPrev *prev_paths = graph_->prevPaths(vertex);
   if (tag_group) {
     report_->reportLine("Group %u", tag_group->index());
     ArrivalMap::Iterator arrival_iter(tag_group->arrivalMap());
@@ -2791,14 +2803,34 @@ Search::reportArrivals(Vertex *vertex) const
         if (!prev.isNull())
           clk_prev = prev.name(this);
       }
-      report_->reportLine(" %d %s %s %s / %s %s %s",
+      string prev_str;
+      if (prev_paths) {
+        PathPrev &prev = prev_paths[arrival_index];
+        if (!prev.isNull()) {
+          prev_str += prev.name(this);
+          prev_str += " ";
+          const Edge *prev_edge = prev.prevEdge(this);
+          TimingArc *arc = prev.prevArc(this);
+          prev_str += prev_edge->from(graph_)->name(network_);
+          prev_str += " ";
+          prev_str += arc->fromEdge()->asString();
+          prev_str += " -> ";
+          prev_str += prev_edge->to(graph_)->name(network_);
+          prev_str += " ";
+          prev_str += arc->toEdge()->asString();
+        }
+        else
+          prev_str = "NULL";
+      }
+      report_->reportLine(" %d %s %s %s / %s %s %s prev %s",
                           arrival_index,
                           rf->asString(),
                           path_ap->pathMinMax()->asString(),
                           delayAsString(arrivals[arrival_index], this),
                           req,
                           tag->asString(true, false, this),
-                          clk_prev);
+                          clk_prev,
+                          prev_str.c_str());
     }
   }
   else
@@ -2983,17 +3015,17 @@ Search::findClkInfo(const ClockEdge *clk_edge,
                     const PathAnalysisPt *path_ap,
 		    PathVertex *crpr_clk_path)
 {
-  PathVertexRep crpr_clk_path_rep(crpr_clk_path, this);
+  PathVertexPtr crpr_clk_path_ptr(crpr_clk_path, this);
   ClkInfo probe(clk_edge, clk_src, is_propagated, gen_clk_src, gen_clk_src_path,
 		pulse_clk_sense, insertion, latency, uncertainties,
-		path_ap->index(), crpr_clk_path_rep, this);
+		path_ap->index(), crpr_clk_path_ptr, this);
   LockGuard lock(clk_info_lock_);
   ClkInfo *clk_info = clk_info_set_->findKey(&probe);
   if (clk_info == nullptr) {
     clk_info = new ClkInfo(clk_edge, clk_src,
 			   is_propagated, gen_clk_src, gen_clk_src_path,
 			   pulse_clk_sense, insertion, latency, uncertainties,
-			   path_ap->index(), crpr_clk_path_rep, this);
+			   path_ap->index(), crpr_clk_path_ptr, this);
     clk_info_set_->insert(clk_info);
   }
   return clk_info;

@@ -33,7 +33,7 @@
 #include "Graph.hh"
 #include "Sdc.hh"
 #include "PathVertex.hh"
-#include "PathVertexRep.hh"
+#include "PathPrev.hh"
 #include "Path.hh"
 #include "PathAnalysisPt.hh"
 #include "ClkInfo.hh"
@@ -63,7 +63,7 @@ CheckCrpr::clkPathPrev(const PathVertex *path,
   int arrival_index;
   bool exists;
   path->arrivalIndex(arrival_index, exists);
-  PathVertexRep *prevs = graph_->prevPaths(vertex);
+  PathPrev *prevs = graph_->prevPaths(vertex);
   if (prevs)
     prev.init(prevs[arrival_index], this);
   else
@@ -74,7 +74,7 @@ PathVertex
 CheckCrpr::clkPathPrev(Vertex *vertex,
 		       int arrival_index)
 {
-  PathVertexRep *prevs = graph_->prevPaths(vertex);
+  PathPrev *prevs = graph_->prevPaths(vertex);
   if (prevs)
     return PathVertex(prevs[arrival_index], this);
   else {
@@ -90,7 +90,7 @@ CheckCrpr::clkPathPrev(Vertex *vertex,
 Arrival
 CheckCrpr::maxCrpr(ClkInfo *clk_info)
 {
-  const PathVertexRep &crpr_clk_path = clk_info->crprClkPath();
+  const PathVertexPtr &crpr_clk_path = clk_info->crprClkPath();
   if (!crpr_clk_path.isNull()) {
     PathVertex crpr_clk_vpath(crpr_clk_path, this);
     if (!crpr_clk_vpath.isNull()) {
@@ -166,7 +166,7 @@ CheckCrpr::checkCrpr1(const Path *src_path,
   const Clock *src_clk = src_clk_info->clock();
   const Clock *tgt_clk = tgt_clk_info->clock();
   PathVertex src_clk_path1;
-  PathVertexRep &src_crpr_clk_path = src_clk_info->crprClkPath();
+  const PathVertexPtr &src_crpr_clk_path = src_clk_info->crprClkPath();
   const PathVertex *src_clk_path = nullptr;
   if (src_tag->isClock()) {
     src_clk_path1.init(src_path->vertex(this), src_path->tag(this), this);

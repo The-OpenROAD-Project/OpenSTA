@@ -24,52 +24,40 @@
 
 #pragma once
 
-#include "SdcClass.hh"
 #include "SearchClass.hh"
 
 namespace sta {
 
-// "Pointer" to a previous path on a vertex (PathVertex) thru an edge/arc.
-class PathVertexRep
+// "Pointer" to a vertex path because there is no real path object to point to.
+class PathVertexPtr
 {
 public:
-  PathVertexRep();
-  PathVertexRep(const PathVertex *path,
-                const Edge *prev_edge,
-                const TimingArc *prev_arc,
+  PathVertexPtr();
+  PathVertexPtr(const PathVertex *path,
                 const StaState *sta);
   void init();
-  void init(const PathVertexRep *path);
-  void init(const PathVertexRep &path);
+  void init(const PathVertexPtr *path);
+  void init(const PathVertexPtr &path);
   void init(const PathVertex *path,
-            const Edge *prev_edge,
-            const TimingArc *prev_arc,
 	    const StaState *sta);
   bool isNull() const;
   const char *name(const StaState *sta) const;
   Vertex *vertex(const StaState *sta) const;
-  VertexId vertexId(const StaState *sta) const;
-  Edge *prevEdge(const StaState *sta) const;
-  TimingArc *prevArc(const StaState *sta) const;
+  VertexId vertexId() const { return vertex_id_; }
   Tag *tag(const StaState *sta) const;
-  TagIndex tagIndex() const { return prev_tag_index_; }
+  TagIndex tagIndex() const { return tag_index_; }
   Arrival arrival(const StaState *sta) const;
-  void prevPath(const StaState *sta,
-		// Return values.
-		PathRef &prev_path,
-		TimingArc *&prev_arc) const;
 
-  static bool equal(const PathVertexRep *path1,
-		    const PathVertexRep *path2);
-  static bool equal(const PathVertexRep &path1,
-		    const PathVertexRep &path2);
-  static int cmp(const PathVertexRep &path1,
-		 const PathVertexRep &path2);
+  static bool equal(const PathVertexPtr *path1,
+		    const PathVertexPtr *path2);
+  static bool equal(const PathVertexPtr &path1,
+		    const PathVertexPtr &path2);
+  static int cmp(const PathVertexPtr &path1,
+		 const PathVertexPtr &path2);
 
 protected:
-  EdgeId prev_edge_id_;
-  TagIndex prev_tag_index_:tag_index_bit_count;
-  unsigned prev_arc_idx_:2;
+  VertexId vertex_id_;
+  TagIndex tag_index_;
 };
 
 } // namespace

@@ -37,7 +37,7 @@ namespace sta {
 
 class TagGroupBldr;
 
-typedef Vector<PathVertexRep> PathVertexRepSeq;
+typedef Vector<PathPrev> PathPrevSeq;
 
 class TagGroup
 {
@@ -110,7 +110,6 @@ public:
   bool hasGenClkSrcTag() const { return has_genclk_src_tag_; }
   bool hasFilterTag() const { return has_filter_tag_; }
   bool hasLoopTag() const { return has_loop_tag_; }
-  void deleteArrival(Tag *tag);
   void tagMatchArrival(Tag *tag,
 		       // Return values.
 		       Tag *&tag_match,
@@ -119,16 +118,17 @@ public:
   Arrival arrival(int arrival_index) const;
   void setArrival(Tag *tag,
 		  const Arrival &arrival,
-		  PathVertexRep *prev_path);
+		  PathPrev *prev_path);
   void setMatchArrival(Tag *tag,
 		       Tag *tag_match,
 		       const Arrival &arrival,
 		       int arrival_index,
-		       PathVertexRep *prev_path);
+		       PathPrev *prev_path);
   ArrivalMap *arrivalMap() { return &arrival_map_; }
+  PathPrev &prevPath(int arrival_index);
   void copyArrivals(TagGroup *tag_group,
 		    Arrival *arrivals,
-		    PathVertexRep *prev_paths);
+		    PathPrev *prev_paths);
 
 protected:
   int tagMatchIndex();
@@ -138,7 +138,7 @@ protected:
   int default_arrival_count_;
   ArrivalMap arrival_map_;
   ArrivalSeq arrivals_;
-  PathVertexRepSeq prev_paths_;
+  PathPrevSeq prev_paths_;
   bool has_clk_tag_;
   bool has_genclk_src_tag_:1;
   bool has_filter_tag_;

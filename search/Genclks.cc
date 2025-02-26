@@ -40,7 +40,7 @@
 #include "Corner.hh"
 #include "PathAnalysisPt.hh"
 #include "Levelize.hh"
-#include "PathVertexRep.hh"
+#include "PathVertexPtr.hh"
 #include "Search.hh"
 
 namespace sta {
@@ -856,7 +856,7 @@ Genclks::copyGenClkSrcPaths(Vertex *vertex,
 {
   Arrival *arrivals = graph_->arrivals(vertex);
   if (arrivals) {
-    PathVertexRep *prev_paths = graph_->prevPaths(vertex);
+    PathPrev *prev_paths = graph_->prevPaths(vertex);
     TagGroup *tag_group = search_->tagGroup(vertex);
     if (tag_group) {
       ArrivalMap::Iterator arrival_iter(tag_group->arrivalMap());
@@ -866,7 +866,7 @@ Genclks::copyGenClkSrcPaths(Vertex *vertex,
         arrival_iter.next(tag, arrival_index);
         if (tag->isGenClkSrcPath()) {
           Arrival arrival = arrivals[arrival_index];
-          PathVertexRep *prev_path = prev_paths
+          PathPrev *prev_path = prev_paths
             ? &prev_paths[arrival_index]
             : nullptr;
           tag_bldr->setArrival(tag, arrival, prev_path);
@@ -903,7 +903,7 @@ Genclks::recordSrcPaths(Clock *gclk)
   bool has_edges = gclk->edges() != nullptr;
 
   for (const Pin *gclk_pin : gclk->leafPins()) {
-    PathVertexRep *src_paths = new PathVertexRep[path_count];
+    PathVertexPtr *src_paths = new PathVertexPtr[path_count];
     genclk_src_paths_.insert(ClockPinPair(gclk, gclk_pin), src_paths);
 
     Vertex *gclk_vertex = srcPathVertex(gclk_pin);
@@ -920,7 +920,7 @@ Genclks::recordSrcPaths(Clock *gclk)
 	bool inverting_path = (rf != src_clk_rf);
 	const PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
 	int path_index = srcPathIndex(rf, path_ap);
-	PathVertexRep &src_path = src_paths[path_index];
+	PathVertexPtr &src_path = src_paths[path_index];
 	if ((!divide_by_1
 		|| (inverting_path == invert))
 	    && (!has_edges
@@ -999,7 +999,7 @@ Genclks::srcPath(const Clock *gclk,
 		 const RiseFall *rf,
 		 const PathAnalysisPt *path_ap) const
 {
-  PathVertexRep *src_paths =
+  PathVertexPtr *src_paths =
     genclk_src_paths_.findKey(ClockPinPair(gclk, src_pin));
   if (src_paths) {
     int path_index = srcPathIndex(rf, path_ap);
