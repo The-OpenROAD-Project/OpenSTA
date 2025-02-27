@@ -30,17 +30,17 @@
 namespace sta {
 
 // "Pointer" to a previous path on a vertex (PathVertex) thru an edge/arc.
-class PathVertexRep
+class PathPrev
 {
 public:
-  PathVertexRep();
-  PathVertexRep(const PathVertex *path,
-                const Edge *prev_edge,
-                const TimingArc *prev_arc,
-                const StaState *sta);
+  PathPrev();
+  PathPrev(const PathVertex *path,
+           const Edge *prev_edge,
+           const TimingArc *prev_arc,
+           const StaState *sta);
   void init();
-  void init(const PathVertexRep *path);
-  void init(const PathVertexRep &path);
+  void init(const PathPrev *path);
+  void init(const PathPrev &path);
   void init(const PathVertex *path,
             const Edge *prev_edge,
             const TimingArc *prev_arc,
@@ -59,12 +59,12 @@ public:
 		PathRef &prev_path,
 		TimingArc *&prev_arc) const;
 
-  static bool equal(const PathVertexRep *path1,
-		    const PathVertexRep *path2);
-  static bool equal(const PathVertexRep &path1,
-		    const PathVertexRep &path2);
-  static int cmp(const PathVertexRep &path1,
-		 const PathVertexRep &path2);
+  static bool equal(const PathPrev *path1,
+		    const PathPrev *path2);
+  static bool equal(const PathPrev &path1,
+		    const PathPrev &path2);
+  static int cmp(const PathPrev &path1,
+		 const PathPrev &path2);
 
 protected:
   EdgeId prev_edge_id_;

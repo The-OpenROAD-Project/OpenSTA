@@ -22,49 +22,42 @@
 // 
 // This notice may not be removed or altered from any source distribution.
 
-#include "ArcDelayCalc.hh"
-#include "StringSet.hh"
-#include "StringSeq.hh"
+#pragma once
 
-#include <tcl.h>
+#include "SearchClass.hh"
 
 namespace sta {
 
-#if TCL_MAJOR_VERSION < 9
-    typedef int Tcl_Size;
-#endif
+// "Pointer" to a vertex path because there is no real path object to point to.
+class PathVertexPtr
+{
+public:
+  PathVertexPtr();
+  PathVertexPtr(const PathVertex *path,
+                const StaState *sta);
+  void init();
+  void init(const PathVertexPtr *path);
+  void init(const PathVertexPtr &path);
+  void init(const PathVertex *path,
+	    const StaState *sta);
+  bool isNull() const;
+  const char *name(const StaState *sta) const;
+  Vertex *vertex(const StaState *sta) const;
+  VertexId vertexId() const { return vertex_id_; }
+  Tag *tag(const StaState *sta) const;
+  TagIndex tagIndex() const { return tag_index_; }
+  Arrival arrival(const StaState *sta) const;
 
-StringSet *
-tclListSetConstChar(Tcl_Obj *const source,
-		    Tcl_Interp *interp);
+  static bool equal(const PathVertexPtr *path1,
+		    const PathVertexPtr *path2);
+  static bool equal(const PathVertexPtr &path1,
+		    const PathVertexPtr &path2);
+  static int cmp(const PathVertexPtr &path1,
+		 const PathVertexPtr &path2);
 
-StringSeq *
-tclListSeqConstChar(Tcl_Obj *const source,
-		    Tcl_Interp *interp);
-
-StdStringSet *
-tclListSetStdString(Tcl_Obj *const source,
-		    Tcl_Interp *interp);
-
-void
-tclArgError(Tcl_Interp *interp,
-            int id,
-            const char *msg,
-            const char *arg);
-
-void
-objectListNext(const char *list,
-	       const char *type,
-	       // Return values.
-	       bool &type_match,
-	       const char *&next);
-
-Tcl_Obj *
-tclArcDcalcArg(ArcDcalcArg &gate,
-               Tcl_Interp *interp);
-
-ArcDcalcArg
-arcDcalcArgTcl(Tcl_Obj *obj,
-               Tcl_Interp *interp);
+protected:
+  VertexId vertex_id_;
+  TagIndex tag_index_;
+};
 
 } // namespace

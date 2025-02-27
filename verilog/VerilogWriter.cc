@@ -508,19 +508,15 @@ VerilogWriter::findPortNCcount(const Instance *inst,
                                const Port *port)
 {
   int nc_count = 0;
-  LibertyPort *lib_port = network_->libertyPort(port);
-  if (lib_port) {
-    Cell *cell = network_->cell(inst);
-    LibertyPortMemberIterator member_iter(lib_port);
-    while (member_iter.hasNext()) {
-      LibertyPort *lib_member = member_iter.next();
-      Port *member = network_->findPort(cell, lib_member->name());
-      Pin *pin = network_->findPin(inst, member);
-      if (pin == nullptr
-          || network_->net(pin) == nullptr)
-        nc_count++;
-    }
+  PortMemberIterator *member_iter = network_->memberIterator(port);
+  while (member_iter->hasNext()) {
+    Port *member = member_iter->next();
+    Pin *pin = network_->findPin(inst, member);
+    if (pin == nullptr
+        || network_->net(pin) == nullptr)
+      nc_count++;
   }
+  delete member_iter;
   return nc_count;
 }
 

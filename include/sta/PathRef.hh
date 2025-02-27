@@ -49,6 +49,8 @@ public:
   void init(const PathRef *path);
   void init(const PathVertex &path);
   void init(const PathVertex *path);
+  void init(const PathPrev &path,
+            const StaState *sta);
   void init(Vertex *vertex,
 	    Tag *tag,
 	    int arrival_index);

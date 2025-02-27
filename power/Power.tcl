@@ -266,7 +266,7 @@ proc set_power_activity { args } {
     check_positive_float "density" $density
     set density [expr $density / [time_ui_sta 1.0]]
     if { [info exists keys(-clock)] } {
-      sta_warn 302 "-clock ignored for -density"
+      sta_warn 308 "-clock ignored for -density"
     }
   }
   set duty 0.5
@@ -274,7 +274,7 @@ proc set_power_activity { args } {
     set duty $keys(-duty)
     check_float "duty" $duty
     if { $duty < 0.0 || $duty > 1.0 } {i
-      sta_error 302 "duty should be 0.0 to 1.0"
+      sta_error 309 "duty should be 0.0 to 1.0"
     }
   }
 

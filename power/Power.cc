@@ -664,7 +664,9 @@ Power::ensureActivities()
       // unless it has been set by command.
       if (input_activity_.density() == 0.0) {
         float min_period = clockMinPeriod();
-        float density = 0.1 / (min_period != 0.0 ? min_period : 0.0);
+        float density = 0.1 / (min_period != 0.0
+                               ? min_period
+                               : units_->timeUnit()->scale());
         input_activity_.set(density, 0.5, PwrActivityOrigin::input);
       }
       ActivitySrchPred activity_srch_pred(this);

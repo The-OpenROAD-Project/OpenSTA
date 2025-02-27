@@ -2263,7 +2263,7 @@ VerilogScanner::VerilogScanner(std::istream *stream,
 void
 VerilogScanner::error(const char *msg)
 {
-  report_->fileError(1866, filename_, lineno(), "%s", msg);
+  report_->fileError(1870, filename_, lineno(), "%s", msg);
 }
 
 } // namespace

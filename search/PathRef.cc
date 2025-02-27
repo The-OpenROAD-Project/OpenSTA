@@ -97,6 +97,26 @@ PathRef::init(const PathVertex &path)
 }
 
 void
+PathRef::init(const PathPrev &path,
+              const StaState *sta)
+{
+  int arrival_index = 0;
+  TagIndex tag_index = path.tagIndex();
+  Tag *tag = nullptr;
+  if (tag_index != tag_index_null) {
+    const Search *search = sta->search();
+    tag = search->tag(tag_index);
+    Vertex *vertex = path.vertex(sta);
+    TagGroup *tag_group = search->tagGroup(vertex);
+    if (tag_group) {
+      bool arrival_exists;
+      tag_group->arrivalIndex(tag, arrival_index, arrival_exists);
+    }
+  }
+  path_vertex_.init(path.vertex(sta), tag, arrival_index);
+}
+
+void
 PathRef::init(Vertex *vertex,
 	      Tag *tag,
 	      int arrival_index)

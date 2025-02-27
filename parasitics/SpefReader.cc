@@ -502,7 +502,7 @@ SpefReader::findParasiticNode(char *name,
           warn(1656, "pin %s not found.", name1);
       }
       else
-        warn(1656, "pin %s not found.", name);
+        warn(1657, "pin %s not found.", name);
     }
   }
   return nullptr;
@@ -624,7 +624,7 @@ SpefScanner::SpefScanner(std::istream *stream,
 void
 SpefScanner::error(const char *msg)
 {
-  report_->fileError(1866, filename_.c_str(), lineno(), "%s", msg);
+  report_->fileError(1867, filename_.c_str(), lineno(), "%s", msg);
 }
 
 } // namespace

@@ -29,8 +29,11 @@ exec tclsh $0 ${1+"$@"}
 # Find warning/error message IDs and detect collisions.
 # Usage: FindMessages.tcl > doc/messages.txt
 
+set has_error 0
+
 proc scan_file { file warn_regexp } {
   global msgs
+  global has_error
 
   if { [file exists $file] } {
     set in_stream [open $file r]
@@ -38,7 +41,7 @@ proc scan_file { file warn_regexp } {
     set file_line 1
 
     while { ![eof $in_stream] } {
-      if { [regexp -- $warn_regexp $line ignore1 ignore2 msg_id msg] } {
+      if { [regexp -- $warn_regexp $line ignore msg_id msg] } {
         lappend msgs "$msg_id $file $file_line $msg"
       }
       gets $in_stream line
@@ -46,7 +49,8 @@ proc scan_file { file warn_regexp } {
     }
     close $in_stream
   } else {
-    puts "Warning: file $file not found."
+    puts stderr "Warning: Source file $file not found during message scanning"
+    set has_error 1
   }
 }
 
@@ -57,13 +61,13 @@ foreach subdir $subdirs {
     set files [glob -nocomplain [file join $subdir "*.{cc,hh,yy,ll,i}"]]
     set files_c [concat $files_c $files]
 }
-set warn_regexp_c {(criticalError|->warn|->fileWarn|->error|->fileError|libWarn|libError| warn)\(([0-9]+),.*(".+")}
+set warn_regexp_c {(?:(?:criticalError|->warn|->fileWarn|->error|->fileError|libWarn|libError| warn)\(|tclArgError\(interp,\s*)([0-9]+),.*(".+")}
 
 set files_tcl {}
 foreach subdir $subdirs {
   set files_tcl [concat $files_tcl [glob -nocomplain [file join $subdir "*.tcl"]]]
 }
-set warn_regexp_tcl {(sta_warn|sta_error|sta_warn_error) ([0-9]+) (".+")}
+set warn_regexp_tcl {(?:sta_warn|sta_error|sta_warn_error) ([0-9]+) (".+")}
 
 proc scan_files {files warn_regexp } {
   foreach file $files {
@@ -73,13 +77,15 @@ proc scan_files {files warn_regexp } {
 
 proc check_msgs { } {
   global msgs
+  global has_error
 
   set msgs [lsort -index 0 -integer $msgs]
   set prev_id -1
   foreach msg $msgs {
     set msg_id [lindex $msg 0]
     if { $msg_id == $prev_id } {
-      puts "Warning: $msg_id duplicated"
+      puts stderr "Warning: Message id $msg_id duplicated"
+      set has_error 1
     }
     set prev_id $msg_id
   }
@@ -99,3 +105,7 @@ scan_files $files_c $warn_regexp_c
 scan_files $files_tcl $warn_regexp_tcl
 check_msgs
 report_msgs
+
+if {$has_error} {
+  exit 1
+}

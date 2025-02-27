@@ -36,7 +36,7 @@
 #include "Delay.hh"
 #include "GraphClass.hh"
 #include "VertexId.hh"
-#include "PathVertexRep.hh"
+#include "PathPrev.hh"
 #include "StaState.hh"
 
 namespace sta {
@@ -55,7 +55,7 @@ typedef ObjectId EdgeId;
 
 static constexpr EdgeId edge_id_null = object_id_null;
 static constexpr ObjectIdx edge_idx_null = object_id_null;
-static constexpr ObjectIdx vertex_idx_null = object_id_null;
+static constexpr ObjectIdx vertex_idx_null = object_idx_null;
 
 // The graph acts as a BUILDER for the graph vertices and edges.
 class Graph : public StaState
@@ -104,9 +104,9 @@ public:
                           uint32_t count);
   Required *requireds(const Vertex *vertex) const;
   void deleteRequireds(Vertex *vertex);
-  PathVertexRep *makePrevPaths(Vertex *vertex,
+  PathPrev *makePrevPaths(Vertex *vertex,
 			       uint32_t count);
-  PathVertexRep *prevPaths(const Vertex *vertex) const;
+  PathPrev *prevPaths(const Vertex *vertex) const;
   void deletePrevPaths(Vertex *vertex);
   // Private to Search::deletePaths(Vertex).
   void deletePaths(Vertex *vertex);
@@ -271,8 +271,8 @@ public:
   const Slew *slews() const { return slews_; }
   Arrival *arrivals() const { return arrivals_; }
   Arrival *requireds() const { return requireds_; }
-  PathVertexRep *prevPaths() const { return prev_paths_; }
-  void setPrevPaths(PathVertexRep *prev_paths);
+  PathPrev *prevPaths() const { return prev_paths_; }
+  void setPrevPaths(PathPrev *prev_paths);
   TagGroupIndex tagGroupIndex() const;
   void setTagGroupIndex(TagGroupIndex tag_index);
   // Slew is annotated by sdc set_annotated_transition cmd.
@@ -312,8 +312,6 @@ public:
   bool crprPathPruningDisabled() const { return crpr_path_pruning_disabled_;}
   void setCrprPathPruningDisabled(bool disabled);
   bool hasRequireds() const { return requireds_ != nullptr; }
-  bool requiredsPruned() const { return requireds_pruned_; }
-  void setRequiredsPruned(bool pruned);
   
   // ObjectTable interface.
   ObjectIdx objectIdx() const { return object_idx_; }
@@ -339,13 +337,13 @@ protected:
   // Search
   Arrival *arrivals_;
   Arrival *requireds_;
-  PathVertexRep *prev_paths_;
+  PathPrev *prev_paths_;
 
   // These fields are written by multiple threads, so they
   // cannot share the same word as the following bit fields.
   uint32_t tag_group_index_;
   // Each bit corresponds to a different BFS queue.
-  std::atomic<uint8_t> bfs_in_queue_; // 4
+  std::atomic<uint8_t> bfs_in_queue_; // 8
 
   unsigned int level_:Graph::vertex_level_bits; // 24
   unsigned int slew_annotated_:slew_annotated_bits;  // 4
@@ -367,7 +365,6 @@ protected:
   bool is_constrained_:1;
   bool has_downstream_clk_pin_:1;
   bool crpr_path_pruning_disabled_:1;
-  bool requireds_pruned_:1;
   unsigned object_idx_:VertexTable::idx_bits; // 7
 
 private:
@@ -385,7 +382,9 @@ public:
   Edge();
   ~Edge();
   Vertex *to(const Graph *graph) const { return graph->vertex(to_); }
+  VertexId to() const { return to_; }
   Vertex *from(const Graph *graph) const { return graph->vertex(from_); }
+  VertexId from() const { return from_; }
   TimingRole *role() const;
   bool isWire() const;
   TimingSense sense() const;

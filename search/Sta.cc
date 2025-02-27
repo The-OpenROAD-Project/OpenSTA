@@ -3210,11 +3210,10 @@ Sta::findRequired(Vertex *vertex)
   if (sdc_->crprEnabled()
       && search_->crprPathPruningEnabled()
       && !search_->crprApproxMissingRequireds()
-      // Clocks invariably have requireds that are pruned but isn't
+      // Clocks invariably have requireds that are pruned but it isn't
       // worth finding arrivals and requireds all over again for
       // the entire fanout of the clock.
-      && !search_->isClock(vertex)
-      && vertex->requiredsPruned()) {
+      && !search_->isClock(vertex)) {
     // Invalidate arrivals and requireds and disable
     // path pruning on fanout vertices with DFS.
     int fanout = 0;
@@ -3451,7 +3450,7 @@ Network *
 Sta::ensureLibLinked()
 {
   if (network_ == nullptr || !network_->isLinked())
-    report_->error(1570, "No network has been linked.");
+    report_->error(1571, "No network has been linked.");
   // OpenROAD db is inherently linked but may not have associated
   // liberty files so check for them here.
   if (network_->defaultLibertyLibrary() == nullptr)
@@ -4610,8 +4609,7 @@ Sta::deletePinBefore(const Pin *pin)
           if (edge->role()->isWire()) {
             // Only notify to vertex (from will be deleted).
             Vertex *to = edge->to(graph_);
-            // to->prev_paths point to vertex, so delete them.
-            search_->arrivalInvalidDelete(to);
+            search_->arrivalInvalid(to);
             graph_delay_calc_->delayInvalid(to);
             levelize_->relevelizeFrom(to);
           }

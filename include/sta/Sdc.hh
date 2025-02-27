@@ -201,7 +201,7 @@ findLeafDriverPins(const Pin *pin,
 class Sdc : public StaState
 {
 public:
-  explicit Sdc(StaState *sta);
+  Sdc(StaState *sta);
   ~Sdc();
   // Note that Search may reference a Filter exception removed by clear().
   void clear();
@@ -377,31 +377,29 @@ public:
 		      float fanout);
   void setMaxArea(float area);
   float maxArea() const;
-  virtual Clock *makeClock(const char *name,
-			   PinSet *pins,
-			   bool add_to_pins,
-			   float period,
-			   FloatSeq *waveform,
-			   const char *comment);
+  Clock *makeClock(const char *name,
+                   PinSet *pins,
+                   bool add_to_pins,
+                   float period,
+                   FloatSeq *waveform,
+                   const char *comment);
   // edges size must be 3.
-  virtual Clock *makeGeneratedClock(const char *name,
-				    PinSet *pins,
-				    bool add_to_pins,
-				    Pin *src_pin,
-				    Clock *master_clk,
-				    int divide_by,
-				    int multiply_by,
-				    float duty_cycle,
-				    bool invert,
-				    bool combinational,
-				    IntSeq *edges,
-				    FloatSeq *edge_shifts,
-				    const char *comment);
+  Clock *makeGeneratedClock(const char *name,
+                            PinSet *pins,
+                            bool add_to_pins,
+                            Pin *src_pin,
+                            Clock *master_clk,
+                            int divide_by,
+                            int multiply_by,
+                            float duty_cycle,
+                            bool invert,
+                            bool combinational,
+                            IntSeq *edges,
+                            FloatSeq *edge_shifts,
+                            const char *comment);
   // Invalidate all generated clock waveforms.
   void invalidateGeneratedClks() const;
-  virtual void removeClock(Clock *clk);
-  virtual void clockDeletePin(Clock *clk,
-			      Pin *pin);
+  void removeClock(Clock *clk);
   // Clock used for inputs without defined arrivals.
   ClockEdge *defaultArrivalClockEdge() const;
   Clock *defaultArrivalClock() const { return default_arrival_clk_; }
@@ -485,22 +483,22 @@ public:
 		      bool &exists) const;
   const ClockInsertions &clockInsertions() const { return clk_insertions_; }
   // Clock uncertainty.
-  virtual void setClockUncertainty(Pin *pin,
-				   const SetupHoldAll *setup_hold,
-				   float uncertainty);
-  virtual void removeClockUncertainty(Pin *pin,
-				      const SetupHoldAll *setup_hold);
-  virtual void setClockUncertainty(Clock *from_clk,
-				   const RiseFallBoth *from_rf,
-				   Clock *to_clk,
-				   const RiseFallBoth *to_rf,
-				   const SetupHoldAll *setup_hold,
-				   float uncertainty);
-  virtual void removeClockUncertainty(Clock *from_clk,
-				      const RiseFallBoth *from_rf,
-				      Clock *to_clk,
-				      const RiseFallBoth *to_rf,
-				      const SetupHoldAll *setup_hold);
+  void setClockUncertainty(Pin *pin,
+                           const SetupHoldAll *setup_hold,
+                           float uncertainty);
+  void removeClockUncertainty(Pin *pin,
+                              const SetupHoldAll *setup_hold);
+  void setClockUncertainty(Clock *from_clk,
+                           const RiseFallBoth *from_rf,
+                           Clock *to_clk,
+                           const RiseFallBoth *to_rf,
+                           const SetupHoldAll *setup_hold,
+                           float uncertainty);
+  void removeClockUncertainty(Clock *from_clk,
+                              const RiseFallBoth *from_rf,
+                              Clock *to_clk,
+                              const RiseFallBoth *to_rf,
+                              const SetupHoldAll *setup_hold);
   ClockGroups *makeClockGroups(const char *name,
 			       bool logically_exclusive,
 			       bool physically_exclusive,
@@ -873,7 +871,7 @@ public:
                   float voltage);
   InputDrive *findInputDrive(Port *port);
   Clock *findClock(const char *name) const;
-  virtual ClockSeq findClocksMatching(PatternMatch *pattern) const;
+  ClockSeq findClocksMatching(PatternMatch *pattern) const;
   // True if pin is defined as a clock source (pin may be hierarchical).
   bool isClock(const Pin *pin) const;
   // True if pin is a clock source vertex.
@@ -1036,13 +1034,13 @@ public:
 		   // Return values.
 		   ExceptionPath *&hi_priority_exception,
 		   int &hi_priority) const;
-  virtual bool exceptionMatchesTo(ExceptionPath *exception,
-				  const Pin *pin,
-				  const RiseFall *rf,
-				  const ClockEdge *clk_edge,
-				  const MinMax *min_max,
-				  bool match_min_max_exactly,
-				  bool require_to_pin) const;
+  bool exceptionMatchesTo(ExceptionPath *exception,
+                          const Pin *pin,
+                          const RiseFall *rf,
+                          const ClockEdge *clk_edge,
+                          const MinMax *min_max,
+                          bool match_min_max_exactly,
+                          bool require_to_pin) const;
   bool isCompleteTo(ExceptionState *state,
 		    const Pin *pin,
 		    const RiseFall *rf,
@@ -1085,8 +1083,8 @@ protected:
   void deleteClkPinMappings(Clock *clk);
   void deleteExceptionPtHashMapSets(ExceptionPathPtHash &map);
   void makeClkPinMappings(Clock *clk);
-  virtual void deletePinClocks(Clock *defining_clk,
-			       PinSet *pins);
+  void deletePinClocks(Clock *defining_clk,
+                       PinSet *pins);
   void makeDefaultArrivalClock();
   InputDrive *ensureInputDrive(const Port *port);
   PortExtCap *ensurePortExtPinCap(const Port *port,
@@ -1097,8 +1095,8 @@ protected:
   void recordPathDelayInternalStartpoints(ExceptionPath *exception);
   void unrecordPathDelayInternalStartpoints(ExceptionFrom *from);
   bool pathDelayFrom(const Pin *pin);
-  virtual void recordPathDelayInternalEndpoints(ExceptionPath *exception);
-  virtual void unrecordPathDelayInternalEndpoints(ExceptionPath *exception);
+  void recordPathDelayInternalEndpoints(ExceptionPath *exception);
+  void unrecordPathDelayInternalEndpoints(ExceptionPath *exception);
   bool pathDelayTo(const Pin *pin);
   bool hasLibertyCheckTo(const Pin *pin);
   void deleteMatchingExceptions(ExceptionPath *exception);

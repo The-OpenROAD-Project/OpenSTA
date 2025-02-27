@@ -2394,9 +2394,9 @@ ReportPath::reportGenClkSrcPath1(const Clock *clk,
 				 bool clk_used_as_data) const
 {
   PathAnalysisPt *insert_ap = path_ap->insertionAnalysisPt(early_late);
-  PathVertex src_path;
   const MinMax *min_max = path_ap->pathMinMax();
-  search_->genclks()->srcPath(clk, clk_pin, clk_rf, insert_ap, src_path);
+  PathVertex src_path =
+    search_->genclks()->srcPath(clk, clk_pin, clk_rf, insert_ap);
   if (!src_path.isNull()) {
     ClkInfo *src_clk_info = src_path.clkInfo(search_);
     const ClockEdge *src_clk_edge = src_clk_info->clkEdge();

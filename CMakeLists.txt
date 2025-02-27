@@ -189,9 +189,10 @@ set(STA_SOURCE
   search/PathEnumed.cc
   search/PathExpanded.cc
   search/PathGroup.cc
+  search/PathPrev.cc
   search/PathRef.cc
   search/PathVertex.cc
-  search/PathVertexRep.cc
+  search/PathVertexPtr.cc
   search/Property.cc
   search/ReportPath.cc
   search/Search.cc
@@ -596,3 +597,10 @@ add_custom_target(sta_tags etags -o TAGS
   ${SWIG_TCL_FILES}
   WORKING_DIRECTORY ${STA_HOME}
   )
+
+add_custom_command(
+  TARGET OpenSTA
+  POST_BUILD
+  COMMAND ${CMAKE_SOURCE_DIR}/etc/FindMessages.tcl > ${CMAKE_SOURCE_DIR}/doc/messages.txt || true
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)

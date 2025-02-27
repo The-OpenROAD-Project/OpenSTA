@@ -1176,19 +1176,6 @@ Sdc::deleteMasterClkRefs(Clock *clk)
   }
 }
 
-void
-Sdc::clockDeletePin(Clock *clk,
-		    Pin *pin)
-{
-  ClockSet *pin_clks = clock_pin_map_.findKey(pin);
-  pin_clks->erase(clk);
-  if (pin_clks->empty())
-    clock_pin_map_.erase(pin);
-  clk->deletePin(pin);
-  clk->makeLeafPins(network_);
-  makeClkPinMappings(clk);
-}
-
 Clock *
 Sdc::findClock(const char *name) const
 {

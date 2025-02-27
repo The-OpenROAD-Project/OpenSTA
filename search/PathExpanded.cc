@@ -115,8 +115,7 @@ PathExpanded::expandGenclk(PathRef *clk_path)
   if (!clk_path->isNull()) {
     const Clock *src_clk = clk_path->clock(sta_);
     if (src_clk && src_clk->isGenerated()) {
-      PathVertex src_path;
-      sta_->search()->genclks()->srcPath(clk_path, src_path);
+      PathVertex src_path = sta_->search()->genclks()->srcPath(clk_path);
       if (!src_path.isNull()) {
 	// The head of the genclk src path is already in paths_,
 	// so skip past it.

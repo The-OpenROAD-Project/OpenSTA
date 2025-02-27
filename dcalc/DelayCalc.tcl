@@ -131,7 +131,7 @@ proc set_delay_calculator { alg } {
   if { [is_delay_calc_name $alg] } {
     set_delay_calculator_cmd $alg
   } else {
-    sta_error 180 "delay calculator $alg not found."
+    sta_error 195 "delay calculator $alg not found."
   }
 }
 
@@ -156,7 +156,7 @@ proc set_assigned_delay { args } {
   if [info exists keys(-from)] {
     set from_pins [get_port_pins_error "from_pins" $keys(-from)]
   } else {
-    sta_error 181 "set_assigned_delay missing -from argument."
+    sta_error 196 "set_assigned_delay missing -from argument."
   }
   if [info exists keys(-to)] {
     set to_pins [get_port_pins_error "to_pins" $keys(-to)]
