@@ -110,6 +110,7 @@ public:
   bool hasGenClkSrcTag() const { return has_genclk_src_tag_; }
   bool hasFilterTag() const { return has_filter_tag_; }
   bool hasLoopTag() const { return has_loop_tag_; }
+  bool hasPropagatedClk() const { return has_propagated_clk_; }
   void tagMatchArrival(Tag *tag,
 		       // Return values.
 		       Tag *&tag_match,
@@ -140,9 +141,10 @@ protected:
   ArrivalSeq arrivals_;
   PathPrevSeq prev_paths_;
   bool has_clk_tag_;
-  bool has_genclk_src_tag_:1;
+  bool has_genclk_src_tag_;
   bool has_filter_tag_;
   bool has_loop_tag_;
+  bool has_propagated_clk_;
   const StaState *sta_;
 };
 

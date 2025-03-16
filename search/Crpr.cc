@@ -186,7 +186,7 @@ CheckCrpr::checkCrpr1(const Path *src_path,
       // For path from latches that are borrowing the enable path
       // is from the opposite min/max of the data.
       && src_clk_min_max != tgt_clk_path->minMax(this)
-      && (src_clk_path != nullptr
+      && (src_clk_path
 	  || src_clk->isGenerated())) {
     // Src path from input port clk path can only be from generated clk path.
     PathVertex port_clk_path;

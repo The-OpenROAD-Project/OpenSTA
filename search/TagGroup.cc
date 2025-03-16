@@ -141,6 +141,7 @@ TagGroupBldr::TagGroupBldr(bool match_crpr_clk_pin,
   has_genclk_src_tag_(false),
   has_filter_tag_(false),
   has_loop_tag_(false),
+  has_propagated_clk_(false),
   sta_(sta)
 {
 }
@@ -245,6 +246,8 @@ TagGroupBldr::setMatchArrival(Tag *tag,
       has_filter_tag_ = true;
     if (tag->isLoop())
       has_loop_tag_ = true;
+    if (tag->clkInfo()->isPropagated())
+      has_propagated_clk_ = true;
   }
 }
 

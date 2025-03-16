@@ -1144,6 +1144,8 @@ ArrivalVisitor::visit(Vertex *vertex)
   if (crpr_active_
       && search_->crprPathPruningEnabled()
       && !vertex->crprPathPruningDisabled()
+      // No crpr for ideal clocks.
+      && tag_bldr_->hasPropagatedClk()
       && !has_fanin_one_)
     pruneCrprArrivals();
 
