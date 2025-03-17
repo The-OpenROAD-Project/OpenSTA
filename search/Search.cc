@@ -2158,11 +2158,11 @@ PathVisitor::visitFromPath(const Pin *from_pin,
 	     || !gclk->combinational())
 	    && fanins->hasKey(to_vertex)
 	    && !(fdbk_edges && fdbk_edges->hasKey(edge))) {
-	  to_tag = search_->thruClkTag(from_path, from_tag, true, edge, to_rf,
-                                       min_max, path_ap);
+	  to_tag = search_->thruClkTag(from_path, from_vertex, from_tag, true,
+                                       edge, to_rf, min_max, path_ap);
 	  if (to_tag) {
-	    arc_delay = search_->deratedDelay(from_vertex, arc, edge, true,
-                                              path_ap);
+	    arc_delay = search_->deratedDelay(from_vertex, arc, edge,
+                                              true, path_ap);
 	    to_arrival = from_arrival + arc_delay;
 	  }
 	}
@@ -2242,8 +2242,9 @@ PathVisitor::visitFromPath(const Pin *from_pin,
 		 || role == TimingRole::tristateDisable()));
       arc_delay = search_->deratedDelay(from_vertex, arc, edge,
                                         to_propagates_clk, path_ap);
-      to_tag = search_->thruClkTag(from_path, from_tag, to_propagates_clk,
-                                   edge, to_rf, min_max, path_ap);
+      to_tag = search_->thruClkTag(from_path, from_vertex, from_tag,
+                                   to_propagates_clk, edge, to_rf,
+                                   min_max, path_ap);
       to_arrival = from_arrival + arc_delay;
     }
   }
@@ -2432,8 +2433,10 @@ Search::thruTag(Tag *from_tag,
   return to_tag;
 }
 
+// thruTag for clocks.
 Tag *
 Search::thruClkTag(PathVertex *from_path,
+                   Vertex *from_vertex,
 		   Tag *from_tag,
 		   bool to_propagates_clk,
 		   Edge *edge,
@@ -2453,8 +2456,8 @@ Search::thruClkTag(PathVertex *from_path,
 		    && to_propagates_clk
 		    && (role->isWire()
 			|| role == TimingRole::combinational()));
-  ClkInfo *to_clk_info = thruClkInfo(from_path, from_clk_info,
-				     edge, to_vertex, to_pin,
+  ClkInfo *to_clk_info = thruClkInfo(from_path, from_vertex, from_clk_info, from_is_clk,
+				     edge, to_vertex, to_pin, to_is_clk,
                                      min_max, path_ap);
   Tag *to_tag = mutateTag(from_tag,from_pin,from_rf,from_is_clk,from_clk_info,
 			  to_pin, to_rf, to_is_clk, to_is_reg_clk, false,
@@ -2462,13 +2465,15 @@ Search::thruClkTag(PathVertex *from_path,
   return to_tag;
 }
 
-// thruTag for clocks.
 ClkInfo *
 Search::thruClkInfo(PathVertex *from_path,
+		    Vertex *from_vertex,
 		    ClkInfo *from_clk_info,
+                    bool from_is_clk,
 		    Edge *edge,
 		    Vertex *to_vertex,
-                    const Pin *to_pin,
+		    const Pin *to_pin,
+                    bool to_is_clk,
 		    const MinMax *min_max,
 		    const PathAnalysisPt *path_ap)
 {
@@ -2499,7 +2504,13 @@ Search::thruClkInfo(PathVertex *from_path,
 
   PathVertex *to_crpr_clk_path = nullptr;
   if (sdc_->crprActive()
-      && to_vertex->isRegClk()) {
+      // Update crpr clk path for combinational paths leaving the clock
+      // network (ie, tristate en->out) and buffer driving reg clk.
+      && ((from_is_clk
+           && !to_is_clk
+           && !from_vertex->isRegClk())
+          || to_vertex->isRegClk())) {
+    //printf("%s -> %s\n", from_vertex->name(network_), to_vertex->name(network_));
     to_crpr_clk_path = from_path;
     changed = true;
   }
