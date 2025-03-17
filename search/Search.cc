@@ -2510,7 +2510,6 @@ Search::thruClkInfo(PathVertex *from_path,
            && !to_is_clk
            && !from_vertex->isRegClk())
           || to_vertex->isRegClk())) {
-    //printf("%s -> %s\n", from_vertex->name(network_), to_vertex->name(network_));
     to_crpr_clk_path = from_path;
     changed = true;
   }
