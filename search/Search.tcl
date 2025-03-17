@@ -702,12 +702,19 @@ define_cmd_args "report_disabled_edges" {}
 
 ################################################################
 
-define_cmd_args "report_tns" { [-digits digits]}
+define_cmd_args "report_tns" {[-min] [-max] [-digits digits]}
 
 proc_redirect report_tns {
   global sta_report_default_digits
 
-  parse_key_args "report_tns" args keys {-digits} flags {}
+  parse_key_args "report_tns" args keys {-digits} flags {-min -max}
+  set min_max "max"
+  if { [info exists flags(-min)] } {
+    set min_max "min"
+  }
+  if { [info exists flags(-max)] } {
+    set min_max "max"
+  }
   if [info exists keys(-digits)] {
     set digits $keys(-digits)
     check_positive_integer "-digits" $digits
@@ -715,32 +722,39 @@ proc_redirect report_tns {
     set digits $sta_report_default_digits
   }
 
-  report_line "tns [format_time [total_negative_slack_cmd "max"] $digits]"
+  report_line "tns $min_max [format_time [total_negative_slack_cmd $min_max] $digits]"
 }
 
 ################################################################
 
-define_cmd_args "report_wns" { [-digits digits]}
+define_cmd_args "report_wns" {[-min] [-max] [-digits digits]}
 
 proc_redirect report_wns {
   global sta_report_default_digits
 
-  parse_key_args "report_wns" args keys {-digits} flags {}
-  if [info exists keys(-digits)] {
+  parse_key_args "report_wns" args keys {-digits} flags {-min -max}
+  set min_max "max"
+  if { [info exists flags(-min)] } {
+    set min_max "min"
+  }
+  if { [info exists flags(-max)] } {
+    set min_max "max"
+  }
+  if { [info exists keys(-digits)] } {
     set digits $keys(-digits)
     check_positive_integer "-digits" $digits
   } else {
     set digits $sta_report_default_digits
   }
 
-  set slack [worst_slack_cmd "max"]
+  set slack [worst_slack_cmd $min_max]
   if { $slack > 0.0 } {
     set slack 0.0
   }
-  report_line "wns [format_time $slack $digits]"
+  report_line "wns $min_max [format_time $slack $digits]"
 }
 
-################################################################
+################################################# ###############
 
 define_cmd_args "report_worst_slack" {[-min] [-max] [-digits digits]}
 
@@ -756,7 +770,7 @@ proc_redirect report_worst_slack {
     set digits $sta_report_default_digits
   }
 
-  report_line "worst slack [format_time [worst_slack_cmd $min_max] $digits]"
+  report_line "worst slack $min_max [format_time [worst_slack_cmd $min_max] $digits]"
 }
 
 ################################################################
