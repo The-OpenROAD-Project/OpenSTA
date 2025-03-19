@@ -2197,7 +2197,13 @@ PathVisitor::visitFromPath(const Pin *from_pin,
 	      && from_tag->isClock())) {
 	const RiseFall *clk_rf = clk_edge ? clk_edge->transition() : nullptr;
 	ClkInfo *to_clk_info = from_clk_info;
-	if (network_->direction(to_pin)->isInternal())
+        const PathAnalysisPt *path_ap_opp =
+          path_ap->corner()->findPathAnalysisPt(min_max->opposite());
+        Delay arc_delay_opp = search_->deratedDelay(from_vertex, arc, edge,
+                                                    false, path_ap_opp);
+        bool delay_min_max_eq = fuzzyEqual(arc_delay, arc_delay_opp);
+	if (delay_min_max_eq
+            || network_->direction(to_pin)->isInternal())
 	  to_clk_info = search_->clkInfoWithCrprClkPath(from_clk_info,
                                                         from_path, path_ap);
 	to_tag = search_->fromRegClkTag(from_pin, from_rf, clk, clk_rf,
