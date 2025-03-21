@@ -2158,13 +2158,18 @@ PathVisitor::visitFromPath(const Pin *from_pin,
 	     || !gclk->combinational())
 	    && fanins->hasKey(to_vertex)
 	    && !(fdbk_edges && fdbk_edges->hasKey(edge))) {
+          arc_delay = search_->deratedDelay(from_vertex, arc, edge,
+                                            true, path_ap);
+          const PathAnalysisPt *path_ap_opp =
+            path_ap->corner()->findPathAnalysisPt(min_max->opposite());
+          Delay arc_delay_opp = search_->deratedDelay(from_vertex, arc, edge,
+                                                      true, path_ap_opp);
+          bool arc_delay_min_max_eq = fuzzyEqual(arc_delay, arc_delay_opp);
 	  to_tag = search_->thruClkTag(from_path, from_vertex, from_tag, true,
-                                       edge, to_rf, min_max, path_ap);
-	  if (to_tag) {
-	    arc_delay = search_->deratedDelay(from_vertex, arc, edge,
-                                              true, path_ap);
+                                       edge, to_rf, arc_delay_min_max_eq,
+                                       min_max, path_ap);
+	  if (to_tag)
 	    to_arrival = from_arrival + arc_delay;
-	  }
 	}
       }
     }
@@ -2197,12 +2202,7 @@ PathVisitor::visitFromPath(const Pin *from_pin,
 	      && from_tag->isClock())) {
 	const RiseFall *clk_rf = clk_edge ? clk_edge->transition() : nullptr;
 	ClkInfo *to_clk_info = from_clk_info;
-        const PathAnalysisPt *path_ap_opp =
-          path_ap->corner()->findPathAnalysisPt(min_max->opposite());
-        Delay arc_delay_opp = search_->deratedDelay(from_vertex, arc, edge,
-                                                    false, path_ap_opp);
-        bool delay_min_max_eq = fuzzyEqual(arc_delay, arc_delay_opp);
-	if (delay_min_max_eq
+	if (from_clk_info->crprClkPath().isNull()
             || network_->direction(to_pin)->isInternal())
 	  to_clk_info = search_->clkInfoWithCrprClkPath(from_clk_info,
                                                         from_path, path_ap);
@@ -2248,8 +2248,14 @@ PathVisitor::visitFromPath(const Pin *from_pin,
 		 || role == TimingRole::tristateDisable()));
       arc_delay = search_->deratedDelay(from_vertex, arc, edge,
                                         to_propagates_clk, path_ap);
+      const PathAnalysisPt *path_ap_opp =
+        path_ap->corner()->findPathAnalysisPt(min_max->opposite());
+      Delay arc_delay_opp = search_->deratedDelay(from_vertex, arc, edge,
+                                                  to_propagates_clk, path_ap_opp);
+      bool arc_delay_min_max_eq = fuzzyEqual(arc_delay, arc_delay_opp);
       to_tag = search_->thruClkTag(from_path, from_vertex, from_tag,
                                    to_propagates_clk, edge, to_rf,
+                                   arc_delay_min_max_eq,
                                    min_max, path_ap);
       to_arrival = from_arrival + arc_delay;
     }
@@ -2447,6 +2453,7 @@ Search::thruClkTag(PathVertex *from_path,
 		   bool to_propagates_clk,
 		   Edge *edge,
 		   const RiseFall *to_rf,
+                   bool arc_delay_min_max_eq,
 		   const MinMax *min_max,
 		   const PathAnalysisPt *path_ap)
 {
@@ -2464,7 +2471,7 @@ Search::thruClkTag(PathVertex *from_path,
 			|| role == TimingRole::combinational()));
   ClkInfo *to_clk_info = thruClkInfo(from_path, from_vertex, from_clk_info, from_is_clk,
 				     edge, to_vertex, to_pin, to_is_clk,
-                                     min_max, path_ap);
+                                     arc_delay_min_max_eq, min_max, path_ap);
   Tag *to_tag = mutateTag(from_tag,from_pin,from_rf,from_is_clk,from_clk_info,
 			  to_pin, to_rf, to_is_clk, to_is_reg_clk, false,
 			  to_clk_info, nullptr, min_max, path_ap);
@@ -2480,6 +2487,7 @@ Search::thruClkInfo(PathVertex *from_path,
 		    Vertex *to_vertex,
 		    const Pin *to_pin,
                     bool to_is_clk,
+                    bool arc_delay_min_max_eq,
 		    const MinMax *min_max,
 		    const PathAnalysisPt *path_ap)
 {
@@ -2515,7 +2523,11 @@ Search::thruClkInfo(PathVertex *from_path,
       && ((from_is_clk
            && !to_is_clk
            && !from_vertex->isRegClk())
-          || to_vertex->isRegClk())) {
+          || (to_vertex->isRegClk()
+              // If the wire delay to the reg clk pin is zero,
+              // leave the crpr_clk_path null to indicate that
+              // the reg clk path is the crpr clk path.
+              && arc_delay_min_max_eq))) {
     to_crpr_clk_path = from_path;
     changed = true;
   }

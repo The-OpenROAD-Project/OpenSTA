@@ -258,6 +258,7 @@ public:
                   bool to_propagates_clk,
                   Edge *edge,
                   const RiseFall *to_rf,
+                  bool arc_delay_min_max_eq,
                   const MinMax *min_max,
                   const PathAnalysisPt *path_ap);
   ClkInfo *thruClkInfo(PathVertex *from_path,
@@ -268,6 +269,7 @@ public:
                        Vertex *to_vertex,
                        const Pin *to_pin,
                        bool to_is_clk,
+                       bool arc_delay_min_max_eq,
                        const MinMax *min_max,
                        const PathAnalysisPt *path_ap);
   ClkInfo *clkInfoWithCrprClkPath(ClkInfo *from_clk_info,
