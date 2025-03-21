@@ -411,9 +411,11 @@ PathGroups::pathGroup(const PathEnd *path_end) const
 {
   const MinMax *min_max = path_end->minMax(this);
   int mm_index =  min_max->index();
-  // GroupPaths have precedence.
   GroupPath *group_path = groupPathTo(path_end);
- if (group_path) {
+  if (path_end->isUnconstrained())
+    return unconstrained_[mm_index];
+  // GroupPaths have precedence.
+  else if (group_path) {
    if (group_path->isDefault())
      return path_delay_[mm_index];
    else {
@@ -446,8 +448,6 @@ PathGroups::pathGroup(const PathEnd *path_end) const
     else
       return path_delay_[mm_index];
   }
-  else if (path_end->isUnconstrained())
-    return unconstrained_[mm_index];
   else {
     report_->critical(1390, "unknown path end type");
     return nullptr;
