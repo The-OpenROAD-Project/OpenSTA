@@ -2215,7 +2215,7 @@ LibertyReader::makeStatetable()
     for (const string &internal : statetable_->internalPorts()) {
       LibertyPort *port = cell_->findLibertyPort(internal.c_str());
       if (port == nullptr)
-	port = builder_.makePort(cell_, internal.c_str());
+	port = makePort(cell_, internal.c_str());
       internal_ports.push_back(port);
     }
     cell_->makeStatetable(input_ports, internal_ports, statetable_->table());
@@ -3181,7 +3181,7 @@ LibertyReader::beginPin(LibertyGroup *group)
 	  debugPrint(debug_, "liberty", 1, " port %s", name);
 	  LibertyPort *port = findPort(name);
 	  if (port == nullptr)
-	    port = builder_.makePort(cell_, name);
+	    port = makePort(cell_, name);
 	  ports_->push_back(port);
 	}
 	else
@@ -3195,7 +3195,7 @@ LibertyReader::beginPin(LibertyGroup *group)
 	if (param->isString()) {
 	  const char *name = param->stringValue();
 	  debugPrint(debug_, "liberty", 1, " port %s", name);
-	  LibertyPort *port = builder_.makePort(cell_, name);
+	  LibertyPort *port = makePort(cell_, name);
 	  ports_->push_back(port);
 	}
 	else
@@ -3205,6 +3205,25 @@ LibertyReader::beginPin(LibertyGroup *group)
     port_group_ = new PortGroup(ports_, group->line());
     cell_port_groups_.push_back(port_group_);
   }
+}
+
+LibertyPort *
+LibertyReader::makePort(LibertyCell *cell,
+                        const char *port_name)
+{
+  string sta_name = portLibertyToSta(port_name);
+  return builder_.makePort(cell, sta_name.c_str());
+}
+
+LibertyPort *
+LibertyReader::makeBusPort(LibertyCell *cell,
+                           const char *bus_name,
+                           int from_index,
+                           int to_index,
+                           BusDcl *bus_dcl)
+{
+  string sta_name = portLibertyToSta(bus_name);
+  return builder_.makeBusPort(cell, bus_name, from_index, to_index, bus_dcl);
 }
 
 void
@@ -3317,8 +3336,8 @@ LibertyReader::visitBusType(LibertyAttr *attr)
       if (bus_dcl) {
         for (const char *name : bus_names_) {
 	  debugPrint(debug_, "liberty", 1, " bus %s", name);
-	  LibertyPort *port = builder_.makeBusPort(cell_, name, bus_dcl->from(),
-                                                    bus_dcl->to(), bus_dcl);
+	  LibertyPort *port = makeBusPort(cell_, name, bus_dcl->from(),
+                                          bus_dcl->to(), bus_dcl);
 	  ports_->push_back(port);
 	}
       }
@@ -3363,7 +3382,7 @@ LibertyReader::visitMembers(LibertyAttr *attr)
 	    const char *port_name = value->stringValue();
 	    LibertyPort *port = findPort(port_name);
 	    if (port == nullptr)
-	      port = builder_.makePort(cell_, port_name);
+	      port = makePort(cell_, port_name);
 	    members->push_back(port);
 	  }
 	  else
@@ -3964,16 +3983,16 @@ LibertyReader::beginSequential(LibertyGroup *group,
     LibertyPort *out_port_inv = nullptr;
     if (out_name) {
       if (has_size)
-	out_port = builder_.makeBusPort(cell_, out_name, size - 1, 0, nullptr);
+	out_port = makeBusPort(cell_, out_name, size - 1, 0, nullptr);
       else
-	out_port = builder_.makePort(cell_, out_name);
+	out_port = makePort(cell_, out_name);
       out_port->setDirection(PortDirection::internal());
     }
     if (out_inv_name) {
       if (has_size)
-	out_port_inv = builder_.makeBusPort(cell_, out_inv_name, size - 1, 0, nullptr);
+	out_port_inv = makeBusPort(cell_, out_inv_name, size - 1, 0, nullptr);
       else
-	out_port_inv = builder_.makePort(cell_, out_inv_name);
+	out_port_inv = makePort(cell_, out_inv_name);
       out_port_inv->setDirection(PortDirection::internal());
     }
     sequential_ = new SequentialGroup(is_register, is_bank,
@@ -4791,7 +4810,7 @@ LibertyReader::beginLut(LibertyGroup *group)
 	while (parser.hasNext()) {
 	  char *name = parser.next();
 	  if (name[0] != '\0') {
-	    LibertyPort *port = builder_.makePort(cell_, name);
+	    LibertyPort *port = makePort(cell_, name);
 	    port->setDirection(PortDirection::internal());
 	  }
 	}

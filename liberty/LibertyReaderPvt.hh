@@ -500,6 +500,14 @@ public:
 			const char *port_name);
 
 protected:
+  LibertyPort *makePort(LibertyCell *cell,
+                        const char *port_name);
+  LibertyPort *makeBusPort(LibertyCell *cell,
+                           const char *bus_name,
+                           int from_index,
+                           int to_index,
+                           BusDcl *bus_dcl);
+
   TimingModel *makeScalarCheckModel(float value,
                                     ScaleFactorType scale_factor_type,
                                     const RiseFall *rf);
