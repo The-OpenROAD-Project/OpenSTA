@@ -854,7 +854,6 @@ proc_redirect report_path {
 	      report_line "Tag: [$path tag]"
 	    }
 	    report_path_cmd $path
-	    delete_path_ref $path
 	    set first 0
 	  }
 	  $path_iter finish
@@ -865,7 +864,6 @@ proc_redirect report_path {
 	      report_line "Tag: [$worst_path tag]"
 	    }
 	    report_path_cmd $worst_path
-	    delete_path_ref $worst_path
 	  }
 	}
       }

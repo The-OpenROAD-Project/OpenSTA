@@ -38,7 +38,7 @@
 #include "Bfs.hh"
 #include "Search.hh"
 #include "Genclks.hh"
-#include "PathVertex.hh"
+#include "Path.hh"
 #include "Sim.hh"
 
 namespace sta {
@@ -316,7 +316,7 @@ CheckTiming::hasClkedArrival(Vertex *vertex)
 {
   VertexPathIterator path_iter(vertex, this);
   while (path_iter.hasNext()) {
-    PathVertex *path = path_iter.next();
+    Path *path = path_iter.next();
     if (path->clock(this))
       return true;
   }

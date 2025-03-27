@@ -571,75 +571,25 @@ Graph::gateEdgeArc(const Pin *in_pin,
 
 ////////////////////////////////////////////////////////////////
 
-Arrival *
-Graph::makeArrivals(Vertex *vertex,
-                    uint32_t count)
+Path *
+Graph::makePaths(Vertex *vertex,
+                 uint32_t count)
 {
-  Arrival *arrivals = new Arrival[count];
-  vertex->setArrivals(arrivals);
-  return arrivals;
+  Path *paths = new Path[count];
+  vertex->setPaths(paths);
+  return paths;
 }
 
-Arrival *
-Graph::arrivals(const Vertex *vertex) const
+Path *
+Graph::paths(const Vertex *vertex) const
 {
-  return vertex->arrivals();
-}
-
-void
-Graph::deleteArrivals(Vertex *vertex)
-{
-  vertex->setArrivals(nullptr);
-}
-
-Required *
-Graph::requireds(const Vertex *vertex) const
-{
-  return vertex->requireds();
-}
-
-Required *
-Graph::makeRequireds(Vertex *vertex,
-                     uint32_t count)
-{
-  Required *requireds = new Arrival[count];
-  vertex->setRequireds(requireds);
-  return requireds;
-}
-
-void
-Graph::deleteRequireds(Vertex *vertex)
-{
-  vertex->setRequireds(nullptr);
-}
-
-PathPrev *
-Graph::prevPaths(const Vertex *vertex) const
-{
-  return vertex->prevPaths();
-}
-
-PathPrev *
-Graph::makePrevPaths(Vertex *vertex,
-                     uint32_t count)
-{
-  PathPrev *prev_paths = new PathPrev[count];
-  vertex->setPrevPaths(prev_paths);
-  return prev_paths;
-}
-
-void
-Graph::deletePrevPaths(Vertex *vertex)
-{
-  vertex->setPrevPaths(nullptr);
+  return vertex->paths();
 }
 
 void
 Graph::deletePaths(Vertex *vertex)
 {
-  deleteArrivals(vertex);
-  deleteRequireds(vertex);
-  deletePrevPaths(vertex);
+  vertex->setPaths(nullptr);
   vertex->tag_group_index_ = tag_group_index_max;
   vertex->crpr_path_pruning_disabled_ = false;
 }
@@ -1007,9 +957,7 @@ Vertex::init(Pin *pin,
   in_edges_ = edge_id_null;
   out_edges_ = edge_id_null;
   slews_ = nullptr;
-  arrivals_ = nullptr;
-  requireds_ = nullptr;
-  prev_paths_ = nullptr;
+  paths_ = nullptr;
   tag_group_index_ = tag_group_index_max;
   slew_annotated_ = false;
   sim_value_ = unsigned(LogicValue::unknown);
@@ -1035,12 +983,8 @@ Vertex::clear()
 {
   delete [] slews_;
   slews_ = nullptr;
-  delete [] arrivals_;
-  arrivals_ = nullptr;
-  delete [] requireds_;
-  requireds_ = nullptr;
-  delete [] prev_paths_;
-  prev_paths_ = nullptr;
+  delete [] paths_;
+  paths_ = nullptr;
 }
 
 void
@@ -1153,24 +1097,10 @@ Vertex::setTagGroupIndex(TagGroupIndex tag_index)
 }
 
 void
-Vertex::setArrivals(Arrival *arrivals)
+Vertex::setPaths(Path *paths)
 {
-  delete [] arrivals_;
-  arrivals_ = arrivals;
-}
-
-void
-Vertex::setRequireds(Required *requireds)
-{
-  delete [] requireds_;
-  requireds_ = requireds;
-}
-
-void
-Vertex::setPrevPaths(PathPrev *prev_paths)
-{
-  delete [] prev_paths_;
-  prev_paths_ = prev_paths;
+  delete [] paths_;
+  paths_ = paths;
 }
 
 LogicValue

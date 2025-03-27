@@ -36,11 +36,9 @@ namespace sta {
 
 class Diversion;
 class PathEnumFaninVisitor;
-class PathEnumed;
 class DiversionGreater;
 
 typedef Vector<Diversion*> DiversionSeq;
-typedef Vector<PathEnumed*> PathEnumedSeq;
 typedef std::priority_queue<Diversion*,DiversionSeq,
 			    DiversionGreater> DiversionQueue;
 
@@ -60,8 +58,8 @@ private:
 class PathEnum : public Iterator<PathEnd*>, StaState
 {
 public:
-  PathEnum(int group_path_count,
-	   int endpoint_path_count,
+  PathEnum(size_t group_path_count,
+	   size_t endpoint_path_count,
 	   bool unique_pins,
 	   bool cmp_slack,
 	   const StaState *sta);
@@ -75,29 +73,29 @@ private:
   void makeDiversions(PathEnd *path_end,
 		      Path *before);
   void makeDiversion(PathEnd *div_end,
-		     PathEnumed *after_div_copy);
+		     Path *after_div_copy);
   void makeDivertedPath(Path *path,
 			Path *before_div,
 			Path *after_div,
+                        Edge *div_edge,
 			TimingArc *div_arc,
 			// Returned values.
-			PathEnumed *&div_path,
-			PathEnumed *&after_div_copy);
-  void updatePathHeadDelays(PathEnumedSeq &path,
+			Path *&div_path,
+			Path *&after_div_copy);
+  void updatePathHeadDelays(PathSeq &path,
 			    Path *after_div);
   Arrival divSlack(Path *path,
 		   Path *after_div,
-		   TimingArc *div_arc,
+                   const Edge *div_edge,
+		   const TimingArc *div_arc,
 		   const PathAnalysisPt *path_ap);
   void reportDiversionPath(Diversion *div);
   void pruneDiversionQueue();
-  Edge *divEdge(Path *before_div,
-		TimingArc *div_arc);
   void findNext();
 
   bool cmp_slack_;
-  int group_path_count_;
-  int endpoint_path_count_;
+  size_t group_path_count_;
+  size_t endpoint_path_count_;
   bool unique_pins_;
   DiversionQueue div_queue_;
   int div_count_;

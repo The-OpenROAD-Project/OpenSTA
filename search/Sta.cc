@@ -2488,6 +2488,8 @@ Sta::searchPreamble()
   findDelays();
   updateGeneratedClks();
   sdc_->searchPreamble();
+  // Delete results from last findPathEnds because they point to filtered arrivals.
+  search_->deletePathGroups();
   search_->deleteFilteredArrivals();
 }
 
@@ -2759,82 +2761,82 @@ Sta::vertexPathIterator(Vertex *vertex,
   return new VertexPathIterator(vertex, rf, min_max, this);
 }
 
-PathRef
+Path *
 Sta::vertexWorstArrivalPath(Vertex *vertex,
 			    const MinMax *min_max)
 {
   return vertexWorstArrivalPath(vertex, nullptr, min_max);
 }
 
-PathRef
+Path *
 Sta::vertexWorstArrivalPath(Vertex *vertex,
 			    const RiseFall *rf,
 			    const MinMax *min_max)
 {
-  PathRef worst_path;
+  Path *worst_path = nullptr;
   Arrival worst_arrival = min_max->initValue();
   VertexPathIterator path_iter(vertex, rf, min_max, this);
   while (path_iter.hasNext()) {
-    PathVertex *path = path_iter.next();
-    Arrival arrival = path->arrival(this);
+    Path *path = path_iter.next();
+    Arrival arrival = path->arrival();
     if (!path->tag(this)->isGenClkSrcPath()
 	&& delayGreater(arrival, worst_arrival, min_max, this)) {
       worst_arrival = arrival;
-      worst_path.init(path);
+      worst_path = path;
     }
   }
   return worst_path;
 }
 
-PathRef
+Path *
 Sta::vertexWorstRequiredPath(Vertex *vertex,
                              const MinMax *min_max)
 {
   return vertexWorstRequiredPath(vertex, nullptr, min_max);
 }
 
-PathRef
+Path *
 Sta::vertexWorstRequiredPath(Vertex *vertex,
                              const RiseFall *rf,
                              const MinMax *min_max)
 {
-  PathRef worst_path;
+  Path *worst_path = nullptr;
   const MinMax *req_min_max = min_max->opposite();
   Arrival worst_req = req_min_max->initValue();
   VertexPathIterator path_iter(vertex, rf, min_max, this);
   while (path_iter.hasNext()) {
-    PathVertex *path = path_iter.next();
-    const Required path_req = path->required(this);
+    Path *path = path_iter.next();
+    const Required path_req = path->required();
     if (!path->tag(this)->isGenClkSrcPath()
 	&& delayGreater(path_req, worst_req, req_min_max, this)) {
       worst_req = path_req;
-      worst_path.init(path);
+      worst_path = path;
     }
   }
   return worst_path;
 }
 
-PathRef
+Path *
 Sta::vertexWorstSlackPath(Vertex *vertex,
 			  const RiseFall *rf,
 			  const MinMax *min_max)
 {
-  PathRef worst_path;
+  Path *worst_path = nullptr;
   Slack min_slack = MinMax::min()->initValue();
   VertexPathIterator path_iter(vertex, rf, min_max, this);
   while (path_iter.hasNext()) {
-    PathVertex *path = path_iter.next();
+    Path *path = path_iter.next();
     Slack slack = path->slack(this);
     if (!path->tag(this)->isGenClkSrcPath()
 	&& delayLess(slack, min_slack, this)) {
       min_slack = slack;
-      worst_path.init(path);
+      worst_path = path;
     }
   }
   return worst_path;
 }
 
-PathRef
+Path *
 Sta::vertexWorstSlackPath(Vertex *vertex,
 			  const MinMax *min_max)
 
@@ -2891,12 +2893,12 @@ Sta::vertexArrival(Vertex *vertex,
   VertexPathIterator path_iter(vertex, rf, path_ap, this);
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
-    const Arrival &path_arrival = path->arrival(this);
+    const Arrival &path_arrival = path->arrival();
     ClkInfo *clk_info = path->clkInfo(search_);
     if ((clk_edge == clk_edge_wildcard
 	 || clk_info->clkEdge() == clk_edge)
 	&& !clk_info->isGenClkSrcPath()
-	&& delayGreater(path->arrival(this), arrival, min_max, this))
+	&& delayGreater(path->arrival(), arrival, min_max, this))
       arrival = path_arrival;
   }
   return arrival;
@@ -2949,7 +2951,7 @@ Sta::vertexRequired(Vertex *vertex,
   VertexPathIterator path_iter(vertex, rf, path_ap, min_max, this);
   while (path_iter.hasNext()) {
     const Path *path = path_iter.next();
-    const Required path_required = path->required(this);
+    const Required path_required = path->required();
     if ((clk_edge == clk_edge_wildcard
 	 || path->clkEdge(search_) == clk_edge)
 	&& delayGreater(path_required, required, req_min_max, this))
@@ -3177,7 +3179,7 @@ bool
 MinPeriodEndVisitor::pathIsFromInputPort(PathEnd *path_end)
 {
   PathExpanded expanded(path_end->path(), sta_);
-  const PathRef *start = expanded.startPath();
+  const Path *start = expanded.startPath();
   Graph *graph = sta_->graph();
   const Pin *first_pin = start->pin(graph);
   Network *network = sta_->network();
@@ -3539,14 +3541,14 @@ Sta::pathDcalcAnalysisPt(Path *path)
 }
 
 Vertex *
-Sta::maxArrivalCountVertex() const
+Sta::maxPathCountVertex() const
 {
   Vertex *max_vertex = nullptr;
   int max_count = 0;
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
-    int count = vertexArrivalCount(vertex);
+    int count = vertexPathCount(vertex);
     if (count > max_count) {
       max_count = count;
       max_vertex = vertex;
@@ -3556,36 +3558,23 @@ Sta::maxArrivalCountVertex() const
 }
 
 int
-Sta::vertexArrivalCount(Vertex  *vertex) const
+Sta::vertexPathCount(Vertex  *vertex) const
 {
   TagGroup *tag_group = search_->tagGroup(vertex);
   if (tag_group)
-    return tag_group->arrivalCount();
+    return tag_group->pathCount();
   else
     return 0;
 }
 
 int
-Sta::arrivalCount() const
+Sta::pathCount() const
 {
   int count = 0;
   VertexIterator vertex_iter(graph_);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
-    count += vertexArrivalCount(vertex);
-  }
-  return count;
-}
-
-int
-Sta::requiredCount() const
-{
-  int count = 0;
-  VertexIterator vertex_iter(graph_);
-  while (vertex_iter.hasNext()) {
-    Vertex *vertex = vertex_iter.next();
-    if (vertex->hasRequireds())
-      count += vertexArrivalCount(vertex);
+    count += vertexPathCount(vertex);
   }
   return count;
 }
@@ -4195,6 +4184,8 @@ Sta::makePortPin(const char *port_name,
 void
 Sta::makeInstanceAfter(const Instance *inst)
 {
+  debugPrint(debug_, "network_edit", 1, "make instance %s",
+             sdc_network_->pathName(inst));
   if (graph_) {
     LibertyCell *lib_cell = network_->libertyCell(inst);
     if (lib_cell) {
@@ -4367,6 +4358,9 @@ Sta::replaceCellAfter(const Instance *inst)
 void
 Sta::connectPinAfter(const Pin *pin)
 {
+  debugPrint(debug_, "network_edit", 1, "connect %s to %s",
+             sdc_network_->pathName(pin),
+             sdc_network_->pathName(network_->net(pin)));
   if (graph_) {
     if (network_->isHierarchical(pin)) {
       graph_->makeWireEdgesThruPin(pin);
@@ -4453,6 +4447,9 @@ Sta::connectLoadPinAfter(Vertex *vertex)
 void
 Sta::disconnectPinBefore(const Pin *pin)
 {
+  debugPrint(debug_, "network_edit", 1, "disconnect %s from %s",
+             sdc_network_->pathName(pin),
+             sdc_network_->pathName(network_->net(pin)));
   parasitics_->disconnectPinBefore(pin, network_);
   sdc_->disconnectPinBefore(pin);
   sim_->disconnectPinBefore(pin);
@@ -4500,10 +4497,11 @@ Sta::disconnectPinBefore(const Pin *pin)
 void
 Sta::deleteEdge(Edge *edge)
 {
-  Vertex *from = edge->from(graph_);
+  debugPrint(debug_, "network_edit", 1, "delete edge %s -> %s",
+             edge->from(graph_)->name(sdc_network_),
+             edge->to(graph_)->name(sdc_network_));
   Vertex *to = edge->to(graph_);
-  search_->arrivalInvalid(to);
-  search_->requiredInvalid(from);
+  search_->deleteEdgeBefore(edge);
   graph_delay_calc_->delayInvalid(to);
   levelize_->relevelizeFrom(to);
   levelize_->deleteEdgeBefore(edge);
@@ -4514,6 +4512,8 @@ Sta::deleteEdge(Edge *edge)
 void
 Sta::deleteNetBefore(const Net *net)
 {
+  debugPrint(debug_, "network_edit", 1, "delete net %s",
+             sdc_network_->pathName(net));
   if (graph_) {
     NetConnectedPinIterator *pin_iter = network_->connectedPinIterator(net);
     while (pin_iter->hasNext()) {
@@ -4540,6 +4540,8 @@ Sta::deleteNetBefore(const Net *net)
 void
 Sta::deleteInstanceBefore(const Instance *inst)
 {
+  debugPrint(debug_, "network_edit", 1, "delete instance %s",
+             sdc_network_->pathName(inst));
   if (network_->isLeaf(inst)) {
     deleteInstancePinsBefore(inst);
     deleteLeafInstanceBefore(inst);
@@ -5715,7 +5717,7 @@ Sta::activity(const Pin *pin)
 ////////////////////////////////////////////////////////////////
 
 void
-Sta::writePathSpice(PathRef *path,
+Sta::writePathSpice(Path *path,
                     const char *spice_filename,
                     const char *subckt_filename,
                     const char *lib_subckt_filename,

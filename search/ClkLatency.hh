@@ -30,7 +30,7 @@
 #include "StaState.hh"
 #include "Transition.hh"
 #include "SearchClass.hh"
-#include "PathVertex.hh"
+#include "Path.hh"
 #include "ClkDelays.hh"
 
 namespace sta {

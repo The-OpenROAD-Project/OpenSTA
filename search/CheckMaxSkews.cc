@@ -30,7 +30,7 @@
 #include "Network.hh"
 #include "Graph.hh"
 #include "Clock.hh"
-#include "PathVertex.hh"
+#include "Path.hh"
 #include "PathAnalysisPt.hh"
 #include "Search.hh"
 
@@ -199,13 +199,13 @@ CheckMaxSkews:: visitMaxSkewChecks(Vertex *vertex,
 	RiseFall *ref_rf = arc->toEdge()->asRiseFall();
 	VertexPathIterator clk_path_iter(vertex, clk_rf, clk_min_max, search);
 	while (clk_path_iter.hasNext()) {
-	  PathVertex *clk_path = clk_path_iter.next();
+	  Path *clk_path = clk_path_iter.next();
 	  if (clk_path->isClock(search)) {
 	    const PathAnalysisPt *clk_ap = clk_path->pathAnalysisPt(sta_);
 	    PathAnalysisPt *ref_ap = clk_ap->tgtClkAnalysisPt();
 	    VertexPathIterator ref_path_iter(ref_vertex, ref_rf, ref_ap, sta_);
 	    while (ref_path_iter.hasNext()) {
-	      PathVertex *ref_path = ref_path_iter.next();
+	      Path *ref_path = ref_path_iter.next();
 	      if (ref_path->isClock(search)) {
 		MaxSkewCheck check(clk_path, ref_path, arc, edge);
 		visitor->visit(check, sta_);
@@ -220,8 +220,8 @@ CheckMaxSkews:: visitMaxSkewChecks(Vertex *vertex,
 
 ////////////////////////////////////////////////////////////////
 
-MaxSkewCheck::MaxSkewCheck(PathVertex *clk_path,
-			   PathVertex *ref_path,
+MaxSkewCheck::MaxSkewCheck(Path *clk_path,
+			   Path *ref_path,
 			   TimingArc *check_arc,
 			   Edge *check_edge) :
   clk_path_(clk_path),
@@ -234,34 +234,34 @@ MaxSkewCheck::MaxSkewCheck(PathVertex *clk_path,
 Pin *
 MaxSkewCheck::clkPin(const StaState *sta) const
 {
-  return clk_path_.pin(sta);
+  return clk_path_->pin(sta);
 }
 
 Pin *
 MaxSkewCheck::refPin(const StaState *sta) const
 {
-  return ref_path_.pin(sta);
+  return ref_path_->pin(sta);
 }
 
 ArcDelay
 MaxSkewCheck::maxSkew(const StaState *sta) const
 {
   Search *search = sta->search();
-  return search->deratedDelay(ref_path_.vertex(sta),
+  return search->deratedDelay(ref_path_->vertex(sta),
 			      check_arc_, check_edge_, false,
-			      clk_path_.pathAnalysisPt(sta));
+			      clk_path_->pathAnalysisPt(sta));
 }
 
 Delay
-MaxSkewCheck::skew(const StaState *sta) const
+MaxSkewCheck::skew() const
 {
-  return Delay(clk_path_.arrival(sta) - ref_path_.arrival(sta));
+  return Delay(clk_path_->arrival() - ref_path_->arrival());
 }
 
 Slack
 MaxSkewCheck::slack(const StaState *sta) const
 {
-  return maxSkew(sta) - skew(sta);
+  return maxSkew(sta) - skew();
 }
 
 ////////////////////////////////////////////////////////////////

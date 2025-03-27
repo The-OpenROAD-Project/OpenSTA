@@ -50,7 +50,7 @@
 #include "DcalcAnalysisPt.hh"
 #include "GraphDelayCalc.hh"
 #include "Corner.hh"
-#include "PathVertex.hh"
+#include "Path.hh"
 #include "search/Levelize.hh"
 #include "search/Sim.hh"
 #include "Search.hh"
@@ -1339,7 +1339,7 @@ Power::findClk(const Pin *to_pin)
   if (to_vertex) {
     VertexPathIterator path_iter(to_vertex, this);
     while (path_iter.hasNext()) {
-      PathVertex *path = path_iter.next();
+      Path *path = path_iter.next();
       const Clock *path_clk = path->clock(this);
       if (path_clk
 	  && (clk == nullptr

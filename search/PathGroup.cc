@@ -46,7 +46,7 @@
 
 namespace sta {
 
-int PathGroup::group_path_count_max = std::numeric_limits<int>::max();
+size_t PathGroup::group_path_count_max = std::numeric_limits<size_t>::max();
 
 PathGroup *
 PathGroup::makePathGroupSlack(const char *name,
@@ -74,8 +74,8 @@ PathGroup::makePathGroupArrival(const char *name,
 }
 
 PathGroup::PathGroup(const char *name,
-		     int group_path_count,
-		     int endpoint_path_count,
+		     size_t group_path_count,
+		     size_t endpoint_path_count,
 		     bool unique_pins,
 		     float slack_min,
 		     float slack_max,
@@ -148,7 +148,7 @@ PathGroup::enumMinSlackUnderMin(PathEnd *path_end)
                                   path->transition(sta_),
                                   other_ap, sta_);
     while (other_iter.hasNext()) {
-      PathVertex *other = other_iter.next();
+      Path *other = other_iter.next();
       if (tagMatchCrpr(other->tag(sta_), tag)) {
         PathEnd *end_min = path_end->copy();
         end_min->setPath(other);
@@ -168,7 +168,7 @@ PathGroup::insert(PathEnd *path_end)
   LockGuard lock(lock_);
   path_ends_.push_back(path_end);
   if (group_path_count_ != group_path_count_max
-      && static_cast<int>(path_ends_.size()) > group_path_count_ * 2)
+      && path_ends_.size() > group_path_count_ * 2)
     prune();
 }
 
@@ -177,7 +177,7 @@ PathGroup::prune()
 {
   sort();
   VertexPathCountMap path_counts;
-  int end_count = 0;
+  size_t end_count = 0;
   for (unsigned i = 0; i < path_ends_.size(); i++) {
     PathEnd *path_end = path_ends_[i];
     Vertex *vertex = path_end->vertex(sta_);
@@ -220,7 +220,7 @@ PathGroup::iterator()
 void
 PathGroup::ensureSortedMaxPaths()
 {
-  if (static_cast<int>(path_ends_.size()) > group_path_count_)
+  if (path_ends_.size() > group_path_count_)
     prune();
   else
     sort();

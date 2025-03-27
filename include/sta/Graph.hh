@@ -36,7 +36,7 @@
 #include "Delay.hh"
 #include "GraphClass.hh"
 #include "VertexId.hh"
-#include "PathPrev.hh"
+#include "Path.hh"
 #include "StaState.hh"
 
 namespace sta {
@@ -96,19 +96,9 @@ public:
   void deleteVertex(Vertex *vertex);
   bool hasFaninOne(Vertex *vertex) const;
   VertexId vertexCount() { return vertices_->size(); }
-  Arrival *makeArrivals(Vertex *vertex,
-			uint32_t count);
-  Arrival *arrivals(const Vertex *vertex) const;
-  void deleteArrivals(Vertex *vertex);
-  Required *makeRequireds(Vertex *vertex,
-                          uint32_t count);
-  Required *requireds(const Vertex *vertex) const;
-  void deleteRequireds(Vertex *vertex);
-  PathPrev *makePrevPaths(Vertex *vertex,
-			       uint32_t count);
-  PathPrev *prevPaths(const Vertex *vertex) const;
-  void deletePrevPaths(Vertex *vertex);
-  // Private to Search::deletePaths(Vertex).
+  Path *makePaths(Vertex *vertex,
+                  uint32_t count);
+  Path *paths(const Vertex *vertex) const;
   void deletePaths(Vertex *vertex);
 
   // Reported slew are the same as those in the liberty tables.
@@ -269,10 +259,8 @@ public:
   void setColor(LevelColor color);
   Slew *slews() { return slews_; }
   const Slew *slews() const { return slews_; }
-  Arrival *arrivals() const { return arrivals_; }
-  Arrival *requireds() const { return requireds_; }
-  PathPrev *prevPaths() const { return prev_paths_; }
-  void setPrevPaths(PathPrev *prev_paths);
+  Path *paths() const { return paths_; }
+  void setPaths(Path *paths);
   TagGroupIndex tagGroupIndex() const;
   void setTagGroupIndex(TagGroupIndex tag_index);
   // Slew is annotated by sdc set_annotated_transition cmd.
@@ -311,7 +299,6 @@ public:
   bool isRegClk() const { return is_reg_clk_; }
   bool crprPathPruningDisabled() const { return crpr_path_pruning_disabled_;}
   void setCrprPathPruningDisabled(bool disabled);
-  bool hasRequireds() const { return requireds_ != nullptr; }
   
   // ObjectTable interface.
   ObjectIdx objectIdx() const { return object_idx_; }
@@ -324,8 +311,6 @@ protected:
 	    bool is_bidirect_drvr,
 	    bool is_reg_clk);
   void clear();
-  void setArrivals(Arrival *arrivals);
-  void setRequireds(Required *requireds);
   void setSlews(Slew *slews);
 
   Pin *pin_;
@@ -335,9 +320,7 @@ protected:
   // Delay calc
   Slew *slews_;
   // Search
-  Arrival *arrivals_;
-  Arrival *requireds_;
-  PathPrev *prev_paths_;
+  Path *paths_;
 
   // These fields are written by multiple threads, so they
   // cannot share the same word as the following bit fields.

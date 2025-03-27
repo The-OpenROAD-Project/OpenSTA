@@ -34,7 +34,7 @@
 #include "GraphDelayCalc.hh"
 #include "StaState.hh"
 #include "Corner.hh"
-#include "PathVertex.hh"
+#include "Path.hh"
 #include "PortDirection.hh"
 #include "Search.hh"
 #include "ClkNetwork.hh"

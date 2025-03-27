@@ -28,7 +28,7 @@
 #include "Delay.hh"
 #include "StaState.hh"
 #include "SearchClass.hh"
-#include "PathRef.hh"
+#include "Path.hh"
 
 namespace sta {
 
@@ -57,22 +57,22 @@ protected:
 class MaxSkewCheck
 {
 public:
-  MaxSkewCheck(PathVertex *clk_path,
-	       PathVertex *ref_path,
+  MaxSkewCheck(Path *clk_path,
+	       Path *ref_path,
 	       TimingArc *check_arc,
 	       Edge *check_edge);
-  const PathVertex *clkPath() const { return &clk_path_; }
+  const Path *clkPath() const { return clk_path_; }
   Pin *clkPin(const StaState *sta) const;
-  const PathVertex *refPath() const { return &ref_path_; }
+  const Path *refPath() const { return ref_path_; }
   Pin *refPin(const StaState *sta) const;
-  Delay skew(const StaState *sta) const;
+  Delay skew() const;
   ArcDelay maxSkew(const StaState *sta) const;
   Slack slack(const StaState *sta) const;
   TimingArc *checkArc() const { return check_arc_; }
 
 private:
-  PathVertex clk_path_;
-  PathVertex ref_path_;
+  Path *clk_path_;
+  Path *ref_path_;
   TimingArc *check_arc_;
   Edge *check_edge_;
 };

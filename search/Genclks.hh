@@ -50,7 +50,7 @@ public:
 };
 
 typedef Map<Clock*, GenclkInfo*> GenclkInfoMap;
-typedef Map<ClockPinPair, PathVertexPtr*, ClockPinPairLess> GenclkSrcPathMap;
+typedef Map<ClockPinPair, vector<Path>, ClockPinPairLess> GenclkSrcPathMap;
 
 class Genclks : public StaState
 {
@@ -71,19 +71,20 @@ public:
 			 const EarlyLate *early_late,
 			 const PathAnalysisPt *path_ap) const;
   // Generated clock source path for a clock path root.
-  PathVertex srcPath(Path *clk_path) const;
+  Path *srcPath(const Path *clk_path) const;
   // Generated clock source path.
-  PathVertex srcPath(const ClockEdge *clk_edge,
-                     const Pin *src_pin,
-                     const PathAnalysisPt *path_ap) const;
-  PathVertex srcPath(const Clock *clk,
-                     const Pin *src_pin,
-                     const RiseFall *rf,
-                     const PathAnalysisPt *path_ap) const;
-  Vertex *srcPathVertex(const Pin *pin) const;
+  Path *srcPath(const ClockEdge *clk_edge,
+                const Pin *src_pin,
+                const PathAnalysisPt *path_ap) const;
+  Path *srcPath(const Clock *clk,
+                const Pin *src_pin,
+                const RiseFall *rf,
+                const PathAnalysisPt *path_ap) const;
+  Vertex *srcPath(const Pin *pin) const;
   Level clkPinMaxLevel(const Clock *clk) const;
   void copyGenClkSrcPaths(Vertex *vertex,
 			  TagGroupBldr *tag_bldr);
+  void updateSrcPathPrevs();
 
 private:
   void findInsertionDelays();
@@ -94,8 +95,8 @@ private:
   void seedClkVertices(Clock *clk,
 		       BfsBkwdIterator &iter,
 		       VertexSet *fanins);
-  int srcPathIndex(const RiseFall *clk_rf,
-		   const PathAnalysisPt *path_ap) const;
+  size_t srcPathIndex(const RiseFall *clk_rf,
+                      const PathAnalysisPt *path_ap) const;
   bool matchesSrcFilter(Path *path,
 			const Clock *gclk) const;
   void seedSrcPins(Clock *gclk,
@@ -128,7 +129,6 @@ private:
 			  VertexSet &path_vertices,
 			  VertexSet &visited_vertices,
 			  EdgeSet *&fdbk_edges);
-
 
   bool found_insertion_delays_;
   GenclkSrcPathMap genclk_src_paths_;

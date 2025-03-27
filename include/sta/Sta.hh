@@ -1000,21 +1000,21 @@ public:
   VertexPathIterator *vertexPathIterator(Vertex *vertex,
 					 const RiseFall *rf,
 					 const MinMax *min_max);
-  PathRef vertexWorstArrivalPath(Vertex *vertex,
-                                 const RiseFall *rf,
-                                 const MinMax *min_max);
-  PathRef vertexWorstArrivalPath(Vertex *vertex,
-                                 const MinMax *min_max);
-  PathRef vertexWorstRequiredPath(Vertex *vertex,
-                                  const RiseFall *rf,
-                                  const MinMax *min_max);
-  PathRef vertexWorstRequiredPath(Vertex *vertex,
-                                  const MinMax *min_max);
-  PathRef vertexWorstSlackPath(Vertex *vertex,
-                               const MinMax *min_max);
-  PathRef vertexWorstSlackPath(Vertex *vertex,
+  Path *vertexWorstArrivalPath(Vertex *vertex,
                                const RiseFall *rf,
                                const MinMax *min_max);
+  Path *vertexWorstArrivalPath(Vertex *vertex,
+                               const MinMax *min_max);
+  Path *vertexWorstRequiredPath(Vertex *vertex,
+                                const RiseFall *rf,
+                                const MinMax *min_max);
+  Path *vertexWorstRequiredPath(Vertex *vertex,
+                                const MinMax *min_max);
+  Path *vertexWorstSlackPath(Vertex *vertex,
+                             const MinMax *min_max);
+  Path *vertexWorstSlackPath(Vertex *vertex,
+                             const RiseFall *rf,
+                             const MinMax *min_max);
 
   // Find the min clock period for rise/rise and fall/fall paths of a clock
   // using the slack. This does NOT correctly predict min period when there
@@ -1112,10 +1112,9 @@ public:
   TagIndex tagCount() const;
   TagGroupIndex tagGroupCount() const;
   int clkInfoCount() const;
-  int arrivalCount() const;
-  int requiredCount() const;
-  int vertexArrivalCount(Vertex  *vertex) const;
-  Vertex *maxArrivalCountVertex() const;
+  int pathCount() const;
+  int vertexPathCount(Vertex  *vertex) const;
+  Vertex *maxPathCountVertex() const;
 
   LogicValue simLogicValue(const Pin *pin);
   // Propagate liberty constant functions and pins tied high/low through
@@ -1314,7 +1313,7 @@ public:
 		      LibertyLibrarySeq *map_libs);
   LibertyCellSeq *equivCells(LibertyCell *cell);
 
-  void writePathSpice(PathRef *path,
+  void writePathSpice(Path *path,
                       const char *spice_filename,
                       const char *subckt_filename,
                       const char *lib_subckt_filename,

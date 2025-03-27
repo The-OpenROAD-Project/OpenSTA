@@ -34,7 +34,7 @@
 #include "Graph.hh"
 #include "ClkInfo.hh"
 #include "Tag.hh"
-#include "PathVertex.hh"
+#include "Path.hh"
 #include "PathAnalysisPt.hh"
 #include "PathEnd.hh"
 #include "Search.hh"
@@ -91,7 +91,7 @@ VisitPathEnds::visitClkedPathEnds(const Pin *pin,
   bool is_segment_start = search_->isSegmentStart(pin);
   VertexPathIterator path_iter(vertex, this);
   while (path_iter.hasNext()) {
-    PathVertex *path = path_iter.next();
+    Path *path = path_iter.next();
     PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
     const MinMax *path_min_max = path_ap->pathMinMax();
     const RiseFall *end_rf = path->transition(this);
@@ -161,7 +161,7 @@ VisitPathEnds::visitCheckEnd(const Pin *pin,
 	  VertexPathIterator tgt_clk_path_iter(tgt_clk_vertex, clk_rf,
 					       tgt_clk_path_ap, this);
 	  while (tgt_clk_path_iter.hasNext()) {
-	    PathVertex *tgt_clk_path = tgt_clk_path_iter.next();
+	    Path *tgt_clk_path = tgt_clk_path_iter.next();
 	    ClkInfo *tgt_clk_info = tgt_clk_path->clkInfo(this);
 	    const ClockEdge *tgt_clk_edge = tgt_clk_path->clkEdge(this);
 	    const Clock *tgt_clk = tgt_clk_path->clock(this);
@@ -318,7 +318,7 @@ VisitPathEnds::visitOutputDelayEnd(const Pin *pin,
 	    RiseFall *ref_rf = output_delay->refTransition();
 	    VertexPathIterator ref_path_iter(ref_vertex,ref_rf,path_ap,this);
 	    while (ref_path_iter.hasNext()) {
-	      PathVertex *ref_path = ref_path_iter.next();
+	      Path *ref_path = ref_path_iter.next();
 	      if (ref_path->isClock(this)
 		  && (tgt_clk == nullptr
 		      || ref_path->clock(this) == tgt_clk))
@@ -343,7 +343,7 @@ VisitPathEnds::visitOutputDelayEnd1(OutputDelay *output_delay,
 				    Path *path,
 				    const RiseFall *end_rf,
 				    const ClockEdge *tgt_clk_edge,
-				    PathVertex *ref_path,
+				    Path *ref_path,
 				    const MinMax *min_max,
 				    PathEndVisitor *visitor,
 				    bool &is_constrained)
@@ -414,7 +414,7 @@ VisitPathEnds::visitGatedClkEnd(const Pin *pin,
 				       min_max);
       VertexPathIterator clk_path_iter(clk_vertex, clk_rf, clk_path_ap, this);
       while (clk_path_iter.hasNext()) {
-	PathVertex *clk_path = clk_path_iter.next();
+	Path *clk_path = clk_path_iter.next();
 	const ClockEdge *clk_edge = clk_path->clkEdge(this);
 	const Clock *clk = clk_edge ? clk_edge->clock() : nullptr;
 	if (clk_path->isClock(this)
@@ -544,7 +544,7 @@ VisitPathEnds::visitDataCheckEnd1(DataCheck *check,
   bool found_from_path = false;
   VertexPathIterator tgt_clk_path_iter(from_vertex,from_rf,clk_ap,this);
   while (tgt_clk_path_iter.hasNext()) {
-    PathVertex *tgt_clk_path = tgt_clk_path_iter.next();
+    Path *tgt_clk_path = tgt_clk_path_iter.next();
     const ClockEdge *tgt_clk_edge = tgt_clk_path->clkEdge(this);
     // Ignore generated clock source paths.
     if (tgt_clk_edge
@@ -584,7 +584,7 @@ VisitPathEnds::visitUnconstrainedPathEnds(const Pin *pin,
 {
   VertexPathIterator path_iter(vertex, this);
   while (path_iter.hasNext()) {
-    PathVertex *path = path_iter.next();
+    Path *path = path_iter.next();
     PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
     const MinMax *path_min_max = path_ap->pathMinMax();
     if ((corner == nullptr

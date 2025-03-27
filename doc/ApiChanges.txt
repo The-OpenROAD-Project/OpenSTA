@@ -24,6 +24,19 @@
 
 This file summarizes STA API changes for each release.
 
+Release 2.4.0 2025/03/??
+-------------------------
+
+The following classes have been replaced by the class Path.
+ PathEnumed
+ PathPrev
+ PathRef
+ PathVertex
+ PathVertexPtr
+ PathVertexRep
+
+The PathExpanded::prevArc function has been removed. Use Path::prevArc instead.
+
 Release 2.4.0 2023/01/19
 -------------------------
 
