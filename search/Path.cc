@@ -200,24 +200,16 @@ Path::init(Vertex *vertex,
   is_enum_ = false;
 }
 
-const char *
-Path::name(const StaState *sta) const
+string
+Path::to_string(const StaState *sta) const
 {
-  const Network *network = sta->network();
-  Vertex *vertex = this->vertex(sta);
-  if (vertex) {
-    const char *vertex_name = vertex->name(network);
-    const char *tr_str = transition(sta)->asString();
-    const PathAnalysisPt *path_ap = pathAnalysisPt(sta);
-    int ap_index = path_ap->index();
-    const char *min_max = path_ap->pathMinMax()->asString();
-    TagIndex tag_index = tagIndex(sta);
-    return stringPrintTmp("%s %s %s/%d %d",
-			  vertex_name, tr_str, min_max,
-			  ap_index, tag_index);
-  }
-  else
-    return "NULL";
+  const PathAnalysisPt *path_ap = pathAnalysisPt(sta);
+  return stringPrintTmp("%s %s %s/%d %d",
+                        vertex(sta)->to_string(sta).c_str(),
+                        transition(sta)->to_string().c_str(),
+                        path_ap->pathMinMax()->to_string().c_str(),
+                        path_ap->index(),
+                        tagIndex(sta));
 }
 
 bool
@@ -466,7 +458,7 @@ Path::checkPrevPath(const StaState *sta) const
     if (prev_vertex != prev_edge_vertex) {
       Network *network = sta->network();
       sta->report()->reportLine("path %s prev path corrupted %s vs %s.",
-                                name(sta),
+                                to_string(sta).c_str(),
                                 prev_vertex->name(network),
                                 prev_edge_vertex->name(network));
     }

@@ -206,7 +206,7 @@ find_liberty_cell(const char *name)
 }
 
 bool
-timing_role_is_check(TimingRole *role)
+timing_role_is_check(const TimingRole *role)
 {
   return role->isTimingCheck();
 }
@@ -313,24 +313,24 @@ bool is_bus() { return self->isBus(); }
 LibertyPortMemberIterator *
 member_iterator() { return new LibertyPortMemberIterator(self); }
 
-const char *
+string
 function()
 {
   FuncExpr *func = self->function();
   if (func)
-    return func->asString();
+    return func->to_string();
   else
-    return nullptr;
+    return "";
 }
 
-const char *
+string
 tristate_enable()
 {
   FuncExpr *enable = self->tristateEnable();
   if (enable)
-    return enable->asString();
+    return enable->to_string();
   else
-    return nullptr;
+    return "";
 }
 
 float
@@ -358,7 +358,7 @@ scan_signal_type()
 %extend TimingArcSet {
 LibertyPort *from() { return self->from(); }
 LibertyPort *to() { return self->to(); }
-TimingRole *role() { return self->role(); }
+const TimingRole *role() { return self->role(); }
 const char *sdf_cond() { return self->sdfCond(); }
 
 const char *
@@ -381,11 +381,11 @@ timing_arcs() { return self->arcs(); }
 %extend TimingArc {
 LibertyPort *from() { return self->from(); }
 LibertyPort *to() { return self->to(); }
-Transition *from_edge() { return self->fromEdge(); }
+const Transition *from_edge() { return self->fromEdge(); }
 const char *from_edge_name() { return self->fromEdge()->asRiseFall()->name(); }
-Transition *to_edge() { return self->toEdge(); }
+const Transition *to_edge() { return self->toEdge(); }
 const char *to_edge_name() { return self->toEdge()->asRiseFall()->name(); }
-TimingRole *role() { return self->role(); }
+const TimingRole *role() { return self->role(); }
 
 float
 time_voltage(float in_slew,

@@ -228,7 +228,7 @@ PrimaDelayCalc::gateDelays(ArcDcalcArgSeq &dcalc_args,
         output_waveforms_[drvr_idx] = output_waveforms;
         debugPrint(debug_, "ccs_dcalc", 1, "%s %s",
                    dcalc_arg.drvrCell()->name(),
-                   drvr_rf_->asString());
+                   drvr_rf_->to_string().c_str());
         LibertyCell *drvr_cell = dcalc_arg.drvrCell();
         const LibertyLibrary *drvr_library = drvr_cell->libertyLibrary();
         bool vdd_exists;
@@ -741,7 +741,7 @@ PrimaDelayCalc::dcalcResults()
       debugPrint(debug_, "ccs_dcalc", 2,
                  "load %s %s delay %s slew %s",
                  network_->pathName(load_pin),
-                 drvr_rf_->asString(),
+                 drvr_rf_->to_string().c_str(),
                  delayAsString(wire_delay, this),
                  delayAsString(load_slew, this));
 

@@ -119,7 +119,7 @@ CcsCeffDelayCalc::gateDelay(const Pin *drvr_pin,
       ref_time_ = output_waveforms_->referenceTime(in_slew_);
       debugPrint(debug_, "ccs_dcalc", 1, "%s %s",
                  drvr_cell->name(),
-                 drvr_rf_->asString());
+                 drvr_rf_->to_string().c_str());
       ArcDelay gate_delay;
       Slew drvr_slew;
       gateDelaySlew(drvr_library, drvr_rf_, gate_delay, drvr_slew);

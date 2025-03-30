@@ -3836,7 +3836,7 @@ Sdc::exceptionToInvalid(const Pin *pin)
   if (port) {
     LibertyCell *cell = port->libertyCell();
     for (TimingArcSet *arc_set : cell->timingArcSets(nullptr, port)) {
-      TimingRole *role = arc_set->role();
+      const TimingRole *role = arc_set->role();
       if (role->genericRole() == TimingRole::regClkToQ())
 	return true;
     }

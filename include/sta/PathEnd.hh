@@ -137,7 +137,7 @@ public:
   // Target clock uncertainty + inter-clk uncertainty.
   virtual float targetClkUncertainty(const StaState *sta) const;
   virtual float targetClkMcpAdjustment(const StaState *sta) const;
-  virtual TimingRole *checkRole(const StaState *sta) const;
+  virtual const TimingRole *checkRole(const StaState *sta) const;
   const TimingRole *checkGenericRole(const StaState *sta) const;
   virtual bool pathDelayMarginIsExternal() const;
   virtual PathDelay *pathDelay() const;
@@ -331,7 +331,7 @@ public:
   virtual bool isCheck() const { return true; }
   virtual ArcDelay margin(const StaState *sta) const;
   virtual float macroClkTreeDelay(const StaState *sta) const;
-  virtual TimingRole *checkRole(const StaState *sta) const;
+  virtual const TimingRole *checkRole(const StaState *sta) const;
   virtual TimingArc *checkArc() const { return check_arc_; }
   virtual int exceptPathCmp(const PathEnd *path_end,
 			    const StaState *sta) const;
@@ -374,7 +374,7 @@ public:
   const Path *latchDisable() const;
   virtual void reportShort(const ReportPath *report) const;
   virtual void reportFull(const ReportPath *report) const;
-  virtual TimingRole *checkRole(const StaState *sta) const;
+  virtual const TimingRole *checkRole(const StaState *sta) const;
   virtual Required requiredTime(const StaState *sta) const;
   virtual Arrival borrow(const StaState *sta) const;
   Arrival targetClkWidth(const StaState *sta) const;
@@ -435,7 +435,7 @@ public:
   virtual void reportFull(const ReportPath *report) const;
   virtual bool isOutputDelay() const { return true; }
   virtual ArcDelay margin(const StaState *sta) const;
-  virtual TimingRole *checkRole(const StaState *sta) const;
+  virtual const TimingRole *checkRole(const StaState *sta) const;
   virtual const ClockEdge *targetClkEdge(const StaState *sta) const;
   virtual Arrival targetClkArrivalNoCrpr(const StaState *sta) const;
   virtual Delay targetClkDelay(const StaState *sta) const;
@@ -470,7 +470,7 @@ class PathEndGatedClock : public PathEndClkConstrainedMcp
 public:
   PathEndGatedClock(Path *gating_ref,
 		    Path *clk_path,
-		    TimingRole *check_role,
+		    const TimingRole *check_role,
 		    MultiCyclePath *mcp,
 		    ArcDelay margin,
 		    const StaState *sta);
@@ -481,20 +481,20 @@ public:
   virtual void reportFull(const ReportPath *report) const;
   virtual bool isGatedClock() const { return true; }
   virtual ArcDelay margin(const StaState *) const { return margin_; }
-  virtual TimingRole *checkRole(const StaState *sta) const;
+  virtual const TimingRole *checkRole(const StaState *sta) const;
   virtual int exceptPathCmp(const PathEnd *path_end,
 			    const StaState *sta) const;
 
 protected:
   PathEndGatedClock(Path *gating_ref,
 		    Path *clk_path,
-		    TimingRole *check_role,
+		    const TimingRole *check_role,
 		    MultiCyclePath *mcp,
 		    ArcDelay margin,
 		    Crpr crpr,
 		    bool crpr_valid);
 
-  TimingRole *check_role_;
+  const TimingRole *check_role_;
   ArcDelay margin_;
 };
 
@@ -513,7 +513,7 @@ public:
   virtual void reportFull(const ReportPath *report) const;
   virtual bool isDataCheck() const { return true; }
   virtual const ClockEdge *targetClkEdge(const StaState *sta) const;
-  virtual TimingRole *checkRole(const StaState *sta) const;
+  virtual const TimingRole *checkRole(const StaState *sta) const;
   virtual ArcDelay margin(const StaState *sta) const;
   virtual int exceptPathCmp(const PathEnd *path_end,
 			    const StaState *sta) const;
@@ -566,7 +566,7 @@ public:
   virtual void reportShort(const ReportPath *report) const;
   virtual void reportFull(const ReportPath *report) const;
   virtual bool isPathDelay() const { return true; }
-  virtual TimingRole *checkRole(const StaState *sta) const;
+  virtual const TimingRole *checkRole(const StaState *sta) const;
   virtual bool pathDelayMarginIsExternal() const;
   virtual PathDelay *pathDelay() const { return path_delay_; }
   virtual ArcDelay margin(const StaState *sta) const;

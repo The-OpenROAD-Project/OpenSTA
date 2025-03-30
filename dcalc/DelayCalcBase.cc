@@ -55,7 +55,7 @@ DelayCalcBase::reduceParasitic(const Parasitic *parasitic_network,
   while (pin_iter->hasNext()) {
     const Pin *pin = pin_iter->next();
     if (network_->isDriver(pin)) {
-      for (RiseFall *rf : RiseFall::range()) {
+      for (const RiseFall *rf : RiseFall::range()) {
         for (const MinMax *min_max : min_max->range()) {
           if (corner == nullptr) {
             for (const Corner *corner1 : *corners_) {

@@ -230,7 +230,7 @@ PathEnd::targetClkMcpAdjustment(const StaState *) const
   return 0.0;
 }
 
-TimingRole *
+const TimingRole *
 PathEnd::checkRole(const StaState *) const
 {
   return nullptr;
@@ -381,7 +381,7 @@ PathEnd::checkTgtClkUncertainty(const Path *tgt_clk_path,
                                 const TimingRole *check_role,
                                 const StaState *sta)
 {
-  MinMax *min_max = check_role->pathMinMax();
+  const MinMax *min_max = check_role->pathMinMax();
   ClockUncertainties *uncertainties = nullptr;
   if (tgt_clk_path && tgt_clk_path->isClock(sta))
     uncertainties = tgt_clk_path->clkInfo(sta)->uncertainties();
@@ -985,7 +985,7 @@ PathEndCheck::reportShort(const ReportPath *report) const
   report->reportShort(this);
 }
 
-TimingRole *
+const TimingRole *
 PathEndCheck::checkRole(const StaState *) const
 {
   return check_edge_->role();
@@ -1181,7 +1181,7 @@ PathEndLatchCheck::sourceClkOffset(const StaState *sta) const
 						  sta);
 }
 
-TimingRole *
+const TimingRole *
 PathEndLatchCheck::checkRole(const StaState *sta) const
 {
   if (clk_path_->clkInfo(sta)->isPulseClk())
@@ -1378,7 +1378,7 @@ PathEnd::outputDelayMargin(OutputDelay *output_delay,
     return -margin;
 }
 
-TimingRole *
+const TimingRole *
 PathEndOutputDelay::checkRole(const StaState *sta) const
 {
   if (path_->minMax(sta) == MinMax::max())
@@ -1456,7 +1456,7 @@ PathEndOutputDelay::tgtClkDelay(const ClockEdge *tgt_clk_edge,
   const PathAnalysisPt *path_ap = path_->pathAnalysisPt(sta);
   const MinMax *latency_min_max = path_ap->tgtClkAnalysisPt()->pathMinMax();
   Clock *tgt_clk = tgt_clk_edge->clock();
-  RiseFall *tgt_clk_rf = tgt_clk_edge->transition();
+  const RiseFall *tgt_clk_rf = tgt_clk_edge->transition();
   if (!output_delay_->sourceLatencyIncluded())
     insertion = sta->search()->clockInsertion(tgt_clk,
 					      tgt_clk->defaultPin(),
@@ -1510,7 +1510,7 @@ PathEndOutputDelay::exceptPathCmp(const PathEnd *path_end,
 
 PathEndGatedClock::PathEndGatedClock(Path *gating_ref,
 				     Path *clk_path,
-				     TimingRole *check_role,
+				     const TimingRole *check_role,
 				     MultiCyclePath *mcp,
 				     ArcDelay margin,
 				     const StaState *) :
@@ -1522,7 +1522,7 @@ PathEndGatedClock::PathEndGatedClock(Path *gating_ref,
 
 PathEndGatedClock::PathEndGatedClock(Path *gating_ref,
 				     Path *clk_path,
-				     TimingRole *check_role,
+				     const TimingRole *check_role,
 				     MultiCyclePath *mcp,
 				     ArcDelay margin,
 				     Crpr crpr,
@@ -1552,7 +1552,7 @@ PathEndGatedClock::typeName() const
   return "gated_clk";
 }
 
-TimingRole *
+const TimingRole *
 PathEndGatedClock::checkRole(const StaState *) const
 {
   return check_role_;
@@ -1578,7 +1578,7 @@ PathEndGatedClock::exceptPathCmp(const PathEnd *path_end,
   if (cmp == 0) {
     const PathEndGatedClock *path_end2 =
       dynamic_cast<const PathEndGatedClock*>(path_end);
-    TimingRole *check_role2 = path_end2->check_role_;
+    const TimingRole *check_role2 = path_end2->check_role_;
     if (check_role_ == check_role2)
       return 0;
     else if (check_role_ < check_role2)
@@ -1618,7 +1618,7 @@ PathEndDataCheck::clkPath(Path *path,
     if (p->isClock(sta))
       return p;
     if (prev_arc) {
-      TimingRole *prev_role = prev_arc->role();
+      const TimingRole *prev_role = prev_arc->role();
       if (prev_role == TimingRole::regClkToQ()
 	  || prev_role == TimingRole::latchEnToQ()) {
         prev_path = p->prevPath();
@@ -1705,7 +1705,7 @@ PathEndDataCheck::margin(const StaState *sta) const
   return margin;
 }
 
-TimingRole *
+const TimingRole *
 PathEndDataCheck::checkRole(const StaState *sta) const
 {
   if (path_->minMax(sta) == MinMax::max())
@@ -1856,7 +1856,7 @@ PathEndPathDelay::pathDelayMarginIsExternal() const
   return check_arc_ == nullptr;
 }
 
-TimingRole *
+const TimingRole *
 PathEndPathDelay::checkRole(const StaState *sta) const
 {
   if (check_edge_)

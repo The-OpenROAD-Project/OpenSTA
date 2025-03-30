@@ -247,6 +247,8 @@ public:
   ~Vertex();
   Pin *pin() const { return pin_; }
   // Pin path with load/driver suffix for bidirects.
+  string to_string(const StaState *sta) const;
+  // compatibility
   const char *name(const Network *network) const;
   bool isBidirectDriver() const { return is_bidirect_drvr_; }
   bool isDriver(const Network *network) const;
@@ -364,11 +366,12 @@ class Edge
 public:
   Edge();
   ~Edge();
+  string to_string(const StaState *sta) const;
   Vertex *to(const Graph *graph) const { return graph->vertex(to_); }
   VertexId to() const { return to_; }
   Vertex *from(const Graph *graph) const { return graph->vertex(from_); }
   VertexId from() const { return from_; }
-  TimingRole *role() const;
+  const TimingRole *role() const;
   bool isWire() const;
   TimingSense sense() const;
   TimingArcSet *timingArcSet() const { return arc_set_; }

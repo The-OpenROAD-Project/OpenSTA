@@ -40,9 +40,9 @@ public:
   void deleteContents();
   FuncExpr *when() const { return when_; }
   FuncExpr *&whenRef() { return when_; }
-  void setModel(RiseFall *rf,
+  void setModel(const RiseFall *rf,
 		InternalPowerModel *model);
-  InternalPowerModel *model(RiseFall *rf) const;
+  InternalPowerModel *model(const RiseFall *rf) const;
   const char *relatedPgPin() const { return related_pg_pin_; }
   void setRelatedPgPin(const char *related_pg_pin);
 
@@ -65,7 +65,7 @@ public:
   LibertyPort *relatedPort() const { return related_port_; }
   FuncExpr *when() const { return when_; }
   const char *relatedPgPin() const { return related_pg_pin_; }
-  float power(RiseFall *rf,
+  float power(const RiseFall *rf,
 	      const Pvt *pvt,
 	      float in_slew,
 	      float load_cap);

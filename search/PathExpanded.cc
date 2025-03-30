@@ -188,7 +188,7 @@ PathExpanded::clkPath() const
   const Path *start = startPath();
   const TimingArc *prev_arc = startPrevArc();
   if (start && prev_arc) {
-    TimingRole *role = prev_arc->role();
+    const TimingRole *role = prev_arc->role();
     if (role == TimingRole::latchDtoQ()) {
       Edge *prev_edge = start->prevEdge(sta_);
       if (prev_edge && latches->isLatchDtoQ(prev_edge)) {

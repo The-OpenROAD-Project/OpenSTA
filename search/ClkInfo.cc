@@ -136,7 +136,7 @@ ClkInfo::asString(const StaState *sta) const
   string result;
 
   PathAnalysisPt *path_ap = corners->findPathAnalysisPt(path_ap_index_);
-  result += path_ap->pathMinMax()->asString();
+  result += path_ap->pathMinMax()->to_string();
   result += "/";
   result += std::to_string(path_ap_index_);
 
@@ -174,7 +174,7 @@ ClkInfo::clock() const
     return nullptr;
 }
 
-RiseFall *
+const RiseFall *
 ClkInfo::pulseClkSense() const
 {
   if (is_pulse_clk_)

@@ -1147,12 +1147,7 @@ getProperty(Edge *edge,
 	    Sta *sta)
 {
   if (stringEqual(property, "full_name")) {
-    Network *network = sta->cmdNetwork();
-    Graph *graph = sta->ensureGraph();
-    const char *from = edge->from(graph)->name(network);
-    const char *to = edge->to(graph)->name(network);
-    string full_name;
-    stringPrint(full_name, "%s -> %s", from, to);
+    string full_name = edge->to_string(sta);
     return PropertyValue(full_name);
   }
   if (stringEqual(property, "delay_min_fall"))
@@ -1164,7 +1159,7 @@ getProperty(Edge *edge,
   else if (stringEqual(property, "delay_max_rise"))
     return edgeDelayProperty(edge, RiseFall::rise(), MinMax::max(), sta);
   else if (stringEqual(property, "sense"))
-    return PropertyValue(timingSenseString(edge->sense()));
+    return PropertyValue(to_string(edge->sense()));
   else if (stringEqual(property, "from_pin"))
     return PropertyValue(edge->from(sta->graph())->pin());
   else if (stringEqual(property, "to_pin"))
@@ -1183,7 +1178,7 @@ edgeDelayProperty(Edge *edge,
   bool delay_exists = false;
   TimingArcSet *arc_set = edge->timingArcSet();
   for (TimingArc *arc : arc_set->arcs()) {
-    RiseFall *to_rf = arc->toEdge()->asRiseFall();
+    const RiseFall *to_rf = arc->toEdge()->asRiseFall();
     if (to_rf == rf) {
       for (const Corner *corner : *sta->corners()) {
 	DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(min_max);

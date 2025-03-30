@@ -178,7 +178,7 @@ ClkSkew::crpr(const StaState *sta)
 float
 ClkSkew::uncertainty(const StaState *sta)
 {
-  TimingRole *check_role = (src_path_->minMax(sta) == SetupHold::max())
+  const TimingRole *check_role = (src_path_->minMax(sta) == SetupHold::max())
     ? TimingRole::setup()
     : TimingRole::hold();
   // Uncertainty decreases slack, but increases skew.
@@ -255,7 +255,7 @@ ClkSkews::reportClkSkew(ClkSkew &clk_skew,
   report_->reportLine("%7s source latency %s %s",
                       time_unit->asString(src_latency, digits),
                       sdc_network_->pathName(src_path->pin(this)),
-                      src_path->transition(this)->asString());
+                      src_path->transition(this)->to_string().c_str());
   if (src_internal_clk_latency != 0.0)
     report_->reportLine("%7s source internal clock delay",
                         time_unit->asString(src_internal_clk_latency, digits));
@@ -265,7 +265,7 @@ ClkSkews::reportClkSkew(ClkSkew &clk_skew,
   report_->reportLine("%7s target latency %s %s",
                       time_unit->asString(-tgt_latency, digits),
                       sdc_network_->pathName(tgt_path->pin(this)),
-                      tgt_path->transition(this)->asString());
+                      tgt_path->transition(this)->to_string().c_str());
   if (tgt_internal_clk_latency != 0.0)
     report_->reportLine("%7s target internal clock delay",
                         time_unit->asString(-tgt_internal_clk_latency, digits));
@@ -391,7 +391,7 @@ ClkSkews::findClkSkewFrom(Vertex *src_vertex,
     VertexInEdgeIterator edge_iter(end, graph_);
     while (edge_iter.hasNext()) {
       Edge *edge = edge_iter.next();
-      TimingRole *role = edge->role();
+      const TimingRole *role = edge->role();
       if (role->isTimingCheck()
 	  && ((setup_hold_ == SetupHold::max()
 	       && role->genericRole() == TimingRole::setup())
@@ -441,10 +441,10 @@ ClkSkews::findClkSkew(Vertex *src_vertex,
 	    debugPrint(debug_, "clk_skew", 2,
                        "%s %s %s -> %s %s %s crpr = %s skew = %s",
                        network_->pathName(src_path->pin(this)),
-                       src_path->transition(this)->asString(),
+                       src_path->transition(this)->to_string().c_str(),
                        time_unit->asString(probe.srcLatency(this)),
                        network_->pathName(tgt_path->pin(this)),
-                       tgt_path->transition(this)->asString(),
+                       tgt_path->transition(this)->to_string().c_str(),
                        time_unit->asString(probe.tgtLatency(this)),
                        delayAsString(probe.crpr(this), this),
                        time_unit->asString(probe.skew()));
@@ -499,7 +499,7 @@ FanOutSrchPred::FanOutSrchPred(const StaState *sta) :
 bool
 FanOutSrchPred::searchThru(Edge *edge)
 {
-  TimingRole *role = edge->role();
+  const TimingRole *role = edge->role();
   return SearchPred1::searchThru(edge)
     && (role == TimingRole::wire()
         || role == TimingRole::combinational()

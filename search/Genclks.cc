@@ -250,7 +250,7 @@ bool
 GenClkMasterSearchPred::searchThru(Edge *edge)
 {
   const Sdc *sdc = sta_->sdc();
-  TimingRole *role = edge->role();
+  const TimingRole *role = edge->role();
   // Propagate clocks through constants.
   return !(edge->role()->isTimingCheck()
            || edge->isDisabledLoop()
@@ -418,7 +418,7 @@ Genclks::findFanin(Clock *gclk,
     if (!fanins->hasKey(vertex)) {
       fanins->insert(vertex);
       debugPrint(debug_, "genclk", 2, "gen clk %s fanin %s",
-                 gclk->name(), vertex->name(sdc_network_));
+                 gclk->name(), vertex->to_string(this).c_str());
       iter.enqueueAdjacentVertices(vertex);
     }
   }
@@ -627,9 +627,8 @@ Genclks::findLatchFdbkEdges(Vertex *from_vertex,
       Edge *edge = edge_iter.next();
       Vertex *to_vertex = edge->to(graph_);
       if (path_vertices.hasKey(to_vertex)) {
-	debugPrint(debug_, "genclk", 2, " found feedback edge %s -> %s",
-                   from_vertex->name(sdc_network_),
-                   to_vertex->name(sdc_network_));
+	debugPrint(debug_, "genclk", 2, " found feedback edge %s",
+                   edge->to_string(this).c_str());
 	if (fdbk_edges == nullptr)
 	  fdbk_edges = new EdgeSet;
 	fdbk_edges->insert(edge);
@@ -822,7 +821,7 @@ GenclkSrcArrivalVisitor::visit(Vertex *vertex)
 {
   Genclks *genclks = search_->genclks();
   debugPrint(debug_, "genclk", 2, "find gen clk insert arrival %s",
-             vertex->name(sdc_network_));
+             vertex->to_string(this).c_str());
   tag_bldr_->init(vertex);
   has_fanin_one_ = graph_->hasFaninOne(vertex);
   genclks->copyGenClkSrcPaths(vertex, tag_bldr_);
@@ -907,7 +906,7 @@ Genclks::recordSrcPaths(Clock *gclk)
       if (src_clk_edge
 	  && matchesSrcFilter(path, gclk)) {
 	const EarlyLate *early_late = path->minMax(this);
-	RiseFall *src_clk_rf = src_clk_edge->transition();
+	const RiseFall *src_clk_rf = src_clk_edge->transition();
 	const RiseFall *rf = path->transition(this);
 	bool inverting_path = (rf != src_clk_rf);
 	const PathAnalysisPt *path_ap = path->pathAnalysisPt(this);
@@ -924,8 +923,8 @@ Genclks::recordSrcPaths(Clock *gclk)
 				this))) {
 	  debugPrint(debug_, "genclk", 2, "  %s insertion %s %s %s",
                      network_->pathName(gclk_pin),
-                     early_late->asString(),
-                     rf->asString(),
+                     early_late->to_string().c_str(),
+                     rf->to_string().c_str(),
                      delayAsString(path->arrival(), this));
           delete src_path.prevPath();
           src_path = *path;
@@ -1037,7 +1036,7 @@ Genclks::updateSrcPathPrevs()
           p = p->prevPath();
         }
         debugPrint(debug_, "genclk", 3, "repaired src path prev %s",
-                   src_path.name(this));
+                   src_path.to_string(this).c_str());
       }
     }
   }

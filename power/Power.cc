@@ -364,7 +364,7 @@ ActivitySrchPred::ActivitySrchPred(const StaState *sta) :
 bool
 ActivitySrchPred::searchThru(Edge *edge)
 {
-  TimingRole *role = edge->role();
+  const TimingRole *role = edge->role();
   return SearchPredNonLatch2::searchThru(edge)
     && role != TimingRole::regClkToQ();
 }
@@ -421,7 +421,7 @@ PropActivityVisitor::visit(Vertex *vertex)
   Pin *pin = vertex->pin();
   Instance *inst = network_->instance(pin);
   debugPrint(debug_, "power_activity", 3, "visit %s",
-             vertex->name(network_));
+             vertex->to_string(this).c_str());
   bool changed = false;
   if (power_->hasUserActivity(pin)) {
     PwrActivity &activity = power_->userActivity(pin);
@@ -709,7 +709,7 @@ Power::seedActivities(BfsFwdIterator &bfs)
     if (!sdc_->isLeafPinClock(pin)
 	&& !network_->direction(pin)->isInternal()) {
       debugPrint(debug_, "power_activity", 3, "seed %s",
-                 vertex->name(network_));
+                 vertex->to_string(this).c_str());
       if (hasUserActivity(pin))
 	setActivity(pin, userActivity(pin));
       else
@@ -743,7 +743,7 @@ Power::seedRegOutputActivities(const Instance *inst,
             && (func->port() == seq->output()
                 || func->port() == seq->outputInv())) {
           debugPrint(debug_, "power_reg", 1, "enqueue reg output %s",
-                     vertex->name(network_));
+                     vertex->to_string(this).c_str());
           bfs.enqueue(vertex);
         }
       }
@@ -870,7 +870,7 @@ Power::findInputInternalPower(const Pin *pin,
         const char *related_pg_pin = pwr->relatedPgPin();
         float energy = 0.0;
         int rf_count = 0;
-        for (RiseFall *rf : RiseFall::range()) {
+        for (const RiseFall *rf : RiseFall::range()) {
           float slew = getSlew(vertex, rf, corner);
           if (!delayInf(slew)) {
             float table_energy = pwr->power(rf, pvt, slew, load_cap);
@@ -900,7 +900,7 @@ Power::findInputInternalPower(const Pin *pin,
         float port_internal = energy * duty * activity.density();
         debugPrint(debug_, "power", 2,  " %3s %6s  %.2f  %.2f %9.2e %9.2e %s",
                    port->name(),
-                   when ? when->asString() : "",
+                   when ? when->to_string().c_str() : "",
                    activity.density() * 1e-9,
                    duty,
                    energy,
@@ -1031,9 +1031,9 @@ Power::findOutputInternalPower(const LibertyPort *to_port,
     }
     float energy = 0.0;
     int rf_count = 0;
-    for (RiseFall *to_rf : RiseFall::range()) {
+    for (const RiseFall *to_rf : RiseFall::range()) {
       // Use unateness to find from_rf.
-      RiseFall *from_rf = positive_unate ? to_rf : to_rf->opposite();
+      const RiseFall *from_rf = positive_unate ? to_rf : to_rf->opposite();
       float slew = from_vertex
 	? getSlew(from_vertex, from_rf, corner)
 	: 0.0;
@@ -1058,7 +1058,7 @@ Power::findOutputInternalPower(const LibertyPort *to_port,
     debugPrint(debug_, "power", 2,  "%3s -> %-3s %6s  %.3f %.3f %.3f %9.2e %9.2e %s",
                from_corner_port ? from_corner_port->name() : "-" ,
                to_port->name(),
-               when ? when->asString() : "",
+               when ? when->to_string().c_str() : "",
                to_activity.density() * 1e-9,
                duty,
                weight,
@@ -1189,7 +1189,7 @@ Power::findLeakagePower(const Instance *inst,
       float cond_duty = cond_activity.duty();
       debugPrint(debug_, "power", 2, "leakage %s %s %.3e * %.2f",
                  cell->name(),
-                 when->asString(),
+                 when->to_string().c_str(),
                  leak->power(),
                  cond_duty);
       cond_leakage += leak->power() * cond_duty;

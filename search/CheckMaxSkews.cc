@@ -195,8 +195,8 @@ CheckMaxSkews:: visitMaxSkewChecks(Vertex *vertex,
       Vertex *ref_vertex = edge->from(graph);
       TimingArcSet *arc_set = edge->timingArcSet();
       for (TimingArc *arc : arc_set->arcs()) {
-	RiseFall *clk_rf = arc->fromEdge()->asRiseFall();
-	RiseFall *ref_rf = arc->toEdge()->asRiseFall();
+	const RiseFall *clk_rf = arc->fromEdge()->asRiseFall();
+	const RiseFall *ref_rf = arc->toEdge()->asRiseFall();
 	VertexPathIterator clk_path_iter(vertex, clk_rf, clk_min_max, search);
 	while (clk_path_iter.hasNext()) {
 	  Path *clk_path = clk_path_iter.next();

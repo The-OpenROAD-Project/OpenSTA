@@ -118,7 +118,7 @@ protected:
 			  const PathAnalysisPt *clk_ap,
 			  const Pin *from_pin,
 			  Vertex *from_vertex,
-			  RiseFall *from_rf,
+			  const RiseFall *from_rf,
 			  bool filtered,
 			  PathEndVisitor *visitor,
 			  bool &is_constrained);

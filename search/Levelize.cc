@@ -157,7 +157,8 @@ Levelize::findRoots()
     Vertex *vertex = vertex_iter.next();
     setLevel(vertex, 0);
     if (isRoot(vertex)) {
-      debugPrint(debug_, "levelize", 2, "root %s", vertex->name(sdc_network_));
+      debugPrint(debug_, "levelize", 2, "root %s",
+                 vertex->to_string(this).c_str());
       roots_->insert(vertex);
       if (hasFanout(vertex, search_pred_, graph_))
 	// Color roots with no fanout black so that they are
@@ -219,7 +220,7 @@ Levelize::visit(Vertex *vertex,
 {
   Pin *from_pin = vertex->pin();
   debugPrint(debug_, "levelize", 3, "level %d %s",
-             level, vertex->name(sdc_network_));
+             level, vertex->to_string(this).c_str());
   vertex->setColor(LevelColor::gray);
   setLevel(vertex, level);
   max_level_ = max(level, max_level_);
@@ -269,8 +270,8 @@ Levelize::reportPath(EdgeSeq &path) const
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
     if (first_edge)
-      report_->reportLine(" %s", edge->from(graph_)->name(network_));
-    report_->reportLine(" %s", edge->to(graph_)->name(network_));
+      report_->reportLine(" %s", edge->from(graph_)->to_string(this).c_str());
+    report_->reportLine(" %s", edge->to(graph_)->to_string(this).c_str());
     first_edge = false;
   }
 }
@@ -279,10 +280,9 @@ void
 Levelize::recordLoop(Edge *edge,
 		     EdgeSeq &path)
 {
-  debugPrint(debug_, "levelize", 2, "Loop edge %s -> %s (%s)",
-             edge->from(graph_)->name(sdc_network_),
-             edge->to(graph_)->name(sdc_network_),
-             edge->role()->asString());
+  debugPrint(debug_, "levelize", 2, "Loop edge %s (%s)",
+             edge->to_string(this).c_str(),
+             edge->role()->to_string().c_str());
   // Do not record loops if they have been invalidated.
   if (loops_) {
     EdgeSeq *loop_edges = loopEdges(path, edge);
@@ -313,16 +313,14 @@ Levelize::loopEdges(EdgeSeq &path,
     if (from_pin == loop_pin)
       copy = true;
     if (copy) {
-      debugPrint(debug_, "loop", 2, " %s -> %s",
-                 edge->from(graph_)->name(sdc_network_),
-                 edge->to(graph_)->name(sdc_network_));
+      debugPrint(debug_, "loop", 2, " %s",
+                 edge->to_string(this).c_str());
       loop_edges->push_back(edge);
       loop_edges_.insert(edge);
     }
   }
-  debugPrint(debug_, "loop", 2, " %s -> %s",
-             closing_edge->from(graph_)->name(sdc_network_),
-             closing_edge->to(graph_)->name(sdc_network_));
+  debugPrint(debug_, "loop", 2, " %s",
+             closing_edge->to_string(this).c_str());
   loop_edges->push_back(closing_edge);
   loop_edges_.insert(closing_edge);
   return loop_edges;
@@ -388,7 +386,7 @@ void
 Levelize::invalidFrom(Vertex *vertex)
 {
   debugPrint(debug_, "levelize", 1, "level invalid from %s",
-             vertex->name(sdc_network_));
+             vertex->to_string(this).c_str());
   VertexInEdgeIterator edge_iter(vertex, graph_);
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
@@ -410,7 +408,7 @@ void
 Levelize::relevelizeFrom(Vertex *vertex)
 {
   debugPrint(debug_, "levelize", 1, "invalid relevelize from %s",
-             vertex->name(sdc_network_));
+             vertex->to_string(this).c_str());
   relevelize_from_->insert(vertex);
   levels_valid_ = false;
 }
@@ -440,7 +438,7 @@ Levelize::relevelize()
 {
   for (Vertex *vertex : *relevelize_from_) {
     debugPrint(debug_, "levelize", 1, "relevelize from %s",
-               vertex->name(sdc_network_));
+               vertex->to_string(this).c_str());
     if (search_pred_->searchFrom(vertex)) {
       if (isRoot(vertex)) {
 	setLevel(vertex, 0);
@@ -490,7 +488,7 @@ GraphLoop::isCombinational() const
   EdgeSeq::Iterator edge_iter(edges_);
   while (edge_iter.hasNext()) {
     Edge *edge = edge_iter.next();
-    TimingRole *role = edge->role();
+    const TimingRole *role = edge->role();
     if (!(role == TimingRole::wire()
 	  || role == TimingRole::combinational()
 	  || role == TimingRole::tristateEnable()
@@ -501,17 +499,17 @@ GraphLoop::isCombinational() const
 }
 
 void
-GraphLoop::report(Report *report,
-		  Network *network,
-		  Graph *graph) const
+GraphLoop::report(const StaState *sta) const
 {
+  Graph *graph = sta->graph();
+  Report *report = sta->report();
   bool first_edge = true;
   EdgeSeq::Iterator loop_edge_iter(edges_);
   while (loop_edge_iter.hasNext()) {
     Edge *edge = loop_edge_iter.next();
     if (first_edge)
-      report->reportLine(" %s", edge->from(graph)->name(network));
-    report->reportLine(" %s", edge->to(graph)->name(network));
+      report->reportLine(" %s", edge->from(graph)->to_string(sta).c_str());
+    report->reportLine(" %s", edge->to(graph)->to_string(graph).c_str());
     first_edge = false;
   }
 }

@@ -327,7 +327,7 @@ LibertyBuilder::makeCombinationalArcs(LibertyCell *cell,
   }
 
   TimingModel *model;
-  RiseFall *to_rf;
+  const RiseFall *to_rf;
   switch (sense) {
   case TimingSense::positive_unate:
     if (to_rise) {
@@ -391,18 +391,20 @@ LibertyBuilder::makeLatchDtoQArcs(LibertyCell *cell,
   TimingArcSet *arc_set = makeTimingArcSet(cell, from_port, to_port,
 					   TimingRole::latchDtoQ(), attrs);
   TimingModel *model;
-  RiseFall *to_rf = RiseFall::rise();
+  const RiseFall *to_rf = RiseFall::rise();
   model = attrs->model(to_rf);
   if (model) {
-    RiseFall *from_rf = (sense == TimingSense::negative_unate) ?
-      to_rf->opposite() : to_rf;
+    const RiseFall *from_rf = (sense == TimingSense::negative_unate)
+      ? to_rf->opposite()
+      : to_rf;
     makeTimingArc(arc_set, from_rf, to_rf, model);
   }
   to_rf = RiseFall::fall();
   model = attrs->model(to_rf);
   if (model) {
-    RiseFall *from_rf = (sense == TimingSense::negative_unate) ?
-      to_rf->opposite() : to_rf;
+    const RiseFall *from_rf = (sense == TimingSense::negative_unate)
+      ? to_rf->opposite()
+      : to_rf;
     makeTimingArc(arc_set, from_rf, to_rf, model);
   }
   return arc_set;
@@ -412,7 +414,7 @@ TimingArcSet *
 LibertyBuilder::makeRegLatchArcs(LibertyCell *cell,
 				 LibertyPort *from_port,
 				 LibertyPort *to_port,
-				 RiseFall *from_rf,
+				 const RiseFall *from_rf,
 				 TimingArcAttrsPtr attrs)
 {
   FuncExpr *to_func = to_port->function();
@@ -422,7 +424,7 @@ LibertyBuilder::makeRegLatchArcs(LibertyCell *cell,
     Sequential *seq = cell->outputPortSequential(func_port);
     if (seq) {
       if (seq->clock() && seq->clock()->hasPort(from_port)) {
-	TimingRole *role = seq->isRegister() ?
+	const TimingRole *role = seq->isRegister() ?
 	  TimingRole::regClkToQ() : TimingRole::latchEnToQ();
 	return makeFromTransitionArcs(cell, from_port, to_port, nullptr,
                                       from_rf, role, attrs);
@@ -449,8 +451,8 @@ LibertyBuilder::makeFromTransitionArcs(LibertyCell *cell,
 				       LibertyPort *from_port,
 				       LibertyPort *to_port,
 				       LibertyPort *related_out,
-				       RiseFall *from_rf,
-				       TimingRole *role,
+				       const RiseFall *from_rf,
+				       const TimingRole *role,
 				       TimingArcAttrsPtr attrs)
 {
   TimingArcSet *arc_set = makeTimingArcSet(cell, from_port, to_port,
@@ -467,7 +469,7 @@ TimingArcSet *
 LibertyBuilder::makePresetClrArcs(LibertyCell *cell,
 				  LibertyPort *from_port,
 				  LibertyPort *to_port,
-				  RiseFall *to_rf,
+				  const RiseFall *to_rf,
 				  TimingArcAttrsPtr attrs)
 {
   TimingArcSet *arc_set = nullptr;
@@ -475,7 +477,7 @@ LibertyBuilder::makePresetClrArcs(LibertyCell *cell,
   if (model) {
     arc_set = makeTimingArcSet(cell, from_port, to_port, 
 			       TimingRole::regSetClr(), attrs);
-    RiseFall *opp_rf = to_rf->opposite();
+    const RiseFall *opp_rf = to_rf->opposite();
     switch (attrs->timingSense()) {
     case TimingSense::positive_unate:
       makeTimingArc(arc_set, to_rf, to_rf, model);
@@ -513,7 +515,7 @@ LibertyBuilder::makeTristateEnableArcs(LibertyCell *cell,
   if (sense == TimingSense::unknown && tristate_enable)
     sense = tristate_enable->portTimingSense(from_port);
   TimingModel *model;
-  RiseFall *to_rf;
+  const RiseFall *to_rf;
   switch (sense) {
   case TimingSense::positive_unate:
     if (to_rise) {
@@ -584,7 +586,7 @@ LibertyBuilder::makeTristateDisableArcs(LibertyCell *cell,
   if (sense == TimingSense::unknown && tristate_enable)
     sense = timingSenseOpposite(tristate_enable->portTimingSense(from_port));
   TimingModel *model;
-  RiseFall *to_rf;
+  const RiseFall *to_rf;
   switch (sense) {
   case TimingSense::positive_unate:
     if (to_rise) {
@@ -642,7 +644,7 @@ LibertyBuilder::makeTristateDisableArcs(LibertyCell *cell,
 TimingArcSet *
 LibertyBuilder::makeClockTreePathArcs(LibertyCell *cell,
                                       LibertyPort *to_port,
-                                      TimingRole *role,
+                                      const TimingRole *role,
                                       const MinMax *min_max,
                                       TimingArcAttrsPtr attrs)
 {
@@ -651,7 +653,7 @@ LibertyBuilder::makeClockTreePathArcs(LibertyCell *cell,
     TimingModel *model = attrs->model(to_rf);
     if (model) {
       const GateTableModel *gate_model = dynamic_cast<GateTableModel *>(model);
-      RiseFall *opp_rf = to_rf->opposite();
+      const RiseFall *opp_rf = to_rf->opposite();
       switch (attrs->timingSense()) {
       case TimingSense::positive_unate:
         makeTimingArc(arc_set, to_rf, to_rf, model);
@@ -681,7 +683,7 @@ LibertyBuilder::makeMinPulseWidthArcs(LibertyCell *cell,
                                       LibertyPort *from_port,
                                       LibertyPort *to_port,
                                       LibertyPort *related_out,
-                                      TimingRole *role,
+                                      const TimingRole *role,
                                       TimingArcAttrsPtr attrs)
 {
   if (from_port == nullptr)
@@ -702,7 +704,7 @@ TimingArcSet *
 LibertyBuilder::makeTimingArcSet(LibertyCell *cell,
 				 LibertyPort *from,
 				 LibertyPort *to,
-				 TimingRole *role,
+				 const TimingRole *role,
 				 TimingArcAttrsPtr attrs)
 {
   return new TimingArcSet(cell, from, to, nullptr, role, attrs);
@@ -713,7 +715,7 @@ LibertyBuilder::makeTimingArcSet(LibertyCell *cell,
 				 LibertyPort *from,
 				 LibertyPort *to,
 				 LibertyPort *related_out,
-				 TimingRole *role,
+				 const TimingRole *role,
 				 TimingArcAttrsPtr attrs)
 {
   return new TimingArcSet(cell, from, to, related_out, role, attrs);
@@ -721,8 +723,8 @@ LibertyBuilder::makeTimingArcSet(LibertyCell *cell,
 
 TimingArc *
 LibertyBuilder::makeTimingArc(TimingArcSet *set,
-			      RiseFall *from_rf,
-			      RiseFall *to_rf,
+			      const RiseFall *from_rf,
+			      const RiseFall *to_rf,
 			      TimingModel *model)
 {
   return new TimingArc(set, from_rf->asTransition(),
@@ -731,8 +733,8 @@ LibertyBuilder::makeTimingArc(TimingArcSet *set,
 
 TimingArc *
 LibertyBuilder::makeTimingArc(TimingArcSet *set,
-			      Transition *from_rf,
-			      Transition *to_rf,
+			      const Transition *from_rf,
+			      const Transition *to_rf,
 			      TimingModel *model)
 {
   return new TimingArc(set, from_rf, to_rf, model);

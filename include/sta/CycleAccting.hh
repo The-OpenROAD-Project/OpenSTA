@@ -95,7 +95,7 @@ private:
 		      int tgt_cycle,
 		      float delay,
 		      float req);
-  void setAccting(TimingRole *role,
+  void setAccting(const TimingRole *role,
 		  int src_cycle,
 		  int tgt_cycle,
 		  float delay,

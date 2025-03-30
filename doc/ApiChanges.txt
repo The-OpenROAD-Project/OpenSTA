@@ -24,6 +24,32 @@
 
 This file summarizes STA API changes for each release.
 
+Release 2.6.2 2024/03/30
+------------------------
+
+The following functions have been renamed to to_string and return std::string
+instead of "const char*"
+
+  Vertex::name
+  FuncExpr::asString
+  TimingRole::name
+  MinMax::asString
+  MinMaxAll::asString
+  RiseFall::asString
+  RiseFallBoth::asString
+  Transition::asString
+  Tag::asString
+  timingSenseString
+
+The following classes now return const objects.
+
+  MinMax
+  MinMaxAll
+  RiseFall
+  RiseFallBoth
+  Transition
+  TimingRole
+
 Release 2.6.1 2025/03/??
 -------------------------
 

@@ -121,9 +121,9 @@ public:
   void writeDataChecks() const;
   void writeDataCheck(DataCheck *check) const;
   void writeDataCheck(DataCheck *check,
-		      RiseFallBoth *from_rf,
-		      RiseFallBoth *to_rf,
-		      SetupHold *setup_hold,
+		      const RiseFallBoth *from_rf,
+		      const RiseFallBoth *to_rf,
+		      const SetupHold *setup_hold,
 		      float margin) const;
   void writeEnvironment() const;
   void writeOperatingConditions() const;

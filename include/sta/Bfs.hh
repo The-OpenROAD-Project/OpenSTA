@@ -75,7 +75,7 @@ public:
   // Notify iterator that vertex will be deleted.
   void deleteVertexBefore(Vertex *vertex);
   void remove(Vertex *vertex);
-  void reportEntries(const Network *network);
+  void reportEntries();
 
   virtual bool hasNext();
   bool hasNext(Level to_level);

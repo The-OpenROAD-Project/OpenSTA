@@ -238,11 +238,11 @@ GatedClk::functionClkOperands(FuncExpr *root_expr,
   }
 }
 
-RiseFall *
+const RiseFall *
 GatedClk::gatedClkActiveTrans(LogicValue active_value,
 			      const MinMax *min_max) const
 {
-  RiseFall *leading_rf;
+  const RiseFall *leading_rf;
   switch (active_value) {
   case LogicValue::one:
   case LogicValue::unknown:

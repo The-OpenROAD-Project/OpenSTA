@@ -51,7 +51,7 @@ class Corners : public StaState
 {
 public:
   explicit Corners(StaState *sta);
-  virtual ~Corners();
+  ~Corners();
   void clear();
   int count() const;
   void copy(Corners *corners);
@@ -106,8 +106,7 @@ class Corner
 public:
   Corner(const char *name,
 	 int index);
-  ~Corner();
-  const char *name() const { return name_; }
+  const char *name() const { return name_.c_str(); }
   int index() const { return index_; }
   ParasiticAnalysisPt *findParasiticAnalysisPt(const MinMax *min_max) const;
   int parasiticAnalysisPtcount();
@@ -127,7 +126,7 @@ protected:
   void addPathAP(PathAnalysisPt *path_ap);
 
 private:
-  const char *name_;
+  string name_;
   int index_;
   ParasiticAnalysisPtSeq parasitic_analysis_pts_;
   DcalcAnalysisPtSeq dcalc_analysis_pts_;

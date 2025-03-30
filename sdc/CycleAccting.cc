@@ -79,10 +79,10 @@ CycleAcctings::reportClkToClkMaxCycleWarnings(Report *report)
   // duplicate warnings between different src/tgt clk edges.
   ClockPairSet clk_warnings;
   for (Clock *src_clk : *sdc_->clocks()) {
-    for (RiseFall *src_rf : RiseFall::range()) {
+    for (const RiseFall *src_rf : RiseFall::range()) {
       ClockEdge *src = src_clk->edge(src_rf);
       for (Clock *tgt_clk : *sdc_->clocks()) {
-        for (RiseFall *tgt_rf : RiseFall::range()) {
+        for (const RiseFall *tgt_rf : RiseFall::range()) {
           ClockEdge *tgt = tgt_clk->edge(tgt_rf);
           CycleAccting probe(src, tgt);
           CycleAccting *acct = cycle_acctings_.findKey(&probe);
@@ -320,7 +320,7 @@ CycleAccting::setHoldAccting(int src_cycle,
 }
 
 void
-CycleAccting::setAccting(TimingRole *role,
+CycleAccting::setAccting(const TimingRole *role,
 			 int src_cycle,
 			 int tgt_cycle,
 			 float delay,

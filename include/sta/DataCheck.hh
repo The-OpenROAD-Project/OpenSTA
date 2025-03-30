@@ -56,7 +56,7 @@ public:
 		    const RiseFallBoth *to_rf,
 		    const SetupHoldAll *setup_hold);
   bool empty() const;
-  void marginIsOneValue(SetupHold *setup_hold,
+  void marginIsOneValue(const SetupHold *setup_hold,
 			// Return values.
 			float &value,
 			bool &one_value) const;

@@ -190,6 +190,8 @@ stringPrintTmp(const char *fmt,
 
 char *
 makeTmpString(size_t length);
+char *
+makeTmpString(string &str);
 bool
 isTmpString(const char *str);
 

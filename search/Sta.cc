@@ -232,7 +232,6 @@ void
 initSta()
 {
   initElapsedTime();
-  TimingRole::init();
   PortDirection::init();
   initLiberty();
   initDelayConstants();
@@ -249,7 +248,6 @@ deleteAllMemory()
     Sta::setSta(nullptr);
   }
   deleteDelayCalcs();
-  TimingRole::destroy();
   PortDirection::destroy();
   deleteLiberty();
 }
@@ -3021,7 +3019,7 @@ Sta::vertexSlack(Vertex *vertex,
 		 const MinMax *min_max)
 {
   findRequired(vertex);
-  MinMax *min = MinMax::min();
+  const MinMax *min = MinMax::min();
   Slack slack = min->initValue();
   VertexPathIterator path_iter(vertex, this);
   while (path_iter.hasNext()) {
@@ -3077,7 +3075,7 @@ Sta::vertexSlack1(Vertex *vertex,
 		  const ClockEdge *clk_edge,
 		  const PathAnalysisPt *path_ap)
 {
-  MinMax *min = MinMax::min();
+  const MinMax *min = MinMax::min();
   Slack slack = min->initValue();
   VertexPathIterator path_iter(vertex, rf, path_ap, this);
   while (path_iter.hasNext()) {
@@ -3221,7 +3219,7 @@ Sta::findRequired(Vertex *vertex)
     int fanout = 0;
     disableFanoutCrprPruning(vertex, fanout);
     debugPrint(debug_, "search", 1, "resurrect pruned required %s fanout %d",
-               vertex->name(sdc_network_),
+               vertex->to_string(this).c_str(),
                fanout);
     // Find fanout arrivals and requireds with pruning disabled.
     search_->findArrivals();
@@ -3605,7 +3603,7 @@ Sta::setArcDelay(Edge *edge,
 		 ArcDelay delay)
 {
   ensureGraph();
-  for (MinMax *mm : min_max->range()) {
+  for (const MinMax *mm : min_max->range()) {
     const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
     DcalcAPIndex ap_index = dcalc_ap->index();
     graph_->setArcDelay(edge, arc, ap_index, delay);
@@ -3628,10 +3626,10 @@ Sta::setAnnotatedSlew(Vertex *vertex,
 		      float slew)
 {
   ensureGraph();
-  for (MinMax *mm : min_max->range()) {
+  for (const MinMax *mm : min_max->range()) {
     const DcalcAnalysisPt *dcalc_ap = corner->findDcalcAnalysisPt(mm);
     DcalcAPIndex ap_index = dcalc_ap->index();
-    for (RiseFall *rf1 : rf->range()) {
+    for (const RiseFall *rf1 : rf->range()) {
       graph_->setSlew(vertex, rf1, ap_index, slew);
       // Don't let delay calculation clobber the value.
       vertex->setSlewAnnotated(true, rf1, ap_index);
@@ -3692,10 +3690,10 @@ Sta::setPortExtPinCap(const Port *port,
 		      const MinMaxAll *min_max,
 		      float cap)
 {
-  for (RiseFall *rf1 : rf->range()) {
-    for (MinMax *mm : min_max->range()) {
+  for (const RiseFall *rf1 : rf->range()) {
+    for (const MinMax *mm : min_max->range()) {
       if (corner == nullptr) {
-        for (Corner *corner : *corners_)
+        for (const Corner *corner : *corners_)
           sdc_->setPortExtPinCap(port, rf1, corner, mm, cap);
       }
       else
@@ -3719,7 +3717,7 @@ Sta::portExtCaps(const Port *port,
   pin_cap = min_max->initValue();
   wire_cap = min_max->initValue();
   fanout = min_max->initValueInt();
-  for (RiseFall *rf : RiseFall::range()) {
+  for (const RiseFall *rf : RiseFall::range()) {
     float pin_cap1, wire_cap1;
     int fanout1;
     bool pin_exists1, wire_exists1, fanout_exists1;
@@ -3756,10 +3754,10 @@ Sta::setPortExtWireCap(const Port *port,
 		       const MinMaxAll *min_max,
 		       float cap)
 {
-  for (RiseFall *rf1 : rf->range()) {
-    for (MinMax *mm : min_max->range()) {
+  for (const RiseFall *rf1 : rf->range()) {
+    for (const MinMax *mm : min_max->range()) {
       if (corner == nullptr) {
-        for (Corner *corner : *corners_)
+        for (const Corner *corner : *corners_)
           sdc_->setPortExtWireCap(port, subtract_pin_cap, rf1, corner, mm, cap);
       }
       else
@@ -3782,9 +3780,9 @@ Sta::setPortExtFanout(const Port *port,
                       const Corner *corner,
 		      const MinMaxAll *min_max)
 {
-  for (MinMax *mm : min_max->range()) {
+  for (const MinMax *mm : min_max->range()) {
     if (corner == nullptr) {
-      for (Corner *corner : *corners_)
+      for (const Corner *corner : *corners_)
         sdc_->setPortExtFanout(port, corner, mm, fanout);
     }
     else
@@ -3800,9 +3798,9 @@ Sta::setNetWireCap(const Net *net,
 		   const MinMaxAll *min_max,
 		   float cap)
 {
-  for (MinMax *mm : min_max->range()) {
+  for (const MinMax *mm : min_max->range()) {
     if (corner == nullptr) {
-      for (Corner *corner : *corners_)
+      for (const Corner *corner : *corners_)
         sdc_->setNetWireCap(net, subtract_pin_cap, corner, mm, cap);
     }
     else
@@ -3835,7 +3833,7 @@ Sta::connectedCap(const Net *net,
     pin_cap = min_max->initValue();
     wire_cap = min_max->initValue();
     for (const Corner *corner : makeCornerSeq(corner)) {
-      for (RiseFall *rf : RiseFall::range()) {
+      for (const RiseFall *rf : RiseFall::range()) {
         float pin_cap1, wire_cap1;
         connectedCap(drvr_pin, rf, corner, min_max, pin_cap1, wire_cap1);
         pin_cap = min_max->minMax(pin_cap, pin_cap1);
@@ -3869,7 +3867,7 @@ Sta::capacitance(const LibertyPort *port,
   float cap = min_max->initValue();
   for (const Corner *corner : makeCornerSeq(corner)) {
     const LibertyPort *corner_port = port->cornerPort(corner, min_max);
-    for (RiseFall *rf : RiseFall::range())
+    for (const RiseFall *rf : RiseFall::range())
       cap = min_max->minMax(cap, corner_port->capacitance(rf, min_max, op_cond, op_cond));
   }
   return cap;
@@ -3983,8 +3981,8 @@ Sta::makePiElmore(Pin *drvr_pin,
 		  float rpi,
 		  float c1)
 {
-  Corner *corner = cmd_corner_;
-  for (MinMax *mm : min_max->range()) {
+  const Corner *corner = cmd_corner_;
+  for (const MinMax *mm : min_max->range()) {
     ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(mm);
     parasitics_->makePiElmore(drvr_pin, rf, ap, c2, rpi, c1);
   }
@@ -4015,8 +4013,8 @@ Sta::setElmore(Pin *drvr_pin,
 	       const MinMaxAll *min_max,
 	       float elmore)
 {
-  Corner *corner = cmd_corner_;
-  for (MinMax *mm : min_max->range()) {
+  const Corner *corner = cmd_corner_;
+  for (const MinMax *mm : min_max->range()) {
     const ParasiticAnalysisPt *ap = corner->findParasiticAnalysisPt(mm);
     Parasitic *pi_elmore = parasitics_->findPiElmore(drvr_pin, rf, ap);
     if (pi_elmore)
@@ -4871,7 +4869,7 @@ FanInOutSrchPred::searchThru(Edge *edge)
 bool
 FanInOutSrchPred::searchThruRole(Edge *edge)
 {
-  TimingRole *role = edge->role();
+  const TimingRole *role = edge->role();
   return role == TimingRole::wire()
     || role == TimingRole::combinational()
     || role == TimingRole::tristateEnable()
@@ -4920,7 +4918,7 @@ FaninSrchPred::FaninSrchPred(bool thru_disabled,
 bool
 FaninSrchPred::searchThruRole(Edge *edge)
 {
-  TimingRole *role = edge->role();
+  const TimingRole *role = edge->role();
   return role == TimingRole::wire()
     || role == TimingRole::combinational()
     || role == TimingRole::tristateEnable()
@@ -4996,7 +4994,7 @@ Sta::findFaninPins(Vertex *to,
 		   int pin_level)
 {
   debugPrint(debug_, "fanin", 1, "%s",
-             to->name(sdc_network_));
+             to->to_string(this).c_str());
   if (!visited.hasKey(to)) {
     visited.insert(to);
     Pin *to_pin = to->pin();
@@ -5106,7 +5104,7 @@ Sta::findFanoutPins(Vertex *from,
 		    int pin_level)
 {
   debugPrint(debug_, "fanout", 1, "%s",
-             from->name(sdc_network_));
+             from->to_string(this).c_str());
   if (!visited.hasKey(from)) {
     visited.insert(from);
     if (!search_->isEndpoint(from, pred)

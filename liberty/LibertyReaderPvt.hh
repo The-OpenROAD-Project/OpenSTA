@@ -64,8 +64,8 @@ using std::vector;
 
 typedef void (LibertyReader::*LibraryAttrVisitor)(LibertyAttr *attr);
 typedef void (LibertyReader::*LibraryGroupVisitor)(LibertyGroup *group);
-typedef Map<const char*,LibraryAttrVisitor,CharPtrLess> LibraryAttrMap;
-typedef Map<const char*,LibraryGroupVisitor,CharPtrLess> LibraryGroupMap;
+typedef Map<string, LibraryAttrVisitor> LibraryAttrMap;
+typedef Map<string ,LibraryGroupVisitor> LibraryGroupMap;
 typedef Vector<PortGroup*> PortGroupSeq;
 typedef Vector<SequentialGroup*> SequentialGroupSeq;
 typedef Vector<LibertyFunc*> LibertyFuncSeq;
@@ -122,15 +122,15 @@ public:
   virtual void visitDefaultIntrinsicRise(LibertyAttr *attr);
   virtual void visitDefaultIntrinsicFall(LibertyAttr *attr);
   virtual void visitDefaultIntrinsic(LibertyAttr *attr,
-				     RiseFall *rf);
+				     const RiseFall *rf);
   virtual void visitDefaultInoutPinRiseRes(LibertyAttr *attr);
   virtual void visitDefaultInoutPinFallRes(LibertyAttr *attr);
   virtual void visitDefaultInoutPinRes(LibertyAttr *attr,
-				       RiseFall *rf);
+				       const RiseFall *rf);
   virtual void visitDefaultOutputPinRiseRes(LibertyAttr *attr);
   virtual void visitDefaultOutputPinFallRes(LibertyAttr *attr);
   virtual void visitDefaultOutputPinRes(LibertyAttr *attr,
-					RiseFall *rf);
+					const RiseFall *rf);
   virtual void visitDefaultFanoutLoad(LibertyAttr *attr);
   virtual void visitDefaultWireLoad(LibertyAttr *attr);
   virtual void visitDefaultWireLoadMode(LibertyAttr *attr);
@@ -139,19 +139,19 @@ public:
   virtual void visitInputThresholdPctFall(LibertyAttr *attr);
   virtual void visitInputThresholdPctRise(LibertyAttr *attr);
   virtual void visitInputThresholdPct(LibertyAttr *attr,
-				      RiseFall *rf);
+				      const RiseFall *rf);
   virtual void visitOutputThresholdPctFall(LibertyAttr *attr);
   virtual void visitOutputThresholdPctRise(LibertyAttr *attr);
   virtual void visitOutputThresholdPct(LibertyAttr *attr,
-				       RiseFall *rf);
+				       const RiseFall *rf);
   virtual void visitSlewLowerThresholdPctFall(LibertyAttr *attr);
   virtual void visitSlewLowerThresholdPctRise(LibertyAttr *attr);
   virtual void visitSlewLowerThresholdPct(LibertyAttr *attr,
-					  RiseFall *rf);
+					  const RiseFall *rf);
   virtual void visitSlewUpperThresholdPctFall(LibertyAttr *attr);
   virtual void visitSlewUpperThresholdPctRise(LibertyAttr *attr);
   virtual void visitSlewUpperThresholdPct(LibertyAttr *attr,
-					  RiseFall *rf);
+					  const RiseFall *rf);
   virtual void visitSlewDerateFromLibrary(LibertyAttr *attr);
 
   virtual void beginTechnology(LibertyGroup *group);
@@ -247,15 +247,15 @@ public:
   virtual void visitMaxFanout(LibertyAttr *attr);
   virtual void visitMinFanout(LibertyAttr *attr);
   virtual void visitFanout(LibertyAttr *attr,
-			   MinMax *min_max);
+			   const MinMax *min_max);
   virtual void visitMaxTransition(LibertyAttr *attr);
   virtual void visitMinTransition(LibertyAttr *attr);
   virtual void visitMinMaxTransition(LibertyAttr *attr,
-				     MinMax *min_max);
+				     const MinMax *min_max);
   virtual void visitMaxCapacitance(LibertyAttr *attr);
   virtual void visitMinCapacitance(LibertyAttr *attr);
   virtual void visitMinMaxCapacitance(LibertyAttr *attr,
-				      MinMax *min_max);
+				      const MinMax *min_max);
   virtual void visitMinPeriod(LibertyAttr *attr);
   virtual void visitMinPulseWidthLow(LibertyAttr *attr);
   virtual void visitMinPulseWidthHigh(LibertyAttr *attr);
@@ -267,7 +267,7 @@ public:
   virtual void visitClockGateOutPin(LibertyAttr *attr);
   void visitIsPllFeedbackPin(LibertyAttr *attr);
   virtual void visitSignalType(LibertyAttr *attr);
-  EarlyLateAll *getAttrEarlyLate(LibertyAttr *attr);
+  const EarlyLateAll *getAttrEarlyLate(LibertyAttr *attr);
   virtual void visitClock(LibertyAttr *attr);
   virtual void visitIsolationCellDataPin(LibertyAttr *attr);
   virtual void visitIsolationCellEnablePin(LibertyAttr *attr);
@@ -350,11 +350,11 @@ public:
   virtual void visitIntrinsicRise(LibertyAttr *attr);
   virtual void visitIntrinsicFall(LibertyAttr *attr);
   virtual void visitIntrinsic(LibertyAttr *attr,
-			      RiseFall *rf);
+			      const RiseFall *rf);
   virtual void visitRiseResistance(LibertyAttr *attr);
   virtual void visitFallResistance(LibertyAttr *attr);
   virtual void visitRiseFallResistance(LibertyAttr *attr,
-				       RiseFall *rf);
+				       const RiseFall *rf);
   virtual void visitValue(LibertyAttr *attr);
   virtual void visitValues(LibertyAttr *attr);
   virtual void beginCellRise(LibertyGroup *group);
@@ -373,12 +373,12 @@ public:
 
   virtual void beginTableModel(LibertyGroup *group,
 			       TableTemplateType type,
-			       RiseFall *rf,
+			       const RiseFall *rf,
 			       float scale,
 			       ScaleFactorType scale_factor_type);
   virtual void endTableModel();
   virtual void beginTimingTableModel(LibertyGroup *group,
-				     RiseFall *rf,
+				     const RiseFall *rf,
 				     ScaleFactorType scale_factor_type);
   virtual void beginTable(LibertyGroup *group,
 			  TableTemplateType type,
@@ -469,14 +469,14 @@ public:
   virtual void beginReceiverCapacitance2Fall(LibertyGroup *group);
   void beginReceiverCapacitance(LibertyGroup *group,
                                 int index,
-                                RiseFall *rf);
+                                const RiseFall *rf);
   void endReceiverCapacitance(LibertyGroup *group,
                               int index,
-                              RiseFall *rf);
+                              const RiseFall *rf);
   // ccs
   void beginOutputCurrentRise(LibertyGroup *group);
   void beginOutputCurrentFall(LibertyGroup *group);
-  void beginOutputCurrent(RiseFall *rf,
+  void beginOutputCurrent(const RiseFall *rf,
                           LibertyGroup *group);
   void endOutputCurrentRiseFall(LibertyGroup *group);
   void beginVector(LibertyGroup *group);
@@ -645,12 +645,12 @@ protected:
   InternalPowerGroup *internal_power_;
   LeakagePowerGroup *leakage_power_;
   LeakagePowerGroupSeq leakage_powers_;
-  RiseFall *rf_;
+  const RiseFall *rf_;
   int index_;
   OcvDerate *ocv_derate_;
-  RiseFallBoth *rf_type_;
-  EarlyLateAll *derate_type_;
-  EarlyLateAll *sigma_type_;
+  const RiseFallBoth *rf_type_;
+  const EarlyLateAll *derate_type_;
+  const EarlyLateAll *sigma_type_;
   PathType path_type_;
   LibertyPgPort *pg_port_;
   ScaleFactorType scale_factor_type_;
@@ -674,7 +674,7 @@ protected:
   OutputWaveforms *output_waveforms_;
   float reference_time_;
   bool reference_time_exists_;
-  const char *driver_waveform_name_;
+  string driver_waveform_name_;
 
   TestCell *test_cell_;
   // Saved state while parsing test_cell.
@@ -833,41 +833,41 @@ public:
   TimingArcAttrsPtr attrs() { return attrs_; }
   const char *relatedOutputPortName()const {return related_output_port_name_;}
   void setRelatedOutputPortName(const char *name);
-  void intrinsic(RiseFall *rf,
+  void intrinsic(const RiseFall *rf,
 		 // Return values.
 		 float &value,
 		 bool &exists);
-  void setIntrinsic(RiseFall *rf,
+  void setIntrinsic(const RiseFall *rf,
 		    float value);
-  void resistance(RiseFall *rf,
+  void resistance(const RiseFall *rf,
 		  // Return values.
 		  float &value,
 		  bool &exists);
-  void setResistance(RiseFall *rf,
+  void setResistance(const RiseFall *rf,
 		     float value);
-  TableModel *cell(RiseFall *rf);
-  void setCell(RiseFall *rf,
+  TableModel *cell(const RiseFall *rf);
+  void setCell(const RiseFall *rf,
 	       TableModel *model);
-  TableModel *constraint(RiseFall *rf);
-  void setConstraint(RiseFall *rf,
+  TableModel *constraint(const RiseFall *rf);
+  void setConstraint(const RiseFall *rf,
 		     TableModel *model);
-  TableModel *transition(RiseFall *rf);
-  void setTransition(RiseFall *rf,
+  TableModel *transition(const RiseFall *rf);
+  void setTransition(const RiseFall *rf,
 		     TableModel *model);
   void makeTimingModels(LibertyCell *cell,
 			LibertyReader *visitor);
-  void setDelaySigma(RiseFall *rf,
-		     EarlyLate *early_late,
+  void setDelaySigma(const RiseFall *rf,
+		     const EarlyLate *early_late,
 		     TableModel *model);
-  void setSlewSigma(RiseFall *rf,
-		    EarlyLate *early_late,
+  void setSlewSigma(const RiseFall *rf,
+		    const EarlyLate *early_late,
 		    TableModel *model);
-  void setConstraintSigma(RiseFall *rf,
-			  EarlyLate *early_late,
+  void setConstraintSigma(const RiseFall *rf,
+			  const EarlyLate *early_late,
 			  TableModel *model);
   void setReceiverModel(ReceiverModelPtr receiver_model);
-  OutputWaveforms *outputWaveforms(RiseFall *rf);
-  void setOutputWaveforms(RiseFall *rf,
+  OutputWaveforms *outputWaveforms(const RiseFall *rf);
+  void setOutputWaveforms(const RiseFall *rf,
                         OutputWaveforms *output_current);
   
 protected:

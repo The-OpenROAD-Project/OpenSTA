@@ -65,7 +65,7 @@ VisitPathEnds::visitPathEnds(Vertex *vertex,
   if (!vertex->isBidirectDriver()) {
     const Pin *pin = vertex->pin();
     debugPrint(debug_, "search", 2, "find end slack %s",
-               vertex->name(sdc_network_));
+               vertex->to_string(this).c_str());
     visitor->vertexBegin(vertex);
     bool is_constrained = false;
     visitClkedPathEnds(pin, vertex, corner, min_max, filtered, visitor,
@@ -155,7 +155,7 @@ VisitPathEnds::visitCheckEnd(const Pin *pin,
 	&& check_role->pathMinMax() == min_max) {
       TimingArcSet *arc_set = edge->timingArcSet();
       for (TimingArc *check_arc : arc_set->arcs()) {
-	RiseFall *clk_rf = check_arc->fromEdge()->asRiseFall();
+	const RiseFall *clk_rf = check_arc->fromEdge()->asRiseFall();
 	if (check_arc->toEdge()->asRiseFall() == end_rf
 	    && clk_rf) {
 	  VertexPathIterator tgt_clk_path_iter(tgt_clk_vertex, clk_rf,
@@ -255,7 +255,7 @@ VisitPathEnds::visitCheckEndUnclked(const Pin *pin,
 	&& check_role->pathMinMax() == min_max) {
       TimingArcSet *arc_set = edge->timingArcSet();
       for (TimingArc *check_arc : arc_set->arcs()) {
-	RiseFall *clk_rf = check_arc->fromEdge()->asRiseFall();
+	const RiseFall *clk_rf = check_arc->fromEdge()->asRiseFall();
 	if (check_arc->toEdge()->asRiseFall() == end_rf
 	    && clk_rf
 	    && (!filtered
@@ -315,7 +315,7 @@ VisitPathEnds::visitOutputDelayEnd(const Pin *pin,
 	  if (ref_pin) {
 	    Clock *tgt_clk = output_delay->clock();
 	    Vertex *ref_vertex = graph_->pinLoadVertex(ref_pin);
-	    RiseFall *ref_rf = output_delay->refTransition();
+	    const RiseFall *ref_rf = output_delay->refTransition();
 	    VertexPathIterator ref_path_iter(ref_vertex,ref_rf,path_ap,this);
 	    while (ref_path_iter.hasNext()) {
 	      Path *ref_path = ref_path_iter.next();
@@ -406,7 +406,7 @@ VisitPathEnds::visitGatedClkEnd(const Pin *pin,
       Vertex *clk_vertex = graph_->pinLoadVertex(clk_pin);
       LogicValue active_value =
 	sdc_->clockGatingActiveValue(clk_pin, pin);
-      RiseFall *clk_rf =
+      const RiseFall *clk_rf =
 	// Clock active value specified by set_clock_gating_check
 	// overrides the library cell function active value.
 	gated_clk->gatedClkActiveTrans((active_value == LogicValue::unknown) ?
@@ -425,7 +425,7 @@ VisitPathEnds::visitGatedClkEnd(const Pin *pin,
 	    && !path->clkInfo(this)->isGenClkSrcPath()
 	    && !sdc_->clkStopPropagation(pin, clk)
 	    && clk_vertex->hasDownstreamClkPin()) {
-	  TimingRole *check_role = (min_max == MinMax::max())
+	  const TimingRole *check_role = (min_max == MinMax::max())
 	    ? TimingRole::gatedClockSetup()
 	    : TimingRole::gatedClockHold();
 	  float margin = clockGatingMargin(clk, clk_pin,
@@ -536,7 +536,7 @@ VisitPathEnds::visitDataCheckEnd1(DataCheck *check,
 				  const PathAnalysisPt *clk_ap,
 				  const Pin *from_pin,
 				  Vertex *from_vertex,
-				  RiseFall *from_rf,
+				  const RiseFall *from_rf,
 				  bool filtered,
 				  PathEndVisitor *visitor,
 				  bool &is_constrained)

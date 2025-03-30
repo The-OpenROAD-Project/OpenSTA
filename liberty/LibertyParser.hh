@@ -48,11 +48,11 @@ class LibertyScanner;
 typedef Vector<LibertyStmt*> LibertyStmtSeq;
 typedef Vector<LibertyGroup*> LibertyGroupSeq;
 typedef Vector<LibertyAttr*> LibertyAttrSeq;
-typedef Map<const char *, LibertyAttr*, CharPtrLess> LibertyAttrMap;
-typedef Map<const char *, LibertyDefine*, CharPtrLess> LibertyDefineMap;
+typedef Map<string, LibertyAttr*> LibertyAttrMap;
+typedef Map<string, LibertyDefine*> LibertyDefineMap;
 typedef Vector<LibertyAttrValue*> LibertyAttrValueSeq;
-typedef Map<const char *, float, CharPtrLess> LibertyVariableMap;
-typedef Map<const char*,LibertyGroupVisitor*,CharPtrLess>LibertyGroupVisitorMap;
+typedef Map<string, float> LibertyVariableMap;
+typedef Map<string, LibertyGroupVisitor*>LibertyGroupVisitorMap;
 typedef LibertyAttrValueSeq::Iterator LibertyAttrValueIterator;
 typedef Vector<LibertyGroup*> LibertyGroupSeq;
 
@@ -88,7 +88,7 @@ public:
                                int line);
   LibertyAttrValue *makeStringAttrValue(char *value);
   LibertyAttrValue *makeFloatAttrValue(float value);
-  LibertyStmt *makeVariable(char *var,
+  LibertyStmt *makeVariable(const char *var,
                             float value,
                             int line);
 
@@ -103,7 +103,7 @@ private:
 class LibertyStmt
 {
 public:
-  explicit LibertyStmt(int line);
+  LibertyStmt(int line);
   virtual ~LibertyStmt() {}
   int line() const { return line_; }
   virtual bool isGroup() const { return false; }
@@ -126,7 +126,7 @@ public:
 	       int line);
   virtual ~LibertyGroup();
   virtual bool isGroup() const { return true; }
-  const char *type() const { return type_; }
+  const char *type() const { return type_.c_str(); }
   // First param as a string.
   const char *firstName();
   // Second param as a string.
@@ -143,7 +143,7 @@ public:
 protected:
   void parseNames(LibertyAttrValueSeq *values);
 
-  const char *type_;
+  string type_;
   LibertyAttrValueSeq *params_;
   LibertyAttrSeq *attrs_;
   LibertyAttrMap *attr_map_;
@@ -154,13 +154,13 @@ protected:
 class LibertySubgroupIterator : public LibertyGroupSeq::Iterator
 {
 public:
-  explicit LibertySubgroupIterator(LibertyGroup *group);
+  LibertySubgroupIterator(LibertyGroup *group);
 };
 
 class LibertyAttrIterator : public LibertyAttrSeq::Iterator
 {
 public:
-  explicit LibertyAttrIterator(LibertyGroup *group);
+  LibertyAttrIterator(LibertyGroup *group);
 };
 
 // Abstract base class for attributes.
@@ -169,8 +169,7 @@ class LibertyAttr : public LibertyStmt
 public:
   LibertyAttr(const char *name,
 	      int line);
-  virtual ~LibertyAttr();
-  const char *name() const { return name_; }
+  const char *name() const { return name_.c_str(); }
   virtual bool isAttribute() const { return true; }
   virtual bool isSimple() const = 0;
   virtual bool isComplex() const = 0;
@@ -178,7 +177,7 @@ public:
   virtual LibertyAttrValue *firstValue() = 0;
 
 protected:
-  const char *name_;
+  string name_;
 };
 
 // Abstract base class for simple attributes.
@@ -232,21 +231,22 @@ public:
 class LibertyStringAttrValue : public LibertyAttrValue
 {
 public:
-  explicit LibertyStringAttrValue(const char *value);
-  virtual ~LibertyStringAttrValue();
+  LibertyStringAttrValue(const char *value);
+  virtual ~LibertyStringAttrValue() {}
   virtual bool isFloat() { return false; }
   virtual bool isString() { return true; }
   virtual float floatValue();
   virtual const char *stringValue();
 
 private:
-  const char *value_;
+  string value_;
 };
 
 class LibertyFloatAttrValue : public LibertyAttrValue
 {
 public:
-  explicit LibertyFloatAttrValue(float value);
+  LibertyFloatAttrValue(float value);
+  virtual ~LibertyFloatAttrValue() {}
   virtual bool isString() { return false; }
   virtual bool isFloat() { return true; }
   virtual float floatValue();
@@ -266,14 +266,13 @@ public:
 		LibertyGroupType group_type,
 		LibertyAttrType value_type,
 		int line);
-  virtual ~LibertyDefine();
   virtual bool isDefine() const { return true; }
-  const char *name() const { return name_; }
+  const char *name() const { return name_.c_str(); }
   LibertyGroupType groupType() const { return group_type_; }
   LibertyAttrType valueType() const { return value_type_; }
 
 private:
-  const char *name_;
+  string name_;
   LibertyGroupType group_type_;
   LibertyAttrType value_type_;
 };
@@ -288,15 +287,12 @@ public:
   LibertyVariable(const char *var,
 		  float value,
 		  int line);
-  // var_ is NOT deleted by ~LibertyVariable because the group
-  // variable map ref's it.
-  virtual ~LibertyVariable();
   virtual bool isVariable() const { return true; }
-  const char *variable() const { return var_; }
+  const char *variable() const { return var_.c_str(); }
   float value() const { return value_; }
 
 private:
-  const char *var_;
+  string var_;
   float value_;
 };
 

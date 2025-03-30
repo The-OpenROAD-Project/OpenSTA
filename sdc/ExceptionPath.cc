@@ -320,7 +320,7 @@ ExceptionPath::fromThruToString(const Network *network) const
   string str;
   if (min_max_ != MinMaxAll::all()) {
     str += " -";
-    str += min_max_->asString();
+    str += min_max_->to_string();
   }
 
   if (from_)

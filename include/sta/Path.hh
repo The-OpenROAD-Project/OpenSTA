@@ -61,7 +61,7 @@ public:
        bool is_enum,
        const StaState *sta);
   ~Path();
-  const char *name(const StaState *sta) const;
+  string to_string(const StaState *sta) const;
   bool isNull() const;
   // prev_path null 
   void init(Vertex *vertex,

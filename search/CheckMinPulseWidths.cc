@@ -245,12 +245,12 @@ visitMinPulseWidthChecks(MinPulseWidthCheckVisitor *visitor)
 {
   Graph *graph = sta_->graph();
   Debug *debug = sta_->debug();
-  Network *sdc_network = sta_->network();
   VertexIterator vertex_iter(graph);
   while (vertex_iter.hasNext()) {
     Vertex *vertex = vertex_iter.next();
     if (isClkEnd(vertex, graph)) {
-      debugPrint(debug, "mpw", 1, "check mpw %s", vertex->name(sdc_network));
+      debugPrint(debug, "mpw", 1, "check mpw %s",
+                 vertex->to_string(sta_).c_str());
       visitMinPulseWidthChecks(vertex, visitor);
     }
   }
@@ -343,16 +343,16 @@ MinPulseWidthCheck::closePath(const StaState *sta) const
 		open_tag->states(),
 		false, sta);
   debugPrint(sta->debug(), "mpw", 3, " open  %s",
-             open_tag->asString(sta));
+             open_tag->to_string(sta).c_str());
   debugPrint(sta->debug(), "mpw", 3, " close %s",
-             close_tag.asString(sta));
+             close_tag.to_string(sta).c_str());
   VertexPathIterator close_iter(open_path_->vertex(sta), close_rf,
 				close_ap, sta);
   while (close_iter.hasNext()) {
     Path *close_path = close_iter.next();
     if (tagMatchNoPathAp(close_path->tag(sta), &close_tag)) {
       debugPrint(sta->debug(), "mpw", 3, " match %s",
-                 close_path->tag(sta)->asString(sta));
+                 close_path->tag(sta)->to_string(sta).c_str());
       return close_path;
     }
   }

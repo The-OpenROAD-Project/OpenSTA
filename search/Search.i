@@ -313,11 +313,9 @@ void
 report_loops()
 {
   Sta *sta = Sta::sta();
-  Network *network = sta->network();
-  Graph *graph = sta->ensureGraph();
   Report *report = sta->report();
   for (GraphLoop *loop : *sta->graphLoops()) {
-    loop->report(report, network, graph);
+    loop->report(sta);
     report->reportLineString("");
   }
 }
@@ -1258,7 +1256,7 @@ Slack slack() { return self->slack(Sta::sta()); }
 ArcDelay margin() { return self->margin(Sta::sta()); }
 Required data_required_time() { return self->requiredTimeOffset(Sta::sta()); }
 Arrival data_arrival_time() { return self->dataArrivalTimeOffset(Sta::sta()); }
-TimingRole *check_role() { return self->checkRole(Sta::sta()); }
+const TimingRole *check_role() { return self->checkRole(Sta::sta()); }
 MinMax *min_max() { return const_cast<MinMax*>(self->minMax(Sta::sta())); }
 float source_clk_offset() { return self->sourceClkOffset(Sta::sta()); }
 Arrival source_clk_latency() { return self->sourceClkLatency(Sta::sta()); }
@@ -1315,11 +1313,11 @@ pin()
   return self->pin(sta);
 }
 
-const char *
+string
 tag()
 {
   Sta *sta = Sta::sta();
-  return self->tag(sta)->asString(sta);
+  return self->tag(sta)->to_string(sta);
 }
 
 // mea_opt3

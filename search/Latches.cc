@@ -251,7 +251,7 @@ Latches::latchEnableOtherPath(const Path *path,
   const ClockEdge *clk_edge = path->clkEdge(this);
   const ClockEdge *other_clk_edge =
     path->clkInfo(this)->isPulseClk() ? clk_edge:clk_edge->opposite();
-  RiseFall *other_rf = path->transition(this)->opposite();
+  const RiseFall *other_rf = path->transition(this)->opposite();
   VertexPathIterator path_iter(vertex, other_rf, tgt_clk_path_ap, this);
   while (path_iter.hasNext()) {
     Path *path = path_iter.next();
@@ -366,7 +366,7 @@ Latches::latchOutArrival(const Path *data_path,
 				    en_clk_info->uncertainties(),
 				    path_ap,
 				    crpr_clk_path);
-	     RiseFall *q_rf = d_q_arc->toEdge()->asRiseFall();
+	     const RiseFall *q_rf = d_q_arc->toEdge()->asRiseFall();
 	     ExceptionStateSet *states = nullptr;
 	     // Latch data pin is a valid exception -from pin.
 	     if (sdc_->exceptionFromStates(data_path->pin(this),

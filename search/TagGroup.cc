@@ -120,7 +120,7 @@ pathIndexMapReport(const PathIndexMap *path_index_map,
   for (auto const [tag, path_index] : *path_index_map)
     report->reportLine(" %2zu %s",
                        path_index,
-                       tag->asString(sta));
+                       tag->to_string(sta).c_str());
   report->reportBlankLine();
 }
 

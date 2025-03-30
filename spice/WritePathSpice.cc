@@ -222,9 +222,9 @@ WritePathSpice::writeHeader()
   const Path *start_path = path_expanded_.startPath();
   string title = stdstrPrint("Path from %s %s to %s %s",
                              network_->pathName(start_path->pin(this)),
-                             start_path->transition(this)->asString(),
+                             start_path->transition(this)->to_string().c_str(),
                              network_->pathName(path_->pin(this)),
-                             path_->transition(this)->asString());
+                             path_->transition(this)->to_string().c_str());
   float max_time = maxTime();
   float time_step = 1e-13;
   writeHeader(title, max_time, time_step);
@@ -364,7 +364,7 @@ WritePathSpice::writeClkWaveform()
   const Clock *clk = clk_edge->clock();
   float period = clk->period();
   float time_offset = clkWaveformTimeOffset(clk);
-  RiseFall *rf0, *rf1;
+  const RiseFall *rf0, *rf1;
   float volt0;
   if (clk_edge->time() < period) {
     rf0 = RiseFall::rise();

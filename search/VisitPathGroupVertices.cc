@@ -243,7 +243,7 @@ PathGroupPathVisitor::visit(Vertex *vertex)
   visitFanoutPaths(vertex);
   if (vertex_matches_) {
     debugPrint(debug_, "visit_path_group", 1, "visit %s",
-               vertex->name(network_));
+               vertex->to_string(this).c_str());
     visitor_->visit(vertex);
     bkwd_iter_->enqueueAdjacentVertices(vertex);
   }
@@ -272,10 +272,10 @@ PathGroupPathVisitor::visitFromToPath(const Pin *,
     if (!to_path.isNull()) {
       if (matching_paths->hasKey(&to_path)) {
 	debugPrint(debug_, "visit_path_group", 2, "match %s %s -> %s %s",
-                   from_vertex->name(network_),
-                   from_tag->asString(this),
-                   to_vertex->name(network_),
-                   to_tag->asString(this));
+                   from_vertex->to_string(this).c_str(),
+                   from_tag->to_string(this).c_str(),
+                   to_vertex->to_string(this).c_str(),
+                   to_tag->to_string(this).c_str());
 	fromMatches(from_vertex, from_tag);
       }
     }
@@ -287,10 +287,10 @@ PathGroupPathVisitor::visitFromToPath(const Pin *,
 	    && matching_paths->hasKey(to_path)) {
 	  debugPrint(debug_, "visit_path_group", 2, 
                      "match crpr %s %s -> %s %s",
-                     from_vertex->name(network_),
-                     from_tag->asString(this),
-                     to_vertex->name(network_),
-                     to_tag->asString(this));
+                     from_vertex->to_string(this).c_str(),
+                     from_tag->to_string(this).c_str(),
+                     to_vertex->to_string(this).c_str(),
+                     to_tag->to_string(this).c_str());
 	  fromMatches(from_vertex, from_tag);
 	}
       }

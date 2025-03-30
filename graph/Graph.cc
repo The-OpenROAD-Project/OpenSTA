@@ -206,7 +206,7 @@ Graph::makePortInstanceEdges(const Instance *inst,
 	// Vertices can be missing from the graph if the pins
 	// are power or ground.
 	if (from_vertex) {
-          TimingRole *role = arc_set->role();
+          const TimingRole *role = arc_set->role();
   	  bool is_check = role->isTimingCheckBetween();
 	  if (to_bidirect_drvr_vertex && !is_check)
 	    makeEdge(from_vertex, to_bidirect_drvr_vertex, arc_set);
@@ -993,17 +993,25 @@ Vertex::setObjectIdx(ObjectIdx idx)
   object_idx_ = idx;
 }
 
-const char *
-Vertex::name(const Network *network) const
+string
+Vertex::to_string(const StaState *sta) const
 {
+  const Network *network = sta->network();
   if (network->direction(pin_)->isBidirect()) {
-    const char *pin_name = network->pathName(pin_);
-    return stringPrintTmp("%s %s",
-			  pin_name,
-			  is_bidirect_drvr_ ? "driver" : "load");
+    string str = network->pathName(pin_);
+    str += ' ';
+    str += is_bidirect_drvr_ ? "driver" : "load";
+    return str;
   }
   else
     return network->pathName(pin_);
+}
+
+const char *
+Vertex::name(const Network *network) const
+{
+  string name = to_string(network);
+  return makeTmpString(name);  
 }
 
 bool
@@ -1245,6 +1253,16 @@ Edge::setObjectIdx(ObjectIdx idx)
   object_idx_ = idx;
 }
 
+string
+Edge::to_string(const StaState *sta) const
+{
+  const Graph *graph = sta->graph();
+  string str = from(graph)->to_string(sta);
+  str += " -> ";
+  str += to(graph)->to_string(sta);
+  return str;
+}
+
 void
 Edge::setTimingArcSet(TimingArcSet *set)
 {
@@ -1310,7 +1328,7 @@ Edge::setDelayAnnotationIsIncremental(bool is_incr)
   delay_annotation_is_incremental_ = is_incr;
 }
 
-TimingRole *
+const TimingRole *
 Edge::role() const
 {
   return arc_set_->role();
@@ -1344,7 +1362,7 @@ Edge::setSimTimingSense(TimingSense sense)
 bool
 Edge::isDisabledConstraint() const
 {
-  TimingRole *role = arc_set_->role();
+  const TimingRole *role = arc_set_->role();
   bool is_wire = role->isWire();
   return is_disabled_constraint_
     || arc_set_->isDisabledConstraint()

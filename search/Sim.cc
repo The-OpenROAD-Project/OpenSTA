@@ -78,7 +78,7 @@ Sim::functionSense(const FuncExpr *expr,
 {
   debugPrint(debug_, "sim", 4, "find sense pin %s %s",
              network_->pathName(input_pin),
-             expr->asString());
+             expr->to_string().c_str());
   bool increasing, decreasing;
   {
     LockGuard lock(bdd_lock_);
@@ -103,7 +103,7 @@ Sim::functionSense(const FuncExpr *expr,
     sense = TimingSense::negative_unate;
   else
     sense = TimingSense::non_unate;
-  debugPrint(debug_, "sim", 4, " %s", timingSenseString(sense));
+  debugPrint(debug_, "sim", 4, " %s", to_string(sense));
   return sense;
 }
 
@@ -586,7 +586,7 @@ Sim::evalInstance(const Instance *inst,
               value = evalExpr(expr, inst);
               debugPrint(debug_, "sim", 2, " %s tri_en=1 %s = %c",
                          port->name(),
-                         expr->asString(),
+                         expr->to_string().c_str(),
                          logicValueString(value));
             }
           }
@@ -601,14 +601,14 @@ Sim::evalInstance(const Instance *inst,
                 value = logicNot(value);
               debugPrint(debug_, "sim", 2, " %s seq %s = %c",
                          port->name(),
-                         expr->asString(),
+                         expr->to_string().c_str(),
                          logicValueString(value));
             }
             else {
               value = evalExpr(expr, inst);
               debugPrint(debug_, "sim", 2, " %s %s = %c",
                          port->name(),
-                         expr->asString(),
+                         expr->to_string().c_str(),
                          logicValueString(value));
             }
           }

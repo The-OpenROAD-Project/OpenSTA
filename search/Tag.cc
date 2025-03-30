@@ -89,16 +89,16 @@ Tag::~Tag()
     delete states_;
 }
 
-const char *
-Tag::asString(const StaState *sta) const
+string
+Tag::to_string(const StaState *sta) const
 {
-  return asString(true, true, sta);
+  return to_string(true, true, sta);
 }
 
-const char *
-Tag::asString(bool report_index,
-	      bool report_rf_min_max,
-	      const StaState *sta) const
+string
+Tag::to_string(bool report_index,
+               bool report_rf_min_max,
+               const StaState *sta) const
 {
   const Network *network = sta->network();
   const Corners *corners = sta->corners();
@@ -111,9 +111,9 @@ Tag::asString(bool report_index,
     const RiseFall *rf = transition();
     PathAnalysisPt *path_ap = corners->findPathAnalysisPt(path_ap_index_);
     result += " ";
-    result += rf->asString();
+    result += rf->to_string().c_str();
     result += " ";
-    result += path_ap->pathMinMax()->asString();
+    result += path_ap->pathMinMax()->to_string();
     result += "/";
     result += std::to_string(path_ap_index_);
   }
@@ -178,10 +178,7 @@ Tag::asString(bool report_index,
       }
     }
   }
-
-  char *tmp = makeTmpString(result.size() + 1);
-  strcpy(tmp, result.c_str());
-  return tmp;
+  return result;
 }
 
 const RiseFall *

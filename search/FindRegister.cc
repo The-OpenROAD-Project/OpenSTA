@@ -76,7 +76,7 @@ FindRegClkPred::searchFrom(const Vertex *from_vertex)
 bool
 FindRegClkPred::searchThru(Edge *edge)
 {
-  TimingRole *role = edge->role();
+  const TimingRole *role = edge->role();
   return (role->isWire()
 	  || role == TimingRole::combinational())
     && SearchPred1::searchThru(edge);
@@ -281,13 +281,13 @@ FindRegVisitor::findInferedSequential(LibertyCell *cell,
   const RiseFall *clk_rf1 = clk_rf->asRiseFall();
   for (TimingArcSet *arc_set : cell->timingArcSets()) {
     TimingArc *arc = *arc_set->arcs().begin();
-    RiseFall *arc_clk_rf = arc->fromEdge()->asRiseFall();
+    const RiseFall *arc_clk_rf = arc->fromEdge()->asRiseFall();
     bool tr_matches = (clk_rf == RiseFallBoth::riseFall()
 		       || (arc_clk_rf == clk_rf1
 			   && clk_sense == TimingSense::positive_unate)
 		       || (arc_clk_rf == clk_rf1->opposite()
 			   && clk_sense == TimingSense::negative_unate));
-    TimingRole *role = arc_set->role();
+    const TimingRole *role = arc_set->role();
     if (tr_matches
 	&& ((role == TimingRole::regClkToQ()
 	     && edge_triggered)
@@ -306,7 +306,7 @@ FindRegVisitor::hasTimingCheck(LibertyCell *cell,
 			       LibertyPort *d)
 {
   for (TimingArcSet *arc_set : cell->timingArcSets(clk, d)) {
-    TimingRole *role = arc_set->role();
+    const TimingRole *role = arc_set->role();
     if (role->isTimingCheck())
       return true;
   }
@@ -542,7 +542,7 @@ FindRegClkPins::matchPin(Pin *pin)
   LibertyPort *port = network_->libertyPort(pin);
   LibertyCell *cell = port->libertyCell();
   for (TimingArcSet *arc_set : cell->timingArcSets(port, nullptr)) {
-    TimingRole *role = arc_set->role();
+    const TimingRole *role = arc_set->role();
     if (role == TimingRole::regClkToQ()
         || role == TimingRole::latchEnToQ())
       return true;
@@ -598,7 +598,7 @@ FindRegAsyncPins::matchPin(Pin *pin)
   LibertyPort *port = network_->libertyPort(pin);
   LibertyCell *cell = port->libertyCell();
   for (TimingArcSet *arc_set : cell->timingArcSets(port, nullptr)) {
-    TimingRole *role = arc_set->role();
+    const TimingRole *role = arc_set->role();
     if (role == TimingRole::regSetClr())
       return true;
   }
@@ -645,7 +645,7 @@ FindRegOutputPins::matchPin(Pin *pin)
   LibertyPort *port = network_->libertyPort(pin);
   LibertyCell *cell = port->libertyCell();
   for (TimingArcSet *arc_set : cell->timingArcSets(nullptr, port)) {
-    TimingRole *role = arc_set->role();
+    const TimingRole *role = arc_set->role();
     if (role == TimingRole::regClkToQ()
 	|| role == TimingRole::latchEnToQ()
 	|| role == TimingRole::latchDtoQ())

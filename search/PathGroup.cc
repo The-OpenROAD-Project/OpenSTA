@@ -716,7 +716,6 @@ void
 MakePathEndsAll::vertexEnd(Vertex *)
 {
   Debug *debug = sta_->debug();
-  Network *network = sta_->network();
   PathGroupEndsMap::Iterator group_iter(ends_);
   while (group_iter.hasNext()) {
     PathGroup *group;
@@ -734,9 +733,9 @@ MakePathEndsAll::vertexEnd(Vertex *)
 	// PathEnum will peel the others.
 	if (!unique_ends.hasKey(path_end)) {
 	  debugPrint(debug, "path_enum", 5, "insert %s %s %s %d",
-                     path_end->vertex(sta_)->name(network),
+                     path_end->vertex(sta_)->to_string(sta_).c_str(),
                      path_end->typeName(),
-                     path_end->transition(sta_)->asString(),
+                     path_end->transition(sta_)->to_string().c_str(),
                      path_end->path()->tag(sta_)->index());
 	  // Give the group a copy of the path end because
 	  // it may delete it during pruning.
@@ -749,9 +748,9 @@ MakePathEndsAll::vertexEnd(Vertex *)
 	}
 	else
 	  debugPrint(debug, "path_enum", 5, "prune %s %s %s %d",
-                     path_end->vertex(sta_)->name(network),
+                     path_end->vertex(sta_)->to_string(sta_).c_str(),
                      path_end->typeName(),
-                     path_end->transition(sta_)->asString(),
+                     path_end->transition(sta_)->to_string().c_str(),
                      path_end->path()->tag(sta_)->index());
       }
       // Clear ends for next vertex.

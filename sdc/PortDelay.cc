@@ -81,7 +81,7 @@ PortDelay::setNetworkLatencyIncluded(bool included)
   network_latency_included_ = included;
 }
 
-RiseFall *
+const RiseFall *
 PortDelay::refTransition() const
 {
   // Reference pin transition is the clock transition.

@@ -83,7 +83,7 @@ enum class TimingType {
 };
 
 const char *
-timingTypeString(TimingType type);
+to_string(TimingType type);
 TimingType
 findTimingType(const char *string);
 bool
@@ -146,7 +146,7 @@ public:
 	       LibertyPort *from,
 	       LibertyPort *to,
 	       LibertyPort *related_out,
-	       TimingRole *role,
+	       const TimingRole *role,
 	       TimingArcAttrsPtr attrs);
   virtual ~TimingArcSet();
   LibertyCell *libertyCell() const;
@@ -154,7 +154,7 @@ public:
   LibertyPort *to() const { return to_; }
   bool isWire() const;
   LibertyPort *relatedOut() const { return related_out_; }
-  TimingRole *role() const { return role_; };
+  const TimingRole *role() const { return role_; };
   TimingSense sense() const;
   // Rise/fall if the arc set is rising_edge or falling_edge.
   const RiseFall *isRisingFallingEdge() const;
@@ -170,7 +170,7 @@ public:
   TimingArcIndex addTimingArc(TimingArc *arc);
   void deleteTimingArc(TimingArc *arc);
   TimingArc *findTimingArc(unsigned arc_index);
-  void setRole(TimingRole *role);
+  void setRole(const TimingRole *role);
   FuncExpr *cond() const { return attrs_->cond(); }
   // Cond default is the timing arcs with no condition when there are
   // other conditional timing arcs between the same pins.
@@ -205,13 +205,13 @@ public:
   static int wireArcCount() { return 2; }
 
 protected:
-  TimingArcSet(TimingRole *role,
+  TimingArcSet(const TimingRole *role,
                TimingArcAttrsPtr attrs);
 
   LibertyPort *from_;
   LibertyPort *to_;
   LibertyPort *related_out_;
-  TimingRole *role_;
+  const TimingRole *role_;
   // TimingArcAttrs are shared by TimingArcSets in a bus with timing groups. 
   TimingArcAttrsPtr attrs_;
   TimingArcSeq arcs_;
@@ -232,15 +232,15 @@ class TimingArc
 {
 public:
   TimingArc(TimingArcSet *set,
-	    Transition *from_rf,
-	    Transition *to_rf,
+	    const Transition *from_rf,
+	    const Transition *to_rf,
 	    TimingModel *model);
   ~TimingArc();
   LibertyPort *from() const { return set_->from(); }
   LibertyPort *to() const { return set_->to(); }
-  Transition *fromEdge() const { return from_rf_; }
-  Transition *toEdge() const { return to_rf_; }
-  TimingRole *role() const { return set_->role(); }
+  const Transition *fromEdge() const { return from_rf_; }
+  const Transition *toEdge() const { return to_rf_; }
+  const TimingRole *role() const { return set_->role(); }
   TimingArcSet *set() const { return set_; }
   TimingSense sense() const;
   // Index in TimingArcSet.
@@ -266,8 +266,8 @@ protected:
 		      TimingModel *scaled_model);
 
   TimingArcSet *set_;
-  Transition *from_rf_;
-  Transition *to_rf_;
+  const Transition *from_rf_;
+  const Transition *to_rf_;
   unsigned index_;
   TimingModel *model_;
   ScaledTimingModelMap *scaled_models_;

@@ -56,7 +56,7 @@ public:
   bool isPropagated() const { return is_propagated_; }
   const Pin *genClkSrc() const { return gen_clk_src_; }
   bool isPulseClk() const { return is_pulse_clk_; }
-  RiseFall *pulseClkSense() const;
+  const RiseFall *pulseClkSense() const;
   int pulseClkSenseTrIndex() const { return pulse_clk_sense_; }
   float latency() const { return latency_; }
   Arrival &insertion() { return insertion_; }

@@ -220,6 +220,14 @@ makeTmpString(size_t length)
   return tmp_str;
 }
 
+char *
+makeTmpString(string &str)
+{
+  char *tmp = makeTmpString(str.length() + 1);
+  strcpy(tmp, str.c_str());
+  return tmp;
+}
+
 void
 stringDeleteCheck(const char *str)
 {
