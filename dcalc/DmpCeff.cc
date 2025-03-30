@@ -1600,17 +1600,18 @@ DmpCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
 				  const DcalcAnalysisPt *dcalc_ap,
 				  int digits)
 {
-  gateDelay(drvr_pin, arc, in_slew, load_cap, parasitic, load_pin_index_map, dcalc_ap);
+  ArcDcalcResult dcalc_result = gateDelay(drvr_pin, arc, in_slew, load_cap,
+                                          parasitic, load_pin_index_map, dcalc_ap);
   GateTableModel *model = arc->gateTableModel(dcalc_ap);
   float c_eff = 0.0;
   string result;
+  const LibertyCell *drvr_cell = arc->to()->libertyCell();
+  const LibertyLibrary *drvr_library = drvr_cell->libertyLibrary();
+  const Units *units = drvr_library->units();
+  const Unit *cap_unit = units->capacitanceUnit();
+  const Unit *res_unit = units->resistanceUnit();
   if (parasitic && dmp_alg_) {
     c_eff = dmp_alg_->ceff();
-    const LibertyCell *drvr_cell = arc->to()->libertyCell();
-    const LibertyLibrary *drvr_library = drvr_cell->libertyLibrary();
-    const Units *units = drvr_library->units();
-    const Unit *cap_unit = units->capacitanceUnit();
-    const Unit *res_unit = units->resistanceUnit();
     float c2, rpi, c1;
     parasitics_->piModel(parasitic, c2, rpi, c1);
     result += "Pi model C2=";
@@ -1626,9 +1627,13 @@ DmpCeffDelayCalc::reportGateDelay(const Pin *drvr_pin,
   else
     c_eff = load_cap;
   if (model) {
+    const Unit *time_unit = units->timeUnit();
     float in_slew1 = delayAsFloat(in_slew);
     result += model->reportGateDelay(pinPvt(drvr_pin, dcalc_ap), in_slew1, c_eff,
                                      pocv_enabled_, digits);
+    result += "Driver waveform slew = ";
+    result += time_unit->asString(dcalc_result.drvrSlew(), digits);
+    result += '\n';
   }
   return result;
 }
