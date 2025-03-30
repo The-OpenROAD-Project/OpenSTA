@@ -188,26 +188,40 @@ proc define_hidden_cmd_args { cmd arglist } {
 ################################################################
 
 proc sta_warn { msg_id msg } {
-  variable sdc_file
-  variable sdc_line
-  if { [info exists sdc_file] } {
-    report_file_warn $msg_id [file tail $sdc_file] $sdc_line $msg
+  if { [sdc_filename] != "" } {
+    report_file_warn $msg_id [file tail [sdc_filename]] [sdc_file_line] $msg
   } else {
     report_warn $msg_id $msg
   }
 }
 
 proc sta_error { msg_id msg } {
-  variable sdc_file
-  variable sdc_line
-
   if { ! [is_suppressed $msg_id] } {
-    if { [info exists sdc_file] } {
-      error "Error: [file tail $sdc_file] line $sdc_line, $msg"
+    if { [sdc_filename] != "" } {
+      error "Error: [file tail [sdc_filename]] line [sdc_file_line], $msg"
     } else {
       error "Error: $msg"
     }
   }
+}
+
+proc sdc_filename {} {
+  return [info script]
+}
+
+proc sdc_file_line { } {
+  variable include_line
+  for { set fr [info frame] } { $fr >= 0 } { incr fr -1 } {
+    set type [dict get [info frame $fr] type]
+    if { $type == "source" } {
+      return [dict get [info frame $fr] line]
+    }
+    if { $type == "proc" \
+           && [lindex [dict get [info frame $fr] cmd] 0] == "include_file" } {
+      return $include_line
+    }
+  }
+  return 1
 }
 
 proc sta_warn_error { msg_id warn_error msg } {
@@ -347,6 +361,112 @@ proc check_percent { cmd_arg arg } {
   }
 }
 
+################################################################
+
+set ::sta_continue_on_error 0
+
+define_cmd_args "include" \
+  {[-echo] filename [> filename] [>> filename]}
+
+# Tcl "source" command analog to support -echo and -verbose return values.
+proc_redirect include  {
+  parse_key_args "include" args keys {-encoding} flags {-echo -verbose}
+  if { [llength $args] != 1 } {
+    cmd_usage_error "include"
+  }
+  set echo [info exists flags(-echo)]
+  set verbose [info exists flags(-verbose)]
+  set filename [file nativename [lindex $args 0]]
+  include_file $filename $echo $verbose
+}
+
+proc include_file { filename echo verbose } {
+  global sta_continue_on_error
+  variable include_line
+  
+  set prev_filename [info script]
+  if { [info exists include_line] } {
+    set prev_line $include_line
+  }
+  try {
+    # set filename/line for sta_warn/error
+    info script $filename
+    set include_line 1
+    if [catch {open $filename r} stream] {
+      sta_error 340 "cannot open '$filename'."
+    } else {
+      if { [file extension $filename] == ".gz" } {
+        if { [info commands zlib] == "" } {
+          sta_error 339 "tcl version > 8.6 required for zlib support."
+        }
+        zlib push gunzip $stream
+      }
+      set cmd ""
+      set error {}
+      while {![eof $stream]} {
+        gets $stream line
+        if { $line != "" } {
+          if {$echo} {
+            report_line $line
+          }
+        }
+        append cmd $line "\n"
+        if { [string index $line end] != "\\" \
+               && [info complete $cmd] } {
+          set error {}
+          set error_code [catch {uplevel \#0 $cmd} result]
+          # cmd consumed
+          set cmd ""
+          # Flush results printed outside tcl to stdout/stderr.
+          fflush
+          switch $error_code {
+            0 { if { $verbose && $result != "" } { report_line $result } }
+            1 { set error $result }
+            2 { set error {invoked "return" outside of a proc.} }
+            3 { set error {invoked "break" outside of a loop.} }
+            4 { set error {invoked "continue" outside of a loop.} }
+          }
+          if { $error != {} } {
+            if { $sta_continue_on_error } {
+              # Only prepend error message with file/line once.
+              if { [string first "Error" $error] == 0 } {
+                report_line $error
+              } else {
+                report_line "Error: [file tail $filename], $include_line $error"
+              }
+              set error {}
+            } else {
+              break
+            }
+          }
+        }
+        incr include_line
+      }
+      close $stream
+      if { $cmd != {} } {
+        sta_error 341 "incomplete command at end of file."
+      }
+      if { $error != {} } {
+        # Only prepend error message with file/line once.
+        if { [string first "Error" $error] == 0 } {
+          error $error
+        } else {
+          error "Error: [file tail $filename], $include_line $error"
+        }
+      }
+    }
+  } finally {
+    if { $prev_filename != "" } {
+      info script $prev_filename
+    }
+    if { [info exists prev_line] } {
+      set include_line $prev_line
+    } else {
+      unset include_line
+    }
+  }
+}
+
 # sta namespace end
 }
 
@@ -362,7 +482,7 @@ proc sta_unknown { args } {
   if { [llength $args] == 1 && [is_bus_subscript $args] } {
     return "\[$args\]"
   }
-
+  
   # Command name abbreviation support.
   set ret [catch {set cmds [info commands $name*]} msg]
   if {[string equal $name "::"]} {
@@ -371,7 +491,7 @@ proc sta_unknown { args } {
   if { $ret != 0 } {
     return -code $ret -errorcode $errorCode \
       "Error in unknown while checking if \"$name\" is a unique command abbreviation: $msg."
-    }
+  }
   if { [llength $cmds] == 1 } {
     return [uplevel 1 [lreplace $args 0 0 $cmds]]
   }

@@ -43,131 +43,7 @@ proc_redirect read_sdc {
   set echo [info exists flags(-echo)]
   set filename [file nativename [lindex $args 0]]
   set prev_filename [info script]
-  try {
-    info script $filename
-    source_ $filename $echo 0
-  } finally {
-    info script $prev_filename
-  }
-}
-
-################################################################
-
-# The builtin Tcl "source" command is redefined by sta.
-# This rename provides a mechanism to refer to the original TCL
-# command.
-# Protected so this file can be reloaded without blowing up.
-if { ![info exists renamed_source] } {
-  rename source builtin_source
-  set renamed_source 1
-}
-
-set ::sta_continue_on_error 0
-
-define_cmd_args "source" \
-  {[-echo] [-verbose] filename [> filename] [>> filename]}
-
-# Override source to support -echo and return codes.
-proc_redirect source {
-  parse_key_args "source" args keys {-encoding} flags {-echo -verbose}
-  if { [llength $args] != 1 } {
-    cmd_usage_error "source"
-  }
-  set echo [info exists flags(-echo)]
-  set verbose [info exists flags(-verbose)]
-  set filename [file nativename [lindex $args 0]]
-  set prev_filename [info script]
-  try {
-    info script $filename
-    source_ $filename $echo $verbose
-  } finally {
-    info script $prev_filename
-  }
-}
-
-proc source_ { filename echo verbose } {
-  global sta_continue_on_error
-  variable sdc_file
-  variable sdc_line
-  if [catch {open $filename r} stream] {
-    sta_error 340 "cannot open '$filename'."
-  } else {
-    if { [file extension $filename] == ".gz" } {
-      if { [info commands zlib] == "" } {
-        sta_error 339 "tcl version > 8.6 required for zlib support."
-      }
-      zlib push gunzip $stream
-    }
-    # Save file and line in recursive call to source.
-    if { [info exists sdc_file] } {
-      set sdc_file_save $sdc_file
-      set sdc_line_save $sdc_line
-    }
-    set sdc_file $filename
-    set sdc_line 1
-    set cmd ""
-    set error {}
-    while {![eof $stream]} {
-      gets $stream line
-      if { $line != "" } {
-	if {$echo} {
-	  report_line $line
-	}
-      }
-      append cmd $line "\n"
-      if { [string index $line end] != "\\" \
-	     && [info complete $cmd] } {
-	set error {}
-	set error_code [catch {uplevel \#0 $cmd} result]
-	# cmd consumed
-	set cmd ""
-	# Flush results printed outside tcl to stdout/stderr.
-	fflush
-	switch $error_code {
-	  0 { if { $verbose && $result != "" } { report_line $result } }
-	  1 { set error $result }
-	  2 { set error {invoked "return" outside of a proc.} }
-	  3 { set error {invoked "break" outside of a loop.} }
-	  4 { set error {invoked "continue" outside of a loop.} }
-	}
-	if { $error != {} } {
-	  if { $sta_continue_on_error } {
-	    # Only prepend error message with file/line once.
-	    if { [string first "Error" $error] == 0 } {
-	      report_line $error
-	    } else {
-	      report_line "Error: [file tail $sdc_file], $sdc_line $error"
-	    }
-            set error {}
-          } else {
-	    break
-	  }
-	}
-      }
-      incr sdc_line
-    }
-    close $stream
-    if { $cmd != {} } {
-      sta_error 341 "incomplete command at end of file."
-    }
-    set error_sdc_file $sdc_file
-    set error_sdc_line $sdc_line
-    if { [info exists sdc_file_save] } {
-      set sdc_file $sdc_file_save
-      set sdc_line $sdc_line_save
-    } else {
-      unset sdc_file
-      unset sdc_line
-    }
-    if { $error != {} } {
-      # Only prepend error message with file/line once.
-      if { [string first "Error" $error] == 0 } {
-	error $error
-      } else {
-	error "Error: [file tail $error_sdc_file], $error_sdc_line $error"
-      }
-    }
-  }
+  include_file $filename $echo 0
 }
 
 ################################################################
@@ -1355,15 +1231,8 @@ proc group_path { args } {
 }
 
 proc check_exception_pins { from to } {
-  variable sdc_file
-  variable sdc_line
-  if { [info exists sdc_file] } {
-    set file $sdc_file
-    set line $sdc_line
-  } else {
-    set file ""
-    set line 0
-  }
+  set file [sdc_filename]
+  set line [sdc_file_line]
   check_exception_from_pins $from $file $line
   check_exception_to_pins $to $file $line
 }

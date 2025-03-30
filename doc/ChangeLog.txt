@@ -3,6 +3,19 @@ OpenSTA Timing Analyzer Release Notes
 
 This file summarizes user visible changes for each release.
 
+Realase 2.6.1 2025/03/30
+-------------------------
+
+The Tcl "source" command is no longer redefined to support "-echo" and
+"-verbose" arguments and redirecton. Use the "include" command instead.
+
+ include [-echo] [-verbose] filename [> filename] [>> filename]
+  -echo echos commands as they are read
+  -verbose prints command results as they are evaluated
+  
+Unlike the Tcl source command, "include" expands filenames with tilda '~'
+and respects sta_continue_on_error.
+
 Release 2.6.0 2024/07/22
 -------------------------
 
